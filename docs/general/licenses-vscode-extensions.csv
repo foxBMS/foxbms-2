@@ -1,0 +1,10 @@
+Name;                       License;    License URL;                                                                                Latest license check
+C/C++;                      \-;         https://marketplace.visualstudio.com/items/ms-vscode.cpptools/license;                      2020-06-23
+Python;                     MIT;        https://marketplace.visualstudio.com/items/ms-python.python/license;                        2020-06-23
+ASM Code Lens;              MIT;        https://marketplace.visualstudio.com/items/maziac.asm-code-lens/license;                    2020-06-23
+LinkerScript;               MIT;        https://marketplace.visualstudio.com/items/ZixuanWang.linkerscript/license;                 2020-06-23
+Code Spell Checker;         MIT;        https://marketplace.visualstudio.com/items/streetsidesoftware.code-spell-checker/license;   2020-06-23
+YAML;                       MIT;        https://marketplace.visualstudio.com/items/redhat.vscode-yaml/license;                      2020-06-23
+Better TOML;                MIT;        https://marketplace.visualstudio.com/items/bungcip.better-toml/license;                     2020-06-23
+Test Explorer UI;           MIT;        https://marketplace.visualstudio.com/items/hbenl.vscode-test-explorer/license;              2020-06-23
+Ceedling Test Explorer;     MIT;        https://marketplace.visualstudio.com/items/numaru.vscode-ceedling-test-adapter/license;     2020-06-23

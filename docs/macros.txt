@@ -1,0 +1,124 @@
+.. include:: <isonum.txt>
+
+.. |timestamp| date:: %Y-%m-%d %H:%M:%S
+
+.. |foxbms| replace:: foxBMS 2
+.. |version_foxbms| replace:: ``1.0.0``
+.. |github_foxbms| replace:: https://github.com/foxBMS/
+.. |foxbms_repository| replace:: https://github.com/foxBMS/foxbms-2
+.. _Fraunhofer IISB: https://www.iisb.fraunhofer.de
+
+.. |python| replace:: Python
+.. |ruby| replace:: Ruby
+
+.. |doxygen| replace:: Doxygen
+
+.. |version_python| replace:: ``3.7.x``
+.. _Miniconda: https://docs.conda.io/en/latest/miniconda.html
+.. |conda| replace:: ``conda``
+.. |condarc| replace:: ``C:\Users\<username>\.condarc``
+.. |conda_env_config_win32| replace:: ``conf\env\conda_env_win32.yaml``
+.. |conda_env_config_linux| replace:: ``conf/env/conda_env_linux.yaml``
+.. _proxy configuration: https://docs.conda.io/projects/conda/en/latest/user-guide/configuration/use-condarc.html#configure-conda-for-use-behind-a-proxy-server-proxy-servers
+
+.. |texas-instruments| replace:: Texas Instruments
+
+.. |code-composer-studio| replace:: Code Composer Studio
+.. _Code Composer Studio: https://www.ti.com/tool/download/CCSTUDIO/10.1.1.00004
+.. |version_ccs| replace:: ``10.1.1``
+
+.. |halcogen| replace:: HALCoGen
+.. _HALCoGen: https://www.ti.com/tool/HALCOGEN
+.. |version_hcg| replace:: ``04.07.01``
+
+.. _LLVM: https://releases.llvm.org
+.. _github.com/llvm: https://github.com/llvm/llvm-project/releases/tag/llvmorg-11.0.1
+.. |version_llvm| replace:: ``11.0.1``
+.. |path_llvm| replace:: ``C:\Program Files\LLVM\11.0.1``
+
+.. |version_pcanse| replace:: ``Version 6.4.1``
+
+.. _Ruby: https://www.ruby-lang.org/
+
+.. _Ceedling: https://github.com/ThrowTheSwitch/Ceedling
+
+.. _GCC: https://gcc.gnu.org/
+
+.. _GCOVR: https://gcovr.com/en/stable/index.html
+
+.. _Visual Studio Code: https://code.visualstudio.com/
+.. |code| replace:: ``code``
+
+.. _C/C++ extension: https://marketplace.visualstudio.com/items?itemName=ms-vscode.cpptools
+
+.. _C/C++ extension license: https://marketplace.visualstudio.com/items/ms-vscode.cpptools/license
+
+.. _Python extension: https://marketplace.visualstudio.com/items?itemName=ms-python.python
+
+.. _Python extension license: https://marketplace.visualstudio.com/items/ms-python.python/license
+
+.. _ASM extension: https://marketplace.visualstudio.com/items?itemName=maziac.asm-code-lens
+
+.. _ASM extension license: https://marketplace.visualstudio.com/items/maziac.asm-code-lens/license
+
+.. _Linker script extension: https://marketplace.visualstudio.com/items?itemName=ZixuanWang.linkerscript
+
+.. _Linker script extension license: https://marketplace.visualstudio.com/items/ZixuanWang.linkerscript/license
+
+.. _Code Spell Checker extension: https://marketplace.visualstudio.com/items?itemName=streetsidesoftware.code-spell-checker
+
+.. _Code Spell Checker extension license: https://marketplace.visualstudio.com/items/streetsidesoftware.code-spell-checker/license
+
+.. _YAML extension: https://marketplace.visualstudio.com/items?itemName=redhat.vscode-yaml
+
+.. _YAML extension license: https://marketplace.visualstudio.com/items/redhat.vscode-yaml/license
+
+.. _TOML extension: https://marketplace.visualstudio.com/items?itemName=bungcip.better-toml
+
+.. _TOML extension license: https://marketplace.visualstudio.com/items/bungcip.better-toml/license
+
+.. _Test Explorer extension: https://marketplace.visualstudio.com/items?itemName=hbenl.vscode-test-explorer
+
+.. _Test Explorer extension license: https://marketplace.visualstudio.com/items/hbenl.vscode-test-explorer/license
+
+.. _Test Explorer Ceedling extension: https://marketplace.visualstudio.com/items?itemName=numaru.vscode-ceedling-test-adapter
+
+.. _Test Explorer Ceedling extension license: https://marketplace.visualstudio.com/items/numaru.vscode-ceedling-test-adapter/license
+
+.. _Cppcheck project website: http://cppcheck.sourceforge.net/
+
+.. _MISRA C: https://www.misra.org.uk/
+
+.. _list of supported MISRA rules: http://cppcheck.sourceforge.net/misra.php
+
+.. _Cppcheck manual: http://cppcheck.sourceforge.net/manual.pdf
+
+.. |nxp775| replace:: MC33775A
+
+.. |nxp664| replace:: MC33664
+
+.. |soa| replace:: *SOA*
+.. |soc| replace:: *SOC*
+.. |soe| replace:: *SOE*
+.. |soh| replace:: *SOH*
+.. |sof| replace:: *SOF*
+.. |mol| replace:: *MOL*
+.. |rsl| replace:: *RSL*
+.. |msl| replace:: *MSL*
+
+.. |LTC-old| replace:: LTC6804-1
+.. |LTC| replace:: LTC6811-1
+.. |LTC-18| replace:: LTC6813-1
+.. |master| replace:: foxBMS Master Unit
+.. |masters| replace:: foxBMS Master Units
+.. |slave| replace:: foxBMS Slave Unit
+.. |slaves| replace:: foxBMS Slave Units
+.. |bms-master| replace:: BMS-Master Board
+.. |bms-extension| replace:: BMS-Extension Board
+.. |bms-interface| replace:: BMS-Interface Board
+.. |bms-slave| replace:: BMS-Slave Board
+.. |bms-slaves| replace:: BMS-Slave Boards
+.. |bms-12-slave| replace:: Slave 12-cell board
+.. |bms-18-slave| replace:: Slave 18-cell board
+
+.. |tbc| replace:: This section of the documentation is not yet complete.

@@ -1,0 +1,30 @@
+{
+    "slave-unit": {
+        "measurement-ic": {
+            "manufacturer": "debug",
+            "chip": "default"
+        },
+        "balancing-strategy": "none",
+        "temperature-sensor": {
+            "manufacturer": "epcos",
+            "model": "b57251v5103j060",
+            "method": "polynomial"
+        }
+    },
+    "application": {
+        "algorithm": {
+            "state-estimation": {
+                "soc": "debug",
+                "soe": "debug",
+                "soh": "debug"
+            }
+        },
+        "insulation-monitoring-device": {
+            "manufacturer": "none",
+            "model": ""
+        }
+    },
+    "operating-system": {
+        "name": "freertos"
+    }
+}

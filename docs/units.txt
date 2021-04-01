@@ -1,0 +1,10 @@
+.. newline    This define creates a non-breaking whitespace
+.. |_| unicode:: 0xA0
+   :trim:
+
+.. |W| replace:: W
+.. |kW| replace:: kW
+.. |Wh| replace:: Wh
+.. |kWh| replace:: kWh
+.. |mAh| replace:: mAh
+.. |Ah| replace:: Ah

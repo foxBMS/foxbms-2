@@ -1,0 +1,10 @@
+This test does not raise a rst_007 error
+.. include:: ./../../macros.txt
+
+.. _RESTRUCTUREDTEXT_CODING_GUIDELINES:
+
+reStructuredText Coding Guidelines
+==================================
+
+These coding guidelines **MUST** be applied to all ``reStructuredText`` source
+files.

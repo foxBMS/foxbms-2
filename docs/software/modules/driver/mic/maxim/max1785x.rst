@@ -1,0 +1,7 @@
+.. include:: ./../../../../../macros.txt
+.. include:: ./../../../../../units.txt
+
+.. _MAX1785X:
+
+MAX1785x
+========

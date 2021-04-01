@@ -1,0 +1,65 @@
+{
+    "c-005_test0.h": [],
+    "c-005_test1.h": [
+        [
+            "C_GUARD",
+            "The file misses '#ifndef FOXBMS__C_005_TEST1_H_'"
+        ],
+        [
+            "C_GUARD",
+            "No '#define FOXBMS__C_005_TEST1_H_' found"
+        ],
+        [
+            "C_GUARD",
+            "No '#endif /* FOXBMS__C_005_TEST1_H_ */' found in the whole file"
+        ]
+    ],
+    "c-005_test2.h": [
+        [
+            "C_GUARD",
+            "Found '#endif' is not the last line"
+        ]
+    ],
+    "c-005_test3.h": [
+        [
+            "C_GUARD",
+            "No '#define FOXBMS__C_005_TEST3_H_' found"
+        ]
+    ],
+    "c-005_test4.h": [
+        [
+            "C_GUARD",
+            "The file misses '#ifndef FOXBMS__C_005_TEST4_H_'"
+        ]
+    ],
+    "c-005_test5.h": [
+        [
+            "C_GUARD",
+            "No '#define FOXBMS__C_005_TEST5_H_' found directly after ifndef"
+        ]
+    ],
+    "c-005_test6.h": [
+        [
+            "C_GUARD",
+            "The file misses '#ifndef FOXBMS__C_005_TEST6_H_'"
+        ],
+        [
+            "C_GUARD",
+            "No '#define FOXBMS__C_005_TEST6_H_' found"
+        ],
+        [
+            "C_GUARD",
+            "No '#endif /* FOXBMS__C_005_TEST6_H_ */' found in the whole file"
+        ]
+    ],
+    "c-005_test7.h": [
+        [
+            "C_GUARD",
+            "'#endif /* FOXBMS__C_005_TEST7_H_ */' not found at least two lines after #define"
+        ],
+        [
+            "C_GUARD",
+            "Found '#endif' is not the last line"
+        ]
+    ]
+}

@@ -1,0 +1,3 @@
+This file raises an general-006 error because as it uses tabs
+tab at the end of the line	
+	tab at the beginning of the line

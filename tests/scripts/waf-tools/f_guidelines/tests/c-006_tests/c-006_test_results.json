@@ -1,0 +1,146 @@
+{
+    "c-006_test0.c": [],
+    "c-006_test1.c": [
+        [
+            "C_SECTION",
+            7,
+            [
+                "Between /*========== Extern ",
+                "Constant and Variable Definitions =======================*/ and",
+                " the previous section should be 1 other sections"
+            ]
+        ],
+        [
+            "C_SECTION",
+            11,
+            [
+                "/*========== Static Constant and Variable Definitions ===========",
+                "============*/ must be before the previous section"
+            ]
+        ],
+        [
+            "C_SECTION",
+            13,
+            [
+                "Between /*========== Static Function Prototypes =================",
+                "====================*/ and the previous section should be 1 other ",
+                "sections"
+            ]
+        ]
+    ],
+    "c-006_test2.c": [
+        [
+            "C_SECTION",
+            9,
+            [
+                "Between /*========== Static Constant and Variable Definitions ",
+                "=======================*/ and the previous section should be ",
+                "1 other sections"
+            ]
+        ],
+        [
+            "C_SECTION",
+            0,
+            [
+                "/*========== Macros and Definitions =========================",
+                "================*/ is missing"
+            ]
+        ]
+    ],
+    "c-006_test3.c": [
+        [
+            "C_SECTION",
+            0,
+            [
+                "/*========== Static Constant and Variable Definitions ===========",
+                "============*/ is missing"
+            ]
+        ],
+        [
+            "C_SECTION",
+            0,
+            [
+                "/*========== Extern Constant and Variable Definitions ========",
+                "===============*/ is missing"
+            ]
+        ],
+        [
+            "C_SECTION",
+            0,
+            [
+                "/*========== Static Function Prototypes =====================",
+                "================*/ is missing"
+            ]
+        ],
+        [
+            "C_SECTION",
+            0,
+            [
+                "/*========== Static Function Implementations ================",
+                "================*/ is missing"
+            ]
+        ],
+        [
+            "C_SECTION",
+            0,
+            [
+                "/*========== Extern Function Implementations ===============",
+                "=================*/ is missing"
+            ]
+        ],
+        [
+            "C_SECTION",
+            0,
+            [
+                "/*========== Externalized Static Function Implementations ",
+                "(Unit Test) =======*/ is missing"
+            ]
+        ]
+    ],
+    "c-006_test4.c": [
+        [
+            "C_SECTION",
+            7,
+            [
+                "/*========== Includes =====================================",
+                "==================*/ must be before the previous section"
+            ]
+        ],
+        [
+            "C_SECTION",
+            11,
+            [
+                "Between /*========== Extern Constant and Variable Definitions ",
+                "=======================*/ and the previous section should be ",
+                "1 other sections"
+            ]
+        ],
+        [
+            "C_SECTION",
+            17,
+            [
+                "/*========== Extern Function Implementations ===============",
+                "=================*/ is a duplicate"
+            ]
+        ],
+        [
+            "C_SECTION",
+            0,
+            [
+                "/*========== Static Constant and Variable Definitions ======",
+                "=================*/ is missing"
+            ]
+        ]
+    ],
+    "c-006_test5.c": [
+        [
+            "C_SECTION",
+            8,
+            [
+                "Ahead of /*========== Static Constant and Variable Definitions ",
+                "=======================*/ must be one ",
+                "empty line"
+            ]
+        ]
+    ]
+}

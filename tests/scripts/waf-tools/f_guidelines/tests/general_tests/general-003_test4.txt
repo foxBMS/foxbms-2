@@ -1,0 +1,1 @@
+This file uses utf-8 encoding and the sign ° does raise a general-003 error.

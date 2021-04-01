@@ -1,0 +1,42 @@
+/.vscode/
+/build/
+/*build/
+*/_build/*
+/conf/hcg/include/*
+/conf/hcg/source/*
+/conf/hcg/*_bak.dil
+/conf/hcg/*_bak.hcg
+
+*c4che*
+/foxbms*/
+tools/waf3-*/
+.lock-waf*
+*.bz2
+*.gz
+*.zip
+# do not ignore zip in hardware
+!/hardware/*.zip
+*.7z
+
+__pycache__
+.mypy_cache/
+/qa-chain/*
+
+*.log
+
+*.patch
+*.diff
+
+*.jdebug.user
+
+# gcc coverage testing tool files
+*.gcno
+*.gcda
+*.gcov
+
+# ignore temp files
+*~
+
+# ignore JabRef - https://www.jabref.org/
+*.bak
+*.sav

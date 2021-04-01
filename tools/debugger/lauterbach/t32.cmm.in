@@ -1,0 +1,112 @@
+; Debugger Startup Program for TRACE32
+
+GLOBAL &init_file
+
+RADIX Hex
+
+MENU.ReProgram
+(
+ ADD
+ TOOLBAR
+ (
+    SEPARATOR
+    TOOLITEM  "Source/List"      ":list"     "List.auto"
+    TOOLITEM  "Memory Dump"      ":dump"     "Data.dump"
+    TOOLITEM  "Register"         ":reg"      "Register.view"
+    SEPARATOR
+    TOOLITEM  "Watch"            ":varwatch" "Var.Watch"
+    TOOLITEM  "Stack"            ":varframe" "Frame.view /Locals /Caller"
+    TOOLITEM  "Automatic Watch"  ":varref"   "Var.Ref"
+    SEPARATOR
+    TOOLITEM  "List Breakpoints" ":break"    "Break.List"
+    TOOLITEM  "List Symbols"     ":symbols"  "sYmbol.Browse"
+    TOOLITEM  "System Settings"  ":config"   "SYStem.state"
+    SEPARATOR
+ )
+)
+
+AUTOSTORE , HISTORY BOOKMARK
+
+; --------------------------------------------------------------------------------
+; initialize and start the debugger
+RESet
+SYStem.RESet
+SYStem.CPU TMS570LC4357
+SYStem.MemAccess DAP
+SYStem.JtagClock CTCK 5MHz
+SYStem.Option ResBreak OFF
+SYStem.Option EnReset OFF
+SYStem.Up
+
+; --------------------------------------------------------------------------------
+; Setup CTI to freeze peripherals while debugging
+GOSUB CtiSetup
+
+; --------------------------------------------------------------------------------
+; Init SRAM and ECC checks
+GOSUB SramInit
+
+; --------------------------------------------------------------------------------
+; Flash programming
+
+; prepare flash programming (declarations)
+DO ~~/demo/arm/flash/tms570lc435x.cmm PREPAREONLY
+
+; select init file for Trace32
+&init_file=OS.PPD()+"\@INIT_FILE@"
+do &init_file
+
+enddo
+
+;======================================================================
+
+CtiSetup:
+(
+  LOCAL &CoreCtiBase &PeriphCtiBase
+
+  &CoreCtiBase=COMPonent.BASE("CTI",0.)
+  &CoreCtiBase=CONVert.ADDRESSTODUALPORT(&CoreCtiBase)
+  &PeriphCtiBase=EDAP:0x8000a000
+
+  ; <do not change>
+  ; MAP CR5-"Core-Stopped" (CTITRIGIN7) to CTM Channel 2
+  Data.Set &CoreCtiBase+0x3c %Long 0x4
+  ; ensure CTM2 is not GATED
+  Data.Set &CoreCtiBase+0x40 %Long Data.Long(&CoreCtiBase+0x40)|0x4
+  ; enable CR5-CTI
+  Data.Set &CoreCtiBase+0x00 %Long 0x1
+  ; </do not change>
+
+  ; <user config>
+  ; the following Data.Set's connect "Core-Stopped" signal to the
+  ; listed peripherals
+  ; L2FMC, CCMR5, CRCx, and SYS modules
+  Data.Set &PeriphCtiBase+0xa0 %Long 0x4
+  ; DMA, RTIx, AWMx, HTUx, SCIx, LINx, I2Cx, EMAC, EQEP, ECAP, DMM and DCCx modules
+  Data.Set &PeriphCtiBase+0xa4 %Long 0x4
+  ; DCANx
+  Data.Set &PeriphCtiBase+0xa8 %Long 0x4
+  ; ETPWMx
+  Data.Set &PeriphCtiBase+0xac %Long 0x4
+  ; </user config>
+  ; <do not change>
+  ; ensure CTM2 is not GATED
+  Data.Set &PeriphCtiBase+0x40 %Long Data.Long(&CoreCtiBase+0x40)|0x4
+  ; enable PERIPH-CTI
+  Data.Set &PeriphCtiBase+0x00 %Long 0x1
+  ; </do not change>
+
+  RETURN
+)
+
+
+SramInit:
+(
+    ; Clear SRAM to prevent ECC faults
+    Data.Set 0xFFFFFF5C %BE %Long 0x00000005
+    Data.Set 0xFFFFFF5C %BE %Long 0x0000000A
+    Data.Set 0xFFFFFF60 %BE %Long 0x00000001    ; init L2 SRAM only
+    Data.Set 0xFFFFFF5C %BE %Long 0x00000005
+
+    RETURN
+)

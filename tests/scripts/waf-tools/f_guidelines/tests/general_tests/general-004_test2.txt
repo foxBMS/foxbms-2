@@ -1,0 +1,1 @@
+This line is not a line as it misses a newline character, and this is bad.

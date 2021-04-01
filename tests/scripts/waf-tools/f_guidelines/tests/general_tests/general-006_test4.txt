@@ -1,0 +1,6 @@
+This file should raise a general-006 error because it includes tabs
+	"""tab
+no tab
+no tab
+tab	
+tab	

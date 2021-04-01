@@ -1,0 +1,11 @@
+.. spelling::
+    pyhd
+    ed
+    eb
+    fc
+    bbff
+    defaul
+    hcd
+    haa
+    fd
+    pyh

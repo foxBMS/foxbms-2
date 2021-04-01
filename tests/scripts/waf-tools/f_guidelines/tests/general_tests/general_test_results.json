@@ -1,0 +1,118 @@
+{
+    "test_rule": [
+        {
+            "general-003_test0.txt": [
+                "utf-8",
+                [
+                    "NO_VIOLATION"
+                ]
+            ],
+            "general-003_test1.txt": [
+                "utf-8",
+                [
+                    "GENERAL_ENCODING"
+                ]
+            ],
+            "general-003_test2.txt": [
+                "utf-8",
+                [
+                    "GENERAL_ENCODING"
+                ]
+            ],
+            "general-003_test3.txt": [
+                "ascii",
+                [
+                    "NO_VIOLATION"
+                ]
+            ],
+            "general-003_test4.txt": [
+                "ascii",
+                [
+                    "GENERAL_ENCODING"
+                ]
+            ]
+        },
+        {
+            "general-004_test0.txt": [
+                "NO_VIOLATION"
+            ],
+            "general-004_test1.txt": [
+                "NO_VIOLATION"
+            ],
+            "general-004_test2.txt": [
+                "GENERAL_EOF_NO_EMPTY_NEWLINE"
+            ],
+            "general-004_test3.txt": [
+                "GENERAL_EOF_TOO_MANY_EMPTY_NEWLINES"
+            ],
+            "general-004_test4.txt": [
+                "NO_VIOLATION"
+            ]
+        },
+        {
+            "general-005_test0.txt": [],
+            "general-005_test1.txt": [
+                [
+                    "GENERAL_TRAILING_WHITESPACE",
+                    2
+                ],
+                [
+                    "GENERAL_TRAILING_WHITESPACE",
+                    3
+                ],
+                [
+                    "GENERAL_TRAILING_WHITESPACE",
+                    5
+                ]
+            ],
+            "general-005_test2.txt": [
+                [
+                    "GENERAL_TRAILING_WHITESPACE",
+                    4
+                ],
+                [
+                    "GENERAL_TRAILING_WHITESPACE",
+                    6
+                ]
+            ]
+        },
+        {
+            "general-006_test0.txt": [],
+            "general-006_test1.txt": [
+                [
+                    "GENERAL_TABS",
+                    2
+                ],
+                [
+                    "GENERAL_TABS",
+                    4
+                ]
+            ],
+            "general-006_test2.txt": [
+                [
+                    "GENERAL_TABS",
+                    2
+                ],
+                [
+                    "GENERAL_TABS",
+                    3
+                ]
+            ],
+            "general-006_test3.txt": [],
+            "general-006_test4.txt": [
+                [
+                    "GENERAL_TABS",
+                    2
+                ],
+                [
+                    "GENERAL_TABS",
+                    5
+                ],
+                [
+                    "GENERAL_TABS",
+                    6
+                ]
+            ]
+        }
+    ]
+}

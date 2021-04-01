@@ -1,0 +1,16 @@
+.. include:: ./../../../../../macros.txt
+.. include:: ./../../../../../units.txt
+
+..
+    Comments:
+    Epcos is the name of the sensor manufacturer
+
+.. spelling::
+    Epcos
+
+.. _EPCOS_B57251V5103J060:
+
+Epcos B57251V5103J060
+=====================
+
+|tbc|

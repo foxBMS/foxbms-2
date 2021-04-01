@@ -1,0 +1,2 @@
+#This file should not raise a general-005 because no trailing whitespace
+This file has no trailing whitespace.

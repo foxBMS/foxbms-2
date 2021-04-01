@@ -1,0 +1,30 @@
+{
+    "slave-unit": {
+        "measurement-ic": {
+            "manufacturer": "ltc",
+            "chip": "6813-1"
+        },
+        "balancing-strategy": "voltage",
+        "temperature-sensor": {
+            "manufacturer": "epcos",
+            "model": "b57251v5103j060",
+            "method": "polynomial"
+        }
+    },
+    "application": {
+        "algorithm": {
+            "state-estimation": {
+                "soc": "counting",
+                "soe": "counting",
+                "soh": "none"
+            }
+        },
+        "insulation-monitoring-device": {
+            "manufacturer": "none",
+            "model": ""
+        }
+    },
+    "operating-system": {
+        "name": "freertos"
+    }
+}

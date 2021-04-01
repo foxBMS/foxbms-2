@@ -1,0 +1,7 @@
+.. include:: ./../../../../../macros.txt
+.. include:: ./../../../../../units.txt
+
+.. _LTC_6806:
+
+LTC 6806
+========

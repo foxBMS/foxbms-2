@@ -1,0 +1,6 @@
+{
+    "script": "misra.py",
+    "args": [
+        "@misra_args@"
+    ]
+}

@@ -1,0 +1,48 @@
+{
+    "default_regex": {
+        "c-004_test0.c": [],
+        "c-004_test1.c": [
+            [
+                "C_DOXYGEN",
+                4,
+                "Line does not match with required File Level Doxygen @author comment"
+            ],
+            [
+                "C_DOXYGEN",
+                5,
+                "Line does not match with required File Level Doxygen @date comment"
+            ]
+        ],
+        "c-004_test2.c": [
+            [
+                "C_DOXYGEN",
+                8,
+                "Line does not match with required File Level Doxygen @prefix comment"
+            ]
+        ],
+        "c-004_test5.c": [
+            [
+                "C_DOXYGEN",
+                0,
+                "@file c-004_test5.c was not found"
+            ]
+        ],
+        "c-004_test6.c": [
+            [
+                "C_DOXYGEN",
+                0,
+                "The start \\* of the doxygen header was not found"
+            ]
+        ]
+    },
+    "changed_regex": {
+        "c-004_test3.c": [],
+        "c-004_test4.c": [
+            [
+                "C_DOXYGEN",
+                12,
+                "Line does not match with required File Level Doxygen @UTest comment"
+            ]
+        ]
+    }
+}

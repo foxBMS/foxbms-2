@@ -1,0 +1,97 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+# @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der
+#   angewandten Forschung e.V. All rights reserved.
+#
+# BSD 3-Clause License
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+# 1.  Redistributions of source code must retain the above copyright notice,
+#     this list of conditions and the following disclaimer.
+# 2.  Redistributions in binary form must reproduce the above copyright notice,
+#     this list of conditions and the following disclaimer in the documentation
+#     and/or other materials provided with the distribution.
+# 3.  Neither the name of the copyright holder nor the names of its
+#     contributors may be used to endorse or promote products derived from this
+#     software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+# ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+# LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+# CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+# SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+# INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+# CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+#
+# We kindly request you to use one or more of the following phrases to refer to
+# foxBMS in your hardware, software, documentation or advertising materials:
+#
+# &Prime;This product uses parts of foxBMS&reg;&Prime;
+#
+# &Prime;This product includes parts of foxBMS&reg;&Prime;
+#
+# &Prime;This product is derived from foxBMS&reg;&Prime;
+
+"""Build Script: ``./src/app/main/wscript``
+====================================
+
+Builds the main binary"""
+
+import os
+
+
+def build(bld):
+    """runs the main build by linking the previously built libraries
+    and the objects built within this wscript"""
+    source = ["main.c", "fassert.c", "fstartup.c"]
+    linker_script_elf = bld.path.find_node("linker_script_elf.cmd")
+    linker_script_hex = bld.path.find_node("linker_script_hex.cmd")
+    linker_pulls = bld.path.find_node(
+        os.path.join("..", "..", "..", "conf", "cc", "linker_pulls.json")
+    )
+    includes = [
+        "include",
+        os.path.join("..", "application", "config"),
+        os.path.join("..", "driver", "adc"),
+        os.path.join("..", "driver", "can"),
+        os.path.join("..", "driver", "checksum"),
+        os.path.join("..", "driver", "config"),
+        os.path.join("..", "driver", "contactor"),
+        os.path.join("..", "driver", "dma"),
+        os.path.join("..", "driver", "io"),
+        os.path.join("..", "driver", "meas"),
+        os.path.join("..", "driver", "spi"),
+        os.path.join("..", "driver", "sps"),
+        os.path.join("..", "engine", "config"),
+        os.path.join("..", "engine", "database"),
+        os.path.join("..", "engine", "diag"),
+        os.path.join("..", "engine", "hwinfo"),
+        os.path.join("..", "task", "os"),
+        os.path.join("..", "task", "config"),
+    ]
+    includes.extend(bld.env.INCLUDES_OPERATING_SYSTEM + bld.env.INCLUDES_MEASUREMENT_IC)
+    cflags = bld.env.CFLAGS_FOXBMS
+    use = [
+        f"{bld.env.APPNAME.lower()}-application",
+        f"{bld.env.APPNAME.lower()}-task",
+        f"{bld.env.APPNAME.lower()}-engine",
+        f"{bld.env.APPNAME.lower()}-driver",
+        f"{bld.env.APPNAME.lower()}-os",
+        f"{bld.env.APPNAME.lower()}-hal",
+    ]
+
+    bld.tiprogram(
+        source=source,
+        linker_script=linker_script_elf,
+        linker_script_hex=linker_script_hex,
+        linker_pulls=linker_pulls,
+        includes=includes,
+        cflags=cflags,
+        use=use,
+        target=bld.env.APPNAME.lower(),
+    )

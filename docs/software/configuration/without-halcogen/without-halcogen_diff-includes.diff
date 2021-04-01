@@ -1,0 +1,96 @@
+diff --git a/src/app/application/algorithm/wscript b/src/app/application/algorithm/wscript
+index c4d837c4..2d1580fa 100644
+--- a/src/app/application/algorithm/wscript
++++ b/src/app/application/algorithm/wscript
+@@ -77,6 +77,7 @@ def build(bld):
+         os.path.join("..", "..", "main", "include"),
+         os.path.join("..", "..", "task", "config"),
+         os.path.join("..", "..", "task", "os"),
++        os.path.join("..", "..", "..", "hal", "include"),
+     ]
+     includes.extend(bld.env.INCLUDES_OPERATING_SYSTEM)
+     cflags = bld.env.CFLAGS_FOXBMS
+diff --git a/src/app/application/wscript b/src/app/application/wscript
+index a9462e21..1fdb5850 100644
+--- a/src/app/application/wscript
++++ b/src/app/application/wscript
+@@ -88,6 +88,7 @@ def build(bld):
+         os.path.join("..", "main", "include"),
+         os.path.join("..", "task", "config"),
+         os.path.join("..", "task", "os"),
++        os.path.join("..", "..", "hal", "include"),
+     ]
+     includes.extend(bld.env.INCLUDES_OPERATING_SYSTEM + bld.env.INCLUDES_MEASUREMENT_IC)
+     cflags = bld.env.CFLAGS_FOXBMS
+diff --git a/src/app/driver/measurement-ic/ltc/6806/wscript b/src/app/driver/measurement-ic/ltc/6806/wscript
+index d7ca3af9..0cc6c777 100644
+--- a/src/app/driver/measurement-ic/ltc/6806/wscript
++++ b/src/app/driver/measurement-ic/ltc/6806/wscript
+@@ -71,6 +71,7 @@ def build(bld):
+         os.path.join("..", "..", "..", "..", "engine", "diag"),
+         os.path.join("..", "..", "..", "..", "main", "include"),
+         os.path.join("..", "..", "..", "..", "task", "os"),
++        os.path.join("..", "..", "..", "..", "..", "hal", "include"),
+     ]
+     includes.extend(bld.env.INCLUDES_OPERATING_SYSTEM)
+     cflags = bld.env.CFLAGS_FOXBMS
+diff --git a/src/app/driver/wscript b/src/app/driver/wscript
+index c6b42f89..26369502 100644
+--- a/src/app/driver/wscript
++++ b/src/app/driver/wscript
+@@ -122,6 +122,7 @@ def build(bld):
+         os.path.join("..", "main", "include"),
+         os.path.join("..", "task", "config"),
+         os.path.join("..", "task", "os"),
++        os.path.join("..", "..", "hal", "include"),
+     ]
+     includes.extend(bld.env.INCLUDES_OPERATING_SYSTEM + bld.env.INCLUDES_MEASUREMENT_IC)
+     cflags = bld.env.CFLAGS_FOXBMS
+diff --git a/src/app/engine/wscript b/src/app/engine/wscript
+index 03873567..118c66b6 100644
+--- a/src/app/engine/wscript
++++ b/src/app/engine/wscript
+@@ -83,6 +83,7 @@ def build(bld):
+         os.path.join("..", "main", "include"),
+         os.path.join("..", "task", "os"),
+         os.path.join("..", "task", "config"),
++        os.path.join("..", "..", "hal", "include"),
+     ]
+     includes.extend(bld.env.INCLUDES_OPERATING_SYSTEM + bld.env.INCLUDES_MEASUREMENT_IC)
+     target = f"{bld.env.APPNAME.lower()}-engine"
+diff --git a/src/app/main/wscript b/src/app/main/wscript
+index 1945b079..a47c3e20 100644
+--- a/src/app/main/wscript
++++ b/src/app/main/wscript
+@@ -69,6 +69,7 @@ def build(bld):
+         os.path.join("..", "engine", "hwinfo"),
+         os.path.join("..", "task", "os"),
+         os.path.join("..", "task", "config"),
++        os.path.join("..", "..", "hal", "include"),
+     ]
+     includes.extend(bld.env.INCLUDES_OPERATING_SYSTEM + bld.env.INCLUDES_MEASUREMENT_IC)
+     cflags = bld.env.CFLAGS_FOXBMS
+diff --git a/src/app/task/wscript b/src/app/task/wscript
+index d2479891..1b584c01 100644
+--- a/src/app/task/wscript
++++ b/src/app/task/wscript
+@@ -85,6 +85,7 @@ def build(bld):
+         os.path.join("..", "engine", "sys_mon"),
+         os.path.join("..", "engine", "sys"),
+         os.path.join("..", "main", "include"),
++        os.path.join("..", "..", "hal", "include"),
+     ]
+     includes.extend(bld.env.INCLUDES_OPERATING_SYSTEM + bld.env.INCLUDES_MEASUREMENT_IC)
+     cflags = bld.env.CFLAGS_FOXBMS
+diff --git a/src/os/freertos/wscript b/src/os/freertos/wscript
+index 2d91582e..c32227aa 100644
+--- a/src/os/freertos/wscript
++++ b/src/os/freertos/wscript
+@@ -66,6 +66,7 @@ def build(bld):
+         os.path.join("..", "..", "app", "main", "include"),
+         os.path.join("..", "..", "app", "task"),
+         os.path.join("..", "..", "app", "task", "config"),
++        os.path.join("..", "..", "hal", "include"),
+     ]
+     target = f"{bld.env.APPNAME.lower()}-os"
+     cflags = bld.env.CFLAGS_OS

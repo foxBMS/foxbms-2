@@ -1,0 +1,79 @@
+{
+    "rst_007_test0.rst": [],
+    "rst_007_test1.rst": [
+        [
+            "Caption RESTRUCTUREDTEXT CODING Wrong was not found",
+            0
+        ]
+    ],
+    "rst_007_test2.rst": [
+        [
+            "Caption underline (allowed symbols as '#*=-^\"') is missing",
+            0
+        ]
+    ],
+    "rst_007_test3.rst": [
+        [
+            "File label not found at the beginning of the file",
+            0
+        ]
+    ],
+    "rst_007_test4.rst": [
+        [
+            "The caption RESTRUCTUREDTEXT CODING GUIDELINES was not found two lines after the file label",
+            7
+        ]
+    ],
+    "rst_007_test5.rst": [
+        [
+            "Overline of the caption was not found two lines after the file label",
+            5
+        ],
+        [
+            "The caption RESTRUCTUREDTEXT CODING GUIDELINES was not found three lines after the file label",
+            6
+        ]
+    ],
+    "rst_007_test6.rst": [
+        [
+            "Caption underline equal to overline is missing",
+            0
+        ]
+    ],
+    "rst_007_test7.rst": [
+        [
+            "Underline was not found directly after caption",
+            9
+        ]
+    ],
+    "rst_007_test8.rst": [
+        [
+            "Length of underline/overline is not equal to the length of the caption",
+            0
+        ]
+    ],
+    "rst_007_test9.rst": [
+        [
+            "Overline contains not allowed symbols (allowed symbols as '#*)",
+            0
+        ],
+        [
+            "The caption RESTRUCTUREDTEXT CODING GUIDELINES was not found two lines after the file label",
+            8
+        ],
+        [
+            "Length of underline/overline is not equal to the length of the caption",
+            0
+        ]
+    ],
+    "rst_007_test10.rst": [
+        [
+            "Caption underline equal to overline is missing",
+            0
+        ],
+        [
+            "Length of underline/overline is not equal to the length of the caption",
+            0
+        ]
+    ]
+}

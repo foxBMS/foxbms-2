@@ -1,0 +1,1 @@
+This file uses ascii encoding and does not raise a general-003 error.

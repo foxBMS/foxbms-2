@@ -1,0 +1,3 @@
+#This test file should not raise an general-004 error because
+#it ends with a new line
+Just one line of text.

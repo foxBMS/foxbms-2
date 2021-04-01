@@ -1,0 +1,6 @@
+This file should raise a general-005 because of the trailing whitespace at the
+end of some lines
+      Line without trailing whitespace at the end
+Line with trailing whitespace      
+Line without trailing whitespace
+Again line with trailing whitespace      

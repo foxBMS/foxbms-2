@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Paths must be given relative to the build directory -->
+<project version="1">
+@root@
+    <builddir>.</builddir>
+    <platform>Unspecified</platform>
+    <analyze-all-vs-configs>false</analyze-all-vs-configs>
+    <check-headers>false</check-headers>
+    <check-unused-templates>false</check-unused-templates>
+    <max-ctu-depth>10</max-ctu-depth>
+    <includedir>
+    </includedir>
+    <paths>
+@paths@
+    </paths>
+    <exclude>
+@exclude@
+    </exclude>
+    <addons>
+@addons@
+    </addons>
+</project>

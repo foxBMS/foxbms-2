@@ -1,0 +1,14 @@
+# Prevent project from being labeled as C++ project
+*.h linguist-language=C
+
+# Microsoft Office documents
+*.pptx diff=pptx
+
+# vendored files
+src/os/freertos/* linguist-vendored
+tests/scripts/waf-core/* linguist-vendored
+tools/vendor/* linguist-vendored
+tools/waf linguist-vendored
+
+# files tracked with Git LFS
+*.zip filter=lfs diff=lfs merge=lfs -text

@@ -1,0 +1,104 @@
+{
+    "env": {
+        "ProjectIncludePath": [
+            "${workspaceFolder}/build",
+            "${workspaceFolder}/build/bin/src/app/main",
+            "${workspaceFolder}/build/bin/src/hal/include",
+            "${workspaceFolder}/build/bin/src/hal/source",
+            "${workspaceFolder}/src/app/application/algorithm",
+            "${workspaceFolder}/src/app/application/algorithm/config",
+            "${workspaceFolder}/src/app/application/algorithm/moving_average",
+            "${workspaceFolder}/src/app/application/algorithm/state_estimation/",
+            "${workspaceFolder}/src/app/application/algorithm/state_estimation/soc/{{ STATE_ESTIMATOR_SOC }}",
+            "${workspaceFolder}/src/app/application/algorithm/state_estimation/soe/{{ STATE_ESTIMATOR_SOE }}",
+            "${workspaceFolder}/src/app/application/algorithm/state_estimation/sof/trapezoid",
+            "${workspaceFolder}/src/app/application/algorithm/state_estimation/soh/{{ STATE_ESTIMATOR_SOH }}",
+            "${workspaceFolder}/src/app/application/bal",
+            "${workspaceFolder}/src/app/application/bal/{{ BALANCING_STRATEGY }}",
+            "${workspaceFolder}/src/app/application/bms",
+            "${workspaceFolder}/src/app/application/config",
+            "${workspaceFolder}/src/app/application/plausibility",
+            "${workspaceFolder}/src/app/application/soa",
+            "${workspaceFolder}/src/app/application/redundancy",
+            "${workspaceFolder}/src/app/driver/adc",
+            "${workspaceFolder}/src/app/driver/can",
+            "${workspaceFolder}/src/app/driver/checksum",
+            "${workspaceFolder}/src/app/driver/config",
+            "${workspaceFolder}/src/app/driver/contactor",
+            "${workspaceFolder}/src/app/driver/dma",
+            "${workspaceFolder}/src/app/driver/foxmath",
+            "${workspaceFolder}/src/app/driver/fram",
+            "${workspaceFolder}/src/app/driver/interlock",
+            "${workspaceFolder}/src/app/driver/imd",
+            "${workspaceFolder}/src/app/driver/imd/{{ IMD_MANUFACTURER }}",
+            "${workspaceFolder}/src/app/driver/imd/{{ IMD_MANUFACTURER }}/{{ IMD_MODEL }}",
+            "${workspaceFolder}/src/app/driver/io",
+            "${workspaceFolder}/src/app/driver/mcu",
+            "${workspaceFolder}/src/app/driver/meas",
+            "${workspaceFolder}/src/app/driver/mic/api",
+            "${workspaceFolder}/src/app/driver/mic/{{ MEASUREMENT_IC_MANUFACTURER }}/api/**",
+            "${workspaceFolder}/src/app/driver/mic/{{ MEASUREMENT_IC_MANUFACTURER }}/common/**",
+            "${workspaceFolder}/src/app/driver/mic/{{ MEASUREMENT_IC_MANUFACTURER }}/{{ MEASUREMENT_IC_CHIP }}/**",
+            "${workspaceFolder}/src/app/driver/rtc",
+            "${workspaceFolder}/src/app/driver/sbc",
+            "${workspaceFolder}/src/app/driver/sbc/fs8x_driver",
+            "${workspaceFolder}/src/app/driver/spi",
+            "${workspaceFolder}/src/app/driver/sps",
+            "${workspaceFolder}/src/app/driver/ts",
+            "${workspaceFolder}/src/app/driver/ts/api",
+            "${workspaceFolder}/src/app/driver/ts/epcos/b57251v5103j060",
+            "${workspaceFolder}/src/app/driver/ts/epcos/b57861s0103f045",
+            "${workspaceFolder}/src/app/driver/ts/fake/none",
+            "${workspaceFolder}/src/app/driver/ts/vishay/ntcalug01a103g",
+            "${workspaceFolder}/src/app/driver/ts/{{TEMPERATURE_SENSOR_MANUFACTURER}}/{{TEMPERATURE_SENSOR_MODEL}}/{{TEMPERATURE_SENSOR_METHOD}}",
+            "${workspaceFolder}/src/app/engine/config",
+            "${workspaceFolder}/src/app/engine/database",
+            "${workspaceFolder}/src/app/engine/diag",
+            "${workspaceFolder}/src/app/engine/diag/cbs",
+            "${workspaceFolder}/src/app/engine/hwinfo",
+            "${workspaceFolder}/src/app/engine/sys",
+            "${workspaceFolder}/src/app/engine/sys_mon",
+            "${workspaceFolder}/src/app/main/include",
+            "${workspaceFolder}/src/app/task/config",
+            "${workspaceFolder}/src/app/task/ftask",
+            "${workspaceFolder}/src/app/task/os",
+            "${workspaceFolder}/src/os/{{ OS }}",
+            "${workspaceFolder}/src/os/{{ OS }}/include",
+            "${workspaceFolder}/src/os/{{ OS }}/portable/ccs/arm_cortex-r5",
+            "${workspaceFolder}/src/os/{{ OS }}/portable/common",
+            "${workspaceFolder}/src/os/{{ OS }}/portable/memmang",
+            "${workspaceFolder}/tools/vendor/ceedling/vendor/unity/src",
+            "${workspaceFolder}/tools/vendor/ceedling/vendor/c_exception/lib",
+            "${workspaceFolder}/tests/unit/support",
+            "${workspaceFolder}/build/unit_test/test/mocks"
+        ],
+        "forcedInclude": [
+        ],
+        "ProjectCompiler": "{{ ARMCL }}"
+    },
+    "configurations": [
+        {
+            "name": "Win32",
+            "includePath": [
+                "${ProjectIncludePath}",
+                {% for include in INCLUDES %}"{{ include }}"{%if not loop.last %},{%endif%}
+                {% endfor %}
+            ],
+            "browse": {
+                "path": [
+                    "${ProjectIncludePath}",
+                    {% for include in INCLUDES %}"{{ include }}"{%if not loop.last %},{%endif%}
+                    {% endfor %}
+                ],
+                "limitSymbolsToIncludedHeaders": true
+            },
+            "defines": [
+                {% for define in DEFINES %}"{{ define[0] }}={{ define[1] }}"{%if not loop.last %},{%endif%}
+                {% endfor %}
+            ],
+            "intelliSenseMode": "${default}",
+            "cStandard": "{{ CSTANDARD }}"
+        }
+    ],
+    "version": 4
+}

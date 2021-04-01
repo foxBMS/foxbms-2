@@ -1,0 +1,10 @@
+{
+    "rst-003_test0.rst": "RST_MISSING_INCLUDE",
+    "rst-003_test1.rst": "NO_VIOLATION",
+    "rst-003_test2.rst": "NO_VIOLATION",
+    "rst-003_test3.rst": "RST_MISSING_INCLUDE",
+    "rst-003_test4.rst": "NO_VIOLATION",
+    "rst-003_test5.rst": "RST_MISSING_INCLUDE",
+    "rst-003_test6.rst": "NO_VIOLATION",
+    "rst-003_test7.rst": "RST_MISSING_INCLUDE"
+}

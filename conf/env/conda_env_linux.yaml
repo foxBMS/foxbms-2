@@ -1,0 +1,4 @@
+name: red-fox-devel-000
+channels:
+  - defaults
+dependencies:

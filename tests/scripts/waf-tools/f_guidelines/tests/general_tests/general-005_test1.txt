@@ -1,0 +1,5 @@
+#This file should raise a general-005 because of the trailing whitespace at the end of some lines
+This line includes trailing whitespace 
+This line includes trailing whitespace 
+This line does not include trailing whitespace
+This line includes trailing whitespace 

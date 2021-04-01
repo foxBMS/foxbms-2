@@ -1,0 +1,6 @@
+{
+    "_c_int00": "src/app/main/fstartup.c.1.obj",
+    "canMessageNotification": "src/app/driver/libfoxbms-driver.a<can.c.1.obj>",
+    "dmaGroupANotification": "src/app/driver/libfoxbms-driver.a<dma.c.1.obj>",
+    "handlePLLLockFail": "wrong path"
+}

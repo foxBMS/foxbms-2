@@ -1,0 +1,6 @@
+{
+    "include": [
+        "include",
+        "portable/ccs/arm_cortex-r5"
+    ]
+}

@@ -1,0 +1,271 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build:All",
+            "type": "shell",
+            "group": "build",
+            "command": "{{ WAF_WRAPPER_SCRIPT }}",
+            "args": [
+                "build_all",
+                "-c",
+                "yes"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "Build:Binary",
+            "type": "shell",
+            "group": "build",
+            "command": "{{ WAF_WRAPPER_SCRIPT }}",
+            "args": [
+                "build_bin",
+                "-c",
+                "yes"
+            ],
+            "problemMatcher": [
+                {
+                    "applyTo": "allDocuments",
+                    "owner": "cpp",
+                    "severity": "warning",
+                    "fileLocation": [
+                        "autoDetect",
+                        "${workspaceFolder}"
+                    ],
+                    "pattern": {
+                        "regexp": "^\"(.*)\",.line (\\d+):\\s+(remark)\\s+(.*):\\s+(.*)$",
+                        "file": 1,
+                        "line": 2,
+                        "code": 4,
+                        "message": 5
+                    }
+                },
+                {
+                    "applyTo": "allDocuments",
+                    "owner": "cpp",
+                    "fileLocation": [
+                        "autoDetect",
+                        "${workspaceFolder}"
+                    ],
+                    "pattern": {
+                        "regexp": "^\"(.*)\",.line (\\d+):\\s+(warning|error)\\s+(.*):\\s+(.*)$",
+                        "file": 1,
+                        "line": 2,
+                        "severity": 3,
+                        "code": 4,
+                        "message": 5
+                    }
+                }
+            ]
+        },
+        {
+            "label": "Build:Binary verbose",
+            "type": "shell",
+            "group": "build",
+            "command": "{{ WAF_WRAPPER_SCRIPT }}",
+            "args": [
+                "build_bin",
+                "-v",
+                "-c",
+                "yes"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "Build:Documentation",
+            "type": "shell",
+            "group": "build",
+            "command": "{{ WAF_WRAPPER_SCRIPT }}",
+            "args": [
+                "build_docs",
+                "-c",
+                "yes"
+            ],
+            "problemMatcher": [
+                {
+                    "applyTo": "allDocuments",
+                    "owner": "doxygen",
+                    "severity": "warning",
+                    "fileLocation": [
+                        "autoDetect",
+                        "${workspaceFolder}"
+                    ],
+                    "pattern": {
+                        "regexp": "^(.*):(\\d+):\\s+(warning):\\s+(.*)$",
+                        "file": 1,
+                        "line": 2,
+                        "message": 4
+                    }
+                },
+                {
+                    "applyTo": "allDocuments",
+                    "owner": "doxygen",
+                    "severity": "error",
+                    "fileLocation": [
+                        "autoDetect",
+                        "${workspaceFolder}"
+                    ],
+                    "pattern": {
+                        "regexp": "^(.*):(\\d+):\\s+(error):\\s+(.*)$",
+                        "file": 1,
+                        "line": 2,
+                        "message": 4
+                    }
+                }
+            ]
+        },
+        {
+            "label": "Build:Static Program Analysis (Embedded SW)",
+            "type": "shell",
+            "group": "build",
+            "command": "{{ WAF_WRAPPER_SCRIPT }}",
+            "args": [
+                "build_static_analysis",
+                "-c",
+                "yes"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "Clean:Static Program Analysis (Embedded SW)",
+            "type": "shell",
+            "group": "build",
+            "command": "{{ WAF_WRAPPER_SCRIPT }}",
+            "args": [
+                "clean_static_analysis",
+                "-c",
+                "yes"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "Build:Unit test",
+            "type": "shell",
+            "group": "build",
+            "command": "{{ WAF_WRAPPER_SCRIPT }}",
+            "args": [
+                "build_unit_test",
+                "-c",
+                "yes"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "Build:Unit test:Coverage",
+            "type": "shell",
+            "group": "build",
+            "command": "{{ WAF_WRAPPER_SCRIPT }}",
+            "args": [
+                "build_unit_test",
+                " --coverage",
+                "-c",
+                "yes"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "Configure",
+            "type": "shell",
+            "group": "build",
+            "command": "{{ WAF_WRAPPER_SCRIPT }}",
+            "args": [
+                "configure",
+                "-c",
+                "yes"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "Clean:Binary",
+            "type": "shell",
+            "group": "build",
+            "command": "{{ WAF_WRAPPER_SCRIPT }}",
+            "args": [
+                "clean_bin",
+                "-c",
+                "yes"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "Clean:Unit test",
+            "type": "shell",
+            "group": "build",
+            "command": "{{ WAF_WRAPPER_SCRIPT }}",
+            "args": [
+                "clean_unit_test",
+                "-c",
+                "yes"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "Clean:All",
+            "type": "shell",
+            "group": "build",
+            "command": "{{ WAF_WRAPPER_SCRIPT }}",
+            "args": [
+                "clean_all",
+                "-c",
+                "yes"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "Clean:Documentation",
+            "type": "shell",
+            "group": "build",
+            "command": "{{ WAF_WRAPPER_SCRIPT }}",
+            "args": [
+                "clean_docs",
+                "-c",
+                "yes"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "Clean:Distclean",
+            "type": "shell",
+            "group": "build",
+            "command": "{{ WAF_WRAPPER_SCRIPT }}",
+            "args": [
+                "distclean",
+                "-c",
+                "yes"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "Run:Guidelines and style guide check",
+            "type": "shell",
+            "group": "build",
+            "command": "{{ WAF_WRAPPER_SCRIPT }}",
+            "args": [
+                "check_guidelines",
+                "-c",
+                "yes"
+            ],
+            "problemMatcher": [
+                {
+                    "applyTo": "allDocuments",
+                    "owner": "pylint",
+                    "severity": "error",
+                    "fileLocation": [
+                        "autoDetect",
+                        "${workspaceFolder}"
+                    ],
+                    "pattern": {
+                        "regexp": "^(.*):(\\d+):(\\d+):\\s+(.*):\\s+(.*)$",
+                        "file": 1,
+                        "line": 2,
+                        "column": 3,
+                        "code": 4,
+                        "message": 5
+                    }
+                }
+            ]
+        }
+    ]
+}

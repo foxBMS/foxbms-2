@@ -1,0 +1,120 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+# @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der
+#   angewandten Forschung e.V. All rights reserved.
+#
+# BSD 3-Clause License
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+# 1.  Redistributions of source code must retain the above copyright notice,
+#     this list of conditions and the following disclaimer.
+# 2.  Redistributions in binary form must reproduce the above copyright notice,
+#     this list of conditions and the following disclaimer in the documentation
+#     and/or other materials provided with the distribution.
+# 3.  Neither the name of the copyright holder nor the names of its
+#     contributors may be used to endorse or promote products derived from this
+#     software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+# ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+# LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+# CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+# SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+# INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+# CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+#
+# We kindly request you to use one or more of the following phrases to refer to
+# foxBMS in your hardware, software, documentation or advertising materials:
+#
+# &Prime;This product uses parts of foxBMS&reg;&Prime;
+#
+# &Prime;This product includes parts of foxBMS&reg;&Prime;
+#
+# &Prime;This product is derived from foxBMS&reg;&Prime;
+
+"""Helper Build Script: ``./src/app/engine/wscript``
+=============================================
+
+Helper script to recursively build the embedded sources"""
+
+import os
+
+
+def build(bld):
+    """builds the engine library"""
+    source = [
+        os.path.join("config", "database_cfg.c"),
+        os.path.join("config", "diag_cfg.c"),
+        os.path.join("config", "sys_cfg.c"),
+        os.path.join("config", "sys_mon_cfg.c"),
+        os.path.join("database", "database.c"),
+        os.path.join("diag", "cbs", "diag_cbs_can.c"),
+        os.path.join("diag", "cbs", "diag_cbs_contactor.c"),
+        os.path.join("diag", "cbs", "diag_cbs_current.c"),
+        os.path.join("diag", "cbs", "diag_cbs_current-sensor.c"),
+        os.path.join("diag", "cbs", "diag_cbs_deep-discharge.c"),
+        os.path.join("diag", "cbs", "diag_cbs_dummy.c"),
+        os.path.join("diag", "cbs", "diag_cbs_insulation.c"),
+        os.path.join("diag", "cbs", "diag_cbs_interlock.c"),
+        os.path.join("diag", "cbs", "diag_cbs_ltc.c"),
+        os.path.join("diag", "cbs", "diag_cbs_mic.c"),
+        os.path.join("diag", "cbs", "diag_cbs_plausibility.c"),
+        os.path.join("diag", "cbs", "diag_cbs_power-measurement.c"),
+        os.path.join("diag", "cbs", "diag_cbs_sbc.c"),
+        os.path.join("diag", "cbs", "diag_cbs_sys-mon.c"),
+        os.path.join("diag", "cbs", "diag_cbs_temperature.c"),
+        os.path.join("diag", "cbs", "diag_cbs_voltage.c"),
+        os.path.join("diag", "diag.c"),
+        os.path.join("hwinfo", "masterinfo.c"),
+        os.path.join("sys", "sys.c"),
+        os.path.join("sys_mon", "sys_mon.c"),
+    ]
+    includes = [
+        "config",
+        "database",
+        "diag",
+        "sys",
+        "sys_mon",
+        os.path.join("diag", "cbs"),
+        os.path.join("..", "application", "algorithm"),
+        os.path.join("..", "application", "algorithm", "config"),
+        os.path.join("..", "application", "algorithm", "state_estimation"),
+        os.path.join(
+            "..", "application", "algorithm", "state_estimation", "sof", "trapezoid"
+        ),
+        os.path.join("..", "application", "bal"),
+        os.path.join("..", "application", "bal", bld.env.balancing_strategy),
+        os.path.join("..", "application", "bms"),
+        os.path.join("..", "application", "config"),
+        os.path.join("..", "application", "soa"),
+        os.path.join("..", "driver", "can"),
+        os.path.join("..", "driver", "config"),
+        os.path.join("..", "driver", "contactor"),
+        os.path.join("..", "driver", "dma"),
+        os.path.join("..", "driver", "fram"),
+        os.path.join("..", "driver", "imd"),
+        os.path.join("..", "driver", "interlock"),
+        os.path.join("..", "driver", "meas"),
+        os.path.join("..", "driver", "sbc"),
+        os.path.join("..", "driver", "sbc", "fs8x_driver"),
+        os.path.join("..", "driver", "spi"),
+        os.path.join("..", "driver", "sps"),
+        os.path.join("..", "main", "include"),
+        os.path.join("..", "task", "os"),
+        os.path.join("..", "task", "config"),
+    ]
+    includes.extend(bld.env.INCLUDES_OPERATING_SYSTEM + bld.env.INCLUDES_MEASUREMENT_IC)
+    target = f"{bld.env.APPNAME.lower()}-engine"
+    cflags = bld.env.CFLAGS_FOXBMS
+
+    bld.stlib(
+        source=source,
+        includes=includes,
+        cflags=cflags,
+        target=target,
+    )

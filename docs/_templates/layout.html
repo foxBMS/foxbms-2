@@ -1,0 +1,10 @@
+<!-- https://stackoverflow.com/a/53329712 -->
+
+{% extends '!layout.html' %}
+{% block document %}
+{{super()}}
+<a href="https://github.com/foxBMS/foxbms-2">
+    <img style="position: absolute; top: 0; right: 0; border: 0;"
+        src="{{ pathto('_static/forkme.png', 1) }}" alt="Fork me on GitHub">
+</a>
+{% endblock %}

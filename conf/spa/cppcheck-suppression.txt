@@ -1,0 +1,103 @@
+// cppcheck
+unusedFunction
+// DATA_Read_{n}_DataBlock{s} is used by variadic macro
+unusedFunction:src/app/engine/database/database.c:279
+unusedFunction:src/app/engine/database/database.c:284
+unusedFunction:src/app/engine/database/database.c:289
+// DATA_Write_{n}_DataBlock{s} is used by variadic macro
+unusedFunction:src/app/engine/database/database.c:279
+unusedFunction:src/app/engine/database/database.c:284
+unusedFunction:src/app/engine/database/database.c:289
+unsignedLessThanZero:*/app/engine/diag/diag.c
+redundantAssignment
+unreadVariable
+variableScope
+knownConditionTrueFalse:*/app/engine/diag/diag.c
+missingInclude
+unmatchedSuppression
+comparisonError:*/app/driver/mic/ltc/6806/ltc_6806.c
+comparisonError:*/app/driver/mic/ltc/6813-1/ltc_6813-1.c
+
+// MISRA
+misra-c2012-2.7
+misra-c2012-3.1:*/app/driver/mic/ltc/common/ltc_pec.c
+misra-c2012-3.1:*/app/engine/diag/diag.c
+misra-c2012-5.1:*/app/application/config/sof_cfg.h
+misra-c2012-5.1:*/app/driver/config/contactor_cfg.*
+misra-c2012-5.1:*/app/driver/mic/maxim/common/mxm_17841b.h
+misra-c2012-5.2:*/app/driver/sbc/nxpfs85xx.h
+misra-c2012-5.5:*/app/driver/mcu/mcu.h
+misra-c2012-8.11:*/app/application/algorithm/config/algorithm_cfg.h
+misra-c2012-8.11:*/app/application/config/battery_cell_cfg.h
+misra-c2012-8.11:*/app/driver/config/can_cfg.h
+misra-c2012-8.11:*/app/driver/config/spi_cfg.h
+misra-c2012-8.11:*/app/driver/dma/dma.h
+misra-c2012-8.11:*/app/engine/config/sys_mon_cfg.h
+misra-c2012-8.11:*/app/task/os/os.h
+misra-c2012-8.11:*/opt/cells/config/lg_inr18650mj1.h
+misra-c2012-10.4:*/app/application/bal/bal.c
+misra-c2012-10.4:*/app/driver/config/contactor_cfg.c
+misra-c2012-10.4:*/app/driver/foxmath/foxmath.c
+misra-c2012-10.4:*/app/driver/ts/*
+misra-c2012-10.4:*/app/main/include/fassert.h
+misra-c2012-10.6:*/app/driver/mic/maxim/common/mxm_registry.c
+misra-c2012-10.6:*/app/driver/mic/maxim/common/mxm_battery_management.c
+misra-c2012-10.8:*/app/application/bal/history/bal_strategy_history.c
+misra-c2012-10.8:*/app/driver/mcu/mcu.c
+misra-c2012-11.4:*/app/driver/mcu/mcu.c
+misra-c2012-11.4:*/app/engine/diag/diag.c
+misra-c2012-11.4:*/app/driver/spi/spi.c
+misra-c2012-11.5:*/app/engine/database/database.c
+misra-c2012-12.2:*/app/driver/config/can_cfg.c
+misra-c2012-12.3:*/app/driver/config/spi_cfg.c
+misra-c2012-18.8:*/app/driver/sbc/nxpfs85xx.c
+// false positive:
+misra-c2012-12.3:*/app/driver/mic/maxim/common/mxm_17841b.c
+misra-c2012-12.4:*/app/driver/config/can_cfg.c
+misra-c2012-15.5:*/app/application/bal/bal.c
+misra-c2012-15.5:*/app/application/bal/voltage/bal_strategy_voltage.c
+misra-c2012-15.5:*/app/application/bal/history/bal_strategy_history.c
+misra-c2012-15.5:*/app/application/bms/bms.c
+misra-c2012-15.5:*/app/application/config/sof_cfg.h
+misra-c2012-15.5:*/app/driver/can/can.c
+misra-c2012-15.5:*/app/driver/contactor/contactor.c
+misra-c2012-15.5:*/app/driver/interlock/interlock.c
+misra-c2012-15.5:*/app/driver/sbc/sbc.c
+misra-c2012-15.5:*/app/engine/diag/diag.c
+misra-c2012-15.5:*/app/engine/sys_mon/sys_mon.c
+misra-c2012-15.5:*/app/engine/sys/sys.c
+misra-c2012-15.7
+misra-c2012-17.7:*/app/engine/sys_mon/sys_mon.c
+misra-c2012-17.7:*/app/engine/diag/diag.c
+misra-c2012-17.7:*/app/driver/can/can.c
+misra-c2012-17.8:*/app/application/algorithm/state_estimation/soc/counting/soc_counting.c
+misra-c2012-17.8:*/app/driver/config/can_cfg.c
+misra-c2012-17.8:*/app/driver/foxmath/foxmath.c
+misra-c2012-18.8:*/app/engine/diag/diag.c
+misra-c2012-19.2:*/app/driver/mic/nxp/common/MC33775A.h
+misra-c2012-20.10:*/app/driver/mic/ltc/6806/ltc_6806.c
+misra-c2012-20.10:*/app/driver/mic/ltc/6813-1/ltc_6813-1.c
+misra-c2012-20.10:*/app/driver/mic/ltc/common/ltc.h
+
+// threadsafety
+threadsafety-threadsafety:*app/application/algorithm/algorithm.c
+threadsafety-threadsafety:*app/application/algorithm/moving_average/moving_average.c
+threadsafety-threadsafety:*app/application/bms/bms.c
+threadsafety-threadsafety:*app/driver/can/can.c
+threadsafety-threadsafety:*app/engine/sys_mon/sys_mon.c
+threadsafety-threadsafety:*app/task/config/ftask_cfg.c
+threadsafety-threadsafety:*app/driver/mic/debug/default/debug_default.c:368
+
+// y2038
+y2038-unsafe-call:*/app/engine/sys_mon/sys_mon.*
+
+// cert
+cert-API01-C:*/app/engine/config/database_cfg.h
+cert-API01-C:*/app/engine/config/diag_cfg.h
+cert-API01-C:*/app/engine/diag/diag.h
+cert-API01-C:*/app/driver/mic/nxp/common/MC33775A.h
+
+// Disable whole files
+*:*/app/main/fstartup.c
+*:*/app/driver/sbc/fs8x_driver/*
+*:*/app/driver/imd/bender/iso165c/*

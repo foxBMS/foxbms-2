@@ -1,0 +1,9 @@
+.. include:: ./../../../../../macros.txt
+.. include:: ./../../../../../units.txt
+
+.. _LTC_6811_1:
+
+LTC 6811-1
+==========
+
+See :ref:`LTC_6813_1`.
