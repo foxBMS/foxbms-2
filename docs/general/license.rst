@@ -33,16 +33,71 @@ License
 .. include:: licenses-packages-conda-env-spelling.txt
 .. include:: licenses-packages-conda-env-spelling-build-strings.txt
 
-****************
-|foxbms| License
-****************
+*****************
+|foxbms| Licenses
+*****************
 
-The license |foxbms| is released under is included in the repository root in the file ``LICENSE``.
+The license texts are included verbatim in this documentation.
 
-This license reads as follows:
+|foxbms| Software License
+=========================
 
-.. literalinclude:: ./../../LICENSE
+- foxBMS 2 software is licensed under the BSD 3-Clause License.
+- The SPDX short identifier is
+  `BSD-3-Clause <https://spdx.org/licenses/BSD-3-Clause.html>`_.
+
+The license text is included in this documentation at
+:ref:`BSD_3_CLAUSE_LICENSE__BSD_3_CLAUSE__NEW__OR__REVISED__LICENSE_`.
+
+|foxbms| Hardware and Documentation License
+===========================================
+
+- foxBMS 2 hardware and documentation is licensed under the
+  Creative Commons Attribution 4.0 International License.
+  The license can be obtained from https://creativecommons.org/licenses/by/4.0/.
+- The SPDX short identifier is
+  `CC-BY-4.0 <https://spdx.org/licenses/CC-BY-4.0.html>`_.
+
+The license text is included in this documentation at
+:ref:`CREATIVE_COMMONS_ATTRIBUTION_4_0_INTERNATIONAL_LICENSE`.
+
+Further Information
+===================
+
+We kindly request you to use one or more of the following phrases to refer to
+foxBMS in your hardware, software, documentation or advertising materials:
+
+- "This product uses parts of foxBMS®"
+- "This product includes parts of foxBMS®"
+- "This product is derived from foxBMS®"
+
+If you use foxBMS in your products, we encourage you to contact us at:
+
+.. code-block:: text
+
+   Fraunhofer IISB
+   Schottkystrasse 10
+   91058 Erlangen, Germany
+   mailto:info@foxbms.org
+   https://foxbms.org
+
+.. _BSD_3_CLAUSE_LICENSE__BSD_3_CLAUSE__NEW__OR__REVISED__LICENSE_:
+
+BSD 3-Clause License (BSD 3-Clause "New" or "Revised" License)
+==============================================================
+
+.. literalinclude:: ./../../BSD-3-Clause.txt
     :language: none
+
+
+.. _CREATIVE_COMMONS_ATTRIBUTION_4_0_INTERNATIONAL_LICENSE:
+
+Creative Commons Attribution 4.0 International License
+======================================================
+
+.. literalinclude:: ./../../CC-BY-4.0.txt
+    :language: none
+
 
 ********************
 Third Party Licenses

@@ -92,14 +92,18 @@ has been built. The current version is stored in the global variable
 Choice of debugger
 ------------------
 
-The choice of the correct debugger can not be decided with a simple manual.
-The authors of this manual use and support two types of debuggers, but more
-options exist and might yield similar results.
+The choice of the correct debugger depends on many factors and can not be
+decided based solely on the information of this manual.
+The authors of this manual use and support two types of debuggers. While other
+options exist and may yield similar results, we recommend to choose one of
+these toolchains if you have to rely on our support for the setup of the
+debugger, as we cannot support debugger toolchains that we do not know or
+cannot recommend. Feel free to contact us, if you need more information.
 
 * The first one is the
-  `Segger J-Link Plus <https://www.segger.com/j-link-plus.html>`_. A cheaper
+  `Segger J-Link PLUS <https://www.segger.com/j-link-plus.html>`_. A cheaper
   debugger solution is the
-  `Segger J-Link Base <https://www.segger.com/jlink_base.html>`_. Please note
+  `Segger J-Link BASE <https://www.segger.com/jlink_base.html>`_. Please note
   that the debug software
   `Ozone <https://www.segger.com/products/development-tools/ozone-j-link-debugger/#ozone-licensing>`_
   is not licensed with the base version of J-Link.
@@ -107,7 +111,7 @@ options exist and might yield similar results.
 * The second type of debugger are the debugger by
   `Lauterbach <http://www.lauterbach.com>`_. The Lauterbach
   debugger performs under certain conditions better, but is also more expensive
-  than the J-Link. Tracing has been tested and setup only with trace-probes
+  than the J-Link. Tracing has been tested and set up only with trace-probes
   by Lauterbach.
 
 The following sections describe configuration and usage of the debuggers

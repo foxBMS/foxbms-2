@@ -7,7 +7,7 @@ import os, random, time, sys
 
 sys.path.insert(
     1,
-    os.path.abspath(os.path.join("..", "..", "..", "..", "..", "..", "tools", "waf3-2.0.21-16cd196b0fc7b4eebe195ce20396f3d1")),
+    os.path.abspath(os.path.join("..", "..", "..", "..", "..", "..", "tools", "waf3-2.0.22-1241519b19b496207abef1f72bbf61c2")),
 )
 from waflib import ConfigSet, Context, Build, Configure, Utils
 
@@ -56,4 +56,3 @@ for y in (Build.BuildContext, Configure.ConfigurationContext):
 		def execute(self, *k, **kw):
 			super(self.__class__, self).execute(*k, **kw)
 			write_conf(self)
-

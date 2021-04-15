@@ -24,3 +24,17 @@ When creating too many cyclically updated entries in the watch window, the
 debugger seems to stop and read the target so often that it impacts the system
 performance. Being aware of this issue and keeping an eye on the number of
 automatically updated variable watches should mitigate this issue.
+
+Tracing with Segger J-Trace PRO Cortex
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Apart from debug probes, Segger also supplies trace probes. With these devices
+it is possible to stream internal information from the MCU such as the program
+counter directly to the debugger. For the TMS570LC4357 target it is necessary
+to use the Segger J-Trace PRO Cortex model. According to its documentation it
+is able to trace with a data width of 4 bit.
+
+Information on how to set up the trace probe can be found in the
+`Segger Wiki <https://wiki.segger.com/TI_TMS570Lx#Tracing_on_TI_TMS570LC4357>`_.
+Please note, that as of now, only tracing with
+:ref:`Lauterbach devices<LAUTERBACH_TRACE32_DEBUGGER>` has been tested by
+`Fraunhofer IISB`_.

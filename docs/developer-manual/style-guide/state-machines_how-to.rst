@@ -929,13 +929,13 @@ The full implementation of this state machine is found in
 :numref:`state-machine-h` and :numref:`state-machine-c`.
 
 .. literalinclude:: ./state-machine-example/state-machine.h
-    :language: c
+    :language: C
     :linenos:
     :caption: The header of the state machine
     :name: state-machine-h
 
 .. literalinclude:: ./state-machine-example/state-machine.c
-    :language: c
+    :language: C
     :linenos:
     :caption: The implementation of the state machine
     :name: state-machine-c

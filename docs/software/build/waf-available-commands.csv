@@ -1,0 +1,11 @@
+Command/Option;             Description
+``build_all``;              Shortcut to run all available build commands
+``build_bin``;              Builds the binaries
+``build_docs``;             Builds the documentation
+``build_static_analysis``;  Runs a static code analysis on all C sources that are not third party sources
+``build_unit_test``;        Builds and runs all unit tests for the embedded sources
+``clean_all``;              Shortcut to run all available clean commands
+``clean_bin``;              Cleans all binaries
+``clean_docs``;             Cleans the rendered documentation
+``clean_static_analysis``;  Cleans all output files written during ``build_static_analysis``
+``clean_unit_test``;        Cleans all output files written during ``build_unit_test``

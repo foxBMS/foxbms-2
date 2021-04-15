@@ -49,26 +49,12 @@ The Engine task is the task with the highest priority and should not be modified
 The Idle task is not counted as a *real* task and is only mentioned for the sake of completeness and should not be
 modified (see :numref:`ftask_special_task_idle`).
 
-.. table:: *common* task names, the function that creates the task and the function that is run cyclically
+.. csv-table:: *common* task names, the function that creates the task and the function that is run cyclically
    :name: ftask-function-overview
-   :widths: grid
-
-   +-------------------+----------------------------------------+--------------------------------------+----------------------------------+
-   | *Common* name     | Task Creator Function                  | User Code Function                   | Comment                          |
-   +-------------------+----------------------------------------+--------------------------------------+----------------------------------+
-   | Idle task         | \-                                     | FTSK_UserCodeIdle                    | This task should not be modified |
-   +-------------------+----------------------------------------+--------------------------------------+----------------------------------+
-   | Engine task       | FTSK_TaskCreatorEngine                 | FTSK_UserCodeEngine                  | This task should not be modified |
-   +-------------------+----------------------------------------+--------------------------------------+----------------------------------+
-   | 1ms cyclic task   | FTSK_TaskCreatorCyclic1ms              | FTSK_UserCodeCyclic1ms               | User code can be put here        |
-   +-------------------+----------------------------------------+--------------------------------------+----------------------------------+
-   | 10ms cyclic task  | FTSK_TaskCreatorCyclic10ms             | FTSK_UserCodeCyclic10ms              | User code can be put here        |
-   +-------------------+----------------------------------------+--------------------------------------+----------------------------------+
-   | 100ms cyclic task | FTSK_TaskCreatorCyclic100ms            | FTSK_UserCodeCyclic10ms              | User code can be put here        |
-   +-------------------+----------------------------------------+--------------------------------------+----------------------------------+
-   | 100ms cyclic task | FTSK_TaskCreatorCyclicAlgorithm100ms   | FTSK_UserCodeCyclicAlgorithm100ms    | User code can be put here        |
-   | for algorithms    |                                        |                                      |                                  |
-   +-------------------+----------------------------------------+--------------------------------------+----------------------------------+
+   :widths: auto
+   :header-rows: 1
+   :delim: ;
+   :file: ./ftask-function-overview.csv
 
 The following sections show how tasks are created, configured and how task behavior can be changed. Code sections that
 are not meant to be modified by user are indicated in the code, e.g., for the Engine task:
@@ -78,7 +64,7 @@ are not meant to be modified by user are indicated in the code, e.g., for the En
    :linenos:
    :emphasize-lines: 2-3,6-7
    :caption: Example of code that should not be modified by the user
-   :name: ftsk-usercode-engine-example
+   :name: ftsk-user-code-engine-example
 
     void FTSK_UserCodeEngine(void) {
         /* Warning: Do not change the content of this function */
@@ -200,19 +186,12 @@ User Tasks
 The functions shown in :numref:`ftask-user-code-functions` are provided by the ``ftask`` module to run user/application
 specific code:
 
-.. table:: ``ftask`` User Code Functions
+.. csv-table:: ``ftask`` User Code Functions
    :name: ftask-user-code-functions
-   :widths: grid
-
-   +------------------------------------+-------------------------------------------------------------------+
-   | Function                           | Description                                                       |
-   +====================================+===================================================================+
-   | ``FTSK_UserCodeCyclic1ms``         | Code that should be run every 1ms                                 |
-   +------------------------------------+-------------------------------------------------------------------+
-   | ``FTSK_UserCodeCyclic10ms``        | Code that should be run every 10ms                                |
-   +------------------------------------+-------------------------------------------------------------------+
-   | ``FTSK_UserCodeCyclic100ms``       | Code that should be run every 100ms                               |
-   +------------------------------------+-------------------------------------------------------------------+
+   :widths: auto
+   :header-rows: 1
+   :delim: ;
+   :file: ./ftask-user-code-functions.csv
 
 Further Reading
 ---------------

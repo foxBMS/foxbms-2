@@ -107,9 +107,9 @@ The code
 
 .. code-block:: c
 
-    xMPUSettings->xRegion[portNUM_CONFIGURABLE_REGIONS-1].ulRegionBaseAddress = 0x0807F000;
-    xMPUSettings->xRegion[portNUM_CONFIGURABLE_REGIONS-1].ulRegionSize        = portMPU_SIZE_4KB | portMPU_REGION_ENABLE;
-    xMPUSettings->xRegion[portNUM_CONFIGURABLE_REGIONS-1].ulRegionAttribute   = portMPU_PRIV_RW_USER_RW_NOEXEC | portMPU_NORMAL_OINC_SHARED;
+    xMPUSettings->xRegion[ portNUM_CONFIGURABLE_REGIONS - 1 ].ulRegionBaseAddress = 0x0807F000;
+    xMPUSettings->xRegion[ portNUM_CONFIGURABLE_REGIONS - 1 ].ulRegionSize        = portMPU_SIZE_4KB | portMPU_REGION_ENABLE;
+    xMPUSettings->xRegion[ portNUM_CONFIGURABLE_REGIONS - 1 ].ulRegionAttribute   = portMPU_PRIV_RW_USER_RW_NOEXEC | portMPU_NORMAL_OINC_SHARED;
 
 has to be added. ``portNUM_CONFIGURABLE_REGIONS-1`` means that the last user
 region is used, as wished in the |halcogen| configuration.
@@ -123,6 +123,6 @@ like this:
 .. code-block:: c
 
     #pragma SET_DATA_SECTION(".sharedRAM")
-    uint16_t ltc_RXPECbuffer[LTC_N_BYTES_FOR_DATA_TRANSMISSION] = {0};
-    uint16_t ltc_TXPECbuffer[LTC_N_BYTES_FOR_DATA_TRANSMISSION] = {0};
+    uint16_t ltc_RxPecBuffer[LTC_N_BYTES_FOR_DATA_TRANSMISSION] = {0};
+    uint16_t ltc_TxPecBuffer[LTC_N_BYTES_FOR_DATA_TRANSMISSION] = {0};
     #pragma SET_DATA_SECTION()

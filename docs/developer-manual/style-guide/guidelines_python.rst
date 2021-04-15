@@ -105,53 +105,29 @@ No platform specific code (``PYTHON:006``)
 Example :numref:`platform-specific-code` shows how to write platform acceptable
 platform specific code.
 
-.. code-block:: python
+.. literalinclude:: ./examples/python-006.py
+    :language: python
     :linenos:
+    :lines: 44-
     :caption: Handling of platform specific code
     :name: platform-specific-code
-
-    import os
-    import platform
-
-    def some_function():
-        if platform.uname().system.lower().startswith("win"):
-            print("Some Windows code)
-        else:
-            print("Feature only support on windows")
-
-        path = "some/path"  # bad - works on all platforms, but no good style
-        path = "some\\path"  # bad - works only on Windows
-        path = os.path.join("some", "path")  # good - works on every platform
-
 
 .. _rule_python_wscript_rules:
 
 ``wscript`` Specific rules (``PYTHON:007``)
 -------------------------------------------
 
-``includes`` might be less readable if they are split over multiple lines (as
-``black`` would format it like this on default). Therefore ``includes`` might
-be written as follows, if it increases readability:
+``includes`` and ``source`` or might be less readable if they are split over
+multiple lines (as ``black`` would format it like this on default). Therefore
+``includes`` and ``source`` might be written as follows, if it increases
+readability:
 
-.. code-block:: python
+.. literalinclude:: ./examples/python-007.py
+    :language: python
     :linenos:
+    :lines: 44-
     :caption: Format ``includes`` in ``wscript``
     :name: format-includes-in-wscript
-
-    def build(bld):
-        # ...
-        # fmt: off
-        # pylint: disable=line-too-long
-        includes = [
-            # ...
-            os.path.join("..", "..", "os", bld.env.operating_system),
-            os.path.join("..", "..", "os", bld.env.operating_system, "include"),
-            os.path.join("..", "..", "os", bld.env.operating_system, "portable", "ccs", "arm_cortex-r5"),
-            # ...
-        ]
-        # pylint: enable=line-too-long
-        # fmt: on
-        # ...
 
 - ``# fmt: off`` disables black on formatting starting from that line and
   ``# pylint: disable=line-too-long`` disables the pylint error message

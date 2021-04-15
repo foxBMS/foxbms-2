@@ -150,8 +150,6 @@ The following data is stored in the database:
   - Interface to communicate via I2C with extra functionalities on slave
     (e.g., EEPROM, port expander)
   - Result from open-wire check on slaves
-  - LTC device parameter
-  - LTC accuracy
   - Error state of the BMS (i.e. error flags, set to 0 or 1)
   - MSL, maximum safety limits
   - RSL, recommended safety limits

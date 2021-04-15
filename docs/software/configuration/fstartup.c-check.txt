@@ -4,11 +4,11 @@
    Waf: Leaving directory C:\Users\vulpes\Documents\foxbms\build\bin'
    Build failed
    Traceback (most recent call last):
-     File "C:\Users\vulpes\Documents\foxbms\tools\waf3-2.0.21-16cd196b0fc7b4eebe195ce20396f3d1\waflib\Task.py", line 180, in process
+     File "C:\Users\vulpes\Documents\foxbms\tools\waf3-2.0.22-1241519b19b496207abef1f72bbf61c2\waflib\Task.py", line 180, in process
        ret=self.run()
      File "C:\Users\vulpes\Documents\foxbms\tools\waf-tools\f_hcg.py", line 260, in run
        "The auto-generated file 'HL_sys_startup.c' has changed due to "
-     File "C:\Users\vulpes\Documents\foxbms\tools\waf3-2.0.21-16cd196b0fc7b4eebe195ce20396f3d1\waflib\Context.py", line 261, in fatal
+     File "C:\Users\vulpes\Documents\foxbms\tools\waf3-2.0.22-1241519b19b496207abef1f72bbf61c2\waflib\Context.py", line 261, in fatal
        raise self.errors.ConfigurationError(msg,ex=ex)
    waflib.Errors.ConfigurationError: The auto-generated file 'HL_sys_startup.c' has changed due to a configuration change in the HALCoGen project.
    The expected hash is b'e2e61496edd65f44d7cc811b504ad1f2' but the generated hash is b'1something-other'.

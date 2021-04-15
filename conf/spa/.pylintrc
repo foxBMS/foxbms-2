@@ -16,7 +16,7 @@ ignore-patterns=
 
 # Python code to execute, usually for sys.path manipulation such as
 # pygtk.require().
-init-hook='import sys; sys.path.append("tools/waf3-2.0.21-16cd196b0fc7b4eebe195ce20396f3d1")'
+init-hook='import sys; sys.path.append("tools/waf3-2.0.22-1241519b19b496207abef1f72bbf61c2")'
 
 # Use multiple processes to speed up Pylint. Specifying 0 will auto-detect the
 # number of processors available to use.

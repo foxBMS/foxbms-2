@@ -127,18 +127,8 @@ Measurement IC
 The measurement IC is configured in ``conf/bms/bms.json``. The joint path
 from the values of ``manufacturer`` and ``chip`` must be the name of the
 source directory in ``src/app/driver/mic/<manufacturer>/<chip>`` that includes
-the driver implementation. Currently these options are supported:
-
-- ``"manufacturer": "ltc"`` in combination with
-
-  - ``"chip": "6806"``,
-  - ``"chip": "6811-1"``,
-  - ``"chip": "6812-1"`` or
-  - ``"chip": "6813-1"``
-
-- ``"manufacturer": "debug"`` in combination with
-
-  - ``"chip": "default"``.
+the driver implementation. A list of supported ICs is found in
+:numref:`SUPPORTED_MEASUREMENT_ICS`.
 
 The build process behind this configuration is documented at
 :ref:`measurement_ic_library_build`.

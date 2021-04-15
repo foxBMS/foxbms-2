@@ -3,11 +3,12 @@
 .. |timestamp| date:: %Y-%m-%d %H:%M:%S
 
 .. |foxbms| replace:: foxBMS 2
-.. |version_foxbms| replace:: ``1.0.0``
+.. |version_foxbms| replace:: ``1.0.1``
 .. |github_foxbms| replace:: https://github.com/foxBMS/
 .. |foxbms_repository| replace:: https://github.com/foxBMS/foxbms-2
 .. _Fraunhofer IISB: https://www.iisb.fraunhofer.de
 
+.. _BSD 3-Clause License: https://opensource.org/licenses/BSD-3-Clause
 .. |python| replace:: Python
 .. |ruby| replace:: Ruby
 

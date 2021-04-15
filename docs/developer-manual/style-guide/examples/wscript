@@ -1,0 +1,147 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+#
+# Copyright (c) 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# All rights reserved.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#
+# 1. Redistributions of source code must retain the above copyright notice, this
+#    list of conditions and the following disclaimer.
+#
+# 2. Redistributions in binary form must reproduce the above copyright notice,
+#    this list of conditions and the following disclaimer in the documentation
+#    and/or other materials provided with the distribution.
+#
+# 3. Neither the name of the copyright holder nor the names of its
+#    contributors may be used to endorse or promote products derived from
+#    this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+# OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#
+# We kindly request you to use one or more of the following phrases to refer to
+# foxBMS in your hardware, software, documentation or advertising materials:
+#
+# - "This product uses parts of foxBMS®"
+# - "This product includes parts of foxBMS®"
+# - "This product is derived from foxBMS®"
+
+"""Build Script: ``./docs/software/style-guide/examples/wscript``
+=================================================================
+
+Builds the guidelines examples in order to verify that the code is valid.
+
+This build script is not meant to be reused!
+
+"""
+
+import os
+import collections
+
+
+def build(bld):
+    """Build the guideline example objects"""
+    dummy_headers = [
+        "config_cpu_clock_hz",
+        "HL_sys_common",
+        "required_different_header",
+        "required_very_different_header",
+        "first_used_header_1",
+        "second_used_header",
+        "xyz",
+        "some_other_required_header",
+        "some_other_required_header2",
+        "required_additional_header",
+        "required_additional_header2",
+    ]
+    dummy_txt = "/* dummy file */\n"
+    for i in dummy_headers:
+        bld.path.find_or_declare(f"{i}.h").write(dummy_txt)
+    bld.add_group()
+    includes = [
+        ".",
+        os.path.join("..", "..", "..", "..", "src", "app", "main", "include"),
+    ]
+    includes_freertos = [
+        os.path.join("..", "..", "..", "..", "src", "os", "freertos", "include"),
+        os.path.join(
+            "..",
+            "..",
+            "..",
+            "..",
+            "src",
+            "os",
+            "freertos",
+            "portable",
+            "ccs",
+            "arm_cortex-r5",
+        ),
+    ]
+    includes_c_028 = includes + [
+        bld.path.find_node(
+            os.path.join("..", "..", "..", "..", "src", "app", "application", "config")
+        )
+    ]
+    includes_c_006 = includes + [
+        bld.path.find_node(
+            os.path.join(
+                "..",
+                "..",
+                "..",
+                "..",
+                "tools",
+                "vendor",
+                "ceedling",
+                "vendor",
+                "unity",
+                "src",
+            )
+        )
+    ]
+    cflags = ["--c99"]
+    Example = collections.namedtuple("Example", ["source", "includes", "cflags"])
+    examples = [
+        Example("c-004.c", includes, cflags),
+        Example("c-005.c", includes, cflags),
+        Example("c-006-source.c", includes, cflags),
+        Example("c-006-test.c", includes_c_006, cflags),
+        Example("c-007_abc.c", includes + includes_freertos, cflags),
+        Example("c-007_abc_cfg.c", includes, cflags),
+        Example("c-008.c", includes, cflags + ["--diag_suppress=179"]),
+        Example("c-009.c", includes, cflags + ["--diag_suppress=179"]),
+        Example("c-011.c", includes, cflags + ["--diag_suppress=179"]),
+        Example("c-012.c", includes, cflags + ["--diag_suppress=179"]),
+        Example("c-013.c", includes, cflags + ["--diag_suppress=179"]),
+        Example("c-015.c", includes, cflags + ["--diag_suppress=179"]),
+        Example("c-016.c", includes, cflags + ["--diag_suppress=179"]),
+        Example("c-017.c", includes, cflags + ["--diag_suppress=179"]),
+        Example("c-018.c", includes, cflags + ["--diag_suppress=179"]),
+        Example("c-019.c", includes, cflags + ["--diag_suppress=179"]),
+        Example("c-020.c", includes, cflags + ["--diag_suppress=179"]),
+        Example("c-021.c", includes, cflags + ["--diag_suppress=179"]),
+        Example("c-022.c", includes, cflags + ["--diag_suppress=179"]),
+        Example("c-023.c", includes, cflags + ["--diag_suppress=179"]),
+        Example("c-024.c", includes, cflags + ["--diag_suppress=179"]),
+        Example("c-025.c", includes, cflags + ["--diag_suppress=179"]),
+        Example("c-026.c", includes, cflags + ["--diag_suppress=179"]),
+        Example("c-027.c", includes, cflags),
+        Example("c-028.c", includes, cflags + ["--diag_suppress=179"]),
+        Example(
+            "c-028-battery-defines.c", includes_c_028, cflags + ["--diag_suppress=179"]
+        ),
+    ]
+    for i in examples:
+        # manually set idx as this is not relevant for the documentation build
+        bld(features="c", source=i.source, includes=i.includes, cflags=i.cflags, idx=1)

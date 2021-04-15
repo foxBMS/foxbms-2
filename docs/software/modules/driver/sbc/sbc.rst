@@ -14,8 +14,8 @@ Vendor Driver
 
 .. note::
 
-   This driver has been provided by NXP Semiconductors, Inc. under BSD 3-clause
-   license. It has been adapted to pass the interface configuration as
+   This driver has been provided by NXP Semiconductors, Inc. under the 3-Clause
+   BSD License. It has been adapted to pass the interface configuration as
    parameter into the functions to enable the usage of multiple ICs in the
    system.
 

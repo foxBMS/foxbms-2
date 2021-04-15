@@ -76,7 +76,7 @@ Header (``C:002``)
     C source and header files **MUST** start with the following header:
 
    .. literalinclude:: ./../../../conf/tpl/c.c
-      :language: c
+      :language: C
       :linenos:
       :lines: 1-40
       :caption: File header for ``.c`` and ``.h`` files.
@@ -137,30 +137,15 @@ File level doxygen (``C:004``)
     - The ``@updated`` argument **MUST** be an ISO 8601 date followed by
       ``(date of last update)``.
 
-:numref:`doxygen-test-h` shows how this looks for a file ``test.h``.
+:numref:`doxygen-test-c` shows how this looks for a file ``c-004.c``.
 
-.. code-block:: c
+.. literalinclude:: ./examples/c-004.c
+   :language: C
+   :lines: 41-
    :linenos:
-   :emphasize-lines: 2-7,9,11,12
-   :caption: file level doxygen for test.h
-   :name: doxygen-test-h
-
-    /**
-     * @file    test.h
-     * @author  foxBMS Team
-     * @date    2020-01-02 (date of creation)
-     * @updated 2020-03-19 (date of last update)
-     * @ingroup SOME_GROUP
-     * @prefix  TST
-     *
-     * @brief   This is the header for the test driver
-     *
-     * @details This describes what is exactly implemented.
-     *          And this may span multiple lines.
-     *
-     */
-
-     /* here comes the actual code */
+   :emphasize-lines: 2-7,9
+   :caption: File level doxygen for c-004.c
+   :name: doxygen-test-c
 
 .. _rule_c_include_guard:
 
@@ -170,7 +155,7 @@ Include guard (``C:005``)
 An include guard, is a construct used in ``C`` to avoid the problem
 of multiple inclusion when dealing with the include directive.
 
-.. admonition:: ``C:005`` Include guard rules
+.. admonition:: Include guard rules
 
     - All header files **MUST** implement include guards to prevent multiple
       inclusions.
@@ -182,22 +167,16 @@ of multiple inclusion when dealing with the include directive.
     - There **MUST NOT** be a blank line between ``#ifndef`` and ``#define``.
     - There **MUST** be a blank line after ``#define``.
 
-:numref:`include-guard-abc-h` shows how this looks for a file ``abc.h``, where
-the include guard would be ``FOXBMS__ABC_H_``.
+:numref:`include-guard-c-005-h` shows how this looks for a file ``c-005.h``, where
+the include guard would be ``FOXBMS__C_005_H_``.
 
-
-.. code-block:: c
+.. literalinclude:: ./examples/c-005.c
+    :language: C
+    :lines: 41-
     :linenos:
     :emphasize-lines: 1,2,6
-    :caption: Include guard for ``abc.h``
-    :name: include-guard-abc-h
-
-    #ifndef FOXBMS__ABC_H_
-    #define FOXBMS__ABC_H_
-
-    /* Some code */
-
-    #endif /* FOXBMS__ABC_H_ */
+    :caption: Include guard for ``c-005.h``
+    :name: include-guard-c-005-h
 
 .. _rule_c_sections:
 
@@ -211,63 +190,45 @@ C Sections (``C:006``)
     for source fils (files in ``src/**``) and test files (files in
     ``tests/unit/**``)
 
-:numref:`c_section_header` shows how this looks for a file ``header.h``.
+:numref:`c_section_header` shows how this looks for a file ``c-006-source.h``.
 
-.. code-block:: c
+.. literalinclude:: ./examples/c-006-source.h
+   :language: C
+   :lines: 41-
    :linenos:
-   :emphasize-lines: 1-5
-   :caption: c section for header.h
+   :emphasize-lines: 4,6,8,10,12
+   :caption: c section for ``c-006-source.h``
    :name: c_section_header
 
-    /*========== Includes =======================================================*/
-    /*========== Macros and Definitions =========================================*/
-    /*========== Extern Constant and Variable Declarations ======================*/
-    /*========== Extern Function Prototypes =====================================*/
-    /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
+:numref:`c_section_source` shows how this looks for a file ``c-006-source.c``.
 
-
-:numref:`c_section_source` shows how this looks for a file ``source.c``.
-
-.. code-block:: c
+.. literalinclude:: ./examples/c-006-source.c
+   :language: C
+   :lines: 41-
    :linenos:
-   :emphasize-lines: 1-8
-   :caption: c section for source.c
+   :emphasize-lines: 1,3,5,7,9,11,13,15
+   :caption: c section for ``c-006-source.c``
    :name: c_section_source
 
-    /*========== Includes =======================================================*/
-    /*========== Macros and Definitions =========================================*/
-    /*========== Static Constant and Variable Definitions =======================*/
-    /*========== Extern Constant and Variable Definitions =======================*/
-    /*========== Static Function Prototypes =====================================*/
-    /*========== Static Function Implementations ================================*/
-    /*========== Extern Function Implementations ================================*/
-    /*========== Externalized Static Function Implementations (Unit Test) =======*/
+:numref:`c_section_test_header` shows how this looks for a file ``./test/c-006-test.h``.
 
-
-:numref:`c_section_test_header` shows how this looks for a file ``./test/header.h``.
-
-.. code-block:: c
+.. literalinclude:: ./examples/c-006-test.h
+   :language: C
+   :lines: 41-
    :linenos:
-   :emphasize-lines: 1-2
-   :caption: c section for ./test/header.h
+   :emphasize-lines: 4,6
+   :caption: c section for ``./test/c-006-test.h``
    :name: c_section_test_header
 
-    /*========== Includes =======================================================*/
-    /*========== Macros and Definitions =========================================*/
+:numref:`c_section_test_source` shows how this looks for a file ``./test/c-006-test.c``.
 
-:numref:`c_section_test_source` shows how this looks for a file ``./test/source.c``.
-
-.. code-block:: c
+.. literalinclude:: ./examples/c-006-test.c
+   :language: C
+   :lines: 41-
    :linenos:
-   :emphasize-lines: 1-4
-   :caption: c section for ./test/source.c
+   :emphasize-lines: 4,6,8,10
+   :caption: c section for ``./test/c-006-test.c``
    :name: c_section_test_source
-
-    /*========== Includes =======================================================*/
-    /*========== Definitions and Implementations for Unit Test ==================*/
-    /*========== Setup and Teardown =============================================*/
-    /*========== Test Cases =====================================================*/
-
 
 .. _rule_c_includes:
 
@@ -278,7 +239,7 @@ Includes are used to insert the contents of a second file into the
 original file. There are two scenarios to be considered for file includes. They
 distinguish if the software module provides configuration files or not.
 
-.. admonition:: ``C:007``: Include rules
+.. admonition:: Include rules
 
     - All includes **MUST** be listed after the ``includes`` marker.
     - Only required includes **MUST** be added.
@@ -317,107 +278,61 @@ distinguish if the software module provides configuration files or not.
         #. All other required headers except Mocks
 
 
-:numref:`includes-abc_cfg-h`, :numref:`includes-abc_cfg-c`,
-:numref:`includes-abc-h` and :numref:`includes-abc-c` show how includes
-**MUST** be added.
+:numref:`includes-c-007_abc_cfg-h`, :numref:`includes-c-007_abc_cfg-c`,
+:numref:`includes-c-007_abc-h` and :numref:`includes-c-007_abc-c` show how
+includes **MUST** be added.
 
-.. code-block:: c
+.. literalinclude:: ./examples/c-007_abc_cfg.h
+    :language: C
+    :lines: 41-
     :linenos:
-    :emphasize-lines: 2,4,5
-    :caption: Include order for ``abc_cfg.h``
-    :name: includes-abc_cfg-h
+    :caption: Include order for ``c-007_abc_cfg.h``
+    :name: includes-c-007_abc_cfg-h
 
-    /*================== Includes ===============================================*/
-    #include "general.h"
-
-    #include "required_additional_header.h"
-    #include "required_additional_header2.h"
-
-.. code-block:: c
+.. literalinclude:: ./examples/c-007_abc_cfg.c
+    :language: C
+    :lines: 41-
     :linenos:
-    :emphasize-lines: 2,4,5
-    :caption: Include order for ``abc_cfg.c``
-    :name: includes-abc_cfg-c
+    :caption: Include order for ``c-007_abc_cfg.c``
+    :name: includes-c-007_abc_cfg-c
 
-    /*================== Includes ===============================================*/
-    #include "abc_cfg.h"
-
-    #include "some_other_required_header.h"
-    #include "some_other_required_header2.h"
-
-
-.. code-block:: c
+.. literalinclude:: ./examples/c-007_abc.h
+    :language: C
+    :lines: 41-
     :linenos:
-    :emphasize-lines: 2,4,5
-    :caption: Include oder for ``abc.h``
-    :name: includes-abc-h
+    :caption: Include oder for ``c-007_abc.h``
+    :name: includes-c-007_abc-h
 
-    /*================== Includes ===============================================*/
-    #include "abc_cfg.h"
-
-    #include "required_different_header.h"
-    #include "required_very_different_header.h"
-
-.. code-block:: c
+.. literalinclude:: ./examples/c-007_abc.c
+    :language: C
+    :lines: 41-
     :linenos:
-    :emphasize-lines: 2,4,5,6
-    :caption: Include order for ``abc.c``
-    :name: includes-abc-c
-
-    /*================== Includes ===============================================*/
-    #include "abc.h"
-
-    #include "FreeRTOS.h"
-    #include "task.h"
-
-    #include "first_used_header_1.h"
-    #include "second_used_header.h"
-    #include "xyz.h"
+    :caption: Include order for ``c-007_abc.c``
+    :name: includes-c-007_abc-c
 
 .. _rule_c_scoping:
 
 Scoping (``C:008``)
 -------------------
 
-.. admonition:: ``C:008``: Scope rules
+.. admonition:: Scope rules
 
-    - All functions, variables, typedefs, macros etc. **MUST** be declared
+    - All functions, variables, typedefs, macros etc. **MUST** be declared in
       the narrowest scope possible (function, file, global).
 
        - If a function, macro, typedef or variable is used by multiple
          files/modules, declare it public.
        - If a function, macro, typedef or variable is only used within a file,
          declare it static.
-       - If variable is only used within a function, declare it inside the
+       - If a variable is only used within a function, declare it inside the
          function.
 
-.. code-block:: c
+.. literalinclude:: ./examples/c-008.c
+    :language: C
+    :lines: 41-
     :linenos:
     :caption: Narrowest variable scope
     :name: narrowest-variable-scope
-
-    /*================== Extern Constant and Variable Declarations ==============*/
-    extern uint32_t abc_globalVariable;  /*!< Important global variable that is used by multiple files/modules */
-
-    /*================== Extern Function Prototypes =============================*/
-    /**
-      * @brief   Function to do important stuff.
-      */
-    extern void ABC_GlobalImportantFunction(void);
-
-    /*================== Static Constant and Variable Definitions ===============*/
-    static uint32_t abc_staticVariable = 0;  /*!< File static variable that is used within multiple functions */
-
-    /*================== Static Function Prototypes =============================*/
-    /**
-      * @brief   Function to do important stuff in this file/module.
-      */
-    static void ABC_StaticImportantFunction(void);
-
-    /*================== Static Function Implementations ========================*/
-    static void ABC_StaticImportantFunction(void) {
-        uint32_t tempVariable = 0;  /* Temporary variable to do calculations in this function */
-    }
 
 .. _rule_c_function_names:
 
@@ -433,13 +348,12 @@ Function names (``C:009``)
 
 :numref:`function-names`, shows correctly named functions.
 
-.. code-block:: c
+.. literalinclude:: ./examples/c-009.c
+    :language: C
+    :lines: 41-
     :linenos:
     :caption: Function names using the uppercase module prefix.
     :name: function-names
-
-    void ABC_ImportantFunction(void);
-    void ABC_EvenMoreImportantFunction(void);
 
 .. _rule_c_function_scopes:
 
@@ -448,8 +362,8 @@ Function scopes (``C:010``)
 
 .. admonition:: Function scope rules
 
-    - Global and static functions **MUST** be declared with the respective
-      keywords ``extern`` or ``static``. This keyword **MUST** be used for
+    - Global and static functions **MUST** be declared respectively with the
+      keywords ``extern`` or ``static``. This keyword **MUST** be used for the
       function prototype declaration and the function definition.
     - Global function prototypes **MUST** be declared in the header file.
     - Static function prototypes **MUST** be declared in the source file.
@@ -480,45 +394,21 @@ Function doxygen documentation (``C:011``)
 
 :numref:`function-prototype-and-doxygen` and
 :numref:`function-implementation-and-doxygen` show doxygen documented functions
-in a file ``abc.c``.
+in a header file ``c-011.h`` and source file ``c-011.c``.
 
-.. code-block:: c
+.. literalinclude:: ./examples/c-011.h
+    :language: C
+    :lines: 41-
     :linenos:
-    :caption: Global function declaration in ``abc.h``, placed in the ``Extern Function Prototypes`` section.
+    :caption: Global function declaration in ``c-011.h``, placed in the ``Extern Function Prototypes`` section.
     :name: function-prototype-and-doxygen
 
-    /*========== Extern Function Prototypes =====================================*/
-    /**
-     * @brief   Does this and that
-     * @details Detailed description of this function
-     * @return  some unit8_t which describes xyz
-     */
-    extern unit8_t ABC_ImportantFunction(void);
-
-.. code-block:: c
+.. literalinclude:: ./examples/c-011.c
+    :language: C
+    :lines: 41-
     :linenos:
-    :caption: Global function implementation in abc.c, placed in the ``Extern Function Implementations`` section.
+    :caption: Global function implementation in ``c-011.c``, placed in the ``Extern Function Implementations`` section.
     :name: function-implementation-and-doxygen
-
-    /*========== Static Function Prototypes =====================================*/
-    /**
-     * @brief   Does something
-     * @details Detailed description of this function
-     * @return  some unit8_t which describes xyz
-     */
-    static unit8_t ABC_Another_Function(void);
-
-    /*========== Static Function Implementations ================================*/
-    static unit8_t ABC_Another_Function(void) {
-        /* code */
-        return 0;
-    }
-
-    /*========== Extern Function Implementations ================================*/
-    extern unit8_t ABC_ImportantFunction(void) {
-        /* code */
-        return 0;
-    }
 
 .. _rule_c_function_return_value:
 
@@ -528,21 +418,19 @@ Function return statement (``C:012``)
 .. admonition:: Return statement rules
 
     Parentheses surrounding the return expression **SHOULD NOT** be used. Use
-    parentheses in return expression only in places where you would use them
+    parentheses in return expressions only in places where you would use them
     in normal assignments.
 
 :numref:`return-parentheses-usage` shows how to correctly use parentheses and
 the return statement.
 
-.. code-block:: c
+.. literalinclude:: ./examples/c-012.c
+    :language: C
+    :lines: 41-
     :linenos:
+    :emphasize-lines: 8,13-17
     :caption: Correct usage of the ``return`` statement.
     :name: return-parentheses-usage
-
-    return result;        /* No parentheses in the simple case. */
-    /* Parentheses OK to make a complex expression more readable. */
-    return (some_long_condition &&
-            another_condition);
 
 .. _rule_c_function_calls:
 
@@ -553,10 +441,10 @@ Function calls (``C:013``)
 
     - Multiple arguments **SHOULD** be put on a single line to reduce the
       number of lines necessary for calling a function unless there is a
-      specific readability problem. Some find that formatting with strictly one
-      argument on each line is more readable and simplifies editing of the
-      arguments. However, we prioritize for the reader over the ease of editing
-      arguments, and most readability problems are better addressed with the
+      specific readability problem. Some styleguides require formatting
+      strictly one argument on each line for simplifying editing the arguments.
+      However, we prioritize readability over the ease of editing arguments,
+      and most readability problems are better addressed with the
       following techniques.
     - If the arguments do not all fit on one line, they **MAY** be broken up
       onto multiple lines, with each subsequent line aligned with the first
@@ -581,30 +469,12 @@ Function calls (``C:013``)
 Different correct ways to call functions with multiple parameters or long
 function names are given in :numref:`function-call`.
 
-.. code-block:: c
+.. literalinclude:: ./examples/c-013.c
+    :language: C
+    :lines: 41-
     :linenos:
     :caption: Correct formatting of function calls.
     :name: function-call
-
-
-    /* use variable to capture value, before passing to function */
-    int16_t myHeuristic = scores[x] * y + bases[x];
-    int16_t result = ABC_DoSomething(myHeuristic, x, y, z);
-
-    /* place confusing argument on own commented line and all other parameters also an own line */
-    int16_t result = ABC_DoSomething(
-        scores[x] * y + bases[x],  /* Score heuristic. */
-        x,
-        y,
-        z);
-
-    /* Its a matrix, and therefore it makes sense to format the arguments as a matrix */
-    /* clang-format off */
-    ABC_TransformMyWidget(x1, x2, x3,
-                          y1, y2, y3,
-                          z1, z2, z3);
-    /* clang-format on */
-
 
 .. _rule_c_additional_function_rules:
 
@@ -636,7 +506,6 @@ the project. If a rule is not checked automatically it is indicated.
     - You **SHOULD** use describing parameter names. (Not checked by
       clang-format)
 
-
 .. _rule_c_function_parameter_checking:
 
 Function parameter checking (``C:015``)
@@ -646,42 +515,30 @@ Function parameter checking (``C:015``)
 
     - Input values of function parameters **SHOULD** be checked at the
       beginning of a function if possible.
-    - Pointers passed as parameters **MUST** be checked against NULL.
+    - Pointers passed as parameters **MUST** be checked against ``NULL_PTR``.
 
 Parameter checking is shown in :numref:`function-input-check`.
 
-.. code-block:: c
+.. literalinclude:: ./examples/c-015.c
+    :language: C
+    :lines: 41-
     :linenos:
     :caption: Input check of function parameters
     :name: function-input-check
 
-    extern uint32_t ABC_ArrayAverage(uint8_t *pArray, uint8_t arrayLength) {
-        uint32_t sum = 0u;
-
-        FAS_ASSERT(pArray != NULL_PTR)
-        FAS_ASSERT(arrayLength > 0u)
-
-        for (uint16_t i = 0u; i < arrayLength; i++) {
-            sum += pArray[i];
-        }
-        sum /= arrayLength;
-        return sum;
-    }
-
-
 .. _rule_c_variable_names:
 
-Variables names (``C:016``)
----------------------------
+Variable names (``C:016``)
+--------------------------
 
 .. admonition:: Variable naming rules
 
-    - global and static variables **MUST** be commented with a doxygen style
+    - Global and static variables **MUST** be commented with a doxygen style
       comment.
     - Variable names (including function parameters) **MUST** start with a
       lowercase letter and are written in "camel Case".
     - If the scope of the variable is at least file wide (more than function
-      scope) or if the variable is declared static it **MUST** start with
+      scope) or if the variable is declared static it **MUST** start with the
       module prefix in lowercase letters. A variable representing a physical
       unit is followed by a suffix with the SI-unit symbol ``_<unit>`` (e.g.
       ``_mA`` for milliampere or ``K`` for Kelvin). Exceptions are non-ASCII
@@ -689,28 +546,11 @@ Variables names (``C:016``)
     - A doxygen comment explaining what this variable is used for **MUST** be
       added to all static and global variables.
 
-.. code-block:: c
+.. literalinclude:: ./examples/c-016.c
+    :language: C
+    :lines: 41-
     :linenos:
     :caption: Different examples for correctly named variables.
-
-    /*================== Extern Constant and Variable Declarations ==============*/
-    extern uint32_t abc_globalVariable;  /*!< Global variable -> prefix + doxygen comment */
-
-    /*================== Static Constant and Variable Definitions ===============*/
-    static uint32_t abc_staticVariable = 0u;  /*!< Static variable -> prefix + doxygen comment */
-    static int32_t abc_packSoc_perc = 0;  /*!< Static variable representing physical unit -> prefix + suffix + doxygen */
-
-    /*================== Static Function Implementations ========================*/
-    static void ABC_StaticImportantFunction(void) {
-        uint8_t maxValue = 32u;  /* Temporary variable to do calculations in this function */
-        uint32_t maximumTemporaryVoltage_mV = 0u;  /* Variable representing physical unit -> suffix */
-        maxValue--;
-
-        /* Local loop counter */
-        for (uint8_t counter = 0u; counter < maxValue; counter++) {
-            /* Do something.... */
-        }
-    }
 
 .. _rule_c_constant_names:
 
@@ -725,11 +565,11 @@ Constant names (``C:017``)
     - Underscores **MAY** be used as separators in rare cases where
       capitalization cannot be used for separation.
 
-.. code-block:: c
+.. literalinclude:: ./examples/c-017.c
+    :language: C
+    :lines: 41-
     :linenos:
     :caption: Correct examples for naming constant variables.
-
-    const static uint16_t abc_kDaysInAWeek = 7;     /*!< Number of days in a week */
 
 .. _rule_c_pointer_rules:
 
@@ -743,29 +583,18 @@ Pointer rules (``C:018``)
       the case of a pointer to a variable and ``fp`` in the case of a function
       pointer, followed by camel Case. When declaring a pointer variable or
       argument, the asterisk **MUST** be placed adjacent to the variable name.
-    - As function-pointer syntax can get complicated and lead to error, a
+    - As function-pointer syntax can get complicated and lead to errors, a
       function pointer **MUST** use a typedef. The typedef of a function has
       to use the suffix ``_f``.
     - Spaces around ``.`` or ``->`` **MUST NOT** be used when accessing
-      pointers. The following are examples of correctly-formatted pointer and
-      reference expressions:
+      pointers. The following listing contains examples of correctly-formatted
+      pointer and reference expressions:
 
-.. code-block:: c
+.. literalinclude:: ./examples/c-018.c
+    :language: C
+    :lines: 41-
     :linenos:
     :caption: Correct usage of pointers.
-
-    typedef uint8_t SOME_FUNCTION_TYPE_f (void);  /* typedef of a function type */
-    uint32_t myVariable = 0;                      /* local uint32_t variable */
-    static uint32_t *abc_pMyPointer = NULL_PTR;   /* static uint32_t pointer */
-    static INIT_STRUCT_s abc_initStruct = {0};    /* static init struct */
-    INIT_STRUCT_s *pInitStruct = NULL_PTR;        /* local pointer to some init struct */
-    SOME_FUNCTION_TYPE_f * fpMyFunction;          /* local function pointer using a typedef */
-
-
-    abc_pMyPointer = &myVariable;
-    myVariable = *abc_pMyPointer;
-    myVariable = abc_initStruct.value;
-    myVariable = pInitStruct->value;
 
 .. _rule_c_variable_initialization:
 
@@ -782,7 +611,7 @@ Variable initialization (``C:019``)
     - For the initialization, the correct suffixes for unsigned, signed and
       floating-point types **MUST** be used. See
       :numref:`table-variable-initialization` for details.
-    - Pointers **MUST** be initialized with ``NULL`` if no other valid
+    - Pointers **MUST** be initialized with ``NULL_PTR`` if no other valid
       initialization is possible.
 
 
@@ -811,53 +640,11 @@ Variable initialization (``C:019``)
     | int64_t  | ``LL``   |
     +----------+----------+
 
-.. code-block:: c
+.. literalinclude:: ./examples/c-019.c
+    :language: C
+    :lines: 41-
     :linenos:
     :caption: Initialization examples for variables and complex types
-
-    /* Initialization for variables */
-    uint8_t myVar = 10u;
-    uint16_t myVar = 10u;
-    uint32_t myVar = 10u;
-    uint64_t myVar = 10uLL;
-    int8_t myVar = -10;
-    int16_t myVar = -10;
-    int32_t myVar = -10;
-    int32_t myVar = -10LL;
-
-    /* Initialization example for arrays */
-    uint8_t myArrayA[] = {1,2,3};   /* Array has type uint8_t[3] and holds 1,2,3 */
-    uint8_t myArrayC[5] = {0};      /* Array has type uint8_t[5] and holds 0,0,0,0,0 */
-
-    uint8_t myArrayD[4][3] = {  /* array of 4 arrays of 3 uint8_t's each (4x3 matrix) */
-        { 1 },                  /* row 0 initialized to {1, 0, 0} */
-        { 0, 1 },               /* row 1 initialized to {0, 1, 0} */
-        { [2]=1 },              /* row 2 initialized to {0, 0, 1} */
-    };                          /* row 3 initialized to {0, 0, 0} */
-
-    /* Initialization example for structs */
-    typedef struct POINT {
-        float x;
-        float y;
-        float z;
-    } POINT_s;
-
-    POINT_s myPoint = {1.2, 1.3}  /* p.x=1.2, p.y=1.3, p.z=0.0 */
-
-    typedef struct PATH {
-        POINT_S point;
-        uint32_t timestamp;
-        uint32_t prevTimestamp;
-        uint8_t[16] name;
-    } PATH_s;
-
-    PATH_s myPath = {80.0f, 127.0f, -37.0f, 0, 1, "test"};  /* 80.0f initializes myPath.point.x  */
-                                                            /* 127.0f initializes myPath.point.y */
-                                                            /* -37.0f initializes myPath.point.z */
-                                                            /* 0 initializes myPath.timestamp    */
-                                                            /* 1 initializes ex.in_u.a8[3]       */
-                                                            /* "test" initializes name[0-3]      */
-                                                            /* name[4-15] are set to 0           */
 
 .. _rule_c_hexadecimal:
 
@@ -868,12 +655,11 @@ Hexadecimal values (``C:020``)
 
     Hexadecimal digits **MUST** be written in uppercase letters.
 
-.. code-block:: c
+.. literalinclude:: ./examples/c-020.c
+    :language: C
+    :lines: 41-
     :linenos:
     :caption: Correct usage of hexadecimal digits.
-
-    uint8_t myVar = 0xFFu;
-    int8_t myOtherVar = 0xAA;
 
 .. _rule_c_floating_point:
 
@@ -905,14 +691,11 @@ Floating-point values (``C:021``)
     | double   | ``none`` |
     +----------+----------+
 
-.. code-block:: c
+.. literalinclude:: ./examples/c-021.c
+    :language: C
+    :lines: 41-
     :linenos:
     :caption: Usage of floating-point literals.
-
-    const float kEuler = 2.71828f;
-    const double kPi = 3.141592
-    double number = 1248.0e6;
-    long double largeNumber = -0.5L;
 
 .. _rule_c_structs:
 
@@ -925,7 +708,8 @@ Structs (``C:022``)
     - Struct members **MUST** be commented with a doxygen style comment.
     - Structs **MUST** be declared as typedefs.
     - Struct names **MUST** be all uppercase with underscores ``(_)`` between
-      each word starting with the module prefix and ending with suffix ``_s``.
+      each word starting with the module prefix and ending with the suffix
+      ``_s``.
     - Struct members **MUST** be named as ordinary variables.
     - Anonymous structs **MUST NOT** be used, instead the struct type without
       the suffix ``_s`` **MUST** be defined.
@@ -937,16 +721,11 @@ Structs (``C:022``)
 
 Example:
 
-.. code-block:: c
+.. literalinclude:: ./examples/c-022.c
+    :language: C
+    :lines: 41-
     :linenos:
     :caption: Correct struct implementation.
-
-    /** Symbolic names for battery system state */
-    typedef struct ABC_DATE {
-        uint16_t year,  /*!< year */
-        uint8_t month,  /*!< month (1: january ... 12: december) */
-        uint8_t day,    /*!< day of the month */
-    } ABC_DATE_s;
 
 .. _rule_c_enums:
 
@@ -969,20 +748,11 @@ Enums (``C:023``)
     - A doxygen comment describing each enum **MUST** be added above the definition.
     - A doxygen comment describing each enum member **MUST** be added after the member.
 
-.. code-block:: c
+.. literalinclude:: ./examples/c-023.c
+    :language: C
+    :lines: 41-
     :linenos:
     :caption: Correct enum implementation.
-
-    /** Symbolic names for weekdays */
-    typedef enum ABC_DAYS {
-        ABC_MONDAY,     /**< First day of the week */
-        ABC_TUESDAY,    /**< Second day of the week */
-        ...
-        ...  /* more members */
-        ABC_SUNDAY,     /**< Last day of the week */
-        ABC_DAYS_E_MAX  /**< Max marker */
-    } ABC_DAYS_e;
-
 
 .. _rule_c_typedefs:
 
@@ -995,25 +765,11 @@ Typedefs (``C:024``)
       each word.
     - Other typedef names **MUST** end with the suffix ``_t``.
 
-.. code-block:: c
+.. literalinclude:: ./examples/c-024.c
+    :language: C
+    :lines: 41-
     :linenos:
     :caption: Correct example for usage of typedefs.
-
-    /* Remapping of types */
-    typedef SPI_HandleType_s    SPI_HANDLE_TYPEDEF_t;
-    typedef uint32_t            TICK_TYPE_t;
-
-    /* Using typedefs for the creation of function pointers */
-    /* Pointer to functions with uint32_t return datatype and two function parameters of type uint32_t */
-    typedef uint32_t (*CALLBACK_FUNCTION_POINTER_t)(uint32_t, float);
-
-    /* Example */
-    static uint32_t ABC_DummyFunction(uint32_t varA, uint32_t varB);  /* Function prototype */
-    /* local variable of type callback_funcPtr_t */
-    CALLBACK_FUNCTION_POINTER_t callback = &ABC_BuildSum;
-
-    /* call of function ABC_BuildSum()*/
-    uint32_t temp = callback(37, 42);
 
 .. _rule_c_macros:
 
@@ -1023,22 +779,19 @@ Macros (``C:025``)
 .. admonition:: Macro rules
 
     - Macro names **MUST** be capitalized with underscores.
-    - Macros **MUST** start with the module prefix
-    - If macros define a physical value the name **MUST** be suffixed with the
+    - Macros **MUST** start with the module prefix.
+    - If macros define a physical value, the name **MUST** be suffixed with the
       SI-unit or a SI-derived unit, e.g., use ``F`` for a capacity instead of
       SI units  ``s4_A2__m2_kg_1``.
     - If macros are used to define a value, this value **MUST** be put in
       parentheses.
-    - It is **NOT RECOMMENDED** to use function-like macros
+    - It is **NOT RECOMMENDED** to use function-like macros.
 
-.. code-block:: c
+.. literalinclude:: ./examples/c-025.c
+    :language: C
+    :lines: 41-
     :linenos:
     :caption: Correct naming examples of macros.
-
-    #define ABC_GET_MINIMUM_FLOAT(x, y)       DEF_CalculateMinimumFloat(x, y)
-    #define ABC_PI_ROUNDED                    (3.14f)
-    #define ABC_NUMBER_OF_DAYS_IN_A_WEEK      (7u)
-    #define ABC_MAXIMUM_PACK_VOLTAGE_mV       (320000u)
 
 .. _rule_c_conditionals:
 
@@ -1053,26 +806,15 @@ Conditionals (``C:026``)
     - A space between the ``if`` keyword and the open parenthesis and between
       the close parenthesis and the curly bracket **MUST** be placed.
     - Multiple statements in one condition **MUST** be placed into separate
-      parenthesis. If you have a boolean expression that is longer than the
+      parentheses. If you have a boolean expression that is longer than the
       standard line length, the logical operator **MUST** be at the end of the
       lines.
 
-.. code-block:: c
+.. literalinclude:: ./examples/c-026.c
+    :language: C
+    :lines: 41-
     :linenos:
     :caption: Correct implementation of if-else statements.
-
-    if (condition) {  /* no spaces inside parentheses */
-        /* code */  /* 4 space indent. */
-    } else if (other_condition) {  /* The else goes on the same line as the closing brace. */
-      /* code */
-    } else {
-      /* code */
-    }
-    if ((this_one_thing > this_other_thing) &&
-        (a_third_thing == a_fourth_thing) &&
-        (yet_another && last_one)) {
-        /* code */
-    }
 
 .. _rule_c_switch:
 
@@ -1081,7 +823,7 @@ switch Statements (``C:027``)
 
 .. admonition:: Switch statement rules
 
-    - Switch statements **MUST** use parenthesis for blocks.
+    - Switch statements **MUST** use parentheses for blocks.
     - Fall-throughs between cases **SHOULD NOT** be used but instead all cases
       are terminated with one single break-statement at the end of the case.
       The only exceptions for this rules are empty fall-throughs that **MUST**
@@ -1094,34 +836,11 @@ switch Statements (``C:027``)
     - There **MUST** be an empty line between ``break`` and the next ``case``
       directive.
 
-.. code-block:: c
+.. literalinclude:: ./examples/c-027.c
+    :language: C
+    :lines: 41-
     :linenos:
     :caption: Correct implementation of switch-case statement.
-
-    switch (var) {
-        case 0:    /* 4 space indent */
-            /* code */    /* 4 space indent */
-            break;
-
-        case 1:
-            /* code */
-            break;
-
-        case 2:
-            /* code */
-            break;
-
-        case 3:  /* Empty fall-through allowed as case 3 and 4 require the same treatment */
-        case 4:
-            /* case 3 and case 4 trigger the same response */
-            /* code */
-            break;
-
-        default:
-            FAS_ASSERT(FAS_TRAP);
-            break;
-
-    }
 
 .. _rule_c_loop:
 
@@ -1130,21 +849,17 @@ loop Statements (``C:028``)
 
 .. admonition:: loop rules
 
-    - Parenthesis **MUST** be used for all loops, at all times. This is valid
+    - Parentheses **MUST** be used for all loops, at all times. This is valid
       for single-statement loops.
     - Empty loop bodies **MUST** use an empty pair of brackets and explain why
       they are empty.
 
-.. code-block:: c
+.. literalinclude:: ./examples/c-028.c
+    :language: C
+    :lines: 41-
     :linenos:
-    :caption: Correct usage of spaces and parenthesis in loop statements.
+    :caption: Correct usage of spaces and parentheses in loop statements.
 
-    for (uint8_t i = 0u; i < kSomeNumber; ++i) {
-      /* code */
-    }
-    while (condition) {
-      /* This should never happen, since ... */
-    }
 
 There are three defines that are typically looped over: the number of strings
 (``BS_NR_OF_STRINGS``), the number of modules (``BS_NR_OF_MODULES``) and the
@@ -1168,27 +883,22 @@ These loops **MUST** follow the pattern as shown in
     | ``BS_NR_OF_CELLS_PER_MODULE`` | ``c``             |
     +-------------------------------+-------------------+
 
-.. code-block:: c
+.. literalinclude:: ./examples/c-028-battery-defines.c
+    :language: C
+    :lines: 41-
     :linenos:
     :caption: Looping over BS_NR_OF_STRINGS, BS_NR_OF_MODULES, BS_NR_OF_CELLS_PER_MODULE
     :name: special-counter-variables-example
-
-    for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
-        /* string related code */
-        for (uint8_t m = 0u; m < BS_NR_OF_MODULES; m++) {
-            /* module related code */
-            for (uint8_t c = 0u; c < BS_NR_OF_CELLS_PER_MODULE; c++) {
-                /* cell related code */
-            }
-        }
-    }
 
 .. _rule_c_comment_style:
 
 C Comment style (``C:029``)
 ---------------------------
 
-Comment style rule
+.. admonition:: Comment Style
+
+    - Only ANSI-C comments **MUST** be used (``/* */``).
+    - Comments **MUST NOT** be nested.
 
 .. _rule_c_hints:
 
@@ -1199,14 +909,16 @@ For both, *camel Case* and *Pascal Case*, the general rules of the english
 language apply. This means that the correct version for a variable about the
 cell voltage is ``abc_cellVoltage`` (**not** ``abc_cellvoltage``).
 
-
 .. _rule_c_formatting:
 
 C Formatting (``C:031``)
 ------------------------
 
-Formatting rule
+.. admonition:: Formatting
 
+    - All code **MUST** be formatted according to the rules in this guidelines
+      document.
+    - Formatting **SHOULD** be done automatically by a tool.
 
 .. _rule_c_state_machines:
 
@@ -1244,7 +956,6 @@ C Source Files
    :linenos:
    :caption: File template for C source files
    :name: c-c-template
-
 
 C Test Header Files
 ^^^^^^^^^^^^^^^^^^^

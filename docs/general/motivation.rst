@@ -9,7 +9,7 @@ Motivation
 What is |foxbms|?
 -----------------
 
-With |foxbms|, Fraunhofer IISB delivers the second generation of its open
+With |foxbms|, `Fraunhofer IISB`_ delivers the second generation of its open
 source battery management system (BMS) research and development platform. The
 |foxbms| platform is completely free and open, designed for a maximum of
 flexibility, and comprehensively documented. It includes all necessary
@@ -34,7 +34,7 @@ What is |foxbms| designed for?
 
 Experience gained from international research and development projects over
 the last 15 years in the field of electrochemical energy storage systems at
-Fraunhofer IISB has been implemented in the hardware and software of the
+`Fraunhofer IISB`_ has been implemented in the hardware and software of the
 |foxbms| platform. It is designed to manage high-performance prototypes of
 advanced and innovative lithium-ion battery systems of any size (i.e. from a
 few cells up to several hundreds of |kWh| and |kW|), especially for systems
@@ -47,8 +47,8 @@ development, and test platform providing all functions for managing the
 complexity and size of state-of-the-art electrochemical energy storage
 systems.
 
-Specific adaptions of |foxbms| can be ordered directly from Fraunhofer IISB or
-can be jointly developed, for example for automotive, aviation, space,
+Specific adaptions of |foxbms| can be ordered directly from `Fraunhofer IISB`_
+or can be jointly developed, for example for automotive, aviation, space,
 submarine, industrial, and renewable energy storage applications.
 
 Who is the intended audience?
@@ -57,9 +57,10 @@ Who is the intended audience?
 |foxbms| is a free and open BMS platform that can be used for developing and
 testing products. The |foxbms| hardware and documentation are licensed under
 the Creative Commons Attribution 4.0 International (CC BY 4.0) license. The
-|foxbms| software is licensed under the BSD 3-Clause license. This means,
-|foxbms| parts can be utilized unrestrictedly, including commercial use. The
-|foxbms| platform addresses especially:
+|foxbms| software is licensed under the BSD 3-Clause License (SPDX short
+identifier: BSD-3-Clause). This means, |foxbms| parts can be utilized
+unrestrictedly, including commercial use. The |foxbms| platform addresses
+especially:
 
  - R&D and test engineers requiring a smart and powerful, well documented BMS
    platform

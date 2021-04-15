@@ -14,6 +14,7 @@ list below shows. This is achieved by drivers that follow the
     :maxdepth: 1
     :caption: List of supported measurement ICs
 
+    ./ltc/6804-1.rst
     ./ltc/6806.rst
     ./ltc/6811-1.rst
     ./ltc/6812-1.rst

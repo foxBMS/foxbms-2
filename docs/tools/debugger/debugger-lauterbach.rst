@@ -29,3 +29,14 @@ For a normal download onto the target with a subsequent debug session you have
 to select the ELF file, then set the target to "Up"-state, download the ELF
 file onto the target and then press the "Up and Go"-button in order to reset
 the target and start with an attached debugger.
+
+Using a trace probe
+^^^^^^^^^^^^^^^^^^^
+Lauterbach supplies in addition to the debug probes also a trace probe for the
+TMS570LC4357 target. Please refer to their customer support for details.
+
+The setup of `Fraunhofer IISB`_ consists of a LA-3505 debugger connected to a
+LA-3500 trace probe. |foxbms| features a compliant Mictor-38 connector in order
+to be able to connect trace ports with up to 8 bit. If you need more bandwith,
+please contact us. The standard design can be adapted to up to 32 bit trace
+bandwith.

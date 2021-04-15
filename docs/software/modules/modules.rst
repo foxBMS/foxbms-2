@@ -60,6 +60,6 @@ Software Modules
 
 .. toctree::
     :maxdepth: 2
-    :caption: Driver
+    :caption: Startup Routine
 
     ./main/startup.rst
