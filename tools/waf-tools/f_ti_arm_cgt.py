@@ -126,7 +126,7 @@ class armclFormatter(
                 lines.append(Logs.colors.RED + line + Logs.colors.NORMAL)
             else:
                 lines.append(line)
-        return "\n".join(lines)
+        return os.linesep.join(lines)
 
 
 def options(opt):
@@ -621,11 +621,11 @@ class cprogram(link_task):  # pylint: disable-msg=invalid-name,too-few-public-me
             std[0],
         )
         if Logs.verbose:
-            Logs.info("\n".join(hits))
+            Logs.info(os.linesep.join(hits))
         if errors:
             Logs.error(
                 "Removing binary as the following errors occurred after linkage:\n"
-                + "\n".join(errors)
+                + os.linesep.join(errors)
             )
             # remove output since the binary was not linked as desired
             for i in self.outputs:
@@ -1196,28 +1196,38 @@ class create_version_source(Task.Task):  # pylint: disable=invalid-name
             )
 
         self.outputs[0].write(
-            '#include "version_cfg.h"\r\n'
-            "#pragma RETAIN(f_version_info)\r\n"
-            "const VERSION_s f_version_info = {\r\n"
-            f"    .under_version_control = {is_git_repo},\r\n"
-            f"    .is_dirty = {is_dirty},\r\n"
-            f'    .version = "{version}",\r\n'
-            f'    .git_remote = "{git_remote}",\r\n'
-            "};\r\n",
+            os.linesep.join(
+                [
+                    '#include "version_cfg.h"',
+                    "#pragma RETAIN(f_version_info)",
+                    "const VERSION_s f_version_info = {",
+                    f"    .under_version_control = {is_git_repo},",
+                    f"    .is_dirty = {is_dirty},",
+                    f'    .version = "{version}",',
+                    f'    .git_remote = "{git_remote}",',
+                    "};",
+                ]
+            )
+            + os.linesep,
             encoding="utf-8",
         )
         self.outputs[1].write(
-            f"#ifndef {define_guard}\r\n"
-            f"#define {define_guard}\r\n"
-            '#include "general.h"\r\n'
-            "typedef struct VERSION {\r\n"
-            "    bool under_version_control;\r\n"
-            "    bool is_dirty;\r\n"
-            f"    char version[{len(version)}u];\r\n"
-            f"    char git_remote[{len(git_remote)}u];\r\n"
-            "} VERSION_s;\r\n"
-            f"extern const VERSION_s f_version_info;\r\n"
-            f"#endif /* {define_guard} */\r\n",
+            os.linesep.join(
+                [
+                    f"#ifndef {define_guard}",
+                    f"#define {define_guard}",
+                    '#include "general.h"',
+                    "typedef struct VERSION {",
+                    "    bool under_version_control;",
+                    "    bool is_dirty;",
+                    f"    char version[{len(version)}u];",
+                    f"    char git_remote[{len(git_remote)}u];",
+                    "} VERSION_s;",
+                    "extern const VERSION_s f_version_info;",
+                    f"#endif /* {define_guard} */",
+                ]
+            )
+            + os.linesep,
             encoding="utf-8",
         )
 
@@ -1316,7 +1326,7 @@ class search_swi(Task.Task):  # pylint: disable=invalid-name
             {"file:": self.inputs[0].relpath(), "functions": swi_functions},
             indent=4,
         )
-        self.outputs[0].write(info + "\r\n")
+        self.outputs[0].write(info + os.linesep)
 
     def keyword(self):
         """displayed keyword when this check is run"""
@@ -1371,7 +1381,7 @@ class print_swi(Task.Task):  # pylint: disable=invalid-name
             all_swi_functions,
             indent=4,
         )
-        self.outputs[0].write(all_info + "\r\n")
+        self.outputs[0].write(all_info + os.linesep)
 
 
 @TaskGen.feature("swi-check")

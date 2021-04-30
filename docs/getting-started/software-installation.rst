@@ -70,9 +70,9 @@ later steps of this manual.
    :caption: Downloading a release
    :name: download-foxbms-2
 
-   C:\Users\vulpes\Documents>curl -Ss -L -o foxbms-2-v1.0.1.zip https://github.com/foxBMS/foxbms-2/archive/v1.0.1.zip
-   C:\Users\vulpes\Documents>tar -x -f foxbms-2-v1.0.1.zip
-   C:\Users\vulpes\Documents>ren foxbms-2-v1.0.1 foxbms-2
+   C:\Users\vulpes\Documents>curl -Ss -L -o foxbms-2-v1.0.2.zip https://github.com/foxBMS/foxbms-2/archive/v1.0.2.zip
+   C:\Users\vulpes\Documents>tar -x -f foxbms-2-v1.0.2.zip
+   C:\Users\vulpes\Documents>ren foxbms-2-1.0.2 foxbms-2
    C:\Users\vulpes\Documents>cd foxbms-2
 
 .. note::

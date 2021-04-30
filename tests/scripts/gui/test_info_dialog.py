@@ -38,11 +38,80 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""sets the version package etc."""
+"""Implements tests for the foxBMS 2 info dialog.
+"""
 
-__version__ = "1.0.2"
-__appname__ = "foxBMS 2"
-__author__ = "The foxBMS Team"
-__copyright__ = "(c) 2010 - 2021 foxBMS"
-__author__ = "The foxBMS Team"
-__email__ = "info@foxbms.org"
+import unittest
+import sys
+import os
+import wx
+
+HAVE_GIT = False
+try:
+    from git import Repo
+    from git.exc import InvalidGitRepositoryError
+
+    HAVE_GIT = True
+except ImportError:
+    pass
+
+
+def get_git_root(path: str) -> str:
+    """helper function to find the repository root
+
+    Args:
+        path (string): path of test_f_guidelines
+
+    Returns:
+        root (string): root path of the git repository
+    """
+    root = os.path.join(os.path.dirname(path), "..", "..", "..")
+    if HAVE_GIT:
+        try:
+            repo = Repo(path, search_parent_directories=True)
+            root = repo.git.rev_parse("--show-toplevel")
+        except InvalidGitRepositoryError:
+            pass
+    return root
+
+
+ROOT = get_git_root(os.path.realpath(__file__))
+
+sys.path.insert(1, os.path.abspath(os.path.join(ROOT, "tools", "gui")))
+import info_dialog  # pylint:disable=wrong-import-position
+
+
+class TestDialog(unittest.TestCase):
+    """Testing the info dialog"""
+
+    def setUp(self):
+        self.app = wx.App()
+        self.frame = wx.Frame()
+        self.frame.Show()
+
+    def tearDown(self):
+        wx.CallAfter(self.app.ExitMainLoop)
+        self.app.MainLoop()
+
+    def test_dialog(self):
+        """Tests the info dialog"""
+
+        def click_ok():
+            """programmatically click the 'ok' button"""
+            ok_clicked = wx.CommandEvent(wx.wxEVT_COMMAND_BUTTON_CLICKED, wx.ID_OK)
+            self.info_diag.ProcessEvent(ok_clicked)
+
+        wx.CallAfter(click_ok)
+        self.show_dialog()
+
+    def show_dialog(self):
+        """Shows the dialog"""
+
+        # pylint:disable=attribute-defined-outside-init
+        self.info_diag = info_dialog.FoxbmsInfoDialog(None)
+        self.info_diag.ShowModal()
+        self.info_diag.Destroy()
+
+
+if __name__ == "__main__":
+    unittest.main()

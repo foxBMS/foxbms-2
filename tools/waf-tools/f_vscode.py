@@ -57,7 +57,10 @@ from waflib import Context
 
 def fix_jinja(txt):
     """appends empty line to file, if missing"""
-    return "\n".join([s for s in txt.splitlines() if not s.strip() == ""]) + "\n"
+    return (
+        os.linesep.join([s for s in txt.splitlines() if not s.strip() == ""])
+        + os.linesep
+    )
 
 
 def configure(conf):  # pylint: disable=too-many-statements,too-many-branches

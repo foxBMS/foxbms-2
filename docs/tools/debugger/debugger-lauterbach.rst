@@ -6,6 +6,13 @@
 Lauterbach Trace32 debugger
 ===========================
 
+..
+    Comments:
+    Mictor is a connector
+
+.. spelling::
+    Mictor
+
 Some information can be found in ``tools/debugger/lauterbach/commands.md``.
 Please carefully read the
 `basic manual <https://www2.lauterbach.com/pdf/training_debugger.pdf>`_
@@ -37,6 +44,6 @@ TMS570LC4357 target. Please refer to their customer support for details.
 
 The setup of `Fraunhofer IISB`_ consists of a LA-3505 debugger connected to a
 LA-3500 trace probe. |foxbms| features a compliant Mictor-38 connector in order
-to be able to connect trace ports with up to 8 bit. If you need more bandwith,
+to be able to connect trace ports with up to 8 bit. If you need more bandwidth,
 please contact us. The standard design can be adapted to up to 32 bit trace
-bandwith.
+bandwidth.

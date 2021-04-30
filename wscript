@@ -72,8 +72,6 @@ from waflib.Build import BuildContext, CleanContext, ListContext, StepContext
 Context.Context.line_just = 50
 Configure.autoconfig = 1
 
-sys_platform = Utils.unversioned_sys_platform()  # pylint:disable=invalid-name
-
 out = "build"  # pylint:disable=invalid-name
 """output directory"""
 top = "."  # pylint:disable=invalid-name
@@ -82,7 +80,7 @@ top = "."  # pylint:disable=invalid-name
 APPNAME = "foxBMS"
 """name of the application. This is used in various waf functions"""
 
-VERSION = "1.0.1"
+VERSION = "1.0.2"
 """version of the application. This is used in various waf functions. This
 version must match the version number defined in ``macros.txt``. Otherwise a
 configuration error is thrown."""
@@ -122,15 +120,15 @@ for target_type, target_val in ALL_VARIANTS.items():
                 variant = var
 
 
-bld_variants = []  # pylint:disable=invalid-name
-cln_variants = []  # pylint:disable=invalid-name
+BLD_VARIANTS = []
+CLN_VARIANTS = []
 # build and clean variants exist for all commands
 for target_type, target_val in ALL_VARIANTS.items():
     for var in target_val:
-        bld_variants.append(f"build_{var}")
-        cln_variants.append(f"clean_{var}")
+        BLD_VARIANTS.append(f"build_{var}")
+        CLN_VARIANTS.append(f"clean_{var}")
 
-dist_exclude = (  # pylint:disable=invalid-name
+DIST_EXCLUDE = (
     f"{out}/** **/.git **/.gitignore .gitlab/** **/.gitattributes "
     "**/*.tar.bz2 **/*.tar.gz **/*.pyc __pycache__ "
     "tools/waf*.*.**-* .lock-* "
@@ -142,27 +140,42 @@ dist_exclude = (  # pylint:disable=invalid-name
 def version_consistency_checker(ctx):
     """checks that all version strings in the repository are synced"""
     doc_dir = "docs"
+    changelog_file = ctx.path.find_node(
+        os.path.join(doc_dir, "general", "changelog.rst")
+    )
+    changelog_txt = changelog_file.read(encoding="utf-8")
     m_file = ctx.path.find_node(os.path.join(doc_dir, "macros.txt"))
     m_file_txt = m_file.read(encoding="utf-8")
     gs_file = ctx.path.find_node(
         os.path.join(doc_dir, "getting-started", "software-installation.rst")
     )
     gs_file_txt = gs_file.read()
-    if m_file_txt.find(f".. |version_foxbms| replace:: ``{str(VERSION)}``") < 0:
+    if m_file_txt.find(f".. |version_foxbms| replace:: ``{VERSION}``") < 0:
         ctx.fatal(
             f"The version information in {m_file} is different from the "
-            f"specified version {str(VERSION)}."
+            f"specified version {VERSION}."
+        )
+    if changelog_txt.find(f"[{VERSION}]") < 0:
+        ctx.fatal(
+            f"The version information in {changelog_file} is different "
+            f"from the specified version {VERSION}."
         )
     repo_url = "https://github.com/foxBMS/foxbms-2"
     must_include_version = [
-        f"curl -Ss -L -o foxbms-2-v{str(VERSION)}.zip {repo_url}/archive/v{str(VERSION)}.zip",
-        f"tar -x -f foxbms-2-v{str(VERSION)}.zip",
+        f"curl -Ss -L -o foxbms-2-v{VERSION}.zip {repo_url}/archive/v{VERSION}.zip",
+        f"tar -x -f foxbms-2-v{VERSION}.zip",
+        f"ren foxbms-2-{VERSION} foxbms-2",
     ]
     if not all([gs_file_txt.find(i) > 0 for i in must_include_version]):
         ctx.fatal(
             f"The version information in {gs_file} is different from the "
-            f"specified version {str(VERSION)}"
+            f"specified version {VERSION}"
         )
+    pys = [
+        ctx.path.find_node(os.path.join("tools", "gui", "fgui", "__init__.py")),
+    ]
+    if not all([i.read().find(f'__version__ = "{VERSION}"') > 0 for i in pys]):
+        ctx.fatal(f"Version information in {pys} is not correct.")
 
 
 def options(opt):
@@ -215,6 +228,12 @@ def options(opt):
         default=0,
         action="count",
         help="Use a configuration cache",
+    )
+
+    opt.add_option(
+        "--skip-doxygen",
+        action="store_true",
+        help="Builds the documentation without the Doxygen documentation",
     )
 
     opt.add_option("--vscshell", default="bash", choices=["bash", "cmd"])
@@ -394,7 +413,7 @@ def build(bld):  # pylint: disable=too-many-branches,too-many-statements
     if not bld.variant:
         bld.fatal(
             f"A {bld.cmd} variant must be specified. The build variants are: "
-            f"{', '.join(bld_variants)}.\nFor more details run 'python "
+            f"{', '.join(BLD_VARIANTS)}.\nFor more details run 'python "
             f"tools{os.sep}waf --help'"
         )
 
@@ -615,17 +634,17 @@ def build(bld):  # pylint: disable=too-many-branches,too-many-statements
         addon_pattern = "        <addon>{}</addon>"
 
         cppcheck_root = root_pattern.format(pathlib.Path(bld.path.abspath()).as_posix())
-        cppcheck_paths = "\n".join(
+        cppcheck_paths = os.linesep.join(
             [dir_pattern.format(pathlib.Path(i.abspath()).as_posix()) for i in paths]
         )
-        cppcheck_exclude = "\n".join(
+        cppcheck_exclude = os.linesep.join(
             [
                 dir_pattern.format(pathlib.Path(i.abspath()).as_posix() + "/")
                 for i in exclude
             ]
         )
         addons = ["threadsafety", "y2038", "cert", "misra"]
-        cppcheck_addon = "\n".join([addon_pattern.format(i) for i in addons])
+        cppcheck_addon = os.linesep.join([addon_pattern.format(i) for i in addons])
         bld(
             features="subst",
             source=source,
@@ -766,8 +785,9 @@ def build(bld):  # pylint: disable=too-many-branches,too-many-statements
         bld.set_group("doxygen")
         doxy_conf_src = bld.path.get_bld().find_or_declare("doxygen_src.conf")
         doxy_conf_tests = bld.path.get_bld().find_or_declare("doxygen_tests.conf")
-        bld(features="doxygen", doxygen_conf=doxy_conf_src)
-        bld(features="doxygen", doxygen_conf=doxy_conf_tests)
+        if not bld.options.skip_doxygen:
+            bld(features="doxygen", doxygen_conf=doxy_conf_src)
+            bld(features="doxygen", doxygen_conf=doxy_conf_tests)
 
         bld.set_group("sphinx")
         # fmt: off
@@ -789,6 +809,7 @@ def build(bld):  # pylint: disable=too-many-branches,too-many-statements
             os.path.join(doc_dir, "general", "team.rst"),
             os.path.join(doc_dir, "general", "team-ad-sc.rst"),
             os.path.join(doc_dir, "general", "team-dev.rst"),
+            os.path.join(doc_dir, "general", "team-former.rst"),
             os.path.join(doc_dir, "introduction", "abbreviations-definitions.rst"),
             os.path.join(doc_dir, "introduction", "bms-overview.rst"),
             os.path.join(doc_dir, "getting-started", "getting-started.rst"),
@@ -914,8 +935,7 @@ def build(bld):  # pylint: disable=too-many-branches,too-many-statements
         config = bld.path.find_node(os.path.join("docs", "conf.py"))
         bld(
             features="sphinx",
-            # builders="html linkcheck spelling",
-            builders="html",
+            builders="html linkcheck spelling",
             outdir=".",
             source=source,
             confpy=config,
@@ -926,13 +946,13 @@ def build(bld):  # pylint: disable=too-many-branches,too-many-statements
 
 def build_all(ctx):  # pylint: disable=unused-argument
     """shortcut to build all variants"""
-    for bld_var in bld_variants:
+    for bld_var in BLD_VARIANTS:
         Options.commands.insert(0, bld_var)
 
 
 def clean_all(ctx):  # pylint: disable=unused-argument
     """shortcut to clean all variants"""
-    for cln_var in cln_variants:
+    for cln_var in CLN_VARIANTS:
         Options.commands.insert(0, cln_var)
 
 
@@ -940,7 +960,7 @@ def dist(conf):
     """creates a archive based on the current repository state"""
     conf.base_name = APPNAME.lower()
     conf.algo = "tar.gz"
-    conf.excl = dist_exclude
+    conf.excl = DIST_EXCLUDE
 
 
 def distcheck_cmd(self):  # pylint: disable=unused-argument,missing-function-docstring
@@ -991,7 +1011,7 @@ def distcheck(conf):
     Scripting.DistCheck.make_distcheck_cmd = distcheck_cmd
     Scripting.DistCheck.check = check_cmd
     conf.base_name = APPNAME.lower()
-    conf.excl = dist_exclude
+    conf.excl = DIST_EXCLUDE
 
 
 class DistCheckBin(Scripting.DistCheck):
@@ -1008,7 +1028,7 @@ def distcheck_bin(conf):
     Scripting.DistCheck.make_distcheck_cmd = distcheck_cmd
     Scripting.DistCheck.check = check_cmd
     conf.base_name = APPNAME.lower()
-    conf.excl = dist_exclude
+    conf.excl = DIST_EXCLUDE
 
 
 def check_filenames(ctx):

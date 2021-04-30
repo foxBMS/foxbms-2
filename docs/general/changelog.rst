@@ -9,10 +9,12 @@ Changelog
 
 ..
     Comments:
+    Axivion is the company that builds the Axivion Bauhaus suite
     slaveplausibility is the old name of a plausibility module
     JUnit is a test system (originally for Java)
 
 .. spelling::
+    Axivion
     slaveplausibility
     JUnit
 
@@ -32,6 +34,46 @@ Versioning follows then these rules:
 - increasing ``PATCH`` fixes bugs in a backwards compatible manner
 
 ********************
+[1.0.2] - 2021-04-30
+********************
+
+Added
+=====
+
+- Added number of valid cell voltages and temperatures used for calculating
+  minimum, maximum and average values to database entry
+  ``DATA_BLOCK_ID_MIN_MAX``.
+- Added the build option ``--skip-doxygen`` to enable faster documentation
+  builds, if an API documentation is not required/does not need to be updated.
+
+Changed
+=======
+
+- Do no longer hard code the EOL for the files in the VS Code settings, instead
+  just use the system EOL instead.
+
+Deprecated
+==========
+
+Removed
+=======
+
+Fixed
+=====
+
+- Fixed typo in changelog. The LTC 6804-1 is basically an older version of the
+  LTC 6811-1 (previously it stated wrongly LTC 6812-1).
+- ``linkcheck`` and ``spelling`` were not run when the documentation was built.
+- The GUI searched for the wrong license file during startup routine and
+  therefore failed to start successfully.
+- Improved the readability of the engine block schematic in the general
+  software documentation.
+- Fixed an issue where the ``waf.sh``-wrapper would not print the error message
+  when the conda environment could not be found.
+- Removed unused variables in build scripts.
+- Fixed readmes in the tools directory and its subdirectories.
+
+********************
 [1.0.1] - 2021-04-16
 ********************
 
@@ -42,7 +84,7 @@ Added
 - Added testing for different versions of TI ARM CGT (versions 10.0.0 and
   10.1.1).
 - Added a readme to the hardware directory.
-- Added support for LTC 6804-1 (basically an older version of the LTC 6812-1).
+- Added support for LTC 6804-1 (basically an older version of the LTC 6811-1).
 - Added the updated design files of the foxBMS 2 master v1.0.1.
 
 Changed
@@ -89,7 +131,6 @@ Fixed
   has been added to the repository. The SPDX short name of this license is
   ``CC-BY-4.0``. For more information see :ref:`LICENSE`.
 - Fixed the names of variables in bash scripts on Windows.
-
 
 ********************
 [1.0.0] - 2021-04-01

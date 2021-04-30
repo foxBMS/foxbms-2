@@ -3,7 +3,7 @@
 .. |timestamp| date:: %Y-%m-%d %H:%M:%S
 
 .. |foxbms| replace:: foxBMS 2
-.. |version_foxbms| replace:: ``1.0.1``
+.. |version_foxbms| replace:: ``1.0.2``
 .. |github_foxbms| replace:: https://github.com/foxBMS/
 .. |foxbms_repository| replace:: https://github.com/foxBMS/foxbms-2
 .. _Fraunhofer IISB: https://www.iisb.fraunhofer.de

@@ -96,7 +96,7 @@ def bootstrap_library_project(ctx):
     hcg_tool_line = re.compile(r"load\(.*\"f_hcg\"")
     for line in compiler_tool_txt.splitlines():
         if not hcg_tool_line.search(line):
-            compiler_tool_txt_new += line + "\n"
+            compiler_tool_txt_new += line + os.linesep
     compiler_tool_txt_new = re.sub(
         r'\s{0,}(,)?\s{0,}"hcg_compiler"\s{0,}(,)?\s{0,}', "", compiler_tool_txt_new
     )

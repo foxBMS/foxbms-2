@@ -65,7 +65,16 @@ elif [ "$(expr substr $(uname -s) 1 10)" == "MINGW64_NT" ] || [ "$(expr substr $
     PATHS_TO_ADD=`echo $PATHS_TO_ADD | awk '{gsub("C:", "/c", $0); print}'`
     PATHS_TO_ADD=$(echo "${PATHS_TO_ADD#?}" | tr '\\' '/')
     export PATH=$PATHS_TO_ADD:$PATH
-    CONDA_VARS=$($SCRIPTDIR/tools/utils/bash/find_base_conda.sh)
+    # call find_base_conda and make sure that we do not exit by printing
+    # the exit code to CONDA_VARS (otherwise we would exit with set -e, here
+    # we will not as echo returns exit code 0)
+    CONDA_VARS=$($SCRIPTDIR/tools/utils/bash/find_base_conda.sh || echo $?)
+    if [ "${CONDA_VARS: -1}" == "1" ]; then
+        # strip the exit code that we have printed to CONDA_VARS and
+        # print the rest
+        echo "${CONDA_VARS: : -1}"
+        exit 1
+    fi
     CONDA_VARS_ARRAY=($CONDA_VARS)
     CONDA_BASE_ENVIRONMENT_INCLUDING_DEVELOPMENT_ENVIRONMENT=${CONDA_VARS_ARRAY[0]}
     CONDA_BASE_ENVIRONMENT_ACTIVATE_SCRIPT=${CONDA_VARS_ARRAY[1]}

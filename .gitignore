@@ -9,7 +9,7 @@
 
 *c4che*
 /foxbms*/
-tools/waf3-*/
+tools/*waf3-*/
 tools/waf-sig*
 .lock-waf*
 *.bz2

@@ -458,7 +458,8 @@
             "macros.txt": {
               "exclude": [
                 "docs/general/team-ad-sc.rst",
-                "docs/general/team-dev.rst"
+                "docs/general/team-dev.rst",
+                "docs/general/team-former.rst"
               ],
               "regex": ".. include:: .{1,2}(/(..|\\w+))*/macros.txt"
             }
@@ -468,7 +469,8 @@
               "exclude": [
                 "docs/general/team.rst",
                 "docs/general/team-ad-sc.rst",
-                "docs/general/team-dev.rst"
+                "docs/general/team-dev.rst",
+                "docs/general/team-former.rst"
               ],
               "regex": ".. include:: .{1,2}(/(..|\\w+))*/units.txt"
             }
@@ -479,7 +481,8 @@
         "name": "RST:005",
         "exclude": [
           "docs/general/team-ad-sc.rst",
-          "docs/general/team-dev.rst"
+          "docs/general/team-dev.rst",
+          "docs/general/team-former.rst"
         ]
       },
       "orphan": {

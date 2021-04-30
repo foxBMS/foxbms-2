@@ -47,8 +47,8 @@
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  LTC
  *
- * @brief   Header for the configuration for the LTC 6811-1, 6812-1, 6813-1
- *          monitoring IC.
+ * @brief   Header for the configuration for the LTC 6804-1 6811-1, 6812-1,
+ *          and 6813-1 monitoring IC.
  *
  */
 

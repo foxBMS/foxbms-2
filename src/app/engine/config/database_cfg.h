@@ -161,24 +161,25 @@ typedef struct DATA_BLOCK_MIN_MAX {
      * respective database entry representation in enum DATA_BLOCK_ID_e. */
     DATA_BLOCK_HEADER_s header; /*!< Data block header */
 
-    int16_t averageCellVoltage_mV[BS_NR_OF_STRINGS];         /*!< average cell voltages, unit: mV */
-    int16_t minimumCellVoltage_mV[BS_NR_OF_STRINGS];         /*!< minimum cell voltages, unit: mV */
-    int16_t previousMinimumCellVoltage_mV[BS_NR_OF_STRINGS]; /*!< previous minimum cell voltages, unit: mV */
-    int16_t maximumCellVoltage_mV[BS_NR_OF_STRINGS];         /*!< maximum cell voltages, unit: mV */
-    int16_t previousMaximumCellVoltage_mV[BS_NR_OF_STRINGS]; /*!< previous maximum cell voltages, unit: mV */
-
-    uint16_t nrModuleMinimumCellVoltage[BS_NR_OF_STRINGS]; /*!< number of the module with minimum cell voltage */
-    uint16_t nrCellMinimumCellVoltage[BS_NR_OF_STRINGS];   /*!< number of the cell with minimum cell voltage */
-    uint16_t nrModuleMaximumCellVoltage[BS_NR_OF_STRINGS]; /*!< number of the module with maximum cell voltage */
-    uint16_t nrCellMaximumCellVoltage[BS_NR_OF_STRINGS];   /*!< number of the cell with maximum cell voltage */
-    float averageTemperature_ddegC[BS_NR_OF_STRINGS];      /*!< unit: deci &deg;C */
-    int16_t minimumTemperature_ddegC[BS_NR_OF_STRINGS];    /*!< unit: deci &deg;C */
-    uint16_t nrModuleMinimumTemperature[BS_NR_OF_STRINGS]; /*!< number of the module with minimum temperature */
-    uint16_t nrSensorMinimumTemperature[BS_NR_OF_STRINGS]; /*!< number of the sensor with minimum temperature */
-    int16_t maximumTemperature_ddegC[BS_NR_OF_STRINGS];    /*!< unit: deci &deg;C */
-    uint16_t nrModuleMaximumTemperature[BS_NR_OF_STRINGS]; /*!< number of the module with maximum temperature */
-    uint16_t nrSensorMaximumTemperature[BS_NR_OF_STRINGS]; /*!< number of the sensor with maximum temperature */
-    uint8_t state;                                         /*!< state of the min max module */
+    int16_t averageCellVoltage_mV[BS_NR_OF_STRINGS];          /*!< average cell voltages, unit: mV */
+    int16_t minimumCellVoltage_mV[BS_NR_OF_STRINGS];          /*!< minimum cell voltages, unit: mV */
+    int16_t previousMinimumCellVoltage_mV[BS_NR_OF_STRINGS];  /*!< previous minimum cell voltages, unit: mV */
+    int16_t maximumCellVoltage_mV[BS_NR_OF_STRINGS];          /*!< maximum cell voltages, unit: mV */
+    int16_t previousMaximumCellVoltage_mV[BS_NR_OF_STRINGS];  /*!< previous maximum cell voltages, unit: mV */
+    uint16_t nrModuleMinimumCellVoltage[BS_NR_OF_STRINGS];    /*!< number of the module with minimum cell voltage */
+    uint16_t nrCellMinimumCellVoltage[BS_NR_OF_STRINGS];      /*!< number of the cell with minimum cell voltage */
+    uint16_t nrModuleMaximumCellVoltage[BS_NR_OF_STRINGS];    /*!< number of the module with maximum cell voltage */
+    uint16_t nrCellMaximumCellVoltage[BS_NR_OF_STRINGS];      /*!< number of the cell with maximum cell voltage */
+    uint16_t validMeasuredCellVoltages[BS_NR_OF_STRINGS];     /*!< number of valid measured cell voltages */
+    float averageTemperature_ddegC[BS_NR_OF_STRINGS];         /*!< unit: deci &deg;C */
+    int16_t minimumTemperature_ddegC[BS_NR_OF_STRINGS];       /*!< unit: deci &deg;C */
+    uint16_t nrModuleMinimumTemperature[BS_NR_OF_STRINGS];    /*!< number of the module with minimum temperature */
+    uint16_t nrSensorMinimumTemperature[BS_NR_OF_STRINGS];    /*!< number of the sensor with minimum temperature */
+    int16_t maximumTemperature_ddegC[BS_NR_OF_STRINGS];       /*!< unit: deci &deg;C */
+    uint16_t nrModuleMaximumTemperature[BS_NR_OF_STRINGS];    /*!< number of the module with maximum temperature */
+    uint16_t nrSensorMaximumTemperature[BS_NR_OF_STRINGS];    /*!< number of the sensor with maximum temperature */
+    uint16_t validMeasuredCellTemperatures[BS_NR_OF_STRINGS]; /*!< number of valid measured cell temperatures */
+    uint8_t state;                                            /*!< state of the min max module */
 } DATA_BLOCK_MIN_MAX_s;
 
 /** data block struct of pack measurement values */

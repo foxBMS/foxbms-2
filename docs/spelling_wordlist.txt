@@ -78,6 +78,8 @@ preprocess
 preprocessor
 programmatically
 pylint
+readme
+readmes
 redox
 reStructuredText
 roadmap
@@ -107,6 +109,7 @@ suppressions
 teardown
 throughs
 toolchain
+toolchains
 toolset
 TX
 txt

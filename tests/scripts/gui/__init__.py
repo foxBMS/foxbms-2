@@ -1,4 +1,5 @@
-#!/usr/bin/env bash
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 #
 # Copyright (c) 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
@@ -33,47 +34,10 @@
 # We kindly request you to use one or more of the following phrases to refer to
 # foxBMS in your hardware, software, documentation or advertising materials:
 #
-# - "This product uses parts of foxBMS&reg;"
-# - "This product includes parts of foxBMS&reg;"
-# - "This product is derived from foxBMS&reg;"
+# - "This product uses parts of foxBMS®"
+# - "This product includes parts of foxBMS®"
+# - "This product is derived from foxBMS®"
 
-set -e
-SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-WAFSCRIPT="$SCRIPTDIR/../../../tools/utils/cmd/run-python.bat $SCRIPTDIR/../../../tools/waf"
-
-echo ""
-echo "running preproc test"
-echo ""
-cd $SCRIPTDIR/preproc/
-$WAFSCRIPT distclean
-$WAFSCRIPT configure build
-
-echo ""
-echo "running install test"
-echo ""
-cd $SCRIPTDIR/install/
-$WAFSCRIPT distclean
-# this test does not work on our platform and we don't need the feature
-# $WAFSCRIPT configure build
-
-echo ""
-echo "running general test"
-echo ""
-cd $SCRIPTDIR/general/
-$WAFSCRIPT distclean
-$WAFSCRIPT configure build
-
-echo ""
-echo "running init test"
-echo ""
-cd $SCRIPTDIR/init/
-$WAFSCRIPT distclean
-$WAFSCRIPT configure build
-
-echo ""
-echo "running install_group test"
-echo ""
-export WAF_TEST_GROUP=waftest
-cd $SCRIPTDIR/install_group
-$WAFSCRIPT distclean
-$WAFSCRIPT configure build
+# waf-tools is not a proper python module name, but this is OK since we need
+# it just for the unit test discovery
+# pylint: disable-all

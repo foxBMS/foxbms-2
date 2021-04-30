@@ -39,15 +39,15 @@ Release process
 
 The release process has the following steps:
 
-    #.  Create the necessary footprints and components in a versioned DBLib.
-    #.  Derive a new project from a project template and put it under version
-        control.
-    #.  Define the schematic of the project and the design of the printed
-        circuit board.
-    #.  Review the project together with a team member.
-    #.  Create a release with the predefined set of output jobs.
-    #.  Store the release in a pre-defined location so that it can be found.
-    #.  Mark the released version in version control with a tag.
+#. Create the necessary footprints and components in a versioned DBLib.
+#. Derive a new project from a project template and put it under version
+   control.
+#. Define the schematic of the project and the design of the printed
+   circuit board.
+#. Review the project together with a team member.
+#. Create a release with the predefined set of output jobs.
+#. Store the release in a pre-defined location so that it can be found.
+#. Mark the released version in version control with a tag.
 
 
 Modification process
@@ -56,12 +56,12 @@ Modification process
 If modifications to the hardware are necessary, the following process has to
 be followed:
 
-    #.  Create an issue in the GitLab project of the hardware component.
-    #.  Describe the necessary changes as precise as possible.
-    #.  Describe the impact of the changes to the software.
-    #.  Describe the impact of the changes to the tests.
-    #.  Enter the hardware release process :numref:`RELEASE_PROCESS` with
-        these changes.
+#. Create an issue in the issue tracker of the hardware component project.
+#. Describe the necessary changes as precise as possible.
+#. Describe the impact of the changes to the software.
+#. Describe the impact of the changes to the tests.
+#. Enter the hardware release process :numref:`RELEASE_PROCESS` with
+   these changes.
 
 
 Checklist for releases

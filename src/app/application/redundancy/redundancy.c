@@ -803,6 +803,7 @@ static STD_RETURN_TYPE_e MRC_CalculateCellVoltageMinMaxAverage(
         pMinMaxAverageValues->maximumCellVoltage_mV[s]      = max;
         pMinMaxAverageValues->nrCellMaximumCellVoltage[s]   = cellNumberMaximum;
         pMinMaxAverageValues->nrModuleMaximumCellVoltage[s] = moduleNumberMaximum;
+        pMinMaxAverageValues->validMeasuredCellVoltages[s]  = nrValidCellvoltages;
 
         /* Prevent division by 0, if all cell voltages are invalid */
         if (nrValidCellvoltages > 0u) {
@@ -859,12 +860,13 @@ static STD_RETURN_TYPE_e MRC_CalculateCellTemperatureMinMaxAverage(
                 }
             }
         }
-        pMinMaxAverageValues->minimumTemperature_ddegC[s]   = min;
-        pMinMaxAverageValues->nrSensorMinimumTemperature[s] = sensorNumberMinimum;
-        pMinMaxAverageValues->nrModuleMinimumTemperature[s] = moduleNumberMinimum;
-        pMinMaxAverageValues->maximumTemperature_ddegC[s]   = max;
-        pMinMaxAverageValues->nrSensorMaximumTemperature[s] = sensorNumberMaximum;
-        pMinMaxAverageValues->nrModuleMaximumTemperature[s] = moduleNumberMaximum;
+        pMinMaxAverageValues->minimumTemperature_ddegC[s]      = min;
+        pMinMaxAverageValues->nrSensorMinimumTemperature[s]    = sensorNumberMinimum;
+        pMinMaxAverageValues->nrModuleMinimumTemperature[s]    = moduleNumberMinimum;
+        pMinMaxAverageValues->maximumTemperature_ddegC[s]      = max;
+        pMinMaxAverageValues->nrSensorMaximumTemperature[s]    = sensorNumberMaximum;
+        pMinMaxAverageValues->nrModuleMaximumTemperature[s]    = moduleNumberMaximum;
+        pMinMaxAverageValues->validMeasuredCellTemperatures[s] = nrValidCelltemperatures;
 
         /* Prevent division by 0, if all cell voltages are invalid */
         if (nrValidCelltemperatures > 0u) {

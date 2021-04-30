@@ -435,7 +435,7 @@ class posix_3_206(Task.Task):
 
         error = GuidelineViolations.NO_VIOLATION
         if not txt == "":
-            if not txt.endswith("\n"):
+            if not txt.endswith(os.linesep):
                 error = GuidelineViolations.GENERAL_EOF_NO_EMPTY_NEWLINE
             if txt and txt.splitlines()[-1] == "":
                 error = GuidelineViolations.GENERAL_EOF_TOO_MANY_EMPTY_NEWLINES
@@ -950,7 +950,7 @@ class c_check_sections(Task.Task):
             for j, comment_string in enumerate(section_strings):
                 if comment_string == line:
                     found_section.append((j, i, previous_line))
-            previous_line = line.rstrip("\n")
+            previous_line = line.rstrip(os.linesep)
 
         found_section_bool = [False] * len(section_strings)
         previous_section_index = -1

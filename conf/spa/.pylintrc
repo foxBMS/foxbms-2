@@ -16,7 +16,7 @@ ignore-patterns=
 
 # Python code to execute, usually for sys.path manipulation such as
 # pygtk.require().
-init-hook='import sys; sys.path.append("tools/waf3-2.0.22-1241519b19b496207abef1f72bbf61c2")'
+init-hook='import sys; sys.path.extend(["tools/waf3-2.0.22-1241519b19b496207abef1f72bbf61c2", "tools/gui"])'
 
 # Use multiple processes to speed up Pylint. Specifying 0 will auto-detect the
 # number of processors available to use.
@@ -528,7 +528,7 @@ max-locals=100
 max-parents=7
 
 # Maximum number of public methods for a class (see R0904).
-max-public-methods=20
+max-public-methods=30
 
 # Maximum number of return / yield for function / method body.
 max-returns=6

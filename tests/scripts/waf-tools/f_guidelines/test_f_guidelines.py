@@ -113,7 +113,7 @@ def get_results(tests_folder, result_json_file):
 def get_txt(f):
     """returns the content of file"""
     txt = None
-    with open(os.path.join(TEST_FILES_PATH, f), "r") as text_file:
+    with open(os.path.join(TEST_FILES_PATH, f), "r", newline=os.linesep) as text_file:
         txt = text_file.read()
     return txt
 
@@ -281,7 +281,7 @@ class TestGuidelineMethods(unittest.TestCase):
             test_header = get_txt(os.path.join("header_tests", test_file))
             # First line is skipped because file should start with header not
             # with comment
-            test_header = "\n".join(test_header.splitlines()[1:]) + "\n"
+            test_header = os.linesep.join(test_header.splitlines()[1:]) + os.linesep
             self.general_tester(
                 result, f_guidelines.check_header.test(test_header, python_header)
             )

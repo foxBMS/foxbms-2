@@ -46,7 +46,7 @@ import os
 
 
 def build(bld):
-    """6804-1 is a build variant of 6812-1 (it mostly is an older version of
+    """6804-1 is a build variant of 6811-1 (it mostly is an older version of
     that IC)
     """
     bld.recurse(os.path.join("..", "6813-1"))

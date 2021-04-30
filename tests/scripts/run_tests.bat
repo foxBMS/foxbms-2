@@ -35,30 +35,53 @@
 @REM - "This product includes parts of foxBMS&reg;"
 @REM - "This product is derived from foxBMS&reg;"
 
-@SETLOCAL EnableDelayedExpansion
-@SETLOCAL
-
-@FOR /F "usebackq tokens=*" %%A in ("%~dp0\..\..\..\conf\env\paths_win32.txt") do @(
-    @IF exist %%A (
-        @CALL set "NewPath=%%NewPath%%;%%A"
-    )
-)
-@SET PATH=%NewPath:~1%;%PATH%
-
-@SET CONDA_BASE_ENVIRONMENT_ACTIVATE_SCRIPT=""
-@CALL %~dp0\find_base_conda.bat
-
-@IF %CONDA_BASE_ENVIRONMENT_ACTIVATE_SCRIPT%=="" (
-    @EXIT /b 1
-)
-
-@CALL %CONDA_BASE_ENVIRONMENT_ACTIVATE_SCRIPT% %CONDA_DEVELOPMENT_ENVIRONMENT_NAME%
-
-@SET PROGRAM=coverage
-@WHERE %PROGRAM% 1>NUL 2>NUL
+@SET BASE_DIR=%~dp0\..\..
+@PUSHD %BASE_DIR%\tests\scripts
+@ECHO =========================================================================
+@ECHO Unit testing waf-tools
+@CALL %BASE_DIR%\tools\utils\cmd\run-python-coverage.bat run --source=%BASE_DIR%\tools\waf-tools -m unittest discover --start-directory waf-tools --top-level-directory .
 @IF %ERRORLEVEL% NEQ 0 (
+    @ECHO [31mUnit testing waf tools failed[0m
     @EXIT /b %ERRORLEVEL%
 ) ELSE (
-    @%PROGRAM% %*
+    @ECHO [32mUnit testing waf tools successfull[0m
 )
-@EXIT /b %ERRORLEVEL%
+@ECHO =========================================================================
+@ECHO Unit testing GUI
+@CALL %BASE_DIR%\tools\utils\cmd\run-python-coverage.bat run --append --source=%BASE_DIR%\tools\gui -m unittest discover --start-directory gui --top-level-directory .
+@IF %ERRORLEVEL% NEQ 0 (
+    @ECHO [31mUnit testing the GUI failed[0m
+    @POPD
+    @EXIT /b %ERRORLEVEL%
+) ELSE (
+    @ECHO [32mUnit testing GUI successfull[0m
+)
+@ECHO =========================================================================
+@ECHO Creating report
+@CALL %BASE_DIR%\tools\utils\cmd\run-python-coverage.bat report
+@IF %ERRORLEVEL% NEQ 0 (
+    @ECHO [31mCould not create coverage report[0m
+    @POPD
+    @EXIT /b %ERRORLEVEL%
+) ELSE (
+    @ECHO [32mCoverage Report created[0m
+)
+@CALL %BASE_DIR%\tools\utils\cmd\run-python-coverage.bat html --directory=%BASE_DIR%\build\unit_test_scripts\
+@IF %ERRORLEVEL% NEQ 0 (
+    @ECHO [31mCould not create html coverage report[0m
+    @POPD
+    @EXIT /b %ERRORLEVEL%
+) ELSE (
+    @ECHO [32mHTML Coverage Report created[0m
+)
+@CALL %BASE_DIR%\tools\utils\cmd\run-python-coverage.bat xml -o %BASE_DIR%\build\unit_test_scripts\CoberturaCoverageScripts.xml
+@IF %ERRORLEVEL% NEQ 0 (
+    @ECHO [31mCould not create xml coverage report[0m
+    @POPD
+    @EXIT /b %ERRORLEVEL%
+) ELSE (
+    @ECHO [32mXML Coverage Report created[0m
+)
+@ECHO =========================================================================
+@ECHO Done
+@POPD

@@ -103,6 +103,7 @@ spelling_exclude_patterns = [
     "general/team.rst",
     "general/team-ad-sc.rst",
     "general/team-dev.rst",
+    "general/team-former.rst",
 ]
 # disable git contributor scanning in spelling module if no git repository
 try:

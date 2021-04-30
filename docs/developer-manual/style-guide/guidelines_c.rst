@@ -441,7 +441,7 @@ Function calls (``C:013``)
 
     - Multiple arguments **SHOULD** be put on a single line to reduce the
       number of lines necessary for calling a function unless there is a
-      specific readability problem. Some styleguides require formatting
+      specific readability problem. Some style guides require formatting
       strictly one argument on each line for simplifying editing the arguments.
       However, we prioritize readability over the ease of editing arguments,
       and most readability problems are better addressed with the

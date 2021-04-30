@@ -1,10 +1,15 @@
-# Copy of HALCoGen generated HAL files
+# Utils
 
-The script ``copy_halcogen_files.py`` copies all necessary HAL files generated
-by the HALCoGen project from ``conf/hcg`` to to the ``src/hal`` directory.
+This directory and its subdirectories contain batch and shellscript helper
+scripts. The ``bash``
+directory contains bash scripts while ``cmd`` scripts contains batch scripts.
 
-- It copies all ``*.c``, ``*.h`` and ``*.asm`` files.
-- It does **not** copy the linker scripts ``*.cmd``.
-- It does **not** copy the FreeRTOS sources (``*.c`` and ``*.h`` files. Instead
-it parses ``src/os/freertos/include/FreeRTOSConfig.h`` and sets the correct
-value for the define ``configCPU_CLOCK_HZ``.
+| Script                            | Purpose                                                                       |
+|:----------------------------------|:------------------------------------------------------------------------------|
+| ``bash/find_base_conda.sh``       | Searches for the base conda installation in common installation directories.  |
+| ``bash/run-python-script.sh``     | Runs a python script by passing all arguments verbatim to python.             |
+| ``cmd/find_base_conda.bat``       | Searches for the base conda installation in common installation directories.  |
+| ``cmd/find_git.bat``              | Searches for a git installation in common installation directories.           |
+| ``cmd/run-python.bat``            | Opens an interactive python shell (no arguments get passed to python).        |
+| ``cmd/run-python-coverage.bat``   | Runs the coverage tool (no arguments get passed to the tool).                 |
+| ``cmd/run-python-script.bat``     | Runs a python script by passing all arguments verbatim to python.             |

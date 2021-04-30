@@ -1,4 +1,5 @@
-#!/usr/bin/env bash
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 #
 # Copyright (c) 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
@@ -33,47 +34,65 @@
 # We kindly request you to use one or more of the following phrases to refer to
 # foxBMS in your hardware, software, documentation or advertising materials:
 #
-# - "This product uses parts of foxBMS&reg;"
-# - "This product includes parts of foxBMS&reg;"
-# - "This product is derived from foxBMS&reg;"
+# - "This product uses parts of foxBMS®"
+# - "This product includes parts of foxBMS®"
+# - "This product is derived from foxBMS®"
 
-set -e
-SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-WAFSCRIPT="$SCRIPTDIR/../../../tools/utils/cmd/run-python.bat $SCRIPTDIR/../../../tools/waf"
+"""Implements tests for the foxBMS 2 GUI.
+"""
 
-echo ""
-echo "running preproc test"
-echo ""
-cd $SCRIPTDIR/preproc/
-$WAFSCRIPT distclean
-$WAFSCRIPT configure build
+import unittest
+import sys
+import os
+import wx
 
-echo ""
-echo "running install test"
-echo ""
-cd $SCRIPTDIR/install/
-$WAFSCRIPT distclean
-# this test does not work on our platform and we don't need the feature
-# $WAFSCRIPT configure build
+HAVE_GIT = False
+try:
+    from git import Repo
+    from git.exc import InvalidGitRepositoryError
 
-echo ""
-echo "running general test"
-echo ""
-cd $SCRIPTDIR/general/
-$WAFSCRIPT distclean
-$WAFSCRIPT configure build
+    HAVE_GIT = True
+except ImportError:
+    pass
 
-echo ""
-echo "running init test"
-echo ""
-cd $SCRIPTDIR/init/
-$WAFSCRIPT distclean
-$WAFSCRIPT configure build
 
-echo ""
-echo "running install_group test"
-echo ""
-export WAF_TEST_GROUP=waftest
-cd $SCRIPTDIR/install_group
-$WAFSCRIPT distclean
-$WAFSCRIPT configure build
+def get_git_root(path: str) -> str:
+    """helper function to find the repository root
+
+    Args:
+        path (string): path of test_f_guidelines
+
+    Returns:
+        root (string): root path of the git repository
+    """
+    root = os.path.join(os.path.dirname(path), "..", "..", "..")
+    if HAVE_GIT:
+        try:
+            repo = Repo(path, search_parent_directories=True)
+            root = repo.git.rev_parse("--show-toplevel")
+        except InvalidGitRepositoryError:
+            pass
+    return root
+
+
+ROOT = get_git_root(os.path.realpath(__file__))
+
+sys.path.insert(1, os.path.abspath(os.path.join(ROOT, "tools", "gui")))
+import foxbms_gui  # pylint:disable=wrong-import-position,unused-import
+
+
+class TestDialog(unittest.TestCase):
+    """Testing the info dialog"""
+
+    def setUp(self):
+        self.app = wx.App()
+        self.frame = wx.Frame()
+        self.frame.Show()
+
+    def tearDown(self):
+        wx.CallAfter(self.app.ExitMainLoop)
+        self.app.MainLoop()
+
+
+if __name__ == "__main__":
+    unittest.main()

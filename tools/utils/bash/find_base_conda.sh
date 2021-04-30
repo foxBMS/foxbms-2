@@ -83,6 +83,14 @@ function _win32_get_vars() {
             DEVEL_ENV_FOUND="$base_env"
         fi
     done
+
+    if [ -z "${DEVEL_ENV_FOUND}" ]; then
+        echo "Could not find conda development environment directories [${BASE_ENVS_FOUND}]"
+        echo "Run '$SCRIPTDIR/../conda-update-env.bat'"
+        echo "Exiting..."
+        exit 1
+    fi
+
     CONDA_BASE_ENVIRONMENT_INCLUDING_DEVELOPMENT_ENVIRONMENT=$DEVEL_ENV_FOUND
     CONDA_BASE_ENVIRONMENT_ACTIVATE_SCRIPT=$DEVEL_ENV_FOUND$ACTIVATE_SCRIPT
     CONDA_DEVELOPMENT_ENVIRONMENT_NAME=$CONDA_DEVELOPMENT_ENVIRONMENT_NAME

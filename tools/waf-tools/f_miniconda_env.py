@@ -172,7 +172,7 @@ def configure(conf):  # pylint: disable=too-many-statements,too-many-branches
     ).split()
     try:
         std = conf.cmd_and_log(
-            cmd, output=Context.BOTH, quiet=Context.BOTH, input="\n".encode()
+            cmd, output=Context.BOTH, quiet=Context.BOTH, input=os.linesep.encode()
         )
     except Errors.WafError as env_export:
         Logs.error(env_export.msg.strip())

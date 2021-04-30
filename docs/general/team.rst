@@ -27,6 +27,12 @@ Development Team Fraunhofer IISB
 
 .. include:: ./team-dev.rst
 
+***********************************
+Former Team Members Fraunhofer IISB
+***********************************
+
+.. include:: ./team-former.rst
+
 ************
 Contribution
 ************

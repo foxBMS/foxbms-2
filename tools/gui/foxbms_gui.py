@@ -39,7 +39,6 @@
 # - "This product is derived from foxBMS®"
 
 """This is the foxBMS GUI
-It has many good features and so on
 
 https://foxbms.org
 """
@@ -49,31 +48,26 @@ import webbrowser
 import wx
 import wx.adv
 
-import fgui  # pylint: disable=unused-import
+import fgui
 
 from log_parser import LogParserFrame
+from info_dialog import FoxbmsInfoDialog
 
-__author__ = "The foxBMS Team"
-__version__ = "0.0.1"
+__version__ = fgui.__version__
+__appname__ = fgui.__appname__
+__author__ = fgui.__author__
+__copyright__ = fgui.__copyright__
+__author__ = fgui.__author__
+__email__ = fgui.__email__
+
+SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
+FOXBMS_LOGO = os.path.join(SCRIPT_DIR, "..", "..", "docs", "_static", "foxbms250px.png")
 
 
-class FoxBMSMainFrame(wx.Frame):  # pylint: disable=too-many-ancestors
+class foxBMSMainFrame(wx.Frame):
     """Main frame to construct the foxBMS GUI frame"""
 
-    foxbms_license_file = os.path.join(
-        os.path.dirname(os.path.realpath(__file__)), "..", "..", "LICENSE"
-    )
-    with open(foxbms_license_file, "r", encoding="utf-8") as f:
-        foxbms_license = f.read()
-
-    foxbms_logo = os.path.join(
-        os.path.dirname(os.path.realpath(__file__)),
-        "..",
-        "..",
-        "docs",
-        "_static",
-        "foxbms250px.png",
-    )
+    # pylint: disable=too-many-ancestors,invalid-name
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -109,9 +103,9 @@ class FoxBMSMainFrame(wx.Frame):  # pylint: disable=too-many-ancestors
         self.Bind(wx.EVT_MENU, self.cb_open_documentation, open_documentation_item)
         self.SetMenuBar(menu_bar)
 
-        # Add a
+        # Add logo
         _icon = wx.Icon()
-        logo_img = wx.Image(self.foxbms_logo)
+        logo_img = wx.Image(FOXBMS_LOGO)
         logo_img_size = logo_img.GetSize()
         resized = logo_img_size / 5
         logo_img.Rescale(resized[0], resized[1])
@@ -138,42 +132,23 @@ class FoxBMSMainFrame(wx.Frame):  # pylint: disable=too-many-ancestors
     def cb_open_documentation(cls, event):
         """Shows the foxBMS documentation from local source if it exists, from
         web if it does not"""
-        doc = os.path.join(
-            os.path.dirname(os.path.realpath(__file__)),
-            "..",
-            "..",
-            "build",
-            "docs",
-            "index.html",
-        )
+        doc = os.path.join(SCRIPT_DIR, "..", "..", "build", "docs", "index.html")
         if not os.path.isfile(doc):
-            doc = "https://foxbms.org"
+            doc = "https://iisb-foxbms.iisb.fraunhofer.de/foxbms/gen2/docs/html/latest/"
         webbrowser.open(doc)
 
-    def cb_show_info(self, event):
+    @classmethod
+    def cb_show_info(cls, event):
         """Shows the program information"""
-        about_info = wx.adv.AboutDialogInfo()
-        about_info.SetName("foxBMS")
-        about_info.SetVersion(__version__)
-        about_info.Copyright = "(C) 2010 - 2019 foxBMS"
-        about_info.SetDescription(__doc__)
-        about_info.SetWebSite = ("https://foxbms.org", "foxbms.org")
-        about_info.License = self.foxbms_license
-        _icon = wx.Icon()
-        logo_img = wx.Image(self.foxbms_logo)
-        logo_img_size = logo_img.GetSize()
-        resized = logo_img_size / 3
-        logo_img.Rescale(resized[0], resized[1])
-        image = wx.Bitmap(logo_img)
-        _icon.CopyFromBitmap(image)
-        about_info.SetIcon(_icon)
-        wx.adv.AboutBox(about_info)
+        about_dialog = FoxbmsInfoDialog(None, title="About foxBMS 2")
+        about_dialog.ShowModal()
+        about_dialog.Destroy()
 
 
 def main():
     """Starts the application"""
     app = wx.App(False)
-    FoxBMSMainFrame(None)
+    foxBMSMainFrame(None)
     app.MainLoop()
 
 

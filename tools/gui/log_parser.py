@@ -42,12 +42,24 @@
 """
 
 import os
+import webbrowser
 import cantools
 import wx
 import pandas
 import matplotlib.pyplot as plt
 
-__version__ = "0.0.1"
+import fgui
+from info_dialog import FoxbmsInfoDialog
+
+__version__ = fgui.__version__
+__appname__ = fgui.__appname__
+__author__ = fgui.__author__
+__copyright__ = fgui.__copyright__
+__author__ = fgui.__author__
+__email__ = fgui.__email__
+
+BASE_URL = "https://iisb-foxbms.iisb.fraunhofer.de/"
+SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
 
 
 class LogParserFrame(wx.Frame):  # pylint: disable=too-many-ancestors
@@ -78,9 +90,18 @@ class LogParserFrame(wx.Frame):  # pylint: disable=too-many-ancestors
         menu_bar.Append(file_menu, "File")
         menu_bar.Append(help_menu, "Help")
 
-        self.SetMenuBar(menu_bar)
+        help_menu = wx.Menu()
+        show_info_item = help_menu.Append(wx.Window.NewControlId(), "Info", "Info")
+        open_documentation_item = help_menu.Append(
+            wx.Window.NewControlId(), "Documentation", "Documentation"
+        )
+        menu_bar.Append(help_menu, "?")
+        self.Bind(wx.EVT_MENU, self.cb_show_info, show_info_item)
+        self.Bind(wx.EVT_MENU, self.cb_open_documentation, open_documentation_item)
         self.Bind(wx.EVT_MENU, self.cb_quit, file_menu_exit)
         self.Bind(wx.EVT_MENU, self.cb_help, help_menu_help)
+
+        self.SetMenuBar(menu_bar)
 
         # Set up dbc file selector box
         wx.StaticBox(  # pylint: disable=unused-variable
@@ -164,6 +185,24 @@ class LogParserFrame(wx.Frame):  # pylint: disable=too-many-ancestors
 
         self.Show(True)
 
+    @classmethod
+    def cb_open_documentation(cls, event):
+        """Shows the foxBMS documentation from local source if it exists, from
+        web if it does not"""
+        doc = os.path.join(
+            SCRIPT_DIR, "..", "..", "build", "docs", "tools", "log-parser.html"
+        )
+        if not os.path.isfile(doc):
+            doc = f"{BASE_URL}foxbms/gen2/docs/html/latest/tools/log-parser.html"
+        webbrowser.open(doc)
+
+    @classmethod
+    def cb_show_info(cls, event):
+        """Shows the program information"""
+        about_dialog = FoxbmsInfoDialog(None, title="About foxBMS 2")
+        about_dialog.ShowModal()
+        about_dialog.Destroy()
+
     def open_dialog(self, window_name, only_files):
         """Wrapper for the FileDialog class"""
         open_file_dialog = wx.FileDialog(
@@ -233,7 +272,7 @@ class LogParserFrame(wx.Frame):  # pylint: disable=too-many-ancestors
         id_signal = id_signal.upper()
         return id_signal, signal_name
 
-    def get_muxid(self, id_signal, signal_name, mdb):  # pylint: disable=no-self-use
+    def get_mux_id(self, id_signal, signal_name, mdb):  # pylint: disable=no-self-use
         """Get multiplexer ID of checked signal"""
         msg = mdb.get_message_by_frame_id(int(id_signal, 16))
         unit = ""
@@ -249,7 +288,7 @@ class LogParserFrame(wx.Frame):  # pylint: disable=too-many-ancestors
                 break
         return unit, mux_id, msg
 
-    def append_plotdf(self, signal_timestamp, signal_val, signal_name, unit):
+    def append_plot_df(self, signal_timestamp, signal_val, signal_name, unit):
         """Append the signal values to the plot data frame"""
         if len(signal_timestamp) > 0 and len(signal_val) > 0:
             plot_df = pandas.DataFrame()
@@ -272,7 +311,7 @@ class LogParserFrame(wx.Frame):  # pylint: disable=too-many-ancestors
                 id_signal, signal_name = self.get_id_name(checked_signal)
 
                 # get mux id and unit
-                unit, mux_id, msg = self.get_muxid(id_signal, signal_name, mdb)
+                unit, mux_id, msg = self.get_mux_id(id_signal, signal_name, mdb)
                 units.append(unit)
 
                 # get lines with right signal
@@ -315,7 +354,7 @@ class LogParserFrame(wx.Frame):  # pylint: disable=too-many-ancestors
                         signal_val.append(decoded_sig_val)
 
                 # append plot_df with new plot data
-                self.append_plotdf(signal_timestamp, signal_val, signal_name, unit)
+                self.append_plot_df(signal_timestamp, signal_val, signal_name, unit)
 
                 trace_template.seek(0)
         self.plot_selected_signals(units)
@@ -333,7 +372,7 @@ class LogParserFrame(wx.Frame):  # pylint: disable=too-many-ancestors
                 id_signal, signal_name = self.get_id_name(checked_signal)
 
                 # get mux id and unit
-                unit, mux_id, msg = self.get_muxid(id_signal, signal_name, mdb)
+                unit, mux_id, msg = self.get_mux_id(id_signal, signal_name, mdb)
                 units.append(unit)
 
                 cor_signal_lines = []
@@ -375,7 +414,7 @@ class LogParserFrame(wx.Frame):  # pylint: disable=too-many-ancestors
                         signal_val.append(decoded_sig_val)
 
                 # append plot_df with new plot data
-                self.append_plotdf(signal_timestamp, signal_val, signal_name, unit)
+                self.append_plot_df(signal_timestamp, signal_val, signal_name, unit)
 
                 trace_template.seek(0)
         self.plot_selected_signals(units)
@@ -393,7 +432,7 @@ class LogParserFrame(wx.Frame):  # pylint: disable=too-many-ancestors
                 id_signal, signal_name = self.get_id_name(checked_signal)
 
                 # get mux id and unit
-                unit, mux_id, msg = self.get_muxid(id_signal, signal_name, mdb)
+                unit, mux_id, msg = self.get_mux_id(id_signal, signal_name, mdb)
                 units.append(unit)
 
                 cor_signal_lines = []
@@ -436,7 +475,7 @@ class LogParserFrame(wx.Frame):  # pylint: disable=too-many-ancestors
                         signal_val.append(decoded_sig_val)
 
                 # append plot_df with new plot data
-                self.append_plotdf(signal_timestamp, signal_val, signal_name, unit)
+                self.append_plot_df(signal_timestamp, signal_val, signal_name, unit)
 
                 trace_template.seek(0)
         self.plot_selected_signals(units)
