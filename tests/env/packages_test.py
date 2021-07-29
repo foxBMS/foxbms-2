@@ -38,11 +38,12 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""Template for Python scripts"""
+"""Basic test of all packages in conda environment"""
 import sys
 import os
 import logging
 import argparse
+import glob
 import json
 import pathlib
 import subprocess
@@ -50,7 +51,7 @@ import shutil
 
 
 def main():
-    """This script does this and that"""
+    """This script tests our conda environment"""
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "-f",
@@ -58,7 +59,7 @@ def main():
         dest="file",
         action="store",
         default="env_win32.json",
-        help="Specify environemt file to test against",
+        help="Specify environment file to test against",
     )
     parser.add_argument(
         "-v",
@@ -82,20 +83,36 @@ def main():
     env_config = json.loads(env_file.read_text())
     logging.debug(env_config)
     conda = shutil.which("conda")
+    logging.info(f"Conda instance at: {conda}")
     if not conda:
-        sys.exit("Could not conda binary.")
+        sys.exit("Could not find conda binary.")
     cmd = [conda, "list", "--json"]
+    # pylint: disable=consider-using-with
     p = subprocess.Popen(cmd, stdout=subprocess.PIPE)
     current_config = json.loads(p.communicate()[0])
     if not current_config == env_config:
         raise BaseException("Environments differ.")
-    d = os.path.dirname(os.path.realpath(__file__))
+    script_dir = os.path.dirname(os.path.realpath(__file__))
     test_scripts = [
-        os.path.join(d, "packages", f"env_test_{i['name']}.py") for i in env_config
+        os.path.join(script_dir, "packages", f"env_test_{i['name']}.py")
+        for i in env_config
     ]
+    packages = pathlib.Path(os.path.join(script_dir, "packages")).as_posix()
+    globbed_test_scripts = glob.glob(packages + "/env_test_**.py")
+    stemmed_globbed_test_scripts = set(
+        map(lambda x: pathlib.Path(x).stem, globbed_test_scripts)
+    )
+    stemmed_test_scripts = set(map(lambda x: pathlib.Path(x).stem, test_scripts))
+    difference = stemmed_globbed_test_scripts.difference(stemmed_test_scripts)
+    if difference:
+        logging.error(
+            f"Difference in env test python scripts detected: {sorted(difference)}"
+        )
+        sys.exit("Exiting.")
     cmd_list = zip([sys.executable] * len(test_scripts), test_scripts)
     test_processes = []
     for i in cmd_list:
+        # pylint: disable=consider-using-with
         proc = subprocess.Popen(i, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         test_processes.append(proc)
 

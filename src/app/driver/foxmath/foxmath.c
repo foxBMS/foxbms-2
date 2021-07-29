@@ -43,7 +43,7 @@
  * @file    foxmath.c
  * @author  foxBMS Team
  * @date    2018-01-18 (date of creation)
- * @updated 2018-01-18 (date of last update)
+ * @updated 2021-07-15 (date of last update)
  * @ingroup DRIVERS
  * @prefix  MATH
  *
@@ -98,8 +98,20 @@ extern uint64_t MATH_swapBytes_uint64_t(uint64_t val) {
     return (val << 32) | (val >> 32);
 }
 
-extern float MATH_minimumOfTwoFloats(float value1, float value2) {
+extern float MATH_MinimumOfTwoFloats(float value1, float value2) {
     return fminf(value1, value2);
+}
+
+extern uint8_t MATH_MinimumOfTwoUint8_t(uint8_t value1, uint8_t value2) {
+    return ((value1 < value2) ? value1 : value2);
+}
+
+extern uint16_t MATH_MinimumOfTwoUint16_t(uint16_t value1, uint16_t value2) {
+    uint16_t returnvalue = value1;
+    if (returnvalue > value2) {
+        returnvalue = value2;
+    }
+    return returnvalue;
 }
 
 extern int32_t MATH_AbsInt32(int32_t value) {

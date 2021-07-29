@@ -43,7 +43,7 @@
  * @file    test_database.c
  * @author  foxBMS Team
  * @date    2020-04-01 (date of creation)
- * @updated 2020-05-25 (date of last update)
+ * @updated 2021-07-23 (date of last update)
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -56,14 +56,28 @@
 
 #include "unity.h"
 #include "Mockfassert.h"
+#include "Mockftask.h"
 #include "Mockmpu_prototypes.h"
 #include "Mockos.h"
 
 #include "database_cfg.h"
 
 #include "database.h"
+#include "test_assert_helper.h"
 
 /*========== Definitions and Implementations for Unit Test ==================*/
+/**
+ * struct for message injection in database queue in #testDATA_ExecuteDataBIST()
+ */
+typedef struct DATA_QUEUE_BIST_INJECTED_MESSAGE {
+    DATA_BLOCK_ACCESS_TYPE_e accesstype;                  /*!< read or write access type */
+    DATA_BLOCK_DUMMY_FOR_SELF_TEST_s *pDatabaseEntry[1u]; /*!< reference to table */
+} DATA_QUEUE_BIST_INJECTED_MESSAGE_s;
+
+QueueHandle_t ftsk_databaseQueue    = NULL_PTR;
+QueueHandle_t ftsk_imdCanDataQueue  = NULL_PTR;
+QueueHandle_t ftsk_canRxQueue       = NULL_PTR;
+volatile bool ftsk_allQueuesCreated = true;
 
 /*========== Setup and Teardown =============================================*/
 void setUp(void) {
@@ -72,163 +86,34 @@ void setUp(void) {
 void tearDown(void) {
 }
 
-void testDATA_DatabaseEntryUpdatedAtLeastOnce(void) {
-    DATA_BLOCK_CELL_VOLTAGE_s databaseEntry = {.header.uniqueId = DATA_BLOCK_ID_CELL_VOLTAGE};
-
-    /* Database entry has been updated once, after 10ms */
-    databaseEntry.header.timestamp         = 10u;
-    databaseEntry.header.previousTimestamp = 0u;
-    TEST_ASSERT_TRUE(DATA_DatabaseEntryUpdatedAtLeastOnce((void *)&databaseEntry));
-
-    /* Database entry has been updated twice, first after 10ms, then after 50ms */
-    databaseEntry.header.timestamp         = 60u;
-    databaseEntry.header.previousTimestamp = 10u;
-    TEST_ASSERT_TRUE(DATA_DatabaseEntryUpdatedAtLeastOnce((void *)&databaseEntry));
-
-    /* Database entry has been updated three times, first after 10ms, then after 50ms, then after 10ms */
-    databaseEntry.header.timestamp         = 70u;
-    databaseEntry.header.previousTimestamp = 60u;
-    TEST_ASSERT_TRUE(DATA_DatabaseEntryUpdatedAtLeastOnce((void *)&databaseEntry));
-
-    /* Database entry has never been updated */
-    databaseEntry.header.timestamp         = 0u;
-    databaseEntry.header.previousTimestamp = 0u;
-    TEST_ASSERT_FALSE(DATA_DatabaseEntryUpdatedAtLeastOnce((void *)&databaseEntry));
+void testDummy(void) {
 }
 
-void testDATA_DatabaseEntryUpdatedRecently(void) {
-    DATA_BLOCK_CELL_VOLTAGE_s databaseEntry = {.header.uniqueId = DATA_BLOCK_ID_CELL_VOLTAGE};
+/** callback for #testDATA_ExecuteDataBIST(); this not work for other instances */
+BaseType_t DATA_mpuInjectValuesForExecuteBISTTestCallback(
+    QueueHandle_t xQueue,
+    const void *const pvItemToQueue,
+    TickType_t xTicksToWait,
+    const BaseType_t xCopyPosition,
+    int cmock_num_calls) {
+    const DATA_QUEUE_BIST_INJECTED_MESSAGE_s *const injectQueueMessage = pvItemToQueue;
+    /* inject the values into the message for a read access */
+    if (injectQueueMessage->accesstype == DATA_READ_ACCESS) {
+        injectQueueMessage->pDatabaseEntry[0u]->member1 = UINT8_MAX;
+        injectQueueMessage->pDatabaseEntry[0u]->member2 = DATA_DUMMY_VALUE_UINT8_T_ALTERNATING_BIT_PATTERN;
+    }
 
-    /* Always check always if database entry has been updated within the last 100ms */
-    uint32_t timeDifference = 100u;
-
-    /* Time difference: 50ms -> true */
-    databaseEntry.header.timestamp = 50u;
-    OS_GetTickCount_ExpectAndReturn(100u);
-    TEST_ASSERT_TRUE(DATA_DatabaseEntryUpdatedRecently((void *)&databaseEntry, timeDifference));
-
-    /* Time difference: 100ms -> true, but never updated */
-    databaseEntry.header.timestamp = 0u;
-    OS_GetTickCount_ExpectAndReturn(100u);
-    TEST_ASSERT_FALSE(DATA_DatabaseEntryUpdatedRecently((void *)&databaseEntry, timeDifference));
-
-    /* Time difference: 101ms -> false */
-    databaseEntry.header.timestamp = 0u;
-    OS_GetTickCount_ExpectAndReturn(101u);
-    TEST_ASSERT_FALSE(DATA_DatabaseEntryUpdatedRecently((void *)&databaseEntry, timeDifference));
-
-    /* Time difference: 63ms -> true */
-    databaseEntry.header.timestamp = 4937u;
-    OS_GetTickCount_ExpectAndReturn(5000u);
-    TEST_ASSERT_TRUE(DATA_DatabaseEntryUpdatedRecently((void *)&databaseEntry, timeDifference));
-
-    /* Time difference: 50ms -> true */
-    databaseEntry.header.timestamp = UINT32_MAX;
-    OS_GetTickCount_ExpectAndReturn(50u);
-    TEST_ASSERT_TRUE(DATA_DatabaseEntryUpdatedRecently((void *)&databaseEntry, timeDifference));
-
-    /* Time difference: 100ms -> true */
-    databaseEntry.header.timestamp = UINT32_MAX - 50u;
-    OS_GetTickCount_ExpectAndReturn(49u);
-    TEST_ASSERT_TRUE(DATA_DatabaseEntryUpdatedRecently((void *)&databaseEntry, timeDifference));
-
-    /* Time difference: 101ms -> false */
-    databaseEntry.header.timestamp = UINT32_MAX - 50u;
-    OS_GetTickCount_ExpectAndReturn(50u);
-    TEST_ASSERT_FALSE(DATA_DatabaseEntryUpdatedRecently((void *)&databaseEntry, timeDifference));
-
-    /* Time difference: UINT32_MAX - 50 -> false */
-    databaseEntry.header.timestamp = 50u;
-    OS_GetTickCount_ExpectAndReturn(UINT32_MAX);
-    TEST_ASSERT_FALSE(DATA_DatabaseEntryUpdatedRecently((void *)&databaseEntry, timeDifference));
+    return pdPASS;
 }
 
-void testDATA_DatabaseEntryUpdatedWithinInterval(void) {
-    DATA_BLOCK_CELL_VOLTAGE_s databaseEntry = {.header.uniqueId = DATA_BLOCK_ID_CELL_VOLTAGE};
+void testDATA_ExecuteDataBIST(void) {
+    DATA_BLOCK_DUMMY_FOR_SELF_TEST_s dummyTable = {.header.uniqueId = DATA_BLOCK_ID_DUMMY_FOR_SELF_TEST};
+    const uint8_t testValue                     = DATA_DUMMY_VALUE_UINT8_T_ALTERNATING_BIT_PATTERN;
+    dummyTable.member1                          = UINT8_MAX;
+    dummyTable.member2                          = testValue;
 
-    /* Always check always if database entry has been periodically updated within the last 100ms */
-    uint32_t timeDifference = 100u;
-
-    /* Time difference timestamp - systick: 40ms -> true
-     * Time difference timestamp - previous timestamp:  50ms -> true */
-    databaseEntry.header.timestamp         = 60u;
-    databaseEntry.header.previousTimestamp = 10u;
-    OS_GetTickCount_ExpectAndReturn(100u);
-    TEST_ASSERT_TRUE(DATA_DatabaseEntryUpdatedWithinInterval((void *)&databaseEntry, timeDifference));
-
-    /* Within time interval but never updated -> false */
-    databaseEntry.header.timestamp         = 0u;
-    databaseEntry.header.previousTimestamp = 0u;
-    OS_GetTickCount_ExpectAndReturn(50u);
-    TEST_ASSERT_FALSE(DATA_DatabaseEntryUpdatedWithinInterval((void *)&databaseEntry, timeDifference));
-
-    /* Time difference timestamp - systick: 100ms -> true
-     * Time difference timestamp - previous timestamp:  40ms -> true */
-    databaseEntry.header.timestamp         = 80u;
-    databaseEntry.header.previousTimestamp = 40u;
-    OS_GetTickCount_ExpectAndReturn(180u);
-    TEST_ASSERT_TRUE(DATA_DatabaseEntryUpdatedWithinInterval((void *)&databaseEntry, timeDifference));
-
-    /* Time difference timestamp - systick: 101ms -> false
-     * Time difference timestamp - previous timestamp:  40ms -> true */
-    databaseEntry.header.timestamp         = 80u;
-    databaseEntry.header.previousTimestamp = 40u;
-    OS_GetTickCount_ExpectAndReturn(181);
-    TEST_ASSERT_FALSE(DATA_DatabaseEntryUpdatedWithinInterval((void *)&databaseEntry, timeDifference));
-
-    /* Time difference timestamp - systick: 50ms -> true
-     * Time difference timestamp - previous timestamp:  110ms -> false */
-    databaseEntry.header.timestamp         = 150u;
-    databaseEntry.header.previousTimestamp = 40u;
-    OS_GetTickCount_ExpectAndReturn(200u);
-    TEST_ASSERT_FALSE(DATA_DatabaseEntryUpdatedWithinInterval((void *)&databaseEntry, timeDifference));
-
-    /* Time difference timestamp - systick: 100ms -> true
-     * Time difference timestamp - previous timestamp:  100ms -> true */
-    databaseEntry.header.timestamp         = 150u;
-    databaseEntry.header.previousTimestamp = 50u;
-    OS_GetTickCount_ExpectAndReturn(250u);
-    TEST_ASSERT_TRUE(DATA_DatabaseEntryUpdatedWithinInterval((void *)&databaseEntry, timeDifference));
-
-    /* Time difference timestamp - systick: 100ms -> true
-     * Time difference timestamp - previous timestamp:  100ms -> true */
-    databaseEntry.header.timestamp         = UINT32_MAX - 50u;
-    databaseEntry.header.previousTimestamp = UINT32_MAX - 150u;
-    OS_GetTickCount_ExpectAndReturn(49u);
-    TEST_ASSERT_TRUE(DATA_DatabaseEntryUpdatedWithinInterval((void *)&databaseEntry, timeDifference));
-
-    /* Time difference timestamp - systick: 101ms -> false
-     * Time difference timestamp - previous timestamp:  100ms -> true */
-    databaseEntry.header.timestamp         = UINT32_MAX - 50u;
-    databaseEntry.header.previousTimestamp = UINT32_MAX - 150u;
-    OS_GetTickCount_ExpectAndReturn(50u);
-    TEST_ASSERT_FALSE(DATA_DatabaseEntryUpdatedWithinInterval((void *)&databaseEntry, timeDifference));
-
-    /* Time difference timestamp - systick: 100ms -> true
-     * Time difference timestamp - previous timestamp:  100ms -> true */
-    databaseEntry.header.timestamp         = 49u;
-    databaseEntry.header.previousTimestamp = UINT32_MAX - 50u;
-    OS_GetTickCount_ExpectAndReturn(150u);
-    TEST_ASSERT_FALSE(DATA_DatabaseEntryUpdatedWithinInterval((void *)&databaseEntry, timeDifference));
-
-    /* Time difference timestamp - systick: 100ms -> true
-     * Time difference timestamp - previous timestamp:  101ms -> false */
-    databaseEntry.header.timestamp         = UINT32_MAX - 50u;
-    databaseEntry.header.previousTimestamp = UINT32_MAX - 151u;
-    OS_GetTickCount_ExpectAndReturn(49u);
-    TEST_ASSERT_FALSE(DATA_DatabaseEntryUpdatedWithinInterval((void *)&databaseEntry, timeDifference));
-
-    /* Time difference timestamp - systick: 100ms -> true
-     * Time difference timestamp - previous timestamp:  101ms -> false */
-    databaseEntry.header.timestamp         = 50u;
-    databaseEntry.header.previousTimestamp = UINT32_MAX - 50u;
-    OS_GetTickCount_ExpectAndReturn(150u);
-    TEST_ASSERT_FALSE(DATA_DatabaseEntryUpdatedWithinInterval((void *)&databaseEntry, timeDifference));
-
-    /* Time difference: UINT32_MAX - 50 -> false */
-    databaseEntry.header.timestamp = 50u;
-    OS_GetTickCount_ExpectAndReturn(UINT32_MAX);
-    TEST_ASSERT_FALSE(DATA_DatabaseEntryUpdatedWithinInterval((void *)&databaseEntry, timeDifference));
+    MPU_xQueueGenericSend_Stub(&DATA_mpuInjectValuesForExecuteBISTTestCallback);
+    TEST_ASSERT_PASS_ASSERT(DATA_ExecuteDataBIST());
 }
 
 /*========== Test Cases =====================================================*/

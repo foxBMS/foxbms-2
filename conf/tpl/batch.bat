@@ -35,7 +35,6 @@
 @REM - "This product includes parts of foxBMS&reg;"
 @REM - "This product is derived from foxBMS&reg;"
 
-@SETLOCAL EnableDelayedExpansion
-@SETLOCAL
+@SETLOCAL EnableExtensions EnableDelayedExpansion
 
 @echo Put code here.

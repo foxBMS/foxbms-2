@@ -43,7 +43,7 @@
  * @file    database_cfg.h
  * @author  foxBMS Team
  * @date    2015-08-18 (date of creation)
- * @updated 2019-11-12 (date of last update)
+ * @updated 2021-06-09 (date of last update)
  * @ingroup ENGINE_CONFIGURATION
  * @prefix  DATA
  *
@@ -65,7 +65,7 @@
 /** configuration struct of database channel (data block) */
 typedef struct DATA_BASE {
     void *pDatabaseEntry; /*!< pointer to the database entry */
-    uint16_t datalength;  /*!< length of the entry */
+    uint32_t datalength;  /*!< length of the entry */
 } DATA_BASE_s;
 
 /** data block identification numbers */
@@ -101,6 +101,7 @@ typedef enum DATA_BLOCK_ID {
     DATA_BLOCK_ID_ADC_TEMPERATURE,
     DATA_BLOCK_ID_INSULATION_MONITORING,
     DATA_BLOCK_ID_PACK_VALUES,
+    DATA_BLOCK_ID_DUMMY_FOR_SELF_TEST,
     DATA_BLOCK_ID_MAX, /**< DO NOT CHANGE, MUST BE THE LAST ENTRY */
 } DATA_BLOCK_ID_e;
 
@@ -132,9 +133,9 @@ typedef struct DATA_BLOCK_CELL_TEMPERATURE {
     /* This struct needs to be at the beginning of every database entry. During
      * the initialization of a database struct, uniqueId must be set to the
      * respective database entry representation in enum DATA_BLOCK_ID_e. */
-    DATA_BLOCK_HEADER_s header;                                             /*!< Data block header */
-    uint8_t state;                                                          /*!< for future use */
-    int16_t cellTemperature_ddegC[BS_NR_OF_STRINGS][BS_NR_OF_TEMP_SENSORS]; /*!< unit: deci &deg;C */
+    DATA_BLOCK_HEADER_s header;                                                        /*!< Data block header */
+    uint8_t state;                                                                     /*!< for future use */
+    int16_t cellTemperature_ddegC[BS_NR_OF_STRINGS][BS_NR_OF_TEMP_SENSORS_PER_STRING]; /*!< unit: deci &deg;C */
     uint16_t invalidCellTemperature[BS_NR_OF_STRINGS]
                                    [BS_NR_OF_MODULES]; /*!< bitmask if temperatures are valid. 0->valid, 1->invalid */
     uint16_t nrValidTemperatures[BS_NR_OF_STRINGS];    /*!< number of valid temperatures in each string */
@@ -253,6 +254,7 @@ typedef struct DATA_BLOCK_BALANCING_CONTROL {
     uint8_t request;                                                /*!< balancing request per CAN                */
     uint8_t balancingState[BS_NR_OF_STRINGS][BS_NR_OF_BAT_CELLS];   /*!< 0: no balancing, 1: balancing active     */
     uint32_t deltaCharge_mAs[BS_NR_OF_STRINGS][BS_NR_OF_BAT_CELLS]; /*!< Difference in Depth-of-Discharge in mAs  */
+    uint16_t nrBalancedCells[BS_NR_OF_STRINGS];
 } DATA_BLOCK_BALANCING_CONTROL_s;
 
 /** data structure declaration of DATA_BLOCK_USER_IO_CONTROL */
@@ -348,6 +350,7 @@ typedef struct DATA_BLOCK_ERRORSTATE {
     uint8_t fuseStateCharge[BS_NR_OF_STRINGS];                        /*!< 0 -> fuse ok,  1 -> fuse tripped */
     uint8_t open_wire[BS_NR_OF_STRINGS];                              /*!< 0 -> no error, 1 -> error */
     uint8_t canTiming;                                                /*!< 0 -> no error, 1 -> error */
+    uint8_t canRxQueueFull;                                           /*!< 0 -> no error, 1 -> error */
     uint8_t canTimingCc[BS_NR_OF_STRINGS];                            /*!< 0 -> no error, 1 -> error */
     uint8_t canTimingEc[BS_NR_OF_STRINGS];                            /*!< 0 -> no error, 1 -> error */
     uint8_t mcuDieTemperature;                                        /*!< 0 -> no error, 1 -> error */
@@ -552,6 +555,16 @@ typedef struct DATA_BLOCK_INSULATION_MONITORING {
     uint8_t testImcOverAll;                    /*!< 0 = NotRunning, 1 = Running */
     uint8_t testImcParameterConfiguration;     /*!< 0 = NotWarning, 1 = Warning */
 } DATA_BLOCK_INSULATION_MONITORING_s;
+
+/** data block struct for the database built-in self-test */
+typedef struct DATA_BLOCK_DUMMY_FOR_SELF_TEST {
+    /* This struct needs to be at the beginning of every database entry. During
+     * the initialization of a database struct, uniqueId must be set to the
+     * respective database entry representation in enum DATA_BLOCK_ID_e. */
+    DATA_BLOCK_HEADER_s header; /*!< Data block header */
+    uint8_t member1;            /*!< first member of self-test struct */
+    uint8_t member2;            /*!< second member of self-test struct */
+} DATA_BLOCK_DUMMY_FOR_SELF_TEST_s;
 
 /** array for the database */
 extern DATA_BASE_s data_database[DATA_BLOCK_ID_MAX];

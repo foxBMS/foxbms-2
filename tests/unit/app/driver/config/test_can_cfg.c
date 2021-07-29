@@ -43,7 +43,7 @@
  * @file    test_can_cfg.c
  * @author  foxBMS Team
  * @date    2020-07-28 (date of creation)
- * @updated 2020-07-28 (date of last update)
+ * @updated 2021-07-23 (date of last update)
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -54,20 +54,24 @@
 /*========== Includes =======================================================*/
 #include "unity.h"
 #include "Mockcan.h"
+#include "Mockcan_cbs.h"
 #include "Mockdatabase.h"
 #include "Mockdiag.h"
 #include "Mockfoxmath.h"
+#include "Mockftask.h"
+#include "Mockimd.h"
 #include "Mockmpu_prototypes.h"
 #include "Mockos.h"
 
 #include "can_cfg.h"
 #include "database_cfg.h"
 
-#include "imd.h"
-
 /*========== Definitions and Implementations for Unit Test ==================*/
 
-QueueHandle_t imd_canDataQueue = NULL_PTR;
+QueueHandle_t ftsk_dataQueue        = NULL_PTR;
+QueueHandle_t ftsk_imdCanDataQueue  = NULL_PTR;
+QueueHandle_t ftsk_canRxQueue       = NULL_PTR;
+volatile bool ftsk_allQueuesCreated = false;
 
 /*========== Setup and Teardown =============================================*/
 void setUp(void) {
@@ -77,33 +81,5 @@ void tearDown(void) {
 }
 
 /*========== Test Cases =====================================================*/
-void testcan_txVolt(void) {
-    DATA_BLOCK_CELL_VOLTAGE_s *pcan_voltTab = TEST_CAN_GetCellvoltageTab();
-    for (uint8_t stringNumber = 0u; stringNumber < BS_NR_OF_STRINGS; stringNumber++) {
-        pcan_voltTab->cellVoltage_mV[stringNumber][0] = 4200;
-        pcan_voltTab->cellVoltage_mV[stringNumber][1] = 0;
-        pcan_voltTab->cellVoltage_mV[stringNumber][2] = 2000;
-        pcan_voltTab->cellVoltage_mV[stringNumber][3] = 0;
-        pcan_voltTab->cellVoltage_mV[stringNumber][4] = 4200;
-        pcan_voltTab->cellVoltage_mV[stringNumber][5] = 0;
-    }
-    DATA_Read_1_DataBlock_ExpectAndReturn(pcan_voltTab, STD_OK);
-    DATA_Read_1_DataBlock_ReturnThruPtr_pDataToReceiver0(pcan_voltTab);
-    uint8_t data[8] = {0};
-    TEST_CAN_TxVoltage(0x110, 8, littleEndian, data, NULL_PTR);
-
-    TEST_ASSERT_EQUAL(60, data[0]);
-    TEST_ASSERT_EQUAL(209, data[1]);
-    TEST_ASSERT_EQUAL(71, data[2]);
-    TEST_ASSERT_EQUAL(56, data[3]);
-    TEST_ASSERT_EQUAL(125, data[4]);
-    TEST_ASSERT_EQUAL(60, data[5]);
-    TEST_ASSERT_EQUAL(209, data[6]);
-    TEST_ASSERT_EQUAL(7, data[7]);
-}
-
-void testcan_rxDebug(void) {
-    /* adapt this test when the callback is implemented */
-    uint8_t data[8] = {0};
-    TEST_ASSERT_EQUAL(0, TEST_CAN_RxDebug(0, 0, 0, data, NULL_PTR));
+void testDummy(void) {
 }

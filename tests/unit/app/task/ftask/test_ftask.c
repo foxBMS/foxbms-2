@@ -43,7 +43,7 @@
  * @file    test_ftask.c
  * @author  foxBMS Team
  * @date    2020-04-02 (date of creation)
- * @updated 2020-05-25 (date of last update)
+ * @updated 2021-07-23 (date of last update)
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -87,6 +87,13 @@
 #include "ftask.h"
 
 /*========== Definitions and Implementations for Unit Test ==================*/
+#define FTSK_DATA_QUEUE_LENGTH      (1u)
+#define FTSK_DATA_QUEUE_ITEM_SIZE   (sizeof(DATA_QUEUE_MESSAGE_s))
+#define FTSK_IMD_QUEUE_LENGTH       (5u)
+#define FTSK_IMD_QUEUE_ITEM_SIZE    (sizeof(CAN_BUFFERELEMENT_s))
+#define FTSK_CAN_RX_QUEUE_LENGTH    (50u)
+#define FTSK_CAN_RX_QUEUE_ITEM_SIZE (sizeof(CAN_BUFFERELEMENT_s))
+
 volatile OS_BOOT_STATE_e os_boot = OS_OFF;
 volatile OS_TIMER_s os_timer     = {0, 0, 0, 0, 0, 0, 0};
 uint32_t os_schedulerStartTime   = 0;
@@ -96,9 +103,12 @@ SBC_STATE_s sbc_stateMcuSupervisor;
 
 SYS_STATE_s sys_state = {0};
 
-QueueHandle_t imd_canDataQueue                                       = NULL_PTR;
-StaticQueue_t imd_queueStructure                                     = {0};
-uint8_t imd_queueStorageArea[IMD_QUEUE_LENGTH * IMD_QUEUE_ITEM_SIZE] = {0};
+static uint8_t ftsk_dataQueueStorageArea[FTSK_DATA_QUEUE_LENGTH * FTSK_DATA_QUEUE_ITEM_SIZE]      = {0};
+static uint8_t ftsk_imdQueueStorageArea[FTSK_IMD_QUEUE_LENGTH * FTSK_IMD_QUEUE_ITEM_SIZE]         = {0};
+static uint8_t ftsk_canRxQueueStorageArea[FTSK_CAN_RX_QUEUE_LENGTH * FTSK_CAN_RX_QUEUE_ITEM_SIZE] = {0};
+static StaticQueue_t ftsk_dataQueueStructure;
+static StaticQueue_t ftsk_imdQueueStructure;
+static StaticQueue_t ftsk_canRxQueueStructure;
 
 /*========== Setup and Teardown =============================================*/
 void setUp(void) {

@@ -43,7 +43,7 @@
  * @file    no-imd.h
  * @author  foxBMS Team
  * @date    2020-11-20 (date of creation)
- * @updated 2020-11-20 (date of last update)
+ * @updated 2021-07-23 (date of last update)
  * @ingroup DRIVERS
  * @prefix  NONE
  *

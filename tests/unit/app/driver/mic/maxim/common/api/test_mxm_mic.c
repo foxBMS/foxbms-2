@@ -43,7 +43,7 @@
  * @file    test_mxm_mic.c
  * @author  foxBMS Team
  * @date    2020-06-17 (date of creation)
- * @updated 2020-06-18 (date of last update)
+ * @updated 2021-07-14 (date of last update)
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -60,6 +60,7 @@
 #include "Mockmxm_1785x.h"
 #include "Mockmxm_battery_management.h"
 #include "Mockmxm_cfg.h"
+#include "Mockos.h"
 
 #include "mic.h"
 

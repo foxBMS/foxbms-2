@@ -70,6 +70,14 @@
 #include "test_assert_helper.h"
 
 /*========== Definitions and Implementations for Unit Test ==================*/
+DIAG_ID_CFG_s DIAG_ID_cfg[] = {};
+
+DIAG_DEV_s diag_device = {
+    .nr_of_ch            = sizeof(DIAG_ID_cfg) / sizeof(DIAG_ID_CFG_s),
+    .ch_cfg              = &DIAG_ID_cfg[0],
+    .numberOfFatalErrors = 0u,
+};
+
 BS_STRING_PRECHARGE_PRESENT_e bs_stringsWithPrecharge[BS_NR_OF_STRINGS] = {
     BS_STRING_WITH_PRECHARGE,
     BS_STRING_WITH_PRECHARGE,

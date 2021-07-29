@@ -72,14 +72,16 @@ on the configuration.
 External Libraries
 ------------------
 
-A How-to is found in :ref:`HOW_TO_BUILD_A_LIBRARY_AND_LINK_IT_IN_A_FOXBMS_2_PROJECT`.
+A How-to is found in
+:ref:`HOW_TO_BUILD_A_LIBRARY_AND_LINK_IT_IN_A_FOXBMS_2_PROJECT`.
 
 .. _swi_info:
 
 SWI Aliases
 -----------
 
-The build process automatically generates a list of the SWI-alias and function name mapping. It is found in variant
+The build process automatically generates a list of the SWI-alias and function
+name mapping. It is found in variant
 build directory.
 
 It is used as follows:
@@ -96,4 +98,5 @@ It is used as follows:
             ),
         )
 
-For implementation details see :py:meth:`f_ti_arm_cgt.get_swi_aliases` and :py:meth:`f_ti_arm_cgt.print_swi_aliases`.
+For implementation details see :py:meth:`f_ti_arm_cgt.get_swi_aliases` and
+:py:meth:`f_ti_arm_cgt.print_swi_aliases`.

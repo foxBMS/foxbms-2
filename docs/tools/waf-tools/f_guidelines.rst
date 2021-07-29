@@ -3,8 +3,8 @@
 
 .. _WAF_TOOL_GUIDELINES:
 
-Waf Tool Guidelines
-===================
+Guidelines
+==========
 
 ..
     Comments:

@@ -43,7 +43,7 @@
  * @file    mxm_41b_register_map.h
  * @author  foxBMS Team
  * @date    2020-06-25 (date of creation)
- * @updated 2020-06-25 (date of last update)
+ * @updated 2021-06-16 (date of last update)
  * @ingroup DRIVERS
  * @prefix  MXM
  *
@@ -75,6 +75,7 @@ typedef uint8_t MXM_41B_BUF_CMD_t;
  */
 typedef uint8_t MXM_41B_REG_ADD_t;
 
+/* AXIVION Disable Style MisraC2012-2.5: For completeness, this section lists all register addresses even though the driver does not use them. */
 /**
  * @brief Reset transmit buffer to default state and clear TX_Q and LD_Q
  */
@@ -324,6 +325,8 @@ typedef uint8_t MXM_41B_REG_ADD_t;
  * @brief RX next message register read address
  */
 #define MXM_REG_RX_NEXT_MESSAGE_R ((MXM_41B_REG_ADD_t)0x9Bu)
+
+/* AXIVION Enable Style MisraC2012-2.5: */
 
 /*========== Extern Constant and Variable Declarations ======================*/
 

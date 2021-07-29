@@ -43,7 +43,7 @@
  * @file    database.h
  * @author  foxBMS Team
  * @date    2015-08-18 (date of creation)
- * @updated 2019-11-21 (date of last update)
+ * @updated 2021-07-23 (date of last update)
  * @ingroup ENGINE
  * @prefix  DATA
  *
@@ -59,12 +59,16 @@
 /*========== Includes =======================================================*/
 #include "database_cfg.h"
 
-#include "FreeRTOS.h"
-#include "queue.h"
-
+#include "database_helper.h"
 #include "os.h"
 
 /*========== Macros and Definitions =========================================*/
+
+/**
+ * Maximum number of database entries that can be read or written during one
+ * access call to the database
+ */
+#define DATA_MAX_ENTRIES_PER_ACCESS (4u)
 
 /** helper macro for the variadic macros for read and write functions */
 #define GET_MACRO(_1, _2, _3, _4, NAME, ...) NAME
@@ -96,6 +100,17 @@ typedef enum DATA_BLOCK_ACCESS_TYPE {
     DATA_WRITE_ACCESS, /**< write access to data block   */
     DATA_READ_ACCESS,  /**< read access to data block    */
 } DATA_BLOCK_ACCESS_TYPE_e;
+
+/** dummy value for the built-in self-test (alternating bit pattern) */
+#define DATA_DUMMY_VALUE_UINT8_T_ALTERNATING_BIT_PATTERN ((uint8_t)0xAAu)
+
+/**
+ * struct for database queue, contains pointer to data, database entry and access type
+ */
+typedef struct DATA_QUEUE_MESSAGE {
+    DATA_BLOCK_ACCESS_TYPE_e accesstype;               /*!< read or write access type */
+    void *pDatabaseEntry[DATA_MAX_ENTRIES_PER_ACCESS]; /*!< reference by general pointer */
+} DATA_QUEUE_MESSAGE_s;
 
 /*========== Extern Constant and Variable Declarations ======================*/
 
@@ -244,34 +259,12 @@ extern STD_RETURN_TYPE_e DATA_Read_4_DataBlocks(
     void *pDataToReceiver3);
 
 /**
- * @brief   Checks if passed database entry has been updated at least once.
- * @param[in]  pDatabaseEntry (type: void *)
- * @return true if database entry has been updated at least once, otherwise false
+ * @brief   Executes a built-in self-test for the database module
+ * @details This test writes and reads a database entry in order to check that
+ *          the database module is working as expected. If the test fails, it
+ *          will fail an assertion.
  */
-extern bool DATA_DatabaseEntryUpdatedAtLeastOnce(void *pDatabaseEntry);
-
-/**
- * @brief   Checks if passed database entry has been updated within the last
- *          time interval
- * @param[in]  pDatabaseEntry (type: void *)
- * @param[in]  timeInterval in systicks (type: uint32_t)
- * @return true if database entry has been updated within the time interval,
- *         otherwise false
- */
-extern bool DATA_DatabaseEntryUpdatedRecently(void *pDatabaseEntry, uint32_t timeInterval);
-
-/**
- * @brief   Checks if passed database entry has been periodically updated
- *          within the time interval
- * @details Checks if the last update timestamp is not older than time interval
- *          and if the difference between previous timestamp and timestamp is
- *          smaller than time interval
- * @param[in]  pDatabaseEntry (type: void *)
- * @param[in]  timeInterval in systicks (type: uint32_t)
- * @return true if database entry has been periodically updated within the time
- *         interval, otherwise false
- */
-extern bool DATA_DatabaseEntryUpdatedWithinInterval(void *pDatabaseEntry, uint32_t timeInterval);
+extern void DATA_ExecuteDataBIST(void);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 

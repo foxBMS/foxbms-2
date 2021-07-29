@@ -43,7 +43,7 @@
  * @file    mxm_1785x.c
  * @author  foxBMS Team
  * @date    2019-01-15 (date of creation)
- * @updated 2020-09-10 (date of last update)
+ * @updated 2021-07-14 (date of last update)
  * @ingroup DRIVERS
  * @prefix  MXM
  *
@@ -96,8 +96,8 @@ static const MXM_REG_NAME_e mxm_voltageCellAddresses[MXM_VOLTAGE_READ_ARRAY_LENG
     MXM_REG_CELL12,
     MXM_REG_CELL13,
     MXM_REG_CELL14,
-    MXM_REG_AUX0,
     MXM_REG_AUX2,
+    MXM_REG_AUX3,
     MXM_REG_BLOCK,
 };
 
@@ -172,6 +172,18 @@ static uint32_t mxm_currentTime  = {0};
 /** @brief Delay in milliseconds before the balancing status is updated */
 #define MXM_DELAY_BALANCING 10000u
 
+/** @brief VAA reference voltage (3.3V) */
+#define MXM_REF_VAA_mV (3300u)
+
+/** @defgroup MXM_I2C_IMPLEMENTATION symbols and settings pertaining to the I2C implementation in MXM
+ * @{
+ */
+/** @brief address of MUX0 */
+#define MXM_I2C_MUX0_ADDRESS (0x4Cu)
+/** @brief address of MUX1 */
+#define MXM_I2C_MUX1_ADDRESS (0x4Du)
+/**@}*/
+
 /*========== Extern Constant and Variable Definitions =======================*/
 
 /*========== Static Function Prototypes =====================================*/
@@ -192,24 +204,24 @@ static void MXM_GetDataFrom5XStateMachine(MXM_MONITORING_INSTANCE_s *pInstance);
  *
  *              If is_temperature_measurement is set to true, the function
  *              expects an auxiliary measurement (e.g. temperatures).
- * @param[in]   volt_rx_buffer          array-pointer to the RX buffer
- * @param[in]   volt_rx_buffer_len      length of the RX buffer
- * @param[in]   meas_offset             offset of the data in the cell voltage
+ * @param[in]   kpkVoltRxBuffer         array-pointer to the RX buffer
+ * @param[in]   voltRxBufferLength      length of the RX buffer
+ * @param[in]   measurementOffset       offset of the data in the cell voltage
  *                                      array (target)
  * @param[in]   conversionType          type of conversion that has been used
  *                                      for the measured data
- * @param[out]  voltages_target         array-pointer to the cell voltages
+ * @param[out]  pVoltagesTarget         array-pointer to the cell voltages
  *                                      array
  * @param[in]   meas_type               whether the measurement is temperature
  *                                      or cell
  * @param[in]   full_scale_reference_mV reference voltage of full scale
  */
 static void MXM_ParseVoltageLineReadall(
-    uint8_t *volt_rx_buffer,
-    uint16_t volt_rx_buffer_len,
-    uint8_t meas_offset,
+    const uint8_t *const kpkVoltRxBuffer,
+    uint16_t voltRxBufferLength,
+    uint8_t measurementOffset,
     MXM_CONVERSION_TYPE_e conversionType,
-    uint16_t *voltages_target,
+    uint16_t *pVoltagesTarget,
     MXM_MEASURE_TYPE_e meas_type,
     uint32_t full_scale_reference_mV);
 
@@ -223,19 +235,19 @@ static void MXM_ParseVoltageLineReadall(
  *              parameters to #MXM_ParseVoltageLineReadall(). The contained
  *              data from this message will be parsed into a struct structured
  *              like #MXM_MONITORING_INSTANCE::localVoltages.
- * @param[in]   volt_rx_buffer      array-pointer to the RX buffer
- * @param[in]   volt_rx_buffer_len  length of the RX buffer
- * @param[out]  datastorage         contains all measured voltages for local
- *                                  consumption in the module
- * @param[in]   conversionType      type of conversion that has been used for
- *                                  the measured data
+ * @param[in]   kpkVoltageRxBuffer      array-pointer to the RX buffer
+ * @param[in]   voltageRxBufferLength   length of the RX buffer
+ * @param[out]  datastorage             contains all measured voltages for local
+ *                                      consumption in the module
+ * @param[in]   conversionType          type of conversion that has been used for
+ *                                      the measured data
  * @return      #STD_NOT_OK in the case that the RX buffer does not contain a
  *              valid message or the conversion-type is unknown,
  *              otherwise #STD_OK
  */
 static STD_RETURN_TYPE_e MXM_ParseVoltageReadall(
-    uint8_t *volt_rx_buffer,
-    uint16_t volt_rx_buffer_len,
+    const uint8_t *const kpkVoltageRxBuffer,
+    uint16_t voltageRxBufferLength,
     MXM_DATA_STORAGE_s *datastorage,
     MXM_CONVERSION_TYPE_e conversionType);
 
@@ -285,9 +297,10 @@ static MXM_MONINTORING_STATE_e must_check_return
  *
  *          This function maps these values into the database-struct which
  *          scales with the number of connected cells and monitoring ICs.
+ * @param[in]   kpkInstance pointer to the #MXM_MONITORING_INSTANCE_s struct
  * @return  #STD_OK if the action was successful or #STD_NOT_OK otherwise
  */
-static STD_RETURN_TYPE_e MXM_ParseVoltagesIntoDB(MXM_MONITORING_INSTANCE_s *pInstance);
+static STD_RETURN_TYPE_e MXM_ParseVoltagesIntoDB(const MXM_MONITORING_INSTANCE_s *const kpkInstance);
 
 /**
  * @brief           Execute all preinit selfchecks.
@@ -342,7 +355,7 @@ static STD_RETURN_TYPE_e MXM_ConstructBalancingBuffer(void);
  *                  been sent successfully.
  * @param[in,out]   pInstance   pointer to instance of the mxm
  *                              monitoring state-machine
- * @param[in]       nextState   state that should be entered upon successfull
+ * @param[in]       nextState   state that should be entered upon successful
  *                              completion
  */
 static void MXM_HandleStateWriteall(
@@ -361,7 +374,7 @@ static void MXM_HandleStateWriteall(
  * @param[in,out]   pInstance   pointer to instance of the mxm
  *                              monitoring state-machine
  * @param[in]       registerName    register that should be read
- * @param[in]       nextState   state that should be entered upon successfull
+ * @param[in]       nextState   state that should be entered upon successful
  *                              completion
  * @return          true when the state has been handled, false otherwise, use
  *                  this to execute additional code when the message has been
@@ -376,12 +389,14 @@ static bool must_check_return MXM_HandleStateReadall(
  * @brief           Processes the retrieved information on openwire
  * @details         Parses through a retrieved RX buffer and writes into the
  *                  database.
- * @param[in,out]   pInstance       pointer to instance of the Maxim monitoring
+ * @param[in,out]   kpkInstance     pointer to instance of the Maxim monitoring
  *                                  state-machine
  * @param[in,out]   pDataOpenWire   pointer to the local copy of the data-base
  *                                  entry
  */
-static void MXM_ProcessOpenWire(MXM_MONITORING_INSTANCE_s *pInstance, DATA_BLOCK_OPEN_WIRE_s *pDataOpenWire);
+static void MXM_ProcessOpenWire(
+    const MXM_MONITORING_INSTANCE_s *const kpkInstance,
+    DATA_BLOCK_OPEN_WIRE_s *pDataOpenWire);
 
 /*========== Static Function Implementations ================================*/
 static void MXM_GetDataFrom5XStateMachine(MXM_MONITORING_INSTANCE_s *pInstance) {
@@ -437,18 +452,20 @@ static bool must_check_return MXM_HandleStateReadall(
         /* try to reset state */
         pInstance->requestStatus5x = MXM_5X_STATE_UNSENT;
     } else {
-        /* invalid state --> trap */
+        /* invalid state */
         FAS_ASSERT(FAS_TRAP);
     }
 
     return retval;
 }
 
-static void MXM_ProcessOpenWire(MXM_MONITORING_INSTANCE_s *pInstance, DATA_BLOCK_OPEN_WIRE_s *pDataOpenWire) {
-    FAS_ASSERT(pInstance != NULL_PTR);
+static void MXM_ProcessOpenWire(
+    const MXM_MONITORING_INSTANCE_s *const kpkInstance,
+    DATA_BLOCK_OPEN_WIRE_s *pDataOpenWire) {
+    FAS_ASSERT(kpkInstance != NULL_PTR);
     FAS_ASSERT(pDataOpenWire != NULL_PTR);
 
-    uint8_t numberOfSatellites = MXM_5XGetNumberOfSatellites(pInstance->pInstance5X);
+    uint8_t numberOfSatellites = MXM_5XGetNumberOfSatellites(kpkInstance->pInstance5X);
     uint8_t msg_len            = BATTERY_MANAGEMENT_TX_LENGTH_READALL + (2u * numberOfSatellites);
     /* step over every byte-tuple in the RX-buffer */
     for (uint8_t i_po = 2u; i_po < (msg_len - 2u); i_po = i_po + 2u) {
@@ -464,7 +481,7 @@ static void MXM_ProcessOpenWire(MXM_MONITORING_INSTANCE_s *pInstance, DATA_BLOCK
             if (c < 8u) {
                 /* cell numbers under 8 can be found in the LSB */
                 uint8_t mask = 1u << c;
-                if ((uint8_t)(mask & pInstance->rxBuffer[i_po]) > 0u) {
+                if ((uint8_t)(mask & kpkInstance->rxBuffer[i_po]) > 0u) {
                     pDataOpenWire->openwire[stringNumber][calculated_module_position + c] = 1;
                 } else {
                     pDataOpenWire->openwire[stringNumber][calculated_module_position + c] = 0;
@@ -472,7 +489,7 @@ static void MXM_ProcessOpenWire(MXM_MONITORING_INSTANCE_s *pInstance, DATA_BLOCK
             } else {
                 /* cell numbers over or equal 8 can be found in the MSB */
                 uint8_t mask = 1u << (c - 8u);
-                if ((uint8_t)(mask & pInstance->rxBuffer[i_po + 1u]) > 0u) {
+                if ((uint8_t)(mask & kpkInstance->rxBuffer[i_po + 1u]) > 0u) {
                     pDataOpenWire->openwire[stringNumber][calculated_module_position + c] = 1;
                 } else {
                     pDataOpenWire->openwire[stringNumber][calculated_module_position + c] = 0;
@@ -507,7 +524,7 @@ static STD_RETURN_TYPE_e MXM_ConstructBalancingBuffer(void) {
                 uint16_t moduleNumber = 0u;
                 MXM_ConvertModuleToString(mxm_moduleBalancingIndex, &stringNumber, &moduleNumber);
                 uint16_t db_index = (moduleNumber * BS_NR_OF_CELLS_PER_MODULE) + cell_index;
-                if (mxm_balancingControl.balancingState[stringNumber][db_index] == 1) {
+                if (mxm_balancingControl.balancingState[stringNumber][db_index] == 1u) {
                     /* Cell 'cell_index' of module 'mxm_moduleBalancingIndex' needs to be balanced.
                        Need to determine the balancing order --> even or odd cells?
                        If the balancing order has not been determined before, need to do it. */
@@ -541,19 +558,19 @@ static STD_RETURN_TYPE_e MXM_ConstructBalancingBuffer(void) {
 }
 
 static void MXM_ParseVoltageLineReadall(
-    uint8_t *volt_rx_buffer,
-    uint16_t volt_rx_buffer_len,
-    uint8_t meas_offset,
+    const uint8_t *const kpkVoltRxBuffer,
+    uint16_t voltRxBufferLength,
+    uint8_t measurementOffset,
     MXM_CONVERSION_TYPE_e conversionType,
-    uint16_t *voltages_target,
+    uint16_t *pVoltagesTarget,
     MXM_MEASURE_TYPE_e meas_type,
     uint32_t full_scale_reference_mV) {
     uint8_t number_of_connected_devices =
-        (volt_rx_buffer_len - 2u - 2u) /
+        (voltRxBufferLength - 2u - 2u) /
         2u; /*!< buffer-length - length of start - length of end divided by two (LSB and MSB) */
     /* TODO impact of alive counter on rxBufferLength
      * otherwise offset at the end of message is currently 2 (DATACHECKBYTE and CRC) */
-    for (uint8_t i = 2u; i < (volt_rx_buffer_len - 2u); i = i + 2u) {
+    for (uint8_t i = 2u; i < (voltRxBufferLength - 2u); i = i + 2u) {
         uint8_t calculated_module_number    = number_of_connected_devices - ((uint16_t)(i / 2u) - 1u) - 1u;
         uint16_t calculated_module_position = 0u;
         switch (meas_type) {
@@ -570,31 +587,48 @@ static void MXM_ParseVoltageLineReadall(
                 FAS_ASSERT(FAS_TRAP);
                 break;
         }
-        uint16_t calculated_array_position = calculated_module_position + meas_offset;
+        uint16_t calculated_array_position = calculated_module_position + measurementOffset;
+
+        /* check calculated array position */
+        switch (meas_type) {
+            case MXM_MEASURE_TEMP:
+                FAS_ASSERT(calculated_array_position < (MXM_MAXIMUM_NR_OF_MODULES * MXM_MAXIMUM_NR_OF_AUX_PER_MODULE));
+                break;
+            case MXM_MEASURE_CELL_VOLTAGE:
+                FAS_ASSERT(
+                    calculated_array_position < (MXM_MAXIMUM_NR_OF_MODULES * MXM_MAXIMUM_NR_OF_CELLS_PER_MODULE));
+                break;
+            case MXM_MEASURE_BLOCK_VOLTAGE:
+                FAS_ASSERT(calculated_array_position < (MXM_MAXIMUM_NR_OF_MODULES));
+                break;
+            default:
+                FAS_ASSERT(FAS_TRAP);
+                break;
+        }
+
         MXM_Convert(
-            volt_rx_buffer[i],
-            volt_rx_buffer[i + 1u],
-            &voltages_target[calculated_array_position],
+            kpkVoltRxBuffer[i],
+            kpkVoltRxBuffer[i + 1u],
+            &pVoltagesTarget[calculated_array_position],
             conversionType,
             full_scale_reference_mV);
     }
-    return;
 }
 
-STD_RETURN_TYPE_e MXM_ParseVoltageReadall(
-    uint8_t *volt_rx_buffer,
-    uint16_t volt_rx_buffer_len,
+static STD_RETURN_TYPE_e MXM_ParseVoltageReadall(
+    const uint8_t *const kpkVoltageRxBuffer,
+    uint16_t voltageRxBufferLength,
     MXM_DATA_STORAGE_s *datastorage,
     MXM_CONVERSION_TYPE_e conversionType) {
     STD_RETURN_TYPE_e retval = STD_OK;
-    FAS_ASSERT(volt_rx_buffer != NULL_PTR);
+    FAS_ASSERT(kpkVoltageRxBuffer != NULL_PTR);
     FAS_ASSERT(datastorage != NULL_PTR);
 
     uint8_t cell_offset = 0;
-    if (volt_rx_buffer[0] != BATTERY_MANAGEMENT_READALL) {
+    if (kpkVoltageRxBuffer[0] != BATTERY_MANAGEMENT_READALL) {
         /* rxBuffer does not contain a READALL command */
         retval = STD_NOT_OK;
-    } else if ((volt_rx_buffer_len % 2u) != 0u) {
+    } else if ((voltageRxBufferLength % 2u) != 0u) {
         /* without alive counter rx-buffer always should be of even length */
         /* TODO impact of alive-counter-byte */
         retval = STD_NOT_OK;
@@ -604,188 +638,199 @@ STD_RETURN_TYPE_e MXM_ParseVoltageReadall(
         /* conversion type is not supported */
         retval = STD_NOT_OK;
     } else {
-        switch (volt_rx_buffer[1]) {
+        switch ((MXM_REG_NAME_e)kpkVoltageRxBuffer[1]) {
             case MXM_REG_CELL1:
                 cell_offset = 0u;
                 MXM_ParseVoltageLineReadall(
-                    volt_rx_buffer,
-                    volt_rx_buffer_len,
+                    kpkVoltageRxBuffer,
+                    voltageRxBufferLength,
                     cell_offset,
                     conversionType,
-                    datastorage->cellVoltages,
+                    datastorage->cellVoltages_mV,
                     MXM_MEASURE_CELL_VOLTAGE,
                     5000u);
                 break;
             case MXM_REG_CELL2:
                 cell_offset = 1u;
                 MXM_ParseVoltageLineReadall(
-                    volt_rx_buffer,
-                    volt_rx_buffer_len,
+                    kpkVoltageRxBuffer,
+                    voltageRxBufferLength,
                     cell_offset,
                     conversionType,
-                    datastorage->cellVoltages,
+                    datastorage->cellVoltages_mV,
                     MXM_MEASURE_CELL_VOLTAGE,
                     5000u);
                 break;
             case MXM_REG_CELL3:
                 cell_offset = 2u;
                 MXM_ParseVoltageLineReadall(
-                    volt_rx_buffer,
-                    volt_rx_buffer_len,
+                    kpkVoltageRxBuffer,
+                    voltageRxBufferLength,
                     cell_offset,
                     conversionType,
-                    datastorage->cellVoltages,
+                    datastorage->cellVoltages_mV,
                     MXM_MEASURE_CELL_VOLTAGE,
                     5000u);
                 break;
             case MXM_REG_CELL4:
                 cell_offset = 3u;
                 MXM_ParseVoltageLineReadall(
-                    volt_rx_buffer,
-                    volt_rx_buffer_len,
+                    kpkVoltageRxBuffer,
+                    voltageRxBufferLength,
                     cell_offset,
                     conversionType,
-                    datastorage->cellVoltages,
+                    datastorage->cellVoltages_mV,
                     MXM_MEASURE_CELL_VOLTAGE,
                     5000u);
                 break;
             case MXM_REG_CELL5:
                 cell_offset = 4u;
                 MXM_ParseVoltageLineReadall(
-                    volt_rx_buffer,
-                    volt_rx_buffer_len,
+                    kpkVoltageRxBuffer,
+                    voltageRxBufferLength,
                     cell_offset,
                     conversionType,
-                    datastorage->cellVoltages,
+                    datastorage->cellVoltages_mV,
                     MXM_MEASURE_CELL_VOLTAGE,
                     5000u);
                 break;
             case MXM_REG_CELL6:
                 cell_offset = 5u;
                 MXM_ParseVoltageLineReadall(
-                    volt_rx_buffer,
-                    volt_rx_buffer_len,
+                    kpkVoltageRxBuffer,
+                    voltageRxBufferLength,
                     cell_offset,
                     conversionType,
-                    datastorage->cellVoltages,
+                    datastorage->cellVoltages_mV,
                     MXM_MEASURE_CELL_VOLTAGE,
                     5000u);
                 break;
             case MXM_REG_CELL7:
                 cell_offset = 6u;
                 MXM_ParseVoltageLineReadall(
-                    volt_rx_buffer,
-                    volt_rx_buffer_len,
+                    kpkVoltageRxBuffer,
+                    voltageRxBufferLength,
                     cell_offset,
                     conversionType,
-                    datastorage->cellVoltages,
+                    datastorage->cellVoltages_mV,
                     MXM_MEASURE_CELL_VOLTAGE,
                     5000u);
                 break;
             case MXM_REG_CELL8:
                 cell_offset = 7u;
                 MXM_ParseVoltageLineReadall(
-                    volt_rx_buffer,
-                    volt_rx_buffer_len,
+                    kpkVoltageRxBuffer,
+                    voltageRxBufferLength,
                     cell_offset,
                     conversionType,
-                    datastorage->cellVoltages,
+                    datastorage->cellVoltages_mV,
                     MXM_MEASURE_CELL_VOLTAGE,
                     5000u);
                 break;
             case MXM_REG_CELL9:
                 cell_offset = 8u;
                 MXM_ParseVoltageLineReadall(
-                    volt_rx_buffer,
-                    volt_rx_buffer_len,
+                    kpkVoltageRxBuffer,
+                    voltageRxBufferLength,
                     cell_offset,
                     conversionType,
-                    datastorage->cellVoltages,
+                    datastorage->cellVoltages_mV,
                     MXM_MEASURE_CELL_VOLTAGE,
                     5000u);
                 break;
             case MXM_REG_CELL10:
                 cell_offset = 9u;
                 MXM_ParseVoltageLineReadall(
-                    volt_rx_buffer,
-                    volt_rx_buffer_len,
+                    kpkVoltageRxBuffer,
+                    voltageRxBufferLength,
                     cell_offset,
                     conversionType,
-                    datastorage->cellVoltages,
+                    datastorage->cellVoltages_mV,
                     MXM_MEASURE_CELL_VOLTAGE,
                     5000u);
                 break;
             case MXM_REG_CELL11:
                 cell_offset = 10u;
                 MXM_ParseVoltageLineReadall(
-                    volt_rx_buffer,
-                    volt_rx_buffer_len,
+                    kpkVoltageRxBuffer,
+                    voltageRxBufferLength,
                     cell_offset,
                     conversionType,
-                    datastorage->cellVoltages,
+                    datastorage->cellVoltages_mV,
                     MXM_MEASURE_CELL_VOLTAGE,
                     5000u);
                 break;
             case MXM_REG_CELL12:
                 cell_offset = 11u;
                 MXM_ParseVoltageLineReadall(
-                    volt_rx_buffer,
-                    volt_rx_buffer_len,
+                    kpkVoltageRxBuffer,
+                    voltageRxBufferLength,
                     cell_offset,
                     conversionType,
-                    datastorage->cellVoltages,
+                    datastorage->cellVoltages_mV,
                     MXM_MEASURE_CELL_VOLTAGE,
                     5000u);
                 break;
             case MXM_REG_CELL13:
                 cell_offset = 12u;
                 MXM_ParseVoltageLineReadall(
-                    volt_rx_buffer,
-                    volt_rx_buffer_len,
+                    kpkVoltageRxBuffer,
+                    voltageRxBufferLength,
                     cell_offset,
                     conversionType,
-                    datastorage->cellVoltages,
+                    datastorage->cellVoltages_mV,
                     MXM_MEASURE_CELL_VOLTAGE,
                     5000u);
                 break;
             case MXM_REG_CELL14:
                 cell_offset = 13u;
                 MXM_ParseVoltageLineReadall(
-                    volt_rx_buffer,
-                    volt_rx_buffer_len,
+                    kpkVoltageRxBuffer,
+                    voltageRxBufferLength,
                     cell_offset,
                     conversionType,
-                    datastorage->cellVoltages,
+                    datastorage->cellVoltages_mV,
                     MXM_MEASURE_CELL_VOLTAGE,
                     5000u);
                 break;
             case MXM_REG_AUX0:
                 cell_offset = 0u;
                 MXM_ParseVoltageLineReadall(
-                    volt_rx_buffer,
-                    volt_rx_buffer_len,
+                    kpkVoltageRxBuffer,
+                    voltageRxBufferLength,
                     cell_offset,
                     conversionType,
-                    datastorage->auxVoltages,
+                    datastorage->auxVoltages_mV,
                     MXM_MEASURE_TEMP,
-                    3300u);
+                    MXM_REF_VAA_mV);
                 break;
             case MXM_REG_AUX2:
                 cell_offset = 2u;
                 MXM_ParseVoltageLineReadall(
-                    volt_rx_buffer,
-                    volt_rx_buffer_len,
+                    kpkVoltageRxBuffer,
+                    voltageRxBufferLength,
                     cell_offset,
                     conversionType,
-                    datastorage->auxVoltages,
+                    datastorage->auxVoltages_mV,
                     MXM_MEASURE_TEMP,
-                    3300u);
+                    MXM_REF_VAA_mV);
+                break;
+            case MXM_REG_AUX3:
+                cell_offset = 3u;
+                MXM_ParseVoltageLineReadall(
+                    kpkVoltageRxBuffer,
+                    voltageRxBufferLength,
+                    cell_offset,
+                    conversionType,
+                    datastorage->auxVoltages_mV,
+                    MXM_MEASURE_TEMP,
+                    MXM_REF_VAA_mV);
                 break;
             case MXM_REG_BLOCK:
                 cell_offset = 0u;
                 MXM_ParseVoltageLineReadall(
-                    volt_rx_buffer,
-                    volt_rx_buffer_len,
+                    kpkVoltageRxBuffer,
+                    voltageRxBufferLength,
                     cell_offset,
                     conversionType,
                     datastorage->blockVoltages,
@@ -802,16 +847,16 @@ STD_RETURN_TYPE_e MXM_ParseVoltageReadall(
     return retval;
 }
 
-STD_RETURN_TYPE_e must_check_return MXM_ParseVoltageReadallTest(MXM_MONITORING_INSTANCE_s *pInstance) {
+static STD_RETURN_TYPE_e must_check_return MXM_ParseVoltageReadallTest(MXM_MONITORING_INSTANCE_s *pInstance) {
     FAS_ASSERT(pInstance != NULL_PTR);
     STD_RETURN_TYPE_e retval = STD_OK;
 
-    uint8_t test_buffer[100];
-    uint16_t test_buffer_len = 100;
+    uint8_t test_buffer[100]  = {0};
+    uint16_t testBufferLength = 100;
 
     /* not a readall buffer */
     test_buffer[0] = BATTERY_MANAGEMENT_HELLOALL;
-    if (MXM_ParseVoltageReadall(test_buffer, test_buffer_len, &pInstance->localVoltages, MXM_CONVERSION_UNIPOLAR) !=
+    if (MXM_ParseVoltageReadall(test_buffer, testBufferLength, &pInstance->localVoltages, MXM_CONVERSION_UNIPOLAR) !=
         STD_NOT_OK) {
         retval = STD_NOT_OK;
     }
@@ -819,7 +864,7 @@ STD_RETURN_TYPE_e must_check_return MXM_ParseVoltageReadallTest(MXM_MONITORING_I
     /* not a cell voltage register */
     test_buffer[0] = BATTERY_MANAGEMENT_READALL;
     test_buffer[1] = MXM_REG_VERSION;
-    if (MXM_ParseVoltageReadall(test_buffer, test_buffer_len, &pInstance->localVoltages, MXM_CONVERSION_UNIPOLAR) !=
+    if (MXM_ParseVoltageReadall(test_buffer, testBufferLength, &pInstance->localVoltages, MXM_CONVERSION_UNIPOLAR) !=
         STD_NOT_OK) {
         retval = STD_NOT_OK;
     }
@@ -827,342 +872,344 @@ STD_RETURN_TYPE_e must_check_return MXM_ParseVoltageReadallTest(MXM_MONITORING_I
     /* bogus conversion type */
     test_buffer[0] = BATTERY_MANAGEMENT_READALL;
     test_buffer[1] = MXM_REG_CELL1;
-    if (MXM_ParseVoltageReadall(test_buffer, test_buffer_len, &pInstance->localVoltages, (MXM_CONVERSION_TYPE_e)42) !=
+    if (MXM_ParseVoltageReadall(test_buffer, testBufferLength, &pInstance->localVoltages, (MXM_CONVERSION_TYPE_e)42) !=
         STD_NOT_OK) {
         retval = STD_NOT_OK;
     }
 
     /* not an even length of rxBuffer */
-    test_buffer[0]  = BATTERY_MANAGEMENT_READALL;
-    test_buffer[1]  = MXM_REG_CELL1;
-    test_buffer_len = 5;
-    if (MXM_ParseVoltageReadall(test_buffer, test_buffer_len, &pInstance->localVoltages, MXM_CONVERSION_UNIPOLAR) !=
+    test_buffer[0]   = BATTERY_MANAGEMENT_READALL;
+    test_buffer[1]   = MXM_REG_CELL1;
+    testBufferLength = 5;
+    if (MXM_ParseVoltageReadall(test_buffer, testBufferLength, &pInstance->localVoltages, MXM_CONVERSION_UNIPOLAR) !=
         STD_NOT_OK) {
         retval = STD_NOT_OK;
     }
 
     /* test data for CELL1REG */
-    test_buffer[0]  = BATTERY_MANAGEMENT_READALL;
-    test_buffer[1]  = MXM_REG_CELL1;
-    test_buffer[2]  = 0xFCu;
-    test_buffer[3]  = 0xFFu;
-    test_buffer[4]  = 0x00u;
-    test_buffer[5]  = 0x00u;
-    test_buffer[6]  = 0xFCu;
-    test_buffer[7]  = 0xFFu;
-    test_buffer[8]  = 0x42u; /* DATACHECKBYTE, irrelevant for function, filled with dummy bytes */
-    test_buffer[9]  = 0x44u; /* CRCBYTE, irrelevant for function, filled with dummy bytes */
-    test_buffer_len = 10u;
-    if (MXM_ParseVoltageReadall(test_buffer, test_buffer_len, &pInstance->localVoltages, MXM_CONVERSION_UNIPOLAR) !=
+    test_buffer[0]   = BATTERY_MANAGEMENT_READALL;
+    test_buffer[1]   = MXM_REG_CELL1;
+    test_buffer[2]   = 0xFCu;
+    test_buffer[3]   = 0xFFu;
+    test_buffer[4]   = 0x00u;
+    test_buffer[5]   = 0x00u;
+    test_buffer[6]   = 0xFCu;
+    test_buffer[7]   = 0xFFu;
+    test_buffer[8]   = 0x42u; /* DATACHECKBYTE, irrelevant for function, filled with dummy bytes */
+    test_buffer[9]   = 0x44u; /* CRCBYTE, irrelevant for function, filled with dummy bytes */
+    testBufferLength = 10u;
+    if (MXM_ParseVoltageReadall(test_buffer, testBufferLength, &pInstance->localVoltages, MXM_CONVERSION_UNIPOLAR) !=
         STD_OK) {
         retval = STD_NOT_OK;
     } else {
-        if ((pInstance->localVoltages.cellVoltages[0] != 5000u) || (pInstance->localVoltages.cellVoltages[14] != 0u) ||
-            (pInstance->localVoltages.cellVoltages[28] != 5000u)) {
+        if ((pInstance->localVoltages.cellVoltages_mV[0] != 5000u) ||
+            (pInstance->localVoltages.cellVoltages_mV[14] != 0u) ||
+            (pInstance->localVoltages.cellVoltages_mV[28] != 5000u)) {
             retval = STD_NOT_OK;
         }
     }
 
     /* null mxm_local_cellvoltages */
     for (uint16_t i_0 = 0; i_0 < (MXM_MAXIMUM_NR_OF_CELLS_PER_MODULE * MXM_MAXIMUM_NR_OF_MODULES); i_0++) {
-        pInstance->localVoltages.cellVoltages[i_0] = 0;
+        pInstance->localVoltages.cellVoltages_mV[i_0] = 0;
     }
 
     /* test data for CELL2REG */
-    test_buffer[0]  = BATTERY_MANAGEMENT_READALL;
-    test_buffer[1]  = MXM_REG_CELL2;
-    test_buffer[2]  = 0xFCu;
-    test_buffer[3]  = 0xFFu;
-    test_buffer[4]  = 0x00u;
-    test_buffer[5]  = 0x00u;
-    test_buffer[6]  = 0xFCu;
-    test_buffer[7]  = 0xFFu;
-    test_buffer[8]  = 0x42u; /* DATACHECKBYTE, irrelevant for function, filled with dummy bytes */
-    test_buffer[9]  = 0x44u; /* CRCBYTE, irrelevant for function, filled with dummy bytes */
-    test_buffer_len = 10;
-    if (MXM_ParseVoltageReadall(test_buffer, test_buffer_len, &pInstance->localVoltages, MXM_CONVERSION_UNIPOLAR) !=
+    test_buffer[0]   = BATTERY_MANAGEMENT_READALL;
+    test_buffer[1]   = MXM_REG_CELL2;
+    test_buffer[2]   = 0xFCu;
+    test_buffer[3]   = 0xFFu;
+    test_buffer[4]   = 0x00u;
+    test_buffer[5]   = 0x00u;
+    test_buffer[6]   = 0xFCu;
+    test_buffer[7]   = 0xFFu;
+    test_buffer[8]   = 0x42u; /* DATACHECKBYTE, irrelevant for function, filled with dummy bytes */
+    test_buffer[9]   = 0x44u; /* CRCBYTE, irrelevant for function, filled with dummy bytes */
+    testBufferLength = 10;
+    if (MXM_ParseVoltageReadall(test_buffer, testBufferLength, &pInstance->localVoltages, MXM_CONVERSION_UNIPOLAR) !=
         STD_OK) {
         retval = STD_NOT_OK;
     } else {
-        if ((pInstance->localVoltages.cellVoltages[1] != 5000u) || (pInstance->localVoltages.cellVoltages[15] != 0u) ||
-            (pInstance->localVoltages.cellVoltages[29] != 5000u)) {
+        if ((pInstance->localVoltages.cellVoltages_mV[1] != 5000u) ||
+            (pInstance->localVoltages.cellVoltages_mV[15] != 0u) ||
+            (pInstance->localVoltages.cellVoltages_mV[29] != 5000u)) {
             retval = STD_NOT_OK;
         }
     }
 
     /* null mxm_local_cellvoltages */
     for (uint16_t i_1 = 0; i_1 < (MXM_MAXIMUM_NR_OF_CELLS_PER_MODULE * MXM_MAXIMUM_NR_OF_MODULES); i_1++) {
-        pInstance->localVoltages.cellVoltages[i_1] = 0;
+        pInstance->localVoltages.cellVoltages_mV[i_1] = 0;
     }
 
     /* test data for CELL3REG */
-    test_buffer[0]  = BATTERY_MANAGEMENT_READALL;
-    test_buffer[1]  = MXM_REG_CELL3;
-    test_buffer[2]  = 0xFCu;
-    test_buffer[3]  = 0xFFu;
-    test_buffer[4]  = 0x42u; /* DATACHECKBYTE, irrelevant for function, filled with dummy bytes */
-    test_buffer[5]  = 0x44u; /* CRCBYTE, irrelevant for function, filled with dummy bytes */
-    test_buffer_len = 6;
-    if (MXM_ParseVoltageReadall(test_buffer, test_buffer_len, &pInstance->localVoltages, MXM_CONVERSION_UNIPOLAR) !=
+    test_buffer[0]   = BATTERY_MANAGEMENT_READALL;
+    test_buffer[1]   = MXM_REG_CELL3;
+    test_buffer[2]   = 0xFCu;
+    test_buffer[3]   = 0xFFu;
+    test_buffer[4]   = 0x42u; /* DATACHECKBYTE, irrelevant for function, filled with dummy bytes */
+    test_buffer[5]   = 0x44u; /* CRCBYTE, irrelevant for function, filled with dummy bytes */
+    testBufferLength = 6;
+    if (MXM_ParseVoltageReadall(test_buffer, testBufferLength, &pInstance->localVoltages, MXM_CONVERSION_UNIPOLAR) !=
         STD_OK) {
         retval = STD_NOT_OK;
     } else {
-        if (pInstance->localVoltages.cellVoltages[2] != 5000u) {
+        if (pInstance->localVoltages.cellVoltages_mV[2] != 5000u) {
             retval = STD_NOT_OK;
         }
     }
 
     /* null mxm_local_cellvoltages */
     for (uint16_t i_2 = 0; i_2 < (MXM_MAXIMUM_NR_OF_CELLS_PER_MODULE * MXM_MAXIMUM_NR_OF_MODULES); i_2++) {
-        pInstance->localVoltages.cellVoltages[i_2] = 0;
+        pInstance->localVoltages.cellVoltages_mV[i_2] = 0;
     }
 
     /* test data for CELL4REG */
-    test_buffer[0]  = BATTERY_MANAGEMENT_READALL;
-    test_buffer[1]  = MXM_REG_CELL4;
-    test_buffer[2]  = 0xFCu;
-    test_buffer[3]  = 0xFFu;
-    test_buffer[4]  = 0x42u; /* DATACHECKBYTE, irrelevant for function, filled with dummy bytes */
-    test_buffer[5]  = 0x44u; /* CRCBYTE, irrelevant for function, filled with dummy bytes */
-    test_buffer_len = 6;
-    if (MXM_ParseVoltageReadall(test_buffer, test_buffer_len, &pInstance->localVoltages, MXM_CONVERSION_UNIPOLAR) !=
+    test_buffer[0]   = BATTERY_MANAGEMENT_READALL;
+    test_buffer[1]   = MXM_REG_CELL4;
+    test_buffer[2]   = 0xFCu;
+    test_buffer[3]   = 0xFFu;
+    test_buffer[4]   = 0x42u; /* DATACHECKBYTE, irrelevant for function, filled with dummy bytes */
+    test_buffer[5]   = 0x44u; /* CRCBYTE, irrelevant for function, filled with dummy bytes */
+    testBufferLength = 6;
+    if (MXM_ParseVoltageReadall(test_buffer, testBufferLength, &pInstance->localVoltages, MXM_CONVERSION_UNIPOLAR) !=
         STD_OK) {
         retval = STD_NOT_OK;
     } else {
-        if (pInstance->localVoltages.cellVoltages[3] != 5000u) {
+        if (pInstance->localVoltages.cellVoltages_mV[3] != 5000u) {
             retval = STD_NOT_OK;
         }
     }
 
     /* null mxm_local_cellvoltages */
     for (uint16_t i_3 = 0; i_3 < (MXM_MAXIMUM_NR_OF_CELLS_PER_MODULE * MXM_MAXIMUM_NR_OF_MODULES); i_3++) {
-        pInstance->localVoltages.cellVoltages[i_3] = 0;
+        pInstance->localVoltages.cellVoltages_mV[i_3] = 0;
     }
 
     /* test data for CELL5REG */
-    test_buffer[0]  = BATTERY_MANAGEMENT_READALL;
-    test_buffer[1]  = MXM_REG_CELL5;
-    test_buffer[2]  = 0xFCu;
-    test_buffer[3]  = 0xFFu;
-    test_buffer[4]  = 0x42u; /* DATACHECKBYTE, irrelevant for function, filled with dummy bytes */
-    test_buffer[5]  = 0x44u; /* CRCBYTE, irrelevant for function, filled with dummy bytes */
-    test_buffer_len = 6;
-    if (MXM_ParseVoltageReadall(test_buffer, test_buffer_len, &pInstance->localVoltages, MXM_CONVERSION_UNIPOLAR) !=
+    test_buffer[0]   = BATTERY_MANAGEMENT_READALL;
+    test_buffer[1]   = MXM_REG_CELL5;
+    test_buffer[2]   = 0xFCu;
+    test_buffer[3]   = 0xFFu;
+    test_buffer[4]   = 0x42u; /* DATACHECKBYTE, irrelevant for function, filled with dummy bytes */
+    test_buffer[5]   = 0x44u; /* CRCBYTE, irrelevant for function, filled with dummy bytes */
+    testBufferLength = 6;
+    if (MXM_ParseVoltageReadall(test_buffer, testBufferLength, &pInstance->localVoltages, MXM_CONVERSION_UNIPOLAR) !=
         STD_OK) {
         retval = STD_NOT_OK;
     } else {
-        if (pInstance->localVoltages.cellVoltages[4] != 5000u) {
+        if (pInstance->localVoltages.cellVoltages_mV[4] != 5000u) {
             retval = STD_NOT_OK;
         }
     }
 
     /* null mxm_local_cellvoltages */
     for (uint16_t i_4 = 0; i_4 < (MXM_MAXIMUM_NR_OF_CELLS_PER_MODULE * MXM_MAXIMUM_NR_OF_MODULES); i_4++) {
-        pInstance->localVoltages.cellVoltages[i_4] = 0;
+        pInstance->localVoltages.cellVoltages_mV[i_4] = 0;
     }
 
     /* test data for CELL6REG */
-    test_buffer[0]  = BATTERY_MANAGEMENT_READALL;
-    test_buffer[1]  = MXM_REG_CELL6;
-    test_buffer[2]  = 0xFCu;
-    test_buffer[3]  = 0xFFu;
-    test_buffer[4]  = 0x42u; /* DATACHECKBYTE, irrelevant for function, filled with dummy bytes */
-    test_buffer[5]  = 0x44u; /* CRCBYTE, irrelevant for function, filled with dummy bytes */
-    test_buffer_len = 6;
-    if (MXM_ParseVoltageReadall(test_buffer, test_buffer_len, &pInstance->localVoltages, MXM_CONVERSION_UNIPOLAR) !=
+    test_buffer[0]   = BATTERY_MANAGEMENT_READALL;
+    test_buffer[1]   = MXM_REG_CELL6;
+    test_buffer[2]   = 0xFCu;
+    test_buffer[3]   = 0xFFu;
+    test_buffer[4]   = 0x42u; /* DATACHECKBYTE, irrelevant for function, filled with dummy bytes */
+    test_buffer[5]   = 0x44u; /* CRCBYTE, irrelevant for function, filled with dummy bytes */
+    testBufferLength = 6;
+    if (MXM_ParseVoltageReadall(test_buffer, testBufferLength, &pInstance->localVoltages, MXM_CONVERSION_UNIPOLAR) !=
         STD_OK) {
         retval = STD_NOT_OK;
     } else {
-        if (pInstance->localVoltages.cellVoltages[5] != 5000u) {
+        if (pInstance->localVoltages.cellVoltages_mV[5] != 5000u) {
             retval = STD_NOT_OK;
         }
     }
 
     /* null mxm_local_cellvoltages */
     for (uint16_t i_5 = 0; i_5 < (MXM_MAXIMUM_NR_OF_CELLS_PER_MODULE * MXM_MAXIMUM_NR_OF_MODULES); i_5++) {
-        pInstance->localVoltages.cellVoltages[i_5] = 0;
+        pInstance->localVoltages.cellVoltages_mV[i_5] = 0;
     }
 
     /* test data for CELL7REG */
-    test_buffer[0]  = BATTERY_MANAGEMENT_READALL;
-    test_buffer[1]  = MXM_REG_CELL7;
-    test_buffer[2]  = 0xFCu;
-    test_buffer[3]  = 0xFFu;
-    test_buffer[4]  = 0x42u; /* DATACHECKBYTE, irrelevant for function, filled with dummy bytes */
-    test_buffer[5]  = 0x44u; /* CRCBYTE, irrelevant for function, filled with dummy bytes */
-    test_buffer_len = 6;
-    if (MXM_ParseVoltageReadall(test_buffer, test_buffer_len, &pInstance->localVoltages, MXM_CONVERSION_UNIPOLAR) !=
+    test_buffer[0]   = BATTERY_MANAGEMENT_READALL;
+    test_buffer[1]   = MXM_REG_CELL7;
+    test_buffer[2]   = 0xFCu;
+    test_buffer[3]   = 0xFFu;
+    test_buffer[4]   = 0x42u; /* DATACHECKBYTE, irrelevant for function, filled with dummy bytes */
+    test_buffer[5]   = 0x44u; /* CRCBYTE, irrelevant for function, filled with dummy bytes */
+    testBufferLength = 6;
+    if (MXM_ParseVoltageReadall(test_buffer, testBufferLength, &pInstance->localVoltages, MXM_CONVERSION_UNIPOLAR) !=
         STD_OK) {
         retval = STD_NOT_OK;
     } else {
-        if (pInstance->localVoltages.cellVoltages[6] != 5000u) {
+        if (pInstance->localVoltages.cellVoltages_mV[6] != 5000u) {
             retval = STD_NOT_OK;
         }
     }
 
     /* null mxm_local_cellvoltages */
     for (uint16_t i_6 = 0; i_6 < (MXM_MAXIMUM_NR_OF_CELLS_PER_MODULE * MXM_MAXIMUM_NR_OF_MODULES); i_6++) {
-        pInstance->localVoltages.cellVoltages[i_6] = 0;
+        pInstance->localVoltages.cellVoltages_mV[i_6] = 0;
     }
 
     /* test data for CELL8REG */
-    test_buffer[0]  = BATTERY_MANAGEMENT_READALL;
-    test_buffer[1]  = MXM_REG_CELL8;
-    test_buffer[2]  = 0xFCu;
-    test_buffer[3]  = 0xFFu;
-    test_buffer[4]  = 0x42u; /* DATACHECKBYTE, irrelevant for function, filled with dummy bytes */
-    test_buffer[5]  = 0x44u; /* CRCBYTE, irrelevant for function, filled with dummy bytes */
-    test_buffer_len = 6;
-    if (MXM_ParseVoltageReadall(test_buffer, test_buffer_len, &pInstance->localVoltages, MXM_CONVERSION_UNIPOLAR) !=
+    test_buffer[0]   = BATTERY_MANAGEMENT_READALL;
+    test_buffer[1]   = MXM_REG_CELL8;
+    test_buffer[2]   = 0xFCu;
+    test_buffer[3]   = 0xFFu;
+    test_buffer[4]   = 0x42u; /* DATACHECKBYTE, irrelevant for function, filled with dummy bytes */
+    test_buffer[5]   = 0x44u; /* CRCBYTE, irrelevant for function, filled with dummy bytes */
+    testBufferLength = 6;
+    if (MXM_ParseVoltageReadall(test_buffer, testBufferLength, &pInstance->localVoltages, MXM_CONVERSION_UNIPOLAR) !=
         STD_OK) {
         retval = STD_NOT_OK;
     } else {
-        if (pInstance->localVoltages.cellVoltages[7] != 5000u) {
+        if (pInstance->localVoltages.cellVoltages_mV[7] != 5000u) {
             retval = STD_NOT_OK;
         }
     }
 
     /* null mxm_local_cellvoltages */
     for (uint16_t i_7 = 0; i_7 < (MXM_MAXIMUM_NR_OF_CELLS_PER_MODULE * MXM_MAXIMUM_NR_OF_MODULES); i_7++) {
-        pInstance->localVoltages.cellVoltages[i_7] = 0;
+        pInstance->localVoltages.cellVoltages_mV[i_7] = 0;
     }
 
     /* test data for CELL9REG */
-    test_buffer[0]  = BATTERY_MANAGEMENT_READALL;
-    test_buffer[1]  = MXM_REG_CELL9;
-    test_buffer[2]  = 0xFCu;
-    test_buffer[3]  = 0xFFu;
-    test_buffer[4]  = 0x42u; /* DATACHECKBYTE, irrelevant for function, filled with dummy bytes */
-    test_buffer[5]  = 0x44u; /* CRCBYTE, irrelevant for function, filled with dummy bytes */
-    test_buffer_len = 6;
-    if (MXM_ParseVoltageReadall(test_buffer, test_buffer_len, &pInstance->localVoltages, MXM_CONVERSION_UNIPOLAR) !=
+    test_buffer[0]   = BATTERY_MANAGEMENT_READALL;
+    test_buffer[1]   = MXM_REG_CELL9;
+    test_buffer[2]   = 0xFCu;
+    test_buffer[3]   = 0xFFu;
+    test_buffer[4]   = 0x42u; /* DATACHECKBYTE, irrelevant for function, filled with dummy bytes */
+    test_buffer[5]   = 0x44u; /* CRCBYTE, irrelevant for function, filled with dummy bytes */
+    testBufferLength = 6;
+    if (MXM_ParseVoltageReadall(test_buffer, testBufferLength, &pInstance->localVoltages, MXM_CONVERSION_UNIPOLAR) !=
         STD_OK) {
         retval = STD_NOT_OK;
     } else {
-        if (pInstance->localVoltages.cellVoltages[8] != 5000u) {
+        if (pInstance->localVoltages.cellVoltages_mV[8] != 5000u) {
             retval = STD_NOT_OK;
         }
     }
 
     /* null mxm_local_cellvoltages */
     for (uint16_t i_8 = 0; i_8 < (MXM_MAXIMUM_NR_OF_CELLS_PER_MODULE * MXM_MAXIMUM_NR_OF_MODULES); i_8++) {
-        pInstance->localVoltages.cellVoltages[i_8] = 0;
+        pInstance->localVoltages.cellVoltages_mV[i_8] = 0;
     }
 
     /* test data for CELL10REG */
-    test_buffer[0]  = BATTERY_MANAGEMENT_READALL;
-    test_buffer[1]  = MXM_REG_CELL10;
-    test_buffer[2]  = 0xFCu;
-    test_buffer[3]  = 0xFFu;
-    test_buffer[4]  = 0x42u; /* DATACHECKBYTE, irrelevant for function, filled with dummy bytes */
-    test_buffer[5]  = 0x44u; /* CRCBYTE, irrelevant for function, filled with dummy bytes */
-    test_buffer_len = 6;
-    if (MXM_ParseVoltageReadall(test_buffer, test_buffer_len, &pInstance->localVoltages, MXM_CONVERSION_UNIPOLAR) !=
+    test_buffer[0]   = BATTERY_MANAGEMENT_READALL;
+    test_buffer[1]   = MXM_REG_CELL10;
+    test_buffer[2]   = 0xFCu;
+    test_buffer[3]   = 0xFFu;
+    test_buffer[4]   = 0x42u; /* DATACHECKBYTE, irrelevant for function, filled with dummy bytes */
+    test_buffer[5]   = 0x44u; /* CRCBYTE, irrelevant for function, filled with dummy bytes */
+    testBufferLength = 6;
+    if (MXM_ParseVoltageReadall(test_buffer, testBufferLength, &pInstance->localVoltages, MXM_CONVERSION_UNIPOLAR) !=
         STD_OK) {
         retval = STD_NOT_OK;
     } else {
-        if (pInstance->localVoltages.cellVoltages[9] != 5000u) {
+        if (pInstance->localVoltages.cellVoltages_mV[9] != 5000u) {
             retval = STD_NOT_OK;
         }
     }
 
     /* null mxm_local_cellvoltages */
     for (uint16_t i_9 = 0; i_9 < (MXM_MAXIMUM_NR_OF_CELLS_PER_MODULE * MXM_MAXIMUM_NR_OF_MODULES); i_9++) {
-        pInstance->localVoltages.cellVoltages[i_9] = 0;
+        pInstance->localVoltages.cellVoltages_mV[i_9] = 0;
     }
 
     /* test data for CELL11REG */
-    test_buffer[0]  = BATTERY_MANAGEMENT_READALL;
-    test_buffer[1]  = MXM_REG_CELL11;
-    test_buffer[2]  = 0xFCu;
-    test_buffer[3]  = 0xFFu;
-    test_buffer[4]  = 0x42u; /* DATACHECKBYTE, irrelevant for function, filled with dummy bytes */
-    test_buffer[5]  = 0x44u; /* CRCBYTE, irrelevant for function, filled with dummy bytes */
-    test_buffer_len = 6;
-    if (MXM_ParseVoltageReadall(test_buffer, test_buffer_len, &pInstance->localVoltages, MXM_CONVERSION_UNIPOLAR) !=
+    test_buffer[0]   = BATTERY_MANAGEMENT_READALL;
+    test_buffer[1]   = MXM_REG_CELL11;
+    test_buffer[2]   = 0xFCu;
+    test_buffer[3]   = 0xFFu;
+    test_buffer[4]   = 0x42u; /* DATACHECKBYTE, irrelevant for function, filled with dummy bytes */
+    test_buffer[5]   = 0x44u; /* CRCBYTE, irrelevant for function, filled with dummy bytes */
+    testBufferLength = 6;
+    if (MXM_ParseVoltageReadall(test_buffer, testBufferLength, &pInstance->localVoltages, MXM_CONVERSION_UNIPOLAR) !=
         STD_OK) {
         retval = STD_NOT_OK;
     } else {
-        if (pInstance->localVoltages.cellVoltages[10] != 5000u) {
+        if (pInstance->localVoltages.cellVoltages_mV[10] != 5000u) {
             retval = STD_NOT_OK;
         }
     }
 
     /* null mxm_local_cellvoltages */
     for (uint16_t i_10 = 0; i_10 < (MXM_MAXIMUM_NR_OF_CELLS_PER_MODULE * MXM_MAXIMUM_NR_OF_MODULES); i_10++) {
-        pInstance->localVoltages.cellVoltages[i_10] = 0;
+        pInstance->localVoltages.cellVoltages_mV[i_10] = 0;
     }
 
     /* test data for CELL12REG */
-    test_buffer[0]  = BATTERY_MANAGEMENT_READALL;
-    test_buffer[1]  = MXM_REG_CELL12;
-    test_buffer[2]  = 0xFCu;
-    test_buffer[3]  = 0xFFu;
-    test_buffer[4]  = 0x42u; /* DATACHECKBYTE, irrelevant for function, filled with dummy bytes */
-    test_buffer[5]  = 0x44u; /* CRCBYTE, irrelevant for function, filled with dummy bytes */
-    test_buffer_len = 6;
-    if (MXM_ParseVoltageReadall(test_buffer, test_buffer_len, &pInstance->localVoltages, MXM_CONVERSION_UNIPOLAR) !=
+    test_buffer[0]   = BATTERY_MANAGEMENT_READALL;
+    test_buffer[1]   = MXM_REG_CELL12;
+    test_buffer[2]   = 0xFCu;
+    test_buffer[3]   = 0xFFu;
+    test_buffer[4]   = 0x42u; /* DATACHECKBYTE, irrelevant for function, filled with dummy bytes */
+    test_buffer[5]   = 0x44u; /* CRCBYTE, irrelevant for function, filled with dummy bytes */
+    testBufferLength = 6;
+    if (MXM_ParseVoltageReadall(test_buffer, testBufferLength, &pInstance->localVoltages, MXM_CONVERSION_UNIPOLAR) !=
         STD_OK) {
         retval = STD_NOT_OK;
     } else {
-        if (pInstance->localVoltages.cellVoltages[11] != 5000u) {
+        if (pInstance->localVoltages.cellVoltages_mV[11] != 5000u) {
             retval = STD_NOT_OK;
         }
     }
 
     /* null mxm_local_cellvoltages */
     for (uint16_t i_11 = 0; i_11 < (MXM_MAXIMUM_NR_OF_CELLS_PER_MODULE * MXM_MAXIMUM_NR_OF_MODULES); i_11++) {
-        pInstance->localVoltages.cellVoltages[i_11] = 0;
+        pInstance->localVoltages.cellVoltages_mV[i_11] = 0;
     }
 
     /* test data for CELL13REG */
-    test_buffer[0]  = BATTERY_MANAGEMENT_READALL;
-    test_buffer[1]  = MXM_REG_CELL13;
-    test_buffer[2]  = 0xFCu;
-    test_buffer[3]  = 0xFFu;
-    test_buffer[4]  = 0x42u; /* DATACHECKBYTE, irrelevant for function, filled with dummy bytes */
-    test_buffer[5]  = 0x44u; /* CRCBYTE, irrelevant for function, filled with dummy bytes */
-    test_buffer_len = 6;
-    if (MXM_ParseVoltageReadall(test_buffer, test_buffer_len, &pInstance->localVoltages, MXM_CONVERSION_UNIPOLAR) !=
+    test_buffer[0]   = BATTERY_MANAGEMENT_READALL;
+    test_buffer[1]   = MXM_REG_CELL13;
+    test_buffer[2]   = 0xFCu;
+    test_buffer[3]   = 0xFFu;
+    test_buffer[4]   = 0x42u; /* DATACHECKBYTE, irrelevant for function, filled with dummy bytes */
+    test_buffer[5]   = 0x44u; /* CRCBYTE, irrelevant for function, filled with dummy bytes */
+    testBufferLength = 6;
+    if (MXM_ParseVoltageReadall(test_buffer, testBufferLength, &pInstance->localVoltages, MXM_CONVERSION_UNIPOLAR) !=
         STD_OK) {
         retval = STD_NOT_OK;
     } else {
-        if (pInstance->localVoltages.cellVoltages[12] != 5000u) {
+        if (pInstance->localVoltages.cellVoltages_mV[12] != 5000u) {
             retval = STD_NOT_OK;
         }
     }
 
     /* null mxm_local_cellvoltages */
     for (uint16_t i_12 = 0; i_12 < (MXM_MAXIMUM_NR_OF_CELLS_PER_MODULE * MXM_MAXIMUM_NR_OF_MODULES); i_12++) {
-        pInstance->localVoltages.cellVoltages[i_12] = 0;
+        pInstance->localVoltages.cellVoltages_mV[i_12] = 0;
     }
 
     /* test data for CELL14REG */
-    test_buffer[0]  = BATTERY_MANAGEMENT_READALL;
-    test_buffer[1]  = MXM_REG_CELL14;
-    test_buffer[2]  = 0xFCu;
-    test_buffer[3]  = 0xFFu;
-    test_buffer[4]  = 0x42u; /* DATACHECKBYTE, irrelevant for function, filled with dummy bytes */
-    test_buffer[5]  = 0x44u; /* CRCBYTE, irrelevant for function, filled with dummy bytes */
-    test_buffer_len = 6;
-    if (MXM_ParseVoltageReadall(test_buffer, test_buffer_len, &pInstance->localVoltages, MXM_CONVERSION_UNIPOLAR) !=
+    test_buffer[0]   = BATTERY_MANAGEMENT_READALL;
+    test_buffer[1]   = MXM_REG_CELL14;
+    test_buffer[2]   = 0xFCu;
+    test_buffer[3]   = 0xFFu;
+    test_buffer[4]   = 0x42u; /* DATACHECKBYTE, irrelevant for function, filled with dummy bytes */
+    test_buffer[5]   = 0x44u; /* CRCBYTE, irrelevant for function, filled with dummy bytes */
+    testBufferLength = 6;
+    if (MXM_ParseVoltageReadall(test_buffer, testBufferLength, &pInstance->localVoltages, MXM_CONVERSION_UNIPOLAR) !=
         STD_OK) {
         retval = STD_NOT_OK;
     } else {
-        if (pInstance->localVoltages.cellVoltages[13] != 5000u) {
+        if (pInstance->localVoltages.cellVoltages_mV[13] != 5000u) {
             retval = STD_NOT_OK;
         }
     }
 
     /* null mxm_local_cellvoltages */
     for (uint16_t i_13 = 0; i_13 < (MXM_MAXIMUM_NR_OF_CELLS_PER_MODULE * MXM_MAXIMUM_NR_OF_MODULES); i_13++) {
-        pInstance->localVoltages.cellVoltages[i_13] = 0;
+        pInstance->localVoltages.cellVoltages_mV[i_13] = 0;
     }
 
     return retval;
 }
 
-MXM_MONINTORING_STATE_e must_check_return
+static MXM_MONINTORING_STATE_e must_check_return
     MXM_MonGetVoltages(MXM_MONITORING_INSTANCE_s *pState, MXM_REG_NAME_e regAddress) {
     FAS_ASSERT(pState != NULL_PTR);
     MXM_MONINTORING_STATE_e retval = MXM_MONITORING_STATE_PENDING;
@@ -1187,14 +1234,14 @@ MXM_MONINTORING_STATE_e must_check_return
         /* try to reset state */
         pState->requestStatus5x = MXM_5X_STATE_UNSENT;
     } else {
-        /* invalid state --> trap */
+        /* invalid state */
         FAS_ASSERT(FAS_TRAP);
     }
     return retval;
 }
 
-static STD_RETURN_TYPE_e MXM_ParseVoltagesIntoDB(MXM_MONITORING_INSTANCE_s *pInstance) {
-    FAS_ASSERT(pInstance != NULL_PTR);
+static STD_RETURN_TYPE_e MXM_ParseVoltagesIntoDB(const MXM_MONITORING_INSTANCE_s *const kpkInstance) {
+    FAS_ASSERT(kpkInstance != NULL_PTR);
     STD_RETURN_TYPE_e retval = STD_OK;
 
     /* voltages */
@@ -1204,18 +1251,18 @@ static STD_RETURN_TYPE_e MXM_ParseVoltagesIntoDB(MXM_MONITORING_INSTANCE_s *pIns
             uint16_t moduleNumber = 0u;
             MXM_ConvertModuleToString(i_mod, &stringNumber, &moduleNumber);
             mxm_cellVoltages.moduleVoltage_mV[stringNumber][moduleNumber] =
-                pInstance->localVoltages.blockVoltages[i_mod];
+                kpkInstance->localVoltages.blockVoltages[i_mod];
             /* every iteration that we hit a string first (module 0), we reset the packvoltage counter */
             if (moduleNumber == 0u) {
                 mxm_cellVoltages.packVoltage_mV[stringNumber] = 0;
             }
-            mxm_cellVoltages.packVoltage_mV[stringNumber] += pInstance->localVoltages.blockVoltages[i_mod];
+            mxm_cellVoltages.packVoltage_mV[stringNumber] += kpkInstance->localVoltages.blockVoltages[i_mod];
             for (uint8_t i_bat = 0; i_bat < BS_NR_OF_CELLS_PER_MODULE; i_bat++) {
                 if (i_bat < MXM_MAXIMUM_NR_OF_CELLS_PER_MODULE) {
                     uint16_t cell_counter_db  = (moduleNumber * BS_NR_OF_CELLS_PER_MODULE) + i_bat;
                     uint16_t cell_counter_max = (i_mod * MXM_MAXIMUM_NR_OF_CELLS_PER_MODULE) + i_bat;
                     mxm_cellVoltages.cellVoltage_mV[stringNumber][cell_counter_db] =
-                        pInstance->localVoltages.cellVoltages[cell_counter_max];
+                        kpkInstance->localVoltages.cellVoltages_mV[cell_counter_max];
                 }
             }
         } else {
@@ -1229,19 +1276,16 @@ static STD_RETURN_TYPE_e MXM_ParseVoltagesIntoDB(MXM_MONITORING_INSTANCE_s *pIns
             uint8_t stringNumber  = 0u;
             uint16_t moduleNumber = 0u;
             MXM_ConvertModuleToString(i_mod, &stringNumber, &moduleNumber);
-            /* TODO make configurable for all number of temperatures */
-            for (uint8_t i_t = 0; i_t < BS_NR_OF_TEMP_SENSORS_PER_MODULE; i_t++) {
-                if (i_t < MXM_MAXIMUM_NR_OF_AUX_PER_MODULE) {
-                    uint16_t t_counter_db  = (moduleNumber * BS_NR_OF_TEMP_SENSORS_PER_MODULE) + i_t;
-                    uint16_t t_counter_max = (i_mod * MXM_MAXIMUM_NR_OF_AUX_PER_MODULE) + i_t;
-                    /* TODO refactor into nice code */
-                    uint16_t volt_temp = (pInstance->localVoltages.auxVoltages[t_counter_max] /
-                                          ((float)3300 - pInstance->localVoltages.auxVoltages[t_counter_max])) *
-                                         1000;
 
-                    int16_t temperature_ddegC = TSI_GetTemperature(volt_temp);
-                    mxm_cellTemperatures.cellTemperature_ddegC[stringNumber][t_counter_db] = temperature_ddegC;
-                }
+            /* store aux measurement from AUX2 (MUX0) */
+            if (kpkInstance->muxCounter < BS_NR_OF_TEMP_SENSORS_PER_MODULE) {
+                const uint16_t temperatureIndexDb = (moduleNumber * BS_NR_OF_TEMP_SENSORS_PER_MODULE) +
+                                                    kpkInstance->muxCounter;
+                const uint16_t temperatureIndexMxm = (i_mod * MXM_MAXIMUM_NR_OF_AUX_PER_MODULE) + 2u;
+                const uint16_t auxVoltage_mV       = kpkInstance->localVoltages.auxVoltages_mV[temperatureIndexMxm];
+                /* const uint16_t temporaryVoltage    = (auxVoltage_mV / ((float)3300 - auxVoltage_mV)) * 1000; */
+                const int16_t temperature_ddegC = TSI_GetTemperature(auxVoltage_mV);
+                mxm_cellTemperatures.cellTemperature_ddegC[stringNumber][temperatureIndexDb] = temperature_ddegC;
             }
         } else {
             retval = STD_NOT_OK;
@@ -1282,6 +1326,30 @@ static void MXM_StateMachineOperation(MXM_MONITORING_INSTANCE_s *pState) {
     MXM_MONINTORING_STATE_e temp_mon_state = MXM_MONITORING_STATE_FAIL;
 
     switch (pState->operationSubstate) {
+        case MXM_OP_ENTRY_STATE:
+            pState->operationSubstate = MXM_OP_SELECT_MUX_CHANNEL;
+            break;
+        case MXM_OP_SELECT_MUX_CHANNEL:
+            /* configure I2CPNTR to channel number corresponding to mux counter*/
+            pState->batteryCmdBuffer.regAddress = MXM_REG_I2CPNTR;
+            pState->batteryCmdBuffer.lsb        = (0x01u << pState->muxCounter);
+            pState->batteryCmdBuffer.msb        = 0x00u;
+            MXM_HandleStateWriteall(pState, MXM_OP_WRITE_MUX0);
+            break;
+        case MXM_OP_WRITE_MUX0:
+            /* send configuration to MUX0 for channel 0 (PNTR configured to 1u) */
+            pState->batteryCmdBuffer.regAddress = MXM_REG_I2CSEND;
+            pState->batteryCmdBuffer.lsb        = (MXM_I2C_MUX0_ADDRESS << 1u);
+            pState->batteryCmdBuffer.msb        = 0x40u;
+            MXM_HandleStateWriteall(pState, MXM_OP_WRITE_MUX1);
+            break;
+        case MXM_OP_WRITE_MUX1:
+            /* send configuration to MUX1 for channel 0 (PNTR configured to 1u) */
+            pState->batteryCmdBuffer.regAddress = MXM_REG_I2CSEND;
+            pState->batteryCmdBuffer.lsb        = (MXM_I2C_MUX1_ADDRESS << 1u);
+            pState->batteryCmdBuffer.msb        = 0x40u;
+            MXM_HandleStateWriteall(pState, MXM_OP_SET_SCAN_STROBE);
+            break;
         case MXM_OP_SET_SCAN_STROBE:
             pState->batteryCmdBuffer.regAddress = MXM_REG_SCANCTRL;
             /* set SCANSTROBE, enable 4x OVERSAMPL */
@@ -1289,7 +1357,6 @@ static void MXM_StateMachineOperation(MXM_MONITORING_INSTANCE_s *pState) {
             /* enable AUTOBALSWDIS */
             pState->batteryCmdBuffer.msb = 0x10u;
             MXM_HandleStateWriteall(pState, MXM_OP_GET_SCAN_STROBE);
-
             break;
         case MXM_OP_GET_SCAN_STROBE:
             if (true == MXM_HandleStateReadall(pState, MXM_REG_SCANCTRL, MXM_OP_GET_VOLTAGES)) {
@@ -1492,7 +1559,22 @@ static void MXM_StateMachineOperation(MXM_MONITORING_INSTANCE_s *pState) {
             MXM_HandleStateWriteall(pState, MXM_OP_BAL_EXIT);
             break;
         case MXM_OP_BAL_EXIT:
-            pState->operationSubstate = MXM_OP_SET_SCAN_STROBE;
+            pState->operationSubstate = MXM_OP_CYCLE_END_ENTRY;
+            break;
+        case MXM_OP_CYCLE_END_ENTRY:
+            /* actions that should be taken at the end of a measurement cycle */
+            pState->operationSubstate = MXM_OP_INCREMENT_MUX_COUNTER;
+            break;
+        case MXM_OP_INCREMENT_MUX_COUNTER:
+            if (pState->muxCounter < (8u - 1u)) {
+                pState->muxCounter++;
+            } else {
+                pState->muxCounter = 0u;
+            }
+            pState->operationSubstate = MXM_OP_CYCLE_END_EXIT;
+            break;
+        case MXM_OP_CYCLE_END_EXIT:
+            pState->operationSubstate = MXM_OP_ENTRY_STATE;
             break;
         /* "initialization" from here on */
         case MXM_INIT_DEVCFG1:
@@ -1555,23 +1637,46 @@ static void MXM_StateMachineOperation(MXM_MONITORING_INSTANCE_s *pState) {
             MXM_HandleStateWriteall(pState, MXM_INIT_MEASUREEN2);
             break;
         case MXM_INIT_MEASUREEN2:
-            /* enable AUX0 and AUX2 */
+            /* enable AUX2 and AUX3 */
             if (pState->requestStatus5x == MXM_5X_STATE_UNSENT) {
                 pState->batteryCmdBuffer.regAddress = MXM_REG_MEASUREEN2;
-                pState->batteryCmdBuffer.lsb        = 0x65u;
+                pState->batteryCmdBuffer.lsb        = 0x0Cu; /* AUX2 and AUX3 */
                 pState->batteryCmdBuffer.msb        = 0x00u;
             }
             MXM_HandleStateWriteall(pState, MXM_INIT_AUXGPIOCFG);
             break;
         case MXM_INIT_AUXGPIOCFG:
-            /* switch GPIO0 and GPIO2 to AUX */
+            /* switch GPIO2 and GPIO3 to AUX, enable I2C */
             if (pState->requestStatus5x == MXM_5X_STATE_UNSENT) {
                 pState->batteryCmdBuffer.regAddress = MXM_REG_AUXGPIOCFG;
                 pState->batteryCmdBuffer.lsb        = 0x00u;
                 /* pState->batteryCmdBuffer.msb = 0x3Eu; */ /* conf for MAX17853 */
-                /*pState->batteryCmdBuffer.msb = 0x8Eu; */  /* conf for MAX17852, I2C enable */
-                /* conf for Autodrive test AUX0 and AUX2 */
-                pState->batteryCmdBuffer.msb = 0x0Au;
+                /* pState->batteryCmdBuffer.msb = 0x8Eu; */ /* conf for MAX17852, I2C enable */
+                /* I2C enable, AUX2 and AUX3 */
+                pState->batteryCmdBuffer.msb = 0x80u;
+            }
+            MXM_HandleStateWriteall(pState, MXM_INIT_AUXTIMEREG);
+            break;
+        case MXM_INIT_AUXTIMEREG:
+            /* configure settling time that NTC network takes for measurement to 500us */
+            /* WARNING: reevaluate this value if thermistor supply is switched
+              during sampling */
+            if (pState->requestStatus5x == MXM_5X_STATE_UNSENT) {
+                pState->batteryCmdBuffer.regAddress = MXM_REG_AUXTIME;
+                pState->batteryCmdBuffer.lsb        = 0x53u;
+                pState->batteryCmdBuffer.msb        = 0x00u;
+            }
+            MXM_HandleStateWriteall(pState, MXM_INIT_ACQCFG);
+            break;
+        case MXM_INIT_ACQCFG:
+            /* set ACQGFC */
+            if (pState->requestStatus5x == MXM_5X_STATE_UNSENT) {
+                pState->batteryCmdBuffer.regAddress = MXM_REG_ACQCFG;
+                /* default values */
+                pState->batteryCmdBuffer.lsb = 0x00u;
+                /* we have to turn thrm switch manually on, as charging the
+                network takes to long */
+                pState->batteryCmdBuffer.msb = 0x06u;
             }
             MXM_HandleStateWriteall(pState, MXM_INIT_UVTHSETREG);
             break;
@@ -1770,11 +1875,18 @@ static void MXM_StateMachineOperation(MXM_MONITORING_INSTANCE_s *pState) {
             }
             break;
         case MXM_INIT_I2C_CFG:
-            /* configure I2CCFG */
+            /* configure I2CCFG to
+               * 400kHz
+               * Alternate write Mode (just a pointer without data)
+               * Combined Format
+               * 7 Bit addressing
+               * one byte pointer length
+               * default
+               */
             if (pState->requestStatus5x == MXM_5X_STATE_UNSENT) {
                 pState->batteryCmdBuffer.regAddress = MXM_REG_I2CCFG;
                 pState->batteryCmdBuffer.lsb        = 0x00u;
-                pState->batteryCmdBuffer.msb        = 0xA0u;
+                pState->batteryCmdBuffer.msb        = 0xE0u;
             }
             MXM_HandleStateWriteall(pState, MXM_INIT_I2C_PNTR);
             break;
@@ -1782,41 +1894,39 @@ static void MXM_StateMachineOperation(MXM_MONITORING_INSTANCE_s *pState) {
             /* configure I2CPNTR */
             if (pState->requestStatus5x == MXM_5X_STATE_UNSENT) {
                 pState->batteryCmdBuffer.regAddress = MXM_REG_I2CPNTR;
-                pState->batteryCmdBuffer.lsb        = 0x06u;
+                pState->batteryCmdBuffer.lsb        = 0x01u;
                 pState->batteryCmdBuffer.msb        = 0x00u;
             }
-            MXM_HandleStateWriteall(pState, MXM_INIT_I2C_WDATA2);
+            MXM_HandleStateWriteall(pState, MXM_INIT_I2C_SEND_MUX0);
             break;
-        case MXM_INIT_I2C_WDATA2:
-            /* configure I2CPNTR */
-            if (pState->requestStatus5x == MXM_5X_STATE_UNSENT) {
-                pState->batteryCmdBuffer.regAddress = MXM_REG_I2CWDATA2;
-                pState->batteryCmdBuffer.lsb        = 0x00u;
-                pState->batteryCmdBuffer.msb        = 0xFFu;
-            }
-            MXM_HandleStateWriteall(pState, MXM_INIT_I2C_SEND);
-            break;
-        case MXM_INIT_I2C_SEND:
-            /* configure I2CPNTR */
+        case MXM_INIT_I2C_SEND_MUX0:
+            /* send configuration to MUX0 for channel 0 (PNTR configured to 1u) */
             if (pState->requestStatus5x == MXM_5X_STATE_UNSENT) {
                 pState->batteryCmdBuffer.regAddress = MXM_REG_I2CSEND;
-                pState->batteryCmdBuffer.lsb        = 0xE8u;
-                pState->batteryCmdBuffer.msb        = 0x08u;
+                pState->batteryCmdBuffer.lsb        = (MXM_I2C_MUX0_ADDRESS << 1u);
+                pState->batteryCmdBuffer.msb        = 0x40u;
+            }
+            MXM_HandleStateWriteall(pState, MXM_INIT_I2C_SEND_MUX1);
+            break;
+        case MXM_INIT_I2C_SEND_MUX1:
+            /* send configuration to MUX1 for channel 0 (PNTR configured to 1u) */
+            if (pState->requestStatus5x == MXM_5X_STATE_UNSENT) {
+                pState->batteryCmdBuffer.regAddress = MXM_REG_I2CSEND;
+                pState->batteryCmdBuffer.lsb        = (MXM_I2C_MUX1_ADDRESS << 1u);
+                pState->batteryCmdBuffer.msb        = 0x40u;
             }
             MXM_HandleStateWriteall(pState, MXM_INIT_GET_I2C_STAT2);
             break;
         case MXM_INIT_GET_I2C_STAT2:
-            if (true == MXM_HandleStateReadall(pState, MXM_REG_I2CSTAT, MXM_OP_SET_SCAN_STROBE)) {
+            if (true == MXM_HandleStateReadall(pState, MXM_REG_I2CSTAT, MXM_OP_ENTRY_STATE)) {
                 /* no additional handling needed */
             }
             break;
         default:
-            /* invalid state --> trap */
+            /* invalid state */
             FAS_ASSERT(FAS_TRAP);
             break;
     }
-
-    return;
 }
 
 /*========== Extern Function Implementations ================================*/
@@ -1912,7 +2022,6 @@ extern void MXM_StateMachine(MXM_MONITORING_INSTANCE_s *pInstance) {
             FAS_ASSERT(FAS_TRAP);
             break;
     }
-    return;
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/

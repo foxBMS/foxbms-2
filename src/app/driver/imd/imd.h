@@ -43,7 +43,7 @@
  * @file    imd.h
  * @author  foxBMS Team
  * @date    2020-11-20 (date of creation)
- * @updated 2020-11-20 (date of last update)
+ * @updated 2021-07-23 (date of last update)
  * @ingroup DRIVERS
  * @prefix  IMD
  *
@@ -62,15 +62,8 @@
 #include "os.h"
 
 /*========== Macros and Definitions =========================================*/
-/** Length of data Queue */
-#define IMD_QUEUE_LENGTH (5u)
-/** Size of data Queue item: 9: CAN ID + 8 CAN data bytes */
-#define IMD_QUEUE_ITEM_SIZE (sizeof(CAN_BUFFERELEMENT_s))
 
 /*========== Extern Constant and Variable Declarations ======================*/
-extern QueueHandle_t imd_canDataQueue;
-extern StaticQueue_t imd_queueStructure;
-extern uint8_t imd_queueStorageArea[IMD_QUEUE_LENGTH * IMD_QUEUE_ITEM_SIZE];
 
 /*========== Extern Function Prototypes =====================================*/
 

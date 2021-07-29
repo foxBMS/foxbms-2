@@ -53,6 +53,7 @@
 
 /*========== Includes =======================================================*/
 #include "unity.h"
+#include "Mockcan.h"
 
 #include "sys_cfg.h"
 
@@ -66,6 +67,7 @@ void tearDown(void) {
 }
 
 /*========== Test Cases =====================================================*/
-void testSysSendBootMessageExists() {
-    SYS_SendBootMessage(0);
+void testSysSendBootMessageExists(void) {
+    CAN_TransmitBootMessage_IgnoreAndReturn(STD_OK);
+    SYS_SendBootMessage();
 }

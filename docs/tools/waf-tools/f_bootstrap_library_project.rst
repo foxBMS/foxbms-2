@@ -3,8 +3,8 @@
 
 .. _WAF_TOOL_BOOTSTRAP_LIBRARY_PROJECT:
 
-Waf Tool Bootstrap Library Project
-==================================
+Bootstrap Library Project
+=========================
 
 ..
     Comments:

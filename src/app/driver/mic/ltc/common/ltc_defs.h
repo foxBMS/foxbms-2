@@ -57,6 +57,7 @@
 /*========== Includes =======================================================*/
 #include "general.h"
 
+#include "diag_cfg.h"
 #include "ltc_cfg.h"
 
 #include "database.h"
@@ -569,6 +570,11 @@ typedef struct {
     uint8_t spiNumberInterfaces;            /*!< number of SPI channels that have to be measured */
     uint8_t currentString;                  /*!< string currently being addressed */
     uint8_t requestedString;                /*!< string addressed by the current state request */
+    DIAG_ID_e spiDiagErrorEntry;            /*!< diagnosis entry for SPI related events */
+    DIAG_ID_e pecDiagErrorEntry;            /*!< diagnosis entry for PEC related events */
+    DIAG_ID_e muxDiagErrorEntry;            /*!< diagnosis entry for multiplexer related events */
+    DIAG_ID_e voltMeasDiagErrorEntry;       /*!< diagnosis entry for voltage measurement related events */
+    DIAG_ID_e tempMeasDiagErrorEntry;       /*!< diagnosis entry for temperature measurement related events */
     LTC_DATAPTR_s ltcData;                  /*!< contains pointers to the local data buffer */
     LTC_MUX_CH_CFG_s *muxmeas_seqptr
         [BS_NR_OF_STRINGS]; /*!< pointer to the multiplexer sequence to be measured (contains a list of elements [multiplexer id, multiplexer channels]) (1,-1)...(3,-1),(0,1),...(0,7) */

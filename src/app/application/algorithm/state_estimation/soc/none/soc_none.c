@@ -65,10 +65,13 @@
 /*========== Static Function Implementations ================================*/
 
 /*========== Extern Function Implementations ================================*/
-extern void SOC_Init(bool cc_present, uint8_t stringNumber) {
+extern void SOC_Init(DATA_BLOCK_SOX_s *pSocValues, bool cc_present, uint8_t stringNumber) {
+    FAS_ASSERT(pSocValues != NULL_PTR);
+    FAS_ASSERT(stringNumber < BS_NR_OF_STRINGS);
 }
 
-extern void SOC_Calculation(void) {
+extern void SOC_Calculation(DATA_BLOCK_SOX_s *pSocValues) {
+    FAS_ASSERT(pSocValues != NULL_PTR);
 }
 
 extern float SOC_GetFromVoltage(int16_t voltage_mV) {

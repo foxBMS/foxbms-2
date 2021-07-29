@@ -125,13 +125,15 @@ static void BAL_ActivateBalancing(void) {
     DATA_READ_DATA(&bal_balancing, &bal_cellvoltage);
 
     for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
+        uint16_t nrBalancedCells = 0u;
         for (uint8_t c = 0u; c < BS_NR_OF_BAT_CELLS; c++) {
             if (bal_state.balancingAllowed == false) {
                 bal_balancing.balancingState[s][c] = 0;
             } else {
                 if (bal_balancing.deltaCharge_mAs[s][c] > 0) {
                     bal_balancing.balancingState[s][c] = 1;
-                    cellBalancingCurrent               = ((float)(bal_cellvoltage.cellVoltage_mV[s][c])) /
+                    nrBalancedCells++;
+                    cellBalancingCurrent = ((float)(bal_cellvoltage.cellVoltage_mV[s][c])) /
                                            BS_BALANCING_RESISTANCE_ohm;
                     difference       = (BAL_STATEMACH_BALANCINGTIME_100ms / 10) * (uint32_t)(cellBalancingCurrent);
                     bal_state.active = true;
@@ -147,6 +149,7 @@ static void BAL_ActivateBalancing(void) {
                 }
             }
         }
+        bal_balancing.nrBalancedCells[s] = nrBalancedCells;
     }
 
     DATA_WRITE_DATA(&bal_balancing);
@@ -158,6 +161,7 @@ static void BAL_Deactivate(void) {
             bal_balancing.balancingState[s][c]  = 0;
             bal_balancing.deltaCharge_mAs[s][c] = 0;
         }
+        bal_balancing.nrBalancedCells[s] = 0u;
     }
     bal_balancing.enableBalancing = 0;
     bal_state.active              = false;

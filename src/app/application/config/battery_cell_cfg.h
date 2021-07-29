@@ -219,14 +219,16 @@
  */
 #define BC_CAPACITY_mAh (3500u)
 
+#define BC_ENERGY_Wh (10.0f)
+
 #if BC_VOLTAGE_MIN_MSL_mV < BC_VOLTAGE_DEEP_DISCHARGE_mV
 #error "Configuration error! - Maximum safety limit for under voltage can't be lower than deep-discharge limit"
 #endif
 
 /** structure for lookup table */
 typedef struct BC_LUT {
-    const uint16_t voltage_mV; /*!< cell voltage in mV */
-    const float value;         /*!< corresponding value, can be SOC/SOE in % or capacity/energy */
+    const int16_t voltage_mV; /*!< cell voltage in mV */
+    const float value;        /*!< corresponding value, can be SOC/SOE in % or capacity/energy */
 } BC_LUT_s;
 
 /*========== Extern Constant and Variable Declarations ======================*/

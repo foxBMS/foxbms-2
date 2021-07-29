@@ -43,7 +43,7 @@
  * @file    test_bender_iso165c.c
  * @author  foxBMS Team
  * @date    2021-01-19 (date of creation)
- * @updated 2021-01-19 (date of last update)
+ * @updated 2021-07-23 (date of last update)
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -57,6 +57,7 @@
 #include "Mockcan_cfg.h"
 #include "Mockdatabase.h"
 #include "Mockdiag.h"
+#include "Mockftask.h"
 #include "Mockio.h"
 #include "Mockmcu.h"
 #include "Mockmpu_prototypes.h"
@@ -67,7 +68,10 @@
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 
-QueueHandle_t imd_canDataQueue = NULL_PTR;
+QueueHandle_t ftsk_dataQueue        = NULL_PTR;
+QueueHandle_t ftsk_imdCanDataQueue  = NULL_PTR;
+QueueHandle_t ftsk_canRxQueue       = NULL_PTR;
+volatile bool ftsk_allQueuesCreated = false;
 
 /*========== Setup and Teardown =============================================*/
 void setUp(void) {

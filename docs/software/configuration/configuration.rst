@@ -29,7 +29,8 @@ monitoring IC is used to monitor the battery cells). This is explained in
 generates sources in form of ``.h`` and ``.c`` and ``.asm`` files. These HAL
 sources are generated based on the |halcogen| configuration files (``*.hcg``
 and ``*.dil``). |foxbms| uses the waf tool :ref:`WAF_TOOL_HALCOGEN` to
-automatically run |halcogen| and create the required sources.
+automatically run |halcogen| and create the required sources. Additional
+information on the tool can be found in :ref:`HALCOGEN_TOOL_DOCUMENTATION`.
 
 .. note::
 
@@ -54,7 +55,7 @@ sub-setting ``R5-MPU-PMU`` and then the configuration ``Cortex-R5``,
 sub-configuration ``General Configuration``: *Enable Cache*). Such settings
 need to be ported to ``fstartup.c`` as this non-weak implementation of
 ``_c_int00`` outweighs the generated,  new version of ``_c_int00`` in
-``HL_sys_startup.c``. Otherwise startup function used by |foxbms| would not
+``HL_sys_startup.c``. Otherwise the startup function used by |foxbms| would not
 reflect the |halcogen| configuration. The :ref:`WAF_TOOL_HALCOGEN` provides a
 mechanism to detected such changes. The hash of the current
 ``HL_sys_startup.c`` implementation is stored in ``src/hal/startup.hash`` and

@@ -35,9 +35,7 @@
 @REM - "This product includes parts of foxBMS&reg;"
 @REM - "This product is derived from foxBMS&reg;"
 
-@SETLOCAL EnableDelayedExpansion
-@SETLOCAL EnableExtensions
-@SETLOCAL
+@SETLOCAL EnableExtensions EnableDelayedExpansion
 
 @TITLE foxBMS Development Console
 
@@ -72,16 +70,34 @@
 )
 
 @FOR /F "usebackq tokens=*" %%A in ("%~dp0\conf\env\paths_win32.txt") do @(
-    @IF exist %%A (
-        @CALL set "NewPath=%%NewPath%%;%%A"
+    @IF EXIST %%A (
+        @CALL SET "NewPath=%%NewPath%%;%%A"
     )
 )
-@SET PATH=%NewPath:~1%;%PATH%
+
+@IF DEFINED NewPath (
+    @SET "PATH=%NewPath:~1%;%PATH%"
+)
+
+@FOR %%X in (armcl.exe) DO @(
+    @SET ARMCL_AVAILABLE=%%~$PATH:X
+)
+
+@IF NOT DEFINED ARMCL_AVAILABLE @(
+    @ECHO [33mCould not find pinned compiler. Try to use any available in 'C:\ti\'.[0m
+    @SET CCS_COMPILER_BIN=
+    @CALL %~dp0\tools\utils\cmd\find_ccs.bat
+    @FOR %%x in (!CCS_COMPILER_BIN! !CCS_COMPILER_LIB! !CCS_UTILS_BIN! !CCS_UTILS_CYGWIN! !CCS_UTILS_TIOBJ2BIN!) do @(
+        @CALL SET "CCS_PATHS=%%CCS_PATHS%%%%x;"
+    )
+    @SET PATH=!CCS_PATHS:~0,-1!;!PATH!
+)
 
 @SET CONDA_BASE_ENVIRONMENT_ACTIVATE_SCRIPT=""
 @CALL %~dp0\tools\utils\cmd\find_base_conda.bat
 
 @IF %CONDA_BASE_ENVIRONMENT_ACTIVATE_SCRIPT%=="" (
+    pause
     @EXIT /b 1
 )
 

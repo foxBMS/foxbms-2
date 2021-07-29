@@ -43,7 +43,7 @@
  * @file    sys.h
  * @author  foxBMS Team
  * @date    2020-02-24 (date of creation)
- * @updated 2020-05-08 (date of last update)
+ * @updated 2021-05-19 (date of last update)
  * @ingroup ENGINE
  * @prefix  SYS
  *
@@ -101,6 +101,7 @@ typedef enum SYS_STATEMACH {
     /* Init-Sequence */
     SYS_STATEMACH_UNINITIALIZED,                 /*!<    */
     SYS_STATEMACH_INITIALIZATION,                /*!<    */
+    SYS_STATEMACH_SYSTEM_BIST,                   /*!< run a built-in self-test */
     SYS_STATEMACH_INITIALIZED,                   /*!<    */
     SYS_STATEMACH_INITIALIZE_SBC,                /*!<    */
     SYS_STATEMACH_INITIALIZE_INTERLOCK,          /*!<    */
@@ -196,6 +197,9 @@ extern SYS_RETURN_TYPE_e SYS_SetStateRequest(SYS_STATE_REQUEST_e stateRequest);
  *          machine. It must be called time-triggered, every 10ms.
  */
 extern STD_RETURN_TYPE_e SYS_Trigger(SYS_STATE_s *pSystemState);
+
+/** built-in self-test for the macros in general.h */
+extern void SYS_GeneralMacroBist(void);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 

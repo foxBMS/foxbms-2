@@ -55,6 +55,7 @@
 #include "unity.h"
 #include "Mockbms.h"
 #include "Mockdatabase.h"
+#include "Mockdatabase_helper.h"
 #include "Mockdiag.h"
 #include "Mockos.h"
 #include "Mockplausibility.h"
@@ -217,7 +218,7 @@ void testMRC_MicMeasurementValidationTickZeroNothingToDo(void) {
     injectDatabaseEntries();
 
     /* database entries never written - */
-    DATA_DatabaseEntryUpdatedRecently_IgnoreAndReturn(false);
+    DATA_EntryUpdatedWithinInterval_IgnoreAndReturn(false);
     DATA_DatabaseEntryUpdatedAtLeastOnce_IgnoreAndReturn(false);
 
     /* tick zero, database starts also with zero --> nothing to do */

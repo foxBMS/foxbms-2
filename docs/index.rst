@@ -29,7 +29,6 @@ management systems.
    intended to be used by skilled professionals trained in designing battery
    system prototypes.
 
-
 The documentation is divided in the following parts:
 
 #. :ref:`GENERAL_INFORMATION_OVERVIEW`
@@ -120,6 +119,7 @@ All sections are listed here:
     ./getting-started/repository-structure.rst
     ./getting-started/software-installation.rst
     ./getting-started/workspace.rst
+    ./getting-started/first-steps-on-hardware.rst
 
 .. _SOFTWARE_DOCUMENTATION_OVERVIEW:
 
@@ -150,6 +150,7 @@ All sections are listed here:
 
     ./hardware/hardware.rst
     ./hardware/design-resources.rst
+    ./hardware/connectors.rst
 
 .. _TOOLS_DOCUMENTATION_OVERVIEW:
 
@@ -163,6 +164,7 @@ All sections are listed here:
     ./tools/log-parser.rst
     ./tools/waf-tools/waf-tools.rst
     ./tools/debugger/debug-application.rst
+    ./tools/halcogen/halcogen.rst
     ./tools/static-analysis/cppcheck.rst
 
 .. _DEVELOPER_MANUAL:
@@ -186,5 +188,6 @@ All sections are listed here:
     :maxdepth: 1
     :caption: Miscellaneous Information
 
+    ./misc/acknowledgements.rst
     ./misc/indices-and-tables.rst
     ./misc/bibliography.rst

@@ -43,7 +43,7 @@
  * @file    spi.h
  * @author  foxBMS Team
  * @date    2019-12-12 (date of creation)
- * @updated 2019-12-12 (date of last update)
+ * @updated 2021-06-16 (date of last update)
  * @ingroup DRIVERS
  * @prefix  SPI
  *
@@ -196,6 +196,19 @@ extern STD_RETURN_TYPE_e SPI_Lock(uint8_t spi);
  * @param   spi  SPI interface to be unlocked (0-4 on the TMS570LC4357)
  */
 extern void SPI_Unlock(uint8_t spi);
+
+/**
+ * @brief   Sets the functional of a SPI pin
+ * @details SPI pins in this HAL can have functional state SPI (for when it is
+ *          controlled by the SPI hardware) and functional state GIO (for when
+ *          it is controlled as a GIO pin).
+ * @param[in,out]   pNode   handle of the SPI node that should be configured
+ * @param[in]       bit     bit that should be manipulated, other pins remain
+ *                          unchanged
+ * @param[in]       hardwareControlled  Whether the bit should be hardware
+ *                                      controlled (true) or not (false)
+ */
+extern void SPI_SetFunctional(spiBASE_t *pNode, enum spiPinSelect bit, bool hardwareControlled);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 

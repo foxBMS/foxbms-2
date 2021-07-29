@@ -92,7 +92,6 @@ void MIC_SetRxTransmitOngoing(void) {
 
 /* Function called on DMA complete interrupts (TX and RX). */
 void MIC_DmaCallback(dmaInterrupt_t inttype, uint32 channel) {
-    return;
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/

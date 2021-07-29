@@ -3,8 +3,8 @@
 
 .. _WAF_TOOL_UNIT_TEST:
 
-Waf Tool Unit Test
-==================
+Unit Test
+=========
 
 ..
     Comments:

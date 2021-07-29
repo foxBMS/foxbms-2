@@ -43,7 +43,7 @@
  * @file    diag_cfg.h
  * @author  foxBMS Team
  * @date    2019-11-28 (date of creation)
- * @updated 2021-03-24 (date of last update)
+ * @updated 2021-07-29 (date of last update)
  * @ingroup ENGINE_CONFIGURATION
  * @prefix  DIAG
  *
@@ -63,9 +63,6 @@
 #include "database_cfg.h"
 
 /*========== Macros and Definitions =========================================*/
-/** length of the entry #DIAG_ID_CFG_s::description */
-#define DIAG_DESCRIPTION_LENGTH (40)
-
 #define DIAG_ERROR_SENSITIVITY_FIRST_EVENT (0) /*!< logging at first event */
 #define DIAG_ERROR_SENSITIVITY_THIRD_EVENT (2) /*!< logging at first event */
 #define DIAG_ERROR_SENSITIVITY_FIFTH_EVENT (4) /*!< logging at first event */
@@ -106,6 +103,41 @@
 /** logging level of errors connected with the contactor feedback */
 #define DIAG_ERROR_CONTACTOR_FEEDBACK_SENSITIVITY (20)
 
+/** define if delay in #DIAG_ID_CFG_s is discarded because of severity level */
+#define DIAG_DELAY_DISCARDED (UINT32_MAX)
+/** no delay after error is detected, open contactors instantaneous */
+#define DIAG_NO_DELAY (0u)
+/** delay for interlock error */
+#define DIAG_DELAY_INTERLOCK_ms (100u)
+/** delay for overvoltage errors */
+#define DIAG_DELAY_OVERVOLTAGE_ms (200u)
+/** delay for undervoltage errors */
+#define DIAG_DELAY_UNDERVOLTAGE_ms (200u)
+/** delay for temperature errors */
+#define DIAG_DELAY_TEMPERATURE_ms (1000u)
+/** delay for overcurrent errors */
+#define DIAG_DELAY_OVERCURRENT_ms (100u)
+/** delay for mic related errors */
+#define DIAG_DELAY_MIC_ms (100u)
+/** delay for can timing error */
+#define DIAG_DELAY_CAN_TIMING_ms (200u)
+/** delay for energy counting/coulomb counting timing error */
+#define DIAG_DELAY_EC_CC_TIMING_ms (2000u)
+/** delay for current sensor response error */
+#define DIAG_DELAY_CURRENT_SENSOR_ms (200u)
+/** delay for SBC related errors */
+#define DIAG_DELAY_SBC_ms (100u)
+/** delay for pack voltage plausibility error */
+#define DIAG_DELAY_PL_PACK_VOLTAGE_ms (100u)
+/** delay for contactor feedback errors */
+#define DIAG_DELAY_CONTACTOR_FEEDBACK_ms (100u)
+/** delay for deep-discharge error */
+#define DIAG_DELAY_DEEP_DISCHARGE_ms (100u)
+/** delay redundancy measurement timeout errors */
+#define DIAG_DELAY_REDUNDANCY_MEAS_TIMEOUT_ms (100u)
+/** delay redundancy measurement errors */
+#define DIAG_DELAY_REDUNDANCY_MEAS_ERROR_ms (100u)
+
 /** Maximum number of the same errors that are logged */
 #define DIAG_MAX_ENTRIES_OF_ERROR (5)
 
@@ -130,6 +162,7 @@ typedef enum DIAG_ID {
     DIAG_ID_LTC_MUX,
     DIAG_ID_LTC_CONFIG,
     DIAG_ID_CAN_TIMING,
+    DIAG_ID_CAN_RX_QUEUE_FULL,
     DIAG_ID_CAN_CC_RESPONDING,
     DIAG_ID_CAN_EC_RESPONDING,
     DIAG_ID_CURRENT_SENSOR_RESPONDING,
@@ -237,6 +270,13 @@ typedef enum DIAG_IMPACT_LEVEL {
 #define DIAG_CAN_SENSOR_PRESENT (DIAG_EVALUATION_DISABLED)
 #endif /* CURRENT_SENSOR_PRESENT */
 
+/** diagnosis severity level */
+typedef enum DIAG_SEVERITY_LEVEL {
+    DIAG_FATAL_ERROR,
+    DIAG_WARNING,
+    DIAG_INFO,
+} DIAG_SEVERITY_LEVEL_e;
+
 /** diagnosis recording activation */
 typedef enum DIAG_RECORDING {
     DIAG_RECORDING_ENABLED,  /**< enable diagnosis event recording   */
@@ -258,15 +298,18 @@ typedef void DIAG_CALLBACK_FUNCTION_f(
 
 /** Channel configuration of one diag channel */
 typedef struct DIAG_CH_CFG {
-    DIAG_ID_e id;                                 /**< diagnosis event id diag_id */
-    uint8_t description[DIAG_DESCRIPTION_LENGTH]; /**< description of the id */
-    uint16_t threshold;                           /**< threshold for number of events which will be
+    DIAG_ID_e id;       /**< diagnosis event id diag_id */
+    uint16_t threshold; /**< threshold for number of events which will be
         * tolerated before generating a notification in both directions:
         * threshold = 0: reports the value at first occurrence,
         * threshold = 1: reports the value at second occurrence */
-    DIAG_RECORDING_e enable_recording;            /**< if enabled recording in diag_memory * will be activated */
-    DIAG_EVALUATE_e enable_evaluate;              /**< if enabled diagnosis event will be evaluated */
-    DIAG_CALLBACK_FUNCTION_f *fpCallback;         /**< will be called if
+    DIAG_SEVERITY_LEVEL_e
+        severity; /**< severity of diag entry, #DIAG_FATAL_ERROR will lead to an opening of the contactors */
+    uint32_t
+        delay_ms; /**< delay in ms after error detection if severity is #DIAG_FATAL_ERROR until an opening the contactors */
+    DIAG_RECORDING_e enable_recording;    /**< if enabled recording in diag_memory * will be activated */
+    DIAG_EVALUATE_e enable_evaluate;      /**< if enabled diagnosis event will be evaluated */
+    DIAG_CALLBACK_FUNCTION_f *fpCallback; /**< will be called if
         * number of events exceeds threshold in both
         * directions with parameter DIAG_EVENT_e
         * string id or system related data */
@@ -274,8 +317,11 @@ typedef struct DIAG_CH_CFG {
 
 /** struct for device Configuration of diag module */
 typedef struct DIAG_DEV {
-    uint8_t nr_of_ch;      /*!< number of entries in DIAG_ID_CFG_s */
-    DIAG_ID_CFG_s *ch_cfg; /*!< pointer to diag channel config struct */
+    uint8_t nr_of_ch;             /*!< number of entries in DIAG_ID_CFG_s */
+    DIAG_ID_CFG_s *ch_cfg;        /*!< pointer to diag channel config struct */
+    uint16_t numberOfFatalErrors; /*!< number of configured diagnosis entries with severity #DIAG_FATAL_ERROR */
+    DIAG_ID_CFG_s *pFatalErrorLinkTable
+        [DIAG_ID_MAX]; /*!< list with pointers to all diagnosis entries with severity #DIAG_FATAL_ERROR */
 } DIAG_DEV_s;
 
 /*========== Extern Constant and Variable Declarations ======================*/

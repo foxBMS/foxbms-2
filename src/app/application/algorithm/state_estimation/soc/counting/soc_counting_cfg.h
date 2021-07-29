@@ -43,7 +43,7 @@
  * @file    soc_counting_cfg.h
  * @author  foxBMS Team
  * @date    2020-10-07 (date of creation)
- * @updated 2020-10-07 (date of last update)
+ * @updated 2021-05-20 (date of last update)
  * @ingroup APPLICATION
  * @prefix  SOC
  *
@@ -57,16 +57,20 @@
 /*========== Includes =======================================================*/
 #include "general.h"
 
+#include "battery_cell_cfg.h"
+#include "battery_system_cfg.h"
+
 /*========== Macros and Definitions =========================================*/
 
 /**
  * Cell capacity used for SOC calculation, in this case Ah counting
  * Specified once according to data sheet of cell usually.
  */
-#define SOC_STRING_CAPACITY_Ah ((uint32_t)20000)
+#define SOC_STRING_CAPACITY_mAh ((float)(BS_NR_OF_PARALLEL_CELLS_PER_MODULE * BC_CAPACITY_mAh))
 
-/** #SOC_STRING_CAPACITY_Ah in As */
-#define SOC_STRING_CAPACITY_As ((uint32_t)((SOC_STRING_CAPACITY_Ah) / 3600u))
+/** #SOC_STRING_CAPACITY_mAh in As */
+#define SOC_STRING_CAPACITY_mAs ((float)(SOC_STRING_CAPACITY_mAh * 3600.0f))
+#define SOC_STRING_CAPACITY_As  ((float)(SOC_STRING_CAPACITY_mAs / 1000.0f)
 
 /*========== Extern Constant and Variable Declarations ======================*/
 

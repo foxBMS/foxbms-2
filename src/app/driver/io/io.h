@@ -43,7 +43,7 @@
  * @file    io.h
  * @author  foxBMS Team
  * @date    2020-03-19 (date of creation)
- * @updated 2021-03-24 (date of last update)
+ * @updated 2021-07-14 (date of last update)
  * @ingroup DRIVERS
  * @prefix  IO
  *
@@ -71,7 +71,7 @@
  * @param   pRegisterAddress    address of pin output register
  * @param   pin                 bit position corresponding to pin in register
  */
-extern void IO_PinSet(uint32_t *pRegisterAddress, uint32_t pin);
+extern void IO_PinSet(volatile uint32_t *pRegisterAddress, uint32_t pin);
 
 /**
  * @brief   Set pin by writing in pin output register.
@@ -81,7 +81,7 @@ extern void IO_PinSet(uint32_t *pRegisterAddress, uint32_t pin);
  * @param   pRegisterAddress    address of pin output register
  * @param   pin                 bit position corresponding to pin in register
  */
-extern void IO_PinReset(uint32_t *pRegisterAddress, uint32_t pin);
+extern void IO_PinReset(volatile uint32_t *pRegisterAddress, uint32_t pin);
 
 /**
  * @brief   Get pin state.
@@ -92,7 +92,7 @@ extern void IO_PinReset(uint32_t *pRegisterAddress, uint32_t pin);
  * @param   pin                 bit position corresponding to pin in register
  * @return  state of the pin
  */
-extern uint8_t IO_PinGet(const uint32_t *pRegisterAddress, uint32_t pin);
+extern uint8_t IO_PinGet(const volatile uint32_t *pRegisterAddress, uint32_t pin);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 

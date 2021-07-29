@@ -62,6 +62,27 @@ import yaml
 
 from waflib import Context, Errors, Utils, Logs
 
+if Utils.is_win32:
+    CONDA_BASE = [
+        os.path.join(os.environ["USERPROFILE"], "miniconda3"),
+        os.path.join(os.environ["LOCALAPPDATA"], "Continuum", "miniconda3"),
+        os.path.join(os.environ["ProgramData"], "Miniconda3"),
+        os.path.join(os.environ["SystemDrive"], os.sep, "miniconda3"),
+    ]
+    ENV_DIRS = [
+        os.path.join(i, "envs")
+        for i in CONDA_BASE + [os.path.join(os.environ["USERPROFILE"], ".conda")]
+    ]
+
+else:
+    CONDA_BASE = [
+        os.path.join("~", "miniconda3"),
+        os.path.join(os.sep, "opt", "miniconda3"),
+    ]
+    ENV_DIRS = [
+        os.path.join(i, "envs") for i in CONDA_BASE + [os.path.join("~", ".conda")]
+    ]
+
 
 def options(opt):
     """Configuration options for the miniconda environment tool"""
@@ -81,16 +102,11 @@ def options(opt):
         dest="CONDA_ENV_FILE",
         help="Path to conda environment specification file",
     )
-    conda_base = [
-        os.path.join(os.environ["LOCALAPPDATA"], "Continuum", "miniconda3"),
-        os.path.join(os.environ["ProgramData"], "Miniconda3"),
-        os.path.join(os.environ["USERPROFILE"], "miniconda3"),
-        os.path.join(os.environ["SystemDrive"], os.sep, "miniconda3"),
-    ]
+
     opt.add_option(
         "--conda-base-env",
         action="append",
-        default=conda_base,
+        default=CONDA_BASE,
         dest="CONDA_BASE_ENV",
         help="Installation directory of the miniconda base environment",
     )
@@ -108,14 +124,18 @@ def configure(conf):  # pylint: disable=too-many-statements,too-many-branches
         return
 
     # check that all python packages are available
-    path_list = [os.path.join(i, "Scripts") for i in conf.options.CONDA_BASE_ENV]
+    if Utils.is_win32:
+        a_dir = "Scripts"
+    else:
+        a_dir = "bin"
+    path_list = [os.path.join(i, a_dir) for i in conf.options.CONDA_BASE_ENV]
     conf.find_program("conda", mandatory=False, path_list=path_list)
     try:
         conf.env.CONDA[0]
     except IndexError:
         conf.fatal(
             "A conda base installation is required at "
-            f"{conf.options.CONDA_BASE_ENV}. \nAlternatively you can specify "
+            f"{conf.options.CONDA_BASE_ENV}.\nAlternatively you can specify "
             "an installed conda base environment by passing it via "
             "'--conda-base-env'."
         )
@@ -141,7 +161,7 @@ def configure(conf):  # pylint: disable=too-many-statements,too-many-branches
             conf.env.CONDA_DEVEL_ENV = conda_spec["name"]
             break
     if not conf.env.CONDA_DEVEL_ENV:
-        conf.fatal(f"Development environment '{conf.env.CONDA_DEVEL_ENV}'not found.")
+        conf.fatal(f"Development environment '{conf.env.CONDA_DEVEL_ENV}' not found.")
 
     correct_env = False
     # now we are sure that: at least a string (we found at least *something*),
@@ -157,7 +177,7 @@ def configure(conf):  # pylint: disable=too-many-statements,too-many-branches
             correct_env = True
     else:
         if sys.executable == conf.env.PYTHON[0] and sys.executable == os.path.join(
-            env.lower(), "python"
+            env.lower(), "bin", "python"
         ):
             correct_env = True
     if not correct_env:
@@ -167,46 +187,66 @@ def configure(conf):  # pylint: disable=too-many-statements,too-many-branches
             % conda_spec["name"]
         )
 
-    cmd = Utils.subst_vars(
-        "${CONDA} env export -n ${CONDA_DEVEL_ENV}", conf.env
-    ).split()
-    try:
-        std = conf.cmd_and_log(
-            cmd, output=Context.BOTH, quiet=Context.BOTH, input=os.linesep.encode()
-        )
-    except Errors.WafError as env_export:
-        Logs.error(env_export.msg.strip())
-        conf.fatal(
-            f"Could not export dependencies from environment {conda_spec['name']}"
-        )
-    conda_env_yaml = conf.path.get_bld().make_node(
-        f"{conf.env.CONDA_DEVEL_ENV}_environment.yaml"
-    )
-    conda_env_yaml.write(std[0])
-    with open(conda_env_yaml.abspath(), "r") as stream:
+    found_devel_env = False
+    for e in ENV_DIRS:  # pylint: disable=invalid-name
+        search_path = os.path.join(e, conf.env.get_flat("CONDA_DEVEL_ENV"))
+        cmd = conf.env.CONDA + ["env", "export", "-p", search_path]
         try:
-            current_conda_env = yaml.load(stream, Loader=yaml.Loader)
-        except yaml.YAMLError as exc:
-            conf.fatal(exc)
+            std = conf.cmd_and_log(
+                cmd, output=Context.BOTH, quiet=Context.BOTH, input=os.linesep.encode()
+            )
+        except Errors.WafError as env_export:
+            Logs.error(env_export.msg.strip())
+            conf.fatal(
+                f"Could not export dependencies from environment {conda_spec['name']}"
+            )
+        tmp_env = yaml.load(std[0], Loader=yaml.Loader)
+        if not tmp_env.get("dependencies", None):
+            # if there are no dependencies, then the environment does not exist.
+            continue
 
-    for i in current_conda_env["dependencies"]:
-        if isinstance(i, dict):
-            pips = i["pip"]
+        conda_env_yaml = conf.path.get_bld().make_node(
+            f"{conf.env.CONDA_DEVEL_ENV}_environment.yaml"
+        )
+        conda_env_yaml.write(std[0])
+        with open(conda_env_yaml.abspath(), "r") as stream:
+            try:
+                current_conda_env = yaml.load(stream, Loader=yaml.Loader)
+            except yaml.YAMLError as exc:
+                conf.fatal(exc)
 
-    pkg_error = False
-    for _pkg in conda_spec["dependencies"]:
-        if isinstance(_pkg, str):
-            if _pkg in current_conda_env["dependencies"]:
-                Logs.debug(f"Found {_pkg.split('=')}")
-            else:
-                Logs.warn(f"Could not find {_pkg.split('=')}")
-                pkg_error = True
-        elif isinstance(_pkg, dict):
-            for pip_pkg in _pkg["pip"]:
-                if pip_pkg in pips:
-                    Logs.debug(f"Found {pip_pkg.split('==')}")
+        for i in current_conda_env["dependencies"]:
+            if isinstance(i, dict):
+                pips = i["pip"]
+
+        pkg_error = False
+        for _pkg in conda_spec["dependencies"]:
+            if isinstance(_pkg, str):
+                if _pkg in current_conda_env["dependencies"]:
+                    Logs.debug(f"Found {_pkg.split('=')}")
                 else:
-                    Logs.warn(f"Could not find {pip_pkg.split('==')}")
+                    Logs.warn(f"Could not find {_pkg.split('=')}")
                     pkg_error = True
-    if pkg_error:
-        conf.fatal("There are package errors.")
+            elif isinstance(_pkg, dict):
+                for pip_pkg in _pkg["pip"]:
+                    if pip_pkg in pips:
+                        Logs.debug(f"Found {pip_pkg.split('==')}")
+                    else:
+                        Logs.warn(f"Could not find pip-package {pip_pkg.split('==')}")
+                        pkg_error = True
+        if pkg_error:
+            Logs.warn(
+                "There are package errors in environment "
+                f"{conf.env.CONDA_DEVEL_ENV} at {search_path}.\n"
+                "Proceeding with next search path."
+            )
+        else:
+            # found a development environment, that satisfies the dependencies
+            found_devel_env = True
+            break
+
+    if not found_devel_env:
+        conf.fatal(
+            f"No development environment found in {ENV_DIRS} that satisfies "
+            "the dependencies."
+        )

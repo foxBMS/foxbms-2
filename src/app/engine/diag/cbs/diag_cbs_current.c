@@ -43,7 +43,7 @@
  * @file    diag_cbs_current.c
  * @author  foxBMS Team
  * @date    2021-02-17 (date of creation)
- * @updated 2021-02-17 (date of last update)
+ * @updated 2021-05-19 (date of last update)
  * @ingroup ENGINE
  * @prefix  DIAG
  *
@@ -276,7 +276,7 @@ void DIAG_ErrorCurrentOnOpenString(
     FAS_ASSERT(stringNumber < BS_NR_OF_STRINGS);
 
     switch (ch_id) {
-        case DIAG_ID_CURRENT_MEASUREMENT_TIMEOUT:
+        case DIAG_ID_CURRENT_ON_OPEN_STRING:
             if (event == DIAG_EVENT_RESET) {
                 kpkDiagShim->pTableError->currentOnOpenString[stringNumber] = 0u;
             } else if (event == DIAG_EVENT_NOT_OK) {

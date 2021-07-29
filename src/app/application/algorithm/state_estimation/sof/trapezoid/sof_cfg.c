@@ -61,9 +61,9 @@
 /*========== Extern Constant and Variable Definitions =======================*/
 
 const SOF_CONFIG_s sof_recommendedCurrent = {
-    .maximumChargeCurrent_mA              = SOF_CURRENT_MAX_CONTINUOUS_CHARGE_mA,
-    .maximumDischargeCurrent_mA           = SOF_CURRENT_MAX_CONTINUOUS_DISCHARGE_mA,
-    .limpHomeCurrent_mA                   = SOF_CURRENT_LIMP_HOME_mA,
+    .maximumChargeCurrent_mA              = SOF_STRING_CURRENT_CONTINUOUS_CHARGE_mA,
+    .maximumDischargeCurrent_mA           = SOF_STRING_CURRENT_CONTINUOUS_DISCHARGE_mA,
+    .limpHomeCurrent_mA                   = SOF_STRING_CURRENT_LIMP_HOME_mA,
     .cutoffLowTemperatureDischarge_ddegC  = SOF_TEMPERATURE_LOW_CUTOFF_DISCHARGE_ddegC,
     .limitLowTemperatureDischarge_ddegC   = SOF_TEMPERATURE_LOW_LIMIT_DISCHARGE_ddegC,
     .cutoffLowTemperatureCharge_ddegC     = SOF_TEMPERATURE_LOW_CUTOFF_CHARGE_ddegC,
@@ -78,9 +78,9 @@ const SOF_CONFIG_s sof_recommendedCurrent = {
     .cutoffLowerCellVoltage_mV            = SOF_VOLTAGE_CUTOFF_DISCHARGE_mV};
 
 const SOF_CONFIG_s sof_maximumOperatingLimit = {
-    .maximumChargeCurrent_mA              = SOF_MOL_CURRENT_MAX_CONTINUOUS_CHARGE_mA,
-    .maximumDischargeCurrent_mA           = SOF_MOL_CURRENT_MAX_CONTINUOUS_DISCHARGE_mA,
-    .limpHomeCurrent_mA                   = SOF_MOL_CURRENT_LIMP_HOME_mA,
+    .maximumChargeCurrent_mA              = SOF_MOL_STRING_CURRENT_CONTINUOUS_CHARGE_mA,
+    .maximumDischargeCurrent_mA           = SOF_MOL_STRING_CURRENT_CONTINUOUS_DISCHARGE_mA,
+    .limpHomeCurrent_mA                   = SOF_MOL_STRING_CURRENT_LIMP_HOME_mA,
     .cutoffLowTemperatureDischarge_ddegC  = SOF_MOL_TEMPERATURE_LOW_CUTOFF_DISCHARGE_ddegC,
     .limitLowTemperatureDischarge_ddegC   = SOF_MOL_TEMPERATURE_LOW_LIMIT_DISCHARGE_ddegC,
     .cutoffLowTemperatureCharge_ddegC     = SOF_MOL_TEMPERATURE_LOW_CUTOFF_CHARGE_ddegC,
@@ -95,9 +95,9 @@ const SOF_CONFIG_s sof_maximumOperatingLimit = {
     .cutoffLowerCellVoltage_mV            = SOF_MOL_VOLTAGE_CUTOFF_DISCHARGE_mV};
 
 const SOF_CONFIG_s sof_recommendedSafetyLimit = {
-    .maximumChargeCurrent_mA              = SOF_RSL_CURRENT_MAX_CONTINUOUS_CHARGE_mA,
-    .maximumDischargeCurrent_mA           = SOF_RSL_CURRENT_MAX_CONTINUOUS_DISCHARGE_mA,
-    .limpHomeCurrent_mA                   = SOF_RSL_CURRENT_LIMP_HOME_mA,
+    .maximumChargeCurrent_mA              = SOF_RSL_STRING_CURRENT_CONTINUOUS_CHARGE_mA,
+    .maximumDischargeCurrent_mA           = SOF_RSL_STRING_CURRENT_CONTINUOUS_DISCHARGE_mA,
+    .limpHomeCurrent_mA                   = SOF_RSL_STRING_CURRENT_LIMP_HOME_mA,
     .cutoffLowTemperatureDischarge_ddegC  = SOF_RSL_TEMPERATURE_LOW_CUTOFF_DISCHARGE_ddegC,
     .limitLowTemperatureDischarge_ddegC   = SOF_RSL_TEMPERATURE_LOW_LIMIT_DISCHARGE_ddegC,
     .cutoffLowTemperatureCharge_ddegC     = SOF_RSL_TEMPERATURE_LOW_CUTOFF_CHARGE_ddegC,
@@ -112,9 +112,9 @@ const SOF_CONFIG_s sof_recommendedSafetyLimit = {
     .cutoffLowerCellVoltage_mV            = SOF_RSL_VOLTAGE_CUTOFF_DISCHARGE_mV};
 
 const SOF_CONFIG_s sof_configMaximumSafetyLimit = {
-    .maximumChargeCurrent_mA              = SOF_MSL_CURRENT_MAX_CONTINUOUS_CHARGE_mA,
-    .maximumDischargeCurrent_mA           = SOF_MSL_CURRENT_MAX_CONTINUOUS_DISCHARGE_mA,
-    .limpHomeCurrent_mA                   = SOF_MSL_CURRENT_LIMP_HOME_mA,
+    .maximumChargeCurrent_mA              = SOF_MSL_STRING_CURRENT_CONTINUOUS_CHARGE_mA,
+    .maximumDischargeCurrent_mA           = SOF_MSL_STRING_CURRENT_CONTINUOUS_DISCHARGE_mA,
+    .limpHomeCurrent_mA                   = SOF_MSL_STRING_CURRENT_LIMP_HOME_mA,
     .cutoffLowTemperatureDischarge_ddegC  = SOF_MSL_TEMPERATURE_LOW_CUTOFF_DISCHARGE_ddegC,
     .limitLowTemperatureDischarge_ddegC   = SOF_MSL_TEMPERATURE_LOW_LIMIT_DISCHARGE_ddegC,
     .cutoffLowTemperatureCharge_ddegC     = SOF_MSL_TEMPERATURE_LOW_CUTOFF_CHARGE_ddegC,

@@ -43,7 +43,7 @@
  * @file    test_diag_cbs_dummy.c
  * @author  foxBMS Team
  * @date    2021-02-17 (date of creation)
- * @updated 2021-02-17 (date of last update)
+ * @updated 2021-06-09 (date of last update)
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -53,7 +53,7 @@
 
 /*========== Includes =======================================================*/
 #include "unity.h"
-#include "MOckdiag_cfg.h"
+#include "Mockdiag_cfg.h"
 
 #include "diag_cbs.h"
 

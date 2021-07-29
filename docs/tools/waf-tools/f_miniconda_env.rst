@@ -3,8 +3,8 @@
 
 .. _WAF_TOOL_MINICONDA_ENVIRONMENT:
 
-Waf Tool Miniconda Environment
-==============================
+Miniconda Environment
+=====================
 
 ..
     Comments:

@@ -65,16 +65,6 @@ static DATA_BLOCK_INSULATION_MONITORING_s iso_insulationMeasurement = {
     .header.uniqueId = DATA_BLOCK_ID_INSULATION_MONITORING};
 
 /*========== Extern Constant and Variable Definitions =======================*/
-/** handle of the data queue */
-QueueHandle_t imd_canDataQueue = NULL_PTR;
-/** structure for static data queue */
-StaticQueue_t imd_queueStructure = {0};
-/**
- * @brief   size of Queue storage
- * @details The array to use as the queue's storage area. This must be at
- *          least #DATA_QUEUE_LENGTH * #DATA_QUEUE_ITEM_SIZE
- */
-uint8_t imd_queueStorageArea[IMD_QUEUE_LENGTH * IMD_QUEUE_ITEM_SIZE] = {0};
 
 /*========== Static Function Prototypes =====================================*/
 static STD_RETURN_TYPE_e IMD_MeasureInsulation(void);

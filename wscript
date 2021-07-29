@@ -67,7 +67,13 @@ from waflib import (
     Utils,
     Scripting,
 )
-from waflib.Build import BuildContext, CleanContext, ListContext, StepContext
+from waflib.Build import (
+    BuildContext,
+    CleanContext,
+    InstallContext,
+    ListContext,
+    StepContext,
+)
 
 Context.Context.line_just = 50
 Configure.autoconfig = 1
@@ -80,7 +86,7 @@ top = "."  # pylint:disable=invalid-name
 APPNAME = "foxBMS"
 """name of the application. This is used in various waf functions"""
 
-VERSION = "1.0.2"
+VERSION = "1.1.0"
 """version of the application. This is used in various waf functions. This
 version must match the version number defined in ``macros.txt``. Otherwise a
 configuration error is thrown."""
@@ -101,7 +107,12 @@ for target_type, target_val in ALL_VARIANTS.items():
     if target_type == "binary":
         contexts += (ListContext, StepContext)
     for var in target_val:
+        # save contexts
+        old_contexts = contexts
+        if var == "bin":
+            contexts += (InstallContext,)
         for cont in contexts:
+            # pylint: disable=invalid-name
             name = cont.__name__.replace("Context", "").lower()
 
             # pylint:disable=invalid-name,too-many-ancestors,too-few-public-methods
@@ -110,6 +121,8 @@ for target_type, target_val in ALL_VARIANTS.items():
 
                 if name == "build":
                     __doc__ = f"executes the {name} of {var}"
+                elif name == "install":
+                    __doc__ = f"flash {var} to the target"
                 elif name == "clean":
                     __doc__ = f"cleans the project {var}"
                 elif name == "list":
@@ -118,6 +131,9 @@ for target_type, target_val in ALL_VARIANTS.items():
                     __doc__ = f"executes tasks in a step-by-step fashion, for debugging of {var}"
                 cmd = str(name) + "_" + var
                 variant = var
+
+        # restore contexts
+        contexts = old_contexts
 
 
 BLD_VARIANTS = []
@@ -166,7 +182,7 @@ def version_consistency_checker(ctx):
         f"tar -x -f foxbms-2-v{VERSION}.zip",
         f"ren foxbms-2-{VERSION} foxbms-2",
     ]
-    if not all([gs_file_txt.find(i) > 0 for i in must_include_version]):
+    if not all(gs_file_txt.find(i) > 0 for i in must_include_version):
         ctx.fatal(
             f"The version information in {gs_file} is different from the "
             f"specified version {VERSION}"
@@ -174,17 +190,12 @@ def version_consistency_checker(ctx):
     pys = [
         ctx.path.find_node(os.path.join("tools", "gui", "fgui", "__init__.py")),
     ]
-    if not all([i.read().find(f'__version__ = "{VERSION}"') > 0 for i in pys]):
+    if not all(i.read().find(f'__version__ = "{VERSION}"') > 0 for i in pys):
         ctx.fatal(f"Version information in {pys} is not correct.")
 
 
 def options(opt):
     """Defines options that can be passed to waf"""
-    opt.add_option(
-        "--configure-verbosity",
-        action="count",
-        help="sets the verbosity of configure commands",
-    )
     opt.add_option(
         "--coverage",
         action="store_true",
@@ -219,7 +230,6 @@ def options(opt):
         if option:
             opt.parser.remove_option(k)
 
-    Context.classes.remove(Build.InstallContext)
     Context.classes.remove(Build.UninstallContext)
 
     opt.add_option(
@@ -236,12 +246,13 @@ def options(opt):
         help="Builds the documentation without the Doxygen documentation",
     )
 
-    opt.add_option("--vscshell", default="bash", choices=["bash", "cmd"])
     opt.load("f_miniconda_env", tooldir=TOOLDIR)
     opt.load("f_lauterbach", tooldir=TOOLDIR)
     opt.add_option(
         "--why", dest="WHY", action="store_true", help="Loads the 'why' tool."
     )
+    # add flasher tool
+    opt.load("f_j_flash", tooldir=TOOLDIR)
 
 
 def configure(conf):  # pylint: disable=too-many-statements,too-many-branches
@@ -289,8 +300,8 @@ def configure(conf):  # pylint: disable=too-many-statements,too-many-branches
     )
 
     conf.find_program("git", var="GIT")
+    conf.load("f_node_helper", tooldir=TOOLDIR)
     conf.load("f_ti_arm_cgt", tooldir=TOOLDIR)
-
     fragment = "#include <stdint.h>\n\nint main() {\n    return 0;\n}\n"
     conf.check(
         features="c", fragment=fragment, msg="Checking for code snippet (object)"
@@ -317,13 +328,18 @@ def configure(conf):  # pylint: disable=too-many-statements,too-many-branches
         linker_script = bld.path.find_node(
             os.path.join("..", "..", "src", "app", "main", "linker_script_elf.cmd")
         )
+        version_header = bld.path.find_node(
+            os.path.join(
+                "..", "..", "src", "app", "main", "include", "config", "version_cfg.h"
+            )
+        )
         cflags = []
         if bld.env.RTSV_missing:
             cflags = ["--diag_remark=10366"]
         linker_pulls = bld.path.find_or_declare("linker_pulls.json")
         linker_pulls.write("{}\n")
         bld.tiprogram(
-            includes=[include.parent],
+            includes=[include.parent, version_header.parent],
             source=[source],
             cflags=cflags,
             linker_script=linker_script,
@@ -357,34 +373,14 @@ def configure(conf):  # pylint: disable=too-many-statements,too-many-branches
     conf.check(msg="Checking for code snippet (program)", build_fun=full_build)
     conf.setenv("", default_env)
 
-    testfile_basename = "predefined_defines"
-    testfile_sourcename = f"{testfile_basename}.c"
-    idx = 0
-    fragment = "#include <stdint.h>\n\nint main() {\n    return 0;\n}\n"
-
-    _, bld_out = conf.get_defines(
-        features="c",
-        fragment=fragment,
-        out_name=testfile_basename,
-        compile_filename=testfile_sourcename,
-        idx=idx,
-        msg="Getting predefined compiler defines",
-        ppm_ext=".c",
-    )
-
-    conf.env.COMPILER_BUILTIN_DEFINES_FILE = [
-        conf.root.find_node(
-            os.path.join(bld_out, f"{testfile_sourcename}.{idx}.ppm")
-        ).abspath()
-    ]
-
     conf.load("f_miniconda_env", tooldir=TOOLDIR)
-    # load db-check-tool
     conf.load("f_check_db_vars", tooldir=TOOLDIR)
 
-    # load bootstrap-library-project-tool
     conf.load("f_bootstrap_library_project", tooldir=TOOLDIR)
     conf.load("f_guidelines", tooldir=TOOLDIR)
+
+    # add flasher tool
+    conf.load("f_j_flash", tooldir=TOOLDIR)
 
     # configure the documentation toolchain
     conf.load("f_sphinx_build", tooldir=TOOLDIR)
@@ -611,72 +607,22 @@ def build(bld):  # pylint: disable=too-many-branches,too-many-statements
             return
         if not bld.env.CPPCHECK and bld.cmd.startswith("build"):
             bld.fatal("Can not run static analysis as cppcheck is missing.")
-        source = [
-            bld.path.find_node(i)
-            for i in [
-                os.path.join("conf", "spa", "cppcheck.cppcheck"),
-                os.path.join("conf", "spa", "cppcheck-suppression.txt"),
-            ]
-        ]
-        target = [i.name for i in source]
-
-        paths = [
-            bld.path.find_node(os.path.join("src", "app")),
-            bld.path.find_node(os.path.join("src", "opt")),
-        ]
-        exclude = [
-            bld.path.find_node(os.path.join("src", "hal")),
-            bld.path.find_node(os.path.join("src", "os")),
-        ]
-
-        root_pattern = '    <root name="{}"/>'
-        dir_pattern = '        <dir name="{}"/>'
-        addon_pattern = "        <addon>{}</addon>"
-
-        cppcheck_root = root_pattern.format(pathlib.Path(bld.path.abspath()).as_posix())
-        cppcheck_paths = os.linesep.join(
-            [dir_pattern.format(pathlib.Path(i.abspath()).as_posix()) for i in paths]
-        )
-        cppcheck_exclude = os.linesep.join(
-            [
-                dir_pattern.format(pathlib.Path(i.abspath()).as_posix() + "/")
-                for i in exclude
-            ]
-        )
-        addons = ["threadsafety", "y2038", "cert", "misra"]
-        cppcheck_addon = os.linesep.join([addon_pattern.format(i) for i in addons])
         bld(
-            features="subst",
-            source=source,
-            target=target,
-            root=cppcheck_root,
-            paths=cppcheck_paths,
-            exclude=cppcheck_exclude,
-            addon=cppcheck_addon,
+            features="cppcheck",
+            config="conf/spa/cppcheck.cppcheck",
+            root=".",
+            paths="src/app src/opt",
+            exclude="src/hal src/os",
+            addons="threadsafety y2038 cert misra",
+            options=[
+                "--std=c99",
+                "--force",
+                "--enable=warning,style,performance,portability,information,unusedFunction",
+            ],
+            misra="conf/spa/cppcheckmisra.json",
+            suppressions="conf/spa/cppcheck-suppression.txt",
+            exit_code=42,
         )
-
-        cppcheck_misra_config = bld.path.find_node(
-            os.path.join("conf", "spa", "cppcheckmisra.json")
-        )
-        if bld.options.misra_rules_file or bld.env.RULES_FILE:
-            rule = bld.options.misra_rules_file or bld.env.RULES_FILE[0]
-            misra_args = f"--rule-texts={rule}".replace("\\", "\\\\")
-        else:
-            misra_args = ""
-        bld(
-            features="subst",
-            source=cppcheck_misra_config,
-            target=cppcheck_misra_config.name,
-            misra_args=misra_args,
-        )
-        bld.add_group()
-        bld.env.CPPCHECK_MAIN_PROJECT_FILE = "cppcheck.cppcheck"
-        bld.env.CPPCHECK_RULE_SUPPRESSION_FILE = "cppcheck-suppression.txt"
-        bld.env.CPPCHECK_EXITCODE_FAIL = "42"
-        bld.env.CPPCHECK_ADDON_CNF_MISRA = cppcheck_misra_config.name
-        bld.add_group()
-        bld(features="cppcheck")
-
     if bld.variant == "docs":
         # General documentation build
         # There are two contexts defined. The first one copies the ``wscript`` files
@@ -798,7 +744,7 @@ def build(bld):  # pylint: disable=too-many-branches,too-many-statements
             os.path.join(doc_dir, "units.txt"),
             os.path.join(doc_dir, "general", "changelog.rst"),
             os.path.join(doc_dir, "general", "license.rst"),
-            os.path.join(doc_dir, "general", "licenses-packages-conda-env.csv"),
+            os.path.join(doc_dir, "general", "licenses-packages-conda-env-win32.csv"),
             os.path.join(doc_dir, "general", "licenses-packages-conda-env-spelling.txt"),
             os.path.join(doc_dir, "general", "licenses-packages-conda-env-spelling-build-strings.txt"),
             os.path.join(doc_dir, "general", "licenses-vscode-extensions.csv"),
@@ -816,7 +762,10 @@ def build(bld):  # pylint: disable=too-many-branches,too-many-statements
             os.path.join(doc_dir, "getting-started", "repository-structure.rst"),
             os.path.join(doc_dir, "getting-started", "software-installation.rst"),
             os.path.join(doc_dir, "getting-started", "workspace.rst"),
+            os.path.join(doc_dir, "getting-started", "first-steps-on-hardware.rst"),
             os.path.join(doc_dir, "hardware", "hardware.rst"),
+            os.path.join(doc_dir, "hardware", "design-resources.rst"),
+            os.path.join(doc_dir, "hardware", "connectors.rst"),
             os.path.join(doc_dir, "misc", "bibliography.rst"),
             os.path.join(doc_dir, "misc", "definitions.csv"),
             os.path.join(doc_dir, "misc", "developer-manual-nomenclature.csv"),
@@ -885,11 +834,14 @@ def build(bld):  # pylint: disable=too-many-branches,too-many-statements
             os.path.join(doc_dir, "software", "modules", "engine", "sys", "sys.rst"),
             os.path.join(doc_dir, "software", "modules", "engine", "sys_mon", "sys_mon.rst"),
             os.path.join(doc_dir, "software", "modules", "main", "fassert_how-to.rst"),
+            os.path.join(doc_dir, "software", "modules", "main", "startup.rst"),
+            os.path.join(doc_dir, "software", "modules", "main", "version.rst"),
             os.path.join(doc_dir, "software", "modules", "task", "ftask", "ftask.rst"),
             os.path.join(doc_dir, "software", "modules", "task", "ftask", "ftask_how-to.rst"),
             os.path.join(doc_dir, "software", "modules", "task", "os", "os.rst"),
             os.path.join(doc_dir, "software", "unit-tests", "unit-tests.rst"),
             os.path.join(doc_dir, "software", "unit-tests", "unit-tests_how-to.rst"),
+            os.path.join(doc_dir, "tools", "halcogen", "halcogen.rst"),
             os.path.join(doc_dir, "tools", "static-analysis", "cppcheck.rst"),
             os.path.join(doc_dir, "tools", "waf-tools", "f_black.rst"),
             os.path.join(doc_dir, "tools", "waf-tools", "f_bootstrap_library_project.rst"),
@@ -902,7 +854,12 @@ def build(bld):  # pylint: disable=too-many-branches,too-many-statements
             os.path.join(doc_dir, "tools", "waf-tools", "f_ozone.rst"),
             os.path.join(doc_dir, "tools", "waf-tools", "f_pylint.rst"),
             os.path.join(doc_dir, "tools", "waf-tools", "f_sphinx_build.rst"),
-            os.path.join(doc_dir, "tools", "waf-tools", "f_ti_arm_cgt.rst"),
+            os.path.join(doc_dir, "tools", "waf-tools", "ti-arm-compiler-tools.csv"),
+            os.path.join(doc_dir, "tools", "waf-tools", "ti-arm-compiler-tools.rst"),
+            os.path.join(doc_dir, "tools", "waf-tools", "compiler-tool", "f_ti_arm_cgt.rst"),
+            os.path.join(doc_dir, "tools", "waf-tools", "compiler-tool", "f_ti_arm_helper.rst"),
+            os.path.join(doc_dir, "tools", "waf-tools", "compiler-tool", "f_ti_arm_tools.rst"),
+            os.path.join(doc_dir, "tools", "waf-tools", "compiler-tool", "f_ti_color_arm_cgt.rst"),
             os.path.join(doc_dir, "tools", "waf-tools", "f_unit_test.rst"),
             os.path.join(doc_dir, "tools", "waf-tools", "f_vscode.rst"),
             os.path.join(doc_dir, "tools", "waf-tools", "waf-tools.rst"),

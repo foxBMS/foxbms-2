@@ -103,7 +103,7 @@ typedef struct FAKE_STATE {
     FAKE_FSM_SUBSTATES_e nextSubstate;     /*!< next substate of the FSM */
     FAKE_FSM_SUBSTATES_e currentSubstate;  /*!< current substate of the FSM */
     FAKE_FSM_SUBSTATES_e previousSubstate; /*!< previous substate of the FSM */
-    bool firstMeasurementFinished;         /*!< indicator if the fist measurement has been successfull */
+    bool firstMeasurementFinished;         /*!< indicator if the fist measurement has been successful */
     FAKE_DATABASE_ENTRIES_s data;          /*!< contains pointers to the local data buffer */
 } FAKE_STATE_s;
 

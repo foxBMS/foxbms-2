@@ -225,14 +225,11 @@ class LogParserFrame(wx.Frame):  # pylint: disable=too-many-ancestors
         mdb.add_dbc_file(path)
 
         self.all_sig = []
-        for msg in range(len(mdb.messages)):
-            for sig in range(len(mdb.messages[msg].signals)):
+        for i, msg in enumerate(mdb.messages):  # pylint: disable=unused-variable
+            # pylint: disable=unused-variable
+            for j, sig in enumerate(mdb.messages[i].signals):
                 self.all_sig.append(
-                    mdb.messages[msg].signals[sig].name
-                    + " "
-                    + "("
-                    + hex(mdb.messages[msg].frame_id)
-                    + ")"
+                    f"{mdb.messages[i].signals[j].name} ({hex(mdb.messages[i].frame_id)})"
                 )
         self.clb_select_sig.AppendItems(self.all_sig)
 
@@ -277,14 +274,14 @@ class LogParserFrame(wx.Frame):  # pylint: disable=too-many-ancestors
         msg = mdb.get_message_by_frame_id(int(id_signal, 16))
         unit = ""
         mux_id = ""
-        for pos in range(len(msg.signals)):
-            if msg.signals[pos].name == signal_name:
-                unit = str(msg.signals[pos].unit)
+        for i, sig in enumerate(msg.signals):  # pylint: disable=unused-variable
+            if msg.signals[i].name == signal_name:
+                unit = str(msg.signals[i].unit)
                 if unit == "None":
                     unit = ""
                 if msg.is_multiplexed():
-                    if msg.signals[pos].multiplexer_ids:
-                        mux_id = msg.signals[pos].multiplexer_ids[0]
+                    if msg.signals[i].multiplexer_ids:
+                        mux_id = msg.signals[i].multiplexer_ids[0]
                 break
         return unit, mux_id, msg
 
@@ -490,9 +487,7 @@ class LogParserFrame(wx.Frame):  # pylint: disable=too-many-ancestors
 
         # set figure size depending on subplot count
         subplot_count = len(set(units))
-        x_size = subplot_count * 6
-        if x_size > 15:
-            x_size = 15
+        x_size = min(subplot_count * 6, 15)
         fig = plt.figure(figsize=(x_size, 8))
 
         # manage subplots with units and axes to put all graphs with same unit

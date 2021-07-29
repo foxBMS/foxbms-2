@@ -74,8 +74,8 @@
 )
 
 @IF "%BASE_ENVS_FOUND%"=="" (
-    @ECHO Could not find conda environment in default directories [%MINICONDA_DIRECTORIES%]
-    @ECHO Exiting...
+    @ECHO [31mCould not find conda environment in default directories [%MINICONDA_DIRECTORIES%][0m
+    @ECHO [31mExiting...[0m
     @EXIT /b 1
 )
 
@@ -96,9 +96,9 @@
 :done
 
 @IF "%DEVEL_ENV_FOUND%"=="" (
-    @ECHO Could not find conda development environment directories [%BASE_ENVS_FOUND%]
-    @ECHO Run %~dp0..\conda-update-env.bat
-    @ECHO Exiting...
+    @ECHO [31mCould not find conda development environment directories [%BASE_ENVS_FOUND%][0m
+    @ECHO [31mRun %~dp0..\conda-update-env.bat[0m
+    @ECHO [31mExiting...[0m
     @EXIT /b 1
 )
 

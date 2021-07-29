@@ -43,7 +43,7 @@
  * @file    state_estimation.h
  * @author  foxBMS Team
  * @date    2020-10-14 (date of creation)
- * @updated 2020-10-14 (date of last update)
+ * @updated 2021-05-21 (date of last update)
  * @ingroup APPLICATION
  * @prefix  SE
  *
@@ -60,6 +60,8 @@
 /*========== Includes =======================================================*/
 #include "general.h"
 
+#include "database.h"
+
 /*========== Macros and Definitions =========================================*/
 
 /*========== Extern Constant and Variable Declarations ======================*/
@@ -68,37 +70,52 @@
 /**
  * @brief   initializes startup SOC-related values like lookup from nonvolatile
  *          ram at startup
- * @param[in]    cc_present     true if current sensor present, false otherwise
- * @param[in]   stringNumber    string addressed
+ * @param[out]  pSocValues   pointer to SOC database entry
+ * @param[in]   cc_present   true if current sensor present, false otherwise
+ * @param[in]   stringNumber string addressed
  */
-extern void SOC_Init(bool cc_present, uint8_t stringNumber);
+extern void SOC_Init(DATA_BLOCK_SOX_s *pSocValues, bool cc_present, uint8_t stringNumber);
 
 /**
- * @brief   integrates current over time to calculate SOC.
+ * @brief   Wrapper for algorithm specific SOC initialization
+ * @param[in]   cc_present   true if current sensor present, false otherwise
+ * @param[in]   stringNumber string addressed
  */
-extern void SOC_Calculation(void);
+extern void SE_SocInit(bool cc_present, uint8_t stringNumber);
 
 /**
- * @brief   look-up table for SOC initialization (average, min and max).
- *
- * @param[in]   voltage_mV    voltage of battery cell
- *
- * @return  SOC value
+ * @brief   periodically called algorithm to calculate state-of-charge (SOC)
+ * @param[out] pSocValues pointer to SOC values
+ */
+extern void SOC_Calculation(DATA_BLOCK_SOX_s *pSocValues);
+
+/**
+ * @brief   look-up table for SOC initialization
+ * @param[in]   voltage_mV    voltage in mV of battery cell
+ * @return  returns SOC value in percentage from 0.0% to 100.0%
  */
 extern float SOC_GetFromVoltage(int16_t voltage_mV);
 
 /**
  * @brief   initializes startup state-of-energy (SOE) related values
- *
+ * @param[out]  pSoeValues     pointer to SOE database entry
  * @param[in]   ec_present     true if current sensor EC message received, false otherwise
  * @param[in]   stringNumber   string addressed
  */
-extern void SOE_Init(bool ec_present, uint8_t stringNumber);
+extern void SOE_Init(DATA_BLOCK_SOX_s *pSoeValues, bool ec_present, uint8_t stringNumber);
 
 /**
- * @brief   calculates state-of-energy (SOE)
+ * @brief   Wrapper for algorithm specific SOE initialization
+ * @param[in]   ec_present   true if current sensor present, false otherwise
+ * @param[in]   stringNumber string addressed
  */
-extern void SOE_Calculation(void);
+extern void SE_SoeInit(bool ec_present, uint8_t stringNumber);
+
+/**
+ * @brief   periodically called algorithm to calculate state-of-energy (SOE)
+ * @param[out] pSoeValues pointer to SOE database entry
+ */
+extern void SOE_Calculation(DATA_BLOCK_SOX_s *pSoeValues);
 
 /**
  * @brief   initializes startup state-of-health related values
@@ -109,6 +126,11 @@ extern void SOH_Init(void);
  * @brief   calculates state-of-health (SOH)
  */
 extern void SOH_Calculation(void);
+
+/**
+ * @brief   Main function to perform state estimations
+ */
+extern void SE_StateEstimations(void);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 

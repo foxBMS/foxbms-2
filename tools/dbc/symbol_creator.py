@@ -42,10 +42,25 @@
 
 import logging
 import argparse
+from pathlib import Path
+
+SCRIPT_PATH = Path(__file__).parent.resolve()
+
+
+def sym_hex(number):
+    """fix hex number output for sym files"""
+    out = hex(number)[2:]
+    try:
+        out_as_hex = "0x" + out.upper()
+        if int(out_as_hex, 0) > 9:
+            out = (out.upper() + "h").zfill(3)
+    except ValueError:
+        pass
+    return out
 
 
 def main():
-    """This script does this and that"""
+    """This script produces a symbole file for cell voltages and temperatures"""
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "-v",
@@ -54,6 +69,20 @@ def main():
         action="count",
         default=0,
         help="set verbosity level",
+    )
+    parser.add_argument(
+        "-c",
+        dest="number_of_cells",
+        action="store",
+        default=54,
+        help="Number of cells",
+    )
+    parser.add_argument(
+        "-t",
+        dest="number_of_cell_temperatures",
+        action="store",
+        default=30,
+        help="Number of cell temperatures",
     )
     args = parser.parse_args()
 
@@ -65,107 +94,53 @@ def main():
         logging.basicConfig(level=logging.ERROR)
     logging.debug(args)
 
-    with open("multiplexed_cellVoltages_for_sym_file.txt", "w") as f:
-        # create .sym file messages for 54 * 4 cell voltages
-        for i in range(0, 54):
-            f.write("[foxBMS_CellVoltage]\n")
-            if i == 0:
-                f.write("ID=240h\n")
-            f.write("DLC=8\n")
-            f.write(
-                "Mux=mux_cellVoltage_"
-                + str(i * 4)
-                + "_"
-                + str((i * 4) + 3)
-                + " 0,8 "
-                + hex(i)[2:].upper()
-                + "h  -m\n"
-            )
-            f.write("Var=cellVoltage_" + str(i * 4) + "_invalidFlag unsigned 11,1 -m\n")
-            f.write(
-                "Var=cellVoltage_"
-                + str((i * 4) + 1)
-                + "_invalidFlag unsigned 10,1 -m\n"
-            )
-            f.write(
-                "Var=cellVoltage_" + str((i * 4) + 2) + "_invalidFlag unsigned 9,1 -m\n"
-            )
-            f.write(
-                "Var=cellVoltage_" + str((i * 4) + 3) + "_invalidFlag unsigned 8,1 -m\n"
-            )
-            f.write("Var=cellVoltage_" + str(i * 4) + " unsigned 12,13 -m /u:mV\n")
-            f.write(
-                "Var=cell_voltage_" + str((i * 4) + 1) + " unsigned 25,13 -m /u:mV\n"
-            )
-            f.write(
-                "Var=cell_voltage_" + str((i * 4) + 2) + " unsigned 38,13 -m /u:mV\n"
-            )
-            f.write(
-                "Var=cell_voltage_" + str((i * 4) + 3) + " unsigned 51,13 -m /u:mV\n"
-            )
-            f.write("\n")
+    cell_voltages = SCRIPT_PATH / "multiplexed_cell_voltages_for_sym_file.txt"
+    volts = []
+    name = "cellVoltage"
+    for i in range(0, args.number_of_cells):
+        volts.append("[foxBMS_CellVoltage]")
+        if not i:
+            volts.append("ID=240h")
+        volts.append("DLC=8")
+        volts.append(
+            f"Mux=mux_{name}_{(i * 4):03d}_{((i * 4) + 3):03d} 0,8 {sym_hex(i)}  -m"
+        )
+        volts.append(f"Var={name}_{(i * 4):03d}_invalidFlag unsigned 11,1 -m")
+        volts.append(f"Var={name}_{((i * 4) + 1):03d}_invalidFlag unsigned 10,1 -m")
+        volts.append(f"Var={name}_{((i * 4) + 2):03d}_invalidFlag unsigned 9,1 -m")
+        volts.append(f"Var={name}_{((i * 4) + 3):03d}_invalidFlag unsigned 8,1 -m")
+        volts.append(f"Var={name}_{(i * 4):03d} unsigned 12,13 -m /u:mV")
+        volts.append(f"Var={name}_{((i * 4) + 1):03d} unsigned 25,13 -m /u:mV")
+        volts.append(f"Var={name}_{((i * 4) + 2):03d} unsigned 38,13 -m /u:mV")
+        volts.append(f"Var={name}_{((i * 4) + 3):03d} unsigned 51,13 -m /u:mV")
+        volts.append("")
+    cell_voltages.write_text("\n".join(volts))
 
-    with open("multiplexed_cellTemperatures_for_sym_file.txt", "w") as f:
-        # create .sym file messages for 30 * 6 cell temperatures
-        for i in range(0, 30):
-            f.write("[foxBMS_CellTemperature]\n")
-            if i == 0:
-                f.write("ID=250h\n")
-            f.write("DLC=8\n")
-            f.write(
-                "Mux=mux_cellTemperature_"
-                + str(i * 6)
-                + "_"
-                + str((i * 6) + 5)
-                + " 0,8 "
-                + hex(i)[2:].upper()
-                + "h  -m\n"
-            )
-            f.write(
-                "Var=cellTemperature_" + str(i * 6) + "_invalidFlag unsigned 15,1 -m\n"
-            )
-            f.write(
-                "Var=cellTemperature_"
-                + str((i * 6) + 1)
-                + "_invalidFlag unsigned 14,1 -m\n"
-            )
-            f.write(
-                "Var=cellTemperature_"
-                + str((i * 6) + 2)
-                + "_invalidFlag unsigned 13,1 -m\n"
-            )
-            f.write(
-                "Var=cellTemperature_"
-                + str((i * 6) + 3)
-                + "_invalidFlag unsigned 12,1 -m\n"
-            )
-            f.write(
-                "Var=cellTemperature_"
-                + str((i * 6) + 4)
-                + "_invalidFlag unsigned 11,1 -m\n"
-            )
-            f.write(
-                "Var=cellTemperature_"
-                + str((i * 6) + 5)
-                + "_invalidFlag unsigned 10,1 -m\n"
-            )
-            f.write("Var=cellTemperature_" + str(i * 6) + " signed 16,8 -m /u:degC\n")
-            f.write(
-                "Var=cellTemperature_" + str((i * 6) + 1) + " signed 24,8 -m /u:degC\n"
-            )
-            f.write(
-                "Var=cellTemperature_" + str((i * 6) + 2) + " signed 32,8 -m /u:degC\n"
-            )
-            f.write(
-                "Var=cellTemperature_" + str((i * 6) + 3) + " signed 40,8 -m /u:degC\n"
-            )
-            f.write(
-                "Var=cellTemperature_" + str((i * 6) + 4) + " signed 48,8 -m /u:degC\n"
-            )
-            f.write(
-                "Var=cellTemperature_" + str((i * 6) + 5) + " signed 56,8 -m /u:degC\n"
-            )
-            f.write("\n")
+    cell_temperatures = SCRIPT_PATH / "multiplexed_cell_temperatures_for_sym_file.txt"
+    temps = []
+    name = "cellTemperature"
+    for i in range(0, args.number_of_cell_temperatures):
+        temps.append("[foxBMS_CellTemperature]")
+        if not i:
+            temps.append("ID=250h")
+        temps.append("DLC=8")
+        temps.append(
+            f"Mux=mux_{name}_{(i * 6):03d}_{((i * 6) + 5):03d} 0,8 {sym_hex(i)}  -m"
+        )
+        temps.append(f"Var={name}_{(i * 6):03d}_invalidFlag unsigned 15,1 -m")
+        temps.append(f"Var={name}_{((i * 6) + 1):03d}_invalidFlag unsigned 14,1 -m")
+        temps.append(f"Var={name}_{((i * 6) + 2):03d}_invalidFlag unsigned 13,1 -m")
+        temps.append(f"Var={name}_{((i * 6) + 3):03d}_invalidFlag unsigned 12,1 -m")
+        temps.append(f"Var={name}_{((i * 6) + 4):03d}_invalidFlag unsigned 11,1 -m")
+        temps.append(f"Var={name}_{((i * 6) + 5):03d}_invalidFlag unsigned 10,1 -m")
+        temps.append(f"Var={name}_{(i * 6):03d} signed 16,8 -m /u:degC")
+        temps.append(f"Var={name}_{((i * 6) + 1):03d} signed 24,8 -m /u:degC")
+        temps.append(f"Var={name}_{((i * 6) + 2):03d} signed 32,8 -m /u:degC")
+        temps.append(f"Var={name}_{((i * 6) + 3):03d} signed 40,8 -m /u:degC")
+        temps.append(f"Var={name}_{((i * 6) + 4):03d} signed 48,8 -m /u:degC")
+        temps.append(f"Var={name}_{((i * 6) + 5):03d} signed 56,8 -m /u:degC")
+        temps.append("")
+    cell_temperatures.write_text("\n".join(temps))
 
 
 if __name__ == "__main__":

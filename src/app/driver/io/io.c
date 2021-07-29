@@ -43,7 +43,7 @@
  * @file    io.c
  * @author  foxBMS Team
  * @date    2020-06-05 (date of creation)
- * @updated 2021-03-24 (date of last update)
+ * @updated 2021-07-14 (date of last update)
  * @ingroup DRIVERS
  * @prefix  IO
  *
@@ -67,21 +67,21 @@
 
 /*========== Extern Function Implementations ================================*/
 
-extern void IO_PinSet(uint32_t *pRegisterAddress, uint32_t pin) {
+extern void IO_PinSet(volatile uint32_t *pRegisterAddress, uint32_t pin) {
     FAS_ASSERT(pRegisterAddress != NULL_PTR);
     FAS_ASSERT(pin <= LARGEST_PIN_NUMBER);
 
     *pRegisterAddress |= (uint32_t)((uint32_t)1u << pin);
 }
 
-extern void IO_PinReset(uint32_t *pRegisterAddress, uint32_t pin) {
+extern void IO_PinReset(volatile uint32_t *pRegisterAddress, uint32_t pin) {
     FAS_ASSERT(pRegisterAddress != NULL_PTR);
     FAS_ASSERT(pin <= LARGEST_PIN_NUMBER);
 
     *pRegisterAddress &= ~(uint32_t)((uint32_t)1u << pin);
 }
 
-extern uint8_t IO_PinGet(const uint32_t *pRegisterAddress, uint32_t pin) {
+extern uint8_t IO_PinGet(const volatile uint32_t *pRegisterAddress, uint32_t pin) {
     FAS_ASSERT(pRegisterAddress != NULL_PTR);
     FAS_ASSERT(pin <= LARGEST_PIN_NUMBER);
 

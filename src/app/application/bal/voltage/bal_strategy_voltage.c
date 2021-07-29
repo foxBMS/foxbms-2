@@ -124,7 +124,8 @@ static bool BAL_ActivateBalancing(void) {
     DATA_READ_DATA(&cellvoltage, &minMax);
 
     for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
-        int16_t min = minMax.minimumCellVoltage_mV[s];
+        int16_t min              = minMax.minimumCellVoltage_mV[s];
+        uint16_t nrBalancedCells = 0u;
         for (uint8_t c = 0u; c < BS_NR_OF_BAT_CELLS; c++) {
             if (cellvoltage.cellVoltage_mV[s][c] > (min + bal_state.balancingThreshold)) {
                 bal_balancing.balancingState[s][c] = 1;
@@ -132,10 +133,12 @@ static bool BAL_ActivateBalancing(void) {
                 bal_state.balancingThreshold       = BAL_THRESHOLD_mV;
                 bal_state.active                   = true;
                 bal_balancing.enableBalancing      = 1;
+                nrBalancedCells++;
             } else {
                 bal_balancing.balancingState[s][c] = 0;
             }
         }
+        bal_balancing.nrBalancedCells[s] = nrBalancedCells;
     }
     DATA_WRITE_DATA(&bal_balancing);
 
@@ -148,6 +151,7 @@ static void BAL_Deactivate(void) {
             bal_balancing.balancingState[s][i]  = 0;
             bal_balancing.deltaCharge_mAs[s][i] = 0;
         }
+        bal_balancing.nrBalancedCells[s] = 0u;
     }
     bal_balancing.enableBalancing = 0;
     bal_state.active              = false;

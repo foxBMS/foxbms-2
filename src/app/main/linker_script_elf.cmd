@@ -42,7 +42,8 @@ MEMORY
     VECTORS       (X)  : origin=0x00000000 length=0x00000020 vfill = 0xffffffff
     KERNEL        (RX) : origin=0x00000020 length=0x00008000 vfill = 0xffffffff
     FLASH0        (RX) : origin=0x00008020 length=0x001F7FE0 vfill = 0xffffffff
-    FLASH1        (RX) : origin=0x00200000 length=0x00200000 vfill = 0xffffffff
+    FLASH1        (RX) : origin=0x00200000 length=0x001FFF40 vfill = 0xffffffff
+    VERSIONINFO   (RX) : origin=0x003FFF40 length=0x000000C0 vfill = 0xffffffff
     STACKS        (RW) : origin=0x08000000 length=0x00000800
     KRAM          (RW) : origin=0x08000800 length=0x00000800
     RAM           (RW) : origin=(0x08000800+0x00000800) length=(0x0007f800 - 0x00000800 - 0x00001000)
@@ -68,14 +69,13 @@ SECTIONS
     /* FreeRTOS Kernel in protected region of Flash */
     .kernelTEXT  align(32) : {} > KERNEL
     .cinit       align(32) : {} > KERNEL
-    .pinit       align(32) : {} > KERNEL
     /* Rest of code to user mode flash region */
-    .syscallTEXT align(32) : {} > FLASH0 | FLASH1
-    .text        align(32) : {} > FLASH0 | FLASH1
-    .const       align(32) : {} > FLASH0 | FLASH1
+    .versionInformation align(32) : {} > VERSIONINFO
+    .syscallTEXT        align(32) : {} > FLASH0 | FLASH1
+    .text               align(32) : {} > FLASH0 | FLASH1
+    .const              align(32) : {} > FLASH0 | FLASH1
     /* FreeRTOS Kernel data in protected region of RAM */
     .kernelBSS    : {} > KRAM
-    .kernelHEAP   : {} > RAM
     .bss          : {} > RAM
     .data         : {} > RAM
     .sysmem       : {} > RAM

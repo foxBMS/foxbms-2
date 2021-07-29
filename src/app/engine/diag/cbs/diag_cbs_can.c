@@ -43,7 +43,7 @@
  * @file    diag_cbs_can.c
  * @author  foxBMS Team
  * @date    2021-02-17 (date of creation)
- * @updated 2021-02-17 (date of last update)
+ * @updated 2021-06-09 (date of last update)
  * @ingroup ENGINE
  * @prefix  DIAG
  *
@@ -80,6 +80,25 @@ extern void DIAG_ErrorCanTiming(
         }
         if (event == DIAG_EVENT_NOT_OK) {
             kpkDiagShim->pTableError->canTiming = 1;
+        }
+    }
+}
+
+extern void DIAG_ErrorCanRxQueueFull(
+    DIAG_ID_e ch_id,
+    DIAG_EVENT_e event,
+    const DIAG_DATABASE_SHIM_s *const kpkDiagShim,
+    uint32_t data) {
+    FAS_ASSERT(ch_id < DIAG_ID_MAX);
+    FAS_ASSERT((event == DIAG_EVENT_OK) || (event == DIAG_EVENT_NOT_OK) || (event == DIAG_EVENT_RESET));
+    FAS_ASSERT(kpkDiagShim != NULL_PTR);
+
+    if (ch_id == DIAG_ID_CAN_RX_QUEUE_FULL) {
+        if (event == DIAG_EVENT_RESET) {
+            kpkDiagShim->pTableError->canRxQueueFull = 0;
+        }
+        if (event == DIAG_EVENT_NOT_OK) {
+            kpkDiagShim->pTableError->canRxQueueFull = 1;
         }
     }
 }

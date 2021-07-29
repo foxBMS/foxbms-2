@@ -43,7 +43,7 @@
  * @file    test_spi.c
  * @author  foxBMS Team
  * @date    2020-04-01 (date of creation)
- * @updated 2020-04-01 (date of last update)
+ * @updated 2021-06-16 (date of last update)
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -63,8 +63,7 @@
 #include "spi_cfg.h"
 
 #include "spi.h"
-
-TEST_FILE("spi.c")
+#include "test_assert_helper.h"
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 
@@ -72,14 +71,95 @@ long FSYS_RaisePrivilege(void) {
     return 0;
 }
 
+/** mock for testing with an SPI handle */
+spiBASE_t spiMockHandle = {0};
+
+spi_config_reg_t spiMockConfigRegister = {0};
+
 /*========== Setup and Teardown =============================================*/
 void setUp(void) {
+    /* make sure PC0 of config register is clean */
+    spiMockConfigRegister.CONFIG_PC0 = 0;
 }
 
 void tearDown(void) {
 }
 
 /*========== Test Cases =====================================================*/
+/** simple API test that function guards against null pointer */
+void testSPI_SetFunctionalNullPointer(void) {
+    TEST_ASSERT_FAIL_ASSERT(SPI_SetFunctional(NULL_PTR, 0, false));
+}
 
-void testDummyFunction() {
+/** test intended function of SPI_SetFunctional() for setting a bit */
+void testSPI_SetFunctionalTestIntendedFunctionSet(void) {
+    /** fake a config register that is null and inject into function */
+    spiMockConfigRegister.CONFIG_PC0 = 0;
+    spi1GetConfigValue_Expect(NULL_PTR, CurrentValue);
+    spi1GetConfigValue_IgnoreArg_config_reg();
+    spi1GetConfigValue_ReturnThruPtr_config_reg(&spiMockConfigRegister);
+
+    /* the function should call spiSetFunctional with a 1 at bit 10 */
+    spiSetFunctional_Expect(spiREG1, ((uint32_t)1u << 10u));
+
+    SPI_SetFunctional(spiREG1, 10, true);
+}
+
+/** test intended function of SPI_SetFunctional() for clearing a bit */
+void testSPI_SetFunctionalTestIntendedFunctionClear(void) {
+    /** fake a config register that is UINT32_MAX and inject into function */
+    spiMockConfigRegister.CONFIG_PC0 = UINT32_MAX;
+    spi1GetConfigValue_Expect(NULL_PTR, CurrentValue);
+    spi1GetConfigValue_IgnoreArg_config_reg();
+    spi1GetConfigValue_ReturnThruPtr_config_reg(&spiMockConfigRegister);
+
+    /* the function should call spiSetFunctional with a 0 at bit 10 */
+    spiSetFunctional_Expect(spiREG1, ~((uint32_t)1u << 10u));
+
+    SPI_SetFunctional(spiREG1, 10, false);
+}
+
+/** test usage of right API functions for SPI1 */
+void testSPI_SetFunctionalRightApiSpi1(void) {
+    /* this test will fail if another function than the intended function is
+    called */
+    spi1GetConfigValue_Ignore();
+    spiSetFunctional_Ignore();
+    SPI_SetFunctional(spiREG1, 0, false);
+}
+
+/** test usage of right API functions for SPI2 */
+void testSPI_SetFunctionalRightApiSpi2(void) {
+    /* this test will fail if another function than the intended function is
+    called */
+    spi2GetConfigValue_Ignore();
+    spiSetFunctional_Ignore();
+    SPI_SetFunctional(spiREG2, 0, false);
+}
+
+/** test usage of right API functions for SPI3 */
+void testSPI_SetFunctionalRightApiSpi3(void) {
+    /* this test will fail if another function than the intended function is
+    called */
+    spi3GetConfigValue_Ignore();
+    spiSetFunctional_Ignore();
+    SPI_SetFunctional(spiREG3, 0, false);
+}
+
+/** test usage of right API functions for SPI4 */
+void testSPI_SetFunctionalRightApiSpi4(void) {
+    /* this test will fail if another function than the intended function is
+    called */
+    spi4GetConfigValue_Ignore();
+    spiSetFunctional_Ignore();
+    SPI_SetFunctional(spiREG4, 0, false);
+}
+
+/** test usage of right API functions for SPI5 */
+void testSPI_SetFunctionalRightApiSpi5(void) {
+    /* this test will fail if another function than the intended function is
+    called */
+    spi5GetConfigValue_Ignore();
+    spiSetFunctional_Ignore();
+    SPI_SetFunctional(spiREG5, 0, false);
 }

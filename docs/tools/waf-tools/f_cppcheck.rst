@@ -3,8 +3,8 @@
 
 .. _WAF_TOOL_CPPCHECK:
 
-Waf Tool Cppcheck
-=================
+Cppcheck
+========
 
 The tool is located in ``tools/waf-tools``.
 

@@ -35,9 +35,7 @@
 @REM - "This product includes parts of foxBMS&reg;"
 @REM - "This product is derived from foxBMS&reg;"
 
-@SETLOCAL EnableDelayedExpansion
-@SETLOCAL
-
+@SETLOCAL EnableExtensions EnableDelayedExpansion
 @SET CONDA_BASE_ENVIRONMENT_ACTIVATE_SCRIPT=""
 @CALL %~dp0\cmd\find_base_conda.bat update
 

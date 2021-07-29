@@ -43,7 +43,7 @@
  * @file    database_cfg.c
  * @author  foxBMS Team
  * @date    2015-08-18 (date of creation)
- * @updated 2019-11-06 (date of last update)
+ * @updated 2021-05-11 (date of last update)
  * @ingroup ENGINE_CONFIGURATION
  * @prefix  DATA
  *
@@ -158,6 +158,10 @@ static DATA_BLOCK_ADC_TEMPERATURE_s data_blockAdcTemperature = {.header.uniqueId
 static DATA_BLOCK_INSULATION_MONITORING_s data_blockInsulationMonitoring = {
     .header.uniqueId = DATA_BLOCK_ID_INSULATION_MONITORING};
 
+/** data block: used for self-test */
+static DATA_BLOCK_DUMMY_FOR_SELF_TEST_s data_blockDummyForSelfTest = {
+    .header.uniqueId = DATA_BLOCK_ID_DUMMY_FOR_SELF_TEST};
+
 /** data block: adc temperature */
 static DATA_BLOCK_PACK_VALUES_s data_blockPackValues = {.header.uniqueId = DATA_BLOCK_ID_PACK_VALUES};
 
@@ -198,6 +202,7 @@ DATA_BASE_s data_database[] = {
     {(void *)(&data_blockAdcTemperature), sizeof(DATA_BLOCK_ADC_TEMPERATURE_s)},
     {(void *)(&data_blockInsulationMonitoring), sizeof(DATA_BLOCK_INSULATION_MONITORING_s)},
     {(void *)(&data_blockPackValues), sizeof(DATA_BLOCK_PACK_VALUES_s)},
+    {(void *)(&data_blockDummyForSelfTest), sizeof(DATA_BLOCK_DUMMY_FOR_SELF_TEST_s)},
 };
 
 /*========== Static Function Prototypes =====================================*/

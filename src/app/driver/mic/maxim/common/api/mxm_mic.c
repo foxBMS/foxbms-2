@@ -43,7 +43,7 @@
  * @file    mxm_mic.c
  * @author  foxBMS Team
  * @date    2020-06-16 (date of creation)
- * @updated 2020-06-18 (date of last update)
+ * @updated 2021-07-14 (date of last update)
  * @ingroup DRIVER
  * @prefix  MIC
  *
@@ -57,6 +57,7 @@
 #include "mxm_17841b.h"
 #include "mxm_1785x.h"
 #include "mxm_battery_management.h"
+#include "os.h"
 
 /*========== Macros and Definitions =========================================*/
 
@@ -106,6 +107,7 @@ static MXM_MONITORING_INSTANCE_s mxm_state = {
     .stopRequested         = false,
     .openwireRequested     = false,
     .undervoltageAlert     = false,
+    .muxCounter            = 0u,
     .dcByte                = MXM_DC_EMPTY,
     .mxmVoltageCellCounter = 0,
     .highest5xDevice       = 0,
@@ -156,11 +158,11 @@ static void MXM_Tick(void);
 
 /*========== Static Function Implementations ================================*/
 
-static void MXM_Tick() {
+static void MXM_Tick(void) {
+    FAS_ASSERT(mxm_numberOfInstances == 0);
     mxm_numberOfInstances++;
     /* TODO let statemachines recover from hangups */
     /* TODO best execution order of statemachines? */
-    /* DIAG_Handler(DIAG_SYSMON_LTC_ID, 0); */
     MXM_StateMachine(&mxm_state);
     MXM_5XStateMachine(mxm_state.pInstance41B, mxm_state.pInstance5X);
     MXM_StateMachine(&mxm_state);
@@ -174,7 +176,6 @@ static void MXM_Tick() {
     MXM_StateMachine(&mxm_state);
     MXM_StateMachine(&mxm_state);
     MXM_5XStateMachine(mxm_state.pInstance41B, mxm_state.pInstance5X);
-    /* MXM_41BStateMachine(); */
     mxm_numberOfInstances--;
 }
 
@@ -192,41 +193,53 @@ extern STD_RETURN_TYPE_e MIC_Init(void) {
 extern STD_RETURN_TYPE_e MIC_StartMeasurement(void) {
     STD_RETURN_TYPE_e retval = STD_OK;
 
+    OS_EnterTaskCritical();
     mxm_state.allowStartup       = true;
     mxm_state.operationRequested = true;
+    OS_ExitTaskCritical();
 
     return retval;
 }
 
 extern bool MIC_IsFirstMeasurementCycleFinished(void) {
-    return mxm_state.firstMeasurementDone;
+    OS_EnterTaskCritical();
+    const bool firstMeasurementDone = mxm_state.firstMeasurementDone;
+    OS_ExitTaskCritical();
+    return firstMeasurementDone;
 }
 
 extern STD_RETURN_TYPE_e MIC_RequestIoWrite(uint8_t string) {
+    FAS_ASSERT(string < BS_NR_OF_STRINGS);
     return STD_NOT_OK;
 }
 
 extern STD_RETURN_TYPE_e MIC_RequestIoRead(uint8_t string) {
+    FAS_ASSERT(string < BS_NR_OF_STRINGS);
     return STD_NOT_OK;
 }
 
 extern STD_RETURN_TYPE_e MIC_RequestTemperatureRead(uint8_t string) {
+    FAS_ASSERT(string < BS_NR_OF_STRINGS);
     return STD_NOT_OK;
 }
 
 extern STD_RETURN_TYPE_e MIC_RequestBalancingFeedbackRead(uint8_t string) {
+    FAS_ASSERT(string < BS_NR_OF_STRINGS);
     return STD_NOT_OK;
 }
 
 extern STD_RETURN_TYPE_e MIC_RequestEepromRead(uint8_t string) {
+    FAS_ASSERT(string < BS_NR_OF_STRINGS);
     return STD_NOT_OK;
 }
 
 extern STD_RETURN_TYPE_e MIC_RequestEepromWrite(uint8_t string) {
+    FAS_ASSERT(string < BS_NR_OF_STRINGS);
     return STD_NOT_OK;
 }
 
 extern STD_RETURN_TYPE_e MIC_RequestOpenWireCheck(uint8_t string) {
+    FAS_ASSERT(string < BS_NR_OF_STRINGS);
     STD_RETURN_TYPE_e retval = STD_OK;
 
     mxm_state.openwireRequested = true;

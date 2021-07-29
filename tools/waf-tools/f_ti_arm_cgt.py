@@ -45,7 +45,6 @@ import os
 import sys
 import pathlib
 import re
-import traceback
 import shutil
 import binascii
 import json
@@ -57,6 +56,11 @@ from waflib.Configure import conf
 from waflib.TaskGen import taskgen_method
 from waflib.Tools import c_preproc
 from waflib.Tools.ccroot import link_task
+
+import f_ti_arm_helper  # pylint: disable=unused-import
+import f_ti_arm_tools  # pylint: disable=unused-import
+import f_ti_color_arm_cgt
+
 
 HAVE_GIT = False
 try:
@@ -75,60 +79,6 @@ def remove_targets(task):
             os.remove(target.abspath())
 
 
-class armclFormatter(
-    Logs.formatter
-):  # pylint: disable-msg=invalid-name,too-few-public-methods
-    """Custom formatter for armcl output
-
-    - warnings printed in yellow
-    - errors printed in red
-
-    This formatter overwrites the default formatter in
-    :py:meth:`f_ti_arm_cgt.options`
-    """
-
-    warning_indicators = [
-        "warning #",
-        ": warning",
-        ": remark",
-        "remark #",
-    ]
-    error_indicators = [
-        "error #",
-        ": error",
-        ": fatal error",
-        "catastrophic error",
-    ]
-
-    def __init__(self):
-        """Initialize from base logger"""
-        Logs.formatter.__init__(self)
-
-    def format(self, rec):
-        """Overwrite the default formatter with the custom coloring formatter"""
-        frame = sys._getframe()  # pylint: disable-msg=protected-access
-        while frame:
-            if frame.f_code.co_name == "exec_command":
-                cmd = frame.f_locals.get("cmd")
-                if isinstance(cmd, list) and ("armcl" in cmd[0]):
-                    rec.msg = armclFormatter.colorize(rec.msg)
-            frame = frame.f_back
-        return Logs.formatter.format(self, rec)
-
-    @staticmethod
-    def colorize(txt):
-        """Colorizes the input text for console output"""
-        lines = []
-        for line in txt.splitlines():
-            if any(x in line for x in armclFormatter.warning_indicators):
-                lines.append(Logs.colors.YELLOW + line + Logs.colors.NORMAL)
-            elif any(x in line for x in armclFormatter.error_indicators):
-                lines.append(Logs.colors.RED + line + Logs.colors.NORMAL)
-            else:
-                lines.append(line)
-        return os.linesep.join(lines)
-
-
 def options(opt):
     """Configurable options of the :py:mod:`f_ti_arm_cgt` tool. The options are
 
@@ -145,7 +95,8 @@ def options(opt):
         dest="CC_OPTIONS",
         help="Path to cc options specification file",
     )
-    Logs.log.handlers[0].setFormatter(armclFormatter())
+    opt.load("f_ti_color_arm_cgt", tooldir=os.path.dirname(os.path.realpath(__file__)))
+    opt.load("f_hcg", tooldir=os.path.dirname(os.path.realpath(__file__)))
 
 
 @TaskGen.extension(".asm")
@@ -590,6 +541,10 @@ class cprogram(link_task):  # pylint: disable-msg=invalid-name,too-few-public-me
     #: list of str: extensions that trigger a re-build
     ext_out = [".elf"]
 
+    # set inst_to to a dummy value so that waf knows that it can execute
+    # an installation task
+    inst_to = True
+
     def exec_command(self, cmd, **kw):  # pylint: disable=arguments-differ
         kw["shell"] = isinstance(cmd, str)
         kw["cwd"] = self.get_cwd()
@@ -608,9 +563,13 @@ class cprogram(link_task):  # pylint: disable-msg=invalid-name,too-few-public-me
                 ret = err.returncode
             return ret
         if std[0]:
-            self.generator.bld.to_log(armclFormatter.colorize(std[0]))
+            self.generator.bld.to_log(
+                f_ti_color_arm_cgt.armclFormatter.colorize(std[0])
+            )
         if std[1]:
-            self.generator.bld.to_log(armclFormatter.colorize(std[1]))
+            self.generator.bld.to_log(
+                f_ti_color_arm_cgt.armclFormatter.colorize(std[1])
+            )
 
         if not hasattr(self.generator, "linker_pulls"):
             Logs.warn("No pull file specified. Check linker output!")
@@ -662,6 +621,7 @@ class cprogram(link_task):  # pylint: disable-msg=invalid-name,too-few-public-me
                     link_reg = link_regex.replace("@FUN@", fun).replace(
                         "@SRC@", src_txt
                     )
+                    # pylint: disable=unnecessary-dict-index-lookup
                     if re.search(sym_reg, line) and not correctly_found[fun] == (
                         src,
                         True,
@@ -824,17 +784,21 @@ def tiprogram(bld, *k, **kw):
     return bld(*k, **kw)
 
 
-@TaskGen.feature("c")
-@TaskGen.after_method("apply_incpaths")
-def make_ti_paths_absolute(self):
-    """Vendor includes (TI) are passed as absolute paths"""
-    incpaths_fixed = []
-    for inc_path in self.env.INCPATHS:
-        if os.sep + "ti" + os.sep in inc_path:
-            incpaths_fixed.append(os.path.abspath(inc_path))
+@TaskGen.feature("c", "asm", "includes")
+@TaskGen.after_method("propagate_uselib_vars", "process_source")
+def apply_incpaths(self):
+    """Adds the include paths"""
+    lst = self.to_incnodes(
+        self.to_list(getattr(self, "includes", [])) + self.env.INCLUDES
+    )
+    self.includes_nodes = lst
+    cwd = self.get_cwd()
+    self.env.INCPATHS = []
+    for i in lst:
+        if os.sep + "ti" + os.sep in i.abspath():
+            self.env.INCPATHS.append(i)
         else:
-            incpaths_fixed.append(inc_path)
-    self.env.INCPATHS = incpaths_fixed
+            self.env.INCPATHS.append(i.path_from(cwd))
 
 
 @TaskGen.feature("c")
@@ -989,7 +953,7 @@ def process_sizes(self):
 class size(Task.Task):  # pylint: disable-msg=invalid-name
     """Task to run size on all input files"""
 
-    vars = ["SIZE", "OBJCOPY_OPTS"]
+    vars = ["ARMSIZE", "ARMSIZE_OPTS"]
 
     #: str: color in which the command line is displayed in the terminal
     color = "BLUE"
@@ -998,7 +962,7 @@ class size(Task.Task):  # pylint: disable-msg=invalid-name
         """implements the actual behavior of size and pipes the output into
         a file."""
         cmd = (
-            Utils.subst_vars("${SIZE} ${OBJCOPY_OPTS}", self.env)
+            Utils.subst_vars("${ARMSIZE} ${ARMSIZE_OPTS}", self.env)
             + " "
             + self.inputs[0].abspath()
         )
@@ -1055,7 +1019,7 @@ class nm(Task.Task):  # pylint: disable-msg=invalid-name,too-few-public-methods
 @TaskGen.feature("c")
 @TaskGen.after("c_pp")
 def remove_stuff_from_pp(self):
-    """creates nm tasks for generated object files"""
+    """creates pp tasks for generated object files"""
     for node in self.c_pp_tasks:
         outs = [node.outputs[0].change_ext(".ppr"), node.outputs[0].change_ext(".pprs")]
         self.create_task("clean_pp_file", node.outputs[0], outs)
@@ -1138,6 +1102,11 @@ class create_version_source(Task.Task):  # pylint: disable=invalid-name
             dirty = False
 
         tag = "unreleased"
+        major = 0
+        minor = 0
+        patch = 0
+        distance = 0
+        commit = "no-vcs"
         if describe_output.startswith("v"):
             # remove v from start
             describe_output = describe_output[1:]
@@ -1146,6 +1115,8 @@ class create_version_source(Task.Task):  # pylint: disable=invalid-name
             # try to split of any additions like -rc or -alpha as we don't care
             # for them in the tag
             tag = tag.rsplit("-")[0]
+            # try to extract major minor patch
+            major, minor, patch = tag.split(".")
             # remove the g from commit ID
             commit = commit[1:]
             version = f"{tag}-{distance}-{commit}"
@@ -1159,7 +1130,19 @@ class create_version_source(Task.Task):  # pylint: disable=invalid-name
 
         if dirty:
             version = f"{version}-dirty"
-        return version, tag
+
+        # assemble information into a dict for later useage
+        version_output = {
+            "version": version,
+            "dirty": dirty,
+            "tag": tag,
+            "major": int(major),
+            "minor": int(minor),
+            "patch": int(patch),
+            "distance": int(distance),
+            "commit": commit,
+        }
+        return version_output
 
     def get_repo_dirty_from_git(self):
         """returns a boolean marking if the project's working
@@ -1173,10 +1156,6 @@ class create_version_source(Task.Task):  # pylint: disable=invalid-name
 
     def run(self):
         """Created the version information files"""
-        define_guard = (
-            self.outputs[1].name.replace(self.outputs[1].suffix(), "").upper() + "_H_"
-        )
-
         waf_version = self.env.VERSION
 
         is_git_repo = "false"
@@ -1187,44 +1166,38 @@ class create_version_source(Task.Task):  # pylint: disable=invalid-name
             is_dirty = "true"
         git_remote = self.get_remote()
 
-        version, tag = self.get_version_from_git()
+        version_output = self.get_version_from_git()
 
-        if tag not in ("unreleased", waf_version):
+        if version_output.get("tag") not in ("unreleased", waf_version):
             self.generator.bld.fatal(
-                f"Extracted version from git repo ({tag}) does not match "
+                f"Extracted version from git repo ({version_output['tag']}) does not match "
                 f"version defined in waf ({waf_version})."
             )
 
+        # note: these values have to be in line with the corresponding defines
+        # in version_cfg.h
+        commit_hash_maximum_string_length = 9
+        git_remote_maximum_string_length = 128
+        maximum_version_size = 255
+        maximum_distance_size = 65535
+        distance_int = min(maximum_distance_size, version_output["distance"])
+        commit_hash = version_output.get("commit", "noHash")[
+            :commit_hash_maximum_string_length
+        ]
         self.outputs[0].write(
             os.linesep.join(
                 [
                     '#include "version_cfg.h"',
-                    "#pragma RETAIN(f_version_info)",
-                    "const VERSION_s f_version_info = {",
-                    f"    .under_version_control = {is_git_repo},",
-                    f"    .is_dirty = {is_dirty},",
-                    f'    .version = "{version}",',
-                    f'    .git_remote = "{git_remote}",',
+                    "const VERSION_s foxbmsVersionInfo VERSION_INFORMATION = {",
+                    f"    .underVersionControl = {is_git_repo},",
+                    f"    .isDirty = {is_dirty},",
+                    f"    .major = {min(maximum_version_size, version_output['major'])},",
+                    f"    .minor = {min(maximum_version_size, version_output['minor'])},",
+                    f"    .patch = {min(maximum_version_size, version_output['patch'])},",
+                    f"    .distanceFromLastRelease = {distance_int},",
+                    f'    .commitHash = "{commit_hash}",',
+                    f'    .gitRemote = "{git_remote[:git_remote_maximum_string_length]}",',
                     "};",
-                ]
-            )
-            + os.linesep,
-            encoding="utf-8",
-        )
-        self.outputs[1].write(
-            os.linesep.join(
-                [
-                    f"#ifndef {define_guard}",
-                    f"#define {define_guard}",
-                    '#include "general.h"',
-                    "typedef struct VERSION {",
-                    "    bool under_version_control;",
-                    "    bool is_dirty;",
-                    f"    char version[{len(version)}u];",
-                    f"    char git_remote[{len(git_remote)}u];",
-                    "} VERSION_s;",
-                    "extern const VERSION_s f_version_info;",
-                    f"#endif /* {define_guard} */",
                 ]
             )
             + os.linesep,
@@ -1233,8 +1206,8 @@ class create_version_source(Task.Task):  # pylint: disable=invalid-name
 
     def sig_explicit_deps(self):
         """Defines how to get signature of this task (and thus when to rerun it)"""
-        version, _ = self.get_version_from_git()
-        self.m.update(version.encode("utf-8"))
+        version_output = self.get_version_from_git()
+        self.m.update(version_output["version"].encode("utf-8"))
 
 
 @TaskGen.feature("cprogram")
@@ -1262,7 +1235,6 @@ def create_version_file(self):
         "create_version_source",
         tgt=[
             self.path.find_or_declare("version_cfg.c"),
-            self.path.find_or_declare("version_cfg.h"),
         ],
         repo=repo,
     )
@@ -1292,7 +1264,7 @@ def hash_cmd_files(self):
     )
     if not self.env.CMD_FILES:
         return
-    if not all([os.path.isabs(i) for i in self.env.CMD_FILES]):
+    if not all(os.path.isabs(i) for i in self.env.CMD_FILES):
         self.bld.fatal(
             "Keyword argument 'cmd_files' only accepts absolute paths (use "
             "'ctx.path.find_node('xyz.txt').abspath()' in the list."
@@ -1422,59 +1394,13 @@ def find_armcl(conf):  # pylint: disable-msg=redefined-outer-name
             conf.env.CC_VERSION_FULL = full_ver.group(1)
             break
     if not conf.env.CC_VERSION or not conf.env.CC_VERSION_FULL:
-        Logs.error("could not determine compiler version")
-        conf.fatal("")
+        conf.fatal("Could not determine compiler version")
 
 
 @conf
 def find_armar(conf):  # pylint: disable-msg=redefined-outer-name
     """configures the archive tool"""
     conf.find_program(["armar"], var="AR")
-
-
-@conf
-def find_tools(conf):  # pylint: disable-msg=redefined-outer-name
-    """configures additional tools related to the compiler"""
-    conf.find_program(["armabs"])
-    conf.find_program(["armacpia"])
-    conf.find_program(["armadv"])
-    conf.find_program(["armasm"])
-    conf.find_program(["armcg"])
-    conf.find_program(["armcl"])
-    conf.find_program(["armclist"])
-    conf.find_program(["armdem"])
-    conf.find_program(["armdis"])
-    conf.find_program(["armembed"])
-    conf.find_program(["armilk"])
-    conf.find_program(["armlibinfo"])
-    conf.find_program(["armlnk"])
-    conf.find_program(["armnm"])
-    conf.find_program(["armopt"])
-    conf.find_program(["armpdd"])
-    conf.find_program(["armpprof"])
-    conf.find_program(["armstrip"])
-    # arm-none-eabi- tools distributed with cgt
-    conf.find_program(["armobjcopy"], var="OBJCOPY")
-    conf.env.OBJCOPY_OPTS = ["--common", "--arch=arm", "--format=berkeley", "--totals"]
-    conf.find_program(["armobjdump"], var="OBJDUMP")
-    conf.find_program(["armreadelf"], var="READELF")
-    conf.find_program(["armsize"], var="SIZE")
-    # tools needed to build the hex and bin files
-    conf.find_program(["armhex"])
-    conf.find_program(["tiobj2bin"])
-    conf.find_program(["mkhex4bin"])
-    conf.find_program(["armofd"])
-    # these tools are needed to build the runtime support libraries
-    conf.find_program(["mklib"])
-    conf.find_program(["sh"])
-    conf.find_program(["unzip"])
-    if Utils.is_win32:
-        prog = "gmake"
-        conf.find_program(prog, var="MAKE")
-        conf.find_program(prog, var="GMAKE")
-    else:
-        prog = "make"
-        conf.find_program(prog, var="MAKE")
 
 
 @conf
@@ -1506,125 +1432,12 @@ def cgt_flags(conf):  # pylint: disable-msg=redefined-outer-name
     env.PPM = "--preproc_macros"
     env.PPI = "--preproc_includes"
     env.PPD = "--preproc_dependency"
-
-
-@conf
-def run_build_for_defines(self, *k, **kw):  # pylint: disable-msg=unused-argument
-    """Runs a build during configuration time. The build is based on
-    :func:`waflib.Configure.run_build`. In contrast to a test build during
-    configuration the output is persistent.
-    This output is used to determine the predefined compiler defines.
-
-    This implementation is based on ``waflib.Configure.run_build``:
-    We do the same as in run_build, except, that we hard code the output
-    directory and change the return value to return the build success/failure
-    and the path of the build directory
-
-    Args:
-        out_name(string): name of the output directory. Needs to be passed as kw.
-
-    Returns:
-        tuple: A tuple containing the success of the build and the path to the output directory
-    """
-    buf = []
-    for key in sorted(kw.keys()):
-        v = kw[key]  # pylint: disable-msg=invalid-name
-        if hasattr(v, "__call__"):
-            buf.append(Utils.h_fun(v))
-        else:
-            buf.append(str(v))
-    h = Utils.h_list(buf)  # pylint: disable-msg=invalid-name,W0612
-    _dir = (
-        self.bldnode.abspath()
-        + os.sep
-        + (not Utils.is_win32 and "." or "")
-        + kw["out_name"]
-    )
-
-    try:
-        os.makedirs(_dir)
-    except OSError:
-        pass
-
-    try:
-        os.stat(_dir)
-    except OSError:
-        self.fatal("cannot use the configuration test folder %r" % _dir)
-
-    bdir = os.path.join(_dir, "build")
-
-    if not os.path.exists(bdir):
-        os.makedirs(bdir)
-
-    cls_name = kw.get("run_build_cls") or getattr(self, "run_build_cls", "build")
-    self.test_bld = bld = Context.create_context(cls_name, top_dir=_dir, out_dir=bdir)
-    bld.init_dirs()
-    bld.progress_bar = 0
-    bld.targets = "*"
-
-    bld.logger = self.logger
-    bld.all_envs.update(self.all_envs)
-    bld.env = kw["env"]
-
-    bld.kw = kw
-    bld.conf = self
-    kw["build_fun"](bld)
-    ret = -1
-
-    try:
-        bld.compile()
-    except Errors.WafError:
-        ret = "Test does not build: %s" % traceback.format_exc()
-        self.fatal(ret)
-    else:
-        ret = getattr(bld, "retval", 0)
-    return (ret, bdir)
-
-
-@conf
-def get_defines(self, *k, **kw):
-    """Wrapper function to get all predefined compiler defines. Based on
-    :func:`waflib.Tools.c_config.check`. This function uses
-    :py:meth:`run_build_for_defines` to perform the actual build
-
-    This implementation is based on ``waflib.Tools.c_config.check``:
-    We do the same, as in c_config.check, except, that we use
-    :py:meth:`run_build_for_defines`, which is based on waf's run_build to
-    create a persistent build directory.
-    This is required as we need to parse the testbuild output in order to get
-    the list of predefined defines of the compiler. We could have also used
-    waf's default --confcache option and set --confcache's default to 1, but
-    this would create a really cluttered output directory (Every test build of
-    a configure command would be persistent). With this implementation we can
-    still use waf's default check(...) feature along with it's option
-    --confcache to have a good debug experience on the build process while not
-    cluttering the output directory.
-    """
-    self.validate_c(kw)
-    self.start_msg(kw["msg"], **kw)
-    ret = None
-    out_dir = None
-    try:
-        (ret, out_dir) = self.run_build_for_defines(*k, **kw)
-    except self.errors.ConfigurationError:
-        self.end_msg(kw["errmsg"], "YELLOW", **kw)
-        if Logs.verbose > 1:  # pylint: disable-msg=R1720
-            raise
-        else:
-            self.fatal("The configuration failed")
-    else:
-        kw["success"] = ret
-        kw["okmsg"] = os.path.join(
-            out_dir, kw["compile_filename"] + "." + str(kw["idx"]) + ".ppm"
-        )
-
-    ret = self.post_check(*k, **kw)
-    if not ret:
-        self.end_msg(kw["errmsg"], "YELLOW", **kw)
-        self.fatal("The configuration failed %r" % ret)
-    else:
-        self.end_msg(self.ret_msg(kw["okmsg"], kw), **kw)
-    return (ret, out_dir)
+    conf.env.ARMSIZE_OPTS = [
+        "--common",
+        "--arch=arm",
+        "--format=berkeley",
+        "--totals",
+    ]
 
 
 def configure(conf):  # pylint: disable-msg=redefined-outer-name
@@ -1692,9 +1505,12 @@ def configure(conf):  # pylint: disable-msg=redefined-outer-name
     conf.start_msg("Checking for TI ARM CGT compiler and tools")
     conf.find_armcl()
     conf.find_armar()
-    conf.find_tools()
+    conf.find_arm_tools()
     conf.cgt_flags()
     conf.link_add_flags()
+    conf.env.COMPILER_BUILTIN_DEFINES_FILE = [
+        conf.root.find_node(conf.get_defines()).abspath()
+    ]
     conf.env.DEST_OS = ["EMBEDDED"]
     conf.env.COMPILER_CC = "ti_arm_cgt"
     conf.end_msg(conf.env.get_flat("CC"))

@@ -24,3 +24,8 @@ Basically, the software is covered by the
 [**BSD 3-Clause License (SPDX short identifier: BSD-3-Clause)**](https://opensource.org/licenses/BSD-3-Clause)
 and the hardware and documentation by the
 [**Creative Commons Attribution 4.0 International License (SPDX short identifier: CC-BY-4.0)**](https://creativecommons.org/licenses/by/4.0/legalcode).
+
+## Acknowledgment
+
+For funding acknowledgements and instructions on how to acknowledge foxBMS 2
+please see [foxbms.org/acknowledgements](https://foxbms.org/acknowledgements/).

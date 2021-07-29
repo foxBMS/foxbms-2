@@ -43,7 +43,7 @@
  * @file    can.h
  * @author  foxBMS Team
  * @date    2019-12-04 (date of creation)
- * @updated 2021-03-24 (date of last update)
+ * @updated 2021-07-23 (date of last update)
  * @ingroup DRIVERS
  * @prefix  CAN
  *
@@ -72,7 +72,7 @@
 /** Half of the 64 messageboxes are defined for TX
  * This is used to determined in the CAN interrupt routine if TX or RX case
  */
-#define CAN_NR_OF_TX_MESSAGEBOX (32U)
+#define CAN_NR_OF_TX_MESSAGE_BOX (32U)
 
 /** length of the RX buffer */
 #define CAN0_RX_BUFFER_LENGTH (32U)
@@ -161,6 +161,12 @@ extern bool CAN_IsCurrentSensorCcPresent(uint8_t stringNumber);
  * @return  true if EC message is being received, false otherwise
  */
 extern bool CAN_IsCurrentSensorEcPresent(uint8_t stringNumber);
+
+/**
+ * @brief   Transmit startup boot message
+ * @return  #STD_OK if transmission successful, otherweise #STD_NOT_OK
+ */
+extern STD_RETURN_TYPE_e CAN_TransmitBootMessage(void);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 #ifdef UNITY_UNIT_TEST

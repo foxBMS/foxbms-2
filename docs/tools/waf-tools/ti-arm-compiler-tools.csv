@@ -1,0 +1,5 @@
+Tool implementation; Description
+``tools/waf-tools/f_ti_arm_cgt.py``; implementation of the base compiler tool.
+``tools/waf-tools/f_ti_arm_helper.py``; Helper to get the compiler builtins depending on the passed compiler flags.
+``tools/waf-tools/f_ti_arm_tools.py``; Finds additional tools that are distributed with TI CCS.
+``tools/waf-tools/f_ti_color_arm_cgt.py``; Colorize the compiler and linker console output.

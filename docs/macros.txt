@@ -3,7 +3,7 @@
 .. |timestamp| date:: %Y-%m-%d %H:%M:%S
 
 .. |foxbms| replace:: foxBMS 2
-.. |version_foxbms| replace:: ``1.0.2``
+.. |version_foxbms| replace:: ``1.1.0``
 .. |github_foxbms| replace:: https://github.com/foxBMS/
 .. |foxbms_repository| replace:: https://github.com/foxBMS/foxbms-2
 .. _Fraunhofer IISB: https://www.iisb.fraunhofer.de
@@ -25,8 +25,8 @@
 .. |texas-instruments| replace:: Texas Instruments
 
 .. |code-composer-studio| replace:: Code Composer Studio
-.. _Code Composer Studio: https://www.ti.com/tool/download/CCSTUDIO/10.1.1.00004
-.. |version_ccs| replace:: ``10.1.1``
+.. _Code Composer Studio: https://www.ti.com/tool/download/CCSTUDIO/10.3.1.00003
+.. |version_ccs| replace:: ``10.3.1``
 
 .. |halcogen| replace:: HALCoGen
 .. _HALCoGen: https://www.ti.com/tool/HALCOGEN
@@ -38,6 +38,7 @@
 .. |path_llvm| replace:: ``C:\Program Files\LLVM\11.0.1``
 
 .. |version_pcanse| replace:: ``Version 6.4.1``
+.. |version_symfile| replace:: ``Version 5.0``
 
 .. _Ruby: https://www.ruby-lang.org/
 

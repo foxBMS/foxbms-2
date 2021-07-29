@@ -43,7 +43,7 @@
  * @file    mxm_cfg.c
  * @author  foxBMS Team
  * @date    2019-01-09 (date of creation)
- * @updated 2020-06-22 (date of last update)
+ * @updated 2021-07-14 (date of last update)
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  MXM
  *
@@ -70,8 +70,12 @@
 /*========== Extern Function Implementations ================================*/
 
 extern void MXM_MonitoringPinInit(void) {
-    IO_PinSet((uint32_t *)&MXM_17841B_GIODIR, MXM_17841B_SHTNDL_PIN);
-    IO_PinSet((uint32_t *)&MXM_17841B_GIOPORT, MXM_17841B_SHTNDL_PIN);
+    IO_PinSet(&MXM_17841B_GIODIR, MXM_17841B_SHTNDL_PIN);
+    IO_PinSet(&MXM_17841B_GIOPORT, MXM_17841B_SHTNDL_PIN);
+
+    /* configure functional of SIMO  an SOMI pin */
+    SPI_SetFunctional(spi_MxmInterface.pNode, SPI_PIN_SIMO, true);
+    SPI_SetFunctional(spi_MxmInterface.pNode, SPI_PIN_SOMI, true);
 }
 
 extern STD_RETURN_TYPE_e MXM_GetSPIStateReady(void) {
@@ -80,10 +84,15 @@ extern STD_RETURN_TYPE_e MXM_GetSPIStateReady(void) {
 }
 
 extern STD_RETURN_TYPE_e MXM_SendData(uint16_t *txBuffer, uint16_t length) {
+    FAS_ASSERT(txBuffer != NULL_PTR);
+    FAS_ASSERT(length != 0u);
     return SPI_TransmitData(&spi_MxmInterface, txBuffer, length);
 }
 
 extern STD_RETURN_TYPE_e MXM_ReceiveData(uint16_t *txBuffer, uint16_t *rxBuffer, uint16_t length) {
+    FAS_ASSERT(txBuffer != NULL_PTR);
+    FAS_ASSERT(rxBuffer != NULL_PTR);
+    FAS_ASSERT(length != 0u);
     return SPI_TransmitReceiveData(&spi_MxmInterface, txBuffer, rxBuffer, length);
 }
 

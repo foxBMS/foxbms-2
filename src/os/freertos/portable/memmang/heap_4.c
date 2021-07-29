@@ -54,9 +54,6 @@
 /* Assumes 8bit bytes! */
 #define heapBITS_PER_BYTE         ( ( size_t ) 8 )
 
-#pragma DATA_SECTION(ucHeap, ".kernelHEAP") /* foxBMS adaption */
-
-
 /* Allocate the memory for the heap. */
 #if ( configAPPLICATION_ALLOCATED_HEAP == 1 )
 
@@ -64,7 +61,7 @@
 * heap - probably so it can be placed in a special segment or address. */
     extern uint8_t ucHeap[ configTOTAL_HEAP_SIZE ];
 #else
-    /* PRIVILEGED_DATA */ static uint8_t ucHeap[ configTOTAL_HEAP_SIZE ];
+    PRIVILEGED_DATA static uint8_t ucHeap[ configTOTAL_HEAP_SIZE ];
 #endif /* configAPPLICATION_ALLOCATED_HEAP */
 
 /* Define the linked list structure.  This is used to link free blocks in order
@@ -173,7 +170,7 @@ void * pvPortMalloc( size_t xWantedSize )
 
             if( ( xWantedSize > 0 ) && ( xWantedSize <= xFreeBytesRemaining ) )
             {
-                /* Traverse the list from the start	(lowest address) block until
+                /* Traverse the list from the start (lowest address) block until
                  * one of adequate size is found. */
                 pxPreviousBlock = &xStart;
                 pxBlock = xStart.pxNextFreeBlock;

@@ -54,7 +54,8 @@ The license text is included in this documentation at
 
 - foxBMS 2 hardware and documentation is licensed under the
   Creative Commons Attribution 4.0 International License.
-  The license can be obtained from https://creativecommons.org/licenses/by/4.0/.
+  The license can be obtained from
+  https://creativecommons.org/licenses/by/4.0/.
 - The SPDX short identifier is
   `CC-BY-4.0 <https://spdx.org/licenses/CC-BY-4.0.html>`_.
 
@@ -105,14 +106,16 @@ Third Party Licenses
 
 .. note::
 
-    This is not legal advice. The license list hereafter shows the licenses used in |foxbms| to our best knowledge.
+    This is not legal advice. The license list hereafter shows the licenses
+    used in |foxbms| to our best knowledge.
 
-This is a list of third party licenses used by |foxbms|. This is split into licenses for third party sources and
-software that are included within the repository and software that must be installed in order to develop BMS
+This is a list of third party licenses used by |foxbms|. This is split into
+licenses for third party sources and software that are included within the
+repository and software that must be installed in order to develop BMS
 applications within or with |foxbms|.
 
-Software listed under `Third Party Software`_ are typically only used for |foxbms| development and do not need to be
-altered.
+Software listed under `Third Party Software`_ are typically only used for
+|foxbms| development and do not need to be altered.
 
 Third Party Sources and Software
 ================================
@@ -125,9 +128,9 @@ Ceedling
 +---------------------------+-----------------------------------------------------------------------+
 | License                   | MIT-like License                                                      |
 +---------------------------+-----------------------------------------------------------------------+
-| License URL               | https://github.com/ThrowTheSwitch/Ceedling/blob/v0.31.0/license.txt   |
+| License URL               | https://github.com/ThrowTheSwitch/Ceedling/blob/v0.31.1/license.txt   |
 +---------------------------+-----------------------------------------------------------------------+
-| Latest license check      | 2021-02-04                                                            |
+| Latest license check      | 2021-07-21                                                            |
 +---------------------------+-----------------------------------------------------------------------+
 | Website                   | https://github.com/ThrowTheSwitch/Ceedling                            |
 +---------------------------+-----------------------------------------------------------------------+
@@ -227,22 +230,35 @@ Miniconda
 | Website               | https://docs.conda.io/en/latest/miniconda.html    |
 +-----------------------+---------------------------------------------------+
 
-Miniconda ships a `Python <https://www.python.org>`_ interpreter. The Python interpreter license is found in
-``<miniconda-install-dir>/LICENSE_PYTHON.txt``.
+Miniconda ships a `Python <https://www.python.org>`_ interpreter. The Python
+interpreter license is found in ``<miniconda-install-dir>/LICENSE_PYTHON.txt``.
 
-The conda environments shipped within the |foxbms| repository (``conf/enc/conda_env_win32.yaml``) specifies a couple of
-conda and pip packages. These packages and their licenses are listed in :numref:`conda-and-pip-packages-and-licenses`.
+The conda environments shipped within the |foxbms| repository
+(``conf/enc/conda_env_win32.yaml``) specifies a couple of conda and pip
+packages. These packages and their licenses are listed in
+:numref:`conda-and-pip-packages-and-licenses-win32` and
+:numref:`conda-and-pip-packages-and-licenses-linux`.
 This list is generated based on ``conda list --show-channel-urls``.
 
-- For ``pypi`` packages the license information is taken from https://pypi.org/.
-- For conda packages the  license information is obtained by running ``conda info package_name --info`` or directly
-  looked up in the conda build recipe.
+- For ``pypi`` packages the license information is taken from
+  https://pypi.org/.
+- For conda packages the  license information is obtained by running
+  ``conda info package_name --info`` or directly looked up in the conda build
+  recipe.
+- As a help for updating the list you can call
+  ``./tools/utils/bash/run-python-script.sh ./tools/utils/generate_license_list.py -f ./docs/general/licenses-packages-conda-env-win32.csv > ./docs/general/licenses-packages-conda-env-new.csv``.
 
-.. csv-table:: Conda and pip packages and licenses
-   :name: conda-and-pip-packages-and-licenses
+.. csv-table:: Conda and pip packages and licenses in the Windows environment
+   :name: conda-and-pip-packages-and-licenses-win32
    :header-rows: 1
    :delim: ;
-   :file: ./licenses-packages-conda-env.csv
+   :file: ./licenses-packages-conda-env-win32.csv
+
+.. csv-table:: Conda and pip packages and licenses in the Linux environment
+   :name: conda-and-pip-packages-and-licenses-linux
+   :header-rows: 1
+   :delim: ;
+   :file: ./licenses-packages-conda-env-linux.csv
 
 LLVM
 ----

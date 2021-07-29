@@ -43,7 +43,7 @@
  * @file    ftask.h
  * @author  foxBMS Team
  * @date    2019-08-27 (date of creation)
- * @updated 2020-01-21 (date of last update)
+ * @updated 2021-07-23 (date of last update)
  * @ingroup TASK
  * @prefix  FTSK
  *
@@ -58,9 +58,24 @@
 /*========== Includes =======================================================*/
 #include "ftask_cfg.h"
 
+#include "FreeRTOS.h"
+#include "queue.h"
+
 /*========== Macros and Definitions =========================================*/
 
 /*========== Extern Constant and Variable Declarations ======================*/
+/** handle of the database queue */
+extern QueueHandle_t ftsk_databaseQueue;
+
+/** handle of the imd can data queue */
+extern QueueHandle_t ftsk_imdCanDataQueue;
+
+/** handle of the can driver data queue */
+extern QueueHandle_t ftsk_canRxQueue;
+
+/** indicator wether the queues have successfully been initialized to be used
+ * in other parts of the software  */
+extern volatile bool ftsk_allQueuesCreated;
 
 /*========== Extern Function Prototypes =====================================*/
 /**
@@ -70,22 +85,6 @@
  *          already initialized.
  */
 extern void FTSK_CreateQueues(void);
-
-/**
- * @brief   Creates all mutexes
- * @details creates all mutexes needed for engine tasks and is called after
- *          the hardware is initialized and before the scheduler starts.
- *          Queues are already initialized.
- */
-extern void FTSK_CreateMutexes(void);
-
-/**
- * @brief   Creates all events of the group
- * @details Creates all events. Is called after the hardware is initialized
- *          and before the scheduler starts. Queues, Mutexes and Events are
- *          already initialized.
- */
-extern void FTSK_CreateEvents(void);
 
 /**
  * @brief   Creates all tasks of the group

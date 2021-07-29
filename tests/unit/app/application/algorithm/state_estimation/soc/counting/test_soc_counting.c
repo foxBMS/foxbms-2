@@ -57,6 +57,9 @@
 #include "Mockdatabase.h"
 #include "Mockfram.h"
 
+#include "battery_cell_cfg.h"
+
+#include "foxmath.h"
 #include "soc_counting.h"
 
 /*========== Definitions and Implementations for Unit Test ==================*/
@@ -70,10 +73,10 @@ void tearDown(void) {
 }
 
 void testSOC_GetFromVoltage(void) {
-    float test_soc           = -1.0;
-    uint16_t test_voltage_mV = 10;
-    test_soc                 = SOC_GetFromVoltage(test_voltage_mV);
-    TEST_ASSERT_EQUAL(0.5, test_soc);
+    float test_soc          = -1.0;
+    int16_t test_voltage_mV = 3780;
+    test_soc                = SOC_GetFromVoltage(test_voltage_mV);
+    TEST_ASSERT_EQUAL(64.0f, test_soc);
 }
 
 /*========== Test Cases =====================================================*/

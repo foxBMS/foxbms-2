@@ -43,7 +43,7 @@
  * @file    os.c
  * @author  foxBMS Team
  * @date    2019-08-27 (date of creation)
- * @updated 2020-01-21 (date of last update)
+ * @updated 2021-07-23 (date of last update)
  * @ingroup OS
  * @prefix  OS
  *
@@ -59,7 +59,11 @@
 /*========== Macros and Definitions =========================================*/
 
 /** stack size of the idle task */
-#define OS_IDLE_TASK_SIZE configMINIMAL_STACK_SIZE
+#define OS_IDLE_TASK_STACK_SIZE configMINIMAL_STACK_SIZE
+
+#if (configUSE_TIMERS > 0) && (configSUPPORT_STATIC_ALLOCATION == 1)
+#define OS_TIMER_TASK_STACK_SIZE configTIMER_TASK_STACK_DEPTH
+#endif /* configUSE_TIMERS */
 
 /*========== Static Constant and Variable Definitions =======================*/
 
@@ -75,7 +79,7 @@ uint32_t os_schedulerStartTime = 0;
 static StaticTask_t os_idleTaskTcbBuffer;
 
 /** @brief Stack for the Idle task */
-static StackType_t os_idleStack[OS_IDLE_TASK_SIZE];
+static StackType_t os_stackSizeIdle[OS_IDLE_TASK_STACK_SIZE];
 
 #if (configUSE_TIMERS > 0) && (configSUPPORT_STATIC_ALLOCATION == 1)
 /** Buffer for the Timer Task's structure */
@@ -84,7 +88,7 @@ static StaticTask_t os_timerTaskTcbBuffer;
 
 #if (configUSE_TIMERS > 0) && (configSUPPORT_STATIC_ALLOCATION == 1)
 /** Stack for the Timer Task */
-static StackType_t os_timerStack[configTIMER_TASK_STACK_DEPTH];
+static StackType_t os_stackSizeTimer[OS_TIMER_TASK_STACK_SIZE];
 #endif /* configUSE_TIMERS */
 
 /*========== Static Function Prototypes =====================================*/
@@ -97,14 +101,10 @@ void OS_StartScheduler(void) {
     vTaskStartScheduler();
 }
 
-void OS_InitializeTasks(void) {
-    /* operating system configuration (Queues, Mutexes, Events, Tasks */
+void OS_InitializeOperatingSystem(void) {
+    /* operating system configuration (Queues, Tasks) */
     os_boot = OS_CREATE_QUEUES;
     FTSK_CreateQueues();
-    os_boot = OS_CREATE_MUTEX;
-    FTSK_CreateMutexes();
-    os_boot = OS_CREATE_EVENT;
-    FTSK_CreateEvents();
     os_boot = OS_CREATE_TASKS;
     FTSK_CreateTasks();
     os_boot = OS_INIT_PRE_OS;
@@ -115,8 +115,8 @@ void vApplicationGetIdleTaskMemory(
     StackType_t **ppxIdleTaskStackBuffer,
     uint32_t *pulIdleTaskStackSize) {
     *ppxIdleTaskTCBBuffer   = &os_idleTaskTcbBuffer;
-    *ppxIdleTaskStackBuffer = &os_idleStack[0];
-    *pulIdleTaskStackSize   = OS_IDLE_TASK_SIZE;
+    *ppxIdleTaskStackBuffer = &os_stackSizeIdle[0];
+    *pulIdleTaskStackSize   = OS_IDLE_TASK_STACK_SIZE;
 }
 
 #if (configUSE_TIMERS > 0) && (configSUPPORT_STATIC_ALLOCATION == 1)
@@ -125,16 +125,16 @@ void vApplicationGetTimerTaskMemory(
     StackType_t **ppxTimerTaskStackBuffer,
     uint32_t *pulTimerTaskStackSize) {
     *ppxTimerTaskTCBBuffer   = &os_timerTaskTcbBuffer;
-    *ppxTimerTaskStackBuffer = &os_timerStack[0];
+    *ppxTimerTaskStackBuffer = &os_stackSizeTimer[0];
     *pulTimerTaskStackSize   = configTIMER_TASK_STACK_DEPTH;
 }
 #endif /* configUSE_TIMERS */
 
 void vApplicationIdleHook(void) {
-    FTSK_UserCodeIdle();
+    FTSK_RunUserCodeIdle();
 }
 
-void vApplicationStackOverflowHook(TaskHandle_t xTask, signed char *pcTaskName) {
+void vApplicationStackOverflowHook(TaskHandle_t xTask, char *pcTaskName) {
     FAS_ASSERT(FAS_TRAP);
 }
 

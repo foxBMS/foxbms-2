@@ -6,6 +6,12 @@
 How to Use Generated Sources from HALCoGen
 ==========================================
 
+.. note::
+   A documentation of the tool |halcogen| can be found in
+   :ref:`HALCOGEN_TOOL_DOCUMENTATION`, the waf-tool wrapper for this project in
+   :ref:`WAF_TOOL_HALCOGEN` and information on configuring |halcogen| in the
+   context of the toolchain of this project in :ref:`HAL_CONFIGURATION`.
+
 The following steps need to be applied:
 
 #. Removing the |halcogen| dependency in the compiler tool:

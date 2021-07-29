@@ -43,7 +43,7 @@
  * @file    test_sys.c
  * @author  foxBMS Team
  * @date    2020-04-02 (date of creation)
- * @updated 2020-04-02 (date of last update)
+ * @updated 2021-05-19 (date of last update)
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -58,6 +58,7 @@
 #include "Mockbms.h"
 #include "Mockcan.h"
 #include "Mockcontactor.h"
+#include "Mockdatabase.h"
 #include "Mockdiag.h"
 #include "Mockfassert.h"
 #include "Mockfram.h"
@@ -74,6 +75,7 @@
 #include "fram_cfg.h"
 
 #include "sys.h"
+#include "test_assert_helper.h"
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 SBC_STATE_s sbc_stateMcuSupervisor;
@@ -85,7 +87,8 @@ void setUp(void) {
 void tearDown(void) {
 }
 
-void testDummy(void) {
-}
-
 /*========== Test Cases =====================================================*/
+/** make sure that the general BIST is running */
+void testSYS_GeneralMacroBist(void) {
+    TEST_ASSERT_PASS_ASSERT(SYS_GeneralMacroBist());
+}

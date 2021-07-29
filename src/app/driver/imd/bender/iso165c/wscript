@@ -61,7 +61,9 @@ def build(bld):
         os.path.join("..", "..", "..", "..", "engine", "config"),
         os.path.join("..", "..", "..", "..", "engine", "database"),
         os.path.join("..", "..", "..", "..", "main", "include"),
+        os.path.join("..", "..", "..", "..", "task", "config"),
         os.path.join("..", "..", "..", "..", "task", "os"),
+        os.path.join("..", "..", "..", "..", "task", "ftask"),
     ]
     includes.extend(bld.env.INCLUDES_OPERATING_SYSTEM)
     bld(

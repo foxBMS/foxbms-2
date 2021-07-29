@@ -1534,10 +1534,9 @@ def process_guidelines(self):
     )
     self.env.CHECK_CONFIG_GEN_001 = str(excl_filenames)
     filename_regex = re.compile(r"" + rule["regex"])
+    rn = rule["name"]
     for i in filenames_to_check:
-        self.create_task(
-            "filenames", src=i, rule_name=rule["name"], regex=filename_regex
-        )
+        self.create_task("filenames", src=i, rule_name=rn, regex=filename_regex)
 
     # check that filenames are unique
     rule = self.config["unique_filenames"]
@@ -1610,22 +1609,16 @@ def process_guidelines(self):
     incl_c = c_rules.get("files", ["**/*.c", "**/.h"])
 
     # doxygen
-    excl_c_doxygen = c_rules["doxygen"].get("exclude", []) + excl_global
+    excl_c_doxygen = c_rules["doxygen"].get("exclude", []) + excl_c
     c_to_check_doxygen = self.bld.path.ant_glob(incl_c, excl=excl_c_doxygen, quiet=True)
-    self.env.CHECK_CONFIG_C_004 = (
-        str(excl_c) + str(incl_c) + str(self.config["languages"]["C"]["doxygen"])
-    )
-    C_004_REGEX = self.config["languages"]["C"]["doxygen"]["regex"]
+    self.env.CHECK_CONFIG_C_004 = str(excl_c) + str(incl_c) + str(c_rules["doxygen"])
+    C_004_REGEX = c_rules["doxygen"]["regex"]
+    rn = c_rules["doxygen"]["name"]
     for i in c_to_check_doxygen:
-        self.create_task(
-            "c_check_doxygen",
-            src=i,
-            rule_name=c_rules["doxygen"]["name"],
-            regex=C_004_REGEX,
-        )
+        self.create_task("c_check_doxygen", src=i, rule_name=rn, regex=C_004_REGEX)
 
     # define guard
-    excl_c_define_guard = c_rules["define_guard"].get("exclude", []) + excl_global
+    excl_c_define_guard = c_rules["define_guard"].get("exclude", []) + excl_c
     incl_c_define_guard = c_rules["define_guard"].get("include", ["**/*.h"])
     c_to_check_define_guard = self.bld.path.ant_glob(
         incl_c_define_guard, excl=excl_c_define_guard, quiet=True
@@ -1633,51 +1626,36 @@ def process_guidelines(self):
     self.env.CHECK_CONFIG_C005 = (
         str(incl_c) + str(excl_c) + str(c_rules["define_guard"])
     )
-    C_005_REGEX = self.config["languages"]["C"]["define_guard"]
+    C_005_REGEX = c_rules["define_guard"]
+    rn = c_rules["define_guard"]["name"]
     for i in c_to_check_define_guard:
-        self.create_task(
-            "c_check_define_guard",
-            src=i,
-            rule_name=c_rules["define_guard"]["name"],
-            regex=C_005_REGEX,
-        )
+        self.create_task("c_check_define_guard", src=i, rule_name=rn, regex=C_005_REGEX)
 
     # section
+    excl_sections = c_rules["sections"].get("exclude", []) + excl_c
     excl_c_header_section = (
-        c_rules["sections"].get("exclude", [])
-        + excl_global
-        + ["**/*.c"]
-        + c_rules["sections"]["header"]["exclude"]
+        excl_sections + ["**/*.c"] + c_rules["sections"]["header"]["exclude"]
     )
     c_to_check_header_section = self.bld.path.ant_glob(
         incl_c, excl=excl_c_header_section, quiet=True
     )
 
     excl_c_source_section = (
-        c_rules["sections"].get("exclude", [])
-        + excl_global
-        + ["**/*.h"]
-        + c_rules["sections"]["source"]["exclude"]
+        excl_sections + ["**/*.h"] + c_rules["sections"]["source"]["exclude"]
     )
     c_to_check_source_section = self.bld.path.ant_glob(
         incl_c, excl=excl_c_source_section, quiet=True
     )
 
     excl_c_test_header_section = (
-        c_rules["sections"].get("exclude", [])
-        + excl_global
-        + ["**/*.c"]
-        + c_rules["sections"]["test_header"]["exclude"]
+        excl_sections + ["**/*.c"] + c_rules["sections"]["test_header"]["exclude"]
     )
     c_to_check_test_header_section = self.bld.path.ant_glob(
         incl_c, excl=excl_c_test_header_section, quiet=True
     )
 
     excl_c_test_source_section = (
-        c_rules["sections"].get("exclude", [])
-        + excl_global
-        + ["**/*.h"]
-        + c_rules["sections"]["test_source"]["exclude"]
+        excl_sections + ["**/*.h"] + c_rules["sections"]["test_source"]["exclude"]
     )
     c_to_check_test_source_section = self.bld.path.ant_glob(
         incl_c, excl=excl_c_test_source_section, quiet=True
@@ -1695,13 +1673,11 @@ def process_guidelines(self):
     section_list.append(c_rules["sections"]["test_header"]["sections"])
     section_list.append(c_rules["sections"]["test_source"]["sections"])
     self.env.CHECK_CONFIG_C_006 = str(incl_c) + str(excl_c) + str(c_rules["sections"])
+    rn = c_rules["sections"]["name"]
     for i, file_list in enumerate(section_to_check_file):
         for f in file_list:
             self.create_task(
-                "c_check_sections",
-                src=f,
-                section_strings=section_list[i],
-                rule_name=c_rules["sections"]["name"],
+                "c_check_sections", src=f, section_strings=section_list[i], rule_name=rn
             )
 
     # c comment style
@@ -1716,16 +1692,16 @@ def process_guidelines(self):
     self.comment_style = forbidden_style
     if forbidden_style != "C99":
         self.bld.fatal(f"{forbidden_style} is not implement yet")
-    else:
-        comment_regex = re.compile(r"(?<!:)//\s{0,}\S+")
-        for i in c_to_check_comment_style:
-            self.create_task(
-                "c_check_comment_style",
-                src=i,
-                regex=comment_regex,
-                comment_style=forbidden_style,
-                rule_name=c_rules["comment-style"]["name"],
-            )
+    comment_regex = re.compile(r"(?<!:)//\s{0,}\S+")
+    rn = c_rules["comment-style"]["name"]
+    for i in c_to_check_comment_style:
+        self.create_task(
+            "c_check_comment_style",
+            src=i,
+            regex=comment_regex,
+            comment_style=forbidden_style,
+            rule_name=rn,
+        )
 
     # C sources formatting
     excl_c_formatting = c_rules["formatting"].get("exclude", []) + excl_global
@@ -1776,42 +1752,27 @@ def process_guidelines(self):
     self.env.CHECK_CONFIG_HEADER = str(incl_yaml) + str(excl_yaml)
     self.env.CHECK_CONFIG_HEADER = str(incl_batch) + str(excl_batch)
     self.env.CHECK_CONFIG_HEADER = str(incl_shell) + str(excl_shell)
-    self.env.CHECK_CONFIG_HEADER += str(self.config["languages"]["C"]["header"])
-    self.env.CHECK_CONFIG_HEADER += str(self.config["languages"]["Python"]["header"])
-    self.env.CHECK_CONFIG_HEADER += str(self.config["languages"]["YAML"]["header"])
-    self.env.CHECK_CONFIG_HEADER += str(self.config["languages"]["batch"]["header"])
-    self.env.CHECK_CONFIG_HEADER += str(self.config["languages"]["shell"]["header"])
+    self.env.CHECK_CONFIG_HEADER += str(c_rules["header"])
+    self.env.CHECK_CONFIG_HEADER += str(python_rules["header"])
+    self.env.CHECK_CONFIG_HEADER += str(yaml_rules["header"])
+    self.env.CHECK_CONFIG_HEADER += str(batch_rules["header"])
+    self.env.CHECK_CONFIG_HEADER += str(shell_rules["header"])
 
     # C
     c_to_check = self.bld.path.ant_glob(incl_c, excl=excl_c, quiet=True)
-    c_header = [
-        i.replace(*year_replace)
-        for i in self.config["languages"]["C"]["header"]["text"]
-    ]
+    c_header = [i.replace(*year_replace) for i in c_rules["header"]["text"]]
     # Python
     python_to_check = self.bld.path.ant_glob(incl_python, excl=excl_python, quiet=True)
-    python_header = [
-        i.replace(*year_replace)
-        for i in self.config["languages"]["Python"]["header"]["text"]
-    ]
+    python_header = [i.replace(*year_replace) for i in python_rules["header"]["text"]]
     # YAML
     yaml_to_check = self.bld.path.ant_glob(incl_yaml, excl=excl_yaml, quiet=True)
-    yaml_header = [
-        i.replace(*year_replace)
-        for i in self.config["languages"]["YAML"]["header"]["text"]
-    ]
+    yaml_header = [i.replace(*year_replace) for i in yaml_rules["header"]["text"]]
     # batch
     batch_to_check = self.bld.path.ant_glob(incl_batch, excl=excl_batch, quiet=True)
-    batch_header = [
-        i.replace(*year_replace)
-        for i in self.config["languages"]["batch"]["header"]["text"]
-    ]
+    batch_header = [i.replace(*year_replace) for i in batch_rules["header"]["text"]]
     # shell
     shell_to_check = self.bld.path.ant_glob(incl_shell, excl=excl_shell, quiet=True)
-    shell_header = [
-        i.replace(*year_replace)
-        for i in self.config["languages"]["shell"]["header"]["text"]
-    ]
+    shell_header = [i.replace(*year_replace) for i in shell_rules["header"]["text"]]
     # Combined
     header = {
         "Python": python_header,
@@ -1828,14 +1789,10 @@ def process_guidelines(self):
         "C": c_to_check,
     }
     self.env.HEADER_REGEX = header
+    rn = "Check header"
     for key, files in check_files.items():
         for src in files:
-            self.create_task(
-                "check_header",
-                src=src,
-                rule_name="check header",
-                lang_type=key,
-            )
+            self.create_task("check_header", src=src, rule_name=rn, lang_type=key)
 
     # Python sources formatting
     excl_python_formatting = python_rules["formatting"].get("exclude", []) + excl_global
@@ -1845,8 +1802,9 @@ def process_guidelines(self):
     python_formatting_provider = python_rules["formatting"]["provider"]
     if python_formatting_provider != "black":
         self.bld.fatal("Only black is supported.")
-    for i in python_to_check_formatting:
-        self.create_task("black", src=i, cwd=self.path)
+    self.create_task(
+        "black", src=python_to_check_formatting, cwd=self.path, shell=False
+    )
 
     # Python sources static program analysis
     py_spa = "static_program_analysis"
@@ -1894,6 +1852,7 @@ def process_guidelines(self):
     passed_include_names = []
     # generate for each file the specific regular expression that has to be
     # checked with their include_names
+    rn = rst_rules["include"]["name"]
     for rst_file in rst_to_check_include:
         for i, exclude in enumerate(excl_specific_rst):
             if not rst_file in exclude:
@@ -1903,7 +1862,7 @@ def process_guidelines(self):
             "rst_check_include",
             src=rst_file,
             regex_list=passed_regex_list,
-            rule_name=rst_rules["include"]["name"],
+            rule_name=rn,
             include_name=passed_include_names,
         )
         passed_regex_list = []
@@ -1924,11 +1883,12 @@ def process_guidelines(self):
     self.env.CHECK_CONFIG_RST_005 = (
         str(incl_rst) + str(excl_rst) + str(rst_rules["heading"])
     )
+    rn = rst_rules["heading"]["name"]
     for rst_file in rst_to_check_heading:
         self.create_task(
             "rst_check_heading",
             src=rst_file,
-            rule_name=rst_rules["heading"]["name"],
+            rule_name=rn,
             heading_regex_list=heading_regex,
         )
 
@@ -1942,10 +1902,9 @@ def process_guidelines(self):
     self.env.CHECK_CONFIG_RST_006 = (
         str(incl_rst) + str(excl_rst) + str(rst_rules["orphan"])
     )
+    rn = rst_rules["orphan"]["name"]
     for rst_file in rst_to_check_orphan:
-        self.create_task(
-            "rst_check_orphan", src=rst_file, rule_name=rst_rules["orphan"]["name"]
-        )
+        self.create_task("rst_check_orphan", src=rst_file, rule_name=rn)
 
 
 def check_guidelines(ctx):

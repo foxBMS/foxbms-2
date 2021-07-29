@@ -43,7 +43,7 @@
  * @file    sps.c
  * @author  foxBMS Team
  * @date    2020-10-14 (date of creation)
- * @updated 2021-03-24 (date of last update)
+ * @updated 2021-07-14 (date of last update)
  * @ingroup DRIVERS
  * @prefix  SPS
  *
@@ -154,7 +154,7 @@ static void SPS_SetContactorsTxBuffer(void);
  *          state of the contactor channels. This update has been assembled
  *          before the call of this function with the function
  *          #SPS_SetContactorsTxBuffer().
- * @returns returns STD_OK if both transactions have been successfull
+ * @returns returns STD_OK if both transactions have been successful
  */
 static STD_RETURN_TYPE_e SPS_Transmit(void);
 
@@ -460,7 +460,6 @@ static void SPS_RequestChannelState(SPS_CHANNEL_INDEX channelIndex, SPS_CHANNEL_
     OS_EnterTaskCritical();
     sps_channelStatus[channelIndex].channelRequested = channelFunction;
     OS_ExitTaskCritical();
-    return;
 }
 
 /*========== Extern Function Implementations ================================*/
@@ -480,13 +479,13 @@ extern void SPS_Ctrl(void) {
                 break;
 
             case SPS_RESET_LOW:
-                IO_PinReset((uint32_t *)&SPS_RESET_GIOPORT, SPS_RESET_PIN);
+                IO_PinReset(&SPS_RESET_GIOPORT, SPS_RESET_PIN);
                 sps_state = SPS_RESET_HIGH;
                 sps_timer = SPS_RESET_WAIT_TIME_TICKS;
                 break;
 
             case SPS_RESET_HIGH:
-                IO_PinSet((uint32_t *)&SPS_RESET_GIOPORT, SPS_RESET_PIN);
+                IO_PinSet(&SPS_RESET_GIOPORT, SPS_RESET_PIN);
                 sps_state = SPS_CONFIGURE_CONTROL_REGISTER;
                 sps_timer = SPS_RESET_WAIT_TIME_TICKS;
                 break;

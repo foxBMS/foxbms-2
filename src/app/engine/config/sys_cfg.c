@@ -43,7 +43,7 @@
  * @file    sys_cfg.c
  * @author  foxBMS Team
  * @date    2020-02-24 (date of creation)
- * @updated 2020-02-24 (date of last update)
+ * @updated 2021-07-15 (date of last update)
  * @ingroup ENGINE_CONFIGURATION
  * @prefix  SYS
  *
@@ -66,7 +66,10 @@
 /*========== Static Function Implementations ================================*/
 
 /*========== Extern Function Implementations ================================*/
-void SYS_SendBootMessage(uint8_t directTransmission) {
+void SYS_SendBootMessage(void) {
+    /* the system can do not much with the result of the function at this stage
+    therefore discard it */
+    (void)CAN_TransmitBootMessage();
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/

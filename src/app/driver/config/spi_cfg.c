@@ -43,7 +43,7 @@
  * @file    spi_cfg.c
  * @author  foxBMS Team
  * @date    2020-03-05 (date of creation)
- * @updated 2021-03-24 (date of last update)
+ * @updated 2021-06-16 (date of last update)
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  SPI
  *
@@ -102,7 +102,7 @@ SPI_INTERFACE_CONFIG_s spi_ltcInterface[BS_NR_OF_STRINGS] = {
 static const spiDAT1_t spi_kMxmDataConfig = {
     .CS_HOLD = FALSE,     /*!< The HW chip select signal is deactivated */
     .WDEL    = TRUE,      /*!< No delay will be inserted */
-    .DFSEL   = SPI_FMT_0, /*!< Data word format select: Data format 0 (SPI1) */
+    .DFSEL   = SPI_FMT_1, /*!< Data word format select: Data format 1 (SPI1) */
     .CSNR    = 0x00,      /*!< Chip select (CS) number, 0x01h for CS[0] */
 };
 

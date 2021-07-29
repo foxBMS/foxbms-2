@@ -48,10 +48,12 @@ which you are loading it.
 import os
 import re
 import tarfile
-import tempfile
+from tempfile import NamedTemporaryFile
 
 from waflib import Context
 from waflib.Build import BuildContext
+
+import black
 
 HAVE_GIT = False
 try:
@@ -89,8 +91,14 @@ def bootstrap_library_project(ctx):
     example_header = ctx.path.find_node(
         "docs/software/build-process/misc/libproject-example.h"
     )
+    tools.extend(
+        ctx.path.ant_glob(
+            "tools/waf-tools/f_ti_*.py", excl=["tools/waf-tools/f_ti_arm_cgt.py"]
+        ),
+    )
     compiler_tool_path = os.path.join("tools", "waf-tools", "f_ti_arm_cgt.py")
     compiler_tool_node = ctx.path.find_node(compiler_tool_path)
+    # patch compiler tool
     compiler_tool_txt = compiler_tool_node.read()
     compiler_tool_txt_new = ""
     hcg_tool_line = re.compile(r"load\(.*\"f_hcg\"")
@@ -100,6 +108,12 @@ def bootstrap_library_project(ctx):
     compiler_tool_txt_new = re.sub(
         r'\s{0,}(,)?\s{0,}"hcg_compiler"\s{0,}(,)?\s{0,}', "", compiler_tool_txt_new
     )
+    try:
+        compiler_tool_txt_new = black.format_file_contents(
+            compiler_tool_txt_new, fast=False, mode=black.FileMode()
+        )
+    except black.NothingChanged:
+        pass
     commit_id = "unknown"
     try:
         repo = Repo(search_parent_directories=True)
@@ -125,7 +139,7 @@ def bootstrap_library_project(ctx):
         tar.add(
             example_header.relpath(), arcname=os.path.join("src", example_header.name)
         )
-        with tempfile.NamedTemporaryFile(mode="w", delete=False) as tmp:
+        with NamedTemporaryFile(mode="w", delete=False, encoding="utf-8") as tmp:
             tmp.write(compiler_tool_txt_new)
             tmp.flush()
             tar.add(tmp.name, arcname=compiler_tool_path)
@@ -134,7 +148,7 @@ def bootstrap_library_project(ctx):
         except FileNotFoundError:
             pass
 
-        with tempfile.NamedTemporaryFile(mode="w", delete=False) as tmp:
+        with NamedTemporaryFile(mode="w", delete=False, encoding="utf-8") as tmp:
             tmp.write(readme_txt)
             tmp.flush()
             tar.add(tmp.name, arcname="README.md")

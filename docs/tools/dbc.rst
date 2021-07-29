@@ -7,7 +7,8 @@ DBC File
 ========
 
 These files describe the CAN interface used by |foxbms|. The .dbc-file has been
-created using PCAN Symbol Editor |version_pcanse|.
+created using PCAN Symbol Editor |version_pcanse| from symbol file
+|version_symfile|.
 
 The .dbc-file and .sym-file are located in ``tools/dbc``.
 

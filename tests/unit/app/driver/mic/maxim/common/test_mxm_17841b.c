@@ -43,7 +43,7 @@
  * @file    test_mxm_17841b.c
  * @author  foxBMS Team
  * @date    2020-06-22 (date of creation)
- * @updated 2020-06-24 (date of last update)
+ * @updated 2021-06-16 (date of last update)
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  MXM
  *
@@ -60,6 +60,7 @@
 
 #include "mxm_17841b.h"
 #include "mxm_bitextract.h"
+#include "test_assert_helper.h"
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 static MXM_41B_INSTANCE_s mxm_41b_state = {
@@ -272,7 +273,10 @@ void testWriteRegisterFunctionWithLegalValues(void) {
 
 /* tests for function MXM_41BReadRegisterFunction */
 void testReadRegisterFunctionWithIllegalValues(void) {
-    TEST_ASSERT_EQUAL(STD_NOT_OK, MXM_41BReadRegisterFunction(&mxm_41b_state, 0xFF, 0));
+    MXM_41B_REG_BIT_VALUE result = {0};
+    TEST_ASSERT_EQUAL(STD_NOT_OK, MXM_41BReadRegisterFunction(&mxm_41b_state, 0xFF, &result));
+    TEST_ASSERT_FAIL_ASSERT(MXM_41BReadRegisterFunction(NULL_PTR, 0xFF, &result));
+    TEST_ASSERT_FAIL_ASSERT(MXM_41BReadRegisterFunction(&mxm_41b_state, 0xFF, NULL_PTR));
 }
 void testReadRegisterFunctionWithLegalValues(void) {
     MXM_41B_REG_BIT_VALUE result = 42;

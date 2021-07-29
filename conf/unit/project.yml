@@ -42,14 +42,14 @@
 ##############################################################################
 
 :project:
-  :use_exceptions: true
-  :use_test_preprocessor: true
-  :use_mocks: true
-  :use_auxiliary_dependencies: true
+  :use_exceptions: TRUE
+  :use_test_preprocessor: TRUE
+  :use_mocks: TRUE
+  :use_auxiliary_dependencies: TRUE
   :build_root: .
   :test_file_prefix: test_
   :which_ceedling: ../../tools/vendor/ceedling
-  :ceedling_version: 0.31.0
+  :ceedling_version: 0.31.1
   :default_tasks:
     - test:all
 
@@ -86,7 +86,7 @@
 
 :cmock:
   :when_no_prototypes: :warn
-  :enforce_strict_ordering: true
+  :enforce_strict_ordering: TRUE
   :mock_prefix: Mock
   :weak: ""
   :strippables:

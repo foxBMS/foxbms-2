@@ -145,9 +145,9 @@ typedef enum MXM_MEASURE_TYPE {
  */
 typedef struct MXM_DATA_STORAGE {
     /** array of all cell voltages measured by the driver */
-    uint16_t cellVoltages[MXM_MAXIMUM_NR_OF_MODULES * MXM_MAXIMUM_NR_OF_CELLS_PER_MODULE];
+    uint16_t cellVoltages_mV[MXM_MAXIMUM_NR_OF_MODULES * MXM_MAXIMUM_NR_OF_CELLS_PER_MODULE];
     /** array of all voltages measured by the driver on the AUX inputs */
-    uint16_t auxVoltages[MXM_MAXIMUM_NR_OF_MODULES * MXM_MAXIMUM_NR_OF_AUX_PER_MODULE];
+    uint16_t auxVoltages_mV[MXM_MAXIMUM_NR_OF_MODULES * MXM_MAXIMUM_NR_OF_AUX_PER_MODULE];
     /** array of all measured block voltages */
     uint16_t blockVoltages[MXM_MAXIMUM_NR_OF_MODULES];
 } MXM_DATA_STORAGE_s;

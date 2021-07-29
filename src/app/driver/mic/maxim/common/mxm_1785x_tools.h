@@ -43,7 +43,7 @@
  * @file    mxm_1785x_tools.h
  * @author  foxBMS Team
  * @date    2020-07-15 (date of creation)
- * @updated 2020-09-10 (date of last update)
+ * @updated 2021-07-14 (date of last update)
  * @ingroup DRIVERS
  * @prefix  MXM
  *
@@ -91,6 +91,8 @@ typedef enum MXM_STATEMACHINE_OPERATION_STATES_e {
     MXM_INIT_MEASUREEN1,
     MXM_INIT_MEASUREEN2,
     MXM_INIT_AUXGPIOCFG,
+    MXM_INIT_AUXTIMEREG,
+    MXM_INIT_ACQCFG,
     MXM_INIT_UVTHSETREG,
     MXM_INIT_OVTHSETREG,
     MXM_INIT_BALEXP1,
@@ -114,10 +116,14 @@ typedef enum MXM_STATEMACHINE_OPERATION_STATES_e {
     MXM_INIT_I2C_GET_STAT1,
     MXM_INIT_I2C_CFG,
     MXM_INIT_I2C_PNTR,
-    MXM_INIT_I2C_WDATA2,
-    MXM_INIT_I2C_SEND,
+    MXM_INIT_I2C_SEND_MUX0,
+    MXM_INIT_I2C_SEND_MUX1,
     MXM_INIT_GET_I2C_STAT2,
     MXM_INIT_SET_FMEA2,
+    MXM_OP_ENTRY_STATE,
+    MXM_OP_SELECT_MUX_CHANNEL,
+    MXM_OP_WRITE_MUX0,
+    MXM_OP_WRITE_MUX1,
     MXM_OP_SET_SCAN_STROBE,
     MXM_OP_GET_SCAN_STROBE,
     MXM_OP_GET_VOLTAGES,
@@ -136,6 +142,9 @@ typedef enum MXM_STATEMACHINE_OPERATION_STATES_e {
     MXM_OP_BAL_CONTROL_SET_ALL,
     MXM_OP_BAL_START,
     MXM_OP_BAL_EXIT,
+    MXM_OP_CYCLE_END_ENTRY,
+    MXM_OP_INCREMENT_MUX_COUNTER,
+    MXM_OP_CYCLE_END_EXIT,
 } MXM_STATEMACHINE_OPERATION_STATES_e;
 
 /** intermediate state-definition for #MXM_MonGetVoltages() */
@@ -195,6 +204,7 @@ typedef struct MXM_MONITORING_INSTANCE {
     bool openwireRequested;    /*!< indicates that an openwire-check has been requested */
     bool undervoltageAlert;
     /*!< whether undervoltage alert has occurred */ /* TODO remove? replaced by DC? */
+    uint8_t muxCounter;                             /*!< counter for the currently selected mux channel */
     MXM_DC_BYTE_e dcByte;                           /*!< content of the data-check-byte */
     uint8_t mxmVoltageCellCounter;                  /*!< counter for getting all cellvoltages */
     uint8_t highest5xDevice;                        /*!< address of highest monitoring device of the 5x family */

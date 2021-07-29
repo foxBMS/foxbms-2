@@ -43,7 +43,7 @@
  * @file    ftask_cfg.h
  * @author  foxBMS Team
  * @date    2019-08-26 (date of creation)
- * @updated 2020-01-21 (date of last update)
+ * @updated 2021-07-23 (date of last update)
  * @ingroup TASK_CONFIGURATION
  * @prefix  FTSK
  *
@@ -61,64 +61,64 @@
 
 /*========== Macros and Definitions =========================================*/
 /** @brief Stack size of engine task */
-#define FTSK_TSK_ENGINE_STACK_SIZE (1024u / 4u)
+#define FTSK_TASK_ENGINE_STACK_SIZE (1024u / 4u)
 
 /** @brief Phase of engine task */
-#define FTSK_TSK_ENGINE_PHASE (0u)
+#define FTSK_TASK_ENGINE_PHASE (0u)
 
 /** @brief Cycle time of engine task */
-#define FTSK_TSK_ENGINE_CYCLE_TIME (1u)
+#define FTSK_TASK_ENGINE_CYCLE_TIME (1u)
 
 /** @brief Maximum allowed jitter of engine task */
-#define FTSK_TSK_ENGINE_MAXIMUM_JITTER (1u)
+#define FTSK_TASK_ENGINE_MAXIMUM_JITTER (1u)
 
 /** @brief Stack size of cyclic 1 ms task */
-#define FTSK_TSK_CYCLIC_1MS_STACK_SIZE (1024u / 4u)
+#define FTSK_TASK_CYCLIC_1MS_STACK_SIZE (1024u / 4u)
 
 /** @brief Phase of cyclic 1ms task */
-#define FTSK_TSK_CYCLIC_1MS_PHASE (0u)
+#define FTSK_TASK_CYCLIC_1MS_PHASE (0u)
 
 /** @brief Cycle time of 1ms task */
-#define FTSK_TSK_CYCLIC_1MS_CYCLE_TIME (1u)
+#define FTSK_TASK_CYCLIC_1MS_CYCLE_TIME (1u)
 
 /** @brief Maximum allowed jitter of 1ms task */
-#define FTSK_TSK_CYCLIC_1MS_MAXIMUM_JITTER (1u)
+#define FTSK_TASK_CYCLIC_1MS_MAXIMUM_JITTER (1u)
 
 /** @brief Stack size of cyclic 10 ms task */
-#define FTSK_TSK_CYCLIC_10MS_STACK_SIZE ((4096u) / 4u)
+#define FTSK_TASK_CYCLIC_10MS_STACK_SIZE ((4096u) / 4u)
 
 /** @brief Phase of cyclic 10 ms task */
-#define FTSK_TSK_CYCLIC_10MS_PHASE (2u)
+#define FTSK_TASK_CYCLIC_10MS_PHASE (2u)
 
 /** @brief Cycle time of 10 ms task */
-#define FTSK_TSK_CYCLIC_10MS_CYCLE_TIME (10u)
+#define FTSK_TASK_CYCLIC_10MS_CYCLE_TIME (10u)
 
 /** @brief Maximum allowed jitter of 10ms task */
-#define FTSK_TSK_CYCLIC_10MS_MAXIMUM_JITTER (2u)
+#define FTSK_TASK_CYCLIC_10MS_MAXIMUM_JITTER (2u)
 
 /** @brief Stack size of cyclic 100 ms task */
-#define FTSK_TSK_CYCLIC_100MS_STACK_SIZE (1024u / 4u)
+#define FTSK_TASK_CYCLIC_100MS_STACK_SIZE (1024u / 4u)
 
 /** @brief Phase of cyclic 100 ms task */
-#define FTSK_TSK_CYCLIC_100MS_PHASE (56u)
+#define FTSK_TASK_CYCLIC_100MS_PHASE (56u)
 
 /** @brief Cycle time of 100ms task */
-#define FTSK_TSK_CYCLIC_100MS_CYCLE_TIME (100u)
+#define FTSK_TASK_CYCLIC_100MS_CYCLE_TIME (100u)
 
 /** @brief Maximum allowed jitter of 100ms task */
-#define FTSK_TSK_CYCLIC_100MS_MAXIMUM_JITTER (5u)
+#define FTSK_TASK_CYCLIC_100MS_MAXIMUM_JITTER (5u)
 
 /** @brief Stack size of cyclic 100 ms task for algorithms */
-#define FTSK_TSK_CYCLIC_ALGORITHM_100MS_STACKSIZE (1024u / 4u)
+#define FTSK_TASK_CYCLIC_ALGORITHM_100MS_STACKSIZE (1024u / 4u)
 
 /** @brief Phase of cyclic 100 ms task for algorithms */
-#define FTSK_TSK_CYCLIC_ALGORITHM_100MS_PHASE (64u)
+#define FTSK_TASK_CYCLIC_ALGORITHM_100MS_PHASE (64u)
 
 /** @brief Cycle time of 100ms task for algorithms*/
-#define FTSK_TSK_CYCLIC_ALGORITHM_100MS_CYCLE_TIME (100u)
+#define FTSK_TASK_CYCLIC_ALGORITHM_100MS_CYCLE_TIME (100u)
 
 /** @brief Maximum allowed jitter of 100ms task for algorithms */
-#define FTSK_TSK_CYCLIC_ALGORITHM_100MS_MAXIMUM_JITTER (5u)
+#define FTSK_TASK_CYCLIC_ALGORITHM_100MS_MAXIMUM_JITTER (5u)
 
 /*========== Extern Constant and Variable Declarations ======================*/
 /**
@@ -165,7 +165,7 @@ extern OS_TASK_DEFINITION_s ftsk_taskDefinitionCyclicAlgorithm100ms;
  *          break the system. This function is kept in the configuration file
  *          to have a uniform task configuration.
  */
-extern void FTSK_UserCodeEngineInit(void);
+extern void FTSK_InitializeUserCodeEngine(void);
 
 /**
  * @brief   Engine task for the database and the system monitoring module
@@ -176,7 +176,7 @@ extern void FTSK_UserCodeEngineInit(void);
  *          break the system. This function is kept in the configuration file
  *          to have a uniform task configuration.
  */
-extern void FTSK_UserCodeEngine(void);
+extern void FTSK_RunUserCodeEngine(void);
 
 /**
  * @brief   Initialization function before all tasks started
@@ -185,35 +185,35 @@ extern void FTSK_UserCodeEngine(void);
  *          during the startup process.
  * @ingroup API_OS
  */
-extern void FTSK_UserCodePreCyclicTasksInitialization(void);
+extern void FTSK_InitializeUserCodePreCyclicTasks(void);
 
 /**
  * @brief   Cyclic 1 ms task
  * @details TODO
  * @ingroup API_OS
  */
-extern void FTSK_UserCodeCyclic1ms(void);
+extern void FTSK_RunUserCodeCyclic1ms(void);
 
 /**
  * @brief   Cyclic 10 ms task
  * @details TODO
  * @ingroup API_OS
  */
-extern void FTSK_UserCodeCyclic10ms(void);
+extern void FTSK_RunUserCodeCyclic10ms(void);
 
 /**
  * @brief   Cyclic 100 ms task
  * @details TODO
  * @ingroup API_OS
  */
-extern void FTSK_UserCodeCyclic100ms(void);
+extern void FTSK_RunUserCodeCyclic100ms(void);
 
 /**
  * @brief   Cyclic 100 ms task for algorithms
  * @details TODO
  * @ingroup API_OS
  */
-extern void FTSK_UserCodeCyclicAlgorithm100ms(void);
+extern void FTSK_RunUserCodeCyclicAlgorithm100ms(void);
 
 /**
  * @brief   Idle task
@@ -222,7 +222,7 @@ extern void FTSK_UserCodeCyclicAlgorithm100ms(void);
  *          disable it in the FreeRTOS configuration.
  * @ingroup API_OS
  */
-extern void FTSK_UserCodeIdle(void);
+extern void FTSK_RunUserCodeIdle(void);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 

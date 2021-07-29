@@ -43,7 +43,7 @@
  * @file    database.c
  * @author  foxBMS Team
  * @date    2015-08-18 (date of creation)
- * @updated 2020-01-17 (date of last update)
+ * @updated 2021-07-23 (date of last update)
  * @ingroup ENGINE
  * @prefix  DATA
  *
@@ -55,6 +55,11 @@
 /*========== Includes =======================================================*/
 #include "database.h"
 
+#include "FreeRTOS.h"
+#include "queue.h"
+
+#include "ftask.h"
+
 #include <string.h>
 
 /*========== Macros and Definitions =========================================*/
@@ -64,22 +69,6 @@
 #define DATA_QUEUE_TIMEOUT_MS ((TickType_t)10u)
 
 /**
- * @brief Length of data Queue
- */
-#define DATA_QUEUE_LENGTH (1u)
-
-/**
- * @brief Size of data Queue item
- */
-#define DATA_QUEUE_ITEM_SIZE (sizeof(DATA_QUEUE_MESSAGE_s))
-
-/**
- * Maximum number of database entries that can be read or written during one
- * access call to the database
- */
-#define DATA_MAX_ENTRIES_PER_ACCESS (4u)
-
-/**
  * configuration struct of database device
  */
 typedef struct DATA_BASE_HEADER {
@@ -87,29 +76,7 @@ typedef struct DATA_BASE_HEADER {
     DATA_BASE_s *pDatabase;    /*!< pointer to the array with the database entries */
 } DATA_BASE_HEADER_s;
 
-/**
- * struct for database queue, contains pointer to data, database entry and access type
- */
-typedef struct DATA_QUEUE_MESSAGE {
-    DATA_BLOCK_ACCESS_TYPE_e accesstype;               /*!< read or write access type */
-    void *pDatabaseEntry[DATA_MAX_ENTRIES_PER_ACCESS]; /*!< reference by general pointer */
-} DATA_QUEUE_MESSAGE_s;
-
 /*========== Static Constant and Variable Definitions =======================*/
-/** handle of the data queue */
-static QueueHandle_t data_queue;
-
-/**
- * @brief   structure for static data queue
- */
-static StaticQueue_t dataQueueStructure;
-
-/**
- * @brief   size of Queue storage
- * @details The array to use as the queue's storage area. This must be at
- *          least #DATA_QUEUE_LENGTH * #DATA_QUEUE_ITEM_SIZE
- */
-static uint8_t dataQueueStorageArea[DATA_QUEUE_LENGTH * DATA_QUEUE_ITEM_SIZE];
 
 /**
  * @brief   device configuration of database
@@ -137,6 +104,9 @@ static uint16_t uniqueIdToDatabaseEntry[DATA_BLOCK_ID_MAX];
 /*========== Extern Function Implementations ================================*/
 STD_RETURN_TYPE_e DATA_Init(void) {
     STD_RETURN_TYPE_e retval = STD_OK;
+    /* Check that database queue has been created */
+    FAS_ASSERT(true == ftsk_allQueuesCreated);
+
     static_assert((sizeof(data_database) != 0u), "No database defined");
     /*  make sure that no basic assumptions are broken -- since data_database is
         declared with length DATA_BLOCK_ID_MAX, this assert should never fail */
@@ -149,7 +119,7 @@ STD_RETURN_TYPE_e DATA_Init(void) {
         uint8_t *pStartDatabaseEntryWR = (uint8_t *)data_baseHeader.pDatabase[i].pDatabaseEntry;
 
         /* Start after uniqueId entry. Set j'th byte to zero in database entry */
-        for (uint16_t j = 0u; j < (data_baseHeader.pDatabase + i)->datalength; j++) {
+        for (uint32_t j = 0u; j < (data_baseHeader.pDatabase + i)->datalength; j++) {
             if (j >= sizeof(DATA_BLOCK_ID_e)) {
                 *pStartDatabaseEntryWR = 0;
             }
@@ -175,11 +145,7 @@ STD_RETURN_TYPE_e DATA_Init(void) {
         }
     }
 
-    /* Create a queue capable of containing a pointer of type DATA_QUEUE_MESSAGE_s
-    Data of Messages are passed by pointer as they contain a lot of data. */
-    data_queue = xQueueCreateStatic(DATA_QUEUE_LENGTH, DATA_QUEUE_ITEM_SIZE, dataQueueStorageArea, &dataQueueStructure);
-
-    if (data_queue == NULL_PTR) {
+    if (ftsk_databaseQueue == NULL_PTR) {
         /* Failed to create the queue */
         retval = STD_NOT_OK;
     }
@@ -189,8 +155,8 @@ STD_RETURN_TYPE_e DATA_Init(void) {
 void DATA_Task(void) {
     DATA_QUEUE_MESSAGE_s receiveMessage;
 
-    if (data_queue != NULL_PTR) {
-        if (xQueueReceive(data_queue, (&receiveMessage), (TickType_t)1) >
+    if (ftsk_databaseQueue != NULL_PTR) {
+        if (xQueueReceive(ftsk_databaseQueue, (&receiveMessage), (TickType_t)1) >
             0) { /* scan queue and wait for a message up to a maximum amount of 1ms (block time) */
             /* plausibility check, error if first pointer NULL_PTR */
             FAS_ASSERT(receiveMessage.pDatabaseEntry[0] != NULL_PTR);
@@ -208,7 +174,7 @@ void DATA_Task(void) {
                     /* Pointer to database struct representation of passed struct */
                     void *pDatabaseStruct = (void *)data_baseHeader.pDatabase[entryIndex].pDatabaseEntry;
                     /* Get datalength of database entry */
-                    uint16_t datalength = data_baseHeader.pDatabase[entryIndex].datalength;
+                    uint32_t datalength = data_baseHeader.pDatabase[entryIndex].datalength;
 
                     /* Copy data either into database or passed database struct */
                     if (accesstype == DATA_WRITE_ACCESS) {
@@ -275,7 +241,7 @@ STD_RETURN_TYPE_e DATA_Read_4_DataBlocks(
 
     /* Send a pointer to a message object and */
     /* maximum block time: queuetimeout */
-    if (pdPASS == xQueueSend(data_queue, (void *)&data_send_msg, queuetimeout)) {
+    if (pdPASS == xQueueSend(ftsk_databaseQueue, (void *)&data_send_msg, queuetimeout)) {
         retval = STD_OK;
     }
     return retval;
@@ -319,54 +285,30 @@ STD_RETURN_TYPE_e DATA_Write_4_DataBlocks(
     data_send_msg.accesstype = DATA_WRITE_ACCESS;
     /* Send a pointer to a message object and
        maximum block time: queuetimeout */
-    if (pdPASS == xQueueSend(data_queue, (void *)&data_send_msg, queuetimeout)) {
+    if (pdPASS == xQueueSend(ftsk_databaseQueue, (void *)&data_send_msg, queuetimeout)) {
         retval = STD_OK;
     }
     return retval;
 }
 
-extern bool DATA_DatabaseEntryUpdatedAtLeastOnce(void *pDatabaseEntry) {
-    bool retval                  = false;
-    DATA_BLOCK_HEADER_s *pHeader = (DATA_BLOCK_HEADER_s *)pDatabaseEntry;
-    if (!((pHeader->timestamp == 0u) && (pHeader->previousTimestamp == 0u))) {
-        /* Only possibility for timestamp AND previous timestamp to be 0 is, if
-           the database entry has never been updated. Thus if this is not the
-           case the database entry must have been updated */
-        retval = true;
-    }
-    return retval;
-}
+extern void DATA_ExecuteDataBIST(void) {
+    /* compile database entry */
+    DATA_BLOCK_DUMMY_FOR_SELF_TEST_s dummyWriteTable = {.header.uniqueId = DATA_BLOCK_ID_DUMMY_FOR_SELF_TEST};
+    dummyWriteTable.member1                          = UINT8_MAX;
+    dummyWriteTable.member2                          = DATA_DUMMY_VALUE_UINT8_T_ALTERNATING_BIT_PATTERN;
 
-extern bool DATA_DatabaseEntryUpdatedRecently(void *pDatabaseEntry, uint32_t timeInterval) {
-    bool retval                  = false;
-    uint32_t currentTimestamp    = OS_GetTickCount();
-    DATA_BLOCK_HEADER_s *pHeader = (DATA_BLOCK_HEADER_s *)pDatabaseEntry;
+    /* write entry */
+    STD_RETURN_TYPE_e writeReturnValue = DATA_WRITE_DATA(&dummyWriteTable);
+    FAS_ASSERT(writeReturnValue == STD_OK);
 
-    /* Unsigned integer arithmetic also works correctly if currentTimestap is
-       larger than pHeader->timestamp (timer overflow), thus no need to use abs() */
-    if (((currentTimestamp - pHeader->timestamp) <= timeInterval) &&
-        (DATA_DatabaseEntryUpdatedAtLeastOnce(pDatabaseEntry) == true)) {
-        /* Difference between current timestamp and last update timestamp is
-           smaller than passed time interval */
-        retval = true;
-    }
-    return retval;
-}
+    DATA_BLOCK_DUMMY_FOR_SELF_TEST_s dummyReadTable = {.header.uniqueId = DATA_BLOCK_ID_DUMMY_FOR_SELF_TEST};
 
-extern bool DATA_DatabaseEntryUpdatedWithinInterval(void *pDatabaseEntry, uint32_t timeInterval) {
-    bool retval                  = false;
-    uint32_t currentTimestamp    = OS_GetTickCount();
-    DATA_BLOCK_HEADER_s *pHeader = (DATA_BLOCK_HEADER_s *)pDatabaseEntry;
+    /* read entry into new variable */
+    STD_RETURN_TYPE_e readReturnValue = DATA_READ_DATA(&dummyReadTable);
+    FAS_ASSERT(readReturnValue == STD_OK);
 
-    /* Unsigned integer arithmetic also works correctly if currentTimestap or is
-       larger than pHeader->timestamp (timer overflow), thus no need to use abs() */
-    if (((currentTimestamp - pHeader->timestamp) <= timeInterval) &&
-        ((pHeader->timestamp - pHeader->previousTimestamp) <= timeInterval) &&
-        (DATA_DatabaseEntryUpdatedAtLeastOnce(pDatabaseEntry) == true)) {
-        /* Difference between timestamps is smaller than passed time interval */
-        retval = true;
-    }
-    return retval;
+    FAS_ASSERT(dummyReadTable.member1 == dummyWriteTable.member1);
+    FAS_ASSERT(dummyReadTable.member2 == dummyWriteTable.member2);
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/

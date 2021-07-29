@@ -1,0 +1,11 @@
+C:\ti\ccs1000\ccs\tools\compiler\ti-cgt-arm_20.2.0.LTS\bin
+C:\ti\ccs1000\ccs\tools\compiler\ti-cgt-arm_20.2.0.LTS\lib
+C:\ti\ccs1000\ccs\utils\bin
+C:\ti\ccs1000\ccs\utils\cygwin
+C:\ti\ccs1000\ccs\utils\tiobj2bin
+C:\ti\Hercules\HALCoGen\v04.07.01
+C:\Program Files\Cppcheck\Cppcheck-2.2-x64
+C:\Program Files\LLVM\11.0.1\bin
+C:\Ruby\Ruby272-x64\bin
+C:\MinGW64\x86_64-8.1.0-release-posix-seh-rt_v6-rev0\mingw64\bin
+C:\Bauhaus\7.2.0\bin

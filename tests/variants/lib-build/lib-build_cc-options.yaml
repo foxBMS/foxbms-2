@@ -37,13 +37,11 @@
 
 INCLUDE_PATHS:
   win32:
-    - C:\ti\Hercules\F021 Flash API\02.01.01\include
     - C:\GitLab-Runner\builds\foxbms-on-tms570\libbuild\src
   linux:
 
 LIBRARY_PATHS:
   win32:
-    - C:\ti\Hercules\F021 Flash API\02.01.01
     - C:\GitLab-Runner\builds\foxbms-on-tms570\libbuild\build
   linux:
 
@@ -52,7 +50,6 @@ LIBRARIES:
     - my_lib-0.0.12
   TARGET: # libraries following the pattern "<name>.lib"
     - rtsv7R4_A_be_v3D16_eabi
-    - F021_API_CortexR4_BE_V3D16
 
 CFLAGS:
   # flags that are used for ALL source files (foxBMS, Operating System, HAL)

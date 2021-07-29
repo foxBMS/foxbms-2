@@ -39,7 +39,17 @@
 
 set -e
 SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-WAFSCRIPT="$SCRIPTDIR/../../../tools/utils/cmd/run-python.bat $SCRIPTDIR/../../../tools/waf"
+if [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
+    WAFSCRIPT="$SCRIPTDIR/../../../tools/utils/bash/run-python.sh $SCRIPTDIR/../../../tools/waf"
+elif [ "$(expr substr $(uname -s) 1 9)" == "CYGWIN_NT" ]; then
+    echo "Cygwin is not supported."
+    exit 1
+elif [ "$(expr substr $(uname -s) 1 10)" == "MINGW32_NT" ]; then
+    echo "32bit Windows is not supported."
+    exit 1
+elif [ "$(expr substr $(uname -s) 1 10)" == "MINGW64_NT" ] || [ "$(expr substr $(uname -s) 1 7)" == "MSYS_NT" ] ; then
+    WAFSCRIPT="$SCRIPTDIR/../../../tools/utils/cmd/run-python.bat $SCRIPTDIR/../../../tools/waf"
+fi
 
 echo ""
 echo "running preproc test"

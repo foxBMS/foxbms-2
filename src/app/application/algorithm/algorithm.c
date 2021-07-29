@@ -98,8 +98,6 @@ static void ALGO_Initialization(void) {
             }
         }
     }
-
-    return;
 }
 
 /*========== Extern Function Implementations ================================*/

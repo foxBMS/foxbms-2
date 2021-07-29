@@ -44,7 +44,7 @@ import logging
 import argparse
 
 # package to test
-import OpenSSL  # pylint: disable=unused-import
+# nothing to test
 
 
 def main():

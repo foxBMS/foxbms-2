@@ -43,7 +43,7 @@
  * @file    mxm_battery_management.h
  * @author  foxBMS Team
  * @date    2019-01-14 (date of creation)
- * @updated 2020-09-10 (date of last update)
+ * @updated 2021-06-16 (date of last update)
  * @ingroup DRIVERS
  * @prefix  MXM
  *
@@ -314,15 +314,17 @@ extern void MXM_5XStateMachine(MXM_41B_INSTANCE_s *pInstance41b, MXM_5X_INSTANCE
 
 /**
  * @brief Returns the last received DC byte.
+ * @param[in]   kpkInstance pointer to the instance struct
  */
-extern MXM_DC_BYTE_e MXM_5XGetLastDCByte(MXM_5X_INSTANCE_s *pInstance);
+extern MXM_DC_BYTE_e MXM_5XGetLastDCByte(const MXM_5X_INSTANCE_s *const kpkInstance);
 
 /**
  * @brief Get the value of #MXM_5X_INSTANCE::numberOfSatellitesIsGood
+ * @param[in]   kpkInstance pointer to the instance struct
  *
  * @return #MXM_5X_INSTANCE::numberOfSatellitesIsGood
  */
-extern STD_RETURN_TYPE_e MXM_5XGetNumberOfSatellitesGood(MXM_5X_INSTANCE_s *pInstance);
+extern STD_RETURN_TYPE_e MXM_5XGetNumberOfSatellitesGood(const MXM_5X_INSTANCE_s *const kpkInstance);
 
 /**
  * @brief   Copy RX buffer into variable.
@@ -333,21 +335,25 @@ extern STD_RETURN_TYPE_e MXM_5XGetNumberOfSatellitesGood(MXM_5X_INSTANCE_s *pIns
  *          In case of the supplied RX buffer being longer than the locally
  *          available one, the remaining entries of the buffer will be
  *          filled with 0.
- * @param[in,out]   pInstance   pointer to the state-struct
+ * @param[in,out]   kpkInstance pointer to the state-struct
  * @param[in]       rxBuffer    array-pointer to a RX buffer that shall be filled
  * @param[in]       rxBufferLength   length of the supplied array
  * @return      #STD_NOT_OK for rxBuffer being a #NULL_PTR or rxBufferLength
  *              having length 0
  */
-extern STD_RETURN_TYPE_e MXM_5XGetRXBuffer(MXM_5X_INSTANCE_s *pInstance, uint8_t *rxBuffer, uint16_t rxBufferLength);
+extern STD_RETURN_TYPE_e MXM_5XGetRXBuffer(
+    const MXM_5X_INSTANCE_s *const kpkInstance,
+    uint8_t *rxBuffer,
+    uint16_t rxBufferLength);
 
 /**
  * @brief   Get number of satellites
  * @details Getter-function for the number of satellites
  *          (variable #MXM_5X_INSTANCE::numberOfSatellites).
+ * @param[in]   kpkInstance pointer to the state struct
  * @return  value of #MXM_5X_INSTANCE::numberOfSatellites
  */
-extern uint8_t MXM_5XGetNumberOfSatellites(MXM_5X_INSTANCE_s *pInstance);
+extern uint8_t MXM_5XGetNumberOfSatellites(const MXM_5X_INSTANCE_s *const kpkInstance);
 
 /**
  * @brief   Set state request for the Battery Management Statemachine

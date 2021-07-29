@@ -43,7 +43,7 @@
  * @file    bender_iso165c_cfg.h
  * @author  foxBMS Team
  * @date    2021-03-17 (date of creation)
- * @updated 2021-03-17 (date of last update)
+ * @updated 2021-06-09 (date of last update)
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  I165C
  *
@@ -120,11 +120,11 @@
 /** type of messages to communicate with I165C */
 
 /** cyclic message, transmitted every second */
-#define I165C_MESSAGETYPE_IMD_INFO (0x37u)
+#define I165C_MESSAGETYPE_IMD_INFO (CAN_ID_IMD_INFO)
 /** message for requests (self test, reset, set values...) */
-#define I165C_MESSAGETYPE_IMD_REQUEST (0x22u)
+#define I165C_MESSAGETYPE_IMD_REQUEST (CAN_ID_IMD_REQUEST)
 /** answer message, always send by I165C when it received a request*/
-#define I165C_MESSAGETYPE_IMD_RESPONSE (0x23u)
+#define I165C_MESSAGETYPE_IMD_RESPONSE (CAN_ID_IMD_RESPONSE)
 
 /** control commands (CTL) */
 

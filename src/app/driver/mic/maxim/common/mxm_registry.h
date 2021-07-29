@@ -43,7 +43,7 @@
  * @file    mxm_registry.h
  * @author  foxBMS Team
  * @date    2020-07-16 (date of creation)
- * @updated 2020-07-16 (date of last update)
+ * @updated 2021-06-16 (date of last update)
  * @ingroup DRIVERS
  * @prefix  MXM
  *
@@ -90,10 +90,10 @@ extern STD_RETURN_TYPE_e MXM_MonRegistryConnectDevices(MXM_MONITORING_INSTANCE_s
 /**
  * @brief       Parse number of highest connected device from monitoring-
  *              register.
- * @param[in]   pState  state-pointer
+ * @param[in]   kpkState  state-pointer
  * @return      #MXM_MONITORING_INSTANCE_s::highest5xDevice
  */
-extern uint8_t MXM_MonRegistryGetHighestConnected5XDevice(MXM_MONITORING_INSTANCE_s *pState);
+extern uint8_t MXM_MonRegistryGetHighestConnected5XDevice(const MXM_MONITORING_INSTANCE_s *const kpkState);
 
 /**
  * @brief           Parse ID (1 or 2) into the registry

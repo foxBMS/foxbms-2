@@ -16,7 +16,9 @@
   "global": [
     ".git/**",
     ".vscode/**",
+    ".mypy_cache/**",
     "build/**",
+    "build-tools-tests/**",
     "conf/hcg/include/*",
     "conf/hcg/source/*",
     "src/app/driver/sbc/fs8x_driver/**",
@@ -115,6 +117,7 @@
       "**/*.dil",
       "**/*.patch",
       "tools/gui/data/pcan_view_v2.0.trc",
+      "**/*.sym",
       "**/*.dbc"
     ]
   },
@@ -470,7 +473,8 @@
                 "docs/general/team.rst",
                 "docs/general/team-ad-sc.rst",
                 "docs/general/team-dev.rst",
-                "docs/general/team-former.rst"
+                "docs/general/team-former.rst",
+                "docs/misc/acknowledgements.rst"
               ],
               "regex": ".. include:: .{1,2}(/(..|\\w+))*/units.txt"
             }
@@ -482,7 +486,9 @@
         "exclude": [
           "docs/general/team-ad-sc.rst",
           "docs/general/team-dev.rst",
-          "docs/general/team-former.rst"
+          "docs/general/team-former.rst",
+          "docs/tools/waf-tools/f_*.rst",
+          "docs/tools/waf-tools/compiler-tool/f_*.rst"
         ]
       },
       "orphan": {

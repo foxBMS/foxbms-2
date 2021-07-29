@@ -43,7 +43,7 @@
  * @file    mxm_crc8.c
  * @author  foxBMS Team
  * @date    2019-02-05 (date of creation)
- * @updated 2020-04-27 (date of last update)
+ * @updated 2021-06-16 (date of last update)
  * @ingroup DRIVERS
  * @prefix  MXM
  *
@@ -107,6 +107,9 @@ extern uint8_t MXM_CRC8WithInitValue(uint16_t *pData, int32_t lenData, uint8_t c
     int32_t len    = lenData;
     uint16_t *data = pData;
     while (len > 0) {
+        /* The lookup table on this algorithm is not intended for values larger
+        than uint8_t, SPI transmissions have size uint16_t due to the HAL */
+        FAS_ASSERT(*data <= UINT8_MAX);
         crc = mxm_crc8Table[*data ^ crc];
         data++;
         len--;
@@ -118,7 +121,7 @@ extern uint8_t MXM_CRC8(uint16_t *pData, int32_t lenData) {
     return MXM_CRC8WithInitValue(pData, lenData, 0);
 }
 
-extern STD_RETURN_TYPE_e must_check_return MXM_CRC8SelfTest() {
+extern STD_RETURN_TYPE_e must_check_return MXM_CRC8SelfTest(void) {
     uint16_t testSequence1[4] = {0x02u, 0x12u, 0xB1u, 0xB2u};
     FAS_ASSERT(MXM_CRC8(testSequence1, 4) == 0xC4u);
 

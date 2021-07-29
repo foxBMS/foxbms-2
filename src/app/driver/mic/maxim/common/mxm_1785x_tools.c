@@ -43,7 +43,7 @@
  * @file    mxm_1785x_tools.c
  * @author  foxBMS Team
  * @date    2020-07-15 (date of creation)
- * @updated 2020-07-15 (date of last update)
+ * @updated 2021-06-16 (date of last update)
  * @ingroup DRIVERS
  * @prefix  MXM
  *
@@ -82,7 +82,7 @@ extern uint8_t MXM_FirstSetBit(uint16_t bitmask) {
     return retval;
 }
 
-extern STD_RETURN_TYPE_e must_check_return MXM_FirstSetBitTest() {
+extern STD_RETURN_TYPE_e must_check_return MXM_FirstSetBitTest(void) {
     /* bitmasks containing only zeros should return first bit set 16 */
     FAS_ASSERT(MXM_FirstSetBit(MXM_BM_NULL) == 16u);
 
@@ -113,18 +113,16 @@ extern void MXM_Convert(
             break;
         case MXM_CONVERSION_BLOCK_VOLTAGE:
         case MXM_CONVERSION_UNIPOLAR:
-            *pTarget = ((temporaryVoltage * fullScaleReference_mV) / 0x3FFFu);
+            *pTarget = (uint16_t)((temporaryVoltage * fullScaleReference_mV) / 0x3FFFu);
             break;
         default:
             /* we should not be here */
             FAS_ASSERT(FAS_TRAP);
             break;
     }
-
-    return;
 }
 
-extern STD_RETURN_TYPE_e must_check_return MXM_ConvertTest() {
+extern STD_RETURN_TYPE_e must_check_return MXM_ConvertTest(void) {
     uint16_t voltage                     = 0u;
     uint8_t msb                          = 0u;
     uint8_t lsb                          = 0u;
@@ -167,13 +165,13 @@ extern void MXM_ExtractValueFromRegister(uint8_t lsb, uint8_t msb, MXM_REG_BM bi
     uint8_t msbMasked   = msb & ((uint8_t)(msbBitmask >> 8u));
 
     /* shift LSB into right position and or over into value */
-    *pValue = 0u | (lsbMasked >> start);
+    *pValue = (uint16_t)0u | (lsbMasked >> start);
 
     /* add MSB at right position */
     *pValue = (((uint16_t)msbMasked << (8u - start)) | *pValue);
 }
 
-extern STD_RETURN_TYPE_e must_check_return MXM_ExtractValueFromRegisterTest() {
+extern STD_RETURN_TYPE_e must_check_return MXM_ExtractValueFromRegisterTest(void) {
     uint8_t lsb    = 0x00u;
     uint8_t msb    = 0x00u;
     uint16_t value = 0x00u;
@@ -208,9 +206,9 @@ extern void MXM_Unipolar14BitInto16Bit(uint16_t inputValue, uint8_t *lsb, uint8_
     workingCopy = workingCopy << 2u;
 
     /* bitmask LSB */
-    *lsb = workingCopy & MXM_BM_LSB;
+    *lsb = (uint8_t)(workingCopy & MXM_BM_LSB);
     /* shift MSB into lower byte (workingCopy is 16bit) */
-    *msb = workingCopy >> 8u;
+    *msb = (uint8_t)(workingCopy >> 8u);
 }
 
 extern uint16_t MXM_VoltageIntoUnipolar14Bit(uint16_t voltage_mV, uint16_t fullscaleReference_mV) {

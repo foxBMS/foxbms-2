@@ -43,7 +43,7 @@
  * @file    bender_iso165c_cfg.c
  * @author  foxBMS Team
  * @date    2021-03-17 (date of creation)
- * @updated 2021-03-17 (date of last update)
+ * @updated 2021-07-23 (date of last update)
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  I165C
  *
@@ -61,17 +61,6 @@
 /*========== Static Constant and Variable Definitions =======================*/
 
 /*========== Extern Constant and Variable Definitions =======================*/
-
-/** handle of the data queue */
-QueueHandle_t imd_canDataQueue = NULL_PTR;
-/** structure for static data queue */
-StaticQueue_t imd_queueStructure = {0};
-/**
- * @brief   size of Queue storage
- * @details The array to use as the queue's storage area. This must be at
- *          least #DATA_QUEUE_LENGTH * #DATA_QUEUE_ITEM_SIZE
- */
-uint8_t imd_queueStorageArea[IMD_QUEUE_LENGTH * IMD_QUEUE_ITEM_SIZE] = {0};
 
 /*========== Static Function Prototypes =====================================*/
 

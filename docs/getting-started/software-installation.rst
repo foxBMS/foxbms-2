@@ -70,9 +70,9 @@ later steps of this manual.
    :caption: Downloading a release
    :name: download-foxbms-2
 
-   C:\Users\vulpes\Documents>curl -Ss -L -o foxbms-2-v1.0.2.zip https://github.com/foxBMS/foxbms-2/archive/v1.0.2.zip
-   C:\Users\vulpes\Documents>tar -x -f foxbms-2-v1.0.2.zip
-   C:\Users\vulpes\Documents>ren foxbms-2-1.0.2 foxbms-2
+   C:\Users\vulpes\Documents>curl -Ss -L -o foxbms-2-v1.1.0.zip https://github.com/foxBMS/foxbms-2/archive/v1.1.0.zip
+   C:\Users\vulpes\Documents>tar -x -f foxbms-2-v1.1.0.zip
+   C:\Users\vulpes\Documents>ren foxbms-2-1.1.0 foxbms-2
    C:\Users\vulpes\Documents>cd foxbms-2
 
 .. note::
@@ -118,7 +118,7 @@ Download `Code Composer Studio`_ (CCS) version |version_ccs|  and run the
 installer (chose ``Windows single file installer for CCS IDE``).
 Do **not** change the default installation directory chosen by the installer
 and let the installer proceed with the installation into the installation
-directory (i.e. ``C:\ti\...`` for CCS ``10.1.1``). Select the
+directory (i.e. ``C:\ti\...`` for CCS ``10.3.1``). Select the
 ``Hercules™ Safety MCUs`` option during the installation.
 
 Installing Code Composer Studio may take a while.
@@ -301,6 +301,8 @@ Installing VS Code and Extensions
 
 All required software is now installed.
 
+.. _conda_env_update:
+
 *****************************
 Development Environment Setup
 *****************************
@@ -335,3 +337,30 @@ installation.
 
 **If all the indicated steps have been followed, at this point all the
 required dependencies have been installed/updated.**
+
+************************
+Debugger toolchain setup
+************************
+
+For the development of an embedded system both a way of downloading the
+software into the target and debugging the running software in the target is
+necessary. Since the setup is highly dependent on the selected toolchain, this
+manual does not give any details on the installation of such a debugger
+toolchain. The manuals of the tool vendors are exhaustive on the topic of
+installation and setup.
+
+More details on the selection and usage of debugger toolchains can be
+found in :ref:`DEBUGGING_THE_APPLICATION`.
+
+*********************************
+Optional: CAN-Driver installation
+*********************************
+
+One way of communicating with the BMS is through the CAN protocol.
+The toolchain of |foxbms| is targeted on the usage of CAN interfaces of the
+PCAN series by PEAK System.
+In order to use these probes, the required driver has to be downloaded from the
+`website of the vendor <https://www.peak-system.com/>`_.
+
+When installing, please make sure that the option for "PCAN-Basic API" is
+selected, as this is required for the |foxbms| GUI application.

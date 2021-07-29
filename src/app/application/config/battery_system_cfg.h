@@ -43,7 +43,7 @@
  * @file    battery_system_cfg.h
  * @author  foxBMS Team
  * @date    2019-12-10 (date of creation)
- * @updated 2021-03-24 (date of last update)
+ * @updated 2021-06-09 (date of last update)
  * @ingroup BATTERY_SYSTEM_CONFIGURATION
  * @prefix  BS
  *
@@ -87,6 +87,11 @@ typedef enum BS_STRING_ID {
 
 /** Number of strings in system */
 #define BS_NR_OF_STRINGS (3u)
+
+/* safety check: due to implementation BS_NR_OF_STRINGS may not be larger than REPEAT_MAXIMUM_REPETITIONS */
+#if (BS_NR_OF_STRINGS > REPEAT_MAXIMUM_REPETITIONS)
+#error "Too large number of strings, please check implementation of REPEAT_U()."
+#endif
 
 /**
  * @ingroup CONFIG_BATTERYSYSTEM
@@ -154,8 +159,10 @@ typedef enum BS_STRING_ID {
 
 /** number of (not parallel) battery cells in the system */
 #define BS_NR_OF_BAT_CELLS (BS_NR_OF_MODULES * BS_NR_OF_CELLS_PER_MODULE)
-/** number of temperature sensors in the system */
-#define BS_NR_OF_TEMP_SENSORS (BS_NR_OF_MODULES * BS_NR_OF_TEMP_SENSORS_PER_MODULE)
+/** number of temperature sensors in a string */
+#define BS_NR_OF_TEMP_SENSORS_PER_STRING (BS_NR_OF_MODULES * BS_NR_OF_TEMP_SENSORS_PER_MODULE)
+/** number of temperature sensors in the battery system */
+#define BS_NR_OF_TEMP_SENSORS (BS_NR_OF_TEMP_SENSORS_PER_STRING * BS_NR_OF_STRINGS)
 
 /** number of temperature sensors on each ADC0 channel of the slave-board */
 #define BS_NR_OF_TEMP_SENSORS_ON_ADC0 (3u)
@@ -210,7 +217,7 @@ typedef enum BS_STRING_ID {
  *          - If set to true, foxBMS checks CAN timing. A valid request must
  *            come every 100ms, within the 95-150ms window.
  */
-#define CHECK_CAN_TIMING (false)
+#define CHECK_CAN_TIMING (true)
 
 /**
  * @details - If set to true, balancing is deactivated completely.

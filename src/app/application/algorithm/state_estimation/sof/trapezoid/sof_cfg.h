@@ -60,49 +60,49 @@
 /*========== Macros and Definitions =========================================*/
 
 /**
- * Maximum current in mA in charge direction that the battery pack can sustain.
+ * Maximum current in mA in charge direction that a string can sustain.
  * Normally set once for the specific battery cell from datasheet
  */
-#define SOF_CURRENT_MAX_CONTINUOUS_CHARGE_mA (120000.00f)
+#define SOF_STRING_CURRENT_CONTINUOUS_CHARGE_mA (120000.00f)
 
 /**
  * Different alarm levels for the maximum continuous charge current in mA.
  * @{
  */
-#define SOF_MOL_CURRENT_MAX_CONTINUOUS_CHARGE_mA (100000.00f)
-#define SOF_RSL_CURRENT_MAX_CONTINUOUS_CHARGE_mA (115000.00f)
-#define SOF_MSL_CURRENT_MAX_CONTINUOUS_CHARGE_mA (122000.00f)
+#define SOF_MOL_STRING_CURRENT_CONTINUOUS_CHARGE_mA (10000.00f)
+#define SOF_RSL_STRING_CURRENT_CONTINUOUS_CHARGE_mA (11500.00f)
+#define SOF_MSL_STRING_CURRENT_CONTINUOUS_CHARGE_mA (12200.00f)
 /**@}*/
 
 /**
- * Maximum current in mA in discharge direction that the battery pack can deliver.
+ * Maximum current in mA in discharge direction that a string can deliver.
  * Normally set once for the specific battery cell from datasheet.
  */
-#define SOF_CURRENT_MAX_CONTINUOUS_DISCHARGE_mA (120000.00f)
+#define SOF_STRING_CURRENT_CONTINUOUS_DISCHARGE_mA (120000.00f)
 
 /**
- * Different alarm levels for the maximum continuous discharge current in mA.
+ * Different alarm levels for the maximum continuous string discharge current in mA.
  * @{
  */
-#define SOF_MOL_CURRENT_MAX_CONTINUOUS_DISCHARGE_mA (100000.00f)
-#define SOF_RSL_CURRENT_MAX_CONTINUOUS_DISCHARGE_mA (115000.00f)
-#define SOF_MSL_CURRENT_MAX_CONTINUOUS_DISCHARGE_mA (122000.00f)
+#define SOF_MOL_STRING_CURRENT_CONTINUOUS_DISCHARGE_mA (10000.00f)
+#define SOF_RSL_STRING_CURRENT_CONTINUOUS_DISCHARGE_mA (11500.00f)
+#define SOF_MSL_STRING_CURRENT_CONTINUOUS_DISCHARGE_mA (12200.00f)
 /**@}*/
 
 /**
- * Current in mA that the battery pack should be able to discharge when in
+ * Current in mA that the string should be able to discharge when in
  * limp home mode, i.e., something noncritical went wrong but it should be able
  * to drive home. The value is chosen by the system engineer.
  */
-#define SOF_CURRENT_LIMP_HOME_mA (20000.00f)
+#define SOF_STRING_CURRENT_LIMP_HOME_mA (20000.00f)
 
 /**
  * Different alarm levels for the limp home current in mA
  * @{
  */
-#define SOF_MOL_CURRENT_LIMP_HOME_mA (20000.00f)
-#define SOF_RSL_CURRENT_LIMP_HOME_mA (20000.00f)
-#define SOF_MSL_CURRENT_LIMP_HOME_mA (20000.00f)
+#define SOF_MOL_STRING_CURRENT_LIMP_HOME_mA (20000.00f)
+#define SOF_RSL_STRING_CURRENT_LIMP_HOME_mA (20000.00f)
+#define SOF_MSL_STRING_CURRENT_LIMP_HOME_mA (20000.00f)
 /**@}*/
 
 /**

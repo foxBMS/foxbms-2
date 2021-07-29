@@ -43,7 +43,7 @@
  * @file    soe_counting.c
  * @author  foxBMS Team
  * @date    2020-10-07 (date of creation)
- * @updated 2020-10-07 (date of last update)
+ * @updated 2021-05-20 (date of last update)
  * @ingroup APPLICATION
  * @prefix  SOE
  *
@@ -67,9 +67,9 @@
 /**
  * This structure contains all the variables relevant for the SOX.
  */
-typedef struct {
+typedef struct SOE_STATE {
     bool soeInitialized;                      /*!< true if the initialization has passed, false otherwise */
-    bool sensor_ec_used[BS_NR_OF_STRINGS];    /*!< true if energy counting functionality of current sensor is used */
+    bool sensorEcUsed[BS_NR_OF_STRINGS];      /*!< true if energy counting functionality of current sensor is used */
     float ecScalingAverage[BS_NR_OF_STRINGS]; /*!< current sensor offset scaling for average SOE */
     float ecScalingMinimum[BS_NR_OF_STRINGS]; /*!< current sensor offset scaling for minimum SOE */
     float ecScalingMaximum[BS_NR_OF_STRINGS]; /*!< current sensor offset scaling for maximum SOE */
@@ -77,18 +77,26 @@ typedef struct {
         [BS_NR_OF_STRINGS]; /*!< last used timestamp of current or energy counting value for SOE estimation */
 } SOE_STATE_s;
 
+/** defines for maximum and minimum SOE */
+#define MAXIMUM_SOE_PERC (100.0f)
+#define MINIMUM_SOE_PERC (0.0f)
+
 /*========== Static Constant and Variable Definitions =======================*/
 
 /**
  * contains the state of the SOE estimation
  */
 static SOE_STATE_s soe_state = {
-    .soeInitialized = false,
+    .soeInitialized    = false,
+    .sensorEcUsed      = {REPEAT_U(false, STRIP(BS_NR_OF_STRINGS))},
+    .ecScalingAverage  = {REPEAT_U(0.0f, STRIP(BS_NR_OF_STRINGS))},
+    .ecScalingMinimum  = {REPEAT_U(0.0f, STRIP(BS_NR_OF_STRINGS))},
+    .ecScalingMaximum  = {REPEAT_U(0.0f, STRIP(BS_NR_OF_STRINGS))},
+    .previousTimestamp = {REPEAT_U(0u, STRIP(BS_NR_OF_STRINGS))},
 };
 
 /** local copies of database tables */
 /**@{*/
-static DATA_BLOCK_SOX_s soe_tableSoeValues                = {.header.uniqueId = DATA_BLOCK_ID_SOX};
 static DATA_BLOCK_CURRENT_SENSOR_s soe_tableCurrentSensor = {.header.uniqueId = DATA_BLOCK_ID_CURRENT_SENSOR};
 /**@}*/
 
@@ -116,8 +124,9 @@ static float SOE_GetStringSoePercentageFromEnergy(uint32_t energy_Wh);
 
 /**
  * @brief   initializes database and FRAM SOE values via lookup table (average, min and max).
+ * @param[out] pSoeValues   pointer to SOE database entry
  */
-static void SOE_RecalibrateViaLookupTable(void);
+static void SOE_RecalibrateViaLookupTable(DATA_BLOCK_SOX_s *pSoeValues);
 
 /**
  * @brief   look-up table for SOE initialization
@@ -133,12 +142,14 @@ static float SOE_GetFromVoltage(int16_t voltage_mV);
  * @details limits the SOE value to 0.0 respectively 100.0 if a value outside
  *          of the allowed SOE range is passed. Updates local fram and database
  *          struct but does *NOT* write them
+ * @param[out]  pSoeValues  pointer to SOE database enty
  * @param[in]   soeMinimumValue_perc  SOE min value to set
  * @param[in]   soeMaximumValue_perc  SOE max value to set
  * @param[in]   soeAverageValue_perc  SOE average value to set
  * @param[in]   stringNumber     string addressed
  */
 static void SOE_SetValue(
+    DATA_BLOCK_SOX_s *pSoeValues,
     float soeMinimumValue_perc,
     float soeMaximumValue_perc,
     float soeAverageValue_perc,
@@ -155,41 +166,43 @@ static void SOE_CheckDatabaseSoePercentageLimits(DATA_BLOCK_SOX_s *pTableSoe, ui
 
 /*========== Static Function Implementations ================================*/
 static float SOE_GetStringSoePercentageFromEnergy(uint32_t energy_Wh) {
-    float stringSoe_perc = 0.0f;
-    if (energy_Wh >= (uint32_t)SOE_STRING_ENERGY_Wh) {
-        stringSoe_perc = 100.0f;
+    float stringSoe_perc        = 0.0f;
+    const float stringEnergy_Wh = (float)energy_Wh;
+    if (stringEnergy_Wh >= SOE_STRING_ENERGY_Wh) {
+        stringSoe_perc = MAXIMUM_SOE_PERC;
     } else {
-        stringSoe_perc = 100.0f * ((float)energy_Wh / SOE_STRING_ENERGY_Wh);
+        stringSoe_perc = UNIT_CONVERSION_FACTOR_100_FLOAT * (stringEnergy_Wh / SOE_STRING_ENERGY_Wh);
     }
     return stringSoe_perc;
 }
 
 static uint32_t SOE_GetStringEnergyFromSoePercentage(float stringSoe_perc) {
     float energy_Wh = 0.0f;
-    if (stringSoe_perc >= 100.0f) {
+    if (stringSoe_perc >= MAXIMUM_SOE_PERC) {
         energy_Wh = SOE_STRING_ENERGY_Wh;
-    } else if (stringSoe_perc <= 0.0f) {
-        energy_Wh = 0.0f;
+    } else if (stringSoe_perc <= MINIMUM_SOE_PERC) {
+        energy_Wh = MINIMUM_SOE_PERC;
     } else {
-        energy_Wh = SOE_STRING_ENERGY_Wh * (stringSoe_perc / 100.0f);
+        energy_Wh = SOE_STRING_ENERGY_Wh * (stringSoe_perc / UNIT_CONVERSION_FACTOR_100_FLOAT);
     }
     return (uint32_t)energy_Wh;
 }
 
-static void SOE_RecalibrateViaLookupTable(void) {
+static void SOE_RecalibrateViaLookupTable(DATA_BLOCK_SOX_s *pSoeValues) {
+    FAS_ASSERT(pSoeValues != NULL_PTR);
     DATA_BLOCK_MIN_MAX_s tableMinimumMaximumAverage = {.header.uniqueId = DATA_BLOCK_ID_MIN_MAX};
 
     DATA_READ_DATA(&tableMinimumMaximumAverage);
 
     for (uint8_t stringNumber = 0u; stringNumber < BS_NR_OF_STRINGS; stringNumber++) {
         SOE_SetValue(
+            pSoeValues,
             SOE_GetFromVoltage(tableMinimumMaximumAverage.minimumCellVoltage_mV[stringNumber]),
             SOE_GetFromVoltage(tableMinimumMaximumAverage.maximumCellVoltage_mV[stringNumber]),
             SOE_GetFromVoltage(tableMinimumMaximumAverage.averageCellVoltage_mV[stringNumber]),
             stringNumber);
     }
     FRAM_Write(FRAM_BLOCK_ID_SOE);
-    DATA_WRITE_DATA(&soe_tableSoeValues);
 }
 
 static float SOE_GetFromVoltage(int16_t voltage_mV) {
@@ -207,49 +220,56 @@ static float SOE_GetFromVoltage(int16_t voltage_mV) {
     }
 
     /* Interpolate between LUT values, but do not extrapolate LUT! */
-    if (!(((0u == between_high) && (0u == between_low)) ||      /* cell voltage > maximum LUT voltage */
-          (between_low > bc_stateOfEnergyLookupTableLength))) { /* cell voltage < minimum LUT voltage */
+    if (!(((0u == between_high) && (0u == between_low)) ||       /* cell voltage > maximum LUT voltage */
+          (between_low >= bc_stateOfEnergyLookupTableLength))) { /* cell voltage < minimum LUT voltage */
         soe_perc = MATH_linearInterpolation(
             (float)bc_stateOfEnergyLookupTable[between_low].voltage_mV,
             bc_stateOfEnergyLookupTable[between_low].value,
             (float)bc_stateOfEnergyLookupTable[between_high].voltage_mV,
             bc_stateOfEnergyLookupTable[between_high].value,
             (float)voltage_mV);
-    } else if ((between_low > bc_stateOfEnergyLookupTableLength)) {
+    } else if ((between_low >= bc_stateOfEnergyLookupTableLength)) {
         /* LUT SOE values are in descending order: cell voltage < minimum LUT voltage */
-        soe_perc = 0.0f;
+        soe_perc = MINIMUM_SOE_PERC;
     } else {
         /* cell voltage > maximum LUT voltage */
-        soe_perc = 100.0f;
+        soe_perc = MAXIMUM_SOE_PERC;
     }
     return soe_perc;
 }
 
 static void SOE_SetValue(
+    DATA_BLOCK_SOX_s *pSoeValues,
     float soeMinimumValue_perc,
     float soeMaximumValue_perc,
     float soeAverageValue_perc,
     uint8_t stringNumber) {
+    FAS_ASSERT(pSoeValues != NULL_PTR);
+
     /* Update FRAM value */
     fram_soe.averageSoe_perc[stringNumber] = soeAverageValue_perc;
     fram_soe.minimumSoe_perc[stringNumber] = soeMinimumValue_perc;
     fram_soe.maximumSoe_perc[stringNumber] = soeMaximumValue_perc;
 
     /* Update database values */
-    soe_tableSoeValues.averageSoe_perc[stringNumber] = soeAverageValue_perc;
-    soe_tableSoeValues.minimumSoe_perc[stringNumber] = soeMinimumValue_perc;
-    soe_tableSoeValues.maximumSoe_perc[stringNumber] = soeMaximumValue_perc;
+    pSoeValues->averageSoe_perc[stringNumber] = soeAverageValue_perc;
+    pSoeValues->minimumSoe_perc[stringNumber] = soeMinimumValue_perc;
+    pSoeValues->maximumSoe_perc[stringNumber] = soeMaximumValue_perc;
 
-    soe_tableSoeValues.maximumSoe_Wh[stringNumber] = SOE_GetStringEnergyFromSoePercentage(soeMaximumValue_perc);
-    soe_tableSoeValues.averageSoe_Wh[stringNumber] = SOE_GetStringEnergyFromSoePercentage(soeAverageValue_perc);
-    soe_tableSoeValues.minimumSoe_Wh[stringNumber] = SOE_GetStringEnergyFromSoePercentage(soeMinimumValue_perc);
+    pSoeValues->maximumSoe_Wh[stringNumber] = SOE_GetStringEnergyFromSoePercentage(soeMaximumValue_perc);
+    pSoeValues->averageSoe_Wh[stringNumber] = SOE_GetStringEnergyFromSoePercentage(soeAverageValue_perc);
+    pSoeValues->minimumSoe_Wh[stringNumber] = SOE_GetStringEnergyFromSoePercentage(soeMinimumValue_perc);
 
     /* Calculate scaling values depending on EC counting value and current SOE */
-    if (soe_state.sensor_ec_used[stringNumber] == true) {
+    if (soe_state.sensorEcUsed[stringNumber] == true) {
         DATA_READ_DATA(&soe_tableCurrentSensor);
 
         float ecOffset =
             SOE_GetStringSoePercentageFromEnergy((uint32_t)abs(soe_tableCurrentSensor.energyCounter_Wh[stringNumber]));
+
+        if (soe_tableCurrentSensor.energyCounter_Wh[stringNumber] < 0) {
+            ecOffset *= (-1.0f);
+        }
 
 #if POSITIVE_DISCHARGE_CURRENT == false
         ecOffset *= (-1.0f); /* negate calculated delta SOE in perc */
@@ -266,54 +286,59 @@ static void SOE_CheckDatabaseSoePercentageLimits(DATA_BLOCK_SOX_s *pTableSoe, ui
     FAS_ASSERT(pTableSoe != NULL_PTR);
     FAS_ASSERT(stringNumber < BS_NR_OF_STRINGS);
 
-    if (pTableSoe->averageSoe_perc[stringNumber] > 100.0f) {
-        pTableSoe->averageSoe_perc[stringNumber] = 100.0f;
+    if (pTableSoe->averageSoe_perc[stringNumber] > MAXIMUM_SOE_PERC) {
+        pTableSoe->averageSoe_perc[stringNumber] = MAXIMUM_SOE_PERC;
     }
-    if (pTableSoe->averageSoe_perc[stringNumber] < 0.0f) {
-        pTableSoe->averageSoe_perc[stringNumber] = 0.0f;
+    if (pTableSoe->averageSoe_perc[stringNumber] < MINIMUM_SOE_PERC) {
+        pTableSoe->averageSoe_perc[stringNumber] = MINIMUM_SOE_PERC;
     }
-    if (pTableSoe->minimumSoe_perc[stringNumber] > 100.0f) {
-        pTableSoe->minimumSoe_perc[stringNumber] = 100.0f;
+    if (pTableSoe->minimumSoe_perc[stringNumber] > MAXIMUM_SOE_PERC) {
+        pTableSoe->minimumSoe_perc[stringNumber] = MAXIMUM_SOE_PERC;
     }
-    if (pTableSoe->minimumSoe_perc[stringNumber] < 0.0f) {
-        pTableSoe->minimumSoe_perc[stringNumber] = 0.0f;
+    if (pTableSoe->minimumSoe_perc[stringNumber] < MINIMUM_SOE_PERC) {
+        pTableSoe->minimumSoe_perc[stringNumber] = MINIMUM_SOE_PERC;
     }
-    if (pTableSoe->maximumSoe_perc[stringNumber] > 100.0f) {
-        pTableSoe->maximumSoe_perc[stringNumber] = 100.0f;
+    if (pTableSoe->maximumSoe_perc[stringNumber] > MAXIMUM_SOE_PERC) {
+        pTableSoe->maximumSoe_perc[stringNumber] = MAXIMUM_SOE_PERC;
     }
-    if (pTableSoe->maximumSoe_perc[stringNumber] < 0.0f) {
-        pTableSoe->maximumSoe_perc[stringNumber] = 0.0f;
+    if (pTableSoe->maximumSoe_perc[stringNumber] < MINIMUM_SOE_PERC) {
+        pTableSoe->maximumSoe_perc[stringNumber] = MINIMUM_SOE_PERC;
     }
-    return;
 }
 
 /*========== Extern Function Implementations ================================*/
 
-extern void SOE_Init(bool ec_present, uint8_t stringNumber) {
+extern void SOE_Init(DATA_BLOCK_SOX_s *pSoeValues, bool ec_present, uint8_t stringNumber) {
+    FAS_ASSERT(pSoeValues != NULL_PTR);
+    FAS_ASSERT(stringNumber < BS_NR_OF_STRINGS);
     FRAM_Read(FRAM_BLOCK_ID_SOE);
 
-    soe_tableSoeValues.averageSoe_perc[stringNumber] = fram_soe.averageSoe_perc[stringNumber];
-    soe_tableSoeValues.minimumSoe_perc[stringNumber] = fram_soe.minimumSoe_perc[stringNumber];
-    soe_tableSoeValues.maximumSoe_perc[stringNumber] = fram_soe.maximumSoe_perc[stringNumber];
+    pSoeValues->averageSoe_perc[stringNumber] = fram_soe.averageSoe_perc[stringNumber];
+    pSoeValues->minimumSoe_perc[stringNumber] = fram_soe.minimumSoe_perc[stringNumber];
+    pSoeValues->maximumSoe_perc[stringNumber] = fram_soe.maximumSoe_perc[stringNumber];
 
     /* Limit SOE values [0.0f, 100.0f] */
-    SOE_CheckDatabaseSoePercentageLimits(&soe_tableSoeValues, stringNumber);
+    SOE_CheckDatabaseSoePercentageLimits(pSoeValues, stringNumber);
 
     /* Calculate string energy in Wh */
-    soe_tableSoeValues.maximumSoe_Wh[stringNumber] =
-        SOE_GetStringEnergyFromSoePercentage(soe_tableSoeValues.maximumSoe_perc[stringNumber]);
-    soe_tableSoeValues.minimumSoe_Wh[stringNumber] =
-        SOE_GetStringEnergyFromSoePercentage(soe_tableSoeValues.minimumSoe_perc[stringNumber]);
-    soe_tableSoeValues.averageSoe_Wh[stringNumber] =
-        SOE_GetStringEnergyFromSoePercentage(soe_tableSoeValues.averageSoe_perc[stringNumber]);
+    pSoeValues->maximumSoe_Wh[stringNumber] =
+        SOE_GetStringEnergyFromSoePercentage(pSoeValues->maximumSoe_perc[stringNumber]);
+    pSoeValues->minimumSoe_Wh[stringNumber] =
+        SOE_GetStringEnergyFromSoePercentage(pSoeValues->minimumSoe_perc[stringNumber]);
+    pSoeValues->averageSoe_Wh[stringNumber] =
+        SOE_GetStringEnergyFromSoePercentage(pSoeValues->averageSoe_perc[stringNumber]);
 
     if (true == ec_present) {
         DATA_READ_DATA(&soe_tableCurrentSensor);
-        soe_state.sensor_ec_used[stringNumber] = true;
+        soe_state.sensorEcUsed[stringNumber] = true;
 
         /* Set scaling values */
         float ecOffset =
             SOE_GetStringSoePercentageFromEnergy((uint32_t)abs(soe_tableCurrentSensor.energyCounter_Wh[stringNumber]));
+
+        if (soe_tableCurrentSensor.energyCounter_Wh[stringNumber] < 0) {
+            ecOffset *= (-1.0f);
+        }
 
 #if POSITIVE_DISCHARGE_CURRENT == false
         ecOffset *= (-1.0f); /* negate calculated delta SOE in perc */
@@ -325,10 +350,10 @@ extern void SOE_Init(bool ec_present, uint8_t stringNumber) {
         soe_state.ecScalingAverage[stringNumber] = fram_soe.averageSoe_perc[stringNumber] + ecOffset;
     }
     soe_state.soeInitialized = true;
-    DATA_WRITE_DATA(&soe_tableCurrentSensor);
 }
 
-void SOE_Calculation(void) {
+void SOE_Calculation(DATA_BLOCK_SOX_s *pSoeValues) {
+    FAS_ASSERT(pSoeValues != NULL_PTR);
     bool continueFunction = true;
     if (false == soe_state.soeInitialized) {
         /* Exit if SOE not initialized yet */
@@ -336,15 +361,15 @@ void SOE_Calculation(void) {
     }
 
     if (true == continueFunction) {
+        /* Use energy counting/integrate */
+        DATA_READ_DATA(&soe_tableCurrentSensor);
+
         if (BMS_GetBatterySystemState() == BMS_AT_REST) {
             /* Recalibrate SOE via LUT */
-            SOE_RecalibrateViaLookupTable();
+            SOE_RecalibrateViaLookupTable(pSoeValues);
         } else {
-            /* Use energy counting/integrate */
-            DATA_READ_DATA(&soe_tableCurrentSensor);
-
             for (uint8_t stringNumber = 0u; stringNumber < BS_NR_OF_STRINGS; stringNumber++) {
-                if (false == soe_state.sensor_ec_used[stringNumber]) {
+                if (false == soe_state.sensorEcUsed[stringNumber]) {
                     /* no energy counting activated -> manually integrate energy */
                     uint32_t timestamp          = soe_tableCurrentSensor.timestampCurrent[stringNumber];
                     uint32_t previous_timestamp = soe_tableCurrentSensor.previousTimestampCurrent[stringNumber];
@@ -366,16 +391,16 @@ void SOE_Calculation(void) {
                             deltaSOE_Wh *= (-1.0f);
 #endif /* POSITIVE_DISCHARGE_CURRENT == false */
 
-                            soe_tableSoeValues.averageSoe_Wh[stringNumber] -= (uint32_t)deltaSOE_Wh;
-                            soe_tableSoeValues.minimumSoe_Wh[stringNumber] -= (uint32_t)deltaSOE_Wh;
-                            soe_tableSoeValues.maximumSoe_Wh[stringNumber] -= (uint32_t)deltaSOE_Wh;
+                            pSoeValues->averageSoe_Wh[stringNumber] -= (uint32_t)deltaSOE_Wh;
+                            pSoeValues->minimumSoe_Wh[stringNumber] -= (uint32_t)deltaSOE_Wh;
+                            pSoeValues->maximumSoe_Wh[stringNumber] -= (uint32_t)deltaSOE_Wh;
 
-                            soe_tableSoeValues.averageSoe_perc[stringNumber] =
-                                SOE_GetStringSoePercentageFromEnergy(soe_tableSoeValues.averageSoe_Wh[stringNumber]);
-                            soe_tableSoeValues.minimumSoe_perc[stringNumber] =
-                                SOE_GetStringSoePercentageFromEnergy(soe_tableSoeValues.minimumSoe_Wh[stringNumber]);
-                            soe_tableSoeValues.maximumSoe_perc[stringNumber] =
-                                SOE_GetStringSoePercentageFromEnergy(soe_tableSoeValues.maximumSoe_Wh[stringNumber]);
+                            pSoeValues->averageSoe_perc[stringNumber] =
+                                SOE_GetStringSoePercentageFromEnergy(pSoeValues->averageSoe_Wh[stringNumber]);
+                            pSoeValues->minimumSoe_perc[stringNumber] =
+                                SOE_GetStringSoePercentageFromEnergy(pSoeValues->minimumSoe_Wh[stringNumber]);
+                            pSoeValues->maximumSoe_perc[stringNumber] =
+                                SOE_GetStringSoePercentageFromEnergy(pSoeValues->maximumSoe_Wh[stringNumber]);
 
                             /* update timestamp SOE state variable for next iteration */
                             soe_state.previousTimestamp[stringNumber] = timestamp;
@@ -388,30 +413,30 @@ void SOE_Calculation(void) {
                         /* Calculate SOE value with current sensor EC value */
                         float deltaSoe_perc =
                             (((float)soe_tableCurrentSensor.energyCounter_Wh[stringNumber] / SOE_STRING_ENERGY_Wh) *
-                             100.0f);
+                             UNIT_CONVERSION_FACTOR_100_FLOAT);
 
 #if POSITIVE_DISCHARGE_CURRENT == false
                         /* negate calculated delta SOE_perc */
                         deltaSoe_perc *= (-1.0f);
 #endif
                         /* Apply EC scaling offset to get actual string energy */
-                        soe_tableSoeValues.averageSoe_perc[stringNumber] = soe_state.ecScalingAverage[stringNumber] -
-                                                                           deltaSoe_perc;
-                        soe_tableSoeValues.minimumSoe_perc[stringNumber] = soe_state.ecScalingMinimum[stringNumber] -
-                                                                           deltaSoe_perc;
-                        soe_tableSoeValues.maximumSoe_perc[stringNumber] = soe_state.ecScalingMaximum[stringNumber] -
-                                                                           deltaSoe_perc;
+                        pSoeValues->averageSoe_perc[stringNumber] = soe_state.ecScalingAverage[stringNumber] -
+                                                                    deltaSoe_perc;
+                        pSoeValues->minimumSoe_perc[stringNumber] = soe_state.ecScalingMinimum[stringNumber] -
+                                                                    deltaSoe_perc;
+                        pSoeValues->maximumSoe_perc[stringNumber] = soe_state.ecScalingMaximum[stringNumber] -
+                                                                    deltaSoe_perc;
 
                         /* Limit SOE values to [0.0, 100.0] */
-                        SOE_CheckDatabaseSoePercentageLimits(&soe_tableSoeValues, stringNumber);
+                        SOE_CheckDatabaseSoePercentageLimits(pSoeValues, stringNumber);
 
                         /* Calculate new Wh values */
-                        soe_tableSoeValues.maximumSoe_Wh[stringNumber] =
-                            SOE_GetStringEnergyFromSoePercentage(soe_tableSoeValues.maximumSoe_perc[stringNumber]);
-                        soe_tableSoeValues.averageSoe_Wh[stringNumber] =
-                            SOE_GetStringEnergyFromSoePercentage(soe_tableSoeValues.averageSoe_perc[stringNumber]);
-                        soe_tableSoeValues.minimumSoe_Wh[stringNumber] =
-                            SOE_GetStringEnergyFromSoePercentage(soe_tableSoeValues.minimumSoe_perc[stringNumber]);
+                        pSoeValues->maximumSoe_Wh[stringNumber] =
+                            SOE_GetStringEnergyFromSoePercentage(pSoeValues->maximumSoe_perc[stringNumber]);
+                        pSoeValues->averageSoe_Wh[stringNumber] =
+                            SOE_GetStringEnergyFromSoePercentage(pSoeValues->averageSoe_perc[stringNumber]);
+                        pSoeValues->minimumSoe_Wh[stringNumber] =
+                            SOE_GetStringEnergyFromSoePercentage(pSoeValues->minimumSoe_perc[stringNumber]);
 
                         /* Update timestamp for next iteration */
                         soe_state.previousTimestamp[stringNumber] =
@@ -419,14 +444,13 @@ void SOE_Calculation(void) {
                     }
                 }
 
-                fram_soe.averageSoe_perc[stringNumber] = soe_tableSoeValues.averageSoe_perc[stringNumber];
-                fram_soe.minimumSoe_perc[stringNumber] = soe_tableSoeValues.minimumSoe_perc[stringNumber];
-                fram_soe.maximumSoe_perc[stringNumber] = soe_tableSoeValues.maximumSoe_perc[stringNumber];
+                fram_soe.averageSoe_perc[stringNumber] = pSoeValues->averageSoe_perc[stringNumber];
+                fram_soe.minimumSoe_perc[stringNumber] = pSoeValues->minimumSoe_perc[stringNumber];
+                fram_soe.maximumSoe_perc[stringNumber] = pSoeValues->maximumSoe_perc[stringNumber];
             }
 
             /* Update database and FRAM value */
             FRAM_Write(FRAM_BLOCK_ID_SOE);
-            DATA_WRITE_DATA(&soe_tableSoeValues);
         }
     }
 }

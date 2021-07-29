@@ -92,8 +92,9 @@ is suppressed.
 
 ``unmatchedSuppression``
 ++++++++++++++++++++++++
-The used suppressions should be as narrow as possible. Sometimes it is, however,
-impractical to mention explicitly every file that violates a certain rule.
+The used suppressions should be as narrow as possible. Sometimes it is,
+however, impractical to mention explicitly every file that violates a certain
+rule.
 In this case the suppression is applied on every file. In the case that a
 particular file has no violations of this type, a warning is generated, which
 can be suppressed.

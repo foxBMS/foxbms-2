@@ -43,7 +43,7 @@
  * @file    adc.c
  * @author  foxBMS Team
  * @date    2019-01-07 (date of creation)
- * @updated 2021-03-24 (date of last update)
+ * @updated 2021-07-14 (date of last update)
  * @ingroup DRIVERS
  * @prefix  ADC
  *
@@ -196,12 +196,12 @@ void ADC_Initialize(void) {
     ADC_HET1_GIO->DIR |= (uint32)((uint32)1u << ADC_HET1_RESET_PIN);
 
     /* first set reset pin to 0 */
-    IO_PinReset((uint32_t *)&ADC_HET1_GIO->DOUT, ADC_HET1_RESET_PIN);
+    IO_PinReset(&ADC_HET1_GIO->DOUT, ADC_HET1_RESET_PIN);
     /* wait after pin toggle */
     for (uint8_t i = 0u; i < 20u; i++) {
     }
     /* set reset pin to 1 to go out of reset */
-    IO_PinSet((uint32_t *)&ADC_HET1_GIO->DOUT, ADC_HET1_RESET_PIN);
+    IO_PinSet(&ADC_HET1_GIO->DOUT, ADC_HET1_RESET_PIN);
 
     /* LSB computation, datasheet equation 9 page 38 */
     adc_lsb1 = (2 * ADC_VREF_1 / ADC_GAIN) / (16777216.0f);
@@ -214,13 +214,13 @@ void ADC_Control(void) {
             /* set reset pin to output */
             ADC_HET1_GIO->DIR |= (uint32)((uint32)1u << ADC_HET1_RESET_PIN);
             /* first set reset pin to 0 */
-            IO_PinReset((uint32_t *)&ADC_HET1_GIO->DOUT, ADC_HET1_RESET_PIN);
+            IO_PinReset(&ADC_HET1_GIO->DOUT, ADC_HET1_RESET_PIN);
             adc_conversionState = ADC_ENDINIT;
             break;
 
         case ADC_ENDINIT:
             /* set reset pin to 1 to go out of reset */
-            IO_PinSet((uint32_t *)&ADC_HET1_GIO->DOUT, ADC_HET1_RESET_PIN);
+            IO_PinSet(&ADC_HET1_GIO->DOUT, ADC_HET1_RESET_PIN);
             /* LSB computation, datasheet equation 9 page 38 */
             adc_lsb1            = (2 * ADC_VREF_1 / ADC_GAIN) / (16777216.0f);
             adc_lsb2            = (2 * ADC_VREF_2 / ADC_GAIN) / (16777216.0f);

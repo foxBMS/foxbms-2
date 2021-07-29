@@ -43,7 +43,7 @@
  * @file    n775.c
  * @author  foxBMS Team
  * @date    2020-05-08 (date of creation)
- * @updated 2020-05-08 (date of last update)
+ * @updated 2021-06-09 (date of last update)
  * @ingroup DRIVERS
  * @prefix  N775
  *
@@ -231,7 +231,7 @@ static void N775_Initialize_Database(void) {
         n775_minMax.nrModuleMaximumTemperature[stringNumber] = 0;
         n775_minMax.nrSensorMinimumTemperature[stringNumber] = 0;
         n775_minMax.nrSensorMaximumTemperature[stringNumber] = 0;
-        for (i = 0; i < BS_NR_OF_TEMP_SENSORS; i++) {
+        for (i = 0; i < BS_NR_OF_TEMP_SENSORS_PER_STRING; i++) {
             n775_cellTemperature.cellTemperature_ddegC[stringNumber][i] = 0;
         }
 

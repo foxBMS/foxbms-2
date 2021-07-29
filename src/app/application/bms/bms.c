@@ -43,7 +43,7 @@
  * @file    bms.c
  * @author  foxBMS Team
  * @date    2020-02-24 (date of creation)
- * @updated 2021-03-24 (date of last update)
+ * @updated 2021-07-29 (date of last update)
  * @ingroup ENGINE
  * @prefix  BMS
  *
@@ -67,6 +67,8 @@
 #include "soa.h"
 
 /*========== Macros and Definitions =========================================*/
+/** default value for unset "active delay time" */
+#define BMS_NO_ACTIVE_DELAY_TIME_ms (UINT32_MAX)
 
 /**
  * Saves the last state and the last substate
@@ -105,6 +107,9 @@ static BMS_STATE_s bms_state = {
     .nextstate                 = BMS_STATEMACH_STANDBY,
     .restTimer_10ms            = BS_RELAXATION_PERIOD_10ms,
     .currentFlowState          = BMS_RELAXATION,
+    .remainingDelay_ms         = BMS_NO_ACTIVE_DELAY_TIME_ms,
+    .minimumActiveDelay_ms     = BMS_NO_ACTIVE_DELAY_TIME_ms,
+    .transitionToErrorState    = false,
 };
 
 /** local copies of database tables */
@@ -157,12 +162,25 @@ static uint8_t BMS_CheckReEntrance(void);
 static uint8_t BMS_CheckCanRequests(void);
 
 /**
- * @brief   Checks the error flags
- * @details Checks all the error flags from the database and returns an error
- *          if at least one is set.
- * @return  #STD_OK if no error flag is set, otherwise #STD_NOT_OK
+ * @brief   Checks all the error flags from diagnosis module with a severity of
+ *          #DIAG_FATAL_ERROR
+ * @details Checks all the error flags from diagnosis module with a severity of
+ *          #DIAG_FATAL_ERROR. Furthermore, sets parameter minimumActiveDelay_ms
+ *          of bms_state variable.
+ * @return  true if error flag is set, otherwise false
  */
-static STD_RETURN_TYPE_e BMS_CheckAnyErrorFlagSet(void);
+static bool BMS_IsAnyFatalErrorFlagSet(void);
+
+/**
+ * @brief   Checks if any error flag is set and handles delay until contactors
+ *          need to be opened.
+ * @details Checks all the diagnosis entries with severity of #DIAG_FATAL_ERROR
+ *          and handles the configured delay until the contactors need to be
+ *          opened. The shortest delay is used, if multiple errors are active at
+ *          once.
+ * @return  #STD_NOT_OK if error detected and delay time elapsed, otherwise #STD_OK
+ */
+static STD_RETURN_TYPE_e BMS_IsBatterySystemStateOkay(void);
 
 /** Get latest database entries for static module variables */
 static void BMS_GetMeasurementValues(void);
@@ -369,47 +387,62 @@ static STD_RETURN_TYPE_e BMS_CheckPrecharge(uint8_t stringNumber, const DATA_BLO
     return retVal;
 }
 
-static STD_RETURN_TYPE_e BMS_CheckAnyErrorFlagSet(void) {
-    STD_RETURN_TYPE_e retVal            = STD_OK; /* is set to STD_NOT_OK if error detected */
-    DATA_BLOCK_ERRORSTATE_s error_flags = {.header.uniqueId = DATA_BLOCK_ID_ERRORSTATE};
-    DATA_BLOCK_MSL_FLAG_s msl_flags     = {.header.uniqueId = DATA_BLOCK_ID_MSL_FLAG};
+static bool BMS_IsAnyFatalErrorFlagSet(void) {
+    bool fatalErrorActive = false;
 
-    DATA_READ_DATA(&error_flags);
-    DATA_READ_DATA(&msl_flags);
+    for (uint16_t entry = 0u; entry < diag_device.numberOfFatalErrors; entry++) {
+        const STD_RETURN_TYPE_e diagnosisState =
+            DIAG_GetDiagnosisEntryState(diag_device.pFatalErrorLinkTable[entry]->id);
+        if (STD_NOT_OK == diagnosisState) {
+            /* Fatal error detected -> get delay of this error until contactors shall be opened */
+            const uint32_t kDelay_ms = DIAG_GetDelay(diag_device.pFatalErrorLinkTable[entry]->id);
+            /* Check if delay of detected failure is smaller than the delay of a previously detected failure */
+            if (bms_state.minimumActiveDelay_ms > kDelay_ms) {
+                bms_state.minimumActiveDelay_ms = kDelay_ms;
+            }
+            fatalErrorActive = true;
+        }
+    }
+    return fatalErrorActive;
+}
 
-    for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
-        /* Check maximum safety limit flags */
-        if ((error_flags.currentOnOpenString[s] == 1u) || (msl_flags.cellChargeOvercurrent[s] == 1u) ||
-            (msl_flags.stringDischargeOvercurrent[s] == 1u) || (msl_flags.cellDischargeOvercurrent[s] == 1u) ||
-            (msl_flags.stringChargeOvercurrent[s] == 1u) || (msl_flags.overVoltage[s] == 1u) ||
-            (msl_flags.underVoltage[s] == 1u) || (msl_flags.overtemperatureCharge[s] == 1u) ||
-            (msl_flags.overtemperatureDischarge[s] == 1u) || (msl_flags.undertemperatureCharge[s] == 1u) ||
-            (msl_flags.undertemperatureDischarge[s] == 1u)) {
-            /* error detected */
-            retVal = STD_NOT_OK;
+static STD_RETURN_TYPE_e BMS_IsBatterySystemStateOkay(void) {
+    STD_RETURN_TYPE_e retVal          = STD_OK; /* is set to STD_NOT_OK if error detected */
+    static uint32_t previousTimestamp = 0u;
+    uint32_t timestamp                = OS_GetTickCount();
+
+    /* Check if any fatal error is detected */
+    const bool isErrorActive = BMS_IsAnyFatalErrorFlagSet();
+
+    /** Check if a fatal error has been detected previously. If yes, check delay */
+    if (true == bms_state.transitionToErrorState) {
+        /* Decrease active delay since last call */
+        const uint32_t timeSinceLastCall_ms = timestamp - previousTimestamp;
+        if (timeSinceLastCall_ms <= bms_state.remainingDelay_ms) {
+            bms_state.remainingDelay_ms -= timeSinceLastCall_ms;
+        } else {
+            bms_state.remainingDelay_ms = 0u;
+        }
+
+        /* Check if delay from a new error is shorter then active delay from
+         * previously detected error in BMS statemachine */
+        if (bms_state.remainingDelay_ms >= bms_state.minimumActiveDelay_ms) {
+            bms_state.remainingDelay_ms = bms_state.minimumActiveDelay_ms;
+        }
+    } else {
+        /* Delay is not active, check if it should be activated */
+        if (true == isErrorActive) {
+            bms_state.transitionToErrorState = true;
+            bms_state.remainingDelay_ms      = bms_state.minimumActiveDelay_ms;
         }
     }
 
-    for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
-        /* Check system error flags */
-        if ((error_flags.deepDischargeDetected[s] == 1u) || (error_flags.fuseStateNormal[s] == 1u) ||
-            (error_flags.fuseStateCharge[s] == 1u) || (error_flags.crcError[s] == 1u) ||
-            (error_flags.muxError[s] == 1u) || (error_flags.spiError[s] == 1u) ||
-            (error_flags.micConfigurationError[s] == 1u) || (error_flags.currentSensor[s] == 1u) ||
-            (error_flags.open_wire[s] == 1u) || (error_flags.stringContactor[s] == 1u) ||
-            (error_flags.prechargeContactor[s] == 1u) || (error_flags.canTimingCc[s] == 1u) ||
-            (error_flags.canTimingEc[s] == 1u)) {
-            /* error detected */
-            retVal = STD_NOT_OK;
-        }
-    }
+    /** Set previous timestamp for next call */
+    previousTimestamp = timestamp;
 
-    if ((msl_flags.packDischargeOvercurrent == 1u) || (msl_flags.packChargeOvercurrent == 1u) ||
-#if BMS_OPEN_CONTACTORS_ON_INSULATION_ERROR == true
-        (error_flags.insulationError == 1u) ||
-#endif /* BMS_OPEN_CONTACTORS_ON_INSULATION_ERROR */
-        (error_flags.interlock == 1u) || (error_flags.canTiming == 1u)) {
-        /* error detected */
+    /* Check if bms statemachine should switch to error state. This is the case
+     * if the delay is activated and the remaining delay is down to 0 */
+    if ((true == bms_state.transitionToErrorState) && (0u == bms_state.remainingDelay_ms)) {
         retVal = STD_NOT_OK;
     }
 
@@ -707,7 +740,7 @@ void BMS_Trigger(void) {
                 bms_state.substate = BMS_CHECK_ERROR_FLAGS;
                 break;
             } else if (bms_state.substate == BMS_CHECK_ERROR_FLAGS) {
-                if (BMS_CheckAnyErrorFlagSet() == STD_NOT_OK) {
+                if (BMS_IsBatterySystemStateOkay() == STD_NOT_OK) {
                     bms_state.timer     = BMS_STATEMACH_SHORTTIME;
                     bms_state.state     = BMS_STATEMACH_OPENCONTACTORS;
                     bms_state.nextstate = BMS_STATEMACH_ERROR;
@@ -817,7 +850,7 @@ void BMS_Trigger(void) {
                 DATA_WRITE_DATA(&systemstate);
                 break;
             } else if (bms_state.substate == BMS_CHECK_ERROR_FLAGS_INTERLOCK) {
-                if (BMS_CheckAnyErrorFlagSet() == STD_NOT_OK) {
+                if (BMS_IsBatterySystemStateOkay() == STD_NOT_OK) {
                     bms_state.timer     = BMS_STATEMACH_SHORTTIME;
                     bms_state.state     = BMS_STATEMACH_OPENCONTACTORS;
                     bms_state.nextstate = BMS_STATEMACH_ERROR;
@@ -833,7 +866,7 @@ void BMS_Trigger(void) {
                 bms_state.substate = BMS_CHECK_ERROR_FLAGS;
                 break;
             } else if (bms_state.substate == BMS_CHECK_ERROR_FLAGS) {
-                if (BMS_CheckAnyErrorFlagSet() == STD_NOT_OK) {
+                if (BMS_IsBatterySystemStateOkay() == STD_NOT_OK) {
                     bms_state.timer     = BMS_STATEMACH_SHORTTIME;
                     bms_state.state     = BMS_STATEMACH_OPENCONTACTORS;
                     bms_state.nextstate = BMS_STATEMACH_ERROR;
@@ -898,7 +931,7 @@ void BMS_Trigger(void) {
                 if (bms_state.OscillationTimeout == 0u) {
                     bms_state.timer    = BMS_STATEMACH_SHORTTIME;
                     bms_state.substate = BMS_PRECHARGE_CLOSE_PRECHARGE;
-                } else if (BMS_CheckAnyErrorFlagSet() == STD_NOT_OK) {
+                } else if (BMS_IsBatterySystemStateOkay() == STD_NOT_OK) {
                     /* If precharge re-enter timeout not elapsed, wait (and check errors while waiting) */
                     bms_state.timer     = BMS_STATEMACH_SHORTTIME;
                     bms_state.state     = BMS_STATEMACH_OPENCONTACTORS;
@@ -923,7 +956,7 @@ void BMS_Trigger(void) {
                 }
                 break;
             } else if (bms_state.substate == BMS_CHECK_ERROR_FLAGS_CLOSINGPRECHARGE) {
-                if (BMS_CheckAnyErrorFlagSet() == STD_NOT_OK) {
+                if (BMS_IsBatterySystemStateOkay() == STD_NOT_OK) {
                     bms_state.timer     = BMS_STATEMACH_SHORTTIME;
                     bms_state.state     = BMS_STATEMACH_OPENCONTACTORS;
                     bms_state.nextstate = BMS_STATEMACH_ERROR;
@@ -1005,7 +1038,7 @@ void BMS_Trigger(void) {
                     break;
                 }
             } else if (bms_state.substate == BMS_CHECK_ERROR_FLAGS_PRECHARGE_FIRST_STRING) {
-                if (BMS_CheckAnyErrorFlagSet() == STD_NOT_OK) {
+                if (BMS_IsBatterySystemStateOkay() == STD_NOT_OK) {
                     bms_state.timer     = BMS_STATEMACH_SHORTTIME;
                     bms_state.state     = BMS_STATEMACH_OPENCONTACTORS;
                     bms_state.nextstate = BMS_STATEMACH_ERROR;
@@ -1018,7 +1051,7 @@ void BMS_Trigger(void) {
                 }
             } else if (bms_state.substate == BMS_CHECK_ERROR_FLAGS_PRECHARGE_CLOSINGSTRINGS) {
                 /* Always make one error check after the first string was closed successfully */
-                if (BMS_CheckAnyErrorFlagSet() == STD_NOT_OK) {
+                if (BMS_IsBatterySystemStateOkay() == STD_NOT_OK) {
                     bms_state.timer     = BMS_STATEMACH_SHORTTIME;
                     bms_state.state     = BMS_STATEMACH_OPENCONTACTORS;
                     bms_state.nextstate = BMS_STATEMACH_ERROR;
@@ -1066,7 +1099,7 @@ void BMS_Trigger(void) {
                 bms_state.nextstringclosedtimer = 0u;
                 break;
             } else if (bms_state.substate == BMS_CHECK_ERROR_FLAGS) {
-                if (BMS_CheckAnyErrorFlagSet() == STD_NOT_OK) {
+                if (BMS_IsBatterySystemStateOkay() == STD_NOT_OK) {
                     bms_state.timer    = BMS_STATEMACH_SHORTTIME;
                     bms_state.state    = BMS_STATEMACH_ERROR;
                     bms_state.substate = BMS_ENTRY;
@@ -1134,7 +1167,7 @@ void BMS_Trigger(void) {
                     bms_state.nextstate = BMS_STATEMACH_ERROR;
                     bms_state.substate  = BMS_ENTRY;
                     break;
-                } else if (BMS_CheckAnyErrorFlagSet() == STD_NOT_OK) {
+                } else if (BMS_IsBatterySystemStateOkay() == STD_NOT_OK) {
                     bms_state.timer     = BMS_STATEMACH_SHORTTIME;
                     bms_state.state     = BMS_STATEMACH_OPENCONTACTORS;
                     bms_state.nextstate = BMS_STATEMACH_ERROR;
@@ -1174,7 +1207,7 @@ void BMS_Trigger(void) {
                 bms_state.substate = BMS_CHECK_ERROR_FLAGS;
                 break;
             } else if (bms_state.substate == BMS_CHECK_ERROR_FLAGS) {
-                if (BMS_CheckAnyErrorFlagSet() == STD_NOT_OK) {
+                if (true == DIAG_IsAnyFatalErrorSet()) {
                     /* we stay already in requested state */
                     if (nextOpenWireCheck <= timestamp) {
                         /* Perform open-wire check periodically */
@@ -1182,6 +1215,11 @@ void BMS_Trigger(void) {
                         nextOpenWireCheck = timestamp + MIC_ERROR_OPEN_WIRE_PERIOD_ms;
                     }
                 } else {
+                    /* Reset fatal error related variables */
+                    bms_state.minimumActiveDelay_ms  = BMS_NO_ACTIVE_DELAY_TIME_ms;
+                    bms_state.minimumActiveDelay_ms  = BMS_NO_ACTIVE_DELAY_TIME_ms;
+                    bms_state.transitionToErrorState = false;
+
                     bms_state.timer    = BMS_STATEMACH_SHORTTIME;
                     bms_state.substate = BMS_CHECK_STATE_REQUESTS;
                     break;
@@ -1189,12 +1227,15 @@ void BMS_Trigger(void) {
             } else if (bms_state.substate == BMS_CHECK_STATE_REQUESTS) {
                 if (BMS_CheckCanRequests() == BMS_REQ_ID_STANDBY) {
                     ILCK_SetStateRequest(ILCK_STATE_CLOSE_REQUEST);
-                    bms_state.substate  = BMS_CHECK_INTERLOCK_CLOSE_AFTER_ERROR;
+                    bms_state.substate = BMS_CHECK_INTERLOCK_CLOSE_AFTER_ERROR;
+                    bms_state.timer    = BMS_STATEMACH_MEDIUMTIME;
+
+                    /** Remove statements below once interlock module is working */
                     bms_state.state     = BMS_STATEMACH_OPENCONTACTORS;
                     bms_state.nextstate = BMS_STATEMACH_STANDBY;
-                    /* TODO: above and below this line are redundant assignments */
-                    bms_state.substate = BMS_ENTRY;
-                    bms_state.timer    = BMS_STATEMACH_MEDIUMTIME;
+                    bms_state.substate  = BMS_ENTRY;
+                    /** Remove statements above once interlock module is working */
+
                     break;
                 } else {
                     bms_state.timer    = BMS_STATEMACH_SHORTTIME;
@@ -1205,7 +1246,8 @@ void BMS_Trigger(void) {
                 if (ILCK_GetInterlockFeedback() == ILCK_SWITCH_ON) {
                     /* TODO: check */
                     BAL_SetStateRequest(BAL_STATE_ALLOWBALANCING_REQUEST);
-                    bms_state.timer     = BMS_STATEMACH_SHORTTIME;
+                    bms_state.timer = BMS_STATEMACH_SHORTTIME;
+                    /* Only valid as interlock module is not active */
                     bms_state.state     = BMS_STATEMACH_OPENCONTACTORS;
                     bms_state.nextstate = BMS_STATEMACH_STANDBY;
                     bms_state.substate  = BMS_ENTRY;
@@ -1254,7 +1296,7 @@ extern BMS_CURRENT_FLOW_STATE_e BMS_GetCurrentFlowDirection(int32_t current_mA) 
     return retVal;
 }
 
-bool BMS_IsStringClosed(uint8_t stringNumber) {
+extern bool BMS_IsStringClosed(uint8_t stringNumber) {
     FAS_ASSERT(stringNumber < BS_NR_OF_STRINGS);
     bool retval = false;
     if (bms_state.closedStrings[stringNumber] == 1u) {
@@ -1263,13 +1305,21 @@ bool BMS_IsStringClosed(uint8_t stringNumber) {
     return retval;
 }
 
-bool BMS_IsStringPrecharging(uint8_t stringNumber) {
+extern bool BMS_IsStringPrecharging(uint8_t stringNumber) {
     FAS_ASSERT(stringNumber < BS_NR_OF_STRINGS);
     bool retval = false;
     if (bms_state.closedPrechargeContactors[stringNumber] == 1u) {
         retval = true;
     }
     return retval;
+}
+
+extern uint8_t BMS_GetNumberOfConnectedStrings(void) {
+    return bms_state.numberOfClosedStrings;
+}
+
+extern bool BMS_IsTransitionToErrorStateActive(void) {
+    return bms_state.transitionToErrorState;
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
@@ -1286,16 +1336,17 @@ extern uint8_t TEST_BMS_CheckReEntrance(void) {
 extern uint8_t TEST_BMS_CheckCanRequests(void) {
     return BMS_CheckCanRequests();
 }
-extern STD_RETURN_TYPE_e TEST_BMS_CheckAnyErrorFlagSet(void) {
-    return BMS_CheckAnyErrorFlagSet();
+extern bool TEST_BMS_IsAnyFatalErrorFlagSet(void) {
+    return BMS_IsAnyFatalErrorFlagSet();
+}
+extern STD_RETURN_TYPE_e TEST_BMS_IsBatterySystemStateOkay(void) {
+    return BMS_IsBatterySystemStateOkay();
 }
 extern void TEST_BMS_GetMeasurementValues(void) {
     BMS_GetMeasurementValues();
-    return;
 }
 extern void TEST_BMS_CheckOpenSenseWire(void) {
     BMS_CheckOpenSenseWire();
-    return;
 }
 extern STD_RETURN_TYPE_e TEST_BMS_CheckPrecharge(uint8_t stringNumber, DATA_BLOCK_PACK_VALUES_s *pPackValues) {
     return BMS_CheckPrecharge(stringNumber, pPackValues);
@@ -1318,7 +1369,6 @@ extern int32_t TEST_BMS_GetAverageStringCurrent(DATA_BLOCK_PACK_VALUES_s *pPackV
 }
 extern void TEST_BMS_UpdateBatsysState(DATA_BLOCK_PACK_VALUES_s *pPackValues) {
     BMS_UpdateBatsysState(pPackValues);
-    return;
 }
 
 #endif

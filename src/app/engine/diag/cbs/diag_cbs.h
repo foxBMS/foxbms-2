@@ -43,7 +43,7 @@
  * @file    diag_cbs.h
  * @author  foxBMS Team
  * @date    2021-02-17 (date of creation)
- * @updated 2021-02-17 (date of last update)
+ * @updated 2021-06-09 (date of last update)
  * @ingroup ENGINE
  * @prefix  DIAG
  *
@@ -255,6 +255,19 @@ extern void DIAG_ErrorInterlock(
  * @param[in] data      data
  */
 extern void DIAG_ErrorCanTiming(
+    DIAG_ID_e ch_id,
+    DIAG_EVENT_e event,
+    const DIAG_DATABASE_SHIM_s *const kpkDiagShim,
+    uint32_t data);
+
+/**
+ * @brief diagnosis callback function for CAN related events
+ * @param[in] ch_id      ID of diag entry
+ * @param[in] event     #DIAG_EVENT_e
+ * @param[in] kpkDiagShim  shim to the database entries
+ * @param[in] data      data
+ */
+extern void DIAG_ErrorCanRxQueueFull(
     DIAG_ID_e ch_id,
     DIAG_EVENT_e event,
     const DIAG_DATABASE_SHIM_s *const kpkDiagShim,

@@ -6,73 +6,52 @@
 Changing and Extending the Build Environment
 ============================================
 
-If packages are needed that are not included in development environment they can simply be added. This how-to explains
-it for Windows. If there is a reference to |conda_env_config_win32| and you are on Linux replace it by
-|conda_env_config_linux|.
+If packages are needed that are not included in development environment they
+can simply be added.
+This how-to explains it for Windows.
+If there is a reference to |conda_env_config_win32| and you are on Linux
+replace it by |conda_env_config_linux|.
 
-#. Cloning the current environment
+The basic required packages are listed in
+``conf/env/conda_env_win32-pkgs.yaml``.
+If a package should be added or removed, it needs to be done here.
+This file only defines the major Python version that should be used.
 
-   #. Get the name of the current development environment from |conda_env_config_win32|.
+The steps are basically:
 
-      .. literalinclude:: ./../../../conf/env/conda_env_win32.yaml
-         :language: yaml
-         :emphasize-lines: 1
-         :lines: 1-7,126-131
-         :caption: Shortened snippet from |conda_env_config_win32| that shows the development environment name.
+- Add new packages and/or remove no longer needed packages and update the
+  environment name, for this example ``example-env``.
+- Create a new pseudo-base environment that includes all needed Python packages
+  for the project.
+- Export the exact environment definition.
+- Update the test suite.
+- Commit the new environment to the repository.
+- Add a changelog entry that tells the user to run the environment update
+  script.
 
-   #. Clone the current development environment by activating the base environment and using the following command:
+These steps in details:
 
-      .. code-block:: console
+#. Add packages/remove packages and update environment name.
+#. Create a new pseudo-base environment and wait for the solver to succeeded.
 
-         C:\Users\vulpes>%USERPROFILE%\miniconda3\Scripts\activate base
-         (base) C:\Users\vulpes>conda create --name NEW_ENV_NAME --clone CURRENT_ENV_NAME
+   .. code-block:: console
 
-#. Activate the new development environment:
-
-      .. code-block:: console
-
-         (base) C:\Users\vulpes>conda activate NEW_ENV_NAME
-
-#. Optional: Update all conda packages:
-
-      .. code-block:: console
-
-        (NEW_ENV_NAME) C:\Users\vulpes>conda update --all
-
-#. Optional: Update pip packages. It is not recommended to bulk update all pip
-   packages. It is best to get a list of all pip dependencies
-
-      .. code-block:: console
-
-        (NEW_ENV_NAME) C:\Users\vulpes>conda list | findstr /I "pypi"
-        markdown                  2.6.11                   pypi_0    pypi
-        ...
-
-   and then update these one by one and check for errors and role back in case
-   of errors:
-
-      .. code-block:: console
-
-        (NEW_ENV_NAME) C:\Users\vulpes>pip install markdown --upgrade
-
-#. Install/Update/Remove the packages accordingly to your needs using ``conda`` or ``pip``:
-
-      .. code-block:: console
-
-        (NEW_ENV_NAME) C:\Users\vulpes>conda install my_package
-        (NEW_ENV_NAME) C:\Users\vulpes>pip install my_other_package
+      C:\Users\vulpes>%USERPROFILE%\miniconda3\Scripts\activate base
+      (base) C:\Users\vulpes>conda env create -f conf\env\conda_env_win32-pkgs.yaml
 
 #. Export the new development environment:
 
-      .. code-block:: console
+   .. code-block:: console
 
-        (NEW_ENV_NAME) C:\Users\vulpes>conda env export > path\to\conf\env\conda_env_win32.yaml
+      (base) C:\Users\vulpes>conda env export -n example-env > conf\env\conda_env_win32.yaml
 
 #. Remove the ``Prefix`` entry from |conda_env_config_win32|.
-#. Commit the new environment to the repository.
-
+#. Adapt the test suite as needed and run it afterwards.
+#. Commit the new environment file to the repository.
+#. Add changelog entry.
 
 Further Reading
 ---------------
 
-An explanation why build environments are used is found in :ref:`BUILD_ENVIRONMENT`.
+An explanation why build environments are used is found in
+:ref:`BUILD_ENVIRONMENT`.

@@ -43,7 +43,7 @@
  * @file    main.c
  * @author  foxBMS Team
  * @date    2019-08-27 (date of creation)
- * @updated 2019-11-27 (date of last update)
+ * @updated 2021-07-23 (date of last update)
  * @ingroup GENERAL
  * @prefix  TODO
  *
@@ -95,7 +95,7 @@ int main(void) {
     DIAG_Initialize(&diag_device);
     CAN_Initialize();
 
-    OS_InitializeTasks();
+    OS_InitializeOperatingSystem();
     if (OS_INIT_PRE_OS != os_boot) {
         while (1) {
             /* Could not create Queues, Mutexes, Events and Tasks

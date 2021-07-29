@@ -431,7 +431,6 @@ void ILCK_Trigger(void) {
 #ifdef UNITY_UNIT_TEST
 extern void TEST_ILCK_SetStateStruct(ILCK_STATE_s state) {
     ilck_state = state;
-    return;
 }
 #endif
 

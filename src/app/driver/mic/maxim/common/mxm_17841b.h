@@ -43,7 +43,7 @@
  * @file    mxm_17841b.h
  * @author  foxBMS Team
  * @date    2018-12-14 (date of creation)
- * @updated 2020-06-22 (date of last update)
+ * @updated 2021-06-16 (date of last update)
  * @ingroup DRIVERS
  * @prefix  MXM
  *
@@ -227,7 +227,7 @@ extern STD_RETURN_TYPE_e MXM_41BWriteRegisterFunction(
  *
  * This function implements only the needed subset of register functions.
  *
- * @param[in,out]   pInstance           pointer to the state of the
+ * @param[in,out]   kpkInstance         pointer to the state of the
  *                                      MAX17841B-state-machine
  * @param[in]       registerFunction    name of the function that shall be
  *                                      written
@@ -237,10 +237,9 @@ extern STD_RETURN_TYPE_e MXM_41BWriteRegisterFunction(
  *                  otherwise #STD_OK
  */
 extern STD_RETURN_TYPE_e MXM_41BReadRegisterFunction(
-    MXM_41B_INSTANCE_s *pInstance,
+    const MXM_41B_INSTANCE_s *const kpkInstance,
     MXM_41B_REG_FUNCTION_e registerFunction,
     MXM_41B_REG_BIT_VALUE *pValue);
-/* extern uint8_t mxm_41b_get_alive_counter(void); */
 
 /**
  * @brief Execute state-machine for the MAX17841B.

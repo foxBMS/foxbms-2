@@ -43,7 +43,7 @@
  * @file    sbc.h
  * @author  foxBMS Team
  * @date    2020-07-14 (date of creation)
- * @updated 2020-07-14 (date of last update)
+ * @updated 2021-07-23 (date of last update)
  * @ingroup DRIVERS
  * @prefix  SBC
  *
@@ -77,7 +77,7 @@
  */
 #define SBC_STATEMACHINE_TASK_CYCLE_CONTEXT_MS (10u)
 
-#if SBC_STATEMACHINE_TASK_CYCLE_CONTEXT_MS != FTSK_TSK_CYCLIC_10MS_CYCLE_TIME
+#if SBC_STATEMACHINE_TASK_CYCLE_CONTEXT_MS != FTSK_TASK_CYCLIC_10MS_CYCLE_TIME
 #error "Invalid SBC configuration. Make sure that SBC timing is configured correctly!"
 #endif
 

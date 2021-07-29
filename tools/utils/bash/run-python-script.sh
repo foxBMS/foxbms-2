@@ -38,14 +38,50 @@
 # - "This product is derived from foxBMS&reg;"
 
 set -e
+if [ $# -eq 0 ]; then
+    echo "No script file to run specified."
+    exit 1
+fi
+
+if [ ! -f $1 ]; then
+    echo "Script '$1' does not exist."
+    exit 1
+fi
+
 # MacOS
 if [ "$(uname)" == "Darwin" ]; then
     echo "MacOS is currently not supported."
     exit 1
 # Linux
 elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
-    echo "Linux is currently not supported."
-    exit 1
+    SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+    while read -r line; do
+        PATHS_TO_ADD=`echo "${PATHS_TO_ADD}:$line"| sed --expression='s/^M/:/g'`
+    done < ${SCRIPTDIR}/../../../conf/env/paths_linux.txt
+    PATHS_TO_ADD=`echo $PATHS_TO_ADD | awk '{gsub("C:", "/c", $0); print}'`
+    PATHS_TO_ADD=$(echo "${PATHS_TO_ADD#?}" | tr '\\' '/')
+    export PATH=$PATHS_TO_ADD:$PATH
+    # call find_base_conda and make sure that we do not exit by printing
+    # the exit code to CONDA_VARS (otherwise we would exit with set -e, here
+    # we will not as echo returns exit code 0)
+    CONDA_VARS=$($SCRIPTDIR/../../../tools/utils/bash/find_base_conda.sh || echo $?)
+    if [ "${CONDA_VARS: -1}" == "1" ]; then
+        # strip the exit code that we have printed to CONDA_VARS and
+        # print the rest
+        echo "${CONDA_VARS: : -1}"
+        exit 1
+    fi
+    CONDA_VARS_ARRAY=($CONDA_VARS)
+    CONDA_BASE_ENVIRONMENT_INCLUDING_DEVELOPMENT_ENVIRONMENT=${CONDA_VARS_ARRAY[0]}
+    CONDA_BASE_ENVIRONMENT_ACTIVATE_SCRIPT=${CONDA_VARS_ARRAY[1]}
+    CONDA_DEVELOPMENT_ENVIRONMENT_NAME=${CONDA_VARS_ARRAY[2]}
+    CONDA_DEVELOPMENT_ENVIRONMENT_CONFIGURATION_FILE=${CONDA_VARS_ARRAY[3]}
+    source $CONDA_BASE_ENVIRONMENT_ACTIVATE_SCRIPT base
+    conda activate ${CONDA_DEVELOPMENT_ENVIRONMENT_NAME}
+    set + # deactivate in any case the environment, therefore ignore errors
+    python "$1" "${@:2}"
+    set -
+    conda deactivate
 # Windows
 elif [ "$(expr substr $(uname -s) 1 9)" == "CYGWIN_NT" ]; then
     echo "Cygwin is not supported."

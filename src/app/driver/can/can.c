@@ -43,7 +43,7 @@
  * @file    can.c
  * @author  foxBMS Team
  * @date    2019-12-04 (date of creation)
- * @updated 2021-03-29 (date of last update)
+ * @updated 2021-07-23 (date of last update)
  * @ingroup DRIVERS
  * @prefix  CAN
  *
@@ -56,34 +56,53 @@
 /*========== Includes =======================================================*/
 #include "can.h"
 
+#include "version_cfg.h"
+
 #include "HL_het.h"
+#include "HL_reg_system.h"
 
 #include "bender_iso165c.h"
+#include "can_helper.h"
 #include "database.h"
 #include "diag.h"
+#include "foxmath.h"
+#include "ftask.h"
 #include "io.h"
 #include "mcu.h"
 
 /*========== Macros and Definitions =========================================*/
+/** lower limit of timestamp counts for a valid CAN timing */
+#define CAN_TIMING_LOWER_LIMIT_COUNTS (95u)
+
+/** upper limit of timestamp counts for a valid CAN timing */
+#define CAN_TIMING_UPPER_LIMIT_COUNTS (105u)
+
+/** maximum distance from release that can be encoded in the boot message */
+#define CAN_BOOT_MESSAGE_MAXIMUM_RELEASE_DISTANCE (31u)
+#if CAN_BOOT_MESSAGE_MAXIMUM_RELEASE_DISTANCE > UINT8_MAX
+#error "This code assumes that the define is smaller or equal to UINT8_MAX")
+#endif
+
+/** bit position of boot message byte 3 version control flag */
+#define CAN_BOOT_MESSAGE_BYTE_3_BIT_VERSION_CONTROL (0u)
+
+/** bit position of boot message byte 3 dirty flag */
+#define CAN_BOOT_MESSAGE_BYTE_3_BIT_DIRTY_FLAG (1u)
+
+/** bit position of boot message byte 3 release distance overflow flag */
+#define CAN_BOOT_MESSAGE_BYTE_3_BIT_DISTANCE_OVERFLOW_FLAG (2u)
+
+/** bit position of boot message byte 3 release distance counter */
+#define CAN_BOOT_MESSAGE_BYTE_3_BIT_DISTANCE_COUNTER (3u)
 
 /*========== Static Constant and Variable Definitions =======================*/
 
 /** tracks the local state of the can module */
 static CAN_STATE_s can_state = {
     .periodicEnable         = false,
-    .currentSensorPresent   = false,
-    .currentSensorCCPresent = false,
-    .currentSensorECPresent = false,
-};
-
-/** local buffer for receiving data from CAN */
-static CAN_BUFFERELEMENT_s can_rxBufferData[CAN0_RX_BUFFER_LENGTH];
-
-/** interface object for #can_rxBufferData */
-static CAN_RX_BUFFER_s can_rxBuffer = {
-    .pRead  = &can_rxBufferData[0],
-    .pWrite = &can_rxBufferData[0],
-    .length = CAN0_RX_BUFFER_LENGTH,
+    .currentSensorPresent   = {REPEAT_U(false, STRIP(BS_NR_OF_STRINGS))},
+    .currentSensorCCPresent = {REPEAT_U(false, STRIP(BS_NR_OF_STRINGS))},
+    .currentSensorECPresent = {REPEAT_U(false, STRIP(BS_NR_OF_STRINGS))},
 };
 
 /*========== Extern Constant and Variable Definitions =======================*/
@@ -119,10 +138,10 @@ static STD_RETURN_TYPE_e CAN_PeriodicTransmit(void);
 /**
  * @brief   Checks if the CAN messages come in the specified time window
  * If the (current time stamp) - (previous time stamp) > 96ms and < 104ms,
- * the check is true, false otherwise.
- * @return  true if timing is in tolerance range, false otherwise
+ * the check is true, false otherwise. The result is reported via flags
+ * in the DIAG module.
  */
-static bool CAN_CheckCanTiming(void);
+static void CAN_CheckCanTiming(void);
 
 #if CURRENT_SENSOR_PRESENT == true
 /**
@@ -167,18 +186,18 @@ static void CAN_InitializeTransceiver(void) {
     SETBIT(CAN_HET1_GIO->DIR, CAN_HET1_STB_PIN);
 
     /* first set EN and STB pins to 0 */
-    IO_PinReset((uint32_t *)&CAN_HET1_GIO->DOUT, CAN_HET1_EN_PIN);
-    IO_PinReset((uint32_t *)&CAN_HET1_GIO->DOUT, CAN_HET1_STB_PIN);
+    IO_PinReset(&CAN_HET1_GIO->DOUT, CAN_HET1_EN_PIN);
+    IO_PinReset(&CAN_HET1_GIO->DOUT, CAN_HET1_STB_PIN);
     /* wait after pin toggle */
     MCU_delay_us(CAN_PIN_TOGGLE_DELAY_US);
 
     /* set EN pin to 1 */
-    IO_PinSet((uint32_t *)&CAN_HET1_GIO->DOUT, CAN_HET1_EN_PIN);
+    IO_PinSet(&CAN_HET1_GIO->DOUT, CAN_HET1_EN_PIN);
     /* wait after pin toggle */
     MCU_delay_us(CAN_PIN_TOGGLE_DELAY_US);
 
     /* set STB pin to 1 */
-    IO_PinSet((uint32_t *)&CAN_HET1_GIO->DOUT, CAN_HET1_STB_PIN);
+    IO_PinSet(&CAN_HET1_GIO->DOUT, CAN_HET1_STB_PIN);
     /* wait after pin toggle */
     MCU_delay_us(CAN_PIN_TOGGLE_DELAY_US);
 }
@@ -193,18 +212,26 @@ extern STD_RETURN_TYPE_e CAN_DataSend(canBASE_t *pNode, uint32_t id, uint8 *pDat
     FAS_ASSERT(pNode != NULL_PTR);
     FAS_ASSERT(pData != NULL_PTR);
 
-    for (uint8_t messageBox = 1u; messageBox < CAN_NR_OF_TX_MESSAGEBOX; messageBox++) {
-        if (canIsTxMessagePending(pNode, messageBox) == 0) {
+    STD_RETURN_TYPE_e result = STD_NOT_OK;
+
+    /**
+     *  Parse all TX message boxes until we find a free one,
+     *  then use it to send the CAN message.
+     *  In the HAL, message box numbers start from 1, not 0.
+     */
+    for (uint8_t messageBox = 1u; messageBox <= CAN_NR_OF_TX_MESSAGE_BOX; messageBox++) {
+        if (canIsTxMessagePending(pNode, messageBox) == 0u) {
             /* id shifted by 18 to use standard frame */
             /* standard frame: bits [28:18] */
             /* extended frame: bits [28:0] */
             /* bit 29 set to 1: to set direction Tx in IF2ARB register */
             canUpdateID(pNode, messageBox, ((id << 18) | (1U << 29)));
             canTransmit(pNode, messageBox, pData);
-            return STD_OK;
+            result = STD_OK;
+            break;
         }
     }
-    return STD_NOT_OK;
+    return result;
 }
 
 extern void CAN_MainFunction(void) {
@@ -226,10 +253,14 @@ static STD_RETURN_TYPE_e CAN_PeriodicTransmit(void) {
                 can_txMessages[i].callbackFunction(
                     can_txMessages[i].id,
                     can_txMessages[i].dlc,
-                    can_txMessages[i].byteOrder,
+                    can_txMessages[i].endianness,
                     data,
-                    can_txMessages[i].pMuxId);
+                    can_txMessages[i].pMuxId,
+                    &can_kShim);
                 OS_ExitTaskCritical();
+                /* CAN messages are currently discarded if all message boxes
+                 * are full. They will not be retransmitted within the next
+                 * call of CAN_PeriodicTransmit() */
                 CAN_DataSend(CAN0_NODE, can_txMessages[i].id, data);
                 retVal = STD_OK;
             }
@@ -240,9 +271,7 @@ static STD_RETURN_TYPE_e CAN_PeriodicTransmit(void) {
     return retVal;
 }
 
-static bool CAN_CheckCanTiming(void) {
-    bool retVal = false;
-
+static void CAN_CheckCanTiming(void) {
     uint32_t current_time;
     DATA_BLOCK_ERRORSTATE_s errorFlagsTab     = {.header.uniqueId = DATA_BLOCK_ID_ERRORSTATE};
     DATA_BLOCK_STATEREQUEST_s staterequestTab = {.header.uniqueId = DATA_BLOCK_ID_STATEREQUEST};
@@ -254,17 +283,16 @@ static bool CAN_CheckCanTiming(void) {
     DATA_READ_DATA(&staterequestTab, &errorFlagsTab);
 
     /* Is the BMS still getting CAN messages? */
-    if ((current_time - staterequestTab.header.timestamp) <= 105) {
-        if (((staterequestTab.header.timestamp - staterequestTab.header.previousTimestamp) >= 95) &&
-            ((staterequestTab.header.timestamp - staterequestTab.header.previousTimestamp) <= 105)) {
-            retVal = true;
+    if ((current_time - staterequestTab.header.timestamp) <= CAN_TIMING_UPPER_LIMIT_COUNTS) {
+        if (((staterequestTab.header.timestamp - staterequestTab.header.previousTimestamp) >=
+             CAN_TIMING_LOWER_LIMIT_COUNTS) &&
+            ((staterequestTab.header.timestamp - staterequestTab.header.previousTimestamp) <=
+             CAN_TIMING_UPPER_LIMIT_COUNTS)) {
             DIAG_Handler(DIAG_ID_CAN_TIMING, DIAG_EVENT_OK, DIAG_SYSTEM, 0u);
         } else {
-            retVal = false;
             DIAG_Handler(DIAG_ID_CAN_TIMING, DIAG_EVENT_NOT_OK, DIAG_SYSTEM, 0u);
         }
     } else {
-        retVal = false;
         DIAG_Handler(DIAG_ID_CAN_TIMING, DIAG_EVENT_NOT_OK, DIAG_SYSTEM, 0u);
     }
 
@@ -316,27 +344,26 @@ static bool CAN_CheckCanTiming(void) {
         }
     }
 #endif /* CURRENT_SENSOR_PRESENT == true */
-
-    return retVal;
 }
 
 extern void CAN_ReadRxBuffer(void) {
-    while (can_rxBuffer.pRead != can_rxBuffer.pWrite) {
-        for (int i = 0; i < can_rxLength; i++) {
-            if (can_rxBuffer.pRead->id == can_rxMessages[i].id) {
-                if (can_rxMessages[i].callbackFunction != NULL_PTR) {
-                    can_rxMessages[i].callbackFunction(
-                        can_rxMessages[i].id,
-                        can_rxMessages[i].dlc,
-                        can_rxMessages[i].byteOrder,
-                        can_rxBuffer.pRead->data,
-                        NULL_PTR);
+    CAN_BUFFERELEMENT_s can_rxBuffer = {0};
+    if (ftsk_allQueuesCreated == true) {
+        while (pdPASS == xQueueReceive(ftsk_canRxQueue, (void *)&can_rxBuffer, 0u)) {
+            /* data queue was no empty */
+            for (uint16_t i = 0u; i < can_rxLength; i++) {
+                if (can_rxBuffer.id == can_rxMessages[i].id) {
+                    if (can_rxMessages[i].callbackFunction != NULL_PTR) {
+                        can_rxMessages[i].callbackFunction(
+                            can_rxMessages[i].id,
+                            can_rxMessages[i].dlc,
+                            can_rxMessages[i].endianness,
+                            can_rxBuffer.data,
+                            NULL_PTR,
+                            &can_kShim);
+                    }
                 }
             }
-        }
-        can_rxBuffer.pRead++;
-        if (can_rxBuffer.pRead > &can_rxBufferData[CAN0_RX_BUFFER_LENGTH - 1u]) {
-            can_rxBuffer.pRead = &can_rxBufferData[0];
         }
     }
 }
@@ -410,39 +437,93 @@ static void CAN_TxInterrupt(canBASE_t *pNode, uint32 messageBox) {
 
 static void CAN_RxInterrupt(canBASE_t *pNode, uint32 messageBox) {
     FAS_ASSERT(pNode != NULL_PTR);
-    uint32_t id     = 0;
-    uint8_t data[8] = {0};
-    if (pNode == CAN0_NODE) {
-        canGetData(pNode, messageBox, (uint8 *)&data[0]); /* copy to RAM */
-        /* id shifted by 18 to use standard frame from IF2ARB register*/
-        /* standard frame: bits [28:18] */
-        /* extended frame: bits [28:0] */
-        id = canGetID(pNode, messageBox) >> 18;
+    CAN_BUFFERELEMENT_s can_rxBuffer = {0};
+    uint8_t data[8]                  = {0};
+    /* Read even if queues are not created, otherwise message boxes get full */
+    canGetData(pNode, messageBox, (uint8 *)&data[0]); /* copy to RAM */
 
-        can_rxBuffer.pWrite->id      = id;
-        can_rxBuffer.pWrite->data[0] = data[0];
-        can_rxBuffer.pWrite->data[1] = data[1];
-        can_rxBuffer.pWrite->data[2] = data[2];
-        can_rxBuffer.pWrite->data[3] = data[3];
-        can_rxBuffer.pWrite->data[4] = data[4];
-        can_rxBuffer.pWrite->data[5] = data[5];
-        can_rxBuffer.pWrite->data[6] = data[6];
-        can_rxBuffer.pWrite->data[7] = data[7];
-
-        can_rxBuffer.pWrite++;
-        if (can_rxBuffer.pWrite > &can_rxBufferData[CAN0_RX_BUFFER_LENGTH - 1u]) {
-            can_rxBuffer.pWrite = &can_rxBufferData[0];
+    /* Check that CAN RX queue is started before using it */
+    if (ftsk_allQueuesCreated == true) {
+        if (pNode == CAN0_NODE) {
+            /* id shifted by 18 to use standard frame from IF2ARB register*/
+            /* standard frame: bits [28:18] */
+            /* extended frame: bits [28:0] */
+            uint32_t id          = canGetID(pNode, messageBox) >> 18;
+            can_rxBuffer.id      = id;
+            can_rxBuffer.data[0] = data[0];
+            can_rxBuffer.data[1] = data[1];
+            can_rxBuffer.data[2] = data[2];
+            can_rxBuffer.data[3] = data[3];
+            can_rxBuffer.data[4] = data[4];
+            can_rxBuffer.data[5] = data[5];
+            can_rxBuffer.data[6] = data[6];
+            can_rxBuffer.data[7] = data[7];
+            if (pdPASS == xQueueSendToBackFromISR(ftsk_canRxQueue, (void *)&can_rxBuffer, NULL)) {
+                /* queue is not full */
+                DIAG_Handler(DIAG_ID_CAN_RX_QUEUE_FULL, DIAG_EVENT_OK, DIAG_SYSTEM, 0u);
+            } else {
+                /* queue is full */
+                DIAG_Handler(DIAG_ID_CAN_RX_QUEUE_FULL, DIAG_EVENT_NOT_OK, DIAG_SYSTEM, 0u);
+            }
         }
     }
 }
 
 /** called in case of CAN interrupt, defined as weak in HAL */
 void UNIT_TEST_WEAK_IMPL canMessageNotification(canBASE_t *node, uint32 messageBox) {
-    if (messageBox <= CAN_NR_OF_TX_MESSAGEBOX) {
+    if (messageBox <= CAN_NR_OF_TX_MESSAGE_BOX) {
         CAN_TxInterrupt(node, messageBox);
     } else {
         CAN_RxInterrupt(node, messageBox);
     }
+}
+
+extern STD_RETURN_TYPE_e CAN_TransmitBootMessage(void) {
+    uint8_t data[] = {REPEAT_U(0u, STRIP(CAN_MAX_DLC))};
+
+    /* Set major number */
+    data[CAN_BYTE_0_POSITION] = foxbmsVersionInfo.major;
+    /* Set minor number */
+    data[CAN_BYTE_1_POSITION] = foxbmsVersionInfo.minor;
+    /* Set patch number */
+    data[CAN_BYTE_2_POSITION] = foxbmsVersionInfo.patch;
+
+    /* intermediate variable for message byte 3 */
+    uint8_t versionControlByte = 0u;
+
+    /* Set version control flags */
+    if (true == foxbmsVersionInfo.underVersionControl) {
+        versionControlByte |= (0x01u << CAN_BOOT_MESSAGE_BYTE_3_BIT_VERSION_CONTROL);
+    }
+    if (true == foxbmsVersionInfo.isDirty) {
+        versionControlByte |= (0x01u << CAN_BOOT_MESSAGE_BYTE_3_BIT_DIRTY_FLAG);
+    }
+    /* Set overflow flag (if release distance is larger than 31) */
+    if (foxbmsVersionInfo.distanceFromLastRelease > CAN_BOOT_MESSAGE_MAXIMUM_RELEASE_DISTANCE) {
+        /* we need to set the overflow flag */
+        versionControlByte |= (0x01u << CAN_BOOT_MESSAGE_BYTE_3_BIT_DISTANCE_OVERFLOW_FLAG);
+    }
+
+    /* Set release distance (capped to maximum value) */
+    const uint8_t distanceCapped = (uint8_t)MATH_MinimumOfTwoUint16_t(
+        foxbmsVersionInfo.distanceFromLastRelease, (uint16_t)CAN_BOOT_MESSAGE_MAXIMUM_RELEASE_DISTANCE);
+    versionControlByte |= (distanceCapped << CAN_BOOT_MESSAGE_BYTE_3_BIT_DISTANCE_COUNTER);
+
+    /* assign assembled byte to databyte */
+    data[CAN_BYTE_3_POSITION] = versionControlByte;
+
+    /* Read out device register with unique ID */
+    uint32_t deviceRegister = systemREG1->DEVID;
+
+    /* Set unique ID */
+    data[CAN_BYTE_4_POSITION] = (uint8_t)((deviceRegister >> 24u) & 0xFFu);
+    data[CAN_BYTE_5_POSITION] = (uint8_t)((deviceRegister >> 16u) & 0xFFu);
+    data[CAN_BYTE_6_POSITION] = (uint8_t)((deviceRegister >> 8u) & 0xFFu);
+    data[CAN_BYTE_7_POSITION] = (uint8_t)(deviceRegister & 0xFFu);
+
+    STD_RETURN_TYPE_e retval = CAN_DataSend(CAN0_NODE, CAN_ID_BOOT_MESSAGE, &data[0]);
+
+    return retval;
 }
 
 /*========== Getter for static Variables (Unit Test) ========================*/

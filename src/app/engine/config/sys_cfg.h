@@ -43,7 +43,7 @@
  * @file    sys_cfg.h
  * @author  foxBMS Team
  * @date    2020-02-24 (date of creation)
- * @updated 2020-02-24 (date of last update)
+ * @updated 2021-06-24 (date of last update)
  * @ingroup ENGINE_CONFIGURATION
  * @prefix  SYS
  *
@@ -106,10 +106,8 @@
 
 /**
  * @brief   Function to send out boot message with SW version
- * @details TODO
- * @param   directTransmission TODO
  */
-extern void SYS_SendBootMessage(uint8_t directTransmission);
+extern void SYS_SendBootMessage(void);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 

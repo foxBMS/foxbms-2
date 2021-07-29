@@ -3,8 +3,8 @@
 
 .. _WAF_TOOL_OZONE:
 
-Waf Tool Ozone
-==============
+Ozone
+=====
 
 ..
     Comments:

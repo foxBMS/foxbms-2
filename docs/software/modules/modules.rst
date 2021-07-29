@@ -60,6 +60,7 @@ Software Modules
 
 .. toctree::
     :maxdepth: 2
-    :caption: Startup Routine
+    :caption: Startup Routine and Version
 
     ./main/startup.rst
+    ./main/version.rst

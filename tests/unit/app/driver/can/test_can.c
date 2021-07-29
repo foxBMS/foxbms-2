@@ -43,7 +43,7 @@
  * @file    test_can.c
  * @author  foxBMS Team
  * @date    2020-04-01 (date of creation)
- * @updated 2020-04-01 (date of last update)
+ * @updated 2021-07-23 (date of last update)
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -58,32 +58,78 @@
 #include "Mockdatabase.h"
 #include "Mockdiag.h"
 #include "Mockfoxmath.h"
+#include "Mockftask.h"
+#include "Mockimd.h"
 #include "Mockio.h"
 #include "Mockmcu.h"
 #include "Mockos.h"
+#include "Mockqueue.h"
+#include "Mocktest_can_mpu_prototype_queue_create_stub.h"
+
+#include "version_cfg.h"
 
 #include "can.h"
 #include "test_assert_helper.h"
 
-TEST_FILE("can.c")
-
 /*========== Definitions and Implementations for Unit Test ==================*/
-static uint32_t can_dummy(uint32_t id, uint8_t dlc, CAN_byteOrder_e byteOrder, uint8_t *canData) {
+/* Dummy for version file implementation */
+const VERSION_s foxbmsVersionInfo = {
+    .underVersionControl     = true,
+    .isDirty                 = true,
+    .major                   = 1,
+    .minor                   = 1,
+    .patch                   = 1,
+    .distanceFromLastRelease = 42,
+    .commitHash              = "deadbeef",
+    .gitRemote               = "onTheDarkSideOfTheMoon.git",
+};
+
+static DATA_BLOCK_CELL_VOLTAGE_s can_tableCellVoltages     = {.header.uniqueId = DATA_BLOCK_ID_CELL_VOLTAGE};
+static DATA_BLOCK_CELL_TEMPERATURE_s can_tableTemperatures = {.header.uniqueId = DATA_BLOCK_ID_CELL_TEMPERATURE};
+static DATA_BLOCK_MIN_MAX_s can_tableMinimumMaximumValues  = {.header.uniqueId = DATA_BLOCK_ID_MIN_MAX};
+static DATA_BLOCK_CURRENT_SENSOR_s can_tableCurrentSensor  = {.header.uniqueId = DATA_BLOCK_ID_CURRENT_SENSOR};
+static DATA_BLOCK_OPEN_WIRE_s can_tableOpenWire            = {.header.uniqueId = DATA_BLOCK_ID_OPEN_WIRE_BASE};
+static DATA_BLOCK_STATEREQUEST_s can_tableStateRequest     = {.header.uniqueId = DATA_BLOCK_ID_STATEREQUEST};
+
+QueueHandle_t imd_canDataQueue = NULL_PTR;
+
+const CAN_SHIM_s can_kShim = {
+    .pQueueImd             = &imd_canDataQueue,
+    .pTableCellVoltage     = &can_tableCellVoltages,
+    .pTableCellTemperature = &can_tableTemperatures,
+    .pTableMinMax          = &can_tableMinimumMaximumValues,
+    .pTableCurrentSensor   = &can_tableCurrentSensor,
+    .pTableOpenWire        = &can_tableOpenWire,
+    .pTableStateRequest    = &can_tableStateRequest,
+};
+
+static uint32_t can_dummy(
+    uint32_t id,
+    uint8_t dlc,
+    CAN_ENDIANNESS_e endianness,
+    uint8_t *pCanData,
+    uint8_t *pMuxId,
+    const CAN_SHIM_s const *kpkCanShim) {
     return 0;
 }
 
 const CAN_MSG_TX_TYPE_s can_txMessages[] = {
-    {0x001, 8, 100, 0, littleEndian, &can_dummy},
+    {0x001, 8, 100, 0, CAN_LITTLE_ENDIAN, &can_dummy, NULL_PTR},
 };
 
 const CAN_MSG_RX_TYPE_s can_rxMessages[] = {
-    {0x002, 8, 0, littleEndian, &can_dummy},
+    {0x002, 8, CAN_LITTLE_ENDIAN, &can_dummy},
 };
 
 const uint8_t can_txLength = sizeof(can_txMessages) / sizeof(can_txMessages[0]);
 const uint8_t can_rxLength = sizeof(can_rxMessages) / sizeof(can_rxMessages[0]);
 
 CAN_STATE_s *canTestState = NULL_PTR;
+
+QueueHandle_t ftsk_dataQueue        = NULL_PTR;
+QueueHandle_t ftsk_imdCanDataQueue  = NULL_PTR;
+QueueHandle_t ftsk_canRxQueue       = NULL_PTR;
+volatile bool ftsk_allQueuesCreated = false;
 
 /*========== Setup and Teardown =============================================*/
 void setUp(void) {
@@ -139,13 +185,13 @@ void testDataSendMessagePending(void) {
     TEST_ASSERT_EQUAL(STD_OK, CAN_DataSend(&node, 0x001, &data));
 
     /* simulate messageBox until the highest to have no pending messages */
-    for (uint8_t messageBox = 1u; messageBox < (CAN_NR_OF_TX_MESSAGEBOX - 1); messageBox++) {
+    for (uint8_t messageBox = 1u; messageBox < (CAN_NR_OF_TX_MESSAGE_BOX - 1); messageBox++) {
         canIsTxMessagePending_ExpectAndReturn(&node, messageBox, 1u);
     }
     /* last message box has message pending */
-    canIsTxMessagePending_ExpectAndReturn(&node, CAN_NR_OF_TX_MESSAGEBOX - 1, 0u);
-    canUpdateID_Expect(&node, CAN_NR_OF_TX_MESSAGEBOX - 1, 0x20040000u);
-    canTransmit_ExpectAndReturn(&node, CAN_NR_OF_TX_MESSAGEBOX - 1, &data, 0u);
+    canIsTxMessagePending_ExpectAndReturn(&node, CAN_NR_OF_TX_MESSAGE_BOX - 1, 0u);
+    canUpdateID_Expect(&node, CAN_NR_OF_TX_MESSAGE_BOX - 1, 0x20040000u);
+    canTransmit_ExpectAndReturn(&node, CAN_NR_OF_TX_MESSAGE_BOX - 1, &data, 0u);
     TEST_ASSERT_EQUAL(STD_OK, CAN_DataSend(&node, 0x001, &data));
 }
 
@@ -188,4 +234,7 @@ void testIsCurrentSensorCcPresent(void) {
         /* check state again */
         TEST_ASSERT_EQUAL(true, canTestState->currentSensorCCPresent[stringNumber]);
     }
+}
+
+void testCAN_TransmitBootMessage(void) {
 }

@@ -3,8 +3,8 @@
 
 .. _WAF_TOOL_SPHINX:
 
-Waf Tool Sphinx
-===============
+Sphinx
+======
 
 ..
     Comments:

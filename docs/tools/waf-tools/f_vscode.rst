@@ -3,8 +3,8 @@
 
 .. _WAF_TOOL_VS_CODE:
 
-Waf Tool VS Code
-================
+VS Code
+=======
 
 The tool is located in ``tools/waf-tools``.
 

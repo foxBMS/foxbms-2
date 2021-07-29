@@ -35,9 +35,7 @@
 @REM - "This product includes parts of foxBMS&reg;"
 @REM - "This product is derived from foxBMS&reg;"
 
-@SETLOCAL EnableDelayedExpansion
-@SETLOCAL EnableExtensions
-@SETLOCAL
+@SETLOCAL EnableExtensions EnableDelayedExpansion
 
 @TITLE Installing Ruby
 

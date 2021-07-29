@@ -2,4 +2,4 @@
    remark #10252-D: Symbol "_c_int00" (pulled from "src\app\main\fstartup.c.1.obj") defined in 3 places:
       src\app\main\fstartup.c.1.obj
       src\hal\libfoxbms-hal.a<HL_sys_startup.c.1.obj>
-      C:\ti\ccs1000\ccs\tools\compiler\ti-cgt-arm_20.2.0.LTS\lib\rtsv7R4_A_be_v3D16_eabi.lib<boot_non_cortex_m.asm.obj>
+      C:\ti\ccs1030\ccs\tools\compiler\ti-cgt-arm_20.2.0.LTS\lib\rtsv7R4_A_be_v3D16_eabi.lib<boot_non_cortex_m.asm.obj>

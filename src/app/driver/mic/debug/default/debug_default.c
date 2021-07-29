@@ -43,7 +43,7 @@
  * @file    debug_default.c
  * @author  foxBMS Team
  * @date    2020-09-17 (date of creation)
- * @updated 2020-11-09 (date of last update)
+ * @updated 2021-06-09 (date of last update)
  * @ingroup DRIVER
  * @prefix  FAKE
  *
@@ -170,7 +170,7 @@ static void FAKE_SetState(
 static void FAKE_SetSubstate(FAKE_STATE_s *pFakeState, FAKE_FSM_SUBSTATES_e nextSubstate, uint16_t idleTime);
 
 /**
- * @brief   Sets the indicator that one full measurement cycles was successfull
+ * @brief   Sets the indicator that one full measurement cycles was successful
  * @param   pFakeState   state of the fake state machine
  * @return  true if it is a reentrance, false otherwise
  */
@@ -179,14 +179,14 @@ static void FAKE_SetFirstMeasurementCycleFinished(FAKE_STATE_s *pFakeState);
 /**
  * @brief   Write voltage measurement data
  * @param   pFakeState   state of the fake state machine
- * @return  #STD_OK if successfull, #STD_NOT_OK otherwise
+ * @return  #STD_OK if successful, #STD_NOT_OK otherwise
  */
 static STD_RETURN_TYPE_e FAKE_SaveFakeVoltageMeasurementData(FAKE_STATE_s *pFakeState);
 
 /**
  * @brief   Write temperature measurement data
  * @param   pFakeState   state of the fake state machine
- * @return  #STD_OK if successfull, #STD_NOT_OK otherwise
+ * @return  #STD_OK if successful, #STD_NOT_OK otherwise
  */
 static STD_RETURN_TYPE_e FAKE_SaveFakeTemperatureMeasurementData(FAKE_STATE_s *pFakeState);
 
@@ -287,7 +287,7 @@ static void FAKE_SetFirstMeasurementCycleFinished(FAKE_STATE_s *pFakeState) {
 
         pFakeState->data.cellVoltage->state     = 0;
         pFakeState->data.cellTemperature->state = 0;
-        for (i = 0; i < BS_NR_OF_TEMP_SENSORS; i++) {
+        for (i = 0; i < BS_NR_OF_TEMP_SENSORS_PER_STRING; i++) {
             pFakeState->data.cellTemperature->cellTemperature_ddegC[stringNumber][i] = FAKE_CELL_TEMPERATURE_ddegC;
         }
 
@@ -295,6 +295,7 @@ static void FAKE_SetFirstMeasurementCycleFinished(FAKE_STATE_s *pFakeState) {
         for (i = 0; i < BS_NR_OF_BAT_CELLS; i++) {
             pFakeState->data.balancingControl->balancingState[stringNumber][i] = 0;
         }
+        pFakeState->data.balancingControl->nrBalancedCells[stringNumber] = 0u;
         for (i = 0; i < BS_NR_OF_MODULES; i++) {
             pFakeState->data.balancingFeedback->value[stringNumber][i] = 0;
         }
@@ -353,7 +354,7 @@ static STD_RETURN_TYPE_e FAKE_SaveFakeTemperatureMeasurementData(FAKE_STATE_s *p
     STD_RETURN_TYPE_e successfullSave = STD_OK;
 
     for (uint8_t stringNumber = 0u; stringNumber < BS_NR_OF_STRINGS; stringNumber++) {
-        for (uint16_t i = 0u; i < BS_NR_OF_TEMP_SENSORS; i++) {
+        for (uint16_t i = 0u; i < BS_NR_OF_TEMP_SENSORS_PER_STRING; i++) {
             pFakeState->data.cellTemperature->cellTemperature_ddegC[stringNumber][i] = FAKE_CELL_TEMPERATURE_ddegC;
         }
     }

@@ -43,7 +43,7 @@
  * @file    bender_iso165c.c
  * @author  foxBMS Team
  * @date    2019-04-07 (date of creation)
- * @updated 2021-01-19 (date of last update)
+ * @updated 2021-07-23 (date of last update)
  * @ingroup DRIVERS
  * @prefix  I165C
  *
@@ -60,6 +60,7 @@
 
 #include "can.h"
 #include "database.h"
+#include "ftask.h"
 
 /*========== Macros and Definitions =========================================*/
 
@@ -274,9 +275,9 @@ static bool I165C_CheckResponse(uint8_t command, CAN_BUFFERELEMENT_s *canMessage
 
     /* Use loop on queue because IMD_info message could come meanwhile */
     do {
-        numberItems = uxQueueMessagesWaiting(imd_canDataQueue);
+        numberItems = uxQueueMessagesWaiting(ftsk_imdCanDataQueue);
         if (numberItems > 0u) {
-            if (pdPASS == xQueueReceive(imd_canDataQueue, (void *)canMessage, 0u)) {
+            if (pdPASS == xQueueReceive(ftsk_imdCanDataQueue, (void *)canMessage, 0u)) {
                 /* data queue was no empty */
                 if (canMessage->data[0] == command) {
                     messageReceived = true;
@@ -298,9 +299,9 @@ static bool I165C_GetImdInfo(CAN_BUFFERELEMENT_s *canMessage) {
 
     /* Use loop on queue because other messages could come meanwhile */
     do {
-        numberItems = uxQueueMessagesWaiting(imd_canDataQueue);
+        numberItems = uxQueueMessagesWaiting(ftsk_imdCanDataQueue);
         if (numberItems > 0u) {
-            if (pdPASS == xQueueReceive(imd_canDataQueue, (void *)canMessage, 0u)) {
+            if (pdPASS == xQueueReceive(ftsk_imdCanDataQueue, (void *)canMessage, 0u)) {
                 /* data queue was no empty */
                 if (canMessage->id == I165C_MESSAGETYPE_IMD_INFO) {
                     imdInfoReceived = true;
@@ -561,27 +562,21 @@ extern void I165C_Trigger(void) {
 #ifdef UNITY_UNIT_TEST
 extern void TEST_I165C_ResetCanData(CAN_BUFFERELEMENT_s *canMessage) {
     I165C_ResetCanData(canMessage);
-    return;
 }
 extern void TEST_I165C_WriteDataWord(uint8_t dataWord, uint16_t data, CAN_BUFFERELEMENT_s *canMessage) {
     I165C_WriteDataWord(dataWord, data, canMessage);
-    return;
 }
 extern void TEST_I165C_ReadDataWord(uint8_t dataWord, uint16_t *data, CAN_BUFFERELEMENT_s canMessage) {
     I165C_ReadDataWord(dataWord, data, canMessage);
-    return;
 }
 extern void TEST_I165C_ReadDataWordImdInfo(uint8_t dataWord, uint16_t *data, CAN_BUFFERELEMENT_s canMessage) {
     I165C_ReadDataWordImdInfo(dataWord, data, canMessage);
-    return;
 }
 extern void TEST_I165C_ReadDataByte(uint8_t dataByte, uint8_t *data, CAN_BUFFERELEMENT_s canMessage) {
     I165C_ReadDataByte(dataByte, data, canMessage);
-    return;
 }
 extern void TEST_I165C_WriteCmd(uint8_t id, uint8_t cmd, CAN_BUFFERELEMENT_s *canMessage) {
     I165C_WriteCmd(id, cmd, canMessage);
-    return;
 }
 extern bool TEST_I165C_CheckResponse(uint8_t command, CAN_BUFFERELEMENT_s *canMessage) {
     return I165C_CheckResponse(command, canMessage);
@@ -599,7 +594,6 @@ extern void TEST_I165C_CheckAcknowledgeArrived(
     uint8_t *tries,
     CAN_BUFFERELEMENT_s *canMessage) {
     I165C_CheckAcknowledgeArrived(command, currentState, nextState, tries, canMessage);
-    return;
 }
 
 #endif

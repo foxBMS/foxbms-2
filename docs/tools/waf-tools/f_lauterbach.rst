@@ -3,8 +3,8 @@
 
 .. _WAF_TOOL_LAUTERBACH:
 
-Waf Tool Lauterbach
-===================
+Lauterbach
+==========
 
 ..
     Comments:

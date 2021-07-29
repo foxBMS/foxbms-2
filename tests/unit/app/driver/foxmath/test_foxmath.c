@@ -43,7 +43,7 @@
  * @file    test_foxmath.c
  * @author  foxBMS Team
  * @date    2020-04-01 (date of creation)
- * @updated 2020-05-07 (date of last update)
+ * @updated 2020-07-15 (date of last update)
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -144,18 +144,42 @@ void test_swap64_MAX(void) {
 void test_minimumOfTwoFloats(void) {
     float minimum = 0.0f;
     /* Test 1: all values are equal */
-    minimum = MATH_minimumOfTwoFloats(1.0f, 1.0f);
+    minimum = MATH_MinimumOfTwoFloats(1.0f, 1.0f);
     TEST_ASSERT_EQUAL(1.0f, minimum);
     /* Test 2: the first value is the smallest */
-    minimum = MATH_minimumOfTwoFloats(1.0f, 2.0f);
+    minimum = MATH_MinimumOfTwoFloats(1.0f, 2.0f);
     TEST_ASSERT_EQUAL(1.0f, minimum);
     /* Test 3: the last value is the smallest */
-    minimum = MATH_minimumOfTwoFloats(3.0f, 2.0f);
+    minimum = MATH_MinimumOfTwoFloats(3.0f, 2.0f);
     TEST_ASSERT_EQUAL(2.0f, minimum);
     /* Test 4: the first value is the smallest */
-    minimum = MATH_minimumOfTwoFloats(-3.0f, 1.0f);
+    minimum = MATH_MinimumOfTwoFloats(-3.0f, 1.0f);
     TEST_ASSERT_EQUAL(-3.0f, minimum);
     /* Test 5: the first value is the smallest */
-    minimum = MATH_minimumOfTwoFloats(-3.0f, -1.0f);
+    minimum = MATH_MinimumOfTwoFloats(-3.0f, -1.0f);
     TEST_ASSERT_EQUAL(-3.0f, minimum);
+}
+
+void test_MATH_MinimumOfTwoUint8_t(void) {
+    uint8_t value1 = 42u;
+    uint8_t value2 = 67u;
+
+    TEST_ASSERT_EQUAL_UINT8(value1, MATH_MinimumOfTwoUint8_t(value1, value2));
+    TEST_ASSERT_EQUAL_UINT8(value1, MATH_MinimumOfTwoUint8_t(value2, value1));
+    TEST_ASSERT_EQUAL_UINT8(value1, MATH_MinimumOfTwoUint8_t(value1, UINT8_MAX));
+    TEST_ASSERT_EQUAL_UINT8(0u, MATH_MinimumOfTwoUint8_t(value1, 0u));
+    TEST_ASSERT_EQUAL_UINT8(0u, MATH_MinimumOfTwoUint8_t(UINT8_MAX, 0u));
+    TEST_ASSERT_EQUAL_UINT8(0u, MATH_MinimumOfTwoUint8_t(0u, UINT8_MAX));
+}
+
+void test_MATH_MinimumOfTwoUint16_t(void) {
+    uint16_t value1 = 0xFF42u;
+    uint16_t value2 = 0xFF67u;
+
+    TEST_ASSERT_EQUAL_UINT16(value1, MATH_MinimumOfTwoUint16_t(value1, value2));
+    TEST_ASSERT_EQUAL_UINT16(value1, MATH_MinimumOfTwoUint16_t(value2, value1));
+    TEST_ASSERT_EQUAL_UINT16(value1, MATH_MinimumOfTwoUint16_t(value1, UINT16_MAX));
+    TEST_ASSERT_EQUAL_UINT16(0u, MATH_MinimumOfTwoUint16_t(value1, 0u));
+    TEST_ASSERT_EQUAL_UINT16(0u, MATH_MinimumOfTwoUint16_t(UINT16_MAX, 0u));
+    TEST_ASSERT_EQUAL_UINT16(0u, MATH_MinimumOfTwoUint16_t(0u, UINT16_MAX));
 }

@@ -1,7 +1,7 @@
 *Common* name;                  Task Creator Function;                      User Code Function;                     Comment
-Idle task;                      \-;                                         FTSK_UserCodeIdle;                      This task **SHOULD NOT** be modified
-Engine task;                    ``FTSK_TaskCreatorEngine``;                 ``FTSK_UserCodeEngine``;                This task **SHOULD NOT** be modified
-1ms cyclic task;                ``FTSK_TaskCreatorCyclic1ms``;              ``FTSK_UserCodeCyclic1ms``;             User code can be put here
-10ms cyclic task;               ``FTSK_TaskCreatorCyclic10ms``;             ``FTSK_UserCodeCyclic10ms``;            User code can be put here
-100ms cyclic ;                  ``FTSK_TaskCreatorCyclic100ms``;            ``FTSK_UserCodeCyclic10ms``;            User code can be put here
-100ms cyclic for algorithms;    ``FTSK_TaskCreatorCyclicAlgorithm100ms``;   ``FTSK_UserCodeCyclicAlgorithm100ms``;  User code can be put here
+Idle task;                      \-;                                         ``FTSK_RunUserCodeIdle``;                  This task **SHOULD NOT** be modified
+Engine task;                    ``FTSK_CreateTaskEngine``;                  ``FTSK_RunUserCodeEngine``;                This task **SHOULD NOT** be modified
+1ms cyclic task;                ``FTSK_CreateTaskCyclic1ms``;               ``FTSK_RunUserCodeCyclic1ms``;             User code can be put here
+10ms cyclic task;               ``FTSK_CreateTaskCyclic10ms``;              ``FTSK_RunUserCodeCyclic10ms``;            User code can be put here
+100ms cyclic ;                  ``FTSK_CreateTaskCyclic100ms``;             ``FTSK_RunUserCodeCyclic100ms``;           User code can be put here
+100ms cyclic for algorithms;    ``FTSK_CreateTaskCyclicAlgorithm100ms``;    ``FTSK_RunUserCodeCyclicAlgorithm100ms``;  User code can be put here

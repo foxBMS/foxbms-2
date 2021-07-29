@@ -44,7 +44,7 @@
     @ECHO [31mUnit testing waf tools failed[0m
     @EXIT /b %ERRORLEVEL%
 ) ELSE (
-    @ECHO [32mUnit testing waf tools successfull[0m
+    @ECHO [32mUnit testing waf tools successful[0m
 )
 @ECHO =========================================================================
 @ECHO Unit testing GUI
@@ -54,7 +54,7 @@
     @POPD
     @EXIT /b %ERRORLEVEL%
 ) ELSE (
-    @ECHO [32mUnit testing GUI successfull[0m
+    @ECHO [32mUnit testing GUI successful[0m
 )
 @ECHO =========================================================================
 @ECHO Creating report

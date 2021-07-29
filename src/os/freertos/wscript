@@ -59,7 +59,6 @@ def build(bld):
         os.path.join("portable", "ccs", "arm_cortex-r5", "port.c"),
         os.path.join("portable", "ccs", "arm_cortex-r5", "portasm.asm"),
         os.path.join("portable", "common", "mpu_wrappers.c"),
-        os.path.join("portable", "memmang", "heap_4.c"),
     ]
     includes = [
         "include",

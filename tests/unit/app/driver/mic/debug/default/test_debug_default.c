@@ -43,7 +43,7 @@
  * @file    test_debug_default.c
  * @author  foxBMS Team
  * @date    2020-09-17 (date of creation)
- * @updated 2020-09-17 (date of last update)
+ * @updated 2021-06-09 (date of last update)
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -211,7 +211,7 @@ void testFAKE_SetFirstMeasurementCycleFinished(void) {
         test_fake_stateCompare.data.cellVoltage->packVoltage_mV[stringNumber] = FAKE_CELL_VOLTAGE_mV *
                                                                                 BS_NR_OF_BAT_CELLS;
 
-        for (i = 0; i < BS_NR_OF_TEMP_SENSORS; i++) {
+        for (i = 0; i < BS_NR_OF_TEMP_SENSORS_PER_STRING; i++) {
             test_fake_stateCompare.data.cellTemperature->cellTemperature_ddegC[stringNumber][i] =
                 FAKE_CELL_TEMPERATURE_ddegC;
         }

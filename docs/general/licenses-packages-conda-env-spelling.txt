@@ -2,6 +2,7 @@
     addons
     aenum
     alabaster
+    Analytics
     appdirs
     applehelp
     argparse
@@ -9,11 +10,12 @@
     asn1crypto
     ast
     astroid
+    async
     asyncio
     attrs
-    Analytics
     babel
     backcall
+    beautifulsoup
     bibtex
     bitstruct
     black
@@ -24,39 +26,51 @@
     ca-certificates
     cantools
     certifi
+    cfd
     cffi
     chardet
+    charset
+    clib
     click
     colorama
     conda-package-handling
     console_shortcut
+    copybutton
     crcmod
     cryptography
+    datauri
     dateutil
+    dbus
     dcd
+    debd
     decorator
     defusedxml
     defusedxmlec
+    dev
     devhelp
     df
     diskcache
     docutils
-    libtiff
-    mdx
-    msgpack
     doxygen
     eaf
+    ee
     ec
+    ecd
     entrypoints
     et-xmlfile
     fde
     fft
     freetype
+    fontconfig
     gcovr
+    genutils
     gitpython
+    gst
+    gstreamer
     gmp
     graphviz
     hb
+    hbc
     hc
     hfa
     hfd
@@ -65,6 +79,7 @@
     icu
     idna
     imagesize
+    impl
     importlib
     importlib
     intel
@@ -82,25 +97,40 @@
     jupyter_client
     jupyter_console
     jupyter_core
+    jupyterlab
     lazy-object-proxy
+    ld
     libarchive
+    libffi
+    libgcc
     libgfortran
+    libgomp
     libiconv
     libpng
     libsodium
+    libstdcxx
+    libtiff
+    libuuid
     libwinpthread
+    libxcb
     libxml
+    linux
     lz
     lzo
     markupsafe
+    matplotlib
     mccabe
+    mdx
     menuinst
     mistune
     mkl
+    msgpack
     msys2-conda-epoch
     mypy
     nbconvert
+    ncurses
     nbformat
+    ng
     notebook
     numpy
     openmp
@@ -110,16 +140,21 @@
     pandocfilters
     parso
     pathspec
+    pcre
+    pexpect
     pickleshare
     pillow
     pip
     pip-licenses
     plantuml
+    plotly
     powershell_shortcut
+    prometheus
     prometheus_client
     prompt_toolkit
     prompt-toolkit
     ptable
+    ptyprocess
     py
     pybtex
     pybtex-docutils
@@ -133,6 +168,7 @@
     pypi
     pyqt
     pyrsistent
+    pyserial
     pysocks
     python
     pytz
@@ -144,10 +180,12 @@
     qtconsole
     qthelp
     qtpy
+    readline
     regex
     requests
     rstcheck
     rtd
+    ruamel
     ruamel_yaml
     send2trash
     serializinghtml
@@ -162,10 +200,13 @@
     terminado
     testpath
     textparser
+    Tk
     toml
     tornado
     tqdm
     traitlets
+    tzdata
+    uds
     urllib3
     vc
     vs2015_runtime

@@ -61,644 +61,644 @@ SG_ foxBMS_packSoh : 27|12@0+ (0.025,0) [0|102.375] "%" Vector__XXX
 
 BO_ 576 foxBMS_CellVoltage: 8 Vector__XXX
 SG_ foxBMS_CellVoltage_Mux M : 7|8@0+ (1,0) [0|0] "" Vector__XXX
-SG_ cellVoltage_0_invalidFlag m0 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_1_invalidFlag m0 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_2_invalidFlag m0 : 14|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_3_invalidFlag m0 : 15|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_0 m0 : 11|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_1 m0 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_2 m0 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_3 m0 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cellVoltage_4_invalidFlag m1 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_5_invalidFlag m1 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_6_invalidFlag m1 : 14|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_7_invalidFlag m1 : 15|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_4 m1 : 11|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_5 m1 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_6 m1 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_7 m1 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cellVoltage_8_invalidFlag m2 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_9_invalidFlag m2 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_10_invalidFlag m2 : 14|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_11_invalidFlag m2 : 15|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_8 m2 : 11|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_9 m2 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_10 m2 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_11 m2 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cellVoltage_12_invalidFlag m3 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_13_invalidFlag m3 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_14_invalidFlag m3 : 14|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_15_invalidFlag m3 : 15|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_12 m3 : 11|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_13 m3 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_14 m3 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_15 m3 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cellVoltage_16_invalidFlag m4 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_17_invalidFlag m4 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_18_invalidFlag m4 : 14|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_19_invalidFlag m4 : 15|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_16 m4 : 11|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_17 m4 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_18 m4 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_19 m4 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cellVoltage_20_invalidFlag m5 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_21_invalidFlag m5 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_22_invalidFlag m5 : 14|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_23_invalidFlag m5 : 15|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_20 m5 : 11|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_21 m5 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_22 m5 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_23 m5 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cellVoltage_24_invalidFlag m6 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_25_invalidFlag m6 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_26_invalidFlag m6 : 14|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_27_invalidFlag m6 : 15|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_24 m6 : 11|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_25 m6 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_26 m6 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_27 m6 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cellVoltage_28_invalidFlag m7 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_29_invalidFlag m7 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_30_invalidFlag m7 : 14|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_31_invalidFlag m7 : 15|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_28 m7 : 11|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_29 m7 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_30 m7 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_31 m7 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cellVoltage_32_invalidFlag m8 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_33_invalidFlag m8 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_34_invalidFlag m8 : 14|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_35_invalidFlag m8 : 15|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_32 m8 : 11|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_33 m8 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_34 m8 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_35 m8 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cellVoltage_36_invalidFlag m9 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_37_invalidFlag m9 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_38_invalidFlag m9 : 14|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_39_invalidFlag m9 : 15|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_36 m9 : 11|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_37 m9 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_38 m9 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_39 m9 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cellVoltage_40_invalidFlag m10 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_41_invalidFlag m10 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_42_invalidFlag m10 : 14|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_43_invalidFlag m10 : 15|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_40 m10 : 11|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_41 m10 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_42 m10 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_43 m10 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cellVoltage_44_invalidFlag m11 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_45_invalidFlag m11 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_46_invalidFlag m11 : 14|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_47_invalidFlag m11 : 15|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_44 m11 : 11|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_45 m11 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_46 m11 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_47 m11 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cellVoltage_48_invalidFlag m12 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_49_invalidFlag m12 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_50_invalidFlag m12 : 14|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_51_invalidFlag m12 : 15|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_48 m12 : 11|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_49 m12 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_50 m12 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_51 m12 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cellVoltage_52_invalidFlag m13 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_53_invalidFlag m13 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_54_invalidFlag m13 : 14|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_55_invalidFlag m13 : 15|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_52 m13 : 11|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_53 m13 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_54 m13 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_55 m13 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cellVoltage_56_invalidFlag m14 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_57_invalidFlag m14 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_58_invalidFlag m14 : 14|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_59_invalidFlag m14 : 15|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_56 m14 : 11|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_57 m14 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_58 m14 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_59 m14 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cellVoltage_60_invalidFlag m15 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_61_invalidFlag m15 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_62_invalidFlag m15 : 14|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_63_invalidFlag m15 : 15|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_60 m15 : 11|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_61 m15 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_62 m15 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_63 m15 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cellVoltage_64_invalidFlag m16 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_65_invalidFlag m16 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_66_invalidFlag m16 : 14|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_67_invalidFlag m16 : 15|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_64 m16 : 11|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_65 m16 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_66 m16 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_67 m16 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cellVoltage_68_invalidFlag m17 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_69_invalidFlag m17 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_70_invalidFlag m17 : 14|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_71_invalidFlag m17 : 15|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_68 m17 : 11|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_69 m17 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_70 m17 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_71 m17 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cellVoltage_72_invalidFlag m18 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_73_invalidFlag m18 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_74_invalidFlag m18 : 14|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_75_invalidFlag m18 : 15|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_72 m18 : 11|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_73 m18 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_74 m18 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_75 m18 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cellVoltage_76_invalidFlag m19 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_77_invalidFlag m19 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_78_invalidFlag m19 : 14|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_79_invalidFlag m19 : 15|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_76 m19 : 11|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_77 m19 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_78 m19 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_79 m19 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cellVoltage_80_invalidFlag m20 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_81_invalidFlag m20 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_82_invalidFlag m20 : 14|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_83_invalidFlag m20 : 15|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_80 m20 : 11|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_81 m20 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_82 m20 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_83 m20 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cellVoltage_84_invalidFlag m21 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_85_invalidFlag m21 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_86_invalidFlag m21 : 14|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_87_invalidFlag m21 : 15|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_84 m21 : 11|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_85 m21 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_86 m21 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_87 m21 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cellVoltage_88_invalidFlag m22 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_89_invalidFlag m22 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_90_invalidFlag m22 : 14|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_91_invalidFlag m22 : 15|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_88 m22 : 11|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_89 m22 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_90 m22 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_91 m22 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cellVoltage_92_invalidFlag m23 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_93_invalidFlag m23 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_94_invalidFlag m23 : 14|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_95_invalidFlag m23 : 15|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_92 m23 : 11|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_93 m23 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_94 m23 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_95 m23 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cellVoltage_96_invalidFlag m24 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_97_invalidFlag m24 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_98_invalidFlag m24 : 14|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_99_invalidFlag m24 : 15|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellVoltage_96 m24 : 11|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_97 m24 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_98 m24 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_99 m24 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_000_invalidFlag m0 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_001_invalidFlag m0 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_002_invalidFlag m0 : 14|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_003_invalidFlag m0 : 15|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_000 m0 : 11|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_001 m0 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_002 m0 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_003 m0 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_004_invalidFlag m1 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_005_invalidFlag m1 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_006_invalidFlag m1 : 14|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_007_invalidFlag m1 : 15|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_004 m1 : 11|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_005 m1 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_006 m1 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_007 m1 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_008_invalidFlag m2 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_009_invalidFlag m2 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_010_invalidFlag m2 : 14|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_011_invalidFlag m2 : 15|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_008 m2 : 11|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_009 m2 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_010 m2 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_011 m2 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_012_invalidFlag m3 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_013_invalidFlag m3 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_014_invalidFlag m3 : 14|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_015_invalidFlag m3 : 15|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_012 m3 : 11|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_013 m3 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_014 m3 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_015 m3 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_016_invalidFlag m4 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_017_invalidFlag m4 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_018_invalidFlag m4 : 14|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_019_invalidFlag m4 : 15|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_016 m4 : 11|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_017 m4 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_018 m4 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_019 m4 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_020_invalidFlag m5 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_021_invalidFlag m5 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_022_invalidFlag m5 : 14|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_023_invalidFlag m5 : 15|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_020 m5 : 11|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_021 m5 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_022 m5 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_023 m5 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_024_invalidFlag m6 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_025_invalidFlag m6 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_026_invalidFlag m6 : 14|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_027_invalidFlag m6 : 15|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_024 m6 : 11|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_025 m6 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_026 m6 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_027 m6 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_028_invalidFlag m7 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_029_invalidFlag m7 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_030_invalidFlag m7 : 14|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_031_invalidFlag m7 : 15|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_028 m7 : 11|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_029 m7 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_030 m7 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_031 m7 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_032_invalidFlag m8 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_033_invalidFlag m8 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_034_invalidFlag m8 : 14|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_035_invalidFlag m8 : 15|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_032 m8 : 11|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_033 m8 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_034 m8 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_035 m8 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_036_invalidFlag m9 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_037_invalidFlag m9 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_038_invalidFlag m9 : 14|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_039_invalidFlag m9 : 15|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_036 m9 : 11|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_037 m9 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_038 m9 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_039 m9 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_040_invalidFlag m10 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_041_invalidFlag m10 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_042_invalidFlag m10 : 14|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_043_invalidFlag m10 : 15|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_040 m10 : 11|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_041 m10 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_042 m10 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_043 m10 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_044_invalidFlag m11 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_045_invalidFlag m11 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_046_invalidFlag m11 : 14|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_047_invalidFlag m11 : 15|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_044 m11 : 11|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_045 m11 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_046 m11 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_047 m11 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_048_invalidFlag m12 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_049_invalidFlag m12 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_050_invalidFlag m12 : 14|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_051_invalidFlag m12 : 15|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_048 m12 : 11|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_049 m12 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_050 m12 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_051 m12 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_052_invalidFlag m13 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_053_invalidFlag m13 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_054_invalidFlag m13 : 14|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_055_invalidFlag m13 : 15|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_052 m13 : 11|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_053 m13 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_054 m13 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_055 m13 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_056_invalidFlag m14 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_057_invalidFlag m14 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_058_invalidFlag m14 : 14|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_059_invalidFlag m14 : 15|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_056 m14 : 11|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_057 m14 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_058 m14 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_059 m14 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_060_invalidFlag m15 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_061_invalidFlag m15 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_062_invalidFlag m15 : 14|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_063_invalidFlag m15 : 15|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_060 m15 : 11|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_061 m15 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_062 m15 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_063 m15 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_064_invalidFlag m16 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_065_invalidFlag m16 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_066_invalidFlag m16 : 14|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_067_invalidFlag m16 : 15|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_064 m16 : 11|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_065 m16 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_066 m16 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_067 m16 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_068_invalidFlag m17 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_069_invalidFlag m17 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_070_invalidFlag m17 : 14|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_071_invalidFlag m17 : 15|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_068 m17 : 11|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_069 m17 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_070 m17 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_071 m17 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_072_invalidFlag m18 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_073_invalidFlag m18 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_074_invalidFlag m18 : 14|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_075_invalidFlag m18 : 15|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_072 m18 : 11|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_073 m18 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_074 m18 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_075 m18 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_076_invalidFlag m19 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_077_invalidFlag m19 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_078_invalidFlag m19 : 14|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_079_invalidFlag m19 : 15|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_076 m19 : 11|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_077 m19 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_078 m19 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_079 m19 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_080_invalidFlag m20 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_081_invalidFlag m20 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_082_invalidFlag m20 : 14|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_083_invalidFlag m20 : 15|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_080 m20 : 11|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_081 m20 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_082 m20 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_083 m20 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_084_invalidFlag m21 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_085_invalidFlag m21 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_086_invalidFlag m21 : 14|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_087_invalidFlag m21 : 15|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_084 m21 : 11|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_085 m21 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_086 m21 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_087 m21 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_088_invalidFlag m22 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_089_invalidFlag m22 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_090_invalidFlag m22 : 14|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_091_invalidFlag m22 : 15|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_088 m22 : 11|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_089 m22 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_090 m22 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_091 m22 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_092_invalidFlag m23 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_093_invalidFlag m23 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_094_invalidFlag m23 : 14|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_095_invalidFlag m23 : 15|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_092 m23 : 11|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_093 m23 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_094 m23 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_095 m23 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_096_invalidFlag m24 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_097_invalidFlag m24 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_098_invalidFlag m24 : 14|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_099_invalidFlag m24 : 15|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellVoltage_096 m24 : 11|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_097 m24 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_098 m24 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_099 m24 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
 SG_ cellVoltage_100_invalidFlag m25 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_101_invalidFlag m25 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_102_invalidFlag m25 : 14|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_103_invalidFlag m25 : 15|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_100 m25 : 11|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_101 m25 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_102 m25 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_103 m25 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_101 m25 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_102 m25 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_103 m25 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
 SG_ cellVoltage_104_invalidFlag m26 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_105_invalidFlag m26 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_106_invalidFlag m26 : 14|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_107_invalidFlag m26 : 15|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_104 m26 : 11|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_105 m26 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_106 m26 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_107 m26 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_105 m26 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_106 m26 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_107 m26 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
 SG_ cellVoltage_108_invalidFlag m27 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_109_invalidFlag m27 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_110_invalidFlag m27 : 14|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_111_invalidFlag m27 : 15|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_108 m27 : 11|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_109 m27 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_110 m27 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_111 m27 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_109 m27 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_110 m27 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_111 m27 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
 SG_ cellVoltage_112_invalidFlag m28 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_113_invalidFlag m28 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_114_invalidFlag m28 : 14|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_115_invalidFlag m28 : 15|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_112 m28 : 11|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_113 m28 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_114 m28 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_115 m28 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_113 m28 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_114 m28 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_115 m28 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
 SG_ cellVoltage_116_invalidFlag m29 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_117_invalidFlag m29 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_118_invalidFlag m29 : 14|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_119_invalidFlag m29 : 15|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_116 m29 : 11|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_117 m29 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_118 m29 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_119 m29 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_117 m29 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_118 m29 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_119 m29 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
 SG_ cellVoltage_120_invalidFlag m30 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_121_invalidFlag m30 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_122_invalidFlag m30 : 14|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_123_invalidFlag m30 : 15|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_120 m30 : 11|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_121 m30 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_122 m30 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_123 m30 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_121 m30 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_122 m30 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_123 m30 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
 SG_ cellVoltage_124_invalidFlag m31 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_125_invalidFlag m31 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_126_invalidFlag m31 : 14|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_127_invalidFlag m31 : 15|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_124 m31 : 11|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_125 m31 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_126 m31 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_127 m31 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_125 m31 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_126 m31 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_127 m31 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
 SG_ cellVoltage_128_invalidFlag m32 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_129_invalidFlag m32 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_130_invalidFlag m32 : 14|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_131_invalidFlag m32 : 15|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_128 m32 : 11|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_129 m32 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_130 m32 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_131 m32 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_129 m32 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_130 m32 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_131 m32 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
 SG_ cellVoltage_132_invalidFlag m33 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_133_invalidFlag m33 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_134_invalidFlag m33 : 14|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_135_invalidFlag m33 : 15|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_132 m33 : 11|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_133 m33 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_134 m33 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_135 m33 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_133 m33 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_134 m33 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_135 m33 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
 SG_ cellVoltage_136_invalidFlag m34 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_137_invalidFlag m34 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_138_invalidFlag m34 : 14|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_139_invalidFlag m34 : 15|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_136 m34 : 11|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_137 m34 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_138 m34 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_139 m34 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_137 m34 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_138 m34 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_139 m34 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
 SG_ cellVoltage_140_invalidFlag m35 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_141_invalidFlag m35 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_142_invalidFlag m35 : 14|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_143_invalidFlag m35 : 15|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_140 m35 : 11|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_141 m35 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_142 m35 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_143 m35 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_141 m35 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_142 m35 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_143 m35 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
 SG_ cellVoltage_144_invalidFlag m36 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_145_invalidFlag m36 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_146_invalidFlag m36 : 14|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_147_invalidFlag m36 : 15|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_144 m36 : 11|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_145 m36 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_146 m36 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_147 m36 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_145 m36 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_146 m36 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_147 m36 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
 SG_ cellVoltage_148_invalidFlag m37 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_149_invalidFlag m37 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_150_invalidFlag m37 : 14|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_151_invalidFlag m37 : 15|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_148 m37 : 11|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_149 m37 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_150 m37 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_151 m37 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_149 m37 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_150 m37 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_151 m37 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
 SG_ cellVoltage_152_invalidFlag m38 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_153_invalidFlag m38 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_154_invalidFlag m38 : 14|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_155_invalidFlag m38 : 15|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_152 m38 : 11|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_153 m38 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_154 m38 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_155 m38 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_153 m38 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_154 m38 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_155 m38 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
 SG_ cellVoltage_156_invalidFlag m39 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_157_invalidFlag m39 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_158_invalidFlag m39 : 14|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_159_invalidFlag m39 : 15|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_156 m39 : 11|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_157 m39 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_158 m39 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_159 m39 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_157 m39 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_158 m39 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_159 m39 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
 SG_ cellVoltage_160_invalidFlag m40 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_161_invalidFlag m40 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_162_invalidFlag m40 : 14|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_163_invalidFlag m40 : 15|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_160 m40 : 11|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_161 m40 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_162 m40 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_163 m40 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_161 m40 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_162 m40 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_163 m40 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
 SG_ cellVoltage_164_invalidFlag m41 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_165_invalidFlag m41 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_166_invalidFlag m41 : 14|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_167_invalidFlag m41 : 15|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_164 m41 : 11|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_165 m41 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_166 m41 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_167 m41 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_165 m41 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_166 m41 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_167 m41 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
 SG_ cellVoltage_168_invalidFlag m42 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_169_invalidFlag m42 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_170_invalidFlag m42 : 14|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_171_invalidFlag m42 : 15|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_168 m42 : 11|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_169 m42 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_170 m42 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_171 m42 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_169 m42 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_170 m42 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_171 m42 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
 SG_ cellVoltage_172_invalidFlag m43 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_173_invalidFlag m43 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_174_invalidFlag m43 : 14|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_175_invalidFlag m43 : 15|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_172 m43 : 11|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_173 m43 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_174 m43 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_175 m43 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_173 m43 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_174 m43 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_175 m43 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
 SG_ cellVoltage_176_invalidFlag m44 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_177_invalidFlag m44 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_178_invalidFlag m44 : 14|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_179_invalidFlag m44 : 15|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_176 m44 : 11|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_177 m44 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_178 m44 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_179 m44 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_177 m44 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_178 m44 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_179 m44 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
 SG_ cellVoltage_180_invalidFlag m45 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_181_invalidFlag m45 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_182_invalidFlag m45 : 14|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_183_invalidFlag m45 : 15|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_180 m45 : 11|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_181 m45 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_182 m45 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_183 m45 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_181 m45 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_182 m45 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_183 m45 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
 SG_ cellVoltage_184_invalidFlag m46 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_185_invalidFlag m46 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_186_invalidFlag m46 : 14|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_187_invalidFlag m46 : 15|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_184 m46 : 11|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_185 m46 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_186 m46 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_187 m46 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_185 m46 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_186 m46 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_187 m46 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
 SG_ cellVoltage_188_invalidFlag m47 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_189_invalidFlag m47 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_190_invalidFlag m47 : 14|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_191_invalidFlag m47 : 15|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_188 m47 : 11|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_189 m47 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_190 m47 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_191 m47 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_189 m47 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_190 m47 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_191 m47 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
 SG_ cellVoltage_192_invalidFlag m48 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_193_invalidFlag m48 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_194_invalidFlag m48 : 14|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_195_invalidFlag m48 : 15|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_192 m48 : 11|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_193 m48 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_194 m48 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_195 m48 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_193 m48 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_194 m48 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_195 m48 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
 SG_ cellVoltage_196_invalidFlag m49 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_197_invalidFlag m49 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_198_invalidFlag m49 : 14|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_199_invalidFlag m49 : 15|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_196 m49 : 11|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_197 m49 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_198 m49 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_199 m49 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_197 m49 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_198 m49 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_199 m49 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
 SG_ cellVoltage_200_invalidFlag m50 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_201_invalidFlag m50 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_202_invalidFlag m50 : 14|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_203_invalidFlag m50 : 15|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_200 m50 : 11|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_201 m50 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_202 m50 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_203 m50 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_201 m50 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_202 m50 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_203 m50 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
 SG_ cellVoltage_204_invalidFlag m51 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_205_invalidFlag m51 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_206_invalidFlag m51 : 14|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_207_invalidFlag m51 : 15|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_204 m51 : 11|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_205 m51 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_206 m51 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_207 m51 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_205 m51 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_206 m51 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_207 m51 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
 SG_ cellVoltage_208_invalidFlag m52 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_209_invalidFlag m52 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_210_invalidFlag m52 : 14|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_211_invalidFlag m52 : 15|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_208 m52 : 11|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_209 m52 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_210 m52 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_211 m52 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_209 m52 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_210 m52 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_211 m52 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
 SG_ cellVoltage_212_invalidFlag m53 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_213_invalidFlag m53 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_214_invalidFlag m53 : 14|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_215_invalidFlag m53 : 15|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_212 m53 : 11|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_213 m53 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_214 m53 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ cell_voltage_215 m53 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_213 m53 : 30|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_214 m53 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ cellVoltage_215 m53 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
 
 
 BO_ 592 foxBMS_CellTemperature: 8 Vector__XXX
 SG_ foxBMS_CellTemperature_Mux M : 7|8@0+ (1,0) [0|0] "" Vector__XXX
-SG_ cellTemperature_0_invalidFlag m0 : 8|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_1_invalidFlag m0 : 9|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_2_invalidFlag m0 : 10|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_3_invalidFlag m0 : 11|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_4_invalidFlag m0 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_5_invalidFlag m0 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_0 m0 : 23|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_1 m0 : 31|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_2 m0 : 39|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_3 m0 : 47|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_4 m0 : 55|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_5 m0 : 63|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_6_invalidFlag m1 : 8|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_7_invalidFlag m1 : 9|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_8_invalidFlag m1 : 10|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_9_invalidFlag m1 : 11|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_10_invalidFlag m1 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_11_invalidFlag m1 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_6 m1 : 23|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_7 m1 : 31|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_8 m1 : 39|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_9 m1 : 47|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_10 m1 : 55|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_11 m1 : 63|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_12_invalidFlag m2 : 8|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_13_invalidFlag m2 : 9|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_14_invalidFlag m2 : 10|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_15_invalidFlag m2 : 11|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_16_invalidFlag m2 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_17_invalidFlag m2 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_12 m2 : 23|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_13 m2 : 31|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_14 m2 : 39|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_15 m2 : 47|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_16 m2 : 55|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_17 m2 : 63|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_18_invalidFlag m3 : 8|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_19_invalidFlag m3 : 9|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_20_invalidFlag m3 : 10|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_21_invalidFlag m3 : 11|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_22_invalidFlag m3 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_23_invalidFlag m3 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_18 m3 : 23|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_19 m3 : 31|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_20 m3 : 39|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_21 m3 : 47|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_22 m3 : 55|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_23 m3 : 63|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_24_invalidFlag m4 : 8|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_25_invalidFlag m4 : 9|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_26_invalidFlag m4 : 10|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_27_invalidFlag m4 : 11|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_28_invalidFlag m4 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_29_invalidFlag m4 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_24 m4 : 23|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_25 m4 : 31|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_26 m4 : 39|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_27 m4 : 47|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_28 m4 : 55|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_29 m4 : 63|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_30_invalidFlag m5 : 8|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_31_invalidFlag m5 : 9|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_32_invalidFlag m5 : 10|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_33_invalidFlag m5 : 11|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_34_invalidFlag m5 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_35_invalidFlag m5 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_30 m5 : 23|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_31 m5 : 31|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_32 m5 : 39|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_33 m5 : 47|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_34 m5 : 55|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_35 m5 : 63|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_36_invalidFlag m6 : 8|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_37_invalidFlag m6 : 9|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_38_invalidFlag m6 : 10|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_39_invalidFlag m6 : 11|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_40_invalidFlag m6 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_41_invalidFlag m6 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_36 m6 : 23|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_37 m6 : 31|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_38 m6 : 39|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_39 m6 : 47|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_40 m6 : 55|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_41 m6 : 63|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_42_invalidFlag m7 : 8|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_43_invalidFlag m7 : 9|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_44_invalidFlag m7 : 10|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_45_invalidFlag m7 : 11|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_46_invalidFlag m7 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_47_invalidFlag m7 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_42 m7 : 23|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_43 m7 : 31|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_44 m7 : 39|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_45 m7 : 47|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_46 m7 : 55|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_47 m7 : 63|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_48_invalidFlag m8 : 8|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_49_invalidFlag m8 : 9|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_50_invalidFlag m8 : 10|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_51_invalidFlag m8 : 11|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_52_invalidFlag m8 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_53_invalidFlag m8 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_48 m8 : 23|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_49 m8 : 31|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_50 m8 : 39|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_51 m8 : 47|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_52 m8 : 55|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_53 m8 : 63|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_54_invalidFlag m9 : 8|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_55_invalidFlag m9 : 9|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_56_invalidFlag m9 : 10|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_57_invalidFlag m9 : 11|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_58_invalidFlag m9 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_59_invalidFlag m9 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_54 m9 : 23|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_55 m9 : 31|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_56 m9 : 39|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_57 m9 : 47|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_58 m9 : 55|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_59 m9 : 63|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_60_invalidFlag m10 : 8|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_61_invalidFlag m10 : 9|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_62_invalidFlag m10 : 10|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_63_invalidFlag m10 : 11|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_64_invalidFlag m10 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_65_invalidFlag m10 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_60 m10 : 23|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_61 m10 : 31|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_62 m10 : 39|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_63 m10 : 47|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_64 m10 : 55|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_65 m10 : 63|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_66_invalidFlag m11 : 8|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_67_invalidFlag m11 : 9|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_68_invalidFlag m11 : 10|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_69_invalidFlag m11 : 11|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_70_invalidFlag m11 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_71_invalidFlag m11 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_66 m11 : 23|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_67 m11 : 31|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_68 m11 : 39|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_69 m11 : 47|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_70 m11 : 55|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_71 m11 : 63|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_72_invalidFlag m12 : 8|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_73_invalidFlag m12 : 9|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_74_invalidFlag m12 : 10|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_75_invalidFlag m12 : 11|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_76_invalidFlag m12 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_77_invalidFlag m12 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_72 m12 : 23|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_73 m12 : 31|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_74 m12 : 39|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_75 m12 : 47|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_76 m12 : 55|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_77 m12 : 63|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_78_invalidFlag m13 : 8|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_79_invalidFlag m13 : 9|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_80_invalidFlag m13 : 10|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_81_invalidFlag m13 : 11|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_82_invalidFlag m13 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_83_invalidFlag m13 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_78 m13 : 23|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_79 m13 : 31|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_80 m13 : 39|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_81 m13 : 47|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_82 m13 : 55|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_83 m13 : 63|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_84_invalidFlag m14 : 8|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_85_invalidFlag m14 : 9|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_86_invalidFlag m14 : 10|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_87_invalidFlag m14 : 11|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_88_invalidFlag m14 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_89_invalidFlag m14 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_84 m14 : 23|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_85 m14 : 31|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_86 m14 : 39|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_87 m14 : 47|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_88 m14 : 55|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_89 m14 : 63|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_90_invalidFlag m15 : 8|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_91_invalidFlag m15 : 9|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_92_invalidFlag m15 : 10|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_93_invalidFlag m15 : 11|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_94_invalidFlag m15 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_95_invalidFlag m15 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_90 m15 : 23|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_91 m15 : 31|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_92 m15 : 39|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_93 m15 : 47|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_94 m15 : 55|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_95 m15 : 63|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_96_invalidFlag m16 : 8|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_97_invalidFlag m16 : 9|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_98_invalidFlag m16 : 10|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_99_invalidFlag m16 : 11|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_000_invalidFlag m0 : 8|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_001_invalidFlag m0 : 9|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_002_invalidFlag m0 : 10|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_003_invalidFlag m0 : 11|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_004_invalidFlag m0 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_005_invalidFlag m0 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_000 m0 : 23|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_001 m0 : 31|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_002 m0 : 39|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_003 m0 : 47|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_004 m0 : 55|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_005 m0 : 63|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_006_invalidFlag m1 : 8|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_007_invalidFlag m1 : 9|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_008_invalidFlag m1 : 10|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_009_invalidFlag m1 : 11|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_010_invalidFlag m1 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_011_invalidFlag m1 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_006 m1 : 23|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_007 m1 : 31|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_008 m1 : 39|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_009 m1 : 47|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_010 m1 : 55|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_011 m1 : 63|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_012_invalidFlag m2 : 8|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_013_invalidFlag m2 : 9|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_014_invalidFlag m2 : 10|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_015_invalidFlag m2 : 11|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_016_invalidFlag m2 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_017_invalidFlag m2 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_012 m2 : 23|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_013 m2 : 31|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_014 m2 : 39|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_015 m2 : 47|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_016 m2 : 55|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_017 m2 : 63|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_018_invalidFlag m3 : 8|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_019_invalidFlag m3 : 9|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_020_invalidFlag m3 : 10|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_021_invalidFlag m3 : 11|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_022_invalidFlag m3 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_023_invalidFlag m3 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_018 m3 : 23|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_019 m3 : 31|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_020 m3 : 39|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_021 m3 : 47|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_022 m3 : 55|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_023 m3 : 63|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_024_invalidFlag m4 : 8|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_025_invalidFlag m4 : 9|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_026_invalidFlag m4 : 10|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_027_invalidFlag m4 : 11|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_028_invalidFlag m4 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_029_invalidFlag m4 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_024 m4 : 23|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_025 m4 : 31|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_026 m4 : 39|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_027 m4 : 47|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_028 m4 : 55|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_029 m4 : 63|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_030_invalidFlag m5 : 8|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_031_invalidFlag m5 : 9|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_032_invalidFlag m5 : 10|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_033_invalidFlag m5 : 11|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_034_invalidFlag m5 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_035_invalidFlag m5 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_030 m5 : 23|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_031 m5 : 31|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_032 m5 : 39|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_033 m5 : 47|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_034 m5 : 55|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_035 m5 : 63|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_036_invalidFlag m6 : 8|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_037_invalidFlag m6 : 9|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_038_invalidFlag m6 : 10|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_039_invalidFlag m6 : 11|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_040_invalidFlag m6 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_041_invalidFlag m6 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_036 m6 : 23|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_037 m6 : 31|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_038 m6 : 39|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_039 m6 : 47|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_040 m6 : 55|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_041 m6 : 63|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_042_invalidFlag m7 : 8|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_043_invalidFlag m7 : 9|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_044_invalidFlag m7 : 10|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_045_invalidFlag m7 : 11|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_046_invalidFlag m7 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_047_invalidFlag m7 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_042 m7 : 23|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_043 m7 : 31|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_044 m7 : 39|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_045 m7 : 47|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_046 m7 : 55|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_047 m7 : 63|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_048_invalidFlag m8 : 8|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_049_invalidFlag m8 : 9|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_050_invalidFlag m8 : 10|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_051_invalidFlag m8 : 11|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_052_invalidFlag m8 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_053_invalidFlag m8 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_048 m8 : 23|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_049 m8 : 31|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_050 m8 : 39|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_051 m8 : 47|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_052 m8 : 55|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_053 m8 : 63|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_054_invalidFlag m9 : 8|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_055_invalidFlag m9 : 9|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_056_invalidFlag m9 : 10|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_057_invalidFlag m9 : 11|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_058_invalidFlag m9 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_059_invalidFlag m9 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_054 m9 : 23|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_055 m9 : 31|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_056 m9 : 39|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_057 m9 : 47|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_058 m9 : 55|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_059 m9 : 63|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_060_invalidFlag m10 : 8|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_061_invalidFlag m10 : 9|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_062_invalidFlag m10 : 10|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_063_invalidFlag m10 : 11|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_064_invalidFlag m10 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_065_invalidFlag m10 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_060 m10 : 23|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_061 m10 : 31|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_062 m10 : 39|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_063 m10 : 47|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_064 m10 : 55|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_065 m10 : 63|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_066_invalidFlag m11 : 8|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_067_invalidFlag m11 : 9|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_068_invalidFlag m11 : 10|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_069_invalidFlag m11 : 11|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_070_invalidFlag m11 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_071_invalidFlag m11 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_066 m11 : 23|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_067 m11 : 31|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_068 m11 : 39|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_069 m11 : 47|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_070 m11 : 55|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_071 m11 : 63|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_072_invalidFlag m12 : 8|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_073_invalidFlag m12 : 9|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_074_invalidFlag m12 : 10|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_075_invalidFlag m12 : 11|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_076_invalidFlag m12 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_077_invalidFlag m12 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_072 m12 : 23|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_073 m12 : 31|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_074 m12 : 39|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_075 m12 : 47|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_076 m12 : 55|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_077 m12 : 63|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_078_invalidFlag m13 : 8|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_079_invalidFlag m13 : 9|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_080_invalidFlag m13 : 10|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_081_invalidFlag m13 : 11|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_082_invalidFlag m13 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_083_invalidFlag m13 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_078 m13 : 23|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_079 m13 : 31|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_080 m13 : 39|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_081 m13 : 47|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_082 m13 : 55|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_083 m13 : 63|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_084_invalidFlag m14 : 8|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_085_invalidFlag m14 : 9|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_086_invalidFlag m14 : 10|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_087_invalidFlag m14 : 11|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_088_invalidFlag m14 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_089_invalidFlag m14 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_084 m14 : 23|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_085 m14 : 31|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_086 m14 : 39|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_087 m14 : 47|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_088 m14 : 55|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_089 m14 : 63|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_090_invalidFlag m15 : 8|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_091_invalidFlag m15 : 9|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_092_invalidFlag m15 : 10|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_093_invalidFlag m15 : 11|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_094_invalidFlag m15 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_095_invalidFlag m15 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_090 m15 : 23|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_091 m15 : 31|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_092 m15 : 39|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_093 m15 : 47|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_094 m15 : 55|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_095 m15 : 63|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_096_invalidFlag m16 : 8|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_097_invalidFlag m16 : 9|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_098_invalidFlag m16 : 10|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ cellTemperature_099_invalidFlag m16 : 11|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellTemperature_100_invalidFlag m16 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellTemperature_101_invalidFlag m16 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ cellTemperature_96 m16 : 23|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_97 m16 : 31|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_98 m16 : 39|8@0- (1,0) [-128|127] "degC" Vector__XXX
-SG_ cellTemperature_99 m16 : 47|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_096 m16 : 23|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_097 m16 : 31|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_098 m16 : 39|8@0- (1,0) [-128|127] "degC" Vector__XXX
+SG_ cellTemperature_099 m16 : 47|8@0- (1,0) [-128|127] "degC" Vector__XXX
 SG_ cellTemperature_100 m16 : 55|8@0- (1,0) [-128|127] "degC" Vector__XXX
 SG_ cellTemperature_101 m16 : 63|8@0- (1,0) [-128|127] "degC" Vector__XXX
 SG_ cellTemperature_102_invalidFlag m17 : 8|1@0+ (1,0) [0|1] "" Vector__XXX
@@ -860,7 +860,7 @@ SG_ cellTemperature_179 m29 : 63|8@0- (1,0) [-128|127] "degC" Vector__XXX
 
 
 BO_ 560 foxBMS_Command: 8 Vector__XXX
-SG_ foxBMS_ModeRequest : 1|2@0+ (1,0) [0|3] "" Vector__XXX
+SG_ foxBMS_modeRequest : 1|2@0+ (1,0) [0|3] "" Vector__XXX
 SG_ foxBMS_activateBalancing : 8|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ foxBMS_balancingThreshold : 23|8@0+ (1,0) [0|255] "mV" Vector__XXX
 SG_ foxBMS_externallyPrecharged : 3|1@0+ (1,0) [0|1] "" Vector__XXX
@@ -885,11 +885,15 @@ SG_ foxBMS_heaterState : 14|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ foxBMS_coolingState : 15|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ foxBMS_insulationMonitoring : 13|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ foxBMS_chargingComplete : 8|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ foxBMS_EmergencyShutoff : 11|1@1+ (1,0) [0|1] "" Vector__XXX
+SG_ foxBMS_EmergencyShutoff : 11|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ foxBMS_MainFuseBlown : 21|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ foxBMS_insulationResistance : 63|8@0+ (10,0) [0|2550] "kOhm" Vector__XXX
-SG_ foxBMS_Error_Interlock : 22|1@1+ (1,0) [0|1] "" Vector__XXX
+SG_ foxBMS_Error_Interlock : 22|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ foxBMS_NrDeactivatedStrings : 51|4@0+ (1,0) [0|15] "" Vector__XXX
+SG_ foxBMS_Error_Insulation : 23|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ foxBMS_Error_Cantiming : 24|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ foxBMS_Error_PackOvercurr_Charge : 25|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ foxBMS_Error_PackOvercur_Dischrg : 26|1@0+ (1,0) [0|1] "" Vector__XXX
 
 
 BO_ 545 foxBMS_StringState: 8 Vector__XXX
@@ -913,7 +917,7 @@ SG_ String0_Err_plaus_cell_volt m0 : 52|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ String0_Err_plaus_cell_temp m0 : 51|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ String0_Err_plaus_string_volt m0 : 53|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ String0_Err_slave_hardware m0 : 34|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ String0_Err_dsyChainPrim_Comm m0 : 35|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ String0_Err_dsyChainBase_Comm m0 : 35|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ String0_Err_dsyChainPrim_CRC m0 : 37|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ String0_Err_dsyChainRedun_Comm m0 : 36|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ String0_Err_dsyChainRedun_CRC m0 : 38|1@0+ (1,0) [0|1] "" Vector__XXX
@@ -1052,8 +1056,8 @@ SG_ String2_Err_CS_voltage2Meas m2 : 47|1@1+ (1,0) [0|1] "" Vector__XXX
 SG_ String2_Err_CS_voltage3Meas m2 : 48|1@1+ (1,0) [0|1] "" Vector__XXX
 
 
-BO_ 641 foxBMS_StringMinimumMaximumValues: 8 Vector__XXX
-SG_ foxBMS_StringMinimumMaximumValues_Mux M : 3|4@0+ (1,0) [0|0] "" Vector__XXX
+BO_ 641 foxBMS_StringMinMaxValues: 8 Vector__XXX
+SG_ foxBMS_StringMinMaxValues_Mux M : 3|4@0+ (1,0) [0|0] "" Vector__XXX
 SG_ String0_minimumCellVoltage m0 : 18|13@0+ (1,0) [0|8191] "mV" Vector__XXX
 SG_ String0_maximumCellVoltage m0 : 15|13@0+ (1,0) [0|8191] "mV" Vector__XXX
 SG_ String0_maximumCellTemperature m0 : 37|9@0- (0.5,0) [-128|127.5] "degC" Vector__XXX
@@ -1074,20 +1078,20 @@ SG_ String0_minimumSOC m0 : 3|9@0+ (0.25,0) [0|127.75] "%" Vector__XXX
 SG_ String0_averageSOC m0 : 10|9@0+ (0.25,0) [0|127.5] "%" Vector__XXX
 SG_ String0_maximumSOC m0 : 17|8@0+ (0.25,0) [0|63.75] "%" Vector__XXX
 SG_ String0_SOE m0 : 25|9@0+ (0.25,0) [0|127.5] "%" Vector__XXX
-SG_ String0_Energy_Wh m0 : 55|16@0+ (0.01,0) [0|655.35] "kWh" Vector__XXX
-SG_ String0_SOH m0 : 32|9@0+ (0.25,0) [0|127.5] "" Vector__XXX
+SG_ String0_Energy_kWh m0 : 55|16@0+ (0.01,0) [0|655.35] "kWh" Vector__XXX
+SG_ String0_SOH m0 : 32|9@0+ (0.25,0) [0|127.5] "%" Vector__XXX
 SG_ String1_minimumSOC m1 : 3|9@0+ (0.25,0) [0|127.75] "%" Vector__XXX
 SG_ String1_averageSOC m1 : 10|9@0+ (0.25,0) [0|127.5] "%" Vector__XXX
 SG_ String1_maximumSOC m1 : 17|8@0+ (0.25,0) [0|63.75] "%" Vector__XXX
 SG_ String1_SOE m1 : 25|9@0+ (0.25,0) [0|127.5] "%" Vector__XXX
-SG_ String1_Energy_Wh m1 : 55|16@0+ (0.01,0) [0|655.35] "kWh" Vector__XXX
-SG_ String1_SOH m1 : 32|9@0+ (0.25,0) [0|127.5] "" Vector__XXX
+SG_ String1_Energy_kWh m1 : 55|16@0+ (0.01,0) [0|655.35] "kWh" Vector__XXX
+SG_ String1_SOH m1 : 32|9@0+ (0.25,0) [0|127.5] "%" Vector__XXX
 SG_ String2_minimumSOC m2 : 3|9@0+ (0.25,0) [0|127.75] "%" Vector__XXX
 SG_ String2_averageSOC m2 : 10|9@0+ (0.25,0) [0|127.5] "%" Vector__XXX
 SG_ String2_maximumSOC m2 : 17|8@0+ (0.25,0) [0|63.75] "%" Vector__XXX
 SG_ String2_SOE m2 : 25|9@0+ (0.25,0) [0|127.5] "%" Vector__XXX
-SG_ String2_Energy_Wh m2 : 55|16@0+ (0.01,0) [0|655.35] "kWh" Vector__XXX
-SG_ String2_SOH m2 : 32|9@0+ (0.25,0) [0|127.5] "" Vector__XXX
+SG_ String2_Energy_kWh m2 : 55|16@0+ (0.01,0) [0|655.35] "kWh" Vector__XXX
+SG_ String2_SOH m2 : 32|9@0+ (0.25,0) [0|127.5] "%" Vector__XXX
 
 
 BO_ 512 foxBMS_Debug: 8 Vector__XXX
@@ -1140,7 +1144,7 @@ SG_ IVT0_Result_T_overallMeasError : 14|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ IVT0_Result_T_channelMeasError : 13|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ IVT0_ID_Result_T : 7|8@0+ (1,0) [4|4] "" Vector__XXX
 SG_ IVT0_MsgCount_Result_T : 11|4@0+ (1,0) [0|15] "" Vector__XXX
-SG_ IVT0_Result_T_ddegC : 23|32@0- (0.1,0) [-214748364.8|214748364.7] "ddegCC" Vector__XXX
+SG_ IVT0_Result_T_ddegC : 23|32@0- (0.1,0) [-214748364.8|214748364.7] "ddegC" Vector__XXX
 
 
 BO_ 1318 IVT0_Msg_Result_W: 6 Vector__XXX
@@ -1220,7 +1224,7 @@ SG_ IVT1_Result_T_overallMeasError : 14|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ IVT1_Result_T_channelMeasError : 13|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ IVT1_ID_Result_T : 7|8@0+ (1,0) [4|4] "" Vector__XXX
 SG_ IVT1_MsgCount_Result_T : 11|4@0+ (1,0) [0|15] "" Vector__XXX
-SG_ IVT1_Result_T_ddegC : 23|32@0- (0.1,0) [-214748364.8|214748364.7] "ddegCC" Vector__XXX
+SG_ IVT1_Result_T_ddegC : 23|32@0- (0.1,0) [-214748364.8|214748364.7] "ddegC" Vector__XXX
 
 
 BO_ 1574 IVT1_Msg_Result_W: 6 Vector__XXX
@@ -1333,6 +1337,17 @@ SG_ IVT2_MsgCount_Result_Wh : 11|4@0+ (1,0) [0|15] "" Vector__XXX
 SG_ IVT2_ID_Result_Wh : 7|8@0+ (1,0) [7|7] "" Vector__XXX
 
 
+BO_ 409 foxBMS_Startup: 8 Vector__XXX
+SG_ foxBMS_majorVersionNumber : 7|8@0+ (1,0) [0|255] "" Vector__XXX
+SG_ foxBMS_minorVersionNumber : 15|8@0+ (1,0) [0|255] "" Vector__XXX
+SG_ foxBMS_patchVersionNumber : 23|8@0+ (1,0) [0|255] "" Vector__XXX
+SG_ foxBMS_uniqueId : 39|32@0+ (1,0) [0|4294967295] "" Vector__XXX
+SG_ foxBMS_underVersionControl : 24|1@1+ (1,0) [0|1] "" Vector__XXX
+SG_ foxBMS_dirtyFlag : 25|1@1+ (1,0) [0|1] "" Vector__XXX
+SG_ foxBMS_releaseDistance : 31|5@0+ (1,0) [0|31] "" Vector__XXX
+SG_ foxBMS_releaseDistanceOverflow : 26|1@1+ (1,0) [0|1] "" Vector__XXX
+
+
 CM_ SG_ 546 foxBMS_packCurrent "Battery pack current";
 CM_ SG_ 546 foxBMS_batteryVoltage "Battery voltage between negative and positive pole of the battery";
 CM_ SG_ 546 foxBMS_busVoltage "Battery voltage between negative pole and after main positive contactor";
@@ -1351,7 +1366,7 @@ CM_ SG_ 643 String1_energyCount2 "Current sensor string 2 energy counting value"
 CM_ SG_ 549 foxBMS_packSoc "SOC currently connected to HV bus (100% if all strings connected and all strings at 100%)";
 CM_ SG_ 549 foxBMS_packSoe "SOE currently connected to HV bus (100% if all strings connected and all strings at 100%)";
 CM_ SG_ 549 foxBMS_packEnergy "Energy left in Wh that is currently connected to HV bus";
-CM_ SG_ 560 foxBMS_ModeRequest "0x0: Disconnect strings from HV bus, 0x01: Connect strings to HV bus to start discharge, 0x02: Connect strings to HV bus to start charging";
+CM_ SG_ 560 foxBMS_modeRequest "0x0: Disconnect strings from HV bus, 0x01: Connect strings to HV bus to start discharge, 0x02: Connect strings to HV bus to start charging";
 CM_ SG_ 560 foxBMS_activateBalancing "0: Deactivate balancing, 1: Activate balancing";
 CM_ SG_ 560 foxBMS_balancingThreshold "Required voltage difference to minimum cell voltage to activate balancing";
 CM_ SG_ 560 foxBMS_externallyPrecharged "0x0: HV bus not externally precharged, 0x01: HV bus externally precharged";
@@ -1375,6 +1390,10 @@ CM_ SG_ 544 foxBMS_chargingComplete "0x01: charging complete";
 CM_ SG_ 544 foxBMS_EmergencyShutoff "The BMS is preparing to open the contactors soon due to detected error";
 CM_ SG_ 544 foxBMS_MainFuseBlown "0x00: fuse okay, 0x01: fuse blown";
 CM_ SG_ 544 foxBMS_Error_Interlock "0x00: interlock okay, 0x01: interlock open";
+CM_ SG_ 544 foxBMS_Error_Insulation "0x00: No error, 0x01: Error detected";
+CM_ SG_ 544 foxBMS_Error_Cantiming "0x00: No error, 0x01: Error detected";
+CM_ SG_ 544 foxBMS_Error_PackOvercurr_Charge "0x00: No error, 0x01: Error detected";
+CM_ SG_ 544 foxBMS_Error_PackOvercur_Dischrg "0x00: No error, 0x01: Error detected";
 CM_ BO_ 545 "Message contains string related error and warning flags";
 CM_ SG_ 545 String0_stringConnected "0x00: String not connected, 0x01: String connected to HV bus";
 CM_ SG_ 545 String0_balancing_active "0x00: No balancing active, 0x01: Balancing in this string active";
@@ -1395,7 +1414,7 @@ CM_ SG_ 545 String0_Err_plaus_cell_volt "0x00: No error, 0x01: Error";
 CM_ SG_ 545 String0_Err_plaus_cell_temp "0x00: No error, 0x01: Error";
 CM_ SG_ 545 String0_Err_plaus_string_volt "0x00: No error, 0x01: Error";
 CM_ SG_ 545 String0_Err_slave_hardware "0x00: No error, 0x01: Error";
-CM_ SG_ 545 String0_Err_dsyChainPrim_Comm "0x00: No error, 0x01: Error (i.e. SPI)";
+CM_ SG_ 545 String0_Err_dsyChainBase_Comm "0x00: No error, 0x01: Error (i.e. SPI)";
 CM_ SG_ 545 String0_Err_dsyChainPrim_CRC "0x00: No error, 0x01: Error";
 CM_ SG_ 545 String0_Err_dsyChainRedun_Comm "0x00: No error, 0x01: Error";
 CM_ SG_ 545 String0_Err_dsyChainRedun_CRC "0x00: No error, 0x01: Error";
@@ -1484,11 +1503,11 @@ CM_ SG_ 641 String2_maximumCellTemperature "Maximum cell temperature in this str
 CM_ SG_ 641 String2_minimumCellTemperature "Minium cell temperature in this string";
 CM_ BO_ 642 "Message contains SOC, SOE and SOH state estimations";
 CM_ SG_ 642 String0_SOE "SOE is depending on current direction, if battery system is charging: SOE_max is transmitted, else SOE_min";
-CM_ SG_ 642 String0_Energy_Wh "Remaining energy left in this string";
+CM_ SG_ 642 String0_Energy_kWh "Remaining energy left in this string";
 CM_ SG_ 642 String1_SOE "SOE is depending on current direction, if battery system is charging: SOE_max is transmitted, else SOE_min";
-CM_ SG_ 642 String1_Energy_Wh "Remaining energy left in this string";
+CM_ SG_ 642 String1_Energy_kWh "Remaining energy left in this string";
 CM_ SG_ 642 String2_SOE "SOE is depending on current direction, if battery system is charging: SOE_max is transmitted, else SOE_min";
-CM_ SG_ 642 String2_Energy_Wh "Remaining energy left in this string";
+CM_ SG_ 642 String2_Energy_kWh "Remaining energy left in this string";
 CM_ BO_ 512 "Reserved - for debug/development purpose only";
 CM_ BO_ 1313 "Current sensor string 0: current";
 CM_ BO_ 1314 "Current sensor string 0: voltage 1";
@@ -1514,6 +1533,7 @@ CM_ BO_ 1829 "Current sensor string 2: temperature";
 CM_ BO_ 1830 "Current sensor string 2: power";
 CM_ BO_ 1831 "Current sensor string 2: coulomb counting";
 CM_ BO_ 1832 "Current sensor string 2: energy counting";
+CM_ SG_ 409 foxBMS_uniqueId "Content of Device Identification Register (DEVID)";
 
 BA_DEF_  "BusType" STRING ;
 BA_DEF_ SG_  "GenSigStartValue" FLOAT -3.4E+038 3.4E+038;
@@ -1555,640 +1575,640 @@ BA_ "GenSigStartValue" SG_ 549 foxBMS_packSoc 0;
 BA_ "GenSigStartValue" SG_ 549 foxBMS_packSoe 0;
 BA_ "GenSigStartValue" SG_ 549 foxBMS_packEnergy 0;
 BA_ "GenSigStartValue" SG_ 549 foxBMS_packSoh 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_0_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_1_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_2_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_3_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_0 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_1 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_2 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_3 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_4_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_5_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_6_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_7_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_4 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_5 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_6 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_7 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_8_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_9_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_10_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_11_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_8 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_9 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_10 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_11 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_12_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_13_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_14_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_15_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_12 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_13 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_14 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_15 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_16_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_17_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_18_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_19_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_16 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_17 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_18 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_19 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_20_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_21_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_22_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_23_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_20 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_21 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_22 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_23 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_24_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_25_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_26_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_27_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_24 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_25 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_26 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_27 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_28_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_29_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_30_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_31_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_28 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_29 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_30 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_31 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_32_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_33_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_34_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_35_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_32 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_33 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_34 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_35 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_36_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_37_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_38_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_39_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_36 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_37 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_38 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_39 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_40_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_41_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_42_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_43_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_40 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_41 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_42 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_43 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_44_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_45_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_46_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_47_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_44 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_45 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_46 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_47 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_48_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_49_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_50_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_51_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_48 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_49 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_50 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_51 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_52_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_53_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_54_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_55_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_52 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_53 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_54 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_55 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_56_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_57_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_58_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_59_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_56 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_57 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_58 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_59 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_60_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_61_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_62_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_63_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_60 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_61 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_62 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_63 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_64_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_65_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_66_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_67_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_64 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_65 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_66 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_67 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_68_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_69_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_70_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_71_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_68 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_69 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_70 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_71 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_72_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_73_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_74_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_75_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_72 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_73 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_74 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_75 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_76_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_77_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_78_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_79_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_76 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_77 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_78 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_79 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_80_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_81_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_82_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_83_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_80 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_81 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_82 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_83 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_84_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_85_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_86_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_87_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_84 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_85 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_86 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_87 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_88_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_89_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_90_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_91_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_88 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_89 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_90 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_91 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_92_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_93_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_94_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_95_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_92 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_93 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_94 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_95 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_96_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_97_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_98_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_99_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 576 cellVoltage_96 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_97 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_98 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_99 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_000_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_001_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_002_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_003_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_000 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_001 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_002 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_003 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_004_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_005_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_006_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_007_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_004 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_005 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_006 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_007 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_008_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_009_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_010_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_011_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_008 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_009 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_010 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_011 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_012_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_013_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_014_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_015_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_012 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_013 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_014 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_015 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_016_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_017_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_018_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_019_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_016 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_017 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_018 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_019 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_020_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_021_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_022_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_023_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_020 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_021 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_022 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_023 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_024_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_025_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_026_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_027_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_024 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_025 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_026 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_027 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_028_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_029_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_030_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_031_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_028 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_029 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_030 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_031 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_032_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_033_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_034_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_035_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_032 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_033 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_034 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_035 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_036_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_037_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_038_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_039_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_036 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_037 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_038 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_039 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_040_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_041_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_042_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_043_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_040 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_041 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_042 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_043 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_044_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_045_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_046_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_047_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_044 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_045 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_046 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_047 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_048_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_049_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_050_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_051_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_048 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_049 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_050 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_051 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_052_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_053_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_054_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_055_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_052 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_053 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_054 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_055 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_056_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_057_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_058_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_059_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_056 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_057 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_058 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_059 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_060_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_061_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_062_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_063_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_060 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_061 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_062 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_063 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_064_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_065_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_066_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_067_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_064 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_065 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_066 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_067 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_068_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_069_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_070_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_071_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_068 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_069 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_070 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_071 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_072_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_073_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_074_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_075_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_072 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_073 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_074 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_075 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_076_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_077_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_078_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_079_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_076 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_077 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_078 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_079 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_080_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_081_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_082_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_083_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_080 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_081 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_082 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_083 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_084_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_085_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_086_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_087_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_084 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_085 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_086 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_087 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_088_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_089_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_090_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_091_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_088 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_089 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_090 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_091 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_092_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_093_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_094_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_095_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_092 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_093 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_094 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_095 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_096_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_097_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_098_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_099_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_096 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_097 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_098 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_099 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_100_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_101_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_102_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_103_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_100 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_101 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_102 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_103 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_101 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_102 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_103 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_104_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_105_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_106_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_107_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_104 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_105 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_106 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_107 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_105 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_106 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_107 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_108_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_109_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_110_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_111_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_108 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_109 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_110 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_111 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_109 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_110 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_111 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_112_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_113_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_114_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_115_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_112 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_113 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_114 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_115 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_113 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_114 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_115 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_116_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_117_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_118_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_119_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_116 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_117 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_118 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_119 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_117 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_118 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_119 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_120_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_121_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_122_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_123_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_120 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_121 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_122 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_123 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_121 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_122 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_123 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_124_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_125_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_126_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_127_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_124 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_125 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_126 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_127 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_125 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_126 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_127 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_128_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_129_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_130_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_131_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_128 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_129 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_130 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_131 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_129 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_130 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_131 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_132_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_133_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_134_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_135_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_132 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_133 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_134 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_135 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_133 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_134 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_135 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_136_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_137_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_138_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_139_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_136 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_137 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_138 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_139 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_137 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_138 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_139 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_140_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_141_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_142_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_143_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_140 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_141 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_142 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_143 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_141 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_142 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_143 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_144_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_145_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_146_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_147_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_144 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_145 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_146 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_147 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_145 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_146 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_147 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_148_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_149_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_150_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_151_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_148 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_149 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_150 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_151 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_149 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_150 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_151 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_152_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_153_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_154_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_155_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_152 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_153 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_154 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_155 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_153 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_154 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_155 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_156_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_157_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_158_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_159_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_156 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_157 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_158 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_159 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_157 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_158 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_159 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_160_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_161_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_162_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_163_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_160 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_161 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_162 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_163 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_161 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_162 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_163 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_164_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_165_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_166_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_167_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_164 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_165 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_166 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_167 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_165 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_166 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_167 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_168_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_169_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_170_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_171_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_168 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_169 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_170 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_171 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_169 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_170 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_171 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_172_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_173_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_174_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_175_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_172 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_173 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_174 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_175 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_173 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_174 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_175 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_176_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_177_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_178_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_179_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_176 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_177 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_178 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_179 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_177 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_178 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_179 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_180_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_181_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_182_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_183_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_180 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_181 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_182 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_183 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_181 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_182 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_183 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_184_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_185_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_186_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_187_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_184 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_185 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_186 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_187 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_185 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_186 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_187 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_188_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_189_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_190_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_191_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_188 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_189 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_190 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_191 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_189 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_190 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_191 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_192_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_193_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_194_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_195_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_192 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_193 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_194 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_195 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_193 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_194 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_195 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_196_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_197_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_198_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_199_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_196 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_197 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_198 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_199 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_197 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_198 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_199 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_200_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_201_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_202_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_203_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_200 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_201 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_202 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_203 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_201 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_202 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_203 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_204_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_205_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_206_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_207_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_204 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_205 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_206 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_207 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_205 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_206 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_207 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_208_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_209_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_210_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_211_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_208 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_209 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_210 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_211 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_209 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_210 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_211 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_212_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_213_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_214_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_215_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 576 cellVoltage_212 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_213 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_214 0;
-BA_ "GenSigStartValue" SG_ 576 cell_voltage_215 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_0_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_1_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_2_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_3_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_4_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_5_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_0 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_1 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_2 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_3 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_4 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_5 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_6_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_7_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_8_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_9_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_10_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_11_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_6 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_7 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_8 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_9 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_10 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_11 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_12_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_13_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_14_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_15_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_16_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_17_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_12 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_13 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_14 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_15 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_16 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_17 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_18_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_19_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_20_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_21_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_22_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_23_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_18 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_19 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_20 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_21 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_22 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_23 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_24_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_25_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_26_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_27_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_28_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_29_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_24 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_25 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_26 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_27 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_28 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_29 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_30_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_31_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_32_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_33_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_34_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_35_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_30 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_31 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_32 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_33 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_34 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_35 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_36_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_37_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_38_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_39_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_40_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_41_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_36 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_37 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_38 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_39 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_40 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_41 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_42_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_43_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_44_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_45_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_46_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_47_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_42 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_43 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_44 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_45 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_46 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_47 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_48_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_49_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_50_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_51_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_52_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_53_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_48 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_49 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_50 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_51 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_52 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_53 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_54_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_55_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_56_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_57_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_58_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_59_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_54 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_55 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_56 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_57 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_58 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_59 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_60_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_61_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_62_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_63_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_64_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_65_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_60 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_61 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_62 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_63 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_64 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_65 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_66_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_67_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_68_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_69_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_70_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_71_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_66 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_67 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_68 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_69 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_70 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_71 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_72_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_73_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_74_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_75_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_76_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_77_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_72 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_73 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_74 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_75 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_76 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_77 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_78_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_79_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_80_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_81_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_82_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_83_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_78 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_79 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_80 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_81 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_82 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_83 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_84_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_85_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_86_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_87_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_88_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_89_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_84 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_85 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_86 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_87 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_88 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_89 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_90_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_91_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_92_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_93_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_94_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_95_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_90 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_91 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_92 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_93 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_94 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_95 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_96_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_97_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_98_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_99_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_213 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_214 0;
+BA_ "GenSigStartValue" SG_ 576 cellVoltage_215 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_000_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_001_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_002_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_003_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_004_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_005_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_000 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_001 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_002 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_003 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_004 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_005 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_006_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_007_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_008_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_009_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_010_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_011_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_006 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_007 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_008 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_009 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_010 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_011 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_012_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_013_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_014_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_015_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_016_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_017_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_012 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_013 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_014 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_015 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_016 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_017 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_018_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_019_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_020_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_021_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_022_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_023_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_018 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_019 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_020 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_021 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_022 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_023 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_024_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_025_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_026_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_027_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_028_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_029_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_024 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_025 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_026 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_027 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_028 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_029 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_030_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_031_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_032_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_033_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_034_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_035_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_030 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_031 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_032 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_033 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_034 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_035 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_036_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_037_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_038_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_039_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_040_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_041_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_036 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_037 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_038 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_039 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_040 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_041 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_042_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_043_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_044_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_045_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_046_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_047_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_042 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_043 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_044 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_045 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_046 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_047 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_048_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_049_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_050_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_051_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_052_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_053_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_048 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_049 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_050 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_051 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_052 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_053 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_054_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_055_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_056_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_057_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_058_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_059_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_054 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_055 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_056 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_057 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_058 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_059 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_060_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_061_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_062_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_063_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_064_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_065_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_060 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_061 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_062 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_063 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_064 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_065 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_066_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_067_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_068_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_069_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_070_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_071_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_066 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_067 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_068 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_069 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_070 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_071 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_072_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_073_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_074_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_075_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_076_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_077_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_072 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_073 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_074 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_075 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_076 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_077 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_078_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_079_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_080_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_081_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_082_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_083_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_078 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_079 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_080 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_081 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_082 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_083 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_084_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_085_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_086_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_087_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_088_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_089_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_084 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_085 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_086 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_087 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_088 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_089 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_090_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_091_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_092_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_093_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_094_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_095_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_090 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_091 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_092 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_093 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_094 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_095 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_096_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_097_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_098_invalidFlag 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_099_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 592 cellTemperature_100_invalidFlag 0;
 BA_ "GenSigStartValue" SG_ 592 cellTemperature_101_invalidFlag 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_96 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_97 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_98 0;
-BA_ "GenSigStartValue" SG_ 592 cellTemperature_99 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_096 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_097 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_098 0;
+BA_ "GenSigStartValue" SG_ 592 cellTemperature_099 0;
 BA_ "GenSigStartValue" SG_ 592 cellTemperature_100 0;
 BA_ "GenSigStartValue" SG_ 592 cellTemperature_101 0;
 BA_ "GenSigStartValue" SG_ 592 cellTemperature_102_invalidFlag 0;
@@ -2347,7 +2367,7 @@ BA_ "GenSigStartValue" SG_ 592 cellTemperature_176 0;
 BA_ "GenSigStartValue" SG_ 592 cellTemperature_177 0;
 BA_ "GenSigStartValue" SG_ 592 cellTemperature_178 0;
 BA_ "GenSigStartValue" SG_ 592 cellTemperature_179 0;
-BA_ "GenSigStartValue" SG_ 560 foxBMS_ModeRequest 0;
+BA_ "GenSigStartValue" SG_ 560 foxBMS_modeRequest 0;
 BA_ "GenSigStartValue" SG_ 560 foxBMS_activateBalancing 0;
 BA_ "GenSigStartValue" SG_ 560 foxBMS_balancingThreshold 0;
 BA_ "GenSigStartValue" SG_ 560 foxBMS_externallyPrecharged 0;
@@ -2374,6 +2394,10 @@ BA_ "GenSigStartValue" SG_ 544 foxBMS_MainFuseBlown 0;
 BA_ "GenSigStartValue" SG_ 544 foxBMS_insulationResistance 0;
 BA_ "GenSigStartValue" SG_ 544 foxBMS_Error_Interlock 0;
 BA_ "GenSigStartValue" SG_ 544 foxBMS_NrDeactivatedStrings 0;
+BA_ "GenSigStartValue" SG_ 544 foxBMS_Error_Insulation 0;
+BA_ "GenSigStartValue" SG_ 544 foxBMS_Error_Cantiming 0;
+BA_ "GenSigStartValue" SG_ 544 foxBMS_Error_PackOvercurr_Charge 0;
+BA_ "GenSigStartValue" SG_ 544 foxBMS_Error_PackOvercur_Dischrg 0;
 BA_ "GenSigStartValue" SG_ 545 String0_stringConnected 0;
 BA_ "GenSigStartValue" SG_ 545 String0_balancing_active 0;
 BA_ "GenSigStartValue" SG_ 545 String0_Err_overtemp_charge 0;
@@ -2393,7 +2417,7 @@ BA_ "GenSigStartValue" SG_ 545 String0_Err_plaus_cell_volt 0;
 BA_ "GenSigStartValue" SG_ 545 String0_Err_plaus_cell_temp 0;
 BA_ "GenSigStartValue" SG_ 545 String0_Err_plaus_string_volt 0;
 BA_ "GenSigStartValue" SG_ 545 String0_Err_slave_hardware 0;
-BA_ "GenSigStartValue" SG_ 545 String0_Err_dsyChainPrim_Comm 0;
+BA_ "GenSigStartValue" SG_ 545 String0_Err_dsyChainBase_Comm 0;
 BA_ "GenSigStartValue" SG_ 545 String0_Err_dsyChainPrim_CRC 0;
 BA_ "GenSigStartValue" SG_ 545 String0_Err_dsyChainRedun_Comm 0;
 BA_ "GenSigStartValue" SG_ 545 String0_Err_dsyChainRedun_CRC 0;
@@ -2546,19 +2570,19 @@ BA_ "GenSigStartValue" SG_ 642 String0_minimumSOC 0;
 BA_ "GenSigStartValue" SG_ 642 String0_averageSOC 0;
 BA_ "GenSigStartValue" SG_ 642 String0_maximumSOC 0;
 BA_ "GenSigStartValue" SG_ 642 String0_SOE 0;
-BA_ "GenSigStartValue" SG_ 642 String0_Energy_Wh 0;
+BA_ "GenSigStartValue" SG_ 642 String0_Energy_kWh 0;
 BA_ "GenSigStartValue" SG_ 642 String0_SOH 0;
 BA_ "GenSigStartValue" SG_ 642 String1_minimumSOC 0;
 BA_ "GenSigStartValue" SG_ 642 String1_averageSOC 0;
 BA_ "GenSigStartValue" SG_ 642 String1_maximumSOC 0;
 BA_ "GenSigStartValue" SG_ 642 String1_SOE 0;
-BA_ "GenSigStartValue" SG_ 642 String1_Energy_Wh 0;
+BA_ "GenSigStartValue" SG_ 642 String1_Energy_kWh 0;
 BA_ "GenSigStartValue" SG_ 642 String1_SOH 0;
 BA_ "GenSigStartValue" SG_ 642 String2_minimumSOC 0;
 BA_ "GenSigStartValue" SG_ 642 String2_averageSOC 0;
 BA_ "GenSigStartValue" SG_ 642 String2_maximumSOC 0;
 BA_ "GenSigStartValue" SG_ 642 String2_SOE 0;
-BA_ "GenSigStartValue" SG_ 642 String2_Energy_Wh 0;
+BA_ "GenSigStartValue" SG_ 642 String2_Energy_kWh 0;
 BA_ "GenSigStartValue" SG_ 642 String2_SOH 0;
 BA_ "GenSigStartValue" SG_ 1313 IVT0_Result_I_systemError 0;
 BA_ "GenSigStartValue" SG_ 1313 IVT0_Result_I_OCS 0;
@@ -2728,13 +2752,23 @@ BA_ "GenSigStartValue" SG_ 1832 IVT2_Result_Wh_channelMeasError 0;
 BA_ "GenSigStartValue" SG_ 1832 IVT2_Result_Wh 0;
 BA_ "GenSigStartValue" SG_ 1832 IVT2_MsgCount_Result_Wh 0;
 BA_ "GenSigStartValue" SG_ 1832 IVT2_ID_Result_Wh 7;
+BA_ "GenSigStartValue" SG_ 409 foxBMS_majorVersionNumber 0;
+BA_ "GenSigStartValue" SG_ 409 foxBMS_minorVersionNumber 0;
+BA_ "GenSigStartValue" SG_ 409 foxBMS_patchVersionNumber 0;
+BA_ "GenSigStartValue" SG_ 409 foxBMS_uniqueId 0;
+BA_ "GenSigStartValue" SG_ 409 foxBMS_underVersionControl 0;
+BA_ "GenSigStartValue" SG_ 409 foxBMS_dirtyFlag 0;
+BA_ "GenSigStartValue" SG_ 409 foxBMS_releaseDistance 0;
+BA_ "GenSigStartValue" SG_ 409 foxBMS_releaseDistanceOverflow 0;
 
 VAL_ 640 foxBMS_StringValues_Mux 0 "mux_valuesString_0" 1 "mux_valuesString_1" 2 "mux_valuesString_2" ;
 VAL_ 643 foxBMS_StringValues2_Mux 0 "mux_values2String_0" 1 "mux_values2String_1" 2 "mux_values2String_2" ;
-VAL_ 576 foxBMS_CellVoltage_Mux 0 "mux_cellVoltage_0_3" 1 "mux_cellVoltage_4_7" 2 "mux_cellVoltage_8_11" 3 "mux_cellVoltage_12_15" 4 "mux_cellVoltage_16_19" 5 "mux_cellVoltage_20_23" 6 "mux_cellVoltage_24_27" 7 "mux_cellVoltage_28_31" 8 "mux_cellVoltage_32_35" 9 "mux_cellVoltage_36_39" 10 "mux_cellVoltage_40_43" 11 "mux_cellVoltage_44_47" 12 "mux_cellVoltage_48_51" 13 "mux_cellVoltage_52_55" 14 "mux_cellVoltage_56_59" 15 "mux_cellVoltage_60_63" 16 "mux_cellVoltage_64_67" 17 "mux_cellVoltage_68_71" 18 "mux_cellVoltage_72_75" 19 "mux_cellVoltage_76_79" 20 "mux_cellVoltage_80_83" 21 "mux_cellVoltage_84_87" 22 "mux_cellVoltage_88_91" 23 "mux_cellVoltage_92_95" 24 "mux_cellVoltage_96_99" 25 "mux_cellVoltage_100_103" 26 "mux_cellVoltage_104_107" 27 "mux_cellVoltage_108_111" 28 "mux_cellVoltage_112_115" 29 "mux_cellVoltage_116_119" 30 "mux_cellVoltage_120_123" 31 "mux_cellVoltage_124_127" 32 "mux_cellVoltage_128_131" 33 "mux_cellVoltage_132_135" 34 "mux_cellVoltage_136_139" 35 "mux_cellVoltage_140_143" 36 "mux_cellVoltage_144_147" 37 "mux_cellVoltage_148_151"
-38 "mux_cellVoltage_152_155" 39 "mux_cellVoltage_156_159" 40 "mux_cellVoltage_160_163" 41 "mux_cellVoltage_164_167" 42 "mux_cellVoltage_168_171" 43 "mux_cellVoltage_172_175" 44 "mux_cellVoltage_176_179" 45 "mux_cellVoltage_180_183" 46 "mux_cellVoltage_184_187" 47 "mux_cellVoltage_188_191" 48 "mux_cellVoltage_192_195" 49 "mux_cellVoltage_196_199" 50 "mux_cellVoltage_200_203" 51 "mux_cellVoltage_204_207" 52 "mux_cellVoltage_208_211" 53 "mux_cellVoltage_212_215" ;
-VAL_ 592 foxBMS_CellTemperature_Mux 0 "mux_cellTemperature_0_5" 1 "mux_cellTemperature_6_11" 2 "mux_cellTemperature_12_17" 3 "mux_cellTemperature_18_23" 4 "mux_cellTemperature_24_29" 5 "mux_cellTemperature_30_35" 6 "mux_cellTemperature_36_41" 7 "mux_cellTemperature_42_47" 8 "mux_cellTemperature_48_53" 9 "mux_cellTemperature_54_59" 10 "mux_cellTemperature_60_65" 11 "mux_cellTemperature_66_71" 12 "mux_cellTemperature_72_77" 13 "mux_cellTemperature_78_83" 14 "mux_cellTemperature_84_89" 15 "mux_cellTemperature_90_95" 16 "mux_cellTemperature_96_101" 17 "mux_cellTemperature_102_107" 18 "mux_cellTemperature_108_113" 19 "mux_cellTemperature_114_119" 20 "mux_cellTemperature_120_125" 21 "mux_cellTemperature_126_131" 22 "mux_cellTemperature_132_137" 23 "mux_cellTemperature_138_143" 24 "mux_cellTemperature_144_149" 25 "mux_cellTemperature_150_155" 26 "mux_cellTemperature_156_161" 27 "mux_cellTemperature_162_167" 28 "mux_cellTemperature_168_173" 29 "mux_cellTemperature_174_179" ;
+VAL_ 576 foxBMS_CellVoltage_Mux 0 "mux_cellVoltage_000_003" 1 "mux_cellVoltage_004_007" 2 "mux_cellVoltage_008_011" 3 "mux_cellVoltage_012_015" 4 "mux_cellVoltage_016_019" 5 "mux_cellVoltage_020_023" 6 "mux_cellVoltage_024_027" 7 "mux_cellVoltage_028_031" 8 "mux_cellVoltage_032_035" 9 "mux_cellVoltage_036_039" 10 "mux_cellVoltage_040_043" 11 "mux_cellVoltage_044_047" 12 "mux_cellVoltage_048_051" 13 "mux_cellVoltage_052_055" 14 "mux_cellVoltage_056_059" 15 "mux_cellVoltage_060_063" 16 "mux_cellVoltage_064_067" 17 "mux_cellVoltage_068_071" 18 "mux_cellVoltage_072_075" 19 "mux_cellVoltage_076_079" 20 "mux_cellVoltage_080_083" 21 "mux_cellVoltage_084_087" 22 "mux_cellVoltage_088_091" 23 "mux_cellVoltage_092_095" 24 "mux_cellVoltage_096_099" 25 "mux_cellVoltage_100_103" 26 "mux_cellVoltage_104_107" 27 "mux_cellVoltage_108_111" 28 "mux_cellVoltage_112_115" 29 "mux_cellVoltage_116_119" 30 "mux_cellVoltage_120_123" 31 "mux_cellVoltage_124_127" 32 "mux_cellVoltage_128_131" 33 "mux_cellVoltage_132_135" 34 "mux_cellVoltage_136_139" 35 "mux_cellVoltage_140_143" 
+36 "mux_cellVoltage_144_147" 37 "mux_cellVoltage_148_151" 38 "mux_cellVoltage_152_155" 39 "mux_cellVoltage_156_159" 40 "mux_cellVoltage_160_163" 41 "mux_cellVoltage_164_167" 42 "mux_cellVoltage_168_171" 43 "mux_cellVoltage_172_175" 44 "mux_cellVoltage_176_179" 45 "mux_cellVoltage_180_183" 46 "mux_cellVoltage_184_187" 47 "mux_cellVoltage_188_191" 48 "mux_cellVoltage_192_195" 49 "mux_cellVoltage_196_199" 50 "mux_cellVoltage_200_203" 51 "mux_cellVoltage_204_207" 52 "mux_cellVoltage_208_211" 53 "mux_cellVoltage_212_215" ;
+VAL_ 592 foxBMS_CellTemperature_Mux 0 "mux_cellTemperature_000_005" 1 "mux_cellTemperature_006_011" 2 "mux_cellTemperature_012_017" 3 "mux_cellTemperature_018_023" 4 "mux_cellTemperature_024_029" 5 "mux_cellTemperature_030_035" 6 "mux_cellTemperature_036_041" 7 "mux_cellTemperature_042_047" 8 "mux_cellTemperature_048_053" 9 "mux_cellTemperature_054_059" 10 "mux_cellTemperature_060_065" 11 "mux_cellTemperature_066_071" 12 "mux_cellTemperature_072_077" 13 "mux_cellTemperature_078_083" 14 "mux_cellTemperature_084_089" 15 "mux_cellTemperature_090_095" 16 "mux_cellTemperature_096_101" 17 "mux_cellTemperature_102_107" 18 "mux_cellTemperature_108_113" 19 "mux_cellTemperature_114_119" 20 "mux_cellTemperature_120_125" 21 "mux_cellTemperature_126_131" 22 "mux_cellTemperature_132_137" 23 "mux_cellTemperature_138_143" 24 "mux_cellTemperature_144_149" 25 "mux_cellTemperature_150_155" 26 "mux_cellTemperature_156_161" 27 "mux_cellTemperature_162_167" 28 "mux_cellTemperature_168_173" 29 "mux_cellTemperature_174_179" ;
 VAL_ 545 foxBMS_StringState_Mux 0 "mux_stateString0" 1 "mux_stateString1" 2 "mux_stateString2" ;
-VAL_ 641 foxBMS_StringMinimumMaximumValues_Mux 0 "mux_minMaxValuesString0" 1 "mux_minMaxValuesString1" 2 "mux_minMaxValuesString2" ;
+VAL_ 641 foxBMS_StringMinMaxValues_Mux 0 "mux_minMaxValuesString0" 1 "mux_minMaxValuesString1" 2 "mux_minMaxValuesString2" ;
 VAL_ 642 foxBMS_StringStateEstimation_Mux 0 "mux_String0_SOC_SOE" 1 "mux_String1_SOC_SOE" 2 "mux_String2_SOC_SOE" ;
+VAL_ 560 foxBMS_modeRequest 0 "mode_Standby" 1 "mode_Discharge" 2 "mode_Charge" ;
+VAL_ 544 foxBMS_State 0 "BMS_UNINITIALIZED" 1 "BMS_INITIALIZATION" 2 "BMS_INITIALIZED" 3 "BMS_IDLE" 4 "BMS_OPENCONTACTORS" 5 "BMS_STANDBY" 6 "BMS_PRECHARGE" 7 "BMS_NORMAL" 8 "BMS_DISCHARGE" 9 "BMS_CHARGE" 10 "BMS_ERROR" 11 "BMS_UNDEFINED" ;
 

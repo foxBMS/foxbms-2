@@ -35,9 +35,7 @@
 @REM - "This product includes parts of foxBMS&reg;"
 @REM - "This product is derived from foxBMS&reg;"
 
-@SETLOCAL EnableDelayedExpansion
-@SETLOCAL
-
+@SETLOCAL EnableExtensions EnableDelayedExpansion
 @SET UNCRUSTIFY_BIN=uncrustify
 @WHERE %UNCRUSTIFY_BIN% 1>NUL 2>NUL
 @IF %ERRORLEVEL% NEQ 0 (

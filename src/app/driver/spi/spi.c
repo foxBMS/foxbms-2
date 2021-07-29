@@ -43,7 +43,7 @@
  * @file    spi.c
  * @author  foxBMS Team
  * @date    2019-12-12 (date of creation)
- * @updated 2019-12-12 (date of last update)
+ * @updated 2021-07-14 (date of last update)
  * @ingroup DRIVERS
  * @prefix  SPI
  *
@@ -53,6 +53,10 @@
 
 /*========== Includes =======================================================*/
 #include "spi.h"
+
+#include "HL_reg_spi.h"
+#include "HL_spi.h"
+#include "HL_sys_common.h"
 
 #include "dma.h"
 #include "fsystem.h"
@@ -80,10 +84,10 @@ extern STD_RETURN_TYPE_e SPI_TransmitDummyByte(SPI_INTERFACE_CONFIG_s *pSpiInter
 
     /* Lock SPI hardware to prevent concurrent read/write commands */
     if (STD_OK == SPI_Lock(pSpiInterface->channel)) {
-        IO_PinReset((uint32_t *)pSpiInterface->pGioPort, pSpiInterface->csPin);
+        IO_PinReset(pSpiInterface->pGioPort, pSpiInterface->csPin);
         uint32_t spiRetval =
             spiTransmitData(pSpiInterface->pNode, ((spiDAT1_t *)pSpiInterface->pConfig), 1u, spi_cmdDummy);
-        IO_PinSet((uint32_t *)pSpiInterface->pGioPort, pSpiInterface->csPin);
+        IO_PinSet(pSpiInterface->pGioPort, pSpiInterface->csPin);
 
         /* Unlock SPI hardware */
         SPI_Unlock(pSpiInterface->channel);
@@ -102,10 +106,10 @@ STD_RETURN_TYPE_e SPI_TransmitData(SPI_INTERFACE_CONFIG_s *pSpiInterface, uint16
 
     /* Lock SPI hardware to prevent concurrent read/write commands */
     if (STD_OK == SPI_Lock(pSpiInterface->channel)) {
-        IO_PinReset((uint32_t *)pSpiInterface->pGioPort, pSpiInterface->csPin);
+        IO_PinReset(pSpiInterface->pGioPort, pSpiInterface->csPin);
         uint32_t spiRetval =
             spiTransmitData(pSpiInterface->pNode, ((spiDAT1_t *)pSpiInterface->pConfig), frameLength, pTxBuff);
-        IO_PinSet((uint32_t *)pSpiInterface->pGioPort, pSpiInterface->csPin);
+        IO_PinSet(pSpiInterface->pGioPort, pSpiInterface->csPin);
 
         /* Unlock SPI hardware */
         SPI_Unlock(pSpiInterface->channel);
@@ -144,9 +148,9 @@ extern STD_RETURN_TYPE_e SPI_TransmitReceiveData(
 
     /* Lock SPI hardware to prevent concurrent read/write commands */
     if (STD_OK == SPI_Lock(pSpiInterface->channel)) {
-        IO_PinReset((uint32_t *)pSpiInterface->pGioPort, pSpiInterface->csPin);
+        IO_PinReset(pSpiInterface->pGioPort, pSpiInterface->csPin);
         uint32_t spiRetval = SPI_DirectlyTransmitReceiveData(pSpiInterface, pTxBuff, pRxBuff, frameLength);
-        IO_PinSet((uint32_t *)pSpiInterface->pGioPort, pSpiInterface->csPin);
+        IO_PinSet(pSpiInterface->pGioPort, pSpiInterface->csPin);
 
         /* Unlock SPI hardware */
         SPI_Unlock(pSpiInterface->channel);
@@ -270,7 +274,7 @@ extern STD_RETURN_TYPE_e SPI_TransmitReceiveDataDma(
             OS_ExitTaskCritical();
 
             /* Software activate CS */
-            IO_PinReset((uint32_t *)pSpiInterface->pGioPort, pSpiInterface->csPin);
+            IO_PinReset(pSpiInterface->pGioPort, pSpiInterface->csPin);
             /* DMA_REQ_Enable */
             /* Starts DMA requests if SPIEN is also set to 1 */
             pSpiInterface->pNode->INT0 |= DMAREQEN_BIT;
@@ -376,17 +380,17 @@ extern STD_RETURN_TYPE_e SPI_TransmitReceiveDataWithDummyDma(
 
             OS_ExitTaskCritical();
 
-            IO_PinReset((uint32_t *)pSpiInterface->pGioPort, pSpiInterface->csPin);
+            IO_PinReset(pSpiInterface->pGioPort, pSpiInterface->csPin);
             uint32_t spiRetval =
                 spiTransmitData(pSpiInterface->pNode, ((spiDAT1_t *)pSpiInterface->pConfig), 1u, spi_cmdDummy);
-            IO_PinSet((uint32_t *)pSpiInterface->pGioPort, pSpiInterface->csPin);
+            IO_PinSet(pSpiInterface->pGioPort, pSpiInterface->csPin);
             if ((spiRetval & SPI_FLAG_REGISTER_TRANSMISSION_ERRORS) == 0u) {
                 /* No error flag set during communication */
 
                 MCU_delay_us(delay);
 
                 /* Software activate CS */
-                IO_PinReset((uint32_t *)pSpiInterface->pGioPort, pSpiInterface->csPin);
+                IO_PinReset(pSpiInterface->pGioPort, pSpiInterface->csPin);
                 /* DMA_REQ_Enable */
                 /* Starts DMA requests if SPIEN is also set to 1 */
                 pSpiInterface->pNode->INT0 |= DMAREQEN_BIT;
@@ -421,6 +425,40 @@ extern void SPI_Unlock(uint8_t spi) {
         *(spi_busyFlags + spi) = SPI_IDLE;
     }
     OS_ExitTaskCritical();
+}
+
+extern void SPI_SetFunctional(spiBASE_t *pNode, enum spiPinSelect bit, bool hardwareControlled) {
+    FAS_ASSERT(pNode != NULL_PTR);
+    FAS_ASSERT(bit <= (enum spiPinSelect)LARGEST_PIN_NUMBER);
+
+    /* retrieve current configuration */
+    spi_config_reg_t configRegisterBuffer = {0};
+    if (pNode == spiREG1) {
+        spi1GetConfigValue(&configRegisterBuffer, CurrentValue);
+    } else if (pNode == spiREG2) {
+        spi2GetConfigValue(&configRegisterBuffer, CurrentValue);
+    } else if (pNode == spiREG3) {
+        spi3GetConfigValue(&configRegisterBuffer, CurrentValue);
+    } else if (pNode == spiREG4) {
+        spi4GetConfigValue(&configRegisterBuffer, CurrentValue);
+    } else if (pNode == spiREG5) {
+        spi5GetConfigValue(&configRegisterBuffer, CurrentValue);
+    } else {
+        /* invalid SPI node */
+        FAS_ASSERT(FAS_TRAP);
+    }
+    uint32_t newPc0 = configRegisterBuffer.CONFIG_PC0;
+
+    if (hardwareControlled == false) {
+        /* bit has to be cleared */
+        newPc0 &= ~(uint32_t)((uint32_t)1u << (uint8_t)(bit));
+    } else {
+        /* bit has to be set */
+        newPc0 |= (uint32_t)((uint32_t)1u << (uint8_t)(bit));
+    }
+
+    /* set new port value */
+    spiSetFunctional(pNode, newPc0);
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/

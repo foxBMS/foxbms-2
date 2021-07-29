@@ -43,7 +43,7 @@
  * @file    test_mxm_cfg.c
  * @author  foxBMS Team
  * @date    2020-06-24 (date of creation)
- * @updated 2020-06-25 (date of last update)
+ * @updated 2021-06-16 (date of last update)
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -83,6 +83,10 @@ void testMXM_MonitoringPinInit(void) {
     /* check if the right pinset configs are called */
     IO_PinSet_Expect((uint32_t *)&MXM_17841B_GIODIR, MXM_17841B_SHTNDL_PIN);
     IO_PinSet_Expect((uint32_t *)&MXM_17841B_GIOPORT, MXM_17841B_SHTNDL_PIN);
+    SPI_SetFunctional_Expect(NULL_PTR, SPI_PIN_SIMO, true);
+    SPI_SetFunctional_IgnoreArg_pNode();
+    SPI_SetFunctional_Expect(NULL_PTR, SPI_PIN_SOMI, true);
+    SPI_SetFunctional_IgnoreArg_pNode();
     MXM_MonitoringPinInit();
 }
 

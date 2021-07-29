@@ -43,7 +43,7 @@
  * @file    fram.c
  * @author  foxBMS Team
  * @date    2020-03-05 (date of creation)
- * @updated 2021-03-24 (date of last update)
+ * @updated 2021-07-14 (date of last update)
  * @ingroup DRIVERS
  * @prefix  FRAM
  *
@@ -115,15 +115,15 @@ extern STD_RETURN_TYPE_e FRAM_Write(FRAM_BLOCK_ID_e blockId) {
         size    = (&fram_base_header[0] + blockId)->datalength;
 
         /* send write enable command */
-        IO_PinReset((uint32_t *)spi_framInterface.pGioPort, spi_framInterface.csPin);
+        IO_PinReset(spi_framInterface.pGioPort, spi_framInterface.csPin);
         write = FRAM_WRITEENABLECOMMAND;
         SPI_DirectlyTransmitReceiveData(&spi_framInterface, &write, &read, 1);
-        IO_PinSet((uint32_t *)spi_framInterface.pGioPort, spi_framInterface.csPin);
+        IO_PinSet(spi_framInterface.pGioPort, spi_framInterface.csPin);
         MCU_delay_us(FRAM_DELAY_AFTER_WRITE_ENABLE_US);
 
         /* send data to write */
         /* set chip select low to start transmission */
-        IO_PinReset((uint32_t *)spi_framInterface.pGioPort, spi_framInterface.csPin);
+        IO_PinReset(spi_framInterface.pGioPort, spi_framInterface.csPin);
 
         /* send write command */
         write = FRAM_WRITECOMMAND;
@@ -149,7 +149,7 @@ extern STD_RETURN_TYPE_e FRAM_Write(FRAM_BLOCK_ID_e blockId) {
         }
 
         /* set chip select high to start transmission */
-        IO_PinSet((uint32_t *)spi_framInterface.pGioPort, spi_framInterface.csPin);
+        IO_PinSet(spi_framInterface.pGioPort, spi_framInterface.csPin);
 
         SPI_Unlock(SPI_Interface3);
     }
@@ -175,7 +175,7 @@ extern STD_RETURN_TYPE_e FRAM_Read(FRAM_BLOCK_ID_e blockId) {
 
         /* get data to be read */
         /* set chip select low to start transmission */
-        IO_PinReset((uint32_t *)spi_framInterface.pGioPort, spi_framInterface.csPin);
+        IO_PinReset(spi_framInterface.pGioPort, spi_framInterface.csPin);
 
         /* send write command */
         write = FRAM_READCOMMAND;
@@ -202,7 +202,7 @@ extern STD_RETURN_TYPE_e FRAM_Read(FRAM_BLOCK_ID_e blockId) {
         }
 
         /* set chip select high to start transmission */
-        IO_PinSet((uint32_t *)spi_framInterface.pGioPort, spi_framInterface.csPin);
+        IO_PinSet(spi_framInterface.pGioPort, spi_framInterface.csPin);
 
         SPI_Unlock(SPI_Interface3);
     }

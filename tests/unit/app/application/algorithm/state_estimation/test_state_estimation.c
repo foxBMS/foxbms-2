@@ -53,7 +53,10 @@
 
 /*========== Includes =======================================================*/
 #include "unity.h"
+#include "Mockdatabase.h"
 
+#include "soc_none.h"
+#include "soe_none.h"
 #include "state_estimation.h"
 
 /*========== Definitions and Implementations for Unit Test ==================*/

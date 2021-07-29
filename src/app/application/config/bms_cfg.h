@@ -43,7 +43,7 @@
  * @file    bms_cfg.h
  * @author  foxBMS Team
  * @date    2020-02-24 (date of creation)
- * @updated 2020-02-24 (date of last update)
+ * @updated 2021-07-29 (date of last update)
  * @ingroup ENGINE_CONFIGURATION
  * @prefix  BMS
  *
@@ -64,13 +64,13 @@
 #define BMS_REQ_ID_NOREQ (0u)
 
 /** ID to request the STANDBY state via CAN */
-#define BMS_REQ_ID_STANDBY (8u)
+#define BMS_REQ_ID_STANDBY (3u)
 
 /** ID to request the NORMAL state via CAN */
-#define BMS_REQ_ID_NORMAL (3u)
+#define BMS_REQ_ID_NORMAL (1u)
 
 /** ID to request the CHARGE state via CAN */
-#define BMS_REQ_ID_CHARGE (4u)
+#define BMS_REQ_ID_CHARGE (2u)
 
 /**
  * @brief   Functions searching for next string return this value if no further
@@ -89,7 +89,7 @@
  */
 #define BMS_STATEMACHINE_TASK_CYCLE_CONTEXT_MS (10u)
 
-#if BMS_STATEMACHINE_TASK_CYCLE_CONTEXT_MS != FTSK_TSK_CYCLIC_10MS_CYCLE_TIME
+#if BMS_STATEMACHINE_TASK_CYCLE_CONTEXT_MS != FTSK_TASK_CYCLIC_10MS_CYCLE_TIME
 #error "Invalid BMS configuration. Make sure that BMS timing is configured correctly!"
 #endif
 

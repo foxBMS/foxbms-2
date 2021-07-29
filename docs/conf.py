@@ -48,6 +48,8 @@ import sphinx_rtd_theme
 sys.path = [
     os.path.abspath("."),
     os.path.abspath("./../tools/gui"),
+    os.path.abspath("./../tools/waf3-2.0.22-1241519b19b496207abef1f72bbf61c2/waflib"),
+    os.path.abspath("./../tools/.waf3-2.0.22-1241519b19b496207abef1f72bbf61c2/waflib"),
     os.path.abspath("./../tools/waf-tools"),
     os.path.abspath("./../tests/scripts/waf-tools/f_guidelines"),
     os.path.abspath("./../tests/scripts/waf-tools/f_hcg"),
@@ -68,6 +70,7 @@ extensions = [
     "sphinx.ext.intersphinx",
     "sphinx.ext.napoleon",
     "sphinxcontrib.bibtex",
+    "sphinxcontrib.mermaid",
     "sphinxcontrib.spelling",
 ]
 
@@ -122,8 +125,10 @@ autodoc_mock_imports = ["waflib"]
 
 linkcheck_ignore = [
     r".*_static\/doxygen",
-    # lincheck can not handle the line highlighting
+    # linkcheck can not handle the line highlighting
+    "https://gitlab.com/ita1024/waf/-/blob/3536dfecf8061c6d99bac338837997c4862ee89b/waflib/TaskGen.py#L495-527",
     "https://gitlab.com/ita1024/waf/-/blob/3f8bb163290eb8fbfc3b26d61dd04aa5a6a29d4a/waf-light#L6-30",
+    "https://www.misra.org.uk/",
 ]
 
 html_theme_options = {

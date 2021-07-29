@@ -57,7 +57,6 @@ The following tools are shown in :numref:`mapping-of-third-party-tools`.
    | waf             | build automation system | T3          | controls build process; generates      |
    |                 |                         |             | version dependent code                 |
    +-----------------+-------------------------+-------------+----------------------------------------+
-   +-----------------+-------------------------+-------------+----------------------------------------+
    | Cppcheck        | static program          | T1          | just a helper for the static analysis; |
    |                 | analysis tools          |             |                                        |
    +-----------------+-------------------------+-------------+----------------------------------------+

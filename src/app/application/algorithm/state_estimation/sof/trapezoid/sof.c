@@ -291,10 +291,10 @@ static void SOF_CalculateTemperatureBasedCurrentLimit(
         /* Derating value for minimum cell temperature has already been calculated and result is saved in
            pAllowedTemperatureBasedCurrentCheck. Check now if newly calculated derating value for maximum
            cell temperatures is smaller than the previously calculated value */
-        pAllowedTemperatureBasedCurrent->continuousDischargeCurrent_mA = MATH_minimumOfTwoFloats(
+        pAllowedTemperatureBasedCurrent->continuousDischargeCurrent_mA = MATH_MinimumOfTwoFloats(
             pAllowedTemperatureBasedCurrent->continuousDischargeCurrent_mA,
             temporaryCurrentLimits.continuousDischargeCurrent_mA);
-        pAllowedTemperatureBasedCurrent->peakDischargeCurrent_mA = MATH_minimumOfTwoFloats(
+        pAllowedTemperatureBasedCurrent->peakDischargeCurrent_mA = MATH_MinimumOfTwoFloats(
             pAllowedTemperatureBasedCurrent->peakDischargeCurrent_mA, temporaryCurrentLimits.peakDischargeCurrent_mA);
     }
     /* Temperature high Charge */
@@ -315,10 +315,10 @@ static void SOF_CalculateTemperatureBasedCurrentLimit(
         /* Derating value for minimum cell temperature has already been calculated and result is saved in
            pAllowedTemperatureBasedCurrentCheck. Check now if newly calculated derating value for maximum
            cell temperatures is smaller than the previously calculated value */
-        pAllowedTemperatureBasedCurrent->continuousChargeCurrent_mA = MATH_minimumOfTwoFloats(
+        pAllowedTemperatureBasedCurrent->continuousChargeCurrent_mA = MATH_MinimumOfTwoFloats(
             pAllowedTemperatureBasedCurrent->continuousChargeCurrent_mA,
             temporaryCurrentLimits.continuousChargeCurrent_mA);
-        pAllowedTemperatureBasedCurrent->peakChargeCurrent_mA = MATH_minimumOfTwoFloats(
+        pAllowedTemperatureBasedCurrent->peakChargeCurrent_mA = MATH_MinimumOfTwoFloats(
             pAllowedTemperatureBasedCurrent->peakChargeCurrent_mA, temporaryCurrentLimits.peakChargeCurrent_mA);
     }
 }
@@ -327,13 +327,13 @@ static SOF_CURRENT_LIMITS_s SOF_MinimumOfTwoSofValues(
     SOF_CURRENT_LIMITS_s voltageBasedLimits,
     SOF_CURRENT_LIMITS_s temperatureBasedLimits) {
     SOF_CURRENT_LIMITS_s retval       = {0};
-    retval.continuousChargeCurrent_mA = MATH_minimumOfTwoFloats(
+    retval.continuousChargeCurrent_mA = MATH_MinimumOfTwoFloats(
         voltageBasedLimits.continuousChargeCurrent_mA, temperatureBasedLimits.continuousChargeCurrent_mA);
     retval.peakChargeCurrent_mA =
-        MATH_minimumOfTwoFloats(voltageBasedLimits.peakChargeCurrent_mA, temperatureBasedLimits.peakChargeCurrent_mA);
-    retval.continuousDischargeCurrent_mA = MATH_minimumOfTwoFloats(
+        MATH_MinimumOfTwoFloats(voltageBasedLimits.peakChargeCurrent_mA, temperatureBasedLimits.peakChargeCurrent_mA);
+    retval.continuousDischargeCurrent_mA = MATH_MinimumOfTwoFloats(
         voltageBasedLimits.continuousDischargeCurrent_mA, temperatureBasedLimits.continuousDischargeCurrent_mA);
-    retval.peakDischargeCurrent_mA = MATH_minimumOfTwoFloats(
+    retval.peakDischargeCurrent_mA = MATH_MinimumOfTwoFloats(
         voltageBasedLimits.peakDischargeCurrent_mA, temperatureBasedLimits.peakDischargeCurrent_mA);
     return retval;
 }
@@ -489,11 +489,11 @@ extern void SOF_Calculation(void) {
 #endif /* BMS_CHECK_SOF_CURRENT_LIMITS == true */
     }
 
-    if ((minCharge_mA * 1000.0f) > (float)BS_MAXIMUM_STRING_CURRENT_mA) {
-        minCharge_mA = (float)BS_MAXIMUM_STRING_CURRENT_mA / 1000.f;
+    if (minCharge_mA > (float)BS_MAXIMUM_STRING_CURRENT_mA) {
+        minCharge_mA = (float)BS_MAXIMUM_STRING_CURRENT_mA;
     }
-    if ((minDischarge_mA * 1000.0f) > (float)BS_MAXIMUM_STRING_CURRENT_mA) {
-        minDischarge_mA = (float)BS_MAXIMUM_STRING_CURRENT_mA / 1000.f;
+    if (minDischarge_mA > (float)BS_MAXIMUM_STRING_CURRENT_mA) {
+        minDischarge_mA = (float)BS_MAXIMUM_STRING_CURRENT_mA;
     }
 
     /* Compute recommended pack values */

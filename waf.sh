@@ -44,8 +44,49 @@ if [ "$(uname)" == "Darwin" ]; then
     exit 1
 # Linux
 elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
-    echo "Linux is currently not supported."
-    exit 1
+    SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+    while read -r line; do
+        _line=`echo $line | sed --expression='s/^M/:/g'`
+        if [ -d "$_line" ]; then
+            PATHS_TO_ADD=`echo "${PATHS_TO_ADD}:$_line"`
+        fi
+    done < ${SCRIPTDIR}/conf/env/paths_linux.txt
+    PATHS_TO_ADD=`echo $PATHS_TO_ADD | awk '{gsub("C:", "/c", $0); print}'`
+    PATHS_TO_ADD=$(echo "${PATHS_TO_ADD#?}" | tr '\\' '/')
+    export PATH=$PATHS_TO_ADD:$PATH
+    set +e
+    ARMCL_TEST=`which armcl > /dev/null 2>&1`
+    if [ $? -ne 0 ]; then
+        set -e
+         echo "Could not find pinned compiler. Try to use any available in '/opt/ti'".
+         CCS_VARS=$($SCRIPTDIR/tools/utils/bash/find_ccs.sh || echo $?)
+         CCS_VARS_ARRAY=($CCS_VARS)
+         CCS_PATHS_TO_ADD=`echo $CCS_VARS | sed "s/ /:/g"`
+         export PATH=$CCS_PATHS_TO_ADD:$PATH
+    else
+        set -e
+    fi
+    # call find_base_conda and make sure that we do not exit by printing
+    # the exit code to CONDA_VARS (otherwise we would exit with set -e, here
+    # we will not as echo returns exit code 0)
+    CONDA_VARS=$($SCRIPTDIR/tools/utils/bash/find_base_conda.sh || echo $?)
+    if [ "${CONDA_VARS: -1}" == "1" ]; then
+        # strip the exit code that we have printed to CONDA_VARS and
+        # print the rest
+        echo "${CONDA_VARS: : -1}"
+        exit 1
+    fi
+    CONDA_VARS_ARRAY=($CONDA_VARS)
+    CONDA_BASE_ENVIRONMENT_INCLUDING_DEVELOPMENT_ENVIRONMENT=${CONDA_VARS_ARRAY[0]}
+    CONDA_BASE_ENVIRONMENT_ACTIVATE_SCRIPT=${CONDA_VARS_ARRAY[1]}
+    CONDA_DEVELOPMENT_ENVIRONMENT_NAME=${CONDA_VARS_ARRAY[2]}
+    CONDA_DEVELOPMENT_ENVIRONMENT_CONFIGURATION_FILE=${CONDA_VARS_ARRAY[3]}
+    source $CONDA_BASE_ENVIRONMENT_ACTIVATE_SCRIPT base
+    conda activate ${CONDA_DEVELOPMENT_ENVIRONMENT_NAME}
+    set + # deactivate in any case the environment, therefore ignore build errors
+    python ${SCRIPTDIR}/tools/waf $@
+    set -
+    conda deactivate
 # Windows
 elif [ "$(expr substr $(uname -s) 1 9)" == "CYGWIN_NT" ]; then
     echo "Cygwin is not supported."
@@ -60,11 +101,26 @@ elif [ "$(expr substr $(uname -s) 1 10)" == "MINGW64_NT" ] || [ "$(expr substr $
     fi
     SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
     while read -r line; do
-        PATHS_TO_ADD=`echo "${PATHS_TO_ADD}:$line"| sed --expression='s/^M/:/g'`
+        _line=`echo $line | sed --expression='s/^M/:/g'`
+        if [ -d "$_line" ]; then
+            PATHS_TO_ADD=`echo "${PATHS_TO_ADD}:$_line"`
+        fi
     done < ${SCRIPTDIR}/conf/env/paths_win32.txt
     PATHS_TO_ADD=`echo $PATHS_TO_ADD | awk '{gsub("C:", "/c", $0); print}'`
     PATHS_TO_ADD=$(echo "${PATHS_TO_ADD#?}" | tr '\\' '/')
     export PATH=$PATHS_TO_ADD:$PATH
+    set +e
+    ARMCL_TEST=`which armcl > /dev/null 2>&1`
+    if [ $? -ne 0 ]; then
+        set -e
+        echo "Could not find pinned compiler. Try to use any available in 'C:\ti\'".
+        CCS_VARS=$($SCRIPTDIR/tools/utils/bash/find_ccs.sh || echo $?)
+        CCS_VARS_ARRAY=($CCS_VARS)
+        CCS_PATHS_TO_ADD=`echo $CCS_VARS | sed "s/ /:/g"`
+        export PATH=$CCS_PATHS_TO_ADD:$PATH
+    else
+        set -e
+    fi
     # call find_base_conda and make sure that we do not exit by printing
     # the exit code to CONDA_VARS (otherwise we would exit with set -e, here
     # we will not as echo returns exit code 0)
@@ -73,6 +129,7 @@ elif [ "$(expr substr $(uname -s) 1 10)" == "MINGW64_NT" ] || [ "$(expr substr $
         # strip the exit code that we have printed to CONDA_VARS and
         # print the rest
         echo "${CONDA_VARS: : -1}"
+        read -n1 -r -p "Press any key to continue..." key
         exit 1
     fi
     CONDA_VARS_ARRAY=($CONDA_VARS)

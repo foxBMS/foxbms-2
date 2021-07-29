@@ -308,10 +308,10 @@ static bool MRC_ValidateCellVoltageMeasurement(
 
     /* -------------- Check if cell voltage redundant measurement is used -- */
     /* Use redundant cell voltage measurements if measurement values have been acquired once */
-    useCellvoltageRedundancy = DATA_DatabaseEntryUpdatedAtLeastOnce((void *)pCellVoltageRedundancy0);
+    useCellvoltageRedundancy = DATA_DatabaseEntryUpdatedAtLeastOnce(pCellVoltageRedundancy0->header);
 
     /* ----------------- Check timestamp of base measurements--------------- */
-    if (DATA_DatabaseEntryUpdatedRecently((void *)pCellVoltageBase, MRC_MIC_MEASUREMENT_PERIOD_TIMEOUT_ms) == true) {
+    if (DATA_EntryUpdatedWithinInterval(pCellVoltageBase->header, MRC_MIC_MEASUREMENT_PERIOD_TIMEOUT_ms) == true) {
         baseCellvoltageMeasurementTimeoutReached = false;
         (void)DIAG_Handler(DIAG_ID_BASE_CELL_VOLTAGE_MESUREMENT_TIMEOUT, DIAG_EVENT_OK, DIAG_SYSTEM, 0u);
     } else {
@@ -328,7 +328,7 @@ static bool MRC_ValidateCellVoltageMeasurement(
     }
 
     /* ----------------- Check timestamp of redundant measurements --------- */
-    if ((DATA_DatabaseEntryUpdatedRecently((void *)pCellVoltageRedundancy0, MRC_MIC_MEASUREMENT_PERIOD_TIMEOUT_ms) ==
+    if ((DATA_EntryUpdatedWithinInterval(pCellVoltageRedundancy0->header, MRC_MIC_MEASUREMENT_PERIOD_TIMEOUT_ms) ==
          false) &&
         (useCellvoltageRedundancy == true)) {
         redundancy0CellvoltageMeasurementTimeoutReached = true;
@@ -435,11 +435,10 @@ static bool MRC_ValidateCellTemperatureMeasurement(
 
     /* -------------- Check if cell cell temperature redundant measurement is used ---------- */
     /* Use redundant cell voltage measurements if measurement values have been acquired once */
-    useCelltemperatureRedundancy = DATA_DatabaseEntryUpdatedAtLeastOnce((void *)pCellTemperatureRedundancy0);
+    useCelltemperatureRedundancy = DATA_DatabaseEntryUpdatedAtLeastOnce(pCellTemperatureRedundancy0->header);
 
     /* ----------------- Check timestamp of base measurements--------------- */
-    if (DATA_DatabaseEntryUpdatedRecently((void *)pCellTemperatureBase, MRC_MIC_MEASUREMENT_PERIOD_TIMEOUT_ms) ==
-        true) {
+    if (DATA_EntryUpdatedWithinInterval(pCellTemperatureBase->header, MRC_MIC_MEASUREMENT_PERIOD_TIMEOUT_ms) == true) {
         baseCellTemperatureMeasurementTimeoutReached = false;
         (void)DIAG_Handler(DIAG_ID_BASE_CELL_TEMPERATURE_MESUREMENT_TIMEOUT, DIAG_EVENT_OK, DIAG_SYSTEM, 0u);
     } else {
@@ -455,8 +454,8 @@ static bool MRC_ValidateCellTemperatureMeasurement(
     }
 
     /* ----------------- Check timestamp of redundant measurements --------- */
-    if ((DATA_DatabaseEntryUpdatedRecently(
-             (void *)pCellTemperatureRedundancy0, MRC_MIC_MEASUREMENT_PERIOD_TIMEOUT_ms) == false) &&
+    if ((DATA_EntryUpdatedWithinInterval(pCellTemperatureRedundancy0->header, MRC_MIC_MEASUREMENT_PERIOD_TIMEOUT_ms) ==
+         false) &&
         (useCelltemperatureRedundancy == true)) {
         redundancy0CellTemperatureMeasurementTimeoutReached = true;
         /* Set error flag */
@@ -587,7 +586,6 @@ static void MRC_ValidateCurrentMeasurement(DATA_BLOCK_CURRENT_SENSOR_s *pTableCu
         }
     }
     mrc_tablePackValues.packCurrent_mA = packCurrent_mA;
-    return;
 }
 
 static void MRC_ValidateStringVoltageMeasurement(
@@ -657,7 +655,6 @@ static void MRC_ValidateStringVoltageMeasurement(
             }
         }
     }
-    return;
 }
 
 static void MRC_ValidateHighVoltageBusMeasurement(DATA_BLOCK_CURRENT_SENSOR_s *pTableCurrentSensor) {
@@ -692,7 +689,6 @@ static void MRC_ValidateHighVoltageBusMeasurement(DATA_BLOCK_CURRENT_SENSOR_s *p
         /* TODO: do we want to write special data if no valid values can be read? */
         mrc_tablePackValues.invalidHvBusVoltage = 1u;
     }
-    return;
 }
 
 static void MRC_ValidatePowerMeasurement(DATA_BLOCK_CURRENT_SENSOR_s *pTableCurrentSensor) {
@@ -754,8 +750,6 @@ static void MRC_ValidatePowerMeasurement(DATA_BLOCK_CURRENT_SENSOR_s *pTableCurr
         }
     }
     mrc_tablePackValues.packPower_W = packPower_W;
-
-    return;
 }
 
 static STD_RETURN_TYPE_e MRC_CalculateCellVoltageMinMaxAverage(

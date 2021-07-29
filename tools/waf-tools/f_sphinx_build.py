@@ -110,7 +110,7 @@ class sphinx_task(Task.Task):  # pylint: disable=invalid-name
         env = self.env.env or None
         cwd = self.generator.bld.path.get_bld().abspath()
         proc = Utils.subprocess.Popen(
-            cmd,
+            cmd.split(),
             stdin=Utils.subprocess.PIPE,
             stdout=Utils.subprocess.PIPE,
             stderr=Utils.subprocess.PIPE,
@@ -159,7 +159,7 @@ class sphinx_task(Task.Task):  # pylint: disable=invalid-name
         """check if the linkcheck task generates any real errors"""
         err_bit = 0
         re_splitter = r"(\[[ ]{0,2}\d{1,3}\%\])"
-        err_line = r"\(line[ ]{0,}(\d{1,})\)[ ]([A-Za-z0-9_-]{1,})"
+        re_err = r"line\s{0,}(\d{1,})\s{0,}\)(.*)"
         current_file = ""
         for line in std_out.strip().splitlines():
             try:
@@ -171,9 +171,13 @@ class sphinx_task(Task.Task):  # pylint: disable=invalid-name
             except IndexError:
                 pass
             if "broken " in line:
-                _, line, err_type, msg = re.split(err_line, line)
+                line = re.sub(r"\s\s+", " ", line)
                 err_bit += 1
-                Logs.error(f"{current_file}:{line}:{err_type}:{msg.strip()}")
+                try:
+                    line, msg = re.split(re_err, line)
+                    Logs.error(f"{current_file}:{line}:{msg}")
+                except ValueError:
+                    Logs.error(line)
             else:
                 if Logs.verbose:
                     print(line)

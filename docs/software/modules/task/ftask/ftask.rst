@@ -66,7 +66,7 @@ are not meant to be modified by user are indicated in the code, e.g., for the En
    :caption: Example of code that should not be modified by the user
    :name: ftsk-user-code-engine-example
 
-    void FTSK_UserCodeEngine(void) {
+    void FTSK_RunUserCodeEngine(void) {
         /* Warning: Do not change the content of this function */
         /* See function definition doxygen comment for details */
         DATA_Task();               /* Call database manager */
@@ -87,8 +87,8 @@ Task Creation
 
 ``FTSK_CreateTasks`` creates these 4 tasks on startup. The procedure is the same for all tasks:
 
-1. Try to create a static task (using the Task Creator Function)
-1. Assert if this does not work.
+#. Try to create a static task (using the Task Creator Function)
+#. Assert if this does not work.
 
 The Task Creator Functions bind User Code Functions into the tasks. This is best explained using the example of the
 Engine task:
@@ -108,9 +108,9 @@ User Code Function will be run or has run. This enables to determine if a task r
    :caption: Example of Task Creator Function
    :name: ftsk-task-creator-function-example
 
-    void FTSK_TaskCreatorEngine(void) {
+    void FTSK_CreateTaskEngine(void) {
         os_boot = OS_SCHEDULER_RUNNING;
-        FTSK_UserCodeEngineInit();
+        FTSK_InitializeUserCodeEngine();
         os_boot = OS_ENGINE_RUNNING;
 
         OS_DelayTaskUntil(&os_schedulerStartTime, ftsk_taskDefinitionEngine.Phase);
@@ -118,7 +118,7 @@ User Code Function will be run or has run. This enables to determine if a task r
             /* notify system monitoring that task will be called */
             SYSM_Notify(SYSM_TASK_ID_ENGINE, SYSM_NOTIFY_ENTER, OS_GetTickCount());
             /* user code implementation */
-            FTSK_UserCodeEngine();
+            FTSK_RunUserCodeEngine();
             /* notify system monitoring that task has been called */
             SYSM_Notify(SYSM_TASK_ID_ENGINE, SYSM_NOTIFY_EXIT, OS_GetTickCount());
         }
@@ -126,7 +126,7 @@ User Code Function will be run or has run. This enables to determine if a task r
 
 The other cyclic tasks are basically generated the same way. The main difference is that there is not a separate
 initialization function but one common for all other cyclic tasks. These other cyclic tasks do not start until the Task
-Creator Function ``FTSK_TaskCreatorEngine`` has set the boot state to ``os_boot = OS_ENGINE_RUNNING`` **and** the
+Creator Function ``FTSK_CreateTaskEngine`` has set the boot state to ``os_boot = OS_ENGINE_RUNNING`` **and** the
 common initialization function for these tasks has finished.
 
 .. _ftask_task_configuration:
@@ -141,22 +141,24 @@ The tasks are configured in ``ftask_cfg.c`` regarding their startup phase, cycle
 Special User Tasks
 ^^^^^^^^^^^^^^^^^^
 
-There are four special user functions, three of these should not be modified by the user/application (
-``FTSK_UserCodeEngineInit`` and  ``FTSK_UserCodeEngine``, ``FTSK_UserCodeIdle``) and one that is for
-user/application code (``FTSK_UserCodePreCyclicTasksInitialization``). All tasks share the suffix ``FTSK_UserCode`` for a
-consistent implementation of the Task Creator Functions and are not meant to be changed.
+There are four special user functions, three of these should not be modified by
+the user/application ( ``FTSK_InitializeUserCodeEngine`` and
+``FTSK_RunUserCodeEngine``, ``FTSK_RunUserCodeIdle``) and one that is for
+user/application code (``FTSK_InitializeUserCodePreCyclicTasks``).
+All tasks share the suffix ``FTSK_RunUserCode`` for a consistent implementation
+of the Task Creator Functions and are not meant to be changed.
 
 
-FTSK_UserCodeEngineInit
-"""""""""""""""""""""""
+FTSK_InitializeUserCodeEngine
+"""""""""""""""""""""""""""""
 
 Before any tasks can start the database needs to be initialized. The database initialization is done by
-``FTSK_UserCodeEngineInit()``.
+``FTSK_InitializeUserCodeEngine()``.
 
 .. _ftask_special_task_engine:
 
-FTSK_UserCodeEngine
-"""""""""""""""""""
+FTSK_RunUserCodeEngine
+""""""""""""""""""""""
 
 **This task should not be modified.**
 
@@ -166,15 +168,15 @@ into the database variables. The system monitoring checks that all tasks run wit
 
 .. _ftask_special_task_idle:
 
-FTSK_UserCodeIdle
-"""""""""""""""""
+FTSK_RunUserCodeIdle
+""""""""""""""""""""
 
 **This task should not be modified.**
 
 This task is bound to the operating system idle hook (``vApplicationIdleHook``).
 
-FTSK_UserCodePreCyclicTasksInitialization
-"""""""""""""""""""""""""""""""""""""""""
+FTSK_InitializeUserCodePreCyclicTasks
+"""""""""""""""""""""""""""""""""""""
 
 Peripherals and resources that need to be usable as soon as the periodic tasks are running are initialized here.
 

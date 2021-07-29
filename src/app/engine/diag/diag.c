@@ -43,7 +43,7 @@
  * @file    diag.c
  * @author  foxBMS Team
  * @date    2019-11-28 (date of creation)
- * @updated 2020-01-17 (date of last update)
+ * @updated 2021-07-29 (date of last update)
  * @ingroup ENGINE
  * @prefix  DIAG
  *
@@ -109,6 +109,8 @@ static void DIAG_Reset(void) {
 
 /*========== Extern Function Implementations ================================*/
 STD_RETURN_TYPE_e DIAG_Initialize(DIAG_DEV_s *diag_dev_pointer) {
+    FAS_ASSERT(diag_dev_pointer != NULL_PTR);
+
     STD_RETURN_TYPE_e retval = STD_OK;
     uint8_t id_nr            = (uint8_t)DIAG_ID_MAX;
     /* take assumptions on the value of DIAG_ID_MAX */
@@ -154,7 +156,32 @@ STD_RETURN_TYPE_e DIAG_Initialize(DIAG_DEV_s *diag_dev_pointer) {
         diag.err_enableflag[c] = ~tmperr_Check[c];
     }
 
+    /* Reset counter in case init function is called multiple times */
+    diag_dev_pointer->numberOfFatalErrors = 0u;
+    /* Fill pointer array with links to all diagnosis entries with a fatal error */
+    for (uint16_t entry = 0u; entry < (uint16_t)DIAG_ID_MAX; entry++) {
+        if (DIAG_ID_cfg[entry].severity == DIAG_FATAL_ERROR) {
+            diag_dev_pointer->pFatalErrorLinkTable[diag_dev_pointer->numberOfFatalErrors] = &DIAG_ID_cfg[entry];
+            diag_dev_pointer->numberOfFatalErrors++;
+        }
+    }
+
     diag.state = DIAG_STATE_INITIALIZED;
+    return retval;
+}
+
+STD_RETURN_TYPE_e DIAG_GetDiagnosisEntryState(DIAG_ID_e diagnosisEntry) {
+    STD_RETURN_TYPE_e retval      = STD_OK;
+    const uint16_t errorThreshold = diag_devptr->ch_cfg[diag.id2ch[(uint16_t)diagnosisEntry]].threshold;
+
+    /* Error if active if threshold counter is larger than configured error threshold */
+    for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
+        uint16_t thresholdCounter = diag.occurrenceCounter[s][(uint16_t)diagnosisEntry];
+        if (thresholdCounter > errorThreshold) {
+            /* error-threshold exceeded -> error is active */
+            retval = STD_NOT_OK;
+        }
+    }
     return retval;
 }
 
@@ -337,6 +364,23 @@ STD_RETURN_TYPE_e DIAG_CheckEvent(
     }
 
     return retVal;
+}
+
+uint32_t DIAG_GetDelay(DIAG_ID_e diagnosisEntry) {
+    FAS_ASSERT(diagnosisEntry < DIAG_ID_MAX);
+    return DIAG_ID_cfg[diag.id2ch[(uint16_t)diagnosisEntry]].delay_ms;
+}
+
+bool DIAG_IsAnyFatalErrorSet(void) {
+    bool fatalErrorActive = false;
+    for (uint16_t entry = 0u; entry < diag_device.numberOfFatalErrors; entry++) {
+        const STD_RETURN_TYPE_e diagnosisState =
+            DIAG_GetDiagnosisEntryState(diag_device.pFatalErrorLinkTable[entry]->id);
+        if (STD_NOT_OK == diagnosisState) {
+            fatalErrorActive = true;
+        }
+    }
+    return fatalErrorActive;
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/

@@ -43,7 +43,7 @@
  * @file    dma.c
  * @author  foxBMS Team
  * @date    2019-12-12 (date of creation)
- * @updated 2019-12-12 (date of last update)
+ * @updated 2021-07-14 (date of last update)
  * @ingroup DRIVERS
  * @prefix  DMA
  *
@@ -153,7 +153,7 @@ void UNIT_TEST_WEAK_IMPL dmaGroupANotification(dmaInterrupt_t inttype, uint32 ch
         }
 
         /* Software deactivate CS */
-        IO_PinSet((uint32_t *)spi_dmaTransmission[spiIndex].pGioPort, spi_dmaTransmission[spiIndex].csPin);
+        IO_PinSet(spi_dmaTransmission[spiIndex].pGioPort, spi_dmaTransmission[spiIndex].csPin);
 
         /* Disable DMA_REQ_Enable */
         spi_dmaTransmission[spiIndex].pNode->INT0 &= ~DMAREQEN_BIT;

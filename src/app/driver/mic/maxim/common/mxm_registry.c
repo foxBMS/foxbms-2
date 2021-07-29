@@ -43,7 +43,7 @@
  * @file    mxm_registry.c
  * @author  foxBMS Team
  * @date    2020-07-16 (date of creation)
- * @updated 2020-07-16 (date of last update)
+ * @updated 2021-06-16 (date of last update)
  * @ingroup DRIVERS
  * @prefix  MXM
  *
@@ -77,7 +77,6 @@ extern void MXM_MonRegistryInit(MXM_MONITORING_INSTANCE_s *pState) {
         entry->model                = MXM_MODEL_ID_NONE;
         entry->siliconVersion       = MXM_siliconVersion_0;
     }
-    return;
 }
 
 extern STD_RETURN_TYPE_e MXM_MonRegistryConnectDevices(MXM_MONITORING_INSTANCE_s *pState, uint8_t numberOfDevices) {
@@ -96,10 +95,10 @@ extern STD_RETURN_TYPE_e MXM_MonRegistryConnectDevices(MXM_MONITORING_INSTANCE_s
     return retval;
 }
 
-extern uint8_t MXM_MonRegistryGetHighestConnected5XDevice(MXM_MONITORING_INSTANCE_s *pState) {
-    FAS_ASSERT(pState != NULL_PTR);
+extern uint8_t MXM_MonRegistryGetHighestConnected5XDevice(const MXM_MONITORING_INSTANCE_s *const kpkState) {
+    FAS_ASSERT(kpkState != NULL_PTR);
     /* return highest connected device */
-    return pState->highest5xDevice;
+    return kpkState->highest5xDevice;
 }
 
 extern void MXM_MonRegistryParseIdIntoDevices(
@@ -125,7 +124,7 @@ extern void MXM_MonRegistryParseIdIntoDevices(
         if (type == MXM_REG_ID1) {
             currentDevice->deviceID = id;
         } else {
-            /* (type == MXM_REG_ID2) */
+            /* intended condition: (type == MXM_REG_ID2) */
             currentDevice->deviceID = ((uint32_t)id << 16u) | currentDevice->deviceID;
         }
     }
@@ -137,9 +136,8 @@ extern void MXM_MonRegistryParseVersionIntoDevices(MXM_MONITORING_INSTANCE_s *pS
     /* find highest connected device */
     uint8_t highestConnectedDevice = MXM_MonRegistryGetHighestConnected5XDevice(pState);
 
-    const uint8_t startBytes = 2u;
-
     for (uint8_t i = 0; i <= highestConnectedDevice; i++) {
+        const uint8_t startBytes            = 2u;
         uint8_t bufferPosition              = startBytes + (i * 2u);
         MXM_REGISTRY_ENTRY_s *currentDevice = &pState->registry[highestConnectedDevice - i];
         FAS_ASSERT((bufferPosition + 1u) <= rxBufferLength);

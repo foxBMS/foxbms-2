@@ -104,7 +104,7 @@ typedef struct DATA_BLOCK_EXAMPLE {
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
 
 /* ftask-example-cyclic-100ms-start */
-void FTSK_UserCodeCyclic100ms(void) {
+void FTSK_RunUserCodeCyclic100ms(void) {
     /* user code */
     static uint32_t ftsk_cyclic_100ms_counter                = 0;
     static DATA_BLOCK_EXAMPLE_s ftsk_tableExampleCyclic100ms = {.header.uniqueId = DATA_BLOCK_ID_EXAMPLE};

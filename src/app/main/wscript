@@ -57,6 +57,7 @@ def build(bld):
     )
     includes = [
         "include",
+        os.path.join("include", "config"),
         os.path.join("..", "application", "config"),
         os.path.join("..", "driver", "adc"),
         os.path.join("..", "driver", "can"),

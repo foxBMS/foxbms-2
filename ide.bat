@@ -35,9 +35,7 @@
 @REM - "This product includes parts of foxBMS&reg;"
 @REM - "This product is derived from foxBMS&reg;"
 
-@SETLOCAL EnableDelayedExpansion
-@SETLOCAL EnableExtensions
-@SETLOCAL
+@SETLOCAL EnableExtensions EnableDelayedExpansion
 
 @TITLE foxBMS Development Console
 
@@ -52,12 +50,15 @@
         @CALL set "NewPath=%%NewPath%%;%%A"
     )
 )
-@SET PATH=%NewPath:~1%;%PATH%
+@IF DEFINED NewPath (
+    @SET "PATH=%NewPath:~1%;%PATH%"
+)
 
 @SET CONDA_BASE_ENVIRONMENT_ACTIVATE_SCRIPT=""
 @CALL %~dp0\tools\utils\cmd\find_base_conda.bat
 
 @IF %CONDA_BASE_ENVIRONMENT_ACTIVATE_SCRIPT%=="" (
+    pause
     @EXIT /b 1
 )
 

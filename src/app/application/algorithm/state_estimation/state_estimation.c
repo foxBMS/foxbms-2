@@ -60,6 +60,7 @@
 /*========== Macros and Definitions =========================================*/
 
 /*========== Static Constant and Variable Definitions =======================*/
+static DATA_BLOCK_SOX_s se_tableSocAndSoeEstimation = {.header.uniqueId = DATA_BLOCK_ID_SOX};
 
 /*========== Extern Constant and Variable Definitions =======================*/
 
@@ -68,5 +69,23 @@
 /*========== Static Function Implementations ================================*/
 
 /*========== Extern Function Implementations ================================*/
+extern void SE_SocInit(bool cc_present, uint8_t stringNumber) {
+    FAS_ASSERT(stringNumber < BS_NR_OF_STRINGS);
+    SOC_Init(&se_tableSocAndSoeEstimation, cc_present, stringNumber);
+    DATA_WRITE_DATA(&se_tableSocAndSoeEstimation);
+}
+
+extern void SE_SoeInit(bool ec_present, uint8_t stringNumber) {
+    FAS_ASSERT(stringNumber < BS_NR_OF_STRINGS);
+    SOE_Init(&se_tableSocAndSoeEstimation, ec_present, stringNumber);
+    DATA_WRITE_DATA(&se_tableSocAndSoeEstimation);
+}
+
+extern void SE_StateEstimations(void) {
+    SOC_Calculation(&se_tableSocAndSoeEstimation);
+    SOE_Calculation(&se_tableSocAndSoeEstimation);
+
+    DATA_WRITE_DATA(&se_tableSocAndSoeEstimation);
+}
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/

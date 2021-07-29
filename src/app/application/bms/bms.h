@@ -43,7 +43,7 @@
  * @file    bms.h
  * @author  foxBMS Team
  * @date    2020-02-24 (date of creation)
- * @updated 2020-02-24 (date of last update)
+ * @updated 2021-07-29 (date of last update)
  * @ingroup ENGINE
  * @prefix  BMS
  *
@@ -206,6 +206,9 @@ typedef struct BMS_STATE {
     uint8_t firstClosedString;                 /*!< strings with highest or lowest voltage, that was closed first */
     uint16_t prechargeOpenTimeout;             /*!< timeout to abort if string opening takes too long */
     uint16_t prechargeCloseTimeout;            /*!< timeout to abort if a string takes too long to close */
+    uint32_t remainingDelay_ms;                /*!< time until statemachine should switch to error state */
+    uint32_t minimumActiveDelay_ms;            /*!< minimum delay time of all active fatal errors */
+    bool transitionToErrorState;               /*!< flag if fatal error has been detected and delay is active */
     uint8_t closedPrechargeContactors[BS_NR_OF_STRINGS]; /*!< strings whose precharge contactors are closed */
     uint8_t closedStrings[BS_NR_OF_STRINGS];             /*!< strings whose contactors are closed */
     uint8_t deactivatedStrings[BS_NR_OF_STRINGS]; /*!< Deactivated strings after error detection, cannot be closed */
@@ -280,6 +283,18 @@ extern bool BMS_IsStringClosed(uint8_t stringNumber);
  */
 extern bool BMS_IsStringPrecharging(uint8_t stringNumber);
 
+/**
+ * @brief   Returns number of connected strings
+ * @return  Returns number of connected strings
+ */
+extern uint8_t BMS_GetNumberOfConnectedStrings(void);
+
+/**
+ * @brief   Check if transition in to error state is active
+ * @return  True, if transition into error state is ongoing, otherwise false
+ */
+extern bool BMS_IsTransitionToErrorStateActive(void);
+
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 #ifdef UNITY_UNIT_TEST
 /* database.h is only included in bms.c and there used as function parameter
@@ -290,7 +305,8 @@ extern BMS_RETURN_TYPE_e TEST_BMS_CheckStateRequest(BMS_STATE_REQUEST_e statereq
 extern BMS_STATE_REQUEST_e TEST_BMS_TransferStateRequest(void);
 extern uint8_t TEST_BMS_CheckReEntrance(void);
 extern uint8_t TEST_BMS_CheckCanRequests(void);
-extern STD_RETURN_TYPE_e TEST_BMS_CheckAnyErrorFlagSet(void);
+extern STD_RETURN_TYPE_e TEST_BMS_IsBatterySystemStateOkay(void);
+extern bool TEST_BMS_IsAnyFatalErrorFlagSet(void);
 extern void TEST_BMS_GetMeasurementValues(void);
 extern void TEST_BMS_CheckOpenSenseWire(void);
 extern STD_RETURN_TYPE_e TEST_BMS_CheckPrecharge(uint8_t stringNumber, DATA_BLOCK_PACK_VALUES_s *pPackValues);

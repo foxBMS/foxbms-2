@@ -43,7 +43,7 @@
  * @file    diag.h
  * @author  foxBMS Team
  * @date    2019-11-28 (date of creation)
- * @updated 2019-12-10 (date of last update)
+ * @updated 2021-07-29 (date of last update)
  * @ingroup ENGINE
  * @prefix  DIAG
  *
@@ -92,7 +92,7 @@ typedef struct DIAG {
     uint8_t nr_of_ch;                                          /*!< number of configured channels*/
     uint32_t errflag[(DIAG_ID_MAX + 31) / 32];                 /*!< detected error flags (bit_nr = diag_id) */
     uint32_t warnflag[(DIAG_ID_MAX + 31) / 32];                /*!< detected warning flags (bit_nr = diag_id) */
-    uint32_t err_enableflag[(DIAG_ID_MAX + 31) / 32];          /*!< enabled error flags (bit_nr = diag_id)    */
+    uint32_t err_enableflag[(DIAG_ID_MAX + 31) / 32];          /*!< enabled error flags (bit_nr = diag_id) */
 } DIAG_s;
 
 /*========== Extern Constant and Variable Declarations ======================*/
@@ -149,9 +149,30 @@ extern STD_RETURN_TYPE_e DIAG_CheckEvent(
 extern STD_RETURN_TYPE_e DIAG_Initialize(DIAG_DEV_s *diag_dev_pointer);
 
 /**
+ * @brief   Checks if passed diagnosis entry has been triggered or not
+ * @param   diagnosisEntry event ID of diagnosis entry
+ * @return  #STD_OK if diagnosis entry has not surpassed error threshold, otherwise #STD_NOT_OK
+ */
+extern STD_RETURN_TYPE_e DIAG_GetDiagnosisEntryState(DIAG_ID_e diagnosisEntry);
+
+/**
  * @brief   Prints contents of the error buffer on user request.
  */
 extern void DIAG_PrintErrors(void);
+
+/**
+ * @brief   Get configured delay of passed diagnosis entry
+ * @param   diagnosisEntry event ID of diagnosis entry
+ * @return  configured delay in ms
+ */
+extern uint32_t DIAG_GetDelay(DIAG_ID_e diagnosisEntry);
+
+/**
+ * @brief   Check if any fatal error is set
+ * @return  true, if a diagnosis entry with severity #DIAG_FATAL_ERROR is set,
+ *          otherwise false
+ */
+extern bool DIAG_IsAnyFatalErrorSet(void);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 

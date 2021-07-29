@@ -43,7 +43,7 @@
  * @file    test_os.c
  * @author  foxBMS Team
  * @date    2020-03-13 (date of creation)
- * @updated 2020-03-20 (date of last update)
+ * @updated 2021-07-23 (date of last update)
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  OS
  *
@@ -72,17 +72,15 @@ void tearDown(void) {
 /*========== Test Cases =====================================================*/
 void testOSTaskInitCallsFTSKFunctions(void) {
     FTSK_CreateQueues_Expect();
-    FTSK_CreateMutexes_Expect();
-    FTSK_CreateEvents_Expect();
     FTSK_CreateTasks_Expect();
 
-    OS_InitializeTasks();
+    OS_InitializeOperatingSystem();
 
     TEST_ASSERT_EQUAL_INT8(OS_INIT_PRE_OS, os_boot);
 }
 
 void testvApplicationIdleHookCallsUserCodeIdle(void) {
-    FTSK_UserCodeIdle_Expect();
+    FTSK_RunUserCodeIdle_Expect();
 
     vApplicationIdleHook();
 }

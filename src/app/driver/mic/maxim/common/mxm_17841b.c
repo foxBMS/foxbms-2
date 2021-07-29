@@ -43,7 +43,7 @@
  * @file    mxm_17841b.c
  * @author  foxBMS Team
  * @date    2018-12-14 (date of creation)
- * @updated 2020-06-22 (date of last update)
+ * @updated 2021-06-16 (date of last update)
  * @ingroup DRIVERS
  * @prefix  MXM
  *
@@ -102,7 +102,7 @@ const uint8_t mxm_kRXInterruptEnableRXErrorRXOverflow41BRegister = 0x88;
  *
  * @param[in,out] pInstance pointer to the state of the MAX17841B-state-machine
  * @param[in] command register command of #MXM_41B_REG_ADD_t
- * @param[in] pPayload pointer to an array of data to be written
+ * @param[in] kpkPayload pointer to an array of data to be written
  * @param[in] lengthPayload length of the payload array
  * @return #STD_NOT_OK for inconsistent input or a blocked SPI interface,
  *         otherwise #STD_OK
@@ -110,7 +110,7 @@ const uint8_t mxm_kRXInterruptEnableRXErrorRXOverflow41BRegister = 0x88;
 static STD_RETURN_TYPE_e MXM_41BRegisterWrite(
     MXM_41B_INSTANCE_s *pInstance,
     MXM_41B_REG_ADD_t command,
-    uint8_t *pPayload,
+    const uint8_t *const kpkPayload,
     uint16_t lengthPayload);
 
 /**
@@ -167,7 +167,7 @@ static STD_RETURN_TYPE_e MXM_41BConfigRegisterWrite(MXM_41B_INSTANCE_s *pInstanc
  * the appropriate command in order to mark the load queue as sendable.
  *
  * @param[in,out] pInstance pointer to the state of the MAX17841B-state-machine
- * @param[in] pMessage pointer to an array containing the message
+ * @param[in] kpkMessage pointer to an array containing the message
  * @param[in] message_length length of the supplied array
  * @param[in] extend_message stretch the message by number of bytes
  * @return #STD_NOT_OK for inconsistent input or a blocked SPI interface,
@@ -175,7 +175,7 @@ static STD_RETURN_TYPE_e MXM_41BConfigRegisterWrite(MXM_41B_INSTANCE_s *pInstanc
  */
 static STD_RETURN_TYPE_e MXM_41BBufferWrite(
     MXM_41B_INSTANCE_s *pInstance,
-    uint16_t *pMessage,
+    const uint16_t *const kpkMessage,
     uint16_t message_length,
     uint8_t extend_message);
 
@@ -183,7 +183,7 @@ static STD_RETURN_TYPE_e MXM_41BBufferWrite(
 static STD_RETURN_TYPE_e MXM_41BRegisterWrite(
     MXM_41B_INSTANCE_s *pInstance,
     MXM_41B_REG_ADD_t command,
-    uint8_t *pPayload,
+    const uint8_t *const kpkPayload,
     uint16_t lengthPayload) {
     /* sanity check: state-pointer may not be null */
     FAS_ASSERT(pInstance != NULL_PTR);
@@ -193,9 +193,9 @@ static STD_RETURN_TYPE_e MXM_41BRegisterWrite(
         /* construct tx buffer */
         pInstance->spiTXBuffer[0] = command;
         /* message has payload --> copy into buffer */
-        if (pPayload != NULL_PTR) {
+        if (kpkPayload != NULL_PTR) {
             for (uint16_t i = 0u; i < lengthPayload; i++) {
-                pInstance->spiTXBuffer[i + 1u] = pPayload[i];
+                pInstance->spiTXBuffer[i + 1u] = kpkPayload[i];
             }
             /* null rest of tx buffer */
             for (uint16_t i = lengthPayload + 1u; i < MXM_SPI_TX_BUFFER_LENGTH; i++) {
@@ -259,13 +259,13 @@ static STD_RETURN_TYPE_e MXM_41BConfigRegisterWrite(MXM_41B_INSTANCE_s *pInstanc
 
 static STD_RETURN_TYPE_e MXM_41BBufferWrite(
     MXM_41B_INSTANCE_s *pInstance,
-    uint16_t *pMessage,
+    const uint16_t *const kpkMessage,
     uint16_t message_length,
     uint8_t extend_message) {
     /* sanity check: state-pointer may not be null */
     FAS_ASSERT(pInstance != NULL_PTR);
     /* check if message-pointer is valid */
-    FAS_ASSERT(pMessage != NULL_PTR);
+    FAS_ASSERT(kpkMessage != NULL_PTR);
     FAS_ASSERT(message_length >= 1u);
     FAS_ASSERT(message_length <= 6u);
 
@@ -277,7 +277,7 @@ static STD_RETURN_TYPE_e MXM_41BBufferWrite(
      */
     for (uint8_t i = 0; i < (MXM_SPI_TX_BUFFER_LENGTH - 2u); i++) {
         if (i < message_length) {
-            pInstance->spiTXBuffer[i + 2u] = pMessage[i];
+            pInstance->spiTXBuffer[i + 2u] = kpkMessage[i];
         } else {
             pInstance->spiTXBuffer[i + 2u] = 0x00u;
         }
@@ -389,30 +389,31 @@ extern STD_RETURN_TYPE_e MXM_41BWriteRegisterFunction(
 }
 
 extern STD_RETURN_TYPE_e MXM_41BReadRegisterFunction(
-    MXM_41B_INSTANCE_s *pInstance,
+    const MXM_41B_INSTANCE_s *const kpkInstance,
     MXM_41B_REG_FUNCTION_e registerFunction,
     MXM_41B_REG_BIT_VALUE *pValue) {
     /* sanity check: state-pointer may not be null */
-    FAS_ASSERT(pInstance != NULL_PTR);
+    FAS_ASSERT(kpkInstance != NULL_PTR);
     /* sanity check: pValue may not be null */
-    FAS_ASSERT(pInstance != NULL_PTR);
+    FAS_ASSERT(pValue != NULL_PTR);
     STD_RETURN_TYPE_e retval = STD_OK;
 
     switch (registerFunction) {
         case MXM_41B_REG_FUNCTION_RX_BUSY_STATUS:
-            *pValue = mxm_41bReadValue(pInstance->regRXStatus, 1, MXM_41B_RX_BUSY_STATUS); /* 5th bit */
+            *pValue = mxm_41bReadValue(kpkInstance->regRXStatus, 1, MXM_41B_RX_BUSY_STATUS); /* 5th bit */
             break;
         case MXM_41B_REG_FUNCTION_RX_STOP_STATUS:
-            *pValue = mxm_41bReadValue(pInstance->regRXStatus, 1, MXM_41B_RX_STOP_STATUS); /* 1st bit */
+            *pValue = mxm_41bReadValue(kpkInstance->regRXStatus, 1, MXM_41B_RX_STOP_STATUS); /* 1st bit */
             break;
         case MXM_41B_REG_FUNCTION_RX_EMPTY_STATUS:
-            *pValue = mxm_41bReadValue(pInstance->regRXStatus, 1, MXM_41B_RX_EMPTY_STATUS); /* 0th bit */
+            *pValue = mxm_41bReadValue(kpkInstance->regRXStatus, 1, MXM_41B_RX_EMPTY_STATUS); /* 0th bit */
             break;
         case MXM_41B_REG_FUNCTION_TX_PREAMBLES:
-            *pValue = mxm_41bReadValue(pInstance->regConfig2, 1, MXM_41B_TX_PREAMBLES); /* 5th bit */
+            *pValue = mxm_41bReadValue(kpkInstance->regConfig2, 1, MXM_41B_TX_PREAMBLES); /* 5th bit */
             break;
         default:
-            retval = STD_NOT_OK;
+            *pValue = MXM_41B_REG_FALSE;
+            retval  = STD_NOT_OK;
             break;
     }
 
@@ -522,8 +523,8 @@ void MXM_41BStateMachine(MXM_41B_INSTANCE_s *pInstance) {
                     pInstance->substate = MXM_41B_READ_STATUS_REGISTER_PROCESS;
                 }
             } else if (pInstance->substate == MXM_41B_READ_STATUS_REGISTER_PROCESS) {
-                pInstance->regRXStatus = pInstance->spiRXBuffer[1];
-                pInstance->regTXStatus = pInstance->spiRXBuffer[2];
+                pInstance->regRXStatus = (uint8_t)pInstance->spiRXBuffer[1];
+                pInstance->regTXStatus = (uint8_t)pInstance->spiRXBuffer[2];
                 pInstance->state       = MXM_STATEMACH_41B_IDLE;
                 *pInstance->processed  = MXM_41B_STATE_PROCESSED;
             } else {
@@ -601,7 +602,7 @@ void MXM_41BStateMachine(MXM_41B_INSTANCE_s *pInstance) {
                 }
             } else if (pInstance->substate == MXM_41B_UART_WAIT_FOR_RX_STATUS_CHANGE_READ_AND_READ_BACK_RCV_BUF) {
                 /* update RX status register copy with received buffer */
-                pInstance->regRXStatus = pInstance->spiRXBuffer[1];
+                pInstance->regRXStatus = (uint8_t)pInstance->spiRXBuffer[1];
                 /* check if RX_STOP_Status is 1 */
                 MXM_41B_REG_BIT_VALUE rx_stop_status_value = MXM_41B_REG_FALSE;
                 MXM_41BReadRegisterFunction(pInstance, MXM_41B_REG_FUNCTION_RX_STOP_STATUS, &rx_stop_status_value);
@@ -695,7 +696,7 @@ void MXM_41BStateMachine(MXM_41B_INSTANCE_s *pInstance) {
                     pInstance->hwModel |= (pInstance->spiRXBuffer[2] >> 4u);
 
                     /* mask revision is low nibble of version byte */
-                    pInstance->hwMaskRevision = (pInstance->spiRXBuffer[2] & 0xFu);
+                    pInstance->hwMaskRevision = ((uint8_t)pInstance->spiRXBuffer[2] & 0xFu);
 
                     pInstance->state      = MXM_STATEMACH_41B_IDLE;
                     *pInstance->processed = MXM_41B_STATE_PROCESSED;
@@ -737,8 +738,6 @@ void MXM_41BStateMachine(MXM_41B_INSTANCE_s *pInstance) {
             FAS_ASSERT(FAS_TRAP);
             break;
     }
-
-    return;
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/

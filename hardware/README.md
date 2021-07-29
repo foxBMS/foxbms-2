@@ -1,8 +1,9 @@
 # Hardware
 
-This directory contains releases of the foxBMS 2 hardware.
-They are provided as zipped directories.
+The hardware designs of foxBMS 2 can be found at the following address:
+https://iisb-foxbms.iisb.fraunhofer.de/foxbms/gen2/hardware/release/
 
-Please note that in order to clone the contents of this directory properly,
-you need to have large file storage enabled as described in
-[this manual](https://git-lfs.github.com/).
+The hardware design files belonging to this release are:
+| Item   | File                                                                                                              |
+|--------|-------------------------------------------------------------------------------------------------------------------|
+| Master | [Master v1.0.2](https://iisb-foxbms.iisb.fraunhofer.de/foxbms/gen2/hardware/release/master-v1.0.2_2021-07-29.zip) |

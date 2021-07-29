@@ -52,7 +52,8 @@ all values that are passed between state machines. As an example the table
 used by the BMS for decisions. For more information on the database refer
 to the database documentation in :numref:`DATABASE_MODULE`.
 
-For both of these variable types it can be helpful to monitor them continuously.
+For both of these variable types it can be helpful to monitor them
+continuously.
 Most debugger know a concept that is often called `watch window`. This watch
 window can be configured to monitor and continuously show updates of
 certain variables. This way it can be observed which values these variables
@@ -87,7 +88,7 @@ Version struct
 
 Each binary is automatically marked with the software version from which it
 has been built. The current version is stored in the global variable
-``f_version_info`` and can be inspected with the debugger.
+``foxbmsVersionInfo`` and can be inspected with the debugger.
 
 Choice of debugger
 ------------------

@@ -43,7 +43,7 @@
  * @file    soe_counting_cfg.h
  * @author  foxBMS Team
  * @date    2020-10-07 (date of creation)
- * @updated 2020-10-07 (date of last update)
+ * @updated 2021-05-20 (date of last update)
  * @ingroup APPLICATION
  * @prefix  SOE
  *
@@ -57,18 +57,18 @@
 /*========== Includes =======================================================*/
 #include "general.h"
 
+#include "battery_cell_cfg.h"
+#include "battery_system_cfg.h"
+
 /*========== Macros and Definitions =========================================*/
 /**
  * Cell energy used for SOE calculation, in this case Wh counting
  * Specified once according to data sheet of cell usually.
  */
-#define SOE_CELL_ENERGY_Wh ((uint16_t)20000u)
+#define SOE_CELL_ENERGY_Wh ((float)BC_ENERGY_Wh)
 
 /** Slice energy in Wh */
-#define SOE_STRING_ENERGY_Wh ((float)7616.0f) /* (22848/3 = 7616) */
-
-/** Battery pack energy in Wh */
-#define SOE_PACK_ENERGY_Wh ((uint32_t)(BS_NR_OF_STRINGS * SOE_STRING_ENERGY_Wh))
+#define SOE_STRING_ENERGY_Wh (BC_ENERGY_Wh * (float)(BS_NR_OF_BAT_CELLS * BS_NR_OF_PARALLEL_CELLS_PER_MODULE))
 
 /*========== Extern Constant and Variable Declarations ======================*/
 

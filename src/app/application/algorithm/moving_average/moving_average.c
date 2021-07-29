@@ -427,8 +427,6 @@ extern void ALGO_MovAverage() {
 
         DATA_WRITE_DATA(&movingAverage_tab);
     }
-
-    return;
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/

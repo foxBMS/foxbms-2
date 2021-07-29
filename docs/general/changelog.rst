@@ -9,12 +9,10 @@ Changelog
 
 ..
     Comments:
-    Axivion is the company that builds the Axivion Bauhaus suite
     slaveplausibility is the old name of a plausibility module
     JUnit is a test system (originally for Java)
 
 .. spelling::
-    Axivion
     slaveplausibility
     JUnit
 
@@ -32,6 +30,143 @@ Versioning follows then these rules:
 - increasing ``MAJOR`` introduces incompatible changes
 - increasing ``MINOR`` adds functionality in a backwards compatible manner
 - increasing ``PATCH`` fixes bugs in a backwards compatible manner
+
+********************
+[1.1.0] - 2021-07-29
+********************
+
+|foxbms| now defaults to |code-composer-studio| 10.3.1 in order to build
+the binaries. If an older version of the compiler should be used, it can be
+configured in ``conf/env/paths_win32.txt``. For installation instructions
+see :numref:`css_install`.
+
+|foxbms| now ships with a new conda environment ``2021-08-arctic-fox`` and the
+local conda environments need to updated (see :numref:`conda_env_update`).
+
+Added
+=====
+
+- Diagnosis entries can now be configured specifically for each LTC6813-1
+  instance.
+- Endianness is now configurable in CAN module.
+- Add number of balanced cells in each string to database entry
+  ``DATA_BLOCK_ID_BALANCING_CONTROL``.
+- Added a built-in self-test for the database module that writes and reads an
+  entry during startup of the system.
+- Added a helper tool for the maintenance of the list of licenses in the conda
+  environment.
+- Added a helper macro for the generation of array initializers
+  (``REPEAT_U()``).
+- Documented how to use Ozone to show the location of a failed assertion.
+- Cell voltages and temperatures are each stored in one array containing all
+  values. Added database helper functions to get string, module or cell/sensor
+  number from index in the global array.
+- Added a block diagram of the |foxbms| master hardware.
+- Added a SPI API function that allows to switch the functional state (GIO or
+  SPI) of a SPI pin of the MCU.
+- Added testing for different versions of TI CCS (versions ``10.2.1``,
+  ``10.3.0``, ``10.3.1`` and ``10.4.0``).
+- Add fallback compiler detection.
+- Added a link to foxBMS project website with acknowledgment information:
+
+  - List of funded projects foxBMS has received funding from
+  - Instructions on how to reference to |foxbms|
+
+- Added handling of I2C multiplexers to the Maxim monitoring IC driver.
+- Added a flash tool to the waf toolchain. It is based on SEGGER J-Flash and
+  can be invoked by calling ``waf install_bin`` or running the ``Flash:Binary``
+  task in |code|.
+- Added a short note on the installation of PEAK-Drivers (for CAN
+  communication) to the installation manual.
+- Added a section on testing the setup of the toolchain.
+- Added configurable reaction type, delay and severity for each diagnosis entry.
+- Configuration of failures, that lead to a transition to the error state is now
+  done by configuring the severity of the respective diagnosis entry to
+  ``DIAG_FATAL_ERROR``. The handling of the timing delay to transition into
+  error state is done by the BMS module.
+- Implemented CAN messages defined in .dbc file. Only stubs are implemented for
+  some CAN messages respectively some signals.
+- Documented workarounds that have to be applied to HALCoGen.
+
+Changed
+=======
+
+- The schematic of the |bms-master| has been updated (``v1.0.2``).
+- The new default compiler set in ``conf/env/paths_win32.txt`` is now
+  TI ARM CGT v20.2.4.LTS (shipped with CCS ``10.3.1``).
+- Reorganized the compiler tests in ``tests/ccs/*``.
+- Updated the development conda environment to ``2021-06-arctic-fox``. Please
+  run the ``conda-update-env.bat`` script in order to update your local
+  environment (see :numref:`conda_env_update`).
+- CAN callback functions are now defined in separate files to increase
+  readability.
+- Ring buffer for CAN RX was replaced by a FreeRTOS queue. A DIAG entry was
+  added that detects if the queue is full when trying to add an element.
+- Updated the black configuration to match the new python version
+  (``Python 3.9.5``).
+- Improved the Ozone configuration so that an data breakpoint is set
+  automatically on the symbol ``fas_assertLocation.pc``.
+- Run VS Code build tasks as process.
+- Use posix paths in VS Code configuration on all host platforms.
+- Improved the MISRA compliance of the monitoring driver for the family of
+  Maxim ICs.
+- Pause the terminal when running ``ide.bat``, ``waf.bat`` and ``waf.sh`` in
+  case the conda base or development environment could not be found. This is
+  done to clearly point the user to the error message.
+- Moved the struct storing the version of the software to a fixed location
+  (address ``0x003FFF40``) in flash memory.
+- Replace all access to registers through the ``IO_`` functions with an access
+  that keeps the volatile keyword on the register.
+- Dropped the requirement for an internal library (``pyhameg``) in the HIL
+  test.
+- Updated the unit test framework ``ceedling`` to version ``0.31.1``.
+- Simplified the configuration of the cppcheck tool.
+- Improved several function names in the ``ftask`` module.
+- All required Queues are now created in one function (``FTSK_CreateQueues``)
+  before the scheduler starts.
+- Split the waf compiler tool into smaller sub-tools to simplify maintenance
+  and tests.
+
+Deprecated
+==========
+
+Removed
+=======
+
+- Completely removed dynamic allocation from FreeRTOS and reduced the (unused)
+  heap size to 0.
+- Removed deprecated option ``COLS_IN_ALPHA_INDEX`` from the doxygen
+  configurations.
+- Disabled FEE driver in the HALCoGen project as it is currently unused.
+- Removed the hardware design files from the ``hardware`` directory and
+  provided a URL under which the files can be found.
+
+Fixed
+=====
+
+- The implementation of ``DIAG_ErrorCurrentOnOpenString()`` had an error where
+  the wrong enum has been used leading to an assertion.
+- Fixed bug in SOC/SOE counting module that extrapolated for cell voltages
+  below lookup-table range
+- Fixed bug that caused current sensor scaling values to be only recalibrated
+  after startup and not while recalibrating SOC/SOE values via LUT when BMS is
+  at rest.
+- A race condition between the SOC and SOE calculation lead to a mutual
+  overwriting of the state estimation values.
+- Added documentation for the CAN module.
+- The regex to parse the ``linkcheck`` output in case of a broken URL did not
+  match and raised an exception. The regex is now simpler and has a fallback
+  option.
+- ``void`` functions used unnecessary ``return;`` at the end of the function.
+  These returns have been removed.
+- Sometimes ``black`` would fail to write to the cache pickle due to concurrent
+  write processes of multiple ``black`` processes. This issue has been fixed by
+  passing all files, that should be checked, at once to ``black``.
+- Fixed comparison error in SOF module that compared mA with A.
+- Some C-language guideline checks did not properly take C language global
+  excludes into account.
+- Updated links in :numref:`HALCOGEN_TOOL_DOCUMENTATION`.
+- Fixed construction of the path variable in batch scripts.
 
 ********************
 [1.0.2] - 2021-04-30
@@ -81,8 +216,7 @@ Added
 =====
 
 - Added links to built versions of the documentation to the project README.
-- Added testing for different versions of TI ARM CGT (versions 10.0.0 and
-  10.1.1).
+- Added testing for different versions of TI CSS (versions 10.0.0 and 10.1.1).
 - Added a readme to the hardware directory.
 - Added support for LTC 6804-1 (basically an older version of the LTC 6811-1).
 - Added the updated design files of the foxBMS 2 master v1.0.1.
@@ -97,7 +231,6 @@ Changed
 - Updated waf to version 2.0.22 (from 2.0.21).
 - Updated database documentation.
 - Updated information on tracing with Segger J-Trace probes.
-- Updated the Axivion configuration to use version 7.1.5.
 
 Deprecated
 ==========
@@ -155,7 +288,8 @@ Changed
 - Improved the code quality by adding assertions in various locations and
   removing unused code.
 - Base decisions in ``bms`` on pack value database entry as this entry contains
-  only validated values. Do not directly use current sensor measurements anymore.
+  only validated values. Do not directly use current sensor measurements
+  anymore.
 - Fixed function names in the system monitoring module.
 - Replace remaining ``TRUE`` and ``FALSE`` in embedded sources with ``true``
   and ``false`` respectively from ``stdbool.h``.
@@ -280,8 +414,8 @@ Added
   specified source. If the symbol is pulled from another source the build
   process throws an error.
 - A parser to validate the style guide rules was added. The parser analyzes the
-  files in the repository for style guide rule compliance. If a rule is violated
-  the check guidelines and style guide process throws an error.
+  files in the repository for style guide rule compliance. If a rule is
+  violated the check guidelines and style guide process throws an error.
 - Updated the development conda environment to ``red-fox-devel-020`` with
   Python version 3.8, updated packages and new packages: ``mypy``, ``rope``,
   ``seaborn``, ``statsmodels``, ``scikit-learn``, ``filterpy``, ``dask`` and
@@ -295,7 +429,7 @@ Added
   function |SOF|. Different calculation methods for each state estimation
   algorithm can be selected via configuration file ``bms.json``.
 - Added a dummy insulation monitoring device driver. Non-functional
-  Bender iso165c driver has been added (driver fails to build).
+  Bender iso165c drivers have been added (driver fail to build).
 - Added a driver for Smart Power Switches that is encapsulated by the contactor
   module. The contactor module handles the communication with the Smart Power
   Switch driver and manages the ICs.
@@ -350,7 +484,7 @@ Changed
 - Sets ``UNITY_INCLUDE_EXEC_TIME`` in the ceedling configuration in order to
   tell unity to track the time that a single test takes. This information is
   aggregated in the JUnit test report that is generated.
-- Updated the unit test framework ``ceedling`` to version ``0.31.`` and
+- Updated the unit test framework ``ceedling`` to version ``0.31.0`` and
   vendored the ``ceedling`` release with the repository in order to have more
   control over the executed version. Simplified the installation of Ruby in
   order to to reflect these changes. Simplified the ``f_unit_test`` waf-tool.

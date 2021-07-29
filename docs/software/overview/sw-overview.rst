@@ -22,24 +22,25 @@ microcontroller unit, peripherals and software modules are done (e.g.,
 hardware modules like SPI and DMA). The OS is than started.The steps are
 indicated by the global variable
 ``os_boot``. At the end of the main function, the operating system resources
-(tasks, events, queues, mutex) are configured in ``OS_InitializeTasks()``
-(``os/os.c``) and the scheduler is started.
+(tasks, events, queues, mutex) are configured in
+``OS_InitializeOperatingSystem()`` (``os/os.c``) and the scheduler is started.
 All configured tasks (FreeRTOS threads) are then started depending on
 their priority. The successful activation of the tasks is indicated by
 ``os_boot = OS_RUNNING``.
 
 The OS-scheduler first calls the highest priority task. All other cyclic tasks
 are blocked in a while-loop until the initialization of this
-task finishes. At the beginning of the task, ``FTSK_UserCodeEngineInit()`` is
-called. In this function, the database is initialized. Once finished, this
-is indicated by ``os_boot = OS_ENGINE_RUNNING``. The function
-``FTSK_UserCodeEngine()`` is then called, where the diagnostic module and the
-database are managed.
+task finishes. At the beginning of the task,
+``FTSK_InitializeUserCodeEngine()`` is called.
+In this function, the database is initialized. Once finished, this is indicated
+by ``os_boot = OS_ENGINE_RUNNING``.
+The function ``FTSK_RunUserCodeEngine()`` is then called, where the diagnostic
+module and the database are managed.
 
 Once ``os_boot = OS_ENGINE_RUNNING``, the 1ms cyclic task is unblocked. The
-function ``FTSK_UserCodePreCyclicTasksInitialization()`` is called once first.
+function ``FTSK_InitializeUserCodePreCyclicTasks()`` is called once first.
 This function is called when the OS and the database are running but before
-the cyclic tasks run. Once ``FTSK_UserCodePreCyclicTasksInitialization()`` has
+the cyclic tasks run. Once ``FTSK_InitializeUserCodePreCyclicTasks()`` has
 finished, all cyclic tasks are unblocked from there while-loop and run
 periodically.
 
@@ -92,7 +93,7 @@ The two key modules used are:
 ``SYS`` has a lower priority than the database and a higher priority than
 ``BMS``. Both modules are implemented as a state machine, with a trigger
 function that implements the transition between the states. The trigger
-functions of ``SYS`` and ``BMS`` are called in ``FTSK_UserCodeCyclic10ms()``.
+functions of ``SYS`` and ``BMS`` are called in ``FTSK_RunUserCodeCyclic10ms()``.
 
 ``SYS`` controls the operating state of the system. It starts the other
 state machines (e.g., ``BMS``).

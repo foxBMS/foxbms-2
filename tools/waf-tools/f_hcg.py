@@ -307,7 +307,7 @@ class hcg_compiler(Task.Task):  # pylint: disable=invalid-name
 
 
 @TaskGen.feature("c")
-@TaskGen.after_method("make_ti_paths_absolute")
+@TaskGen.after_method("apply_incpaths")
 def fix_gen_hal_incs(self):
     """Add path to HALCoGen generated header files to every build"""
     if self.env.HCG_GEN_HAL_INC_PATHS:

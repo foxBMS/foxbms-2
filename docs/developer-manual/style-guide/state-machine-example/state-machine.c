@@ -154,7 +154,7 @@ static bool EG_SomeInitializationFunction1(void);
 
 /**
  * @brief   dummy function to check if the initialization
- *          step of the state machine was successfull
+ *          step of the state machine was successful
  *          (#EG_FSM_SUBSTATE_INITIALIZATION_1)
  * @return  returns always true
  */

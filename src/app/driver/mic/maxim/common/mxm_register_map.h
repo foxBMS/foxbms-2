@@ -43,7 +43,7 @@
  * @file    mxm_register_map.h
  * @author  foxBMS Team
  * @date    2019-03-05 (date of creation)
- * @updated 2020-05-14 (date of last update)
+ * @updated 2021-06-16 (date of last update)
  * @ingroup DRIVERS
  * @prefix  MXM
  *
@@ -687,6 +687,11 @@ typedef enum MXM_REG_NAME {
 } MXM_REG_NAME_e;
 
 /**
+ * @brief Type for register access for monitoring ICs.
+ */
+typedef uint16_t MXM_REG_BM;
+
+/**
  * @brief      Define enumeration values for bitmasks
  * @details    Generates a bitmask from start to end.
  *             Examples:
@@ -694,12 +699,7 @@ typedef enum MXM_REG_NAME {
  *                  - 0000 1000b == MXM_REG_BIT_DEFN(3, 3)
  *                  - 0011 1000b == MXM_REG_BIT_DEFN(3, 5)
  */
-#define MXM_REG_BIT_DEFN(start, end) (((1u << ((end) - (start) + 1u)) - 1u) << (start))
-
-/**
- * @brief Type for register access for monitoring ICs.
- */
-typedef uint16_t MXM_REG_BM;
+#define MXM_REG_BIT_DEFN(start, end) ((((MXM_REG_BM)1u << ((end) - (start) + 1u)) - 1u) << (start))
 
 /**
  * @defgroup mxm_bm Bitmasks for register access of MAX1785x

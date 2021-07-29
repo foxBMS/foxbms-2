@@ -3,8 +3,8 @@
 
 .. _WAF_TOOL_CLANG_FORMAT:
 
-Waf Tool Clang Format
-=====================
+Clang Format
+============
 
 The tool is located in ``tools/waf-tools``.
 

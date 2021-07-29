@@ -43,7 +43,7 @@
  * @file    sys.c
  * @author  foxBMS Team
  * @date    2020-02-24 (date of creation)
- * @updated 2021-03-24 (date of last update)
+ * @updated 2021-06-24 (date of last update)
  * @ingroup ENGINE
  * @prefix  SYS
  *
@@ -74,6 +74,9 @@
 #define SYS_SAVELASTSTATES(x)       \
     (x)->lastState    = (x)->state; \
     (x)->lastSubstate = (x)->substate
+
+/** Magic number that is searched by the #SYS_GeneralMacroBist(). */
+#define SYS_BIST_GENERAL_MAGIC_NUMBER (42u)
 
 /*========== Static Constant and Variable Definitions =======================*/
 
@@ -245,7 +248,7 @@ static STD_RETURN_TYPE_e SYS_RunStateMachine(SYS_STATE_s *pSystemState) {
                 sbcState = SBC_GetState(&sbc_stateMcuSupervisor);
                 if (sbcState == SBC_STATEMACHINE_RUNNING) {
                     pSystemState->timer    = SYS_FSM_SHORT_TIME;
-                    pSystemState->state    = SYS_STATEMACH_INITIALIZED;
+                    pSystemState->state    = SYS_STATEMACH_SYSTEM_BIST;
                     pSystemState->substate = SYS_ENTRY;
                     break;
                 } else {
@@ -262,12 +265,23 @@ static STD_RETURN_TYPE_e SYS_RunStateMachine(SYS_STATE_s *pSystemState) {
                 }
             }
             break;
+        /**************************** EXECUTE STARTUP BIST **********************************/
+        case SYS_STATEMACH_SYSTEM_BIST:
+            SYS_SAVELASTSTATES(pSystemState);
+            /* run BIST functions */
+            SYS_GeneralMacroBist();
+            DATA_ExecuteDataBIST();
+
+            pSystemState->timer    = SYS_FSM_SHORT_TIME;
+            pSystemState->state    = SYS_STATEMACH_INITIALIZED;
+            pSystemState->substate = SYS_ENTRY;
+            break;
 
         /****************************INITIALIZED*************************************/
         case SYS_STATEMACH_INITIALIZED:
             SYS_SAVELASTSTATES(pSystemState);
             /* Send CAN boot message directly on CAN */
-            SYS_SendBootMessage(1);
+            SYS_SendBootMessage();
 
             pSystemState->timer    = SYS_FSM_SHORT_TIME;
             pSystemState->state    = SYS_STATEMACH_INITIALIZE_INTERLOCK;
@@ -414,7 +428,7 @@ static STD_RETURN_TYPE_e SYS_RunStateMachine(SYS_STATE_s *pSystemState) {
                      */
                 pSystemState->timer = SYS_FSM_LONG_TIME_MS;
 #else  /* CURRENT_SENSOR_ISABELLENHUETTE_TRIGGERED */
-                pSystemState->timer = SYS_FSM_SHORT_TIME;
+                pSystemState->timer = SYS_FSM_LONG_TIME;
 #endif /* CURRENT_SENSOR_ISABELLENHUETTE_TRIGGERED */
                 pSystemState->substate = SYS_WAIT_CURRENT_SENSOR_PRESENCE;
             } else if (pSystemState->substate == SYS_WAIT_CURRENT_SENSOR_PRESENCE) {
@@ -422,14 +436,14 @@ static STD_RETURN_TYPE_e SYS_RunStateMachine(SYS_STATE_s *pSystemState) {
                 for (uint8_t stringNumber = 0u; stringNumber < BS_NR_OF_STRINGS; stringNumber++) {
                     if (CAN_IsCurrentSensorPresent(stringNumber) == true) {
                         if (CAN_IsCurrentSensorCcPresent(stringNumber) == true) {
-                            SOC_Init(true, stringNumber);
+                            SE_SocInit(true, stringNumber);
                         } else {
-                            SOC_Init(false, stringNumber);
+                            SE_SocInit(false, stringNumber);
                         }
                         if (CAN_IsCurrentSensorEcPresent(stringNumber) == true) {
-                            SOE_Init(true, stringNumber);
+                            SE_SoeInit(true, stringNumber);
                         } else {
-                            SOE_Init(false, stringNumber);
+                            SE_SoeInit(false, stringNumber);
                         }
                     } else {
                         allSensorsPresent = false;
@@ -466,7 +480,8 @@ static STD_RETURN_TYPE_e SYS_RunStateMachine(SYS_STATE_s *pSystemState) {
             if (CURRENT_SENSOR_PRESENT == false) {
                 CAN_EnablePeriodic(true);
                 for (uint8_t stringNumber = 0u; stringNumber < BS_NR_OF_STRINGS; stringNumber++) {
-                    SOC_Init(false, stringNumber);
+                    SE_SocInit(false, stringNumber);
+                    SE_SoeInit(false, stringNumber);
                 }
             }
 
@@ -595,6 +610,14 @@ static SYS_RETURN_TYPE_e SYS_CheckStateRequest(SYS_STATE_REQUEST_e stateRequest)
 }
 
 /*========== Extern Function Implementations ================================*/
+
+extern void SYS_GeneralMacroBist(void) {
+    const uint8_t dummy[REPEAT_MAXIMUM_REPETITIONS] = {
+        REPEAT_U(SYS_BIST_GENERAL_MAGIC_NUMBER, STRIP(REPEAT_MAXIMUM_REPETITIONS))};
+    for (uint8_t i = 0u; i < REPEAT_MAXIMUM_REPETITIONS; i++) {
+        FAS_ASSERT(SYS_BIST_GENERAL_MAGIC_NUMBER == dummy[i]);
+    }
+}
 
 extern STD_RETURN_TYPE_e SYS_Trigger(SYS_STATE_s *pSystemState) {
     FAS_ASSERT(pSystemState != NULL_PTR);

@@ -43,7 +43,7 @@
  * @file    os.h
  * @author  foxBMS Team
  * @date    2019-08-27 (date of creation)
- * @updated 2020-01-21 (date of last update)
+ * @updated 2021-07-23 (date of last update)
  * @ingroup OS
  * @prefix  OS
  *
@@ -90,8 +90,6 @@ typedef enum OS_PRIORITY {
 typedef enum OS_BOOT_STATE {
     OS_OFF,                          /**< system is off                                                   */
     OS_CREATE_QUEUES,                /**< state right before queues are created                           */
-    OS_CREATE_MUTEX,                 /**< state right before mutexes are created                          */
-    OS_CREATE_EVENT,                 /**< state right before events are created                           */
     OS_CREATE_TASKS,                 /**< state right before tasks are created                            */
     OS_INIT_PRE_OS,                  /**< state right after tasks are created                             */
     OS_SCHEDULER_RUNNING,            /**< scheduler is running                                            */
@@ -148,7 +146,7 @@ extern void OS_StartScheduler(void);
  * @brief   Initialization the RTOS interface
  * @details This function initializes the mutexes, eventgroups and tasks.
  */
-extern void OS_InitializeTasks(void);
+extern void OS_InitializeOperatingSystem(void);
 
 /**
  * @brief   Supplies the memory for the idle task.
@@ -197,7 +195,7 @@ extern void vApplicationIdleHook(void);
  * @param   xTask       TODO
  * @param   pcTaskName  TODO
  */
-extern void vApplicationStackOverflowHook(TaskHandle_t xTask, signed char *pcTaskName);
+extern void vApplicationStackOverflowHook(TaskHandle_t xTask, char *pcTaskName);
 
 /**
  * @brief   Enter Critical interface function for use in FreeRTOS-Tasks and

@@ -3,8 +3,8 @@
 
 .. _WAF_TOOL_PYLINT:
 
-Waf Tool Pylint
-===============
+Pylint
+======
 
 ..
     Comments:

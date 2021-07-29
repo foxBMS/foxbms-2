@@ -3,8 +3,8 @@
 
 .. _WAF_TOOL_CHECK_DB_VARS:
 
-Waf Tool Check DB Vars
-======================
+Check DB Vars
+=============
 
 ..
     Comments:

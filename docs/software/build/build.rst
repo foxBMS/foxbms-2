@@ -53,8 +53,8 @@ You can profile the build process by running the following command:
    C:\Users\vulpes\Documents\foxbms-2>waf build_bin --profile
    C:\Users\vulpes\Documents\foxbms-2>gprof2dot -f pstats profile.txt | dot -Tpng -o profile.png
 
-There are additional commands that are not typically needed when developing. This and other help on the build system is
-obtained by running
+There are additional commands that are not typically needed when developing.
+This and other help on the build system is obtained by running
 
 .. code-block:: console
 

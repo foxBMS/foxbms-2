@@ -38,7 +38,8 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""Implements a waf tool to configure a VS Code workspace to foxBMS specific needs
+"""Implements a waf tool to configure a VS Code workspace to foxBMS specific
+needs.
 
 For information on VS Code see https://code.visualstudio.com/.
 """
@@ -53,6 +54,11 @@ import jinja2
 
 from waflib import Utils
 from waflib import Context
+
+# This tool uses slash as path separator for the sake of simplicity as it
+# - works on both, Windows and unix-like systems (see
+#   https://docs.microsoft.com/en-us/archive/blogs/larryosterman/why-is-the-dos-path-character)
+# - it make the json configuration file more readable
 
 
 def fix_jinja(txt):
@@ -70,16 +76,18 @@ def configure(conf):  # pylint: disable=too-many-statements,too-many-branches
     - configure a project if code was found"""
     # create a VS Code workspace if code is installed on this platform
     if Utils.is_win32:
-        conf.find_program(
-            "code",
-            path_list=[
-                os.path.join(
-                    os.environ["LOCALAPPDATA"], "Programs", "Microsoft VS Code"
-                ),
-                os.path.join(os.environ["PROGRAMFILES"], "Microsoft VS Code"),
-            ],
-            mandatory=False,
-        )
+        conf.find_program("code", mandatory=False)
+        if not conf.env.CODE:
+            code_dir = "Microsoft VS Code"
+            path_list = [
+                os.path.join(os.environ["LOCALAPPDATA"], "Programs", code_dir),
+                os.path.join(os.environ["PROGRAMFILES"], code_dir),
+            ]
+            conf.find_program(
+                "code",
+                path_list=path_list,
+                mandatory=False,
+            )
     else:
         conf.find_program("code", mandatory=False)
 
@@ -91,27 +99,12 @@ def configure(conf):  # pylint: disable=too-many-statements,too-many-branches
     vscode_config_dir = conf.path.find_dir(os.path.join("tools", "ide", "vscode"))
     template_loader = jinja2.FileSystemLoader(searchpath=vscode_config_dir.relpath())
     template_env = jinja2.Environment(loader=template_loader)
+
     if Utils.is_win32:
-        git_bin_dir = os.path.join("C:", os.path.sep, "Program Files", "Git", "bin")
-        conf.find_program("bash", path_list=[git_bin_dir], mandatory=False)
-        if conf.options.vscshell == "bash" and conf.env.BASH:
-            vscshell_exe = conf.env.BASH[0].replace("\\", "\\\\")
-            waf_wrapper_script = (
-                pathlib.Path(conf.path.abspath()).as_posix() + "/waf.sh"
-            )
-        else:
-            waf_wrapper_script = "${workspaceFolder}\\waf".replace("\\", "\\\\")
-            vscshell_exe = os.path.join(
-                os.environ.get(
-                    "windir", default=os.path.join("C:", os.path.sep, "Windows")
-                ),
-                "Sysnative",
-                "cmd.exe",
-            ).replace("\\", "\\\\")
+        waf_wrapper_script = pathlib.Path(conf.path.abspath()).as_posix() + "/waf.bat"
     else:
-        waf_wrapper_script = "${workspaceFolder}/waf"
-        conf.find_program("bash")
-        vscshell_exe = conf.env.BASH[0]
+        waf_wrapper_script = pathlib.Path(conf.path.abspath()) + "/waf.sh"
+
     template = template_env.get_template("tasks.json.jinja2")
     tasks = template.render(
         WAF_WRAPPER_SCRIPT=waf_wrapper_script,
@@ -133,36 +126,38 @@ def configure(conf):  # pylint: disable=too-many-statements,too-many-branches
     # Python and friends: Python, conda, pylint, black
     py_exe = "python"
     if conf.env.PYTHON:
-        py_exe = conf.env.PYTHON[0].replace("\\", "\\\\")
+        py_exe = pathlib.Path(conf.env.PYTHON[0]).as_posix()
     conda_exe = "conda"
     if conf.env.CONDA:
-        conda_exe = conf.env.CONDA[0].replace("\\", "\\\\")
+        conda_exe = pathlib.Path(conf.env.CONDA[0]).as_posix()
     pylint_exe = "pylint"
     if conf.env.PYLINT:
-        pylint_exe = conf.env.PYLINT[0].replace("\\", "\\\\")
+        pylint_exe = pathlib.Path(conf.env.PYLINT[0]).as_posix()
     pylint_cfg = ""
     if conf.env.PYLINT_CONFIG:
-        pylint_cfg = conf.env.PYLINT_CONFIG[0].replace("\\", "\\\\")
+        pylint_cfg = pathlib.Path(conf.env.PYLINT_CONFIG[0]).as_posix()
     black_exe = "black"
     if conf.env.BLACK:
-        black_exe = conf.env.BLACK[0].replace("\\", "\\\\")
+        black_exe = pathlib.Path(conf.env.BLACK[0]).as_posix()
     black_cfg = ""
     if conf.env.BLACK_CONFIG:
-        black_cfg = conf.env.BLACK_CONFIG[0].replace("\\", "\\\\")
+        black_cfg = pathlib.Path(conf.env.BLACK_CONFIG[0]).as_posix()
     # directory of waf and waf-tools
-    waf_dir = Context.waf_dir.replace("\\", "\\\\")
-    waf_tools_dir = "${workspaceFolder}\\tools\\waf-tools".replace("\\", "\\\\")
+    waf_dir = pathlib.Path(Context.waf_dir).as_posix()
+    waf_tools_dir = pathlib.Path(
+        os.path.join(conf.path.abspath(), "tools", "waf-tools")
+    ).as_posix()
     # Clang-format
     clang_format_executable = ""
     if conf.env.CLANG_FORMAT:
-        clang_format_executable = conf.env.CLANG_FORMAT[0].replace("\\", "\\\\")
+        clang_format_executable = pathlib.Path(conf.env.CLANG_FORMAT[0]).as_posix()
     # now it is in an case save to render the template
     if not conf.env.CLANG_FORMAT[0]:
         clang_format_executable = ""
     else:
-        clang_format_executable = conf.env.CLANG_FORMAT[0].replace("\\", "\\\\")
+        clang_format_executable = pathlib.Path(conf.env.CLANG_FORMAT[0]).as_posix()
+
     settings = template.render(
-        PROJECT_SHELL=vscshell_exe,
         PYTHONPATH=py_exe,
         WAF_DIR=waf_dir,
         WAF_TOOLS_DIR=waf_tools_dir,
@@ -225,7 +220,7 @@ def configure(conf):  # pylint: disable=too-many-statements,too-many-branches
     if chip in ("6804-1", "6811-1", "6812-1"):
         chip = "6813-1"
     c_cpp_properties = template.render(
-        ARMCL=conf.env.CC[0].replace("\\", "\\\\"),
+        ARMCL=pathlib.Path(conf.env.CC[0]).as_posix(),
         OS=bms_config["operating-system"]["name"],
         BALANCING_STRATEGY=bal,
         MEASUREMENT_IC_MANUFACTURER=bms_config["slave-unit"]["measurement-ic"][
@@ -246,7 +241,7 @@ def configure(conf):  # pylint: disable=too-many-statements,too-many-branches
         STATE_ESTIMATOR_SOH=soh,
         IMD_MANUFACTURER=imd_manufacturer,
         IMD_MODEL=imd_model,
-        INCLUDES=[x.replace("\\", "\\\\") for x in conf.env.INCLUDES],
+        INCLUDES=[pathlib.Path(x).as_posix() for x in conf.env.INCLUDES],
         CSTANDARD="c99",
         DEFINES=vscode_defines,
     )
@@ -260,7 +255,7 @@ def configure(conf):  # pylint: disable=too-many-statements,too-many-branches
     template = template_env.get_template("launch.json.jinja2")
     gdb_exe = "gdb"
     if conf.env.GDB:
-        gdb_exe = conf.env.GDB[0].replace("\\", "\\\\")
+        gdb_exe = pathlib.Path(conf.env.GDB[0]).as_posix()
     launch = template.render(GDB=gdb_exe)
 
     vsc_launch_file = os.path.join(vscode_dir.relpath(), "launch.json")

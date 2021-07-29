@@ -43,7 +43,7 @@
  * @file    ltc_6806.c
  * @author  foxBMS Team
  * @date    2019-09-01 (date of creation)
- * @updated 2021-03-24 (date of last update)
+ * @updated 2021-07-14 (date of last update)
  * @ingroup DRIVERS
  * @prefix  LTC
  *
@@ -319,7 +319,7 @@ static void LTC_Initialize_Database(LTC_STATE_s *ltc_state) {
         }
 
         ltc_state->ltcData.cellTemperature->state = 0;
-        for (i = 0; i < BS_NR_OF_TEMP_SENSORS; i++) {
+        for (i = 0; i < BS_NR_OF_TEMP_SENSORS_PER_STRING; i++) {
             ltc_state->ltcData.cellTemperature->cellTemperature_ddegC[stringNumber][i] = 0;
         }
 
@@ -1757,14 +1757,14 @@ extern void LTC_monitoringPinInit(void) {
     SETBIT(LTC_LTC6820CONTROL_GIODIR, LTC_LTC6820_REVERSE_MASTER_PIN);
 
     /* set LTC6820 forward enable to 1 */
-    IO_PinSet((uint32_t *)&LTC_LTC6820CONTROL_GIOPORT, LTC_LTC6820_FORWARD_ENABLE_PIN);
+    IO_PinSet(&LTC_LTC6820CONTROL_GIOPORT, LTC_LTC6820_FORWARD_ENABLE_PIN);
     /* set LTC6820 forward master to 1 */
-    IO_PinSet((uint32_t *)&LTC_LTC6820CONTROL_GIOPORT, LTC_LTC6820_FORWARD_SPI1_MASTER_PIN);
+    IO_PinSet(&LTC_LTC6820CONTROL_GIOPORT, LTC_LTC6820_FORWARD_SPI1_MASTER_PIN);
 
     /* set LTC6820 reverse enable to 0 */
-    IO_PinReset((uint32_t *)&LTC_LTC6820CONTROL_GIOPORT, LTC_LTC6820_REVERSE_ENABLE_PIN);
+    IO_PinReset(&LTC_LTC6820CONTROL_GIOPORT, LTC_LTC6820_REVERSE_ENABLE_PIN);
     /* set LTC6820 reverse master to 0 */
-    IO_PinSet((uint32_t *)&LTC_LTC6820CONTROL_GIOPORT, LTC_LTC6820_REVERSE_MASTER_PIN);
+    IO_PinSet(&LTC_LTC6820CONTROL_GIOPORT, LTC_LTC6820_REVERSE_MASTER_PIN);
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/

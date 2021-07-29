@@ -43,7 +43,7 @@
  * @file    foxmath.h
  * @author  foxBMS Team
  * @date    2018-01-18 (date of creation)
- * @updated 2018-01-18 (date of last update)
+ * @updated 2021-07-15 (date of last update)
  * @ingroup DRIVERS
  * @prefix  MATH
  *
@@ -70,6 +70,9 @@
 
 /** Add defines for unit conversions */
 #define UNIT_CONVERSION_FACTOR_1000_INTEGER (1000)
+#define UNIT_CONVERSION_FACTOR_10_FLOAT     (10.0f)
+#define UNIT_CONVERSION_FACTOR_100_FLOAT    (100.0f)
+#define UNIT_CONVERSION_FACTOR_1000_FLOAT   (1000.0f)
 
 /*========== Extern Constant and Variable Declarations ======================*/
 
@@ -112,7 +115,23 @@ extern uint64_t MATH_swapBytes_uint64_t(uint64_t val);
  * @param[in] value2   value 2
  * @return  minimum value
  */
-extern float MATH_minimumOfTwoFloats(float value1, float value2);
+extern float MATH_MinimumOfTwoFloats(float value1, float value2);
+
+/**
+ * @brief   Returns the minimum of the passed uint8_t values
+ * @param[in] value1   value 1
+ * @param[in] value2   value 2
+ * @return  minimum value
+ */
+extern uint8_t MATH_MinimumOfTwoUint8_t(uint8_t value1, uint8_t value2);
+
+/**
+ * @brief   Returns the minimum of the passed uint16_t values
+ * @param[in] value1   value 1
+ * @param[in] value2   value 2
+ * @return  minimum value
+ */
+extern uint16_t MATH_MinimumOfTwoUint16_t(uint16_t value1, uint16_t value2);
 
 /**
  * @brief   Returns the absolute value of passed int32_t value

@@ -43,7 +43,7 @@
  * @file    ftask_cfg.c
  * @author  foxBMS Team
  * @date    2019-08-26 (date of creation)
- * @updated 2021-03-24 (date of last update)
+ * @updated 2021-07-23 (date of last update)
  * @ingroup TASK_CONFIGURATION
  * @prefix  FTSK
  *
@@ -80,9 +80,16 @@
 
 /*========== Macros and Definitions =========================================*/
 
+/** counter value for 50ms in 10ms task */
+#define TASK_10MS_COUNTER_FOR_50MS (5u)
+
+/** counter value for 1s in 100ms task */
+#define TASK_100MS_COUNTER_FOR_1S (10u)
+
 /*========== Static Constant and Variable Definitions =======================*/
 
 /*========== Extern Constant and Variable Definitions =======================*/
+
 /**
  * @brief   Definition of the engine task
  * @details Task is not delayed after the scheduler starts. This task  must
@@ -91,28 +98,31 @@
  *          likely break the system.
  */
 OS_TASK_DEFINITION_s ftsk_taskDefinitionEngine =
-    {FTSK_TSK_ENGINE_PHASE, FTSK_TSK_ENGINE_CYCLE_TIME, OS_PRIORITY_REAL_TIME, FTSK_TSK_ENGINE_STACK_SIZE};
-OS_TASK_DEFINITION_s ftsk_taskDefinitionCyclic1ms =
-    {FTSK_TSK_CYCLIC_1MS_PHASE, FTSK_TSK_CYCLIC_1MS_CYCLE_TIME, OS_PRIORITY_ABOVE_HIGH, FTSK_TSK_CYCLIC_1MS_STACK_SIZE};
+    {FTSK_TASK_ENGINE_PHASE, FTSK_TASK_ENGINE_CYCLE_TIME, OS_PRIORITY_REAL_TIME, FTSK_TASK_ENGINE_STACK_SIZE};
+OS_TASK_DEFINITION_s ftsk_taskDefinitionCyclic1ms = {
+    FTSK_TASK_CYCLIC_1MS_PHASE,
+    FTSK_TASK_CYCLIC_1MS_CYCLE_TIME,
+    OS_PRIORITY_ABOVE_HIGH,
+    FTSK_TASK_CYCLIC_1MS_STACK_SIZE};
 OS_TASK_DEFINITION_s ftsk_taskDefinitionCyclic10ms =
-    {FTSK_TSK_CYCLIC_10MS_PHASE, FTSK_TSK_CYCLIC_10MS_CYCLE_TIME, OS_PRIORITY_HIGH, FTSK_TSK_CYCLIC_10MS_STACK_SIZE};
+    {FTSK_TASK_CYCLIC_10MS_PHASE, FTSK_TASK_CYCLIC_10MS_CYCLE_TIME, OS_PRIORITY_HIGH, FTSK_TASK_CYCLIC_10MS_STACK_SIZE};
 OS_TASK_DEFINITION_s ftsk_taskDefinitionCyclic100ms = {
-    FTSK_TSK_CYCLIC_100MS_PHASE,
-    FTSK_TSK_CYCLIC_100MS_CYCLE_TIME,
+    FTSK_TASK_CYCLIC_100MS_PHASE,
+    FTSK_TASK_CYCLIC_100MS_CYCLE_TIME,
     OS_PRIORITY_ABOVE_NORMAL,
-    FTSK_TSK_CYCLIC_100MS_STACK_SIZE};
+    FTSK_TASK_CYCLIC_100MS_STACK_SIZE};
 OS_TASK_DEFINITION_s ftsk_taskDefinitionCyclicAlgorithm100ms = {
-    FTSK_TSK_CYCLIC_ALGORITHM_100MS_PHASE,
-    FTSK_TSK_CYCLIC_ALGORITHM_100MS_CYCLE_TIME,
+    FTSK_TASK_CYCLIC_ALGORITHM_100MS_PHASE,
+    FTSK_TASK_CYCLIC_ALGORITHM_100MS_CYCLE_TIME,
     OS_PRIORITY_NORMAL,
-    FTSK_TSK_CYCLIC_ALGORITHM_100MS_STACKSIZE};
+    FTSK_TASK_CYCLIC_ALGORITHM_100MS_STACKSIZE};
 
 /*========== Static Function Prototypes =====================================*/
 
 /*========== Static Function Implementations ================================*/
 
 /*========== Extern Function Implementations ================================*/
-void FTSK_UserCodeEngineInit(void) {
+extern void FTSK_InitializeUserCodeEngine(void) {
     /* Warning: Do not change the content of this function */
     /* See function definition doxygen comment for details */
     STD_RETURN_TYPE_e retval = DATA_Init();
@@ -133,7 +143,7 @@ void FTSK_UserCodeEngineInit(void) {
     /* See function definition doxygen comment for details */
 }
 
-void FTSK_UserCodeEngine(void) {
+extern void FTSK_RunUserCodeEngine(void) {
     /* Warning: Do not change the content of this function */
     /* See function definition doxygen comment for details */
     DATA_Task();               /* Call database manager */
@@ -142,7 +152,7 @@ void FTSK_UserCodeEngine(void) {
     /* See function definition doxygen comment for details */
 }
 
-void FTSK_UserCodePreCyclicTasksInitialization(void) {
+extern void FTSK_InitializeUserCodePreCyclicTasks(void) {
     /* user code */
     SYS_RETURN_TYPE_e sys_retVal = SYS_ILLEGAL_REQUEST;
 
@@ -155,9 +165,6 @@ void FTSK_UserCodePreCyclicTasksInitialization(void) {
     /* Init FRAM */
     FRAM_Initialize();
 
-    imd_canDataQueue =
-        xQueueCreateStatic(IMD_QUEUE_LENGTH, IMD_QUEUE_ITEM_SIZE, imd_queueStorageArea, &imd_queueStructure);
-
     /* This function operates under the assumption that it is called when
      * the operating system is not yet running.
      * In this state the return value of #SYS_SetStateRequest should
@@ -166,7 +173,7 @@ void FTSK_UserCodePreCyclicTasksInitialization(void) {
     FAS_ASSERT(sys_retVal == SYS_OK);
 }
 
-void FTSK_UserCodeCyclic1ms(void) {
+extern void FTSK_RunUserCodeCyclic1ms(void) {
     /* Increment of operating system timer */
     /* This must not be changed, add user code only below */
     OS_TriggerTimer(&os_timer);
@@ -176,7 +183,7 @@ void FTSK_UserCodeCyclic1ms(void) {
     CAN_ReadRxBuffer();
 }
 
-void FTSK_UserCodeCyclic10ms(void) {
+extern void FTSK_RunUserCodeCyclic10ms(void) {
     static uint8_t cnt = 0;
     /* user code */
     SYS_Trigger(&sys_state);
@@ -188,7 +195,7 @@ void FTSK_UserCodeCyclic10ms(void) {
     SOF_Calculation();
     ALGO_MonitorExecutionTime();
     SBC_Trigger(&sbc_stateMcuSupervisor);
-    if (cnt == 5u) {
+    if (cnt == TASK_10MS_COUNTER_FOR_50MS) {
         MRC_ValidateMicMeasurement();
         MRC_ValidatePackMeasurement();
         cnt = 0;
@@ -196,19 +203,26 @@ void FTSK_UserCodeCyclic10ms(void) {
     cnt++;
 }
 
-void FTSK_UserCodeCyclic100ms(void) {
+extern void FTSK_RunUserCodeCyclic100ms(void) {
     /* user code */
     static uint8_t ftsk_cyclic100msCounter = 0;
 
-    SOC_Calculation();
-    SOE_Calculation();
+    /** Perform SOC and SOE calculations only every 1s. Not suited if analog
+     *  integration of current sensor is NOT used. Manual integration of current
+     *  requires a higher frequency.
+     */
+    if (ftsk_cyclic100msCounter == TASK_100MS_COUNTER_FOR_1S) {
+        SE_StateEstimations();
+        ftsk_cyclic100msCounter = 0;
+    }
+
     BAL_Trigger();
     IMD_Trigger();
 
     ftsk_cyclic100msCounter++;
 }
 
-void FTSK_UserCodeCyclicAlgorithm100ms(void) {
+extern void FTSK_RunUserCodeCyclicAlgorithm100ms(void) {
     /* user code */
     static uint8_t ftsk_cyclicAlgorithm100msCounter = 0;
 
@@ -217,7 +231,7 @@ void FTSK_UserCodeCyclicAlgorithm100ms(void) {
     ftsk_cyclicAlgorithm100msCounter++;
 }
 
-void FTSK_UserCodeIdle(void) {
+extern void FTSK_RunUserCodeIdle(void) {
     /* user code */
 }
 

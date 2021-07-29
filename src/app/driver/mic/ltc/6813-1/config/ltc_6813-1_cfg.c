@@ -67,10 +67,6 @@
  */
 LTC_MUX_CH_CFG_s ltc_mux_seq_main_ch1[] = {
     /*  multiplexer 0 measurement */
-    /*         {*/
-    /*             .muxID    = 0, */
-    /*             .muxCh    = 0xFF, */
-    /*         }, */
     {
         .muxID = 0,
         .muxCh = 0,

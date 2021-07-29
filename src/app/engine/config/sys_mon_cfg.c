@@ -43,7 +43,7 @@
  * @file    sys_mon_cfg.c
  * @author  foxBMS Team
  * @date    2019-11-28 (date of creation)
- * @updated 2020-01-21 (date of last update)
+ * @updated 2021-07-23 (date of last update)
  * @ingroup ENGINE_CONFIGURATION
  * @prefix  SYSM
  *
@@ -66,36 +66,36 @@ static void SYSM_DummyCallback(SYSM_TASK_ID_e tsk_id);
 SYSM_MONITORING_CFG_s sysm_ch_cfg[] = {
     {SYSM_TASK_ID_ENGINE,
      SYSM_ENABLED,
-     FTSK_TSK_ENGINE_CYCLE_TIME,
-     FTSK_TSK_ENGINE_MAXIMUM_JITTER,
+     FTSK_TASK_ENGINE_CYCLE_TIME,
+     FTSK_TASK_ENGINE_MAXIMUM_JITTER,
      SYSM_RECORDING_ENABLED,
      SYSM_HANDLING_SWITCHOFFCONTACTOR,
      SYSM_DummyCallback},
     {SYSM_TASK_ID_CYCLIC_1ms,
      SYSM_ENABLED,
-     FTSK_TSK_CYCLIC_1MS_CYCLE_TIME,
-     FTSK_TSK_CYCLIC_1MS_MAXIMUM_JITTER,
+     FTSK_TASK_CYCLIC_1MS_CYCLE_TIME,
+     FTSK_TASK_CYCLIC_1MS_MAXIMUM_JITTER,
      SYSM_RECORDING_ENABLED,
      SYSM_HANDLING_SWITCHOFFCONTACTOR,
      SYSM_DummyCallback},
     {SYSM_TASK_ID_CYCLIC_10ms,
      SYSM_ENABLED,
-     FTSK_TSK_CYCLIC_10MS_CYCLE_TIME,
-     FTSK_TSK_CYCLIC_10MS_MAXIMUM_JITTER,
+     FTSK_TASK_CYCLIC_10MS_CYCLE_TIME,
+     FTSK_TASK_CYCLIC_10MS_MAXIMUM_JITTER,
      SYSM_RECORDING_ENABLED,
      SYSM_HANDLING_SWITCHOFFCONTACTOR,
      SYSM_DummyCallback},
     {SYSM_TASK_ID_CYCLIC_100ms,
      SYSM_ENABLED,
-     FTSK_TSK_CYCLIC_100MS_CYCLE_TIME,
-     FTSK_TSK_CYCLIC_100MS_MAXIMUM_JITTER,
+     FTSK_TASK_CYCLIC_100MS_CYCLE_TIME,
+     FTSK_TASK_CYCLIC_100MS_MAXIMUM_JITTER,
      SYSM_RECORDING_ENABLED,
      SYSM_HANDLING_SWITCHOFFCONTACTOR,
      SYSM_DummyCallback},
     {SYSM_TASK_ID_CYCLIC_ALGORITHM_100ms,
      SYSM_ENABLED,
-     FTSK_TSK_CYCLIC_ALGORITHM_100MS_CYCLE_TIME,
-     FTSK_TSK_CYCLIC_ALGORITHM_100MS_MAXIMUM_JITTER,
+     FTSK_TASK_CYCLIC_ALGORITHM_100MS_CYCLE_TIME,
+     FTSK_TASK_CYCLIC_ALGORITHM_100MS_MAXIMUM_JITTER,
      SYSM_RECORDING_ENABLED,
      SYSM_HANDLING_SWITCHOFFCONTACTOR,
      SYSM_DummyCallback},
@@ -105,9 +105,13 @@ SYSM_MONITORING_CFG_s sysm_ch_cfg[] = {
 /**
  * @brief   dummy callback function of system monitoring error events
  */
+/* this is a dummy implementation and not using the argument here is fine */
+#pragma diag_push
+#pragma diag_suppress 880
 void SYSM_DummyCallback(SYSM_TASK_ID_e tsk_id) {
     /* Dummy function -> empty */
 }
+#pragma diag_pop
 
 /*========== Extern Function Implementations ================================*/
 STD_RETURN_TYPE_e SYSM_Init(void) {

@@ -65,10 +65,13 @@
 /*========== Static Function Implementations ================================*/
 
 /*========== Extern Function Implementations ================================*/
-extern void SOE_Init(bool ec_present, uint8_t stringNumber) {
+extern void SOE_Init(DATA_BLOCK_SOX_s *pSoeValues, bool ec_present, uint8_t stringNumber) {
+    FAS_ASSERT(pSoeValues != NULL_PTR);
+    FAS_ASSERT(stringNumber < BS_NR_OF_STRINGS);
 }
 
-extern void SOE_Calculation(void) {
+extern void SOE_Calculation(DATA_BLOCK_SOX_s *pSoeValues) {
+    FAS_ASSERT(pSoeValues != NULL_PTR);
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/

@@ -546,53 +546,37 @@
         <NAME>fee_interface.h</NAME>
       </HDR8FEE>
       <SRC1FEE>
-        <NAME>Device_TMS570LC43.c</NAME>
-      </SRC1FEE>
+        </SRC1FEE>
       <SRC2FEE>
-        <NAME>ti_fee_cfg.c</NAME>
-      </SRC2FEE>
+        </SRC2FEE>
       <SRC3FEE>
-        <NAME>ti_fee_Info.c</NAME>
-      </SRC3FEE>
+        </SRC3FEE>
       <SRC4FEE>
-        <NAME>ti_fee_ini.c</NAME>
-      </SRC4FEE>
+        </SRC4FEE>
       <SRC5FEE>
-        <NAME>ti_fee_main.c</NAME>
-      </SRC5FEE>
+        </SRC5FEE>
       <SRC6FEE>
-        <NAME>ti_fee_read.c</NAME>
-      </SRC6FEE>
+        </SRC6FEE>
       <SRC7FEE>
-        <NAME>ti_fee_writeSync.c</NAME>
-      </SRC7FEE>
+        </SRC7FEE>
       <SRC8FEE>
-        <NAME>ti_fee_writeAsync.c</NAME>
-      </SRC8FEE>
+        </SRC8FEE>
       <SRC9FEE>
-        <NAME>ti_fee_util.c</NAME>
-      </SRC9FEE>
+        </SRC9FEE>
       <SRC10FEE>
-        <NAME>ti_fee_cancel.c</NAME>
-      </SRC10FEE>
+        </SRC10FEE>
       <SRC11FEE>
-        <NAME>ti_fee_format.c</NAME>
-      </SRC11FEE>
+        </SRC11FEE>
       <SRC12FEE>
-        <NAME>ti_fee_eraseimmediateblock.c</NAME>
-      </SRC12FEE>
+        </SRC12FEE>
       <SRC13FEE>
-        <NAME>ti_fee_invalidateblock.c</NAME>
-      </SRC13FEE>
+        </SRC13FEE>
       <SRC14FEE>
-        <NAME>ti_fee_shutdown.c</NAME>
-      </SRC14FEE>
+        </SRC14FEE>
       <SRC15FEE>
-        <NAME>Fapi_UserDefinedFunctions.c</NAME>
-      </SRC15FEE>
+        </SRC15FEE>
       <SRC16FEE>
-        <NAME>ti_fee_readSync.c</NAME>
-      </SRC16FEE>
+        </SRC16FEE>
       <SRCAJSM_GCC>
         <NAME>HL_ajsm.s</NAME>
       </SRCAJSM_GCC>
@@ -1060,52 +1044,52 @@
         <PATH>include\fee_interface.h</PATH>
       </HDR8FEE>
       <SRC1FEE>
-        <PATH>source\Device_TMS570LC43.c</PATH>
+        <PATH></PATH>
       </SRC1FEE>
       <SRC2FEE>
-        <PATH>source\ti_fee_cfg.c</PATH>
+        <PATH></PATH>
       </SRC2FEE>
       <SRC3FEE>
-        <PATH>source\ti_fee_Info.c</PATH>
+        <PATH></PATH>
       </SRC3FEE>
       <SRC4FEE>
-        <PATH>source\ti_fee_ini.c</PATH>
+        <PATH></PATH>
       </SRC4FEE>
       <SRC5FEE>
-        <PATH>source\ti_fee_main.c</PATH>
+        <PATH></PATH>
       </SRC5FEE>
       <SRC6FEE>
-        <PATH>source\ti_fee_read.c</PATH>
+        <PATH></PATH>
       </SRC6FEE>
       <SRC7FEE>
-        <PATH>source\ti_fee_writeSync.c</PATH>
+        <PATH></PATH>
       </SRC7FEE>
       <SRC8FEE>
-        <PATH>source\ti_fee_writeAsync.c</PATH>
+        <PATH></PATH>
       </SRC8FEE>
       <SRC9FEE>
-        <PATH>source\ti_fee_util.c</PATH>
+        <PATH></PATH>
       </SRC9FEE>
       <SRC10FEE>
-        <PATH>source\ti_fee_cancel.c</PATH>
+        <PATH></PATH>
       </SRC10FEE>
       <SRC11FEE>
-        <PATH>source\ti_fee_format.c</PATH>
+        <PATH></PATH>
       </SRC11FEE>
       <SRC12FEE>
-        <PATH>source\ti_fee_eraseimmediateblock.c</PATH>
+        <PATH></PATH>
       </SRC12FEE>
       <SRC13FEE>
-        <PATH>source\ti_fee_invalidateblock.c</PATH>
+        <PATH></PATH>
       </SRC13FEE>
       <SRC14FEE>
-        <PATH>source\ti_fee_shutdown.c</PATH>
+        <PATH></PATH>
       </SRC14FEE>
       <SRC15FEE>
-        <PATH>source\Fapi_UserDefinedFunctions.c</PATH>
+        <PATH></PATH>
       </SRC15FEE>
       <SRC16FEE>
-        <PATH>source\ti_fee_readSync.c</PATH>
+        <PATH></PATH>
       </SRC16FEE>
     </FILENAMES>
   </FEE>

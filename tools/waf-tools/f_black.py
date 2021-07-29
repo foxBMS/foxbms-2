@@ -68,8 +68,9 @@ class black(Task.Task):  # pylint: disable-msg=invalid-name
     #: str: color in which the command line is displayed in the terminal
     color = "BLUE"
     vars = ["BLACK_OPTIONS"]
+    allow_argsfile = False
 
-    run_str = "${BLACK} ${BLACK_OPTIONS} ${SRC[0].abspath()}"
+    run_str = "${BLACK} ${BLACK_OPTIONS} ${SRC}"
 
     def keyword(self):
         """displayed keyword when black is run"""

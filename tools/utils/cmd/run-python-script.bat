@@ -35,9 +35,7 @@
 @REM - "This product includes parts of foxBMS&reg;"
 @REM - "This product is derived from foxBMS&reg;"
 
-@SETLOCAL EnableDelayedExpansion
-@SETLOCAL
-
+@SETLOCAL EnableExtensions EnableDelayedExpansion
 @IF "%~1"=="" (
     @ECHO No script file to run specified.
     @EXIT /b 1
@@ -53,7 +51,9 @@
         @CALL set "NewPath=%%NewPath%%;%%A"
     )
 )
-@SET PATH=%NewPath:~1%;%PATH%
+@IF DEFINED NewPath (
+    @SET "PATH=%NewPath:~1%;%PATH%"
+)
 
 @SET CONDA_BASE_ENVIRONMENT_ACTIVATE_SCRIPT=""
 @CALL %~dp0\find_base_conda.bat

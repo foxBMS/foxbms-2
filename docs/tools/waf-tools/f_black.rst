@@ -3,8 +3,8 @@
 
 .. _WAF_TOOL_BLACK:
 
-Waf Tool Black
-==============
+Black
+=====
 
 ..
     Comments:

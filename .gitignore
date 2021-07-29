@@ -1,5 +1,6 @@
 /.vscode/
 /build/
+/build-tools-tests/
 /*build/
 */_build/*
 /conf/hcg/include/*

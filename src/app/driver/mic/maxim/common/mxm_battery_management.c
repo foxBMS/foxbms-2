@@ -43,7 +43,7 @@
  * @file    mxm_battery_management.c
  * @author  foxBMS Team
  * @date    2019-01-14 (date of creation)
- * @updated 2020-09-10 (date of last update)
+ * @updated 2021-06-16 (date of last update)
  * @ingroup DRIVERS
  * @prefix  MXM
  *
@@ -184,7 +184,6 @@ static void MXM_5XClearCommandBuffer(MXM_5X_INSTANCE_s *pInstance) {
         pInstance->commandBuffer[i] = 0x00U;
     }
     pInstance->commandBufferCurrentLength = COMMAND_BUFFER_LENGTH;
-    return;
 }
 
 static STD_RETURN_TYPE_e MXM_5XIsUserAccessibleRegister(uint8_t regAddress) {
@@ -193,16 +192,7 @@ static STD_RETURN_TYPE_e MXM_5XIsUserAccessibleRegister(uint8_t regAddress) {
     if (regAddress <= 0x98U) {
         /* overall range is good, check for exceptions */
 
-        /* TODO make selectable, this block is for MAX17853 */
-        /* if ((regAddress == 0x46U) ||
-            ((0x2CU <= regAddress) && (regAddress <= 0x2FU)) ||
-            ((0x84U <= regAddress) && (regAddress <= 0x8BU))) {
-            */
-        /* regAddress is inside one of the exceptions */
-        /*
-             retval = STD_NOT_OK;
-        }
-        */
+        /* TODO make selectable which chip is used */
 
         /* MAX17852 */
         if ((regAddress == 0x5DU) || (regAddress == 0x5EU)) {
@@ -255,7 +245,6 @@ static void MXM_5XConstructCommandBufferHelloall(MXM_5X_INSTANCE_s *pInstance) {
     pInstance->commandBuffer[1]           = 0x00;
     pInstance->commandBuffer[2]           = HELLOALL_START_SEED;
     pInstance->commandBufferCurrentLength = 3;
-    return;
 }
 
 static STD_RETURN_TYPE_e MXM_5XConstructCommandBufferWriteall(
@@ -347,13 +336,16 @@ static STD_RETURN_TYPE_e MXM_5XConstructCommandBufferReadall(MXM_5X_INSTANCE_s *
 
 /*========== Extern Function Implementations ================================*/
 
-extern STD_RETURN_TYPE_e MXM_5XGetRXBuffer(MXM_5X_INSTANCE_s *pInstance, uint8_t *rxBuffer, uint16_t rxBufferLength) {
+extern STD_RETURN_TYPE_e MXM_5XGetRXBuffer(
+    const MXM_5X_INSTANCE_s *const kpkInstance,
+    uint8_t *rxBuffer,
+    uint16_t rxBufferLength) {
     STD_RETURN_TYPE_e retval = STD_OK;
 
     if ((rxBuffer != NULL_PTR) && (rxBufferLength != 0u)) {
         for (uint16_t i = 0; i < rxBufferLength; i++) {
             if (i < MXM_5X_RX_BUFFER_LEN) {
-                rxBuffer[i] = pInstance->rxBuffer[i];
+                rxBuffer[i] = (uint8_t)kpkInstance->rxBuffer[i];
             } else {
                 rxBuffer[i] = 0;
             }
@@ -365,16 +357,16 @@ extern STD_RETURN_TYPE_e MXM_5XGetRXBuffer(MXM_5X_INSTANCE_s *pInstance, uint8_t
     return retval;
 }
 
-extern MXM_DC_BYTE_e MXM_5XGetLastDCByte(MXM_5X_INSTANCE_s *pInstance) {
-    return (MXM_DC_BYTE_e)pInstance->lastDCByte;
+extern MXM_DC_BYTE_e MXM_5XGetLastDCByte(const MXM_5X_INSTANCE_s *const kpkInstance) {
+    return (MXM_DC_BYTE_e)kpkInstance->lastDCByte;
 }
 
-extern uint8_t MXM_5XGetNumberOfSatellites(MXM_5X_INSTANCE_s *pInstance) {
-    return pInstance->numberOfSatellites;
+extern uint8_t MXM_5XGetNumberOfSatellites(const MXM_5X_INSTANCE_s *const kpkInstance) {
+    return kpkInstance->numberOfSatellites;
 }
 
-extern STD_RETURN_TYPE_e MXM_5XGetNumberOfSatellitesGood(MXM_5X_INSTANCE_s *pInstance) {
-    return pInstance->numberOfSatellitesIsGood;
+extern STD_RETURN_TYPE_e MXM_5XGetNumberOfSatellitesGood(const MXM_5X_INSTANCE_s *const kpkInstance) {
+    return kpkInstance->numberOfSatellitesIsGood;
 }
 
 extern STD_RETURN_TYPE_e MXM_5XSetStateRequest(
@@ -413,8 +405,7 @@ void MXM_5XStateMachine(MXM_41B_INSTANCE_s *pInstance41b, MXM_5X_INSTANCE_s *pIn
     STD_RETURN_TYPE_e retval;
     switch (pInstance5x->state) {
         case MXM_STATEMACH_5X_UNINITIALIZED:
-            /* pInstance5x->state = MXM_STATEMACH_5X_INIT;
-         pInstance5x->substate = MXM_5X_ENTRY_SUBSTATE;*/
+            /* statemachine waits here for initialization */
             break;
         case MXM_STATEMACH_5X_IDLE:
             /* TODO idle state */
@@ -797,7 +788,8 @@ void MXM_5XStateMachine(MXM_41B_INSTANCE_s *pInstance41b, MXM_5X_INSTANCE_s *pIn
                 }
                 /* update number of satellites
              */
-                pInstance5x->numberOfSatellites = pInstance5x->rxBuffer[HELLOALL_RX_LENGTH - 1u] - HELLOALL_START_SEED;
+                pInstance5x->numberOfSatellites =
+                    (uint8_t)(pInstance5x->rxBuffer[HELLOALL_RX_LENGTH - 1u] - HELLOALL_START_SEED);
 
                 /*
                  * Plausibility check, compare with preset number of satellites
@@ -959,7 +951,7 @@ void MXM_5XStateMachine(MXM_41B_INSTANCE_s *pInstance41b, MXM_5X_INSTANCE_s *pIn
                 /* dc byte position is after data */
                 uint8_t dc_byte_position = 2u + (2u * pInstance5x->numberOfSatellites);
 
-                pInstance5x->lastDCByte = pInstance5x->rxBuffer[dc_byte_position];
+                pInstance5x->lastDCByte = (uint8_t)pInstance5x->rxBuffer[dc_byte_position];
 
                 pInstance5x->substate   = MXM_5X_ENTRY_SUBSTATE;
                 pInstance5x->status41b  = MXM_41B_STATE_UNSENT;
@@ -974,8 +966,6 @@ void MXM_5XStateMachine(MXM_41B_INSTANCE_s *pInstance41b, MXM_5X_INSTANCE_s *pIn
             FAS_ASSERT(FAS_TRAP);
             break;
     }
-
-    return;
 }
 
 extern STD_RETURN_TYPE_e must_check_return MXM_5XUserAccessibleAddressSpaceCheckerSelfCheck(void) {
@@ -995,6 +985,9 @@ extern STD_RETURN_TYPE_e must_check_return MXM_5XUserAccessibleAddressSpaceCheck
     STD_RETURN_TYPE_e retval_check12 = STD_OK;
     STD_RETURN_TYPE_e retval_check13 = STD_OK;
     STD_RETURN_TYPE_e retval_check14 = STD_OK;
+    STD_RETURN_TYPE_e retval_check15 = STD_OK;
+    STD_RETURN_TYPE_e retval_check16 = STD_OK;
+    STD_RETURN_TYPE_e retval_check17 = STD_OK;
 
     /* check:
     * - user memory is contained in range 0x00 to 0x98
@@ -1022,11 +1015,16 @@ extern STD_RETURN_TYPE_e must_check_return MXM_5XUserAccessibleAddressSpaceCheck
     retval_check13 = MXM_53IsUserAccessibleRegister(0x84U);
     retval_check14 = MXM_53IsUserAccessibleRegister(0x8BU);
 
+    retval_check15 = MXM_5XIsUserAccessibleRegister(0x99U);
+    retval_check16 = MXM_52IsUserAccessibleRegister(0x99U);
+    retval_check17 = MXM_53IsUserAccessibleRegister(0x99U);
+
     if ((retval_check0 == STD_OK) && (retval_check1 == STD_OK) && (retval_check2 == STD_OK) &&
         (retval_check3 == STD_OK) && (retval_check4 == STD_OK) && (retval_check5 == STD_OK) &&
         (retval_check6 == STD_OK) && (retval_check7 == STD_OK) && (retval_check8 == STD_OK) &&
         (retval_check9 == STD_NOT_OK) && (retval_check10 == STD_NOT_OK) && (retval_check11 == STD_NOT_OK) &&
-        (retval_check12 == STD_NOT_OK) && (retval_check13 == STD_NOT_OK) && (retval_check14 == STD_NOT_OK)) {
+        (retval_check12 == STD_NOT_OK) && (retval_check13 == STD_NOT_OK) && (retval_check14 == STD_NOT_OK) &&
+        (retval_check15 == STD_NOT_OK) && (retval_check16 == STD_NOT_OK) && (retval_check17 == STD_NOT_OK)) {
         retval = STD_OK;
     }
     return retval;

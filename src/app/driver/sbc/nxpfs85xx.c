@@ -43,7 +43,7 @@
  * @file    nxpfs85xx.c
  * @author  foxBMS Team
  * @date    2020-03-18 (date of creation)
- * @updated 2020-03-18 (date of last update)
+ * @updated 2021-07-14 (date of last update)
  * @ingroup DRIVERS
  * @prefix  SBC
  *
@@ -1062,7 +1062,7 @@ static STD_RETURN_TYPE_e SBC_PerformPathCheckRSTB(FS85xx_STATE_s *pInstance) {
 
             /** Last reset was caused by power-cycle */
             /** Set level of FIN pin low and check if this generates reset */
-            IO_PinReset((uint32_t *)pInstance->fin.pGIOport, pInstance->fin.pin);
+            IO_PinReset(pInstance->fin.pGIOport, pInstance->fin.pin);
 
             /** Pulses longer than 2000ns trigger reset -> wait 10us to check if
                reset is triggered by short between RSTB and FIN */
@@ -1070,7 +1070,7 @@ static STD_RETURN_TYPE_e SBC_PerformPathCheckRSTB(FS85xx_STATE_s *pInstance) {
 
             /** If we reach this line of code, no reset has taken place.
                Everything okay. Set level of FIN pin back to high */
-            IO_PinSet((uint32_t *)pInstance->fin.pGIOport, pInstance->fin.pin);
+            IO_PinSet(pInstance->fin.pGIOport, pInstance->fin.pin);
 
             /** No further register access required -> leave privilege mode */
             FSYS_SwitchToUserMode();
