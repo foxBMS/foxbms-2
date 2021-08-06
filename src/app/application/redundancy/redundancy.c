@@ -1066,6 +1066,31 @@ static STD_RETURN_TYPE_e MRC_UpdateCellTemperatureValidation(
 }
 
 /*========== Extern Function Implementations ================================*/
+extern STD_RETURN_TYPE_e MRC_Initialize(void) {
+    STD_RETURN_TYPE_e retval = STD_NOT_OK;
+    for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
+        for (uint8_t m = 0u; m < BS_NR_OF_MODULES; m++) {
+            /* Invalidate cell voltage values */
+            mrc_tableCellVoltages.invalidCellVoltage[s][m] = 0xFFFFFFFFFFFFFFFFULL;
+            mrc_tableCellVoltages.validModuleVoltage[s][m] = false;
+            /* Invalidate cell temperature values */
+            mrc_tableCellTemperatures.invalidCellTemperature[s][m] = 0xFFFF;
+        }
+        /* Invalidate string values */
+        mrc_tablePackValues.invalidStringVoltage[s] = 0x01;
+        mrc_tablePackValues.invalidStringCurrent[s] = 0x01;
+        mrc_tablePackValues.invalidStringPower[s]   = 0x01;
+    }
+    /* Invalidate pack values */
+    mrc_tablePackValues.invalidPackCurrent    = 0x01; /*!< bitmask if current is valid. 0->valid, 1->invalid */
+    mrc_tablePackValues.invalidBatteryVoltage = 0x01; /*!< bitmask if voltage is valid. 0->valid, 1->invalid */
+    mrc_tablePackValues.invalidHvBusVoltage   = 0x01; /*!< bitmask if voltage is valid. 0->valid, 1->invalid */
+    mrc_tablePackValues.invalidPackPower      = 0x01; /*!< bitmask if power is valid. 0->valid, 1->invalid */
+
+    retval = DATA_WRITE_DATA(&mrc_tableCellVoltages, &mrc_tableCellTemperatures, &mrc_tablePackValues);
+    return retval;
+}
+
 extern STD_RETURN_TYPE_e MRC_ValidateMicMeasurement(void) {
     STD_RETURN_TYPE_e retval = STD_OK;
 

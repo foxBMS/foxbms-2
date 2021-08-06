@@ -82,10 +82,6 @@ extern uint32_t CAN_TxMinimumMaximumValues(
     FAS_ASSERT(pCanData != NULL_PTR);
     FAS_ASSERT(kpkCanShim != NULL_PTR);
     uint64_t message = 0;
-    float signalData = 0.0f;
-    float offset     = 0.0f;
-    float factor     = 0.0f;
-    uint64_t data    = 0u;
 
     DATA_READ_DATA(kpkCanShim->pTableMinMax);
 
@@ -132,11 +128,11 @@ extern uint32_t CAN_TxMinimumMaximumValues(
 
     /* AXIVION Disable Style Generic-NoMagicNumbers: Signal data defined in .dbc file. */
     /* Minimum cell voltage */
-    signalData = (float)packMinimumVoltage_mV;
-    offset     = 0.0f;
-    factor     = 1.0f;
-    signalData = (signalData + offset) * factor;
-    data       = (int64_t)signalData;
+    float signalData = (float)packMinimumVoltage_mV;
+    float offset     = 0.0f;
+    float factor     = 1.0f;
+    signalData       = (signalData + offset) * factor;
+    uint64_t data    = (int64_t)signalData;
     /* set data in CAN frame */
     CAN_TxSetMessageDataWithSignalData(&message, 10u, 13u, data, endianness);
 
@@ -187,12 +183,61 @@ extern uint32_t CAN_TxStringMinimumMaximumValues(
     FAS_ASSERT(pMuxId != NULL_PTR);
     FAS_ASSERT(*pMuxId < BS_NR_OF_STRINGS);
     FAS_ASSERT(kpkCanShim != NULL_PTR);
-    uint64_t message = 0;
+    uint64_t message = 0u;
 
-    /* STUB IMPLEMENTATION */
+    /** Database entry with minimum and maximum values does not need to be read
+     *  within this callback as it is already read by function
+     *  #CAN_TxMinimumMaximumValues */
+    const uint8_t stringNumber = *pMuxId;
+
+    /* AXIVION Disable Style Generic-NoMagicNumbers: Signal data defined in .dbc file. */
+    /* Minimum cell voltage */
+    float signalData = (float)kpkCanShim->pTableMinMax->minimumCellVoltage_mV[stringNumber];
+    float offset     = 0.0f;
+    float factor     = 1.0f;
+    signalData       = (signalData + offset) * factor;
+    uint64_t data    = (int64_t)signalData;
+    /* set data in CAN frame */
+    CAN_TxSetMessageDataWithSignalData(&message, 18u, 13u, data, endianness);
+
+    /* Maximum cell voltage */
+    signalData = (float)kpkCanShim->pTableMinMax->maximumCellVoltage_mV[stringNumber];
+    offset     = 0.0f;
+    factor     = 1.0f;
+    signalData = (signalData + offset) * factor;
+    data       = (int64_t)signalData;
+    /* set data in CAN frame */
+    CAN_TxSetMessageDataWithSignalData(&message, 15u, 13u, data, endianness);
+
+    /* Minimum cell temperature */
+    signalData = (float)kpkCanShim->pTableMinMax->minimumTemperature_ddegC[stringNumber];
+    offset     = 0.0f;
+    factor     = 0.2f; /* convert ddegC to 0.5degC */
+    signalData = (signalData + offset) * factor;
+    data       = (int64_t)signalData;
+    /* set data in CAN frame */
+    CAN_TxSetMessageDataWithSignalData(&message, 44u, 9u, data, endianness);
+
+    /* Maximum cell temperature */
+    signalData = (float)kpkCanShim->pTableMinMax->maximumTemperature_ddegC[stringNumber];
+    offset     = 0.0f;
+    factor     = 0.2f; /* convert ddegC to 0.5degC */
+    signalData = (signalData + offset) * factor;
+    data       = (int64_t)signalData;
+    /* set data in CAN frame */
+    CAN_TxSetMessageDataWithSignalData(&message, 37, 9u, data, endianness);
+    /* AXIVION Enable Style Generic-NoMagicNumbers: */
 
     /* now copy data in the buffer that will be use to send data */
     CAN_TxSetCanDataWithMessageData(message, pCanData, endianness);
+
+    /* Increment multiplexer for next cell */
+    (*pMuxId)++;
+
+    /* Check mux value */
+    if (*pMuxId >= BS_NR_OF_STRINGS) {
+        *pMuxId = 0u;
+    }
 
     return 0;
 }

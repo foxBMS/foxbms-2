@@ -83,31 +83,30 @@ extern uint32_t CAN_TxLimitValues(
     FAS_ASSERT(pCanData != NULL_PTR);
     FAS_ASSERT(kpkCanShim != NULL_PTR);
     uint64_t message = 0;
-    float signalData = 0.0f;
-    float offset     = 0.0f;
-    float factor     = 0.0f;
-    uint64_t data    = 0u;
 
     DATA_READ_DATA(kpkCanShim->pTableSof);
 
     /* AXIVION Disable Style Generic-NoMagicNumbers: Signal data defined in .dbc file. */
     /* maximum charge current */
-    signalData = (float)kpkCanShim->pTableSof->recommendedContinuousPackChargeCurrent_mA;
-    offset     = 0.0f;
-    factor     = 0.25f; /* convert mA to 250mA */
-    signalData = (signalData + offset) * factor;
-    data       = (int64_t)signalData;
+    float signalData = (float)kpkCanShim->pTableSof->recommendedContinuousPackChargeCurrent_mA;
+    float offset     = 0.0f;
+    float factor     = 0.004f; /* convert mA to 250mA */
+    signalData       = (signalData + offset) * factor;
+    uint64_t data    = (int64_t)signalData;
     /* set data in CAN frame */
     CAN_TxSetMessageDataWithSignalData(&message, 11u, 12u, data, endianness);
 
     /* maximum discharge current */
     signalData = (float)kpkCanShim->pTableSof->recommendedContinuousPackDischargeCurrent_mA;
     offset     = 0.0f;
-    factor     = 0.25f; /* convert mA to 250mA */
+    factor     = 0.004f; /* convert mA to 250mA */
     signalData = (signalData + offset) * factor;
     data       = (int64_t)signalData;
     /* set data in CAN frame */
     CAN_TxSetMessageDataWithSignalData(&message, 7u, 12u, data, endianness);
+
+    /* TODO: maximum charge power */
+    /* TODO: maximum discharge power */
 
     /* minimum pack voltage */
     signalData = (float)(BS_NR_OF_BAT_CELLS * BC_VOLTAGE_MIN_MSL_mV);

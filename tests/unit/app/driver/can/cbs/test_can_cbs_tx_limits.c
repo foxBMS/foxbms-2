@@ -61,6 +61,7 @@
 #include "Mockmpu_prototypes.h"
 #include "Mockos.h"
 
+#include "battery_cell_cfg.h"
 #include "database_cfg.h"
 
 #include "can_cbs.h"
@@ -70,6 +71,44 @@ TEST_FILE("can_cbs_tx_limits.c")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 
+static DATA_BLOCK_CELL_VOLTAGE_s can_tableCellVoltages        = {.header.uniqueId = DATA_BLOCK_ID_CELL_VOLTAGE};
+static DATA_BLOCK_CELL_TEMPERATURE_s can_tableTemperatures    = {.header.uniqueId = DATA_BLOCK_ID_CELL_TEMPERATURE};
+static DATA_BLOCK_MIN_MAX_s can_tableMinimumMaximumValues     = {.header.uniqueId = DATA_BLOCK_ID_MIN_MAX};
+static DATA_BLOCK_CURRENT_SENSOR_s can_tableCurrentSensor     = {.header.uniqueId = DATA_BLOCK_ID_CURRENT_SENSOR};
+static DATA_BLOCK_OPEN_WIRE_s can_tableOpenWire               = {.header.uniqueId = DATA_BLOCK_ID_OPEN_WIRE_BASE};
+static DATA_BLOCK_STATEREQUEST_s can_tableStateRequest        = {.header.uniqueId = DATA_BLOCK_ID_STATEREQUEST};
+static DATA_BLOCK_PACK_VALUES_s can_tablePackValues           = {.header.uniqueId = DATA_BLOCK_ID_PACK_VALUES};
+static DATA_BLOCK_SOF_s can_tableSof                          = {.header.uniqueId = DATA_BLOCK_ID_SOF};
+static DATA_BLOCK_SOX_s can_tableSox                          = {.header.uniqueId = DATA_BLOCK_ID_SOX};
+static DATA_BLOCK_ERRORSTATE_s can_tableErrorState            = {.header.uniqueId = DATA_BLOCK_ID_ERRORSTATE};
+static DATA_BLOCK_INSULATION_MONITORING_s can_tableInsulation = {
+    .header.uniqueId = DATA_BLOCK_ID_INSULATION_MONITORING};
+static DATA_BLOCK_MSL_FLAG_s can_tableMslFlags = {.header.uniqueId = DATA_BLOCK_ID_MSL_FLAG};
+static DATA_BLOCK_RSL_FLAG_s can_tableRslFlags = {.header.uniqueId = DATA_BLOCK_ID_RSL_FLAG};
+static DATA_BLOCK_MOL_FLAG_s can_tableMolFlags = {.header.uniqueId = DATA_BLOCK_ID_MOL_FLAG};
+
+QueueHandle_t imd_canDataQueue = NULL_PTR;
+
+const CAN_SHIM_s can_kShim = {
+    .pQueueImd             = &imd_canDataQueue,
+    .pTableCellVoltage     = &can_tableCellVoltages,
+    .pTableCellTemperature = &can_tableTemperatures,
+    .pTableMinMax          = &can_tableMinimumMaximumValues,
+    .pTableCurrentSensor   = &can_tableCurrentSensor,
+    .pTableOpenWire        = &can_tableOpenWire,
+    .pTableStateRequest    = &can_tableStateRequest,
+    .pTablePackValues      = &can_tablePackValues,
+    .pTableSof             = &can_tableSof,
+    .pTableSox             = &can_tableSox,
+    .pTableErrorState      = &can_tableErrorState,
+    .pTableInsulation      = &can_tableInsulation,
+    .pTableMsl             = &can_tableMslFlags,
+    .pTableRsl             = &can_tableRslFlags,
+    .pTableMol             = &can_tableMolFlags,
+};
+
+static uint8_t muxId = 0u;
+
 /*========== Setup and Teardown =============================================*/
 void setUp(void) {
 }
@@ -78,5 +117,36 @@ void tearDown(void) {
 }
 
 /*========== Test Cases =====================================================*/
-void testDummy(void) {
+void testCAN_TxLimitValues(void) {
+    uint8_t data[8] = {0};
+
+    for (uint8_t stringNumber = 0u; stringNumber < BS_NR_OF_STRINGS; stringNumber++) {
+        can_kShim.pTableSof->recommendedContinuousPackDischargeCurrent_mA = 270000.0f;
+        can_kShim.pTableSof->recommendedContinuousPackChargeCurrent_mA    = 240000.0f;
+    }
+
+    DATA_Read_1_DataBlock_IgnoreAndReturn(0u);
+
+    CAN_TxLimitValues(CAN_ID_TX_LIMIT_VALUES, 8, CAN_BIG_ENDIAN, data, NULL_PTR, &can_kShim);
+
+    /** Values of:
+     *  max. charge current: 240A
+     *  max. discharge current: 270A
+     *  max. charge power: 0kW
+     *  max. discharge power: 0kW
+     *  max. battery voltage: 380V
+     *  min. battery voltage: 208V
+     */
+
+    uint8_t minimumBatteryVoltage = (uint8_t)((BS_NR_OF_BAT_CELLS * BC_VOLTAGE_MIN_MSL_mV) / 4000u);
+    uint8_t maximumBatteryVoltage = (uint8_t)((BS_NR_OF_BAT_CELLS * BC_VOLTAGE_MAX_MSL_mV) / 4000u);
+
+    TEST_ASSERT_EQUAL(0x43, data[0]);
+    TEST_ASSERT_EQUAL(0x83, data[1]);
+    TEST_ASSERT_EQUAL(0xC0, data[2]);
+    TEST_ASSERT_EQUAL(0x00, data[3]);
+    TEST_ASSERT_EQUAL(0x00, data[4]);
+    TEST_ASSERT_EQUAL(0x00, data[5]);
+    TEST_ASSERT_EQUAL(maximumBatteryVoltage, data[6]); /* Max battery voltage */
+    TEST_ASSERT_EQUAL(minimumBatteryVoltage, data[7]); /* Minimum battery voltage */
 }

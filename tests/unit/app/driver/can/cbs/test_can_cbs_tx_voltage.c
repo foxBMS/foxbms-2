@@ -71,12 +71,21 @@ TEST_FILE("can_cbs_tx_voltage.c")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 
-static DATA_BLOCK_CELL_VOLTAGE_s can_tableCellVoltages     = {.header.uniqueId = DATA_BLOCK_ID_CELL_VOLTAGE};
-static DATA_BLOCK_CELL_TEMPERATURE_s can_tableTemperatures = {.header.uniqueId = DATA_BLOCK_ID_CELL_TEMPERATURE};
-static DATA_BLOCK_MIN_MAX_s can_tableMinimumMaximumValues  = {.header.uniqueId = DATA_BLOCK_ID_MIN_MAX};
-static DATA_BLOCK_CURRENT_SENSOR_s can_tableCurrentSensor  = {.header.uniqueId = DATA_BLOCK_ID_CURRENT_SENSOR};
-static DATA_BLOCK_OPEN_WIRE_s can_tableOpenWire            = {.header.uniqueId = DATA_BLOCK_ID_OPEN_WIRE_BASE};
-static DATA_BLOCK_STATEREQUEST_s can_tableStateRequest     = {.header.uniqueId = DATA_BLOCK_ID_STATEREQUEST};
+static DATA_BLOCK_CELL_VOLTAGE_s can_tableCellVoltages        = {.header.uniqueId = DATA_BLOCK_ID_CELL_VOLTAGE};
+static DATA_BLOCK_CELL_TEMPERATURE_s can_tableTemperatures    = {.header.uniqueId = DATA_BLOCK_ID_CELL_TEMPERATURE};
+static DATA_BLOCK_MIN_MAX_s can_tableMinimumMaximumValues     = {.header.uniqueId = DATA_BLOCK_ID_MIN_MAX};
+static DATA_BLOCK_CURRENT_SENSOR_s can_tableCurrentSensor     = {.header.uniqueId = DATA_BLOCK_ID_CURRENT_SENSOR};
+static DATA_BLOCK_OPEN_WIRE_s can_tableOpenWire               = {.header.uniqueId = DATA_BLOCK_ID_OPEN_WIRE_BASE};
+static DATA_BLOCK_STATEREQUEST_s can_tableStateRequest        = {.header.uniqueId = DATA_BLOCK_ID_STATEREQUEST};
+static DATA_BLOCK_PACK_VALUES_s can_tablePackValues           = {.header.uniqueId = DATA_BLOCK_ID_PACK_VALUES};
+static DATA_BLOCK_SOF_s can_tableSof                          = {.header.uniqueId = DATA_BLOCK_ID_SOF};
+static DATA_BLOCK_SOX_s can_tableSox                          = {.header.uniqueId = DATA_BLOCK_ID_SOX};
+static DATA_BLOCK_ERRORSTATE_s can_tableErrorState            = {.header.uniqueId = DATA_BLOCK_ID_ERRORSTATE};
+static DATA_BLOCK_INSULATION_MONITORING_s can_tableInsulation = {
+    .header.uniqueId = DATA_BLOCK_ID_INSULATION_MONITORING};
+static DATA_BLOCK_MSL_FLAG_s can_tableMslFlags = {.header.uniqueId = DATA_BLOCK_ID_MSL_FLAG};
+static DATA_BLOCK_RSL_FLAG_s can_tableRslFlags = {.header.uniqueId = DATA_BLOCK_ID_RSL_FLAG};
+static DATA_BLOCK_MOL_FLAG_s can_tableMolFlags = {.header.uniqueId = DATA_BLOCK_ID_MOL_FLAG};
 
 QueueHandle_t imd_canDataQueue = NULL_PTR;
 
@@ -88,6 +97,14 @@ const CAN_SHIM_s can_kShim = {
     .pTableCurrentSensor   = &can_tableCurrentSensor,
     .pTableOpenWire        = &can_tableOpenWire,
     .pTableStateRequest    = &can_tableStateRequest,
+    .pTablePackValues      = &can_tablePackValues,
+    .pTableSof             = &can_tableSof,
+    .pTableSox             = &can_tableSox,
+    .pTableErrorState      = &can_tableErrorState,
+    .pTableInsulation      = &can_tableInsulation,
+    .pTableMsl             = &can_tableMslFlags,
+    .pTableRsl             = &can_tableRslFlags,
+    .pTableMol             = &can_tableMolFlags,
 };
 
 static uint8_t muxId = 0u;
@@ -110,18 +127,22 @@ void testCAN_TxVoltage(void) {
         can_kShim.pTableCellVoltage->cellVoltage_mV[stringNumber][1] = 2100;
         can_kShim.pTableCellVoltage->cellVoltage_mV[stringNumber][2] = 3000;
         can_kShim.pTableCellVoltage->cellVoltage_mV[stringNumber][3] = 3700;
-        can_kShim.pTableCellVoltage->cellVoltage_mV[stringNumber][4] = 4000;
-        can_kShim.pTableCellVoltage->cellVoltage_mV[stringNumber][5] = 1000;
     }
 
-    CAN_TxVoltage(0x111, 8, CAN_BIG_ENDIAN, data, &muxId, &can_kShim);
+    CAN_TxVoltage(CAN_ID_TX_VOLTAGES, 8, CAN_BIG_ENDIAN, data, &muxId, &can_kShim);
 
-    TEST_ASSERT_EQUAL(0, data[0]);
-    TEST_ASSERT_EQUAL(7, data[1]);
-    TEST_ASSERT_EQUAL(250, data[2]);
-    TEST_ASSERT_EQUAL(32, data[3]);
-    TEST_ASSERT_EQUAL(208, data[4]);
-    TEST_ASSERT_EQUAL(0, data[5]);
-    TEST_ASSERT_EQUAL(11, data[6]);
-    TEST_ASSERT_EQUAL(184, data[7]);
+    /* MuxID: 0
+     * Cell voltage 0: 2000mV
+     * Cell voltage 1: 2100mV
+     * Cell voltage 2: 3000mV
+     * Cell voltage 3: 3700mV
+     */
+    TEST_ASSERT_EQUAL(0x00, data[0]);
+    TEST_ASSERT_EQUAL(0x03, data[1]);
+    TEST_ASSERT_EQUAL(0xE8, data[2]);
+    TEST_ASSERT_EQUAL(0x20, data[3]);
+    TEST_ASSERT_EQUAL(0xD1, data[4]);
+    TEST_ASSERT_EQUAL(0x77, data[5]);
+    TEST_ASSERT_EQUAL(0x0E, data[6]);
+    TEST_ASSERT_EQUAL(0x74, data[7]);
 }

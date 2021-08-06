@@ -109,12 +109,12 @@ typedef enum {
     CONT_CHECK_REQUESTS,
 } CONT_STATEMACH_SUB_e;
 
-/** @brief Names for connected powerlines */
+/** @brief Names for connected power paths */
 typedef enum CONT_POWER_LINE_e {
-    CONT_POWER_LINE_NONE, /*!< no power line is connected, contactors are open  */
-    CONT_POWER_LINE_0,    /*!< power line 0, e.g. used for the power train      */
-#if BS_SEPARATE_POWERLINES == 1
-    CONT_POWER_LINE_1, /*!< power line 1, e.g. used for charging                */
+    CONT_POWER_PATH_NONE, /*!< no power line is connected, contactors are open  */
+    CONT_POWER_PATH_0,    /*!< power line 0, e.g. used for the power train      */
+#if BS_SEPARATE_POWER_PATHS == 1
+    CONT_POWER_PATH_1, /*!< power line 1, e.g. used for charging                */
 #endif
 } CONT_POWER_LINE_e;
 

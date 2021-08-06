@@ -70,9 +70,9 @@ later steps of this manual.
    :caption: Downloading a release
    :name: download-foxbms-2
 
-   C:\Users\vulpes\Documents>curl -Ss -L -o foxbms-2-v1.1.0.zip https://github.com/foxBMS/foxbms-2/archive/v1.1.0.zip
-   C:\Users\vulpes\Documents>tar -x -f foxbms-2-v1.1.0.zip
-   C:\Users\vulpes\Documents>ren foxbms-2-1.1.0 foxbms-2
+   C:\Users\vulpes\Documents>curl -Ss -L -o foxbms-2-v1.1.1.zip https://github.com/foxBMS/foxbms-2/archive/v1.1.1.zip
+   C:\Users\vulpes\Documents>tar -x -f foxbms-2-v1.1.1.zip
+   C:\Users\vulpes\Documents>ren foxbms-2-1.1.1 foxbms-2
    C:\Users\vulpes\Documents>cd foxbms-2
 
 .. note::
@@ -107,7 +107,7 @@ Software Prerequisites
    No software installation here should alter the ``PATH`` environment
    variable. When an installer asks during the setup to add something to
    ``PATH``, always remove that option, wether it is explicitly mentioned in
-   that step or not. The only exception to that rule is ``VS Code``.
+   that step or not. The only exception to that rule **MAY** be ``VS Code``.
 
 .. _css_install:
 
@@ -268,7 +268,7 @@ Installing VS Code and Extensions
 #. Download |code| from the project website at `Visual Studio Code`_.
 #. Install code: |foxbms| recommends installing |code| with the
    ``User Installer``, which does not require elevated rights.
-#. **Let the installer add code to the PATH variable.**
+#. *Optional:* Let the installer add code to the PATH variable.
 #. Install extensions: To get the best development experience the following
    extensions are recommended. |code| will list these among the recommended
    extensions after you have run ``waf configure``.

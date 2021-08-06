@@ -95,7 +95,7 @@ static BMS_STATE_s bms_state = {
     .counter                   = 0u,
     .OscillationTimeout        = 0u,
     .PrechargeTryCounter       = 0u,
-    .powerline                 = BMS_PL_OPEN,
+    .powerPath                 = BMS_POWER_PATH_OPEN,
     .closedStrings             = {0u},
     .closedPrechargeContactors = {0u},
     .numberOfClosedStrings     = 0u,
@@ -327,11 +327,11 @@ static uint8_t BMS_CheckCanRequests(void) {
         retVal = BMS_REQ_ID_NORMAL;
     }
 
-#if BS_SEPARATE_POWERLINES == 1
+#if BS_SEPARATE_POWER_PATHS == 1
     else if (request.stateRequestViaCan == BMS_REQ_ID_CHARGE) { /* NOLINT(readability/braces) */
         retVal = BMS_REQ_ID_CHARGE;
     }
-#endif /*  BS_SEPARATE_POWERLINES == 1 */
+#endif /*  BS_SEPARATE_POWER_PATHS == 1 */
 
     return retVal;
 }
@@ -879,7 +879,7 @@ void BMS_Trigger(void) {
                 }
             } else if (bms_state.substate == BMS_CHECK_STATE_REQUESTS) {
                 if (BMS_CheckCanRequests() == BMS_REQ_ID_NORMAL) {
-                    bms_state.powerline = BMS_PL_0;
+                    bms_state.powerPath = BMS_POWER_PATH_0;
                     bms_state.nextstate = BMS_STATEMACH_DISCHARGE;
                     bms_state.timer     = BMS_STATEMACH_SHORTTIME;
                     bms_state.state     = BMS_STATEMACH_PRECHARGE;
@@ -887,7 +887,7 @@ void BMS_Trigger(void) {
                     break;
                 }
                 if (BMS_CheckCanRequests() == BMS_REQ_ID_CHARGE) {
-                    bms_state.powerline = BMS_PL_1;
+                    bms_state.powerPath = BMS_POWER_PATH_1;
                     bms_state.nextstate = BMS_STATEMACH_CHARGE;
                     bms_state.timer     = BMS_STATEMACH_SHORTTIME;
                     bms_state.state     = BMS_STATEMACH_PRECHARGE;

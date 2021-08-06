@@ -83,14 +83,12 @@ extern uint32_t CAN_TxState(
     FAS_ASSERT(pCanData != NULL_PTR);
     FAS_ASSERT(kpkCanShim != NULL_PTR);
     uint64_t message = 0;
-    float signalData = 0.0f;
-    uint64_t data    = 0;
 
     DATA_READ_DATA(kpkCanShim->pTableErrorState, kpkCanShim->pTableInsulation, kpkCanShim->pTableMsl);
 
     /* AXIVION Disable Style Generic-NoMagicNumbers: Signal data defined in .dbc file. */
     /* State */
-    data = (uint64_t)BMS_GetState();
+    uint64_t data = (uint64_t)BMS_GetState();
     /* set data in CAN frame */
     CAN_TxSetMessageDataWithSignalData(&message, 3u, 4u, data, endianness);
 
@@ -124,9 +122,9 @@ extern uint32_t CAN_TxState(
     CAN_TxSetMessageDataWithSignalData(&message, 23u, 1u, data, endianness);
 
     /* Insulation resistance */
-    signalData = (float)kpkCanShim->pTableInsulation->insulationResistance_kOhm;
-    signalData = signalData * 0.1f; /* convert kOhm to 10kOhm */
-    data       = (uint64_t)signalData;
+    float signalData = (float)kpkCanShim->pTableInsulation->insulationResistance_kOhm;
+    signalData       = signalData * 0.1f; /* convert kOhm to 10kOhm */
+    data             = (uint64_t)signalData;
     CAN_TxSetMessageDataWithSignalData(&message, 63u, 8u, data, endianness);
 
     /* Charging complete: TODO */

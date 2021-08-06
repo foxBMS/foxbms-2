@@ -45,6 +45,7 @@
     "tools/vendor/**",
     "tools/waf",
     "tools/waf-verify-sig.py",
+    "tests/axivion/**",
     "tests/scripts/waf-tools/f_guidelines/tests/**",
     "tests/scripts/waf-core/general/**",
     "tests/scripts/waf-core/init/**",
@@ -79,7 +80,8 @@
       "**/.dummy",
       "**/README.md",
       "**/wscript",
-      "**/__init__.py"
+      "**/__init__.py",
+      "**/.clang-format"
     ]
   },
   "encoding": {

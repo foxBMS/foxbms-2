@@ -73,8 +73,8 @@ static const CAN_SIGNAL_TYPE_s cellVoltage2InvalidFlag = {14u, 1u, 1.0f, 0.0f, 0
 static const CAN_SIGNAL_TYPE_s cellVoltage3InvalidFlag = {15u, 1u, 1.0f, 0.0f, 0.0f, 1.0f};
 static const CAN_SIGNAL_TYPE_s cellVoltage0_mV         = {11u, 13u, 1.0f, 0.0f, 0.0f, 8192.0f};
 static const CAN_SIGNAL_TYPE_s cellVoltage1_mV         = {30u, 13u, 1.0f, 0.0f, 0.0f, 8192.0f};
-static const CAN_SIGNAL_TYPE_s cellVoltage2_mV         = {52u, 13u, 1.0f, 0.0f, 0.0f, 8192.0f};
-static const CAN_SIGNAL_TYPE_s cellVoltage3_mV         = {11u, 13u, 1.0f, 0.0f, 0.0f, 8192.0f};
+static const CAN_SIGNAL_TYPE_s cellVoltage2_mV         = {33u, 13u, 1.0f, 0.0f, 0.0f, 8192.0f};
+static const CAN_SIGNAL_TYPE_s cellVoltage3_mV         = {52u, 13u, 1.0f, 0.0f, 0.0f, 8192.0f};
 
 /*========== Extern Constant and Variable Definitions =======================*/
 

@@ -42,3 +42,8 @@ __pycache__
 # ignore JabRef - https://www.jabref.org/
 *.bak
 *.sav
+
+# Temporary Office files
+
+*.~*
+*.~$*

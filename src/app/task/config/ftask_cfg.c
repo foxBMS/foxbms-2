@@ -165,6 +165,9 @@ extern void FTSK_InitializeUserCodePreCyclicTasks(void) {
     /* Init FRAM */
     FRAM_Initialize();
 
+    /* Initialize redundancy module */
+    (void)MRC_Initialize();
+
     /* This function operates under the assumption that it is called when
      * the operating system is not yet running.
      * In this state the return value of #SYS_SetStateRequest should

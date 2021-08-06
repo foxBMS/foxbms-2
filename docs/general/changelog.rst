@@ -9,10 +9,12 @@ Changelog
 
 ..
     Comments:
+    Axivion is the company that builds the Axivion Bauhaus suite
     slaveplausibility is the old name of a plausibility module
     JUnit is a test system (originally for Java)
 
 .. spelling::
+    Axivion
     slaveplausibility
     JUnit
 
@@ -30,6 +32,35 @@ Versioning follows then these rules:
 - increasing ``MAJOR`` introduces incompatible changes
 - increasing ``MINOR`` adds functionality in a backwards compatible manner
 - increasing ``PATCH`` fixes bugs in a backwards compatible manner
+
+********************
+[1.1.1] - 2021-08-06
+********************
+
+Added
+=====
+
+- All measurement values are now invalidated after startup to prevent invalid
+  data on CAN.
+- Add a script for VS Code detection.
+- Added signal data for string related CAN messages
+
+Changed
+=======
+
+Deprecated
+==========
+
+Removed
+=======
+
+Fixed
+=====
+
+- fixed bug, that multiplexed cell voltages 2+3 were transmitted incorrectly via
+  CAN (``foxBMS_CellVoltage``)
+- fixed bug, that current limits were transmitted incorrectly via CAN
+  (``foxBMS_LimitValues``)
 
 ********************
 [1.1.0] - 2021-07-29

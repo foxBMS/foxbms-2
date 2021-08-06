@@ -48,8 +48,8 @@ SG_ foxBMS_String2_power m2 : 33|18@0- (0.01,0) [-1310.72|1310.71] "kW" Vector__
 BO_ 643 foxBMS_StringValues2: 8 Vector__XXX
 SG_ foxBMS_StringValues2_Mux M : 7|4@0+ (1,0) [0|0] "" Vector__XXX
 SG_ String0_energyCount m0 : 15|32@0- (1,0) [-2147483648|2147483647] "Wh" Vector__XXX
-SG_ String1_energyCount1 m1 : 15|32@0- (1,0) [-2147483648|2147483647] "Wh" Vector__XXX
-SG_ String1_energyCount2 m2 : 15|32@0- (1,0) [-2147483648|2147483647] "Wh" Vector__XXX
+SG_ String1_energyCount m1 : 15|32@0- (1,0) [-2147483648|2147483647] "Wh" Vector__XXX
+SG_ String2_energyCount m2 : 15|32@0- (1,0) [-2147483648|2147483647] "Wh" Vector__XXX
 
 
 BO_ 549 foxBMS_PackStateEstimation: 8 Vector__XXX
@@ -1076,22 +1076,22 @@ BO_ 642 foxBMS_StringStateEstimation: 8 Vector__XXX
 SG_ foxBMS_StringStateEstimation_Mux M : 7|4@0+ (1,0) [0|0] "" Vector__XXX
 SG_ String0_minimumSOC m0 : 3|9@0+ (0.25,0) [0|127.75] "%" Vector__XXX
 SG_ String0_averageSOC m0 : 10|9@0+ (0.25,0) [0|127.5] "%" Vector__XXX
-SG_ String0_maximumSOC m0 : 17|8@0+ (0.25,0) [0|63.75] "%" Vector__XXX
-SG_ String0_SOE m0 : 25|9@0+ (0.25,0) [0|127.5] "%" Vector__XXX
-SG_ String0_Energy_kWh m0 : 55|16@0+ (0.01,0) [0|655.35] "kWh" Vector__XXX
-SG_ String0_SOH m0 : 32|9@0+ (0.25,0) [0|127.5] "%" Vector__XXX
+SG_ String0_maximumSOC m0 : 17|9@0+ (0.25,0) [0|63.75] "%" Vector__XXX
+SG_ String0_SOE m0 : 24|9@0+ (0.25,0) [0|127.5] "%" Vector__XXX
+SG_ String0_Energy_kWh m0 : 54|15@0+ (0.01,0) [0|327.67] "kWh" Vector__XXX
+SG_ String0_SOH m0 : 47|9@0+ (0.25,0) [0|127.5] "%" Vector__XXX
 SG_ String1_minimumSOC m1 : 3|9@0+ (0.25,0) [0|127.75] "%" Vector__XXX
 SG_ String1_averageSOC m1 : 10|9@0+ (0.25,0) [0|127.5] "%" Vector__XXX
-SG_ String1_maximumSOC m1 : 17|8@0+ (0.25,0) [0|63.75] "%" Vector__XXX
-SG_ String1_SOE m1 : 25|9@0+ (0.25,0) [0|127.5] "%" Vector__XXX
-SG_ String1_Energy_kWh m1 : 55|16@0+ (0.01,0) [0|655.35] "kWh" Vector__XXX
-SG_ String1_SOH m1 : 32|9@0+ (0.25,0) [0|127.5] "%" Vector__XXX
+SG_ String1_maximumSOC m1 : 17|9@0+ (0.25,0) [0|63.75] "%" Vector__XXX
+SG_ String1_SOE m1 : 24|9@0+ (0.25,0) [0|127.5] "%" Vector__XXX
+SG_ String1_Energy_kWh m1 : 54|15@0+ (0.01,0) [0|327.67] "kWh" Vector__XXX
+SG_ String1_SOH m1 : 47|9@0+ (0.25,0) [0|127.5] "%" Vector__XXX
 SG_ String2_minimumSOC m2 : 3|9@0+ (0.25,0) [0|127.75] "%" Vector__XXX
 SG_ String2_averageSOC m2 : 10|9@0+ (0.25,0) [0|127.5] "%" Vector__XXX
-SG_ String2_maximumSOC m2 : 17|8@0+ (0.25,0) [0|63.75] "%" Vector__XXX
-SG_ String2_SOE m2 : 25|9@0+ (0.25,0) [0|127.5] "%" Vector__XXX
-SG_ String2_Energy_kWh m2 : 55|16@0+ (0.01,0) [0|655.35] "kWh" Vector__XXX
-SG_ String2_SOH m2 : 32|9@0+ (0.25,0) [0|127.5] "%" Vector__XXX
+SG_ String2_maximumSOC m2 : 17|9@0+ (0.25,0) [0|63.75] "%" Vector__XXX
+SG_ String2_SOE m2 : 24|9@0+ (0.25,0) [0|127.5] "%" Vector__XXX
+SG_ String2_Energy_kWh m2 : 54|15@0+ (0.01,0) [0|327.67] "kWh" Vector__XXX
+SG_ String2_SOH m2 : 47|9@0+ (0.25,0) [0|127.5] "%" Vector__XXX
 
 
 BO_ 512 foxBMS_Debug: 8 Vector__XXX
@@ -1128,13 +1128,13 @@ SG_ IVT0_Result_U2_mV : 23|32@0- (1,0) [-2147483648|2147483647] "mV" Vector__XXX
 
 
 BO_ 1316 IVT0_Msg_Result_U3: 6 Vector__XXX
-SG_ IVT_Result_U3_systemError : 15|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT_Result_U3_OCS : 12|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT_Result_U3_overallMeasError : 14|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT_Result_U3_channelMeasError : 13|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT_ID_Result_U3 : 7|8@0+ (1,0) [3|3] "" Vector__XXX
-SG_ IVT_MsgCount_Result_U3 : 11|4@0+ (1,0) [0|15] "" Vector__XXX
-SG_ IVT_Result_U3_mV : 23|32@0- (1,0) [-2147483648|2147483647] "mV" Vector__XXX
+SG_ IVT0_Result_U3_systemError : 15|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ IVT0_Result_U3_OCS : 12|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ IVT0_Result_U3_overallMeasError : 14|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ IVT0_Result_U3_channelMeasError : 13|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ IVT0_ID_Result_U3 : 7|8@0+ (1,0) [3|3] "" Vector__XXX
+SG_ IVT0_MsgCount_Result_U3 : 11|4@0+ (1,0) [0|15] "" Vector__XXX
+SG_ IVT0_Result_U3_mV : 23|32@0- (1,0) [-2147483648|2147483647] "mV" Vector__XXX
 
 
 BO_ 1317 IVT0_Msg_Result_T: 6 Vector__XXX
@@ -1208,13 +1208,13 @@ SG_ IVT1_Result_U2_mV : 23|32@0- (1,0) [-2147483648|2147483647] "mV" Vector__XXX
 
 
 BO_ 1572 IVT1_Msg_Result_U3: 6 Vector__XXX
-SG_ IVT_Result_U3_systemError : 15|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT_Result_U3_OCS : 12|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT_Result_U3_overallMeasError : 14|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT_Result_U3_channelMeasError : 13|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT_ID_Result_U3 : 7|8@0+ (1,0) [3|3] "" Vector__XXX
-SG_ IVT_MsgCount_Result_U3 : 11|4@0+ (1,0) [0|15] "" Vector__XXX
-SG_ IVT_Result_U3_mV : 23|32@0- (1,0) [-2147483648|2147483647] "mV" Vector__XXX
+SG_ IVT1_Result_U3_systemError : 15|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ IVT1_Result_U3_OCS : 12|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ IVT1_Result_U3_overallMeasError : 14|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ IVT1_Result_U3_channelMeasError : 13|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ IVT1_ID_Result_U3 : 7|8@0+ (1,0) [3|3] "" Vector__XXX
+SG_ IVT1_MsgCount_Result_U3 : 11|4@0+ (1,0) [0|15] "" Vector__XXX
+SG_ IVT1_Result_U3_mV : 23|32@0- (1,0) [-2147483648|2147483647] "mV" Vector__XXX
 
 
 BO_ 1573 IVT1_Msg_Result_T: 6 Vector__XXX
@@ -1288,13 +1288,13 @@ SG_ IVT2_Result_U2_mV : 23|32@0- (1,0) [-2147483648|2147483647] "mV" Vector__XXX
 
 
 BO_ 1828 IVT2_Msg_Result_U3: 6 Vector__XXX
-SG_ IVT_Result_U3_systemError : 15|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT_Result_U3_OCS : 12|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT_Result_U3_overallMeasError : 14|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT_Result_U3_channelMeasError : 13|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT_ID_Result_U3 : 7|8@0+ (1,0) [3|3] "" Vector__XXX
-SG_ IVT_MsgCount_Result_U3 : 11|4@0+ (1,0) [0|15] "" Vector__XXX
-SG_ IVT_Result_U3_mV : 23|32@0- (1,0) [-2147483648|2147483647] "mV" Vector__XXX
+SG_ IVT2_Result_U3_systemError : 15|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ IVT2_Result_U3_OCS : 12|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ IVT2_Result_U3_overallMeasError : 14|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ IVT2_Result_U3_channelMeasError : 13|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ IVT2_ID_Result_U3 : 7|8@0+ (1,0) [3|3] "" Vector__XXX
+SG_ IVT2_MsgCount_Result_U3 : 11|4@0+ (1,0) [0|15] "" Vector__XXX
+SG_ IVT2_Result_U3_mV : 23|32@0- (1,0) [-2147483648|2147483647] "mV" Vector__XXX
 
 
 BO_ 1829 IVT2_Msg_Result_T: 6 Vector__XXX
@@ -1348,24 +1348,31 @@ SG_ foxBMS_releaseDistance : 31|5@0+ (1,0) [0|31] "" Vector__XXX
 SG_ foxBMS_releaseDistanceOverflow : 26|1@1+ (1,0) [0|1] "" Vector__XXX
 
 
+CM_ BO_ 546 "(in:can_cbs_tx_system_values.c:CAN_TxPackValues)";
 CM_ SG_ 546 foxBMS_packCurrent "Battery pack current";
 CM_ SG_ 546 foxBMS_batteryVoltage "Battery voltage between negative and positive pole of the battery";
 CM_ SG_ 546 foxBMS_busVoltage "Battery voltage between negative pole and after main positive contactor";
 CM_ SG_ 546 foxBMS_packPower "Battery power";
+CM_ BO_ 548 "(in:can_cbs_tx_limits.c:CAN_TxLimitValues)";
 CM_ SG_ 548 foxBMS_maxChargeCurrent "Maximum battery pack charge current";
 CM_ SG_ 548 foxBMS_maxDischargeCurrent "Maximum battery pack discharge current";
+CM_ BO_ 547 "(in:can_cbs_tx_minmax.c:CAN_TxMinimumMaximumValues)";
 CM_ SG_ 547 foxBMS_minimumCellVoltage "Minimum cell voltage of all connected strings, if no string connected maximum value of whole system is transmitted";
 CM_ SG_ 547 foxBMS_maximumCellVoltage "Maximum cell voltage of all connected strings, if no string connected maximum value of whole system is transmitted";
 CM_ SG_ 547 foxBMS_maximumCellTemp "Maximum cell temperature of all connected strings, if no string connected maximum value of whole system is transmitted";
 CM_ SG_ 547 foxBMS_minimumCellTemp "Minium cell temperature of all connected string, if no string connected maximum value of whole system is transmitted";
-CM_ BO_ 640 "Message contains string voltage, current and power";
-CM_ BO_ 643 "Message contains energy counting value";
+CM_ BO_ 640 "Message contains string voltage, current and power (in:can_cbs_tx_system_values.c:CAN_TxStringValues)";
+CM_ BO_ 643 "Message contains energy counting value (in:can_cbs_tx_system_values.c:CAN_TxStringValues2)";
 CM_ SG_ 643 String0_energyCount "Current sensor string 0 energy counting value";
-CM_ SG_ 643 String1_energyCount1 "Current sensor string 1 energy counting value";
-CM_ SG_ 643 String1_energyCount2 "Current sensor string 2 energy counting value";
+CM_ SG_ 643 String1_energyCount "Current sensor string 1 energy counting value";
+CM_ SG_ 643 String2_energyCount "Current sensor string 2 energy counting value";
+CM_ BO_ 549 "(in:can_cbs_tx_state_estimation.c:CAN_TxStateEstimation)";
 CM_ SG_ 549 foxBMS_packSoc "SOC currently connected to HV bus (100% if all strings connected and all strings at 100%)";
 CM_ SG_ 549 foxBMS_packSoe "SOE currently connected to HV bus (100% if all strings connected and all strings at 100%)";
 CM_ SG_ 549 foxBMS_packEnergy "Energy left in Wh that is currently connected to HV bus";
+CM_ BO_ 576 "(in:can_cbs_tx_voltage.c:CAN_TxVoltage)";
+CM_ BO_ 592 "(in:can_cbs_tx_temperature.c:CAN_TxCellTemperature)";
+CM_ BO_ 560 "(in:can_cbs_rx_command.c:CAN_RxRequest)";
 CM_ SG_ 560 foxBMS_modeRequest "0x0: Disconnect strings from HV bus, 0x01: Connect strings to HV bus to start discharge, 0x02: Connect strings to HV bus to start charging";
 CM_ SG_ 560 foxBMS_activateBalancing "0: Deactivate balancing, 1: Activate balancing";
 CM_ SG_ 560 foxBMS_balancingThreshold "Required voltage difference to minimum cell voltage to activate balancing";
@@ -1375,7 +1382,7 @@ CM_ SG_ 560 foxBMS_chargerConnected "0x00: charger not connected, 0x01: charger 
 CM_ SG_ 560 foxBMS_disableInsulationMon "0x00: Check battery system insulation, 0x01: Do not check insulation of battery system";
 CM_ SG_ 560 foxBMS_heaterOverride_ON "0: no override active, 1: override active -> force heater on";
 CM_ SG_ 560 foxBMS_heaterOverride_OFF "0: no override active, 1: override active -> force heater off";
-CM_ BO_ 544 "Message contains foxBMS state";
+CM_ BO_ 544 "Message contains foxBMS state (in:can_cbs_tx_state.c:CAN_TxState)";
 CM_ SG_ 544 foxBMS_generalError "0x00: No error detected, 0x01: Error detected";
 CM_ SG_ 544 foxBMS_generalWarning "0x00: No warning detected, 0x01: Warning detected";
 CM_ SG_ 544 foxBMS_Error_dieTemperatureMCU "0x00: No error, 0x01: Error detected";
@@ -1394,7 +1401,7 @@ CM_ SG_ 544 foxBMS_Error_Insulation "0x00: No error, 0x01: Error detected";
 CM_ SG_ 544 foxBMS_Error_Cantiming "0x00: No error, 0x01: Error detected";
 CM_ SG_ 544 foxBMS_Error_PackOvercurr_Charge "0x00: No error, 0x01: Error detected";
 CM_ SG_ 544 foxBMS_Error_PackOvercur_Dischrg "0x00: No error, 0x01: Error detected";
-CM_ BO_ 545 "Message contains string related error and warning flags";
+CM_ BO_ 545 "Message contains string related error and warning flags (in:can_cbs_tx_state.c:CAN_TxStringState)";
 CM_ SG_ 545 String0_stringConnected "0x00: String not connected, 0x01: String connected to HV bus";
 CM_ SG_ 545 String0_balancing_active "0x00: No balancing active, 0x01: Balancing in this string active";
 CM_ SG_ 545 String0_Err_overtemp_charge "0x00: No error, 0x01: Error: Flag will be set if maximum cell temperature is above 45 degree celsius.";
@@ -1488,7 +1495,7 @@ CM_ SG_ 545 String2_Err_CS_coulombCountMeas "0x00: No error, 0x01: Error";
 CM_ SG_ 545 String2_Err_CS_energyCountMeas "0x00: No error, 0x01: Error";
 CM_ SG_ 545 String2_Err_plaus_volt_spread "0x00: No error, 0x01: Error";
 CM_ SG_ 545 String2_Err_plaus_temp_spread "0x00: No error, 0x01: Error";
-CM_ BO_ 641 "Message contains minimum and maximum cell temperature and cell voltage values of respective string";
+CM_ BO_ 641 "Message contains minimum and maximum cell temperature and cell voltage values of respective string (in:can_cbs_tx_minmax.c:CAN_TxStringMinimumMaximumValues)";
 CM_ SG_ 641 String0_minimumCellVoltage "Minimum cell voltage in this string";
 CM_ SG_ 641 String0_maximumCellVoltage "Maximum cell voltage in this string";
 CM_ SG_ 641 String0_maximumCellTemperature "Maximum cell temperature in this string";
@@ -1501,38 +1508,39 @@ CM_ SG_ 641 String2_minimumCellVoltage "Minimum cell voltage in this string";
 CM_ SG_ 641 String2_maximumCellVoltage "Maximum cell voltage in this string";
 CM_ SG_ 641 String2_maximumCellTemperature "Maximum cell temperature in this string";
 CM_ SG_ 641 String2_minimumCellTemperature "Minium cell temperature in this string";
-CM_ BO_ 642 "Message contains SOC, SOE and SOH state estimations";
+CM_ BO_ 642 "Message contains SOC, SOE and SOH state estimations (in:can_cbs_tx_state_estimation.c:CAN_TxStringStateEstimation)";
 CM_ SG_ 642 String0_SOE "SOE is depending on current direction, if battery system is charging: SOE_max is transmitted, else SOE_min";
 CM_ SG_ 642 String0_Energy_kWh "Remaining energy left in this string";
 CM_ SG_ 642 String1_SOE "SOE is depending on current direction, if battery system is charging: SOE_max is transmitted, else SOE_min";
 CM_ SG_ 642 String1_Energy_kWh "Remaining energy left in this string";
 CM_ SG_ 642 String2_SOE "SOE is depending on current direction, if battery system is charging: SOE_max is transmitted, else SOE_min";
 CM_ SG_ 642 String2_Energy_kWh "Remaining energy left in this string";
-CM_ BO_ 512 "Reserved - for debug/development purpose only";
-CM_ BO_ 1313 "Current sensor string 0: current";
-CM_ BO_ 1314 "Current sensor string 0: voltage 1";
-CM_ BO_ 1315 "Current sensor string 0: voltage 2";
-CM_ BO_ 1316 "Current sensor string 0: voltage 3";
-CM_ BO_ 1317 "Current sensor string 0: temperature";
-CM_ BO_ 1318 "Current sensor string 0: power";
-CM_ BO_ 1319 "Current sensor string 0: coulomb counting";
-CM_ BO_ 1320 "Current sensor string 0: energy counting";
-CM_ BO_ 1569 "Current sensor string 1: current";
-CM_ BO_ 1570 "Current sensor string 1: voltage 1";
-CM_ BO_ 1571 "Current sensor string 1: voltage 2";
-CM_ BO_ 1572 "Current sensor string 1: voltage 3";
-CM_ BO_ 1573 "Current sensor string 1: temperature";
-CM_ BO_ 1574 "Current sensor string 1: power";
-CM_ BO_ 1575 "Current sensor string 1: coulomb counting";
-CM_ BO_ 1576 "Current sensor string 1: energy counting";
-CM_ BO_ 1825 "Current sensor string 2: current";
-CM_ BO_ 1826 "Current sensor string 2: voltage 1";
-CM_ BO_ 1827 "Current sensor string 2: voltage 2";
-CM_ BO_ 1828 "Current sensor string 2: voltage 3";
-CM_ BO_ 1829 "Current sensor string 2: temperature";
-CM_ BO_ 1830 "Current sensor string 2: power";
-CM_ BO_ 1831 "Current sensor string 2: coulomb counting";
-CM_ BO_ 1832 "Current sensor string 2: energy counting";
+CM_ BO_ 512 "Reserved - for debug/development purpose only (in:can_cbs_rx_misc.c:CAN_RxDebug)";
+CM_ BO_ 1313 "Current sensor string 0: current (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)";
+CM_ BO_ 1314 "Current sensor string 0: voltage 1 (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)";
+CM_ BO_ 1315 "Current sensor string 0: voltage 2 (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)";
+CM_ BO_ 1316 "Current sensor string 0: voltage 3 (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)";
+CM_ BO_ 1317 "Current sensor string 0: temperature (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)";
+CM_ BO_ 1318 "Current sensor string 0: power (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)";
+CM_ BO_ 1319 "Current sensor string 0: coulomb counting (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)";
+CM_ BO_ 1320 "Current sensor string 0: energy counting (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)";
+CM_ BO_ 1569 "Current sensor string 1: current (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)";
+CM_ BO_ 1570 "Current sensor string 1: voltage 1 (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)";
+CM_ BO_ 1571 "Current sensor string 1: voltage 2 (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)";
+CM_ BO_ 1572 "Current sensor string 1: voltage 3 (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)";
+CM_ BO_ 1573 "Current sensor string 1: temperature (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)";
+CM_ BO_ 1574 "Current sensor string 1: power (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)";
+CM_ BO_ 1575 "Current sensor string 1: coulomb counting (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)";
+CM_ BO_ 1576 "Current sensor string 1: energy counting (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)";
+CM_ BO_ 1825 "Current sensor string 2: current (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)";
+CM_ BO_ 1826 "Current sensor string 2: voltage 1 (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)";
+CM_ BO_ 1827 "Current sensor string 2: voltage 2 (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)";
+CM_ BO_ 1828 "Current sensor string 2: voltage 3 (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)";
+CM_ BO_ 1829 "Current sensor string 2: temperature (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)";
+CM_ BO_ 1830 "Current sensor string 2: power (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)";
+CM_ BO_ 1831 "Current sensor string 2: coulomb counting (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)";
+CM_ BO_ 1832 "Current sensor string 2: energy counting (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)";
+CM_ BO_ 409 "(in:can.c:CAN_TransmitBootMessage)";
 CM_ SG_ 409 foxBMS_uniqueId "Content of Device Identification Register (DEVID)";
 
 BA_DEF_  "BusType" STRING ;
@@ -1569,8 +1577,8 @@ BA_ "GenSigStartValue" SG_ 640 foxBMS_String2_current 0;
 BA_ "GenSigStartValue" SG_ 640 foxBMS_String2_voltage 0;
 BA_ "GenSigStartValue" SG_ 640 foxBMS_String2_power 0;
 BA_ "GenSigStartValue" SG_ 643 String0_energyCount 0;
-BA_ "GenSigStartValue" SG_ 643 String1_energyCount1 0;
-BA_ "GenSigStartValue" SG_ 643 String1_energyCount2 0;
+BA_ "GenSigStartValue" SG_ 643 String1_energyCount 0;
+BA_ "GenSigStartValue" SG_ 643 String2_energyCount 0;
 BA_ "GenSigStartValue" SG_ 549 foxBMS_packSoc 0;
 BA_ "GenSigStartValue" SG_ 549 foxBMS_packSoe 0;
 BA_ "GenSigStartValue" SG_ 549 foxBMS_packEnergy 0;
@@ -2605,13 +2613,13 @@ BA_ "GenSigStartValue" SG_ 1315 IVT0_Result_U2_channelMeasError 0;
 BA_ "GenSigStartValue" SG_ 1315 IVT0_ID_Result_U2 2;
 BA_ "GenSigStartValue" SG_ 1315 IVT0_MsgCount_Result_U2 0;
 BA_ "GenSigStartValue" SG_ 1315 IVT0_Result_U2_mV 0;
-BA_ "GenSigStartValue" SG_ 1316 IVT_Result_U3_systemError 0;
-BA_ "GenSigStartValue" SG_ 1316 IVT_Result_U3_OCS 0;
-BA_ "GenSigStartValue" SG_ 1316 IVT_Result_U3_overallMeasError 0;
-BA_ "GenSigStartValue" SG_ 1316 IVT_Result_U3_channelMeasError 0;
-BA_ "GenSigStartValue" SG_ 1316 IVT_ID_Result_U3 3;
-BA_ "GenSigStartValue" SG_ 1316 IVT_MsgCount_Result_U3 0;
-BA_ "GenSigStartValue" SG_ 1316 IVT_Result_U3_mV 0;
+BA_ "GenSigStartValue" SG_ 1316 IVT0_Result_U3_systemError 0;
+BA_ "GenSigStartValue" SG_ 1316 IVT0_Result_U3_OCS 0;
+BA_ "GenSigStartValue" SG_ 1316 IVT0_Result_U3_overallMeasError 0;
+BA_ "GenSigStartValue" SG_ 1316 IVT0_Result_U3_channelMeasError 0;
+BA_ "GenSigStartValue" SG_ 1316 IVT0_ID_Result_U3 3;
+BA_ "GenSigStartValue" SG_ 1316 IVT0_MsgCount_Result_U3 0;
+BA_ "GenSigStartValue" SG_ 1316 IVT0_Result_U3_mV 0;
 BA_ "GenSigStartValue" SG_ 1317 IVT0_Result_T_systemError 0;
 BA_ "GenSigStartValue" SG_ 1317 IVT0_Result_T_OCS 0;
 BA_ "GenSigStartValue" SG_ 1317 IVT0_Result_T_overallMeasError 0;
@@ -2661,13 +2669,13 @@ BA_ "GenSigStartValue" SG_ 1571 IVT1_Result_U2_channelMeasError 0;
 BA_ "GenSigStartValue" SG_ 1571 IVT1_ID_Result_U2 2;
 BA_ "GenSigStartValue" SG_ 1571 IVT1_MsgCount_Result_U2 0;
 BA_ "GenSigStartValue" SG_ 1571 IVT1_Result_U2_mV 0;
-BA_ "GenSigStartValue" SG_ 1572 IVT_Result_U3_systemError 0;
-BA_ "GenSigStartValue" SG_ 1572 IVT_Result_U3_OCS 0;
-BA_ "GenSigStartValue" SG_ 1572 IVT_Result_U3_overallMeasError 0;
-BA_ "GenSigStartValue" SG_ 1572 IVT_Result_U3_channelMeasError 0;
-BA_ "GenSigStartValue" SG_ 1572 IVT_ID_Result_U3 3;
-BA_ "GenSigStartValue" SG_ 1572 IVT_MsgCount_Result_U3 0;
-BA_ "GenSigStartValue" SG_ 1572 IVT_Result_U3_mV 0;
+BA_ "GenSigStartValue" SG_ 1572 IVT1_Result_U3_systemError 0;
+BA_ "GenSigStartValue" SG_ 1572 IVT1_Result_U3_OCS 0;
+BA_ "GenSigStartValue" SG_ 1572 IVT1_Result_U3_overallMeasError 0;
+BA_ "GenSigStartValue" SG_ 1572 IVT1_Result_U3_channelMeasError 0;
+BA_ "GenSigStartValue" SG_ 1572 IVT1_ID_Result_U3 3;
+BA_ "GenSigStartValue" SG_ 1572 IVT1_MsgCount_Result_U3 0;
+BA_ "GenSigStartValue" SG_ 1572 IVT1_Result_U3_mV 0;
 BA_ "GenSigStartValue" SG_ 1573 IVT1_Result_T_systemError 0;
 BA_ "GenSigStartValue" SG_ 1573 IVT1_Result_T_OCS 0;
 BA_ "GenSigStartValue" SG_ 1573 IVT1_Result_T_overallMeasError 0;
@@ -2717,13 +2725,13 @@ BA_ "GenSigStartValue" SG_ 1827 IVT2_Result_U2_channelMeasError 0;
 BA_ "GenSigStartValue" SG_ 1827 IVT2_ID_Result_U2 2;
 BA_ "GenSigStartValue" SG_ 1827 IVT2_MsgCount_Result_U2 0;
 BA_ "GenSigStartValue" SG_ 1827 IVT2_Result_U2_mV 0;
-BA_ "GenSigStartValue" SG_ 1828 IVT_Result_U3_systemError 0;
-BA_ "GenSigStartValue" SG_ 1828 IVT_Result_U3_OCS 0;
-BA_ "GenSigStartValue" SG_ 1828 IVT_Result_U3_overallMeasError 0;
-BA_ "GenSigStartValue" SG_ 1828 IVT_Result_U3_channelMeasError 0;
-BA_ "GenSigStartValue" SG_ 1828 IVT_ID_Result_U3 3;
-BA_ "GenSigStartValue" SG_ 1828 IVT_MsgCount_Result_U3 0;
-BA_ "GenSigStartValue" SG_ 1828 IVT_Result_U3_mV 0;
+BA_ "GenSigStartValue" SG_ 1828 IVT2_Result_U3_systemError 0;
+BA_ "GenSigStartValue" SG_ 1828 IVT2_Result_U3_OCS 0;
+BA_ "GenSigStartValue" SG_ 1828 IVT2_Result_U3_overallMeasError 0;
+BA_ "GenSigStartValue" SG_ 1828 IVT2_Result_U3_channelMeasError 0;
+BA_ "GenSigStartValue" SG_ 1828 IVT2_ID_Result_U3 3;
+BA_ "GenSigStartValue" SG_ 1828 IVT2_MsgCount_Result_U3 0;
+BA_ "GenSigStartValue" SG_ 1828 IVT2_Result_U3_mV 0;
 BA_ "GenSigStartValue" SG_ 1829 IVT2_Result_T_systemError 0;
 BA_ "GenSigStartValue" SG_ 1829 IVT2_Result_T_OCS 0;
 BA_ "GenSigStartValue" SG_ 1829 IVT2_Result_T_overallMeasError 0;
@@ -2770,5 +2778,5 @@ VAL_ 545 foxBMS_StringState_Mux 0 "mux_stateString0" 1 "mux_stateString1" 2 "mux
 VAL_ 641 foxBMS_StringMinMaxValues_Mux 0 "mux_minMaxValuesString0" 1 "mux_minMaxValuesString1" 2 "mux_minMaxValuesString2" ;
 VAL_ 642 foxBMS_StringStateEstimation_Mux 0 "mux_String0_SOC_SOE" 1 "mux_String1_SOC_SOE" 2 "mux_String2_SOC_SOE" ;
 VAL_ 560 foxBMS_modeRequest 0 "mode_Standby" 1 "mode_Discharge" 2 "mode_Charge" ;
-VAL_ 544 foxBMS_State 0 "BMS_UNINITIALIZED" 1 "BMS_INITIALIZATION" 2 "BMS_INITIALIZED" 3 "BMS_IDLE" 4 "BMS_OPENCONTACTORS" 5 "BMS_STANDBY" 6 "BMS_PRECHARGE" 7 "BMS_NORMAL" 8 "BMS_DISCHARGE" 9 "BMS_CHARGE" 10 "BMS_ERROR" 11 "BMS_UNDEFINED" ;
+VAL_ 544 foxBMS_State 0 "BMS_UNINITIALIZED" 1 "BMS_INITIALIZATION" 2 "BMS_INITIALIZED" 3 "BMS_IDLE" 4 "BMS_OPEN_CONTACTORS" 5 "BMS_STANDBY" 6 "BMS_PRECHARGE" 7 "BMS_NORMAL" 8 "BMS_DISCHARGE" 9 "BMS_CHARGE" 10 "BMS_ERROR" 11 "BMS_UNDEFINED" ;
 

@@ -277,14 +277,14 @@ typedef enum BS_STRING_ID {
  * @brief   separation of charge and discharge power line
  * @ptype   select(2)
  */
-#define BS_SEPARATE_POWERLINES (1)
+#define BS_SEPARATE_POWER_PATHS (1)
 
-#if (BS_NR_OF_CONTACTORS > 3) && (BS_SEPARATE_POWERLINES == 0)
-#error "Configuration mismatch: Can't use only one powerline with more than 3 contactors"
+#if (BS_NR_OF_CONTACTORS > 3) && (BS_SEPARATE_POWER_PATHS == 0)
+#error "Configuration mismatch: Can't use only one power path with more than 3 contactors"
 #endif /*  */
 
-#if (BS_NR_OF_CONTACTORS < 4) && (BS_SEPARATE_POWERLINES == 1)
-#error "Configuration mismatch: Can't use separate powerlines with less than 4 contactors"
+#if (BS_NR_OF_CONTACTORS < 4) && (BS_SEPARATE_POWER_PATHS == 1)
+#error "Configuration mismatch: Can't use separate power path with less than 4 contactors"
 #endif /*  */
 
 /**

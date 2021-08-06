@@ -35,55 +35,52 @@
 @REM - "This product includes parts of foxBMS&reg;"
 @REM - "This product is derived from foxBMS&reg;"
 
-@SETLOCAL EnableExtensions EnableDelayedExpansion
+@SETLOCAL EnableDelayedExpansion
+@SET VS_CODE=
 
-@TITLE foxBMS Development Console
-
-@CALL %~dp0\tools\utils\cmd\find_git.bat
-
-@IF DEFINED GIT_DIR (
-    @set "PATH=%GIT_DIR%;%PATH%"
+@where /q code
+@IF %ERRORLEVEL% GEQ 1 (
+    @SET NO_VS_CODE=1
+) ELSE (
+    @SET VS_CODE_CMD=code
+    @SET NO_VS_CODE=0
 )
 
-@FOR /F "usebackq tokens=*" %%A in ("%~dp0\conf\env\paths_win32.txt") do @(
-    @IF exist %%A (
-        @CALL set "NewPath=%%NewPath%%;%%A"
+@REM reset errorlevel
+@cd 2>&1 > nul
+
+@REM Search in user instllation directory first
+@IF %NO_VS_CODE% GEQ 1 (
+    @pushd "%LOCALAPPDATA%\Programs\Microsoft VS Code\bin"
+    @IF !ERRORLEVEL! EQU 0 (
+        @where /q code
+        @IF %ERRORLEVEL% GEQ 1 (
+            @SET NO_VS_CODE=1
+            @SET VS_CODE_CMD=
+        ) ELSE (
+            @SET VS_CODE_CMD="%LOCALAPPDATA%\Programs\Microsoft VS Code\bin\code.cmd"
+            @SET NO_VS_CODE=0
+        )
     )
 )
-@IF DEFINED NewPath (
-    @SET "PATH=%NewPath:~1%;%PATH%"
+
+@REM reset errorlevel
+@cd 2>&1 > nul
+
+@IF %NO_VS_CODE% GEQ 1 (
+    @pushd "%PROGRAMFILES%\Microsoft VS Code\bin"
+    @IF !ERRORLEVEL! EQU 0 (
+        @where /q code
+        @IF %ERRORLEVEL% GEQ 1 (
+            @SET NO_VS_CODE=1
+            @SET VS_CODE_CMD=
+        ) ELSE (
+            @SET VS_CODE_CMD="%PROGRAMFILES%\Microsoft VS Code\bin\code.cmd"
+            @SET NO_VS_CODE=0
+        )
+    )
 )
 
-@SET CONDA_BASE_ENVIRONMENT_ACTIVATE_SCRIPT=""
-@CALL %~dp0\tools\utils\cmd\find_base_conda.bat
-
-@IF %CONDA_BASE_ENVIRONMENT_ACTIVATE_SCRIPT%=="" (
-    pause
-    @EXIT /b 1
+@ENDLOCAL & (
+    @SET "VS_CODE=%VS_CODE_CMD%"
 )
-
-@CALL %CONDA_BASE_ENVIRONMENT_ACTIVATE_SCRIPT% %CONDA_DEVELOPMENT_ENVIRONMENT_NAME%
-
-@REM Check for VS Code
-@CALL %~dp0\tools\utils\cmd\find_vs-code.bat
-@IF NOT DEFINED VS_CODE @(
-    @ECHO [31mCould not find VS Code.[0m
-    @ECHO VS Code can be downloaded at https://code.visualstudio.com/.
-    @PAUSE
-    @EXIT /b 2
-)
-@IF %VS_CODE%=="" @(
-    @ECHO [31mCould not find VS Code.[0m
-    @ECHO VS Code can be downloaded at https://code.visualstudio.com/.
-    @PAUSE
-    @EXIT /b 1
-)
-
-@PUSHD %~dp0
-@start "foxBMS Development" /b %VS_CODE% .
-@IF %ERRORLEVEL% NEQ 0 (
-    @EXIT /b %ERRORLEVEL%
-) ELSE (
-    @conda deactivate
-)
-@POPD

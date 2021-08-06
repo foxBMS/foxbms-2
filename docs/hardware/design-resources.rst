@@ -7,8 +7,8 @@
 Design Resources
 ################
 
-The hardware design packages for the |BMS-Master|, the |BMS-Extension|, the
-|BMS-Interface| and the |BMS-Slaves| are available from the
+The hardware design packages for the |bms-master|, the |bms-extension|, the
+|bms-interface| and the |bms-slaves| are available from the
 |foxbms_repository|. The packages include:
 
 * Altium Designer Source Files
@@ -32,7 +32,6 @@ The hardware design packages for the |BMS-Master|, the |BMS-Extension|, the
 
     To open the schematic and layout files, please use
     `Altium Designer <https://www.altium.com/altium-designer>`_.
-
 
 .. note::
 

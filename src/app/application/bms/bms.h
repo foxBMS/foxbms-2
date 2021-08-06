@@ -170,12 +170,12 @@ typedef enum BMS_RETURN_TYPE {
     BMS_ILLEGAL_TASK_TYPE,   /*!< Illegal */
 } BMS_RETURN_TYPE_e;
 
-/** Powerline type (discharge or charge) */
-typedef enum BMS_POWERLINE_TYPE {
-    BMS_PL_OPEN, /* contactors open */
-    BMS_PL_0,    /* discharge */
-    BMS_PL_1,    /* charge */
-} BMS_POWERLINE_TYPE_e;
+/** Power path type (discharge or charge) */
+typedef enum BMS_POWER_PATH_TYPE {
+    BMS_POWER_PATH_OPEN, /* contactors open */
+    BMS_POWER_PATH_0,    /* power path */
+    BMS_POWER_PATH_1,    /* second power path */
+} BMS_POWER_PATH_TYPE_e;
 
 /**
  * This structure contains all the variables relevant for the CONT state
@@ -197,7 +197,7 @@ typedef struct BMS_STATE {
     uint32_t restTimer_10ms;                   /*!< timer until battery system is at rest */
     uint16_t OscillationTimeout;               /*!< timeout to prevent oscillation of contactors */
     uint8_t PrechargeTryCounter;               /*!< timeout to prevent oscillation of contactors */
-    BMS_POWERLINE_TYPE_e powerline;            /*!< powerline type (discharge or charge) */
+    BMS_POWER_PATH_TYPE_e powerPath;           /*!< power path type (discharge or charge) */
     uint8_t numberOfClosedStrings;             /*!< number of closed strings */
     uint16_t stringOpenTimeout;                /*!< timeout to abort if string opening takes too long */
     uint32_t nextstringclosedtimer;            /*!< timer to wait if the next string was closed */

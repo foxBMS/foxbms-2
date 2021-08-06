@@ -83,19 +83,12 @@ extern uint32_t CAN_TxStateEstimation(
     FAS_ASSERT(pCanData != NULL_PTR);
     FAS_ASSERT(kpkCanShim != NULL_PTR);
     uint64_t message = 0;
-    float signalData = 0.0f;
-    float offset     = 0.0f;
-    float factor     = 0.0f;
-    uint64_t data    = 0u;
 
     float minimumStringSoc_perc     = FLT_MAX;
     float maximumStringSoc_perc     = FLT_MIN;
     float minimumStringSoe_perc     = FLT_MAX;
     float maximumStringSoe_perc     = FLT_MIN;
-    float packSoc_perc              = 0.0f;
-    float packSoe_perc              = 0.0f;
     uint32_t minimumStringEnergy_Wh = UINT32_MAX;
-    uint32_t packEnergyLeft_Wh      = 0u;
 
     DATA_READ_DATA(kpkCanShim->pTableSox);
 
@@ -132,6 +125,10 @@ extern uint32_t CAN_TxStateEstimation(
         }
     }
 
+    float packSoc_perc         = 0.0f;
+    float packSoe_perc         = 0.0f;
+    uint32_t packEnergyLeft_Wh = 0u;
+
     /* Calculate pack value */
     if (BMS_GetNumberOfConnectedStrings() != 0u) {
         if (BMS_GetBatterySystemState() == BMS_CHARGING) {
@@ -149,11 +146,11 @@ extern uint32_t CAN_TxStateEstimation(
     }
 
     /* SOC */
-    signalData = packSoc_perc;
-    offset     = 0.0f;
-    factor     = 100.0f; /* convert from perc to 0.01perc */
-    signalData = (signalData + offset) * factor;
-    data       = (int64_t)signalData;
+    float signalData = packSoc_perc;
+    float offset     = 0.0f;
+    float factor     = 100.0f; /* convert from perc to 0.01perc */
+    signalData       = (signalData + offset) * factor;
+    uint64_t data    = (int64_t)signalData;
     /* set data in CAN frame */
     CAN_TxSetMessageDataWithSignalData(&message, 7u, 14u, data, endianness);
 
@@ -205,10 +202,85 @@ extern uint32_t CAN_TxStringStateEstimation(
     FAS_ASSERT(kpkCanShim != NULL_PTR);
     uint64_t message = 0;
 
-    /* STUB IMPLEMENTATION */
+    /** Database entry with state estimation values does not need to be read
+     *  within this callback as it is already read by function
+     *  #CAN_TxStateEstimation */
+    const uint8_t stringNumber = *pMuxId;
+
+    /* set multiplexer in CAN frame */
+    /* AXIVION Disable Style Generic-NoMagicNumbers: Signal data defined in .dbc file. */
+    uint64_t data = (uint64_t)stringNumber;
+    CAN_TxSetMessageDataWithSignalData(&message, 7u, 4u, data, endianness);
+
+    /* Minimum SOC */
+    float signalData = kpkCanShim->pTableSox->minimumSoc_perc[stringNumber];
+    float offset     = 0.0f;
+    float factor     = 4.0f; /* convert from perc to 0.25perc */
+    signalData       = (signalData + offset) * factor;
+    data             = (int64_t)signalData;
+    /* set data in CAN frame */
+    CAN_TxSetMessageDataWithSignalData(&message, 3u, 9u, data, endianness);
+
+    /* Average SOC */
+    signalData = kpkCanShim->pTableSox->averageSoc_perc[stringNumber];
+    offset     = 0.0f;
+    factor     = 4.0f; /* convert from perc to 0.25perc */
+    signalData = (signalData + offset) * factor;
+    data       = (int64_t)signalData;
+    /* set data in CAN frame */
+    CAN_TxSetMessageDataWithSignalData(&message, 10u, 9u, data, endianness);
+
+    /* Maximum SOC */
+    signalData = kpkCanShim->pTableSox->maximumSoc_perc[stringNumber];
+    offset     = 0.0f;
+    factor     = 4.0f; /* convert from perc to 0.25perc */
+    signalData = (signalData + offset) * factor;
+    data       = (int64_t)signalData;
+    /* set data in CAN frame */
+    CAN_TxSetMessageDataWithSignalData(&message, 17u, 9u, data, endianness);
+
+    /* SOE */
+    if (BMS_CHARGING == BMS_GetCurrentFlowDirection(kpkCanShim->pTablePackValues->stringCurrent_mA[stringNumber])) {
+        signalData = kpkCanShim->pTableSox->maximumSoe_perc[stringNumber];
+    } else {
+        signalData = kpkCanShim->pTableSox->minimumSoe_perc[stringNumber];
+    }
+    offset     = 0.0f;
+    factor     = 4.0f; /* convert from perc to 0.25perc */
+    signalData = (signalData + offset) * factor;
+    data       = (int64_t)signalData;
+    /* set data in CAN frame */
+    CAN_TxSetMessageDataWithSignalData(&message, 24u, 9u, data, endianness);
+
+    /* SOH */
+    signalData = 100.0f;
+    offset     = 0.0f;
+    factor     = 4.0f; /* convert from perc to 0.25perc */
+    signalData = (signalData + offset) * factor;
+    data       = (int64_t)signalData;
+    /* set data in CAN frame */
+    CAN_TxSetMessageDataWithSignalData(&message, 47u, 9u, data, endianness);
+
+    /* String energy */
+    signalData = kpkCanShim->pTableSox->minimumSoe_Wh[stringNumber];
+    offset     = 0.0f;
+    factor     = 0.1f; /* convert from Wh to 10Wh */
+    signalData = (signalData + offset) * factor;
+    data       = (int64_t)signalData;
+    /* set data in CAN frame */
+    CAN_TxSetMessageDataWithSignalData(&message, 54u, 15u, data, endianness);
+    /* AXIVION Enable Style Generic-NoMagicNumbers: */
 
     /* now copy data in the buffer that will be used to send data */
     CAN_TxSetCanDataWithMessageData(message, pCanData, endianness);
+
+    /* Increment multiplexer for next cell */
+    (*pMuxId)++;
+
+    /* Check mux value */
+    if (*pMuxId >= BS_NR_OF_STRINGS) {
+        *pMuxId = 0u;
+    }
 
     return 0;
 }

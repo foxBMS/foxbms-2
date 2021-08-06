@@ -81,21 +81,17 @@ extern uint32_t CAN_TxPackValues(
     FAS_ASSERT(pCanData != NULL_PTR);
     FAS_ASSERT(kpkCanShim != NULL_PTR);
     uint64_t message = 0;
-    float signalData = 0.0f;
-    float offset     = 0.0f;
-    float factor     = 0.0f;
-    uint64_t data    = 0u;
 
     /* Read database entry */
     DATA_READ_DATA(kpkCanShim->pTablePackValues);
 
     /* AXIVION Disable Style Generic-NoMagicNumbers: Signal data defined in .dbc file. */
     /* Battery voltage */
-    signalData = kpkCanShim->pTablePackValues->batteryVoltage_mV;
-    offset     = 0.0f;
-    factor     = 0.01f; /* convert mV -> 100mV */
-    signalData = (signalData + offset) * factor;
-    data       = (uint64_t)signalData;
+    float signalData = kpkCanShim->pTablePackValues->batteryVoltage_mV;
+    float offset     = 0.0f;
+    float factor     = 0.01f; /* convert mV -> 100mV */
+    signalData       = (signalData + offset) * factor;
+    uint64_t data    = (uint64_t)signalData;
     /* set data in CAN frame */
     CAN_TxSetMessageDataWithSignalData(&message, 7u, 14u, data, endianness);
 
@@ -147,11 +143,64 @@ extern uint32_t CAN_TxStringValues(
     FAS_ASSERT(*pMuxId < BS_NR_OF_STRINGS);
     FAS_ASSERT(kpkCanShim != NULL_PTR);
     uint64_t message = 0;
+    uint64_t data    = 0;
+    float signalData = 0.0f;
+    float offset     = 0.0f;
+    float factor     = 0.0f;
 
-    /* STUB IMPLEMENTATION */
+    const uint8_t stringNumber = *pMuxId;
+
+    /* First signal to transmit cell voltages: get database values */
+    if (stringNumber == 0u) {
+        /* Do not read pTableMsl and pTableErrorState as they already are read
+         * with a higher frequency from CAN_TxState callback */
+        DATA_READ_DATA(kpkCanShim->pTablePackValues);
+    }
+
+    /* mux value */
+    data = (uint64_t)stringNumber;
+    /* set data in CAN frame */
+    /* AXIVION Disable Style Generic-NoMagicNumbers: Signal data defined in .dbc file. */
+    CAN_TxSetMessageDataWithSignalData(&message, 7u, 3u, data, endianness);
+
+    /* String voltage */
+    signalData = (float)kpkCanShim->pTablePackValues->stringVoltage_mV[stringNumber];
+    offset     = 0.0f;
+    factor     = 0.1f; /* convert mV to 10mV */
+    signalData = (signalData + offset) * factor;
+    data       = (int64_t)signalData;
+    /* set data in CAN frame */
+    CAN_TxSetMessageDataWithSignalData(&message, 4u, 17u, data, endianness);
+
+    /* String current */
+    signalData = (float)kpkCanShim->pTablePackValues->stringCurrent_mA[stringNumber];
+    offset     = 0.0f;
+    factor     = 0.1f; /* convert mA to 10mA */
+    signalData = (signalData + offset) * factor;
+    data       = (int64_t)signalData;
+    /* set data in CAN frame */
+    CAN_TxSetMessageDataWithSignalData(&message, 19u, 18u, data, endianness);
+
+    /* String power */
+    signalData = (float)kpkCanShim->pTablePackValues->stringPower_W[stringNumber];
+    offset     = 0.0f;
+    factor     = 0.1f; /* convert W to 10W */
+    signalData = (signalData + offset) * factor;
+    data       = (int64_t)signalData;
+    /* set data in CAN frame */
+    CAN_TxSetMessageDataWithSignalData(&message, 33u, 18u, data, endianness);
+    /* AXIVION Enable Style Generic-NoMagicNumbers: */
 
     /* now copy data in the buffer that will be used to send data */
     CAN_TxSetCanDataWithMessageData(message, pCanData, endianness);
+
+    /* Increment multiplexer for next cell */
+    (*pMuxId)++;
+
+    /* Check mux value */
+    if (*pMuxId >= BS_NR_OF_STRINGS) {
+        *pMuxId = 0u;
+    }
 
     return 0;
 }
@@ -169,12 +218,40 @@ extern uint32_t CAN_TxStringValues2(
     FAS_ASSERT(pMuxId != NULL_PTR);
     FAS_ASSERT(*pMuxId < BS_NR_OF_STRINGS);
     FAS_ASSERT(kpkCanShim != NULL_PTR);
-    uint64_t message = 0;
+    uint64_t message    = 0u;
+    uint64_t signalData = 0u;
 
-    /* STUB IMPLEMENTATION */
+    const uint8_t stringNumber = *pMuxId;
+
+    /* First signal to transmit cell voltages: get database values */
+    if (stringNumber == 0u) {
+        /* Do not read pTableMsl and pTableErrorState as they already are read
+         * with a higher frequency from CAN_TxState callback */
+        DATA_READ_DATA(kpkCanShim->pTableCurrentSensor);
+    }
+
+    /* mux value */
+    signalData = (uint64_t)stringNumber;
+    /* set data in CAN frame */
+    /* AXIVION Disable Style Generic-NoMagicNumbers: Signal data defined in .dbc file. */
+    CAN_TxSetMessageDataWithSignalData(&message, 7u, 4u, signalData, endianness);
+
+    /* String voltage */
+    signalData = (int64_t)kpkCanShim->pTableCurrentSensor->energyCounter_Wh[stringNumber];
+    /* set data in CAN frame */
+    CAN_TxSetMessageDataWithSignalData(&message, 15u, 32u, signalData, endianness);
+    /* AXIVION Enable Style Generic-NoMagicNumbers: */
 
     /* now copy data in the buffer that will be used to send data */
     CAN_TxSetCanDataWithMessageData(message, pCanData, endianness);
+
+    /* Increment multiplexer for next cell */
+    (*pMuxId)++;
+
+    /* Check mux value */
+    if (*pMuxId >= BS_NR_OF_STRINGS) {
+        *pMuxId = 0u;
+    }
 
     return 0;
 }

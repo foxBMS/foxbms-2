@@ -124,6 +124,13 @@ typedef struct MRC_STATE {
 
 /*========== Extern Function Prototypes =====================================*/
 /**
+ * @brief Function to initalize redundancy module
+ *
+ * @return #STD_OK if module has been initialized successfully, otherwise #STD_NOT_OK
+ */
+extern STD_RETURN_TYPE_e MRC_Initialize(void);
+
+/**
  * @brief Function to validate the measurement between redundant measurement
  *        values for cell voltage and cell temperature
  *

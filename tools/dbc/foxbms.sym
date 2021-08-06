@@ -5,15 +5,18 @@ Title="foxBMS"
 enum modeRequest_e(0="mode_Standby",  // Disconnect strings from HV bus
   1="mode_Discharge",  // Connect strings to HV bus to start discharge
   2="mode_Charge") // Connect strings to HV bus to start charging
-enum state_e(0="BMS_UNINITIALIZED", 1="BMS_INITIALIZATION", 
-  2="BMS_INITIALIZED", 3="BMS_IDLE", 4="BMS_OPENCONTACTORS", 5="BMS_STANDBY", 
-  6="BMS_PRECHARGE", 7="BMS_NORMAL", 8="BMS_DISCHARGE", 9="BMS_CHARGE", 
-  10="BMS_ERROR", 11="BMS_UNDEFINED")
+// Possible states (i.e., values) the BMS state machine can have
+enum state_e(0="BMS_UNINITIALIZED",  // BMS state machine is uninitialized
+  1="BMS_INITIALIZATION",  // BMS state machine is currently trying to initialize
+  2="BMS_INITIALIZED",  // BMS state machine is initialized
+  3="BMS_IDLE",  // BMS state machine is idling
+  4="BMS_OPEN_CONTACTORS", 5="BMS_STANDBY", 6="BMS_PRECHARGE", 7="BMS_NORMAL", 
+  8="BMS_DISCHARGE", 9="BMS_CHARGE", 10="BMS_ERROR", 11="BMS_UNDEFINED")
 
 {SENDRECEIVE}
 
 [foxBMS_PackValues]
-ID=222h
+ID=222h	// (in:can_cbs_tx_system_values.c:CAN_TxPackValues)
 DLC=8
 Var=foxBMS_packCurrent signed 46,18 -m /u:A /f:0.01	// Battery pack current
 Var=foxBMS_batteryVoltage unsigned 0,14 -m /u:V /f:0.1	// Battery voltage between negative and positive pole of the battery
@@ -21,7 +24,7 @@ Var=foxBMS_busVoltage unsigned 14,14 -m /u:V /f:0.1	// Battery voltage between n
 Var=foxBMS_packPower signed 28,18 -m /u:kW /f:0.01	// Battery power
 
 [foxBMS_LimitValues]
-ID=224h
+ID=224h	// (in:can_cbs_tx_limits.c:CAN_TxLimitValues)
 DLC=8
 Var=foxBMS_maxChargeCurrent unsigned 12,12 -m /u:A /f:0.25	// Maximum battery pack charge current
 Var=foxBMS_maxDischargeCurrent unsigned 0,12 -m /u:A /f:0.25	// Maximum battery pack discharge current
@@ -31,7 +34,7 @@ Var=foxBMS_maxBatteryVoltage unsigned 48,8 -m /u:V /f:4
 Var=foxBMS_minBatteryVoltage unsigned 56,8 -m /u:V /f:4
 
 [foxBMS_MinimumMaximumValues]
-ID=223h
+ID=223h	// (in:can_cbs_tx_minmax.c:CAN_TxMinimumMaximumValues)
 DLC=8
 Var=foxBMS_minimumCellVoltage unsigned 13,13 -m /u:mV	// Minimum cell voltage of all connected strings, if no string connected maximum value of whole system is transmitted
 Var=foxBMS_maximumCellVoltage unsigned 0,13 -m /u:mV	// Maximum cell voltage of all connected strings, if no string connected maximum value of whole system is transmitted
@@ -41,7 +44,7 @@ Var=foxBMS_inletTemperature signed 32,8 -m /u:degC
 Var=foxBMS_outletTemperature signed 40,8 -m /u:degC
 
 [foxBMS_StringValues]
-ID=280h	// Message contains string voltage, current and power
+ID=280h	// Message contains string voltage, current and power (in:can_cbs_tx_system_values.c:CAN_TxStringValues)
 DLC=8
 Mux=mux_valuesString_0 0,3 0  -m
 Var=foxBMS_String0_current signed 20,18 -m /u:A /f:0.01
@@ -63,7 +66,7 @@ Var=foxBMS_String2_voltage unsigned 3,17 -m /u:V /f:0.01
 Var=foxBMS_String2_power signed 38,18 -m /u:kW /f:0.01
 
 [foxBMS_StringValues2]
-ID=283h	// Message contains energy counting value
+ID=283h	// Message contains energy counting value (in:can_cbs_tx_system_values.c:CAN_TxStringValues2)
 DLC=8
 Mux=mux_values2String_0 0,4 0  -m
 Var=String0_energyCount signed 8,32 -m /u:Wh	// Current sensor string 0 energy counting value
@@ -76,10 +79,10 @@ Var=String1_energyCount signed 8,32 -m /u:Wh	// Current sensor string 1 energy c
 [foxBMS_StringValues2]
 DLC=8
 Mux=mux_values2String_2 0,4 2  -m
-Var=String1_energyCount signed 8,32 -m /u:Wh	// Current sensor string 2 energy counting value
+Var=String2_energyCount signed 8,32 -m /u:Wh	// Current sensor string 2 energy counting value
 
 [foxBMS_PackStateEstimation]
-ID=225h
+ID=225h	// (in:can_cbs_tx_state_estimation.c:CAN_TxStateEstimation)
 DLC=8
 Var=foxBMS_packSoc unsigned 0,14 -m /u:% /f:0.01 /d:0	// SOC currently connected to HV bus (100% if all strings connected and all strings at 100%)
 Var=foxBMS_packSoe unsigned 14,14 -m /u:% /f:0.01 /d:0	// SOE currently connected to HV bus (100% if all strings connected and all strings at 100%)
@@ -87,7 +90,7 @@ Var=foxBMS_packEnergy unsigned 40,24 -m /u:kWh /f:0.01	// Energy left in Wh that
 Var=foxBMS_packSoh unsigned 28,12 -m /u:% /f:0.025
 
 [foxBMS_CellVoltage]
-ID=240h
+ID=240h	// (in:can_cbs_tx_voltage.c:CAN_TxVoltage)
 DLC=8
 Mux=mux_cellVoltage_000_003 0,8 0  -m
 Var=cellVoltage_000_invalidFlag unsigned 11,1 -m
@@ -736,7 +739,7 @@ Var=cellVoltage_214 unsigned 38,13 -m /u:mV
 Var=cellVoltage_215 unsigned 51,13 -m /u:mV
 
 [foxBMS_CellTemperature]
-ID=250h
+ID=250h	// (in:can_cbs_tx_temperature.c:CAN_TxCellTemperature)
 DLC=8
 Mux=mux_cellTemperature_000_005 0,8 0  -m
 Var=cellTemperature_000_invalidFlag unsigned 15,1 -m
@@ -1217,7 +1220,7 @@ Var=cellTemperature_178 signed 48,8 -m /u:degC
 Var=cellTemperature_179 signed 56,8 -m /u:degC
 
 [foxBMS_Command]
-ID=230h
+ID=230h	// (in:can_cbs_rx_command.c:CAN_RxRequest)
 DLC=8
 Var=foxBMS_modeRequest unsigned 6,2 -m /e:modeRequest_e	// 0x0: Disconnect strings from HV bus, 0x01: Connect strings to HV bus to start discharge, 0x02: Connect strings to HV bus to start charging
 Var=foxBMS_activateBalancing bit 15,1 -m	// 0: Deactivate balancing, 1: Activate balancing
@@ -1230,7 +1233,7 @@ Var=foxBMS_heaterOverride_ON bit 6,1	// 0: no override active, 1: override activ
 Var=foxBMS_heaterOverride_OFF unsigned 7,1	// 0: no override active, 1: override active -> force heater off
 
 [foxBMS_State]
-ID=220h	// Message contains foxBMS state
+ID=220h	// Message contains foxBMS state (in:can_cbs_tx_state.c:CAN_TxState)
 DLC=8
 Var=foxBMS_State unsigned 4,4 -m /e:state_e
 Var=BMS_nrOfConnectedStrings unsigned 0,4 -m
@@ -1256,7 +1259,7 @@ Var=foxBMS_Error_PackOvercurr_Charge bit 30,1 -m	// 0x00: No error, 0x01: Error 
 Var=foxBMS_Error_PackOvercur_Dischrg bit 29,1 -m	// 0x00: No error, 0x01: Error detected
 
 [foxBMS_StringState]
-ID=221h	// Message contains string related error and warning flags
+ID=221h	// Message contains string related error and warning flags (in:can_cbs_tx_state.c:CAN_TxStringState)
 DLC=8
 Mux=mux_stateString0 4,4 0  -m
 Var=String0_stringConnected bit 3,1 -m	// 0x00: String not connected, 0x01: String connected to HV bus
@@ -1425,7 +1428,7 @@ Var=String2_Err_CS_voltage2Meas bit 47,1
 Var=String2_Err_CS_voltage3Meas bit 48,1
 
 [foxBMS_StringMinMaxValues]
-ID=281h	// Message contains minimum and maximum cell temperature and cell voltage values of respective string
+ID=281h	// Message contains minimum and maximum cell temperature and cell voltage values of respective string (in:can_cbs_tx_minmax.c:CAN_TxStringMinimumMaximumValues)
 DLC=8
 Mux=mux_minMaxValuesString0 4,4 0  -m
 Var=String0_minimumCellVoltage unsigned 21,13 -m /u:mV	// Minimum cell voltage in this string
@@ -1450,42 +1453,42 @@ Var=String2_maximumCellTemperature signed 34,9 -m /u:degC /f:0.5	// Maximum cell
 Var=String2_minimumCellTemperature signed 43,9 -m /u:degC /f:0.5	// Minium cell temperature in this string
 
 [foxBMS_StringStateEstimation]
-ID=282h	// Message contains SOC, SOE and SOH state estimations
+ID=282h	// Message contains SOC, SOE and SOH state estimations (in:can_cbs_tx_state_estimation.c:CAN_TxStringStateEstimation)
 DLC=8
 Mux=mux_String0_SOC_SOE 0,4 0  -m
 Var=String0_minimumSOC unsigned 4,9 -m /u:% /f:0.25 /d:0
 Var=String0_averageSOC unsigned 13,9 -m /u:% /f:0.25 /max:127.5 /d:0
-Var=String0_maximumSOC unsigned 22,8 -m /u:% /f:0.25 /d:0
-Var=String0_SOE unsigned 30,9 -m /u:% /f:0.25 /max:127.5 /d:0	// SOE is depending on current direction, if battery system is charging: SOE_max is transmitted, else SOE_min
-Var=String0_Energy_kWh unsigned 48,16 -m /u:kWh /f:0.01	// Remaining energy left in this string
-Var=String0_SOH unsigned 39,9 -m /u:% /f:0.25 /max:127.5
+Var=String0_maximumSOC unsigned 22,9 -m /u:% /f:0.25 /max:63.75 /d:0
+Var=String0_SOE unsigned 31,9 -m /u:% /f:0.25 /max:127.5 /d:0	// SOE is depending on current direction, if battery system is charging: SOE_max is transmitted, else SOE_min
+Var=String0_Energy_kWh unsigned 49,15 -m /u:kWh /f:0.01	// Remaining energy left in this string
+Var=String0_SOH unsigned 40,9 -m /u:% /f:0.25 /max:127.5
 
 [foxBMS_StringStateEstimation]
 DLC=8
 Mux=mux_String1_SOC_SOE 0,4 1  -m
 Var=String1_minimumSOC unsigned 4,9 -m /u:% /f:0.25 /d:0
 Var=String1_averageSOC unsigned 13,9 -m /u:% /f:0.25 /max:127.5 /d:0
-Var=String1_maximumSOC unsigned 22,8 -m /u:% /f:0.25 /d:0
-Var=String1_SOE unsigned 30,9 -m /u:% /f:0.25 /max:127.5 /d:0	// SOE is depending on current direction, if battery system is charging: SOE_max is transmitted, else SOE_min
-Var=String1_Energy_kWh unsigned 48,16 -m /u:kWh /f:0.01	// Remaining energy left in this string
-Var=String1_SOH unsigned 39,9 -m /u:% /f:0.25 /max:127.5
+Var=String1_maximumSOC unsigned 22,9 -m /u:% /f:0.25 /max:63.75 /d:0
+Var=String1_SOE unsigned 31,9 -m /u:% /f:0.25 /max:127.5 /d:0	// SOE is depending on current direction, if battery system is charging: SOE_max is transmitted, else SOE_min
+Var=String1_Energy_kWh unsigned 49,15 -m /u:kWh /f:0.01	// Remaining energy left in this string
+Var=String1_SOH unsigned 40,9 -m /u:% /f:0.25 /max:127.5
 
 [foxBMS_StringStateEstimation]
 DLC=8
 Mux=mux_String2_SOC_SOE 0,4 2  -m
 Var=String2_minimumSOC unsigned 4,9 -m /u:% /f:0.25 /d:0
 Var=String2_averageSOC unsigned 13,9 -m /u:% /f:0.25 /max:127.5 /d:0
-Var=String2_maximumSOC unsigned 22,8 -m /u:% /f:0.25 /d:0
-Var=String2_SOE unsigned 30,9 -m /u:% /f:0.25 /max:127.5 /d:0	// SOE is depending on current direction, if battery system is charging: SOE_max is transmitted, else SOE_min
-Var=String2_Energy_kWh unsigned 48,16 -m /u:kWh /f:0.01	// Remaining energy left in this string
-Var=String2_SOH unsigned 39,9 -m /u:% /f:0.25 /max:127.5
+Var=String2_maximumSOC unsigned 22,9 -m /u:% /f:0.25 /max:63.75 /d:0
+Var=String2_SOE unsigned 31,9 -m /u:% /f:0.25 /max:127.5 /d:0	// SOE is depending on current direction, if battery system is charging: SOE_max is transmitted, else SOE_min
+Var=String2_Energy_kWh unsigned 49,15 -m /u:kWh /f:0.01	// Remaining energy left in this string
+Var=String2_SOH unsigned 40,9 -m /u:% /f:0.25 /max:127.5
 
 [foxBMS_Debug]
-ID=200h	// Reserved - for debug/development purpose only
+ID=200h	// Reserved - for debug/development purpose only (in:can_cbs_rx_misc.c:CAN_RxDebug)
 DLC=8
 
 [IVT0_Msg_Result_I]
-ID=521h	// Current sensor string 0: current
+ID=521h	// Current sensor string 0: current (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)
 DLC=6
 Var=IVT0_Result_I_systemError bit 8,1 -m
 Var=IVT0_Result_I_OCS bit 11,1 -m
@@ -1496,7 +1499,7 @@ Var=IVT0_MsgCount_Result_I unsigned 12,4 -m
 Var=IVT0_Result_I_mA signed 16,32 -m /u:mA
 
 [IVT0_Msg_Result_U1]
-ID=522h	// Current sensor string 0: voltage 1
+ID=522h	// Current sensor string 0: voltage 1 (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)
 DLC=6
 Var=IVT0_Result_U1_systemError bit 8,1 -m
 Var=IVT0_Result_U1_overallMeasError bit 9,1 -m
@@ -1507,7 +1510,7 @@ Var=IVT0_MsgCount_Result_U1 unsigned 12,4 -m
 Var=IVT0_Result_U1_mV signed 16,32 -m /u:mV
 
 [IVT0_Msg_Result_U2]
-ID=523h	// Current sensor string 0: voltage 2
+ID=523h	// Current sensor string 0: voltage 2 (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)
 DLC=6
 Var=IVT0_Result_U2_systemError bit 8,1 -m
 Var=IVT0_Result_U2_OCS bit 11,1 -m
@@ -1518,18 +1521,18 @@ Var=IVT0_MsgCount_Result_U2 unsigned 12,4 -m
 Var=IVT0_Result_U2_mV signed 16,32 -m /u:mV
 
 [IVT0_Msg_Result_U3]
-ID=524h	// Current sensor string 0: voltage 3
+ID=524h	// Current sensor string 0: voltage 3 (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)
 DLC=6
-Var=IVT_Result_U3_systemError bit 8,1 -m
-Var=IVT_Result_U3_OCS bit 11,1 -m
-Var=IVT_Result_U3_overallMeasError bit 9,1 -m
-Var=IVT_Result_U3_channelMeasError bit 10,1 -m
-Var=IVT_ID_Result_U3 unsigned 0,8 -m /min:3 /max:3 /d:3
-Var=IVT_MsgCount_Result_U3 unsigned 12,4 -m
-Var=IVT_Result_U3_mV signed 16,32 -m /u:mV
+Var=IVT0_Result_U3_systemError bit 8,1 -m
+Var=IVT0_Result_U3_OCS bit 11,1 -m
+Var=IVT0_Result_U3_overallMeasError bit 9,1 -m
+Var=IVT0_Result_U3_channelMeasError bit 10,1 -m
+Var=IVT0_ID_Result_U3 unsigned 0,8 -m /min:3 /max:3 /d:3
+Var=IVT0_MsgCount_Result_U3 unsigned 12,4 -m
+Var=IVT0_Result_U3_mV signed 16,32 -m /u:mV
 
 [IVT0_Msg_Result_T]
-ID=525h	// Current sensor string 0: temperature
+ID=525h	// Current sensor string 0: temperature (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)
 DLC=6
 Var=IVT0_Result_T_systemError bit 8,1 -m
 Var=IVT0_Result_T_OCS bit 11,1 -m
@@ -1540,7 +1543,7 @@ Var=IVT0_MsgCount_Result_T unsigned 12,4 -m
 Var=IVT0_Result_T_ddegC signed 16,32 -m /u:ddegC /f:0.1 /d:0
 
 [IVT0_Msg_Result_W]
-ID=526h	// Current sensor string 0: power
+ID=526h	// Current sensor string 0: power (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)
 DLC=6
 Var=IVT0_Result_W_systemError bit 8,1 -m
 Var=IVT0_Result_W_OCS bit 11,1 -m
@@ -1551,7 +1554,7 @@ Var=IVT0_MsgCount_Result_W unsigned 12,4 -m
 Var=IVT0_ID_Result_W unsigned 0,8 -m /min:5 /max:5 /d:5
 
 [IVT0_Msg_Result_As]
-ID=527h	// Current sensor string 0: coulomb counting
+ID=527h	// Current sensor string 0: coulomb counting (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)
 DLC=6
 Var=IVT0_Result_As_systemError bit 8,1 -m
 Var=IVT0_Result_As_OCS bit 11,1 -m
@@ -1562,7 +1565,7 @@ Var=IVT0_MsgCount_Result_As unsigned 12,4 -m
 Var=IVT0_ID_Result_As unsigned 0,8 -m /min:6 /max:6 /d:6
 
 [IVT0_Msg_Result_Wh]
-ID=528h	// Current sensor string 0: energy counting
+ID=528h	// Current sensor string 0: energy counting (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)
 DLC=6
 Var=IVT0_Result_Wh_systemError bit 8,1 -m
 Var=IVT0_Result_Wh_OCS bit 11,1 -m
@@ -1573,7 +1576,7 @@ Var=IVT0_MsgCount_Result_Wh unsigned 12,4 -m
 Var=IVT0_ID_Result_Wh unsigned 0,8 -m /min:7 /max:7 /d:7
 
 [IVT1_Msg_Result_I]
-ID=621h	// Current sensor string 1: current
+ID=621h	// Current sensor string 1: current (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)
 DLC=6
 Var=IVT1_Result_I_systemError bit 8,1 -m
 Var=IVT1_Result_I_OCS bit 11,1 -m
@@ -1584,7 +1587,7 @@ Var=IVT1_MsgCount_Result_I unsigned 12,4 -m
 Var=IVT1_Result_I_mA signed 16,32 -m /u:mA
 
 [IVT1_Msg_Result_U1]
-ID=622h	// Current sensor string 1: voltage 1
+ID=622h	// Current sensor string 1: voltage 1 (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)
 DLC=6
 Var=IVT1_Result_U1_systemError bit 8,1 -m
 Var=IVT1_Result_U1_overallMeasError bit 9,1 -m
@@ -1595,7 +1598,7 @@ Var=IVT1_MsgCount_Result_U1 unsigned 12,4 -m
 Var=IVT1_Result_U1_mV signed 16,32 -m /u:mV
 
 [IVT1_Msg_Result_U2]
-ID=623h	// Current sensor string 1: voltage 2
+ID=623h	// Current sensor string 1: voltage 2 (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)
 DLC=6
 Var=IVT1_Result_U2_systemError bit 8,1 -m
 Var=IVT1_Result_U2_OCS bit 11,1 -m
@@ -1606,18 +1609,18 @@ Var=IVT1_MsgCount_Result_U2 unsigned 12,4 -m
 Var=IVT1_Result_U2_mV signed 16,32 -m /u:mV
 
 [IVT1_Msg_Result_U3]
-ID=624h	// Current sensor string 1: voltage 3
+ID=624h	// Current sensor string 1: voltage 3 (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)
 DLC=6
-Var=IVT_Result_U3_systemError bit 8,1 -m
-Var=IVT_Result_U3_OCS bit 11,1 -m
-Var=IVT_Result_U3_overallMeasError bit 9,1 -m
-Var=IVT_Result_U3_channelMeasError bit 10,1 -m
-Var=IVT_ID_Result_U3 unsigned 0,8 -m /min:3 /max:3 /d:3
-Var=IVT_MsgCount_Result_U3 unsigned 12,4 -m
-Var=IVT_Result_U3_mV signed 16,32 -m /u:mV
+Var=IVT1_Result_U3_systemError bit 8,1 -m
+Var=IVT1_Result_U3_OCS bit 11,1 -m
+Var=IVT1_Result_U3_overallMeasError bit 9,1 -m
+Var=IVT1_Result_U3_channelMeasError bit 10,1 -m
+Var=IVT1_ID_Result_U3 unsigned 0,8 -m /min:3 /max:3 /d:3
+Var=IVT1_MsgCount_Result_U3 unsigned 12,4 -m
+Var=IVT1_Result_U3_mV signed 16,32 -m /u:mV
 
 [IVT1_Msg_Result_T]
-ID=625h	// Current sensor string 1: temperature
+ID=625h	// Current sensor string 1: temperature (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)
 DLC=6
 Var=IVT1_Result_T_systemError bit 8,1 -m
 Var=IVT1_Result_T_OCS bit 11,1 -m
@@ -1628,7 +1631,7 @@ Var=IVT1_MsgCount_Result_T unsigned 12,4 -m
 Var=IVT1_Result_T_ddegC signed 16,32 -m /u:ddegC /f:0.1 /d:0
 
 [IVT1_Msg_Result_W]
-ID=626h	// Current sensor string 1: power
+ID=626h	// Current sensor string 1: power (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)
 DLC=6
 Var=IVT1_Result_W_systemError bit 8,1 -m
 Var=IVT1_Result_W_OCS bit 11,1 -m
@@ -1639,7 +1642,7 @@ Var=IVT1_MsgCount_Result_W unsigned 12,4 -m
 Var=IVT1_ID_Result_W unsigned 0,8 -m /min:5 /max:5 /d:5
 
 [IVT1_Msg_Result_As]
-ID=627h	// Current sensor string 1: coulomb counting
+ID=627h	// Current sensor string 1: coulomb counting (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)
 DLC=6
 Var=IVT1_Result_As_systemError bit 8,1 -m
 Var=IVT1_Result_As_OCS bit 11,1 -m
@@ -1650,7 +1653,7 @@ Var=IVT1_MsgCount_Result_As unsigned 12,4 -m
 Var=IVT1_ID_Result_As unsigned 0,8 -m /min:6 /max:6 /d:6
 
 [IVT1_Msg_Result_Wh]
-ID=628h	// Current sensor string 1: energy counting
+ID=628h	// Current sensor string 1: energy counting (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)
 DLC=6
 Var=IVT1_Result_Wh_systemError bit 8,1 -m
 Var=IVT1_Result_Wh_OCS bit 11,1 -m
@@ -1661,7 +1664,7 @@ Var=IVT1_MsgCount_Result_Wh unsigned 12,4 -m
 Var=IVT1_ID_Result_Wh unsigned 0,8 -m /min:7 /max:7 /d:7
 
 [IVT2_Msg_Result_I]
-ID=721h	// Current sensor string 2: current
+ID=721h	// Current sensor string 2: current (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)
 DLC=6
 Var=IVT2_Result_I_systemError bit 8,1 -m
 Var=IVT2_Result_I_OCS bit 11,1 -m
@@ -1672,7 +1675,7 @@ Var=IVT2_MsgCount_Result_I unsigned 12,4 -m
 Var=IVT2_Result_I_mA signed 16,32 -m /u:mA
 
 [IVT2_Msg_Result_U1]
-ID=722h	// Current sensor string 2: voltage 1
+ID=722h	// Current sensor string 2: voltage 1 (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)
 DLC=6
 Var=IVT2_Result_U1_systemError bit 8,1 -m
 Var=IVT2_Result_U1_overallMeasError bit 9,1 -m
@@ -1683,7 +1686,7 @@ Var=IVT2_MsgCount_Result_U1 unsigned 12,4 -m
 Var=IVT2_Result_U1_mV signed 16,32 -m /u:mV
 
 [IVT2_Msg_Result_U2]
-ID=723h	// Current sensor string 2: voltage 2
+ID=723h	// Current sensor string 2: voltage 2 (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)
 DLC=6
 Var=IVT2_Result_U2_systemError bit 8,1 -m
 Var=IVT2_Result_U2_OCS bit 11,1 -m
@@ -1694,18 +1697,18 @@ Var=IVT2_MsgCount_Result_U2 unsigned 12,4 -m
 Var=IVT2_Result_U2_mV signed 16,32 -m /u:mV
 
 [IVT2_Msg_Result_U3]
-ID=724h	// Current sensor string 2: voltage 3
+ID=724h	// Current sensor string 2: voltage 3 (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)
 DLC=6
-Var=IVT_Result_U3_systemError bit 8,1 -m
-Var=IVT_Result_U3_OCS bit 11,1 -m
-Var=IVT_Result_U3_overallMeasError bit 9,1 -m
-Var=IVT_Result_U3_channelMeasError bit 10,1 -m
-Var=IVT_ID_Result_U3 unsigned 0,8 -m /min:3 /max:3 /d:3
-Var=IVT_MsgCount_Result_U3 unsigned 12,4 -m
-Var=IVT_Result_U3_mV signed 16,32 -m /u:mV
+Var=IVT2_Result_U3_systemError bit 8,1 -m
+Var=IVT2_Result_U3_OCS bit 11,1 -m
+Var=IVT2_Result_U3_overallMeasError bit 9,1 -m
+Var=IVT2_Result_U3_channelMeasError bit 10,1 -m
+Var=IVT2_ID_Result_U3 unsigned 0,8 -m /min:3 /max:3 /d:3
+Var=IVT2_MsgCount_Result_U3 unsigned 12,4 -m
+Var=IVT2_Result_U3_mV signed 16,32 -m /u:mV
 
 [IVT2_Msg_Result_T]
-ID=725h	// Current sensor string 2: temperature
+ID=725h	// Current sensor string 2: temperature (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)
 DLC=6
 Var=IVT2_Result_T_systemError bit 8,1 -m
 Var=IVT2_Result_T_OCS bit 11,1 -m
@@ -1716,7 +1719,7 @@ Var=IVT2_MsgCount_Result_T unsigned 12,4 -m
 Var=IVT2_Result_T_ddegC signed 16,32 -m /u:ddegC /f:0.1 /d:0
 
 [IVT2_Msg_Result_W]
-ID=726h	// Current sensor string 2: power
+ID=726h	// Current sensor string 2: power (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)
 DLC=6
 Var=IVT2_Result_W_systemError bit 8,1 -m
 Var=IVT2_Result_W_OCS bit 11,1 -m
@@ -1727,7 +1730,7 @@ Var=IVT2_MsgCount_Result_W unsigned 12,4 -m
 Var=IVT2_ID_Result_W unsigned 0,8 -m /min:5 /max:5 /d:5
 
 [IVT2_Msg_Result_As]
-ID=727h	// Current sensor string 2: coulomb counting
+ID=727h	// Current sensor string 2: coulomb counting (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)
 DLC=6
 Var=IVT2_Result_As_systemError bit 8,1 -m
 Var=IVT2_Result_As_OCS bit 11,1 -m
@@ -1738,7 +1741,7 @@ Var=IVT2_MsgCount_Result_As unsigned 12,4 -m
 Var=IVT2_ID_Result_As unsigned 0,8 -m /min:6 /max:6 /d:6
 
 [IVT2_Msg_Result_Wh]
-ID=728h	// Current sensor string 2: energy counting
+ID=728h	// Current sensor string 2: energy counting (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)
 DLC=6
 Var=IVT2_Result_Wh_systemError bit 8,1 -m
 Var=IVT2_Result_Wh_OCS bit 11,1 -m
@@ -1749,7 +1752,7 @@ Var=IVT2_MsgCount_Result_Wh unsigned 12,4 -m
 Var=IVT2_ID_Result_Wh unsigned 0,8 -m /min:7 /max:7 /d:7
 
 [foxBMS_Startup]
-ID=199h
+ID=199h	// (in:can.c:CAN_TransmitBootMessage)
 DLC=8
 Var=foxBMS_majorVersionNumber unsigned 0,8 -m
 Var=foxBMS_minorVersionNumber unsigned 8,8 -m
