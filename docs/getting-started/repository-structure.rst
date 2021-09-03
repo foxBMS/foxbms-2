@@ -131,6 +131,12 @@ The ``tests`` directory is structured into the following parts (see
    +--------------------+--------------------------+--------------------------------------+
    | directory          | long name                | content description                  |
    +====================+==========================+======================================+
+   | ``tests/axivion``  | Axivion                  | configuration files to describe the  |
+   |                    |                          | architecture of |foxbms|. Additional |
+   |                    |                          | static program analysis              |
+   |                    |                          | configurations are stored here       |
+   |                    |                          | (e.g., MISRA-C)                      |
+   +--------------------+--------------------------+--------------------------------------+
    | ``tests/scripts``  | scripts                  | unit test of scripts (e.g., Python,  |
    |                    |                          | shell)                               |
    +--------------------+--------------------------+--------------------------------------+

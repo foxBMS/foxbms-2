@@ -1,0 +1,1231 @@
+{
+    "Analysis": {
+        "Analysis-GlobalOptions": {
+            "scanner": {
+                "additional_basic_characters": "\\$@"
+            },
+            "side_effects": {
+                "effect_free_functions": [
+                    "__curpc",
+                    "MPU_xTaskGetTickCount",
+                    "xPortRaisePrivilege"
+                ],
+                "local_effect_functions": [
+                    "FAS_ASSERT",
+                    "fas_storeAssertLoc"
+                ],
+                "side_effect_functions": [
+                    "FAS_DisableInterrupts",
+                    "fclose",
+                    "fopen",
+                    "fprintf",
+                    "fputs",
+                    "freopen",
+                    "printf",
+                    "tmpfile"
+                ]
+            },
+            "types": {
+                "allow_single_bitfield_as_bool": true,
+                "user_bool_types": [
+                    "bool",
+                    "Bool",
+                    "BOOL",
+                    "bool_t",
+                    "BOOLEAN",
+                    "boolean_t",
+                    "STD_BOOLEAN_TYPE_e",
+                    "tBool"
+                ]
+            }
+        },
+        "Architecture": {
+            "child_order": [
+                "Architecture-CyclesView",
+                "Architecture-DeadCodeView",
+                "Architecture-ActivateMembers",
+                "Architecture-ComputeDependencyProperties",
+                "Architecture-CSharpRFGTransformations",
+                "Architecture-XAMLAnalysis",
+                "Architecture-AddDynamicVariableAccesses",
+                "Architecture-CopyIntoEntriesView",
+                "Architecture-GXLImport",
+                "Architecture-RhapsodyImporter",
+                "Architecture-ARXMLImport",
+                "Architecture-CopyAndProjectView",
+                "Architecture-CreateTypes",
+                "Architecture-CustomRFGFunction",
+                "Architecture-InsertSystemNode",
+                "Architecture-ObfuscateNames",
+                "Architecture-ProjectView",
+                "Architecture-RemoveView",
+                "Architecture-StripBasepath",
+                "Architecture-TransitiveClosure",
+                "Architecture-CopyView",
+                "Architecture-CheckRFGEquality",
+                "Architecture-MatchGraphs",
+                "Architecture-EAImporter",
+                "Architecture-EdgeInterpretation",
+                "Architecture-GravisRoleAttributes",
+                "Architecture-HierarchicalMapping",
+                "Architecture-TaggedValuesMapping",
+                "Architecture-ScriptedArchitecture",
+                "Architecture-ArchitectureCheck",
+                "Architecture-ProcessLine",
+                "Architecture-CycleDetection",
+                "Architecture-GXLExport",
+                "Architecture-SaveRFG"
+            ]
+        },
+        "Architecture-CyclesView": {
+            "_active": true
+        },
+        "Architecture-DeadCodeView": {
+            "_active": true
+        },
+        "Architecture-GXLExport": {
+            "_active": true
+        },
+        "Architecture-SaveRFG": {
+            "_active": true
+        },
+        "AutosarC++17_03-A15.4.1": {
+            "_active": true
+        },
+        "CWE-Pointer-Issues-467": {
+            "_active": true
+        },
+        "CWE-Pointer-Issues-476": {
+            "_active": true
+        },
+        "CertC-DCL00": {
+            "_active": false,
+            "exclude_in_macros": [
+                "FAS_ASSERT"
+            ]
+        },
+        "CloneDetection": {
+            "_active": true,
+            "no_sequences": true,
+            "pre_excludes": [
+                "/*",
+                "C:/*"
+            ]
+        },
+        "CodeAnnotations": {
+            "show_debug_output": false
+        },
+        "CodingStyle-AllmanBraces": {
+            "_active": false
+        },
+        "CodingStyle-FileExtensionNaming": {
+            "languages": [
+                "C++",
+                "C++/CLI"
+            ]
+        },
+        "CodingStyle-MaxOneStmtPerLine": {
+            "_active": true,
+            "ignore_stmts": [
+                "Exit_Switch",
+                "Statement_Sequence",
+                "Switch_Case_Label"
+            ]
+        },
+        "CodingStyle-Naming.Enum": {
+            "_active": false,
+            "naming_convention": "^[A-Z][A-Z0-9]*_e$"
+        },
+        "CodingStyle-Naming.Enumerator": {
+            "_active": false
+        },
+        "CodingStyle-Naming.Function": {
+            "_active": false
+        },
+        "CodingStyle-Naming.GlobalVariable": {
+            "_active": false
+        },
+        "CodingStyle-Naming.Label": {
+            "_active": false
+        },
+        "CodingStyle-Naming.LocalVariable": {
+            "_active": false
+        },
+        "CodingStyle-Naming.Macro": {
+            "_active": false
+        },
+        "CodingStyle-Naming.Parameter": {
+            "_active": false
+        },
+        "CodingStyle-Naming.Struct": {
+            "_active": false,
+            "naming_convention": "^[A-Z][A-Z0-9]*_s$"
+        },
+        "CodingStyle-Naming.StructField": {
+            "_active": false
+        },
+        "CodingStyle-Naming.Union": {
+            "_active": false
+        },
+        "CodingStyle-Naming.UserType": {
+            "_active": false
+        },
+        "CodingStyle-NoBlankLinesAtBraces": {
+            "_active": false
+        },
+        "CodingStyle-NoSingleCharIdentifier": {
+            "_active": true,
+            "exclude_loop_counter": true,
+            "whitelist": []
+        },
+        "CodingStyle-NoTabs": {
+            "_active": true
+        },
+        "CodingStyle-NoTrailingWhitespace": {
+            "_active": true
+        },
+        "CodingStyle-NoWhitespaceMemberSelection": {
+            "_active": true
+        },
+        "CodingStyle-NoWhitespacePointerReference": {
+            "_active": false
+        },
+        "CodingStyle-TooManyIncludes": {
+            "_active": true
+        },
+        "CycleDetection-CallgraphCycles": {
+            "_active": true
+        },
+        "CycleDetection-IncludeCycles": {
+            "_active": true
+        },
+        "DeadCodeDetection": {
+            "_active": true
+        },
+        "EnableDisable": {
+            "_active": true
+        },
+        "EnableDisableSingleRule": {
+            "_active": false
+        },
+        "EntryPoints-EntriesByName": {
+            "_active": true,
+            "names": [
+                "*Notification",
+                "FTSK_TaskCreator*"
+            ]
+        },
+        "FaultDetection-BadEnumValue": {
+            "_active": true
+        },
+        "FaultDetection-DeadBranches": {
+            "_active": true,
+            "exclude_in_macros": [
+                "FAS_ASSERT"
+            ]
+        },
+        "FaultDetection-DivisionByZero": {
+            "_active": true,
+            "abstract_interpretation_div_by_zero": true
+        },
+        "FaultDetection-EscapingLocalAddress": {
+            "_active": true
+        },
+        "FaultDetection-IntegerOverflow": {
+            "_active": true,
+            "abstract_interpretation_overflow": true
+        },
+        "FaultDetection-MemoryLeak": {
+            "_active": true
+        },
+        "FaultDetection-NullPointerDereference": {
+            "_active": true
+        },
+        "FaultDetection-OutOfBounds": {
+            "_active": true
+        },
+        "FaultDetection-RemovableStatements": {
+            "_active": true
+        },
+        "FaultDetection-UninitializedVariable": {
+            "_active": true
+        },
+        "FaultDetection-UnrelatedPointerComparison": {
+            "_active": true
+        },
+        "FaultDetection-UnrelatedPointerSubtraction": {
+            "_active": true
+        },
+        "FaultDetection-UnusedAssignments": {
+            "_active": true
+        },
+        "FaultDetection-UseAfterFree": {
+            "_active": true
+        },
+        "Generic-CComments": {
+            "_active": true
+        },
+        "Generic-DoxygenCommentAtDefinition": {
+            "_active": false
+        },
+        "Generic-DoxygenCommentInHeader": {
+            "_active": true
+        },
+        "Generic-DuplicateIncludeGuard": {
+            "_active": true
+        },
+        "Generic-ForbiddenFunctions": {
+            "_active": true
+        },
+        "Generic-IncludeKind": {
+            "_active": true
+        },
+        "Generic-InitializeAllVariables": {
+            "_active": true
+        },
+        "Generic-LocalInclude": {
+            "_active": true,
+            "enums_can_be_redeclared": true,
+            "excludes": [],
+            "interface_headers": [
+                "*/*_api.h",
+                "*/Python.h",
+                "*/*_fwd.h",
+                "Q*"
+            ],
+            "routines_can_be_redeclared": true,
+            "typedefs_can_be_redeclared": true
+        },
+        "Generic-LocalScope": {
+            "_active": true,
+            "move_global_const_into_function": false,
+            "treat_initialization_as_use": true
+        },
+        "Generic-MaxComplexity": {
+            "_active": true,
+            "maxcomplexity": 20
+        },
+        "Generic-MaxConditions": {
+            "_active": true,
+            "maxconditions": 5
+        },
+        "Generic-MaxNesting": {
+            "_active": true,
+            "maxnesting": 5
+        },
+        "Generic-MaxOneStmtPerLine": {
+            "_active": true
+        },
+        "Generic-MaxParams": {
+            "_active": true
+        },
+        "Generic-MissingIncludeGuard": {
+            "_active": true
+        },
+        "Generic-MissingOverride": {
+            "_active": true
+        },
+        "Generic-MissingParameterAssert": {
+            "_active": true,
+            "macro_names": [
+                "assert",
+                "FAS_ASSERT"
+            ]
+        },
+        "Generic-MissingSelfHeaderInclude": {
+            "_active": true
+        },
+        "Generic-NoAbsoluteInclude": {
+            "_active": true
+        },
+        "Generic-NoCompilerWarnings": {
+            "_active": true
+        },
+        "Generic-NoConditionalOperator": {
+            "_active": true
+        },
+        "Generic-NoConstCasts": {
+            "_active": true
+        },
+        "Generic-NoConstOnRHS": {
+            "_active": false
+        },
+        "Generic-NoDiscardedReturnCode": {
+            "_active": true
+        },
+        "Generic-NoEllipsis": {
+            "_active": true
+        },
+        "Generic-NoEmptyStructs": {
+            "_active": true
+        },
+        "Generic-NoExternInImpl": {
+            "_active": true
+        },
+        "Generic-NoFunctionDefinitionInHeader": {
+            "_active": true
+        },
+        "Generic-NoImplicitTypeConversion": {
+            "_active": false
+        },
+        "Generic-NoIncludePaths": {
+            "_active": true,
+            "allow_downward_paths": true
+        },
+        "Generic-NoIrregularInclude": {
+            "_active": true
+        },
+        "Generic-NoLeakingReferenceToLocal": {
+            "_active": true
+        },
+        "Generic-NoLinkerWarnings": {
+            "_active": true
+        },
+        "Generic-NoMagicNumbers": {
+            "_active": true,
+            "exclude_single_uses": false
+        },
+        "Generic-NoMalloc": {
+            "_active": true
+        },
+        "Generic-NoPrecisionLoss": {
+            "_active": true
+        },
+        "Generic-NoReferenceToLocalVariable": {
+            "_active": true
+        },
+        "Generic-NoSemicolonAtEndOfMacro": {
+            "_active": true
+        },
+        "Generic-NoSingleCharIdentifier": {
+            "_active": true,
+            "exclude_loop_counter": true,
+            "excludes": [],
+            "whitelist": []
+        },
+        "Generic-NoStaticInHeader": {
+            "_active": true
+        },
+        "Generic-NoTabs": {
+            "_active": true
+        },
+        "Generic-NoTrailingWhitespace": {
+            "_active": true
+        },
+        "Generic-NoTypeConversionToBool": {
+            "_active": true
+        },
+        "Generic-NoUncheckedPointerParamDereference": {
+            "_active": true
+        },
+        "Generic-NoUnsafeMacro": {
+            "_active": true
+        },
+        "Generic-NoWhitespaceMemberSelection": {
+            "_active": true
+        },
+        "Generic-TooManyIncludes": {
+            "_active": true
+        },
+        "Generic-TypedefCheck": {
+            "_active": true,
+            "report_identical_redefinitions": false
+        },
+        "Generic-WrongIncludeCasing": {
+            "_active": true
+        },
+        "Metric-CloneRatio": {
+            "_active": true
+        },
+        "Metric-ExtendedMcCabe": {
+            "_active": true
+        },
+        "Metric-Includes.DirectIncluders": {
+            "_active": true
+        },
+        "Metric-Includes.DirectIncludes": {
+            "_active": true
+        },
+        "Metric-Includes.IncludeBurden": {
+            "_active": true
+        },
+        "Metric-Includes.MaximumIncludeDepth": {
+            "_active": true
+        },
+        "Metric-Includes.MaximumIncluderDepth": {
+            "_active": true
+        },
+        "Metric-Includes.TransitiveIncluders": {
+            "_active": true
+        },
+        "Metric-Includes.TransitiveIncludes": {
+            "_active": true
+        },
+        "Metric-IssueCount.Architecture": {
+            "_active": true
+        },
+        "Metric-IssueCount.Clone": {
+            "_active": true
+        },
+        "Metric-IssueCount.Cycle": {
+            "_active": true
+        },
+        "Metric-IssueCount.DeadEntity": {
+            "_active": true
+        },
+        "Metric-IssueCount.Metric": {
+            "_active": true
+        },
+        "Metric-IssueCount.Style": {
+            "_active": true
+        },
+        "Metric-Lines.Class.LOC": {
+            "_active": true
+        },
+        "Metric-Lines.Comment": {
+            "_active": true
+        },
+        "Metric-Lines.File.Comment": {
+            "_active": true
+        },
+        "Metric-Lines.File.LOC": {
+            "_active": true
+        },
+        "Metric-Lines.LOC": {
+            "_active": true
+        },
+        "Metric-Lines.PP.Define": {
+            "_active": true
+        },
+        "Metric-Lines.PP.Elif": {
+            "_active": true
+        },
+        "Metric-Lines.PP.Else": {
+            "_active": true
+        },
+        "Metric-Lines.PP.Endif": {
+            "_active": true
+        },
+        "Metric-Lines.PP.Error": {
+            "_active": true
+        },
+        "Metric-Lines.PP.Ident": {
+            "_active": true
+        },
+        "Metric-Lines.PP.If": {
+            "_active": true
+        },
+        "Metric-Lines.PP.Ifdef": {
+            "_active": true
+        },
+        "Metric-Lines.PP.Ifndef": {
+            "_active": true
+        },
+        "Metric-Lines.PP.Include": {
+            "_active": true
+        },
+        "Metric-Lines.PP.Line": {
+            "_active": true
+        },
+        "Metric-Lines.PP.Pragma": {
+            "_active": true
+        },
+        "Metric-Lines.PP.Undef": {
+            "_active": true
+        },
+        "Metric-Lines.PP.Warning": {
+            "_active": true
+        },
+        "Metric-Lines.Routine.LOC": {
+            "_active": true
+        },
+        "Metric-LogNPathCeiling": {
+            "_active": true
+        },
+        "Metric-LogNPathFloor": {
+            "_active": true
+        },
+        "Metric-McCabeComplexity": {
+            "_active": true
+        },
+        "Metric-NumberOfCalledRoutines": {
+            "_active": true,
+            "max_value": 20
+        },
+        "Metric-NumberOfCallingRoutines": {
+            "_active": true,
+            "max_value": 20
+        },
+        "Metric-NumberOfGotos": {
+            "_active": true
+        },
+        "Metric-NumberOfInvocations": {
+            "_active": true
+        },
+        "Metric-NumberOfParameters": {
+            "_active": true
+        },
+        "Metric-NumberOfReturns": {
+            "_active": true
+        },
+        "Metric-NumberOfSCCs": {
+            "_active": true
+        },
+        "Metric-NumberOfStatements": {
+            "_active": true
+        },
+        "Metric-SwitchComplexity": {
+            "_active": true
+        },
+        "Metric-TokenFileMetric.Check": {
+            "_active": false
+        },
+        "Metric-TokenFileMetric.Debug": {
+            "_active": false
+        },
+        "Metric-TokenFileMetric.Fixme": {
+            "_active": false
+        },
+        "Metric-TokenFileMetric.Hack": {
+            "_active": false
+        },
+        "Metric-TokenFileMetric.Todo": {
+            "_active": false
+        },
+        "Metric-TokenFileMetric.XXX": {
+            "_active": false
+        },
+        "Metric-TokenMetric.Check": {
+            "_active": false
+        },
+        "Metric-TokenMetric.Debug": {
+            "_active": true
+        },
+        "Metric-TokenMetric.Fixme": {
+            "_active": true
+        },
+        "Metric-TokenMetric.Hack": {
+            "_active": true
+        },
+        "Metric-TokenMetric.Todo": {
+            "_active": true
+        },
+        "Metric-TokenMetric.XXX": {
+            "_active": true
+        },
+        "MisraC-13.3": {
+            "_active": true
+        },
+        "MisraC-13.6": {
+            "_active": true
+        },
+        "MisraC2012-1.1": {
+            "_active": true
+        },
+        "MisraC2012-1.2": {
+            "_active": true,
+            "exclude_in_macros": [
+                "must_check_return"
+            ]
+        },
+        "MisraC2012-1.3": {
+            "_active": true
+        },
+        "MisraC2012-1.4": {
+            "_active": true
+        },
+        "MisraC2012-10.1": {
+            "_active": true
+        },
+        "MisraC2012-10.2": {
+            "_active": true
+        },
+        "MisraC2012-10.3": {
+            "_active": true
+        },
+        "MisraC2012-10.4": {
+            "_active": true
+        },
+        "MisraC2012-10.5": {
+            "_active": true
+        },
+        "MisraC2012-10.6": {
+            "_active": true
+        },
+        "MisraC2012-10.7": {
+            "_active": true
+        },
+        "MisraC2012-10.8": {
+            "_active": true
+        },
+        "MisraC2012-11.1": {
+            "_active": true
+        },
+        "MisraC2012-11.2": {
+            "_active": true
+        },
+        "MisraC2012-11.3": {
+            "_active": true
+        },
+        "MisraC2012-11.4": {
+            "_active": true
+        },
+        "MisraC2012-11.5": {
+            "_active": true
+        },
+        "MisraC2012-11.6": {
+            "_active": true
+        },
+        "MisraC2012-11.7": {
+            "_active": true
+        },
+        "MisraC2012-11.8": {
+            "_active": true
+        },
+        "MisraC2012-11.9": {
+            "_active": true
+        },
+        "MisraC2012-12.1": {
+            "_active": true
+        },
+        "MisraC2012-12.2": {
+            "_active": true
+        },
+        "MisraC2012-12.3": {
+            "_active": true
+        },
+        "MisraC2012-12.4": {
+            "_active": true
+        },
+        "MisraC2012-12.5": {
+            "_active": true
+        },
+        "MisraC2012-13": {
+            "exclude_in_macros": [
+                "FAS_ASSERT"
+            ]
+        },
+        "MisraC2012-13.1": {
+            "_active": true
+        },
+        "MisraC2012-13.2": {
+            "_active": true
+        },
+        "MisraC2012-13.3": {
+            "_active": true
+        },
+        "MisraC2012-13.4": {
+            "_active": true
+        },
+        "MisraC2012-13.5": {
+            "_active": true
+        },
+        "MisraC2012-13.6": {
+            "_active": true
+        },
+        "MisraC2012-14.1": {
+            "_active": true
+        },
+        "MisraC2012-14.2": {
+            "_active": true
+        },
+        "MisraC2012-14.3": {
+            "_active": true,
+            "exclude_in_macros": [
+                "FAS_ASSERT"
+            ]
+        },
+        "MisraC2012-14.4": {
+            "_active": true
+        },
+        "MisraC2012-15.1": {
+            "_active": true
+        },
+        "MisraC2012-15.2": {
+            "_active": true
+        },
+        "MisraC2012-15.3": {
+            "_active": true
+        },
+        "MisraC2012-15.4": {
+            "_active": true
+        },
+        "MisraC2012-15.5": {
+            "_active": true
+        },
+        "MisraC2012-15.6": {
+            "_active": true
+        },
+        "MisraC2012-15.7": {
+            "_active": true
+        },
+        "MisraC2012-16.1": {
+            "_active": true,
+            "acceptable_end_items": [
+                "Exit_Switch",
+                "Return_Statement"
+            ],
+            "acceptable_middle_items": [
+                "Exit_Switch",
+                "Return_Statement",
+                "Switch_Case_Label"
+            ],
+            "allow_if": true
+        },
+        "MisraC2012-16.2": {
+            "_active": true
+        },
+        "MisraC2012-16.3": {
+            "_active": true
+        },
+        "MisraC2012-16.4": {
+            "_active": true
+        },
+        "MisraC2012-16.5": {
+            "_active": true
+        },
+        "MisraC2012-16.6": {
+            "_active": true
+        },
+        "MisraC2012-16.7": {
+            "_active": true
+        },
+        "MisraC2012-17.1": {
+            "_active": true
+        },
+        "MisraC2012-17.2": {
+            "_active": true
+        },
+        "MisraC2012-17.3": {
+            "_active": true
+        },
+        "MisraC2012-17.4": {
+            "_active": true
+        },
+        "MisraC2012-17.5": {
+            "_active": true
+        },
+        "MisraC2012-17.6": {
+            "_active": true
+        },
+        "MisraC2012-17.7": {
+            "_active": true
+        },
+        "MisraC2012-17.8": {
+            "_active": true
+        },
+        "MisraC2012-18.1": {
+            "_active": true
+        },
+        "MisraC2012-18.2": {
+            "_active": true
+        },
+        "MisraC2012-18.3": {
+            "_active": true
+        },
+        "MisraC2012-18.4": {
+            "_active": true
+        },
+        "MisraC2012-18.5": {
+            "_active": true
+        },
+        "MisraC2012-18.6": {
+            "_active": true
+        },
+        "MisraC2012-18.7": {
+            "_active": true
+        },
+        "MisraC2012-18.8": {
+            "_active": true
+        },
+        "MisraC2012-19.1": {
+            "_active": true
+        },
+        "MisraC2012-19.2": {
+            "_active": true
+        },
+        "MisraC2012-2.1": {
+            "_active": true
+        },
+        "MisraC2012-2.2": {
+            "_active": true,
+            "exclude_in_macros": [
+                "FAS_ASSERT"
+            ]
+        },
+        "MisraC2012-2.3": {
+            "_active": true
+        },
+        "MisraC2012-2.4": {
+            "_active": true
+        },
+        "MisraC2012-2.5": {
+            "_active": true
+        },
+        "MisraC2012-2.6": {
+            "_active": true
+        },
+        "MisraC2012-2.7": {
+            "_active": true
+        },
+        "MisraC2012-20.1": {
+            "_active": true
+        },
+        "MisraC2012-20.10": {
+            "_active": true
+        },
+        "MisraC2012-20.11": {
+            "_active": true
+        },
+        "MisraC2012-20.12": {
+            "_active": true
+        },
+        "MisraC2012-20.13": {
+            "_active": true
+        },
+        "MisraC2012-20.14": {
+            "_active": true
+        },
+        "MisraC2012-20.2": {
+            "_active": true
+        },
+        "MisraC2012-20.3": {
+            "_active": true
+        },
+        "MisraC2012-20.4": {
+            "_active": true
+        },
+        "MisraC2012-20.5": {
+            "_active": true
+        },
+        "MisraC2012-20.6": {
+            "_active": true
+        },
+        "MisraC2012-20.7": {
+            "_active": true
+        },
+        "MisraC2012-20.8": {
+            "_active": true
+        },
+        "MisraC2012-20.9": {
+            "_active": true
+        },
+        "MisraC2012-21.1": {
+            "_active": true
+        },
+        "MisraC2012-21.10": {
+            "_active": true
+        },
+        "MisraC2012-21.11": {
+            "_active": true
+        },
+        "MisraC2012-21.12": {
+            "_active": true
+        },
+        "MisraC2012-21.13": {
+            "_active": true
+        },
+        "MisraC2012-21.14": {
+            "_active": true
+        },
+        "MisraC2012-21.15": {
+            "_active": true
+        },
+        "MisraC2012-21.16": {
+            "_active": true
+        },
+        "MisraC2012-21.17": {
+            "_active": true
+        },
+        "MisraC2012-21.18": {
+            "_active": true
+        },
+        "MisraC2012-21.19": {
+            "_active": true
+        },
+        "MisraC2012-21.2": {
+            "_active": true
+        },
+        "MisraC2012-21.20": {
+            "_active": true
+        },
+        "MisraC2012-21.21": {
+            "_active": true
+        },
+        "MisraC2012-21.3": {
+            "_active": true
+        },
+        "MisraC2012-21.4": {
+            "_active": true
+        },
+        "MisraC2012-21.5": {
+            "_active": true
+        },
+        "MisraC2012-21.6": {
+            "_active": true
+        },
+        "MisraC2012-21.7": {
+            "_active": true
+        },
+        "MisraC2012-21.8": {
+            "_active": true
+        },
+        "MisraC2012-21.9": {
+            "_active": true
+        },
+        "MisraC2012-22.1": {
+            "_active": true
+        },
+        "MisraC2012-22.10": {
+            "_active": true
+        },
+        "MisraC2012-22.2": {
+            "_active": true
+        },
+        "MisraC2012-22.3": {
+            "_active": true
+        },
+        "MisraC2012-22.4": {
+            "_active": true
+        },
+        "MisraC2012-22.5": {
+            "_active": true
+        },
+        "MisraC2012-22.6": {
+            "_active": true
+        },
+        "MisraC2012-22.7": {
+            "_active": true
+        },
+        "MisraC2012-22.8": {
+            "_active": true
+        },
+        "MisraC2012-22.9": {
+            "_active": true
+        },
+        "MisraC2012-3.1": {
+            "_active": true
+        },
+        "MisraC2012-3.2": {
+            "_active": true
+        },
+        "MisraC2012-4.1": {
+            "_active": true
+        },
+        "MisraC2012-4.2": {
+            "_active": true
+        },
+        "MisraC2012-5.1": {
+            "_active": true
+        },
+        "MisraC2012-5.2": {
+            "_active": true
+        },
+        "MisraC2012-5.3": {
+            "_active": true
+        },
+        "MisraC2012-5.4": {
+            "_active": true
+        },
+        "MisraC2012-5.5": {
+            "_active": true
+        },
+        "MisraC2012-5.6": {
+            "_active": true
+        },
+        "MisraC2012-5.7": {
+            "_active": true
+        },
+        "MisraC2012-5.8": {
+            "_active": true
+        },
+        "MisraC2012-5.9": {
+            "_active": true
+        },
+        "MisraC2012-6.1": {
+            "_active": true
+        },
+        "MisraC2012-6.2": {
+            "_active": true
+        },
+        "MisraC2012-7.1": {
+            "_active": true
+        },
+        "MisraC2012-7.2": {
+            "_active": true
+        },
+        "MisraC2012-7.3": {
+            "_active": true
+        },
+        "MisraC2012-7.4": {
+            "_active": true
+        },
+        "MisraC2012-8.1": {
+            "_active": true
+        },
+        "MisraC2012-8.10": {
+            "_active": true
+        },
+        "MisraC2012-8.11": {
+            "_active": true
+        },
+        "MisraC2012-8.12": {
+            "_active": true
+        },
+        "MisraC2012-8.13": {
+            "_active": true
+        },
+        "MisraC2012-8.14": {
+            "_active": true
+        },
+        "MisraC2012-8.2": {
+            "_active": true
+        },
+        "MisraC2012-8.3": {
+            "_active": true
+        },
+        "MisraC2012-8.4": {
+            "_active": true
+        },
+        "MisraC2012-8.5": {
+            "_active": true
+        },
+        "MisraC2012-8.6": {
+            "_active": true
+        },
+        "MisraC2012-8.7": {
+            "_active": true
+        },
+        "MisraC2012-8.8": {
+            "_active": true
+        },
+        "MisraC2012-8.9": {
+            "_active": true
+        },
+        "MisraC2012-9.1": {
+            "_active": true
+        },
+        "MisraC2012-9.2": {
+            "_active": true
+        },
+        "MisraC2012-9.3": {
+            "_active": true
+        },
+        "MisraC2012-9.4": {
+            "_active": true
+        },
+        "MisraC2012-9.5": {
+            "_active": true
+        },
+        "MisraC2012Directive-1.1": {
+            "_active": true
+        },
+        "MisraC2012Directive-2.1": {
+            "_active": true
+        },
+        "MisraC2012Directive-4.1": {
+            "_active": true,
+            "abstract_interpretation_div_by_zero": true,
+            "abstract_interpretation_overflow": true
+        },
+        "MisraC2012Directive-4.10": {
+            "_active": true
+        },
+        "MisraC2012Directive-4.11": {
+            "_active": true
+        },
+        "MisraC2012Directive-4.12": {
+            "_active": true
+        },
+        "MisraC2012Directive-4.13": {
+            "_active": true
+        },
+        "MisraC2012Directive-4.14": {
+            "_active": true,
+            "external_sources": {
+                "return_values_of": {
+                    "excluded": {
+                        "$(delta:+)": [
+                            "__curpc",
+                            "abs",
+                            "labs",
+                            "llabs",
+                            "fminf",
+                            "fabsf"
+                        ]
+                    }
+                }
+            }
+        },
+        "MisraC2012Directive-4.2": {
+            "_active": true
+        },
+        "MisraC2012Directive-4.3": {
+            "_active": true
+        },
+        "MisraC2012Directive-4.4": {
+            "_active": true
+        },
+        "MisraC2012Directive-4.5": {
+            "_active": true
+        },
+        "MisraC2012Directive-4.6": {
+            "_active": true,
+            "allow_floating_point": true
+        },
+        "MisraC2012Directive-4.7": {
+            "_active": true
+        },
+        "MisraC2012Directive-4.8": {
+            "_active": true,
+            "excludes": {
+                "$(delta:+)": [
+                    "src/app/engine/config/database_cfg.h"
+                ]
+            }
+        },
+        "MisraC2012Directive-4.9": {
+            "_active": true
+        },
+        "Parallelism-IncorrectCriticalRegion": {
+            "_active": true,
+            "enter_critical_functions": [
+                "OS_EnterTaskCritical"
+            ],
+            "exit_critical_functions": [
+                "OS_ExitTaskCritical"
+            ]
+        },
+        "Parallelism-UnsafeVarAccess": {
+            "_active": true,
+            "enter_critical_functions": [
+                "OS_EnterTaskCritical"
+            ],
+            "exit_critical_functions": [
+                "OS_ExitTaskCritical"
+            ],
+            "inspect_pointers": true,
+            "strict_priorities": true
+        },
+        "SaveRFG": {
+            "_active": true
+        },
+        "StaticSemanticAnalysis": {
+            "_active": true,
+            "callgraph_options": {
+                "use_full_pointer_analysis": true
+            },
+            "global_classic_options": {
+                "abstract_interpretation": true
+            }
+        }
+    },
+    "_Format": "1.0",
+    "_Version": "7.2.0",
+    "_VersionNum": [
+        7,
+        2,
+        0,
+        7204
+    ]
+}

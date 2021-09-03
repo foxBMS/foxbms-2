@@ -1,0 +1,37 @@
+{
+    "valid": [
+        "ABC_A",
+        "ABC_Az",
+        "ABC_A1",
+        "ABC_Function",
+        "ABC_Function0",
+        "ABC_MyFunction",
+        "ABC_MyOtherFunction",
+        "ABC_MyOther0Function",
+        "ABC_MyOtherFunction0"
+    ],
+    "invalid": [
+        "_",
+        "_01",
+        "_ab",
+        "a",
+        "ABC",
+        "ABC_",
+        "PREFIXONLY",
+        "PREFIXBUTNOUNDERSCORE",
+        "noprefix",
+        "lowercaseprefix_function",
+        "abc_function",
+        "abc_function0",
+        "abc_myfunction",
+        "abc_myotherfunction",
+        "abc_myother0function",
+        "abc_myotherfunction0",
+        "abc_function_s",
+        "abc_function_perc",
+        "abc_myfunction_perc",
+        "abc_myotherfunction_perc",
+        "abc_my0otherfunction_perc",
+        "abc_my0otherfunction1_perc"
+    ]
+}

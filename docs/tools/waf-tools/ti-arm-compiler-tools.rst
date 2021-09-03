@@ -23,6 +23,7 @@ The implementation documentation is found hereafter:
     :caption: Compiler Tool Implementations
 
     ./compiler-tool/f_ti_arm_cgt
+    ./compiler-tool/f_ti_arm_cgt_cc_options
     ./compiler-tool/f_ti_arm_helper
     ./compiler-tool/f_ti_arm_tools
     ./compiler-tool/f_ti_color_arm_cgt

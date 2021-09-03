@@ -43,7 +43,7 @@
  * @file    epcos_b57251v5103j060.c
  * @author  foxBMS Team
  * @date    2018-10-30 (date of creation)
- * @updated 2021-03-22 (date of last update)
+ * @updated 2021-08-06 (date of last update)
  * @ingroup TEMPERATURE_SENSORS
  * @prefix  TS
  *
@@ -179,7 +179,7 @@ extern int16_t TS_Epc00GetTemperatureFromLut(uint16_t adcVoltage_mV) {
         /* Interpolate between LUT values, but do not extrapolate LUT! */
         if (!(((between_high == 0u) && (between_low == 0u)) || /* measured resistance > maximum LUT resistance */
               (between_low > b57251v5103j060LutSize))) {       /* measured resistance < minimum LUT resistance */
-            temperature_ddegC = (int16_t)MATH_linearInterpolation(
+            temperature_ddegC = (int16_t)MATH_LinearInterpolation(
                 ts_b57251v5103j060Lut[between_low].resistance_Ohm,
                 ts_b57251v5103j060Lut[between_low].temperature_ddegC,
                 ts_b57251v5103j060Lut[between_high].resistance_Ohm,

@@ -43,7 +43,7 @@
  * @file    test_foxmath.c
  * @author  foxBMS Team
  * @date    2020-04-01 (date of creation)
- * @updated 2020-07-15 (date of last update)
+ * @updated 2021-08-06 (date of last update)
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -84,61 +84,61 @@ void tearDown(void) {
 /*========== Test Cases =====================================================*/
 void test_linearInterpolation_X1EqualsX2() {
     coord_x1 = coord_x2;
-    TEST_ASSERT_EQUAL(coord_y1, MATH_linearInterpolation(coord_x1, coord_y1, coord_x2, coord_y2, coord_x_interpolate));
+    TEST_ASSERT_EQUAL(coord_y1, MATH_LinearInterpolation(coord_x1, coord_y1, coord_x2, coord_y2, coord_x_interpolate));
 }
 
 void test_linearInterpolation_interpolateBetweenX1AndX2() {
-    TEST_ASSERT_EQUAL(75.0f, MATH_linearInterpolation(10.f, 50.f, 20.f, 100.f, 15.f));
-    TEST_ASSERT_EQUAL(87.0f, MATH_linearInterpolation(10.f, 50.f, 20.f, 100.f, 17.5f));
-    TEST_ASSERT_EQUAL(50.0f, MATH_linearInterpolation(10.f, 50.f, 20.f, 100.f, 10.0001f));
+    TEST_ASSERT_EQUAL(75.0f, MATH_LinearInterpolation(10.f, 50.f, 20.f, 100.f, 15.f));
+    TEST_ASSERT_EQUAL(87.0f, MATH_LinearInterpolation(10.f, 50.f, 20.f, 100.f, 17.5f));
+    TEST_ASSERT_EQUAL(50.0f, MATH_LinearInterpolation(10.f, 50.f, 20.f, 100.f, 10.0001f));
 }
 
 void test_linearInterpolation_extrapolateFromX1AndX2() {
-    TEST_ASSERT_EQUAL(100.0f, MATH_linearInterpolation(10.f, 50.f, 20.f, 100.f, 20.1f));
-    TEST_ASSERT_EQUAL(-100.0f, MATH_linearInterpolation(10.f, 50.f, 20.f, 100.f, -20.f));
-    TEST_ASSERT_EQUAL(16739465.0f, MATH_linearInterpolation(10.f, 50.f, 20.f, 100.f, 3347893.0f));
+    TEST_ASSERT_EQUAL(100.0f, MATH_LinearInterpolation(10.f, 50.f, 20.f, 100.f, 20.1f));
+    TEST_ASSERT_EQUAL(-100.0f, MATH_LinearInterpolation(10.f, 50.f, 20.f, 100.f, -20.f));
+    TEST_ASSERT_EQUAL(16739465.0f, MATH_LinearInterpolation(10.f, 50.f, 20.f, 100.f, 3347893.0f));
 }
 
 void test_allZeros_swap16(void) {
-    TEST_ASSERT_EQUAL(0u, MATH_swapBytes_uint16_t(val16));
+    TEST_ASSERT_EQUAL(0u, MATH_SwapBytesUint16_t(val16));
 }
 
 void test_allZeros_swap32(void) {
-    TEST_ASSERT_EQUAL(0u, MATH_swapBytes_uint32_t(val32));
+    TEST_ASSERT_EQUAL(0u, MATH_SwapBytesUint32_t(val32));
 }
 
 void test_allZeros_swap64(void) {
-    TEST_ASSERT_EQUAL(0u, MATH_swapBytes_uint64_t(val64));
+    TEST_ASSERT_EQUAL(0u, MATH_SwapBytesUint64_t(val64));
 }
 
 void test_swap16(void) {
     val16 = 786u; /* any random value */
-    TEST_ASSERT_EQUAL(4611u, MATH_swapBytes_uint16_t(val16));
+    TEST_ASSERT_EQUAL(4611u, MATH_SwapBytesUint16_t(val16));
 }
 
 void test_swap32(void) {
     val32 = 0xFFFF0000u; /* any random value */
-    TEST_ASSERT_EQUAL(0x0000FFFFu, MATH_swapBytes_uint32_t(val32));
+    TEST_ASSERT_EQUAL(0x0000FFFFu, MATH_SwapBytesUint32_t(val32));
 }
 
 void test_swap64(void) {
     val64 = 123u; /* 0x007B */
-    TEST_ASSERT_EQUAL(0x7B00000000000000u, MATH_swapBytes_uint64_t(val64));
+    TEST_ASSERT_EQUAL(0x7B00000000000000u, MATH_SwapBytesUint64_t(val64));
 }
 
 void test_swap16_MAX(void) {
     val16 = UINT16_MAX;
-    TEST_ASSERT_EQUAL(UINT16_MAX, MATH_swapBytes_uint16_t(val16));
+    TEST_ASSERT_EQUAL(UINT16_MAX, MATH_SwapBytesUint16_t(val16));
 }
 
 void test_swap32_MAX(void) {
     val32 = UINT32_MAX;
-    TEST_ASSERT_EQUAL(UINT32_MAX, MATH_swapBytes_uint32_t(val32));
+    TEST_ASSERT_EQUAL(UINT32_MAX, MATH_SwapBytesUint32_t(val32));
 }
 
 void test_swap64_MAX(void) {
     val64 = UINT64_MAX;
-    TEST_ASSERT_EQUAL(UINT64_MAX, MATH_swapBytes_uint64_t(val64));
+    TEST_ASSERT_EQUAL(UINT64_MAX, MATH_SwapBytesUint64_t(val64));
 }
 
 void test_minimumOfTwoFloats(void) {

@@ -43,7 +43,7 @@
  * @file    soc_counting.c
  * @author  foxBMS Team
  * @date    2020-10-07 (date of creation)
- * @updated 2021-05-20 (date of last update)
+ * @updated 2021-08-06 (date of last update)
  * @ingroup APPLICATION
  * @prefix  SOC
  *
@@ -383,7 +383,7 @@ float SOC_GetFromVoltage(int16_t voltage_mV) {
     /* Interpolate between LUT values, but do not extrapolate LUT! */
     if (!(((0u == between_high) && (0u == between_low)) ||       /* cell voltage > maximum LUT voltage */
           (between_low >= bc_stateOfChargeLookupTableLength))) { /* cell voltage < minimum LUT voltage */
-        soc_perc = MATH_linearInterpolation(
+        soc_perc = MATH_LinearInterpolation(
             (float)bc_stateOfChargeLookupTable[between_low].voltage_mV,
             bc_stateOfChargeLookupTable[between_low].value,
             (float)bc_stateOfChargeLookupTable[between_high].voltage_mV,

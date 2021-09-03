@@ -1,0 +1,10 @@
+{
+    "_Layers": [
+        "ci_config.json",
+        "architecture.json",
+        "rule_config_c.py",
+        "rule_config_c.json",
+        "rule_config_names.py",
+        "rule_config_names.json"
+    ]
+}

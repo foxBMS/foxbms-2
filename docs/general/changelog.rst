@@ -34,6 +34,61 @@ Versioning follows then these rules:
 - increasing ``PATCH`` fixes bugs in a backwards compatible manner
 
 ********************
+[1.1.2] - 2021-09-03
+********************
+
+Added
+=====
+
+- A basic block diagram and description of a battery system and the voltages
+  and the currents that need to be measured have been included in the
+  documentation.
+- Add helper script to run the library test build
+  (``tests/variants/lib-build/lib-build.bat``).
+- Updated the Axivion configuration to use version 7.2.3.
+- Added minimal documentation for Axivion setup.
+- Improved the Axivion configuration:
+
+  * use ``FAS_ASSERT`` as assert macro in order to be compliant with the style
+    guide
+  * fix some includes (library-inclusions and unnecessary inclusions)
+  * adds the Axivion example for race condition analysis and a minimal
+    configuration of entry points
+  * updates .axivion.preinc with missing symbols
+  * makes cafeCC point to the right compiler library
+  * excludes vendored code from analysis
+  * disables all naming conventions (as they are currently not configured and
+    thus horribly noisy)
+  * disables the NoImplicitTypeConversion check as it is very noisy and better
+    done with appropriate MISRA rules
+  * detect unsafe variable access by defining task priorities
+  * make Axivion less noisy, by disabling unused style-checks.
+  * Made rules for loop-counter variables more strict.
+  * enabling more detailed computation of findings (Abstract Interpretation in
+    Static Semantic Analysis).
+
+Changed
+=======
+
+- Improved the code quality of the module ``foxmath`` so that it is
+  MISRA-compliant (:numref:`FOXMATH`).
+- Refactored ``cc-options`` parsing to separate tool to simplify the TI ARM CGT
+  compiler tool.
+
+Deprecated
+==========
+
+Removed
+=======
+
+Fixed
+=====
+
+- When HALCoGen was not available, the waf tool nevertheless tried to set the
+  respective include path, which lead to exception in Python. This has been
+  fixed by not trying to set the include path when HALCoGen is not available.
+
+********************
 [1.1.1] - 2021-08-06
 ********************
 
@@ -528,6 +583,7 @@ Removed
 
 - Removed the deprecated Anaconda extension from the list of recommended
   Visual Studio Code plugins that is shipped with the project.
+- Suppressed the (uncovered) ADI-driver from the unit-test-report.
 
 Fixed
 =====

@@ -1,0 +1,21 @@
+[ti]
+sizeof(char)         = 1
+sizeof(short)        = 2
+sizeof(int)          = 4
+sizeof(long)         = 4
+sizeof(long long)    = 8
+sizeof(float)        = 4
+sizeof(double)       = 8
+sizeof(long double)  = 8
+
+alignof(short)       = 2
+alignof(int)         = 4
+alignof(long)        = 4
+alignof(long long)   = 8
+alignof(float)       = 4
+alignof(double)      = 8
+alignof(long double) = 8
+
+wchar_t   = unsigned short int
+size_t    = unsigned int
+ptrdiff_t = int

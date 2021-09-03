@@ -43,7 +43,7 @@
  * @file    soe_counting.c
  * @author  foxBMS Team
  * @date    2020-10-07 (date of creation)
- * @updated 2021-05-20 (date of last update)
+ * @updated 2021-08-06 (date of last update)
  * @ingroup APPLICATION
  * @prefix  SOE
  *
@@ -222,7 +222,7 @@ static float SOE_GetFromVoltage(int16_t voltage_mV) {
     /* Interpolate between LUT values, but do not extrapolate LUT! */
     if (!(((0u == between_high) && (0u == between_low)) ||       /* cell voltage > maximum LUT voltage */
           (between_low >= bc_stateOfEnergyLookupTableLength))) { /* cell voltage < minimum LUT voltage */
-        soe_perc = MATH_linearInterpolation(
+        soe_perc = MATH_LinearInterpolation(
             (float)bc_stateOfEnergyLookupTable[between_low].voltage_mV,
             bc_stateOfEnergyLookupTable[between_low].value,
             (float)bc_stateOfEnergyLookupTable[between_high].voltage_mV,

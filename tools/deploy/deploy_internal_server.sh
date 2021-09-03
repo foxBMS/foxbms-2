@@ -49,9 +49,9 @@ COV_ARTIFACT='build/unit_test/artifacts/gcov/.'
 NAME_COV_SCRIPT_DEPLOY_JOB='cov_script_report_deployment'
 DIR_COV_SCRIPT_DEPLOY='cov_script'
 COV_SCRIPT_ARTIFACT='build/unit_test_scripts/.'
-REMOTE_HOSTNAME='devel-foxbms'
-REMOTE="foxbms@$REMOTE_HOSTNAME"
-REMOTE_WEB_DIR='/srv/www/vhosts/devel-foxbms/htdocs'
+REMOTE="$REMOTE_USER@$REMOTE_HOSTNAME"
+echo "Value of variable REMOTE_HOSTNAME: $REMOTE_HOSTNAME"
+echo "Value of variable REMOTE_USER: $REMOTE_USER"
 
 echo 'This is the deployment-script for local reports and documentation.'
 echo 'I will try to detect the current CI-job:'

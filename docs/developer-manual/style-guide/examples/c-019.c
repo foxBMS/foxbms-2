@@ -51,7 +51,7 @@ typedef struct POINT {
 typedef struct PATH {
     POINT_s point;
     uint32_t timestamp;
-    uint32_t prevTimestamp;
+    uint32_t previousTimestamp;
     uint8_t name[16];
 } PATH_s;
 
@@ -63,7 +63,7 @@ uint64_t myVar3 = 10uLL;
 int8_t myVar4   = -10;
 int16_t myVar5  = -10;
 int32_t myVar6  = -10;
-int32_t myVar7  = -10LL;
+int64_t myVar7  = -10LL;
 
 /* Initialization example for arrays */
 uint8_t myArrayA[]  = {1, 2, 3}; /* Array has type uint8_t[3] and holds 1,2,3 */

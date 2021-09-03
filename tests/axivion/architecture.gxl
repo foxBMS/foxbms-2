@@ -1,0 +1,567 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE gxl SYSTEM "http://www.gupro.de/GXL/gxl-1.0.dtd">
+<gxl xmlns:xlink="http://www.w3.org/1999/xlink">
+  <graph id="Architecture" edgeids="true">
+    <node id="N14607">
+      <type xlink:href="Cluster"/>
+      <attr name="Source.Name">
+        <string>HAL</string>
+      </attr>
+      <attr name="Linkage.Name">
+        <string>ce57c8ae-5258-43b6-9961-b8eab70b4233</string>
+      </attr>
+    </node>
+    <node id="N14608">
+      <type xlink:href="Cluster"/>
+      <attr name="Source.Name">
+        <string>Driver</string>
+      </attr>
+      <attr name="Linkage.Name">
+        <string>7834bbf9-71da-4cea-9104-67ecd2558f56</string>
+      </attr>
+    </node>
+    <node id="N14609">
+      <type xlink:href="Cluster"/>
+      <attr name="Source.Name">
+        <string>OS</string>
+      </attr>
+      <attr name="Linkage.Name">
+        <string>73570489-fadd-4b30-b7a7-4640f5f844f8</string>
+      </attr>
+    </node>
+    <node id="N14610">
+      <type xlink:href="Cluster"/>
+      <attr name="Source.Name">
+        <string>Application</string>
+      </attr>
+      <attr name="Linkage.Name">
+        <string>806c54d7-9be9-4760-afd3-8a0d8b62a609</string>
+      </attr>
+    </node>
+    <node id="N14611">
+      <type xlink:href="Cluster"/>
+      <attr name="Source.Name">
+        <string>Balancing</string>
+      </attr>
+      <attr name="Linkage.Name">
+        <string>27d7a7c4-00ca-48b0-b107-688cdcaf71ef</string>
+      </attr>
+    </node>
+    <node id="N14612">
+      <type xlink:href="Cluster"/>
+      <attr name="Source.Name">
+        <string>BMS</string>
+      </attr>
+      <attr name="Linkage.Name">
+        <string>1d321303-9120-4897-a5a0-2397c1e7293a</string>
+      </attr>
+    </node>
+    <node id="N14613">
+      <type xlink:href="Cluster"/>
+      <attr name="Source.Name">
+        <string>Plausibility</string>
+      </attr>
+      <attr name="Linkage.Name">
+        <string>f6e881ac-babd-463c-b6ec-348d990d4e76</string>
+      </attr>
+    </node>
+    <node id="N14614">
+      <type xlink:href="Cluster"/>
+      <attr name="Source.Name">
+        <string>SOX</string>
+      </attr>
+      <attr name="Linkage.Name">
+        <string>e7e42410-6388-46c2-807f-5ee60a251396</string>
+      </attr>
+    </node>
+    <node id="N14615">
+      <type xlink:href="Cluster"/>
+      <attr name="Source.Name">
+        <string>Engine</string>
+      </attr>
+      <attr name="Linkage.Name">
+        <string>999b8969-10b6-4739-bd2c-f8e269f113a0</string>
+      </attr>
+    </node>
+    <node id="N14616">
+      <type xlink:href="Cluster"/>
+      <attr name="Source.Name">
+        <string>Main</string>
+      </attr>
+      <attr name="Linkage.Name">
+        <string>a3e03d08-3b41-4a56-9f03-103a52c90548</string>
+      </attr>
+    </node>
+    <node id="N14617">
+      <type xlink:href="Cluster"/>
+      <attr name="Source.Name">
+        <string>Database</string>
+      </attr>
+      <attr name="Linkage.Name">
+        <string>3b5c26dc-b3a5-4423-a961-3f39dc0a5ed9</string>
+      </attr>
+    </node>
+    <node id="N14618">
+      <type xlink:href="Cluster"/>
+      <attr name="Source.Name">
+        <string>Diagnosis</string>
+      </attr>
+      <attr name="Linkage.Name">
+        <string>f19bedfe-54a4-4f01-a486-c94e529ced58</string>
+      </attr>
+    </node>
+    <node id="N14619">
+      <type xlink:href="Cluster"/>
+      <attr name="Source.Name">
+        <string>System</string>
+      </attr>
+      <attr name="Linkage.Name">
+        <string>75fe3254-d162-432e-ae16-eaa70619f50f</string>
+      </attr>
+    </node>
+    <node id="N14620">
+      <type xlink:href="Cluster"/>
+      <attr name="Source.Name">
+        <string>System Monitoring</string>
+      </attr>
+      <attr name="Linkage.Name">
+        <string>3eff9945-c2ad-4073-bd82-dc7d5405452a</string>
+      </attr>
+    </node>
+    <node id="N14621">
+      <type xlink:href="Cluster"/>
+      <attr name="Source.Name">
+        <string>CAN</string>
+      </attr>
+      <attr name="Linkage.Name">
+        <string>df9e1298-e967-4ee3-a903-55f1632284fc</string>
+      </attr>
+    </node>
+    <node id="N14622">
+      <type xlink:href="Cluster"/>
+      <attr name="Source.Name">
+        <string>Measurement IC</string>
+      </attr>
+      <attr name="Linkage.Name">
+        <string>515b9069-5530-4897-9777-6af92794f278</string>
+      </attr>
+    </node>
+    <node id="N14623">
+      <type xlink:href="Cluster"/>
+      <attr name="Source.Name">
+        <string>Measurement</string>
+      </attr>
+      <attr name="Linkage.Name">
+        <string>027cc519-176f-4c70-960c-6505ea5ddd1c</string>
+      </attr>
+    </node>
+    <node id="N14624">
+      <type xlink:href="Cluster"/>
+      <attr name="Source.Name">
+        <string>Contactor</string>
+      </attr>
+      <attr name="Linkage.Name">
+        <string>69d80159-eb51-4788-ad91-72171eef7461</string>
+      </attr>
+    </node>
+    <node id="N14625">
+      <type xlink:href="Cluster"/>
+      <attr name="Source.Name">
+        <string>ADC</string>
+      </attr>
+      <attr name="Linkage.Name">
+        <string>8c5c9da5-b98b-4f3d-abc2-3c8d12fd96bc</string>
+      </attr>
+    </node>
+    <node id="N14626">
+      <type xlink:href="Cluster"/>
+      <attr name="Source.Name">
+        <string>DMA</string>
+      </attr>
+      <attr name="Linkage.Name">
+        <string>051a17d1-7a79-41f5-83a4-588da5d9eff2</string>
+      </attr>
+    </node>
+    <node id="N14627">
+      <type xlink:href="Cluster"/>
+      <attr name="Source.Name">
+        <string>FRAM</string>
+      </attr>
+      <attr name="Linkage.Name">
+        <string>3823ea61-02b8-457c-b028-b1d5fbb9256e</string>
+      </attr>
+    </node>
+    <node id="N14628">
+      <type xlink:href="Cluster"/>
+      <attr name="Source.Name">
+        <string>Interlock</string>
+      </attr>
+      <attr name="Linkage.Name">
+        <string>2f24952b-2688-46c5-b9db-6b0b400f9312</string>
+      </attr>
+    </node>
+    <node id="N14629">
+      <type xlink:href="Cluster"/>
+      <attr name="Source.Name">
+        <string>IO</string>
+      </attr>
+      <attr name="Linkage.Name">
+        <string>ec782c10-d1d9-4c3a-966a-a6e755cc611d</string>
+      </attr>
+    </node>
+    <node id="N14630">
+      <type xlink:href="Cluster"/>
+      <attr name="Source.Name">
+        <string>MCU</string>
+      </attr>
+      <attr name="Linkage.Name">
+        <string>b1a1861d-1d0e-4b8b-855e-d500c5fde734</string>
+      </attr>
+    </node>
+    <node id="N14631">
+      <type xlink:href="Cluster"/>
+      <attr name="Source.Name">
+        <string>SPI</string>
+      </attr>
+      <attr name="Linkage.Name">
+        <string>01ccfcfe-7c45-4177-9508-f423ae8a5cd0</string>
+      </attr>
+    </node>
+    <node id="N14632">
+      <type xlink:href="Cluster"/>
+      <attr name="Source.Name">
+        <string>Temperature Sensors</string>
+      </attr>
+      <attr name="Linkage.Name">
+        <string>3bf2fe9c-629b-41b6-a544-1afe67eb9daa</string>
+      </attr>
+    </node>
+    <node id="N14633">
+      <type xlink:href="Cluster"/>
+      <attr name="Source.Name">
+        <string>Task Configuration</string>
+      </attr>
+      <attr name="Linkage.Name">
+        <string>130d48ab-422a-42cf-a6a5-517ed0d81e12</string>
+      </attr>
+    </node>
+    <node id="N14634">
+      <type xlink:href="Cluster"/>
+      <attr name="Source.Name">
+        <string>OS Interface</string>
+      </attr>
+      <attr name="Linkage.Name">
+        <string>608c1594-8d27-4812-89d8-8f0954583fd6</string>
+      </attr>
+    </node>
+    <node id="N14635">
+      <type xlink:href="Cluster"/>
+      <attr name="Source.Name">
+        <string>Task Setup</string>
+      </attr>
+      <attr name="Linkage.Name">
+        <string>6d62c3ee-039e-4ad7-a231-4fce2b23a145</string>
+      </attr>
+    </node>
+    <node id="N14636">
+      <type xlink:href="Cluster"/>
+      <attr name="Source.Name">
+        <string>Common</string>
+      </attr>
+      <attr name="Linkage.Name">
+        <string>57d0dee1-8103-40c2-9dc6-e4e6feb88b9e</string>
+      </attr>
+    </node>
+    <node id="N14642">
+      <type xlink:href="Cluster"/>
+      <attr name="Source.Name">
+        <string>main</string>
+      </attr>
+      <attr name="Linkage.Name">
+        <string>2f136d68-9615-4fe5-a2ac-b24e727d4452</string>
+      </attr>
+    </node>
+    <node id="N14643">
+      <type xlink:href="Cluster"/>
+      <attr name="Source.Name">
+        <string>core components</string>
+      </attr>
+      <attr name="Linkage.Name">
+        <string>0b546284-b270-48d4-ba42-12b5921159ef</string>
+      </attr>
+    </node>
+    <node id="N14644">
+      <type xlink:href="Cluster"/>
+      <attr name="Source.Name">
+        <string>version information</string>
+      </attr>
+      <attr name="Linkage.Name">
+        <string>f6f89ed6-60cb-46ee-9623-bbb2bf8182cd</string>
+      </attr>
+    </node>
+    <node id="N14645">
+      <type xlink:href="Cluster"/>
+      <attr name="Source.Name">
+        <string>fassert</string>
+      </attr>
+      <attr name="Linkage.Name">
+        <string>85311c57-46cb-4255-91aa-4cfb1b9d98fb</string>
+      </attr>
+    </node>
+    <node id="N14646">
+      <type xlink:href="Cluster"/>
+      <attr name="Source.Name">
+        <string>Power Supply</string>
+      </attr>
+      <attr name="Linkage.Name">
+        <string>ee3eb6b6-d536-4c33-887b-e5130795c242</string>
+      </attr>
+    </node>
+    <edge id="E45127" from="N14611" to="N14610">
+      <type xlink:href="Belongs_To"/>
+    </edge>
+    <edge id="E45128" from="N14613" to="N14610">
+      <type xlink:href="Belongs_To"/>
+    </edge>
+    <edge id="E45129" from="N14614" to="N14610">
+      <type xlink:href="Belongs_To"/>
+    </edge>
+    <edge id="E45130" from="N14612" to="N14610">
+      <type xlink:href="Belongs_To"/>
+    </edge>
+    <edge id="E45131" from="N14617" to="N14615">
+      <type xlink:href="Belongs_To"/>
+    </edge>
+    <edge id="E45132" from="N14618" to="N14615">
+      <type xlink:href="Belongs_To"/>
+    </edge>
+    <edge id="E45133" from="N14619" to="N14615">
+      <type xlink:href="Belongs_To"/>
+    </edge>
+    <edge id="E45134" from="N14620" to="N14615">
+      <type xlink:href="Belongs_To"/>
+    </edge>
+    <edge id="E45135" from="N14621" to="N14608">
+      <type xlink:href="Belongs_To"/>
+    </edge>
+    <edge id="E45136" from="N14622" to="N14608">
+      <type xlink:href="Belongs_To"/>
+    </edge>
+    <edge id="E45137" from="N14623" to="N14608">
+      <type xlink:href="Belongs_To"/>
+    </edge>
+    <edge id="E45138" from="N14624" to="N14608">
+      <type xlink:href="Belongs_To"/>
+    </edge>
+    <edge id="E45139" from="N14625" to="N14608">
+      <type xlink:href="Belongs_To"/>
+    </edge>
+    <edge id="E45140" from="N14626" to="N14608">
+      <type xlink:href="Belongs_To"/>
+    </edge>
+    <edge id="E45141" from="N14627" to="N14608">
+      <type xlink:href="Belongs_To"/>
+    </edge>
+    <edge id="E45142" from="N14628" to="N14608">
+      <type xlink:href="Belongs_To"/>
+    </edge>
+    <edge id="E45143" from="N14629" to="N14608">
+      <type xlink:href="Belongs_To"/>
+    </edge>
+    <edge id="E45144" from="N14630" to="N14608">
+      <type xlink:href="Belongs_To"/>
+    </edge>
+    <edge id="E45145" from="N14631" to="N14608">
+      <type xlink:href="Belongs_To"/>
+    </edge>
+    <edge id="E45146" from="N14632" to="N14608">
+      <type xlink:href="Belongs_To"/>
+    </edge>
+    <edge id="E45147" from="N14634" to="N14633">
+      <type xlink:href="Belongs_To"/>
+    </edge>
+    <edge id="E45148" from="N14635" to="N14633">
+      <type xlink:href="Belongs_To"/>
+    </edge>
+    <edge id="E45149" from="N14608" to="N14607">
+      <type xlink:href="Source_Dependency"/>
+    </edge>
+    <edge id="E45150" from="N14616" to="N14633">
+      <type xlink:href="Source_Dependency"/>
+    </edge>
+    <edge id="E45151" from="N14633" to="N14609">
+      <type xlink:href="Source_Dependency"/>
+    </edge>
+    <edge id="E45152" from="N14609" to="N14607">
+      <type xlink:href="Source_Dependency"/>
+    </edge>
+    <edge id="E45153" from="N14610" to="N14615">
+      <type xlink:href="Source_Dependency"/>
+    </edge>
+    <edge id="E45154" from="N14616" to="N14608">
+      <type xlink:href="Source_Dependency"/>
+    </edge>
+    <edge id="E45155" from="N14610" to="N14633">
+      <type xlink:href="Source_Dependency"/>
+    </edge>
+    <edge id="E45156" from="N14633" to="N14610">
+      <type xlink:href="Source_Dependency"/>
+    </edge>
+    <edge id="E45157" from="N14633" to="N14615">
+      <type xlink:href="Source_Dependency"/>
+    </edge>
+    <edge id="E45158" from="N14615" to="N14633">
+      <type xlink:href="Source_Dependency"/>
+    </edge>
+    <edge id="E45159" from="N14633" to="N14608">
+      <type xlink:href="Source_Dependency"/>
+    </edge>
+    <edge id="E45160" from="N14608" to="N14633">
+      <type xlink:href="Source_Dependency"/>
+    </edge>
+    <edge id="E45161" from="N14608" to="N14615">
+      <type xlink:href="Source_Dependency"/>
+    </edge>
+    <edge id="E45162" from="N14615" to="N14615">
+      <type xlink:href="Source_Dependency"/>
+    </edge>
+    <edge id="E45163" from="N14608" to="N14608">
+      <type xlink:href="Source_Dependency"/>
+    </edge>
+    <edge id="E45164" from="N14636" to="N14608">
+      <type xlink:href="Belongs_To"/>
+    </edge>
+    <edge id="E45195" from="N14646" to="N14608">
+      <type xlink:href="Belongs_To"/>
+    </edge>
+    <edge id="E45319" from="N14621" to="N14644">
+      <type xlink:href="Source_Dependency"/>
+    </edge>
+    <edge id="E45870" from="N14616" to="N14645">
+      <type xlink:href="Source_Dependency"/>
+    </edge>
+    <edge id="E45871" from="N14610" to="N14645">
+      <type xlink:href="Source_Dependency"/>
+    </edge>
+    <edge id="E45872" from="N14633" to="N14645">
+      <type xlink:href="Source_Dependency"/>
+    </edge>
+    <edge id="E45873" from="N14615" to="N14645">
+      <type xlink:href="Source_Dependency"/>
+    </edge>
+    <edge id="E45874" from="N14608" to="N14645">
+      <type xlink:href="Source_Dependency"/>
+    </edge>
+    <edge id="E45884" from="N14643" to="N14616">
+      <type xlink:href="Belongs_To"/>
+    </edge>
+    <edge id="E45885" from="N14644" to="N14616">
+      <type xlink:href="Belongs_To"/>
+    </edge>
+    <edge id="E45886" from="N14645" to="N14616">
+      <type xlink:href="Belongs_To"/>
+    </edge>
+    <edge id="E46011" from="N14610" to="N14643">
+      <type xlink:href="Source_Dependency"/>
+    </edge>
+    <edge id="E46012" from="N14633" to="N14643">
+      <type xlink:href="Source_Dependency"/>
+    </edge>
+    <edge id="E46016" from="N14642" to="N14616">
+      <type xlink:href="Belongs_To"/>
+    </edge>
+    <edge id="E46239" from="N14615" to="N14643">
+      <type xlink:href="Source_Dependency"/>
+    </edge>
+    <edge id="E46240" from="N14608" to="N14643">
+      <type xlink:href="Source_Dependency"/>
+    </edge>
+    <edge id="E46241" from="N14642" to="N14607">
+      <type xlink:href="Source_Dependency"/>
+    </edge>
+    <edge id="E46242" from="N14642" to="N14615">
+      <type xlink:href="Source_Dependency"/>
+    </edge>
+    <edge id="E46371" from="N14643" to="N14607">
+      <type xlink:href="Source_Dependency"/>
+    </edge>
+    <edge id="E46372" from="N14643" to="N14642">
+      <type xlink:href="Source_Dependency"/>
+    </edge>
+    <edge id="E46373" from="N14642" to="N14643">
+      <type xlink:href="Source_Dependency"/>
+    </edge>
+    <edge id="E46463" from="N14635" to="N14607">
+      <type xlink:href="Source_Dependency"/>
+    </edge>
+    <edge id="E46464" from="N14635" to="N14634">
+      <type xlink:href="Source_Dependency"/>
+    </edge>
+    <edge id="E46465" from="N14634" to="N14635">
+      <type xlink:href="Source_Dependency"/>
+    </edge>
+    <edge id="E46466" from="N14609" to="N14634">
+      <type xlink:href="Source_Dependency"/>
+    </edge>
+    <edge id="E46556" from="N14618" to="N14627">
+      <type xlink:href="Source_Dependency"/>
+    </edge>
+    <edge id="E46557" from="N14619" to="N14627">
+      <type xlink:href="Source_Dependency"/>
+    </edge>
+    <edge id="E46558" from="N14621" to="N14609">
+      <type xlink:href="Source_Dependency"/>
+    </edge>
+    <edge id="E46636" from="N14612" to="N14611">
+      <type xlink:href="Source_Dependency"/>
+    </edge>
+    <edge id="E46637" from="N14617" to="N14609">
+      <type xlink:href="Source_Dependency"/>
+    </edge>
+    <edge id="E46714" from="N14612" to="N14614">
+      <type xlink:href="Source_Dependency"/>
+    </edge>
+    <edge id="E46715" from="N14614" to="N14612">
+      <type xlink:href="Source_Dependency"/>
+    </edge>
+    <edge id="E46716" from="N14613" to="N14612">
+      <type xlink:href="Source_Dependency"/>
+    </edge>
+    <edge id="E46791" from="N14619" to="N14646">
+      <type xlink:href="Source_Dependency"/>
+    </edge>
+    <edge id="E46792" from="N14619" to="N14623">
+      <type xlink:href="Source_Dependency"/>
+    </edge>
+    <edge id="E46793" from="N14619" to="N14621">
+      <type xlink:href="Source_Dependency"/>
+    </edge>
+    <edge id="E46794" from="N14619" to="N14628">
+      <type xlink:href="Source_Dependency"/>
+    </edge>
+    <edge id="E46795" from="N14614" to="N14627">
+      <type xlink:href="Source_Dependency"/>
+    </edge>
+    <edge id="E46796" from="N14619" to="N14612">
+      <type xlink:href="Source_Dependency"/>
+    </edge>
+    <edge id="E46797" from="N14619" to="N14614">
+      <type xlink:href="Source_Dependency"/>
+    </edge>
+    <edge id="E46798" from="N14619" to="N14611">
+      <type xlink:href="Source_Dependency"/>
+    </edge>
+    <edge id="E46869" from="N14614" to="N14636">
+      <type xlink:href="Source_Dependency"/>
+    </edge>
+    <edge id="E46870" from="N14612" to="N14636">
+      <type xlink:href="Source_Dependency"/>
+    </edge>
+    <edge id="E46871" from="N14612" to="N14628">
+      <type xlink:href="Source_Dependency"/>
+    </edge>
+    <edge id="E46872" from="N14612" to="N14624">
+      <type xlink:href="Source_Dependency"/>
+    </edge>
+  </graph>
+</gxl>

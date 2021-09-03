@@ -44,7 +44,7 @@ flags) into a separate file"""
 import os
 import traceback
 
-from waflib import Context, Logs, Utils, Errors
+from waflib import Context, Errors, Logs, Utils
 from waflib.Configure import conf
 
 
@@ -144,7 +144,7 @@ def get_defines(self, *k, **kw):
     testfile_basename = "predefined_defines"
     kw["features"] = "c"
     kw["idx"] = 0
-    kw["fragment"] = "#include <stdint.h>\n\nint main() {\n    return 0;\n}\n"
+    kw["fragment"] = "int main() {\n    return 0;\n}\n"
     kw["out_name"] = testfile_basename
     kw["compile_filename"] = f"{testfile_basename}.c"
     kw["msg"] = "Getting predefined compiler defines"

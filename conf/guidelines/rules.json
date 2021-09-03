@@ -18,6 +18,7 @@
     ".vscode/**",
     ".mypy_cache/**",
     "build/**",
+    "libbuild/**",
     "build-tools-tests/**",
     "conf/hcg/include/*",
     "conf/hcg/source/*",
@@ -45,7 +46,6 @@
     "tools/vendor/**",
     "tools/waf",
     "tools/waf-verify-sig.py",
-    "tests/axivion/**",
     "tests/scripts/waf-tools/f_guidelines/tests/**",
     "tests/scripts/waf-core/general/**",
     "tests/scripts/waf-core/init/**",
@@ -70,7 +70,8 @@
       "conf/hcg/**/*.c",
       "conf/hcg/**/*.h",
       "src/app/driver/mic/nxp/common/MC33775A.h",
-      "src/os/freertos/README.ti-halcogen.md"
+      "src/os/freertos/README.ti-halcogen.md",
+      "tests/axivion/cafeCC.config"
     ]
   },
   "unique_filenames": {

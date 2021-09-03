@@ -1,0 +1,6 @@
+Symbol        ; Description
+V\ :sub:`P`   ; Pack voltage
+V\ :sub:`FP`  ; Pack voltage after main fuse
+V\ :sub:`SV`  ; System voltage
+V\ :sub:`SV2` ; System voltage: second power path
+I\ :sub:`P`   ; Pack current

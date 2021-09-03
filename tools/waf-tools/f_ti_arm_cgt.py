@@ -41,14 +41,13 @@
 """Implements a waf tool to use TI ARM CGT (https://www.ti.com/tool/ARM-CGT).
 """
 
+import binascii
+import json
 import os
-import sys
 import pathlib
 import re
 import shutil
-import binascii
-import json
-import yaml
+import sys
 
 import waflib.Tools.asm
 from waflib import Context, Logs, Task, TaskGen, Utils, Errors
@@ -57,10 +56,10 @@ from waflib.TaskGen import taskgen_method
 from waflib.Tools import c_preproc
 from waflib.Tools.ccroot import link_task
 
+import f_ti_arm_cgt_cc_options  # pylint: disable=unused-import
 import f_ti_arm_helper  # pylint: disable=unused-import
 import f_ti_arm_tools  # pylint: disable=unused-import
 import f_ti_color_arm_cgt
-
 
 HAVE_GIT = False
 try:
@@ -71,6 +70,8 @@ try:
 except ImportError:
     pass
 
+TOOL_DIR = os.path.dirname(os.path.realpath(__file__))
+
 
 def remove_targets(task):
     """General helper function to remove targets"""
@@ -80,23 +81,14 @@ def remove_targets(task):
 
 
 def options(opt):
-    """Configurable options of the :py:mod:`f_ti_arm_cgt` tool. The options are
-
-    - ``--cc-options=conf/cc/cc-options.yaml``
+    """Configurable options of the :py:mod:`f_ti_arm_cgt` tool.
 
     Furthermore the default formatter gets replaced by
     :py:class:`f_ti_arm_cgt.armclFormatter`.
     """
-    #: option to overwrite the default location of the cc-options file
-    opt.add_option(
-        "--cc-options",
-        action="store",
-        default=os.path.join("conf", "cc", "cc-options.yaml"),
-        dest="CC_OPTIONS",
-        help="Path to cc options specification file",
-    )
-    opt.load("f_ti_color_arm_cgt", tooldir=os.path.dirname(os.path.realpath(__file__)))
-    opt.load("f_hcg", tooldir=os.path.dirname(os.path.realpath(__file__)))
+    opt.load("f_ti_arm_cgt_cc_options", tooldir=TOOL_DIR)
+    opt.load("f_ti_color_arm_cgt", tooldir=TOOL_DIR)
+    opt.load("f_hcg", tooldir=TOOL_DIR)
 
 
 @TaskGen.extension(".asm")
@@ -274,11 +266,6 @@ class c(Task.Task):  # pylint: disable-msg=invalid-name,too-few-public-methods
     object files from c sources. Additionally an aux file (user information
     file), a crl files (cross-reference listing file) and a rl file (output
     preprocessor listing) are generated.
-
-    These additional files are generated as in ``conf/cc/cc-options.yaml``
-    the options ``--gen_cross_reference_listing``, ``--gen_func_info_listing``
-    and ``--gen_preprocessor_listing`` are passed in the compile step. See
-    :ref:`CONFIGURATION_CFLAGS`.
 
     .. graphviz::
         :caption: Input-output relation for assembler source files
@@ -1442,67 +1429,9 @@ def cgt_flags(conf):  # pylint: disable-msg=redefined-outer-name
 
 def configure(conf):  # pylint: disable-msg=redefined-outer-name
     """configuration step of the TI ARM CGT compiler tool"""
-    cc_spec_file = conf.path.find_node(conf.options.CC_OPTIONS)
-    with open(cc_spec_file.abspath(), "r") as stream:
-        try:
-            conf.env.cc_options = yaml.load(stream, Loader=yaml.Loader)
-        except yaml.YAMLError as exc:
-            conf.fatal(exc)
     conf.load_special_tools("c_*.py")
-    include_paths = conf.env.cc_options["INCLUDE_PATHS"][
-        Utils.unversioned_sys_platform()
-    ]
-    library_paths = conf.env.cc_options["LIBRARY_PATHS"][
-        Utils.unversioned_sys_platform()
-    ]
-    libraries_st = conf.env.cc_options["LIBRARIES"]["ST"]
-    libraries_target = conf.env.cc_options["LIBRARIES"]["TARGET"]
-    cflags_common = conf.env.cc_options["CFLAGS"]["common"]
-    cflags_common_compile_only = conf.env.cc_options["CFLAGS"]["common_compile_only"]
-    cflags_foxbms = conf.env.cc_options["CFLAGS"]["foxbms"]
-    cflags_hal = conf.env.cc_options["CFLAGS"]["hal"]
-    cflags_os = conf.env.cc_options["CFLAGS"]["operating_system"]
-    linkflags = conf.env.cc_options["LINKFLAGS"]
-    hexgenflags = conf.env.cc_options["HEXGENFLAGS"]
-    nmflags = conf.env.cc_options["NMFLAGS"]
-
-    if linkflags:
-        conf.env.append_unique("LINKFLAGS", linkflags)
-    if hexgenflags:
-        conf.env.append_unique("HEXGENFLAGS", hexgenflags)
-    if nmflags:
-        conf.env.append_unique("NMFLAGS", nmflags)
-
-    if include_paths:
-        conf.env.append_unique("INCLUDES", include_paths)
-    if library_paths:
-        conf.env.append_unique("STLIBPATH", library_paths)
-    if libraries_st:
-        conf.env.append_unique("STLIB", libraries_st)
-    if libraries_target:
-        conf.env.append_unique("TARGETLIB", libraries_target)
-    if cflags_common:
-        conf.env.append_unique("CFLAGS", cflags_common)
-
-    if cflags_common_compile_only:
-        conf.env.append_unique("CFLAGS_COMPILE_ONLY", cflags_common_compile_only)
-    conf.env.append_unique(
-        "CFLAGS_COMPILE_ONLY",
-        [
-            "--gen_cross_reference_listing",
-            "--gen_func_info_listing",
-            "--gen_preprocessor_listing",
-        ],
-    )
-
-    if cflags_foxbms:
-        conf.env.append_unique("CFLAGS_FOXBMS", cflags_foxbms)
-    if cflags_hal:
-        conf.env.append_unique("CFLAGS_HAL", cflags_hal)
-    if cflags_os:
-        conf.env.append_unique("CFLAGS_OS", cflags_os)
-
     conf.start_msg("Checking for TI ARM CGT compiler and tools")
+    conf.load_cc_options()
     conf.find_armcl()
     conf.find_armar()
     conf.find_arm_tools()
@@ -1514,4 +1443,4 @@ def configure(conf):  # pylint: disable-msg=redefined-outer-name
     conf.env.DEST_OS = ["EMBEDDED"]
     conf.env.COMPILER_CC = "ti_arm_cgt"
     conf.end_msg(conf.env.get_flat("CC"))
-    conf.load("f_hcg", tooldir=os.path.dirname(os.path.realpath(__file__)))
+    conf.load("f_hcg", tooldir=TOOL_DIR)

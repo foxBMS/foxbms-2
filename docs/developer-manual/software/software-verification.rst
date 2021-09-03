@@ -21,4 +21,8 @@ Software Analysis
 -----------------
 
 The source code is subject to a static program analysis. These tests are
-performed by Cppcheck (see :numref:`CPPCHECK`).
+performed by Axivion Suite and Cppcheck (see :numref:`AXIVION_BAUHAUS_SUITE`
+and :numref:`CPPCHECK`).
+
+The architecture is verified by the Axivion Suite (see
+:numref:`AXIVION_BAUHAUS_SUITE`)

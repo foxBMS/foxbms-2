@@ -43,7 +43,7 @@
  * @file    database_cfg.h
  * @author  foxBMS Team
  * @date    2015-08-18 (date of creation)
- * @updated 2021-06-09 (date of last update)
+ * @updated 2021-08-06 (date of last update)
  * @ingroup ENGINE_CONFIGURATION
  * @prefix  DATA
  *
@@ -290,9 +290,9 @@ typedef struct DATA_BLOCK_USER_MUX {
     /* This struct needs to be at the beginning of every database entry. During
      * the initialization of a database struct, uniqueId must be set to the
      * respective database entry representation in enum DATA_BLOCK_ID_e. */
-    DATA_BLOCK_HEADER_s header;                                 /*!< Data block header */
-    uint8_t state;                                              /*!< for future use */
-    uint16_t value[BS_NR_OF_STRINGS][8 * 2 * BS_NR_OF_MODULES]; /*!< unit: mV (mux voltage input) */
+    DATA_BLOCK_HEADER_s header;                                   /*!< Data block header */
+    uint8_t state;                                                /*!< for future use */
+    uint16_t value[BS_NR_OF_STRINGS][8u * 2u * BS_NR_OF_MODULES]; /*!< unit: mV (mux voltage input) */
 } DATA_BLOCK_USER_MUX_s;
 
 /** data block struct of cell open wire */
@@ -304,7 +304,7 @@ typedef struct DATA_BLOCK_OPENWIRE {
     uint8_t state;                          /*!< for future use */
     uint16_t nrOpenWires[BS_NR_OF_STRINGS]; /*!< number of open wires */
     uint8_t openwire[BS_NR_OF_STRINGS]
-                    [BS_NR_OF_MODULES * (BS_NR_OF_CELLS_PER_MODULE + 1)]; /*!< 1 -> open wire, 0 -> everything ok */
+                    [BS_NR_OF_MODULES * (BS_NR_OF_CELLS_PER_MODULE + 1u)]; /*!< 1 -> open wire, 0 -> everything ok */
 } DATA_BLOCK_OPEN_WIRE_s;
 
 /** data block struct of GPIO voltage */

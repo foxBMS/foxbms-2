@@ -43,7 +43,7 @@
  * @file    main.c
  * @author  foxBMS Team
  * @date    2019-08-27 (date of creation)
- * @updated 2021-07-23 (date of last update)
+ * @updated 2021-08-06 (date of last update)
  * @ingroup GENERAL
  * @prefix  TODO
  *
@@ -66,6 +66,7 @@
 #include "contactor.h"
 #include "diag.h"
 #include "dma.h"
+#include "foxmath.h"
 #include "masterinfo.h"
 #include "meas.h"
 #include "os.h"
@@ -94,6 +95,7 @@ int main(void) {
     DMA_Initialize();
     DIAG_Initialize(&diag_device);
     CAN_Initialize();
+    MATH_StartupSelfTest();
 
     OS_InitializeOperatingSystem();
     if (OS_INIT_PRE_OS != os_boot) {

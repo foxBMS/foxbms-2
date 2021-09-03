@@ -36,6 +36,7 @@ The documentation is divided in the following parts:
 #. :ref:`GETTING_STARTED_OVERVIEW`
 #. :ref:`SOFTWARE_DOCUMENTATION_OVERVIEW`
 #. :ref:`HARDWARE_DOCUMENTATION_OVERVIEW`
+#. :ref:`SYSTEM_DOCUMENTATION_OVERVIEW`
 #. :ref:`TOOLS_DOCUMENTATION_OVERVIEW`
 #. :ref:`DEVELOPER_MANUAL`
 
@@ -69,6 +70,9 @@ in the |doxygen| documentation.
 
 Next, the :ref:`HARDWARE_DOCUMENTATION_OVERVIEW` gives the details needed to
 understand the hardware platform developed for |foxbms|.
+
+The :ref:`SYSTEM_DOCUMENTATION_OVERVIEW` provides information on the
+integration of |foxbms| in an application.
 
 Numerous tools have been developed or adapted to support developing with the
 |foxbms| platform. These tools and their usage are described in
@@ -152,6 +156,17 @@ All sections are listed here:
     ./hardware/design-resources.rst
     ./hardware/connectors.rst
 
+.. _SYSTEM_DOCUMENTATION_OVERVIEW:
+
+.. toctree::
+    :titlesonly:
+    :numbered:
+    :maxdepth: 1
+    :caption: System Documentation
+
+    ./system/system-introduction.rst
+    ./system/system-voltage-and-current-monitoring.rst
+
 .. _TOOLS_DOCUMENTATION_OVERVIEW:
 
 .. toctree::
@@ -165,6 +180,7 @@ All sections are listed here:
     ./tools/waf-tools/waf-tools.rst
     ./tools/debugger/debug-application.rst
     ./tools/halcogen/halcogen.rst
+    ./tools/static-analysis/axivion.rst
     ./tools/static-analysis/cppcheck.rst
 
 .. _DEVELOPER_MANUAL:

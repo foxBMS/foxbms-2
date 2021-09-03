@@ -27,8 +27,8 @@ installed (see :ref:`software_prerequisites`) using :kbd:`Ctrl-S`.
 .. warning::
 
     The style of third party sources (generated HAL sources in
-    ``build/bin/src/hal/**`` and ``src/os``) should not be changed. To save
-    without reformatting use :kbd:`Ctrl-K + Ctrl-Shift-S`.
+    ``build/bin/src/hal/**`` and ``src/os``) should not be changed.
+    To save without reformatting use :kbd:`Ctrl-K + Ctrl-Shift-S`.
 
 The following list shows more detailed rules for |foxbms|. Every rule has some
 context and/or rationale and notes that clearly state the rules, followed by a

@@ -1,0 +1,28 @@
+{
+    "valid": [
+        "my",
+        "my_ddegC",
+        "myVar",
+        "myVar1",
+        "my1Var1",
+        "myVar1Var",
+        "myVar1Var1",
+        "myVar1_mA",
+        "myVar1_K",
+        "myVar1_s",
+        "myVar1_ms",
+        "myVar1_perc",
+        "myVar1_degC",
+        "myVar1_ddegC",
+        "myVar1_uV"
+    ],
+    "invalid": [
+        "_",
+        "myVar_",
+        "MyVar",
+        "MyVar1",
+        "My1Var1",
+        "MyVar1Var",
+        "MyVar1Var1"
+    ]
+}

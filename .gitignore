@@ -16,8 +16,6 @@ tools/waf-sig*
 *.bz2
 *.gz
 *.zip
-# do not ignore zip in hardware
-!/hardware/*.zip
 *.7z
 
 __pycache__

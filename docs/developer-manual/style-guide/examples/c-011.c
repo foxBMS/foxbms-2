@@ -46,9 +46,9 @@
  * @details Detailed description of this function
  * @return  some uint8_t which describes xyz
  */
-static uint8_t ABC_Another_Function(void);
+static uint8_t ABC_AnotherFunction(void);
 
-static uint8_t ABC_Another_Function(void) {
+static uint8_t ABC_AnotherFunction(void) {
     /* code */
     return 0;
 }

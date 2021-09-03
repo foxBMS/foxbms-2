@@ -13,7 +13,7 @@ We therefore release foxBMS with permissive licenses:
   **Creative Commons Attribution 4.0 International License (SPDX short identifier: CC-BY-4.0)**
 - Software: **BSD 3-Clause License (SPDX short identifier: BSD-3-Clause)**
 
-For details see the [LICENSE](../LICENSE) file and the
+For details see the [LICENSE.md](../LICENSE.md) file and the
 [license documentation](https://iisb-foxbms.iisb.fraunhofer.de/foxbms/gen2/docs/html/latest/general/licenses.html).
 
 However foxBMS is not openly developed on GitHub (or any other platform). The

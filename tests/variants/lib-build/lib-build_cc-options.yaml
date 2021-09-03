@@ -35,14 +35,21 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
+# REPO_ROOT will be correctly set when using the batch script for that test:
+#   tests/variants/lib-build/lib-build.bat
+# This batch script requires
+#   - PowerShell available in Path.
+#   - tar available in Path. Tar is shipped in git for Windows at
+#     GIT_INSTALL_DIR/usr/bin
+
 INCLUDE_PATHS:
   win32:
-    - C:\GitLab-Runner\builds\foxbms-on-tms570\libbuild\src
+    - REPO_ROOT\libbuild\src
   linux:
 
 LIBRARY_PATHS:
   win32:
-    - C:\GitLab-Runner\builds\foxbms-on-tms570\libbuild\build
+    - REPO_ROOT\libbuild\build
   linux:
 
 LIBRARIES:

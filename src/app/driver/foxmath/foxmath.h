@@ -43,7 +43,7 @@
  * @file    foxmath.h
  * @author  foxBMS Team
  * @date    2018-01-18 (date of creation)
- * @updated 2021-07-15 (date of last update)
+ * @updated 2021-08-06 (date of last update)
  * @ingroup DRIVERS
  * @prefix  MATH
  *
@@ -62,9 +62,11 @@
 /*========== Includes =======================================================*/
 #include "general.h"
 
+/* AXIVION Disable Style Generic-LocalInclude: foxmath is intended as a library and therefore includes all useful libraries */
 #include <float.h>
 #include <math.h>
 #include <stdlib.h>
+/* AXIVION Enable Style Generic-LocalInclude: */
 
 /*========== Macros and Definitions =========================================*/
 
@@ -77,6 +79,15 @@
 /*========== Extern Constant and Variable Declarations ======================*/
 
 /*========== Extern Function Prototypes =====================================*/
+/**
+ * @brief:  self test for math functions that can be called at startup
+ *
+ *@details: This self test is intended to be called at startup. It will assert
+ *          if one of the assumptions is violated. This function can be used
+ *          to make sure that features of foxmath that are currently not used
+ *          by the code are working nevertheless as expected.
+ */
+extern void MATH_StartupSelfTest(void);
 
 /**
  * @brief   Linear inter-/extrapolates a third point according to two given points
@@ -89,25 +100,30 @@
  *
  * @return  interpolated value (float)
  */
-extern float MATH_linearInterpolation(float x1, float y1, float x2, float y2, float x_interpolate);
+extern float MATH_LinearInterpolation(
+    const float x1,
+    const float y1,
+    const float x2,
+    const float y2,
+    const float x_interpolate);
 
 /**
  * @brief Swap bytes of uint16_t value
  * @param   val:    value to swap bytes: 0x1234 -> 0x3412
  */
-extern uint16_t MATH_swapBytes_uint16_t(uint16_t val);
+extern uint16_t MATH_SwapBytesUint16_t(const uint16_t val);
 
 /**
  * @brief   Swap bytes of uint32_t value
  * @param   val:    value to swap bytes: 0x12345678 -> 0x78563412
  */
-extern uint32_t MATH_swapBytes_uint32_t(uint32_t val);
+extern uint32_t MATH_SwapBytesUint32_t(const uint32_t val);
 
 /**
  * @brief   Swap bytes  of uint64_t value
  * @param   val:    value to swap bytes: 0x1122334455667788 -> 0x8877665544332211
  */
-extern uint64_t MATH_swapBytes_uint64_t(uint64_t val);
+extern uint64_t MATH_SwapBytesUint64_t(const uint64_t val);
 
 /**
  * @brief   Returns the minimum of the passed float values
@@ -115,7 +131,7 @@ extern uint64_t MATH_swapBytes_uint64_t(uint64_t val);
  * @param[in] value2   value 2
  * @return  minimum value
  */
-extern float MATH_MinimumOfTwoFloats(float value1, float value2);
+extern float MATH_MinimumOfTwoFloats(const float value1, const float value2);
 
 /**
  * @brief   Returns the minimum of the passed uint8_t values
@@ -123,7 +139,7 @@ extern float MATH_MinimumOfTwoFloats(float value1, float value2);
  * @param[in] value2   value 2
  * @return  minimum value
  */
-extern uint8_t MATH_MinimumOfTwoUint8_t(uint8_t value1, uint8_t value2);
+extern uint8_t MATH_MinimumOfTwoUint8_t(const uint8_t value1, const uint8_t value2);
 
 /**
  * @brief   Returns the minimum of the passed uint16_t values
@@ -131,21 +147,21 @@ extern uint8_t MATH_MinimumOfTwoUint8_t(uint8_t value1, uint8_t value2);
  * @param[in] value2   value 2
  * @return  minimum value
  */
-extern uint16_t MATH_MinimumOfTwoUint16_t(uint16_t value1, uint16_t value2);
+extern uint16_t MATH_MinimumOfTwoUint16_t(const uint16_t value1, const uint16_t value2);
 
 /**
  * @brief   Returns the absolute value of passed int32_t value
  * @param[in] value   integer value
  * @return  absolute value or INT32_MAX if INT32_MIN is passed
  */
-extern int32_t MATH_AbsInt32(int32_t value);
+extern int32_t MATH_AbsInt32_t(const int32_t value);
 
 /**
  * @brief   Returns the absolute value of passed int64_t value
  * @param[in] value   integer value
  * @return  absolute value or INT64_MAX if INT64_MIN is passed
  */
-extern int64_t MATH_AbsInt64(int64_t value);
+extern int64_t MATH_AbsInt64_t(const int64_t value);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 

@@ -20,6 +20,7 @@ Waf Tools Implementation Documentation
     :maxdepth: 1
 
     ./ti-arm-compiler-tools
+    ./f_axivion.rst
     ./f_black.rst
     ./f_bootstrap_library_project.rst
     ./f_check_db_vars.rst

@@ -1,0 +1,24 @@
+{
+    "valid": [
+        "ABC_ABC_s",
+        "ABC_A123_s",
+        "ABC_123_s",
+        "ABC_123_12_s",
+        "ABC_123_AB_s"
+    ],
+    "invalid": [
+        "_ABC",
+        "_ABC_",
+        "_abc",
+        "_abc_",
+        "abc",
+        "abc_",
+        "ABC_",
+        "ABC_abc",
+        "ABC_ABC_123_",
+        "ABC_S",
+        "ABC_ms",
+        "ABC_ABC_e",
+        "ABC_s"
+    ]
+}

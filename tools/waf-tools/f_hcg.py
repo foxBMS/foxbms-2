@@ -184,6 +184,13 @@ def process_hcg(self, node):
     self.create_task(
         "hcg_compiler", src=[node, dil_file], tgt=tgt, remove_files=hcg.removes
     )
+    no_clang_node = self.path.find_resource(".clang-format")
+    if not no_clang_node:
+        no_clang_node = self.path.find_or_declare(".clang-format")
+        no_clang_node.write(
+            f"DisableFormat: true{os.linesep}SortIncludes: false{os.linesep}"
+        )
+
     if not hasattr(self, "unit_test"):
         self.source.extend(gen_sources)
         try:
@@ -327,9 +334,15 @@ def configure(conf):
     """
     conf.start_msg("Checking for TI Code Generator (HALCoGen)")
     if not Utils.is_win32:
-        conf.end_msg(0)
+        conf.end_msg(False)
         return
+
     conf.find_program("HALCOGEN", var="HALCOGEN", mandatory=False)
+
+    if not conf.env.HALCOGEN:
+        conf.end_msg(False)
+        return
+
     incpath_halcogen = os.path.join(
         pathlib.Path(conf.env.HALCOGEN[0]).parent.parent.parent,
         "F021 Flash API",

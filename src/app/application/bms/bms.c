@@ -43,7 +43,7 @@
  * @file    bms.c
  * @author  foxBMS Team
  * @date    2020-02-24 (date of creation)
- * @updated 2021-07-29 (date of last update)
+ * @updated 2021-08-06 (date of last update)
  * @ingroup ENGINE
  * @prefix  BMS
  *
@@ -372,8 +372,8 @@ static STD_RETURN_TYPE_e BMS_CheckPrecharge(uint8_t stringNumber, const DATA_BLO
     if ((0u == pPackValues->invalidStringCurrent[stringNumber]) &&
         (0u == pPackValues->invalidStringVoltage[stringNumber]) && (0u == pPackValues->invalidHvBusVoltage)) {
         /* Only current not current direction is checked */
-        const int32_t current_mA                = MATH_AbsInt32(pPackValues->stringCurrent_mA[stringNumber]);
-        const int64_t cont_prechargeVoltDiff_mV = MATH_AbsInt64(
+        const int32_t current_mA                = MATH_AbsInt32_t(pPackValues->stringCurrent_mA[stringNumber]);
+        const int64_t cont_prechargeVoltDiff_mV = MATH_AbsInt64_t(
             (int64_t)pPackValues->stringVoltage_mV[stringNumber] - (int64_t)pPackValues->highVoltageBusVoltage_mV);
 
         if ((cont_prechargeVoltDiff_mV < BMS_PRECHARGE_VOLTAGE_THRESHOLD_mV) &&
@@ -551,12 +551,12 @@ static int32_t BMS_GetStringVoltageDifference(uint8_t string, const DATA_BLOCK_P
     if ((0u == pPackValues->invalidStringVoltage[string]) &&
         (0u == pPackValues->invalidStringVoltage[bms_state.firstClosedString])) {
         /* Calculate difference between string voltages */
-        voltageDifference_mV = MATH_AbsInt32(
+        voltageDifference_mV = MATH_AbsInt32_t(
             pPackValues->stringVoltage_mV[string] - pPackValues->stringVoltage_mV[bms_state.firstClosedString]);
     } else if ((0u == pPackValues->invalidStringVoltage[string]) && (0u == pPackValues->invalidHvBusVoltage)) {
         /* Calculate difference between string and high voltage bus voltage */
         voltageDifference_mV =
-            MATH_AbsInt32(pPackValues->stringVoltage_mV[string] - pPackValues->highVoltageBusVoltage_mV);
+            MATH_AbsInt32_t(pPackValues->stringVoltage_mV[string] - pPackValues->highVoltageBusVoltage_mV);
     } else {
         /* No valid voltages for comparison -> do not calculate difference and return INT32_MAX */
         voltageDifference_mV = INT32_MAX;

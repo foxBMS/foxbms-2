@@ -1,0 +1,67 @@
+{
+    "Analysis": {
+        "CodingStyle-Naming.Function": {
+            "_active": true,
+            "msg": {
+                "non_compliant_name": {
+                    "text": "Function names shall use the naming convention (prefix.upper())_PascalCase."
+                }
+            },
+            "naming_convention": "^[A-Z][A-Z0-9]{1,4}_([A-Z][a-z0-9]+)*[A-Z][a-z0-9]*$"
+        },
+        "CodingStyle-Naming.GlobalVariable": {
+            "_active": true,
+            "msg": {
+                "non_compliant_name": {
+                    "text": "Names of global variables shall use the naming convention (prefix.lower())_camelCase."
+                }
+            },
+            "naming_convention": "[a-z]+_[a-z0-9]([a-z0-9]*[A-Z0-9]*[a-z0-9]+)*(_[umd]?([AKVs]|perc|degC))?"
+        },
+        "CodingStyle-Naming.LocalVariable": {
+            "_active": true,
+            "msg": {
+                "non_compliant_name": {
+                    "text": "Names of local variables shall use the naming convention (prefix.lower())_camelCase."
+                }
+            },
+            "naming_convention": "[a-z0-9]([a-z0-9]*[A-Z0-9]*[a-z0-9]+)*(_[umd]?([AKVs]|perc|degC))?"
+        },
+        "CodingStyle-Naming.Macro": {
+            "_active": true,
+            "msg": {
+                "non_compliant_name": {
+                    "text": "Macro names shall use the naming convention (prefix.upper())_ALL_CAPS."
+                }
+            },
+            "naming_convention": "[A-Z][A-Z0-9]{1,4}_[A-Z0-9]([A-Z0-9_]*)[A-Z0-9](_[umd]?([AKVs]|perc|degC))?"
+        },
+        "CodingStyle-Naming.TypedefedEnum": {
+            "_active": true,
+            "_copy_from": "CodingStyle-Naming.UserType",
+            "apply_to_renaming_of_classes": false,
+            "apply_to_renaming_of_structs": false,
+            "apply_to_renaming_of_unions": false,
+            "msg": {
+                "non_compliant_name": {
+                    "text": "Names of user-defined enum types shall use the naming convention (prefix.upper())_ALL_CAPS_e."
+                }
+            },
+            "naming_convention": "^[A-Z][A-Z0-9]{1,4}_([A-Z0-9_]*)_e"
+        },
+        "CodingStyle-Naming.TypedefedStruct": {
+            "_active": true,
+            "_copy_from": "CodingStyle-Naming.UserType",
+            "apply_to_renaming_of_classes": false,
+            "apply_to_renaming_of_enums": false,
+            "apply_to_renaming_of_unions": false,
+            "msg": {
+                "non_compliant_name": {
+                    "text": "Names of user-defined struct types shall use the naming convention (prefix.upper())_ALL_CAPS_s."
+                }
+            },
+            "naming_convention": "^[A-Z][A-Z0-9]{1,4}_([A-Z0-9_]*)_s"
+        }
+    },
+    "_Format": "1.0"
+}

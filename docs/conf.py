@@ -129,6 +129,10 @@ linkcheck_ignore = [
     "https://gitlab.com/ita1024/waf/-/blob/3536dfecf8061c6d99bac338837997c4862ee89b/waflib/TaskGen.py#L495-527",
     "https://gitlab.com/ita1024/waf/-/blob/3f8bb163290eb8fbfc3b26d61dd04aa5a6a29d4a/waf-light#L6-30",
     "https://www.misra.org.uk/",
+    "../_images/battery-system-setup.png",
+    "../_images/battery-system-setup-pack.png",
+    "../_images/battery-system-setup-bjb.png",
+    "../_images/battery-system-setup-single-string.png",
 ]
 
 html_theme_options = {

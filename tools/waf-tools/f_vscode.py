@@ -104,10 +104,18 @@ def configure(conf):  # pylint: disable=too-many-statements,too-many-branches
         waf_wrapper_script = pathlib.Path(conf.path.abspath()).as_posix() + "/waf.bat"
     else:
         waf_wrapper_script = pathlib.Path(conf.path.abspath()) + "/waf.sh"
+    axivion_base_path = pathlib.Path(
+        os.path.join(conf.path.abspath(), "tests", "axivion")
+    ).as_posix()
+    if Utils.is_win32:
+        axivion_start_analysis = axivion_base_path + "/start_local_analysis.bat"
+    else:
+        axivion_start_analysis = axivion_base_path + "/start_local_analysis.sh"
 
     template = template_env.get_template("tasks.json.jinja2")
     tasks = template.render(
         WAF_WRAPPER_SCRIPT=waf_wrapper_script,
+        AXIVION_START_ANALYSIS=axivion_start_analysis,
     )
     vsc_tasks_file = os.path.join(vscode_dir.relpath(), "tasks.json")
     conf.path.make_node(vsc_tasks_file).write(fix_jinja(tasks))
@@ -157,16 +165,50 @@ def configure(conf):  # pylint: disable=too-many-statements,too-many-branches
     else:
         clang_format_executable = pathlib.Path(conf.env.CLANG_FORMAT[0]).as_posix()
 
+    ax_modules_rel = pathlib.Path(os.path.join("lib", "scripts"))
+
+    if Utils.is_win32:
+        axivion_modules = (
+            pathlib.Path(os.environ.get("ProgramFiles(x86)", "C:\\Program Files(x86)"))
+            / "Bauhaus"
+            / ax_modules_rel
+        ).as_posix()
+        userprofile = os.environ.get(
+            "USERPROFILE", os.environ.get("HOMEDRIVE", "C:") + os.sep
+        )
+    else:
+        axivion_modules = (
+            pathlib.Path(os.environ.get("HOME", "/")) / "bauhaus-suite" / ax_modules_rel
+        )
+        userprofile = os.environ.get("HOME", "~")
+
+    axivion_vs_config = {
+        "analysisProject": "foxbms-2",
+        "localPath": pathlib.Path(conf.path.abspath()).as_posix(),
+        "analysisPath": pathlib.Path(userprofile).as_posix(),
+    }
+    if conf.env.AXIVION_CC:
+        projects_path = os.path.join(userprofile, ".bauhaus", "localbuild", "projects")
+        axivion_vs_config["analysisPath"] = pathlib.Path(projects_path).as_posix()
+
+        try:
+            axivion_modules = (
+                pathlib.Path(conf.env.AXIVION_CC[0]).parent.parent / ax_modules_rel
+            ).as_posix()
+        except IndexError:
+            pass
     settings = template.render(
         PYTHONPATH=py_exe,
         WAF_DIR=waf_dir,
         WAF_TOOLS_DIR=waf_tools_dir,
+        AXIVION_MODULES=axivion_modules,
         CONDA_PATH=conda_exe,
         PYLINT_PATH=pylint_exe,
         PYLINT_CONFIG=pylint_cfg,
         BLACKPATH=black_exe,
         BLACK_CONFIG=black_cfg,
         CLANG_FORMAT_EXECUTABLE=clang_format_executable,
+        AXIVION_VS_CONFIG=axivion_vs_config,
     )
 
     vsc_settings_file = os.path.join(vscode_dir.relpath(), "settings.json")

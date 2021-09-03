@@ -41,7 +41,7 @@
 """Helper methods to work with waf node objects"""
 
 
-from waflib import Errors, Node, Utils, TaskGen
+from waflib import Errors, Node, TaskGen, Utils
 
 
 @TaskGen.taskgen_method

@@ -134,7 +134,7 @@ typedef struct BAL_STATE {
     uint8_t lastSubstate;                     /*!< previous substate of the state machine */
     uint8_t triggerEntry;                     /*!< counter for re-entrance protection (function running flag) */
     uint32_t errorRequestCounter;             /*!< counts the number of illegal requests to the BAL state machine */
-    STD_RETURN_TYPE_e initializationFinished; /*!< E_OK if statemachine initialized, otherwise E_NOT_OK */
+    STD_RETURN_TYPE_e initializationFinished; /*!< #STD_OK if statemachine initialized, otherwise #STD_NOT_OK */
     bool active;                              /*!< indicate if balancing active or not */
     int32_t balancingThreshold;               /*!< effective balancing threshold */
     bool balancingAllowed;                    /*!< flag to disable balancing */

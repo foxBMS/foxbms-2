@@ -25,7 +25,6 @@
     "restructuredtext.linter.disabled": true,
     "restructuredtext.preview.sphinx.disabled": true,
     "restructuredtext.preview.docutil.disabled": true,
-    "gitlab.instanceUrl": "https://iisb-gitlab.iisb.fraunhofer.de/",
     "extensions.ignoreRecommendations": true,
     "C_Cpp.autoAddFileAssociations": true,
     "C_Cpp.clang_format_path": "{{ CLANG_FORMAT_EXECUTABLE }}",
@@ -52,6 +51,7 @@
     "python.analysis.extraPaths": [
         "{{ WAF_DIR }}",
         "{{ WAF_TOOLS_DIR }}",
+        "{{ AXIVION_MODULES }}"
     ],
     "python.condaPath": "{{ CONDA_PATH }}",
     "python.formatting.provider": "black",
@@ -116,6 +116,15 @@
         "*.ppr": "c",
         "*.pprs": "c",
         "*.cppcheck": "xml",
-        "*.conf.in": "properties"
-    }
+        "tests/axivion/cafeCC.config": "xml",
+        "tests/axivion/architecture.gxl": "xml",
+        "tests/axivion/mapping.gxl": "xml"
+    },
+    "axivion.pathMappings": [
+        {
+            "analysisProject": "{{ AXIVION_VS_CONFIG['analysisProject'] }}",
+            "localPath": "{{ AXIVION_VS_CONFIG['localPath'] }}",
+            "analysisPath": "{{ AXIVION_VS_CONFIG['analysisPath'] }}"
+        }
+    ]
 }
