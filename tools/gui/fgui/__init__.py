@@ -40,7 +40,7 @@
 
 """sets the version package etc."""
 
-__version__ = "1.1.2"
+__version__ = "1.2.0"
 __appname__ = "foxBMS 2"
 __author__ = "The foxBMS Team"
 __copyright__ = "(c) 2010 - 2021 foxBMS"

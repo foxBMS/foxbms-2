@@ -213,7 +213,7 @@ void testMRC_UpdateCellTemperatureValidationNullPointer(void) {
 }
 
 /* test main function */
-void testMRC_MicMeasurementValidationTickZeroNothingToDo(void) {
+void testMRC_AfeMeasurementValidationTickZeroNothingToDo(void) {
     /* inject database entries into function */
     injectDatabaseEntries();
 
@@ -226,5 +226,5 @@ void testMRC_MicMeasurementValidationTickZeroNothingToDo(void) {
 
     DIAG_Handler_IgnoreAndReturn(STD_OK);
 
-    TEST_ASSERT_PASS_ASSERT(TEST_ASSERT_EQUAL(STD_NOT_OK, MRC_ValidateMicMeasurement()));
+    TEST_ASSERT_PASS_ASSERT(TEST_ASSERT_EQUAL(STD_NOT_OK, MRC_ValidateAfeMeasurement()));
 }

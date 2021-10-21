@@ -25,44 +25,45 @@ Setup
 -----
 
 - Install OpenJDK and make it available in PATH.
-- Install Python3.8 from https://www.python.org/downloads/windows/. Use the
+- Install Python 3.8 from https://www.python.org/downloads/windows/. Use the
   user installer and make sure to install the Python launcher. Leave all other
   options as they are selected.
-- Install Axivion Bauhaus Suite from the zip-file in a versioned directory
-  e.g., ``C:\Bauhaus\x.y.z`` and add ``C:\Bauhaus\x.y.z\bin`` to the user PATH
-  environment variable.
-- Copy the license file into ``%USERPROFILE%\.bauhaus``.
-- Copy the certificate of the dashboard server to
-  ``%USERPROFILE%\.bauhaus\auto.cert``.
+- Extract Axivion Bauhaus Suite from the zip-file and copy it in a versioned
+  directory e.g., ``C:\Bauhaus\x.y.z`` and add ``C:\Bauhaus\x.y.z\bin`` to the
+  user PATH environment variable.
+- Copy the license file into ``%USERPROFILE%\.bauhaus\``.
+- Name the certificate of the dashboard server ``auto.cert`` and copy it into
+  the folder ``%USERPROFILE%\.bauhaus\``.
 - **Optional:** If there is an Axivion Dashboard server running: Set the user
   environment variable ``AXIVION_PASSWORD=xyz`` to the user token obtained from
   the dashboard.
 
-To verify that the install can successfully build run the following commands in
-a terminal inside the project root (please make sure that the terminal is
-freshly spawned so that it inherits the new environment variables):
+To verify the installation and create an initialization of the local database,
+the following command has to be run once inside a terminal (please make sure
+that the terminal is freshly spawned so that it inherits the previously set
+environment variables):
 
 .. code-block:: console
 
-   C:\Users\vulpes\Documents\foxbms-2>waf build_axivion clean_axivion
+    C:\Users\vulpes\Documents\foxbms-2>tests\axivion\start_local_analysis.bat
 
 Local Builds And Results
 ------------------------
 
-- Run the analysis step
+- Run the following command to start a local dashserver and **do not** close
+  the terminal afterwards (follow the instructions printed on the terminal to
+  see the results):
 
   .. code-block:: console
 
-     C:\Users\vulpes\Documents\foxbms-2>tests\axivion\start_local_analysis.bat
+     C:\Users\vulpes\Documents\foxbms-2>tests\axivion\start_local_dashserver.bat
 
-- Run the following command in to start a local dashserver and **do not** close
-  the terminal afterwards:
+- Run the following command to update the analysis result (the local dashboard
+  will not be available during the execution of the local analysis):
 
   .. code-block:: console
 
-    dashserver start --local --noauth --install_file=%USERPROFILE%\.bauhaus\localbuild\projects\foxbms-2.db
-
-- Follow the instructions printed on the terminal to see the results.
+    C:\Users\vulpes\Documents\foxbms-2>tests\axivion\start_local_analysis.bat
 
 VS Code Setup
 -------------
@@ -105,11 +106,34 @@ VS Code User settings:
     ]
 
 Advanced Usage
-++++++++++++++
+--------------
 
 Race Condition Analysis
-^^^^^^^^^^^^^^^^^^^^^^^
++++++++++++++++++++++++
 
 Go into the directory `racepdfs` and execute the wrapper batch file. This
 should generate a directory with call graphs to variables that are accessed in
 a potential unsafe manner. These can be used for closer investigation.
+
+Updating the architecture
+-------------------------
+
+The current architecture is described in `architecture.gxl`.
+This file is automatically embedded and verified against during the
+architecture analysis run by this tool.
+In order to update the architecture, it can be changed according to the
+user manual of the tool in `gravis` and the exported in place of
+`architecture.gxl`.
+
+When updating the architecture, a new render should be created in order to
+update the documentation at :ref:`SOFTWARE_ARCHITECTURE`.
+This can be done through the export feature of `gravis`.
+For the developer's convenience a helper script has been created.
+Call
+
+.. code-block:: bash
+
+    gravis --script tests/axivion/gravis_export_architecture_svg.py
+
+from a shell in the root of the project and the image will be
+automatically updated.

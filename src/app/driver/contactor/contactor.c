@@ -43,7 +43,7 @@
  * @file    contactor.c
  * @author  foxBMS Team
  * @date    2020-02-11 (date of creation)
- * @updated 2021-03-24 (date of last update)
+ * @updated 2021-10-01 (date of last update)
  * @ingroup DRIVERS
  * @prefix  CONT
  *
@@ -173,9 +173,14 @@ extern void CONT_GetContactorFeedback(void) {
         } else if (CONT_FEEDBACK_THROUGH_CURRENT == cont_contactorStates[contactor].feedbackPinType) {
             /* feedback from current: ask SPS driver for feedback */
             cont_contactorStates[contactor].feedback =
-                SPS_GetChannelFeedback(CONT_GetSpsChannelIndexFromContactor(contactor));
+                SPS_GetChannelCurrentFeedback(CONT_GetSpsChannelIndexFromContactor(contactor));
+        } else if (CONT_FEEDBACK_NORMALLY_OPEN == cont_contactorStates[contactor].feedbackPinType) {
+            cont_contactorStates[contactor].feedback =
+                SPS_GetChannelPexFeedback(CONT_GetSpsChannelIndexFromContactor(contactor), true);
         } else {
-            /* TODO: get feedback through I2C port expander */
+            /* CONT_FEEDBACK_NORMALLY_CLOSED */
+            cont_contactorStates[contactor].feedback =
+                SPS_GetChannelPexFeedback(CONT_GetSpsChannelIndexFromContactor(contactor), false);
         }
     }
 }
@@ -235,6 +240,7 @@ extern STD_RETURN_TYPE_e CONT_ClosePrecharge(uint8_t stringNumber) {
     FAS_ASSERT(stringNumber < BS_NR_OF_STRINGS);
     STD_RETURN_TYPE_e retVal         = STD_NOT_OK;
     uint8_t prechargeContactorNumber = 0u;
+    static_assert((BS_NR_OF_STRINGS <= (uint8_t)UINT8_MAX), "This code assumes BS_NR_OF_STRINGS fits into uint8_t");
 
     /* Precharge contactors in the list stay after string contactors
      * so it has index (number of contactors)-1

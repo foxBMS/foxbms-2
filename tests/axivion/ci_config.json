@@ -3,7 +3,7 @@
         "Analysis-GlobalOptions": {
             "global_excludes": [
                 "C:/ti/*",
-                "*src/app/driver/mic/ltc/common/ltc_pec.*",
+                "*src/app/driver/afe/ltc/common/ltc_pec.*",
                 "*src/app/driver/sbc/fs8x_driver/*",
                 "*src/hal/*",
                 "*src/os/*"

@@ -1,6 +1,6 @@
 {
     "slave-unit": {
-        "measurement-ic": {
+        "analog-front-end": {
             "manufacturer": "ltc",
             "chip": "6804-1"
         },

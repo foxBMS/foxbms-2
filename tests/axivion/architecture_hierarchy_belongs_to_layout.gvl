@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!DOCTYPE Gravis2_Layout>
+<Gravis2_Layout W="Hierarchy" V="Architecture">
+  <Visualization>
+    <Zoom Factor="2.02729" Center_X="283.492" Center_Y="160.242"/>
+    <Option Name="Mute_Edges" Value="False"/>
+    <Option Name="Semi_Transparent_Edges" Value="False"/>
+    <Option Name="Edges_Behind_Nodes" Value="False"/>
+    <Option Name="Show_Lifted_Edges" Value="False"/>
+    <Option Name="Semi_Transparent_Backgrounds" Value="True"/>
+    <Option Name="Show_Node_Names" Value="True"/>
+    <Option Name="Show_Attributes" Value="True"/>
+    <Hidden_Node_Types>
+    </Hidden_Node_Types>
+    <Hidden_Edge_Types>
+    </Hidden_Edge_Types>
+  </Visualization>
+  <Node Id="Lce57c8ae-5258-43b6-9961-b8eab70b4233" X="82.6904" Y="322.702" W="40" H="40" CS="14.14">
+  </Node>
+  <Node Id="L7834bbf9-71da-4cea-9104-67ecd2558f56" X="-72.426" Y="41.7024" W="241.24" H="258.31" CS="14.14" Exp="True">
+    <Node Id="L69d80159-eb51-4788-ad91-72171eef7461" X="42.42" Y="42.42" W="28.28" H="28.28" CS="10">
+    </Node>
+    <Node Id="L3bf2fe9c-629b-41b6-a544-1afe67eb9daa" X="98.98" Y="49.49" W="28.28" H="28.28" CS="10">
+    </Node>
+    <Node Id="Ldf9e1298-e967-4ee3-a903-55f1632284fc" X="155.54" Y="42.42" W="28.28" H="28.28" CS="10">
+    </Node>
+    <Node Id="L051a17d1-7a79-41f5-83a4-588da5d9eff2" X="212.1" Y="49.49" W="28.28" H="28.28" CS="10">
+    </Node>
+    <Node Id="L3823ea61-02b8-457c-b028-b1d5fbb9256e" X="42.42" Y="98.98" W="28.28" H="28.28" CS="10">
+    </Node>
+    <Node Id="L515b9069-5530-4897-9777-6af92794f278" X="98.98" Y="106.05" W="28.28" H="28.28" CS="10">
+    </Node>
+    <Node Id="L8c5c9da5-b98b-4f3d-abc2-3c8d12fd96bc" X="155.54" Y="98.98" W="28.28" H="28.28" CS="10">
+    </Node>
+    <Node Id="L2f24952b-2688-46c5-b9db-6b0b400f9312" X="212.1" Y="106.05" W="28.28" H="28.28" CS="10">
+    </Node>
+    <Node Id="Lb1a1861d-1d0e-4b8b-855e-d500c5fde734" X="42.42" Y="155.54" W="28.28" H="28.28" CS="10">
+    </Node>
+    <Node Id="Lec782c10-d1d9-4c3a-966a-a6e755cc611d" X="98.98" Y="162.61" W="28.28" H="28.28" CS="10">
+    </Node>
+    <Node Id="L01ccfcfe-7c45-4177-9508-f423ae8a5cd0" X="155.54" Y="155.54" W="28.28" H="28.28" CS="10">
+    </Node>
+    <Node Id="L027cc519-176f-4c70-960c-6505ea5ddd1c" X="212.1" Y="162.61" W="28.28" H="28.28" CS="10">
+    </Node>
+    <Node Id="Lee3eb6b6-d536-4c33-887b-e5130795c242" X="42.42" Y="212.1" W="28.28" H="28.28" CS="10">
+    </Node>
+    <Node Id="L57d0dee1-8103-40c2-9dc6-e4e6feb88b9e" X="98.98" Y="219.17" W="28.28" H="28.28" CS="10">
+    </Node>
+  </Node>
+  <Node Id="L73570489-fadd-4b30-b7a7-4640f5f844f8" X="153.331" Y="322.189" W="40" H="40" CS="14.14">
+  </Node>
+  <Node Id="L806c54d7-9be9-4760-afd3-8a0d8b62a609" X="370.46" Y="99.6945" W="221.519" H="265.009" CS="14.14" Exp="True">
+    <Node Id="L27d7a7c4-00ca-48b0-b107-688cdcaf71ef" X="192.379" Y="206.285" W="28.28" H="28.28" CS="10">
+    </Node>
+    <Node Id="Lf6e881ac-babd-463c-b6ec-348d990d4e76" X="95.5572" Y="42.42" W="28.28" H="28.28" CS="10">
+    </Node>
+    <Node Id="L1d321303-9120-4897-a5a0-2397c1e7293a" X="107.362" Y="141.144" W="28.28" H="28.28" CS="10">
+    </Node>
+    <Node Id="Le7e42410-6388-46c2-807f-5ee60a251396" X="42.42" Y="225.869" W="28.28" H="28.28" CS="10">
+    </Node>
+  </Node>
+  <Node Id="L999b8969-10b6-4739-bd2c-f8e269f113a0" X="233.871" Y="219.773" W="128.12" H="145.19" CS="14.14" Exp="True">
+    <Node Id="L3b5c26dc-b3a5-4423-a961-3f39dc0a5ed9" X="23.1825" Y="43.8998" W="28.28" H="28.28" CS="10">
+    </Node>
+    <Node Id="L3eff9945-c2ad-4073-bd82-dc7d5405452a" X="87.6348" Y="26.3063" W="28.28" H="28.28" CS="10">
+    </Node>
+    <Node Id="L75fe3254-d162-432e-ae16-eaa70619f50f" X="31.5681" Y="89.1146" W="28.28" H="28.28" CS="10">
+    </Node>
+    <Node Id="Lf19bedfe-54a4-4f01-a486-c94e529ced58" X="98.98" Y="106.05" W="28.28" H="28.28" CS="10">
+    </Node>
+  </Node>
+  <Node Id="La3e03d08-3b41-4a56-9f03-103a52c90548" X="-20.3168" Y="-129.416" W="183.712" H="138.12" CS="14.14" Exp="True">
+    <Node Id="L85311c57-46cb-4255-91aa-4cfb1b9d98fb" X="98.98" Y="42.42" W="28.28" H="28.28" CS="10">
+    </Node>
+    <Node Id="L2f136d68-9615-4fe5-a2ac-b24e727d4452" X="42.42" Y="42.42" W="28.28" H="28.28" CS="10">
+    </Node>
+    <Node Id="Lf6f89ed6-60cb-46ee-9623-bbb2bf8182cd" X="98.98" Y="98.98" W="28.28" H="28.28" CS="10">
+    </Node>
+    <Node Id="L0b546284-b270-48d4-ba42-12b5921159ef" X="42.42" Y="92.42" W="28.28" H="28.28" CS="10">
+    </Node>
+  </Node>
+  <Node Id="L130d48ab-422a-42cf-a6a5-517ed0d81e12" X="232.963" Y="33.8208" W="76.0162" H="131.56" CS="14.14" Exp="True">
+    <Node Id="L608c1594-8d27-4812-89d8-8f0954583fd6" X="42.42" Y="92.42" W="28.28" H="28.28" CS="10">
+    </Node>
+    <Node Id="L6d62c3ee-039e-4ad7-a231-4fce2b23a145" X="42.42" Y="42.42" W="28.28" H="28.28" CS="10">
+    </Node>
+  </Node>
+</Gravis2_Layout>

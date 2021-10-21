@@ -70,11 +70,11 @@
 /*========== Static Function Implementations ================================*/
 
 /*========== Extern Function Implementations ================================*/
-extern STD_RETURN_TYPE_e PL_CheckStringVoltage(int32_t voltageMic_mV, int32_t voltageCurrentSensor_mV) {
+extern STD_RETURN_TYPE_e PL_CheckStringVoltage(int32_t voltageAfe_mV, int32_t voltageCurrentSensor_mV) {
     STD_RETURN_TYPE_e result = STD_NOT_OK;
 
     /* Get deviation between these two measurements */
-    int32_t diff_mV = voltageMic_mV - voltageCurrentSensor_mV;
+    int32_t diff_mV = voltageAfe_mV - voltageCurrentSensor_mV;
 
     if (abs(diff_mV) < PL_STRING_VOLTAGE_TOLERANCE_mV) {
         result = STD_OK;

@@ -43,7 +43,7 @@
  * @file    redundancy.h
  * @author  foxBMS Team
  * @date    2020-07-31 (date of creation)
- * @updated 2020-07-31 (date of last update)
+ * @updated 2021-10-14 (date of last update)
  * @ingroup APPLICATION
  * @prefix  MRC
  *
@@ -73,18 +73,18 @@
 #define MRC_CURRENT_MEASUREMENT_PERIOD_TIMEOUT_ms (250u)
 
 /**
- * Maximum time between MIC measurements before the
+ * Maximum time between AFE measurements before the
  * redundancy module raises an error because a
  * measurement is not updated anymore.
  *
  * The redundancy module will wait a maximum of this
- * time for new values from the base MIC measurement and
- * MIC redundant measurements. If no new values are updated
+ * time for new values from the base AFE measurement and
+ * AFE redundant measurements. If no new values are updated
  * from both measurement sources within this timeframe
  * it will validate the measurement values it has up to
  * this point if possible.
  */
-#define MRC_MIC_MEASUREMENT_PERIOD_TIMEOUT_ms (250u)
+#define MRC_AFE_MEASUREMENT_PERIOD_TIMEOUT_ms (250u)
 
 /**
  * Maximum time between current sensor high voltage, current
@@ -100,7 +100,7 @@
 #define MRC_CURRENT_SENSOR_MEASUREMENT_TIMEOUT_ms (300u)
 
 /**
- * If both, the current sensor and the MIC measurement have no valid values
+ * If both, the current sensor and the AFE measurement have no valid values
  * we try to construct the string voltage by replacing invalid cell voltage
  * measurements with the average cell voltage in this string. The result of
  * this estimation will be flagged as invalid if more than the number of
@@ -137,7 +137,7 @@ extern STD_RETURN_TYPE_e MRC_Initialize(void);
  * @return #STD_OK if measurement has been validated successfully, otherwise i.e.
  *         if no new values have been measured since the last call #STD_NOT_OK
  */
-extern STD_RETURN_TYPE_e MRC_ValidateMicMeasurement(void);
+extern STD_RETURN_TYPE_e MRC_ValidateAfeMeasurement(void);
 
 /**
  * @brief Function to validate the measurements of pack values (string values,
@@ -166,6 +166,7 @@ extern void TEST_MRC_ValidatePowerMeasurement(DATA_BLOCK_CURRENT_SENSOR_s *pTabl
 extern void TEST_MRC_ValidateStringVoltageMeasurement(
     DATA_BLOCK_CURRENT_SENSOR_s *pTableCurrentSensor,
     DATA_BLOCK_CELL_VOLTAGE_s *pTableCellVoltage);
+extern void TEST_MRC_ValidateBatteryVoltageMeasurement(void);
 extern void TEST_MRC_ValidateHighVoltageMeasurement(DATA_BLOCK_CURRENT_SENSOR_s *pTableCurrentSensor);
 extern STD_RETURN_TYPE_e TEST_MRC_CalculateCellVoltageMinMaxAverage(
     DATA_BLOCK_CELL_VOLTAGE_s *pValidatedVoltages,

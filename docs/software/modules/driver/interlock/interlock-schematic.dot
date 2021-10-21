@@ -1,0 +1,87 @@
+# Copyright (c) 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# All rights reserved.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#
+# 1. Redistributions of source code must retain the above copyright notice, this
+#    list of conditions and the following disclaimer.
+#
+# 2. Redistributions in binary form must reproduce the above copyright notice,
+#    this list of conditions and the following disclaimer in the documentation
+#    and/or other materials provided with the distribution.
+#
+# 3. Neither the name of the copyright holder nor the names of its
+#    contributors may be used to endorse or promote products derived from
+#    this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+# OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#
+# We kindly request you to use one or more of the following phrases to refer to
+# foxBMS in your hardware, software, documentation or advertising materials:
+#
+# - "This product uses parts of foxBMS®"
+# - "This product includes parts of foxBMS®"
+# - "This product is derived from foxBMS®"
+
+graph interlock_schematic {
+    subgraph cluster_main {
+        label="main interlock circuit";
+
+        node [shape=rectangle,group=1]
+            nd_static_supply
+            nd_interlock_high
+            nd_interlock_low
+            nd_low_side_regulation
+            nd_system_ground;
+        node [shape=plain,group=1]
+            nd_low_side_cs
+            nd_low_side_threshold_cs;
+
+        nd_static_supply            [label="static low-power supply"];
+        nd_interlock_high           [label="interlock connector high"];
+        nd_interlock_low            [label="interlock connector low"];
+        nd_low_side_cs              [label="low-side current sense (100mA = 4V)"];
+        nd_low_side_regulation      [label="low-side current regulation (to 50mA)"];
+        nd_low_side_threshold_cs    [label="low-side current threshold (low = current above 10mA)"];
+        nd_system_ground            [label="system ground"];
+
+        edge[color=blue]
+        nd_static_supply -- nd_interlock_high [style=bold];
+        nd_interlock_high -- nd_interlock_low [style="bold,dashed",label="external connection"];
+        nd_interlock_low -- nd_low_side_cs [style=bold];
+        nd_low_side_cs -- nd_low_side_regulation [style=bold];
+        nd_low_side_regulation -- nd_low_side_threshold_cs [style=bold];
+        nd_low_side_threshold_cs -- nd_system_ground [style=bold];
+    }
+
+    node [shape=rectangle,group=2]
+        nd_diagnostic_supply;
+    node [shape=rectangle,group=3]
+        nd_high_side_vs
+        nd_low_side_vs;
+    node [shape=plain,group=2]
+        nd_high_side_cs;
+
+    nd_diagnostic_supply        [label="diagnostic high-power supply"];
+    nd_high_side_cs             [label="high-side current sense (133mA range)"];
+    nd_high_side_vs             [label="high-side voltage sense (resistor divider 3k9/(5k6+3k9))"];
+    nd_low_side_vs              [label="low-side voltage sense (resistor divider 3k9/(5k6+3k9))"];
+
+    edge [color=orange]
+    nd_diagnostic_supply -- nd_high_side_cs;
+    nd_high_side_cs -- nd_interlock_high;
+    nd_interlock_high -- nd_high_side_vs;
+    nd_interlock_low -- nd_low_side_vs;
+}

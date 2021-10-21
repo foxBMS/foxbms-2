@@ -43,7 +43,7 @@
  * @file    sps_cfg.c
  * @author  foxBMS Team
  * @date    2020-10-14 (date of creation)
- * @updated 2020-10-14 (date of last update)
+ * @updated 2021-10-01 (date of last update)
  * @ingroup DRIVERS_CONF
  * @prefix  SPS
  *
@@ -53,6 +53,8 @@
 
 /*========== Includes =======================================================*/
 #include "sps_cfg.h"
+
+#include "pex_cfg.h"
 
 /*========== Macros and Definitions =========================================*/
 
@@ -69,10 +71,23 @@ SPS_CHANNEL_STATE_s sps_channelStatus[SPS_NR_OF_AVAILABLE_SPS_CHANNELS] = {
     {SPS_CHANNEL_OFF, SPS_CHANNEL_OFF, 0.0f, SPS_AFF_CONTACTOR, SPS_CHANNEL_ON_DEFAULT_THRESHOLD_mA},
     {SPS_CHANNEL_OFF, SPS_CHANNEL_OFF, 0.0f, SPS_AFF_CONTACTOR, SPS_CHANNEL_ON_DEFAULT_THRESHOLD_mA},
     {SPS_CHANNEL_OFF, SPS_CHANNEL_OFF, 0.0f, SPS_AFF_GENERAL_IO, SPS_CHANNEL_ON_DEFAULT_THRESHOLD_mA},
-    {SPS_CHANNEL_OFF, SPS_CHANNEL_OFF, 0.0f, SPS_AFF_GENERAL_IO, SPS_CHANNEL_ON_DEFAULT_THRESHOLD_mA},
-    {SPS_CHANNEL_OFF, SPS_CHANNEL_OFF, 0.0f, SPS_AFF_GENERAL_IO, SPS_CHANNEL_ON_DEFAULT_THRESHOLD_mA},
-    {SPS_CHANNEL_OFF, SPS_CHANNEL_OFF, 0.0f, SPS_AFF_GENERAL_IO, SPS_CHANNEL_ON_DEFAULT_THRESHOLD_mA},
-    {SPS_CHANNEL_OFF, SPS_CHANNEL_OFF, 0.0f, SPS_AFF_GENERAL_IO, SPS_CHANNEL_ON_DEFAULT_THRESHOLD_mA},
+};
+
+/** mapping of channel states to feedback pins
+ *
+ * * IDs are the same as in #sps_channelStatus (#SPS_CHANNEL_INDEX)
+ * * The mapping is intended to be constant; if a feedback channel shall be
+ *   used, this should also be configured in #sps_channelStatus
+*/
+const SPS_CHANNEL_FEEDBACK_MAPPING_s sps_kChannelFeedbackMapping[SPS_NR_OF_AVAILABLE_SPS_CHANNELS] = {
+    {PEX_PORT_EXPANDER1, PEX_PIN00},
+    {PEX_PORT_EXPANDER1, PEX_PIN01},
+    {PEX_PORT_EXPANDER1, PEX_PIN02},
+    {PEX_PORT_EXPANDER1, PEX_PIN03},
+    {PEX_PORT_EXPANDER1, PEX_PIN04},
+    {PEX_PORT_EXPANDER1, PEX_PIN05},
+    {PEX_PORT_EXPANDER1, PEX_PIN06},
+    {PEX_PORT_EXPANDER1, PEX_PIN07},
 };
 
 /*========== Static Function Prototypes =====================================*/

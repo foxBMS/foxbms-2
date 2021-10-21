@@ -44,13 +44,17 @@ Software Modules
     ./driver/dma/dma.rst
     ./driver/foxmath/foxmath.rst
     ./driver/fram/fram.rst
+    ./driver/htsen/htsen.rst
+    ./driver/i2c/i2c.rst
     ./driver/imd/imd.rst
     ./driver/interlock/interlock.rst
     ./driver/io/io.rst
     ./driver/meas/meas.rst
     ./driver/mcu/mcu.rst
-    ./driver/mic/mic.rst
-    ./driver/mic/ics.rst
+    ./driver/afe/afe.rst
+    ./driver/afe/supported-afes.rst
+    ./driver/pex/pex.rst
+    ./driver/pwm/pwm.rst
     ./driver/rtc/rtc.rst
     ./driver/sbc/sbc.rst
     ./driver/spi/spi.rst

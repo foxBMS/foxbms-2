@@ -67,12 +67,12 @@
 /**
  * @brief Pack voltage plausibility check between LTC and current sensor values
  *
- * @param  voltageMic_mV            pack voltage measured by MIC
+ * @param  voltageAfe_mV            pack voltage measured by AFE
  * @param  voltageCurrentSensor_mV  pack voltage measured by current sensor
  *
  * @return #STD_OK if pack voltage valid, otherwise #STD_NOT_OK
  */
-extern STD_RETURN_TYPE_e PL_CheckStringVoltage(int32_t voltageMic_mV, int32_t voltageCurrentSensor_mV);
+extern STD_RETURN_TYPE_e PL_CheckStringVoltage(int32_t voltageAfe_mV, int32_t voltageCurrentSensor_mV);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 

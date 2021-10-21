@@ -43,7 +43,7 @@
  * @file    sys.h
  * @author  foxBMS Team
  * @date    2020-02-24 (date of creation)
- * @updated 2021-05-19 (date of last update)
+ * @updated 2021-10-12 (date of last update)
  * @ingroup ENGINE
  * @prefix  SYS
  *
@@ -104,6 +104,7 @@ typedef enum SYS_STATEMACH {
     SYS_STATEMACH_SYSTEM_BIST,                   /*!< run a built-in self-test */
     SYS_STATEMACH_INITIALIZED,                   /*!<    */
     SYS_STATEMACH_INITIALIZE_SBC,                /*!<    */
+    SYS_STATEMACH_INITIALIZE_CAN,                /*!< initialize CAN module */
     SYS_STATEMACH_INITIALIZE_INTERLOCK,          /*!<    */
     SYS_STATEMACH_INITIALIZE_CONTACTORS,         /*!<    */
     SYS_STATEMACH_INITIALIZE_BALANCING,          /*!<    */

@@ -144,6 +144,7 @@
     - Cobertura
   :abort_on_uncovered: true
   :uncovered_ignore_list:
+    - "../../src/app/driver/imd/bender/ir155/bender_ir155.c"
     - "../../src/app/driver/imd/bender/iso165c/bender_iso165c.c"
     - "../../src/app/driver/sbc/fs8x_driver/sbc_fs8x.c"
     - "../../src/app/driver/sbc/fs8x_driver/sbc_fs8x_communication.c"

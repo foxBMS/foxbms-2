@@ -54,24 +54,9 @@
 /*========== Includes =======================================================*/
 #include "adc.h"
 
-#include "beta.h"
 #include "database.h"
-#include "epcos_b57251v5103j060.h"
-#include "io.h"
-#include "spi.h"
 
 /*========== Macros and Definitions =========================================*/
-
-/** scaling factor for the conversion of a measurement value to a temperature */
-#define ADC_TEMPERATURE_FACTOR (10.0f)
-
-/**
- * Type of temperature sensors
- */
-typedef enum ADC_TEMPERATURE_SENSOR_TYPE {
-    ADC0_TEMPERATURE_SENSOR, /*!< First ADC (ADC0) */
-    ADC1_TEMPERATURE_SENSOR, /*!< Second ADC (ADC1) */
-} ADC_TEMPERATURE_SENSOR_TYPE_e;
 
 /*========== Static Constant and Variable Definitions =======================*/
 
@@ -80,261 +65,62 @@ typedef enum ADC_TEMPERATURE_SENSOR_TYPE {
  * @details This variable is used as a state-variable for switching through the
  *          steps of a conversion.
  */
-static uint8_t adc_conversionState = ADC_INIT;
+static ADC_STATE_e adc_conversionState = ADC_START_CONVERSION;
 
-/** NULL command sent to initialize the ADC */
-static uint16_t adc_txNull[SINGLE_MESSAGE_LENGTH] = {0x0000u, 0x0000u};
+static adcData_t adc1RawVoltages[ADC_ADC1_MAX_NR_CHANNELS] = {0};
 
-/**
- * Unlock command for the ADC
- * When ADC is locked, regsiters cannot be written
- */
-static uint16_t adc_txUnlockCommand[SINGLE_MESSAGE_LENGTH] = {0x0655u, 0x0000u};
-
-/**
- * Lock command the ADC
- * When ADC is locked, regsiters cannot be written
- */
-static uint16_t adc_txLockCommand[SINGLE_MESSAGE_LENGTH] = {0x0555u, 0x0000u};
-
-/** The wake-up command starts the conversions by the ADC */
-static uint16_t adc_txWakeupCommand[SINGLE_MESSAGE_LENGTH] = {0x0033u, 0x0000u};
-
-/** This command is used to read registers */
-static uint16_t adc_txReadRegisterCommand[SINGLE_MESSAGE_LENGTH] = {0x2F00u, 0x0000u};
-
-/** This command is used to write registers */
-static uint16_t adc_txWriteRegisterCommand[SINGLE_MESSAGE_LENGTH] = {0x4F0Fu, 0x0000u};
-
-/**
- * This is a generic purpose receive buffer.
- * It is used to read the answer of the ADC to the commands
- * defined above.
- */
-static uint16_t adc_rxReadSingleMessage[SINGLE_MESSAGE_LENGTH] = {0x0000u, 0x0000u};
-
-/**
- * This message is used to read conversion results
- * It consists of NULL commands. When receiving NULL commands,
- * the ADC outputs conversion data on the MasterInSlaveOut line.
- */
-static uint16_t adc_txConvert[CONVERT_LENGTH] =
-    {0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u};
-
-/** This message is used to get the result of conversions */
-static uint16_t adc_rxConvert[CONVERT_LENGTH] =
-    {0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u};
-
-/** Voltages measured by the 4 channels of ADC0 */
-static float adc_adc0Voltage[4] = {0.0f, 0.0f, 0.0f, 0.0f};
-/** Voltages measured by the 4 channels of ADC1 */
-static float adc_adc1Voltage[4] = {0.0f, 0.0f, 0.0f, 0.0f};
-/** LSB of ADC0, used to convert raw measurement to voltage in V */
-static float adc_lsb1 = 0.0f;
-/** LSB of ADC1, used to convert raw measurement to voltage in V */
-static float adc_lsb2 = 0.0f;
-
-/** local copy of the adc temperature table */
-static DATA_BLOCK_ADC_TEMPERATURE_s adc_tableTemperature = {.header.uniqueId = DATA_BLOCK_ID_ADC_TEMPERATURE};
+static DATA_BLOCK_ADC_VOLTAGE_s adc1Voltages = {.header.uniqueId = DATA_BLOCK_ID_ADC_VOLTAGE};
 
 /*========== Extern Constant and Variable Definitions =======================*/
 
 /*========== Static Function Prototypes =====================================*/
 
-/** transmission wrapper for the SPI communication to the ADC */
-static STD_RETURN_TYPE_e ADC_Transmit(
-    uint32 blocksize,
-    uint16 *pTxBuffer,
-    uint16 *pRxBuffer,
-    SPI_INTERFACE_CONFIG_s *pSpiInterface);
-
 /**
- * @brief   converts a raw voltage from ADC to a temperature value in Celsius.
- *
- * The temperatures are read from NTC elements via voltage dividers.
- * This function implements the look-up table between voltage and temperature,
- * taking into account the NTC characteristics and the voltage divider.
- *
- * @param   v_adc_V     voltage read from ADC in V
- * @param   TsensorType sensor type, dependent on ADC used (ADC0 or ADC1)
- *
- * @return  temperature value in deci &deg;C
+ * @brief   converts reading from ADC to a voltage in mV.
+ * @param   adcValue_mV     value read from ADC
+ * @return  voltage in mV
  */
-static float ADC_ConvertVoltagesToTemperatures(float v_adc_V, ADC_TEMPERATURE_SENSOR_TYPE_e TsensorType);
+static float ADC_ConvertVoltage(float adcValue_mV);
 
 /*========== Static Function Implementations ================================*/
 
-static STD_RETURN_TYPE_e ADC_Transmit(
-    uint32 blocksize,
-    uint16 *pTxBuffer,
-    uint16 *pRxBuffer,
-    SPI_INTERFACE_CONFIG_s *pSpiInterface) {
-    FAS_ASSERT(pTxBuffer != NULL_PTR);
-    FAS_ASSERT(pRxBuffer != NULL_PTR);
-    FAS_ASSERT(pSpiInterface != NULL_PTR);
+static float ADC_ConvertVoltage(float adcValue_mV) {
+    /** For details to equation see Equation 28 in Technical Reference Manual SPNU563A?March 2018 page 852 */
+    float result_mV = ((ADC_CONV_FACTOR_12BIT * (adcValue_mV - ADC_VREFLOW_mV)) / (ADC_VREFHIGH_mV - ADC_VREFLOW_mV)) -
+                      0.5f;
 
-    return SPI_TransmitReceiveData(pSpiInterface, pTxBuffer, pRxBuffer, blocksize);
-}
-
-static float ADC_ConvertVoltagesToTemperatures(float v_adc_V, ADC_TEMPERATURE_SENSOR_TYPE_e TsensorType) {
-    float temperature_degC = 0.0f;
-    if (TsensorType == ADC0_TEMPERATURE_SENSOR) {
-        temperature_degC = ADC_TEMPERATURE_FACTOR * TS_Epc00GetTemperatureFromLut((uint16_t)(v_adc_V * 1000.0f));
-    } else if (TsensorType == ADC1_TEMPERATURE_SENSOR) {
-        temperature_degC = ADC_TEMPERATURE_FACTOR * BETA_GetTemperatureFromBeta((uint16_t)(v_adc_V * 1000.0f));
-    } else {
-        temperature_degC = ADC_TEMPERATURE_FACTOR * v_adc_V;
-    }
-
-    return (10.0f * temperature_degC); /* Convert to deci &deg;C */
+    return result_mV;
 }
 
 /*========== Extern Function Implementations ================================*/
 
-void ADC_Initialize(void) {
-    /* set reset pin to output */
-    ADC_HET1_GIO->DIR |= (uint32)((uint32)1u << ADC_HET1_RESET_PIN);
+extern void ADC_Control(void) {
+    bool conversionFinished = true;
 
-    /* first set reset pin to 0 */
-    IO_PinReset(&ADC_HET1_GIO->DOUT, ADC_HET1_RESET_PIN);
-    /* wait after pin toggle */
-    for (uint8_t i = 0u; i < 20u; i++) {
-    }
-    /* set reset pin to 1 to go out of reset */
-    IO_PinSet(&ADC_HET1_GIO->DOUT, ADC_HET1_RESET_PIN);
-
-    /* LSB computation, datasheet equation 9 page 38 */
-    adc_lsb1 = (2 * ADC_VREF_1 / ADC_GAIN) / (16777216.0f);
-    adc_lsb2 = (2 * ADC_VREF_2 / ADC_GAIN) / (16777216.0f);
-}
-
-void ADC_Control(void) {
     switch (adc_conversionState) {
-        case ADC_INIT:
-            /* set reset pin to output */
-            ADC_HET1_GIO->DIR |= (uint32)((uint32)1u << ADC_HET1_RESET_PIN);
-            /* first set reset pin to 0 */
-            IO_PinReset(&ADC_HET1_GIO->DOUT, ADC_HET1_RESET_PIN);
-            adc_conversionState = ADC_ENDINIT;
+        case ADC_START_CONVERSION:
+            adcStartConversion(adcREG1, adcGROUP1);
+            adc_conversionState = ADC_WAIT_CONVERSION_FINISHED;
             break;
 
-        case ADC_ENDINIT:
-            /* set reset pin to 1 to go out of reset */
-            IO_PinSet(&ADC_HET1_GIO->DOUT, ADC_HET1_RESET_PIN);
-            /* LSB computation, datasheet equation 9 page 38 */
-            adc_lsb1            = (2 * ADC_VREF_1 / ADC_GAIN) / (16777216.0f);
-            adc_lsb2            = (2 * ADC_VREF_2 / ADC_GAIN) / (16777216.0f);
-            adc_conversionState = ADC_READY;
+        case ADC_WAIT_CONVERSION_FINISHED:
+            conversionFinished = true;
+            if (ADC_CONVERSION_ENDDBIT != adcIsConversionComplete(adcREG1, adcGROUP1)) {
+                conversionFinished = false;
+            }
+            if (conversionFinished == true) {
+                adc_conversionState = ADC_CONVERSION_FINISHED;
+            }
             break;
 
         /* Start initialization procedure, datasheet figure 106 page 79 */
-        case ADC_READY:
-            ADC_Transmit(SINGLE_MESSAGE_LENGTH, adc_txNull, adc_rxReadSingleMessage, &spi_adc0Interface);
-            /* if device 1 is ready after startup */
-            if (adc_rxReadSingleMessage[0] == 0xFF04u) {
-                ADC_Transmit(SINGLE_MESSAGE_LENGTH, adc_txNull, adc_rxReadSingleMessage, &spi_adc1Interface);
-                /* if device 2 is ready after startup */
-                if (adc_rxReadSingleMessage[0] == 0xFF04u) {
-                    adc_conversionState = ADC_UNLOCK;
-                }
+        case ADC_CONVERSION_FINISHED:
+            adcGetData(adcREG1, adcGROUP1, &adc1RawVoltages[0]);
+            for (uint8_t i = 0U; i < ADC_ADC1_MAX_NR_CHANNELS; i++) {
+                adc1Voltages.adc1ConvertedVoltages_mV[i] = ADC_ConvertVoltage((float)(adc1RawVoltages[i].value));
             }
-            break;
-
-        case ADC_UNLOCK:
-            ADC_Transmit(SINGLE_MESSAGE_LENGTH, adc_txUnlockCommand, adc_rxReadSingleMessage, &spi_adc0Interface);
-            ADC_Transmit(SINGLE_MESSAGE_LENGTH, adc_txUnlockCommand, adc_rxReadSingleMessage, &spi_adc1Interface);
-            adc_conversionState = ADC_UNLOCKED;
-            break;
-
-        case ADC_UNLOCKED:
-            ADC_Transmit(SINGLE_MESSAGE_LENGTH, adc_txNull, adc_rxReadSingleMessage, &spi_adc0Interface);
-            /* if unlock message received by ADC 1*/
-            if (adc_rxReadSingleMessage[0] == 0x0655u) {
-                ADC_Transmit(SINGLE_MESSAGE_LENGTH, adc_txNull, adc_rxReadSingleMessage, &spi_adc1Interface);
-                /* if unlock message received by ADC 2*/
-                if (adc_rxReadSingleMessage[0] == 0x0655u) {
-                    adc_conversionState = ADC_WRITE_ADC_ENA;
-                }
-            }
-            break;
-
-        case ADC_WRITE_ADC_ENA:
-            ADC_Transmit(
-                SINGLE_MESSAGE_LENGTH, adc_txWriteRegisterCommand, adc_rxReadSingleMessage, &spi_adc0Interface);
-            ADC_Transmit(
-                SINGLE_MESSAGE_LENGTH, adc_txWriteRegisterCommand, adc_rxReadSingleMessage, &spi_adc1Interface);
-            adc_conversionState = ADC_READ_ADC_ENA;
-            break;
-
-        case ADC_READ_ADC_ENA:
-            ADC_Transmit(SINGLE_MESSAGE_LENGTH, adc_txReadRegisterCommand, adc_rxReadSingleMessage, &spi_adc0Interface);
-            ADC_Transmit(SINGLE_MESSAGE_LENGTH, adc_txReadRegisterCommand, adc_rxReadSingleMessage, &spi_adc1Interface);
-            adc_conversionState = ADC_CHECK_ADC_ENA;
-            break;
-
-        case ADC_CHECK_ADC_ENA:
-            /* If register not written successfully, retry */
-            adc_conversionState = ADC_WRITE_ADC_ENA;
-            ADC_Transmit(SINGLE_MESSAGE_LENGTH, adc_txNull, adc_rxReadSingleMessage, &spi_adc0Interface);
-            /* if ADC 1 register written successfully */
-            if ((adc_rxReadSingleMessage[0] & 0xFFu) == 0x0Fu) {
-                ADC_Transmit(SINGLE_MESSAGE_LENGTH, adc_txNull, adc_rxReadSingleMessage, &spi_adc1Interface);
-                /* if ADC 1 register written successfully */
-                if ((adc_rxReadSingleMessage[0] & 0xFFu) == 0x0Fu) {
-                    adc_conversionState = ADC_WAKEUP;
-                }
-            }
-            break;
-
-        case ADC_WAKEUP:
-            ADC_Transmit(SINGLE_MESSAGE_LENGTH, adc_txWakeupCommand, adc_rxReadSingleMessage, &spi_adc0Interface);
-            ADC_Transmit(SINGLE_MESSAGE_LENGTH, adc_txWakeupCommand, adc_rxReadSingleMessage, &spi_adc1Interface);
-            adc_conversionState = ADC_LOCK;
-            break;
-
-        case ADC_LOCK:
-            ADC_Transmit(SINGLE_MESSAGE_LENGTH, adc_txLockCommand, adc_rxReadSingleMessage, &spi_adc0Interface);
-            ADC_Transmit(SINGLE_MESSAGE_LENGTH, adc_txLockCommand, adc_rxReadSingleMessage, &spi_adc1Interface);
-            adc_conversionState = ADC_CONVERT_1;
-            break;
-        /* end initialization procedure, datasheet figure 106 page 79 */
-
-        /* To read channel data (i.e., measured voltages), send null message */
-        case ADC_CONVERT_1:
-            /* The first 3 voltages are the NTCs located on the master board */
-            ADC_Transmit(CONVERT_LENGTH, adc_txConvert, adc_rxConvert, &spi_adc0Interface);
-            for (uint8_t i = 0u; i < ADC_NUMBER_OF_CHANNELS; i++) {
-                /* datasheet SBAS590D -MARCH 2016-REVISED JANUARY 2018 */
-                /* ADC in 32 bit mode (M1 tied to IOVDD via 1kOhm), 24 bits output by ADC, datasheet page 38 */
-                adc_adc0Voltage[i] = (adc_rxConvert[2u + (2u * i)] << 8u) |
-                                     ((adc_rxConvert[3u + (2u * i)] >> 8u) & 0xFFu);
-                adc_adc0Voltage[i] *= adc_lsb1;
-            }
-            adc_conversionState = ADC_CONVERT_2;
-            DATA_READ_DATA(&adc_tableTemperature);
-            for (uint8_t i = 0u; i < BS_NR_OF_TEMP_SENSORS_ON_ADC0; i++) {
-                adc_tableTemperature.temperatureAdc0_ddegC[i] =
-                    ADC_ConvertVoltagesToTemperatures(adc_adc0Voltage[i], ADC0_TEMPERATURE_SENSOR);
-            }
-            DATA_WRITE_DATA(&adc_tableTemperature);
-            break;
-
-        case ADC_CONVERT_2:
-            /* The first 3 voltages are the external NTCs connected to the master board */
-            ADC_Transmit(CONVERT_LENGTH, adc_txConvert, adc_rxConvert, &spi_adc1Interface);
-            for (uint8_t i = 0u; i < ADC_NUMBER_OF_CHANNELS; i++) {
-                /* ADC in 32 bit mode (M1 tied to IOVDD via 1kOhm), 24 bits output by ADC, datasheet page 38 */
-                adc_adc1Voltage[i] = (adc_rxConvert[2u + (2u * i)] << 8u) |
-                                     ((adc_rxConvert[3u + (2u * i)] >> 8u) & 0xFFu);
-                adc_adc1Voltage[i] *= adc_lsb2;
-            }
-            adc_conversionState = ADC_CONVERT_1;
-            DATA_READ_DATA(&adc_tableTemperature);
-            for (uint8_t i = 0u; i < BS_NR_OF_TEMP_SENSORS_ON_ADC1; i++) {
-                adc_tableTemperature.temperatureAdc1_ddegC[i] =
-                    ADC_ConvertVoltagesToTemperatures(adc_adc1Voltage[i], ADC1_TEMPERATURE_SENSOR);
-            }
-            DATA_WRITE_DATA(&adc_tableTemperature);
+            DATA_WRITE_DATA(&adc1Voltages);
+            adc_conversionState = ADC_START_CONVERSION;
             break;
 
         default:

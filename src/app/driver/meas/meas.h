@@ -79,60 +79,60 @@ extern STD_RETURN_TYPE_e MEAS_Initialize(void);
 extern void MEAS_Control(void);
 
 /**
- * @brief   Checks if the first MIC measurement cycle was made
+ * @brief   Checks if the first AFE measurement cycle was made
  * @return  true if the first measurement cycle was made, false otherwise
  */
 extern bool MEAS_IsFirstMeasurementCycleFinished(void);
 
 /**
- * @brief   Makes the initialization request to the MIC state machine
+ * @brief   Makes the initialization request to the AFE state machine
  */
 extern STD_RETURN_TYPE_e MEAS_StartMeasurement(void);
 
 /**
- * @brief   Makes the request to the MIC state machine to write to the IO
+ * @brief   Makes the request to the AFE state machine to write to the IO
  *          port-expander
  * @param   string      string addressed by the request
  */
 extern STD_RETURN_TYPE_e MEAS_RequestIoWrite(uint8_t string);
 
 /**
- * @brief   Makes the request to the MIC state machine to read from the IO
+ * @brief   Makes the request to the AFE state machine to read from the IO
  *          port-expander
  * @param   string      string addressed by the request
  */
 extern STD_RETURN_TYPE_e MEAS_RequestIoRead(uint8_t string);
 
 /**
- * @brief   Makes the request to the MIC state machine to read from the
+ * @brief   Makes the request to the AFE state machine to read from the
  *          external temperature sensor on slaves
  * @param   string      string addressed by the request
  */
 extern STD_RETURN_TYPE_e MEAS_RequestTemperatureRead(uint8_t string);
 
 /**
- * @brief   Makes the request to the MIC state machine to read balancing
+ * @brief   Makes the request to the AFE state machine to read balancing
  *          feedback from the slaves
  * @param   string      string addressed by the request
  */
 extern STD_RETURN_TYPE_e MEAS_RequestBalancingFeedbackRead(uint8_t string);
 
 /**
- * @brief   Makes the request to the MIC state machine to read from the
+ * @brief   Makes the request to the AFE state machine to read from the
  *          external EEPROM on slaves
  * @param   string      string addressed by the request
  */
 extern STD_RETURN_TYPE_e MEAS_RequestEepromRead(uint8_t string);
 
 /**
- * @brief   Makes the request to the MIC state machine to write to the external
+ * @brief   Makes the request to the AFE state machine to write to the external
  *          EEPROM on slaves
  * @param   string      string addressed by the request
  */
 extern STD_RETURN_TYPE_e MEAS_RequestEepromWrite(uint8_t string);
 
 /**
- * @brief   Makes the request to the MIC state machine to perform open-wire check
+ * @brief   Makes the request to the AFE state machine to perform open-wire check
  * @param   string      string addressed by the request
  */
 extern STD_RETURN_TYPE_e MEAS_RequestOpenWireCheck(uint8_t string);

@@ -365,12 +365,12 @@ extern uint32_t CAN_TxStringState(
 
     /* Error: Daisy-chain redundancy: CRC: TODO */
     /* Error: Daisy-chain base: Voltage out of operating range */
-    data = kpkCanShim->pTableErrorState->micCellvoltageError[stringNumber];
+    data = kpkCanShim->pTableErrorState->afeCellvoltageError[stringNumber];
     CAN_TxSetMessageDataWithSignalData(&message, 39u, 1u, data, endianness);
 
     /* Error: Daisy-chain redundancy: Voltage out of operating range: TODO */
     /* Error: Daisy-chain base: Temperature out of operating range */
-    data = kpkCanShim->pTableErrorState->micCellTemperatureError[stringNumber];
+    data = kpkCanShim->pTableErrorState->afeCellTemperatureError[stringNumber];
     CAN_TxSetMessageDataWithSignalData(&message, 41u, 1u, data, endianness);
 
     /* Error: Daisy-chain redundancy: Voltage out of operating range: TODO */

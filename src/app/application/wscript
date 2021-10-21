@@ -80,6 +80,7 @@ def build(bld):
         os.path.join("..", "driver", "dma"),
         os.path.join("..", "driver", "foxmath"),
         os.path.join("..", "driver", "fram"),
+        os.path.join("..", "driver", "led"),
         os.path.join("..", "driver", "meas"),
         os.path.join("..", "driver", "sbc"),
         os.path.join("..", "driver", "sbc", "fs8x_driver"),
@@ -92,7 +93,7 @@ def build(bld):
         os.path.join("..", "task", "config"),
         os.path.join("..", "task", "os"),
     ]
-    includes.extend(bld.env.INCLUDES_OPERATING_SYSTEM + bld.env.INCLUDES_MEASUREMENT_IC)
+    includes.extend(bld.env.INCLUDES_OPERATING_SYSTEM + bld.env.INCLUDES_AFE)
     cflags = bld.env.CFLAGS_FOXBMS
     target = f"{bld.env.APPNAME.lower()}-application"
 

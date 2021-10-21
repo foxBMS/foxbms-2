@@ -53,6 +53,7 @@
 
 /*========== Includes =======================================================*/
 #include "unity.h"
+#include "Mockafe.h"
 #include "Mockalgorithm.h"
 #include "Mockbal.h"
 #include "Mockbms.h"
@@ -65,7 +66,6 @@
 #include "Mockimd.h"
 #include "Mockinterlock.h"
 #include "Mockmeas.h"
-#include "Mockmic.h"
 #include "Mockos.h"
 #include "Mocksbc.h"
 #include "Mocksof.h"

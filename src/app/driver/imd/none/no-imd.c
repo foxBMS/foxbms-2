@@ -43,9 +43,9 @@
  * @file    no-imd.c
  * @author  foxBMS Team
  * @date    2020-11-20 (date of creation)
- * @updated 2020-11-20 (date of last update)
+ * @updated 2021-09-08 (date of last update)
  * @ingroup DRIVERS
- * @prefix  NONE
+ * @prefix  NOIMD
  *
  * @brief   Driver for the dummy insulation monitoring driver
  *
@@ -61,35 +61,35 @@
 
 /*========== Static Constant and Variable Definitions =======================*/
 /** internal handle for the database table of the insulation monitoring driver */
-static DATA_BLOCK_INSULATION_MONITORING_s iso_insulationMeasurement = {
+static DATA_BLOCK_INSULATION_MONITORING_s noimd_insulationMeasurement = {
     .header.uniqueId = DATA_BLOCK_ID_INSULATION_MONITORING};
 
 /*========== Extern Constant and Variable Definitions =======================*/
 
 /*========== Static Function Prototypes =====================================*/
-static STD_RETURN_TYPE_e IMD_MeasureInsulation(void);
+static STD_RETURN_TYPE_e NOIMD_MeasureInsulation(void);
 
 /*========== Static Function Implementations ================================*/
-static STD_RETURN_TYPE_e IMD_MeasureInsulation(void) {
-    iso_insulationMeasurement.valid                     = 0;
-    iso_insulationMeasurement.state                     = 0;
-    iso_insulationMeasurement.insulationResistance_kOhm = 10000000;
-    iso_insulationMeasurement.insulationFault           = 0;
-    iso_insulationMeasurement.chassisFault              = 0;
-    iso_insulationMeasurement.systemFailure             = 0;
-    iso_insulationMeasurement.insulationWarning         = 0;
-    DATA_WRITE_DATA(&iso_insulationMeasurement);
+static STD_RETURN_TYPE_e NOIMD_MeasureInsulation(void) {
+    noimd_insulationMeasurement.valid                     = 0;
+    noimd_insulationMeasurement.state                     = 0;
+    noimd_insulationMeasurement.insulationResistance_kOhm = 10000000;
+    noimd_insulationMeasurement.insulationFault           = 0;
+    noimd_insulationMeasurement.chassisFault              = 0;
+    noimd_insulationMeasurement.systemFailure             = 0;
+    noimd_insulationMeasurement.insulationWarning         = 0;
+    DATA_WRITE_DATA(&noimd_insulationMeasurement);
     return STD_OK;
 }
 
 /*========== Extern Function Implementations ================================*/
 extern void IMD_Trigger(void) {
-    IMD_MeasureInsulation();
+    NOIMD_MeasureInsulation();
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
 #ifdef UNITY_UNIT_TEST
-extern STD_RETURN_TYPE_e TEST_IMD_MeasureInsulation() {
-    return IMD_MeasureInsulation();
+extern STD_RETURN_TYPE_e TEST_NOIMD_MeasureInsulation() {
+    return NOIMD_MeasureInsulation();
 }
 #endif

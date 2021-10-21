@@ -1,4 +1,6 @@
 ADI
+AFE
+AFEs
 addon
 addons
 alphanumericals
@@ -48,6 +50,7 @@ freeRTOS
 GitLab
 goto
 graphviz
+gravis
 halcogen
 HALCoGen
 ifndef
@@ -110,6 +113,7 @@ scikit
 scipy
 Segger
 seh
+Sensirion
 SOE
 SOH
 SPI

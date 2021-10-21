@@ -61,7 +61,7 @@
 /**
  * @ingroup CONFIG_PLAUSIBILITY
  * @brief   Maximum difference between pack voltage measurement from
- *          Measurement IC and current sensor
+ *          AFE and current sensor
  * @ptype   int
  * \par Range:
  * [0, 10000]

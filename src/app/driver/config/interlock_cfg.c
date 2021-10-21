@@ -43,7 +43,7 @@
  * @file    interlock_cfg.c
  * @author  foxBMS Team
  * @date    2020-02-24 (date of creation)
- * @updated 2020-02-24 (date of last update)
+ * @updated 2021-10-18 (date of last update)
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  CONT
  *
@@ -59,9 +59,6 @@
 /*========== Static Constant and Variable Definitions =======================*/
 
 /*========== Extern Constant and Variable Definitions =======================*/
-ILCK_CONFIG_s ilck_interlock_config = {ILCK_INTERLOCK_CONTROL, ILCK_INTERLOCK_FEEDBACK, ILCK_FEEDBACK_TYPE_DONT_CARE};
-
-ILCK_ELECTRICAL_STATE_s ilck_interlock_state = {ILCK_SWITCH_OFF, ILCK_SWITCH_OFF};
 
 /*========== Static Function Prototypes =====================================*/
 

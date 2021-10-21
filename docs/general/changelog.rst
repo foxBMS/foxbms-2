@@ -34,18 +34,81 @@ Versioning follows then these rules:
 - increasing ``PATCH`` fixes bugs in a backwards compatible manner
 
 ********************
+[1.2.0] - 2021-10-21
+********************
+
+Added
+=====
+
+- Added stubs for the Bender IR155 insulation monitoring device driver (i.e.
+  **driver is non-functional**).
+- Extended the documentation with a render of the architecture against which
+  the foxBMS implementation is checked.
+- Added driver for I2C communication for MCU.
+- Added driver for I2C port expander.
+- Added driver for I2C humidity/temperature sensor.
+- Implemented feedback through auxiliary contacts for the contactor driver.
+- Debug LED is now toggled depending on system state (slow: okay, fast: error)
+- Added an option to install a pre-commit hook in the repository.
+  The pre-commit hook runs the guidelines check (see :ref:`WAF_TOOL_GIT_HOOKS`).
+- Added a driver module that allows to use the enhanced PWM features of the MCU.
+- Adapted CAN module to receive/transmit messages either via CAN1 or CAN2.
+- Annotate maximum stack size in FreeRTOS so that debugger can catch this
+  information.
+- Updated the hardware design files (e.g., schematics, layout, BOM and STEP
+  file etc.) of the |bms-master|  to ``v1.1.1``.
+- Added information on citing the project in ``CFF`` format.
+- Added driver for interlock.
+
+Changed
+=======
+
+- The measurement IC (``MIC``) module has been renamed to Analog Front-End
+  (``AFE``).
+- ``build_all`` and ``clean_all`` need to run the Axivion related commands as
+  last steps.
+- The file content of the linker script for the elf file is now hashed using
+  Unix-style line endings as this is more robust (e.g., downloaded zip files
+  from GitHub releases).
+- Sort the SPI formats so that there are no conflicts between the configuration
+  on SPI1 and SPI4 (Both are connected to the interface connector).
+- Control the pins of the interface for LTC AFEs with the port expander on the
+  foxBMS 2 master board.
+- The documentation build defaults now only to ``html`` and ``spelling``,
+  .i.e., ``linkcheck`` has been removed.
+
+Deprecated
+==========
+
+Removed
+=======
+
+- Removed unused code in main build script.
+
+Fixed
+=====
+
+- Fixed variable name typos in ``moving_average.c``.
+- A specific order of build/clean commands related to Axivion build and clean
+  commands resulted in build errors.
+  Now the build is early aborted if a wrong order is supplied and a
+  descriptive error message is printed to stderr.
+- The documentation included a wrong statement about how to configure FreeRTOS.
+- Battery voltage is now transmitted correctly via CAN (ID: 0x222).
+
+********************
 [1.1.2] - 2021-09-03
 ********************
 
 Added
 =====
 
-- A basic block diagram and description of a battery system and the voltages
+- A basic block diagram and description of a battery system and the voltages.
   and the currents that need to be measured have been included in the
   documentation.
 - Add helper script to run the library test build
   (``tests/variants/lib-build/lib-build.bat``).
-- Updated the Axivion configuration to use version 7.2.3.
+- Updated the Axivion configuration to use version ``7.2.3``.
 - Added minimal documentation for Axivion setup.
 - Improved the Axivion configuration:
 
@@ -344,7 +407,7 @@ Fixed
   license is also formally known as *BSD 3-Clause "New" or "Revised" License*.
   As of this release |foxbms| added the SPDX short identifier to the software
   sources (``SPDX-License-Identifier: BSD-3-Clause``) according to
-  `SPDX Specification Version 2.2 <https://spdx.github.io/spdx-spec/appendix-V-using-SPDX-short-identifiers-in-source-files/#appendix-v-using-spdx-license-list-short-identifiers-in-source-files>`_.
+  `SPDX Specification Version 2.2 <https://spdx.dev/specifications/>`_.
   The license text of the
   `Creative Commons Attribution 4.0 International License <https://creativecommons.org/licenses/by/4.0/>`_
   has been added to the repository. The SPDX short name of this license is
@@ -583,7 +646,6 @@ Removed
 
 - Removed the deprecated Anaconda extension from the list of recommended
   Visual Studio Code plugins that is shipped with the project.
-- Suppressed the (uncovered) ADI-driver from the unit-test-report.
 
 Fixed
 =====

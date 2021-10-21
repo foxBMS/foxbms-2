@@ -1,6 +1,6 @@
 {
     "slave-unit": {
-        "measurement-ic": {
+        "analog-front-end": {
             "manufacturer": "debug",
             "chip": "default"
         },

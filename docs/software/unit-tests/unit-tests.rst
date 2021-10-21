@@ -264,10 +264,6 @@ similar to this:
 
     Could not find coverage results for ../../src/app/driver/io/io.c
 
-    Could not find coverage results for ../../src/app/driver/mic/ltc/common/mic_dma.c
-
-    Could not find coverage results for ../../src/app/driver/mic/nxp/common/mic_dma.c
-
     [...]
 
     There were files with no coverage results: aborting.

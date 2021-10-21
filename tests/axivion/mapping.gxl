@@ -23,10 +23,10 @@
     <node id="N6651">
       <type xlink:href="Directory"/>
       <attr name="Source.Name">
-        <string>mic</string>
+        <string>afe</string>
       </attr>
       <attr name="Linkage.Name">
-        <string>D src/app/driver/mic</string>
+        <string>D src/app/driver/afe</string>
       </attr>
     </node>
     <node id="N6668">
@@ -752,7 +752,7 @@
     <node id="N14622">
       <type xlink:href="Cluster"/>
       <attr name="Source.Name">
-        <string>Measurement IC</string>
+        <string>Analog Front-End</string>
       </attr>
       <attr name="Linkage.Name">
         <string>515b9069-5530-4897-9777-6af92794f278</string>

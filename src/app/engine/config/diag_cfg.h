@@ -43,7 +43,7 @@
  * @file    diag_cfg.h
  * @author  foxBMS Team
  * @date    2019-11-28 (date of creation)
- * @updated 2021-07-29 (date of last update)
+ * @updated 2021-10-19 (date of last update)
  * @ingroup ENGINE_CONFIGURATION
  * @prefix  DIAG
  *
@@ -117,8 +117,8 @@
 #define DIAG_DELAY_TEMPERATURE_ms (1000u)
 /** delay for overcurrent errors */
 #define DIAG_DELAY_OVERCURRENT_ms (100u)
-/** delay for mic related errors */
-#define DIAG_DELAY_MIC_ms (100u)
+/** delay for AFE related errors */
+#define DIAG_DELAY_AFE_ms (100u)
 /** delay for can timing error */
 #define DIAG_DELAY_CAN_TIMING_ms (200u)
 /** delay for energy counting/coulomb counting timing error */
@@ -167,8 +167,8 @@ typedef enum DIAG_ID {
     DIAG_ID_CAN_EC_RESPONDING,
     DIAG_ID_CURRENT_SENSOR_RESPONDING,
     DIAG_ID_PLAUSIBILITY_CELL_VOLTAGE,
-    DIAG_ID_MEASUREMENT_IC_CELL_VOLTAGE_MEAS_ERROR,
-    DIAG_ID_MEASUREMENT_IC_CELL_TEMPERATURE_MEAS_ERROR,
+    DIAG_ID_AFE_CELL_VOLTAGE_MEAS_ERROR,
+    DIAG_ID_AFE_CELL_TEMPERATURE_MEAS_ERROR,
     DIAG_ID_PLAUSIBILITY_CELL_TEMP,
     DIAG_ID_PLAUSIBILITY_CELL_VOLTAGE_SPREAD,
     DIAG_ID_PLAUSIBILITY_CELL_TEMPERATURE_SPREAD,
@@ -226,7 +226,8 @@ typedef enum DIAG_ID {
     DIAG_ID_INSULATION_MEASUREMENT_INVALID,
     DIAG_ID_INSULATION_ERROR,
     DIAG_ID_INSULATION_GROUND_ERROR,
-    DIAG_ID_MAX, /**< MAX indicator - do not change */
+    DIAG_ID_I2C_PEX_ERROR, /**< general error with the port expanders */
+    DIAG_ID_MAX,           /**< MAX indicator - do not change */
 } DIAG_ID_e;
 
 /** diagnosis check result (event) */
@@ -272,9 +273,9 @@ typedef enum DIAG_IMPACT_LEVEL {
 
 /** diagnosis severity level */
 typedef enum DIAG_SEVERITY_LEVEL {
-    DIAG_FATAL_ERROR,
-    DIAG_WARNING,
-    DIAG_INFO,
+    DIAG_FATAL_ERROR, /*!< severity level fatal error */
+    DIAG_WARNING,     /*!< severity level warning */
+    DIAG_INFO,        /*!< severity level info */
 } DIAG_SEVERITY_LEVEL_e;
 
 /** diagnosis recording activation */

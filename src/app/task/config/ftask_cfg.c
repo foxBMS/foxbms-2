@@ -43,7 +43,7 @@
  * @file    ftask_cfg.c
  * @author  foxBMS Team
  * @date    2019-08-26 (date of creation)
- * @updated 2021-07-23 (date of last update)
+ * @updated 2021-09-30 (date of last update)
  * @ingroup TASK_CONFIGURATION
  * @prefix  FTSK
  *
@@ -62,13 +62,18 @@
 #include "bal.h"
 #include "bms.h"
 #include "can.h"
+#include "contactor.h"
 #include "database.h"
 #include "diag.h"
 #include "dma.h"
 #include "fram.h"
+#include "htsensor.h"
+#include "i2c.h"
 #include "imd.h"
 #include "interlock.h"
+#include "led.h"
 #include "meas.h"
+#include "pex.h"
 #include "redundancy.h"
 #include "sbc.h"
 #include "sof.h"
@@ -156,14 +161,22 @@ extern void FTSK_InitializeUserCodePreCyclicTasks(void) {
     /* user code */
     SYS_RETURN_TYPE_e sys_retVal = SYS_ILLEGAL_REQUEST;
 
-    /* Set pin linked to debug LED as output */
-    hetREG1->DIR |= (uint32)((uint32)1U << 1U);
-
     /*  Init Sys */
     sys_retVal = SYS_SetStateRequest(SYS_STATE_INIT_REQUEST);
 
     /* Init FRAM */
     FRAM_Initialize();
+
+    /* Init port expander */
+    PEX_Initialize();
+
+    /* Set 3rd PE pin to activate temperature/humidity sensor */
+    PEX_SetPinDirectionOutput(PEX_PORT_EXPANDER3, PEX_PIN00);
+    PEX_SetPin(PEX_PORT_EXPANDER3, PEX_PIN00);
+
+    CONT_Initialize();
+    SPS_Initialize();
+    (void)MEAS_Initialize(); /* cast to void as the return value is unused */
 
     /* Initialize redundancy module */
     (void)MRC_Initialize();
@@ -174,6 +187,9 @@ extern void FTSK_InitializeUserCodePreCyclicTasks(void) {
      * always be #SYS_OK. Therefore we trap otherwise.
      */
     FAS_ASSERT(sys_retVal == SYS_OK);
+
+    /* System started correctly -> Start toggling of debug LED */
+    LED_SetToggleTime(LED_NORMAL_OPERATION_ON_OFF_TIME_ms);
 }
 
 extern void FTSK_RunUserCodeCyclic1ms(void) {
@@ -192,14 +208,16 @@ extern void FTSK_RunUserCodeCyclic10ms(void) {
     SYS_Trigger(&sys_state);
     BMS_Trigger();
     ILCK_Trigger();
-    ADC_Control(); /* TODO: check for shared SPI */
+    ADC_Control();
     SPS_Ctrl();
     CAN_MainFunction();
     SOF_Calculation();
     ALGO_MonitorExecutionTime();
     SBC_Trigger(&sbc_stateMcuSupervisor);
+    PEX_Trigger();
+    HTSEN_Trigger();
     if (cnt == TASK_10MS_COUNTER_FOR_50MS) {
-        MRC_ValidateMicMeasurement();
+        MRC_ValidateAfeMeasurement();
         MRC_ValidatePackMeasurement();
         cnt = 0;
     }
@@ -221,6 +239,7 @@ extern void FTSK_RunUserCodeCyclic100ms(void) {
 
     BAL_Trigger();
     IMD_Trigger();
+    LED_Trigger();
 
     ftsk_cyclic100msCounter++;
 }

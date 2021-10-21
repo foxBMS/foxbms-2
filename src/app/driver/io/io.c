@@ -67,6 +67,20 @@
 
 /*========== Extern Function Implementations ================================*/
 
+extern void IO_SetPinDirectionToOutput(volatile uint32_t *pRegisterAddress, uint32_t pin) {
+    FAS_ASSERT(pRegisterAddress != NULL_PTR);
+    FAS_ASSERT(pin <= LARGEST_PIN_NUMBER);
+
+    *pRegisterAddress |= (uint32_t)((uint32_t)1u << pin);
+}
+
+extern void IO_SetPinDirectionToInput(volatile uint32_t *pRegisterAddress, uint32_t pin) {
+    FAS_ASSERT(pRegisterAddress != NULL_PTR);
+    FAS_ASSERT(pin <= LARGEST_PIN_NUMBER);
+
+    *pRegisterAddress &= ~(uint32_t)((uint32_t)1u << pin);
+}
+
 extern void IO_PinSet(volatile uint32_t *pRegisterAddress, uint32_t pin) {
     FAS_ASSERT(pRegisterAddress != NULL_PTR);
     FAS_ASSERT(pin <= LARGEST_PIN_NUMBER);

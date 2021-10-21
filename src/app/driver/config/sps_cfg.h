@@ -43,7 +43,7 @@
  * @file    sps_cfg.h
  * @author  foxBMS Team
  * @date    2020-10-14 (date of creation)
- * @updated 2020-10-14 (date of last update)
+ * @updated 2021-10-01 (date of last update)
  * @ingroup DRIVERS_CONF
  * @prefix  SPS
  *
@@ -64,16 +64,22 @@
 /*========== Macros and Definitions =========================================*/
 
 /** GIO defines for pin to drive reset line of SPS @{ */
-#define SPS_RESET_GIOPORT     (hetREG2->DOUT)
-#define SPS_RESET_GIOPORT_DIR (hetREG2->DIR)
-#define SPS_RESET_PIN         (16u)
+#define SPS_RESET_GIO_PORT     (hetREG2->DOUT)
+#define SPS_RESET_GIO_PORT_DIR (hetREG2->DIR)
+#define SPS_RESET_PIN          (16u)
+/**@}*/
+
+/** GIO defines for pin to drive feedback enable MOSFET of SPS @{ */
+#define SPS_FEEDBACK_GIO_PORT     (hetREG2->DOUT)
+#define SPS_FEEDBACK_GIO_PORT_DIR (hetREG2->DIR)
+#define SPS_FEEDBACK_PIN          (9u)
 /**@}*/
 
 /** Each SPS IC has four outputs */
 #define SPS_NR_CONTACTOR_PER_IC (4u)
 
 /** Number of SPS IC that are populated on the hardware (in daisy-chain) */
-#define SPS_NR_OF_IC (3u)
+#define SPS_NR_OF_IC (2u)
 
 /** One channel for each contactor is required in this application */
 #define SPS_NR_OF_REQUIRED_CONTACTOR_CHANNELS (BS_NR_OF_CONTACTORS)
@@ -178,6 +184,12 @@ typedef struct SPS_CHANNEL_STATE {
     const float thresholdFeedbackOn_mA; /*!< current threshold in mA above which the channel is considered "on" */
 } SPS_CHANNEL_STATE_s;
 
+/** SPS channel mapping to feedback pin */
+typedef struct SPS_CHANNEL_FEEDBACK_MAPPING {
+    const uint8_t pexDevice;  /*!< port expander number */
+    const uint8_t pexChannel; /*!< pin number on the addresses port expander */
+} SPS_CHANNEL_FEEDBACK_MAPPING_s;
+
 /*================== Main precharge configuration ====================*/
 
 /*========== Extern Constant and Variable Declarations ======================*/
@@ -208,6 +220,8 @@ typedef enum SPS_ACTION {
 } SPS_ACTION_e;
 
 extern SPS_CHANNEL_STATE_s sps_channelStatus[SPS_NR_OF_AVAILABLE_SPS_CHANNELS];
+
+extern const SPS_CHANNEL_FEEDBACK_MAPPING_s sps_kChannelFeedbackMapping[SPS_NR_OF_AVAILABLE_SPS_CHANNELS];
 
 /*========== Extern Function Prototypes =====================================*/
 

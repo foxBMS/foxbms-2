@@ -43,7 +43,7 @@
  * @file    bender_iso165c.h
  * @author  foxBMS Team
  * @date    2019-04-07 (date of creation)
- * @updated 2021-01-19 (date of last update)
+ * @updated 2021-09-08 (date of last update)
  * @ingroup DRIVERS
  * @prefix  I165C
  *
@@ -90,14 +90,6 @@ typedef enum I165C_STATE {
 /*========== Extern Constant and Variable Declarations ======================*/
 
 /*========== Extern Function Prototypes =====================================*/
-
-/**
- * @brief   trigger function for the i165c driver state machine.
- * @details This function contains the sequence of events in the i165c state
- *          machine.
- *          It must be called time-triggered, every 100ms.
- */
-extern void I165C_Trigger(void);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 #ifdef UNITY_UNIT_TEST

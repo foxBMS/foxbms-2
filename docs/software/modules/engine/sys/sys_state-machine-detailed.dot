@@ -42,6 +42,7 @@ digraph sys_fsm_states_detailed {
                                     nd_error;
     node [shape = circle]           nd_initialization_check_deep_discharge
                                     nd_initialization_sbc
+                                    nd_initialization_can
                                     nd_initialization_send_boot_message
                                     nd_initialization_interlock
                                     nd_initialization_contactors
@@ -52,6 +53,7 @@ digraph sys_fsm_states_detailed {
     nd_uninitialized                            [label=<<B>Uninitialized</B>>];
     nd_initialization_check_deep_discharge      [label=<<B>I</B><SUB>CDDC</SUB>>];
     nd_initialization_sbc                       [label=<<B>I</B><SUB>SBC</SUB>>];
+    nd_initialization_can                       [label=<<B>I</B><SUB>CAN</SUB>>];
     nd_initialization_send_boot_message         [label=<<B>I</B><SUB>BOOT</SUB>>];
     nd_initialization_interlock                 [label=<<B>I</B><SUB>ILCK</SUB>>];
     nd_initialization_contactors                [label=<<B>I</B><SUB>CONT</SUB>>];
@@ -65,7 +67,8 @@ digraph sys_fsm_states_detailed {
 
     nd_uninitialized                        -> nd_initialization_check_deep_discharge      [label = "Initialize"]
     nd_initialization_check_deep_discharge  -> nd_initialization_sbc
-    nd_initialization_sbc                   -> nd_initialization_send_boot_message
+    nd_initialization_sbc                   -> nd_initialization_can
+    nd_initialization_can                   -> nd_initialization_send_boot_message
     nd_initialization_send_boot_message     -> nd_initialization_interlock
     nd_initialization_interlock             -> nd_initialization_contactors
     nd_initialization_contactors            -> nd_initialization_balancing

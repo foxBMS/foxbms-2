@@ -1,0 +1,2 @@
+#!/bin/sh
+./waf.sh check_guidelines

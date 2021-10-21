@@ -43,7 +43,7 @@
  * @file    dma_cfg.h
  * @author  foxBMS Team
  * @date    2020-03-05 (date of creation)
- * @updated 2020-03-05 (date of last update)
+ * @updated 2021-09-28 (date of last update)
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  DMA
  *
@@ -65,10 +65,23 @@
 
 /*========== Macros and Definitions =========================================*/
 
-/** number of spi interfaces for DMA */
-#define DMA_NUMBER_SPI_INTERFACES 5U
+/** defines for the DMA channels */
+/**@{*/
+#define DMA_CHANNEL_SPI1_TX (DMA_CH0)
+#define DMA_CHANNEL_SPI1_RX (DMA_CH1)
+#define DMA_CHANNEL_SPI2_TX (DMA_CH2)
+#define DMA_CHANNEL_SPI2_RX (DMA_CH3)
+#define DMA_CHANNEL_SPI3_TX (DMA_CH4)
+#define DMA_CHANNEL_SPI3_RX (DMA_CH5)
+#define DMA_CHANNEL_SPI4_TX (DMA_CH6)
+#define DMA_CHANNEL_SPI4_RX (DMA_CH7)
+#define DMA_CHANNEL_SPI5_TX (DMA_CH8)
+#define DMA_CHANNEL_SPI5_RX (DMA_CH9)
+#define DMA_CHANNEL_I2C_TX  (DMA_CH10)
+#define DMA_CHANNEL_I2C_RX  (DMA_CH11)
+/**@}*/
 
-/** defines for the DMA request lines (and to which SPI they belong) */
+/** defines for the DMA request lines */
 /**@{*/
 #define DMA_REQ_LINE_SPI1_TX (DMA_REQ1)
 #define DMA_REQ_LINE_SPI1_RX (DMA_REQ0)
@@ -80,12 +93,17 @@
 #define DMA_REQ_LINE_SPI4_RX (DMA_REQ24)
 #define DMA_REQ_LINE_SPI5_TX (DMA_REQ31)
 #define DMA_REQ_LINE_SPI5_RX (DMA_REQ30)
+#define DMA_REQ_LINE_I2C_TX  (DMA_REQ11)
+#define DMA_REQ_LINE_I2C_RX  (DMA_REQ10)
 /**@}*/
 
 /** define for the shift of an address for big endian 8bit */
 #define DMA_BIG_ENDIAN_ADDRESS_8BIT (3U)
 /** define for the shift of an address for big endian 16bit */
 #define DMA_BIG_ENDIAN_ADDRESS_16BIT (2U)
+
+/** number of spi interfaces for DMA */
+#define DMA_NUMBER_SPI_INTERFACES 5U
 /** DMA Request enable bit */
 #define DMAREQEN_BIT (0x10000U)
 /** SPI enable bit */

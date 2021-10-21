@@ -43,7 +43,7 @@
  * @file    main.c
  * @author  foxBMS Team
  * @date    2019-08-27 (date of creation)
- * @updated 2021-08-06 (date of last update)
+ * @updated 2021-10-08 (date of last update)
  * @ingroup GENERAL
  * @prefix  TODO
  *
@@ -56,21 +56,22 @@
 #include "main.h"
 
 #include "HL_can.h"
+#include "HL_etpwm.h"
 #include "HL_gio.h"
+#include "HL_het.h"
+#include "HL_pinmux.h"
 #include "HL_spi.h"
 #include "HL_sys_core.h"
 
 #include "adc.h"
-#include "can.h"
 #include "checksum.h"
-#include "contactor.h"
 #include "diag.h"
 #include "dma.h"
 #include "foxmath.h"
+#include "i2c.h"
+#include "led.h"
 #include "masterinfo.h"
-#include "meas.h"
 #include "os.h"
-#include "sps.h"
 
 /*========== Macros and Definitions =========================================*/
 
@@ -86,15 +87,17 @@
 int main(void) {
     MINFO_SetResetSource(getResetSource()); /* Get reset source and clear respective flags */
     _enable_IRQ_interrupt_();
+    muxInit();
     gioInit();
     canInit();
     spiInit();
-    CONT_Initialize();
-    SPS_Initialize();
-    MEAS_Initialize();
+    adcInit();
+    hetInit();
+    etpwmInit();
+    LED_SetDebugLED();
+    I2C_Initialize();
     DMA_Initialize();
     DIAG_Initialize(&diag_device);
-    CAN_Initialize();
     MATH_StartupSelfTest();
 
     OS_InitializeOperatingSystem();

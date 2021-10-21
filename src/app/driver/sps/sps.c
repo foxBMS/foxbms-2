@@ -43,7 +43,7 @@
  * @file    sps.c
  * @author  foxBMS Team
  * @date    2020-10-14 (date of creation)
- * @updated 2021-07-14 (date of last update)
+ * @updated 2021-10-01 (date of last update)
  * @ingroup DRIVERS
  * @prefix  SPS
  *
@@ -58,6 +58,7 @@
 #include "io.h"
 #include "mcu.h"
 #include "os.h"
+#include "pex.h"
 #include "spi.h"
 
 /*========== Macros and Definitions =========================================*/
@@ -248,9 +249,14 @@ static void SPS_RequestChannelState(SPS_CHANNEL_INDEX channelIndex, SPS_CHANNEL_
 /*========== Static Function Implementations ================================*/
 static void SPS_InitializeIo(void) {
     /** Pin to drive reset line of SPS ICs */
-    SPS_RESET_GIOPORT_DIR |= (uint32)((uint32)1u << SPS_RESET_PIN);
+    SPS_RESET_GIO_PORT_DIR |= (uint32)((uint32)1u << SPS_RESET_PIN);
     /** Pin to drive Chip Select line of SPS ICs */
     SPS_SPI_CS_GIOPORT_DIR |= (uint32)((uint32)1u << SPS_SPI_CS_PIN);
+
+    /* set feedback enable as output */
+    SETBIT(SPS_FEEDBACK_GIO_PORT_DIR, SPS_FEEDBACK_PIN);
+    /* enable output on feedback enable */
+    IO_PinSet(&SPS_FEEDBACK_GIO_PORT, SPS_FEEDBACK_PIN);
 }
 
 static void SPS_GlobalRegisterRead(
@@ -265,8 +271,8 @@ static void SPS_GlobalRegisterRead(
         }
     } else if (controlOrDiagnostic == SPS_READ_CONTROL_REGISTER) {
         for (uint8_t i = 0u; i < SPS_SPI_BUFFERSIZE; i++) {
-            pSpiTxBuffer[i] = (address << SPS_ADDRESS_BIT_START) | /* Register address */
-                              (1u << SPS_DIAG_CTRL_BIT_POSITION);  /* Select diagnostic register */
+            pSpiTxBuffer[i] = (address << SPS_ADDRESS_BIT_START) |          /* Register address */
+                              ((uint16_t)1u << SPS_DIAG_CTRL_BIT_POSITION); /* Select diagnostic register */
         }
     } else {
         /* Invalid access type */
@@ -277,9 +283,9 @@ static void SPS_GlobalRegisterRead(
 static void SPS_GlobalRegisterWrite(const uint16_t address, uint8_t writeData, uint16_t *pSpiTxBuffer) {
     FAS_ASSERT(pSpiTxBuffer != NULL_PTR);
     for (uint8_t i = 0u; i < SPS_SPI_BUFFERSIZE; i++) {
-        pSpiTxBuffer[i] = (1u << SPS_RW_BIT_POSITION) |        /* R/W bit = 1 to write */
-                          (address << SPS_ADDRESS_BIT_START) | /* Register address */
-                          (writeData);                         /* Data to write */
+        pSpiTxBuffer[i] = ((uint16_t)1u << SPS_RW_BIT_POSITION) | /* R/W bit = 1 to write */
+                          (address << SPS_ADDRESS_BIT_START) |    /* Register address */
+                          (writeData);                            /* Data to write */
     }
 }
 
@@ -297,19 +303,22 @@ static void SPS_SingleDeviceRegisterWrite(
        devices 0-1-2 in the daisy-chain, the sequence 2-1-0 has to be sent.
      */
     /* Keep the previous data which lies in the lower 8 bits */
-    uint8_t preceedingWriteData = (pSpiTxBuffer[(SPS_SPI_BUFFERSIZE - 1u - device)]) & 0xFFu;
+    uint8_t preceedingWriteData = (uint8_t)((pSpiTxBuffer[(SPS_SPI_BUFFERSIZE - 1u - device)]) & 0xFFu);
     /* Clear write data which will be replaced */
     pSpiTxBuffer[(SPS_SPI_BUFFERSIZE - 1u - device)] &= 0xFF00u;
     /* Write R/W bit and address in the higher 8 bits */
-    pSpiTxBuffer[(SPS_SPI_BUFFERSIZE - 1u - device)] = (1u << SPS_RW_BIT_POSITION) |       /* R/W bit = 1 to write */
-                                                       (address << SPS_ADDRESS_BIT_START); /* Register address */
+    pSpiTxBuffer[(SPS_SPI_BUFFERSIZE - 1u - device)] = (uint16_t)(
+        ((uint16_t)1u << SPS_RW_BIT_POSITION) | /* R/W bit = 1 to write */
+        (address << SPS_ADDRESS_BIT_START));    /* Register address */
 
     if (writeType == SPS_replaceCurrentValue) {
-        pSpiTxBuffer[(SPS_SPI_BUFFERSIZE - 1u - device)] |= writeData; /* Data to write */
+        pSpiTxBuffer[(SPS_SPI_BUFFERSIZE - 1u - device)] |= (uint16_t)writeData; /* Data to write */
     } else if (writeType == SPS_orWithCurrentValue) {
-        pSpiTxBuffer[(SPS_SPI_BUFFERSIZE - 1u - device)] |= preceedingWriteData | writeData; /* Data to write */
+        pSpiTxBuffer[(SPS_SPI_BUFFERSIZE - 1u - device)] |=
+            ((uint16_t)preceedingWriteData | (uint16_t)writeData); /* Data to write */
     } else if (writeType == SPS_andWithCurrentValue) {
-        pSpiTxBuffer[(SPS_SPI_BUFFERSIZE - 1u - device)] |= preceedingWriteData & writeData; /* Data to write */
+        pSpiTxBuffer[(SPS_SPI_BUFFERSIZE - 1u - device)] |=
+            ((uint16_t)preceedingWriteData & (uint16_t)writeData); /* Data to write */
     } else {
         /* Invalid write type */
         FAS_ASSERT(FAS_TRAP);
@@ -366,7 +375,7 @@ static void SPS_SetCommandTxBuffer(const SPS_ACTION_e action) {
     }
 }
 
-static void SPS_InitializeBuffers() {
+static void SPS_InitializeBuffers(void) {
     for (uint8_t i = 0u; i < SPS_SPI_BUFFERSIZE; i++) {
         sps_spiTxRegisterBuffer[i] = 0u;
         SPS_SingleDeviceRegisterWrite(
@@ -403,7 +412,7 @@ static void SPS_SetContactorsTxBuffer(void) {
                     SPS_orWithCurrentValue,                    /* OR because we want to set additional bits to 1 */
                     sps_spiTxWriteToChannelChannelControlRegister);
             } else if (pChannel->channelRequested == SPS_CHANNEL_OFF) {
-                uint8_t writeData = ~(1u << (channel % SPS_NR_CONTACTOR_PER_IC));
+                uint8_t writeData = (~(1u << (channel % SPS_NR_CONTACTOR_PER_IC)) & 0xFFu);
                 SPS_SingleDeviceRegisterWrite(
                     spsDevicePositionInDaisyChain,
                     SPS_OUTPUT_CONTROL_REGISTER_ADDRESS,
@@ -479,13 +488,13 @@ extern void SPS_Ctrl(void) {
                 break;
 
             case SPS_RESET_LOW:
-                IO_PinReset(&SPS_RESET_GIOPORT, SPS_RESET_PIN);
+                IO_PinReset(&SPS_RESET_GIO_PORT, SPS_RESET_PIN);
                 sps_state = SPS_RESET_HIGH;
                 sps_timer = SPS_RESET_WAIT_TIME_TICKS;
                 break;
 
             case SPS_RESET_HIGH:
-                IO_PinSet(&SPS_RESET_GIOPORT, SPS_RESET_PIN);
+                IO_PinSet(&SPS_RESET_GIO_PORT, SPS_RESET_PIN);
                 sps_state = SPS_CONFIGURE_CONTROL_REGISTER;
                 sps_timer = SPS_RESET_WAIT_TIME_TICKS;
                 break;
@@ -594,7 +603,7 @@ extern void SPS_RequestGeneralIOState(SPS_CHANNEL_INDEX channelIndex, SPS_CHANNE
     SPS_RequestChannelState(channelIndex, channelFunction);
 }
 
-extern CONT_ELECTRICAL_STATE_TYPE_e SPS_GetChannelFeedback(SPS_CHANNEL_INDEX channelIndex) {
+extern CONT_ELECTRICAL_STATE_TYPE_e SPS_GetChannelCurrentFeedback(const SPS_CHANNEL_INDEX channelIndex) {
     FAS_ASSERT(channelIndex < SPS_NR_OF_AVAILABLE_SPS_CHANNELS);
 
     CONT_ELECTRICAL_STATE_TYPE_e channelFeedback = CONT_SWITCH_OFF;
@@ -605,6 +614,29 @@ extern CONT_ELECTRICAL_STATE_TYPE_e SPS_GetChannelFeedback(SPS_CHANNEL_INDEX cha
 
     if (channelCurrent_mA > sps_channelStatus[channelIndex].thresholdFeedbackOn_mA) {
         channelFeedback = CONT_SWITCH_ON;
+    }
+
+    return channelFeedback;
+}
+
+extern CONT_ELECTRICAL_STATE_TYPE_e SPS_GetChannelPexFeedback(const SPS_CHANNEL_INDEX channelIndex, bool normallyOpen) {
+    FAS_ASSERT(channelIndex < SPS_NR_OF_AVAILABLE_SPS_CHANNELS);
+    FAS_ASSERT((normallyOpen == true) || (normallyOpen == false));
+
+    SPS_CHANNEL_FEEDBACK_MAPPING_s channelMapping = sps_kChannelFeedbackMapping[channelIndex];
+    uint8_t pinState                              = PEX_GetPin(channelMapping.pexDevice, channelMapping.pexChannel);
+
+    CONT_ELECTRICAL_STATE_TYPE_e channelFeedback = CONT_SWITCH_OFF;
+    if (normallyOpen == true) {
+        /* contactor is on if pinstate is high */
+        if (pinState != PEX_PIN_LOW) {
+            channelFeedback = CONT_SWITCH_ON;
+        }
+    } else {
+        /* contactor is on if pinstate is low */
+        if (pinState != PEX_PIN_HIGH) {
+            channelFeedback = CONT_SWITCH_ON;
+        }
     }
 
     return channelFeedback;

@@ -117,16 +117,14 @@ typedef enum BMS_CANSTATE {
 
 /** Substates of the SYS state machine */
 typedef enum BMS_STATEMACH_SUB {
-    BMS_ENTRY,                             /*!< Substate entry state */
-    BMS_CHECK_ERROR_FLAGS_INTERLOCK,       /*!< Substate check measurements after interlock closed */
-    BMS_INTERLOCK_CHECKED,                 /*!< Substate interlocked checked */
-    BMS_CHECK_STATE_REQUESTS,              /*!< Substate check if there is a state request */
-    BMS_CHECK_BALANCING_REQUESTS,          /*!< Substate check if there is a balancing request */
-    BMS_CHECK_ERROR_FLAGS,                 /*!< Substate check if any error flag set */
-    BMS_CHECK_CONTACTOR_NORMAL_STATE,      /*!< Substate in precharge, check if there contactors reached normal */
-    BMS_CHECK_CONTACTOR_CHARGE_STATE,      /*!< Substate in precharge, check if there contactors reached normal */
-    BMS_OPEN_INTERLOCK,                    /*!< Substate in error to open interlock after contactors have been opened */
-    BMS_CHECK_INTERLOCK_CLOSE_AFTER_ERROR, /*!< Substate in error to close interlock after all error flags were reset */
+    BMS_ENTRY,                        /*!< Substate entry state */
+    BMS_CHECK_ERROR_FLAGS_INTERLOCK,  /*!< Substate check measurements after interlock closed */
+    BMS_INTERLOCK_CHECKED,            /*!< Substate interlocked checked */
+    BMS_CHECK_STATE_REQUESTS,         /*!< Substate check if there is a state request */
+    BMS_CHECK_BALANCING_REQUESTS,     /*!< Substate check if there is a balancing request */
+    BMS_CHECK_ERROR_FLAGS,            /*!< Substate check if any error flag set */
+    BMS_CHECK_CONTACTOR_NORMAL_STATE, /*!< Substate in precharge, check if there contactors reached normal */
+    BMS_CHECK_CONTACTOR_CHARGE_STATE, /*!< Substate in precharge, check if there contactors reached normal */
     BMS_PRECHARGE_CLOSE_MINUS,
     BMS_PRECHARGE_CLOSE_PRECHARGE,
     BMS_PRECHARGE_CHECK_VOLTAGES,

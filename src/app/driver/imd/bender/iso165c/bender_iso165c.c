@@ -43,7 +43,7 @@
  * @file    bender_iso165c.c
  * @author  foxBMS Team
  * @date    2019-04-07 (date of creation)
- * @updated 2021-07-23 (date of last update)
+ * @updated 2021-10-12 (date of last update)
  * @ingroup DRIVERS
  * @prefix  I165C
  *
@@ -65,6 +65,7 @@
 /*========== Macros and Definitions =========================================*/
 
 #define RESISTANCE_THRESHOLD (50000u)
+#define I165C_CAN_NODE       (CAN1_NODE)
 
 /*========== Static Constant and Variable Definitions =======================*/
 
@@ -180,6 +181,14 @@ static void I165C_CheckAcknowledgeArrived(
     I165C_STATE_e nextState,
     uint8_t *tries,
     CAN_BUFFERELEMENT_s *canMessage);
+
+/**
+ * @brief   trigger function for the i165c driver state machine.
+ * @details This function contains the sequence of events in the i165c state
+ *          machine.
+ *          It must be called time-triggered, every 100ms.
+ */
+static void I165C_Trigger(void);
 
 /*========== Static Function Implementations ================================*/
 
@@ -367,13 +376,7 @@ static void I165C_CheckAcknowledgeArrived(
     }
 }
 
-/*========== Extern Function Implementations ================================*/
-
-extern void IMD_Trigger(void) {
-    I165C_Trigger();
-}
-
-extern void I165C_Trigger(void) {
+static void I165C_Trigger(void) {
     static I165C_STATE_e i165cState            = I165C_STATE_UNINITIALIZED;
     static uint8_t i165c_receptionTries        = 0u;
     static uint8_t i165c_receptionTriesImdInfo = 0u;
@@ -391,7 +394,7 @@ extern void I165C_Trigger(void) {
             I165C_WriteCmd(I165C_MESSAGETYPE_IMD_REQUEST, I165C_CMD_S_IMC_CTL_SELFTEST, &i165c_canTxMessage);
             I165C_WriteDataWord(
                 I165C_D_IMC_SELFTEST_SCR_CTL_REQUEST, I165C_SELFTEST_SCENARIO_OVERALL, &i165c_canTxMessage);
-            CAN_DataSend(CAN0_NODE, i165c_canTxMessage.id, i165c_canTxMessage.data);
+            CAN_DataSend(I165C_CAN_NODE, i165c_canTxMessage.id, i165c_canTxMessage.data);
             i165c_receptionTries = 0u;
             i165cState           = I165C_STATE_SELFTEST_WAIT_ACK;
             break;
@@ -428,7 +431,7 @@ extern void I165C_Trigger(void) {
         case I165C_STATE_READ_RESISTANCE:
             I165C_ResetCanData(&i165c_canTxMessage);
             I165C_WriteCmd(I165C_MESSAGETYPE_IMD_REQUEST, I165C_CMD_S_IMC_GET_R_ISO, &i165c_canTxMessage);
-            CAN_DataSend(CAN0_NODE, i165c_canTxMessage.id, i165c_canTxMessage.data);
+            CAN_DataSend(I165C_CAN_NODE, i165c_canTxMessage.id, i165c_canTxMessage.data);
             i165c_receptionTries = 0u;
             i165cState           = I165C_STATE_READ_RESISTANCE_WAIT_ACK;
             break;
@@ -447,7 +450,7 @@ extern void I165C_Trigger(void) {
             I165C_WriteCmd(I165C_MESSAGETYPE_IMD_REQUEST, I165C_CMD_S_VIFC_CTL_LOCK, &i165c_canTxMessage);
             I165C_WriteDataWord(I165C_D_VIFC_LOCK_MODE_CTL_REQUEST, I165C_LOCKMODE_UNLOCKED, &i165c_canTxMessage);
             I165C_WriteDataWord(I165C_D_VIFC_LOCK_PWD_CTL_REQUEST, I165C_UNLOCK_PASSWD, &i165c_canTxMessage);
-            CAN_DataSend(CAN0_NODE, i165c_canTxMessage.id, i165c_canTxMessage.data);
+            CAN_DataSend(I165C_CAN_NODE, i165c_canTxMessage.id, i165c_canTxMessage.data);
             i165c_receptionTries = 0u;
             i165cState           = I165C_STATE_UNLOCK_WAIT_ACK;
             break;
@@ -463,7 +466,7 @@ extern void I165C_Trigger(void) {
             I165C_ResetCanData(&i165c_canTxMessage);
             I165C_WriteCmd(I165C_MESSAGETYPE_IMD_REQUEST, I165C_CMD_S_IMC_SET_R_ISO_ERR_THR, &i165c_canTxMessage);
             I165C_WriteDataWord(I165C_D_IMC_R_ISO_ERR_THR_SET_REQUEST, I165C_ERROR_THRESHOLD_KOHM, &i165c_canTxMessage);
-            CAN_DataSend(CAN0_NODE, i165c_canTxMessage.id, i165c_canTxMessage.data);
+            CAN_DataSend(I165C_CAN_NODE, i165c_canTxMessage.id, i165c_canTxMessage.data);
             i165c_receptionTries = 0u;
             i165cState           = I165C_STATE_SET_ERROR_THRESHOLD_WAIT_ACK;
             break;
@@ -480,7 +483,7 @@ extern void I165C_Trigger(void) {
             I165C_WriteCmd(I165C_MESSAGETYPE_IMD_REQUEST, I165C_CMD_S_IMC_SET_R_ISO_ERR_WRN, &i165c_canTxMessage);
             I165C_WriteDataWord(
                 I165C_D_IMC_R_ISO_ERR_WRN_SET_REQUEST, I165C_WARNING_THRESHOLD_KOHM, &i165c_canTxMessage);
-            CAN_DataSend(CAN0_NODE, i165c_canTxMessage.id, i165c_canTxMessage.data);
+            CAN_DataSend(I165C_CAN_NODE, i165c_canTxMessage.id, i165c_canTxMessage.data);
             i165c_receptionTries = 0u;
             i165cState           = I165C_STATE_SET_WARNING_THRESHOLD_WAIT_ACK;
             break;
@@ -556,6 +559,12 @@ extern void I165C_Trigger(void) {
             FAS_ASSERT(FAS_TRAP);
             break;
     }
+}
+
+/*========== Extern Function Implementations ================================*/
+
+extern void IMD_Trigger(void) {
+    I165C_Trigger();
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/

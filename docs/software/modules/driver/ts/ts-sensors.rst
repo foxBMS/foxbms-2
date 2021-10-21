@@ -20,7 +20,7 @@ Supported Temperature Sensors
 |foxbms| supports various Temperature sensors from different manufacturers as
 the list below shows.
 
-These temperature sensors can be used inside the measurement IC drivers as they
+These temperature sensors can be used inside the AFE drivers as they
 implement the :ref:`temperature_sensor_api`.
 
 .. toctree::

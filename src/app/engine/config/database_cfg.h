@@ -43,7 +43,7 @@
  * @file    database_cfg.h
  * @author  foxBMS Team
  * @date    2015-08-18 (date of creation)
- * @updated 2021-08-06 (date of last update)
+ * @updated 2021-09-30 (date of last update)
  * @ingroup ENGINE_CONFIGURATION
  * @prefix  DATA
  *
@@ -98,9 +98,10 @@ typedef enum DATA_BLOCK_ID {
     DATA_BLOCK_ID_BALANCING_FEEDBACK_REDUNDANCY0,
     DATA_BLOCK_ID_ALL_GPIO_VOLTAGES_REDUNDANCY0,
     DATA_BLOCK_ID_OPEN_WIRE_REDUNDANCY0,
-    DATA_BLOCK_ID_ADC_TEMPERATURE,
     DATA_BLOCK_ID_INSULATION_MONITORING,
     DATA_BLOCK_ID_PACK_VALUES,
+    DATA_BLOCK_ID_HTSEN,
+    DATA_BLOCK_ID_ADC_VOLTAGE,
     DATA_BLOCK_ID_DUMMY_FOR_SELF_TEST,
     DATA_BLOCK_ID_MAX, /**< DO NOT CHANGE, MUST BE THE LAST ENTRY */
 } DATA_BLOCK_ID_e;
@@ -140,20 +141,6 @@ typedef struct DATA_BLOCK_CELL_TEMPERATURE {
                                    [BS_NR_OF_MODULES]; /*!< bitmask if temperatures are valid. 0->valid, 1->invalid */
     uint16_t nrValidTemperatures[BS_NR_OF_STRINGS];    /*!< number of valid temperatures in each string */
 } DATA_BLOCK_CELL_TEMPERATURE_s;
-
-/** data block struct of cell temperatures */
-typedef struct DATA_BLOCK_ADC_TEMPERATURE {
-    /* This struct needs to be at the beginning of every database entry. During
-     * the initialization of a database struct, uniqueId must be set to the
-     * respective database entry representation in enum DATA_BLOCK_ID_e. */
-    DATA_BLOCK_HEADER_s header;                                   /*!< Data block header */
-    int16_t temperatureAdc0_ddegC[BS_NR_OF_TEMP_SENSORS_ON_ADC0]; /*!< unit: deci degree celsius      */
-    int16_t temperatureAdc1_ddegC[BS_NR_OF_TEMP_SENSORS_ON_ADC1]; /*!< unit: deci degree Celsius     */
-    uint16_t valid_temperature_ADC0
-        [BS_NR_OF_TEMP_SENSORS_ON_ADC0]; /*!< bitmask if temperatures are valid. 0->valid, 1->invalid */
-    uint16_t valid_temperature_ADC1
-        [BS_NR_OF_TEMP_SENSORS_ON_ADC1]; /*!< bitmask if temperatures are valid. 0->valid, 1->invalid */
-} DATA_BLOCK_ADC_TEMPERATURE_s;
 
 /** data block struct of minimum and maximum values */
 typedef struct DATA_BLOCK_MIN_MAX {
@@ -332,9 +319,9 @@ typedef struct DATA_BLOCK_ERRORSTATE {
     uint8_t crcError[BS_NR_OF_STRINGS];                               /*!< 0 -> no error, 1 -> error */
     uint8_t muxError[BS_NR_OF_STRINGS];                               /*!< 0 -> no error, 1 -> error */
     uint8_t spiError[BS_NR_OF_STRINGS];                               /*!< 0 -> no error, 1 -> error */
-    uint8_t micConfigurationError[BS_NR_OF_STRINGS];                  /*!< 0 -> no error, 1 -> error */
-    uint8_t micCellvoltageError[BS_NR_OF_STRINGS];                    /*!< 0 -> no error, 1 -> error */
-    uint8_t micCellTemperatureError[BS_NR_OF_STRINGS];                /*!< 0 -> no error, 1 -> error */
+    uint8_t afeConfigurationError[BS_NR_OF_STRINGS];                  /*!< 0 -> no error, 1 -> error */
+    uint8_t afeCellvoltageError[BS_NR_OF_STRINGS];                    /*!< 0 -> no error, 1 -> error */
+    uint8_t afeCellTemperatureError[BS_NR_OF_STRINGS];                /*!< 0 -> no error, 1 -> error */
     uint8_t baseCellVoltageMeasurementTimeout;                        /*!< 0 -> no error, 1 -> error */
     uint8_t redundancy0CellVoltageMeasurementTimeout;                 /*!< 0 -> no error, 1 -> error */
     uint8_t baseCellTemperatureMeasurementTimeout;                    /*!< 0 -> no error, 1 -> error */
@@ -364,6 +351,7 @@ typedef struct DATA_BLOCK_ERRORSTATE {
     uint8_t currentOnOpenString[BS_NR_OF_STRINGS];                    /*!< 0 -> no error, 1 -> error */
     uint8_t sbcFinState;  /*!< 0 -> okay, 1 -> error: short-circuit to RSTB */
     uint8_t sbcRstbState; /*!< 0 -> okay, 1 -> error: RSTB not working */
+    uint8_t i2cPexError;  /*!< the I2C port expander does not work as expected */
 } DATA_BLOCK_ERRORSTATE_s;
 
 /** data block struct of contactor feedback */
@@ -380,8 +368,12 @@ typedef struct DATA_BLOCK_INTERLOCK_FEEDBACK {
     /* This struct needs to be at the beginning of every database entry. During
      * the initialization of a database struct, uniqueId must be set to the
      * respective database entry representation in enum DATA_BLOCK_ID_e. */
-    DATA_BLOCK_HEADER_s header; /*!< Data block header */
-    uint8_t interlockFeedback;  /*!< feedback of interlock, without contactors */
+    DATA_BLOCK_HEADER_s header;                 /*!< Data block header */
+    uint8_t interlockFeedback_IL_STATE;         /*!< feedback of interlock, connected to pin */
+    float interlockVoltageFeedback_IL_HS_VS_mV; /*!< voltage feedback of interlock, connected to ADC input 2 */
+    float interlockVoltageFeedback_IL_LS_VS_mV; /*!< voltage feedback of interlock, connected to ADC input 3 */
+    float interlockCurrentFeedback_IL_HS_CS_mA; /*!< current feedback of interlock, connected to ADC input 4 */
+    float interlockCurrentFeedback_IL_LS_CS_mA; /*!< current feedback of interlock, connected to ADC input 5 */
 } DATA_BLOCK_INTERLOCK_FEEDBACK_s;
 
 /** data block struct of sof limits */
@@ -555,6 +547,25 @@ typedef struct DATA_BLOCK_INSULATION_MONITORING {
     uint8_t testImcOverAll;                    /*!< 0 = NotRunning, 1 = Running */
     uint8_t testImcParameterConfiguration;     /*!< 0 = NotWarning, 1 = Warning */
 } DATA_BLOCK_INSULATION_MONITORING_s;
+
+/** data block struct for the I2C humidity/temperature sensor */
+typedef struct DATA_BLOCK_HTSEN {
+    /* This struct needs to be at the beginning of every database entry. During
+     * the initialization of a database struct, uniqueId must be set to the
+     * respective database entry representation in enum DATA_BLOCK_ID_e. */
+    DATA_BLOCK_HEADER_s header; /*!< Data block header */
+    int16_t temperature_ddegC;
+    uint8_t humidity_perc;
+} DATA_BLOCK_HTSEN_s;
+
+/** data block struct of internal ADC voltage measurement */
+typedef struct DATA_BLOCK_ADC_VOLTAGE {
+    /* This struct needs to be at the beginning of every database entry. During
+     * the initialization of a database struct, uniqueId must be set to the
+     * respective database entry representation in enum DATA_BLOCK_ID_e. */
+    DATA_BLOCK_HEADER_s header;                               /*!< Data block header */
+    float adc1ConvertedVoltages_mV[ADC_ADC1_MAX_NR_CHANNELS]; /*!< voltages measured by the internal ADC ADC1 */
+} DATA_BLOCK_ADC_VOLTAGE_s;
 
 /** data block struct for the database built-in self-test */
 typedef struct DATA_BLOCK_DUMMY_FOR_SELF_TEST {

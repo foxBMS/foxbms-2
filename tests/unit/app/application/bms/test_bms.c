@@ -43,7 +43,7 @@
  * @file    test_bms.c
  * @author  foxBMS Team
  * @date    2020-04-01 (date of creation)
- * @updated 2020-04-01 (date of last update)
+ * @updated 2021-10-05 (date of last update)
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -52,6 +52,7 @@
 
 /*========== Includes =======================================================*/
 #include "unity.h"
+#include "Mockafe.h"
 #include "Mockbal.h"
 #include "Mockbattery_system_cfg.h"
 #include "Mockcontactor.h"
@@ -59,8 +60,8 @@
 #include "Mockdiag.h"
 #include "Mockfassert.h"
 #include "Mockinterlock.h"
+#include "Mockled.h"
 #include "Mockmeas.h"
-#include "Mockmic.h"
 #include "Mockos.h"
 #include "Mockplausibility.h"
 #include "Mocksoa.h"

@@ -43,7 +43,7 @@
  * @file    diag_cbs.h
  * @author  foxBMS Team
  * @date    2021-02-17 (date of creation)
- * @updated 2021-06-09 (date of last update)
+ * @updated 2021-09-29 (date of last update)
  * @ingroup ENGINE
  * @prefix  DIAG
  *
@@ -287,13 +287,13 @@ extern void DIAG_ErrorLtc(
     uint32_t stringNumber);
 
 /**
- * @brief diagnosis callback function for measurement IC related events
+ * @brief diagnosis callback function for AFE related events
  * @param[in] ch_id         ID of diag entry
  * @param[in] event         OK, NOK or RESET
  * @param[in] kpkDiagShim   shim to the database entries
  * @param[in] stringNumber  stringNumber where event occurred
  */
-extern void DIAG_ErrorMeasurementIc(
+extern void DIAG_ErrorAfe(
     DIAG_ID_e ch_id,
     DIAG_EVENT_e event,
     const DIAG_DATABASE_SHIM_s *const kpkDiagShim,
@@ -400,6 +400,19 @@ extern void DIAG_ErrorPowerMeasurement(
     uint32_t data);
 
 extern void DIAG_Insulation(
+    DIAG_ID_e ch_id,
+    DIAG_EVENT_e event,
+    const DIAG_DATABASE_SHIM_s *const kpkDiagShim,
+    uint32_t data);
+
+/**
+ * @brief diagnosis callback function for I2C port expander related events
+ * @param[in] ch_id         ID of diag entry
+ * @param[in] event         OK, NOK or RESET
+ * @param[in] kpkDiagShim   shim to the database entries
+ * @param[in] data          not relevant
+ */
+extern void DIAG_I2cPex(
     DIAG_ID_e ch_id,
     DIAG_EVENT_e event,
     const DIAG_DATABASE_SHIM_s *const kpkDiagShim,

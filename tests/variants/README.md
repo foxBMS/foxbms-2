@@ -2,11 +2,11 @@
 
 The naming schema for simple build variant configuration files is:
 
-1. operating system
-1. measurement IC
-   1. manufacturer
-   1. chip
-1. balancing strategy
+1. Operating System
+1. Analog Front-End
+   1. Manufacturer
+   1. Chip
+1. Balancing strategy
 1. SoX algorithms:
    1. SoC algorithm
    1. SoE algorithm
@@ -14,7 +14,7 @@ The naming schema for simple build variant configuration files is:
 1. Insulation Measurement Device
 
 Therefore for a an **FreeRTOS** based build, using and **LTC 6813-1**
-measurement IC with **voltage-based balancing** and **coulomb counting** as
+AFE with **voltage-based balancing** and **coulomb counting** as
 basis for **SoC and SoE** but **no SoH** estimation and IMD, the bms
 configuration file must be named:
 

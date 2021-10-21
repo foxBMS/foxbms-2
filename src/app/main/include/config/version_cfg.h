@@ -43,7 +43,7 @@
  * @file    version_cfg.h
  * @author  foxBMS Team
  * @date    2021-07-14 (date of creation)
- * @updated 2021-07-15 (date of last update)
+ * @updated 2021-10-19 (date of last update)
  * @ingroup GENERAL
  * @prefix  NONE
  *
@@ -75,14 +75,15 @@
 
 /** struct type that describes the version information of the system */
 typedef struct VERSION {
-    const bool underVersionControl;
-    const bool isDirty;
-    const uint8_t major;
-    const uint8_t minor;
-    const uint8_t patch;
-    const uint16_t distanceFromLastRelease;
-    const char commitHash[VERSION_STRUCT_MAXIMUM_COMMIT_HASH_LENGTH];
-    const char gitRemote[VERSION_STRUCT_MAXIMUM_REMOTE_STRING_LENGTH];
+    const bool underVersionControl;         /*!< indicates whether the toolchain has detected version control */
+    const bool isDirty;                     /*!< indicates whether the code deviates from the last versioned state */
+    const uint8_t major;                    /*!< major release version */
+    const uint8_t minor;                    /*!< minor release version */
+    const uint8_t patch;                    /*!< patch release version */
+    const uint16_t distanceFromLastRelease; /*!< distance in commits from the last tagged release in version control */
+    const char commitHash[VERSION_STRUCT_MAXIMUM_COMMIT_HASH_LENGTH]; /*!< hash of the last commit */
+    const char gitRemote
+        [VERSION_STRUCT_MAXIMUM_REMOTE_STRING_LENGTH]; /*!< address of the git remote linked in the repository */
 } VERSION_s;
 
 /*========== Extern Constant and Variable Declarations ======================*/

@@ -70,6 +70,7 @@
         // Windows related
         "USERPROFILE",
         "LOCALAPPDATA",
+        "APPDATA",
         "findstr",
         // file extensions
         "vsdx",
@@ -79,11 +80,15 @@
         "cppchecksuppression",
         "cppcheckmisra",
         // prefixes we use in our embedded sources
+        "AFE", // Analog Front-End
+        "AFES", // Analog Front-Ends
         "BALS",
+        "HTSEN",
         "ILCK",
         "SYSM",
         "FTSK",
         "FTASK",
+        "NOIMD",
         "MRC",
         "fstd",
         "SHAREDRAM",
@@ -148,6 +153,8 @@
         "msreq",
         // Compound words in defines, abbreveations from HAL, etc.
         "RTSV", // TI: abbrevation for "runtime support library"
+        "SPNA", // TI prefix for lots of documents (and we reference them)
+        "SCPS", // TI prefix for lots of documents (and we reference them)
         "ADDMODERD",
         "ADDMODEWR",
         "INTA",
@@ -170,6 +177,9 @@
         "PORTB",
         "SYSPC",
         "ECLK",
+        "etpwm",
+        "TBPRD",
+        "TBCLK",
         "FRCNT",
         "ELCNT",
         "WDEL",
@@ -179,6 +189,13 @@
         "RDSIZE",
         "WRSIZE",
         "POWERON",
+        "IDADDR",
+        "ITCOUNT",
+        "DMACR",
+        "RXDMAEN",
+        "ISADDR",
+        "ITCOUNT",
+        "TXDMAEN",
         // LTC related words
         "REFON",
         "RDCVA",
@@ -348,6 +365,7 @@
         "ntcalug", // temperature sensor form vishay
         // Axivion
         "axivion",
+        "gravis",
         "preinc",
         "dashserver",
         "localbuild",
@@ -494,6 +512,7 @@
         "dask",
         "scipy",
         "seaborn",
+        "qtconsole",
         //wxpython
         "wxagg",
         // matplotlib
@@ -589,9 +608,9 @@
         "hardware/**/*.mdb",
         "hardware/**/*.stp",
         // third party sources
-        "src/app/driver/mic/nxp/common/MC33775A.h",
+        "src/app/driver/afe/nxp/common/MC33775A.h",
         "src/app/driver/sbc/fs8x_driver/**",
-        "src/app/driver/mic/ltc/common/ltc_pec.*",
+        "src/app/driver/afe/ltc/common/ltc_pec.*",
         "src/os/**",
         "tests/axivion/.axivion.preinc",
         "tests/axivion/rule_config_c.json",

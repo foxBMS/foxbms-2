@@ -61,10 +61,11 @@ def build(bld):
         os.path.join("diag", "cbs", "diag_cbs_current-sensor.c"),
         os.path.join("diag", "cbs", "diag_cbs_deep-discharge.c"),
         os.path.join("diag", "cbs", "diag_cbs_dummy.c"),
+        os.path.join("diag", "cbs", "diag_cbs_i2c.c"),
         os.path.join("diag", "cbs", "diag_cbs_insulation.c"),
         os.path.join("diag", "cbs", "diag_cbs_interlock.c"),
         os.path.join("diag", "cbs", "diag_cbs_ltc.c"),
-        os.path.join("diag", "cbs", "diag_cbs_mic.c"),
+        os.path.join("diag", "cbs", "diag_cbs_afe.c"),
         os.path.join("diag", "cbs", "diag_cbs_plausibility.c"),
         os.path.join("diag", "cbs", "diag_cbs_power-measurement.c"),
         os.path.join("diag", "cbs", "diag_cbs_sbc.c"),
@@ -111,7 +112,7 @@ def build(bld):
         os.path.join("..", "task", "config"),
         os.path.join("..", "task", "ftask"),
     ]
-    includes.extend(bld.env.INCLUDES_OPERATING_SYSTEM + bld.env.INCLUDES_MEASUREMENT_IC)
+    includes.extend(bld.env.INCLUDES_OPERATING_SYSTEM + bld.env.INCLUDES_AFE)
     target = f"{bld.env.APPNAME.lower()}-engine"
     cflags = bld.env.CFLAGS_FOXBMS
 

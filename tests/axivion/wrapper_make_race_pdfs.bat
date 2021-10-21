@@ -38,5 +38,5 @@
 @SETLOCAL EnableExtensions EnableDelayedExpansion
 
 @SET BAUHAUS_CONFIG=%~dp0
-@SET PATH=%PATH%;C:\Bauhaus\7.2.0\doc\html\_downloads\309ace4c1e28cca5a965200324624eec
+@SET PATH=%PATH%;C:\Bauhaus\7.2.3\doc\html\_downloads\309ace4c1e28cca5a965200324624eec
 @call make_race_pdfs.bat %USERPROFILE%\.bauhaus\localbuild\projects\foxbms-2.ir %USERPROFILE%\.bauhaus\localbuild\projects\foxbms-2.rfg

@@ -26,6 +26,7 @@ Waf Tools Implementation Documentation
     ./f_check_db_vars.rst
     ./f_clang_format.rst
     ./f_cppcheck.rst
+    ./f_git_hooks.rst
     ./f_guidelines.rst
     ./f_hcg.rst
     ./f_miniconda_env.rst

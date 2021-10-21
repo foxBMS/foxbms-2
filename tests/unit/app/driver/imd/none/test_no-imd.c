@@ -43,7 +43,7 @@
  * @file    test_no-imd.c
  * @author  foxBMS Team
  * @date    2020-04-01 (date of creation)
- * @updated 2020-04-01 (date of last update)
+ * @updated 2021-09-08 (date of last update)
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -73,5 +73,5 @@ void tearDown(void) {
 /*========== Test Cases =====================================================*/
 void testImdDummyFunctions(void) {
     DATA_Write_1_DataBlock_IgnoreAndReturn(STD_OK);
-    TEST_ASSERT_EQUAL(STD_OK, TEST_IMD_MeasureInsulation());
+    TEST_ASSERT_EQUAL(STD_OK, TEST_NOIMD_MeasureInsulation());
 }

@@ -66,7 +66,9 @@ def build(bld):
         os.path.join("..", "driver", "contactor"),
         os.path.join("..", "driver", "dma"),
         os.path.join("..", "driver", "foxmath"),
+        os.path.join("..", "driver", "i2c"),
         os.path.join("..", "driver", "io"),
+        os.path.join("..", "driver", "led"),
         os.path.join("..", "driver", "meas"),
         os.path.join("..", "driver", "spi"),
         os.path.join("..", "driver", "sps"),
@@ -77,7 +79,7 @@ def build(bld):
         os.path.join("..", "task", "os"),
         os.path.join("..", "task", "config"),
     ]
-    includes.extend(bld.env.INCLUDES_OPERATING_SYSTEM + bld.env.INCLUDES_MEASUREMENT_IC)
+    includes.extend(bld.env.INCLUDES_OPERATING_SYSTEM + bld.env.INCLUDES_AFE)
     cflags = bld.env.CFLAGS_FOXBMS
     use = [
         f"{bld.env.APPNAME.lower()}-application",

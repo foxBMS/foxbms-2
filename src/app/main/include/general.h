@@ -73,6 +73,12 @@
 #define LARGEST_PIN_NUMBER (31u)
 
 /**
+ * @brief   maximum number of channels measured by the ADC1
+ * @details Checked in the datasheet spnu563a: ADC1 supports 32 channels
+ */
+#define ADC_ADC1_MAX_NR_CHANNELS (32U)
+
+/**
  * @brief   sets a bit to 1u
  * @param[in,out]   register    register on which to set the bit
  * @param[in]       bit         number of the bit that should be set to 1u

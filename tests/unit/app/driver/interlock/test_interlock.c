@@ -43,7 +43,7 @@
  * @file    test_interlock.c
  * @author  foxBMS Team
  * @date    2020-04-01 (date of creation)
- * @updated 2020-04-01 (date of last update)
+ * @updated 2021-10-18 (date of last update)
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -52,11 +52,14 @@
  */
 
 /*========== Includes =======================================================*/
+#include "general.h"
+
 #include "unity.h"
-#include "MockHL_gio.h"
+#include "MockHL_het.h"
 #include "Mockdatabase.h"
 #include "Mockdiag.h"
 #include "Mockfassert.h"
+#include "Mockio.h"
 #include "Mockos.h"
 
 #include "interlock_cfg.h"
@@ -71,9 +74,9 @@ void setUp(void) {
     static ILCK_STATE_s ilck_state = {
         .timer             = 0,
         .statereq          = ILCK_STATE_NO_REQUEST,
-        .state             = ILCK_STATEMACH_UNINITIALIZED,
+        .state             = ILCK_STATEMACHINE_UNINITIALIZED,
         .substate          = ILCK_ENTRY,
-        .laststate         = ILCK_STATEMACH_UNINITIALIZED,
+        .laststate         = ILCK_STATEMACHINE_UNINITIALIZED,
         .lastsubstate      = ILCK_ENTRY,
         .triggerentry      = 0,
         .ErrRequestCounter = 0,
@@ -89,35 +92,14 @@ void tearDown(void) {
 void testILCK_GetState(void) {
     /* checks whether GetState returns the state (should be uninitialized when
        first called) */
-    TEST_ASSERT_EQUAL(ILCK_STATEMACH_UNINITIALIZED, ILCK_GetState());
+    TEST_ASSERT_EQUAL(ILCK_STATEMACHINE_UNINITIALIZED, ILCK_GetState());
 }
 
 void testILCK_SetStateRequestLegalValuesILCK_STATE_INIT_REQUEST(void) {
     /* test legal value ILCK_STATE_INIT_REQUEST for the state-request */
     OS_EnterTaskCritical_Expect();
     OS_ExitTaskCritical_Expect();
-    TEST_ASSERT_EQUAL(ILCK_OK, ILCK_SetStateRequest(ILCK_STATE_INIT_REQUEST));
-}
-
-void testILCK_SetStateRequestLegalValuesILCK_STATE_OPEN_REQUEST(void) {
-    /* test legal value ILCK_STATE_OPEN_REQUEST for the state-request */
-    OS_EnterTaskCritical_Expect();
-    OS_ExitTaskCritical_Expect();
-    TEST_ASSERT_EQUAL(ILCK_OK, ILCK_SetStateRequest(ILCK_STATE_OPEN_REQUEST));
-}
-
-void testILCK_SetStateRequestLegalValuesILCK_STATE_CLOSE_REQUEST(void) {
-    /* test legal value ILCK_STATE_CLOSE_REQUEST for the state-request */
-    OS_EnterTaskCritical_Expect();
-    OS_ExitTaskCritical_Expect();
-    TEST_ASSERT_EQUAL(ILCK_OK, ILCK_SetStateRequest(ILCK_STATE_CLOSE_REQUEST));
-}
-
-void testILCK_SetStateRequestLegalValuesILCK_STATE_ERROR_REQUEST(void) {
-    /* test legal value ILCK_STATE_ERROR_REQUEST for the state-request */
-    OS_EnterTaskCritical_Expect();
-    OS_ExitTaskCritical_Expect();
-    TEST_ASSERT_EQUAL(ILCK_OK, ILCK_SetStateRequest(ILCK_STATE_ERROR_REQUEST));
+    TEST_ASSERT_EQUAL(ILCK_OK, ILCK_SetStateRequest(ILCK_STATE_INITIALIZATION_REQUEST));
 }
 
 void testILCK_SetStateRequestLegalValuesILCK_STATE_NO_REQUEST(void) {
@@ -125,7 +107,7 @@ void testILCK_SetStateRequestLegalValuesILCK_STATE_NO_REQUEST(void) {
     OS_EnterTaskCritical_Expect();
     OS_ExitTaskCritical_Expect();
     /* even though this value is legal, it will return illegal request */
-    TEST_ASSERT_EQUAL(ILCK_ILLEGAL_REQUEST, ILCK_SetStateRequest(ILCK_STATE_NO_REQUEST));
+    TEST_ASSERT_EQUAL(ILCK_ILLEGAL_REQUEST, ILCK_SetStateRequest(INT8_MAX));
 }
 
 void testILCK_SetStateRequestIllegalValue(void) {
@@ -137,19 +119,23 @@ void testILCK_SetStateRequestIllegalValue(void) {
 
 void testILCK_SetStateRequestDoubleInitializationWithoutStatemachine(void) {
     /* run initialization twice, but statemachine not in between */
+    IO_SetPinDirectionToOutput_Ignore();
+    IO_SetPinDirectionToInput_Ignore();
+    IO_PinReset_Ignore();
     OS_EnterTaskCritical_Expect();
     OS_ExitTaskCritical_Expect();
-    TEST_ASSERT_EQUAL(ILCK_OK, ILCK_SetStateRequest(ILCK_STATE_INIT_REQUEST));
+    TEST_ASSERT_EQUAL(ILCK_OK, ILCK_SetStateRequest(ILCK_STATE_INITIALIZATION_REQUEST));
     OS_EnterTaskCritical_Expect();
     OS_ExitTaskCritical_Expect();
-    TEST_ASSERT_EQUAL(ILCK_REQUEST_PENDING, ILCK_SetStateRequest(ILCK_STATE_INIT_REQUEST));
+    TEST_ASSERT_EQUAL(ILCK_REQUEST_PENDING, ILCK_SetStateRequest(ILCK_STATE_INITIALIZATION_REQUEST));
 }
 
 void testILCK_SetStateRequestDoubleInitialization(void) {
     /* run initialization twice and call statemachine between these requests */
     OS_EnterTaskCritical_Expect();
     OS_ExitTaskCritical_Expect();
-    TEST_ASSERT_EQUAL(ILCK_OK, ILCK_SetStateRequest(ILCK_STATE_INIT_REQUEST));
+
+    TEST_ASSERT_EQUAL(ILCK_OK, ILCK_SetStateRequest(ILCK_STATE_INITIALIZATION_REQUEST));
 
     /* This group is called by the reentrance check */
     OS_EnterTaskCritical_Expect();
@@ -160,16 +146,17 @@ void testILCK_SetStateRequestDoubleInitialization(void) {
     OS_ExitTaskCritical_Expect();
 
     /* This is the pin initialization */
-    gioSetBit_Expect(ILCK_IO_REG, ILCK_INTERLOCK_CONTROL, 1u);
-    gioSetBit_Expect(ILCK_IO_REG, ILCK_INTERLOCK_FEEDBACK, 0u);
+    IO_SetPinDirectionToOutput_Ignore();
+    IO_SetPinDirectionToInput_Ignore();
+    IO_PinReset_Ignore();
 
     ILCK_Trigger();
 
-    TEST_ASSERT_EQUAL(ILCK_STATEMACH_INITIALIZATION, ILCK_GetState());
+    TEST_ASSERT_EQUAL(ILCK_STATEMACHINE_INITIALIZED, ILCK_GetState());
 
     OS_EnterTaskCritical_Expect();
     OS_ExitTaskCritical_Expect();
-    TEST_ASSERT_EQUAL(ILCK_ALREADY_INITIALIZED, ILCK_SetStateRequest(ILCK_STATE_INIT_REQUEST));
+    TEST_ASSERT_EQUAL(ILCK_ALREADY_INITIALIZED, ILCK_SetStateRequest(ILCK_STATE_INITIALIZATION_REQUEST));
 }
 
 void testRunStatemachineWithoutRequest(void) {
@@ -183,50 +170,35 @@ void testRunStatemachineWithoutRequest(void) {
 
     ILCK_Trigger();
 
-    TEST_ASSERT_EQUAL(ILCK_STATEMACH_UNINITIALIZED, ILCK_GetState());
+    TEST_ASSERT_EQUAL(ILCK_STATEMACHINE_UNINITIALIZED, ILCK_GetState());
 }
 
 void testInitializeStatemachine(void) {
     /* run initialization */
     /* since we are checking only for the statemachine passing through these
     states, we ignore all unnecessary functions */
+
     OS_EnterTaskCritical_Ignore();
     OS_ExitTaskCritical_Ignore();
-    gioSetBit_Ignore();
-    gioGetBit_IgnoreAndReturn(0u);
+    IO_SetPinDirectionToOutput_Ignore();
+    IO_SetPinDirectionToInput_Ignore();
+    IO_PinReset_Ignore();
+
+    DATA_Read_1_DataBlock_IgnoreAndReturn(STD_OK);
     DATA_Write_1_DataBlock_IgnoreAndReturn(STD_OK);
     DIAG_CheckEvent_IgnoreAndReturn(STD_OK);
 
-    TEST_ASSERT_EQUAL(ILCK_OK, ILCK_SetStateRequest(ILCK_STATE_INIT_REQUEST));
+    TEST_ASSERT_EQUAL(ILCK_OK, ILCK_SetStateRequest(ILCK_STATE_INITIALIZATION_REQUEST));
+
+    IO_PinGet_IgnoreAndReturn(0u);
+    DIAG_Handler_IgnoreAndReturn(DIAG_HANDLER_RETURN_OK);
 
     for (uint8_t i = 0u; i < 10; i++) {
         /* iterate calling this statemachine 10 times (one shorttime) */
         ILCK_Trigger();
     }
 
-    TEST_ASSERT_EQUAL(ILCK_STATEMACH_INITIALIZATION, ILCK_GetState());
-
-    for (uint8_t i = 0u; i < 10; i++) {
-        /* iterate calling this statemachine 10 times (one shorttime) */
-        ILCK_Trigger();
-    }
-
-    TEST_ASSERT_EQUAL(ILCK_STATEMACH_INITIALIZED, ILCK_GetState());
-
-    for (uint8_t i = 0u; i < 10; i++) {
-        /* iterate calling this statemachine 10 times (one shorttime) */
-        ILCK_Trigger();
-    }
-
-    TEST_ASSERT_EQUAL(ILCK_STATEMACH_WAIT_FIRST_REQUEST, ILCK_GetState());
-
-    for (uint8_t i = 0u; i < 10; i++) {
-        /* iterate calling this statemachine 10 times (one shorttime) */
-        ILCK_Trigger();
-    }
-
-    /* when we are initialized, the state-machine will stay here */
-    TEST_ASSERT_EQUAL(ILCK_STATEMACH_WAIT_FIRST_REQUEST, ILCK_GetState());
+    TEST_ASSERT_EQUAL(ILCK_STATEMACHINE_INITIALIZED, ILCK_GetState());
 }
 
 void testILCK_SetStateRequestIllegalValueAndThenRunStatemachine(void) {
@@ -246,7 +218,7 @@ void testILCK_SetStateRequestIllegalValueAndThenRunStatemachine(void) {
     ILCK_Trigger();
 
     /* Statemachine should stay uninitialized with illegal state request */
-    TEST_ASSERT_EQUAL(ILCK_STATEMACH_UNINITIALIZED, ILCK_GetState());
+    TEST_ASSERT_EQUAL(ILCK_STATEMACHINE_UNINITIALIZED, ILCK_GetState());
 }
 
 void testILCK_GetInterlockFeedbackFeedbackOn(void) {
@@ -256,9 +228,14 @@ void testILCK_GetInterlockFeedbackFeedbackOn(void) {
     OS_ExitTaskCritical_Ignore();
 
     /* set the return value to 1, which means interlock on */
-    gioGetBit_ExpectAndReturn(ILCK_IO_REG, ILCK_INTERLOCK_FEEDBACK, 1u);
+    IO_PinSet_Ignore();
+    IO_PinReset_Ignore();
+    IO_PinGet_ExpectAndReturn(&ILCK_IO_REG_PORT->DIN, ILCK_INTERLOCK_FEEDBACK_PIN_IL_STATE, 0u);
+    /* gioGetBit_ExpectAndReturn(ILCK_IO_REG, ILCK_INTERLOCK_FEEDBACK, 1u); */
+    DATA_Read_1_DataBlock_IgnoreAndReturn(STD_OK);
+    DATA_Write_1_DataBlock_IgnoreAndReturn(STD_OK);
 
-    TEST_ASSERT_EQUAL(ILCK_SWITCH_ON, ILCK_GetInterlockFeedback());
+    TEST_ASSERT_EQUAL(ILCK_SWITCH_ON, TEST_ILCK_GetInterlockFeedback());
 }
 
 void testILCK_GetInterlockFeedbackFeedbackOff(void) {
@@ -267,184 +244,13 @@ void testILCK_GetInterlockFeedbackFeedbackOff(void) {
     OS_EnterTaskCritical_Ignore();
     OS_ExitTaskCritical_Ignore();
 
+    IO_PinSet_Ignore();
+    IO_PinReset_Ignore();
     /* set the return value to 0, which means interlock off */
-    gioGetBit_ExpectAndReturn(ILCK_IO_REG, ILCK_INTERLOCK_FEEDBACK, 0u);
-
-    TEST_ASSERT_EQUAL(ILCK_SWITCH_OFF, ILCK_GetInterlockFeedback());
-}
-
-void testStateMachineTransitionWaitForRequestToOpen(void) {
-    /* ignore port functions and similar */
-    OS_EnterTaskCritical_Ignore();
-    OS_ExitTaskCritical_Ignore();
-    gioSetBit_Ignore();
-    gioGetBit_IgnoreAndReturn(0u);
+    IO_PinGet_ExpectAndReturn(&ILCK_IO_REG_PORT->DIN, ILCK_INTERLOCK_FEEDBACK_PIN_IL_STATE, 1u);
+    /* gioGetBit_ExpectAndReturn(ILCK_IO_REG, ILCK_INTERLOCK_FEEDBACK, 0u); */
+    DATA_Read_1_DataBlock_IgnoreAndReturn(STD_OK);
     DATA_Write_1_DataBlock_IgnoreAndReturn(STD_OK);
-    DIAG_CheckEvent_IgnoreAndReturn(STD_OK);
 
-    /* configure the statemachine in wait for request and transition to open */
-    static ILCK_STATE_s ilck_state = {
-        .timer             = 0,
-        .statereq          = ILCK_STATE_NO_REQUEST,
-        .state             = ILCK_STATEMACH_WAIT_FIRST_REQUEST,
-        .substate          = ILCK_ENTRY,
-        .laststate         = ILCK_STATEMACH_INITIALIZED,
-        .lastsubstate      = ILCK_ENTRY,
-        .triggerentry      = 0,
-        .ErrRequestCounter = 0,
-        .counter           = 0,
-    };
-    TEST_ILCK_SetStateStruct(ilck_state);
-
-    TEST_ASSERT_EQUAL(ILCK_STATEMACH_WAIT_FIRST_REQUEST, ILCK_GetState());
-
-    TEST_ASSERT_EQUAL(ILCK_OK, ILCK_SetStateRequest(ILCK_STATE_OPEN_REQUEST));
-
-    for (uint8_t i = 0u; i < 10; i++) {
-        /* iterate calling this statemachine 10 times (one shorttime) */
-        ILCK_Trigger();
-    }
-
-    /* when we are initialized, the state-machine will stay here */
-    TEST_ASSERT_EQUAL(ILCK_STATEMACH_OPEN, ILCK_GetState());
-
-    for (uint8_t i = 0u; i < 10; i++) {
-        /* iterate calling this statemachine 10 times (one shorttime) */
-        ILCK_Trigger();
-    }
-
-    /* check that we stay here */
-    TEST_ASSERT_EQUAL(ILCK_STATEMACH_OPEN, ILCK_GetState());
-}
-
-void testStateMachineTransitionWaitForRequestToClosed(void) {
-    /* ignore port functions and similar */
-    OS_EnterTaskCritical_Ignore();
-    OS_ExitTaskCritical_Ignore();
-    gioSetBit_Ignore();
-    gioGetBit_IgnoreAndReturn(0u);
-    DATA_Write_1_DataBlock_IgnoreAndReturn(STD_OK);
-    DIAG_CheckEvent_IgnoreAndReturn(STD_OK);
-
-    /* configure the statemachine in wait for request and transition to closed */
-    static ILCK_STATE_s ilck_state = {
-        .timer             = 0,
-        .statereq          = ILCK_STATE_NO_REQUEST,
-        .state             = ILCK_STATEMACH_WAIT_FIRST_REQUEST,
-        .substate          = ILCK_ENTRY,
-        .laststate         = ILCK_STATEMACH_INITIALIZED,
-        .lastsubstate      = ILCK_ENTRY,
-        .triggerentry      = 0,
-        .ErrRequestCounter = 0,
-        .counter           = 0,
-    };
-    TEST_ILCK_SetStateStruct(ilck_state);
-
-    TEST_ASSERT_EQUAL(ILCK_STATEMACH_WAIT_FIRST_REQUEST, ILCK_GetState());
-
-    TEST_ASSERT_EQUAL(ILCK_OK, ILCK_SetStateRequest(ILCK_STATE_CLOSE_REQUEST));
-
-    for (uint8_t i = 0u; i < 10; i++) {
-        /* iterate calling this statemachine 10 times (one shorttime) */
-        ILCK_Trigger();
-    }
-
-    /* when we are initialized, the state-machine will stay here */
-    TEST_ASSERT_EQUAL(ILCK_STATEMACH_CLOSED, ILCK_GetState());
-
-    for (uint8_t i = 0u; i < 10; i++) {
-        /* iterate calling this statemachine 10 times (one shorttime) */
-        ILCK_Trigger();
-    }
-
-    /* check that we stay here */
-    TEST_ASSERT_EQUAL(ILCK_STATEMACH_CLOSED, ILCK_GetState());
-}
-
-void testStateMachineTransitionOpenToClosed(void) {
-    /* ignore port functions and similar */
-    OS_EnterTaskCritical_Ignore();
-    OS_ExitTaskCritical_Ignore();
-    gioSetBit_Ignore();
-    gioGetBit_IgnoreAndReturn(0u);
-    DATA_Write_1_DataBlock_IgnoreAndReturn(STD_OK);
-    DIAG_CheckEvent_IgnoreAndReturn(STD_OK);
-
-    /* configure the statemachine in open and transition to closed */
-    static ILCK_STATE_s ilck_state = {
-        .timer             = 0,
-        .statereq          = ILCK_STATE_NO_REQUEST,
-        .state             = ILCK_STATEMACH_OPEN,
-        .substate          = ILCK_ENTRY,
-        .laststate         = ILCK_STATEMACH_WAIT_FIRST_REQUEST,
-        .lastsubstate      = ILCK_ENTRY,
-        .triggerentry      = 0,
-        .ErrRequestCounter = 0,
-        .counter           = 0,
-    };
-    TEST_ILCK_SetStateStruct(ilck_state);
-
-    TEST_ASSERT_EQUAL(ILCK_STATEMACH_OPEN, ILCK_GetState());
-
-    TEST_ASSERT_EQUAL(ILCK_OK, ILCK_SetStateRequest(ILCK_STATE_CLOSE_REQUEST));
-
-    for (uint8_t i = 0u; i < 10; i++) {
-        /* iterate calling this statemachine 10 times (one shorttime) */
-        ILCK_Trigger();
-    }
-
-    /* when we are initialized, the state-machine will stay here */
-    TEST_ASSERT_EQUAL(ILCK_STATEMACH_CLOSED, ILCK_GetState());
-
-    for (uint8_t i = 0u; i < 10; i++) {
-        /* iterate calling this statemachine 10 times (one shorttime) */
-        ILCK_Trigger();
-    }
-
-    /* check that we stay here */
-    TEST_ASSERT_EQUAL(ILCK_STATEMACH_CLOSED, ILCK_GetState());
-}
-
-void testStateMachineTransitionClosedToOpen(void) {
-    /* ignore port functions and similar */
-    OS_EnterTaskCritical_Ignore();
-    OS_ExitTaskCritical_Ignore();
-    gioSetBit_Ignore();
-    gioGetBit_IgnoreAndReturn(0u);
-    DATA_Write_1_DataBlock_IgnoreAndReturn(STD_OK);
-    DIAG_CheckEvent_IgnoreAndReturn(STD_OK);
-
-    /* configure the statemachine in closed and transition to open */
-    static ILCK_STATE_s ilck_state = {
-        .timer             = 0,
-        .statereq          = ILCK_STATE_NO_REQUEST,
-        .state             = ILCK_STATEMACH_CLOSED,
-        .substate          = ILCK_ENTRY,
-        .laststate         = ILCK_STATEMACH_WAIT_FIRST_REQUEST,
-        .lastsubstate      = ILCK_ENTRY,
-        .triggerentry      = 0,
-        .ErrRequestCounter = 0,
-        .counter           = 0,
-    };
-    TEST_ILCK_SetStateStruct(ilck_state);
-
-    TEST_ASSERT_EQUAL(ILCK_STATEMACH_CLOSED, ILCK_GetState());
-
-    TEST_ASSERT_EQUAL(ILCK_OK, ILCK_SetStateRequest(ILCK_STATE_OPEN_REQUEST));
-
-    for (uint8_t i = 0u; i < 10; i++) {
-        /* iterate calling this statemachine 10 times (one shorttime) */
-        ILCK_Trigger();
-    }
-
-    /* when we are initialized, the state-machine will stay here */
-    TEST_ASSERT_EQUAL(ILCK_STATEMACH_OPEN, ILCK_GetState());
-
-    for (uint8_t i = 0u; i < 10; i++) {
-        /* iterate calling this statemachine 10 times (one shorttime) */
-        ILCK_Trigger();
-    }
-
-    /* check that we stay here */
-    TEST_ASSERT_EQUAL(ILCK_STATEMACH_OPEN, ILCK_GetState());
+    TEST_ASSERT_EQUAL(ILCK_SWITCH_OFF, TEST_ILCK_GetInterlockFeedback());
 }

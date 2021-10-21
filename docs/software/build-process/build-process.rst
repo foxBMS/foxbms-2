@@ -56,12 +56,12 @@ This failure is reported by the build system.
             static DATA_BLOCK_CELL_VOLTAGE_s mrc_tableCellVoltages         = {.header.uniqueId = DATA_BLOCK_ID_MIN_MAX};
 
 
-.. _measurement_ic_library_build:
+.. _afe_library_build:
 
-Building the Measurement IC Library
------------------------------------
+Building the Analog Front-End Library
+-------------------------------------
 
-In order to easily switch between different measurement ICs the |foxbms| build
+In order to easily switch between different AFEs the |foxbms| build
 system implements a mechanic for swapping implementations through a
 configuration file.
 The configuration file is described in :numref:`BMS_APPLICATION`.

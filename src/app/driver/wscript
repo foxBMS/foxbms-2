@@ -70,16 +70,22 @@ def build(bld):
         os.path.join("config", "fram_cfg.c"),
         os.path.join("config", "interlock_cfg.c"),
         os.path.join("config", "nxpfs85xx_cfg.c"),
+        os.path.join("config", "pex_cfg.c"),
         os.path.join("config", "spi_cfg.c"),
         os.path.join("config", "sps_cfg.c"),
         os.path.join("contactor", "contactor.c"),
         os.path.join("dma", "dma.c"),
         os.path.join("foxmath", "foxmath.c"),
         os.path.join("fram", "fram.c"),
+        os.path.join("htsensor", "htsensor.c"),
         os.path.join("interlock", "interlock.c"),
+        os.path.join("i2c", "i2c.c"),
         os.path.join("io", "io.c"),
+        os.path.join("led", "led.c"),
         os.path.join("mcu", "mcu.c"),
         os.path.join("meas", "meas.c"),
+        os.path.join("pex", "pex.c"),
+        os.path.join("pwm", "pwm.c"),
         os.path.join("rtc", "rtc.c"),
         os.path.join("sbc", "nxpfs85xx.c"),
         os.path.join("sbc", "sbc.c"),
@@ -111,10 +117,14 @@ def build(bld):
         "dma",
         "foxmath",
         "fram",
+        "htsensor",
         "interlock",
+        "i2c",
         "io",
         "meas",
         "mcu",
+        "pex",
+        "pwm",
         "rtc",
         "sbc",
         os.path.join("sbc", "fs8x_driver"),
@@ -146,13 +156,11 @@ def build(bld):
         os.path.join("..", "task", "ftask"),
     ]
     includes.extend(
-        bld.env.INCLUDES_OPERATING_SYSTEM
-        + bld.env.INCLUDES_MEASUREMENT_IC
-        + bld.env.INCLUDES_IMD
+        bld.env.INCLUDES_OPERATING_SYSTEM + bld.env.INCLUDES_AFE + bld.env.INCLUDES_IMD
     )
     cflags = bld.env.CFLAGS_FOXBMS
     target = f"{bld.env.APPNAME.lower()}-driver"
-    use = [f"{bld.env.APPNAME.lower()}-mic-driver", f"{bld.env.APPNAME}-imd"]
+    use = [f"{bld.env.APPNAME.lower()}-afe-driver", f"{bld.env.APPNAME}-imd"]
     bld.stlib(
         source=source,
         includes=includes,
@@ -161,5 +169,5 @@ def build(bld):
         target=target,
     )
 
-    bld.recurse("mic")
+    bld.recurse("afe")
     bld.recurse("imd")

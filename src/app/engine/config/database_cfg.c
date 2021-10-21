@@ -43,7 +43,7 @@
  * @file    database_cfg.c
  * @author  foxBMS Team
  * @date    2015-08-18 (date of creation)
- * @updated 2021-05-11 (date of last update)
+ * @updated 2021-09-30 (date of last update)
  * @ingroup ENGINE_CONFIGURATION
  * @prefix  DATA
  *
@@ -151,19 +151,22 @@ static DATA_BLOCK_STATEREQUEST_s data_blockStaterequest = {.header.uniqueId = DA
 /** data block: moving average */
 static DATA_BLOCK_MOVING_AVERAGE_s data_blockMovingAverage = {.header.uniqueId = DATA_BLOCK_ID_MOVING_AVERAGE};
 
-/** data block: adc temperature */
-static DATA_BLOCK_ADC_TEMPERATURE_s data_blockAdcTemperature = {.header.uniqueId = DATA_BLOCK_ID_ADC_TEMPERATURE};
-
-/** data block: adc temperature */
+/** data block: insulation monitoring */
 static DATA_BLOCK_INSULATION_MONITORING_s data_blockInsulationMonitoring = {
     .header.uniqueId = DATA_BLOCK_ID_INSULATION_MONITORING};
+
+/** data block: pack values */
+static DATA_BLOCK_PACK_VALUES_s data_blockPackValues = {.header.uniqueId = DATA_BLOCK_ID_PACK_VALUES};
+
+/** data block: adc temperature */
+static DATA_BLOCK_ADC_VOLTAGE_s data_blockAdcVoltage = {.header.uniqueId = DATA_BLOCK_ID_ADC_VOLTAGE};
+
+/** data block: I2C humidity/temperature sensor measurements*/
+static DATA_BLOCK_HTSEN_s data_blockHumidityTemperatureSensor = {.header.uniqueId = DATA_BLOCK_ID_HTSEN};
 
 /** data block: used for self-test */
 static DATA_BLOCK_DUMMY_FOR_SELF_TEST_s data_blockDummyForSelfTest = {
     .header.uniqueId = DATA_BLOCK_ID_DUMMY_FOR_SELF_TEST};
-
-/** data block: adc temperature */
-static DATA_BLOCK_PACK_VALUES_s data_blockPackValues = {.header.uniqueId = DATA_BLOCK_ID_PACK_VALUES};
 
 /**
  * @brief   channel configuration of database (data blocks)
@@ -199,9 +202,10 @@ DATA_BASE_s data_database[] = {
     {(void *)(&data_blockFeedbackBalancingRedundancy0), sizeof(DATA_BLOCK_BALANCING_FEEDBACK_s)},
     {(void *)(&data_blockLtcAllGpioVoltagesRedundancy0), sizeof(DATA_BLOCK_ALL_GPIO_VOLTAGES_s)},
     {(void *)(&data_blockOpenWireRedundancy0), sizeof(DATA_BLOCK_OPEN_WIRE_s)},
-    {(void *)(&data_blockAdcTemperature), sizeof(DATA_BLOCK_ADC_TEMPERATURE_s)},
     {(void *)(&data_blockInsulationMonitoring), sizeof(DATA_BLOCK_INSULATION_MONITORING_s)},
     {(void *)(&data_blockPackValues), sizeof(DATA_BLOCK_PACK_VALUES_s)},
+    {(void *)(&data_blockAdcVoltage), sizeof(DATA_BLOCK_ADC_VOLTAGE_s)},
+    {(void *)(&data_blockHumidityTemperatureSensor), sizeof(DATA_BLOCK_HTSEN_s)},
     {(void *)(&data_blockDummyForSelfTest), sizeof(DATA_BLOCK_DUMMY_FOR_SELF_TEST_s)},
 };
 

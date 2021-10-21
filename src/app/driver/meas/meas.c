@@ -56,7 +56,7 @@
 
 #include "battery_system_cfg.h"
 
-#include "mic.h"
+#include "afe.h"
 
 /*========== Macros and Definitions =========================================*/
 
@@ -71,54 +71,54 @@
 /*========== Extern Function Implementations ================================*/
 
 void MEAS_Control(void) {
-    MIC_TriggerIc();
+    AFE_TriggerIc();
 }
 
 extern STD_RETURN_TYPE_e MEAS_RequestIoWrite(uint8_t string) {
     FAS_ASSERT(string < BS_NR_OF_STRINGS);
-    return MIC_RequestIoWrite(string);
+    return AFE_RequestIoWrite(string);
 }
 
 extern STD_RETURN_TYPE_e MEAS_RequestIoRead(uint8_t string) {
     FAS_ASSERT(string < BS_NR_OF_STRINGS);
-    return MIC_RequestIoRead(string);
+    return AFE_RequestIoRead(string);
 }
 
 extern STD_RETURN_TYPE_e MEAS_RequestTemperatureRead(uint8_t string) {
     FAS_ASSERT(string < BS_NR_OF_STRINGS);
-    return MIC_RequestTemperatureRead(string);
+    return AFE_RequestTemperatureRead(string);
 }
 
 extern STD_RETURN_TYPE_e MEAS_RequestBalancingFeedbackRead(uint8_t string) {
     FAS_ASSERT(string < BS_NR_OF_STRINGS);
-    return MIC_RequestBalancingFeedbackRead(string);
+    return AFE_RequestBalancingFeedbackRead(string);
 }
 
 extern STD_RETURN_TYPE_e MEAS_RequestEepromRead(uint8_t string) {
     FAS_ASSERT(string < BS_NR_OF_STRINGS);
-    return MIC_RequestEepromRead(string);
+    return AFE_RequestEepromRead(string);
 }
 
 extern STD_RETURN_TYPE_e MEAS_RequestEepromWrite(uint8_t string) {
     FAS_ASSERT(string < BS_NR_OF_STRINGS);
-    return MIC_RequestEepromWrite(string);
+    return AFE_RequestEepromWrite(string);
 }
 
 extern bool MEAS_IsFirstMeasurementCycleFinished(void) {
-    return MIC_IsFirstMeasurementCycleFinished();
+    return AFE_IsFirstMeasurementCycleFinished();
 }
 
 extern STD_RETURN_TYPE_e MEAS_StartMeasurement(void) {
-    return MIC_StartMeasurement();
+    return AFE_StartMeasurement();
 }
 
 extern STD_RETURN_TYPE_e MEAS_Initialize(void) {
-    return MIC_Init();
+    return AFE_Initialize();
 }
 
 extern STD_RETURN_TYPE_e MEAS_RequestOpenWireCheck(uint8_t string) {
     FAS_ASSERT(string < BS_NR_OF_STRINGS);
-    return MIC_RequestOpenWireCheck(string);
+    return AFE_RequestOpenWireCheck(string);
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/

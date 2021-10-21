@@ -43,7 +43,7 @@
  * @file    test_sps.c
  * @author  foxBMS Team
  * @date    2020-10-28 (date of creation)
- * @updated 2021-03-24 (date of last update)
+ * @updated 2021-10-01 (date of last update)
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -59,6 +59,8 @@
 #include "Mockio.h"
 #include "Mockmcu.h"
 #include "Mockos.h"
+#include "Mockpex.h"
+#include "Mockpex_cfg.h"
 #include "Mockspi.h"
 #include "Mockspi_cfg.h"
 #include "Mocksps_cfg.h"
@@ -96,10 +98,17 @@ SPS_CHANNEL_STATE_s sps_channelStatus[SPS_NR_OF_AVAILABLE_SPS_CHANNELS] = {
     {SPS_CHANNEL_OFF, SPS_CHANNEL_OFF, 0.0f, SPS_AFF_GENERAL_IO, SPS_CHANNEL_ON_DEFAULT_THRESHOLD_mA},
     {SPS_CHANNEL_OFF, SPS_CHANNEL_OFF, 0.0f, SPS_AFF_GENERAL_IO, SPS_CHANNEL_ON_DEFAULT_THRESHOLD_mA},
     {SPS_CHANNEL_OFF, SPS_CHANNEL_OFF, 0.0f, SPS_AFF_GENERAL_IO, SPS_CHANNEL_ON_DEFAULT_THRESHOLD_mA},
-    {SPS_CHANNEL_OFF, SPS_CHANNEL_OFF, 0.0f, SPS_AFF_GENERAL_IO, SPS_CHANNEL_ON_DEFAULT_THRESHOLD_mA},
-    {SPS_CHANNEL_OFF, SPS_CHANNEL_OFF, 0.0f, SPS_AFF_GENERAL_IO, SPS_CHANNEL_ON_DEFAULT_THRESHOLD_mA},
-    {SPS_CHANNEL_OFF, SPS_CHANNEL_OFF, 0.0f, SPS_AFF_GENERAL_IO, SPS_CHANNEL_ON_DEFAULT_THRESHOLD_mA},
-    {SPS_CHANNEL_OFF, SPS_CHANNEL_OFF, 0.0f, SPS_AFF_GENERAL_IO, SPS_CHANNEL_ON_DEFAULT_THRESHOLD_mA},
+};
+
+const SPS_CHANNEL_FEEDBACK_MAPPING_s sps_kChannelFeedbackMapping[SPS_NR_OF_AVAILABLE_SPS_CHANNELS] = {
+    {PEX_PORT_EXPANDER1, PEX_PIN00},
+    {PEX_PORT_EXPANDER1, PEX_PIN01},
+    {PEX_PORT_EXPANDER1, PEX_PIN02},
+    {PEX_PORT_EXPANDER1, PEX_PIN03},
+    {PEX_PORT_EXPANDER1, PEX_PIN04},
+    {PEX_PORT_EXPANDER1, PEX_PIN05},
+    {PEX_PORT_EXPANDER1, PEX_PIN06},
+    {PEX_PORT_EXPANDER1, PEX_PIN07},
 };
 
 /*========== Setup and Teardown =============================================*/
@@ -137,7 +146,7 @@ void testSPS_RequestChannelStateSwitchOn(void) {
 }
 
 void testSPS_GetChannelFeedbackInvalidChannelIndex(void) {
-    TEST_ASSERT_FAIL_ASSERT(SPS_GetChannelFeedback(42u));
+    TEST_ASSERT_FAIL_ASSERT(SPS_GetChannelCurrentFeedback(42u));
 }
 
 void testSPS_GetChannelFeedbackChannelLow(void) {
@@ -146,7 +155,7 @@ void testSPS_GetChannelFeedbackChannelLow(void) {
 
     sps_channelStatus[0].current_mA = 0;
 
-    TEST_ASSERT_EQUAL(CONT_SWITCH_OFF, SPS_GetChannelFeedback(0u));
+    TEST_ASSERT_EQUAL(CONT_SWITCH_OFF, SPS_GetChannelCurrentFeedback(0u));
 }
 
 void testSPS_GetChannelFeedbackChannelHigh(void) {
@@ -155,7 +164,7 @@ void testSPS_GetChannelFeedbackChannelHigh(void) {
 
     sps_channelStatus[0].current_mA = 600.f;
 
-    TEST_ASSERT_EQUAL(CONT_SWITCH_ON, SPS_GetChannelFeedback(0u));
+    TEST_ASSERT_EQUAL(CONT_SWITCH_ON, SPS_GetChannelCurrentFeedback(0u));
 }
 
 void testSPS_GetChannelAffiliationInvalidIndex(void) {
@@ -200,8 +209,8 @@ void testSPS_RequestGIOStateCorrectAffiliation(void) {
     OS_EnterTaskCritical_Ignore();
     OS_ExitTaskCritical_Ignore();
     /* watch out, the channel here has to have an affiliation that is SPS_AFF_GENERAL_IO */
-    TEST_ASSERT_PASS_ASSERT(SPS_RequestGeneralIOState(11u, SPS_CHANNEL_ON));
-    TEST_ASSERT_EQUAL(SPS_CHANNEL_ON, sps_channelStatus[11u].channelRequested);
+    TEST_ASSERT_PASS_ASSERT(SPS_RequestGeneralIOState(7u, SPS_CHANNEL_ON));
+    TEST_ASSERT_EQUAL(SPS_CHANNEL_ON, sps_channelStatus[7u].channelRequested);
 }
 
 void testSPS_CtrlStartupProcedure(void) {
@@ -435,10 +444,10 @@ void testContactorSwitchOnAndOff(void) {
     TEST_ASSERT_EQUAL(SPS_CHANNEL_ON, sps_channelStatus[6u].channelRequested);
     TEST_ASSERT_EQUAL(SPS_CHANNEL_OFF, sps_channelStatus[6u].channel);
 
-    TEST_ASSERT_EQUAL(SPS_CHANNEL_OFF, sps_channelStatus[11u].channelRequested);
-    TEST_ASSERT_PASS_ASSERT(TEST_SPS_RequestChannelState(11u, SPS_CHANNEL_ON));
-    TEST_ASSERT_EQUAL(SPS_CHANNEL_ON, sps_channelStatus[11u].channelRequested);
-    TEST_ASSERT_EQUAL(SPS_CHANNEL_OFF, sps_channelStatus[11u].channel);
+    TEST_ASSERT_EQUAL(SPS_CHANNEL_OFF, sps_channelStatus[7u].channelRequested);
+    TEST_ASSERT_PASS_ASSERT(TEST_SPS_RequestChannelState(7u, SPS_CHANNEL_ON));
+    TEST_ASSERT_EQUAL(SPS_CHANNEL_ON, sps_channelStatus[7u].channelRequested);
+    TEST_ASSERT_EQUAL(SPS_CHANNEL_OFF, sps_channelStatus[7u].channel);
 
     /* cycle over one state that handles channels */
     TEST_SPS_SetSpsState(SPS_TRIGGER_CURRENT_MEASUREMENT);
@@ -450,7 +459,7 @@ void testContactorSwitchOnAndOff(void) {
     TEST_ASSERT_EQUAL(SPS_CHANNEL_ON, sps_channelStatus[0u].channel);
     TEST_ASSERT_EQUAL(SPS_CHANNEL_ON, sps_channelStatus[1u].channel);
     TEST_ASSERT_EQUAL(SPS_CHANNEL_ON, sps_channelStatus[6u].channel);
-    TEST_ASSERT_EQUAL(SPS_CHANNEL_ON, sps_channelStatus[11u].channel);
+    TEST_ASSERT_EQUAL(SPS_CHANNEL_ON, sps_channelStatus[7u].channel);
 
     /* switch off a first, second, third and fourth channel */
     TEST_ASSERT_EQUAL(SPS_CHANNEL_ON, sps_channelStatus[0u].channelRequested);
@@ -468,10 +477,10 @@ void testContactorSwitchOnAndOff(void) {
     TEST_ASSERT_EQUAL(SPS_CHANNEL_OFF, sps_channelStatus[6u].channelRequested);
     TEST_ASSERT_EQUAL(SPS_CHANNEL_ON, sps_channelStatus[6u].channel);
 
-    TEST_ASSERT_EQUAL(SPS_CHANNEL_ON, sps_channelStatus[11u].channelRequested);
-    TEST_ASSERT_PASS_ASSERT(TEST_SPS_RequestChannelState(11u, SPS_CHANNEL_OFF));
-    TEST_ASSERT_EQUAL(SPS_CHANNEL_OFF, sps_channelStatus[11u].channelRequested);
-    TEST_ASSERT_EQUAL(SPS_CHANNEL_ON, sps_channelStatus[11u].channel);
+    TEST_ASSERT_EQUAL(SPS_CHANNEL_ON, sps_channelStatus[7u].channelRequested);
+    TEST_ASSERT_PASS_ASSERT(TEST_SPS_RequestChannelState(7u, SPS_CHANNEL_OFF));
+    TEST_ASSERT_EQUAL(SPS_CHANNEL_OFF, sps_channelStatus[7u].channelRequested);
+    TEST_ASSERT_EQUAL(SPS_CHANNEL_ON, sps_channelStatus[7u].channel);
 
     /* cycle over one state that handles channels */
     TEST_SPS_SetSpsState(SPS_TRIGGER_CURRENT_MEASUREMENT);
@@ -483,5 +492,24 @@ void testContactorSwitchOnAndOff(void) {
     TEST_ASSERT_EQUAL(SPS_CHANNEL_OFF, sps_channelStatus[0u].channel);
     TEST_ASSERT_EQUAL(SPS_CHANNEL_OFF, sps_channelStatus[1u].channel);
     TEST_ASSERT_EQUAL(SPS_CHANNEL_OFF, sps_channelStatus[6u].channel);
-    TEST_ASSERT_EQUAL(SPS_CHANNEL_OFF, sps_channelStatus[11u].channel);
+    TEST_ASSERT_EQUAL(SPS_CHANNEL_OFF, sps_channelStatus[7u].channel);
+}
+
+/** test the states of PEX feedback function */
+void testSPS_GetChannelPexFeedback(void) {
+    /* report pin state 0 with normally open --> should report switch off */
+    PEX_GetPin_ExpectAndReturn(PEX_PORT_EXPANDER1, PEX_PIN00, 0u);
+    TEST_ASSERT_EQUAL(CONT_SWITCH_OFF, SPS_GetChannelPexFeedback(0u, true));
+
+    /* report pin state 1 with normally open --> should report switch on */
+    PEX_GetPin_ExpectAndReturn(PEX_PORT_EXPANDER1, PEX_PIN00, 1u);
+    TEST_ASSERT_EQUAL(CONT_SWITCH_ON, SPS_GetChannelPexFeedback(0u, true));
+
+    /* report pin state 0 with normally closed --> should report switch on */
+    PEX_GetPin_ExpectAndReturn(PEX_PORT_EXPANDER1, PEX_PIN00, 0u);
+    TEST_ASSERT_EQUAL(CONT_SWITCH_ON, SPS_GetChannelPexFeedback(0u, false));
+
+    /* report pin state 1 with normally closed --> should report switch off */
+    PEX_GetPin_ExpectAndReturn(PEX_PORT_EXPANDER1, PEX_PIN00, 1u);
+    TEST_ASSERT_EQUAL(CONT_SWITCH_OFF, SPS_GetChannelPexFeedback(0u, false));
 }

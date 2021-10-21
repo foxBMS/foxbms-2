@@ -53,42 +53,13 @@
 
 /*========== Includes =======================================================*/
 #include "unity.h"
-#include "Mockbeta.h"
+#include "MockHL_adc.h"
 #include "Mockdatabase.h"
-#include "Mockepcos_b57251v5103j060.h"
 #include "Mockfassert.h"
-#include "Mockio.h"
-#include "Mockspi.h"
 
 #include "adc.h"
 
 /*========== Definitions and Implementations for Unit Test ==================*/
-/* SPI data configuration struct for ADC communication */
-static const spiDAT1_t spi_kAdcDataConfig = {
-    /* struct is implemented in the TI HAL and uses uppercase true and false */
-    .CS_HOLD = FALSE,     /* The HW chip select signal is deactivated */
-    .WDEL    = TRUE,      /* No delay will be inserted */
-    .DFSEL   = SPI_FMT_0, /* Data word format select */
-    .CSNR    = 0x0,       /* Chip select (CS) number; 0x01h for CS[0] */
-};
-
-/* SPI interface configuration for ADC communication */
-SPI_INTERFACE_CONFIG_s spi_adc0Interface = {
-    .channel  = SPI_Interface3,
-    .pConfig  = &spi_kAdcDataConfig,
-    .pNode    = spiREG3,
-    .pGioPort = &(spiREG3->PC3),
-    .csPin    = 4u,
-};
-
-/* SPI interface configuration for ADC communication */
-SPI_INTERFACE_CONFIG_s spi_adc1Interface = {
-    .channel  = SPI_Interface3,
-    .pConfig  = &spi_kAdcDataConfig,
-    .pNode    = spiREG3,
-    .pGioPort = &(spiREG3->PC3),
-    .csPin    = 5u,
-};
 
 /*========== Setup and Teardown =============================================*/
 void setUp(void) {

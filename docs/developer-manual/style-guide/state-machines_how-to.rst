@@ -7,9 +7,9 @@ How to Write State Machines
 ===========================
 
 This section demonstrates how state machines are implemented within the
-|foxbms| project. A simple, but fully functional, real-world implementation of
-this can be found in the debug measurement IC driver
-(see :ref:`DEBUG_DEFAULT`).
+|foxbms| project.
+A simple, but fully functional, real-world implementation of this can be found
+in the debug AFE driver (see :ref:`DEBUG_DEFAULT`).
 
 The Example
 -----------
@@ -205,7 +205,7 @@ A state machine always consists of a periodic *trigger* function. The trigger
 function gets the state variable introduced above (``eg_state`` in this
 example) as parameter. The trigger function **MUST** use ``Trigger`` as
 function name infix. This example uses ``EG_Trigger()``. If needed, the name
-can be extended (e.g., ``EG_TriggerMeasurementIc()``).
+can be extended (e.g., ``EG_TriggerAfe()``).
 
 .. code-block:: c
    :linenos:

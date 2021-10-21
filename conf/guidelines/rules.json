@@ -60,6 +60,7 @@
     "exclude": [
       ".github/PULL_REQUEST_TEMPLATE.md",
       ".gitlab/**",
+      "CITATION.cff",
       "BSD-3-Clause.txt",
       "CC-BY-4.0.txt",
       "CHANGELOG.md",
@@ -69,7 +70,7 @@
       "conf/hcg/**/*.cmd",
       "conf/hcg/**/*.c",
       "conf/hcg/**/*.h",
-      "src/app/driver/mic/nxp/common/MC33775A.h",
+      "src/app/driver/afe/nxp/common/MC33775A.h",
       "src/os/freertos/README.ti-halcogen.md",
       "tests/axivion/cafeCC.config"
     ]
@@ -111,7 +112,8 @@
     "exclude": [
       "**/*.patch",
       "**/*.sym",
-      "**/*.dbc"
+      "**/*.dbc",
+      "tools/utils/git-hooks/pre-commit"
     ]
   },
   "trailing_whitespace": {
@@ -141,8 +143,8 @@
         "name": "C:002",
         "exclude": [
           "src/app/driver/sbc/fs8x_driver/**",
-          "src/app/driver/mic/ltc/common/ltc_pec.*",
-          "src/app/driver/mic/nxp/common/MC33775A.h"
+          "src/app/driver/afe/ltc/common/ltc_pec.*",
+          "src/app/driver/afe/nxp/common/MC33775A.h"
         ],
         "text": [
           "/**",
@@ -194,8 +196,8 @@
           "docs/developer-manual/style-guide/examples/*.c",
           "docs/developer-manual/style-guide/examples/*.h",
           "src/app/driver/sbc/fs8x_driver/sbc_fs8x*.*",
-          "src/app/driver/mic/ltc/common/ltc_pec.*",
-          "src/app/driver/mic/nxp/common/MC33775A.h",
+          "src/app/driver/afe/ltc/common/ltc_pec.*",
+          "src/app/driver/afe/nxp/common/MC33775A.h",
           "src/os/**"
         ],
         "regex": [
@@ -219,8 +221,8 @@
         ],
         "exclude": [
           "src/app/driver/sbc/fs8x_driver/**",
-          "src/app/driver/mic/ltc/common/ltc_pec.*",
-          "src/app/driver/mic/nxp/common/MC33775A.h",
+          "src/app/driver/afe/ltc/common/ltc_pec.*",
+          "src/app/driver/afe/nxp/common/MC33775A.h",
           "src/os/**"
         ],
         "prefix": "FOXBMS__",
@@ -234,9 +236,9 @@
       },
       "sections": {
         "exclude": [
-          "src/app/driver/mic/ltc/common/ltc_pec.*",
+          "src/app/driver/afe/ltc/common/ltc_pec.*",
           "src/app/driver/sbc/fs8x_driver/**",
-          "src/app/driver/mic/nxp/common/MC33775A.h"
+          "src/app/driver/afe/nxp/common/MC33775A.h"
         ],
         "name": "C:006",
         "header": {
@@ -563,7 +565,9 @@
       ],
       "header": {
         "name": "BATCH:002",
-        "exclude": [],
+        "exclude": [
+          "tests/axivion/racepdfs/make_race_pdfs.bat"
+        ],
         "text": [
           "@REM Copyright (c) 2010 - @YEAR@, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.",
           "@REM All rights reserved.",

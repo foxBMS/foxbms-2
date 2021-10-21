@@ -43,7 +43,7 @@
  * @file    test_dma.c
  * @author  foxBMS Team
  * @date    2020-04-01 (date of creation)
- * @updated 2021-03-24 (date of last update)
+ * @updated 2021-09-28 (date of last update)
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -53,10 +53,11 @@
 
 /*========== Includes =======================================================*/
 #include "unity.h"
+#include "MockHL_i2c.h"
 #include "MockHL_spi.h"
 #include "MockHL_sys_dma.h"
+#include "Mockafe_dma.h"
 #include "Mockio.h"
-#include "Mockmic_dma.h"
 #include "Mockspi.h"
 
 #include "dma.h"

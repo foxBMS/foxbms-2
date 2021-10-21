@@ -56,7 +56,7 @@ The ``conf`` directory is structured into the following parts (see
    | directory       | long name                   | content description                  |
    +=================+=============================+======================================+
    | ``conf/bms``    | Battery Management System   | configuration of the BMS             |
-   |                 |                             | (e.g., which measurement IC is used) |
+   |                 |                             | (e.g., which AFE is used)            |
    +-----------------+-----------------------------+--------------------------------------+
    | ``conf/cc``     | C compiler                  | compiler configuration               |
    |                 |                             | (e.g., compiler flags)               |

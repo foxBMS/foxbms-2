@@ -62,32 +62,17 @@
 
 #include "can_cfg.h"
 
-#include "HL_can.h"
-
 /*========== Macros and Definitions =========================================*/
-
-/** register on which the CAN interface is connected */
-#define CAN0_NODE (canREG1)
 
 /** Half of the 64 messageboxes are defined for TX
  * This is used to determined in the CAN interrupt routine if TX or RX case
  */
 #define CAN_NR_OF_TX_MESSAGE_BOX (32U)
 
-/** length of the RX buffer */
-#define CAN0_RX_BUFFER_LENGTH (32U)
-
 /** Task time slot where the CAN TX function is called. Repetition time of
  * periodic CAN messages must be multiple of this (e.g., 1u, 10u or 100u)
  */
 #define CAN_TICK_MS (10U)
-
-/** Buffer containing all the CAN RX elements */
-typedef struct CAN_RX_BUFFER {
-    CAN_BUFFERELEMENT_s *pRead;  /*!< read pointer */
-    CAN_BUFFERELEMENT_s *pWrite; /*!< write pointer */
-    uint8_t length;              /*!< length of buffer */
-} CAN_RX_BUFFER_s;
 
 /** This structure contains variables relevant for the CAN signal module. */
 typedef struct CAN_STATE {

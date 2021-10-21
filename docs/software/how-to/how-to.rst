@@ -26,7 +26,7 @@ Other
 .. toctree::
     :maxdepth: 1
 
-    ./../modules/driver/mic/adding-a-new-ic_how-to
+    ./../modules/driver/afe/adding-a-new-ic_how-to
     ./../modules/driver/ts/adding-a-new-ts_how-to
     ./../../developer-manual/style-guide/state-machines_how-to
     ./../configuration/without-halcogen_how-to

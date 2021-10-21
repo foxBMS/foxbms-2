@@ -111,12 +111,6 @@
  */
 #define BMS_STATEMACH_LONGTIME (10u)
 
-/**
- * @brief   BMS statemachine very long time definition in #BMS_Trigger() calls
- *          until next state/substate is processed
- */
-#define BMS_STATEMACH_VERYLONGTIME (20u)
-
 /** Time in #BMS_Trigger() calls to wait after closing a string */
 #define BMS_TIME_WAIT_AFTER_STRING_CLOSED (20u)
 

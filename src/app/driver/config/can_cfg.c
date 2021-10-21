@@ -43,7 +43,7 @@
  * @file    can_cfg.c
  * @author  foxBMS Team
  * @date    2019-12-04 (date of creation)
- * @updated 2021-07-29 (date of last update)
+ * @updated 2021-10-12 (date of last update)
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  CAN
  *
@@ -68,7 +68,7 @@
 
 /*========== Static Constant and Variable Definitions =======================*/
 
-/** Multiplexer values */
+/** Multiplexer values @{*/
 static uint8_t voltageMux               = 0u;
 static uint8_t temperatureMux           = 0u;
 static uint8_t stringStateMux           = 0u;
@@ -76,6 +76,7 @@ static uint8_t stringValuesMux          = 0u;
 static uint8_t stringMinMaxMux          = 0u;
 static uint8_t stringStateEstimationMux = 0u;
 static uint8_t stringValues2Mux         = 0u;
+/**@}*/
 
 /*========== Extern Constant and Variable Definitions =======================*/
 
@@ -85,84 +86,96 @@ static uint8_t stringValues2Mux         = 0u;
 
 /** registry of CAN TX messages */
 const CAN_MSG_TX_TYPE_s can_txMessages[] = {
-    {CAN_ID_TX_STATE,
+    {CAN1_NODE,
+     CAN_ID_TX_STATE,
      CAN_DLC,
      CAN_TX_STATE_PERIOD_MS,
      CAN_TX_STATE_PHASE_MS,
      CAN_BIG_ENDIAN,
      &CAN_TxState,
      NULL_PTR}, /*!< State */
-    {CAN_ID_TX_VOLTAGES,
+    {CAN1_NODE,
+     CAN_ID_TX_VOLTAGES,
      CAN_DLC,
      CAN_TX_VOLTAGES_PERIOD_MS,
      CAN_TX_VOLTAGES_PHASE_MS,
      CAN_BIG_ENDIAN,
      &CAN_TxVoltage,
      &voltageMux}, /*!< Cell voltages */
-    {CAN_ID_TX_TEMPERATURES,
+    {CAN1_NODE,
+     CAN_ID_TX_TEMPERATURES,
      CAN_DLC,
      CAN_TX_TEMPERATURES_PERIOD_MS,
      CAN_TX_TEMPERATURES_PHASE_MS,
      CAN_BIG_ENDIAN,
      &CAN_TxCellTemperature,
      &temperatureMux}, /*!< Cell temperatures */
-    {CAN_ID_TX_LIMIT_VALUES,
+    {CAN1_NODE,
+     CAN_ID_TX_LIMIT_VALUES,
      CAN_DLC,
      CAN_TX_LIMIT_VALUES_PERIOD_MS,
      CAN_TX_LIMIT_VALUES_PHASE_MS,
      CAN_BIG_ENDIAN,
      &CAN_TxLimitValues,
      NULL_PTR}, /*!< Limits */
-    {CAN_ID_TX_MINIMUM_MAXIMUM_VALUES,
+    {CAN1_NODE,
+     CAN_ID_TX_MINIMUM_MAXIMUM_VALUES,
      CAN_DLC,
      CAN_TX_MINIMUM_MAXIMUM_VALUES_PERIOD_MS,
      CAN_TX_MINIMUM_MAXIMUM_VALUES_PHASE_MS,
      CAN_BIG_ENDIAN,
      &CAN_TxMinimumMaximumValues,
      NULL_PTR}, /*!< Pack minimum and maximum values */
-    {CAN_ID_TX_PACK_STATE_ESTIMATION,
+    {CAN1_NODE,
+     CAN_ID_TX_PACK_STATE_ESTIMATION,
      CAN_DLC,
      CAN_TX_PACK_STATE_ESTIMATION_PERIOD_MS,
      CAN_TX_PACK_STATE_ESTIMATION_PHASE_MS,
      CAN_BIG_ENDIAN,
      &CAN_TxStateEstimation,
      NULL_PTR}, /*!< Pack state estimation */
-    {CAN_ID_TX_PACK_VALUES,
+    {CAN1_NODE,
+     CAN_ID_TX_PACK_VALUES,
      CAN_DLC,
      CAN_TX_PACK_VALUES_PERIOD_MS,
      CAN_TX_PACK_VALUES_PHASE_MS,
      CAN_BIG_ENDIAN,
      &CAN_TxPackValues,
      NULL_PTR}, /*!< Pack values */
-    {CAN_ID_TX_STRING_STATE,
+    {CAN1_NODE,
+     CAN_ID_TX_STRING_STATE,
      CAN_DLC,
      CAN_TX_STRING_STATE_PERIOD_MS,
      CAN_TX_STRING_STATE_PHASE_MS,
      CAN_BIG_ENDIAN,
      &CAN_TxStringState,
      &stringStateMux}, /*!< String state values */
-    {CAN_ID_TX_STRING_VALUES,
+    {CAN1_NODE,
+     CAN_ID_TX_STRING_VALUES,
      CAN_DLC,
      CAN_TX_STRING_VALUES_PERIOD_MS,
      CAN_TX_STRING_VALUES_PHASE_MS,
      CAN_BIG_ENDIAN,
      &CAN_TxStringValues,
      &stringValuesMux}, /*!< String values */
-    {CAN_ID_TX_STRING_MINIMUM_MAXIMUM,
+    {CAN1_NODE,
+     CAN_ID_TX_STRING_MINIMUM_MAXIMUM,
      CAN_DLC,
      CAN_TX_STRING_MINIMUM_MAXIMUM_PERIOD_MS,
      CAN_TX_STRING_MINIMUM_MAXIMUM_PHASE_MS,
      CAN_BIG_ENDIAN,
      &CAN_TxStringMinimumMaximumValues,
      &stringMinMaxMux}, /*!< String minimum maximum values */
-    {CAN_ID_TX_STRING_STATE_ESTIMATION,
+    {CAN1_NODE,
+     CAN_ID_TX_STRING_STATE_ESTIMATION,
      CAN_DLC,
      CAN_TX_STRING_STATE_ESTIMATION_PERIOD_MS,
      CAN_TX_STRING_STATE_ESTIMATION_PHASE_MS,
      CAN_BIG_ENDIAN,
      &CAN_TxStringStateEstimation,
      &stringStateEstimationMux}, /*!< String minimum maximum values */
-    {CAN_ID_TX_STRING_VALUES_2,
+    {CAN1_NODE,
+     CAN_ID_TX_STRING_VALUES_2,
      CAN_DLC,
      CAN_TX_STRING_VALUES_2_PERIOD_MS,
      CAN_TX_STRING_VALUES_2_PHASE_MS,
@@ -178,64 +191,137 @@ const CAN_MSG_TX_TYPE_s can_txMessages[] = {
 
 /** registry of CAN RX messages */
 const CAN_MSG_RX_TYPE_s can_rxMessages[] = {
-    {CAN_ID_IMD_INFO, CAN_DLC, CAN_LITTLE_ENDIAN, &CAN_RxImdInfo},         /*!< info message from iso165c */
-    {CAN_ID_IMD_RESPONSE, CAN_DLC, CAN_LITTLE_ENDIAN, &CAN_RxImdResponse}, /*!< response mesage from iso165c */
+    {CAN1_NODE, CAN_ID_IMD_INFO, CAN_DLC, CAN_LITTLE_ENDIAN, &CAN_RxImdInfo}, /*!< info message from iso165c */
+    {CAN1_NODE,
+     CAN_ID_IMD_RESPONSE,
+     CAN_DLC,
+     CAN_LITTLE_ENDIAN,
+     &CAN_RxImdResponse}, /*!< response mesage from iso165c */
 
-    {CAN_ID_COMMAND, CAN_DLC, CAN_BIG_ENDIAN, &CAN_RxRequest},           /*!< state request      */
-    {CAN_ID_SOFTWARE_RESET, CAN_DLC, CAN_LITTLE_ENDIAN, &CAN_RxSwReset}, /*!< software reset     */
+    {CAN1_NODE, CAN_ID_COMMAND, CAN_DLC, CAN_BIG_ENDIAN, &CAN_RxRequest},           /*!< state request      */
+    {CAN1_NODE, CAN_ID_SOFTWARE_RESET, CAN_DLC, CAN_LITTLE_ENDIAN, &CAN_RxSwReset}, /*!< software reset     */
 
-    {CAN_ID_STRING0_CURRENT, CAN_DLC, CAN_BIG_ENDIAN, &CAN_RxCurrentSensor},  /*!< current sensor I in cyclic mode   */
-    {CAN_ID_STRING0_VOLTAGE1, CAN_DLC, CAN_BIG_ENDIAN, &CAN_RxCurrentSensor}, /*!< current sensor U1 in cyclic mode  */
-    {CAN_ID_STRING0_VOLTAGE2, CAN_DLC, CAN_BIG_ENDIAN, &CAN_RxCurrentSensor}, /*!< current sensor U2 in cyclic mode  */
-    {CAN_ID_STRING0_VOLTAGE3, CAN_DLC, CAN_BIG_ENDIAN, &CAN_RxCurrentSensor}, /*!< current sensor U3 in cyclic mode  */
-    {CAN_ID_STRING0_TEMPERATURE,
+    {CAN1_NODE,
+     CAN_ID_STRING0_CURRENT,
      CAN_DLC,
      CAN_BIG_ENDIAN,
-     &CAN_RxCurrentSensor},                                                /*!< current sensor T in cyclic mode  */
-    {CAN_ID_STRING0_POWER, CAN_DLC, CAN_BIG_ENDIAN, &CAN_RxCurrentSensor}, /*!< current sensor Power in cyclic mode  */
-    {CAN_ID_STRING0_CURRENT_COUNTER,
+     &CAN_RxCurrentSensor}, /*!< current sensor I in cyclic mode   */
+    {CAN1_NODE,
+     CAN_ID_STRING0_VOLTAGE1,
+     CAN_DLC,
+     CAN_BIG_ENDIAN,
+     &CAN_RxCurrentSensor}, /*!< current sensor U1 in cyclic mode  */
+    {CAN1_NODE,
+     CAN_ID_STRING0_VOLTAGE2,
+     CAN_DLC,
+     CAN_BIG_ENDIAN,
+     &CAN_RxCurrentSensor}, /*!< current sensor U2 in cyclic mode  */
+    {CAN1_NODE,
+     CAN_ID_STRING0_VOLTAGE3,
+     CAN_DLC,
+     CAN_BIG_ENDIAN,
+     &CAN_RxCurrentSensor}, /*!< current sensor U3 in cyclic mode  */
+    {CAN1_NODE,
+     CAN_ID_STRING0_TEMPERATURE,
+     CAN_DLC,
+     CAN_BIG_ENDIAN,
+     &CAN_RxCurrentSensor}, /*!< current sensor T in cyclic mode  */
+    {CAN1_NODE,
+     CAN_ID_STRING0_POWER,
+     CAN_DLC,
+     CAN_BIG_ENDIAN,
+     &CAN_RxCurrentSensor}, /*!< current sensor Power in cyclic mode  */
+    {CAN1_NODE,
+     CAN_ID_STRING0_CURRENT_COUNTER,
      CAN_DLC,
      CAN_BIG_ENDIAN,
      &CAN_RxCurrentSensor}, /*!< current sensor C-C in cyclic mode  */
-    {CAN_ID_STRING0_ENERGY_COUNTER,
+    {CAN1_NODE,
+     CAN_ID_STRING0_ENERGY_COUNTER,
      CAN_DLC,
      CAN_BIG_ENDIAN,
      &CAN_RxCurrentSensor}, /*!< current sensor E-C in cyclic mode  */
 
 #if BS_NR_OF_STRINGS > 1u
-    {CAN_ID_STRING1_CURRENT, CAN_DLC, CAN_BIG_ENDIAN, &CAN_RxCurrentSensor},  /*!< current sensor I in cyclic mode   */
-    {CAN_ID_STRING1_VOLTAGE1, CAN_DLC, CAN_BIG_ENDIAN, &CAN_RxCurrentSensor}, /*!< current sensor U1 in cyclic mode  */
-    {CAN_ID_STRING1_VOLTAGE2, CAN_DLC, CAN_BIG_ENDIAN, &CAN_RxCurrentSensor}, /*!< current sensor U2 in cyclic mode  */
-    {CAN_ID_STRING1_VOLTAGE3, CAN_DLC, CAN_BIG_ENDIAN, &CAN_RxCurrentSensor}, /*!< current sensor U3 in cyclic mode  */
-    {CAN_ID_STRING1_TEMPERATURE,
+    {CAN1_NODE,
+     CAN_ID_STRING1_CURRENT,
      CAN_DLC,
      CAN_BIG_ENDIAN,
-     &CAN_RxCurrentSensor},                                                /*!< current sensor T in cyclic mode  */
-    {CAN_ID_STRING1_POWER, CAN_DLC, CAN_BIG_ENDIAN, &CAN_RxCurrentSensor}, /*!< current sensor Power in cyclic mode  */
-    {CAN_ID_STRING1_CURRENT_COUNTER,
+     &CAN_RxCurrentSensor}, /*!< current sensor I in cyclic mode   */
+    {CAN1_NODE,
+     CAN_ID_STRING1_VOLTAGE1,
+     CAN_DLC,
+     CAN_BIG_ENDIAN,
+     &CAN_RxCurrentSensor}, /*!< current sensor U1 in cyclic mode  */
+    {CAN1_NODE,
+     CAN_ID_STRING1_VOLTAGE2,
+     CAN_DLC,
+     CAN_BIG_ENDIAN,
+     &CAN_RxCurrentSensor}, /*!< current sensor U2 in cyclic mode  */
+    {CAN1_NODE,
+     CAN_ID_STRING1_VOLTAGE3,
+     CAN_DLC,
+     CAN_BIG_ENDIAN,
+     &CAN_RxCurrentSensor}, /*!< current sensor U3 in cyclic mode  */
+    {CAN1_NODE,
+     CAN_ID_STRING1_TEMPERATURE,
+     CAN_DLC,
+     CAN_BIG_ENDIAN,
+     &CAN_RxCurrentSensor}, /*!< current sensor T in cyclic mode  */
+    {CAN1_NODE,
+     CAN_ID_STRING1_POWER,
+     CAN_DLC,
+     CAN_BIG_ENDIAN,
+     &CAN_RxCurrentSensor}, /*!< current sensor Power in cyclic mode  */
+    {CAN1_NODE,
+     CAN_ID_STRING1_CURRENT_COUNTER,
      CAN_DLC,
      CAN_BIG_ENDIAN,
      &CAN_RxCurrentSensor}, /*!< current sensor C-C in cyclic mode  */
-    {CAN_ID_STRING1_ENERGY_COUNTER,
+    {CAN1_NODE,
+     CAN_ID_STRING1_ENERGY_COUNTER,
      CAN_DLC,
      CAN_BIG_ENDIAN,
      &CAN_RxCurrentSensor}, /*!< current sensor E-C in cyclic mode  */
 
 #if BS_NR_OF_STRINGS > 2u
-    {CAN_ID_STRING2_CURRENT, CAN_DLC, CAN_BIG_ENDIAN, &CAN_RxCurrentSensor},  /*!< current sensor I in cyclic mode   */
-    {CAN_ID_STRING2_VOLTAGE1, CAN_DLC, CAN_BIG_ENDIAN, &CAN_RxCurrentSensor}, /*!< current sensor U1 in cyclic mode  */
-    {CAN_ID_STRING2_VOLTAGE2, CAN_DLC, CAN_BIG_ENDIAN, &CAN_RxCurrentSensor}, /*!< current sensor U2 in cyclic mode  */
-    {CAN_ID_STRING2_VOLTAGE3, CAN_DLC, CAN_BIG_ENDIAN, &CAN_RxCurrentSensor}, /*!< current sensor U3 in cyclic mode  */
-    {CAN_ID_STRING2_TEMPERATURE,
+    {CAN1_NODE,
+     CAN_ID_STRING2_CURRENT,
      CAN_DLC,
      CAN_BIG_ENDIAN,
-     &CAN_RxCurrentSensor},                                                /*!< current sensor T in cyclic mode  */
-    {CAN_ID_STRING2_POWER, CAN_DLC, CAN_BIG_ENDIAN, &CAN_RxCurrentSensor}, /*!< current sensor Power in cyclic mode  */
-    {CAN_ID_STRING2_CURRENT_COUNTER,
+     &CAN_RxCurrentSensor}, /*!< current sensor I in cyclic mode   */
+    {CAN1_NODE,
+     CAN_ID_STRING2_VOLTAGE1,
+     CAN_DLC,
+     CAN_BIG_ENDIAN,
+     &CAN_RxCurrentSensor}, /*!< current sensor U1 in cyclic mode  */
+    {CAN1_NODE,
+     CAN_ID_STRING2_VOLTAGE2,
+     CAN_DLC,
+     CAN_BIG_ENDIAN,
+     &CAN_RxCurrentSensor}, /*!< current sensor U2 in cyclic mode  */
+    {CAN1_NODE,
+     CAN_ID_STRING2_VOLTAGE3,
+     CAN_DLC,
+     CAN_BIG_ENDIAN,
+     &CAN_RxCurrentSensor}, /*!< current sensor U3 in cyclic mode  */
+    {CAN1_NODE,
+     CAN_ID_STRING2_TEMPERATURE,
+     CAN_DLC,
+     CAN_BIG_ENDIAN,
+     &CAN_RxCurrentSensor}, /*!< current sensor T in cyclic mode  */
+    {CAN1_NODE,
+     CAN_ID_STRING2_POWER,
+     CAN_DLC,
+     CAN_BIG_ENDIAN,
+     &CAN_RxCurrentSensor}, /*!< current sensor Power in cyclic mode  */
+    {CAN1_NODE,
+     CAN_ID_STRING2_CURRENT_COUNTER,
      CAN_DLC,
      CAN_BIG_ENDIAN,
      &CAN_RxCurrentSensor}, /*!< current sensor C-C in cyclic mode  */
-    {CAN_ID_STRING2_ENERGY_COUNTER,
+    {CAN1_NODE,
+     CAN_ID_STRING2_ENERGY_COUNTER,
      CAN_DLC,
      CAN_BIG_ENDIAN,
      &CAN_RxCurrentSensor}, /*!< current sensor E-C in cyclic mode  */
@@ -243,8 +329,8 @@ const CAN_MSG_RX_TYPE_s can_rxMessages[] = {
 #endif /* BS_NR_OF_STRINGS > 2 */
 #endif /* BS_NR_OF_STRINGS > 1 */
 
-    {CAN_ID_DEBUG, CAN_DLC, CAN_LITTLE_ENDIAN, &CAN_RxDebug},          /*!< debug message      */
-    {CAN_ID_SW_VERSION, CAN_DLC, CAN_LITTLE_ENDIAN, &CAN_RxSwVersion}, /*!< request SW version */
+    {CAN1_NODE, CAN_ID_DEBUG, CAN_DLC, CAN_LITTLE_ENDIAN, &CAN_RxDebug},          /*!< debug message      */
+    {CAN1_NODE, CAN_ID_SW_VERSION, CAN_DLC, CAN_LITTLE_ENDIAN, &CAN_RxSwVersion}, /*!< request SW version */
 };
 
 /** length of CAN message arrays @{*/

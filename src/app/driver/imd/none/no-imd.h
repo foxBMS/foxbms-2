@@ -43,7 +43,7 @@
  * @file    no-imd.h
  * @author  foxBMS Team
  * @date    2020-11-20 (date of creation)
- * @updated 2021-07-23 (date of last update)
+ * @updated 2021-09-08 (date of last update)
  * @ingroup DRIVERS
  * @prefix  NONE
  *
@@ -68,7 +68,7 @@
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 #ifdef UNITY_UNIT_TEST
-extern STD_RETURN_TYPE_e TEST_IMD_MeasureInsulation();
+extern STD_RETURN_TYPE_e TEST_NOIMD_MeasureInsulation();
 #endif
 
 #endif /* FOXBMS__NO_IMD_H_ */

@@ -63,6 +63,7 @@
 #include "Mockio.h"
 #include "Mockmcu.h"
 #include "Mockos.h"
+#include "Mockpex.h"
 #include "Mockqueue.h"
 #include "Mocktest_can_mpu_prototype_queue_create_stub.h"
 
@@ -114,11 +115,11 @@ static uint32_t can_dummy(
 }
 
 const CAN_MSG_TX_TYPE_s can_txMessages[] = {
-    {0x001, 8, 100, 0, CAN_LITTLE_ENDIAN, &can_dummy, NULL_PTR},
+    {CAN1_NODE, 0x001, 8, 100, 0, CAN_LITTLE_ENDIAN, &can_dummy, NULL_PTR},
 };
 
 const CAN_MSG_RX_TYPE_s can_rxMessages[] = {
-    {0x002, 8, CAN_LITTLE_ENDIAN, &can_dummy},
+    {CAN1_NODE, 0x002, 8, CAN_LITTLE_ENDIAN, &can_dummy},
 };
 
 const uint8_t can_txLength = sizeof(can_txMessages) / sizeof(can_txMessages[0]);
@@ -164,35 +165,35 @@ void testDataSendNullPointerAsData(void) {
 }
 
 void testDataSendNoMessagePending(void) {
-    canBASE_t node = {0};
-    uint8_t data   = 0;
+    canBASE_t *pNode = CAN1_NODE;
+    uint8_t data     = 0;
 
     canIsTxMessagePending_IgnoreAndReturn(1u);
 
     for (uint8_t i = 0u; i < 32; i++) {
-        TEST_ASSERT_EQUAL(STD_NOT_OK, CAN_DataSend(&node, i, &data));
+        TEST_ASSERT_EQUAL(STD_NOT_OK, CAN_DataSend(pNode, i, &data));
     }
 }
 
 void testDataSendMessagePending(void) {
-    canBASE_t node = {0};
-    uint8_t data   = 0;
+    canBASE_t *pNode = CAN1_NODE;
+    uint8_t data     = 0;
 
     /* simulate first messageBox has pending message */
-    canIsTxMessagePending_ExpectAndReturn(&node, 1, 0u);
-    canUpdateID_Expect(&node, 1, 0x20040000u);
-    canTransmit_ExpectAndReturn(&node, 1, &data, 0u);
-    TEST_ASSERT_EQUAL(STD_OK, CAN_DataSend(&node, 0x001, &data));
+    canIsTxMessagePending_ExpectAndReturn(pNode, 1, 0u);
+    canUpdateID_Expect(pNode, 1, 0x20040000u);
+    canTransmit_ExpectAndReturn(pNode, 1, &data, 0u);
+    TEST_ASSERT_EQUAL(STD_OK, CAN_DataSend(pNode, 0x001, &data));
 
     /* simulate messageBox until the highest to have no pending messages */
     for (uint8_t messageBox = 1u; messageBox < (CAN_NR_OF_TX_MESSAGE_BOX - 1); messageBox++) {
-        canIsTxMessagePending_ExpectAndReturn(&node, messageBox, 1u);
+        canIsTxMessagePending_ExpectAndReturn(pNode, messageBox, 1u);
     }
     /* last message box has message pending */
-    canIsTxMessagePending_ExpectAndReturn(&node, CAN_NR_OF_TX_MESSAGE_BOX - 1, 0u);
-    canUpdateID_Expect(&node, CAN_NR_OF_TX_MESSAGE_BOX - 1, 0x20040000u);
-    canTransmit_ExpectAndReturn(&node, CAN_NR_OF_TX_MESSAGE_BOX - 1, &data, 0u);
-    TEST_ASSERT_EQUAL(STD_OK, CAN_DataSend(&node, 0x001, &data));
+    canIsTxMessagePending_ExpectAndReturn(pNode, CAN_NR_OF_TX_MESSAGE_BOX - 1, 0u);
+    canUpdateID_Expect(pNode, CAN_NR_OF_TX_MESSAGE_BOX - 1, 0x20040000u);
+    canTransmit_ExpectAndReturn(pNode, CAN_NR_OF_TX_MESSAGE_BOX - 1, &data, 0u);
+    TEST_ASSERT_EQUAL(STD_OK, CAN_DataSend(pNode, 0x001, &data));
 }
 
 void testEnablePeriodic(void) {

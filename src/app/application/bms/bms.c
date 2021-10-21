@@ -43,7 +43,7 @@
  * @file    bms.c
  * @author  foxBMS Team
  * @date    2020-02-24 (date of creation)
- * @updated 2021-08-06 (date of last update)
+ * @updated 2021-10-18 (date of last update)
  * @ingroup ENGINE
  * @prefix  BMS
  *
@@ -55,14 +55,14 @@
 
 #include "battery_cell_cfg.h"
 
+#include "afe.h"
 #include "bal.h"
 #include "contactor.h"
 #include "database.h"
 #include "diag.h"
 #include "foxmath.h"
-#include "interlock.h"
+#include "led.h"
 #include "meas.h"
-#include "mic.h"
 #include "os.h"
 #include "soa.h"
 
@@ -839,7 +839,6 @@ void BMS_Trigger(void) {
             BMS_SAVELASTSTATES();
             if (bms_state.substate == BMS_ENTRY) {
                 BAL_SetStateRequest(BAL_STATE_ALLOWBALANCING_REQUEST);
-                ILCK_SetStateRequest(ILCK_STATE_CLOSE_REQUEST);
 #if LTC_STANDBY_PERIODIC_OPEN_WIRE_CHECK == TRUE
                 nextOpenWireCheck = timestamp + LTC_STANDBY_OPEN_WIRE_PERIOD_ms;
 #endif /* LTC_STANDBY_PERIODIC_OPEN_WIRE_CHECK == TRUE */
@@ -1193,17 +1192,18 @@ void BMS_Trigger(void) {
             BMS_SAVELASTSTATES();
 
             if (bms_state.substate == BMS_ENTRY) {
-                BAL_SetStateRequest(BAL_STATE_NO_BALANCING_REQUEST);
-                bms_state.timer    = BMS_STATEMACH_SHORTTIME;
-                bms_state.substate = BMS_OPEN_INTERLOCK;
+                /* Set BMS System state to error */
                 DATA_READ_DATA(&systemstate);
                 systemstate.bmsCanState = BMS_CANSTATE_ERROR;
                 DATA_WRITE_DATA(&systemstate);
-                break;
-            } else if (bms_state.substate == BMS_OPEN_INTERLOCK) {
-                ILCK_SetStateRequest(ILCK_STATE_OPEN_REQUEST);
-                nextOpenWireCheck  = timestamp + MIC_ERROR_OPEN_WIRE_PERIOD_ms;
-                bms_state.timer    = BMS_STATEMACH_VERYLONGTIME;
+                /* Deactivate balancing */
+                BAL_SetStateRequest(BAL_STATE_NO_BALANCING_REQUEST);
+                /* Change LED toggle frequency to indicate an error */
+                LED_SetToggleTime(LED_ERROR_OPERATION_ON_OFF_TIME_ms);
+                /* Set timer for next open wire check */
+                nextOpenWireCheck = timestamp + AFE_ERROR_OPEN_WIRE_PERIOD_ms;
+                /* Switch to next substate */
+                bms_state.timer    = BMS_STATEMACH_SHORTTIME;
                 bms_state.substate = BMS_CHECK_ERROR_FLAGS;
                 break;
             } else if (bms_state.substate == BMS_CHECK_ERROR_FLAGS) {
@@ -1212,42 +1212,28 @@ void BMS_Trigger(void) {
                     if (nextOpenWireCheck <= timestamp) {
                         /* Perform open-wire check periodically */
                         /* MEAS_RequestOpenWireCheck(); */ /*TODO: check with strings */
-                        nextOpenWireCheck = timestamp + MIC_ERROR_OPEN_WIRE_PERIOD_ms;
+                        nextOpenWireCheck = timestamp + AFE_ERROR_OPEN_WIRE_PERIOD_ms;
                     }
                 } else {
-                    /* Reset fatal error related variables */
+                    /* No error detected anymore - reset fatal error related variables */
                     bms_state.minimumActiveDelay_ms  = BMS_NO_ACTIVE_DELAY_TIME_ms;
                     bms_state.minimumActiveDelay_ms  = BMS_NO_ACTIVE_DELAY_TIME_ms;
                     bms_state.transitionToErrorState = false;
-
+                    /* Check for STANDBY request */
                     bms_state.timer    = BMS_STATEMACH_SHORTTIME;
                     bms_state.substate = BMS_CHECK_STATE_REQUESTS;
                     break;
                 }
             } else if (bms_state.substate == BMS_CHECK_STATE_REQUESTS) {
                 if (BMS_CheckCanRequests() == BMS_REQ_ID_STANDBY) {
-                    ILCK_SetStateRequest(ILCK_STATE_CLOSE_REQUEST);
-                    bms_state.substate = BMS_CHECK_INTERLOCK_CLOSE_AFTER_ERROR;
-                    bms_state.timer    = BMS_STATEMACH_MEDIUMTIME;
-
-                    /** Remove statements below once interlock module is working */
-                    bms_state.state     = BMS_STATEMACH_OPENCONTACTORS;
-                    bms_state.nextstate = BMS_STATEMACH_STANDBY;
-                    bms_state.substate  = BMS_ENTRY;
-                    /** Remove statements above once interlock module is working */
-
-                    break;
-                } else {
-                    bms_state.timer    = BMS_STATEMACH_SHORTTIME;
-                    bms_state.substate = BMS_CHECK_ERROR_FLAGS;
-                    break;
-                }
-            } else if (bms_state.substate == BMS_CHECK_INTERLOCK_CLOSE_AFTER_ERROR) {
-                if (ILCK_GetInterlockFeedback() == ILCK_SWITCH_ON) {
-                    /* TODO: check */
+                    /* Activate balancing again */
                     BAL_SetStateRequest(BAL_STATE_ALLOWBALANCING_REQUEST);
-                    bms_state.timer = BMS_STATEMACH_SHORTTIME;
-                    /* Only valid as interlock module is not active */
+                    /* Set LED frequency to normal operation as we leave error
+                       state subsequently */
+                    LED_SetToggleTime(LED_NORMAL_OPERATION_ON_OFF_TIME_ms);
+
+                    /* Verify that all contactors are opened and switch to
+                     * STANDBY state afterwards */
                     bms_state.state     = BMS_STATEMACH_OPENCONTACTORS;
                     bms_state.nextstate = BMS_STATEMACH_STANDBY;
                     bms_state.substate  = BMS_ENTRY;
@@ -1257,6 +1243,9 @@ void BMS_Trigger(void) {
                     bms_state.substate = BMS_CHECK_ERROR_FLAGS;
                     break;
                 }
+            } else {
+                /* invalid state -> this should never be reached */
+                FAS_ASSERT(FAS_TRAP);
             }
             break;
         default:

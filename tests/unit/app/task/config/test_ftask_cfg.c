@@ -43,7 +43,7 @@
  * @file    test_ftask_cfg.c
  * @author  foxBMS Team
  * @date    2020-04-02 (date of creation)
- * @updated 2021-07-23 (date of last update)
+ * @updated 2021-09-30 (date of last update)
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -55,6 +55,7 @@
 #include "unity.h"
 #include "MockHL_gio.h"
 #include "Mockadc.h"
+#include "Mockafe.h"
 #include "Mockalgorithm.h"
 #include "Mockbal.h"
 #include "Mockbms.h"
@@ -64,12 +65,15 @@
 #include "Mockdiag.h"
 #include "Mockdiag_cfg.h"
 #include "Mockfram.h"
+#include "Mockhtsensor.h"
+#include "Mocki2c.h"
 #include "Mockimd.h"
 #include "Mockinterlock.h"
+#include "Mockled.h"
 #include "Mockmeas.h"
-#include "Mockmic.h"
 #include "Mockmpu_prototypes.h"
 #include "Mockos.h"
+#include "Mockpex.h"
 #include "Mockredundancy.h"
 #include "Mocksbc.h"
 #include "Mocksof.h"
@@ -80,6 +84,7 @@
 
 #include "fram_cfg.h"
 #include "ftask_cfg.h"
+#include "pex_cfg.h"
 #include "sys_mon_cfg.h"
 
 #include "fassert.h"

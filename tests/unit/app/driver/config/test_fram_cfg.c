@@ -43,11 +43,11 @@
  * @file    test_fram_cfg.c
  * @author  foxBMS Team
  * @date    2020-04-01 (date of creation)
- * @updated 2020-04-01 (date of last update)
+ * @updated 2021-09-28 (date of last update)
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
- * @brief   Tests for the CAN driver
+ * @brief   Tests for the FRAM driver
  *
  */
 

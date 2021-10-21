@@ -76,12 +76,17 @@ def build(bld):
         os.path.join("..", "driver", "contactor"),
         os.path.join("..", "driver", "dma"),
         os.path.join("..", "driver", "fram"),
+        os.path.join("..", "driver", "htsensor"),
+        os.path.join("..", "driver", "i2c"),
         os.path.join("..", "driver", "imd"),
         os.path.join("..", "driver", "imd", "bender", "iso165c"),
         os.path.join("..", "driver", "imd", "bender", "iso165c", "config"),
         os.path.join("..", "driver", "interlock"),
         os.path.join("..", "driver", "io"),
+        os.path.join("..", "driver", "led"),
         os.path.join("..", "driver", "meas"),
+        os.path.join("..", "driver", "pex"),
+        os.path.join("..", "driver", "pwm"),
         os.path.join("..", "driver", "sbc"),
         os.path.join("..", "driver", "sbc", "fs8x_driver"),
         os.path.join("..", "driver", "spi"),
@@ -94,7 +99,7 @@ def build(bld):
         os.path.join("..", "engine", "sys"),
         os.path.join("..", "main", "include"),
     ]
-    includes.extend(bld.env.INCLUDES_OPERATING_SYSTEM + bld.env.INCLUDES_MEASUREMENT_IC)
+    includes.extend(bld.env.INCLUDES_OPERATING_SYSTEM + bld.env.INCLUDES_AFE)
     cflags = bld.env.CFLAGS_FOXBMS
     target = f"{bld.env.APPNAME.lower()}-task"
 

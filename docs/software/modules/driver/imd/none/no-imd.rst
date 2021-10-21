@@ -28,4 +28,5 @@ Unit Test
 Description
 -----------
 
-|tbc|
+The insulation measurement is always set to be valid and an insulation
+resistance of :math:`10000000\ k{\Omega}`  is written to the database entry.

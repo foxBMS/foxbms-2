@@ -43,7 +43,7 @@
  * @file    interlock_cfg.h
  * @author  foxBMS Team
  * @date    2020-02-24 (date of creation)
- * @updated 2020-02-24 (date of last update)
+ * @updated 2021-10-18 (date of last update)
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  ILCK
  *
@@ -57,39 +57,52 @@
 /*========== Includes =======================================================*/
 #include "general.h"
 
-#include "HL_gio.h"
+#include "HL_het.h"
 
 /*========== Macros and Definitions =========================================*/
 
 /** IO register to which the interlock is connected */
-#define ILCK_IO_REG (gioPORTA)
+#define ILCK_IO_REG_DIR (hetREG1->DIR)
+/** IO port for interlock related pins */
+#define ILCK_IO_REG_PORT (hetREG1)
 
-/**
- * The number of defines per contactor must be the same as the length
- *  of the array ilck_contactors_cfg in contactor_cfg.c
- * Every contactor consists of 1 control pin and 1 feedback pin
- * counting together as 1 contactor.
- * E.g. if you have 1 contactor your define has to be:
- *      \verbatim #define ILCK_INTERLOCK_CONTROL       (PIN_MCU_0_INTERLOCK_CONTROL)\endverbatim
- *      \verbatim #define ILCK_INTERLOCK_FEEDBACK      (PIN_MCU_0_INTERLOCK_FEEDBACK)\endverbatim
- */
-#define ILCK_INTERLOCK_CONTROL (6U)
+/** Enable pin for diagnostic power supply */
+#define ILCK_INTERLOCK_CONTROL_PIN_IL_HS_ENABLE (30u)
 
 /** Defines the pin where interlock feedback pin is connected to the mcu */
-#define ILCK_INTERLOCK_FEEDBACK (0U)
+#define ILCK_INTERLOCK_FEEDBACK_PIN_IL_STATE (29u)
+
+/* Defines to which ADC input the interlock circuitry is connected to */
+/** High-side voltage sense signal connected to ADC input 2 (IL_HS_VS) */
+#define ILCK_ADC_INPUT_HIGH_SIDE_VOLTAGE_SENSE (2u)
+/** Low-side voltage sense signal connected to ADC input 3 (IL_LS_VS) */
+#define ILCK_ADC_INPUT_LOW_SIDE_VOLTAGE_SENSE (3u)
+/** High-side current sense signal connected to ADC input 4 (IL_HS_CS) */
+#define ILCK_ADC_INPUT_HIGH_SIDE_CURRENT_SENSE (4u)
+/** Low-side current sense signal connected to ADC input 5 (IL_LS_CS) */
+#define ILCK_ADC_INPUT_LOW_SIDE_CURRENT_SENSE (5u)
+
+/** Factor of resistor divider used for measuring the low- and high-side
+ *  interlock voltages. Used resistor values are 5k6 ohm and 3k9 ohm. */
+#define ILCK_VOLTAGE_DIVIDER_FACTOR ((5.6f + 3.9f) / 3.9f)
 
 /**
- * This define MUST represent the cycle time of the task in which context the
- * functions run, e.g., if the ILCK_Trigger() is running in the 10 ms task
- * then the define must be set to 10.
- *
- * This define also sets the minimum time.
+ * Conversion factor for interlock current IL_HS_CS
+ * 2k49 ohm is the resistance through which sense current flows
+ * 80 is the (output current / sense current) ratio of high-side power switch
+ * TPS2H000-Q1 Datasheet SLVSD72D ?DECEMBER 2015?REVISED DECEMBER 2019 p.8
  */
+#define ILCK_FACTOR_IL_HS_CS_1_ohm (80.0f / 2049.0f)
 
-#define ILCK_TASK_CYCLE_CONTEXT_MS (10)
+/** Linear conversion factor for low-side interlock current measurement
+ *  (IL_LS_CS). Measurement performed via 2 ohm shunt with a gain of 20V/V */
+#define ILCK_FACTOR_IL_LS_CS_1_ohm (0.025f)
 
-/** ILCK statemachine short time definition in ms */
-#define ILCK_STATEMACH_SHORTTIME_MS (ILCK_TASK_CYCLE_CONTEXT_MS)
+/**
+ * @brief   ILCK statemachine short time definition in #ILCK_Trigger() calls
+ *          until next state/substate is processed
+ */
+#define ILCK_STATEMACH_SHORTTIME (1u)
 
 /** Symbolic names for contactors' possible states */
 typedef enum ILCK_ELECTRICAL_STATE_TYPE {
@@ -98,35 +111,7 @@ typedef enum ILCK_ELECTRICAL_STATE_TYPE {
     ILCK_SWITCH_UNDEF, /*!< Contactor undefined   --> Contactor state not known   */
 } ILCK_ELECTRICAL_STATE_TYPE_e;
 
-/** Symbolic names defining the electric behavior of the contactor */
-typedef enum ILCK_FEEDBACK_TYPE {
-    ILCK_FEEDBACK_NORMALLY_OPEN,   /*!< Feedback line of a contactor is normally open      */
-    ILCK_FEEDBACK_NORMALLY_CLOSED, /*!< Feedback line of a contactor is normally closed    */
-    ILCK_FEEDBACK_TYPE_DONT_CARE,  /*!< Feedback line of the contactor is not used         */
-} ILCK_FEEDBACK_TYPE_e;
-
-/**
- * struct describing the electrical state (expected and measured) of the interlock
- */
-typedef struct ILCK_ELECTRICAL_STATE {
-    ILCK_ELECTRICAL_STATE_TYPE_e set;
-    ILCK_ELECTRICAL_STATE_TYPE_e feedback;
-} ILCK_ELECTRICAL_STATE_s;
-
-/** struct decribing the hardware configuration of the interlock */
-typedef struct ILCK_CONFIG {
-    /* IO_PORTS_e control_pin; */
-    /* IO_PORTS_e feedback_pin; */
-    uint32_t control_pin;
-    uint32_t feedback_pin;
-    ILCK_FEEDBACK_TYPE_e feedback_pin_type;
-} ILCK_CONFIG_s;
-
 /*========== Extern Constant and Variable Declarations ======================*/
-/** configuration of the interlock */
-extern ILCK_CONFIG_s ilck_interlock_config;
-/** electrical state of the interlock */
-extern ILCK_ELECTRICAL_STATE_s ilck_interlock_state;
 
 /*========== Extern Function Prototypes =====================================*/
 

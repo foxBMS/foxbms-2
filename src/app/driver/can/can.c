@@ -43,7 +43,7 @@
  * @file    can.c
  * @author  foxBMS Team
  * @date    2019-12-04 (date of creation)
- * @updated 2021-07-23 (date of last update)
+ * @updated 2021-10-12 (date of last update)
  * @ingroup DRIVERS
  * @prefix  CAN
  *
@@ -67,8 +67,7 @@
 #include "diag.h"
 #include "foxmath.h"
 #include "ftask.h"
-#include "io.h"
-#include "mcu.h"
+#include "pex.h"
 
 /*========== Macros and Definitions =========================================*/
 /** lower limit of timestamp counts for a valid CAN timing */
@@ -94,6 +93,9 @@
 
 /** bit position of boot message byte 3 release distance counter */
 #define CAN_BOOT_MESSAGE_BYTE_3_BIT_DISTANCE_COUNTER (3u)
+
+/** return value of function canGetData if no data was lost during reception */
+#define CAN_HAL_RETVAL_NO_DATA_LOST (1u)
 
 /*========== Static Constant and Variable Definitions =======================*/
 
@@ -181,25 +183,17 @@ static void CAN_InitializeTransceiver(void);
 /*========== Static Function Implementations ================================*/
 
 static void CAN_InitializeTransceiver(void) {
-    /* set EN and STB pins to output */
-    SETBIT(CAN_HET1_GIO->DIR, CAN_HET1_EN_PIN);
-    SETBIT(CAN_HET1_GIO->DIR, CAN_HET1_STB_PIN);
+    /** Initialize transceiver for CAN1 */
+    PEX_SetPinDirectionOutput(PEX_PORT_EXPANDER2, CAN1_ENABLE_PIN);
+    PEX_SetPinDirectionOutput(PEX_PORT_EXPANDER2, CAN1_STANDBY_PIN);
+    PEX_SetPin(PEX_PORT_EXPANDER2, CAN1_ENABLE_PIN);
+    PEX_SetPin(PEX_PORT_EXPANDER2, CAN1_STANDBY_PIN);
 
-    /* first set EN and STB pins to 0 */
-    IO_PinReset(&CAN_HET1_GIO->DOUT, CAN_HET1_EN_PIN);
-    IO_PinReset(&CAN_HET1_GIO->DOUT, CAN_HET1_STB_PIN);
-    /* wait after pin toggle */
-    MCU_delay_us(CAN_PIN_TOGGLE_DELAY_US);
-
-    /* set EN pin to 1 */
-    IO_PinSet(&CAN_HET1_GIO->DOUT, CAN_HET1_EN_PIN);
-    /* wait after pin toggle */
-    MCU_delay_us(CAN_PIN_TOGGLE_DELAY_US);
-
-    /* set STB pin to 1 */
-    IO_PinSet(&CAN_HET1_GIO->DOUT, CAN_HET1_STB_PIN);
-    /* wait after pin toggle */
-    MCU_delay_us(CAN_PIN_TOGGLE_DELAY_US);
+    /** Initialize transceiver for CAN2 */
+    PEX_SetPinDirectionOutput(PEX_PORT_EXPANDER2, CAN2_ENABLE_PIN);
+    PEX_SetPinDirectionOutput(PEX_PORT_EXPANDER2, CAN2_STANDBY_PIN);
+    PEX_SetPin(PEX_PORT_EXPANDER2, CAN2_ENABLE_PIN);
+    PEX_SetPin(PEX_PORT_EXPANDER2, CAN2_STANDBY_PIN);
 }
 
 /*========== Extern Function Implementations ================================*/
@@ -211,6 +205,7 @@ extern void CAN_Initialize(void) {
 extern STD_RETURN_TYPE_e CAN_DataSend(canBASE_t *pNode, uint32_t id, uint8 *pData) {
     FAS_ASSERT(pNode != NULL_PTR);
     FAS_ASSERT(pData != NULL_PTR);
+    FAS_ASSERT((CAN1_NODE == pNode) || (CAN2_NODE == pNode));
 
     STD_RETURN_TYPE_e result = STD_NOT_OK;
 
@@ -261,7 +256,7 @@ static STD_RETURN_TYPE_e CAN_PeriodicTransmit(void) {
                 /* CAN messages are currently discarded if all message boxes
                  * are full. They will not be retransmitted within the next
                  * call of CAN_PeriodicTransmit() */
-                CAN_DataSend(CAN0_NODE, can_txMessages[i].id, data);
+                CAN_DataSend(can_txMessages[i].canNode, can_txMessages[i].id, data);
                 retVal = STD_OK;
             }
         }
@@ -352,7 +347,7 @@ extern void CAN_ReadRxBuffer(void) {
         while (pdPASS == xQueueReceive(ftsk_canRxQueue, (void *)&can_rxBuffer, 0u)) {
             /* data queue was no empty */
             for (uint16_t i = 0u; i < can_rxLength; i++) {
-                if (can_rxBuffer.id == can_rxMessages[i].id) {
+                if ((can_rxBuffer.canNode == can_rxMessages[i].canNode) && (can_rxBuffer.id == can_rxMessages[i].id)) {
                     if (can_rxMessages[i].callbackFunction != NULL_PTR) {
                         can_rxMessages[i].callbackFunction(
                             can_rxMessages[i].id,
@@ -437,34 +432,40 @@ static void CAN_TxInterrupt(canBASE_t *pNode, uint32 messageBox) {
 
 static void CAN_RxInterrupt(canBASE_t *pNode, uint32 messageBox) {
     FAS_ASSERT(pNode != NULL_PTR);
-    CAN_BUFFERELEMENT_s can_rxBuffer = {0};
-    uint8_t data[8]                  = {0};
-    /* Read even if queues are not created, otherwise message boxes get full */
-    canGetData(pNode, messageBox, (uint8 *)&data[0]); /* copy to RAM */
+    CAN_BUFFERELEMENT_s can_rxBuffer = {0u};
+    uint8_t messageData[CAN_DLC]     = {0u};
+    /**
+     *  Read even if queues are not created, otherwise message boxes get full.
+     *  Possible return values:
+     *   - 0: no new data
+     *   - 1: no data lost
+     *   - 3: data lost */
+    uint32_t retval = canGetData(pNode, messageBox, (uint8 *)&messageData[0]); /* copy to RAM */
 
-    /* Check that CAN RX queue is started before using it */
-    if (ftsk_allQueuesCreated == true) {
-        if (pNode == CAN0_NODE) {
-            /* id shifted by 18 to use standard frame from IF2ARB register*/
-            /* standard frame: bits [28:18] */
-            /* extended frame: bits [28:0] */
-            uint32_t id          = canGetID(pNode, messageBox) >> 18;
-            can_rxBuffer.id      = id;
-            can_rxBuffer.data[0] = data[0];
-            can_rxBuffer.data[1] = data[1];
-            can_rxBuffer.data[2] = data[2];
-            can_rxBuffer.data[3] = data[3];
-            can_rxBuffer.data[4] = data[4];
-            can_rxBuffer.data[5] = data[5];
-            can_rxBuffer.data[6] = data[6];
-            can_rxBuffer.data[7] = data[7];
-            if (pdPASS == xQueueSendToBackFromISR(ftsk_canRxQueue, (void *)&can_rxBuffer, NULL)) {
-                /* queue is not full */
-                DIAG_Handler(DIAG_ID_CAN_RX_QUEUE_FULL, DIAG_EVENT_OK, DIAG_SYSTEM, 0u);
-            } else {
-                /* queue is full */
-                DIAG_Handler(DIAG_ID_CAN_RX_QUEUE_FULL, DIAG_EVENT_NOT_OK, DIAG_SYSTEM, 0u);
-            }
+    /* Check that CAN RX queue is started before using it and data is valid */
+    if ((ftsk_allQueuesCreated == true) && (CAN_HAL_RETVAL_NO_DATA_LOST == retval)) {
+        /* id shifted by 18 to use standard frame from IF2ARB register*/
+        /* standard frame: bits [28:18] */
+        /* extended frame: bits [28:0] */
+        uint32_t id = canGetID(pNode, messageBox) >> 18u;
+
+        can_rxBuffer.canNode = pNode;
+        can_rxBuffer.id      = id;
+        can_rxBuffer.data[0] = messageData[0];
+        can_rxBuffer.data[1] = messageData[1];
+        can_rxBuffer.data[2] = messageData[2];
+        can_rxBuffer.data[3] = messageData[3];
+        can_rxBuffer.data[4] = messageData[4];
+        can_rxBuffer.data[5] = messageData[5];
+        can_rxBuffer.data[6] = messageData[6];
+        can_rxBuffer.data[7] = messageData[7];
+
+        if (pdPASS == xQueueSendToBackFromISR(ftsk_canRxQueue, (void *)&can_rxBuffer, NULL)) {
+            /* queue is not full */
+            DIAG_Handler(DIAG_ID_CAN_RX_QUEUE_FULL, DIAG_EVENT_OK, DIAG_SYSTEM, 0u);
+        } else {
+            /* queue is full */
+            DIAG_Handler(DIAG_ID_CAN_RX_QUEUE_FULL, DIAG_EVENT_NOT_OK, DIAG_SYSTEM, 0u);
         }
     }
 }
@@ -521,7 +522,7 @@ extern STD_RETURN_TYPE_e CAN_TransmitBootMessage(void) {
     data[CAN_BYTE_6_POSITION] = (uint8_t)((deviceRegister >> 8u) & 0xFFu);
     data[CAN_BYTE_7_POSITION] = (uint8_t)(deviceRegister & 0xFFu);
 
-    STD_RETURN_TYPE_e retval = CAN_DataSend(CAN0_NODE, CAN_ID_BOOT_MESSAGE, &data[0]);
+    STD_RETURN_TYPE_e retval = CAN_DataSend(CAN1_NODE, CAN_ID_BOOT_MESSAGE, &data[0]);
 
     return retval;
 }

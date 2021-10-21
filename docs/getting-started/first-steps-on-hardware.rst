@@ -64,5 +64,5 @@ After these steps, it should be possible to halt and re-start the target.
 The variable ``os_timer`` should show incremented values when halting the
 target.
 Central data structures such as ``bms_state``, ``sys_state``,
-``cont_contactorStates`` and ``ltc_cellvoltage`` (for
-:ref:`MICs <MEASUREMENT_IC_API>` of the LTC family).
+``cont_contactorStates`` and ``ltc_cellVoltage`` (for
+:ref:`AFEs <ANALOG_FRONT_END_API>` of the LTC family).

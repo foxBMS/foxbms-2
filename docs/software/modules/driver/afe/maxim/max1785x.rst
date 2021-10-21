@@ -1,0 +1,39 @@
+.. include:: ./../../../../../macros.txt
+.. include:: ./../../../../../units.txt
+
+.. _MAX1785X:
+
+MAX1785x
+========
+
+..
+    Comments:
+    uphost and downhost are terms in Maxim driver to describe the communication path
+
+.. spelling::
+    uphost
+    downhost
+
+This module supports the `MAX17852` and `MAX17853` monitoring ICs by Maxim
+Integrated.
+Communication with these ICs is handled through a `MAX17841B` bridge IC.
+The communication between bridge IC and monitoring IC is encoded
+as Maxim Battery Management UART, which is a optimized, differential variant
+of UART with a focus on robustness.
+
+A typical setup consists of one master unit with one to two bridge ICs and
+several monitoring ICs in a daisy-chain. The current implementation of the
+driver supports communication through one bridge IC (the "uphost path"), but
+the hardware supports a redundant approach by adding read only communication on
+the "downhost path".
+
+Driver structure
+----------------
+
+The driver is separated into three main modules with additional helper modules.
+The three main modules are:
+
+  * MAX17841B bridge IC driver in ``mxm_17841b.c``,
+  * Battery Management UART protocol abstraction in
+    ``max_battery_management.c`` and
+  * MAX1785x device driver in ``mxm_1785x.c``.

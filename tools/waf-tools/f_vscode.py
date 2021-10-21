@@ -246,8 +246,8 @@ def configure(conf):  # pylint: disable=too-many-statements,too-many-branches
     except jsonschema.exceptions.ValidationError as err:
         good_values = ", ".join([f"'{i}'" for i in err.validator_value])
         conf.fatal(
-            f"Measurement IC '{err.instance}' is not supported. Use one of "
-            f"these: {good_values}."
+            f"Analog Front-End '{err.instance}' is not supported.\n"
+            f"Use one of these: {good_values}."
         )
     bal = bms_config["slave-unit"]["balancing-strategy"]
     soc = bms_config["application"]["algorithm"]["state-estimation"]["soc"]
@@ -258,17 +258,15 @@ def configure(conf):  # pylint: disable=too-many-statements,too-many-branches
     imd_manufacturer = imd["manufacturer"]
     imd_model = imd["model"]
 
-    chip = bms_config["slave-unit"]["measurement-ic"]["chip"]
+    chip = bms_config["slave-unit"]["analog-front-end"]["chip"]
     if chip in ("6804-1", "6811-1", "6812-1"):
         chip = "6813-1"
     c_cpp_properties = template.render(
         ARMCL=pathlib.Path(conf.env.CC[0]).as_posix(),
         OS=bms_config["operating-system"]["name"],
         BALANCING_STRATEGY=bal,
-        MEASUREMENT_IC_MANUFACTURER=bms_config["slave-unit"]["measurement-ic"][
-            "manufacturer"
-        ],
-        MEASUREMENT_IC_CHIP=chip,
+        AFE_MANUFACTURER=bms_config["slave-unit"]["analog-front-end"]["manufacturer"],
+        AFE_CHIP=chip,
         TEMPERATURE_SENSOR_MANUFACTURER=bms_config["slave-unit"]["temperature-sensor"][
             "manufacturer"
         ],

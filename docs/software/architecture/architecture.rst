@@ -8,7 +8,11 @@ Software Architecture
 #####################
 
 The following section describes the diagnostics and safety focused BMS software
-architecture as depicted in :numref:`sw-architecture`
+architecture as depicted in :numref:`sw-architecture`.
+A detailed version of the architecture is shown in
+:numref:`axivion_architecture`.
+This view is exported from :ref:`AXIVION_BAUHAUS_SUITE` and should be viewed
+and verified in the tool itself for best performance.
 
    .. figure:: img/sw-architecture.png
       :alt: Software architecture
@@ -16,7 +20,7 @@ architecture as depicted in :numref:`sw-architecture`
       :width: 65 %
       :align: center
 
-      foxBMS 2 - Software architecture
+      |foxbms| - Software architecture
 
 A **hardware abstraction layer (HAL)** provides various interfaces to directly
 access the hardware and its peripherals. This enables encapsulation of the
@@ -57,3 +61,12 @@ The foxBMS software itself is grouped into three different layers:
   errors, ...), state estimation functionalities (state-of-charge, state-of-
   health, state-of-energy) and the vehicle specific BMS application is done
   within the **application layer**.
+
+
+  .. figure:: img/axivion_architecture.svg
+      :alt: Detailed software architecture
+      :name: axivion_architecture
+      :width: 100 %
+      :align: center
+
+      |foxbms| - Detailed software architecture

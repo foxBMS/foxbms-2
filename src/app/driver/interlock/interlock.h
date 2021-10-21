@@ -43,7 +43,7 @@
  * @file    interlock.h
  * @author  foxBMS Team
  * @date    2020-02-24 (date of creation)
- * @updated 2020-02-24 (date of last update)
+ * @updated 2021-10-18 (date of last update)
  * @ingroup DRIVERS
  * @prefix  ILCK
  *
@@ -64,14 +64,9 @@
  */
 typedef enum {
     /* Init-Sequence */
-    ILCK_STATEMACH_UNINITIALIZED,      /*!< Uninitialized state */
-    ILCK_STATEMACH_INITIALIZATION,     /*!< Initialization state */
-    ILCK_STATEMACH_INITIALIZED,        /*!< statemachine initialized */
-    ILCK_STATEMACH_WAIT_FIRST_REQUEST, /*!< wait for open/close request */
-    ILCK_STATEMACH_OPEN,               /*!< state to open interlock */
-    ILCK_STATEMACH_CLOSED,             /*!< state to close interlock */
-    ILCK_STATEMACH_UNDEFINED,          /*!< undefined state */
-    ILCK_STATEMACH_ERROR,              /*!< Error-State:  */
+    ILCK_STATEMACHINE_UNINITIALIZED, /*!< Uninitialized state */
+    ILCK_STATEMACHINE_INITIALIZED,   /*!< statemachine initialized */
+    ILCK_STATEMACHINE_UNDEFINED,     /*!< undefined state */
 } ILCK_STATEMACH_e;
 
 /**
@@ -85,10 +80,7 @@ typedef enum {
  * State requests for the ILCK statemachine
  */
 typedef enum {
-    ILCK_STATE_INIT_REQUEST,
-    ILCK_STATE_OPEN_REQUEST,
-    ILCK_STATE_CLOSE_REQUEST,
-    ILCK_STATE_ERROR_REQUEST,
+    ILCK_STATE_INITIALIZATION_REQUEST,
     ILCK_STATE_NO_REQUEST,
 } ILCK_STATE_REQUEST_e;
 
@@ -97,13 +89,9 @@ typedef enum {
  */
 typedef enum {
     ILCK_OK,                  /*!< ILCK --> ok                             */
-    ILCK_BUSY_OK,             /*!< ILCK under load --> ok                  */
     ILCK_REQUEST_PENDING,     /*!< requested to be executed                */
-    ILCK_ILLEGAL_REQUEST,     /*!< Request can not be executed             */
-    ILCK_INIT_ERROR,          /*!< Error state: Source: Initialization     */
-    ILCK_ERROR,               /*!< General error state                     */
     ILCK_ALREADY_INITIALIZED, /*!< Initialization of ilck already finished */
-    ILCK_ILLEGAL_TASK_TYPE,   /*!< Illegal                                 */
+    ILCK_ILLEGAL_REQUEST,     /*!< Request can not be executed             */
 } ILCK_RETURN_TYPE_e;
 
 /**
@@ -135,13 +123,6 @@ typedef struct {
  * @return  retVal (type: STD_RETURN_TYPE_e)
  */
 extern STD_RETURN_TYPE_e ILCK_Init(void);
-
-/**
- * @brief   Reads the feedback pin of the interlock and returns its current value
- *          (ILCK_SWITCH_OFF/ILCK_SWITCH_ON)
- * @return  measuredInterlockState (type: ILCK_ELECTRICAL_STATE_TYPE_e)
- */
-extern ILCK_ELECTRICAL_STATE_TYPE_e ILCK_GetInterlockFeedback(void);
 
 /**
  * @brief   sets the current state request of the state variable ilck_state.
@@ -179,6 +160,7 @@ extern void ILCK_Trigger(void);
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 #ifdef UNITY_UNIT_TEST
 extern void TEST_ILCK_SetStateStruct(ILCK_STATE_s state);
+extern ILCK_ELECTRICAL_STATE_TYPE_e TEST_ILCK_GetInterlockFeedback(void);
 #endif
 
 #endif /* FOXBMS__INTERLOCK_H_ */

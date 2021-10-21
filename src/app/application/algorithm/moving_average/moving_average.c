@@ -43,7 +43,7 @@
  * @file    moving_average.c
  * @author  foxBMS Team
  * @date    2017-12-18 (date of creation)
- * @updated 2020-07-01 (date of last update)
+ * @updated 2021-09-08 (date of last update)
  * @ingroup ALGORITHMS
  * @prefix  ALGO
  *
@@ -144,8 +144,8 @@ static uint32_t movingAveragePowerLength                                      = 
 #endif
 
 /** Pointer for current moving average calculation @{*/
-static float *pMovingAverageCurrrentNew = &curValues[0];
-static float *pMovingAverageCurrrent_1s = &curValues[0];
+static float *pMovingAverageCurrentNew  = &curValues[0];
+static float *pMovingAverageCurrent_1s  = &curValues[0];
 static float *pMovingAverageCurrent_5s  = &curValues[0];
 static float *pMovingAverageCurrent_10s = &curValues[0];
 static float *pMovingAverageCurrent_30s = &curValues[0];
@@ -205,30 +205,30 @@ extern void ALGO_MovAverage() {
             }
 
             /* Add value to array and calculate new moving average values */
-            *pMovingAverageCurrrentNew = packCurrent;
+            *pMovingAverageCurrentNew = packCurrent;
 
             /* Calculate new moving average - first add new value */
             divider = ALGO_NUMBER_AVERAGE_VALUES_CUR_1s;
-            movingAverage_tab.movingAverageCurrent1sInterval_mA += (*pMovingAverageCurrrentNew) / divider;
+            movingAverage_tab.movingAverageCurrent1sInterval_mA += (*pMovingAverageCurrentNew) / divider;
             divider = ALGO_NUMBER_AVERAGE_VALUES_CUR_5s;
-            movingAverage_tab.movingAverageCurrent5sInterval_mA += (*pMovingAverageCurrrentNew) / divider;
+            movingAverage_tab.movingAverageCurrent5sInterval_mA += (*pMovingAverageCurrentNew) / divider;
             divider = ALGO_NUMBER_AVERAGE_VALUES_CUR_10s;
-            movingAverage_tab.movingAverageCurrent10sInterval_mA += (*pMovingAverageCurrrentNew) / divider;
+            movingAverage_tab.movingAverageCurrent10sInterval_mA += (*pMovingAverageCurrentNew) / divider;
             divider = ALGO_NUMBER_AVERAGE_VALUES_CUR_30s;
-            movingAverage_tab.movingAverageCurrent30sInterval_mA += (*pMovingAverageCurrrentNew) / divider;
+            movingAverage_tab.movingAverageCurrent30sInterval_mA += (*pMovingAverageCurrentNew) / divider;
             divider = ALGO_NUMBER_AVERAGE_VALUES_CUR_60s;
-            movingAverage_tab.movingAverageCurrent60sInterval_mA += (*pMovingAverageCurrrentNew) / divider;
+            movingAverage_tab.movingAverageCurrent60sInterval_mA += (*pMovingAverageCurrentNew) / divider;
             divider = ALGO_NUMBER_AVERAGE_VALUES_CUR_CFG;
-            movingAverage_tab.movingAverageCurrentConfigurableInterval_mA += (*pMovingAverageCurrrentNew) / divider;
+            movingAverage_tab.movingAverageCurrentConfigurableInterval_mA += (*pMovingAverageCurrentNew) / divider;
 
             /* Then, increment pointer and substract oldest value when respective window is filled with data */
-            pMovingAverageCurrrentNew++;
+            pMovingAverageCurrentNew++;
             if ((curInit & 0x01u) == 0x01u) {
                 divider = ALGO_NUMBER_AVERAGE_VALUES_CUR_1s;
-                movingAverage_tab.movingAverageCurrent1sInterval_mA -= ((*pMovingAverageCurrrent_1s) / divider);
-                pMovingAverageCurrrent_1s++;
+                movingAverage_tab.movingAverageCurrent1sInterval_mA -= ((*pMovingAverageCurrent_1s) / divider);
+                pMovingAverageCurrent_1s++;
             } else {
-                if (pMovingAverageCurrrentNew == &curValues[ALGO_NUMBER_AVERAGE_VALUES_CUR_1s]) {
+                if (pMovingAverageCurrentNew == &curValues[ALGO_NUMBER_AVERAGE_VALUES_CUR_1s]) {
                     curInit |= 0x01u;
                 }
             }
@@ -237,7 +237,7 @@ extern void ALGO_MovAverage() {
                 movingAverage_tab.movingAverageCurrent5sInterval_mA -= (*pMovingAverageCurrent_5s) / divider;
                 pMovingAverageCurrent_5s++;
             } else {
-                if (pMovingAverageCurrrentNew == &curValues[ALGO_NUMBER_AVERAGE_VALUES_CUR_5s]) {
+                if (pMovingAverageCurrentNew == &curValues[ALGO_NUMBER_AVERAGE_VALUES_CUR_5s]) {
                     curInit |= 0x02u;
                 }
             }
@@ -246,7 +246,7 @@ extern void ALGO_MovAverage() {
                 movingAverage_tab.movingAverageCurrent10sInterval_mA -= (*pMovingAverageCurrent_10s) / divider;
                 pMovingAverageCurrent_10s++;
             } else {
-                if (pMovingAverageCurrrentNew == &curValues[ALGO_NUMBER_AVERAGE_VALUES_CUR_10s]) {
+                if (pMovingAverageCurrentNew == &curValues[ALGO_NUMBER_AVERAGE_VALUES_CUR_10s]) {
                     curInit |= 0x04u;
                 }
             }
@@ -255,7 +255,7 @@ extern void ALGO_MovAverage() {
                 movingAverage_tab.movingAverageCurrent30sInterval_mA -= (*pMovingAverageCurrent_30s) / divider;
                 pMovingAverageCurrent_30s++;
             } else {
-                if (pMovingAverageCurrrentNew == &curValues[ALGO_NUMBER_AVERAGE_VALUES_CUR_30s]) {
+                if (pMovingAverageCurrentNew == &curValues[ALGO_NUMBER_AVERAGE_VALUES_CUR_30s]) {
                     curInit |= 0x08u;
                 }
             }
@@ -264,7 +264,7 @@ extern void ALGO_MovAverage() {
                 movingAverage_tab.movingAverageCurrent60sInterval_mA -= (*pMovingAverageCurrent_60s) / divider;
                 pMovingAverageCurrent_60s++;
             } else {
-                if (pMovingAverageCurrrentNew == &curValues[ALGO_NUMBER_AVERAGE_VALUES_CUR_60s]) {
+                if (pMovingAverageCurrentNew == &curValues[ALGO_NUMBER_AVERAGE_VALUES_CUR_60s]) {
                     curInit |= 0x10u;
                 }
             }
@@ -273,17 +273,17 @@ extern void ALGO_MovAverage() {
                 movingAverage_tab.movingAverageCurrentConfigurableInterval_mA -= (*pMovingAverageCurrent_cfg) / divider;
                 pMovingAverageCurrent_cfg++;
             } else {
-                if (pMovingAverageCurrrentNew == &curValues[ALGO_NUMBER_AVERAGE_VALUES_CUR_CFG]) {
+                if (pMovingAverageCurrentNew == &curValues[ALGO_NUMBER_AVERAGE_VALUES_CUR_CFG]) {
                     curInit |= 0x20u;
                 }
             }
 
             /* Check pointer for buffer overflow */
-            if (pMovingAverageCurrrentNew > &curValues[movingAverageCurrentLength - 1u]) {
-                pMovingAverageCurrrentNew = &curValues[0u];
+            if (pMovingAverageCurrentNew > &curValues[movingAverageCurrentLength - 1u]) {
+                pMovingAverageCurrentNew = &curValues[0u];
             }
-            if (pMovingAverageCurrrent_1s > &curValues[movingAverageCurrentLength - 1u]) {
-                pMovingAverageCurrrent_1s = &curValues[0u];
+            if (pMovingAverageCurrent_1s > &curValues[movingAverageCurrentLength - 1u]) {
+                pMovingAverageCurrent_1s = &curValues[0u];
             }
             if (pMovingAverageCurrent_5s > &curValues[movingAverageCurrentLength - 1u]) {
                 pMovingAverageCurrent_5s = &curValues[0u];

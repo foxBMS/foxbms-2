@@ -165,9 +165,9 @@ typedef enum BS_STRING_ID {
 #define BS_NR_OF_TEMP_SENSORS (BS_NR_OF_TEMP_SENSORS_PER_STRING * BS_NR_OF_STRINGS)
 
 /** number of temperature sensors on each ADC0 channel of the slave-board */
-#define BS_NR_OF_TEMP_SENSORS_ON_ADC0 (3u)
+#define BS_NR_OF_TEMP_SENSORS_ON_SADC0 (3u)
 /** number of temperature sensors on each ADC1 channel of the slave-board */
-#define BS_NR_OF_TEMP_SENSORS_ON_ADC1 (3u)
+#define BS_NR_OF_TEMP_SENSORS_ON_SADC1 (3u)
 
 /**
  * @details - If set to false, foxBMS does not check for the presence of a
@@ -211,6 +211,14 @@ typedef enum BS_STRING_ID {
  *          requested and contactors will open.
  */
 #define BS_MAXIMUM_PACK_CURRENT_mA (10000u * BS_NR_OF_STRINGS)
+
+/**
+ * @ingroup CONFIG_BATTERYSYSTEM
+ * @brief   Define if interlock feedback should be discarded or not
+ * @details True: interlock feedback will be discarded
+ *          False: interlock feedback will evaluated
+ */
+#define BS_IGNORE_INTERLOCK_FEEDBACK (false)
 
 /**
  * @details - If set to false, foxBMS does not check CAN timing.

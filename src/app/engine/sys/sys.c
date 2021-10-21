@@ -43,7 +43,7 @@
  * @file    sys.c
  * @author  foxBMS Team
  * @date    2020-02-24 (date of creation)
- * @updated 2021-06-24 (date of last update)
+ * @updated 2021-10-12 (date of last update)
  * @ingroup ENGINE
  * @prefix  SYS
  *
@@ -196,7 +196,6 @@ static STD_RETURN_TYPE_e SYS_RunStateMachine(SYS_STATE_s *pSystemState) {
 
     SYS_STATE_REQUEST_e stateRequest               = SYS_STATE_NO_REQUEST;
     SBC_STATEMACHINE_e sbcState                    = SBC_STATEMACHINE_UNDEFINED;
-    ILCK_STATEMACH_e interlockState                = ILCK_STATEMACH_UNDEFINED;
     STD_RETURN_TYPE_e balancingInitializationState = STD_OK;
     BAL_RETURN_TYPE_e balancingGlobalEnableState   = BAL_ERROR;
     STD_RETURN_TYPE_e bmsState                     = STD_NOT_OK;
@@ -248,7 +247,7 @@ static STD_RETURN_TYPE_e SYS_RunStateMachine(SYS_STATE_s *pSystemState) {
                 sbcState = SBC_GetState(&sbc_stateMcuSupervisor);
                 if (sbcState == SBC_STATEMACHINE_RUNNING) {
                     pSystemState->timer    = SYS_FSM_SHORT_TIME;
-                    pSystemState->state    = SYS_STATEMACH_SYSTEM_BIST;
+                    pSystemState->state    = SYS_STATEMACH_INITIALIZE_CAN;
                     pSystemState->substate = SYS_ENTRY;
                     break;
                 } else {
@@ -265,6 +264,15 @@ static STD_RETURN_TYPE_e SYS_RunStateMachine(SYS_STATE_s *pSystemState) {
                 }
             }
             break;
+
+        /**************************** INITIALIZE CAN TRANSCEIVER ****************************/
+        case SYS_STATEMACH_INITIALIZE_CAN:
+            CAN_Initialize();
+            pSystemState->timer    = SYS_FSM_SHORT_TIME;
+            pSystemState->state    = SYS_STATEMACH_SYSTEM_BIST;
+            pSystemState->substate = SYS_ENTRY;
+            break;
+
         /**************************** EXECUTE STARTUP BIST **********************************/
         case SYS_STATEMACH_SYSTEM_BIST:
             SYS_SAVELASTSTATES(pSystemState);
@@ -291,34 +299,11 @@ static STD_RETURN_TYPE_e SYS_RunStateMachine(SYS_STATE_s *pSystemState) {
         /****************************INITIALIZE INTERLOCK*************************************/
         case SYS_STATEMACH_INITIALIZE_INTERLOCK:
             SYS_SAVELASTSTATES(pSystemState);
-
-            if (pSystemState->substate == SYS_ENTRY) {
-                ILCK_SetStateRequest(ILCK_STATE_INIT_REQUEST);
-                pSystemState->timer                 = SYS_FSM_SHORT_TIME;
-                pSystemState->substate              = SYS_WAIT_INITIALIZATION_INTERLOCK;
-                pSystemState->initializationTimeout = 0;
-                break;
-            } else if (pSystemState->substate == SYS_WAIT_INITIALIZATION_INTERLOCK) {
-                interlockState = ILCK_GetState();
-                if (interlockState == ILCK_STATEMACH_WAIT_FIRST_REQUEST) {
-                    ILCK_SetStateRequest(ILCK_STATE_OPEN_REQUEST);
-                    pSystemState->timer    = SYS_FSM_SHORT_TIME;
-                    pSystemState->state    = SYS_STATEMACH_INITIALIZE_BALANCING;
-                    pSystemState->substate = SYS_ENTRY;
-                    break;
-                } else {
-                    if (pSystemState->initializationTimeout >
-                        (SYS_STATEMACH_INITIALIZATION_TIMEOUT_MS / SYS_TASK_CYCLE_CONTEXT_MS)) {
-                        pSystemState->timer    = SYS_FSM_SHORT_TIME;
-                        pSystemState->state    = SYS_STATEMACH_ERROR;
-                        pSystemState->substate = SYS_ILCK_INIT_ERROR;
-                        break;
-                    }
-                    pSystemState->timer = SYS_FSM_SHORT_TIME;
-                    pSystemState->initializationTimeout++;
-                    break;
-                }
-            }
+            ILCK_SetStateRequest(ILCK_STATE_INITIALIZATION_REQUEST);
+            pSystemState->timer                 = SYS_FSM_SHORT_TIME;
+            pSystemState->state                 = SYS_STATEMACH_INITIALIZE_BALANCING;
+            pSystemState->substate              = SYS_ENTRY;
+            pSystemState->initializationTimeout = 0;
             break;
 
         /****************************INITIALIZE CONTACTORS*************************************/

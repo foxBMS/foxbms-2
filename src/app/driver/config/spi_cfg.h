@@ -43,7 +43,7 @@
  * @file    spi_cfg.h
  * @author  foxBMS Team
  * @date    2020-03-05 (date of creation)
- * @updated 2020-03-05 (date of last update)
+ * @updated 2020-09-30 (date of last update)
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  SPI
  *
@@ -113,8 +113,6 @@ typedef struct SPI_INTERFACE_CONFIG {
 } SPI_INTERFACE_CONFIG_s;
 
 /*========== Extern Constant and Variable Declarations ======================*/
-extern const spiDAT1_t spi_kNxp775DataConfig;
-
 extern SPI_INTERFACE_CONFIG_s spi_ltcInterface[BS_NR_OF_STRINGS];
 extern SPI_INTERFACE_CONFIG_s spi_MxmInterface;
 extern SPI_INTERFACE_CONFIG_s spi_nxp775Interface;

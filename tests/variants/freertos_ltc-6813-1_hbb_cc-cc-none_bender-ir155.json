@@ -1,0 +1,30 @@
+{
+    "slave-unit": {
+        "analog-front-end": {
+            "manufacturer": "ltc",
+            "chip": "6813-1"
+        },
+        "balancing-strategy": "history",
+        "temperature-sensor": {
+            "manufacturer": "epcos",
+            "model": "b57251v5103j060",
+            "method": "polynomial"
+        }
+    },
+    "application": {
+        "algorithm": {
+            "state-estimation": {
+                "soc": "counting",
+                "soe": "counting",
+                "soh": "none"
+            }
+        },
+        "insulation-monitoring-device": {
+            "manufacturer": "bender",
+            "model": "ir155"
+        }
+    },
+    "operating-system": {
+        "name": "freertos"
+    }
+}

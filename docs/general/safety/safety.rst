@@ -37,7 +37,7 @@ users:
 
 A list of standards that might fit to the target application can be found here:
 
-- http://www.mpoweruk.com/standards.htm
+- https://www.mpoweruk.com/standards.htm
 
 
 Standards

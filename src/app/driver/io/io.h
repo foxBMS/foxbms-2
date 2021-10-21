@@ -64,6 +64,26 @@
 
 /*========== Extern Function Prototypes =====================================*/
 /**
+ * @brief   Set pin to output by writing in pin direction register.
+ * @details The TMS570LC43 has only few dedicated GPIO register. Most of the
+ *          time the IOs are controlled by a dedicated register in the
+ *          corresponding peripheral.
+ * @param   pRegisterAddress    address of pin direction register
+ * @param   pin                 bit position corresponding to pin in register
+ */
+extern void IO_SetPinDirectionToOutput(volatile uint32_t *pRegisterAddress, uint32_t pin);
+
+/**
+ * @brief   Set pin to input by writing in pin direction register.
+ * @details The TMS570LC43 has only few dedicated GPIO register. Most of the
+ *          time the IOs are controlled by a dedicated register in the
+ *          corresponding peripheral.
+ * @param   pRegisterAddress    address of pin direction register
+ * @param   pin                 bit position corresponding to pin in register
+ */
+extern void IO_SetPinDirectionToInput(volatile uint32_t *pRegisterAddress, uint32_t pin);
+
+/**
  * @brief   Set pin by writing in pin output register.
  * @details The TMS570LC43 has only few dedicated GPIO register. Most of the
  *          time the IOs are controlled by a dedicated register in the
@@ -74,7 +94,7 @@
 extern void IO_PinSet(volatile uint32_t *pRegisterAddress, uint32_t pin);
 
 /**
- * @brief   Set pin by writing in pin output register.
+ * @brief   Reset pin by writing in pin output register.
  * @details The TMS570LC43 has only few dedicated GPIO register. Most of the
  *          time the IOs are controlled by a dedicated register in the
  *          corresponding peripheral.

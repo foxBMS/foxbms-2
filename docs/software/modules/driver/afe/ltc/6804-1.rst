@@ -1,0 +1,14 @@
+.. include:: ./../../../../../macros.txt
+.. include:: ./../../../../../units.txt
+
+.. _LTC_6804_1:
+
+LTC 6804-1
+==========
+
+The *LTC 6804-1* is the third generation AFE by Analog Devices
+(formerly Linear Technology).
+A *LTC 6804-1* compatible driver is implemented in |foxbms| for the fourth
+generation *LTC 6811-1*.
+
+See :ref:`LTC_6812_1`.

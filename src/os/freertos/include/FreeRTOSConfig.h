@@ -62,7 +62,9 @@
 #define configUSE_MALLOC_FAILED_HOOK               ( 0 )
 
 #define configCHECK_FOR_STACK_OVERFLOW             ( 0 )
+#define configRECORD_STACK_HIGH_ADDRESS            ( 1 )
 
+#define configAPPLICATION_ALLOCATED_HEAP           ( 0 )
 #define configSUPPORT_STATIC_ALLOCATION            ( 1 )
 #define configSUPPORT_DYNAMIC_ALLOCATION           ( 0 )
 

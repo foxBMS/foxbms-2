@@ -48,6 +48,7 @@ import pathlib
 import re
 import shutil
 import sys
+from hashlib import md5
 
 import waflib.Tools.asm
 from waflib import Context, Logs, Task, TaskGen, Utils, Errors
@@ -750,8 +751,12 @@ def tiprogram(bld, *k, **kw):
         kw["features"] += " hexgen"
         bld.env.LINKER_SCRIPT_HEX = kw["linker_script_hex"].abspath()
         bld.add_manual_dependency(tgt_elf, kw["linker_script_hex"])
-
-        elf_file_hash = binascii.hexlify(Utils.h_file(kw["linker_script"].abspath()))
+        # get the file hash assuming Unix-style line endings
+        elf_file_hash = binascii.hexlify(
+            md5(
+                kw["linker_script"].read().replace("\r\n", "\n").encode("utf-8")
+            ).digest()
+        )
         txt = kw["linker_script_hex"].read().strip().splitlines()[0]
         txt = re.search(r"\/\*(.*)\*\/", txt)
         try:
@@ -761,11 +766,13 @@ def tiprogram(bld, *k, **kw):
         known_hash = bytes(txt.strip(), encoding="utf-8")
         if not elf_file_hash == known_hash:
             bld.fatal(
-                f"The hash of {kw['linker_script'].abspath()} has changed from "
-                f"{known_hash} to {elf_file_hash}. Reflect the changes of "
-                "the elf file linker script in the hex file linker script and "
-                "update the file hash of the elf linker script in the hex "
-                "file linker script."
+                f"The hash of '{kw['linker_script'].abspath()}' has changed from "
+                f"'{known_hash.decode('utf-8')}' to '{elf_file_hash.decode('utf-8')}'.\n"
+                f"Reflect the changes in the elf file linker script "
+                f"('{kw['linker_script'].name}') in the hex file linker script "
+                f"('{kw['linker_script_hex'].name}') and then update the file hash "
+                f"generated based on the content of the elf linker script in the "
+                f"hex file linker script ('{kw['linker_script_hex'].abspath()}')."
             )
 
     return bld(*k, **kw)

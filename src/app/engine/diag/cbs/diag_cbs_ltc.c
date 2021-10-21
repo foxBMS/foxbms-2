@@ -98,10 +98,10 @@ extern void DIAG_ErrorLtc(
         }
     } else if (ch_id == DIAG_ID_LTC_CONFIG) {
         if (event == DIAG_EVENT_RESET) {
-            kpkDiagShim->pTableError->micConfigurationError[stringNumber] = 0;
+            kpkDiagShim->pTableError->afeConfigurationError[stringNumber] = 0;
         }
         if (event == DIAG_EVENT_NOT_OK) {
-            kpkDiagShim->pTableError->micConfigurationError[stringNumber] = 1;
+            kpkDiagShim->pTableError->afeConfigurationError[stringNumber] = 1;
         }
     } else if (ch_id == DIAG_ID_OPEN_WIRE) {
         if (event == DIAG_EVENT_RESET) {

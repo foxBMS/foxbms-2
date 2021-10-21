@@ -43,7 +43,7 @@
  * @file    sps.h
  * @author  foxBMS Team
  * @date    2020-10-14 (date of creation)
- * @updated 2020-10-14 (date of last update)
+ * @updated 2021-10-01 (date of last update)
  * @ingroup DRIVERS
  * @prefix  SPS
  *
@@ -109,7 +109,18 @@ extern void SPS_RequestGeneralIOState(SPS_CHANNEL_INDEX channelIndex, SPS_CHANNE
  * @param[in]   channelIndex    index of the channel (contactor) that should be accessed
  * @returns     state of the channel's feedback
  */
-extern CONT_ELECTRICAL_STATE_TYPE_e SPS_GetChannelFeedback(SPS_CHANNEL_INDEX channelIndex);
+extern CONT_ELECTRICAL_STATE_TYPE_e SPS_GetChannelCurrentFeedback(const SPS_CHANNEL_INDEX channelIndex);
+
+/**
+ * @brief   Get the feedback state of a channel
+ * @details Retrieves the feedback state of a sps channel by looking up the
+ *          appropriate channel in #sps_kChannelFeedbackMapping and retrieving
+ *          the value through the PEX API.
+ * @param[in]   channelIndex    number of the SPS channel that shall be checked
+ * @param[in]   normallyOpen    true if the feedback is normally open, false if not
+ * @return  state of the channel as reported by PEX
+ */
+extern CONT_ELECTRICAL_STATE_TYPE_e SPS_GetChannelPexFeedback(const SPS_CHANNEL_INDEX channelIndex, bool normallyOpen);
 
 /**
  * @brief   Returns the channel affiliation

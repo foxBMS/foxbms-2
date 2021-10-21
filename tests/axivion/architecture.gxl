@@ -140,7 +140,7 @@
     <node id="N14622">
       <type xlink:href="Cluster"/>
       <attr name="Source.Name">
-        <string>Measurement IC</string>
+        <string>Analog Front-End</string>
       </attr>
       <attr name="Linkage.Name">
         <string>515b9069-5530-4897-9777-6af92794f278</string>

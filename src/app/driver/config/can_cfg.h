@@ -43,7 +43,7 @@
  * @file    can_cfg.h
  * @author  foxBMS Team
  * @date    2019-12-04 (date of creation)
- * @updated 2021-07-29 (date of last update)
+ * @updated 2021-10-12 (date of last update)
  * @ingroup DRIVERS
  * @prefix  CAN
  *
@@ -60,9 +60,26 @@
 /*========== Includes =======================================================*/
 #include "general.h"
 
+#include "HL_can.h"
+
 #include "database.h"
 
 /*========== Macros and Definitions =========================================*/
+
+/** register on which the CAN interface is connected @{*/
+#define CAN1_NODE (canREG1)
+#define CAN2_NODE (canREG2)
+/**@}*/
+
+/**
+ * Configuration of CAN transceiver pins to the respective port expander pins.
+ * @{
+ */
+#define CAN1_ENABLE_PIN  (PEX_PIN00)
+#define CAN1_STANDBY_PIN (PEX_PIN01)
+#define CAN2_ENABLE_PIN  (PEX_PIN02)
+#define CAN2_STANDBY_PIN (PEX_PIN03)
+/**@}*/
 
 /** Maximum ID if 11 bits are used */
 #define CAN_MAX_11BIT_ID (2048u)
@@ -74,8 +91,6 @@
 
 /** TX messages - pack related */
 
-/** CAN message ID to send voltages */
-
 /** CAN message ID to send state */
 #define CAN_ID_TX_STATE (0x220U)
 /** Periodicity of CAN state messages in ms */
@@ -83,6 +98,7 @@
 /** Phase of CAN state messages in ms */
 #define CAN_TX_STATE_PHASE_MS (0U)
 
+/** CAN message ID to send voltages */
 #define CAN_ID_TX_VOLTAGES (0x240U)
 /** Periodicity of CAN voltage messages in ms */
 #define CAN_TX_VOLTAGES_PERIOD_MS (100U)
@@ -191,8 +207,8 @@
 /** CAN message ID for response message from iso165c */
 #define CAN_ID_IMD_RESPONSE (0x23U)
 
-/* IDs for the messages from the current sensors */
-/* String 0 */
+/** IDs for the messages from the current sensors */
+/** String 0 @{*/
 #define CAN_ID_STRING0_CURRENT         (0x521u)
 #define CAN_ID_STRING0_VOLTAGE1        (0x522u)
 #define CAN_ID_STRING0_VOLTAGE2        (0x523u)
@@ -201,7 +217,8 @@
 #define CAN_ID_STRING0_POWER           (0x526u)
 #define CAN_ID_STRING0_CURRENT_COUNTER (0x527u)
 #define CAN_ID_STRING0_ENERGY_COUNTER  (0x528u)
-/* String 1 */
+/**@}
+ * String 1 @{*/
 #define CAN_ID_STRING1_CURRENT         (0x621u)
 #define CAN_ID_STRING1_VOLTAGE1        (0x622u)
 #define CAN_ID_STRING1_VOLTAGE2        (0x623u)
@@ -210,7 +227,8 @@
 #define CAN_ID_STRING1_POWER           (0x626u)
 #define CAN_ID_STRING1_CURRENT_COUNTER (0x627u)
 #define CAN_ID_STRING1_ENERGY_COUNTER  (0x628u)
-/* String 2 */
+/**@}
+ * String 2 @{*/
 #define CAN_ID_STRING2_CURRENT         (0x721u)
 #define CAN_ID_STRING2_VOLTAGE1        (0x722u)
 #define CAN_ID_STRING2_VOLTAGE2        (0x723u)
@@ -219,27 +237,11 @@
 #define CAN_ID_STRING2_POWER           (0x726u)
 #define CAN_ID_STRING2_CURRENT_COUNTER (0x727u)
 #define CAN_ID_STRING2_ENERGY_COUNTER  (0x728u)
-
-/** macro for the register that handles the CAN-interface */
-#define CAN_HET1_GIO (hetREG1)
-
-/** register pin that handles enable */
-#define CAN_HET1_EN_PIN (14U)
-/** register pin that handles standby */
-#define CAN_HET1_STB_PIN (16U)
-
-/** Buffer element used to store the ID and data of a CAN RX message */
-typedef struct CAN_BUFFERELEMENT {
-    uint32_t id;               /*!< ID of the CAN message */
-    uint8_t data[CAN_MAX_DLC]; /*!< payload of the CAN message */
-} CAN_BUFFERELEMENT_s;
+/**@}*/
 
 /* **************************************************************************************
  *  CAN BUFFER OPTIONS
  *****************************************************************************************/
-
-/** delay in &micro;s used in #CAN_InitializeTransceiver for pin-toggling */
-#define CAN_PIN_TOGGLE_DELAY_US (5u)
 
 /** Enum for byte order (endianness)
  * \verbatim
@@ -290,9 +292,16 @@ typedef enum CAN_ENDIANNESS {
     CAN_BIG_ENDIAN,
 } CAN_ENDIANNESS_e;
 
+/** Buffer element used to store the ID and data of a CAN RX message */
+typedef struct CAN_BUFFERELEMENT {
+    canBASE_t *canNode;        /*!< CAN node on which the message has been received */
+    uint32_t id;               /*!< ID of the CAN message */
+    uint8_t data[CAN_MAX_DLC]; /*!< payload of the CAN message */
+} CAN_BUFFERELEMENT_s;
+
 /** composite type for storing and passing on the local database table handles */
 typedef struct CAN_SHIM {
-    QueueHandle_t *pQueueImd;
+    QueueHandle_t *pQueueImd;                             /*!< handle of the message queue */
     DATA_BLOCK_CELL_VOLTAGE_s *pTableCellVoltage;         /*!< database table with cell voltages */
     DATA_BLOCK_CELL_TEMPERATURE_s *pTableCellTemperature; /*!< database table with cell temperatures */
     DATA_BLOCK_MIN_MAX_s *pTableMinMax;                   /*!< database table with min/max values */
@@ -320,6 +329,7 @@ typedef uint32_t (*can_callback_funcPtr)(
 
 /** type definition for structure of a TX CAN message */
 typedef struct CAN_MSG_TX_TYPE {
+    canBASE_t *canNode;                    /*!< CAN node on which the message is transmitted */
     uint32_t id;                           /*!< CAN message id */
     uint8_t dlc;                           /*!< CAN message data length code */
     uint32_t repetitionTime;               /*!< CAN message cycle time */
@@ -332,6 +342,7 @@ typedef struct CAN_MSG_TX_TYPE {
 
 /** type definition for structure of an RX CAN message */
 typedef struct CAN_MSG_RX_TYPE {
+    canBASE_t *canNode;                    /*!< CAN node on which the message is received */
     uint32_t id;                           /*!< message ID */
     uint8_t dlc;                           /*!< data length */
     CAN_ENDIANNESS_e endianness;           /*!< Byte order (big or little endian) */

@@ -122,17 +122,17 @@ The Operating System is configured in ``conf/bms/bms.json``. The value for
 the Operating System sources. Currently only FreeRTOS is supported
 (option: ``"os": "freertos"``).
 
-Measurement IC
-""""""""""""""
+Analog Front-End
+""""""""""""""""
 
-The measurement IC is configured in ``conf/bms/bms.json``. The joint path
+The AFE is configured in ``conf/bms/bms.json``. The joint path
 from the values of ``manufacturer`` and ``chip`` must be the name of the
-source directory in ``src/app/driver/mic/<manufacturer>/<chip>`` that includes
+source directory in ``src/app/driver/afe/<manufacturer>/<chip>`` that includes
 the driver implementation. A list of supported ICs is found in
-:numref:`SUPPORTED_MEASUREMENT_ICS`.
+:numref:`SUPPORTED_ANALOG_FRONT_ENDS`.
 
 The build process behind this configuration is documented at
-:ref:`measurement_ic_library_build`.
+:ref:`afe_library_build`.
 
 Balancing Strategy
 """"""""""""""""""

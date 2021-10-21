@@ -120,6 +120,7 @@
                             "properties": {
                                 "model": {
                                     "enum": [
+                                        "ir155",
                                         "iso165c"
                                     ]
                                 }
@@ -133,15 +134,15 @@
             "$id": "/properties/slave-unit",
             "title": "Configuration of Slave Unit",
             "required": [
-                "measurement-ic",
+                "analog-front-end",
                 "balancing-strategy",
                 "temperature-sensor"
             ],
             "additionalProperties": false,
             "properties": {
-                "measurement-ic": {
-                    "$id": "/properties/slave-unit/measurement-ic",
-                    "title": "Configuration of the measurement IC",
+                "analog-front-end": {
+                    "$id": "/properties/slave-unit/analog-front-end",
+                    "title": "Configuration of the Analog Front-End",
                     "required": [
                         "manufacturer",
                         "chip"
@@ -149,21 +150,19 @@
                     "additionalProperties": false,
                     "properties": {
                         "manufacturer": {
-                            "$id": "/properties/slave-unit/measurement-ic/manufacturer",
-                            "title": "Manufacturer of the measurement IC (must correspond to the directory name)",
+                            "$id": "/properties/slave-unit/analog-front-end/manufacturer",
+                            "title": "Manufacturer of the Analog Front-End (must correspond to the directory name)",
                             "type": "string",
                             "enum": [
                                 "ltc",
                                 "maxim",
                                 "nxp",
-                                "debug",
-                                "adi",
-                                "ti"
+                                "debug"
                             ]
                         },
                         "chip": {
-                            "$id": "/properties/slave-unit/measurement-ic/chip",
-                            "title": "Name of the chip (must correspond to the directory name)",
+                            "$id": "/properties/slave-unit/analog-front-end/chip",
+                            "title": "Name of the Analog Front-End (must correspond to the directory name)",
                             "type": "string"
                         }
                     },

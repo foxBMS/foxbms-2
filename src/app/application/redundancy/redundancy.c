@@ -43,7 +43,7 @@
  * @file    redundancy.c
  * @author  foxBMS Team
  * @date    2020-07-31 (date of creation)
- * @updated 2021-03-24 (date of last update)
+ * @updated 2021-10-14 (date of last update)
  * @ingroup APPLICATION
  * @prefix  MRC
  *
@@ -147,6 +147,11 @@ static void MRC_ValidateCurrentMeasurement(DATA_BLOCK_CURRENT_SENSOR_s *pTableCu
 static void MRC_ValidateStringVoltageMeasurement(
     DATA_BLOCK_CURRENT_SENSOR_s *pTableCurrentSensor,
     DATA_BLOCK_CELL_VOLTAGE_s *pTableCellVoltage);
+
+/**
+ * @brief Function to validate battery voltage measurement
+ */
+static void MRC_ValidateBatteryVoltageMeasurement(void);
 
 /**
  * @brief Function to validate results of high voltage measurement and calculate
@@ -311,7 +316,7 @@ static bool MRC_ValidateCellVoltageMeasurement(
     useCellvoltageRedundancy = DATA_DatabaseEntryUpdatedAtLeastOnce(pCellVoltageRedundancy0->header);
 
     /* ----------------- Check timestamp of base measurements--------------- */
-    if (DATA_EntryUpdatedWithinInterval(pCellVoltageBase->header, MRC_MIC_MEASUREMENT_PERIOD_TIMEOUT_ms) == true) {
+    if (DATA_EntryUpdatedWithinInterval(pCellVoltageBase->header, MRC_AFE_MEASUREMENT_PERIOD_TIMEOUT_ms) == true) {
         baseCellvoltageMeasurementTimeoutReached = false;
         (void)DIAG_Handler(DIAG_ID_BASE_CELL_VOLTAGE_MESUREMENT_TIMEOUT, DIAG_EVENT_OK, DIAG_SYSTEM, 0u);
     } else {
@@ -328,7 +333,7 @@ static bool MRC_ValidateCellVoltageMeasurement(
     }
 
     /* ----------------- Check timestamp of redundant measurements --------- */
-    if ((DATA_EntryUpdatedWithinInterval(pCellVoltageRedundancy0->header, MRC_MIC_MEASUREMENT_PERIOD_TIMEOUT_ms) ==
+    if ((DATA_EntryUpdatedWithinInterval(pCellVoltageRedundancy0->header, MRC_AFE_MEASUREMENT_PERIOD_TIMEOUT_ms) ==
          false) &&
         (useCellvoltageRedundancy == true)) {
         redundancy0CellvoltageMeasurementTimeoutReached = true;
@@ -438,7 +443,7 @@ static bool MRC_ValidateCellTemperatureMeasurement(
     useCelltemperatureRedundancy = DATA_DatabaseEntryUpdatedAtLeastOnce(pCellTemperatureRedundancy0->header);
 
     /* ----------------- Check timestamp of base measurements--------------- */
-    if (DATA_EntryUpdatedWithinInterval(pCellTemperatureBase->header, MRC_MIC_MEASUREMENT_PERIOD_TIMEOUT_ms) == true) {
+    if (DATA_EntryUpdatedWithinInterval(pCellTemperatureBase->header, MRC_AFE_MEASUREMENT_PERIOD_TIMEOUT_ms) == true) {
         baseCellTemperatureMeasurementTimeoutReached = false;
         (void)DIAG_Handler(DIAG_ID_BASE_CELL_TEMPERATURE_MESUREMENT_TIMEOUT, DIAG_EVENT_OK, DIAG_SYSTEM, 0u);
     } else {
@@ -454,7 +459,7 @@ static bool MRC_ValidateCellTemperatureMeasurement(
     }
 
     /* ----------------- Check timestamp of redundant measurements --------- */
-    if ((DATA_EntryUpdatedWithinInterval(pCellTemperatureRedundancy0->header, MRC_MIC_MEASUREMENT_PERIOD_TIMEOUT_ms) ==
+    if ((DATA_EntryUpdatedWithinInterval(pCellTemperatureRedundancy0->header, MRC_AFE_MEASUREMENT_PERIOD_TIMEOUT_ms) ==
          false) &&
         (useCelltemperatureRedundancy == true)) {
         redundancy0CellTemperatureMeasurementTimeoutReached = true;
@@ -603,7 +608,7 @@ static void MRC_ValidateStringVoltageMeasurement(
             MRC_CURRENT_SENSOR_MEASUREMENT_TIMEOUT_ms);
         DIAG_CheckEvent(updatedMeasurement, DIAG_ID_CURRENT_SENSOR_V1_MEASUREMENT_TIMEOUT, DIAG_STRING, stringNumber);
 
-        /* Perform plausibility check if MIC and new current sensor measurement is valid */
+        /* Perform plausibility check if AFE and new current sensor measurement is valid */
         if ((STD_OK == updatedMeasurement) &&
             (pTableCurrentSensor->invalidHighVoltageMeasurement[stringNumber][0u] == 0u) &&
             (pTableCellVoltage->nrValidCellVoltages[stringNumber] == BS_NR_OF_BAT_CELLS)) {
@@ -611,7 +616,7 @@ static void MRC_ValidateStringVoltageMeasurement(
                 pTableCellVoltage->packVoltage_mV[stringNumber], pTableCurrentSensor->highVoltage_mV[stringNumber][0u]);
             (void)DIAG_CheckEvent(voltagePlausible, DIAG_ID_PLAUSIBILITY_PACK_VOLTAGE, DIAG_STRING, stringNumber);
 
-            /* Use current sensor measurement */ /* TODO: use really current sensor? Average of both? MIC measurement? */
+            /* Use current sensor measurement */ /* TODO: use really current sensor? Average of both? AFE measurement? */
             mrc_tablePackValues.stringVoltage_mV[stringNumber] = pTableCurrentSensor->highVoltage_mV[stringNumber][0u];
 
             if (STD_OK == voltagePlausible) {
@@ -621,7 +626,7 @@ static void MRC_ValidateStringVoltageMeasurement(
             }
         } else {
             /* Plausibility check cannot be performed if we do not have valid
-             * values from MIC and current sensor measurement */
+             * values from AFE and current sensor measurement */
             (void)DIAG_CheckEvent(STD_NOT_OK, DIAG_ID_PLAUSIBILITY_PACK_VOLTAGE, DIAG_STRING, stringNumber);
 
             if ((STD_OK == updatedMeasurement) &&
@@ -631,11 +636,11 @@ static void MRC_ValidateStringVoltageMeasurement(
                     pTableCurrentSensor->highVoltage_mV[stringNumber][0u];
                 mrc_tablePackValues.invalidStringVoltage[stringNumber] = 0u;
             } else if (pTableCellVoltage->nrValidCellVoltages[stringNumber] == BS_NR_OF_BAT_CELLS) {
-                /* MIC measurement valid -> use this measurement */
+                /* AFE measurement valid -> use this measurement */
                 mrc_tablePackValues.stringVoltage_mV[stringNumber] = pTableCellVoltage->packVoltage_mV[stringNumber];
                 mrc_tablePackValues.invalidStringVoltage[stringNumber] = 0u;
             } else {
-                /* MIC and current sensor measurement invalid -> try to construct
+                /* AFE and current sensor measurement invalid -> try to construct
                  * a valid from the number of valid cell voltages and substitute
                  * invalid cell voltages with the average cell voltage. */
                 uint16_t numberInvalidCellVoltages =
@@ -654,6 +659,44 @@ static void MRC_ValidateStringVoltageMeasurement(
                 }
             }
         }
+    }
+}
+
+static void MRC_ValidateBatteryVoltageMeasurement(void) {
+    int64_t sumOfStringValues_mV       = 0;
+    int8_t numberOfValidStringVoltages = 0;
+    uint8_t numberOfConnectedStrings   = BMS_GetNumberOfConnectedStrings();
+
+    if (0u != numberOfConnectedStrings) {
+        /* Iterate over all strings to see which strings are connected */
+        for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
+            bool isStringConnected = BMS_IsStringClosed(s);
+            if ((0u == mrc_tablePackValues.invalidStringVoltage[s]) && (true == isStringConnected)) {
+                /* AXIVION Disable Style MisraC2012Directive-4.1: Values start with 0, iteration is less than UINT8_MAX; overflow impossible */
+                sumOfStringValues_mV += mrc_tablePackValues.stringVoltage_mV[s];
+                numberOfValidStringVoltages++;
+                /* AXIVION Enable Style MisraC2012Directive-4.1: */
+            }
+        }
+    } else {
+        /* Take average of all strings if no strings are connected */
+        for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
+            if (0u == mrc_tablePackValues.invalidStringVoltage[s]) {
+                /* AXIVION Disable Style MisraC2012Directive-4.1: Values start with 0, iteration is less than UINT8_MAX; overflow impossible */
+                sumOfStringValues_mV += mrc_tablePackValues.stringVoltage_mV[s];
+                numberOfValidStringVoltages++;
+                /* AXIVION Enable Style MisraC2012Directive-4.1: */
+            }
+        }
+    }
+
+    /* Only calculate average if at least one string voltage is valid */
+    if (0 != numberOfValidStringVoltages) {
+        /* AXIVION Disable Style MisraC2012Directive-4.1: truncation impossible; we sum INT32 values x times and divide by x, resulting in INT32 */
+        mrc_tablePackValues.batteryVoltage_mV = (int32_t)(sumOfStringValues_mV / numberOfValidStringVoltages);
+        /* AXIVION Enable Style MisraC2012Directive-4.1: */
+    } else {
+        mrc_tablePackValues.batteryVoltage_mV = INT32_MAX;
     }
 }
 
@@ -1091,7 +1134,7 @@ extern STD_RETURN_TYPE_e MRC_Initialize(void) {
     return retval;
 }
 
-extern STD_RETURN_TYPE_e MRC_ValidateMicMeasurement(void) {
+extern STD_RETURN_TYPE_e MRC_ValidateAfeMeasurement(void) {
     STD_RETURN_TYPE_e retval = STD_OK;
 
     DATA_BLOCK_CELL_VOLTAGE_s cellvoltageBase        = {.header.uniqueId = DATA_BLOCK_ID_CELL_VOLTAGE_BASE};
@@ -1132,6 +1175,7 @@ extern STD_RETURN_TYPE_e MRC_ValidatePackMeasurement(void) {
 
     MRC_ValidateCurrentMeasurement(&tableCurrentSensor);
     MRC_ValidateStringVoltageMeasurement(&tableCurrentSensor, &mrc_tableCellVoltages);
+    MRC_ValidateBatteryVoltageMeasurement();
     MRC_ValidateHighVoltageBusMeasurement(&tableCurrentSensor);
     MRC_ValidatePowerMeasurement(&tableCurrentSensor);
 
@@ -1173,6 +1217,9 @@ extern void TEST_MRC_ValidateStringVoltageMeasurement(
     DATA_BLOCK_CURRENT_SENSOR_s *pTableCurrentSensor,
     DATA_BLOCK_CELL_VOLTAGE_s *pTableCellVoltage) {
     MRC_ValidateStringVoltageMeasurement(pTableCurrentSensor, pTableCellVoltage);
+}
+extern void TEST_MRC_ValidateBatteryVoltageMeasurement(void) {
+    MRC_ValidateBatteryVoltageMeasurement();
 }
 extern void TEST_MRC_ValidateHighVoltageMeasurement(DATA_BLOCK_CURRENT_SENSOR_s *pTableCurrentSensor) {
     MRC_ValidateHighVoltageBusMeasurement(pTableCurrentSensor);

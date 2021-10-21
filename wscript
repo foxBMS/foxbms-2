@@ -76,7 +76,7 @@ top = "."  # pylint:disable=invalid-name
 APPNAME = "foxBMS"
 """name of the application. This is used in various waf functions"""
 
-VERSION = "1.1.2"
+VERSION = "1.2.0"
 """version of the application. This is used in various waf functions. This
 version must match the version number defined in ``macros.txt``. Otherwise a
 configuration error is thrown."""
@@ -242,8 +242,8 @@ def options(opt):
     opt.add_option(
         "--why", dest="WHY", action="store_true", help="Loads the 'why' tool."
     )
-    # add flasher tool
     opt.load("f_j_flash", tooldir=TOOLDIR)
+    opt.load("f_git_hooks", tooldir=TOOLDIR)
 
 
 def configure(conf):  # pylint: disable=too-many-statements,too-many-branches
@@ -271,24 +271,6 @@ def configure(conf):  # pylint: disable=too-many-statements,too-many-branches
     conf.msg("Checking project path", conf.path.abspath())
 
     version_consistency_checker(conf)
-
-    # load configuration files
-    conf_dir = conf.path.find_node(os.path.join(conf.path.relpath(), "conf"))
-    conf_env_dir = conf.path.find_node(os.path.join(conf_dir.relpath(), "env"))
-    conf_tpl_dir = conf.path.find_node(os.path.join(conf_dir.relpath(), "tpl"))
-
-    conf.env.conf_dir_abs, conf.env.conf_dir_rel = (
-        conf_dir.abspath(),
-        conf_dir.relpath(),
-    )
-    conf.env.conf_env_dir_abs, conf.env.conf_env_dir_rel = (
-        conf_env_dir.abspath(),
-        conf_env_dir.relpath(),
-    )
-    conf.env.conf_tpl_dir_abs, conf.env.conf_tpl_dir_rel = (
-        conf_tpl_dir.abspath(),
-        conf_tpl_dir.relpath(),
-    )
 
     conf.find_program("git", var="GIT")
     conf.load("f_node_helper", tooldir=TOOLDIR)
@@ -390,6 +372,7 @@ def configure(conf):  # pylint: disable=too-many-statements,too-many-branches
     # load VS Code setup as last foxBMS specific tool to ensure that all
     # variables have a meaningful value
     conf.load("f_vscode", tooldir=TOOLDIR)
+    conf.load("f_git_hooks", tooldir=TOOLDIR)
 
     # the project has been successfully configured, now we can set the
     # application name and version
@@ -407,7 +390,35 @@ def build(bld):  # pylint: disable=too-many-branches,too-many-statements
             f"{', '.join(BLD_VARIANTS)}.\nFor more details run 'python "
             f"tools{os.sep}waf --help'"
         )
-
+    # we need to patch the build instructions for the Axivion build, and by
+    # that the "normal" build using TI ARM CGT gets broken (only in that
+    # context!), therefore (build|clean)_axivion must only be used as last
+    # build commands if multiple commands are supplied.
+    all_commands = [bld.cmd] + Options.commands  # current command + remaining
+    if any(x in all_commands for x in ["build_axivion", "clean_axivion"]):
+        b_idx = sys.maxsize
+        try:
+            b_idx = all_commands.index("build_axivion")
+        except ValueError:
+            pass
+        c_idx = sys.maxsize
+        try:
+            c_idx = all_commands.index("clean_axivion")
+        except ValueError:
+            pass
+        min_idx = min([b_idx, c_idx])
+        ax_commands = all_commands[min_idx:]
+        err = 0
+        for i in ax_commands:
+            if not "_axivion" in i:
+                err += 1
+                Logs.error(f"'{i}' must not be used in that order {all_commands!r}.")
+        if err:
+            bld.fatal(
+                "Axivion related commands must be moved to the end of the "
+                "command list, i.e. all other build commands must precede the "
+                "axivion commands."
+            )
     version_consistency_checker(bld)
     bld.env.append_unique(
         "CMD_FILES",
@@ -426,8 +437,8 @@ def build(bld):  # pylint: disable=too-many-branches,too-many-statements
     except jsonschema.exceptions.ValidationError as err:
         good_values = ", ".join([f"'{i}'" for i in err.validator_value])
         bld.fatal(
-            f"Measurement IC '{err.instance}' is not supported. Use one of "
-            f"these: {good_values}."
+            f"Analog Front-End '{err.instance}' is not supported.\n"
+            f"Use one of these: {good_values}."
         )
 
     bld.env.operating_system = bms_config["operating-system"]["name"]
@@ -453,39 +464,28 @@ def build(bld):  # pylint: disable=too-many-branches,too-many-statements
     )
 
     slave_config = bms_config["slave-unit"]
-    config_measurement_ic = slave_config["measurement-ic"]
-    bld.env.measurement_ic_manufacturer = config_measurement_ic["manufacturer"]
-    chip = config_measurement_ic["chip"]
-    if chip in ("6804-1", "6811-1", "6812-1"):
-        chip = "6813-1"
-    bld.env.measurement_ic_chip = chip
-    # get measurement IC includes
+    afe = slave_config["analog-front-end"]
+    bld.env.afe_manufacturer = afe["manufacturer"]
+    bld.env.afe_chip = afe["chip"]
+    afe_ic_inc = afe["chip"]
+    if afe["chip"] in ("6804-1", "6811-1", "6812-1"):
+        afe_ic_inc = "6813-1"
+    # get AFE includes
     incs = os.path.join(
         "src",
         "app",
         "driver",
-        "mic",
-        bld.env.measurement_ic_manufacturer,
-        bld.env.measurement_ic_chip,
-        f"{bld.env.measurement_ic_manufacturer}_{bld.env.measurement_ic_chip}.json",
+        "afe",
+        afe["manufacturer"],
+        afe_ic_inc,
+        f"{afe['manufacturer']}_{afe_ic_inc}.json",
     )
-    measurement_ic_details = json.loads(bld.path.find_node(incs).read())
-    measurement_ic_includes = [
-        os.path.join(
-            "src",
-            "app",
-            "driver",
-            "mic",
-            config_measurement_ic["manufacturer"],
-            config_measurement_ic["chip"],
-            i,
-        )
-        for i in measurement_ic_details["include"]
+    afe_details = json.loads(bld.path.find_node(incs).read())
+    afe_includes = [
+        os.path.join("src", "app", "driver", "afe", afe["manufacturer"], afe["chip"], i)
+        for i in afe_details["include"]
     ]
-    bld.env.append_unique(
-        "INCLUDES_MEASUREMENT_IC",
-        [bld.path.find_node(i) for i in measurement_ic_includes],
-    )
+    bld.env.append_unique("INCLUDES_AFE", [bld.path.find_node(i) for i in afe_includes])
     bld.env.balancing_strategy = slave_config["balancing-strategy"]
     bld.env.balancing_possible = slave_config["balancing-strategy"] != "none"
 
@@ -540,8 +540,8 @@ def build(bld):  # pylint: disable=too-many-branches,too-many-statements
                     ["Setting", "Value"],
                     ["Operating system", bld.env.operating_system],
                     [
-                        "Measurement IC",
-                        f"{bld.env.measurement_ic_manufacturer} {bld.env.measurement_ic_chip}",
+                        "AFE",
+                        f"{bld.env.afe_manufacturer} {bld.env.afe_chip}",
                     ],
                     ["Balancing strategy", balancing_info_str],
                     [
@@ -667,9 +667,9 @@ def build(bld):  # pylint: disable=too-many-branches,too-many-statements
             bld.path.find_node(os.path.join("src", "hal")),
             bld.path.find_node(os.path.join("src", "os")),
             bld.path.find_node(os.path.join("src", "app", "driver", "imd", "bender")),
-            bld.path.find_node(os.path.join("src", "app", "driver", "mic", "ltc", "common", "ltc_pec.c")),
-            bld.path.find_node(os.path.join("src", "app", "driver", "mic", "ltc", "common", "ltc_pec.h")),
-            bld.path.find_node(os.path.join("src", "app", "driver", "mic", "nxp", "common", "MC33775A.h")),
+            bld.path.find_node(os.path.join("src", "app", "driver", "afe", "ltc", "common", "ltc_pec.c")),
+            bld.path.find_node(os.path.join("src", "app", "driver", "afe", "ltc", "common", "ltc_pec.h")),
+            bld.path.find_node(os.path.join("src", "app", "driver", "afe", "nxp", "common", "MC33775A.h")),
         ]
         _html_footer = bld.path.find_node(os.path.join("docs", "doxygen_footer.html"))
         _layout_file = bld.path.find_node(os.path.join("docs", "doxygen_layout.xml"))
@@ -804,6 +804,7 @@ def build(bld):  # pylint: disable=too-many-branches,too-many-statements
             os.path.join(doc_dir, "software", "modules", "driver", "dma", "dma.rst"),
             os.path.join(doc_dir, "software", "modules", "driver", "foxmath", "foxmath.rst"),
             os.path.join(doc_dir, "software", "modules", "driver", "fram", "fram.rst"),
+            os.path.join(doc_dir, "software", "modules", "driver", "imd", "bender", "bender_ir155.rst"),
             os.path.join(doc_dir, "software", "modules", "driver", "imd", "bender", "bender_iso165c.rst"),
             os.path.join(doc_dir, "software", "modules", "driver", "imd", "none", "no-imd.rst"),
             os.path.join(doc_dir, "software", "modules", "driver", "imd", "imd.rst"),
@@ -811,13 +812,13 @@ def build(bld):  # pylint: disable=too-many-branches,too-many-statements
             os.path.join(doc_dir, "software", "modules", "driver", "io", "io.rst"),
             os.path.join(doc_dir, "software", "modules", "driver", "mcu", "mcu.rst"),
             os.path.join(doc_dir, "software", "modules", "driver", "meas", "meas.rst"),
-            os.path.join(doc_dir, "software", "modules", "driver", "mic", "ics.rst"),
-            os.path.join(doc_dir, "software", "modules", "driver", "mic", "ltc", "6806.rst"),
-            os.path.join(doc_dir, "software", "modules", "driver", "mic", "ltc", "6811-1.rst"),
-            os.path.join(doc_dir, "software", "modules", "driver", "mic", "ltc", "6812-1.rst"),
-            os.path.join(doc_dir, "software", "modules", "driver", "mic", "ltc", "6813-1.rst"),
-            os.path.join(doc_dir, "software", "modules", "driver", "mic", "maxim", "max1785x.rst"),
-            os.path.join(doc_dir, "software", "modules", "driver", "mic", "nxp", "mc33775a.rst"),
+            os.path.join(doc_dir, "software", "modules", "driver", "afe", "supported-afes.rst"),
+            os.path.join(doc_dir, "software", "modules", "driver", "afe", "ltc", "6806.rst"),
+            os.path.join(doc_dir, "software", "modules", "driver", "afe", "ltc", "6811-1.rst"),
+            os.path.join(doc_dir, "software", "modules", "driver", "afe", "ltc", "6812-1.rst"),
+            os.path.join(doc_dir, "software", "modules", "driver", "afe", "ltc", "6813-1.rst"),
+            os.path.join(doc_dir, "software", "modules", "driver", "afe", "maxim", "max1785x.rst"),
+            os.path.join(doc_dir, "software", "modules", "driver", "afe", "nxp", "mc33775a.rst"),
             os.path.join(doc_dir, "software", "modules", "driver", "rtc", "rtc.rst"),
             os.path.join(doc_dir, "software", "modules", "driver", "sbc", "sbc.rst"),
             os.path.join(doc_dir, "software", "modules", "driver", "spi", "spi.rst"),
@@ -853,6 +854,7 @@ def build(bld):  # pylint: disable=too-many-branches,too-many-statements
             os.path.join(doc_dir, "tools", "waf-tools", "f_check_db_vars.rst"),
             os.path.join(doc_dir, "tools", "waf-tools", "f_clang_format.rst"),
             os.path.join(doc_dir, "tools", "waf-tools", "f_cppcheck.rst"),
+            os.path.join(doc_dir, "tools", "waf-tools", "f_git_hooks.rst"),
             os.path.join(doc_dir, "tools", "waf-tools", "f_guidelines.rst"),
             os.path.join(doc_dir, "tools", "waf-tools", "f_hcg.rst"),
             os.path.join(doc_dir, "tools", "waf-tools", "f_miniconda_env.rst"),
@@ -897,7 +899,7 @@ def build(bld):  # pylint: disable=too-many-branches,too-many-statements
         config = bld.path.find_node(os.path.join("docs", "conf.py"))
         bld(
             features="sphinx",
-            builders="html linkcheck spelling",
+            builders="html spelling",
             outdir=".",
             source=source,
             confpy=config,
@@ -908,14 +910,28 @@ def build(bld):  # pylint: disable=too-many-branches,too-many-statements
 
 def build_all(ctx):  # pylint: disable=unused-argument
     """shortcut to build all variants"""
+    # axivion, if existing, needs to be inserted at the end of build commands
+    has_ax = ""
     for bld_var in BLD_VARIANTS:
-        Options.commands.insert(0, bld_var)
+        if "axivion" in bld_var:
+            has_ax = "axivion"
+            continue
+        Options.commands.append(bld_var)
+    if has_ax:
+        Options.commands.append("build_axivion")
 
 
 def clean_all(ctx):  # pylint: disable=unused-argument
     """shortcut to clean all variants"""
+    # axivion, if existing, needs to be inserted at the end of clean commands
+    has_ax = ""
     for cln_var in CLN_VARIANTS:
-        Options.commands.insert(0, cln_var)
+        if "axivion" in cln_var:
+            has_ax = "axivion"
+            continue
+        Options.commands.append(cln_var)
+    if has_ax:
+        Options.commands.append("clean_axivion")
 
 
 def dist(conf):
@@ -1002,7 +1018,7 @@ def check_testfiles(ctx):
             "src/app/**/*.c src/opt/**/*.c",
             excl=[
                 "src/app/driver/sbc/fs8x_driver/**",
-                "src/app/driver/mic/ltc/common/ltc_pec.*",
+                "src/app/driver/afe/ltc/common/ltc_pec.*",
                 "src/hal/**",
                 "src/os/**",
             ],
