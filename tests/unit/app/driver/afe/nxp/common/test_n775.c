@@ -43,7 +43,7 @@
  * @file    test_n775.c
  * @author  foxBMS Team
  * @date    2020-06-10 (date of creation)
- * @updated 2021-03-24 (date of last update)
+ * @updated 2021-12-08 (date of last update)
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -61,22 +61,55 @@
 #include "Mockspi.h"
 
 #include "n775.h"
+#include "spi_cfg-helper.h"
 
 /*========== Definitions and Implementations for Unit Test ==================*/
-const spiDAT1_t spi_kNxp775DataConfig = {
-    /* struct is implemented in the TI HAL and uses uppercase true and false */
-    .CS_HOLD = FALSE,     /* The HW chip select signal is deactivated */
-    .WDEL    = TRUE,      /* No delay will be inserted */
-    .DFSEL   = SPI_FMT_0, /* Data word format select */
-    .CSNR    = 0x0,       /* Chip select (CS) number, 0x01h for CS[0] */
+
+/** SPI data configuration struct for NXP MC33775A communication, Tx part */
+static const spiDAT1_t spi_kNxp775DataConfigTx[BS_NR_OF_STRINGS] = {
+    {
+        .CS_HOLD = TRUE,                              /*!< The HW chip select signal is deactivated */
+        .WDEL    = TRUE,                              /*!< No delay will be inserted */
+        .DFSEL   = SPI_FMT_0,                         /*!< Data word format select */
+        .CSNR    = SPI_HARDWARE_CHIP_SELECT_2_ACTIVE, /* CS2 enabled */
+    },
+    {
+        .CS_HOLD = TRUE,                              /*!< The HW chip select signal is deactivated */
+        .WDEL    = TRUE,                              /*!< No delay will be inserted */
+        .DFSEL   = SPI_FMT_0,                         /*!< Data word format select */
+        .CSNR    = SPI_HARDWARE_CHIP_SELECT_2_ACTIVE, /*!< CS2 enabled */
+    },
+    {
+        .CS_HOLD = TRUE,                              /*!< The HW chip select signal is deactivated */
+        .WDEL    = TRUE,                              /*!< No delay will be inserted */
+        .DFSEL   = SPI_FMT_0,                         /*!< Data word format select */
+        .CSNR    = SPI_HARDWARE_CHIP_SELECT_2_ACTIVE, /* CS2 enabled */
+    },
 };
 
-SPI_INTERFACE_CONFIG_s spi_nxp775Interface = {
-    .channel  = SPI_Interface1,
-    .pConfig  = &spi_kNxp775DataConfig,
-    .pNode    = spiREG1,
-    .pGioPort = &(spiREG1->PC3),
-    .csPin    = 2u,
+/** SPI interface configuration for N775 communication Tx part */
+SPI_INTERFACE_CONFIG_s spi_nxp775InterfaceTx[BS_NR_OF_STRINGS] = {
+    {
+        .pConfig  = &spi_kNxp775DataConfigTx[0u],
+        .pNode    = spiREG1,
+        .pGioPort = &(spiREG1->PC3),
+        .csPin    = 2u,
+        .csType   = SPI_CHIP_SELECT_HARDWARE,
+    },
+    {
+        .pConfig  = &spi_kNxp775DataConfigTx[1u],
+        .pNode    = spiREG1,
+        .pGioPort = &(spiREG1->PC3),
+        .csPin    = 2u,
+        .csType   = SPI_CHIP_SELECT_HARDWARE,
+    },
+    {
+        .pConfig  = &spi_kNxp775DataConfigTx[2u],
+        .pNode    = spiREG1,
+        .pGioPort = &(spiREG1->PC3),
+        .csPin    = 2u,
+        .csType   = SPI_CHIP_SELECT_HARDWARE,
+    },
 };
 
 /*========== Setup and Teardown =============================================*/

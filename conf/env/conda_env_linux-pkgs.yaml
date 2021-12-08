@@ -1,25 +1,28 @@
-name: 2021-08-arctic-fox-dev0
+name: 2021-11-fennec-fox
 channels:
   - defaults
+  - conda-forge
   - foxbms
 dependencies:
   - pandoc
   - pip
   - python=3.9
-  - qt
   - zlib
+  - wxpython
   - pip:
       - appdirs
       - babel
       - black
       - bokeh
       - cantools[plot]
+      - cffconvert
       - click
+      - colorama
       - coverage
       - crcmod
       - dask
       - docutils
-      - doorstop==2.2b4
+      - doorstop==2.2b5
       - filterpy
       - gcovr
       - gitdb
@@ -63,7 +66,6 @@ dependencies:
       - pyvisa
       - pyyaml
       - pyzmq
-      - qtpy
       - requests
       - rope
       - rsinstrument
@@ -84,7 +86,6 @@ dependencies:
       - sphinxcontrib-mermaid
       - sphinxcontrib-needs
       - sphinxcontrib-plantuml
-      - sphinxcontrib-qthelp
       - sphinxcontrib-serializinghtml
       - sphinxcontrib-spelling
       - statsmodels
@@ -94,4 +95,3 @@ dependencies:
       - typing-extensions
       - uptime
       - widgetsnbextension
-      - wxpython

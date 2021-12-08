@@ -12,7 +12,9 @@ This section summarizes the types of connectors used in |foxbms|.
 
 ..
     Comment: This section should contain: Molex connectors, the extension
-    connectors, additional pinheader, JTAG connectors (both cTI and Mictor)
+    connectors, additional pin header, JTAG connectors (both cTI and Mictor)
+
+.. _CONVENTION_FOR_CONNECTOR_PIN_NUMBERING:
 
 Convention for Connector Pin Numbering
 --------------------------------------
@@ -22,7 +24,7 @@ of pins in Molex connectors.
 This type of connector is the main type of connector that is used for |foxbms|.
 The numbering style is used throughout this documentation.
 
-.. figure:: img/connector_viewing_direction.png
+.. figure:: img/molex_connector-viewing-direction.png
    :alt: Description of pin numbering in Molex connectors.
    :name: molex-connector-numbering
    :width: 100 %

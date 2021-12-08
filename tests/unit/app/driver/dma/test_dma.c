@@ -43,7 +43,7 @@
  * @file    test_dma.c
  * @author  foxBMS Team
  * @date    2020-04-01 (date of creation)
- * @updated 2021-09-28 (date of last update)
+ * @updated 2021-12-08 (date of last update)
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -91,44 +91,6 @@ SPI_BUSY_STATE_e spi_busyFlags[] = {
 };
 
 const uint8_t spi_nrBusyFlags = sizeof(spi_busyFlags) / sizeof(SPI_BUSY_STATE_e);
-
-SPI_INTERFACE_CONFIG_s spi_dmaTransmission[] = {
-    {
-        .channel  = SPI_Interface1,
-        .pConfig  = &spi_kLtcDataConfig,
-        .pNode    = spiREG1,
-        .pGioPort = &(spiREG1->PC3),
-        .csPin    = 2u,
-    },
-    {
-        .channel  = SPI_Interface1,
-        .pConfig  = &spi_kLtcDataConfig,
-        .pNode    = spiREG1,
-        .pGioPort = &(spiREG1->PC3),
-        .csPin    = 2u,
-    },
-    {
-        .channel  = SPI_Interface1,
-        .pConfig  = &spi_kLtcDataConfig,
-        .pNode    = spiREG1,
-        .pGioPort = &(spiREG1->PC3),
-        .csPin    = 2u,
-    },
-    {
-        .channel  = SPI_Interface1,
-        .pConfig  = &spi_kLtcDataConfig,
-        .pNode    = spiREG1,
-        .pGioPort = &(spiREG1->PC3),
-        .csPin    = 2u,
-    },
-    {
-        .channel  = SPI_Interface1,
-        .pConfig  = &spi_kLtcDataConfig,
-        .pNode    = spiREG1,
-        .pGioPort = &(spiREG1->PC3),
-        .csPin    = 2u,
-    },
-};
 
 DMA_CHANNEL_CONFIG_s dma_spiDmaChannels[DMA_NUMBER_SPI_INTERFACES] = {
     {DMA_CH0, DMA_CH1}, /* SPI1 */

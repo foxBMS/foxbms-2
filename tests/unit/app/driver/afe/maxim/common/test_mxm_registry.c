@@ -43,7 +43,7 @@
  * @file    test_mxm_registry.c
  * @author  foxBMS Team
  * @date    2020-07-16 (date of creation)
- * @updated 2020-07-16 (date of last update)
+ * @updated 2021-12-06 (date of last update)
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  MXM
  *
@@ -59,6 +59,7 @@
 #include "Mockmxm_1785x.h"
 #include "Mockmxm_basic_defines.h"
 
+#include "foxmath.h"
 #include "mxm_1785x_tools.h"
 #include "mxm_registry.h"
 #include "test_assert_helper.h"
@@ -66,7 +67,7 @@
 /*========== Definitions and Implementations for Unit Test ==================*/
 static MXM_MONITORING_INSTANCE_s mxm_state = {
     .state                 = MXM_STATEMACHINE_STATES_UNINITIALIZED,
-    .operationSubstate     = MXM_INIT_DEVCFG1,
+    .operationSubstate     = MXM_INIT_ENTRY,
     .allowStartup          = false,
     .operationRequested    = false,
     .firstMeasurementDone  = false,
@@ -84,6 +85,7 @@ static MXM_MONITORING_INSTANCE_s mxm_state = {
             .msb           = 0x00,
             .deviceAddress = 0x00,
             .blocksize     = 0,
+            .model         = MXM_MODEL_ID_MAX17852,
         },
     .resultSelfCheck = STD_NOT_OK,
     .selfCheck =
@@ -244,11 +246,16 @@ void testMXM_MonRegistryParseVersionIntoDevicesCheckAscendingBuffer(void) {
     rxBufferFillAscending(&mxm_state);
     const uint8_t highestDevice = 13u;
     mxm_state.highest5xDevice   = highestDevice;
+    /* inject values so that satellite with highestDevice - 1u will report a model ID MXM_MODEL_ID_MAX17854 */
+    mxm_state.rxBuffer[3u] = 0x85u;
+    mxm_state.rxBuffer[2u] = 0x40u;
     MXM_MonRegistryConnectDevices(&mxm_state, highestDevice);
     TEST_ASSERT_PASS_ASSERT(MXM_MonRegistryParseVersionIntoDevices(
         &mxm_state, (BATTERY_MANAGEMENT_TX_LENGTH_READALL + (2u * highestDevice))));
-    TEST_ASSERT_EQUAL(433, mxm_state.registry[0].model);
+    TEST_ASSERT_EQUAL(MXM_MODEL_ID_invalid, mxm_state.registry[0].model); /*!< invalid model ID */
     TEST_ASSERT_EQUAL(8, mxm_state.registry[1].siliconVersion);
+    TEST_ASSERT_EQUAL(MXM_MODEL_ID_MAX17854, mxm_state.registry[highestDevice - 1u].model);
+    TEST_ASSERT_EQUAL(0, mxm_state.registry[highestDevice - 1u].siliconVersion);
 }
 
 void testMXM_MonRegistryParseVersionIntoDevicesWrongBufferLength(void) {
@@ -257,4 +264,95 @@ void testMXM_MonRegistryParseVersionIntoDevicesWrongBufferLength(void) {
     mxm_state.highest5xDevice   = highestDevice;
     MXM_MonRegistryConnectDevices(&mxm_state, highestDevice);
     TEST_ASSERT_FAIL_ASSERT(MXM_MonRegistryParseVersionIntoDevices(&mxm_state, 3));
+}
+
+/** call #MXM_MonRegistryParseStatusFmeaIntoDevices() with a null pointer */
+void testMXM_MonRegistryParseStatusFmeaIntoDevicesNullPointer(void) {
+    TEST_ASSERT_FAIL_ASSERT(MXM_MonRegistryParseStatusFmeaIntoDevices(NULL_PTR, 0));
+}
+
+void testMXM_MonRegistryParseStatusFmeaIntoDevicesCheckAscendingBuffer(void) {
+    /* fill the buffer with ascending values and check at few places that the
+       parsing is consistent (always the same value) */
+    rxBufferFillAscending(&mxm_state);
+    /* inject the "correct" register number (STATUS2) in the stream */
+    mxm_state.rxBuffer[1u]      = MXM_REG_STATUS2;
+    const uint8_t highestDevice = 13u;
+    mxm_state.highest5xDevice   = highestDevice;
+    MXM_MonRegistryConnectDevices(&mxm_state, highestDevice);
+    const uint8_t messageLength = (BATTERY_MANAGEMENT_TX_LENGTH_READALL + (2u * highestDevice));
+    TEST_ASSERT_PASS_ASSERT(MXM_MonRegistryParseStatusFmeaIntoDevices(&mxm_state, messageLength));
+    TEST_ASSERT_EQUAL(0x1B1Au, mxm_state.registry[0u].registerStatus2);
+    TEST_ASSERT_EQUAL(0x1918u, mxm_state.registry[1u].registerStatus2);
+    TEST_ASSERT_EQUAL(0x0302u, mxm_state.registry[12u].registerStatus2);
+
+    /* inject the "STATUS1" register number in the stream */
+    mxm_state.rxBuffer[1u] = MXM_REG_STATUS1;
+    TEST_ASSERT_PASS_ASSERT(MXM_MonRegistryParseStatusFmeaIntoDevices(&mxm_state, messageLength));
+    TEST_ASSERT_EQUAL(0x1B1Au, mxm_state.registry[0u].registerStatus1);
+    TEST_ASSERT_EQUAL(0x1918u, mxm_state.registry[1u].registerStatus1);
+    TEST_ASSERT_EQUAL(0x0302u, mxm_state.registry[12u].registerStatus1);
+
+    /* inject the "STATUS3" register number in the stream */
+    mxm_state.rxBuffer[1u] = MXM_REG_STATUS3;
+    TEST_ASSERT_PASS_ASSERT(MXM_MonRegistryParseStatusFmeaIntoDevices(&mxm_state, messageLength));
+    TEST_ASSERT_EQUAL(0x1B1Au, mxm_state.registry[0u].registerStatus3);
+    TEST_ASSERT_EQUAL(0x1918u, mxm_state.registry[1u].registerStatus3);
+    TEST_ASSERT_EQUAL(0x0302u, mxm_state.registry[12u].registerStatus3);
+
+    /* inject the "FMEA1" register number in the stream */
+    mxm_state.rxBuffer[1u] = MXM_REG_FMEA1;
+    TEST_ASSERT_PASS_ASSERT(MXM_MonRegistryParseStatusFmeaIntoDevices(&mxm_state, messageLength));
+    TEST_ASSERT_EQUAL(0x1B1Au, mxm_state.registry[0u].registerFmea1);
+    TEST_ASSERT_EQUAL(0x1918u, mxm_state.registry[1u].registerFmea1);
+    TEST_ASSERT_EQUAL(0x0302u, mxm_state.registry[12u].registerFmea1);
+
+    /* inject the "FMEA2" register number in the stream */
+    mxm_state.rxBuffer[1u] = MXM_REG_FMEA2;
+    TEST_ASSERT_PASS_ASSERT(MXM_MonRegistryParseStatusFmeaIntoDevices(&mxm_state, messageLength));
+    TEST_ASSERT_EQUAL(0x1B1Au, mxm_state.registry[0u].registerFmea2);
+    TEST_ASSERT_EQUAL(0x1918u, mxm_state.registry[1u].registerFmea2);
+    TEST_ASSERT_EQUAL(0x0302u, mxm_state.registry[12u].registerFmea2);
+}
+
+void testMXM_MonRegistryParseStatusFmeaIntoDevicesWrongBufferLength(void) {
+    /* check if wrong buffer lengths are sanitized */
+    const uint8_t highestDevice = 13u;
+    mxm_state.highest5xDevice   = highestDevice;
+    MXM_MonRegistryConnectDevices(&mxm_state, highestDevice);
+    TEST_ASSERT_FAIL_ASSERT(MXM_MonRegistryParseStatusFmeaIntoDevices(&mxm_state, 3));
+}
+
+/** check that #MXM_CheckIfADeviceHasBeenReset() recognizes a set ALRTRST bit */
+void testMXM_CheckIfADeviceHasBeenReset(void) {
+    TEST_ASSERT_FAIL_ASSERT(MXM_CheckIfADeviceHasBeenReset(NULL_PTR));
+
+    const uint8_t highestDevice = 10u;
+    MXM_MonRegistryConnectDevices(&mxm_state, highestDevice);
+    /* place fake cleared register values */
+    for (uint8_t i = 0u; i < highestDevice; i++) {
+        mxm_state.registry[i].registerStatus1 = 0u;
+    }
+    /* therefore, no device should be reset */
+    TEST_ASSERT_EQUAL(false, MXM_CheckIfADeviceHasBeenReset(&mxm_state));
+
+    /* fake one device being reset */
+    mxm_state.registry[0u].registerStatus1 = 0x4000u;
+    TEST_ASSERT_EQUAL(true, MXM_CheckIfADeviceHasBeenReset(&mxm_state));
+}
+
+/** check that invalid values trip #MXM_CheckIfADeviceIsConnected() */
+void testMXM_CheckIfADeviceIsConnectedinvalidValues(void) {
+    TEST_ASSERT_FAIL_ASSERT(MXM_CheckIfADeviceIsConnected(NULL_PTR, 0u));
+    TEST_ASSERT_FAIL_ASSERT(MXM_CheckIfADeviceIsConnected(&mxm_state, MXM_MAXIMUM_NR_OF_MODULES + 1u));
+}
+
+/** check if #MXM_CheckIfADeviceIsConnected() does its job */
+void testMXM_CheckIfADeviceIsConnected(void) {
+    for (uint8_t checkedDevice = 0u; checkedDevice < MXM_MAXIMUM_NR_OF_MODULES; checkedDevice++) {
+        mxm_state.registry[checkedDevice].connected = false;
+        TEST_ASSERT_FALSE(MXM_CheckIfADeviceIsConnected(&mxm_state, checkedDevice));
+        mxm_state.registry[checkedDevice].connected = true;
+        TEST_ASSERT_TRUE(MXM_CheckIfADeviceIsConnected(&mxm_state, checkedDevice));
+    }
 }

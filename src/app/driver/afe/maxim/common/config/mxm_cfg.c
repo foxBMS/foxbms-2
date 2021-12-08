@@ -43,7 +43,7 @@
  * @file    mxm_cfg.c
  * @author  foxBMS Team
  * @date    2019-01-09 (date of creation)
- * @updated 2021-07-14 (date of last update)
+ * @updated 2021-12-06 (date of last update)
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  MXM
  *
@@ -62,6 +62,7 @@
 /*========== Static Constant and Variable Definitions =======================*/
 
 /*========== Extern Constant and Variable Definitions =======================*/
+const bool mxm_allowSkippingPostInitSelfCheck = true;
 
 /*========== Static Function Prototypes =====================================*/
 
@@ -69,18 +70,17 @@
 
 /*========== Extern Function Implementations ================================*/
 
-extern void MXM_MonitoringPinInit(void) {
-    IO_PinSet(&MXM_17841B_GIODIR, MXM_17841B_SHTNDL_PIN);
-    IO_PinSet(&MXM_17841B_GIOPORT, MXM_17841B_SHTNDL_PIN);
+extern void MXM_InitializeMonitoringPins(void) {
+    IO_SetPinDirectionToOutput(&MXM_17841B_GIOPORT->DIR, MXM_17841B_SHTNDL_PIN);
+    IO_PinReset(&MXM_17841B_GIOPORT->DOUT, MXM_17841B_SHTNDL_PIN);
 
-    /* configure functional of SIMO  an SOMI pin */
+    /* configure functional of SIMO and SOMI pin */
     SPI_SetFunctional(spi_MxmInterface.pNode, SPI_PIN_SIMO, true);
     SPI_SetFunctional(spi_MxmInterface.pNode, SPI_PIN_SOMI, true);
 }
 
 extern STD_RETURN_TYPE_e MXM_GetSPIStateReady(void) {
-    /* the current implementation is blocking, therefore the interface is always accesible */
-    return STD_OK;
+    return SPI_CheckInterfaceAvailable(spi_MxmInterface.pNode);
 }
 
 extern STD_RETURN_TYPE_e MXM_SendData(uint16_t *txBuffer, uint16_t length) {
@@ -94,6 +94,14 @@ extern STD_RETURN_TYPE_e MXM_ReceiveData(uint16_t *txBuffer, uint16_t *rxBuffer,
     FAS_ASSERT(rxBuffer != NULL_PTR);
     FAS_ASSERT(length != 0u);
     return SPI_TransmitReceiveData(&spi_MxmInterface, txBuffer, rxBuffer, length);
+}
+
+extern void MXM_ShutDownBridgeIc(void) {
+    IO_PinReset(&MXM_17841B_GIOPORT->DOUT, MXM_17841B_SHTNDL_PIN);
+}
+
+extern void MXM_EnableBridgeIc(void) {
+    IO_PinSet(&MXM_17841B_GIOPORT->DOUT, MXM_17841B_SHTNDL_PIN);
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/

@@ -220,12 +220,6 @@
         "FaultDetection-BadEnumValue": {
             "_active": true
         },
-        "FaultDetection-DeadBranches": {
-            "_active": true,
-            "exclude_in_macros": [
-                "FAS_ASSERT"
-            ]
-        },
         "FaultDetection-DivisionByZero": {
             "_active": true,
             "abstract_interpretation_div_by_zero": true
@@ -233,17 +227,10 @@
         "FaultDetection-EscapingLocalAddress": {
             "_active": true
         },
-        "FaultDetection-IntegerOverflow": {
-            "_active": true,
-            "abstract_interpretation_overflow": true
-        },
         "FaultDetection-MemoryLeak": {
             "_active": true
         },
         "FaultDetection-NullPointerDereference": {
-            "_active": true
-        },
-        "FaultDetection-OutOfBounds": {
             "_active": true
         },
         "FaultDetection-RemovableStatements": {
@@ -271,7 +258,8 @@
             "_active": false
         },
         "Generic-DoxygenCommentInHeader": {
-            "_active": true
+            "_active": true,
+            "ignore_tool_comments": "\\/\\*\\s+AXIVION .*\\s+\\*\\/"
         },
         "Generic-DuplicateIncludeGuard": {
             "_active": true
@@ -280,7 +268,15 @@
             "_active": true
         },
         "Generic-IncludeKind": {
-            "_active": true
+            "_active": true,
+            "enforced_system_headers": [
+                "*/float.h",
+                "*/math.h",
+                "*/stdbool.h",
+                "*/stdint.h",
+                "*/stdlib.h",
+                "*/string.h"
+            ]
         },
         "Generic-InitializeAllVariables": {
             "_active": true
@@ -622,7 +618,12 @@
             "_active": true
         },
         "MisraC2012-1.1": {
-            "_active": true
+            "_active": true,
+            "standards": [
+                "--c11",
+                "--c99",
+                "--c89"
+            ]
         },
         "MisraC2012-1.2": {
             "_active": true,
@@ -1190,6 +1191,9 @@
         "MisraC2012Directive-4.9": {
             "_active": true
         },
+        "NextLine": {
+            "_active": true
+        },
         "Parallelism-IncorrectCriticalRegion": {
             "_active": true,
             "enter_critical_functions": [
@@ -1207,7 +1211,23 @@
             ],
             "excluded_routines": [
                 "FTSK_InitializeUserCodeEngine",
-                "FTSK_InitializeUserCodePreCyclicTasks"
+                "FTSK_InitializeUserCodePreCyclicTasks",
+                "prvAddCurrentTaskToDelayedList",
+                "prvCopyDataFromQueue",
+                "prvCopyDataToQueue",
+                "prvIsQueueEmpty",
+                "prvIsQueueFull",
+                "prvResetNextTaskUnblockTime",
+                "prvUnlockQueue",
+                "uxListRemove",
+                "uxQueueMessagesWaiting",
+                "vListInsert",
+                "vListInsertEnd",
+                "xQueueGenericSend",
+                "xQueueReceive",
+                "xTaskIncrementTick",
+                "xTaskRemoveFromEventList",
+                "xTaskResumeAll"
             ],
             "exit_critical_functions": [
                 "OS_ExitTaskCritical"
@@ -1230,11 +1250,11 @@
         }
     },
     "_Format": "1.0",
-    "_Version": "7.2.3",
+    "_Version": "7.2.6",
     "_VersionNum": [
         7,
         2,
-        3,
-        7444
+        6,
+        7576
     ]
 }

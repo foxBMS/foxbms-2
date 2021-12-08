@@ -43,7 +43,7 @@
  * @file    state_estimation.h
  * @author  foxBMS Team
  * @date    2020-10-14 (date of creation)
- * @updated 2021-05-21 (date of last update)
+ * @updated 2021-11-08 (date of last update)
  * @ingroup APPLICATION
  * @prefix  SE
  *
@@ -68,6 +68,30 @@
 
 /*========== Extern Function Prototypes =====================================*/
 /**
+ * @brief   Wrapper for algorithm specific SOC initialization
+ * @param[in]   cc_present   true if current sensor present, false otherwise
+ * @param[in]   stringNumber string addressed
+ */
+extern void SE_SocInit(bool cc_present, uint8_t stringNumber);
+
+/**
+ * @brief   Wrapper for algorithm specific SOE initialization
+ * @param[in]   ec_present   true if current sensor present, false otherwise
+ * @param[in]   stringNumber string addressed
+ */
+extern void SE_SoeInit(bool ec_present, uint8_t stringNumber);
+
+/**
+ * @brief   Main function to perform state estimations
+ */
+extern void SE_StateEstimations(void);
+
+/** \defgroup state-estimation-api State Estimation API
+ *  @details    This API is implemented by the state estimation functions and
+ *              called by the state estimation module.
+ * @{
+ * INCLUDE MARKER FOR THE DOCUMENTATION; DO NOT MOVE se-state-estimation-api-start-include */
+/**
  * @brief   initializes startup SOC-related values like lookup from nonvolatile
  *          ram at startup
  * @param[out]  pSocValues   pointer to SOC database entry
@@ -75,13 +99,6 @@
  * @param[in]   stringNumber string addressed
  */
 extern void SOC_Init(DATA_BLOCK_SOX_s *pSocValues, bool cc_present, uint8_t stringNumber);
-
-/**
- * @brief   Wrapper for algorithm specific SOC initialization
- * @param[in]   cc_present   true if current sensor present, false otherwise
- * @param[in]   stringNumber string addressed
- */
-extern void SE_SocInit(bool cc_present, uint8_t stringNumber);
 
 /**
  * @brief   periodically called algorithm to calculate state-of-charge (SOC)
@@ -105,13 +122,6 @@ extern float SOC_GetFromVoltage(int16_t voltage_mV);
 extern void SOE_Init(DATA_BLOCK_SOX_s *pSoeValues, bool ec_present, uint8_t stringNumber);
 
 /**
- * @brief   Wrapper for algorithm specific SOE initialization
- * @param[in]   ec_present   true if current sensor present, false otherwise
- * @param[in]   stringNumber string addressed
- */
-extern void SE_SoeInit(bool ec_present, uint8_t stringNumber);
-
-/**
  * @brief   periodically called algorithm to calculate state-of-energy (SOE)
  * @param[out] pSoeValues pointer to SOE database entry
  */
@@ -127,10 +137,9 @@ extern void SOH_Init(void);
  */
 extern void SOH_Calculation(void);
 
-/**
- * @brief   Main function to perform state estimations
+/** INCLUDE MARKER FOR THE DOCUMENTATION; DO NOT MOVE se-state-estimation-api-stop-include
+ * @}
  */
-extern void SE_StateEstimations(void);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 

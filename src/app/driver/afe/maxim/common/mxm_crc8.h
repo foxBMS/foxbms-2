@@ -43,7 +43,7 @@
  * @file    mxm_crc8.h
  * @author  foxBMS Team
  * @date    2019-02-05 (date of creation)
- * @updated 2020-04-27 (date of last update)
+ * @updated 2021-12-06 (date of last update)
  * @ingroup DRIVERS
  * @prefix  MXM
  *
@@ -51,7 +51,7 @@
  *          Monitoring devices
  *
  * @details This module supports the calculation of a CRC8 based on the
- *          polynomial described in the Maxim datasheets.
+ *          polynomial described in the Maxim data sheets.
  *          The polynomial is 0xA6.
  *
  */
@@ -67,16 +67,6 @@
 /*========== Extern Constant and Variable Declarations ======================*/
 
 /*========== Extern Function Prototypes =====================================*/
-
-/**
- * @brief   Compute CRC8 (0xA6) with initial value.
- * @details Computes the CRC8 for the given data with the polynomial 0xA6.
- * @param[in]   pData   array-pointer with data to be cyclic redundancy checked
- * @param[in]   lenData length of array
- * @param[in]   crcInit initial CRC-value
- * @return      uint8_t containing the computed CRC
- */
-extern uint8_t MXM_CRC8WithInitValue(uint16_t *pData, int32_t lenData, uint8_t crcInit);
 
 /**
  * @brief   Compute CRC8 with initial value set to 0x00.

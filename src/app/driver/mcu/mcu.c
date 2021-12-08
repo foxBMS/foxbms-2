@@ -43,7 +43,7 @@
  * @file    mcu.c
  * @author  foxBMS Team
  * @date    2019-02-19 (date of creation)
- * @updated 2019-02-19 (date of last update)
+ * @updated 2021-11-08 (date of last update)
  * @ingroup DRIVERS
  * @prefix  MCU
  *
@@ -85,7 +85,7 @@ void MCU_delay_us(uint32_t delay_us) {
 
     /**
      * This is the frequency of the FRC0 counter
-     * Datasheet SPNU563A-March 2018 p. 585 formula 23
+     * data sheet SPNU563A-March 2018 p. 585 formula 23
      */
     rti_clock = (uint32_t)((AVCLK1_FREQ)*1000000.0f) / ((MCU_RTI_CNT0_CPUC0_REG) + 1u);
 

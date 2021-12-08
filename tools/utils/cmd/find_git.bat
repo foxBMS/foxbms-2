@@ -37,15 +37,31 @@
 
 @SETLOCAL EnableDelayedExpansion
 
+@REM Assume git is installed and available in PATH
+@SET NO_GIT=0
 @where /q git
 @IF %ERRORLEVEL% GEQ 1 (
+    @REM git is not available in PATH
     @SET NO_GIT=1
 ) ELSE (
+    @REM git available, stop searching
     @EXIT /b 0
 )
 
+@REM Check if system installation is available
 @IF %NO_GIT% GEQ 1 (
     @IF EXIST "%ProgramFiles%\Git\cmd\git.exe" @(
+        @SET GIT=%ProgramFiles%\Git\cmd\
+        @REM git found, set variable used as stop condition for the search
+        @SET NO_GIT=0
+    ) ELSE (
+        @SET GIT=
+    )
+)
+
+@REM Check if user installation is available
+@IF %NO_GIT% GEQ 1 (
+    @IF EXIST "%LOCALAPPDATA%\Programs\Git\cmd\git.exe" @(
         @SET GIT=%ProgramFiles%\Git\cmd\
     ) ELSE (
         @SET GIT=

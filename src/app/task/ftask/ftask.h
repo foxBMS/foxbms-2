@@ -43,7 +43,7 @@
  * @file    ftask.h
  * @author  foxBMS Team
  * @date    2019-08-27 (date of creation)
- * @updated 2021-07-23 (date of last update)
+ * @updated 2021-12-01 (date of last update)
  * @ingroup TASK
  * @prefix  FTSK
  *
@@ -58,22 +58,36 @@
 /*========== Includes =======================================================*/
 #include "ftask_cfg.h"
 
-#include "FreeRTOS.h"
-#include "queue.h"
+#include "os.h"
 
 /*========== Macros and Definitions =========================================*/
+/** Length of queue that is used in the database */
+#define FTSK_DATABASE_QUEUE_LENGTH (1u)
+
+/** Size of queue item that is used in the database */
+#define FTSK_DATABASE_QUEUE_ITEM_SIZE (sizeof(DATA_QUEUE_MESSAGE_s))
+
+/** Length of queue that is used in the insulation measurement device (IMD) */
+#define FTSK_IMD_QUEUE_LENGTH (5u)
+/** Size of queue item that is used in the IMD driver */
+#define FTSK_IMD_QUEUE_ITEM_SIZE (sizeof(CAN_BUFFERELEMENT_s))
+
+/** Length of queue that is used in the can module for receiving messages */
+#define FTSK_CAN_RX_QUEUE_LENGTH (50u)
+/** Size of queue item that is used in the can driver */
+#define FTSK_CAN_RX_QUEUE_ITEM_SIZE (sizeof(CAN_BUFFERELEMENT_s))
 
 /*========== Extern Constant and Variable Declarations ======================*/
 /** handle of the database queue */
-extern QueueHandle_t ftsk_databaseQueue;
+extern OS_QUEUE ftsk_databaseQueue;
 
 /** handle of the imd can data queue */
-extern QueueHandle_t ftsk_imdCanDataQueue;
+extern OS_QUEUE ftsk_imdCanDataQueue;
 
 /** handle of the can driver data queue */
-extern QueueHandle_t ftsk_canRxQueue;
+extern OS_QUEUE ftsk_canRxQueue;
 
-/** indicator wether the queues have successfully been initialized to be used
+/** indicator whether the queues have successfully been initialized to be used
  * in other parts of the software  */
 extern volatile bool ftsk_allQueuesCreated;
 
@@ -93,6 +107,59 @@ extern void FTSK_CreateQueues(void);
  *          already initialized.
  */
 extern void FTSK_CreateTasks(void);
+
+/**
+ * @brief   Database-Task
+ * @details The task manages the data exchange with the database and must have
+ *          a higher task priority than any task using the database.
+ * @ingroup API_OS
+ */
+extern void FTSK_CreateTaskEngine(void *const pvParameters);
+
+/**
+ * @brief   Creation of cyclic 1 ms task
+ * @details Then the Task is delayed by a phase as defined in
+ *          ftsk_taskDefinitionCyclic1ms.phase (in milliseconds). After the
+ *          phase delay, the cyclic execution starts, the entry time is saved
+ *          in current_time. After one cycle, the Task is set to sleep until
+ *          entry time + ftsk_taskDefinitionCyclic1ms.cycleTime (in
+ *          milliseconds).
+ */
+extern void FTSK_CreateTaskCyclic1ms(void *const pvParameters);
+
+/**
+ * @brief   Creation of cyclic 10 ms task
+ * @details Task is delayed by a phase as defined in
+ *          ftsk_taskDefinitionCyclic10ms.phase (in milliseconds). After
+ *          the phase delay, the cyclic execution starts, the entry time is
+ *          saved in current_time. After one cycle, the Task is set to sleep
+ *          until entry time + ftsk_taskDefinitionCyclic10ms.cycleTime (in
+ *          milliseconds).
+ */
+extern void FTSK_CreateTaskCyclic10ms(void *const pvParameters);
+
+/**
+ * @brief   Creation of cyclic 100 ms task
+ * @details Task is delayed by a phase as defined in
+ *          ftsk_taskDefinitionCyclic100ms.phase (in milliseconds). After the
+ *          phase delay, the cyclic execution starts, the entry time is saved
+ *          in current_time. After one cycle, the Task is set to sleep until
+ *          entry time + ftsk_taskDefinitionCyclic100ms.cycleTime (in
+ *          milliseconds).
+ */
+extern void FTSK_CreateTaskCyclic100ms(void *const pvParameters);
+
+/**
+ * @brief   Creation of cyclic 100 ms algorithm task
+ * @details Task is delayed by a phase as defined in
+ *          ftsk_taskDefinitionCyclicAlgorithm100ms.Phase (in milliseconds).
+ *          After the phase delay, the cyclic execution starts, the entry time
+ *          is saved in current_time. After one cycle, the Task is set to sleep
+ *          until entry
+ *          time + ftsk_taskDefinitionCyclicAlgorithm100ms.CycleTime (in
+ *          milliseconds).
+ */
+extern void FTSK_CreateTaskCyclicAlgorithm100ms(void *const pvParameters);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 

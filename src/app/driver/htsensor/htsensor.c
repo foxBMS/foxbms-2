@@ -43,7 +43,7 @@
  * @file    htsensor.c
  * @author  foxBMS Team
  * @date    2021-08-05 (date of creation)
- * @updated 2021-09-30 (date of last update)
+ * @updated 2021-11-08 (date of last update)
  * @ingroup DRIVERS
  * @prefix  HTSEN
  *
@@ -101,7 +101,7 @@
 
 /**
  * Definition of single measurement command
- * Datasheet February 2019 - Version 6, table 9, page 10
+ * data sheet February 2019 - Version 6, table 9, page 10
  *
  * Clock stretching can be used to let sensor tell that the measurement
  * is not finished by pulling the clock low

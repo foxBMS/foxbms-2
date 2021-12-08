@@ -6,6 +6,13 @@
 Repository Structure
 ********************
 
+..
+    Comments:
+    Jupyter is a python tool
+
+.. spelling::
+    Jupyter
+
 The |foxbms| repository is structured into the following parts (see
 :numref:`introduction-repository-structure`). All directory names are
 abbreviated (e.g., ``conf`` for ``configuration``) to ensure a compact

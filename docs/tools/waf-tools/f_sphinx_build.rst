@@ -12,6 +12,7 @@ Sphinx
     linkcheck is the name of the builder
 
 .. spelling::
+    conf
     py
     linkcheck
 

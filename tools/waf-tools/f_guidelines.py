@@ -1336,7 +1336,7 @@ class rst_check_heading(Task.Task):
             label_found = re.match(label_link_regex, line)
             if label_found and not heading:
                 heading = label_found.group(1)
-                heading = heading.replace("_", " ")
+                heading = "".join(ch.upper() if ch.isalnum() else "_" for ch in heading)
                 found_label = i
             if found_caption < 0 and found_overline < 0:
                 if re.match(overlines_regex, line):
@@ -1346,7 +1346,7 @@ class rst_check_heading(Task.Task):
                 elif re.match(underlines_regex, line):
                     wrong_overline_symbols = True
             if heading and found_caption < 0:
-                caption = "".join([i if i.isalnum() else " " for i in line.upper()])
+                caption = "".join(ch.upper() if ch.isalnum() else "_" for ch in line)
                 if caption == heading:
                     found_caption = i
                     caption_length = len(caption)
@@ -1711,8 +1711,11 @@ def process_guidelines(self):
     c_formatting_provider = c_rules["formatting"]["provider"]
     if c_formatting_provider != "clang-format":
         self.bld.fatal("Only clang-format is supported.")
-    for i in c_to_check_formatting:
-        self.create_task("clang_format", src=i, cwd=self.path)
+    if self.bld.env.CLANG_FORMAT:
+        for i in c_to_check_formatting:
+            self.create_task("clang_format", src=i, cwd=self.path)
+    else:
+        Logs.warn("clang-format is not available.")
 
     year_replace = ("@YEAR@", str(self.bld.options.COMMIT_YEAR))
     # language checks : header

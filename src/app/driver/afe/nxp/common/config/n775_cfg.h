@@ -43,7 +43,7 @@
  * @file    n775_cfg.h
  * @author  foxBMS Team
  * @date    2020-05-08 (date of creation)
- * @updated 2021-03-24 (date of last update)
+ * @updated 2021-12-08 (date of last update)
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  N775
  *
@@ -112,13 +112,13 @@
 
 /**
  * N775 Maximum time from wakeup event to possible communication in ms
- * 2.4ms in datasheet
+ * 2.4ms in data sheet
  */
 #define N775_TWAKECOM_MS (3u)
 
 /**
  * N775 Time between two consecutive wake-up messages in ms
- * 4ms in datasheet
+ * 4ms in data sheet
  */
 #define N775_TDWAKE_MS (4u)
 
@@ -153,7 +153,7 @@
 /**
  * Transmit functions
  */
-#define N775_SendData(txbuf, rxbuf, length) SPI_TransmitReceiveDataDma(&spi_nxp775Interface, txbuf, rxbuf, length)
+#define N775_SendData(txbuf, rxbuf, length) SPI_TransmitReceiveDataDma(&spi_nxp775InterfaceTx[0], txbuf, rxbuf, length)
 
 /*========== Extern Constant and Variable Declarations ======================*/
 

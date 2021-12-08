@@ -43,7 +43,7 @@
  * @file    test_ltc_afe.c
  * @author  foxBMS Team
  * @date    2020-05-25 (date of creation)
- * @updated 2020-06-17 (date of last update)
+ * @updated 2021-12-01 (date of last update)
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -87,8 +87,8 @@ uint8_t ltc_TXPECbuffer[LTC_N_BYTES_FOR_DATA_TRANSMISSION] = {0};
 
 /* - configuring dma control packets   */
 g_dmaCTRL afe_ltcDmaControlPacketTx = {
-    .SADD      = 0,                                 /* source address             */
-    .DADD      = 0,                                 /* destination  address       */
+    .SADD      = 0u,                                /* source address             */
+    .DADD      = 0u,                                /* destination  address       */
     .CHCTRL    = 0U,                                /* channel control            */
     .FRCNT     = LTC_N_BYTES_FOR_DATA_TRANSMISSION, /* frame count                */
     .ELCNT     = ELEMENT_COUNT,                     /* element count              */
@@ -106,8 +106,8 @@ g_dmaCTRL afe_ltcDmaControlPacketTx = {
 };
 
 g_dmaCTRL afe_ltcDmaControlPacketRx = {
-    .SADD      = 0,                                 /* source address             */
-    .DADD      = 0,                                 /* destination  address       */
+    .SADD      = 0u,                                /* source address             */
+    .DADD      = 0u,                                /* destination  address       */
     .CHCTRL    = 0U,                                /* channel control            */
     .FRCNT     = LTC_N_BYTES_FOR_DATA_TRANSMISSION, /* frame count                */
     .ELCNT     = ELEMENT_COUNT,                     /* element count              */

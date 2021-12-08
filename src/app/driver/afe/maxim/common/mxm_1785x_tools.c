@@ -43,7 +43,7 @@
  * @file    mxm_1785x_tools.c
  * @author  foxBMS Team
  * @date    2020-07-15 (date of creation)
- * @updated 2021-06-16 (date of last update)
+ * @updated 2021-12-06 (date of last update)
  * @ingroup DRIVERS
  * @prefix  MXM
  *
@@ -60,17 +60,25 @@
 #include "mxm_register_map.h"
 
 /*========== Macros and Definitions =========================================*/
+/** length of a byte */
+#define MXM_TOOLS_LENGTH_BYTE (8u)
 
 /*========== Static Constant and Variable Definitions =======================*/
 
 /*========== Extern Constant and Variable Definitions =======================*/
 
 /*========== Static Function Prototypes =====================================*/
+/**
+ * @brief   Find Position of first set bit in bitmask
+ * @details Searches a bitmask starting from the lowest bit and returns the
+ *          position of the first set bit.
+ * @param[in]   bitmask     bitmask that should be searched
+ * @return      position of first set bit
+ */
+static uint8_t MXM_FirstSetBit(uint16_t bitmask);
 
 /*========== Static Function Implementations ================================*/
-
-/*========== Extern Function Implementations ================================*/
-extern uint8_t MXM_FirstSetBit(uint16_t bitmask) {
+static uint8_t MXM_FirstSetBit(uint16_t bitmask) {
     uint8_t retval = 0;
     while (((bitmask >> retval) & 1u) == 0u) {
         retval++;
@@ -82,7 +90,10 @@ extern uint8_t MXM_FirstSetBit(uint16_t bitmask) {
     return retval;
 }
 
+/*========== Extern Function Implementations ================================*/
 extern STD_RETURN_TYPE_e must_check_return MXM_FirstSetBitTest(void) {
+    /* AXIVION Disable Style Generic-NoMagicNumbers: This test function uses magic numbers to test predefined values. */
+
     /* bitmasks containing only zeros should return first bit set 16 */
     FAS_ASSERT(MXM_FirstSetBit(MXM_BM_NULL) == 16u);
 
@@ -91,6 +102,8 @@ extern STD_RETURN_TYPE_e must_check_return MXM_FirstSetBitTest(void) {
     FAS_ASSERT(MXM_FirstSetBit(MXM_BM_MSB) == 8u);
 
     FAS_ASSERT(MXM_FirstSetBit(MXM_REG_VERSION_MOD) == 4u);
+
+    /* AXIVION Enable Style Generic-NoMagicNumbers: */
 
     return STD_OK;
 }
@@ -101,10 +114,12 @@ extern void MXM_Convert(
     uint16_t *pTarget,
     MXM_CONVERSION_TYPE_e convType,
     uint32_t fullScaleReference_mV) {
+    FAS_ASSERT(pTarget != NULL_PTR);
     uint16_t temporaryVoltage = 0;
     MXM_ExtractValueFromRegister(lsb, msb, MXM_REG_ADC_14BIT_VALUE, &temporaryVoltage);
 
-    temporaryVoltage = temporaryVoltage + 1u;
+    temporaryVoltage                        = temporaryVoltage + (uint16_t)1u;
+    const uint32_t scaledVoltageUnipolar_mV = (temporaryVoltage * fullScaleReference_mV) / 0x3FFFu;
 
     switch (convType) {
         case MXM_CONVERSION_BIPOLAR:
@@ -113,7 +128,11 @@ extern void MXM_Convert(
             break;
         case MXM_CONVERSION_BLOCK_VOLTAGE:
         case MXM_CONVERSION_UNIPOLAR:
-            *pTarget = (uint16_t)((temporaryVoltage * fullScaleReference_mV) / 0x3FFFu);
+            if (scaledVoltageUnipolar_mV > (uint16_t)UINT16_MAX) {
+                *pTarget = UINT16_MAX;
+            } else {
+                *pTarget = (uint16_t)scaledVoltageUnipolar_mV;
+            }
             break;
         default:
             /* we should not be here */
@@ -123,15 +142,14 @@ extern void MXM_Convert(
 }
 
 extern STD_RETURN_TYPE_e must_check_return MXM_ConvertTest(void) {
-    uint16_t voltage                     = 0u;
-    uint8_t msb                          = 0u;
-    uint8_t lsb                          = 0u;
+    /* AXIVION Disable Style Generic-NoMagicNumbers: This test function uses magic numbers to test predefined values. */
+
     MXM_CONVERSION_TYPE_e conversionType = MXM_CONVERSION_UNIPOLAR;
 
     /* low scale */
-    msb     = 0x00u;
-    lsb     = 0x00u;
-    voltage = 1;
+    uint8_t msb      = 0x00u;
+    uint8_t lsb      = 0x00u;
+    uint16_t voltage = 1;
     MXM_Convert(lsb, msb, &voltage, conversionType, 5000);
     FAS_ASSERT(voltage == 0u);
 
@@ -149,6 +167,8 @@ extern STD_RETURN_TYPE_e must_check_return MXM_ConvertTest(void) {
     MXM_Convert(lsb, msb, &voltage, conversionType, 5000);
     FAS_ASSERT(voltage == 5000u);
 
+    /* AXIVION Enable Style Generic-NoMagicNumbers: */
+
     return STD_OK;
 }
 
@@ -159,26 +179,29 @@ extern void MXM_ExtractValueFromRegister(uint8_t lsb, uint8_t msb, MXM_REG_BM bi
     /* find lowest bit that is 1 in bitmask */
     uint8_t start = MXM_FirstSetBit(bitmask);
 
-    /* apply bitmask to LSB and MSB */
-    uint8_t lsbMasked   = lsb & ((uint8_t)(bitmask & MXM_BM_LSB));
+    /* apply bitmask to MSB */
     uint16_t msbBitmask = (bitmask & MXM_BM_MSB);
-    uint8_t msbMasked   = msb & ((uint8_t)(msbBitmask >> 8u));
+    uint8_t msbMasked   = msb & ((uint8_t)(msbBitmask >> MXM_TOOLS_LENGTH_BYTE));
 
-    /* shift LSB into right position and or over into value */
-    *pValue = (uint16_t)0u | (lsbMasked >> start);
-
-    /* add MSB at right position */
-    *pValue = (((uint16_t)msbMasked << (8u - start)) | *pValue);
+    /* shift LSB into right position if lsb is used */
+    if (start < MXM_TOOLS_LENGTH_BYTE) {
+        /* apply bitmask to LSB */
+        uint8_t lsbMasked = lsb & ((uint8_t)(bitmask & MXM_BM_LSB));
+        *pValue           = ((uint16_t)lsbMasked >> start);
+        /* add MSB at right position */
+        *pValue = (((uint16_t)msbMasked << (MXM_TOOLS_LENGTH_BYTE - start)) | *pValue);
+    } else if (start == MXM_TOOLS_LENGTH_BYTE) {
+        *pValue = (uint16_t)msbMasked;
+    } else {
+        *pValue = ((uint16_t)msbMasked >> (start - MXM_TOOLS_LENGTH_BYTE));
+    }
 }
 
 extern STD_RETURN_TYPE_e must_check_return MXM_ExtractValueFromRegisterTest(void) {
-    uint8_t lsb    = 0x00u;
-    uint8_t msb    = 0x00u;
+    /* AXIVION Disable Style Generic-NoMagicNumbers: This test function uses magic numbers to test predefined values. */
+    uint8_t lsb    = 0x31u;
+    uint8_t msb    = 0x85u;
     uint16_t value = 0x00u;
-
-    lsb   = 0x31u;
-    msb   = 0x85u;
-    value = 0x00u;
     MXM_ExtractValueFromRegister(lsb, msb, MXM_REG_VERSION_MOD, &value);
     FAS_ASSERT(value == 0x853u);
 
@@ -197,10 +220,14 @@ extern STD_RETURN_TYPE_e must_check_return MXM_ExtractValueFromRegisterTest(void
     MXM_ExtractValueFromRegister(lsb, msb, MXM_REG_ADC_14BIT_VALUE, &value);
     FAS_ASSERT(value == 0x1FFFu);
 
+    /* AXIVION Enable Style Generic-NoMagicNumbers: */
+
     return STD_OK;
 }
 
 extern void MXM_Unipolar14BitInto16Bit(uint16_t inputValue, uint8_t *lsb, uint8_t *msb) {
+    FAS_ASSERT(lsb != NULL_PTR);
+    FAS_ASSERT(msb != NULL_PTR);
     uint16_t workingCopy = inputValue;
     /* left shift into 16bit position */
     workingCopy = workingCopy << 2u;
@@ -208,7 +235,7 @@ extern void MXM_Unipolar14BitInto16Bit(uint16_t inputValue, uint8_t *lsb, uint8_
     /* bitmask LSB */
     *lsb = (uint8_t)(workingCopy & MXM_BM_LSB);
     /* shift MSB into lower byte (workingCopy is 16bit) */
-    *msb = (uint8_t)(workingCopy >> 8u);
+    *msb = (uint8_t)(workingCopy >> MXM_TOOLS_LENGTH_BYTE);
 }
 
 extern uint16_t MXM_VoltageIntoUnipolar14Bit(uint16_t voltage_mV, uint16_t fullscaleReference_mV) {
@@ -231,13 +258,15 @@ extern void MXM_ConvertModuleToString(
     FAS_ASSERT(moduleNumber < (BS_NR_OF_STRINGS * BS_NR_OF_MODULES));
 
     /* calculate string number */
-    *pStringNumber = moduleNumber / BS_NR_OF_MODULES;
+    *pStringNumber = (uint8_t)(moduleNumber / BS_NR_OF_MODULES);
+    FAS_ASSERT(*pStringNumber <= BS_NR_OF_STRINGS);
     /* calculate module number and handle edge-case BS_NR_OF_MODULES == 1 */
     if (1u == BS_NR_OF_MODULES) {
         *pModuleNumberInString = 0u;
     } else {
         *pModuleNumberInString = moduleNumber % BS_NR_OF_MODULES;
     }
+    FAS_ASSERT(*pModuleNumberInString <= BS_NR_OF_MODULES);
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/

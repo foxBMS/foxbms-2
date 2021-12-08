@@ -43,7 +43,7 @@
  * @file    lg_inr18650mj1.h
  * @author  foxBMS Team
  * @date    2017-11-07 (date of creation)
- * @updated 2020-07-31 (date of last update)
+ * @updated 2021-11-08 (date of last update)
  * @ingroup BATTERY_CELL_CONF
  * @prefix  BC
  *
@@ -138,7 +138,7 @@
 
 /**
  * @ingroup CONFIG_LG
- * nominal cell voltage according to datasheet
+ * nominal cell voltage according to data sheet
  * @ptype   int
  * @unit    mV
  */

@@ -86,7 +86,7 @@ SRC_DIR_REL = Path(os.path.join("src", "app"))
 
 
 def evaluate_implementation(callback_file: Path, function_name: str) -> bool:
-    """Checks wether a function name is found in a source file or not."""
+    """Checks whether a function name is found in a source file or not."""
     found = False
     impl = callback_file.read_text()
     if function_name in impl:

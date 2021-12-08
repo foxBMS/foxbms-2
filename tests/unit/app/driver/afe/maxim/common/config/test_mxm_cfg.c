@@ -43,7 +43,7 @@
  * @file    test_mxm_cfg.c
  * @author  foxBMS Team
  * @date    2020-06-24 (date of creation)
- * @updated 2021-06-16 (date of last update)
+ * @updated 2021-12-08 (date of last update)
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -63,7 +63,6 @@
 /*========== Definitions and Implementations for Unit Test ==================*/
 /* SPI interface configuration for MXM communication */
 SPI_INTERFACE_CONFIG_s spi_MxmInterface = {
-    .channel  = SPI_Interface4,
     .pConfig  = 0,
     .pNode    = 0,
     .pGioPort = 0,
@@ -79,20 +78,33 @@ void tearDown(void) {
 
 /*========== Test Cases =====================================================*/
 
-void testMXM_MonitoringPinInit(void) {
+void testMXM_InitializeMonitoringPins(void) {
     /* check if the right pinset configs are called */
-    IO_PinSet_Expect((uint32_t *)&MXM_17841B_GIODIR, MXM_17841B_SHTNDL_PIN);
-    IO_PinSet_Expect((uint32_t *)&MXM_17841B_GIOPORT, MXM_17841B_SHTNDL_PIN);
+    IO_SetPinDirectionToOutput_Expect((uint32_t *)&MXM_17841B_GIOPORT->DIR, MXM_17841B_SHTNDL_PIN);
+    IO_PinReset_Expect((uint32_t *)&MXM_17841B_GIOPORT->DOUT, MXM_17841B_SHTNDL_PIN);
     SPI_SetFunctional_Expect(NULL_PTR, SPI_PIN_SIMO, true);
     SPI_SetFunctional_IgnoreArg_pNode();
     SPI_SetFunctional_Expect(NULL_PTR, SPI_PIN_SOMI, true);
     SPI_SetFunctional_IgnoreArg_pNode();
-    MXM_MonitoringPinInit();
+    MXM_InitializeMonitoringPins();
+}
+
+void testMXM_ShutDownBridgeIc(void) {
+    IO_PinReset_Expect((uint32_t *)&MXM_17841B_GIOPORT->DOUT, MXM_17841B_SHTNDL_PIN);
+    MXM_ShutDownBridgeIc();
+}
+
+void testMXM_EnableBridgeIc(void) {
+    IO_PinSet_Expect((uint32_t *)&MXM_17841B_GIOPORT->DOUT, MXM_17841B_SHTNDL_PIN);
+    MXM_EnableBridgeIc();
 }
 
 void testMXM_GetSpiStateReady(void) {
-    /* the current implementation should always return STD_OK */
+    SPI_CheckInterfaceAvailable_ExpectAndReturn(spi_MxmInterface.pNode, STD_OK);
     TEST_ASSERT_EQUAL(STD_OK, MXM_GetSPIStateReady());
+
+    SPI_CheckInterfaceAvailable_ExpectAndReturn(spi_MxmInterface.pNode, STD_NOT_OK);
+    TEST_ASSERT_EQUAL(STD_NOT_OK, MXM_GetSPIStateReady());
 }
 
 void testMXM_SendData(void) {

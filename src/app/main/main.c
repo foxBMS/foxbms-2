@@ -43,7 +43,7 @@
  * @file    main.c
  * @author  foxBMS Team
  * @date    2019-08-27 (date of creation)
- * @updated 2021-10-08 (date of last update)
+ * @updated 2021-11-23 (date of last update)
  * @ingroup GENERAL
  * @prefix  TODO
  *
@@ -99,6 +99,8 @@ int main(void) {
     DMA_Initialize();
     DIAG_Initialize(&diag_device);
     MATH_StartupSelfTest();
+    const STD_RETURN_TYPE_e checkTimeHasPassedSelfTestReturnValue = OS_CheckTimeHasPassedSelfTest();
+    FAS_ASSERT(checkTimeHasPassedSelfTestReturnValue == STD_OK);
 
     OS_InitializeOperatingSystem();
     if (OS_INIT_PRE_OS != os_boot) {

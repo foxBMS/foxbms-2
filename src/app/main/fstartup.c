@@ -290,6 +290,7 @@ void _c_int00(void)
     /* call the application */
     main();
 
+    /* AXIVION Next Line Style MisraC2012-21.8: exit is called as in generated code by TI */
     exit(0);
 }
 

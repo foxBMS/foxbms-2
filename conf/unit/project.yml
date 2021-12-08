@@ -78,6 +78,7 @@
     - UNITY_UNIT_TEST
     - ASSERT_LEVEL=2
     - UNITY_INCLUDE_EXEC_TIME
+    - FOXBMS_USES_FREERTOS=1
   :test:
     - *common_defines
   :test_preprocess:

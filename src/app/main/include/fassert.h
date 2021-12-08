@@ -43,7 +43,7 @@
  * @file    fassert.h
  * @author  foxBMS Team
  * @date    2020-03-20 (date of creation)
- * @updated 2020-05-26 (date of last update)
+ * @updated 2021-11-10 (date of last update)
  * @ingroup ASSERT
  * @prefix  FAS
  *
@@ -96,8 +96,10 @@
  *          through the control field mask byte PSR[7:0] (privileged
  *          software execution)
  */
+/* AXIVION Disable Style MisraC2012Directive-4.1: Function is implemented in Assembler see swiPortDisableInterrupts */
 #pragma SWI_ALIAS(FAS_DisableInterrupts, 5)
 extern void FAS_DisableInterrupts(void);
+/* AXIVION Enable Style MisraC2012Directive-4.1: */
 
 /**
  * @brief       Define that evaluates to essential boolean false thus tripping
@@ -164,7 +166,7 @@ extern void fas_storeAssertLoc(uint32_t *pc, uint32_t line);
 /*============= define how the assert shall behave =============*/
 #if ASSERT_LEVEL == ASSERT_LEVEL_INF_LOOP_AND_DISABLE_INTERRUPTS
 /** Assert macro will trigger a watchdog reset */
-static inline void FAS_infiniteLoop() {
+static inline void FAS_InfiniteLoop(void) {
     /* disable IRQ interrupts */
     FAS_DisableInterrupts();
     while (1) { /* Stay here until watchdog reset happens */
@@ -172,13 +174,13 @@ static inline void FAS_infiniteLoop() {
 }
 #elif ASSERT_LEVEL == ASSERT_LEVEL_INF_LOOP_FOR_DEBUG
 /** Assert macro will stay in infinite loop */
-static inline void FAS_infiniteLoop() {
+static inline void FAS_InfiniteLoop(void) {
     while (1) {
         /* Stay here to ease debugging */
     }
 }
 #elif ASSERT_LEVEL == ASSERT_LEVEL_NO_OP
-static inline void FAS_infiniteLoop() {
+static inline void FAS_InfiniteLoop(void) {
 }
 #else
 #error "Invalid value for ASSERT_LEVEL"
@@ -215,7 +217,7 @@ static inline uint32_t __curpc(void) {
  * @def     FAS_ASSERT(x)
  * @brief   Assertion macro that asserts that x is true
  * @details This macro asserts the taken argument x. If the assertion fails
- *          it calls #FAS_ASSERT_RECORD() and then #FAS_infiniteLoop().
+ *          it calls #FAS_ASSERT_RECORD() and then #FAS_InfiniteLoop().
  *
  *          In unit tests this is replace by an exception that is thrown in
  *          order to be able to test for a failed assertion.
@@ -238,7 +240,7 @@ static inline uint32_t __curpc(void) {
     do {                         \
         if (!(x)) {              \
             FAS_ASSERT_RECORD(); \
-            FAS_infiniteLoop();  \
+            FAS_InfiniteLoop();  \
         }                        \
     } while (0)
 #endif

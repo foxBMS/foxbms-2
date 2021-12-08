@@ -43,7 +43,7 @@
  * @file    ltc_6806_cfg.h
  * @author  foxBMS Team
  * @date    2015-02-18 (date of creation)
- * @updated 2021-03-24 (date of last update)
+ * @updated 2021-12-08 (date of last update)
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  LTC
  *
@@ -153,11 +153,11 @@
 #define LTC_SPI_PRESCALER *LTC_SPI_HANDLE.Init.BaudRatePrescaler
 /**@}*/
 
-/** start definition of LTC timings; Twake (see LTC datasheet) */
+/** start definition of LTC timings; Twake (see LTC data sheet) */
 #define LTC_TWAKE_US (300)
-/** start definition of LTC timings; Tready (see LTC datasheet) */
+/** start definition of LTC timings; Tready (see LTC data sheet) */
 #define LTC_TREADY_US (10)
-/** start definition of LTC timings; Tidle (see LTC datasheet) */
+/** start definition of LTC timings; Tidle (see LTC data sheet) */
 #define LTC_TIDLE_US (6700)
 
 /** LTC SPI wakeup time */
@@ -171,12 +171,12 @@
 
 /**
  * time for the first initialization of the daisy chain
- * see LTC6804 datasheet page 41
+ * see LTC6804 data sheet page 41
  */
 #define LTC_STATEMACH_DAISY_CHAIN_FIRST_INITIALIZATION_TIME ((LTC_TWAKE_US * LTC_N_LTC) / 1000)
 /**
  * time for the second initialization of the daisy chain
- * see LTC6804 datasheet page 41
+ * see LTC6804 data sheet page 41
  */
 #define LTC_STATEMACH_DAISY_CHAIN_SECOND_INITIALIZATION_TIME ((LTC_TREADY_US * LTC_N_LTC) / 1000)
 
@@ -293,12 +293,15 @@
  * @{
  */
 #define LTC_TransmitWakeUp(spi_ltcInterface) SPI_TransmitDummyByte(spi_ltcInterface, LTC_SPI_WAKEUP_WAIT_TIME_US)
-#define LTC_TransmitI2cCommand(spi_ltcInterface, txbuf) \
-    SPI_TransmitDataWithDummy(spi_ltcInterface, LTC_SPI_WAKEUP_WAIT_TIME_US, txbuf, 4 + 9)
-#define LTC_TransmitCommand(spi_ltcInterface, command) \
-    SPI_TransmitDataWithDummy(spi_ltcInterface, LTC_SPI_WAKEUP_WAIT_TIME_US, command, 4)
-#define LTC_TransmitReceiveData(spi_ltcInterface, txbuf, rxbuf, length) \
-    SPI_TransmitReceiveDataWithDummyDma(spi_ltcInterface, LTC_SPI_WAKEUP_WAIT_TIME_US, txbuf, rxbuf, length)
+#define LTC_TransmitI2cCommand(spi_ltcInterface, txbuf)                   \
+    SPI_TransmitDummyByte(spi_ltcInterface, LTC_SPI_WAKEUP_WAIT_TIME_US); \
+    SPI_TransmitData(spi_ltcInterface, txbuf, 4 + 9)
+#define LTC_TransmitCommand(spi_ltcInterface, command)                    \
+    SPI_TransmitDummyByte(spi_ltcInterface, LTC_SPI_WAKEUP_WAIT_TIME_US); \
+    SPI_TransmitData(spi_ltcInterface, command, 4)
+#define LTC_TransmitReceiveData(spi_ltcInterface, txbuf, rxbuf, length)   \
+    SPI_TransmitDummyByte(spi_ltcInterface, LTC_SPI_WAKEUP_WAIT_TIME_US); \
+    SPI_TransmitReceiveDataDma(spi_ltcInterface, txbuf, rxbuf, length)
 /**@}*/
 
 /*========== Extern Constant and Variable Declarations ======================*/

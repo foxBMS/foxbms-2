@@ -43,5 +43,5 @@ keywords:
   - "BMS"
 message: "If the foxBMS project contributes to a project that leads to a scientific publication, please acknowledge this fact by citing."
 title: "foxBMS - The Most Advanced Open Source BMS Platform: foxBMS 2"
-version: "1.2.0"
-date-released: 2021-10-21
+version: "1.2.1"
+date-released: 2021-12-08

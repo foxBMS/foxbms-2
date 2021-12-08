@@ -43,7 +43,7 @@
  * @file    adc.c
  * @author  foxBMS Team
  * @date    2019-01-07 (date of creation)
- * @updated 2021-07-14 (date of last update)
+ * @updated 2021-12-08 (date of last update)
  * @ingroup DRIVERS
  * @prefix  ADC
  *
@@ -85,7 +85,7 @@ static float ADC_ConvertVoltage(float adcValue_mV);
 /*========== Static Function Implementations ================================*/
 
 static float ADC_ConvertVoltage(float adcValue_mV) {
-    /** For details to equation see Equation 28 in Technical Reference Manual SPNU563A?March 2018 page 852 */
+    /** For details to equation see Equation 28 in Technical Reference Manual SPNU563A - March 2018 page 852 */
     float result_mV = ((ADC_CONV_FACTOR_12BIT * (adcValue_mV - ADC_VREFLOW_mV)) / (ADC_VREFHIGH_mV - ADC_VREFLOW_mV)) -
                       0.5f;
 
@@ -113,7 +113,7 @@ extern void ADC_Control(void) {
             }
             break;
 
-        /* Start initialization procedure, datasheet figure 106 page 79 */
+        /* Start initialization procedure, data sheet figure 106 page 79 */
         case ADC_CONVERSION_FINISHED:
             adcGetData(adcREG1, adcGROUP1, &adc1RawVoltages[0]);
             for (uint8_t i = 0U; i < ADC_ADC1_MAX_NR_CHANNELS; i++) {

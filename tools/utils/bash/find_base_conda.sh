@@ -89,9 +89,15 @@ function _win32_get_vars() {
         fi
     done
 
+    # maybe we found the enviroment name not, but maybe this is on purpose as
+    # the user wants to run an conda environment update
+    if [ "${1}" == "update" ]; then
+        DEVEL_ENV_FOUND="$base_env"
+    fi
+
     if [ -z "${DEVEL_ENV_FOUND}" ]; then
         echo "Could not find conda development environment directories [${BASE_ENVS_FOUND}]"
-        echo "Run '$SCRIPTDIR/../conda-update-env.bat'"
+        echo "Run '$SCRIPTDIR/../conda-update-env.sh'"
         echo "Exiting..."
         exit 1
     fi
@@ -152,6 +158,13 @@ function _linux_get_vars() {
             break
         fi
     done
+
+    # maybe we found the enviroment name not, but maybe this is on purpose as
+    # the user wants to run an conda environment update
+    if [ "${1}" == "update" ]; then
+        DEVEL_ENV_FOUND="$base_env"
+    fi
+
     if [ -z "${DEVEL_ENV_FOUND}" ]; then
         echo "Could not find conda development environment directories [${BASE_ENVS_FOUND}]"
         echo "Run '$SCRIPTDIR/../conda-update-env.sh'"
@@ -171,7 +184,7 @@ if [ "$(uname)" == "Darwin" ]; then
     exit 1
 # Linux
 elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
-    _linux_get_vars
+    _linux_get_vars $1
     echo $CONDA_BASE_ENVIRONMENT_INCLUDING_DEVELOPMENT_ENVIRONMENT
     echo $CONDA_BASE_ENVIRONMENT_ACTIVATE_SCRIPT
     echo $CONDA_DEVELOPMENT_ENVIRONMENT_NAME
@@ -184,7 +197,7 @@ elif [ "$(expr substr $(uname -s) 1 10)" == "MINGW32_NT" ]; then
     echo "32bit Windows is not supported."
     exit 1
 elif [ "$(expr substr $(uname -s) 1 10)" == "MINGW64_NT" ] || [ "$(expr substr $(uname -s) 1 7)" == "MSYS_NT" ] ; then
-    _win32_get_vars
+    _win32_get_vars $1
     echo $CONDA_BASE_ENVIRONMENT_INCLUDING_DEVELOPMENT_ENVIRONMENT
     echo $CONDA_BASE_ENVIRONMENT_ACTIVATE_SCRIPT
     echo $CONDA_DEVELOPMENT_ENVIRONMENT_NAME

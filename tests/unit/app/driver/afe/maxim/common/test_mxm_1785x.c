@@ -43,7 +43,7 @@
  * @file    test_mxm_1785x.c
  * @author  foxBMS Team
  * @date    2020-07-02 (date of creation)
- * @updated 2020-09-10 (date of last update)
+ * @updated 2021-12-06 (date of last update)
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  MXM
  *
@@ -55,6 +55,7 @@
 
 /*========== Includes =======================================================*/
 #include "unity.h"
+#include "Mockafe_plausibility.h"
 #include "Mockdatabase.h"
 #include "Mockfassert.h"
 #include "Mockmxm_17841b.h"
@@ -74,9 +75,11 @@
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 
+static DATA_BLOCK_OPEN_WIRE_s mxm_tableOpenWire = {.header.uniqueId = DATA_BLOCK_ID_OPEN_WIRE_BASE};
+
 static MXM_MONITORING_INSTANCE_s mxm_instance = {
     .state                 = MXM_STATEMACHINE_STATES_UNINITIALIZED,
-    .operationSubstate     = MXM_INIT_DEVCFG1,
+    .operationSubstate     = MXM_INIT_ENTRY,
     .allowStartup          = false,
     .operationRequested    = false,
     .firstMeasurementDone  = false,
@@ -94,6 +97,7 @@ static MXM_MONITORING_INSTANCE_s mxm_instance = {
             .msb           = 0x00,
             .deviceAddress = 0x00,
             .blocksize     = 0,
+            .model         = MXM_MODEL_ID_MAX17852,
         },
     .resultSelfCheck = STD_NOT_OK,
     .selfCheck =
@@ -106,15 +110,30 @@ static MXM_MONITORING_INSTANCE_s mxm_instance = {
             .addressSpaceChecker      = STD_NOT_OK,
             .fmeaStatusASCI           = STD_NOT_OK,
         },
+    .pOpenwire_table = &mxm_tableOpenWire,
 };
 
-static DATA_BLOCK_OPEN_WIRE_s mxm_openwire = {.header.uniqueId = DATA_BLOCK_ID_OPEN_WIRE_BASE};
+const bool mxm_allowSkippingPostInitSelfCheck = true;
+
+/** dummy implementation for the Operation state machine */
+extern void MXM_StateMachineOperation(MXM_MONITORING_INSTANCE_s *pState) {
+}
+
+/** local variable that allows to change the reported model id on a per test basis*/
+static MXM_MODEL_ID_e modelForTest = MXM_MODEL_ID_MAX17852;
+
+/** dummy implementation for the model id */
+extern MXM_MODEL_ID_e MXM_GetModelIdOfDaisyChain(void) {
+    return modelForTest;
+}
 
 /*========== Setup and Teardown =============================================*/
 void setUp(void) {
     mxm_instance.state             = MXM_STATEMACHINE_STATES_UNINITIALIZED;
-    mxm_instance.operationSubstate = MXM_INIT_DEVCFG1;
+    mxm_instance.operationSubstate = MXM_INIT_ENTRY;
     mxm_instance.requestStatus5x   = MXM_5X_STATE_UNSENT;
+
+    modelForTest = MXM_MODEL_ID_MAX17852;
 
     /* delete rx buffer */
     for (uint16_t i = 0u; i < MXM_RX_BUFFER_LENGTH; i++) {
@@ -131,12 +150,12 @@ void testMXM_ParseVoltageReadallTest(void) {
 }
 
 void testTEST_MXM_ParseVoltageReadallNullPointer(void) {
-    uint8_t volt_rx_buffer         = 0;
+    uint8_t voltRxBuffer           = 0;
     MXM_DATA_STORAGE_s datastorage = {0};
 
     TEST_ASSERT_FAIL_ASSERT(TEST_MXM_ParseVoltageReadall(NULL_PTR, 0u, &datastorage, 0u));
 
-    TEST_ASSERT_FAIL_ASSERT(TEST_MXM_ParseVoltageReadall(&volt_rx_buffer, 0u, NULL_PTR, 0u));
+    TEST_ASSERT_FAIL_ASSERT(TEST_MXM_ParseVoltageReadall(&voltRxBuffer, 0u, NULL_PTR, 0u));
 }
 
 void testMXM_ParseVoltageReadallTestNullPointer(void) {
@@ -147,18 +166,18 @@ void testMXM_ParseVoltagesIntoDBNullPointer(void) {
     TEST_ASSERT_FAIL_ASSERT(TEST_MXM_ParseVoltagesIntoDB(NULL_PTR));
 }
 
-void testTEST_MXM_MonGetVoltagesNullPointer(void) {
-    TEST_ASSERT_FAIL_ASSERT(TEST_MXM_MonGetVoltages(NULL_PTR, 0u));
+void testMXM_MonGetVoltagesNullPointer(void) {
+    TEST_ASSERT_FAIL_ASSERT(TEST_ASSERT_EQUAL(0u, MXM_MonGetVoltages(NULL_PTR, 0u)));
 }
 
 void testMXM_HandleStateWriteallNullPointer(void) {
-    TEST_ASSERT_FAIL_ASSERT(TEST_MXM_HandleStateWriteall(NULL_PTR, 0u));
+    TEST_ASSERT_FAIL_ASSERT(MXM_HandleStateWriteall(NULL_PTR, 0u));
 }
 
 void testMXM_HandleStateWriteallInvalidRequestStatus(void) {
     /* set request status to an invalid value */
     mxm_instance.requestStatus5x = 9999;
-    TEST_ASSERT_FAIL_ASSERT(TEST_MXM_HandleStateWriteall(&mxm_instance, 42u));
+    TEST_ASSERT_FAIL_ASSERT(MXM_HandleStateWriteall(&mxm_instance, 42u));
 }
 
 void testMXM_HandleStateWriteallEntry(void) {
@@ -169,35 +188,36 @@ void testMXM_HandleStateWriteallEntry(void) {
         mxm_instance.batteryCmdBuffer,
         &mxm_instance.requestStatus5x,
         STD_OK);
-    TEST_ASSERT_PASS_ASSERT(TEST_MXM_HandleStateWriteall(&mxm_instance, 42u));
+    TEST_ASSERT_PASS_ASSERT(MXM_HandleStateWriteall(&mxm_instance, 42u));
 }
 
 void testMXM_HandleStateWriteallUnprocessed(void) {
     mxm_instance.requestStatus5x = MXM_5X_STATE_UNPROCESSED;
-    TEST_ASSERT_PASS_ASSERT(TEST_MXM_HandleStateWriteall(&mxm_instance, 42u));
+    TEST_ASSERT_PASS_ASSERT(MXM_HandleStateWriteall(&mxm_instance, 42u));
 }
 
 void testMXM_HandleStateWriteallError(void) {
     mxm_instance.requestStatus5x = MXM_5X_STATE_ERROR;
-    TEST_ASSERT_PASS_ASSERT(TEST_MXM_HandleStateWriteall(&mxm_instance, 42u));
+    OS_GetTickCount_ExpectAndReturn(0u);
+    TEST_ASSERT_PASS_ASSERT(MXM_HandleStateWriteall(&mxm_instance, 42u));
     TEST_ASSERT_EQUAL(MXM_5X_STATE_UNSENT, mxm_instance.requestStatus5x);
 }
 
 void testMXM_HandleStateWriteallProcessed(void) {
     mxm_instance.requestStatus5x = MXM_5X_STATE_PROCESSED;
-    TEST_ASSERT_PASS_ASSERT(TEST_MXM_HandleStateWriteall(&mxm_instance, 42u));
+    TEST_ASSERT_PASS_ASSERT(MXM_HandleStateWriteall(&mxm_instance, 42u));
     TEST_ASSERT_EQUAL(MXM_5X_STATE_UNSENT, mxm_instance.requestStatus5x);
     TEST_ASSERT_EQUAL(42, mxm_instance.operationSubstate);
 }
 
 void testMXM_HandleStateReadallNullPointer(void) {
-    TEST_ASSERT_FAIL_ASSERT(TEST_MXM_HandleStateReadall(NULL_PTR, 0u, 0u));
+    TEST_ASSERT_FAIL_ASSERT(TEST_ASSERT_EQUAL(false, MXM_HandleStateReadall(NULL_PTR, 0u, 0u)));
 }
 
 void testMXM_HandleStateReadallInvalidRequestStatus(void) {
     /* set request status to an invalid value */
     mxm_instance.requestStatus5x = 9999;
-    TEST_ASSERT_FAIL_ASSERT(TEST_MXM_HandleStateReadall(&mxm_instance, 21u, 42u));
+    TEST_ASSERT_FAIL_ASSERT(TEST_ASSERT_EQUAL(false, MXM_HandleStateReadall(&mxm_instance, 21u, 42u)));
 }
 
 void testMXM_HandleStateReadallUnsent(void) {
@@ -208,25 +228,27 @@ void testMXM_HandleStateReadallUnsent(void) {
         .regAddress = registerAddress,
         .lsb        = 0,
         .msb        = 0,
+        .model      = modelForTest,
     };
     MXM_5XSetStateRequest_ExpectAndReturn(
         mxm_instance.pInstance5X, MXM_STATEMACH_5X_READALL, commandBuffer, &mxm_instance.requestStatus5x, STD_OK);
     bool functionReturnValue;
-    TEST_ASSERT_PASS_ASSERT(functionReturnValue = TEST_MXM_HandleStateReadall(&mxm_instance, registerAddress, 42u));
+    TEST_ASSERT_PASS_ASSERT(functionReturnValue = MXM_HandleStateReadall(&mxm_instance, registerAddress, 42u));
     TEST_ASSERT_EQUAL(false, functionReturnValue);
 }
 
 void testMXM_HandleStateReadallUnprocessed(void) {
     mxm_instance.requestStatus5x = MXM_5X_STATE_UNPROCESSED;
     bool functionReturnValue;
-    TEST_ASSERT_PASS_ASSERT(functionReturnValue = TEST_MXM_HandleStateReadall(&mxm_instance, 21u, 42u));
+    TEST_ASSERT_PASS_ASSERT(functionReturnValue = MXM_HandleStateReadall(&mxm_instance, 21u, 42u));
     TEST_ASSERT_EQUAL(false, functionReturnValue);
 }
 
 void testMXM_HandleStateReadallError(void) {
     mxm_instance.requestStatus5x = MXM_5X_STATE_ERROR;
+    OS_GetTickCount_ExpectAndReturn(0u);
     bool functionReturnValue;
-    TEST_ASSERT_PASS_ASSERT(functionReturnValue = TEST_MXM_HandleStateReadall(&mxm_instance, 21u, 42u));
+    TEST_ASSERT_PASS_ASSERT(functionReturnValue = MXM_HandleStateReadall(&mxm_instance, 21u, 42u));
     TEST_ASSERT_EQUAL(false, functionReturnValue);
     TEST_ASSERT_EQUAL(MXM_5X_STATE_UNSENT, mxm_instance.requestStatus5x);
 }
@@ -236,7 +258,7 @@ void testMXM_HandleStateReadallProcessed(void) {
     MXM_5XGetRXBuffer_ExpectAndReturn(mxm_instance.pInstance5X, mxm_instance.rxBuffer, MXM_RX_BUFFER_LENGTH, STD_OK);
     MXM_5XGetLastDCByte_ExpectAndReturn(mxm_instance.pInstance5X, 84u);
     bool functionReturnValue;
-    TEST_ASSERT_PASS_ASSERT(functionReturnValue = TEST_MXM_HandleStateReadall(&mxm_instance, 21u, 42u));
+    TEST_ASSERT_PASS_ASSERT(functionReturnValue = MXM_HandleStateReadall(&mxm_instance, 21u, 42u));
     TEST_ASSERT_EQUAL(true, functionReturnValue);
     TEST_ASSERT_EQUAL(MXM_5X_STATE_UNSENT, mxm_instance.requestStatus5x);
     TEST_ASSERT_EQUAL(42u, mxm_instance.operationSubstate);
@@ -244,8 +266,7 @@ void testMXM_HandleStateReadallProcessed(void) {
 }
 
 void testMXM_ProcessOpenWireNullPointer(void) {
-    TEST_ASSERT_FAIL_ASSERT(TEST_MXM_ProcessOpenWire(NULL_PTR, &mxm_openwire));
-    TEST_ASSERT_FAIL_ASSERT(TEST_MXM_ProcessOpenWire(&mxm_instance, NULL_PTR));
+    TEST_ASSERT_FAIL_ASSERT(MXM_ProcessOpenWire(NULL_PTR));
 }
 
 void testMXM_ProcessOpenWire1SatelliteAlternatingPattern(void) {
@@ -257,20 +278,20 @@ void testMXM_ProcessOpenWire1SatelliteAlternatingPattern(void) {
     MXM_5XGetNumberOfSatellites_ExpectAndReturn(mxm_instance.pInstance5X, 1);
     /* don't care about the database call */
     DATA_Write_1_DataBlock_IgnoreAndReturn(STD_OK);
-    TEST_ASSERT_PASS_ASSERT(TEST_MXM_ProcessOpenWire(&mxm_instance, &mxm_openwire));
+    TEST_ASSERT_PASS_ASSERT(MXM_ProcessOpenWire(&mxm_instance));
 
     /* check for the injected pattern */
     for (uint8_t i = 0u; i < 8; i = i + 2) {
-        TEST_ASSERT_EQUAL(1, mxm_openwire.openwire[0][i]);
+        TEST_ASSERT_EQUAL(1, mxm_instance.pOpenwire_table->openwire[0][i]);
     }
     for (uint8_t i = 1u; i < 8; i = i + 2) {
-        TEST_ASSERT_EQUAL(0, mxm_openwire.openwire[0][i]);
+        TEST_ASSERT_EQUAL(0, mxm_instance.pOpenwire_table->openwire[0][i]);
     }
     for (uint8_t i = 8u; i < MXM_MAXIMUM_NR_OF_CELLS_PER_MODULE; i = i + 2) {
-        TEST_ASSERT_EQUAL(0, mxm_openwire.openwire[0][i]);
+        TEST_ASSERT_EQUAL(0, mxm_instance.pOpenwire_table->openwire[0][i]);
     }
     for (uint8_t i = 9u; i < MXM_MAXIMUM_NR_OF_CELLS_PER_MODULE; i = i + 2) {
-        TEST_ASSERT_EQUAL(1, mxm_openwire.openwire[0][i]);
+        TEST_ASSERT_EQUAL(1, mxm_instance.pOpenwire_table->openwire[0][i]);
     }
 }
 

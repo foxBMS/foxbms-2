@@ -43,7 +43,7 @@
  * @file    nxp_afe_dma.c
  * @author  foxBMS Team
  * @date    2020-05-27 (date of creation)
- * @updated 2020-05-27 (date of last update)
+ * @updated 2021-12-08 (date of last update)
  * @ingroup DRIVERS
  * @prefix  AFE
  *
@@ -91,7 +91,7 @@ void AFE_SetRxTransmitOngoing(void) {
 }
 
 /* Function called on DMA complete interrupts (TX and RX). */
-void AFE_DmaCallback(dmaInterrupt_t inttype, uint32 channel) {
+void AFE_DmaCallback(uint8_t spiIndex) {
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/

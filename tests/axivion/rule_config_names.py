@@ -74,7 +74,7 @@ class ModulePrefixLookup(style.WorkItem):
 
     # pylint: disable=too-many-nested-blocks
     def __init__(self, ir_graph, cached_comments):
-        self._map = dict()
+        self._map = {}
         for file_node in ir_graph.nodes_of_type(ir.Physical, "Primary_File"):
             for comment in cached_comments.get(file_node, ()):
                 if not comment.at_beginning:

@@ -202,10 +202,9 @@ static void ILCK_InitializePins(void) {
 
 static ILCK_ELECTRICAL_STATE_TYPE_e ILCK_GetInterlockFeedback(void) {
     ILCK_ELECTRICAL_STATE_TYPE_e measuredInterlockState = ILCK_SWITCH_UNDEF;
-    uint8_t pinState                                    = 0U;
 
     OS_EnterTaskCritical();
-    pinState = IO_PinGet(&ILCK_IO_REG_PORT->DIN, ILCK_INTERLOCK_FEEDBACK_PIN_IL_STATE);
+    const STD_PIN_STATE_e pinState = IO_PinGet(&ILCK_IO_REG_PORT->DIN, ILCK_INTERLOCK_FEEDBACK_PIN_IL_STATE);
     OS_ExitTaskCritical();
 
     /** Local variable containing voltages measured on TMS570 ADC1 inputs */
@@ -213,9 +212,9 @@ static ILCK_ELECTRICAL_STATE_TYPE_e ILCK_GetInterlockFeedback(void) {
     DATA_READ_DATA(&ilck_tableAdcVoltages);
 
     /** Pin low: interlock closed, pin high: interlock open */
-    if (pinState == 1u) {
+    if (pinState == STD_PIN_HIGH) {
         measuredInterlockState = ILCK_SWITCH_OFF;
-    } else if (pinState == 0u) {
+    } else if (pinState == STD_PIN_LOW) {
         measuredInterlockState = ILCK_SWITCH_ON;
     }
 

@@ -43,7 +43,7 @@
  * @file    sof_cfg.h
  * @author  foxBMS Team
  * @date    2020-10-07 (date of creation)
- * @updated 2020-10-07 (date of last update)
+ * @updated 2021-11-08 (date of last update)
  * @ingroup APPLICATION_CONFIGURATION
  * @prefix  SOF
  *
@@ -61,7 +61,7 @@
 
 /**
  * Maximum current in mA in charge direction that a string can sustain.
- * Normally set once for the specific battery cell from datasheet
+ * Normally set once for the specific battery cell from data sheet
  */
 #define SOF_STRING_CURRENT_CONTINUOUS_CHARGE_mA (120000.00f)
 
@@ -76,7 +76,7 @@
 
 /**
  * Maximum current in mA in discharge direction that a string can deliver.
- * Normally set once for the specific battery cell from datasheet.
+ * Normally set once for the specific battery cell from data sheet.
  */
 #define SOF_STRING_CURRENT_CONTINUOUS_DISCHARGE_mA (120000.00f)
 

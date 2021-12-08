@@ -1,0 +1,21 @@
+Pin;    Signal;                 Direction;      Description
+1;      +3.0V_VREF2_0;          Output;         Primary |ltc6811-1| 3.0V reference voltage 2
+2;      +3.0V_VREF2_1;          Output;         Secondary |ltc6811-1| 3.0V reference voltage 2
+3;      +5.0V_VREG_0;           Output;         Primary |ltc6811-1| 5.0V regulated voltage
+4;      +5.0V_VREG_1;           Output;         Secondary |ltc6811-1| 5.0V regulated voltage
+5;      PRIMARY-GPIO1-OPT;      Input/Output;   Primary |ltc6811-1| GPIO1
+6;      SECONDARY-GPIO1-OPT;    Input/Output;   Secondary |ltc6811-1| GPIO1
+7;      PRIMARY-GPIO2-OPT;      Input/Output;   Primary |ltc6811-1| GPIO2
+8;      SECONDARY-GPIO2-OPT;    Input/Output;   Secondary |ltc6811-1| GPIO2
+9;      PRIMARY-GPIO3-OPT;      Input/Output;   Primary |ltc6811-1| GPIO3
+10;     SECONDARY-GPIO3-OPT;    Input/Output;   Secondary |ltc6811-1| GPIO3
+11;     PRIMARY-GPIO4-OPT;      Input/Output;   Primary |ltc6811-1| GPIO4
+12;     SECONDARY-GPIO4-OPT;    Input/Output;   Secondary |ltc6811-1| GPIO4
+13;     PRIMARY-GPIO5-OPT;      Input/Output;   Primary |ltc6811-1| GPIO5
+14;     SECONDARY-GPIO5-OPT;    Input/Output;   Secondary |ltc6811-1| GPIO5
+15;     PRIMARY-WDT;            Output;         Primary |ltc6811-1| watchdog output
+16;     SECONDARY-WDT;          Output;         Secondary |ltc6811-1| watchdog output
+17;     PRIMARY-TEMP-ALERT;     Output;         Primary board T-sensor alarm output
+18;     SECONDARY-TEMP-ALERT;   Output;         Secondary board T-sensor alarm output
+19;     |FUSED_VBAT-|;          Output;         GND
+20;     |FUSED_VBAT-|;          Output;         GND

@@ -60,7 +60,7 @@ import os
 from waflib import Utils
 
 if Utils.is_win32:
-    import win32com.client
+    import win32com.client  # pylint: disable=import-error
 
 
 def options(opt):

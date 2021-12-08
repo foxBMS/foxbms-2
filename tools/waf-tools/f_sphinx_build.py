@@ -44,6 +44,7 @@
 
 import os
 import re
+import sys
 
 from waflib import Logs, Node, Task, TaskGen, Utils
 
@@ -92,13 +93,16 @@ class sphinx_task(Task.Task):  # pylint: disable=invalid-name
             verbosity = "-" + Logs.verbose * "v"
         cmd = " ".join(
             [
-                "${SPHINX_BUILD}",
+                sys.executable,
+                "-m sphinx",
                 "-b ${BUILDERNAME}",
                 "-c ${CONFDIR}",
                 "-D ${VERSION}",
                 "-D ${RELEASE}",
                 "-D graphviz_dot=${DOT}",
                 "-d ${DOCTREEDIR}",
+                "-W",
+                "--keep-going",
                 "${SRCDIR}",
                 "${OUTDIR}",
                 verbosity,

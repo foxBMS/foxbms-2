@@ -43,7 +43,7 @@
  * @file    test_database.c
  * @author  foxBMS Team
  * @date    2020-04-01 (date of creation)
- * @updated 2021-07-23 (date of last update)
+ * @updated 2021-12-01 (date of last update)
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -90,11 +90,10 @@ void testDummy(void) {
 }
 
 /** callback for #testDATA_ExecuteDataBIST(); this not work for other instances */
-BaseType_t DATA_mpuInjectValuesForExecuteBISTTestCallback(
-    QueueHandle_t xQueue,
+OS_STD_RETURN_e DATA_mpuInjectValuesForExecuteBISTTestCallback(
+    OS_QUEUE xQueue,
     const void *const pvItemToQueue,
-    TickType_t xTicksToWait,
-    const BaseType_t xCopyPosition,
+    uint32_t xTicksToWait,
     int cmock_num_calls) {
     const DATA_QUEUE_BIST_INJECTED_MESSAGE_s *const injectQueueMessage = pvItemToQueue;
     /* inject the values into the message for a read access */
@@ -103,7 +102,7 @@ BaseType_t DATA_mpuInjectValuesForExecuteBISTTestCallback(
         injectQueueMessage->pDatabaseEntry[0u]->member2 = DATA_DUMMY_VALUE_UINT8_T_ALTERNATING_BIT_PATTERN;
     }
 
-    return pdPASS;
+    return OS_SUCCESS;
 }
 
 void testDATA_ExecuteDataBIST(void) {
@@ -111,8 +110,7 @@ void testDATA_ExecuteDataBIST(void) {
     const uint8_t testValue                     = DATA_DUMMY_VALUE_UINT8_T_ALTERNATING_BIT_PATTERN;
     dummyTable.member1                          = UINT8_MAX;
     dummyTable.member2                          = testValue;
-
-    MPU_xQueueGenericSend_Stub(&DATA_mpuInjectValuesForExecuteBISTTestCallback);
+    OS_SendToBackOfQueue_Stub(&DATA_mpuInjectValuesForExecuteBISTTestCallback);
     TEST_ASSERT_PASS_ASSERT(DATA_ExecuteDataBIST());
 }
 

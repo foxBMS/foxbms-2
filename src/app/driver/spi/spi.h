@@ -43,7 +43,7 @@
  * @file    spi.h
  * @author  foxBMS Team
  * @date    2019-12-12 (date of creation)
- * @updated 2021-06-16 (date of last update)
+ * @updated 2021-12-08 (date of last update)
  * @ingroup DRIVERS
  * @prefix  SPI
  *
@@ -63,6 +63,7 @@
 
 /*========== Extern Function Prototypes =====================================*/
 
+/* INCLUDE MARKER FOR THE DOCUMENTATION; DO NOT MOVE spi-documentation-dummy-start-include */
 /**
  * @brief   Sends a dummy byte to wake up the SPI interface.
  *
@@ -72,39 +73,23 @@
  * @return  status of the SPI transfer
  */
 extern STD_RETURN_TYPE_e SPI_TransmitDummyByte(SPI_INTERFACE_CONFIG_s *pSpiInterface, uint32_t delay);
+/* INCLUDE MARKER FOR THE DOCUMENTATION; DO NOT MOVE spi-documentation-dummy-stop-include */
 
+/* INCLUDE MARKER FOR THE DOCUMENTATION; DO NOT MOVE spi-documentation-transmit-start-include */
 /**
- * @brief   Sends data on SPI without DMA, with wake-up byte.
- *
- * It calls SPI_SendDummyByte() to wake-up the SPI interface.
- *
- * @param   pSpiInterface pointer to SPI interface configuration
- * @param   delay delay to wait after dummy byte transfer
- * @param   pTxBuff pointer to data that is transmitted by the SPI interface
- * @param   frameLength number of bytes to be transmitted by the SPI interface
- *
- * @return  status of the SPI transfer
- */
-extern STD_RETURN_TYPE_e SPI_TransmitDataWithDummy(
-    SPI_INTERFACE_CONFIG_s *pSpiInterface,
-    uint32_t delay,
-    uint16_t *pTxBuff,
-    uint32_t frameLength);
-
-/**
- * @brief   Sends data on SPI without DMA.
- *
+ * @brief   Transmits data on SPI without DMA.
+ * @details This function can be used to send and receive data via SPI. SPI
+ *          communication is performed in blocking mode and chip select is
+ *          set/reset automatically.
  * @param   pSpiInterface pointer to SPI interface configuration
  * @param   pTxBuff pointer to data that is transmitted by the SPI interface
  * @param   frameLength number of bytes to be transmitted by the SPI interface
- *
  * @return  status of the SPI transfer
  */
-extern STD_RETURN_TYPE_e SPI_TransmitData(
-    SPI_INTERFACE_CONFIG_s *pSpiInterface,
-    uint16_t *pTxBuff,
-    uint32_t frameLength);
+extern STD_RETURN_TYPE_e SPI_TransmitData(SPI_INTERFACE_CONFIG_s *pSpiInterface, uint16 *pTxBuff, uint32 frameLength);
+/* INCLUDE MARKER FOR THE DOCUMENTATION; DO NOT MOVE spi-documentation-transmit-stop-include */
 
+/* INCLUDE MARKER FOR THE DOCUMENTATION; DO NOT MOVE spi-documentation-transmit-receive-start-include */
 /**
  * @brief   Transmits and receives data on SPI without DMA.
  * @details This function can be used to send and receive data via SPI. SPI
@@ -121,28 +106,30 @@ extern STD_RETURN_TYPE_e SPI_TransmitReceiveData(
     uint16 *pTxBuff,
     uint16 *pRxBuff,
     uint32 frameLength);
+/* INCLUDE MARKER FOR THE DOCUMENTATION; DO NOT MOVE spi-documentation-transmit-receive-stop-include */
 
+/* INCLUDE MARKER FOR THE DOCUMENTATION; DO NOT MOVE spi-documentation-fram-start-include */
 /**
- * @brief   Transmits and receives data on SPI without DMA.
- *
+ * @brief   Transmits and receives data on SPI without DMA, wrappe for FRAM
  * @details This function can be used to send and receive data via SPI. SPI
- *          communication is performed in blocking mode but setting/resetting
- *          chip select and locking of the peripheral is not handled by this
- *          function. This must be ensured by the caller.
- *
+ *          communication is performed in blocking mode and chip select is
+ *          set/reset automatically.
+ *          It does not drive the Chip Select (neither hardware nor software)
+ *          as this is done directly in the FRAM functions.
  * @param   pSpiInterface pointer to SPI interface configuration
  * @param   pTxBuff pointer to data that is transmitted by the SPI interface
  * @param   pRxBuff pointer to data that is received by the SPI interface
  * @param   frameLength number of bytes to be transmitted by the SPI interface
- *
  * @return  status of the SPI transfer
  */
-extern STD_RETURN_TYPE_e SPI_DirectlyTransmitReceiveData(
+extern void SPI_FramTransmitReceiveData(
     SPI_INTERFACE_CONFIG_s *pSpiInterface,
     uint16 *pTxBuff,
     uint16 *pRxBuff,
     uint32 frameLength);
+/* INCLUDE MARKER FOR THE DOCUMENTATION; DO NOT MOVE spi-documentation-fram-stop-include */
 
+/* INCLUDE MARKER FOR THE DOCUMENTATION; DO NOT MOVE spi-documentation-transmit-receive-dma-start-include */
 /**
  * @brief   Transmits and receives data on SPI with DMA.
  * @details This function can be used to send and receive data via SPI. SPI
@@ -159,26 +146,26 @@ extern STD_RETURN_TYPE_e SPI_TransmitReceiveDataDma(
     uint16_t *pTxBuff,
     uint16_t *pRxBuff,
     uint32_t frameLength);
+/* INCLUDE MARKER FOR THE DOCUMENTATION; DO NOT MOVE spi-documentation-transmit-receive-dma-stop-include */
 
+/* INCLUDE MARKER FOR THE DOCUMENTATION; DO NOT MOVE spi-documentation-slave-receive-dma-start-include */
 /**
  * @brief   Transmits and receives data on SPI with DMA.
  * @details This function can be used to send and receive data via SPI. SPI
  *          communication is performed in blocking mode and chip select is
- *          set/reset automatically. A dummy is sent first.
+ *          set/reset automatically..
  * @param   pSpiInterface pointer to SPI interface configuration
- * @param   delay delay to wait after dummy byte transfer
  * @param   pTxBuff pointer to data that is transmitted by the SPI interface
  * @param   pRxBuff pointer to data that is received by the SPI interface
  * @param   frameLength number of bytes to be transmitted by the SPI interface
- *
  * @return  status of the SPI transfer
  */
-extern STD_RETURN_TYPE_e SPI_TransmitReceiveDataWithDummyDma(
+extern STD_RETURN_TYPE_e SPI_SlaveSetReceiveDataDma(
     SPI_INTERFACE_CONFIG_s *pSpiInterface,
-    uint32_t delay,
     uint16_t *pTxBuff,
     uint16_t *pRxBuff,
     uint32_t frameLength);
+/* INCLUDE MARKER FOR THE DOCUMENTATION; DO NOT MOVE spi-documentation-slave-receive-dma-stop-include */
 
 /**
  * @brief   Locks SPI interfaces.
@@ -209,6 +196,30 @@ extern void SPI_Unlock(uint8_t spi);
  *                                      controlled (true) or not (false)
  */
 extern void SPI_SetFunctional(spiBASE_t *pNode, enum spiPinSelect bit, bool hardwareControlled);
+
+/**
+ * @brief   Used to send last byte per SPI.
+ * @details This function is called in the DMA Tx callback. It is used
+ *          to send the last byte with CSHOLD = 0.
+ * @param   spiIndex  SPI node in use
+ */
+extern void SPI_DmaSendLastByte(uint8_t spiIndex);
+
+/**
+ * @brief   Returns #STD_OK if the SPI interface can be used again
+ * @details This function just checks for SPI_PENDING and groups SPI_READY and
+ *          SPI_...
+ * @param[in]   pNode   handle of the SPI node that should be checked
+ * @returns     #STD_RETURN_TYPE_e indicating wether the interface is ok to be used.
+ */
+extern STD_RETURN_TYPE_e SPI_CheckInterfaceAvailable(spiBASE_t *pNode);
+
+/**
+ * @brief   Returns index of SPI node
+ * @param[in]   pNode   handle of the SPI node that should be checked
+ * @returns     index of SPI node
+ */
+extern uint8_t SPI_GetSpiIndex(spiBASE_t *pNode);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 

@@ -270,7 +270,7 @@ class OldFileParser:
         turn into list of packages"""
         package_list = []
         if old_file is not None:
-            with open(old_file, mode="r") as file_handle:
+            with open(old_file, mode="r", encoding="utf-8") as file_handle:
                 csv = pd.read_csv(file_handle, sep=";", skipinitialspace=True)
             logging.debug(csv)
             for index, row in csv.iterrows():

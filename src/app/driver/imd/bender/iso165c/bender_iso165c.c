@@ -43,7 +43,7 @@
  * @file    bender_iso165c.c
  * @author  foxBMS Team
  * @date    2019-04-07 (date of creation)
- * @updated 2021-10-12 (date of last update)
+ * @updated 2021-12-01 (date of last update)
  * @ingroup DRIVERS
  * @prefix  I165C
  *
@@ -89,7 +89,7 @@ static void I165C_ResetCanData(CAN_BUFFERELEMENT_s *canMessage);
 /**
  * @brief   Write data in data word for CAN transmission.
  * @param   dataWord    data word ("position") in CAN structure to be written
- *                      to (see datasheet page 15)
+ *                      to (see data sheet page 15)
  * @param   data        data to be written in data word
  * @param   canMessage  CAN structure to be used for transmission
  */
@@ -98,7 +98,7 @@ static void I165C_WriteDataWord(uint8_t dataWord, uint16_t data, CAN_BUFFERELEME
 /**
  * @brief   Get data in data word from CAN transmission.
  * @param   dataWord    data word ("position") in CAN structure to be read from
- *                      (see datasheet page 15)
+ *                      (see data sheet page 15)
  * @param   data        data to be read from data word
  * @param   canMessage  CAN structure used for transmission
  */
@@ -108,7 +108,7 @@ static void I165C_ReadDataWord(uint8_t dataWord, uint16_t *data, CAN_BUFFERELEME
  * @brief   Get data in data word from CAN transmission, for the specific
  *          IMD_Info message.
  * @param   dataWord    data word ("position") in CAN structure to be read from
- *                      (see datasheet page 15)
+ *                      (see data sheet page 15)
  * @param   data        data to be read from data word
  * @param   canMessage  CAN structure used for transmission
  */
@@ -117,7 +117,7 @@ static void I165C_ReadDataWordImdInfo(uint8_t dataWord, uint16_t *data, CAN_BUFF
 /**
  * @brief   Get data in data byte from CAN transmission.
  * @param   dataWord    data byte ("position") in CAN structure to be read from
- *                      (see datasheet page 15)
+ *                      (see data sheet page 15)
  * @param   data        data to be read from data byte
  * @param   canMessage  CAN structure used for transmission
  */
@@ -286,7 +286,7 @@ static bool I165C_CheckResponse(uint8_t command, CAN_BUFFERELEMENT_s *canMessage
     do {
         numberItems = uxQueueMessagesWaiting(ftsk_imdCanDataQueue);
         if (numberItems > 0u) {
-            if (pdPASS == xQueueReceive(ftsk_imdCanDataQueue, (void *)canMessage, 0u)) {
+            if (OS_ReceiveFromQueue(ftsk_imdCanDataQueue, (void *)canMessage, 0u) == OS_SUCCESS) {
                 /* data queue was no empty */
                 if (canMessage->data[0] == command) {
                     messageReceived = true;
@@ -310,7 +310,7 @@ static bool I165C_GetImdInfo(CAN_BUFFERELEMENT_s *canMessage) {
     do {
         numberItems = uxQueueMessagesWaiting(ftsk_imdCanDataQueue);
         if (numberItems > 0u) {
-            if (pdPASS == xQueueReceive(ftsk_imdCanDataQueue, (void *)canMessage, 0u)) {
+            if (OS_ReceiveFromQueue(ftsk_imdCanDataQueue, (void *)canMessage, 0u) == OS_SUCCESS) {
                 /* data queue was no empty */
                 if (canMessage->id == I165C_MESSAGETYPE_IMD_INFO) {
                     imdInfoReceived = true;

@@ -43,7 +43,7 @@
  * @file    diag.c
  * @author  foxBMS Team
  * @date    2019-11-28 (date of creation)
- * @updated 2021-07-29 (date of last update)
+ * @updated 2021-11-09 (date of last update)
  * @ingroup ENGINE
  * @prefix  DIAG
  *
@@ -225,9 +225,9 @@ static uint8_t DIAG_EntryWrite(uint8_t eventID, DIAG_EVENT_e event, uint32_t dat
 
 DIAG_RETURNTYPE_e DIAG_Handler(DIAG_ID_e diag_id, DIAG_EVENT_e event, DIAG_IMPACT_LEVEL_e impact, uint32_t data) {
     DIAG_RETURNTYPE_e ret_val      = DIAG_HANDLER_RETURN_UNKNOWN;
-    uint32_t *u32ptr_errCodemsk    = NULL;
-    uint32_t *u32ptr_warnCodemsk   = NULL;
-    uint16_t *u16ptr_threshcounter = NULL;
+    uint32_t *u32ptr_errCodemsk    = NULL_PTR;
+    uint32_t *u32ptr_warnCodemsk   = NULL_PTR;
+    uint16_t *u16ptr_threshcounter = NULL_PTR;
     uint16_t cfg_threshold         = 0;
     uint16_t err_enable_idx        = 0;
     uint32_t err_enable_bitmask    = 0;

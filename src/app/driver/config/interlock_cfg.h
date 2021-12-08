@@ -43,7 +43,7 @@
  * @file    interlock_cfg.h
  * @author  foxBMS Team
  * @date    2020-02-24 (date of creation)
- * @updated 2021-10-18 (date of last update)
+ * @updated 2021-12-08 (date of last update)
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  ILCK
  *
@@ -90,7 +90,7 @@
  * Conversion factor for interlock current IL_HS_CS
  * 2k49 ohm is the resistance through which sense current flows
  * 80 is the (output current / sense current) ratio of high-side power switch
- * TPS2H000-Q1 Datasheet SLVSD72D ?DECEMBER 2015?REVISED DECEMBER 2019 p.8
+ * TPS2H000-Q1 data sheet SLVSD72D - DECEMBER 2015 - REVISED DECEMBER 2019 p.8
  */
 #define ILCK_FACTOR_IL_HS_CS_1_ohm (80.0f / 2049.0f)
 

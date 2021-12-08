@@ -43,7 +43,7 @@
  * @file    can_cbs_rx_imd.c
  * @author  foxBMS Team
  * @date    2021-04-20 (date of creation)
- * @updated 2021-06-09 (date of last update)
+ * @updated 2021-12-01 (date of last update)
  * @ingroup DRIVER
  * @prefix  CAN
  *
@@ -91,7 +91,7 @@ extern uint32_t CAN_RxImdInfo(
     for (uint8_t i = 0; i < boundedDlc; i++) {
         canMessage.data[i] = pCanData[i];
     }
-    if (pdPASS == xQueueSendToBack(*(kpkCanShim->pQueueImd), (void *)&canMessage, 0u)) {
+    if (OS_SendToBackOfQueue(*(kpkCanShim->pQueueImd), (void *)&canMessage, 0u) == OS_SUCCESS) {
         retVal = 0u;
     }
     return retVal;
@@ -121,7 +121,7 @@ extern uint32_t CAN_RxImdResponse(
     for (uint8_t i = 0; i < boundedDlc; i++) {
         canMessage.data[i] = pCanData[i];
     }
-    if (pdPASS == xQueueSendToBack(*(kpkCanShim->pQueueImd), (void *)&canMessage, 0u)) {
+    if (OS_SendToBackOfQueue(*(kpkCanShim->pQueueImd), (void *)&canMessage, 0u) == OS_SUCCESS) {
         retVal = 0u;
     }
     return retVal;

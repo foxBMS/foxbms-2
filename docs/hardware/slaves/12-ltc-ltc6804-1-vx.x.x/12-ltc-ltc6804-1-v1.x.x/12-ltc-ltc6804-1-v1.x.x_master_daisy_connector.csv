@@ -1,0 +1,17 @@
+Pin;    Signal
+1;      |NC|
+2;      |OUT+| (Secondary |ltc6804-1|)
+3;      |OUT-| (Secondary |ltc6804-1|)
+4;      |NC|
+5;      |NC|
+6;      |OUT+| (Primary |ltc6804-1|)
+7;      |OUT-| (Primary |ltc6804-1|)
+8;      |NC|
+9;      |NC|
+10;     |NC|
+11;     |NC|
+12;     |NC|
+13;     |NC|
+14;     |NC|
+15;     |NC|
+16;     |NC|

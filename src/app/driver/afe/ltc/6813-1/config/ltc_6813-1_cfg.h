@@ -43,7 +43,7 @@
  * @file    ltc_6813-1_cfg.h
  * @author  foxBMS Team
  * @date    2015-02-18 (date of creation)
- * @updated 2021-03-24 (date of last update)
+ * @updated 2021-12-08 (date of last update)
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  LTC
  *
@@ -154,11 +154,11 @@
 #define LTC_SPI_PRESCALER *LTC_SPI_HANDLE.Init.BaudRatePrescaler
 /**@}*/
 
-/** start definition of LTC timings; Twake (see LTC datasheet) */
+/** start definition of LTC timings; Twake (see LTC data sheet) */
 #define LTC_TWAKE_US (300)
-/** start definition of LTC timings; Tready (see LTC datasheet) */
+/** start definition of LTC timings; Tready (see LTC data sheet) */
 #define LTC_TREADY_US (10)
-/** start definition of LTC timings; Tidle (see LTC datasheet) */
+/** start definition of LTC timings; Tidle (see LTC data sheet) */
 #define LTC_TIDLE_US (6700)
 
 /** LTC SPI wakeup time */
@@ -169,12 +169,12 @@
 
 /**
  * time for the first initialization of the daisy chain
- * see LTC6804 datasheet page 41
+ * see LTC6804 data sheet page 41
  */
 #define LTC_STATEMACH_DAISY_CHAIN_FIRST_INITIALIZATION_TIME ((LTC_TWAKE_US * LTC_N_LTC) / 1000)
 /**
  * time for the second initialization of the daisy chain
- * see LTC6804 datasheet page 41
+ * see LTC6804 data sheet page 41
  */
 #define LTC_STATEMACH_DAISY_CHAIN_SECOND_INITIALIZATION_TIME ((LTC_TREADY_US * LTC_N_LTC) / 1000)
 
@@ -186,41 +186,77 @@
  * ~1.1ms Measurement+Calibration Cycle Time When Starting from the REFUP State in Fast Mode
  * unit: ms
  */
-#define LTC_STATEMACH_MEAS_ALL_FAST_TCYCLE (2)
+#define LTC_STATEMACH_MEAS_ALL_CELLS_FAST_TCYCLE (2)
 
 /**
  * ~2.3ms Measurement+Calibration Cycle Time When Starting from the REFUP State in Normal Mode
  * unit: ms
  */
-#define LTC_STATEMACH_MEAS_ALL_NORMAL_TCYCLE (3)
+#define LTC_STATEMACH_MEAS_ALL_CELLS_NORMAL_TCYCLE (3)
 
 /**
  * ~201ms Measurement+Calibration Cycle Time When Starting from the REFUP State in Filtered Mode
  * unit: ms
  */
-#define LTC_STATEMACH_MEAS_ALL_FILTERED_TCYCLE (202)
+#define LTC_STATEMACH_MEAS_ALL_CELLS_FILTERED_TCYCLE (202)
+
+/**
+ * ~203us Measurement+Calibration Cycle Time When Starting from the REFUP State in Fast Mode
+ * unit: ms
+ */
+#define LTC_STATEMACH_MEAS_TWO_CELLS_FAST_TCYCLE (1)
+
+/**
+ * ~407us Measurement+Calibration Cycle Time When Starting from the REFUP State in Normal Mode
+ * unit: ms
+ */
+#define LTC_STATEMACH_MEAS_TWO_CELLS_NORMAL_TCYCLE (1)
+
+/**
+ * ~34ms Measurement+Calibration Cycle Time When Starting from the REFUP State in Filtered Mode
+ * unit: ms
+ */
+#define LTC_STATEMACH_MEAS_TWO_CELLS_FILTERED_TCYCLE (35)
 
 /*
  * Timings of Voltage Cell and GPIO measurement for a pair of cells or a single GPIO
  */
 
 /**
- *  ~0.201ms Measurement+Calibration Cycle Time When Starting from the REFUP State in Fast Mode
+ * ~1.8ms Measurement+Calibration Cycle Time When Starting from the REFUP State in Fast Mode
+ * unit: ms
+ */
+#define LTC_STATEMACH_MEAS_ALL_GPIOS_FAST_TCYCLE (2)
+
+/**
+ * ~3.9ms Measurement+Calibration Cycle Time When Starting from the REFUP State in Normal Mode
+ * unit: ms
+ */
+#define LTC_STATEMACH_MEAS_ALL_GPIOS_NORMAL_TCYCLE (4)
+
+/**
+ * ~335ms Measurement+Calibration Cycle Time When Starting from the REFUP State in Filtered Mode
+ * unit: ms
+ */
+#define LTC_STATEMACH_MEAS_ALL_GPIOS_FILTERED_TCYCLE (336)
+
+/**
+ *  ~380us Measurement+Calibration Cycle Time When Starting from the REFUP State in Fast Mode
  *  unit: ms
  */
-#define LTC_STATEMACH_MEAS_SINGLE_FAST_TCYCLE (1)
+#define LTC_STATEMACH_MEAS_SINGLE_GPIO_FAST_TCYCLE (1)
 
 /**
- * ~0.405ms Measurement+Calibration Cycle Time When Starting from the REFUP State in Normal Mode
+ * ~788us Measurement+Calibration Cycle Time When Starting from the REFUP State in Normal Mode
  * unit: ms
  */
-#define LTC_STATEMACH_MEAS_SINGLE_NORMAL_TCYCLE (1)
+#define LTC_STATEMACH_MEAS_SINGLE_GPIO_NORMAL_TCYCLE (1)
 
 /**
- * ~34 ms Measurement+Calibration Cycle Time When Starting from the REFUP State in Filtered Mode
+ * ~67.1ms Measurement+Calibration Cycle Time When Starting from the REFUP State in Filtered Mode
  * unit: ms
  */
-#define LTC_STATEMACH_MEAS_SINGLE_FILTERED_TCYCLE (35)
+#define LTC_STATEMACH_MEAS_SINGLE_GPIO_FILTERED_TCYCLE (68)
 
 /** LTC statemachine sequence error timing in ms */
 #define LTC_STATEMACH_SEQERRTTIME (5)
@@ -291,12 +327,15 @@
  * @{
  */
 #define LTC_TransmitWakeUp(spi_ltcInterface) SPI_TransmitDummyByte(spi_ltcInterface, LTC_SPI_WAKEUP_WAIT_TIME_US)
-#define LTC_TransmitI2cCommand(spi_ltcInterface, txbuf) \
-    SPI_TransmitDataWithDummy(spi_ltcInterface, LTC_SPI_WAKEUP_WAIT_TIME_US, txbuf, 4 + 9)
-#define LTC_TransmitCommand(spi_ltcInterface, command) \
-    SPI_TransmitDataWithDummy(spi_ltcInterface, LTC_SPI_WAKEUP_WAIT_TIME_US, command, 4)
-#define LTC_TransmitReceiveData(spi_ltcInterface, txbuf, rxbuf, length) \
-    SPI_TransmitReceiveDataWithDummyDma(spi_ltcInterface, LTC_SPI_WAKEUP_WAIT_TIME_US, txbuf, rxbuf, length)
+#define LTC_TransmitI2cCommand(spi_ltcInterface, txbuf)                   \
+    SPI_TransmitDummyByte(spi_ltcInterface, LTC_SPI_WAKEUP_WAIT_TIME_US); \
+    SPI_TransmitData(spi_ltcInterface, txbuf, 4 + 9)
+#define LTC_TransmitCommand(spi_ltcInterface, command)                    \
+    SPI_TransmitDummyByte(spi_ltcInterface, LTC_SPI_WAKEUP_WAIT_TIME_US); \
+    SPI_TransmitData(spi_ltcInterface, command, 4)
+#define LTC_TransmitReceiveData(spi_ltcInterface, txbuf, rxbuf, length)   \
+    SPI_TransmitDummyByte(spi_ltcInterface, LTC_SPI_WAKEUP_WAIT_TIME_US); \
+    SPI_TransmitReceiveDataDma(spi_ltcInterface, txbuf, rxbuf, length)
 /**@}*/
 
 /*========== Extern Constant and Variable Declarations ======================*/

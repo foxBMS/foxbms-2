@@ -43,7 +43,7 @@
  * @file    can.c
  * @author  foxBMS Team
  * @date    2019-12-04 (date of creation)
- * @updated 2021-10-12 (date of last update)
+ * @updated 2021-12-08 (date of last update)
  * @ingroup DRIVERS
  * @prefix  CAN
  *
@@ -244,7 +244,6 @@ static STD_RETURN_TYPE_e CAN_PeriodicTransmit(void) {
     for (uint16_t i = 0u; i < can_txLength; i++) {
         if (((counterTicks * CAN_TICK_MS) % (can_txMessages[i].repetitionTime)) == can_txMessages[i].repetitionPhase) {
             if (can_txMessages[i].callbackFunction != NULL_PTR) {
-                OS_EnterTaskCritical();
                 can_txMessages[i].callbackFunction(
                     can_txMessages[i].id,
                     can_txMessages[i].dlc,
@@ -252,7 +251,6 @@ static STD_RETURN_TYPE_e CAN_PeriodicTransmit(void) {
                     data,
                     can_txMessages[i].pMuxId,
                     &can_kShim);
-                OS_ExitTaskCritical();
                 /* CAN messages are currently discarded if all message boxes
                  * are full. They will not be retransmitted within the next
                  * call of CAN_PeriodicTransmit() */
@@ -344,8 +342,8 @@ static void CAN_CheckCanTiming(void) {
 extern void CAN_ReadRxBuffer(void) {
     CAN_BUFFERELEMENT_s can_rxBuffer = {0};
     if (ftsk_allQueuesCreated == true) {
-        while (pdPASS == xQueueReceive(ftsk_canRxQueue, (void *)&can_rxBuffer, 0u)) {
-            /* data queue was no empty */
+        while (OS_ReceiveFromQueue(ftsk_canRxQueue, (void *)&can_rxBuffer, 0u) == OS_SUCCESS) {
+            /* data queue was not empty */
             for (uint16_t i = 0u; i < can_rxLength; i++) {
                 if ((can_rxBuffer.canNode == can_rxMessages[i].canNode) && (can_rxBuffer.id == can_rxMessages[i].id)) {
                     if (can_rxMessages[i].callbackFunction != NULL_PTR) {
@@ -460,7 +458,7 @@ static void CAN_RxInterrupt(canBASE_t *pNode, uint32 messageBox) {
         can_rxBuffer.data[6] = messageData[6];
         can_rxBuffer.data[7] = messageData[7];
 
-        if (pdPASS == xQueueSendToBackFromISR(ftsk_canRxQueue, (void *)&can_rxBuffer, NULL)) {
+        if (OS_SendToBackOfQueueFromIsr(ftsk_canRxQueue, (void *)&can_rxBuffer, NULL_PTR) == OS_SUCCESS) {
             /* queue is not full */
             DIAG_Handler(DIAG_ID_CAN_RX_QUEUE_FULL, DIAG_EVENT_OK, DIAG_SYSTEM, 0u);
         } else {
@@ -471,6 +469,7 @@ static void CAN_RxInterrupt(canBASE_t *pNode, uint32 messageBox) {
 }
 
 /** called in case of CAN interrupt, defined as weak in HAL */
+/* AXIVION Next Line Style Linker-Multiple_Definition: TI HAL only provides a weak implementation */
 void UNIT_TEST_WEAK_IMPL canMessageNotification(canBASE_t *node, uint32 messageBox) {
     if (messageBox <= CAN_NR_OF_TX_MESSAGE_BOX) {
         CAN_TxInterrupt(node, messageBox);

@@ -150,7 +150,7 @@ def configure(conf):  # pylint: disable=too-many-statements,too-many-branches
         conf.fatal("Searching for conda environments failed.")
 
     conda_env_spec_file = conf.path.find_node(conf.options.CONDA_ENV_FILE)
-    with open(conda_env_spec_file.abspath(), "r") as stream:
+    with open(conda_env_spec_file.abspath(), "r", encoding="utf-8") as stream:
         try:
             conda_spec = yaml.load(stream, Loader=yaml.Loader)
         except yaml.YAMLError as exc:
@@ -181,10 +181,9 @@ def configure(conf):  # pylint: disable=too-many-statements,too-many-branches
         ):
             correct_env = True
     if not correct_env:
-        Logs.error("The development environment %s is not active." % conda_spec["name"])
+        Logs.error(f"The development environment {conda_spec['name']} is not active.")
         conf.fatal(
-            "Run 'conda activate %s' and configure the project again."
-            % conda_spec["name"]
+            f"Run 'conda activate {conda_spec['name']}' and configure the project again."
         )
 
     found_devel_env = False
@@ -209,7 +208,7 @@ def configure(conf):  # pylint: disable=too-many-statements,too-many-branches
             f"{conf.env.CONDA_DEVEL_ENV}_environment.yaml"
         )
         conda_env_yaml.write(std[0])
-        with open(conda_env_yaml.abspath(), "r") as stream:
+        with open(conda_env_yaml.abspath(), "r", encoding="utf-8") as stream:
             try:
                 current_conda_env = yaml.load(stream, Loader=yaml.Loader)
             except yaml.YAMLError as exc:

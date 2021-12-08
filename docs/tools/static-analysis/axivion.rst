@@ -18,8 +18,15 @@ Axivion Bauhaus Suite
     dashserver
 
 Static Analysis tries to uncover potential errors in software by analyzing the
-source code. In this project one of the tools that are used is the
-Axivion Bauhaus Suite.
+source code.
+In this project one of the tools that are used is the Axivion Bauhaus Suite.
+
+.. note::
+
+    The following part of the documentation describes setting up the tool
+    Axivion Bauhaus Suite.
+    This tool is a commercial tool by `Axivion <https://www.axivion.com/en/>`_.
+    Please contact Axivion if you are interested in acquiring a license.
 
 Setup
 -----

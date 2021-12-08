@@ -43,7 +43,7 @@
  * @file    ltc_afe_dma.c
  * @author  foxBMS Team
  * @date    2020-05-27 (date of creation)
- * @updated 2020-05-27 (date of last update)
+ * @updated 2021-12-08 (date of last update)
  * @ingroup DRIVERS
  * @prefix  AFE
  *
@@ -79,8 +79,8 @@ extern void AFE_SetTransmitOngoing(LTC_STATE_s *pLtcState) {
 }
 
 /* Function called on DMA complete interrupts (TX and RX). */
-void AFE_DmaCallback(dmaInterrupt_t inttype, uint32 channel) {
-    if (((dmaChannel_t)channel == DMA_CH0) || ((dmaChannel_t)channel == DMA_CH1)) {
+void AFE_DmaCallback(uint8_t spiIndex) {
+    if (spiIndex == 0u) {
         ltc_stateBase.transmit_ongoing = false;
     } else {
         FAS_ASSERT(FAS_TRAP);

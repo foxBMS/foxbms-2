@@ -43,7 +43,7 @@
  * @file    test_spi.c
  * @author  foxBMS Team
  * @date    2020-04-01 (date of creation)
- * @updated 2021-06-16 (date of last update)
+ * @updated 2021-12-02 (date of last update)
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -162,4 +162,21 @@ void testSPI_SetFunctionalRightApiSpi5(void) {
     spi5GetConfigValue_Ignore();
     spiSetFunctional_Ignore();
     SPI_SetFunctional(spiREG5, 0, false);
+}
+
+/** test invalid input to SPI_CheckInterfaceAvailable */
+void testSPI_CheckInterfaceAvailableInvalidInput(void) {
+    TEST_ASSERT_FAIL_ASSERT(SPI_CheckInterfaceAvailable(NULL_PTR));
+}
+
+/** test all return codes from HAL with SPI_CheckInterfaceAvailable */
+void testSPI_CheckInterfaceAvailable(void) {
+    SpiTxStatus_ExpectAndReturn(spiREG1, SPI_READY);
+    TEST_ASSERT_EQUAL(STD_OK, SPI_CheckInterfaceAvailable(spiREG1));
+
+    SpiTxStatus_ExpectAndReturn(spiREG1, SPI_PENDING);
+    TEST_ASSERT_EQUAL(STD_NOT_OK, SPI_CheckInterfaceAvailable(spiREG1));
+
+    SpiTxStatus_ExpectAndReturn(spiREG1, SPI_COMPLETED);
+    TEST_ASSERT_EQUAL(STD_OK, SPI_CheckInterfaceAvailable(spiREG1));
 }

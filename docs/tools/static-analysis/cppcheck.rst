@@ -29,10 +29,14 @@ MISRA
 typical mistakes in C-programs.
 
 In order for Cppcheck to be able to conduct a MISRA analysis, the add-on has to
-be installed as described. The project maintainers host a
-`list of supported MISRA rules`_. As the MISRA rules are proprietary you will
-have to obtain the rule texts if you want to see the full rule texts.
-Please refer to the `Cppcheck manual`_ in chapter 9.1.2 for more details.
+be installed as described.
+The project maintainers host a `list of supported MISRA rules`_.
+As the MISRA rules are proprietary you will have to obtain the rule texts if
+you want to see the full rule texts.
+Please refer to the `Cppcheck manual`_ for more details (search for
+``misra.py``).
+The rule texts can be obtained from the PDF variant of the MISRA rules that
+can be acquired on the `MISRA website <https://www.misra.org.uk>`_.
 
 For the GUI, you will have to configure the location of the rule text file
 manually in the programs settings.

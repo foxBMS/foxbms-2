@@ -43,7 +43,7 @@
  * @file    mxm_bitextract.h
  * @author  foxBMS Team
  * @date    2019-01-15 (date of creation)
- * @updated 2020-05-14 (date of last update)
+ * @updated 2021-12-06 (date of last update)
  * @ingroup DRIVERS
  * @prefix  MXM
  *
@@ -66,6 +66,7 @@
 /**
  * @brief Bit-values for registers
  */
+/* AXIVION Disable Style MisraC2012-2.5: Defines are based on datasheet and exist all for completeness. */
 typedef uint8_t MXM_41B_REG_BIT_VALUE;
 /** one bit, 0u */
 #define MXM_41B_REG_FALSE ((MXM_41B_REG_BIT_VALUE)0x00u)
@@ -105,6 +106,7 @@ typedef uint8_t MXM_41B_REG_BIT_VALUE;
 #define MXM_41B_REG_KEEP_ALIVE_10240US ((MXM_41B_REG_BIT_VALUE)0x0Bu)
 /** bit sequence for a infinite keep alive period (disabled) */
 #define MXM_41B_REG_KEEP_ALIVE_INF_DLY ((MXM_41B_REG_BIT_VALUE)0x0Fu)
+/* AXIVION Enable Style MisraC2012-2.5: */
 
 /**
  * @brief define for creating a bitmask
@@ -123,6 +125,8 @@ typedef uint8_t MXM_41B_REG_BITS;
 #define MXM_41B_RX_BUSY_STATUS ((MXM_41B_REG_BITS)5u)
 /** bit for the feature RX Overflow Interrupt */
 #define MXM_41B_RX_OVERFLOW_INT_ENABLE ((MXM_41B_REG_BITS)3u)
+/** bit for the RX Overflow Status */
+#define MXM_41B_RX_OVERFLOW_STATUS ((MXM_41B_REG_BITS)3u)
 /** bit for the RX Stop Status */
 #define MXM_41B_RX_STOP_STATUS ((MXM_41B_REG_BITS)1u)
 /** bit for the RX Empty Status */

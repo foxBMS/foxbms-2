@@ -106,7 +106,7 @@ def create_compiled_task_asm(self, name, node):
 
     The created tasks are appended to the list of ``compiled_tasks``.
     """
-    out_bin = "%s.%d.obj" % (node.name, self.idx)
+    out_bin = f"{node.name}.{self.idx}.obj"
     task = self.create_task(name, node, node.parent.find_or_declare(out_bin))
     try:
         self.compiled_tasks.append(task)
@@ -196,10 +196,10 @@ def create_compiled_task_c(self, name, node):
             f"{node.relpath()} Consistency of .aux, .crl and .rl output files "
             "can not be guaranteed."
         )
-    out_obj = "%s.%d.obj" % (node.name, self.idx)
-    out_aux = "%s.aux" % (node.name.rsplit(".")[0])
-    out_crl = "%s.crl" % (node.name.rsplit(".")[0])
-    out_rl = "%s.rl" % (node.name.rsplit(".")[0])
+    out_obj = f"{node.name}.{self.idx}.obj"
+    out_aux = f"{node.name.rsplit('.')[0]}.aux"
+    out_crl = f"{node.name.rsplit('.')[0]}.crl"
+    out_rl = f"{node.name.rsplit('.')[0]}.rl"
     task = self.create_task(
         name,
         src=node,
@@ -223,7 +223,7 @@ def create_compiled_task_c_pp(self, name, node):
     """Creates the pp task and binds it to the
     :py:class:`f_ti_arm_cgt.c_pp` class.
     """
-    out = "%s.%d.pp" % (node.name, self.idx)
+    out = f"{node.name}.{self.idx}.pp"
     task = self.create_task(name, node, node.parent.find_or_declare(out))
     try:
         self.c_pp_tasks.append(task)
@@ -237,7 +237,7 @@ def create_compiled_task_c_ppi(self, name, node):
     """Creates the ppi task and binds it to the
     :py:class:`f_ti_arm_cgt.c_ppi` class.
     """
-    out = "%s.%d.ppi" % (node.name, self.idx)
+    out = f"{node.name}.{self.idx}.ppi"
     task = self.create_task(name, node, node.parent.find_or_declare(out))
     return task
 
@@ -247,7 +247,7 @@ def create_compiled_task_c_ppd(self, name, node):
     """Creates the ppd task and binds it to the
     :py:class:`f_ti_arm_cgt.c_ppd` class.
     """
-    out = "%s.%d.ppd" % (node.name, self.idx)
+    out = f"{node.name}.{self.idx}.ppd"
     task = self.create_task(name, node, node.parent.find_or_declare(out))
     return task
 
@@ -257,7 +257,7 @@ def create_compiled_task_c_ppm(self, name, node):
     """Creates the ppm task and binds it to the
     :py:class:`f_ti_arm_cgt.c_ppm` class.
     """
-    out = "%s.%d.ppm" % (node.name, self.idx)
+    out = f"{node.name}.{self.idx}.ppm"
     task = self.create_task(name, node, node.parent.find_or_declare(out))
     return task
 
@@ -683,7 +683,7 @@ class copy_elf(Task.Task):  # pylint: disable-msg=invalid-name
 
     def __str__(self):
         """additional information appended to the keyword"""
-        return "%s -> %s" % (self.inputs[0], self.outputs[0])
+        return f"{self.inputs[0]} -> {self.outputs[0]}"
 
 
 @TaskGen.feature("cprogram")
@@ -731,7 +731,7 @@ def tiprogram(bld, *k, **kw):
 
     kw["features"] = "c cprogram"
 
-    tgt_elf = bld.path.find_or_declare("%s.%s" % (kw["target"], bld.env.DEST_BIN_FMT))
+    tgt_elf = bld.path.find_or_declare(f"{kw['target']}.{bld.env.DEST_BIN_FMT}")
     tgt_xml = bld.path.find_or_declare(tgt_elf.name + ".xml")
     tgt_map = bld.path.find_or_declare(tgt_elf.name + ".map")
     kw["target"] = [tgt_elf, tgt_xml, tgt_map]
@@ -863,7 +863,7 @@ class hexgen(Task.Task):  # pylint: disable-msg=invalid-name
 
     def __str__(self):
         """additional information appended to the keyword"""
-        return "%s -> %s" % (self.inputs[0], self.outputs[0])
+        return f"{self.inputs[0]} -> {self.outputs[0]}"
 
 
 @TaskGen.feature("hexgen")
@@ -905,7 +905,7 @@ class bingen(Task.Task):  # pylint: disable-msg=invalid-name
 
     def __str__(self):
         """additional information appended to the keyword"""
-        return "%s -> %s" % (self.inputs[0], self.outputs[0])
+        return f"{self.inputs[0]} -> {self.outputs[0]}"
 
 
 @TaskGen.feature("cprogram")
@@ -1375,12 +1375,12 @@ def find_armcl(conf):  # pylint: disable-msg=redefined-outer-name
     cmd = Utils.subst_vars("${CC} --compiler_revision", conf.env).split(" ")
     std_out, std_err = conf.cmd_and_log(cmd, output=Context.BOTH)
     if std_err:
-        conf.fatal("Could not successfully run '--compiler_revision' on %s" % cc)
+        conf.fatal(f"Could not successfully run '--compiler_revision' on {cc}")
     conf.env.CC_VERSION = std_out.strip()
     cmd = Utils.subst_vars("${CC} -version", conf.env).split(" ")
     std_out, std_err = conf.cmd_and_log(cmd, output=Context.BOTH)
     if std_err:
-        conf.fatal("Could not successfully run '-version' on %s" % cc)
+        conf.fatal(f"Could not successfully run '-version' on {cc}")
     version_pattern = re.compile(r"(v\d{1,}\.\d{1,}\.\d{1,}\.(LTS|STS))")
     for line in std_out.splitlines():
         full_ver = version_pattern.search(line)

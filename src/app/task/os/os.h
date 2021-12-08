@@ -43,12 +43,12 @@
  * @file    os.h
  * @author  foxBMS Team
  * @date    2019-08-27 (date of creation)
- * @updated 2021-07-23 (date of last update)
+ * @updated 2021-12-08 (date of last update)
  * @ingroup OS
  * @prefix  OS
  *
- * @brief   Implementation of the tasks used by the system, headers
- *
+ * @brief   Declaration of the OS wrapper interface
+ * @details This module describes the interface to different operating systems
  */
 
 #ifndef FOXBMS__OS_H_
@@ -57,17 +57,26 @@
 /*========== Includes =======================================================*/
 #include "general.h"
 
+#if defined(FOXBMS_USES_FREERTOS)
 #include "FreeRTOS.h"
-#include "event_groups.h"
-#include "semphr.h"
-#include "task.h"
+#include "queue.h"
+#define OS_QUEUE QueueHandle_t
+#endif
 
 /*========== Macros and Definitions =========================================*/
 
-/** @brief  Number of mutexes for the engine TODO engine what?! */
-#define OS_NUM_OF_MUTEXES 0
-/** @brief  Number of events for the engine TODO engine what?! */
-#define OS_NUM_OF_EVENTS 0
+/** stack size of the idle task */
+#define OS_IDLE_TASK_STACK_SIZE configMINIMAL_STACK_SIZE
+
+#if (configUSE_TIMERS > 0) && (configSUPPORT_STATIC_ALLOCATION == 1)
+#define OS_TIMER_TASK_STACK_SIZE configTIMER_TASK_STACK_DEPTH
+#endif /* configUSE_TIMERS */
+
+/** enum to encapsulate function returns from the OS-wrapper layer */
+typedef enum OS_STD_RETURN {
+    OS_SUCCESS, /**< OS-dependent operation successfull     */
+    OS_FAIL,    /**< OS-dependent operation unsuccessfull   */
+} OS_STD_RETURN_e;
 
 /**
  * @brief   typedef for thread priority. The higher the value, the higher the
@@ -114,26 +123,19 @@ typedef struct OS_TIMER {
 
 /** @brief  struct for FreeRTOS task definition */
 typedef struct OS_TASK_DEFINITION {
-    uint32_t phase;       /**< TODO (ms) */
-    uint32_t cycleTime;   /**< TODO (ms) */
-    UBaseType_t priority; /**< TODO */
-    uint16_t stackSize;   /**<  Defines the size, in words, of the stack
-                                   allocated to the idle task.  */
+    OS_PRIORITY_e priority; /*!< priority of the task */
+    uint32_t phase;         /*!< shift in ms of the first start of the task */
+    uint32_t cycleTime;     /*!< time in ms that will be waited between each task cycle */
+    uint16_t stackSize;     /*!< Defines the size, in words, of the stack allocated to the task */
+    void *pvParameters;     /*!< value that is passed as the parameter to the task. */
 } OS_TASK_DEFINITION_s;
 
 /*========== Extern Constant and Variable Declarations ======================*/
 /** boot state of the system */
 extern volatile OS_BOOT_STATE_e os_boot;
-/** os timer for counting the system ticks */
-extern volatile OS_TIMER_s os_timer;
 
 /** @brief  Scheduler "zero" time for task phase control */
 extern uint32_t os_schedulerStartTime;
-
-/** handles for OS objects @{*/
-extern SemaphoreHandle_t os_mutexes[];
-extern EventGroupHandle_t os_events[];
-/**@}*/
 
 /*========== Extern Function Prototypes =====================================*/
 
@@ -147,20 +149,6 @@ extern void OS_StartScheduler(void);
  * @details This function initializes the mutexes, eventgroups and tasks.
  */
 extern void OS_InitializeOperatingSystem(void);
-
-/**
- * @brief   Supplies the memory for the idle task.
- * @details This is needed due to the usage of configSUPPORT_STATIC_ALLOCATION.
- *          This is an FreeRTOS function an does not adhere to foxBMS function
- *          naming convetions.
- * @param   ppxIdleTaskTCBBuffer    TODO
- * @param   ppxIdleTaskStackBuffer  TODO
- * @param   pulIdleTaskStackSize    TODO
- */
-extern void vApplicationGetIdleTaskMemory(
-    StaticTask_t **ppxIdleTaskTCBBuffer,
-    StackType_t **ppxIdleTaskStackBuffer,
-    uint32_t *pulIdleTaskStackSize);
 
 #if (configUSE_TIMERS > 0) && (configSUPPORT_STATIC_ALLOCATION == 1)
 /**
@@ -187,17 +175,6 @@ extern void vApplicationGetTimerTaskMemory(
 extern void vApplicationIdleHook(void);
 
 /**
- * @brief   Hook function for StackOverflowHandling.
- * @details This handler is used when the operation system encounters a
- *          stackoverflow in a task.
- *          This is an FreeRTOS function an does not adhere to foxBMS function
- *          naming convetions
- * @param   xTask       TODO
- * @param   pcTaskName  TODO
- */
-extern void vApplicationStackOverflowHook(TaskHandle_t xTask, char *pcTaskName);
-
-/**
  * @brief   Enter Critical interface function for use in FreeRTOS-Tasks and
  *          FreeRTOS-ISR
  * @details checks the function context (task/thread mode or interrupt
@@ -219,9 +196,8 @@ extern void OS_ExitTaskCritical(void);
  * @brief   Increments the system timer os_timer
  * @details The os_timer is a runtime-counter, counting the time since the
  *          last reset.
- * @param   timer   TODO
  */
-extern void OS_TriggerTimer(volatile OS_TIMER_s *timer);
+extern void OS_IncrementTimer(void);
 
 /**
  * @brief   Returns OS based system tick value.
@@ -229,13 +205,6 @@ extern void OS_TriggerTimer(volatile OS_TIMER_s *timer);
  * @return  time stamp in milliseconds, based on the operating system time.
  */
 extern uint32_t OS_GetTickCount(void);
-
-/**
- * @brief   Delays a task in milliseconds
- * @details TODO
- * @param   delay_ms    time delay value
- */
-extern void OS_DelayTask(uint32_t delay_ms);
 
 /**
  * @brief    Delay a task until a specified time
@@ -255,6 +224,109 @@ extern void OS_DelayTaskUntil(uint32_t *pPreviousWakeTime, uint32_t milliseconds
  */
 extern void OS_SystemTickHandler(void);
 
+/**
+ * @brief   Marks the current task as requiring FPU context
+ * @details In order to avoid corruption of the registers of the floating
+ *          point unit during a task switch, every task that uses the FPU has
+ *          to call this function at its start.
+ *
+ *          This instructs the underlying operating system to store the context
+ *          of the FPU when switching a task.
+ *
+ *          This function has to be called from within a task.
+ */
+extern void OS_MarkTaskAsRequiringFpuContext(void);
+
+/**
+ * @brief   Receive an item from a queue
+ * @details This function needs to implement the wrapper to OS specfic queue
+ *          posting.
+ *          The queue needs to be implement in a FreeRTOS compatible way.
+ *          This function must not be called from within an interrupt service
+ *          routine (due to the FreeRTOS compatibility of the the wrapper).
+ * @param   xQueue      FreeRTOS compatible queue handle that should be posted
+ *                      to
+ * @param   pvBuffer    Pointer to the buffer into which the received item is
+ *                      posted to.
+ * @param   ticksToWait ticks to wait
+ * @return  #OS_SUCCESS if an item was successfully received, otherwise
+ *          #OS_FAIL.
+ */
+extern OS_STD_RETURN_e OS_ReceiveFromQueue(OS_QUEUE xQueue, void *const pvBuffer, uint32_t ticksToWait);
+
+/**
+ * @brief   Post an item to the back the provided queue
+ * @details This function needs to implement the wrapper to OS specfic queue
+ *          posting.
+ *          The queue needs to be implement in a FreeRTOS compatible way.
+ * @param   xQueue          FreeRTOS compatible queue handle that should be
+ *                          posted to.
+ * @param   pvItemToQueue   Pointer to the item to be posted in the queue.
+ * @param   ticksToWait     ticks to wait
+ * @return #OS_SUCCESS if the item was successfully posted, otherwise #OS_FAIL.
+ */
+extern OS_STD_RETURN_e OS_SendToBackOfQueue(OS_QUEUE xQueue, const void *const pvItemToQueue, TickType_t ticksToWait);
+
+/**
+ * @brief   Post an item to the back the provided queue during an ISR
+ * @details This function needs to implement the wrapper to OS specfic queue
+ *          posting.
+ *          The queue needs to be implement in a FreeRTOS compatible way.
+ * @param   xQueue                      FreeRTOS compatible queue handle that
+ *                                      should be posted to.
+ * @param   pvItemToQueue               Pointer to the item to be posted in the
+ *                                      queue.
+ * @param   pxHigherPriorityTaskWoken   Indicates whether a context switch is
+ *                                      required or not.
+ *                                      If the parameter is a NULL_PTR, the
+ *                                      context switch will happen at the next
+ *                                      tick.
+ * @return #OS_SUCCESS if the item was successfully posted, otherwise #OS_FAIL.
+ */
+extern OS_STD_RETURN_e OS_SendToBackOfQueueFromIsr(
+    OS_QUEUE xQueue,
+    const void *const pvItemToQueue,
+    long *const pxHigherPriorityTaskWoken);
+
+/**
+ * @brief   This function checks if timeToPass has passed since the last timestamp to now
+ * @details This function retrieves the current time stamp with #OS_GetTickCount(),
+ *          compares it to the oldTimestamp_ms and checks if more or equal of
+ *          timetoPass_ms timer increments have passed.
+ * @param[in]   oldTimeStamp_ms timestamp that shall be compared to the current time in ms
+ * @param[in]   timeToPass_ms   timer increments (in ms) that shall pass between oldTimeStamp_ms and now
+ * @returns     true in the case that more than timeToPass_ms timer increments have passed, otherwise false
+ */
+extern bool OS_CheckTimeHasPassed(uint32_t oldTimeStamp_ms, uint32_t timeToPass_ms);
+
+/**
+ * @brief   This function checks if timeToPass has passed since the last timestamp to now
+ * @details This function is passed the current time stamp as argument currentTimeStamp_ms,
+ *          compares it to the oldTimestamp_ms and checks if more or equal of
+ *          timetoPass_ms timer increments have passed.
+ * @param[in]   oldTimeStamp_ms     timestamp that shall be compared to the current time in ms
+ * @param[in]   currentTimeStamp_ms timestamp of the current time in ms
+ * @param[in]   timeToPass_ms       timer increments (in ms) that shall pass between oldTimeStamp_ms and now
+ * @returns     true in the case that more than timeToPass_ms timer increments have passed, otherwise false
+ */
+extern bool OS_CheckTimeHasPassedWithTimestamp(
+    uint32_t oldTimeStamp_ms,
+    uint32_t currentTimeStamp_ms,
+    uint32_t timeToPass_ms);
+
+/**
+ * @brief   Does a self check if the #OS_CheckTimeHasPassedWithTimestamp works as expected
+ * @details This functions tests some values with #OS_CheckTimeHasPassedWithTimestamp().
+ *          It is intended to be side-effect free and to be callable any time to verify
+ *          from the running program if this portion of the software is working as
+ *          expected.
+ * returns  STD_OK if the self check passes successfully, STD_NOT_OK otherwise
+ */
+extern STD_RETURN_TYPE_e OS_CheckTimeHasPassedSelfTest(void);
+
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
+#ifdef UNITY_UNIT_TEST
+extern OS_TIMER_s *TEST_OS_GetOsTimer();
+#endif /* UNITY_UNIT_TEST */
 
 #endif /* FOXBMS__OS_H_ */

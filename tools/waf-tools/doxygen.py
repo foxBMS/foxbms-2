@@ -82,7 +82,7 @@ class doxygen(Task.Task):  # pylint: disable=invalid-name
         ]
         file_patterns = self.doxygen_config.get("FILE_PATTERNS", ["*.c", "*.h"])
         if self.doxygen_config.get("RECURSIVE", ["YES"]) == ["YES"]:
-            file_patterns = ["**/%s" % pattern for pattern in file_patterns]
+            file_patterns = [f"**/{pattern}" for pattern in file_patterns]
         nodes = []
         names = []
         for node in self.doxygen_input:

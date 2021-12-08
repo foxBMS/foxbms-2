@@ -1,0 +1,10 @@
+Pin;    Signal;         Direction;      Description
+1;      DIGITAL-IO_0;   Input/Output;   Digital input/output 0
+2;      DIGITAL-IO_1;   Input/Output;   Digital input/output 1
+3;      DIGITAL-IO_2;   Input/Output;   Digital input/output 2
+4;      DIGITAL-IO_3;   Input/Output;   Digital input/output 3
+5;      DIGITAL-IO_4;   Input/Output;   Digital input/output 4
+6;      DIGITAL-IO_5;   Input/Output;   Digital input/output 5
+7;      DIGITAL-IO_6;   Input/Output;   Digital input/output 6
+8;      5.0V_VREG;      Output;         |ltc6811-1| 5.0V regulated voltage
+9;      FUSED_VBAT-|;   Output;         GND

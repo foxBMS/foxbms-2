@@ -40,6 +40,8 @@
 
 """Testing 'wxpython' package"""
 
+import sys
+import os
 import logging
 import argparse
 
@@ -74,6 +76,9 @@ def main():
         logging.basicConfig(level=logging.DEBUG)
     else:
         logging.basicConfig(level=logging.ERROR)
+
+    if sys.platform.lower() == "linux" and not os.environ.get("DISPLAY"):
+        sys.exit(0)
 
     app = wx.App()  # pylint: disable=unused-variable
     frame = TestFrame()  # pylint: disable=unused-variable

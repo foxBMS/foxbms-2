@@ -1,0 +1,19 @@
+Pin;    Signal;         Direction;  Description
+1;      ANALOG-IN_0;    Input;      Analog input 0
+2;      ANALOG-IN_1;    Input;      Analog input 1
+3;      ANALOG-IN_2;    Input;      Analog input 2
+4;      ANALOG-IN_3;    Input;      Analog input 3
+5;      ANALOG-IN_4;    Input;      Analog input 4
+6;      ANALOG-IN_5;    Input;      Analog input 5
+7;      ANALOG-IN_6;    Input;      Analog input 6
+8;      ANALOG-IN_7;    Input;      Analog input 7
+9;      ANALOG-IN_8;    Input;      Analog input 8
+10;     ANALOG-IN_9;    Input;      Analog input 9
+11;     ANALOG-IN_10;   Input;      Analog input 10
+12;     ANALOG-IN_11;   Input;      Analog input 11
+13;     ANALOG-IN_12;   Input;      Analog input 12
+14;     ANALOG-IN_13;   Input;      Analog input 13
+15;     ANALOG-IN_14;   Input;      Analog input 14
+16;     ANALOG-IN_15;   Input;      Analog input 15
+17;     +3.0V_VREF2;    Output;     |ltc6811-1| 3.0V voltage reference
+18;     |FUSED_VBAT-|;  Output;     GND

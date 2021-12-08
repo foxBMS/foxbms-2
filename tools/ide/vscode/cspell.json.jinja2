@@ -23,12 +23,15 @@
         "overcurrent",
         "overvoltage",
         "parens",
+        "pinout",
+        "pinouts",
         "phosphane",
         "precharged",
         "prepend",
         "prepending",
         "recurse",
         "readmes",
+        "receptable",
         "roadmap",
         "recalibrated",
         "semihosting",
@@ -64,7 +67,8 @@
         "GitLab",
         "Mictor",
         "JFLASH",
-        // user name in the documentatn
+        "Molex",
+        // user name in the documentation
         "vulpes",
         "fgui",
         // Windows related
@@ -75,7 +79,9 @@
         // file extensions
         "vsdx",
         // file names
+        "isonum",
         "fstartup",
+        "foxmath",
         "portasm",
         "cppchecksuppression",
         "cppcheckmisra",
@@ -97,6 +103,7 @@
         "perc",
         // C standard header
         "stdbool",
+        "MOSFET",
         // general software terms
         "memcpy",
         "NTFS",
@@ -127,6 +134,7 @@
         "memset",
         "memwidth",
         "threadsafe",
+        "threadsafety",
         "vlog",
         "tskdef",
         "forcolon",
@@ -143,6 +151,8 @@
         "IBIT",
         "PBIT",
         "CBIT",
+        "SIMO",
+        "SOMI",
         // bender
         "OKHS",
         // ARM
@@ -157,7 +167,12 @@
         "SCPS", // TI prefix for lots of documents (and we reference them)
         "ADDMODERD",
         "ADDMODEWR",
+        "CSHOLD",
+        "SPIDAT",
+        "SPIEN",
+        "TDELAY",
         "INTA",
+        "IOUT",
         "Oport",
         "DMAREQEN",
         "EEPROM",
@@ -196,7 +211,13 @@
         "ISADDR",
         "ITCOUNT",
         "TXDMAEN",
+        "SADC",
         // LTC related words
+        "isospi",
+        "VBAT",
+        "VREG",
+        "REFUP",
+        "SWTEN",
         "REFON",
         "RDCVA",
         "RDCVB",
@@ -219,6 +240,8 @@
         // Maxim register names
         "SHTNDL",
         "ALRTFMEA",
+        "ALRTDUALUART",
+        "ALRTINTRFC",
         "ALRTSUM",
         "ALRTOVCELL",
         "ALRTUVCELL",
@@ -318,6 +341,7 @@
         "I2CRDATA1",
         "I2CRDATA2",
         "CRDATA",
+        "GNDL",
         // Maxim driver related words
         "fmea",
         "uphost",
@@ -355,17 +379,21 @@
         // standards
         "misra",
         // hardware abbreveations or hardware components
-        "fram",
+        "fram", // Ferroelectric Random Access Memory
         "isabellenhuette",
         "tektronix",
         "pcan",
         "lauterbach",
         "epcos",
         "vishay",
+        "mram", // Magnetoresistive Random Access Memory
         "ntcalug", // temperature sensor form vishay
+        "ntcle", // temperature sensor form vishay
         // Axivion
         "axivion",
+        "cafecc",
         "gravis",
+        "larg",
         "preinc",
         "dashserver",
         "localbuild",
@@ -495,14 +523,19 @@
         "pylintrc",
         "pyproject",
         "groupby",
+        "platformdirs",
         "popen",
         "tzname",
+        "rglob",
         "rsplit",
         "finditer",
         "hexlify",
         "startswith",
         // python packages
+        "cffconvert",
+        "clib",
         "gprof2dot",
+        "iterrows",
         "pstats",
         "numpy",
         "mypy",
@@ -512,8 +545,12 @@
         "dask",
         "scipy",
         "seaborn",
+        "pykwalify",
         "qtconsole",
+        "qtpy",
+        "ruamel",
         //wxpython
+        "vscroll",
         "wxagg",
         // matplotlib
         "xlabel",
@@ -556,7 +593,10 @@
         "softwareTerms",
         "misc"
     ],
-    "flagWords":["endianess"],
+    "flagWords":[
+        "endianess",
+        "datasheet"
+    ],
     "ignorePaths": [
         "**/package-lock.json",
         "**/node_modules/**",
@@ -576,6 +616,7 @@
         "conf/env/conda_env_*.yaml",
         "conf/spa/.pylintrc",
         "conf/hcg/**",
+        "conf/guidelines/rules.json",
         "conf/spa/cppchecksuppression.txt",
         "conf/unit/ceedling.cmd",
         "conf/unit/project.yml",

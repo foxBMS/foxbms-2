@@ -43,7 +43,7 @@
  * @file    fstd_types.h
  * @author  foxBMS Team
  * @date    2015-12-20 (date of creation)
- * @updated 2020-04-02 (date of last update)
+ * @updated 2021-11-09 (date of last update)
  * @ingroup GENERAL_CONF
  * @prefix  STD
  *
@@ -56,6 +56,15 @@
 /*========== Includes =======================================================*/
 
 /*========== Macros and Definitions =========================================*/
+
+/** @def    NULL
+ * @brief   NULL definition
+ * @details This define describes a null. Use it to compare against null.
+ */
+#ifndef NULL
+#define NULL ((void *)0u)
+#endif
+
 /**
  * @def     NULL_PTR
  * @brief   Null pointer
@@ -63,7 +72,7 @@
  *          pointer access.
  */
 #ifndef NULL_PTR
-#define NULL_PTR ((void *)(0))
+#define NULL_PTR ((void *)(0u))
 #endif
 
 /*========== Extern Constant and Variable Declarations ======================*/
@@ -72,6 +81,13 @@ typedef enum STD_RETURN_TYPE {
     STD_OK,     /**< ok     */
     STD_NOT_OK, /**< not ok */
 } STD_RETURN_TYPE_e;
+
+/** enum for pin state */
+typedef enum STD_PIN_STATE {
+    STD_PIN_LOW,       /*!< electrical pin state: low */
+    STD_PIN_HIGH,      /*!< electrical pin state: high */
+    STD_PIN_UNDEFINED, /*!< electrical pin state: undefined */
+} STD_PIN_STATE_e;
 
 /*========== Extern Function Prototypes =====================================*/
 

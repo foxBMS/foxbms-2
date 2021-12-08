@@ -25,6 +25,7 @@
     bzip
     ca-certificates
     cantools
+    ccaba
     certifi
     cfd
     cffi
@@ -42,6 +43,7 @@
     dateutil
     dbus
     dcd
+    de
     debd
     decorator
     defusedxml
@@ -57,6 +59,7 @@
     ec
     ecd
     entrypoints
+    et
     et-xmlfile
     fde
     fft
@@ -70,8 +73,12 @@
     gmp
     graphviz
     hb
+    hbaba
     hbc
     hc
+    hd
+    hda
+    heee
     hfa
     hfd
     htmlhelp
@@ -114,6 +121,7 @@
     libwinpthread
     libxcb
     libxml
+    lin
     linux
     lz
     lzo
@@ -132,6 +140,7 @@
     nbformat
     ng
     notebook
+    normalizer
     numpy
     openmp
     openssl
@@ -149,6 +158,7 @@
     plantuml
     plotly
     powershell_shortcut
+    programoutput
     prometheus
     prometheus_client
     prompt_toolkit
@@ -169,6 +179,7 @@
     pyqt
     pyrsistent
     pyserial
+    pysimplegui
     pysocks
     python
     pytz
@@ -183,6 +194,7 @@
     readline
     regex
     requests
+    rsinstrument
     rstcheck
     rtd
     ruamel

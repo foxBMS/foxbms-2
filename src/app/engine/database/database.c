@@ -43,7 +43,7 @@
  * @file    database.c
  * @author  foxBMS Team
  * @date    2015-08-18 (date of creation)
- * @updated 2021-07-23 (date of last update)
+ * @updated 2021-12-01 (date of last update)
  * @ingroup ENGINE
  * @prefix  DATA
  *
@@ -55,10 +55,8 @@
 /*========== Includes =======================================================*/
 #include "database.h"
 
-#include "FreeRTOS.h"
-#include "queue.h"
-
 #include "ftask.h"
+#include "os.h"
 
 #include <string.h>
 
@@ -156,8 +154,8 @@ void DATA_Task(void) {
     DATA_QUEUE_MESSAGE_s receiveMessage;
 
     if (ftsk_databaseQueue != NULL_PTR) {
-        if (xQueueReceive(ftsk_databaseQueue, (&receiveMessage), (TickType_t)1) >
-            0) { /* scan queue and wait for a message up to a maximum amount of 1ms (block time) */
+        /* scan queue and wait for a message up to a maximum amount of 1ms (block time) */
+        if (OS_ReceiveFromQueue(ftsk_databaseQueue, (&receiveMessage), 1u) == OS_SUCCESS) {
             /* plausibility check, error if first pointer NULL_PTR */
             FAS_ASSERT(receiveMessage.pDatabaseEntry[0] != NULL_PTR);
             /* Iterate over pointer array and handle all access operations if pointer != NULL_PTR */
@@ -241,7 +239,7 @@ STD_RETURN_TYPE_e DATA_Read_4_DataBlocks(
 
     /* Send a pointer to a message object and */
     /* maximum block time: queuetimeout */
-    if (pdPASS == xQueueSend(ftsk_databaseQueue, (void *)&data_send_msg, queuetimeout)) {
+    if (OS_SendToBackOfQueue(ftsk_databaseQueue, (void *)&data_send_msg, queuetimeout) == OS_SUCCESS) {
         retval = STD_OK;
     }
     return retval;
@@ -285,7 +283,7 @@ STD_RETURN_TYPE_e DATA_Write_4_DataBlocks(
     data_send_msg.accesstype = DATA_WRITE_ACCESS;
     /* Send a pointer to a message object and
        maximum block time: queuetimeout */
-    if (pdPASS == xQueueSend(ftsk_databaseQueue, (void *)&data_send_msg, queuetimeout)) {
+    if (OS_SendToBackOfQueue(ftsk_databaseQueue, (void *)&data_send_msg, queuetimeout) == OS_SUCCESS) {
         retval = STD_OK;
     }
     return retval;

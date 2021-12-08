@@ -10,13 +10,19 @@ Changelog
 ..
     Comments:
     Axivion is the company that builds the Axivion Bauhaus suite
+    PEC stands for pack error check
     slaveplausibility is the old name of a plausibility module
+    sym is the file extention of a symbol file
     JUnit is a test system (originally for Java)
+    matcher as in `problem matcher`
 
 .. spelling::
     Axivion
+    PEC
     slaveplausibility
+    sym
     JUnit
+    matcher
 
 
 All notable changes to this project will be documented in this file.
@@ -32,6 +38,89 @@ Versioning follows then these rules:
 - increasing ``MAJOR`` introduces incompatible changes
 - increasing ``MINOR`` adds functionality in a backwards compatible manner
 - increasing ``PATCH`` fixes bugs in a backwards compatible manner
+
+********************
+[1.2.1] - 2021-12-08
+********************
+
+|foxbms| now ships with a new conda environment ``2021-11-fennec-fox`` and the
+local conda environment needs to be updated (see :numref:`conda_env_update`).
+
+Added
+=====
+
+- Added enum typedef for GPIO pin state.
+- Add driver for the temperature sensor *NTCLE317E4103SBA* from *Vishay*.
+- Added documentation for Coulomb-counting and extended the documentation of
+  the state-estimation-module.
+- Added a define for ``NULL``.
+- Make |git| a required software installation (see :ref:`git_install`).
+- If a system-wide installation of |git| is not found in the build process,
+  check for a user installation.
+- Added an API to check whether a certain amount of milliseconds has passed.
+- Added an API to the ``spi``-module that allows to check if the interface
+  is available.
+- Added a python script that can help with searching for regressions after
+  resolving a complete violation category in Axivion.
+- Automatically update the ``@updated`` doxygen comment before committing when
+  pre-commit hooks are activated.
+- Added documentation for the LTC based interface and slaves.
+- In the ``spi``-module, hardware Chip Select pins can now be used.
+  Until now only software Chip Select pins could be used.
+
+Changed
+=======
+
+- Rewrote the linker script: the sections lengths are no longer hard-coded.
+- The memory layout of ``OS_TASK_DEFINITION_s`` has been changed.
+- The ``os``-module wrapper for task definition now also contains the
+  ``pvParameters``.
+- Static analysis cleanup of the ``os``-module and ``ftask``-module wrappers.
+- Tasks are now marked as requiring FPU context, to prevent memory corruption
+  during task switching.
+- The Chip Select pin used to drive the external flash memory over SPI is now
+  set as output with initial level high, corresponding to a default inactive
+  state for the SPI line.
+- Removed a hotfix that has been introduced in v1.0.0: the CAN driver used a
+  critical section in order to avoid computation issues when scaling values.
+  This has been shown to be connected with the FPU context and can now be
+  removed as the root cause has been resolved.
+- Updated the Axivion configuration to use version ``7.2.6``.
+- Create the Axivion build directory before running the analysis.
+- The documentation build now treats warnings as errors.
+- Updated the doxygen configuration files to match the doxygen version that
+  is shipped in the conda environment.
+- Switched the used C standard to C11.
+- The FreeRTOS specific implementations for the task and queue creation were
+  moved into ``os_freertos.c`` and ``ftask_freertos.c``.
+- Greatly enhanced the robustness and code quality of the driver for Maxim
+  analog front ends.
+
+Deprecated
+==========
+
+Removed
+=======
+
+Fixed
+=====
+
+- The error message when ``bms.json`` had an invalid configuration always
+  indicated an invalid *analog front-end* configuration, independently of what
+  option was actually invalid configured.
+  The error message now correctly points to the setting, that sets an invalid
+  configuration.
+- Fixed several MISRA-C violations and style guide violations.
+- Fixed the conda environment shell update script.
+- The signature of the FreeRTOS tasks was not correct and has been fixed to
+  match ``void TaskName(void *pvParameters)``.
+- Explicitly cast the variables that are passed to the FreeRTOS task creation
+  function.
+- Make ``NULL_PTR`` explicitly *unsigned*.
+- Fixed product number for the used trace probe in our test setup.
+- Fixed incorrect values for GPIO measurement times in LTC module.
+- Cleaned up ``spi``-module and added documentation.
+  Removed unused enum (``SPI_INTERFACE_e``).
 
 ********************
 [1.2.0] - 2021-10-21
@@ -50,8 +139,10 @@ Added
 - Implemented feedback through auxiliary contacts for the contactor driver.
 - Debug LED is now toggled depending on system state (slow: okay, fast: error)
 - Added an option to install a pre-commit hook in the repository.
-  The pre-commit hook runs the guidelines check (see :ref:`WAF_TOOL_GIT_HOOKS`).
-- Added a driver module that allows to use the enhanced PWM features of the MCU.
+  The pre-commit hook runs the guidelines check (see
+  :ref:`WAF_TOOL_GIT_HOOKS`).
+- Added a driver module that allows to use the enhanced PWM features of the
+  MCU.
 - Adapted CAN module to receive/transmit messages either via CAN1 or CAN2.
 - Annotate maximum stack size in FreeRTOS so that debugger can catch this
   information.
@@ -76,6 +167,9 @@ Changed
   foxBMS 2 master board.
 - The documentation build defaults now only to ``html`` and ``spelling``,
   .i.e., ``linkcheck`` has been removed.
+- Increased stack size of 10ms task to 5120 bytes (from 4096).
+- Declared large database entries as static, so that they are placed in the
+  data segment to reduce the stack usage of the respective task.
 
 Deprecated
 ==========
@@ -175,8 +269,8 @@ Removed
 Fixed
 =====
 
-- fixed bug, that multiplexed cell voltages 2+3 were transmitted incorrectly via
-  CAN (``foxBMS_CellVoltage``)
+- fixed bug, that multiplexed cell voltages 2+3 were transmitted incorrectly
+  via CAN (``foxBMS_CellVoltage``)
 - fixed bug, that current limits were transmitted incorrectly via CAN
   (``foxBMS_LimitValues``)
 
@@ -190,7 +284,7 @@ configured in ``conf/env/paths_win32.txt``. For installation instructions
 see :numref:`css_install`.
 
 |foxbms| now ships with a new conda environment ``2021-08-arctic-fox`` and the
-local conda environments need to updated (see :numref:`conda_env_update`).
+local conda environment needs to be updated (see :numref:`conda_env_update`).
 
 Added
 =====
@@ -228,9 +322,10 @@ Added
 - Added a short note on the installation of PEAK-Drivers (for CAN
   communication) to the installation manual.
 - Added a section on testing the setup of the toolchain.
-- Added configurable reaction type, delay and severity for each diagnosis entry.
-- Configuration of failures, that lead to a transition to the error state is now
-  done by configuring the severity of the respective diagnosis entry to
+- Added configurable reaction type, delay and severity for each diagnosis
+  entry.
+- Configuration of failures, that lead to a transition to the error state is
+  now done by configuring the severity of the respective diagnosis entry to
   ``DIAG_FATAL_ERROR``. The handling of the timing delay to transition into
   error state is done by the BMS module.
 - Implemented CAN messages defined in .dbc file. Only stubs are implemented for

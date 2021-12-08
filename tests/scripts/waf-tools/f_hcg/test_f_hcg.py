@@ -100,7 +100,9 @@ class TestHcgMethods(unittest.TestCase):
         nr_of_tests = 4
         for i in range(nr_of_tests):
             with open(
-                os.path.join(script_dir, "tests", f"test_hcg{i}.json"), "r"
+                os.path.join(script_dir, "tests", f"test_hcg{i}.json"),
+                "r",
+                encoding="utf-8",
             ) as hcg_file:
                 valid = json.load(hcg_file)
             hcg_configuration = f_hcg.NodeStructure(
@@ -112,7 +114,9 @@ class TestHcgMethods(unittest.TestCase):
             self.assertEqual(hcg_configuration.removes, valid["removes"])
 
         with open(
-            os.path.join(script_dir, "tests", "test_hcg_raises.json"), "r"
+            os.path.join(script_dir, "tests", "test_hcg_raises.json"),
+            "r",
+            encoding="utf-8",
         ) as hcg_file:
             valid = json.load(hcg_file)
         hcg_configuration = f_hcg.NodeStructure(

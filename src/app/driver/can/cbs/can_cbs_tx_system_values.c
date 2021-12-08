@@ -237,7 +237,9 @@ extern uint32_t CAN_TxStringValues2(
     CAN_TxSetMessageDataWithSignalData(&message, 7u, 4u, signalData, endianness);
 
     /* String voltage */
+    OS_EnterTaskCritical(); /* this access has to be protected as it conflicts with the 1ms task */
     signalData = (int64_t)kpkCanShim->pTableCurrentSensor->energyCounter_Wh[stringNumber];
+    OS_ExitTaskCritical();
     /* set data in CAN frame */
     CAN_TxSetMessageDataWithSignalData(&message, 15u, 32u, signalData, endianness);
     /* AXIVION Enable Style Generic-NoMagicNumbers: */

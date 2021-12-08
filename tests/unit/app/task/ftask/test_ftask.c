@@ -43,7 +43,7 @@
  * @file    test_ftask.c
  * @author  foxBMS Team
  * @date    2020-04-02 (date of creation)
- * @updated 2021-09-30 (date of last update)
+ * @updated 2021-12-01 (date of last update)
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -121,7 +121,6 @@ void setUp(void) {
 void tearDown(void) {
 }
 
+/*========== Test Cases =====================================================*/
 void testDummy(void) {
 }
-
-/*========== Test Cases =====================================================*/

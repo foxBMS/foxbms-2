@@ -40,11 +40,12 @@
 @CALL %~dp0\cmd\find_base_conda.bat update
 
 @IF %CONDA_BASE_ENVIRONMENT_ACTIVATE_SCRIPT%=="" (
+    @ECHO Could not find 'base' environment.
     @EXIT /b 1
 )
 
 @IF EXIST %CONDA_BASE_ENVIRONMENT_INCLUDING_DEVELOPMENT_ENVIRONMENT%envs\%CONDA_DEVELOPMENT_ENVIRONMENT_NAME%\NUL (
-    @ECHO Environment %CONDA_DEVELOPMENT_ENVIRONMENT_NAME% already exists. Nothing to do.
+    @ECHO Environment '%CONDA_DEVELOPMENT_ENVIRONMENT_NAME%' already exists. Nothing to do.
     @EXIT /B 1
 )
 

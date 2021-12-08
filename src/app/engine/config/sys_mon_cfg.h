@@ -43,7 +43,7 @@
  * @file    sys_mon_cfg.h
  * @author  foxBMS Team
  * @date    2019-11-28 (date of creation)
- * @updated 2020-01-21 (date of last update)
+ * @updated 2021-11-10 (date of last update)
  * @ingroup ENGINE_CONFIGURATION
  * @prefix  SYSM
  *
@@ -92,13 +92,13 @@ typedef enum SYSM_ACTIVATE {
 
 /** Channel configuration of one system monitoring channel */
 typedef struct SYSM_CH_CFG {
-    SYSM_TASK_ID_e id;                    /**< the task id by its symbolic name                           */
-    SYSM_ACTIVATE_e enable;               /**< enable or disable system monitoring                        */
-    uint8_t cycleTime;                    /**< max. delay time in ms until #SYSM_Notify has to be called  */
-    uint8_t maxJitter;                    /**< max. jitter in ms                                          */
-    SYSM_RECORDING_e enableRecording;     /**< enabled if set to DIAG_RECORDING_ENABLED                   */
-    SYSM_HANDLING_TYPE_e handlingType;    /**< type of handling of system monitoring errors               */
-    void (*callbackfunc)(SYSM_TASK_ID_e); /**< callback in case of error                                  */
+    SYSM_TASK_ID_e id;                           /**< the task id by its symbolic name                           */
+    SYSM_ACTIVATE_e enable;                      /**< enable or disable system monitoring                        */
+    uint8_t cycleTime;                           /**< max. delay time in ms until #SYSM_Notify has to be called  */
+    uint8_t maxJitter;                           /**< max. jitter in ms                                          */
+    SYSM_RECORDING_e enableRecording;            /**< enabled if set to DIAG_RECORDING_ENABLED                   */
+    SYSM_HANDLING_TYPE_e handlingType;           /**< type of handling of system monitoring errors               */
+    void (*callbackfunc)(SYSM_TASK_ID_e taskID); /**< callback in case of error                                  */
 } SYSM_MONITORING_CFG_s;
 
 /*========== Extern Constant and Variable Declarations ======================*/
@@ -116,7 +116,7 @@ extern STD_RETURN_TYPE_e SYSM_Init(void);
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
 #ifdef UNITY_UNIT_TEST
-extern void TEST_SYSM_DummyCallback(SYSM_TASK_ID_e tsk_id);
+extern void TEST_SYSM_DummyCallback(SYSM_TASK_ID_e taskId);
 #endif
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/

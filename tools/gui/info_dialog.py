@@ -164,7 +164,7 @@ class FoxbmsInfoDialog(wx.Dialog):
         documentation of the license"""
 
         if self.license_file:
-            license_text = self.license_file.read_text()
+            license_text = self.license_file.read_text(encoding="utf-8")
         else:
             license_text = (
                 "Could not find foxBMS 2 license file.\n"
@@ -179,7 +179,7 @@ class FoxbmsInfoDialog(wx.Dialog):
     def get_readme_text(self):
         """returns the text of the README or a default one."""
         if self.readme_file:
-            readme_text = self.readme_file.read_text()
+            readme_text = self.readme_file.read_text(encoding="utf-8")
         else:
             readme_text = "# foxBMS 2 GUI"
         return readme_text

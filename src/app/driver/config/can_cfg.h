@@ -43,7 +43,7 @@
  * @file    can_cfg.h
  * @author  foxBMS Team
  * @date    2019-12-04 (date of creation)
- * @updated 2021-10-12 (date of last update)
+ * @updated 2021-12-01 (date of last update)
  * @ingroup DRIVERS
  * @prefix  CAN
  *
@@ -301,7 +301,7 @@ typedef struct CAN_BUFFERELEMENT {
 
 /** composite type for storing and passing on the local database table handles */
 typedef struct CAN_SHIM {
-    QueueHandle_t *pQueueImd;                             /*!< handle of the message queue */
+    OS_QUEUE *pQueueImd;                                  /*!< handle of the message queue */
     DATA_BLOCK_CELL_VOLTAGE_s *pTableCellVoltage;         /*!< database table with cell voltages */
     DATA_BLOCK_CELL_TEMPERATURE_s *pTableCellTemperature; /*!< database table with cell temperatures */
     DATA_BLOCK_MIN_MAX_s *pTableMinMax;                   /*!< database table with min/max values */

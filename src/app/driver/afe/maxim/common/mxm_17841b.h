@@ -43,7 +43,7 @@
  * @file    mxm_17841b.h
  * @author  foxBMS Team
  * @date    2018-12-14 (date of creation)
- * @updated 2021-06-16 (date of last update)
+ * @updated 2021-12-06 (date of last update)
  * @ingroup DRIVERS
  * @prefix  MXM
  *
@@ -72,14 +72,17 @@
  * The buffer has to be large enough to accommodate every
  * relevant SPI transaction.
  */
-#define MXM_SPI_TX_BUFFER_LENGTH (8u)
+#define MXM_SPI_TX_BUFFER_LENGTH (10u)
+
+/** SPI RX buffer length */
+#define MXM_SPI_RX_BUFFER_LENGTH (100u)
 
 /**
  * @brief States of the MAX17841B state-machine
  */
-typedef enum MXM_STATEMACH_41B {
+typedef enum {
     MXM_STATEMACH_41B_UNINITIALIZED, /*!< Uninitialized state that the state-machine starts in */
-    MXM_STATEMACH_41B_INIT,          /*!< Initialization sequence, afterwards transitions into idle state */
+    MXM_STATEMACH_41B_INIT,          /*!< Initialization sequence, afterwards transition into idle state */
     MXM_STATEMACH_41B_IDLE,          /*!< Idle state, transition into other states is available here */
     MXM_STATEMACH_41B_CHECK_FMEA,    /*!< Checks the FMEA register of MAX17841B. */
     MXM_STATEMACH_41B_GET_VERSION,   /*!< Retrieves the version of the connected ASCI. */
@@ -94,8 +97,10 @@ typedef enum MXM_STATEMACH_41B {
 /**
  * @brief Substates of the MAX17841B state-machine
  */
-typedef enum MXM_41B_SUBSTATES {
+typedef enum {
     MXM_41B_ENTRY_SUBSTATE,
+    MXM_41B_INIT_RESET_BRIDGE_IC,
+    MXM_41B_INIT_START_BRIDGE_IC,
     MXM_41B_INIT_WRITE_DEFAULT_VALUES,
     MXM_41B_INIT_READ_CONFIG_REGISTERS,
     MXM_41B_INIT_CHECK_INITIALIZATION,
@@ -104,6 +109,8 @@ typedef enum MXM_41B_SUBSTATES {
     MXM_41B_VERSION_REQUEST_REGISTER,
     MXM_41B_VERSION_VERIFY,
     /* MXM_41B_UART_CLEAR_TRANSMIT_BUFFER, */
+    MXM_41B_UART_READ_RX_SPACE,
+    MXM_41B_UART_READ_RX_SPACE_PARSE,
     MXM_41B_UART_WRITE_LOAD_QUEUE,
     MXM_41B_UART_READ_LOAD_QUEUE,
     MXM_41B_UART_VERIFY_LOAD_QUEUE_AND_TRANSMIT,
@@ -120,7 +127,7 @@ typedef enum MXM_41B_SUBSTATES {
  * This enum describes the states that a state in the
  * #MXM_41BStateMachine() can have.
  */
-typedef enum MXM_41B_STATE_REQUEST_STATUS {
+typedef enum {
     MXM_41B_STATE_UNSENT,      /*!< The request has not been sent to the state-machine yet. */
     MXM_41B_STATE_UNPROCESSED, /*!< The request has been received by the state-machine, but not been processed yet. */
     MXM_41B_STATE_PROCESSED,   /*!< The request has been process successfully */
@@ -130,13 +137,14 @@ typedef enum MXM_41B_STATE_REQUEST_STATUS {
 /**
  * @brief Register functions
  */
-typedef enum MXM_41B_REG_FUNCTION {
-    MXM_41B_REG_FUNCTION_RX_BUSY_STATUS,
-    MXM_41B_REG_FUNCTION_RX_STOP_STATUS,
-    MXM_41B_REG_FUNCTION_RX_EMPTY_STATUS,
-    MXM_41B_REG_FUNCTION_TX_PREAMBLES,
-    MXM_41B_REG_FUNCTION_KEEP_ALIVE,
-    MXM_41B_REG_FUNCTION_RX_ERROR_INT,
+typedef enum {
+    MXM_41B_REG_FUNCTION_RX_BUSY_STATUS,     /*!< read the rx busy bit from rx status register */
+    MXM_41B_REG_FUNCTION_RX_OVERFLOW_STATUS, /*!< read the rx overflow bit from rx status register */
+    MXM_41B_REG_FUNCTION_RX_STOP_STATUS,     /*!< read the rx stop bit from rx status register */
+    MXM_41B_REG_FUNCTION_RX_EMPTY_STATUS,    /*!< read the rx empty bit from rx status register */
+    MXM_41B_REG_FUNCTION_TX_PREAMBLES,       /*!< set the tx preambles bit */
+    MXM_41B_REG_FUNCTION_KEEP_ALIVE,         /*!< set the keep alive bits */
+    MXM_41B_REG_FUNCTION_RX_ERROR_INT,       /*!< read the rx error bit */
     MXM_41B_REG_FUNCTION_RX_OVERFLOW_INT,
 } MXM_41B_REG_FUNCTION_e;
 
@@ -146,15 +154,14 @@ typedef enum MXM_41B_REG_FUNCTION {
  * This struct defines the state-variable of
  * the #MXM_41BStateMachine().
  */
-typedef struct MXM_41B_INSTANCE {
+typedef struct {
     MXM_STATEMACH_41B_e state;                 /*!< state of Driver State Machine */
     MXM_41B_SUBSTATES_e substate;              /*!< substate of current Driver State */
     uint16_t *pPayload;                        /*!< payload that is processed by the state-machine */
-    uint16_t payloadLength;                    /*!< length of the payload array */
+    uint8_t payloadLength;                     /*!< length of the payload array */
     uint16_t *pRxBuffer;                       /*!< pointer to an RX-buffer that will be filled by the state-machine */
     uint16_t rxBufferLength;                   /*!< length of the RX-buffer-array */
     MXM_41B_STATE_REQUEST_STATUS_e *processed; /*!< status-indicator of the state-machine */
-    uint16_t aliveCounter;                     /*!< TODO: clarify */
     uint8_t extendMessageBytes;                /*!< pass on number of bytes by which the TX-message shall be extended */
     uint8_t waitCounter;                       /*!< general error counter, will be reset in funtions */
     uint8_t regRXIntEnable;                    /*!< local storage for the RX Interrupt Enable register */
@@ -164,27 +171,15 @@ typedef struct MXM_41B_INSTANCE {
     uint8_t regConfig1;                        /*!< local storage for the Config 1 register */
     uint8_t regConfig2;                        /*!< local storage for the Config 2 register */
     uint8_t regConfig3;                        /*!< local storage for the Config 3 register */
+    uint8_t regRxSpace;                        /*!< RX space register (shows the left space in RX buffer) */
     uint16_t hwModel;                          /*!< model number of the connected IC */
     uint8_t hwMaskRevision;                    /*!< mask revision of the connected IC */
-    uint16_t spiRXBuffer[100];                 /*!< rx buffer for SPI */
+    uint32_t shutdownTimeStamp;                /*!< timestamp of the last shutdown (or startup) action */
+    uint16_t spiRXBuffer[MXM_SPI_RX_BUFFER_LENGTH]; /*!< rx buffer for SPI */
     uint16_t spiTXBuffer[MXM_SPI_TX_BUFFER_LENGTH]; /*!< tx buffer for SPI */
 } MXM_41B_INSTANCE_s;
 
 /*========== Extern Constant and Variable Declarations ======================*/
-/**
- * @brief standard configuration for register config 2
- */
-extern const uint8_t mxm_kConfig2EnableTransmitPreamblesMode41BRegister;
-
-/**
- * @brief standard configuration for register config 3
- */
-extern const uint8_t mxm_kConfig3KeepAlive160us41BRegister;
-
-/**
- * @brief standard configuration for register rx interrupt
- */
-extern const uint8_t mxm_kRXInterruptEnableRXErrorRXOverflow41BRegister;
 
 /*========== Extern Function Prototypes =====================================*/
 /**
@@ -294,11 +289,19 @@ extern STD_RETURN_TYPE_e MXM_41BSetStateRequest(
     MXM_41B_INSTANCE_s *pInstance,
     MXM_STATEMACH_41B_e state,
     uint16_t *pPayload,
-    uint16_t payloadLength,
+    uint8_t payloadLength,
     uint8_t extendMessageBytes,
     uint16_t *pRxBuffer,
     uint16_t rxBufferLength,
     MXM_41B_STATE_REQUEST_STATUS_e *processed);
+
+/**
+ * @brief   Initializes the state struct with default values
+ * @details This function is called through the startup of the driver in order
+ *          to ensure proper default values.
+ * @param[out]  pInstance   instance of the state struct that shall be initialized
+ */
+extern void MXM_41BInitializeStateStruct(MXM_41B_INSTANCE_s *pInstance);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 

@@ -43,7 +43,7 @@
  * @file    fram.c
  * @author  foxBMS Team
  * @date    2020-03-05 (date of creation)
- * @updated 2021-07-14 (date of last update)
+ * @updated 2021-12-08 (date of last update)
  * @ingroup DRIVERS
  * @prefix  FRAM
  *
@@ -106,7 +106,10 @@ extern STD_RETURN_TYPE_e FRAM_Write(FRAM_BLOCK_ID_e blockId) {
     uint16_t size            = 0;
     STD_RETURN_TYPE_e retVal = STD_NOT_OK;
 
-    retVal = SPI_Lock(SPI_Interface3);
+    /* FRAM must use SW Chip Select configuration*/
+    FAS_ASSERT(spi_framInterface.csType == SPI_CHIP_SELECT_SOFTWARE);
+
+    retVal = SPI_Lock(SPI_GetSpiIndex(spi_framInterface.pNode));
 
     if (retVal == STD_OK) {
         address = (&fram_base_header[0] + blockId)->address;
@@ -117,7 +120,7 @@ extern STD_RETURN_TYPE_e FRAM_Write(FRAM_BLOCK_ID_e blockId) {
         /* send write enable command */
         IO_PinReset(spi_framInterface.pGioPort, spi_framInterface.csPin);
         write = FRAM_WRITEENABLECOMMAND;
-        SPI_DirectlyTransmitReceiveData(&spi_framInterface, &write, &read, 1);
+        SPI_FramTransmitReceiveData(&spi_framInterface, &write, &read, 1u);
         IO_PinSet(spi_framInterface.pGioPort, spi_framInterface.csPin);
         MCU_delay_us(FRAM_DELAY_AFTER_WRITE_ENABLE_US);
 
@@ -127,23 +130,23 @@ extern STD_RETURN_TYPE_e FRAM_Write(FRAM_BLOCK_ID_e blockId) {
 
         /* send write command */
         write = FRAM_WRITECOMMAND;
-        SPI_DirectlyTransmitReceiveData(&spi_framInterface, &write, &read, 1);
+        SPI_FramTransmitReceiveData(&spi_framInterface, &write, &read, 1u);
 
         /* send upper part of address */
         write = (address & 0x3F0000u) >> 16u;
-        SPI_DirectlyTransmitReceiveData(&spi_framInterface, &write, &read, 1);
+        SPI_FramTransmitReceiveData(&spi_framInterface, &write, &read, 1u);
 
         /* send middle part of address */
         write = (address & 0xFF00u) >> 8u;
-        SPI_DirectlyTransmitReceiveData(&spi_framInterface, &write, &read, 1);
+        SPI_FramTransmitReceiveData(&spi_framInterface, &write, &read, 1u);
 
         /* send lower part of address */
         write = address & 0xFFu;
-        SPI_DirectlyTransmitReceiveData(&spi_framInterface, &write, &read, 1);
+        SPI_FramTransmitReceiveData(&spi_framInterface, &write, &read, 1u);
 
         while (size > 0u) {
             write = (uint16_t)(*wrt_ptr);
-            SPI_DirectlyTransmitReceiveData(&spi_framInterface, &write, &read, 1);
+            SPI_FramTransmitReceiveData(&spi_framInterface, &write, &read, 1u);
             wrt_ptr++;
             size--;
         }
@@ -151,7 +154,7 @@ extern STD_RETURN_TYPE_e FRAM_Write(FRAM_BLOCK_ID_e blockId) {
         /* set chip select high to start transmission */
         IO_PinSet(spi_framInterface.pGioPort, spi_framInterface.csPin);
 
-        SPI_Unlock(SPI_Interface3);
+        SPI_Unlock(SPI_GetSpiIndex(spi_framInterface.pNode));
     }
 
     return retVal;
@@ -165,7 +168,10 @@ extern STD_RETURN_TYPE_e FRAM_Read(FRAM_BLOCK_ID_e blockId) {
     uint16_t size            = 0;
     STD_RETURN_TYPE_e retVal = STD_NOT_OK;
 
-    retVal = SPI_Lock(SPI_Interface3);
+    /* FRAM must use SW Chip Select configuration*/
+    FAS_ASSERT(spi_framInterface.csType == SPI_CHIP_SELECT_SOFTWARE);
+
+    retVal = SPI_Lock(SPI_GetSpiIndex(spi_framInterface.pNode));
 
     if (retVal == STD_OK) {
         address = (&fram_base_header[0] + blockId)->address;
@@ -179,23 +185,23 @@ extern STD_RETURN_TYPE_e FRAM_Read(FRAM_BLOCK_ID_e blockId) {
 
         /* send write command */
         write = FRAM_READCOMMAND;
-        SPI_DirectlyTransmitReceiveData(&spi_framInterface, &write, &read, 1);
+        SPI_FramTransmitReceiveData(&spi_framInterface, &write, &read, 1u);
 
         /* send upper part of address */
         write = (address & 0x3F0000u) >> 16u;
-        SPI_DirectlyTransmitReceiveData(&spi_framInterface, &write, &read, 1);
+        SPI_FramTransmitReceiveData(&spi_framInterface, &write, &read, 1u);
 
         /* send middle part of address */
         write = (address & 0xFF00u) >> 8u;
-        SPI_DirectlyTransmitReceiveData(&spi_framInterface, &write, &read, 1);
+        SPI_FramTransmitReceiveData(&spi_framInterface, &write, &read, 1u);
 
         /* send lower part of address */
         write = address & 0xFFu;
-        SPI_DirectlyTransmitReceiveData(&spi_framInterface, &write, &read, 1);
+        SPI_FramTransmitReceiveData(&spi_framInterface, &write, &read, 1u);
 
         write = 0;
         while (size > 0u) {
-            SPI_DirectlyTransmitReceiveData(&spi_framInterface, &write, &read, 1);
+            SPI_FramTransmitReceiveData(&spi_framInterface, &write, &read, 1u);
             *rd_ptr = read;
             rd_ptr++;
             size--;
@@ -204,7 +210,7 @@ extern STD_RETURN_TYPE_e FRAM_Read(FRAM_BLOCK_ID_e blockId) {
         /* set chip select high to start transmission */
         IO_PinSet(spi_framInterface.pGioPort, spi_framInterface.csPin);
 
-        SPI_Unlock(SPI_Interface3);
+        SPI_Unlock(SPI_GetSpiIndex(spi_framInterface.pNode));
     }
 
     return retVal;

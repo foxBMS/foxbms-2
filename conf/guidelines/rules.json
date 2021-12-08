@@ -19,6 +19,7 @@
     ".mypy_cache/**",
     "build/**",
     "libbuild/**",
+    "**/foxbms-2_axivion_report.json",
     "build-tools-tests/**",
     "conf/hcg/include/*",
     "conf/hcg/source/*",
@@ -41,7 +42,9 @@
     "docs/_ext/**",
     "foxbms/**",
     "tools/waf3-**",
+    "tools/.waf3-**",
     "**/__pycache__/**",
+    "**/*~",
     ".lock-waf_*_build",
     "tools/vendor/**",
     "tools/waf",
@@ -137,7 +140,8 @@
       "exclude": [],
       "files": [
         "**/*.c",
-        "**/*.h"
+        "**/*.h",
+        "src/app/main/linker_script_elf.cmd"
       ],
       "header": {
         "name": "C:002",
@@ -198,6 +202,7 @@
           "src/app/driver/sbc/fs8x_driver/sbc_fs8x*.*",
           "src/app/driver/afe/ltc/common/ltc_pec.*",
           "src/app/driver/afe/nxp/common/MC33775A.h",
+          "src/app/main/linker_script_elf.cmd",
           "src/os/**"
         ],
         "regex": [
@@ -238,7 +243,8 @@
         "exclude": [
           "src/app/driver/afe/ltc/common/ltc_pec.*",
           "src/app/driver/sbc/fs8x_driver/**",
-          "src/app/driver/afe/nxp/common/MC33775A.h"
+          "src/app/driver/afe/nxp/common/MC33775A.h",
+          "src/app/main/linker_script_elf.cmd"
         ],
         "name": "C:006",
         "header": {
@@ -373,7 +379,9 @@
       "formatting": {
         "name": "C:031",
         "provider": "clang-format",
-        "exclude": [],
+        "exclude": [
+          "src/app/main/linker_script_elf.cmd"
+        ],
         "config": ".clang-format"
       }
     },

@@ -38,48 +38,11 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""TODO"""
+"""Helper Build Script: ./src/app/driver/afe/maxim/wscript
 
-import os
+Helper script to recursively build the embedded sources"""
 
 
 def build(bld):
-    """builds the AFE driver library for Maxim"""
-    source = [
-        os.path.join(".", "common", "api", "mxm_afe.c"),
-        os.path.join(".", "common", "config", "mxm_cfg.c"),
-        os.path.join(".", "common", "mxm_17841b.c"),
-        os.path.join(".", "common", "mxm_1785x.c"),
-        os.path.join(".", "common", "mxm_1785x_tools.c"),
-        os.path.join(".", "common", "mxm_battery_management.c"),
-        os.path.join(".", "common", "mxm_bitextract.c"),
-        os.path.join(".", "common", "mxm_crc8.c"),
-        os.path.join(".", "common", "mxm_afe_dma.c"),
-        os.path.join(".", "common", "mxm_registry.c"),
-    ]
-    includes = [
-        os.path.join("..", "api"),
-        os.path.join(".", "common"),
-        os.path.join(".", "common", "api"),
-        os.path.join(".", "common", "config"),
-        os.path.join("..", "..", "config"),
-        os.path.join("..", "..", "io"),
-        os.path.join("..", "..", "spi"),
-        os.path.join("..", "..", "ts"),
-        os.path.join("..", "..", "ts", "api"),
-        os.path.join("..", "..", "..", "application", "config"),
-        os.path.join("..", "..", "..", "main", "include"),
-        os.path.join("..", "..", "..", "engine", "config"),
-        os.path.join("..", "..", "..", "engine", "database"),
-        os.path.join("..", "..", "..", "engine", "diag"),
-        os.path.join("..", "..", "..", "task", "os"),
-    ]
-    includes.extend(bld.env.INCLUDES_OPERATING_SYSTEM)
-    cflags = bld.env.CFLAGS_FOXBMS
-    target = f"{bld.env.APPNAME.lower()}-afe-driver"
-    bld.stlib(
-        source=source,
-        includes=includes,
-        cflags=cflags,
-        target=target,
-    )
+    """selects the driver library to be build"""
+    bld.recurse(bld.env.afe_chip)

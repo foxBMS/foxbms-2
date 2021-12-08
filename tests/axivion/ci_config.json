@@ -49,14 +49,18 @@
                 "directory": "",
                 "filename": "$(env:databaseFileRemote=)"
             }
+        },
+        "JSONReport": {
+            "_active": true,
+            "filename": "foxbms-2_axivion_report.json"
         }
     },
     "_Format": "1.0",
-    "_Version": "7.1.1",
+    "_Version": "7.2.6",
     "_VersionNum": [
         7,
-        1,
-        1,
-        5996
+        2,
+        6,
+        7576
     ]
 }

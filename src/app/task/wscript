@@ -49,10 +49,13 @@ import os
 
 def build(bld):
     """builds the task library"""
+    os_name = bld.env.OPERATING_SYSTEM_NAME[0]
     source = [
         os.path.join("config", "ftask_cfg.c"),
         os.path.join("ftask", "ftask.c"),
+        os.path.join("ftask", os_name, f"ftask_{os_name}.c"),
         os.path.join("os", "os.c"),
+        os.path.join("os", os_name, f"os_{os_name}.c"),
     ]
     includes = [
         "config",

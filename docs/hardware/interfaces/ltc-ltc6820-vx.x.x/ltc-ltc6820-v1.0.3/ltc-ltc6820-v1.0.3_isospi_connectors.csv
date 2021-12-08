@@ -1,0 +1,3 @@
+Pin;    Signal;     Description
+1;      |isospi_p|; isoSPI positive
+2;      |isospi_n|; isoSPI negative

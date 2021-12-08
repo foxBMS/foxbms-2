@@ -47,6 +47,9 @@
 @if NOT DEFINED REQUESTS_CA_BUNDLE (
     @SET REQUESTS_CA_BUNDLE=\\axivion-dash\Axivion_share\dashboard\config\cert\auto.crt
 )
-
+@SET AXIVION_BUILD_DIR=%~dp0\..\..\build\axivion
+@IF NOT EXIST %AXIVION_BUILD_DIR% (
+    @mkdir %AXIVION_BUILD_DIR%
+)
 @SET BAUHAUS_CONFIG=%~dp0
 @axivion_ci

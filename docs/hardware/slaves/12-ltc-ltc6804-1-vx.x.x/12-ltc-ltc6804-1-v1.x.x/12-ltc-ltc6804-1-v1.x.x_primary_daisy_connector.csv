@@ -1,0 +1,5 @@
+Pin;  Daisy Chain
+1;              |IN+| (Primary |ltc6804-1|)
+2;              |OUT-| (Primary |ltc6804-1|)
+3;              |IN-| (Primary |ltc6804-1|)
+4;              |OUT+| (Primary |ltc6804-1|)

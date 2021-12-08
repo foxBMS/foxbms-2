@@ -103,7 +103,7 @@ A receive queue called ``ftsk_canRxQueue`` is used as shown in
 :ref:`queue-can-receive-code-queue` and
 :ref:`queue-can-receive-code-vars`.
 
-.. literalinclude:: ./../../../../../src/app/task/ftask/ftask.c
+.. literalinclude:: ./../../../../../src/app/task/ftask/freertos/ftask_freertos.c
    :language: C
    :linenos:
    :start-after: /* INCLUDE MARKER FOR THE DOCUMENTATION; DO NOT MOVE can-documentation-rx-queue-handle-start-include */
@@ -111,7 +111,7 @@ A receive queue called ``ftsk_canRxQueue`` is used as shown in
    :caption: Queue handle for CAN receive
    :name: queue-can-receive-code-queue
 
-.. literalinclude:: ./../../../../../src/app/task/ftask/ftask.c
+.. literalinclude:: ./../../../../../src/app/task/ftask/freertos/ftask_freertos.c
    :language: C
    :linenos:
    :start-after: /* INCLUDE MARKER FOR THE DOCUMENTATION; DO NOT MOVE can-documentation-rx-queue-vars-start-include */

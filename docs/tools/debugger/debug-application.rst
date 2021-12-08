@@ -8,7 +8,9 @@ Debugging the Application
 #########################
 
 During development it is necessary to be able to deeply inspect internals
-of the BMS application. This is only possible through a debugger.
+of the BMS application.
+This is only possible through a debugger.
+Apart from that a debugger is a required tool for downloading code into the BMS.
 
 A debugger attaches to the microcontroller on the BMS which will be called
 `target` in the following text. The interface through which the connection

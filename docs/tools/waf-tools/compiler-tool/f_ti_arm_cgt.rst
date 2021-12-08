@@ -18,6 +18,7 @@ TI ARM CGT
     crl
     hexgen
     preproc
+    ppd
     ppi
     ppp
     rl

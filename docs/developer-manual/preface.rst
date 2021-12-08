@@ -38,6 +38,7 @@ Version control
 ---------------
 
 In order for changes to be traceable all changes in the |foxbms|-project
-**MUST** be under version control. We have chosen git for this task. The
-details of the development workflows are described in the respective
+**MUST** be under version control.
+We have chosen |git| for this task.
+The details of the development workflows are described in the respective
 developer manuals.

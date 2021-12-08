@@ -1,0 +1,6 @@
+GPIO;   connect to pin header;  connect to internal function
+1;      R209/R309;              R210/R310 (default)
+2;      R211/R311;              R212/R312 (default)
+3;      R213/R313;              R214/R314 (default)
+4;      R215/R315;              R216/R316 (default)
+5;      R217/R317;              R218/R318 (default)

@@ -49,6 +49,8 @@ import pathlib
 import subprocess
 import shutil
 
+SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
+
 
 def main():
     """This script tests our conda environment"""
@@ -58,7 +60,7 @@ def main():
         "--file",
         dest="file",
         action="store",
-        default="env_win32.json",
+        default=os.path.join(SCRIPT_DIR, f"conda_env_{sys.platform}.json"),
         help="Specify environment file to test against",
     )
     parser.add_argument(
@@ -80,7 +82,7 @@ def main():
 
     env_file = pathlib.Path(args.file)
     logging.info(env_file)
-    env_config = json.loads(env_file.read_text())
+    env_config = json.loads(env_file.read_text(encoding="utf-8"))
     logging.debug(env_config)
     conda = shutil.which("conda")
     logging.info(f"Conda instance at: {conda}")
@@ -92,15 +94,38 @@ def main():
     current_config = json.loads(p.communicate()[0])
     if not current_config == env_config:
         raise BaseException("Environments differ.")
-    script_dir = os.path.dirname(os.path.realpath(__file__))
-    test_scripts = [
-        os.path.join(script_dir, "packages", f"env_test_{i['name']}.py")
-        for i in env_config
-    ]
-    packages = pathlib.Path(os.path.join(script_dir, "packages")).as_posix()
+    test_scripts = []
+    for i in env_config:
+        tmp = os.path.join(SCRIPT_DIR, "packages", f"env_test_{i['name']}.py")
+        if not os.path.isfile(tmp):
+            tmp = os.path.join(
+                SCRIPT_DIR,
+                "packages",
+                f"env_test_{i['name']}_{sys.platform.lower()}.py",
+            )
+        if not os.path.isfile(tmp):
+            raise FileNotFoundError(f"Could not find expected test file'{tmp}'.")
+        test_scripts.append(tmp)
+    packages = pathlib.Path(os.path.join(SCRIPT_DIR, "packages")).as_posix()
     globbed_test_scripts = glob.glob(packages + "/env_test_**.py")
+    fixed_globbed_test_scripts = []
+    for i in globbed_test_scripts:
+        if sys.platform.lower() == "linux":
+            if not i.endswith("_win32.py"):
+                fixed_globbed_test_scripts.append(i)
+            else:
+                continue
+        elif sys.platform.lower() == "win32":
+            if not i.endswith("_linux.py"):
+                fixed_globbed_test_scripts.append(i)
+            else:
+                continue
+        else:
+            sys.exit("Unsupported platform.")
+        logging.debug(f"Added package '{i}.")
+
     stemmed_globbed_test_scripts = set(
-        map(lambda x: pathlib.Path(x).stem, globbed_test_scripts)
+        map(lambda x: pathlib.Path(x).stem, fixed_globbed_test_scripts)
     )
     stemmed_test_scripts = set(map(lambda x: pathlib.Path(x).stem, test_scripts))
     difference = stemmed_globbed_test_scripts.difference(stemmed_test_scripts)

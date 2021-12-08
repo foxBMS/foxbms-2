@@ -43,7 +43,7 @@
  * @file    sys_mon_cfg.c
  * @author  foxBMS Team
  * @date    2019-11-28 (date of creation)
- * @updated 2021-07-23 (date of last update)
+ * @updated 2021-11-10 (date of last update)
  * @ingroup ENGINE_CONFIGURATION
  * @prefix  SYSM
  *
@@ -60,7 +60,7 @@
 /*========== Static Constant and Variable Definitions =======================*/
 
 /*========== Static Function Prototypes =====================================*/
-static void SYSM_DummyCallback(SYSM_TASK_ID_e tsk_id);
+static void SYSM_DummyCallback(SYSM_TASK_ID_e taskId);
 
 /*========== Extern Constant and Variable Definitions =======================*/
 SYSM_MONITORING_CFG_s sysm_ch_cfg[] = {
@@ -108,7 +108,7 @@ SYSM_MONITORING_CFG_s sysm_ch_cfg[] = {
 /* this is a dummy implementation and not using the argument here is fine */
 #pragma diag_push
 #pragma diag_suppress 880
-void SYSM_DummyCallback(SYSM_TASK_ID_e tsk_id) {
+void SYSM_DummyCallback(SYSM_TASK_ID_e taskId) {
     /* Dummy function -> empty */
 }
 #pragma diag_pop
@@ -125,7 +125,7 @@ STD_RETURN_TYPE_e SYSM_Init(void) {
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
 #ifdef UNITY_UNIT_TEST
-void TEST_SYSM_DummyCallback(SYSM_TASK_ID_e tsk_id) {
-    return SYSM_DummyCallback(tsk_id);
+void TEST_SYSM_DummyCallback(SYSM_TASK_ID_e taskId) {
+    return SYSM_DummyCallback(taskId);
 }
 #endif

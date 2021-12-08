@@ -43,7 +43,7 @@
  * @file    ltc_defs.h
  * @author  foxBMS Team
  * @date    2015-09-01 (date of creation)
- * @updated 2015-09-01 (date of last update)
+ * @updated 2021-12-07 (date of last update)
  * @ingroup DRIVERS
  * @prefix  LTC
  *
@@ -102,13 +102,14 @@ typedef enum {
 /** Number of measured channels */
 typedef enum {
     LTC_ADCMEAS_UNDEFINED,              /*!< not defined                            */
-    LTC_ADCMEAS_ALLCHANNEL,             /*!< all ADC channels are measured          */
+    LTC_ADCMEAS_ALLCHANNEL_CELLS,       /*!< all cell voltages are measured          */
+    LTC_ADCMEAS_SINGLECHANNEL_TWOCELLS, /*!< only two cell voltages are measured */
+    LTC_ADCMEAS_ALLCHANNEL_GPIOS,       /*!< all GPIO voltages are measured          */
     LTC_ADCMEAS_SINGLECHANNEL_GPIO1,    /*!< only a single ADC channel (GPIO1) is measured  */
     LTC_ADCMEAS_SINGLECHANNEL_GPIO2,    /*!< only a single ADC channel (GPIO2) is measured  */
     LTC_ADCMEAS_SINGLECHANNEL_GPIO3,    /*!< only a single ADC channel (GPIO3) is measured  */
     LTC_ADCMEAS_SINGLECHANNEL_GPIO4,    /*!< only a single ADC channel (GPIO4) is measured  */
     LTC_ADCMEAS_SINGLECHANNEL_GPIO5,    /*!< only a single ADC channel (GPIO5) is measured  */
-    LTC_ADCMEAS_SINGLECHANNEL_TWOCELLS, /*!< only two cell voltages are measured */
     LTC_ADCMEAS_ALLCHANNEL_SC,          /*!< all ADC channels + sum of cells are measured   */
 } LTC_ADCMEAS_CHAN_e;
 

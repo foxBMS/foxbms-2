@@ -43,7 +43,7 @@
  * @file    test_os.c
  * @author  foxBMS Team
  * @date    2020-03-13 (date of creation)
- * @updated 2021-07-23 (date of last update)
+ * @updated 2021-12-01 (date of last update)
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  OS
  *
@@ -56,20 +56,28 @@
 #include "Mockftask.h"
 #include "Mockftask_cfg.h"
 #include "Mockportmacro.h"
+#include "Mockqueue.h"
 #include "Mocktask.h"
 
 #include "os.h"
+#include "test_assert_helper.h"
+
+TEST_FILE("os.c")
+TEST_FILE("os_freertos.c")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
+static OS_TIMER_s *test_timer;
 
 /*========== Setup and Teardown =============================================*/
 void setUp(void) {
+    test_timer = TEST_OS_GetOsTimer();
 }
 
 void tearDown(void) {
 }
 
 /*========== Test Cases =====================================================*/
+
 void testOSTaskInitCallsFTSKFunctions(void) {
     FTSK_CreateQueues_Expect();
     FTSK_CreateTasks_Expect();
@@ -79,131 +87,193 @@ void testOSTaskInitCallsFTSKFunctions(void) {
     TEST_ASSERT_EQUAL_INT8(OS_INIT_PRE_OS, os_boot);
 }
 
-void testvApplicationIdleHookCallsUserCodeIdle(void) {
-    FTSK_RunUserCodeIdle_Expect();
+void testOS_IncrementTimer(void) {
+    OS_TIMER_s testTimerExpected = {0u, 0u, 0u, 0u, 0u, 0u, 0u};
 
-    vApplicationIdleHook();
-}
-
-void testOS_TriggerTimer(void) {
-    OS_TIMER_s timer         = {0};
-    OS_TIMER_s timerExpected = {0};
-
-    /* First call of function -> expected value afterwards 1ms has passed */
-    OS_TriggerTimer(&timer);
-    timerExpected.timer_1ms = 1; /* Set expected value */
-    TEST_ASSERT_EQUAL_MEMORY(&timerExpected, &timer, sizeof(OS_TIMER_s));
+    OS_IncrementTimer();
+    /* Set expected value */
+    testTimerExpected.timer_1ms = 1u;
+    TEST_ASSERT_EQUAL_MEMORY(&testTimerExpected, test_timer, sizeof(OS_TIMER_s));
 
     /* Call trigger function 9 more times -> 9ms + 1ms have passed: 10ms in total */
     for (uint8_t i = 0; i < 9; i++) {
-        OS_TriggerTimer(&timer);
+        OS_IncrementTimer();
     }
-    timerExpected.timer_1ms  = 0; /* Set expected value */
-    timerExpected.timer_10ms = 1;
-    TEST_ASSERT_EQUAL_MEMORY(&timerExpected, &timer, sizeof(OS_TIMER_s));
+    /* Set expected value */
+    testTimerExpected.timer_1ms  = 0u;
+    testTimerExpected.timer_10ms = 1u;
+    TEST_ASSERT_EQUAL_MEMORY(&testTimerExpected, test_timer, sizeof(OS_TIMER_s));
 
     /* Set timer to 99ms and call trigger function one more time -> 100ms passed */
-    timer.timer_1ms  = 9;
-    timer.timer_10ms = 9;
-    OS_TriggerTimer(&timer);
-    timerExpected.timer_1ms   = 0; /* Set extpected value */
-    timerExpected.timer_10ms  = 0;
-    timerExpected.timer_100ms = 1;
-    TEST_ASSERT_EQUAL_MEMORY(&timerExpected, &timer, sizeof(OS_TIMER_s));
+    test_timer->timer_1ms  = 9u;
+    test_timer->timer_10ms = 9u;
+    OS_IncrementTimer();
+    /* Set extpected value */
+    testTimerExpected.timer_1ms   = 0u;
+    testTimerExpected.timer_10ms  = 0u;
+    testTimerExpected.timer_100ms = 1u;
+    TEST_ASSERT_EQUAL_MEMORY(&testTimerExpected, test_timer, sizeof(OS_TIMER_s));
 
     /* Set timer to 999ms and call trigger function one more time -> 1s passed */
-    timer.timer_1ms   = 9;
-    timer.timer_10ms  = 9;
-    timer.timer_100ms = 9;
-    timer.timer_sec   = 0;
-    timer.timer_min   = 0;
-    timer.timer_h     = 0;
-    timer.timer_d     = 0;
-    OS_TriggerTimer(&timer);
-    timerExpected.timer_1ms   = 0; /* Set extpected value */
-    timerExpected.timer_10ms  = 0;
-    timerExpected.timer_100ms = 0;
-    timerExpected.timer_sec   = 1;
-    timerExpected.timer_min   = 0;
-    timerExpected.timer_h     = 0;
-    timerExpected.timer_d     = 0;
-    TEST_ASSERT_EQUAL_MEMORY(&timerExpected, &timer, sizeof(OS_TIMER_s));
+    test_timer->timer_1ms   = 9u;
+    test_timer->timer_10ms  = 9u;
+    test_timer->timer_100ms = 9u;
+    test_timer->timer_sec   = 0u;
+    test_timer->timer_min   = 0u;
+    test_timer->timer_h     = 0u;
+    test_timer->timer_d     = 0u;
+    OS_IncrementTimer();
+    /* Set extpected value */
+    testTimerExpected.timer_1ms   = 0u;
+    testTimerExpected.timer_10ms  = 0u;
+    testTimerExpected.timer_100ms = 0u;
+    testTimerExpected.timer_sec   = 1u;
+    testTimerExpected.timer_min   = 0u;
+    testTimerExpected.timer_h     = 0u;
+    testTimerExpected.timer_d     = 0u;
+    TEST_ASSERT_EQUAL_MEMORY(&testTimerExpected, test_timer, sizeof(OS_TIMER_s));
 
     /* Set timer to 59.999s and call trigger function one more time -> 1min passed */
-    timer.timer_1ms   = 9;
-    timer.timer_10ms  = 9;
-    timer.timer_100ms = 9;
-    timer.timer_sec   = 59;
-    timer.timer_min   = 0;
-    timer.timer_h     = 0;
-    timer.timer_d     = 0;
-    OS_TriggerTimer(&timer);
-    timerExpected.timer_1ms   = 0; /* Set extpected value */
-    timerExpected.timer_10ms  = 0;
-    timerExpected.timer_100ms = 0;
-    timerExpected.timer_sec   = 0;
-    timerExpected.timer_min   = 1;
-    timerExpected.timer_h     = 0;
-    timerExpected.timer_d     = 0;
-    TEST_ASSERT_EQUAL_MEMORY(&timerExpected, &timer, sizeof(OS_TIMER_s));
+    test_timer->timer_1ms   = 9u;
+    test_timer->timer_10ms  = 9u;
+    test_timer->timer_100ms = 9u;
+    test_timer->timer_sec   = 59u;
+    test_timer->timer_min   = 0u;
+    test_timer->timer_h     = 0u;
+    test_timer->timer_d     = 0u;
+    OS_IncrementTimer();
+    /* Set extpected value */
+    testTimerExpected.timer_1ms   = 0u;
+    testTimerExpected.timer_10ms  = 0u;
+    testTimerExpected.timer_100ms = 0u;
+    testTimerExpected.timer_sec   = 0u;
+    testTimerExpected.timer_min   = 1u;
+    testTimerExpected.timer_h     = 0u;
+    testTimerExpected.timer_d     = 0u;
+    TEST_ASSERT_EQUAL_MEMORY(&testTimerExpected, test_timer, sizeof(OS_TIMER_s));
 
     /* Set timer to 59min 59.999s and call trigger function one more time -> 1h passed */
-    timer.timer_1ms   = 9;
-    timer.timer_10ms  = 9;
-    timer.timer_100ms = 9;
-    timer.timer_sec   = 59;
-    timer.timer_min   = 59;
-    timer.timer_h     = 0;
-    timer.timer_d     = 0;
-    OS_TriggerTimer(&timer);
-    timerExpected.timer_1ms   = 0; /* Set extpected value */
-    timerExpected.timer_10ms  = 0;
-    timerExpected.timer_100ms = 0;
-    timerExpected.timer_sec   = 0;
-    timerExpected.timer_min   = 0;
-    timerExpected.timer_h     = 1;
-    timerExpected.timer_d     = 0;
-    TEST_ASSERT_EQUAL_MEMORY(&timerExpected, &timer, sizeof(OS_TIMER_s));
+    test_timer->timer_1ms   = 9u;
+    test_timer->timer_10ms  = 9u;
+    test_timer->timer_100ms = 9u;
+    test_timer->timer_sec   = 59u;
+    test_timer->timer_min   = 59u;
+    test_timer->timer_h     = 0u;
+    test_timer->timer_d     = 0u;
+    OS_IncrementTimer();
+    /* Set extpected value */
+    testTimerExpected.timer_1ms   = 0u;
+    testTimerExpected.timer_10ms  = 0u;
+    testTimerExpected.timer_100ms = 0u;
+    testTimerExpected.timer_sec   = 0u;
+    testTimerExpected.timer_min   = 0u;
+    testTimerExpected.timer_h     = 1u;
+    testTimerExpected.timer_d     = 0u;
+    TEST_ASSERT_EQUAL_MEMORY(&testTimerExpected, test_timer, sizeof(OS_TIMER_s));
 
     /* Set timer to 59h 59min 59.999s and call trigger function one more time -> 1d passed */
-    timer.timer_1ms   = 9;
-    timer.timer_10ms  = 9;
-    timer.timer_100ms = 9;
-    timer.timer_sec   = 59;
-    timer.timer_min   = 59;
-    timer.timer_h     = 59;
-    timer.timer_d     = 0;
-    OS_TriggerTimer(&timer);
-    timerExpected.timer_1ms   = 0; /* Set extpected value */
-    timerExpected.timer_10ms  = 0;
-    timerExpected.timer_100ms = 0;
-    timerExpected.timer_sec   = 0;
-    timerExpected.timer_min   = 0;
-    timerExpected.timer_h     = 0;
-    timerExpected.timer_d     = 1;
-    TEST_ASSERT_EQUAL_MEMORY(&timerExpected, &timer, sizeof(OS_TIMER_s));
+    test_timer->timer_1ms   = 9u;
+    test_timer->timer_10ms  = 9u;
+    test_timer->timer_100ms = 9u;
+    test_timer->timer_sec   = 59u;
+    test_timer->timer_min   = 59u;
+    test_timer->timer_h     = 23u;
+    test_timer->timer_d     = 0u;
+    OS_IncrementTimer();
+    /* Set extpected value */
+    testTimerExpected.timer_1ms   = 0u;
+    testTimerExpected.timer_10ms  = 0u;
+    testTimerExpected.timer_100ms = 0u;
+    testTimerExpected.timer_sec   = 0u;
+    testTimerExpected.timer_min   = 0u;
+    testTimerExpected.timer_h     = 0u;
+    testTimerExpected.timer_d     = 1u;
+    TEST_ASSERT_EQUAL_MEMORY(&testTimerExpected, test_timer, sizeof(OS_TIMER_s));
 }
 
 void testOS_TriggerTimerOverflow(void) {
     /* checks whether the overflow of the timer is sanely handled. */
-    OS_TIMER_s timer         = {0};
-    OS_TIMER_s timerExpected = {0};
+    OS_TIMER_s testTimerExpected = {0u, 0u, 0u, 0u, 0u, 0u, 0u};
 
     /* Set timer to last tick before overflow and call trigger function one more time */
-    timer.timer_1ms   = 9;
-    timer.timer_10ms  = 9;
-    timer.timer_100ms = 9;
-    timer.timer_sec   = 59;
-    timer.timer_min   = 59;
-    timer.timer_h     = 23;
-    timer.timer_d     = UINT16_MAX;
-    OS_TriggerTimer(&timer);
-    timerExpected.timer_1ms   = 0; /* Set extpected value */
-    timerExpected.timer_10ms  = 0;
-    timerExpected.timer_100ms = 0;
-    timerExpected.timer_sec   = 0;
-    timerExpected.timer_min   = 0;
-    timerExpected.timer_h     = 0;
-    timerExpected.timer_d     = 0;
-    TEST_ASSERT_EQUAL_MEMORY(&timerExpected, &timer, sizeof(OS_TIMER_s));
+    test_timer->timer_1ms   = 9u;
+    test_timer->timer_10ms  = 9u;
+    test_timer->timer_100ms = 9u;
+    test_timer->timer_sec   = 59u;
+    test_timer->timer_min   = 59u;
+    test_timer->timer_h     = 23u;
+    test_timer->timer_d     = UINT16_MAX;
+    OS_IncrementTimer();
+    /* Set extpected value */
+    testTimerExpected.timer_1ms   = 0u;
+    testTimerExpected.timer_10ms  = 0u;
+    testTimerExpected.timer_100ms = 0u;
+    testTimerExpected.timer_sec   = 0u;
+    testTimerExpected.timer_min   = 0u;
+    testTimerExpected.timer_h     = 0u;
+    testTimerExpected.timer_d     = 0u;
+    TEST_ASSERT_EQUAL_MEMORY(&testTimerExpected, test_timer, sizeof(OS_TIMER_s));
+}
+
+/** when no time shall pass, the result of #OS_CheckTimeHasPassed() will always be true, independent of the time */
+void testOS_CheckTimeHasPassedNoTime(void) {
+    xTaskGetTickCount_ExpectAndReturn(0u);
+    TEST_ASSERT_EQUAL(true, OS_CheckTimeHasPassed(0u, 0u));
+
+    xTaskGetTickCount_ExpectAndReturn(100u);
+    TEST_ASSERT_EQUAL(true, OS_CheckTimeHasPassed(0u, 0u));
+
+    xTaskGetTickCount_ExpectAndReturn(UINT32_MAX);
+    TEST_ASSERT_EQUAL(true, OS_CheckTimeHasPassed(0u, 0u));
+
+    xTaskGetTickCount_ExpectAndReturn(0u);
+    TEST_ASSERT_EQUAL(true, OS_CheckTimeHasPassed(0u, 0u));
+
+    xTaskGetTickCount_ExpectAndReturn(0u);
+    TEST_ASSERT_EQUAL(true, OS_CheckTimeHasPassed(100u, 0u));
+
+    xTaskGetTickCount_ExpectAndReturn(0u);
+    TEST_ASSERT_EQUAL(true, OS_CheckTimeHasPassed(UINT32_MAX, 0u));
+}
+
+/** check for when 1ms shall pass with #OS_CheckTimeHasPassed() */
+void testOS_CheckTimeHasPassed1ms(void) {
+    xTaskGetTickCount_ExpectAndReturn(0u);
+    TEST_ASSERT_EQUAL(false, OS_CheckTimeHasPassed(0u, 1u));
+
+    xTaskGetTickCount_ExpectAndReturn(0u);
+    TEST_ASSERT_EQUAL(true, OS_CheckTimeHasPassed(1u, 1u));
+}
+
+/** check behavior before the wraparound of the timestamp for when 1ms shall pass with #OS_CheckTimeHasPassed() */
+void testOS_CheckTimeHasPassedTimestampAtMax1ms(void) {
+    xTaskGetTickCount_ExpectAndReturn(UINT32_MAX);
+    TEST_ASSERT_EQUAL(false, OS_CheckTimeHasPassed(UINT32_MAX, 1u));
+
+    xTaskGetTickCount_ExpectAndReturn(UINT32_MAX);
+    TEST_ASSERT_EQUAL(true, OS_CheckTimeHasPassed((UINT32_MAX - 1u), 1u));
+}
+
+/** check behavior around the wraparound of the timestamp for when 1ms shall pass with #OS_CheckTimeHasPassed() */
+void testOS_CheckTimeHasPassedTimestampAroundMax1ms(void) {
+    xTaskGetTickCount_ExpectAndReturn(0u);
+    TEST_ASSERT_EQUAL(true, OS_CheckTimeHasPassed(UINT32_MAX, 1u));
+}
+
+/** check behavior for the largest time step possible in #OS_CheckTimeHasPassed() */
+void testOS_CheckTimeHasPassedUINT32_MAXms(void) {
+    /* edge case: it is to be assumed that here rather no time has passed */
+    xTaskGetTickCount_ExpectAndReturn(0u);
+    TEST_ASSERT_EQUAL(false, OS_CheckTimeHasPassed(0u, UINT32_MAX));
+
+    xTaskGetTickCount_ExpectAndReturn(1u);
+    TEST_ASSERT_EQUAL(false, OS_CheckTimeHasPassed(0u, UINT32_MAX));
+
+    xTaskGetTickCount_ExpectAndReturn(UINT32_MAX);
+    TEST_ASSERT_EQUAL(true, OS_CheckTimeHasPassed(0u, UINT32_MAX));
+}
+
+/** check that the selftest passes */
+void testOS_CheckTimeHasPassedSelfTestSuccessful(void) {
+    TEST_ASSERT_EQUAL(STD_OK, OS_CheckTimeHasPassedSelfTest());
 }

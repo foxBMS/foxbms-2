@@ -8,11 +8,13 @@ NXP MC33775A
 
 ..
     Comments:
+    IC is used in this document for AFEs
     xC is a prefix in some numbers
     FFF is part of a number
     Tx is an abbreviation for transmit
 
 .. spelling::
+    IC
     xC
     FFF
     Tx
@@ -328,7 +330,8 @@ Measurements are made on the secondary line. The results are available after 24 
 Measurement possibilities for primary and secondary
 ***************************************************
 
-The following table sums up which inputs can ne measured by primary and secondary and with which method.
+The following table sums up which inputs can be measured by primary and
+secondary and with which method.
 
 +----------+-------------------------+-------------+-------------+----------+---------+
 |           Measurement sources and measurement types                                 |

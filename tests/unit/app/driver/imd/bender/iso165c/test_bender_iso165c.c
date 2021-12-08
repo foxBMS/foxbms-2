@@ -43,7 +43,7 @@
  * @file    test_bender_iso165c.c
  * @author  foxBMS Team
  * @date    2021-01-19 (date of creation)
- * @updated 2021-07-23 (date of last update)
+ * @updated 2021-12-01 (date of last update)
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -101,6 +101,7 @@ void testMessageComposition(void) {
     /* Do as if there is a message in the queue */
     MPU_uxQueueMessagesWaiting_IgnoreAndReturn(1u);
     MPU_xQueueReceive_IgnoreAndReturn(1u);
+    OS_ReceiveFromQueue_IgnoreAndReturn(OS_SUCCESS);
 
     canMessage.id = 0x22u;
     for (uint8_t i = 1u; i <= 8u; i++) {

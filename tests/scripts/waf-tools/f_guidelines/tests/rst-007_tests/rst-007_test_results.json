@@ -2,7 +2,7 @@
     "rst_007_test0.rst": [],
     "rst_007_test1.rst": [
         [
-            "Caption RESTRUCTUREDTEXT CODING Wrong was not found",
+            "Caption RESTRUCTUREDTEXT_CODING_WRONG was not found",
             0
         ]
     ],
@@ -20,7 +20,7 @@
     ],
     "rst_007_test4.rst": [
         [
-            "The caption RESTRUCTUREDTEXT CODING GUIDELINES was not found two lines after the file label",
+            "The caption RESTRUCTUREDTEXT_CODING_GUIDELINES was not found two lines after the file label",
             7
         ]
     ],
@@ -30,7 +30,7 @@
             5
         ],
         [
-            "The caption RESTRUCTUREDTEXT CODING GUIDELINES was not found three lines after the file label",
+            "The caption RESTRUCTUREDTEXT_CODING_GUIDELINES was not found three lines after the file label",
             6
         ]
     ],
@@ -58,7 +58,7 @@
             0
         ],
         [
-            "The caption RESTRUCTUREDTEXT CODING GUIDELINES was not found two lines after the file label",
+            "The caption RESTRUCTUREDTEXT_CODING_GUIDELINES was not found two lines after the file label",
             8
         ],
         [

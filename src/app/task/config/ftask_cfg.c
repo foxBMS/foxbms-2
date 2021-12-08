@@ -43,7 +43,7 @@
  * @file    ftask_cfg.c
  * @author  foxBMS Team
  * @date    2019-08-26 (date of creation)
- * @updated 2021-09-30 (date of last update)
+ * @updated 2021-11-09 (date of last update)
  * @ingroup TASK_CONFIGURATION
  * @prefix  FTSK
  *
@@ -102,25 +102,36 @@
  * @warning Do not change the configuration of this task. This will very
  *          likely break the system.
  */
-OS_TASK_DEFINITION_s ftsk_taskDefinitionEngine =
-    {FTSK_TASK_ENGINE_PHASE, FTSK_TASK_ENGINE_CYCLE_TIME, OS_PRIORITY_REAL_TIME, FTSK_TASK_ENGINE_STACK_SIZE};
+OS_TASK_DEFINITION_s ftsk_taskDefinitionEngine = {
+    OS_PRIORITY_REAL_TIME,
+    FTSK_TASK_ENGINE_PHASE,
+    FTSK_TASK_ENGINE_CYCLE_TIME,
+    FTSK_TASK_ENGINE_STACK_SIZE,
+    FTSK_TASK_ENGINE_PV_PARAMETERS};
 OS_TASK_DEFINITION_s ftsk_taskDefinitionCyclic1ms = {
+    OS_PRIORITY_ABOVE_HIGH,
     FTSK_TASK_CYCLIC_1MS_PHASE,
     FTSK_TASK_CYCLIC_1MS_CYCLE_TIME,
-    OS_PRIORITY_ABOVE_HIGH,
-    FTSK_TASK_CYCLIC_1MS_STACK_SIZE};
-OS_TASK_DEFINITION_s ftsk_taskDefinitionCyclic10ms =
-    {FTSK_TASK_CYCLIC_10MS_PHASE, FTSK_TASK_CYCLIC_10MS_CYCLE_TIME, OS_PRIORITY_HIGH, FTSK_TASK_CYCLIC_10MS_STACK_SIZE};
+    FTSK_TASK_CYCLIC_1MS_STACK_SIZE,
+    FTSK_TASK_CYCLIC_1MS_PV_PARAMETERS};
+OS_TASK_DEFINITION_s ftsk_taskDefinitionCyclic10ms = {
+    OS_PRIORITY_HIGH,
+    FTSK_TASK_CYCLIC_10MS_PHASE,
+    FTSK_TASK_CYCLIC_10MS_CYCLE_TIME,
+    FTSK_TASK_CYCLIC_10MS_STACK_SIZE,
+    FTSK_TASK_CYCLIC_10MS_PV_PARAMETERS};
 OS_TASK_DEFINITION_s ftsk_taskDefinitionCyclic100ms = {
+    OS_PRIORITY_ABOVE_NORMAL,
     FTSK_TASK_CYCLIC_100MS_PHASE,
     FTSK_TASK_CYCLIC_100MS_CYCLE_TIME,
-    OS_PRIORITY_ABOVE_NORMAL,
-    FTSK_TASK_CYCLIC_100MS_STACK_SIZE};
+    FTSK_TASK_CYCLIC_100MS_STACK_SIZE,
+    FTSK_TASK_CYCLIC_100MS_PV_PARAMETERS};
 OS_TASK_DEFINITION_s ftsk_taskDefinitionCyclicAlgorithm100ms = {
+    OS_PRIORITY_NORMAL,
     FTSK_TASK_CYCLIC_ALGORITHM_100MS_PHASE,
     FTSK_TASK_CYCLIC_ALGORITHM_100MS_CYCLE_TIME,
-    OS_PRIORITY_NORMAL,
-    FTSK_TASK_CYCLIC_ALGORITHM_100MS_STACKSIZE};
+    FTSK_TASK_CYCLIC_ALGORITHM_100MS_STACKSIZE,
+    FTSK_TASK_CYCLIC_ALGORITHM_100MS_PV_PARAMETERS};
 
 /*========== Static Function Prototypes =====================================*/
 
@@ -195,7 +206,7 @@ extern void FTSK_InitializeUserCodePreCyclicTasks(void) {
 extern void FTSK_RunUserCodeCyclic1ms(void) {
     /* Increment of operating system timer */
     /* This must not be changed, add user code only below */
-    OS_TriggerTimer(&os_timer);
+    OS_IncrementTimer();
     DIAG_UpdateFlags();
     /* user code */
     MEAS_Control();
@@ -203,7 +214,7 @@ extern void FTSK_RunUserCodeCyclic1ms(void) {
 }
 
 extern void FTSK_RunUserCodeCyclic10ms(void) {
-    static uint8_t cnt = 0;
+    static uint8_t ftsk_cyclic10msCounter = 0;
     /* user code */
     SYS_Trigger(&sys_state);
     BMS_Trigger();
@@ -216,12 +227,12 @@ extern void FTSK_RunUserCodeCyclic10ms(void) {
     SBC_Trigger(&sbc_stateMcuSupervisor);
     PEX_Trigger();
     HTSEN_Trigger();
-    if (cnt == TASK_10MS_COUNTER_FOR_50MS) {
+    if (ftsk_cyclic10msCounter == TASK_10MS_COUNTER_FOR_50MS) {
         MRC_ValidateAfeMeasurement();
         MRC_ValidatePackMeasurement();
-        cnt = 0;
+        ftsk_cyclic10msCounter = 0;
     }
-    cnt++;
+    ftsk_cyclic10msCounter++;
 }
 
 extern void FTSK_RunUserCodeCyclic100ms(void) {

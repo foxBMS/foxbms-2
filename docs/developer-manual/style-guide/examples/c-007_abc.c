@@ -42,7 +42,7 @@
 #include "c-007_abc.h"
 
 #include "FreeRTOS.h"
-#include "task.h"
+#include "queue.h"
 
 #include "first_used_header_1.h"
 #include "second_used_header.h"

@@ -1,0 +1,9 @@
+Pin;    Signal;             Direction;       Description
+1;      PRIMARY-GPIO6;      Input/Output;    Primary |ltc6813-1| GPIO6
+2;      SECONDARY-GPIO6;    Input/Output;    Secondary |ltc6813-1| GPIO6
+3;      PRIMARY-GPIO7;      Input/Output;    Primary |ltc6813-1| GPIO7
+4;      SECONDARY-GPIO7;    Input/Output;    Secondary |ltc6813-1| GPIO7
+5;      PRIMARY-GPIO8;      Input/Output;    Primary |ltc6813-1| GPIO8
+6;      SECONDARY-GPIO8;    Input/Output;    Secondary |ltc6813-1| GPIO8
+7;      PRIMARY-GPIO9;      Input/Output;    Primary |ltc6813-1| GPIO9
+8;      SECONDARY-GPIO9;    Input/Output;    Secondary |ltc6813-1| GPIO9

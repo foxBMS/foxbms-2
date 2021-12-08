@@ -190,7 +190,7 @@ void testInitializeStatemachine(void) {
 
     TEST_ASSERT_EQUAL(ILCK_OK, ILCK_SetStateRequest(ILCK_STATE_INITIALIZATION_REQUEST));
 
-    IO_PinGet_IgnoreAndReturn(0u);
+    IO_PinGet_IgnoreAndReturn(STD_PIN_LOW);
     DIAG_Handler_IgnoreAndReturn(DIAG_HANDLER_RETURN_OK);
 
     for (uint8_t i = 0u; i < 10; i++) {
@@ -230,7 +230,7 @@ void testILCK_GetInterlockFeedbackFeedbackOn(void) {
     /* set the return value to 1, which means interlock on */
     IO_PinSet_Ignore();
     IO_PinReset_Ignore();
-    IO_PinGet_ExpectAndReturn(&ILCK_IO_REG_PORT->DIN, ILCK_INTERLOCK_FEEDBACK_PIN_IL_STATE, 0u);
+    IO_PinGet_ExpectAndReturn(&ILCK_IO_REG_PORT->DIN, ILCK_INTERLOCK_FEEDBACK_PIN_IL_STATE, STD_PIN_LOW);
     /* gioGetBit_ExpectAndReturn(ILCK_IO_REG, ILCK_INTERLOCK_FEEDBACK, 1u); */
     DATA_Read_1_DataBlock_IgnoreAndReturn(STD_OK);
     DATA_Write_1_DataBlock_IgnoreAndReturn(STD_OK);
@@ -247,7 +247,7 @@ void testILCK_GetInterlockFeedbackFeedbackOff(void) {
     IO_PinSet_Ignore();
     IO_PinReset_Ignore();
     /* set the return value to 0, which means interlock off */
-    IO_PinGet_ExpectAndReturn(&ILCK_IO_REG_PORT->DIN, ILCK_INTERLOCK_FEEDBACK_PIN_IL_STATE, 1u);
+    IO_PinGet_ExpectAndReturn(&ILCK_IO_REG_PORT->DIN, ILCK_INTERLOCK_FEEDBACK_PIN_IL_STATE, STD_PIN_HIGH);
     /* gioGetBit_ExpectAndReturn(ILCK_IO_REG, ILCK_INTERLOCK_FEEDBACK, 0u); */
     DATA_Read_1_DataBlock_IgnoreAndReturn(STD_OK);
     DATA_Write_1_DataBlock_IgnoreAndReturn(STD_OK);

@@ -43,7 +43,7 @@
  * @file    test_mxm_battery_management.c
  * @author  foxBMS Team
  * @date    2020-07-02 (date of creation)
- * @updated 2020-07-02 (date of last update)
+ * @updated 2021-12-06 (date of last update)
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  MXM
  *
@@ -60,11 +60,11 @@
 #include "Mockmxm_41b_register_map.h"
 #include "Mockmxm_cfg.h"
 #include "Mockmxm_crc8.h"
+#include "Mockos.h"
 
 #include "mxm_battery_management.h"
 
 /*========== Definitions and Implementations for Unit Test ==================*/
-const uint8_t mxm_kConfig3KeepAlive160us41BRegister = 0x05;
 
 /*========== Setup and Teardown =============================================*/
 void setUp(void) {

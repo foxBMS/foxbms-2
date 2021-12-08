@@ -43,7 +43,7 @@
  * @file    fsystem.h
  * @author  foxBMS Team
  * @date    2020-07-21 (date of creation)
- * @updated 2020-07-21 (date of last update)
+ * @updated 2021-11-10 (date of last update)
  * @ingroup SYSTEM
  * @prefix  FSYS
  *
@@ -94,8 +94,10 @@
  *          platform and compiler.
  * @return  return value is zero if caller was in user mode (type: long)
  */
+/* AXIVION Disable Style MisraC2012Directive-4.1: Function is implemented in Assembler see swiRaisePrivilege */
 #pragma SWI_ALIAS(FSYS_RaisePrivilege, 1);
 extern long FSYS_RaisePrivilege(void);
+/* AXIVION Enable Style MisraC2012Directive-4.1: */
 
 /**
  * @def     FSYS_SwitchToUserMode()

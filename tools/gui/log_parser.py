@@ -235,7 +235,7 @@ class LogParserFrame(wx.Frame):  # pylint: disable=too-many-ancestors
 
     def get_log_type(self):
         """check the file type and the header to find get the log type"""
-        with open(self.logfield.GetValue(), "r") as trace_template:
+        with open(self.logfield.GetValue(), "r", encoding="utf-8") as trace_template:
             file_type = os.path.splitext(self.logfield.GetValue())[1]
             header = []
             for _ in range(16):
@@ -301,7 +301,7 @@ class LogParserFrame(wx.Frame):  # pylint: disable=too-many-ancestors
         mdb.add_dbc_file(self.dbc_file_input.GetValue())
         units = []
         # Get the data of all selected signals
-        with open(self.logfield.GetValue(), "r") as trace_template:
+        with open(self.logfield.GetValue(), "r", encoding="utf-8") as trace_template:
             for checked_signal in self.clb_select_sig.GetCheckedStrings():
 
                 # get signal and signal id
@@ -362,7 +362,7 @@ class LogParserFrame(wx.Frame):  # pylint: disable=too-many-ancestors
         mdb.add_dbc_file(self.dbc_file_input.GetValue())
         units = []
         # Get the data of all selected signals
-        with open(self.logfield.GetValue(), "r") as trace_template:
+        with open(self.logfield.GetValue(), "r", encoding="utf-8") as trace_template:
             for checked_signal in self.clb_select_sig.GetCheckedStrings():
 
                 # get signal and signal id
@@ -422,7 +422,7 @@ class LogParserFrame(wx.Frame):  # pylint: disable=too-many-ancestors
         mdb.add_dbc_file(self.dbc_file_input.GetValue())
         units = []
         # Get the data of all selected signals
-        with open(self.logfield.GetValue(), "r") as trace_template:
+        with open(self.logfield.GetValue(), "r", encoding="utf-8") as trace_template:
             for checked_signal in self.clb_select_sig.GetCheckedStrings():
 
                 # get signal and signal id

@@ -43,7 +43,7 @@
  * @file    afe_dma.h
  * @author  foxBMS Team
  * @date    2020-06-18 (date of creation)
- * @updated 2020-06-18 (date of last update)
+ * @updated 2021-12-08 (date of last update)
  * @ingroup DRIVERS
  * @prefix  AFE
  *
@@ -64,10 +64,9 @@
 /*========== Extern Function Prototypes =====================================*/
 /**
  * @brief   Function called by DMA block transfer callback.
- * @param   inttype    type of DMA interrupt (e.g., block, frame)
- * @param   channel    DMA channel that caused the interrupt
+ * @param   spiIndex    index of SPI interface in use with DMA
  */
-void AFE_DmaCallback(dmaInterrupt_t inttype, uint32 channel);
+void AFE_DmaCallback(uint8_t spiIndex);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 

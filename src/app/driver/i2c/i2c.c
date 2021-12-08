@@ -43,7 +43,7 @@
  * @file    i2c.c
  * @author  foxBMS Team
  * @date    2021-07-22 (date of creation)
- * @updated 2021-09-29 (date of last update)
+ * @updated 2021-12-08 (date of last update)
  * @ingroup DRIVERS
  * @prefix  I2C
  *
@@ -79,7 +79,7 @@ extern STD_RETURN_TYPE_e I2C_Read(uint32_t slaveAddress, uint8_t readAddress, ui
     FAS_ASSERT(readData != NULL_PTR);
 
     STD_RETURN_TYPE_e retVal = STD_OK;
-    uint16_t timeout         = I2C_TIMEOUT;
+    uint16_t timeout         = I2C_TIMEOUT_ITERATIONS;
     bool nack                = false;
     uint8_t *data            = readData;
     uint32_t count           = nrBytes;
@@ -100,7 +100,7 @@ extern STD_RETURN_TYPE_e I2C_Read(uint32_t slaveAddress, uint8_t readAddress, ui
         i2cREG1->DXR = (uint32_t)readAddress;                /* Send register address */
 
         /* Wait until Tx buffer was copied to shift buffer */
-        timeout = I2C_TIMEOUT;
+        timeout = I2C_TIMEOUT_ITERATIONS;
         while (((i2cREG1->STR & (uint32_t)I2C_TX_INT) == 0u) && (timeout > 0u)) {
             if ((i2cREG1->STR & (uint32_t)I2C_NACK) != 0u) {
                 nack = true;
@@ -114,7 +114,7 @@ extern STD_RETURN_TYPE_e I2C_Read(uint32_t slaveAddress, uint8_t readAddress, ui
             i2cREG1->MDR |= (uint32_t)I2C_REPEATMODE;
             /* Set Stop condition */
             i2cSetStop(i2cREG1);
-            timeout = I2C_TIMEOUT;
+            timeout = I2C_TIMEOUT_ITERATIONS;
             while ((i2cIsStopDetected(i2cREG1) == 0u) && (timeout > 0u)) {
                 timeout--;
             }
@@ -130,7 +130,7 @@ extern STD_RETURN_TYPE_e I2C_Read(uint32_t slaveAddress, uint8_t readAddress, ui
 
                 /* Receive nrBytes bytes in polling mode */
                 while (count > 0u) {
-                    timeout = I2C_TIMEOUT;
+                    timeout = I2C_TIMEOUT_ITERATIONS;
                     while (((i2cREG1->STR & (uint32_t)I2C_RX_INT) == 0u) && (timeout > 0u)) {
                         if ((i2cREG1->STR & (uint32_t)I2C_NACK_INT) != 0u) {
                             nack = true;
@@ -150,14 +150,14 @@ extern STD_RETURN_TYPE_e I2C_Read(uint32_t slaveAddress, uint8_t readAddress, ui
                     i2cREG1->MDR |= (uint32_t)I2C_REPEATMODE;
                     /* Set Stop condition */
                     i2cSetStop(i2cREG1);
-                    timeout = I2C_TIMEOUT;
+                    timeout = I2C_TIMEOUT_ITERATIONS;
                     while ((i2cIsStopDetected(i2cREG1) == 0u) && (timeout > 0u)) {
                         timeout--;
                     }
                     retVal = STD_NOT_OK;
                 } else {
                     /* Wait until Stop is detected */
-                    timeout = I2C_TIMEOUT;
+                    timeout = I2C_TIMEOUT_ITERATIONS;
                     while ((i2cIsStopDetected(i2cREG1) == 0u) && (timeout > 0u)) {
                         timeout--;
                     }
@@ -184,7 +184,7 @@ extern STD_RETURN_TYPE_e I2C_ReadDirect(uint32_t slaveAddress, uint32_t nrBytes,
     FAS_ASSERT(readData != NULL_PTR);
 
     STD_RETURN_TYPE_e retVal = STD_OK;
-    uint16_t timeout         = I2C_TIMEOUT;
+    uint16_t timeout         = I2C_TIMEOUT_ITERATIONS;
     bool nack                = false;
     uint8_t *data            = readData;
     uint32_t count           = nrBytes;
@@ -208,7 +208,7 @@ extern STD_RETURN_TYPE_e I2C_ReadDirect(uint32_t slaveAddress, uint32_t nrBytes,
 
         /* Receive nrBytes bytes in polling mode */
         while (count > 0u) {
-            timeout = I2C_TIMEOUT;
+            timeout = I2C_TIMEOUT_ITERATIONS;
             while (((i2cREG1->STR & (uint32_t)I2C_RX_INT) == 0u) && (timeout > 0u)) {
                 if ((i2cREG1->STR & (uint32_t)I2C_NACK_INT) != 0u) {
                     nack = true;
@@ -228,14 +228,14 @@ extern STD_RETURN_TYPE_e I2C_ReadDirect(uint32_t slaveAddress, uint32_t nrBytes,
             i2cREG1->MDR |= (uint32_t)I2C_REPEATMODE;
             /* Set Stop condition */
             i2cSetStop(i2cREG1);
-            timeout = I2C_TIMEOUT;
+            timeout = I2C_TIMEOUT_ITERATIONS;
             while ((i2cIsStopDetected(i2cREG1) == 0u) && (timeout > 0u)) {
                 timeout--;
             }
             retVal = STD_NOT_OK;
         } else {
             /* Wait until Stop is detected */
-            timeout = I2C_TIMEOUT;
+            timeout = I2C_TIMEOUT_ITERATIONS;
             while ((i2cIsStopDetected(i2cREG1) == 0u) && (timeout > 0u)) {
                 timeout--;
             }
@@ -257,7 +257,7 @@ extern STD_RETURN_TYPE_e I2C_Write(uint32_t slaveAddress, uint8_t writeAddress, 
     FAS_ASSERT(writeData != NULL_PTR);
 
     STD_RETURN_TYPE_e retVal = STD_OK;
-    uint16_t timeout         = I2C_TIMEOUT;
+    uint16_t timeout         = I2C_TIMEOUT_ITERATIONS;
     bool nack                = false;
     uint8_t *data            = writeData;
     uint32_t count           = nrBytes;
@@ -280,7 +280,7 @@ extern STD_RETURN_TYPE_e I2C_Write(uint32_t slaveAddress, uint8_t writeAddress, 
         /*  Send register address */
         i2cREG1->DXR = (uint32_t)writeAddress;
         /* Wait until Tx buffer was copied to shift buffer */
-        timeout = I2C_TIMEOUT;
+        timeout = I2C_TIMEOUT_ITERATIONS;
         while (((i2cREG1->STR & (uint32_t)I2C_TX_INT) == 0u) && (timeout > 0u)) {
             if ((i2cREG1->STR & (uint32_t)I2C_NACK) != 0u) {
                 nack = true;
@@ -293,7 +293,7 @@ extern STD_RETURN_TYPE_e I2C_Write(uint32_t slaveAddress, uint8_t writeAddress, 
             i2cREG1->MDR |= (uint32_t)I2C_REPEATMODE; /* Set repeat flag */
             i2cSetStop(i2cREG1);                      /* Set Stop condition */
 
-            timeout = I2C_TIMEOUT;
+            timeout = I2C_TIMEOUT_ITERATIONS;
             while ((i2cIsStopDetected(i2cREG1) == 0u) && (timeout > 0u)) {
                 timeout--;
             }
@@ -304,7 +304,7 @@ extern STD_RETURN_TYPE_e I2C_Write(uint32_t slaveAddress, uint8_t writeAddress, 
                 /* Send nrBytes bytes in polling mode */
                 while (count > 0u) {
                     /* Wait until Tx buffer was copied to shift buffer */
-                    timeout = I2C_TIMEOUT;
+                    timeout = I2C_TIMEOUT_ITERATIONS;
                     while (((i2cREG1->STR & (uint32_t)I2C_TX_INT) == 0u) && (timeout > 0u)) {
                         if ((i2cREG1->STR & (uint32_t)I2C_NACK) != 0u) {
                             nack = true;
@@ -323,14 +323,14 @@ extern STD_RETURN_TYPE_e I2C_Write(uint32_t slaveAddress, uint8_t writeAddress, 
                     i2cREG1->MDR |= (uint32_t)I2C_REPEATMODE; /* Set repeat flag */
                     i2cSetStop(i2cREG1);                      /* Set Stop condition */
 
-                    timeout = I2C_TIMEOUT;
+                    timeout = I2C_TIMEOUT_ITERATIONS;
                     while ((i2cIsStopDetected(i2cREG1) == 0u) && (timeout > 0u)) {
                         timeout--;
                     }
                     retVal = STD_NOT_OK;
                 } else {
                     /* Wait until Stop is detected */
-                    timeout = I2C_TIMEOUT;
+                    timeout = I2C_TIMEOUT_ITERATIONS;
                     while ((i2cIsStopDetected(i2cREG1) == 0u) && (timeout > 0u)) {
                         timeout--;
                     }
@@ -357,7 +357,7 @@ extern STD_RETURN_TYPE_e I2C_WriteDirect(uint32_t slaveAddress, uint32_t nrBytes
     FAS_ASSERT(writeData != NULL_PTR);
 
     STD_RETURN_TYPE_e retVal = STD_OK;
-    uint16_t timeout         = I2C_TIMEOUT;
+    uint16_t timeout         = I2C_TIMEOUT_ITERATIONS;
     bool nack                = false;
     uint8_t *data            = writeData;
     uint32_t count           = nrBytes;
@@ -382,7 +382,7 @@ extern STD_RETURN_TYPE_e I2C_WriteDirect(uint32_t slaveAddress, uint32_t nrBytes
             /* Send nrBytes bytes in polling mode */
             while (count > 0u) {
                 /* Wait until Tx buffer was copied to shift buffer */
-                timeout = I2C_TIMEOUT;
+                timeout = I2C_TIMEOUT_ITERATIONS;
                 while (((i2cREG1->STR & (uint32_t)I2C_TX_INT) == 0u) && (timeout > 0u)) {
                     if ((i2cREG1->STR & (uint32_t)I2C_NACK) != 0u) {
                         nack = true;
@@ -401,14 +401,14 @@ extern STD_RETURN_TYPE_e I2C_WriteDirect(uint32_t slaveAddress, uint32_t nrBytes
                 i2cREG1->MDR |= (uint32_t)I2C_REPEATMODE; /* Set repeat flag */
                 i2cSetStop(i2cREG1);                      /* Set Stop condition */
 
-                timeout = I2C_TIMEOUT;
+                timeout = I2C_TIMEOUT_ITERATIONS;
                 while ((i2cIsStopDetected(i2cREG1) == 0u) && (timeout > 0u)) {
                     timeout--;
                 }
                 retVal = STD_NOT_OK;
             } else {
                 /* Wait until Stop is detected */
-                timeout = I2C_TIMEOUT;
+                timeout = I2C_TIMEOUT_ITERATIONS;
                 while ((i2cIsStopDetected(i2cREG1) == 0u) && (timeout > 0u)) {
                     timeout--;
                 }
@@ -434,7 +434,7 @@ extern STD_RETURN_TYPE_e I2C_ReadDma(uint32_t slaveAddress, uint8_t readAddress,
     FAS_ASSERT(readData != NULL_PTR);
 
     STD_RETURN_TYPE_e retVal = STD_OK;
-    uint16_t timeout         = I2C_TIMEOUT;
+    uint16_t timeout         = I2C_TIMEOUT_ITERATIONS;
 
     if ((i2cREG1->STR & (uint32_t)I2C_BUSBUSY) == 0u) {
         OS_EnterTaskCritical();
@@ -481,7 +481,7 @@ extern STD_RETURN_TYPE_e I2C_ReadDma(uint32_t slaveAddress, uint8_t readAddress,
             i2cSetStop(i2cREG1);                  /* Set Stop condition */
 
             /* Wait until Stop is detected */
-            timeout = I2C_TIMEOUT;
+            timeout = I2C_TIMEOUT_ITERATIONS;
             while ((i2cIsStopDetected(i2cREG1) == 0u) && (timeout > 0u)) {
                 timeout--;
             }
@@ -504,7 +504,7 @@ extern STD_RETURN_TYPE_e I2C_WriteDma(
     FAS_ASSERT(writeData != NULL_PTR);
 
     STD_RETURN_TYPE_e retVal = STD_OK;
-    uint16_t timeout         = I2C_TIMEOUT;
+    uint16_t timeout         = I2C_TIMEOUT_ITERATIONS;
 
     if ((i2cREG1->STR & (uint32_t)I2C_BUSBUSY) == 0u) {
         OS_EnterTaskCritical();
@@ -543,7 +543,7 @@ extern STD_RETURN_TYPE_e I2C_WriteDma(
             i2cREG1->STR |= (uint32_t)I2C_NACK;   /* Clear NACK flag */
             i2cREG1->STR |= (uint32_t)I2C_TX_INT; /* Set Tx ready flag */
             i2cSetStop(i2cREG1);                  /* Set Stop condition */
-            timeout = I2C_TIMEOUT;                /* Wait until Stop is detected */
+            timeout = I2C_TIMEOUT_ITERATIONS;     /* Wait until Stop is detected */
 
             while ((i2cIsStopDetected(i2cREG1) == 0u) && (timeout > 0u)) {
                 timeout--;

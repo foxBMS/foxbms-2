@@ -16,9 +16,9 @@ are summarized under the terms of |change_request| (for details see
 The starting point of all work done, is an |issue| describing a bug in the
 current implementation or a feature that is missing or needs to be extended.
 Based on this |issue| a so called |feature_branch| is created (the name is
-the same wether it is bug or feature) by a developer working on the related
+the same whether it is bug or feature) by a developer working on the related
 issue. This |feature_branch| is pushed to the main (bare) repository managed by
-some git server. The git server triggers the CI pipeline. This pipeline
+some |git| server. The |git| server triggers the CI pipeline. This pipeline
 manages several build servers that then run different integration tasks (jobs)
 (building the binary, testing and checking for guideline violations). The
 output of a build server is a success matrix based on the run jobs. The status

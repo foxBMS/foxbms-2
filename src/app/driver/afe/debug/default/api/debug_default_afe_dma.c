@@ -43,7 +43,7 @@
  * @file    debug_default_afe_dma.c
  * @author  foxBMS Team
  * @date    2020-09-17 (date of creation)
- * @updated 2020-09-17 (date of last update)
+ * @updated 2021-12-08 (date of last update)
  * @ingroup DRIVERS
  * @prefix  FAKE
  *
@@ -70,7 +70,7 @@
 #pragma diag_push
 #pragma diag_suppress 880
 /* Function called on DMA complete interrupts (TX and RX). */
-void AFE_DmaCallback(dmaInterrupt_t inttype, uint32 channel) {
+void AFE_DmaCallback(uint8_t spiIndex) {
 }
 #pragma diag_pop
 

@@ -43,7 +43,7 @@
  * @file    test_sps.c
  * @author  foxBMS Team
  * @date    2020-10-28 (date of creation)
- * @updated 2021-10-01 (date of last update)
+ * @updated 2021-12-08 (date of last update)
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -81,7 +81,6 @@ static const spiDAT1_t spi_kSpsDataConfig = {
 
 /** SPI interface configuration for SPS communication */
 SPI_INTERFACE_CONFIG_s spi_spsInterface = {
-    .channel  = SPI_Interface3,
     .pConfig  = &spi_kSpsDataConfig,
     .pNode    = spiREG3,
     .pGioPort = &(spiREG3->PC3),

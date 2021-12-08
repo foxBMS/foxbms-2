@@ -43,7 +43,7 @@
  * @file    pana_ncr18650bd.h
  * @author  foxBMS Team
  * @date    2018-10-02 (date of creation)
- * @updated 2020-12-09 (date of last update)
+ * @updated 2021-11-08 (date of last update)
  * @ingroup BATTERY_CELL_CONF
  * @prefix  BC
  *
@@ -138,7 +138,7 @@
 
 /**
  * @ingroup CONFIG_BATTERY_CELL
- * nominal cell voltage according to datasheet
+ * nominal cell voltage according to data sheet
  * @ptype   int
  * @unit    mV
  */

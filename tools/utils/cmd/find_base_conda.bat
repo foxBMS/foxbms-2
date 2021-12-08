@@ -87,6 +87,9 @@
         @SET DEVEL_ENV_FOUND=%%x
     )
 )
+
+@REM maybe we found the enviroment name not, but maybe this is on purpose as
+@REM the user wants to run an conda environment update
 @IF "%1"=="update" (
     @FOR %%i in (%BASE_ENVS_FOUND%) do @(
         @SET DEVEL_ENV_FOUND=%%i

@@ -44,7 +44,9 @@ import logging
 import argparse
 
 # package to test
-import qtpy  # pylint: disable=unused-import
+# import qtpy  # pylint: disable=unused-import
+# we do not use qtpy (or qt at all), it is just pulled in as a (unused)
+# dependency of a package that we use.
 
 
 def main():

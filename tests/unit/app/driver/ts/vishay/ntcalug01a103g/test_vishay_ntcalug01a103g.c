@@ -43,7 +43,7 @@
  * @file    test_vishay_ntcalug01a103g.c
  * @author  foxBMS Team
  * @date    2020-04-01 (date of creation)
- * @updated 2021-03-22 (date of last update)
+ * @updated 2021-11-08 (date of last update)
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -55,6 +55,7 @@
 #include "unity.h"
 
 #include "foxmath.h"
+#include "test_assert_helper.h"
 #include "vishay_ntcalug01a103g.h"
 
 /*========== Definitions and Implementations for Unit Test ==================*/
@@ -74,5 +75,5 @@ void testTS_Vis00GetTemperatureFromLutFixedValues(void) {
 }
 
 void testTS_Vis00GetTemperatureFromPolynomialFixedValues(void) {
-    TEST_ASSERT_EQUAL_INT16(0, TS_Vis00GetTemperatureFromPolynomial(1u));
+    TEST_ASSERT_FAIL_ASSERT(TS_Vis00GetTemperatureFromPolynomial(1u));
 }

@@ -43,7 +43,7 @@
  * @file    vishay_ntcalug01a103g.c
  * @author  foxBMS Team
  * @date    2018-10-30 (date of creation)
- * @updated 2021-08-06 (date of last update)
+ * @updated 2021-11-08 (date of last update)
  * @ingroup TEMPERATURE_SENSORS
  * @prefix  TS
  *
@@ -249,7 +249,7 @@ static const uint16_t ts_ntcalug01a103gLutSize = sizeof(ts_ntcalug01a103gLut) / 
 extern int16_t TS_Vis00GetTemperatureFromLut(uint16_t adcVoltage_mV) {
     int16_t temperature_ddegC = 0;
     float resistance_Ohm      = 0.0;
-    float adcVoltage_V        = adcVoltage_mV / 1000.0; /* Convert mV to V */
+    float adcVoltage_V        = adcVoltage_mV / 1000.0f; /* Convert mV to V */
 
     /* Check for valid ADC measurements to prevent undefined behavior */
     if (adcVoltage_V > TS_VISHAY_NTCALUG01A103G_ADC_VOLTAGE_V_MAX_V) {
@@ -282,7 +282,7 @@ extern int16_t TS_Vis00GetTemperatureFromLut(uint16_t adcVoltage_mV) {
 
         /* Interpolate between LUT values, but do not extrapolate LUT! */
         if (!(((between_high == 0u) && (between_low == 0u)) || /* measured resistance > maximum LUT resistance */
-              (between_low > ts_ntcalug01a103gLutSize))) {     /* measured resistance < minimum LUT resistance */
+              (between_low >= ts_ntcalug01a103gLutSize))) {    /* measured resistance < minimum LUT resistance */
             temperature_ddegC = (int16_t)MATH_LinearInterpolation(
                 ts_ntcalug01a103gLut[between_low].resistance_Ohm,
                 ts_ntcalug01a103gLut[between_low].temperature_ddegC,
@@ -297,8 +297,10 @@ extern int16_t TS_Vis00GetTemperatureFromLut(uint16_t adcVoltage_mV) {
 }
 
 extern int16_t TS_Vis00GetTemperatureFromPolynomial(uint16_t adcVoltage_mV) {
+    (void)adcVoltage_mV;
+    FAS_ASSERT(FAS_TRAP);
     int16_t temperature_ddegC = 0;
-    /* TODO */
+    /* TODO this is not implemented */
     return temperature_ddegC;
 }
 

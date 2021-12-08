@@ -43,7 +43,7 @@
  * @file    sps.c
  * @author  foxBMS Team
  * @date    2020-10-14 (date of creation)
- * @updated 2021-10-01 (date of last update)
+ * @updated 2021-11-10 (date of last update)
  * @ingroup DRIVERS
  * @prefix  SPS
  *
@@ -86,7 +86,7 @@ static uint16_t sps_spiRxRegisterBuffer[SPS_SPI_BUFFERSIZE] = {0};
  *  When a read register command was issued on the MOSI line,
  *  the answers comes during the next command (read or write)
  *  on the MISO line
- *  (datasheet figure 6 page 9 in datasheet Rev. 2 - 11 September 2019)
+ *  (data sheet figure 6 page 9 in data sheet Rev. 2 - 11 September 2019)
  *
  *  In the SPS driver, there are always two communications with the SPS IC
  *  each time the state machine is triggered:
@@ -170,7 +170,7 @@ static STD_RETURN_TYPE_e SPS_Transmit(void);
  *          The result is written to SPS_CoilCurrent[].
  * @param[in]   outputAllDevices    Output (1 to 4) to be read. Value between
  *                                  1-4 instead of 0-3 to match numbering
- *                                  in datasheet.
+ *                                  in data sheet.
  * @return  TODO
  */
 static void SPS_GlobalReadCurrent(const uint8_t outputAllDevices);
@@ -224,7 +224,7 @@ static void SPS_GlobalRegisterWrite(const uint16_t address, uint8_t writeData, u
  * @param[in]   address         address of register accessed
  * @param[in]   writeData       data to write. In case of read access, this
  *                              field is ignored and can be set to 0u.
- * @param[in]   writeType       defines wether the value in register should be
+ * @param[in]   writeType       defines whether the value in register should be
  *                              replaced by writeData, or or-ed with writeType,
  *                              or and-ed with writeData
  * @param[out]  pSpiTxBuffer    Tx buffer used for the transmission
@@ -431,7 +431,7 @@ static STD_RETURN_TYPE_e SPS_Transmit(void) {
     STD_RETURN_TYPE_e retVal1 = SPI_TransmitReceiveData(
         &spi_spsInterface, sps_spiTxRegisterBuffer, sps_spiRxRegisterBuffer, SPS_SPI_BUFFERSIZE);
 
-    /* The chip select has to be high for at least 300ns according to datasheet. This code delays
+    /* The chip select has to be high for at least 300ns according to data sheet. This code delays
        for the smallest time available in #MCU_delay_us() which is 1us. After this time we can
        be sure that the SPI interface is able to receive again. */
     MCU_delay_us(1u);

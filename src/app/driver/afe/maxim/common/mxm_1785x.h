@@ -43,7 +43,7 @@
  * @file    mxm_1785x.h
  * @author  foxBMS Team
  * @date    2019-01-15 (date of creation)
- * @updated 2020-09-10 (date of last update)
+ * @updated 2021-12-06 (date of last update)
  * @ingroup DRIVERS
  * @prefix  MXM
  *
@@ -90,6 +90,18 @@
 
 /*========== Macros and Definitions =========================================*/
 
+/** threshold of iterations after which a diagnostic cycle is entered by the state-machine */
+#define MXM_THRESHOLD_DIAGNOSTIC_AFTER_CYCLES (10u)
+
+/** length of voltage-read array */
+#define MXM_VOLTAGE_READ_ARRAY_LENGTH (MXM_MAXIMUM_NR_OF_CELLS_PER_MODULE + 3u)
+
+/** number of cells that are in the LSB register of i.e. pin open diagnostic */
+#define MXM_CELLS_IN_LSB (8u)
+
+/** unipolar full-scale reference value for cell voltage in mV */
+#define MXM_REF_UNIPOLAR_CELL_mV (5000u)
+
 /*========== Extern Constant and Variable Declarations ======================*/
 
 /*========== Extern Function Prototypes =====================================*/
@@ -106,24 +118,163 @@
  */
 extern void MXM_StateMachine(MXM_MONITORING_INSTANCE_s *pInstance);
 
+/**
+ * @brief   Initializes the state structs with default values
+ * @details This function is called through the startup of the driver in order
+ *          to ensure proper default values.
+ * @param[out]  pBalancingInstance  instance of the balancing state struct that shall be initialized
+ * @param[out]  pMonitoringInstance instance of the monitoring state struct that shall be initialized
+ */
+extern void MXM_InitializeStateStruct(
+    MXM_BALANCING_STATE_s *pBalancingInstance,
+    MXM_MONITORING_INSTANCE_s *pMonitoringInstance);
+
+/**
+ * @brief   Function that checks if the error counter can be reset
+ * @param[in,out]   pInstance   pointer to the state struct
+ */
+extern void MXM_CheckIfErrorCounterCanBeReset(MXM_MONITORING_INSTANCE_s *pInstance);
+
+/**
+ * @brief           Fill the balancing datastructure
+ * @details         This function fills the data-structure that describes
+ *                  which balancing channels of the monitoring ICs should be
+ *                  activated.
+ * @param[in,out]   pBalancingInstance   pointer to the balancing state
+ * @return          #STD_NOT_OK in case of invalid access
+ */
+extern STD_RETURN_TYPE_e MXM_ConstructBalancingBuffer(MXM_BALANCING_STATE_s *pBalancingInstance);
+
+/**
+ * @brief           Handle the statemachine-transactions for a WRITEALL
+ * @details         Before calling this function, update the command buffer of
+ *                  the state-variable. Then call this function and pass on the
+ *                  state-variable and the next state. The function will
+ *                  handle the communication with the lower state-machine and
+ *                  will transition into the next state, if the command has
+ *                  been sent successfully.
+ * @param[in,out]   pInstance   pointer to instance of the mxm
+ *                              monitoring state-machine
+ * @param[in]       nextState   state that should be entered upon successful
+ *                              completion
+ */
+extern void MXM_HandleStateWriteall(
+    MXM_MONITORING_INSTANCE_s *pInstance,
+    MXM_STATEMACHINE_OPERATION_STATES_e nextState);
+
+/**
+ * @brief           Handle the statemachine-transactions for a READALL
+ * @details         Call this function and pass on the state-variable, the
+ *                  register to be read and the next state. The function will
+ *                  handle the communication with the lower state-machine and
+ *                  will transition into the next state, if the command has
+ *                  been sent successfully. Moreover it will return true when
+ *                  transitioning. The return value has to be checked and used
+ *                  to execute additional code if necessary.
+ * @param[in,out]   pInstance   pointer to instance of the mxm
+ *                              monitoring state-machine
+ * @param[in]       registerName    register that should be read
+ * @param[in]       nextState   state that should be entered upon successful
+ *                              completion
+ * @return          true when the state has been handled, false otherwise, use
+ *                  this to execute additional code when the message has been
+ *                  read.
+ */
+extern bool must_check_return MXM_HandleStateReadall(
+    MXM_MONITORING_INSTANCE_s *pInstance,
+    MXM_REG_NAME_e registerName,
+    MXM_STATEMACHINE_OPERATION_STATES_e nextState);
+
+/**
+ * @brief           Processes the retrieved information on openwire
+ * @details         Parses through a retrieved RX buffer and writes into the
+ *                  database.
+ * @param[in,out]   kpkInstance     pointer to instance of the Maxim monitoring
+ *                                  state-machine
+ * @return returns the return value of the database write function #DATA_Write_1_DataBlock()
+ */
+extern STD_RETURN_TYPE_e MXM_ProcessOpenWire(const MXM_MONITORING_INSTANCE_s *const kpkInstance);
+
+/**
+ * @brief   This error handler is used as a last resort and tries a reset of the complete driver
+ * @details A reset is done by setting the relevant flag in the state struct
+ *          and waiting for the reset to occur (done by AFE on next tick).
+ *          Before this last resort measure is taken, a error counter has to
+ *          be counted up.
+ * @param[in,out]   pInstance       pointer to the state struct in order to write the reset flag
+ * @param[in]       immediateReset  if set to true, a reset will be requested independently of the error counter
+ */
+extern void MXM_ErrorHandlerReset(MXM_MONITORING_INSTANCE_s *pInstance, bool immediateReset);
+
+/**
+ * @brief           State-Machine implementation for operation state
+ * @details         This state-machine contains the "program" with which the
+ *                  connected monitoring satellites are controlled. It is
+ *                  entered by #MXM_StateMachine() once the daisy-chain has
+ *                  been initialized and is in operation state.
+ * @param[in,out]   pState  used as both input and output (stores
+ *                          state-information, requests and intermediate values)
+ */
+extern void MXM_StateMachineOperation(MXM_MONITORING_INSTANCE_s *pState);
+
+/**
+ * @brief           Encapsulation for reading voltages from a register
+ * @details         This function encapsulates the request of state-changes and
+ *                  following conversion for the reading of an arbitrary
+ *                  measurement voltage of the daisy-chain. Its parameters are
+ *                  a variable for tracking the state of the underlying
+ *                  state-machines and the register address that has to be
+ *                  queried. It returns whether the action has been successful
+ *                  or not.
+ *                  In order to obtain all cell voltages this function has to
+ *                  be called for every relevant register address.
+ * @param[in,out]   pState      pointer to the state-machine struct
+ * @param[in]       regAddress  register address that shall be queried
+ * @return          current state of the action:
+ *                      - MXM_MON_STATE_PASS upon completion
+ *                      - MXM_MON_STATE_PENDING as long as the action is
+ *                        ongoing
+ *                      - MXM_MON_STATE_FAIL if the function failed and could
+ *                        not recover on its own
+ */
+extern MXM_MONITORING_STATE_e must_check_return
+    MXM_MonGetVoltages(MXM_MONITORING_INSTANCE_s *pState, MXM_REG_NAME_e regAddress);
+
+/**
+ * @brief   Copies measured voltage data into the database.
+ * @details This function copies the acquired voltage data from
+ *          #MXM_MONITORING_INSTANCE_s::localVoltages into the database-struct
+ *          #mxm_tableCellVoltages and copies this struct into the database.
+ *          This action is required due to different data layouts. This driver
+ *          always stores its cell-voltages in an array with 14*32 = 448 cells
+ *          in order to reduce the amount of different configurations and
+ *          variants.
+ *
+ *          This function maps these values into the database-struct which
+ *          scales with the number of connected cells and monitoring ICs.
+ * @param[in]   kpkInstance pointer to the #MXM_MONITORING_INSTANCE_s struct
+ * @return  #STD_OK if the action was successful or #STD_NOT_OK otherwise
+ */
+extern STD_RETURN_TYPE_e MXM_ParseVoltagesIntoDB(const MXM_MONITORING_INSTANCE_s *const kpkInstance);
+
+/**
+ * @brief   returns the model ID of the daisy chain
+ * @details this function is to be implemented by the driver in order to
+ *          tell the rest of the driver which model is used. Currently, this
+ *          implementation does not support mixed model daisy-chains.
+ * @returns model ID of daisy-chain
+ */
+extern MXM_MODEL_ID_e MXM_GetModelIdOfDaisyChain(void);
+
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 #ifdef UNITY_UNIT_TEST
 extern STD_RETURN_TYPE_e TEST_MXM_ParseVoltageReadallTest(MXM_MONITORING_INSTANCE_s *pInstance);
 extern STD_RETURN_TYPE_e TEST_MXM_ParseVoltagesIntoDB(MXM_MONITORING_INSTANCE_s *pInstance);
-extern MXM_MONINTORING_STATE_e TEST_MXM_MonGetVoltages(MXM_MONITORING_INSTANCE_s *pInstance, MXM_REG_NAME_e regAddress);
-extern void TEST_MXM_HandleStateWriteall(
-    MXM_MONITORING_INSTANCE_s *pInstance,
-    MXM_STATEMACHINE_OPERATION_STATES_e nextState);
-extern bool TEST_MXM_HandleStateReadall(
-    MXM_MONITORING_INSTANCE_s *pInstance,
-    MXM_REG_NAME_e registerName,
-    MXM_STATEMACHINE_OPERATION_STATES_e nextState);
 extern STD_RETURN_TYPE_e TEST_MXM_ParseVoltageReadall(
-    uint8_t *volt_rx_buffer,
-    uint16_t volt_rx_buffer_len,
+    uint8_t *voltRxBuffer,
+    uint16_t voltRxBufferLength,
     MXM_DATA_STORAGE_s *datastorage,
     MXM_CONVERSION_TYPE_e conversionType);
-extern void TEST_MXM_ProcessOpenWire(MXM_MONITORING_INSTANCE_s *pInstance, DATA_BLOCK_OPEN_WIRE_s *pDataOpenWire);
 #endif
 
 #endif /* FOXBMS__MXM_1785X_H_ */

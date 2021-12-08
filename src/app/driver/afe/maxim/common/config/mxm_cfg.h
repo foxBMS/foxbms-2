@@ -43,7 +43,7 @@
  * @file    mxm_cfg.h
  * @author  foxBMS Team
  * @date    2019-01-09 (date of creation)
- * @updated 2021-03-24 (date of last update)
+ * @updated 2021-12-06 (date of last update)
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  MXM
  *
@@ -69,14 +69,43 @@
  * MAX17841B GPIO configuration
  * @{
  */
-#define MXM_17841B_GIODIR  (hetREG1->DIR)
-#define MXM_17841B_GIOPORT (hetREG1->DOUT)
-
+#define MXM_17841B_GIOPORT    (hetREG1)
 #define MXM_17841B_SHTNDL_PIN (21U)
+/**@}*/
 
+/**
+ * MAX17841B configuration registers default values
+ * @{
+ */
+#define MXM_41B_RX_INT_ENABLE_DEFAULT_VALUE (0x00u)
+#define MXM_41B_TX_INT_ENABLE_DEFAULT_VALUE (0x00u)
+#define MXM_41B_RX_INT_FLAG_DEFAULT_VALUE   (0x00u)
+#define MXM_41B_TX_INT_FLAG_DEFAULT_VALUE   (0x80u)
+
+/** default configuration for config 1
+ *
+ * * baudrate 2Mbps
+ * * no single ended mode
+ * * no device count
+ */
+#define MXM_41B_CONFIG_1_DEFAULT_VALUE (0x60u)
+
+/** default configuration for config 2
+ *
+ * * enable tx queue mode
+ */
+#define MXM_41B_CONFIG_2_DEFAULT_VALUE (0x10u)
+
+/** default config for config 3
+ *
+ * * no keep-alive (infinite delay)
+ */
+#define MXM_41B_CONFIG_3_DEFAULT_VALUE (0x0Fu)
 /**@}*/
 
 /*========== Extern Constant and Variable Declarations ======================*/
+/** if this flag is set, the post init self check will pass on even if the satellite numbers are not correct */
+extern const bool mxm_allowSkippingPostInitSelfCheck;
 
 /*========== Extern Function Prototypes =====================================*/
 /**
@@ -89,7 +118,7 @@
  *
  *          Only the necessary pins are configured.
  */
-extern void MXM_MonitoringPinInit(void);
+extern void MXM_InitializeMonitoringPins(void);
 
 /**
  * @brief   Return whether SPI interface is ready
@@ -122,6 +151,21 @@ extern STD_RETURN_TYPE_e MXM_SendData(uint16_t *txBuffer, uint16_t length);
  * @return      #STD_NOT_OK for unsuccessful transmissions, #STD_OK on success
  */
 extern STD_RETURN_TYPE_e MXM_ReceiveData(uint16_t *txBuffer, uint16_t *rxBuffer, uint16_t length);
+
+/**
+ * @brief       Pulls the shutdown of the bridge IC low
+ * @details     The bridge IC used in this driver has a shutdown pin that allows
+ *              to switch it off. This function tells the bridge IC to shut down.
+ */
+extern void MXM_ShutDownBridgeIc(void);
+
+/**
+ * @brief       Pulls the shutdown of the bridge IC high
+ * @details     The bridge IC used in this driver has a shutdown pin that allows
+ *              to switch it off. This function tells the bridge IC to enable.
+ *              (Pulls the shutdown high, bridge IC will start)
+ */
+extern void MXM_EnableBridgeIc(void);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 

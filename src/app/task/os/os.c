@@ -43,11 +43,11 @@
  * @file    os.c
  * @author  foxBMS Team
  * @date    2019-08-27 (date of creation)
- * @updated 2021-07-23 (date of last update)
+ * @updated 2021-12-01 (date of last update)
  * @ingroup OS
  * @prefix  OS
  *
- * @brief   Implementation of the tasks used by the system
+ * @brief   Implementation of the tasks and resources used by the system
  *
  */
 
@@ -58,48 +58,22 @@
 
 /*========== Macros and Definitions =========================================*/
 
-/** stack size of the idle task */
-#define OS_IDLE_TASK_STACK_SIZE configMINIMAL_STACK_SIZE
-
-#if (configUSE_TIMERS > 0) && (configSUPPORT_STATIC_ALLOCATION == 1)
-#define OS_TIMER_TASK_STACK_SIZE configTIMER_TASK_STACK_DEPTH
-#endif /* configUSE_TIMERS */
-
 /*========== Static Constant and Variable Definitions =======================*/
+
+/** timer counter since the 1ms task has started */
+static OS_TIMER_s os_timer = {0u, 0u, 0u, 0u, 0u, 0u, 0u};
 
 /*========== Extern Constant and Variable Definitions =======================*/
 /** boot state of the OS */
 volatile OS_BOOT_STATE_e os_boot = OS_OFF;
-/** system timer variable */
-volatile OS_TIMER_s os_timer = {0, 0, 0, 0, 0, 0, 0};
 /** timestamp of the scheduler start */
-uint32_t os_schedulerStartTime = 0;
-
-/** Buffer for the Idle Task's structure */
-static StaticTask_t os_idleTaskTcbBuffer;
-
-/** @brief Stack for the Idle task */
-static StackType_t os_stackSizeIdle[OS_IDLE_TASK_STACK_SIZE];
-
-#if (configUSE_TIMERS > 0) && (configSUPPORT_STATIC_ALLOCATION == 1)
-/** Buffer for the Timer Task's structure */
-static StaticTask_t os_timerTaskTcbBuffer;
-#endif /* configUSE_TIMERS */
-
-#if (configUSE_TIMERS > 0) && (configSUPPORT_STATIC_ALLOCATION == 1)
-/** Stack for the Timer Task */
-static StackType_t os_stackSizeTimer[OS_TIMER_TASK_STACK_SIZE];
-#endif /* configUSE_TIMERS */
+uint32_t os_schedulerStartTime = 0u;
 
 /*========== Static Function Prototypes =====================================*/
 
 /*========== Static Function Implementations ================================*/
 
 /*========== Extern Function Implementations ================================*/
-
-void OS_StartScheduler(void) {
-    vTaskStartScheduler();
-}
 
 void OS_InitializeOperatingSystem(void) {
     /* operating system configuration (Queues, Tasks) */
@@ -110,59 +84,23 @@ void OS_InitializeOperatingSystem(void) {
     os_boot = OS_INIT_PRE_OS;
 }
 
-void vApplicationGetIdleTaskMemory(
-    StaticTask_t **ppxIdleTaskTCBBuffer,
-    StackType_t **ppxIdleTaskStackBuffer,
-    uint32_t *pulIdleTaskStackSize) {
-    *ppxIdleTaskTCBBuffer   = &os_idleTaskTcbBuffer;
-    *ppxIdleTaskStackBuffer = &os_stackSizeIdle[0];
-    *pulIdleTaskStackSize   = OS_IDLE_TASK_STACK_SIZE;
-}
-
-#if (configUSE_TIMERS > 0) && (configSUPPORT_STATIC_ALLOCATION == 1)
-void vApplicationGetTimerTaskMemory(
-    StaticTask_t **ppxTimerTaskTCBBuffer,
-    StackType_t **ppxTimerTaskStackBuffer,
-    uint32_t *pulTimerTaskStackSize) {
-    *ppxTimerTaskTCBBuffer   = &os_timerTaskTcbBuffer;
-    *ppxTimerTaskStackBuffer = &os_stackSizeTimer[0];
-    *pulTimerTaskStackSize   = configTIMER_TASK_STACK_DEPTH;
-}
-#endif /* configUSE_TIMERS */
-
-void vApplicationIdleHook(void) {
-    FTSK_RunUserCodeIdle();
-}
-
-void vApplicationStackOverflowHook(TaskHandle_t xTask, char *pcTaskName) {
-    FAS_ASSERT(FAS_TRAP);
-}
-
-void OS_TriggerTimer(volatile OS_TIMER_s *timer) {
-    if (++timer->timer_1ms > 9) {
-        /* 10ms */
-        timer->timer_1ms = 0;
-
-        if (++timer->timer_10ms > 9) {
-            /* 100ms */
-            timer->timer_10ms = 0;
-
-            if (++timer->timer_100ms > 9) {
-                /* 1s */
-                timer->timer_100ms = 0;
-
-                if (++timer->timer_sec > 59) {
-                    /* 1min */
-                    timer->timer_sec = 0;
-
-                    if (++timer->timer_min > 59) {
-                        /* 1h */
-                        timer->timer_min = 0;
-
-                        if (++timer->timer_h > 23) {
-                            /* 1d */
-                            timer->timer_h = 0;
-                            ++timer->timer_d;
+/* AXIVION Disable Style Generic-MaxNesting: The program flow is simple
+   although it exceeds the maximum nesting level and changing the
+   implementation would not be beneficial for understanding the function. */
+extern void OS_IncrementTimer(void) {
+    if (++os_timer.timer_1ms > 9u) { /* 10ms */
+        os_timer.timer_1ms = 0u;
+        if (++os_timer.timer_10ms > 9u) { /* 100ms */
+            os_timer.timer_10ms = 0u;
+            if (++os_timer.timer_100ms > 9u) { /* 1s */
+                os_timer.timer_100ms = 0u;
+                if (++os_timer.timer_sec > 59u) { /* 1min */
+                    os_timer.timer_sec = 0u;
+                    if (++os_timer.timer_min > 59u) { /* 1h */
+                        os_timer.timer_min = 0u;
+                        if (++os_timer.timer_h > 23u) { /* 1d */
+                            os_timer.timer_h = 0u;
+                            ++os_timer.timer_d;
                         }
                     }
                 }
@@ -170,48 +108,73 @@ void OS_TriggerTimer(volatile OS_TIMER_s *timer) {
         }
     }
 }
+/* AXIVION Enable Style Generic-MaxNesting: */
 
-void OS_EnterTaskCritical(void) {
-    taskENTER_CRITICAL();
-}
+/* AXIVION Next Line Style Generic-MissingParameterAssert: The function is designed and tested for full range */
+extern bool OS_CheckTimeHasPassedWithTimestamp(
+    uint32_t oldTimeStamp_ms,
+    uint32_t currentTimeStamp_ms,
+    uint32_t timeToPass_ms) {
+    /* AXIVION Next Line Style MisraC2012Directive-4.1: correct handling of underflows is checked with unit tests */
+    const uint32_t timeDifference_ms = currentTimeStamp_ms - oldTimeStamp_ms;
+    bool timehasPassed               = false;
 
-void OS_ExitTaskCritical(void) {
-    taskEXIT_CRITICAL();
-}
-
-uint32_t OS_GetTickCount(void) {
-    return xTaskGetTickCount(); /*TMS570 does not support nested interrupts*/
-}
-
-void OS_DelayTask(uint32_t delay_ms) {
-#if INCLUDE_vTaskDelay
-    TickType_t ticks = delay_ms / portTICK_PERIOD_MS;
-
-    vTaskDelay(ticks ? ticks : 1); /* Minimum delay = 1 tick */
-#else
-#error "Can't use OS_taskDelay."
-#endif
-}
-
-void OS_DelayTaskUntil(uint32_t *pPreviousWakeTime, uint32_t milliseconds) {
-#if INCLUDE_vTaskDelayUntil
-    TickType_t ticks = (milliseconds / portTICK_PERIOD_MS);
-    vTaskDelayUntil((TickType_t *)pPreviousWakeTime, ticks ? ticks : 1);
-
-#else
-#error "Can't use OS_taskDelayUntil."
-#endif
-}
-
-void OS_SystemTickHandler(void) {
-#if (INCLUDE_xTaskGetSchedulerState == 1)
-    /* Only increment operating systick timer if scheduler started */
-    if (xTaskGetSchedulerState() != taskSCHEDULER_NOT_STARTED) {
-        xTaskIncrementTick();
+    if (timeToPass_ms == 0u) {
+        timehasPassed = true;
+    } else if (timeDifference_ms == 0u) {
+        /* case timeToPass_ms is 0u has already been extracted
+           therefore, only the cases where full UINT32_MAX time has passed
+           remain. By definition we will assume in this case that no time has
+           passed between these two timestamps and will therefore return false.
+         */
+    } else if (timeDifference_ms >= timeToPass_ms) {
+        timehasPassed = true;
+    } else {
+        /* timehasPassed is already false, nothing to do */
     }
-#else
-    xTaskIncrementTick();
-#endif /* INCLUDE_xTaskGetSchedulerState */
+
+    return timehasPassed;
+}
+
+/* AXIVION Next Line Style Generic-MissingParameterAssert: The function is designed and tested for full range */
+extern bool OS_CheckTimeHasPassed(uint32_t oldTimeStamp_ms, uint32_t timeToPass_ms) {
+    return OS_CheckTimeHasPassedWithTimestamp(oldTimeStamp_ms, OS_GetTickCount(), timeToPass_ms);
+}
+
+extern STD_RETURN_TYPE_e OS_CheckTimeHasPassedSelfTest(void) {
+    STD_RETURN_TYPE_e selfCheckReturnValue = STD_OK;
+
+    /* AXIVION Next Line Style MisraC2012-2.2 MisraC2012-14.3: If the code works as expected, this self test function is expected to always return the same value */
+    if (OS_CheckTimeHasPassedWithTimestamp(0u, 0u, 0u) != true) {
+        /* AXIVION Next Line Style FaultDetection-UnusedAssignments: All cases collected, using each not necessary. */
+        selfCheckReturnValue = STD_NOT_OK;
+    }
+
+    if (OS_CheckTimeHasPassedWithTimestamp(0u, 1u, 1u) != true) {
+        /* AXIVION Next Line Style FaultDetection-UnusedAssignments: All cases collected, using each not necessary. */
+        selfCheckReturnValue = STD_NOT_OK;
+    }
+
+    if (OS_CheckTimeHasPassedWithTimestamp(1u, 2u, 2u) != false) {
+        /* AXIVION Next Line Style FaultDetection-UnusedAssignments: All cases collected, using each not necessary. */
+        selfCheckReturnValue = STD_NOT_OK;
+    }
+
+    if (OS_CheckTimeHasPassedWithTimestamp(0u, 1u, 0u) != true) {
+        /* AXIVION Next Line Style FaultDetection-UnusedAssignments: All cases collected, using each not necessary. */
+        selfCheckReturnValue = STD_NOT_OK;
+    }
+
+    if (OS_CheckTimeHasPassedWithTimestamp(1u, 0u, 1u) != true) {
+        selfCheckReturnValue = STD_NOT_OK;
+    }
+
+    return selfCheckReturnValue;
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
+#ifdef UNITY_UNIT_TEST
+extern OS_TIMER_s *TEST_OS_GetOsTimer() {
+    return &os_timer;
+}
+#endif

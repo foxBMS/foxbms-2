@@ -25,6 +25,7 @@ all required software dependencies. These are the required steps:
 #. getting the |foxbms| sources,
 #. installing the software dependencies:
 
+   #. installing |git|
    #. installing |texas-instruments| (TI)'s |code-composer-studio|
       (required for compiling)
    #. installing |texas-instruments| (TI)'s |halcogen| (required for code
@@ -44,7 +45,7 @@ These steps are described below in detail.
 Getting the Sources
 *******************
 
-The sources are available from a git repository at |github_foxbms| in
+The sources are available from a |git| repository at |github_foxbms| in
 |foxbms_repository|.
 The following example shows how to clone (see :numref:`clone-foxbms-2`) or
 download (see :numref:`download-foxbms-2`) the |foxbms| sources from GitHub .
@@ -70,9 +71,9 @@ later steps of this manual.
    :caption: Downloading a release
    :name: download-foxbms-2
 
-   C:\Users\vulpes\Documents>curl -Ss -L -o foxbms-2-v1.2.0.zip https://github.com/foxBMS/foxbms-2/archive/v1.2.0.zip
-   C:\Users\vulpes\Documents>tar -x -f foxbms-2-v1.2.0.zip
-   C:\Users\vulpes\Documents>ren foxbms-2-1.2.0 foxbms-2
+   C:\Users\vulpes\Documents>curl -Ss -L -o foxbms-2-v1.2.1.zip https://github.com/foxBMS/foxbms-2/archive/v1.2.1.zip
+   C:\Users\vulpes\Documents>tar -x -f foxbms-2-v1.2.1.zip
+   C:\Users\vulpes\Documents>ren foxbms-2-1.2.1 foxbms-2
    C:\Users\vulpes\Documents>cd foxbms-2
 
 .. note::
@@ -106,15 +107,23 @@ Software Prerequisites
 
    No software installation here should alter the ``PATH`` environment
    variable. When an installer asks during the setup to add something to
-   ``PATH``, always remove that option, wether it is explicitly mentioned in
-   that step or not. The only exception to that rule **MAY** be ``VS Code``.
+   ``PATH``, always remove that option, whether it is explicitly mentioned in
+   that step or not. The only exception to that rule **MAY** be |git| and
+   ``VS Code``.
+
+.. _git_install:
+
+Installing |git|
+================
+
+Download the latest version of `Git`_ and run the installer.
 
 .. _css_install:
 
 Installing |code-composer-studio|
 =================================
 
-Download `Code Composer Studio`_ (CCS) version |version_ccs|  and run the
+Download `Code Composer Studio`_ (CCS) version |version_ccs| and run the
 installer (chose ``Windows single file installer for CCS IDE``).
 Do **not** change the default installation directory chosen by the installer
 and let the installer proceed with the installation into the installation

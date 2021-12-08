@@ -82,34 +82,34 @@ void SYSM_CheckNotifications(void) {
     uint32_t time_since_last_call = 0;
     uint32_t max_allowed_jitter   = 0;
 
-    for (SYSM_TASK_ID_e tsk_id = (SYSM_TASK_ID_e)0; tsk_id < SYSM_TASK_ID_MAX; tsk_id++) {
-        if (sysm_ch_cfg[tsk_id].enable == SYSM_ENABLED) {
+    for (SYSM_TASK_ID_e taskId = (SYSM_TASK_ID_e)0; taskId < SYSM_TASK_ID_MAX; taskId++) {
+        if (sysm_ch_cfg[taskId].enable == SYSM_ENABLED) {
             /* check that the task gets called within its timing threshold plus jitter and
                then check that the tasks duration is shorter than tasks cycle time */
-            time_since_last_call = local_timer - sysm_notifications[tsk_id].timestampEnter;
-            max_allowed_jitter   = sysm_ch_cfg[tsk_id].cycleTime + sysm_ch_cfg[tsk_id].maxJitter;
+            time_since_last_call = local_timer - sysm_notifications[taskId].timestampEnter;
+            max_allowed_jitter   = sysm_ch_cfg[taskId].cycleTime + sysm_ch_cfg[taskId].maxJitter;
             if ((time_since_last_call > max_allowed_jitter) &&
-                (sysm_notifications[tsk_id].duration > sysm_ch_cfg[tsk_id].cycleTime)) {
+                (sysm_notifications[taskId].duration > sysm_ch_cfg[taskId].cycleTime)) {
                 /* module not running within its timed limits */
-                DIAG_Handler(DIAG_ID_SYSTEMMONITORING, DIAG_EVENT_NOT_OK, DIAG_SYSTEM, tsk_id);
-                if (sysm_ch_cfg[tsk_id].enableRecording == SYSM_RECORDING_ENABLED) {
+                DIAG_Handler(DIAG_ID_SYSTEMMONITORING, DIAG_EVENT_NOT_OK, DIAG_SYSTEM, taskId);
+                if (sysm_ch_cfg[taskId].enableRecording == SYSM_RECORDING_ENABLED) {
                     /* TODO add recording function (when MRAM/FRAM are available) */
                 }
-                sysm_ch_cfg[tsk_id].callbackfunc(tsk_id);
+                sysm_ch_cfg[taskId].callbackfunc(taskId);
             }
         }
     }
 }
 
-void SYSM_Notify(SYSM_TASK_ID_e tsk_id, SYSM_NOTIFY_TYPE_e state, uint32_t time) {
-    if (tsk_id < SYSM_TASK_ID_MAX) {
-        sysm_notifications[tsk_id].state = state;
+void SYSM_Notify(SYSM_TASK_ID_e taskId, SYSM_NOTIFY_TYPE_e state, uint32_t time) {
+    if (taskId < SYSM_TASK_ID_MAX) {
+        sysm_notifications[taskId].state = state;
         OS_EnterTaskCritical();
         if (SYSM_NOTIFY_ENTER == state) {
-            sysm_notifications[tsk_id].timestampEnter = time;
+            sysm_notifications[taskId].timestampEnter = time;
         } else if (SYSM_NOTIFY_EXIT == state) {
-            sysm_notifications[tsk_id].timestampExit = time;
-            sysm_notifications[tsk_id].duration      = time - sysm_notifications[tsk_id].timestampEnter;
+            sysm_notifications[taskId].timestampExit = time;
+            sysm_notifications[taskId].duration      = time - sysm_notifications[taskId].timestampEnter;
         } else {
             /* state has an illegal value */
             FAS_ASSERT(FAS_TRAP);

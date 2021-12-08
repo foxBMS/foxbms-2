@@ -43,7 +43,7 @@
  * @file    test_ltc_6806.c
  * @author  foxBMS Team
  * @date    2020-07-13 (date of creation)
- * @updated 2021-10-04 (date of last update)
+ * @updated 2021-12-08 (date of last update)
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -68,51 +68,72 @@
 #include "ltc_6806_cfg.h"
 
 #include "ltc.h"
+#include "spi_cfg-helper.h"
 
 TEST_FILE("ltc_6806.c")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
-/* SPI data configuration struct for LTC communication */
-static const spiDAT1_t spi_kLtcDataConfig = {
-    /* struct is implemented in the TI HAL and uses uppercase true and false */
-    .CS_HOLD = FALSE,     /* The HW chip select signal is deactivated */
-    .WDEL    = TRUE,      /* No delay will be inserted */
-    .DFSEL   = SPI_FMT_0, /* Data word format select */
-    .CSNR    = 0x0,       /* Chip select (CS) number, 0x01h for CS[0] */
+
+/** SPI data configuration struct for LTC communication */
+static const spiDAT1_t spi_kLtcDataConfig[BS_NR_OF_STRINGS] = {
+    {
+        /* struct is implemented in the TI HAL and uses uppercase true and false */
+        .CS_HOLD = TRUE,                              /* If true, HW chip select kept active between words */
+        .WDEL    = FALSE,                             /* Activation of delay between words */
+        .DFSEL   = SPI_FMT_0,                         /* Data word format selection */
+        .CSNR    = SPI_HARDWARE_CHIP_SELECT_2_ACTIVE, /* CS2 enabled */
+    },
+    {
+        /* struct is implemented in the TI HAL and uses uppercase true and false */
+        .CS_HOLD = TRUE,                              /* If true, HW chip select kept active */
+        .WDEL    = FALSE,                             /* Activation of delay between words */
+        .DFSEL   = SPI_FMT_0,                         /* Data word format selection */
+        .CSNR    = SPI_HARDWARE_CHIP_SELECT_2_ACTIVE, /* CS2 enabled */
+    },
+    {
+        /* struct is implemented in the TI HAL and uses uppercase true and false */
+        .CS_HOLD = TRUE,                              /* If true, HW chip select kept active */
+        .WDEL    = FALSE,                             /* Activation of delay between words */
+        .DFSEL   = SPI_FMT_0,                         /* Data word format selection */
+        .CSNR    = SPI_HARDWARE_CHIP_SELECT_2_ACTIVE, /* CS2 enabled */
+    },
 };
 
-/* SPI interface configuration for LTC communication */
+/**
+ * SPI interface configuration for LTC communication
+ * This is a list of structs because of multistring
+ */
 SPI_INTERFACE_CONFIG_s spi_ltcInterface[BS_NR_OF_STRINGS] = {
     {
-        .channel  = SPI_Interface1,
-        .pConfig  = &spi_kLtcDataConfig,
+        .pConfig  = &spi_kLtcDataConfig[0u],
         .pNode    = spiREG1,
         .pGioPort = &(spiREG1->PC3),
         .csPin    = 2u,
+        .csType   = SPI_CHIP_SELECT_HARDWARE,
     },
     {
-        .channel  = SPI_Interface1,
-        .pConfig  = &spi_kLtcDataConfig,
+        .pConfig  = &spi_kLtcDataConfig[1u],
         .pNode    = spiREG1,
         .pGioPort = &(spiREG1->PC3),
         .csPin    = 2u,
+        .csType   = SPI_CHIP_SELECT_HARDWARE,
     },
     {
-        .channel  = SPI_Interface1,
-        .pConfig  = &spi_kLtcDataConfig,
+        .pConfig  = &spi_kLtcDataConfig[2u],
         .pNode    = spiREG1,
         .pGioPort = &(spiREG1->PC3),
         .csPin    = 2u,
+        .csType   = SPI_CHIP_SELECT_HARDWARE,
     },
 };
 
 SPI_INTERFACE_CONFIG_s spi_ltcInterfaceSecondary[BS_NR_OF_STRINGS] = {
     {
-        .channel  = SPI_Interface1,
-        .pConfig  = &spi_kLtcDataConfig,
+        .pConfig  = &spi_kLtcDataConfig[0u],
         .pNode    = spiREG1,
         .pGioPort = &(spiREG1->PC3),
         .csPin    = 2u,
+        .csType   = SPI_CHIP_SELECT_HARDWARE,
     },
 };
 

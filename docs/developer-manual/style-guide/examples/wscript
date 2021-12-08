@@ -110,7 +110,7 @@ def build(bld):
             )
         )
     ]
-    cflags = ["--c99"]
+    cflags = ["--c11"]
     Example = collections.namedtuple("Example", ["source", "includes", "cflags"])
     examples = [
         Example("c-004.c", includes, cflags),

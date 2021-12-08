@@ -43,7 +43,7 @@
  * @file    mxm_registry.h
  * @author  foxBMS Team
  * @date    2020-07-16 (date of creation)
- * @updated 2021-06-16 (date of last update)
+ * @updated 2021-12-06 (date of last update)
  * @ingroup DRIVERS
  * @prefix  MXM
  *
@@ -112,6 +112,33 @@ extern void MXM_MonRegistryParseIdIntoDevices(
  * @param[in]       rxBufferLength  length of the rxBuffer
  */
 extern void MXM_MonRegistryParseVersionIntoDevices(MXM_MONITORING_INSTANCE_s *pState, uint8_t rxBufferLength);
+
+/**
+ * @brief           Parse STATUS or FMEA into the registry
+ * @param[in,out]   pState          state-pointer
+ * @param[in]       rxBufferLength  length of the rxBuffer
+ */
+extern void MXM_MonRegistryParseStatusFmeaIntoDevices(MXM_MONITORING_INSTANCE_s *pState, uint8_t rxBufferLength);
+
+/**
+ * @brief       check if one of the devices in the registry has the ALRTRST bit set
+ * @details     If a monitoring device is reset, it will set the ALRTRST bit in
+ *              #MXM_REG_STATUS1. This should not happen during normal operation.
+ *              If this happens, initialization of the devices is lost and has
+ *              to be restored. This is done by reseting the state machine.
+ * @param[in,out]   kpkState    state-pointer
+ * @returns true if a device has been reset, false otherwise
+ */
+extern bool MXM_CheckIfADeviceHasBeenReset(const MXM_MONITORING_INSTANCE_s *const kpkState);
+
+/**
+ * @brief       check if a device is connected
+ * @details     Checks the connected state in the registry
+ * @param[in]   kpkState    state-pointer
+ * @param[in]   device      device number
+ * @returns true if a device is connected, false otherwise
+ */
+extern bool MXM_CheckIfADeviceIsConnected(const MXM_MONITORING_INSTANCE_s *const kpkState, uint8_t device);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 

@@ -43,7 +43,7 @@
  * @file    mxm_afe_dma.c
  * @author  foxBMS Team
  * @date    2020-06-16 (date of creation)
- * @updated 2020-06-16 (date of last update)
+ * @updated 2021-12-08 (date of last update)
  * @ingroup DRIVERS
  * @prefix  AFE
  *
@@ -67,7 +67,7 @@
 /*========== Extern Function Implementations ================================*/
 
 /* Function called on DMA complete interrupts (TX and RX). */
-void AFE_DmaCallback(dmaInterrupt_t inttype, uint32 channel) {
+void AFE_DmaCallback(uint8_t spiIndex) {
     /* This function is not implemented. */
     FAS_ASSERT(FAS_TRAP);
 }

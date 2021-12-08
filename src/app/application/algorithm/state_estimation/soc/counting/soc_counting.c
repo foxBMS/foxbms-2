@@ -43,7 +43,7 @@
  * @file    soc_counting.c
  * @author  foxBMS Team
  * @date    2020-10-07 (date of creation)
- * @updated 2021-08-06 (date of last update)
+ * @updated 2021-11-08 (date of last update)
  * @ingroup APPLICATION
  * @prefix  SOC
  *
@@ -275,7 +275,9 @@ void SOC_Init(DATA_BLOCK_SOX_s *pSocValues, bool ccPresent, uint8_t stringNumber
     soc_state.socInitialized = true;
 }
 
+/* INCLUDE MARKER FOR THE DOCUMENTATION; DO NOT MOVE cc-documentation-start-include */
 void SOC_Calculation(DATA_BLOCK_SOX_s *pSocValues) {
+    /* INCLUDE MARKER FOR THE DOCUMENTATION; DO NOT MOVE cc-documentation-stop-include */
     FAS_ASSERT(pSocValues != NULL_PTR);
     bool continueFunction = true;
     if (false == soc_state.socInitialized) {

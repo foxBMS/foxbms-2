@@ -98,12 +98,12 @@
 /**@}*/
 
 /** define for the shift of an address for big endian 8bit */
-#define DMA_BIG_ENDIAN_ADDRESS_8BIT (3U)
+#define DMA_BIG_ENDIAN_ADDRESS_8BIT (3u)
 /** define for the shift of an address for big endian 16bit */
-#define DMA_BIG_ENDIAN_ADDRESS_16BIT (2U)
+#define DMA_BIG_ENDIAN_ADDRESS_16BIT (2u)
 
 /** number of spi interfaces for DMA */
-#define DMA_NUMBER_SPI_INTERFACES 5U
+#define DMA_NUMBER_SPI_INTERFACES 5u
 /** DMA Request enable bit */
 #define DMAREQEN_BIT (0x10000U)
 /** SPI enable bit */

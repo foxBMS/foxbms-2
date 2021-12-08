@@ -100,7 +100,12 @@ numfig = True
 bibtex_bibfiles = ["references.bib"]
 bibtex_default_style = "alpha"
 
+spelling_lang = "en_US"
+tokenizer_lang = "en_US"
 spelling_word_list_filename = ["spelling_wordlist.txt"]
+spelling_ignore_pypi_package_names = False
+spelling_ignore_wiki_words = True
+spelling_show_suggestions = True
 spelling_exclude_patterns = [
     "misc/bibliography.rst",
     "general/team.rst",

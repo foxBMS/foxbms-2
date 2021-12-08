@@ -221,7 +221,7 @@
                                 "properties": {
                                     "chip": {
                                         "enum": [
-                                            "common"
+                                            "max17852"
                                         ]
                                     }
                                 }
@@ -327,7 +327,8 @@
                             "properties": {
                                 "model": {
                                     "enum": [
-                                        "ntcalug01a103g"
+                                        "ntcalug01a103g",
+                                        "ntcle317e4103sba"
                                     ]
                                 }
                             }

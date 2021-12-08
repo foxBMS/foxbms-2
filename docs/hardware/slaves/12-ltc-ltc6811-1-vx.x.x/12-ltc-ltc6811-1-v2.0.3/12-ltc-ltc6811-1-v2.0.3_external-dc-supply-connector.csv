@@ -1,0 +1,3 @@
+Pin;    Signal; Direction;  Description
+1;      |DC+|;  Input;      positive supply terminal
+2;      |DC-|;  Input;      negative supply terminal

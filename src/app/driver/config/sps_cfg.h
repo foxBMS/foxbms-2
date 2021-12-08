@@ -43,7 +43,7 @@
  * @file    sps_cfg.h
  * @author  foxBMS Team
  * @date    2020-10-14 (date of creation)
- * @updated 2021-10-01 (date of last update)
+ * @updated 2021-11-08 (date of last update)
  * @ingroup DRIVERS_CONF
  * @prefix  SPS
  *
@@ -119,7 +119,7 @@
 
 /**
  * These bits and positions are defined in
- * figure 7 page 10 in datasheet Rev. 2 - 11 September 2019
+ * figure 7 page 10 in data sheet Rev. 2 - 11 September 2019
  */
 /** This bit is set to 0 for a read register access, to 1 for a write register access */
 #define SPS_RW_BIT_POSITION (15u)

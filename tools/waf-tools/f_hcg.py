@@ -326,7 +326,7 @@ def fix_gen_hal_incs(self):
 def configure(conf):
     """configuration step of the TI HALCoGen Code Generator.
 
-    #. checks wether the platform is Win32 or not, as HALCoGen is only
+    #. checks whether the platform is Win32 or not, as HALCoGen is only
        supported on Win32.
     #. searches for the HALCoGen program
     #. Adds the include path of the F021 Flash API to ``INCLUDES``

@@ -43,7 +43,7 @@
  * @file    mxm_register_map.h
  * @author  foxBMS Team
  * @date    2019-03-05 (date of creation)
- * @updated 2021-06-16 (date of last update)
+ * @updated 2021-12-06 (date of last update)
  * @ingroup DRIVERS
  * @prefix  MXM
  *
@@ -67,7 +67,7 @@
  *             MAX17853. Please note that the MAX17853 only supports a subset
  *             of these register values.
  */
-typedef enum MXM_REG_NAME {
+typedef enum {
     MXM_REG_VERSION       = 0x00u, /*!< VERSION is a read only
      * accessible register which returns information on the device */
     MXM_REG_ADDRESS       = 0x01u, /*!< ADDRESS is a read and write
@@ -699,7 +699,7 @@ typedef uint16_t MXM_REG_BM;
  *                  - 0000 1000b == MXM_REG_BIT_DEFN(3, 3)
  *                  - 0011 1000b == MXM_REG_BIT_DEFN(3, 5)
  */
-#define MXM_REG_BIT_DEFN(start, end) ((((MXM_REG_BM)1u << ((end) - (start) + 1u)) - 1u) << (start))
+#define MXM_REG_BIT_DEFN(start, end) ((MXM_REG_BM)(((MXM_REG_BM)1u << ((end) - (start) + 1u)) - 1u) << (start))
 
 /**
  * @defgroup mxm_bm Bitmasks for register access of MAX1785x
@@ -720,7 +720,7 @@ typedef uint16_t MXM_REG_BM;
 /**
  * @brief All bits of monitoring register
  */
-#define MXM_BM_WHOLE_REG ((MXM_REG_BM)MXM_REG_BIT_DEFN(0u, 15u))
+#define MXM_BM_WHOLE_REG ((MXM_REG_BM)0xFFFFu)
 /**
  * @brief Monitoring Register Version/Model
  */
@@ -733,6 +733,14 @@ typedef uint16_t MXM_REG_BM;
  * @brief Monitoring Register 14bit ADC value
  */
 #define MXM_REG_ADC_14BIT_VALUE ((MXM_REG_BM)MXM_REG_BIT_DEFN(2u, 15u))
+/**
+ * @brief ALRTRST bit in STATUS1
+ */
+#define MXM_REG_STATUS1_ALRTRST ((MXM_REG_BM)((MXM_REG_BM)(1u) << (14u)))
+/**
+ * @brief ALRTINTRFC bit in STATUS1
+ */
+#define MXM_REG_STATUS1_ALRTINTRFC ((MXM_REG_BM)((1u) << (4u)))
 
 /**
  * @}

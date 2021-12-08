@@ -43,7 +43,7 @@
  * @file    test_mxm_afe_dma.c
  * @author  foxBMS Team
  * @date    2020-06-17 (date of creation)
- * @updated 2020-06-18 (date of last update)
+ * @updated 2021-12-08 (date of last update)
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -71,5 +71,5 @@ void tearDown(void) {
 /*========== Test Cases =====================================================*/
 
 void testAFE_DmaCallbackNotImplemented(void) {
-    TEST_ASSERT_FAIL_ASSERT(AFE_DmaCallback(0u, 0u));
+    TEST_ASSERT_FAIL_ASSERT(AFE_DmaCallback(0u));
 }

@@ -43,7 +43,7 @@
  * @file    general.h
  * @author  foxBMS Team
  * @date    2019-09-24 (date of creation)
- * @updated 2021-07-29 (date of last update)
+ * @updated 2021-11-08 (date of last update)
  * @ingroup GENERAL_CONF
  * @prefix  NONE
  *
@@ -67,14 +67,14 @@
 
 /**
  * @brief   largest pin number that exists in TMS570LC4357
- * @details Checked in the datasheet spnu563a: The largest pin number that is
+ * @details Checked in the data sheet spnu563a: The largest pin number that is
  *          used is 31.
 */
 #define LARGEST_PIN_NUMBER (31u)
 
 /**
  * @brief   maximum number of channels measured by the ADC1
- * @details Checked in the datasheet spnu563a: ADC1 supports 32 channels
+ * @details Checked in the data sheet spnu563a: ADC1 supports 32 channels
  */
 #define ADC_ADC1_MAX_NR_CHANNELS (32U)
 

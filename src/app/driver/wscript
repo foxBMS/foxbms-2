@@ -106,6 +106,7 @@ def build(bld):
         os.path.join("ts", "epcos", "b57861s0103f045", "epcos_b57861s0103f045.c"),
         os.path.join("ts", "fake", "none", "fake_none.c"),
         os.path.join("ts", "vishay", "ntcalug01a103g", "vishay_ntcalug01a103g.c"),
+        os.path.join("ts", "vishay", "ntcle317e4103sba", "vishay_ntcle317e4103sba.c"),
         os.path.join("ts", "beta.c"),
     ]
     includes = [
@@ -140,6 +141,7 @@ def build(bld):
         os.path.join("ts", "epcos", "b57861s0103f045"),
         os.path.join("ts", "fake", "none"),
         os.path.join("ts", "vishay", "ntcalug01a103g"),
+        os.path.join("ts", "vishay", "ntcle317e4103sba"),
         os.path.join("..", "application", "bal"),
         os.path.join("..", "application", "bms"),
         os.path.join("..", "application", "config"),

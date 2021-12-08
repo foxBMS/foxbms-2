@@ -43,7 +43,7 @@
  * @file    ltc_6813-1.c
  * @author  foxBMS Team
  * @date    2019-09-01 (date of creation)
- * @updated 2021-09-30 (date of last update)
+ * @updated 2021-12-07 (date of last update)
  * @ingroup DRIVERS
  * @prefix  LTC
  *
@@ -151,9 +151,9 @@ LTC_STATE_s ltc_stateBase = {
     .commandDataTransferTime   = 3,
     .commandTransferTime       = 3,
     .gpioClocksTransferTime    = 3,
-    .muxmeas_seqptr            = NULL_PTR,
-    .muxmeas_seqendptr         = NULL_PTR,
-    .muxmeas_nr_end            = 0,
+    .muxmeas_seqptr            = {NULL_PTR},
+    .muxmeas_seqendptr         = {NULL_PTR},
+    .muxmeas_nr_end            = {0},
     .first_measurement_made    = false,
     .ltc_muxcycle_finished     = STD_NOT_OK,
     .check_spi_flag            = STD_NOT_OK,
@@ -948,7 +948,7 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
             case LTC_STATEMACH_STARTMEAS:
 
                 ltc_state->adcMode   = LTC_VOLTAGE_MEASUREMENT_MODE;
-                ltc_state->adcMeasCh = LTC_ADCMEAS_ALLCHANNEL;
+                ltc_state->adcMeasCh = LTC_ADCMEAS_ALLCHANNEL_CELLS;
 
                 ltc_state->spiSeqPtr           = ltc_state->ltcData.pSpiInterface;
                 ltc_state->spiNumberInterfaces = BS_NR_OF_STRINGS;
@@ -977,7 +977,7 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
             case LTC_STATEMACH_STARTMEAS_CONTINUE:
 
                 ltc_state->adcMode   = LTC_VOLTAGE_MEASUREMENT_MODE;
-                ltc_state->adcMeasCh = LTC_ADCMEAS_ALLCHANNEL;
+                ltc_state->adcMeasCh = LTC_ADCMEAS_ALLCHANNEL_CELLS;
 
                 ltc_state->check_spi_flag = STD_NOT_OK;
                 retVal = LTC_StartVoltageMeasurement(ltc_state->spiSeqPtr, ltc_state->adcMode, ltc_state->adcMeasCh);
@@ -1205,6 +1205,9 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
 
             /****************************MULTIPLEXED MEASUREMENT CONFIGURATION***********/
             case LTC_STATEMACH_MUXMEASUREMENT:
+
+                ltc_state->adcMode   = LTC_VOLTAGE_MEASUREMENT_MODE;
+                ltc_state->adcMeasCh = LTC_ADCMEAS_SINGLECHANNEL_GPIO1;
 
                 if (ltc_state->substate == LTC_STATEMACH_MUXCONFIGURATION_INIT) {
                     ltc_state->adcMode   = LTC_GPIO_MEASUREMENT_MODE;
@@ -1608,7 +1611,7 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
             case LTC_STATEMACH_ALLGPIOMEASUREMENT:
 
                 ltc_state->adcMode   = LTC_GPIO_MEASUREMENT_MODE;
-                ltc_state->adcMeasCh = LTC_ADCMEAS_ALLCHANNEL;
+                ltc_state->adcMeasCh = LTC_ADCMEAS_ALLCHANNEL_GPIOS;
 
                 ltc_state->check_spi_flag = STD_NOT_OK;
                 retVal = LTC_StartGPIOMeasurement(ltc_state->spiSeqPtr, ltc_state->adcMode, ltc_state->adcMeasCh);
@@ -1755,6 +1758,9 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
 
             /****************************BALANCE FEEDBACK*********************************/
             case LTC_STATEMACH_BALANCEFEEDBACK:
+
+                ltc_state->adcMode   = LTC_GPIO_MEASUREMENT_MODE;
+                ltc_state->adcMeasCh = LTC_ADCMEAS_SINGLECHANNEL_GPIO3;
 
                 if (ltc_state->substate == LTC_ENTRY) {
                     ltc_state->spiSeqPtr = ltc_state->ltcData.pSpiInterface + ltc_state->requestedString;
@@ -2774,7 +2780,7 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                             LTC_STATEMACH_OPENWIRE_CHECK,
                             LTC_REQUEST_PULLUP_CURRENT_OPENWIRE_CHECK,
                             (ltc_state->commandDataTransferTime +
-                             LTC_Get_MeasurementTCycle(ltc_state->adcMode, LTC_ADCMEAS_ALLCHANNEL)));
+                             LTC_Get_MeasurementTCycle(ltc_state->adcMode, LTC_ADCMEAS_ALLCHANNEL_CELLS)));
                         ltc_state->resendCommandCounter--;
 
                         /* Check how many retries are left */
@@ -2785,7 +2791,7 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                                 LTC_STATEMACH_READVOLTAGE,
                                 LTC_READ_VOLTAGE_REGISTER_A_RDCVA_READVOLTAGE,
                                 (ltc_state->commandDataTransferTime +
-                                 LTC_Get_MeasurementTCycle(ltc_state->adcMode, LTC_ADCMEAS_ALLCHANNEL)));
+                                 LTC_Get_MeasurementTCycle(ltc_state->adcMode, LTC_ADCMEAS_ALLCHANNEL_CELLS)));
                             /* Reuse read voltage register */
                             ltc_state->reusageMeasurementMode = LTC_REUSE_READVOLT_FOR_ADOW_PUP;
                         }
@@ -2827,7 +2833,7 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                             LTC_STATEMACH_OPENWIRE_CHECK,
                             LTC_REQUEST_PULLDOWN_CURRENT_OPENWIRE_CHECK,
                             (ltc_state->commandDataTransferTime +
-                             LTC_Get_MeasurementTCycle(ltc_state->adcMode, LTC_ADCMEAS_ALLCHANNEL)));
+                             LTC_Get_MeasurementTCycle(ltc_state->adcMode, LTC_ADCMEAS_ALLCHANNEL_CELLS)));
                         ltc_state->resendCommandCounter--;
 
                         /* Check how many retries are left */
@@ -2838,7 +2844,7 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                                 LTC_STATEMACH_READVOLTAGE,
                                 LTC_READ_VOLTAGE_REGISTER_A_RDCVA_READVOLTAGE,
                                 (ltc_state->commandDataTransferTime +
-                                 LTC_Get_MeasurementTCycle(ltc_state->adcMode, LTC_ADCMEAS_ALLCHANNEL)));
+                                 LTC_Get_MeasurementTCycle(ltc_state->adcMode, LTC_ADCMEAS_ALLCHANNEL_CELLS)));
                             /* Reuse read voltage register */
                             ltc_state->reusageMeasurementMode = LTC_REUSE_READVOLT_FOR_ADOW_PDOWN;
                         }
@@ -3564,29 +3570,45 @@ static void LTC_ResetErrorTable(LTC_STATE_s *ltc_state) {
  * @return  retVal      measurement time in ms
  */
 static uint16_t LTC_Get_MeasurementTCycle(LTC_ADCMODE_e adcMode, LTC_ADCMEAS_CHAN_e adcMeasCh) {
-    uint16_t retVal = LTC_STATEMACH_MEAS_ALL_NORMAL_TCYCLE; /* default */
+    uint16_t retVal = LTC_ADCMEAS_UNDEFINED; /* default */
 
-    if (adcMeasCh == LTC_ADCMEAS_ALLCHANNEL) {
+    if (adcMeasCh == LTC_ADCMEAS_ALLCHANNEL_CELLS) {
         if ((adcMode == LTC_ADCMODE_FAST_DCP0) || (adcMode == LTC_ADCMODE_FAST_DCP1)) {
-            retVal = LTC_STATEMACH_MEAS_ALL_FAST_TCYCLE;
+            retVal = LTC_STATEMACH_MEAS_ALL_CELLS_FAST_TCYCLE;
         } else if ((adcMode == LTC_ADCMODE_NORMAL_DCP0) || (adcMode == LTC_ADCMODE_NORMAL_DCP1)) {
-            retVal = LTC_STATEMACH_MEAS_ALL_NORMAL_TCYCLE;
+            retVal = LTC_STATEMACH_MEAS_ALL_CELLS_NORMAL_TCYCLE;
         } else if ((adcMode == LTC_ADCMODE_FILTERED_DCP0) || (adcMode == LTC_ADCMODE_FILTERED_DCP1)) {
-            retVal = LTC_STATEMACH_MEAS_ALL_FILTERED_TCYCLE;
+            retVal = LTC_STATEMACH_MEAS_ALL_CELLS_FILTERED_TCYCLE;
+        }
+    } else if (adcMeasCh == LTC_ADCMEAS_SINGLECHANNEL_TWOCELLS) {
+        if ((adcMode == LTC_ADCMODE_FAST_DCP0) || (adcMode == LTC_ADCMODE_FAST_DCP1)) {
+            retVal = LTC_STATEMACH_MEAS_TWO_CELLS_FAST_TCYCLE;
+        } else if ((adcMode == LTC_ADCMODE_NORMAL_DCP0) || (adcMode == LTC_ADCMODE_NORMAL_DCP1)) {
+            retVal = LTC_STATEMACH_MEAS_TWO_CELLS_NORMAL_TCYCLE;
+        } else if ((adcMode == LTC_ADCMODE_FILTERED_DCP0) || (adcMode == LTC_ADCMODE_FILTERED_DCP1)) {
+            retVal = LTC_STATEMACH_MEAS_TWO_CELLS_FILTERED_TCYCLE;
+        }
+    } else if (adcMeasCh == LTC_ADCMEAS_ALLCHANNEL_GPIOS) {
+        if ((adcMode == LTC_ADCMODE_FAST_DCP0) || (adcMode == LTC_ADCMODE_FAST_DCP1)) {
+            retVal = LTC_STATEMACH_MEAS_ALL_GPIOS_FAST_TCYCLE;
+        } else if ((adcMode == LTC_ADCMODE_NORMAL_DCP0) || (adcMode == LTC_ADCMODE_NORMAL_DCP1)) {
+            retVal = LTC_STATEMACH_MEAS_ALL_GPIOS_NORMAL_TCYCLE;
+        } else if ((adcMode == LTC_ADCMODE_FILTERED_DCP0) || (adcMode == LTC_ADCMODE_FILTERED_DCP1)) {
+            retVal = LTC_STATEMACH_MEAS_ALL_GPIOS_FILTERED_TCYCLE;
         }
     } else if (
         (adcMeasCh == LTC_ADCMEAS_SINGLECHANNEL_GPIO1) || (adcMeasCh == LTC_ADCMEAS_SINGLECHANNEL_GPIO2) ||
         (adcMeasCh == LTC_ADCMEAS_SINGLECHANNEL_GPIO3) || (adcMeasCh == LTC_ADCMEAS_SINGLECHANNEL_GPIO4) ||
-        (adcMeasCh == LTC_ADCMEAS_SINGLECHANNEL_GPIO5) || (adcMeasCh == LTC_ADCMEAS_SINGLECHANNEL_TWOCELLS)) {
+        (adcMeasCh == LTC_ADCMEAS_SINGLECHANNEL_GPIO5)) {
         if ((adcMode == LTC_ADCMODE_FAST_DCP0) || (adcMode == LTC_ADCMODE_FAST_DCP1)) {
-            retVal = LTC_STATEMACH_MEAS_SINGLE_FAST_TCYCLE;
+            retVal = LTC_STATEMACH_MEAS_SINGLE_GPIO_FAST_TCYCLE;
         } else if ((adcMode == LTC_ADCMODE_NORMAL_DCP0) || (adcMode == LTC_ADCMODE_NORMAL_DCP1)) {
-            retVal = LTC_STATEMACH_MEAS_SINGLE_NORMAL_TCYCLE;
+            retVal = LTC_STATEMACH_MEAS_SINGLE_GPIO_NORMAL_TCYCLE;
         } else if ((adcMode == LTC_ADCMODE_FILTERED_DCP0) || (adcMode == LTC_ADCMODE_FILTERED_DCP1)) {
-            retVal = LTC_STATEMACH_MEAS_SINGLE_FILTERED_TCYCLE;
+            retVal = LTC_STATEMACH_MEAS_SINGLE_GPIO_FILTERED_TCYCLE;
         }
     } else {
-        retVal = LTC_STATEMACH_MEAS_ALL_NORMAL_TCYCLE;
+        retVal = LTC_ADCMEAS_UNDEFINED;
     }
 
     return retVal;
@@ -3610,7 +3632,7 @@ static STD_RETURN_TYPE_e LTC_StartVoltageMeasurement(
     LTC_ADCMEAS_CHAN_e adcMeasCh) {
     STD_RETURN_TYPE_e retVal = STD_OK;
 
-    if (adcMeasCh == LTC_ADCMEAS_ALLCHANNEL) {
+    if (adcMeasCh == LTC_ADCMEAS_ALLCHANNEL_CELLS) {
         if (adcMode == LTC_ADCMODE_FAST_DCP0) {
             retVal = LTC_TransmitCommand(pSpiInterface, ltc_cmdADCV_fast_DCP0);
         } else if (adcMode == LTC_ADCMODE_NORMAL_DCP0) {
@@ -3656,7 +3678,7 @@ static STD_RETURN_TYPE_e LTC_StartGPIOMeasurement(
     LTC_ADCMEAS_CHAN_e adcMeasCh) {
     STD_RETURN_TYPE_e retVal;
 
-    if (adcMeasCh == LTC_ADCMEAS_ALLCHANNEL) {
+    if (adcMeasCh == LTC_ADCMEAS_ALLCHANNEL_GPIOS) {
         if ((adcMode == LTC_ADCMODE_FAST_DCP0) || (adcMode == LTC_ADCMODE_FAST_DCP1)) {
             retVal = LTC_TransmitCommand(pSpiInterface, ltc_cmdADAX_fast_ALLGPIOS);
         } else if ((adcMode == LTC_ADCMODE_FILTERED_DCP0) || (adcMode == LTC_ADCMODE_FILTERED_DCP1)) {

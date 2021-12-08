@@ -3,7 +3,7 @@
 .. |timestamp| date:: %Y-%m-%d %H:%M:%S
 
 .. |foxbms| replace:: foxBMS 2
-.. |version_foxbms| replace:: ``1.2.0``
+.. |version_foxbms| replace:: ``1.2.1``
 .. |github_foxbms| replace:: https://github.com/foxBMS/
 .. |foxbms_repository| replace:: https://github.com/foxBMS/foxbms-2
 .. _Fraunhofer IISB: https://www.iisb.fraunhofer.de
@@ -22,6 +22,10 @@
 .. |conda_env_config_linux| replace:: ``conf/env/conda_env_linux.yaml``
 .. _proxy configuration: https://docs.conda.io/projects/conda/en/latest/user-guide/configuration/use-condarc.html#configure-conda-for-use-behind-a-proxy-server-proxy-servers
 
+.. |git| replace:: Git
+.. |git-website| replace:: https://git-scm.com/
+.. _Git: https://git-scm.com/
+
 .. |texas-instruments| replace:: Texas Instruments
 
 .. |code-composer-studio| replace:: Code Composer Studio
@@ -37,8 +41,8 @@
 .. |version_llvm| replace:: ``11.0.1``
 .. |path_llvm| replace:: ``C:\Program Files\LLVM\11.0.1``
 
-.. |version_pcanse| replace:: ``Version 6.4.1``
-.. |version_symfile| replace:: ``Version 5.0``
+.. |version_pcan_se| replace:: ``Version 6.4.1``
+.. |version_sym_file| replace:: ``Version 5.0``
 
 .. _Ruby: https://www.ruby-lang.org/
 
@@ -108,9 +112,12 @@
 .. |rsl| replace:: *RSL*
 .. |msl| replace:: *MSL*
 
-.. |LTC-old| replace:: LTC6804-1
-.. |LTC| replace:: LTC6811-1
-.. |LTC-18| replace:: LTC6813-1
+.. |adi| replace:: Analog Devices
+
+.. |ltc6804-1| replace:: LTC6804-1
+.. |ltc6811-1| replace:: LTC6811-1
+.. |ltc6813-1| replace:: LTC6813-1
+.. |ltc6820| replace:: LTC6820
 .. |master| replace:: foxBMS Master Unit
 .. |masters| replace:: foxBMS Master Units
 .. |slave| replace:: foxBMS Slave Unit
@@ -126,3 +133,63 @@
 .. |I2C| replace:: I\ :sup:`2`\ C
 
 .. |tbc| replace:: This section of the documentation is not yet complete.
+
+.. |VBAT-|  replace:: ``VBAT-``
+.. |FUSED_VBAT-|  replace:: ``FUSED_VBAT-``
+.. |VBAT+|  replace:: ``VBAT+``
+.. |OUT-|  replace:: ``OUT-``
+.. |OUT+|  replace:: ``OUT+``
+.. |IN-|  replace:: ``IN-``
+.. |IN+|  replace:: ``IN+``
+
+.. |NC|  replace:: *not connected*
+
+.. |CELL_0+|  replace:: ``CELL_0+``
+.. |CELL_1+|  replace:: ``CELL_1+``
+.. |CELL_2+|  replace:: ``CELL_2+``
+.. |CELL_3+|  replace:: ``CELL_3+``
+.. |CELL_4+|  replace:: ``CELL_4+``
+.. |CELL_5+|  replace:: ``CELL_5+``
+.. |CELL_6+|  replace:: ``CELL_6+``
+.. |CELL_7+|  replace:: ``CELL_7+``
+.. |CELL_8+|  replace:: ``CELL_8+``
+.. |CELL_9+|  replace:: ``CELL_9+``
+.. |CELL_10+|  replace:: ``CELL_10+``
+.. |CELL_11+|  replace:: ``CELL_11+``
+.. |CELL_12+|  replace:: ``CELL_12+``
+.. |CELL_13+|  replace:: ``CELL_13+``
+.. |CELL_14+|  replace:: ``CELL_14+``
+.. |CELL_15+|  replace:: ``CELL_15+``
+.. |CELL_16+|  replace:: ``CELL_16+``
+.. |CELL_17+|  replace:: ``CELL_17+``
+
+.. |CELL_0-|  replace:: ``CELL_0-``
+.. |CELL_1-|  replace:: ``CELL_1-``
+.. |CELL_2-|  replace:: ``CELL_2-``
+.. |CELL_3-|  replace:: ``CELL_3-``
+.. |CELL_4-|  replace:: ``CELL_4-``
+.. |CELL_5-|  replace:: ``CELL_5-``
+.. |CELL_6-|  replace:: ``CELL_6-``
+.. |CELL_7-|  replace:: ``CELL_7-``
+.. |CELL_8-|  replace:: ``CELL_8-``
+.. |CELL_9-|  replace:: ``CELL_9-``
+.. |CELL_10-|  replace:: ``CELL_10-``
+.. |CELL_11-|  replace:: ``CELL_11-``
+.. |CELL_12-|  replace:: ``CELL_12-``
+.. |CELL_13-|  replace:: ``CELL_13-``
+.. |CELL_14-|  replace:: ``CELL_14-``
+.. |CELL_15-|  replace:: ``CELL_15-``
+.. |CELL_16-|  replace:: ``CELL_16-``
+.. |CELL_17-|  replace:: ``CELL_17-``
+
+.. |Ohm|    replace:: :math:`{\Omega}`
+.. |kOhm|   replace:: :math:`{k\Omega}`
+
+.. |DC+|  replace:: ``DC+``
+.. |DC-|  replace:: ``DC-``
+
+.. |spidat1|  replace:: ``SPIDAT1``
+.. |cshold|  replace:: ``CSHOLD``
+
+.. |isospi_p|  replace:: ``isoSPI_P``
+.. |isospi_n|  replace:: ``isoSPI_N``

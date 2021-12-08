@@ -43,7 +43,7 @@
  * @file    bal_strategy_voltage.c
  * @author  foxBMS Team
  * @date    2020-05-29 (date of creation)
- * @updated 2020-07-31 (date of last update)
+ * @updated 2021-12-08 (date of last update)
  * @ingroup APPLICATION
  * @prefix  BAL
  *
@@ -117,9 +117,10 @@ static void BAL_ProcessStateBalancing(BAL_STATE_REQUEST_e state_request);
 
 /*========== Static Function Implementations ================================*/
 static bool BAL_ActivateBalancing(void) {
-    bool finished                         = true;
-    DATA_BLOCK_MIN_MAX_s minMax           = {.header.uniqueId = DATA_BLOCK_ID_MIN_MAX};
-    DATA_BLOCK_CELL_VOLTAGE_s cellvoltage = {.header.uniqueId = DATA_BLOCK_ID_CELL_VOLTAGE};
+    bool finished               = true;
+    DATA_BLOCK_MIN_MAX_s minMax = {.header.uniqueId = DATA_BLOCK_ID_MIN_MAX};
+    /* Database entry is declared static, to place it in the data segment and not on the stack */
+    static DATA_BLOCK_CELL_VOLTAGE_s cellvoltage = {.header.uniqueId = DATA_BLOCK_ID_CELL_VOLTAGE};
 
     DATA_READ_DATA(&cellvoltage, &minMax);
 

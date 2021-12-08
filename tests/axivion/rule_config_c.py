@@ -85,3 +85,15 @@ analysis["Parallelism-UnsafeVarAccess"].partitions = {
         "priority": 3,
     },
 }
+
+
+def disallow_unjustified_deviations(issue):
+    """forbid suppressing without justification"""
+    if issue.disabled:
+        if not issue.justification:
+            issue.disabled = False
+
+
+for rule_name in analysis.get_active_rules():
+    if hasattr(analysis[rule_name], "justification_checker"):
+        analysis[rule_name].justification_checker = disallow_unjustified_deviations

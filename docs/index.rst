@@ -155,6 +155,9 @@ All sections are listed here:
     ./hardware/hardware.rst
     ./hardware/design-resources.rst
     ./hardware/connectors.rst
+    ./hardware/master.rst
+    ./hardware/slaves.rst
+    ./hardware/interfaces.rst
 
 .. _SYSTEM_DOCUMENTATION_OVERVIEW:
 

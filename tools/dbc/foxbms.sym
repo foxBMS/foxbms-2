@@ -10,7 +10,7 @@ enum state_e(0="BMS_UNINITIALIZED",  // BMS state machine is uninitialized
   1="BMS_INITIALIZATION",  // BMS state machine is currently trying to initialize
   2="BMS_INITIALIZED",  // BMS state machine is initialized
   3="BMS_IDLE",  // BMS state machine is idling
-  4="BMS_OPEN_CONTACTORS", 5="BMS_STANDBY", 6="BMS_PRECHARGE", 7="BMS_NORMAL", 
+  4="BMS_OPEN_CONTACTORS", 5="BMS_STANDBY", 6="BMS_PRECHARGE", 7="BMS_NORMAL",
   8="BMS_DISCHARGE", 9="BMS_CHARGE", 10="BMS_ERROR", 11="BMS_UNDEFINED")
 
 {SENDRECEIVE}
@@ -1271,7 +1271,7 @@ Var=String0_Err_undertemp_discharge bit 12,1 -m	// 0x00: No error, 0x01: Error: 
 Var=String0_Err_Overcurrent_charge bit 11,1 -m	// 0x00: No error, 0x01: Error: Flag will be set if string charge current is above 30400mA.
 Var=String0_Err_Overcurre_discharge bit 10,1 -m	// 0x00: No error, 0x01: Error: Flag will be set if discharge current is above maximum string current.
 Var=String0_Err_Overvoltage bit 9,1 -m	// 0x00: No error, 0x01: Error: Flag will be set if maximum cell voltage is above 4200mV.
-Var=String0_Err_Undervoltage bit 8,1 -m	// 0x00: No error, 0x01: Error: Flag will be set if minimum cell voltage is below 3000mV. This equals roughly 4% remaining SOC. Minimum datasheet values if 2500mV.
+Var=String0_Err_Undervoltage bit 8,1 -m	// 0x00: No error, 0x01: Error: Flag will be set if minimum cell voltage is below 3000mV. This equals roughly 4% remaining SOC. Minimum data sheet values if 2500mV.
 Var=String0_Err_deep_discharge bit 0,1 -m	// 0x00: No error, 0x01: Error
 Var=String0_Err_CS_currentMeas bit 44,1 -m	// 0x00: No error, 0x01: Error
 Var=String0_Err_positiveContactor bit 39,1 -m	// 0x00: No error, 0x01: Error
@@ -1327,7 +1327,7 @@ Var=String1_Err_undertemp_discharge bit 12,1 -m	// 0x00: No error, 0x01: Error: 
 Var=String1_Err_Overcurrent_charge bit 11,1 -m	// 0x00: No error, 0x01: Error: Flag will be set if string charge current is above 30400mA.
 Var=String1_Err_Overcurre_discharge bit 10,1 -m	// 0x00: No error, 0x01: Error: Flag will be set if discharge current is above maximum string current.
 Var=String1_Err_Overvoltage bit 9,1 -m	// 0x00: No error, 0x01: Error: Flag will be set if maximum cell voltage is above 4200mV.
-Var=String1_Err_Undervoltage bit 8,1 -m	// 0x00: No error, 0x01: Error: Flag will be set if minimum cell voltage is below 3000mV. This equals roughly 4% remaining SOC. Minimum datasheet values if 2500mV.
+Var=String1_Err_Undervoltage bit 8,1 -m	// 0x00: No error, 0x01: Error: Flag will be set if minimum cell voltage is below 3000mV. This equals roughly 4% remaining SOC. Minimum data sheet values if 2500mV.
 Var=String1_Err_deep_discharge bit 0,1 -m	// 0x00: No error, 0x01: Error
 Var=String1_Err_CS_currentMeas bit 44,1 -m	// 0x00: No error, 0x01: Error
 Var=String1_Err_positiveContactor bit 39,1 -m	// 0x00: No error, 0x01: Error
@@ -1383,7 +1383,7 @@ Var=String2_Err_undertemp_discharge bit 12,1 -m	// 0x00: No error, 0x01: Error: 
 Var=String2_Err_Overcurrent_charge bit 11,1 -m	// 0x00: No error, 0x01: Error: Flag will be set if string charge current is above 30400mA.
 Var=String2_Err_Overcurre_discharge bit 10,1 -m	// 0x00: No error, 0x01: Error: Flag will be set if discharge current is above maximum string current.
 Var=String2_Err_Overvoltage bit 9,1 -m	// 0x00: No error, 0x01: Error: Flag will be set if maximum cell voltage is above 4200mV.
-Var=String2_Err_Undervoltage bit 8,1 -m	// 0x00: No error, 0x01: Error: Flag will be set if minimum cell voltage is below 3000mV. This equals roughly 4% remaining SOC. Minimum datasheet values if 2500mV.
+Var=String2_Err_Undervoltage bit 8,1 -m	// 0x00: No error, 0x01: Error: Flag will be set if minimum cell voltage is below 3000mV. This equals roughly 4% remaining SOC. Minimum data sheet values if 2500mV.
 Var=String2_Err_deep_discharge bit 0,1 -m	// 0x00: No error, 0x01: Error
 Var=String2_Err_CS_currentMeas bit 44,1 -m	// 0x00: No error, 0x01: Error
 Var=String2_Err_positiveContactor bit 39,1 -m	// 0x00: No error, 0x01: Error
@@ -1762,4 +1762,3 @@ Var=foxBMS_underVersionControl bit 24,1
 Var=foxBMS_dirtyFlag bit 25,1
 Var=foxBMS_releaseDistance unsigned 24,5 -m
 Var=foxBMS_releaseDistanceOverflow bit 26,1
-

@@ -89,7 +89,7 @@ def run_build_for_defines(self, *k, **kw):  # pylint: disable-msg=unused-argumen
     try:
         os.stat(_dir)
     except OSError:
-        self.fatal("cannot use the configuration test folder %r" % _dir)
+        self.fatal(f"cannot use the configuration test folder {_dir}")
 
     bdir = os.path.join(_dir, "build")
 
@@ -114,7 +114,7 @@ def run_build_for_defines(self, *k, **kw):  # pylint: disable-msg=unused-argumen
     try:
         bld.compile()
     except Errors.WafError:
-        ret = "Test does not build: %s" % traceback.format_exc()
+        ret = f"Test does not build: {traceback.format_exc()}"
         self.fatal(ret)
     else:
         ret = getattr(bld, "retval", 0)
@@ -171,7 +171,7 @@ def get_defines(self, *k, **kw):
     ret = self.post_check(*k, **kw)  # TODO try to remove this
     if not ret:
         self.end_msg(kw["errmsg"], "YELLOW", **kw)
-        self.fatal("The configuration failed %r" % ret)
+        self.fatal(f"The configuration failed {ret}")
     else:
         self.end_msg(self.ret_msg(kw["okmsg"], kw), **kw)
     return defines_file

@@ -1411,7 +1411,7 @@ CM_ SG_ 545 String0_Err_undertemp_discharge "0x00: No error, 0x01: Error: Flag w
 CM_ SG_ 545 String0_Err_Overcurrent_charge "0x00: No error, 0x01: Error: Flag will be set if string charge current is above 30400mA.";
 CM_ SG_ 545 String0_Err_Overcurre_discharge "0x00: No error, 0x01: Error: Flag will be set if discharge current is above maximum string current.";
 CM_ SG_ 545 String0_Err_Overvoltage "0x00: No error, 0x01: Error: Flag will be set if maximum cell voltage is above 4200mV.";
-CM_ SG_ 545 String0_Err_Undervoltage "0x00: No error, 0x01: Error: Flag will be set if minimum cell voltage is below 3000mV. This equals roughly 4% remaining SOC. Minimum datasheet values if 2500mV.";
+CM_ SG_ 545 String0_Err_Undervoltage "0x00: No error, 0x01: Error: Flag will be set if minimum cell voltage is below 3000mV. This equals roughly 4% remaining SOC. Minimum data sheet values if 2500mV.";
 CM_ SG_ 545 String0_Err_deep_discharge "0x00: No error, 0x01: Error";
 CM_ SG_ 545 String0_Err_CS_currentMeas "0x00: No error, 0x01: Error";
 CM_ SG_ 545 String0_Err_positiveContactor "0x00: No error, 0x01: Error";
@@ -1442,7 +1442,7 @@ CM_ SG_ 545 String1_Err_undertemp_discharge "0x00: No error, 0x01: Error: Flag w
 CM_ SG_ 545 String1_Err_Overcurrent_charge "0x00: No error, 0x01: Error: Flag will be set if string charge current is above 30400mA.";
 CM_ SG_ 545 String1_Err_Overcurre_discharge "0x00: No error, 0x01: Error: Flag will be set if discharge current is above maximum string current.";
 CM_ SG_ 545 String1_Err_Overvoltage "0x00: No error, 0x01: Error: Flag will be set if maximum cell voltage is above 4200mV.";
-CM_ SG_ 545 String1_Err_Undervoltage "0x00: No error, 0x01: Error: Flag will be set if minimum cell voltage is below 3000mV. This equals roughly 4% remaining SOC. Minimum datasheet values if 2500mV.";
+CM_ SG_ 545 String1_Err_Undervoltage "0x00: No error, 0x01: Error: Flag will be set if minimum cell voltage is below 3000mV. This equals roughly 4% remaining SOC. Minimum data sheet values if 2500mV.";
 CM_ SG_ 545 String1_Err_deep_discharge "0x00: No error, 0x01: Error";
 CM_ SG_ 545 String1_Err_CS_currentMeas "0x00: No error, 0x01: Error";
 CM_ SG_ 545 String1_Err_positiveContactor "0x00: No error, 0x01: Error";
@@ -1473,7 +1473,7 @@ CM_ SG_ 545 String2_Err_undertemp_discharge "0x00: No error, 0x01: Error: Flag w
 CM_ SG_ 545 String2_Err_Overcurrent_charge "0x00: No error, 0x01: Error: Flag will be set if string charge current is above 30400mA.";
 CM_ SG_ 545 String2_Err_Overcurre_discharge "0x00: No error, 0x01: Error: Flag will be set if discharge current is above maximum string current.";
 CM_ SG_ 545 String2_Err_Overvoltage "0x00: No error, 0x01: Error: Flag will be set if maximum cell voltage is above 4200mV.";
-CM_ SG_ 545 String2_Err_Undervoltage "0x00: No error, 0x01: Error: Flag will be set if minimum cell voltage is below 3000mV. This equals roughly 4% remaining SOC. Minimum datasheet values if 2500mV.";
+CM_ SG_ 545 String2_Err_Undervoltage "0x00: No error, 0x01: Error: Flag will be set if minimum cell voltage is below 3000mV. This equals roughly 4% remaining SOC. Minimum data sheet values if 2500mV.";
 CM_ SG_ 545 String2_Err_deep_discharge "0x00: No error, 0x01: Error";
 CM_ SG_ 545 String2_Err_CS_currentMeas "0x00: No error, 0x01: Error";
 CM_ SG_ 545 String2_Err_positiveContactor "0x00: No error, 0x01: Error";
@@ -2771,7 +2771,7 @@ BA_ "GenSigStartValue" SG_ 409 foxBMS_releaseDistanceOverflow 0;
 
 VAL_ 640 foxBMS_StringValues_Mux 0 "mux_valuesString_0" 1 "mux_valuesString_1" 2 "mux_valuesString_2" ;
 VAL_ 643 foxBMS_StringValues2_Mux 0 "mux_values2String_0" 1 "mux_values2String_1" 2 "mux_values2String_2" ;
-VAL_ 576 foxBMS_CellVoltage_Mux 0 "mux_cellVoltage_000_003" 1 "mux_cellVoltage_004_007" 2 "mux_cellVoltage_008_011" 3 "mux_cellVoltage_012_015" 4 "mux_cellVoltage_016_019" 5 "mux_cellVoltage_020_023" 6 "mux_cellVoltage_024_027" 7 "mux_cellVoltage_028_031" 8 "mux_cellVoltage_032_035" 9 "mux_cellVoltage_036_039" 10 "mux_cellVoltage_040_043" 11 "mux_cellVoltage_044_047" 12 "mux_cellVoltage_048_051" 13 "mux_cellVoltage_052_055" 14 "mux_cellVoltage_056_059" 15 "mux_cellVoltage_060_063" 16 "mux_cellVoltage_064_067" 17 "mux_cellVoltage_068_071" 18 "mux_cellVoltage_072_075" 19 "mux_cellVoltage_076_079" 20 "mux_cellVoltage_080_083" 21 "mux_cellVoltage_084_087" 22 "mux_cellVoltage_088_091" 23 "mux_cellVoltage_092_095" 24 "mux_cellVoltage_096_099" 25 "mux_cellVoltage_100_103" 26 "mux_cellVoltage_104_107" 27 "mux_cellVoltage_108_111" 28 "mux_cellVoltage_112_115" 29 "mux_cellVoltage_116_119" 30 "mux_cellVoltage_120_123" 31 "mux_cellVoltage_124_127" 32 "mux_cellVoltage_128_131" 33 "mux_cellVoltage_132_135" 34 "mux_cellVoltage_136_139" 35 "mux_cellVoltage_140_143" 
+VAL_ 576 foxBMS_CellVoltage_Mux 0 "mux_cellVoltage_000_003" 1 "mux_cellVoltage_004_007" 2 "mux_cellVoltage_008_011" 3 "mux_cellVoltage_012_015" 4 "mux_cellVoltage_016_019" 5 "mux_cellVoltage_020_023" 6 "mux_cellVoltage_024_027" 7 "mux_cellVoltage_028_031" 8 "mux_cellVoltage_032_035" 9 "mux_cellVoltage_036_039" 10 "mux_cellVoltage_040_043" 11 "mux_cellVoltage_044_047" 12 "mux_cellVoltage_048_051" 13 "mux_cellVoltage_052_055" 14 "mux_cellVoltage_056_059" 15 "mux_cellVoltage_060_063" 16 "mux_cellVoltage_064_067" 17 "mux_cellVoltage_068_071" 18 "mux_cellVoltage_072_075" 19 "mux_cellVoltage_076_079" 20 "mux_cellVoltage_080_083" 21 "mux_cellVoltage_084_087" 22 "mux_cellVoltage_088_091" 23 "mux_cellVoltage_092_095" 24 "mux_cellVoltage_096_099" 25 "mux_cellVoltage_100_103" 26 "mux_cellVoltage_104_107" 27 "mux_cellVoltage_108_111" 28 "mux_cellVoltage_112_115" 29 "mux_cellVoltage_116_119" 30 "mux_cellVoltage_120_123" 31 "mux_cellVoltage_124_127" 32 "mux_cellVoltage_128_131" 33 "mux_cellVoltage_132_135" 34 "mux_cellVoltage_136_139" 35 "mux_cellVoltage_140_143"
 36 "mux_cellVoltage_144_147" 37 "mux_cellVoltage_148_151" 38 "mux_cellVoltage_152_155" 39 "mux_cellVoltage_156_159" 40 "mux_cellVoltage_160_163" 41 "mux_cellVoltage_164_167" 42 "mux_cellVoltage_168_171" 43 "mux_cellVoltage_172_175" 44 "mux_cellVoltage_176_179" 45 "mux_cellVoltage_180_183" 46 "mux_cellVoltage_184_187" 47 "mux_cellVoltage_188_191" 48 "mux_cellVoltage_192_195" 49 "mux_cellVoltage_196_199" 50 "mux_cellVoltage_200_203" 51 "mux_cellVoltage_204_207" 52 "mux_cellVoltage_208_211" 53 "mux_cellVoltage_212_215" ;
 VAL_ 592 foxBMS_CellTemperature_Mux 0 "mux_cellTemperature_000_005" 1 "mux_cellTemperature_006_011" 2 "mux_cellTemperature_012_017" 3 "mux_cellTemperature_018_023" 4 "mux_cellTemperature_024_029" 5 "mux_cellTemperature_030_035" 6 "mux_cellTemperature_036_041" 7 "mux_cellTemperature_042_047" 8 "mux_cellTemperature_048_053" 9 "mux_cellTemperature_054_059" 10 "mux_cellTemperature_060_065" 11 "mux_cellTemperature_066_071" 12 "mux_cellTemperature_072_077" 13 "mux_cellTemperature_078_083" 14 "mux_cellTemperature_084_089" 15 "mux_cellTemperature_090_095" 16 "mux_cellTemperature_096_101" 17 "mux_cellTemperature_102_107" 18 "mux_cellTemperature_108_113" 19 "mux_cellTemperature_114_119" 20 "mux_cellTemperature_120_125" 21 "mux_cellTemperature_126_131" 22 "mux_cellTemperature_132_137" 23 "mux_cellTemperature_138_143" 24 "mux_cellTemperature_144_149" 25 "mux_cellTemperature_150_155" 26 "mux_cellTemperature_156_161" 27 "mux_cellTemperature_162_167" 28 "mux_cellTemperature_168_173" 29 "mux_cellTemperature_174_179" ;
 VAL_ 545 foxBMS_StringState_Mux 0 "mux_stateString0" 1 "mux_stateString1" 2 "mux_stateString2" ;
@@ -2779,4 +2779,3 @@ VAL_ 641 foxBMS_StringMinMaxValues_Mux 0 "mux_minMaxValuesString0" 1 "mux_minMax
 VAL_ 642 foxBMS_StringStateEstimation_Mux 0 "mux_String0_SOC_SOE" 1 "mux_String1_SOC_SOE" 2 "mux_String2_SOC_SOE" ;
 VAL_ 560 foxBMS_modeRequest 0 "mode_Standby" 1 "mode_Discharge" 2 "mode_Charge" ;
 VAL_ 544 foxBMS_State 0 "BMS_UNINITIALIZED" 1 "BMS_INITIALIZATION" 2 "BMS_INITIALIZED" 3 "BMS_IDLE" 4 "BMS_OPEN_CONTACTORS" 5 "BMS_STANDBY" 6 "BMS_PRECHARGE" 7 "BMS_NORMAL" 8 "BMS_DISCHARGE" 9 "BMS_CHARGE" 10 "BMS_ERROR" 11 "BMS_UNDEFINED" ;
-

@@ -92,7 +92,7 @@ class TestNamingConventionRegularExpressions(unittest.TestCase):
         return json.loads(test_config)
 
     def _run_test(self, test, test_config, test_re):
-        """Checks the regex against the machting and not-matching test cases."""
+        """Checks the regex against the matching and not-matching test cases."""
         # Axivion uses 'fullmatch', therefore we need to test it the same way
         msg = (
             f"Checking that '{self.test_files_to_rules[test.stem]}: "

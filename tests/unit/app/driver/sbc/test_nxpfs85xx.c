@@ -43,7 +43,7 @@
  * @file    test_nxpfs85xx.c
  * @author  foxBMS Team
  * @date    2020-04-06 (date of creation)
- * @updated 2021-03-24 (date of last update)
+ * @updated 2021-12-08 (date of last update)
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  SBC
  *
@@ -79,7 +79,6 @@ static const spiDAT1_t spi_kSbcDataConfig = {
 };
 
 SPI_INTERFACE_CONFIG_s spi_kSbcMcuInterface = {
-    .channel  = SPI_Interface2,
     .pConfig  = &spi_kSbcDataConfig,
     .pNode    = spiREG2,
     .pGioPort = &(spiREG2->PC3),

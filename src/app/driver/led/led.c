@@ -97,7 +97,7 @@ extern void LED_Trigger(void) {
     counter++;
     FAS_ASSERT(local_led_onOffTime_ms != 0u);
     if (0u == (((uint64_t)counter * LED_PERIODIC_CALL_TIME_ms) % local_led_onOffTime_ms)) {
-        if (1u == IO_PinGet(&LED_PORT->DIN, LED_PIN)) {
+        if (STD_PIN_HIGH == IO_PinGet(&LED_PORT->DIN, LED_PIN)) {
             IO_PinReset(&LED_PORT->DOUT, LED_PIN);
         } else {
             IO_PinSet(&LED_PORT->DOUT, LED_PIN);

@@ -47,14 +47,14 @@ elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
     SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
     while read -r line; do
         PATHS_TO_ADD=`echo "${PATHS_TO_ADD}:$line"| sed --expression='s/^M/:/g'`
-    done < ${SCRIPTDIR}/../../../conf/env/paths_linux.txt
+    done < ${SCRIPTDIR}/../../conf/env/paths_linux.txt
     PATHS_TO_ADD=`echo $PATHS_TO_ADD | awk '{gsub("C:", "/c", $0); print}'`
     PATHS_TO_ADD=$(echo "${PATHS_TO_ADD#?}" | tr '\\' '/')
     export PATH=$PATHS_TO_ADD:$PATH
     # call find_base_conda and make sure that we do not exit by printing
     # the exit code to CONDA_VARS (otherwise we would exit with set -e, here
     # we will not as echo returns exit code 0)
-    CONDA_VARS=$($SCRIPTDIR/../../../tools/utils/bash/find_base_conda.sh || echo $?)
+    CONDA_VARS=$($SCRIPTDIR/bash/find_base_conda.sh update || echo $?)
     if [ "${CONDA_VARS: -1}" == "1" ]; then
         # strip the exit code that we have printed to CONDA_VARS and
         # print the rest
@@ -66,6 +66,16 @@ elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
     CONDA_BASE_ENVIRONMENT_ACTIVATE_SCRIPT=${CONDA_VARS_ARRAY[1]}
     CONDA_DEVELOPMENT_ENVIRONMENT_NAME=${CONDA_VARS_ARRAY[2]}
     CONDA_DEVELOPMENT_ENVIRONMENT_CONFIGURATION_FILE=${CONDA_VARS_ARRAY[3]}
+
+    if [ -z "${CONDA_BASE_ENVIRONMENT_ACTIVATE_SCRIPT}" ]; then
+        echo "Could not find 'base' environment."
+        exit 1
+    fi
+    if [ -d "${CONDA_BASE_ENVIRONMENT_INCLUDING_DEVELOPMENT_ENVIRONMENT}/envs/${CONDA_DEVELOPMENT_ENVIRONMENT_NAME}" ]; then
+        echo "Environment '${CONDA_DEVELOPMENT_ENVIRONMENT_NAME}' already exists. Nothing to do."
+        exit 1
+    fi
+
     echo "Activating base environment..."
     source $CONDA_BASE_ENVIRONMENT_ACTIVATE_SCRIPT base
     echo "done..."
@@ -85,12 +95,22 @@ elif [ "$(expr substr $(uname -s) 1 10)" == "MINGW64_NT" ] || [ "$(expr substr $
         chcp.com 850 >/dev/null 2>&1
     fi
     SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-    CONDA_VARS=$($SCRIPTDIR/find_base_conda.sh)
+    CONDA_VARS=$($SCRIPTDIR/bash/find_base_conda.sh update)
     CONDA_VARS_ARRAY=($CONDA_VARS)
     CONDA_BASE_ENVIRONMENT_INCLUDING_DEVELOPMENT_ENVIRONMENT=${CONDA_VARS_ARRAY[0]}
     CONDA_BASE_ENVIRONMENT_ACTIVATE_SCRIPT=${CONDA_VARS_ARRAY[1]}
     CONDA_DEVELOPMENT_ENVIRONMENT_NAME=${CONDA_VARS_ARRAY[2]}
     CONDA_DEVELOPMENT_ENVIRONMENT_CONFIGURATION_FILE=${CONDA_VARS_ARRAY[3]}
+
+    if [ -z "${CONDA_BASE_ENVIRONMENT_ACTIVATE_SCRIPT}" ]; then
+        echo "Could not find 'base' environment."
+        exit 1
+    fi
+    if [ -d "${CONDA_BASE_ENVIRONMENT_INCLUDING_DEVELOPMENT_ENVIRONMENT}/envs/${CONDA_DEVELOPMENT_ENVIRONMENT_NAME}" ]; then
+        echo "Environment '${CONDA_DEVELOPMENT_ENVIRONMENT_NAME}' already exists. Nothing to do."
+        exit 1
+    fi
+
     echo "Activating base environment..."
     source $CONDA_BASE_ENVIRONMENT_ACTIVATE_SCRIPT base
     echo "done..."

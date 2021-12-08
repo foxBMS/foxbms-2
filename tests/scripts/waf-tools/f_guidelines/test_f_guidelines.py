@@ -94,7 +94,7 @@ except ImportError:
     from f_guidelines import GuidelineViolations
 
 rules_file = os.path.join(ROOT, "conf", "guidelines", "rules.json")
-with open(rules_file) as open_file:
+with open(rules_file, encoding="utf-8") as open_file:
     rules = json.loads(open_file.read())
 
 
@@ -105,7 +105,7 @@ def get_results(tests_folder, result_json_file):
         tests_folder (string): folder name of the test
     """
     result_path = os.path.join(TEST_FILES_PATH, tests_folder, result_json_file)
-    with open(result_path) as file:
+    with open(result_path, encoding="utf-8") as file:
         results = json.loads(file.read())
         return results
 
@@ -113,7 +113,12 @@ def get_results(tests_folder, result_json_file):
 def get_txt(f):
     """returns the content of file"""
     txt = None
-    with open(os.path.join(TEST_FILES_PATH, f), "r", newline=os.linesep) as text_file:
+    with open(
+        os.path.join(TEST_FILES_PATH, f),
+        "r",
+        newline=os.linesep,
+        encoding="utf-8",
+    ) as text_file:
         txt = text_file.read()
     return txt
 

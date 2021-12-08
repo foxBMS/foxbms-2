@@ -43,7 +43,7 @@
  * @file    test_mxm_register_map.c
  * @author  foxBMS Team
  * @date    2020-04-07 (date of creation)
- * @updated 2020-05-14 (date of last update)
+ * @updated 2021-12-06 (date of last update)
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -75,4 +75,6 @@ void testMXMRegisterMapExamplesForMASK(void) {
     TEST_ASSERT_EQUAL(0b1000u, MXM_REG_BIT_DEFN(3, 3));
 
     TEST_ASSERT_EQUAL(0b00111000u, MXM_REG_BIT_DEFN(3, 5));
+
+    TEST_ASSERT_EQUAL(0xFFFFu, MXM_REG_BIT_DEFN(0u, 15u));
 }

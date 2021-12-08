@@ -43,7 +43,7 @@
  * @file    nxpfs85xx.h
  * @author  foxBMS Team
  * @date    2020-03-18 (date of creation)
- * @updated 2020-03-18 (date of last update)
+ * @updated 2021-11-08 (date of last update)
  * @ingroup DRIVERS
  * @prefix  FS85X
  *
@@ -66,7 +66,7 @@
 
 /*========== Macros and Definitions =========================================*/
 /** struct for fail-safe registers
- * for register description see datasheet FS84_FS85 - Rev. 3.0 - 9 April 2019 */
+ * for register description see data sheet FS84_FS85 - Rev. 3.0 - 9 April 2019 */
 typedef struct FS85X_FS_REGISTERS {
     uint16_t grl_flags;                             /*!< FS8X_FS_GRL_FLAGS_ADDR */
     uint16_t iOvervoltageUndervolateSafeReaction1;  /*!< FS8X_FS_I_OVUV_SAFE_REACTION1_ADDR */
@@ -87,7 +87,7 @@ typedef struct FS85X_FS_REGISTERS {
 } FS85X_FS_REGISTER_s;
 
 /** struct for main registers
- * for register description see datasheet FS84_FS85 - Rev. 3.0 - 9 April 2019 */
+ * for register description see data sheet FS84_FS85 - Rev. 3.0 - 9 April 2019 */
 typedef struct FS85X_MAIN_REGISTERS {
     uint16_t flag;              /*!< FS8X_M_FLAG_ADDR */
     uint16_t mode;              /*!< FS8X_M_MODE_ADDR */

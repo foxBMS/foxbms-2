@@ -43,7 +43,7 @@
  * @file    spi_cfg.h
  * @author  foxBMS Team
  * @date    2020-03-05 (date of creation)
- * @updated 2020-09-30 (date of last update)
+ * @updated 2021-12-08 (date of last update)
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  SPI
  *
@@ -64,6 +64,38 @@
 #include "HL_spi.h"
 
 /*========== Macros and Definitions =========================================*/
+
+/** Index for the SPI nodes @{ */
+#define SPI_SPI1_INDEX (0u)
+#define SPI_SPI2_INDEX (1u)
+#define SPI_SPI3_INDEX (2u)
+#define SPI_SPI4_INDEX (3u)
+#define SPI_SPI5_INDEX (4u)
+/**@}*/
+
+/** Bit in SPIDAT1 register that activates hardware Chip Select hold */
+#define SPI_CSHOLD_BIT (0x10000000U)
+
+/** Bit in SPIDAT1 register that activates delay between words */
+#define SPI_WDEL_BIT (0x04000000U)
+
+/** Position of CSNR field in SPIDAT1 register */
+#define SPI_HARDWARE_CHIP_SELECT_FIELD_POSITION (16U)
+
+/** Position of DFSEL field in SPIDAT1 register */
+#define SPI_DATA_FORMAT_FIELD_POSITION (24U)
+
+/** Position of TX buffer empty flag in SPIFLG register */
+#define SPI_TX_BUFFER_EMPTY_FLAG_POSITION (9u)
+
+/** Mask used to clear all HW CS bits */
+#define SPI_PC0_CLEAR_HW_CS_MASK (0xFFFFFF00u)
+
+/** Time to avoid infinite loop when waiting for Tx empty flag in a while loop */
+#define SPI_TX_EMPTY_TIMEOUT_ITERATIONS (6000u)
+
+/** Max number of hardware chip select pins */
+#define SPI_MAX_NUMBER_HW_CS (6u)
 
 /* TODO: check definition of SPI nodes depending on target hardware */
 /** SPI defines for LTC */
@@ -94,36 +126,35 @@ typedef enum SPI_BUSY_STATE {
     SPI_BUSY,
 } SPI_BUSY_STATE_e;
 
-/** spi block identification numbers */
-typedef enum SPI_INTERFACE {
-    SPI_Interface1,
-    SPI_Interface2,
-    SPI_Interface3,
-    SPI_Interface4,
-    SPI_Interface5,
-} SPI_INTERFACE_e;
+/* INCLUDE MARKER FOR THE DOCUMENTATION; DO NOT MOVE spi-documentation-cs-type-start-include */
+/** type of chip select for spi */
+typedef enum SPI_CHIP_SELECT_TYPE {
+    SPI_CHIP_SELECT_HARDWARE,
+    SPI_CHIP_SELECT_SOFTWARE,
+} SPI_CHIP_SELECT_TYPE_e;
+/* INCLUDE MARKER FOR THE DOCUMENTATION; DO NOT MOVE spi-documentation-cs-type-stop-include */
 
+/* INCLUDE MARKER FOR THE DOCUMENTATION; DO NOT MOVE spi-documentation-configuration-start-include */
 /** configuration of the SPI interface */
 typedef struct SPI_INTERFACE_CONFIG {
-    SPI_INTERFACE_e channel;
-    const spiDAT1_t *pConfig;
+    spiDAT1_t *pConfig;
     spiBASE_t *pNode;
     volatile uint32_t *pGioPort;
     uint32_t csPin;
+    SPI_CHIP_SELECT_TYPE_e csType;
 } SPI_INTERFACE_CONFIG_s;
+/* INCLUDE MARKER FOR THE DOCUMENTATION; DO NOT MOVE spi-documentation-configuration-stop-include */
 
 /*========== Extern Constant and Variable Declarations ======================*/
 extern SPI_INTERFACE_CONFIG_s spi_ltcInterface[BS_NR_OF_STRINGS];
 extern SPI_INTERFACE_CONFIG_s spi_MxmInterface;
-extern SPI_INTERFACE_CONFIG_s spi_nxp775Interface;
+extern SPI_INTERFACE_CONFIG_s spi_nxp775InterfaceTx[BS_NR_OF_STRINGS];
+extern SPI_INTERFACE_CONFIG_s spi_nxp775InterfaceRx[BS_NR_OF_STRINGS];
 extern SPI_INTERFACE_CONFIG_s spi_framInterface;
 extern SPI_INTERFACE_CONFIG_s spi_spsInterface;
 extern SPI_INTERFACE_CONFIG_s spi_adc0Interface;
 extern SPI_INTERFACE_CONFIG_s spi_adc1Interface;
 extern SPI_INTERFACE_CONFIG_s spi_kSbcMcuInterface;
-extern SPI_INTERFACE_CONFIG_s spi_dmaTransmission[];
-
-extern uint32_t spi_saveFmt0[];
 
 extern SPI_BUSY_STATE_e spi_busyFlags[];
 

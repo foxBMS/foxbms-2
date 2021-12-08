@@ -2,7 +2,7 @@
     "slave-unit": {
         "analog-front-end": {
             "manufacturer": "maxim",
-            "chip": "common"
+            "chip": "max17852"
         },
         "balancing-strategy": "voltage",
         "temperature-sensor": {

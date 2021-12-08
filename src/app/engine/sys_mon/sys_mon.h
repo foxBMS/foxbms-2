@@ -43,7 +43,7 @@
  * @file    sys_mon.h
  * @author  foxBMS Team
  * @date    2019-11-28 (date of creation)
- * @updated 2020-01-21 (date of last update)
+ * @updated 2021-11-10 (date of last update)
  * @ingroup ENGINE
  * @prefix  SYSM
  *
@@ -85,11 +85,11 @@ extern void SYSM_CheckNotifications(void);
 /**
  * @brief   Sets needed bits to indicate that a task is running
  * @details Has to be called in every function using the system monitoring.
- * @param   tsk_id      task id to notify system monitoring
- * @param   state       wether function has been called at entry or exit
+ * @param   taskId      task id to notify system monitoring
+ * @param   state       whether function has been called at entry or exit
  * @param   time        time
  */
-extern void SYSM_Notify(SYSM_TASK_ID_e tsk_id, SYSM_NOTIFY_TYPE_e state, uint32_t time);
+extern void SYSM_Notify(SYSM_TASK_ID_e taskId, SYSM_NOTIFY_TYPE_e state, uint32_t time);
 
 /*========== Getter for static Variables (Unit Test) ========================*/
 #ifdef UNITY_UNIT_TEST

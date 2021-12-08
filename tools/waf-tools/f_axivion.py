@@ -85,7 +85,7 @@ def patch_for_axivion_build(self, bld):  # pylint: disable=unused-argument
             Logs.warn(
                 "Consistency of .aux, .crl and .rl output files can not be guaranteed."
             )
-        out_obj = "%s.%d.obj" % (node.name, self.idx)
+        out_obj = f"{node.name}.{self.idx}.obj"
         task = self.create_task(
             t_name,
             src=node,
@@ -121,9 +121,7 @@ def patch_for_axivion_build(self, bld):  # pylint: disable=unused-argument
             bld.fatal("linker script missing")
         bld.env.LINKER_SCRIPT = kw["linker_script"].abspath()
         kw["features"] = "c cprogram"
-        tgt_elf = bld.path.find_or_declare(
-            "%s.%s" % (kw["target"], bld.env.DEST_BIN_FMT)
-        )
+        tgt_elf = bld.path.find_or_declare(f"{kw['target']}.{bld.env.DEST_BIN_FMT}")
         kw["target"] = [tgt_elf]
         bld.add_manual_dependency(tgt_elf, kw["linker_script"])
         return bld(*k, **kw)

@@ -43,7 +43,7 @@
  * @file    mxm_1785x_tools.h
  * @author  foxBMS Team
  * @date    2020-07-15 (date of creation)
- * @updated 2021-07-14 (date of last update)
+ * @updated 2021-12-06 (date of last update)
  * @ingroup DRIVERS
  * @prefix  MXM
  *
@@ -60,6 +60,7 @@
 /*========== Includes =======================================================*/
 #include "mxm_cfg.h"
 
+#include "database.h"
 #include "mxm_basic_defines.h"
 #include "mxm_battery_management.h"
 #include "mxm_register_map.h"
@@ -71,7 +72,7 @@
  * State transitions are currently autonomous and will have to be integrated into
  * the Battery System state-machine.
  */
-typedef enum MXM_STATEMACHINE_STATES {
+typedef enum {
     MXM_STATEMACHINE_STATES_UNINITIALIZED,       /*!< uninitialized state */
     MXM_STATEMACHINE_STATES_SELFCHECK_PRE_INIT,  /*!< self-check that has to be executed before initialization */
     MXM_STATEMACHINE_STATES_INIT,                /*!< initialization sequence */
@@ -82,8 +83,10 @@ typedef enum MXM_STATEMACHINE_STATES {
 } MXM_STATEMACHINE_STATES_e;
 
 /** states of the #MXM_StateMachineOperation() statemachine */
-typedef enum MXM_STATEMACHINE_OPERATION_STATES_e {
+typedef enum {
+    MXM_INIT_ENTRY,
     MXM_INIT_DEVCFG1,
+    MXM_INIT_SET_STATUS2,
     MXM_INIT_STATUS1,
     MXM_INIT_GET_VERSION,
     MXM_INIT_GET_ID1,
@@ -119,8 +122,17 @@ typedef enum MXM_STATEMACHINE_OPERATION_STATES_e {
     MXM_INIT_I2C_SEND_MUX0,
     MXM_INIT_I2C_SEND_MUX1,
     MXM_INIT_GET_I2C_STAT2,
-    MXM_INIT_SET_FMEA2,
     MXM_OP_ENTRY_STATE,
+    MXM_OP_DIAGNOSTIC_ENTRY,
+    MXM_OP_DIAGNOSTIC_STATUS1,
+    MXM_OP_DIAGNOSTIC_STATUS2,
+    MXM_OP_DIAGNOSTIC_STATUS3,
+    MXM_OP_DIAGNOSTIC_FMEA1,
+    MXM_OP_DIAGNOSTIC_FMEA2,
+    MXM_OP_DIAGNOSTIC_CLEAR_STATUS2,
+    MXM_OP_DIAGNOSTIC_CLEAR_FMEA1,
+    MXM_OP_DIAGNOSTIC_CLEAR_FMEA2,
+    MXM_OP_DIAGNOSTIC_EXIT,
     MXM_OP_SELECT_MUX_CHANNEL,
     MXM_OP_WRITE_MUX0,
     MXM_OP_WRITE_MUX1,
@@ -148,16 +160,15 @@ typedef enum MXM_STATEMACHINE_OPERATION_STATES_e {
 } MXM_STATEMACHINE_OPERATION_STATES_e;
 
 /** intermediate state-definition for #MXM_MonGetVoltages() */
-typedef enum MXM_MONITORING_STATE {
+typedef enum {
     MXM_MONITORING_STATE_PENDING, /*!< state completion is pending */
     MXM_MONITORING_STATE_PASS,    /*!< state passed successfully */
-    MXM_MONITORING_STATE_FAIL, /*!< unrecoverable failure that has to be handled by e.g., reset (function has already tried recovery) */
-} MXM_MONINTORING_STATE_e;
+} MXM_MONITORING_STATE_e;
 
 /**
  * struct describing the different return values of selfchecks that the driver can execute
  */
-typedef struct MXM_SELFCHECK {
+typedef struct {
     STD_RETURN_TYPE_e crc;         /*!< CRC self-check; stores the return value of #MXM_CRC8SelfTest(). */
     STD_RETURN_TYPE_e conv;        /*!< Conversion self-check; stores the return value of #MXM_ConvertTest(). */
     STD_RETURN_TYPE_e firstSetBit; /*!< First Set Bit self-check; stores the return value of #MXM_FirstSetBitTest(). */
@@ -175,12 +186,17 @@ typedef struct MXM_SELFCHECK {
 /* TODO read and verify OTP register */
 
 /** struct describing an entry into the monitoring registry */
-typedef struct MXM_REGISTRY_ENTRY {
+typedef struct {
     bool connected;                      /*!< state variable, indicates whether monitoring IC is connected */
     uint8_t deviceAddress;               /*!< address that has been assigned during enumeration */
     MXM_MODEL_ID_e model;                /*!< model (e.g. 17853) */
     MXM_siliconVersion_e siliconVersion; /*!< silicon version of chip */
     uint32_t deviceID;                   /*!< 24-bit unique device ID */
+    uint16_t registerStatus1;            /*!< content of the STATUS1 register */
+    uint16_t registerStatus2;            /*!< content of the STATUS2 register */
+    uint16_t registerStatus3;            /*!< content of the STATUS3 register */
+    uint16_t registerFmea1;              /*!< content of the FMEA1 register */
+    uint16_t registerFmea2;              /*!< content of the FMEA2 register */
 } MXM_REGISTRY_ENTRY_s;
 
 /**
@@ -191,29 +207,49 @@ typedef struct MXM_REGISTRY_ENTRY {
  *          6 command bytes and #MXM_MAXIMUM_NR_OF_MODULES times 2 receive
  *          bytes for the maximum number of connected monitoring ICs.
  */
-#define MXM_RX_BUFFER_LENGTH 100
+#define MXM_RX_BUFFER_LENGTH (100u)
+
+/** struct that contains the state of the balancing subsystem */
+typedef struct {
+    uint8_t moduleBalancingIndex;     /*!< index of the module that is currently handled */
+    bool evenCellsNeedBalancing;      /*!< indicates that even cells need balancing */
+    bool oddCellsNeedBalancing;       /*!< indicates that odd cells need balancing */
+    bool evenCellsBalancingProcessed; /*!< balancing of even cells has been processed */
+    bool oddCellsBalancingProcessed;  /*!< balancing of odd cells has been processed */
+    uint16_t cellsToBalance;          /*!< bitfield used for register BALSWCTRL, 16 bits for upt to 14 cells */
+    uint32_t previousTimeStamp;       /*!< timestamp of previous balancing checkpoint */
+    uint32_t currentTimeStamp;        /*!< timestamp of current balancing checkpoint */
+    DATA_BLOCK_BALANCING_CONTROL_s *const pBalancingControl_table; /*!< balancing control table */
+} MXM_BALANCING_STATE_s;
 
 /** Status of the Maxim-main-state-machine. */
-typedef struct MXM_MONITORING_INSTANCE {
-    MXM_STATEMACHINE_STATES_e state;                       /*!< state of the maxim state-machine */
+typedef struct {
+    bool resetNecessary;             /*!< a reset of the whole driver is requested (due to an error) */
+    uint8_t errorCounter;            /*!< counts the number of errors and issues a reset when the counter trips */
+    uint32_t timestampLastError;     /*!< timestamp of last error counter increment; will be reset if old enough */
+    MXM_STATEMACHINE_STATES_e state; /*!< state of the maxim state-machine */
     MXM_STATEMACHINE_OPERATION_STATES_e operationSubstate; /*!< substate during operation of monitoring */
-    bool allowStartup;         /*!< indicates whether start of state-machine has been requested */
-    bool operationRequested;   /*!< indicates whether the measurement cycle should run */
-    bool firstMeasurementDone; /*!< this bit is set after the first measurement cycle */
-    bool stopRequested;        /*!< indicates that no new measurement cycles should be run */
-    bool openwireRequested;    /*!< indicates that an openwire-check has been requested */
-    bool undervoltageAlert;
-    /*!< whether undervoltage alert has occurred */ /* TODO remove? replaced by DC? */
-    uint8_t muxCounter;                             /*!< counter for the currently selected mux channel */
-    MXM_DC_BYTE_e dcByte;                           /*!< content of the data-check-byte */
-    uint8_t mxmVoltageCellCounter;                  /*!< counter for getting all cellvoltages */
-    uint8_t highest5xDevice;                        /*!< address of highest monitoring device of the 5x family */
-    MXM_5X_STATE_REQUEST_STATUS_e requestStatus5x;  /*!< status of request to 5x */
-    MXM_5X_COMMAND_PAYLOAD_s batteryCmdBuffer;      /*!< buffer for Battery Management Commands */
-    STD_RETURN_TYPE_e resultSelfCheck;              /*!< Status of driver-wide self-check */
-    MXM_SELFCHECK_s selfCheck;                      /*!< stores self check return values */
-    MXM_41B_INSTANCE_s *pInstance41B;               /*!< instance-pointer of the 41b-state-machine */
-    MXM_5X_INSTANCE_s *pInstance5X;                 /*!< instance-pointer of the 5x-state-machine */
+    bool allowStartup;             /*!< indicates whether start of state-machine has been requested */
+    bool operationRequested;       /*!< indicates whether the measurement cycle should run */
+    bool firstMeasurementDone;     /*!< this bit is set after the first measurement cycle */
+    bool stopRequested;            /*!< indicates that no new measurement cycles should be run */
+    bool openwireRequested;        /*!< indicates that an openwire-check has been requested */
+    bool undervoltageAlert;        /*!< whether undervoltage alert has occurred. TODO remove? replaced by DC? */
+    uint8_t muxCounter;            /*!< counter for the currently selected mux channel */
+    uint8_t diagnosticCounter;     /*!< upward counter for determining when a diagnostic cycle should be entered */
+    MXM_DC_BYTE_e dcByte;          /*!< content of the data-check-byte */
+    uint8_t mxmVoltageCellCounter; /*!< counter for getting all cellvoltages */
+    uint8_t highest5xDevice;       /*!< address of highest monitoring device of the 5x family */
+    MXM_5X_STATE_REQUEST_STATUS_e requestStatus5x;                /*!< status of request to 5x */
+    MXM_5X_COMMAND_PAYLOAD_s batteryCmdBuffer;                    /*!< buffer for Battery Management Commands */
+    STD_RETURN_TYPE_e resultSelfCheck;                            /*!< Status of driver-wide self-check */
+    MXM_SELFCHECK_s selfCheck;                                    /*!< stores self check return values */
+    MXM_BALANCING_STATE_s *const pBalancingState;                 /*!< pointer to the balancing structure */
+    MXM_41B_INSTANCE_s *const pInstance41B;                       /*!< instance-pointer of the 41b-state-machine */
+    MXM_5X_INSTANCE_s *const pInstance5X;                         /*!< instance-pointer of the 5x-state-machine */
+    DATA_BLOCK_CELL_VOLTAGE_s *const pCellVoltages_table;         /*!< cell voltages table */
+    DATA_BLOCK_CELL_TEMPERATURE_s *const pCellTemperatures_table; /*!< cell temperatures table */
+    DATA_BLOCK_OPEN_WIRE_s *const pOpenwire_table;                /*!< open wire table */
     /**
      * @brief Local storage for cell-voltages
      *
@@ -241,7 +277,7 @@ typedef struct MXM_MONITORING_INSTANCE {
  * @brief       Convert a measurement value to a voltage value.
  * @details     This function converts measurement values from the monitoring
  *              IC into a voltage value. It assumes that measurement values are
- *              spread over the LSB and MSB according to the datasheet. This
+ *              spread over the LSB and MSB according to the data sheet. This
  *              means that the two lowest bits are 0 and the 14-bit measurement
  *              is spread over the 14 highest bits.
  *
@@ -295,15 +331,6 @@ extern void MXM_ExtractValueFromRegister(uint8_t lsb, uint8_t msb, MXM_REG_BM bi
  * @return  #STD_OK if the self-check has passed successfully
  */
 extern STD_RETURN_TYPE_e must_check_return MXM_ExtractValueFromRegisterTest(void);
-
-/**
- * @brief   Find Position of first set bit in bitmask
- * @details Searches a bitmask starting from the lowest bit and returns the
- *          position of the first set bit.
- * @param[in]   bitmask     bitmask that should be searched
- * @return      position of first set bit
- */
-extern uint8_t MXM_FirstSetBit(uint16_t bitmask);
 
 /**
  * @brief   Test #MXM_FirstSetBit().

@@ -110,9 +110,9 @@ extern void IO_PinReset(volatile uint32_t *pRegisterAddress, uint32_t pin);
  *          corresponding peripheral.
  * @param   pRegisterAddress    address of pin output register
  * @param   pin                 bit position corresponding to pin in register
- * @return  state of the pin
+ * @return  #STD_PIN_STATE_e state of the pin
  */
-extern uint8_t IO_PinGet(const volatile uint32_t *pRegisterAddress, uint32_t pin);
+extern STD_PIN_STATE_e IO_PinGet(const volatile uint32_t *pRegisterAddress, uint32_t pin);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 

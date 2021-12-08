@@ -1,0 +1,6 @@
+GPIO;   connect to pin header;  connect to internal function
+1;      R1405-1/2;              R1406-1/2 (default)
+2;      R1409-1/2;              R1410-1/2 (default)
+3;      R1412-1/2;              R1413-1/2 (default)
+4;      R1414-1/2;              R1417-1/2 (default)
+5;      R1418-1/2;              R1420-1/2 (default)

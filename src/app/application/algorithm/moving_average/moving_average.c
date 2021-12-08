@@ -43,7 +43,7 @@
  * @file    moving_average.c
  * @author  foxBMS Team
  * @date    2017-12-18 (date of creation)
- * @updated 2021-09-08 (date of last update)
+ * @updated 2021-11-10 (date of last update)
  * @ingroup ALGORITHMS
  * @prefix  ALGO
  *
@@ -170,7 +170,7 @@ static float *pMovingAveragePower_cfg = &powValues[0];
 /*========== Static Function Implementations ================================*/
 
 /*========== Extern Function Implementations ================================*/
-extern void ALGO_MovAverage() {
+extern void ALGO_MovAverage(void) {
     static uint8_t curCounter                            = 0u;
     static uint8_t powCounter                            = 0u;
     static DATA_BLOCK_CURRENT_SENSOR_s curPow_tab        = {.header.uniqueId = DATA_BLOCK_ID_CURRENT_SENSOR};

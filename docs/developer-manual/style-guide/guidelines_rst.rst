@@ -35,14 +35,15 @@ For example the valid file names for a reStructuredText sources are
 Linelength (``RST:002``)
 ------------------------
 
-Each line of text in your code **SHOULD** be at most 120
-characters long. A line **MAY** exceed 120 characters if it is
+Each line of text in your code **SHOULD** be at most 80
+characters long.
+A line **MAY** exceed 80 characters if it is
 
 - a comment line which is not feasible to split without harming readability,
   ease of cut and paste or auto-linking, e.g., if a line contains an example
   command or a literal URL longer than 120 characters or
-- a raw-string literal with content that exceeds 120 characters. Except for
-  test code, such literals should appear near the top of a file.
+- a raw-string literal with content that exceeds 120 characters.
+  Except for test code, such literals should appear near the top of a file.
 
 .. _rule_rst_include:
 
@@ -64,15 +65,15 @@ Include macros to have consistent style for repetitive words.
 Links (``RST:004``)
 -------------------
 
-Links **MUST** be checked for availability. This is ensured by running sphinx
-in ``linkcheck`` mode.
+Links **MUST** be checked for availability.
+This is ensured by running sphinx in ``linkcheck`` mode.
 
 .. admonition:: Links rules
 
     - All links **MUST** be reachable.
-    - Separated link and target definition **SHOULD** be used. If link and
-      target definition are separated the target **MUST** be defined at the end
-      of the file after two blank lines.
+    - Separated link and target definition **SHOULD** be used.
+      If link and target definition are separated the target **MUST** be
+      defined at the end of the file after two blank lines.
 
 Examples:
 
@@ -135,6 +136,14 @@ Orphan (``RST:006``)
     - ``reStructuredText`` files which are not included in other ``.rst`` files
       **MUST** start with :orphan:
 
+.. _rule_rst_sentence:
+
+Sentence (``RST:006``)
+----------------------
+
+.. admonition:: Sentence
+
+    - Every new sentence must start on a new line.
 
 File Templates
 --------------

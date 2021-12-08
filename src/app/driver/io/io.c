@@ -95,12 +95,20 @@ extern void IO_PinReset(volatile uint32_t *pRegisterAddress, uint32_t pin) {
     *pRegisterAddress &= ~(uint32_t)((uint32_t)1u << pin);
 }
 
-extern uint8_t IO_PinGet(const volatile uint32_t *pRegisterAddress, uint32_t pin) {
+extern STD_PIN_STATE_e IO_PinGet(const volatile uint32_t *pRegisterAddress, uint32_t pin) {
     FAS_ASSERT(pRegisterAddress != NULL_PTR);
     FAS_ASSERT(pin <= LARGEST_PIN_NUMBER);
 
-    uint8_t pinState = (uint8_t)((*pRegisterAddress & ((uint32_t)1u << (pin))) >> pin);
-    return pinState;
+    STD_PIN_STATE_e retval = STD_PIN_UNDEFINED;
+    uint8_t pinState       = (uint8_t)((*pRegisterAddress & ((uint32_t)1u << (pin))) >> pin);
+
+    /* pinState 0 equals a low level */
+    if (0u == pinState) {
+        retval = STD_PIN_LOW;
+    } else {
+        retval = STD_PIN_HIGH;
+    }
+    return retval;
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/

@@ -43,7 +43,7 @@
  * @file    test_mxm_1785x_tools.c
  * @author  foxBMS Team
  * @date    2020-07-15 (date of creation)
- * @updated 2020-07-15 (date of last update)
+ * @updated 2021-12-06 (date of last update)
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  MXM
  *
@@ -73,6 +73,78 @@ void tearDown(void) {
 /*========== Test Cases =====================================================*/
 void testMXM_ExtractValueFromRegisterTest(void) {
     TEST_ASSERT_PASS_ASSERT(TEST_ASSERT_EQUAL(STD_OK, MXM_ExtractValueFromRegisterTest()));
+}
+
+/** test #MXM_ExtractValueFromRegister() with an ADC value */
+void testMXM_ExtractValueFromRegisterADCValue(void) {
+    const uint8_t lsb = 0xFCu;
+    const uint8_t msb = 0xFFu;
+    uint16_t value    = 0x00u;
+    MXM_ExtractValueFromRegister(lsb, msb, MXM_REG_ADC_14BIT_VALUE, &value);
+    TEST_ASSERT_EQUAL(0x3FFFu, value);
+}
+
+/** test #MXM_ExtractValueFromRegister() with a single bit in lsb */
+void testMXM_ExtractValueFromRegisterLsbBitSet(void) {
+    const uint8_t lsb = 0x10u;
+    const uint8_t msb = 0x00u;
+    uint16_t value    = 0x00u;
+    MXM_ExtractValueFromRegister(lsb, msb, MXM_REG_STATUS1_ALRTINTRFC, &value);
+    TEST_ASSERT_EQUAL(1u, value);
+}
+
+/** test #MXM_ExtractValueFromRegister() without a bit in lsb */
+void testMXM_ExtractValueFromRegisterLsbBitUnset(void) {
+    const uint8_t lsb = 0x00u;
+    const uint8_t msb = 0x00u;
+    uint16_t value    = 0x00u;
+    MXM_ExtractValueFromRegister(lsb, msb, MXM_REG_STATUS1_ALRTINTRFC, &value);
+    TEST_ASSERT_EQUAL(0u, value);
+}
+
+/** test #MXM_ExtractValueFromRegister() with whole lsb */
+void testMXM_ExtractValueFromRegisterLsbCompletelySet(void) {
+    const uint8_t lsb = 0xFFu;
+    const uint8_t msb = 0x00u;
+    uint16_t value    = 0x00u;
+    MXM_ExtractValueFromRegister(lsb, msb, MXM_BM_LSB, &value);
+    TEST_ASSERT_EQUAL(0xFFu, value);
+}
+
+/** test #MXM_ExtractValueFromRegister() with whole msb */
+void testMXM_ExtractValueFromRegisterMsbCompletelySet(void) {
+    const uint8_t lsb = 0x00u;
+    const uint8_t msb = 0xFFu;
+    uint16_t value    = 0x00u;
+    MXM_ExtractValueFromRegister(lsb, msb, MXM_BM_MSB, &value);
+    TEST_ASSERT_EQUAL(0xFFu, value);
+}
+
+/** test #MXM_ExtractValueFromRegister() with a single bit in msb */
+void testMXM_ExtractValueFromRegisterMsbBitSet(void) {
+    const uint8_t lsb = 0x00u;
+    const uint8_t msb = 0x40u;
+    uint16_t value    = 0x00u;
+    MXM_ExtractValueFromRegister(lsb, msb, MXM_REG_STATUS1_ALRTRST, &value);
+    TEST_ASSERT_EQUAL(1u, value);
+}
+
+/** test #MXM_ExtractValueFromRegister() with a single bit in msb and with full byte */
+void testMXM_ExtractValueFromRegisterMsbBitSetFullBytes(void) {
+    const uint8_t lsb = 0xFFu;
+    const uint8_t msb = 0xFFu;
+    uint16_t value    = 0x00u;
+    MXM_ExtractValueFromRegister(lsb, msb, MXM_REG_STATUS1_ALRTRST, &value);
+    TEST_ASSERT_EQUAL(1u, value);
+}
+
+/** test #MXM_ExtractValueFromRegister() without a bit in msb */
+void testMXM_ExtractValueFromRegisterMsbBitUnset(void) {
+    const uint8_t lsb = 0x00u;
+    const uint8_t msb = 0x00u;
+    uint16_t value    = 0x00u;
+    MXM_ExtractValueFromRegister(lsb, msb, MXM_REG_STATUS1_ALRTRST, &value);
+    TEST_ASSERT_EQUAL(0u, value);
 }
 
 void testMXM_ConvertInvalidConversionType(void) {

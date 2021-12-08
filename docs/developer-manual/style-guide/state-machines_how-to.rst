@@ -869,7 +869,7 @@ need substate, even this example has three states with no substates (
 state(s) need to be implemented and no state processing function needs to be
 implemented. Therefore setting the substate implicitly by using the
 ``EG_SetState`` is fine, as the substate is ignored in that case and it
-is correctly set to entry (``EG_FSM_SUBSTATE_ENTRY``) for the next case, wether
+is correctly set to entry (``EG_FSM_SUBSTATE_ENTRY``) for the next case, whether
 this state implements substates or not.
 
 .. _function_set_substate:

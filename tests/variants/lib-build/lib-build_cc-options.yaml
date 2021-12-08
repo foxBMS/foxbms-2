@@ -69,7 +69,7 @@ CFLAGS:
     - --display_error_number
     - --enum_type=packed
     - --abi=eabi
-    - --c99
+    - --c11
     # these flags are not used when generating ppi/ppd/ppm information
   common_compile_only:
     - --emit_warnings_as_errors

@@ -82,7 +82,7 @@ TEST_FILES_PATH = os.path.join(SCRIPT_PATH, "tests")
 def get_txt(f):
     """returns the content of file"""
     txt = None
-    with open(os.path.join(TEST_FILES_PATH, f), "r") as text_file:
+    with open(os.path.join(TEST_FILES_PATH, f), "r", encoding="utf-8") as text_file:
         txt = text_file.read()
     return txt
 
@@ -110,7 +110,7 @@ class TestArmcl(unittest.TestCase):
 
         """
         result_path = os.path.join(TEST_FILES_PATH, "f_ti_arm_cgt_result.json")
-        with open(result_path) as file:
+        with open(result_path, encoding="utf-8") as file:
             results = json.loads(file.read())
         for key, output in results.items():
             test_text = get_txt(key)

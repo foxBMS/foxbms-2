@@ -43,7 +43,7 @@
  * @file    ftask_cfg.h
  * @author  foxBMS Team
  * @date    2019-08-26 (date of creation)
- * @updated 2021-07-23 (date of last update)
+ * @updated 2021-12-08 (date of last update)
  * @ingroup TASK_CONFIGURATION
  * @prefix  FTSK
  *
@@ -72,6 +72,9 @@
 /** @brief Maximum allowed jitter of engine task */
 #define FTSK_TASK_ENGINE_MAXIMUM_JITTER (1u)
 
+/** @brief pvParameters of the engine task */
+#define FTSK_TASK_ENGINE_PV_PARAMETERS (NULL_PTR)
+
 /** @brief Stack size of cyclic 1 ms task */
 #define FTSK_TASK_CYCLIC_1MS_STACK_SIZE (1024u / 4u)
 
@@ -84,8 +87,11 @@
 /** @brief Maximum allowed jitter of 1ms task */
 #define FTSK_TASK_CYCLIC_1MS_MAXIMUM_JITTER (1u)
 
+/** @brief pvParameters of the 1ms task */
+#define FTSK_TASK_CYCLIC_1MS_PV_PARAMETERS (NULL_PTR)
+
 /** @brief Stack size of cyclic 10 ms task */
-#define FTSK_TASK_CYCLIC_10MS_STACK_SIZE ((4096u) / 4u)
+#define FTSK_TASK_CYCLIC_10MS_STACK_SIZE ((5120u) / 4u)
 
 /** @brief Phase of cyclic 10 ms task */
 #define FTSK_TASK_CYCLIC_10MS_PHASE (2u)
@@ -95,6 +101,9 @@
 
 /** @brief Maximum allowed jitter of 10ms task */
 #define FTSK_TASK_CYCLIC_10MS_MAXIMUM_JITTER (2u)
+
+/** @brief pvParameters of the 10ms task */
+#define FTSK_TASK_CYCLIC_10MS_PV_PARAMETERS (NULL_PTR)
 
 /** @brief Stack size of cyclic 100 ms task */
 #define FTSK_TASK_CYCLIC_100MS_STACK_SIZE (1024u / 4u)
@@ -108,6 +117,9 @@
 /** @brief Maximum allowed jitter of 100ms task */
 #define FTSK_TASK_CYCLIC_100MS_MAXIMUM_JITTER (5u)
 
+/** @brief pvParameters of the 100ms task */
+#define FTSK_TASK_CYCLIC_100MS_PV_PARAMETERS (NULL_PTR)
+
 /** @brief Stack size of cyclic 100 ms task for algorithms */
 #define FTSK_TASK_CYCLIC_ALGORITHM_100MS_STACKSIZE (1024u / 4u)
 
@@ -119,6 +131,9 @@
 
 /** @brief Maximum allowed jitter of 100ms task for algorithms */
 #define FTSK_TASK_CYCLIC_ALGORITHM_100MS_MAXIMUM_JITTER (5u)
+
+/** @brief pvParameters of the 100ms task for algorithms  */
+#define FTSK_TASK_CYCLIC_ALGORITHM_100MS_PV_PARAMETERS (NULL_PTR)
 
 /*========== Extern Constant and Variable Declarations ======================*/
 /**

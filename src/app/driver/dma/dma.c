@@ -43,7 +43,7 @@
  * @file    dma.c
  * @author  foxBMS Team
  * @date    2019-12-12 (date of creation)
- * @updated 2021-09-28 (date of last update)
+ * @updated 2021-12-08 (date of last update)
  * @ingroup DRIVERS
  * @prefix  DMA
  *
@@ -56,7 +56,6 @@
 
 #include "afe_dma.h"
 #include "i2c.h"
-#include "io.h"
 #include "spi.h"
 
 /*========== Macros and Definitions =========================================*/
@@ -74,80 +73,80 @@
 void DMA_Initialize(void) {
     /* DMA control packets configuration for SPI  */
     g_dmaCTRL dma_controlPacketSpiTx = {
-        .SADD      = (uint32_t)NULL_PTR,     /* source address             */
-        .DADD      = (uint32_t)NULL_PTR,     /* destination  address       */
-        .CHCTRL    = 0U,                     /* channel chain control      */
-        .FRCNT     = 0U,                     /* frame count                */
-        .ELCNT     = 1U,                     /* element count              */
-        .ELDOFFSET = 0U,                     /* element destination offset */
-        .ELSOFFSET = 0U,                     /* element destination offset */
-        .FRDOFFSET = 0U,                     /* frame destination offset   */
-        .FRSOFFSET = 0U,                     /* frame destination offset   */
-        .PORTASGN  = PORTA_READ_PORTB_WRITE, /* port assignment            */
-        .RDSIZE    = ACCESS_16_BIT,          /* read size                  */
-        .WRSIZE    = ACCESS_16_BIT,          /* write size                 */
-        .TTYPE     = FRAME_TRANSFER,         /* transfer type              */
-        .ADDMODERD = ADDR_INC1,              /* address mode read          */
-        .ADDMODEWR = ADDR_FIXED,             /* address mode write         */
-        .AUTOINIT  = AUTOINIT_OFF            /* autoinit                   */
+        .SADD      = 0u,                               /* source address             */
+        .DADD      = 0u,                               /* destination  address       */
+        .CHCTRL    = 0u,                               /* channel chain control      */
+        .FRCNT     = 0u,                               /* frame count                */
+        .ELCNT     = 1u,                               /* element count              */
+        .ELDOFFSET = 0u,                               /* element destination offset */
+        .ELSOFFSET = 0u,                               /* element destination offset */
+        .FRDOFFSET = 0u,                               /* frame destination offset   */
+        .FRSOFFSET = 0u,                               /* frame destination offset   */
+        .PORTASGN  = (uint32_t)PORTA_READ_PORTB_WRITE, /* port assignment            */
+        .RDSIZE    = (uint32_t)ACCESS_16_BIT,          /* read size                  */
+        .WRSIZE    = (uint32_t)ACCESS_16_BIT,          /* write size                 */
+        .TTYPE     = (uint32_t)FRAME_TRANSFER,         /* transfer type              */
+        .ADDMODERD = (uint32_t)ADDR_INC1,              /* address mode read          */
+        .ADDMODEWR = (uint32_t)ADDR_FIXED,             /* address mode write         */
+        .AUTOINIT  = (uint32_t)AUTOINIT_OFF            /* autoinit                   */
     };
 
     g_dmaCTRL dma_controlPacketSpiRx = {
-        .SADD      = (uint32_t)NULL_PTR,     /* source address             */
-        .DADD      = (uint32_t)NULL_PTR,     /* destination  address       */
-        .CHCTRL    = 0U,                     /* channel chain control      */
-        .FRCNT     = 0U,                     /* frame count                */
-        .ELCNT     = 1U,                     /* element count              */
-        .ELDOFFSET = 0U,                     /* element destination offset */
-        .ELSOFFSET = 0U,                     /* element destination offset */
-        .FRDOFFSET = 0U,                     /* frame destination offset   */
-        .FRSOFFSET = 0U,                     /* frame destination offset   */
-        .PORTASGN  = PORTB_READ_PORTA_WRITE, /* port assignment            */
-        .RDSIZE    = ACCESS_16_BIT,          /* read size                  */
-        .WRSIZE    = ACCESS_16_BIT,          /* write size                 */
-        .TTYPE     = FRAME_TRANSFER,         /* transfer type              */
-        .ADDMODERD = ADDR_FIXED,             /* address mode read          */
-        .ADDMODEWR = ADDR_INC1,              /* address mode write         */
-        .AUTOINIT  = AUTOINIT_OFF            /* autoinit                   */
+        .SADD      = 0u,                               /* source address             */
+        .DADD      = 0u,                               /* destination  address       */
+        .CHCTRL    = 0u,                               /* channel chain control      */
+        .FRCNT     = 0u,                               /* frame count                */
+        .ELCNT     = 1u,                               /* element count              */
+        .ELDOFFSET = 0u,                               /* element destination offset */
+        .ELSOFFSET = 0u,                               /* element destination offset */
+        .FRDOFFSET = 0u,                               /* frame destination offset   */
+        .FRSOFFSET = 0u,                               /* frame destination offset   */
+        .PORTASGN  = (uint32_t)PORTB_READ_PORTA_WRITE, /* port assignment            */
+        .RDSIZE    = ACCESS_16_BIT,                    /* read size                  */
+        .WRSIZE    = ACCESS_16_BIT,                    /* write size                 */
+        .TTYPE     = FRAME_TRANSFER,                   /* transfer type              */
+        .ADDMODERD = ADDR_FIXED,                       /* address mode read          */
+        .ADDMODEWR = ADDR_INC1,                        /* address mode write         */
+        .AUTOINIT  = AUTOINIT_OFF                      /* autoinit                   */
     };
 
     /* DMA control packets configuration for I2C1  */
     g_dmaCTRL dma_controlPacketI2cTx = {
-        .SADD      = (uint32_t)NULL_PTR,     /* source address             */
-        .DADD      = (uint32_t)NULL_PTR,     /* destination  address       */
-        .CHCTRL    = 0U,                     /* channel chain control      */
-        .FRCNT     = 0U,                     /* frame count                */
-        .ELCNT     = 1U,                     /* element count              */
-        .ELDOFFSET = 0U,                     /* element destination offset */
-        .ELSOFFSET = 0U,                     /* element destination offset */
-        .FRDOFFSET = 0U,                     /* frame destination offset   */
-        .FRSOFFSET = 0U,                     /* frame destination offset   */
-        .PORTASGN  = PORTA_READ_PORTB_WRITE, /* port assignment            */
-        .RDSIZE    = ACCESS_8_BIT,           /* read size                  */
-        .WRSIZE    = ACCESS_8_BIT,           /* write size                 */
-        .TTYPE     = FRAME_TRANSFER,         /* transfer type              */
-        .ADDMODERD = ADDR_INC1,              /* address mode read          */
-        .ADDMODEWR = ADDR_FIXED,             /* address mode write         */
-        .AUTOINIT  = AUTOINIT_OFF            /* autoinit                   */
+        .SADD      = 0u,                               /* source address             */
+        .DADD      = 0u,                               /* destination  address       */
+        .CHCTRL    = 0u,                               /* channel chain control      */
+        .FRCNT     = 0u,                               /* frame count                */
+        .ELCNT     = 1u,                               /* element count              */
+        .ELDOFFSET = 0u,                               /* element destination offset */
+        .ELSOFFSET = 0u,                               /* element destination offset */
+        .FRDOFFSET = 0u,                               /* frame destination offset   */
+        .FRSOFFSET = 0u,                               /* frame destination offset   */
+        .PORTASGN  = (uint32_t)PORTA_READ_PORTB_WRITE, /* port assignment            */
+        .RDSIZE    = (uint32_t)ACCESS_8_BIT,           /* read size                  */
+        .WRSIZE    = (uint32_t)ACCESS_8_BIT,           /* write size                 */
+        .TTYPE     = (uint32_t)FRAME_TRANSFER,         /* transfer type              */
+        .ADDMODERD = (uint32_t)ADDR_INC1,              /* address mode read          */
+        .ADDMODEWR = (uint32_t)ADDR_FIXED,             /* address mode write         */
+        .AUTOINIT  = (uint32_t)AUTOINIT_OFF            /* autoinit                   */
     };
 
     g_dmaCTRL dma_controlPacketI2cRx = {
-        .SADD      = (uint32_t)NULL_PTR,     /* source address             */
-        .DADD      = (uint32_t)NULL_PTR,     /* destination  address       */
-        .CHCTRL    = 0U,                     /* channel chain control      */
-        .FRCNT     = 0U,                     /* frame count                */
-        .ELCNT     = 1U,                     /* element count              */
-        .ELDOFFSET = 0U,                     /* element destination offset */
-        .ELSOFFSET = 0U,                     /* element destination offset */
-        .FRDOFFSET = 0U,                     /* frame destination offset   */
-        .FRSOFFSET = 0U,                     /* frame destination offset   */
-        .PORTASGN  = PORTB_READ_PORTA_WRITE, /* port assignment            */
-        .RDSIZE    = ACCESS_8_BIT,           /* read size                  */
-        .WRSIZE    = ACCESS_8_BIT,           /* write size                 */
-        .TTYPE     = FRAME_TRANSFER,         /* transfer type              */
-        .ADDMODERD = ADDR_FIXED,             /* address mode read          */
-        .ADDMODEWR = ADDR_INC1,              /* address mode write         */
-        .AUTOINIT  = AUTOINIT_OFF            /* autoinit                   */
+        .SADD      = 0u,                               /* source address             */
+        .DADD      = 0u,                               /* destination  address       */
+        .CHCTRL    = 0u,                               /* channel chain control      */
+        .FRCNT     = 0u,                               /* frame count                */
+        .ELCNT     = 1u,                               /* element count              */
+        .ELDOFFSET = 0u,                               /* element destination offset */
+        .ELSOFFSET = 0u,                               /* element destination offset */
+        .FRDOFFSET = 0u,                               /* frame destination offset   */
+        .FRSOFFSET = 0u,                               /* frame destination offset   */
+        .PORTASGN  = (uint32_t)PORTB_READ_PORTA_WRITE, /* port assignment            */
+        .RDSIZE    = (uint32_t)ACCESS_8_BIT,           /* read size                  */
+        .WRSIZE    = (uint32_t)ACCESS_8_BIT,           /* write size                 */
+        .TTYPE     = (uint32_t)FRAME_TRANSFER,         /* transfer type              */
+        .ADDMODERD = (uint32_t)ADDR_FIXED,             /* address mode read          */
+        .ADDMODEWR = (uint32_t)ADDR_INC1,              /* address mode write         */
+        .AUTOINIT  = (uint32_t)AUTOINIT_OFF            /* autoinit                   */
     };
 
     dmaEnable();
@@ -161,9 +160,19 @@ void DMA_Initialize(void) {
         dmaReqAssign((dmaChannel_t)dma_spiDmaChannels[i].rxChannel, (dmaRequest_t)dma_spiDmaRequests[i].rxRequest);
 
         /* Enable Interrupt after reception of data
-       Group A - Interrupts (FTC, LFS, HBC, and BTC) are routed to the ARM CPU
-       User software should configure only Group A interrupts */
-        /* Only use Rx to determine when SPI over DMA transaction is finished */
+           Group A - Interrupts (FTC, LFS, HBC, and BTC) are routed to the ARM CPU
+           User software should configure only Group A interrupts */
+        /**
+         * Use Tx interrupt to transfer last word with CSHOLD = 0
+         * DO NOT ACTIVATE FOR SLAVE SPI NODES (here SPI4 used as slave)
+         * */
+        if (i != SPI_GetSpiIndex(spiREG4)) {
+            dmaEnableInterrupt(
+                (dmaChannel_t)(dmaChannel_t)dma_spiDmaChannels[i].txChannel,
+                (dmaInterrupt_t)BTC,
+                (dmaIntGroup_t)DMA_INTA);
+        }
+        /* Use Rx to determine when SPI over DMA transaction is finished */
         dmaEnableInterrupt(
             (dmaChannel_t)(dmaChannel_t)dma_spiDmaChannels[i].rxChannel, (dmaInterrupt_t)BTC, (dmaIntGroup_t)DMA_INTA);
 
@@ -209,52 +218,79 @@ void DMA_Initialize(void) {
 }
 
 /** Function called on DMA complete interrupts (TX and RX). Defined as weak in HAL. */
+/* AXIVION Next Line Style Linker-Multiple_Definition: TI HAL only provides a weak implementation */
 void UNIT_TEST_WEAK_IMPL dmaGroupANotification(dmaInterrupt_t inttype, uint32 channel) {
     if (inttype == (dmaInterrupt_t)BTC) {
-        uint8_t spiIndex = 0U;
-        uint16_t timeout = I2C_TIMEOUT;
+        uint16_t timeoutIterations = 0u;
+        uint8_t spiIndex           = 0u;
         switch (channel) {
             case DMA_CHANNEL_SPI1_TX:
-            case DMA_CHANNEL_SPI1_RX:
             case DMA_CHANNEL_SPI2_TX:
-            case DMA_CHANNEL_SPI2_RX:
             case DMA_CHANNEL_SPI3_TX:
-            case DMA_CHANNEL_SPI3_RX:
             case DMA_CHANNEL_SPI4_TX:
-            case DMA_CHANNEL_SPI4_RX:
             case DMA_CHANNEL_SPI5_TX:
+                /* Search for SPI index with DMA TX channel */
+                for (uint8_t i = 0u; i < DMA_NUMBER_SPI_INTERFACES; i++) {
+                    if ((uint32_t)dma_spiDmaChannels[i].txChannel == channel) {
+                        spiIndex = i;
+                        break;
+                    }
+                }
+                /**
+                  * TX SPI DMA interrupt: last but one word transmitted,
+                  * last word is transmitted manually (in order to write CSHOLD field)
+                  */
+                timeoutIterations = SPI_TX_EMPTY_TIMEOUT_ITERATIONS;
+                /* Wait until TX buffer is free for the last word */
+                while (((dma_spiInterfaces[spiIndex]->FLG &
+                         (uint32)((uint32_t)1u << SPI_TX_BUFFER_EMPTY_FLAG_POSITION)) == 0u) &&
+                       (timeoutIterations > 0u)) {
+                    timeoutIterations--;
+                }
+                SPI_DmaSendLastByte(spiIndex);
+                break;
+
+            case DMA_CHANNEL_SPI1_RX:
+            case DMA_CHANNEL_SPI2_RX:
+            case DMA_CHANNEL_SPI3_RX:
+            case DMA_CHANNEL_SPI4_RX:
             case DMA_CHANNEL_SPI5_RX:
-                /* Search for SPI index with DAM Rx channel */
+                /* Search for SPI index with DMA RX channel */
                 for (uint8_t i = 0u; i < DMA_NUMBER_SPI_INTERFACES; i++) {
                     if ((uint32_t)dma_spiDmaChannels[i].rxChannel == channel) {
                         spiIndex = i;
                         break;
                     }
                 }
+                /* RX SPI DMA interrupt: last word received, means SPI transmission is finished */
+                if (spiIndex == SPI_GetSpiIndex(spiREG4)) { /** SPI configured as slave */
+                    /* RX DMA interrupt, transmission finished, disable DMA */
+                    dma_spiInterfaces[spiIndex]->INT0 &= ~DMAREQEN_BIT;
+                    /* Disable SPI to prevent unwanted reception */
+                    dma_spiInterfaces[spiIndex]->GCR1 &= ~SPIEN_BIT;
+                    /* Set slave SPI Chip Select pins as GIO to deactivate slave SPI Chip Select pins */
+                    dma_spiInterfaces[spiIndex]->PC0 &= SPI_PC0_CLEAR_HW_CS_MASK;
 
-                /* Software deactivate CS */
-                IO_PinSet(spi_dmaTransmission[spiIndex].pGioPort, spi_dmaTransmission[spiIndex].csPin);
+                    /* Specific call for measurement ICs */
+                    AFE_DmaCallback(spiIndex);
+                } else { /* SPI configured as master */
+                    /* RX DMA interrupt, transmission finished, disable DMA */
+                    dma_spiInterfaces[spiIndex]->INT0 &= ~DMAREQEN_BIT;
 
-                /* Disable DMA_REQ_Enable */
-                spi_dmaTransmission[spiIndex].pNode->INT0 &= ~DMAREQEN_BIT;
-                if (spi_dmaTransmission[spiIndex].channel < spi_nrBusyFlags) {
-                    *(spi_busyFlags + spi_dmaTransmission[spiIndex].channel) = SPI_IDLE;
-                }
-
-                /* DMA seems to only be able to use FMT0, restore saved FMT0 values */
-                spi_dmaTransmission[spiIndex].pNode->FMT0 = spi_saveFmt0[spiIndex];
-
-                /* Specific calls for AFEs */
-                if (spiIndex == 0U) {
-                    AFE_DmaCallback(inttype, channel);
+                    /* Specific call for measurement ICs */
+                    if (spiIndex == SPI_GetSpiIndex(spiREG1)) {
+                        AFE_DmaCallback(spiIndex);
+                    }
+                    spi_busyFlags[spiIndex] = SPI_IDLE;
                 }
                 break;
+
             case DMA_CHANNEL_I2C_TX:
                 i2cREG1->DMACR &= ~(uint32)0x2u;
                 /* Wait until Stop is detected */
-                timeout = I2C_TIMEOUT;
-                while ((i2cIsStopDetected(i2cREG1) == 0) && (timeout > 0u)) {
-                    timeout--;
+                timeoutIterations = I2C_TIMEOUT_ITERATIONS;
+                while ((i2cIsStopDetected(i2cREG1) == 0u) && (timeoutIterations > 0u)) {
+                    timeoutIterations--;
                 }
                 /* Clear the Stop condition */
                 i2cClearSCD(i2cREG1);
@@ -262,9 +298,9 @@ void UNIT_TEST_WEAK_IMPL dmaGroupANotification(dmaInterrupt_t inttype, uint32 ch
             case DMA_CHANNEL_I2C_RX:
                 i2cREG1->DMACR &= ~(uint32)0x1u;
                 /* Wait until Stop is detected */
-                timeout = I2C_TIMEOUT;
-                while ((i2cIsStopDetected(i2cREG1) == 0) && (timeout > 0u)) {
-                    timeout--;
+                timeoutIterations = I2C_TIMEOUT_ITERATIONS;
+                while ((i2cIsStopDetected(i2cREG1) == 0u) && (timeoutIterations > 0u)) {
+                    timeoutIterations--;
                 }
                 /* Clear the Stop condition */
                 i2cClearSCD(i2cREG1);

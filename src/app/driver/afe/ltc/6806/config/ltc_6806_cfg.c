@@ -43,7 +43,7 @@
  * @file    ltc_6806_cfg.c
  * @author  foxBMS Team
  * @date    2015-02-18 (date of creation)
- * @updated 2015-02-18 (date of last update)
+ * @updated 2021-12-08 (date of last update)
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  LTC
  *

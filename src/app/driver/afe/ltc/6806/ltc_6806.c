@@ -43,7 +43,7 @@
  * @file    ltc_6806.c
  * @author  foxBMS Team
  * @date    2019-09-01 (date of creation)
- * @updated 2021-10-04 (date of last update)
+ * @updated 2021-12-07 (date of last update)
  * @ingroup DRIVERS
  * @prefix  LTC
  *
@@ -759,7 +759,7 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
             case LTC_STATEMACH_STARTMEAS:
 
                 ltc_state->adcMode   = LTC_VOLTAGE_MEASUREMENT_MODE;
-                ltc_state->adcMeasCh = LTC_ADCMEAS_ALLCHANNEL;
+                ltc_state->adcMeasCh = LTC_ADCMEAS_ALLCHANNEL_CELLS;
 
                 ltc_state->spiSeqPtr           = ltc_state->ltcData.pSpiInterface;
                 ltc_state->spiNumberInterfaces = BS_NR_OF_STRINGS;
@@ -787,7 +787,7 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
             case LTC_STATEMACH_STARTMEAS_CONTINUE:
 
                 ltc_state->adcMode   = LTC_VOLTAGE_MEASUREMENT_MODE;
-                ltc_state->adcMeasCh = LTC_ADCMEAS_ALLCHANNEL;
+                ltc_state->adcMeasCh = LTC_ADCMEAS_ALLCHANNEL_CELLS;
 
                 ltc_state->check_spi_flag = STD_NOT_OK;
                 retVal = LTC_StartVoltageMeasurement(ltc_state->spiSeqPtr, ltc_state->adcMode, ltc_state->adcMeasCh);
@@ -1228,7 +1228,7 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                         }
                     }
 
-                    /* Datasheet page 28: "for all values of n from 1 to 36: If CELL Delta(n+1) < -200mV then C(n) is open" */
+                    /* data sheet page 28: "for all values of n from 1 to 36: If CELL Delta(n+1) < -200mV then C(n) is open" */
                     for (uint8_t m = 0u; m < BS_NR_OF_MODULES; m++) {
                         /* ltc_state->ltcData.openWireDelta parsed from 1 to (BS_NR_OF_CELLS_PER_MODULE-1) */
                         for (uint8_t c = 1u; c < BS_NR_OF_CELLS_PER_MODULE; c++) {

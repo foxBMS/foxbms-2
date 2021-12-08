@@ -43,7 +43,7 @@
  * @file    battery_cell_cfg.h
  * @author  foxBMS Team
  * @date    2017-03-14 (date of creation)
- * @updated 2017-03-14 (date of last update)
+ * @updated 2021-11-08 (date of last update)
  * @ingroup BATTERY_CELL_CONFIGURATION
  * @prefix  BC
  *
@@ -146,7 +146,7 @@
 
 /**
  * @ingroup CONFIG_BATTERY_CELL
- * @brief   nominal cell voltage according to datasheet
+ * @brief   nominal cell voltage according to data sheet
  * @ptype   int
  * @unit    mV
  */

@@ -43,7 +43,7 @@
  * @file    temperature_sensor_defs.h
  * @author  foxBMS Team
  * @date    2020-08-25 (date of creation)
- * @updated 2021-03-22 (date of last update)
+ * @updated 2021-11-08 (date of last update)
  * @ingroup TEMPERATURE_SENSORS
  * @prefix  TS
  *
@@ -58,6 +58,9 @@
 #include "general.h"
 
 /*========== Macros and Definitions =========================================*/
+/** scaling factor 1 volt in milli volt */
+#define TS_SCALING_FACTOR_1V_IN_MV_FLOAT (1000.0f)
+
 /** temperature-resistance lookup table*/
 typedef struct TS_TEMPERATURE_SENSOR_LUT {
     int16_t temperature_ddegC; /*!< temperature in deci &deg;C */

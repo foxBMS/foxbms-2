@@ -55,7 +55,7 @@
 #           --display_error_number
 #           --enum_type=packed
 #           --abi=eabi
-#           --c99
+#           --c11
 #           --preproc_macros
 #           --compile_only
 #           --obj_directory=.

@@ -14,6 +14,7 @@ Unit Test
     linkcheck is the name of the builder
 
 .. spelling::
+    conf
     env
     gcc
     gcov

@@ -11,6 +11,16 @@ a |bms-master|.
 Aim of this section is to check that all crucial parts of the toolchain work
 and to recap the process of setting up the toolchain.
 
+.. note::
+
+    In order to be able to develop software for the BMS and deploy it to the
+    embedded target, it is absolutely necessary to have these three
+    components in place:
+
+        * the embedded device itself,
+        * a power supply,
+        * a debugger.
+
 Setup
 -----
 

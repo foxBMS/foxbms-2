@@ -76,7 +76,7 @@ top = "."  # pylint:disable=invalid-name
 APPNAME = "foxBMS"
 """name of the application. This is used in various waf functions"""
 
-VERSION = "1.2.0"
+VERSION = "1.2.1"
 """version of the application. This is used in various waf functions. This
 version must match the version number defined in ``macros.txt``. Otherwise a
 configuration error is thrown."""
@@ -369,6 +369,31 @@ def configure(conf):  # pylint: disable=too-many-statements,too-many-branches
     conf.load("f_ozone", tooldir=TOOLDIR)
     conf.load("f_lauterbach", tooldir=TOOLDIR)
     conf.load("f_axivion", tooldir=TOOLDIR)
+
+    # Configure the build for the correct operating system
+    bms_config = json.loads(
+        conf.path.find_node(os.path.join("conf", "bms", "bms.json")).read()
+    )
+    bms_config_schema = json.loads(
+        conf.path.find_node(
+            os.path.join("conf", "bms", "schema", "bms.schema.json")
+        ).read()
+    )
+    try:
+        jsonschema.validate(instance=bms_config, schema=bms_config_schema)
+    except jsonschema.exceptions.ValidationError as err:
+        good_values = ", ".join([f"'{i}'" for i in err.validator_value])
+        conf.fatal(
+            f"Setting '{err.instance}' in '{'/'.join(list(err.path))}' is not "
+            f"supported.\nUse one of these: {good_values}."
+        )
+
+    conf.env.append_unique(
+        "CONF_OPERATING_SYSTEM_NAME", bms_config["operating-system"]["name"]
+    )
+    # set define before loading the VS Code tool
+    conf.define(f"FOXBMS_USES_{conf.env.CONF_OPERATING_SYSTEM_NAME[0].upper()}", 1)
+
     # load VS Code setup as last foxBMS specific tool to ensure that all
     # variables have a meaningful value
     conf.load("f_vscode", tooldir=TOOLDIR)
@@ -437,19 +462,23 @@ def build(bld):  # pylint: disable=too-many-branches,too-many-statements
     except jsonschema.exceptions.ValidationError as err:
         good_values = ", ".join([f"'{i}'" for i in err.validator_value])
         bld.fatal(
-            f"Analog Front-End '{err.instance}' is not supported.\n"
-            f"Use one of these: {good_values}."
+            f"Setting '{err.instance}' in '{'/'.join(list(err.path))}' is not "
+            f"supported.\nUse one of these: {good_values}."
         )
 
-    bld.env.operating_system = bms_config["operating-system"]["name"]
+    bld.env.append_unique(
+        "OPERATING_SYSTEM_NAME", bms_config["operating-system"]["name"]
+    )
+    if not bld.env.OPERATING_SYSTEM_NAME[0] == bld.env.CONF_OPERATING_SYSTEM_NAME[0]:
+        bld.fatal("The operating system has changed. Re-configure the project.")
     # get operatin system includes
     freertos_details = json.loads(
         bld.path.find_node(
             os.path.join(
                 "src",
                 "os",
-                bld.env.operating_system,
-                f"{bld.env.operating_system}_cfg.json",
+                bld.env.OPERATING_SYSTEM_NAME[0],
+                f"{bld.env.OPERATING_SYSTEM_NAME[0]}_cfg.json",
             )
         ).read()
     )
@@ -538,7 +567,7 @@ def build(bld):  # pylint: disable=too-many-branches,too-many-statements
             info = tabulate.tabulate(
                 [
                     ["Setting", "Value"],
-                    ["Operating system", bld.env.operating_system],
+                    ["Operating system", bld.env.OPERATING_SYSTEM_NAME[0]],
                     [
                         "AFE",
                         f"{bld.env.afe_manufacturer} {bld.env.afe_chip}",
@@ -618,7 +647,7 @@ def build(bld):  # pylint: disable=too-many-branches,too-many-statements
             exclude="src/hal src/os",
             addons="threadsafety y2038 cert misra",
             options=[
-                "--std=c99",
+                "--std=c11",
                 "--force",
                 "--enable=warning,style,performance,portability,information,unusedFunction",
             ],
@@ -827,6 +856,7 @@ def build(bld):  # pylint: disable=too-many-branches,too-many-statements
             os.path.join(doc_dir, "software", "modules", "driver", "ts", "epcos", "b57861s0103f045.rst"),
             os.path.join(doc_dir, "software", "modules", "driver", "ts", "fake", "none.rst"),
             os.path.join(doc_dir, "software", "modules", "driver", "ts", "vishay", "ntcalug01a103g.rst"),
+            os.path.join(doc_dir, "software", "modules", "driver", "ts", "vishay", "ntcle317e4103sba.rst"),
             os.path.join(doc_dir, "software", "modules", "driver", "ts", "adding-a-new-ts_how-to.rst"),
             os.path.join(doc_dir, "software", "modules", "driver", "ts", "ts-sensors.rst"),
             os.path.join(doc_dir, "software", "modules", "driver", "ts", "ts.rst"),
@@ -972,7 +1002,7 @@ def check_cmd(self):  # pylint: disable=missing-function-docstring
     cmd = self.make_distcheck_cmd()
     ret = Utils.subprocess.Popen(cmd, cwd=self.get_base_name()).wait()
     if ret:
-        raise Errors.WafError("distcheck failed with code % r" % ret)
+        raise Errors.WafError(f"distcheck failed with code {ret}")
     if getattr(self, "tar_build", False):
         with tarfile.open(full_arch, "w:gz") as tar:
             tar.add(

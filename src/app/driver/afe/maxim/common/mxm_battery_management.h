@@ -43,7 +43,7 @@
  * @file    mxm_battery_management.h
  * @author  foxBMS Team
  * @date    2019-01-14 (date of creation)
- * @updated 2021-06-16 (date of last update)
+ * @updated 2021-12-06 (date of last update)
  * @ingroup DRIVERS
  * @prefix  MXM
  *
@@ -68,7 +68,7 @@
 /*========== Macros and Definitions =========================================*/
 
 /** length of the command buffer */
-#define COMMAND_BUFFER_LENGTH (6u)
+#define COMMAND_BUFFER_LENGTH (10u)
 
 /** length of the rx buffer */
 #define MXM_5X_RX_BUFFER_LEN 100u
@@ -77,62 +77,60 @@
 #define HELLOALL_START_SEED 0x00u
 /** seed for data check, should be 0x00u */
 #define DATA_CHECK_BYTE_SEED 0x00u
-/** seed for the alive counter, should be 0x00u except for special edge cases */
-#define ALIVE_COUNTER_SEED 0x00u
 
 /**
  * @brief   Type for Battery Management Protocol commands.
  * @details This type describes the hex-numbers of all Maxim Battery
  *          Management Protocol commands. For details see the
- *          datasheet of MAX1785x devices.
+ *          data sheet of MAX1785x devices.
  */
-typedef uint8_t BATTERY_MANAGEMENT_COMMAND_t;
+typedef uint8_t MXM_BATTERY_MANAGEMENT_COMMAND_t;
 
 /**
  * @brief HELLOALL message
  */
-#define BATTERY_MANAGEMENT_HELLOALL ((BATTERY_MANAGEMENT_COMMAND_t)0x57u)
+#define BATTERY_MANAGEMENT_HELLOALL ((MXM_BATTERY_MANAGEMENT_COMMAND_t)0x57u)
 
 /**
  * @brief ALERTPACKET message
  */
-#define BATTERY_MANAGEMENT_ALERTPACKET ((BATTERY_MANAGEMENT_COMMAND_t)0x21u)
+#define BATTERY_MANAGEMENT_ALERTPACKET ((MXM_BATTERY_MANAGEMENT_COMMAND_t)0x21u)
 
 /**
  * @brief WRITEDEVICE message (write single register of a single device)
  */
-#define BATTERY_MANAGEMENT_WRITEDEVICE ((BATTERY_MANAGEMENT_COMMAND_t)0x04u)
+#define BATTERY_MANAGEMENT_WRITEDEVICE ((MXM_BATTERY_MANAGEMENT_COMMAND_t)0x04u)
 
 /**
  * @brief WRITEALL message (write single register of all daisy-chain devices)
  */
-#define BATTERY_MANAGEMENT_WRITEALL ((BATTERY_MANAGEMENT_COMMAND_t)0x02u)
+#define BATTERY_MANAGEMENT_WRITEALL ((MXM_BATTERY_MANAGEMENT_COMMAND_t)0x02u)
 
 /**
  * @brief READDEVICE message (read single register of a single device)
  */
-#define BATTERY_MANAGEMENT_READDEVICE ((BATTERY_MANAGEMENT_COMMAND_t)0x05u)
+#define BATTERY_MANAGEMENT_READDEVICE ((MXM_BATTERY_MANAGEMENT_COMMAND_t)0x05u)
 
 /**
  * @brief READALL message (read single register of all daisy-chain devices)
  */
-#define BATTERY_MANAGEMENT_READALL ((BATTERY_MANAGEMENT_COMMAND_t)0x03u)
+#define BATTERY_MANAGEMENT_READALL ((MXM_BATTERY_MANAGEMENT_COMMAND_t)0x03u)
 
 /**
  * @brief READBLOCK message (read block of registers of a single device)
  */
-#define BATTERY_MANAGEMENT_READBLOCK ((BATTERY_MANAGEMENT_COMMAND_t)0x06u)
+#define BATTERY_MANAGEMENT_READBLOCK ((MXM_BATTERY_MANAGEMENT_COMMAND_t)0x06u)
 
 /**
  * @brief   DOWNHOST message (make the downhost writing)
  * @details This feature is only useable on downhost line.
  */
-#define BATTERY_MANAGEMENT_DOWNHOST ((BATTERY_MANAGEMENT_COMMAND_t)0x09u)
+#define BATTERY_MANAGEMENT_DOWNHOST ((MXM_BATTERY_MANAGEMENT_COMMAND_t)0x09u)
 
 /**
  * @brief UPHOST message (make the uphost writing, only useable on uphost line)
  */
-#define BATTERY_MANAGEMENT_UPHOST ((BATTERY_MANAGEMENT_COMMAND_t)0x08u)
+#define BATTERY_MANAGEMENT_UPHOST ((MXM_BATTERY_MANAGEMENT_COMMAND_t)0x08u)
 
 /**
  * @brief   Battery Management Protocol lengths of TX buffer
@@ -163,13 +161,10 @@ typedef enum {
  * @brief Sub-states of the Battery Management Protocol state-machine
  */
 typedef enum {
-    /** default value indicating no selected substate */
-    MXM_5X_ENTRY_SUBSTATE,
-    /** substate for the initialization of the MAX17841 bridge IC */
-    MXM_5X_INIT_41B_INIT,
-    /** substate for the initialization, enable the keep alive feature in the
-     *  bridge IC */
-    MXM_5X_INIT_ENABLE_KEEP_ALIVE,
+    MXM_5X_INIT_41B_INIT,        /*!< initialization of the MAX17841 bridge IC */
+    MXM_5X_INIT_41B_GET_VERSION, /*!< retrieves the version of the bridge IC */
+    /** waits for the slave devices to be reset (due to disabled preambles) */
+    MXM_5X_INIT_WAIT_FOR_RESET,
     /** substate for the initialization, enable RX interrupt flags */
     MXM_5X_INIT_ENABLE_RX_INTERRUPT_FLAGS,
     /** substate for the wake-up routine, clear the receive buffer in the
@@ -178,6 +173,7 @@ typedef enum {
     /** substate for the wake-up routine, enable the sending of preambles in
      *  order to wake up the daisy-chain devices */
     MXM_5X_INIT_WAKE_UP_SATELLITE_DEVICES_EN_PREAMBLES,
+    MXM_5X_INIT_ENABLE_KEEP_ALIVE, /*!< enables keep alive mode (which will take over after en preambles is off) */
     /** substate for the wake-up routine, wait for the daisy-chain devices to
      *  return an answer, resulting in status RX busy of the bridge IC */
     MXM_5X_INIT_WAKE_UP_SATELLITE_DEVICES_WAIT_FOR_RX_STATUS_BUSY,
@@ -216,6 +212,8 @@ typedef enum {
     MXM_5X_READALL_CHECK_CRC,
     /** substate for retrieving the data check byte from a READALL transaction */
     MXM_5X_READALL_GET_DC,
+    /** default value indicating no selected substate; has to be last substate in enum */
+    MXM_5X_ENTRY_SUBSTATE,
 } MXM_5X_SUBSTATES_e;
 
 /**
@@ -243,12 +241,13 @@ typedef struct {
     uint8_t msb;               /*!< most significant bit */
     uint8_t blocksize;         /*!< blocksize for the READBLOCK command */
     uint8_t deviceAddress;     /*!< device address for commands that address specific devices */
+    MXM_MODEL_ID_e model;      /*!< model of device that shall be addressed */
 } MXM_5X_COMMAND_PAYLOAD_s;
 
 /**
  * @brief 5x statemachine structure
  **/
-typedef struct MXM_5X_INSTANCE {
+typedef struct {
     MXM_STATEMACHINE_5X_e state;              /*!< state of Driver State Machine */
     MXM_5X_SUBSTATES_e substate;              /*!< substate of current Driver State */
     MXM_5X_COMMAND_PAYLOAD_s commandPayload;  /*!< command payload of the Battery Management Protocol */
@@ -264,19 +263,9 @@ typedef struct MXM_5X_INSTANCE {
      */
     uint8_t numberOfSatellites;
     /**
-     * @brief   Command Buffer
-     * @details This variable contains a buffer for Battery Management Protocol
-     *          commands. The content is constructed by calling functions like
-     *          #MXM_5XConstructCommandBufferHelloall() and similar.
-     *
-     *          Afterwards this buffer can be passed on to the lower state-machine
-     *          as payload. The length of this buffer is described in
-     *          #MXM_5X_INSTANCE::commandBufferCurrentLength.
-     */
-    /**
      * @brief   Number of monitoring ICs matches the expected number.
      * @details This status variable indicates whether the number of found
-     *          monitoring ICs in #MXM_5X_INSTANCE::numberOfSatellites
+     *          monitoring ICs in #MXM_5X_INSTANCE_s::numberOfSatellites
      *          matches with the configured number of monitoring ICs in
      *          #BS_NR_OF_MODULES. This variable is updated during execution of
      *          the substate
@@ -291,13 +280,25 @@ typedef struct MXM_5X_INSTANCE {
      * @brief   Tracks the last received DC byte.
      */
     uint8_t lastDCByte;
+    uint8_t errorCounter;        /*!< counts the number of errors that the underlying state-machine has encountered. */
+    uint32_t resetWaitTimestamp; /*!< timestamp of the moment when waiting for the devices to be reset has started */
     /**
      * @brief   Length of Command Buffer
-     * @details Length of the array #MXM_5X_INSTANCE::commandBuffer.
+     * @details Length of the array #MXM_5X_INSTANCE_s::commandBuffer.
      */
     uint8_t commandBufferCurrentLength;
-    uint16_t commandBuffer[COMMAND_BUFFER_LENGTH]; /*!< buffer for BMS commands */
-    uint16_t rxBuffer[MXM_5X_RX_BUFFER_LEN];       /*!< array containing the buffer for received data */
+    /**
+     * @brief   Command Buffer
+     * @details This variable contains a buffer for Battery Management Protocol
+     *          commands. The content is constructed by calling functions like
+     *          #MXM_5XConstructCommandBufferHelloall() and similar.
+     *
+     *          Afterwards this buffer can be passed on to the lower state-machine
+     *          as payload. The length of this buffer is described in
+     *          #MXM_5X_INSTANCE_s::commandBufferCurrentLength.
+     */
+    uint16_t commandBuffer[COMMAND_BUFFER_LENGTH];
+    uint16_t rxBuffer[MXM_5X_RX_BUFFER_LEN]; /*!< array containing the buffer for received data */
 } MXM_5X_INSTANCE_s;
 
 /*========== Extern Constant and Variable Declarations ======================*/
@@ -319,10 +320,10 @@ extern void MXM_5XStateMachine(MXM_41B_INSTANCE_s *pInstance41b, MXM_5X_INSTANCE
 extern MXM_DC_BYTE_e MXM_5XGetLastDCByte(const MXM_5X_INSTANCE_s *const kpkInstance);
 
 /**
- * @brief Get the value of #MXM_5X_INSTANCE::numberOfSatellitesIsGood
+ * @brief Get the value of #MXM_5X_INSTANCE_s::numberOfSatellitesIsGood
  * @param[in]   kpkInstance pointer to the instance struct
  *
- * @return #MXM_5X_INSTANCE::numberOfSatellitesIsGood
+ * @return #MXM_5X_INSTANCE_s::numberOfSatellitesIsGood
  */
 extern STD_RETURN_TYPE_e MXM_5XGetNumberOfSatellitesGood(const MXM_5X_INSTANCE_s *const kpkInstance);
 
@@ -349,9 +350,9 @@ extern STD_RETURN_TYPE_e MXM_5XGetRXBuffer(
 /**
  * @brief   Get number of satellites
  * @details Getter-function for the number of satellites
- *          (variable #MXM_5X_INSTANCE::numberOfSatellites).
+ *          (variable #MXM_5X_INSTANCE_s::numberOfSatellites).
  * @param[in]   kpkInstance pointer to the state struct
- * @return  value of #MXM_5X_INSTANCE::numberOfSatellites
+ * @return  value of #MXM_5X_INSTANCE_s::numberOfSatellites
  */
 extern uint8_t MXM_5XGetNumberOfSatellites(const MXM_5X_INSTANCE_s *const kpkInstance);
 
@@ -379,6 +380,14 @@ extern STD_RETURN_TYPE_e MXM_5XSetStateRequest(
  * @return  #STD_OK if the selfcheck has been successful
  */
 extern STD_RETURN_TYPE_e must_check_return MXM_5XUserAccessibleAddressSpaceCheckerSelfCheck(void);
+
+/**
+ * @brief   Initializes the state struct with default values
+ * @details This function is called through the startup of the driver in order
+ *          to ensure proper default values.
+ * @param[out]  pInstance   instance of the state struct that shall be initialized
+ */
+extern void MXM_5X_InitializeStateStruct(MXM_5X_INSTANCE_s *pInstance);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 

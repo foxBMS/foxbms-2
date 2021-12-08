@@ -43,7 +43,7 @@
  * @file    bender_iso165c_cfg.h
  * @author  foxBMS Team
  * @date    2021-03-17 (date of creation)
- * @updated 2021-06-09 (date of last update)
+ * @updated 2021-11-08 (date of last update)
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  I165C
  *
@@ -99,7 +99,7 @@
  * (1 data byte length = 8 bits)
  *
  * CAUTION: data word order is reversed !!!!!!!!!
- * (see datasheet page 15)
+ * (see data sheet page 15)
  */
 
 /** data word 1 is in first position */

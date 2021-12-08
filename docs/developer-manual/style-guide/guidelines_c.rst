@@ -186,9 +186,9 @@ C Sections (``C:006``)
 .. admonition:: C sections
 
     Every .c and .h file **MUST** contain all specific section comments in the
-    correct order. There are different section comments for sources and headers
-    for source fils (files in ``src/**``) and test files (files in
-    ``tests/unit/**``)
+    correct order.
+    There are different section comments for sources and headers for source
+    files (files in ``src/**``) and test files (files in ``tests/unit/**``).
 
 :numref:`c_section_header` shows how this looks for a file ``c-006-source.h``.
 
@@ -341,10 +341,13 @@ Function names (``C:009``)
 
 .. admonition:: Function naming rules
 
-    Function names **MUST** start with the uppercase module prefix followed by
-    a capital letter with capital letters for each new word (Pascal Case). The
-    only exception are the :ref:`unit-test-functions <UNIT_TESTS>` which start
-    with ``test`` due to ceedling requiring it.
+    - Function names **MUST** start with the uppercase module prefix followed
+      by a capital letter with capital letters for each new word (Pascal Case).
+    - The only exception are the :ref:`unit-test-functions <UNIT_TESTS>` which
+      start with ``test`` due to ceedling requiring it.
+    - Function names **SHOULD** start with a verb followed by a noun
+      (*verb-noun* pattern).
+      After the verb-noun pattern additional words **MAY** follow.
 
 :numref:`function-names`, shows correctly named functions.
 
@@ -905,9 +908,10 @@ C Comment style (``C:029``)
 General note and common mistakes (``C:030``)
 --------------------------------------------
 
-For both, *camel Case* and *Pascal Case*, the general rules of the english
-language apply. This means that the correct version for a variable about the
-cell voltage is ``abc_cellVoltage`` (**not** ``abc_cellvoltage``).
+For both, *camel Case* and *Pascal Case*, the general rules of the English
+language apply.
+This means that the correct version for a variable about the cell voltage is
+``abc_cellVoltage`` (**not** ``abc_cellvoltage``).
 
 .. _rule_c_formatting:
 

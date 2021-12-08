@@ -43,7 +43,7 @@
  * @file    redundancy.c
  * @author  foxBMS Team
  * @date    2020-07-31 (date of creation)
- * @updated 2021-10-14 (date of last update)
+ * @updated 2021-12-08 (date of last update)
  * @ingroup APPLICATION
  * @prefix  MRC
  *
@@ -107,10 +107,8 @@ static STD_RETURN_TYPE_e MRC_MeasurementUpdatedRecently(
 
 /**
  * @brief Function to validate results of cell voltage measurement
- *
  * @param[in] pCellVoltageBase         base cell voltage measurement
  * @param[in] pCellVoltageRedundancy0  redundant cell voltage measurement
- *
  * @return bool true, if measurement has been validated successfully and
  *         database entry needs to be updated, otherwise false.
  */
@@ -120,10 +118,8 @@ static bool MRC_ValidateCellVoltageMeasurement(
 
 /**
  * @brief Function to validate results of cell temperature measurement
- *
  * @param[in] pCellTemperatureBase         base cell temperature measurement
  * @param[in] pCellTemperatureRedundancy0  redundant cell temperature measurement
- *
  * @return bool true, if measurement has been validated successfully and
  *         database entry needs to be updated, otherwise false.
  */
@@ -133,14 +129,12 @@ static bool MRC_ValidateCellTemperatureMeasurement(
 
 /**
  * @brief Function to validate results of current measurement
- *
  * @param[in] pTableCurrentSensor   pointer to current measurements
  */
 static void MRC_ValidateCurrentMeasurement(DATA_BLOCK_CURRENT_SENSOR_s *pTableCurrentSensor);
 
 /**
  * @brief Function to validate results of string voltage measurement
- *
  * @param[in] pTableCurrentSensor   pointer current sensor high voltage measurements
  * @param[in] pTableCellVoltage     pointer to cell voltage measurements
  */
@@ -149,31 +143,27 @@ static void MRC_ValidateStringVoltageMeasurement(
     DATA_BLOCK_CELL_VOLTAGE_s *pTableCellVoltage);
 
 /**
- * @brief Function to validate battery voltage measurement
+ * @brief Function to validate HV battery voltage measurement
  */
 static void MRC_ValidateBatteryVoltageMeasurement(void);
 
 /**
  * @brief Function to validate results of high voltage measurement and calculate
  *        battery voltage and high voltage bus voltage.
- *
  * @param[in] pTableCurrentSensor   pointer current sensor high voltage measurements
  */
 static void MRC_ValidateHighVoltageBusMeasurement(DATA_BLOCK_CURRENT_SENSOR_s *pTableCurrentSensor);
 
 /**
  * @brief Function to validate results of power measurement
- *
  * @param[in] pTableCurrentSensor   pointer to power/current measurements
  */
 static void MRC_ValidatePowerMeasurement(DATA_BLOCK_CURRENT_SENSOR_s *pTableCurrentSensor);
 
 /**
  * @brief Function calculates minimum, maximum and average cell voltages.
- *
  * @param[in] pValidatedVoltages     validated voltages from base and/or redundant measurements
  * @param[out] pMinMaxAverageValues  calculated cell voltage min/max/average values
- *
  * @return #STD_NOT_OK if all cell voltage are invalid and no minimum, maximum
  *         and average cell voltage values could be calculated, otherwise #STD_OK
  */
@@ -183,10 +173,8 @@ static STD_RETURN_TYPE_e MRC_CalculateCellVoltageMinMaxAverage(
 
 /**
  * @brief Function calculates minimum, maximum and average cell temperatures.
- *
  * @param[in] pValidatedTemperatures validated temperatures from base and/or redundant measurements
  * @param[out] pMinMaxAverageValues  calculated cell temperature min/max/average values
- *
  * @return #STD_NOT_OK if all cell temperatures are invalid and no minimum, maximum
  *         and average cell temperature values could be calculated, otherwise #STD_OK
  */
@@ -197,11 +185,9 @@ static STD_RETURN_TYPE_e MRC_CalculateCellTemperatureMinMaxAverage(
 /**
  * @brief Function compares cell voltage measurements from base measurement with
  *        one redundant measurement and writes result in pValidatedVoltages.
- *
  * @param[in] pCellvoltageBase         base cell voltage measurement
  * @param[in] pCellvoltageRedundancy0  redundant cell voltage measurement
  * @param[out] pValidatedVoltages      validated voltages from redundant measurement values
- *
  * @return #STD_NOT_OK if not all cell voltages could be validated, otherwise
  *         #STD_OK
  */
@@ -215,10 +201,8 @@ static STD_RETURN_TYPE_e MRC_ValidateCellVoltage(
  *        single measurement source. This can be the case if no redundancy is
  *        used at all or if one or more of the redundant measurements are not
  *        working properly.
- *
  * @param[in] pCellvoltage         cell voltage measurement
  * @param[out] pValidatedVoltages  validated voltage values
- *
  * @return #STD_NOT_OK if not all cell voltages could be validated, otherwise
  *         #STD_OK
  */
@@ -229,11 +213,9 @@ static STD_RETURN_TYPE_e MRC_UpdateCellVoltageValidation(
 /**
  * @brief Function compares cell temperature measurements from base measurement
  *        with one redundant measurement and writes result in pValidatedTemperatures.
- *
  * @param[in] pCelltemperatureBase         base cell temperature measurement
  * @param[in] pCelltemperatureRedundancy0  redundant cell temperature measurement
  * @param[out] pValidatedTemperatures      validated temperatures from redundant measurement values
- *
  * @return #STD_NOT_OK if not all cell voltages could be validated, otherwise
  *         #STD_OK
  */
@@ -247,10 +229,8 @@ static STD_RETURN_TYPE_e MRC_ValidateCellTemperature(
  *        single measurement source. This can be the case if no redundancy is
  *        used at all or if one or more of the redundant measurements are not
  *        working properly.
- *
  * @param[in] pCellTemperature         cell temperature measurement
  * @param[out] pValidatedTemperature   validated temperature values
- *
  * @return #STD_NOT_OK if not all cell voltages could be validated, otherwise
  *         #STD_OK
  */
@@ -263,7 +243,7 @@ static bool MRC_MeasurementUpdatedAtLeastOnce(uint32_t timestamp, uint32_t previ
     bool retval = false;
     if (!((timestamp == 0u) && (previousTimestamp == 0u))) {
         /* Only possibility for timestamp AND previous timestamp to be 0 is, if
-           the measurement has never been updated. Thus if this is not the case
+           the measurement has never been updated. Thus, if this is not the case
            the measurement must have been updated */
         retval = true;
     }
@@ -1137,22 +1117,30 @@ extern STD_RETURN_TYPE_e MRC_Initialize(void) {
 extern STD_RETURN_TYPE_e MRC_ValidateAfeMeasurement(void) {
     STD_RETURN_TYPE_e retval = STD_OK;
 
-    DATA_BLOCK_CELL_VOLTAGE_s cellvoltageBase        = {.header.uniqueId = DATA_BLOCK_ID_CELL_VOLTAGE_BASE};
-    DATA_BLOCK_CELL_VOLTAGE_s cellvoltageRedundancy0 = {.header.uniqueId = DATA_BLOCK_ID_CELL_VOLTAGE_REDUNDANCY0};
+    /* Database entries are declared static, so that they are placed in the data segment and not on the stack */
+    static DATA_BLOCK_CELL_VOLTAGE_s mrc_tableCellvoltageBase = {.header.uniqueId = DATA_BLOCK_ID_CELL_VOLTAGE_BASE};
+    static DATA_BLOCK_CELL_VOLTAGE_s mrc_tableCellvoltageRedundancy0 = {
+        .header.uniqueId = DATA_BLOCK_ID_CELL_VOLTAGE_REDUNDANCY0};
 
-    DATA_BLOCK_CELL_TEMPERATURE_s celltemperatureBase        = {.header.uniqueId = DATA_BLOCK_ID_CELL_TEMPERATURE_BASE};
-    DATA_BLOCK_CELL_TEMPERATURE_s celltemperatureRedundancy0 = {
+    static DATA_BLOCK_CELL_TEMPERATURE_s mrc_tableCelltemperatureBase = {
+        .header.uniqueId = DATA_BLOCK_ID_CELL_TEMPERATURE_BASE};
+    static DATA_BLOCK_CELL_TEMPERATURE_s mrc_tableCelltemperatureRedundancy0 = {
         .header.uniqueId = DATA_BLOCK_ID_CELL_TEMPERATURE_REDUNDANCY0};
 
     /* Get measurement values */
-    DATA_READ_DATA(&cellvoltageBase, &cellvoltageRedundancy0, &celltemperatureBase, &celltemperatureRedundancy0);
+    DATA_READ_DATA(
+        &mrc_tableCellvoltageBase,
+        &mrc_tableCellvoltageRedundancy0,
+        &mrc_tableCelltemperatureBase,
+        &mrc_tableCelltemperatureRedundancy0);
 
     /* Perform validation of cell voltage measurement */
-    bool updateCellVoltages = MRC_ValidateCellVoltageMeasurement(&cellvoltageBase, &cellvoltageRedundancy0);
+    bool updateCellVoltages =
+        MRC_ValidateCellVoltageMeasurement(&mrc_tableCellvoltageBase, &mrc_tableCellvoltageRedundancy0);
 
     /* Perform validation of cell temperature measurement */
     bool updateCellTemperatures =
-        MRC_ValidateCellTemperatureMeasurement(&celltemperatureBase, &celltemperatureRedundancy0);
+        MRC_ValidateCellTemperatureMeasurement(&mrc_tableCelltemperatureBase, &mrc_tableCelltemperatureRedundancy0);
 
     /* Update database entries if necessary */
     if ((updateCellVoltages == true) && (updateCellTemperatures == true)) {

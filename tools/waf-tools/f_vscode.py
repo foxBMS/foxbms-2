@@ -75,6 +75,7 @@ def configure(conf):  # pylint: disable=too-many-statements,too-many-branches
     - Find code
     - configure a project if code was found"""
     # create a VS Code workspace if code is installed on this platform
+    is_remote_session = False
     if Utils.is_win32:
         conf.find_program("code", mandatory=False)
         if not conf.env.CODE:
@@ -90,8 +91,13 @@ def configure(conf):  # pylint: disable=too-many-statements,too-many-branches
             )
     else:
         conf.find_program("code", mandatory=False)
+        if not conf.env.CODE:
+            # we might be in a remote environment, scan for this
+            code_server_dir = os.path.join(os.path.expanduser("~"), ".vscode-server")
+            is_remote_session = os.path.isdir(code_server_dir)
+            conf.msg("Found 'vscode-server' (remote session)", code_server_dir)
 
-    if not conf.env.CODE:
+    if not (conf.env.CODE or is_remote_session):
         return
     conf.start_msg("Creating workspace")
     vscode_dir = conf.path.make_node(".vscode")
@@ -103,7 +109,7 @@ def configure(conf):  # pylint: disable=too-many-statements,too-many-branches
     if Utils.is_win32:
         waf_wrapper_script = pathlib.Path(conf.path.abspath()).as_posix() + "/waf.bat"
     else:
-        waf_wrapper_script = pathlib.Path(conf.path.abspath()) + "/waf.sh"
+        waf_wrapper_script = pathlib.Path(conf.path.abspath()) / "waf.sh"
     axivion_base_path = pathlib.Path(
         os.path.join(conf.path.abspath(), "tests", "axivion")
     ).as_posix()
@@ -158,11 +164,6 @@ def configure(conf):  # pylint: disable=too-many-statements,too-many-branches
     # Clang-format
     clang_format_executable = ""
     if conf.env.CLANG_FORMAT:
-        clang_format_executable = pathlib.Path(conf.env.CLANG_FORMAT[0]).as_posix()
-    # now it is in an case save to render the template
-    if not conf.env.CLANG_FORMAT[0]:
-        clang_format_executable = ""
-    else:
         clang_format_executable = pathlib.Path(conf.env.CLANG_FORMAT[0]).as_posix()
 
     ax_modules_rel = pathlib.Path(os.path.join("lib", "scripts"))
@@ -220,7 +221,9 @@ def configure(conf):  # pylint: disable=too-many-statements,too-many-branches
         .read()
         .splitlines()
     )
-    vscode_defines = []
+    vscode_defines = [
+        (f"FOXBMS_USES_{conf.env.CONF_OPERATING_SYSTEM_NAME[0].upper()}", 1)
+    ]
     reg = re.compile(r"(#define)([ ])([a-zA-Z0-9_]{1,})([ ])([a-zA-Z0-9_\":. ]{1,})")
     for d in defines_read:
         define = d.split("/*")[0]
@@ -246,8 +249,8 @@ def configure(conf):  # pylint: disable=too-many-statements,too-many-branches
     except jsonschema.exceptions.ValidationError as err:
         good_values = ", ".join([f"'{i}'" for i in err.validator_value])
         conf.fatal(
-            f"Analog Front-End '{err.instance}' is not supported.\n"
-            f"Use one of these: {good_values}."
+            f"Setting '{err.instance}' in '{'/'.join(list(err.path))}' is not "
+            f"supported.\nUse one of these: {good_values}."
         )
     bal = bms_config["slave-unit"]["balancing-strategy"]
     soc = bms_config["application"]["algorithm"]["state-estimation"]["soc"]
@@ -282,7 +285,7 @@ def configure(conf):  # pylint: disable=too-many-statements,too-many-branches
         IMD_MANUFACTURER=imd_manufacturer,
         IMD_MODEL=imd_model,
         INCLUDES=[pathlib.Path(x).as_posix() for x in conf.env.INCLUDES],
-        CSTANDARD="c99",
+        CSTANDARD="c11",
         DEFINES=vscode_defines,
     )
     vsc_c_cpp_properties_file = os.path.join(

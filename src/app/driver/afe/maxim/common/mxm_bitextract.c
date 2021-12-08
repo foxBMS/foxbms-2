@@ -43,7 +43,7 @@
  * @file    mxm_bitextract.c
  * @author  foxBMS Team
  * @date    2019-01-15 (date of creation)
- * @updated 2020-05-14 (date of last update)
+ * @updated 2021-12-06 (date of last update)
  * @ingroup DRIVERS
  * @prefix  MXM
  *
@@ -94,7 +94,7 @@ static MXM_41B_REG_BIT_VALUE bitValue(
     MXM_41B_REG_BITS shift) {
     MXM_41B_REG_BIT_VALUE sBit;
     sBit = (((1u << numberOfBits) - 1u) & (((uint8_t)value) >> (position - 1u)));
-    return (((uint8_t)sBit) << shift);
+    return (MXM_41B_REG_BIT_VALUE)((((uint8_t)sBit) << shift) & (uint8_t)UINT8_MAX);
 }
 
 /*========== Extern Function Implementations ================================*/
