@@ -19,10 +19,12 @@ exclude = '''
     | tools/waf3-2.0.20-bfe1012d9751ef8c4f223dfd0424d33f
     | tools/waf3-2.0.21-16cd196b0fc7b4eebe195ce20396f3d1
     | tools/waf3-2.0.22-1241519b19b496207abef1f72bbf61c2
+    | tests/scripts/waf-core
   )/
   | docs/conf.py
   | tools/vendor
   | tools/waf-tools/why.py
+  | tools/waf-verify-sig.py
 )
 '''
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -44,6 +44,8 @@ specific git hooks.
 
 import os
 import shutil
+import git
+from git.exc import InvalidGitRepositoryError
 
 
 def options(opt):
@@ -61,6 +63,11 @@ def options(opt):
 
 def configure(conf):  # pylint: disable=too-many-statements,too-many-branches
     """Use foxBMS specific git hooks in that repository."""
+    try:
+        _ = git.Repo(os.path.realpath(__file__)).git_dir
+    except InvalidGitRepositoryError:
+        return
+
     # create a VS Code workspace if code is installed on this platform
     if not (os.environ.get("FOXBMS_USE_GIT_HOOKS") or conf.options.USE_GIT_HOOKS):
         return

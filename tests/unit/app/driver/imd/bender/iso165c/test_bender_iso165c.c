@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    test_bender_iso165c.c
  * @author  foxBMS Team
  * @date    2021-01-19 (date of creation)
- * @updated 2021-12-01 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -94,12 +95,10 @@ void testMessageComposition(void) {
     uint8_t data8;
     uint8_t command;
     uint8_t id;
-    I165C_STATE_e currentState;
-    I165C_STATE_e nextState;
     uint8_t tries;
 
     /* Do as if there is a message in the queue */
-    MPU_uxQueueMessagesWaiting_IgnoreAndReturn(1u);
+    OS_GetNumberOfStoredMessagesInQueue_IgnoreAndReturn(1u);
     MPU_xQueueReceive_IgnoreAndReturn(1u);
     OS_ReceiveFromQueue_IgnoreAndReturn(OS_SUCCESS);
 
@@ -188,11 +187,31 @@ void testMessageComposition(void) {
     TEST_ASSERT_EQUAL(0xAu, canMessage.id);
     TEST_ASSERT_EQUAL(0xBu, canMessage.data[0u]);
 
+    /* Check assertion of invalid parameter */
     canMessage.data[0u] = 0xA;
     command             = 0xA;
     TEST_ASSERT_FAIL_ASSERT(TEST_I165C_CheckResponse(command, NULL_PTR));
+
     /* Check that response ID corresponds to awaited acknowledge */
+    canMessage.id       = CAN_ID_IMD_RESPONSE;
+    canMessage.data[0u] = 0xA;
+    command             = 0xA;
     TEST_ASSERT_EQUAL(true, TEST_I165C_CheckResponse(command, &canMessage));
+
+    /* Check that response ID does not correspond to awaited acknowledge */
+    canMessage.id       = CAN_ID_IMD_RESPONSE;
+    canMessage.data[0u] = 0xA;
+    command             = 0xB;
+    TEST_ASSERT_EQUAL(false, TEST_I165C_CheckResponse(command, &canMessage));
+
+    /* Check that response failed if ID is not CAN_ID_IMD_RESPONSE, even if response matches command */
+    canMessage.id       = CAN_ID_IMD_INFO;
+    canMessage.data[0u] = 0xA;
+    command             = 0xA;
+    TEST_ASSERT_EQUAL(false, TEST_I165C_CheckResponse(command, &canMessage));
+
+    /* Check that response failed if ID is not CAN_ID_IMD_RESPONSE, if respose does not match command */
+    canMessage.id       = CAN_ID_IMD_INFO;
     canMessage.data[0u] = 0xA;
     command             = 0xB;
     TEST_ASSERT_EQUAL(false, TEST_I165C_CheckResponse(command, &canMessage));
@@ -204,48 +223,68 @@ void testMessageComposition(void) {
     canMessage.id = I165C_MESSAGETYPE_IMD_INFO + 1u;
     TEST_ASSERT_EQUAL(false, TEST_I165C_GetImdInfo(&canMessage));
 
+    /* Test if CAN data indicated that iso165c is not initialized */
     for (uint8_t i = 0u; i < 8u; i++) {
         canMessage.data[i] = 0u;
     }
-    /* Test if CAN data indicated that iso165c is initialized */
-    TEST_ASSERT_EQUAL(true, TEST_I165C_IsInitialized(canMessage));
-    for (uint8_t i = 0u; i < 8u; i++) {
-        canMessage.data[i] = 0xFFu;
-    }
-    TEST_ASSERT_EQUAL(false, TEST_I165C_IsInitialized(canMessage));
+    TEST_ASSERT_EQUAL(false, TEST_I165C_IsSelfTestFinished(canMessage));
 
+    /* Test if CAN data indicated that iso165c is not initialized */
+    for (uint8_t i = 0u; i < 8u; i++) {
+        canMessage.data[i] = 0x00u;
+    }
+    /*
+     * D_IMC_STATUS is located in byte 2 and byte 3 of CAN message:
+     * Bit 4: Self test running -> set to 1 */
+    canMessage.data[2u] |= (1u << I165C_SELFTEST_RUNNING_SHIFT);
+    /* D_VIFC_STATUS is located in byte 4 and byte 5 of CAN message
+     * Bit 0: Insulation measurement active -> set to 0
+     * Bit 12: Self-test long executed  -> set to 0
+     * Bit 13: Self-test short executed -> set to 0
+     */
+    canMessage.data[4u] |= (0u << I165C_INSULATION_MEASUREMENT_STATUS_SHIFT);
+    canMessage.data[5u] |=
+        (0u << (I165C_IMC_SELFTEST_OVERALL_SCENARIO_SHIFT - 8u)); /* Subtract 8 because upper byte is used */
+    canMessage.data[5u] |=
+        (0u << (I165C_IMC_SELFTEST_PARAMETERCONFIG_SCENARIO_SHIFT - 8u)); /* Subtract 8 because upper byte is used */
+
+    TEST_ASSERT_EQUAL(true, TEST_I165C_IsSelfTestFinished(canMessage));
+
+    /* ----------- Test function that waits for acknowledge -----------------*/
+
+    /* Check for invalid function parameters */
+    TEST_ASSERT_FAIL_ASSERT(TEST_I165C_CheckAcknowledgeArrived(command, NULL_PTR, NULL_PTR));
+    TEST_ASSERT_FAIL_ASSERT(TEST_I165C_CheckAcknowledgeArrived(command, NULL_PTR, &canMessage));
+    TEST_ASSERT_FAIL_ASSERT(TEST_I165C_CheckAcknowledgeArrived(command, &tries, NULL_PTR));
+
+    /* Acknowledge arrived */
+    canMessage.id      = CAN_ID_IMD_RESPONSE;
     tries              = 0u;
     command            = 0xA;
     canMessage.data[0] = 0xA;
-    I165C_STATE_SELFTEST;
-    nextState    = I165C_STATE_SET_ERROR_THRESHOLD_WAIT_ACK;
-    currentState = I165C_STATE_SET_ERROR_THRESHOLD;
-    /* Test function that waits for acknowledge and switches state */
+    bool ackReceived   = false;
 
-    TEST_ASSERT_FAIL_ASSERT(TEST_I165C_CheckAcknowledgeArrived(command, NULL_PTR, nextState, &tries, &canMessage));
-    TEST_ASSERT_FAIL_ASSERT(
-        TEST_I165C_CheckAcknowledgeArrived(command, &currentState, nextState, NULL_PTR, &canMessage));
-    TEST_ASSERT_FAIL_ASSERT(TEST_I165C_CheckAcknowledgeArrived(command, &currentState, nextState, &tries, NULL_PTR));
-    /* Acknowledge arrived, switch to next state */
-    TEST_I165C_CheckAcknowledgeArrived(command, &currentState, nextState, &tries, &canMessage);
-    TEST_ASSERT_EQUAL(I165C_STATE_SET_ERROR_THRESHOLD_WAIT_ACK, currentState);
+    ackReceived = TEST_I165C_CheckAcknowledgeArrived(command, &tries, &canMessage);
+    TEST_ASSERT_EQUAL(true, ackReceived);
+    TEST_ASSERT_EQUAL(0u, tries);
+
+    /* Acknowledge not arrived, increment try counter */
+    canMessage.id      = CAN_ID_IMD_RESPONSE;
     tries              = 0u;
     command            = 0xA;
     canMessage.data[0] = 0xB;
-    nextState          = I165C_STATE_SET_ERROR_THRESHOLD_WAIT_ACK;
-    currentState       = I165C_STATE_SET_ERROR_THRESHOLD;
-    /* Acknowledge not arrived, increment try counter */
-    TEST_I165C_CheckAcknowledgeArrived(command, &currentState, nextState, &tries, &canMessage);
-    TEST_ASSERT_EQUAL(tries, 1u);
-    tries              = I165C_TRANSMISSION_TRIES - 1u;
+
+    ackReceived = TEST_I165C_CheckAcknowledgeArrived(command, &tries, &canMessage);
+    TEST_ASSERT_EQUAL(1u, tries);
+    TEST_ASSERT_EQUAL(false, ackReceived);
+
+    /* Acknowledge not arrived, and allowed number of tries made, restart
+     * Initialization (go to self test) */
+    tries              = I165C_TRANSMISSION_ATTEMPTS - 1u;
     command            = 0xA;
     canMessage.data[0] = 0xB;
-    nextState          = I165C_STATE_SET_ERROR_THRESHOLD_WAIT_ACK;
-    currentState       = I165C_STATE_SET_ERROR_THRESHOLD;
-    /**
-     * Acknowledge not arrived, and allowed number of tries made, restart
-     * Initialization (go to self test)
-     */
-    TEST_I165C_CheckAcknowledgeArrived(command, &currentState, nextState, &tries, &canMessage);
-    TEST_ASSERT_EQUAL(I165C_STATE_SELFTEST, currentState);
+
+    ackReceived = TEST_I165C_CheckAcknowledgeArrived(command, &tries, &canMessage);
+    TEST_ASSERT_EQUAL(I165C_TRANSMISSION_ATTEMPTS, tries);
+    TEST_ASSERT_EQUAL(false, ackReceived);
 }

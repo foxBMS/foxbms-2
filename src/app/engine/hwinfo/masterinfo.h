@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    masterinfo.h
  * @author  foxBMS Team
  * @date    2020-07-08 (date of creation)
- * @updated 2020-07-08 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup GENERAL
  * @prefix  MINFO
  *
@@ -62,7 +63,7 @@
 
 /*========== Macros and Definitions =========================================*/
 /** values describing the connection state of the debug probe */
-typedef enum MINFO_DEBUG_PROBE_CONNECTION_STATE {
+typedef enum {
     MINFO_DEBUG_PROBE_NOT_CONNECTED, /*!< no debug probe connected */
     MINFO_DEBUG_PROBE_CONNECTED,     /*!< debug probe connected */
 } MINFO_DEBUG_PROBE_CONNECTION_STATE_e;
@@ -72,7 +73,7 @@ typedef enum MINFO_DEBUG_PROBE_CONNECTION_STATE {
  * @details This currently describes the source of the last reset and whether a
  *          debug probe is attached or not.
  */
-typedef struct MINFO_MASTER_STATE {
+typedef struct {
     resetSource_t resetSource;                       /*!< source of the last system reset */
     MINFO_DEBUG_PROBE_CONNECTION_STATE_e debugProbe; /*!< connection state of debug probe */
 } MINFO_MASTER_STATE_s;

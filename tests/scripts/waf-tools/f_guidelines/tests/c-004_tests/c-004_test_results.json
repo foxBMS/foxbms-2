@@ -16,7 +16,7 @@
         "c-004_test2.c": [
             [
                 "C_DOXYGEN",
-                8,
+                9,
                 "Line does not match with required File Level Doxygen @prefix comment"
             ]
         ],
@@ -40,7 +40,7 @@
         "c-004_test4.c": [
             [
                 "C_DOXYGEN",
-                12,
+                13,
                 "Line does not match with required File Level Doxygen @UTest comment"
             ]
         ]

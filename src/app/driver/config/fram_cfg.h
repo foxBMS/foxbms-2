@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    fram_cfg.h
  * @author  foxBMS Team
  * @date    2020-03-05 (date of creation)
- * @updated 2020-03-05 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup DRIVERS
  * @prefix  FRAM
  *
@@ -61,6 +62,10 @@
 #include "battery_system_cfg.h"
 
 /*========== Macros and Definitions =========================================*/
+
+/* Header in each entry is made of 4 bytes SPI header + 8 bytes CRC */
+#define FRAM_CRC_HEADER_SIZE (sizeof(uint64_t))
+
 /**
  * @brief   IDs for projects that use a memory layout
  * @details This enum can be use to differentiate between projects. While an older
@@ -76,20 +81,30 @@ typedef uint16_t FRAM_PROJECT_ID;
 /** this is the standard main development branch */
 #define FRAM_PROJECT_ID_FOXBMS_BASELINE ((FRAM_PROJECT_ID)0u)
 
+/** fram block identification numbers */
+typedef enum {
+    FRAM_ACCESS_OK,        /* Transaction with FRAM was successful */
+    FRAM_ACCESS_SPI_BUSY,  /* SPI busy, transaction with FRAM could not take place */
+    FRAM_ACCESS_CRC_BUSY,  /* CRC hardware busy, transaction with FRAM could not take place */
+    FRAM_ACCESS_CRC_ERROR, /* Read CRC does not match with CRC computed on read data */
+} FRAM_RETURN_TYPE_e;
+
 /** configuration struct of database channel (data block) */
 typedef struct {
     void *blockptr;
-    uint16_t datalength;
+    uint32_t datalength;
     uint32_t address;
 } FRAM_BASE_HEADER_s;
 
 /** fram block identification numbers */
-typedef enum FRAM_BLOCK_ID {
+typedef enum {
     FRAM_BLOCK_ID_VERSION,
     FRAM_BLOCK_ID_SOC,
     FRAM_BLOCK_ID_SBC_INIT_STATE,
     FRAM_BLOCK_ID_DEEP_DISCHARGE_FLAG,
     FRAM_BLOCK_ID_SOE,
+    FRAM_BLOCK_ID_SYS_MON_RECORD,
+    FRAM_BLOCK_ID_INSULATION_FLAG,
     FRAM_BLOCK_MAX, /**< DO NOT CHANGE, MUST BE THE LAST ENTRY */
 } FRAM_BLOCK_ID_e;
 
@@ -99,14 +114,14 @@ typedef enum FRAM_BLOCK_ID {
  *          been written. This allows the BMS to recognize an incompatible
  *          memory layout.
  */
-typedef struct FRAM_VERSION {
+typedef struct {
     FRAM_PROJECT_ID project; /*!< an identifier for the project, it is not
                                     intended to migrate between different projects */
     uint16_t version;        /*!< version counter, i.e. for updating to a new version in the same project */
 } FRAM_VERSION_s;
 
 /** struct for the FRAM entry of the SBC driver */
-typedef struct FRAM_SBC_INIT {
+typedef struct {
     uint8_t phase;
     STD_RETURN_TYPE_e finState;
 } FRAM_SBC_INIT_s;
@@ -116,7 +131,7 @@ typedef struct FRAM_SBC_INIT {
  * values are used, min, max and average. SOC defined as a float number between
  * 0.0f and 100.0f (0% and 100%)
  */
-typedef struct FRAM_SOC {
+typedef struct {
     float minimumSoc_perc[BS_NR_OF_STRINGS]; /*!< minimum SOC */
     float maximumSoc_perc[BS_NR_OF_STRINGS]; /*!< maximum SOC */
     float averageSoc_perc[BS_NR_OF_STRINGS]; /*!< average SOC */
@@ -127,17 +142,49 @@ typedef struct FRAM_SOC {
  * values are used, min, max and average. SOE defined as a float number between
  * 0.0f and 100.0f (0% and 100%)
  */
-typedef struct FRAM_SOE {
+typedef struct {
     float minimumSoe_perc[BS_NR_OF_STRINGS]; /*!< minimum SOE */
     float maximumSoe_perc[BS_NR_OF_STRINGS]; /*!< maximum SOE */
     float averageSoe_perc[BS_NR_OF_STRINGS]; /*!< average SOE */
 } FRAM_SOE_s;
-/**
- * flag to indicate if a deep-discharge in a string has been detected
- */
-typedef struct FRAM_DEEP_DISCHARGE_FLAG {
+
+/** flag to indicate if a deep-discharge in a string has been detected */
+typedef struct {
     bool deepDischargeFlag[BS_NR_OF_STRINGS]; /*!< false (0): no error, true (1): deep-discharge detected */
 } FRAM_DEEP_DISCHARGE_FLAG_s;
+
+/** flag to indicate if insulation ground error has been detected */
+typedef struct {
+    bool groundErrorDetected; /*!< false (0): no error, true (1): gorund error detected */
+} FRAM_INSULATION_FLAG_s;
+
+/**
+ * @brief struct that stores for each task the last violation of timing
+ */
+typedef struct {
+    /** convenience flag that is set as long as any timing issues are recorded */
+    bool anyTimingIssueOccurred;
+    /** duration that has been recorded when the last violation of timings occurred */
+    uint32_t taskEngineViolatingDuration;
+    /** timestamp that has been recorded when the violating execution of the task has been entered */
+    uint32_t taskEngineEnterTimestamp;
+    /** duration that has been recorded when the last violation of timings occurred */
+    uint32_t task1msViolatingDuration;
+    /** timestamp that has been recorded when the violating execution of the task has been entered */
+    uint32_t task1msEnterTimestamp;
+    /** duration that has been recorded when the last violation of timings occurred */
+    uint32_t task10msViolatingDuration;
+    /** timestamp that has been recorded when the violating execution of the task has been entered */
+    uint32_t task10msEnterTimestamp;
+    /** duration that has been recorded when the last violation of timings occurred */
+    uint32_t task100msViolatingDuration;
+    /** timestamp that has been recorded when the violating execution of the task has been entered */
+    uint32_t task100msEnterTimestamp;
+    /** duration that has been recorded when the last violation of timings occurred */
+    uint32_t task100msAlgorithmViolatingDuration;
+    /** timestamp that has been recorded when the violating execution of the task has been entered */
+    uint32_t task100msAlgorithmEnterTimestamp;
+} FRAM_SYS_MON_RECORD_s;
 
 /*========== Extern Constant and Variable Declarations ======================*/
 
@@ -152,6 +199,8 @@ extern FRAM_SOC_s fram_soc;
 extern FRAM_SOE_s fram_soe;
 extern FRAM_SBC_INIT_s fram_sbcInit;
 extern FRAM_DEEP_DISCHARGE_FLAG_s fram_deepDischargeFlags;
+extern FRAM_SYS_MON_RECORD_s fram_sys_mon_record;
+extern FRAM_INSULATION_FLAG_s fram_insulationFlags;
 /**@}*/
 
 /*========== Extern Function Prototypes =====================================*/

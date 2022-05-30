@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    sys.c
  * @author  foxBMS Team
  * @date    2020-02-24 (date of creation)
- * @updated 2021-10-12 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup ENGINE
  * @prefix  SYS
  *
@@ -83,7 +84,7 @@
 /*========== Extern Constant and Variable Definitions =======================*/
 
 /** Symbolic names to check for multiple calls of #SYS_Trigger() */
-typedef enum SYS_CHECK_MULTIPLE_CALLS {
+typedef enum {
     SYS_MULTIPLE_CALLS_NO,  /*!< no multiple calls, OK */
     SYS_MULTIPLE_CALLS_YES, /*!< multiple calls, not OK */
 } SYS_CHECK_MULTIPLE_CALLS_e;
@@ -199,13 +200,14 @@ static STD_RETURN_TYPE_e SYS_RunStateMachine(SYS_STATE_s *pSystemState) {
     STD_RETURN_TYPE_e balancingInitializationState = STD_OK;
     BAL_RETURN_TYPE_e balancingGlobalEnableState   = BAL_ERROR;
     STD_RETURN_TYPE_e bmsState                     = STD_NOT_OK;
+    bool imdInitialized                            = false;
 
     switch (pSystemState->state) {
         /****************************UNINITIALIZED***********************************/
         case SYS_STATEMACH_UNINITIALIZED:
             /* waiting for Initialization Request */
             stateRequest = SYS_TransferStateRequest();
-            if (stateRequest == SYS_STATE_INIT_REQUEST) {
+            if (stateRequest == SYS_STATE_INITIALIZATION_REQUEST) {
                 SYS_SAVELASTSTATES(pSystemState);
                 pSystemState->timer    = SYS_FSM_SHORT_TIME;
                 pSystemState->state    = SYS_STATEMACH_INITIALIZATION;
@@ -221,10 +223,10 @@ static STD_RETURN_TYPE_e SYS_RunStateMachine(SYS_STATE_s *pSystemState) {
 
             SYS_SAVELASTSTATES(pSystemState);
             /* Initializations done here */
-            FRAM_Read(FRAM_BLOCK_ID_DEEP_DISCHARGE_FLAG);
-            for (uint8_t stringNumber = 0u; stringNumber < BS_NR_OF_STRINGS; stringNumber++) {
-                if (fram_deepDischargeFlags.deepDischargeFlag[stringNumber] == true) {
-                    DIAG_Handler(DIAG_ID_DEEP_DISCHARGE_DETECTED, DIAG_EVENT_NOT_OK, DIAG_STRING, stringNumber);
+            FRAM_ReadData(FRAM_BLOCK_ID_DEEP_DISCHARGE_FLAG);
+            for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
+                if (fram_deepDischargeFlags.deepDischargeFlag[s] == true) {
+                    DIAG_Handler(DIAG_ID_DEEP_DISCHARGE_DETECTED, DIAG_EVENT_NOT_OK, DIAG_STRING, s);
                 }
             }
 
@@ -255,13 +257,15 @@ static STD_RETURN_TYPE_e SYS_RunStateMachine(SYS_STATE_s *pSystemState) {
                         (SYS_STATEMACHINE_SBC_INIT_TIMEOUT_MS / SYS_TASK_CYCLE_CONTEXT_MS)) {
                         pSystemState->timer    = SYS_FSM_SHORT_TIME;
                         pSystemState->state    = SYS_STATEMACH_ERROR;
-                        pSystemState->substate = SYS_SBC_INIT_ERROR;
+                        pSystemState->substate = SYS_SBC_INITIALIZATION_ERROR;
                         break;
                     }
                     pSystemState->timer = SYS_FSM_SHORT_TIME;
                     pSystemState->initializationTimeout++;
                     break;
                 }
+            } else {
+                FAS_ASSERT(FAS_TRAP); /* substate does not exist in this state */
             }
             break;
 
@@ -278,7 +282,7 @@ static STD_RETURN_TYPE_e SYS_RunStateMachine(SYS_STATE_s *pSystemState) {
             SYS_SAVELASTSTATES(pSystemState);
             /* run BIST functions */
             SYS_GeneralMacroBist();
-            DATA_ExecuteDataBIST();
+            DATA_ExecuteDataBist();
 
             pSystemState->timer    = SYS_FSM_SHORT_TIME;
             pSystemState->state    = SYS_STATEMACH_INITIALIZED;
@@ -329,7 +333,7 @@ static STD_RETURN_TYPE_e SYS_RunStateMachine(SYS_STATE_s *pSystemState) {
                         (SYS_STATEMACH_BAL_INITIALIZATION_TIMEOUT_MS / SYS_TASK_CYCLE_CONTEXT_MS)) {
                         pSystemState->timer    = SYS_FSM_SHORT_TIME;
                         pSystemState->state    = SYS_STATEMACH_ERROR;
-                        pSystemState->substate = SYS_BAL_INIT_ERROR;
+                        pSystemState->substate = SYS_BAL_INITIALIZATION_ERROR;
                         break;
                     }
                     pSystemState->timer = SYS_FSM_SHORT_TIME;
@@ -352,7 +356,7 @@ static STD_RETURN_TYPE_e SYS_RunStateMachine(SYS_STATE_s *pSystemState) {
                         (SYS_STATEMACH_INITIALIZATION_TIMEOUT_MS / SYS_TASK_CYCLE_CONTEXT_MS)) {
                         pSystemState->timer    = SYS_FSM_SHORT_TIME;
                         pSystemState->state    = SYS_STATEMACH_ERROR;
-                        pSystemState->substate = SYS_BAL_INIT_ERROR;
+                        pSystemState->substate = SYS_BAL_INITIALIZATION_ERROR;
                         break;
                     }
                     pSystemState->timer = SYS_FSM_SHORT_TIME;
@@ -387,7 +391,7 @@ static STD_RETURN_TYPE_e SYS_RunStateMachine(SYS_STATE_s *pSystemState) {
                         (SYS_STATEMACH_INITIALIZATION_TIMEOUT_MS / SYS_TASK_CYCLE_CONTEXT_MS)) {
                         pSystemState->timer    = SYS_FSM_SHORT_TIME;
                         pSystemState->state    = SYS_STATEMACH_ERROR;
-                        pSystemState->substate = SYS_MEAS_INIT_ERROR;
+                        pSystemState->substate = SYS_MEAS_INITIALIZATION_ERROR;
                         break;
                     } else {
                         pSystemState->timer = SYS_FSM_MEDIUM_TIME;
@@ -405,31 +409,32 @@ static STD_RETURN_TYPE_e SYS_RunStateMachine(SYS_STATE_s *pSystemState) {
             if (pSystemState->substate == SYS_ENTRY) {
                 pSystemState->initializationTimeout = 0;
                 CAN_EnablePeriodic(true);
-#if CURRENT_SENSOR_ISABELLENHUETTE_TRIGGERED
+#if defined(CURRENT_SENSOR_ISABELLENHUETTE_TRIGGERED)
                 /* If triggered mode is used, CAN trigger message needs to
                      * be transmitted and current sensor response has to be
                      * received afterwards. This may take some time, therefore
                      * delay has to be increased.
                      */
                 pSystemState->timer = SYS_FSM_LONG_TIME_MS;
-#else  /* CURRENT_SENSOR_ISABELLENHUETTE_TRIGGERED */
+#else  /* defined(CURRENT_SENSOR_ISABELLENHUETTE_TRIGGERED) */
                 pSystemState->timer = SYS_FSM_LONG_TIME;
-#endif /* CURRENT_SENSOR_ISABELLENHUETTE_TRIGGERED */
+#endif /* defined(CURRENT_SENSOR_ISABELLENHUETTE_TRIGGERED) */
                 pSystemState->substate = SYS_WAIT_CURRENT_SENSOR_PRESENCE;
             } else if (pSystemState->substate == SYS_WAIT_CURRENT_SENSOR_PRESENCE) {
                 bool allSensorsPresent = true;
-                for (uint8_t stringNumber = 0u; stringNumber < BS_NR_OF_STRINGS; stringNumber++) {
-                    if (CAN_IsCurrentSensorPresent(stringNumber) == true) {
-                        if (CAN_IsCurrentSensorCcPresent(stringNumber) == true) {
-                            SE_SocInit(true, stringNumber);
+                for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
+                    if (CAN_IsCurrentSensorPresent(s) == true) {
+                        if (CAN_IsCurrentSensorCcPresent(s) == true) {
+                            SE_InitializeSoc(true, s);
                         } else {
-                            SE_SocInit(false, stringNumber);
+                            SE_InitializeSoc(false, s);
                         }
-                        if (CAN_IsCurrentSensorEcPresent(stringNumber) == true) {
-                            SE_SoeInit(true, stringNumber);
+                        if (CAN_IsCurrentSensorEcPresent(s) == true) {
+                            SE_InitializeSoe(true, s);
                         } else {
-                            SE_SoeInit(false, stringNumber);
+                            SE_InitializeSoe(false, s);
                         }
+                        SE_InitializeSoh(s);
                     } else {
                         allSensorsPresent = false;
                     }
@@ -455,6 +460,8 @@ static STD_RETURN_TYPE_e SYS_RunStateMachine(SYS_STATE_s *pSystemState) {
                         break;
                     }
                 }
+            } else {
+                FAS_ASSERT(FAS_TRAP); /* substate does not exist in this state */
             }
             break;
 
@@ -464,15 +471,65 @@ static STD_RETURN_TYPE_e SYS_RunStateMachine(SYS_STATE_s *pSystemState) {
 
             if (CURRENT_SENSOR_PRESENT == false) {
                 CAN_EnablePeriodic(true);
-                for (uint8_t stringNumber = 0u; stringNumber < BS_NR_OF_STRINGS; stringNumber++) {
-                    SE_SocInit(false, stringNumber);
-                    SE_SoeInit(false, stringNumber);
+                for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
+                    SE_InitializeSoc(false, s);
+                    SE_InitializeSoe(false, s);
+                    SE_InitializeSoh(s);
                 }
             }
 
-            pSystemState->timer    = SYS_FSM_MEDIUM_TIME;
-            pSystemState->state    = SYS_STATEMACH_INITIALIZE_BMS;
-            pSystemState->substate = SYS_ENTRY;
+            pSystemState->initializationTimeout = 0u;
+            pSystemState->timer                 = SYS_FSM_SHORT_TIME;
+            pSystemState->state                 = SYS_STATEMACH_INITIALIZE_IMD;
+            pSystemState->substate              = SYS_ENTRY;
+            break;
+
+            /****************************INITIALIZED_IMD*************************************/
+
+        case SYS_STATEMACH_INITIALIZE_IMD:
+            SYS_SAVELASTSTATES(pSystemState);
+
+            if (pSystemState->substate == SYS_ENTRY) {
+                if (IMD_REQUEST_OK == IMD_RequestInitialization()) {
+                    /* Request inquired successfully */
+                    pSystemState->timer                 = SYS_FSM_MEDIUM_TIME;
+                    pSystemState->state                 = SYS_STATEMACH_INITIALIZE_BMS;
+                    pSystemState->substate              = SYS_ENTRY;
+                    pSystemState->initializationTimeout = 0u;
+                } else {
+                    /* Request declined -> retry max. 3 times */
+                    pSystemState->initializationTimeout++;
+                    pSystemState->timer = SYS_FSM_SHORT_TIME;
+                    if (pSystemState->initializationTimeout >= SYS_STATEMACH_INITIALIZATION_REQUEST_RETRY_COUNTER) {
+                        /* Switch to error state */
+                        pSystemState->timer    = SYS_FSM_SHORT_TIME;
+                        pSystemState->state    = SYS_STATEMACH_ERROR;
+                        pSystemState->substate = SYS_IMD_INITIALIZATION_ERROR;
+                    }
+                }
+                break;
+            } else if (pSystemState->substate == SYS_WAIT_INITIALIZATION_IMD) {
+                imdInitialized = IMD_GetInitializationState();
+                if (imdInitialized == true) {
+                    pSystemState->timer    = SYS_FSM_SHORT_TIME;
+                    pSystemState->state    = SYS_STATEMACH_INITIALIZE_BMS;
+                    pSystemState->substate = SYS_ENTRY;
+                    break;
+                } else {
+                    if (pSystemState->initializationTimeout >
+                        (SYS_STATEMACH_IMD_INITIALIZATION_TIMEOUT_MS / SYS_TASK_CYCLE_CONTEXT_MS)) {
+                        pSystemState->timer    = SYS_FSM_SHORT_TIME;
+                        pSystemState->state    = SYS_STATEMACH_ERROR;
+                        pSystemState->substate = SYS_IMD_INITIALIZATION_ERROR;
+                        break;
+                    }
+                    pSystemState->timer = SYS_FSM_SHORT_TIME;
+                    pSystemState->initializationTimeout++;
+                    break;
+                }
+            } else {
+                FAS_ASSERT(FAS_TRAP); /* substate does not exist in this state */
+            }
             break;
 
         /****************************INITIALIZE BMS*************************************/
@@ -497,13 +554,15 @@ static STD_RETURN_TYPE_e SYS_RunStateMachine(SYS_STATE_s *pSystemState) {
                         (SYS_STATEMACH_INITIALIZATION_TIMEOUT_MS / SYS_TASK_CYCLE_CONTEXT_MS)) {
                         pSystemState->timer    = SYS_FSM_SHORT_TIME;
                         pSystemState->state    = SYS_STATEMACH_ERROR;
-                        pSystemState->substate = SYS_BMS_INIT_ERROR;
+                        pSystemState->substate = SYS_BMS_INITIALIZATION_ERROR;
                         break;
                     }
                     pSystemState->timer = SYS_FSM_SHORT_TIME;
                     pSystemState->initializationTimeout++;
                     break;
                 }
+            } else {
+                FAS_ASSERT(FAS_TRAP); /* substate does not exist in this state */
             }
             break;
 
@@ -578,7 +637,7 @@ static SYS_RETURN_TYPE_e SYS_CheckStateRequest(SYS_STATE_REQUEST_e stateRequest)
     } else {
         if (sys_state.stateRequest == SYS_STATE_NO_REQUEST) {
             /* init only allowed from the uninitialized state */
-            if (stateRequest == SYS_STATE_INIT_REQUEST) {
+            if (stateRequest == SYS_STATE_INITIALIZATION_REQUEST) {
                 if (sys_state.state == SYS_STATEMACH_UNINITIALIZED) {
                     retval = SYS_OK;
                 } else {
@@ -600,7 +659,7 @@ extern void SYS_GeneralMacroBist(void) {
     const uint8_t dummy[REPEAT_MAXIMUM_REPETITIONS] = {
         REPEAT_U(SYS_BIST_GENERAL_MAGIC_NUMBER, STRIP(REPEAT_MAXIMUM_REPETITIONS))};
     for (uint8_t i = 0u; i < REPEAT_MAXIMUM_REPETITIONS; i++) {
-        FAS_ASSERT(SYS_BIST_GENERAL_MAGIC_NUMBER == dummy[i]);
+        FAS_ASSERT(dummy[i] == SYS_BIST_GENERAL_MAGIC_NUMBER);
     }
 }
 

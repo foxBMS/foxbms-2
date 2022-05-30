@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    test_can.c
  * @author  foxBMS Team
  * @date    2020-04-01 (date of creation)
- * @updated 2021-07-23 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -138,9 +139,9 @@ void setUp(void) {
 
     canTestState->periodicEnable = false;
 
-    for (uint8_t stringNumber = 0u; stringNumber < BS_NR_OF_STRINGS; stringNumber++) {
-        canTestState->currentSensorPresent[stringNumber]   = false;
-        canTestState->currentSensorCCPresent[stringNumber] = false;
+    for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
+        canTestState->currentSensorPresent[s]   = false;
+        canTestState->currentSensorCCPresent[s] = false;
     }
 }
 
@@ -208,34 +209,47 @@ void testEnablePeriodic(void) {
 }
 
 void testIsCurrentSensorPresent(void) {
-    for (uint8_t stringNumber = 0u; stringNumber < BS_NR_OF_STRINGS; stringNumber++) {
+    for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
         /* check state before */
-        TEST_ASSERT_EQUAL(false, canTestState->currentSensorPresent[stringNumber]);
+        TEST_ASSERT_EQUAL(false, canTestState->currentSensorPresent[s]);
 
-        TEST_ASSERT_EQUAL(false, CAN_IsCurrentSensorPresent(stringNumber));
+        TEST_ASSERT_EQUAL(false, CAN_IsCurrentSensorPresent(s));
 
         /* set state to true */
-        canTestState->currentSensorPresent[stringNumber] = true;
+        canTestState->currentSensorPresent[s] = true;
 
         /* check state again */
-        TEST_ASSERT_EQUAL(true, canTestState->currentSensorPresent[stringNumber]);
+        TEST_ASSERT_EQUAL(true, canTestState->currentSensorPresent[s]);
     }
 }
 
 void testIsCurrentSensorCcPresent(void) {
-    for (uint8_t stringNumber = 0u; stringNumber < BS_NR_OF_STRINGS; stringNumber++) {
+    for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
         /* check state before */
-        TEST_ASSERT_EQUAL(false, canTestState->currentSensorCCPresent[stringNumber]);
-
-        TEST_ASSERT_EQUAL(false, CAN_IsCurrentSensorCcPresent(stringNumber));
+        TEST_ASSERT_EQUAL(false, canTestState->currentSensorCCPresent[s]);
+        TEST_ASSERT_EQUAL(false, CAN_IsCurrentSensorCcPresent(s));
 
         /* set state to true */
-        canTestState->currentSensorCCPresent[stringNumber] = true;
+        canTestState->currentSensorCCPresent[s] = true;
 
         /* check state again */
-        TEST_ASSERT_EQUAL(true, canTestState->currentSensorCCPresent[stringNumber]);
+        TEST_ASSERT_EQUAL(true, canTestState->currentSensorCCPresent[s]);
     }
 }
 
 void testCAN_TransmitBootMessage(void) {
+}
+
+/**
+ * @brief   test #CAN_TransmitDieId()
+ * @details Currently not implemented. Implementing a test for this function
+ *          would require implementing a harness that mocks away the
+ *          systemREG1 (defined in HAL) as otherwise the test would attempt to
+ *          read random memory addresses.
+ *          Since the benefit of testing this function on unit level is rather
+ *          low (next to no interaction with rest of code base), it should be
+ *          tested in the integration test.
+ *
+*/
+void testCAN_TransmitDieId(void) {
 }

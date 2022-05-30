@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    test_can_cbs_tx_temperature.c
  * @author  foxBMS Team
  * @date    2021-04-22 (date of creation)
- * @updated 2021-06-09 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -120,15 +121,15 @@ void tearDown(void) {
 void testCAN_TxCellTemperature(void) {
     uint8_t data[8] = {0};
 
-    DATA_Read_1_DataBlock_IgnoreAndReturn(0u);
+    DATA_Read1DataBlock_IgnoreAndReturn(0u);
 
-    for (uint8_t stringNumber = 0u; stringNumber < BS_NR_OF_STRINGS; stringNumber++) {
-        can_kShim.pTableCellTemperature->cellTemperature_ddegC[stringNumber][0] = 100;
-        can_kShim.pTableCellTemperature->cellTemperature_ddegC[stringNumber][1] = 110;
-        can_kShim.pTableCellTemperature->cellTemperature_ddegC[stringNumber][2] = 120;
-        can_kShim.pTableCellTemperature->cellTemperature_ddegC[stringNumber][3] = 250;
-        can_kShim.pTableCellTemperature->cellTemperature_ddegC[stringNumber][4] = 400;
-        can_kShim.pTableCellTemperature->cellTemperature_ddegC[stringNumber][5] = -100;
+    for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
+        can_kShim.pTableCellTemperature->cellTemperature_ddegC[s][0] = 100;
+        can_kShim.pTableCellTemperature->cellTemperature_ddegC[s][1] = 110;
+        can_kShim.pTableCellTemperature->cellTemperature_ddegC[s][2] = 120;
+        can_kShim.pTableCellTemperature->cellTemperature_ddegC[s][3] = 250;
+        can_kShim.pTableCellTemperature->cellTemperature_ddegC[s][4] = 400;
+        can_kShim.pTableCellTemperature->cellTemperature_ddegC[s][5] = -100;
     }
 
     CAN_TxCellTemperature(0x111, 8, CAN_BIG_ENDIAN, data, &muxId, &can_kShim);

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    mxm_cfg.c
  * @author  foxBMS Team
  * @date    2019-01-09 (date of creation)
- * @updated 2021-12-06 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  MXM
  *
@@ -54,6 +55,7 @@
 /*========== Includes =======================================================*/
 #include "mxm_cfg.h"
 
+#include "diag.h"
 #include "io.h"
 #include "spi.h"
 
@@ -86,14 +88,20 @@ extern STD_RETURN_TYPE_e MXM_GetSPIStateReady(void) {
 extern STD_RETURN_TYPE_e MXM_SendData(uint16_t *txBuffer, uint16_t length) {
     FAS_ASSERT(txBuffer != NULL_PTR);
     FAS_ASSERT(length != 0u);
-    return SPI_TransmitData(&spi_MxmInterface, txBuffer, length);
+    const STD_RETURN_TYPE_e spiReturnValue = SPI_TransmitData(&spi_MxmInterface, txBuffer, length);
+    /* this driver currently only handles one physical string, therefore reporting to string 0 */
+    (void)DIAG_CheckEvent(spiReturnValue, DIAG_ID_AFE_SPI, DIAG_STRING, 0u);
+    return spiReturnValue;
 }
 
 extern STD_RETURN_TYPE_e MXM_ReceiveData(uint16_t *txBuffer, uint16_t *rxBuffer, uint16_t length) {
     FAS_ASSERT(txBuffer != NULL_PTR);
     FAS_ASSERT(rxBuffer != NULL_PTR);
     FAS_ASSERT(length != 0u);
-    return SPI_TransmitReceiveData(&spi_MxmInterface, txBuffer, rxBuffer, length);
+    const STD_RETURN_TYPE_e spiReturnValue = SPI_TransmitReceiveData(&spi_MxmInterface, txBuffer, rxBuffer, length);
+    /* this driver currently only handles one physical string, therefore reporting to string 0 */
+    (void)DIAG_CheckEvent(spiReturnValue, DIAG_ID_AFE_SPI, DIAG_STRING, 0u);
+    return spiReturnValue;
 }
 
 extern void MXM_ShutDownBridgeIc(void) {

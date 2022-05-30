@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    general.h
  * @author  foxBMS Team
  * @date    2019-09-24 (date of creation)
- * @updated 2021-11-08 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup GENERAL_CONF
  * @prefix  NONE
  *
@@ -55,28 +56,14 @@
 #define FOXBMS__GENERAL_H_
 
 /*========== Includes =======================================================*/
-#include "HL_sys_common.h"
-
 #include "fassert.h"
 #include "fstd_types.h"
+#include "mcu.h"
 
 #include <stdbool.h>
 #include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
-
-/**
- * @brief   largest pin number that exists in TMS570LC4357
- * @details Checked in the data sheet spnu563a: The largest pin number that is
- *          used is 31.
-*/
-#define LARGEST_PIN_NUMBER (31u)
-
-/**
- * @brief   maximum number of channels measured by the ADC1
- * @details Checked in the data sheet spnu563a: ADC1 supports 32 channels
- */
-#define ADC_ADC1_MAX_NR_CHANNELS (32U)
 
 /**
  * @brief   sets a bit to 1u
@@ -112,13 +99,13 @@
 
 /* assert that the basic datatypes in fstd_types.h are intact */
 /* AXIVION Disable Style MisraC2012-10.4: These assertions have to check the actual values of the enums and defines. */
-static_assert(false == 0, "false seems to have been modified.");
-static_assert(true != false, "true seems to have been modified.");
-static_assert(true == 1, "true seems to have been modified.");
+f_static_assert(false == 0, "false seems to have been modified.");
+f_static_assert(true != false, "true seems to have been modified.");
+f_static_assert(true == 1, "true seems to have been modified.");
 
-static_assert(STD_OK == 0, "STD_OK seems to have been modified.");
-static_assert(STD_OK != STD_NOT_OK, "STD_OK or STD_NOT_OK seem to have been modified.");
-static_assert(STD_NOT_OK == 1, "STD_NOT_OK seems to have been modified.");
+f_static_assert(STD_OK == 0, "STD_OK seems to have been modified.");
+f_static_assert(STD_OK != STD_NOT_OK, "STD_OK or STD_NOT_OK seem to have been modified.");
+f_static_assert(STD_NOT_OK == 1, "STD_NOT_OK seems to have been modified.");
 /* AXIVION Enable Style MisraC2012-10.4: */
 
 /**
@@ -273,6 +260,18 @@ static_assert(STD_NOT_OK == 1, "STD_NOT_OK seems to have been modified.");
 /** Strips a token of its surrounding parenthesis. */
 #define STRIP(x) STRIP_PARENS(GET_ARGS x)
 /* AXIVION Enable Style MisraC2012Directive-4.9 MisraC2012-20.7 Generic-NoUnsafeMacro: */
+
+/** Defines the word size in bytes of the platform */
+#if defined(__TI_COMPILER_VERSION__) && defined(__ARM_32BIT_STATE) && defined(__TMS470__)
+#define BYTES_PER_WORD (4u)
+#elif defined(UNITY_UNIT_TEST)
+/* since this define only affects the task size, it can be safely set in unit
+   tests to the value that is used in the embedded platform */
+#define BYTES_PER_WORD (4u)
+#else
+#warning "Unspecified platform default to 4 bytes per word."
+#define BYTES_PER_WORD (4u)
+#endif
 
 /*========== Extern Constant and Variable Declarations ======================*/
 

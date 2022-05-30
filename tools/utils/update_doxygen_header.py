@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -43,11 +43,11 @@
 import argparse
 import logging
 import os
+import re
+import subprocess
 import sys
 from datetime import date
-import re
 from pathlib import Path
-import subprocess
 
 UPDATED_RE_COMPILED = re.compile(
     "[ ]\\* (@updated)[ ][0-9]{4}-[0-9]{2}-[0-9]{2}[ ]\\(date of last update\\)$"
@@ -92,7 +92,19 @@ def main():
         logging.basicConfig(level=logging.DEBUG)
     else:
         logging.basicConfig(level=logging.ERROR)
-    cmd = ["git", "diff", "--name-only", "master"]
+
+    # get merge base
+    cmd = ["git", "merge-base", "HEAD", "origin/master"]
+    tmp = []
+    with subprocess.Popen(cmd, stdout=subprocess.PIPE) as p:
+        tmp = p.communicate()[0].decode("utf-8").strip().splitlines()
+    logging.debug(f"cmd: {cmd}, out:\n{tmp}")
+    if not tmp:
+        logging.warning("Could not find merge base.")
+        sys.exit(0)
+    merge_base = tmp[0]
+
+    cmd = ["git", "diff", "--name-only", merge_base]
     tmp = []
     with subprocess.Popen(cmd, stdout=subprocess.PIPE) as p:
         tmp = p.communicate()[0].decode("utf-8").strip().splitlines()
@@ -120,7 +132,7 @@ def main():
                 i.write_text(txt, encoding="ascii")
                 break
         if not m:
-            logging.error(f"Something went wrong, check file '{i.a_path}'.")
+            logging.error(f"Something went wrong, check file '{i.resolve()}'.")
         m = False
         any_file = True
 
@@ -128,11 +140,6 @@ def main():
         cmd = ["git", "add"] + [
             i.relative_to(ROOT).as_posix() for i in changed_files if i.is_file()
         ]
-        with subprocess.Popen(cmd, stdout=subprocess.PIPE) as p:
-            p.communicate()
-
-    if changed_files:
-        cmd = ["git", "add"] + [i.relative_to(ROOT).as_posix() for i in changed_files]
         with subprocess.Popen(cmd, stdout=subprocess.PIPE) as p:
             p.communicate()
 

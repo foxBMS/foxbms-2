@@ -1,0 +1,19 @@
+{
+    "$id": "/properties/operating-system",
+    "title": "Configuration of the Operating System",
+    "required": [
+        "name"
+    ],
+    "additionalProperties": false,
+    "properties": {
+        "name": {
+            "$id": "/properties/operating-system/name",
+            "title": "Name of the Operating System (must correspond to the directory name)",
+            "type": "string",
+            "enum": [
+                "freertos",
+                "safertos"
+            ]
+        }
+    }
+}

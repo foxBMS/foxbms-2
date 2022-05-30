@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    database_helper.c
  * @author  foxBMS Team
  * @date    2021-05-05 (date of creation)
- * @updated 2021-06-09 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup ENGINE
  * @prefix  DATA
  *
@@ -115,20 +116,21 @@ extern bool DATA_EntryUpdatedPeriodicallyWithinInterval(DATA_BLOCK_HEADER_s data
 }
 
 extern uint8_t DATA_GetStringNumberFromVoltageIndex(uint16_t cellIndex) {
-    FAS_ASSERT(cellIndex < (BS_NR_OF_BAT_CELLS * BS_NR_OF_STRINGS));
-    return (uint8_t)(cellIndex / BS_NR_OF_BAT_CELLS);
+    FAS_ASSERT(cellIndex < (BS_NR_OF_CELL_BLOCKS_PER_STRING * BS_NR_OF_STRINGS));
+    return (uint8_t)(cellIndex / BS_NR_OF_CELL_BLOCKS_PER_STRING);
 }
 
 extern uint8_t DATA_GetModuleNumberFromVoltageIndex(uint16_t cellIndex) {
-    FAS_ASSERT(cellIndex < (BS_NR_OF_BAT_CELLS * BS_NR_OF_STRINGS));
+    FAS_ASSERT(cellIndex < (BS_NR_OF_CELL_BLOCKS_PER_STRING * BS_NR_OF_STRINGS));
     uint8_t stringNumber = DATA_GetStringNumberFromVoltageIndex(cellIndex);
-    uint8_t moduleNumber = (uint8_t)((cellIndex / BS_NR_OF_CELLS_PER_MODULE) - (stringNumber * BS_NR_OF_MODULES));
+    uint8_t moduleNumber =
+        (uint8_t)((cellIndex / BS_NR_OF_CELL_BLOCKS_PER_MODULE) - (stringNumber * BS_NR_OF_MODULES_PER_STRING));
     return moduleNumber;
 }
 
 extern uint8_t DATA_GetCellNumberFromVoltageIndex(uint16_t cellIndex) {
-    FAS_ASSERT(cellIndex < (BS_NR_OF_BAT_CELLS * BS_NR_OF_STRINGS));
-    return (uint8_t)(cellIndex % BS_NR_OF_CELLS_PER_MODULE);
+    FAS_ASSERT(cellIndex < (BS_NR_OF_CELL_BLOCKS_PER_STRING * BS_NR_OF_STRINGS));
+    return (uint8_t)(cellIndex % BS_NR_OF_CELL_BLOCKS_PER_MODULE);
 }
 
 extern uint8_t DATA_GetStringNumberFromTemperatureIndex(uint16_t sensorIndex) {
@@ -140,7 +142,7 @@ extern uint8_t DATA_GetModuleNumberFromTemperatureIndex(uint16_t sensorIndex) {
     FAS_ASSERT(sensorIndex < BS_NR_OF_TEMP_SENSORS);
     uint8_t stringNumber = DATA_GetStringNumberFromTemperatureIndex(sensorIndex);
     uint8_t moduleNumber =
-        (uint8_t)((sensorIndex / BS_NR_OF_TEMP_SENSORS_PER_MODULE) - (stringNumber * BS_NR_OF_MODULES));
+        (uint8_t)((sensorIndex / BS_NR_OF_TEMP_SENSORS_PER_MODULE) - (stringNumber * BS_NR_OF_MODULES_PER_STRING));
     return moduleNumber;
 }
 

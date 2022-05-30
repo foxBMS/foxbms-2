@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    diag_cbs_sys-mon.c
  * @author  foxBMS Team
  * @date    2021-02-17 (date of creation)
- * @updated 2021-02-17 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup ENGINE
  * @prefix  DIAG
  *
@@ -63,8 +64,25 @@
 /*========== Extern Constant and Variable Definitions =======================*/
 
 /*========== Static Function Prototypes =====================================*/
+/**
+ * @brief   convert a #DIAG_EVENT_e to a boolean for the violation flags in the database
+ * @param[in]   event   diag event
+ * @returns     boolean indicating the error flag
+ */
+static bool DIAG_EventToBool(DIAG_EVENT_e event);
 
 /*========== Static Function Implementations ================================*/
+static bool DIAG_EventToBool(DIAG_EVENT_e event) {
+    FAS_ASSERT((event == DIAG_EVENT_OK) || (event == DIAG_EVENT_NOT_OK) || (event == DIAG_EVENT_RESET));
+
+    bool returnValue = false;
+    if (event == DIAG_EVENT_NOT_OK) {
+        /* event is not ok, set output to true */
+        returnValue = true;
+    }
+
+    return returnValue;
+}
 
 /*========== Extern Function Implementations ================================*/
 extern void DIAG_ErrorSystemMonitoring(
@@ -78,10 +96,15 @@ extern void DIAG_ErrorSystemMonitoring(
 
     if (ch_id == DIAG_ID_SYSTEMMONITORING) {
         if ((SYSM_TASK_ID_e)data == SYSM_TASK_ID_ENGINE) {
+            kpkDiagShim->pTableError->timingViolationEngine = DIAG_EventToBool(event);
         } else if ((SYSM_TASK_ID_e)data == SYSM_TASK_ID_CYCLIC_1ms) {
+            kpkDiagShim->pTableError->timingViolation1ms = DIAG_EventToBool(event);
         } else if ((SYSM_TASK_ID_e)data == SYSM_TASK_ID_CYCLIC_10ms) {
+            kpkDiagShim->pTableError->timingViolation10ms = DIAG_EventToBool(event);
         } else if ((SYSM_TASK_ID_e)data == SYSM_TASK_ID_CYCLIC_100ms) {
+            kpkDiagShim->pTableError->timingViolation100ms = DIAG_EventToBool(event);
         } else if ((SYSM_TASK_ID_e)data == SYSM_TASK_ID_CYCLIC_ALGORITHM_100ms) {
+            kpkDiagShim->pTableError->timingViolation100msAlgo = DIAG_EventToBool(event);
         } else {
             FAS_ASSERT(FAS_TRAP);
         }

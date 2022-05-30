@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    os.h
  * @author  foxBMS Team
  * @date    2019-08-27 (date of creation)
- * @updated 2021-12-08 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup OS
  * @prefix  OS
  *
@@ -60,29 +61,29 @@
 #if defined(FOXBMS_USES_FREERTOS)
 #include "FreeRTOS.h"
 #include "queue.h"
-#define OS_QUEUE QueueHandle_t
+#define OS_QUEUE                QueueHandle_t
+#define OS_IDLE_TASK_STACK_SIZE (configMINIMAL_STACK_SIZE) /**< stack size of the idle task */
+#define OS_TICK_RATE_MS         (portTICK_RATE_MS)         /**< FreeRTOS name of the tick rate */
+#define OS_ENABLE_CACHE         (false)                    /**< true: Enable cache, false: Disable cache */
 #endif
 
 /*========== Macros and Definitions =========================================*/
-
-/** stack size of the idle task */
-#define OS_IDLE_TASK_STACK_SIZE configMINIMAL_STACK_SIZE
 
 #if (configUSE_TIMERS > 0) && (configSUPPORT_STATIC_ALLOCATION == 1)
 #define OS_TIMER_TASK_STACK_SIZE configTIMER_TASK_STACK_DEPTH
 #endif /* configUSE_TIMERS */
 
 /** enum to encapsulate function returns from the OS-wrapper layer */
-typedef enum OS_STD_RETURN {
-    OS_SUCCESS, /**< OS-dependent operation successfull     */
-    OS_FAIL,    /**< OS-dependent operation unsuccessfull   */
+typedef enum {
+    OS_SUCCESS, /**< OS-dependent operation successful      */
+    OS_FAIL,    /**< OS-dependent operation unsuccessful    */
 } OS_STD_RETURN_e;
 
 /**
  * @brief   typedef for thread priority. The higher the value, the higher the
  *          priority.
  */
-typedef enum OS_PRIORITY {
+typedef enum {
     OS_PRIORITY_IDLE,           /**< priority: idle (lowest)      */
     OS_PRIORITY_LOW,            /**< priority: low                */
     OS_PRIORITY_BELOW_NORMAL,   /**< priority: below normal       */
@@ -96,8 +97,9 @@ typedef enum OS_PRIORITY {
 } OS_PRIORITY_e;
 
 /** @brief  enum of OS boot states */
-typedef enum OS_BOOT_STATE {
+typedef enum {
     OS_OFF,                          /**< system is off                                                   */
+    OS_INITIALIZE_SCHEDULER,         /**< state right before initalizing the scheduler                    */
     OS_CREATE_QUEUES,                /**< state right before queues are created                           */
     OS_CREATE_TASKS,                 /**< state right before tasks are created                            */
     OS_INIT_PRE_OS,                  /**< state right after tasks are created                             */
@@ -111,7 +113,7 @@ typedef enum OS_BOOT_STATE {
 } OS_BOOT_STATE_e;
 
 /** @brief  OS timer */
-typedef struct OS_TIMER {
+typedef struct {
     uint8_t timer_1ms;   /**< milliseconds     */
     uint8_t timer_10ms;  /**< 10 milliseconds  */
     uint8_t timer_100ms; /**< 100 milliseconds */
@@ -122,11 +124,11 @@ typedef struct OS_TIMER {
 } OS_TIMER_s;
 
 /** @brief  struct for FreeRTOS task definition */
-typedef struct OS_TASK_DEFINITION {
+typedef struct {
     OS_PRIORITY_e priority; /*!< priority of the task */
     uint32_t phase;         /*!< shift in ms of the first start of the task */
     uint32_t cycleTime;     /*!< time in ms that will be waited between each task cycle */
-    uint16_t stackSize;     /*!< Defines the size, in words, of the stack allocated to the task */
+    uint32_t stackSize_B;   /*!< Defines the size, in bytes, of the stack allocated to the task */
     void *pvParameters;     /*!< value that is passed as the parameter to the task. */
 } OS_TASK_DEFINITION_s;
 
@@ -140,13 +142,19 @@ extern uint32_t os_schedulerStartTime;
 /*========== Extern Function Prototypes =====================================*/
 
 /**
+ * @brief Initialization function for the scheduler
+ */
+extern void OS_InitializeScheduler(void);
+
+/**
  * @brief   Starts the operating system scheduler
  */
 extern void OS_StartScheduler(void);
 
 /**
  * @brief   Initialization the RTOS interface
- * @details This function initializes the mutexes, eventgroups and tasks.
+ * @details This function initializes the scheduler and then creates queues and
+ *          tasks.
  */
 extern void OS_InitializeOperatingSystem(void);
 
@@ -265,15 +273,13 @@ extern OS_STD_RETURN_e OS_ReceiveFromQueue(OS_QUEUE xQueue, void *const pvBuffer
  * @param   ticksToWait     ticks to wait
  * @return #OS_SUCCESS if the item was successfully posted, otherwise #OS_FAIL.
  */
-extern OS_STD_RETURN_e OS_SendToBackOfQueue(OS_QUEUE xQueue, const void *const pvItemToQueue, TickType_t ticksToWait);
+extern OS_STD_RETURN_e OS_SendToBackOfQueue(OS_QUEUE xQueue, const void *const pvItemToQueue, uint32_t ticksToWait);
 
 /**
  * @brief   Post an item to the back the provided queue during an ISR
  * @details This function needs to implement the wrapper to OS specfic queue
  *          posting.
- *          The queue needs to be implement in a FreeRTOS compatible way.
- * @param   xQueue                      FreeRTOS compatible queue handle that
- *                                      should be posted to.
+ * @param   xQueue                      queue handle that should be posted to.
  * @param   pvItemToQueue               Pointer to the item to be posted in the
  *                                      queue.
  * @param   pxHigherPriorityTaskWoken   Indicates whether a context switch is
@@ -287,6 +293,15 @@ extern OS_STD_RETURN_e OS_SendToBackOfQueueFromIsr(
     OS_QUEUE xQueue,
     const void *const pvItemToQueue,
     long *const pxHigherPriorityTaskWoken);
+
+/**
+ * @brief   Check if messages are waiting for queue
+ * @details This function needs to implement the wrapper to OS specfic queue
+ *          posting.
+ * @param   xQueue                   queue handle that should be posted to.
+ * @return number of message currently stored in xQueue
+ */
+extern uint32_t OS_GetNumberOfStoredMessagesInQueue(OS_QUEUE xQueue);
 
 /**
  * @brief   This function checks if timeToPass has passed since the last timestamp to now

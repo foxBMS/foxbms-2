@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    ltc_6806.c
  * @author  foxBMS Team
  * @date    2019-09-01 (date of creation)
- * @updated 2021-12-07 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup DRIVERS
  * @prefix  LTC
  *
@@ -60,13 +61,13 @@
 #include "HL_spi.h"
 #include "HL_system.h"
 
+#include "afe_plausibility.h"
 #include "database.h"
 #include "diag.h"
 #include "io.h"
 #include "ltc_pec.h"
-#include "pex.h"
 #include "os.h"
-#include "afe_plausibility.h"
+#include "pex.h"
 
 /*========== Macros and Definitions =========================================*/
 
@@ -104,10 +105,12 @@
  * PEC buffer for RX and TX
  * @{
  */
+/* AXIVION Disable Style MisraC2012-1.2: The Pec buffer must be put in the shared RAM section for performance reasons */
 #pragma SET_DATA_SECTION(".sharedRAM")
 uint16_t ltc_RxPecBuffer[LTC_N_BYTES_FOR_DATA_TRANSMISSION] = {0};
 uint16_t ltc_TxPecBuffer[LTC_N_BYTES_FOR_DATA_TRANSMISSION] = {0};
 #pragma SET_DATA_SECTION()
+/* AXIVION Enable Style MisraC2012-1.2: only Pec buffer needed to be in the shared RAM setcion */
 /**@}*/
 
 /** index of used cells */
@@ -230,7 +233,7 @@ static uint16_t ltc_BC_cmdADOW_PDOWN_100ms_fuelcell[4] =
 
 /*========== Static Function Prototypes =====================================*/
 static void LTC_SetFirstMeasurementCycleFinished(LTC_STATE_s *ltc_state);
-static void LTC_Initialize_Database(LTC_STATE_s *ltc_state);
+static void LTC_InitializeDatabase(LTC_STATE_s *ltc_state);
 static void LTC_SaveLastStates(LTC_STATE_s *ltc_state);
 static void LTC_StateTransition(LTC_STATE_s *ltc_state, LTC_STATEMACH_e state, uint8_t substate, uint16_t timer_ms);
 static void LTC_CondBasedStateTransition(
@@ -266,18 +269,18 @@ static void LTC_SaveRXtoVoltagebuffer_Fuelcell(
     uint8_t registerSet,
     uint8_t stringNumber);
 
-static STD_RETURN_TYPE_e LTC_RX_PECCheck(
+static STD_RETURN_TYPE_e LTC_CheckPec(
     LTC_STATE_s *ltc_state,
     uint16_t *DataBufferSPI_RX_with_PEC,
     uint8_t stringNumber);
-static STD_RETURN_TYPE_e LTC_RX(
+static STD_RETURN_TYPE_e LTC_ReadRegister(
     uint16_t *Command,
     SPI_INTERFACE_CONFIG_s *pSpiInterface,
     uint16_t *pTxBuff,
     uint16_t *pRxBuff,
     uint32_t frameLength);
 
-static uint32_t LTC_GetSPIClock(SPI_INTERFACE_CONFIG_s *pSpiInterface);
+static uint32_t LTC_GetSpiClock(SPI_INTERFACE_CONFIG_s *pSpiInterface);
 static void LTC_SetTransferTimes(LTC_STATE_s *ltc_state);
 
 static LTC_RETURN_TYPE_e LTC_CheckStateRequest(LTC_STATE_s *ltc_state, LTC_REQUEST_s statereq);
@@ -293,30 +296,30 @@ static LTC_RETURN_TYPE_e LTC_CheckStateRequest(LTC_STATE_s *ltc_state, LTC_REQUE
  * @param  ltc_state:  state of the ltc state machine
  *
  */
-static void LTC_Initialize_Database(LTC_STATE_s *ltc_state) {
+static void LTC_InitializeDatabase(LTC_STATE_s *ltc_state) {
     uint16_t i = 0;
 
-    for (uint8_t stringNumber = 0u; stringNumber < BS_NR_OF_STRINGS; stringNumber++) {
+    for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
         ltc_state->ltcData.cellVoltage->state = 0;
-        for (i = 0; i < BS_NR_OF_BAT_CELLS; i++) {
-            ltc_state->ltcData.cellVoltage->cellVoltage_mV[stringNumber][i]      = 0;
-            ltc_state->ltcData.openWireDetection->openWirePup[stringNumber][i]   = 0;
-            ltc_state->ltcData.openWireDetection->openWirePdown[stringNumber][i] = 0;
-            ltc_state->ltcData.openWireDetection->openWireDelta[stringNumber][i] = 0;
+        for (i = 0; i < BS_NR_OF_CELL_BLOCKS_PER_STRING; i++) {
+            ltc_state->ltcData.cellVoltage->cellVoltage_mV[s][i]      = 0;
+            ltc_state->ltcData.openWireDetection->openWirePup[s][i]   = 0;
+            ltc_state->ltcData.openWireDetection->openWirePdown[s][i] = 0;
+            ltc_state->ltcData.openWireDetection->openWireDelta[s][i] = 0;
         }
 
         ltc_state->ltcData.cellTemperature->state = 0;
         for (i = 0; i < BS_NR_OF_TEMP_SENSORS_PER_STRING; i++) {
-            ltc_state->ltcData.cellTemperature->cellTemperature_ddegC[stringNumber][i] = 0;
+            ltc_state->ltcData.cellTemperature->cellTemperature_ddegC[s][i] = 0;
         }
 
         ltc_state->ltcData.allGpioVoltages->state = 0;
-        for (i = 0; i < (BS_NR_OF_MODULES * BS_NR_OF_GPIOS_PER_MODULE); i++) {
-            ltc_state->ltcData.allGpioVoltages->gpioVoltages_mV[stringNumber][i] = 0;
+        for (i = 0; i < (BS_NR_OF_MODULES_PER_STRING * BS_NR_OF_GPIOS_PER_MODULE); i++) {
+            ltc_state->ltcData.allGpioVoltages->gpioVoltages_mV[s][i] = 0;
         }
 
-        for (i = 0; i < (BS_NR_OF_MODULES * (BS_NR_OF_CELLS_PER_MODULE + 1)); i++) {
-            ltc_state->ltcData.openWire->openwire[stringNumber][i] = 0;
+        for (i = 0; i < (BS_NR_OF_MODULES_PER_STRING * (BS_NR_OF_CELL_BLOCKS_PER_MODULE + 1)); i++) {
+            ltc_state->ltcData.openWire->openwire[s][i] = 0;
         }
         ltc_state->ltcData.openWire->state = 0;
     }
@@ -399,30 +402,30 @@ extern void LTC_SaveVoltages(LTC_STATE_s *ltc_state, uint8_t stringNumber) {
     STD_RETURN_TYPE_e cellVoltageMeasurementValid = STD_OK;
     int32_t stringVoltage_mV                      = 0;
     uint16_t numberValidMeasurements              = 0;
-    for (uint8_t m = 0u; m < BS_NR_OF_MODULES; m++) {
-        for (uint8_t c = 0u; c < BS_NR_OF_CELLS_PER_MODULE; c++) {
+    for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
+        for (uint8_t c = 0u; c < BS_NR_OF_CELL_BLOCKS_PER_MODULE; c++) {
             /* ------- 1. Check open-wires -----------------
                  * Is cell N input not open wire &&
                  * Is cell N+1 input not open wire &&
                  * Is cell voltage valid because of previous PEC error
                  * If so, everything okay, else set cell voltage measurement to invalid.
                  */
-            if ((ltc_state->ltcData.openWire->openwire[stringNumber][(m * (BS_NR_OF_CELLS_PER_MODULE + 1u)) + c] ==
-                 0u) &&
-                (ltc_state->ltcData.openWire->openwire[stringNumber][(m * (BS_NR_OF_CELLS_PER_MODULE + 1u)) + c + 1u] ==
-                 0u) &&
+            if ((ltc_state->ltcData.openWire
+                     ->openwire[stringNumber][(m * (BS_NR_OF_CELL_BLOCKS_PER_MODULE + 1u)) + c] == 0u) &&
+                (ltc_state->ltcData.openWire
+                     ->openwire[stringNumber][(m * (BS_NR_OF_CELL_BLOCKS_PER_MODULE + 1u)) + c + 1u] == 0u) &&
                 ((ltc_state->ltcData.cellVoltage->invalidCellVoltage[stringNumber][m] & (0x01u << c)) == 0u)) {
                 /* Cell voltage is valid -> perform minimum/maximum plausibility check */
 
                 /* ------- 2. Perform minimum/maximum measurement range check ---------- */
                 if (STD_OK == AFE_PlausibilityCheckVoltageMeasurementRange(
                                   ltc_state->ltcData.cellVoltage
-                                      ->cellVoltage_mV[stringNumber][(m * BS_NR_OF_CELLS_PER_MODULE) + c],
+                                      ->cellVoltage_mV[stringNumber][(m * BS_NR_OF_CELL_BLOCKS_PER_MODULE) + c],
                                   ltc_plausibleCellVoltages6806)) {
                     /* Cell voltage is valid ->  calculate string voltage */
                     /* -------- 3. Calculate string values ------------- */
                     stringVoltage_mV += ltc_state->ltcData.cellVoltage
-                                            ->cellVoltage_mV[stringNumber][(m * BS_NR_OF_CELLS_PER_MODULE) + c];
+                                            ->cellVoltage_mV[stringNumber][(m * BS_NR_OF_CELL_BLOCKS_PER_MODULE) + c];
                     numberValidMeasurements++;
                 } else {
                     /* Invalidate cell voltage measurement */
@@ -449,7 +452,7 @@ extern void LTC_SaveVoltages(LTC_STATE_s *ltc_state, uint8_t stringNumber) {
 extern void LTC_SaveTemperatures(LTC_STATE_s *ltc_state, uint8_t stringNumber) {
     STD_RETURN_TYPE_e cellTemperatureMeasurementValid = STD_OK;
     uint16_t numberValidMeasurements                  = 0;
-    for (uint8_t m = 0u; m < BS_NR_OF_MODULES; m++) {
+    for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
         for (uint8_t c = 0u; c < BS_NR_OF_TEMP_SENSORS_PER_MODULE; c++) {
             /* ------- 1. Check valid flag  -----------------
                  * Is cell temperature valid because of previous PEC error
@@ -494,7 +497,7 @@ extern void LTC_SaveTemperatures(LTC_STATE_s *ltc_state, uint8_t stringNumber) {
  * @param  ltc_state:  state of the ltc state machine
  *
  */
-extern void LTC_SaveAllGPIOMeasurement(LTC_STATE_s *ltc_state) {
+extern void LTC_SaveAllGpioMeasurement(LTC_STATE_s *ltc_state) {
     ltc_state->ltcData.allGpioVoltages->state++;
     DATA_WRITE_DATA(ltc_state->ltcData.allGpioVoltages);
 }
@@ -649,7 +652,7 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                 statereq = LTC_TransferStateRequest(ltc_state, &tmpbusID, &tmpadcMode, &tmpadcMeasCh);
                 if (statereq.request == LTC_STATE_INIT_REQUEST) {
                     LTC_SaveLastStates(ltc_state);
-                    LTC_Initialize_Database(ltc_state);
+                    LTC_InitializeDatabase(ltc_state);
                     LTC_ResetErrorTable(ltc_state);
                     LTC_StateTransition(
                         ltc_state, LTC_STATEMACH_INITIALIZATION, LTC_INIT_STRING, LTC_STATEMACH_SHORTTIME);
@@ -679,7 +682,7 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                     LTC_CondBasedStateTransition(
                         ltc_state,
                         retVal,
-                        DIAG_ID_LTC_SPI,
+                        DIAG_ID_AFE_SPI,
                         LTC_STATEMACH_INITIALIZATION,
                         LTC_RE_ENTRY_INITIALIZATION,
                         LTC_STATEMACH_DAISY_CHAIN_FIRST_INITIALIZATION_TIME,
@@ -694,7 +697,7 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                     LTC_CondBasedStateTransition(
                         ltc_state,
                         retVal,
-                        DIAG_ID_LTC_SPI,
+                        DIAG_ID_AFE_SPI,
                         LTC_STATEMACH_INITIALIZATION,
                         LTC_START_INIT_INITIALIZATION,
                         LTC_STATEMACH_DAISY_CHAIN_SECOND_INITIALIZATION_TIME,
@@ -712,7 +715,7 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                         ltc_state->ltcData.rxBuffer,
                         ltc_state->ltcData.frameLength); /* Initialize main LTC loop */
                     ltc_state->lastsubstate = ltc_state->substate;
-                    DIAG_CheckEvent(retVal, DIAG_ID_LTC_SPI, DIAG_STRING, ltc_state->currentString);
+                    DIAG_CheckEvent(retVal, DIAG_ID_AFE_SPI, DIAG_STRING, ltc_state->currentString);
                     LTC_StateTransition(
                         ltc_state,
                         LTC_STATEMACH_INITIALIZATION,
@@ -723,7 +726,7 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                     /* Read values written in config register, currently unused */
                     LTC_SaveLastStates(ltc_state);
                     AFE_SetTransmitOngoing(ltc_state);
-                    retVal = LTC_RX(
+                    retVal = LTC_ReadRegister(
                         ltc_cmdRDCFG,
                         ltc_state->spiSeqPtr,
                         ltc_state->ltcData.txBuffer,
@@ -772,7 +775,7 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                 LTC_CondBasedStateTransition(
                     ltc_state,
                     retVal,
-                    DIAG_ID_LTC_SPI,
+                    DIAG_ID_AFE_SPI,
                     LTC_STATEMACH_READVOLTAGE,
                     LTC_READ_VOLTAGE_REGISTER_A_RDCVA_READVOLTAGE,
                     (ltc_state->commandTransferTime + LTC_FUELCELL_NORMAL_ALL_CELLS_MS),
@@ -795,7 +798,7 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                 LTC_CondBasedStateTransition(
                     ltc_state,
                     retVal,
-                    DIAG_ID_LTC_SPI,
+                    DIAG_ID_AFE_SPI,
                     LTC_STATEMACH_READVOLTAGE,
                     LTC_READ_VOLTAGE_REGISTER_A_RDCVA_READVOLTAGE,
                     (ltc_state->commandTransferTime + LTC_FUELCELL_NORMAL_ALL_CELLS_MS),
@@ -811,7 +814,7 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                 if (ltc_state->substate == LTC_READ_VOLTAGE_REGISTER_A_RDCVA_READVOLTAGE) {
                     ltc_state->check_spi_flag = STD_OK;
                     AFE_SetTransmitOngoing(ltc_state);
-                    retVal = LTC_RX(
+                    retVal = LTC_ReadRegister(
                         ltc_cmdRDCVA_Fuelcell,
                         ltc_state->spiSeqPtr,
                         ltc_state->ltcData.txBuffer,
@@ -820,7 +823,7 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                     LTC_CondBasedStateTransition(
                         ltc_state,
                         retVal,
-                        DIAG_ID_LTC_SPI,
+                        DIAG_ID_AFE_SPI,
                         LTC_STATEMACH_READVOLTAGE,
                         LTC_READ_VOLTAGE_REGISTER_B_RDCVB_READVOLTAGE,
                         (ltc_state->commandDataTransferTime + LTC_TRANSMISSION_TIMEOUT),
@@ -830,13 +833,13 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                     break;
 
                 } else if (ltc_state->substate == LTC_READ_VOLTAGE_REGISTER_B_RDCVB_READVOLTAGE) {
-                    retVal = LTC_RX_PECCheck(ltc_state, ltc_state->ltcData.rxBuffer, ltc_state->currentString);
-                    DIAG_CheckEvent(retVal, DIAG_ID_LTC_PEC, DIAG_STRING, ltc_state->currentString);
+                    retVal = LTC_CheckPec(ltc_state, ltc_state->ltcData.rxBuffer, ltc_state->currentString);
+                    DIAG_CheckEvent(retVal, DIAG_ID_AFE_COM_INTEGRITY, DIAG_STRING, ltc_state->currentString);
                     LTC_SaveRXtoVoltagebuffer_Fuelcell(
                         ltc_state, ltc_state->ltcData.rxBuffer, 0u, ltc_state->currentString);
 
                     AFE_SetTransmitOngoing(ltc_state);
-                    retVal = LTC_RX(
+                    retVal = LTC_ReadRegister(
                         ltc_cmdRDCVB_Fuelcell,
                         ltc_state->spiSeqPtr,
                         ltc_state->ltcData.txBuffer,
@@ -845,7 +848,7 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                     LTC_CondBasedStateTransition(
                         ltc_state,
                         retVal,
-                        DIAG_ID_LTC_SPI,
+                        DIAG_ID_AFE_SPI,
                         LTC_STATEMACH_READVOLTAGE,
                         LTC_READ_VOLTAGE_REGISTER_C_RDCVC_READVOLTAGE,
                         (ltc_state->commandDataTransferTime + LTC_TRANSMISSION_TIMEOUT),
@@ -855,13 +858,13 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                     break;
 
                 } else if (ltc_state->substate == LTC_READ_VOLTAGE_REGISTER_C_RDCVC_READVOLTAGE) {
-                    retVal = LTC_RX_PECCheck(ltc_state, ltc_state->ltcData.rxBuffer, ltc_state->currentString);
-                    DIAG_CheckEvent(retVal, DIAG_ID_LTC_PEC, DIAG_STRING, ltc_state->currentString);
+                    retVal = LTC_CheckPec(ltc_state, ltc_state->ltcData.rxBuffer, ltc_state->currentString);
+                    DIAG_CheckEvent(retVal, DIAG_ID_AFE_COM_INTEGRITY, DIAG_STRING, ltc_state->currentString);
                     LTC_SaveRXtoVoltagebuffer_Fuelcell(
                         ltc_state, ltc_state->ltcData.rxBuffer, 1u, ltc_state->currentString);
 
                     AFE_SetTransmitOngoing(ltc_state);
-                    retVal = LTC_RX(
+                    retVal = LTC_ReadRegister(
                         ltc_cmdRDCVC_Fuelcell,
                         ltc_state->spiSeqPtr,
                         ltc_state->ltcData.txBuffer,
@@ -870,7 +873,7 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                     LTC_CondBasedStateTransition(
                         ltc_state,
                         retVal,
-                        DIAG_ID_LTC_SPI,
+                        DIAG_ID_AFE_SPI,
                         LTC_STATEMACH_READVOLTAGE,
                         LTC_READ_VOLTAGE_REGISTER_D_RDCVD_READVOLTAGE,
                         (ltc_state->commandDataTransferTime + LTC_TRANSMISSION_TIMEOUT),
@@ -880,13 +883,13 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                     break;
 
                 } else if (ltc_state->substate == LTC_READ_VOLTAGE_REGISTER_D_RDCVD_READVOLTAGE) {
-                    retVal = LTC_RX_PECCheck(ltc_state, ltc_state->ltcData.rxBuffer, ltc_state->currentString);
-                    DIAG_CheckEvent(retVal, DIAG_ID_LTC_PEC, DIAG_STRING, ltc_state->currentString);
+                    retVal = LTC_CheckPec(ltc_state, ltc_state->ltcData.rxBuffer, ltc_state->currentString);
+                    DIAG_CheckEvent(retVal, DIAG_ID_AFE_COM_INTEGRITY, DIAG_STRING, ltc_state->currentString);
                     LTC_SaveRXtoVoltagebuffer_Fuelcell(
                         ltc_state, ltc_state->ltcData.rxBuffer, 2u, ltc_state->currentString);
 
                     AFE_SetTransmitOngoing(ltc_state);
-                    retVal = LTC_RX(
+                    retVal = LTC_ReadRegister(
                         ltc_cmdRDCVD_Fuelcell,
                         ltc_state->spiSeqPtr,
                         ltc_state->ltcData.txBuffer,
@@ -895,7 +898,7 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                     LTC_CondBasedStateTransition(
                         ltc_state,
                         retVal,
-                        DIAG_ID_LTC_SPI,
+                        DIAG_ID_AFE_SPI,
                         LTC_STATEMACH_READVOLTAGE,
                         LTC_READ_VOLTAGE_REGISTER_E_RDCVE_READVOLTAGE,
                         (ltc_state->commandDataTransferTime + LTC_TRANSMISSION_TIMEOUT),
@@ -905,13 +908,13 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                     break;
 
                 } else if (ltc_state->substate == LTC_READ_VOLTAGE_REGISTER_E_RDCVE_READVOLTAGE) {
-                    retVal = LTC_RX_PECCheck(ltc_state, ltc_state->ltcData.rxBuffer, ltc_state->currentString);
-                    DIAG_CheckEvent(retVal, DIAG_ID_LTC_PEC, DIAG_STRING, ltc_state->currentString);
+                    retVal = LTC_CheckPec(ltc_state, ltc_state->ltcData.rxBuffer, ltc_state->currentString);
+                    DIAG_CheckEvent(retVal, DIAG_ID_AFE_COM_INTEGRITY, DIAG_STRING, ltc_state->currentString);
                     LTC_SaveRXtoVoltagebuffer_Fuelcell(
                         ltc_state, ltc_state->ltcData.rxBuffer, 3u, ltc_state->currentString);
 
                     AFE_SetTransmitOngoing(ltc_state);
-                    retVal = LTC_RX(
+                    retVal = LTC_ReadRegister(
                         ltc_cmdRDCVE_Fuelcell,
                         ltc_state->spiSeqPtr,
                         ltc_state->ltcData.txBuffer,
@@ -920,7 +923,7 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                     LTC_CondBasedStateTransition(
                         ltc_state,
                         retVal,
-                        DIAG_ID_LTC_SPI,
+                        DIAG_ID_AFE_SPI,
                         LTC_STATEMACH_READVOLTAGE,
                         LTC_READ_VOLTAGE_REGISTER_F_RDCVF_READVOLTAGE,
                         (ltc_state->commandDataTransferTime + LTC_TRANSMISSION_TIMEOUT),
@@ -930,13 +933,13 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                     break;
 
                 } else if (ltc_state->substate == LTC_READ_VOLTAGE_REGISTER_F_RDCVF_READVOLTAGE) {
-                    retVal = LTC_RX_PECCheck(ltc_state, ltc_state->ltcData.rxBuffer, ltc_state->currentString);
-                    DIAG_CheckEvent(retVal, DIAG_ID_LTC_PEC, DIAG_STRING, ltc_state->currentString);
+                    retVal = LTC_CheckPec(ltc_state, ltc_state->ltcData.rxBuffer, ltc_state->currentString);
+                    DIAG_CheckEvent(retVal, DIAG_ID_AFE_COM_INTEGRITY, DIAG_STRING, ltc_state->currentString);
                     LTC_SaveRXtoVoltagebuffer_Fuelcell(
                         ltc_state, ltc_state->ltcData.rxBuffer, 4u, ltc_state->currentString);
 
                     AFE_SetTransmitOngoing(ltc_state);
-                    retVal = LTC_RX(
+                    retVal = LTC_ReadRegister(
                         ltc_cmdRDCVF_Fuelcell,
                         ltc_state->spiSeqPtr,
                         ltc_state->ltcData.txBuffer,
@@ -945,7 +948,7 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                     LTC_CondBasedStateTransition(
                         ltc_state,
                         retVal,
-                        DIAG_ID_LTC_SPI,
+                        DIAG_ID_AFE_SPI,
                         LTC_STATEMACH_READVOLTAGE,
                         LTC_READ_VOLTAGE_REGISTER_G_RDCVG_READVOLTAGE,
                         (ltc_state->commandDataTransferTime + LTC_TRANSMISSION_TIMEOUT),
@@ -955,13 +958,13 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                     break;
 
                 } else if (ltc_state->substate == LTC_READ_VOLTAGE_REGISTER_G_RDCVG_READVOLTAGE) {
-                    retVal = LTC_RX_PECCheck(ltc_state, ltc_state->ltcData.rxBuffer, ltc_state->currentString);
-                    DIAG_CheckEvent(retVal, DIAG_ID_LTC_PEC, DIAG_STRING, ltc_state->currentString);
+                    retVal = LTC_CheckPec(ltc_state, ltc_state->ltcData.rxBuffer, ltc_state->currentString);
+                    DIAG_CheckEvent(retVal, DIAG_ID_AFE_COM_INTEGRITY, DIAG_STRING, ltc_state->currentString);
                     LTC_SaveRXtoVoltagebuffer_Fuelcell(
                         ltc_state, ltc_state->ltcData.rxBuffer, 5u, ltc_state->currentString);
 
                     AFE_SetTransmitOngoing(ltc_state);
-                    retVal = LTC_RX(
+                    retVal = LTC_ReadRegister(
                         ltc_cmdRDCVG_Fuelcell,
                         ltc_state->spiSeqPtr,
                         ltc_state->ltcData.txBuffer,
@@ -970,7 +973,7 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                     LTC_CondBasedStateTransition(
                         ltc_state,
                         retVal,
-                        DIAG_ID_LTC_SPI,
+                        DIAG_ID_AFE_SPI,
                         LTC_STATEMACH_READVOLTAGE,
                         LTC_READ_VOLTAGE_REGISTER_H_RDCVH_READVOLTAGE,
                         (ltc_state->commandDataTransferTime + LTC_TRANSMISSION_TIMEOUT),
@@ -980,13 +983,13 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                     break;
 
                 } else if (ltc_state->substate == LTC_READ_VOLTAGE_REGISTER_H_RDCVH_READVOLTAGE) {
-                    retVal = LTC_RX_PECCheck(ltc_state, ltc_state->ltcData.rxBuffer, ltc_state->currentString);
-                    DIAG_CheckEvent(retVal, DIAG_ID_LTC_PEC, DIAG_STRING, ltc_state->currentString);
+                    retVal = LTC_CheckPec(ltc_state, ltc_state->ltcData.rxBuffer, ltc_state->currentString);
+                    DIAG_CheckEvent(retVal, DIAG_ID_AFE_COM_INTEGRITY, DIAG_STRING, ltc_state->currentString);
                     LTC_SaveRXtoVoltagebuffer_Fuelcell(
                         ltc_state, ltc_state->ltcData.rxBuffer, 6u, ltc_state->currentString);
 
                     AFE_SetTransmitOngoing(ltc_state);
-                    retVal = LTC_RX(
+                    retVal = LTC_ReadRegister(
                         ltc_cmdRDCVH_Fuelcell,
                         ltc_state->spiSeqPtr,
                         ltc_state->ltcData.txBuffer,
@@ -995,7 +998,7 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                     LTC_CondBasedStateTransition(
                         ltc_state,
                         retVal,
-                        DIAG_ID_LTC_SPI,
+                        DIAG_ID_AFE_SPI,
                         LTC_STATEMACH_READVOLTAGE,
                         LTC_READ_VOLTAGE_REGISTER_I_RDCVI_READVOLTAGE,
                         (ltc_state->commandDataTransferTime + LTC_TRANSMISSION_TIMEOUT),
@@ -1005,13 +1008,13 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                     break;
 
                 } else if (ltc_state->substate == LTC_READ_VOLTAGE_REGISTER_I_RDCVI_READVOLTAGE) {
-                    retVal = LTC_RX_PECCheck(ltc_state, ltc_state->ltcData.rxBuffer, ltc_state->currentString);
-                    DIAG_CheckEvent(retVal, DIAG_ID_LTC_PEC, DIAG_STRING, ltc_state->currentString);
+                    retVal = LTC_CheckPec(ltc_state, ltc_state->ltcData.rxBuffer, ltc_state->currentString);
+                    DIAG_CheckEvent(retVal, DIAG_ID_AFE_COM_INTEGRITY, DIAG_STRING, ltc_state->currentString);
                     LTC_SaveRXtoVoltagebuffer_Fuelcell(
                         ltc_state, ltc_state->ltcData.rxBuffer, 7u, ltc_state->currentString);
 
                     AFE_SetTransmitOngoing(ltc_state);
-                    retVal = LTC_RX(
+                    retVal = LTC_ReadRegister(
                         ltc_cmdRDCVI_Fuelcell,
                         ltc_state->spiSeqPtr,
                         ltc_state->ltcData.txBuffer,
@@ -1020,7 +1023,7 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                     LTC_CondBasedStateTransition(
                         ltc_state,
                         retVal,
-                        DIAG_ID_LTC_SPI,
+                        DIAG_ID_AFE_SPI,
                         LTC_STATEMACH_READVOLTAGE,
                         LTC_EXIT_READVOLTAGE,
                         (ltc_state->commandDataTransferTime + LTC_TRANSMISSION_TIMEOUT),
@@ -1030,8 +1033,8 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                     break;
 
                 } else if (ltc_state->substate == LTC_EXIT_READVOLTAGE) {
-                    retVal = LTC_RX_PECCheck(ltc_state, ltc_state->ltcData.rxBuffer, ltc_state->currentString);
-                    DIAG_CheckEvent(retVal, DIAG_ID_LTC_PEC, DIAG_STRING, ltc_state->currentString);
+                    retVal = LTC_CheckPec(ltc_state, ltc_state->ltcData.rxBuffer, ltc_state->currentString);
+                    DIAG_CheckEvent(retVal, DIAG_ID_AFE_COM_INTEGRITY, DIAG_STRING, ltc_state->currentString);
                     LTC_SaveRXtoVoltagebuffer_Fuelcell(
                         ltc_state, ltc_state->ltcData.rxBuffer, 8u, ltc_state->currentString);
 
@@ -1095,7 +1098,7 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
 
                     retVal = LTC_StartOpenWireMeasurement(ltc_state->spiSeqPtr, ltc_state->adcMode, 1);
                     if (retVal == STD_OK) {
-                        DIAG_Handler(DIAG_ID_LTC_SPI, DIAG_EVENT_OK, DIAG_STRING, ltc_state->requestedString);
+                        DIAG_Handler(DIAG_ID_AFE_SPI, DIAG_EVENT_OK, DIAG_STRING, ltc_state->requestedString);
 
                         LTC_StateTransition(
                             ltc_state,
@@ -1119,7 +1122,7 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                             ltc_state->reusageMeasurementMode = LTC_REUSE_READVOLT_FOR_ADOW_PUP;
                         }
                     } else {
-                        DIAG_Handler(DIAG_ID_LTC_SPI, DIAG_EVENT_NOT_OK, DIAG_STRING, ltc_state->requestedString);
+                        DIAG_Handler(DIAG_ID_AFE_SPI, DIAG_EVENT_NOT_OK, DIAG_STRING, ltc_state->requestedString);
                         LTC_StateTransition(
                             ltc_state, LTC_STATEMACH_STARTMEAS_CONTINUE, LTC_ENTRY, LTC_STATEMACH_SHORTTIME);
                     }
@@ -1128,7 +1131,7 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                     ltc_state->reusageMeasurementMode = LTC_NOT_REUSED;
 
                     /* Copy data from voltage struct into open-wire struct */
-                    for (uint16_t i = 0u; i < BS_NR_OF_BAT_CELLS; i++) {
+                    for (uint16_t i = 0u; i < BS_NR_OF_CELL_BLOCKS_PER_STRING; i++) {
                         ltc_state->ltcData.openWireDetection->openWirePup[ltc_state->requestedString][i] =
                             ltc_state->ltcData.cellVoltage->cellVoltage_mV[ltc_state->requestedString][i];
                     }
@@ -1148,7 +1151,7 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
 
                     retVal = LTC_StartOpenWireMeasurement(ltc_state->spiSeqPtr, ltc_state->adcMode, 0);
                     if (retVal == STD_OK) {
-                        DIAG_Handler(DIAG_ID_LTC_SPI, DIAG_EVENT_OK, DIAG_STRING, ltc_state->requestedString);
+                        DIAG_Handler(DIAG_ID_AFE_SPI, DIAG_EVENT_OK, DIAG_STRING, ltc_state->requestedString);
 
                         LTC_StateTransition(
                             ltc_state,
@@ -1172,7 +1175,7 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                             ltc_state->reusageMeasurementMode = LTC_REUSE_READVOLT_FOR_ADOW_PDOWN;
                         }
                     } else {
-                        DIAG_Handler(DIAG_ID_LTC_SPI, DIAG_EVENT_NOT_OK, DIAG_STRING, ltc_state->requestedString);
+                        DIAG_Handler(DIAG_ID_AFE_SPI, DIAG_EVENT_NOT_OK, DIAG_STRING, ltc_state->requestedString);
                         LTC_StateTransition(
                             ltc_state, LTC_STATEMACH_STARTMEAS_CONTINUE, LTC_ENTRY, LTC_STATEMACH_SHORTTIME);
                     }
@@ -1181,7 +1184,7 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                     ltc_state->reusageMeasurementMode = LTC_NOT_REUSED;
 
                     /* Copy data from voltage struct into open-wire struct */
-                    for (uint16_t i = 0u; i < BS_NR_OF_BAT_CELLS; i++) {
+                    for (uint16_t i = 0u; i < BS_NR_OF_CELL_BLOCKS_PER_STRING; i++) {
                         ltc_state->ltcData.openWireDetection->openWirePdown[ltc_state->requestedString][i] =
                             ltc_state->ltcData.cellVoltage->cellVoltage_mV[ltc_state->requestedString][i];
                     }
@@ -1193,57 +1196,64 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                     /* Perform actual open-wire check */
 
                     /* Take difference between pull-up and pull-down measurement */
-                    for (uint16_t i = 1u; i < BS_NR_OF_BAT_CELLS; i++) {
+                    for (uint16_t i = 1u; i < BS_NR_OF_CELL_BLOCKS_PER_STRING; i++) {
                         ltc_state->ltcData.openWireDetection->openWireDelta[ltc_state->requestedString][i] = (int32_t)(
                             ltc_state->ltcData.openWireDetection->openWirePup[ltc_state->requestedString][i] -
                             ltc_state->ltcData.openWireDetection->openWirePdown[ltc_state->requestedString][i]);
                     }
 
                     /* PDOWN or PUP positive or negative full scale value: C(N) or C(N-1) open*/
-                    for (uint8_t m = 0u; m < BS_NR_OF_MODULES; m++) {
+                    for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
                         /* PUP */
-                        for (uint8_t p = 0u; p < BS_NR_OF_CELLS_PER_MODULE; p++) {
+                        for (uint8_t p = 0u; p < BS_NR_OF_CELL_BLOCKS_PER_MODULE; p++) {
                             if ((ltc_state->ltcData.openWireDetection
-                                     ->openWirePup[ltc_state->requestedString][p + (m * BS_NR_OF_CELLS_PER_MODULE)] ==
+                                     ->openWirePup[ltc_state->requestedString]
+                                                  [p + (m * BS_NR_OF_CELL_BLOCKS_PER_MODULE)] ==
                                  LTC_FUELCELL_POSITIVE_FULLSCALE_RANGE_mV) ||
                                 (ltc_state->ltcData.openWireDetection
-                                     ->openWirePup[ltc_state->requestedString][p + (m * BS_NR_OF_CELLS_PER_MODULE)] ==
+                                     ->openWirePup[ltc_state->requestedString]
+                                                  [p + (m * BS_NR_OF_CELL_BLOCKS_PER_MODULE)] ==
                                  LTC_FUELCELL_NEGATIVE_FULLSCALE_RANGE_mV)) {
-                                ltc_state->ltcData.openWire
-                                    ->openwire[ltc_state->requestedString][p + (m * (BS_NR_OF_CELLS_PER_MODULE))] = 1;
                                 ltc_state->ltcData.openWire->openwire[ltc_state->requestedString]
-                                                                     [(p + 1u) + (m * (BS_NR_OF_CELLS_PER_MODULE))] = 1;
+                                                                     [p + (m * (BS_NR_OF_CELL_BLOCKS_PER_MODULE))] = 1;
+                                ltc_state->ltcData.openWire
+                                    ->openwire[ltc_state->requestedString]
+                                              [(p + 1u) + (m * (BS_NR_OF_CELL_BLOCKS_PER_MODULE))] = 1;
                             }
                             if ((ltc_state->ltcData.openWireDetection
-                                     ->openWirePdown[ltc_state->requestedString][p + (m * BS_NR_OF_CELLS_PER_MODULE)] ==
+                                     ->openWirePdown[ltc_state->requestedString]
+                                                    [p + (m * BS_NR_OF_CELL_BLOCKS_PER_MODULE)] ==
                                  LTC_FUELCELL_POSITIVE_FULLSCALE_RANGE_mV) ||
                                 (ltc_state->ltcData.openWireDetection
-                                     ->openWirePdown[ltc_state->requestedString][p + (m * BS_NR_OF_CELLS_PER_MODULE)] ==
+                                     ->openWirePdown[ltc_state->requestedString]
+                                                    [p + (m * BS_NR_OF_CELL_BLOCKS_PER_MODULE)] ==
                                  LTC_FUELCELL_NEGATIVE_FULLSCALE_RANGE_mV)) {
-                                ltc_state->ltcData.openWire
-                                    ->openwire[ltc_state->requestedString][p + (m * (BS_NR_OF_CELLS_PER_MODULE))] = 1;
                                 ltc_state->ltcData.openWire->openwire[ltc_state->requestedString]
-                                                                     [(p + 1u) + (m * (BS_NR_OF_CELLS_PER_MODULE))] = 1;
+                                                                     [p + (m * (BS_NR_OF_CELL_BLOCKS_PER_MODULE))] = 1;
+                                ltc_state->ltcData.openWire
+                                    ->openwire[ltc_state->requestedString]
+                                              [(p + 1u) + (m * (BS_NR_OF_CELL_BLOCKS_PER_MODULE))] = 1;
                             }
                         }
                     }
 
                     /* data sheet page 28: "for all values of n from 1 to 36: If CELL Delta(n+1) < -200mV then C(n) is open" */
-                    for (uint8_t m = 0u; m < BS_NR_OF_MODULES; m++) {
-                        /* ltc_state->ltcData.openWireDelta parsed from 1 to (BS_NR_OF_CELLS_PER_MODULE-1) */
-                        for (uint8_t c = 1u; c < BS_NR_OF_CELLS_PER_MODULE; c++) {
+                    for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
+                        /* ltc_state->ltcData.openWireDelta parsed from 1 to (BS_NR_OF_CELL_BLOCKS_PER_MODULE-1) */
+                        for (uint8_t c = 1u; c < BS_NR_OF_CELL_BLOCKS_PER_MODULE; c++) {
                             /* If delta cell(n+1) < -200mV: open-wire at C(n) */
                             if (ltc_state->ltcData.openWireDetection
-                                    ->openWireDelta[ltc_state->requestedString][c + (m * BS_NR_OF_CELLS_PER_MODULE)] <
-                                LTC_ADOW_THRESHOLD) {
-                                ltc_state->ltcData.openWire
-                                    ->openwire[ltc_state->requestedString][c + (m * BS_NR_OF_CELLS_PER_MODULE)] = 1;
+                                    ->openWireDelta[ltc_state->requestedString]
+                                                   [c + (m * BS_NR_OF_CELL_BLOCKS_PER_MODULE)] < LTC_ADOW_THRESHOLD) {
+                                ltc_state->ltcData.openWire->openwire[ltc_state->requestedString]
+                                                                     [c + (m * BS_NR_OF_CELL_BLOCKS_PER_MODULE)] = 1;
                             }
                         }
                     }
 
                     ltc_state->ltcData.openWire->nrOpenWires[ltc_state->requestedString] = 0;
-                    for (uint16_t c = 0u; c < (BS_NR_OF_MODULES * (BS_NR_OF_CELLS_PER_MODULE + 1)); c++) {
+                    for (uint16_t c = 0u; c < (BS_NR_OF_MODULES_PER_STRING * (BS_NR_OF_CELL_BLOCKS_PER_MODULE + 1));
+                         c++) {
                         if (ltc_state->ltcData.openWire->openwire[ltc_state->requestedString][c] == 1) {
                             ltc_state->ltcData.openWire->nrOpenWires[ltc_state->requestedString]++;
                         }
@@ -1345,7 +1355,7 @@ static void LTC_SaveRXtoVoltagebuffer_Fuelcell(
             if (ltc_state->ltcData.errorTable->PEC_valid[stringNumber][m] == true) {
                 ltc_state->ltcData.cellVoltage->cellVoltage_mV[stringNumber]
                                                               [(ltc_state->ltcData.usedCellIndex[stringNumber]) +
-                                                               (m * BS_NR_OF_CELLS_PER_MODULE)] = voltage;
+                                                               (m * BS_NR_OF_CELL_BLOCKS_PER_MODULE)] = voltage;
                 bitmask = ~bitmask; /* negate bitmask to only validate flags of this voltage register */
                 ltc_state->ltcData.cellVoltage->invalidCellVoltage[stringNumber][(m / LTC_NUMBER_OF_LTC_PER_MODULE)] &=
                     bitmask;
@@ -1358,7 +1368,7 @@ static void LTC_SaveRXtoVoltagebuffer_Fuelcell(
             (ltc_state->ltcData.usedCellIndex[stringNumber])++;
             incrementations++;
 
-            if ((ltc_state->ltcData.usedCellIndex[stringNumber]) > BS_NR_OF_CELLS_PER_MODULE) {
+            if ((ltc_state->ltcData.usedCellIndex[stringNumber]) > BS_NR_OF_CELL_BLOCKS_PER_MODULE) {
                 break;
             }
         }
@@ -1440,13 +1450,13 @@ static STD_RETURN_TYPE_e LTC_Init(
 static void LTC_ResetErrorTable(LTC_STATE_s *ltc_state) {
     uint16_t i = 0;
 
-    for (uint8_t stringNumber = 0u; stringNumber < BS_NR_OF_STRINGS; stringNumber++) {
+    for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
         for (i = 0; i < LTC_N_LTC; i++) {
-            ltc_state->ltcData.errorTable->PEC_valid[stringNumber][i] = false;
-            ltc_state->ltcData.errorTable->mux0[stringNumber][i]      = 0;
-            ltc_state->ltcData.errorTable->mux1[stringNumber][i]      = 0;
-            ltc_state->ltcData.errorTable->mux2[stringNumber][i]      = 0;
-            ltc_state->ltcData.errorTable->mux3[stringNumber][i]      = 0;
+            ltc_state->ltcData.errorTable->PEC_valid[s][i] = false;
+            ltc_state->ltcData.errorTable->mux0[s][i]      = 0;
+            ltc_state->ltcData.errorTable->mux1[s][i]      = 0;
+            ltc_state->ltcData.errorTable->mux2[s][i]      = 0;
+            ltc_state->ltcData.errorTable->mux3[s][i]      = 0;
         }
     }
 }
@@ -1518,7 +1528,7 @@ static STD_RETURN_TYPE_e LTC_StartOpenWireMeasurement(
  * @return  retVal                       STD_OK if PEC check is OK, STD_NOT_OK otherwise
  *
  */
-static STD_RETURN_TYPE_e LTC_RX_PECCheck(
+static STD_RETURN_TYPE_e LTC_CheckPec(
     LTC_STATE_s *ltc_state,
     uint16_t *DataBufferSPI_RX_with_PEC,
     uint8_t stringNumber) {
@@ -1581,7 +1591,7 @@ static STD_RETURN_TYPE_e LTC_RX_PECCheck(
  * @return  statusSPI                   #STD_OK if SPI transmission is OK, #STD_NOT_OK otherwise
  *
  */
-static STD_RETURN_TYPE_e LTC_RX(
+static STD_RETURN_TYPE_e LTC_ReadRegister(
     uint16_t *Command,
     SPI_INTERFACE_CONFIG_s *pSpiInterface,
     uint16_t *pTxBuff,
@@ -1617,7 +1627,7 @@ static STD_RETURN_TYPE_e LTC_RX(
  *
  * @return    frequency of the SPI clock
  */
-static uint32_t LTC_GetSPIClock(SPI_INTERFACE_CONFIG_s *pSpiInterface) {
+static uint32_t LTC_GetSpiClock(SPI_INTERFACE_CONFIG_s *pSpiInterface) {
     uint32_t SPI_Clock = 0;
     uint32_t prescaler = 0;
 
@@ -1662,7 +1672,7 @@ static void LTC_SetTransferTimes(LTC_STATE_s *ltc_state) {
     uint32_t transferTime_us = 0;
     uint32_t SPI_Clock       = 0;
 
-    SPI_Clock = LTC_GetSPIClock(ltc_state->ltcData.pSpiInterface);
+    SPI_Clock = LTC_GetSpiClock(ltc_state->ltcData.pSpiInterface);
 
     /* Transmission of a command and data */
     /* Multiplication by 1000*1000 to get us */
@@ -1735,7 +1745,7 @@ static void LTC_SetFirstMeasurementCycleFinished(LTC_STATE_s *ltc_state) {
     OS_ExitTaskCritical();
 }
 
-extern void LTC_monitoringPinInit(void) {
+extern void LTC_InitializeMonitoringPin(void) {
     /* Set 3rd PE pins to enable daisy chains */
     PEX_SetPinDirectionOutput(PEX_PORT_EXPANDER3, PEX_PIN10);
     PEX_SetPinDirectionOutput(PEX_PORT_EXPANDER3, PEX_PIN11);

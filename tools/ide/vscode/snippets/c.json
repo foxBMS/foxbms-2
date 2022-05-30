@@ -14,17 +14,17 @@
             "for-modules"
         ],
         "body": [
-            "for (uint8_t m = 0u; m < BS_NR_OF_MODULES; m++)",
+            "for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {",
             "}"
         ],
-        "description": "For loop to iterate over the number of module."
+        "description": "For loop to iterate over the number of modules per string."
     },
     "For Cells per Module Loop": {
         "prefix": [
             "for-cells-per-module"
         ],
         "body": [
-            "for (uint8_t c = 0u; c < BS_NR_OF_CELLS_PER_MODULE; c++)",
+            "for (uint8_t c = 0u; c < BS_NR_OF_CELL_BLOCKS_PER_MODULE; c++) {",
             "}"
         ],
         "description": "For loop to iterate over the number of cells per module."

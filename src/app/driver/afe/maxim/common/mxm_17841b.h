@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    mxm_17841b.h
  * @author  foxBMS Team
  * @date    2018-12-14 (date of creation)
- * @updated 2021-12-06 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup DRIVERS
  * @prefix  MXM
  *
@@ -172,6 +173,7 @@ typedef struct {
     uint8_t regConfig2;                        /*!< local storage for the Config 2 register */
     uint8_t regConfig3;                        /*!< local storage for the Config 3 register */
     uint8_t regRxSpace;                        /*!< RX space register (shows the left space in RX buffer) */
+    uint8_t regFmea;                           /*!< FMEA register */
     uint16_t hwModel;                          /*!< model number of the connected IC */
     uint8_t hwMaskRevision;                    /*!< mask revision of the connected IC */
     uint32_t shutdownTimeStamp;                /*!< timestamp of the last shutdown (or startup) action */

@@ -1,0 +1,4 @@
+/opt/ti/ccs1031/ccs/tools/compiler/ti-cgt-arm_20.2.4.LTS/bin
+/opt/ti/ccs1031/ccs/tools/compiler/ti-cgt-arm_20.2.4.LTS/lib
+/opt/ti/ccs1031/ccs/utils/bin
+/opt/ti/ccs1031/ccs/utils/tiobj2bin

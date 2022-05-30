@@ -393,6 +393,12 @@ Function doxygen documentation (``C:011``)
       is not of type ``void``.
     - Function arguments **MUST** be documented using the doxygen parameter
       ``@param``.
+    - If a function argument is a pointer, the data flow direction (indicating
+      if the pointer is used as input, output or both) **MUST** be indicated
+      with a suffixed ``[in]``, ``[out]`` or ``[in,out]`` after the ``@param``
+      tag.
+    - This practice **MUST NOT** be applied to normal parameters that are
+      passed by value as they are implicitly assumed to be input.
     - All doxygen parameter arguments **MUST** be whitespace aligned.
 
 :numref:`function-prototype-and-doxygen` and
@@ -519,6 +525,11 @@ Function parameter checking (``C:015``)
     - Input values of function parameters **SHOULD** be checked at the
       beginning of a function if possible.
     - Pointers passed as parameters **MUST** be checked against ``NULL_PTR``.
+    - The check **SHOULD** be implemented with an assertion.
+    - If no assertion can be made for the parameter (e.g. if the parameter
+      intentionally accepts all possible values), the parameter **MUST** be
+      marked like this at the start of the function context:
+      ``/* AXIVION Routine Generic-MissingParameterAssert: *ENTITYNAME*: *RATIONALE* */``.
 
 Parameter checking is shown in :numref:`function-input-check`.
 
@@ -865,8 +876,8 @@ loop Statements (``C:028``)
 
 
 There are three defines that are typically looped over: the number of strings
-(``BS_NR_OF_STRINGS``), the number of modules (``BS_NR_OF_MODULES``) and the
-number of batteries per module (``BS_NR_OF_CELLS_PER_MODULE``).
+(``BS_NR_OF_STRINGS``), the number of modules (``BS_NR_OF_MODULES_PER_STRING``)
+and the number of batteries per module (``BS_NR_OF_CELL_BLOCKS_PER_MODULE``).
 
 These loops **MUST** follow the pattern as shown in
 :numref:`special-counter-variables` and
@@ -876,21 +887,21 @@ These loops **MUST** follow the pattern as shown in
     :name: special-counter-variables
     :widths: grid
 
-    +-------------------------------+-------------------+
-    | Define                        | Counter variable  |
-    +===============================+===================+
-    | ``BS_NR_OF_STRINGS``          | ``s``             |
-    +-------------------------------+-------------------+
-    | ``BS_NR_OF_MODULES``          | ``m``             |
-    +-------------------------------+-------------------+
-    | ``BS_NR_OF_CELLS_PER_MODULE`` | ``c``             |
-    +-------------------------------+-------------------+
+    +-------------------------------------+-------------------+
+    | Define                              | Counter variable  |
+    +=====================================+===================+
+    | ``BS_NR_OF_STRINGS``                | ``s``             |
+    +-------------------------------------+-------------------+
+    | ``BS_NR_OF_MODULES_PER_STRING``     | ``m``             |
+    +-------------------------------------+-------------------+
+    | ``BS_NR_OF_CELL_BLOCKS_PER_MODULE`` | ``c``             |
+    +-------------------------------------+-------------------+
 
 .. literalinclude:: ./examples/c-028-battery-defines.c
     :language: C
     :lines: 41-
     :linenos:
-    :caption: Looping over BS_NR_OF_STRINGS, BS_NR_OF_MODULES, BS_NR_OF_CELLS_PER_MODULE
+    :caption: Looping over BS_NR_OF_STRINGS, BS_NR_OF_MODULES_PER_STRING, BS_NR_OF_CELL_BLOCKS_PER_MODULE
     :name: special-counter-variables-example
 
 .. _rule_c_comment_style:

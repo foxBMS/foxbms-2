@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    test_bms.c
  * @author  foxBMS Team
  * @date    2020-04-01 (date of creation)
- * @updated 2021-10-05 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -59,6 +60,7 @@
 #include "Mockdatabase.h"
 #include "Mockdiag.h"
 #include "Mockfassert.h"
+#include "Mockimd.h"
 #include "Mockinterlock.h"
 #include "Mockled.h"
 #include "Mockmeas.h"
@@ -74,14 +76,12 @@
 DIAG_ID_CFG_s DIAG_ID_cfg[] = {};
 
 DIAG_DEV_s diag_device = {
-    .nr_of_ch            = sizeof(DIAG_ID_cfg) / sizeof(DIAG_ID_CFG_s),
-    .ch_cfg              = &DIAG_ID_cfg[0],
-    .numberOfFatalErrors = 0u,
+    .nrOfConfiguredDiagnosisEntries   = sizeof(DIAG_ID_cfg) / sizeof(DIAG_ID_CFG_s),
+    .pConfigurationOfDiagnosisEntries = &DIAG_ID_cfg[0],
+    .numberOfFatalErrors              = 0u,
 };
 
 BS_STRING_PRECHARGE_PRESENT_e bs_stringsWithPrecharge[BS_NR_OF_STRINGS] = {
-    BS_STRING_WITH_PRECHARGE,
-    BS_STRING_WITH_PRECHARGE,
     BS_STRING_WITH_PRECHARGE,
 };
 
@@ -98,7 +98,7 @@ STD_RETURN_TYPE_e prechargeExpectedResults[BS_NR_OF_STRINGS][NUM_PRECHARGE_TESTS
 /*
  * mock callback in order to provide custom values to current_tab
  */
-STD_RETURN_TYPE_e MockDATA_ReadBlock_Callback(void *dataptrtoReceiver, int num_calls) {
+STD_RETURN_TYPE_e MockDATA_ReadBlock_Callback(void *pDataToReceiver, int num_calls) {
     int32_t current   = 0;
     int32_t voltage_1 = 0;
     int32_t voltage_2 = 0;
@@ -212,10 +212,10 @@ STD_RETURN_TYPE_e MockDATA_ReadBlock_Callback(void *dataptrtoReceiver, int num_c
             prechargeExpectedResults[s][testNumber] = prechargeExpectedResults[0][testNumber];
         }
 
-        ((DATA_BLOCK_PACK_VALUES_s *)dataptrtoReceiver)->stringCurrent_mA[0] = current;
-        ((DATA_BLOCK_PACK_VALUES_s *)dataptrtoReceiver)->stringVoltage_mV[0] = voltage_1;
+        ((DATA_BLOCK_PACK_VALUES_s *)pDataToReceiver)->stringCurrent_mA[0] = current;
+        ((DATA_BLOCK_PACK_VALUES_s *)pDataToReceiver)->stringVoltage_mV[0] = voltage_1;
     }
-    ((DATA_BLOCK_PACK_VALUES_s *)dataptrtoReceiver)->highVoltageBusVoltage_mV = voltage_2;
+    ((DATA_BLOCK_PACK_VALUES_s *)pDataToReceiver)->highVoltageBusVoltage_mV = voltage_2;
 
     return STD_OK;
 }
@@ -229,7 +229,7 @@ STD_RETURN_TYPE_e MockDATA_ReadBlock_Callback(void *dataptrtoReceiver, int num_c
  */
 void testCheckPrechargeIterateStub(void) {
     /* tell CMock to use our callback */
-    DATA_Read_1_DataBlock_Stub(MockDATA_ReadBlock_Callback);
+    DATA_Read1DataBlock_Stub(MockDATA_ReadBlock_Callback);
 
     DATA_BLOCK_PACK_VALUES_s tablePackValues = {.header.uniqueId = DATA_BLOCK_ID_PACK_VALUES};
 

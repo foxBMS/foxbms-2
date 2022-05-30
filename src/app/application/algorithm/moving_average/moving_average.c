@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    moving_average.c
  * @author  foxBMS Team
  * @date    2017-12-18 (date of creation)
- * @updated 2021-11-10 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup ALGORITHMS
  * @prefix  ALGO
  *
@@ -53,6 +54,8 @@
 
 /*========== Includes =======================================================*/
 #include "moving_average.h"
+
+#include "algorithm_cfg.h"
 
 #include "database.h"
 
@@ -189,8 +192,8 @@ extern void ALGO_MovAverage(void) {
         curCounter = curPow_tab.newCurrent;
 
         /* Check if valid values */
-        for (uint8_t stringNumber = 0u; stringNumber < BS_NR_OF_STRINGS; stringNumber++) {
-            if (curPow_tab.invalidCurrentMeasurement[stringNumber] != 0u) {
+        for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
+            if (curPow_tab.invalidCurrentMeasurement[s] != 0u) {
                 validValues = false;
             }
         }
@@ -200,8 +203,8 @@ extern void ALGO_MovAverage(void) {
             newValues = 1u;
 
             int32_t packCurrent = 0;
-            for (uint8_t stringNumber = 0u; stringNumber < BS_NR_OF_STRINGS; stringNumber++) {
-                packCurrent += curPow_tab.current_mA[stringNumber];
+            for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
+                packCurrent += curPow_tab.current_mA[s];
             }
 
             /* Add value to array and calculate new moving average values */
@@ -310,8 +313,8 @@ extern void ALGO_MovAverage(void) {
         powCounter = curPow_tab.newPower;
 
         /* Check if valid values */
-        for (uint8_t stringNumber = 0u; stringNumber < BS_NR_OF_STRINGS; stringNumber++) {
-            if (curPow_tab.invalidPowerMeasurement[stringNumber] != 0u) {
+        for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
+            if (curPow_tab.invalidPowerMeasurement[s] != 0u) {
                 validValues = false;
             }
         }
@@ -319,8 +322,8 @@ extern void ALGO_MovAverage(void) {
             newValues = 1u;
 
             int32_t packPower = 0;
-            for (uint8_t stringNumber = 0u; stringNumber < BS_NR_OF_STRINGS; stringNumber++) {
-                packPower += curPow_tab.power_W[stringNumber];
+            for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
+                packPower += curPow_tab.power_W[s];
             }
 
             /* Add value to array and calculate new moving mean values */

@@ -1,10 +1,12 @@
 {
     "_Layers": [
+        "compiler_config.json",
         "ci_config.json",
-        "architecture.json",
+        "architecture_config.json",
         "rule_config_c.py",
         "rule_config_c.json",
         "rule_config_names.py",
-        "rule_config_names.json"
+        "rule_config_names.json",
+        "rule_config_include_guard.py"
     ]
 }

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    can_cbs_tx_system_values.c
  * @author  foxBMS Team
  * @date    2021-07-21 (date of creation)
- * @updated 2021-07-21 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup DRIVER
  * @prefix  CAN
  *
@@ -89,7 +90,7 @@ extern uint32_t CAN_TxPackValues(
     /* Battery voltage */
     float signalData = kpkCanShim->pTablePackValues->batteryVoltage_mV;
     float offset     = 0.0f;
-    float factor     = 0.01f; /* convert mV -> 100mV */
+    float factor     = 0.01f; /* convert mV to 100mV */
     signalData       = (signalData + offset) * factor;
     uint64_t data    = (uint64_t)signalData;
     /* set data in CAN frame */
@@ -98,7 +99,7 @@ extern uint32_t CAN_TxPackValues(
     /* System voltage */
     signalData = kpkCanShim->pTablePackValues->highVoltageBusVoltage_mV;
     offset     = 0.0f;
-    factor     = 0.01f; /* convert mV -> 100mV */
+    factor     = 0.01f; /* convert mV to 100mV */
     signalData = (signalData + offset) * factor;
     data       = (uint64_t)signalData;
     /* set data in CAN frame */
@@ -107,7 +108,7 @@ extern uint32_t CAN_TxPackValues(
     /* System current */
     signalData = kpkCanShim->pTablePackValues->packCurrent_mA;
     offset     = 0.0f;
-    factor     = 0.1f; /* convert mA -> 10mA */
+    factor     = 0.1f; /* convert mA to 10mA */
     signalData = (signalData + offset) * factor;
     data       = (int64_t)signalData;
     /* set data in CAN frame */
@@ -116,7 +117,7 @@ extern uint32_t CAN_TxPackValues(
     /* System power */
     signalData = kpkCanShim->pTablePackValues->packPower_W;
     offset     = 0.0f;
-    factor     = 0.1f; /* convert W -> 10W */
+    factor     = 0.1f; /* convert W to 10W */
     signalData = (signalData + offset) * factor;
     data       = (int64_t)signalData;
     /* set data in CAN frame */

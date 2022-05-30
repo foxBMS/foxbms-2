@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    debug_default_afe.c
  * @author  foxBMS Team
  * @date    2020-09-17 (date of creation)
- * @updated 2020-09-17 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup DRIVER
  * @prefix  FAKE
  *
@@ -84,60 +85,46 @@ extern bool AFE_IsFirstMeasurementCycleFinished(void) {
     return FAKE_IsFirstMeasurementCycleFinished(&fake_state);
 }
 
-/* this is a dummy implementation and not using the argument here is fine */
-#pragma diag_push
-#pragma diag_suppress 880
 extern STD_RETURN_TYPE_e AFE_RequestIoWrite(uint8_t string) {
+    /* this is a dummy implementation and not using the argument here is fine */
+    (void)string;
     return STD_OK;
 }
-#pragma diag_pop
 
-/* this is a dummy implementation and not using the argument here is fine */
-#pragma diag_push
-#pragma diag_suppress 880
 extern STD_RETURN_TYPE_e AFE_RequestIoRead(uint8_t string) {
+    /* this is a dummy implementation and not using the argument here is fine */
+    (void)string;
     return STD_OK;
 }
-#pragma diag_pop
 
-/* this is a dummy implementation and not using the argument here is fine */
-#pragma diag_push
-#pragma diag_suppress 880
 extern STD_RETURN_TYPE_e AFE_RequestTemperatureRead(uint8_t string) {
+    /* this is a dummy implementation and not using the argument here is fine */
+    (void)string;
     return STD_OK;
 }
-#pragma diag_pop
 
-/* this is a dummy implementation and not using the argument here is fine */
-#pragma diag_push
-#pragma diag_suppress 880
 extern STD_RETURN_TYPE_e AFE_RequestBalancingFeedbackRead(uint8_t string) {
+    /* this is a dummy implementation and not using the argument here is fine */
+    (void)string;
     return STD_OK;
 }
-#pragma diag_pop
 
-/* this is a dummy implementation and not using the argument here is fine */
-#pragma diag_push
-#pragma diag_suppress 880
 extern STD_RETURN_TYPE_e AFE_RequestEepromRead(uint8_t string) {
+    /* this is a dummy implementation and not using the argument here is fine */
+    (void)string;
     return STD_OK;
 }
-#pragma diag_pop
 
-/* this is a dummy implementation and not using the argument here is fine */
-#pragma diag_push
-#pragma diag_suppress 880
 extern STD_RETURN_TYPE_e AFE_RequestEepromWrite(uint8_t string) {
+    /* this is a dummy implementation and not using the argument here is fine */
+    (void)string;
     return STD_OK;
 }
-#pragma diag_pop
 
-/* this is a dummy implementation and not using the argument here is fine */
-#pragma diag_push
-#pragma diag_suppress 880
 extern STD_RETURN_TYPE_e AFE_RequestOpenWireCheck(uint8_t string) {
+    /* this is a dummy implementation and not using the argument here is fine */
+    (void)string;
     return STD_OK;
 }
-#pragma diag_pop
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/

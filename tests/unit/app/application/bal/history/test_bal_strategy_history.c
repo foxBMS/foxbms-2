@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    test_bal_strategy_history.c
  * @author  foxBMS Team
  * @date    2020-06-05 (date of creation)
- * @updated 2020-08-03 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -53,6 +54,7 @@
 
 /*========== Includes =======================================================*/
 #include "unity.h"
+#include "Mockbal_cfg.h"
 #include "Mockbattery_system_cfg.h"
 #include "Mockbms.h"
 #include "Mockdatabase.h"
@@ -82,8 +84,8 @@ void tearDown(void) {
 void testCheckBalancingInitByDisablingBalancing(void) {
     DATA_BLOCK_BALANCING_CONTROL_s *pBalancing = TEST_BAL_GetBalancingControl();
     pBalancing->enableBalancing                = 1;
-    DATA_Read_1_DataBlock_IgnoreAndReturn(STD_OK);
-    DATA_Write_1_DataBlock_IgnoreAndReturn(STD_OK);
+    DATA_Read1DataBlock_IgnoreAndReturn(STD_OK);
+    DATA_Write1DataBlock_IgnoreAndReturn(STD_OK);
     BAL_Init(pBalancing);
     TEST_ASSERT_EQUAL(0, pBalancing->enableBalancing);
 }

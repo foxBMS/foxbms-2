@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    test_redundancy.c
  * @author  foxBMS Team
  * @date    2020-07-31 (date of creation)
- * @updated 2020-07-31 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -66,36 +67,36 @@
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 
-DATA_BLOCK_CELL_VOLTAGE_s testCellvoltageBase        = {.header.uniqueId = DATA_BLOCK_ID_CELL_VOLTAGE_BASE};
-DATA_BLOCK_CELL_VOLTAGE_s testCellvoltageRedundancy0 = {.header.uniqueId = DATA_BLOCK_ID_CELL_VOLTAGE_REDUNDANCY0};
+DATA_BLOCK_CELL_VOLTAGE_s testCellVoltageBase        = {.header.uniqueId = DATA_BLOCK_ID_CELL_VOLTAGE_BASE};
+DATA_BLOCK_CELL_VOLTAGE_s testCellVoltageRedundancy0 = {.header.uniqueId = DATA_BLOCK_ID_CELL_VOLTAGE_REDUNDANCY0};
 
-DATA_BLOCK_CELL_TEMPERATURE_s testCelltemperatureBase        = {.header.uniqueId = DATA_BLOCK_ID_CELL_TEMPERATURE_BASE};
-DATA_BLOCK_CELL_TEMPERATURE_s testCelltemperatureRedundancy0 = {
+DATA_BLOCK_CELL_TEMPERATURE_s testCellTemperatureBase        = {.header.uniqueId = DATA_BLOCK_ID_CELL_TEMPERATURE_BASE};
+DATA_BLOCK_CELL_TEMPERATURE_s testCellTemperatureRedundancy0 = {
     .header.uniqueId = DATA_BLOCK_ID_CELL_TEMPERATURE_REDUNDANCY0};
 
 static inline void injectDatabaseEntries(void) {
-    DATA_Read_4_DataBlocks_ExpectAndReturn(
-        &testCellvoltageBase,
-        &testCellvoltageRedundancy0,
-        &testCelltemperatureBase,
-        &testCelltemperatureRedundancy0,
+    DATA_Read4DataBlocks_ExpectAndReturn(
+        &testCellVoltageBase,
+        &testCellVoltageRedundancy0,
+        &testCellTemperatureBase,
+        &testCellTemperatureRedundancy0,
         STD_OK);
-    DATA_Read_4_DataBlocks_IgnoreArg_pDataToReceiver0();
-    DATA_Read_4_DataBlocks_IgnoreArg_pDataToReceiver1();
-    DATA_Read_4_DataBlocks_IgnoreArg_pDataToReceiver2();
-    DATA_Read_4_DataBlocks_IgnoreArg_pDataToReceiver3();
-    DATA_Read_4_DataBlocks_ReturnThruPtr_pDataToReceiver0(&testCellvoltageBase);
-    DATA_Read_4_DataBlocks_ReturnThruPtr_pDataToReceiver1(&testCellvoltageRedundancy0);
-    DATA_Read_4_DataBlocks_ReturnThruPtr_pDataToReceiver2(&testCelltemperatureBase);
-    DATA_Read_4_DataBlocks_ReturnThruPtr_pDataToReceiver3(&testCelltemperatureRedundancy0);
+    DATA_Read4DataBlocks_IgnoreArg_pDataToReceiver0();
+    DATA_Read4DataBlocks_IgnoreArg_pDataToReceiver1();
+    DATA_Read4DataBlocks_IgnoreArg_pDataToReceiver2();
+    DATA_Read4DataBlocks_IgnoreArg_pDataToReceiver3();
+    DATA_Read4DataBlocks_ReturnThruPtr_pDataToReceiver0(&testCellVoltageBase);
+    DATA_Read4DataBlocks_ReturnThruPtr_pDataToReceiver1(&testCellVoltageRedundancy0);
+    DATA_Read4DataBlocks_ReturnThruPtr_pDataToReceiver2(&testCellTemperatureBase);
+    DATA_Read4DataBlocks_ReturnThruPtr_pDataToReceiver3(&testCellTemperatureRedundancy0);
 }
 
 /*========== Setup and Teardown =============================================*/
 void setUp(void) {
-    testCellvoltageBase.header.timestamp            = 0;
-    testCellvoltageRedundancy0.header.timestamp     = 0;
-    testCelltemperatureBase.header.timestamp        = 0;
-    testCelltemperatureRedundancy0.header.timestamp = 0;
+    testCellVoltageBase.header.timestamp            = 0;
+    testCellVoltageRedundancy0.header.timestamp     = 0;
+    testCellTemperatureBase.header.timestamp        = 0;
+    testCellTemperatureRedundancy0.header.timestamp = 0;
 }
 
 void tearDown(void) {

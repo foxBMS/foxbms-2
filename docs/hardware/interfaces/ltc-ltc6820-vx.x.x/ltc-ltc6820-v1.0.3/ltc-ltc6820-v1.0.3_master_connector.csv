@@ -1,0 +1,41 @@
+Pin;    Signal;               Description;                                          Usage on |bms-interface|
+1;      ``MCU_SPI1.SOMI0``;   \-;                                                   isoSPI channel 1/2
+2;      ``MCU_SPI1.SOMI1``;   \-;                                                   \-
+3;      ``MCU_SPI1.SIMO0``;   \-;                                                   isoSPI channel 1/2
+4;      ``MCU_SPI1.SIMO1``;   \-;                                                   \-
+5;      ``MCU_SPI1.CLK``;     \-;                                                   isoSPI channel 1/2
+6;      ``MCU_SPI1.CS1``;     \-;                                                   isoSPI channel 1
+7;      ``MCU_SPI1.CS2``;     \-;                                                   isoSPI channel 2
+8;      ``MCU_SPI1.CS3``;     \-;                                                   \-
+9;      ``MCU_SPI1.CS4``;     \-;                                                   \-
+10;     ``MCU_SPI1.CS5``;     \-;                                                   \-
+11;     ``MCU_SPI4.SOMI``;    \-;                                                   isoSPI channel 3/4
+12;     ``MCU_SPI4.SIMO``;    \-;                                                   isoSPI channel 3/4
+13;     ``MCU_SPI4.CLK``;     \-;                                                   isoSPI channel 3/4
+14;     ``MCU_SPI4.CS0``;     \-;                                                   isoSPI channel 3
+15;     ``MCU_SPI4.CS1``;     \-;                                                   isoSPI channel 4
+16;     ``MCU_SPI4.CS2``;     \-;                                                   \-
+17;     ``MCU_SPI4.CS3``;     \-;                                                   \-
+18;     ``MCU_SPI4.CS4``;     \-;                                                   \-
+19;     ``MCU_SPI4.CS5``;     \-;                                                   \-
+20;     ``IF_INT0``;         Interrupt pin, connected to MCU GIOA_2;               \-
+21;     ``IF_INT1``;         Interrupt pin, connected to MCU GIOA_3;               \-
+22;     ``IF_INT2``;         Interrupt pin, connected to MCU GIOA_4;               \-
+23;     ``IF_INT3``;         Interrupt pin, connected to MCU GIOA_6;               \-
+24;     ``IF_GPIO.0``;        GPIO pin, connected to port expander 3 IO1_0;         isoSPI channel 1 |ltc6820| enable
+25;     ``IF_GPIO.1``;        GPIO pin, connected to port expander 3 IO1_1;         isoSPI channel 1 |ltc6820| master
+26;     ``IF_GPIO.2``;        GPIO pin, connected to port expander 3 IO1_2;         isoSPI channel 2 |ltc6820| enable
+27;     ``IF_GPIO.3``;        GPIO pin, connected to port expander 3 IO1_3;         isoSPI channel 2 |ltc6820| master
+28;     ``IF_GPIO.4``;        GPIO pin, connected to port expander 3 IO1_4;         isoSPI channel 3 |ltc6820| enable
+29;     ``IF_GPIO.5``;        GPIO pin, connected to port expander 3 IO1_5;         isoSPI channel 3 |ltc6820| master
+30;     ``IF_GPIO.6``;        GPIO pin, connected to port expander 3 IO1_6;         isoSPI channel 4 |ltc6820| enable
+31;     ``IF_GPIO.7``;        GPIO pin, connected to port expander 3 IO1_7;         isoSPI channel 4 |ltc6820| master
+32;     ``GND``;              Power supply ground;                                  Power supply ground
+33;     ``GND``;              Power supply ground;                                  Power supply ground
+34;     ``PER_3.3V``;         3.3 |_| V from peripheral SBC;                        3.3 |_| V power supply
+35;     ``PER_3.3V``;         3.3 |_| V from peripheral SBC;                        3.3 |_| V power supply
+36;     ``PER_5.0V``;         5.0 |_| V from peripheral SBC;                        \-
+37;     ``PER_5.0V``;         5.0 |_| V from peripheral SBC;                        \-
+38;     ``VBB_12V``;          12 |_| V from buck-boost converter;                   \-
+39;     ``VSUP``;             Master supply voltage (after protection circuits);    \-
+40;     ``VSUP``;             Master supply voltage (after protection circuits);    \-

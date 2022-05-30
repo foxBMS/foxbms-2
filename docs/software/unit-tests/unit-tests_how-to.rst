@@ -13,7 +13,25 @@ Verify that the unit testing framework is work is working as expected:
     waf build_unit_test
     waf build_unit_test --coverage
 
-Typical usage and more information on the unit tests can be found in :ref:`Unit tests <UNIT_TESTS>`.
+Typical usage and more information on the unit tests can be found in
+:ref:`Unit tests <UNIT_TESTS>`.
+
+How to exclude files from unit tests
+====================================
+
+Normally, all files should be covered by a (at least empty) unit test.
+If a certain file is not meant to be covered by unit tests, it has to be
+excluded in several locations in order to suppress checking mechanisms in the
+toolchain.
+
+The configuration of ceedling is stored in a file called ``project.yml``.
+In this file the files that will not receive any coverage must be added to
+``:uncovered_ignore_list:``.
+Otherwise, ceedling will report uncovered files.
+
+Additionally, the main wscript contains a mechanism that checks that every
+file has a corresponding test file in the proper location.
+Untested files have to be added to ``excl`` in ``check_testfiles(ctx)``.
 
 Using ceedling directly
 =======================

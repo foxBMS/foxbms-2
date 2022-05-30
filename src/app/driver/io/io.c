@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    io.c
  * @author  foxBMS Team
  * @date    2020-06-05 (date of creation)
- * @updated 2021-07-14 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup DRIVERS
  * @prefix  IO
  *
@@ -54,6 +55,8 @@
 
 /*========== Includes =======================================================*/
 #include "io.h"
+
+#include "mcu.h"
 
 /*========== Macros and Definitions =========================================*/
 
@@ -103,7 +106,7 @@ extern STD_PIN_STATE_e IO_PinGet(const volatile uint32_t *pRegisterAddress, uint
     uint8_t pinState       = (uint8_t)((*pRegisterAddress & ((uint32_t)1u << (pin))) >> pin);
 
     /* pinState 0 equals a low level */
-    if (0u == pinState) {
+    if (pinState == 0u) {
         retval = STD_PIN_LOW;
     } else {
         retval = STD_PIN_HIGH;

@@ -43,8 +43,8 @@ Voltage-based Balancing
 ^^^^^^^^^^^^^^^^^^^^^^^
 
 In voltage-based balancing, the balancing module takes the minimum battery cell voltage of the complete battery pack
-and activates balancing for all the cells whose voltage is above the minimum + ``BAL_THRESHOLD_mV``. Once all cells
-have been balanced, the threshold is set to ``BAL_THRESHOLD_mV`` + ``BAL_HYSTERESIS_mV`` to avoid an oscillating
+and activates balancing for all the cells whose voltage is above the minimum + ``BAL_GetBalancingThreshold_mV()``. Once all cells
+have been balanced, the threshold is set to ``BAL_GetBalancingThreshold_mV()`` + ``BAL_HYSTERESIS_mV`` to avoid an oscillating
 behavior between balancing and not balancing.
 
 .. _BALANCING_MODULE_HISTORY_BASED_BALANCING:
@@ -85,7 +85,7 @@ stays turned on until the charge difference reaches 0.
 In SOC history-based balancing, ``BS_BALANCING_RESISTANCE_ohm`` must be defined identically to the balancing
 resistances soldered on the Slave Board. When the imbalances are computed, they are set to a non-zero value to balance
 each specific cell only if its cell voltage is above the minimum cell voltage of the battery pack plus a threshold. The
-threshold is set in this case to ``BAL_THRESHOLD_mV`` + ``BAL_HYSTERESIS_mV``.
+threshold is set in this case to ``BAL_GetBalancingThreshold_mV()`` + ``BAL_HYSTERESIS_mV``.
 
 The correspondence between cell voltage and SOC must be defined by the user depending on the specific battery cells
 used. Currently, it is done in the function ``SOC_GetFromVoltage()`` in ``sox.c``. This function gets a voltage in V

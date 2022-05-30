@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    fstd_types.h
  * @author  foxBMS Team
  * @date    2015-12-20 (date of creation)
- * @updated 2021-11-09 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup GENERAL_CONF
  * @prefix  STD
  *
@@ -77,13 +78,13 @@
 
 /*========== Extern Constant and Variable Declarations ======================*/
 /** enum for standard return type */
-typedef enum STD_RETURN_TYPE {
+typedef enum {
     STD_OK,     /**< ok     */
     STD_NOT_OK, /**< not ok */
 } STD_RETURN_TYPE_e;
 
 /** enum for pin state */
-typedef enum STD_PIN_STATE {
+typedef enum {
     STD_PIN_LOW,       /*!< electrical pin state: low */
     STD_PIN_HIGH,      /*!< electrical pin state: high */
     STD_PIN_UNDEFINED, /*!< electrical pin state: undefined */

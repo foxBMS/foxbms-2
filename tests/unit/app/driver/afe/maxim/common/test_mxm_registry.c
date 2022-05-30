@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    test_mxm_registry.c
  * @author  foxBMS Team
  * @date    2020-07-16 (date of creation)
- * @updated 2021-12-06 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  MXM
  *
@@ -124,7 +125,7 @@ void testRegistryInitiated(void) {
         TEST_ASSERT_EQUAL(0u, mxm_state.registry[i].deviceAddress);
         TEST_ASSERT_EQUAL(0u, mxm_state.registry[i].deviceID);
         TEST_ASSERT_EQUAL(MXM_MODEL_ID_NONE, mxm_state.registry[i].model);
-        TEST_ASSERT_EQUAL(MXM_siliconVersion_0, mxm_state.registry[i].siliconVersion);
+        TEST_ASSERT_EQUAL(MXM_SILICON_VERSION_0, mxm_state.registry[i].siliconVersion);
     }
 
     /* set some values to the registry */
@@ -143,7 +144,7 @@ void testRegistryInitiated(void) {
         TEST_ASSERT_EQUAL(0u, mxm_state.registry[i].deviceAddress);
         TEST_ASSERT_EQUAL(0u, mxm_state.registry[i].deviceID);
         TEST_ASSERT_EQUAL(MXM_MODEL_ID_NONE, mxm_state.registry[i].model);
-        TEST_ASSERT_EQUAL(MXM_siliconVersion_0, mxm_state.registry[i].siliconVersion);
+        TEST_ASSERT_EQUAL(MXM_SILICON_VERSION_0, mxm_state.registry[i].siliconVersion);
     }
 }
 

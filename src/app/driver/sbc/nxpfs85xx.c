@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    nxpfs85xx.c
  * @author  foxBMS Team
  * @date    2020-03-18 (date of creation)
- * @updated 2021-07-14 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup DRIVERS
  * @prefix  SBC
  *
@@ -69,7 +70,7 @@
 /*========== Macros and Definitions =========================================*/
 
 /*========== Static Constant and Variable Definitions =======================*/
-typedef enum SBC_INIT_PHASE {
+typedef enum {
     SBC_UNINITIALIZED,
     SBC_FIN_TEST,
     SBC_RSTB_ASSERTION_TEST,
@@ -77,7 +78,7 @@ typedef enum SBC_INIT_PHASE {
 } SBC_INIT_PHASE_e;
 
 /*========== Extern Constant and Variable Definitions =======================*/
-FS85xx_STATE_s fs85xx_mcuSupervisor = {
+FS85_STATE_s fs85xx_mcuSupervisor = {
     .pSpiInterface                  = &spi_kSbcMcuInterface,
     .configValues.watchdogSeed      = FS8x_WD_SEED_DEFAULT,
     .configValues.communicationMode = fs8xSPI,
@@ -115,7 +116,7 @@ static STD_RETURN_TYPE_e SBC_CheckRegisterValues(uint32_t registerValue, uint32_
  * @param[in]       registerValue   register value
  */
 static void SBC_UpdateRegister(
-    FS85xx_STATE_s *pInstance,
+    FS85_STATE_s *pInstance,
     bool isFailSafe,
     uint32_t registerAddress,
     uint32_t registerValue);
@@ -130,7 +131,7 @@ static void SBC_UpdateRegister(
  * @param[in]       registerAddress address of register that is read from
  * @return          #STD_OK if reading was successful, otherwise #STD_NOT_OK
  */
-static STD_RETURN_TYPE_e SBC_ReadBackRegister(FS85xx_STATE_s *pInstance, bool isFailSafe, uint8_t registerAddress);
+static STD_RETURN_TYPE_e SBC_ReadBackRegister(FS85_STATE_s *pInstance, bool isFailSafe, uint8_t registerAddress);
 
 /**
  * @brief       Write to fail-safe register
@@ -142,7 +143,7 @@ static STD_RETURN_TYPE_e SBC_ReadBackRegister(FS85xx_STATE_s *pInstance, bool is
  * @return      #STD_OK if writting was successful, other #STD_NOT_OK
  */
 static STD_RETURN_TYPE_e SBC_WriteRegisterFsInit(
-    FS85xx_STATE_s *pInstance,
+    FS85_STATE_s *pInstance,
     uint8_t registerAddress,
     uint16_t registerValue);
 
@@ -157,7 +158,7 @@ static STD_RETURN_TYPE_e SBC_WriteRegisterFsInit(
  * @return          #STD_OK if writting was successful, other #STD_NOT_OK
  */
 static STD_RETURN_TYPE_e SBC_WriteBackRegisterFsInit(
-    FS85xx_STATE_s *pInstance,
+    FS85_STATE_s *pInstance,
     uint8_t registerAddress,
     uint16_t registerValue);
 
@@ -173,12 +174,12 @@ static STD_RETURN_TYPE_e SBC_WriteBackRegisterFsInit(
  * @return          #STD_OK if writting was successful, other #STD_NOT_OK
  */
 static STD_RETURN_TYPE_e SBC_ClearRegisterFlags(
-    FS85xx_STATE_s *pInstance,
+    FS85_STATE_s *pInstance,
     uint8_t registerAddress,
     bool isFailSafe,
     uint16_t registerValue);
 
-static STD_RETURN_TYPE_e SBC_ReadBackAllRegisters(FS85xx_STATE_s *pInstance);
+static STD_RETURN_TYPE_e SBC_ReadBackAllRegisters(FS85_STATE_s *pInstance);
 
 /**
  * @brief           Perform RSTB safety path check
@@ -189,7 +190,7 @@ static STD_RETURN_TYPE_e SBC_ReadBackAllRegisters(FS85xx_STATE_s *pInstance);
  * @param[in,out]   pInstance  SBC instance for which the RSTB path is checked
  * @return          #STD_OK if path check was successful, other #STD_NOT_OK
  */
-static STD_RETURN_TYPE_e SBC_PerformPathCheckRSTB(FS85xx_STATE_s *pInstance);
+static STD_RETURN_TYPE_e SBC_PerformPathCheckRstb(FS85_STATE_s *pInstance);
 
 /**
  * @brief           Perform FS0B safety path check
@@ -199,10 +200,12 @@ static STD_RETURN_TYPE_e SBC_PerformPathCheckRSTB(FS85xx_STATE_s *pInstance);
  *                  operation.
  * @param[in,out]   pInstance   SBC instance for which the FS0B path is checked
  */
-static STD_RETURN_TYPE_e SBC_PerformPathCheckFS0B(FS85xx_STATE_s *pInstance);
+static STD_RETURN_TYPE_e SBC_PerformPathCheckFs0b(FS85_STATE_s *pInstance);
 
 /*========== Static Function Implementations ================================*/
 static STD_RETURN_TYPE_e SBC_CheckRegisterValues(uint32_t registerValue, uint32_t expectedRegisterValue) {
+    /* AXIVION Routine Generic-MissingParameterAssert: registerValue: parameter accepts whole range */
+    /* AXIVION Routine Generic-MissingParameterAssert: expectedRegisterValue: parameter accepts whole range */
     STD_RETURN_TYPE_e retval = STD_OK;
     if (registerValue != expectedRegisterValue) {
         retval = STD_NOT_OK;
@@ -211,11 +214,14 @@ static STD_RETURN_TYPE_e SBC_CheckRegisterValues(uint32_t registerValue, uint32_
 }
 
 static void SBC_UpdateRegister(
-    FS85xx_STATE_s *pInstance,
+    FS85_STATE_s *pInstance,
     bool isFailSafe,
     uint32_t registerAddress,
     uint32_t registerValue) {
     FAS_ASSERT(pInstance != NULL_PTR);
+    FAS_ASSERT((isFailSafe == true) || (isFailSafe == false));
+    FAS_ASSERT(registerAddress <= FS8X_M_DEVICEID_ADDR);
+    /* AXIVION Routine Generic-MissingParameterAssert: registerValue: parameter accepts whole range */
 
     /* Check if fail-safe or main register needs to be updated */
     if (isFailSafe == true) {
@@ -359,7 +365,11 @@ static void SBC_UpdateRegister(
     }
 }
 
-static STD_RETURN_TYPE_e SBC_ReadBackRegister(FS85xx_STATE_s *pInstance, bool isFailSafe, uint8_t registerAddress) {
+static STD_RETURN_TYPE_e SBC_ReadBackRegister(FS85_STATE_s *pInstance, bool isFailSafe, uint8_t registerAddress) {
+    FAS_ASSERT(pInstance != NULL_PTR);
+    FAS_ASSERT((isFailSafe == true) || (isFailSafe == false));
+    /* AXIVION Routine Generic-MissingParameterAssert: registerAddress: parameter accepts whole range */
+
     STD_RETURN_TYPE_e retval = STD_NOT_OK;
     fs8x_rx_frame_t rxTemp   = {0};
 
@@ -376,9 +386,13 @@ static STD_RETURN_TYPE_e SBC_ReadBackRegister(FS85xx_STATE_s *pInstance, bool is
 }
 
 static STD_RETURN_TYPE_e SBC_WriteRegisterFsInit(
-    FS85xx_STATE_s *pInstance,
+    FS85_STATE_s *pInstance,
     uint8_t registerAddress,
     uint16_t registerValue) {
+    FAS_ASSERT(pInstance != NULL_PTR);
+    /* AXIVION Routine Generic-MissingParameterAssert: registerAddress: parameter accepts whole range */
+    /* AXIVION Routine Generic-MissingParameterAssert: registerValue: parameter accepts whole range */
+
     STD_RETURN_TYPE_e retval = STD_OK;
 
     FAS_ASSERT(pInstance != NULL_PTR);
@@ -394,9 +408,13 @@ static STD_RETURN_TYPE_e SBC_WriteRegisterFsInit(
 }
 
 static STD_RETURN_TYPE_e SBC_WriteBackRegisterFsInit(
-    FS85xx_STATE_s *pInstance,
+    FS85_STATE_s *pInstance,
     uint8_t registerAddress,
     uint16_t registerValue) {
+    FAS_ASSERT(pInstance != NULL_PTR);
+    /* AXIVION Routine Generic-MissingParameterAssert: registerAddress: parameter accepts whole range */
+    /* AXIVION Routine Generic-MissingParameterAssert: registerValue: parameter accepts whole range */
+
     STD_RETURN_TYPE_e retval = STD_OK;
     fs8x_rx_frame_t rxTemp   = {0};
 
@@ -424,10 +442,15 @@ static STD_RETURN_TYPE_e SBC_WriteBackRegisterFsInit(
 }
 
 static STD_RETURN_TYPE_e SBC_ClearRegisterFlags(
-    FS85xx_STATE_s *pInstance,
+    FS85_STATE_s *pInstance,
     uint8_t registerAddress,
     bool isFailSafe,
     uint16_t registerValue) {
+    FAS_ASSERT(pInstance != NULL_PTR);
+    /* AXIVION Routine Generic-MissingParameterAssert: registerAddress: parameter accepts whole range */
+    /* AXIVION Routine Generic-MissingParameterAssert: isFailSafe: parameter accepts whole range */
+    /* AXIVION Routine Generic-MissingParameterAssert: registerValue: parameter accepts whole range */
+
     STD_RETURN_TYPE_e retval = STD_OK;
     fs8x_rx_frame_t rxTemp   = {0};
 
@@ -458,7 +481,9 @@ static STD_RETURN_TYPE_e SBC_ClearRegisterFlags(
 }
 
 /*========== Extern Function Implementations ================================*/
-extern STD_RETURN_TYPE_e FS85X_InitFS(FS85xx_STATE_s *pInstance) {
+extern STD_RETURN_TYPE_e FS85_InitializeFsPhase(FS85_STATE_s *pInstance) {
+    FAS_ASSERT(pInstance != NULL_PTR);
+
     STD_RETURN_TYPE_e retval  = STD_OK;
     uint16_t registerMask     = 0u;
     uint16_t expRegisterValue = 0u;
@@ -776,7 +801,7 @@ extern STD_RETURN_TYPE_e FS85X_InitFS(FS85xx_STATE_s *pInstance) {
     }
     /** 2.: Execute ABIST2 and verify it is pass */
     /** ABIST2 is executed automatically after closing of INIT_FS, duration: 1.2ms max */
-    MCU_delay_us(1200u);
+    MCU_Delay_us(1200u);
 
     if (STD_OK != SBC_ReadBackRegister(pInstance, true, FS8X_FS_DIAG_SAFETY_ADDR)) {
         retval = STD_NOT_OK;
@@ -841,10 +866,13 @@ extern STD_RETURN_TYPE_e FS85X_InitFS(FS85xx_STATE_s *pInstance) {
     return retval;
 }
 
-extern STD_RETURN_TYPE_e FS85X_Init_ReqWDGRefreshes(FS85xx_STATE_s *pInstance, uint8_t *requiredWatchdogRefreshes) {
-    STD_RETURN_TYPE_e retval = STD_OK;
-
+extern STD_RETURN_TYPE_e FS85_InitializeNumberOfRequiredWatchdogRefreshes(
+    FS85_STATE_s *pInstance,
+    uint8_t *requiredWatchdogRefreshes) {
     FAS_ASSERT(pInstance != NULL_PTR);
+    FAS_ASSERT(requiredWatchdogRefreshes != NULL_PTR);
+
+    STD_RETURN_TYPE_e retval = STD_OK;
 
     /** Clear the fault error counter to 0 with consecutive good WD refreshes.
      * The watchdog refresh counter is used to decrement the fault error counter. Each time the watchdog is properly
@@ -895,7 +923,10 @@ extern STD_RETURN_TYPE_e FS85X_Init_ReqWDGRefreshes(FS85xx_STATE_s *pInstance, u
     return retval;
 }
 
-extern STD_RETURN_TYPE_e FS85X_CheckFaultErrorCounter(FS85xx_STATE_s *pInstance) {
+extern STD_RETURN_TYPE_e FS85_CheckFaultErrorCounter(FS85_STATE_s *pInstance) {
+    FAS_ASSERT(pInstance != NULL_PTR);
+    /* AXIVION Routine Generic-MissingParameterAssert: parameters without assertion accept whole range of data type */
+
     STD_RETURN_TYPE_e retval = STD_OK;
 
     /* Check fault error counter */
@@ -907,13 +938,13 @@ extern STD_RETURN_TYPE_e FS85X_CheckFaultErrorCounter(FS85xx_STATE_s *pInstance)
     return retval;
 }
 
-extern STD_RETURN_TYPE_e FS85X_SafetyPathChecks(FS85xx_STATE_s *pInstance) {
-    STD_RETURN_TYPE_e retval = STD_OK;
-
+extern STD_RETURN_TYPE_e FS85_SafetyPathChecks(FS85_STATE_s *pInstance) {
     FAS_ASSERT(pInstance != NULL_PTR);
 
+    STD_RETURN_TYPE_e retval = STD_OK;
+
     /* Perform RSTB path check (repeat steps 1 to 4 after RSTB is released) */
-    if (STD_OK != SBC_PerformPathCheckRSTB(pInstance)) {
+    if (STD_OK != SBC_PerformPathCheckRstb(pInstance)) {
         retval = STD_NOT_OK;
     }
 
@@ -926,29 +957,32 @@ extern STD_RETURN_TYPE_e FS85X_SafetyPathChecks(FS85xx_STATE_s *pInstance) {
     }
 
     /* Perform FS0B safety path check */
-    if (STD_OK != SBC_PerformPathCheckFS0B(pInstance)) {
+    if (STD_OK != SBC_PerformPathCheckFs0b(pInstance)) {
         retval = STD_NOT_OK;
     }
 
     /* Init finished successfully if retval still okay */
     if (retval == STD_OK) {
         pInstance->nvram.data->phase = (uint8_t)SBC_INITIALIZED;
-        FRAM_Write(pInstance->nvram.entry);
+        FRAM_WriteData(pInstance->nvram.entry);
     }
     return retval;
 }
 
+/* AXIVION Next Line Style CodingStyle-Naming: The function name is pre-defined by the driver provided by NXP */
 extern UNIT_TEST_WEAK_IMPL fs8x_status_t MCU_SPI_TransferData(
     SPI_INTERFACE_CONFIG_s *pSpiInterface,
     uint8_t *txFrame,
     uint16_t frameLengthBytes,
     uint8_t *rxFrame) {
+    FAS_ASSERT(pSpiInterface != NULL_PTR);
+    FAS_ASSERT(txFrame != NULL_PTR);
+    FAS_ASSERT(rxFrame != NULL_PTR);
+    /* AXIVION Routine Generic-MissingParameterAssert: frameLengthBytes: parameter accepts whole range */
+
     uint16_t sbc_txBuffer[FS8x_COMM_FRAME_SIZE];
     uint16_t sbc_rxBuffer[FS8x_COMM_FRAME_SIZE];
     fs8x_status_t spiCommunicationState = fs8xStatusError;
-
-    FAS_ASSERT(txFrame != NULL_PTR);
-    FAS_ASSERT(rxFrame != NULL_PTR);
 
     /* Copy TX data in TX array, reset RX array */
     for (uint8_t i = 0u; i < FS8x_COMM_FRAME_SIZE; i++) {
@@ -970,7 +1004,9 @@ extern UNIT_TEST_WEAK_IMPL fs8x_status_t MCU_SPI_TransferData(
     return spiCommunicationState;
 }
 
-extern STD_RETURN_TYPE_e SBC_TriggerWatchdog(FS85xx_STATE_s *pInstance) {
+extern STD_RETURN_TYPE_e SBC_TriggerWatchdog(FS85_STATE_s *pInstance) {
+    FAS_ASSERT(pInstance != NULL_PTR);
+
     STD_RETURN_TYPE_e retval = STD_NOT_OK;
     if (fs8xStatusOk == FS8x_WD_Refresh(pInstance->pSpiInterface, &(pInstance->configValues))) {
         /* Check GRL_FLAGS register if watchdog refresh was valid */
@@ -1002,7 +1038,9 @@ extern STD_RETURN_TYPE_e SBC_TriggerWatchdog(FS85xx_STATE_s *pInstance) {
     return retval;
 }
 
-static STD_RETURN_TYPE_e SBC_ReadBackAllRegisters(FS85xx_STATE_s *pInstance) {
+static STD_RETURN_TYPE_e SBC_ReadBackAllRegisters(FS85_STATE_s *pInstance) {
+    FAS_ASSERT(pInstance != NULL_PTR);
+
     STD_RETURN_TYPE_e retval = STD_OK;
 
     /* Read all fail-safe registers */
@@ -1042,7 +1080,9 @@ static STD_RETURN_TYPE_e SBC_ReadBackAllRegisters(FS85xx_STATE_s *pInstance) {
     return retval;
 }
 
-static STD_RETURN_TYPE_e SBC_PerformPathCheckRSTB(FS85xx_STATE_s *pInstance) {
+static STD_RETURN_TYPE_e SBC_PerformPathCheckRstb(FS85_STATE_s *pInstance) {
+    FAS_ASSERT(pInstance != NULL_PTR);
+
     STD_RETURN_TYPE_e retval = STD_OK;
     resetSource_t rstReason  = MINFO_GetResetSource();
     bool test_assertionRSTB  = false; /* Do not test RSTB assertion on default */
@@ -1055,7 +1095,7 @@ static STD_RETURN_TYPE_e SBC_PerformPathCheckRSTB(FS85xx_STATE_s *pInstance) {
             /** Write to NVRAM to determine after reset and if short-circuit
              * between RSTB and FIN present what exactly caused the reset. */
             pInstance->nvram.data->phase = (uint8_t)SBC_FIN_TEST;
-            FRAM_Write(pInstance->nvram.entry);
+            FRAM_WriteData(pInstance->nvram.entry);
 
             /** MCU SBC is connected to ECLK1 -> privilege mode is required to access register */
             FSYS_RaisePrivilege();
@@ -1066,7 +1106,7 @@ static STD_RETURN_TYPE_e SBC_PerformPathCheckRSTB(FS85xx_STATE_s *pInstance) {
 
             /** Pulses longer than 2000ns trigger reset -> wait 10us to check if
                reset is triggered by short between RSTB and FIN */
-            MCU_delay_us(10u);
+            MCU_Delay_us(10u);
 
             /** If we reach this line of code, no reset has taken place.
                Everything okay. Set level of FIN pin back to high */
@@ -1089,7 +1129,7 @@ static STD_RETURN_TYPE_e SBC_PerformPathCheckRSTB(FS85xx_STATE_s *pInstance) {
     } else if (rstReason == EXT_RESET) {
         /** Last reset reason was external reset via nRST pin (EXT_RESET)
            Readout FRAM to determine in which state the SBC was prior to reset */
-        FRAM_Read(pInstance->nvram.entry);
+        FRAM_ReadData(pInstance->nvram.entry);
         if ((SBC_INIT_PHASE_e)pInstance->nvram.data->phase == SBC_FIN_TEST) {
             /** Short-circuit between FIN and RSTB: Do not apply CLK on FIN */
             /** Update nvram FIN state */
@@ -1143,7 +1183,7 @@ static STD_RETURN_TYPE_e SBC_PerformPathCheckRSTB(FS85xx_STATE_s *pInstance) {
     } else {
         /** Reset was not caused by power-cycle or SBC. SBC has already been initialized successfully after detected
          * power-cycle. Everything okay. Read FIN state from NVRAM and continue with normal operation */
-        FRAM_Read(pInstance->nvram.entry);
+        FRAM_ReadData(pInstance->nvram.entry);
         test_assertionRSTB      = false;
         pInstance->fin.finState = pInstance->nvram.data->finState;
         if (pInstance->fin.finState == STD_OK) {
@@ -1157,14 +1197,14 @@ static STD_RETURN_TYPE_e SBC_PerformPathCheckRSTB(FS85xx_STATE_s *pInstance) {
     if (test_assertionRSTB == true) {
         /** Write to NVRAM to determine after reset and if RSTB was asserted correctly */
         pInstance->nvram.data->phase = (uint8_t)SBC_RSTB_ASSERTION_TEST;
-        FRAM_Write(pInstance->nvram.entry);
+        FRAM_WriteData(pInstance->nvram.entry);
 
         SBC_ReadBackRegister(pInstance, true, FS8X_FS_STATES_ADDR);
 
         uint16_t registerValue = FS8X_FS_RSTB_REQ_RSTB_ASSERTION;
         SBC_WriteRegisterFsInit(pInstance, FS8X_FS_SAFE_IOS_ADDR, registerValue);
 
-        while (1) {
+        while (true) {
             ;
         }
 
@@ -1173,7 +1213,9 @@ static STD_RETURN_TYPE_e SBC_PerformPathCheckRSTB(FS85xx_STATE_s *pInstance) {
     return retval;
 }
 
-static STD_RETURN_TYPE_e SBC_PerformPathCheckFS0B(FS85xx_STATE_s *pInstance) {
+static STD_RETURN_TYPE_e SBC_PerformPathCheckFs0b(FS85_STATE_s *pInstance) {
+    FAS_ASSERT(pInstance != NULL_PTR);
+
     STD_RETURN_TYPE_e retval = STD_OK;
     /* TBD */
     return retval;

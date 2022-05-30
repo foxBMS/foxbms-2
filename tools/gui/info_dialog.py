@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -42,14 +42,14 @@
 
 import os
 import pathlib
-import wx
-import wx.adv
-import wx.html
-import wx.grid
-import wx.lib.agw.hyperlink as hl
-import markdown
 
 import fgui
+import markdown
+import wx
+import wx.adv
+import wx.grid
+import wx.html
+import wx.lib.agw.hyperlink as hl
 
 __version__ = fgui.__version__
 __appname__ = fgui.__appname__

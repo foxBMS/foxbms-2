@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -39,15 +39,15 @@
 # - "This product is derived from foxBMS®"
 
 """Basic test of all packages in conda environment"""
-import sys
-import os
-import logging
 import argparse
 import glob
 import json
+import logging
+import os
 import pathlib
-import subprocess
 import shutil
+import subprocess
+import sys
 
 SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
 

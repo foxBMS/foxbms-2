@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    fram.h
  * @author  foxBMS Team
  * @date    2020-03-05 (date of creation)
- * @updated 2024-03-24 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup DRIVERS
  * @prefix  FRAM
  *
@@ -70,15 +71,23 @@
  */
 extern void FRAM_Initialize(void);
 
+/**
+ * @brief   Reinitialize all entries in the FRAM.
+ * @details This function must be called if the alignment in the FRAM is
+ *          wrong due to a change in the FRAM data structue.
+ * @return  #STD_OK if all writes successfull, otherwise #STD_NOT_OK
+ */
+extern STD_RETURN_TYPE_e FRAM_ReinitializeAllEntries(void);
+
 /* The variable corrresponding to the block_ID is written */
 /**
  * @brief   Writes a variable to the FRAM.
  * @details This function stores the variable corresponding to the ID passed as
  *          parameter. Write can fail if SPI interface was locked.
  * @param   blockId ID of variable to write to FRAM
- * @return  #STD_OK if write was successful, #STD_NOT_OK otherwise
+ * @return  one of the values of the FRAM_RETURN_TYPE_e enum
  */
-extern STD_RETURN_TYPE_e FRAM_Write(FRAM_BLOCK_ID_e blockId);
+extern FRAM_RETURN_TYPE_e FRAM_WriteData(FRAM_BLOCK_ID_e blockId);
 
 /* The variable corrresponding to the block_ID is written */
 /**
@@ -86,9 +95,9 @@ extern STD_RETURN_TYPE_e FRAM_Write(FRAM_BLOCK_ID_e blockId);
  * @details This function reads the variable corresponding to the ID passed as
  *          parameter. Read can fail if SPI interface was locked.
  * @param   blockId ID of variable to read from FRAM
- * @return  #STD_OK if read was successful, #STD_NOT_OK otherwise
+ * @return  one of the values of the FRAM_RETURN_TYPE_e enum
  */
-extern STD_RETURN_TYPE_e FRAM_Read(FRAM_BLOCK_ID_e blockId);
+extern FRAM_RETURN_TYPE_e FRAM_ReadData(FRAM_BLOCK_ID_e blockId);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    can_cbs_tx_state_estimation.c
  * @author  foxBMS Team
  * @date    2021-07-21 (date of creation)
- * @updated 2021-07-21 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup DRIVER
  * @prefix  CAN
  *
@@ -95,31 +96,31 @@ extern uint32_t CAN_TxStateEstimation(
     /* Check current direction  */
     if (BMS_GetBatterySystemState() == BMS_CHARGING) {
         /* If battery system is charging use maximum values */
-        for (uint8_t stringNumber = 0u; stringNumber < BS_NR_OF_STRINGS; stringNumber++) {
-            if (true == BMS_IsStringClosed(stringNumber)) {
-                if (maximumStringSoc_perc < kpkCanShim->pTableSox->maximumSoc_perc[stringNumber]) {
-                    maximumStringSoc_perc = kpkCanShim->pTableSox->maximumSoc_perc[stringNumber];
+        for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
+            if (BMS_IsStringClosed(s) == true) {
+                if (maximumStringSoc_perc < kpkCanShim->pTableSox->maximumSoc_perc[s]) {
+                    maximumStringSoc_perc = kpkCanShim->pTableSox->maximumSoc_perc[s];
                 }
-                if (maximumStringSoe_perc < kpkCanShim->pTableSox->maximumSoe_perc[stringNumber]) {
-                    maximumStringSoe_perc = kpkCanShim->pTableSox->maximumSoe_perc[stringNumber];
+                if (maximumStringSoe_perc < kpkCanShim->pTableSox->maximumSoe_perc[s]) {
+                    maximumStringSoe_perc = kpkCanShim->pTableSox->maximumSoe_perc[s];
                 }
-                if (minimumStringEnergy_Wh > kpkCanShim->pTableSox->minimumSoe_Wh[stringNumber]) {
-                    minimumStringEnergy_Wh = kpkCanShim->pTableSox->minimumSoe_Wh[stringNumber];
+                if (minimumStringEnergy_Wh > kpkCanShim->pTableSox->minimumSoe_Wh[s]) {
+                    minimumStringEnergy_Wh = kpkCanShim->pTableSox->minimumSoe_Wh[s];
                 }
             }
         }
     } else {
         /* If battery system is discharging or at rest use minimum values */
-        for (uint8_t stringNumber = 0u; stringNumber < BS_NR_OF_STRINGS; stringNumber++) {
-            if (true == BMS_IsStringClosed(stringNumber)) {
-                if (minimumStringSoc_perc > kpkCanShim->pTableSox->minimumSoc_perc[stringNumber]) {
-                    minimumStringSoc_perc = kpkCanShim->pTableSox->minimumSoc_perc[stringNumber];
+        for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
+            if (BMS_IsStringClosed(s) == true) {
+                if (minimumStringSoc_perc > kpkCanShim->pTableSox->minimumSoc_perc[s]) {
+                    minimumStringSoc_perc = kpkCanShim->pTableSox->minimumSoc_perc[s];
                 }
-                if (minimumStringSoe_perc > kpkCanShim->pTableSox->minimumSoe_perc[stringNumber]) {
-                    minimumStringSoe_perc = kpkCanShim->pTableSox->minimumSoe_perc[stringNumber];
+                if (minimumStringSoe_perc > kpkCanShim->pTableSox->minimumSoe_perc[s]) {
+                    minimumStringSoe_perc = kpkCanShim->pTableSox->minimumSoe_perc[s];
                 }
-                if (minimumStringEnergy_Wh > kpkCanShim->pTableSox->minimumSoe_Wh[stringNumber]) {
-                    minimumStringEnergy_Wh = kpkCanShim->pTableSox->minimumSoe_Wh[stringNumber];
+                if (minimumStringEnergy_Wh > kpkCanShim->pTableSox->minimumSoe_Wh[s]) {
+                    minimumStringEnergy_Wh = kpkCanShim->pTableSox->minimumSoe_Wh[s];
                 }
             }
         }

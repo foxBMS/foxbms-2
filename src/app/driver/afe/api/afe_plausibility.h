@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    afe_plausibility.h
  * @author  foxBMS Team
  * @date    2019-01-24 (date of creation)
- * @updated 2021-01-15 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup MODULES
  * @prefix  AFE
  *
@@ -64,7 +65,7 @@
  * @details This struct has to be implemented in a variable by each AFE and
  *          passed to #AFE_PlausibilityCheckVoltageMeasurementRange().
  */
-typedef struct AFE_PLAUSIBILITY_VALUES {
+typedef struct {
     /** largest cell voltage value that is considered plausible in mV
      *
      * This value should be the maximum operating limit of the AFE.

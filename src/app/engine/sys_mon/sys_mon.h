@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,11 +43,12 @@
  * @file    sys_mon.h
  * @author  foxBMS Team
  * @date    2019-11-28 (date of creation)
- * @updated 2021-11-10 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup ENGINE
  * @prefix  SYSM
  *
- * @brief   TODO
+ * @brief   system monitoring module
  */
 
 #ifndef FOXBMS__SYS_MON_H_
@@ -56,24 +57,44 @@
 /*========== Includes =======================================================*/
 #include "sys_mon_cfg.h"
 
+#include "fram.h"
+
 /*========== Macros and Definitions =========================================*/
 /** defines entry or exit */
-typedef enum SYSM_NOTIFY_TYPE {
+typedef enum {
     SYSM_NOTIFY_ENTER, /**< entry into a task */
     SYSM_NOTIFY_EXIT,  /**< exit from a task */
 } SYSM_NOTIFY_TYPE_e;
 
 /** state (in summary) used for task or function notification */
-typedef struct SYSM_NOTIFICATION {
+typedef struct {
     SYSM_NOTIFY_TYPE_e state; /**< state of the task */
     uint32_t timestampEnter;  /**< timestamp of entry into state */
     uint32_t timestampExit;   /**< timestamp of exit from state */
     uint32_t duration;        /**< duration between last complete entry and exit cycle */
 } SYSM_NOTIFICATION_s;
 
+/** compact data fromat for reporting violation states */
+typedef struct {
+    bool recordedViolationAny;       /*!< compound flag indicating if any violation occurred */
+    bool recordedViolationEngine;    /*!< flag indicating if a engine violation is recorded */
+    bool recordedViolation1ms;       /*!< flag indicating if a 1ms violation is recorded */
+    bool recordedViolation10ms;      /*!< flag indicating if a 10ms violation is recorded */
+    bool recordedViolation100ms;     /*!< flag indicating if a 100ms violation is recorded */
+    bool recordedViolation100msAlgo; /*!< flag indicating if a 100ms algorithm violation is recorded */
+} SYSM_TIMING_VIOLATION_RESPONSE_s;
+
 /*========== Extern Constant and Variable Declarations ======================*/
 
 /*========== Extern Function Prototypes =====================================*/
+/**
+ * @brief   initialization function for system monitoring
+ * @details Has to be called once after startup to initialize and check system
+ *          monitoring related functionality
+ * @return  #STD_OK if no configuration error detected, otherwise #STD_NOT_OK
+ */
+extern STD_RETURN_TYPE_e SYSM_Init(void);
+
 /**
  * @brief   overall system monitoring
  * @details checks notifications (state and timestamps) of all system-relevant
@@ -87,9 +108,41 @@ extern void SYSM_CheckNotifications(void);
  * @details Has to be called in every function using the system monitoring.
  * @param   taskId      task id to notify system monitoring
  * @param   state       whether function has been called at entry or exit
- * @param   time        time
+ * @param   timestamp   time
  */
-extern void SYSM_Notify(SYSM_TASK_ID_e taskId, SYSM_NOTIFY_TYPE_e state, uint32_t time);
+extern void SYSM_Notify(SYSM_TASK_ID_e taskId, SYSM_NOTIFY_TYPE_e state, uint32_t timestamp);
+
+/**
+ * @brief   Returns the timing violation flags determined from fram state
+ * @details This function reads the timing states and determines if a violation
+ *          has occurred.
+ * @param[out]  pAnswer pointer to a #SYSM_TIMING_VIOLATION_RESPONSE_s struct that will be filled by the function
+ */
+extern void SYSM_GetRecordedTimingViolations(SYSM_TIMING_VIOLATION_RESPONSE_s *pAnswer);
+
+/**
+ * @brief   Clears all timing violations (both current and recorded)
+ * @details This function clears all indicators that a timing violation has
+ *          happened.
+ */
+extern void SYSM_ClearAllTimingViolations(void);
+
+/**
+ * @brief   Commits the stored changes to FRAM if necessary
+ * @details Writing to FRAM is costly (in terms of computation time), therefore
+ *          it is decoupled from the main task of the sys mon module.
+ *          When called, this function checks the flag sysm_flagFramCopyHasChanges
+ *          and writes to FRAM if there are changes.
+ */
+extern void SYSM_UpdateFramData(void);
+
+/**
+ * @brief   Copy from the from entry to the to entry.
+ *
+ * @param[in]   kpkFrom pointer to the origin struct
+ * @param[out]  pTo     pointer to the destination struct
+ */
+extern void SYSM_CopyFramStruct(const FRAM_SYS_MON_RECORD_s *const kpkFrom, FRAM_SYS_MON_RECORD_s *pTo);
 
 /*========== Getter for static Variables (Unit Test) ========================*/
 #ifdef UNITY_UNIT_TEST

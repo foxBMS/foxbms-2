@@ -1,10 +1,10 @@
 .. include:: ./../../../macros.txt
 .. include:: ./../../../units.txt
 
-.. _LTC6804_1_BASED_12_CELL_SLAVE____V1_X_X___:
+.. _LTC6804_1_BASED_12_CELL_SLAVE___V1_X_X__:
 
-LTC6804-1-based 12-Cell Slave (``v1.x.x``)
-==========================================
+LTC6804-1-based 12-Cell Slave ``v1.x.x``
+========================================
 
 
 .. |local_slave_version|  replace:: ``1.x.x``
@@ -22,7 +22,7 @@ Overview
 .. hint::
 
    All connector pinouts described below follow the
-   :ref:`CONVENTION_FOR_CONNECTOR_PIN_NUMBERING`.
+   :ref:`CONVENTION_FOR_MOLEX_3_0_CONNECTOR_PIN_NUMBERING`.
 
 ^^^^^^^^^^^^^
 Block Diagram

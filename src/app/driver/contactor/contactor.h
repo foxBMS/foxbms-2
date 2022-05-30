@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    contactor.h
  * @author  foxBMS Team
  * @date    2020-02-11 (date of creation)
- * @updated 2021-03-24 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup DRIVERS
  * @prefix  CONT
  *
@@ -108,15 +109,6 @@ typedef enum {
     CONT_SET_EDGE_LOW,
     CONT_CHECK_REQUESTS,
 } CONT_STATEMACH_SUB_e;
-
-/** @brief Names for connected power paths */
-typedef enum CONT_POWER_LINE_e {
-    CONT_POWER_PATH_NONE, /*!< no power line is connected, contactors are open  */
-    CONT_POWER_PATH_0,    /*!< power line 0, e.g. used for the power train      */
-#if BS_SEPARATE_POWER_PATHS == 1
-    CONT_POWER_PATH_1, /*!< power line 1, e.g. used for charging                */
-#endif
-} CONT_POWER_LINE_e;
 
 /**
  * @brief   Gets the current state.

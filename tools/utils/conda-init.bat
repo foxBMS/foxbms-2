@@ -1,4 +1,4 @@
-@REM Copyright (c) 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+@REM Copyright (c) 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 @REM All rights reserved.
 @REM
 @REM SPDX-License-Identifier: BSD-3-Clause
@@ -51,8 +51,9 @@
     @ECHO Created "%DOTCONDARC%"
     @ECHO Open "%DOTCONDARC%" and enter your proxy information
 ) ELSE (
-    @ECHO "%DOTCONDARC%" already exists.
+    @ECHO %DOTCONDARC% already exists.
     @ECHO Maybe you need to add "foxbms" to your channels list.
+    @ECHO See https://docs.foxbms.org/getting-started/miniconda-installation/conda-configuration.html#condarc-configuration
     @PAUSE
     @exit /b 1
 )

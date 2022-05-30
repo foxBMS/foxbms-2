@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    bms.c
  * @author  foxBMS Team
  * @date    2020-02-24 (date of creation)
- * @updated 2021-10-18 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup ENGINE
  * @prefix  BMS
  *
@@ -61,6 +62,7 @@
 #include "database.h"
 #include "diag.h"
 #include "foxmath.h"
+#include "imd.h"
 #include "led.h"
 #include "meas.h"
 #include "os.h"
@@ -325,13 +327,11 @@ static uint8_t BMS_CheckCanRequests(void) {
         retVal = BMS_REQ_ID_STANDBY;
     } else if (request.stateRequestViaCan == BMS_REQ_ID_NORMAL) {
         retVal = BMS_REQ_ID_NORMAL;
-    }
-
-#if BS_SEPARATE_POWER_PATHS == 1
-    else if (request.stateRequestViaCan == BMS_REQ_ID_CHARGE) { /* NOLINT(readability/braces) */
+    } else if (request.stateRequestViaCan == BMS_REQ_ID_CHARGE) {
         retVal = BMS_REQ_ID_CHARGE;
+    } else {
+        /* invalid or no request, default to BMS_REQ_ID_NOREQ (already set) */
     }
-#endif /*  BS_SEPARATE_POWER_PATHS == 1 */
 
     return retVal;
 }
@@ -341,11 +341,11 @@ static void BMS_CheckOpenSenseWire(void) {
 
     for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
         /* Iterate over all modules */
-        for (uint8_t m = 0u; m < BS_NR_OF_MODULES; m++) {
+        for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
             /* Iterate over all voltage sense wires: cells per module + 1 */
-            for (uint8_t wire = 0u; wire < (BS_NR_OF_CELLS_PER_MODULE + 1); wire++) {
+            for (uint8_t wire = 0u; wire < (BS_NR_OF_CELL_BLOCKS_PER_MODULE + 1); wire++) {
                 /* open wire detected */
-                if (bms_tableOpenWire.openwire[s][(wire + (m * (BS_NR_OF_CELLS_PER_MODULE + 1))) == 1] > 0u) {
+                if (bms_tableOpenWire.openwire[s][(wire + (m * (BS_NR_OF_CELL_BLOCKS_PER_MODULE + 1))) == 1] > 0u) {
                     openWireDetected++;
 
                     /* Add additional error handling here */
@@ -354,9 +354,9 @@ static void BMS_CheckOpenSenseWire(void) {
         }
         /* Set error if open wire detected */
         if (openWireDetected == 0u) {
-            DIAG_Handler(DIAG_ID_OPEN_WIRE, DIAG_EVENT_OK, DIAG_STRING, s);
+            DIAG_Handler(DIAG_ID_AFE_OPEN_WIRE, DIAG_EVENT_OK, DIAG_STRING, s);
         } else {
-            DIAG_Handler(DIAG_ID_OPEN_WIRE, DIAG_EVENT_NOT_OK, DIAG_STRING, s);
+            DIAG_Handler(DIAG_ID_AFE_OPEN_WIRE, DIAG_EVENT_NOT_OK, DIAG_STRING, s);
         }
     }
 }
@@ -369,8 +369,8 @@ static STD_RETURN_TYPE_e BMS_CheckPrecharge(uint8_t stringNumber, const DATA_BLO
     FAS_ASSERT(pPackValues != NULL_PTR);
 
     /* Only check precharging if current value and voltages are valid */
-    if ((0u == pPackValues->invalidStringCurrent[stringNumber]) &&
-        (0u == pPackValues->invalidStringVoltage[stringNumber]) && (0u == pPackValues->invalidHvBusVoltage)) {
+    if ((pPackValues->invalidStringCurrent[stringNumber] == 0u) &&
+        (pPackValues->invalidStringVoltage[stringNumber] == 0u) && (pPackValues->invalidHvBusVoltage == 0u)) {
         /* Only current not current direction is checked */
         const int32_t current_mA                = MATH_AbsInt32_t(pPackValues->stringCurrent_mA[stringNumber]);
         const int64_t cont_prechargeVoltDiff_mV = MATH_AbsInt64_t(
@@ -415,7 +415,7 @@ static STD_RETURN_TYPE_e BMS_IsBatterySystemStateOkay(void) {
     const bool isErrorActive = BMS_IsAnyFatalErrorFlagSet();
 
     /** Check if a fatal error has been detected previously. If yes, check delay */
-    if (true == bms_state.transitionToErrorState) {
+    if (bms_state.transitionToErrorState == true) {
         /* Decrease active delay since last call */
         const uint32_t timeSinceLastCall_ms = timestamp - previousTimestamp;
         if (timeSinceLastCall_ms <= bms_state.remainingDelay_ms) {
@@ -431,7 +431,7 @@ static STD_RETURN_TYPE_e BMS_IsBatterySystemStateOkay(void) {
         }
     } else {
         /* Delay is not active, check if it should be activated */
-        if (true == isErrorActive) {
+        if (isErrorActive == true) {
             bms_state.transitionToErrorState = true;
             bms_state.remainingDelay_ms      = bms_state.minimumActiveDelay_ms;
         }
@@ -442,7 +442,7 @@ static STD_RETURN_TYPE_e BMS_IsBatterySystemStateOkay(void) {
 
     /* Check if bms statemachine should switch to error state. This is the case
      * if the delay is activated and the remaining delay is down to 0 */
-    if ((true == bms_state.transitionToErrorState) && (0u == bms_state.remainingDelay_ms)) {
+    if ((bms_state.transitionToErrorState == true) && (bms_state.remainingDelay_ms == 0u)) {
         retVal = STD_NOT_OK;
     }
 
@@ -456,7 +456,7 @@ static uint8_t BMS_GetHighestString(BMS_CONSIDER_PRECHARGE_e precharge, DATA_BLO
 
     for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
         if ((pPackValues->stringVoltage_mV[s] >= max_stringVoltage_mV) &&
-            (0u == pPackValues->invalidStringVoltage[s])) {
+            (pPackValues->invalidStringVoltage[s] == 0u)) {
             if (bms_state.deactivatedStrings[s] == 0u) {
                 if (precharge == BMS_DO_NOT_TAKE_PRECHARGE_INTO_ACCCOUNT) {
                     max_stringVoltage_mV = pPackValues->stringVoltage_mV[s];
@@ -481,10 +481,10 @@ static uint8_t BMS_GetClosestString(BMS_CONSIDER_PRECHARGE_e precharge, DATA_BLO
     bool searchString              = false;
 
     /* Get voltage of first closed string */
-    if (0u == pPackValues->invalidStringVoltage[bms_state.firstClosedString]) {
+    if (pPackValues->invalidStringVoltage[bms_state.firstClosedString] == 0u) {
         closedStringVoltage_mV = pPackValues->stringVoltage_mV[bms_state.firstClosedString];
         searchString           = true;
-    } else if (0u == pPackValues->invalidHvBusVoltage) {
+    } else if (pPackValues->invalidHvBusVoltage == 0u) {
         /* Use high voltage bus voltage if measured string voltage is invalid */
         closedStringVoltage_mV = pPackValues->highVoltageBusVoltage_mV;
         searchString           = true;
@@ -493,11 +493,11 @@ static uint8_t BMS_GetClosestString(BMS_CONSIDER_PRECHARGE_e precharge, DATA_BLO
         searchString = false;
     }
 
-    if (true == searchString) {
+    if (searchString == true) {
         for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
             const bool isStringClosed          = BMS_IsStringClosed(s);
             const uint8_t isStringVoltageValid = pPackValues->invalidStringVoltage[s];
-            if ((false == isStringClosed) && (0u == isStringVoltageValid)) {
+            if ((isStringClosed == false) && (isStringVoltageValid == 0u)) {
                 /* Only check open strings with valid voltages */
                 int32_t minimumVoltageDifference_mV = INT32_MAX;
                 int32_t voltageDifference_mV        = labs(closedStringVoltage_mV - pPackValues->stringVoltage_mV[s]);
@@ -527,7 +527,7 @@ static uint8_t BMS_GetLowestString(BMS_CONSIDER_PRECHARGE_e precharge, DATA_BLOC
 
     for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
         if ((pPackValues->stringVoltage_mV[s] <= min_stringVoltage_mV) &&
-            (0u == pPackValues->invalidStringVoltage[s])) {
+            (pPackValues->invalidStringVoltage[s] == 0u)) {
             if (bms_state.deactivatedStrings[s] == 0u) {
                 if (precharge == BMS_DO_NOT_TAKE_PRECHARGE_INTO_ACCCOUNT) {
                     min_stringVoltage_mV = pPackValues->stringVoltage_mV[s];
@@ -548,12 +548,12 @@ static int32_t BMS_GetStringVoltageDifference(uint8_t string, const DATA_BLOCK_P
     FAS_ASSERT(string < BS_NR_OF_STRINGS);
     FAS_ASSERT(pPackValues != NULL_PTR);
     int32_t voltageDifference_mV = INT32_MAX;
-    if ((0u == pPackValues->invalidStringVoltage[string]) &&
-        (0u == pPackValues->invalidStringVoltage[bms_state.firstClosedString])) {
+    if ((pPackValues->invalidStringVoltage[string] == 0u) &&
+        (pPackValues->invalidStringVoltage[bms_state.firstClosedString] == 0u)) {
         /* Calculate difference between string voltages */
         voltageDifference_mV = MATH_AbsInt32_t(
             pPackValues->stringVoltage_mV[string] - pPackValues->stringVoltage_mV[bms_state.firstClosedString]);
-    } else if ((0u == pPackValues->invalidStringVoltage[string]) && (0u == pPackValues->invalidHvBusVoltage)) {
+    } else if ((pPackValues->invalidStringVoltage[string] == 0u) && (pPackValues->invalidHvBusVoltage == 0u)) {
         /* Calculate difference between string and high voltage bus voltage */
         voltageDifference_mV =
             MATH_AbsInt32_t(pPackValues->stringVoltage_mV[string] - pPackValues->highVoltageBusVoltage_mV);
@@ -567,7 +567,7 @@ static int32_t BMS_GetStringVoltageDifference(uint8_t string, const DATA_BLOCK_P
 static int32_t BMS_GetAverageStringCurrent(DATA_BLOCK_PACK_VALUES_s *pPackValues) {
     FAS_ASSERT(pPackValues != NULL_PTR);
     int32_t average_current = pPackValues->packCurrent_mA / (int32_t)BS_NR_OF_STRINGS;
-    if (1u == pPackValues->invalidPackCurrent) {
+    if (pPackValues->invalidPackCurrent == 1u) {
         average_current = INT32_MAX;
     }
     return average_current;
@@ -577,7 +577,7 @@ static void BMS_UpdateBatsysState(DATA_BLOCK_PACK_VALUES_s *pPackValues) {
     FAS_ASSERT(pPackValues != NULL_PTR);
 
     /* Only update system state if current value is valid */
-    if (0u == pPackValues->invalidPackCurrent) {
+    if (pPackValues->invalidPackCurrent == 0u) {
         if (POSITIVE_DISCHARGE_CURRENT == true) {
             /* Positive current values equal a discharge of the battery system */
             if (pPackValues->packCurrent_mA >= BS_REST_CURRENT_mA) { /* TODO: string use pack current */
@@ -722,10 +722,15 @@ void BMS_Trigger(void) {
         /****************************INITIALIZED******************************/
         case BMS_STATEMACH_INITIALIZED:
             BMS_SAVELASTSTATES();
-            bms_state.initFinished = STD_OK;
-            bms_state.timer        = BMS_STATEMACH_SHORTTIME;
-            bms_state.state        = BMS_STATEMACH_IDLE;
-            bms_state.substate     = BMS_ENTRY;
+            if (IMD_RequestInsulationMeasurement() == IMD_ILLEGAL_REQUEST) {
+                /* Initialization of IMD device not finished yet -> wait until this is finished before moving on */
+                bms_state.timer = BMS_STATEMACH_LONGTIME;
+            } else {
+                bms_state.initFinished = STD_OK;
+                bms_state.timer        = BMS_STATEMACH_SHORTTIME;
+                bms_state.state        = BMS_STATEMACH_IDLE;
+                bms_state.substate     = BMS_ENTRY;
+            }
             break;
 
         /****************************IDLE*************************************/
@@ -776,10 +781,10 @@ void BMS_Trigger(void) {
                 bms_state.substate = BMS_OPEN_ALL_PRECHARGES;
                 break;
             } else if (bms_state.substate == BMS_OPEN_ALL_PRECHARGES) {
-                for (stringNumber = 0u; stringNumber < BS_NR_OF_STRINGS; stringNumber++) {
-                    if (bs_stringsWithPrecharge[stringNumber] == BS_STRING_WITH_PRECHARGE) {
-                        CONT_OpenPrecharge(stringNumber);
-                        bms_state.closedPrechargeContactors[stringNumber] = 0u;
+                for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
+                    if (bs_stringsWithPrecharge[s] == BS_STRING_WITH_PRECHARGE) {
+                        CONT_OpenPrecharge(s);
+                        bms_state.closedPrechargeContactors[s] = 0u;
                     }
                 }
                 /* Now go to string opening */
@@ -831,6 +836,8 @@ void BMS_Trigger(void) {
                     bms_state.state    = BMS_STATEMACH_ERROR;
                     bms_state.substate = BMS_ENTRY;
                 }
+            } else {
+                FAS_ASSERT(FAS_TRAP);
             }
             break;
 
@@ -839,9 +846,9 @@ void BMS_Trigger(void) {
             BMS_SAVELASTSTATES();
             if (bms_state.substate == BMS_ENTRY) {
                 BAL_SetStateRequest(BAL_STATE_ALLOWBALANCING_REQUEST);
-#if LTC_STANDBY_PERIODIC_OPEN_WIRE_CHECK == TRUE
-                nextOpenWireCheck = timestamp + LTC_STANDBY_OPEN_WIRE_PERIOD_ms;
-#endif /* LTC_STANDBY_PERIODIC_OPEN_WIRE_CHECK == TRUE */
+#if BS_STANDBY_PERIODIC_OPEN_WIRE_CHECK == TRUE
+                nextOpenWireCheck = timestamp + BS_STANDBY_OPEN_WIRE_PERIOD_ms;
+#endif /* BS_STANDBY_PERIODIC_OPEN_WIRE_CHECK == TRUE */
                 bms_state.timer    = BMS_STATEMACH_MEDIUMTIME;
                 bms_state.substate = BMS_CHECK_ERROR_FLAGS_INTERLOCK;
                 DATA_READ_DATA(&systemstate);
@@ -893,16 +900,18 @@ void BMS_Trigger(void) {
                     bms_state.substate  = BMS_ENTRY;
                     break;
                 } else {
-#if LTC_STANDBY_PERIODIC_OPEN_WIRE_CHECK == TRUE
+#if BS_STANDBY_PERIODIC_OPEN_WIRE_CHECK == TRUE
                     if (nextOpenWireCheck <= timestamp) {
                         MEAS_RequestOpenWireCheck();
-                        nextOpenWireCheck = timestamp + LTC_STANDBY_OPEN_WIRE_PERIOD_ms;
+                        nextOpenWireCheck = timestamp + BS_STANDBY_OPEN_WIRE_PERIOD_ms;
                     }
-#endif /* LTC_STANDBY_PERIODIC_OPEN_WIRE_CHECK == TRUE */
+#endif /* BS_STANDBY_PERIODIC_OPEN_WIRE_CHECK == TRUE */
                     bms_state.timer    = BMS_STATEMACH_SHORTTIME;
                     bms_state.substate = BMS_CHECK_ERROR_FLAGS;
                     break;
                 }
+            } else {
+                FAS_ASSERT(FAS_TRAP);
             }
             break;
 
@@ -1075,6 +1084,8 @@ void BMS_Trigger(void) {
                     bms_state.substate  = BMS_ENTRY;
                 }
                 break;
+            } else {
+                FAS_ASSERT(FAS_TRAP);
             }
             break;
 
@@ -1083,9 +1094,9 @@ void BMS_Trigger(void) {
             BMS_SAVELASTSTATES();
 
             if (bms_state.substate == BMS_ENTRY) {
-#if LTC_NORMAL_PERIODIC_OPEN_WIRE_CHECK == TRUE
-                nextOpenWireCheck = timestamp + LTC_NORMAL_OPEN_WIRE_PERIOD_ms;
-#endif /* LTC_NORMAL_PERIODIC_OPEN_WIRE_CHECK == TRUE */
+#if BS_NORMAL_PERIODIC_OPEN_WIRE_CHECK == TRUE
+                nextOpenWireCheck = timestamp + BS_NORMAL_OPEN_WIRE_PERIOD_ms;
+#endif /* BS_NORMAL_PERIODIC_OPEN_WIRE_CHECK == TRUE */
                 DATA_READ_DATA(&systemstate);
                 if (bms_state.nextstate == BMS_STATEMACH_CHARGE) {
                     systemstate.bmsCanState = BMS_CANSTATE_CHARGE;
@@ -1116,12 +1127,12 @@ void BMS_Trigger(void) {
                     bms_state.substate  = BMS_ENTRY;
                     break;
                 } else {
-#if LTC_NORMAL_PERIODIC_OPEN_WIRE_CHECK == TRUE
+#if BS_NORMAL_PERIODIC_OPEN_WIRE_CHECK == TRUE
                     if (nextOpenWireCheck <= timestamp) {
                         MEAS_RequestOpenWireCheck();
-                        nextOpenWireCheck = timestamp + LTC_NORMAL_OPEN_WIRE_PERIOD_ms;
+                        nextOpenWireCheck = timestamp + BS_NORMAL_OPEN_WIRE_PERIOD_ms;
                     }
-#endif /* LTC_NORMAL_PERIODIC_OPEN_WIRE_CHECK == TRUE */
+#endif /* BS_NORMAL_PERIODIC_OPEN_WIRE_CHECK == TRUE */
                     bms_state.timer    = BMS_STATEMACH_SHORTTIME;
                     bms_state.substate = BMS_NORMAL_CLOSE_NEXT_STRING;
                     break;
@@ -1184,6 +1195,8 @@ void BMS_Trigger(void) {
                     bms_state.timer = BMS_STATEMACH_SHORTTIME;
                     break;
                 }
+            } else {
+                FAS_ASSERT(FAS_TRAP);
             }
             break;
 
@@ -1207,7 +1220,7 @@ void BMS_Trigger(void) {
                 bms_state.substate = BMS_CHECK_ERROR_FLAGS;
                 break;
             } else if (bms_state.substate == BMS_CHECK_ERROR_FLAGS) {
-                if (true == DIAG_IsAnyFatalErrorSet()) {
+                if (DIAG_IsAnyFatalErrorSet() == true) {
                     /* we stay already in requested state */
                     if (nextOpenWireCheck <= timestamp) {
                         /* Perform open-wire check periodically */
@@ -1263,6 +1276,7 @@ extern BMS_CURRENT_FLOW_STATE_e BMS_GetBatterySystemState(void) {
 }
 
 extern BMS_CURRENT_FLOW_STATE_e BMS_GetCurrentFlowDirection(int32_t current_mA) {
+    /* AXIVION Routine Generic-MissingParameterAssert: current_mA: parameter accepts whole range */
     BMS_CURRENT_FLOW_STATE_e retVal = BMS_DISCHARGING;
 
     if (POSITIVE_DISCHARGE_CURRENT == true) {

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    soc_none.c
  * @author  foxBMS Team
  * @date    2020-10-14 (date of creation)
- * @updated 2020-10-14 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup APPLICATION
  * @prefix  SOC
  *
@@ -65,7 +66,7 @@
 /*========== Static Function Implementations ================================*/
 
 /*========== Extern Function Implementations ================================*/
-extern void SOC_Init(DATA_BLOCK_SOX_s *pSocValues, bool cc_present, uint8_t stringNumber) {
+extern void SOC_Init(DATA_BLOCK_SOX_s *pSocValues, bool ccPresent, uint8_t stringNumber) {
     FAS_ASSERT(pSocValues != NULL_PTR);
     FAS_ASSERT(stringNumber < BS_NR_OF_STRINGS);
 }

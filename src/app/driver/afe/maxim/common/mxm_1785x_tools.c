@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    mxm_1785x_tools.c
  * @author  foxBMS Team
  * @date    2020-07-15 (date of creation)
- * @updated 2021-12-06 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup DRIVERS
  * @prefix  MXM
  *
@@ -79,6 +80,7 @@ static uint8_t MXM_FirstSetBit(uint16_t bitmask);
 
 /*========== Static Function Implementations ================================*/
 static uint8_t MXM_FirstSetBit(uint16_t bitmask) {
+    /* AXIVION Routine Generic-MissingParameterAssert: bitmask: parameter accepts whole range */
     uint8_t retval = 0;
     while (((bitmask >> retval) & 1u) == 0u) {
         retval++;
@@ -115,6 +117,10 @@ extern void MXM_Convert(
     MXM_CONVERSION_TYPE_e convType,
     uint32_t fullScaleReference_mV) {
     FAS_ASSERT(pTarget != NULL_PTR);
+    /* AXIVION Routine Generic-MissingParameterAssert: lsb: parameter accepts whole range */
+    /* AXIVION Routine Generic-MissingParameterAssert: msb: parameter accepts whole range */
+    /* AXIVION Routine Generic-MissingParameterAssert: convType: parameter accepts whole range */
+    /* AXIVION Routine Generic-MissingParameterAssert: fullScaleReference_mV: parameter accepts whole range */
     uint16_t temporaryVoltage = 0;
     MXM_ExtractValueFromRegister(lsb, msb, MXM_REG_ADC_14BIT_VALUE, &temporaryVoltage);
 
@@ -175,6 +181,9 @@ extern STD_RETURN_TYPE_e must_check_return MXM_ConvertTest(void) {
 extern void MXM_ExtractValueFromRegister(uint8_t lsb, uint8_t msb, MXM_REG_BM bitmask, uint16_t *pValue) {
     /* input sanitation */
     FAS_ASSERT(pValue != NULL_PTR);
+    /* AXIVION Routine Generic-MissingParameterAssert: lsb: parameter accepts whole range */
+    /* AXIVION Routine Generic-MissingParameterAssert: msb: parameter accepts whole range */
+    /* AXIVION Routine Generic-MissingParameterAssert: bitmask: parameter accepts whole range */
 
     /* find lowest bit that is 1 in bitmask */
     uint8_t start = MXM_FirstSetBit(bitmask);
@@ -228,6 +237,8 @@ extern STD_RETURN_TYPE_e must_check_return MXM_ExtractValueFromRegisterTest(void
 extern void MXM_Unipolar14BitInto16Bit(uint16_t inputValue, uint8_t *lsb, uint8_t *msb) {
     FAS_ASSERT(lsb != NULL_PTR);
     FAS_ASSERT(msb != NULL_PTR);
+    /* AXIVION Routine Generic-MissingParameterAssert: inputValue: parameter accepts whole range */
+
     uint16_t workingCopy = inputValue;
     /* left shift into 16bit position */
     workingCopy = workingCopy << 2u;
@@ -239,6 +250,9 @@ extern void MXM_Unipolar14BitInto16Bit(uint16_t inputValue, uint8_t *lsb, uint8_
 }
 
 extern uint16_t MXM_VoltageIntoUnipolar14Bit(uint16_t voltage_mV, uint16_t fullscaleReference_mV) {
+    /* AXIVION Routine Generic-MissingParameterAssert: voltage_mV: parameter accepts whole range */
+    /* AXIVION Routine Generic-MissingParameterAssert: fullscaleReference_mV: parameter accepts whole range */
+
     uint32_t temporaryVoltage = voltage_mV;
     /* multiply by the 14bit fullscale */
     temporaryVoltage = temporaryVoltage * 0x3FFFu;
@@ -255,18 +269,18 @@ extern void MXM_ConvertModuleToString(
     /* the module number cannot be higher than the highest module in the daisy-chain */
     FAS_ASSERT(moduleNumber < MXM_MAXIMUM_NR_OF_MODULES);
     /* the module number cannot be higher than number of maximum modules in the string */
-    FAS_ASSERT(moduleNumber < (BS_NR_OF_STRINGS * BS_NR_OF_MODULES));
+    FAS_ASSERT(moduleNumber < (BS_NR_OF_STRINGS * BS_NR_OF_MODULES_PER_STRING));
 
     /* calculate string number */
-    *pStringNumber = (uint8_t)(moduleNumber / BS_NR_OF_MODULES);
+    *pStringNumber = (uint8_t)(moduleNumber / BS_NR_OF_MODULES_PER_STRING);
     FAS_ASSERT(*pStringNumber <= BS_NR_OF_STRINGS);
-    /* calculate module number and handle edge-case BS_NR_OF_MODULES == 1 */
-    if (1u == BS_NR_OF_MODULES) {
+    /* calculate module number and handle edge-case BS_NR_OF_MODULES_PER_STRING == 1 */
+    if (1u == BS_NR_OF_MODULES_PER_STRING) {
         *pModuleNumberInString = 0u;
     } else {
-        *pModuleNumberInString = moduleNumber % BS_NR_OF_MODULES;
+        *pModuleNumberInString = moduleNumber % BS_NR_OF_MODULES_PER_STRING;
     }
-    FAS_ASSERT(*pModuleNumberInString <= BS_NR_OF_MODULES);
+    FAS_ASSERT(*pModuleNumberInString <= BS_NR_OF_MODULES_PER_STRING);
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/

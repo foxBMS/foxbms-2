@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -89,7 +89,7 @@ analysis["Parallelism-UnsafeVarAccess"].partitions = {
 
 def disallow_unjustified_deviations(issue):
     """forbid suppressing without justification"""
-    if issue.disabled:
+    if issue.disabled:  # TODO: see mail #9172
         if not issue.justification:
             issue.disabled = False
 
@@ -97,3 +97,7 @@ def disallow_unjustified_deviations(issue):
 for rule_name in analysis.get_active_rules():
     if hasattr(analysis[rule_name], "justification_checker"):
         analysis[rule_name].justification_checker = disallow_unjustified_deviations
+
+
+# force a single finale newline POSIX 3.206
+analysis["Generic-FinalNewline"].reported_messages = {1}

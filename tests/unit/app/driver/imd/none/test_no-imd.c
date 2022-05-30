@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    test_no-imd.c
  * @author  foxBMS Team
  * @date    2020-04-01 (date of creation)
- * @updated 2021-09-08 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -70,8 +71,14 @@ void setUp(void) {
 void tearDown(void) {
 }
 
+DATA_BLOCK_INSULATION_MONITORING_s noimd_tableInsulationValues = {
+    .header.uniqueId = DATA_BLOCK_ID_INSULATION_MONITORING};
+
 /*========== Test Cases =====================================================*/
+void testImdDummyInitialize(void) {
+    TEST_ASSERT_EQUAL(IMD_FSM_STATE_IMD_ENABLE, TEST_NOIMD_Initialize());
+}
+
 void testImdDummyFunctions(void) {
-    DATA_Write_1_DataBlock_IgnoreAndReturn(STD_OK);
-    TEST_ASSERT_EQUAL(STD_OK, TEST_NOIMD_MeasureInsulation());
+    TEST_ASSERT_EQUAL(IMD_FSM_STATE_RUNNING, TEST_NOIMD_MeasureInsulation(&noimd_tableInsulationValues));
 }

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    ftask_freertos.c
  * @author  foxBMS Team
  * @date    2019-08-27 (date of creation)
- * @updated 2021-12-01 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup TASK
  * @prefix  FTSK
  *
@@ -61,10 +62,36 @@
 #include "ftask.h"
 
 /*========== Macros and Definitions =========================================*/
+/** helper macro to translate the stack sizes from bytes into words as FreeRTOS requires words and not bytes */
+#define FTSK_BYTES_TO_WORDS(VARIABALE_IN_BYTES) ((VARIABALE_IN_BYTES) / BYTES_PER_WORD)
+/** Stack size of engine task in words */
+#define FTSK_TASK_ENGINE_STACK_SIZE_IN_WORDS FTSK_BYTES_TO_WORDS(FTSK_TASK_ENGINE_STACK_SIZE_IN_BYTES)
+/** @brief Stack size of cyclic 1 ms task in words */
+#define FTSK_TASK_CYCLIC_1MS_STACK_SIZE_IN_WORDS FTSK_BYTES_TO_WORDS(FTSK_TASK_CYCLIC_1MS_STACK_SIZE_IN_BYTES)
+/** @brief Stack size of cyclic 10 ms task in words */
+#define FTSK_TASK_CYCLIC_10MS_STACK_SIZE_IN_WORDS FTSK_BYTES_TO_WORDS(FTSK_TASK_CYCLIC_10MS_STACK_SIZE_IN_BYTES)
+/** @brief Stack size of cyclic 100 ms task in words */
+#define FTSK_TASK_CYCLIC_100MS_STACK_SIZE_IN_WORDS FTSK_BYTES_TO_WORDS(FTSK_TASK_CYCLIC_100MS_STACK_SIZE_IN_BYTES)
+/** @brief Stack size of cyclic 100 ms task for algorithms in words */
+#define FTSK_TASK_CYCLIC_ALGORITHM_100MS_STACK_SIZE_IN_WORDS \
+    FTSK_BYTES_TO_WORDS(FTSK_TASK_CYCLIC_ALGORITHM_100MS_STACK_SIZE_IN_BYTES)
+/** @brief Stack size of continuously running task for AFEs */
+#define FTSK_TASK_AFE_STACK_SIZE_IN_WORDS FTSK_BYTES_TO_WORDS(FTSK_TASK_AFE_STACK_SIZE_IN_BYTES)
+
+/** size of storage area for the database queue */
+#define FTSK_DATABASE_QUEUE_STORAGE_AREA (FTSK_DATABASE_QUEUE_LENGTH * FTSK_DATABASE_QUEUE_ITEM_SIZE_IN_BYTES)
+
+/** size of storage area for the IMD queue*/
+#define FTSK_IMD_QUEUE_STORAGE_AREA (FTSK_IMD_QUEUE_LENGTH * FTSK_IMD_QUEUE_ITEM_SIZE_IN_BYTES)
+
+/** size of storage area for the CAN Rx queue*/
+#define FTSK_CAN_RX_QUEUE_STORAGE_AREA (FTSK_CAN_RX_QUEUE_LENGTH * FTSK_CAN_RX_QUEUE_ITEM_SIZE_IN_BYTES)
 
 /*========== Static Constant and Variable Definitions =======================*/
 
 /*========== Extern Constant and Variable Definitions =======================*/
+TaskHandle_t ftsk_taskHandleAfe;
+
 volatile bool ftsk_allQueuesCreated = false;
 
 QueueHandle_t ftsk_databaseQueue = NULL_PTR;
@@ -82,52 +109,40 @@ QueueHandle_t ftsk_canRxQueue = NULL_PTR;
 /*========== Extern Function Implementations ================================*/
 
 extern void FTSK_CreateQueues(void) {
-    /**
-     * @brief   size of storage area for the database queue
-     * @details The array that is used for the queue's storage area.
-     *          This must be at least
-     *          #FTSK_DATABASE_QUEUE_LENGTH * #FTSK_DATABASE_QUEUE_ITEM_SIZE
-     */
-    static uint8_t ftsk_databaseQueueStorageArea[FTSK_DATABASE_QUEUE_LENGTH * FTSK_DATABASE_QUEUE_ITEM_SIZE] = {0};
-    static StaticQueue_t ftsk_databaseQueueStructure = {0}; /*!< structure for static database queue */
+    /* structure and array for static database queue */
+    static uint8_t ftsk_databaseQueueStorageArea[FTSK_DATABASE_QUEUE_STORAGE_AREA] = {0};
+    static StaticQueue_t ftsk_databaseQueueStructure                               = {0};
 
     /* Create a queue capable of containing a pointer of type DATA_QUEUE_MESSAGE_s
        Data of Messages are passed by pointer as they contain a lot of data. */
     ftsk_databaseQueue = xQueueCreateStatic(
         FTSK_DATABASE_QUEUE_LENGTH,
-        FTSK_DATABASE_QUEUE_ITEM_SIZE,
+        FTSK_DATABASE_QUEUE_ITEM_SIZE_IN_BYTES,
         ftsk_databaseQueueStorageArea,
         &ftsk_databaseQueueStructure);
     FAS_ASSERT(ftsk_databaseQueue != NULL);
     vQueueAddToRegistry(ftsk_databaseQueue, "Database Queue");
 
-    /**
-     * @brief   size of storage area for the IMD queue
-     * @details The array that is used for the queue's storage area.
-     *          This must be at least
-     *          #FTSK_IMD_QUEUE_LENGTH * #FTSK_IMD_QUEUE_ITEM_SIZE
-     */
-    static uint8_t ftsk_imdQueueStorageArea[FTSK_IMD_QUEUE_LENGTH * FTSK_IMD_QUEUE_ITEM_SIZE] = {0};
-    static StaticQueue_t ftsk_imdQueueStructure = {0}; /*!< structure for static data queue */
+    /* structure and array for static IMD queue */
+    static uint8_t ftsk_imdQueueStorageArea[FTSK_IMD_QUEUE_STORAGE_AREA] = {0};
+    static StaticQueue_t ftsk_imdQueueStructure                          = {0};
 
     ftsk_imdCanDataQueue = xQueueCreateStatic(
-        FTSK_IMD_QUEUE_LENGTH, FTSK_IMD_QUEUE_ITEM_SIZE, ftsk_imdQueueStorageArea, &ftsk_imdQueueStructure);
+        FTSK_IMD_QUEUE_LENGTH, FTSK_IMD_QUEUE_ITEM_SIZE_IN_BYTES, ftsk_imdQueueStorageArea, &ftsk_imdQueueStructure);
     vQueueAddToRegistry(ftsk_imdCanDataQueue, "IMD CAN Data Queue");
     FAS_ASSERT(ftsk_imdCanDataQueue != NULL);
 
     /* INCLUDE MARKER FOR THE DOCUMENTATION; DO NOT MOVE can-documentation-rx-queue-vars-start-include */
-    static StaticQueue_t ftsk_canRxQueueStructure = {0}; /*!< structure for static data queue */
-    /**
-     * @brief   size of storage area for the CAN Rx queue
-     * @details The array that is used for the queue's storage area.
-     *          This must be at least
-     *          #FTSK_CAN_RX_QUEUE_LENGTH * #FTSK_CAN_RX_QUEUE_ITEM_SIZE
-     */
-    static uint8_t ftsk_canRxQueueStorageArea[FTSK_CAN_RX_QUEUE_LENGTH * FTSK_CAN_RX_QUEUE_ITEM_SIZE] = {0};
+    /* structure and array for static CAN RX queue */
+    static uint8_t ftsk_canRxQueueStorageArea[FTSK_CAN_RX_QUEUE_STORAGE_AREA] = {0};
+    static StaticQueue_t ftsk_canRxQueueStructure                             = {0};
     /* INCLUDE MARKER FOR THE DOCUMENTATION; DO NOT MOVE can-documentation-rx-queue-vars-stop-include */
 
     ftsk_canRxQueue = xQueueCreateStatic(
-        FTSK_CAN_RX_QUEUE_LENGTH, FTSK_CAN_RX_QUEUE_ITEM_SIZE, ftsk_canRxQueueStorageArea, &ftsk_canRxQueueStructure);
+        FTSK_CAN_RX_QUEUE_LENGTH,
+        FTSK_CAN_RX_QUEUE_ITEM_SIZE_IN_BYTES,
+        ftsk_canRxQueueStorageArea,
+        &ftsk_canRxQueueStructure);
     vQueueAddToRegistry(ftsk_canRxQueue, "CAN Receive Queue");
     FAS_ASSERT(ftsk_canRxQueue != NULL);
 
@@ -138,74 +153,88 @@ extern void FTSK_CreateQueues(void) {
 
 extern void FTSK_CreateTasks(void) {
     /* Engine Task */
-    static StaticTask_t ftsk_taskEngine                                  = {0};
-    static StackType_t ftsk_stackSizeEngine[FTSK_TASK_ENGINE_STACK_SIZE] = {0};
+    static StaticTask_t ftsk_taskEngine                                       = {0};
+    static StackType_t ftsk_stackEngine[FTSK_TASK_ENGINE_STACK_SIZE_IN_WORDS] = {0};
 
     const TaskHandle_t ftsk_taskHandleEngine = xTaskCreateStatic(
         (TaskFunction_t)FTSK_CreateTaskEngine,
         (const portCHAR *)"TaskEngine",
-        ftsk_taskDefinitionEngine.stackSize,
+        FTSK_BYTES_TO_WORDS(ftsk_taskDefinitionEngine.stackSize_B),
         (void *)ftsk_taskDefinitionEngine.pvParameters,
         (UBaseType_t)ftsk_taskDefinitionEngine.priority,
-        ftsk_stackSizeEngine,
+        ftsk_stackEngine,
         &ftsk_taskEngine);
     FAS_ASSERT(ftsk_taskHandleEngine != NULL); /* Trap if initialization failed */
 
     /* Cyclic Task 1ms */
-    static StaticTask_t ftsk_taskCyclic1ms                                      = {0};
-    static StackType_t ftsk_stackSizeCyclic1ms[FTSK_TASK_CYCLIC_1MS_STACK_SIZE] = {0};
+    static StaticTask_t ftsk_taskCyclic1ms                                           = {0};
+    static StackType_t ftsk_stackCyclic1ms[FTSK_TASK_CYCLIC_1MS_STACK_SIZE_IN_WORDS] = {0};
 
     const TaskHandle_t ftsk_taskHandleCyclic1ms = xTaskCreateStatic(
         (TaskFunction_t)FTSK_CreateTaskCyclic1ms,
         (const portCHAR *)"TaskCyclic1ms",
-        ftsk_taskDefinitionCyclic1ms.stackSize,
+        FTSK_BYTES_TO_WORDS(ftsk_taskDefinitionCyclic1ms.stackSize_B),
         (void *)ftsk_taskDefinitionCyclic1ms.pvParameters,
         (UBaseType_t)ftsk_taskDefinitionCyclic1ms.priority,
-        ftsk_stackSizeCyclic1ms,
+        ftsk_stackCyclic1ms,
         &ftsk_taskCyclic1ms);
     FAS_ASSERT(ftsk_taskHandleCyclic1ms != NULL); /* Trap if initialization failed */
 
     /* Cyclic Task 10ms */
-    static StaticTask_t ftsk_taskCyclic10ms                                       = {0};
-    static StackType_t ftsk_stackSizeCyclic10ms[FTSK_TASK_CYCLIC_10MS_STACK_SIZE] = {0};
+    static StaticTask_t ftsk_taskCyclic10ms                                            = {0};
+    static StackType_t ftsk_stackCyclic10ms[FTSK_TASK_CYCLIC_10MS_STACK_SIZE_IN_WORDS] = {0};
 
     const TaskHandle_t ftsk_taskHandleCyclic10ms = xTaskCreateStatic(
         (TaskFunction_t)FTSK_CreateTaskCyclic10ms,
         (const portCHAR *)"TaskCyclic10ms",
-        ftsk_taskDefinitionCyclic10ms.stackSize,
+        FTSK_BYTES_TO_WORDS(ftsk_taskDefinitionCyclic10ms.stackSize_B),
         (void *)ftsk_taskDefinitionCyclic10ms.pvParameters,
         (UBaseType_t)ftsk_taskDefinitionCyclic10ms.priority,
-        ftsk_stackSizeCyclic10ms,
+        ftsk_stackCyclic10ms,
         &ftsk_taskCyclic10ms);
     FAS_ASSERT(ftsk_taskHandleCyclic10ms != NULL); /* Trap if initialization failed */
 
     /* Cyclic Task 100ms */
-    static StaticTask_t ftsk_taskCyclic100ms                                        = {0};
-    static StackType_t ftsk_stackSizeCyclic100ms[FTSK_TASK_CYCLIC_100MS_STACK_SIZE] = {0};
+    static StaticTask_t ftsk_taskCyclic100ms                                             = {0};
+    static StackType_t ftsk_stackCyclic100ms[FTSK_TASK_CYCLIC_100MS_STACK_SIZE_IN_WORDS] = {0};
 
     const TaskHandle_t ftsk_taskHandleCyclic100ms = xTaskCreateStatic(
         (TaskFunction_t)FTSK_CreateTaskCyclic100ms,
         (const portCHAR *)"TaskCyclic100ms",
-        ftsk_taskDefinitionCyclic100ms.stackSize,
+        FTSK_BYTES_TO_WORDS(ftsk_taskDefinitionCyclic100ms.stackSize_B),
         (void *)ftsk_taskDefinitionCyclic100ms.pvParameters,
         (UBaseType_t)ftsk_taskDefinitionCyclic100ms.priority,
-        ftsk_stackSizeCyclic100ms,
+        ftsk_stackCyclic100ms,
         &ftsk_taskCyclic100ms);
     FAS_ASSERT(ftsk_taskHandleCyclic100ms != NULL); /* Trap if initialization failed */
 
     /* Cyclic Task 100ms for algorithms */
-    static StaticTask_t ftsk_taskCyclicAlgorithm100ms                                                 = {0};
-    static StackType_t ftsk_stackSizeCyclicAlgorithm100ms[FTSK_TASK_CYCLIC_ALGORITHM_100MS_STACKSIZE] = {0};
+    static StaticTask_t ftsk_taskCyclicAlgorithm100ms                                                       = {0};
+    static StackType_t ftsk_stackCyclicAlgorithm100ms[FTSK_TASK_CYCLIC_ALGORITHM_100MS_STACK_SIZE_IN_WORDS] = {0};
 
     const TaskHandle_t ftsk_taskHandleCyclicAlgorithm100ms = xTaskCreateStatic(
         (TaskFunction_t)FTSK_CreateTaskCyclicAlgorithm100ms,
         (const portCHAR *)"TaskCyclicAlgorithm100ms",
-        ftsk_taskDefinitionCyclicAlgorithm100ms.stackSize,
+        FTSK_BYTES_TO_WORDS(ftsk_taskDefinitionCyclicAlgorithm100ms.stackSize_B),
         (void *)ftsk_taskDefinitionCyclicAlgorithm100ms.pvParameters,
         (UBaseType_t)ftsk_taskDefinitionCyclicAlgorithm100ms.priority,
-        ftsk_stackSizeCyclicAlgorithm100ms,
+        ftsk_stackCyclicAlgorithm100ms,
         &ftsk_taskCyclicAlgorithm100ms);
     FAS_ASSERT(ftsk_taskHandleCyclicAlgorithm100ms != NULL); /* Trap if initialization failed */
+
+    /* Continuously running Task for AFE */
+    static StaticTask_t ftsk_taskAfe                                        = {0};
+    static StackType_t ftsk_stackSizeAfe[FTSK_TASK_AFE_STACK_SIZE_IN_WORDS] = {0};
+
+    ftsk_taskHandleAfe = xTaskCreateStatic(
+        (TaskFunction_t)FTSK_CreateTaskAfe,
+        (const portCHAR *)"TaskAfe",
+        FTSK_BYTES_TO_WORDS(ftsk_taskDefinitionAfe.stackSize_B),
+        (void *)ftsk_taskDefinitionAfe.pvParameters,
+        (UBaseType_t)ftsk_taskDefinitionAfe.priority,
+        ftsk_stackSizeAfe,
+        &ftsk_taskAfe);
+    FAS_ASSERT(ftsk_taskHandleAfe != NULL); /* Trap if initialization failed */
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/

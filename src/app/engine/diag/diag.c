@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    diag.c
  * @author  foxBMS Team
  * @date    2019-11-28 (date of creation)
- * @updated 2021-11-09 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup ENGINE
  * @prefix  DIAG
  *
@@ -63,7 +64,7 @@
 
 /*========== Static Constant and Variable Definitions =======================*/
 /** state-variable of the diag module */
-static DIAG_s diag;
+static DIAG_DIAGNOSIS_STATE_s diag;
 
 /** pointer to the device configuration of the diag module */
 static DIAG_DEV_s *diag_devptr;
@@ -128,8 +129,8 @@ STD_RETURN_TYPE_e DIAG_Initialize(DIAG_DEV_s *diag_dev_pointer) {
     }
 
     /* Fill lookup table id2ch */
-    for (uint8_t c = 0; c < diag_dev_pointer->nr_of_ch; c++) {
-        id_nr = diag_dev_pointer->ch_cfg[c].id;
+    for (uint8_t c = 0; c < diag_dev_pointer->nrOfConfiguredDiagnosisEntries; c++) {
+        id_nr = diag_dev_pointer->pConfigurationOfDiagnosisEntries[c].id;
         if (id_nr < (uint16_t)DIAG_ID_MAX) {
             diag.id2ch[id_nr] = c; /* e.g. diag.id2ch[DIAG_ID_90] = configured channel index */
         } else {
@@ -144,10 +145,11 @@ STD_RETURN_TYPE_e DIAG_Initialize(DIAG_DEV_s *diag_dev_pointer) {
     }
 
     /* Fill enable array err_enableflag */
-    for (uint8_t i = 0; i < diag_dev_pointer->nr_of_ch; i++) {
-        if (diag_dev_pointer->ch_cfg[i].enable_evaluate == DIAG_EVALUATION_DISABLED) {
+    for (uint8_t i = 0; i < diag_dev_pointer->nrOfConfiguredDiagnosisEntries; i++) {
+        if (diag_dev_pointer->pConfigurationOfDiagnosisEntries[i].enable_evaluate == DIAG_EVALUATION_DISABLED) {
             /* Disable diagnosis entry */
-            tmperr_Check[diag_dev_pointer->ch_cfg[i].id / 32] |= (1 << (diag_dev_pointer->ch_cfg[i].id % 32));
+            tmperr_Check[diag_dev_pointer->pConfigurationOfDiagnosisEntries[i].id / 32] |=
+                (1 << (diag_dev_pointer->pConfigurationOfDiagnosisEntries[i].id % 32));
         }
     }
 
@@ -171,8 +173,9 @@ STD_RETURN_TYPE_e DIAG_Initialize(DIAG_DEV_s *diag_dev_pointer) {
 }
 
 STD_RETURN_TYPE_e DIAG_GetDiagnosisEntryState(DIAG_ID_e diagnosisEntry) {
-    STD_RETURN_TYPE_e retval      = STD_OK;
-    const uint16_t errorThreshold = diag_devptr->ch_cfg[diag.id2ch[(uint16_t)diagnosisEntry]].threshold;
+    STD_RETURN_TYPE_e retval = STD_OK;
+    const uint16_t errorThreshold =
+        diag_devptr->pConfigurationOfDiagnosisEntries[diag.id2ch[(uint16_t)diagnosisEntry]].threshold;
 
     /* Error if active if threshold counter is larger than configured error threshold */
     for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
@@ -252,7 +255,7 @@ DIAG_RETURNTYPE_e DIAG_Handler(DIAG_ID_e diag_id, DIAG_EVENT_e event, DIAG_IMPAC
     }
 
     /*  Determine a stringID, for impact level #DIAG_SYSTEM this is
-        always 0. This stringID is used to access the #DIAG_s::occurrenceCounter
+        always 0. This stringID is used to access the #DIAG_DIAGNOSIS_STATE_s::occurrenceCounter
         2D-array.
     */
     uint8_t stringID = 0u;
@@ -266,9 +269,9 @@ DIAG_RETURNTYPE_e DIAG_Handler(DIAG_ID_e diag_id, DIAG_EVENT_e event, DIAG_IMPAC
     u32ptr_errCodemsk    = &diag.errflag[err_enable_idx];
     u32ptr_warnCodemsk   = &diag.warnflag[err_enable_idx];
     u16ptr_threshcounter = &diag.occurrenceCounter[stringID][diag_id];
-    cfg_threshold        = diag_devptr->ch_cfg[diag.id2ch[diag_id]].threshold;
-    recording_enabled    = diag_devptr->ch_cfg[diag.id2ch[diag_id]].enable_recording;
-    evaluate_enabled     = diag_devptr->ch_cfg[diag.id2ch[diag_id]].enable_evaluate;
+    cfg_threshold        = diag_devptr->pConfigurationOfDiagnosisEntries[diag.id2ch[diag_id]].threshold;
+    recording_enabled    = diag_devptr->pConfigurationOfDiagnosisEntries[diag.id2ch[diag_id]].enable_recording;
+    evaluate_enabled     = diag_devptr->pConfigurationOfDiagnosisEntries[diag.id2ch[diag_id]].enable_evaluate;
 
     if (event == DIAG_EVENT_OK) {
         if ((diag.err_enableflag[err_enable_idx] & err_enable_bitmask) > 0u) {

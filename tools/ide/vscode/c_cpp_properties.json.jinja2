@@ -1,10 +1,10 @@
 {
     "env": {
         "ProjectIncludePath": [
-            "${workspaceFolder}/build",
             "${workspaceFolder}/build/bin/src/app/main",
             "${workspaceFolder}/build/bin/src/hal/include",
             "${workspaceFolder}/build/bin/src/hal/source",
+            "${workspaceFolder}/build/unit_test/test/mocks",
             "${workspaceFolder}/src/app/application/algorithm",
             "${workspaceFolder}/src/app/application/algorithm/config",
             "${workspaceFolder}/src/app/application/algorithm/moving_average",
@@ -33,9 +33,11 @@
             "${workspaceFolder}/src/app/driver/i2c",
             "${workspaceFolder}/src/app/driver/interlock",
             "${workspaceFolder}/src/app/driver/imd",
-            "${workspaceFolder}/src/app/driver/imd/{{ IMD_MANUFACTURER }}",
+            "${workspaceFolder}/src/app/driver/imd/{{ IMD_MANUFACTURER }}",{% if IMD_MODEL|length%}
+            {% if IMD_MODEL != "" -%}
             "${workspaceFolder}/src/app/driver/imd/{{ IMD_MANUFACTURER }}/{{ IMD_MODEL }}",
-            "${workspaceFolder}/src/app/driver/imd/{{ IMD_MANUFACTURER }}/{{ IMD_MODEL }}/config",
+            "${workspaceFolder}/src/app/driver/imd/{{ IMD_MANUFACTURER }}/{{ IMD_MODEL }}/config",{% endif %}
+            {%- endif %}
             "${workspaceFolder}/src/app/driver/io",
             "${workspaceFolder}/src/app/driver/led",
             "${workspaceFolder}/src/app/driver/mcu",
@@ -74,14 +76,11 @@
             "${workspaceFolder}/src/app/task/os",
             "${workspaceFolder}/src/app/task/os/{{ OS }}",
             "${workspaceFolder}/src/os/{{ OS }}",
-            "${workspaceFolder}/src/os/{{ OS }}/include",
-            "${workspaceFolder}/src/os/{{ OS }}/portable/ccs/arm_cortex-r5",
-            "${workspaceFolder}/src/os/{{ OS }}/portable/common",
-            "${workspaceFolder}/src/os/{{ OS }}/portable/memmang",
+            {% for os_include in OS_INCLUDES %}"${workspaceFolder}/{{ os_include }}",
+            {% endfor -%}
             "${workspaceFolder}/tools/vendor/ceedling/vendor/unity/src",
             "${workspaceFolder}/tools/vendor/ceedling/vendor/c_exception/lib",
-            "${workspaceFolder}/tests/unit/support",
-            "${workspaceFolder}/build/unit_test/test/mocks"
+            "${workspaceFolder}/tests/unit/support"
         ],
         "forcedInclude": [],
         "ProjectCompiler": "{{ ARMCL }}"

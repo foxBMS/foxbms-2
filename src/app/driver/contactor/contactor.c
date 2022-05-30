@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    contactor.c
  * @author  foxBMS Team
  * @date    2020-02-11 (date of creation)
- * @updated 2021-10-01 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup DRIVERS
  * @prefix  CONT
  *
@@ -111,7 +112,7 @@ static CONT_CONTACTOR_INDEX CONT_ResolveContactorName(const CONT_NAMES_e name) {
     } while ((contactor < BS_NR_OF_CONTACTORS) && (true != hit));
 
     /* an unknown contactor may not exist */
-    FAS_ASSERT(true == hit);
+    FAS_ASSERT(hit == true);
 
     return contactor;
 }
@@ -146,15 +147,19 @@ static void CONT_InitializationCheckOfContactorRegistry(void) {
     /* iterate over each contactor and compare found name with resolved name (if a name is used double this would
      always return the first entry and we would have the second entry from iterating here) */
     for (CONT_CONTACTOR_INDEX contactor = 0u; contactor < BS_NR_OF_CONTACTORS; contactor++) {
-        FAS_ASSERT(contactor == CONT_ResolveContactorName(cont_contactorStates[contactor].name));
-        FAS_ASSERT(cont_contactorStates[contactor].name == CONT_GetContactorName(contactor));
+        const CONT_CONTACTOR_INDEX resolvedContactor = CONT_ResolveContactorName(cont_contactorStates[contactor].name);
+        FAS_ASSERT(contactor == resolvedContactor);
+        const CONT_NAMES_e contactorName = CONT_GetContactorName(contactor);
+        FAS_ASSERT(cont_contactorStates[contactor].name == contactorName);
 
         /* convention at the moment: sps channel index has to be the same as contactor index; this may change in
            future implementations */
         FAS_ASSERT(contactor == cont_contactorStates[contactor].spsChannel);
 
         /* every contactor channel has to be affiliated with contactor */
-        FAS_ASSERT(SPS_AFF_CONTACTOR == SPS_GetChannelAffiliation(cont_contactorStates[contactor].spsChannel));
+        const SPS_CHANNEL_AFFILIATION_e channelAffiliation =
+            SPS_GetChannelAffiliation(cont_contactorStates[contactor].spsChannel);
+        FAS_ASSERT(SPS_AFF_CONTACTOR == channelAffiliation);
     }
 }
 
@@ -191,8 +196,8 @@ extern STD_RETURN_TYPE_e CONT_SetContactorState(
     CONT_CONTACTOR_INDEX contactor = CONT_ResolveContactorName(name);
     FAS_ASSERT(contactor < BS_NR_OF_CONTACTORS);
     FAS_ASSERT(
-        (CONT_SWITCH_OFF == requestedContactorState) || (CONT_SWITCH_ON == requestedContactorState) ||
-        (CONT_SWITCH_UNDEF == requestedContactorState));
+        (requestedContactorState == CONT_SWITCH_OFF) || (requestedContactorState == CONT_SWITCH_ON) ||
+        (requestedContactorState == CONT_SWITCH_UNDEF));
 
     STD_RETURN_TYPE_e retVal = STD_OK;
 
@@ -240,7 +245,7 @@ extern STD_RETURN_TYPE_e CONT_ClosePrecharge(uint8_t stringNumber) {
     FAS_ASSERT(stringNumber < BS_NR_OF_STRINGS);
     STD_RETURN_TYPE_e retVal         = STD_NOT_OK;
     uint8_t prechargeContactorNumber = 0u;
-    static_assert((BS_NR_OF_STRINGS <= (uint8_t)UINT8_MAX), "This code assumes BS_NR_OF_STRINGS fits into uint8_t");
+    f_static_assert((BS_NR_OF_STRINGS <= (uint8_t)UINT8_MAX), "This code assumes BS_NR_OF_STRINGS fits into uint8_t");
 
     /* Precharge contactors in the list stay after string contactors
      * so it has index (number of contactors)-1

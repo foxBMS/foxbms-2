@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -53,12 +53,16 @@ import os
 def build(bld):
     """Build the database object"""
     source = ["database_how-to.c"]
+    dummy_txt = "/* dummy file */\n"
+    dummy_headers = ["HL_sys_core", "HL_sys_common"]
+    for i in dummy_headers:
+        bld.path.find_or_declare(f"{i}.h").write(dummy_txt)
     includes = [
         ".",
         os.path.join("..", "..", "..", "..", "..", "src", "app", "main", "include"),
     ]
     cflags = bld.env.CFLAGS_FOXBMS
-    bld.path.find_or_declare("HL_sys_common.h").write(
+    bld.path.find_or_declare("mcu.h").write(
         "/* dummy file */\n"
         "extern void OS_EnterTaskCritical();\n"
         "extern void OS_ExitTaskCritical();\n"

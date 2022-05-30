@@ -40,6 +40,7 @@ Software Modules
 
     ./driver/adc/adc.rst
     ./driver/can/can.rst
+    ./driver/crc/crc.rst
     ./driver/contactor/contactor.rst
     ./driver/dma/dma.rst
     ./driver/foxmath/foxmath.rst

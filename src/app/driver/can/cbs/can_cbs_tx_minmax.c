@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    can_cbs_tx_minmax.c
  * @author  foxBMS Team
  * @date    2021-04-20 (date of creation)
- * @updated 2021-07-21 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup DRIVER
  * @prefix  CAN
  *
@@ -92,35 +93,35 @@ extern uint32_t CAN_TxMinimumMaximumValues(
 
     if (0u == BMS_GetNumberOfConnectedStrings()) {
         /* Calculate min/max values of complete pack if all slice switches are open */
-        for (uint8_t stringNumber = 0u; stringNumber < BS_NR_OF_STRINGS; stringNumber++) {
-            if (kpkCanShim->pTableMinMax->maximumCellVoltage_mV[stringNumber] >= packMaximumVoltage_mV) {
-                packMaximumVoltage_mV = kpkCanShim->pTableMinMax->maximumCellVoltage_mV[stringNumber];
+        for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
+            if (kpkCanShim->pTableMinMax->maximumCellVoltage_mV[s] >= packMaximumVoltage_mV) {
+                packMaximumVoltage_mV = kpkCanShim->pTableMinMax->maximumCellVoltage_mV[s];
             }
-            if (kpkCanShim->pTableMinMax->minimumCellVoltage_mV[stringNumber] <= packMinimumVoltage_mV) {
-                packMinimumVoltage_mV = kpkCanShim->pTableMinMax->minimumCellVoltage_mV[stringNumber];
+            if (kpkCanShim->pTableMinMax->minimumCellVoltage_mV[s] <= packMinimumVoltage_mV) {
+                packMinimumVoltage_mV = kpkCanShim->pTableMinMax->minimumCellVoltage_mV[s];
             }
-            if (kpkCanShim->pTableMinMax->maximumTemperature_ddegC[stringNumber] >= packMaximumTemperature_ddegC) {
-                packMaximumTemperature_ddegC = kpkCanShim->pTableMinMax->maximumTemperature_ddegC[stringNumber];
+            if (kpkCanShim->pTableMinMax->maximumTemperature_ddegC[s] >= packMaximumTemperature_ddegC) {
+                packMaximumTemperature_ddegC = kpkCanShim->pTableMinMax->maximumTemperature_ddegC[s];
             }
-            if (kpkCanShim->pTableMinMax->minimumTemperature_ddegC[stringNumber] <= packMinimumTemperature_ddegC) {
-                packMinimumTemperature_ddegC = kpkCanShim->pTableMinMax->minimumTemperature_ddegC[stringNumber];
+            if (kpkCanShim->pTableMinMax->minimumTemperature_ddegC[s] <= packMinimumTemperature_ddegC) {
+                packMinimumTemperature_ddegC = kpkCanShim->pTableMinMax->minimumTemperature_ddegC[s];
             }
         }
     } else {
         /* Calculate min/max values of connected slices */
-        for (uint8_t stringNumber = 0u; stringNumber < BS_NR_OF_STRINGS; stringNumber++) {
-            if (true == BMS_IsStringClosed(stringNumber)) {
-                if (kpkCanShim->pTableMinMax->maximumCellVoltage_mV[stringNumber] >= packMaximumVoltage_mV) {
-                    packMaximumVoltage_mV = kpkCanShim->pTableMinMax->maximumCellVoltage_mV[stringNumber];
+        for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
+            if (BMS_IsStringClosed(s) == true) {
+                if (kpkCanShim->pTableMinMax->maximumCellVoltage_mV[s] >= packMaximumVoltage_mV) {
+                    packMaximumVoltage_mV = kpkCanShim->pTableMinMax->maximumCellVoltage_mV[s];
                 }
-                if (kpkCanShim->pTableMinMax->minimumCellVoltage_mV[stringNumber] <= packMinimumVoltage_mV) {
-                    packMinimumVoltage_mV = kpkCanShim->pTableMinMax->minimumCellVoltage_mV[stringNumber];
+                if (kpkCanShim->pTableMinMax->minimumCellVoltage_mV[s] <= packMinimumVoltage_mV) {
+                    packMinimumVoltage_mV = kpkCanShim->pTableMinMax->minimumCellVoltage_mV[s];
                 }
-                if (kpkCanShim->pTableMinMax->maximumTemperature_ddegC[stringNumber] >= packMaximumTemperature_ddegC) {
-                    packMaximumTemperature_ddegC = kpkCanShim->pTableMinMax->maximumTemperature_ddegC[stringNumber];
+                if (kpkCanShim->pTableMinMax->maximumTemperature_ddegC[s] >= packMaximumTemperature_ddegC) {
+                    packMaximumTemperature_ddegC = kpkCanShim->pTableMinMax->maximumTemperature_ddegC[s];
                 }
-                if (kpkCanShim->pTableMinMax->minimumTemperature_ddegC[stringNumber] <= packMinimumTemperature_ddegC) {
-                    packMinimumTemperature_ddegC = kpkCanShim->pTableMinMax->minimumTemperature_ddegC[stringNumber];
+                if (kpkCanShim->pTableMinMax->minimumTemperature_ddegC[s] <= packMinimumTemperature_ddegC) {
+                    packMinimumTemperature_ddegC = kpkCanShim->pTableMinMax->minimumTemperature_ddegC[s];
                 }
             }
         }

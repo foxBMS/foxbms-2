@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    test_can_cbs_tx_limits.c
  * @author  foxBMS Team
  * @date    2021-07-27 (date of creation)
- * @updated 2021-07-27 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -120,12 +121,12 @@ void tearDown(void) {
 void testCAN_TxLimitValues(void) {
     uint8_t data[8] = {0};
 
-    for (uint8_t stringNumber = 0u; stringNumber < BS_NR_OF_STRINGS; stringNumber++) {
+    for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
         can_kShim.pTableSof->recommendedContinuousPackDischargeCurrent_mA = 270000.0f;
         can_kShim.pTableSof->recommendedContinuousPackChargeCurrent_mA    = 240000.0f;
     }
 
-    DATA_Read_1_DataBlock_IgnoreAndReturn(0u);
+    DATA_Read1DataBlock_IgnoreAndReturn(0u);
 
     CAN_TxLimitValues(CAN_ID_TX_LIMIT_VALUES, 8, CAN_BIG_ENDIAN, data, NULL_PTR, &can_kShim);
 
@@ -138,8 +139,8 @@ void testCAN_TxLimitValues(void) {
      *  min. battery voltage: 208V
      */
 
-    uint8_t minimumBatteryVoltage = (uint8_t)((BS_NR_OF_BAT_CELLS * BC_VOLTAGE_MIN_MSL_mV) / 4000u);
-    uint8_t maximumBatteryVoltage = (uint8_t)((BS_NR_OF_BAT_CELLS * BC_VOLTAGE_MAX_MSL_mV) / 4000u);
+    uint8_t minimumBatteryVoltage = (uint8_t)((BS_NR_OF_CELL_BLOCKS_PER_STRING * BC_VOLTAGE_MIN_MSL_mV) / 4000u);
+    uint8_t maximumBatteryVoltage = (uint8_t)((BS_NR_OF_CELL_BLOCKS_PER_STRING * BC_VOLTAGE_MAX_MSL_mV) / 4000u);
 
     TEST_ASSERT_EQUAL(0x43, data[0]);
     TEST_ASSERT_EQUAL(0x83, data[1]);

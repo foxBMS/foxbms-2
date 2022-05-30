@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    soa_cfg.c
  * @author  foxBMS Team
  * @date    2020-10-14 (date of creation)
- * @updated 2020-10-14 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup APPLICATION_CONFIGURATION
  * @prefix  SOA
  *
@@ -71,7 +72,7 @@
 bool SOA_IsPackCurrentLimitViolated(uint32_t current_mA, BMS_CURRENT_FLOW_STATE_e currentDirection) {
     bool currentLimitViolated = false;
     /* Only check if battery is not at rest. No overcurrent possible if battery is resting */
-    if ((BMS_CHARGING == currentDirection) || (BMS_DISCHARGING == currentDirection)) {
+    if ((currentDirection == BMS_CHARGING) || (currentDirection == BMS_DISCHARGING)) {
         if (current_mA > BS_MAXIMUM_PACK_CURRENT_mA) {
             currentLimitViolated = true;
         }
@@ -82,7 +83,7 @@ bool SOA_IsPackCurrentLimitViolated(uint32_t current_mA, BMS_CURRENT_FLOW_STATE_
 bool SOA_IsStringCurrentLimitViolated(uint32_t current_mA, BMS_CURRENT_FLOW_STATE_e currentDirection) {
     bool currentLimitViolated = false;
     /* Only check if battery is not at rest. No overcurrent possible if battery is resting */
-    if ((BMS_CHARGING == currentDirection) || (BMS_DISCHARGING == currentDirection)) {
+    if ((currentDirection == BMS_CHARGING) || (currentDirection == BMS_DISCHARGING)) {
         if (current_mA > BS_MAXIMUM_STRING_CURRENT_mA) {
             currentLimitViolated = true;
         }
@@ -93,11 +94,11 @@ bool SOA_IsStringCurrentLimitViolated(uint32_t current_mA, BMS_CURRENT_FLOW_STAT
 bool SOA_IsCellCurrentLimitViolated(uint32_t current_mA, BMS_CURRENT_FLOW_STATE_e currentDirection) {
     bool currentLimitViolated = false;
     /* Only check if battery is not at rest. No overcurrent possible if battery is resting */
-    if (BMS_CHARGING == currentDirection) {
+    if (currentDirection == BMS_CHARGING) {
         if (current_mA > (BS_NR_OF_PARALLEL_CELLS_PER_MODULE * BC_CURRENT_MAX_CHARGE_MSL_mA)) {
             currentLimitViolated = true;
         }
-    } else if (BMS_DISCHARGING == currentDirection) {
+    } else if (currentDirection == BMS_DISCHARGING) {
         if (current_mA > (BS_NR_OF_PARALLEL_CELLS_PER_MODULE * BC_CURRENT_MAX_DISCHARGE_MSL_mA)) {
             currentLimitViolated = true;
         }
@@ -112,11 +113,11 @@ bool SOA_IsCurrentOnOpenString(BMS_CURRENT_FLOW_STATE_e currentDirection, uint8_
     FAS_ASSERT(stringNumber < BS_NR_OF_STRINGS);
     bool currentOnOpenString = false;
     /* Current is flowing as soon as a current direction detected */
-    if ((BMS_CHARGING == currentDirection) || (BMS_DISCHARGING == currentDirection)) {
+    if ((currentDirection == BMS_CHARGING) || (currentDirection == BMS_DISCHARGING)) {
         const bool stringClosed      = BMS_IsStringClosed(stringNumber);
         const bool stringPrecharging = BMS_IsStringPrecharging(stringNumber);
         /* String appears to be open */
-        if ((false == stringClosed) && (false == stringPrecharging)) {
+        if ((stringClosed == false) && (stringPrecharging == false)) {
             currentOnOpenString = true;
         }
     }

@@ -1,0 +1,17 @@
+.. include:: ./../../../../macros.txt
+.. include:: ./../../../../units.txt
+
+.. _MASTER_TMS570___V1_1_1___BLOCK_DIAGRAM:
+
+Master TMS570 ``v1.1.1`` Block diagram
+======================================
+
+A block diagram of the |bms-master| is shown in figure
+:numref:`foxbms-2-master-hardware-block-diagram`.
+
+.. figure:: img/ti-tms570lc4357-v1.1.1._block-diagram.png
+   :alt: Block diagram of the |bms-master| hardware
+   :name: foxbms-2-master-hardware-block-diagram
+   :width: 100 %
+
+   Block diagram of the |bms-master| hardware

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    database_cfg.h
  * @author  foxBMS Team
  * @date    2015-08-18 (date of creation)
- * @updated 2021-09-30 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup ENGINE_CONFIGURATION
  * @prefix  DATA
  *
@@ -61,15 +62,17 @@
 
 #include "battery_system_cfg.h"
 
+#include "mcu.h"
+
 /*========== Macros and Definitions =========================================*/
 /** configuration struct of database channel (data block) */
-typedef struct DATA_BASE {
+typedef struct {
     void *pDatabaseEntry; /*!< pointer to the database entry */
-    uint32_t datalength;  /*!< length of the entry */
+    uint32_t dataLength;  /*!< length of the entry */
 } DATA_BASE_s;
 
 /** data block identification numbers */
-typedef enum DATA_BLOCK_ID {
+typedef enum {
     DATA_BLOCK_ID_CELL_VOLTAGE,
     DATA_BLOCK_ID_CELL_TEMPERATURE,
     DATA_BLOCK_ID_MIN_MAX,
@@ -106,44 +109,50 @@ typedef enum DATA_BLOCK_ID {
     DATA_BLOCK_ID_MAX, /**< DO NOT CHANGE, MUST BE THE LAST ENTRY */
 } DATA_BLOCK_ID_e;
 
+f_static_assert(
+    (int16_t)DATA_BLOCK_ID_MAX < UINT8_MAX,
+    "Maximum number of database entries exceeds UINT8_MAX; adapted length "
+    "checking in DATA_Initialize and DATA_IterateOverDatabaseEntries");
+
 /** data block header */
-typedef struct DATA_BLOCKHEADER {
+typedef struct {
     DATA_BLOCK_ID_e uniqueId;   /*!< uniqueId of database entry */
     uint32_t timestamp;         /*!< timestamp of last database update */
     uint32_t previousTimestamp; /*!< timestamp of previous database update */
 } DATA_BLOCK_HEADER_s;
 
 /** data block struct of cell voltage */
-typedef struct DATA_BLOCK_CELL_VOLTAGE {
+typedef struct {
     /* This struct needs to be at the beginning of every database entry. During
      * the initialization of a database struct, uniqueId must be set to the
      * respective database entry representation in enum DATA_BLOCK_ID_e. */
-    DATA_BLOCK_HEADER_s header;                                   /*!< Data block header */
-    uint8_t state;                                                /*!< for future use */
-    int32_t packVoltage_mV[BS_NR_OF_STRINGS];                     /*!< uint: mV */
-    int16_t cellVoltage_mV[BS_NR_OF_STRINGS][BS_NR_OF_BAT_CELLS]; /*!< unit: mV */
-    uint64_t invalidCellVoltage[BS_NR_OF_STRINGS]
-                               [BS_NR_OF_MODULES];  /*!< bitmask if voltages are valid. 0->valid, 1->invalid */
-    uint16_t nrValidCellVoltages[BS_NR_OF_STRINGS]; /*!< number of valid voltages */
-    uint32_t moduleVoltage_mV[BS_NR_OF_STRINGS][BS_NR_OF_MODULES]; /*!< unit: mV */
-    bool validModuleVoltage[BS_NR_OF_STRINGS][BS_NR_OF_MODULES];   /*!< 0 -> if PEC okay; 1 -> PEC error */
+    DATA_BLOCK_HEADER_s header;                                                /*!< Data block header */
+    uint8_t state;                                                             /*!< for future use */
+    int32_t packVoltage_mV[BS_NR_OF_STRINGS];                                  /*!< uint: mV */
+    int16_t cellVoltage_mV[BS_NR_OF_STRINGS][BS_NR_OF_CELL_BLOCKS_PER_STRING]; /*!< unit: mV */
+    uint64_t
+        invalidCellVoltage[BS_NR_OF_STRINGS]
+                          [BS_NR_OF_MODULES_PER_STRING]; /*!< bitmask if voltages are valid. 0->valid, 1->invalid */
+    uint16_t nrValidCellVoltages[BS_NR_OF_STRINGS];      /*!< number of valid voltages */
+    uint32_t moduleVoltage_mV[BS_NR_OF_STRINGS][BS_NR_OF_MODULES_PER_STRING]; /*!< unit: mV */
+    bool validModuleVoltage[BS_NR_OF_STRINGS][BS_NR_OF_MODULES_PER_STRING];   /*!< 0 -> if PEC okay; 1 -> PEC error */
 } DATA_BLOCK_CELL_VOLTAGE_s;
 
 /** data block struct of cell temperatures */
-typedef struct DATA_BLOCK_CELL_TEMPERATURE {
+typedef struct {
     /* This struct needs to be at the beginning of every database entry. During
      * the initialization of a database struct, uniqueId must be set to the
      * respective database entry representation in enum DATA_BLOCK_ID_e. */
     DATA_BLOCK_HEADER_s header;                                                        /*!< Data block header */
     uint8_t state;                                                                     /*!< for future use */
     int16_t cellTemperature_ddegC[BS_NR_OF_STRINGS][BS_NR_OF_TEMP_SENSORS_PER_STRING]; /*!< unit: deci &deg;C */
-    uint16_t invalidCellTemperature[BS_NR_OF_STRINGS]
-                                   [BS_NR_OF_MODULES]; /*!< bitmask if temperatures are valid. 0->valid, 1->invalid */
-    uint16_t nrValidTemperatures[BS_NR_OF_STRINGS];    /*!< number of valid temperatures in each string */
+    uint16_t invalidCellTemperature
+        [BS_NR_OF_STRINGS][BS_NR_OF_MODULES_PER_STRING]; /*!< bitmask if temperatures are valid. 0->valid, 1->invalid */
+    uint16_t nrValidTemperatures[BS_NR_OF_STRINGS];      /*!< number of valid temperatures in each string */
 } DATA_BLOCK_CELL_TEMPERATURE_s;
 
 /** data block struct of minimum and maximum values */
-typedef struct DATA_BLOCK_MIN_MAX {
+typedef struct {
     /* This struct needs to be at the beginning of every database entry. During
      * the initialization of a database struct, uniqueId must be set to the
      * respective database entry representation in enum DATA_BLOCK_ID_e. */
@@ -171,7 +180,7 @@ typedef struct DATA_BLOCK_MIN_MAX {
 } DATA_BLOCK_MIN_MAX_s;
 
 /** data block struct of pack measurement values */
-typedef struct DATA_BLOCK_PACK_VALUES {
+typedef struct {
     /* This struct needs to be at the beginning of every database entry. During
      * the initialization of a database struct, uniqueId must be set to the
      * respective database entry representation in enum DATA_BLOCK_ID_e. */
@@ -195,7 +204,7 @@ typedef struct DATA_BLOCK_PACK_VALUES {
 } DATA_BLOCK_PACK_VALUES_s;
 
 /** data block struct of current measurement */
-typedef struct DATA_BLOCK_CURRENT_SENSOR {
+typedef struct {
     /* This struct needs to be at the beginning of every database entry. During
      * the initialization of a database struct, uniqueId must be set to the
      * respective database entry representation in enum DATA_BLOCK_ID_e. */
@@ -231,59 +240,62 @@ typedef struct DATA_BLOCK_CURRENT_SENSOR {
 } DATA_BLOCK_CURRENT_SENSOR_s;
 
 /** data structure declaration of DATA_BLOCK_BALANCING_CONTROL */
-typedef struct DATA_BLOCK_BALANCING_CONTROL {
+typedef struct {
     /* This struct needs to be at the beginning of every database entry. During
      * the initialization of a database struct, uniqueId must be set to the
      * respective database entry representation in enum DATA_BLOCK_ID_e. */
-    DATA_BLOCK_HEADER_s header;                                     /*!< Data block header */
-    uint8_t enableBalancing;                                        /*!< Switch for enabling/disabling balancing  */
-    uint8_t threshold_mV;                                           /*!< balancing threshold in mV                */
-    uint8_t request;                                                /*!< balancing request per CAN                */
-    uint8_t balancingState[BS_NR_OF_STRINGS][BS_NR_OF_BAT_CELLS];   /*!< 0: no balancing, 1: balancing active     */
-    uint32_t deltaCharge_mAs[BS_NR_OF_STRINGS][BS_NR_OF_BAT_CELLS]; /*!< Difference in Depth-of-Discharge in mAs  */
+    DATA_BLOCK_HEADER_s header; /*!< Data block header */
+    uint8_t enableBalancing;    /*!< Switch for enabling/disabling balancing  */
+    uint8_t threshold_mV;       /*!< balancing threshold in mV                */
+    uint8_t request;            /*!< balancing request per CAN                */
+    uint8_t balancingState[BS_NR_OF_STRINGS]
+                          [BS_NR_OF_CELL_BLOCKS_PER_STRING]; /*!< 0: no balancing, 1: balancing active     */
+    uint32_t deltaCharge_mAs[BS_NR_OF_STRINGS]
+                            [BS_NR_OF_CELL_BLOCKS_PER_STRING]; /*!< Difference in Depth-of-Discharge in mAs  */
     uint16_t nrBalancedCells[BS_NR_OF_STRINGS];
 } DATA_BLOCK_BALANCING_CONTROL_s;
 
 /** data structure declaration of DATA_BLOCK_USER_IO_CONTROL */
-typedef struct DATA_BLOCK_SLAVE_CONTROL {
+typedef struct {
     /* This struct needs to be at the beginning of every database entry. During
      * the initialization of a database struct, uniqueId must be set to the
      * respective database entry representation in enum DATA_BLOCK_ID_e. */
-    DATA_BLOCK_HEADER_s header;                          /*!< Data block header */
-    uint8_t state;                                       /*!< for future use */
-    uint32_t eepromReadAddressToUse;                     /*!< address to read from for  slave EEPROM */
-    uint32_t eepromReadAddressLastUsed;                  /*!< last address used to read fromfor slave EEPROM */
-    uint32_t eepromWriteAddressToUse;                    /*!< address to write to for slave EEPROM */
-    uint32_t eepromWriteAddressLastUsed;                 /*!< last address used to write to for slave EEPROM */
-    uint8_t ioValueOut[BS_NR_OF_MODULES];                /*!< data to be written to the port expander */
-    uint8_t ioValueIn[BS_NR_OF_MODULES];                 /*!< data read from to the port expander */
-    uint8_t eepromValueWrite[BS_NR_OF_MODULES];          /*!< data to be written to the slave EEPROM */
-    uint8_t eepromValueRead[BS_NR_OF_MODULES];           /*!< data read from to the slave EEPROM */
-    uint8_t externalTemperatureSensor[BS_NR_OF_MODULES]; /*!< temperature from the external sensor on slave */
+    DATA_BLOCK_HEADER_s header;                            /*!< Data block header */
+    uint8_t state;                                         /*!< for future use */
+    uint32_t eepromReadAddressToUse;                       /*!< address to read from for  slave EEPROM */
+    uint32_t eepromReadAddressLastUsed;                    /*!< last address used to read fromfor slave EEPROM */
+    uint32_t eepromWriteAddressToUse;                      /*!< address to write to for slave EEPROM */
+    uint32_t eepromWriteAddressLastUsed;                   /*!< last address used to write to for slave EEPROM */
+    uint8_t ioValueOut[BS_NR_OF_MODULES_PER_STRING];       /*!< data to be written to the port expander */
+    uint8_t ioValueIn[BS_NR_OF_MODULES_PER_STRING];        /*!< data read from to the port expander */
+    uint8_t eepromValueWrite[BS_NR_OF_MODULES_PER_STRING]; /*!< data to be written to the slave EEPROM */
+    uint8_t eepromValueRead[BS_NR_OF_MODULES_PER_STRING];  /*!< data read from to the slave EEPROM */
+    uint8_t
+        externalTemperatureSensor[BS_NR_OF_MODULES_PER_STRING]; /*!< temperature from the external sensor on slave */
 } DATA_BLOCK_SLAVE_CONTROL_s;
 
 /** data block struct of cell balancing feedback */
-typedef struct DATA_BLOCK_BALANCING_FEEDBACK {
+typedef struct {
     /* This struct needs to be at the beginning of every database entry. During
      * the initialization of a database struct, uniqueId must be set to the
      * respective database entry representation in enum DATA_BLOCK_ID_e. */
-    DATA_BLOCK_HEADER_s header;                         /*!< Data block header */
-    uint8_t state;                                      /*!< for future use */
-    uint16_t value[BS_NR_OF_STRINGS][BS_NR_OF_MODULES]; /*!< unit: mV (optocoupler output) */
+    DATA_BLOCK_HEADER_s header;                                    /*!< Data block header */
+    uint8_t state;                                                 /*!< for future use */
+    uint16_t value[BS_NR_OF_STRINGS][BS_NR_OF_MODULES_PER_STRING]; /*!< unit: mV (optocoupler output) */
 } DATA_BLOCK_BALANCING_FEEDBACK_s;
 
 /** data block struct of user multiplexer values */
-typedef struct DATA_BLOCK_USER_MUX {
+typedef struct {
     /* This struct needs to be at the beginning of every database entry. During
      * the initialization of a database struct, uniqueId must be set to the
      * respective database entry representation in enum DATA_BLOCK_ID_e. */
-    DATA_BLOCK_HEADER_s header;                                   /*!< Data block header */
-    uint8_t state;                                                /*!< for future use */
-    uint16_t value[BS_NR_OF_STRINGS][8u * 2u * BS_NR_OF_MODULES]; /*!< unit: mV (mux voltage input) */
+    DATA_BLOCK_HEADER_s header;                                              /*!< Data block header */
+    uint8_t state;                                                           /*!< for future use */
+    uint16_t value[BS_NR_OF_STRINGS][8u * 2u * BS_NR_OF_MODULES_PER_STRING]; /*!< unit: mV (mux voltage input) */
 } DATA_BLOCK_USER_MUX_s;
 
 /** data block struct of cell open wire */
-typedef struct DATA_BLOCK_OPENWIRE {
+typedef struct {
     /* This struct needs to be at the beginning of every database entry. During
      * the initialization of a database struct, uniqueId must be set to the
      * respective database entry representation in enum DATA_BLOCK_ID_e. */
@@ -291,48 +303,57 @@ typedef struct DATA_BLOCK_OPENWIRE {
     uint8_t state;                          /*!< for future use */
     uint16_t nrOpenWires[BS_NR_OF_STRINGS]; /*!< number of open wires */
     uint8_t openwire[BS_NR_OF_STRINGS]
-                    [BS_NR_OF_MODULES * (BS_NR_OF_CELLS_PER_MODULE + 1u)]; /*!< 1 -> open wire, 0 -> everything ok */
+                    [BS_NR_OF_MODULES_PER_STRING *
+                     (BS_NR_OF_CELL_BLOCKS_PER_MODULE + 1u)]; /*!< 1 -> open wire, 0 -> everything ok */
 } DATA_BLOCK_OPEN_WIRE_s;
 
 /** data block struct of GPIO voltage */
-typedef struct DATA_BLOCK_ALL_GPIO_VOLTAGES {
+typedef struct {
     /* This struct needs to be at the beginning of every database entry. During
      * the initialization of a database struct, uniqueId must be set to the
      * respective database entry representation in enum DATA_BLOCK_ID_e. */
-    DATA_BLOCK_HEADER_s header;                                                               /*!< Data block header */
-    uint8_t state;                                                                            /*!< for future use */
-    uint16_t gpioVoltages_mV[BS_NR_OF_STRINGS][BS_NR_OF_MODULES * BS_NR_OF_GPIOS_PER_MODULE]; /*!< unit: mV */
-    uint16_t invalidGpioVoltages[BS_NR_OF_STRINGS]
-                                [BS_NR_OF_MODULES]; /*!< bitmask if voltages are valid. 0->valid, 1->invalid */
+    DATA_BLOCK_HEADER_s header; /*!< Data block header */
+    uint8_t state;              /*!< for future use */
+    uint16_t gpioVoltages_mV[BS_NR_OF_STRINGS]
+                            [BS_NR_OF_MODULES_PER_STRING * BS_NR_OF_GPIOS_PER_MODULE]; /*!< unit: mV */
+    uint16_t
+        invalidGpioVoltages[BS_NR_OF_STRINGS]
+                           [BS_NR_OF_MODULES_PER_STRING]; /*!< bitmask if voltages are valid. 0->valid, 1->invalid */
 } DATA_BLOCK_ALL_GPIO_VOLTAGES_s;
 
 /** data block struct of error flags */
-typedef struct DATA_BLOCK_ERRORSTATE {
+typedef struct {
     /* This struct needs to be at the beginning of every database entry. During
      * the initialization of a database struct, uniqueId must be set to the
      * respective database entry representation in enum DATA_BLOCK_ID_e. */
-    DATA_BLOCK_HEADER_s header;                                       /*!< Data block header */
-    uint8_t currentSensor[BS_NR_OF_STRINGS];                          /*!< 0 -> no error, 1 -> error, not responding */
-    uint8_t stringContactor[BS_NR_OF_STRINGS];                        /*!< 0 -> no error, 1 -> error, not responding */
-    uint8_t prechargeContactor[BS_NR_OF_STRINGS];                     /*!< 0 -> no error, 1 -> error, not responding */
-    uint8_t interlock;                                                /*!< 0 -> no error, 1 -> error */
-    uint8_t crcError[BS_NR_OF_STRINGS];                               /*!< 0 -> no error, 1 -> error */
-    uint8_t muxError[BS_NR_OF_STRINGS];                               /*!< 0 -> no error, 1 -> error */
-    uint8_t spiError[BS_NR_OF_STRINGS];                               /*!< 0 -> no error, 1 -> error */
-    uint8_t afeConfigurationError[BS_NR_OF_STRINGS];                  /*!< 0 -> no error, 1 -> error */
-    uint8_t afeCellvoltageError[BS_NR_OF_STRINGS];                    /*!< 0 -> no error, 1 -> error */
-    uint8_t afeCellTemperatureError[BS_NR_OF_STRINGS];                /*!< 0 -> no error, 1 -> error */
-    uint8_t baseCellVoltageMeasurementTimeout;                        /*!< 0 -> no error, 1 -> error */
-    uint8_t redundancy0CellVoltageMeasurementTimeout;                 /*!< 0 -> no error, 1 -> error */
-    uint8_t baseCellTemperatureMeasurementTimeout;                    /*!< 0 -> no error, 1 -> error */
-    uint8_t redundancy0CellTemperatureMeasurementTimeout;             /*!< 0 -> no error, 1 -> error */
-    uint8_t currentMeasurementTimeout[BS_NR_OF_STRINGS];              /*!< 0 -> no error, 1 -> error */
-    uint8_t currentMeasurementError[BS_NR_OF_STRINGS];                /*!< 0 -> no error, 1 -> error */
-    uint8_t currentSensorTimeoutV1[BS_NR_OF_STRINGS];                 /*!< 0 -> no error, 1 -> error */
-    uint8_t currentSensorTimeoutV3[BS_NR_OF_STRINGS];                 /*!< 0 -> no error, 1 -> error */
-    uint8_t currentSensorPowerTimeout[BS_NR_OF_STRINGS];              /*!< 0 -> no error, 1 -> error */
-    uint8_t powerMeasurementError[BS_NR_OF_STRINGS];                  /*!< 0 -> no error, 1 -> error */
-    uint8_t insulationError;                                          /*!< 0 -> no error, 1 -> error */
+    DATA_BLOCK_HEADER_s header;                           /*!< Data block header */
+    uint8_t currentSensor[BS_NR_OF_STRINGS];              /*!< 0 -> no error, 1 -> error, not responding */
+    uint8_t stringContactor[BS_NR_OF_STRINGS];            /*!< 0 -> no error, 1 -> error, not responding */
+    uint8_t prechargeContactor[BS_NR_OF_STRINGS];         /*!< 0 -> no error, 1 -> error, not responding */
+    uint8_t interlock;                                    /*!< 0 -> no error, 1 -> error */
+    uint8_t crcError[BS_NR_OF_STRINGS];                   /*!< 0 -> no error, 1 -> error */
+    uint8_t muxError[BS_NR_OF_STRINGS];                   /*!< 0 -> no error, 1 -> error */
+    uint8_t spiError[BS_NR_OF_STRINGS];                   /*!< 0 -> no error, 1 -> error */
+    uint8_t afeConfigurationError[BS_NR_OF_STRINGS];      /*!< 0 -> no error, 1 -> error */
+    uint8_t afeCellvoltageError[BS_NR_OF_STRINGS];        /*!< 0 -> no error, 1 -> error */
+    uint8_t afeCellTemperatureError[BS_NR_OF_STRINGS];    /*!< 0 -> no error, 1 -> error */
+    uint8_t baseCellVoltageMeasurementTimeout;            /*!< 0 -> no error, 1 -> error */
+    uint8_t redundancy0CellVoltageMeasurementTimeout;     /*!< 0 -> no error, 1 -> error */
+    uint8_t baseCellTemperatureMeasurementTimeout;        /*!< 0 -> no error, 1 -> error */
+    uint8_t redundancy0CellTemperatureMeasurementTimeout; /*!< 0 -> no error, 1 -> error */
+    uint8_t currentMeasurementTimeout[BS_NR_OF_STRINGS];  /*!< 0 -> no error, 1 -> error */
+    uint8_t currentMeasurementError[BS_NR_OF_STRINGS];    /*!< 0 -> no error, 1 -> error */
+    uint8_t currentSensorTimeoutV1[BS_NR_OF_STRINGS];     /*!< 0 -> no error, 1 -> error */
+    uint8_t currentSensorTimeoutV3[BS_NR_OF_STRINGS];     /*!< 0 -> no error, 1 -> error */
+    uint8_t currentSensorPowerTimeout[BS_NR_OF_STRINGS];  /*!< 0 -> no error, 1 -> error */
+    uint8_t powerMeasurementError[BS_NR_OF_STRINGS];      /*!< 0 -> no error, 1 -> error */
+    bool insulationMeasurementValid;                      /*!< false -> not valid, true -> valid */
+    bool
+        criticalLowInsulationResistance; /*!< false -> no critical resistance measured, true -> critical low resistance measured */
+    bool
+        warnableLowInsulationResistance; /*!< false -> no warnable resistance measured, true -> warnable low resistance measured */
+    bool
+        insulationGroundFaultDetected; /*!< false -> no insulation fault between HV and chassis detected, true -> insulation fault detected */
     uint8_t fuseStateNormal[BS_NR_OF_STRINGS];                        /*!< 0 -> fuse ok,  1 -> fuse tripped */
     uint8_t fuseStateCharge[BS_NR_OF_STRINGS];                        /*!< 0 -> fuse ok,  1 -> fuse tripped */
     uint8_t open_wire[BS_NR_OF_STRINGS];                              /*!< 0 -> no error, 1 -> error */
@@ -349,13 +370,19 @@ typedef struct DATA_BLOCK_ERRORSTATE {
     uint8_t plausibilityCheckCelltemperature[BS_NR_OF_STRINGS];       /*!< 0 -> no error, else: error */
     uint8_t deepDischargeDetected[BS_NR_OF_STRINGS];                  /*!< 0 -> no error, 1 -> error */
     uint8_t currentOnOpenString[BS_NR_OF_STRINGS];                    /*!< 0 -> no error, 1 -> error */
-    uint8_t sbcFinState;  /*!< 0 -> okay, 1 -> error: short-circuit to RSTB */
-    uint8_t sbcRstbState; /*!< 0 -> okay, 1 -> error: RSTB not working */
-    uint8_t i2cPexError;  /*!< the I2C port expander does not work as expected */
+    uint8_t sbcFinState;           /*!< 0 -> okay, 1 -> error: short-circuit to RSTB */
+    uint8_t sbcRstbState;          /*!< 0 -> okay, 1 -> error: RSTB not working */
+    uint8_t i2cPexError;           /*!< the I2C port expander does not work as expected */
+    uint8_t framReadCrcError;      /*!< 0 if read CRC matches with CRC of read data , 1 otherwise */
+    bool timingViolationEngine;    /*!< timing violation in engine task */
+    bool timingViolation1ms;       /*!< timing violation in 1ms task */
+    bool timingViolation10ms;      /*!< timing violation in 10ms task */
+    bool timingViolation100ms;     /*!< timing violation in 100ms task */
+    bool timingViolation100msAlgo; /*!< timing violation in 100ms algorithm task */
 } DATA_BLOCK_ERRORSTATE_s;
 
 /** data block struct of contactor feedback */
-typedef struct DATA_BLOCK_CONTFEEDBACK {
+typedef struct {
     /* This struct needs to be at the beginning of every database entry. During
      * the initialization of a database struct, uniqueId must be set to the
      * respective database entry representation in enum DATA_BLOCK_ID_e. */
@@ -364,7 +391,7 @@ typedef struct DATA_BLOCK_CONTFEEDBACK {
 } DATA_BLOCK_CONTACTOR_FEEDBACK_s;
 
 /** data block struct of interlock feedback */
-typedef struct DATA_BLOCK_INTERLOCK_FEEDBACK {
+typedef struct {
     /* This struct needs to be at the beginning of every database entry. During
      * the initialization of a database struct, uniqueId must be set to the
      * respective database entry representation in enum DATA_BLOCK_ID_e. */
@@ -377,7 +404,7 @@ typedef struct DATA_BLOCK_INTERLOCK_FEEDBACK {
 } DATA_BLOCK_INTERLOCK_FEEDBACK_s;
 
 /** data block struct of sof limits */
-typedef struct DATA_BLOCK_SOF {
+typedef struct {
     /* This struct needs to be at the beginning of every database entry. During
      * the initialization of a database struct, uniqueId must be set to the
      * respective database entry representation in enum DATA_BLOCK_ID_e. */
@@ -416,7 +443,7 @@ typedef struct {
 } DATA_BLOCK_SYSTEMSTATE_s;
 
 /** data block struct of the maximum safe limits */
-typedef struct DATA_BLOCK_MSL_FLAG {
+typedef struct {
     /* This struct needs to be at the beginning of every database entry. During
      * the initialization of a database struct, uniqueId must be set to the
      * respective database entry representation in enum DATA_BLOCK_ID_e. */
@@ -438,7 +465,7 @@ typedef struct DATA_BLOCK_MSL_FLAG {
 } DATA_BLOCK_MSL_FLAG_s;
 
 /** data block struct of the recommended safety limit */
-typedef struct DATA_BLOCK_RSL_FLAG {
+typedef struct {
     /* This struct needs to be at the beginning of every database entry. During
      * the initialization of a database struct, uniqueId must be set to the
      * respective database entry representation in enum DATA_BLOCK_ID_e. */
@@ -458,7 +485,7 @@ typedef struct DATA_BLOCK_RSL_FLAG {
 } DATA_BLOCK_RSL_FLAG_s;
 
 /** data block struct of the maximum operating limit */
-typedef struct DATA_BLOCK_MOL_FLAG {
+typedef struct {
     /* This struct needs to be at the beginning of every database entry. During
      * the initialization of a database struct, uniqueId must be set to the
      * respective database entry representation in enum DATA_BLOCK_ID_e. */
@@ -478,7 +505,7 @@ typedef struct DATA_BLOCK_MOL_FLAG {
 } DATA_BLOCK_MOL_FLAG_s;
 
 /** data block struct of sox */
-typedef struct DATA_BLOCK_SOX {
+typedef struct {
     /* This struct needs to be at the beginning of every database entry. During
      * the initialization of a database struct, uniqueId must be set to the
      * respective database entry representation in enum DATA_BLOCK_ID_e. */
@@ -489,13 +516,16 @@ typedef struct DATA_BLOCK_SOX {
     float averageSoe_perc[BS_NR_OF_STRINGS];  /*!< 0.0 <= averageSoe <= 100.0 */
     float minimumSoe_perc[BS_NR_OF_STRINGS];  /*!< 0.0 <= minimumSoe <= 100.0  */
     float maximumSoe_perc[BS_NR_OF_STRINGS];  /*!< 0.0 <= maximumSoe <= 100.0  */
+    float averageSoh_perc[BS_NR_OF_STRINGS];  /*!< 0.0 <= averageSoh <= 100.0 */
+    float minimumSoh_perc[BS_NR_OF_STRINGS];  /*!< 0.0 <= minimumSoh <= 100.0  */
+    float maximumSoh_perc[BS_NR_OF_STRINGS];  /*!< 0.0 <= maximumSoh <= 100.0  */
     uint32_t maximumSoe_Wh[BS_NR_OF_STRINGS]; /*!< maximum string energy in Wh */
     uint32_t averageSoe_Wh[BS_NR_OF_STRINGS]; /*!< average string energy in Wh */
     uint32_t minimumSoe_Wh[BS_NR_OF_STRINGS]; /*!< minimum string energy in Wh */
 } DATA_BLOCK_SOX_s;
 
 /** data block struct of can state request */
-typedef struct DATA_BLOCK_STATEREQUEST {
+typedef struct {
     /* This struct needs to be at the beginning of every database entry. During
      * the initialization of a database struct, uniqueId must be set to the
      * respective database entry representation in enum DATA_BLOCK_ID_e. */
@@ -503,7 +533,7 @@ typedef struct DATA_BLOCK_STATEREQUEST {
     uint8_t stateRequestViaCan;         /*!< state request */
     uint8_t previousStateRequestViaCan; /*!< previous state request */
     uint8_t stateRequestViaCanPending;  /*!< pending state request */
-    uint8_t state;                      /*!< state */
+    uint8_t stateCounter;               /*!< counts state updates */
 } DATA_BLOCK_STATEREQUEST_s;
 
 /** data block struct of the moving average algorithm */
@@ -527,29 +557,28 @@ typedef struct {
 } DATA_BLOCK_MOVING_AVERAGE_s;
 
 /** data block struct of insulation monitoring device measurement */
-typedef struct DATA_BLOCK_INSULATION_MONITORING {
+typedef struct {
     /* This struct needs to be at the beginning of every database entry. During
      * the initialization of a database struct, uniqueId must be set to the
      * respective database entry representation in enum DATA_BLOCK_ID_e. */
-    DATA_BLOCK_HEADER_s header;                /*!< Data block header */
-    uint8_t valid;                             /*!< 0 -> valid, 1 -> resistance unreliable */
-    uint8_t state;                             /*!< 0 -> ok , 1 -> resistance too low/error  */
-    uint32_t insulationResistance_kOhm;        /*!< insulation resistance measured in kOhm */
-    uint8_t insulationFault;                   /*!< 0 = no error, 1 = error */
-    uint8_t insulationWarning;                 /*!< 0 = no warning, 1 = warning */
-    uint8_t chassisFault;                      /*!< 0 = no error, 1 = error */
-    uint8_t systemFailure;                     /*!< 0 = no error, 1 = error */
-    uint8_t calibrationRunning;                /*!< 0 = not running, 1 = running */
-    uint8_t selfTestRunning;                   /*!< 0 = not running, 1 = running */
-    uint8_t insulationMeasurements;            /*!< 0 = Active, 1 = Inactive */
-    uint8_t aliveStatusDetection;              /*!< 0 = Ok, 1 = Failure */
-    uint8_t outdatedInsulationResistanceValue; /*!< 0 = Valid, 1 = Outdated */
-    uint8_t testImcOverAll;                    /*!< 0 = NotRunning, 1 = Running */
-    uint8_t testImcParameterConfiguration;     /*!< 0 = NotWarning, 1 = Warning */
+    DATA_BLOCK_HEADER_s header;         /*!< Data block header */
+    bool isImdRunning;                  /*!< true -> Insulation resistance measurement active, false -> not active */
+    bool isInsulationMeasurementValid;  /*!< true -> resistance value valid, false -> resistance unreliable */
+    uint32_t insulationResistance_kOhm; /*!< insulation resistance measured in kOhm */
+    bool
+        areDeviceFlagsValid; /*!< true -> flags below this database entry valid, false -> flags unreliable e.g. if device error detected */
+    bool
+        dfIsCriticalResistanceDetected; /*!< device status flag: false -> resistance value okay, true -> resistance value too low/error */
+    bool dfIsWarnableResistanceDetected; /*!< true: warning threshold violated, false: no warning active */
+    bool dfIsChassisFaultDetected;       /*!< true: short between HV potential and chassis detected, false: no error */
+    bool dfIsChassisShortToHvPlus;       /*!< true: bias/tendency to the location of the insulation fault to HV plus */
+    bool dfIsChassisShortToHvMinus;      /*!< true: bias/tendency to the location of the insulation fault to HV minus */
+    bool dfIsDeviceErrorDetected;        /*!< true: device error detected, false: no error detected */
+    bool dfIsMeasurmentedUpToDate;       /*!< true: measurement up to-date, false: outdated */
 } DATA_BLOCK_INSULATION_MONITORING_s;
 
 /** data block struct for the I2C humidity/temperature sensor */
-typedef struct DATA_BLOCK_HTSEN {
+typedef struct {
     /* This struct needs to be at the beginning of every database entry. During
      * the initialization of a database struct, uniqueId must be set to the
      * respective database entry representation in enum DATA_BLOCK_ID_e. */
@@ -559,7 +588,7 @@ typedef struct DATA_BLOCK_HTSEN {
 } DATA_BLOCK_HTSEN_s;
 
 /** data block struct of internal ADC voltage measurement */
-typedef struct DATA_BLOCK_ADC_VOLTAGE {
+typedef struct {
     /* This struct needs to be at the beginning of every database entry. During
      * the initialization of a database struct, uniqueId must be set to the
      * respective database entry representation in enum DATA_BLOCK_ID_e. */
@@ -568,7 +597,7 @@ typedef struct DATA_BLOCK_ADC_VOLTAGE {
 } DATA_BLOCK_ADC_VOLTAGE_s;
 
 /** data block struct for the database built-in self-test */
-typedef struct DATA_BLOCK_DUMMY_FOR_SELF_TEST {
+typedef struct {
     /* This struct needs to be at the beginning of every database entry. During
      * the initialization of a database struct, uniqueId must be set to the
      * respective database entry representation in enum DATA_BLOCK_ID_e. */

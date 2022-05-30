@@ -3,7 +3,7 @@
 .. |timestamp| date:: %Y-%m-%d %H:%M:%S
 
 .. |foxbms| replace:: foxBMS 2
-.. |version_foxbms| replace:: ``1.2.1``
+.. |version_foxbms| replace:: ``1.3.0``
 .. |github_foxbms| replace:: https://github.com/foxBMS/
 .. |foxbms_repository| replace:: https://github.com/foxBMS/foxbms-2
 .. _Fraunhofer IISB: https://www.iisb.fraunhofer.de
@@ -37,9 +37,9 @@
 .. |version_hcg| replace:: ``04.07.01``
 
 .. _LLVM: https://releases.llvm.org
-.. _github.com/llvm: https://github.com/llvm/llvm-project/releases/tag/llvmorg-11.0.1
-.. |version_llvm| replace:: ``11.0.1``
-.. |path_llvm| replace:: ``C:\Program Files\LLVM\11.0.1``
+.. _github.com/llvm: https://github.com/llvm/llvm-project/releases/tag/llvmorg-13.0.0
+.. |version_llvm| replace:: ``13.0.0``
+.. |path_llvm| replace:: ``C:\Program Files\LLVM\13.0.0``
 
 .. |version_pcan_se| replace:: ``Version 6.4.1``
 .. |version_sym_file| replace:: ``Version 5.0``
@@ -91,13 +91,7 @@
 
 .. _Test Explorer Ceedling extension license: https://marketplace.visualstudio.com/items/numaru.vscode-ceedling-test-adapter/license
 
-.. _Cppcheck project website: http://cppcheck.sourceforge.net/
-
 .. _MISRA C: https://www.misra.org.uk/
-
-.. _list of supported MISRA rules: http://cppcheck.sourceforge.net/misra.php
-
-.. _Cppcheck manual: http://cppcheck.sourceforge.net/manual.pdf
 
 .. |nxp775| replace:: MC33775A
 
@@ -113,11 +107,13 @@
 .. |msl| replace:: *MSL*
 
 .. |adi| replace:: Analog Devices
+.. |mxm| replace:: Maxim Integrated
 
 .. |ltc6804-1| replace:: LTC6804-1
 .. |ltc6811-1| replace:: LTC6811-1
 .. |ltc6813-1| replace:: LTC6813-1
 .. |ltc6820| replace:: LTC6820
+.. |max17841b| replace:: MAX17841B
 .. |master| replace:: foxBMS Master Unit
 .. |masters| replace:: foxBMS Master Units
 .. |slave| replace:: foxBMS Slave Unit
@@ -131,9 +127,11 @@
 .. |bms-18-slave| replace:: Slave 18-cell board
 
 .. |I2C| replace:: I\ :sup:`2`\ C
+.. |SPI| replace:: SPI
 
 .. |tbc| replace:: This section of the documentation is not yet complete.
 
+.. |VBAT|  replace:: ``VBAT``
 .. |VBAT-|  replace:: ``VBAT-``
 .. |FUSED_VBAT-|  replace:: ``FUSED_VBAT-``
 .. |VBAT+|  replace:: ``VBAT+``
@@ -181,9 +179,6 @@
 .. |CELL_15-|  replace:: ``CELL_15-``
 .. |CELL_16-|  replace:: ``CELL_16-``
 .. |CELL_17-|  replace:: ``CELL_17-``
-
-.. |Ohm|    replace:: :math:`{\Omega}`
-.. |kOhm|   replace:: :math:`{k\Omega}`
 
 .. |DC+|  replace:: ``DC+``
 .. |DC-|  replace:: ``DC-``

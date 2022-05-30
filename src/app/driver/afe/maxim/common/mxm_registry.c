@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    mxm_registry.c
  * @author  foxBMS Team
  * @date    2020-07-16 (date of creation)
- * @updated 2021-12-06 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup DRIVERS
  * @prefix  MXM
  *
@@ -83,7 +84,7 @@ extern void MXM_MonRegistryInit(MXM_MONITORING_INSTANCE_s *pState) {
         entry->deviceAddress        = 0u;
         entry->deviceID             = 0u;
         entry->model                = MXM_MODEL_ID_NONE;
-        entry->siliconVersion       = MXM_siliconVersion_0;
+        entry->siliconVersion       = MXM_SILICON_VERSION_0;
         entry->registerStatus1      = MXM_MON_REGISTRY_STATUS_FMEA_DEFAULT;
         entry->registerStatus2      = MXM_MON_REGISTRY_STATUS_FMEA_DEFAULT;
         entry->registerStatus3      = MXM_MON_REGISTRY_STATUS_FMEA_DEFAULT;
@@ -94,6 +95,8 @@ extern void MXM_MonRegistryInit(MXM_MONITORING_INSTANCE_s *pState) {
 
 extern STD_RETURN_TYPE_e MXM_MonRegistryConnectDevices(MXM_MONITORING_INSTANCE_s *pState, uint8_t numberOfDevices) {
     FAS_ASSERT(pState != NULL_PTR);
+    /* AXIVION Routine Generic-MissingParameterAssert: numberOfDevices: parameter accepts whole range */
+
     STD_RETURN_TYPE_e retval = STD_OK;
     if (numberOfDevices > MXM_MAXIMUM_NR_OF_MODULES) {
         retval = STD_NOT_OK;
@@ -177,11 +180,11 @@ extern void MXM_MonRegistryParseVersionIntoDevices(MXM_MONITORING_INSTANCE_s *pS
         uint16_t version = 0;
         MXM_ExtractValueFromRegister(
             pState->rxBuffer[bufferPosition], pState->rxBuffer[bufferPosition + 1u], MXM_REG_VERSION_VER, &version);
-        if (version >= (uint16_t)MXM_siliconVersion_invalid) {
-            currentDevice->siliconVersion = MXM_siliconVersion_invalid;
+        if (version >= (uint16_t)MXM_SILICON_VERSION_INVALID) {
+            currentDevice->siliconVersion = MXM_SILICON_VERSION_INVALID;
         } else {
             /* AXIVION Next Line Style MisraC2012-10.5: All invalid values have been cleared. */
-            currentDevice->siliconVersion = (MXM_siliconVersion_e)version;
+            currentDevice->siliconVersion = (MXM_SILICON_VERSION_e)version;
         }
     }
 }
@@ -222,6 +225,9 @@ extern void MXM_MonRegistryParseStatusFmeaIntoDevices(MXM_MONITORING_INSTANCE_s 
                 break;
             case (uint8_t)MXM_REG_FMEA2:
                 currentDevice->registerFmea2 = registerValue;
+                break;
+            case (uint8_t)MXM_REG_BALSTAT:
+                currentDevice->registerBalstat = registerValue;
                 break;
             default:
                 /* unknown register, just discard */

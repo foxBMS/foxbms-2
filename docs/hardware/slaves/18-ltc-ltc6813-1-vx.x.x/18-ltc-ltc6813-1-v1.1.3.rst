@@ -1,10 +1,10 @@
 .. include:: ./../../../macros.txt
 .. include:: ./../../../units.txt
 
-.. _LTC6813_1_BASED_18_CELL_SLAVE____V1_1_3___AND_ABOVE_:
+.. _LTC6813_1_BASED_18_CELL_SLAVE___V1_1_3___AND_ABOVE:
 
-LTC6813-1-based 18-Cell Slave (``v1.1.3`` and above)
-====================================================
+LTC6813-1-based 18-Cell Slave ``v1.1.3`` and above
+==================================================
 
 .. |local_slave_version_start|  replace:: ``1.1.3``
 .. |local_slave_version|  replace:: ``above``
@@ -22,7 +22,39 @@ Overview
 .. hint::
 
    All connector pinouts described below follow the
-   :ref:`CONVENTION_FOR_CONNECTOR_PIN_NUMBERING`.
+   :ref:`CONVENTION_FOR_MOLEX_3_0_CONNECTOR_PIN_NUMBERING`.
+
+--------------
+Specifications
+--------------
+
+^^^^^^^^^^^^^^^^^^
+Electrical Ratings
+^^^^^^^^^^^^^^^^^^
+
+The current consumption from the module has been measured at 64.8 |_| V module
+voltage, which is equivalent to a cell voltage of 3.6 |_| V per cell.
+No sense lines have been connected from this measurement (as the impact of cell
+voltage sensing is negligible on the current consumption).
+
+The DC supply current has been measured with a voltage of 12 |_| V and no
+|VBAT| or cells connected.
+
+.. csv-table:: Electrical Ratings
+   :name: 6813-1_slave_18cell_v1.1.3_electrical_ratings
+   :header-rows: 1
+   :delim: ;
+   :file: ./18-ltc-ltc6813-1-v1.1.3/18-ltc-ltc6813-1-v1.1.3_electrical-ratings.csv
+
+^^^^^^^^^^^^^^^^^^^^^
+Mechanical Dimensions
+^^^^^^^^^^^^^^^^^^^^^
+
+.. csv-table:: Mechanical Dimensions
+   :name: 6813-1_slave_18cell_v1.1.3_mechanical_dimensions
+   :header-rows: 1
+   :delim: ;
+   :file: ./18-ltc-ltc6813-1-v1.1.3/18-ltc-ltc6813-1-v1.1.3_mechanical-dimensions.csv
 
 ^^^^^^^^^^^^^
 Block Diagram
@@ -35,7 +67,7 @@ The block diagram of the |BMS-Slave| is shown in
 .. figure:: ./18-ltc-ltc6813-1-v1.1.3/18-ltc-ltc6813-1-v1.1.3.png
    :width: 100 %
 
-   |BMS-Slave| 12-Cell Block Diagram
+   |BMS-Slave| 18-Cell Block Diagram
 
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 Schematic and Board Layout
@@ -44,11 +76,7 @@ Schematic and Board Layout
 More information about the board schematic and layout files can be found in
 section :ref:`DESIGN_RESOURCES`.
 
-^^^^^^^^^^^^^^^^^^^^^
-Mechanical Dimensions
-^^^^^^^^^^^^^^^^^^^^^
 
-The size of the PCB is 160x100mm.
 
 ---------
 Functions
@@ -110,10 +138,10 @@ parallel.
 The MOSFET switches (T1500 - T1517) that control the connection to the cells
 are controlled by the primary |ltc6813-1| monitoring IC.
 The |ltc6813-1| on the secondary unit does not support balancing.
-The resistor value of 2x 130 |Ohm| results in a balancing current of about 55mA
-at a cell voltage of 3.6V.
+The resistor value of 2x 130 |_| |Ohm| results in a balancing current of about
+55 |_| mA at a cell voltage of 3.6 |_| V.
 This current results in a power dissipation of about 0.2W per balancing
-channel (at 3.6V).
+channel (at 3.6 |_| V).
 
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Global Cell Balancing Feedback
@@ -146,13 +174,14 @@ The pinout is identical for the primary and secondary unit and is described in
    :delim: ;
    :file: ./18-ltc-ltc6813-1-v1.1.3/18-ltc-ltc6813-1-v1.1.3_temperature-sensor-connector.csv
 
-Standard 10\ |kOhm| NTC resistors are recommended for use.
+Standard 10 |_| |kOhm| NTC resistors are recommended for use.
 When using other values than these, the series resistors
 (R100-R107) on the board may have to be adjusted.
 Please note that the accuracy of the internal voltage reference VREF2 decreases
-heavily with a load of over 3mA.
-Using 8x 10\ |kOhm| NTC resistors with the corresponding 10\ |kOhm| series
-resistors results in a current of 1.2mA (at 20°C) which is drawn from VREF2.
+heavily with a load of over 3 |_| mA.
+Using 8x 10 |_| |kOhm| NTC resistors with the corresponding 10 |_| |kOhm|
+series resistors results in a current of 1.2mA (at 20 |_| °C) which is drawn
+from VREF2.
 
 Each 8 temperature sensors are connected to an analog multiplexer.
 The analog multiplexer can be controlled via |I2C| by the |ltc6813-1|
@@ -274,8 +303,8 @@ Software Timer
 
 The internal software timer of the |ltc6813-1| can be enabled/disabled by a
 dedicated external pin (SWTEN, pin 36 of the |ltc6813-1|).
-In order to support all features, the foxBMS BMS-Slave board offers a possibility
-to switch the software timer.
+In order to support all features, the foxBMS BMS-Slave board offers a
+possibility to switch the software timer.
 The software timer is enabled in the standard configuration, which means pin
 36 is pulled to VREG via a zero-ohm resistor (R1407).
 The timer can be disabled by removing the resistor R1407 and placing a
@@ -288,9 +317,9 @@ Daisy Chain Communication Current
 
 The daisy chain communication current can be set by the resistors R1400 and
 R1402.
-The default value is 820 |Ohm| for R1402 and 1.2\ |kOhm| for R1400.
+The default value is 820 |_| |Ohm| for R1402 and 1.2 |_| |kOhm| for R1400.
 This values result in a bias current of approximately 1mA and a differential
-signal amplitude of 1.18V.
+signal amplitude of 1.18 |_| V.
 Theses values are suitable for high noise environments with cable lengths of
 over 50m.
 More information can be found in the |ltc6813-1| data sheet.
@@ -348,9 +377,9 @@ External Isolated |DC-| Supply
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 It is possible to supply the |BMS-Slave| by an external DC power supply with a
-voltage range of 8V to 24V.
+voltage range of 8 |_| V to 24 |_| V.
 The DC input is protected against reverse voltage and over-current
-(with a 1.25A fuse).
+(with a 1.25 |_| A fuse).
 The external DC supply has to be connected on connector X1001 or X1002 (both
 connectors are in parallel for daisy chaining the supply).
 The pinout of the connectors X1001 and X1002 is shown in

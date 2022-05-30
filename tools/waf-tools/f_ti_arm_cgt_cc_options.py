@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -129,3 +129,8 @@ def load_cc_options(conf):  # pylint: disable-msg=redefined-outer-name
         conf.env.append_unique("CFLAGS_HAL", cflags_hal)
     if cflags_os:
         conf.env.append_unique("CFLAGS_OS", cflags_os)
+
+    conf.env.append_unique(
+        "FOXBMS_2_CCS_VERSION_STRICT",
+        conf.env.cc_options.get("FOXBMS_2_CCS_VERSION_STRICT", "NOT SET"),
+    )

@@ -17,4 +17,7 @@ LTC-based Interfaces
 MAXIM-based Interfaces
 ----------------------
 
-|tbc|
+.. toctree::
+    :maxdepth: 1
+
+    ./interfaces/maxim-max17841b-vx.x.x/maxim-max17841b-v1.0.0

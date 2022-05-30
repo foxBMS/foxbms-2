@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    test_mxm_1785x.c
  * @author  foxBMS Team
  * @date    2020-07-02 (date of creation)
- * @updated 2021-12-06 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  MXM
  *
@@ -57,6 +58,7 @@
 #include "unity.h"
 #include "Mockafe_plausibility.h"
 #include "Mockdatabase.h"
+#include "Mockdiag.h"
 #include "Mockfassert.h"
 #include "Mockmxm_17841b.h"
 #include "Mockmxm_41b_register_map.h"
@@ -147,6 +149,19 @@ void tearDown(void) {
 /*========== Test Cases =====================================================*/
 void testMXM_ParseVoltageReadallTest(void) {
     TEST_ASSERT_PASS_ASSERT(TEST_ASSERT_EQUAL(STD_OK, TEST_MXM_ParseVoltageReadallTest(&mxm_instance)));
+}
+
+/** This test aims to provoke the assertion that checks if the battery system fits the internal configuration */
+void testMXM_ConstructBalancingBufferTest(void) {
+    /* skip this test if the BMS configuration does not fit to this test
+       (we cannot run with more cells than Maxim supports) */
+    if ((BS_NR_OF_CELL_BLOCKS_PER_MODULE > MXM_MAXIMUM_NR_OF_CELLS_PER_MODULE)) {
+        TEST_PASS_MESSAGE("This test is skipped due to the configuration of the BMS.");
+    }
+    TEST_ASSERT_FAIL_ASSERT(MXM_ConstructBalancingBuffer(NULL_PTR));
+    DATA_BLOCK_BALANCING_CONTROL_s balancingTable = {.header.uniqueId = DATA_BLOCK_ID_BALANCING_CONTROL};
+    MXM_BALANCING_STATE_s balancingInstance       = {.pBalancingControl_table = &balancingTable};
+    TEST_ASSERT_PASS_ASSERT(MXM_ConstructBalancingBuffer(&balancingInstance));
 }
 
 void testTEST_MXM_ParseVoltageReadallNullPointer(void) {
@@ -277,7 +292,7 @@ void testMXM_ProcessOpenWire1SatelliteAlternatingPattern(void) {
     /* simulate 1 satellite */
     MXM_5XGetNumberOfSatellites_ExpectAndReturn(mxm_instance.pInstance5X, 1);
     /* don't care about the database call */
-    DATA_Write_1_DataBlock_IgnoreAndReturn(STD_OK);
+    DATA_Write1DataBlock_IgnoreAndReturn(STD_OK);
     TEST_ASSERT_PASS_ASSERT(MXM_ProcessOpenWire(&mxm_instance));
 
     /* check for the injected pattern */

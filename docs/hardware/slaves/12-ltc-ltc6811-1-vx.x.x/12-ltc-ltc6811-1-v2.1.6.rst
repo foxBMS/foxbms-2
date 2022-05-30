@@ -1,10 +1,10 @@
 .. include:: ./../../../macros.txt
 .. include:: ./../../../units.txt
 
-.. _LTC6811_1_BASED_12_CELL_SLAVE____V2_1_6___AND_ABOVE_:
+.. _LTC6811_1_BASED_12_CELL_SLAVE___V2_1_6___AND_ABOVE:
 
-LTC6811-1-based 12-Cell Slave (``v2.1.6`` and above)
-====================================================
+LTC6811-1-based 12-Cell Slave ``v2.1.6`` and above
+==================================================
 
 .. |local_slave_version_start|  replace:: ``2.1.6``
 .. |local_slave_version|  replace:: ``above``
@@ -22,7 +22,39 @@ Overview
 .. hint::
 
    All connector pinouts described below follow the
-   :ref:`CONVENTION_FOR_CONNECTOR_PIN_NUMBERING`.
+   :ref:`CONVENTION_FOR_MOLEX_3_0_CONNECTOR_PIN_NUMBERING`.
+
+--------------
+Specifications
+--------------
+
+^^^^^^^^^^^^^^^^^^
+Electrical Ratings
+^^^^^^^^^^^^^^^^^^
+
+The current consumption from the module has been measured at 43.2 |_| V module
+voltage, which is equivalent to a cell voltage of 3.6 |_| V per cell.
+No sense lines have been connected from this measurement (as the impact of cell
+voltage sensing is negligible on the current consumption).
+
+The DC supply current has been measured with a voltage of 12 |_| V and no
+|VBAT| or cells connected.
+
+.. csv-table:: Electrical Ratings
+   :name: 6811-1_slave_12cell_v2.1.6_electrical_ratings
+   :header-rows: 1
+   :delim: ;
+   :file: ./12-ltc-ltc6811-1-v2.1.6/12-ltc-ltc6811-1-v2.1.6_electrical-ratings.csv
+
+^^^^^^^^^^^^^^^^^^^^^
+Mechanical Dimensions
+^^^^^^^^^^^^^^^^^^^^^
+
+.. csv-table:: Mechanical Dimensions
+   :name: 6811-1_slave_12cell_v2.1.6_mechanical_dimensions
+   :header-rows: 1
+   :delim: ;
+   :file: ./12-ltc-ltc6811-1-v2.1.6/12-ltc-ltc6811-1-v2.1.6_mechanical-dimensions.csv
 
 ^^^^^^^^^^^^^
 Block Diagram
@@ -43,12 +75,6 @@ Schematic and Board Layout
 
 More information about the board schematic and layout files can be found in
 section :ref:`DESIGN_RESOURCES`.
-
-^^^^^^^^^^^^^^^^^^^^^
-Mechanical Dimensions
-^^^^^^^^^^^^^^^^^^^^^
-
-The size of the PCB is 160x100mm.
 
 ---------
 Functions

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    can_cbs_rx_command.c
  * @author  foxBMS Team
  * @date    2021-07-28 (date of creation)
- * @updated 2021-07-28 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup DRIVER
  * @prefix  CAN
  *
@@ -58,42 +59,71 @@
 #include "can_cbs.h"
 #include "can_helper.h"
 #include "diag.h"
+#include "os.h"
+#include "sys_mon.h"
 
 /*========== Macros and Definitions =========================================*/
+/**
+ * @brief   CAN state request update time
+ * @details When a new CAN state request is received, it leads to an update
+ *          of #DATA_BLOCK_STATEREQUEST_s::stateRequestViaCan if one of the
+ *          following conditions is met:
+ *
+ *             - The new request is different than the old request.
+ *             - The old request is older than the timespan set in this define.
+ */
+#define CAN_CAN_REQUEST_UPDATE_TIME_ms (3000u)
 
 /*========== Static Constant and Variable Definitions =======================*/
 
 /*========== Extern Constant and Variable Definitions =======================*/
 
 /*========== Static Function Prototypes =====================================*/
+/**
+ * @brief   clears the persistent flags
+ * @details This function clears all persistent flags (if signalData demands it)
+ *          which are:
+ *              - deep-discharge flag
+ *              - sys mon violation flags
+ * @param[in]   signalData  if it is 1u, flags are cleared
+ */
+static void CAN_ClearAllPersistentFlags(uint64_t signalData);
+
+/**
+ * @brief   handles the mode request
+ * @param[in]       signalData  extracted signal data
+ * @param[in,out]   kpkCanShim  can shim with database entries
+ */
+static void CAN_HandleModeRequest(uint64_t signalData, const CAN_SHIM_s *const kpkCanShim);
+
+/**
+ * @brief   handles the balancing request
+ * @param[in]       signalData  extracted signal data
+ */
+static void CAN_HandleBalancingRequest(uint64_t signalData);
+
+/**
+ * @brief   sets the balancing threshold
+ * @param[in]       signalData  extracted signal data
+ */
+static void CAN_SetBalancingThreshold(uint64_t signalData);
 
 /*========== Static Function Implementations ================================*/
+static void CAN_ClearAllPersistentFlags(uint64_t signalData) {
+    /* AXIVION Routine Generic-MissingParameterAssert: signalData: parameter accepts whole range */
+    if (signalData == 1u) {
+        /* clear deep discharge */
+        for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
+            (void)DIAG_Handler(DIAG_ID_DEEP_DISCHARGE_DETECTED, DIAG_EVENT_OK, DIAG_STRING, s);
+        }
+        /* clear sys mon */
+        SYSM_ClearAllTimingViolations();
+    }
+}
 
-/*========== Extern Function Implementations ================================*/
-extern uint32_t CAN_RxRequest(
-    uint32_t id,
-    uint8_t dlc,
-    CAN_ENDIANNESS_e endianness,
-    uint8_t *pCanData,
-    uint8_t *pMuxId,
-    const CAN_SHIM_s *const kpkCanShim) {
-    /* pMuxId is not used here, therefore has to be NULL_PTR */
-    FAS_ASSERT(pMuxId == NULL_PTR);
-
-    FAS_ASSERT(id < CAN_MAX_11BIT_ID); /* Currently standard ID, 11 bit */
-    FAS_ASSERT(dlc <= CAN_MAX_DLC);    /* Currently max 8 bytes in a CAN frame */
-    FAS_ASSERT(pCanData != NULL_PTR);
+static void CAN_HandleModeRequest(uint64_t signalData, const CAN_SHIM_s *const kpkCanShim) {
     FAS_ASSERT(kpkCanShim != NULL_PTR);
-    uint64_t message    = 0;
-    uint64_t signalData = 0;
-
-    DATA_READ_DATA(kpkCanShim->pTableStateRequest);
-
-    CAN_RxGetMessageDataFromCanData(&message, pCanData, endianness);
-
-    /* AXIVION Disable Style Generic-NoMagicNumbers: Signal data defined in .dbc file. */
-    CAN_RxGetSignalDataFromMessageData(message, 1u, 2u, &signalData, endianness);
-    /* AXIVION Enable Style Generic-NoMagicNumbers: */
+    /* AXIVION Routine Generic-MissingParameterAssert: signalData: parameter accepts whole range */
 
     /** 0x00: Disconnect strings from HV bus
      *  0x01: Connect strings to HV bus to start discharge
@@ -112,35 +142,82 @@ extern uint32_t CAN_RxRequest(
             stateRequest = BMS_REQ_ID_CHARGE;
             break;
         default:
-            stateRequest = BMS_REQ_ID_NOREQ;
+            /* default value already set in initialization */
             break;
     }
     kpkCanShim->pTableStateRequest->previousStateRequestViaCan = kpkCanShim->pTableStateRequest->stateRequestViaCan;
     kpkCanShim->pTableStateRequest->stateRequestViaCan         = stateRequest;
     if ((kpkCanShim->pTableStateRequest->stateRequestViaCan !=
          kpkCanShim->pTableStateRequest->previousStateRequestViaCan) ||
-        ((OS_GetTickCount() - kpkCanShim->pTableStateRequest->header.timestamp) > 3000U)) { /* TODO: check pointer */
+        (OS_CheckTimeHasPassed(kpkCanShim->pTableStateRequest->header.timestamp, CAN_CAN_REQUEST_UPDATE_TIME_ms))) {
         kpkCanShim->pTableStateRequest->stateRequestViaCanPending = stateRequest;
     }
-    kpkCanShim->pTableStateRequest->state++;
+    if (kpkCanShim->pTableStateRequest->stateCounter == (uint8_t)UINT8_MAX) {
+        /* overflow of state counter */
+        kpkCanShim->pTableStateRequest->stateCounter = 0u;
+    } else {
+        kpkCanShim->pTableStateRequest->stateCounter++;
+    }
+}
 
-    /* Get balancing request */
-    /* AXIVION Disable Style Generic-NoMagicNumbers: Signal data defined in .dbc file. */
-    CAN_RxGetSignalDataFromMessageData(message, 8u, 1u, &signalData, endianness);
-    /* AXIVION Enable Style Generic-NoMagicNumbers: */
-
-    if (STD_OK == BAL_GetInitializationState()) {
-        if ((uint8_t)signalData == 0u) {
+static void CAN_HandleBalancingRequest(uint64_t signalData) {
+    /* AXIVION Routine Generic-MissingParameterAssert: signalData: parameter accepts whole range */
+    /* AXIVION Next Line Style MisraC2012-2.2 MisraC2012-14.3: Depending on implementation STD_NOT_OK might be returned. */
+    if (BAL_GetInitializationState() == STD_OK) {
+        if (signalData == 0u) {
             BAL_SetStateRequest(BAL_STATE_GLOBAL_DISABLE_REQUEST);
         } else {
             BAL_SetStateRequest(BAL_STATE_GLOBAL_ENABLE_REQUEST);
         }
     }
+}
+
+static void CAN_SetBalancingThreshold(uint64_t signalData) {
+    /* cap signal data to UINT16_MAX */
+    int32_t cappedSignalData = (int32_t)signalData;
+    if (signalData > (uint64_t)UINT16_MAX) {
+        cappedSignalData = (uint64_t)UINT16_MAX;
+    }
+    BAL_SetBalancingThreshold(cappedSignalData);
+}
+
+/*========== Extern Function Implementations ================================*/
+extern uint32_t CAN_RxRequest(
+    uint32_t id,
+    uint8_t dlc,
+    CAN_ENDIANNESS_e endianness,
+    const uint8_t *const kpkCanData,
+    const CAN_SHIM_s *const kpkCanShim) {
+    FAS_ASSERT(id < CAN_MAX_11BIT_ID); /* Currently standard ID, 11 bit */
+    FAS_ASSERT(dlc <= CAN_MAX_DLC);    /* Currently max 8 bytes in a CAN frame */
+    FAS_ASSERT(kpkCanData != NULL_PTR);
+    FAS_ASSERT(kpkCanShim != NULL_PTR);
+
+    DATA_READ_DATA(kpkCanShim->pTableStateRequest);
+
+    uint64_t message = 0;
+    CAN_RxGetMessageDataFromCanData(&message, kpkCanData, endianness);
+
+    uint64_t signalData = 0;
+    /* Get mode request */
+    /* AXIVION Next Line Style Generic-NoMagicNumbers: Signal data defined in .dbc file. */
+    CAN_RxGetSignalDataFromMessageData(message, 1u, 2u, &signalData, endianness);
+    CAN_HandleModeRequest(signalData, kpkCanShim);
+
+    /* check for reset flag */
+    /* AXIVION Next Line Style Generic-NoMagicNumbers: Signal data defined in .dbc file. */
+    CAN_RxGetSignalDataFromMessageData(message, 2u, 1u, &signalData, endianness);
+    CAN_ClearAllPersistentFlags(signalData);
+
+    /* Get balancing request */
+    /* AXIVION Next Line Style Generic-NoMagicNumbers: Signal data defined in .dbc file. */
+    CAN_RxGetSignalDataFromMessageData(message, 8u, 1u, &signalData, endianness);
+    CAN_HandleBalancingRequest(signalData);
 
     /* Get balancing threshold */
-    /* AXIVION Disable Style Generic-NoMagicNumbers: Signal data defined in .dbc file. */
+    /* AXIVION Next Line Style Generic-NoMagicNumbers: Signal data defined in .dbc file. */
     CAN_RxGetSignalDataFromMessageData(message, 23u, 8u, &signalData, endianness);
-    /* AXIVION Enable Style Generic-NoMagicNumbers: */
+    CAN_SetBalancingThreshold(signalData);
 
     /* TODO: Implement missing signals */
 

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    ltc_6813-1_cfg.c
  * @author  foxBMS Team
  * @date    2015-02-18 (date of creation)
- * @updated 2015-02-18 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  LTC
  *
@@ -222,7 +223,7 @@ const uint8_t ltc_voltage_input_used[BS_MAX_SUPPORTED_CELLS] = {
 
 /*========== Extern Function Implementations ================================*/
 
-int16_t LTC_Convert_MuxVoltages_to_Temperatures(uint16_t adcVoltage_mV) {
+int16_t LTC_ConvertMuxVoltagesToTemperatures(uint16_t adcVoltage_mV) {
     return TSI_GetTemperature(adcVoltage_mV); /* Convert degree celsius to deci degree celsius */
 }
 

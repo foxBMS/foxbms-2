@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    test_sbc.c
  * @author  foxBMS Team
  * @date    2020-07-15 (date of creation)
- * @updated 2020-07-15 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  SBC
  *
@@ -69,7 +70,7 @@ TEST_FILE("sbc.c")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 
-FS85xx_STATE_s fs85xx_mcuSupervisor = {};
+FS85_STATE_s fs85xx_mcuSupervisor = {};
 
 /*========== Setup and Teardown =============================================*/
 void setUp(void) {

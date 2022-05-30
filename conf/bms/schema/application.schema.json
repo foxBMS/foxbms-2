@@ -1,0 +1,124 @@
+{
+    "$id": "/properties/application",
+    "title": "Configuration of the application",
+    "required": [
+        "algorithm",
+        "insulation-monitoring-device"
+    ],
+    "additionalProperties": false,
+    "properties": {
+        "algorithm": {
+            "$id": "/properties/application/algorithm",
+            "title": "Configuration of the algorithm module",
+            "required": [
+                "state-estimation"
+            ],
+            "properties": {
+                "state-estimation": {
+                    "$id": "/properties/application/algorithm/state-estimation",
+                    "title": "State estimators (must correspond to the directory name)",
+                    "required": [
+                        "soc",
+                        "soe",
+                        "soh"
+                    ],
+                    "properties": {
+                        "soc": {
+                            "$id": "/properties/application/algorithm/state-estimation/soc",
+                            "title": "State-of-Charge algorithm (must correspond to the directory name)",
+                            "type": "string",
+                            "enum": [
+                                "counting",
+                                "debug",
+                                "none"
+                            ]
+                        },
+                        "soe": {
+                            "$id": "/properties/application/algorithm/state-estimation/soe",
+                            "title": "State-of-Energy algorithm (must correspond to the directory name)",
+                            "type": "string",
+                            "enum": [
+                                "counting",
+                                "debug",
+                                "none"
+                            ]
+                        },
+                        "soh": {
+                            "$id": "/properties/application/algorithm/state-estimation/soh",
+                            "title": "State-of-Health algorithm (must correspond to the directory name)",
+                            "type": "string",
+                            "enum": [
+                                "debug",
+                                "none"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "insulation-monitoring-device": {
+            "$id": "/properties/application/insulation-monitoring-device",
+            "title": "Configuration of the used insulation measurement device",
+            "required": [
+                "manufacturer",
+                "model"
+            ],
+            "additionalProperties": false,
+            "properties": {
+                "manufacturer": {
+                    "$id": "/properties/application/insulation-monitoring-device/manufacturer",
+                    "title": "Manufacturer of the insulation monitoring device (must correspond to the directory name)",
+                    "type": "string",
+                    "enum": [
+                        "none",
+                        "bender"
+                    ]
+                },
+                "model": {
+                    "$id": "/properties/application/insulation-monitoring-device/model",
+                    "title": "Name of the insulation monitoring device (must correspond to the directory name)",
+                    "type": "string"
+                }
+            },
+            "if": {
+                "properties": {
+                    "manufacturer": {
+                        "enum": [
+                            "none"
+                        ]
+                    }
+                }
+            },
+            "then": {
+                "properties": {
+                    "model": {
+                        "enum": [
+                            ""
+                        ]
+                    }
+                }
+            },
+            "else": {
+                "if": {
+                    "properties": {
+                        "manufacturer": {
+                            "enum": [
+                                "bender"
+                            ]
+                        }
+                    }
+                },
+                "then": {
+                    "properties": {
+                        "model": {
+                            "enum": [
+                                "ir155",
+                                "iso165c"
+                            ]
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

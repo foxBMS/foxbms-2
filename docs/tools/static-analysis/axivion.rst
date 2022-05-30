@@ -52,7 +52,7 @@ environment variables):
 
 .. code-block:: console
 
-    C:\Users\vulpes\Documents\foxbms-2>tests\axivion\start_local_analysis.bat
+    C:\Users\vulpes\Documents\foxbms-2>tests\axivion\scripts\start_local_analysis.bat
 
 Local Builds And Results
 ------------------------
@@ -63,14 +63,14 @@ Local Builds And Results
 
   .. code-block:: console
 
-     C:\Users\vulpes\Documents\foxbms-2>tests\axivion\start_local_dashserver.bat
+     C:\Users\vulpes\Documents\foxbms-2>tests\axivion\scripts\start_local_dashserver.bat
 
 - Run the following command to update the analysis result (the local dashboard
   will not be available during the execution of the local analysis):
 
   .. code-block:: console
 
-    C:\Users\vulpes\Documents\foxbms-2>tests\axivion\start_local_analysis.bat
+    C:\Users\vulpes\Documents\foxbms-2>tests\axivion\scripts\start_local_analysis.bat
 
 VS Code Setup
 -------------
@@ -82,7 +82,7 @@ Running the Tests
 ^^^^^^^^^^^^^^^^^
 
 Press :kbd:`Ctrl + Shift + B` and run the task *axivion analysis*. This task
-runs the Axivion analysis script ``tests/axivion/start_analysis.bat``.
+runs the Axivion analysis script ``tests/axivion/scripts/start_analysis.bat``.
 
 Issues
 ^^^^^^

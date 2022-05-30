@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    ftask_cfg.c
  * @author  foxBMS Team
  * @date    2019-08-26 (date of creation)
- * @updated 2021-11-09 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup TASK_CONFIGURATION
  * @prefix  FTSK
  *
@@ -103,35 +104,41 @@
  *          likely break the system.
  */
 OS_TASK_DEFINITION_s ftsk_taskDefinitionEngine = {
-    OS_PRIORITY_REAL_TIME,
+    FTSK_TASK_ENGINE_PRIORITY,
     FTSK_TASK_ENGINE_PHASE,
     FTSK_TASK_ENGINE_CYCLE_TIME,
-    FTSK_TASK_ENGINE_STACK_SIZE,
+    FTSK_TASK_ENGINE_STACK_SIZE_IN_BYTES,
     FTSK_TASK_ENGINE_PV_PARAMETERS};
 OS_TASK_DEFINITION_s ftsk_taskDefinitionCyclic1ms = {
-    OS_PRIORITY_ABOVE_HIGH,
+    FTSK_TASK_CYCLIC_1MS_PRIORITY,
     FTSK_TASK_CYCLIC_1MS_PHASE,
     FTSK_TASK_CYCLIC_1MS_CYCLE_TIME,
-    FTSK_TASK_CYCLIC_1MS_STACK_SIZE,
+    FTSK_TASK_CYCLIC_1MS_STACK_SIZE_IN_BYTES,
     FTSK_TASK_CYCLIC_1MS_PV_PARAMETERS};
 OS_TASK_DEFINITION_s ftsk_taskDefinitionCyclic10ms = {
-    OS_PRIORITY_HIGH,
+    FTSK_TASK_CYCLIC_10MS_PRIORITY,
     FTSK_TASK_CYCLIC_10MS_PHASE,
     FTSK_TASK_CYCLIC_10MS_CYCLE_TIME,
-    FTSK_TASK_CYCLIC_10MS_STACK_SIZE,
+    FTSK_TASK_CYCLIC_10MS_STACK_SIZE_IN_BYTES,
     FTSK_TASK_CYCLIC_10MS_PV_PARAMETERS};
 OS_TASK_DEFINITION_s ftsk_taskDefinitionCyclic100ms = {
-    OS_PRIORITY_ABOVE_NORMAL,
+    FTSK_TASK_CYCLIC_100MS_PRIORITY,
     FTSK_TASK_CYCLIC_100MS_PHASE,
     FTSK_TASK_CYCLIC_100MS_CYCLE_TIME,
-    FTSK_TASK_CYCLIC_100MS_STACK_SIZE,
+    FTSK_TASK_CYCLIC_100MS_STACK_SIZE_IN_BYTES,
     FTSK_TASK_CYCLIC_100MS_PV_PARAMETERS};
 OS_TASK_DEFINITION_s ftsk_taskDefinitionCyclicAlgorithm100ms = {
-    OS_PRIORITY_NORMAL,
+    FTSK_TASK_CYCLIC_ALGORITHM_100MS_PRIORITY,
     FTSK_TASK_CYCLIC_ALGORITHM_100MS_PHASE,
     FTSK_TASK_CYCLIC_ALGORITHM_100MS_CYCLE_TIME,
-    FTSK_TASK_CYCLIC_ALGORITHM_100MS_STACKSIZE,
+    FTSK_TASK_CYCLIC_ALGORITHM_100MS_STACK_SIZE_IN_BYTES,
     FTSK_TASK_CYCLIC_ALGORITHM_100MS_PV_PARAMETERS};
+OS_TASK_DEFINITION_s ftsk_taskDefinitionAfe = {
+    FTSK_TASK_AFE_PRIORITY,
+    FTSK_TASK_AFE_PHASE,
+    FTSK_TASK_AFE_CYCLE_TIME,
+    FTSK_TASK_AFE_STACK_SIZE_IN_BYTES,
+    FTSK_TASK_AFE_PV_PARAMETERS};
 
 /*========== Static Function Prototypes =====================================*/
 
@@ -141,12 +148,18 @@ OS_TASK_DEFINITION_s ftsk_taskDefinitionCyclicAlgorithm100ms = {
 extern void FTSK_InitializeUserCodeEngine(void) {
     /* Warning: Do not change the content of this function */
     /* See function definition doxygen comment for details */
-    STD_RETURN_TYPE_e retval = DATA_Init();
+    STD_RETURN_TYPE_e retval = DATA_Initialize();
 
     if (retval == E_NOT_OK) {
         /* Fatal error! */
         FAS_ASSERT(FAS_TRAP);
     }
+
+    /* Suspend AFE task if unused, otherwise it will preempt all lower priority tasks */
+    vTaskSuspend(ftsk_taskHandleAfe);
+
+    /* Init FRAM */
+    FRAM_Initialize();
 
     retval = SYSM_Init();
 
@@ -173,10 +186,7 @@ extern void FTSK_InitializeUserCodePreCyclicTasks(void) {
     SYS_RETURN_TYPE_e sys_retVal = SYS_ILLEGAL_REQUEST;
 
     /*  Init Sys */
-    sys_retVal = SYS_SetStateRequest(SYS_STATE_INIT_REQUEST);
-
-    /* Init FRAM */
-    FRAM_Initialize();
+    sys_retVal = SYS_SetStateRequest(SYS_STATE_INITIALIZATION_REQUEST);
 
     /* Init port expander */
     PEX_Initialize();
@@ -216,6 +226,7 @@ extern void FTSK_RunUserCodeCyclic1ms(void) {
 extern void FTSK_RunUserCodeCyclic10ms(void) {
     static uint8_t ftsk_cyclic10msCounter = 0;
     /* user code */
+    SYSM_UpdateFramData();
     SYS_Trigger(&sys_state);
     BMS_Trigger();
     ILCK_Trigger();
@@ -244,7 +255,7 @@ extern void FTSK_RunUserCodeCyclic100ms(void) {
      *  requires a higher frequency.
      */
     if (ftsk_cyclic100msCounter == TASK_100MS_COUNTER_FOR_1S) {
-        SE_StateEstimations();
+        SE_RunStateEstimations();
         ftsk_cyclic100msCounter = 0;
     }
 
@@ -262,6 +273,10 @@ extern void FTSK_RunUserCodeCyclicAlgorithm100ms(void) {
     ALGO_MainFunction();
 
     ftsk_cyclicAlgorithm100msCounter++;
+}
+
+void FTSK_RunUserCodeAfe(void) {
+    /* user code */
 }
 
 extern void FTSK_RunUserCodeIdle(void) {

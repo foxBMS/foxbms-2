@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    test_database_helper.c
  * @author  foxBMS Team
  * @date    2021-05-05 (date of creation)
- * @updated 2021-05-05 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -243,43 +244,43 @@ void testDATA_EntryUpdatedPeriodicallyWithinInterval(void) {
  *  #DATA_GetStringNumberFromVoltageIndex */
 void testDATA_GetStringNumberFromVoltageIndex(void) {
     /* Last cell in string 0 */
-    uint16_t voltageIndex = (BS_NR_OF_CELLS_PER_MODULE * BS_NR_OF_MODULES) - 1u;
+    uint16_t voltageIndex = (BS_NR_OF_CELL_BLOCKS_PER_MODULE * BS_NR_OF_MODULES_PER_STRING) - 1u;
     TEST_ASSERT_EQUAL(DATA_GetStringNumberFromVoltageIndex(voltageIndex), 0u);
 
     /* Last cell in last string */
-    voltageIndex = (BS_NR_OF_CELLS_PER_MODULE * BS_NR_OF_MODULES * BS_NR_OF_STRINGS) - 1u;
+    voltageIndex = (BS_NR_OF_CELL_BLOCKS_PER_MODULE * BS_NR_OF_MODULES_PER_STRING * BS_NR_OF_STRINGS) - 1u;
     TEST_ASSERT_EQUAL(DATA_GetStringNumberFromVoltageIndex(voltageIndex), BS_NR_OF_STRINGS - 1u);
 
     /* Test is function passes if index 0 is passed */
     TEST_ASSERT_PASS_ASSERT(DATA_GetStringNumberFromVoltageIndex(0u));
 
     /* Test is function asserts if invalid index is passed */
-    TEST_ASSERT_FAIL_ASSERT(
-        DATA_GetStringNumberFromVoltageIndex(BS_NR_OF_MODULES * BS_NR_OF_CELLS_PER_MODULE * BS_NR_OF_STRINGS));
+    TEST_ASSERT_FAIL_ASSERT(DATA_GetStringNumberFromVoltageIndex(
+        BS_NR_OF_MODULES_PER_STRING * BS_NR_OF_CELL_BLOCKS_PER_MODULE * BS_NR_OF_STRINGS));
     TEST_ASSERT_FAIL_ASSERT(DATA_GetStringNumberFromVoltageIndex(UINT16_MAX));
 }
 
 /** This function tests various inputs for database helper function
  *  #DATA_GetModuleNumberFromVoltageIndex */
 void testDATA_GetModuleNumberFromVoltageIndex(void) {
-    uint16_t voltageIndex = (BS_NR_OF_CELLS_PER_MODULE * BS_NR_OF_MODULES) - 1u;
-    TEST_ASSERT_EQUAL(DATA_GetModuleNumberFromVoltageIndex(voltageIndex), BS_NR_OF_MODULES - 1u);
+    uint16_t voltageIndex = (BS_NR_OF_CELL_BLOCKS_PER_MODULE * BS_NR_OF_MODULES_PER_STRING) - 1u;
+    TEST_ASSERT_EQUAL(DATA_GetModuleNumberFromVoltageIndex(voltageIndex), BS_NR_OF_MODULES_PER_STRING - 1u);
 
     /* Test is function passes if index 0 is passed */
     TEST_ASSERT_PASS_ASSERT(DATA_GetModuleNumberFromVoltageIndex(0u));
 
     /* Test is function asserts if invalid index is passed */
-    TEST_ASSERT_FAIL_ASSERT(
-        DATA_GetModuleNumberFromVoltageIndex(BS_NR_OF_MODULES * BS_NR_OF_CELLS_PER_MODULE * BS_NR_OF_STRINGS));
+    TEST_ASSERT_FAIL_ASSERT(DATA_GetModuleNumberFromVoltageIndex(
+        BS_NR_OF_MODULES_PER_STRING * BS_NR_OF_CELL_BLOCKS_PER_MODULE * BS_NR_OF_STRINGS));
     TEST_ASSERT_FAIL_ASSERT(DATA_GetModuleNumberFromVoltageIndex(UINT16_MAX));
 }
 
 /** This function tests various inputs for database helper function
  *  #testDATA_GetCellNumberFromVoltageIndex */
 void testDATA_GetCellNumberFromVoltageIndex(void) {
-    for (uint8_t m = 0u; m < BS_NR_OF_MODULES; m++) {
-        for (uint8_t c = 0u; c < BS_NR_OF_CELLS_PER_MODULE; c++) {
-            uint16_t voltageIndex = (m * BS_NR_OF_CELLS_PER_MODULE) + c;
+    for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
+        for (uint8_t c = 0u; c < BS_NR_OF_CELL_BLOCKS_PER_MODULE; c++) {
+            uint16_t voltageIndex = (m * BS_NR_OF_CELL_BLOCKS_PER_MODULE) + c;
             TEST_ASSERT_EQUAL(DATA_GetCellNumberFromVoltageIndex(voltageIndex), c);
         }
     }
@@ -288,8 +289,8 @@ void testDATA_GetCellNumberFromVoltageIndex(void) {
     TEST_ASSERT_PASS_ASSERT(DATA_GetCellNumberFromVoltageIndex(0u));
 
     /* Test is function asserts if invalid index is passed */
-    TEST_ASSERT_FAIL_ASSERT(
-        DATA_GetCellNumberFromVoltageIndex(BS_NR_OF_MODULES * BS_NR_OF_CELLS_PER_MODULE * BS_NR_OF_STRINGS));
+    TEST_ASSERT_FAIL_ASSERT(DATA_GetCellNumberFromVoltageIndex(
+        BS_NR_OF_MODULES_PER_STRING * BS_NR_OF_CELL_BLOCKS_PER_MODULE * BS_NR_OF_STRINGS));
     TEST_ASSERT_FAIL_ASSERT(DATA_GetCellNumberFromVoltageIndex(UINT16_MAX));
 }
 
@@ -297,11 +298,11 @@ void testDATA_GetCellNumberFromVoltageIndex(void) {
  *  #DATA_GetStringNumberFromTemperatureIndex */
 void testDATA_GetStringNumberFromTemperatureIndex(void) {
     /* last sensor in string 0 */
-    uint16_t sensorIndex = (BS_NR_OF_TEMP_SENSORS_PER_MODULE * BS_NR_OF_MODULES) - 1u;
+    uint16_t sensorIndex = (BS_NR_OF_TEMP_SENSORS_PER_MODULE * BS_NR_OF_MODULES_PER_STRING) - 1u;
     TEST_ASSERT_EQUAL(DATA_GetStringNumberFromTemperatureIndex(sensorIndex), 0u);
 
     /* last sensor in last string */
-    sensorIndex = (BS_NR_OF_TEMP_SENSORS_PER_MODULE * BS_NR_OF_MODULES * BS_NR_OF_STRINGS) - 1u;
+    sensorIndex = (BS_NR_OF_TEMP_SENSORS_PER_MODULE * BS_NR_OF_MODULES_PER_STRING * BS_NR_OF_STRINGS) - 1u;
     TEST_ASSERT_EQUAL(DATA_GetStringNumberFromTemperatureIndex(sensorIndex), BS_NR_OF_STRINGS - 1u);
 
     /* Test is function passes if index 0 is passed */
@@ -309,29 +310,29 @@ void testDATA_GetStringNumberFromTemperatureIndex(void) {
 
     /* Test is function asserts if invalid index is passed */
     TEST_ASSERT_FAIL_ASSERT(DATA_GetStringNumberFromTemperatureIndex(
-        BS_NR_OF_MODULES * BS_NR_OF_TEMP_SENSORS_PER_MODULE * BS_NR_OF_STRINGS));
+        BS_NR_OF_MODULES_PER_STRING * BS_NR_OF_TEMP_SENSORS_PER_MODULE * BS_NR_OF_STRINGS));
     TEST_ASSERT_FAIL_ASSERT(DATA_GetStringNumberFromTemperatureIndex(UINT16_MAX));
 }
 
 /** This function tests various inputs for database helper function
  *  #DATA_GetModuleNumberFromTemperatureIndex */
 void testDATA_GetModuleNumberFromTemperatureIndex(void) {
-    uint16_t sensorIndex = (BS_NR_OF_TEMP_SENSORS_PER_MODULE * BS_NR_OF_MODULES) - 1u;
-    TEST_ASSERT_EQUAL(DATA_GetModuleNumberFromTemperatureIndex(sensorIndex), BS_NR_OF_MODULES - 1u);
+    uint16_t sensorIndex = (BS_NR_OF_TEMP_SENSORS_PER_MODULE * BS_NR_OF_MODULES_PER_STRING) - 1u;
+    TEST_ASSERT_EQUAL(DATA_GetModuleNumberFromTemperatureIndex(sensorIndex), BS_NR_OF_MODULES_PER_STRING - 1u);
 
     /* Test is function passes if index 0 is passed */
     TEST_ASSERT_PASS_ASSERT(DATA_GetModuleNumberFromTemperatureIndex(0u));
 
     /* Test is function asserts if invalid index is passed */
     TEST_ASSERT_FAIL_ASSERT(DATA_GetModuleNumberFromTemperatureIndex(
-        BS_NR_OF_MODULES * BS_NR_OF_TEMP_SENSORS_PER_MODULE * BS_NR_OF_STRINGS));
+        BS_NR_OF_MODULES_PER_STRING * BS_NR_OF_TEMP_SENSORS_PER_MODULE * BS_NR_OF_STRINGS));
     TEST_ASSERT_FAIL_ASSERT(DATA_GetModuleNumberFromTemperatureIndex(UINT16_MAX));
 }
 
 /** This function tests various inputs for database helper function
  *  #DATA_GetSensorNumberFromTemperatureIndex */
 void testDATA_GetSensorNumberFromTemperatureIndex(void) {
-    for (uint8_t m = 0u; m < BS_NR_OF_MODULES; m++) {
+    for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
         for (uint8_t sensor = 0u; sensor < BS_NR_OF_TEMP_SENSORS_PER_MODULE; sensor++) {
             uint16_t sensorIndex = (m * BS_NR_OF_TEMP_SENSORS_PER_MODULE) + sensor;
             TEST_ASSERT_EQUAL(DATA_GetSensorNumberFromTemperatureIndex(sensorIndex), sensor);
@@ -343,6 +344,6 @@ void testDATA_GetSensorNumberFromTemperatureIndex(void) {
 
     /* Test is function asserts if invalid index is passed */
     TEST_ASSERT_FAIL_ASSERT(DATA_GetSensorNumberFromTemperatureIndex(
-        BS_NR_OF_MODULES * BS_NR_OF_TEMP_SENSORS_PER_MODULE * BS_NR_OF_STRINGS));
+        BS_NR_OF_MODULES_PER_STRING * BS_NR_OF_TEMP_SENSORS_PER_MODULE * BS_NR_OF_STRINGS));
     TEST_ASSERT_FAIL_ASSERT(DATA_GetSensorNumberFromTemperatureIndex(UINT16_MAX));
 }

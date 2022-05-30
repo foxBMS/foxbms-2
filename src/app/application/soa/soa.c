@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    soa.c
  * @author  foxBMS Team
  * @date    2020-10-14 (date of creation)
- * @updated 2021-03-24 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup APPLICATION
  * @prefix  SOA
  *
@@ -75,65 +76,66 @@
 /*========== Extern Function Implementations ================================*/
 
 extern void SOA_CheckVoltages(DATA_BLOCK_MIN_MAX_s *pMinimumMaximumCellVoltages) {
+    FAS_ASSERT(pMinimumMaximumCellVoltages != NULL_PTR);
     DIAG_RETURNTYPE_e retvalUndervoltMSL = DIAG_HANDLER_RETURN_ERR_OCCURRED;
 
-    for (uint8_t stringNumber = 0u; stringNumber < BS_NR_OF_STRINGS; stringNumber++) {
-        int16_t voltageMax_mV = pMinimumMaximumCellVoltages->maximumCellVoltage_mV[stringNumber];
-        int16_t voltageMin_mV = pMinimumMaximumCellVoltages->minimumCellVoltage_mV[stringNumber];
+    for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
+        int16_t voltageMax_mV = pMinimumMaximumCellVoltages->maximumCellVoltage_mV[s];
+        int16_t voltageMin_mV = pMinimumMaximumCellVoltages->minimumCellVoltage_mV[s];
 
         if (voltageMax_mV >= BC_VOLTAGE_MAX_MOL_mV) {
             /* Over voltage maximum operating limit violated */
-            DIAG_Handler(DIAG_ID_CELLVOLTAGE_OVERVOLTAGE_MOL, DIAG_EVENT_NOT_OK, DIAG_STRING, stringNumber);
+            DIAG_Handler(DIAG_ID_CELLVOLTAGE_OVERVOLTAGE_MOL, DIAG_EVENT_NOT_OK, DIAG_STRING, s);
             if (voltageMax_mV >= BC_VOLTAGE_MAX_RSL_mV) {
                 /* Over voltage recommended safety limit violated */
-                DIAG_Handler(DIAG_ID_CELLVOLTAGE_OVERVOLTAGE_RSL, DIAG_EVENT_NOT_OK, DIAG_STRING, stringNumber);
+                DIAG_Handler(DIAG_ID_CELLVOLTAGE_OVERVOLTAGE_RSL, DIAG_EVENT_NOT_OK, DIAG_STRING, s);
                 if (voltageMax_mV >= BC_VOLTAGE_MAX_MSL_mV) {
                     /* Over voltage maximum safety limit violated */
-                    DIAG_Handler(DIAG_ID_CELLVOLTAGE_OVERVOLTAGE_MSL, DIAG_EVENT_NOT_OK, DIAG_STRING, stringNumber);
+                    DIAG_Handler(DIAG_ID_CELLVOLTAGE_OVERVOLTAGE_MSL, DIAG_EVENT_NOT_OK, DIAG_STRING, s);
                 }
             }
         }
         if (voltageMax_mV < BC_VOLTAGE_MAX_MSL_mV) {
             /* over voltage maximum safety limit NOT violated */
-            DIAG_Handler(DIAG_ID_CELLVOLTAGE_OVERVOLTAGE_MSL, DIAG_EVENT_OK, DIAG_STRING, stringNumber);
+            DIAG_Handler(DIAG_ID_CELLVOLTAGE_OVERVOLTAGE_MSL, DIAG_EVENT_OK, DIAG_STRING, s);
             if (voltageMax_mV < BC_VOLTAGE_MAX_RSL_mV) {
                 /* over voltage recommended safety limit NOT violated */
-                DIAG_Handler(DIAG_ID_CELLVOLTAGE_OVERVOLTAGE_RSL, DIAG_EVENT_OK, DIAG_STRING, stringNumber);
+                DIAG_Handler(DIAG_ID_CELLVOLTAGE_OVERVOLTAGE_RSL, DIAG_EVENT_OK, DIAG_STRING, s);
                 if (voltageMax_mV < BC_VOLTAGE_MAX_MOL_mV) {
                     /* over voltage maximum operating limit NOT violated */
-                    DIAG_Handler(DIAG_ID_CELLVOLTAGE_OVERVOLTAGE_MOL, DIAG_EVENT_OK, DIAG_STRING, stringNumber);
+                    DIAG_Handler(DIAG_ID_CELLVOLTAGE_OVERVOLTAGE_MOL, DIAG_EVENT_OK, DIAG_STRING, s);
                 }
             }
         }
 
         if (voltageMin_mV <= BC_VOLTAGE_MIN_MOL_mV) {
             /* Under voltage maximum operating limit violated */
-            DIAG_Handler(DIAG_ID_CELLVOLTAGE_UNDERVOLTAGE_MOL, DIAG_EVENT_NOT_OK, DIAG_STRING, stringNumber);
+            DIAG_Handler(DIAG_ID_CELLVOLTAGE_UNDERVOLTAGE_MOL, DIAG_EVENT_NOT_OK, DIAG_STRING, s);
             if (voltageMin_mV <= BC_VOLTAGE_MIN_RSL_mV) {
                 /* Under voltage recommended safety limit violated */
-                DIAG_Handler(DIAG_ID_CELLVOLTAGE_UNDERVOLTAGE_RSL, DIAG_EVENT_NOT_OK, DIAG_STRING, stringNumber);
+                DIAG_Handler(DIAG_ID_CELLVOLTAGE_UNDERVOLTAGE_RSL, DIAG_EVENT_NOT_OK, DIAG_STRING, s);
                 if (voltageMin_mV <= BC_VOLTAGE_MIN_MSL_mV) {
                     /* Under voltage maximum safety limit violated */
-                    retvalUndervoltMSL = DIAG_Handler(
-                        DIAG_ID_CELLVOLTAGE_UNDERVOLTAGE_MSL, DIAG_EVENT_NOT_OK, DIAG_STRING, stringNumber);
+                    retvalUndervoltMSL =
+                        DIAG_Handler(DIAG_ID_CELLVOLTAGE_UNDERVOLTAGE_MSL, DIAG_EVENT_NOT_OK, DIAG_STRING, s);
 
                     /* If under voltage flag is set and deep-discharge voltage is violated */
                     if ((retvalUndervoltMSL == DIAG_HANDLER_RETURN_ERR_OCCURRED) &&
                         (voltageMin_mV <= BC_VOLTAGE_DEEP_DISCHARGE_mV)) {
-                        DIAG_Handler(DIAG_ID_DEEP_DISCHARGE_DETECTED, DIAG_EVENT_NOT_OK, DIAG_STRING, stringNumber);
+                        DIAG_Handler(DIAG_ID_DEEP_DISCHARGE_DETECTED, DIAG_EVENT_NOT_OK, DIAG_STRING, s);
                     }
                 }
             }
         }
         if (voltageMin_mV > BC_VOLTAGE_MIN_MSL_mV) {
             /* under voltage maximum safety limit NOT violated */
-            DIAG_Handler(DIAG_ID_CELLVOLTAGE_UNDERVOLTAGE_MSL, DIAG_EVENT_OK, DIAG_STRING, stringNumber);
+            DIAG_Handler(DIAG_ID_CELLVOLTAGE_UNDERVOLTAGE_MSL, DIAG_EVENT_OK, DIAG_STRING, s);
             if (voltageMin_mV > BC_VOLTAGE_MIN_RSL_mV) {
                 /* under voltage recommended safety limit NOT violated */
-                DIAG_Handler(DIAG_ID_CELLVOLTAGE_UNDERVOLTAGE_RSL, DIAG_EVENT_OK, DIAG_STRING, stringNumber);
+                DIAG_Handler(DIAG_ID_CELLVOLTAGE_UNDERVOLTAGE_RSL, DIAG_EVENT_OK, DIAG_STRING, s);
                 if (voltageMin_mV > BC_VOLTAGE_MIN_MOL_mV) {
                     /* under voltage maximum operating limit NOT violated */
-                    DIAG_Handler(DIAG_ID_CELLVOLTAGE_UNDERVOLTAGE_MOL, DIAG_EVENT_OK, DIAG_STRING, stringNumber);
+                    DIAG_Handler(DIAG_ID_CELLVOLTAGE_UNDERVOLTAGE_MOL, DIAG_EVENT_OK, DIAG_STRING, s);
                 }
             }
         }
@@ -143,39 +145,38 @@ extern void SOA_CheckVoltages(DATA_BLOCK_MIN_MAX_s *pMinimumMaximumCellVoltages)
 extern void SOA_CheckTemperatures(
     DATA_BLOCK_MIN_MAX_s *pMinimumMaximumCellTemperatures,
     DATA_BLOCK_PACK_VALUES_s *pCurrent) {
+    FAS_ASSERT(pMinimumMaximumCellTemperatures != NULL_PTR);
+    FAS_ASSERT(pCurrent != NULL_PTR);
     /* Iterate over each string and check temperatures */
-    for (uint8_t stringNumber = 0u; stringNumber < BS_NR_OF_STRINGS; stringNumber++) {
-        int32_t i_current            = pCurrent->stringCurrent_mA[stringNumber];
-        int16_t temperatureMin_ddegC = pMinimumMaximumCellTemperatures->minimumTemperature_ddegC[stringNumber];
-        int16_t temperatureMax_ddegC = pMinimumMaximumCellTemperatures->maximumTemperature_ddegC[stringNumber];
+    for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
+        int32_t i_current            = pCurrent->stringCurrent_mA[s];
+        int16_t temperatureMin_ddegC = pMinimumMaximumCellTemperatures->minimumTemperature_ddegC[s];
+        int16_t temperatureMax_ddegC = pMinimumMaximumCellTemperatures->maximumTemperature_ddegC[s];
 
         /* Over temperature check */
         if (BMS_GetCurrentFlowDirection(i_current) == BMS_DISCHARGING) {
             /* Discharge */
             if (temperatureMax_ddegC >= BC_TEMPERATURE_MAX_DISCHARGE_MOL_ddegC) {
                 /* Over temperature maximum operating limit violated*/
-                DIAG_Handler(DIAG_ID_TEMP_OVERTEMPERATURE_DISCHARGE_MOL, DIAG_EVENT_NOT_OK, DIAG_STRING, stringNumber);
+                DIAG_Handler(DIAG_ID_TEMP_OVERTEMPERATURE_DISCHARGE_MOL, DIAG_EVENT_NOT_OK, DIAG_STRING, s);
                 if (temperatureMax_ddegC >= BC_TEMPERATURE_MAX_DISCHARGE_RSL_ddegC) {
                     /* Over temperature recommended safety limit violated*/
-                    DIAG_Handler(
-                        DIAG_ID_TEMP_OVERTEMPERATURE_DISCHARGE_RSL, DIAG_EVENT_NOT_OK, DIAG_STRING, stringNumber);
+                    DIAG_Handler(DIAG_ID_TEMP_OVERTEMPERATURE_DISCHARGE_RSL, DIAG_EVENT_NOT_OK, DIAG_STRING, s);
                     if (temperatureMax_ddegC >= BC_TEMPERATURE_MAX_DISCHARGE_MSL_ddegC) {
                         /* Over temperature maximum safety limit violated */
-                        DIAG_Handler(
-                            DIAG_ID_TEMP_OVERTEMPERATURE_DISCHARGE_MSL, DIAG_EVENT_NOT_OK, DIAG_STRING, stringNumber);
+                        DIAG_Handler(DIAG_ID_TEMP_OVERTEMPERATURE_DISCHARGE_MSL, DIAG_EVENT_NOT_OK, DIAG_STRING, s);
                     }
                 }
             }
             if (temperatureMax_ddegC < BC_TEMPERATURE_MAX_DISCHARGE_MSL_ddegC) {
                 /* over temperature maximum safety limit NOT violated */
-                DIAG_Handler(DIAG_ID_TEMP_OVERTEMPERATURE_DISCHARGE_MSL, DIAG_EVENT_OK, DIAG_STRING, stringNumber);
+                DIAG_Handler(DIAG_ID_TEMP_OVERTEMPERATURE_DISCHARGE_MSL, DIAG_EVENT_OK, DIAG_STRING, s);
                 if (temperatureMax_ddegC < BC_TEMPERATURE_MAX_DISCHARGE_RSL_ddegC) {
                     /* over temperature recommended safety limit NOT violated */
-                    DIAG_Handler(DIAG_ID_TEMP_OVERTEMPERATURE_DISCHARGE_RSL, DIAG_EVENT_OK, DIAG_STRING, stringNumber);
+                    DIAG_Handler(DIAG_ID_TEMP_OVERTEMPERATURE_DISCHARGE_RSL, DIAG_EVENT_OK, DIAG_STRING, s);
                     if (temperatureMax_ddegC < BC_TEMPERATURE_MAX_DISCHARGE_MOL_ddegC) {
                         /* over temperature maximum operating limit NOT violated */
-                        DIAG_Handler(
-                            DIAG_ID_TEMP_OVERTEMPERATURE_DISCHARGE_MOL, DIAG_EVENT_OK, DIAG_STRING, stringNumber);
+                        DIAG_Handler(DIAG_ID_TEMP_OVERTEMPERATURE_DISCHARGE_MOL, DIAG_EVENT_OK, DIAG_STRING, s);
                     }
                 }
             }
@@ -184,26 +185,25 @@ extern void SOA_CheckTemperatures(
             /* Charge */
             if (temperatureMax_ddegC >= BC_TEMPERATURE_MAX_CHARGE_MOL_ddegC) {
                 /* Over temperature maximum operating limit violated */
-                DIAG_Handler(DIAG_ID_TEMP_OVERTEMPERATURE_CHARGE_MOL, DIAG_EVENT_NOT_OK, DIAG_STRING, stringNumber);
+                DIAG_Handler(DIAG_ID_TEMP_OVERTEMPERATURE_CHARGE_MOL, DIAG_EVENT_NOT_OK, DIAG_STRING, s);
                 if (temperatureMax_ddegC >= BC_TEMPERATURE_MAX_CHARGE_RSL_ddegC) {
                     /* Over temperature recommended safety limit violated */
-                    DIAG_Handler(DIAG_ID_TEMP_OVERTEMPERATURE_CHARGE_RSL, DIAG_EVENT_NOT_OK, DIAG_STRING, stringNumber);
+                    DIAG_Handler(DIAG_ID_TEMP_OVERTEMPERATURE_CHARGE_RSL, DIAG_EVENT_NOT_OK, DIAG_STRING, s);
                     /* Over temperature maximum safety limit violated */
                     if (temperatureMax_ddegC >= BC_TEMPERATURE_MAX_CHARGE_MSL_ddegC) {
-                        DIAG_Handler(
-                            DIAG_ID_TEMP_OVERTEMPERATURE_CHARGE_MSL, DIAG_EVENT_NOT_OK, DIAG_STRING, stringNumber);
+                        DIAG_Handler(DIAG_ID_TEMP_OVERTEMPERATURE_CHARGE_MSL, DIAG_EVENT_NOT_OK, DIAG_STRING, s);
                     }
                 }
             }
             if (temperatureMax_ddegC < BC_TEMPERATURE_MAX_CHARGE_MSL_ddegC) {
                 /* over temperature maximum safety limit NOT violated */
-                DIAG_Handler(DIAG_ID_TEMP_OVERTEMPERATURE_CHARGE_MSL, DIAG_EVENT_OK, DIAG_STRING, stringNumber);
+                DIAG_Handler(DIAG_ID_TEMP_OVERTEMPERATURE_CHARGE_MSL, DIAG_EVENT_OK, DIAG_STRING, s);
                 if (temperatureMax_ddegC < BC_TEMPERATURE_MAX_CHARGE_RSL_ddegC) {
                     /* over temperature recommended safety limit NOT violated */
-                    DIAG_Handler(DIAG_ID_TEMP_OVERTEMPERATURE_CHARGE_RSL, DIAG_EVENT_OK, DIAG_STRING, stringNumber);
+                    DIAG_Handler(DIAG_ID_TEMP_OVERTEMPERATURE_CHARGE_RSL, DIAG_EVENT_OK, DIAG_STRING, s);
                     if (temperatureMax_ddegC < BC_TEMPERATURE_MAX_CHARGE_MOL_ddegC) {
                         /* over temperature maximum operating limit NOT violated*/
-                        DIAG_Handler(DIAG_ID_TEMP_OVERTEMPERATURE_CHARGE_MOL, DIAG_EVENT_OK, DIAG_STRING, stringNumber);
+                        DIAG_Handler(DIAG_ID_TEMP_OVERTEMPERATURE_CHARGE_MOL, DIAG_EVENT_OK, DIAG_STRING, s);
                     }
                 }
             }
@@ -214,28 +214,25 @@ extern void SOA_CheckTemperatures(
             /* Discharge */
             if (temperatureMin_ddegC <= BC_TEMPERATURE_MIN_DISCHARGE_MOL_ddegC) {
                 /* Under temperature maximum operating limit violated */
-                DIAG_Handler(DIAG_ID_TEMP_UNDERTEMPERATURE_DISCHARGE_MOL, DIAG_EVENT_NOT_OK, DIAG_STRING, stringNumber);
+                DIAG_Handler(DIAG_ID_TEMP_UNDERTEMPERATURE_DISCHARGE_MOL, DIAG_EVENT_NOT_OK, DIAG_STRING, s);
                 if (temperatureMin_ddegC <= BC_TEMPERATURE_MIN_DISCHARGE_RSL_ddegC) {
                     /* Under temperature recommended safety limit violated*/
-                    DIAG_Handler(
-                        DIAG_ID_TEMP_UNDERTEMPERATURE_DISCHARGE_RSL, DIAG_EVENT_NOT_OK, DIAG_STRING, stringNumber);
+                    DIAG_Handler(DIAG_ID_TEMP_UNDERTEMPERATURE_DISCHARGE_RSL, DIAG_EVENT_NOT_OK, DIAG_STRING, s);
                     if (temperatureMin_ddegC <= BC_TEMPERATURE_MIN_DISCHARGE_MSL_ddegC) {
                         /* Under temperature maximum safety limit violated */
-                        DIAG_Handler(
-                            DIAG_ID_TEMP_UNDERTEMPERATURE_DISCHARGE_MSL, DIAG_EVENT_NOT_OK, DIAG_STRING, stringNumber);
+                        DIAG_Handler(DIAG_ID_TEMP_UNDERTEMPERATURE_DISCHARGE_MSL, DIAG_EVENT_NOT_OK, DIAG_STRING, s);
                     }
                 }
             }
             if (temperatureMin_ddegC > BC_TEMPERATURE_MIN_DISCHARGE_MSL_ddegC) {
                 /* under temperature maximum safety limit NOT violated */
-                DIAG_Handler(DIAG_ID_TEMP_UNDERTEMPERATURE_DISCHARGE_MSL, DIAG_EVENT_OK, DIAG_STRING, stringNumber);
+                DIAG_Handler(DIAG_ID_TEMP_UNDERTEMPERATURE_DISCHARGE_MSL, DIAG_EVENT_OK, DIAG_STRING, s);
                 if (temperatureMin_ddegC > BC_TEMPERATURE_MIN_DISCHARGE_RSL_ddegC) {
                     /* under temperature recommended safety limit NOT violated */
-                    DIAG_Handler(DIAG_ID_TEMP_UNDERTEMPERATURE_DISCHARGE_RSL, DIAG_EVENT_OK, DIAG_STRING, stringNumber);
+                    DIAG_Handler(DIAG_ID_TEMP_UNDERTEMPERATURE_DISCHARGE_RSL, DIAG_EVENT_OK, DIAG_STRING, s);
                     if (temperatureMin_ddegC > BC_TEMPERATURE_MIN_DISCHARGE_MOL_ddegC) {
                         /* under temperature maximum operating limit NOT violated*/
-                        DIAG_Handler(
-                            DIAG_ID_TEMP_UNDERTEMPERATURE_DISCHARGE_MOL, DIAG_EVENT_OK, DIAG_STRING, stringNumber);
+                        DIAG_Handler(DIAG_ID_TEMP_UNDERTEMPERATURE_DISCHARGE_MOL, DIAG_EVENT_OK, DIAG_STRING, s);
                     }
                 }
             }
@@ -243,28 +240,25 @@ extern void SOA_CheckTemperatures(
             /* Charge */
             if (temperatureMin_ddegC <= BC_TEMPERATURE_MIN_CHARGE_MOL_ddegC) {
                 /* Under temperature maximum operating limit violated */
-                DIAG_Handler(DIAG_ID_TEMP_UNDERTEMPERATURE_CHARGE_MOL, DIAG_EVENT_NOT_OK, DIAG_STRING, stringNumber);
+                DIAG_Handler(DIAG_ID_TEMP_UNDERTEMPERATURE_CHARGE_MOL, DIAG_EVENT_NOT_OK, DIAG_STRING, s);
                 if (temperatureMin_ddegC <= BC_TEMPERATURE_MIN_CHARGE_RSL_ddegC) {
                     /* Under temperature recommended safety limit violated */
-                    DIAG_Handler(
-                        DIAG_ID_TEMP_UNDERTEMPERATURE_CHARGE_RSL, DIAG_EVENT_NOT_OK, DIAG_STRING, stringNumber);
+                    DIAG_Handler(DIAG_ID_TEMP_UNDERTEMPERATURE_CHARGE_RSL, DIAG_EVENT_NOT_OK, DIAG_STRING, s);
                     if (temperatureMin_ddegC <= BC_TEMPERATURE_MIN_CHARGE_MSL_ddegC) {
                         /* Under temperature maximum safety limit violated */
-                        DIAG_Handler(
-                            DIAG_ID_TEMP_UNDERTEMPERATURE_CHARGE_MSL, DIAG_EVENT_NOT_OK, DIAG_STRING, stringNumber);
+                        DIAG_Handler(DIAG_ID_TEMP_UNDERTEMPERATURE_CHARGE_MSL, DIAG_EVENT_NOT_OK, DIAG_STRING, s);
                     }
                 }
             }
             if (temperatureMin_ddegC > BC_TEMPERATURE_MIN_CHARGE_MSL_ddegC) {
                 /* under temperature maximum safety limit NOT violated */
-                DIAG_Handler(DIAG_ID_TEMP_UNDERTEMPERATURE_CHARGE_MSL, DIAG_EVENT_OK, DIAG_STRING, stringNumber);
+                DIAG_Handler(DIAG_ID_TEMP_UNDERTEMPERATURE_CHARGE_MSL, DIAG_EVENT_OK, DIAG_STRING, s);
                 if (temperatureMin_ddegC > BC_TEMPERATURE_MIN_CHARGE_RSL_ddegC) {
                     /* under temperature recommended safety limit NOT violated */
-                    DIAG_Handler(DIAG_ID_TEMP_UNDERTEMPERATURE_CHARGE_RSL, DIAG_EVENT_OK, DIAG_STRING, stringNumber);
+                    DIAG_Handler(DIAG_ID_TEMP_UNDERTEMPERATURE_CHARGE_RSL, DIAG_EVENT_OK, DIAG_STRING, s);
                     if (temperatureMin_ddegC > BC_TEMPERATURE_MIN_CHARGE_MOL_ddegC) {
                         /* under temperature maximum operating limit NOT violated*/
-                        DIAG_Handler(
-                            DIAG_ID_TEMP_UNDERTEMPERATURE_CHARGE_MOL, DIAG_EVENT_OK, DIAG_STRING, stringNumber);
+                        DIAG_Handler(DIAG_ID_TEMP_UNDERTEMPERATURE_CHARGE_MOL, DIAG_EVENT_OK, DIAG_STRING, s);
                     }
                 }
             }
@@ -278,35 +272,35 @@ extern void SOA_CheckCurrent(DATA_BLOCK_PACK_VALUES_s *pTablePackValues) {
     /* Iterate over each string and check current */
     for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
         /* Only perform check if current value is valid */
-        if (0u == pTablePackValues->invalidStringCurrent[s]) {
+        if (pTablePackValues->invalidStringCurrent[s] == 0u) {
             BMS_CURRENT_FLOW_STATE_e currentDirection =
                 BMS_GetCurrentFlowDirection(pTablePackValues->stringCurrent_mA[s]);
             uint32_t absStringCurrent_mA = (uint32_t)abs(pTablePackValues->stringCurrent_mA[s]);
             /* Check various current limits depending on current direction */
             bool stringOvercurrent = SOA_IsStringCurrentLimitViolated(absStringCurrent_mA, currentDirection);
             bool cellOvercurrent   = SOA_IsCellCurrentLimitViolated(absStringCurrent_mA, currentDirection);
-            if (BMS_CHARGING == currentDirection) {
+            if (currentDirection == BMS_CHARGING) {
                 /* Check string current limit */
-                if (true == stringOvercurrent) {
+                if (stringOvercurrent == true) {
                     DIAG_Handler(DIAG_ID_STRING_OVERCURRENT_CHARGE_MSL, DIAG_EVENT_NOT_OK, DIAG_STRING, s);
                 } else {
                     DIAG_Handler(DIAG_ID_STRING_OVERCURRENT_CHARGE_MSL, DIAG_EVENT_OK, DIAG_STRING, s);
                 }
                 /* Check battery cell limit */
-                if (true == cellOvercurrent) {
+                if (cellOvercurrent == true) {
                     DIAG_Handler(DIAG_ID_OVERCURRENT_CHARGE_CELL_MSL, DIAG_EVENT_NOT_OK, DIAG_STRING, s);
                 } else {
                     DIAG_Handler(DIAG_ID_OVERCURRENT_CHARGE_CELL_MSL, DIAG_EVENT_OK, DIAG_STRING, s);
                 }
-            } else if (BMS_DISCHARGING == currentDirection) {
+            } else if (currentDirection == BMS_DISCHARGING) {
                 /* Check string current limit */
-                if (true == stringOvercurrent) {
+                if (stringOvercurrent == true) {
                     DIAG_Handler(DIAG_ID_STRING_OVERCURRENT_DISCHARGE_MSL, DIAG_EVENT_NOT_OK, DIAG_STRING, s);
                 } else {
                     DIAG_Handler(DIAG_ID_STRING_OVERCURRENT_DISCHARGE_MSL, DIAG_EVENT_OK, DIAG_STRING, s);
                 }
                 /* Check battery cell limit */
-                if (true == cellOvercurrent) {
+                if (cellOvercurrent == true) {
                     DIAG_Handler(DIAG_ID_OVERCURRENT_DISCHARGE_CELL_MSL, DIAG_EVENT_NOT_OK, DIAG_STRING, s);
                 } else {
                     DIAG_Handler(DIAG_ID_OVERCURRENT_DISCHARGE_CELL_MSL, DIAG_EVENT_OK, DIAG_STRING, s);
@@ -320,7 +314,7 @@ extern void SOA_CheckCurrent(DATA_BLOCK_PACK_VALUES_s *pTablePackValues) {
             }
 
             /* Check if current is floating while contactors are open */
-            if (false == SOA_IsCurrentOnOpenString(currentDirection, s)) {
+            if (SOA_IsCurrentOnOpenString(currentDirection, s) == false) {
                 DIAG_Handler(DIAG_ID_CURRENT_ON_OPEN_STRING, DIAG_EVENT_OK, DIAG_STRING, s);
             } else {
                 DIAG_Handler(DIAG_ID_CURRENT_ON_OPEN_STRING, DIAG_EVENT_NOT_OK, DIAG_STRING, s);
@@ -329,19 +323,19 @@ extern void SOA_CheckCurrent(DATA_BLOCK_PACK_VALUES_s *pTablePackValues) {
     }
 
     /* Check pack current */
-    if (0u == pTablePackValues->invalidPackCurrent) {
+    if (pTablePackValues->invalidPackCurrent == 0u) {
         BMS_CURRENT_FLOW_STATE_e currentDirection = BMS_GetCurrentFlowDirection(pTablePackValues->packCurrent_mA);
         uint32_t absPackCurrent_mA                = (uint32_t)abs(pTablePackValues->packCurrent_mA);
-        bool packOvercurrent                      = SOA_IsCellCurrentLimitViolated(absPackCurrent_mA, currentDirection);
+        bool packOvercurrent                      = SOA_IsPackCurrentLimitViolated(absPackCurrent_mA, currentDirection);
 
-        if (BMS_CHARGING == currentDirection) {
-            if (true == packOvercurrent) {
+        if (currentDirection == BMS_CHARGING) {
+            if (packOvercurrent == true) {
                 DIAG_Handler(DIAG_ID_PACK_OVERCURRENT_CHARGE_MSL, DIAG_EVENT_NOT_OK, DIAG_SYSTEM, 0u);
             } else {
                 DIAG_Handler(DIAG_ID_PACK_OVERCURRENT_CHARGE_MSL, DIAG_EVENT_OK, DIAG_SYSTEM, 0u);
             }
-        } else if (BMS_DISCHARGING == currentDirection) {
-            if (true == packOvercurrent) {
+        } else if (currentDirection == BMS_DISCHARGING) {
+            if (packOvercurrent == true) {
                 DIAG_Handler(DIAG_ID_PACK_OVERCURRENT_DISCHARGE_MSL, DIAG_EVENT_NOT_OK, DIAG_SYSTEM, 0u);
             } else {
                 DIAG_Handler(DIAG_ID_PACK_OVERCURRENT_DISCHARGE_MSL, DIAG_EVENT_OK, DIAG_SYSTEM, 0u);

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    test_mcu.c
  * @author  foxBMS Team
  * @date    2020-04-01 (date of creation)
- * @updated 2020-04-01 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -57,16 +58,31 @@
 #include "mcu.h"
 
 /*========== Definitions and Implementations for Unit Test ==================*/
-volatile uint32_t MCU_RTI_CNT0_FRC0_REG = 0;
+volatile uint32_t MCU_RTI_CNT0_FRC0_REG = 0u;
 
 /*========== Setup and Teardown =============================================*/
 void setUp(void) {
+    MCU_RTI_CNT0_FRC0_REG = 0u;
 }
 
 void tearDown(void) {
 }
 
 /*========== Test Cases =====================================================*/
-void testMCU_delay_us(void) {
-    MCU_delay_us(1);
+void testMCU_Delay_us(void) {
+    MCU_Delay_us(1);
+}
+
+/** test whether #MCU_GetFreeRunningCount() returns the correct value */
+void testMCU_GetFreeRunningCount(void) {
+    TEST_ASSERT_EQUAL(0u, MCU_GetFreeRunningCount());
+    MCU_RTI_CNT0_FRC0_REG = 42u;
+    TEST_ASSERT_EQUAL(42u, MCU_GetFreeRunningCount());
+}
+
+/** test conversion function for FRC #MCU_ConvertFrcDifferenceToTimespan_us() */
+void testMCU_ConvertFrcDifferenceToTimespan_us(void) {
+    TEST_ASSERT_EQUAL(0u, MCU_ConvertFrcDifferenceToTimespan_us(0u));
+
+    TEST_ASSERT_EQUAL(977u, MCU_ConvertFrcDifferenceToTimespan_us(0xBEEFu));
 }

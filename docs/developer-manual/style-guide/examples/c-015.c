@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -41,11 +41,16 @@
 
 #include "c-015.h"
 
-extern uint32_t ABC_ArrayAverage(uint8_t *pArray, uint8_t arrayLength) {
-    uint32_t sum = 0u;
+extern uint32_t ABC_ArrayAverage(uint8_t *pArray, uint8_t arrayLength, uint8_t additionalParameter) {
+    /* AXIVION Routine Generic-MissingParameterAssert: additionalParameter: This parameter is unused in this example */
 
     FAS_ASSERT(pArray != NULL_PTR);
     FAS_ASSERT(arrayLength > 0u);
+
+    /* unused parameter just for the example */
+    (void)additionalParameter;
+
+    uint32_t sum = 0u;
 
     for (uint16_t i = 0u; i < arrayLength; i++) {
         sum += pArray[i];

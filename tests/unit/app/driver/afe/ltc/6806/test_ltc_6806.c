@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    test_ltc_6806.c
  * @author  foxBMS Team
  * @date    2020-07-13 (date of creation)
- * @updated 2021-12-08 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -83,20 +84,6 @@ static const spiDAT1_t spi_kLtcDataConfig[BS_NR_OF_STRINGS] = {
         .DFSEL   = SPI_FMT_0,                         /* Data word format selection */
         .CSNR    = SPI_HARDWARE_CHIP_SELECT_2_ACTIVE, /* CS2 enabled */
     },
-    {
-        /* struct is implemented in the TI HAL and uses uppercase true and false */
-        .CS_HOLD = TRUE,                              /* If true, HW chip select kept active */
-        .WDEL    = FALSE,                             /* Activation of delay between words */
-        .DFSEL   = SPI_FMT_0,                         /* Data word format selection */
-        .CSNR    = SPI_HARDWARE_CHIP_SELECT_2_ACTIVE, /* CS2 enabled */
-    },
-    {
-        /* struct is implemented in the TI HAL and uses uppercase true and false */
-        .CS_HOLD = TRUE,                              /* If true, HW chip select kept active */
-        .WDEL    = FALSE,                             /* Activation of delay between words */
-        .DFSEL   = SPI_FMT_0,                         /* Data word format selection */
-        .CSNR    = SPI_HARDWARE_CHIP_SELECT_2_ACTIVE, /* CS2 enabled */
-    },
 };
 
 /**
@@ -106,20 +93,6 @@ static const spiDAT1_t spi_kLtcDataConfig[BS_NR_OF_STRINGS] = {
 SPI_INTERFACE_CONFIG_s spi_ltcInterface[BS_NR_OF_STRINGS] = {
     {
         .pConfig  = &spi_kLtcDataConfig[0u],
-        .pNode    = spiREG1,
-        .pGioPort = &(spiREG1->PC3),
-        .csPin    = 2u,
-        .csType   = SPI_CHIP_SELECT_HARDWARE,
-    },
-    {
-        .pConfig  = &spi_kLtcDataConfig[1u],
-        .pNode    = spiREG1,
-        .pGioPort = &(spiREG1->PC3),
-        .csPin    = 2u,
-        .csType   = SPI_CHIP_SELECT_HARDWARE,
-    },
-    {
-        .pConfig  = &spi_kLtcDataConfig[2u],
         .pNode    = spiREG1,
         .pGioPort = &(spiREG1->PC3),
         .csPin    = 2u,

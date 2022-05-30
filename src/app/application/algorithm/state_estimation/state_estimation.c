@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    state_estimation.c
  * @author  foxBMS Team
  * @date    2020-10-07 (date of creation)
- * @updated 2020-10-07 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup APPLICATION
  * @prefix  SE
  *
@@ -69,21 +70,28 @@ static DATA_BLOCK_SOX_s se_tableSocAndSoeEstimation = {.header.uniqueId = DATA_B
 /*========== Static Function Implementations ================================*/
 
 /*========== Extern Function Implementations ================================*/
-extern void SE_SocInit(bool cc_present, uint8_t stringNumber) {
+extern void SE_InitializeSoc(bool ccPresent, uint8_t stringNumber) {
     FAS_ASSERT(stringNumber < BS_NR_OF_STRINGS);
-    SOC_Init(&se_tableSocAndSoeEstimation, cc_present, stringNumber);
+    SOC_Init(&se_tableSocAndSoeEstimation, ccPresent, stringNumber);
     DATA_WRITE_DATA(&se_tableSocAndSoeEstimation);
 }
 
-extern void SE_SoeInit(bool ec_present, uint8_t stringNumber) {
+extern void SE_InitializeSoe(bool ec_present, uint8_t stringNumber) {
     FAS_ASSERT(stringNumber < BS_NR_OF_STRINGS);
     SOE_Init(&se_tableSocAndSoeEstimation, ec_present, stringNumber);
     DATA_WRITE_DATA(&se_tableSocAndSoeEstimation);
 }
 
-extern void SE_StateEstimations(void) {
+extern void SE_InitializeSoh(uint8_t stringNumber) {
+    FAS_ASSERT(stringNumber < BS_NR_OF_STRINGS);
+    SOH_Init(&se_tableSocAndSoeEstimation, stringNumber);
+    DATA_WRITE_DATA(&se_tableSocAndSoeEstimation);
+}
+
+extern void SE_RunStateEstimations(void) {
     SOC_Calculation(&se_tableSocAndSoeEstimation);
     SOE_Calculation(&se_tableSocAndSoeEstimation);
+    SOH_Calculation(&se_tableSocAndSoeEstimation);
 
     DATA_WRITE_DATA(&se_tableSocAndSoeEstimation);
 }

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    soe_counting_cfg.h
  * @author  foxBMS Team
  * @date    2020-10-07 (date of creation)
- * @updated 2021-05-20 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup APPLICATION
  * @prefix  SOE
  *
@@ -68,7 +69,8 @@
 #define SOE_CELL_ENERGY_Wh ((float)BC_ENERGY_Wh)
 
 /** Slice energy in Wh */
-#define SOE_STRING_ENERGY_Wh (BC_ENERGY_Wh * (float)(BS_NR_OF_BAT_CELLS * BS_NR_OF_PARALLEL_CELLS_PER_MODULE))
+#define SOE_STRING_ENERGY_Wh \
+    (BC_ENERGY_Wh * (float)(BS_NR_OF_CELL_BLOCKS_PER_STRING * BS_NR_OF_PARALLEL_CELLS_PER_MODULE))
 
 /*========== Extern Constant and Variable Declarations ======================*/
 

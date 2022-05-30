@@ -1,7 +1,7 @@
 // cSpell Settings
 {
-    // Version of the setting file.  Always 0.1
-    "version": "0.1",
+    // Version of the setting file.  Always 0.2
+    "version": "0.2",
     // language - current active spelling language
     "language": "en",
     // words - list of words to be always considered correct
@@ -26,6 +26,7 @@
         "pinout",
         "pinouts",
         "phosphane",
+        "precharge",
         "precharged",
         "prepend",
         "prepending",
@@ -47,7 +48,11 @@
         "toolset",
         "undervoltage",
         "unversioned",
-        "vendored"
+        "vendored",
+        // Abbreviations
+        "pdfs", // plural PDF
+        "pkgs", // plural packages
+        "Mbit" // megabit
     ],
     "enabled": true,
     "allowCompoundWords": false,
@@ -83,8 +88,6 @@
         "fstartup",
         "foxmath",
         "portasm",
-        "cppchecksuppression",
-        "cppcheckmisra",
         // prefixes we use in our embedded sources
         "AFE", // Analog Front-End
         "AFES", // Analog Front-Ends
@@ -130,7 +133,6 @@
         "relpath",
         "abspath",
         "printf",
-        "nolint",
         "memset",
         "memwidth",
         "threadsafe",
@@ -154,7 +156,7 @@
         "SIMO",
         "SOMI",
         // bender
-        "OKHS",
+        "VIFC", // Vehicle Interface Controller
         // ARM
         "curpc",
         "SPSR",
@@ -174,6 +176,8 @@
         "INTA",
         "IOUT",
         "Oport",
+        "DIEIDL",
+        "DIEIDH",
         "DMAREQEN",
         "EEPROM",
         "FAS_ASSERT",
@@ -190,7 +194,9 @@
         "PORTA",
         "PORTASGN",
         "PORTB",
+        "HCLK",
         "SYSPC",
+        "ecap",
         "ECLK",
         "etpwm",
         "TBPRD",
@@ -389,6 +395,7 @@
         "mram", // Magnetoresistive Random Access Memory
         "ntcalug", // temperature sensor form vishay
         "ntcle", // temperature sensor form vishay
+        "OHKS", // digital status pin from Bender IR155
         // Axivion
         "axivion",
         "cafecc",
@@ -455,7 +462,6 @@
         "Mockdatabase",
         "Mockepcos",
         "Mockmath",
-        "cppcheck",
         "freertos",
         "safertos",
         "rtos",
@@ -617,7 +623,6 @@
         "conf/spa/.pylintrc",
         "conf/hcg/**",
         "conf/guidelines/rules.json",
-        "conf/spa/cppchecksuppression.txt",
         "conf/unit/ceedling.cmd",
         "conf/unit/project.yml",
         "conf/unit/vsc-settings.yml",
@@ -653,6 +658,7 @@
         "src/app/driver/sbc/fs8x_driver/**",
         "src/app/driver/afe/ltc/common/ltc_pec.*",
         "src/os/**",
+        "tests/axivion/predefined_macros.txt",
         "tests/axivion/.axivion.preinc",
         "tests/axivion/rule_config_c.json",
         "tests/axivion/ci_config.json",

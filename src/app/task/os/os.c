@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    os.c
  * @author  foxBMS Team
  * @date    2019-08-27 (date of creation)
- * @updated 2021-12-01 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup OS
  * @prefix  OS
  *
@@ -76,6 +77,9 @@ uint32_t os_schedulerStartTime = 0u;
 /*========== Extern Function Implementations ================================*/
 
 void OS_InitializeOperatingSystem(void) {
+    /* Initialize the scheduler */
+    os_boot = OS_INITIALIZE_SCHEDULER;
+    OS_InitializeScheduler();
     /* operating system configuration (Queues, Tasks) */
     os_boot = OS_CREATE_QUEUES;
     FTSK_CreateQueues();

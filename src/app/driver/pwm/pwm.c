@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    pwm.c
  * @author  foxBMS Team
  * @date    2021-10-07 (date of creation)
- * @updated 2021-10-08 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup DRIVERS
  * @prefix  PWM
  *
@@ -54,7 +55,9 @@
 /*========== Includes =======================================================*/
 #include "pwm.h"
 
+#include "HL_ecap.h"
 #include "HL_etpwm.h"
+#include "HL_system.h"
 
 #include "fsystem.h"
 
@@ -68,9 +71,21 @@
 /** full period in promill */
 #define PWM_FULL_PERIOD_PERM (1000u)
 
+typedef struct {
+    bool ecapInitialized;
+    bool etpwmInitialized;
+} PWM_INITIALIZATION_STATE_s;
+
 /*========== Static Constant and Variable Definitions =======================*/
+static PWM_INITIALIZATION_STATE_s pwm_state = {
+    .ecapInitialized  = false,
+    .etpwmInitialized = false,
+};
+
 /** linear offset (through output circuit) */
 static const int16_t pwm_kLinearOffset = 0;
+
+static PWM_SIGNAL_s ecap_inputPwmSignal = {.dutyCycle_perc = 0.0f, .frequency_Hz = 0.0f};
 
 /*========== Extern Constant and Variable Definitions =======================*/
 
@@ -104,9 +119,17 @@ static uint16_t PWM_ComputeCounterValueFromDutyCycle(uint16_t dutyCycle_perm) {
 }
 
 /*========== Extern Function Implementations ================================*/
+extern void PWM_Initialize(void) {
+    etpwmInit();
+    pwm_state.etpwmInitialized = true;
+    ecapInit();
+    pwm_state.ecapInitialized = true;
+}
+
 extern void PWM_StartPwm(void) {
     /* go to privileged mode in order to access control register */
-    FAS_ASSERT(FSYS_RaisePrivilege() == 0);
+    const int32_t raisePrivilegeResult = FSYS_RaisePrivilege();
+    FAS_ASSERT(raisePrivilegeResult == 0);
     etpwmStartTBCLK();
     /* done; go back to user mode */
     FSYS_SwitchToUserMode();
@@ -114,7 +137,8 @@ extern void PWM_StartPwm(void) {
 
 extern void PWM_StopPwm(void) {
     /* go to privileged mode in order to access control register */
-    FAS_ASSERT(FSYS_RaisePrivilege() == 0);
+    const int32_t raisePrivilegeResult = FSYS_RaisePrivilege();
+    FAS_ASSERT(raisePrivilegeResult == 0);
     etpwmStopTBCLK();
     /* done; go back to user mode */
     FSYS_SwitchToUserMode();
@@ -138,6 +162,31 @@ extern void PWM_SetDutyCycle(uint16_t dutyCycle_perm) {
     }
 
     etpwmSetCmpA(etpwmREG1, PWM_ComputeCounterValueFromDutyCycle(correctedDutyCycle_perm));
+}
+
+extern void ecapNotification(ecapBASE_t *ecap, uint16 flags) {
+    /* Counter value of rising edge */
+    uint32_t capture1 = ecapGetCAP1(ecapREG1);
+    /* Counter value of falling edge */
+    uint32_t capture2 = ecapGetCAP2(ecapREG1);
+    /* Counter value of next rising edge */
+    uint32_t capture3 = ecapGetCAP3(ecapREG1);
+
+    /* Counter 3 - Counter 1: Period in counter ticks */
+    /* Convert MHz to Hz */
+    ecap_inputPwmSignal.frequency_Hz = 1.0f / ((float)(capture3 - capture1) / (HCLK_FREQ * 1000000.0f));
+
+    /* Counter 2 - Counter 1: Duty cycle in counter ticks */
+    ecap_inputPwmSignal.dutyCycle_perc = (float)(capture2 - capture1) / (float)(capture3 - capture1) * 100.0f;
+}
+
+bool PWM_IsEcapModuleInitialized(void) {
+    return pwm_state.ecapInitialized;
+}
+
+extern PWM_SIGNAL_s ECAP_GetPwmData(void) {
+    /* TODO: how to ensure that values have been updated? add timestamp? Add counter?*/
+    return ecap_inputPwmSignal;
 }
 
 /*========== Getter for static Variables (Unit Test) ========================*/

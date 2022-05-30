@@ -6,9 +6,7 @@
 Master Overview
 ===============
 
-
-TMS570LC4357-based Master
--------------------------
+**TMS570LC4357-based Master**
 
 .. toctree::
     :maxdepth: 1

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    can_helper.h
  * @author  foxBMS Team
  * @date    2021-04-22 (date of creation)
- * @updated 2021-06-24 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup DRIVERS
  * @prefix  CAN
  *
@@ -76,7 +77,7 @@
 /**@}*/
 
 /** type definition for fields of a CAN signal */
-typedef struct CAN_SIGNAL_TYPE {
+typedef struct {
     uint8_t bitStart;  /*!< start bit of signal in CAN message */
     uint8_t bitLength; /*!< length bit of signal in CAN message */
     float factor;      /*!< scaling factor applied to data */
@@ -168,6 +169,13 @@ extern void CAN_RxGetMessageDataFromCanData(
     uint64_t *pMessage,
     const uint8_t *const kpkCanData,
     CAN_ENDIANNESS_e endianness);
+
+/**
+ * @brief   Transform a bool to a bit (set if true)
+ * @param[in]   input   input boolean (true will become 1u)
+ * @returns     unsigned integer indicating the state of the input
+ */
+extern uint8_t CAN_ConvertBooleanToInteger(bool input);
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -40,19 +40,18 @@
 
 """Generates the list of conda packages for the documentation"""
 
-from typing import Dict, List, Tuple, Union
-
-import logging
 import argparse
+import json
+import logging
 import os
 import shutil
-import sys
 import subprocess
+import sys
 from datetime import date
 from io import StringIO
-import json
-import pandas as pd
+from typing import Dict, List, Tuple, Union
 
+import pandas as pd
 
 NAME_COLUMN_WIDTH = 36
 VERSION_COLUMN_WIDTH = 20

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    mxm_afe.c
  * @author  foxBMS Team
  * @date    2020-06-16 (date of creation)
- * @updated 2021-12-06 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup DRIVER
  * @prefix  AFE
  *
@@ -106,12 +107,18 @@ static MXM_BALANCING_STATE_s mxm_balancingState = {
 
 /** state variable for the Maxim monitoring driver */
 static MXM_MONITORING_INSTANCE_s mxm_state = {
-    .pBalancingState         = &mxm_balancingState,
-    .pInstance41B            = &mxm_41bState,
-    .pInstance5X             = &mxm_5xState,
-    .pCellVoltages_table     = &mxm_tableCellVoltages,
-    .pCellTemperatures_table = &mxm_tableCellTemperatures,
-    .pOpenwire_table         = &mxm_tableOpenWire,
+    .pBalancingState                    = &mxm_balancingState,
+    .pInstance41B                       = &mxm_41bState,
+    .pInstance5X                        = &mxm_5xState,
+    .pCellVoltages_table                = &mxm_tableCellVoltages,
+    .pCellTemperatures_table            = &mxm_tableCellTemperatures,
+    .pOpenwire_table                    = &mxm_tableOpenWire,
+    .selfCheck.crc                      = STD_NOT_OK,
+    .selfCheck.conv                     = STD_NOT_OK,
+    .selfCheck.firstSetBit              = STD_NOT_OK,
+    .selfCheck.extractValueFromRegister = STD_NOT_OK,
+    .selfCheck.parseVoltageReadall      = STD_NOT_OK,
+    .selfCheck.addressSpaceChecker      = STD_NOT_OK,
 };
 
 /*========== Extern Constant and Variable Definitions =======================*/
@@ -141,28 +148,22 @@ static void MXM_SetStateStructDefaultValues(void);
 /*========== Static Function Implementations ================================*/
 
 static void MXM_Tick(void) {
-    /** counter variable for the number of all instances of this driver */
-    static int8_t mxm_numberOfInstances = 0;
-
-    /* TODO once all states are covered in the instance structs, this reentry check can be removed */
-    FAS_ASSERT(mxm_numberOfInstances == 0);
-    mxm_numberOfInstances++;
     MXM_CheckIfErrorCounterCanBeReset(&mxm_state);
     MXM_StateMachine(&mxm_state);
     MXM_5XStateMachine(mxm_state.pInstance41B, mxm_state.pInstance5X);
-    MXM_StateMachine(&mxm_state);
-    MXM_5XStateMachine(mxm_state.pInstance41B, mxm_state.pInstance5X);
-    MXM_StateMachine(&mxm_state);
-    MXM_5XStateMachine(mxm_state.pInstance41B, mxm_state.pInstance5X);
     MXM_41BStateMachine(mxm_state.pInstance41B);
+    /* execute battery management state machine once (low cost and prepares for next cycle) */
     MXM_5XStateMachine(mxm_state.pInstance41B, mxm_state.pInstance5X);
-    MXM_StateMachine(&mxm_state);
-    MXM_5XStateMachine(mxm_state.pInstance41B, mxm_state.pInstance5X);
-    MXM_StateMachine(&mxm_state);
-    MXM_5XStateMachine(mxm_state.pInstance41B, mxm_state.pInstance5X);
-    MXM_StateMachine(&mxm_state);
-    FAS_ASSERT(mxm_numberOfInstances == 1); /* there should be exactly one instance running at the moment */
-    mxm_numberOfInstances--;
+
+    /* check if init is stuck */
+    if ((mxm_state.state != MXM_STATEMACHINE_STATES_UNINITIALIZED) &&
+        (mxm_state.state != MXM_STATEMACHINE_STATES_IDLE) && (mxm_state.state != MXM_STATEMACHINE_STATES_OPERATION) &&
+        (mxm_state.resetNecessary == false)) {
+        /* check if we spend too long in initialization and try to resolve with a reset */
+        if (OS_CheckTimeHasPassed(mxm_state.timestampInit, MXM_MAXIMUM_INIT_TIME_ms) == true) {
+            MXM_ErrorHandlerReset(&mxm_state, true);
+        }
+    }
 }
 
 static void MXM_SetStateStructDefaultValues(void) {
@@ -181,6 +182,7 @@ extern STD_RETURN_TYPE_e AFE_TriggerIc(void) {
         const bool allowStartup         = mxm_state.allowStartup;
         const bool operationRequested   = mxm_state.operationRequested;
         const bool firstMeasurementDone = mxm_state.firstMeasurementDone;
+        OS_ExitTaskCritical();
 
         (void)AFE_Initialize();
 
@@ -189,15 +191,18 @@ extern STD_RETURN_TYPE_e AFE_TriggerIc(void) {
         /* if a first measurement has been done, operation has been requested before */
         mxm_state.operationRequested = (operationRequested || firstMeasurementDone);
 
-        OS_ExitTaskCritical();
+    } else {
+        MXM_Tick();
     }
-    MXM_Tick();
+
     return STD_OK;
 }
 
 extern STD_RETURN_TYPE_e AFE_Initialize(void) {
     MXM_SetStateStructDefaultValues();
     MXM_InitializeMonitoringPins();
+    /* call pre init self check so that we can do these costly tests before the main cycle begins (results are stored) */
+    (void)MXM_PreInitSelfCheck(&mxm_state);
     return STD_OK;
 }
 

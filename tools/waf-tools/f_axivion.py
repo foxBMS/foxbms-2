@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -44,7 +44,7 @@ For information on Axivion see https://www.axivion.com/.
 """
 
 import os
-from waflib import Logs
+from waflib import Context, Errors, Utils, Logs
 from waflib.Tools.ccroot import link_task
 from waflib import TaskGen
 from waflib.TaskGen import taskgen_method
@@ -58,7 +58,10 @@ import f_ti_color_arm_cgt  # pylint: disable=unused-import
 def configure(configure_context):
     """Searches the Axivion cafeCC compiler"""
     if os.getenv("AXIVION", None):
+        configure_context.find_program("axivion_config", var="AXIVION_CONFIG")
         configure_context.find_program("cafecc", var="AXIVION_CC")
+        configure_context.find_program("irdump", var="AXIVION_IR_DUMP")
+        configure_context.env.append_unique("AXIVION_IR_DUMP_ARGS", "-m")
 
 
 @conf
@@ -102,13 +105,34 @@ def patch_for_axivion_build(self, bld):  # pylint: disable=unused-argument
     class cprogram(link_task):  # pylint: disable=invalid-name,unused-variable
         """class to run the Axivion CC compiler in linker mode"""
 
-        run_str = (
-            "${LINK_CC} ${CFLAGS} ${RUN_LINKER} ${LINKFLAGS} "
-            "${CCLINK_TGT_F}${TGT[0].abspath()} ${SRC} ${LINKER_SCRIPT} "
-            "${LIBPATH_ST:LIBPATH} ${STLIBPATH_ST:STLIBPATH} "
-            "-Wl,--start-group ${LIB_ST:LIB} ${STLIB_ST:STLIB} "
-            "-Wl,--end-group ${LDFLAGS}"
-        )
+        def run_ir_dump(self):
+            """Runs irdump on the create IR file"""
+            cmd = [
+                Utils.subst_vars("${AXIVION_IR_DUMP}", self.generator.bld.env),
+                Utils.subst_vars("${AXIVION_IR_DUMP_ARGS}", self.generator.bld.env),
+                self.outputs[0].abspath(),
+            ]
+            try:
+                std = self.generator.bld.cmd_and_log(
+                    cmd, output=Context.BOTH, quiet=Context.BOTH
+                )
+            except Errors.WafError as env_search:
+                Logs.error(env_search.msg.strip())
+                self.generator.bld.fatal("Running irdump failed")
+            self.outputs[1].write(std[0], encoding="utf-8")
+
+        run_str = [
+            (
+                "${LINK_CC} ${CFLAGS} ${RUN_LINKER} ${LINKFLAGS} "
+                "${CCLINK_TGT_F}${TGT[0].abspath()} ${SRC} ${LINKER_SCRIPT} "
+                "${LIBPATH_ST:LIBPATH} ${STLIBPATH_ST:STLIBPATH}  "
+                "${TI_ARM_CGT_LINKER_START_GROUP} "
+                "${LIB_ST:LIB} ${STLIB_ST:STLIB} "
+                "${TI_ARM_CGT_LINKER_END_GROUP} "
+                "${LDFLAGS}"
+            ),
+            run_ir_dump,
+        ]
         ext_out = [".elf"]
         vars = ["LINKDEPS"]
 
@@ -122,7 +146,8 @@ def patch_for_axivion_build(self, bld):  # pylint: disable=unused-argument
         bld.env.LINKER_SCRIPT = kw["linker_script"].abspath()
         kw["features"] = "c cprogram"
         tgt_elf = bld.path.find_or_declare(f"{kw['target']}.{bld.env.DEST_BIN_FMT}")
-        kw["target"] = [tgt_elf]
+        irdump_out = bld.path.find_or_declare(f"{kw['target']}.irdump")
+        kw["target"] = [tgt_elf, irdump_out]
         bld.add_manual_dependency(tgt_elf, kw["linker_script"])
         return bld(*k, **kw)
 

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -47,8 +47,10 @@
 /**
  * @brief   Does this and that
  * @details Detailed description of this function
+ * @param[out]  pPointer    important function writes to this pointer
+ * @param       length      length that should be written to the pointer
  * @return  some uint8_t which describes xyz
  */
-extern uint8_t ABC_ImportantFunction(void);
+extern uint8_t ABC_ImportantFunction(uint8_t *pPointer, uint8_t length);
 
 #endif /* FOXBMS__C_011_H_ */

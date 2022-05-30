@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    version_cfg.h
  * @author  foxBMS Team
  * @date    2021-07-14 (date of creation)
- * @updated 2021-10-19 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup GENERAL
  * @prefix  NONE
  *
@@ -74,7 +75,7 @@
 #define VERSION_INFORMATION __attribute__((section(".versionInformation")))
 
 /** struct type that describes the version information of the system */
-typedef struct VERSION {
+typedef struct {
     const bool underVersionControl;         /*!< indicates whether the toolchain has detected version control */
     const bool isDirty;                     /*!< indicates whether the code deviates from the last versioned state */
     const uint8_t major;                    /*!< major release version */

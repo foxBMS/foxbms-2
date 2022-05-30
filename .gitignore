@@ -47,3 +47,7 @@ __pycache__
 *.~$*
 
 **/foxbms-2_axivion_report.json
+
+*.exe
+
+/races.txt

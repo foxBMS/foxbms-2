@@ -7,7 +7,7 @@ FreeRTOS working on the ``TI TMS570LC43x`` in a project specific way.
 ## Basis
 
 The basis for FreeRTOS within the foxBMS 2 project is
-``FreeRTOS Kernel V10.4.3``.
+``FreeRTOS Kernel V10.4.5``.
 
 ## Changes
 

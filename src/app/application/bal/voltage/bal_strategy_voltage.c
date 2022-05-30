@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    bal_strategy_voltage.c
  * @author  foxBMS Team
  * @date    2020-05-29 (date of creation)
- * @updated 2021-12-08 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup APPLICATION
  * @prefix  BAL
  *
@@ -80,7 +81,7 @@ static BAL_STATE_s bal_state = {
     .errorRequestCounter    = 0,
     .initializationFinished = STD_NOT_OK,
     .active                 = false,
-    .balancingThreshold     = BAL_THRESHOLD_mV + BAL_HYSTERESIS_mV,
+    .balancingThreshold     = BAL_DEFAULT_THRESHOLD_mV + BAL_HYSTERESIS_mV,
     .balancingAllowed       = true,
     .balancingGlobalAllowed = false,
 };
@@ -127,13 +128,14 @@ static bool BAL_ActivateBalancing(void) {
     for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
         int16_t min              = minMax.minimumCellVoltage_mV[s];
         uint16_t nrBalancedCells = 0u;
-        for (uint8_t c = 0u; c < BS_NR_OF_BAT_CELLS; c++) {
+        for (uint8_t c = 0u; c < BS_NR_OF_CELL_BLOCKS_PER_STRING; c++) {
             if (cellvoltage.cellVoltage_mV[s][c] > (min + bal_state.balancingThreshold)) {
                 bal_balancing.balancingState[s][c] = 1;
                 finished                           = false;
-                bal_state.balancingThreshold       = BAL_THRESHOLD_mV;
-                bal_state.active                   = true;
-                bal_balancing.enableBalancing      = 1;
+                /* set without hysteresis so that we now balance all cells that are below the initial threshold */
+                bal_state.balancingThreshold  = BAL_GetBalancingThreshold_mV();
+                bal_state.active              = true;
+                bal_balancing.enableBalancing = 1;
                 nrBalancedCells++;
             } else {
                 bal_balancing.balancingState[s][c] = 0;
@@ -148,7 +150,7 @@ static bool BAL_ActivateBalancing(void) {
 
 static void BAL_Deactivate(void) {
     for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
-        for (uint16_t i = 0u; i < BS_NR_OF_BAT_CELLS; i++) {
+        for (uint16_t i = 0u; i < BS_NR_OF_CELL_BLOCKS_PER_STRING; i++) {
             bal_balancing.balancingState[s][i]  = 0;
             bal_balancing.deltaCharge_mAs[s][i] = 0;
         }
@@ -217,11 +219,11 @@ static void BAL_ProcessStateBalancing(BAL_STATE_REQUEST_e state_request) {
         bal_state.substate               = BAL_CHECK_CURRENT;
         DATA_BLOCK_MIN_MAX_s checkMinMax = {.header.uniqueId = DATA_BLOCK_ID_MIN_MAX};
         DATA_READ_DATA(&checkMinMax);
-        /* stop balacing if minimum voltage is below minimum threshold or
+        /* stop balancing if minimum voltage is below minimum threshold or
          * maximum cell temperature breached upper temperature limit */
-        for (uint8_t stringNumber = 0u; stringNumber < BS_NR_OF_STRINGS; stringNumber++) {
-            if ((checkMinMax.minimumCellVoltage_mV[stringNumber] <= BAL_LOWER_VOLTAGE_LIMIT_mV) ||
-                (checkMinMax.maximumTemperature_ddegC[stringNumber] >= BAL_UPPER_TEMPERATURE_LIMIT_ddegC)) {
+        for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
+            if ((checkMinMax.minimumCellVoltage_mV[s] <= BAL_LOWER_VOLTAGE_LIMIT_mV) ||
+                (checkMinMax.maximumTemperature_ddegC[s] >= BAL_UPPER_TEMPERATURE_LIMIT_ddegC)) {
                 if (bal_state.active == true) {
                     BAL_Deactivate();
                 }
@@ -252,8 +254,9 @@ static void BAL_ProcessStateBalancing(BAL_STATE_REQUEST_e state_request) {
             bal_state.state    = BAL_STATEMACH_CHECK_BALANCING;
             bal_state.substate = BAL_ENTRY;
         } else {
-            if (true == BAL_ActivateBalancing()) {
-                bal_state.balancingThreshold = BAL_THRESHOLD_mV + BAL_HYSTERESIS_mV;
+            if (BAL_ActivateBalancing() == true) {
+                /* set threshold with hysteresis in order to prevent too early reenabling of balancing */
+                bal_state.balancingThreshold = BAL_GetBalancingThreshold_mV() + BAL_HYSTERESIS_mV;
                 bal_state.state              = BAL_STATEMACH_CHECK_BALANCING;
                 bal_state.substate           = BAL_ENTRY;
             } else {

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    dma.c
  * @author  foxBMS Team
  * @date    2019-12-12 (date of creation)
- * @updated 2021-12-08 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup DRIVERS
  * @prefix  DMA
  *
@@ -220,6 +221,9 @@ void DMA_Initialize(void) {
 /** Function called on DMA complete interrupts (TX and RX). Defined as weak in HAL. */
 /* AXIVION Next Line Style Linker-Multiple_Definition: TI HAL only provides a weak implementation */
 void UNIT_TEST_WEAK_IMPL dmaGroupANotification(dmaInterrupt_t inttype, uint32 channel) {
+    /* AXIVION Routine Generic-MissingParameterAssert: inttype: unchecked in interrupt */
+    /* AXIVION Routine Generic-MissingParameterAssert: channel: unchecked in interrupt */
+
     if (inttype == (dmaInterrupt_t)BTC) {
         uint16_t timeoutIterations = 0u;
         uint8_t spiIndex           = 0u;
@@ -231,7 +235,7 @@ void UNIT_TEST_WEAK_IMPL dmaGroupANotification(dmaInterrupt_t inttype, uint32 ch
             case DMA_CHANNEL_SPI5_TX:
                 /* Search for SPI index with DMA TX channel */
                 for (uint8_t i = 0u; i < DMA_NUMBER_SPI_INTERFACES; i++) {
-                    if ((uint32_t)dma_spiDmaChannels[i].txChannel == channel) {
+                    if (channel == (uint32_t)dma_spiDmaChannels[i].txChannel) {
                         spiIndex = i;
                         break;
                     }
@@ -257,7 +261,7 @@ void UNIT_TEST_WEAK_IMPL dmaGroupANotification(dmaInterrupt_t inttype, uint32 ch
             case DMA_CHANNEL_SPI5_RX:
                 /* Search for SPI index with DMA RX channel */
                 for (uint8_t i = 0u; i < DMA_NUMBER_SPI_INTERFACES; i++) {
-                    if ((uint32_t)dma_spiDmaChannels[i].rxChannel == channel) {
+                    if (channel == (uint32_t)dma_spiDmaChannels[i].rxChannel) {
                         spiIndex = i;
                         break;
                     }

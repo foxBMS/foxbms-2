@@ -119,7 +119,7 @@ User Code Function will be run or has run. This enables to determine if a task r
         os_boot = OS_ENGINE_RUNNING;
 
         OS_DelayTaskUntil(&os_schedulerStartTime, ftsk_taskDefinitionEngine.Phase);
-        while (1) {
+        while (true) {
             /* notify system monitoring that task will be called */
             SYSM_Notify(SYSM_TASK_ID_ENGINE, SYSM_NOTIFY_ENTER, OS_GetTickCount());
             /* user code implementation */

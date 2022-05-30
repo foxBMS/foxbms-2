@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    can_cbs_rx_imd.c
  * @author  foxBMS Team
  * @date    2021-04-20 (date of creation)
- * @updated 2021-12-01 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup DRIVER
  * @prefix  CAN
  *
@@ -71,25 +72,22 @@ extern uint32_t CAN_RxImdInfo(
     uint32_t id,
     uint8_t dlc,
     CAN_ENDIANNESS_e endianness,
-    uint8_t *pCanData,
-    uint8_t *pMuxId,
+    const uint8_t *const kpkCanData,
     const CAN_SHIM_s *const kpkCanShim) {
     /* This handler is only implemented for little endian */
     FAS_ASSERT(endianness == CAN_LITTLE_ENDIAN);
-    /* pMuxId is not used here, therefore has to be NULL_PTR */
-    FAS_ASSERT(pMuxId == NULL_PTR);
 
     FAS_ASSERT(id < CAN_MAX_11BIT_ID); /* Currently standard ID, 11 bit */
     FAS_ASSERT(dlc <= CAN_MAX_DLC);    /* Currently max 8 bytes in a CAN frame */
     const uint8_t boundedDlc = MATH_MinimumOfTwoUint8_t(dlc, CAN_MAX_DLC);
-    FAS_ASSERT(pCanData != NULL_PTR);
+    FAS_ASSERT(kpkCanData != NULL_PTR);
     FAS_ASSERT(kpkCanShim != NULL_PTR);
     CAN_BUFFERELEMENT_s canMessage = {0};
     uint32_t retVal                = 1u;
 
     canMessage.id = id;
     for (uint8_t i = 0; i < boundedDlc; i++) {
-        canMessage.data[i] = pCanData[i];
+        canMessage.data[i] = kpkCanData[i];
     }
     if (OS_SendToBackOfQueue(*(kpkCanShim->pQueueImd), (void *)&canMessage, 0u) == OS_SUCCESS) {
         retVal = 0u;
@@ -101,25 +99,23 @@ extern uint32_t CAN_RxImdResponse(
     uint32_t id,
     uint8_t dlc,
     CAN_ENDIANNESS_e endianness,
-    uint8_t *pCanData,
-    uint8_t *pMuxId,
+    const uint8_t *const kpkCanData,
     const CAN_SHIM_s *const kpkCanShim) {
     /* This handler is only implemented for little endian */
     FAS_ASSERT(endianness == CAN_LITTLE_ENDIAN);
-    /* pMuxId is not used here, therefore has to be NULL_PTR */
-    FAS_ASSERT(pMuxId == NULL_PTR);
-
     FAS_ASSERT(id < CAN_MAX_11BIT_ID); /* Currently standard ID, 11 bit */
     FAS_ASSERT(dlc <= CAN_MAX_DLC);    /* Currently max 8 bytes in a CAN frame */
-    const uint8_t boundedDlc = MATH_MinimumOfTwoUint8_t(dlc, CAN_MAX_DLC);
-    FAS_ASSERT(pCanData != NULL_PTR);
+    FAS_ASSERT(kpkCanData != NULL_PTR);
     FAS_ASSERT(kpkCanShim != NULL_PTR);
+
+    const uint8_t boundedDlc = MATH_MinimumOfTwoUint8_t(dlc, CAN_MAX_DLC);
+
     CAN_BUFFERELEMENT_s canMessage = {0};
     uint32_t retVal                = 1u;
 
     canMessage.id = id;
     for (uint8_t i = 0; i < boundedDlc; i++) {
-        canMessage.data[i] = pCanData[i];
+        canMessage.data[i] = kpkCanData[i];
     }
     if (OS_SendToBackOfQueue(*(kpkCanShim->pQueueImd), (void *)&canMessage, 0u) == OS_SUCCESS) {
         retVal = 0u;

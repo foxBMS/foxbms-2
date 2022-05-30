@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    algorithm.c
  * @author  foxBMS Team
  * @date    2017-12-18 (date of creation)
- * @updated 2020-06-30 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup ALGORITHMS
  * @prefix  ALGO
  *
@@ -83,9 +84,9 @@ static void ALGO_Initialization(void) {
         FAS_ASSERT((algo_algorithms[i].cycleTime_ms % ALGO_TICK_MS) == 0u);
 
         /* check only uninitialized algorithms */
-        if (ALGO_UNINITIALIZED == algo_algorithms[i].state) {
+        if (algo_algorithms[i].state == ALGO_UNINITIALIZED) {
             /* directly make ready when init function is a null pointer otherwise run init */
-            if (NULL_PTR == algo_algorithms[i].fpInitialization) {
+            if (algo_algorithms[i].fpInitialization == NULL_PTR) {
                 algo_algorithms[i].state = ALGO_READY;
             } else {
                 const STD_RETURN_TYPE_e result = algo_algorithms[i].fpInitialization();
@@ -112,7 +113,7 @@ extern void ALGO_MainFunction(void) {
     OS_EnterTaskCritical();
     const bool initializationRequested = algo_initializationRequested;
     OS_ExitTaskCritical();
-    if (true == initializationRequested) {
+    if (initializationRequested == true) {
         ALGO_Initialization();
         OS_EnterTaskCritical();
         algo_initializationRequested = false;
@@ -127,12 +128,19 @@ extern void ALGO_MainFunction(void) {
             ((algo_algorithms[i].cycleTime_ms != 0u) && ((counter_ticks % algo_algorithms[i].cycleTime_ms) == 0u));
         if ((runAlgorithmAsap != false) || (runAlgorithmCycleElapsed != false)) {
             /* Cycle time elapsed -> call function */
-            if (ALGO_READY == algo_algorithms[i].state) {
+            if (algo_algorithms[i].state == ALGO_READY) {
                 /* Set state to running -> reset to READY before leaving algo function */
                 algo_algorithms[i].state     = ALGO_RUNNING;
                 algo_algorithms[i].startTime = OS_GetTickCount();
                 algo_algorithms[i].fpAlgorithm();
                 ALGO_MarkAsDone(i);
+            }
+            /* check if we need to reinit */
+            if (algo_algorithms[i].state == ALGO_REINIT_REQUESTED) {
+                /* set to uninitialized so that the algorithm can be reinitialized */
+                algo_algorithms[i].state = ALGO_UNINITIALIZED;
+
+                ALGO_UnlockInitialization();
             }
         }
     }
@@ -144,7 +152,7 @@ extern void ALGO_MonitorExecutionTime(void) {
     const uint32_t timestamp = OS_GetTickCount();
 
     for (uint16_t i = 0u; i < algo_length; i++) {
-        if ((algo_algorithms[i].startTime != 0u) && (ALGO_RUNNING == algo_algorithms[i].state) &&
+        if ((algo_algorithms[i].startTime != 0u) && (algo_algorithms[i].state == ALGO_RUNNING) &&
             ((algo_algorithms[i].startTime + algo_algorithms[i].maxCalculationDuration_ms) < timestamp)) {
             /* Block task from further execution because of runtime violation, but task will finish its execution */
             algo_algorithms[i].state = ALGO_BLOCKED;

@@ -1,4 +1,4 @@
-@REM Copyright (c) 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+@REM Copyright (c) 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 @REM All rights reserved.
 @REM
 @REM SPDX-License-Identifier: BSD-3-Clause
@@ -39,11 +39,11 @@
 @SET UNCRUSTIFY_BIN=uncrustify
 @WHERE %UNCRUSTIFY_BIN% 1>NUL 2>NUL
 @IF %ERRORLEVEL% NEQ 0 (
-    @echo Could not found uncrusitfy binary^.
+    @echo Could not find uncrustify binary.
     @EXIT /b 1
 )
 
-@REM we found the uncrusitfy binary, therefore we set the variable properly
+@REM we found the uncrustify binary, therefore we set the variable properly
 @FOR /F "usebackq tokens=*" %%i in (`@where uncrustify`) do @(
     @SET UNCRUSTIFY_BIN=%%i
 )

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    can_cbs_tx_voltage.c
  * @author  foxBMS Team
  * @date    2021-04-20 (date of creation)
- * @updated 2021-07-29 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup DRIVER
  * @prefix  CAN
  *
@@ -111,7 +112,7 @@ static void CAN_TxVoltageSetData(
     CAN_ENDIANNESS_e endianness,
     const CAN_SHIM_s *const kpkCanShim) {
     /* cell index must not be greater than the number of cells */
-    if (muxId < (BS_NR_OF_BAT_CELLS * BS_NR_OF_STRINGS)) {
+    if (muxId < (BS_NR_OF_CELL_BLOCKS_PER_STRING * BS_NR_OF_STRINGS)) {
         /* Get string, module and cell number */
         const uint8_t stringNumber = DATA_GetStringNumberFromVoltageIndex(muxId);
         const uint8_t moduleNumber = DATA_GetModuleNumberFromVoltageIndex(muxId);
@@ -136,7 +137,7 @@ static void CAN_TxVoltageSetData(
         /*Voltage data */
         float signalData_mV =
             (float)(kpkCanShim->pTableCellVoltage
-                        ->cellVoltage_mV[stringNumber][(moduleNumber * BS_NR_OF_CELLS_PER_MODULE) + cellNumber]);
+                        ->cellVoltage_mV[stringNumber][(moduleNumber * BS_NR_OF_CELL_BLOCKS_PER_MODULE) + cellNumber]);
         /* Apply offset and factor */
         CAN_TxPrepareSignalData(&signalData_mV, cellVoltageSignal);
         /* Set voltage data in CAN frame */
@@ -161,7 +162,7 @@ extern uint32_t CAN_TxVoltage(
     uint64_t message = 0;
 
     /* Reset mux if maximum was reached */
-    if (*pMuxId >= (BS_NR_OF_STRINGS * BS_NR_OF_BAT_CELLS)) {
+    if (*pMuxId >= (BS_NR_OF_STRINGS * BS_NR_OF_CELL_BLOCKS_PER_STRING)) {
         *pMuxId = 0u;
     }
     /* First signal to transmit cell voltages: get database values */

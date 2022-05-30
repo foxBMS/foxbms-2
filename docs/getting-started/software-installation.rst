@@ -35,7 +35,6 @@ all required software dependencies. These are the required steps:
    #. installing LLVM (required for code formatting)
    #. installing Ruby and the Ceedling package (required for unit testing)
    #. installing GCC (required for unit testing)
-   #. installing Cppcheck (required for static program analysis)
    #. installing VS Code (required for developing)
 #. setting up a development environment
 
@@ -71,9 +70,9 @@ later steps of this manual.
    :caption: Downloading a release
    :name: download-foxbms-2
 
-   C:\Users\vulpes\Documents>curl -Ss -L -o foxbms-2-v1.2.1.zip https://github.com/foxBMS/foxbms-2/archive/v1.2.1.zip
-   C:\Users\vulpes\Documents>tar -x -f foxbms-2-v1.2.1.zip
-   C:\Users\vulpes\Documents>ren foxbms-2-1.2.1 foxbms-2
+   C:\Users\vulpes\Documents>curl -Ss -L -o foxbms-2-v1.3.0.zip https://github.com/foxBMS/foxbms-2/archive/v1.3.0.zip
+   C:\Users\vulpes\Documents>tar -x -f foxbms-2-v1.3.0.zip
+   C:\Users\vulpes\Documents>ren foxbms-2-1.3.0 foxbms-2
    C:\Users\vulpes\Documents>cd foxbms-2
 
 .. note::
@@ -178,9 +177,9 @@ Installing Miniconda and Configuration
    | Automated Configuration                                                        | Manual Configuration                    |
    +================================================================================+=========================================+
    | For automated configuration of conda according to |foxbms| requirements just   | The manual configuration                |
-   | run:                                                                           | of conda is                             |
-   |                                                                                | described in                            |
-   | .. code-block:: console                                                        | :ref:`MANUAL_CONDA_CONFIGURATION`.      |
+   | run:                                                                           | of conda is described in                |
+   |                                                                                | :ref:`MANUAL_CONDA_CONFIGURATION`.      |
+   | .. code-block:: console                                                        |                                         |
    |   :caption: Running the automated ``conda-init.bat`` configuration script      |                                         |
    |                                                                                |                                         |
    |   C:\Users\vulpes\Documents\foxbms-2>tools\utils\conda-init.bat                |                                         |
@@ -188,10 +187,12 @@ Installing Miniconda and Configuration
    | .. note::                                                                      |                                         |
    |                                                                                |                                         |
    |    If the script returns                                                       |                                         |
-   |    *Maybe you need to add "foxbms" to your channels list.*                     |                                         |
+   |    "Maybe you need to add "foxbms" to your channels list."                     |                                         |
    |    please follow the instructions at :ref:`condarc_configuration`.             |                                         |
    |                                                                                |                                         |
    +--------------------------------------------------------------------------------+-----------------------------------------+
+
+.. _llvm_install:
 
 Installing LLVM
 ===============
@@ -199,11 +200,12 @@ Installing LLVM
 +--------------------------------------------------------------------------------+-----------------------------------------+
 | Automated Installation                                                         | Manual Installation                     |
 +================================================================================+=========================================+
-| For automated installation of LLVM according to |foxbms| requirements          | Download `LLVM`_ (version |version_llvm||
-| just run (the installer will prompt for privileged installation):              | or greater) from `github.com/LLVM`_ and |
-|                                                                                | run the installer. Let it install it    |
-| .. code-block:: console                                                        | into |path_llvm|. Do not add LLVM to    |
-|   :caption: Running the automated ``llvm-install.bat`` installer script        | ``PATH``.                               |
+| For a semi-automated installation of LLVM according to |foxbms|                | The manual installation                 |
+| requirements just run in an elevated command prompt (known as "Run as          | of LLVM is described in                 |
+| administrator"):                                                               | :ref:`MANUAL_LLVM_INSTALLATION`.        |
+|                                                                                |                                         |
+| .. code-block:: console                                                        |                                         |
+|   :caption: Running the automated ``llvm-install.bat`` installer script        |                                         |
 |      for LLVM                                                                  |                                         |
 |                                                                                |                                         |
 |   C:\Users\vulpes\Documents\foxbms-2>tools\utils\llvm-install.bat              |                                         |
@@ -250,24 +252,6 @@ Installing GCC
 |   C:\Users\vulpes\Documents\foxbms-2>tools\utils\mingw64-install.bat           |                                         |
 |                                                                                |                                         |
 +--------------------------------------------------------------------------------+-----------------------------------------+
-
-Installing Cppcheck
-===================
-
-.. note::
-
-   The Cppcheck installer does not support installing different versions of
-   Cppcheck. If there is already some Cppcheck version installed into
-   ``C:\Program Files\Cppcheck\*`` this installation must be copied to some
-   temporary folder, and then can be copied back into
-   ``C:\Program Files\Cppcheck\other-cppcheck-version`` after the installation
-   has finished.
-
-#. Download Cppcheck
-   `version 2.2 <https://github.com/danmar/cppcheck/releases/download/2.2/cppcheck-2.2-x64-Setup.msi>`_
-   from the project's GitHub release page.
-#. Install Cppcheck into ``C:\Program Files\Cppcheck\Cppcheck-2.2-x64`` by
-   running the installer.
 
 Installing VS Code and Extensions
 =================================

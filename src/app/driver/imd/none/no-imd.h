@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,13 +43,16 @@
  * @file    no-imd.h
  * @author  foxBMS Team
  * @date    2020-11-20 (date of creation)
- * @updated 2021-09-08 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup DRIVERS
  * @prefix  NONE
  *
- * @brief   Headers for the driver for the dummy insulation monitoring
+ * @brief   Header for the driver for the dummy insulation monitoring
  *
- * @details TODO
+ * @details This header provides the wrappers to make the static
+ *          implementations of the IMD functionalities available in the unit
+ *          tests.
  */
 
 #ifndef FOXBMS__NO_IMD_H_
@@ -68,7 +71,10 @@
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 #ifdef UNITY_UNIT_TEST
-extern STD_RETURN_TYPE_e TEST_NOIMD_MeasureInsulation();
+extern IMD_FSM_STATES_e TEST_NOIMD_Initialize(void);
+extern IMD_FSM_STATES_e TEST_NOIMD_EnableImd(void);
+extern IMD_FSM_STATES_e TEST_NOIMD_MeasureInsulation(DATA_BLOCK_INSULATION_MONITORING_s *pTableInsulationMonitoring);
+extern IMD_FSM_STATES_e TEST_NOIMD_DisableImd(void);
 #endif
 
 #endif /* FOXBMS__NO_IMD_H_ */

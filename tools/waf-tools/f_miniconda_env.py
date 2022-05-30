@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -55,12 +55,12 @@ workflow are installed properly.
         conf.load("f_miniconda_env")
 
 """
-import sys
-import os
 import json
-import yaml
+import os
+import sys
 
-from waflib import Context, Errors, Utils, Logs
+import yaml
+from waflib import Context, Errors, Logs, Utils
 
 if Utils.is_win32:
     CONDA_BASE = [

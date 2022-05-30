@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -48,12 +48,14 @@ from waflib import Logs
 WARNING_INDICATORS = [
     "warning #",
     ": warning",
+    "warning:",
     ": remark",
     "remark #",
 ]
 ERROR_INDICATORS = [
     "error #",
     ": error",
+    "error:",
     ": fatal error",
     "catastrophic error",
 ]
@@ -79,7 +81,9 @@ class armclFormatter(Logs.formatter):
         while frame:
             if frame.f_code.co_name == "exec_command":
                 cmd = frame.f_locals.get("cmd")
-                if isinstance(cmd, list) and ("armcl" in cmd[0]):
+                if isinstance(cmd, list) and (
+                    any(i in cmd[0] for i in ("armcl", "armhex"))
+                ):
                     rec.msg = armclFormatter.colorize(rec.msg)
             frame = frame.f_back
         return Logs.formatter.format(self, rec)

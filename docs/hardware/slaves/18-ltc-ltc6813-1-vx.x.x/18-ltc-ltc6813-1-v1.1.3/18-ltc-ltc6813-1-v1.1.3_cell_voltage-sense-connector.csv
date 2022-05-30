@@ -10,7 +10,7 @@ Pin;    Signal;     Direction;  Description
 9;      |CELL_14+|; Input;      Cell 14 positive terminal
 10;     |CELL_16+|; Input;      Cell 16 positive terminal
 11;     |VBAT+|;    Input;      Battery module positive terminal
-12;     |NC|;       --;         --
+12;     |NC|;       \-;         \-
 13;     |CELL_0-|;  Input;      Cell 0 negative terminal
 14;     |CELL_1+|;  Input;      Cell 1 positive terminal
 15;     |CELL_3+|;  Input;      Cell 3 positive terminal
@@ -21,5 +21,5 @@ Pin;    Signal;     Direction;  Description
 20;     |CELL_13+|; Input;      Cell 13 positive terminal
 21;     |CELL_15+|; Input;      Cell 15 positive terminal
 22;     |CELL_17+|; Input;      Cell 17 positive terminal
-23;     |NC|;       --;         --
-24;     |NC|;       --;         --
+23;     |NC|;       \-;         \-
+24;     |NC|;       \-;         \-

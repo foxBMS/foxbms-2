@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    fassert.c
  * @author  foxBMS Team
  * @date    2020-05-26 (date of creation)
- * @updated 2020-05-26 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup ASSERT
  * @prefix  FAS
  *
@@ -60,19 +61,23 @@
 /*========== Static Constant and Variable Definitions =======================*/
 
 /*========== Extern Constant and Variable Definitions =======================*/
-ASSERT_LOC_s fas_assertLocation = {0};
 
 /*========== Static Function Prototypes =====================================*/
 
 /*========== Static Function Implementations ================================*/
 
 /*========== Extern Function Implementations ================================*/
-extern void fas_storeAssertLoc(uint32_t *pc, uint32_t line) {
-    fas_assertLocation.pc = (uint32_t *)pc;
+extern void FAS_StoreAssertLocation(uint32_t *pc, uint32_t line) {
+    /* AXIVION Routine Generic-MissingParameterAssert: pc: asserting does not make sense as we come from an assert */
+    /* AXIVION Routine Generic-MissingParameterAssert: line: line creating the assertion can be any line in uint32_t */
     /* Storing the line number is redundant if we have pc and lr.
     It is kept nevertheless in order to make each assert call unique and
     thus avoid optimization (which makes it more confusing). */
-    fas_assertLocation.line = (uint32_t)line;
+    FAS_ASSERT_LOCATION_s fas_assertLocation = {
+        .pc   = pc,
+        .line = line,
+    };
+    (void)fas_assertLocation;
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/

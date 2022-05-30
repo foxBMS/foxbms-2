@@ -33,7 +33,189 @@ Driver structure
 The driver is separated into three main modules with additional helper modules.
 The three main modules are:
 
-  * MAX17841B bridge IC driver in ``mxm_17841b.c``,
+  * MAX17841B bridge IC driver that interacts with the interface
+    from :ref:`INTERFACE_MAX17841B___V1_0_0__` in ``mxm_17841b.c``,
   * Battery Management UART protocol abstraction in
     ``max_battery_management.c`` and
   * MAX1785x device driver in ``mxm_1785x.c``.
+  * Implementation of the operation state machine in ``mxm_17852.c``.
+    This implementation is selected by the driver variant in ``bms.json``.
+
+
+Configuration
+-------------
+
+The driver for the |mxm| monitoring ICs is configurable for some aspects.
+
+Adaption to new hardware
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+In order to adapt the driver to new interface hardware, it is necessary to
+adapt the following:
+
+  * Ensure that the functions that interact with the shutdown pin of
+    the |max17841b| bridge IC are correct.
+    They are implemented in ``mxm_cfg.c``.
+  * Check the |spi| configuration of the system and that it aligns with
+    the capabilities of the bridge IC.
+  * The driver is intended to be implemented as generic as possible.
+    That means that the main modules should not be necessary to be changed.
+    In order to implement new behavior during the measurement cycle the
+    implementation of the ``MXM_StateMachineOperation`` has to be adapted.
+    This can be achieved by implementing a new variant in parallel to the
+    current ``max17852`` variant.
+
+.. _Startup_behavior:
+
+Startup behavior
+^^^^^^^^^^^^^^^^
+
+During enumeration of the daisy-chain, the monitoring driver can stop and hang
+if the number of found devices does not match the expected number of devices
+as reported by the system configuration.
+In order to select whether the driver should hang or continue, the constant
+``mxm_allowSkippingPostInitSelfCheck`` can be set.
+
+Main flow
+---------
+
+The following flow chart describes the main flow of this ``AFE`` driver.
+
+.. mermaid::
+
+   stateDiagram-v2
+      uninitialized: Uninitialized
+      pre_init: Pre-Initialization Self Check
+      init: Initialization
+      post_init: Post-Initialization Self Check
+      idle: Idle
+      operation: Operation
+
+      [*] --> uninitialized
+      uninitialized --> pre_init: Initialization
+      pre_init --> init: Success
+      init --> post_init: Success
+      post_init --> idle: Success
+      idle --> operation: Operation Requested
+      operation --> idle: Halt Requested
+      operation --> uninitialized: Error
+      pre_init --> uninitialized: Error
+      init --> uninitialized: Error
+      post_init --> uninitialized: Error
+
+      state operation {
+          op_init: Initialization of AFE
+          op_mux_control: Multiplexer control
+          op_measurement: Measurement
+          op_diagnostic: Diagnostic measures
+          op_balancing: Balancing control
+
+          [*] --> op_init
+          op_init --> op_mux_control
+          op_mux_control --> op_measurement
+          op_measurement --> op_diagnostic
+          op_diagnostic --> op_balancing
+          op_balancing --> op_mux_control
+      }
+
+* State `Unitialized`: This is the default state of the driver.
+  The driver transitions with the next execution into the
+  `Pre-Initialization Self Check` state.
+
+* State `Pre-Initialization Self Check`: In this state, the driver checks
+  assumptions on its functions.
+  If this step fails, the driver is not able to conclude its work.
+
+* State `Initialization`: In this state, the daisy-chain of the driver is
+  initialized and each ``AFE`` is assigned an address.
+
+* State `Post-Initialization Self Check`: During this state, the number of
+  found ``AFE`` is compared to the expected number of devices.
+  If these mismatch the driver can halt in this state depending on the
+  configuration described in :ref:`Startup_behavior`.
+
+* State `Idle`: The driver rests in this state as long as the system requests
+  the driver to start.
+
+* State `Operation`: This is the main state during which the ``AFE`` devices
+  are controlled.
+
+  * State `Initialization of AFE`: In this chain of substates the ``AFE`` is
+    initialized and programmed with the expected configuration.
+
+  * State `Multiplexer control`: In this chain of substates the temperature
+    multiplexer of the |slave| is controlled and switched to the next channel.
+
+  * State `Measurement`: In this chain of substates the measurement the driver
+    requests a measurement and retrieves each measurement value.
+
+  * State `Diagnostic measures`: In this chain of substates diagnostic
+    registers are read.
+    When a power on reset condition is recognized (indicating a loss of power
+    and potentially undefined state in one of the ``AFE`` devices), a reset of
+    the driver is triggered.
+
+  * State `Balancing control`: In this chain of substates the balancing
+    switches are controlled.
+    The driver alternates between even and odd switches in order to not create
+    a connection between adjacent switches.
+
+* If any state except `Idle` or `Unitialized` is stuck and does not advance to
+  the next state during a predefined time frame, the driver resets itself to
+  the `Uninitialized` state.
+  Requests for operation are preserved during this reset as the system assumes
+  that the driver has been already asked to start.
+
+Diagnostic signals generated
+----------------------------
+
+This driver uses the following diagnostic messages of the ``diag``-module:
+
+* ``DIAG_ID_AFE_CONFIG``: This signal is issued when the self check of the
+  driver that is executed before the initialization fails.
+  If this happens, it is very likely due to an implementation error.
+* ``DIAG_ID_AFE_COM_INTEGRITY``: This signal is issued when the CRC of a
+  received message is not correct.
+* ``DIAG_ID_AFE_SPI``: This signal is issued when the SPI API returns an
+  unsuccessful transmission.
+  If this happens, it is very likely due to implementation issues with the
+  ``SPI`` interface.
+  Normally, the ``SPI`` transmission functions should succeed.
+
+Trivia
+------
+
+This section gathers additional information that is worth knowing about the
+implementation.
+
+String mapping
+^^^^^^^^^^^^^^
+
+The driver assumes, that it has to service all strings in the system and that
+all strings are connected into one daisy-chain.
+(It expects a chain of strings of modules.)
+
+If only one string is defined, the driver maps the modules onto this string as
+expected.
+If more than one string is defined, the driver maps the modules by filling the
+first string, then filling the second and so forth.
+This behavior is not configurable.
+
+Automatic reset
+^^^^^^^^^^^^^^^
+
+When a communication issue occurs, the slave boards might get stuck in a state
+that is unknown to the |master|.
+In order to prevent this situation, the driver has an error counter.
+This error counter is automatically reset after
+`MXM_TIMEOUT_RESET_ERROR_COUNTER_ms` milliseconds without any new error.
+If the error threshold of `MXM_MAXIMUM_ERROR_COUNT` is passed, the driver
+starts an automatic reset of the whole daisy-chain.
+
+This is achieved by pulling down the shutdown line of the bridge IC,
+effectively resetting it to default condition.
+During this shutdown, the |slave| will go into deep sleep and thus loose their
+non-persistent configuration (and also disable the on-board supply).
+The driver resets itself to initial condition restores flags indicating whether
+it may start and then restart the daisy-chain.
+The user can register this by checking for the freshness of measurement values.

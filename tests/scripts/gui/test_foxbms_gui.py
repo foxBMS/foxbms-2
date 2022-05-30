@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -41,9 +41,10 @@
 """Implements tests for the foxBMS 2 GUI.
 """
 
-import unittest
-import sys
 import os
+import sys
+import unittest
+
 import wx
 
 HAVE_GIT = False

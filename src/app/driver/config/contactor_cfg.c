@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    contactor_cfg.c
  * @author  foxBMS Team
  * @date    2020-02-11 (date of creation)
- * @updated 2020-02-11 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup DRIVERS_CONF
  * @prefix  CONT
  *
@@ -62,11 +63,7 @@
 CONT_CONTACTOR_STATE_s cont_contactorStates[BS_NR_OF_CONTACTORS] = {
     {CONT_SWITCH_OFF, CONT_SWITCH_OFF, CONT_FEEDBACK_THROUGH_CURRENT, 0u, CONT_STRING0_PLUS},
     {CONT_SWITCH_OFF, CONT_SWITCH_OFF, CONT_FEEDBACK_THROUGH_CURRENT, 1u, CONT_STRING0_MINUS},
-    {CONT_SWITCH_OFF, CONT_SWITCH_OFF, CONT_FEEDBACK_THROUGH_CURRENT, 2u, CONT_STRING1_PLUS},
-    {CONT_SWITCH_OFF, CONT_SWITCH_OFF, CONT_FEEDBACK_THROUGH_CURRENT, 3u, CONT_STRING1_MINUS},
-    {CONT_SWITCH_OFF, CONT_SWITCH_OFF, CONT_FEEDBACK_THROUGH_CURRENT, 4u, CONT_STRING2_PLUS},
-    {CONT_SWITCH_OFF, CONT_SWITCH_OFF, CONT_FEEDBACK_THROUGH_CURRENT, 5u, CONT_STRING2_MINUS},
-    {CONT_SWITCH_OFF, CONT_SWITCH_OFF, CONT_FEEDBACK_THROUGH_CURRENT, 6u, CONT_PRECHARGE},
+    {CONT_SWITCH_OFF, CONT_SWITCH_OFF, CONT_FEEDBACK_THROUGH_CURRENT, 2u, CONT_PRECHARGE},
 };
 
 /*========== Static Function Prototypes =====================================*/

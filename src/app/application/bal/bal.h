@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    bal.h
  * @author  foxBMS Team
  * @date    2020-02-24 (date of creation)
- * @updated 2020-02-24 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup APPLICATION
  * @prefix  BAL
  *
@@ -65,7 +66,7 @@
 /**
  * States of the BAL state machine
  */
-typedef enum BAL_STATEMACH {
+typedef enum {
     /* Init-Sequence */
     BAL_STATEMACH_UNINITIALIZED,   /*!<    */
     BAL_STATEMACH_INITIALIZATION,  /*!<    */
@@ -84,7 +85,7 @@ typedef enum BAL_STATEMACH {
 /**
  * Substates of the BAL state machine
  */
-typedef enum BAL_STATEMACH_SUB {
+typedef enum {
     BAL_ENTRY,                /*!< Substate entry state */
     BAL_CHECK_IMBALANCES,     /*!< Check if balancing has been initialized */
     BAL_COMPUTE_IMBALANCES,   /*!< Compute imbalances */
@@ -96,7 +97,7 @@ typedef enum BAL_STATEMACH_SUB {
 /**
  * State requests for the BAL statemachine
  */
-typedef enum BAL_STATE_REQUEST {
+typedef enum {
     BAL_STATE_INIT_REQUEST,           /*!<    */
     BAL_STATE_ERROR_REQUEST,          /*!<    */
     BAL_STATE_NO_BALANCING_REQUEST,   /*!<    */
@@ -109,7 +110,7 @@ typedef enum BAL_STATE_REQUEST {
 /**
  * Possible return values when state requests are made to the BAL statemachine
  */
-typedef enum BAL_RETURN_TYPE {
+typedef enum {
     BAL_OK,                  /*!< BAL --> ok */
     BAL_BUSY_OK,             /*!< BAL busy */
     BAL_REQUEST_PENDING,     /*!< requested to be executed */
@@ -125,7 +126,7 @@ typedef enum BAL_RETURN_TYPE {
  * This structure contains all the variables relevant for the BAL state machine.
  * The user can get the current state of the BAL state machine with this variable
  */
-typedef struct BAL_STATE {
+typedef struct {
     uint16_t timer; /*!< time in ms before the state machine processes the next state, e.g. in counts of 1ms */
     BAL_STATE_REQUEST_e stateRequest;         /*!< current state request made to the state machine */
     BAL_STATEMACH_e state;                    /*!< state of Driver State Machine */

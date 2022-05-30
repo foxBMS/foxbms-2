@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -42,13 +42,13 @@
 #include "general.h"
 
 /* Initialization example for structs */
-typedef struct POINT {
+typedef struct {
     float x;
     float y;
     float z;
 } POINT_s;
 
-typedef struct PATH {
+typedef struct {
     POINT_s point;
     uint32_t timestamp;
     uint32_t previousTimestamp;

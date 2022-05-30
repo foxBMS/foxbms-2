@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    can_cbs_rx_misc.c
  * @author  foxBMS Team
  * @date    2021-04-20 (date of creation)
- * @updated 2021-07-29 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup DRIVER
  * @prefix  CAN
  *
@@ -71,17 +72,14 @@ extern uint32_t CAN_RxSwReset(
     uint32_t id,
     uint8_t dlc,
     CAN_ENDIANNESS_e endianness,
-    uint8_t *pCanData,
-    uint8_t *pMuxId,
+    const uint8_t *const kpkCanData,
     const CAN_SHIM_s *const kpkCanShim) {
-    /* pMuxId is not used here, therefore has to be NULL_PTR */
-    FAS_ASSERT(pMuxId == NULL_PTR);
     /* This handler is only implemented for little endian */
     FAS_ASSERT(endianness == CAN_LITTLE_ENDIAN);
 
     FAS_ASSERT(id < CAN_MAX_11BIT_ID); /* Currently standard ID, 11 bit */
     FAS_ASSERT(dlc <= CAN_MAX_DLC);    /* Currently max 8 bytes in a CAN frame */
-    FAS_ASSERT(pCanData != NULL_PTR);
+    FAS_ASSERT(kpkCanData != NULL_PTR);
     FAS_ASSERT(kpkCanShim != NULL_PTR);
     return 0;
 }
@@ -90,21 +88,17 @@ extern uint32_t CAN_RxDebug(
     uint32_t id,
     uint8_t dlc,
     CAN_ENDIANNESS_e endianness,
-    uint8_t *pCanData,
-    uint8_t *pMuxId,
+    const uint8_t *const kpkCanData,
     const CAN_SHIM_s *const kpkCanShim) {
-    /* pMuxId is not used here, therefore has to be NULL_PTR */
-    FAS_ASSERT(pMuxId == NULL_PTR);
-
     FAS_ASSERT(id < CAN_MAX_11BIT_ID); /* Currently standard ID, 11 bit */
     FAS_ASSERT(dlc <= CAN_MAX_DLC);    /* Currently max 8 bytes in a CAN frame */
-    FAS_ASSERT(pCanData != NULL_PTR);
+    FAS_ASSERT(kpkCanData != NULL_PTR);
     FAS_ASSERT(kpkCanShim != NULL_PTR);
 
     uint64_t message    = 0;
     uint64_t signalData = 0;
 
-    CAN_RxGetMessageDataFromCanData(&message, pCanData, endianness);
+    CAN_RxGetMessageDataFromCanData(&message, kpkCanData, endianness);
 
     uint64_t bitStart = 0;
     uint8_t bitLength = 8;
@@ -127,17 +121,14 @@ extern uint32_t CAN_RxSwVersion(
     uint32_t id,
     uint8_t dlc,
     CAN_ENDIANNESS_e endianness,
-    uint8_t *pCanData,
-    uint8_t *pMuxId,
+    const uint8_t *const kpkCanData,
     const CAN_SHIM_s *const kpkCanShim) {
-    /* pMuxId is not used here, therefore has to be NULL_PTR */
-    FAS_ASSERT(pMuxId == NULL_PTR);
     /* This handler is only implemented for little endian */
     FAS_ASSERT(endianness == CAN_LITTLE_ENDIAN);
 
     FAS_ASSERT(id < CAN_MAX_11BIT_ID); /* Currently standard ID, 11 bit */
     FAS_ASSERT(dlc <= CAN_MAX_DLC);    /* Currently max 8 bytes in a CAN frame */
-    FAS_ASSERT(pCanData != NULL_PTR);
+    FAS_ASSERT(kpkCanData != NULL_PTR);
     FAS_ASSERT(kpkCanShim != NULL_PTR);
     return 0;
 }

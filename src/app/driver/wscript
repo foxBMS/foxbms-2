@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -64,6 +64,7 @@ def build(bld):
         os.path.join("can", "cbs", "can_cbs_tx_temperature.c"),
         os.path.join("can", "cbs", "can_cbs_tx_minmax.c"),
         os.path.join("checksum", "checksum.c"),
+        os.path.join("crc", "crc.c"),
         os.path.join("config", "contactor_cfg.c"),
         os.path.join("config", "can_cfg.c"),
         os.path.join("config", "dma_cfg.c"),
@@ -115,6 +116,7 @@ def build(bld):
         "config",
         "checksum",
         "contactor",
+        "crc",
         "dma",
         "foxmath",
         "fram",
@@ -150,6 +152,7 @@ def build(bld):
         os.path.join("..", "engine", "database"),
         os.path.join("..", "engine", "diag"),
         os.path.join("..", "engine", "hwinfo"),
+        os.path.join("..", "engine", "sys_mon"),
         os.path.join("..", "main", "include", "config"),
         os.path.join("..", "main", "include"),
         os.path.join("..", "main"),

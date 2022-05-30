@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    can.c
  * @author  foxBMS Team
  * @date    2019-12-04 (date of creation)
- * @updated 2021-12-08 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup DRIVERS
  * @prefix  CAN
  *
@@ -205,7 +206,8 @@ extern void CAN_Initialize(void) {
 extern STD_RETURN_TYPE_e CAN_DataSend(canBASE_t *pNode, uint32_t id, uint8 *pData) {
     FAS_ASSERT(pNode != NULL_PTR);
     FAS_ASSERT(pData != NULL_PTR);
-    FAS_ASSERT((CAN1_NODE == pNode) || (CAN2_NODE == pNode));
+    FAS_ASSERT((pNode == CAN1_NODE) || (pNode == CAN2_NODE));
+    /* AXIVION Routine Generic-MissingParameterAssert: id: parameter accepts whole range */
 
     STD_RETURN_TYPE_e result = STD_NOT_OK;
 
@@ -231,7 +233,7 @@ extern STD_RETURN_TYPE_e CAN_DataSend(canBASE_t *pNode, uint32_t id, uint8 *pDat
 
 extern void CAN_MainFunction(void) {
     CAN_CheckCanTiming();
-    if (true == can_state.periodicEnable) {
+    if (can_state.periodicEnable == true) {
         CAN_PeriodicTransmit();
     }
 }
@@ -293,45 +295,44 @@ static void CAN_CheckCanTiming(void) {
     /* check time stamps of current measurements */
     DATA_READ_DATA(&currentTab);
 
-    for (uint8_t stringNumber = 0u; stringNumber < BS_NR_OF_STRINGS; stringNumber++) {
+    for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
         /* Current has been measured at least once */
-        if (currentTab.timestampCurrent[stringNumber] != 0u) {
+        if (currentTab.timestampCurrent[s] != 0u) {
             /* Check time since last received string current data */
-            if ((current_time - currentTab.timestampCurrent[stringNumber]) >
-                BS_CURRENT_MEASUREMENT_RESPONSE_TIMEOUT_MS) {
-                DIAG_Handler(DIAG_ID_CURRENT_SENSOR_RESPONDING, DIAG_EVENT_NOT_OK, DIAG_STRING, stringNumber);
+            if ((current_time - currentTab.timestampCurrent[s]) > BS_CURRENT_MEASUREMENT_RESPONSE_TIMEOUT_MS) {
+                DIAG_Handler(DIAG_ID_CURRENT_SENSOR_RESPONDING, DIAG_EVENT_NOT_OK, DIAG_STRING, s);
             } else {
-                DIAG_Handler(DIAG_ID_CURRENT_SENSOR_RESPONDING, DIAG_EVENT_OK, DIAG_STRING, stringNumber);
-                if (can_state.currentSensorPresent[stringNumber] == false) {
-                    CAN_SetCurrentSensorPresent(true, stringNumber);
+                DIAG_Handler(DIAG_ID_CURRENT_SENSOR_RESPONDING, DIAG_EVENT_OK, DIAG_STRING, s);
+                if (can_state.currentSensorPresent[s] == false) {
+                    CAN_SetCurrentSensorPresent(true, s);
                 }
             }
         }
 
         /* check time stamps of CC measurements */
         /* if timestamp_cc != 0, this means current sensor cc message has been received at least once */
-        if (currentTab.timestampCurrentCounting[stringNumber] != 0) {
-            if ((current_time - currentTab.timestampCurrentCounting[stringNumber]) >
+        if (currentTab.timestampCurrentCounting[s] != 0) {
+            if ((current_time - currentTab.timestampCurrentCounting[s]) >
                 BS_COULOMB_COUNTING_MEASUREMENT_RESPONSE_TIMEOUT_MS) {
-                DIAG_Handler(DIAG_ID_CAN_CC_RESPONDING, DIAG_EVENT_NOT_OK, DIAG_STRING, stringNumber);
+                DIAG_Handler(DIAG_ID_CAN_CC_RESPONDING, DIAG_EVENT_NOT_OK, DIAG_STRING, s);
             } else {
-                DIAG_Handler(DIAG_ID_CAN_CC_RESPONDING, DIAG_EVENT_OK, DIAG_STRING, stringNumber);
-                if (can_state.currentSensorCCPresent[stringNumber] == false) {
-                    CAN_SetCurrentSensorCcPresent(true, stringNumber);
+                DIAG_Handler(DIAG_ID_CAN_CC_RESPONDING, DIAG_EVENT_OK, DIAG_STRING, s);
+                if (can_state.currentSensorCCPresent[s] == false) {
+                    CAN_SetCurrentSensorCcPresent(true, s);
                 }
             }
         }
 
         /* check time stamps of EC measurements */
         /* if timestamp_ec != 0, this means current sensor ec message has been received at least once */
-        if (currentTab.timestampEnergyCounting[stringNumber] != 0) {
-            if ((current_time - currentTab.timestampEnergyCounting[stringNumber]) >
+        if (currentTab.timestampEnergyCounting[s] != 0) {
+            if ((current_time - currentTab.timestampEnergyCounting[s]) >
                 BS_ENERGY_COUNTING_MEASUREMENT_RESPONSE_TIMEOUT_MS) {
-                DIAG_Handler(DIAG_ID_CAN_EC_RESPONDING, DIAG_EVENT_NOT_OK, DIAG_STRING, stringNumber);
+                DIAG_Handler(DIAG_ID_CAN_EC_RESPONDING, DIAG_EVENT_NOT_OK, DIAG_STRING, s);
             } else {
-                DIAG_Handler(DIAG_ID_CAN_EC_RESPONDING, DIAG_EVENT_OK, DIAG_STRING, stringNumber);
-                if (can_state.currentSensorECPresent[stringNumber] == false) {
-                    CAN_SetCurrentSensorEcPresent(true, stringNumber);
+                DIAG_Handler(DIAG_ID_CAN_EC_RESPONDING, DIAG_EVENT_OK, DIAG_STRING, s);
+                if (can_state.currentSensorECPresent[s] == false) {
+                    CAN_SetCurrentSensorEcPresent(true, s);
                 }
             }
         }
@@ -352,7 +353,6 @@ extern void CAN_ReadRxBuffer(void) {
                             can_rxMessages[i].dlc,
                             can_rxMessages[i].endianness,
                             can_rxBuffer.data,
-                            NULL_PTR,
                             &can_kShim);
                     }
                 }
@@ -426,10 +426,15 @@ extern bool CAN_IsCurrentSensorEcPresent(uint8_t stringNumber) {
 }
 
 static void CAN_TxInterrupt(canBASE_t *pNode, uint32 messageBox) {
+    /* AXIVION Routine Generic-MissingParameterAssert: pNode: unused parameter */
+    /* AXIVION Routine Generic-MissingParameterAssert: messageBox: unused parameter */
+    (void)pNode;
+    (void)messageBox;
 }
 
 static void CAN_RxInterrupt(canBASE_t *pNode, uint32 messageBox) {
     FAS_ASSERT(pNode != NULL_PTR);
+
     CAN_BUFFERELEMENT_s can_rxBuffer = {0u};
     uint8_t messageData[CAN_DLC]     = {0u};
     /**
@@ -441,7 +446,7 @@ static void CAN_RxInterrupt(canBASE_t *pNode, uint32 messageBox) {
     uint32_t retval = canGetData(pNode, messageBox, (uint8 *)&messageData[0]); /* copy to RAM */
 
     /* Check that CAN RX queue is started before using it and data is valid */
-    if ((ftsk_allQueuesCreated == true) && (CAN_HAL_RETVAL_NO_DATA_LOST == retval)) {
+    if ((ftsk_allQueuesCreated == true) && (retval == CAN_HAL_RETVAL_NO_DATA_LOST)) {
         /* id shifted by 18 to use standard frame from IF2ARB register*/
         /* standard frame: bits [28:18] */
         /* extended frame: bits [28:0] */
@@ -471,6 +476,9 @@ static void CAN_RxInterrupt(canBASE_t *pNode, uint32 messageBox) {
 /** called in case of CAN interrupt, defined as weak in HAL */
 /* AXIVION Next Line Style Linker-Multiple_Definition: TI HAL only provides a weak implementation */
 void UNIT_TEST_WEAK_IMPL canMessageNotification(canBASE_t *node, uint32 messageBox) {
+    /* AXIVION Routine Generic-MissingParameterAssert: node: unchecked in interrupt */
+    /* AXIVION Routine Generic-MissingParameterAssert: messageBox: unchecked in interrupt */
+
     if (messageBox <= CAN_NR_OF_TX_MESSAGE_BOX) {
         CAN_TxInterrupt(node, messageBox);
     } else {
@@ -492,10 +500,10 @@ extern STD_RETURN_TYPE_e CAN_TransmitBootMessage(void) {
     uint8_t versionControlByte = 0u;
 
     /* Set version control flags */
-    if (true == foxbmsVersionInfo.underVersionControl) {
+    if (foxbmsVersionInfo.underVersionControl == true) {
         versionControlByte |= (0x01u << CAN_BOOT_MESSAGE_BYTE_3_BIT_VERSION_CONTROL);
     }
-    if (true == foxbmsVersionInfo.isDirty) {
+    if (foxbmsVersionInfo.isDirty == true) {
         versionControlByte |= (0x01u << CAN_BOOT_MESSAGE_BYTE_3_BIT_DIRTY_FLAG);
     }
     /* Set overflow flag (if release distance is larger than 31) */
@@ -513,7 +521,7 @@ extern STD_RETURN_TYPE_e CAN_TransmitBootMessage(void) {
     data[CAN_BYTE_3_POSITION] = versionControlByte;
 
     /* Read out device register with unique ID */
-    uint32_t deviceRegister = systemREG1->DEVID;
+    const uint32_t deviceRegister = systemREG1->DEVID;
 
     /* Set unique ID */
     data[CAN_BYTE_4_POSITION] = (uint8_t)((deviceRegister >> 24u) & 0xFFu);
@@ -522,6 +530,30 @@ extern STD_RETURN_TYPE_e CAN_TransmitBootMessage(void) {
     data[CAN_BYTE_7_POSITION] = (uint8_t)(deviceRegister & 0xFFu);
 
     STD_RETURN_TYPE_e retval = CAN_DataSend(CAN1_NODE, CAN_ID_BOOT_MESSAGE, &data[0]);
+
+    return retval;
+}
+
+extern STD_RETURN_TYPE_e CAN_TransmitDieId(void) {
+    uint8_t data[] = {REPEAT_U(0u, STRIP(CAN_MAX_DLC))};
+
+    /* Read out device register with die ID low and high */
+    const uint32_t dieIdLow  = systemREG1->DIEIDL;
+    const uint32_t dieIdHigh = systemREG1->DIEIDH;
+
+    /* set die ID */
+    /* AXIVION Disable Style Generic-NoMagicNumbers: The magic numbers are used to divide down the registers into the CAN message */
+    data[CAN_BYTE_0_POSITION] = (uint8_t)((dieIdHigh >> 24u) & 0xFFu);
+    data[CAN_BYTE_1_POSITION] = (uint8_t)((dieIdHigh >> 16u) & 0xFFu);
+    data[CAN_BYTE_2_POSITION] = (uint8_t)((dieIdHigh >> 8u) & 0xFFu);
+    data[CAN_BYTE_3_POSITION] = (uint8_t)(dieIdHigh & 0xFFu);
+    data[CAN_BYTE_4_POSITION] = (uint8_t)((dieIdLow >> 24u) & 0xFFu);
+    data[CAN_BYTE_5_POSITION] = (uint8_t)((dieIdLow >> 16u) & 0xFFu);
+    data[CAN_BYTE_6_POSITION] = (uint8_t)((dieIdLow >> 8u) & 0xFFu);
+    data[CAN_BYTE_7_POSITION] = (uint8_t)(dieIdLow & 0xFFu);
+    /* AXIVION Enable Style Generic-NoMagicNumbers: */
+
+    STD_RETURN_TYPE_e retval = CAN_DataSend(CAN1_NODE, CAN_ID_DIE_ID, &data[0]);
 
     return retval;
 }

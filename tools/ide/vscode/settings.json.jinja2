@@ -1,4 +1,5 @@
 {
+    "terminal.integrated.persistentSessionReviveProcess": "never",
     "files.encoding": "utf8",
     "files.autoGuessEncoding": true,
     "files.exclude": {
@@ -9,10 +10,30 @@
         "**/.DS_Store": true,
         "**/LLVM/**": true,
         "**/__pycache__/**": true,
+        "**/build/**/*.swi.json": true,
+        "**/build/**/*.a": true,
+        "**/build/**/*.crl": true,
+        "**/build/**/*.rl": true,
+        "**/build/**/*.obj": true,
+        "**/build/**/*.log": true,
+        "**/build/**/*.aux": true,
         "**/build/**/*.pp": true,
+        "**/build/**/*.ppd": true,
+        "**/build/**/*.ppi": true,
+        "**/build/**/*.ppm": true,
         "**/build/**/*.ppr": true,
         "**/build/**/*.pprs": true,
-        "**/conf/hcg/include/**":true
+        "**/conf/hcg/include/**":true,
+        ".github/**": true,
+        ".gitlab/**": true,
+        ".vscode/**": true,
+        "build/tmp**": true,
+        "build/c4che/**": true,
+        "build/axivion/**": true,
+        "build/conf_check_*/**": true,
+        "build/predefined_defines/**": true,
+        "**/.lock-waf_*_build":true,
+        "**/.wafpickle-*":true,
     },
     "files.watcherExclude": {
         "**/.git/objects/**": true,
@@ -23,19 +44,28 @@
         "**/build/**/*.pp": true,
         "**/build/**/*.ppr": true,
         "**/build/**/*.pprs": true,
-        "**/conf/hcg/include/**":true
+        "**/conf/hcg/include/**": true
     },
     "search.exclude": {
         "**/node_modules": true,
         "**/bower_components": true,
         "**/*.code-search": true,
         "**/LLVM/**": true,
-        "**/build/**/*.pp": true,
-        "**/build/**/*.ppr": true,
-        "**/build/**/*.pprs": true,
-        "**/conf/hcg/include/**":true
+        "**build/**/*.obj": true,
+        "**build/**/*.pp": true,
+        "**build/**/*.ppr": true,
+        "**build/**/*.pprs": true,
+        "**/conf/hcg/include/**": true
     },
     "css.validate": false,
+    "json.schemas": [
+        {
+            "fileMatch": [
+                "conf/bms/bms.json"
+            ],
+            "url": "./conf/bms/schema/bms.schema.json"
+        }
+    ],
     "restructuredtext.linter.disabled": true,
     "restructuredtext.preview.sphinx.disabled": true,
     "restructuredtext.preview.docutil.disabled": true,
@@ -63,11 +93,13 @@
     "python.terminal.activateEnvironment": false,
     "python.pythonPath": "{{ PYTHONPATH }}",
     "python.analysis.extraPaths": [
-        "{{ WAF_DIR }}",
-        "{{ WAF_TOOLS_DIR }}",
-        "{{ AXIVION_MODULES }}"
+    {% for EXTRA_PATH in PYTHON_ANALYSIS_EXTRA_PATHS %}
+        "{{ EXTRA_PATH }}"
+        {%- if not loop.last -%}
+        ,
+        {% endif %}
+    {% endfor %}
     ],
-    "python.condaPath": "{{ CONDA_PATH }}",
     "python.formatting.provider": "black",
     "python.formatting.blackPath": "{{ BLACKPATH }}",
     "python.formatting.blackArgs": [
@@ -83,6 +115,8 @@
         "files.eol": "\n",
     },
     "editor.formatOnSave": true,
+    "editor.bracketPairColorization.enabled": true,
+    "editor.guides.bracketPairs": "active",
     "[restructuredtext]": {
         "editor.formatOnSave": true,
         "editor.rulers": [
@@ -129,7 +163,6 @@
         "*.ppm": "c",
         "*.ppr": "c",
         "*.pprs": "c",
-        "*.cppcheck": "xml",
         "tests/axivion/cafeCC.config": "xml",
         "tests/axivion/architecture.gxl": "xml",
         "tests/axivion/mapping.gxl": "xml"
@@ -137,8 +170,7 @@
     "axivion.pathMappings": [
         {
             "analysisProject": "{{ AXIVION_VS_CONFIG['analysisProject'] }}",
-            "localPath": "{{ AXIVION_VS_CONFIG['localPath'] }}",
-            "analysisPath": "{{ AXIVION_VS_CONFIG['analysisPath'] }}"
+            "localPath": "{{ AXIVION_VS_CONFIG['localPath'] }}"
         }
     ]
 }

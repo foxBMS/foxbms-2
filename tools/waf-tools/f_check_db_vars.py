@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -60,8 +60,8 @@ r"""Implements a waf tool to check the database initialization in foxBMS.
 
 import os
 import re
-import tabulate
 
+import tabulate
 from waflib import Logs, Task, TaskGen
 
 

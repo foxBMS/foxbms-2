@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    debug_default.h
  * @author  foxBMS Team
  * @date    2020-09-17 (date of creation)
- * @updated 2020-11-09 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup DRIVERS
  * @prefix  FAKE
  *
@@ -62,7 +63,7 @@
 /*========== Macros and Definitions =========================================*/
 
 /** States of the state machine */
-typedef enum FAKE_FSM_STATES {
+typedef enum {
     FAKE_FSM_STATE_DUMMY,          /*!< dummy state - always the first state */
     FAKE_FSM_STATE_HAS_NEVER_RUN,  /*!< never run state - always the second state */
     FAKE_FSM_STATE_UNINITIALIZED,  /*!< uninitialized state */
@@ -72,7 +73,7 @@ typedef enum FAKE_FSM_STATES {
 } FAKE_FSM_STATES_e;
 
 /** Substates of the state machine */
-typedef enum FAKE_FSM_SUBSTATES {
+typedef enum {
     FAKE_FSM_SUBSTATE_DUMMY,                                     /*!< dummy state - always the first substate */
     FAKE_FSM_SUBSTATE_ENTRY,                                     /*!< entry state - always the second substate */
     FAKE_FSM_SUBSTATE_INITIALIZATION_FINISH_FIRST_MEASUREMENT,   /*!< finish the first fake measurement */
@@ -83,7 +84,7 @@ typedef enum FAKE_FSM_SUBSTATES {
 } FAKE_FSM_SUBSTATES_e;
 
 /** This struct contains pointer to used data buffers */
-typedef struct FAKE_DATABASE_ENTRIES {
+typedef struct {
     DATA_BLOCK_CELL_VOLTAGE_s *cellVoltage;             /*!< cell voltage */
     DATA_BLOCK_CELL_TEMPERATURE_s *cellTemperature;     /*!< cell temperature */
     DATA_BLOCK_BALANCING_FEEDBACK_s *balancingFeedback; /*!< balancing feedback */
@@ -94,7 +95,7 @@ typedef struct FAKE_DATABASE_ENTRIES {
 } FAKE_DATABASE_ENTRIES_s;
 
 /** This struct describes the state of the monitoring instance */
-typedef struct FAKE_STATE {
+typedef struct {
     uint16_t timer;                        /*!< timer of the state */
     uint8_t triggerEntry;                  /*!< trigger entry of the state */
     FAKE_FSM_STATES_e nextState;           /*!< next state of the FSM */

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    can_cbs.h
  * @author  foxBMS Team
  * @date    2021-04-20 (date of creation)
- * @updated 2021-07-29 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup DRIVER
  * @prefix  CAN
  *
@@ -75,6 +76,22 @@
  * @param[in] kpkCanShim  shim to the database entries
  */
 extern uint32_t CAN_TxState(
+    uint32_t id,
+    uint8_t dlc,
+    CAN_ENDIANNESS_e endianness,
+    uint8_t *pCanData,
+    uint8_t *pMuxId,
+    const CAN_SHIM_s *const kpkCanShim);
+/**
+ * @brief can tx callback function for detail state
+ * @param[in] id          CAN ID
+ * @param[in] dlc         CAN Data Length Code
+ * @param[in] endianness  big or little endian
+ * @param[in] pCanData    payload of can frame
+ * @param[in] pMuxId      multiplexer for multiplexed CAN messages
+ * @param[in] kpkCanShim  shim to the database entries
+ */
+extern uint32_t CAN_TxDetailState(
     uint32_t id,
     uint8_t dlc,
     CAN_ENDIANNESS_e endianness,
@@ -265,112 +282,98 @@ extern uint32_t CAN_TxStringValues2(
  * @param[in] id          CAN ID
  * @param[in] dlc         CAN Data Length Code
  * @param[in] endianness  big or little endian
- * @param[in] pCanData    payload of can frame
- * @param[in] pMuxId      multiplexer for multiplexed CAN messages
+ * @param[in] kpkCanData  payload of can frame
  * @param[in] kpkCanShim  shim to the database entries
  */
 extern uint32_t CAN_RxImdInfo(
     uint32_t id,
     uint8_t dlc,
     CAN_ENDIANNESS_e endianness,
-    uint8_t *pCanData,
-    uint8_t *pMuxId,
+    const uint8_t *const kpkCanData,
     const CAN_SHIM_s *const kpkCanShim);
 /**
  * @brief can rx callback function for IMD response messages
  * @param[in] id          CAN ID
  * @param[in] dlc         CAN Data Length Code
  * @param[in] endianness  big or little endian
- * @param[in] pCanData    payload of can frame
- * @param[in] pMuxId      multiplexer for multiplexed CAN messages
+ * @param[in] kpkCanData  payload of can frame
  * @param[in] kpkCanShim  shim to the database entries
  */
 extern uint32_t CAN_RxImdResponse(
     uint32_t id,
     uint8_t dlc,
     CAN_ENDIANNESS_e endianness,
-    uint8_t *pCanData,
-    uint8_t *pMuxId,
+    const uint8_t *const kpkCanData,
     const CAN_SHIM_s *const kpkCanShim);
 /**
  * @brief can rx callback function for state requests
  * @param[in] id          CAN ID
  * @param[in] dlc         CAN Data Length Code
  * @param[in] endianness  big or little endian
- * @param[in] pCanData    payload of can frame
- * @param[in] pMuxId      multiplexer for multiplexed CAN messages
+ * @param[in] kpkCanData  payload of can frame
  * @param[in] kpkCanShim  shim to the database entries
  */
 extern uint32_t CAN_RxRequest(
     uint32_t id,
     uint8_t dlc,
     CAN_ENDIANNESS_e endianness,
-    uint8_t *pCanData,
-    uint8_t *pMuxId,
+    const uint8_t *const kpkCanData,
     const CAN_SHIM_s *const kpkCanShim);
 /**
  * @brief can rx callback function for SW reset
  * @param[in] id          CAN ID
  * @param[in] dlc         CAN Data Length Code
  * @param[in] endianness  big or little endian
- * @param[in] pCanData    payload of can frame
- * @param[in] pMuxId      multiplexer for multiplexed CAN messages
+ * @param[in] kpkCanData  payload of can frame
  * @param[in] kpkCanShim  shim to the database entries
  */
 extern uint32_t CAN_RxSwReset(
     uint32_t id,
     uint8_t dlc,
     CAN_ENDIANNESS_e endianness,
-    uint8_t *pCanData,
-    uint8_t *pMuxId,
+    const uint8_t *const kpkCanData,
     const CAN_SHIM_s *const kpkCanShim);
 /**
  * @brief can rx callback function for current sensor measurements
  * @param[in] id          CAN ID
  * @param[in] dlc         CAN Data Length Code
  * @param[in] endianness  big or little endian
- * @param[in] pCanData    payload of can frame
- * @param[in] pMuxId      multiplexer for multiplexed CAN messages
+ * @param[in] kpkCanData  payload of can frame
  * @param[in] kpkCanShim  shim to the database entries
  */
 extern uint32_t CAN_RxCurrentSensor(
     uint32_t id,
     uint8_t dlc,
     CAN_ENDIANNESS_e endianness,
-    uint8_t *pCanData,
-    uint8_t *pMuxId,
+    const uint8_t *const kpkCanData,
     const CAN_SHIM_s *const kpkCanShim);
 /**
  * @brief can rx callback function for debug messages
  * @param[in] id          CAN ID
  * @param[in] dlc         CAN Data Length Code
  * @param[in] endianness  big or little endian
- * @param[in] pCanData    payload of can frame
- * @param[in] pMuxId      multiplexer for multiplexed CAN messages
+ * @param[in] kpkCanData  payload of can frame
  * @param[in] kpkCanShim  shim to the database entries
  */
 extern uint32_t CAN_RxDebug(
     uint32_t id,
     uint8_t dlc,
     CAN_ENDIANNESS_e endianness,
-    uint8_t *pCanData,
-    uint8_t *pMuxId,
+    const uint8_t *const kpkCanData,
     const CAN_SHIM_s *const kpkCanShim);
 /**
  * @brief can rx callback function for SW version
  * @param[in] id          CAN ID
  * @param[in] dlc         CAN Data Length Code
  * @param[in] endianness  big or little endian
- * @param[in] pCanData    payload of can frame
- * @param[in] pMuxId      multiplexer for multiplexed CAN messages
+ * @param[in] kpkCanData  payload of can frame
  * @param[in] kpkCanShim  shim to the database entries
  */
 extern uint32_t CAN_RxSwVersion(
     uint32_t id,
     uint8_t dlc,
     CAN_ENDIANNESS_e endianness,
-    uint8_t *pCanData,
-    uint8_t *pMuxId,
+    const uint8_t *const kpkCanData,
     const CAN_SHIM_s *const kpkCanShim);
 /** @} */
 

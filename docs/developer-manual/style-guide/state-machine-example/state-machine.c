@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    state-machine.c
  * @author  foxBMS Team
  * @date    2020-10-29 (date of creation)
- * @updated 2020-11-09 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup STATE_MACHINE
  * @prefix  EG
  *
@@ -74,7 +75,7 @@
 #define EG_FSM_LONG_TIME (10u)
 
 /** Symbolic names to check for multiple calls of #EG_Trigger */
-typedef enum EG_CHECK_MULTIPLE_CALLS {
+typedef enum {
     EG_MULTIPLE_CALLS_NO,  /*!< no multiple calls, OK */
     EG_MULTIPLE_CALLS_YES, /*!< multiple calls, not OK */
 } EG_CHECK_MULTIPLE_CALLS_e;
@@ -297,7 +298,7 @@ static EG_FSM_STATES_e EG_ProcessInitializationState(EG_STATE_s *pEgState) {
             break;
 
         case EG_FSM_SUBSTATE_INITIALIZATION_0:
-            if (true == EG_SomeInitializationFunction0()) {
+            if (EG_SomeInitializationFunction0() == true) {
                 EG_SetSubstate(pEgState, EG_FSM_SUBSTATE_INITIALIZATION_1, EG_FSM_SHORT_TIME);
             } else {
                 /* Something went wrong, so transition to error state */
@@ -306,7 +307,7 @@ static EG_FSM_STATES_e EG_ProcessInitializationState(EG_STATE_s *pEgState) {
             break;
 
         case EG_FSM_SUBSTATE_INITIALIZATION_1:
-            if (true == EG_SomeInitializationFunction1()) {
+            if (EG_SomeInitializationFunction1() == true) {
                 EG_SetSubstate(pEgState, EG_FSM_SUBSTATE_INITIALIZATION_EXIT, EG_FSM_SHORT_TIME);
             } else {
                 /* Something went wrong, so transition to error state */
@@ -315,7 +316,7 @@ static EG_FSM_STATES_e EG_ProcessInitializationState(EG_STATE_s *pEgState) {
             break;
 
         case EG_FSM_SUBSTATE_INITIALIZATION_EXIT:
-            if (true == EG_SomeInitializationFunctionExit()) {
+            if (EG_SomeInitializationFunctionExit() == true) {
                 /* Initialization was successful, so transition to running state */
                 nextState = EG_FSM_STATE_RUNNING;
             } else {
@@ -340,7 +341,7 @@ static EG_FSM_STATES_e EG_ProcessRunningState(EG_STATE_s *pEgState) {
             break;
 
         case EG_FSM_SUBSTATE_RUNNING_0:
-            if (true == EG_SomeRunningFunction0()) {
+            if (EG_SomeRunningFunction0() == true) {
                 EG_SetSubstate(pEgState, EG_FSM_SUBSTATE_RUNNING_1, EG_FSM_SHORT_TIME);
             } else {
                 /* Something went wrong, so transition to error state */
@@ -349,7 +350,7 @@ static EG_FSM_STATES_e EG_ProcessRunningState(EG_STATE_s *pEgState) {
             break;
 
         case EG_FSM_SUBSTATE_RUNNING_1:
-            if (true == EG_SomeRunningFunction1()) {
+            if (EG_SomeRunningFunction1() == true) {
                 EG_SetSubstate(pEgState, EG_FSM_SUBSTATE_RUNNING_2, EG_FSM_SHORT_TIME);
             } else {
                 /* Something went wrong, so transition to error state */
@@ -358,7 +359,7 @@ static EG_FSM_STATES_e EG_ProcessRunningState(EG_STATE_s *pEgState) {
             break;
 
         case EG_FSM_SUBSTATE_RUNNING_2:
-            if (true == EG_SomeRunningFunction2()) {
+            if (EG_SomeRunningFunction2() == true) {
                 EG_SetSubstate(pEgState, EG_FSM_SUBSTATE_RUNNING_0, EG_FSM_SHORT_TIME);
             } else {
                 /* Something went wrong, so transition to error state */

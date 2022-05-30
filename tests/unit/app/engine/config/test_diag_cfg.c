@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    test_diag_cfg.c
  * @author  foxBMS Team
  * @date    2020-04-01 (date of creation)
- * @updated 2020-04-01 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -69,10 +70,10 @@ void tearDown(void) {
 
 /*========== Test Cases =====================================================*/
 void testDIAG_UpdateFlagsInDatabase(void) {
-    DATA_Write_4_DataBlocks_ExpectAndReturn(NULL_PTR, NULL_PTR, NULL_PTR, NULL_PTR, STD_OK);
-    DATA_Write_4_DataBlocks_IgnoreArg_pDataFromSender0();
-    DATA_Write_4_DataBlocks_IgnoreArg_pDataFromSender1();
-    DATA_Write_4_DataBlocks_IgnoreArg_pDataFromSender2();
-    DATA_Write_4_DataBlocks_IgnoreArg_pDataFromSender3();
+    DATA_Write4DataBlocks_ExpectAndReturn(NULL_PTR, NULL_PTR, NULL_PTR, NULL_PTR, STD_OK);
+    DATA_Write4DataBlocks_IgnoreArg_pDataFromSender0();
+    DATA_Write4DataBlocks_IgnoreArg_pDataFromSender1();
+    DATA_Write4DataBlocks_IgnoreArg_pDataFromSender2();
+    DATA_Write4DataBlocks_IgnoreArg_pDataFromSender3();
     DIAG_UpdateFlags();
 }

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    battery_system_cfg.c
  * @author  foxBMS Team
  * @date    2019-12-10 (date of creation)
- * @updated 2019-12-10 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup BATTERY_SYSTEM_CONFIGURATION
  * @prefix  BS
  *
@@ -62,8 +63,6 @@
 
 /*========== Extern Constant and Variable Definitions =======================*/
 BS_STRING_PRECHARGE_PRESENT_e bs_stringsWithPrecharge[BS_NR_OF_STRINGS] = {
-    BS_STRING_WITH_PRECHARGE,
-    BS_STRING_WITHOUT_PRECHARGE,
     BS_STRING_WITH_PRECHARGE,
 };
 

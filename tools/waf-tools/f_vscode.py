@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -44,16 +44,14 @@ needs.
 For information on VS Code see https://code.visualstudio.com/.
 """
 
-import os
-import re
-import pathlib
 import json
-import jsonschema
+import os
+from pathlib import Path
+import re
 
 import jinja2
-
-from waflib import Utils
-from waflib import Context
+import jsonschema
+from waflib import Context, Utils
 
 # This tool uses slash as path separator for the sake of simplicity as it
 # - works on both, Windows and unix-like systems (see
@@ -107,21 +105,30 @@ def configure(conf):  # pylint: disable=too-many-statements,too-many-branches
     template_env = jinja2.Environment(loader=template_loader)
 
     if Utils.is_win32:
-        waf_wrapper_script = pathlib.Path(conf.path.abspath()).as_posix() + "/waf.bat"
+        waf_wrapper_script = Path(conf.path.abspath()).as_posix() + "/waf.bat"
     else:
-        waf_wrapper_script = pathlib.Path(conf.path.abspath()) / "waf.sh"
-    axivion_base_path = pathlib.Path(
+        waf_wrapper_script = Path(conf.path.abspath()) / "waf.sh"
+    axivion_base_path = Path(
         os.path.join(conf.path.abspath(), "tests", "axivion")
     ).as_posix()
+    axivion_start_analysis = None
+    axivion_start_dashboard = None
+    axivion_config_exe = None
     if Utils.is_win32:
-        axivion_start_analysis = axivion_base_path + "/start_local_analysis.bat"
-    else:
-        axivion_start_analysis = axivion_base_path + "/start_local_analysis.sh"
+        axivion_start_analysis = axivion_base_path + "/scripts/start_local_analysis.bat"
+        axivion_start_dashboard = (
+            axivion_base_path + "/scripts/start_local_dashserver.bat"
+        )
+        if conf.env.AXIVION_CONFIG:
+            axivion_config_exe = Path(conf.env.AXIVION_CONFIG[0]).as_posix()
 
     template = template_env.get_template("tasks.json.jinja2")
     tasks = template.render(
         WAF_WRAPPER_SCRIPT=waf_wrapper_script,
+        AXIVION_CONFIG_EXE=axivion_config_exe,
         AXIVION_START_ANALYSIS=axivion_start_analysis,
+        AXIVION_START_DASHBOARD=axivion_start_dashboard,
+        JFLASH=conf.env.JFLASH,
     )
     vsc_tasks_file = os.path.join(vscode_dir.relpath(), "tasks.json")
     conf.path.make_node(vsc_tasks_file).write(fix_jinja(tasks))
@@ -140,37 +147,34 @@ def configure(conf):  # pylint: disable=too-many-statements,too-many-branches
     # Python and friends: Python, conda, pylint, black
     py_exe = "python"
     if conf.env.PYTHON:
-        py_exe = pathlib.Path(conf.env.PYTHON[0]).as_posix()
-    conda_exe = "conda"
-    if conf.env.CONDA:
-        conda_exe = pathlib.Path(conf.env.CONDA[0]).as_posix()
+        py_exe = Path(conf.env.PYTHON[0]).as_posix()
     pylint_exe = "pylint"
     if conf.env.PYLINT:
-        pylint_exe = pathlib.Path(conf.env.PYLINT[0]).as_posix()
+        pylint_exe = Path(conf.env.PYLINT[0]).as_posix()
     pylint_cfg = ""
     if conf.env.PYLINT_CONFIG:
-        pylint_cfg = pathlib.Path(conf.env.PYLINT_CONFIG[0]).as_posix()
+        pylint_cfg = Path(conf.env.PYLINT_CONFIG[0]).as_posix()
     black_exe = "black"
     if conf.env.BLACK:
-        black_exe = pathlib.Path(conf.env.BLACK[0]).as_posix()
+        black_exe = Path(conf.env.BLACK[0]).as_posix()
     black_cfg = ""
     if conf.env.BLACK_CONFIG:
-        black_cfg = pathlib.Path(conf.env.BLACK_CONFIG[0]).as_posix()
+        black_cfg = Path(conf.env.BLACK_CONFIG[0]).as_posix()
     # directory of waf and waf-tools
-    waf_dir = pathlib.Path(Context.waf_dir).as_posix()
-    waf_tools_dir = pathlib.Path(
+    waf_dir = Path(Context.waf_dir).as_posix()
+    waf_tools_dir = Path(
         os.path.join(conf.path.abspath(), "tools", "waf-tools")
     ).as_posix()
     # Clang-format
     clang_format_executable = ""
     if conf.env.CLANG_FORMAT:
-        clang_format_executable = pathlib.Path(conf.env.CLANG_FORMAT[0]).as_posix()
+        clang_format_executable = Path(conf.env.CLANG_FORMAT[0]).as_posix()
 
-    ax_modules_rel = pathlib.Path(os.path.join("lib", "scripts"))
+    ax_modules_rel = Path(os.path.join("lib", "scripts"))
 
     if Utils.is_win32:
         axivion_modules = (
-            pathlib.Path(os.environ.get("ProgramFiles(x86)", "C:\\Program Files(x86)"))
+            Path(os.environ.get("ProgramFiles(x86)", "C:\\Program Files(x86)"))
             / "Bauhaus"
             / ax_modules_rel
         ).as_posix()
@@ -179,31 +183,28 @@ def configure(conf):  # pylint: disable=too-many-statements,too-many-branches
         )
     else:
         axivion_modules = (
-            pathlib.Path(os.environ.get("HOME", "/")) / "bauhaus-suite" / ax_modules_rel
+            Path(os.environ.get("HOME", "/")) / "bauhaus-suite" / ax_modules_rel
         )
         userprofile = os.environ.get("HOME", "~")
 
     axivion_vs_config = {
         "analysisProject": "foxbms-2",
-        "localPath": pathlib.Path(conf.path.abspath()).as_posix(),
-        "analysisPath": pathlib.Path(userprofile).as_posix(),
+        "localPath": Path(conf.path.abspath()).as_posix(),
+        "analysisPath": Path(userprofile).as_posix(),
     }
     if conf.env.AXIVION_CC:
         projects_path = os.path.join(userprofile, ".bauhaus", "localbuild", "projects")
-        axivion_vs_config["analysisPath"] = pathlib.Path(projects_path).as_posix()
+        axivion_vs_config["analysisPath"] = Path(projects_path).as_posix()
 
         try:
             axivion_modules = (
-                pathlib.Path(conf.env.AXIVION_CC[0]).parent.parent / ax_modules_rel
+                Path(conf.env.AXIVION_CC[0]).parent.parent / ax_modules_rel
             ).as_posix()
         except IndexError:
             pass
     settings = template.render(
         PYTHONPATH=py_exe,
-        WAF_DIR=waf_dir,
-        WAF_TOOLS_DIR=waf_tools_dir,
-        AXIVION_MODULES=axivion_modules,
-        CONDA_PATH=conda_exe,
+        PYTHON_ANALYSIS_EXTRA_PATHS=[waf_dir, waf_tools_dir, axivion_modules],
         PYLINT_PATH=pylint_exe,
         PYLINT_CONFIG=pylint_cfg,
         BLACKPATH=black_exe,
@@ -239,19 +240,30 @@ def configure(conf):  # pylint: disable=too-many-statements,too-many-branches
     bms_config = json.loads(
         conf.path.find_node(os.path.join("conf", "bms", "bms.json")).read()
     )
-    bms_config_schema = json.loads(
+    validator = conf.f_validator(
         conf.path.find_node(
             os.path.join("conf", "bms", "schema", "bms.schema.json")
-        ).read()
+        ).abspath()
     )
     try:
-        jsonschema.validate(instance=bms_config, schema=bms_config_schema)
+        validator.validate(bms_config)
     except jsonschema.exceptions.ValidationError as err:
         good_values = ", ".join([f"'{i}'" for i in err.validator_value])
         conf.fatal(
             f"Setting '{err.instance}' in '{'/'.join(list(err.path))}' is not "
             f"supported.\nUse one of these: {good_values}."
         )
+    os_name = bms_config["operating-system"]["name"]
+    rtos_details = json.loads(
+        conf.path.find_node(
+            os.path.join("src", "os", os_name, f"{os_name}_cfg.json")
+        ).read()
+    )
+
+    os_includes = [
+        Path(os.path.join("src", "os", os_name, i)).as_posix()
+        for i in rtos_details["include"]
+    ]
     bal = bms_config["slave-unit"]["balancing-strategy"]
     soc = bms_config["application"]["algorithm"]["state-estimation"]["soc"]
     soe = bms_config["application"]["algorithm"]["state-estimation"]["soe"]
@@ -265,8 +277,9 @@ def configure(conf):  # pylint: disable=too-many-statements,too-many-branches
     if chip in ("6804-1", "6811-1", "6812-1"):
         chip = "6813-1"
     c_cpp_properties = template.render(
-        ARMCL=pathlib.Path(conf.env.CC[0]).as_posix(),
-        OS=bms_config["operating-system"]["name"],
+        ARMCL=Path(conf.env.CC[0]).as_posix(),
+        OS=os_name,
+        OS_INCLUDES=os_includes,
         BALANCING_STRATEGY=bal,
         AFE_MANUFACTURER=bms_config["slave-unit"]["analog-front-end"]["manufacturer"],
         AFE_CHIP=chip,
@@ -284,7 +297,7 @@ def configure(conf):  # pylint: disable=too-many-statements,too-many-branches
         STATE_ESTIMATOR_SOH=soh,
         IMD_MANUFACTURER=imd_manufacturer,
         IMD_MODEL=imd_model,
-        INCLUDES=[pathlib.Path(x).as_posix() for x in conf.env.INCLUDES],
+        INCLUDES=[Path(x).as_posix() for x in conf.env.INCLUDES],
         CSTANDARD="c11",
         DEFINES=vscode_defines,
     )
@@ -298,7 +311,7 @@ def configure(conf):  # pylint: disable=too-many-statements,too-many-branches
     template = template_env.get_template("launch.json.jinja2")
     gdb_exe = "gdb"
     if conf.env.GDB:
-        gdb_exe = pathlib.Path(conf.env.GDB[0]).as_posix()
+        gdb_exe = Path(conf.env.GDB[0]).as_posix()
     launch = template.render(GDB=gdb_exe)
 
     vsc_launch_file = os.path.join(vscode_dir.relpath(), "launch.json")

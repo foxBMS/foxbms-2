@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    test_interlock.c
  * @author  foxBMS Team
  * @date    2020-04-01 (date of creation)
- * @updated 2021-10-18 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -184,8 +185,8 @@ void testInitializeStatemachine(void) {
     IO_SetPinDirectionToInput_Ignore();
     IO_PinReset_Ignore();
 
-    DATA_Read_1_DataBlock_IgnoreAndReturn(STD_OK);
-    DATA_Write_1_DataBlock_IgnoreAndReturn(STD_OK);
+    DATA_Read1DataBlock_IgnoreAndReturn(STD_OK);
+    DATA_Write1DataBlock_IgnoreAndReturn(STD_OK);
     DIAG_CheckEvent_IgnoreAndReturn(STD_OK);
 
     TEST_ASSERT_EQUAL(ILCK_OK, ILCK_SetStateRequest(ILCK_STATE_INITIALIZATION_REQUEST));
@@ -232,8 +233,8 @@ void testILCK_GetInterlockFeedbackFeedbackOn(void) {
     IO_PinReset_Ignore();
     IO_PinGet_ExpectAndReturn(&ILCK_IO_REG_PORT->DIN, ILCK_INTERLOCK_FEEDBACK_PIN_IL_STATE, STD_PIN_LOW);
     /* gioGetBit_ExpectAndReturn(ILCK_IO_REG, ILCK_INTERLOCK_FEEDBACK, 1u); */
-    DATA_Read_1_DataBlock_IgnoreAndReturn(STD_OK);
-    DATA_Write_1_DataBlock_IgnoreAndReturn(STD_OK);
+    DATA_Read1DataBlock_IgnoreAndReturn(STD_OK);
+    DATA_Write1DataBlock_IgnoreAndReturn(STD_OK);
 
     TEST_ASSERT_EQUAL(ILCK_SWITCH_ON, TEST_ILCK_GetInterlockFeedback());
 }
@@ -249,8 +250,8 @@ void testILCK_GetInterlockFeedbackFeedbackOff(void) {
     /* set the return value to 0, which means interlock off */
     IO_PinGet_ExpectAndReturn(&ILCK_IO_REG_PORT->DIN, ILCK_INTERLOCK_FEEDBACK_PIN_IL_STATE, STD_PIN_HIGH);
     /* gioGetBit_ExpectAndReturn(ILCK_IO_REG, ILCK_INTERLOCK_FEEDBACK, 0u); */
-    DATA_Read_1_DataBlock_IgnoreAndReturn(STD_OK);
-    DATA_Write_1_DataBlock_IgnoreAndReturn(STD_OK);
+    DATA_Read1DataBlock_IgnoreAndReturn(STD_OK);
+    DATA_Write1DataBlock_IgnoreAndReturn(STD_OK);
 
     TEST_ASSERT_EQUAL(ILCK_SWITCH_OFF, TEST_ILCK_GetInterlockFeedback());
 }

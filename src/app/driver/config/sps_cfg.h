@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    sps_cfg.h
  * @author  foxBMS Team
  * @date    2020-10-14 (date of creation)
- * @updated 2021-11-08 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup DRIVERS_CONF
  * @prefix  SPS
  *
@@ -156,26 +157,26 @@
 #define SPS_BITMASK_DIAGNOSTIC_ONDEMAND_OUTPUT_CURRENT (0x1FFFu)
 
 /** spi block identification numbers */
-typedef enum SPS_WRITE_TYPE {
+typedef enum {
     SPS_replaceCurrentValue,
     SPS_orWithCurrentValue,
     SPS_andWithCurrentValue,
 } SPS_WRITE_TYPE_e;
 
 /** sps read types */
-typedef enum SPS_READ_TYPE {
+typedef enum {
     SPS_READ_DIAGNOSTIC_REGISTER, /*!< diagnostic register read */
     SPS_READ_CONTROL_REGISTER,    /*!< control register read */
 } SPS_READ_TYPE_e;
 
 /** functional state of a SPS channel */
-typedef enum SPS_CHANNEL_FUNCTION {
+typedef enum {
     SPS_CHANNEL_OFF, /*!< sps channel is switched off */
     SPS_CHANNEL_ON,  /*!< sps channel is switched on */
 } SPS_CHANNEL_FUNCTION_e;
 
 /** SPS channel state */
-typedef struct SPS_CHANNEL_STATE {
+typedef struct {
     SPS_CHANNEL_FUNCTION_e channelRequested; /*!< requested state of the channel */
     SPS_CHANNEL_FUNCTION_e channel;          /*!< state of the channel */
     float current_mA;                        /*!< current flow in this channel in mA */
@@ -185,7 +186,7 @@ typedef struct SPS_CHANNEL_STATE {
 } SPS_CHANNEL_STATE_s;
 
 /** SPS channel mapping to feedback pin */
-typedef struct SPS_CHANNEL_FEEDBACK_MAPPING {
+typedef struct {
     const uint8_t pexDevice;  /*!< port expander number */
     const uint8_t pexChannel; /*!< pin number on the addresses port expander */
 } SPS_CHANNEL_FEEDBACK_MAPPING_s;
@@ -195,7 +196,7 @@ typedef struct SPS_CHANNEL_FEEDBACK_MAPPING {
 /*========== Extern Constant and Variable Declarations ======================*/
 
 /** State for the CONT handling */
-typedef enum SPS_STATE {
+typedef enum {
     SPS_START,
     SPS_RESET_LOW,
     SPS_RESET_HIGH,
@@ -209,7 +210,7 @@ typedef enum SPS_STATE {
 } SPS_STATE_e;
 
 /** Actions to do for the Smart Power Switch IC */
-typedef enum SPS_ACTION {
+typedef enum {
     SPS_ACTION_CONFIGURE_CONTROL_REGISTER,
     SPS_ACTION_TRIGGER_CURRENT_MEASUREMENT,
     SPS_ACTION_READ_CURRENT_MEASUREMENT1,

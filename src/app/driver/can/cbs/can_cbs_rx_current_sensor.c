@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    can_cbs_rx_current_sensor.c
  * @author  foxBMS Team
  * @date    2021-04-20 (date of creation)
- * @updated 2021-06-09 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup DRIVER
  * @prefix  CAN
  *
@@ -68,14 +69,6 @@
 
 /*========== Static Constant and Variable Definitions =======================*/
 
-/**
- * CAN signals used in this message
- * Parameters:
- * bit start, bit length, factor, offset, minimum value, maximum value
- */
-static const CAN_SIGNAL_TYPE_s currentSensorStatus = {7u, 8u, 1.0f, 0.0f, 0.0f, 255.0f};
-static const CAN_SIGNAL_TYPE_s currentSensorData   = {23u, 32u, 1.0f, 0.0f, -2147483648.0f, 2147483648.0f};
-
 /*========== Extern Constant and Variable Definitions =======================*/
 
 /*========== Static Function Prototypes =====================================*/
@@ -87,16 +80,21 @@ extern uint32_t CAN_RxCurrentSensor(
     uint32_t id,
     uint8_t dlc,
     CAN_ENDIANNESS_e endianness,
-    uint8_t *pCanData,
-    uint8_t *pMuxId,
+    const uint8_t *const kpkCanData,
     const CAN_SHIM_s *const kpkCanShim) {
-    /* pMuxId is unused in this callback, therefore has to be a NULL_PTR */
-    FAS_ASSERT(pMuxId == NULL_PTR);
-
     FAS_ASSERT(id < CAN_MAX_11BIT_ID); /* Currently standard ID, 11 bit */
     FAS_ASSERT(dlc <= CAN_MAX_DLC);    /* Currently max 8 bytes in a CAN frame */
-    FAS_ASSERT(pCanData != NULL_PTR);
+    FAS_ASSERT(kpkCanData != NULL_PTR);
     FAS_ASSERT(kpkCanShim != NULL_PTR);
+
+    /**
+     * CAN signals used in this message
+     * Parameters:
+     * bit start, bit length, factor, offset, minimum value, maximum value
+     */
+    const CAN_SIGNAL_TYPE_s currentSensorStatus = {7u, 8u, 1.0f, 0.0f, 0.0f, 255.0f};
+    const CAN_SIGNAL_TYPE_s currentSensorData   = {23u, 32u, 1.0f, 0.0f, -2147483648.0f, 2147483648.0f};
+
     uint64_t message   = 0u;
     uint64_t canSignal = 0u;
 
@@ -112,7 +110,7 @@ extern uint32_t CAN_RxCurrentSensor(
         stringNumber = 2u;
     }
 
-    CAN_RxGetMessageDataFromCanData(&message, pCanData, endianness);
+    CAN_RxGetMessageDataFromCanData(&message, kpkCanData, endianness);
 
     /* Get status*/
     CAN_RxGetSignalDataFromMessageData(

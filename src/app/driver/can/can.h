@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    can.h
  * @author  foxBMS Team
  * @date    2019-12-04 (date of creation)
- * @updated 2021-07-23 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup DRIVERS
  * @prefix  CAN
  *
@@ -75,7 +76,7 @@
 #define CAN_TICK_MS (10U)
 
 /** This structure contains variables relevant for the CAN signal module. */
-typedef struct CAN_STATE {
+typedef struct {
     bool periodicEnable;                           /*!< defines if periodic transmit and receive should run */
     bool currentSensorPresent[BS_NR_OF_STRINGS];   /*!< defines if a current sensor is detected */
     bool currentSensorCCPresent[BS_NR_OF_STRINGS]; /*!< defines if a CC info is being sent */
@@ -149,9 +150,15 @@ extern bool CAN_IsCurrentSensorEcPresent(uint8_t stringNumber);
 
 /**
  * @brief   Transmit startup boot message
- * @return  #STD_OK if transmission successful, otherweise #STD_NOT_OK
+ * @return  #STD_OK if transmission successful, otherwise #STD_NOT_OK
  */
 extern STD_RETURN_TYPE_e CAN_TransmitBootMessage(void);
+
+/**
+ * @brief   Transmit chip id
+ * @return  #STD_OK if transmission successful, otherwise #STD_NOT_OK
+ */
+extern STD_RETURN_TYPE_e CAN_TransmitDieId(void);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 #ifdef UNITY_UNIT_TEST

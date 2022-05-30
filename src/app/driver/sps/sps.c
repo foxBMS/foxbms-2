@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    sps.c
  * @author  foxBMS Team
  * @date    2020-10-14 (date of creation)
- * @updated 2021-11-10 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup DRIVERS
  * @prefix  SPS
  *
@@ -432,9 +433,9 @@ static STD_RETURN_TYPE_e SPS_Transmit(void) {
         &spi_spsInterface, sps_spiTxRegisterBuffer, sps_spiRxRegisterBuffer, SPS_SPI_BUFFERSIZE);
 
     /* The chip select has to be high for at least 300ns according to data sheet. This code delays
-       for the smallest time available in #MCU_delay_us() which is 1us. After this time we can
+       for the smallest time available in #MCU_Delay_us() which is 1us. After this time we can
        be sure that the SPI interface is able to receive again. */
-    MCU_delay_us(1u);
+    MCU_Delay_us(1u);
 
     STD_RETURN_TYPE_e retVal2 = SPI_TransmitReceiveData(
         &spi_spsInterface,
@@ -443,7 +444,7 @@ static STD_RETURN_TYPE_e SPS_Transmit(void) {
         SPS_SPI_BUFFERSIZE);
 
     STD_RETURN_TYPE_e retVal = STD_NOT_OK;
-    if ((STD_OK == retVal1) && (STD_OK == retVal2)) {
+    if ((retVal1 == STD_OK) && (retVal2 == STD_OK)) {
         retVal = STD_OK;
     }
     return retVal;
@@ -464,7 +465,7 @@ static void SPS_GlobalReadCurrent(const uint8_t outputAllDevices) {
 
 static void SPS_RequestChannelState(SPS_CHANNEL_INDEX channelIndex, SPS_CHANNEL_FUNCTION_e channelFunction) {
     FAS_ASSERT(channelIndex < SPS_NR_OF_AVAILABLE_SPS_CHANNELS);
-    FAS_ASSERT((SPS_CHANNEL_OFF == channelFunction) || (SPS_CHANNEL_ON == channelFunction));
+    FAS_ASSERT((channelFunction == SPS_CHANNEL_OFF) || (channelFunction == SPS_CHANNEL_ON));
 
     OS_EnterTaskCritical();
     sps_channelStatus[channelIndex].channelRequested = channelFunction;
@@ -503,7 +504,7 @@ extern void SPS_Ctrl(void) {
                 SPS_SetCommandTxBuffer(SPS_ACTION_CONFIGURE_CONTROL_REGISTER);
                 SPS_SetContactorsTxBuffer();
                 transmitRetval = SPS_Transmit();
-                if (STD_OK == transmitRetval) {
+                if (transmitRetval == STD_OK) {
                     sps_state = SPS_TRIGGER_CURRENT_MEASUREMENT;
                     /* we have successfully configured the control registers to
                        strong drive mode and can now go to high speed communication */
@@ -517,7 +518,7 @@ extern void SPS_Ctrl(void) {
                 SPS_SetCommandTxBuffer(SPS_ACTION_TRIGGER_CURRENT_MEASUREMENT);
                 SPS_SetContactorsTxBuffer();
                 transmitRetval = SPS_Transmit();
-                if (STD_OK == transmitRetval) {
+                if (transmitRetval == STD_OK) {
                     sps_state = SPS_READ_EN_IRQ_PIN;
                 } else {
                     sps_state = SPS_START;
@@ -528,7 +529,7 @@ extern void SPS_Ctrl(void) {
                 SPS_SetCommandTxBuffer(SPS_ACTION_READ_EN_IRQ_PIN);
                 SPS_SetContactorsTxBuffer();
                 transmitRetval = SPS_Transmit();
-                if (STD_OK == transmitRetval) {
+                if (transmitRetval == STD_OK) {
                     sps_state = SPS_READ_MEASURED_CURRENT1;
                 } else {
                     sps_state = SPS_START;
@@ -539,7 +540,7 @@ extern void SPS_Ctrl(void) {
                 SPS_SetCommandTxBuffer(SPS_ACTION_READ_CURRENT_MEASUREMENT1);
                 SPS_SetContactorsTxBuffer();
                 transmitRetval = SPS_Transmit();
-                if (STD_OK == transmitRetval) {
+                if (transmitRetval == STD_OK) {
                     sps_state = SPS_READ_MEASURED_CURRENT2;
                 } else {
                     sps_state = SPS_START;
@@ -551,7 +552,7 @@ extern void SPS_Ctrl(void) {
                 SPS_SetCommandTxBuffer(SPS_ACTION_READ_CURRENT_MEASUREMENT2);
                 SPS_SetContactorsTxBuffer();
                 transmitRetval = SPS_Transmit();
-                if (STD_OK == transmitRetval) {
+                if (transmitRetval == STD_OK) {
                     sps_state = SPS_READ_MEASURED_CURRENT3;
                 } else {
                     sps_state = SPS_START;
@@ -563,7 +564,7 @@ extern void SPS_Ctrl(void) {
                 SPS_SetCommandTxBuffer(SPS_ACTION_READ_CURRENT_MEASUREMENT3);
                 SPS_SetContactorsTxBuffer();
                 transmitRetval = SPS_Transmit();
-                if (STD_OK == transmitRetval) {
+                if (transmitRetval == STD_OK) {
                     sps_state = SPS_READ_MEASURED_CURRENT4;
                 } else {
                     sps_state = SPS_START;
@@ -575,7 +576,7 @@ extern void SPS_Ctrl(void) {
                 SPS_SetCommandTxBuffer(SPS_ACTION_READ_CURRENT_MEASUREMENT4);
                 SPS_SetContactorsTxBuffer();
                 transmitRetval = SPS_Transmit();
-                if (STD_OK == transmitRetval) {
+                if (transmitRetval == STD_OK) {
                     sps_state = SPS_TRIGGER_CURRENT_MEASUREMENT;
                 } else {
                     sps_state = SPS_START;
@@ -594,12 +595,14 @@ extern void SPS_Initialize(void) {
 }
 
 extern void SPS_RequestContactorState(SPS_CHANNEL_INDEX channelIndex, SPS_CHANNEL_FUNCTION_e channelFunction) {
-    FAS_ASSERT(SPS_AFF_CONTACTOR == SPS_GetChannelAffiliation(channelIndex));
+    const SPS_CHANNEL_AFFILIATION_e channelAffiliation = SPS_GetChannelAffiliation(channelIndex);
+    FAS_ASSERT(SPS_AFF_CONTACTOR == channelAffiliation);
     SPS_RequestChannelState(channelIndex, channelFunction);
 }
 
-extern void SPS_RequestGeneralIOState(SPS_CHANNEL_INDEX channelIndex, SPS_CHANNEL_FUNCTION_e channelFunction) {
-    FAS_ASSERT(SPS_AFF_GENERAL_IO == SPS_GetChannelAffiliation(channelIndex));
+extern void SPS_RequestGeneralIoState(SPS_CHANNEL_INDEX channelIndex, SPS_CHANNEL_FUNCTION_e channelFunction) {
+    const SPS_CHANNEL_AFFILIATION_e channelAffiliation = SPS_GetChannelAffiliation(channelIndex);
+    FAS_ASSERT(SPS_AFF_GENERAL_IO == channelAffiliation);
     SPS_RequestChannelState(channelIndex, channelFunction);
 }
 

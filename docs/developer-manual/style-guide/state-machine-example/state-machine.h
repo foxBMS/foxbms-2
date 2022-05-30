@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    state-machine.h
  * @author  foxBMS Team
  * @date    2020-10-29 (date of creation)
- * @updated 2020-11-09 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup STATE_MACHINE
  * @prefix  EG
  *
@@ -59,7 +60,7 @@
 
 /*========== Macros and Definitions =========================================*/
 /** States of the state machine */
-typedef enum EG_FSM_STATES {
+typedef enum {
     EG_FSM_STATE_DUMMY,          /*!< dummy state - always the first state */
     EG_FSM_STATE_HAS_NEVER_RUN,  /*!< never run state - always the second state */
     EG_FSM_STATE_UNINITIALIZED,  /*!< uninitialized state */
@@ -69,7 +70,7 @@ typedef enum EG_FSM_STATES {
 } EG_FSM_STATES_e;
 
 /** Substates of the state machine */
-typedef enum EG_FSM_SUBSTATES {
+typedef enum {
     EG_FSM_SUBSTATE_DUMMY,               /*!< dummy state - always the first substate */
     EG_FSM_SUBSTATE_ENTRY,               /*!< entry state - always the second substate */
     EG_FSM_SUBSTATE_INITIALIZATION_0,    /*!< fist initialization substate */
@@ -81,14 +82,14 @@ typedef enum EG_FSM_SUBSTATES {
 } EG_FSM_SUBSTATES_e;
 
 /** some struct with some information */
-typedef struct EG_INFORMATION {
+typedef struct {
     uint8_t r0; /*!< some info 0 */
-    uint8_t r1; /*!< some info 0 */
-    uint8_t r2; /*!< some info 0 */
+    uint8_t r1; /*!< some info 1 */
+    uint8_t r2; /*!< some info 2 */
 } EG_INFORMATION_s;
 
 /** This struct describes the state of the monitoring instance */
-typedef struct EG_STATE {
+typedef struct {
     uint16_t timer;                      /*!< timer of the state */
     uint8_t triggerEntry;                /*!< trigger entry of the state */
     EG_FSM_STATES_e nextState;           /*!< next state of the FSM */

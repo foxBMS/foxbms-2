@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    battery_cell_cfg.h
  * @author  foxBMS Team
  * @date    2017-03-14 (date of creation)
- * @updated 2021-11-08 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup BATTERY_CELL_CONFIGURATION
  * @prefix  BC
  *
@@ -226,7 +227,7 @@
 #endif
 
 /** structure for lookup table */
-typedef struct BC_LUT {
+typedef struct {
     const int16_t voltage_mV; /*!< cell voltage in mV */
     const float value;        /*!< corresponding value, can be SOC/SOE in % or capacity/energy */
 } BC_LUT_s;

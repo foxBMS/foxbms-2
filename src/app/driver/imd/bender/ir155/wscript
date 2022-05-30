@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -47,11 +47,20 @@ import os
 
 def build(bld):
     """Builds the Bender IR155 monitoring device"""
+    source = [
+        os.path.join("bender_ir155.c"),
+        os.path.join("bender_ir155_helper.c"),
+    ]
     includes = [
         ".",
+        os.path.join("config"),
         os.path.join("..", ".."),
         os.path.join("..", "..", "..", "can"),
         os.path.join("..", "..", "..", "config"),
+        os.path.join("..", "..", "..", "fram"),
+        os.path.join("..", "..", "..", "io"),
+        os.path.join("..", "..", "..", "mcu"),
+        os.path.join("..", "..", "..", "pwm"),
         os.path.join("..", "..", "..", "..", "application", "config"),
         os.path.join("..", "..", "..", "..", "engine", "config"),
         os.path.join("..", "..", "..", "..", "engine", "database"),
@@ -62,9 +71,12 @@ def build(bld):
         os.path.join("..", "..", "..", "..", "task", "ftask"),
     ]
     includes.extend(bld.env.INCLUDES_OPERATING_SYSTEM)
+    cflags = bld.env.CFLAGS_FOXBMS
     bld(
         features="c",
-        source="bender_ir155.c",
+        source=source,
+        use="imd-device",
         includes=includes,
         target=f"{bld.env.APPNAME}-imd",
+        cflags=cflags,
     )

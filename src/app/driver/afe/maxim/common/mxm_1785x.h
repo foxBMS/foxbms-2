@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    mxm_1785x.h
  * @author  foxBMS Team
  * @date    2019-01-15 (date of creation)
- * @updated 2021-12-06 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup DRIVERS
  * @prefix  MXM
  *
@@ -191,7 +192,7 @@ extern bool must_check_return MXM_HandleStateReadall(
  *                  database.
  * @param[in,out]   kpkInstance     pointer to instance of the Maxim monitoring
  *                                  state-machine
- * @return returns the return value of the database write function #DATA_Write_1_DataBlock()
+ * @return returns the return value of the database write function #DATA_Write1DataBlock()
  */
 extern STD_RETURN_TYPE_e MXM_ProcessOpenWire(const MXM_MONITORING_INSTANCE_s *const kpkInstance);
 
@@ -265,6 +266,29 @@ extern STD_RETURN_TYPE_e MXM_ParseVoltagesIntoDB(const MXM_MONITORING_INSTANCE_s
  * @returns model ID of daisy-chain
  */
 extern MXM_MODEL_ID_e MXM_GetModelIdOfDaisyChain(void);
+
+/**
+ * @brief           Execute all preinit selfchecks.
+ * @details         Executes the following self-checks:
+ *                      - #MXM_CRC8SelfTest()
+ *                      - #MXM_ConvertTest()
+ *                      - #MXM_FirstSetBitTest()
+ *                      - #MXM_ExtractValueFromRegisterTest()
+ *                      - #MXM_ParseVoltageReadallTest()
+ *                      - #MXM_5XUserAccessibleAddressSpaceCheckerSelfCheck()
+ *
+ *                  These self-checks do not need an initialized daisy-chain
+ *                  and can therefore be executed at startup of the
+ *                  state-machine.
+ *
+ *                  After execution of each test, the return value is stored in
+ *                  the supplied state-struct. The function returns whether the
+ *                  self-check has successfully passed.
+ * @param[in,out]   pState  pointer to the state-struct, will write status into
+ * @return          #STD_OK on success, #STD_NOT_OK on failure,
+ *                  return value has to be used
+ */
+extern STD_RETURN_TYPE_e MXM_PreInitSelfCheck(MXM_MONITORING_INSTANCE_s *pState);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 #ifdef UNITY_UNIT_TEST

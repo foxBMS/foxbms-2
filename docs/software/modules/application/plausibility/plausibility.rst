@@ -3,7 +3,7 @@
 
 .. _PLAUSIBILITY_MODULE:
 
-plausibility Module
+Plausibility Module
 ===================
 
 Module Files

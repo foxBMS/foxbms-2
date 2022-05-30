@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    algorithm_cfg.h
  * @author  foxBMS Team
  * @date    2017-12-18 (date of creation)
- * @updated 2020-06-30 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup ALGORITHMS_CONFIGURATION
  * @prefix  ALGO
  *
@@ -77,17 +78,18 @@ typedef STD_RETURN_TYPE_e ALGO_INITIALIZATION_FUNCTION_f(void);
 typedef void ALGO_COMPUTATION_FUNCTION_f(void);
 
 /** states that an algorithm can take */
-typedef enum ALGO_STATE {
-    ALGO_UNINITIALIZED, /*!< This is the default value indicating that initialization has not run yet */
-    ALGO_READY,         /*!< This indicates that the algorithm is ready to be run on next time slot */
-    ALGO_RUNNING,       /*!< This indicates that the algorithm is currently running.
-    Note that it may not spend more than #ALGO_TASKS::maxCalculationDuration_ms in this state. */
-    ALGO_BLOCKED,       /*!< This indicates that the algorithm has violated its maximum calculation duration. */
-    ALGO_FAILED_INIT,   /*!< This indicates a failed initialization. */
+typedef enum {
+    ALGO_UNINITIALIZED,    /*!< This is the default value indicating that initialization has not run yet */
+    ALGO_READY,            /*!< This indicates that the algorithm is ready to be run on next time slot */
+    ALGO_RUNNING,          /*!< This indicates that the algorithm is currently running.
+    Note that it may not spend more than #ALGO_TASKS_s::maxCalculationDuration_ms in this state. */
+    ALGO_BLOCKED,          /*!< This indicates that the algorithm has violated its maximum calculation duration. */
+    ALGO_FAILED_INIT,      /*!< This indicates a failed initialization. */
+    ALGO_REINIT_REQUESTED, /*!< This indicates that a reinitialization of the algorithm has been requested. */
 } ALGO_STATE_e;
 
 /** Struct representing the key parameters of an algorithm */
-typedef struct ALGO_TASKS {
+typedef struct {
     ALGO_STATE_e state;                               /*!< current execution state */
     uint32_t cycleTime_ms;                            /*!< cycle time of algorithm */
     uint32_t maxCalculationDuration_ms;               /*!< maximum allowed calculation duration for task */
@@ -110,6 +112,12 @@ extern const uint16_t algo_length;
  * @param[in]   algorithmIndex  index entry of the algorithm
  */
 extern void ALGO_MarkAsDone(uint32_t algorithmIndex);
+
+/**
+ * @brief   mark a algorithm as requiring a reinitialization.
+ * @param[in]   algorithmIndex  index entry of the algorithm
+ */
+extern void ALGO_MarkAsReinit(uint32_t algorithmIndex);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 

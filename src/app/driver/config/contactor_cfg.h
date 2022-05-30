@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    contactor_cfg.h
  * @author  foxBMS Team
  * @date    2020-02-11 (date of creation)
- * @updated 2021-03-24 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  CONT
  *
@@ -67,14 +68,14 @@
 
 /*========== Extern Constant and Variable Declarations ======================*/
 /** Symbolic names for the possible states of the contactors */
-typedef enum CONT_ELECTRICAL_STATE_TYPE {
+typedef enum {
     CONT_SWITCH_OFF,   /*!< Contactor off       --> Contactor is open */
     CONT_SWITCH_ON,    /*!< Contactor on        --> Contactor is closed */
     CONT_SWITCH_UNDEF, /*!< Contactor undefined --> Contactor state not known */
 } CONT_ELECTRICAL_STATE_TYPE_e;
 
 /** Symbolic names for the contactors */
-typedef enum CONT_NAMES {
+typedef enum {
     CONT_STRING0_PLUS,  /*!< Contactor in string0 plus path */
     CONT_STRING0_MINUS, /*!< Contactor in string0 minus path */
     CONT_STRING1_PLUS,  /*!< Contactor in string1 plus path */
@@ -85,7 +86,7 @@ typedef enum CONT_NAMES {
 } CONT_NAMES_e;
 
 /** Symbolic names defining the electric behavior of the contactor */
-typedef enum CONT_FEEDBACK_TYPE {
+typedef enum {
     CONT_FEEDBACK_NORMALLY_OPEN,   /*!< Feedback line of a contactor is normally open */
     CONT_FEEDBACK_NORMALLY_CLOSED, /*!< Feedback line of a contactor is normally closed */
     CONT_FEEDBACK_THROUGH_CURRENT, /*!< Get feedback information through the current flowing into the contactor */
@@ -93,7 +94,7 @@ typedef enum CONT_FEEDBACK_TYPE {
 } CONT_FEEDBACK_TYPE_e;
 
 /** Status struct for a registry of all contactors */
-typedef struct CONT_CONTACTOR_STATE {
+typedef struct {
     CONT_ELECTRICAL_STATE_TYPE_e currentSet;    /*!< current setpoint for the contactor */
     CONT_ELECTRICAL_STATE_TYPE_e feedback;      /*!< feedback from the contactor */
     const CONT_FEEDBACK_TYPE_e feedbackPinType; /*!< type of feedback that the contactor uses */

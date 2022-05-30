@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    test_mxm_1785x_tools.c
  * @author  foxBMS Team
  * @date    2020-07-15 (date of creation)
- * @updated 2021-12-06 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  MXM
  *
@@ -183,7 +184,7 @@ void testMXM_ConvertHalfScale(void) {
 }
 
 void testMXM_ConvertSelfCheck(void) {
-    fas_storeAssertLoc_Ignore();
+    FAS_StoreAssertLocation_Ignore();
     TEST_ASSERT_PASS_ASSERT(TEST_ASSERT_EQUAL(STD_OK, MXM_ConvertTest()));
 }
 
@@ -301,7 +302,7 @@ void testConversionExtractAndInsertRoundTripSomeValue(void) {
 
 /* WARNING: in order for the MXM_ConvertModuleToString tests to work as expected,
    make sure that both test and source have been rebuilt (clear the build) after
-   changing system defines such as BS_NR_OF_MODULES */
+   changing system defines such as BS_NR_OF_MODULES_PER_STRING */
 
 void testMXM_ConvertModuleToStringNullPointer(void) {
     uint8_t stringNumber          = 0u;
@@ -320,9 +321,9 @@ void testMXM_ConvertModuleToStringTooManyForMaxim(void) {
 void testMXM_ConvertModuleToStringTooManyForSystem(void) {
     uint8_t stringNumber          = 0u;
     uint16_t moduleNumberInString = 0u;
-    /* The system cannot have more modules than BS_NR_OF_STRINGS*BS_NR_OF_MODULES */
-    TEST_ASSERT_FAIL_ASSERT(
-        MXM_ConvertModuleToString((BS_NR_OF_STRINGS * BS_NR_OF_MODULES), &stringNumber, &moduleNumberInString));
+    /* The system cannot have more modules than BS_NR_OF_STRINGS*BS_NR_OF_MODULES_PER_STRING */
+    TEST_ASSERT_FAIL_ASSERT(MXM_ConvertModuleToString(
+        (BS_NR_OF_STRINGS * BS_NR_OF_MODULES_PER_STRING), &stringNumber, &moduleNumberInString));
 }
 
 void testMXM_ConvertModuleToStringFirstInFirstString(void) {
@@ -330,8 +331,8 @@ void testMXM_ConvertModuleToStringFirstInFirstString(void) {
     uint8_t stringNumber                        = 42u;
     const uint16_t expectedModuleNumberInString = 0u;
     uint16_t moduleNumberInString               = 42u;
-    TEST_ASSERT_PASS_ASSERT(
-        MXM_ConvertModuleToString((expectedStringNumber * BS_NR_OF_MODULES), &stringNumber, &moduleNumberInString));
+    TEST_ASSERT_PASS_ASSERT(MXM_ConvertModuleToString(
+        (expectedStringNumber * BS_NR_OF_MODULES_PER_STRING), &stringNumber, &moduleNumberInString));
 
     TEST_ASSERT_EQUAL(expectedStringNumber, stringNumber);
     TEST_ASSERT_EQUAL(expectedModuleNumberInString, moduleNumberInString);
@@ -346,8 +347,8 @@ void testMXM_ConvertModuleToStringFirstInSecondString(void) {
     uint8_t stringNumber                        = 0u;
     const uint16_t expectedModuleNumberInString = 0u;
     uint16_t moduleNumberInString               = 42u;
-    TEST_ASSERT_PASS_ASSERT(
-        MXM_ConvertModuleToString((expectedStringNumber * BS_NR_OF_MODULES), &stringNumber, &moduleNumberInString));
+    TEST_ASSERT_PASS_ASSERT(MXM_ConvertModuleToString(
+        (expectedStringNumber * BS_NR_OF_MODULES_PER_STRING), &stringNumber, &moduleNumberInString));
 
     TEST_ASSERT_EQUAL(expectedStringNumber, stringNumber);
     TEST_ASSERT_EQUAL(expectedModuleNumberInString, moduleNumberInString);
@@ -355,7 +356,7 @@ void testMXM_ConvertModuleToStringFirstInSecondString(void) {
 
 void testMXM_ConvertModuleToStringSecondInFirstString(void) {
     /* skip this test if the BMS configuration does not fit to this test (we need a second module) */
-    if (BS_NR_OF_MODULES < 2u) {
+    if (BS_NR_OF_MODULES_PER_STRING < 2u) {
         TEST_PASS_MESSAGE("This test is skipped due to the configuration of the BMS.");
     }
     const uint8_t expectedStringNumber          = 0u;
@@ -363,7 +364,7 @@ void testMXM_ConvertModuleToStringSecondInFirstString(void) {
     const uint16_t expectedModuleNumberInString = 1u;
     uint16_t moduleNumberInString               = 42u;
     TEST_ASSERT_PASS_ASSERT(MXM_ConvertModuleToString(
-        ((expectedStringNumber * BS_NR_OF_MODULES) + expectedModuleNumberInString),
+        ((expectedStringNumber * BS_NR_OF_MODULES_PER_STRING) + expectedModuleNumberInString),
         &stringNumber,
         &moduleNumberInString));
 
@@ -373,7 +374,7 @@ void testMXM_ConvertModuleToStringSecondInFirstString(void) {
 
 void testMXM_ConvertModuleToStringSecondInSecondString(void) {
     /* skip this test if the BMS configuration does not fit to this test (we need a second module) */
-    if ((BS_NR_OF_MODULES < 2u) || (BS_NR_OF_STRINGS < 2u)) {
+    if ((BS_NR_OF_MODULES_PER_STRING < 2u) || (BS_NR_OF_STRINGS < 2u)) {
         TEST_PASS_MESSAGE("This test is skipped due to the configuration of the BMS.");
     }
     const uint8_t expectedStringNumber          = 1u;
@@ -381,7 +382,7 @@ void testMXM_ConvertModuleToStringSecondInSecondString(void) {
     const uint16_t expectedModuleNumberInString = 1u;
     uint16_t moduleNumberInString               = 42u;
     TEST_ASSERT_PASS_ASSERT(MXM_ConvertModuleToString(
-        (expectedModuleNumberInString + (expectedStringNumber * BS_NR_OF_MODULES)),
+        (expectedModuleNumberInString + (expectedStringNumber * BS_NR_OF_MODULES_PER_STRING)),
         &stringNumber,
         &moduleNumberInString));
 

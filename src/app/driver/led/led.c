@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    led.c
  * @author  foxBMS Team
  * @date    2021-09-28 (date of creation)
- * @updated 2021-10-05 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup DRIVERS
  * @prefix  LED
  *
@@ -80,7 +81,7 @@ uint32_t led_onOffTime_ms = 0u;
 /*========== Static Function Implementations ================================*/
 
 /*========== Extern Function Implementations ================================*/
-extern void LED_SetDebugLED(void) {
+extern void LED_SetDebugLed(void) {
     IO_PinSet(&LED_PORT->DOUT, LED_PIN);
 }
 

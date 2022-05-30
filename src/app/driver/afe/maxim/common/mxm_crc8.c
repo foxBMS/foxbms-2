@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    mxm_crc8.c
  * @author  foxBMS Team
  * @date    2019-02-05 (date of creation)
- * @updated 2021-12-06 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup DRIVERS
  * @prefix  MXM
  *
@@ -78,6 +79,8 @@ static uint8_t MXM_CRC8WithInitValue(uint16_t *pData, int32_t lenData, uint8_t c
 /*========== Static Function Implementations ================================*/
 static uint8_t MXM_CRC8WithInitValue(uint16_t *pData, int32_t lenData, uint8_t crcInit) {
     FAS_ASSERT(pData != NULL_PTR);
+    /* AXIVION Routine Generic-MissingParameterAssert: lenData: parameter accepts whole range */
+    /* AXIVION Routine Generic-MissingParameterAssert: crcInit: parameter accepts whole range */
 
     /**
      * @brief   Precomputed CRC8-table for polynomial 0xA6
@@ -129,22 +132,28 @@ static uint8_t MXM_CRC8WithInitValue(uint16_t *pData, int32_t lenData, uint8_t c
 
 extern uint8_t MXM_CRC8(uint16_t *pData, int32_t lenData) {
     FAS_ASSERT(pData != NULL_PTR);
+    /* AXIVION Routine Generic-MissingParameterAssert: lenData: parameter accepts whole range */
+
     return MXM_CRC8WithInitValue(pData, lenData, 0);
 }
 
 extern STD_RETURN_TYPE_e must_check_return MXM_CRC8SelfTest(void) {
     /* AXIVION Disable Style Generic-NoMagicNumbers: This test function uses magic numbers to test predefined values. */
-    uint16_t testSequence1[4] = {0x02u, 0x12u, 0xB1u, 0xB2u};
-    FAS_ASSERT(MXM_CRC8(testSequence1, 4) == 0xC4u);
+    uint16_t testSequence1[4]     = {0x02u, 0x12u, 0xB1u, 0xB2u};
+    const uint8_t sequence1Result = MXM_CRC8(testSequence1, 4);
+    FAS_ASSERT(sequence1Result == 0xC4u);
 
-    uint16_t testSequence2[3] = {0x03u, 0x12u, 0x00u};
-    FAS_ASSERT(MXM_CRC8(testSequence2, 3) == 0xCBu);
+    uint16_t testSequence2[3]     = {0x03u, 0x12u, 0x00u};
+    const uint8_t sequence2Result = MXM_CRC8(testSequence2, 3);
+    FAS_ASSERT(sequence2Result == 0xCBu);
 
-    uint16_t testSequence3[10] = {0x02u, 0x5Bu, 0x12u, 0x42u, 0xFFu, 0xD3u, 0x13u, 0x77u, 0xA1u, 0x31u};
-    FAS_ASSERT(MXM_CRC8(testSequence3, 10) == 0x7Eu);
+    uint16_t testSequence3[10]    = {0x02u, 0x5Bu, 0x12u, 0x42u, 0xFFu, 0xD3u, 0x13u, 0x77u, 0xA1u, 0x31u};
+    const uint8_t sequence3Result = MXM_CRC8(testSequence3, 10);
+    FAS_ASSERT(sequence3Result == 0x7Eu);
 
-    uint16_t testSequence4[3] = {0x03u, 0x66u, 0x00u};
-    FAS_ASSERT(MXM_CRC8(testSequence4, 3) == 0x43u);
+    uint16_t testSequence4[3]     = {0x03u, 0x66u, 0x00u};
+    const uint8_t sequence4Result = MXM_CRC8(testSequence4, 3);
+    FAS_ASSERT(sequence4Result == 0x43u);
 
     /* AXIVION Enable Style Generic-NoMagicNumbers: */
 

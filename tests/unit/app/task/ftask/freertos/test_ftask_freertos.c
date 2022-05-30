@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    test_ftask_freertos.c
  * @author  foxBMS Team
  * @date    2021-11-26 (date of creation)
- * @updated 2021-12-01 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -67,32 +68,38 @@ OS_TASK_DEFINITION_s ftsk_taskDefinitionEngine = {
     OS_PRIORITY_REAL_TIME,
     FTSK_TASK_ENGINE_PHASE,
     FTSK_TASK_ENGINE_CYCLE_TIME,
-    FTSK_TASK_ENGINE_STACK_SIZE,
+    FTSK_TASK_ENGINE_STACK_SIZE_IN_BYTES,
     FTSK_TASK_ENGINE_PV_PARAMETERS};
 OS_TASK_DEFINITION_s ftsk_taskDefinitionCyclic1ms = {
     OS_PRIORITY_ABOVE_HIGH,
     FTSK_TASK_CYCLIC_1MS_PHASE,
     FTSK_TASK_CYCLIC_1MS_CYCLE_TIME,
-    FTSK_TASK_CYCLIC_1MS_STACK_SIZE,
+    FTSK_TASK_CYCLIC_1MS_STACK_SIZE_IN_BYTES,
     FTSK_TASK_CYCLIC_1MS_PV_PARAMETERS};
 OS_TASK_DEFINITION_s ftsk_taskDefinitionCyclic10ms = {
     OS_PRIORITY_HIGH,
     FTSK_TASK_CYCLIC_10MS_PHASE,
     FTSK_TASK_CYCLIC_10MS_CYCLE_TIME,
-    FTSK_TASK_CYCLIC_10MS_STACK_SIZE,
+    FTSK_TASK_CYCLIC_10MS_STACK_SIZE_IN_BYTES,
     FTSK_TASK_CYCLIC_10MS_PV_PARAMETERS};
 OS_TASK_DEFINITION_s ftsk_taskDefinitionCyclic100ms = {
     OS_PRIORITY_ABOVE_NORMAL,
     FTSK_TASK_CYCLIC_100MS_PHASE,
     FTSK_TASK_CYCLIC_100MS_CYCLE_TIME,
-    FTSK_TASK_CYCLIC_100MS_STACK_SIZE,
+    FTSK_TASK_CYCLIC_100MS_STACK_SIZE_IN_BYTES,
     FTSK_TASK_CYCLIC_100MS_PV_PARAMETERS};
 OS_TASK_DEFINITION_s ftsk_taskDefinitionCyclicAlgorithm100ms = {
     OS_PRIORITY_NORMAL,
     FTSK_TASK_CYCLIC_ALGORITHM_100MS_PHASE,
     FTSK_TASK_CYCLIC_ALGORITHM_100MS_CYCLE_TIME,
-    FTSK_TASK_CYCLIC_ALGORITHM_100MS_STACKSIZE,
+    FTSK_TASK_CYCLIC_ALGORITHM_100MS_STACK_SIZE_IN_BYTES,
     FTSK_TASK_CYCLIC_ALGORITHM_100MS_PV_PARAMETERS};
+OS_TASK_DEFINITION_s ftsk_taskDefinitionAfe = {
+    FTSK_TASK_AFE_PRIORITY,
+    FTSK_TASK_AFE_PHASE,
+    FTSK_TASK_AFE_CYCLE_TIME,
+    FTSK_TASK_AFE_STACK_SIZE_IN_BYTES,
+    FTSK_TASK_AFE_PV_PARAMETERS};
 
 /** boot state of the OS */
 volatile OS_BOOT_STATE_e os_boot = OS_OFF;
@@ -126,5 +133,6 @@ void testFTSK_CreateTasks(void) {
     helperCreateStatic("TaskCyclic10ms", dummyHandleSuccess);
     helperCreateStatic("TaskCyclic100ms", dummyHandleSuccess);
     helperCreateStatic("TaskCyclicAlgorithm100ms", dummyHandleSuccess);
+    helperCreateStatic("TaskAfe", dummyHandleSuccess);
     FTSK_CreateTasks();
 }

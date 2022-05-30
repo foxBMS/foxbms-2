@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    test_can_cbs_tx_system_values.c
  * @author  foxBMS Team
  * @date    2021-07-27 (date of creation)
- * @updated 2021-07-27 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -124,7 +125,7 @@ void testCAN_TxPackValues(void) {
     can_kShim.pTablePackValues->highVoltageBusVoltage_mV = 325100;
     can_kShim.pTablePackValues->packPower_W              = -65100;
 
-    DATA_Read_1_DataBlock_IgnoreAndReturn(0u);
+    DATA_Read1DataBlock_IgnoreAndReturn(0u);
     CAN_TxPackValues(CAN_ID_TX_PACK_VALUES, 8, CAN_BIG_ENDIAN, data, NULL_PTR, &can_kShim);
 
     /** Values of:

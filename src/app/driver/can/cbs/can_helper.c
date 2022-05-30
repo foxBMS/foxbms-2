@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    can_helper.c
  * @author  foxBMS Team
  * @date    2021-04-22 (date of creation)
- * @updated 2021-07-29 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup DRIVERS
  * @prefix  CAN
  *
@@ -330,6 +331,14 @@ extern void CAN_RxGetMessageDataFromCanData(
         /* Endianness must be big or little */
         FAS_ASSERT(FAS_TRAP);
     }
+}
+
+extern uint8_t CAN_ConvertBooleanToInteger(bool input) {
+    uint8_t returnValue = 0u;
+    if (input == true) {
+        returnValue = 1u;
+    }
+    return returnValue;
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/

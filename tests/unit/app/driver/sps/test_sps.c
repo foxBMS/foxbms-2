@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    test_sps.c
  * @author  foxBMS Team
  * @date    2020-10-28 (date of creation)
- * @updated 2021-12-08 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -196,19 +197,19 @@ void testSPS_RequestContactorStateCorrectAffiliation(void) {
 
 void testSPS_RequestGeneralIOStateWrongAffiliation(void) {
     /* watch out, the channel here has to have an affiliation that is not SPS_AFF_GENERAL_IO */
-    TEST_ASSERT_FAIL_ASSERT(SPS_RequestGeneralIOState(0u, SPS_CHANNEL_OFF));
+    TEST_ASSERT_FAIL_ASSERT(SPS_RequestGeneralIoState(0u, SPS_CHANNEL_OFF));
 }
 
 void testSPS_RequestGeneralIOStateWrongIndex(void) {
     /* a wrong index should also lead here to an assertion */
-    TEST_ASSERT_FAIL_ASSERT(SPS_RequestGeneralIOState(42u, SPS_CHANNEL_OFF));
+    TEST_ASSERT_FAIL_ASSERT(SPS_RequestGeneralIoState(42u, SPS_CHANNEL_OFF));
 }
 
 void testSPS_RequestGIOStateCorrectAffiliation(void) {
     OS_EnterTaskCritical_Ignore();
     OS_ExitTaskCritical_Ignore();
     /* watch out, the channel here has to have an affiliation that is SPS_AFF_GENERAL_IO */
-    TEST_ASSERT_PASS_ASSERT(SPS_RequestGeneralIOState(7u, SPS_CHANNEL_ON));
+    TEST_ASSERT_PASS_ASSERT(SPS_RequestGeneralIoState(7u, SPS_CHANNEL_ON));
     TEST_ASSERT_EQUAL(SPS_CHANNEL_ON, sps_channelStatus[7u].channelRequested);
 }
 
@@ -260,7 +261,7 @@ void testSPS_CtrlStartupProcedure(void) {
     /* transition through state-machine: SPS_CONFIGURE_CONTROL_REGISTER */
     /* check that we transmit the first set of commands */
     SPI_TransmitReceiveData_IgnoreAndReturn(STD_OK);
-    MCU_delay_us_Ignore();
+    MCU_Delay_us_Ignore();
     /* Since the transaction is successful, we should switch to high-speed */
     SPI_SpsInterfaceSwitchToHighSpeed_Expect(&spi_spsInterface);
     SPS_Ctrl();
@@ -273,7 +274,7 @@ void testSPS_CtrlResetOnFailedFirstTransaction(void) {
     TEST_SPS_SetSpsState(SPS_TRIGGER_CURRENT_MEASUREMENT);
 
     /* run state and let first transaction "fail" */
-    MCU_delay_us_Ignore();
+    MCU_Delay_us_Ignore();
     SPI_TransmitReceiveData_ExpectAndReturn(NULL_PTR, NULL_PTR, NULL_PTR, 0u, STD_NOT_OK);
     SPI_TransmitReceiveData_IgnoreArg_pSpiInterface();
     SPI_TransmitReceiveData_IgnoreArg_pTxBuff();
@@ -292,7 +293,7 @@ void testSPS_CtrlResetOnFailedSecondTransaction(void) {
     TEST_SPS_SetSpsState(SPS_TRIGGER_CURRENT_MEASUREMENT);
 
     /* run state and let second transaction "fail" */
-    MCU_delay_us_Ignore();
+    MCU_Delay_us_Ignore();
     SPI_TransmitReceiveData_ExpectAndReturn(NULL_PTR, NULL_PTR, NULL_PTR, 0u, STD_OK);
     SPI_TransmitReceiveData_IgnoreArg_pSpiInterface();
     SPI_TransmitReceiveData_IgnoreArg_pTxBuff();
@@ -311,7 +312,7 @@ void testSPS_CtrlResetOnFailedBothTransactions(void) {
     TEST_SPS_SetSpsState(SPS_TRIGGER_CURRENT_MEASUREMENT);
 
     /* run state and let both transaction "fail" */
-    MCU_delay_us_Ignore();
+    MCU_Delay_us_Ignore();
     SPI_TransmitReceiveData_IgnoreAndReturn(STD_NOT_OK);
     SPS_Ctrl();
 }
@@ -321,7 +322,7 @@ void testSPS_CtrlResetFromStateSPS_CONFIGURE_CONTROL_REGISTER(void) {
     TEST_SPS_SetSpsState(SPS_CONFIGURE_CONTROL_REGISTER);
 
     /* run state and let both transaction "fail" */
-    MCU_delay_us_Ignore();
+    MCU_Delay_us_Ignore();
     SPI_TransmitReceiveData_IgnoreAndReturn(STD_NOT_OK);
     SPS_Ctrl();
     TEST_ASSERT_EQUAL(SPS_START, TEST_SPS_GetSpsState());
@@ -332,7 +333,7 @@ void testSPS_CtrlResetFromStateSPS_TRIGGER_CURRENT_MEASUREMENT(void) {
     TEST_SPS_SetSpsState(SPS_TRIGGER_CURRENT_MEASUREMENT);
 
     /* run state and let both transaction "fail" */
-    MCU_delay_us_Ignore();
+    MCU_Delay_us_Ignore();
     SPI_TransmitReceiveData_IgnoreAndReturn(STD_NOT_OK);
     SPS_Ctrl();
     TEST_ASSERT_EQUAL(SPS_START, TEST_SPS_GetSpsState());
@@ -343,7 +344,7 @@ void testSPS_CtrlResetFromStateSPS_READ_EN_IRQ_PIN(void) {
     TEST_SPS_SetSpsState(SPS_READ_EN_IRQ_PIN);
 
     /* run state and let both transaction "fail" */
-    MCU_delay_us_Ignore();
+    MCU_Delay_us_Ignore();
     SPI_TransmitReceiveData_IgnoreAndReturn(STD_NOT_OK);
     SPS_Ctrl();
     TEST_ASSERT_EQUAL(SPS_START, TEST_SPS_GetSpsState());
@@ -354,7 +355,7 @@ void testSPS_CtrlResetFromStateSPS_READ_MEASURED_CURRENT1(void) {
     TEST_SPS_SetSpsState(SPS_READ_MEASURED_CURRENT1);
 
     /* run state and let both transaction "fail" */
-    MCU_delay_us_Ignore();
+    MCU_Delay_us_Ignore();
     SPI_TransmitReceiveData_IgnoreAndReturn(STD_NOT_OK);
     SPS_Ctrl();
     TEST_ASSERT_EQUAL(SPS_START, TEST_SPS_GetSpsState());
@@ -365,7 +366,7 @@ void testSPS_CtrlResetFromStateSPS_READ_MEASURED_CURRENT2(void) {
     TEST_SPS_SetSpsState(SPS_READ_MEASURED_CURRENT2);
 
     /* run state and let both transaction "fail" */
-    MCU_delay_us_Ignore();
+    MCU_Delay_us_Ignore();
     SPI_TransmitReceiveData_IgnoreAndReturn(STD_NOT_OK);
     SPS_Ctrl();
     TEST_ASSERT_EQUAL(SPS_START, TEST_SPS_GetSpsState());
@@ -376,7 +377,7 @@ void testSPS_CtrlResetFromStateSPS_READ_MEASURED_CURRENT3(void) {
     TEST_SPS_SetSpsState(SPS_READ_MEASURED_CURRENT3);
 
     /* run state and let both transaction "fail" */
-    MCU_delay_us_Ignore();
+    MCU_Delay_us_Ignore();
     SPI_TransmitReceiveData_IgnoreAndReturn(STD_NOT_OK);
     SPS_Ctrl();
     TEST_ASSERT_EQUAL(SPS_START, TEST_SPS_GetSpsState());
@@ -387,7 +388,7 @@ void testSPS_CtrlResetFromStateSPS_READ_MEASURED_CURRENT4(void) {
     TEST_SPS_SetSpsState(SPS_READ_MEASURED_CURRENT4);
 
     /* run state and let both transaction "fail" */
-    MCU_delay_us_Ignore();
+    MCU_Delay_us_Ignore();
     SPI_TransmitReceiveData_IgnoreAndReturn(STD_NOT_OK);
     SPS_Ctrl();
     TEST_ASSERT_EQUAL(SPS_START, TEST_SPS_GetSpsState());
@@ -398,7 +399,7 @@ void testSPS_CtrlNormalOperationCycle(void) {
     TEST_SPS_SetSpsState(SPS_TRIGGER_CURRENT_MEASUREMENT);
 
     /* let transactions always succeed */
-    MCU_delay_us_Ignore();
+    MCU_Delay_us_Ignore();
     SPI_TransmitReceiveData_IgnoreAndReturn(STD_OK);
 
     /* run state chain */
@@ -451,7 +452,7 @@ void testContactorSwitchOnAndOff(void) {
     /* cycle over one state that handles channels */
     TEST_SPS_SetSpsState(SPS_TRIGGER_CURRENT_MEASUREMENT);
     SPI_TransmitReceiveData_IgnoreAndReturn(STD_OK);
-    MCU_delay_us_Ignore();
+    MCU_Delay_us_Ignore();
     SPS_Ctrl();
 
     /* check that channels have been marked as on */
@@ -484,7 +485,7 @@ void testContactorSwitchOnAndOff(void) {
     /* cycle over one state that handles channels */
     TEST_SPS_SetSpsState(SPS_TRIGGER_CURRENT_MEASUREMENT);
     SPI_TransmitReceiveData_IgnoreAndReturn(STD_OK);
-    MCU_delay_us_Ignore();
+    MCU_Delay_us_Ignore();
     SPS_Ctrl();
 
     /* check that channels have been marked as off */

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    debug_default_afe_dma.c
  * @author  foxBMS Team
  * @date    2020-09-17 (date of creation)
- * @updated 2021-12-08 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup DRIVERS
  * @prefix  FAKE
  *
@@ -66,12 +67,10 @@
 
 /*========== Extern Function Implementations ================================*/
 
-/* this is a dummy implementation and not using the argument here is fine */
-#pragma diag_push
-#pragma diag_suppress 880
 /* Function called on DMA complete interrupts (TX and RX). */
 void AFE_DmaCallback(uint8_t spiIndex) {
+    /* this is a dummy implementation and not using the argument here is fine */
+    (void)spiIndex;
 }
-#pragma diag_pop
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/

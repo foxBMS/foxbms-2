@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    test_os_freertos.c
  * @author  foxBMS Team
  * @date    2021-11-26 (date of creation)
- * @updated 2021-12-01 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -77,7 +78,7 @@ void tearDown(void) {
 /** test that #OS_StartScheduler calls the relevant FreeRTOS function */
 void testOS_StartScheduler(void) {
     vTaskStartScheduler_Expect();
-    OS_StartScheduler();
+    TEST_ASSERT_FAIL_ASSERT(OS_StartScheduler());
 }
 
 void testvApplicationIdleHookCallsUserCodeIdle(void) {

@@ -894,6 +894,7 @@ SG_ foxBMS_Error_Insulation : 23|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ foxBMS_Error_Cantiming : 24|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ foxBMS_Error_PackOvercurr_Charge : 25|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ foxBMS_Error_PackOvercur_Dischrg : 26|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ foxBMS_SysMonError : 12|1@1+ (1,0) [0|1] "" Vector__XXX
 
 
 BO_ 545 foxBMS_StringState: 8 Vector__XXX
@@ -1348,6 +1349,26 @@ SG_ foxBMS_releaseDistance : 31|5@0+ (1,0) [0|31] "" Vector__XXX
 SG_ foxBMS_releaseDistanceOverflow : 26|1@1+ (1,0) [0|1] "" Vector__XXX
 
 
+BO_ 550 foxBMS_DetailState: 8 Vector__XXX
+SG_ foxBMS_TimingViolationEngine : 0|1@1+ (1,0) [0|1] "" Vector__XXX
+SG_ foxBMS_TimingViolation1ms : 1|1@1+ (1,0) [0|1] "" Vector__XXX
+SG_ foxBMS_TimingViolation10ms : 2|1@1+ (1,0) [0|1] "" Vector__XXX
+SG_ foxBMS_TimingViolation100ms : 3|1@1+ (1,0) [0|1] "" Vector__XXX
+SG_ foxBMS_TimingViolation100msAlgo : 4|1@1+ (1,0) [0|1] "" Vector__XXX
+SG_ foxBMS_TimingViolation10msRec : 10|1@1+ (1,0) [0|1] "" Vector__XXX
+SG_ foxBMS_TimingViolation100msRec : 11|1@1+ (1,0) [0|1] "" Vector__XXX
+SG_ foxBMS_TimingViolation100msAlgoR : 12|1@1+ (1,0) [0|1] "" Vector__XXX
+SG_ foxBMS_TimingViolationEngineRec : 8|1@1+ (1,0) [0|1] "" Vector__XXX
+SG_ foxBMS_TimingViolation1msRec : 9|1@1+ (1,0) [0|1] "" Vector__XXX
+
+
+BO_ 551 foxBMS_DieId: 8 Vector__XXX
+SG_ MCU_lotNumber : 15|24@0+ (1,0) [0|1] "" Vector__XXX
+SG_ MCU_waferNumber : 39|8@0+ (1,0) [0|1] "" Vector__XXX
+SG_ MCU_xWaferCoordinate : 51|12@0+ (1,0) [0|1] "" Vector__XXX
+SG_ MCU_yWaferCoordinate : 47|12@0+ (1,0) [0|1] "" Vector__XXX
+
+
 CM_ BO_ 546 "(in:can_cbs_tx_system_values.c:CAN_TxPackValues)";
 CM_ SG_ 546 foxBMS_packCurrent "Battery pack current";
 CM_ SG_ 546 foxBMS_batteryVoltage "Battery voltage between negative and positive pole of the battery";
@@ -1401,6 +1422,7 @@ CM_ SG_ 544 foxBMS_Error_Insulation "0x00: No error, 0x01: Error detected";
 CM_ SG_ 544 foxBMS_Error_Cantiming "0x00: No error, 0x01: Error detected";
 CM_ SG_ 544 foxBMS_Error_PackOvercurr_Charge "0x00: No error, 0x01: Error detected";
 CM_ SG_ 544 foxBMS_Error_PackOvercur_Dischrg "0x00: No error, 0x01: Error detected";
+CM_ SG_ 544 foxBMS_SysMonError "If this bit is set, it indicates that a task has violated its timing requirements.";
 CM_ BO_ 545 "Message contains string related error and warning flags (in:can_cbs_tx_state.c:CAN_TxStringState)";
 CM_ SG_ 545 String0_stringConnected "0x00: String not connected, 0x01: String connected to HV bus";
 CM_ SG_ 545 String0_balancing_active "0x00: No balancing active, 0x01: Balancing in this string active";
@@ -1542,6 +1564,22 @@ CM_ BO_ 1831 "Current sensor string 2: coulomb counting (in:can_cbs_rx_current_s
 CM_ BO_ 1832 "Current sensor string 2: energy counting (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)";
 CM_ BO_ 409 "(in:can.c:CAN_TransmitBootMessage)";
 CM_ SG_ 409 foxBMS_uniqueId "Content of Device Identification Register (DEVID)";
+CM_ BO_ 550 "Transmits details on flags transmitted by foxBMS_State (in:can_cbs_tx_state.c:CAN_TxDetailState)";
+CM_ SG_ 550 foxBMS_TimingViolationEngine "Indicates whether the timing of the engine task has been violated.";
+CM_ SG_ 550 foxBMS_TimingViolation1ms "Indicates whether the timing of the 1ms task has been violated.";
+CM_ SG_ 550 foxBMS_TimingViolation10ms "Indicates whether the timing of the 10ms task has been violated.";
+CM_ SG_ 550 foxBMS_TimingViolation100ms "Indicates whether the timing of the 100ms task has been violated.";
+CM_ SG_ 550 foxBMS_TimingViolation100msAlgo "Indicates whether the timing of the 100ms algorithm task has been violated.";
+CM_ SG_ 550 foxBMS_TimingViolation10msRec "Indicates whether a violation of the timing of the 10ms task has been recorded.";
+CM_ SG_ 550 foxBMS_TimingViolation100msRec "Indicates whether a violation of the timing of the 100ms task has been recorded.";
+CM_ SG_ 550 foxBMS_TimingViolation100msAlgoR "Indicates whether a violation of the timing of the 100ms algorithm task has been recorded.";
+CM_ SG_ 550 foxBMS_TimingViolationEngineRec "Indicates whether a violation of the timing of the engine task has been recorded.";
+CM_ SG_ 550 foxBMS_TimingViolation1msRec "Indicates whether a violation of the timing of the 1ms task has been recorded.";
+CM_ BO_ 551 "Transmits the unique die id of the MCU on which foxBMS is currently running (in:can.c:CAN_TransmitDieId)";
+CM_ SG_ 551 MCU_lotNumber "lot number of the MCU (read from DIEIDH register)";
+CM_ SG_ 551 MCU_waferNumber "wafer number of the MCU (read from DIEDL register)";
+CM_ SG_ 551 MCU_xWaferCoordinate "x coordinate of the MCU die on the wafer (read from DIEIDL register)";
+CM_ SG_ 551 MCU_yWaferCoordinate "y coordinate of the MCU die on the wafer (read from DIEIDL register)";
 
 BA_DEF_  "BusType" STRING ;
 BA_DEF_ SG_  "GenSigStartValue" FLOAT -3.4E+038 3.4E+038;
@@ -2406,6 +2444,7 @@ BA_ "GenSigStartValue" SG_ 544 foxBMS_Error_Insulation 0;
 BA_ "GenSigStartValue" SG_ 544 foxBMS_Error_Cantiming 0;
 BA_ "GenSigStartValue" SG_ 544 foxBMS_Error_PackOvercurr_Charge 0;
 BA_ "GenSigStartValue" SG_ 544 foxBMS_Error_PackOvercur_Dischrg 0;
+BA_ "GenSigStartValue" SG_ 544 foxBMS_SysMonError 0;
 BA_ "GenSigStartValue" SG_ 545 String0_stringConnected 0;
 BA_ "GenSigStartValue" SG_ 545 String0_balancing_active 0;
 BA_ "GenSigStartValue" SG_ 545 String0_Err_overtemp_charge 0;
@@ -2768,6 +2807,20 @@ BA_ "GenSigStartValue" SG_ 409 foxBMS_underVersionControl 0;
 BA_ "GenSigStartValue" SG_ 409 foxBMS_dirtyFlag 0;
 BA_ "GenSigStartValue" SG_ 409 foxBMS_releaseDistance 0;
 BA_ "GenSigStartValue" SG_ 409 foxBMS_releaseDistanceOverflow 0;
+BA_ "GenSigStartValue" SG_ 550 foxBMS_TimingViolationEngine 0;
+BA_ "GenSigStartValue" SG_ 550 foxBMS_TimingViolation1ms 0;
+BA_ "GenSigStartValue" SG_ 550 foxBMS_TimingViolation10ms 0;
+BA_ "GenSigStartValue" SG_ 550 foxBMS_TimingViolation100ms 0;
+BA_ "GenSigStartValue" SG_ 550 foxBMS_TimingViolation100msAlgo 0;
+BA_ "GenSigStartValue" SG_ 550 foxBMS_TimingViolation10msRec 0;
+BA_ "GenSigStartValue" SG_ 550 foxBMS_TimingViolation100msRec 0;
+BA_ "GenSigStartValue" SG_ 550 foxBMS_TimingViolation100msAlgoR 0;
+BA_ "GenSigStartValue" SG_ 550 foxBMS_TimingViolationEngineRec 0;
+BA_ "GenSigStartValue" SG_ 550 foxBMS_TimingViolation1msRec 0;
+BA_ "GenSigStartValue" SG_ 551 MCU_lotNumber 0;
+BA_ "GenSigStartValue" SG_ 551 MCU_waferNumber 0;
+BA_ "GenSigStartValue" SG_ 551 MCU_xWaferCoordinate 0;
+BA_ "GenSigStartValue" SG_ 551 MCU_yWaferCoordinate 0;
 
 VAL_ 640 foxBMS_StringValues_Mux 0 "mux_valuesString_0" 1 "mux_valuesString_1" 2 "mux_valuesString_2" ;
 VAL_ 643 foxBMS_StringValues2_Mux 0 "mux_values2String_0" 1 "mux_values2String_1" 2 "mux_values2String_2" ;

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    test_database.c
  * @author  foxBMS Team
  * @date    2020-04-01 (date of creation)
- * @updated 2021-12-01 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -67,9 +68,9 @@
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 /**
- * struct for message injection in database queue in #testDATA_ExecuteDataBIST()
+ * struct for message injection in database queue in #testDATA_ExecuteDataBist()
  */
-typedef struct DATA_QUEUE_BIST_INJECTED_MESSAGE {
+typedef struct {
     DATA_BLOCK_ACCESS_TYPE_e accesstype;                  /*!< read or write access type */
     DATA_BLOCK_DUMMY_FOR_SELF_TEST_s *pDatabaseEntry[1u]; /*!< reference to table */
 } DATA_QUEUE_BIST_INJECTED_MESSAGE_s;
@@ -89,7 +90,7 @@ void tearDown(void) {
 void testDummy(void) {
 }
 
-/** callback for #testDATA_ExecuteDataBIST(); this not work for other instances */
+/** callback for #testDATA_ExecuteDataBist(); this not work for other instances */
 OS_STD_RETURN_e DATA_mpuInjectValuesForExecuteBISTTestCallback(
     OS_QUEUE xQueue,
     const void *const pvItemToQueue,
@@ -105,13 +106,13 @@ OS_STD_RETURN_e DATA_mpuInjectValuesForExecuteBISTTestCallback(
     return OS_SUCCESS;
 }
 
-void testDATA_ExecuteDataBIST(void) {
+void testDATA_ExecuteDataBist(void) {
     DATA_BLOCK_DUMMY_FOR_SELF_TEST_s dummyTable = {.header.uniqueId = DATA_BLOCK_ID_DUMMY_FOR_SELF_TEST};
     const uint8_t testValue                     = DATA_DUMMY_VALUE_UINT8_T_ALTERNATING_BIT_PATTERN;
     dummyTable.member1                          = UINT8_MAX;
     dummyTable.member2                          = testValue;
     OS_SendToBackOfQueue_Stub(&DATA_mpuInjectValuesForExecuteBISTTestCallback);
-    TEST_ASSERT_PASS_ASSERT(DATA_ExecuteDataBIST());
+    TEST_ASSERT_PASS_ASSERT(DATA_ExecuteDataBist());
 }
 
 /*========== Test Cases =====================================================*/

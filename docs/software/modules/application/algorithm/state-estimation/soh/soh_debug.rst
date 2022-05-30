@@ -18,12 +18,14 @@ Driver
 Configuration
 ^^^^^^^^^^^^^
 
-The module has no configuration files.
+- ``src/app/application/algorithm/state_estimation/soh/debug/soh_debug_cfg.c`` (`API <./../../../../../../_static/doxygen/src/html/soh__debug__cfg_8c.html>`__, `source <./../../../../../../_static/doxygen/src/html/soh__debug__cfg_8c_source.html>`__)
+- ``src/app/application/algorithm/state_estimation/soh/debug/soh_debug_cfg.h`` (`API <./../../../../../../_static/doxygen/src/html/soh__debug__cfg_8h.html>`__, `source <./../../../../../../_static/doxygen/src/html/soh__debug__cfg_8h_source.html>`__)
 
 Unit Test
 ^^^^^^^^^
 
 - ``tests/unit/app/application/algorithm/state_estimation/soh/debug/test_soh_debug.c`` (`API <./../../../../../../_static/doxygen/tests/html/test__soh__debug_8c.html>`__, `source <./../../../../../../_static/doxygen/tests/html/test__soh__debug_8c_source.html>`__)
+- ``tests/unit/app/application/algorithm/state_estimation/soh/debug/test_soh_debug_cfg.c`` (`API <./../../../../../../_static/doxygen/tests/html/test__soh__debug__cfg_8c.html>`__, `source <./../../../../../../_static/doxygen/tests/html/test__soh__debug__cfg_8c_source.html>`__)
 
 Detailed Description
 --------------------

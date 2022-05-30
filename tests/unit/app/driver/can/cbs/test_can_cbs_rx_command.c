@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    test_can_cbs_rx_command.c
  * @author  foxBMS Team
  * @date    2021-07-28 (date of creation)
- * @updated 2021-07-28 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -54,6 +55,8 @@
 /*========== Includes =======================================================*/
 #include "unity.h"
 #include "Mockbal.h"
+#include "Mockbal_cfg.h"
+#include "Mockbms_cfg.h"
 #include "Mockcan.h"
 #include "Mockdatabase.h"
 #include "Mockdiag.h"
@@ -61,11 +64,13 @@
 #include "Mockimd.h"
 #include "Mockmpu_prototypes.h"
 #include "Mockos.h"
+#include "Mocksys_mon.h"
 
 #include "database_cfg.h"
 
 #include "can_cbs.h"
 #include "can_helper.h"
+#include "test_assert_helper.h"
 
 TEST_FILE("can_cbs_rx_command.c")
 
@@ -111,11 +116,142 @@ static uint8_t muxId = 0u;
 
 /*========== Setup and Teardown =============================================*/
 void setUp(void) {
+    can_tableStateRequest.previousStateRequestViaCan = 0u;
+    can_tableStateRequest.stateRequestViaCan         = 0u;
+    can_tableStateRequest.stateRequestViaCanPending  = 0u;
+    can_tableStateRequest.stateCounter               = 0u;
 }
 
 void tearDown(void) {
 }
 
 /*========== Test Cases =====================================================*/
-void testDummy(void) {
+/** test the handling of illegal input by callback */
+void testRxRequestIllegalInput(void) {
+    uint32_t id                  = 0u;
+    uint8_t dlc                  = 0u;
+    CAN_ENDIANNESS_e endianness  = CAN_LITTLE_ENDIAN;
+    uint8_t canData[CAN_MAX_DLC] = {0};
+    TEST_ASSERT_FAIL_ASSERT(CAN_RxRequest(CAN_MAX_11BIT_ID, dlc, endianness, canData, &can_kShim));
+    TEST_ASSERT_FAIL_ASSERT(CAN_RxRequest(id, (CAN_DLC + 1u), endianness, canData, &can_kShim));
+    TEST_ASSERT_FAIL_ASSERT(CAN_RxRequest(id, dlc, endianness, NULL_PTR, &can_kShim));
+    TEST_ASSERT_FAIL_ASSERT(CAN_RxRequest(id, dlc, endianness, canData, NULL_PTR));
+}
+
+/** test mode request */
+void testRxRequestModeRequest(void) {
+    uint32_t id                  = 0u;
+    uint8_t dlc                  = 0u;
+    CAN_ENDIANNESS_e endianness  = CAN_BIG_ENDIAN;
+    uint8_t canData[CAN_MAX_DLC] = {0};
+
+    /* ignore reads that are not used in this test */
+    DATA_Read1DataBlock_IgnoreAndReturn(STD_OK);
+    BAL_GetInitializationState_IgnoreAndReturn(STD_NOT_OK);
+    BAL_SetBalancingThreshold_Ignore();
+    DATA_Write1DataBlock_IgnoreAndReturn(STD_OK);
+
+    /* request disconnect (STANDBY) */
+    canData[0u] = 0u;
+    CAN_RxRequest(id, dlc, endianness, canData, &can_kShim);
+    TEST_ASSERT_EQUAL(BMS_REQ_ID_STANDBY, can_tableStateRequest.stateRequestViaCan);
+
+    /* request discharge (NORMAL) */
+    canData[0u] = 1u;
+    CAN_RxRequest(id, dlc, endianness, canData, &can_kShim);
+    TEST_ASSERT_EQUAL(BMS_REQ_ID_NORMAL, can_tableStateRequest.stateRequestViaCan);
+
+    /* request charge (CHARGE) */
+    canData[0u] = 2u;
+    CAN_RxRequest(id, dlc, endianness, canData, &can_kShim);
+    TEST_ASSERT_EQUAL(BMS_REQ_ID_CHARGE, can_tableStateRequest.stateRequestViaCan);
+
+    /* no valid request */
+    canData[0u] = 3u;
+    CAN_RxRequest(id, dlc, endianness, canData, &can_kShim);
+    TEST_ASSERT_EQUAL(BMS_REQ_ID_NOREQ, can_tableStateRequest.stateRequestViaCan);
+
+    /* state counter overflow */
+    can_tableStateRequest.stateCounter = UINT8_MAX;
+    canData[0u]                        = 0u;
+    CAN_RxRequest(id, dlc, endianness, canData, &can_kShim);
+    TEST_ASSERT_EQUAL(0u, can_tableStateRequest.stateCounter);
+
+    /* state: no update without change an no time */
+    canData[0u] = 0u;
+    OS_CheckTimeHasPassed_ExpectAndReturn(0u, 0u, false);
+    OS_CheckTimeHasPassed_IgnoreArg_oldTimeStamp_ms();
+    OS_CheckTimeHasPassed_IgnoreArg_timeToPass_ms();
+    can_tableStateRequest.stateRequestViaCanPending = 42u;
+    CAN_RxRequest(id, dlc, endianness, canData, &can_kShim);
+    TEST_ASSERT_EQUAL(42u, can_tableStateRequest.stateRequestViaCanPending);
+
+    /* state: update with change of time */
+    canData[0u] = 0u;
+    OS_CheckTimeHasPassed_ExpectAndReturn(0u, 0u, true);
+    OS_CheckTimeHasPassed_IgnoreArg_oldTimeStamp_ms();
+    OS_CheckTimeHasPassed_IgnoreArg_timeToPass_ms();
+    can_tableStateRequest.stateRequestViaCanPending = 42u;
+    CAN_RxRequest(id, dlc, endianness, canData, &can_kShim);
+    TEST_ASSERT_EQUAL(BMS_REQ_ID_STANDBY, can_tableStateRequest.stateRequestViaCanPending);
+}
+
+/** test balancing request */
+void testRxRequestBalancingRequest(void) {
+    uint32_t id                  = 0u;
+    uint8_t dlc                  = 0u;
+    CAN_ENDIANNESS_e endianness  = CAN_BIG_ENDIAN;
+    uint8_t canData[CAN_MAX_DLC] = {0};
+
+    /* ignore reads that are not used in this test */
+    DATA_Read1DataBlock_IgnoreAndReturn(STD_OK);
+    DATA_Write1DataBlock_IgnoreAndReturn(STD_OK);
+    OS_CheckTimeHasPassed_IgnoreAndReturn(false);
+
+    /* request no balancing */
+    canData[1u] = 0u;
+    canData[2u] = 0u;
+    BAL_GetInitializationState_ExpectAndReturn(STD_OK);
+    BAL_SetStateRequest_ExpectAndReturn(BAL_STATE_GLOBAL_DISABLE_REQUEST, BAL_OK);
+    BAL_SetBalancingThreshold_Expect(0u);
+    CAN_RxRequest(id, dlc, endianness, canData, &can_kShim);
+
+    /* request balancing */
+    canData[1u] = 1u;
+    canData[2u] = 0x42;
+    BAL_GetInitializationState_ExpectAndReturn(STD_OK);
+    BAL_SetStateRequest_ExpectAndReturn(BAL_STATE_GLOBAL_ENABLE_REQUEST, BAL_OK);
+    BAL_SetBalancingThreshold_Expect(0x42u);
+    CAN_RxRequest(id, dlc, endianness, canData, &can_kShim);
+
+    /* balancing not initialized */
+    canData[1u] = 1u;
+    canData[2u] = 0x33u;
+    BAL_GetInitializationState_ExpectAndReturn(STD_NOT_OK);
+    BAL_SetBalancingThreshold_Expect(0x33u);
+    CAN_RxRequest(id, dlc, endianness, canData, &can_kShim);
+}
+
+/** test reset flags request */
+void testRxRequestResetFlags(void) {
+    uint32_t id                  = 0u;
+    uint8_t dlc                  = 0u;
+    CAN_ENDIANNESS_e endianness  = CAN_BIG_ENDIAN;
+    uint8_t canData[CAN_MAX_DLC] = {0};
+
+    /* ignore reads that are not used in this test */
+    DATA_Read1DataBlock_IgnoreAndReturn(STD_OK);
+    DATA_Write1DataBlock_IgnoreAndReturn(STD_OK);
+    OS_CheckTimeHasPassed_IgnoreAndReturn(false);
+    BAL_SetBalancingThreshold_Ignore();
+    BAL_GetInitializationState_IgnoreAndReturn(STD_NOT_OK);
+
+    /* request to reset flags */
+    canData[0u] = 4u;
+    for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
+        DIAG_Handler_ExpectAndReturn(
+            DIAG_ID_DEEP_DISCHARGE_DETECTED, DIAG_EVENT_OK, DIAG_STRING, s, DIAG_HANDLER_RETURN_OK);
+    }
+    SYSM_ClearAllTimingViolations_Expect();
+    CAN_RxRequest(id, dlc, endianness, canData, &can_kShim);
 }

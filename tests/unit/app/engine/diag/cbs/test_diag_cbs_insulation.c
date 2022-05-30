@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    test_diag_cbs_insulation.c
  * @author  foxBMS Team
  * @date    2021-02-22 (date of creation)
- * @updated 2021-02-22 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -82,7 +83,7 @@ const DIAG_DATABASE_SHIM_s diag_kpkDatabaseShim = {
 
 /*========== Setup and Teardown =============================================*/
 void setUp(void) {
-    diag_kpkDatabaseShim.pTableError->insulationError = 0;
+    diag_kpkDatabaseShim.pTableError->criticalLowInsulationResistance = false;
 }
 
 void tearDown(void) {
@@ -95,6 +96,6 @@ void testDiagInsulation(void) {
 /** tests invalid input values */
 void testDIAG_ErrorInsulationInvalidInput(void) {
     TEST_ASSERT_FAIL_ASSERT(DIAG_Insulation(DIAG_ID_MAX, DIAG_EVENT_OK, &diag_kpkDatabaseShim, 0u));
-    TEST_ASSERT_FAIL_ASSERT(DIAG_Insulation(DIAG_ID_INSULATION_ERROR, 42, &diag_kpkDatabaseShim, 0u));
-    TEST_ASSERT_FAIL_ASSERT(DIAG_Insulation(DIAG_ID_INSULATION_ERROR, DIAG_EVENT_OK, NULL_PTR, 0u));
+    TEST_ASSERT_FAIL_ASSERT(DIAG_Insulation(DIAG_ID_LOW_INSULATION_RESISTANCE_ERROR, 42, &diag_kpkDatabaseShim, 0u));
+    TEST_ASSERT_FAIL_ASSERT(DIAG_Insulation(DIAG_ID_LOW_INSULATION_RESISTANCE_ERROR, DIAG_EVENT_OK, NULL_PTR, 0u));
 }

@@ -18,6 +18,7 @@ bugfix
 bz
 cafeCC
 ceedling
+cfg
 changelog
 chemistries
 cmd
@@ -28,7 +29,7 @@ conda
 config
 contactor
 contactors
-cppcheck
+creepage
 criticality
 CRC
 dask
@@ -47,6 +48,8 @@ endianness
 enum
 enums
 expander
+extern
+ferroelectric
 fiducial
 filename
 filenames
@@ -56,6 +59,7 @@ foxbms
 foxBMS
 foxmath
 functionalities
+fram
 freertos
 freeRTOS
 galvanically
@@ -94,9 +98,11 @@ LTC
 ltc
 LTS
 mA
+Mbit
 MCU
 microcontroller
 microcontrollers
+Mictor
 milliampere
 milliamperes
 Miniconda
@@ -144,6 +150,7 @@ rst
 rtr
 runnable
 runtime
+Samtec
 scikit
 scipy
 Segger
@@ -199,12 +206,14 @@ vendored
 versioned
 versioning
 viewable
+VSUP
 waf
 Wh
 whitespace
 workflow
 workflows
 workspace
+Wuerth
 wscript
 xEFxBBxBF
 xml

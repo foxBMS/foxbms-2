@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    beta.c
  * @author  foxBMS Team
  * @date    2020-01-17 (date of creation)
- * @updated 2021-03-22 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup TEMPERATURE_SENSORS
  * @prefix  BETA
  *
@@ -80,9 +81,9 @@
     (float)((BETA_RESISTOR_DIVIDER_SUPPLY_VOLTAGE_V * BETA_ResistanceFromTemperature(-400)) / (BETA_ResistanceFromTemperature(-400) + BETA_RESISTOR_DIVIDER_RESISTANCE_R_1_R_2_Ohm))
 #else /* BETA_POSITION_IN_RESISTOR_DIVIDER_IS_R_1 == false */
 #define BETA_ADC_VOLTAGE_V_MIN_V \
-    (float)((BETA_RESISTOR_DIVIDER_SUPPLY_VOLTAGE_V * BETA_ResistanceFromTemperature(1400)) / (BETA_ResistanceFromTemperature(1400) + BETA_RESISTOR_DIVIDER_RESISTANCE_R_1_R_2_Ohm))
+    ((float)((BETA_RESISTOR_DIVIDER_SUPPLY_VOLTAGE_V * BETA_ResistanceFromTemperature(1400)) / (BETA_ResistanceFromTemperature(1400) + BETA_RESISTOR_DIVIDER_RESISTANCE_R_1_R_2_Ohm)))
 #define BETA_ADC_VOLTAGE_V_MAX_V \
-    (float)((BETA_RESISTOR_DIVIDER_SUPPLY_VOLTAGE_V * BETA_ResistanceFromTemperature(-400)) / (BETA_ResistanceFromTemperature(-400) + BETA_RESISTOR_DIVIDER_RESISTANCE_R_1_R_2_Ohm))
+    ((float)((BETA_RESISTOR_DIVIDER_SUPPLY_VOLTAGE_V * BETA_ResistanceFromTemperature(-400)) / (BETA_ResistanceFromTemperature(-400) + BETA_RESISTOR_DIVIDER_RESISTANCE_R_1_R_2_Ohm)))
 #endif
 /**@}*/
 
@@ -94,7 +95,7 @@
 
 extern int16_t BETA_GetTemperatureFromBeta(uint16_t adcVoltage_mV) {
     int16_t temperature_ddegC = 0;
-    float resistance_Ohm      = 0.0;
+    float resistance_Ohm      = 0.0f;
     float adcVoltage_V        = (float)adcVoltage_mV / 1000.0f; /* Convert mV to V */
 
     /* Check for valid ADC measurements to prevent undefined behavior */
@@ -126,8 +127,8 @@ extern int16_t BETA_GetTemperatureFromBeta(uint16_t adcVoltage_mV) {
 extern int16_t BETA_TemperatureFromResistance(float resistance_Ohm) {
     int16_t temperature_ddegC = 0;
     if (resistance_Ohm > 0.0f) {
-        float temperature_degC = (1.0 / ((log(resistance_Ohm / BETA_R_REF_Ohm) / BETA_BETACOEFFICIENT) +
-                                         (1.0 / (BETA_T_REF_C + BETA_KELVIN)))) -
+        float temperature_degC = (1.0f / ((log(resistance_Ohm / BETA_R_REF_Ohm) / BETA_BETACOEFFICIENT) +
+                                          (1.0f / (BETA_T_REF_C + BETA_KELVIN)))) -
                                  BETA_KELVIN;
         temperature_ddegC = (int16_t)(10.0f * temperature_degC); /* Convert to deci &deg;C */
     } else {

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    spi_cfg.h
  * @author  foxBMS Team
  * @date    2020-03-05 (date of creation)
- * @updated 2021-12-08 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  SPI
  *
@@ -121,14 +122,14 @@
 /**@}*/
 
 /** enum for spi interface state */
-typedef enum SPI_BUSY_STATE {
+typedef enum {
     SPI_IDLE,
     SPI_BUSY,
 } SPI_BUSY_STATE_e;
 
 /* INCLUDE MARKER FOR THE DOCUMENTATION; DO NOT MOVE spi-documentation-cs-type-start-include */
 /** type of chip select for spi */
-typedef enum SPI_CHIP_SELECT_TYPE {
+typedef enum {
     SPI_CHIP_SELECT_HARDWARE,
     SPI_CHIP_SELECT_SOFTWARE,
 } SPI_CHIP_SELECT_TYPE_e;
@@ -136,7 +137,7 @@ typedef enum SPI_CHIP_SELECT_TYPE {
 
 /* INCLUDE MARKER FOR THE DOCUMENTATION; DO NOT MOVE spi-documentation-configuration-start-include */
 /** configuration of the SPI interface */
-typedef struct SPI_INTERFACE_CONFIG {
+typedef struct {
     spiDAT1_t *pConfig;
     spiBASE_t *pNode;
     volatile uint32_t *pGioPort;

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    test_diag_cbs_sys-mon.c
  * @author  foxBMS Team
  * @date    2021-02-17 (date of creation)
- * @updated 2021-02-17 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -54,8 +55,7 @@
 /*========== Includes =======================================================*/
 #include "unity.h"
 #include "Mockdiag_cfg.h"
-
-#include "sys_mon_cfg.h"
+#include "Mocksys_mon_cfg.h"
 
 #include "diag_cbs.h"
 #include "test_assert_helper.h"

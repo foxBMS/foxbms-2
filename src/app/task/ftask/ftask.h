@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    ftask.h
  * @author  foxBMS Team
  * @date    2019-08-27 (date of creation)
- * @updated 2021-12-01 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup TASK
  * @prefix  FTSK
  *
@@ -65,17 +66,17 @@
 #define FTSK_DATABASE_QUEUE_LENGTH (1u)
 
 /** Size of queue item that is used in the database */
-#define FTSK_DATABASE_QUEUE_ITEM_SIZE (sizeof(DATA_QUEUE_MESSAGE_s))
+#define FTSK_DATABASE_QUEUE_ITEM_SIZE_IN_BYTES (sizeof(DATA_QUEUE_MESSAGE_s))
 
 /** Length of queue that is used in the insulation measurement device (IMD) */
 #define FTSK_IMD_QUEUE_LENGTH (5u)
 /** Size of queue item that is used in the IMD driver */
-#define FTSK_IMD_QUEUE_ITEM_SIZE (sizeof(CAN_BUFFERELEMENT_s))
+#define FTSK_IMD_QUEUE_ITEM_SIZE_IN_BYTES (sizeof(CAN_BUFFERELEMENT_s))
 
 /** Length of queue that is used in the can module for receiving messages */
 #define FTSK_CAN_RX_QUEUE_LENGTH (50u)
 /** Size of queue item that is used in the can driver */
-#define FTSK_CAN_RX_QUEUE_ITEM_SIZE (sizeof(CAN_BUFFERELEMENT_s))
+#define FTSK_CAN_RX_QUEUE_ITEM_SIZE_IN_BYTES (sizeof(CAN_BUFFERELEMENT_s))
 
 /*========== Extern Constant and Variable Declarations ======================*/
 /** handle of the database queue */
@@ -160,6 +161,11 @@ extern void FTSK_CreateTaskCyclic100ms(void *const pvParameters);
  *          milliseconds).
  */
 extern void FTSK_CreateTaskCyclicAlgorithm100ms(void *const pvParameters);
+
+/**
+ * @brief   Creation of continuously running task for AFEs
+ */
+extern void FTSK_CreateTaskAfe(void *const pvParameters);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 

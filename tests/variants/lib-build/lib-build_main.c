@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    lib-build_main.c
  * @author  foxBMS Team
  * @date    2020-10-06 (date of creation)
- * @updated 2021-07-23 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup GENERAL
  * @prefix  TODO
  *
@@ -101,7 +102,7 @@ int main(void) {
 
     OS_InitializeOperatingSystem();
     if (OS_INIT_PRE_OS != os_boot) {
-        while (1) {
+        while (true) {
             /* Could not create Queues, Mutexes, Events and Tasks
                do not boot further from this point on*/
         }
@@ -109,7 +110,7 @@ int main(void) {
 
     if (STD_OK != CHK_ValidateChecksum()) {
         if (DIAG_HANDLER_RETURN_OK != DIAG_Handler(DIAG_ID_FLASHCHECKSUM, DIAG_EVENT_NOT_OK, DIAG_SYSTEM, 0u)) {
-            while (1) {
+            while (true) {
                 /* Could not validate checksum do not boot further from this point on */
             }
         }
@@ -118,7 +119,7 @@ int main(void) {
     os_schedulerStartTime = OS_GetTickCount();
 
     OS_StartScheduler();
-    while (1) {
+    while (true) {
     }
 }
 

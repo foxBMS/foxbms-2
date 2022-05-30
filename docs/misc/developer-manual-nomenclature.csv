@@ -1,3 +1,6 @@
-Word;                       Definition
-validation;                 Ensuring that the specification meets the applications's needs
-verification;               Ensuring that the software meets the requirements
+Word;           Definition
+Error;          Difference between **measured** and **expected** output
+Fault;          Abnormal condition that might cause the software/hardware to fail
+Failure;        Inability of the software/hardware to execute its required tasks
+Validation;     Ensuring that the specification meets the applications's needs
+Verification;   Ensuring that the software meets the requirements

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    adc.c
  * @author  foxBMS Team
  * @date    2019-01-07 (date of creation)
- * @updated 2021-12-08 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup DRIVERS
  * @prefix  ADC
  *
@@ -85,6 +86,8 @@ static float ADC_ConvertVoltage(float adcValue_mV);
 /*========== Static Function Implementations ================================*/
 
 static float ADC_ConvertVoltage(float adcValue_mV) {
+    /* AXIVION Routine Generic-MissingParameterAssert: adcValue_mV: parameter accepts whole range */
+
     /** For details to equation see Equation 28 in Technical Reference Manual SPNU563A - March 2018 page 852 */
     float result_mV = ((ADC_CONV_FACTOR_12BIT * (adcValue_mV - ADC_VREFLOW_mV)) / (ADC_VREFHIGH_mV - ADC_VREFLOW_mV)) -
                       0.5f;

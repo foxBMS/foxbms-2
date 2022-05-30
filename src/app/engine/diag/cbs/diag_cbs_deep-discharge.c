@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    diag_cbs_deep-discharge.c
  * @author  foxBMS Team
  * @date    2021-02-17 (date of creation)
- * @updated 2021-02-17 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup ENGINE
  * @prefix  DIAG
  *
@@ -85,7 +86,7 @@ void DIAG_ErrorDeepDischarge(
             kpkDiagShim->pTableError->deepDischargeDetected[stringNumber] = 1;
             fram_deepDischargeFlags.deepDischargeFlag[stringNumber]       = true;
         }
-        FRAM_Write(FRAM_BLOCK_ID_DEEP_DISCHARGE_FLAG);
+        FRAM_WriteData(FRAM_BLOCK_ID_DEEP_DISCHARGE_FLAG);
     }
 }
 

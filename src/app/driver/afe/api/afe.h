@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    afe.h
  * @author  foxBMS Team
  * @date    2020-05-08 (date of creation)
- * @updated 2020-06-17 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup DRIVER
  * @prefix  AFE
  *
@@ -61,7 +62,7 @@
 /*========== Macros and Definitions =========================================*/
 
 /** period for open wire measurement */
-#define AFE_ERROR_OPEN_WIRE_PERIOD_ms (30000)
+#define AFE_ERROR_OPEN_WIRE_PERIOD_ms (30000u)
 
 /*========== Extern Constant and Variable Declarations ======================*/
 

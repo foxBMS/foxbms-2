@@ -7,12 +7,11 @@
             "side_effects": {
                 "effect_free_functions": [
                     "__curpc",
-                    "MPU_xTaskGetTickCount",
-                    "xPortRaisePrivilege"
+                    "MPU_xTaskGetTickCount"
                 ],
                 "local_effect_functions": [
                     "FAS_ASSERT",
-                    "fas_storeAssertLoc"
+                    "FAS_StoreAssertLocation"
                 ],
                 "side_effect_functions": [
                     "FAS_DisableInterrupts",
@@ -21,8 +20,10 @@
                     "fprintf",
                     "fputs",
                     "freopen",
+                    "FSYS_RaisePrivilege",
                     "printf",
-                    "tmpfile"
+                    "tmpfile",
+                    "xPortRaisePrivilege"
                 ]
             },
             "types": {
@@ -89,7 +90,10 @@
         "Architecture-SaveRFG": {
             "_active": true
         },
-        "AutosarC++17_03-A15.4.1": {
+        "CWE-Bad-Coding-Practices-562": {
+            "_active": true
+        },
+        "CWE-Error-Conditions-617": {
             "_active": true
         },
         "CWE-Pointer-Issues-467": {
@@ -103,6 +107,12 @@
             "exclude_in_macros": [
                 "FAS_ASSERT"
             ]
+        },
+        "CertC-DCL03": {
+            "_active": true
+        },
+        "CertC-PRE31": {
+            "_active": true
         },
         "CloneDetection": {
             "_active": true,
@@ -119,10 +129,25 @@
             "_active": false
         },
         "CodingStyle-FileExtensionNaming": {
+            "_active": true,
+            "allowed_extensions": [
+                ".asm",
+                ".c",
+                ".h"
+            ],
             "languages": [
-                "C++",
-                "C++/CLI"
+                "C",
+                "Assembler"
             ]
+        },
+        "CodingStyle-FilenameNaming": {
+            "_active": true,
+            "allowed_charset": "a-z0-9\\-_",
+            "languages": [
+                "C",
+                "Assembler"
+            ],
+            "show_charset": true
         },
         "CodingStyle-MaxOneStmtPerLine": {
             "_active": true,
@@ -132,6 +157,14 @@
                 "Switch_Case_Label"
             ]
         },
+        "CodingStyle-MaximumLineLength": {
+            "_active": true,
+            "languages": [
+                "C",
+                "Assembler"
+            ],
+            "maximum_length": 120
+        },
         "CodingStyle-Naming.Enum": {
             "_active": false,
             "naming_convention": "^[A-Z][A-Z0-9]*_e$"
@@ -140,7 +173,7 @@
             "_active": false
         },
         "CodingStyle-Naming.Function": {
-            "_active": false
+            "_active": true
         },
         "CodingStyle-Naming.GlobalVariable": {
             "_active": false
@@ -217,6 +250,15 @@
                 "vApplicationStackOverflowHook"
             ]
         },
+        "Externals-CStdLib.NoReturn": {
+            "functions": [
+                "__assert_fail",
+                "_wassert",
+                "abort",
+                "exit",
+                "FAS_InfiniteLoop"
+            ]
+        },
         "FaultDetection-BadEnumValue": {
             "_active": true
         },
@@ -234,7 +276,12 @@
             "_active": true
         },
         "FaultDetection-RemovableStatements": {
-            "_active": true
+            "_active": true,
+            "exclude_in_macros": {
+                "$(delta:+)": [
+                    "assert"
+                ]
+            }
         },
         "FaultDetection-UninitializedVariable": {
             "_active": true
@@ -263,6 +310,13 @@
         },
         "Generic-DuplicateIncludeGuard": {
             "_active": true
+        },
+        "Generic-FinalNewline": {
+            "_active": true,
+            "_copy_from": "Generic-NoCompilerWarnings",
+            "reported_severities": [
+                "remark"
+            ]
         },
         "Generic-ForbiddenFunctions": {
             "_active": true
@@ -343,6 +397,9 @@
             "_active": true
         },
         "Generic-NoConstCasts": {
+            "_active": true
+        },
+        "Generic-NoConstOnLHS": {
             "_active": true
         },
         "Generic-NoConstOnRHS": {
@@ -1236,6 +1293,17 @@
             "nested_critical_regions": false,
             "strict_priorities": true
         },
+        "SameRoutine": {
+            "_active": true,
+            "entity": {
+                "group": 2,
+                "value": "ENTITY_AS_GLOBBING"
+            },
+            "format": "\\s*AXIVION\\s+Routine\\s+([^:]*):\\s+([^:]*)(:.*)?",
+            "justification": {
+                "group": 3
+            }
+        },
         "SaveRFG": {
             "_active": true
         },
@@ -1250,11 +1318,11 @@
         }
     },
     "_Format": "1.0",
-    "_Version": "7.2.6",
+    "_Version": "7.4.0",
     "_VersionNum": [
         7,
-        2,
-        6,
-        7576
+        4,
+        0,
+        9870
     ]
 }

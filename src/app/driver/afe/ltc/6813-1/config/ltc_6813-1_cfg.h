@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    ltc_6813-1_cfg.h
  * @author  foxBMS Team
  * @date    2015-02-18 (date of creation)
- * @updated 2021-12-08 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  LTC
  *
@@ -149,9 +150,9 @@
  * SPI1 is used for communication with LTC
  * @{
  */
-#define LTC_SPI_HANDLE    &spi_devices[0]
-#define LTC_SPI_INSTANCE  *LTC_SPI_HANDLE.Instance
-#define LTC_SPI_PRESCALER *LTC_SPI_HANDLE.Init.BaudRatePrescaler
+#define LTC_SPI_HANDLE    (&spi_devices[0])
+#define LTC_SPI_INSTANCE  (*LTC_SPI_HANDLE.Instance)
+#define LTC_SPI_PRESCALER (*LTC_SPI_HANDLE.Init.BaudRatePrescaler)
 /**@}*/
 
 /** start definition of LTC timings; Twake (see LTC data sheet) */
@@ -279,34 +280,6 @@
 #define LTC_READCOM (0)
 
 /**
- * ------------------- OPEN WIRE CHECK ------------------------
- * If open-wire check is performed cell voltages and temperatures are not
- * updated and thus old values can be transmitted on the CAN bus. Check time
- * is dependent on module configuration and external capacitance. Activate
- * open-wire check with care! See table below for various measured open-wire
- * check durations! (set to TRUE or FALSE)
- */
-#define LTC_STANDBY_PERIODIC_OPEN_WIRE_CHECK (false)
-
-/** Periodic open-wire check time in STANDBY state in ms */
-#define LTC_STANDBY_OPEN_WIRE_PERIOD_ms (600000)
-
-/** open-wire check in normal mode (set to true or false) */
-#define LTC_NORMAL_PERIODIC_OPEN_WIRE_CHECK (false)
-
-/** Periodic open-wire check time in NORMAL state in ms */
-#define LTC_NORMAL_OPEN_WIRE_PERIOD_ms (600000)
-
-/** open-wire check in charge mode (set to true or false) */
-#define LTC_CHARGE_PERIODIC_OPEN_WIRE_CHECK (false)
-
-/** Periodic open-wire check time in CHARGE state in ms */
-#define LTC_CHARGE_OPEN_WIRE_PERIOD_ms (600000)
-
-/** Periodic open-wire check time in ERROR state in ms */
-#define LTC_ERROR_OPEN_WIRE_PERIOD_ms (30000)
-
-/**
  * Number of required ADOW commands because of external C-Pin capacitance and
  * the respective duration to perform an open wire check for 14 modules with
  * 12 cells each. During this time no cell voltages and temperatures are measured!
@@ -367,7 +340,7 @@ extern const uint8_t ltc_voltage_input_used[BS_MAX_SUPPORTED_CELLS];
  * @param   adcVoltage_mV   voltage read from the multiplexer in mV
  * @return  temperature value in deci &deg;C
  */
-extern int16_t LTC_Convert_MuxVoltages_to_Temperatures(uint16_t adcVoltage_mV);
+extern int16_t LTC_ConvertMuxVoltagesToTemperatures(uint16_t adcVoltage_mV);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 

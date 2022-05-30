@@ -1,4 +1,4 @@
-@REM Copyright (c) 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+@REM Copyright (c) 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 @REM All rights reserved.
 @REM
 @REM SPDX-License-Identifier: BSD-3-Clause
@@ -83,14 +83,18 @@
     @SET ARMCL_AVAILABLE=%%~$PATH:X
 )
 
-@IF NOT DEFINED ARMCL_AVAILABLE @(
-    @ECHO [33mCould not find pinned compiler. Try to use any available in 'C:\ti\'.[0m
-    @SET CCS_COMPILER_BIN=
-    @CALL %~dp0\tools\utils\cmd\find_ccs.bat
-    @FOR %%x in (!CCS_COMPILER_BIN! !CCS_COMPILER_LIB! !CCS_UTILS_BIN! !CCS_UTILS_CYGWIN! !CCS_UTILS_TIOBJ2BIN!) do @(
-        @CALL SET "CCS_PATHS=%%CCS_PATHS%%%%x;"
+@REM if FOXBMS_2_CCS_VERSION_STRICT is not set and armcl was not found in
+@REM path, we try to find any CCS installation in the known installation paths
+@IF NOT DEFINED FOXBMS_2_CCS_VERSION_STRICT @(
+    @IF NOT DEFINED ARMCL_AVAILABLE @(
+        @ECHO [33mCould not find pinned compiler. Try to use any available in 'C:\ti\'.[0m
+        @SET CCS_COMPILER_BIN=
+        @CALL %~dp0\tools\utils\cmd\find_ccs.bat
+        @FOR %%x in (!CCS_COMPILER_BIN! !CCS_COMPILER_LIB! !CCS_UTILS_BIN! !CCS_UTILS_CYGWIN! !CCS_UTILS_TIOBJ2BIN!) do @(
+            @CALL SET "CCS_PATHS=%%CCS_PATHS%%%%x;"
+        )
+        @SET PATH=!CCS_PATHS:~0,-1!;!PATH!
     )
-    @SET PATH=!CCS_PATHS:~0,-1!;!PATH!
 )
 
 @SET CONDA_BASE_ENVIRONMENT_ACTIVATE_SCRIPT=""

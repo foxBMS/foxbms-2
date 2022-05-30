@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    mxm_1785x_tools.h
  * @author  foxBMS Team
  * @date    2020-07-15 (date of creation)
- * @updated 2021-12-06 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup DRIVERS
  * @prefix  MXM
  *
@@ -86,6 +87,7 @@ typedef enum {
 typedef enum {
     MXM_INIT_ENTRY,
     MXM_INIT_DEVCFG1,
+    MXM_INIT_DEVCFG2,
     MXM_INIT_SET_STATUS2,
     MXM_INIT_STATUS1,
     MXM_INIT_GET_VERSION,
@@ -150,9 +152,11 @@ typedef enum {
     MXM_OP_PINOPEN_PROCESS_OPENWIRE,
     MXM_OP_PINOPEN_RESTORE_CURRENT_SOURCE_CONF,
     MXM_OP_BAL_ENTRY,
+    MXM_OP_BAL_CONTROL_STOP_BALANCING,
     MXM_OP_BAL_CONTROL_RESET_ALL,
     MXM_OP_BAL_CONTROL_SET_ALL,
     MXM_OP_BAL_START,
+    MXM_OP_BAL_READ_BALSTAT,
     MXM_OP_BAL_EXIT,
     MXM_OP_CYCLE_END_ENTRY,
     MXM_OP_INCREMENT_MUX_COUNTER,
@@ -187,16 +191,17 @@ typedef struct {
 
 /** struct describing an entry into the monitoring registry */
 typedef struct {
-    bool connected;                      /*!< state variable, indicates whether monitoring IC is connected */
-    uint8_t deviceAddress;               /*!< address that has been assigned during enumeration */
-    MXM_MODEL_ID_e model;                /*!< model (e.g. 17853) */
-    MXM_siliconVersion_e siliconVersion; /*!< silicon version of chip */
-    uint32_t deviceID;                   /*!< 24-bit unique device ID */
-    uint16_t registerStatus1;            /*!< content of the STATUS1 register */
-    uint16_t registerStatus2;            /*!< content of the STATUS2 register */
-    uint16_t registerStatus3;            /*!< content of the STATUS3 register */
-    uint16_t registerFmea1;              /*!< content of the FMEA1 register */
-    uint16_t registerFmea2;              /*!< content of the FMEA2 register */
+    bool connected;                       /*!< state variable, indicates whether monitoring IC is connected */
+    uint8_t deviceAddress;                /*!< address that has been assigned during enumeration */
+    MXM_MODEL_ID_e model;                 /*!< model (e.g. 17853) */
+    MXM_SILICON_VERSION_e siliconVersion; /*!< silicon version of chip */
+    uint32_t deviceID;                    /*!< 24-bit unique device ID */
+    uint16_t registerStatus1;             /*!< content of the STATUS1 register */
+    uint16_t registerStatus2;             /*!< content of the STATUS2 register */
+    uint16_t registerStatus3;             /*!< content of the STATUS3 register */
+    uint16_t registerFmea1;               /*!< content of the FMEA1 register */
+    uint16_t registerFmea2;               /*!< content of the FMEA2 register */
+    uint16_t registerBalstat;             /*!< content of the BALSTAT register */
 } MXM_REGISTRY_ENTRY_s;
 
 /**
@@ -227,6 +232,7 @@ typedef struct {
     bool resetNecessary;             /*!< a reset of the whole driver is requested (due to an error) */
     uint8_t errorCounter;            /*!< counts the number of errors and issues a reset when the counter trips */
     uint32_t timestampLastError;     /*!< timestamp of last error counter increment; will be reset if old enough */
+    uint32_t timestampInit;          /*!< timestamp of the moment that init has been initialized */
     MXM_STATEMACHINE_STATES_e state; /*!< state of the maxim state-machine */
     MXM_STATEMACHINE_OPERATION_STATES_e operationSubstate; /*!< substate during operation of monitoring */
     bool allowStartup;             /*!< indicates whether start of state-machine has been requested */
@@ -260,7 +266,7 @@ typedef struct {
      * in module 0 (modules are numbered from 0 to 31) will be in entry 4.
      * The voltage of cell 14 of module 1 will be in entry 27. This is independent
      * of the size of the setup which is defined in the defines
-     * #BS_NR_OF_CELLS_PER_MODULE and #BS_NR_OF_MODULES.
+     * #BS_NR_OF_CELL_BLOCKS_PER_MODULE and #BS_NR_OF_MODULES_PER_STRING.
      * Therefore, the size of the arrays inside this struct is defined as
      * #MXM_MAXIMUM_NR_OF_MODULES times #MXM_MAXIMUM_NR_OF_CELLS_PER_MODULE.
      */
@@ -369,7 +375,7 @@ extern uint16_t MXM_VoltageIntoUnipolar14Bit(uint16_t voltage_mV, uint16_t fulls
  *              modules are in the same daisy-chain but belong to different
  *              strings).
  *
- *              This function assumes that a string contains #BS_NR_OF_MODULES modules
+ *              This function assumes that a string contains #BS_NR_OF_MODULES_PER_STRING modules
  *              in #BS_NR_OF_STRINGS strings and that they are connected in
  *              a daisy-chain.
  * @param[in]   moduleNumber            number of the module in the daisy-chain (starts with 0)

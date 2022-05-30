@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    algorithm_cfg.c
  * @author  foxBMS Team
  * @date    2017-12-18 (date of creation)
- * @updated 2020-06-30 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup ALGORITHMS_CONFIGURATION
  * @prefix  ALGO
  *
@@ -77,9 +78,20 @@ const uint16_t algo_length = sizeof(algo_algorithms) / sizeof(algo_algorithms[0]
 
 extern void ALGO_MarkAsDone(uint32_t algorithmIndex) {
     FAS_ASSERT(algorithmIndex < algo_length);
-    if (algo_algorithms[algorithmIndex].state != ALGO_BLOCKED) {
+    if (algo_algorithms[algorithmIndex].state == ALGO_REINIT_REQUESTED) {
+        /* do not alter state if a reinit request is pending */
+    } else if (algo_algorithms[algorithmIndex].state != ALGO_BLOCKED) {
         algo_algorithms[algorithmIndex].state = ALGO_READY;
+    } else {
+        /* algo is in "blocked" state, nothing to do here */
     }
+}
+
+extern void ALGO_MarkAsReinit(uint32_t algorithmIndex) {
+    FAS_ASSERT(algorithmIndex < algo_length);
+    OS_EnterTaskCritical();
+    algo_algorithms[algorithmIndex].state = ALGO_REINIT_REQUESTED;
+    OS_ExitTaskCritical();
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/

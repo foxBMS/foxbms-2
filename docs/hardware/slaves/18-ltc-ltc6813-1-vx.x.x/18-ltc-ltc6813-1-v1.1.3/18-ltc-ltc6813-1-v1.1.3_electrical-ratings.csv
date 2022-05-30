@@ -1,0 +1,13 @@
+Description;                                                Minimum;    Typical;    Maximum;    Unit
+Battery Module Voltage;                                     16;         --;         90;         |V|
+Single Battery Cell Voltage;                                0;          --;         5;          |V|
+Temperature Sensor Inputs;                                  --;         10k;        --;         |Ohm|
+Analog Inputs (pin headers);                                0;          --;         5;          |V|
+Digital Inputs/Outputs (pin headers);                       0;          --;         5;          |V|
+External DC Supply;                                         8;          12;         24;         |V|
+Current consumption: Primary in sleep, Secondary in sleep;  --;         13.35;      --;         |uA|
+Current consumption: Primary active, Secondary in sleep;    --;         11.66;      --;         |mA|
+Current consumption: Primary active, Secondary active;      --;         22.35;      --;         |mA|
+DC supply current: Primary in sleep, Secondary in sleep;    --;         3.3;        --;         |mA|
+DC supply current: Primary active, Secondary in sleep;      --;         112.0;      --;         |mA|
+DC supply current: Primary active, Secondary active;        --;         211.6;      --;         |mA|

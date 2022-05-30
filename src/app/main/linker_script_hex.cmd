@@ -1,18 +1,38 @@
-/* fdf552cfcdae551513b4abe184fe9e05 */
+/* 5bdaa91787743532b42ae61d62dcef3d */
+
+/* Aligned with names in "MEMORY" in the elf-linker script */
 ROMS
 {
-    VECTORS    : origin=0x00000000 length=0x00000020
-    KERNEL     : origin=0x00000020 length=0x00008000
-    FLASH0     : origin=0x00008020 length=0x001F7FE0
-    FLASH1     : origin=0x00200000 length=0x001FFF40
-    VERSIONINFO: origin=0x003FFF40 length=0x000000C0
-    STACKS     : origin=0x08000000 length=0x00000800
-    KRAM       : origin=0x08000800 length=0x00000800
-    RAM        : origin=0x08001000 length=0x0007E000
-    SHAREDRAM  : origin=0x0807F000 length=0x00001000
+    /* FLASH */
+    VECTORS_TABLE          : origin = 0x00000000
+                             length = 0x20
+                             fill   = 0xFFFFFFFF
+    KERNEL_FUNCTIONS       : origin = 0x00000020
+                             length = 0x8000
+                             fill   = 0xFFFFFFFF
+    FLASH                  : origin = 0x00008020 /*(0x00000000 + 0x20 + 0x8000)*/
+                             length = 0x3F7F20
+                             fill   = 0xFFFFFFFF
+    VERSION_INFORMATION    : origin = 0x003FFF40 /*(0x00000000 + 0x20 + 0x8000 + 0x3F7F20) */
+                             length = 0xC0
+                             fill   = 0xFFFFFFFF
+    /* RAM */
+    STACKS                 : origin = 0x08000000
+                             length = 0x800
+    KERNEL_DATA            : origin = 0x08000800
+                             length = 0x800
+    RAM                    : origin = 0x08001000
+                             length = 0x7E000
+    SHARED_RAM             : origin = 0x0807F000
+                             length = 0x1000
 
-    ECC_VEC    : origin=0xf0400000 length=0x4
-    ECC_KERN   : origin=0xf0400004 length=0x1000
-    ECC_FLA0   : origin=0xf0401004 length=0x3EFFC
-    ECC_FLA1   : origin=0xf0440000 length=0x40000
+    ECC_VECTORS_TABLE       : origin = 0xF0400000
+                              length = 0x4
+    ECC_KERNEL_FUNCTIONS    : origin = 0xF0400004
+                              length = 0x1000
+    ECC_FLASH               : origin = 0xF0401004
+                              length = 0x7EFE4
+    ECC_VERSION_INFORMATION : origin = 0xF047FFE8
+                              length = 0x18
+
 }

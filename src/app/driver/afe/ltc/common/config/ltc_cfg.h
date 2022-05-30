@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    ltc_cfg.h
  * @author  foxBMS Team
  * @date    2015-02-18 (date of creation)
- * @updated 2021-03-24 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  LTC
  *
@@ -63,7 +64,7 @@
  * Number of used LTC-ICs
  */
 
-#define LTC_N_LTC (BS_NR_OF_MODULES)
+#define LTC_N_LTC (BS_NR_OF_MODULES_PER_STRING)
 
 /**
  * Number of Bytes to be transmitted in daisy-chain

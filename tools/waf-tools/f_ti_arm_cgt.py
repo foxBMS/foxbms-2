@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -521,8 +521,12 @@ class cprogram(link_task):  # pylint: disable-msg=invalid-name,too-few-public-me
         "${LINK_CC} ${CFLAGS} ${CMD_FILES_ST:CMD_FILES} ${RUN_LINKER} "
         "${LINKFLAGS} ${MAP_FILE}${TGT[2].abspath()} "
         "${XML_LINK_INFO}${TGT[1].abspath()} ${CCLINK_TGT_F}${TGT[0].abspath()} "
-        "${SRC} ${LINKER_SCRIPT} ${LIBPATH_ST:LIBPATH} ${STLIBPATH_ST:STLIBPATH} "
-        "${LIB_ST:LIB} ${STLIB_ST:STLIB} ${TARGETLIB_ST:TARGETLIB} ${LDFLAGS}"
+        "${SRC} ${LINKER_SCRIPT} "
+        "${LIBPATH_ST:LIBPATH} ${STLIBPATH_ST:STLIBPATH} "  # library search paths
+        " ${TI_ARM_CGT_LINKER_START_GROUP} "
+        "${LIB_ST:LIB} ${STLIB_ST:STLIB} "
+        "${TI_ARM_CGT_LINKER_END_GROUP} "
+        "${TARGETLIB_ST:TARGETLIB} ${LDFLAGS}"
     )
     #: list of str: values that effect the signature calculation
     vars = ["LINKDEPS", "CMD_FILES_HASH"]
@@ -675,7 +679,8 @@ class copy_elf(Task.Task):  # pylint: disable-msg=invalid-name
 
     def run(self):
         """copy the generated elf file to build directory of the variant"""
-        shutil.copy2(self.inputs[0].abspath(), self.outputs[0].abspath())
+        for in_file, out_file in zip(self.inputs, self.outputs):
+            shutil.copy2(in_file.abspath(), out_file.abspath())
 
     def keyword(self):  # pylint: disable=no-self-use
         """displayed keyword when copying the elf file"""
@@ -683,7 +688,7 @@ class copy_elf(Task.Task):  # pylint: disable-msg=invalid-name
 
     def __str__(self):
         """additional information appended to the keyword"""
-        return f"{self.inputs[0]} -> {self.outputs[0]}"
+        return f"{self.inputs} -> {self.outputs}"
 
 
 @TaskGen.feature("cprogram")
@@ -702,11 +707,10 @@ def add_copy_elf_task(self):
         out_dir = self.bld.path.get_bld()
     self.copy_elf_task = self.create_task(
         "copy_elf",
-        src=self.link_task.outputs[0],
+        src=self.link_task.outputs,
         tgt=[
-            self.bld.path.find_or_declare(
-                os.path.join(out_dir, self.link_task.outputs[0].name)
-            )
+            self.bld.path.find_or_declare(os.path.join(out_dir, i.name))
+            for i in self.link_task.outputs
         ],
     )
 
@@ -1125,7 +1129,7 @@ class create_version_source(Task.Task):  # pylint: disable=invalid-name
         if dirty:
             version = f"{version}-dirty"
 
-        # assemble information into a dict for later useage
+        # assemble information into a dict for later usage
         version_output = {
             "version": version,
             "dirty": dirty,
@@ -1385,10 +1389,18 @@ def find_armcl(conf):  # pylint: disable-msg=redefined-outer-name
     for line in std_out.splitlines():
         full_ver = version_pattern.search(line)
         if full_ver:
-            conf.env.CC_VERSION_FULL = full_ver.group(1)
+            conf.env.append_unique("CC_VERSION_FULL", full_ver.group(1))
             break
     if not conf.env.CC_VERSION or not conf.env.CC_VERSION_FULL:
         conf.fatal("Could not determine compiler version")
+    force_ccs_version = os.environ.get("FOXBMS_2_CCS_VERSION_STRICT", False)
+    if force_ccs_version:
+        if not conf.env.FOXBMS_2_CCS_VERSION_STRICT == conf.env.CC_VERSION_FULL:
+            conf.fatal(
+                "Strict CCS version checking was set, and compiler version does not match.\n"
+                f"(searched for {conf.env.FOXBMS_2_CCS_VERSION_STRICT[0]}, but "
+                f"found {conf.env.CC_VERSION_FULL[0]})."
+            )
 
 
 @conf
@@ -1426,12 +1438,14 @@ def cgt_flags(conf):  # pylint: disable-msg=redefined-outer-name
     env.PPM = "--preproc_macros"
     env.PPI = "--preproc_includes"
     env.PPD = "--preproc_dependency"
-    conf.env.ARMSIZE_OPTS = [
+    env.ARMSIZE_OPTS = [
         "--common",
         "--arch=arm",
         "--format=berkeley",
         "--totals",
     ]
+    env.TI_ARM_CGT_LINKER_END_GROUP = "--end-group"
+    env.TI_ARM_CGT_LINKER_START_GROUP = "--start-group"
 
 
 def configure(conf):  # pylint: disable-msg=redefined-outer-name

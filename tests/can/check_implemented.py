@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -40,12 +40,13 @@
 
 """Python script to check if all callbacks defined in the .dbc file are
 implemented in callback functions."""
-import os
-import sys
-import logging
 import argparse
+import logging
+import os
 import re
+import sys
 from pathlib import Path
+
 import cantools
 
 HAVE_GIT = False

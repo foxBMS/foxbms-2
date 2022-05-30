@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    debug_default.c
  * @author  foxBMS Team
  * @date    2020-09-17 (date of creation)
- * @updated 2021-06-09 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup DRIVER
  * @prefix  FAKE
  *
@@ -89,7 +90,7 @@
 #define FAKE_FSM_LONG_TIME (10u)
 
 /** Symbolic names to check for multiple calls of #FAKE_TriggerAfe */
-typedef enum FAKE_CHECK_MULTIPLE_CALLS {
+typedef enum {
     FAKE_MULTIPLE_CALLS_NO,  /*!< no multiple calls, OK */
     FAKE_MULTIPLE_CALLS_YES, /*!< multiple calls, not OK */
 } FAKE_CHECK_MULTIPLE_CALLS_e;
@@ -279,29 +280,29 @@ static void FAKE_SetFirstMeasurementCycleFinished(FAKE_STATE_s *pFakeState) {
 
     uint16_t i = 0;
 
-    for (uint8_t stringNumber = 0u; stringNumber < BS_NR_OF_STRINGS; stringNumber++) {
-        pFakeState->data.cellVoltage->packVoltage_mV[stringNumber] = FAKE_CELL_VOLTAGE_mV * BS_NR_OF_BAT_CELLS;
-        for (i = 0; i < BS_NR_OF_BAT_CELLS; i++) {
-            pFakeState->data.cellVoltage->cellVoltage_mV[stringNumber][i] = FAKE_CELL_VOLTAGE_mV;
+    for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
+        pFakeState->data.cellVoltage->packVoltage_mV[s] = FAKE_CELL_VOLTAGE_mV * BS_NR_OF_CELL_BLOCKS_PER_STRING;
+        for (i = 0; i < BS_NR_OF_CELL_BLOCKS_PER_STRING; i++) {
+            pFakeState->data.cellVoltage->cellVoltage_mV[s][i] = FAKE_CELL_VOLTAGE_mV;
         }
 
         pFakeState->data.cellVoltage->state     = 0;
         pFakeState->data.cellTemperature->state = 0;
         for (i = 0; i < BS_NR_OF_TEMP_SENSORS_PER_STRING; i++) {
-            pFakeState->data.cellTemperature->cellTemperature_ddegC[stringNumber][i] = FAKE_CELL_TEMPERATURE_ddegC;
+            pFakeState->data.cellTemperature->cellTemperature_ddegC[s][i] = FAKE_CELL_TEMPERATURE_ddegC;
         }
 
         pFakeState->data.balancingFeedback->state = 0;
-        for (i = 0; i < BS_NR_OF_BAT_CELLS; i++) {
-            pFakeState->data.balancingControl->balancingState[stringNumber][i] = 0;
+        for (i = 0; i < BS_NR_OF_CELL_BLOCKS_PER_STRING; i++) {
+            pFakeState->data.balancingControl->balancingState[s][i] = 0;
         }
-        pFakeState->data.balancingControl->nrBalancedCells[stringNumber] = 0u;
-        for (i = 0; i < BS_NR_OF_MODULES; i++) {
-            pFakeState->data.balancingFeedback->value[stringNumber][i] = 0;
+        pFakeState->data.balancingControl->nrBalancedCells[s] = 0u;
+        for (i = 0; i < BS_NR_OF_MODULES_PER_STRING; i++) {
+            pFakeState->data.balancingFeedback->value[s][i] = 0;
         }
 
         pFakeState->data.slaveControl->state = 0;
-        for (i = 0; i < BS_NR_OF_MODULES; i++) {
+        for (i = 0; i < BS_NR_OF_MODULES_PER_STRING; i++) {
             pFakeState->data.slaveControl->ioValueIn[i]                 = 0;
             pFakeState->data.slaveControl->ioValueOut[i]                = 0;
             pFakeState->data.slaveControl->externalTemperatureSensor[i] = 0;
@@ -314,12 +315,12 @@ static void FAKE_SetFirstMeasurementCycleFinished(FAKE_STATE_s *pFakeState) {
         pFakeState->data.slaveControl->eepromWriteAddressToUse    = 0xFFFFFFFF;
 
         pFakeState->data.allGpioVoltages->state = 0;
-        for (i = 0; i < (BS_NR_OF_MODULES * BS_NR_OF_GPIOS_PER_MODULE); i++) {
-            pFakeState->data.allGpioVoltages->gpioVoltages_mV[stringNumber][i] = 0;
+        for (i = 0; i < (BS_NR_OF_MODULES_PER_STRING * BS_NR_OF_GPIOS_PER_MODULE); i++) {
+            pFakeState->data.allGpioVoltages->gpioVoltages_mV[s][i] = 0;
         }
 
-        for (i = 0; i < (BS_NR_OF_MODULES * (BS_NR_OF_CELLS_PER_MODULE + 1)); i++) {
-            pFakeState->data.openWire->openwire[stringNumber][i] = 0;
+        for (i = 0; i < (BS_NR_OF_MODULES_PER_STRING * (BS_NR_OF_CELL_BLOCKS_PER_MODULE + 1)); i++) {
+            pFakeState->data.openWire->openwire[s][i] = 0;
         }
         pFakeState->data.openWire->state = 0;
     }
@@ -338,9 +339,9 @@ static STD_RETURN_TYPE_e FAKE_SaveFakeVoltageMeasurementData(FAKE_STATE_s *pFake
     FAS_ASSERT(pFakeState != NULL_PTR);
     STD_RETURN_TYPE_e successfullSave = STD_OK;
 
-    for (uint8_t stringNumber = 0u; stringNumber < BS_NR_OF_STRINGS; stringNumber++) {
-        for (uint16_t i = 0u; i < BS_NR_OF_BAT_CELLS; i++) {
-            pFakeState->data.cellVoltage->cellVoltage_mV[stringNumber][i] = FAKE_CELL_VOLTAGE_mV;
+    for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
+        for (uint16_t i = 0u; i < BS_NR_OF_CELL_BLOCKS_PER_STRING; i++) {
+            pFakeState->data.cellVoltage->cellVoltage_mV[s][i] = FAKE_CELL_VOLTAGE_mV;
         }
     }
 
@@ -353,9 +354,9 @@ static STD_RETURN_TYPE_e FAKE_SaveFakeTemperatureMeasurementData(FAKE_STATE_s *p
     FAS_ASSERT(pFakeState != NULL_PTR);
     STD_RETURN_TYPE_e successfullSave = STD_OK;
 
-    for (uint8_t stringNumber = 0u; stringNumber < BS_NR_OF_STRINGS; stringNumber++) {
+    for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
         for (uint16_t i = 0u; i < BS_NR_OF_TEMP_SENSORS_PER_STRING; i++) {
-            pFakeState->data.cellTemperature->cellTemperature_ddegC[stringNumber][i] = FAKE_CELL_TEMPERATURE_ddegC;
+            pFakeState->data.cellTemperature->cellTemperature_ddegC[s][i] = FAKE_CELL_TEMPERATURE_ddegC;
         }
     }
 
@@ -375,7 +376,7 @@ static FAKE_FSM_STATES_e FAKE_ProcessInitializationState(FAKE_STATE_s *pFakeStat
             break;
 
         case FAKE_FSM_SUBSTATE_INITIALIZATION_FINISH_FIRST_MEASUREMENT:
-            if (true == FAKE_IsFirstMeasurementCycleFinished(pFakeState)) {
+            if (FAKE_IsFirstMeasurementCycleFinished(pFakeState) == true) {
                 FAKE_SetSubstate(
                     pFakeState, FAKE_FSM_SUBSTATE_INITIALIZATION_FIRST_MEASUREMENT_FINISHED, FAKE_FSM_SHORT_TIME);
             } else {

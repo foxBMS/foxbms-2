@@ -1,4 +1,4 @@
-@REM Copyright (c) 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+@REM Copyright (c) 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 @REM All rights reserved.
 @REM
 @REM SPDX-License-Identifier: BSD-3-Clause
@@ -37,17 +37,47 @@
 
 @SETLOCAL EnableExtensions EnableDelayedExpansion
 
+@NET FILE 1>NUL 2>NUL
+@IF %errorlevel% NEQ 0 (
+    @ECHO [31mInstalling LLVM with this script requires an elevated terminal.[0m
+    @ECHO Open cmd.exe again with administrative privilges ^("Run as administrator"^) and run the script again.
+    @ECHO Exiting...
+    @PAUSE
+    @EXIT /b 1
+)
+
 @TITLE Installing LLVM
 
 @SET LLVM_BASE_INSTALL_DIRECTORY=C:\Program Files\LLVM
-@SET LLVM_VERSION=11.0.1
+@SET LLVM_VERSION=13.0.0
+@SET LLVM_TEMP_DIR=%TEMP%\LLVM
 @SET LLVM_INSTALL_DIRECTORY=%LLVM_BASE_INSTALL_DIRECTORY%\%LLVM_VERSION%
-@SET LLVM_DOWNLOAD_URL=https://github.com/llvm/llvm-project/releases/download/llvmorg-11.0.1/LLVM-11.0.1-win64.exe
+@SET LLVM_DOWNLOAD_URL=https://github.com/llvm/llvm-project/releases/download/llvmorg-%LLVM_VERSION%/LLVM-%LLVM_VERSION%-win64.exe
 @SET LLVM_INSTALLER="%USERPROFILE%\Downloads\llvm-%LLVM_VERSION%-win64.exe"
 
+@IF NOT EXIST "%LLVM_TEMP_DIR%" (
+    @MKDIR "%LLVM_TEMP_DIR%"
+)
+
+@IF EXIST "%LLVM_BASE_INSTALL_DIRECTORY%" (
+    @XCOPY "%LLVM_BASE_INSTALL_DIRECTORY%" "%LLVM_TEMP_DIR%" /s /y
+    @IF %ERRORLEVEL% NEQ 0 (
+        @EXIT /b %ERRORLEVEL%
+    )
+)
+
+@RMDIR /s /q "%LLVM_BASE_INSTALL_DIRECTORY%"
+
 @ECHO Downloading LLVM
-@curl.exe -fsSL %LLVM_DOWNLOAD_URL% -o %LLVM_INSTALLER%
+@curl.exe -fsSL %LLVM_DOWNLOAD_URL% -o "%LLVM_INSTALLER%"
 @ECHO Done
 @ECHO Installing LLVM %LLVM_VERSION%
 @%LLVM_INSTALLER% /S /tasks="noassocfiles,nomodpath" /D=%LLVM_INSTALL_DIRECTORY%
+@ECHO Done
+
+@ECHO Restoring old LLVM versions
+@XCOPY "%LLVM_TEMP_DIR%" "%LLVM_BASE_INSTALL_DIRECTORY%" /s /e /y
+@IF %ERRORLEVEL% EQU 0 (
+    @RMDIR /s /q "%LLVM_TEMP_DIR%"
+)
 @ECHO Done

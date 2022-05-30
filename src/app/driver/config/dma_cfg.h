@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    dma_cfg.h
  * @author  foxBMS Team
  * @date    2020-03-05 (date of creation)
- * @updated 2021-09-28 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  DMA
  *
@@ -122,13 +123,13 @@
 /**@}*/
 
 /** describes the RX and TX DMA channels used for an SPI interface */
-typedef struct DMA_CHANNEL_CONFIG {
+typedef struct {
     dmaChannel_t txChannel;
     dmaChannel_t rxChannel;
 } DMA_CHANNEL_CONFIG_s;
 
 /** describes the DMA requests corresponding to the DMA channel used for an SPI interface */
-typedef struct DMA_REQUEST_CONFIG {
+typedef struct {
     dmaRequest_t txRequest;
     dmaRequest_t rxRequest;
 } DMA_REQUEST_CONFIG_s;

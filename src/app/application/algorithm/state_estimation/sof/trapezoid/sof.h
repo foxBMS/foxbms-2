@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,9 +43,10 @@
  * @file    sof.h
  * @author  foxBMS Team
  * @date    2020-10-07 (date of creation)
- * @updated 2020-10-07 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup APPLICATION
- * @prefix  SOX
+ * @prefix  SOF
  *
  * @brief   Header for SOX module, responsible for current derating calculation
  *
@@ -62,7 +63,7 @@
  * struct definition for 4 different values: in two current directions (charge,
  * discharge) for two use cases (peak and continuous)
  */
-typedef struct SOF_CURRENT_LIMITS {
+typedef struct {
     float continuousChargeCurrent_mA;    /*!< maximum current for continues charging */
     float peakChargeCurrent_mA;          /*!< maximum current for peak charging */
     float continuousDischargeCurrent_mA; /*!< maximum current for continues discharging */
@@ -73,7 +74,7 @@ typedef struct SOF_CURRENT_LIMITS {
  * struct definition for calculating the linear SOF curve. The SOF curve is
  * voltage, temperature and charge/discharge dependent.
  */
-typedef struct SOF_CURVE {
+typedef struct {
     float slopeLowTemperatureDischarge;   /*!< low temperature dependent derating slope for discharge current */
     float offsetLowTemperatureDischarge;  /*!< discharge current offset for low temperature dependent derating */
     float slopeHighTemperatureDischarge;  /*!< high temperature dependent derating slope for discharge current */

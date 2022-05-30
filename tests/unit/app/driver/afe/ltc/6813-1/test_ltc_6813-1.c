@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    test_ltc_6813-1.c
  * @author  foxBMS Team
  * @date    2020-03-30 (date of creation)
- * @updated 2021-12-08 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -134,12 +135,12 @@ void testLTC_SetFirstMeasurementCycleFinished(void) {
     TEST_ASSERT_EQUAL_UINT8(true, test_ltc_state.first_measurement_made);
 }
 
-void testLTC_Convert_MuxVoltages_to_Temperatures() {
+void testLTC_ConvertMuxVoltagesToTemperatures() {
     TSI_GetTemperature_ExpectAndReturn(0, 0u);
     int16_t x = 0;
-    x         = LTC_Convert_MuxVoltages_to_Temperatures(0);
+    x         = LTC_ConvertMuxVoltagesToTemperatures(0);
     TEST_ASSERT_EQUAL_INT16(0, x);
     TSI_GetTemperature_ExpectAndReturn(11, 11u);
-    x = LTC_Convert_MuxVoltages_to_Temperatures(11);
+    x = LTC_ConvertMuxVoltagesToTemperatures(11);
     TEST_ASSERT_EQUAL_INT16(11, x);
 }

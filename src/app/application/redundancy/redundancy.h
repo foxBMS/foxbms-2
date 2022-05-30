@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    redundancy.h
  * @author  foxBMS Team
  * @date    2020-07-31 (date of creation)
- * @updated 2021-10-14 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup APPLICATION
  * @prefix  MRC
  *
@@ -113,7 +114,7 @@
 /**
  * This structure contains all the variables relevant for the redundancy state machine.
  */
-typedef struct MRC_STATE {
+typedef struct {
     uint32_t lastBaseCellvoltageTimestamp;
     uint32_t lastRedundancy0CellvoltageTimestamp;
     uint32_t lastBaseCelltemperatureTimestamp;

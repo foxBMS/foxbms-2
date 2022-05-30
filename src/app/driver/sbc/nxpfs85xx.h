@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,9 +43,10 @@
  * @file    nxpfs85xx.h
  * @author  foxBMS Team
  * @date    2020-03-18 (date of creation)
- * @updated 2021-11-08 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup DRIVERS
- * @prefix  FS85X
+ * @prefix  FS85
  *
  * @brief   Header for the driver for the FRAM module
  *
@@ -67,7 +68,7 @@
 /*========== Macros and Definitions =========================================*/
 /** struct for fail-safe registers
  * for register description see data sheet FS84_FS85 - Rev. 3.0 - 9 April 2019 */
-typedef struct FS85X_FS_REGISTERS {
+typedef struct {
     uint16_t grl_flags;                             /*!< FS8X_FS_GRL_FLAGS_ADDR */
     uint16_t iOvervoltageUndervolateSafeReaction1;  /*!< FS8X_FS_I_OVUV_SAFE_REACTION1_ADDR */
     uint16_t iOvervoltageUndervolateSafeReaction2;  /*!< FS8X_FS_I_OVUV_SAFE_REACTION2_ADDR */
@@ -84,11 +85,11 @@ typedef struct FS85X_FS_REGISTERS {
     uint16_t diag_safety;                           /*!< FS8X_FS_DIAG_SAFETY_ADDR */
     uint16_t intb_mask;                             /*!< FS8X_FS_INTB_MASK_ADDR */
     uint16_t states;                                /*!< FS8X_FS_STATES_ADDR */
-} FS85X_FS_REGISTER_s;
+} FS85_FS_REGISTER_s;
 
 /** struct for main registers
  * for register description see data sheet FS84_FS85 - Rev. 3.0 - 9 April 2019 */
-typedef struct FS85X_MAIN_REGISTERS {
+typedef struct {
     uint16_t flag;              /*!< FS8X_M_FLAG_ADDR */
     uint16_t mode;              /*!< FS8X_M_MODE_ADDR */
     uint16_t registerControl1;  /*!< FS8X_M_REG_CTRL1_ADDR */
@@ -104,40 +105,40 @@ typedef struct FS85X_MAIN_REGISTERS {
     uint16_t memory0;           /*!< FS8X_M_MEMORY0_ADDR */
     uint16_t memory1;           /*!< FS8X_M_MEMORY1_ADDR */
     uint16_t deviceId;          /*!< FS8X_M_DEVICEID_ADDR */
-} FS85X_MAIN_REGISTERS_s;
+} FS85_MAIN_REGISTERS_s;
 
-typedef enum FS85X_OPERATION_MODE {
+typedef enum {
     SBC_NORMAL_MODE,
     SBC_DEBUG_MODE,
-} FS85X_OPERATION_MODE_e;
+} FS85_OPERATION_MODE_e;
 
 /** struct for FIN configuration */
-typedef struct FS85X_FIN_CONFIGURATION {
+typedef struct {
     bool finUsed;                /*!< flag if FIN feature of SBC is used */
     STD_RETURN_TYPE_e finState;  /*!< Is set to STD_NOT_OK if short circuit between FIN and RSTB pin detected */
     volatile uint32_t *pGIOport; /*!< pointer to port where FIN pin of SBC is connected to */
     uint32_t pin;                /*!< pin where FIN pin of SBC is connected to */
-} FS85X_FIN_CONFIGURATION_s;
+} FS85_FIN_CONFIGURATION_s;
 
 /** stores a pointer to the persistent entry in the FRAM */
-typedef struct SBC_NVRAM_INFO {
-    FRAM_BLOCK_ID_e entry; /*!< FRAM ID of persistant SBC entry in FRAM */
+typedef struct {
+    FRAM_BLOCK_ID_e entry; /*!< FRAM ID of persistent SBC entry in FRAM */
     FRAM_SBC_INIT_s *data; /*!< pointer to SBC entry in FRAM module */
-} SBC_NVRAM_INFO_s;
+} FS85_NVRAM_INFO_s;
 
 /** state struct to create SBC instance */
-typedef struct FS85xx_STATE {
+typedef struct {
     SPI_INTERFACE_CONFIG_s *pSpiInterface; /*< pointer to used SPI interface configuration */
     fs8x_drv_data_t configValues;          /*!< configuration of used communication interface */
-    FS85X_FIN_CONFIGURATION_s fin;         /*!< configurations for FIN functionality */
-    FS85X_MAIN_REGISTERS_s mainRegister;   /*!< FS85xx main registers */
-    FS85X_FS_REGISTER_s fsRegister;        /*!< FS85xx safety registers */
-    SBC_NVRAM_INFO_s nvram;      /*!< configuration and data for persistant memory required for initialization */
-    FS85X_OPERATION_MODE_e mode; /*!< current operation mode of FS85xx */
-} FS85xx_STATE_s;
+    FS85_FIN_CONFIGURATION_s fin;          /*!< configurations for FIN functionality */
+    FS85_MAIN_REGISTERS_s mainRegister;    /*!< FS85xx main registers */
+    FS85_FS_REGISTER_s fsRegister;         /*!< FS85xx safety registers */
+    FS85_NVRAM_INFO_s nvram;    /*!< configuration and data for persistent memory required for initialization */
+    FS85_OPERATION_MODE_e mode; /*!< current operation mode of FS85xx */
+} FS85_STATE_s;
 
 /*========== Extern Constant and Variable Declarations ======================*/
-extern FS85xx_STATE_s fs85xx_mcuSupervisor;
+extern FS85_STATE_s fs85xx_mcuSupervisor;
 
 /*========== Extern Function Prototypes =====================================*/
 /**
@@ -150,7 +151,7 @@ extern FS85xx_STATE_s fs85xx_mcuSupervisor;
  * @return          #STD_OK if all checks were successful and SBC configured
  *                  correctly, otherwise #STD_NOT_OK
  */
-extern STD_RETURN_TYPE_e FS85X_InitFS(FS85xx_STATE_s *pInstance);
+extern STD_RETURN_TYPE_e FS85_InitializeFsPhase(FS85_STATE_s *pInstance);
 
 /**
  * @brief           Calculates the number of required watchdog refresh to reset
@@ -162,7 +163,9 @@ extern STD_RETURN_TYPE_e FS85X_InitFS(FS85xx_STATE_s *pInstance);
  * @return          #STD_OK if required watchdog refreshes were calculated
  *                  successfully, otherwise #STD_NOT_OK
  */
-extern STD_RETURN_TYPE_e FS85X_Init_ReqWDGRefreshes(FS85xx_STATE_s *pInstance, uint8_t *requiredWatchdogRefreshes);
+extern STD_RETURN_TYPE_e FS85_InitializeNumberOfRequiredWatchdogRefreshes(
+    FS85_STATE_s *pInstance,
+    uint8_t *requiredWatchdogRefreshes);
 
 /**
  * @brief           Checks if fault error counter is zero
@@ -171,7 +174,7 @@ extern STD_RETURN_TYPE_e FS85X_Init_ReqWDGRefreshes(FS85xx_STATE_s *pInstance, u
  * @return          #STD_OK if fault error counter equals zero, otherwise
  *                  #STD_NOT_OK
  */
-extern STD_RETURN_TYPE_e FS85X_CheckFaultErrorCounter(FS85xx_STATE_s *pInstance);
+extern STD_RETURN_TYPE_e FS85_CheckFaultErrorCounter(FS85_STATE_s *pInstance);
 
 /**
  * @brief           Performs SBC safety path checks
@@ -181,7 +184,7 @@ extern STD_RETURN_TYPE_e FS85X_CheckFaultErrorCounter(FS85xx_STATE_s *pInstance)
  * @return          #STD_OK if safety path check successful, otherwise
  *                  #STD_NOT_OK
  */
-extern STD_RETURN_TYPE_e FS85X_SafetyPathChecks(FS85xx_STATE_s *pInstance);
+extern STD_RETURN_TYPE_e FS85_SafetyPathChecks(FS85_STATE_s *pInstance);
 
 /**
  * @brief           Trigger watchdog
@@ -191,7 +194,7 @@ extern STD_RETURN_TYPE_e FS85X_SafetyPathChecks(FS85xx_STATE_s *pInstance);
  * @return          #STD_OK if watchdog has been triggered successfully,
  *                  otherwise #STD_NOT_OK
  */
-extern STD_RETURN_TYPE_e SBC_TriggerWatchdog(FS85xx_STATE_s *pInstance);
+extern STD_RETURN_TYPE_e SBC_TriggerWatchdog(FS85_STATE_s *pInstance);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 

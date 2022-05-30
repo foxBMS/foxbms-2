@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -41,11 +41,11 @@
 """Implements tests for the waf tool ``f_guidelines``.
 """
 
-import unittest
-import sys
+import json
 import os
 import re
-import json
+import sys
+import unittest
 
 HAVE_GIT = False
 try:
@@ -304,7 +304,13 @@ class TestGuidelineMethods(unittest.TestCase):
         for test_file, result in results["default_regex"].items():
             txt = get_txt(os.path.join("c-004_tests", test_file))
             self.general_tester(
-                result, f_guidelines.c_check_doxygen.test(test_file, txt, config)
+                result,
+                f_guidelines.c_check_doxygen.test(
+                    test_file,
+                    txt,
+                    config,
+                    "1.0.0",
+                ),
             )
 
         # Tests for changed doxygen regular expressions
@@ -313,7 +319,13 @@ class TestGuidelineMethods(unittest.TestCase):
         for test_file, result in results["changed_regex"].items():
             txt = get_txt(os.path.join("c-004_tests", test_file))
             self.general_tester(
-                result, f_guidelines.c_check_doxygen.test(test_file, txt, config)
+                result,
+                f_guidelines.c_check_doxygen.test(
+                    test_file,
+                    txt,
+                    config,
+                    "1.0.0",
+                ),
             )
 
     def test_c_sections(self):

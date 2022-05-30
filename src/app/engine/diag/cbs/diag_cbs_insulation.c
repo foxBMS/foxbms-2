@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    diag_cbs_insulation.c
  * @author  foxBMS Team
  * @date    2021-02-22 (date of creation)
- * @updated 2021-02-22 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup ENGINE
  * @prefix  DIAG
  *
@@ -75,26 +76,33 @@ extern void DIAG_Insulation(
     FAS_ASSERT(kpkDiagShim != NULL_PTR);
     FAS_ASSERT(stringNumber < BS_NR_OF_STRINGS);
 
-    if (ch_id == DIAG_ID_INSULATION_MEASUREMENT_INVALID) {
+    if (ch_id == DIAG_ID_INSULATION_MEASUREMENT_VALID) {
         if (event == DIAG_EVENT_RESET) {
-            kpkDiagShim->pTableError->insulationError = 0;
+            kpkDiagShim->pTableError->insulationMeasurementValid = true;
         }
         if (event == DIAG_EVENT_NOT_OK) {
-            kpkDiagShim->pTableError->insulationError = 1;
+            kpkDiagShim->pTableError->insulationMeasurementValid = false;
         }
-    } else if (ch_id == DIAG_ID_INSULATION_ERROR) {
+    } else if (ch_id == DIAG_ID_LOW_INSULATION_RESISTANCE_ERROR) {
         if (event == DIAG_EVENT_RESET) {
-            kpkDiagShim->pTableError->insulationError = 0;
+            kpkDiagShim->pTableError->criticalLowInsulationResistance = false;
         }
         if (event == DIAG_EVENT_NOT_OK) {
-            kpkDiagShim->pTableError->insulationError = 1;
+            kpkDiagShim->pTableError->criticalLowInsulationResistance = true;
+        }
+    } else if (ch_id == DIAG_ID_LOW_INSULATION_RESISTANCE_WARNING) {
+        if (event == DIAG_EVENT_RESET) {
+            kpkDiagShim->pTableError->warnableLowInsulationResistance = false;
+        }
+        if (event == DIAG_EVENT_NOT_OK) {
+            kpkDiagShim->pTableError->warnableLowInsulationResistance = true;
         }
     } else if (ch_id == DIAG_ID_INSULATION_GROUND_ERROR) {
         if (event == DIAG_EVENT_RESET) {
-            kpkDiagShim->pTableError->insulationError = 0;
+            kpkDiagShim->pTableError->insulationGroundFaultDetected = false;
         }
         if (event == DIAG_EVENT_NOT_OK) {
-            kpkDiagShim->pTableError->insulationError = 1;
+            kpkDiagShim->pTableError->insulationGroundFaultDetected = true;
         }
     }
 }

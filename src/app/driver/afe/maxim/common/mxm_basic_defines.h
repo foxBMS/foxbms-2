@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    mxm_basic_defines.h
  * @author  foxBMS Team
  * @date    2020-02-11 (date of creation)
- * @updated 2021-12-06 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup DRIVERS
  * @prefix  MXM
  *
@@ -118,24 +119,24 @@ typedef enum {
 
 /** valid values for the silicon version of connected monitoring ICs */
 typedef enum {
-    MXM_siliconVersion_0       = 0x0u,  /*!< initialization value */
-    MXM_siliconVersion_1       = 0x1u,  /*!< silicon version 1 (known from data-sheet) */
-    MXM_siliconVersion_2       = 0x2u,  /*!< silicon version 2 */
-    MXM_siliconVersion_3       = 0x3u,  /*!< silicon version 3 */
-    MXM_siliconVersion_4       = 0x4u,  /*!< silicon version 4 (located on old EV kit 2018) */
-    MXM_siliconVersion_5       = 0x5u,  /*!< silicon version 5 (located on new EV kit 04.2019) */
-    MXM_siliconVersion_6       = 0x6u,  /*!< silicon version 6 */
-    MXM_siliconVersion_7       = 0x7u,  /*!< silicon version 7 (most recent as of 2021-11-21) */
-    MXM_siliconVersion_8       = 0x8u,  /*!< unknown silicon version */
-    MXM_siliconVersion_9       = 0x9u,  /*!< unknown silicon version */
-    MXM_siliconVersion_10      = 0xAu,  /*!< unknown silicon version */
-    MXM_siliconVersion_11      = 0xBu,  /*!< unknown silicon version */
-    MXM_siliconVersion_12      = 0xCu,  /*!< unknown silicon version */
-    MXM_siliconVersion_13      = 0xDu,  /*!< unknown silicon version */
-    MXM_siliconVersion_14      = 0xEu,  /*!< unknown silicon version */
-    MXM_siliconVersion_15      = 0xFu,  /*!< unknown silicon version */
-    MXM_siliconVersion_invalid = 0x10u, /*!< due to the register size, no version number can take this value */
-} MXM_siliconVersion_e;
+    MXM_SILICON_VERSION_0       = 0x0u,  /*!< initialization value */
+    MXM_SILICON_VERSION_1       = 0x1u,  /*!< silicon version 1 (known from data-sheet) */
+    MXM_SILICON_VERSION_2       = 0x2u,  /*!< silicon version 2 */
+    MXM_SILICON_VERSION_3       = 0x3u,  /*!< silicon version 3 */
+    MXM_SILICON_VERSION_4       = 0x4u,  /*!< silicon version 4 (located on old EV kit 2018) */
+    MXM_SILICON_VERSION_5       = 0x5u,  /*!< silicon version 5 (located on new EV kit 04.2019) */
+    MXM_SILICON_VERSION_6       = 0x6u,  /*!< silicon version 6 */
+    MXM_SILICON_VERSION_7       = 0x7u,  /*!< silicon version 7 (most recent as of 2021-11-21) */
+    MXM_SILICON_VERSION_8       = 0x8u,  /*!< unknown silicon version */
+    MXM_SILICON_VERSION_9       = 0x9u,  /*!< unknown silicon version */
+    MXM_SILICON_VERSION_10      = 0xAu,  /*!< unknown silicon version */
+    MXM_SILICON_VERSION_11      = 0xBu,  /*!< unknown silicon version */
+    MXM_SILICON_VERSION_12      = 0xCu,  /*!< unknown silicon version */
+    MXM_SILICON_VERSION_13      = 0xDu,  /*!< unknown silicon version */
+    MXM_SILICON_VERSION_14      = 0xEu,  /*!< unknown silicon version */
+    MXM_SILICON_VERSION_15      = 0xFu,  /*!< unknown silicon version */
+    MXM_SILICON_VERSION_INVALID = 0x10u, /*!< due to the register size, no version number can take this value */
+} MXM_SILICON_VERSION_e;
 
 /** Conversion Type */
 typedef enum {

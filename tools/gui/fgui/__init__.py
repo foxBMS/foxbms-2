@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -40,9 +40,9 @@
 
 """sets the version package etc."""
 
-__version__ = "1.2.1"
+__version__ = "1.3.0"
 __appname__ = "foxBMS 2"
 __author__ = "The foxBMS Team"
-__copyright__ = "(c) 2010 - 2021 foxBMS"
+__copyright__ = "(c) 2010 - 2022 foxBMS"
 __author__ = "The foxBMS Team"
 __email__ = "info@foxbms.org"

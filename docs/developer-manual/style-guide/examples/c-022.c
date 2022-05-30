@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -42,7 +42,7 @@
 #include "general.h"
 
 /** Symbolic names for battery system state */
-typedef struct ABC_DATE {
+typedef struct {
     uint16_t year; /*!< year */
     uint8_t month; /*!< month (1: january ... 12: december) */
     uint8_t day;   /*!< day of the month */

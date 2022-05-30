@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    epcos_b57251v5103j060.c
  * @author  foxBMS Team
  * @date    2018-10-30 (date of creation)
- * @updated 2021-08-06 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup TEMPERATURE_SENSORS
  * @prefix  TS
  *
@@ -125,14 +126,14 @@ static uint16_t b57251v5103j060LutSize = sizeof(ts_b57251v5103j060Lut) / sizeof(
 /**@{*/
 #if TS_EPCOS_B57251V5103J060_POSITION_IN_RESISTOR_DIVIDER_IS_R_1 == true
 #define TS_EPCOS_B57251V5103J060_ADC_VOLTAGE_V_MAX_V \
-    (float)((TS_EPCOS_B57251V5103J060_RESISTOR_DIVIDER_SUPPLY_VOLTAGE_V * ts_b57251v5103j060Lut[b57251v5103j060LutSize-1].resistance_Ohm) / (ts_b57251v5103j060Lut[b57251v5103j060LutSize-1].resistance_Ohm+TS_EPCOS_B57251V5103J060_RESISTOR_DIVIDER_RESISTANCE_R_1_R_2_Ohm))
+    ((float)((TS_EPCOS_B57251V5103J060_RESISTOR_DIVIDER_SUPPLY_VOLTAGE_V * ts_b57251v5103j060Lut[b57251v5103j060LutSize-1].resistance_Ohm) / (ts_b57251v5103j060Lut[b57251v5103j060LutSize-1].resistance_Ohm+TS_EPCOS_B57251V5103J060_RESISTOR_DIVIDER_RESISTANCE_R_1_R_2_Ohm)))
 #define TS_EPCOS_B57251V5103J060_ADC_VOLTAGE_V_MIN_V \
-    (float)((TS_EPCOS_B57251V5103J060_RESISTOR_DIVIDER_SUPPLY_VOLTAGE_V * ts_b57251v5103j060Lut[0].resistance_Ohm) / (ts_b57251v5103j060Lut[0].resistance_Ohm+TS_EPCOS_B57251V5103J060_RESISTOR_DIVIDER_RESISTANCE_R_1_R_2_Ohm))
+    ((float)((TS_EPCOS_B57251V5103J060_RESISTOR_DIVIDER_SUPPLY_VOLTAGE_V * ts_b57251v5103j060Lut[0].resistance_Ohm) / (ts_b57251v5103j060Lut[0].resistance_Ohm+TS_EPCOS_B57251V5103J060_RESISTOR_DIVIDER_RESISTANCE_R_1_R_2_Ohm)))
 #else /* TS_EPCOS_B57251V5103J060_POSITION_IN_RESISTOR_DIVIDER_IS_R_1 == false */
 #define TS_EPCOS_B57251V5103J060_ADC_VOLTAGE_V_MIN_V \
-    (float)((TS_EPCOS_B57251V5103J060_RESISTOR_DIVIDER_SUPPLY_VOLTAGE_V * ts_b57251v5103j060Lut[b57251v5103j060LutSize-1].resistance_Ohm) / (ts_b57251v5103j060Lut[b57251v5103j060LutSize-1].resistance_Ohm+TS_EPCOS_B57251V5103J060_RESISTOR_DIVIDER_RESISTANCE_R_1_R_2_Ohm))
+    ((float)((TS_EPCOS_B57251V5103J060_RESISTOR_DIVIDER_SUPPLY_VOLTAGE_V * ts_b57251v5103j060Lut[b57251v5103j060LutSize-1].resistance_Ohm) / (ts_b57251v5103j060Lut[b57251v5103j060LutSize-1].resistance_Ohm+TS_EPCOS_B57251V5103J060_RESISTOR_DIVIDER_RESISTANCE_R_1_R_2_Ohm)))
 #define TS_EPCOS_B57251V5103J060_ADC_VOLTAGE_V_MAX_V \
-    (float)((TS_EPCOS_B57251V5103J060_RESISTOR_DIVIDER_SUPPLY_VOLTAGE_V * ts_b57251v5103j060Lut[0].resistance_Ohm) / (ts_b57251v5103j060Lut[0].resistance_Ohm+TS_EPCOS_B57251V5103J060_RESISTOR_DIVIDER_RESISTANCE_R_1_R_2_Ohm))
+    ((float)((TS_EPCOS_B57251V5103J060_RESISTOR_DIVIDER_SUPPLY_VOLTAGE_V * ts_b57251v5103j060Lut[0].resistance_Ohm) / (ts_b57251v5103j060Lut[0].resistance_Ohm+TS_EPCOS_B57251V5103J060_RESISTOR_DIVIDER_RESISTANCE_R_1_R_2_Ohm)))
 #endif
 /**@}*/
 
@@ -143,6 +144,8 @@ static uint16_t b57251v5103j060LutSize = sizeof(ts_b57251v5103j060Lut) / sizeof(
 /*========== Extern Function Implementations ================================*/
 
 extern int16_t TS_Epc00GetTemperatureFromLut(uint16_t adcVoltage_mV) {
+    /* AXIVION Routine Generic-MissingParameterAssert: adcVoltage_mV: parameter accepts whole range */
+
     int16_t temperature_ddegC = 0;
     float resistance_Ohm      = 0.0f;
     float adcVoltage_V        = adcVoltage_mV / 1000.0f; /* Convert mV to V */
@@ -193,6 +196,8 @@ extern int16_t TS_Epc00GetTemperatureFromLut(uint16_t adcVoltage_mV) {
 }
 
 extern int16_t TS_Epc00GetTemperatureFromPolynomial(uint16_t adcVoltage_mV) {
+    /* AXIVION Routine Generic-MissingParameterAssert: adcVoltage_mV: parameter accepts whole range */
+
     float temperature_degC = 0.0;
     float vadc_V           = adcVoltage_mV / 1000.0;
     float vadc2            = vadc_V * vadc_V;

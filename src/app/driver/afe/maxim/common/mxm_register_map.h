@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    mxm_register_map.h
  * @author  foxBMS Team
  * @date    2019-03-05 (date of creation)
- * @updated 2021-12-06 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup DRIVERS
  * @prefix  MXM
  *
@@ -72,8 +73,8 @@ typedef enum {
      * accessible register which returns information on the device */
     MXM_REG_ADDRESS       = 0x01u, /*!< ADDRESS is a read and write
      * accessible register which sets the first, last, and device address
-     * used by a device in a UART chain (UARTSEL=1). This register has no  NOLINT
-     * effect on a device operating in SPI mode (UARTSEL=0).  NOLINT */
+     * used by a device in a UART chain (UARTSEL=1). This register has no
+     * effect on a device operating in SPI mode (UARTSEL=0). */
     MXM_REG_STATUS1       = 0x02u, /*!< STATUS1 is a read and write
      * accessible register which relates the current status of the device.
      * STATUS1 also contains summary information on STATUS2, STATUS3, and
@@ -108,10 +109,10 @@ typedef enum {
      * input protection fault alerts. */
     MXM_REG_ALRTAUXOV     = 0x0Cu, /*!< ALRTAUXOV is a read
      * accessible register which relates current information on auxiliary
-     * over voltage (cold) fault alerts.  NOLINT */
+     * over voltage (cold) fault alerts. */
     MXM_REG_ALRTAUXUV     = 0x0Du, /*!< ALRTAUXUV is a read accessible
      * register which relates current information on auxiliary under voltage
-     * fault (hot) alerts.  NOLINT */
+     * fault (hot) alerts. */
     MXM_REG_ALRTCOMPOV    = 0x0Eu, /*!< ALRTCOMPOV is a read accessible
      * register which relates current information on cell over voltage fault
      * alerts based on the redundant comparator. */
@@ -120,10 +121,10 @@ typedef enum {
      * alerts based on the redundant comparator. */
     MXM_REG_ALRTCOMPAUXOV = 0x10u, /*!< ALRTCOMPAUXOV is a read
      * accessible register which relates current information on auxiliary over
-     * voltage fault (cold) alerts based on the redundant comparator.  NOLINT */
+     * voltage fault (cold) alerts based on the redundant comparator. */
     MXM_REG_ALRTCOMPAUXUV = 0x11u, /*!< ALRTCOMPAUXUV is a read
      * accessible register which relates current information on auxiliary under
-     * voltage fault (hot) alerts based on the redundant comparator.  NOLINT */
+     * voltage fault (hot) alerts based on the redundant comparator. */
     MXM_REG_ALRTBALSW     = 0x12u, /*!< ALRTBALSW is a read accessible
      * register which relates current summary information on balancing switch
      * fault alerts. */
@@ -150,8 +151,8 @@ typedef enum {
     MXM_REG_ALRTIRQEN     = 0x19u, /*!< ALRTIRQEN is a read and write
      * accessible register which selects which STATS1 alerts trigger interrupts
      * via the ALERT interface port(s), and are included in the DCByte and
-     * Alert Packet (UART) or ALERT bit (SPI) notifications. Note the information  NOLINT
-     * in the STATUS1 register itself (or any component terms rolled up into  NOLINT
+     * Alert Packet (UART) or ALERT bit (SPI) notifications. Note the information
+     * in the STATUS1 register itself (or any component terms rolled up into
      * STATUS1) is not masked/disabled by these settings, allowing the
      * underlying data to always be available via STATUS1 readback. */
     MXM_REG_ALRTOVEN      = 0x1Au, /*!< ALRTOVEN is a read and write
@@ -161,17 +162,17 @@ typedef enum {
      * accessible register which enables under voltage fault checks on selected
      * input channels during scans using either the ADC or Comparator. */
     MXM_REG_ALRTAUXOVEN   = 0x1Cu, /*!< ALRTAUXOVEN is a read and write
-     * accessible register which enables auxiliary over voltage (cold) fault  NOLINT
+     * accessible register which enables auxiliary over voltage (cold) fault
      * checks on selected Auxiliary channels during scans using either the
      * ADC or Comparator. */
     MXM_REG_ALRTAUXUVEN   = 0x1Du, /*!< ALRTAUXUVEN is a read and write
-     * accessible register which enables auxiliary under voltage (hot) fault  NOLINT
+     * accessible register which enables auxiliary under voltage (hot) fault
      * checks on selected Auxiliary channels using either the
      * ADC or Comparator. */
     MXM_REG_ALRTCALTST    = 0x1Eu, /*!< ALRTCALTST is a read and write
      * accessible register which allows the user to force Calibration alerts
      * to test readback and interrupt logic. The forced alert(s) will remain
-     * forced until this register is written back to zeros (assuming the  NOLINT
+     * forced until this register is written back to zeros (assuming the
      * existing calibration data is within range) */
     MXM_REG_OVTHCLR       = 0x1Fu, /*!< OVTHCLR is a read and write
      * accessible register which selects the cell over voltage alert
@@ -225,16 +226,16 @@ typedef enum {
      * read and write accessible register which selects the CSA under voltage
      * alert set threshold used with ADC measurements. */
     MXM_REG_AUXROVTHCLR   = 0x30u, /*!< AUXROVTHCLR is a read and write
-     * accessible register which selects the over voltage (cold) alert  NOLINT
+     * accessible register which selects the over voltage (cold) alert
      * clear threshold used with Ratiometric Auxiliary ADC measurements. */
     MXM_REG_AUXROVTHSET   = 0x31u, /*!< AUXROVTHSET is a read and write
-     * accessible register which selects the over voltage (cold) alert set  NOLINT
+     * accessible register which selects the over voltage (cold) alert set
      * threshold used with Ratiometric Auxiliary ADC measurements. */
     MXM_REG_AUXRUVTHCLR   = 0x32u, /*!< AUXRUVTHCLR is a read and write
-     * accessible register which selects the under voltage (hot) alert clear  NOLINT
+     * accessible register which selects the under voltage (hot) alert clear
      * threshold used with Ratiometric Auxiliary ADC measurements. */
     MXM_REG_AUXRUVTHSET   = 0x33u, /*!< AUXRUVTHSET is a read and write
-     * accessible register which selects the under voltage (hot) alert set  NOLINT
+     * accessible register which selects the under voltage (hot) alert set
      * threshold used with Ratiometric Auxiliary ADC measurements. */
     MXM_REG_AUXOVTHCLR    = 0x34u, /*!< AUXOVTHCLR is a read and write
      * accessible register which selects the over voltage alert clear
@@ -255,10 +256,10 @@ typedef enum {
      * accessible register which selects the cell under voltage alert threshold
      * for the redundant comparator. */
     MXM_REG_COMPAUXROVTH  = 0x3Au, /*!< COMPAUXROVTH is a read and write
-     * accessible register which selects the over voltage (cold) alert threshold  NOLINT
+     * accessible register which selects the over voltage (cold) alert threshold
      * applied during Ratiometric Auxiliary comparator measurements. */
     MXM_REG_COMPAUXRUVTH  = 0x3Bu, /*!< COMPAUXRUVTH is a read and write
-     * accessible register which selects the under voltage (hot) alert threshold  NOLINT
+     * accessible register which selects the under voltage (hot) alert threshold
      * applied during Ratiometric Auxiliary comparator measurements. */
     MXM_REG_COMPAUXAOVTH  = 0x3Cu, /*!< COMPAUXAOVTH is a read and write
      * accessible register which selects the over voltage alert threshold
@@ -392,7 +393,7 @@ typedef enum {
      * IIR initialization. */
     MXM_REG_SCANCTRL      = 0x66u, /*!< SCANCTRL is a read and write
      * accessible register which governs the internal measurement
-     * acquisitions (scan) requested of the device. The register also manages  NOLINT
+     * acquisitions (scan) requested of the device. The register also manages
      * the handling of data generated as a result of any scan request.
      *
      * ADC Scans are used for precision measurements of cell and auxiliary
@@ -424,7 +425,7 @@ typedef enum {
      * Diagnostics. */
     MXM_REG_DIAGCFG       = 0x6Bu, /*!< DIAGCFG is a read and write
      * accessible  register which governs diagnostic source and mode options
-     * applied to the internal measurement acquisitions (scans).  NOLINT */
+     * applied to the internal measurement acquisitions (scans). */
     MXM_REG_CTSTCFG       = 0x6Cu, /*!< CTSTCFG is a read and write
      * accessible register which controls the application of diagnostic
      * current sources to selected cell input channels. */
@@ -439,7 +440,7 @@ typedef enum {
      * Switches in Manual and Auto Cell Balancing modes.
      *
      * Write access to this register is blocked during Automated Cell
-     * Balancing operations (CBMODE=001, 1xx).  NOLINT */
+     * Balancing operations (CBMODE=001, 1xx). */
     MXM_REG_BALEXP1       = 0x70u, /*!< BALEXPn is a read and write
      * accessible register which holds the Cell Balancing Expiration Time
      * for CELLn (using the switch across SWn and SWn-1).
@@ -448,98 +449,98 @@ typedef enum {
      * Discharge modes and the Watchdog time out for Manual Cell Balancing mode.
      *
      * Write access to this register is blocked during all Cell Balancing
-     * operations (CBMODE!=000).  NOLINT */
+     * operations (CBMODE!=000). */
     MXM_REG_BALEXP2       = 0x71u, /*!< BALEXPn is a read and write
      * accessible register which holds the Cell Balancing Expiration Time
      * for CELLn (using the switch across SWn and SWn-1). Used in Individual
      * Auto Cell Balancing modes only.
      *
      * Write access to this register is blocked during Automatic Cell
-     * Balancing operations (CBMODE=1xx).  NOLINT */
+     * Balancing operations (CBMODE=1xx). */
     MXM_REG_BALEXP3       = 0x72u, /*!< BALEXPn is a read and write
      * accessible register which holds the Cell Balancing Expiration Time
      * for CELLn (using the switch across SWn and SWn-1). Used in Individual
      * Auto Cell Balancing modes only.
      *
      * Write access to this register is blocked during Automatic Cell
-     * Balancing operations (CBMODE=1xx).  NOLINT */
+     * Balancing operations (CBMODE=1xx). */
     MXM_REG_BALEXP4       = 0x73u, /*!< BALEXPn is a read and write
      * accessible register which holds the Cell Balancing Expiration Time
      * for CELLn (using the switch across SWn and SWn-1). Used in Individual
      * Auto Cell Balancing modes only.
      *
      * Write access to this register is blocked during Automatic Cell
-     * Balancing operations (CBMODE=1xx).  NOLINT */
+     * Balancing operations (CBMODE=1xx). */
     MXM_REG_BALEXP5       = 0x74u, /*!< BALEXPn is a read and write
      * accessible register which holds the Cell Balancing Expiration Time
      * for CELLn (using the switch across SWn and SWn-1). Used in Individual
      * Auto Cell Balancing modes only.
      *
      * Write access to this register is blocked during Automatic Cell
-     * Balancing operations (CBMODE=1xx).  NOLINT */
+     * Balancing operations (CBMODE=1xx). */
     MXM_REG_BALEXP6       = 0x75u, /*!< BALEXPn is a read and write
      * accessible register which holds the Cell Balancing Expiration Time
      * for CELLn (using the switch across SWn and SWn-1). Used in Individual
      * Auto Cell Balancing modes only.
      *
      * Write access to this register is blocked during Automatic Cell
-     * Balancing operations (CBMODE=1xx).  NOLINT */
+     * Balancing operations (CBMODE=1xx). */
     MXM_REG_BALEXP7       = 0x76u, /*!< BALEXPn is a read and write
      * accessible register which holds the Cell Balancing Expiration Time
      * for CELLn (using the switch across SWn and SWn-1). Used in Individual
      * Auto Cell Balancing modes only.
      *
      * Write access to this register is blocked during Automatic Cell
-     * Balancing operations (CBMODE=1xx).  NOLINT */
+     * Balancing operations (CBMODE=1xx). */
     MXM_REG_BALEXP8       = 0x77u, /*!< BALEXPn is a read and write
      * accessible register which holds the Cell Balancing Expiration Time
      * for CELLn (using the switch across SWn and SWn-1). Used in Individual
      * Auto Cell Balancing modes only.
      *
      * Write access to this register is blocked during Automatic Cell
-     * Balancing operations (CBMODE=1xx).  NOLINT */
+     * Balancing operations (CBMODE=1xx). */
     MXM_REG_BALEXP9       = 0x78u, /*!< BALEXPn is a read and write
      * accessible register which holds the Cell Balancing Expiration Time
      * for CELLn (using the switch across SWn and SWn-1). Used in Individual
      * Auto Cell Balancing modes only.
      *
      * Write access to this register is blocked during Automatic Cell
-     * Balancing operations (CBMODE=1xx).  NOLINT */
+     * Balancing operations (CBMODE=1xx). */
     MXM_REG_BALEXP10      = 0x79u, /*!< BALEXPn is a read and write
      * accessible register which holds the Cell Balancing Expiration Time
      * for CELLn (using the switch across SWn and SWn-1). Used in Individual
      * Auto Cell Balancing modes only.
      *
      * Write access to this register is blocked during Automatic Cell
-     * Balancing operations (CBMODE=1xx).  NOLINT */
+     * Balancing operations (CBMODE=1xx). */
     MXM_REG_BALEXP11      = 0x7Au, /*!< BALEXPn is a read and write
      * accessible register which holds the Cell Balancing Expiration Time
      * for CELLn (using the switch across SWn and SWn-1). Used in Individual
      * Auto Cell Balancing modes only.
      *
      * Write access to this register is blocked during Automatic Cell
-     * Balancing operations (CBMODE=1xx).  NOLINT */
+     * Balancing operations (CBMODE=1xx). */
     MXM_REG_BALEXP12      = 0x7Bu, /*!< BALEXPn is a read and write
      * accessible register which holds the Cell Balancing Expiration Time
      * for CELLn (using the switch across SWn and SWn-1). Used in Individual
      * Auto Cell Balancing modes only.
      *
      * Write access to this register is blocked during Automatic Cell
-     * Balancing operations (CBMODE=1xx).  NOLINT */
+     * Balancing operations (CBMODE=1xx). */
     MXM_REG_BALEXP13      = 0x7Cu, /*!< BALEXPn is a read and write
      * accessible register which holds the Cell Balancing Expiration Time
      * for CELLn (using the switch across SWn and SWn-1). Used in Individual
      * Auto Cell Balancing modes only.
      *
      * Write access to this register is blocked during Automatic Cell
-     * Balancing operations (CBMODE=1xx).  NOLINT */
+     * Balancing operations (CBMODE=1xx). */
     MXM_REG_BALEXP14      = 0x7Du, /*!< BALEXPn is a read and write
      * accessible register which holds the Cell Balancing Expiration Time
      * for CELLn (using the switch across SWn and SWn-1). Used in Individual
      * Auto Cell Balancing modes only.
      *
      * Write access to this register is blocked during Automatic Cell
-     * Balancing operations (CBMODE=1xx).  NOLINT */
+     * Balancing operations (CBMODE=1xx). */
     MXM_REG_BALAUTOUVTHR  = 0x7Eu, /*!< BALAUTOUVTHR is a read and write
      * accessible register which selects the cell under voltage exit threshold
      * for the ADC when used in Automated Cell Balancing operations.
@@ -548,9 +549,9 @@ typedef enum {
      * of this threshold.
      *
      * Write access to this register is blocked during Automatic Cell
-     * Balancing operations (CBMODE=1xx). Also, during active measurement scans,  NOLINT
-     * all writes with CBUVMINCELL=1 will be blocked and will result in ALRTRJCT  NOLINT
-     * being issued (since the MINCELL data may be altered as a result of the  NOLINT
+     * Balancing operations (CBMODE=1xx). Also, during active measurement scans,
+     * all writes with CBUVMINCELL=1 will be blocked and will result in ALRTRJCT
+     * being issued (since the MINCELL data may be altered as a result of the
      * scan in progress).
      *
      * A read from this register will display the current value of the threshold
@@ -560,12 +561,12 @@ typedef enum {
      * Automated Cell Balancing operations.
      *
      * Write access to this register is blocked during Automated Cell Balancing
-     * operations (CBMODE=001, 1xx).  NOLINT */
+     * operations (CBMODE=001, 1xx). */
     MXM_REG_BALCTRL       = 0x80u, /*!< BALCTRL is a read and write
      * accessible register which initiates and controls all internal Cell
      * Balancing modes and operations.
      *
-     * Any write to this register to a mode other than CBMODE=000 (Disable)  NOLINT
+     * Any write to this register to a mode other than CBMODE=000 (Disable)
      * will restart the CBTIMER at zero and launch the requested mode of
      * operation. */
     MXM_REG_BALSTAT       = 0x81u, /*!< BALSTAT is a read accessible
@@ -636,7 +637,7 @@ typedef enum {
      * observed during an I2C transaction. These bits are updated as they
      * occur and are only cleared by writing to zero. Several faults may
      * occur during a corrupted transaction, so it is best to wait until
-     * I2CSTATUS reads 10 (Transaction Error) to ensure all errors have  NOLINT
+     * I2CSTATUS reads 10 (Transaction Error) to ensure all errors have
      * been reported.
      *
      * While not advisable, if further I2C transactions are requested before

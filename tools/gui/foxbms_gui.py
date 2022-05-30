@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -45,13 +45,12 @@ https://foxbms.org
 
 import os
 import webbrowser
-import wx
-import wx.adv
 
 import fgui
-
-from log_parser import LogParserFrame
+import wx
+import wx.adv
 from info_dialog import FoxbmsInfoDialog
+from log_parser import LogParserFrame
 
 __version__ = fgui.__version__
 __appname__ = fgui.__appname__

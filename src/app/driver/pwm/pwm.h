@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    pwm.h
  * @author  foxBMS Team
  * @date    2021-10-07 (date of creation)
- * @updated 2021-10-08 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup DRIVERS
  * @prefix  PWM
  *
@@ -61,15 +62,26 @@
 /*========== Includes =======================================================*/
 #include "general.h"
 
+#include "HL_reg_ecap.h"
+
 /*========== Macros and Definitions =========================================*/
+
+typedef struct {
+    float dutyCycle_perc;
+    float frequency_Hz;
+} PWM_SIGNAL_s;
 
 /*========== Extern Constant and Variable Declarations ======================*/
 
 /*========== Extern Function Prototypes =====================================*/
+/** @brief  Initializes the ETPWM and the ECAP module
+ */
+extern void PWM_Initialize(void);
+
 /** @brief  Start the PWM (starts all configured ePWM channels)
  * @details In order for this function to work, it is absolutely necessary that
  *          etpwmInit() is called first.
-*/
+ */
 extern void PWM_StartPwm(void);
 
 /** @brief  Stop the PWM (stops all configured ePWM channels) */
@@ -79,8 +91,17 @@ extern void PWM_StopPwm(void);
  * @details Duty cycle values that are out of the range that is supported are
  *          limited to the threshold values.
  * @param[in]   dutyCycle_perm  duty cycle in permill
-*/
+ */
 extern void PWM_SetDutyCycle(uint16_t dutyCycle_perm);
+
+/**  @brief  Get dutycycle and frequency of input PWM signal */
+extern PWM_SIGNAL_s ECAP_GetPwmData(void);
+
+/**
+ * @brief  Get initialization state of ecap module
+ * @return true if module is initialized, otherwise false
+ */
+extern bool PWM_IsEcapModuleInitialized(void);
 
 /*========== Getter for static Variables (Unit Test) ========================*/
 #ifdef UNITY_UNIT_TEST

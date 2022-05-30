@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    diag_cbs_afe.c
  * @author  foxBMS Team
  * @date    2021-02-17 (date of creation)
- * @updated 2021-02-17 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup ENGINE
  * @prefix  DIAG
  *
@@ -117,6 +118,56 @@ extern void DIAG_ErrorAfe(
         if (event == DIAG_EVENT_NOT_OK) {
             kpkDiagShim->pTableError->redundancy0CellTemperatureMeasurementTimeout = 1;
         }
+    }
+}
+
+extern void DIAG_ErrorAfeDriver(
+    DIAG_ID_e ch_id,
+    DIAG_EVENT_e event,
+    const DIAG_DATABASE_SHIM_s *const kpkDiagShim,
+    uint32_t stringNumber) {
+    FAS_ASSERT(ch_id < DIAG_ID_MAX);
+    FAS_ASSERT((event == DIAG_EVENT_OK) || (event == DIAG_EVENT_NOT_OK) || (event == DIAG_EVENT_RESET));
+    FAS_ASSERT(kpkDiagShim != NULL_PTR);
+    FAS_ASSERT(stringNumber < BS_NR_OF_STRINGS);
+
+    if (ch_id == DIAG_ID_AFE_SPI) {
+        if (event == DIAG_EVENT_RESET) {
+            kpkDiagShim->pTableError->spiError[stringNumber] = 0;
+        }
+        if (event == DIAG_EVENT_NOT_OK) {
+            kpkDiagShim->pTableError->spiError[stringNumber] = 1;
+        }
+    } else if (ch_id == DIAG_ID_AFE_COM_INTEGRITY) {
+        if (event == DIAG_EVENT_RESET) {
+            kpkDiagShim->pTableError->crcError[stringNumber] = 0;
+        }
+        if (event == DIAG_EVENT_NOT_OK) {
+            kpkDiagShim->pTableError->crcError[stringNumber] = 1;
+        }
+    } else if (ch_id == DIAG_ID_AFE_MUX) {
+        if (event == DIAG_EVENT_RESET) {
+            kpkDiagShim->pTableError->muxError[stringNumber] = 0;
+        }
+        if (event == DIAG_EVENT_NOT_OK) {
+            kpkDiagShim->pTableError->muxError[stringNumber] = 1;
+        }
+    } else if (ch_id == DIAG_ID_AFE_CONFIG) {
+        if (event == DIAG_EVENT_RESET) {
+            kpkDiagShim->pTableError->afeConfigurationError[stringNumber] = 0;
+        }
+        if (event == DIAG_EVENT_NOT_OK) {
+            kpkDiagShim->pTableError->afeConfigurationError[stringNumber] = 1;
+        }
+    } else if (ch_id == DIAG_ID_AFE_OPEN_WIRE) {
+        if (event == DIAG_EVENT_RESET) {
+            kpkDiagShim->pTableError->open_wire[stringNumber] = 0;
+        }
+        if (event == DIAG_EVENT_NOT_OK) {
+            kpkDiagShim->pTableError->open_wire[stringNumber] = 1;
+        }
+    } else { /* unknown DIAG_ID, assert */
+        FAS_ASSERT(FAS_TRAP);
     }
 }
 

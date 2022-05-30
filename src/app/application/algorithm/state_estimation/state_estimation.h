@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    state_estimation.h
  * @author  foxBMS Team
  * @date    2020-10-14 (date of creation)
- * @updated 2021-11-08 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup APPLICATION
  * @prefix  SE
  *
@@ -69,22 +70,28 @@
 /*========== Extern Function Prototypes =====================================*/
 /**
  * @brief   Wrapper for algorithm specific SOC initialization
- * @param[in]   cc_present   true if current sensor present, false otherwise
+ * @param[in]   ccPresent    true if current sensor present, false otherwise
  * @param[in]   stringNumber string addressed
  */
-extern void SE_SocInit(bool cc_present, uint8_t stringNumber);
+extern void SE_InitializeSoc(bool ccPresent, uint8_t stringNumber);
 
 /**
  * @brief   Wrapper for algorithm specific SOE initialization
  * @param[in]   ec_present   true if current sensor present, false otherwise
  * @param[in]   stringNumber string addressed
  */
-extern void SE_SoeInit(bool ec_present, uint8_t stringNumber);
+extern void SE_InitializeSoe(bool ec_present, uint8_t stringNumber);
+
+/**
+ * @brief   Wrapper for algorithm specific SOH initialization
+ * @param[in]   stringNumber    string addressed
+ */
+extern void SE_InitializeSoh(uint8_t stringNumber);
 
 /**
  * @brief   Main function to perform state estimations
  */
-extern void SE_StateEstimations(void);
+extern void SE_RunStateEstimations(void);
 
 /** \defgroup state-estimation-api State Estimation API
  *  @details    This API is implemented by the state estimation functions and
@@ -95,10 +102,10 @@ extern void SE_StateEstimations(void);
  * @brief   initializes startup SOC-related values like lookup from nonvolatile
  *          ram at startup
  * @param[out]  pSocValues   pointer to SOC database entry
- * @param[in]   cc_present   true if current sensor present, false otherwise
+ * @param[in]   ccPresent    true if current sensor present, false otherwise
  * @param[in]   stringNumber string addressed
  */
-extern void SOC_Init(DATA_BLOCK_SOX_s *pSocValues, bool cc_present, uint8_t stringNumber);
+extern void SOC_Init(DATA_BLOCK_SOX_s *pSocValues, bool ccPresent, uint8_t stringNumber);
 
 /**
  * @brief   periodically called algorithm to calculate state-of-charge (SOC)
@@ -129,13 +136,16 @@ extern void SOE_Calculation(DATA_BLOCK_SOX_s *pSoeValues);
 
 /**
  * @brief   initializes startup state-of-health related values
+ * @param[out]  pSohValues     pointer to SOH database entry
+ * @param[in]   stringNumber   string addressed
  */
-extern void SOH_Init(void);
+extern void SOH_Init(DATA_BLOCK_SOX_s *pSohValues, uint8_t stringNumber);
 
 /**
  * @brief   calculates state-of-health (SOH)
+ * @param[out] pSohValues pointer to SOH database entry
  */
-extern void SOH_Calculation(void);
+extern void SOH_Calculation(DATA_BLOCK_SOX_s *pSohValues);
 
 /** INCLUDE MARKER FOR THE DOCUMENTATION; DO NOT MOVE se-state-estimation-api-stop-include
  * @}

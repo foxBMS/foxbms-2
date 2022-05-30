@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    sbc.c
  * @author  foxBMS Team
  * @date    2020-07-14 (date of creation)
- * @updated 2021-03-24 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup DRIVERS
  * @prefix  SBC
  *
@@ -63,7 +64,7 @@
 /*========== Macros and Definitions =========================================*/
 
 /** Symbolic names to check re-entrance in #SBC_Trigger */
-typedef enum SBC_CHECK_REENTRANCE {
+typedef enum {
     SBC_REENTRANCE_NO,  /*!< no re-entrance */
     SBC_REENTRANCE_YES, /*!< re-entrance*/
 } SBC_CHECK_REENTRANCE_e;
@@ -291,7 +292,7 @@ extern void SBC_Trigger(SBC_STATE_s *pInstance) {
 
             if (pInstance->substate == SBC_ENTRY) {
                 /* Init SBC */
-                if (STD_NOT_OK == FS85X_InitFS(pInstance->pFs85xxInstance)) {
+                if (STD_NOT_OK == FS85_InitializeFsPhase(pInstance->pFs85xxInstance)) {
                     /* Retry init if it fails */
                     pInstance->retryCounter++;
                     if (pInstance->retryCounter > 3u) {
@@ -313,7 +314,8 @@ extern void SBC_Trigger(SBC_STATE_s *pInstance) {
                 /* Fault error counter is reset with valid watchdog refreshes
                  * -> first get required numbers of refreshes */
                 uint8_t requiredWatchdogTrigger = 0;
-                if (STD_OK != FS85X_Init_ReqWDGRefreshes(pInstance->pFs85xxInstance, &requiredWatchdogTrigger)) {
+                if (STD_OK != FS85_InitializeNumberOfRequiredWatchdogRefreshes(
+                                  pInstance->pFs85xxInstance, &requiredWatchdogTrigger)) {
                     /* Retry init if it fails */
                     pInstance->retryCounter++;
                     if (pInstance->retryCounter > 3u) {
@@ -331,7 +333,7 @@ extern void SBC_Trigger(SBC_STATE_s *pInstance) {
                 }
             } else if (pInstance->substate == SBC_INIT_RESET_FAULT_ERROR_COUNTER_PART2) {
                 /* Check if fault error counter is zero */
-                if (STD_OK != FS85X_CheckFaultErrorCounter(pInstance->pFs85xxInstance)) {
+                if (STD_OK != FS85_CheckFaultErrorCounter(pInstance->pFs85xxInstance)) {
                     pInstance->retryCounter++;
                     if (pInstance->retryCounter > 3u) {
                         /* Goto error state */
@@ -345,7 +347,7 @@ extern void SBC_Trigger(SBC_STATE_s *pInstance) {
                     pInstance->timer    = SBC_STATEMACHINE_SHORTTIME;
                 }
             } else if (pInstance->substate == SBC_INITIALIZE_SAFETY_PATH_CHECK) {
-                if (STD_NOT_OK == FS85X_SafetyPathChecks(pInstance->pFs85xxInstance)) {
+                if (STD_NOT_OK == FS85_SafetyPathChecks(pInstance->pFs85xxInstance)) {
                     pInstance->retryCounter++;
                     if (pInstance->retryCounter > 3u) {
                         /* Goto error state */

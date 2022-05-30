@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    test_pwm.c
  * @author  foxBMS Team
  * @date    2021-10-08 (date of creation)
- * @updated 2021-10-08 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -55,6 +56,13 @@
 #include "unity.h"
 #include "MockHL_etpwm.h"
 
+/* HL_ecap.h can not be mocked, due to 'ecapNotification' is implemented in
+   'pwm.c' and this would then lead to multiple defintions.
+   The solution is to only include the real HAL header, and then implement
+   stubs for the required functions (ecapInit, ecapGetCAP1, ecapGetCAP2,
+   ecapGetCAP3). */
+#include "HL_ecap.h"
+
 #include "pwm.h"
 #include "test_assert_helper.h"
 
@@ -64,6 +72,17 @@ long FSYS_RaisePrivilege(void) {
     return fsysRaisePrivilegeReturnValue;
 }
 
+void ecapInit(void){};
+
+uint32_t ecapGetCAP1(ecapBASE_t *ecap) {
+    return ecap->CAP1;
+}
+uint32_t ecapGetCAP2(ecapBASE_t *ecap) {
+    return ecap->CAP2;
+}
+uint32_t ecapGetCAP3(ecapBASE_t *ecap) {
+    return ecap->CAP3;
+}
 /** wraps the duty cycle function for test
  *
  * The output duty cycle is tested against the value computed by the function.

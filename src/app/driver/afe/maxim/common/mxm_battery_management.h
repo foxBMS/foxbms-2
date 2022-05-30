@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    mxm_battery_management.h
  * @author  foxBMS Team
  * @date    2019-01-14 (date of creation)
- * @updated 2021-12-06 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup DRIVERS
  * @prefix  MXM
  *
@@ -196,15 +197,10 @@ typedef enum {
      *  #MXM_5X_41B_FMEA_REQUEST */
     MXM_5X_41B_FMEA_CHECK,
     /** substate for the initiation of a uart transaction for the WRITEALL
-     *  command */
-    MXM_5X_WRITEALL_UART_TRANSACTION,
-    /** substate for the verifying the buffer of a WRITEALL transaction */
-    MXM_5X_WRITEALL_UART_VERIFY_BUFFER,
-    /** substate for the initiation of a uart transaction for the WRITEALL
-     *  command */
-    MXM_5X_WRITE_DEVICE_UART_TRANSACTION,
-    /** substate for checking the received CRC in a WRITEDEVICE transaction */
-    MXM_5X_WRITE_DEVICE_CHECK_CRC,
+     *  and WRITEDEVICE command */
+    MXM_5X_WRITE_UART_TRANSACTION,
+    /** substate for checking the received CRC in a WRITEALL/WRITEDEVICE transaction */
+    MXM_5X_WRITE_CHECK_CRC,
     /** substate for the initiation of a uart transaction for the READALL
      *  command */
     MXM_5X_READALL_UART_TRANSACTION,
@@ -259,7 +255,7 @@ typedef struct {
      *          found during the enumeration of all connected monitoring ICs.
      *          Therefore this variable is initialized with 0. This value will be
      *          compared with the expected number of monitoring ICs which is set in
-     *          #BS_NR_OF_MODULES.
+     *          #BS_NR_OF_MODULES_PER_STRING.
      */
     uint8_t numberOfSatellites;
     /**
@@ -267,7 +263,7 @@ typedef struct {
      * @details This status variable indicates whether the number of found
      *          monitoring ICs in #MXM_5X_INSTANCE_s::numberOfSatellites
      *          matches with the configured number of monitoring ICs in
-     *          #BS_NR_OF_MODULES. This variable is updated during execution of
+     *          #BS_NR_OF_MODULES_PER_STRING. This variable is updated during execution of
      *          the substate
      *          #MXM_5X_INIT_WAKE_UP_SATELLITE_DEVICES_HELLOALL_VERIFY_MSG_AND_COUNT
      *          in the state #MXM_STATEMACH_5X_INIT in #MXM_5XStateMachine().

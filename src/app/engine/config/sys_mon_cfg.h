@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,11 +43,12 @@
  * @file    sys_mon_cfg.h
  * @author  foxBMS Team
  * @date    2019-11-28 (date of creation)
- * @updated 2021-11-10 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup ENGINE_CONFIGURATION
  * @prefix  SYSM
  *
- * @brief   TODO
+ * @brief   configuration of the system monitoring module
  */
 
 #ifndef FOXBMS__SYS_MON_CFG_H_
@@ -60,16 +61,16 @@
 
 /*========== Macros and Definitions =========================================*/
 /** diagnosis handling type for system monitoring */
-typedef enum SYSM_HANDLING_TYPE {
-    SYSM_HANDLING_DONOTHING,         /**< */
-    SYSM_HANDLING_SWITCHOFFCONTACTOR /**< */
+typedef enum {
+    SYSM_HANDLING_DONOTHING,         /*!< take no action */
+    SYSM_HANDLING_SWITCHOFFCONTACTOR /*!< open contactors */
 } SYSM_HANDLING_TYPE_e;
 
 /**
  * listing of system-relevant tasks or functions which are checked by
  * the system monitoring
  */
-typedef enum SYSM_TASK_ID {
+typedef enum {
     SYSM_TASK_ID_ENGINE,                 /**< diag entry for engine task                 */
     SYSM_TASK_ID_CYCLIC_1ms,             /**< diag entry for engine cyclic 1ms task      */
     SYSM_TASK_ID_CYCLIC_10ms,            /**< diag entry for engine cyclic 10ms task     */
@@ -79,26 +80,26 @@ typedef enum SYSM_TASK_ID {
 } SYSM_TASK_ID_e;
 
 /** recording activation */
-typedef enum SYSM_RECORDING {
+typedef enum {
     SYSM_RECORDING_ENABLED,  /*!< enable event recording  */
     SYSM_RECORDING_DISABLED, /*!< disable event recording */
 } SYSM_RECORDING_e;
 
 /** enable diagnosis entry for system monitoring */
-typedef enum SYSM_ACTIVATE {
-    SYSM_ENABLED,  /**< TODO */
-    SYSM_DISABLED, /**< TODO */
+typedef enum {
+    SYSM_ENABLED,  /*!< entry enabled */
+    SYSM_DISABLED, /*!< entry disabled */
 } SYSM_ACTIVATE_e;
 
 /** Channel configuration of one system monitoring channel */
-typedef struct SYSM_CH_CFG {
-    SYSM_TASK_ID_e id;                           /**< the task id by its symbolic name                           */
-    SYSM_ACTIVATE_e enable;                      /**< enable or disable system monitoring                        */
-    uint8_t cycleTime;                           /**< max. delay time in ms until #SYSM_Notify has to be called  */
-    uint8_t maxJitter;                           /**< max. jitter in ms                                          */
-    SYSM_RECORDING_e enableRecording;            /**< enabled if set to DIAG_RECORDING_ENABLED                   */
-    SYSM_HANDLING_TYPE_e handlingType;           /**< type of handling of system monitoring errors               */
-    void (*callbackfunc)(SYSM_TASK_ID_e taskID); /**< callback in case of error                                  */
+typedef struct {
+    SYSM_TASK_ID_e id;                           /*!< the task id by its symbolic name */
+    SYSM_ACTIVATE_e enable;                      /*!< enable or disable system monitoring */
+    uint8_t cycleTime;                           /*!< max. delay time in ms until #SYSM_Notify has to be called */
+    uint8_t maxJitter;                           /*!< max. jitter in ms */
+    SYSM_RECORDING_e enableRecording;            /*!< enabled if set to DIAG_RECORDING_ENABLED */
+    SYSM_HANDLING_TYPE_e handlingType;           /*!< type of handling of system monitoring errors */
+    void (*callbackfunc)(SYSM_TASK_ID_e taskID); /*!< callback in case of error */
 } SYSM_MONITORING_CFG_s;
 
 /*========== Extern Constant and Variable Declarations ======================*/
@@ -106,13 +107,6 @@ typedef struct SYSM_CH_CFG {
 extern SYSM_MONITORING_CFG_s sysm_ch_cfg[];
 
 /*========== Extern Function Prototypes =====================================*/
-/**
- * @brief   initialization function for system monitoring
- * @details Has to be called once after startup to initialize and check system
- *          monitoring related functionality
- * @return  #STD_OK if no configuration error detected, otherwise #STD_NOT_OK
- */
-extern STD_RETURN_TYPE_e SYSM_Init(void);
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
 #ifdef UNITY_UNIT_TEST

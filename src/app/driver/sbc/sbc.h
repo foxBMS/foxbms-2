@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    sbc.h
  * @author  foxBMS Team
  * @date    2020-07-14 (date of creation)
- * @updated 2021-07-23 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup DRIVERS
  * @prefix  SBC
  *
@@ -105,20 +106,20 @@
 #define SBC_WINDOW_WATCHDOG_PERIOD_MS (100u)
 
 /** State requests for the SYS statemachine */
-typedef enum SBC_STATE_REQUEST {
+typedef enum {
     SBC_STATE_INIT_REQUEST,  /*!< request to begin SBC initialization */
     SBC_STATE_ERROR_REQUEST, /*!< request to switch SBC into error state */
     SBC_STATE_NO_REQUEST,    /*!< enum to clarify that currently no new request needs to be processed */
 } SBC_STATE_REQUEST_e;
 
 /** State of watchdog state */
-typedef enum SBC_PERIODIC_WATCHDOG_STATE {
+typedef enum {
     SBC_PERIODIC_WATCHDOG_ACTIVATED,
     SBC_PERIODIC_WATCHDOG_DEACTIVATED,
 } SBC_PERIODIC_WATCHDOG_STATE_e;
 
 /** Possible return values when state requests are made to the SYS statemachine */
-typedef enum SBC_RETURN_TYPE {
+typedef enum {
     SBC_OK,                  /*!< sys --> ok                             */
     SBC_BUSY_OK,             /*!< sys busy --> ok                        */
     SBC_REQUEST_PENDING,     /*!< requested to be executed               */
@@ -128,7 +129,7 @@ typedef enum SBC_RETURN_TYPE {
 } SBC_RETURN_TYPE_e;
 
 /** States of the SBC state machine */
-typedef enum SBC_STATEMACHINE {
+typedef enum {
     /* Init-Sequence */
     SBC_STATEMACHINE_UNINITIALIZED,  /*!< statemachien start value */
     SBC_STATEMACHINE_INITIALIZATION, /*!< SBC startup initialization process */
@@ -138,7 +139,7 @@ typedef enum SBC_STATEMACHINE {
 } SBC_STATEMACHINE_e;
 
 /** Substates of the SBC state machine */
-typedef enum SBC_STATEMACHINE_SUB {
+typedef enum {
     SBC_ENTRY,                                /*!< Substate entry state       */
     SBC_INIT_RESET_FAULT_ERROR_COUNTER_PART1, /*!< Substate during initialization to reset fault-error counter */
     SBC_INIT_RESET_FAULT_ERROR_COUNTER_PART2, /*!< Substate during initialization to reset fault-error counter */
@@ -151,7 +152,7 @@ typedef enum SBC_STATEMACHINE_SUB {
  * This structure contains all the variables relevant for the SBC state machine.
  * The user can get the current state of the SBC state machine with this variable
  */
-typedef struct SBC_STATE {
+typedef struct {
     uint16_t timer;           /*!< time in ms before the state machine processes the next state, in counts of 10ms */
     uint16_t watchdogTrigger; /*!< time in ms before the state machine triggers watchdog, in counts of 10ms */
     SBC_STATE_REQUEST_e stateRequest;    /*!< current state request made to the state machine */
@@ -164,7 +165,7 @@ typedef struct SBC_STATE {
     uint8_t requestWatchdogTrigger;      /*!< required watchdog triggers during init to correctly initialize SBC */
     uint8_t triggerEntry;                /*!< counter for re-entrance protection (function running flag) */
     SBC_PERIODIC_WATCHDOG_STATE_e watchdogState; /*!< state if periodic watchdog trigger is required or not */
-    FS85xx_STATE_s *pFs85xxInstance;             /*!< pointer to FS85xx instance */
+    FS85_STATE_s *pFs85xxInstance;               /*!< pointer to FS85xx instance */
     uint16_t watchdogPeriod_10ms;                /*!< watchdog trigger frequency in 10ms */
 } SBC_STATE_s;
 

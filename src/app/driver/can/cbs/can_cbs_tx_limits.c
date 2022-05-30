@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    can_cbs_tx_limits.c
  * @author  foxBMS Team
  * @date    2021-07-21 (date of creation)
- * @updated 2021-07-21 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup DRIVER
  * @prefix  CAN
  *
@@ -109,7 +110,7 @@ extern uint32_t CAN_TxLimitValues(
     /* TODO: maximum discharge power */
 
     /* minimum pack voltage */
-    signalData = (float)(BS_NR_OF_BAT_CELLS * BC_VOLTAGE_MIN_MSL_mV);
+    signalData = (float)(BS_NR_OF_CELL_BLOCKS_PER_STRING * BC_VOLTAGE_MIN_MSL_mV);
     offset     = 0.0f;
     factor     = 0.00025f; /* convert mV to 4V */
     signalData = (signalData + offset) * factor;
@@ -118,7 +119,7 @@ extern uint32_t CAN_TxLimitValues(
     CAN_TxSetMessageDataWithSignalData(&message, 63u, 8u, data, endianness);
 
     /* maximum pack voltage */
-    signalData = (float)(BS_NR_OF_BAT_CELLS * BC_VOLTAGE_MAX_MSL_mV);
+    signalData = (float)(BS_NR_OF_CELL_BLOCKS_PER_STRING * BC_VOLTAGE_MAX_MSL_mV);
     offset     = 0.0f;
     factor     = 0.00025f; /* convert mV to 4V */
     signalData = (signalData + offset) * factor;

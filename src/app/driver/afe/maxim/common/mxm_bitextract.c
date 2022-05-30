@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    mxm_bitextract.c
  * @author  foxBMS Team
  * @date    2019-01-15 (date of creation)
- * @updated 2021-12-06 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup DRIVERS
  * @prefix  MXM
  *
@@ -92,13 +93,21 @@ static MXM_41B_REG_BIT_VALUE bitValue(
     uint8_t numberOfBits,
     MXM_41B_REG_BITS position,
     MXM_41B_REG_BITS shift) {
-    MXM_41B_REG_BIT_VALUE sBit;
-    sBit = (((1u << numberOfBits) - 1u) & (((uint8_t)value) >> (position - 1u)));
+    /* AXIVION Routine Generic-MissingParameterAssert: value: parameter accepts whole range */
+    /* AXIVION Routine Generic-MissingParameterAssert: numberOfBits: parameter accepts whole range */
+    /* AXIVION Routine Generic-MissingParameterAssert: position: parameter accepts whole range */
+    /* AXIVION Routine Generic-MissingParameterAssert: shift: parameter accepts whole range */
+
+    MXM_41B_REG_BIT_VALUE sBit = (((1u << numberOfBits) - 1u) & (((uint8_t)value) >> (position - 1u)));
     return (MXM_41B_REG_BIT_VALUE)((((uint8_t)sBit) << shift) & (uint8_t)UINT8_MAX);
 }
 
 /*========== Extern Function Implementations ================================*/
 extern MXM_41B_REG_BIT_VALUE mxm_41bReadValue(uint8_t reg, uint8_t numberOfBits, MXM_41B_REG_BITS position) {
+    /* AXIVION Routine Generic-MissingParameterAssert: reg: parameter accepts whole range */
+    /* AXIVION Routine Generic-MissingParameterAssert: numberOfBits: parameter accepts whole range */
+    /* AXIVION Routine Generic-MissingParameterAssert: position: parameter accepts whole range */
+
     return bitValue(reg, numberOfBits, (position + 1u), 0);
 }
 
@@ -107,6 +116,11 @@ extern MXM_41B_REG_BIT_VALUE mxm_41bWriteValue(
     uint8_t numberOfBits,
     MXM_41B_REG_BITS shift,
     uint8_t reg) {
+    /* AXIVION Routine Generic-MissingParameterAssert: value: parameter accepts whole range */
+    /* AXIVION Routine Generic-MissingParameterAssert: numberOfBits: parameter accepts whole range */
+    /* AXIVION Routine Generic-MissingParameterAssert: shift: parameter accepts whole range */
+    /* AXIVION Routine Generic-MissingParameterAssert: reg: parameter accepts whole range */
+
     uint8_t outputRegister = reg;
     outputRegister         = outputRegister & ~(MXM_REG_MASK(shift, numberOfBits));
     outputRegister         = bitValue(value, numberOfBits, 1, shift) | outputRegister;

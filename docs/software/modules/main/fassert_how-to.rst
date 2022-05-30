@@ -47,7 +47,7 @@ the size of a variable is not zero.
     :name: static-assert
 
     /* db_variable is defined in your code and should contain something */
-    static_assert((db_variable != 0), "database may not be zero");
+    f_static_assert((db_variable != 0), "database may not be zero");
     /* This assertion will not compile if db_variable has size zero. */
 
 

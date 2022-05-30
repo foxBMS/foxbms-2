@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    ftask.c
  * @author  foxBMS Team
  * @date    2019-08-27 (date of creation)
- * @updated 2021-12-01 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup TASK
  * @prefix  FTSK
  *
@@ -200,6 +201,24 @@ extern void FTSK_CreateTaskCyclicAlgorithm100ms(void *const pvParameters) {
         /* let task sleep until it is due again */
         OS_DelayTaskUntil(
             &currentTimeCreateTaskCyclicAlgorithms100ms, ftsk_taskDefinitionCyclicAlgorithm100ms.cycleTime);
+    }
+}
+
+/* AXIVION Next Line Style MisraC2012Directive-1.1 MisraC2012-1.2 FaultDetection-DeadBranches: tell the CCS compiler
+ * tell compiler this function is a task, context save not necessary */
+#pragma TASK(FTSK_CreateTaskAfe)
+extern void FTSK_CreateTaskAfe(void *const pvParameters) {
+    FAS_ASSERT(pvParameters == NULL_PTR);
+    OS_MarkTaskAsRequiringFpuContext();
+
+    while (os_boot != OS_PRECYCLIC_INIT_HAS_FINISHED) {
+    }
+
+    /* AXIVION Next Line Style MisraC2012-2.2 FaultDetection-DeadBranches: FreeRTOS task setup requires an infinite
+     * loop for the user code (see www.freertos.org/a00125.html)*/
+    while (true) {
+        /* user code implementation */
+        FTSK_RunUserCodeAfe();
     }
 }
 

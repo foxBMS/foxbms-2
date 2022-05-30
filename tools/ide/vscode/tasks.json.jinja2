@@ -115,30 +115,6 @@
             ]
         },
         {
-            "label": "Build:Static Program Analysis (Embedded SW)",
-            "type": "process",
-            "group": "build",
-            "command": "{{ WAF_WRAPPER_SCRIPT }}",
-            "args": [
-                "build_static_analysis",
-                "-c",
-                "yes"
-            ],
-            "problemMatcher": []
-        },
-        {
-            "label": "Clean:Static Program Analysis (Embedded SW)",
-            "type": "process",
-            "group": "build",
-            "command": "{{ WAF_WRAPPER_SCRIPT }}",
-            "args": [
-                "clean_static_analysis",
-                "-c",
-                "yes"
-            ],
-            "problemMatcher": []
-        },
-        {
             "label": "Build:Unit test",
             "type": "process",
             "group": "build",
@@ -235,6 +211,19 @@
             ],
             "problemMatcher": []
         },
+        {% if AXIVION_CONFIG is not none %}
+        {
+            "label": "Run:Axivion configuration",
+            "type": "process",
+            "group": "build",
+            "command": "{{ AXIVION_CONFIG_EXE }}",
+            "args": [
+                "${workspaceFolder}/tests/axivion"
+            ],
+            "problemMatcher": []
+        },
+        {% endif %}
+        {% if AXIVION_START_ANALYSIS is not none %}
         {
             "label": "Run:Axivion Analysis",
             "type": "process",
@@ -242,6 +231,16 @@
             "command": "{{ AXIVION_START_ANALYSIS }}",
             "problemMatcher": []
         },
+        {% endif %}
+        {% if AXIVION_START_DASHBOARD is not none %}
+        {
+            "label": "Run:Start Axivion Dashboard",
+            "type": "process",
+            "group": "build",
+            "command": "{{ AXIVION_START_DASHBOARD }}",
+            "problemMatcher": []
+        },
+        {% endif %}
         {
             "label": "Run:Guidelines and style guide check",
             "type": "process",
@@ -271,6 +270,7 @@
                     }
                 }
             ]
+        {% if JFLASH|length >= 1 %}
         },
         {
             "label": "Flash:Binary",
@@ -316,6 +316,7 @@
                     }
                 }
             ]
+        {% endif %}
         }
     ]
 }

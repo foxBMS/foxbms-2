@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,13 +43,15 @@
  * @file    no-imd.c
  * @author  foxBMS Team
  * @date    2020-11-20 (date of creation)
- * @updated 2021-09-08 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup DRIVERS
  * @prefix  NOIMD
  *
  * @brief   Driver for the dummy insulation monitoring driver
  *
- * @details  TODO
+ * @details Dummy driver that provides a default resistance and returns that
+ *          the measurement is always valid.
  */
 
 /*========== Includes =======================================================*/
@@ -60,36 +62,79 @@
 /*========== Macros and Definitions =========================================*/
 
 /*========== Static Constant and Variable Definitions =======================*/
-/** internal handle for the database table of the insulation monitoring driver */
-static DATA_BLOCK_INSULATION_MONITORING_s noimd_insulationMeasurement = {
-    .header.uniqueId = DATA_BLOCK_ID_INSULATION_MONITORING};
 
 /*========== Extern Constant and Variable Definitions =======================*/
 
 /*========== Static Function Prototypes =====================================*/
-static STD_RETURN_TYPE_e NOIMD_MeasureInsulation(void);
+/** Initialize function */
+static IMD_FSM_STATES_e NOIMD_Initialize(void);
+
+/** Enable IMD function */
+static IMD_FSM_STATES_e NOIMD_EnableImd(void);
+
+/**
+ * @brief   Function to write dummy values into the database
+ * @param   pTableInsulationMonitoring pointer to database entry
+ */
+static IMD_FSM_STATES_e NOIMD_MeasureInsulation(DATA_BLOCK_INSULATION_MONITORING_s *pTableInsulationMonitoring);
+
+/** Enable IMD function */
+static IMD_FSM_STATES_e NOIMD_DisableImd(void);
 
 /*========== Static Function Implementations ================================*/
-static STD_RETURN_TYPE_e NOIMD_MeasureInsulation(void) {
-    noimd_insulationMeasurement.valid                     = 0;
-    noimd_insulationMeasurement.state                     = 0;
-    noimd_insulationMeasurement.insulationResistance_kOhm = 10000000;
-    noimd_insulationMeasurement.insulationFault           = 0;
-    noimd_insulationMeasurement.chassisFault              = 0;
-    noimd_insulationMeasurement.systemFailure             = 0;
-    noimd_insulationMeasurement.insulationWarning         = 0;
-    DATA_WRITE_DATA(&noimd_insulationMeasurement);
-    return STD_OK;
+static IMD_FSM_STATES_e NOIMD_Initialize(void) {
+    return IMD_FSM_STATE_IMD_ENABLE;
+}
+
+static IMD_FSM_STATES_e NOIMD_EnableImd(void) {
+    return IMD_FSM_STATE_RUNNING;
+}
+
+static IMD_FSM_STATES_e NOIMD_MeasureInsulation(DATA_BLOCK_INSULATION_MONITORING_s *pTableInsulationMonitoring) {
+    pTableInsulationMonitoring->isInsulationMeasurementValid   = true;
+    pTableInsulationMonitoring->areDeviceFlagsValid            = true;
+    pTableInsulationMonitoring->insulationResistance_kOhm      = 1000u;
+    pTableInsulationMonitoring->dfIsCriticalResistanceDetected = false;
+    pTableInsulationMonitoring->dfIsChassisFaultDetected       = false;
+    pTableInsulationMonitoring->dfIsDeviceErrorDetected        = false;
+    pTableInsulationMonitoring->dfIsWarnableResistanceDetected = false;
+    return IMD_FSM_STATE_RUNNING;
+}
+
+static IMD_FSM_STATES_e NOIMD_DisableImd(void) {
+    return IMD_FSM_STATE_IMD_ENABLE;
 }
 
 /*========== Extern Function Implementations ================================*/
-extern void IMD_Trigger(void) {
-    NOIMD_MeasureInsulation();
+extern IMD_FSM_STATES_e IMD_ProcessInitializationState(void) {
+    return NOIMD_Initialize();
+}
+
+extern IMD_FSM_STATES_e IMD_ProcessEnableState(void) {
+    return NOIMD_EnableImd();
+}
+
+extern IMD_FSM_STATES_e IMD_ProcessRunningState(DATA_BLOCK_INSULATION_MONITORING_s *pTableInsulationMonitoring) {
+    FAS_ASSERT(pTableInsulationMonitoring != NULL_PTR);
+    return NOIMD_MeasureInsulation(pTableInsulationMonitoring);
+}
+
+extern IMD_FSM_STATES_e IMD_ProcessShutdownState(void) {
+    return NOIMD_DisableImd();
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
 #ifdef UNITY_UNIT_TEST
-extern STD_RETURN_TYPE_e TEST_NOIMD_MeasureInsulation() {
-    return NOIMD_MeasureInsulation();
+extern IMD_FSM_STATES_e TEST_NOIMD_Initialize(void) {
+    return NOIMD_Initialize();
+}
+extern IMD_FSM_STATES_e TEST_NOIMD_EnableImd(void) {
+    return NOIMD_EnableImd();
+}
+extern IMD_FSM_STATES_e TEST_NOIMD_MeasureInsulation(DATA_BLOCK_INSULATION_MONITORING_s *pTableInsulationMonitoring) {
+    return NOIMD_MeasureInsulation(pTableInsulationMonitoring);
+}
+extern IMD_FSM_STATES_e TEST_NOIMD_DisableImd(void) {
+    return NOIMD_DisableImd();
 }
 #endif

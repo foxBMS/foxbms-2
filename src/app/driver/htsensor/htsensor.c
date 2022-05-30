@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    htsensor.c
  * @author  foxBMS Team
  * @date    2021-08-05 (date of creation)
- * @updated 2021-11-08 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup DRIVERS
  * @prefix  HTSEN
  *
@@ -170,25 +171,25 @@ static DATA_BLOCK_HTSEN_s htsen_data = {.header.uniqueId = DATA_BLOCK_ID_HTSEN};
  * @param[in]   length:  length of data
  * @return  8-bit CRC value
  */
-static uint8_t HTSENS_CalculateCrc8(const uint8_t *data, uint32_t length);
+static uint8_t HTSEN_CalculateCrc8(const uint8_t *data, uint32_t length);
 
 /**
  * @brief   computes temperature measurement from raw value.
  * @param[in]   data:    raw temperature value
  * @return  temperature measurement in deci &deg;C
  */
-static int16_t HTSENS_ConvertRawTemperature(uint16_t data);
+static int16_t HTSEN_ConvertRawTemperature(uint16_t data);
 
 /**
  * @brief   computes humidity measurement from raw value.
  * @param[in]   data:    raw humidity value
  * @return  humidity measurement in %
  */
-static uint8_t HTSENS_ConvertRawHumidity(uint16_t data);
+static uint8_t HTSEN_ConvertRawHumidity(uint16_t data);
 
 /*========== Static Function Implementations ================================*/
 
-static uint8_t HTSENS_CalculateCrc8(const uint8_t *data, uint32_t length) {
+static uint8_t HTSEN_CalculateCrc8(const uint8_t *data, uint32_t length) {
     FAS_ASSERT(data != NULL_PTR);
     FAS_ASSERT(length <= UINT32_MAX);
 
@@ -207,13 +208,14 @@ static uint8_t HTSENS_CalculateCrc8(const uint8_t *data, uint32_t length) {
     return (uint8_t)(crc & HTSEN_CRC_8BIT_MASK);
 }
 
-static int16_t HTSENS_ConvertRawTemperature(uint16_t data) {
+static int16_t HTSEN_ConvertRawTemperature(uint16_t data) {
+    /* AXIVION Routine Generic-MissingParameterAssert: data: parameter accepts whole range */
     float temperature_ddeg = HTSEN_TEMP_DEG_TO_DDEG *
                              (HTSEN_TEMP_OFFSET + (HTSEN_TEMP_SCALING * (((float)data) / HTSEN_FULL_SCALE)));
     return (int16_t)temperature_ddeg;
 }
 
-static uint8_t HTSENS_ConvertRawHumidity(uint16_t data) {
+static uint8_t HTSEN_ConvertRawHumidity(uint16_t data) {
     float humidity_perc = (HTSEN_HUMIDITY_SCALING * (((float)data) / HTSEN_FULL_SCALE));
     return (uint8_t)humidity_perc;
 }
@@ -258,15 +260,15 @@ extern void HTSEN_Trigger(void) {
                 /* If measurement finished, retrieve values */
                 /* Only take temperature value if CRC valid */
                 if (i2cReadBuffer[HTSEN_TEMPERATURE_BYTE_CRC] ==
-                    HTSENS_CalculateCrc8(&i2cReadBuffer[HTSEN_TEMPERATURE_MSB], HTSEN_MEASUREMENT_LENGTH_IN_BYTES)) {
-                    htsen_data.temperature_ddegC = HTSENS_ConvertRawTemperature(
+                    HTSEN_CalculateCrc8(&i2cReadBuffer[HTSEN_TEMPERATURE_MSB], HTSEN_MEASUREMENT_LENGTH_IN_BYTES)) {
+                    htsen_data.temperature_ddegC = HTSEN_ConvertRawTemperature(
                         (((uint16_t)i2cReadBuffer[HTSEN_TEMPERATURE_MSB]) << HTSEN_BYTE_SHIFT) |
                         (uint16_t)i2cReadBuffer[HTSEN_TEMPERATURE_LSB]);
                 }
                 /* Only take humidity value if CRC valid */
                 if (i2cReadBuffer[HTSEN_HUMIDITY_BYTE_CRC] ==
-                    HTSENS_CalculateCrc8(&i2cReadBuffer[HTSEN_HUMIDITY_MSB], HTSEN_MEASUREMENT_LENGTH_IN_BYTES)) {
-                    htsen_data.humidity_perc = HTSENS_ConvertRawHumidity(
+                    HTSEN_CalculateCrc8(&i2cReadBuffer[HTSEN_HUMIDITY_MSB], HTSEN_MEASUREMENT_LENGTH_IN_BYTES)) {
+                    htsen_data.humidity_perc = HTSEN_ConvertRawHumidity(
                         (((uint16_t)i2cReadBuffer[HTSEN_HUMIDITY_MSB]) << HTSEN_BYTE_SHIFT) |
                         (uint16_t)i2cReadBuffer[HTSEN_HUMIDITY_LSB]);
                 }
@@ -287,6 +289,6 @@ extern void HTSEN_Trigger(void) {
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
 #ifdef UNITY_UNIT_TEST
 extern uint8_t TEST_HTSEN_TestCalculateCrc8(uint8_t *data, uint32_t length) {
-    return HTSENS_CalculateCrc8(data, 2u);
+    return HTSEN_CalculateCrc8(data, 2u);
 }
 #endif /* UNITY_UNIT_TEST */

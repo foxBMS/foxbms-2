@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -40,16 +40,16 @@
 
 """Implements a waf tool to check for foxBMS project guidelines"""
 
-import os
-import re
-import pathlib
 import collections
 import datetime
 import json
+import os
+import pathlib
+import re
 from codecs import BOM_UTF8, BOM_UTF16_BE, BOM_UTF16_LE, BOM_UTF32_BE, BOM_UTF32_LE
 from enum import Enum
 
-from waflib import Context, Task, TaskGen, Logs
+from waflib import Context, Logs, Task, TaskGen
 from waflib.Build import BuildContext
 
 # pylint: disable-msg=invalid-name
@@ -616,6 +616,7 @@ class c_check_doxygen(Task.Task):
             self.inputs[0].name,
             self.inputs[0].read(),
             self.regex,
+            self.generator.bld.env.VERSION,
         )
         if errors:
             for err in errors:
@@ -627,7 +628,7 @@ class c_check_doxygen(Task.Task):
         return GuidelineViolations.NO_VIOLATION.value
 
     @staticmethod
-    def test(filename, txt, regex):
+    def test(filename, txt, regex, version):
         """Implements check that the file level doxygen comments are correct
 
         This function checks whether the FILE LEVEL Doxygen comment
@@ -658,6 +659,7 @@ class c_check_doxygen(Task.Task):
         doxygen_regex = []
         for i, regex_string in enumerate(regex):  # compile all doxygen regex
             regex_string = regex_string.replace("@FILENAME@", filename)
+            regex_string = regex_string.replace("@VERSION@", version)
             compiled_regex = re.compile(regex_string)
             doxygen_regex.append(compiled_regex)
 

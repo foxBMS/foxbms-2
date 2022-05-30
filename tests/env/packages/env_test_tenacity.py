@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -40,13 +40,12 @@
 
 """Testing 'tenacity' package"""
 
-import logging
 import argparse
+import logging
 import random
 
 # package to test
 from tenacity import retry
-
 
 # test case based on
 # https://github.com/jd/tenacity/blob/a7f548520e4ee871ad8aeb354ecfa1a324c8ca19/doc/source/index.rst

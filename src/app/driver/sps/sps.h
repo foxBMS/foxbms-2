@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    sps.h
  * @author  foxBMS Team
  * @date    2020-10-14 (date of creation)
- * @updated 2021-10-01 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup DRIVERS
  * @prefix  SPS
  *
@@ -99,7 +100,7 @@ extern void SPS_RequestContactorState(SPS_CHANNEL_INDEX channelIndex, SPS_CHANNE
  *                              a SPS channel and it has to be affiliated with #SPS_AFF_GENERAL_IO
  * @param[in]   channelFunction requested functional state of the channel
  */
-extern void SPS_RequestGeneralIOState(SPS_CHANNEL_INDEX channelIndex, SPS_CHANNEL_FUNCTION_e channelFunction);
+extern void SPS_RequestGeneralIoState(SPS_CHANNEL_INDEX channelIndex, SPS_CHANNEL_FUNCTION_e channelFunction);
 
 /**
  * @brief   Get feedback value

@@ -1257,6 +1257,7 @@ Var=foxBMS_Error_Insulation bit 16,1 -m	// 0x00: No error, 0x01: Error detected
 Var=foxBMS_Error_Cantiming bit 31,1 -m	// 0x00: No error, 0x01: Error detected
 Var=foxBMS_Error_PackOvercurr_Charge bit 30,1 -m	// 0x00: No error, 0x01: Error detected
 Var=foxBMS_Error_PackOvercur_Dischrg bit 29,1 -m	// 0x00: No error, 0x01: Error detected
+Var=foxBMS_SysMonError bit 12,1 /ln:"system monitoring error"	// If this bit is set, it indicates that a task has violated its timing requirements.
 
 [foxBMS_StringState]
 ID=221h	// Message contains string related error and warning flags (in:can_cbs_tx_state.c:CAN_TxStringState)
@@ -1762,3 +1763,25 @@ Var=foxBMS_underVersionControl bit 24,1
 Var=foxBMS_dirtyFlag bit 25,1
 Var=foxBMS_releaseDistance unsigned 24,5 -m
 Var=foxBMS_releaseDistanceOverflow bit 26,1
+
+[foxBMS_DetailState]
+ID=226h	// Transmits details on flags transmitted by foxBMS_State (in:can_cbs_tx_state.c:CAN_TxDetailState)
+DLC=8
+Var=foxBMS_TimingViolationEngine bit 0,1 /ln:"timing violation engine task"	// Indicates whether the timing of the engine task has been violated.
+Var=foxBMS_TimingViolation1ms bit 1,1 /ln:"timing violation 1ms task"	// Indicates whether the timing of the 1ms task has been violated.
+Var=foxBMS_TimingViolation10ms bit 2,1 /ln:"timing violation 10ms task"	// Indicates whether the timing of the 10ms task has been violated.
+Var=foxBMS_TimingViolation100ms bit 3,1 /ln:"timing violation 100ms task"	// Indicates whether the timing of the 100ms task has been violated.
+Var=foxBMS_TimingViolation100msAlgo bit 4,1 /ln:"timing violation 100ms algorithm task"	// Indicates whether the timing of the 100ms algorithm task has been violated.
+Var=foxBMS_TimingViolation10msRec bit 10,1 /ln:"timing violation 10ms task recorded"	// Indicates whether a violation of the timing of the 10ms task has been recorded.
+Var=foxBMS_TimingViolation100msRec bit 11,1 /ln:"timing violation 100ms task recorded"	// Indicates whether a violation of the timing of the 100ms task has been recorded.
+Var=foxBMS_TimingViolation100msAlgoR bit 12,1 /ln:"timing violation 100ms algorithm task recorded"	// Indicates whether a violation of the timing of the 100ms algorithm task has been recorded.
+Var=foxBMS_TimingViolationEngineRec bit 8,1 /ln:"timing violation engine task recorded"	// Indicates whether a violation of the timing of the engine task has been recorded.
+Var=foxBMS_TimingViolation1msRec bit 9,1 /ln:"timing violation 1ms task recorded"	// Indicates whether a violation of the timing of the 1ms task has been recorded.
+
+[foxBMS_DieId]
+ID=227h	// Transmits the unique die id of the MCU on which foxBMS is currently running (in:can.c:CAN_TransmitDieId)
+DLC=8
+Var=MCU_lotNumber unsigned 8,24 -m /max:1 /ln:"lot number of the MCU"	// lot number of the MCU (read from DIEIDH register)
+Var=MCU_waferNumber unsigned 32,8 -m /max:1 /ln:"wafer number of the MCU"	// wafer number of the MCU (read from DIEDL register)
+Var=MCU_xWaferCoordinate unsigned 52,12 -m /max:1 /ln:"x wafer coordinate"	// x coordinate of the MCU die on the wafer (read from DIEIDL register)
+Var=MCU_yWaferCoordinate unsigned 40,12 -m /max:1 /ln:"y wafer coordinate"	// y coordinate of the MCU die on the wafer (read from DIEIDL register)

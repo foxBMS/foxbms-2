@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    diag_cbs.h
  * @author  foxBMS Team
  * @date    2021-02-17 (date of creation)
- * @updated 2021-09-29 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup ENGINE
  * @prefix  DIAG
  *
@@ -274,13 +275,13 @@ extern void DIAG_ErrorCanRxQueueFull(
     uint32_t data);
 
 /**
- * @brief diagnosis callback function for LTC module related events
+ * @brief diagnosis callback function for AFE module related events
  * @param[in] ch_id         ID of diag entry
  * @param[in] event         OK, NOK or RESET
  * @param[in] kpkDiagShim   shim to the database entries
- * @param[in] stringNumber  stringNumber where LTC event occurred
+ * @param[in] stringNumber  stringNumber where AFE event occurred
  */
-extern void DIAG_ErrorLtc(
+extern void DIAG_ErrorAfeDriver(
     DIAG_ID_e ch_id,
     DIAG_EVENT_e event,
     const DIAG_DATABASE_SHIM_s *const kpkDiagShim,
@@ -391,19 +392,19 @@ extern void DIAG_ErrorDeepDischarge(
  * @param[in] ch_id         ID of diag entry
  * @param[in] event         OK, NOK or RESET
  * @param[in] kpkDiagShim   shim to the database entries
- * @param[in] data          TODO
+ * @param[in] stringNumber  TODO
  */
 extern void DIAG_ErrorPowerMeasurement(
     DIAG_ID_e ch_id,
     DIAG_EVENT_e event,
     const DIAG_DATABASE_SHIM_s *const kpkDiagShim,
-    uint32_t data);
+    uint32_t stringNumber);
 
 extern void DIAG_Insulation(
     DIAG_ID_e ch_id,
     DIAG_EVENT_e event,
     const DIAG_DATABASE_SHIM_s *const kpkDiagShim,
-    uint32_t data);
+    uint32_t stringNumber);
 
 /**
  * @brief diagnosis callback function for I2C port expander related events
@@ -413,6 +414,19 @@ extern void DIAG_Insulation(
  * @param[in] data          not relevant
  */
 extern void DIAG_I2cPex(
+    DIAG_ID_e ch_id,
+    DIAG_EVENT_e event,
+    const DIAG_DATABASE_SHIM_s *const kpkDiagShim,
+    uint32_t data);
+
+/**
+ * @brief diagnosis callback function for FRAM related events
+ * @param[in] ch_id         ID of diag entry
+ * @param[in] event         OK, NOK or RESET
+ * @param[in] kpkDiagShim   shim to the database entries
+ * @param[in] data          not relevant
+ */
+extern void DIAG_FramError(
     DIAG_ID_e ch_id,
     DIAG_EVENT_e event,
     const DIAG_DATABASE_SHIM_s *const kpkDiagShim,

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    epcos_b57861s0103f045.c
  * @author  foxBMS Team
  * @date    2018-10-30 (date of creation)
- * @updated 2021-11-08 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup TEMPERATURE_SENSORS
  * @prefix  TS
  *
@@ -131,9 +132,9 @@ static uint16_t ts_b57861s0103f045LutSize = sizeof(ts_b57861s0103f045Lut) / size
     (float)((TS_EPCOS_B57861S0103F045_RESISTOR_DIVIDER_SUPPLY_VOLTAGE_V * ts_b57861s0103f045Lut[0].resistance_Ohm) / (ts_b57861s0103f045Lut[0].resistance_Ohm+TS_EPCOS_B57861S0103F045_RESISTOR_DIVIDER_RESISTANCE_R_1_R_2_Ohm))
 #else /* TS_EPCOS_B57861S0103F045_POSITION_IN_RESISTOR_DIVIDER_IS_R_1 == false */
 #define TS_EPCOS_B57861S0103F045_ADC_VOLTAGE_V_MIN_V \
-    (float)((TS_EPCOS_B57861S0103F045_RESISTOR_DIVIDER_SUPPLY_VOLTAGE_V * ts_b57861s0103f045Lut[ts_b57861s0103f045LutSize-1].resistance_Ohm) / (ts_b57861s0103f045Lut[ts_b57861s0103f045LutSize-1].resistance_Ohm+TS_EPCOS_B57861S0103F045_RESISTOR_DIVIDER_RESISTANCE_R_1_R_2_Ohm))
+    ((float)((TS_EPCOS_B57861S0103F045_RESISTOR_DIVIDER_SUPPLY_VOLTAGE_V * ts_b57861s0103f045Lut[ts_b57861s0103f045LutSize-1].resistance_Ohm) / (ts_b57861s0103f045Lut[ts_b57861s0103f045LutSize-1].resistance_Ohm+TS_EPCOS_B57861S0103F045_RESISTOR_DIVIDER_RESISTANCE_R_1_R_2_Ohm)))
 #define TS_EPCOS_B57861S0103F045_ADC_VOLTAGE_V_MAX_V \
-    (float)((TS_EPCOS_B57861S0103F045_RESISTOR_DIVIDER_SUPPLY_VOLTAGE_V * ts_b57861s0103f045Lut[0].resistance_Ohm) / (ts_b57861s0103f045Lut[0].resistance_Ohm+TS_EPCOS_B57861S0103F045_RESISTOR_DIVIDER_RESISTANCE_R_1_R_2_Ohm))
+    ((float)((TS_EPCOS_B57861S0103F045_RESISTOR_DIVIDER_SUPPLY_VOLTAGE_V * ts_b57861s0103f045Lut[0].resistance_Ohm) / (ts_b57861s0103f045Lut[0].resistance_Ohm+TS_EPCOS_B57861S0103F045_RESISTOR_DIVIDER_RESISTANCE_R_1_R_2_Ohm)))
 #endif
 /**@}*/
 
@@ -157,15 +158,15 @@ extern int16_t TS_Epc01GetTemperatureFromLut(uint16_t adcVoltage_mV) {
         temperature_ddegC = INT16_MAX;
     } else {
         /* Calculate NTC resistance based on measured ADC voltage */
-#if B57861S0103F045_POSITION_IN_RESISTOR_DIVIDER_IS_R_1 == true
+#if TS_EPCOS_B57861S0103F045_POSITION_IN_RESISTOR_DIVIDER_IS_R_1 == true
         /* R_1 = R_2 * ( ( V_supply / V_adc ) - 1 ) */
         resistance_Ohm = TS_EPCOS_B57861S0103F045_RESISTOR_DIVIDER_RESISTANCE_R_1_R_2_Ohm *
                          ((TS_EPCOS_B57861S0103F045_RESISTOR_DIVIDER_SUPPLY_VOLTAGE_V / adcVoltage_V) - 1);
-#else  /* B57861S0103F045_POSITION_IN_RESISTOR_DIVIDER_IS_R_1 == false */
+#else  /* TS_EPCOS_B57861S0103F045_POSITION_IN_RESISTOR_DIVIDER_IS_R_1 == false */
         /* R_2 = R_1 * ( V_2 / ( V_supply - V_adc ) ) */
         resistance_Ohm = TS_EPCOS_B57861S0103F045_RESISTOR_DIVIDER_RESISTANCE_R_1_R_2_Ohm *
                          (adcVoltage_V / (TS_EPCOS_B57861S0103F045_RESISTOR_DIVIDER_SUPPLY_VOLTAGE_V - adcVoltage_V));
-#endif /* B57861S0103F045_POSITION_IN_RESISTOR_DIVIDER_IS_R_1 */
+#endif /* TS_EPCOS_B57861S0103F045_POSITION_IN_RESISTOR_DIVIDER_IS_R_1 */
 
         /* Variables for interpolating LUT value */
         uint16_t between_high = 0;

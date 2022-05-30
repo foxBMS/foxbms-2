@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    vishay_ntcalug01a103g.c
  * @author  foxBMS Team
  * @date    2018-10-30 (date of creation)
- * @updated 2021-11-08 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup TEMPERATURE_SENSORS
  * @prefix  TS
  *
@@ -234,9 +235,9 @@ static const uint16_t ts_ntcalug01a103gLutSize = sizeof(ts_ntcalug01a103gLut) / 
     (float)((TS_VISHAY_NTCALUG01A103G_RESISTOR_DIVIDER_SUPPLY_VOLTAGE_V * ts_ntcalug01a103gLut[0].resistance_Ohm) / (ts_ntcalug01a103gLut[0].resistance_Ohm+TS_VISHAY_NTCALUG01A103G_RESISTOR_DIVIDER_RESISTANCE_R_1_R_2_Ohm))
 #else /* TS_VISHAY_NTCALUG01A103G_POSITION_IN_RESISTOR_DIVIDER_IS_R_1 == false */
 #define TS_VISHAY_NTCALUG01A103G_ADC_VOLTAGE_V_MIN_V \
-    (float)((TS_VISHAY_NTCALUG01A103G_RESISTOR_DIVIDER_SUPPLY_VOLTAGE_V * ts_ntcalug01a103gLut[ts_ntcalug01a103gLutSize-1].resistance_Ohm) / (ts_ntcalug01a103gLut[ts_ntcalug01a103gLutSize-1].resistance_Ohm+TS_VISHAY_NTCALUG01A103G_RESISTOR_DIVIDER_RESISTANCE_R_1_R_2_Ohm))
+    ((float)((TS_VISHAY_NTCALUG01A103G_RESISTOR_DIVIDER_SUPPLY_VOLTAGE_V * ts_ntcalug01a103gLut[ts_ntcalug01a103gLutSize-1].resistance_Ohm) / (ts_ntcalug01a103gLut[ts_ntcalug01a103gLutSize-1].resistance_Ohm+TS_VISHAY_NTCALUG01A103G_RESISTOR_DIVIDER_RESISTANCE_R_1_R_2_Ohm)))
 #define TS_VISHAY_NTCALUG01A103G_ADC_VOLTAGE_V_MAX_V \
-    (float)((TS_VISHAY_NTCALUG01A103G_RESISTOR_DIVIDER_SUPPLY_VOLTAGE_V * ts_ntcalug01a103gLut[0].resistance_Ohm) / (ts_ntcalug01a103gLut[0].resistance_Ohm+TS_VISHAY_NTCALUG01A103G_RESISTOR_DIVIDER_RESISTANCE_R_1_R_2_Ohm))
+    ((float)((TS_VISHAY_NTCALUG01A103G_RESISTOR_DIVIDER_SUPPLY_VOLTAGE_V * ts_ntcalug01a103gLut[0].resistance_Ohm) / (ts_ntcalug01a103gLut[0].resistance_Ohm+TS_VISHAY_NTCALUG01A103G_RESISTOR_DIVIDER_RESISTANCE_R_1_R_2_Ohm)))
 #endif
 /**@}*/
 
@@ -248,7 +249,7 @@ static const uint16_t ts_ntcalug01a103gLutSize = sizeof(ts_ntcalug01a103gLut) / 
 
 extern int16_t TS_Vis00GetTemperatureFromLut(uint16_t adcVoltage_mV) {
     int16_t temperature_ddegC = 0;
-    float resistance_Ohm      = 0.0;
+    float resistance_Ohm      = 0.0f;
     float adcVoltage_V        = adcVoltage_mV / 1000.0f; /* Convert mV to V */
 
     /* Check for valid ADC measurements to prevent undefined behavior */
@@ -264,11 +265,11 @@ extern int16_t TS_Vis00GetTemperatureFromLut(uint16_t adcVoltage_mV) {
         /* R_1 = R_2 * ( ( V_supply / V_adc ) - 1 ) */
         resistance_Ohm = TS_VISHAY_NTCALUG01A103G_RESISTOR_DIVIDER_RESISTANCE_R_1_R_2_Ohm *
                          ((TS_VISHAY_NTCALUG01A103G_RESISTOR_DIVIDER_SUPPLY_VOLTAGE_V / adcVoltage_V) - 1);
-#else  /* NTCALUG01A103G_POSITION_IN_RESISTOR_DIVIDER_IS_R_1 == false */
+#else  /* TS_VISHAY_NTCALUG01A103G_POSITION_IN_RESISTOR_DIVIDER_IS_R_1 == false */
         /* R_2 = R_1 * ( V_2 / ( V_supply - V_adc ) ) */
         resistance_Ohm = TS_VISHAY_NTCALUG01A103G_RESISTOR_DIVIDER_RESISTANCE_R_1_R_2_Ohm *
                          (adcVoltage_V / (TS_VISHAY_NTCALUG01A103G_RESISTOR_DIVIDER_SUPPLY_VOLTAGE_V - adcVoltage_V));
-#endif /* NTCALUG01A103G_POSITION_IN_RESISTOR_DIVIDER_IS_R_1 */
+#endif /* TS_VISHAY_NTCALUG01A103G_POSITION_IN_RESISTOR_DIVIDER_IS_R_1 */
 
         /* Variables for interpolating LUT value */
         uint16_t between_high = 0;

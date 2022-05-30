@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -53,7 +53,7 @@ static uint8_t ABC_AnotherFunction(void) {
     return 0;
 }
 
-extern uint8_t ABC_ImportantFunction(void) {
+extern uint8_t ABC_ImportantFunction(uint8_t *pPointer, uint8_t length) {
     /* code */
     return 0;
 }

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    n775.c
  * @author  foxBMS Team
  * @date    2020-05-08 (date of creation)
- * @updated 2021-06-09 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup DRIVERS
  * @prefix  N775
  *
@@ -77,10 +78,17 @@
 /*========== Static Constant and Variable Definitions =======================*/
 
 /*========== Extern Constant and Variable Definitions =======================*/
+/**
+ * PEC buffer for RX and TX
+ * @{
+ */
+/* AXIVION Disable Style MisraC2012-1.2: The Pec buffer must be put in the shared RAM section for performance reasons */
 #pragma SET_DATA_SECTION(".sharedRAM")
 uint16_t n775_RXbuffer[N775_MAX_N_BYTES_FOR_DATA_RECEPTION] = {0};
 uint16_t n775_TXbuffer[N775_TX_MESSAGE_LENGTH]              = {0};
 #pragma SET_DATA_SECTION()
+/* AXIVION Enable Style MisraC2012-1.2: only Pec buffer needed to be in the shared RAM setcion */
+/**@}*/
 
 N775_MESSAGE_s n775_sentData     = {0};
 N775_MESSAGE_s n775_receivedData = {0};
@@ -212,31 +220,31 @@ uint16_t n775_CalcCrc(const N775_MESSAGE_s *msg) {
 static void N775_Initialize_Database(void) {
     uint16_t i = 0;
 
-    for (uint8_t stringNumber = 0u; stringNumber < BS_NR_OF_STRINGS; stringNumber++) {
-        n775_cellVoltage.state                               = 0;
-        n775_minMax.minimumCellVoltage_mV[stringNumber]      = 0;
-        n775_minMax.maximumCellVoltage_mV[stringNumber]      = 0;
-        n775_minMax.nrModuleMinimumCellVoltage[stringNumber] = 0;
-        n775_minMax.nrModuleMaximumCellVoltage[stringNumber] = 0;
-        n775_minMax.nrCellMinimumCellVoltage[stringNumber]   = 0;
-        n775_minMax.nrCellMaximumCellVoltage[stringNumber]   = 0;
-        for (i = 0; i < BS_NR_OF_BAT_CELLS; i++) {
-            n775_cellVoltage.cellVoltage_mV[stringNumber][i] = 0;
+    for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
+        n775_cellVoltage.state                    = 0;
+        n775_minMax.minimumCellVoltage_mV[s]      = 0;
+        n775_minMax.maximumCellVoltage_mV[s]      = 0;
+        n775_minMax.nrModuleMinimumCellVoltage[s] = 0;
+        n775_minMax.nrModuleMaximumCellVoltage[s] = 0;
+        n775_minMax.nrCellMinimumCellVoltage[s]   = 0;
+        n775_minMax.nrCellMaximumCellVoltage[s]   = 0;
+        for (i = 0; i < BS_NR_OF_CELL_BLOCKS_PER_STRING; i++) {
+            n775_cellVoltage.cellVoltage_mV[s][i] = 0;
         }
 
-        n775_cellTemperature.state                           = 0;
-        n775_minMax.minimumTemperature_ddegC[stringNumber]   = 0;
-        n775_minMax.maximumTemperature_ddegC[stringNumber]   = 0;
-        n775_minMax.nrModuleMinimumTemperature[stringNumber] = 0;
-        n775_minMax.nrModuleMaximumTemperature[stringNumber] = 0;
-        n775_minMax.nrSensorMinimumTemperature[stringNumber] = 0;
-        n775_minMax.nrSensorMaximumTemperature[stringNumber] = 0;
+        n775_cellTemperature.state                = 0;
+        n775_minMax.minimumTemperature_ddegC[s]   = 0;
+        n775_minMax.maximumTemperature_ddegC[s]   = 0;
+        n775_minMax.nrModuleMinimumTemperature[s] = 0;
+        n775_minMax.nrModuleMaximumTemperature[s] = 0;
+        n775_minMax.nrSensorMinimumTemperature[s] = 0;
+        n775_minMax.nrSensorMaximumTemperature[s] = 0;
         for (i = 0; i < BS_NR_OF_TEMP_SENSORS_PER_STRING; i++) {
-            n775_cellTemperature.cellTemperature_ddegC[stringNumber][i] = 0;
+            n775_cellTemperature.cellTemperature_ddegC[s][i] = 0;
         }
 
-        for (i = 0; i < BS_NR_OF_BAT_CELLS; i++) {
-            n775_balancingControl.balancingState[stringNumber][i] = 0;
+        for (i = 0; i < BS_NR_OF_CELL_BLOCKS_PER_STRING; i++) {
+            n775_balancingControl.balancingState[s][i] = 0;
         }
     }
 

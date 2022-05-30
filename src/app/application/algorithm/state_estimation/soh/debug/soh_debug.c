@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    soh_debug.c
  * @author  foxBMS Team
  * @date    2020-10-14 (date of creation)
- * @updated 2020-10-14 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup APPLICATION
  * @prefix  SOH
  *
@@ -65,5 +66,22 @@
 /*========== Static Function Implementations ================================*/
 
 /*========== Extern Function Implementations ================================*/
+extern void SOH_Init(DATA_BLOCK_SOX_s *pSohValues, uint8_t stringNumber) {
+    FAS_ASSERT(pSohValues != NULL_PTR);
+    FAS_ASSERT(stringNumber < BS_NR_OF_STRINGS);
+    if (stringNumber < BS_NR_OF_STRINGS) {
+        pSohValues->averageSoh_perc[stringNumber] = 0u;
+        pSohValues->minimumSoh_perc[stringNumber] = 0u;
+        pSohValues->maximumSoh_perc[stringNumber] = 0u;
+    }
+}
+
+extern void SOH_Calculation(DATA_BLOCK_SOX_s *pSohValues) {
+    FAS_ASSERT(pSohValues != NULL_PTR);
+
+    pSohValues->averageSoh_perc[0u] = 50.0f;
+    pSohValues->minimumSoh_perc[0u] = 49.9f;
+    pSohValues->maximumSoh_perc[0u] = 50.1f;
+}
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/

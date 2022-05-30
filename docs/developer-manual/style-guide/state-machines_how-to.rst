@@ -104,7 +104,7 @@ account, the enum for the states used in this example looks like this:
    :caption: Enumeration of the states
    :name: enum-for-states
 
-    typedef enum EG_FSM_STATES {
+    typedef enum {
         EG_FSM_STATE_DUMMY,          /*!< dummy state - always the first state */
         EG_FSM_STATE_HAS_NEVER_RUN,  /*!< never run state - always the second state */
         EG_FSM_STATE_UNINITIALIZED,  /*!< uninitialized state */
@@ -124,7 +124,7 @@ account, the enum for the substates used in this example looks like this:
    :caption: Enumeration of the substates
    :name: substates
 
-    typedef enum EG_FSM_SUBSTATES {
+    typedef enum {
         EG_FSM_SUBSTATE_DUMMY,               /*!< dummy state - always the first substate */
         EG_FSM_SUBSTATE_ENTRY,               /*!< entry state - always the second substate */
         EG_FSM_SUBSTATE_INITIALIZATION_0,    /*!< fist initialization substate */
@@ -149,7 +149,7 @@ is just a struct holding three values.
    :caption: The state type
    :name: state-type
 
-    typedef struct EG_STATE {
+    typedef struct {
         uint16_t timer;                      /*!< timer of the state */
         uint8_t triggerEntry;                /*!< trigger entry of the state */
         EG_FSM_STATES_e nextState;           /*!< next state of the FSM */
@@ -668,7 +668,7 @@ transfer into the state |state_error|. If this substate was successful the
         switch (pEgState->currentSubstate) {
             /* ... */
             case EG_FSM_SUBSTATE_INITIALIZATION_0:
-                if (true == EG_SomeInitializationFunction0()) {
+                if (EG_SomeInitializationFunction0() == true) {
                     EG_SetSubstate(pEgState, EG_FSM_SUBSTATE_INITIALIZATION_1, EG_FSM_SHORT_TIME);
                 } else {
                     /* Something might go wrong, so transition to error state */
@@ -701,7 +701,7 @@ implementation:
         switch (pEgState->currentSubstate) {
             /* ... */
             case EG_FSM_SUBSTATE_INITIALIZATION_EXIT:
-                if (true == EG_SomeInitializationFunctionExit()) {
+                if (EG_SomeInitializationFunctionExit() == true) {
                     /* Initialization was successful, so transition to running state */
                     nextState = EG_FSM_STATE_RUNNING;
                 } else {
@@ -774,7 +774,7 @@ implementation is shown below:
                 break;
 
             case EG_FSM_SUBSTATE_RUNNING_0:
-                if (true == EG_SomeRunningFunction0()) {
+                if (EG_SomeRunningFunction0() == true) {
                     EG_SetSubstate(pEgState, EG_FSM_SUBSTATE_RUNNING_1, EG_FSM_SHORT_TIME);
                 } else {
                     /* Something might go wrong, so transition to error state */
@@ -783,7 +783,7 @@ implementation is shown below:
                 break;
 
             case EG_FSM_SUBSTATE_RUNNING_1:
-                if (true == EG_SomeRunningFunction1()) {
+                if (EG_SomeRunningFunction1() == true) {
                     EG_SetSubstate(pEgState, EG_FSM_SUBSTATE_RUNNING_2, EG_FSM_SHORT_TIME);
                 } else {
                     /* Something might go wrong, so transition to error state */
@@ -792,7 +792,7 @@ implementation is shown below:
                 break;
 
             case EG_FSM_SUBSTATE_RUNNING_2:
-                if (true == EG_SomeRunningFunction2()) {
+                if (EG_SomeRunningFunction2() == true) {
                     EG_SetSubstate(pEgState, EG_FSM_SUBSTATE_RUNNING_0, EG_FSM_SHORT_TIME);
                 } else {
                     /* Something might go wrong, so transition to error state */

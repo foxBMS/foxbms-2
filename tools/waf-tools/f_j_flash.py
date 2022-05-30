@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -45,7 +45,6 @@ import os
 
 from waflib import Context, Errors, Logs, Task, Utils
 from waflib.Configure import conf
-
 
 MINIMUM_J_FLASH_VERSION = "V7.22"
 JFLASH_ENV_VAR = "JFLASH"

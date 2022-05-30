@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    database.h
  * @author  foxBMS Team
  * @date    2015-08-18 (date of creation)
- * @updated 2021-07-23 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup ENGINE
  * @prefix  DATA
  *
@@ -70,33 +71,39 @@
  */
 #define DATA_MAX_ENTRIES_PER_ACCESS (4u)
 
+#define DATA_ENTRY_0 (0u)
+#define DATA_ENTRY_1 (1u)
+#define DATA_ENTRY_2 (2u)
+#define DATA_ENTRY_3 (3u)
+
 /** helper macro for the variadic macros for read and write functions */
-#define GET_MACRO(_1, _2, _3, _4, NAME, ...) NAME
+/* AXIVION Next Line Style Generic-NoUnsafeMacro: unsafe macro is needed for variadic macro magic */
+#define GET_MACRO(_1, _2, _3, _4, NAME, ...) (NAME)
 /** variadic macro for read access to the database */
-#define DATA_READ_DATA(...)     \
-    GET_MACRO(                  \
-        __VA_ARGS__,            \
-        DATA_Read_4_DataBlocks, \
-        DATA_Read_3_DataBlocks, \
-        DATA_Read_2_DataBlocks, \
-        DATA_Read_1_DataBlock,  \
-        DATA_DummyFunction)     \
+#define DATA_READ_DATA(...)   \
+    GET_MACRO(                \
+        __VA_ARGS__,          \
+        DATA_Read4DataBlocks, \
+        DATA_Read3DataBlocks, \
+        DATA_Read2DataBlocks, \
+        DATA_Read1DataBlock,  \
+        DATA_DummyFunction)   \
     (__VA_ARGS__)
 /** variadic macro for write access to the database */
-#define DATA_WRITE_DATA(...)     \
-    GET_MACRO(                   \
-        __VA_ARGS__,             \
-        DATA_Write_4_DataBlocks, \
-        DATA_Write_3_DataBlocks, \
-        DATA_Write_2_DataBlocks, \
-        DATA_Write_1_DataBlock,  \
-        DATA_DummyFunction)      \
+#define DATA_WRITE_DATA(...)   \
+    GET_MACRO(                 \
+        __VA_ARGS__,           \
+        DATA_Write4DataBlocks, \
+        DATA_Write3DataBlocks, \
+        DATA_Write2DataBlocks, \
+        DATA_Write1DataBlock,  \
+        DATA_DummyFunction)    \
     (__VA_ARGS__)
 
 /**
  * @brief data block access types (read or write)
  */
-typedef enum DATA_BLOCK_ACCESS_TYPE {
+typedef enum {
     DATA_WRITE_ACCESS, /**< write access to data block   */
     DATA_READ_ACCESS,  /**< read access to data block    */
 } DATA_BLOCK_ACCESS_TYPE_e;
@@ -107,8 +114,8 @@ typedef enum DATA_BLOCK_ACCESS_TYPE {
 /**
  * struct for database queue, contains pointer to data, database entry and access type
  */
-typedef struct DATA_QUEUE_MESSAGE {
-    DATA_BLOCK_ACCESS_TYPE_e accesstype;               /*!< read or write access type */
+typedef struct {
+    DATA_BLOCK_ACCESS_TYPE_e accessType;               /*!< read or write access type */
     void *pDatabaseEntry[DATA_MAX_ENTRIES_PER_ACCESS]; /*!< reference by general pointer */
 } DATA_QUEUE_MESSAGE_s;
 
@@ -126,12 +133,12 @@ typedef struct DATA_QUEUE_MESSAGE {
  *          the most simple case, that #DATA_READ_DATA() and #DATA_WRITE_DATA() are
  *          only called with one argument, a violation of the standard would
  *          appear if the #DATA_DummyFunction() would be omitted:
- *          GET_MACRO(databaseVaribale,
- *                    DATA_Read_4_DataBlocks,
- *                    DATA_Read_3_DataBlocks,
- *                    DATA_Read_2_DataBlocks,
- *                    DATA_Read_2_DataBlocks,
- *                    DATA_Read_1_DataBlock)(databaseVaribale)
+ *          GET_MACRO(databaseVariable,
+ *                    DATA_Read4DataBlocks,
+ *                    DATA_Read3DataBlocks,
+ *                    DATA_Read2DataBlocks,
+ *                    DATA_Read2DataBlocks,
+ *                    DATA_Read1DataBlock)(databaseVariable)
  *          So the macro invocation has six parameters, but it needs seven and
  *          an ISO C99 violation would appear. Adding the #DATA_DummyFunction()
  *          fixes this violation.
@@ -144,7 +151,7 @@ extern void DATA_DummyFunction(void);
  *
  * @return  #STD_OK if initialization successful, otherwise #STD_NOT_OK
  */
-extern STD_RETURN_TYPE_e DATA_Init(void);
+extern STD_RETURN_TYPE_e DATA_Initialize(void);
 
 /**
  * @brief   trigger of database manager
@@ -153,7 +160,7 @@ extern STD_RETURN_TYPE_e DATA_Init(void);
 extern void DATA_Task(void);
 
 /**
- * @brief   Stores a datablock in database
+ * @brief   Stores one data block in database
  * @details This function stores passed data in database and updates timestamp
  *          and previous timestamp in passed struct
  * @warning Do not call this function from inside a critical section, as it is
@@ -161,10 +168,10 @@ extern void DATA_Task(void);
  * @param[in,out]  pDataFromSender0 (type: void *)
  * @return  #STD_OK if access was successful, otherwise #STD_NOT_OK
  */
-extern STD_RETURN_TYPE_e DATA_Write_1_DataBlock(void *pDataFromSender0);
+extern STD_RETURN_TYPE_e DATA_Write1DataBlock(void *pDataFromSender0);
 
 /**
- * @brief   Stores a datablock in database
+ * @brief   Stores two data blocks in database
  * @details This function stores passed data in database and updates timestamp
  *          and previous timestamp in passed struct
  * @warning Do not call this function from inside a critical section, as it is
@@ -173,9 +180,9 @@ extern STD_RETURN_TYPE_e DATA_Write_1_DataBlock(void *pDataFromSender0);
  * @param[in,out]  pDataFromSender1 (type: void *)
  * @return  #STD_OK if access was successful, otherwise #STD_NOT_OK
  */
-extern STD_RETURN_TYPE_e DATA_Write_2_DataBlocks(void *pDataFromSender0, void *pDataFromSender1);
+extern STD_RETURN_TYPE_e DATA_Write2DataBlocks(void *pDataFromSender0, void *pDataFromSender1);
 /**
- * @brief   Stores a datablock in database
+ * @brief   Stores three data blocks in database
  * @details This function stores passed data in database and updates timestamp
  *          and previous timestamp in passed struct
  * @warning Do not call this function from inside a critical section, as it is
@@ -185,12 +192,9 @@ extern STD_RETURN_TYPE_e DATA_Write_2_DataBlocks(void *pDataFromSender0, void *p
  * @param[in,out]  pDataFromSender2 (type: void *)
  * @return  #STD_OK if access was successful, otherwise #STD_NOT_OK
  */
-extern STD_RETURN_TYPE_e DATA_Write_3_DataBlocks(
-    void *pDataFromSender0,
-    void *pDataFromSender1,
-    void *pDataFromSender2);
+extern STD_RETURN_TYPE_e DATA_Write3DataBlocks(void *pDataFromSender0, void *pDataFromSender1, void *pDataFromSender2);
 /**
- * @brief   Stores a datablock in database
+ * @brief   Stores four data blocks in database
  * @details This function stores passed data in database and updates timestamp
  *          and previous timestamp in passed struct
  * @warning Do not call this function from inside a critical section, as it is
@@ -201,14 +205,14 @@ extern STD_RETURN_TYPE_e DATA_Write_3_DataBlocks(
  * @param[in,out]  pDataFromSender3 (type: void *)
  * @return  #STD_OK if access was successful, otherwise #STD_NOT_OK
  */
-extern STD_RETURN_TYPE_e DATA_Write_4_DataBlocks(
+extern STD_RETURN_TYPE_e DATA_Write4DataBlocks(
     void *pDataFromSender0,
     void *pDataFromSender1,
     void *pDataFromSender2,
     void *pDataFromSender3);
 
 /**
- * @brief   Reads a datablock in database by value.
+ * @brief   Reads one data block in database by value.
  * @details This function reads data from database and copy this content in
  *          passed struct
  * @warning Do not call this function from inside a critical section, as it is
@@ -216,9 +220,9 @@ extern STD_RETURN_TYPE_e DATA_Write_4_DataBlocks(
  * @param[out]  pDataToReceiver0 (type: void *)
  * @return  #STD_OK if access was successful, otherwise #STD_NOT_OK
  */
-extern STD_RETURN_TYPE_e DATA_Read_1_DataBlock(void *pDataToReceiver0);
+extern STD_RETURN_TYPE_e DATA_Read1DataBlock(void *pDataToReceiver0);
 /**
- * @brief   Reads a datablock in database by value.
+ * @brief   Reads two data blocks in database by value.
  * @details This function reads data from database and copy this content in
  *          passed struct
  * @warning Do not call this function from inside a critical section, as it is
@@ -227,9 +231,9 @@ extern STD_RETURN_TYPE_e DATA_Read_1_DataBlock(void *pDataToReceiver0);
  * @param[out]  pDataToReceiver1 (type: void *)
  * @return  #STD_OK if access was successful, otherwise #STD_NOT_OK
  */
-extern STD_RETURN_TYPE_e DATA_Read_2_DataBlocks(void *pDataToReceiver0, void *pDataToReceiver1);
+extern STD_RETURN_TYPE_e DATA_Read2DataBlocks(void *pDataToReceiver0, void *pDataToReceiver1);
 /**
- * @brief   Reads a datablock in database by value.
+ * @brief   Reads three data blocks in database by value.
  * @details This function reads data from database and copy this content in
  *          passed struct
  * @warning Do not call this function from inside a critical section, as it is
@@ -239,9 +243,9 @@ extern STD_RETURN_TYPE_e DATA_Read_2_DataBlocks(void *pDataToReceiver0, void *pD
  * @param[out]  pDataToReceiver2 (type: void *)
  * @return  #STD_OK if access was successful, otherwise #STD_NOT_OK
  */
-extern STD_RETURN_TYPE_e DATA_Read_3_DataBlocks(void *pDataToReceiver0, void *pDataToReceiver1, void *pDataToReceiver2);
+extern STD_RETURN_TYPE_e DATA_Read3DataBlocks(void *pDataToReceiver0, void *pDataToReceiver1, void *pDataToReceiver2);
 /**
- * @brief   Reads a datablock in database by value.
+ * @brief   Reads four data blocks in database by value.
  * @details This function reads data from database and copy this content in
  *          passed struct
  * @warning Do not call this function from inside a critical section, as it is
@@ -252,7 +256,7 @@ extern STD_RETURN_TYPE_e DATA_Read_3_DataBlocks(void *pDataToReceiver0, void *pD
  * @param[out]  pDataToReceiver3 (type: void *)
  * @return  #STD_OK if access was successful, otherwise #STD_NOT_OK
  */
-extern STD_RETURN_TYPE_e DATA_Read_4_DataBlocks(
+extern STD_RETURN_TYPE_e DATA_Read4DataBlocks(
     void *pDataToReceiver0,
     void *pDataToReceiver1,
     void *pDataToReceiver2,
@@ -264,7 +268,7 @@ extern STD_RETURN_TYPE_e DATA_Read_4_DataBlocks(
  *          the database module is working as expected. If the test fails, it
  *          will fail an assertion.
  */
-extern void DATA_ExecuteDataBIST(void);
+extern void DATA_ExecuteDataBist(void);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 

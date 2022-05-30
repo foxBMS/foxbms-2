@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    i2c.c
  * @author  foxBMS Team
  * @date    2021-07-22 (date of creation)
- * @updated 2021-12-08 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup DRIVERS
  * @prefix  I2C
  *
@@ -439,7 +440,9 @@ extern STD_RETURN_TYPE_e I2C_ReadDma(uint32_t slaveAddress, uint8_t readAddress,
     if ((i2cREG1->STR & (uint32_t)I2C_BUSBUSY) == 0u) {
         OS_EnterTaskCritical();
 
-        FAS_ASSERT(FSYS_RaisePrivilege() == 0); /* Go to privileged mode to write DMA config registers */
+        /* Go to privileged mode to write DMA config registers */
+        const int32_t raisePrivilegeResult = FSYS_RaisePrivilege();
+        FAS_ASSERT(raisePrivilegeResult == 0);
 
         /* Set Tx buffer address */
         /* AXIVION Disable Style MisraC2012-1.1: Cast necessary for DMA configuration */
@@ -509,7 +512,9 @@ extern STD_RETURN_TYPE_e I2C_WriteDma(
     if ((i2cREG1->STR & (uint32_t)I2C_BUSBUSY) == 0u) {
         OS_EnterTaskCritical();
 
-        FAS_ASSERT(FSYS_RaisePrivilege() == 0); /* Go to privileged mode to write DMA config registers */
+        /* Go to privileged mode to write DMA config registers */
+        const int32_t raisePrivilegeResult = FSYS_RaisePrivilege();
+        FAS_ASSERT(raisePrivilegeResult == 0);
 
         /* Set Tx buffer address */
         /* AXIVION Disable Style MisraC2012-1.1: Cast necessary for DMA configuration */

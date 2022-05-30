@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -46,9 +46,9 @@ static void C28_BatteriesLoop(void);
 static void C28_BatteriesLoop(void) {
     for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
         /* string related code */
-        for (uint8_t m = 0u; m < BS_NR_OF_MODULES; m++) {
+        for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
             /* module related code */
-            for (uint8_t c = 0u; c < BS_NR_OF_CELLS_PER_MODULE; c++) {
+            for (uint8_t c = 0u; c < BS_NR_OF_CELL_BLOCKS_PER_MODULE; c++) {
                 /* cell related code */
             }
         }

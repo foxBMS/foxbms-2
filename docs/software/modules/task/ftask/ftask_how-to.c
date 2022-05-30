@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    ftask_how-to.c
  * @author  foxBMS Team
  * @date    2019-08-27 (date of creation)
- * @updated 2020-08-10 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup SOME_GROUP
  * @prefix  FTSK
  *
@@ -64,7 +65,7 @@
 #define DATA_WRITE_DATA(...)
 
 /** mock-up of data block identification numbers */
-typedef enum DATA_BLOCK_ID {
+typedef enum {
     DATA_BLOCK_ID_EXAMPLE, /**< some example database entry */
     /* ...
      * ...
@@ -74,7 +75,7 @@ typedef enum DATA_BLOCK_ID {
 } DATA_BLOCK_ID_e;
 
 /** mock-up-typedef for data block header as defined in database_cfg.h */
-typedef struct DATA_BLOCKHEADER {
+typedef struct {
     DATA_BLOCK_ID_e uniqueId;   /*!< uniqueId of database entry */
     uint32_t timestamp;         /*!< timestamp of last database update */
     uint32_t previousTimestamp; /*!< timestamp of previous database update */
@@ -83,7 +84,7 @@ typedef struct DATA_BLOCKHEADER {
 /**
  * mock-up data block struct of example
  */
-typedef struct DATA_BLOCK_EXAMPLE {
+typedef struct {
     /* This struct needs to be at the beginning of every database entry. During
     * the initialization of a database struct, uniqueId must be set to the
     * respective database entry representation in enum DATA_BLOCK_ID_e. */

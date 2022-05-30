@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -50,10 +50,9 @@ import re
 import tarfile
 from tempfile import NamedTemporaryFile
 
+import black
 from waflib import Context
 from waflib.Build import BuildContext
-
-import black
 
 HAVE_GIT = False
 try:

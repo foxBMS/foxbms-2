@@ -28,4 +28,6 @@ Unit Test
 Description
 -----------
 
-|tbc|
+This module contains a set of math functions specific to the implementation
+of |foxbms|.
+The doxygen documentation of this module provides details.

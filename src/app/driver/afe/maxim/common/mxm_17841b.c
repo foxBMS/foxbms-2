@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    mxm_17841b.c
  * @author  foxBMS Team
  * @date    2018-12-14 (date of creation)
- * @updated 2021-12-06 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup DRIVERS
  * @prefix  MXM
  *
@@ -158,9 +159,12 @@ static STD_RETURN_TYPE_e MXM_41BRegisterRead(
  * from the local register copies. It puts together a
  * buffer from these register values and calls MXM_41BRegisterWrite()
  * with this data.
+ * Calling this function will clear the interrupt registers and reset them
+ * to their default values (which is #MXM_41B_RX_INT_FLAG_DEFAULT_VALUE and
+ * #MXM_41B_TX_INT_FLAG_DEFAULT_VALUE).
  *
  * @param[in,out] pInstance state pointer
- * @return returnvalue of MXM_41BRegisterWrite()
+ * @return returnvalue of #MXM_41BRegisterWrite()
  */
 static STD_RETURN_TYPE_e MXM_41BConfigRegisterWrite(MXM_41B_INSTANCE_s *pInstance);
 
@@ -191,7 +195,7 @@ static STD_RETURN_TYPE_e MXM_41BBufferWrite(
     uint8_t extendMessage);
 
 /**
- * @brief   Transition into idle, mark as successfull
+ * @brief   Transition into idle, mark as successful
  * @param[out]  pInstance   pointer to the state-struct
  */
 static void MXM_41BTransitionToIdleSuccess(MXM_41B_INSTANCE_s *pInstance);
@@ -287,6 +291,9 @@ static STD_RETURN_TYPE_e MXM_41BRegisterWrite(
     /* sanity check: state-pointer may not be null */
     FAS_ASSERT(pInstance != NULL_PTR);
     FAS_ASSERT(lengthPayload < (MXM_SPI_TX_BUFFER_LENGTH - 1u));
+    /* AXIVION Routine Generic-MissingParameterAssert: command: parameter accepts whole range */
+    /* AXIVION Routine Generic-MissingParameterAssert: kpkPayload: pointer may be NULL */
+
     STD_RETURN_TYPE_e retval = STD_NOT_OK;
     /* check if command is a write command (write addresses in MAX17841B are even) */
     if ((command % 2u) == 0u) {
@@ -323,6 +330,7 @@ static STD_RETURN_TYPE_e MXM_41BRegisterRead(
     /* RX Buffer may not be NULL pointer for this function */
     FAS_ASSERT(pRxBuffer != NULL_PTR);
     FAS_ASSERT(length <= MXM_SPI_RX_BUFFER_LENGTH);
+    /* AXIVION Routine Generic-MissingParameterAssert: command: parameter accepts whole range */
 
     STD_RETURN_TYPE_e retval = STD_NOT_OK;
     /* check if command is a read command (read addresses in MAX17841B are odd) */
@@ -343,17 +351,17 @@ static STD_RETURN_TYPE_e MXM_41BConfigRegisterWrite(MXM_41B_INSTANCE_s *pInstanc
     /* sanity check: state-pointer may not be null */
     FAS_ASSERT(pInstance != NULL_PTR);
     uint8_t mxm_spi_temp_buffer[MXM_41B_CONFIG_REGISTER_LENGTH] = {0};
-    /* TODO refactor so that int flags are not cleared by this function (because otherwise we would have to read them before every write) */
+
     /* AXIVION Disable Style Generic-NoMagicNumbers: Magic numbers for index value of array is clear in usage */
     mxm_spi_temp_buffer[0u] = pInstance->regRXIntEnable;
     mxm_spi_temp_buffer[1u] = pInstance->regTXIntEnable;
-    mxm_spi_temp_buffer[2u] = MXM_41B_RX_INT_FLAG_DEFAULT_VALUE; /* TODO add reg_*x_int_flag */
+    mxm_spi_temp_buffer[2u] = MXM_41B_RX_INT_FLAG_DEFAULT_VALUE;
     mxm_spi_temp_buffer[3u] = MXM_41B_TX_INT_FLAG_DEFAULT_VALUE;
     mxm_spi_temp_buffer[4u] = pInstance->regConfig1;
     mxm_spi_temp_buffer[5u] = pInstance->regConfig2;
     mxm_spi_temp_buffer[6u] = pInstance->regConfig3;
     /* AXIVION Enable Style Generic-NoMagicNumbers: */
-    static_assert((6u < MXM_41B_CONFIG_REGISTER_LENGTH), "Revise this function and config register length!");
+    f_static_assert((6u < MXM_41B_CONFIG_REGISTER_LENGTH), "Revise this function and config register length!");
 
     return MXM_41BRegisterWrite(
         pInstance, MXM_REG_RX_INTERRUPT_ENABLE_W, mxm_spi_temp_buffer, MXM_41B_CONFIG_REGISTER_LENGTH);
@@ -370,6 +378,7 @@ static STD_RETURN_TYPE_e MXM_41BBufferWrite(
     FAS_ASSERT(kpkMessage != NULL_PTR);
     FAS_ASSERT(messageLength >= 1u);
     FAS_ASSERT(messageLength <= 6u);
+    /* AXIVION Routine Generic-MissingParameterAssert: extendMessage: parameter accepts whole range */
 
     /* write address and length to buffer */
     pInstance->spiTXBuffer[0] = (uint16_t)MXM_BUF_WR_LD_Q_0;
@@ -726,7 +735,8 @@ static void MXM_41BStateHandlerCheckFmea(MXM_41B_INSTANCE_s *pInstance) {
     } else if (pInstance->substate == MXM_41B_FMEA_VERIFY) {
         STD_RETURN_TYPE_e retval = STD_NOT_OK;
         if (MXM_GetSPIStateReady() == STD_OK) {
-            if (pInstance->spiRXBuffer[1] == 0u) {
+            pInstance->regFmea = pInstance->spiRXBuffer[1u];
+            if (pInstance->regFmea == 0u) {
                 retval = STD_OK;
             }
         }
@@ -783,6 +793,12 @@ extern STD_RETURN_TYPE_e MXM_41BSetStateRequest(
     MXM_41B_STATE_REQUEST_STATUS_e *processed) {
     /* sanity check: state-pointer may not be null */
     FAS_ASSERT(pInstance != NULL_PTR);
+    /* AXIVION Routine Generic-MissingParameterAssert: state: parameter accepts whole range */
+    /* AXIVION Routine Generic-MissingParameterAssert: pPayload: pointer may be NULL */
+    /* AXIVION Routine Generic-MissingParameterAssert: payloadLength: parameter accepts whole range */
+    /* AXIVION Routine Generic-MissingParameterAssert: extendMessageBytes: parameter accepts whole range */
+    /* AXIVION Routine Generic-MissingParameterAssert: pRxBuffer: pointer may be NULL */
+    /* AXIVION Routine Generic-MissingParameterAssert: rxBufferLength: parameter accepts whole range */
 
     STD_RETURN_TYPE_e retval = STD_OK;
     /* start by checking for input inconsistency */
@@ -834,6 +850,8 @@ extern STD_RETURN_TYPE_e MXM_41BWriteRegisterFunction(
     MXM_41B_REG_BIT_VALUE value) {
     /* sanity check: state-pointer may not be null */
     FAS_ASSERT(pInstance != NULL_PTR);
+    /* AXIVION Routine Generic-MissingParameterAssert: registerFunction: parameter accepts whole range */
+    /* AXIVION Routine Generic-MissingParameterAssert: value: parameter accepts whole range */
 
     STD_RETURN_TYPE_e retval = STD_OK;
     /* TODO sanitize value */
@@ -968,6 +986,7 @@ extern void MXM_41BInitializeStateStruct(MXM_41B_INSTANCE_s *pInstance) {
     pInstance->extendMessageBytes = 0u;
     pInstance->waitCounter        = 0u;
     pInstance->regRxSpace         = 0u;
+    pInstance->regFmea            = 0u;
     pInstance->hwModel            = 0u;
     pInstance->hwMaskRevision     = 0u;
     pInstance->shutdownTimeStamp  = 0u;

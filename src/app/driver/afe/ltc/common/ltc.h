@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    ltc.h
  * @author  foxBMS Team
  * @date    2015-09-01 (date of creation)
- * @updated 2015-09-01 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup DRIVERS
  * @prefix  LTC
  *
@@ -144,7 +145,7 @@ extern void LTC_SaveTemperatures(LTC_STATE_s *ltc_state, uint8_t stringNumber);
  * @param  ltc_state:  state of the ltc state machine
  *
  */
-extern void LTC_SaveAllGPIOMeasurement(LTC_STATE_s *ltc_state);
+extern void LTC_SaveAllGpioMeasurement(LTC_STATE_s *ltc_state);
 
 /**
  * @brief   gets the current state request.
@@ -172,7 +173,7 @@ extern LTC_STATEMACH_e LTC_GetState(LTC_STATE_s *ltc_state);
  * @brief   Sets the transceiver pins to enable LTC6820 IC.
  *
  */
-extern void LTC_monitoringPinInit(void);
+extern void LTC_InitializeMonitoringPin(void);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 #ifdef UNITY_UNIT_TEST

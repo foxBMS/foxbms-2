@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -43,12 +43,12 @@
 
 import os
 import webbrowser
-import cantools
-import wx
-import pandas
-import matplotlib.pyplot as plt
 
+import cantools
 import fgui
+import matplotlib.pyplot as plt
+import pandas
+import wx
 from info_dialog import FoxbmsInfoDialog
 
 __version__ = fgui.__version__

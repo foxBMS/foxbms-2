@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -41,12 +41,11 @@
 """Implements a waf tool to use TI HALCoGen (https://www.ti.com/tool/HALCOGEN)
 """
 
-import os
-import re
-import pathlib
-import shutil
 import binascii
-
+import os
+import pathlib
+import re
+import shutil
 from xml.etree import ElementTree
 
 from waflib import Errors, Task, TaskGen, Utils
@@ -184,15 +183,16 @@ def process_hcg(self, node):
     self.create_task(
         "hcg_compiler", src=[node, dil_file], tgt=tgt, remove_files=hcg.removes
     )
-    no_clang_node = self.path.find_resource(".clang-format")
-    if not no_clang_node:
-        no_clang_node = self.path.find_or_declare(".clang-format")
+    no_clang_node = self.path.find_or_declare(".clang-format")
+    if not no_clang_node.exists():
         no_clang_node.write(
             f"DisableFormat: true{os.linesep}SortIncludes: false{os.linesep}"
         )
 
     if not hasattr(self, "unit_test"):
-        self.source.extend(gen_sources)
+        for i in gen_sources:
+            if not i.name == "HL_sys_startup.c":
+                self.source.append(i)
         try:
             self.includes.append("include")
         except AttributeError:

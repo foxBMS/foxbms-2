@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    sys_cfg.h
  * @author  foxBMS Team
  * @date    2020-02-24 (date of creation)
- * @updated 2021-06-24 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup ENGINE_CONFIGURATION
  * @prefix  SYS
  *
@@ -80,24 +81,24 @@
 #define SYS_FSM_MEDIUM_TIME (5u)
 
 /**
- * SYS statemachine long time definition in #SYS_Trigger() calls until next
+ * SYS state machine long time definition in #SYS_Trigger() calls until next
  * state/substate is processed
  */
 #define SYS_FSM_LONG_TIME (10u)
 
-/**
- * SYS statemachine initialization timeout
- */
+/** SYS state machine initialization request retry counter */
+#define SYS_STATEMACH_INITIALIZATION_REQUEST_RETRY_COUNTER (3u)
+
+/** SYS state machine initialization timeout */
 #define SYS_STATEMACH_INITIALIZATION_TIMEOUT_MS (200u)
 
-/**
- * SYS statemachine BAL initialization timeout
- */
+/** SYS state machine IMD initialization timeout */
+#define SYS_STATEMACH_IMD_INITIALIZATION_TIMEOUT_MS (500u)
+
+/** SYS state machine BAL initialization timeout */
 #define SYS_STATEMACH_BAL_INITIALIZATION_TIMEOUT_MS (500u)
 
-/**
- * SYS statemachine SBC initialization timeout
- */
+/** SYS state machine SBC initialization timeout */
 #define SYS_STATEMACHINE_SBC_INIT_TIMEOUT_MS (1000u)
 
 /*========== Extern Constant and Variable Declarations ======================*/

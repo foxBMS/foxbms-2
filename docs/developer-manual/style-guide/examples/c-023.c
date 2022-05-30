@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -40,7 +40,7 @@
  */
 
 /** Symbolic names for weekdays */
-typedef enum ABC_DAYS {
+typedef enum {
     ABC_MONDAY,    /**< First day of the week */
     ABC_TUESDAY,   /**< Second day of the week */
     /* ... */      /* more members */

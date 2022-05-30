@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Copyright (c) 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -58,11 +58,11 @@ elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
     ARMCL_TEST=`which armcl > /dev/null 2>&1`
     if [ $? -ne 0 ]; then
         set -e
-         echo "Could not find pinned compiler. Try to use any available in '/opt/ti'".
-         CCS_VARS=$($SCRIPTDIR/tools/utils/bash/find_ccs.sh || echo $?)
-         CCS_VARS_ARRAY=($CCS_VARS)
-         CCS_PATHS_TO_ADD=`echo $CCS_VARS | sed "s/ /:/g"`
-         export PATH=$CCS_PATHS_TO_ADD:$PATH
+        echo "Could not find pinned compiler. Try to use any available in '/opt/ti'".
+        CCS_VARS=$($SCRIPTDIR/tools/utils/bash/find_ccs.sh || echo $?)
+        CCS_VARS_ARRAY=($CCS_VARS)
+        CCS_PATHS_TO_ADD=`echo $CCS_VARS | sed "s/ /:/g"`
+        export PATH=$CCS_PATHS_TO_ADD:$PATH
     else
         set -e
     fi
@@ -110,14 +110,18 @@ elif [ "$(expr substr $(uname -s) 1 10)" == "MINGW64_NT" ] || [ "$(expr substr $
     PATHS_TO_ADD=$(echo "${PATHS_TO_ADD#?}" | tr '\\' '/')
     export PATH=$PATHS_TO_ADD:$PATH
     set +e
+    # if FOXBMS_2_CCS_VERSION_STRICT is not set and armcl was not found in
+    # path, we try to find any CCS installation in the known installation paths
     ARMCL_TEST=`which armcl > /dev/null 2>&1`
-    if [ $? -ne 0 ]; then
-        set -e
-        echo "Could not find pinned compiler. Try to use any available in 'C:\ti\'".
-        CCS_VARS=$($SCRIPTDIR/tools/utils/bash/find_ccs.sh || echo $?)
-        CCS_VARS_ARRAY=($CCS_VARS)
-        CCS_PATHS_TO_ADD=`echo $CCS_VARS | sed "s/ /:/g"`
-        export PATH=$CCS_PATHS_TO_ADD:$PATH
+    if [ $? -ne 0 ] ; then
+        if [[ -z $FOXBMS_2_CCS_VERSION_STRICT ]]; then
+            set -e
+            echo "Could not find pinned compiler. Try to use any available in 'C:\ti\'".
+            CCS_VARS=$($SCRIPTDIR/tools/utils/bash/find_ccs.sh || echo $?)
+            CCS_VARS_ARRAY=($CCS_VARS)
+            CCS_PATHS_TO_ADD=`echo $CCS_VARS | sed "s/ /:/g"`
+            export PATH=$CCS_PATHS_TO_ADD:$PATH
+        fi
     else
         set -e
     fi

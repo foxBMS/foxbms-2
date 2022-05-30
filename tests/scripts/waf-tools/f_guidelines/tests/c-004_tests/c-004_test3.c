@@ -3,7 +3,8 @@
  * @file    c-004_test3.c
  * @author  foxBMS Team
  * @date    2020-08-25 (date of creation)
- * @updated 2020-08-25 (date of last update)
+ * @updated 2022-02-22 (date of last update)
+ * @version v1.0.0
  * @ingroup TEMPERATURE_SENSORS
  * @prefix  TSEN
  *

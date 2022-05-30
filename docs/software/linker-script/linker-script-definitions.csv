@@ -1,0 +1,5 @@
+Name;                   Meaning;                Explanation
+``bss``/``.bss``;       block starting symbol;  global and static data, that is **not** initialized at declaration
+``data``/``.data``;     \-;                     global and static data, that is initialized at declaration
+``const``/``.const``;   constant;               constant variables
+``text``/``.text``;     \-;                     executable instructions of the program

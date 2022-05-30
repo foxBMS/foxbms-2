@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    test_can_cbs_tx_state_estimation.c
  * @author  foxBMS Team
  * @date    2021-07-27 (date of creation)
- * @updated 2021-07-27 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -120,15 +121,15 @@ void tearDown(void) {
 void testCAN_TxStateEstimationCharging(void) {
     uint8_t data[8] = {0};
 
-    for (uint8_t stringNumber = 0u; stringNumber < BS_NR_OF_STRINGS; stringNumber++) {
-        can_kShim.pTableSox->minimumSoc_perc[stringNumber] = 71.2f;
-        can_kShim.pTableSox->maximumSoc_perc[stringNumber] = 74.2f;
-        can_kShim.pTableSox->minimumSoe_perc[stringNumber] = 74.6f;
-        can_kShim.pTableSox->maximumSoe_perc[stringNumber] = 78.1f;
-        can_kShim.pTableSox->minimumSoe_Wh[stringNumber]   = 19200 / BS_NR_OF_STRINGS;
+    for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
+        can_kShim.pTableSox->minimumSoc_perc[s] = 71.2f;
+        can_kShim.pTableSox->maximumSoc_perc[s] = 74.2f;
+        can_kShim.pTableSox->minimumSoe_perc[s] = 74.6f;
+        can_kShim.pTableSox->maximumSoe_perc[s] = 78.1f;
+        can_kShim.pTableSox->minimumSoe_Wh[s]   = 19200 / BS_NR_OF_STRINGS;
     }
 
-    DATA_Read_1_DataBlock_IgnoreAndReturn(0u);
+    DATA_Read1DataBlock_IgnoreAndReturn(0u);
     /* System is currently charging */
     BMS_GetBatterySystemState_IgnoreAndReturn(BMS_CHARGING);
     /* All strings connected */
@@ -162,15 +163,15 @@ void testCAN_TxStateEstimationCharging(void) {
 void testCAN_TxStateEstimationDischarging(void) {
     uint8_t data[8] = {0};
 
-    for (uint8_t stringNumber = 0u; stringNumber < BS_NR_OF_STRINGS; stringNumber++) {
-        can_kShim.pTableSox->minimumSoc_perc[stringNumber] = 74.2f;
-        can_kShim.pTableSox->maximumSoc_perc[stringNumber] = 78.2f;
-        can_kShim.pTableSox->minimumSoe_perc[stringNumber] = 78.1f;
-        can_kShim.pTableSox->maximumSoe_perc[stringNumber] = 83.1f;
-        can_kShim.pTableSox->minimumSoe_Wh[stringNumber]   = 19200 / BS_NR_OF_STRINGS;
+    for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
+        can_kShim.pTableSox->minimumSoc_perc[s] = 74.2f;
+        can_kShim.pTableSox->maximumSoc_perc[s] = 78.2f;
+        can_kShim.pTableSox->minimumSoe_perc[s] = 78.1f;
+        can_kShim.pTableSox->maximumSoe_perc[s] = 83.1f;
+        can_kShim.pTableSox->minimumSoe_Wh[s]   = 19200 / BS_NR_OF_STRINGS;
     }
 
-    DATA_Read_1_DataBlock_IgnoreAndReturn(0u);
+    DATA_Read1DataBlock_IgnoreAndReturn(0u);
     /* System is currently charging */
     BMS_GetBatterySystemState_IgnoreAndReturn(BMS_DISCHARGING);
     /* All strings connected */

@@ -1,4 +1,4 @@
-@REM Copyright (c) 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+@REM Copyright (c) 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 @REM All rights reserved.
 @REM
 @REM SPDX-License-Identifier: BSD-3-Clause

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    redundancy.c
  * @author  foxBMS Team
  * @date    2020-07-31 (date of creation)
- * @updated 2021-12-08 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup APPLICATION
  * @prefix  MRC
  *
@@ -530,40 +531,38 @@ static void MRC_ValidateCurrentMeasurement(DATA_BLOCK_CURRENT_SENSOR_s *pTableCu
     mrc_tablePackValues.invalidPackCurrent = 0u;
 
     /* Iterate over all strings to calculate pack current */
-    for (uint8_t stringNumber = 0u; stringNumber < BS_NR_OF_STRINGS; stringNumber++) {
+    for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
         /* Check timestamp of measurement */
         STD_RETURN_TYPE_e noTimeout = MRC_MeasurementUpdatedRecently(
-            pTableCurrentSensor->timestampCurrent[stringNumber],
-            pTableCurrentSensor->previousTimestampCurrent[stringNumber],
+            pTableCurrentSensor->timestampCurrent[s],
+            pTableCurrentSensor->previousTimestampCurrent[s],
             MRC_CURRENT_MEASUREMENT_PERIOD_TIMEOUT_ms);
-        (void)DIAG_CheckEvent(noTimeout, DIAG_ID_CURRENT_MEASUREMENT_TIMEOUT, DIAG_STRING, stringNumber);
+        (void)DIAG_CheckEvent(noTimeout, DIAG_ID_CURRENT_MEASUREMENT_TIMEOUT, DIAG_STRING, s);
 
-        if (STD_OK == noTimeout) {
+        if (noTimeout == STD_OK) {
             /* Check if current entry has been updated since last call */
-            if (mrc_state.lastStringCurrentTimestamp[stringNumber] !=
-                pTableCurrentSensor->timestampCurrent[stringNumber]) {
-                mrc_state.lastStringCurrentTimestamp[stringNumber] =
-                    pTableCurrentSensor->timestampCurrent[stringNumber];
-                mrc_tablePackValues.stringCurrent_mA[stringNumber] = pTableCurrentSensor->current_mA[stringNumber];
-                if (pTableCurrentSensor->invalidCurrentMeasurement[stringNumber] == 0u) {
+            if (mrc_state.lastStringCurrentTimestamp[s] != pTableCurrentSensor->timestampCurrent[s]) {
+                mrc_state.lastStringCurrentTimestamp[s] = pTableCurrentSensor->timestampCurrent[s];
+                mrc_tablePackValues.stringCurrent_mA[s] = pTableCurrentSensor->current_mA[s];
+                if (pTableCurrentSensor->invalidCurrentMeasurement[s] == 0u) {
                     /* String current measurement valid -> set valid flag */
-                    mrc_tablePackValues.invalidStringCurrent[stringNumber] = 0u;
-                    (void)DIAG_Handler(DIAG_ID_CURRENT_MEASUREMENT_ERROR, DIAG_EVENT_OK, DIAG_STRING, stringNumber);
+                    mrc_tablePackValues.invalidStringCurrent[s] = 0u;
+                    (void)DIAG_Handler(DIAG_ID_CURRENT_MEASUREMENT_ERROR, DIAG_EVENT_OK, DIAG_STRING, s);
                 } else {
                     /* String current measurement invalid -> set invalid flag */
-                    (void)DIAG_Handler(DIAG_ID_CURRENT_MEASUREMENT_ERROR, DIAG_EVENT_NOT_OK, DIAG_STRING, stringNumber);
-                    mrc_tablePackValues.invalidStringCurrent[stringNumber] = 1u;
+                    (void)DIAG_Handler(DIAG_ID_CURRENT_MEASUREMENT_ERROR, DIAG_EVENT_NOT_OK, DIAG_STRING, s);
+                    mrc_tablePackValues.invalidStringCurrent[s] = 1u;
                 }
             } else {
                 /* Nothing to do. Measurement has not been updated but still within timeout */
             }
         } else {
             /* Measurement timeout reached -> set string current invalid */
-            mrc_tablePackValues.invalidStringCurrent[stringNumber] = 1u;
+            mrc_tablePackValues.invalidStringCurrent[s] = 1u;
         }
 
-        if (0u == mrc_tablePackValues.invalidStringCurrent[stringNumber]) {
-            packCurrent_mA += mrc_tablePackValues.stringCurrent_mA[stringNumber];
+        if (mrc_tablePackValues.invalidStringCurrent[s] == 0u) {
+            packCurrent_mA += mrc_tablePackValues.stringCurrent_mA[s];
         } else {
             /* One string current is invalid -> pack current cannot be correct.
              * Set pack current invalid */
@@ -580,62 +579,58 @@ static void MRC_ValidateStringVoltageMeasurement(
     FAS_ASSERT(pTableCurrentSensor != NULL_PTR);
     FAS_ASSERT(pTableCellVoltage != NULL_PTR);
 
-    for (uint8_t stringNumber = 0u; stringNumber < BS_NR_OF_STRINGS; stringNumber++) {
+    for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
         /* Check timeout of current sensor measurement */
         STD_RETURN_TYPE_e updatedMeasurement = MRC_MeasurementUpdatedRecently(
-            pTableCurrentSensor->timestampHighVoltage[stringNumber][0u],
-            pTableCurrentSensor->previousTimestampHighVoltage[stringNumber][0u],
+            pTableCurrentSensor->timestampHighVoltage[s][0u],
+            pTableCurrentSensor->previousTimestampHighVoltage[s][0u],
             MRC_CURRENT_SENSOR_MEASUREMENT_TIMEOUT_ms);
-        DIAG_CheckEvent(updatedMeasurement, DIAG_ID_CURRENT_SENSOR_V1_MEASUREMENT_TIMEOUT, DIAG_STRING, stringNumber);
+        DIAG_CheckEvent(updatedMeasurement, DIAG_ID_CURRENT_SENSOR_V1_MEASUREMENT_TIMEOUT, DIAG_STRING, s);
 
         /* Perform plausibility check if AFE and new current sensor measurement is valid */
-        if ((STD_OK == updatedMeasurement) &&
-            (pTableCurrentSensor->invalidHighVoltageMeasurement[stringNumber][0u] == 0u) &&
-            (pTableCellVoltage->nrValidCellVoltages[stringNumber] == BS_NR_OF_BAT_CELLS)) {
-            STD_RETURN_TYPE_e voltagePlausible = PL_CheckStringVoltage(
-                pTableCellVoltage->packVoltage_mV[stringNumber], pTableCurrentSensor->highVoltage_mV[stringNumber][0u]);
-            (void)DIAG_CheckEvent(voltagePlausible, DIAG_ID_PLAUSIBILITY_PACK_VOLTAGE, DIAG_STRING, stringNumber);
+        if ((updatedMeasurement == STD_OK) && (pTableCurrentSensor->invalidHighVoltageMeasurement[s][0u] == 0u) &&
+            (pTableCellVoltage->nrValidCellVoltages[s] == BS_NR_OF_CELL_BLOCKS_PER_STRING)) {
+            STD_RETURN_TYPE_e voltagePlausible =
+                PL_CheckStringVoltage(pTableCellVoltage->packVoltage_mV[s], pTableCurrentSensor->highVoltage_mV[s][0u]);
+            (void)DIAG_CheckEvent(voltagePlausible, DIAG_ID_PLAUSIBILITY_PACK_VOLTAGE, DIAG_STRING, s);
 
             /* Use current sensor measurement */ /* TODO: use really current sensor? Average of both? AFE measurement? */
-            mrc_tablePackValues.stringVoltage_mV[stringNumber] = pTableCurrentSensor->highVoltage_mV[stringNumber][0u];
+            mrc_tablePackValues.stringVoltage_mV[s] = pTableCurrentSensor->highVoltage_mV[s][0u];
 
-            if (STD_OK == voltagePlausible) {
-                mrc_tablePackValues.invalidStringVoltage[stringNumber] = 0u;
+            if (voltagePlausible == STD_OK) {
+                mrc_tablePackValues.invalidStringVoltage[s] = 0u;
             } else {
-                mrc_tablePackValues.invalidStringVoltage[stringNumber] = 1u;
+                mrc_tablePackValues.invalidStringVoltage[s] = 1u;
             }
         } else {
             /* Plausibility check cannot be performed if we do not have valid
              * values from AFE and current sensor measurement */
-            (void)DIAG_CheckEvent(STD_NOT_OK, DIAG_ID_PLAUSIBILITY_PACK_VOLTAGE, DIAG_STRING, stringNumber);
+            (void)DIAG_CheckEvent(STD_NOT_OK, DIAG_ID_PLAUSIBILITY_PACK_VOLTAGE, DIAG_STRING, s);
 
-            if ((STD_OK == updatedMeasurement) &&
-                (pTableCurrentSensor->invalidHighVoltageMeasurement[stringNumber][0u] == 0u)) {
+            if ((updatedMeasurement == STD_OK) && (pTableCurrentSensor->invalidHighVoltageMeasurement[s][0u] == 0u)) {
                 /* Current sensor measurement valid -> use this measurement */
-                mrc_tablePackValues.stringVoltage_mV[stringNumber] =
-                    pTableCurrentSensor->highVoltage_mV[stringNumber][0u];
-                mrc_tablePackValues.invalidStringVoltage[stringNumber] = 0u;
-            } else if (pTableCellVoltage->nrValidCellVoltages[stringNumber] == BS_NR_OF_BAT_CELLS) {
+                mrc_tablePackValues.stringVoltage_mV[s]     = pTableCurrentSensor->highVoltage_mV[s][0u];
+                mrc_tablePackValues.invalidStringVoltage[s] = 0u;
+            } else if (pTableCellVoltage->nrValidCellVoltages[s] == BS_NR_OF_CELL_BLOCKS_PER_STRING) {
                 /* AFE measurement valid -> use this measurement */
-                mrc_tablePackValues.stringVoltage_mV[stringNumber] = pTableCellVoltage->packVoltage_mV[stringNumber];
-                mrc_tablePackValues.invalidStringVoltage[stringNumber] = 0u;
+                mrc_tablePackValues.stringVoltage_mV[s]     = pTableCellVoltage->packVoltage_mV[s];
+                mrc_tablePackValues.invalidStringVoltage[s] = 0u;
             } else {
                 /* AFE and current sensor measurement invalid -> try to construct
                  * a valid from the number of valid cell voltages and substitute
                  * invalid cell voltages with the average cell voltage. */
                 uint16_t numberInvalidCellVoltages =
-                    (BS_NR_OF_BAT_CELLS - pTableCellVoltage->nrValidCellVoltages[stringNumber]);
+                    (BS_NR_OF_CELL_BLOCKS_PER_STRING - pTableCellVoltage->nrValidCellVoltages[s]);
 
-                mrc_tablePackValues.stringVoltage_mV[stringNumber] =
-                    pTableCellVoltage->packVoltage_mV[stringNumber] +
-                    (mrc_tableMinimumMaximumValues.averageCellVoltage_mV[stringNumber] *
-                     (int16_t)numberInvalidCellVoltages);
+                mrc_tablePackValues.stringVoltage_mV[s] =
+                    pTableCellVoltage->packVoltage_mV[s] +
+                    (mrc_tableMinimumMaximumValues.averageCellVoltage_mV[s] * (int16_t)numberInvalidCellVoltages);
 
                 /* Only use this as valid value if not more than five cell voltages are invalid */
                 if (numberInvalidCellVoltages > MRC_ALLOWED_NUMBER_OF_INVALID_CELL_VOLTAGES) {
-                    mrc_tablePackValues.invalidStringVoltage[stringNumber] = 1u;
+                    mrc_tablePackValues.invalidStringVoltage[s] = 1u;
                 } else {
-                    mrc_tablePackValues.invalidStringVoltage[stringNumber] = 0u;
+                    mrc_tablePackValues.invalidStringVoltage[s] = 0u;
                 }
             }
         }
@@ -651,7 +646,7 @@ static void MRC_ValidateBatteryVoltageMeasurement(void) {
         /* Iterate over all strings to see which strings are connected */
         for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
             bool isStringConnected = BMS_IsStringClosed(s);
-            if ((0u == mrc_tablePackValues.invalidStringVoltage[s]) && (true == isStringConnected)) {
+            if ((mrc_tablePackValues.invalidStringVoltage[s] == 0u) && (isStringConnected == true)) {
                 /* AXIVION Disable Style MisraC2012Directive-4.1: Values start with 0, iteration is less than UINT8_MAX; overflow impossible */
                 sumOfStringValues_mV += mrc_tablePackValues.stringVoltage_mV[s];
                 numberOfValidStringVoltages++;
@@ -661,7 +656,7 @@ static void MRC_ValidateBatteryVoltageMeasurement(void) {
     } else {
         /* Take average of all strings if no strings are connected */
         for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
-            if (0u == mrc_tablePackValues.invalidStringVoltage[s]) {
+            if (mrc_tablePackValues.invalidStringVoltage[s] == 0u) {
                 /* AXIVION Disable Style MisraC2012Directive-4.1: Values start with 0, iteration is less than UINT8_MAX; overflow impossible */
                 sumOfStringValues_mV += mrc_tablePackValues.stringVoltage_mV[s];
                 numberOfValidStringVoltages++;
@@ -685,22 +680,22 @@ static void MRC_ValidateHighVoltageBusMeasurement(DATA_BLOCK_CURRENT_SENSOR_s *p
 
     int32_t sum_mV        = 0;
     uint8_t validVoltages = 0u;
-    for (uint8_t stringNumber = 0u; stringNumber < BS_NR_OF_STRINGS; stringNumber++) {
+    for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
         /* Check timeout of current sensor measurement */
         STD_RETURN_TYPE_e updatedMeasurement = MRC_MeasurementUpdatedRecently(
-            pTableCurrentSensor->timestampHighVoltage[stringNumber][2u],
-            pTableCurrentSensor->previousTimestampHighVoltage[stringNumber][2u],
+            pTableCurrentSensor->timestampHighVoltage[s][2u],
+            pTableCurrentSensor->previousTimestampHighVoltage[s][2u],
             MRC_CURRENT_SENSOR_MEASUREMENT_TIMEOUT_ms);
-        DIAG_CheckEvent(updatedMeasurement, DIAG_ID_CURRENT_SENSOR_V3_MEASUREMENT_TIMEOUT, DIAG_STRING, stringNumber);
+        DIAG_CheckEvent(updatedMeasurement, DIAG_ID_CURRENT_SENSOR_V3_MEASUREMENT_TIMEOUT, DIAG_STRING, s);
 
-        const bool stringClosed      = BMS_IsStringClosed(stringNumber);
-        const bool stringPrecharging = BMS_IsStringPrecharging(stringNumber);
-        if (((true == stringPrecharging) || (true == stringClosed)) && (STD_OK == updatedMeasurement)) {
+        const bool stringClosed      = BMS_IsStringClosed(s);
+        const bool stringPrecharging = BMS_IsStringPrecharging(s);
+        if (((stringPrecharging == true) || (stringClosed == true)) && (updatedMeasurement == STD_OK)) {
             /* Only voltages of connected strings can be used */
-            if (0u == pTableCurrentSensor->invalidHighVoltageMeasurement[stringNumber][2]) {
+            if (pTableCurrentSensor->invalidHighVoltageMeasurement[s][2] == 0u) {
                 /* Measured high voltage is valid */
                 validVoltages++;
-                sum_mV += pTableCurrentSensor->highVoltage_mV[stringNumber][2];
+                sum_mV += pTableCurrentSensor->highVoltage_mV[s][2];
             }
         }
     }
@@ -722,22 +717,22 @@ static void MRC_ValidatePowerMeasurement(DATA_BLOCK_CURRENT_SENSOR_s *pTableCurr
     /* Validate pack power. Will be invalidated if not all power measurement values are valid */
     mrc_tablePackValues.invalidPackPower = 0u;
 
-    for (uint8_t stringNumber = 0u; stringNumber < BS_NR_OF_STRINGS; stringNumber++) {
+    for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
         /* Check timeout of current sensor measurement */
         STD_RETURN_TYPE_e noTimeout = MRC_MeasurementUpdatedRecently(
-            pTableCurrentSensor->timestampPower[stringNumber],
-            pTableCurrentSensor->previousTimestampPower[stringNumber],
+            pTableCurrentSensor->timestampPower[s],
+            pTableCurrentSensor->previousTimestampPower[s],
             MRC_CURRENT_SENSOR_MEASUREMENT_TIMEOUT_ms);
-        DIAG_CheckEvent(noTimeout, DIAG_ID_CURRENT_SENSOR_POWER_MEASUREMENT_TIMEOUT, DIAG_STRING, stringNumber);
+        DIAG_CheckEvent(noTimeout, DIAG_ID_CURRENT_SENSOR_POWER_MEASUREMENT_TIMEOUT, DIAG_STRING, s);
 
-        if (STD_OK == noTimeout) {
+        if (noTimeout == STD_OK) {
             /* Check if current sensor measurement has been updated */
-            if (pTableCurrentSensor->timestampPower[stringNumber] != mrc_state.lastStringPowerTimestamp[stringNumber]) {
-                mrc_state.lastStringPowerTimestamp[stringNumber] = pTableCurrentSensor->timestampPower[stringNumber];
+            if (pTableCurrentSensor->timestampPower[s] != mrc_state.lastStringPowerTimestamp[s]) {
+                mrc_state.lastStringPowerTimestamp[s] = pTableCurrentSensor->timestampPower[s];
                 /* Check if measurement is valid */
-                if (pTableCurrentSensor->invalidPowerMeasurement[stringNumber] == 0u) {
-                    mrc_tablePackValues.stringPower_W[stringNumber]      = pTableCurrentSensor->power_W[stringNumber];
-                    mrc_tablePackValues.invalidStringPower[stringNumber] = 0u;
+                if (pTableCurrentSensor->invalidPowerMeasurement[s] == 0u) {
+                    mrc_tablePackValues.stringPower_W[s]      = pTableCurrentSensor->power_W[s];
+                    mrc_tablePackValues.invalidStringPower[s] = 0u;
                 } else {
                     /* Measurement has been updated but value is invalid -> calculate from current and string voltage */
                     calculatePower = true;
@@ -748,28 +743,27 @@ static void MRC_ValidatePowerMeasurement(DATA_BLOCK_CURRENT_SENSOR_s *pTableCurr
             }
         } else {
             /* Timeout reached. Set invalid flag */
-            calculatePower                                       = true;
-            mrc_tablePackValues.invalidStringPower[stringNumber] = 1u;
+            calculatePower                            = true;
+            mrc_tablePackValues.invalidStringPower[s] = 1u;
         }
-        if ((true == calculatePower) && (0u == mrc_tablePackValues.invalidStringCurrent[stringNumber]) &&
-            (0u == mrc_tablePackValues.invalidStringVoltage[stringNumber])) {
+        if ((calculatePower == true) && (mrc_tablePackValues.invalidStringCurrent[s] == 0u) &&
+            (mrc_tablePackValues.invalidStringVoltage[s] == 0u)) {
             /* Power measurement is invalid, but current and string voltage measurement are valid */
             int64_t stringPower_W =
-                ((mrc_tablePackValues.stringCurrent_mA[stringNumber] *
-                  mrc_tablePackValues.stringVoltage_mV[stringNumber]) /
+                ((mrc_tablePackValues.stringCurrent_mA[s] * mrc_tablePackValues.stringVoltage_mV[s]) /
                  (UNIT_CONVERSION_FACTOR_1000_INTEGER *  /* convert: mV -> V */
                   UNIT_CONVERSION_FACTOR_1000_INTEGER)); /* convert: mA -> A */
-            mrc_tablePackValues.stringPower_W[stringNumber]      = (int32_t)stringPower_W;
-            mrc_tablePackValues.invalidStringPower[stringNumber] = 0u;
+            mrc_tablePackValues.stringPower_W[s]      = (int32_t)stringPower_W;
+            mrc_tablePackValues.invalidStringPower[s] = 0u;
         }
-        if (0u == mrc_tablePackValues.invalidStringPower[stringNumber]) {
-            packPower_W += mrc_tablePackValues.stringPower_W[stringNumber];
-            DIAG_Handler(DIAG_ID_POWER_MEASUREMENT_ERROR, DIAG_EVENT_OK, DIAG_STRING, stringNumber);
+        if (mrc_tablePackValues.invalidStringPower[s] == 0u) {
+            packPower_W += mrc_tablePackValues.stringPower_W[s];
+            DIAG_Handler(DIAG_ID_POWER_MEASUREMENT_ERROR, DIAG_EVENT_OK, DIAG_STRING, s);
         } else {
             /* One string power is invalid -> pack power cannot be correct.
              * Set pack power invalid */
             mrc_tablePackValues.invalidPackPower = 1u;
-            DIAG_Handler(DIAG_ID_POWER_MEASUREMENT_ERROR, DIAG_EVENT_NOT_OK, DIAG_STRING, stringNumber);
+            DIAG_Handler(DIAG_ID_POWER_MEASUREMENT_ERROR, DIAG_EVENT_NOT_OK, DIAG_STRING, s);
         }
     }
     mrc_tablePackValues.packPower_W = packPower_W;
@@ -794,20 +788,20 @@ static STD_RETURN_TYPE_e MRC_CalculateCellVoltageMinMaxAverage(
         uint16_t moduleNumberMaximum = 0u;
         uint16_t cellNumberMaximum   = 0u;
         /* Iterate over all cells in each string */
-        for (uint8_t m = 0u; m < BS_NR_OF_MODULES; m++) {
-            for (uint8_t c = 0u; c < BS_NR_OF_CELLS_PER_MODULE; c++) {
+        for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
+            for (uint8_t c = 0u; c < BS_NR_OF_CELL_BLOCKS_PER_MODULE; c++) {
                 if ((pValidatedVoltages->invalidCellVoltage[s][m] & (0x01u << c)) == 0u) {
                     /* Cell voltage is valid -> use this voltage for subsequent calculations */
                     nrValidCellvoltages++;
-                    sum += pValidatedVoltages->cellVoltage_mV[s][(m * BS_NR_OF_CELLS_PER_MODULE) + c];
+                    sum += pValidatedVoltages->cellVoltage_mV[s][(m * BS_NR_OF_CELL_BLOCKS_PER_MODULE) + c];
 
-                    if (pValidatedVoltages->cellVoltage_mV[s][(m * BS_NR_OF_CELLS_PER_MODULE) + c] < min) {
-                        min = pValidatedVoltages->cellVoltage_mV[s][(m * BS_NR_OF_CELLS_PER_MODULE) + c];
+                    if (pValidatedVoltages->cellVoltage_mV[s][(m * BS_NR_OF_CELL_BLOCKS_PER_MODULE) + c] < min) {
+                        min = pValidatedVoltages->cellVoltage_mV[s][(m * BS_NR_OF_CELL_BLOCKS_PER_MODULE) + c];
                         moduleNumberMinimum = m;
                         cellNumberMinimum   = c;
                     }
-                    if (pValidatedVoltages->cellVoltage_mV[s][(m * BS_NR_OF_CELLS_PER_MODULE) + c] > max) {
-                        max = pValidatedVoltages->cellVoltage_mV[s][(m * BS_NR_OF_CELLS_PER_MODULE) + c];
+                    if (pValidatedVoltages->cellVoltage_mV[s][(m * BS_NR_OF_CELL_BLOCKS_PER_MODULE) + c] > max) {
+                        max = pValidatedVoltages->cellVoltage_mV[s][(m * BS_NR_OF_CELL_BLOCKS_PER_MODULE) + c];
                         moduleNumberMaximum = m;
                         cellNumberMaximum   = c;
                     }
@@ -852,7 +846,7 @@ static STD_RETURN_TYPE_e MRC_CalculateCellTemperatureMinMaxAverage(
         int16_t max                      = INT16_MIN;
         float sum_ddegC                  = 0.0f;
 
-        for (uint8_t m = 0u; m < BS_NR_OF_MODULES; m++) {
+        for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
             for (uint8_t c = 0u; c < BS_NR_OF_TEMP_SENSORS_PER_MODULE; c++) {
                 if ((pValidatedTemperatures->invalidCellTemperature[s][m] & (0x01u << c)) == 0u) {
                     /* Cell temperature is valid -> use this voltage for subsequent calculations */
@@ -912,20 +906,21 @@ static STD_RETURN_TYPE_e MRC_ValidateCellVoltage(
     /* Iterate over all cell measurements */
     for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
         int32_t sum = 0;
-        for (uint8_t m = 0; m < BS_NR_OF_MODULES; m++) {
-            for (uint8_t c = 0; c < BS_NR_OF_CELLS_PER_MODULE; c++) {
+        for (uint8_t m = 0; m < BS_NR_OF_MODULES_PER_STRING; m++) {
+            for (uint8_t c = 0; c < BS_NR_OF_CELL_BLOCKS_PER_MODULE; c++) {
                 if (((pCellvoltageBase->invalidCellVoltage[s][m] & (1u << c)) == 0u) &&
                     ((pCellvoltageRedundancy0->invalidCellVoltage[s][m] & (1u << c)) == 0u)) {
                     /* Check if cell voltage of base AND redundant measurement is valid -> do plausibility check */
-                    if (STD_OK == PL_CheckCellvoltage(
-                                      pCellvoltageBase->cellVoltage_mV[s][(m * BS_NR_OF_CELLS_PER_MODULE) + c],
-                                      pCellvoltageRedundancy0->cellVoltage_mV[s][(m * BS_NR_OF_CELLS_PER_MODULE) + c],
-                                      &pValidatedVoltages->cellVoltage_mV[s][(m * BS_NR_OF_CELLS_PER_MODULE) + c])) {
+                    if (STD_OK ==
+                        PL_CheckCellvoltage(
+                            pCellvoltageBase->cellVoltage_mV[s][(m * BS_NR_OF_CELL_BLOCKS_PER_MODULE) + c],
+                            pCellvoltageRedundancy0->cellVoltage_mV[s][(m * BS_NR_OF_CELL_BLOCKS_PER_MODULE) + c],
+                            &pValidatedVoltages->cellVoltage_mV[s][(m * BS_NR_OF_CELL_BLOCKS_PER_MODULE) + c])) {
                         /* Clear valid flag */
                         pValidatedVoltages->invalidCellVoltage[s][m] = pValidatedVoltages->invalidCellVoltage[s][m] &
                                                                        (~(1u << c));
                         numberValidMeasurements++;
-                        sum += pValidatedVoltages->cellVoltage_mV[s][(m * BS_NR_OF_CELLS_PER_MODULE) + c];
+                        sum += pValidatedVoltages->cellVoltage_mV[s][(m * BS_NR_OF_CELL_BLOCKS_PER_MODULE) + c];
                     } else {
                         /* Set invalid flag */
                         noPlausibilityIssueDetected = STD_NOT_OK;
@@ -935,28 +930,28 @@ static STD_RETURN_TYPE_e MRC_ValidateCellVoltage(
                     }
                 } else if ((pCellvoltageBase->invalidCellVoltage[s][m] & (1u << c)) == 0u) {
                     /* Only base measurement value is valid -> use this voltage without further plausibility checks */
-                    pValidatedVoltages->cellVoltage_mV[s][(m * BS_NR_OF_CELLS_PER_MODULE) + c] =
-                        pCellvoltageBase->cellVoltage_mV[s][(m * BS_NR_OF_CELLS_PER_MODULE) + c];
+                    pValidatedVoltages->cellVoltage_mV[s][(m * BS_NR_OF_CELL_BLOCKS_PER_MODULE) + c] =
+                        pCellvoltageBase->cellVoltage_mV[s][(m * BS_NR_OF_CELL_BLOCKS_PER_MODULE) + c];
                     /* Reset valid flag */
                     pValidatedVoltages->invalidCellVoltage[s][m] = pValidatedVoltages->invalidCellVoltage[s][m] &
                                                                    (~(1u << c));
                     numberValidMeasurements++;
-                    sum += pValidatedVoltages->cellVoltage_mV[s][(m * BS_NR_OF_CELLS_PER_MODULE) + c];
+                    sum += pValidatedVoltages->cellVoltage_mV[s][(m * BS_NR_OF_CELL_BLOCKS_PER_MODULE) + c];
                 } else if ((pCellvoltageRedundancy0->invalidCellVoltage[s][m] & (1u << c)) == 0u) {
                     /* Only redundant measurement value is valid -> use this voltage without further plausibility checks */
-                    pValidatedVoltages->cellVoltage_mV[s][(m * BS_NR_OF_CELLS_PER_MODULE) + c] =
-                        pCellvoltageRedundancy0->cellVoltage_mV[s][(m * BS_NR_OF_CELLS_PER_MODULE) + c];
+                    pValidatedVoltages->cellVoltage_mV[s][(m * BS_NR_OF_CELL_BLOCKS_PER_MODULE) + c] =
+                        pCellvoltageRedundancy0->cellVoltage_mV[s][(m * BS_NR_OF_CELL_BLOCKS_PER_MODULE) + c];
                     /* Reset valid flag */
                     pValidatedVoltages->invalidCellVoltage[s][m] = pValidatedVoltages->invalidCellVoltage[s][m] &
                                                                    (~(1u << c));
                     numberValidMeasurements++;
-                    sum += pValidatedVoltages->cellVoltage_mV[s][(m * BS_NR_OF_CELLS_PER_MODULE) + c];
+                    sum += pValidatedVoltages->cellVoltage_mV[s][(m * BS_NR_OF_CELL_BLOCKS_PER_MODULE) + c];
                 } else {
                     /* Both, base and redundant measurement value are invalid */
                     /* Save average cell voltage value of base and redundant */
-                    pValidatedVoltages->cellVoltage_mV[s][(m * BS_NR_OF_CELLS_PER_MODULE) + c] =
-                        (pCellvoltageBase->cellVoltage_mV[s][(m * BS_NR_OF_CELLS_PER_MODULE) + c] +
-                         pCellvoltageRedundancy0->cellVoltage_mV[s][(m * BS_NR_OF_CELLS_PER_MODULE) + c]) /
+                    pValidatedVoltages->cellVoltage_mV[s][(m * BS_NR_OF_CELL_BLOCKS_PER_MODULE) + c] =
+                        (pCellvoltageBase->cellVoltage_mV[s][(m * BS_NR_OF_CELL_BLOCKS_PER_MODULE) + c] +
+                         pCellvoltageRedundancy0->cellVoltage_mV[s][(m * BS_NR_OF_CELL_BLOCKS_PER_MODULE) + c]) /
                         2u;
                     /* Set invalid flag */
                     pValidatedVoltages->invalidCellVoltage[s][m] |= (1u << c);
@@ -1007,7 +1002,7 @@ static STD_RETURN_TYPE_e MRC_ValidateCellTemperature(
 
     /* Iterate over all cell measurements */
     for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
-        for (uint8_t m = 0u; m < BS_NR_OF_MODULES; m++) {
+        for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
             for (uint8_t c = 0u; c < BS_NR_OF_TEMP_SENSORS_PER_MODULE; c++) {
                 if (((pCelltemperatureBase->invalidCellTemperature[s][m] & (1u << c)) == 0u) &&
                     ((pCelltemperatureRedundancy0->invalidCellTemperature[s][m] & (1u << c)) == 0u)) {
@@ -1092,7 +1087,7 @@ static STD_RETURN_TYPE_e MRC_UpdateCellTemperatureValidation(
 extern STD_RETURN_TYPE_e MRC_Initialize(void) {
     STD_RETURN_TYPE_e retval = STD_NOT_OK;
     for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
-        for (uint8_t m = 0u; m < BS_NR_OF_MODULES; m++) {
+        for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
             /* Invalidate cell voltage values */
             mrc_tableCellVoltages.invalidCellVoltage[s][m] = 0xFFFFFFFFFFFFFFFFULL;
             mrc_tableCellVoltages.validModuleVoltage[s][m] = false;

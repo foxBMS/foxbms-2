@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    bender_iso165c.h
  * @author  foxBMS Team
  * @date    2019-04-07 (date of creation)
- * @updated 2021-09-08 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup DRIVERS
  * @prefix  I165C
  *
@@ -66,27 +67,6 @@
 
 /*========== Macros and Definitions =========================================*/
 
-/**
- * symbolic names for the different operating states Bender Isometer.
- * Defined through the duty cycle of the measurement signal.
- */
-typedef enum I165C_STATE {
-    I165C_STATE_UNINITIALIZED,
-    I165C_STATE_SELFTEST,
-    I165C_STATE_SELFTEST_WAIT_ACK,
-    I165C_STATE_WAIT_SELFTEST,
-    I165C_STATE_INITIALIZATION_FINISHED,
-    I165C_STATE_READ_RESISTANCE,
-    I165C_STATE_READ_RESISTANCE_WAIT_ACK,
-    I165C_STATE_UNLOCK,
-    I165C_STATE_UNLOCK_WAIT_ACK,
-    I165C_STATE_SET_ERROR_THRESHOLD,
-    I165C_STATE_SET_ERROR_THRESHOLD_WAIT_ACK,
-    I165C_STATE_SET_WARNING_THRESHOLD,
-    I165C_STATE_SET_WARNING_THRESHOLD_WAIT_ACK,
-    I165C_STATE_GET_MEASUREMENT,
-} I165C_STATE_e;
-
 /*========== Extern Constant and Variable Declarations ======================*/
 
 /*========== Extern Function Prototypes =====================================*/
@@ -98,16 +78,11 @@ extern void TEST_I165C_WriteDataWord(uint8_t dataWord, uint16_t data, CAN_BUFFER
 extern void TEST_I165C_ReadDataWord(uint8_t dataWord, uint16_t *data, CAN_BUFFERELEMENT_s canMessage);
 extern void TEST_I165C_ReadDataWordImdInfo(uint8_t dataWord, uint16_t *data, CAN_BUFFERELEMENT_s canMessage);
 extern void TEST_I165C_ReadDataByte(uint8_t dataByte, uint8_t *data, CAN_BUFFERELEMENT_s canMessage);
-extern void TEST_I165C_WriteCmd(uint8_t id, uint8_t cmd, CAN_BUFFERELEMENT_s *canMessage);
+extern void TEST_I165C_WriteCmd(uint8_t id, uint8_t command, CAN_BUFFERELEMENT_s *canMessage);
 extern bool TEST_I165C_CheckResponse(uint8_t command, CAN_BUFFERELEMENT_s *canMessage);
 extern bool TEST_I165C_GetImdInfo(CAN_BUFFERELEMENT_s *canMessage);
-extern bool TEST_I165C_IsInitialized(CAN_BUFFERELEMENT_s canMessage);
-extern void TEST_I165C_CheckAcknowledgeArrived(
-    uint8_t command,
-    I165C_STATE_e *currentState,
-    I165C_STATE_e nextState,
-    uint8_t *tries,
-    CAN_BUFFERELEMENT_s *canMessage);
+extern bool TEST_I165C_IsSelfTestFinished(CAN_BUFFERELEMENT_s canMessage);
+extern bool TEST_I165C_CheckAcknowledgeArrived(uint8_t command, uint8_t *tries, CAN_BUFFERELEMENT_s *canMessage);
 #endif
 
 #endif /* FOXBMS__BENDER_ISO165C_H_ */

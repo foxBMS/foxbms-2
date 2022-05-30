@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    sys.h
  * @author  foxBMS Team
  * @date    2020-02-24 (date of creation)
- * @updated 2021-10-12 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup ENGINE
  * @prefix  SYS
  *
@@ -61,14 +62,14 @@
 /*========== Macros and Definitions =========================================*/
 
 /** Symbolic names for busyness of the system */
-typedef enum SYS_CHECK {
+typedef enum {
     SYS_CHECK_OK,     /*!< system ok      */
     SYS_CHECK_BUSY,   /*!< system busy    */
     SYS_CHECK_NOT_OK, /*!< system not ok  */
 } SYS_CHECK_e;
 
 /** States of the state machine */
-typedef enum SYS_FSM_STATES {
+typedef enum {
     SYS_FSM_STATE_DUMMY,          /*!< dummy state - always the first state */
     SYS_FSM_STATE_HAS_NEVER_RUN,  /*!< never run state - always the second state */
     SYS_FSM_STATE_UNINITIALIZED,  /*!< uninitialized state */
@@ -78,7 +79,7 @@ typedef enum SYS_FSM_STATES {
 } SYS_FSM_STATES_e;
 
 /** Substates of the state machine */
-typedef enum SYS_FSM_SUBSTATES {
+typedef enum {
     SYS_FSM_SUBSTATE_DUMMY,                                  /*!< dummy state - always the first substate */
     SYS_FSM_SUBSTATE_ENTRY,                                  /*!< entry state - always the second substate */
     SYS_FSM_SUBSTATE_INITIALIZATION_SBC,                     /*!< TODO */
@@ -97,7 +98,7 @@ typedef enum SYS_FSM_SUBSTATES {
 /*================== Constant and Variable Definitions ======================*/
 
 /** States of the SYS state machine */
-typedef enum SYS_STATEMACH {
+typedef enum {
     /* Init-Sequence */
     SYS_STATEMACH_UNINITIALIZED,                 /*!<    */
     SYS_STATEMACH_INITIALIZATION,                /*!<    */
@@ -113,12 +114,12 @@ typedef enum SYS_STATEMACH {
     SYS_STATEMACH_FIRST_MEASUREMENT_CYCLE,       /*!<    */
     SYS_STATEMACH_INITIALIZE_MISC,               /*!<    */
     SYS_STATEMACH_CHECK_CURRENT_SENSOR_PRESENCE, /*!<    */
-    SYS_STATEMACH_INITIALIZE_ISOGUARD,           /*!<    */
+    SYS_STATEMACH_INITIALIZE_IMD,                /*!< initialize IMD module */
     SYS_STATEMACH_ERROR,                         /*!< Error-State */
 } SYS_STATEMACH_e;
 
 /** Substates of the SYS state machine */
-typedef enum SYS_STATEMACH_SUB {
+typedef enum {
     SYS_ENTRY,                         /*!< Substate entry state */
     SYS_CHECK_ERROR_FLAGS,             /*!< Substate check if any error flag set */
     SYS_CHECK_STATE_REQUESTS,          /*!< Substate check if there is a state request */
@@ -127,27 +128,29 @@ typedef enum SYS_STATEMACH_SUB {
     SYS_WAIT_INITIALIZATION_CONT,      /*!< Substate to wait for initialization of the contactor state machine */
     SYS_WAIT_INITIALIZATION_BAL,       /*!< Substate to wait for initialization of the balancing state machine */
     SYS_WAIT_INITIALIZATION_BAL_GLOBAL_ENABLE, /*!< Substate to enable/disable balancing globally */
+    SYS_WAIT_INITIALIZATION_IMD,               /*!< Substate to wait for initialization of the imd state machine */
     SYS_WAIT_INITIALIZATION_BMS,               /*!< Substate to wait for initialization of the bms state machine */
     SYS_WAIT_FIRST_MEASUREMENT_CYCLE,          /*!< Substate to wait for first measurement cycle to complete */
     SYS_WAIT_CURRENT_SENSOR_PRESENCE,          /*!< Substate to wait for first measurement cycle to complete */
-    SYS_SBC_INIT_ERROR,                        /*!< Substate error of SBC initialization */
-    SYS_CONT_INIT_ERROR,                       /*!< Substate error of contactor state machine initialization */
-    SYS_BAL_INIT_ERROR,                        /*!< Substate error of balancing state machine initialization */
-    SYS_ILCK_INIT_ERROR,                       /*!< Substate error of contactor state machine initialization */
-    SYS_BMS_INIT_ERROR,                        /*!< Substate error of bms state machine initialization */
-    SYS_MEAS_INIT_ERROR,                       /*!< Substate error if first measurement cycle does not complete */
+    SYS_SBC_INITIALIZATION_ERROR,              /*!< Substate error of SBC initialization */
+    SYS_CONT_INITIALIZATION_ERROR,             /*!< Substate error of contactor state machine initialization */
+    SYS_BAL_INITIALIZATION_ERROR,              /*!< Substate error of balancing state machine initialization */
+    SYS_ILCK_INITIALIZATION_ERROR,             /*!< Substate error of contactor state machine initialization */
+    SYS_IMD_INITIALIZATION_ERROR,              /*!< Substate error of bms state machine initialization */
+    SYS_BMS_INITIALIZATION_ERROR,              /*!< Substate error of bms state machine initialization */
+    SYS_MEAS_INITIALIZATION_ERROR,             /*!< Substate error if first measurement cycle does not complete */
     SYS_CURRENT_SENSOR_PRESENCE_ERROR,         /*!< Substate error if first measurement cycle does not complete */
 } SYS_STATEMACH_SUB_e;
 
 /** State requests for the SYS statemachine */
-typedef enum SYS_STATE_REQUEST {
-    SYS_STATE_INIT_REQUEST,  /*!< initialization request */
-    SYS_STATE_ERROR_REQUEST, /*!< error state requested */
-    SYS_STATE_NO_REQUEST,    /*!< no request */
+typedef enum {
+    SYS_STATE_INITIALIZATION_REQUEST, /*!< initialization request */
+    SYS_STATE_ERROR_REQUEST,          /*!< error state requested */
+    SYS_STATE_NO_REQUEST,             /*!< no request */
 } SYS_STATE_REQUEST_e;
 
 /** Possible return values when state requests are made to the SYS statemachine */
-typedef enum SYS_RETURN_TYPE {
+typedef enum {
     SYS_OK,                  /*!< sys --> ok                             */
     SYS_BUSY_OK,             /*!< sys busy --> ok                        */
     SYS_REQUEST_PENDING,     /*!< requested to be executed               */
@@ -160,7 +163,7 @@ typedef enum SYS_RETURN_TYPE {
  * This structure contains all the variables relevant for the CONT state machine.
  * The user can get the current state of the CONT state machine with this variable
  */
-typedef struct SYS_STATE {
+typedef struct {
     uint16_t timer; /*!< time in ms before the state machine processes the next state, e.g. in counts of 1ms    */
     SYS_STATE_REQUEST_e stateRequest; /*!< current state request made to the state machine                      */
     SYS_STATEMACH_e state;            /*!< state of Driver State Machine                                        */

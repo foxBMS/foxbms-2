@@ -2,9 +2,18 @@
 .. |_| unicode:: 0xA0
    :trim:
 
+.. |uA| replace:: :math:`{\mu}A`
+.. |mA| replace:: mA
+.. |mAh| replace:: mAh
+.. |Ah| replace:: Ah
+.. |mu| replace:: :math:`{\mu}`
+.. |mm| replace:: mm
+.. |ms| replace:: ms
+.. |Ohm| replace:: :math:`{\Omega}`
+.. |kOhm| replace:: :math:`{k\Omega}`
+.. |g| replace:: g
 .. |W| replace:: W
+.. |V| replace:: V
 .. |kW| replace:: kW
 .. |Wh| replace:: Wh
 .. |kWh| replace:: kWh
-.. |mAh| replace:: mAh
-.. |Ah| replace:: Ah

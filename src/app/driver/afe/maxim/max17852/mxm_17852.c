@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    mxm_17852.c
  * @author  foxBMS Team
  * @date    2021-11-24 (date of creation)
- * @updated 2021-12-06 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup DRIVERS
  * @prefix  MXM
  *
@@ -144,10 +145,9 @@ extern void MXM_StateMachineOperation(MXM_MONITORING_INSTANCE_s *pState) {
             }
             break;
         case MXM_OP_DIAGNOSTIC_STATUS1:
-            if (true == MXM_HandleStateReadall(pState, MXM_REG_STATUS1, MXM_OP_DIAGNOSTIC_STATUS2)) {
-                const uint8_t temp_len = (uint8_t)(
-                    (BATTERY_MANAGEMENT_TX_LENGTH_READALL + (2uL * MXM_5XGetNumberOfSatellites(pState->pInstance5X))) &
-                    (uint8_t)UINT8_MAX);
+            if (MXM_HandleStateReadall(pState, MXM_REG_STATUS1, MXM_OP_DIAGNOSTIC_STATUS2) == true) {
+                const uint8_t temp_len =
+                    (uint8_t)((BATTERY_MANAGEMENT_TX_LENGTH_READALL + (2uL * MXM_5XGetNumberOfSatellites(pState->pInstance5X))) & (uint8_t)UINT8_MAX);
                 MXM_MonRegistryParseStatusFmeaIntoDevices(pState, temp_len);
                 const bool someDeviceHasBeenReset = MXM_CheckIfADeviceHasBeenReset(pState);
                 if (someDeviceHasBeenReset == true) {
@@ -157,34 +157,30 @@ extern void MXM_StateMachineOperation(MXM_MONITORING_INSTANCE_s *pState) {
             }
             break;
         case MXM_OP_DIAGNOSTIC_STATUS2:
-            if (true == MXM_HandleStateReadall(pState, MXM_REG_STATUS2, MXM_OP_DIAGNOSTIC_STATUS3)) {
-                const uint8_t temp_len = (uint8_t)(
-                    (BATTERY_MANAGEMENT_TX_LENGTH_READALL + (2uL * MXM_5XGetNumberOfSatellites(pState->pInstance5X))) &
-                    (uint8_t)UINT8_MAX);
+            if (MXM_HandleStateReadall(pState, MXM_REG_STATUS2, MXM_OP_DIAGNOSTIC_STATUS3) == true) {
+                const uint8_t temp_len =
+                    (uint8_t)((BATTERY_MANAGEMENT_TX_LENGTH_READALL + (2uL * MXM_5XGetNumberOfSatellites(pState->pInstance5X))) & (uint8_t)UINT8_MAX);
                 MXM_MonRegistryParseStatusFmeaIntoDevices(pState, temp_len);
             }
             break;
         case MXM_OP_DIAGNOSTIC_STATUS3:
-            if (true == MXM_HandleStateReadall(pState, MXM_REG_STATUS3, MXM_OP_DIAGNOSTIC_FMEA1)) {
-                const uint8_t temp_len = (uint8_t)(
-                    (BATTERY_MANAGEMENT_TX_LENGTH_READALL + (2uL * MXM_5XGetNumberOfSatellites(pState->pInstance5X))) &
-                    (uint8_t)UINT8_MAX);
+            if (MXM_HandleStateReadall(pState, MXM_REG_STATUS3, MXM_OP_DIAGNOSTIC_FMEA1) == true) {
+                const uint8_t temp_len =
+                    (uint8_t)((BATTERY_MANAGEMENT_TX_LENGTH_READALL + (2uL * MXM_5XGetNumberOfSatellites(pState->pInstance5X))) & (uint8_t)UINT8_MAX);
                 MXM_MonRegistryParseStatusFmeaIntoDevices(pState, temp_len);
             }
             break;
         case MXM_OP_DIAGNOSTIC_FMEA1:
-            if (true == MXM_HandleStateReadall(pState, MXM_REG_FMEA1, MXM_OP_DIAGNOSTIC_FMEA2)) {
-                const uint8_t temp_len = (uint8_t)(
-                    (BATTERY_MANAGEMENT_TX_LENGTH_READALL + (2uL * MXM_5XGetNumberOfSatellites(pState->pInstance5X))) &
-                    (uint8_t)UINT8_MAX);
+            if (MXM_HandleStateReadall(pState, MXM_REG_FMEA1, MXM_OP_DIAGNOSTIC_FMEA2) == true) {
+                const uint8_t temp_len =
+                    (uint8_t)((BATTERY_MANAGEMENT_TX_LENGTH_READALL + (2uL * MXM_5XGetNumberOfSatellites(pState->pInstance5X))) & (uint8_t)UINT8_MAX);
                 MXM_MonRegistryParseStatusFmeaIntoDevices(pState, temp_len);
             }
             break;
         case MXM_OP_DIAGNOSTIC_FMEA2:
-            if (true == MXM_HandleStateReadall(pState, MXM_REG_FMEA2, MXM_OP_DIAGNOSTIC_CLEAR_STATUS2)) {
-                const uint8_t temp_len = (uint8_t)(
-                    (BATTERY_MANAGEMENT_TX_LENGTH_READALL + (2uL * MXM_5XGetNumberOfSatellites(pState->pInstance5X))) &
-                    (uint8_t)UINT8_MAX);
+            if (MXM_HandleStateReadall(pState, MXM_REG_FMEA2, MXM_OP_DIAGNOSTIC_CLEAR_STATUS2) == true) {
+                const uint8_t temp_len =
+                    (uint8_t)((BATTERY_MANAGEMENT_TX_LENGTH_READALL + (2uL * MXM_5XGetNumberOfSatellites(pState->pInstance5X))) & (uint8_t)UINT8_MAX);
                 MXM_MonRegistryParseStatusFmeaIntoDevices(pState, temp_len);
             }
             break;
@@ -245,7 +241,7 @@ extern void MXM_StateMachineOperation(MXM_MONITORING_INSTANCE_s *pState) {
             MXM_HandleStateWriteall(pState, MXM_OP_GET_SCAN_STROBE);
             break;
         case MXM_OP_GET_SCAN_STROBE:
-            if (true == MXM_HandleStateReadall(pState, MXM_REG_SCANCTRL, MXM_OP_GET_VOLTAGES)) {
+            if (MXM_HandleStateReadall(pState, MXM_REG_SCANCTRL, MXM_OP_GET_VOLTAGES) == true) {
                 /* no additional handling needed */
             }
             break;
@@ -257,7 +253,7 @@ extern void MXM_StateMachineOperation(MXM_MONITORING_INSTANCE_s *pState) {
                 if (pState->mxmVoltageCellCounter < (uint8_t)UINT8_MAX) {
                     pState->mxmVoltageCellCounter++;
                 }
-                static_assert(
+                f_static_assert(
                     MXM_VOLTAGE_READ_ARRAY_LENGTH <= (uint8_t)UINT8_MAX,
                     "invalid define MXM_VOLTAGE_READ_ARRAY_LENGTH");
                 /* modified: read one additional aux entry */
@@ -270,7 +266,7 @@ extern void MXM_StateMachineOperation(MXM_MONITORING_INSTANCE_s *pState) {
             }
             break;
         case MXM_OP_GET_ALRTSUM:
-            if (true == MXM_HandleStateReadall(pState, MXM_REG_ALRTSUM, MXM_OP_PARSE_VOLTAGES_INTO_DB)) {
+            if (MXM_HandleStateReadall(pState, MXM_REG_ALRTSUM, MXM_OP_PARSE_VOLTAGES_INTO_DB) == true) {
                 /* no additional handling needed */
             }
             break;
@@ -315,12 +311,12 @@ extern void MXM_StateMachineOperation(MXM_MONITORING_INSTANCE_s *pState) {
             MXM_HandleStateWriteall(pState, MXM_OP_PINOPEN_GET_SCAN_STROBE);
             break;
         case MXM_OP_PINOPEN_GET_SCAN_STROBE:
-            if (true == MXM_HandleStateReadall(pState, MXM_REG_SCANCTRL, MXM_OP_PINOPEN_GET_ALRT)) {
+            if (MXM_HandleStateReadall(pState, MXM_REG_SCANCTRL, MXM_OP_PINOPEN_GET_ALRT) == true) {
                 /* no additional handling needed */
             }
             break;
         case MXM_OP_PINOPEN_GET_ALRT:
-            if (true == MXM_HandleStateReadall(pState, MXM_REG_ALRTCOMPUV, MXM_OP_PINOPEN_PROCESS_OPENWIRE)) {
+            if (MXM_HandleStateReadall(pState, MXM_REG_ALRTCOMPUV, MXM_OP_PINOPEN_PROCESS_OPENWIRE) == true) {
                 /* no additional handling needed */
             }
             break;
@@ -347,7 +343,7 @@ extern void MXM_StateMachineOperation(MXM_MONITORING_INSTANCE_s *pState) {
             if (OS_CheckTimeHasPassedWithTimestamp(
                     pState->pBalancingState->previousTimeStamp,
                     pState->pBalancingState->currentTimeStamp,
-                    MXM_DELAY_BALANCING)) {
+                    MXM_DELAY_BALANCING) == false) {
                 /* nothing to do, exit balancing state chain */
                 pState->operationSubstate = MXM_OP_BAL_EXIT;
             } else {
@@ -355,7 +351,7 @@ extern void MXM_StateMachineOperation(MXM_MONITORING_INSTANCE_s *pState) {
                 pState->pBalancingState->previousTimeStamp = pState->pBalancingState->currentTimeStamp;
                 /* First reset the balancing switches, and THEN
                    set the balancing switches according to the database */
-                pState->operationSubstate = MXM_OP_BAL_CONTROL_RESET_ALL;
+                pState->operationSubstate = MXM_OP_BAL_CONTROL_STOP_BALANCING;
 
                 /* Change the parity of cells to balance */
                 if (pState->pBalancingState->evenCellsBalancingProcessed == true) {
@@ -368,6 +364,15 @@ extern void MXM_StateMachineOperation(MXM_MONITORING_INSTANCE_s *pState) {
                     pState->pBalancingState->oddCellsNeedBalancing  = false;
                 }
             }
+            break;
+        case MXM_OP_BAL_CONTROL_STOP_BALANCING:
+            /* Send a WRITEALL command to stop all balancing action */
+            if (pState->requestStatus5x == MXM_5X_STATE_UNSENT) {
+                pState->batteryCmdBuffer.regAddress = MXM_REG_BALCTRL;
+                pState->batteryCmdBuffer.lsb        = 0x00U;
+                pState->batteryCmdBuffer.msb        = 0x00U;
+            }
+            MXM_HandleStateWriteall(pState, MXM_OP_BAL_CONTROL_RESET_ALL);
             break;
         case MXM_OP_BAL_CONTROL_RESET_ALL:
             /* Send a WRITEALL command to open all balancing switches */
@@ -387,7 +392,7 @@ extern void MXM_StateMachineOperation(MXM_MONITORING_INSTANCE_s *pState) {
                 pState->pBalancingState->oddCellsBalancingProcessed  = false;
 
                 STD_RETURN_TYPE_e database_retval = DATA_READ_DATA(pState->pBalancingState->pBalancingControl_table);
-                if (STD_OK == database_retval) {
+                if (database_retval == STD_OK) {
                     /* Construct the balancing buffer */
                     const STD_RETURN_TYPE_e retval = MXM_ConstructBalancingBuffer(pState->pBalancingState);
 
@@ -400,6 +405,7 @@ extern void MXM_StateMachineOperation(MXM_MONITORING_INSTANCE_s *pState) {
                                 (uint8_t)(pState->pBalancingState->cellsToBalance & MXM_BM_LSB);
                             pState->batteryCmdBuffer.msb =
                                 (uint8_t)(pState->pBalancingState->cellsToBalance >> MXM_CELLS_IN_LSB);
+                            pState->batteryCmdBuffer.msb &= ((uint8_t)1u << 7u); /* set CBRESTART bit */
 
                             const STD_RETURN_TYPE_e setStateRequestReturn = MXM_5XSetStateRequest(
                                 pState->pInstance5X,
@@ -443,7 +449,7 @@ extern void MXM_StateMachineOperation(MXM_MONITORING_INSTANCE_s *pState) {
                         /* nothing to do here */
                     }
                     pState->requestStatus5x   = MXM_5X_STATE_UNSENT;
-                    pState->operationSubstate = MXM_OP_BAL_EXIT;
+                    pState->operationSubstate = MXM_OP_BAL_START;
                 }
             } else if (pState->requestStatus5x == MXM_5X_STATE_ERROR) {
                 /* default-behavior: retry */
@@ -462,7 +468,14 @@ extern void MXM_StateMachineOperation(MXM_MONITORING_INSTANCE_s *pState) {
                 pState->batteryCmdBuffer.lsb = 0x0EU;
                 pState->batteryCmdBuffer.msb = 0x18U;
             }
-            MXM_HandleStateWriteall(pState, MXM_OP_BAL_EXIT);
+            MXM_HandleStateWriteall(pState, MXM_OP_BAL_READ_BALSTAT);
+            break;
+        case MXM_OP_BAL_READ_BALSTAT:
+            if (MXM_HandleStateReadall(pState, MXM_REG_BALSTAT, MXM_OP_BAL_EXIT) == true) {
+                const uint8_t temp_len =
+                    (uint8_t)((BATTERY_MANAGEMENT_TX_LENGTH_READALL + (2uL * MXM_5XGetNumberOfSatellites(pState->pInstance5X))) & (uint8_t)UINT8_MAX);
+                MXM_MonRegistryParseStatusFmeaIntoDevices(pState, temp_len);
+            }
             break;
         case MXM_OP_BAL_EXIT:
             pState->operationSubstate = MXM_OP_CYCLE_END_ENTRY;
@@ -493,6 +506,15 @@ extern void MXM_StateMachineOperation(MXM_MONITORING_INSTANCE_s *pState) {
                 pState->batteryCmdBuffer.lsb        = 0x00u; /* alert interface disabled */
                 pState->batteryCmdBuffer.msb        = 0x01u; /* single uart with external loopback*/
             }
+            MXM_HandleStateWriteall(pState, MXM_INIT_DEVCFG2);
+            break;
+        case MXM_INIT_DEVCFG2:
+            /* default value for DEVCFG2  */
+            if (pState->requestStatus5x == MXM_5X_STATE_UNSENT) {
+                pState->batteryCmdBuffer.regAddress = MXM_REG_DEVCFG2;
+                pState->batteryCmdBuffer.lsb        = 0x00u; /* activate CB watchdog */
+                pState->batteryCmdBuffer.msb        = 0x40u; /* default*/
+            }
             MXM_HandleStateWriteall(pState, MXM_INIT_SET_STATUS2);
             break;
         case MXM_INIT_SET_STATUS2:
@@ -515,28 +537,25 @@ extern void MXM_StateMachineOperation(MXM_MONITORING_INSTANCE_s *pState) {
             break;
         case MXM_INIT_GET_VERSION:
             /* add version information to registry */
-            if (true == MXM_HandleStateReadall(pState, MXM_REG_VERSION, MXM_INIT_GET_ID1)) {
-                uint8_t temp_len = (uint8_t)(
-                    (BATTERY_MANAGEMENT_TX_LENGTH_READALL + (2uL * MXM_5XGetNumberOfSatellites(pState->pInstance5X))) &
-                    (uint8_t)UINT8_MAX);
+            if (MXM_HandleStateReadall(pState, MXM_REG_VERSION, MXM_INIT_GET_ID1) == true) {
+                uint8_t temp_len =
+                    (uint8_t)((BATTERY_MANAGEMENT_TX_LENGTH_READALL + (2uL * MXM_5XGetNumberOfSatellites(pState->pInstance5X))) & (uint8_t)UINT8_MAX);
                 MXM_MonRegistryParseVersionIntoDevices(pState, temp_len);
             }
             break;
         case MXM_INIT_GET_ID1:
             /* add ID1 to registry */
-            if (true == MXM_HandleStateReadall(pState, MXM_REG_ID1, MXM_INIT_GET_ID2)) {
-                uint8_t temp_len = (uint8_t)(
-                    (BATTERY_MANAGEMENT_TX_LENGTH_READALL + (2uL * MXM_5XGetNumberOfSatellites(pState->pInstance5X))) &
-                    (uint8_t)UINT8_MAX);
+            if (MXM_HandleStateReadall(pState, MXM_REG_ID1, MXM_INIT_GET_ID2) == true) {
+                uint8_t temp_len =
+                    (uint8_t)((BATTERY_MANAGEMENT_TX_LENGTH_READALL + (2uL * MXM_5XGetNumberOfSatellites(pState->pInstance5X))) & (uint8_t)UINT8_MAX);
                 MXM_MonRegistryParseIdIntoDevices(pState, temp_len, MXM_REG_ID1);
             }
             break;
         case MXM_INIT_GET_ID2:
             /* add ID2 to registry */
-            if (true == MXM_HandleStateReadall(pState, MXM_REG_ID2, MXM_INIT_MEASUREEN1)) {
-                uint8_t temp_len = (uint8_t)(
-                    (BATTERY_MANAGEMENT_TX_LENGTH_READALL + (2uL * MXM_5XGetNumberOfSatellites(pState->pInstance5X))) &
-                    (uint8_t)UINT8_MAX);
+            if (MXM_HandleStateReadall(pState, MXM_REG_ID2, MXM_INIT_MEASUREEN1) == true) {
+                uint8_t temp_len =
+                    (uint8_t)((BATTERY_MANAGEMENT_TX_LENGTH_READALL + (2uL * MXM_5XGetNumberOfSatellites(pState->pInstance5X))) & (uint8_t)UINT8_MAX);
                 MXM_MonRegistryParseIdIntoDevices(pState, temp_len, MXM_REG_ID2);
             }
             break;
@@ -616,127 +635,127 @@ extern void MXM_StateMachineOperation(MXM_MONITORING_INSTANCE_s *pState) {
             MXM_HandleStateWriteall(pState, MXM_INIT_BALEXP1);
             break;
         case MXM_INIT_BALEXP1:
-            /* set BALEXP1 to have 1 minute timeout in manual balancing */
+            /* set BALEXP1 to have 5 minute timeout in manual balancing */
             if (pState->requestStatus5x == MXM_5X_STATE_UNSENT) {
                 pState->batteryCmdBuffer.regAddress = MXM_REG_BALEXP1;
-                pState->batteryCmdBuffer.lsb        = 0x01u;
+                pState->batteryCmdBuffer.lsb        = 0x05u;
                 pState->batteryCmdBuffer.msb        = 0x00u;
             }
             MXM_HandleStateWriteall(pState, MXM_INIT_BALEXP2);
             break;
         case MXM_INIT_BALEXP2:
-            /* set BALEXP2 to have 1 minute timeout in manual balancing */
+            /* set BALEXP2 to have 0 minute timeout in manual balancing */
             if (pState->requestStatus5x == MXM_5X_STATE_UNSENT) {
                 pState->batteryCmdBuffer.regAddress = MXM_REG_BALEXP2;
-                pState->batteryCmdBuffer.lsb        = 0x01u;
+                pState->batteryCmdBuffer.lsb        = 0x00u;
                 pState->batteryCmdBuffer.msb        = 0x00u;
             }
             MXM_HandleStateWriteall(pState, MXM_INIT_BALEXP3);
             break;
         case MXM_INIT_BALEXP3:
-            /* set BALEXP3 to have 1 minute timeout in manual balancing */
+            /* set BALEXP3 to have 0 minute timeout in manual balancing */
             if (pState->requestStatus5x == MXM_5X_STATE_UNSENT) {
                 pState->batteryCmdBuffer.regAddress = MXM_REG_BALEXP3;
-                pState->batteryCmdBuffer.lsb        = 0x01u;
+                pState->batteryCmdBuffer.lsb        = 0x00u;
                 pState->batteryCmdBuffer.msb        = 0x00u;
             }
             MXM_HandleStateWriteall(pState, MXM_INIT_BALEXP4);
             break;
         case MXM_INIT_BALEXP4:
-            /* set BALEXP4 to have 1 minute timeout in manual balancing */
+            /* set BALEXP4 to have 0 minute timeout in manual balancing */
             if (pState->requestStatus5x == MXM_5X_STATE_UNSENT) {
                 pState->batteryCmdBuffer.regAddress = MXM_REG_BALEXP4;
-                pState->batteryCmdBuffer.lsb        = 0x01u;
+                pState->batteryCmdBuffer.lsb        = 0x00u;
                 pState->batteryCmdBuffer.msb        = 0x00u;
             }
             MXM_HandleStateWriteall(pState, MXM_INIT_BALEXP5);
             break;
         case MXM_INIT_BALEXP5:
-            /* set BALEXP5 to have 1 minute timeout in manual balancing */
+            /* set BALEXP5 to have 0 minute timeout in manual balancing */
             if (pState->requestStatus5x == MXM_5X_STATE_UNSENT) {
                 pState->batteryCmdBuffer.regAddress = MXM_REG_BALEXP5;
-                pState->batteryCmdBuffer.lsb        = 0x01u;
+                pState->batteryCmdBuffer.lsb        = 0x00u;
                 pState->batteryCmdBuffer.msb        = 0x00u;
             }
             MXM_HandleStateWriteall(pState, MXM_INIT_BALEXP6);
             break;
         case MXM_INIT_BALEXP6:
-            /* set BALEXP6 to have 1 minute timeout in manual balancing */
+            /* set BALEXP6 to have 0 minute timeout in manual balancing */
             if (pState->requestStatus5x == MXM_5X_STATE_UNSENT) {
                 pState->batteryCmdBuffer.regAddress = MXM_REG_BALEXP6;
-                pState->batteryCmdBuffer.lsb        = 0x01u;
+                pState->batteryCmdBuffer.lsb        = 0x00u;
                 pState->batteryCmdBuffer.msb        = 0x00u;
             }
             MXM_HandleStateWriteall(pState, MXM_INIT_BALEXP7);
             break;
         case MXM_INIT_BALEXP7:
-            /* set BALEXP7 to have 1 minute timeout in manual balancing */
+            /* set BALEXP7 to have 0 minute timeout in manual balancing */
             if (pState->requestStatus5x == MXM_5X_STATE_UNSENT) {
                 pState->batteryCmdBuffer.regAddress = MXM_REG_BALEXP7;
-                pState->batteryCmdBuffer.lsb        = 0x01u;
+                pState->batteryCmdBuffer.lsb        = 0x00u;
                 pState->batteryCmdBuffer.msb        = 0x00u;
             }
             MXM_HandleStateWriteall(pState, MXM_INIT_BALEXP8);
             break;
         case MXM_INIT_BALEXP8:
-            /* set BALEXP8 to have 1 minute timeout in manual balancing */
+            /* set BALEXP8 to have 0 minute timeout in manual balancing */
             if (pState->requestStatus5x == MXM_5X_STATE_UNSENT) {
                 pState->batteryCmdBuffer.regAddress = MXM_REG_BALEXP8;
-                pState->batteryCmdBuffer.lsb        = 0x01u;
+                pState->batteryCmdBuffer.lsb        = 0x00u;
                 pState->batteryCmdBuffer.msb        = 0x00u;
             }
             MXM_HandleStateWriteall(pState, MXM_INIT_BALEXP9);
             break;
         case MXM_INIT_BALEXP9:
-            /* set BALEXP9 to have 1 minute timeout in manual balancing */
+            /* set BALEXP9 to have 0 minute timeout in manual balancing */
             if (pState->requestStatus5x == MXM_5X_STATE_UNSENT) {
                 pState->batteryCmdBuffer.regAddress = MXM_REG_BALEXP9;
-                pState->batteryCmdBuffer.lsb        = 0x01u;
+                pState->batteryCmdBuffer.lsb        = 0x00u;
                 pState->batteryCmdBuffer.msb        = 0x00u;
             }
             MXM_HandleStateWriteall(pState, MXM_INIT_BALEXP10);
             break;
         case MXM_INIT_BALEXP10:
-            /* set BALEXP10 to have 1 minute timeout in manual balancing */
+            /* set BALEXP10 to have 0 minute timeout in manual balancing */
             if (pState->requestStatus5x == MXM_5X_STATE_UNSENT) {
                 pState->batteryCmdBuffer.regAddress = MXM_REG_BALEXP10;
-                pState->batteryCmdBuffer.lsb        = 0x01u;
+                pState->batteryCmdBuffer.lsb        = 0x00u;
                 pState->batteryCmdBuffer.msb        = 0x00u;
             }
             MXM_HandleStateWriteall(pState, MXM_INIT_BALEXP11);
             break;
         case MXM_INIT_BALEXP11:
-            /* set BALEXP11 to have 1 minute timeout in manual balancing */
+            /* set BALEXP11 to have 0 minute timeout in manual balancing */
             if (pState->requestStatus5x == MXM_5X_STATE_UNSENT) {
                 pState->batteryCmdBuffer.regAddress = MXM_REG_BALEXP11;
-                pState->batteryCmdBuffer.lsb        = 0x01u;
+                pState->batteryCmdBuffer.lsb        = 0x00u;
                 pState->batteryCmdBuffer.msb        = 0x00u;
             }
             MXM_HandleStateWriteall(pState, MXM_INIT_BALEXP12);
             break;
         case MXM_INIT_BALEXP12:
-            /* set BALEXP12 to have 1 minute timeout in manual balancing */
+            /* set BALEXP12 to have 0 minute timeout in manual balancing */
             if (pState->requestStatus5x == MXM_5X_STATE_UNSENT) {
                 pState->batteryCmdBuffer.regAddress = MXM_REG_BALEXP12;
-                pState->batteryCmdBuffer.lsb        = 0x01u;
+                pState->batteryCmdBuffer.lsb        = 0x00u;
                 pState->batteryCmdBuffer.msb        = 0x00u;
             }
             MXM_HandleStateWriteall(pState, MXM_INIT_BALEXP13);
             break;
         case MXM_INIT_BALEXP13:
-            /* set BALEXP13 to have 1 minute timeout in manual balancing */
+            /* set BALEXP13 to have 0 minute timeout in manual balancing */
             if (pState->requestStatus5x == MXM_5X_STATE_UNSENT) {
                 pState->batteryCmdBuffer.regAddress = MXM_REG_BALEXP13;
-                pState->batteryCmdBuffer.lsb        = 0x01u;
+                pState->batteryCmdBuffer.lsb        = 0x00u;
                 pState->batteryCmdBuffer.msb        = 0x00u;
             }
             MXM_HandleStateWriteall(pState, MXM_INIT_BALEXP14);
             break;
         case MXM_INIT_BALEXP14:
-            /* set BALEXP14 to have 1 minute timeout in manual balancing */
+            /* set BALEXP14 to have 0 minute timeout in manual balancing */
             if (pState->requestStatus5x == MXM_5X_STATE_UNSENT) {
                 pState->batteryCmdBuffer.regAddress = MXM_REG_BALEXP14;
-                pState->batteryCmdBuffer.lsb        = 0x01u;
+                pState->batteryCmdBuffer.lsb        = 0x00u;
                 pState->batteryCmdBuffer.msb        = 0x00u;
             }
             MXM_HandleStateWriteall(pState, MXM_INIT_BALSWDLY);
@@ -783,7 +802,7 @@ extern void MXM_StateMachineOperation(MXM_MONITORING_INSTANCE_s *pState) {
             MXM_HandleStateWriteall(pState, MXM_INIT_I2C_GET_STAT1);
             break;
         case MXM_INIT_I2C_GET_STAT1:
-            if (true == MXM_HandleStateReadall(pState, MXM_REG_I2CSTAT, MXM_INIT_I2C_CFG)) {
+            if (MXM_HandleStateReadall(pState, MXM_REG_I2CSTAT, MXM_INIT_I2C_CFG) == true) {
                 /* no additional handling needed */
             }
             break;
@@ -831,7 +850,7 @@ extern void MXM_StateMachineOperation(MXM_MONITORING_INSTANCE_s *pState) {
             MXM_HandleStateWriteall(pState, MXM_INIT_GET_I2C_STAT2);
             break;
         case MXM_INIT_GET_I2C_STAT2:
-            if (true == MXM_HandleStateReadall(pState, MXM_REG_I2CSTAT, MXM_OP_ENTRY_STATE)) {
+            if (MXM_HandleStateReadall(pState, MXM_REG_I2CSTAT, MXM_OP_ENTRY_STATE) == true) {
                 /* no additional handling needed */
             }
             break;

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    main.c
  * @author  foxBMS Team
  * @date    2019-08-27 (date of creation)
- * @updated 2021-11-23 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup GENERAL
  * @prefix  TODO
  *
@@ -56,6 +57,7 @@
 #include "main.h"
 
 #include "HL_can.h"
+#include "HL_crc.h"
 #include "HL_etpwm.h"
 #include "HL_gio.h"
 #include "HL_het.h"
@@ -72,6 +74,7 @@
 #include "led.h"
 #include "masterinfo.h"
 #include "os.h"
+#include "pwm.h"
 
 /*========== Macros and Definitions =========================================*/
 
@@ -94,9 +97,11 @@ int main(void) {
     adcInit();
     hetInit();
     etpwmInit();
-    LED_SetDebugLED();
+    crcInit();
+    LED_SetDebugLed();
     I2C_Initialize();
     DMA_Initialize();
+    PWM_Initialize();
     DIAG_Initialize(&diag_device);
     MATH_StartupSelfTest();
     const STD_RETURN_TYPE_e checkTimeHasPassedSelfTestReturnValue = OS_CheckTimeHasPassedSelfTest();
@@ -104,7 +109,7 @@ int main(void) {
 
     OS_InitializeOperatingSystem();
     if (OS_INIT_PRE_OS != os_boot) {
-        while (1) {
+        while (true) {
             /* Could not create Queues, Mutexes, Events and Tasks
                do not boot further from this point on*/
         }
@@ -112,7 +117,7 @@ int main(void) {
 
     if (STD_OK != CHK_ValidateChecksum()) {
         if (DIAG_HANDLER_RETURN_OK != DIAG_Handler(DIAG_ID_FLASHCHECKSUM, DIAG_EVENT_NOT_OK, DIAG_SYSTEM, 0u)) {
-            while (1) {
+            while (true) {
                 /* Could not validate checksum do not boot further from this point on */
             }
         }
@@ -121,8 +126,9 @@ int main(void) {
     os_schedulerStartTime = OS_GetTickCount();
 
     OS_StartScheduler();
-    while (1) {
-    }
+    /* we must never get here; there is no way to determine the exit state of this program,
+     * but for the sake of correctness we exit with an errorcode */
+    return 1;
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/

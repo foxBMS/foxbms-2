@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    vishay_ntcle317e4103sba.c
  * @author  foxBMS Team
  * @date    2021-11-03 (date of creation)
- * @updated 2021-11-08 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup TEMPERATURE_SENSORS
  * @prefix  TS
  *
@@ -151,12 +152,12 @@ extern int16_t TS_Vis01GetTemperatureFromLut(uint16_t adcVoltage_mV) {
         const float resistance_Ohm =
             TS_VISHAY_NTCLE317E4103SBA_RESISTOR_DIVIDER_RESISTANCE_R_1_R_2_Ohm *
             ((TS_VISHAY_NTCLE317E4103SBA_RESISTOR_DIVIDER_SUPPLY_VOLTAGE_V / adcVoltage_V) - 1);
-#else  /* NTCLE317E4103SBA_POSITION_IN_RESISTOR_DIVIDER_IS_R_1 is false */
+#else  /* TS_VISHAY_NTCLE317E4103SBA_POSITION_IN_RESISTOR_DIVIDER_IS_R_1 is false */
         /* formula: R_2 = R_1 * ( V_2 / ( V_supply - V_adc ) ) */
         const float resistance_Ohm =
             TS_VISHAY_NTCLE317E4103SBA_RESISTOR_DIVIDER_RESISTANCE_R_1_R_2_Ohm *
             (adcVoltage_V / (TS_VISHAY_NTCLE317E4103SBA_RESISTOR_DIVIDER_SUPPLY_VOLTAGE_V - adcVoltage_V));
-#endif /* NTCLE317E4103SBA_POSITION_IN_RESISTOR_DIVIDER_IS_R_1 */
+#endif /* TS_VISHAY_NTCLE317E4103SBA_POSITION_IN_RESISTOR_DIVIDER_IS_R_1 */
 
         /* Variables for interpolating LUT value */
         uint16_t between_high = 0;

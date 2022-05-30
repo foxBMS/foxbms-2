@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -41,6 +41,7 @@
 import os
 import sys
 import time
+
 import sphinx_rtd_theme
 
 # pylint: skip-file
@@ -57,7 +58,7 @@ sys.path = [
 
 project = "foxBMS 2"
 copyright = (
-    "2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten "
+    "2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten "
     "Forschung e.V. All rights reserved. See license section for further "
     "information"
 )

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    bal_strategy_history.c
  * @author  foxBMS Team
  * @date    2020-05-29 (date of creation)
- * @updated 2020-07-31 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup APPLICATION
  * @prefix  BAL
  *
@@ -81,7 +82,7 @@ static BAL_STATE_s bal_state = {
     .errorRequestCounter    = 0,
     .initializationFinished = STD_NOT_OK,
     .active                 = false,
-    .balancingThreshold     = BAL_THRESHOLD_mV + BAL_HYSTERESIS_mV,
+    .balancingThreshold     = BAL_DEFAULT_THRESHOLD_mV + BAL_HYSTERESIS_mV,
     .balancingAllowed       = true,
     .balancingGlobalAllowed = false,
 };
@@ -126,7 +127,7 @@ static void BAL_ActivateBalancing(void) {
 
     for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
         uint16_t nrBalancedCells = 0u;
-        for (uint8_t c = 0u; c < BS_NR_OF_BAT_CELLS; c++) {
+        for (uint8_t c = 0u; c < BS_NR_OF_CELL_BLOCKS_PER_STRING; c++) {
             if (bal_state.balancingAllowed == false) {
                 bal_balancing.balancingState[s][c] = 0;
             } else {
@@ -157,7 +158,7 @@ static void BAL_ActivateBalancing(void) {
 
 static void BAL_Deactivate(void) {
     for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
-        for (uint16_t c = 0u; c < BS_NR_OF_BAT_CELLS; c++) {
+        for (uint16_t c = 0u; c < BS_NR_OF_CELL_BLOCKS_PER_STRING; c++) {
             bal_balancing.balancingState[s][c]  = 0;
             bal_balancing.deltaCharge_mAs[s][c] = 0;
         }
@@ -252,7 +253,7 @@ static bool BAL_CheckImbalances(void) {
     bool retVal = false;
 
     for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
-        for (uint16_t c = 0u; c < BS_NR_OF_BAT_CELLS; c++) {
+        for (uint16_t c = 0u; c < BS_NR_OF_CELL_BLOCKS_PER_STRING; c++) {
             if (bal_balancing.deltaCharge_mAs[s][c] > 0) {
                 retVal = true;
             }
@@ -275,7 +276,7 @@ static void BAL_ComputeImbalances(void) {
         voltageMin      = bal_cellvoltage.cellVoltage_mV[s][0];
         minVoltageIndex = 0;
 
-        for (uint16_t c = 0u; c < BS_NR_OF_BAT_CELLS; c++) {
+        for (uint16_t c = 0u; c < BS_NR_OF_CELL_BLOCKS_PER_STRING; c++) {
             if (bal_cellvoltage.cellVoltage_mV[s][c] <= voltageMin) {
                 voltageMin      = bal_cellvoltage.cellVoltage_mV[s][c];
                 minVoltageIndex = c;
@@ -286,7 +287,10 @@ static void BAL_ComputeImbalances(void) {
         maxDOD = BC_CAPACITY_mAh * (uint32_t)((1.0f - SOC) * 3600.0f);
         bal_balancing.deltaCharge_mAs[s][minVoltageIndex] = 0;
 
-        for (uint16_t c = 0u; c < BS_NR_OF_BAT_CELLS; c++) {
+        /* update balancing threshold */
+        bal_state.balancingThreshold = BAL_GetBalancingThreshold_mV() + BAL_HYSTERESIS_mV;
+
+        for (uint16_t c = 0u; c < BS_NR_OF_CELL_BLOCKS_PER_STRING; c++) {
             if (c != minVoltageIndex) {
                 if (bal_cellvoltage.cellVoltage_mV[s][c] >= (voltageMin + bal_state.balancingThreshold)) {
                     SOC = SOC_GetFromVoltage(((float)(bal_cellvoltage.cellVoltage_mV[s][c])) / 1000.0f);

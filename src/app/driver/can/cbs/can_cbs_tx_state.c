@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    can_cbs_tx_state.c
  * @author  foxBMS Team
  * @date    2021-07-21 (date of creation)
- * @updated 2021-07-21 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup DRIVER
  * @prefix  CAN
  *
@@ -56,6 +57,7 @@
 #include "can_cbs.h"
 #include "can_helper.h"
 #include "diag.h"
+#include "sys_mon.h"
 
 /*========== Macros and Definitions =========================================*/
 
@@ -64,8 +66,22 @@
 /*========== Extern Constant and Variable Definitions =======================*/
 
 /*========== Static Function Prototypes =====================================*/
+/** get a boolean for if any timing error (current or recorded) occurred */
+static bool CAN_AnySysMonTimingIssueDetected(const CAN_SHIM_s *const kpkCanShim);
 
 /*========== Static Function Implementations ================================*/
+static bool CAN_AnySysMonTimingIssueDetected(const CAN_SHIM_s *const kpkCanShim) {
+    FAS_ASSERT(kpkCanShim != NULL_PTR);
+    SYSM_TIMING_VIOLATION_RESPONSE_s recordedTimingViolations = {0};
+    SYSM_GetRecordedTimingViolations(&recordedTimingViolations);
+
+    const bool anyTimingViolation =
+        (recordedTimingViolations.recordedViolationAny || kpkCanShim->pTableErrorState->timingViolationEngine ||
+         kpkCanShim->pTableErrorState->timingViolation1ms || kpkCanShim->pTableErrorState->timingViolation10ms ||
+         kpkCanShim->pTableErrorState->timingViolation100ms || kpkCanShim->pTableErrorState->timingViolation100msAlgo);
+
+    return anyTimingViolation;
+}
 
 /*========== Extern Function Implementations ================================*/
 extern uint32_t CAN_TxState(
@@ -98,27 +114,27 @@ extern uint32_t CAN_TxState(
     CAN_TxSetMessageDataWithSignalData(&message, 7u, 4u, data, endianness);
 
     /* General error - implement now */
-    if (true == DIAG_IsAnyFatalErrorSet()) {
-        data = 1u;
-    } else {
-        data = 0u;
-    }
+    data = CAN_ConvertBooleanToInteger(DIAG_IsAnyFatalErrorSet());
     CAN_TxSetMessageDataWithSignalData(&message, 11u, 1u, data, endianness);
 
     /* General warning: TODO */
 
     /* Emergency shutoff */
-    if (true == BMS_IsTransitionToErrorStateActive()) {
-        data = 1u;
-    } else {
-        data = 0u;
-    }
+    data = CAN_ConvertBooleanToInteger(BMS_IsTransitionToErrorStateActive());
     CAN_TxSetMessageDataWithSignalData(&message, 10u, 1u, data, endianness);
 
     /* Number of deactivated strings: TODO */
 
+    /* sys mon error */
+    data = CAN_ConvertBooleanToInteger(CAN_AnySysMonTimingIssueDetected(kpkCanShim));
+    CAN_TxSetMessageDataWithSignalData(&message, 12u, 1u, data, endianness);
+
+    /* Insulation monitoring active */
+    data = CAN_ConvertBooleanToInteger(kpkCanShim->pTableInsulation->isImdRunning);
+    CAN_TxSetMessageDataWithSignalData(&message, 13u, 1u, data, endianness);
+
     /* Error: insulation */
-    data = kpkCanShim->pTableErrorState->insulationError;
+    data = CAN_ConvertBooleanToInteger(kpkCanShim->pTableErrorState->criticalLowInsulationResistance);
     CAN_TxSetMessageDataWithSignalData(&message, 23u, 1u, data, endianness);
 
     /* Insulation resistance */
@@ -128,10 +144,6 @@ extern uint32_t CAN_TxState(
     CAN_TxSetMessageDataWithSignalData(&message, 63u, 8u, data, endianness);
 
     /* Charging complete: TODO */
-
-    /* Insulation monitoring active */
-    data = kpkCanShim->pTableInsulation->insulationMeasurements;
-    CAN_TxSetMessageDataWithSignalData(&message, 13u, 1u, data, endianness);
 
     /* Heater state: TODO */
     /* Cooling state: TODO */
@@ -170,6 +182,67 @@ extern uint32_t CAN_TxState(
 
     return 0;
 }
+
+extern uint32_t CAN_TxDetailState(
+    uint32_t id,
+    uint8_t dlc,
+    CAN_ENDIANNESS_e endianness,
+    uint8_t *pCanData,
+    uint8_t *pMuxId,
+    const CAN_SHIM_s *const kpkCanShim) {
+    /* pMuxId is not used here, therefore has to be NULL_PTR */
+    FAS_ASSERT(pMuxId == NULL_PTR);
+
+    FAS_ASSERT(id < CAN_MAX_11BIT_ID); /* Currently standard ID, 11 bit */
+    FAS_ASSERT(dlc <= CAN_MAX_DLC);    /* Currently max 8 bytes in a CAN frame */
+    FAS_ASSERT(pCanData != NULL_PTR);
+    FAS_ASSERT(kpkCanShim != NULL_PTR);
+    uint64_t message = 0;
+
+    DATA_READ_DATA(kpkCanShim->pTableErrorState);
+    SYSM_TIMING_VIOLATION_RESPONSE_s recordedTimingViolations = {0};
+    SYSM_GetRecordedTimingViolations(&recordedTimingViolations);
+
+    /* AXIVION Disable Style Generic-NoMagicNumbers: Signal data defined in .dbc file. */
+    /* current violation engine */
+    uint64_t data = CAN_ConvertBooleanToInteger(kpkCanShim->pTableErrorState->timingViolationEngine);
+    CAN_TxSetMessageDataWithSignalData(&message, 0u, 1u, data, endianness);
+    /* current violation 1ms */
+    data = CAN_ConvertBooleanToInteger(kpkCanShim->pTableErrorState->timingViolation1ms);
+    CAN_TxSetMessageDataWithSignalData(&message, 1u, 1u, data, endianness);
+    /* current violation 10ms */
+    data = CAN_ConvertBooleanToInteger(kpkCanShim->pTableErrorState->timingViolation10ms);
+    CAN_TxSetMessageDataWithSignalData(&message, 2u, 1u, data, endianness);
+    /* current violation 100ms */
+    data = CAN_ConvertBooleanToInteger(kpkCanShim->pTableErrorState->timingViolation100ms);
+    CAN_TxSetMessageDataWithSignalData(&message, 3u, 1u, data, endianness);
+    /* current violation 100ms algorithm */
+    data = CAN_ConvertBooleanToInteger(kpkCanShim->pTableErrorState->timingViolation100msAlgo);
+    CAN_TxSetMessageDataWithSignalData(&message, 4u, 1u, data, endianness);
+
+    /* recorded violation engine */
+    data = CAN_ConvertBooleanToInteger(recordedTimingViolations.recordedViolationEngine);
+    CAN_TxSetMessageDataWithSignalData(&message, 8u, 1u, data, endianness);
+    /* recorded violation 1ms */
+    data = CAN_ConvertBooleanToInteger(recordedTimingViolations.recordedViolation1ms);
+    CAN_TxSetMessageDataWithSignalData(&message, 9u, 1u, data, endianness);
+    /* recorded violation 10ms */
+    data = CAN_ConvertBooleanToInteger(recordedTimingViolations.recordedViolation10ms);
+    CAN_TxSetMessageDataWithSignalData(&message, 10u, 1u, data, endianness);
+    /* recorded violation 100ms */
+    data = CAN_ConvertBooleanToInteger(recordedTimingViolations.recordedViolation100ms);
+    CAN_TxSetMessageDataWithSignalData(&message, 11u, 1u, data, endianness);
+    /* recorded violation 100ms algorithm */
+    data = CAN_ConvertBooleanToInteger(recordedTimingViolations.recordedViolation100msAlgo);
+    CAN_TxSetMessageDataWithSignalData(&message, 12u, 1u, data, endianness);
+    /* AXIVION Enable Style Generic-NoMagicNumbers: */
+
+    /* now copy data in the buffer that will be use to send data */
+    CAN_TxSetCanDataWithMessageData(message, pCanData, endianness);
+
+    return 0;
+}
+
 extern uint32_t CAN_TxStringState(
     uint32_t id,
     uint8_t dlc,
@@ -202,18 +275,14 @@ extern uint32_t CAN_TxStringState(
     CAN_TxSetMessageDataWithSignalData(&message, 3u, 4u, data, endianness);
 
     /* String connected */
-    if (true == BMS_IsStringClosed(stringNumber)) {
-        data = 1u;
-    } else {
-        data = 0u;
-    }
+    data = CAN_ConvertBooleanToInteger(BMS_IsStringClosed(stringNumber));
     CAN_TxSetMessageDataWithSignalData(&message, 4u, 1u, data, endianness);
 
     /* Balancing active: TODO */
 
     /* String fuse blown */
-    if ((1u == kpkCanShim->pTableErrorState->fuseStateCharge[stringNumber]) ||
-        (1u == kpkCanShim->pTableErrorState->fuseStateNormal[stringNumber])) {
+    if ((kpkCanShim->pTableErrorState->fuseStateCharge[stringNumber] == 1u) ||
+        (kpkCanShim->pTableErrorState->fuseStateNormal[stringNumber] == 1u)) {
         data = 1u;
     } else {
         data = 0u;
@@ -241,8 +310,8 @@ extern uint32_t CAN_TxStringState(
     CAN_TxSetMessageDataWithSignalData(&message, 11u, 1u, data, endianness);
 
     /* Error: Overcurrent charge */
-    if ((1u == kpkCanShim->pTableMsl->cellChargeOvercurrent[stringNumber]) ||
-        (1u == kpkCanShim->pTableMsl->stringChargeOvercurrent[stringNumber])) {
+    if ((kpkCanShim->pTableMsl->cellChargeOvercurrent[stringNumber] == 1u) ||
+        (kpkCanShim->pTableMsl->stringChargeOvercurrent[stringNumber] == 1u)) {
         data = 1u;
     } else {
         data = 0u;
@@ -250,8 +319,8 @@ extern uint32_t CAN_TxStringState(
     CAN_TxSetMessageDataWithSignalData(&message, 12u, 1u, data, endianness);
 
     /* Error: Overcurrent discharge */
-    if ((1u == kpkCanShim->pTableMsl->cellDischargeOvercurrent[stringNumber]) ||
-        (1u == kpkCanShim->pTableMsl->stringDischargeOvercurrent[stringNumber])) {
+    if ((kpkCanShim->pTableMsl->cellDischargeOvercurrent[stringNumber] == 1u) ||
+        (kpkCanShim->pTableMsl->stringDischargeOvercurrent[stringNumber] == 1u)) {
         data = 1u;
     } else {
         data = 0u;
@@ -283,8 +352,8 @@ extern uint32_t CAN_TxStringState(
     CAN_TxSetMessageDataWithSignalData(&message, 19u, 1u, data, endianness);
 
     /* Info: Overcurrent charge - MOL */
-    if ((1u == kpkCanShim->pTableMol->cellChargeOvercurrent[stringNumber]) ||
-        (1u == kpkCanShim->pTableMol->stringChargeOvercurrent[stringNumber])) {
+    if ((kpkCanShim->pTableMol->cellChargeOvercurrent[stringNumber] == 1u) ||
+        (kpkCanShim->pTableMol->stringChargeOvercurrent[stringNumber] == 1u)) {
         data = 1u;
     } else {
         data = 0u;
@@ -292,8 +361,8 @@ extern uint32_t CAN_TxStringState(
     CAN_TxSetMessageDataWithSignalData(&message, 20u, 1u, data, endianness);
 
     /* Info: Overcurrent discharge - MOL */
-    if ((1u == kpkCanShim->pTableMol->cellDischargeOvercurrent[stringNumber]) ||
-        (1u == kpkCanShim->pTableMol->stringDischargeOvercurrent[stringNumber])) {
+    if ((kpkCanShim->pTableMol->cellDischargeOvercurrent[stringNumber] == 1u) ||
+        (kpkCanShim->pTableMol->stringDischargeOvercurrent[stringNumber] == 1u)) {
         data = 1u;
     } else {
         data = 0u;
@@ -325,8 +394,8 @@ extern uint32_t CAN_TxStringState(
     CAN_TxSetMessageDataWithSignalData(&message, 27u, 1u, data, endianness);
 
     /* Warning: Overcurrent charge - RSL */
-    if ((1u == kpkCanShim->pTableRsl->cellChargeOvercurrent[stringNumber]) ||
-        (1u == kpkCanShim->pTableRsl->stringChargeOvercurrent[stringNumber])) {
+    if ((kpkCanShim->pTableRsl->cellChargeOvercurrent[stringNumber] == 1u) ||
+        (kpkCanShim->pTableRsl->stringChargeOvercurrent[stringNumber] == 1u)) {
         data = 1u;
     } else {
         data = 0u;
@@ -334,8 +403,8 @@ extern uint32_t CAN_TxStringState(
     CAN_TxSetMessageDataWithSignalData(&message, 28u, 1u, data, endianness);
 
     /* Warning: Overcurrent discharge - RSL */
-    if ((1u == kpkCanShim->pTableMol->cellDischargeOvercurrent[stringNumber]) ||
-        (1u == kpkCanShim->pTableMol->stringDischargeOvercurrent[stringNumber])) {
+    if ((kpkCanShim->pTableMol->cellDischargeOvercurrent[stringNumber] == 1u) ||
+        (kpkCanShim->pTableMol->stringDischargeOvercurrent[stringNumber] == 1u)) {
         data = 1u;
     } else {
         data = 0u;
@@ -376,8 +445,8 @@ extern uint32_t CAN_TxStringState(
     /* Error: Daisy-chain redundancy: Voltage out of operating range: TODO */
 
     /* Error: current measurement */
-    if ((1u == kpkCanShim->pTableErrorState->currentMeasurementError[stringNumber]) ||
-        (1u == kpkCanShim->pTableErrorState->currentMeasurementTimeout[stringNumber])) {
+    if ((kpkCanShim->pTableErrorState->currentMeasurementError[stringNumber] == 1u) ||
+        (kpkCanShim->pTableErrorState->currentMeasurementTimeout[stringNumber] == 1u)) {
         data = 1u;
     } else {
         data = 0u;

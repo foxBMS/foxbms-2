@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    bms.h
  * @author  foxBMS Team
  * @date    2020-02-24 (date of creation)
- * @updated 2021-07-29 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup ENGINE
  * @prefix  BMS
  *
@@ -62,7 +63,7 @@
 /*========== Macros and Definitions =========================================*/
 
 /** Symbolic names for battery system state */
-typedef enum BMS_CURRENT_FLOW_STATE {
+typedef enum {
     BMS_CHARGING,    /*!< battery is charged */
     BMS_DISCHARGING, /*!< battery is discharged */
     BMS_RELAXATION,  /*!< battery relaxation ongoing */
@@ -70,20 +71,20 @@ typedef enum BMS_CURRENT_FLOW_STATE {
 } BMS_CURRENT_FLOW_STATE_e;
 
 /** Symbolic names for busyness of the syscontrol */
-typedef enum BMS_CHECK {
+typedef enum {
     BMS_CHECK_OK,     /*!< syscontrol ok */
     BMS_CHECK_BUSY,   /*!< syscontrol busy */
     BMS_CHECK_NOT_OK, /*!< syscontrol not ok */
 } BMS_CHECK_e;
 
 /** Symbolic names to take precharge into account or not */
-typedef enum BMS_CONSIDER_PRECHARGE {
+typedef enum {
     BMS_DO_NOT_TAKE_PRECHARGE_INTO_ACCCOUNT, /*!< do not take precharge into account */
     BMS_TAKE_PRECHARGE_INTO_ACCCOUNT,        /*!< do take precharge into account */
 } BMS_CONSIDER_PRECHARGE_e;
 
 /** States of the SYS state machine */
-typedef enum BMS_STATEMACH {
+typedef enum {
     /* Init-Sequence */
     BMS_STATEMACH_UNINITIALIZED,
     BMS_STATEMACH_INITIALIZATION,
@@ -101,7 +102,7 @@ typedef enum BMS_STATEMACH {
 } BMS_STATEMACH_e;
 
 /** CAN states of the BMS state machine */
-typedef enum BMS_CANSTATE {
+typedef enum {
     /* Init-Sequence */
     BMS_CANSTATE_UNINITIALIZED,
     BMS_CANSTATE_INITIALIZATION,
@@ -116,7 +117,7 @@ typedef enum BMS_CANSTATE {
 } BMS_CANSTATE_e;
 
 /** Substates of the SYS state machine */
-typedef enum BMS_STATEMACH_SUB {
+typedef enum {
     BMS_ENTRY,                        /*!< Substate entry state */
     BMS_CHECK_ERROR_FLAGS_INTERLOCK,  /*!< Substate check measurements after interlock closed */
     BMS_INTERLOCK_CHECKED,            /*!< Substate interlocked checked */
@@ -150,26 +151,24 @@ typedef enum BMS_STATEMACH_SUB {
 } BMS_STATEMACH_SUB_e;
 
 /** State requests for the BMS statemachine */
-typedef enum BMS_STATE_REQUEST {
+typedef enum {
     BMS_STATE_INIT_REQUEST,  /*!< request for initialization */
     BMS_STATE_ERROR_REQUEST, /*!< request for ERROR state */
     BMS_STATE_NO_REQUEST,    /*!< dummy request for no request */
 } BMS_STATE_REQUEST_e;
 
 /**
- * Possible return values when state requests are made to the SYS statemachine
+ * Possible return values when state requests are made to the BMS statemachine
  */
-typedef enum BMS_RETURN_TYPE {
-    BMS_OK,                  /*!< CONT --> ok */
-    BMS_BUSY_OK,             /*!< CONT under load --> ok */
-    BMS_REQUEST_PENDING,     /*!< requested to be executed */
-    BMS_ILLEGAL_REQUEST,     /*!< Request can not be executed */
-    BMS_ALREADY_INITIALIZED, /*!< Initialization of LTC already finished */
-    BMS_ILLEGAL_TASK_TYPE,   /*!< Illegal */
+typedef enum {
+    BMS_OK,                  /*!< request was successful */
+    BMS_REQUEST_PENDING,     /*!< error: another request is currently processed */
+    BMS_ILLEGAL_REQUEST,     /*!< error: request can not be executed */
+    BMS_ALREADY_INITIALIZED, /*!< error: BMS statemachine already initialized */
 } BMS_RETURN_TYPE_e;
 
 /** Power path type (discharge or charge) */
-typedef enum BMS_POWER_PATH_TYPE {
+typedef enum {
     BMS_POWER_PATH_OPEN, /* contactors open */
     BMS_POWER_PATH_0,    /* power path */
     BMS_POWER_PATH_1,    /* second power path */
@@ -180,7 +179,7 @@ typedef enum BMS_POWER_PATH_TYPE {
  * machine. The user can get the current state of the CONT state machine with
  * this variable
  */
-typedef struct BMS_STATE {
+typedef struct {
     uint16_t timer; /*!< time in ms before the state machine processes the next state, e.g. in counts of 1ms */
     BMS_STATE_REQUEST_e stateRequest;          /*!< current state request made to the state machine */
     BMS_STATEMACH_e state;                     /*!< current state of State Machine */

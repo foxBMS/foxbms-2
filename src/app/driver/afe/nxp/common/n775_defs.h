@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    n775_defs.h
  * @author  foxBMS Team
  * @date    2015-09-01 (date of creation)
- * @updated 2015-09-01 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup DRIVERS
  * @prefix  N775
  *
@@ -162,7 +163,7 @@ typedef struct {
     DATA_BLOCK_BALANCING_CONTROL_s *balancing_control;
     DATA_BLOCK_SLAVE_CONTROL_s *user_io_control;
     DATA_BLOCK_OPEN_WIRE_s *openWire_check; /* Wie genau open wire check behandeln? Was genau abspeichern? */
-    int *openWire_buffer;                   /* BS_NR_OF_BAT_CELLS */
+    int *openWire_buffer;                   /* BS_NR_OF_CELL_BLOCKS_PER_STRING */
     uint8_t *spi_TX_withPEC;                /* 12 byte */
     uint8_t *spi_RX_withPEC;                /* 12 byte */
     uint16_t *GPIOVoltages;                 /* N7752_NUMBER_OF_GPIOS * NR_OF_N775s */
@@ -224,7 +225,7 @@ typedef enum {
  * This structure contains all the variables relevant for the N775 state machine.
  * The user can get the current state of the N775 state machine with this variable
  */
-typedef struct N775_STATE {
+typedef struct {
     uint16_t timer; /*!< time in ms before the state machine processes the next state, e.g. in counts of 1ms */
     N775_STATE_REQUEST_e stateReq;          /*!< current state request made to the state machine */
     N775_STATEMACH_e state;                 /*!< state of Driver State Machine */
@@ -243,7 +244,7 @@ typedef struct N775_STATE {
 } N775_STATE_s;
 
 /** This structure reflects the messages used by the NXP MC33775A */
-typedef struct N775_MESSAGE {
+typedef struct {
     uint16_t head;
     uint16_t dataHead;
     uint16_t data[4];

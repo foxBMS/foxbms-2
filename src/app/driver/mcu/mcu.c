@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    mcu.c
  * @author  foxBMS Team
  * @date    2019-02-19 (date of creation)
- * @updated 2021-11-08 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup DRIVERS
  * @prefix  MCU
  *
@@ -68,6 +69,11 @@
 #define MCU_US_WAIT_TIMEOUT (10000U)
 
 /*========== Static Constant and Variable Definitions =======================*/
+/**
+ * @brief   frequency of the FRC0 counter
+ * @details refer to data sheet SPNU563A-March 2018 p. 585 formula 23
+ */
+static const uint32_t mcu_frcClock_Hz = (uint32_t)((RTI_FREQ)*1000000.0f) / ((MCU_RTI_CNT0_CPUC0_REG) + 1u);
 
 /*========== Extern Constant and Variable Definitions =======================*/
 
@@ -77,21 +83,11 @@
 
 /*========== Extern Function Implementations ================================*/
 
-void MCU_delay_us(uint32_t delay_us) {
-    uint32_t timeOut           = 0;
-    uint32_t startValue        = 0;
-    uint32_t rti_clock         = 0;
-    uint32_t rti_nrOfCounts_us = 0;
-
-    /**
-     * This is the frequency of the FRC0 counter
-     * data sheet SPNU563A-March 2018 p. 585 formula 23
-     */
-    rti_clock = (uint32_t)((AVCLK1_FREQ)*1000000.0f) / ((MCU_RTI_CNT0_CPUC0_REG) + 1u);
-
+void MCU_Delay_us(uint32_t delay_us) {
+    /* AXIVION Routine Generic-MissingParameterAssert: delay_us: parameter accepts whole range */
     /**
      * First the time of one FRC0 increment in microseconds is computed with
-     * increment_time = (1/rti_clock)*1e6
+     * increment_time = (1/mcu_frcClock_Hz)*1e6
      * The 1e6 factor is to get the period in microseconds.
      *
      * The number of increments needed to reach 1 microsecond is then
@@ -101,22 +97,34 @@ void MCU_delay_us(uint32_t delay_us) {
      * To avoid floating point computation problems, the number of
      * increments needed to reach 1 microsecond is computed at once with:
      */
-    rti_nrOfCounts_us = (uint32_t)(((float)rti_clock) / 1e6f);
+    const uint32_t rti_nrOfCounts_us = (uint32_t)(((float)mcu_frcClock_Hz) / 1e6f);
 
     /* Get current value of FRC0 counter */
-    startValue = (uint32_t)MCU_RTI_CNT0_FRC0_REG;
+    const uint32_t startValue = MCU_RTI_CNT0_FRC0_REG;
 
+    uint32_t timeOut = 0;
     while (timeOut < MCU_US_WAIT_TIMEOUT) {
         /**
          * Poll FRC0 value until the value corresponding to the desired
          * waiting timing has been reached.
          * The timeout is to ensure the code does not get trapped here.
          */
-        if (((uint32_t)MCU_RTI_CNT0_FRC0_REG - startValue) >= (delay_us * rti_nrOfCounts_us)) {
+        const uint32_t checkValue = MCU_RTI_CNT0_FRC0_REG;
+        if ((checkValue - startValue) >= (delay_us * rti_nrOfCounts_us)) {
             break;
         }
         timeOut++;
     }
+}
+
+extern uint32_t MCU_GetFreeRunningCount(void) {
+    return MCU_RTI_CNT0_FRC0_REG;
+}
+
+extern uint32_t MCU_ConvertFrcDifferenceToTimespan_us(uint32_t count) {
+    /* AXIVION Routine Generic-MissingParameterAssert: count: parameter accepts whole range */
+    const uint32_t rti_nrOfCounts_us = (uint32_t)(((float)mcu_frcClock_Hz) / 1e6f);
+    return count / rti_nrOfCounts_us;
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/

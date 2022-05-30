@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    test_can_cbs_tx_minmax.c
  * @author  foxBMS Team
  * @date    2021-04-22 (date of creation)
- * @updated 2021-06-09 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -120,14 +121,14 @@ void tearDown(void) {
 void testCAN_TxMinimumMaximumValuesAllStringsOpen(void) {
     uint8_t data[8] = {0};
 
-    for (uint8_t stringNumber = 0u; stringNumber < BS_NR_OF_STRINGS; stringNumber++) {
-        can_kShim.pTableMinMax->minimumCellVoltage_mV[stringNumber]    = 2000;
-        can_kShim.pTableMinMax->maximumCellVoltage_mV[stringNumber]    = 3000;
-        can_kShim.pTableMinMax->minimumTemperature_ddegC[stringNumber] = -150;
-        can_kShim.pTableMinMax->maximumTemperature_ddegC[stringNumber] = 350;
+    for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
+        can_kShim.pTableMinMax->minimumCellVoltage_mV[s]    = 2000;
+        can_kShim.pTableMinMax->maximumCellVoltage_mV[s]    = 3000;
+        can_kShim.pTableMinMax->minimumTemperature_ddegC[s] = -150;
+        can_kShim.pTableMinMax->maximumTemperature_ddegC[s] = 350;
     }
 
-    DATA_Read_1_DataBlock_IgnoreAndReturn(0u);
+    DATA_Read1DataBlock_IgnoreAndReturn(0u);
     BMS_GetNumberOfConnectedStrings_IgnoreAndReturn(0u);
     CAN_TxMinimumMaximumValues(CAN_ID_TX_MINIMUM_MAXIMUM_VALUES, 8, CAN_BIG_ENDIAN, data, NULL_PTR, &can_kShim);
 
@@ -150,16 +151,16 @@ void testCAN_TxMinimumMaximumValuesAllStringsOpen(void) {
 void testCAN_TxMinimumMaximumValuesAllStringsClosed(void) {
     uint8_t data[8] = {0};
 
-    for (uint8_t stringNumber = 0u; stringNumber < BS_NR_OF_STRINGS; stringNumber++) {
-        can_kShim.pTableMinMax->minimumCellVoltage_mV[stringNumber]    = 2000 + stringNumber;
-        can_kShim.pTableMinMax->maximumCellVoltage_mV[stringNumber]    = 3000 - stringNumber;
-        can_kShim.pTableMinMax->minimumTemperature_ddegC[stringNumber] = -150 + stringNumber;
-        can_kShim.pTableMinMax->maximumTemperature_ddegC[stringNumber] = 350 - stringNumber;
+    for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
+        can_kShim.pTableMinMax->minimumCellVoltage_mV[s]    = 2000 + s;
+        can_kShim.pTableMinMax->maximumCellVoltage_mV[s]    = 3000 - s;
+        can_kShim.pTableMinMax->minimumTemperature_ddegC[s] = -150 + s;
+        can_kShim.pTableMinMax->maximumTemperature_ddegC[s] = 350 - s;
     }
 
-    DATA_Read_1_DataBlock_IgnoreAndReturn(0u);
+    DATA_Read1DataBlock_IgnoreAndReturn(0u);
     BMS_GetNumberOfConnectedStrings_IgnoreAndReturn(BS_NR_OF_STRINGS);
-    for (uint8_t stringNumber = 0u; stringNumber < BS_NR_OF_STRINGS; stringNumber++) {
+    for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
         BMS_IsStringClosed_IgnoreAndReturn(true);
     }
     CAN_TxMinimumMaximumValues(CAN_ID_TX_MINIMUM_MAXIMUM_VALUES, 8, CAN_BIG_ENDIAN, data, NULL_PTR, &can_kShim);

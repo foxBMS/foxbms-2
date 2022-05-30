@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    interlock_cfg.h
  * @author  foxBMS Team
  * @date    2020-02-24 (date of creation)
- * @updated 2021-12-08 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  ILCK
  *
@@ -105,7 +106,7 @@
 #define ILCK_STATEMACH_SHORTTIME (1u)
 
 /** Symbolic names for contactors' possible states */
-typedef enum ILCK_ELECTRICAL_STATE_TYPE {
+typedef enum {
     ILCK_SWITCH_OFF,   /*!< Contactor off         --> Contactor is open           */
     ILCK_SWITCH_ON,    /*!< Contactor on          --> Contactor is closed         */
     ILCK_SWITCH_UNDEF, /*!< Contactor undefined   --> Contactor state not known   */

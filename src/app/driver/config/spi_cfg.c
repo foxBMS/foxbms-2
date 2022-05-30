@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    spi_cfg.c
  * @author  foxBMS Team
  * @date    2020-03-05 (date of creation)
- * @updated 2021-12-08 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  SPI
  *
@@ -91,16 +92,6 @@ static spiDAT1_t spi_kLtcDataConfig[BS_NR_OF_STRINGS] = {
      .WDEL    = FALSE,     /* Activation of delay between words */
      .DFSEL   = SPI_FMT_0, /* Data word format selection */
      .CSNR    = SPI_HARDWARE_CHIP_SELECT_2_ACTIVE},
-    {                      /* struct is implemented in the TI HAL and uses uppercase true and false */
-     .CS_HOLD = TRUE,      /* If true, HW chip select kept active */
-     .WDEL    = FALSE,     /* Activation of delay between words */
-     .DFSEL   = SPI_FMT_0, /* Data word format selection */
-     .CSNR    = SPI_HARDWARE_CHIP_SELECT_2_ACTIVE},
-    {                      /* struct is implemented in the TI HAL and uses uppercase true and false */
-     .CS_HOLD = TRUE,      /* If true, HW chip select kept active */
-     .WDEL    = FALSE,     /* Activation of delay between words */
-     .DFSEL   = SPI_FMT_0, /* Data word format selection */
-     .CSNR    = SPI_HARDWARE_CHIP_SELECT_2_ACTIVE},
 };
 
 /** SPI data configuration struct for MXM communication */
@@ -116,26 +107,10 @@ static spiDAT1_t spi_kNxp775DataConfigTx[BS_NR_OF_STRINGS] = {
      .WDEL    = TRUE,      /* Activation of delay between words */
      .DFSEL   = SPI_FMT_0, /* Data word format selection */
      .CSNR    = SPI_HARDWARE_CHIP_SELECT_2_ACTIVE},
-    {.CS_HOLD = TRUE,      /* If true, HW chip select kept active */
-     .WDEL    = TRUE,      /* Activation of delay between words */
-     .DFSEL   = SPI_FMT_0, /* Data word format selection */
-     .CSNR    = SPI_HARDWARE_CHIP_SELECT_2_ACTIVE},
-    {.CS_HOLD = TRUE,      /* If true, HW chip select kept active */
-     .WDEL    = TRUE,      /* Activation of delay between words */
-     .DFSEL   = SPI_FMT_0, /* Data word format selection */
-     .CSNR    = SPI_HARDWARE_CHIP_SELECT_0_ACTIVE},
 };
 
 /** SPI data configuration struct for NXP MC33775A communication, Rx part */
 static spiDAT1_t spi_kNxp775DataConfigRx[BS_NR_OF_STRINGS] = {
-    {.CS_HOLD = TRUE,      /* If true, HW chip select kept active */
-     .WDEL    = TRUE,      /* Activation of delay between words */
-     .DFSEL   = SPI_FMT_0, /* Data word format selection */
-     .CSNR    = SPI_HARDWARE_CHIP_SELECT_0_ACTIVE},
-    {.CS_HOLD = TRUE,      /* If true, HW chip select kept active */
-     .WDEL    = TRUE,      /* Activation of delay between words */
-     .DFSEL   = SPI_FMT_0, /* Data word format selection */
-     .CSNR    = SPI_HARDWARE_CHIP_SELECT_0_ACTIVE},
     {.CS_HOLD = TRUE,      /* If true, HW chip select kept active */
      .WDEL    = TRUE,      /* Activation of delay between words */
      .DFSEL   = SPI_FMT_0, /* Data word format selection */
@@ -205,20 +180,6 @@ SPI_INTERFACE_CONFIG_s spi_ltcInterface[BS_NR_OF_STRINGS] = {
         .csPin    = 2u,
         .csType   = SPI_CHIP_SELECT_HARDWARE,
     },
-    {
-        .pConfig  = &spi_kLtcDataConfig[1u],
-        .pNode    = spiREG1,
-        .pGioPort = &(spiREG1->PC3),
-        .csPin    = 2u,
-        .csType   = SPI_CHIP_SELECT_HARDWARE,
-    },
-    {
-        .pConfig  = &spi_kLtcDataConfig[2u],
-        .pNode    = spiREG1,
-        .pGioPort = &(spiREG1->PC3),
-        .csPin    = 2u,
-        .csType   = SPI_CHIP_SELECT_HARDWARE,
-    },
 };
 
 /** SPI interface configuration for MXM communication */
@@ -239,40 +200,12 @@ SPI_INTERFACE_CONFIG_s spi_nxp775InterfaceTx[BS_NR_OF_STRINGS] = {
         .csPin    = 2u,
         .csType   = SPI_CHIP_SELECT_HARDWARE,
     },
-    {
-        .pConfig  = &spi_kNxp775DataConfigTx[1u],
-        .pNode    = spiREG1,
-        .pGioPort = &(spiREG1->PC3),
-        .csPin    = 2u,
-        .csType   = SPI_CHIP_SELECT_HARDWARE,
-    },
-    {
-        .pConfig  = &spi_kNxp775DataConfigTx[2u],
-        .pNode    = spiREG1,
-        .pGioPort = &(spiREG1->PC3),
-        .csPin    = 2u,
-        .csType   = SPI_CHIP_SELECT_HARDWARE,
-    },
 };
 
 /** SPI interface configuration for N775 communication, Rx part */
 SPI_INTERFACE_CONFIG_s spi_nxp775InterfaceRx[BS_NR_OF_STRINGS] = {
     {
         .pConfig  = &spi_kNxp775DataConfigRx[0u],
-        .pNode    = spiREG4,
-        .pGioPort = &(spiREG4->PC3),
-        .csPin    = 0u,
-        .csType   = SPI_CHIP_SELECT_HARDWARE,
-    },
-    {
-        .pConfig  = &spi_kNxp775DataConfigRx[1u],
-        .pNode    = spiREG4,
-        .pGioPort = &(spiREG4->PC3),
-        .csPin    = 0u,
-        .csType   = SPI_CHIP_SELECT_HARDWARE,
-    },
-    {
-        .pConfig  = &spi_kNxp775DataConfigRx[2u],
         .pNode    = spiREG4,
         .pGioPort = &(spiREG4->PC3),
         .csPin    = 0u,

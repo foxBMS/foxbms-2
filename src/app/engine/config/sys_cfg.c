@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    sys_cfg.c
  * @author  foxBMS Team
  * @date    2020-02-24 (date of creation)
- * @updated 2021-07-15 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup ENGINE_CONFIGURATION
  * @prefix  SYS
  *
@@ -70,6 +71,7 @@ void SYS_SendBootMessage(void) {
     /* the system can do not much with the result of the function at this stage
     therefore discard it */
     (void)CAN_TransmitBootMessage();
+    (void)CAN_TransmitDieId();
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/

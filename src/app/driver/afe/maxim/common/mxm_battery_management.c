@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    mxm_battery_management.c
  * @author  foxBMS Team
  * @date    2019-01-14 (date of creation)
- * @updated 2021-12-06 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup DRIVERS
  * @prefix  MXM
  *
@@ -56,6 +57,7 @@
 /*========== Includes =======================================================*/
 #include "mxm_battery_management.h"
 
+#include "diag.h"
 #include "os.h"
 
 /*========== Macros and Definitions =========================================*/
@@ -227,18 +229,12 @@ static void MXM_5XStateHandler41BFmeaCheck(MXM_5X_INSTANCE_s *pInstance5x, MXM_4
 static void MXM_5XStateHandlerInit(MXM_5X_INSTANCE_s *pInstance5x, MXM_41B_INSTANCE_s *pInstance41b);
 
 /**
- * @brief   Handle the state #MXM_STATEMACH_5X_WRITEALL
+ * @brief   Handle the states #MXM_STATEMACH_5X_WRITEALL and #MXM_STATEMACH_5X_WRITE_DEVICE
  * @param[in,out]   pInstance5x     pointer to the state-struct of the battery management state machine
  * @param[in,out]   pInstance41b    pointer to the state-struct of the bridge IC
+ * @param[in]       writeDevice     true: write device, false: write all
  */
-static void MXM_5XStateHandlerWriteAll(MXM_5X_INSTANCE_s *pInstance5x, MXM_41B_INSTANCE_s *pInstance41b);
-
-/**
- * @brief   Handle the state #MXM_STATEMACH_5X_WRITE_DEVICE
- * @param[in,out]   pInstance5x     pointer to the state-struct of the battery management state machine
- * @param[in,out]   pInstance41b    pointer to the state-struct of the bridge IC
- */
-static void MXM_5XStateHandlerWriteDevice(MXM_5X_INSTANCE_s *pInstance5x, MXM_41B_INSTANCE_s *pInstance41b);
+static void MXM_5XStateHandlerWrite(MXM_5X_INSTANCE_s *pInstance5x, MXM_41B_INSTANCE_s *pInstance41b, bool writeDevice);
 
 /**
  * @brief   Handle the state #MXM_STATEMACH_5X_READALL
@@ -258,6 +254,7 @@ static void MXM_5XClearCommandBuffer(MXM_5X_INSTANCE_s *pInstance) {
 
 static STD_RETURN_TYPE_e MXM_5XIsUserAccessibleRegister(uint8_t regAddress, MXM_MODEL_ID_e model) {
     FAS_ASSERT(model <= MXM_MODEL_ID_invalid);
+    /* AXIVION Routine Generic-MissingParameterAssert: regAddress: parameter accepts whole range */
 
     STD_RETURN_TYPE_e retval = STD_NOT_OK;
 
@@ -282,6 +279,8 @@ static STD_RETURN_TYPE_e MXM_5XIsUserAccessibleRegister(uint8_t regAddress, MXM_
 }
 
 static STD_RETURN_TYPE_e MXM_52IsUserAccessibleRegister(uint8_t regAddress) {
+    /* AXIVION Routine Generic-MissingParameterAssert: regAddress: parameter accepts whole range */
+
     STD_RETURN_TYPE_e retval = STD_NOT_OK;
     /* check if regAddress is outside user-accessible area */
     /* AXIVION Disable Style Generic-NoMagicNumbers: memory limits of ICs are specific and unchangeable, therefore hardcoded */
@@ -795,11 +794,11 @@ static void MXM_5XStateHandlerInit(MXM_5X_INSTANCE_s *pInstance5x, MXM_41B_INSTA
             }
         }
         /* update number of satellites */
-        pInstance5x->numberOfSatellites = (uint8_t)(
-            (pInstance5x->rxBuffer[HELLOALL_RX_LENGTH - 1u] - HELLOALL_START_SEED) & MXM_5X_BIT_MASK_ONE_BYTE);
+        pInstance5x->numberOfSatellites =
+            (uint8_t)((pInstance5x->rxBuffer[HELLOALL_RX_LENGTH - 1u] - HELLOALL_START_SEED) & MXM_5X_BIT_MASK_ONE_BYTE);
 
         /* Plausibility check, compare with preset number of satellites */
-        if (pInstance5x->numberOfSatellites == (BS_NR_OF_MODULES * BS_NR_OF_STRINGS)) {
+        if (pInstance5x->numberOfSatellites == (BS_NR_OF_MODULES_PER_STRING * BS_NR_OF_STRINGS)) {
             pInstance5x->numberOfSatellitesIsGood = STD_OK;
         }
 
@@ -814,53 +813,29 @@ static void MXM_5XStateHandlerInit(MXM_5X_INSTANCE_s *pInstance5x, MXM_41B_INSTA
     }
 }
 
-static void MXM_5XStateHandlerWriteAll(MXM_5X_INSTANCE_s *pInstance5x, MXM_41B_INSTANCE_s *pInstance41b) {
+static void MXM_5XStateHandlerWrite(
+    MXM_5X_INSTANCE_s *pInstance5x,
+    MXM_41B_INSTANCE_s *pInstance41b,
+    bool writeDevice) {
     FAS_ASSERT(pInstance5x != NULL_PTR);
     FAS_ASSERT(pInstance41b != NULL_PTR);
     if (pInstance5x->substate == MXM_5X_ENTRY_SUBSTATE) {
         /* entry of state --> set to first substate */
-        MXM_5XTransitionToSubstate(pInstance5x, MXM_5X_WRITEALL_UART_TRANSACTION);
+        MXM_5XTransitionToSubstate(pInstance5x, MXM_5X_WRITE_UART_TRANSACTION);
     }
 
-    if (pInstance5x->substate == MXM_5X_WRITEALL_UART_TRANSACTION) {
+    if (pInstance5x->substate == MXM_5X_WRITE_UART_TRANSACTION) {
         if (pInstance5x->status41b == MXM_41B_STATE_UNSENT) {
-            const STD_RETURN_TYPE_e resultAddressCorrect = MXM_5XConstructCommandBufferWriteall(pInstance5x);
-            FAS_ASSERT(resultAddressCorrect == STD_OK);
-            const STD_RETURN_TYPE_e stateRequestReturn = MXM_41BSetStateRequest(
-                pInstance41b,
-                MXM_STATEMACH_41B_UART_TRANSACTION,
-                pInstance5x->commandBuffer,
-                pInstance5x->commandBufferCurrentLength,
-                0,
-                pInstance5x->rxBuffer,
-                pInstance5x->commandBufferCurrentLength,
-                &pInstance5x->status41b);
-            /* TODO check CRC */
-            FAS_ASSERT(stateRequestReturn == STD_OK);
-        } else if (pInstance5x->status41b == MXM_41B_STATE_UNPROCESSED) {
-            /* wait for processing */
-        } else if (pInstance5x->status41b == MXM_41B_STATE_ERROR) {
-            MXM_5XHandle41BErrorState(pInstance5x);
-        } else if (pInstance5x->status41b == MXM_41B_STATE_PROCESSED) {
-            MXM_5XSignalSuccess(pInstance5x);
-        } else {
-            FAS_ASSERT(FAS_TRAP);
-        }
-    }
-}
+            if (writeDevice == true) {
+                /* write device: call function for write device buffer */
+                const STD_RETURN_TYPE_e resultAddressCorrect = MXM_5XConstructCommandBufferWriteDevice(pInstance5x);
+                FAS_ASSERT(resultAddressCorrect == STD_OK);
+            } else {
+                /* write all: call function for write all buffer */
+                const STD_RETURN_TYPE_e resultAddressCorrect = MXM_5XConstructCommandBufferWriteall(pInstance5x);
+                FAS_ASSERT(resultAddressCorrect == STD_OK);
+            }
 
-static void MXM_5XStateHandlerWriteDevice(MXM_5X_INSTANCE_s *pInstance5x, MXM_41B_INSTANCE_s *pInstance41b) {
-    FAS_ASSERT(pInstance5x != NULL_PTR);
-    FAS_ASSERT(pInstance41b != NULL_PTR);
-    if (pInstance5x->substate == MXM_5X_ENTRY_SUBSTATE) {
-        /* entry of state --> set to first substate */
-        MXM_5XTransitionToSubstate(pInstance5x, MXM_5X_WRITE_DEVICE_UART_TRANSACTION);
-    }
-
-    if (pInstance5x->substate == MXM_5X_WRITE_DEVICE_UART_TRANSACTION) {
-        if (pInstance5x->status41b == MXM_41B_STATE_UNSENT) {
-            const STD_RETURN_TYPE_e resultAddressCorrect = MXM_5XConstructCommandBufferWriteDevice(pInstance5x);
-            FAS_ASSERT(resultAddressCorrect == STD_OK);
             const STD_RETURN_TYPE_e stateRequestReturn = MXM_41BSetStateRequest(
                 pInstance41b,
                 MXM_STATEMACH_41B_UART_TRANSACTION,
@@ -922,8 +897,12 @@ static void MXM_5XStateHandlerReadAll(MXM_5X_INSTANCE_s *pInstance5x, MXM_41B_IN
                 pInstance5x->rxBuffer,
                 ((int32_t)pInstance5x->commandBufferCurrentLength + (2 * (int32_t)pInstance5x->numberOfSatellites))) ==
             0x00u) {
+            /* currently only one physical string is supported, therefore reporting always to string 0 */
+            (void)DIAG_CheckEvent(STD_OK, DIAG_ID_AFE_COM_INTEGRITY, DIAG_STRING, 0u);
             MXM_5XTransitionToSubstate(pInstance5x, MXM_5X_READALL_GET_DC);
         } else {
+            /* currently only one physical string is supported, therefore reporting always to string 0 */
+            (void)DIAG_CheckEvent(STD_NOT_OK, DIAG_ID_AFE_COM_INTEGRITY, DIAG_STRING, 0u);
             MXM_5XSignalError(pInstance5x);
         }
     } else if (pInstance5x->substate == MXM_5X_READALL_GET_DC) {
@@ -976,6 +955,8 @@ extern STD_RETURN_TYPE_e MXM_5XGetRXBuffer(
     uint16_t rxBufferLength) {
     FAS_ASSERT(kpkInstance != NULL_PTR);
     FAS_ASSERT(rxBufferLength <= MXM_5X_RX_BUFFER_LEN);
+    /* AXIVION Routine Generic-MissingParameterAssert: rxBuffer: pointer may be NULL */
+
     STD_RETURN_TYPE_e retval = STD_OK;
 
     if ((rxBuffer != NULL_PTR) && (rxBufferLength != 0u)) {
@@ -1014,6 +995,10 @@ extern STD_RETURN_TYPE_e MXM_5XSetStateRequest(
     MXM_5X_COMMAND_PAYLOAD_s commandPayload,
     MXM_5X_STATE_REQUEST_STATUS_e *processed) {
     FAS_ASSERT(pInstance5x != NULL_PTR);
+    /* AXIVION Routine Generic-MissingParameterAssert: state: parameter accepts whole range */
+    /* AXIVION Routine Generic-MissingParameterAssert: commandPayload: parameter accepts whole range */
+    /* AXIVION Routine Generic-MissingParameterAssert: processed: pointer may be NULL */
+
     STD_RETURN_TYPE_e retval = STD_OK;
     if (state >= MXM_STATEMACH_5X_MAXSTATE) {
         retval = STD_NOT_OK;
@@ -1069,10 +1054,10 @@ void MXM_5XStateMachine(MXM_41B_INSTANCE_s *pInstance41b, MXM_5X_INSTANCE_s *pIn
             MXM_5XStateHandlerInit(pInstance5x, pInstance41b);
             break;
         case MXM_STATEMACH_5X_WRITEALL:
-            MXM_5XStateHandlerWriteAll(pInstance5x, pInstance41b);
+            MXM_5XStateHandlerWrite(pInstance5x, pInstance41b, false);
             break;
         case MXM_STATEMACH_5X_WRITE_DEVICE:
-            MXM_5XStateHandlerWriteDevice(pInstance5x, pInstance41b);
+            MXM_5XStateHandlerWrite(pInstance5x, pInstance41b, true);
             break;
         case MXM_STATEMACH_5X_READALL:
             MXM_5XStateHandlerReadAll(pInstance5x, pInstance41b);

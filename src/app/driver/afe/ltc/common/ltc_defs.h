@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    ltc_defs.h
  * @author  foxBMS Team
  * @date    2015-09-01 (date of creation)
- * @updated 2021-12-07 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup DRIVERS
  * @prefix  LTC
  *
@@ -76,9 +77,9 @@ typedef struct {
 
 /** struct for storing information on the openwire detection */
 typedef struct {
-    int16_t openWirePup[BS_NR_OF_STRINGS][BS_NR_OF_BAT_CELLS];
-    int16_t openWirePdown[BS_NR_OF_STRINGS][BS_NR_OF_BAT_CELLS];
-    int32_t openWireDelta[BS_NR_OF_STRINGS][BS_NR_OF_BAT_CELLS];
+    int16_t openWirePup[BS_NR_OF_STRINGS][BS_NR_OF_CELL_BLOCKS_PER_STRING];
+    int16_t openWirePdown[BS_NR_OF_STRINGS][BS_NR_OF_CELL_BLOCKS_PER_STRING];
+    int32_t openWireDelta[BS_NR_OF_STRINGS][BS_NR_OF_CELL_BLOCKS_PER_STRING];
 } LTC_OPENWIRE_DETECTION_s;
 
 /*========== Extern Constant and Variable Declarations ======================*/
@@ -226,7 +227,7 @@ typedef enum {
     LTC_STATEMACH_MUXMEASUREMENT_CONFIG, /*!< Configuration of the multiplexers              */
     LTC_STATEMACH_READMUXMEASUREMENT,    /*!<    */
     LTC_STATEMACH_STOREMUXMEASUREMENT,   /*!<    */
-} LTC_STATEMACH_BALANCECONTROL_SUB;
+} LTC_STATEMACH_BALANCECONTROL_SUB_e;
 
 /** Substates for open-wire check */
 typedef enum {
@@ -235,7 +236,7 @@ typedef enum {
     LTC_REQUEST_PULLDOWN_CURRENT_OPENWIRE_CHECK, /*!<    */
     LTC_READ_VOLTAGES_PULLDOWN_OPENWIRE_CHECK,   /*!<    */
     LTC_PERFORM_OPENWIRE_CHECK,
-} LTC_STATEMACH_OPENWIRECHECK_SUB;
+} LTC_STATEMACH_OPENWIRECHECK_SUB_e;
 
 /** Substates for diagnosis state */
 typedef enum {

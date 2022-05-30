@@ -1,0 +1,16 @@
+{
+    "c89": [
+        "#warning \"Ignoring static asserts in C89/C90 mode (f_static_assert).\""
+    ],
+    "c90": [
+        "#warning \"Ignoring static asserts in C89/C90 mode (f_static_assert).\""
+    ],
+    "iso9899:199409": [
+        "#warning \"Ignoring static asserts in C94 mode (f_static_assert).\""
+    ],
+    "c99": [
+        "#warning \"Ignoring static asserts in C99 mode (f_static_assert).\""
+    ],
+    "c11": [],
+    "c17": []
+}

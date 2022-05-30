@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -77,6 +77,7 @@ def build(bld):
         os.path.join("..", "driver", "can"),
         os.path.join("..", "driver", "config"),
         os.path.join("..", "driver", "contactor"),
+        os.path.join("..", "driver", "crc"),
         os.path.join("..", "driver", "dma"),
         os.path.join("..", "driver", "fram"),
         os.path.join("..", "driver", "htsensor"),
@@ -94,6 +95,7 @@ def build(bld):
         os.path.join("..", "driver", "sbc", "fs8x_driver"),
         os.path.join("..", "driver", "spi"),
         os.path.join("..", "driver", "sps"),
+        os.path.join("..", "driver", "mcu"),
         os.path.join("..", "engine"),
         os.path.join("..", "engine", "config"),
         os.path.join("..", "engine", "database"),
@@ -112,3 +114,22 @@ def build(bld):
         cflags=cflags,
         target=target,
     )
+
+    if os_name.lower() == "freertos":
+        c_fragment = '#include "os.h"\n#include "os_freertos_config-validation.h"\n'
+        config_source = bld.path.find_or_declare(f"{os_name.lower()}-config-test.c")
+        config_source.parent.mkdir()
+        config_source.write(c_fragment, encoding="utf-8")
+        config_includes = bld.env.INCLUDES_OPERATING_SYSTEM + [
+            "os",
+            os.path.join("..", "driver", "mcu"),
+            os.path.join("..", "main", "include"),
+            os.path.join("config"),
+            os.path.join("os", "freertos"),
+        ]
+        bld.objects(
+            source=[config_source],
+            includes=config_includes,
+            cflags=cflags,
+            target=f"{os_name.lower()}-config-test",
+        )

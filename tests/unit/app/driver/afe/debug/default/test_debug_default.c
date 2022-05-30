@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    test_debug_default.c
  * @author  foxBMS Team
  * @date    2020-09-17 (date of creation)
- * @updated 2021-06-09 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -137,8 +138,8 @@ void testTEST_FAKE_CheckMultipleCalls(void) {
 void testFAKE_SetFirstMeasurementCycleFinished(void) {
     OS_EnterTaskCritical_Expect();
     OS_ExitTaskCritical_Expect();
-    DATA_Write_2_DataBlocks_IgnoreAndReturn(STD_OK);
-    DATA_Write_4_DataBlocks_IgnoreAndReturn(STD_OK);
+    DATA_Write2DataBlocks_IgnoreAndReturn(STD_OK);
+    DATA_Write4DataBlocks_IgnoreAndReturn(STD_OK);
 
     static DATA_BLOCK_CELL_VOLTAGE_s test_fake_cellVoltage = {.header.uniqueId = DATA_BLOCK_ID_CELL_VOLTAGE_BASE};
     static DATA_BLOCK_CELL_TEMPERATURE_s test_fake_cellTemperature = {
@@ -152,22 +153,22 @@ void testFAKE_SetFirstMeasurementCycleFinished(void) {
         .header.uniqueId = DATA_BLOCK_ID_ALL_GPIO_VOLTAGES_BASE};
     static DATA_BLOCK_OPEN_WIRE_s test_fake_openWire = {.header.uniqueId = DATA_BLOCK_ID_OPEN_WIRE_BASE};
     FAKE_STATE_s test_fake_state                     = {
-        .timer                    = 0,
-        .firstMeasurementFinished = false,
-        .triggerEntry             = 0,
-        .nextState                = FAKE_FSM_STATE_HAS_NEVER_RUN,
-        .currentState             = FAKE_FSM_STATE_HAS_NEVER_RUN,
-        .previousState            = FAKE_FSM_STATE_HAS_NEVER_RUN,
-        .nextSubstate             = FAKE_FSM_SUBSTATE_DUMMY,
-        .currentSubstate          = FAKE_FSM_SUBSTATE_DUMMY,
-        .previousSubstate         = FAKE_FSM_SUBSTATE_DUMMY,
-        .data.allGpioVoltages     = &test_fake_allGpioVoltage,
-        .data.balancingControl    = &test_fake_balancingControl,
-        .data.balancingFeedback   = &test_fake_balancingFeedback,
-        .data.cellTemperature     = &test_fake_cellTemperature,
-        .data.cellVoltage         = &test_fake_cellVoltage,
-        .data.openWire            = &test_fake_openWire,
-        .data.slaveControl        = &test_fake_slaveControl,
+                            .timer                    = 0,
+                            .firstMeasurementFinished = false,
+                            .triggerEntry             = 0,
+                            .nextState                = FAKE_FSM_STATE_HAS_NEVER_RUN,
+                            .currentState             = FAKE_FSM_STATE_HAS_NEVER_RUN,
+                            .previousState            = FAKE_FSM_STATE_HAS_NEVER_RUN,
+                            .nextSubstate             = FAKE_FSM_SUBSTATE_DUMMY,
+                            .currentSubstate          = FAKE_FSM_SUBSTATE_DUMMY,
+                            .previousSubstate         = FAKE_FSM_SUBSTATE_DUMMY,
+                            .data.allGpioVoltages     = &test_fake_allGpioVoltage,
+                            .data.balancingControl    = &test_fake_balancingControl,
+                            .data.balancingFeedback   = &test_fake_balancingFeedback,
+                            .data.cellTemperature     = &test_fake_cellTemperature,
+                            .data.cellVoltage         = &test_fake_cellVoltage,
+                            .data.openWire            = &test_fake_openWire,
+                            .data.slaveControl        = &test_fake_slaveControl,
     };
 
     static DATA_BLOCK_CELL_VOLTAGE_s test_fake_cellVoltageCompare = {
@@ -204,16 +205,15 @@ void testFAKE_SetFirstMeasurementCycleFinished(void) {
 
     uint16_t i = 0;
 
-    for (uint8_t stringNumber = 0u; stringNumber < BS_NR_OF_STRINGS; stringNumber++) {
-        for (i = 0; i < BS_NR_OF_BAT_CELLS; i++) {
-            test_fake_stateCompare.data.cellVoltage->cellVoltage_mV[stringNumber][i] = FAKE_CELL_VOLTAGE_mV;
+    for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
+        for (i = 0; i < BS_NR_OF_CELL_BLOCKS_PER_STRING; i++) {
+            test_fake_stateCompare.data.cellVoltage->cellVoltage_mV[s][i] = FAKE_CELL_VOLTAGE_mV;
         }
-        test_fake_stateCompare.data.cellVoltage->packVoltage_mV[stringNumber] = FAKE_CELL_VOLTAGE_mV *
-                                                                                BS_NR_OF_BAT_CELLS;
+        test_fake_stateCompare.data.cellVoltage->packVoltage_mV[s] = FAKE_CELL_VOLTAGE_mV *
+                                                                     BS_NR_OF_CELL_BLOCKS_PER_STRING;
 
         for (i = 0; i < BS_NR_OF_TEMP_SENSORS_PER_STRING; i++) {
-            test_fake_stateCompare.data.cellTemperature->cellTemperature_ddegC[stringNumber][i] =
-                FAKE_CELL_TEMPERATURE_ddegC;
+            test_fake_stateCompare.data.cellTemperature->cellTemperature_ddegC[s][i] = FAKE_CELL_TEMPERATURE_ddegC;
         }
 
         test_fake_stateCompare.data.slaveControl->eepromReadAddressLastUsed  = 0xFFFFFFFF;

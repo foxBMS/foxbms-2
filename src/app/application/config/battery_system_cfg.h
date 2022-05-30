@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    battery_system_cfg.h
  * @author  foxBMS Team
  * @date    2019-12-10 (date of creation)
- * @updated 2021-06-09 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup BATTERY_SYSTEM_CONFIGURATION
  * @prefix  BS
  *
@@ -65,7 +66,7 @@
 /*========== Macros and Definitions =========================================*/
 
 /** Symbolic identifiers for strings with precharge */
-typedef enum BS_STRING_PRECHARGE_PRESENT {
+typedef enum {
     BS_STRING_WITH_PRECHARGE,
     BS_STRING_WITHOUT_PRECHARGE,
 } BS_STRING_PRECHARGE_PRESENT_e;
@@ -75,18 +76,28 @@ typedef enum BS_STRING_PRECHARGE_PRESENT {
  * Currently unused.
  * Added for future compatibility.
  */
-typedef enum BS_STRING_ID {
+typedef enum {
     BS_STRING0    = 0u,
     BS_STRING1    = 1u,
     BS_STRING2    = 2u,
     BS_STRING_MAX = 3u,
 } BS_STRING_ID_e;
 
-/** Define if discharge current are positive negative, default is positive */
+/** Define if discharge current is seen as positive or negative */
 #define POSITIVE_DISCHARGE_CURRENT (true)
 
-/** Number of strings in system */
-#define BS_NR_OF_STRINGS (3u)
+/**  */
+/**
+ * @ingroup CONFIG_BATTERYSYSTEM
+ * @brief   Number of parallel strings in the battery pack
+ * @details For details see
+ *          <a href="../../../../introduction/naming-conventions.html" target="_blank">Naming Conventions</a>.
+ *          Implementation detail: The number of parallel strings cannot exceed
+ *          #REPEAT_MAXIMUM_REPETITIONS unless the implementation of the
+ *          repetition macro is adapted.
+ * @ptype   uint
+ */
+#define BS_NR_OF_STRINGS (1u)
 
 /* safety check: due to implementation BS_NR_OF_STRINGS may not be larger than REPEAT_MAXIMUM_REPETITIONS */
 #if (BS_NR_OF_STRINGS > REPEAT_MAXIMUM_REPETITIONS)
@@ -95,36 +106,43 @@ typedef enum BS_STRING_ID {
 
 /**
  * @ingroup CONFIG_BATTERYSYSTEM
- * @brief   number of modules in battery pack
+ * @brief   number of modules in a string
+ * @details For details see
+ *          <a href="../../../../introduction/naming-conventions.html" target="_blank">Naming Conventions</a>.
  * @ptype   uint
  */
-#define BS_NR_OF_MODULES (1u)
+#define BS_NR_OF_MODULES_PER_STRING (1u)
 
 /**
  * @ingroup CONFIG_BATTERYSYSTEM
- * @brief   number of battery cells per battery module (parallel cells are
- *          counted as one)
+ * @brief   number of cells per module
+ * @details number of cells per module, where parallel cells are
+ *          counted as one cell block.
+ *          For details see
+ *          <a href="../../../../introduction/naming-conventions.html" target="_blank">Naming Conventions</a>.
  * @ptype   uint
  */
-#define BS_NR_OF_CELLS_PER_MODULE (18u)
+#define BS_NR_OF_CELL_BLOCKS_PER_MODULE (18u)
 
 /**
  * @ingroup CONFIG_BATTERYSYSTEM
  * @brief   number of battery cells in a parallel cell connection per battery
  *          module
+ * @details For details see
+ *          <a href="../../../../introduction/naming-conventions.html" target="_blank">Naming Conventions</a>.
  * @ptype   uint
  */
 #define BS_NR_OF_PARALLEL_CELLS_PER_MODULE (1u)
 
-#if BS_NR_OF_CELLS_PER_MODULE <= 12u
+#if BS_NR_OF_CELL_BLOCKS_PER_MODULE <= 12u
 #define BS_MAX_SUPPORTED_CELLS (12u)
-#elif BS_NR_OF_CELLS_PER_MODULE <= 15u
+#elif BS_NR_OF_CELL_BLOCKS_PER_MODULE <= 15u
 #define BS_MAX_SUPPORTED_CELLS (15u)
-#elif BS_NR_OF_CELLS_PER_MODULE <= 16u
+#elif BS_NR_OF_CELL_BLOCKS_PER_MODULE <= 16u
 #define BS_MAX_SUPPORTED_CELLS (16u)
-#elif BS_NR_OF_CELLS_PER_MODULE <= 18u
+#elif BS_NR_OF_CELL_BLOCKS_PER_MODULE <= 18u
 #define BS_MAX_SUPPORTED_CELLS (18u)
-#elif BS_NR_OF_CELLS_PER_MODULE == 36u
+#elif BS_NR_OF_CELL_BLOCKS_PER_MODULE == 36u
 #define BS_MAX_SUPPORTED_CELLS (36u)
 #else
 #error "Unsupported number of cells per module, higher than 18 and not 36"
@@ -157,10 +175,10 @@ typedef enum BS_STRING_ID {
  */
 #define BS_NR_OF_TEMP_SENSORS_PER_MODULE (8u)
 
-/** number of (not parallel) battery cells in the system */
-#define BS_NR_OF_BAT_CELLS (BS_NR_OF_MODULES * BS_NR_OF_CELLS_PER_MODULE)
+/** number of battery cells in the system */
+#define BS_NR_OF_CELL_BLOCKS_PER_STRING (BS_NR_OF_MODULES_PER_STRING * BS_NR_OF_CELL_BLOCKS_PER_MODULE)
 /** number of temperature sensors in a string */
-#define BS_NR_OF_TEMP_SENSORS_PER_STRING (BS_NR_OF_MODULES * BS_NR_OF_TEMP_SENSORS_PER_MODULE)
+#define BS_NR_OF_TEMP_SENSORS_PER_STRING (BS_NR_OF_MODULES_PER_STRING * BS_NR_OF_TEMP_SENSORS_PER_MODULE)
 /** number of temperature sensors in the battery system */
 #define BS_NR_OF_TEMP_SENSORS (BS_NR_OF_TEMP_SENSORS_PER_STRING * BS_NR_OF_STRINGS)
 
@@ -281,21 +299,6 @@ typedef enum BS_STRING_ID {
 #define BS_NR_OF_CONTACTORS ((2U * BS_NR_OF_STRINGS) + BS_NR_OF_CONTACTORS_OUTSIDE_STRINGS)
 
 /**
- * @ingroup CONFIG_BATTERYSYSTEM
- * @brief   separation of charge and discharge power line
- * @ptype   select(2)
- */
-#define BS_SEPARATE_POWER_PATHS (1)
-
-#if (BS_NR_OF_CONTACTORS > 3) && (BS_SEPARATE_POWER_PATHS == 0)
-#error "Configuration mismatch: Can't use only one power path with more than 3 contactors"
-#endif /*  */
-
-#if (BS_NR_OF_CONTACTORS < 4) && (BS_SEPARATE_POWER_PATHS == 1)
-#error "Configuration mismatch: Can't use separate power path with less than 4 contactors"
-#endif /*  */
-
-/**
  * @brief   current threshold for determing rest state of battery. If absolute
  *          current is below this limit value the battery is resting.
  */
@@ -351,6 +354,38 @@ typedef enum BS_STRING_ID {
  *                   +------+
  */
 #define BS_CHECK_FUSE_PLACED_IN_CHARGE_PATH (false)
+
+/**
+ * \defgroup    open wire check configuration
+ *  @details    If open-wire check is performed, depending on the AFE
+ *              implementation, cell voltages and temperatures are not updated
+ *              and thus old values can be transmitted on the CAN bus. Check
+ *              time is dependent on module configuration and external
+ *              capacitance. Activate open-wire check with care! See the AFE
+ *              implementation for details.
+ * @{
+ */
+/** enable open-wire checks during standby */
+#define BS_STANDBY_PERIODIC_OPEN_WIRE_CHECK (false)
+
+/** Periodic open-wire check time in STANDBY state in ms */
+#define BS_STANDBY_OPEN_WIRE_PERIOD_ms (600000)
+
+/** open-wire check in normal mode (set to true or false) */
+#define BS_NORMAL_PERIODIC_OPEN_WIRE_CHECK (false)
+
+/** Periodic open-wire check time in NORMAL state in ms */
+#define BS_NORMAL_OPEN_WIRE_PERIOD_ms (600000)
+
+/** open-wire check in charge mode (set to true or false) */
+#define BS_CHARGE_PERIODIC_OPEN_WIRE_CHECK (false)
+
+/** Periodic open-wire check time in CHARGE state in ms */
+#define BS_CHARGE_OPEN_WIRE_PERIOD_ms (600000)
+
+/** Periodic open-wire check time in ERROR state in ms */
+#define BS_ERROR_OPEN_WIRE_PERIOD_ms (30000)
+/**@}*/
 
 /*========== Extern Constant and Variable Declarations ======================*/
 /** Precharge presence of not for each string */

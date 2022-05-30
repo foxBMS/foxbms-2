@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    ftask_cfg.h
  * @author  foxBMS Team
  * @date    2019-08-26 (date of creation)
- * @updated 2021-12-08 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup TASK_CONFIGURATION
  * @prefix  FTSK
  *
@@ -61,7 +62,10 @@
 
 /*========== Macros and Definitions =========================================*/
 /** @brief Stack size of engine task */
-#define FTSK_TASK_ENGINE_STACK_SIZE (1024u / 4u)
+#define FTSK_TASK_ENGINE_STACK_SIZE_IN_BYTES (1024u)
+
+/** @brief Phase of engine task */
+#define FTSK_TASK_ENGINE_PRIORITY (OS_PRIORITY_REAL_TIME)
 
 /** @brief Phase of engine task */
 #define FTSK_TASK_ENGINE_PHASE (0u)
@@ -76,7 +80,10 @@
 #define FTSK_TASK_ENGINE_PV_PARAMETERS (NULL_PTR)
 
 /** @brief Stack size of cyclic 1 ms task */
-#define FTSK_TASK_CYCLIC_1MS_STACK_SIZE (1024u / 4u)
+#define FTSK_TASK_CYCLIC_1MS_STACK_SIZE_IN_BYTES (1024u)
+
+/** @brief Priority of cyclic 1ms task */
+#define FTSK_TASK_CYCLIC_1MS_PRIORITY (OS_PRIORITY_ABOVE_HIGH)
 
 /** @brief Phase of cyclic 1ms task */
 #define FTSK_TASK_CYCLIC_1MS_PHASE (0u)
@@ -91,7 +98,10 @@
 #define FTSK_TASK_CYCLIC_1MS_PV_PARAMETERS (NULL_PTR)
 
 /** @brief Stack size of cyclic 10 ms task */
-#define FTSK_TASK_CYCLIC_10MS_STACK_SIZE ((5120u) / 4u)
+#define FTSK_TASK_CYCLIC_10MS_STACK_SIZE_IN_BYTES (5120u)
+
+/** @brief Priority of cyclic 10 ms task */
+#define FTSK_TASK_CYCLIC_10MS_PRIORITY (OS_PRIORITY_HIGH)
 
 /** @brief Phase of cyclic 10 ms task */
 #define FTSK_TASK_CYCLIC_10MS_PHASE (2u)
@@ -106,7 +116,10 @@
 #define FTSK_TASK_CYCLIC_10MS_PV_PARAMETERS (NULL_PTR)
 
 /** @brief Stack size of cyclic 100 ms task */
-#define FTSK_TASK_CYCLIC_100MS_STACK_SIZE (1024u / 4u)
+#define FTSK_TASK_CYCLIC_100MS_STACK_SIZE_IN_BYTES (1024u)
+
+/** @brief Priority of cyclic 100 ms task */
+#define FTSK_TASK_CYCLIC_100MS_PRIORITY (OS_PRIORITY_ABOVE_NORMAL)
 
 /** @brief Phase of cyclic 100 ms task */
 #define FTSK_TASK_CYCLIC_100MS_PHASE (56u)
@@ -121,7 +134,10 @@
 #define FTSK_TASK_CYCLIC_100MS_PV_PARAMETERS (NULL_PTR)
 
 /** @brief Stack size of cyclic 100 ms task for algorithms */
-#define FTSK_TASK_CYCLIC_ALGORITHM_100MS_STACKSIZE (1024u / 4u)
+#define FTSK_TASK_CYCLIC_ALGORITHM_100MS_STACK_SIZE_IN_BYTES (1024u)
+
+/** @brief Priority of cyclic 100 ms task for algorithms */
+#define FTSK_TASK_CYCLIC_ALGORITHM_100MS_PRIORITY (OS_PRIORITY_NORMAL)
 
 /** @brief Phase of cyclic 100 ms task for algorithms */
 #define FTSK_TASK_CYCLIC_ALGORITHM_100MS_PHASE (64u)
@@ -134,6 +150,24 @@
 
 /** @brief pvParameters of the 100ms task for algorithms  */
 #define FTSK_TASK_CYCLIC_ALGORITHM_100MS_PV_PARAMETERS (NULL_PTR)
+
+/** @brief Stack size of continuously running task for AFEs */
+#define FTSK_TASK_AFE_STACK_SIZE_IN_BYTES (2048u / 4u)
+
+/** @brief Priority of continuously running task for AFEs */
+#define FTSK_TASK_AFE_PRIORITY (OS_PRIORITY_ABOVE_HIGH)
+
+/** @brief Phase of continuously running task for AFEs */
+#define FTSK_TASK_AFE_PHASE (0u)
+
+/** @brief Cycle time of continuously running task for AFEs */
+#define FTSK_TASK_AFE_CYCLE_TIME (0u)
+
+/** @brief Maximum allowed jitter of continuously running task for AFEs */
+#define FTSK_TASK_AFE_MAXIMUM_JITTER (5u)
+
+/** @brief pvParameters of the continuously running task for AFEs  */
+#define FTSK_TASK_AFE_PV_PARAMETERS (NULL_PTR)
 
 /*========== Extern Constant and Variable Declarations ======================*/
 /**
@@ -170,6 +204,19 @@ extern OS_TASK_DEFINITION_s ftsk_taskDefinitionCyclic100ms;
  * @ingroup API_OS
  */
 extern OS_TASK_DEFINITION_s ftsk_taskDefinitionCyclicAlgorithm100ms;
+
+/**
+ * @brief   Task configuration of the continuously running task for AFEs
+ * @details Continuously running task for AFEs
+ * @ingroup API_OS
+ */
+extern OS_TASK_DEFINITION_s ftsk_taskDefinitionAfe;
+
+/**
+ * @brief Definition of task handles
+ * @ingroup API_OS
+ */
+extern TaskHandle_t ftsk_taskHandleAfe;
 
 /*========== Extern Function Prototypes =====================================*/
 /**
@@ -229,6 +276,14 @@ extern void FTSK_RunUserCodeCyclic100ms(void);
  * @ingroup API_OS
  */
 extern void FTSK_RunUserCodeCyclicAlgorithm100ms(void);
+
+/**
+ * @brief   Continuously running task for AFEs
+ * @details Used to implement the communications with AFEs,
+ *          for drivers that do not use a cyclic task.
+ * @ingroup API_OS
+ */
+extern void FTSK_RunUserCodeAfe(void);
 
 /**
  * @brief   Idle task

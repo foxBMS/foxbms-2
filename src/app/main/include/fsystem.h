@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    fsystem.h
  * @author  foxBMS Team
  * @date    2020-07-21 (date of creation)
- * @updated 2021-11-10 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup SYSTEM
  * @prefix  FSYS
  *
@@ -57,6 +58,10 @@
 /*========== Includes =======================================================*/
 
 /*========== Macros and Definitions =========================================*/
+
+/* AXIVION Disable Style MisraC2012-1.2 MisraC2012Directive-4.1: Function is
+ * implemented in Assembler (see swiRaisePrivilege) and this is the way to tell
+ * it the TI compiler */
 /**
  * @brief   raise privilege
  * @details This alias is mapped to an ASM function and raises to a privileged
@@ -94,10 +99,9 @@
  *          platform and compiler.
  * @return  return value is zero if caller was in user mode (type: long)
  */
-/* AXIVION Disable Style MisraC2012Directive-4.1: Function is implemented in Assembler see swiRaisePrivilege */
 #pragma SWI_ALIAS(FSYS_RaisePrivilege, 1);
 extern long FSYS_RaisePrivilege(void);
-/* AXIVION Enable Style MisraC2012Directive-4.1: */
+/* AXIVION Enable Style MisraC2012-1.2 MisraC2012Directive-4.1: */
 
 /**
  * @def     FSYS_SwitchToUserMode()

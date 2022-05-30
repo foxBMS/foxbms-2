@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    test_mxm_cfg.c
  * @author  foxBMS Team
  * @date    2020-06-24 (date of creation)
- * @updated 2021-12-08 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -53,6 +54,7 @@
 
 /*========== Includes =======================================================*/
 #include "unity.h"
+#include "Mockdiag.h"
 #include "Mockfassert.h"
 #include "Mockio.h"
 #include "Mockspi.h"
@@ -113,6 +115,7 @@ void testMXM_SendData(void) {
     uint16_t bufferLength = 1;
 
     SPI_TransmitData_ExpectAndReturn(&spi_MxmInterface, &buffer, bufferLength, STD_OK);
+    DIAG_CheckEvent_ExpectAndReturn(STD_OK, DIAG_ID_AFE_SPI, DIAG_STRING, 0u, STD_OK);
     TEST_ASSERT_EQUAL(STD_OK, MXM_SendData(&buffer, bufferLength));
 }
 
@@ -122,5 +125,6 @@ void testMXM_ReceiveData(void) {
     uint16_t bufferLength = 1;
 
     SPI_TransmitReceiveData_ExpectAndReturn(&spi_MxmInterface, &buffer, &buffer, bufferLength, STD_OK);
+    DIAG_CheckEvent_ExpectAndReturn(STD_OK, DIAG_ID_AFE_SPI, DIAG_STRING, 0u, STD_OK);
     TEST_ASSERT_EQUAL(STD_OK, MXM_ReceiveData(&buffer, &buffer, bufferLength));
 }

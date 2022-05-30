@@ -1,0 +1,175 @@
+.. include:: ./../../../../macros.txt
+.. include:: ./../../../../units.txt
+
+.. _MASTER_TMS570___V1_1_1___PINOUT:
+
+Master TMS570 ``v1.1.1`` Pinout
+===============================
+
+.. |local_master_version|  replace:: ``v1.1.1``
+
+.. important::
+
+   The following description only applies for the |bms-master| hardware version
+   |local_master_version|.
+
+.. hint::
+
+   All connector pinouts described below follow the
+   :ref:`CONVENTION_FOR_MOLEX_3_0_CONNECTOR_PIN_NUMBERING`,
+   :ref:`CONVENTION_FOR_SAMTEC_EDGE_RATE_CONNECTOR_PIN_NUMBERING`,
+   :ref:`CONVENTION_FOR_MICTOR_CONNECTOR_PIN_NUMBERING` or
+   :ref:`CONVENTION_FOR_WUERTH_WR_MJ_CONNECTOR_PIN_NUMBERING`.
+
+This section describes the pinout of all connectors on the |bms-master|
+|local_master_version|.
+
+Supply
+######
+
+The external supply for the |bms-master| is supplied using a 8 pole Molex
+Micro-Fit 3.0 connector (J2009) with the pinout depicted in table
+:numref:`Table %s <ti-tms570lc4357-v1.1.1_supply_ext>`.
+
+.. csv-table:: Supply (J2009)
+   :name: ti-tms570lc4357-v1.1.1_supply_ext
+   :header-rows: 1
+   :delim: ,
+   :file: ./pinout/ti-tms570lc4357-v1.1.1_supply_ext.csv
+
+CAN1
+####
+
+The CAN1 interface is provided on a 4 pin Molex Micro-Fit 3.0 connector (J2021)
+with the pinout depicted in table
+:numref:`Table %s <ti-tms570lc4357-v1.1.1_CAN1>`.
+
+.. csv-table:: CAN1 (J2021)
+   :name: ti-tms570lc4357-v1.1.1_CAN1
+   :header-rows: 1
+   :delim: ,
+   :file: ./pinout/ti-tms570lc4357-v1.1.1_can1.csv
+
+CAN2 (isolated)
+###############
+
+An isolated CAN interface is provided on a 4 pin Molex Micro-Fit 3.0 connector
+(J2024) with the pinout depicted in
+:numref:`Table %s <ti-tms570lc4357-v1.1.1_CAN2>`.
+
+.. csv-table:: Pinout and signal description for isolated CAN2 (J2024)
+   :name: ti-tms570lc4357-v1.1.1_CAN2
+   :header-rows: 1
+   :delim: ,
+   :file: ./pinout/ti-tms570lc4357-v1.1.1_can2.csv
+
+Insulation monitoring
+#####################
+
+A Bender IR155-3204 insulation monitoring device can be connected to the
+|bms-master| using 4 pole Molex Micro-Fit 3.0 connector (J2034) with the
+following pinout described in
+:numref:`Table %s <ti-tms570lc4357-v1.1.1_isomon>`.
+
+.. csv-table:: Insulation monitoring interface (J2034)
+   :name: ti-tms570lc4357-v1.1.1_isomon
+   :header-rows: 1
+   :delim: ,
+   :file: ./pinout/ti-tms570lc4357-v1.1.1_isomon.csv
+
+Interlock
+#########
+
+The current-fed interlock loop is interfaced using a 2 pin Molex Micro-Fit 3.0
+connector J2034.
+The pinout is depicted in :numref:`Table %s <ti-tms570lc4357-v1.1.1_interlock>`.
+
+.. csv-table:: Interlock connector (J2033)
+   :name: ti-tms570lc4357-v1.1.1_interlock
+   :header-rows: 1
+   :delim: ,
+   :file: ./pinout/ti-tms570lc4357-v1.1.1_interlock.csv
+
+
+Smart Power Switches
+####################
+
+In total eight smart power switch outputs with feedback capability are
+available one the |bms-master|.
+They can be interfaced using the connectors J2000, J2002, J2003, J2004, J2006,
+J2007, J2008 and J2010.
+The pinout for each output smart power switch output ``X`` is depicted in
+:numref:`Table %s <ti-tms570lc4357-v1.1.1_sps>`.
+
+.. csv-table:: Smart power switch output connectors
+   :name: ti-tms570lc4357-v1.1.1_sps
+   :header-rows: 1
+   :delim: ,
+   :file: ./pinout/ti-tms570lc4357-v1.1.1_sps.csv
+
+Interface connector
+###################
+
+For the connection to the |bms-interface|, a 40-pole Samtec Edge Rate mezzanine
+connector (J9000) is used.
+The pinout and pin usage is described in
+:numref:`Table %s <ti-tms570lc4357-v1.1.1_interface>`.
+
+.. csv-table:: Signal connector to |bms-interface| (J9000)
+   :name: ti-tms570lc4357-v1.1.1_interface
+   :header-rows: 1
+   :delim: ,
+   :file: ./pinout/ti-tms570lc4357-v1.1.1_interface.csv
+
+Extension connector
+###################
+
+For the connection to the |bms-extension|, a 120-pole Samtec Edge Rate
+mezzanine connector (J9002) is used.
+The pinout and pin usage is described in
+:numref:`Table %s <ti-tms570lc4357-v1.1.1_interface>`.
+
+.. csv-table:: Signal connector to |bms-extension| (J9002)
+   :name: ti-tms570lc4357-v1.1.1_extension
+   :header-rows: 1
+   :delim: ,
+   :file: ./pinout/ti-tms570lc4357-v1.1.1_extension.csv
+
+Debug connector
+###############
+
+For the connection of a debugger to the |bms-master|, a 38-pole Mictor
+connector (J3008) is provided.
+The pinout and pin usage is described in
+:numref:`Table %s <ti-tms570lc4357-v1.1.1_interface>`.
+
+.. csv-table:: Debug connector (J3008)
+   :name: ti-tms570lc4357-v1.1.1_debug
+   :header-rows: 1
+   :delim: ,
+   :file: ./pinout/ti-tms570lc4357-v1.1.1_debug.csv
+
+RS485
+#####
+
+The RS485 interface can be interfaced using the 6 pin Molex Micro-Fit 3.0
+connector (J2013).
+The pinout is depicted in :numref:`Table %s <ti-tms570lc4357-v1.1.1_rs485>`.
+
+.. csv-table:: RS485 interface (J2013)
+   :name: ti-tms570lc4357-v1.1.1_rs485
+   :header-rows: 1
+   :delim: ,
+   :file: ./pinout/ti-tms570lc4357-v1.1.1_rs485.csv
+
+Ethernet
+########
+
+The 12 pin Wuerth WR-MJ connector pinout with additional shield contacts is
+described in :numref:`Table %s <ti-tms570lc4357-v1.1.1_ethernet>`.
+
+.. csv-table:: Ethernet connector (J2001)
+   :name: ti-tms570lc4357-v1.1.1_ethernet
+   :header-rows: 1
+   :delim: ,
+   :file: ./pinout/ti-tms570lc4357-v1.1.1_ethernet.csv

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    os_freertos.c
  * @author  foxBMS Team
  * @date    2021-11-18 (date of creation)
- * @updated 2021-12-01 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup OS
  * @prefix  OS
  *
@@ -53,6 +54,8 @@
 
 /*========== Includes =======================================================*/
 #include "os.h"
+
+#include "HL_sys_core.h"
 
 #include "ftask.h"
 
@@ -67,9 +70,16 @@
 /*========== Static Function Implementations ================================*/
 
 /*========== Extern Function Implementations ================================*/
+extern void OS_InitializeScheduler(void) {
+    if (OS_ENABLE_CACHE == true) {
+        _cacheEnable_();
+    }
+}
 
 void OS_StartScheduler(void) {
     vTaskStartScheduler();
+    /* This function should never return */
+    FAS_ASSERT(FAS_TRAP);
 }
 
 void vApplicationGetIdleTaskMemory(
@@ -131,29 +141,13 @@ uint32_t OS_GetTickCount(void) {
 }
 
 void OS_DelayTaskUntil(uint32_t *pPreviousWakeTime, uint32_t milliseconds) {
-#if INCLUDE_vTaskDelayUntil
     FAS_ASSERT(pPreviousWakeTime != NULL_PTR);
     FAS_ASSERT(milliseconds > 0u);
-    TickType_t ticks = ((TickType_t)milliseconds / portTICK_PERIOD_MS);
+    uint32_t ticks = (milliseconds / OS_TICK_RATE_MS);
     if ((uint32_t)ticks < 1u) {
         ticks = 1u; /* Minimum delay is 1 tick */
     }
-    vTaskDelayUntil((TickType_t *)pPreviousWakeTime, ticks);
-
-#else
-#error "Can't use OS_taskDelayUntil."
-#endif
-}
-
-void OS_SystemTickHandler(void) {
-#if (INCLUDE_xTaskGetSchedulerState == 1)
-    /* Only increment operating systick timer if scheduler started */
-    if (xTaskGetSchedulerState() != taskSCHEDULER_NOT_STARTED) {
-        xTaskIncrementTick();
-    }
-#else
-    xTaskIncrementTick();
-#endif /* INCLUDE_xTaskGetSchedulerState */
+    vTaskDelayUntil((TickType_t *)pPreviousWakeTime, (TickType_t)ticks);
 }
 
 extern void OS_MarkTaskAsRequiringFpuContext(void) {
@@ -163,26 +157,26 @@ extern void OS_MarkTaskAsRequiringFpuContext(void) {
 extern OS_STD_RETURN_e OS_ReceiveFromQueue(OS_QUEUE xQueue, void *const pvBuffer, uint32_t ticksToWait) {
     FAS_ASSERT(pvBuffer != NULL_PTR);
 
-    OS_STD_RETURN_e queueReceiveSucessfull = OS_FAIL;
+    OS_STD_RETURN_e queueReceiveSuccessfully = OS_FAIL;
     /* FreeRTOS: This function must not be used in an interrupt service routine. */
     BaseType_t xQueueReceiveSuccess = xQueueReceive(xQueue, pvBuffer, (TickType_t)ticksToWait);
     /* FreeRTOS:xQueueReceive returns pdTRUE if an item was successfully received from the queue (otherwise pdFALSE). */
     if (xQueueReceiveSuccess == pdTRUE) {
-        queueReceiveSucessfull = OS_SUCCESS;
+        queueReceiveSuccessfully = OS_SUCCESS;
     }
-    return queueReceiveSucessfull;
+    return queueReceiveSuccessfully;
 }
 
-extern OS_STD_RETURN_e OS_SendToBackOfQueue(OS_QUEUE xQueue, const void *const pvItemToQueue, TickType_t ticksToWait) {
+extern OS_STD_RETURN_e OS_SendToBackOfQueue(OS_QUEUE xQueue, const void *const pvItemToQueue, uint32_t ticksToWait) {
     FAS_ASSERT(pvItemToQueue != NULL_PTR);
 
-    OS_STD_RETURN_e queueSendSucessfull = OS_FAIL;
-    BaseType_t xQueueSendSuccess        = xQueueSendToBack(xQueue, pvItemToQueue, ticksToWait);
+    OS_STD_RETURN_e queueSendSuccessfully = OS_FAIL;
+    BaseType_t xQueueSendSuccess          = xQueueSendToBack(xQueue, pvItemToQueue, (TickType_t)ticksToWait);
     /* FreeRTOS:xQueueSendToBack returns pdTRUE if the item was successfully posted (otherwise errQUEUE_FULL). */
     if (xQueueSendSuccess == pdTRUE) {
-        queueSendSucessfull = OS_SUCCESS;
+        queueSendSuccessfully = OS_SUCCESS;
     }
-    return queueSendSucessfull;
+    return queueSendSuccessfully;
 }
 
 extern OS_STD_RETURN_e OS_SendToBackOfQueueFromIsr(
@@ -191,14 +185,19 @@ extern OS_STD_RETURN_e OS_SendToBackOfQueueFromIsr(
     long *const pxHigherPriorityTaskWoken) {
     FAS_ASSERT(pvItemToQueue != NULL_PTR);
 
-    OS_STD_RETURN_e queueSendSucessfull = OS_FAIL;
+    OS_STD_RETURN_e queueSendSuccessfully = OS_FAIL;
     BaseType_t xQueueSendSuccess =
         xQueueSendToBackFromISR(xQueue, pvItemToQueue, (BaseType_t *)pxHigherPriorityTaskWoken);
     /* FreeRTOS:xQueueSendToBackFromISR returns pdTRUE if the item was successfully posted (otherwise errQUEUE_FULL). */
     if (xQueueSendSuccess == pdTRUE) {
-        queueSendSucessfull = OS_SUCCESS;
+        queueSendSuccessfully = OS_SUCCESS;
     }
-    return queueSendSucessfull;
+    return queueSendSuccessfully;
+}
+
+extern uint32_t OS_GetNumberOfStoredMessagesInQueue(OS_QUEUE xQueue) {
+    long numberOfMessages = uxQueueMessagesWaiting(xQueue);
+    return (uint32_t)numberOfMessages;
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/

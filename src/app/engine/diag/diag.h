@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    diag.h
  * @author  foxBMS Team
  * @date    2019-11-28 (date of creation)
- * @updated 2021-07-29 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup ENGINE
  * @prefix  DIAG
  *
@@ -60,7 +61,7 @@
 /*========== Macros and Definitions =========================================*/
 
 /** diagnosis handler return types */
-typedef enum DIAG_RETURNTYPE {
+typedef enum {
     DIAG_HANDLER_RETURN_OK,               /*!<  error not occurred or occurred but threshold not reached */
     DIAG_HANDLER_RETURN_ERR_OCCURRED,     /*!<  error occurred and enabled */
     DIAG_HANDLER_RETURN_WARNING_OCCURRED, /*!<  warning occurred (error occurred but not enabled) */
@@ -72,28 +73,26 @@ typedef enum DIAG_RETURNTYPE {
     DIAG_HANDLER_RETURN_NOT_READY,        /*!<  diagnosis handler not ready */
 } DIAG_RETURNTYPE_e;
 
-/**
- * state of diagnosis module
- */
+/** possible states of the diagnosis module */
 typedef enum {
     DIAG_STATE_UNINITIALIZED, /*!< diagnosis module not initialized */
     DIAG_STATE_INITIALIZED,   /*!< diagnosis module initialized (ready for use) */
-} DIAG_STATE_e;
+} DIAG_MODULE_STATE_e;
 
 /** central state struct of the diag module */
-typedef struct DIAG {
-    DIAG_STATE_e state;                                        /*!< actual state of diagnosis module */
+typedef struct {
+    DIAG_MODULE_STATE_e state;                                 /*!< actual state of diagnosis module */
     uint16_t errcnttotal;                                      /*!< total counts of diagnosis entry records*/
     uint16_t errcntreported;                                   /*!< reported error counts to external tool*/
     uint32_t entry_event[DIAG_ID_MAX];                         /*!< last detected entry event*/
     uint8_t entry_cnt[DIAG_ID_MAX];                            /*!< reported event counter used for limitation  */
     uint16_t occurrenceCounter[BS_NR_OF_STRINGS][DIAG_ID_MAX]; /*!< counter for the occurrence of diag events */
     uint8_t id2ch[DIAG_ID_MAX];                                /*!< diagnosis-id to configuration channel selector*/
-    uint8_t nr_of_ch;                                          /*!< number of configured channels*/
+    uint8_t nrOfConfiguredDiagnosisEntries;                    /*!< number of configured diagnosis entries */
     uint32_t errflag[(DIAG_ID_MAX + 31) / 32];                 /*!< detected error flags (bit_nr = diag_id) */
     uint32_t warnflag[(DIAG_ID_MAX + 31) / 32];                /*!< detected warning flags (bit_nr = diag_id) */
     uint32_t err_enableflag[(DIAG_ID_MAX + 31) / 32];          /*!< enabled error flags (bit_nr = diag_id) */
-} DIAG_s;
+} DIAG_DIAGNOSIS_STATE_s;
 
 /*========== Extern Constant and Variable Declarations ======================*/
 

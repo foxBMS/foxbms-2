@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -44,6 +44,6 @@
 
 #include "general.h"
 
-extern uint32_t ABC_ArrayAverage(uint8_t *pArray, uint8_t arrayLength);
+extern uint32_t ABC_ArrayAverage(uint8_t *pArray, uint8_t arrayLength, uint8_t additionalParameter);
 
 #endif /* FOXBMS__C_015_H_ */

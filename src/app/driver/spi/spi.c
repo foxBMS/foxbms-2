@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    spi.c
  * @author  foxBMS Team
  * @date    2019-12-12 (date of creation)
- * @updated 2021-12-08 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup DRIVERS
  * @prefix  SPI
  *
@@ -61,7 +62,6 @@
 #include "dma.h"
 #include "fsystem.h"
 #include "io.h"
-#include "mcu.h"
 #include "os.h"
 
 static uint32_t spi_txLastWord[DMA_NUMBER_SPI_INTERFACES] = {0};
@@ -82,9 +82,11 @@ static uint32_t spi_txLastWord[DMA_NUMBER_SPI_INTERFACES] = {0};
 
 extern STD_RETURN_TYPE_e SPI_TransmitDummyByte(SPI_INTERFACE_CONFIG_s *pSpiInterface, uint32_t delay) {
     FAS_ASSERT(pSpiInterface != NULL_PTR);
+    /* AXIVION Routine Generic-MissingParameterAssert: delay: parameter accepts whole range */
+
     uint16_t txDummy[1]      = {0x00};
     STD_RETURN_TYPE_e retVal = SPI_TransmitData(pSpiInterface, txDummy, 1u);
-    MCU_delay_us(delay);
+    MCU_Delay_us(delay);
     return retVal;
 }
 
@@ -222,17 +224,33 @@ extern STD_RETURN_TYPE_e SPI_TransmitReceiveDataDma(
     FAS_ASSERT(pRxBuff != NULL_PTR);
     /** SPI over DMA currently only compatible with HW Chip Select */
     FAS_ASSERT(pSpiInterface->csType == SPI_CHIP_SELECT_HARDWARE);
-    FAS_ASSERT(SPI_GetSpiIndex(pSpiInterface->pNode) < spi_nrBusyFlags);
+    const uint8_t spiIndex = SPI_GetSpiIndex(pSpiInterface->pNode);
+    FAS_ASSERT(spiIndex < spi_nrBusyFlags);
 
     STD_RETURN_TYPE_e retVal = STD_NOT_OK;
 
     OS_EnterTaskCritical();
     /* Lock SPI hardware to prevent concurrent read/write commands */
-    if (spi_busyFlags[SPI_GetSpiIndex(pSpiInterface->pNode)] == SPI_IDLE) {
-        spi_busyFlags[SPI_GetSpiIndex(pSpiInterface->pNode)] = SPI_BUSY;
+    if (spi_busyFlags[spiIndex] == SPI_IDLE) {
+        spi_busyFlags[spiIndex] = SPI_BUSY;
 
         /* Check that not SPI transmission over DMA is taking place */
         if ((pSpiInterface->pNode->INT0 & DMAREQEN_BIT) == 0x0) {
+            /**
+             *  Activate HW Chip Select according to bitmask register CSNR
+             *  by setting pins as SPI functional pins
+             */
+            /** First deactivate all HW Chip Selects */
+            pSpiInterface->pNode->PC0 &= SPI_PC0_CLEAR_HW_CS_MASK;
+            for (uint8_t csNumber = 0u; csNumber < SPI_MAX_NUMBER_HW_CS; csNumber++) {
+                if (((pSpiInterface->pConfig->CSNR >> csNumber) & 0x1u) == 0u) {
+                    /** Bitmask = 0 --> HW CS active
+                     *  --> write  to PC0 to set pin as SPI pin (and not GIO)
+                     */
+                    pSpiInterface->pNode->PC0 |= (uint32_t)1u << csNumber;
+                }
+            }
+
             /* The upper 16 bits will be written in the SPI DAT1 register where they serve as configuration */
             uint32 Chip_Select_Hold = 0u;
             if (pSpiInterface->pConfig->CS_HOLD == TRUE) {
@@ -252,36 +270,29 @@ extern STD_RETURN_TYPE_e SPI_TransmitReceiveDataDma(
             /* Go to privilege mode to write DMA config registers */
             (void)FSYS_RaisePrivilege();
 
-            spi_txLastWord[SPI_GetSpiIndex(pSpiInterface->pNode)] = pTxBuff[frameLength - 1u];
-            spi_txLastWord[SPI_GetSpiIndex(pSpiInterface->pNode)] |=
-                ((uint32)DataFormat << SPI_DATA_FORMAT_FIELD_POSITION) |
-                ((uint32)ChipSelect << SPI_HARDWARE_CHIP_SELECT_FIELD_POSITION) | (WDelay);
+            spi_txLastWord[spiIndex] = pTxBuff[frameLength - 1u];
+            spi_txLastWord[spiIndex] |= ((uint32)DataFormat << SPI_DATA_FORMAT_FIELD_POSITION) |
+                                        ((uint32)ChipSelect << SPI_HARDWARE_CHIP_SELECT_FIELD_POSITION) | (WDelay);
 
             /* Set Tx buffer address */
-            dmaRAMREG->PCP[(dmaChannel_t)dma_spiDmaChannels[SPI_GetSpiIndex(pSpiInterface->pNode)].txChannel].ISADDR =
+            dmaRAMREG->PCP[(dmaChannel_t)dma_spiDmaChannels[spiIndex].txChannel].ISADDR =
                 (uint32_t)(&pTxBuff[1u]); /* First word sent manually to write configuration in SPIDAT1 register */
             /**
               *  Set number of Tx words to send
               *  Last word sent in ISR to set CSHOLD = 0
               */
-            dmaRAMREG->PCP[(dmaChannel_t)dma_spiDmaChannels[SPI_GetSpiIndex(pSpiInterface->pNode)].txChannel].ITCOUNT =
+            dmaRAMREG->PCP[(dmaChannel_t)dma_spiDmaChannels[spiIndex].txChannel].ITCOUNT =
                 ((frameLength - 2u) << 16U) | 1U; /* Last word sent manually to write CSHOLD in SPIDAT1 register */
 
             /* Set Rx buffer address */
-            dmaRAMREG->PCP[(dmaChannel_t)dma_spiDmaChannels[SPI_GetSpiIndex(pSpiInterface->pNode)].rxChannel].IDADDR =
-                (uint32_t)pRxBuff;
+            dmaRAMREG->PCP[(dmaChannel_t)dma_spiDmaChannels[spiIndex].rxChannel].IDADDR = (uint32_t)pRxBuff;
             /* Set number of Rx words to receive */
-            dmaRAMREG->PCP[(dmaChannel_t)dma_spiDmaChannels[SPI_GetSpiIndex(pSpiInterface->pNode)].rxChannel].ITCOUNT =
-                (frameLength << 16U) | 1U;
+            dmaRAMREG->PCP[(dmaChannel_t)dma_spiDmaChannels[spiIndex].rxChannel].ITCOUNT = (frameLength << 16U) | 1U;
 
             /* Re-enable channels; because auto-init is disabled */
             /* Disable otherwise transmission  is constantly ongoing */
-            dmaSetChEnable(
-                (dmaChannel_t)dma_spiDmaChannels[SPI_GetSpiIndex(pSpiInterface->pNode)].txChannel,
-                (dmaTriggerType_t)DMA_HW);
-            dmaSetChEnable(
-                (dmaChannel_t)dma_spiDmaChannels[SPI_GetSpiIndex(pSpiInterface->pNode)].rxChannel,
-                (dmaTriggerType_t)DMA_HW);
+            dmaSetChEnable((dmaChannel_t)dma_spiDmaChannels[spiIndex].txChannel, (dmaTriggerType_t)DMA_HW);
+            dmaSetChEnable((dmaChannel_t)dma_spiDmaChannels[spiIndex].rxChannel, (dmaTriggerType_t)DMA_HW);
 
             /* DMA config registers written, leave privilege mode */
             FSYS_SwitchToUserMode();
@@ -313,12 +324,14 @@ extern STD_RETURN_TYPE_e SPI_TransmitReceiveDataDma(
 }
 
 extern STD_RETURN_TYPE_e SPI_Lock(uint8_t spi) {
+    /* AXIVION Routine Generic-MissingParameterAssert: spi: parameter accepts whole range */
+
     STD_RETURN_TYPE_e retVal = STD_NOT_OK;
 
     OS_EnterTaskCritical();
-    if ((*(spi_busyFlags + spi) == SPI_IDLE) && (spi < spi_nrBusyFlags)) {
-        *(spi_busyFlags + spi) = SPI_BUSY;
-        retVal                 = STD_OK;
+    if ((spi < spi_nrBusyFlags) && (spi_busyFlags[spi] == SPI_IDLE)) {
+        spi_busyFlags[spi] = SPI_BUSY;
+        retVal             = STD_OK;
     } else {
         retVal = STD_NOT_OK;
     }
@@ -328,9 +341,11 @@ extern STD_RETURN_TYPE_e SPI_Lock(uint8_t spi) {
 }
 
 extern void SPI_Unlock(uint8_t spi) {
+    /* AXIVION Routine Generic-MissingParameterAssert: spi: parameter accepts whole range */
+
     OS_EnterTaskCritical();
     if (spi < spi_nrBusyFlags) {
-        *(spi_busyFlags + spi) = SPI_IDLE;
+        spi_busyFlags[spi] = SPI_IDLE;
     }
     OS_ExitTaskCritical();
 }
@@ -406,7 +421,7 @@ extern STD_RETURN_TYPE_e SPI_SlaveSetReceiveDataDma(
         (frameLength << 16U) | 1U;
 
     /* Re-enable channels; because auto-init is disabled */
-    /* Disable otherwise transmission  is constantly ongoping */
+    /* Disable otherwise transmission is constantly on going */
     dmaSetChEnable(
         (dmaChannel_t)dma_spiDmaChannels[SPI_GetSpiIndex(pSpiInterface->pNode)].txChannel, (dmaTriggerType_t)DMA_HW);
     dmaSetChEnable(

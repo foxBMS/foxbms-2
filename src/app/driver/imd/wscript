@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,33 @@
 
 Helper script to build the insulation measurement device"""
 
+import os
+
 
 def build(bld):
-    """selects the insulation monitoring device"""
+    """Build Insulation Monitoring Device Driver"""
+    includes = [
+        os.path.join("..", "can"),
+        os.path.join("..", "config"),
+        os.path.join("..", "..", "application", "config"),
+        os.path.join("..", "..", "driver", "mcu"),
+        os.path.join("..", "..", "engine", "config"),
+        os.path.join("..", "..", "engine", "database"),
+        os.path.join("..", "..", "engine", "diag"),
+        os.path.join("..", "..", "main", "include"),
+        os.path.join("..", "..", "task", "config"),
+        os.path.join("..", "..", "task", "os"),
+    ]
+    includes.extend(bld.env.INCLUDES_OPERATING_SYSTEM)
+    cflags = bld.env.CFLAGS_FOXBMS
+
+    # Build imd.c as object
+    bld.objects(
+        source="imd.c",
+        includes=includes,
+        cflags=cflags,
+        target="imd-device",
+    )
+
+    # Build selected IMD
     bld.recurse(bld.env.imd_manufacturer)

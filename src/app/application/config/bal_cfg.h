@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    bal_cfg.h
  * @author  foxBMS Team
  * @date    2020-02-24 (date of creation)
- * @updated 2020-02-24 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  BAL
  *
@@ -69,8 +70,14 @@
 /** BAL statemachine balancing time in 100*ms */
 #define BAL_STATEMACH_BALANCINGTIME_100ms (10U)
 
-/** BAL voltage threshold for balancing in mV*/
-#define BAL_THRESHOLD_mV (200)
+/** default value for the BAL voltage threshold */
+#define BAL_DEFAULT_THRESHOLD_mV (200)
+
+/** maximum value that BAL voltage threshold may take */
+#define BAL_MAXIMUM_THRESHOLD_mV (5000)
+
+/** minimum value that BAL voltage threshold may take */
+#define BAL_MINIMUM_THRESHOLD_mV (0)
 
 /** BAL hysteresis for voltage threshold when balancing was finished in mV */
 #define BAL_HYSTERESIS_mV (200)
@@ -84,6 +91,17 @@
 /*========== Extern Constant and Variable Declarations ======================*/
 
 /*========== Extern Function Prototypes =====================================*/
+/**
+ * @brief   set balancing threshold
+ * @param[in]   threshold_mV    threshold in mV
+ */
+extern void BAL_SetBalancingThreshold(int32_t threshold_mV);
+
+/**
+ * @brief   get balancing threshold
+ * @returns balancing threshold in mV
+ */
+extern int32_t BAL_GetBalancingThreshold_mV(void);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 

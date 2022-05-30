@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    pex_cfg.h
  * @author  foxBMS Team
  * @date    2021-08-02 (date of creation)
- * @updated 2021-09-30 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  PEX
  *
@@ -69,7 +70,7 @@
 
 /** Defines to match expander numbering from hardware description */
 /**@{*/
-/* AXIVION Disable Style MisraC2012-2.5: Values are defined even if unused for driver useage. */
+/* AXIVION Disable Style MisraC2012-2.5: Values are defined even if unused for driver usage. */
 #define PEX_PORT_EXPANDER1 (0u)
 #define PEX_PORT_EXPANDER2 (1u)
 #define PEX_PORT_EXPANDER3 (2u)

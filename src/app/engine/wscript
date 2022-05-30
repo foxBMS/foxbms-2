@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -61,10 +61,10 @@ def build(bld):
         os.path.join("diag", "cbs", "diag_cbs_current-sensor.c"),
         os.path.join("diag", "cbs", "diag_cbs_deep-discharge.c"),
         os.path.join("diag", "cbs", "diag_cbs_dummy.c"),
+        os.path.join("diag", "cbs", "diag_cbs_fram.c"),
         os.path.join("diag", "cbs", "diag_cbs_i2c.c"),
         os.path.join("diag", "cbs", "diag_cbs_insulation.c"),
         os.path.join("diag", "cbs", "diag_cbs_interlock.c"),
-        os.path.join("diag", "cbs", "diag_cbs_ltc.c"),
         os.path.join("diag", "cbs", "diag_cbs_afe.c"),
         os.path.join("diag", "cbs", "diag_cbs_plausibility.c"),
         os.path.join("diag", "cbs", "diag_cbs_power-measurement.c"),
@@ -107,6 +107,7 @@ def build(bld):
         os.path.join("..", "driver", "sbc", "fs8x_driver"),
         os.path.join("..", "driver", "spi"),
         os.path.join("..", "driver", "sps"),
+        os.path.join("..", "driver", "mcu"),
         os.path.join("..", "main", "include"),
         os.path.join("..", "task", "os"),
         os.path.join("..", "task", "config"),

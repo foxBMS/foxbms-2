@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    can_cfg.c
  * @author  foxBMS Team
  * @date    2019-12-04 (date of creation)
- * @updated 2021-10-12 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  CAN
  *
@@ -94,6 +95,14 @@ const CAN_MSG_TX_TYPE_s can_txMessages[] = {
      CAN_BIG_ENDIAN,
      &CAN_TxState,
      NULL_PTR}, /*!< State */
+    {CAN1_NODE,
+     CAN_ID_TX_DETAIL_STATE,
+     CAN_DLC,
+     CAN_TX_DETAIL_STATE_PERIOD_MS,
+     CAN_TX_DETAIL_STATE_PHASE_MS,
+     CAN_BIG_ENDIAN,
+     &CAN_TxDetailState,
+     NULL_PTR}, /*!< Detail State */
     {CAN1_NODE,
      CAN_ID_TX_VOLTAGES,
      CAN_DLC,

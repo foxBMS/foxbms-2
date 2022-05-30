@@ -1,8 +1,8 @@
 {
     "valid": [
-        "ABC_A",
         "ABC_Az",
-        "ABC_A1",
+        "ABC_Az1",
+        "ABC_I2c",
         "ABC_Function",
         "ABC_Function0",
         "ABC_MyFunction",
@@ -17,6 +17,9 @@
         "a",
         "ABC",
         "ABC_",
+        "ABC_A",
+        "ABC_A1",
+        "ABC_I2",
         "PREFIXONLY",
         "PREFIXBUTNOUNDERSCORE",
         "noprefix",

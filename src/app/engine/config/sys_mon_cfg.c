@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,17 +43,20 @@
  * @file    sys_mon_cfg.c
  * @author  foxBMS Team
  * @date    2019-11-28 (date of creation)
- * @updated 2021-11-10 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup ENGINE_CONFIGURATION
  * @prefix  SYSM
  *
- * @brief   TODO
+ * @brief   configuration of the system monitoring module
  */
 
 /*========== Includes =======================================================*/
 #include "sys_mon_cfg.h"
 
 #include "ftask_cfg.h"
+
+#include "fram.h"
 
 /*========== Macros and Definitions =========================================*/
 
@@ -63,6 +66,7 @@
 static void SYSM_DummyCallback(SYSM_TASK_ID_e taskId);
 
 /*========== Extern Constant and Variable Definitions =======================*/
+/* DOCUMENTATION marker - sys_mon config entry */
 SYSM_MONITORING_CFG_s sysm_ch_cfg[] = {
     {SYSM_TASK_ID_ENGINE,
      SYSM_ENABLED,
@@ -100,28 +104,23 @@ SYSM_MONITORING_CFG_s sysm_ch_cfg[] = {
      SYSM_HANDLING_SWITCHOFFCONTACTOR,
      SYSM_DummyCallback},
 };
+/* DOCUMENTATION marker - sys_mon config exit */
+
+f_static_assert(
+    (sizeof(sysm_ch_cfg) / sizeof(SYSM_MONITORING_CFG_s)) == (uint32_t)SYSM_TASK_ID_MAX,
+    "invalid sys_mon configuration!");
 
 /*========== Static Function Implementations ================================*/
 /**
  * @brief   dummy callback function of system monitoring error events
  */
-/* this is a dummy implementation and not using the argument here is fine */
-#pragma diag_push
-#pragma diag_suppress 880
-void SYSM_DummyCallback(SYSM_TASK_ID_e taskId) {
-    /* Dummy function -> empty */
+static void SYSM_DummyCallback(SYSM_TASK_ID_e taskId) {
+    /* this is a dummy implementation and not using the argument here is fine */
+    (void)taskId;
+    /* Dummy function therefore it is empty */
 }
-#pragma diag_pop
 
 /*========== Extern Function Implementations ================================*/
-STD_RETURN_TYPE_e SYSM_Init(void) {
-    STD_RETURN_TYPE_e retval = STD_OK;
-    if ((sizeof(sysm_ch_cfg) / sizeof(SYSM_MONITORING_CFG_s)) != (unsigned long)SYSM_TASK_ID_MAX) {
-        /* Configuration error - invalid configuration of task/modules */
-        retval = STD_NOT_OK;
-    }
-    return retval;
-}
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
 #ifdef UNITY_UNIT_TEST

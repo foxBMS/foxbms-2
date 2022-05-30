@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,9 +43,10 @@
  * @file    sof.c
  * @author  foxBMS Team
  * @date    2020-10-07 (date of creation)
- * @updated 2021-03-24 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup APPLICATION_CONFIGURATION
- * @prefix  SOX
+ * @prefix  SOF
  *
  * @brief   SOX module responsible for current derating calculation
  *
@@ -195,6 +196,8 @@ static void SOF_CalculateVoltageBasedCurrentLimit(
     FAS_ASSERT(pAllowedVoltageBasedCurrent != NULL_PTR);
     FAS_ASSERT(pConfigLimitValues != NULL_PTR);
     FAS_ASSERT(pCalculatedSofCurves != NULL_PTR);
+    /* AXIVION Routine Generic-MissingParameterAssert: minimumCellVoltage_mV: parameter accept whole range */
+    /* AXIVION Routine Generic-MissingParameterAssert: maximumCellVoltage_mV: parameter accept whole range */
 
     /* minimum cell voltage calculation */
     if (minimumCellVoltage_mV <= pConfigLimitValues->limitLowerCellVoltage_mV) {
@@ -238,6 +241,8 @@ static void SOF_CalculateTemperatureBasedCurrentLimit(
     FAS_ASSERT(pAllowedTemperatureBasedCurrent != NULL_PTR);
     FAS_ASSERT(pConfigLimitValues != NULL_PTR);
     FAS_ASSERT(pCalculatedSofCurves != NULL_PTR);
+    /* AXIVION Routine Generic-MissingParameterAssert: minimumCellTemperature_ddegC: parameter accepts whole range */
+    /* AXIVION Routine Generic-MissingParameterAssert: maximumCellTemperature_ddegC: parameter accepts whole range */
 
     SOF_CURRENT_LIMITS_s temporaryCurrentLimits = {0.0f, 0.0f, 0.0f, 0.0f};
     /* Temperature low Discharge */
@@ -326,6 +331,8 @@ static void SOF_CalculateTemperatureBasedCurrentLimit(
 static SOF_CURRENT_LIMITS_s SOF_MinimumOfTwoSofValues(
     SOF_CURRENT_LIMITS_s voltageBasedLimits,
     SOF_CURRENT_LIMITS_s temperatureBasedLimits) {
+    /* AXIVION Routine Generic-MissingParameterAssert: voltageBasedLimits: parameter accepts whole range */
+    /* AXIVION Routine Generic-MissingParameterAssert: temperatureBasedLimits: parameter accepts whole range */
     SOF_CURRENT_LIMITS_s retval       = {0};
     retval.continuousChargeCurrent_mA = MATH_MinimumOfTwoFloats(
         voltageBasedLimits.continuousChargeCurrent_mA, temperatureBasedLimits.continuousChargeCurrent_mA);
@@ -370,122 +377,117 @@ extern void SOF_Calculation(void) {
     float minDischarge_mA   = FLT_MAX;
     float minCharge_mA      = FLT_MAX;
 
-    for (uint8_t stringNumber = 0u; stringNumber < BS_NR_OF_STRINGS; stringNumber++) {
+    for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
         SOF_CURRENT_LIMITS_s voltageBasedSof     = {0};
         SOF_CURRENT_LIMITS_s temperatureBasedSof = {0};
         /* Calculate allowed current if string is connected */
-        if (true == BMS_IsStringClosed(stringNumber)) {
+        if (BMS_IsStringClosed(s) == true) {
             SOF_CalculateVoltageBasedCurrentLimit(
-                (float)sof_tableMinimumMaximumValues.minimumCellVoltage_mV[stringNumber],
-                (float)sof_tableMinimumMaximumValues.maximumCellVoltage_mV[stringNumber],
+                (float)sof_tableMinimumMaximumValues.minimumCellVoltage_mV[s],
+                (float)sof_tableMinimumMaximumValues.maximumCellVoltage_mV[s],
                 &voltageBasedSof,
                 &sof_recommendedCurrent,
                 &sof_curveRecommendedOperatingCurrent);
             SOF_CalculateTemperatureBasedCurrentLimit(
-                (float)sof_tableMinimumMaximumValues.minimumTemperature_ddegC[stringNumber],
-                (float)sof_tableMinimumMaximumValues.maximumTemperature_ddegC[stringNumber],
+                (float)sof_tableMinimumMaximumValues.minimumTemperature_ddegC[s],
+                (float)sof_tableMinimumMaximumValues.maximumTemperature_ddegC[s],
                 &temperatureBasedSof,
                 &sof_recommendedCurrent,
                 &sof_curveRecommendedOperatingCurrent);
             allowedCurrent = SOF_MinimumOfTwoSofValues(voltageBasedSof, temperatureBasedSof);
 
-            sof_tableSofValues.recommendedContinuousChargeCurrent_mA[stringNumber] =
-                allowedCurrent.continuousChargeCurrent_mA;
-            sof_tableSofValues.recommendedContinuousDischargeCurrent_mA[stringNumber] =
+            sof_tableSofValues.recommendedContinuousChargeCurrent_mA[s] = allowedCurrent.continuousChargeCurrent_mA;
+            sof_tableSofValues.recommendedContinuousDischargeCurrent_mA[s] =
                 allowedCurrent.continuousDischargeCurrent_mA;
-            sof_tableSofValues.recommendedPeakChargeCurrent_mA[stringNumber] = allowedCurrent.peakChargeCurrent_mA;
-            sof_tableSofValues.recommendedPeakDischargeCurrent_mA[stringNumber] =
-                allowedCurrent.peakDischargeCurrent_mA;
+            sof_tableSofValues.recommendedPeakChargeCurrent_mA[s]    = allowedCurrent.peakChargeCurrent_mA;
+            sof_tableSofValues.recommendedPeakDischargeCurrent_mA[s] = allowedCurrent.peakDischargeCurrent_mA;
 
             nrClosedStrings++;
-            if (minCharge_mA > sof_tableSofValues.recommendedContinuousChargeCurrent_mA[stringNumber]) {
-                minCharge_mA = sof_tableSofValues.recommendedContinuousChargeCurrent_mA[stringNumber];
+            if (minCharge_mA > sof_tableSofValues.recommendedContinuousChargeCurrent_mA[s]) {
+                minCharge_mA = sof_tableSofValues.recommendedContinuousChargeCurrent_mA[s];
             }
-            if (minDischarge_mA > sof_tableSofValues.recommendedContinuousDischargeCurrent_mA[stringNumber]) {
-                minDischarge_mA = sof_tableSofValues.recommendedContinuousDischargeCurrent_mA[stringNumber];
+            if (minDischarge_mA > sof_tableSofValues.recommendedContinuousDischargeCurrent_mA[s]) {
+                minDischarge_mA = sof_tableSofValues.recommendedContinuousDischargeCurrent_mA[s];
             }
         } else {
-            sof_tableSofValues.recommendedContinuousChargeCurrent_mA[stringNumber]    = 0.0f;
-            sof_tableSofValues.recommendedContinuousDischargeCurrent_mA[stringNumber] = 0.0f;
-            sof_tableSofValues.recommendedPeakChargeCurrent_mA[stringNumber]          = 0.0f;
-            sof_tableSofValues.recommendedPeakDischargeCurrent_mA[stringNumber]       = 0.0f;
+            sof_tableSofValues.recommendedContinuousChargeCurrent_mA[s]    = 0.0f;
+            sof_tableSofValues.recommendedContinuousDischargeCurrent_mA[s] = 0.0f;
+            sof_tableSofValues.recommendedPeakChargeCurrent_mA[s]          = 0.0f;
+            sof_tableSofValues.recommendedPeakDischargeCurrent_mA[s]       = 0.0f;
         }
 
 #if BMS_CHECK_SOF_CURRENT_LIMITS == true
         /* Calculate maximum allowed current MOL level */
         SOF_CalculateVoltageBasedCurrentLimit(
-            (float)sof_tableMinimumMaximumValues.minimumCellVoltage_mV[stringNumber],
-            (float)sof_tableMinimumMaximumValues.maximumCellVoltage_mV[stringNumber],
+            (float)sof_tableMinimumMaximumValues.minimumCellVoltage_mV[s],
+            (float)sof_tableMinimumMaximumValues.maximumCellVoltage_mV[s],
             &voltageBasedSof,
             &sof_maximumOperatingLimit,
             &sof_curveMol);
         SOF_CalculateTemperatureBasedCurrentLimit(
-            (float)sof_tableMinimumMaximumValues.minimumTemperature_ddegC[stringNumber],
-            (float)sof_tableMinimumMaximumValues.maximumTemperature_ddegC[stringNumber],
+            (float)sof_tableMinimumMaximumValues.minimumTemperature_ddegC[s],
+            (float)sof_tableMinimumMaximumValues.maximumTemperature_ddegC[s],
             &temperatureBasedSof,
             &sof_maximumOperatingLimit,
             &sof_curveMol);
         allowedCurrent = SOF_MinimumOfTwoSofValues(voltageBasedSof, temperatureBasedSof);
-        sof_tableSofValues.continuousMolChargeCurrent_mA[stringNumber] = allowedCurrent.continuousChargeCurrent_mA;
-        sof_tableSofValues.continuousMolDischargeCurrent_mA[stringNumber] =
-            allowedCurrent.continuousDischargeCurrent_mA;
-        sof_tableSofValues.peakMolChargeCurrent_mA[stringNumber]    = allowedCurrent.peakChargeCurrent_mA;
-        sof_tableSofValues.peakMolDischargeCurrent_mA[stringNumber] = allowedCurrent.peakDischargeCurrent_mA;
+        sof_tableSofValues.continuousMolChargeCurrent_mA[s]    = allowedCurrent.continuousChargeCurrent_mA;
+        sof_tableSofValues.continuousMolDischargeCurrent_mA[s] = allowedCurrent.continuousDischargeCurrent_mA;
+        sof_tableSofValues.peakMolChargeCurrent_mA[s]          = allowedCurrent.peakChargeCurrent_mA;
+        sof_tableSofValues.peakMolDischargeCurrent_mA[s]       = allowedCurrent.peakDischargeCurrent_mA;
 
         /* Calculate maximum allowed current RSL level */
         SOF_CalculateVoltageBasedCurrentLimit(
-            (float)sof_tableMinimumMaximumValues.minimumCellVoltage_mV[stringNumber],
-            (float)sof_tableMinimumMaximumValues.maximumCellVoltage_mV[stringNumber],
+            (float)sof_tableMinimumMaximumValues.minimumCellVoltage_mV[s],
+            (float)sof_tableMinimumMaximumValues.maximumCellVoltage_mV[s],
             &voltageBasedSof,
             &sof_recommendedSafetyLimit,
             &sof_curveRsl);
         SOF_CalculateTemperatureBasedCurrentLimit(
-            (float)sof_tableMinimumMaximumValues.minimumTemperature_ddegC[stringNumber],
-            (float)sof_tableMinimumMaximumValues.maximumTemperature_ddegC[stringNumber],
+            (float)sof_tableMinimumMaximumValues.minimumTemperature_ddegC[s],
+            (float)sof_tableMinimumMaximumValues.maximumTemperature_ddegC[s],
             &temperatureBasedSof,
             &sof_recommendedSafetyLimit,
             &sof_curveRsl);
         allowedCurrent = SOF_MinimumOfTwoSofValues(voltageBasedSof, temperatureBasedSof);
-        sof_tableSofValues.continuousRslChargeCurrent_mA[stringNumber] = allowedCurrent.continuousChargeCurrent_mA;
-        sof_tableSofValues.continuousRslDischargeCurrent_mA[stringNumber] =
-            allowedCurrent.continuousDischargeCurrent_mA;
-        sof_tableSofValues.peakRslChargeCurrent_mA[stringNumber]    = allowedCurrent.peakChargeCurrent_mA;
-        sof_tableSofValues.peakRslDischargeCurrent_mA[stringNumber] = allowedCurrent.peakDischargeCurrent_mA;
+        sof_tableSofValues.continuousRslChargeCurrent_mA[s]    = allowedCurrent.continuousChargeCurrent_mA;
+        sof_tableSofValues.continuousRslDischargeCurrent_mA[s] = allowedCurrent.continuousDischargeCurrent_mA;
+        sof_tableSofValues.peakRslChargeCurrent_mA[s]          = allowedCurrent.peakChargeCurrent_mA;
+        sof_tableSofValues.peakRslDischargeCurrent_mA[s]       = allowedCurrent.peakDischargeCurrent_mA;
 
         /* Calculate maximum allowed current MSL level */
         SOF_CalculateVoltageBasedCurrentLimit(
-            (float)sof_tableMinimumMaximumValues.minimumCellVoltage_mV[stringNumber],
-            (float)sof_tableMinimumMaximumValues.maximumCellVoltage_mV[stringNumber],
+            (float)sof_tableMinimumMaximumValues.minimumCellVoltage_mV[s],
+            (float)sof_tableMinimumMaximumValues.maximumCellVoltage_mV[s],
             &voltageBasedSof,
             &sof_configMaximumSafetyLimit,
             &sof_curveMsl);
         SOF_CalculateTemperatureBasedCurrentLimit(
-            (float)sof_tableMinimumMaximumValues.minimumTemperature_ddegC[stringNumber],
-            (float)sof_tableMinimumMaximumValues.maximumTemperature_ddegC[stringNumber],
+            (float)sof_tableMinimumMaximumValues.minimumTemperature_ddegC[s],
+            (float)sof_tableMinimumMaximumValues.maximumTemperature_ddegC[s],
             &temperatureBasedSof,
             &sof_configMaximumSafetyLimit,
             &sof_curveMsl);
         allowedCurrent = SOF_MinimumOfTwoSofValues(voltageBasedSof, temperatureBasedSof);
-        sof_tableSofValues.continuousMslChargeCurrent_mA[stringNumber] = allowedCurrent.continuousChargeCurrent_mA;
-        sof_tableSofValues.continuousMslDischargeCurrent_mA[stringNumber] =
-            allowedCurrent.continuousDischargeCurrent_mA;
-        sof_tableSofValues.peakMslChargeCurrent_mA[stringNumber]    = allowedCurrent.peakChargeCurrent_mA;
-        sof_tableSofValues.peakMslDischargeCurrent_mA[stringNumber] = allowedCurrent.peakDischargeCurrent_mA;
+        sof_tableSofValues.continuousMslChargeCurrent_mA[s]    = allowedCurrent.continuousChargeCurrent_mA;
+        sof_tableSofValues.continuousMslDischargeCurrent_mA[s] = allowedCurrent.continuousDischargeCurrent_mA;
+        sof_tableSofValues.peakMslChargeCurrent_mA[s]          = allowedCurrent.peakChargeCurrent_mA;
+        sof_tableSofValues.peakMslDischargeCurrent_mA[s]       = allowedCurrent.peakDischargeCurrent_mA;
 #else  /* BMS_CHECK_SOF_CURRENT_LIMITS == false */
-        sof_tableSofValues.continuousMolChargeCurrent_mA[stringNumber]    = BC_CURRENT_MAX_CHARGE_MOL_mA;
-        sof_tableSofValues.continuousMolDischargeCurrent_mA[stringNumber] = BC_CURRENT_MAX_DISCHARGE_MOL_mA;
-        sof_tableSofValues.peakMolChargeCurrent_mA[stringNumber]          = BC_CURRENT_MAX_CHARGE_MOL_mA;
-        sof_tableSofValues.peakMolDischargeCurrent_mA[stringNumber]       = BC_CURRENT_MAX_DISCHARGE_MOL_mA;
+        sof_tableSofValues.continuousMolChargeCurrent_mA[s]    = BC_CURRENT_MAX_CHARGE_MOL_mA;
+        sof_tableSofValues.continuousMolDischargeCurrent_mA[s] = BC_CURRENT_MAX_DISCHARGE_MOL_mA;
+        sof_tableSofValues.peakMolChargeCurrent_mA[s]          = BC_CURRENT_MAX_CHARGE_MOL_mA;
+        sof_tableSofValues.peakMolDischargeCurrent_mA[s]       = BC_CURRENT_MAX_DISCHARGE_MOL_mA;
 
-        sof_tableSofValues.continuousRslChargeCurrent_mA[stringNumber]    = BC_CURRENT_MAX_CHARGE_RSL_mA;
-        sof_tableSofValues.continuousRslDischargeCurrent_mA[stringNumber] = BC_CURRENT_MAX_DISCHARGE_RSL_mA;
-        sof_tableSofValues.peakRslChargeCurrent_mA[stringNumber]          = BC_CURRENT_MAX_CHARGE_RSL_mA;
-        sof_tableSofValues.peakRslDischargeCurrent_mA[stringNumber]       = BC_CURRENT_MAX_DISCHARGE_RSL_mA;
+        sof_tableSofValues.continuousRslChargeCurrent_mA[s]    = BC_CURRENT_MAX_CHARGE_RSL_mA;
+        sof_tableSofValues.continuousRslDischargeCurrent_mA[s] = BC_CURRENT_MAX_DISCHARGE_RSL_mA;
+        sof_tableSofValues.peakRslChargeCurrent_mA[s]          = BC_CURRENT_MAX_CHARGE_RSL_mA;
+        sof_tableSofValues.peakRslDischargeCurrent_mA[s]       = BC_CURRENT_MAX_DISCHARGE_RSL_mA;
 
-        sof_tableSofValues.continuousMslChargeCurrent_mA[stringNumber]    = BC_CURRENT_MAX_CHARGE_MSL_mA;
-        sof_tableSofValues.continuousMslDischargeCurrent_mA[stringNumber] = BC_CURRENT_MAX_DISCHARGE_MSL_mA;
-        sof_tableSofValues.peakMslChargeCurrent_mA[stringNumber]          = BC_CURRENT_MAX_CHARGE_MSL_mA;
-        sof_tableSofValues.peakMslDischargeCurrent_mA[stringNumber]       = BC_CURRENT_MAX_DISCHARGE_MSL_mA;
+        sof_tableSofValues.continuousMslChargeCurrent_mA[s]    = BC_CURRENT_MAX_CHARGE_MSL_mA;
+        sof_tableSofValues.continuousMslDischargeCurrent_mA[s] = BC_CURRENT_MAX_DISCHARGE_MSL_mA;
+        sof_tableSofValues.peakMslChargeCurrent_mA[s]          = BC_CURRENT_MAX_CHARGE_MSL_mA;
+        sof_tableSofValues.peakMslDischargeCurrent_mA[s]       = BC_CURRENT_MAX_DISCHARGE_MSL_mA;
 #endif /* BMS_CHECK_SOF_CURRENT_LIMITS == true */
     }
 

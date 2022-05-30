@@ -59,6 +59,8 @@
 #define configTOTAL_HEAP_SIZE                      ( ( size_t ) 0 )
 #define configMAX_TASK_NAME_LEN                    ( 40 )
 #define configIDLE_SHOULD_YIELD                    ( 1 )
+#define configUSE_TASK_NOTIFICATIONS               ( 1 )
+#define configTASK_NOTIFICATION_ARRAY_ENTRIES      ( 3 )
 #define configGENERATE_RUN_TIME_STATS              ( 0 )
 #define configUSE_MALLOC_FAILED_HOOK               ( 0 )
 

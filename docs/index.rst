@@ -141,6 +141,7 @@ All sections are listed here:
     ./software/build-process/build-process.rst
     ./software/build-environment/build-environment.rst
     ./software/how-to/how-to.rst
+    ./software/linker-script/linker-script.rst
     ./software/architecture/architecture.rst
     ./software/api/overview.rst
 
@@ -184,7 +185,6 @@ All sections are listed here:
     ./tools/debugger/debug-application.rst
     ./tools/halcogen/halcogen.rst
     ./tools/static-analysis/axivion.rst
-    ./tools/static-analysis/cppcheck.rst
 
 .. _DEVELOPER_MANUAL:
 

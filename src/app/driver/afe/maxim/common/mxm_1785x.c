@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2021, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@
  * @file    mxm_1785x.c
  * @author  foxBMS Team
  * @date    2019-01-15 (date of creation)
- * @updated 2021-12-06 (date of last update)
+ * @updated 2022-05-30 (date of last update)
+ * @version v1.3.0
  * @ingroup DRIVERS
  * @prefix  MXM
  *
@@ -59,6 +60,7 @@
 
 #include "afe_plausibility.h"
 #include "database.h"
+#include "diag.h"
 #include "mxm_1785x_tools.h"
 #include "mxm_battery_management.h"
 #include "mxm_registry.h"
@@ -184,29 +186,6 @@ static STD_RETURN_TYPE_e MXM_ParseVoltageReadall(
  */
 static STD_RETURN_TYPE_e must_check_return MXM_ParseVoltageReadallTest(MXM_MONITORING_INSTANCE_s *pInstance);
 
-/**
- * @brief           Execute all preinit selfchecks.
- * @details         Executes the following self-checks:
- *                      - #MXM_CRC8SelfTest()
- *                      - #MXM_ConvertTest()
- *                      - #MXM_FirstSetBitTest()
- *                      - #MXM_ExtractValueFromRegisterTest()
- *                      - #MXM_ParseVoltageReadallTest()
- *                      - #MXM_5XUserAccessibleAddressSpaceCheckerSelfCheck()
- *
- *                  These self-checks do not need an initialized daisy-chain
- *                  and can therefore be executed at startup of the
- *                  state-machine.
- *
- *                  After execution of each test, the return value is stored in
- *                  the supplied state-struct. The function returns whether the
- *                  self-check has successfully passed.
- * @param[in,out]   pState  pointer to the state-struct, will write status into
- * @return          #STD_OK on success, #STD_NOT_OK on failure,
- *                  return value has to be used
- */
-static STD_RETURN_TYPE_e must_check_return MXM_PreInitSelfCheck(MXM_MONITORING_INSTANCE_s *pState);
-
 /*========== Static Function Implementations ================================*/
 
 static void MXM_GetDataFrom5XStateMachine(MXM_MONITORING_INSTANCE_s *pInstance) {
@@ -227,6 +206,11 @@ static void MXM_ParseVoltageLineReadall(
     uint32_t fullScaleReference_mV) {
     FAS_ASSERT(kpkVoltRxBuffer != NULL_PTR);
     FAS_ASSERT(pVoltagesTarget != NULL_PTR);
+    /* AXIVION Routine Generic-MissingParameterAssert: voltRxBufferLength: parameter accepts whole range */
+    /* AXIVION Routine Generic-MissingParameterAssert: measurementOffset: parameter accepts whole range */
+    /* AXIVION Routine Generic-MissingParameterAssert: conversionType: parameter accepts whole range */
+    /* AXIVION Routine Generic-MissingParameterAssert: measurementType: parameter accepts whole range */
+    /* AXIVION Routine Generic-MissingParameterAssert: fullScaleReference_mV: parameter accepts whole range */
 
     /* assert that assumptions behind computation of numberOfConnectedDevices
     are correct */
@@ -291,6 +275,8 @@ static STD_RETURN_TYPE_e MXM_ParseVoltageReadall(
     STD_RETURN_TYPE_e retval = STD_OK;
     FAS_ASSERT(kpkVoltageRxBuffer != NULL_PTR);
     FAS_ASSERT(datastorage != NULL_PTR);
+    /* AXIVION Routine Generic-MissingParameterAssert: voltageRxBufferLength: parameter accepts whole range */
+    /* AXIVION Routine Generic-MissingParameterAssert: conversionType: parameter accepts whole range */
 
     if (kpkVoltageRxBuffer[0] != BATTERY_MANAGEMENT_READALL) {
         /* rxBuffer does not contain a READALL command */
@@ -898,27 +884,6 @@ static STD_RETURN_TYPE_e must_check_return MXM_ParseVoltageReadallTest(MXM_MONIT
     return retval;
 }
 
-static STD_RETURN_TYPE_e must_check_return MXM_PreInitSelfCheck(MXM_MONITORING_INSTANCE_s *pState) {
-    FAS_ASSERT(pState != NULL_PTR);
-    STD_RETURN_TYPE_e retval                   = STD_OK;
-    pState->selfCheck.crc                      = MXM_CRC8SelfTest();
-    pState->selfCheck.conv                     = MXM_ConvertTest();
-    pState->selfCheck.firstSetBit              = MXM_FirstSetBitTest();
-    pState->selfCheck.extractValueFromRegister = MXM_ExtractValueFromRegisterTest();
-    pState->selfCheck.parseVoltageReadall      = MXM_ParseVoltageReadallTest(pState);
-    pState->selfCheck.addressSpaceChecker      = MXM_5XUserAccessibleAddressSpaceCheckerSelfCheck();
-
-    if ((pState->selfCheck.crc == STD_OK) && (pState->selfCheck.addressSpaceChecker == STD_OK) &&
-        (pState->selfCheck.conv == STD_OK) && (pState->selfCheck.firstSetBit == STD_OK) &&
-        (pState->selfCheck.extractValueFromRegister == STD_OK) && (pState->selfCheck.parseVoltageReadall == STD_OK)) {
-        /* check has passed, return value already set */
-    } else {
-        retval = STD_NOT_OK;
-    }
-
-    return retval;
-}
-
 /*========== Extern Function Implementations ================================*/
 extern void MXM_CheckIfErrorCounterCanBeReset(MXM_MONITORING_INSTANCE_s *pInstance) {
     FAS_ASSERT(pInstance != NULL_PTR);
@@ -1008,7 +973,7 @@ extern STD_RETURN_TYPE_e MXM_ProcessOpenWire(const MXM_MONITORING_INSTANCE_s *co
     FAS_ASSERT(kpkInstance->pOpenwire_table != NULL_PTR);
 
     const uint8_t numberOfSatellites = MXM_5XGetNumberOfSatellites(kpkInstance->pInstance5X);
-    static_assert(
+    f_static_assert(
         (((uint16_t)BATTERY_MANAGEMENT_TX_LENGTH_READALL + (2u * MXM_MAXIMUM_NR_OF_MODULES)) <= (uint8_t)UINT8_MAX),
         "please check assumptions: code cannot handle number of modules");
     const uint8_t messageLength = BATTERY_MANAGEMENT_TX_LENGTH_READALL + (2u * numberOfSatellites);
@@ -1051,6 +1016,8 @@ extern STD_RETURN_TYPE_e MXM_ProcessOpenWire(const MXM_MONITORING_INSTANCE_s *co
 extern STD_RETURN_TYPE_e MXM_ConstructBalancingBuffer(MXM_BALANCING_STATE_s *pBalancingInstance) {
     FAS_ASSERT(pBalancingInstance != NULL_PTR);
     FAS_ASSERT(pBalancingInstance->pBalancingControl_table != NULL_PTR);
+    /* check for impossible configuration */
+    FAS_ASSERT((BS_NR_OF_CELL_BLOCKS_PER_MODULE <= MXM_MAXIMUM_NR_OF_CELLS_PER_MODULE));
     STD_RETURN_TYPE_e retval = STD_OK;
 
     /* Re-Initialize the cells to balance at each iteration */
@@ -1063,15 +1030,14 @@ extern STD_RETURN_TYPE_e MXM_ConstructBalancingBuffer(MXM_BALANCING_STATE_s *pBa
         e.g. :  Cell 2 in the module corresponds to index 1 in the database
                 the cell index is even, but the database index is odd. */
 
-    static_assert((MXM_MAXIMUM_NR_OF_CELLS_PER_MODULE <= BS_NR_OF_CELLS_PER_MODULE), "impossible configuration");
     /* Iterate over all the cells of the module 'moduleBalancingIndex' in a daisy-chain */
     if (pBalancingInstance->moduleBalancingIndex < MXM_MAXIMUM_NR_OF_MODULES) {
-        for (uint8_t c = 0; c < BS_NR_OF_CELLS_PER_MODULE; c++) {
+        for (uint8_t c = 0; c < BS_NR_OF_CELL_BLOCKS_PER_MODULE; c++) {
             /* Determine the position of the cell 'c' of module 'moduleBalancingIndex' in the DB */
             uint8_t stringNumber  = 0u;
             uint16_t moduleNumber = 0u;
             MXM_ConvertModuleToString(pBalancingInstance->moduleBalancingIndex, &stringNumber, &moduleNumber);
-            const uint16_t dBIndex = (moduleNumber * BS_NR_OF_CELLS_PER_MODULE) + c;
+            const uint16_t dBIndex = (moduleNumber * BS_NR_OF_CELL_BLOCKS_PER_MODULE) + c;
             if (pBalancingInstance->pBalancingControl_table->balancingState[stringNumber][dBIndex] == 1u) {
                 /* Cell 'c' of module '::moduleBalancingIndex' needs to be balanced.
                        Need to determine the balancing order --> even or odd cells?
@@ -1110,17 +1076,17 @@ extern STD_RETURN_TYPE_e MXM_ParseVoltagesIntoDB(const MXM_MONITORING_INSTANCE_s
     FAS_ASSERT(kpkInstance != NULL_PTR);
     FAS_ASSERT(kpkInstance->pCellVoltages_table != NULL_PTR);
     FAS_ASSERT(kpkInstance->pCellTemperatures_table != NULL_PTR);
-    FAS_ASSERT((BS_NR_OF_MODULES * BS_NR_OF_STRINGS) <= MXM_MAXIMUM_NR_OF_MODULES);
+    FAS_ASSERT((BS_NR_OF_MODULES_PER_STRING * BS_NR_OF_STRINGS) <= MXM_MAXIMUM_NR_OF_MODULES);
 
     uint16_t numberValidVoltageMeasurements[BS_NR_OF_STRINGS] = {0};
     /* voltages */
-    for (uint8_t i_mod = 0; i_mod < (BS_NR_OF_MODULES * BS_NR_OF_STRINGS); i_mod++) {
+    for (uint8_t i_mod = 0; i_mod < (BS_NR_OF_MODULES_PER_STRING * BS_NR_OF_STRINGS); i_mod++) {
         const bool moduleIsConnected = MXM_CheckIfADeviceIsConnected(kpkInstance, i_mod);
         uint8_t stringNumber         = 0u;
         uint16_t moduleNumber        = 0u;
         MXM_ConvertModuleToString(i_mod, &stringNumber, &moduleNumber);
         FAS_ASSERT(stringNumber < BS_NR_OF_STRINGS);
-        FAS_ASSERT(moduleNumber < BS_NR_OF_MODULES);
+        FAS_ASSERT(moduleNumber < BS_NR_OF_MODULES_PER_STRING);
         kpkInstance->pCellVoltages_table->moduleVoltage_mV[stringNumber][moduleNumber] =
             kpkInstance->localVoltages.blockVoltages[i_mod];
         /* every iteration that we hit a string first (module 0), we reset the packvoltage counter */
@@ -1129,9 +1095,10 @@ extern STD_RETURN_TYPE_e MXM_ParseVoltagesIntoDB(const MXM_MONITORING_INSTANCE_s
         }
         kpkInstance->pCellVoltages_table->packVoltage_mV[stringNumber] +=
             (int32_t)kpkInstance->localVoltages.blockVoltages[i_mod];
-        FAS_ASSERT(BS_NR_OF_CELLS_PER_MODULE <= MXM_MAXIMUM_NR_OF_CELLS_PER_MODULE); /*!< invalid configuration! */
-        for (uint8_t i_bat = 0; i_bat < BS_NR_OF_CELLS_PER_MODULE; i_bat++) {
-            uint16_t cell_counter_db           = (moduleNumber * BS_NR_OF_CELLS_PER_MODULE) + i_bat;
+        FAS_ASSERT(
+            BS_NR_OF_CELL_BLOCKS_PER_MODULE <= MXM_MAXIMUM_NR_OF_CELLS_PER_MODULE); /*!< invalid configuration! */
+        for (uint8_t i_bat = 0; i_bat < BS_NR_OF_CELL_BLOCKS_PER_MODULE; i_bat++) {
+            uint16_t cell_counter_db           = (moduleNumber * BS_NR_OF_CELL_BLOCKS_PER_MODULE) + i_bat;
             uint16_t cell_counter_max          = ((uint16_t)i_mod * MXM_MAXIMUM_NR_OF_CELLS_PER_MODULE) + i_bat;
             const uint16_t cellVoltageLocal_mV = kpkInstance->localVoltages.cellVoltages_mV[cell_counter_max];
             if ((int32_t)cellVoltageLocal_mV > INT16_MAX) {
@@ -1155,13 +1122,13 @@ extern STD_RETURN_TYPE_e MXM_ParseVoltagesIntoDB(const MXM_MONITORING_INSTANCE_s
 
     /* temperatures */
     uint16_t numberValidTemperatureMeasurements[BS_NR_OF_STRINGS] = {0};
-    for (uint8_t i_mod = 0; i_mod < (BS_NR_OF_MODULES * BS_NR_OF_STRINGS); i_mod++) {
+    for (uint8_t i_mod = 0; i_mod < (BS_NR_OF_MODULES_PER_STRING * BS_NR_OF_STRINGS); i_mod++) {
         const bool moduleIsConnected = MXM_CheckIfADeviceIsConnected(kpkInstance, i_mod);
         uint8_t stringNumber         = 0u;
         uint16_t moduleNumber        = 0u;
         MXM_ConvertModuleToString(i_mod, &stringNumber, &moduleNumber);
         FAS_ASSERT(stringNumber < BS_NR_OF_STRINGS);
-        FAS_ASSERT(moduleNumber < BS_NR_OF_MODULES);
+        FAS_ASSERT(moduleNumber < BS_NR_OF_MODULES_PER_STRING);
 
         /* store aux measurement from AUX2 (MUX0) */
         if (kpkInstance->muxCounter < BS_NR_OF_TEMP_SENSORS_PER_MODULE) {
@@ -1209,37 +1176,33 @@ extern void MXM_InitializeStateStruct(
     pBalancingInstance->previousTimeStamp           = 0u;
     pBalancingInstance->currentTimeStamp            = 0u;
 
-    pMonitoringInstance->resetNecessary                     = false;
-    pMonitoringInstance->errorCounter                       = 0u;
-    pMonitoringInstance->timestampLastError                 = 0u;
-    pMonitoringInstance->state                              = MXM_STATEMACHINE_STATES_UNINITIALIZED;
-    pMonitoringInstance->operationSubstate                  = MXM_INIT_ENTRY;
-    pMonitoringInstance->allowStartup                       = false;
-    pMonitoringInstance->operationRequested                 = false;
-    pMonitoringInstance->firstMeasurementDone               = false;
-    pMonitoringInstance->stopRequested                      = false;
-    pMonitoringInstance->openwireRequested                  = false;
-    pMonitoringInstance->undervoltageAlert                  = false;
-    pMonitoringInstance->muxCounter                         = 0u;
-    pMonitoringInstance->diagnosticCounter                  = MXM_THRESHOLD_DIAGNOSTIC_AFTER_CYCLES;
-    pMonitoringInstance->dcByte                             = MXM_DC_EMPTY;
-    pMonitoringInstance->mxmVoltageCellCounter              = 0u;
-    pMonitoringInstance->highest5xDevice                    = 0u;
-    pMonitoringInstance->requestStatus5x                    = MXM_5X_STATE_UNSENT;
-    pMonitoringInstance->batteryCmdBuffer.regAddress        = MXM_REG_VERSION;
-    pMonitoringInstance->batteryCmdBuffer.lsb               = 0u;
-    pMonitoringInstance->batteryCmdBuffer.msb               = 0u;
-    pMonitoringInstance->batteryCmdBuffer.blocksize         = 0u;
-    pMonitoringInstance->batteryCmdBuffer.deviceAddress     = 0u;
-    pMonitoringInstance->batteryCmdBuffer.model             = MXM_GetModelIdOfDaisyChain();
-    pMonitoringInstance->resultSelfCheck                    = STD_NOT_OK;
-    pMonitoringInstance->selfCheck.crc                      = STD_NOT_OK;
-    pMonitoringInstance->selfCheck.conv                     = STD_NOT_OK;
-    pMonitoringInstance->selfCheck.firstSetBit              = STD_NOT_OK;
-    pMonitoringInstance->selfCheck.extractValueFromRegister = STD_NOT_OK;
-    pMonitoringInstance->selfCheck.parseVoltageReadall      = STD_NOT_OK;
-    pMonitoringInstance->selfCheck.addressSpaceChecker      = STD_NOT_OK;
-    pMonitoringInstance->selfCheck.fmeaStatusASCI           = STD_NOT_OK;
+    pMonitoringInstance->resetNecessary                 = false;
+    pMonitoringInstance->errorCounter                   = 0u;
+    pMonitoringInstance->timestampLastError             = 0u;
+    pMonitoringInstance->timestampInit                  = 0u;
+    pMonitoringInstance->state                          = MXM_STATEMACHINE_STATES_UNINITIALIZED;
+    pMonitoringInstance->operationSubstate              = MXM_INIT_ENTRY;
+    pMonitoringInstance->allowStartup                   = false;
+    pMonitoringInstance->operationRequested             = false;
+    pMonitoringInstance->firstMeasurementDone           = false;
+    pMonitoringInstance->stopRequested                  = false;
+    pMonitoringInstance->openwireRequested              = false;
+    pMonitoringInstance->undervoltageAlert              = false;
+    pMonitoringInstance->muxCounter                     = 0u;
+    pMonitoringInstance->diagnosticCounter              = MXM_THRESHOLD_DIAGNOSTIC_AFTER_CYCLES;
+    pMonitoringInstance->dcByte                         = MXM_DC_EMPTY;
+    pMonitoringInstance->mxmVoltageCellCounter          = 0u;
+    pMonitoringInstance->highest5xDevice                = 0u;
+    pMonitoringInstance->requestStatus5x                = MXM_5X_STATE_UNSENT;
+    pMonitoringInstance->batteryCmdBuffer.regAddress    = MXM_REG_VERSION;
+    pMonitoringInstance->batteryCmdBuffer.lsb           = 0u;
+    pMonitoringInstance->batteryCmdBuffer.msb           = 0u;
+    pMonitoringInstance->batteryCmdBuffer.blocksize     = 0u;
+    pMonitoringInstance->batteryCmdBuffer.deviceAddress = 0u;
+    pMonitoringInstance->batteryCmdBuffer.model         = MXM_GetModelIdOfDaisyChain();
+    pMonitoringInstance->resultSelfCheck                = STD_NOT_OK;
+    /* for the "static" pre-init self-checks: do not reset if the result has passed; it will not change; FMEA can change */
+    pMonitoringInstance->selfCheck.fmeaStatusASCI = STD_NOT_OK;
 
     for (uint32_t i = 0u; i < (MXM_MAXIMUM_NR_OF_MODULES * MXM_MAXIMUM_NR_OF_CELLS_PER_MODULE); i++) {
         pMonitoringInstance->localVoltages.cellVoltages_mV[i] = 0u;
@@ -1257,7 +1220,7 @@ extern void MXM_InitializeStateStruct(
         pMonitoringInstance->registry[i].connected       = false;
         pMonitoringInstance->registry[i].deviceAddress   = 0u;
         pMonitoringInstance->registry[i].model           = MXM_MODEL_ID_NONE;
-        pMonitoringInstance->registry[i].siliconVersion  = MXM_siliconVersion_invalid;
+        pMonitoringInstance->registry[i].siliconVersion  = MXM_SILICON_VERSION_INVALID;
         pMonitoringInstance->registry[i].deviceID        = 0u;
         pMonitoringInstance->registry[i].registerStatus1 = 0u;
         pMonitoringInstance->registry[i].registerStatus2 = 0u;
@@ -1269,6 +1232,43 @@ extern void MXM_InitializeStateStruct(
     for (uint32_t i = 0u; i < MXM_RX_BUFFER_LENGTH; i++) {
         pMonitoringInstance->rxBuffer[i] = 0u;
     }
+}
+
+extern STD_RETURN_TYPE_e MXM_PreInitSelfCheck(MXM_MONITORING_INSTANCE_s *pState) {
+    FAS_ASSERT(pState != NULL_PTR);
+    STD_RETURN_TYPE_e retval   = STD_OK;
+    MXM_SELFCHECK_s *selfCheck = &pState->selfCheck;
+    FAS_ASSERT(selfCheck != NULL_PTR);
+    if (selfCheck->crc == STD_NOT_OK) {
+        selfCheck->crc = MXM_CRC8SelfTest();
+    }
+    if (selfCheck->conv == STD_NOT_OK) {
+        selfCheck->conv = MXM_ConvertTest();
+    }
+    if (selfCheck->firstSetBit == STD_NOT_OK) {
+        selfCheck->firstSetBit = MXM_FirstSetBitTest();
+    }
+    if (selfCheck->extractValueFromRegister == STD_NOT_OK) {
+        selfCheck->extractValueFromRegister = MXM_ExtractValueFromRegisterTest();
+    }
+    if (selfCheck->parseVoltageReadall == STD_NOT_OK) {
+        selfCheck->parseVoltageReadall = MXM_ParseVoltageReadallTest(pState);
+    }
+    if (selfCheck->addressSpaceChecker == STD_NOT_OK) {
+        selfCheck->addressSpaceChecker = MXM_5XUserAccessibleAddressSpaceCheckerSelfCheck();
+    }
+
+    if ((selfCheck->crc == STD_OK) && (selfCheck->addressSpaceChecker == STD_OK) && (selfCheck->conv == STD_OK) &&
+        (selfCheck->firstSetBit == STD_OK) && (selfCheck->extractValueFromRegister == STD_OK) &&
+        (selfCheck->parseVoltageReadall == STD_OK)) {
+        /* check has passed, return value already set */
+    } else {
+        retval = STD_NOT_OK;
+    }
+    /* report to diag module, Maxim driver reports always to string 0 (current implementation just has one interface) */
+    (void)DIAG_CheckEvent(retval, DIAG_ID_AFE_CONFIG, DIAG_SYSTEM, 0u);
+
+    return retval;
 }
 
 extern MXM_MONITORING_STATE_e must_check_return
@@ -1316,13 +1316,13 @@ extern void MXM_StateMachine(MXM_MONITORING_INSTANCE_s *pInstance) {
 
     if (pInstance->state == MXM_STATEMACHINE_STATES_UNINITIALIZED) {
         pInstance->requestStatus5x = MXM_5X_STATE_UNSENT;
+        pInstance->timestampInit   = OS_GetTickCount();
         MXM_MonRegistryInit(pInstance);
         pInstance->state = MXM_STATEMACHINE_STATES_SELFCHECK_PRE_INIT;
     }
 
     switch (pInstance->state) {
         case MXM_STATEMACHINE_STATES_SELFCHECK_PRE_INIT:
-            /* TODO proper selfchecks, that are only executed during IBIT, CBIT and PBIT */
             pInstance->resultSelfCheck = MXM_PreInitSelfCheck(pInstance);
             if (pInstance->resultSelfCheck == STD_OK) {
                 pInstance->requestStatus5x = MXM_5X_STATE_UNSENT;
@@ -1381,6 +1381,8 @@ extern void MXM_StateMachine(MXM_MONITORING_INSTANCE_s *pInstance) {
                 pInstance->selfCheck.fmeaStatusASCI = STD_OK;
                 const STD_RETURN_TYPE_e resultNumberOfSatellitesGood =
                     MXM_5XGetNumberOfSatellitesGood(pInstance->pInstance5X);
+                /* report to diag module, Maxim driver reports always to string 0 (current implementation just has one interface) */
+                (void)DIAG_CheckEvent(resultNumberOfSatellitesGood, DIAG_ID_AFE_CONFIG, DIAG_STRING, 0u);
                 if ((pInstance->resultSelfCheck == STD_OK) && (pInstance->selfCheck.fmeaStatusASCI == STD_OK) &&
                     (resultNumberOfSatellitesGood == STD_OK)) {
                     pInstance->resultSelfCheck = STD_OK;
