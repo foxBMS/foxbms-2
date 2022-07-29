@@ -43,8 +43,8 @@
  * @file    mxm_17841b.c
  * @author  foxBMS Team
  * @date    2018-12-14 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup DRIVERS
  * @prefix  MXM
  *
@@ -361,7 +361,7 @@ static STD_RETURN_TYPE_e MXM_41BConfigRegisterWrite(MXM_41B_INSTANCE_s *pInstanc
     mxm_spi_temp_buffer[5u] = pInstance->regConfig2;
     mxm_spi_temp_buffer[6u] = pInstance->regConfig3;
     /* AXIVION Enable Style Generic-NoMagicNumbers: */
-    f_static_assert((6u < MXM_41B_CONFIG_REGISTER_LENGTH), "Revise this function and config register length!");
+    FAS_STATIC_ASSERT((6u < MXM_41B_CONFIG_REGISTER_LENGTH), "Revise this function and config register length!");
 
     return MXM_41BRegisterWrite(
         pInstance, MXM_REG_RX_INTERRUPT_ENABLE_W, mxm_spi_temp_buffer, MXM_41B_CONFIG_REGISTER_LENGTH);
@@ -533,7 +533,6 @@ static void MXM_41BStateHandlerGetVersion(MXM_41B_INSTANCE_s *pInstance) {
 
             MXM_41BTransitionToIdleSuccess(pInstance);
         }
-
     } else {
         /* something is very broken */
         MXM_41BTransitionToIdleError(pInstance);

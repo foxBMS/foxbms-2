@@ -81,7 +81,7 @@
 
 #define VFILL_FLASH_PATTERN (0xffffffff)
 
-/* size of VERSION_INFORMATION (has to be large enough to accomodate the version struct) */
+/* size of VER_VERSION_INFORMATION (has to be large enough to accomodate the version struct) */
 #define VERSION_INFORMATION_SIZE (0xC0)
 
 /* size of the VECTORS table */
@@ -121,7 +121,7 @@
 #define KERNEL_DATA_SIZE (0x800)
 
 /* size of shared-RAM section for DMA */
-#define SHARED_RAM_SIZE (0x1000)
+#define SHARED_RAM_SIZE (0x2000)
 
 /*========== Memory Layout ==================================================*/
 MEMORY
@@ -136,7 +136,7 @@ MEMORY
     FLASH                (RX) : origin = end(KERNEL_FUNCTIONS)
                                 length = FLASH_SIZE
                                 vfill  = VFILL_FLASH_PATTERN
-    VERSION_INFORMATION  (RX) : origin = end(FLASH)
+    VER_VERSION_INFORMATION  (RX) : origin = end(FLASH)
                                 length = VERSION_INFORMATION_SIZE
                                 vfill  = VFILL_FLASH_PATTERN
     /* RAM */
@@ -160,7 +160,7 @@ MEMORY
                                   ECC    = { input_range = FLASH }
     ECC_VERSION_INFORMATION (R) : origin = end(ECC_FLASH)
                                   length = ECC_VERSION_INFORMATION_SIZE
-                                  ECC    = { input_range = VERSION_INFORMATION }
+                                  ECC    = { input_range = VER_VERSION_INFORMATION }
 }
 
 /*========== ECC Algorithm Configuration ====================================*/
@@ -180,7 +180,7 @@ SECTIONS
     .kernelTEXT         align(32) : {} > KERNEL_FUNCTIONS
     .cinit              align(32) : {} > KERNEL_FUNCTIONS
     /* Rest of code to user mode flash region */
-    .versionInformation align(32) : {} > VERSION_INFORMATION
+    .versionInformation align(32) : {} > VER_VERSION_INFORMATION
     .syscallTEXT        align(32) : {} > FLASH
     .text               align(32) : {} > FLASH
     .const              align(32) : {} > FLASH

@@ -119,10 +119,10 @@ The ``src`` directory is structured into the following parts (see
    |                 | Layer                       |                                      |
    +-----------------+-----------------------------+--------------------------------------+
    | ``src/opt``     | Optional                    | optional source files (e.g.,         |
-   |                 |                             | specific cell parameters             |
+   |                 |                             | specific cell parameters)            |
    +-----------------+-----------------------------+--------------------------------------+
-   | ``src/os``      | Operating System            | source files of the Operating        |
-   |                 |                             | System                               |
+   | ``src/os``      | Operating System            | source files of the real time        |
+   |                 |                             | operating system                     |
    +-----------------+-----------------------------+--------------------------------------+
 
 Tests directory ``tests``

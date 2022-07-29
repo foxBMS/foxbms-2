@@ -43,8 +43,8 @@
  * @file    test_state_estimation.c
  * @author  foxBMS Team
  * @date    2020-10-14 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -81,18 +81,18 @@ void testInvalidInput(void) {
 
     TEST_ASSERT_FAIL_ASSERT(SE_InitializeSoh(BS_NR_OF_STRINGS));
 
-    TEST_ASSERT_FAIL_ASSERT(SOC_Init(NULL_PTR, true, BS_NR_OF_STRINGS - 1u));
-    TEST_ASSERT_FAIL_ASSERT(SOC_Init(&table_test, true, BS_NR_OF_STRINGS));
+    TEST_ASSERT_FAIL_ASSERT(SE_InitializeStateOfCharge(NULL_PTR, true, BS_NR_OF_STRINGS - 1u));
+    TEST_ASSERT_FAIL_ASSERT(SE_InitializeStateOfCharge(&table_test, true, BS_NR_OF_STRINGS));
 
-    TEST_ASSERT_FAIL_ASSERT(SOC_Calculation(NULL_PTR));
+    TEST_ASSERT_FAIL_ASSERT(SE_CalculateStateOfCharge(NULL_PTR));
 
-    TEST_ASSERT_FAIL_ASSERT(SOE_Init(NULL_PTR, true, BS_NR_OF_STRINGS - 1u));
-    TEST_ASSERT_FAIL_ASSERT(SOE_Init(&table_test, true, BS_NR_OF_STRINGS));
+    TEST_ASSERT_FAIL_ASSERT(SE_InitializeStateOfEnergy(NULL_PTR, true, BS_NR_OF_STRINGS - 1u));
+    TEST_ASSERT_FAIL_ASSERT(SE_InitializeStateOfEnergy(&table_test, true, BS_NR_OF_STRINGS));
 
-    TEST_ASSERT_FAIL_ASSERT(SOE_Calculation(NULL_PTR));
+    TEST_ASSERT_FAIL_ASSERT(SE_CalculateStateOfEnergy(NULL_PTR));
 
-    TEST_ASSERT_FAIL_ASSERT(SOH_Init(NULL_PTR, BS_NR_OF_STRINGS - 1u));
-    TEST_ASSERT_FAIL_ASSERT(SOH_Init(&table_test, BS_NR_OF_STRINGS));
+    TEST_ASSERT_FAIL_ASSERT(SE_InitializeStateOfHealth(NULL_PTR, BS_NR_OF_STRINGS - 1u));
+    TEST_ASSERT_FAIL_ASSERT(SE_InitializeStateOfHealth(&table_test, BS_NR_OF_STRINGS));
 
-    TEST_ASSERT_FAIL_ASSERT(SOH_Calculation(NULL_PTR));
+    TEST_ASSERT_FAIL_ASSERT(SE_CalculateStateOfHealth(NULL_PTR));
 }

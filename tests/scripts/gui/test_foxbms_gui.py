@@ -79,7 +79,7 @@ def get_git_root(path: str) -> str:
 ROOT = get_git_root(os.path.realpath(__file__))
 
 sys.path.insert(1, os.path.abspath(os.path.join(ROOT, "tools", "gui")))
-import foxbms_gui  # pylint:disable=wrong-import-position,unused-import
+from fgui import foxbms_gui  # pylint:disable=wrong-import-position,unused-import
 
 
 class TestDialog(unittest.TestCase):

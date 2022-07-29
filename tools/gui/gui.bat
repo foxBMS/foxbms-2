@@ -49,7 +49,7 @@
 @SET PYEXE=python
 @WHERE %PYEXE% 1>NUL 2>NUL
 @IF %ERRORLEVEL% neq 0 SET PYEXE=py
-@START "PARSER" /b %PYEXE% -x "%~dp0\foxbms_gui.py" %*
+@START "foxBMS 2 GUI" /b %PYEXE% -m fgui %*
 @POPD
 @IF %ERRORLEVEL% NEQ 0 (
     @EXIT /b %ERRORLEVEL%

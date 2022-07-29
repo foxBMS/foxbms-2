@@ -43,8 +43,8 @@
  * @file    test_mxm_cfg.c
  * @author  foxBMS Team
  * @date    2020-06-24 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -64,7 +64,7 @@
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 /* SPI interface configuration for MXM communication */
-SPI_INTERFACE_CONFIG_s spi_MxmInterface = {
+SPI_INTERFACE_CONFIG_s spi_mxmInterface = {
     .pConfig  = 0,
     .pNode    = 0,
     .pGioPort = 0,
@@ -102,10 +102,10 @@ void testMXM_EnableBridgeIc(void) {
 }
 
 void testMXM_GetSpiStateReady(void) {
-    SPI_CheckInterfaceAvailable_ExpectAndReturn(spi_MxmInterface.pNode, STD_OK);
+    SPI_CheckInterfaceAvailable_ExpectAndReturn(spi_mxmInterface.pNode, STD_OK);
     TEST_ASSERT_EQUAL(STD_OK, MXM_GetSPIStateReady());
 
-    SPI_CheckInterfaceAvailable_ExpectAndReturn(spi_MxmInterface.pNode, STD_NOT_OK);
+    SPI_CheckInterfaceAvailable_ExpectAndReturn(spi_mxmInterface.pNode, STD_NOT_OK);
     TEST_ASSERT_EQUAL(STD_NOT_OK, MXM_GetSPIStateReady());
 }
 
@@ -114,7 +114,7 @@ void testMXM_SendData(void) {
     uint16_t buffer       = 0;
     uint16_t bufferLength = 1;
 
-    SPI_TransmitData_ExpectAndReturn(&spi_MxmInterface, &buffer, bufferLength, STD_OK);
+    SPI_TransmitData_ExpectAndReturn(&spi_mxmInterface, &buffer, bufferLength, STD_OK);
     DIAG_CheckEvent_ExpectAndReturn(STD_OK, DIAG_ID_AFE_SPI, DIAG_STRING, 0u, STD_OK);
     TEST_ASSERT_EQUAL(STD_OK, MXM_SendData(&buffer, bufferLength));
 }
@@ -124,7 +124,7 @@ void testMXM_ReceiveData(void) {
     uint16_t buffer       = 0;
     uint16_t bufferLength = 1;
 
-    SPI_TransmitReceiveData_ExpectAndReturn(&spi_MxmInterface, &buffer, &buffer, bufferLength, STD_OK);
+    SPI_TransmitReceiveData_ExpectAndReturn(&spi_mxmInterface, &buffer, &buffer, bufferLength, STD_OK);
     DIAG_CheckEvent_ExpectAndReturn(STD_OK, DIAG_ID_AFE_SPI, DIAG_STRING, 0u, STD_OK);
     TEST_ASSERT_EQUAL(STD_OK, MXM_ReceiveData(&buffer, &buffer, bufferLength));
 }

@@ -43,8 +43,8 @@
  * @file    diag_cbs_current.c
  * @author  foxBMS Team
  * @date    2021-02-17 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup ENGINE
  * @prefix  DIAG
  *
@@ -67,16 +67,16 @@
 
 /*========== Extern Function Implementations ================================*/
 extern void DIAG_ErrorOvercurrentCharge(
-    DIAG_ID_e ch_id,
+    DIAG_ID_e diagId,
     DIAG_EVENT_e event,
     const DIAG_DATABASE_SHIM_s *const kpkDiagShim,
     uint32_t stringNumber) {
-    FAS_ASSERT(ch_id < DIAG_ID_MAX);
+    FAS_ASSERT(diagId < DIAG_ID_MAX);
     FAS_ASSERT((event == DIAG_EVENT_OK) || (event == DIAG_EVENT_NOT_OK) || (event == DIAG_EVENT_RESET));
     FAS_ASSERT(kpkDiagShim != NULL_PTR);
     FAS_ASSERT(stringNumber < BS_NR_OF_STRINGS);
 
-    switch (ch_id) {
+    switch (diagId) {
         case DIAG_ID_OVERCURRENT_CHARGE_CELL_MSL:
             if (event == DIAG_EVENT_RESET) {
                 kpkDiagShim->pTableMsl->cellChargeOvercurrent[stringNumber] = 0;
@@ -149,16 +149,16 @@ extern void DIAG_ErrorOvercurrentCharge(
 }
 
 extern void DIAG_ErrorOvercurrentDischarge(
-    DIAG_ID_e ch_id,
+    DIAG_ID_e diagId,
     DIAG_EVENT_e event,
     const DIAG_DATABASE_SHIM_s *const kpkDiagShim,
     uint32_t stringNumber) {
-    FAS_ASSERT(ch_id < DIAG_ID_MAX);
+    FAS_ASSERT(diagId < DIAG_ID_MAX);
     FAS_ASSERT((event == DIAG_EVENT_OK) || (event == DIAG_EVENT_NOT_OK) || (event == DIAG_EVENT_RESET));
     FAS_ASSERT(kpkDiagShim != NULL_PTR);
     FAS_ASSERT(stringNumber < BS_NR_OF_STRINGS);
 
-    switch (ch_id) {
+    switch (diagId) {
         case DIAG_ID_OVERCURRENT_DISCHARGE_CELL_MSL:
             if (event == DIAG_EVENT_RESET) {
                 kpkDiagShim->pTableMsl->cellDischargeOvercurrent[stringNumber] = 0;
@@ -230,16 +230,16 @@ extern void DIAG_ErrorOvercurrentDischarge(
 }
 
 extern void DIAG_ErrorCurrentMeasurement(
-    DIAG_ID_e ch_id,
+    DIAG_ID_e diagId,
     DIAG_EVENT_e event,
     const DIAG_DATABASE_SHIM_s *const kpkDiagShim,
     uint32_t stringNumber) {
-    FAS_ASSERT(ch_id < DIAG_ID_MAX);
+    FAS_ASSERT(diagId < DIAG_ID_MAX);
     FAS_ASSERT((event == DIAG_EVENT_OK) || (event == DIAG_EVENT_NOT_OK) || (event == DIAG_EVENT_RESET));
     FAS_ASSERT(kpkDiagShim != NULL_PTR);
     FAS_ASSERT(stringNumber < BS_NR_OF_STRINGS);
 
-    switch (ch_id) {
+    switch (diagId) {
         case DIAG_ID_CURRENT_MEASUREMENT_TIMEOUT:
             if (event == DIAG_EVENT_RESET) {
                 kpkDiagShim->pTableError->currentMeasurementTimeout[stringNumber] = 0u;
@@ -267,16 +267,16 @@ extern void DIAG_ErrorCurrentMeasurement(
 }
 
 void DIAG_ErrorCurrentOnOpenString(
-    DIAG_ID_e ch_id,
+    DIAG_ID_e diagId,
     DIAG_EVENT_e event,
     const DIAG_DATABASE_SHIM_s *const kpkDiagShim,
     uint32_t stringNumber) {
-    FAS_ASSERT(ch_id < DIAG_ID_MAX);
+    FAS_ASSERT(diagId < DIAG_ID_MAX);
     FAS_ASSERT((event == DIAG_EVENT_OK) || (event == DIAG_EVENT_NOT_OK) || (event == DIAG_EVENT_RESET));
     FAS_ASSERT(kpkDiagShim != NULL_PTR);
     FAS_ASSERT(stringNumber < BS_NR_OF_STRINGS);
 
-    switch (ch_id) {
+    switch (diagId) {
         case DIAG_ID_CURRENT_ON_OPEN_STRING:
             if (event == DIAG_EVENT_RESET) {
                 kpkDiagShim->pTableError->currentOnOpenString[stringNumber] = 0u;

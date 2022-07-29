@@ -76,7 +76,7 @@
 :defines:
   :common: &common_defines
     - UNITY_UNIT_TEST
-    - ASSERT_LEVEL=2
+    - FAS_ASSERT_LEVEL=2
     - UNITY_INCLUDE_EXEC_TIME
     - FOXBMS_USES_FREERTOS=1
   :test:
@@ -147,6 +147,7 @@
   :uncovered_ignore_list:
     - "../../src/app/driver/imd/bender/ir155/bender_ir155.c"
     - "../../src/app/driver/imd/bender/iso165c/bender_iso165c.c"
+    - "../../src/app/driver/afe/nxp/mc33775a/vendor/uc_msg_t.c"
     - "../../src/app/driver/sbc/fs8x_driver/sbc_fs8x.c"
     - "../../src/app/driver/sbc/fs8x_driver/sbc_fs8x_communication.c"
     - "../../src/app/main/main.c"

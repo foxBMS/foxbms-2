@@ -60,7 +60,7 @@ def build(bld):
         os.path.join("..", "..", "task", "config"),
         os.path.join("..", "..", "task", "os"),
     ]
-    includes.extend(bld.env.INCLUDES_OPERATING_SYSTEM)
+    includes.extend(bld.env.INCLUDES_RTOS)
     cflags = bld.env.CFLAGS_FOXBMS
 
     # Build imd.c as object

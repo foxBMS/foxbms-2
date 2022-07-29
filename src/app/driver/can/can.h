@@ -43,15 +43,15 @@
  * @file    can.h
  * @author  foxBMS Team
  * @date    2019-12-04 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup DRIVERS
  * @prefix  CAN
  *
  * @brief   Header for the driver for the CAN module
  *
- * Provides the interfaces for initialization, receive
- * and transmit handling
+ * @details Provides the interfaces for initialization, receive
+ *          and transmit handling
  *
  */
 
@@ -65,15 +65,15 @@
 
 /*========== Macros and Definitions =========================================*/
 
-/** Half of the 64 messageboxes are defined for TX
+/** Half of the 64 message boxes are defined for TX
  * This is used to determined in the CAN interrupt routine if TX or RX case
  */
-#define CAN_NR_OF_TX_MESSAGE_BOX (32U)
+#define CAN_NR_OF_TX_MESSAGE_BOX (32u)
 
 /** Task time slot where the CAN TX function is called. Repetition time of
  * periodic CAN messages must be multiple of this (e.g., 1u, 10u or 100u)
  */
-#define CAN_TICK_MS (10U)
+#define CAN_TICK_ms (10u)
 
 /** This structure contains variables relevant for the CAN signal module. */
 typedef struct {

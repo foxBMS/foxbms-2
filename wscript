@@ -47,16 +47,16 @@ and running various checks on the source files.
 """
 
 
-import json
 import os
 import pathlib
 import shlex
 import sys
 import tarfile
 import linecache
+from binascii import hexlify
+import dataclasses
 
 import jsonschema
-import tabulate
 from waflib import Build, Configure, Context, Errors, Logs, Options, Scripting, Utils
 from waflib.Build import (
     BuildContext,
@@ -77,7 +77,7 @@ top = "."  # pylint:disable=invalid-name
 APPNAME = "foxBMS"
 """name of the application. This is used in various waf functions"""
 
-VERSION = "1.3.0"
+VERSION = "1.4.0"
 """version of the application. This is used in various waf functions. This
 version must match the version number defined in ``macros.txt``. Otherwise a
 configuration error is thrown."""
@@ -92,6 +92,22 @@ MISC_VARIANTS = ["docs", "unit_test"]
 ALL_VARIANTS = {"binary": BIN_VARIANTS, "misc": MISC_VARIANTS}
 
 TOOLDIR = os.path.join("tools", "waf-tools")
+
+BMS_CONFIG = os.path.join("conf", "bms", "bms.json")
+
+
+@dataclasses.dataclass
+class FoxBMSDefine:
+    """container for defines"""
+
+    name: str
+    value: int = 0
+
+
+AFE_SETUP = {
+    "fsm": FoxBMSDefine("FOXBMS_AFE_DRIVER_TYPE_FSM", 0),
+    "no-fsm": FoxBMSDefine("FOXBMS_AFE_DRIVER_TYPE_NO_FSM", 0),
+}
 
 for target_type, target_val in ALL_VARIANTS.items():
     contexts = (BuildContext, CleanContext)
@@ -184,7 +200,8 @@ def version_consistency_checker(ctx):
     if not all(i.read().find(f'__version__ = "{VERSION}"') > 0 for i in pys):
         ctx.fatal(f"Version information in {pys} is not correct.")
     all_c_sources = ctx.path.ant_glob(
-        "docs/**/*.c docs/**/*.h src/**/*.c src/**/*.c tests/**/*.c tests/**/*.c"
+        "docs/**/*.c docs/**/*.h src/**/*.c src/**/*.c tests/**/*.c tests/**/*.c",
+        excl=["tests/axivion/addon-test/**/*.c", "tests/axivion/addon-test/**/*.h"],
     )
     version_line = -1
     main_txt = ctx.path.find_node("src/app/main/main.c").read()
@@ -281,6 +298,7 @@ def configure(conf):  # pylint: disable=too-many-statements,too-many-branches
     """
     if " " in conf.path.abspath():
         conf.fatal(f"Project path must not contain spaces ({conf.path}).")
+    conf.env.append_unique("PROJECT_ROOT", pathlib.Path(conf.path.abspath()).as_posix())
     known_max_depth = 133
     if Utils.is_win32 and len(conf.path.abspath()) + known_max_depth > 260:
         conf.fatal(
@@ -388,10 +406,12 @@ def configure(conf):  # pylint: disable=too-many-statements,too-many-branches
     conf.load("f_lauterbach", tooldir=TOOLDIR)
     conf.load("f_axivion", tooldir=TOOLDIR)
 
-    # Configure the build for the correct operating system
-    bms_config = json.loads(
-        conf.path.find_node(os.path.join("conf", "bms", "bms.json")).read()
+    # Configure the build for the correct RTOS
+    bms_config_node = conf.path.find_node(BMS_CONFIG)
+    conf.env.append_unique(
+        "CONFIG_BMS_JSON_HASH", hexlify(bms_config_node.h_file()).decode("utf-8")
     )
+    bms_config = bms_config_node.read_json()
 
     validator = conf.f_validator(
         conf.path.find_node(
@@ -407,11 +427,99 @@ def configure(conf):  # pylint: disable=too-many-statements,too-many-branches
             f"supported.\nUse one of these: {good_values}."
         )
 
-    conf.env.append_unique(
-        "CONF_OPERATING_SYSTEM_NAME", bms_config["operating-system"]["name"]
+    # parse conf/bms/bms.json to get all required defines, includes etc.
+    # needs to be done, prior to loading the VS Code tool!
+    # AFE on Slave unit: bms.json:slave-unit:analog-front-end
+    slave_afe = bms_config["slave-unit"]["analog-front-end"]
+    afe_man = slave_afe["manufacturer"]
+    afe_ic = slave_afe["ic"]
+    conf.env.afe_manufacturer = afe_man
+    conf.env.afe_ic = afe_ic
+    # vendor/ic includes and foxBMS specific driver adaptions
+    afe_ic_inc = slave_afe["ic"]
+    afe_driver_type = "fsm"
+    if slave_afe["manufacturer"] == "ltc":
+        if slave_afe["ic"] in ("6804-1", "6811-1", "6812-1"):
+            afe_ic_inc = "6813-1"
+    elif slave_afe["manufacturer"] == "nxp":
+        if slave_afe["ic"] == "mc33775a":
+            afe_driver_type = "no-fsm"
+
+    # set the driver type implementation accordingly
+    AFE_SETUP[afe_driver_type].value = 1
+    for _, i in AFE_SETUP.items():
+        conf.define(i.name, i.value)
+
+    # get AFE includes
+    afe_base_path = os.path.join("src", "app", "driver", "afe")
+    incs = os.path.join(
+        afe_base_path, afe_man, afe_ic_inc, f"{afe_man}_{afe_ic_inc}.json"
     )
-    # set define before loading the VS Code tool
-    conf.define(f"FOXBMS_USES_{conf.env.CONF_OPERATING_SYSTEM_NAME[0].upper()}", 1)
+    afe_details = conf.path.find_node(incs).read_json()
+    afe_includes = [
+        os.path.join(afe_base_path, afe_man, afe_ic_inc, i)
+        for i in afe_details["include"]
+    ]
+    for i in afe_includes:
+        if not os.path.isdir(i):
+            conf.fatal(f"'{i}' does not exist.")
+    conf.env.append_unique(
+        "INCLUDES_AFE", [conf.path.find_node(i).abspath() for i in afe_includes]
+    )
+    # temperature sensor on Slave unit: bms.json:slave-unit:temperature-sensor
+    slave_temp = bms_config["slave-unit"]["temperature-sensor"]
+    conf.env.temperature_sensor_manuf = slave_temp["manufacturer"]
+    conf.env.temperature_sensor_model = slave_temp["model"]
+    conf.env.temperature_sensor_meth = slave_temp["method"]
+
+    # application setting: bms.json:application
+    # state estimation
+    app_cfg = bms_config["application"]
+    state_estimators = app_cfg["algorithm"]["state-estimation"]
+    conf.env.state_estimator_soc = state_estimators["soc"]
+    conf.env.state_estimator_soe = state_estimators["soe"]
+    conf.env.state_estimator_sof = state_estimators["sof"]
+    conf.env.state_estimator_soh = state_estimators["soh"]
+
+    # balancing strategy
+    conf.env.balancing_strategy = app_cfg["balancing-strategy"]
+    # ltc 6806 (fuel cell monitoring ic) has no balancing support
+    if (
+        afe_man == "ltc"
+        and afe_ic == "6806"
+        and not conf.env.balancing_strategy == "none"
+    ):
+        conf.fatal(f"{afe_man.upper()} {afe_ic} does not support balancing.")
+
+    # insulation-monitoring-device
+    imd_cfg = app_cfg["insulation-monitoring-device"]
+    conf.env.imd_manufacturer = imd_cfg["manufacturer"]
+    conf.env.imd_model = imd_cfg["model"]
+    if conf.env.imd_manufacturer:
+        conf.env.append_unique(
+            "INCLUDES_IMD",
+            [
+                conf.path.find_node(i)
+                for i in [
+                    conf.env.imd_manufacturer + conf.env.imd_model,
+                ]
+            ],
+        )
+
+    # rtos: bms.json:rtos
+    rtos_name = bms_config["rtos"]["name"]
+    rtos_base_path = os.path.join("src", "os", rtos_name)
+    conf.env.append_unique("RTOS_NAME", rtos_name)
+    rtos_details = conf.path.find_node(
+        os.path.join(rtos_base_path, f"{rtos_name}_cfg.json")
+    ).read_json()
+
+    rtos_includes = [os.path.join(rtos_base_path, i) for i in rtos_details["include"]]
+    conf.env.append_unique(
+        "INCLUDES_RTOS", [conf.path.find_node(i).abspath() for i in rtos_includes]
+    )
+
+    conf.define(f"FOXBMS_USES_{bms_config['rtos']['name'].upper()}", 1)
 
     # load VS Code setup as last foxBMS specific tool to ensure that all
     # variables have a meaningful value
@@ -468,140 +576,11 @@ def build(bld):  # pylint: disable=too-many-branches,too-many-statements
         "CMD_FILES",
         [bld.path.find_node(os.path.join("conf", "cc", "remarks.txt")).abspath()],
     )
-    bms_config = json.loads(
-        bld.path.find_node(os.path.join("conf", "bms", "bms.json")).read()
-    )
-    validator = bld.f_validator(
-        bld.path.find_node(
-            os.path.join("conf", "bms", "schema", "bms.schema.json")
-        ).abspath()
-    )
-    try:
-        validator.validate(bms_config)
-    except jsonschema.exceptions.ValidationError as err:
-        good_values = ", ".join([f"'{i}'" for i in err.validator_value])
-        bld.fatal(
-            f"Setting '{err.instance}' in '{'/'.join(list(err.path))}' is not "
-            f"supported.\nUse one of these: {good_values}."
-        )
-
-    bld.env.append_unique(
-        "OPERATING_SYSTEM_NAME", bms_config["operating-system"]["name"]
-    )
-    if not bld.env.OPERATING_SYSTEM_NAME[0] == bld.env.CONF_OPERATING_SYSTEM_NAME[0]:
-        bld.fatal("The operating system has changed. Re-configure the project.")
-    # get operating system includes
-    rtos_details = json.loads(
-        bld.path.find_node(
-            os.path.join(
-                "src",
-                "os",
-                bld.env.OPERATING_SYSTEM_NAME[0],
-                f"{bld.env.OPERATING_SYSTEM_NAME[0]}_cfg.json",
-            )
-        ).read()
-    )
-
-    operating_system_includes = [
-        os.path.join("src", "os", bms_config["operating-system"]["name"], i)
-        for i in rtos_details["include"]
-    ]
-    bld.env.append_unique(
-        "INCLUDES_OPERATING_SYSTEM",
-        [bld.path.find_node(i) for i in operating_system_includes],
-    )
-
-    slave_config = bms_config["slave-unit"]
-    afe = slave_config["analog-front-end"]
-    bld.env.afe_manufacturer = afe["manufacturer"]
-    bld.env.afe_chip = afe["chip"]
-    afe_ic_inc = afe["chip"]
-    if afe["chip"] in ("6804-1", "6811-1", "6812-1"):
-        afe_ic_inc = "6813-1"
-    # get AFE includes
-    incs = os.path.join(
-        "src",
-        "app",
-        "driver",
-        "afe",
-        afe["manufacturer"],
-        afe_ic_inc,
-        f"{afe['manufacturer']}_{afe_ic_inc}.json",
-    )
-    afe_details = json.loads(bld.path.find_node(incs).read())
-    afe_includes = [
-        os.path.join("src", "app", "driver", "afe", afe["manufacturer"], afe["chip"], i)
-        for i in afe_details["include"]
-    ]
-    bld.env.append_unique("INCLUDES_AFE", [bld.path.find_node(i) for i in afe_includes])
-    bld.env.balancing_strategy = slave_config["balancing-strategy"]
-    bld.env.balancing_possible = slave_config["balancing-strategy"] != "none"
-
-    temperature_sensor_config = slave_config["temperature-sensor"]
-    bld.env.temperature_sensor_manuf = temperature_sensor_config["manufacturer"]
-    bld.env.temperature_sensor_model = temperature_sensor_config["model"]
-    bld.env.temperature_sensor_meth = temperature_sensor_config["method"]
-
-    app_cfg = bms_config["application"]
-    # SOx includes
-    state_estimators = app_cfg["algorithm"]["state-estimation"]
-    bld.env.ALGORITHM_SOC = soc = state_estimators["soc"]
-    bld.env.ALGORITHM_SOE = soe = state_estimators["soe"]
-    bld.env.ALGORITHM_SOH = soh = state_estimators["soh"]
-    estimators_base_path = os.path.join(
-        "src", "app", "application", "algorithm", "state_estimation"
-    )
-    for i, val in zip([soc, soe, soh], ["soc", "soe", "soh"]):
-        bld.env.append_unique(
-            f"INCLUDES_STATE_ESTIMATOR_+{val.upper()}",
-            [bld.path.find_node(os.path.join(estimators_base_path, val, i))],
-        )
-    imd_cfg = app_cfg["insulation-monitoring-device"]
-    bld.env.imd_manufacturer = imd_cfg["manufacturer"]
-    bld.env.imd_model = imd_cfg["model"]
-    bld.env.append_unique(
-        "INCLUDES_IMD",
-        [bld.path.find_node(i) for i in [bld.env.imd_manufacturer + bld.env.imd_model]],
-    )
+    if not bld.env.CONFIG_BMS_JSON_HASH[0] == hexlify(
+        bld.path.find_node(BMS_CONFIG).h_file()
+    ).decode("utf-8"):
+        bld.fatal(f"{BMS_CONFIG} has changed. Please run the configure command again.")
     if bld.variant == "bin":
-        bld(
-            features="swi-check",
-            files=bld.path.ant_glob("src/**/*.c src/**/*.h"),
-            jump_table_file=bld.path.find_node(
-                os.path.join(
-                    "src",
-                    "os",
-                    "freertos",
-                    "portable",
-                    "ccs",
-                    "arm_cortex-r5",
-                    "portasm.asm",
-                )
-            ),
-        )
-        if Logs.verbose:
-            balancing_info_str = "Not supported by chip"
-            if bld.env.balancing_possible:
-                balancing_info_str = bld.env.balancing_strategy
-            info = tabulate.tabulate(
-                [
-                    ["Setting", "Value"],
-                    ["Operating system", bld.env.OPERATING_SYSTEM_NAME[0]],
-                    [
-                        "AFE",
-                        f"{bld.env.afe_manufacturer} {bld.env.afe_chip}",
-                    ],
-                    ["Balancing strategy", balancing_info_str],
-                    [
-                        "Battery pack temperature sensing",
-                        f"{bld.env.temperature_sensor_manuf} {bld.env.temperature_sensor_model} "
-                        f"({bld.env.temperature_sensor_meth})",
-                    ],
-                ],
-                showindex=True,
-                headers="firstrow",
-            )
-            print(info)
         bld.recurse("src")
 
     if bld.variant == "axivion":
@@ -613,7 +592,7 @@ def build(bld):  # pylint: disable=too-many-branches,too-many-statements
         bld.recurse("src")
 
     if bld.variant == "unit_test":
-        Options.commands = ["check_testfiles"] + Options.commands
+        Options.commands = ["check_test_files"] + Options.commands
         if bld.cmd.startswith("clean"):
             return
         if bld.cmd.startswith("build"):
@@ -695,11 +674,11 @@ def build(bld):  # pylint: disable=too-many-branches,too-many-statements
             bld.path.find_node(os.path.join("src", "os")),
             bld.path.find_node(os.path.join("src", "app", "driver", "afe", "ltc", "common", "ltc_pec.c")),
             bld.path.find_node(os.path.join("src", "app", "driver", "afe", "ltc", "common", "ltc_pec.h")),
-            bld.path.find_node(os.path.join("src", "app", "driver", "afe", "nxp", "common", "MC33775A.h")),
+            bld.path.find_node(os.path.join("src", "app", "driver", "afe", "nxp", "mc33775a","vendor")),
         ]
         _html_footer = bld.path.find_node(os.path.join("docs", "doxygen_footer.html"))
         _layout_file = bld.path.find_node(os.path.join("docs", "doxygen_layout.xml"))
-        _html_stylesheet = bld.path.find_node(os.path.join("docs", "stylesheetfile.css"))
+        _html_style_sheet = bld.path.find_node(os.path.join("docs", "style-sheet-file.css"))
         _html_extra_files = bld.path.find_node(os.path.join("docs", "_static", "cc.large.png"))
         _image_path = bld.path.find_node(os.path.join("docs", "_static", "cc.large.png"))
         # pylint: enable=line-too-long
@@ -711,7 +690,7 @@ def build(bld):  # pylint: disable=too-many-branches,too-many-statements
                 _exclude[:],
                 _html_footer,
                 _layout_file,
-                _html_stylesheet,
+                _html_style_sheet,
                 _html_extra_files,
                 _image_path,
             )
@@ -727,11 +706,11 @@ def build(bld):  # pylint: disable=too-many-branches,too-many-statements
             PROJECT_BRIEF=f'"The {APPNAME} Battery Management System API Documentation"',
             PROJECT_LOGO=_project_logo.abspath(),
             OUTPUT_DIRECTORY="_static/doxygen/src",
-            INPUT=" ".join([i.abspath() for i in _input]),
-            EXCLUDE=" ".join([i.abspath() for i in _exclude]),
+            INPUT=" ".join([i.abspath() for i in _input if i]),
+            EXCLUDE=" ".join([i.abspath() for i in _exclude if i]),
             HTML_FOOTER=_html_footer.abspath(),
             LAYOUT_FILE=_layout_file.abspath(),
-            HTML_STYLESHEET=_html_stylesheet.abspath(),
+            HTML_STYLESHEET=_html_style_sheet.abspath(),
             HTML_EXTRA_FILES=_html_extra_files.abspath(),
             IMAGE_PATH=_image_path.abspath(),
         )
@@ -749,11 +728,11 @@ def build(bld):  # pylint: disable=too-many-branches,too-many-statements
             PROJECT_BRIEF=f'"The {APPNAME} Unit Tests API Documentation"',
             PROJECT_LOGO=_project_logo.abspath(),
             OUTPUT_DIRECTORY="_static/doxygen/tests",
-            INPUT=" ".join([i.abspath() for i in _input]),
-            EXCLUDE=" ".join([i.abspath() for i in _exclude]),
+            INPUT=" ".join([i.abspath() for i in _input if i]),
+            EXCLUDE=" ".join([i.abspath() for i in _exclude if i]),
             HTML_FOOTER=_html_footer.abspath(),
             LAYOUT_FILE=_layout_file.abspath(),
-            HTML_STYLESHEET=_html_stylesheet.abspath(),
+            HTML_STYLESHEET=_html_style_sheet.abspath(),
             HTML_EXTRA_FILES=_html_extra_files.abspath(),
             IMAGE_PATH=_image_path.abspath(),
         )
@@ -841,6 +820,7 @@ def build(bld):  # pylint: disable=too-many-branches,too-many-statements
             os.path.join(doc_dir, "software", "modules", "driver", "mcu", "mcu.rst"),
             os.path.join(doc_dir, "software", "modules", "driver", "meas", "meas.rst"),
             os.path.join(doc_dir, "software", "modules", "driver", "afe", "supported-afes.rst"),
+            os.path.join(doc_dir, "software", "modules", "driver", "afe", "ltc", "6804-1.rst"),
             os.path.join(doc_dir, "software", "modules", "driver", "afe", "ltc", "6806.rst"),
             os.path.join(doc_dir, "software", "modules", "driver", "afe", "ltc", "6811-1.rst"),
             os.path.join(doc_dir, "software", "modules", "driver", "afe", "ltc", "6812-1.rst"),
@@ -866,6 +846,7 @@ def build(bld):  # pylint: disable=too-many-branches,too-many-statements
             os.path.join(doc_dir, "software", "modules", "engine", "diag", "diag_how-to.rst"),
             os.path.join(doc_dir, "software", "modules", "engine", "sys", "sys.rst"),
             os.path.join(doc_dir, "software", "modules", "engine", "sys_mon", "sys_mon.rst"),
+            os.path.join(doc_dir, "software", "modules", "main", "fassert.rst"),
             os.path.join(doc_dir, "software", "modules", "main", "fassert_how-to.rst"),
             os.path.join(doc_dir, "software", "modules", "main", "startup.rst"),
             os.path.join(doc_dir, "software", "modules", "main", "version.rst"),
@@ -1036,7 +1017,7 @@ def distcheck_bin(conf):
     conf.excl = DIST_EXCLUDE
 
 
-def check_testfiles(ctx):
+def check_test_files(ctx):
     """Check if test files to corresponding source files exist."""
     prefix = os.path.join(ctx.path.abspath(), "src") + os.pathsep
     sources = [
@@ -1045,6 +1026,7 @@ def check_testfiles(ctx):
             "src/app/**/*.c src/opt/**/*.c",
             excl=[
                 "src/app/driver/sbc/fs8x_driver/**",
+                "src/app/driver/afe/nxp/mc33775a/vendor/**",
                 "src/app/driver/afe/ltc/common/ltc_pec.*",
                 "src/hal/**",
                 "src/os/**",

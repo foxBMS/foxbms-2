@@ -43,8 +43,8 @@
  * @file    afe_plausibility.h
  * @author  foxBMS Team
  * @date    2019-01-24 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup MODULES
  * @prefix  AFE
  *
@@ -84,14 +84,14 @@ typedef struct {
 /**
  * @brief  Cell voltage measurement range plausibility check
  *
- * @param  cellvoltage_mV   cell voltage that is checked in mV
+ * @param  cellVoltage_mV   cell voltage that is checked in mV
  * @param  plausibleValues  struct of type #AFE_PLAUSIBILITY_VALUES_s with the
  *                          plausible limits of cell voltages
  *
  * @return #STD_OK if no plausibility issue detected, otherwise #STD_NOT_OK
  */
 extern STD_RETURN_TYPE_e AFE_PlausibilityCheckVoltageMeasurementRange(
-    const int16_t cellvoltage_mV,
+    const int16_t cellVoltage_mV,
     const AFE_PLAUSIBILITY_VALUES_s plausibleValues);
 
 /**

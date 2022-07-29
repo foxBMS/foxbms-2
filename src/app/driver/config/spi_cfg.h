@@ -43,8 +43,8 @@
  * @file    spi_cfg.h
  * @author  foxBMS Team
  * @date    2020-03-05 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  SPI
  *
@@ -75,16 +75,16 @@
 /**@}*/
 
 /** Bit in SPIDAT1 register that activates hardware Chip Select hold */
-#define SPI_CSHOLD_BIT (0x10000000U)
+#define SPI_CSHOLD_BIT (0x10000000u)
 
 /** Bit in SPIDAT1 register that activates delay between words */
-#define SPI_WDEL_BIT (0x04000000U)
+#define SPI_WDEL_BIT (0x04000000u)
 
 /** Position of CSNR field in SPIDAT1 register */
-#define SPI_HARDWARE_CHIP_SELECT_FIELD_POSITION (16U)
+#define SPI_HARDWARE_CHIP_SELECT_FIELD_POSITION (16u)
 
 /** Position of DFSEL field in SPIDAT1 register */
-#define SPI_DATA_FORMAT_FIELD_POSITION (24U)
+#define SPI_DATA_FORMAT_FIELD_POSITION (24u)
 
 /** Position of TX buffer empty flag in SPIFLG register */
 #define SPI_TX_BUFFER_EMPTY_FLAG_POSITION (9u)
@@ -98,27 +98,10 @@
 /** Max number of hardware chip select pins */
 #define SPI_MAX_NUMBER_HW_CS (6u)
 
-/* TODO: check definition of SPI nodes depending on target hardware */
-/** SPI defines for LTC */
-#define LTC_SPI_NODE (spiREG1)
-
 /** GIO defines for SPI for Smart Power Switches @{ */
-#define SPS_SPI_CS_GIOPORT     (hetREG2->DOUT)
-#define SPS_SPI_CS_GIOPORT_DIR (hetREG2->DIR)
-#define SPS_SPI_CS_PIN         (1u)
-/**@}*/
-
-/**
- * SPI defines for NXP MC33775A
- * @{
- */
-#define N775_SPI_TX_NODE    (spiREG1)
-#define N775_SPI_TX_GIOPORT (N775_SPI_TX_NODE->PC3)
-#define N775_SPI_TX_CS_PIN  (2U)
-
-#define N775_SPI_RX_NODE    (spiREG5)
-#define N775_SPI_RX_GIOPORT (N775_SPI_TX_NODE->PC3)
-#define N775_SPI_RX_CS_PIN  (2U)
+#define SPI_SPS_CS_GIOPORT     (hetREG2->DOUT)
+#define SPI_SPS_CS_GIOPORT_DIR (hetREG2->DIR)
+#define SPI_SPS_CS_PIN         (1u)
 /**@}*/
 
 /** enum for spi interface state */
@@ -148,7 +131,7 @@ typedef struct {
 
 /*========== Extern Constant and Variable Declarations ======================*/
 extern SPI_INTERFACE_CONFIG_s spi_ltcInterface[BS_NR_OF_STRINGS];
-extern SPI_INTERFACE_CONFIG_s spi_MxmInterface;
+extern SPI_INTERFACE_CONFIG_s spi_mxmInterface;
 extern SPI_INTERFACE_CONFIG_s spi_nxp775InterfaceTx[BS_NR_OF_STRINGS];
 extern SPI_INTERFACE_CONFIG_s spi_nxp775InterfaceRx[BS_NR_OF_STRINGS];
 extern SPI_INTERFACE_CONFIG_s spi_framInterface;

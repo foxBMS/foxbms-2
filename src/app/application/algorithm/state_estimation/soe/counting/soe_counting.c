@@ -43,8 +43,8 @@
  * @file    soe_counting.c
  * @author  foxBMS Team
  * @date    2020-10-07 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup APPLICATION
  * @prefix  SOE
  *
@@ -89,11 +89,11 @@ typedef struct {
  */
 static SOE_STATE_s soe_state = {
     .soeInitialized    = false,
-    .sensorEcUsed      = {REPEAT_U(false, STRIP(BS_NR_OF_STRINGS))},
-    .ecScalingAverage  = {REPEAT_U(0.0f, STRIP(BS_NR_OF_STRINGS))},
-    .ecScalingMinimum  = {REPEAT_U(0.0f, STRIP(BS_NR_OF_STRINGS))},
-    .ecScalingMaximum  = {REPEAT_U(0.0f, STRIP(BS_NR_OF_STRINGS))},
-    .previousTimestamp = {REPEAT_U(0u, STRIP(BS_NR_OF_STRINGS))},
+    .sensorEcUsed      = {GEN_REPEAT_U(false, GEN_STRIP(BS_NR_OF_STRINGS))},
+    .ecScalingAverage  = {GEN_REPEAT_U(0.0f, GEN_STRIP(BS_NR_OF_STRINGS))},
+    .ecScalingMinimum  = {GEN_REPEAT_U(0.0f, GEN_STRIP(BS_NR_OF_STRINGS))},
+    .ecScalingMaximum  = {GEN_REPEAT_U(0.0f, GEN_STRIP(BS_NR_OF_STRINGS))},
+    .previousTimestamp = {GEN_REPEAT_U(0u, GEN_STRIP(BS_NR_OF_STRINGS))},
 };
 
 /** local copies of database tables */
@@ -309,7 +309,7 @@ static void SOE_CheckDatabaseSoePercentageLimits(DATA_BLOCK_SOX_s *pTableSoe, ui
 
 /*========== Extern Function Implementations ================================*/
 
-extern void SOE_Init(DATA_BLOCK_SOX_s *pSoeValues, bool ec_present, uint8_t stringNumber) {
+extern void SE_InitializeStateOfEnergy(DATA_BLOCK_SOX_s *pSoeValues, bool ec_present, uint8_t stringNumber) {
     FAS_ASSERT(pSoeValues != NULL_PTR);
     FAS_ASSERT(stringNumber < BS_NR_OF_STRINGS);
     FRAM_ReadData(FRAM_BLOCK_ID_SOE);
@@ -353,7 +353,7 @@ extern void SOE_Init(DATA_BLOCK_SOX_s *pSoeValues, bool ec_present, uint8_t stri
     soe_state.soeInitialized = true;
 }
 
-void SOE_Calculation(DATA_BLOCK_SOX_s *pSoeValues) {
+void SE_CalculateStateOfEnergy(DATA_BLOCK_SOX_s *pSoeValues) {
     FAS_ASSERT(pSoeValues != NULL_PTR);
     bool continueFunction = true;
     if (soe_state.soeInitialized == false) {

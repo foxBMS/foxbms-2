@@ -2,7 +2,7 @@
     "required": [
         "application",
         "slave-unit",
-        "operating-system"
+        "rtos"
     ],
     "additionalProperties": false,
     "properties": {
@@ -12,8 +12,8 @@
         "slave-unit": {
             "$ref": "slave.schema.json#"
         },
-        "operating-system": {
-            "$ref": "os.schema.json#"
+        "rtos": {
+            "$ref": "rtos.schema.json#"
         }
     }
 }

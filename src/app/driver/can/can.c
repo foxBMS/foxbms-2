@@ -43,8 +43,8 @@
  * @file    can.c
  * @author  foxBMS Team
  * @date    2019-12-04 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup DRIVERS
  * @prefix  CAN
  *
@@ -103,9 +103,9 @@
 /** tracks the local state of the can module */
 static CAN_STATE_s can_state = {
     .periodicEnable         = false,
-    .currentSensorPresent   = {REPEAT_U(false, STRIP(BS_NR_OF_STRINGS))},
-    .currentSensorCCPresent = {REPEAT_U(false, STRIP(BS_NR_OF_STRINGS))},
-    .currentSensorECPresent = {REPEAT_U(false, STRIP(BS_NR_OF_STRINGS))},
+    .currentSensorPresent   = {GEN_REPEAT_U(false, GEN_STRIP(BS_NR_OF_STRINGS))},
+    .currentSensorCCPresent = {GEN_REPEAT_U(false, GEN_STRIP(BS_NR_OF_STRINGS))},
+    .currentSensorECPresent = {GEN_REPEAT_U(false, GEN_STRIP(BS_NR_OF_STRINGS))},
 };
 
 /*========== Extern Constant and Variable Definitions =======================*/
@@ -181,6 +181,9 @@ static void CAN_SetCurrentSensorEcPresent(bool command, uint8_t stringNumber);
 /** initialize the SPI interface to the CAN transceiver */
 static void CAN_InitializeTransceiver(void);
 
+/** checks that the configured message period for Tx messages is valid */
+static void CAN_ValidateConfiguredTxMessagePeriod(void);
+
 /*========== Static Function Implementations ================================*/
 
 static void CAN_InitializeTransceiver(void) {
@@ -197,10 +200,19 @@ static void CAN_InitializeTransceiver(void) {
     PEX_SetPin(PEX_PORT_EXPANDER2, CAN2_STANDBY_PIN);
 }
 
+static void CAN_ValidateConfiguredTxMessagePeriod(void) {
+    for (uint16_t i = 0u; i < can_txLength; i++) {
+        if (can_txMessages[i].repetitionTime == 0u) {
+            FAS_ASSERT(FAS_TRAP);
+        }
+    }
+}
+
 /*========== Extern Function Implementations ================================*/
 
 extern void CAN_Initialize(void) {
     CAN_InitializeTransceiver();
+    CAN_ValidateConfiguredTxMessagePeriod();
 }
 
 extern STD_RETURN_TYPE_e CAN_DataSend(canBASE_t *pNode, uint32_t id, uint8 *pData) {
@@ -222,7 +234,7 @@ extern STD_RETURN_TYPE_e CAN_DataSend(canBASE_t *pNode, uint32_t id, uint8 *pDat
             /* standard frame: bits [28:18] */
             /* extended frame: bits [28:0] */
             /* bit 29 set to 1: to set direction Tx in IF2ARB register */
-            canUpdateID(pNode, messageBox, ((id << 18) | (1U << 29)));
+            canUpdateID(pNode, messageBox, ((id << 18u) | (1u << 29u)));
             canTransmit(pNode, messageBox, pData);
             result = STD_OK;
             break;
@@ -244,7 +256,7 @@ static STD_RETURN_TYPE_e CAN_PeriodicTransmit(void) {
     uint8_t data[8]              = {0};
 
     for (uint16_t i = 0u; i < can_txLength; i++) {
-        if (((counterTicks * CAN_TICK_MS) % (can_txMessages[i].repetitionTime)) == can_txMessages[i].repetitionPhase) {
+        if (((counterTicks * CAN_TICK_ms) % (can_txMessages[i].repetitionTime)) == can_txMessages[i].repetitionPhase) {
             if (can_txMessages[i].callbackFunction != NULL_PTR) {
                 can_txMessages[i].callbackFunction(
                     can_txMessages[i].id,
@@ -474,7 +486,7 @@ static void CAN_RxInterrupt(canBASE_t *pNode, uint32 messageBox) {
 }
 
 /** called in case of CAN interrupt, defined as weak in HAL */
-/* AXIVION Next Line Style Linker-Multiple_Definition: TI HAL only provides a weak implementation */
+/* AXIVION Next Codeline Style Linker-Multiple_Definition: TI HAL only provides a weak implementation */
 void UNIT_TEST_WEAK_IMPL canMessageNotification(canBASE_t *node, uint32 messageBox) {
     /* AXIVION Routine Generic-MissingParameterAssert: node: unchecked in interrupt */
     /* AXIVION Routine Generic-MissingParameterAssert: messageBox: unchecked in interrupt */
@@ -487,34 +499,34 @@ void UNIT_TEST_WEAK_IMPL canMessageNotification(canBASE_t *node, uint32 messageB
 }
 
 extern STD_RETURN_TYPE_e CAN_TransmitBootMessage(void) {
-    uint8_t data[] = {REPEAT_U(0u, STRIP(CAN_MAX_DLC))};
+    uint8_t data[] = {GEN_REPEAT_U(0u, GEN_STRIP(CAN_MAX_DLC))};
 
     /* Set major number */
-    data[CAN_BYTE_0_POSITION] = foxbmsVersionInfo.major;
+    data[CAN_BYTE_0_POSITION] = ver_foxbmsVersionInformation.major;
     /* Set minor number */
-    data[CAN_BYTE_1_POSITION] = foxbmsVersionInfo.minor;
+    data[CAN_BYTE_1_POSITION] = ver_foxbmsVersionInformation.minor;
     /* Set patch number */
-    data[CAN_BYTE_2_POSITION] = foxbmsVersionInfo.patch;
+    data[CAN_BYTE_2_POSITION] = ver_foxbmsVersionInformation.patch;
 
     /* intermediate variable for message byte 3 */
     uint8_t versionControlByte = 0u;
 
     /* Set version control flags */
-    if (foxbmsVersionInfo.underVersionControl == true) {
+    if (ver_foxbmsVersionInformation.underVersionControl == true) {
         versionControlByte |= (0x01u << CAN_BOOT_MESSAGE_BYTE_3_BIT_VERSION_CONTROL);
     }
-    if (foxbmsVersionInfo.isDirty == true) {
+    if (ver_foxbmsVersionInformation.isDirty == true) {
         versionControlByte |= (0x01u << CAN_BOOT_MESSAGE_BYTE_3_BIT_DIRTY_FLAG);
     }
     /* Set overflow flag (if release distance is larger than 31) */
-    if (foxbmsVersionInfo.distanceFromLastRelease > CAN_BOOT_MESSAGE_MAXIMUM_RELEASE_DISTANCE) {
+    if (ver_foxbmsVersionInformation.distanceFromLastRelease > CAN_BOOT_MESSAGE_MAXIMUM_RELEASE_DISTANCE) {
         /* we need to set the overflow flag */
         versionControlByte |= (0x01u << CAN_BOOT_MESSAGE_BYTE_3_BIT_DISTANCE_OVERFLOW_FLAG);
     }
 
     /* Set release distance (capped to maximum value) */
     const uint8_t distanceCapped = (uint8_t)MATH_MinimumOfTwoUint16_t(
-        foxbmsVersionInfo.distanceFromLastRelease, (uint16_t)CAN_BOOT_MESSAGE_MAXIMUM_RELEASE_DISTANCE);
+        ver_foxbmsVersionInformation.distanceFromLastRelease, (uint16_t)CAN_BOOT_MESSAGE_MAXIMUM_RELEASE_DISTANCE);
     versionControlByte |= (distanceCapped << CAN_BOOT_MESSAGE_BYTE_3_BIT_DISTANCE_COUNTER);
 
     /* assign assembled byte to databyte */
@@ -535,7 +547,7 @@ extern STD_RETURN_TYPE_e CAN_TransmitBootMessage(void) {
 }
 
 extern STD_RETURN_TYPE_e CAN_TransmitDieId(void) {
-    uint8_t data[] = {REPEAT_U(0u, STRIP(CAN_MAX_DLC))};
+    uint8_t data[] = {GEN_REPEAT_U(0u, GEN_STRIP(CAN_MAX_DLC))};
 
     /* Read out device register with die ID low and high */
     const uint32_t dieIdLow  = systemREG1->DIEIDL;

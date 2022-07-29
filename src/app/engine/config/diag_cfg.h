@@ -43,8 +43,8 @@
  * @file    diag_cfg.h
  * @author  foxBMS Team
  * @date    2019-11-28 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup ENGINE_CONFIGURATION
  * @prefix  DIAG
  *
@@ -144,7 +144,7 @@
 
 /** composite type for storing and passing on the local database table handles */
 typedef struct {
-    DATA_BLOCK_ERRORSTATE_s *pTableError; /*!< database table with errorstates */
+    DATA_BLOCK_ERRORSTATE_s *pTableError; /*!< database table with error states */
     DATA_BLOCK_MOL_FLAG_s *pTableMol;     /*!< database table with MOL flags */
     DATA_BLOCK_RSL_FLAG_s *pTableRsl;     /*!< database table with RSL flags */
     DATA_BLOCK_MSL_FLAG_s *pTableMsl;     /*!< database table with MSL flags */
@@ -156,13 +156,13 @@ extern const DIAG_DATABASE_SHIM_s diag_kDatabaseShim;
 /** list of diag IDs */
 typedef enum {
     DIAG_ID_FLASHCHECKSUM,     /*!< the checksum of the flashed software could not be validated */
-    DIAG_ID_SYSTEMMONITORING,  /*!< the system monitoring module has detected a deviation from task timing limits */
+    DIAG_ID_SYSTEM_MONITORING, /*!< the system monitoring module has detected a deviation from task timing limits */
     DIAG_ID_CONFIGASSERT,      /*!< TODO */
     DIAG_ID_AFE_SPI,           /*!< issues with the SPI communication of the AFE */
     DIAG_ID_AFE_COM_INTEGRITY, /*!< error on the communication integrity of the AFE, e.g. PEC error for LTC */
     DIAG_ID_AFE_MUX,           /*!< the multiplexer that is connected to the AFE does not react in an expected way */
     DIAG_ID_AFE_CONFIG,        /*!< the AFE driver has recognized a configuration error */
-    DIAG_ID_CAN_TIMING, /*!< the BMS does not receive CAN messages or they are not inside the excpected timing constraints */
+    DIAG_ID_CAN_TIMING, /*!< the BMS does not receive CAN messages or they are not inside the expected timing constraints */
     DIAG_ID_CAN_RX_QUEUE_FULL, /*!< the reception queue of the driver is full; no new messages can be received */
     DIAG_ID_CAN_CC_RESPONDING, /*!< current counter measurements on the CAN bus are missing or not inside expected timing constraints */
     DIAG_ID_CAN_EC_RESPONDING, /*!< energy counter measurements on the CAN bus are missing or not inside expected timing constraints */
@@ -173,12 +173,12 @@ typedef enum {
     DIAG_ID_PLAUSIBILITY_CELL_TEMP, /*!< redundant measurement of the cell temperatures has returned implausible values */
     DIAG_ID_PLAUSIBILITY_CELL_VOLTAGE_SPREAD, /*!< the spread (difference between min and max values) of the cell voltages is implausibly high */
     DIAG_ID_PLAUSIBILITY_CELL_TEMPERATURE_SPREAD, /*!< the spread (difference between min and max values) of the cell temperatures is implausibly high */
-    DIAG_ID_CELLVOLTAGE_OVERVOLTAGE_MSL,         /*!< Cell voltage limits violated */
-    DIAG_ID_CELLVOLTAGE_OVERVOLTAGE_RSL,         /*!< Cell voltage limits violated */
-    DIAG_ID_CELLVOLTAGE_OVERVOLTAGE_MOL,         /*!< Cell voltage limits violated */
-    DIAG_ID_CELLVOLTAGE_UNDERVOLTAGE_MSL,        /*!< Cell voltage limits violated */
-    DIAG_ID_CELLVOLTAGE_UNDERVOLTAGE_RSL,        /*!< Cell voltage limits violated */
-    DIAG_ID_CELLVOLTAGE_UNDERVOLTAGE_MOL,        /*!< Cell voltage limits violated */
+    DIAG_ID_CELL_VOLTAGE_OVERVOLTAGE_MSL,        /*!< Cell voltage limits violated */
+    DIAG_ID_CELL_VOLTAGE_OVERVOLTAGE_RSL,        /*!< Cell voltage limits violated */
+    DIAG_ID_CELL_VOLTAGE_OVERVOLTAGE_MOL,        /*!< Cell voltage limits violated */
+    DIAG_ID_CELL_VOLTAGE_UNDERVOLTAGE_MSL,       /*!< Cell voltage limits violated */
+    DIAG_ID_CELL_VOLTAGE_UNDERVOLTAGE_RSL,       /*!< Cell voltage limits violated */
+    DIAG_ID_CELL_VOLTAGE_UNDERVOLTAGE_MOL,       /*!< Cell voltage limits violated */
     DIAG_ID_TEMP_OVERTEMPERATURE_CHARGE_MSL,     /*!< Temperature limits violated */
     DIAG_ID_TEMP_OVERTEMPERATURE_CHARGE_RSL,     /*!< Temperature limits violated */
     DIAG_ID_TEMP_OVERTEMPERATURE_CHARGE_MOL,     /*!< Temperature limits violated */
@@ -214,10 +214,10 @@ typedef enum {
     DIAG_ID_PRECHARGE_CONTACTOR_FEEDBACK, /*!< the feedback on a precharge contactor does not match the expected value */
     DIAG_ID_SBC_FIN_STATE,                /*!< the state of the FIN signal in the SBC is not ok */
     DIAG_ID_SBC_RSTB_STATE,               /*!< an activation of the RSTB pin of the SBC has been detected */
-    DIAG_ID_BASE_CELL_VOLTAGE_MESUREMENT_TIMEOUT, /*!< the redundancy module has detected that the base cell voltage measurements are missing */
-    DIAG_ID_REDUNDANCY0_CELL_VOLTAGE_MESUREMENT_TIMEOUT, /*!< the redundancy module has detected that the redundancy0 cell voltage measurements are missing */
-    DIAG_ID_BASE_CELL_TEMPERATURE_MESUREMENT_TIMEOUT, /*!< the redundancy module has detected that the base cell temperature measurements are missing */
-    DIAG_ID_REDUNDANCY0_CELL_TEMPERATURE_MESUREMENT_TIMEOUT, /*!< the redundancy module has detected that the redundancy0 temperature measurements are missing */
+    DIAG_ID_BASE_CELL_VOLTAGE_MEASUREMENT_TIMEOUT, /*!< the redundancy module has detected that the base cell voltage measurements are missing */
+    DIAG_ID_REDUNDANCY0_CELL_VOLTAGE_MEASUREMENT_TIMEOUT, /*!< the redundancy module has detected that the redundancy0 cell voltage measurements are missing */
+    DIAG_ID_BASE_CELL_TEMPERATURE_MEASUREMENT_TIMEOUT, /*!< the redundancy module has detected that the base cell temperature measurements are missing */
+    DIAG_ID_REDUNDANCY0_CELL_TEMPERATURE_MEASUREMENT_TIMEOUT, /*!< the redundancy module has detected that the redundancy0 temperature measurements are missing */
     DIAG_ID_CURRENT_MEASUREMENT_TIMEOUT, /*!< the redundancy module has detected that the current measurement on a string is not updated */
     DIAG_ID_CURRENT_MEASUREMENT_ERROR, /*!< the redundancy module has detected a current measurement to be invalid */
     DIAG_ID_CURRENT_SENSOR_V1_MEASUREMENT_TIMEOUT, /*!< the redundancy module has detected that the voltage 1 measurement of a current sensor is not updated */
@@ -289,13 +289,13 @@ typedef enum {
 
 /**
  * @brief   function type for diag callbacks
- * @param[in] ch_id         ID of diag entry
+ * @param[in] diagId        ID of diag entry
  * @param[in] event         #DIAG_EVENT_e
  * @param[in] kpkDiagShim   shim to the database entries
  * @param[in] data          data
  */
 typedef void DIAG_CALLBACK_FUNCTION_f(
-    DIAG_ID_e ch_id,
+    DIAG_ID_e diagId,
     DIAG_EVENT_e event,
     const DIAG_DATABASE_SHIM_s *const kpkDiagShim,
     uint32_t data);
@@ -331,7 +331,7 @@ typedef struct {
 /*========== Extern Constant and Variable Declarations ======================*/
 /** diag device configuration struct */
 extern DIAG_DEV_s diag_device;
-extern DIAG_ID_CFG_s DIAG_ID_cfg[DIAG_ID_MAX];
+extern DIAG_ID_CFG_s diag_diagnosisIdConfiguration[DIAG_ID_MAX];
 
 /*========== Extern Function Prototypes =====================================*/
 /**

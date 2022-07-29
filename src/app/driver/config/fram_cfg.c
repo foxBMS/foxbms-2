@@ -43,14 +43,12 @@
  * @file    fram_cfg.c
  * @author  foxBMS Team
  * @date    2020-03-05 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  FRAM
  *
  * @brief   Configuration for the FRAM module
- *
- *
  *
  */
 

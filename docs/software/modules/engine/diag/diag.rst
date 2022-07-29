@@ -61,8 +61,9 @@ Detailed Description
 A detailed description on how to use the diagnosis module can be found in
 :ref:`HOW_TO_USE_THE_DIAGNOSIS_MODULE`.
 
-The diagnosis module is implemented as a central table ``DIAG_ID_cfg`` that
-maps ``DIAG_ID``\ s to callbacks.
+The diagnosis module is implemented as a central table
+``diag_diagnosisIdConfiguration`` that maps the entries of ``DIAG_ID_e`` to
+callbacks.
 Whenever the diagnosis handler is called in the application code the
 diagnosis module selects based on this table the appropriate callback.
 It is in the responsibility of the callback to handle the reported issue.

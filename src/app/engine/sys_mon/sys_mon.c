@@ -43,8 +43,8 @@
  * @file    sys_mon.c
  * @author  foxBMS Team
  * @date    2019-11-28 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup ENGINE
  * @prefix  SYSM
  *
@@ -169,12 +169,12 @@ void SYSM_CheckNotifications(void) {
             if ((time_since_last_call > max_allowed_jitter) &&
                 (sysm_notifications[taskId].duration > sysm_ch_cfg[taskId].cycleTime)) {
                 /* module not running within its timed limits */
-                DIAG_Handler(DIAG_ID_SYSTEMMONITORING, DIAG_EVENT_NOT_OK, DIAG_SYSTEM, (uint32_t)taskId);
+                DIAG_Handler(DIAG_ID_SYSTEM_MONITORING, DIAG_EVENT_NOT_OK, DIAG_SYSTEM, (uint32_t)taskId);
                 if (sysm_ch_cfg[taskId].enableRecording == SYSM_RECORDING_ENABLED) {
                     SYSM_RecordTimingViolation(
                         taskId, sysm_notifications[taskId].duration, sysm_notifications[taskId].timestampEnter);
                 }
-                sysm_ch_cfg[taskId].callbackfunc(taskId);
+                sysm_ch_cfg[taskId].callbackFunction(taskId);
             }
         }
     }
@@ -232,7 +232,7 @@ extern void SYSM_GetRecordedTimingViolations(SYSM_TIMING_VIOLATION_RESPONSE_s *p
 extern void SYSM_ClearAllTimingViolations(void) {
     /* clear all diag entries */
     for (SYSM_TASK_ID_e taskId = (SYSM_TASK_ID_e)0; taskId < SYSM_TASK_ID_MAX; taskId++) {
-        DIAG_Handler(DIAG_ID_SYSTEMMONITORING, DIAG_EVENT_OK, DIAG_SYSTEM, (uint32_t)taskId);
+        DIAG_Handler(DIAG_ID_SYSTEM_MONITORING, DIAG_EVENT_OK, DIAG_SYSTEM, (uint32_t)taskId);
     }
     /* clear local FRAM copy */
     OS_EnterTaskCritical();

@@ -43,8 +43,8 @@
  * @file    afe_plausibility.c
  * @author  foxBMS Team
  * @date    2019-01-24 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup MODULES
  * @prefix  AFE
  *
@@ -69,15 +69,15 @@
 
 /*========== Extern Function Implementations ================================*/
 extern STD_RETURN_TYPE_e AFE_PlausibilityCheckVoltageMeasurementRange(
-    const int16_t cellvoltage_mV,
+    const int16_t cellVoltage_mV,
     const AFE_PLAUSIBILITY_VALUES_s plausibleValues) {
     STD_RETURN_TYPE_e retval = STD_OK;
 
     /* sanity-check: limits have to be ascending and not equal */
     FAS_ASSERT(plausibleValues.maximumPlausibleVoltage_mV > plausibleValues.minimumPlausibleVoltage_mV);
 
-    if ((cellvoltage_mV > plausibleValues.maximumPlausibleVoltage_mV) ||
-        (cellvoltage_mV < plausibleValues.minimumPlausibleVoltage_mV)) {
+    if ((cellVoltage_mV > plausibleValues.maximumPlausibleVoltage_mV) ||
+        (cellVoltage_mV < plausibleValues.minimumPlausibleVoltage_mV)) {
         /* Cell voltage measurement value out of measurement range */
         retval = STD_NOT_OK;
     }

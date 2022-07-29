@@ -43,8 +43,8 @@
  * @file    diag_cbs_temperature.c
  * @author  foxBMS Team
  * @date    2021-02-17 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup ENGINE
  * @prefix  DIAG
  *
@@ -67,30 +67,30 @@
 
 /*========== Extern Function Implementations ================================*/
 extern void DIAG_ErrorOvertemperatureCharge(
-    DIAG_ID_e ch_id,
+    DIAG_ID_e diagId,
     DIAG_EVENT_e event,
     const DIAG_DATABASE_SHIM_s *const kpkDiagShim,
     uint32_t stringNumber) {
-    FAS_ASSERT(ch_id < DIAG_ID_MAX);
+    FAS_ASSERT(diagId < DIAG_ID_MAX);
     FAS_ASSERT((event == DIAG_EVENT_OK) || (event == DIAG_EVENT_NOT_OK) || (event == DIAG_EVENT_RESET));
     FAS_ASSERT(kpkDiagShim != NULL_PTR);
     FAS_ASSERT(stringNumber < BS_NR_OF_STRINGS);
 
-    if (ch_id == DIAG_ID_TEMP_OVERTEMPERATURE_CHARGE_MSL) {
+    if (diagId == DIAG_ID_TEMP_OVERTEMPERATURE_CHARGE_MSL) {
         if (event == DIAG_EVENT_RESET) {
             kpkDiagShim->pTableMsl->overtemperatureCharge[stringNumber] = 0;
         }
         if (event == DIAG_EVENT_NOT_OK) {
             kpkDiagShim->pTableMsl->overtemperatureCharge[stringNumber] = 1;
         }
-    } else if (ch_id == DIAG_ID_TEMP_OVERTEMPERATURE_CHARGE_RSL) {
+    } else if (diagId == DIAG_ID_TEMP_OVERTEMPERATURE_CHARGE_RSL) {
         if (event == DIAG_EVENT_RESET) {
             kpkDiagShim->pTableRsl->overtemperatureCharge[stringNumber] = 0;
         }
         if (event == DIAG_EVENT_NOT_OK) {
             kpkDiagShim->pTableRsl->overtemperatureCharge[stringNumber] = 1;
         }
-    } else if (ch_id == DIAG_ID_TEMP_OVERTEMPERATURE_CHARGE_MOL) {
+    } else if (diagId == DIAG_ID_TEMP_OVERTEMPERATURE_CHARGE_MOL) {
         if (event == DIAG_EVENT_RESET) {
             kpkDiagShim->pTableMol->overtemperatureCharge[stringNumber] = 0;
         }
@@ -101,30 +101,30 @@ extern void DIAG_ErrorOvertemperatureCharge(
 }
 
 extern void DIAG_ErrorOvertemperatureDischarge(
-    DIAG_ID_e ch_id,
+    DIAG_ID_e diagId,
     DIAG_EVENT_e event,
     const DIAG_DATABASE_SHIM_s *const kpkDiagShim,
     uint32_t stringNumber) {
-    FAS_ASSERT(ch_id < DIAG_ID_MAX);
+    FAS_ASSERT(diagId < DIAG_ID_MAX);
     FAS_ASSERT((event == DIAG_EVENT_OK) || (event == DIAG_EVENT_NOT_OK) || (event == DIAG_EVENT_RESET));
     FAS_ASSERT(kpkDiagShim != NULL_PTR);
     FAS_ASSERT(stringNumber < BS_NR_OF_STRINGS);
 
-    if (ch_id == DIAG_ID_TEMP_OVERTEMPERATURE_DISCHARGE_MSL) {
+    if (diagId == DIAG_ID_TEMP_OVERTEMPERATURE_DISCHARGE_MSL) {
         if (event == DIAG_EVENT_RESET) {
             kpkDiagShim->pTableMsl->overtemperatureDischarge[stringNumber] = 0;
         }
         if (event == DIAG_EVENT_NOT_OK) {
             kpkDiagShim->pTableMsl->overtemperatureDischarge[stringNumber] = 1;
         }
-    } else if (ch_id == DIAG_ID_TEMP_OVERTEMPERATURE_DISCHARGE_RSL) {
+    } else if (diagId == DIAG_ID_TEMP_OVERTEMPERATURE_DISCHARGE_RSL) {
         if (event == DIAG_EVENT_RESET) {
             kpkDiagShim->pTableRsl->overtemperatureDischarge[stringNumber] = 0;
         }
         if (event == DIAG_EVENT_NOT_OK) {
             kpkDiagShim->pTableRsl->overtemperatureDischarge[stringNumber] = 1;
         }
-    } else if (ch_id == DIAG_ID_TEMP_OVERTEMPERATURE_DISCHARGE_MOL) {
+    } else if (diagId == DIAG_ID_TEMP_OVERTEMPERATURE_DISCHARGE_MOL) {
         if (event == DIAG_EVENT_RESET) {
             kpkDiagShim->pTableMol->overtemperatureDischarge[stringNumber] = 0;
         }
@@ -135,30 +135,30 @@ extern void DIAG_ErrorOvertemperatureDischarge(
 }
 
 extern void DIAG_ErrorUndertemperatureCharge(
-    DIAG_ID_e ch_id,
+    DIAG_ID_e diagId,
     DIAG_EVENT_e event,
     const DIAG_DATABASE_SHIM_s *const kpkDiagShim,
     uint32_t stringNumber) {
-    FAS_ASSERT(ch_id < DIAG_ID_MAX);
+    FAS_ASSERT(diagId < DIAG_ID_MAX);
     FAS_ASSERT((event == DIAG_EVENT_OK) || (event == DIAG_EVENT_NOT_OK) || (event == DIAG_EVENT_RESET));
     FAS_ASSERT(kpkDiagShim != NULL_PTR);
     FAS_ASSERT(stringNumber < BS_NR_OF_STRINGS);
 
-    if (ch_id == DIAG_ID_TEMP_UNDERTEMPERATURE_CHARGE_MSL) {
+    if (diagId == DIAG_ID_TEMP_UNDERTEMPERATURE_CHARGE_MSL) {
         if (event == DIAG_EVENT_RESET) {
             kpkDiagShim->pTableMsl->undertemperatureCharge[stringNumber] = 0;
         }
         if (event == DIAG_EVENT_NOT_OK) {
             kpkDiagShim->pTableMsl->undertemperatureCharge[stringNumber] = 1;
         }
-    } else if (ch_id == DIAG_ID_TEMP_UNDERTEMPERATURE_CHARGE_RSL) {
+    } else if (diagId == DIAG_ID_TEMP_UNDERTEMPERATURE_CHARGE_RSL) {
         if (event == DIAG_EVENT_RESET) {
             kpkDiagShim->pTableRsl->undertemperatureCharge[stringNumber] = 0;
         }
         if (event == DIAG_EVENT_NOT_OK) {
             kpkDiagShim->pTableRsl->undertemperatureCharge[stringNumber] = 1;
         }
-    } else if (ch_id == DIAG_ID_TEMP_UNDERTEMPERATURE_CHARGE_MOL) {
+    } else if (diagId == DIAG_ID_TEMP_UNDERTEMPERATURE_CHARGE_MOL) {
         if (event == DIAG_EVENT_RESET) {
             kpkDiagShim->pTableMol->undertemperatureCharge[stringNumber] = 0;
         }
@@ -169,30 +169,30 @@ extern void DIAG_ErrorUndertemperatureCharge(
 }
 
 extern void DIAG_ErrorUndertemperatureDischarge(
-    DIAG_ID_e ch_id,
+    DIAG_ID_e diagId,
     DIAG_EVENT_e event,
     const DIAG_DATABASE_SHIM_s *const kpkDiagShim,
     uint32_t stringNumber) {
-    FAS_ASSERT(ch_id < DIAG_ID_MAX);
+    FAS_ASSERT(diagId < DIAG_ID_MAX);
     FAS_ASSERT((event == DIAG_EVENT_OK) || (event == DIAG_EVENT_NOT_OK) || (event == DIAG_EVENT_RESET));
     FAS_ASSERT(kpkDiagShim != NULL_PTR);
     FAS_ASSERT(stringNumber < BS_NR_OF_STRINGS);
 
-    if (ch_id == DIAG_ID_TEMP_UNDERTEMPERATURE_DISCHARGE_MSL) {
+    if (diagId == DIAG_ID_TEMP_UNDERTEMPERATURE_DISCHARGE_MSL) {
         if (event == DIAG_EVENT_RESET) {
             kpkDiagShim->pTableMsl->undertemperatureDischarge[stringNumber] = 0;
         }
         if (event == DIAG_EVENT_NOT_OK) {
             kpkDiagShim->pTableMsl->undertemperatureDischarge[stringNumber] = 1;
         }
-    } else if (ch_id == DIAG_ID_TEMP_UNDERTEMPERATURE_DISCHARGE_RSL) {
+    } else if (diagId == DIAG_ID_TEMP_UNDERTEMPERATURE_DISCHARGE_RSL) {
         if (event == DIAG_EVENT_RESET) {
             kpkDiagShim->pTableRsl->undertemperatureDischarge[stringNumber] = 0;
         }
         if (event == DIAG_EVENT_NOT_OK) {
             kpkDiagShim->pTableRsl->undertemperatureDischarge[stringNumber] = 1;
         }
-    } else if (ch_id == DIAG_ID_TEMP_UNDERTEMPERATURE_DISCHARGE_MOL) {
+    } else if (diagId == DIAG_ID_TEMP_UNDERTEMPERATURE_DISCHARGE_MOL) {
         if (event == DIAG_EVENT_RESET) {
             kpkDiagShim->pTableMol->undertemperatureDischarge[stringNumber] = 0;
         }

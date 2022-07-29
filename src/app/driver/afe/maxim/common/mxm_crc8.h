@@ -43,8 +43,8 @@
  * @file    mxm_crc8.h
  * @author  foxBMS Team
  * @date    2019-02-05 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup DRIVERS
  * @prefix  MXM
  *
@@ -88,7 +88,7 @@ extern uint8_t MXM_CRC8(uint16_t *pData, int32_t lenData);
  *          asserts that the implementation matches the required algorithm.
  * @return  #STD_OK if the selfcheck is successful and #STD_NOT_OK otherwise
  */
-extern STD_RETURN_TYPE_e must_check_return MXM_CRC8SelfTest(void);
+extern STD_RETURN_TYPE_e GEN_MUST_CHECK_RETURN MXM_CRC8SelfTest(void);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 

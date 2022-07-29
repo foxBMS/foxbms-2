@@ -43,8 +43,8 @@
  * @file    diag.h
  * @author  foxBMS Team
  * @date    2019-11-28 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup ENGINE
  * @prefix  DIAG
  *
@@ -108,14 +108,14 @@ typedef struct {
  *          module itself, or can be done in the callback function defined in
  *          diag_cfg.c
  * @ingroup API_DIAG
- * @param   diag_id #DIAG_ID_e of the event that has occurred
+ * @param   diagId #DIAG_ID_e of the event that has occurred
  * @param   event   event that occurred (OK, NOK, RESET)
  * @param   impact  #DIAG_IMPACT_LEVEL_e of #DIAG_ID_e
  * @param   data    individual information for #DIAG_ID_e e.g. string number,..
  * @return  #DIAG_HANDLER_RETURN_UNKNOWN if invalid #DIAG_EVENT_e, otherwise
  *          return value of #DIAG_RETURNTYPE_e
  */
-extern DIAG_RETURNTYPE_e DIAG_Handler(DIAG_ID_e diag_id, DIAG_EVENT_e event, DIAG_IMPACT_LEVEL_e impact, uint32_t data);
+extern DIAG_RETURNTYPE_e DIAG_Handler(DIAG_ID_e diagId, DIAG_EVENT_e event, DIAG_IMPACT_LEVEL_e impact, uint32_t data);
 
 /**
  * @brief   DIAG_CheckEvent provides a simple interface to check an event for
@@ -126,14 +126,14 @@ extern DIAG_RETURNTYPE_e DIAG_Handler(DIAG_ID_e diag_id, DIAG_EVENT_e event, DIA
  *          this function should be used instead of directly calling the
  *          #DIAG_Handler().
  * @param   cond    condition
- * @param   diag_id event ID of the event that has occurred
+ * @param   diagId  event ID of the event that has occurred
  * @param   impact  #DIAG_IMPACT_LEVEL_e of #DIAG_ID_e
  * @param   data    individual information for #DIAG_ID_e e.g. string number,..
  * @return  STD_OK if ok, STD_NOT_OK if not ok
  */
 extern STD_RETURN_TYPE_e DIAG_CheckEvent(
     STD_RETURN_TYPE_e cond,
-    DIAG_ID_e diag_id,
+    DIAG_ID_e diagId,
     DIAG_IMPACT_LEVEL_e impact,
     uint32_t data);
 

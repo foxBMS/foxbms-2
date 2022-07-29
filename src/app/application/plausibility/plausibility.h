@@ -43,8 +43,8 @@
  * @file    plausibility.h
  * @author  foxBMS Team
  * @date    2020-02-24 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup APPLICATION
  * @prefix  PL
  *
@@ -86,7 +86,7 @@ extern STD_RETURN_TYPE_e PL_CheckStringVoltage(int32_t voltageAfe_mV, int32_t vo
  *
  * @return #STD_OK if cell voltage valid, otherwise #STD_NOT_OK
  */
-extern STD_RETURN_TYPE_e PL_CheckCellvoltage(
+extern STD_RETURN_TYPE_e PL_CheckCellVoltage(
     int16_t baseCellVoltage,
     int16_t redundancy0CellVoltage,
     int16_t *pCellVoltage);
@@ -108,13 +108,13 @@ extern STD_RETURN_TYPE_e PL_CheckCelltemperature(
 /**
  * @brief  Cell voltage spread plausibility check
  *
- * @param[in,out]  pCellvoltages     pointer to cell voltage database entry
+ * @param[in,out]  pCellVoltages     pointer to cell voltage database entry
  * @param[in]  pMinMaxAverageValues  pointer to minimum/maximum/average database entry
  *
  * @return #STD_OK if no issue detected, otherwise #STD_NOT_OK
  */
 extern STD_RETURN_TYPE_e PL_CheckVoltageSpread(
-    DATA_BLOCK_CELL_VOLTAGE_s *pCellvoltages,
+    DATA_BLOCK_CELL_VOLTAGE_s *pCellVoltages,
     DATA_BLOCK_MIN_MAX_s *pMinMaxAverageValues);
 
 /**

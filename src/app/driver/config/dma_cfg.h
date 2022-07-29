@@ -43,8 +43,8 @@
  * @file    dma_cfg.h
  * @author  foxBMS Team
  * @date    2020-03-05 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  DMA
  *
@@ -104,11 +104,11 @@
 #define DMA_BIG_ENDIAN_ADDRESS_16BIT (2u)
 
 /** number of spi interfaces for DMA */
-#define DMA_NUMBER_SPI_INTERFACES 5u
+#define DMA_NUMBER_SPI_INTERFACES (5u)
 /** DMA Request enable bit */
-#define DMAREQEN_BIT (0x10000U)
+#define DMAREQEN_BIT (0x10000u)
 /** SPI enable bit */
-#define SPIEN_BIT (0x1000000U)
+#define SPIEN_BIT (0x1000000u)
 
 /** DMA request line for LTC */
 /**@{*/

@@ -43,8 +43,8 @@
  * @file    mxm_1785x.h
  * @author  foxBMS Team
  * @date    2019-01-15 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup DRIVERS
  * @prefix  MXM
  *
@@ -181,7 +181,7 @@ extern void MXM_HandleStateWriteall(
  *                  this to execute additional code when the message has been
  *                  read.
  */
-extern bool must_check_return MXM_HandleStateReadall(
+extern bool GEN_MUST_CHECK_RETURN MXM_HandleStateReadall(
     MXM_MONITORING_INSTANCE_s *pInstance,
     MXM_REG_NAME_e registerName,
     MXM_STATEMACHINE_OPERATION_STATES_e nextState);
@@ -238,7 +238,7 @@ extern void MXM_StateMachineOperation(MXM_MONITORING_INSTANCE_s *pState);
  *                      - MXM_MON_STATE_FAIL if the function failed and could
  *                        not recover on its own
  */
-extern MXM_MONITORING_STATE_e must_check_return
+extern MXM_MONITORING_STATE_e GEN_MUST_CHECK_RETURN
     MXM_MonGetVoltages(MXM_MONITORING_INSTANCE_s *pState, MXM_REG_NAME_e regAddress);
 
 /**

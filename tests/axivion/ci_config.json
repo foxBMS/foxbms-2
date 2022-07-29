@@ -4,6 +4,7 @@
             "global_excludes": [
                 "C:/ti/*",
                 "*src/app/driver/afe/ltc/common/ltc_pec.*",
+                "*src/app/driver/afe/nxp/mc33775a/vendor/*",
                 "*src/app/driver/sbc/fs8x_driver/*",
                 "*src/hal/*",
                 "*src/os/*"
@@ -45,12 +46,12 @@
                 "*.[ch]"
             ],
             "rootpath": "build/axivion/src/app/main",
-            "shadow_directory": "$(builtin:AXIVION_CONFDIR)/../../build/axivion/src/app/main"
+            "shadow_directory": "$(env:projectShadowRepo)"
         }
     },
     "Results": {
         "Dashboard": {
-            "dashboard_url": "$(env:AXIVION_DASHBOARD_URL=https://axivion-dash.iisb.fraunhofer.de/axivion)"
+            "dashboard_url": "$(env:AXIVION_DASHBOARD_URL=)"
         },
         "Database": {
             "ci_mode": {

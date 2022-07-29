@@ -43,8 +43,8 @@
  * @file    mxm_bitextract.h
  * @author  foxBMS Team
  * @date    2019-01-15 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup DRIVERS
  * @prefix  MXM
  *
@@ -67,7 +67,7 @@
 /**
  * @brief Bit-values for registers
  */
-/* AXIVION Disable Style MisraC2012-2.5: Defines are based on datasheet and exist all for completeness. */
+/* AXIVION Disable Style MisraC2012-2.5: Defines are based on data sheet and exist all for completeness. */
 typedef uint8_t MXM_41B_REG_BIT_VALUE;
 /** one bit, 0u */
 #define MXM_41B_REG_FALSE ((MXM_41B_REG_BIT_VALUE)0x00u)

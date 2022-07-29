@@ -43,8 +43,8 @@
  * @file    can_cbs_tx_state.c
  * @author  foxBMS Team
  * @date    2021-07-21 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup DRIVER
  * @prefix  CAN
  *
@@ -434,7 +434,7 @@ extern uint32_t CAN_TxStringState(
 
     /* Error: Daisy-chain redundancy: CRC: TODO */
     /* Error: Daisy-chain base: Voltage out of operating range */
-    data = kpkCanShim->pTableErrorState->afeCellvoltageError[stringNumber];
+    data = kpkCanShim->pTableErrorState->afeCellVoltageError[stringNumber];
     CAN_TxSetMessageDataWithSignalData(&message, 39u, 1u, data, endianness);
 
     /* Error: Daisy-chain redundancy: Voltage out of operating range: TODO */
@@ -479,7 +479,7 @@ extern uint32_t CAN_TxStringState(
     CAN_TxSetMessageDataWithSignalData(&message, 51u, 1u, data, endianness);
 
     /* Error: Plausibility: Cell voltage */
-    data = kpkCanShim->pTableErrorState->plausibilityCheckCellvoltage[stringNumber];
+    data = kpkCanShim->pTableErrorState->plausibilityCheckCellVoltage[stringNumber];
     CAN_TxSetMessageDataWithSignalData(&message, 52u, 1u, data, endianness);
 
     /* Error: Plausibility: String voltage */
@@ -491,7 +491,7 @@ extern uint32_t CAN_TxStringState(
     CAN_TxSetMessageDataWithSignalData(&message, 54u, 1u, data, endianness);
 
     /* Error: Plausibility: Cell voltage spread */
-    data = kpkCanShim->pTableErrorState->plausibilityCheckCellvoltageSpread[stringNumber];
+    data = kpkCanShim->pTableErrorState->plausibilityCheckCellVoltageSpread[stringNumber];
     CAN_TxSetMessageDataWithSignalData(&message, 55u, 1u, data, endianness);
     /* AXIVION Enable Style Generic-NoMagicNumbers: */
 

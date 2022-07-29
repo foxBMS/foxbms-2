@@ -31,7 +31,7 @@ Otherwise, ceedling will report uncovered files.
 
 Additionally, the main wscript contains a mechanism that checks that every
 file has a corresponding test file in the proper location.
-Untested files have to be added to ``excl`` in ``check_testfiles(ctx)``.
+Untested files have to be added to ``excl`` in ``check_test_files(ctx)``.
 
 Using ceedling directly
 =======================

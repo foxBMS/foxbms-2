@@ -43,8 +43,8 @@
  * @file    algorithm.c
  * @author  foxBMS Team
  * @date    2017-12-18 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup ALGORITHMS
  * @prefix  ALGO
  *
@@ -81,7 +81,7 @@ static void ALGO_Initialization(void) {
     /* iterate over all algorithms */
     for (uint16_t i = 0u; i < algo_length; i++) {
         /* check if the cycle time is valid */
-        FAS_ASSERT((algo_algorithms[i].cycleTime_ms % ALGO_TICK_MS) == 0u);
+        FAS_ASSERT((algo_algorithms[i].cycleTime_ms % ALGO_TICK_ms) == 0u);
 
         /* check only uninitialized algorithms */
         if (algo_algorithms[i].state == ALGO_UNINITIALIZED) {
@@ -145,7 +145,7 @@ extern void ALGO_MainFunction(void) {
         }
     }
 
-    counter_ticks += ALGO_TICK_MS;
+    counter_ticks += ALGO_TICK_ms;
 }
 
 extern void ALGO_MonitorExecutionTime(void) {

@@ -2,8 +2,6 @@
     "include": [
         ".",
         "config",
-        "../../api",
-        "common",
-        "common/config"
+        "../../api"
     ]
 }

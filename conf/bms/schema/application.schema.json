@@ -3,6 +3,7 @@
     "title": "Configuration of the application",
     "required": [
         "algorithm",
+        "balancing-strategy",
         "insulation-monitoring-device"
     ],
     "additionalProperties": false,
@@ -20,6 +21,7 @@
                     "required": [
                         "soc",
                         "soe",
+                        "sof",
                         "soh"
                     ],
                     "properties": {
@@ -43,6 +45,14 @@
                                 "none"
                             ]
                         },
+                        "sof": {
+                            "$id": "/properties/application/algorithm/state-estimation/sof",
+                            "title": "State-of-Function algorithm (must correspond to the directory name)",
+                            "type": "string",
+                            "enum": [
+                                "trapezoid"
+                            ]
+                        },
                         "soh": {
                             "$id": "/properties/application/algorithm/state-estimation/soh",
                             "title": "State-of-Health algorithm (must correspond to the directory name)",
@@ -55,6 +65,16 @@
                     }
                 }
             }
+        },
+        "balancing-strategy": {
+            "$id": "/properties/application/balancing-strategy",
+            "title": "Balancing strategy",
+            "type": "string",
+            "enum": [
+                "voltage",
+                "history",
+                "none"
+            ]
         },
         "insulation-monitoring-device": {
             "$id": "/properties/application/insulation-monitoring-device",

@@ -61,7 +61,7 @@ def build(bld):
         os.path.join("..", "..", "..", "task", "os"),
         os.path.join("..", "..", "..", "task", "ftask"),
     ]
-    includes.extend(bld.env.INCLUDES_OPERATING_SYSTEM)
+    includes.extend(bld.env.INCLUDES_RTOS)
     cflags = bld.env.CFLAGS_FOXBMS
     bld(
         features="c",

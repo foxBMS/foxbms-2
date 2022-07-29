@@ -43,35 +43,42 @@
  * @file    diag_cfg.c
  * @author  foxBMS Team
  * @date    2019-11-28 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup ENGINE_CONFIGURATION
  * @prefix  DIAG
  *
  * @brief   Diagnostic module configuration
  *
- * The configuration of the different diagnosis events defined in diag_cfg.h is set in the array
- * DIAG_ID_cfg[], e.g. initialization errors or runtime errors.
+ * @details The configuration of the different diagnosis events defined in
+ *          diag_cfg.h is set in the array diag_diagnosisIdConfiguration[],
+ *          e.g., initialization errors or runtime errors.
  *
- * Every entry of the DIAG_ID_cfg[] array consists of
- *  - name of the diagnosis event (defined in diag_cfg.h)
- *  - type of diagnosis event
- *  - diagnosis sensitivity (after how many occurrences event is counted as error)
- *  - enabling of the recording for diagnosis event
- *  - enabling of the diagnosis event
- *  - callback function for diagnosis event if wished, otherwise DIAG_dummy_callback
+ *          Every entry of the diag_diagnosisIdConfiguration[] array consists
+ *          of
+ *           - name of the diagnosis event (defined in diag_cfg.h)
+ *           - type of diagnosis event
+ *           - diagnosis sensitivity (after how many occurrences event is
+ *             counted as error)
+ *           - enabling of the recording for diagnosis event
+ *           - enabling of the diagnosis event
+ *           - callback function for diagnosis event if wished, otherwise
+ *             DIAG_dummy_callback
  *
- * The system monitoring configuration defined in diag_cfg.h is set in the array
- * sysm_ch_cfg[]. The system monitoring is at the moment only used for
- * supervising the cyclic/periodic tasks.
+ *          The system monitoring configuration defined in diag_cfg.h is set in
+ *          the array sysm_ch_cfg[]. The system monitoring is at the moment
+ *          only used for supervising the cyclic/periodic tasks.
  *
- * Every entry of the sysm_ch_cfg[] consists of
- *  - enum of monitored object
- *  - type of monitored object (at the moment only DIAG_SYSMON_CYCLICTASK is supported)
- *  - maximum delay in [ms] in which the object needs to call the SYSM_Notify function defined in diag.c
- *  - enabling of the recording for system monitoring
- *  - enabling of the system monitoring for the monitored object
- *  - callback function if system monitoring notices an error if wished, otherwise SYSM_DummyCallback
+ *          Every entry of the sysm_ch_cfg[] consists of
+ *           - enum of monitored object
+ *           - type of monitored object (at the moment only
+ *             DIAG_SYSMON_CYCLICTASK is supported)
+ *           - maximum delay in [ms] in which the object needs to call the
+ *             SYSM_Notify function defined in diag.c
+ *           - enabling of the recording for system monitoring
+ *           - enabling of the system monitoring for the monitored object
+ *           - callback function if system monitoring notices an error if
+ *             wished, otherwise SYSM_DummyCallback
  */
 
 /*========== Includes =======================================================*/
@@ -86,7 +93,7 @@
 /** value of #DIAG_ID_MAX (as a define for the pre-processor) */
 #define DIAG_ID_MAX_FOR_INIT (75u)
 
-f_static_assert(DIAG_ID_MAX_FOR_INIT == (uint16_t)DIAG_ID_MAX, "Both values need to be identical.");
+FAS_STATIC_ASSERT(DIAG_ID_MAX_FOR_INIT == (uint16_t)DIAG_ID_MAX, "Both values need to be identical.");
 
 /*========== Static Constant and Variable Definitions =======================*/
 /** local copy of the #DATA_BLOCK_ERRORSTATE_s table */
@@ -112,21 +119,21 @@ const DIAG_DATABASE_SHIM_s diag_kDatabaseShim = {
 
 /*========== Extern Constant and Variable Definitions =======================*/
 /** variable tracking the state of the diag channels */
-DIAG_ID_CFG_s DIAG_ID_cfg[] = {
+DIAG_ID_CFG_s diag_diagnosisIdConfiguration[] = {
     /* clang-format off */
     {DIAG_ID_FLASHCHECKSUM, DIAG_ERROR_SENSITIVITY_FIRST_EVENT, DIAG_FATAL_ERROR, DIAG_NO_DELAY, DIAG_RECORDING_ENABLED, DIAG_EVALUATION_ENABLED, DIAG_DummyCallback},
-    {DIAG_ID_SYSTEMMONITORING, DIAG_ERROR_SENSITIVITY_FIRST_EVENT, DIAG_FATAL_ERROR, DIAG_NO_DELAY, DIAG_RECORDING_ENABLED, DIAG_EVALUATION_ENABLED, DIAG_ErrorSystemMonitoring},
+    {DIAG_ID_SYSTEM_MONITORING, DIAG_ERROR_SENSITIVITY_FIRST_EVENT, DIAG_FATAL_ERROR, DIAG_NO_DELAY, DIAG_RECORDING_ENABLED, DIAG_EVALUATION_ENABLED, DIAG_ErrorSystemMonitoring},
     {DIAG_ID_CONFIGASSERT, DIAG_ERROR_SENSITIVITY_FIRST_EVENT, DIAG_FATAL_ERROR, DIAG_NO_DELAY, DIAG_RECORDING_ENABLED, DIAG_EVALUATION_ENABLED, DIAG_DummyCallback},
 
     {DIAG_ID_INTERLOCK_FEEDBACK, DIAG_ERROR_INTERLOCK_SENSITIVITY, DIAG_FATAL_ERROR, DIAG_DELAY_INTERLOCK_ms, DIAG_RECORDING_ENABLED, DIAG_EVALUATION_ENABLED, DIAG_ErrorInterlock},
 
-    {DIAG_ID_CELLVOLTAGE_OVERVOLTAGE_MSL, DIAG_ERROR_VOLTAGE_SENSITIVITY_MSL, DIAG_FATAL_ERROR, DIAG_DELAY_OVERVOLTAGE_ms, DIAG_RECORDING_ENABLED, DIAG_EVALUATION_ENABLED, DIAG_ErrorOvervoltage},
-    {DIAG_ID_CELLVOLTAGE_OVERVOLTAGE_RSL, DIAG_ERROR_VOLTAGE_SENSITIVITY_RSL, DIAG_WARNING, DIAG_DELAY_DISCARDED, DIAG_RECORDING_ENABLED, DIAG_EVALUATION_ENABLED, DIAG_ErrorOvervoltage},
-    {DIAG_ID_CELLVOLTAGE_OVERVOLTAGE_MOL, DIAG_ERROR_VOLTAGE_SENSITIVITY_MOL, DIAG_INFO, DIAG_DELAY_DISCARDED, DIAG_RECORDING_ENABLED, DIAG_EVALUATION_ENABLED, DIAG_ErrorOvervoltage},
+    {DIAG_ID_CELL_VOLTAGE_OVERVOLTAGE_MSL, DIAG_ERROR_VOLTAGE_SENSITIVITY_MSL, DIAG_FATAL_ERROR, DIAG_DELAY_OVERVOLTAGE_ms, DIAG_RECORDING_ENABLED, DIAG_EVALUATION_ENABLED, DIAG_ErrorOvervoltage},
+    {DIAG_ID_CELL_VOLTAGE_OVERVOLTAGE_RSL, DIAG_ERROR_VOLTAGE_SENSITIVITY_RSL, DIAG_WARNING, DIAG_DELAY_DISCARDED, DIAG_RECORDING_ENABLED, DIAG_EVALUATION_ENABLED, DIAG_ErrorOvervoltage},
+    {DIAG_ID_CELL_VOLTAGE_OVERVOLTAGE_MOL, DIAG_ERROR_VOLTAGE_SENSITIVITY_MOL, DIAG_INFO, DIAG_DELAY_DISCARDED, DIAG_RECORDING_ENABLED, DIAG_EVALUATION_ENABLED, DIAG_ErrorOvervoltage},
 
-    {DIAG_ID_CELLVOLTAGE_UNDERVOLTAGE_MSL, DIAG_ERROR_VOLTAGE_SENSITIVITY_MSL, DIAG_FATAL_ERROR, DIAG_DELAY_UNDERVOLTAGE_ms,  DIAG_RECORDING_ENABLED, DIAG_EVALUATION_ENABLED, DIAG_ErrorUndervoltage},
-    {DIAG_ID_CELLVOLTAGE_UNDERVOLTAGE_RSL, DIAG_ERROR_VOLTAGE_SENSITIVITY_RSL, DIAG_WARNING, DIAG_DELAY_DISCARDED, DIAG_RECORDING_ENABLED, DIAG_EVALUATION_ENABLED, DIAG_ErrorUndervoltage},
-    {DIAG_ID_CELLVOLTAGE_UNDERVOLTAGE_MOL, DIAG_ERROR_VOLTAGE_SENSITIVITY_MOL, DIAG_INFO, DIAG_DELAY_DISCARDED, DIAG_RECORDING_ENABLED, DIAG_EVALUATION_ENABLED, DIAG_ErrorUndervoltage},
+    {DIAG_ID_CELL_VOLTAGE_UNDERVOLTAGE_MSL, DIAG_ERROR_VOLTAGE_SENSITIVITY_MSL, DIAG_FATAL_ERROR, DIAG_DELAY_UNDERVOLTAGE_ms,  DIAG_RECORDING_ENABLED, DIAG_EVALUATION_ENABLED, DIAG_ErrorUndervoltage},
+    {DIAG_ID_CELL_VOLTAGE_UNDERVOLTAGE_RSL, DIAG_ERROR_VOLTAGE_SENSITIVITY_RSL, DIAG_WARNING, DIAG_DELAY_DISCARDED, DIAG_RECORDING_ENABLED, DIAG_EVALUATION_ENABLED, DIAG_ErrorUndervoltage},
+    {DIAG_ID_CELL_VOLTAGE_UNDERVOLTAGE_MOL, DIAG_ERROR_VOLTAGE_SENSITIVITY_MOL, DIAG_INFO, DIAG_DELAY_DISCARDED, DIAG_RECORDING_ENABLED, DIAG_EVALUATION_ENABLED, DIAG_ErrorUndervoltage},
 
     {DIAG_ID_TEMP_OVERTEMPERATURE_CHARGE_MSL, DIAG_ERROR_TEMPERATURE_SENSITIVITY_MSL, DIAG_FATAL_ERROR, DIAG_DELAY_TEMPERATURE_ms, DIAG_RECORDING_ENABLED, DIAG_EVALUATION_ENABLED, DIAG_ErrorOvertemperatureCharge},
     {DIAG_ID_TEMP_OVERTEMPERATURE_CHARGE_RSL, DIAG_ERROR_TEMPERATURE_SENSITIVITY_RSL, DIAG_WARNING, DIAG_DELAY_DISCARDED, DIAG_RECORDING_ENABLED, DIAG_EVALUATION_ENABLED, DIAG_ErrorOvertemperatureCharge},
@@ -188,10 +195,10 @@ DIAG_ID_CFG_s DIAG_ID_cfg[] = {
     {DIAG_ID_PLAUSIBILITY_CELL_TEMPERATURE_SPREAD, DIAG_ERROR_SENSITIVITY_FIRST_EVENT, DIAG_WARNING, DIAG_DELAY_DISCARDED, DIAG_RECORDING_ENABLED, DIAG_EVALUATION_ENABLED, DIAG_PlausibilityCheck},
     {DIAG_ID_AFE_CELL_VOLTAGE_MEAS_ERROR, DIAG_ERROR_SENSITIVITY_FIRST_EVENT, DIAG_WARNING, DIAG_DELAY_DISCARDED, DIAG_RECORDING_ENABLED, DIAG_EVALUATION_ENABLED, DIAG_ErrorAfe},
     {DIAG_ID_AFE_CELL_TEMPERATURE_MEAS_ERROR, DIAG_ERROR_SENSITIVITY_FIRST_EVENT, DIAG_WARNING, DIAG_DELAY_DISCARDED, DIAG_RECORDING_ENABLED, DIAG_EVALUATION_ENABLED, DIAG_ErrorAfe},
-    {DIAG_ID_BASE_CELL_VOLTAGE_MESUREMENT_TIMEOUT, DIAG_ERROR_SENSITIVITY_FIRST_EVENT, DIAG_WARNING, DIAG_DELAY_DISCARDED, DIAG_RECORDING_ENABLED, DIAG_EVALUATION_ENABLED, DIAG_ErrorAfe},
-    {DIAG_ID_REDUNDANCY0_CELL_VOLTAGE_MESUREMENT_TIMEOUT, DIAG_ERROR_SENSITIVITY_FIRST_EVENT, DIAG_WARNING, DIAG_DELAY_DISCARDED, DIAG_RECORDING_ENABLED, DIAG_EVALUATION_ENABLED, DIAG_ErrorAfe},
-    {DIAG_ID_BASE_CELL_TEMPERATURE_MESUREMENT_TIMEOUT, DIAG_ERROR_SENSITIVITY_FIRST_EVENT, DIAG_WARNING, DIAG_DELAY_DISCARDED, DIAG_RECORDING_ENABLED, DIAG_EVALUATION_ENABLED, DIAG_ErrorAfe},
-    {DIAG_ID_REDUNDANCY0_CELL_TEMPERATURE_MESUREMENT_TIMEOUT, DIAG_ERROR_SENSITIVITY_FIRST_EVENT, DIAG_WARNING, DIAG_DELAY_DISCARDED, DIAG_RECORDING_ENABLED, DIAG_EVALUATION_ENABLED, DIAG_ErrorAfe},
+    {DIAG_ID_BASE_CELL_VOLTAGE_MEASUREMENT_TIMEOUT, DIAG_ERROR_SENSITIVITY_FIRST_EVENT, DIAG_WARNING, DIAG_DELAY_DISCARDED, DIAG_RECORDING_ENABLED, DIAG_EVALUATION_ENABLED, DIAG_ErrorAfe},
+    {DIAG_ID_REDUNDANCY0_CELL_VOLTAGE_MEASUREMENT_TIMEOUT, DIAG_ERROR_SENSITIVITY_FIRST_EVENT, DIAG_WARNING, DIAG_DELAY_DISCARDED, DIAG_RECORDING_ENABLED, DIAG_EVALUATION_ENABLED, DIAG_ErrorAfe},
+    {DIAG_ID_BASE_CELL_TEMPERATURE_MEASUREMENT_TIMEOUT, DIAG_ERROR_SENSITIVITY_FIRST_EVENT, DIAG_WARNING, DIAG_DELAY_DISCARDED, DIAG_RECORDING_ENABLED, DIAG_EVALUATION_ENABLED, DIAG_ErrorAfe},
+    {DIAG_ID_REDUNDANCY0_CELL_TEMPERATURE_MEASUREMENT_TIMEOUT, DIAG_ERROR_SENSITIVITY_FIRST_EVENT, DIAG_WARNING, DIAG_DELAY_DISCARDED, DIAG_RECORDING_ENABLED, DIAG_EVALUATION_ENABLED, DIAG_ErrorAfe},
 
     {DIAG_ID_DEEP_DISCHARGE_DETECTED, DIAG_ERROR_SENSITIVITY_HIGH, DIAG_FATAL_ERROR, DIAG_DELAY_DEEP_DISCHARGE_ms, DIAG_RECORDING_ENABLED, DIAG_EVALUATION_ENABLED, DIAG_ErrorDeepDischarge},
 
@@ -215,10 +222,10 @@ DIAG_ID_CFG_s DIAG_ID_cfg[] = {
 };
 
 DIAG_DEV_s diag_device = {
-    .nrOfConfiguredDiagnosisEntries   = sizeof(DIAG_ID_cfg) / sizeof(DIAG_ID_CFG_s),
-    .pConfigurationOfDiagnosisEntries = &DIAG_ID_cfg[0],
+    .nrOfConfiguredDiagnosisEntries   = sizeof(diag_diagnosisIdConfiguration) / sizeof(DIAG_ID_CFG_s),
+    .pConfigurationOfDiagnosisEntries = &diag_diagnosisIdConfiguration[0],
     .numberOfFatalErrors              = 0u,
-    .pFatalErrorLinkTable             = {REPEAT_U(NULL_PTR, STRIP(DIAG_ID_MAX_FOR_INIT))},
+    .pFatalErrorLinkTable             = {GEN_REPEAT_U(NULL_PTR, GEN_STRIP(DIAG_ID_MAX_FOR_INIT))},
 };
 
 /*========== Static Function Implementations ================================*/

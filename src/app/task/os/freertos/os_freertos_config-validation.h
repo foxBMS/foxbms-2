@@ -43,8 +43,8 @@
  * @file    os_freertos_config-validation.h
  * @author  foxBMS Team
  * @date    2019-08-27 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup OS
  * @prefix  OS
  *
@@ -74,22 +74,24 @@
     "foxBMS requires using FreeRTOS 'xTaskGetSchedulerState' therefore 'INCLUDE_xTaskGetSchedulerState' must be defined to '1'."
 #endif /* INCLUDE_xTaskGetSchedulerState */
 
-f_static_assert(
-    (configMINIMAL_STACK_SIZE * BYTES_PER_WORD) < (StackType_t)FTSK_TASK_ENGINE_STACK_SIZE_IN_BYTES,
+FAS_STATIC_ASSERT(
+    (configMINIMAL_STACK_SIZE * GEN_BYTES_PER_WORD) < (StackType_t)FTSK_TASK_ENGINE_STACK_SIZE_IN_BYTES,
     "Size of the 'Engine' task is too small.");
-f_static_assert(
-    (configMINIMAL_STACK_SIZE * BYTES_PER_WORD) < (StackType_t)FTSK_TASK_CYCLIC_1MS_STACK_SIZE_IN_BYTES,
+FAS_STATIC_ASSERT(
+    (configMINIMAL_STACK_SIZE * GEN_BYTES_PER_WORD) < (StackType_t)FTSK_TASK_CYCLIC_1MS_STACK_SIZE_IN_BYTES,
     "Size of the '1ms cyclic' task is too small.");
-f_static_assert(
-    (configMINIMAL_STACK_SIZE * BYTES_PER_WORD) < (StackType_t)FTSK_TASK_CYCLIC_10MS_STACK_SIZE_IN_BYTES,
+FAS_STATIC_ASSERT(
+    (configMINIMAL_STACK_SIZE * GEN_BYTES_PER_WORD) < (StackType_t)FTSK_TASK_CYCLIC_10MS_STACK_SIZE_IN_BYTES,
     "Size of the '10ms cyclic' task is too small.");
-f_static_assert(
-    (configMINIMAL_STACK_SIZE * BYTES_PER_WORD) < (StackType_t)FTSK_TASK_CYCLIC_100MS_STACK_SIZE_IN_BYTES,
+FAS_STATIC_ASSERT(
+    (configMINIMAL_STACK_SIZE * GEN_BYTES_PER_WORD) < (StackType_t)FTSK_TASK_CYCLIC_100MS_STACK_SIZE_IN_BYTES,
     "Size of the '100ms cyclic' task is too small.");
-f_static_assert(
-    (configMINIMAL_STACK_SIZE * BYTES_PER_WORD) < (StackType_t)FTSK_TASK_CYCLIC_ALGORITHM_100MS_STACK_SIZE_IN_BYTES,
+FAS_STATIC_ASSERT(
+    (configMINIMAL_STACK_SIZE * GEN_BYTES_PER_WORD) < (StackType_t)FTSK_TASK_CYCLIC_ALGORITHM_100MS_STACK_SIZE_IN_BYTES,
     "Size of the '100ms cyclic algorithm' task is too small.");
-f_static_assert((sizeof(StackType_t) == sizeof(uint32_t)), "Assumptions on the size of StackType_t have been broken.");
+FAS_STATIC_ASSERT(
+    (sizeof(StackType_t) == sizeof(uint32_t)),
+    "Assumptions on the size of StackType_t have been broken.");
 
 /*========== Extern Constant and Variable Declarations ======================*/
 

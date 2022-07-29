@@ -43,8 +43,8 @@
  * @file    spi.h
  * @author  foxBMS Team
  * @date    2019-12-12 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup DRIVERS
  * @prefix  SPI
  *
@@ -61,6 +61,12 @@
 /*========== Macros and Definitions =========================================*/
 
 /*========== Extern Constant and Variable Declarations ======================*/
+
+/* Flag to indicate that N775 Tx was finished */
+extern bool spi_txFinished;
+
+/* Flag to indicate that N775 Rx was finished */
+extern bool spi_rxFinished;
 
 /*========== Extern Function Prototypes =====================================*/
 

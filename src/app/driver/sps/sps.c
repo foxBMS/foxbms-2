@@ -43,8 +43,8 @@
  * @file    sps.c
  * @author  foxBMS Team
  * @date    2020-10-14 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup DRIVERS
  * @prefix  SPS
  *
@@ -252,10 +252,10 @@ static void SPS_InitializeIo(void) {
     /** Pin to drive reset line of SPS ICs */
     SPS_RESET_GIO_PORT_DIR |= (uint32)((uint32)1u << SPS_RESET_PIN);
     /** Pin to drive Chip Select line of SPS ICs */
-    SPS_SPI_CS_GIOPORT_DIR |= (uint32)((uint32)1u << SPS_SPI_CS_PIN);
+    SPI_SPS_CS_GIOPORT_DIR |= (uint32)((uint32)1u << SPI_SPS_CS_PIN);
 
     /* set feedback enable as output */
-    SETBIT(SPS_FEEDBACK_GIO_PORT_DIR, SPS_FEEDBACK_PIN);
+    GEN_SET_BIT(SPS_FEEDBACK_GIO_PORT_DIR, SPS_FEEDBACK_PIN);
     /* enable output on feedback enable */
     IO_PinSet(&SPS_FEEDBACK_GIO_PORT, SPS_FEEDBACK_PIN);
 }

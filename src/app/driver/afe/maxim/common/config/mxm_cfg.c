@@ -43,8 +43,8 @@
  * @file    mxm_cfg.c
  * @author  foxBMS Team
  * @date    2019-01-09 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  MXM
  *
@@ -77,18 +77,18 @@ extern void MXM_InitializeMonitoringPins(void) {
     IO_PinReset(&MXM_17841B_GIOPORT->DOUT, MXM_17841B_SHTNDL_PIN);
 
     /* configure functional of SIMO and SOMI pin */
-    SPI_SetFunctional(spi_MxmInterface.pNode, SPI_PIN_SIMO, true);
-    SPI_SetFunctional(spi_MxmInterface.pNode, SPI_PIN_SOMI, true);
+    SPI_SetFunctional(spi_mxmInterface.pNode, SPI_PIN_SIMO, true);
+    SPI_SetFunctional(spi_mxmInterface.pNode, SPI_PIN_SOMI, true);
 }
 
 extern STD_RETURN_TYPE_e MXM_GetSPIStateReady(void) {
-    return SPI_CheckInterfaceAvailable(spi_MxmInterface.pNode);
+    return SPI_CheckInterfaceAvailable(spi_mxmInterface.pNode);
 }
 
 extern STD_RETURN_TYPE_e MXM_SendData(uint16_t *txBuffer, uint16_t length) {
     FAS_ASSERT(txBuffer != NULL_PTR);
     FAS_ASSERT(length != 0u);
-    const STD_RETURN_TYPE_e spiReturnValue = SPI_TransmitData(&spi_MxmInterface, txBuffer, length);
+    const STD_RETURN_TYPE_e spiReturnValue = SPI_TransmitData(&spi_mxmInterface, txBuffer, length);
     /* this driver currently only handles one physical string, therefore reporting to string 0 */
     (void)DIAG_CheckEvent(spiReturnValue, DIAG_ID_AFE_SPI, DIAG_STRING, 0u);
     return spiReturnValue;
@@ -98,7 +98,7 @@ extern STD_RETURN_TYPE_e MXM_ReceiveData(uint16_t *txBuffer, uint16_t *rxBuffer,
     FAS_ASSERT(txBuffer != NULL_PTR);
     FAS_ASSERT(rxBuffer != NULL_PTR);
     FAS_ASSERT(length != 0u);
-    const STD_RETURN_TYPE_e spiReturnValue = SPI_TransmitReceiveData(&spi_MxmInterface, txBuffer, rxBuffer, length);
+    const STD_RETURN_TYPE_e spiReturnValue = SPI_TransmitReceiveData(&spi_mxmInterface, txBuffer, rxBuffer, length);
     /* this driver currently only handles one physical string, therefore reporting to string 0 */
     (void)DIAG_CheckEvent(spiReturnValue, DIAG_ID_AFE_SPI, DIAG_STRING, 0u);
     return spiReturnValue;

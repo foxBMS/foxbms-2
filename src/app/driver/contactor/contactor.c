@@ -43,8 +43,8 @@
  * @file    contactor.c
  * @author  foxBMS Team
  * @date    2020-02-11 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup DRIVERS
  * @prefix  CONT
  *
@@ -245,7 +245,7 @@ extern STD_RETURN_TYPE_e CONT_ClosePrecharge(uint8_t stringNumber) {
     FAS_ASSERT(stringNumber < BS_NR_OF_STRINGS);
     STD_RETURN_TYPE_e retVal         = STD_NOT_OK;
     uint8_t prechargeContactorNumber = 0u;
-    f_static_assert((BS_NR_OF_STRINGS <= (uint8_t)UINT8_MAX), "This code assumes BS_NR_OF_STRINGS fits into uint8_t");
+    FAS_STATIC_ASSERT((BS_NR_OF_STRINGS <= (uint8_t)UINT8_MAX), "This code assumes BS_NR_OF_STRINGS fits into uint8_t");
 
     /* Precharge contactors in the list stay after string contactors
      * so it has index (number of contactors)-1

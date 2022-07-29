@@ -43,8 +43,8 @@
  * @file    soc_counting.c
  * @author  foxBMS Team
  * @date    2020-10-07 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup APPLICATION
  * @prefix  SOC
  *
@@ -71,19 +71,20 @@ typedef struct {
     uint32_t previousTimestamp[BS_NR_OF_STRINGS]; /*!< timestamp buffer to check if current/CC data has been updated */
 } SOC_STATE_s;
 
-/** defines for maximum and minimum SOC */
-#define MAXIMUM_SOC_PERC (100.0f)
-#define MINIMUM_SOC_PERC (0.0f)
+/** Maximum SOC in percentage */
+#define SOC_MAXIMUM_SOC_perc (100.0f)
+/** Minimum SOC in percentage */
+#define SOC_MINIMUM_SOC_perc (0.0f)
 
 /*========== Static Constant and Variable Definitions =======================*/
 /** state variable for SOC module */
 static SOC_STATE_s soc_state = {
     .socInitialized    = false,
-    .sensorCcUsed      = {REPEAT_U(false, STRIP(BS_NR_OF_STRINGS))},
-    .ccScalingAverage  = {REPEAT_U(0.0f, STRIP(BS_NR_OF_STRINGS))},
-    .ccScalingMinimum  = {REPEAT_U(0.0f, STRIP(BS_NR_OF_STRINGS))},
-    .ccScalingMaximum  = {REPEAT_U(0.0f, STRIP(BS_NR_OF_STRINGS))},
-    .previousTimestamp = {REPEAT_U(0u, STRIP(BS_NR_OF_STRINGS))},
+    .sensorCcUsed      = {GEN_REPEAT_U(false, GEN_STRIP(BS_NR_OF_STRINGS))},
+    .ccScalingAverage  = {GEN_REPEAT_U(0.0f, GEN_STRIP(BS_NR_OF_STRINGS))},
+    .ccScalingMinimum  = {GEN_REPEAT_U(0.0f, GEN_STRIP(BS_NR_OF_STRINGS))},
+    .ccScalingMaximum  = {GEN_REPEAT_U(0.0f, GEN_STRIP(BS_NR_OF_STRINGS))},
+    .previousTimestamp = {GEN_REPEAT_U(0u, GEN_STRIP(BS_NR_OF_STRINGS))},
 };
 
 /** local copies of database tables */
@@ -156,9 +157,9 @@ static void SOC_RecalibrateViaLookupTable(DATA_BLOCK_SOX_s *pTableSoc) {
     for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
         SOC_SetValue(
             pTableSoc,
-            SOC_GetFromVoltage(tableMinMaxCellVoltages.minimumCellVoltage_mV[s]),
-            SOC_GetFromVoltage(tableMinMaxCellVoltages.maximumCellVoltage_mV[s]),
-            SOC_GetFromVoltage(tableMinMaxCellVoltages.averageCellVoltage_mV[s]),
+            SE_GetStateOfChargeFromVoltage(tableMinMaxCellVoltages.minimumCellVoltage_mV[s]),
+            SE_GetStateOfChargeFromVoltage(tableMinMaxCellVoltages.maximumCellVoltage_mV[s]),
+            SE_GetStateOfChargeFromVoltage(tableMinMaxCellVoltages.averageCellVoltage_mV[s]),
             s);
     }
     FRAM_WriteData(FRAM_BLOCK_ID_SOC);
@@ -204,23 +205,23 @@ static void SOC_CheckDatabaseSocPercentageLimits(DATA_BLOCK_SOX_s *pTableSoc, ui
     FAS_ASSERT(pTableSoc != NULL_PTR);
     FAS_ASSERT(stringNumber < BS_NR_OF_STRINGS);
 
-    if (pTableSoc->averageSoc_perc[stringNumber] > MAXIMUM_SOC_PERC) {
-        pTableSoc->averageSoc_perc[stringNumber] = MAXIMUM_SOC_PERC;
+    if (pTableSoc->averageSoc_perc[stringNumber] > SOC_MAXIMUM_SOC_perc) {
+        pTableSoc->averageSoc_perc[stringNumber] = SOC_MAXIMUM_SOC_perc;
     }
-    if (pTableSoc->averageSoc_perc[stringNumber] < MINIMUM_SOC_PERC) {
-        pTableSoc->averageSoc_perc[stringNumber] = MINIMUM_SOC_PERC;
+    if (pTableSoc->averageSoc_perc[stringNumber] < SOC_MINIMUM_SOC_perc) {
+        pTableSoc->averageSoc_perc[stringNumber] = SOC_MINIMUM_SOC_perc;
     }
-    if (pTableSoc->minimumSoc_perc[stringNumber] > MAXIMUM_SOC_PERC) {
-        pTableSoc->minimumSoc_perc[stringNumber] = MAXIMUM_SOC_PERC;
+    if (pTableSoc->minimumSoc_perc[stringNumber] > SOC_MAXIMUM_SOC_perc) {
+        pTableSoc->minimumSoc_perc[stringNumber] = SOC_MAXIMUM_SOC_perc;
     }
-    if (pTableSoc->minimumSoc_perc[stringNumber] < MINIMUM_SOC_PERC) {
-        pTableSoc->minimumSoc_perc[stringNumber] = MINIMUM_SOC_PERC;
+    if (pTableSoc->minimumSoc_perc[stringNumber] < SOC_MINIMUM_SOC_perc) {
+        pTableSoc->minimumSoc_perc[stringNumber] = SOC_MINIMUM_SOC_perc;
     }
-    if (pTableSoc->maximumSoc_perc[stringNumber] > MAXIMUM_SOC_PERC) {
-        pTableSoc->maximumSoc_perc[stringNumber] = MAXIMUM_SOC_PERC;
+    if (pTableSoc->maximumSoc_perc[stringNumber] > SOC_MAXIMUM_SOC_perc) {
+        pTableSoc->maximumSoc_perc[stringNumber] = SOC_MAXIMUM_SOC_perc;
     }
-    if (pTableSoc->maximumSoc_perc[stringNumber] < MINIMUM_SOC_PERC) {
-        pTableSoc->maximumSoc_perc[stringNumber] = MINIMUM_SOC_PERC;
+    if (pTableSoc->maximumSoc_perc[stringNumber] < SOC_MINIMUM_SOC_perc) {
+        pTableSoc->maximumSoc_perc[stringNumber] = SOC_MINIMUM_SOC_perc;
     }
 }
 
@@ -234,7 +235,7 @@ static void SOC_UpdateNvmValues(DATA_BLOCK_SOX_s *pTableSoc, uint8_t stringNumbe
 
 /*========== Extern Function Implementations ================================*/
 
-void SOC_Init(DATA_BLOCK_SOX_s *pSocValues, bool ccPresent, uint8_t stringNumber) {
+void SE_InitializeStateOfCharge(DATA_BLOCK_SOX_s *pSocValues, bool ccPresent, uint8_t stringNumber) {
     FAS_ASSERT(pSocValues != NULL_PTR);
     FAS_ASSERT(stringNumber < BS_NR_OF_STRINGS);
     DATA_READ_DATA(&soc_tableCurrentSensor);
@@ -258,7 +259,6 @@ void SOC_Init(DATA_BLOCK_SOX_s *pSocValues, bool ccPresent, uint8_t stringNumber
         soc_state.ccScalingAverage[stringNumber] = fram_soc.averageSoc_perc[stringNumber] + scalingOffset_perc;
         soc_state.ccScalingMinimum[stringNumber] = fram_soc.minimumSoc_perc[stringNumber] + scalingOffset_perc;
         soc_state.ccScalingMaximum[stringNumber] = fram_soc.maximumSoc_perc[stringNumber] + scalingOffset_perc;
-
     } else {
         soc_state.previousTimestamp[stringNumber] = soc_tableCurrentSensor.timestampCurrent[stringNumber];
         soc_state.sensorCcUsed[stringNumber]      = false;
@@ -277,7 +277,7 @@ void SOC_Init(DATA_BLOCK_SOX_s *pSocValues, bool ccPresent, uint8_t stringNumber
 }
 
 /* INCLUDE MARKER FOR THE DOCUMENTATION; DO NOT MOVE cc-documentation-start-include */
-void SOC_Calculation(DATA_BLOCK_SOX_s *pSocValues) {
+void SE_CalculateStateOfCharge(DATA_BLOCK_SOX_s *pSocValues) {
     /* INCLUDE MARKER FOR THE DOCUMENTATION; DO NOT MOVE cc-documentation-stop-include */
     FAS_ASSERT(pSocValues != NULL_PTR);
     bool continueFunction = true;
@@ -298,15 +298,15 @@ void SOC_Calculation(DATA_BLOCK_SOX_s *pSocValues) {
                 if (soc_state.sensorCcUsed[s] == false) {
                     /* check if current measurement has been updated */
                     if (soc_state.previousTimestamp[s] != soc_tableCurrentSensor.timestampCurrent[s]) {
-                        float timestep_s =
+                        float timeStep_s =
                             ((float)(soc_tableCurrentSensor.timestampCurrent[s] - soc_state.previousTimestamp[s])) /
                             1000.0f;
 
-                        if (timestep_s > 0.0f) {
+                        if (timeStep_s > 0.0f) {
                             /* Current in charge direction negative means SOC increasing --> BAT naming, not ROB */
 
                             float deltaSOC_perc =
-                                (((float)soc_tableCurrentSensor.current_mA[s] * timestep_s) / SOC_STRING_CAPACITY_mAs) *
+                                (((float)soc_tableCurrentSensor.current_mA[s] * timeStep_s) / SOC_STRING_CAPACITY_mAs) *
                                 100.0f / 1000.0f; /* ((mA) * 1s) / 1As) * 100% */
 
 #if POSITIVE_DISCHARGE_CURRENT == false
@@ -330,8 +330,7 @@ void SOC_Calculation(DATA_BLOCK_SOX_s *pSocValues) {
                     /* check if cc measurement has been updated */
                     if (soc_state.previousTimestamp[s] != soc_tableCurrentSensor.timestampCurrentCounting[s]) {
                         float deltaSoc_perc =
-                            (((float)soc_tableCurrentSensor.currentCounter_As[s] / SOC_STRING_CAPACITY_As) *
-                             100.0f));
+                            ((float)soc_tableCurrentSensor.currentCounter_As[s] / SOC_STRING_CAPACITY_As) * 100.0f;
 
 #if POSITIVE_DISCHARGE_CURRENT == false
                         deltaSoc_perc *= (-1.0f);
@@ -357,7 +356,7 @@ void SOC_Calculation(DATA_BLOCK_SOX_s *pSocValues) {
     }
 }
 
-float SOC_GetFromVoltage(int16_t voltage_mV) {
+extern float SE_GetStateOfChargeFromVoltage(int16_t voltage_mV) {
     float soc_perc = 0.50f;
 
     /* Variables for interpolating LUT value */
@@ -383,7 +382,7 @@ float SOC_GetFromVoltage(int16_t voltage_mV) {
             (float)voltage_mV);
     } else if ((between_low >= bc_stateOfChargeLookupTableLength)) {
         /* LUT SOE values are in descending order: cell voltage < minimum LUT voltage */
-        soc_perc = MINIMUM_SOC_PERC;
+        soc_perc = SOC_MINIMUM_SOC_perc;
     } else {
         /* cell voltage > maximum LUT voltage */
         soc_perc = 100.0f;

@@ -328,3 +328,19 @@ unsigned long _lo(long double);
 
 /* foxBMS 2 specific adapations                                              */
 unsigned _ftoi (float src);
+
+#ifdef __TI_ARM__
+/* TI Arm Clang Compiler Tools User Guide, Release v2.1.0.LTS
+   2.3. Migrating C and C++ Source Code: Conversions that Require More Attention */
+void _dmb(void);
+/* https://developer.arm.com/documentation/dui0491/i/Compiler-specific-Features/--clrex-intrinsic */
+void __clrex(void);
+/* https://developer.arm.com/documentation/dui0491/i/Compiler-specific-Features/--ldrex-intrinsic */
+unsigned int __ldrexw(volatile void*);
+/* TI Arm Clang Compiler Tools User Guide, Release v2.1.0.LTS
+   2.3. Migrating C and C++ Source Code: Non-ACLE Compiler Intrinsics */
+unsigned int _disable_interrupts(void);
+void _restore_interrupts(unsigned int);
+#pragma immutable_macro __atomic_compare_exchange
+#define __atomic_is_lock_free __atomic_is_lock_free_no_builtin
+#endif

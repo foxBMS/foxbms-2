@@ -43,8 +43,8 @@
  * @file    database.h
  * @author  foxBMS Team
  * @date    2015-08-18 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup ENGINE
  * @prefix  DATA
  *
@@ -77,7 +77,7 @@
 #define DATA_ENTRY_3 (3u)
 
 /** helper macro for the variadic macros for read and write functions */
-/* AXIVION Next Line Style Generic-NoUnsafeMacro: unsafe macro is needed for variadic macro magic */
+/* AXIVION Next Codeline Style Generic-NoUnsafeMacro: unsafe macro is needed for variadic macro magic */
 #define GET_MACRO(_1, _2, _3, _4, NAME, ...) (NAME)
 /** variadic macro for read access to the database */
 #define DATA_READ_DATA(...)   \

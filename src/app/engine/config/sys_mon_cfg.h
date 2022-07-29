@@ -43,8 +43,8 @@
  * @file    sys_mon_cfg.h
  * @author  foxBMS Team
  * @date    2019-11-28 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup ENGINE_CONFIGURATION
  * @prefix  SYSM
  *
@@ -62,8 +62,8 @@
 /*========== Macros and Definitions =========================================*/
 /** diagnosis handling type for system monitoring */
 typedef enum {
-    SYSM_HANDLING_DONOTHING,         /*!< take no action */
-    SYSM_HANDLING_SWITCHOFFCONTACTOR /*!< open contactors */
+    SYSM_HANDLING_DO_NOTHING,          /*!< take no action */
+    SYSM_HANDLING_SWITCH_OFF_CONTACTOR /*!< open contactors */
 } SYSM_HANDLING_TYPE_e;
 
 /**
@@ -93,13 +93,13 @@ typedef enum {
 
 /** Channel configuration of one system monitoring channel */
 typedef struct {
-    SYSM_TASK_ID_e id;                           /*!< the task id by its symbolic name */
-    SYSM_ACTIVATE_e enable;                      /*!< enable or disable system monitoring */
-    uint8_t cycleTime;                           /*!< max. delay time in ms until #SYSM_Notify has to be called */
-    uint8_t maxJitter;                           /*!< max. jitter in ms */
-    SYSM_RECORDING_e enableRecording;            /*!< enabled if set to DIAG_RECORDING_ENABLED */
-    SYSM_HANDLING_TYPE_e handlingType;           /*!< type of handling of system monitoring errors */
-    void (*callbackfunc)(SYSM_TASK_ID_e taskID); /*!< callback in case of error */
+    SYSM_TASK_ID_e id;                               /*!< the task id by its symbolic name */
+    SYSM_ACTIVATE_e enable;                          /*!< enable or disable system monitoring */
+    uint8_t cycleTime;                               /*!< max. delay time in ms until #SYSM_Notify has to be called */
+    uint8_t maxJitter;                               /*!< max. jitter in ms */
+    SYSM_RECORDING_e enableRecording;                /*!< enabled if set to DIAG_RECORDING_ENABLED */
+    SYSM_HANDLING_TYPE_e handlingType;               /*!< type of handling of system monitoring errors */
+    void (*callbackFunction)(SYSM_TASK_ID_e taskId); /*!< callback in case of error */
 } SYSM_MONITORING_CFG_s;
 
 /*========== Extern Constant and Variable Declarations ======================*/

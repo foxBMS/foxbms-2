@@ -43,8 +43,8 @@
  * @file    test_soh_debug.c
  * @author  foxBMS Team
  * @date    2020-10-14 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -72,8 +72,8 @@ void tearDown(void) {
 /** test invalid input values */
 void testInvalidInput(void) {
     DATA_BLOCK_SOX_s table_test = {.header.uniqueId = DATA_BLOCK_ID_SOX};
-    TEST_ASSERT_FAIL_ASSERT(SOH_Init(NULL_PTR, BS_NR_OF_STRINGS - 1u));
-    TEST_ASSERT_FAIL_ASSERT(SOH_Init(&table_test, BS_NR_OF_STRINGS));
+    TEST_ASSERT_FAIL_ASSERT(SE_InitializeStateOfHealth(NULL_PTR, BS_NR_OF_STRINGS - 1u));
+    TEST_ASSERT_FAIL_ASSERT(SE_InitializeStateOfHealth(&table_test, BS_NR_OF_STRINGS));
 
-    TEST_ASSERT_FAIL_ASSERT(SOH_Calculation(NULL_PTR));
+    TEST_ASSERT_FAIL_ASSERT(SE_CalculateStateOfHealth(NULL_PTR));
 }

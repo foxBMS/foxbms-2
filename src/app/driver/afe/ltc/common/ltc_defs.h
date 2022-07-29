@@ -43,8 +43,8 @@
  * @file    ltc_defs.h
  * @author  foxBMS Team
  * @date    2015-09-01 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup DRIVERS
  * @prefix  LTC
  *
@@ -261,16 +261,16 @@ typedef enum {
 
 /** Substates for digital filter check */
 typedef enum {
-    LTC_REQUEST_CLEAR_CELLVOLTAGES,
+    LTC_REQUEST_CLEAR_CELL_VOLTAGES,
     LTC_REQUEST_CLEAR_AUX_REGISTER,
     LTC_REQUEST_CLEAR_STATUS_REGISTER,
-    LTC_REQUEST_DIGITAL_FILTER_CHECK_CELLVOLTAGES,
-    LTC_DIGITAL_FILTER_SELF_TEST_1_CELLVOLTAGES,
+    LTC_REQUEST_DIGITAL_FILTER_CHECK_CELL_VOLTAGES,
+    LTC_DIGITAL_FILTER_SELF_TEST_1_CELL_VOLTAGES,
     LTC_DIGITAL_FILTER_SELF_TEST_1_AUX,
     LTC_DIGITAL_FILTER_READ_STATUS_REGISTER_A,
     LTC_DIGITAL_FILTER_READ_STATUS_REGISTER_B,
     LTC_DIGITAL_FILTER_SELF_TEST_1_STATUS,
-    LTC_DIGITAL_FILTER_SELF_TEST_2_CELLVOLTAGES,
+    LTC_DIGITAL_FILTER_SELF_TEST_2_CELL_VOLTAGES,
     LTC_DIGITAL_FILTER_SELF_TEST_2_AUX,
     LTC_DIGITAL_FILTER_READ_STATUS_REGISTER_A_2,
     LTC_DIGITAL_FILTER_READ_STATUS_REGISTER_B_2,
@@ -446,11 +446,9 @@ typedef struct {
     uint16_t *usedCellIndex;
     LTC_OPENWIRE_DETECTION_s *openWireDetection;
     LTC_ERRORTABLE_s *errorTable;
-
     DATA_BLOCK_USER_MUX_s *user_mux;
     uint16_t *GPIOVoltages;   /* LTC2_NUMBER_OF_GPIOS * NR_OF_LTCs */
     uint16_t *valid_GPIOPECs; /* NR_OF_LTCs */
-
 } LTC_DATAPTR_s;
 
 /** This struct contains error counter and pointer to used error buffers */
@@ -585,7 +583,6 @@ typedef struct {
     uint8_t muxmeas_nr_end
         [BS_NR_OF_STRINGS]; /*!< number of multiplexer channels that have to be measured; end number of sequence, where measurement is finished*/
     uint8_t configuration[6]; /*!< holds the configuration of the ltc (configuration register) */
-
 } LTC_STATE_s;
 
 /*========== Extern Function Prototypes =====================================*/

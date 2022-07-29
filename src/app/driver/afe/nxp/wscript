@@ -40,42 +40,7 @@
 
 """TODO"""
 
-import os
-
 
 def build(bld):
-    """builds the AFE driver library for N775"""
-    source = [
-        os.path.join(bld.env.afe_chip, "api", "nxp_afe.c"),
-        os.path.join(bld.env.afe_chip, "nxp_afe_dma.c"),
-        os.path.join(bld.env.afe_chip, "config", "nxp_afe_dma_cfg.c"),
-        os.path.join(bld.env.afe_chip, "n775.c"),
-        os.path.join(bld.env.afe_chip, "config", "n775_cfg.c"),
-    ]
-    includes = [
-        bld.env.afe_chip,
-        os.path.join(bld.env.afe_chip, "..", "..", "api"),
-        os.path.join(bld.env.afe_chip, "config"),
-        os.path.join("..", "..", "config"),
-        os.path.join("..", "..", "dma"),
-        os.path.join("..", "..", "foxmath"),
-        os.path.join("..", "..", "io"),
-        os.path.join("..", "..", "spi"),
-        os.path.join("..", "..", "ts"),
-        os.path.join("..", "..", "mcu"),
-        os.path.join("..", "..", "..", "application", "config"),
-        os.path.join("..", "..", "..", "engine", "config"),
-        os.path.join("..", "..", "..", "engine", "database"),
-        os.path.join("..", "..", "..", "engine", "diag"),
-        os.path.join("..", "..", "..", "main", "include"),
-        os.path.join("..", "..", "..", "task", "os"),
-    ]
-    includes.extend(bld.env.INCLUDES_OPERATING_SYSTEM)
-    cflags = bld.env.CFLAGS_FOXBMS
-    target = f"{bld.env.APPNAME.lower()}-afe-driver"
-    bld.stlib(
-        source=source,
-        includes=includes,
-        cflags=cflags,
-        target=target,
-    )
+    """selects the driver library to be build"""
+    bld.recurse(bld.env.afe_ic)

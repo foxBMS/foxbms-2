@@ -43,8 +43,8 @@
  * @file    diag_cbs_sys-mon.c
  * @author  foxBMS Team
  * @date    2021-02-17 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup ENGINE
  * @prefix  DIAG
  *
@@ -74,40 +74,36 @@ static bool DIAG_EventToBool(DIAG_EVENT_e event);
 /*========== Static Function Implementations ================================*/
 static bool DIAG_EventToBool(DIAG_EVENT_e event) {
     FAS_ASSERT((event == DIAG_EVENT_OK) || (event == DIAG_EVENT_NOT_OK) || (event == DIAG_EVENT_RESET));
-
     bool returnValue = false;
     if (event == DIAG_EVENT_NOT_OK) {
-        /* event is not ok, set output to true */
-        returnValue = true;
+        returnValue = true; /* event is not ok, set output to true */
     }
-
     return returnValue;
 }
 
 /*========== Extern Function Implementations ================================*/
 extern void DIAG_ErrorSystemMonitoring(
-    DIAG_ID_e ch_id,
+    DIAG_ID_e diagId,
     DIAG_EVENT_e event,
     const DIAG_DATABASE_SHIM_s *const kpkDiagShim,
     uint32_t data) {
-    FAS_ASSERT(ch_id < DIAG_ID_MAX);
+    FAS_ASSERT(diagId == DIAG_ID_SYSTEM_MONITORING);
     FAS_ASSERT((event == DIAG_EVENT_OK) || (event == DIAG_EVENT_NOT_OK) || (event == DIAG_EVENT_RESET));
     FAS_ASSERT(kpkDiagShim != NULL_PTR);
+    FAS_ASSERT(data < (uint32_t)SYSM_TASK_ID_MAX);
 
-    if (ch_id == DIAG_ID_SYSTEMMONITORING) {
-        if ((SYSM_TASK_ID_e)data == SYSM_TASK_ID_ENGINE) {
-            kpkDiagShim->pTableError->timingViolationEngine = DIAG_EventToBool(event);
-        } else if ((SYSM_TASK_ID_e)data == SYSM_TASK_ID_CYCLIC_1ms) {
-            kpkDiagShim->pTableError->timingViolation1ms = DIAG_EventToBool(event);
-        } else if ((SYSM_TASK_ID_e)data == SYSM_TASK_ID_CYCLIC_10ms) {
-            kpkDiagShim->pTableError->timingViolation10ms = DIAG_EventToBool(event);
-        } else if ((SYSM_TASK_ID_e)data == SYSM_TASK_ID_CYCLIC_100ms) {
-            kpkDiagShim->pTableError->timingViolation100ms = DIAG_EventToBool(event);
-        } else if ((SYSM_TASK_ID_e)data == SYSM_TASK_ID_CYCLIC_ALGORITHM_100ms) {
-            kpkDiagShim->pTableError->timingViolation100msAlgo = DIAG_EventToBool(event);
-        } else {
-            FAS_ASSERT(FAS_TRAP);
-        }
+    if (data == (uint32_t)SYSM_TASK_ID_ENGINE) {
+        kpkDiagShim->pTableError->timingViolationEngine = DIAG_EventToBool(event);
+    } else if (data == (uint32_t)SYSM_TASK_ID_CYCLIC_1ms) {
+        kpkDiagShim->pTableError->timingViolation1ms = DIAG_EventToBool(event);
+    } else if (data == (uint32_t)SYSM_TASK_ID_CYCLIC_10ms) {
+        kpkDiagShim->pTableError->timingViolation10ms = DIAG_EventToBool(event);
+    } else if (data == (uint32_t)SYSM_TASK_ID_CYCLIC_100ms) {
+        kpkDiagShim->pTableError->timingViolation100ms = DIAG_EventToBool(event);
+    } else if (data == (uint32_t)SYSM_TASK_ID_CYCLIC_ALGORITHM_100ms) {
+        kpkDiagShim->pTableError->timingViolation100msAlgo = DIAG_EventToBool(event);
+    } else {
+        FAS_ASSERT(FAS_TRAP);
     }
 }
 

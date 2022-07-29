@@ -43,8 +43,8 @@
  * @file    sys.c
  * @author  foxBMS Team
  * @date    2020-02-24 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup ENGINE
  * @prefix  SYS
  *
@@ -66,7 +66,7 @@
 #include "meas.h"
 #include "os.h"
 #include "sbc.h"
-#include "sof.h"
+#include "sof_trapezoid.h"
 #include "state_estimation.h"
 
 /*========== Macros and Definitions =========================================*/
@@ -656,9 +656,9 @@ static SYS_RETURN_TYPE_e SYS_CheckStateRequest(SYS_STATE_REQUEST_e stateRequest)
 /*========== Extern Function Implementations ================================*/
 
 extern void SYS_GeneralMacroBist(void) {
-    const uint8_t dummy[REPEAT_MAXIMUM_REPETITIONS] = {
-        REPEAT_U(SYS_BIST_GENERAL_MAGIC_NUMBER, STRIP(REPEAT_MAXIMUM_REPETITIONS))};
-    for (uint8_t i = 0u; i < REPEAT_MAXIMUM_REPETITIONS; i++) {
+    const uint8_t dummy[GEN_REPEAT_MAXIMUM_REPETITIONS] = {
+        GEN_REPEAT_U(SYS_BIST_GENERAL_MAGIC_NUMBER, GEN_STRIP(GEN_REPEAT_MAXIMUM_REPETITIONS))};
+    for (uint8_t i = 0u; i < GEN_REPEAT_MAXIMUM_REPETITIONS; i++) {
         FAS_ASSERT(dummy[i] == SYS_BIST_GENERAL_MAGIC_NUMBER);
     }
 }

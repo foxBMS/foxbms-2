@@ -43,8 +43,8 @@
  * @file    state-machine.h
  * @author  foxBMS Team
  * @date    2020-10-29 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup STATE_MACHINE
  * @prefix  EG
  *

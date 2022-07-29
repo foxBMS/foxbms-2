@@ -43,8 +43,8 @@
  * @file    fstartup.h
  * @author  foxBMS Team
  * @date    2022-05-18 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup GENERAL
  * @prefix  STU
  *
@@ -61,23 +61,22 @@
 /*========== Extern Constant and Variable Declarations ======================*/
 
 /*========== Extern Function Prototypes =====================================*/
+
+/* AXIVION Next Codeline Style MisraC2012-21.2: Library function with no header
+    see SPNU151V-January1998-RevisedFebruary2020: 6.10 System Initialization */
 /**
  * @brief   initialize global variable and constructors
- * @details TI library function */
+ * @details TI library function
+ */
 extern void __TI_auto_init(void);
 
-/**
- * @brief   exit application
- * @details C standard exit function
- * @param   _status the return code to exit with
- * */
-extern void exit(int _status);
-
+/* AXIVION Next Codeline Style MisraC2012-21.2: Library function with no header
+    see SPNU151V-January1998-RevisedFebruary2020: 6.10 System Initialization */
 /**
  * @brief   Startup Routine
  * @details The name of the startup routine is defined in the TI ARM CGT
  *          manual.
-*/
+ */
 extern void _c_int00(void);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/

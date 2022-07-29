@@ -43,8 +43,8 @@
  * @file    ltc_6813-1_cfg.h
  * @author  foxBMS Team
  * @date    2015-02-18 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  LTC
  *
@@ -163,7 +163,7 @@
 #define LTC_TIDLE_US (6700)
 
 /** LTC SPI wakeup time */
-#define LTC_SPI_WAKEUP_WAIT_TIME_US (30U)
+#define LTC_SPI_WAKEUP_WAIT_TIME_US (30u)
 
 /** LTC statemachine short time definition in ms */
 #define LTC_STATEMACH_SHORTTIME (1)
@@ -299,14 +299,14 @@
  * Transmit functions
  * @{
  */
-#define LTC_TransmitWakeUp(spi_ltcInterface) SPI_TransmitDummyByte(spi_ltcInterface, LTC_SPI_WAKEUP_WAIT_TIME_US)
-#define LTC_TransmitI2cCommand(spi_ltcInterface, txbuf)                   \
+#define LTC_TRANSMIT_WAKE_UP(spi_ltcInterface) SPI_TransmitDummyByte(spi_ltcInterface, LTC_SPI_WAKEUP_WAIT_TIME_US)
+#define LTC_TRANSMIT_I2C_COMMAND(spi_ltcInterface, txbuf)                 \
     SPI_TransmitDummyByte(spi_ltcInterface, LTC_SPI_WAKEUP_WAIT_TIME_US); \
     SPI_TransmitData(spi_ltcInterface, txbuf, 4 + 9)
-#define LTC_TransmitCommand(spi_ltcInterface, command)                    \
+#define LTC_TRANSMIT_COMMAND(spi_ltcInterface, command)                   \
     SPI_TransmitDummyByte(spi_ltcInterface, LTC_SPI_WAKEUP_WAIT_TIME_US); \
     SPI_TransmitData(spi_ltcInterface, command, 4)
-#define LTC_TransmitReceiveData(spi_ltcInterface, txbuf, rxbuf, length)   \
+#define LTC_TRANSMIT_RECEIVE_DATA(spi_ltcInterface, txbuf, rxbuf, length) \
     SPI_TransmitDummyByte(spi_ltcInterface, LTC_SPI_WAKEUP_WAIT_TIME_US); \
     SPI_TransmitReceiveDataDma(spi_ltcInterface, txbuf, rxbuf, length)
 /**@}*/

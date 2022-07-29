@@ -38,7 +38,7 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-r"""Implements a waf tool to run `pylint <https://pylint.org/>`_.
+r"""Implements a waf tool to run `pylint <https://pylint.pycqa.org>`_.
 
 :numref:`f-pylint-usage` shows how to use this tool.
 

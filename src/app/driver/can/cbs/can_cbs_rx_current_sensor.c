@@ -43,8 +43,8 @@
  * @file    can_cbs_rx_current_sensor.c
  * @author  foxBMS Team
  * @date    2021-04-20 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup DRIVER
  * @prefix  CAN
  *
@@ -58,14 +58,14 @@
 
 /*========== Macros and Definitions =========================================*/
 
-/* Overcurrent flag */
-#define CAN_currentSensorDiagOcs (0x1u)
-/* Actual measurement error flag */
-#define CAN_currentSensorDiagActualMeasurementError (0x2u)
-/* Any measurement error flag */
-#define CAN_currentSensorDiagAnyMeasurementError (0x4u)
-/* System error flag */
-#define CAN_currentSensorDiagSystemError (0x8u)
+/** Overcurrent flag */
+#define CAN_CURRENT_SENSOR_DIAGNOSIS_OVERCURRENT (0x1u)
+/** Actual measurement error flag */
+#define CAN_CURRENT_SENSOR_DIAGNOSIS_ACTUAL_MEASUREMENT_ERROR (0x2u)
+/** Any measurement error flag */
+#define CAN_CURRENT_SENSOR_DIAGNOSIS_ANY_MEASUREMENT_ERROR (0x4u)
+/** System error flag */
+#define CAN_CURRENT_SENSOR_DIAGNOSIS_SYSTEM_ERROR (0x8u)
 
 /*========== Static Constant and Variable Definitions =======================*/
 
@@ -120,10 +120,10 @@ extern uint32_t CAN_RxCurrentSensor(
     diagInfo = canSignal & 0xF0u;
     diagInfo >>= 4u;
 
-    if ((diagInfo & CAN_currentSensorDiagOcs) != 0u) {
+    if ((diagInfo & CAN_CURRENT_SENSOR_DIAGNOSIS_OVERCURRENT) != 0u) {
         /* Overcurrent detected. This feature is currently not supported. */
     }
-    if ((diagInfo & CAN_currentSensorDiagActualMeasurementError) != 0u) {
+    if ((diagInfo & CAN_CURRENT_SENSOR_DIAGNOSIS_ACTUAL_MEASUREMENT_ERROR) != 0u) {
         switch (id) {
             case CAN_ID_STRING0_CURRENT: /* Current status */
             case CAN_ID_STRING1_CURRENT:
@@ -180,8 +180,8 @@ extern uint32_t CAN_RxCurrentSensor(
         kpkCanShim->pTableCurrentSensor->invalidEnergyCountingMeasurement[stringNumber]    = 0;
     }
 
-    if (((diagInfo & CAN_currentSensorDiagAnyMeasurementError) != 0u) ||
-        ((diagInfo & CAN_currentSensorDiagSystemError) != 0u)) {
+    if (((diagInfo & CAN_CURRENT_SENSOR_DIAGNOSIS_ANY_MEASUREMENT_ERROR) != 0u) ||
+        ((diagInfo & CAN_CURRENT_SENSOR_DIAGNOSIS_SYSTEM_ERROR) != 0u)) {
         kpkCanShim->pTableCurrentSensor->invalidCurrentMeasurement[stringNumber]           = 1;
         kpkCanShim->pTableCurrentSensor->invalidHighVoltageMeasurement[stringNumber][0]    = 1;
         kpkCanShim->pTableCurrentSensor->invalidHighVoltageMeasurement[stringNumber][1]    = 1;

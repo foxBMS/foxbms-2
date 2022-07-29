@@ -88,7 +88,7 @@ each specific cell only if its cell voltage is above the minimum cell voltage of
 threshold is set in this case to ``BAL_GetBalancingThreshold_mV()`` + ``BAL_HYSTERESIS_mV``.
 
 The correspondence between cell voltage and SOC must be defined by the user depending on the specific battery cells
-used. Currently, it is done in the function ``SOC_GetFromVoltage()`` in ``sox.c``. This function gets a voltage in V
+used. Currently, it is done in the function ``SE_GetStateOfChargeFromVoltage()`` in ``sox.c``. This function gets a voltage in V
 and return an SOC between 0.0 and 1.0.
 
 .. _BALANCING_MODULE_NO_BALANCING:

@@ -43,8 +43,8 @@
  * @file    foxmath.c
  * @author  foxBMS Team
  * @date    2018-01-18 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup DRIVERS
  * @prefix  MATH
  *
@@ -75,7 +75,8 @@
 
 /*========== Extern Function Implementations ================================*/
 
-/* AXIVION Disable Style Generic-MissingParameterAssert: If not specified otherwise, functions in this lib are designed to take full range input. No assert needed. */
+/* AXIVION Disable Style Generic-MissingParameterAssert: If not specified otherwise, functions in this lib are
+   designed to take full range input. No assert needed. */
 
 extern void MATH_StartupSelfTest(void) {
     FAS_ASSERT(MATH_AbsInt64_t(INT64_MIN) == INT64_MAX);

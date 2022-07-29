@@ -69,3 +69,9 @@ Software Modules
 
     ./main/startup.rst
     ./main/version.rst
+
+.. toctree::
+    :maxdepth: 2
+    :caption: Miscellaneous
+
+    ./main/fassert.rst

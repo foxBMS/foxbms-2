@@ -17,3 +17,5 @@
 .. |kW| replace:: kW
 .. |Wh| replace:: Wh
 .. |kWh| replace:: kWh
+
+.. |nF| replace:: nF

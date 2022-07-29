@@ -57,7 +57,7 @@ later steps of this manual.
 
    If your user name contains whitespace (e.g., ``vulpes vulpes``, you **MUST**
    clone or download the repository to another path, that does not contain
-   whitespace, e.g., ``C:\foxbms-2``.
+   whitespace, e.g., ``C:\foxbms-2``).
 
 .. code-block:: console
    :caption: Cloning the |foxbms| repository
@@ -70,9 +70,9 @@ later steps of this manual.
    :caption: Downloading a release
    :name: download-foxbms-2
 
-   C:\Users\vulpes\Documents>curl -Ss -L -o foxbms-2-v1.3.0.zip https://github.com/foxBMS/foxbms-2/archive/v1.3.0.zip
-   C:\Users\vulpes\Documents>tar -x -f foxbms-2-v1.3.0.zip
-   C:\Users\vulpes\Documents>ren foxbms-2-1.3.0 foxbms-2
+   C:\Users\vulpes\Documents>curl -Ss -L -o foxbms-2-v1.4.0.zip https://github.com/foxBMS/foxbms-2/archive/v1.4.0.zip
+   C:\Users\vulpes\Documents>tar -x -f foxbms-2-v1.4.0.zip
+   C:\Users\vulpes\Documents>ren foxbms-2-1.4.0 foxbms-2
    C:\Users\vulpes\Documents>cd foxbms-2
 
 .. note::

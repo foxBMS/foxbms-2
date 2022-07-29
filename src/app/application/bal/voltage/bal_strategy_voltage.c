@@ -43,8 +43,8 @@
  * @file    bal_strategy_voltage.c
  * @author  foxBMS Team
  * @date    2020-05-29 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup APPLICATION
  * @prefix  BAL
  *
@@ -121,15 +121,15 @@ static bool BAL_ActivateBalancing(void) {
     bool finished               = true;
     DATA_BLOCK_MIN_MAX_s minMax = {.header.uniqueId = DATA_BLOCK_ID_MIN_MAX};
     /* Database entry is declared static, to place it in the data segment and not on the stack */
-    static DATA_BLOCK_CELL_VOLTAGE_s cellvoltage = {.header.uniqueId = DATA_BLOCK_ID_CELL_VOLTAGE};
+    static DATA_BLOCK_CELL_VOLTAGE_s cellVoltage = {.header.uniqueId = DATA_BLOCK_ID_CELL_VOLTAGE};
 
-    DATA_READ_DATA(&cellvoltage, &minMax);
+    DATA_READ_DATA(&cellVoltage, &minMax);
 
     for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
         int16_t min              = minMax.minimumCellVoltage_mV[s];
         uint16_t nrBalancedCells = 0u;
         for (uint8_t c = 0u; c < BS_NR_OF_CELL_BLOCKS_PER_STRING; c++) {
-            if (cellvoltage.cellVoltage_mV[s][c] > (min + bal_state.balancingThreshold)) {
+            if (cellVoltage.cellVoltage_mV[s][c] > (min + bal_state.balancingThreshold)) {
                 bal_balancing.balancingState[s][c] = 1;
                 finished                           = false;
                 /* set without hysteresis so that we now balance all cells that are below the initial threshold */

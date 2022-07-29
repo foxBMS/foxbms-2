@@ -43,8 +43,8 @@
  * @file    imd.c
  * @author  foxBMS Team
  * @date    2021-11-04 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup DRIVERS
  * @prefix  IMD
  *
@@ -66,7 +66,7 @@
 /*========== Macros and Definitions =========================================*/
 
 /**
- * statemachine short time definition in #IMD_Trigger calls until next state is
+ * state machine short time definition in #IMD_Trigger calls until next state is
  * processed
  */
 #define IMD_FSM_SHORT_TIME (1u)
@@ -115,6 +115,7 @@ typedef struct {
 static DATA_BLOCK_INSULATION_MONITORING_s imd_tableInsulationMonitoring = {
     .header.uniqueId = DATA_BLOCK_ID_INSULATION_MONITORING};
 
+/** global IMD state */
 static IMD_STATE_s imd_state = {
     .timer                                 = 0u,
     .triggerEntry                          = 0u,
@@ -150,7 +151,7 @@ static IMD_RETURN_TYPE_e IMD_SetStateRequest(IMD_STATE_s *pImdState, IMD_STATE_R
 /**
  * @brief       checks the state requests that are made.
  * @details     This function checks the validity of the state requests. The
- *              results of the checked staterequest is returned immediately.
+ *              results of the checked state request is returned immediately.
  * @param[in]     stateRequest  state request to be checked
  * @param[in,out] pImdState pointer to state variable of IMD state machine
  * @return      result of the state request that was made

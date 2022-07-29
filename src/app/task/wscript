@@ -49,7 +49,7 @@ import os
 
 def build(bld):
     """builds the task library"""
-    os_name = bld.env.OPERATING_SYSTEM_NAME[0]
+    os_name = bld.env.RTOS_NAME[0]
     source = [
         os.path.join("config", "ftask_cfg.c"),
         os.path.join("ftask", "ftask.c"),
@@ -104,7 +104,7 @@ def build(bld):
         os.path.join("..", "engine", "sys"),
         os.path.join("..", "main", "include"),
     ]
-    includes.extend(bld.env.INCLUDES_OPERATING_SYSTEM + bld.env.INCLUDES_AFE)
+    includes.extend(bld.env.INCLUDES_RTOS + bld.env.INCLUDES_AFE)
     cflags = bld.env.CFLAGS_FOXBMS
     target = f"{bld.env.APPNAME.lower()}-task"
 
@@ -120,16 +120,18 @@ def build(bld):
         config_source = bld.path.find_or_declare(f"{os_name.lower()}-config-test.c")
         config_source.parent.mkdir()
         config_source.write(c_fragment, encoding="utf-8")
-        config_includes = bld.env.INCLUDES_OPERATING_SYSTEM + [
+        config_includes = bld.env.INCLUDES_RTOS + [
             "os",
             os.path.join("..", "driver", "mcu"),
             os.path.join("..", "main", "include"),
             os.path.join("config"),
             os.path.join("os", "freertos"),
         ]
+        # this file is only built once, therefore we force id=1 on this build
         bld.objects(
             source=[config_source],
             includes=config_includes,
             cflags=cflags,
             target=f"{os_name.lower()}-config-test",
+            idx=1,
         )

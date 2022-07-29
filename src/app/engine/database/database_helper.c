@@ -43,8 +43,8 @@
  * @file    database_helper.c
  * @author  foxBMS Team
  * @date    2021-05-05 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup ENGINE
  * @prefix  DATA
  *
@@ -86,7 +86,7 @@ extern bool DATA_EntryUpdatedWithinInterval(DATA_BLOCK_HEADER_s dataBlockHeader,
     bool retval               = false;
     uint32_t currentTimestamp = OS_GetTickCount();
 
-    /* Unsigned integer arithmetic also works correctly if currentTimestap is
+    /* Unsigned integer arithmetic also works correctly if currentTimestamp is
        larger than pHeader->timestamp (timer overflow), thus no need to use abs() */
     const uint32_t timeDifferenceLastCall = currentTimestamp - dataBlockHeader.timestamp;
     const bool updatedAtLeastOnce         = DATA_DatabaseEntryUpdatedAtLeastOnce(dataBlockHeader);
@@ -102,7 +102,7 @@ extern bool DATA_EntryUpdatedPeriodicallyWithinInterval(DATA_BLOCK_HEADER_s data
     bool retval                     = false;
     const uint32_t currentTimestamp = OS_GetTickCount();
 
-    /* Unsigned integer arithmetic also works correctly if currentTimestap is
+    /* Unsigned integer arithmetic also works correctly if currentTimestamp is
        smaller than dataBlockHeader.timestamp (timer overflow), thus no need to use abs() */
     const uint32_t timeDifferenceLastCall     = currentTimestamp - dataBlockHeader.timestamp;
     const uint32_t timeDifferenceBetweenCalls = dataBlockHeader.timestamp - dataBlockHeader.previousTimestamp;

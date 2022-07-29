@@ -2,9 +2,8 @@
     "slave-unit": {
         "analog-front-end": {
             "manufacturer": "ltc",
-            "chip": "6813-1"
+            "ic": "6813-1"
         },
-        "balancing-strategy": "none",
         "temperature-sensor": {
             "manufacturer": "epcos",
             "model": "b57251v5103j060",
@@ -16,15 +15,17 @@
             "state-estimation": {
                 "soc": "counting",
                 "soe": "counting",
+                "sof": "trapezoid",
                 "soh": "none"
             }
         },
+        "balancing-strategy": "none",
         "insulation-monitoring-device": {
             "manufacturer": "bender",
             "model": "iso165c"
         }
     },
-    "operating-system": {
+    "rtos": {
         "name": "freertos"
     }
 }

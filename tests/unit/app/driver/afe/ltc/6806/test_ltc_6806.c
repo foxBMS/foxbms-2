@@ -43,8 +43,8 @@
  * @file    test_ltc_6806.c
  * @author  foxBMS Team
  * @date    2020-07-13 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -76,7 +76,7 @@ TEST_FILE("ltc_6806.c")
 /*========== Definitions and Implementations for Unit Test ==================*/
 
 /** SPI data configuration struct for LTC communication */
-static const spiDAT1_t spi_kLtcDataConfig[BS_NR_OF_STRINGS] = {
+static spiDAT1_t spi_kLtcDataConfig[BS_NR_OF_STRINGS] = {
     {
         /* struct is implemented in the TI HAL and uses uppercase true and false */
         .CS_HOLD = TRUE,                              /* If true, HW chip select kept active between words */

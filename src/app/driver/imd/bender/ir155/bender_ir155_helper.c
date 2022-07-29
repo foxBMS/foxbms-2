@@ -43,8 +43,8 @@
  * @file    bender_ir155_helper.c
  * @author  foxBMS Team
  * @date    2021-09-17 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup DRIVERS
  * @prefix  IR155
  *
@@ -244,7 +244,7 @@ IR155_MEASUREMENT_s IR155_GetMeasurementValues(void) {
     measurementResult.digitalStatusPin = IR155_GET_DIGITAL_STATUS_PIN_STATE();
 
     /* get duty-cycle and frequency from PWM input measurement */
-    measurementResult.pwmSignal = ECAP_GetPwmData();
+    measurementResult.pwmSignal = PWM_GetPwmData();
 
     /* TODO: How-to check valid data? */
     bool isPwmMeasurementValid = true;

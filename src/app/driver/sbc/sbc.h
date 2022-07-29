@@ -43,8 +43,8 @@
  * @file    sbc.h
  * @author  foxBMS Team
  * @date    2020-07-14 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup DRIVERS
  * @prefix  SBC
  *
@@ -73,7 +73,7 @@
  *
  * This sets the minimum time between two subsequent executed states/substates.
  *
- * Define is only used for compile-time assertion, it has no programatic
+ * Define is only used for compile-time assertion, it has no programmatic
  * influence on the actual code.
  */
 #define SBC_STATEMACHINE_TASK_CYCLE_CONTEXT_MS (10u)
@@ -83,19 +83,19 @@
 #endif
 
 /**
- * SBC statemachine short time definition in #SBC_Trigger() calls until next
+ * SBC state machine short time definition in #SBC_Trigger() calls until next
  * state/substate is processed
  */
 #define SBC_STATEMACHINE_SHORTTIME (1u)
 
 /**
- * SBC statemachine medium time definition in #SBC_Trigger() calls until next
+ * SBC state machine medium time definition in #SBC_Trigger() calls until next
  * state/substate is processed
  */
 #define SBC_STATEMACHINE_MEDIUMTIME (5u)
 
 /**
- * SBC statemachine long time definition in #SBC_Trigger() calls until next
+ * SBC state machine long time definition in #SBC_Trigger() calls until next
  * state/substate is processed
  */
 #define SBC_STATEMACHINE_LONGTIME (10u)
@@ -105,7 +105,7 @@
  */
 #define SBC_WINDOW_WATCHDOG_PERIOD_MS (100u)
 
-/** State requests for the SYS statemachine */
+/** State requests for the SYS state machine */
 typedef enum {
     SBC_STATE_INIT_REQUEST,  /*!< request to begin SBC initialization */
     SBC_STATE_ERROR_REQUEST, /*!< request to switch SBC into error state */
@@ -118,7 +118,7 @@ typedef enum {
     SBC_PERIODIC_WATCHDOG_DEACTIVATED,
 } SBC_PERIODIC_WATCHDOG_STATE_e;
 
-/** Possible return values when state requests are made to the SYS statemachine */
+/** Possible return values when state requests are made to the SYS state machine */
 typedef enum {
     SBC_OK,                  /*!< sys --> ok                             */
     SBC_BUSY_OK,             /*!< sys busy --> ok                        */
@@ -131,7 +131,7 @@ typedef enum {
 /** States of the SBC state machine */
 typedef enum {
     /* Init-Sequence */
-    SBC_STATEMACHINE_UNINITIALIZED,  /*!< statemachien start value */
+    SBC_STATEMACHINE_UNINITIALIZED,  /*!< state machine start value */
     SBC_STATEMACHINE_INITIALIZATION, /*!< SBC startup initialization process */
     SBC_STATEMACHINE_RUNNING,        /*!< error detected communicating with SBC */
     SBC_STATEMACHINE_ERROR,          /*!< default initialization value */
@@ -209,5 +209,8 @@ extern SBC_STATEMACHINE_e SBC_GetState(SBC_STATE_s *pInstance);
 extern void SBC_Trigger(SBC_STATE_s *pInstance);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
+#ifdef UNITY_UNIT_TEST
+extern bool TEST_SBC_TriggerWatchdogIfRequired(SBC_STATE_s *pInstance);
+#endif
 
 #endif /* FOXBMS__SBC_H_ */

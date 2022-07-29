@@ -43,8 +43,8 @@
  * @file    mxm_battery_management.c
  * @author  foxBMS Team
  * @date    2019-01-14 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup DRIVERS
  * @prefix  MXM
  *
@@ -1068,7 +1068,7 @@ void MXM_5XStateMachine(MXM_41B_INSTANCE_s *pInstance41b, MXM_5X_INSTANCE_s *pIn
     }
 }
 
-extern STD_RETURN_TYPE_e must_check_return MXM_5XUserAccessibleAddressSpaceCheckerSelfCheck(void) {
+extern STD_RETURN_TYPE_e GEN_MUST_CHECK_RETURN MXM_5XUserAccessibleAddressSpaceCheckerSelfCheck(void) {
     /* check:
     * - user memory is contained in range 0x00 to 0x98
     * - reserved addresses in user address space:

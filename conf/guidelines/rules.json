@@ -33,6 +33,7 @@
     "docs/_ext/**",
     "foxbms/**",
     "libbuild/**",
+    "src/app/driver/afe/nxp/mc33775a/vendor/**",
     "src/app/driver/sbc/fs8x_driver/**",
     "src/os/freertos/**/*.asm",
     "src/os/freertos/**/*.c",
@@ -75,8 +76,7 @@
       "conf/hcg/**/*.c",
       "conf/hcg/**/*.cmd",
       "conf/hcg/**/*.h",
-      "LICENSE.md",
-      "src/app/driver/afe/nxp/common/MC33775A.h",
+      "**/LICENSE.md",
       "src/os/freertos/README.ti-halcogen.md"
     ]
   },
@@ -88,7 +88,11 @@
       "**/.gitignore",
       "**/__init__.py",
       "**/README.md",
-      "**/wscript"
+      "**/wscript",
+      "tests/axivion/addon-test/**/ok.c",
+      "tests/axivion/addon-test/test_unique_filename/**",
+      "tests/axivion/addon-test/test_*/**",
+      "tools/gui/LICENSE.md"
     ]
   },
   "encoding": {
@@ -109,6 +113,12 @@
       },
       {
         "src/**/*.cmd": "ascii"
+      },
+      {
+        "tests/axivion/addon-test/test_file_encoding/windows-1252.cpp": "windows-1252"
+      },
+      {
+        "tests/axivion/addon-test/test_file_encoding/latin1.cpp": "latin1"
       }
     ]
   },
@@ -139,7 +149,11 @@
   },
   "languages": {
     "C": {
-      "exclude": [],
+      "exclude": [
+        "tests/axivion/addon-test/test_*/**",
+        "tests/axivion/config-test/**/*.c",
+        "tests/axivion/config-test/**/*.h"
+      ],
       "files": [
         "**/*.c",
         "**/*.h",
@@ -149,8 +163,8 @@
         "name": "C:002",
         "exclude": [
           "src/app/driver/afe/ltc/common/ltc_pec.*",
-          "src/app/driver/afe/nxp/common/MC33775A.h",
-          "src/app/driver/sbc/fs8x_driver/**"
+          "src/app/driver/sbc/fs8x_driver/**",
+          "src/app/driver/afe/nxp/mc33775a/nxp_mc33775a-ll.*"
         ],
         "text": [
           "/**",
@@ -202,7 +216,7 @@
           "docs/developer-manual/style-guide/examples/*.c",
           "docs/developer-manual/style-guide/examples/*.h",
           "src/app/driver/afe/ltc/common/ltc_pec.*",
-          "src/app/driver/afe/nxp/common/MC33775A.h",
+          "src/app/driver/afe/nxp/mc33775a/nxp_mc33775a-ll.*",
           "src/app/driver/sbc/fs8x_driver/sbc_fs8x*.*",
           "src/app/main/linker_script_elf.cmd",
           "src/os/**"
@@ -229,7 +243,7 @@
         ],
         "exclude": [
           "src/app/driver/afe/ltc/common/ltc_pec.*",
-          "src/app/driver/afe/nxp/common/MC33775A.h",
+          "src/app/driver/afe/nxp/mc33775a/nxp_mc33775a-ll.h",
           "src/app/driver/sbc/fs8x_driver/**",
           "src/os/**"
         ],
@@ -245,7 +259,6 @@
       "sections": {
         "exclude": [
           "src/app/driver/afe/ltc/common/ltc_pec.*",
-          "src/app/driver/afe/nxp/common/MC33775A.h",
           "src/app/driver/sbc/fs8x_driver/**",
           "src/app/main/linker_script_elf.cmd"
         ],
@@ -378,7 +391,11 @@
       "comment-style": {
         "name": "C:029",
         "forbidden": "C99",
-        "exclude": []
+        "exclude": [
+          "tests/axivion/addon-test/**",
+          "tests/axivion/config-test/**/*.c",
+          "tests/axivion/config-test/**/*.h"
+        ]
       },
       "formatting": {
         "name": "C:031",
@@ -400,7 +417,9 @@
       ],
       "header": {
         "name": "PYTHON:002",
-        "exclude": [],
+        "exclude": [
+          "tests/axivion/addon/**"
+        ],
         "text": [
           "#!/usr/bin/env python3",
           "# -*- coding: utf-8 -*-",
@@ -461,6 +480,7 @@
           "**/*waf3-**.*-*/**",
           "**/c4che/**",
           ".vscode/**",
+          "tests/axivion/addon/**",
           "tools/waf-tools/why.py"
         ]
       }

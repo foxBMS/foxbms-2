@@ -43,8 +43,8 @@
  * @file    state-machine.c
  * @author  foxBMS Team
  * @date    2020-10-29 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup STATE_MACHINE
  * @prefix  EG
  *
@@ -57,19 +57,19 @@
 
 /*========== Macros and Definitions =========================================*/
 /**
- * statemachine short time definition in #EG_Trigger calls until next state is
+ * state machine short time definition in #EG_Trigger calls until next state is
  * processed
  */
 #define EG_FSM_SHORT_TIME (1u)
 
 /**
- * statemachine medium time definition in #EG_Trigger calls until next
+ * state machine medium time definition in #EG_Trigger calls until next
  * state/substate is processed
  */
 #define EG_FSM_MEDIUM_TIME (5u)
 
 /**
- * statemachine long time definition in #EG_Trigger calls until next
+ * state machine long time definition in #EG_Trigger calls until next
  * state/substate is processed
  */
 #define EG_FSM_LONG_TIME (10u)

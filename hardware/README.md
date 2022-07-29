@@ -11,7 +11,7 @@ The hardware design files belonging to this release are:
 
 | Item   | Version | File                                                                                                                   |
 |--------|---------|------------------------------------------------------------------------------------------------------------------------|
-| Master | 1.1.1   | [TI TMS570LC4357 Master v1.1.1](https://iisb-foxbms.iisb.fraunhofer.de/foxbms/gen2/hardware/release/master-v1.1.1.zip) |
+| Master | 1.1.3   | [TI TMS570LC4357 Master v1.1.3](https://iisb-foxbms.iisb.fraunhofer.de/foxbms/gen2/hardware/release/master-v1.1.3.zip) |
 
 ## Interfaces
 

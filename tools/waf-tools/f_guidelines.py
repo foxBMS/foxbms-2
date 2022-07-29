@@ -1713,6 +1713,10 @@ def process_guidelines(self):
     c_formatting_provider = c_rules["formatting"]["provider"]
     if c_formatting_provider != "clang-format":
         self.bld.fatal("Only clang-format is supported.")
+    tmp = []
+    for i in self.bld.path.ant_glob("**/.clang-format"):
+        tmp.append(i.h_file())
+    self.bld.env.CLANG_FORMAT_CONFIGURATION_FILES = tmp
     if self.bld.env.CLANG_FORMAT:
         for i in c_to_check_formatting:
             self.create_task("clang_format", src=i, cwd=self.path)

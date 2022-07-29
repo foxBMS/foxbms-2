@@ -43,8 +43,8 @@
  * @file    algorithm_cfg.h
  * @author  foxBMS Team
  * @date    2017-12-18 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup ALGORITHMS_CONFIGURATION
  * @prefix  ALGO
  *
@@ -64,7 +64,7 @@
  * @details task timeslot where the ALGO main function is called. Repetition
  *          time of algorithm cycle time must be multiple of this
  */
-#define ALGO_TICK_MS (100u)
+#define ALGO_TICK_ms (100u)
 
 /**
  * function type for the initialization function of an algorithm

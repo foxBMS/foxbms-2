@@ -43,8 +43,8 @@
  * @file    test_sys_mon.c
  * @author  foxBMS Team
  * @date    2020-04-02 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -65,11 +65,11 @@
 #include "test_assert_helper.h"
 
 /*========== Definitions and Implementations for Unit Test ==================*/
-#define DUMMY_TASK_ID_0  0
-#define DUMMY_TASK_ID_1  1
-#define DUMMY_TASK_ID_2  2
-#define DUMMY_CYCLETIME  10
-#define DUMMY_MAX_JITTER 1
+#define DUMMY_TASK_ID_0  (0)
+#define DUMMY_TASK_ID_1  (1)
+#define DUMMY_TASK_ID_2  (2)
+#define DUMMY_CYCLE_TIME (10)
+#define DUMMY_MAX_JITTER (1)
 
 void TEST_SYSM_DummyCallback_0(SYSM_TASK_ID_e taskId) {
     TEST_ASSERT_EQUAL(DUMMY_TASK_ID_0, taskId);
@@ -86,24 +86,24 @@ void TEST_SYSM_DummyCallback_2(SYSM_TASK_ID_e taskId) {
 SYSM_MONITORING_CFG_s sysm_ch_cfg[3] = {
     {DUMMY_TASK_ID_0,
      SYSM_ENABLED,
-     DUMMY_CYCLETIME,
+     DUMMY_CYCLE_TIME,
      DUMMY_MAX_JITTER,
      SYSM_RECORDING_ENABLED,
-     SYSM_HANDLING_SWITCHOFFCONTACTOR,
+     SYSM_HANDLING_SWITCH_OFF_CONTACTOR,
      TEST_SYSM_DummyCallback_0},
     {DUMMY_TASK_ID_1,
      SYSM_DISABLED,
-     DUMMY_CYCLETIME,
+     DUMMY_CYCLE_TIME,
      DUMMY_MAX_JITTER,
      SYSM_RECORDING_ENABLED,
-     SYSM_HANDLING_SWITCHOFFCONTACTOR,
+     SYSM_HANDLING_SWITCH_OFF_CONTACTOR,
      TEST_SYSM_DummyCallback_1},
     {DUMMY_TASK_ID_2,
      SYSM_ENABLED,
-     DUMMY_CYCLETIME,
+     DUMMY_CYCLE_TIME,
      DUMMY_MAX_JITTER,
      SYSM_RECORDING_DISABLED,
-     SYSM_HANDLING_SWITCHOFFCONTACTOR,
+     SYSM_HANDLING_SWITCH_OFF_CONTACTOR,
      TEST_SYSM_DummyCallback_2},
 };
 
@@ -177,7 +177,7 @@ void testSYSM_CheckNotificationsProvokeDurationViolation(void) {
 
     OS_GetTickCount_ExpectAndReturn(100u);
     DIAG_Handler_ExpectAndReturn(
-        DIAG_ID_SYSTEMMONITORING, DIAG_EVENT_NOT_OK, DIAG_SYSTEM, DUMMY_TASK_ID_0, DIAG_HANDLER_RETURN_OK);
+        DIAG_ID_SYSTEM_MONITORING, DIAG_EVENT_NOT_OK, DIAG_SYSTEM, DUMMY_TASK_ID_0, DIAG_HANDLER_RETURN_OK);
     SYSM_CheckNotifications();
 }
 
@@ -197,7 +197,7 @@ void testSYSM_CheckNotificationsProvokeDurationViolationWithRecording(void) {
 
     OS_GetTickCount_ExpectAndReturn(100u);
     DIAG_Handler_ExpectAndReturn(
-        DIAG_ID_SYSTEMMONITORING, DIAG_EVENT_NOT_OK, DIAG_SYSTEM, DUMMY_TASK_ID_0, DIAG_HANDLER_RETURN_OK);
+        DIAG_ID_SYSTEM_MONITORING, DIAG_EVENT_NOT_OK, DIAG_SYSTEM, DUMMY_TASK_ID_0, DIAG_HANDLER_RETURN_OK);
     SYSM_CheckNotifications();
 
     /* check if violation has been recorded */

@@ -43,8 +43,8 @@
  * @file    fsystem.h
  * @author  foxBMS Team
  * @date    2020-07-21 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup SYSTEM
  * @prefix  FSYS
  *
@@ -59,11 +59,23 @@
 
 /*========== Macros and Definitions =========================================*/
 
-/* AXIVION Disable Style MisraC2012-1.2 MisraC2012Directive-4.1: Function is
- * implemented in Assembler (see swiRaisePrivilege) and this is the way to tell
- * it the TI compiler */
+/* AXIVION Disable Style Generic-DoxygenCommentInHeader: Function has a doxygen
+ * comment, but since the '#pragma' AXIVION does not detect it, we annotate it
+ */
+/* AXIVION Disable Style MisraC2012Directive-1.1: 'pragma' required to tell the
+ * TI ARM CGT compiler, that this is an interrupt function
+ * (see SPNU151V-January1998-RevisedFebruary2020: 5.11.29 The SWI_ALIAS Pragma)
+ */
+/* AXIVION Disable Style MisraC2012-1.2: Function is implemented in assembler
+ * and this is the way to tell it the TI compiler (see
+ * src\os\freertos\portable\ccs\arm_cortex-r5\portasm.asm::swiRaisePrivilege)
+ */
+/* AXIVION Disable Style MisraC2012-8.6: Function defintion is in assembler
+ * (see
+ * src\os\freertos\portable\ccs\arm_cortex-r5\portasm.asm::swiRaisePrivilege)
+ */
 /**
- * @brief   raise privilege
+ * @brief   Raise privilege
  * @details This alias is mapped to an ASM function and raises to a privileged
  *          processor state if the system is currently in user mode.
  *          This is done by the following ASM code:
@@ -91,7 +103,7 @@
  *          * Target address is contained in r14
  *          \verbatim bx      r14 \endverbatim
  *
- *          It is important to issue #FSYS_SwitchToUserMode() after the
+ *          It is important to issue #FSYS_SWITCH_TO_USER_MODE() after the
  *          privileged mode is no longer needed. Otherwise the system would
  *          stay in privileged mode.
  *
@@ -101,20 +113,23 @@
  */
 #pragma SWI_ALIAS(FSYS_RaisePrivilege, 1);
 extern long FSYS_RaisePrivilege(void);
-/* AXIVION Enable Style MisraC2012-1.2 MisraC2012Directive-4.1: */
+/* AXIVION Enable Style MisraC2012-8.6: */
+/* AXIVION Enable Style MisraC2012-1.2: */
+/* AXIVION Enable Style MisraC2012Directive-1.1: */
+/* AXIVION Enable Style Generic-DoxygenCommentInHeader: */
 
 /**
- * @def     FSYS_SwitchToUserMode()
+ * @def     FSYS_SWITCH_TO_USER_MODE()
  * @brief   Switch back to user mode
  * @details This macro is used after raising the privileges with
  *          #FSYS_RaisePrivilege(). Failure to call this macro may lead to
  *          unintended system behavior.
  */
 #ifndef UNITY_UNIT_TEST
-#define FSYS_SwitchToUserMode() \
+#define FSYS_SWITCH_TO_USER_MODE() \
     { __asm(" CPS #0x10"); }
 #else
-#define FSYS_SwitchToUserMode()
+#define FSYS_SWITCH_TO_USER_MODE()
 #endif
 
 /*========== Extern Constant and Variable Declarations ======================*/

@@ -43,8 +43,8 @@
  * @file    database.c
  * @author  foxBMS Team
  * @date    2015-08-18 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup ENGINE
  * @prefix  DATA
  *
@@ -78,7 +78,7 @@
 
 #define DATA_QUEUE_TIMEOUT_MS (DATA_MAX_QUEUE_TIMEOUT_MS / OS_TICK_RATE_MS)
 
-f_static_assert(DATA_QUEUE_TIMEOUT_MS > 0u, "invalid database queue timeout!");
+FAS_STATIC_ASSERT(DATA_QUEUE_TIMEOUT_MS > 0u, "invalid database queue timeout!");
 
 /** configuration struct of database device */
 typedef struct {
@@ -172,7 +172,7 @@ static void DATA_CopyData(
 
     if (accessType == DATA_WRITE_ACCESS) {
         /* Pointer on data block header of passed struct */
-        /* AXIVION Next Line Style MisraC2012-11.5 this casted is required in order to have a generic interface
+        /* AXIVION Next Codeline Style MisraC2012-11.5 this casted is required in order to have a generic interface
          * for all database entries. */
         DATA_BLOCK_HEADER_s *pHeader = (DATA_BLOCK_HEADER_s *)pPassedDataStruct;
         /* Update timestamps in passed database struct and then copy this struct into database */
@@ -180,7 +180,7 @@ static void DATA_CopyData(
         pHeader->timestamp         = OS_GetTickCount();
         /* Copy passed struct in database struct */
         /* memcpy has no return value therefore there is nothing to check: casting to void */
-        /* AXIVION Next Line Style MisraC2012-21.18
+        /* AXIVION Next Codeline Style MisraC2012-21.18
          * */
         (void)memcpy(pDatabaseStruct, pPassedDataStruct, dataLength);
     } else if (accessType == DATA_READ_ACCESS) {
@@ -229,10 +229,10 @@ STD_RETURN_TYPE_e DATA_Initialize(void) {
     const bool allQueuesCreatedCopyForAssert = ftsk_allQueuesCreated;
     FAS_ASSERT(allQueuesCreatedCopyForAssert == true);
 
-    f_static_assert((sizeof(data_database) != 0u), "No database defined");
+    FAS_STATIC_ASSERT((sizeof(data_database) != 0u), "No database defined");
     /*  make sure that no basic assumptions are broken -- since data_database is
         declared with length DATA_BLOCK_ID_MAX, this assert should never fail */
-    f_static_assert(
+    FAS_STATIC_ASSERT(
         ((sizeof(data_database) / sizeof(DATA_BASE_s)) == (uint8_t)(DATA_BLOCK_ID_MAX)), "Database array length error");
 
     /* Iterate over database and set respective read/write pointer for each database entry */
@@ -276,7 +276,8 @@ STD_RETURN_TYPE_e DATA_Initialize(void) {
 void DATA_Task(void) {
     if (ftsk_databaseQueue != NULL_PTR) {
         DATA_QUEUE_MESSAGE_s receiveMessage = {
-            .accessType = DATA_READ_ACCESS, .pDatabaseEntry = {REPEAT_U(NULL_PTR, STRIP(DATA_MAX_ENTRIES_PER_ACCESS))}};
+            .accessType     = DATA_READ_ACCESS,
+            .pDatabaseEntry = {GEN_REPEAT_U(NULL_PTR, GEN_STRIP(DATA_MAX_ENTRIES_PER_ACCESS))}};
         /* scan queue and wait for a message up to a maximum amount of 1ms (block time) */
         if (OS_ReceiveFromQueue(ftsk_databaseQueue, (&receiveMessage), 1u) == OS_SUCCESS) {
             /* plausibility check, error whether the first pointer is a NULL_PTR, as this must not happen.

@@ -42,6 +42,88 @@ Versioning follows then these rules:
 - increasing ``PATCH`` fixes bugs in a backwards compatible manner
 
 ********************
+[1.4.0] - 2022-07-29
+********************
+
+Added
+=====
+
+- |foxbms| has been certified as open source hardware by the
+  Open Source Hardware Association under the
+  OSHWA UID `DE000128 <https://certification.oshwa.org/de000128.html>`_.
+  This information has been added to the README and license documentation
+  (see :ref:`OPEN_SOURCE_HARDWARE_CERTIFICATION`).
+- Added Axivion configuration (see ``tests/axivion/addon``) to check for
+
+  - source files to be decodable with a specific encoding
+  - POSIX 3.206
+  - filename uniqueness in the build process
+  - file level doxygen comment
+  - doxygen comments for extern and static variables, and typedefs
+  - the |foxbms| license header
+  - literal suffixes for numerical assignments
+- Added test cases for the Axivion rules (see ``tests/axivion/addon-test``)
+- The foxBMS GUI wrapper is now implemented as a module.
+- Added a driver for the NXP MC33775A monitoring IC. The driver measures
+  cell voltages, cell temperatures via an I2C multiplexer and controls
+  cell balancing.
+
+Changed
+=======
+
+- Updated the hardware design files (e.g., schematics, layout, BOM and STEP
+  file etc.) of the |bms-master|  to ``v1.1.3`` (see
+  :ref:`CHANGELOG_FOR_MASTER_TMS570_V1_1_3`).
+- Function names are now checked by Axivion to conform to the guidelines.
+- Use correct prefix in the
+
+  - ``version`` module (:ref:`VERSION_MODULE`)
+  - ``assert`` module (:ref:`FASSERT_MODULE`)
+- The behavior of the ``build_bin`` command, which creates the binary, has been
+  improved.
+  If the BMS configuration file (``conf/bms/bms.json``) has been changed, the
+  project needs to be reconfigured (by running ``waf configure``, see
+  :ref:`BUILDING_THE_APPLICATION`).
+- The following settings in BMS configuration file (``conf/bms/bms.json``) have
+  been changed:
+
+  - The AFE key for the IC has been renamed from ``chip`` to ``ic`` in the
+    ``slave-unit/analog-front-end`` section.
+  - The balancing strategy has been moved into the ``application`` section.
+  - The operating system key has been renamed from ``operating-system`` to
+    ``rtos``.
+  - The SOF needs to be configured in the
+    ``application/algorithm/state-estimation`` section.
+    Currently ``"sof": "trapezoid"`` is the only valid option.
+
+- Several variables and functions have been renamed to conform to the |foxbms|
+  style guide (:ref:`STYLE_GUIDE`).
+  There will be additional changes in future releases as the task of having
+  a fully style guide conforming repository is an iterative and timely process.
+
+Deprecated
+==========
+
+Removed
+=======
+
+Fixed
+=====
+
+- The macro ``SOC_STRING_CAPACITY_As`` was incorrectly braced, as it had less
+  closing than opening braces
+  (``src/app/application/algorithm/state_estimation/soc/counting/soc_counting_cfg.h``).
+  This however did not reveal as bug, as the calling function fixed the
+  incorrect bracing by adding the missing brace correctly
+  (``src/app/application/algorithm/state_estimation/soc/counting/soc_counting.c``).
+- The delay between chip select activation and start of SPI transmission and the
+  delay between end of SPI transmission and chip select deactivation have been
+  increased to avoid SPI transmission errors for AFEs.
+- The CAN2 message boxes were not activated within the HALCoGen configuration.
+- Fix several unit testing warnings due to a misconfiguration with respect to
+  ``BS_NR_OF_STRINGS``.
+
+********************
 [1.3.0] - 2022-05-30
 ********************
 
@@ -311,7 +393,7 @@ Changed
 - Sort the SPI formats so that there are no conflicts between the configuration
   on SPI1 and SPI4 (Both are connected to the interface connector).
 - Control the pins of the interface for LTC AFEs with the port expander on the
-  foxBMS 2 master board.
+  |foxbms| master board.
 - The documentation build defaults now only to ``html`` and ``spelling``,
   .i.e., ``linkcheck`` has been removed.
 - Increased stack size of 10ms task to 5120 bytes (from 4096).
@@ -610,7 +692,7 @@ Added
 - Added testing for different versions of TI CSS (versions 10.0.0 and 10.1.1).
 - Added a readme to the hardware directory.
 - Added support for LTC 6804-1 (basically an older version of the LTC 6811-1).
-- Added the updated design files of the foxBMS 2 master v1.0.1.
+- Added the updated design files of the |foxbms| master v1.0.1.
 
 Changed
 =======
@@ -842,9 +924,9 @@ Added
 - Added more files to the unit test coverage analysis in order to have a more
   complete image of the project and its unit test coverage.
 - The conda environment configuration that is distributed within the
-  has now an option to validate that it is working as intended. The conda
-  environment can be tested by running
-  ``tools\utils\cmd\run-python-script.bat tests\env\packages_test.py -f tests\env\conda_env_win32.json``
+  has now an option to validate that it is working as intended.
+  The conda environment can be tested by running
+  ``tools/utils/cmd/run-python-script.bat tests/env/packages_test.py -f tests/env/conda_env_win32.json``
   from the repository root.
 
 Changed

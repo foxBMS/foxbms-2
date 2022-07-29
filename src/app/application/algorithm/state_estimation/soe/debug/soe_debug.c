@@ -43,8 +43,8 @@
  * @file    soe_debug.c
  * @author  foxBMS Team
  * @date    2020-10-14 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup APPLICATION
  * @prefix  SOE
  *
@@ -66,12 +66,12 @@
 /*========== Static Function Implementations ================================*/
 
 /*========== Extern Function Implementations ================================*/
-extern void SOE_Init(DATA_BLOCK_SOX_s *pSoeValues, bool ec_present, uint8_t stringNumber) {
+extern void SE_InitializeStateOfEnergy(DATA_BLOCK_SOX_s *pSoeValues, bool ec_present, uint8_t stringNumber) {
     FAS_ASSERT(pSoeValues != NULL_PTR);
     FAS_ASSERT(stringNumber < BS_NR_OF_STRINGS);
 }
 
-extern void SOE_Calculation(DATA_BLOCK_SOX_s *pSoeValues) {
+extern void SE_CalculateStateOfEnergy(DATA_BLOCK_SOX_s *pSoeValues) {
     FAS_ASSERT(pSoeValues != NULL_PTR);
 }
 

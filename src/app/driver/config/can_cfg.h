@@ -43,15 +43,15 @@
  * @file    can_cfg.h
  * @author  foxBMS Team
  * @date    2019-12-04 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup DRIVERS
  * @prefix  CAN
  *
  * @brief   Headers for the configuration for the CAN module
  *
- * The activation and the length of the message buffers as well as the number of
- * the messages that are received are to be configured here
+ * @details The activation and the length of the message buffers as well as the
+ *          number of the messages that are received are to be configured here.
  *
  */
 

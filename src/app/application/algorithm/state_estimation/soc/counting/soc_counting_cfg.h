@@ -43,8 +43,8 @@
  * @file    soc_counting_cfg.h
  * @author  foxBMS Team
  * @date    2020-10-07 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup APPLICATION
  * @prefix  SOC
  *
@@ -69,9 +69,10 @@
  */
 #define SOC_STRING_CAPACITY_mAh ((float)(BS_NR_OF_PARALLEL_CELLS_PER_MODULE * BC_CAPACITY_mAh))
 
-/** #SOC_STRING_CAPACITY_mAh in As */
+/** #SOC_STRING_CAPACITY_mAh in mAs */
 #define SOC_STRING_CAPACITY_mAs ((float)(SOC_STRING_CAPACITY_mAh * 3600.0f))
-#define SOC_STRING_CAPACITY_As  ((float)(SOC_STRING_CAPACITY_mAs / 1000.0f)
+/** #SOC_STRING_CAPACITY_mAs in As */
+#define SOC_STRING_CAPACITY_As ((float)(SOC_STRING_CAPACITY_mAs / 1000.0f))
 
 /*========== Extern Constant and Variable Declarations ======================*/
 

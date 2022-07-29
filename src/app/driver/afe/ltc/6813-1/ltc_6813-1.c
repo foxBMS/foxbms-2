@@ -43,8 +43,8 @@
  * @file    ltc_6813-1.c
  * @author  foxBMS Team
  * @date    2019-09-01 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup DRIVERS
  * @prefix  LTC
  *
@@ -113,7 +113,7 @@ uint16_t ltc_TxPecBuffer[LTC_N_BYTES_FOR_DATA_TRANSMISSION] = {0};
 static uint16_t ltc_used_cells_index[BS_NR_OF_STRINGS] = {0};
 /** local copies of database tables */
 /**@{*/
-static DATA_BLOCK_CELL_VOLTAGE_s ltc_cellvoltage         = {.header.uniqueId = DATA_BLOCK_ID_CELL_VOLTAGE_BASE};
+static DATA_BLOCK_CELL_VOLTAGE_s ltc_cellVoltage         = {.header.uniqueId = DATA_BLOCK_ID_CELL_VOLTAGE_BASE};
 static DATA_BLOCK_CELL_TEMPERATURE_s ltc_celltemperature = {.header.uniqueId = DATA_BLOCK_ID_CELL_TEMPERATURE_BASE};
 static DATA_BLOCK_BALANCING_FEEDBACK_s ltc_balancing_feedback = {
     .header.uniqueId = DATA_BLOCK_ID_BALANCING_FEEDBACK_BASE};
@@ -172,7 +172,7 @@ LTC_STATE_s ltc_stateBase = {
     .ltcData.txBuffer          = ltc_TxPecBuffer,
     .ltcData.rxBuffer          = ltc_RxPecBuffer,
     .ltcData.frameLength       = LTC_N_BYTES_FOR_DATA_TRANSMISSION,
-    .ltcData.cellVoltage       = &ltc_cellvoltage,
+    .ltcData.cellVoltage       = &ltc_cellVoltage,
     .ltcData.cellTemperature   = &ltc_celltemperature,
     .ltcData.balancingFeedback = &ltc_balancing_feedback,
     .ltcData.balancingControl  = &ltc_balancing_control,
@@ -237,7 +237,7 @@ static uint16_t ltc_cmdADCV_fast_DCP0[4] =
 static uint16_t ltc_cmdADCV_fast_DCP1[4] =
     {0x02, 0xF0, 0x63, 0x28}; /*!< All cells, fast mode, discharge permitted (DCP=1)          */
 static uint16_t ltc_cmdADCV_fast_DCP0_twocells[4] =
-    {0x02, 0xE1, 0xb3, 0x34}; /*!< Two cells (1 and 7), fast mode, discharge not permitted (DCP=0) */
+    {0x02, 0xE1, 0xB3, 0x34}; /*!< Two cells (1 and 7), fast mode, discharge not permitted (DCP=0) */
 
 /* GPIOs  */
 static uint16_t ltc_cmdADAX_normal_GPIO1[4]   = {0x05, 0x61, 0x58, 0x92}; /*!< Single channel, GPIO 1, normal mode   */
@@ -532,15 +532,20 @@ static void LTC_StateTransition(LTC_STATE_s *ltc_state, LTC_STATEMACH_e state, u
  * statemachine will transition to state_nok and substate_nok. Depending on
  * value of retVal the corresponding diagnosis entry will be called.
  *
- * @param  ltc_state:  state of the ltc state machine
- * @param  retVal:       condition to determine if statemachine will transition into ok or nok states
- * @param  diagCode:     symbolic IDs for diagnosis entry, called with #DIAG_EVENT_OK if retVal is #STD_OK, #DIAG_EVENT_NOT_OK otherwise
- * @param  state_ok      state to transition into if retVal is #STD_OK
- * @param  substate_ok:  substate to transition into if retVal is #STD_OK
- * @param  timer_ms_ok:  transition into state_ok, substate_ok after timer_ms_ok elapsed
- * @param  state_nok:    state to transition into if retVal is #STD_NOT_OK
- * @param  substate_nok: substate to transition into if retVal is #STD_NOT_OK
- * @param  timer_ms_nok: transition into state_nok, substate_nok after timer_ms_nok elapsed
+ * @param  ltc_state    state of the ltc state machine
+ * @param  retVal       condition to determine if state machine will transition
+ *                      into ok or nok states
+ * @param  diagCode     symbolic IDs for diagnosis entry, called with
+ *                      #DIAG_EVENT_OK if retVal is #STD_OK, #DIAG_EVENT_NOT_OK
+ *                      otherwise
+ * @param  state_ok     state to transition into if retVal is #STD_OK
+ * @param  substate_ok  substate to transition into if retVal is #STD_OK
+ * @param  timer_ms_ok  transition into state_ok, substate_ok after timer_ms_ok
+ *                      elapsed
+ * @param  state_nok    state to transition into if retVal is #STD_NOT_OK
+ * @param  substate_nok substate to transition into if retVal is #STD_NOT_OK
+ * @param  timer_ms_nok transition into state_nok, substate_nok after
+ *                      timer_ms_nok elapsed
  */
 static void LTC_CondBasedStateTransition(
     LTC_STATE_s *ltc_state,
@@ -624,6 +629,7 @@ extern void LTC_SaveVoltages(LTC_STATE_s *ltc_state, uint8_t stringNumber) {
 
 /*========== Extern Function Implementations ================================*/
 extern void LTC_SaveTemperatures(LTC_STATE_s *ltc_state, uint8_t stringNumber) {
+    FAS_ASSERT(ltc_state != NULL_PTR);
     STD_RETURN_TYPE_e cellTemperatureMeasurementValid = STD_OK;
     uint16_t numberValidMeasurements                  = 0;
 
@@ -662,6 +668,7 @@ extern void LTC_SaveTemperatures(LTC_STATE_s *ltc_state, uint8_t stringNumber) {
 }
 
 extern void LTC_SaveAllGpioMeasurement(LTC_STATE_s *ltc_state) {
+    FAS_ASSERT(ltc_state != NULL_PTR);
     ltc_state->ltcData.allGpioVoltages->state++;
     DATA_WRITE_DATA(ltc_state->ltcData.allGpioVoltages);
 }
@@ -715,6 +722,7 @@ static void LTC_GetBalancingControlValues(LTC_STATE_s *ltc_state) {
  *
  */
 uint8_t LTC_CheckReEntrance(LTC_STATE_s *ltc_state) {
+    FAS_ASSERT(ltc_state != NULL_PTR);
     uint8_t retval = 0;
 
     OS_EnterTaskCritical();
@@ -729,6 +737,7 @@ uint8_t LTC_CheckReEntrance(LTC_STATE_s *ltc_state) {
 }
 
 extern LTC_REQUEST_s LTC_GetStateRequest(LTC_STATE_s *ltc_state) {
+    FAS_ASSERT(ltc_state != NULL_PTR);
     LTC_REQUEST_s retval = {.request = LTC_STATE_NO_REQUEST, .string = 0x0u};
 
     OS_EnterTaskCritical();
@@ -740,6 +749,7 @@ extern LTC_REQUEST_s LTC_GetStateRequest(LTC_STATE_s *ltc_state) {
 }
 
 extern LTC_STATEMACH_e LTC_GetState(LTC_STATE_s *ltc_state) {
+    FAS_ASSERT(ltc_state != NULL_PTR);
     return ltc_state->state;
 }
 
@@ -762,6 +772,10 @@ LTC_REQUEST_s LTC_TransferStateRequest(
     uint8_t *pBusIDptr,
     LTC_ADCMODE_e *pAdcModeptr,
     LTC_ADCMEAS_CHAN_e *pAdcMeasChptr) {
+    FAS_ASSERT(ltc_state != NULL_PTR);
+    FAS_ASSERT(pBusIDptr != NULL_PTR);
+    FAS_ASSERT(pAdcModeptr != NULL_PTR);
+    FAS_ASSERT(pAdcMeasChptr != NULL_PTR);
     LTC_REQUEST_s retval = {.request = LTC_STATE_NO_REQUEST, .string = 0x0u};
 
     OS_EnterTaskCritical();
@@ -778,6 +792,7 @@ LTC_REQUEST_s LTC_TransferStateRequest(
 }
 
 LTC_RETURN_TYPE_e LTC_SetStateRequest(LTC_STATE_s *ltc_state, LTC_REQUEST_s statereq) {
+    FAS_ASSERT(ltc_state != NULL_PTR);
     LTC_RETURN_TYPE_e retVal = LTC_ERROR;
 
     OS_EnterTaskCritical();
@@ -792,6 +807,7 @@ LTC_RETURN_TYPE_e LTC_SetStateRequest(LTC_STATE_s *ltc_state, LTC_REQUEST_s stat
 }
 
 void LTC_Trigger(LTC_STATE_s *ltc_state) {
+    FAS_ASSERT(ltc_state != NULL_PTR);
     STD_RETURN_TYPE_e retVal           = STD_OK;
     LTC_REQUEST_s statereq             = {.request = LTC_STATE_NO_REQUEST, .string = 0x0u};
     uint8_t tmpbusID                   = 0;
@@ -867,7 +883,8 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                     ltc_state->muxmeas_seqendptr[ltc_state->currentString] =
                         ((LTC_MUX_CH_CFG_s *)ltc_mux_seq.seqptr) + ltc_mux_seq.nr_of_steps; /* last sequence + 1 */
 
-                    retVal = LTC_TransmitWakeUp(ltc_state->spiSeqPtr); /* Send dummy byte to wake up the daisy chain */
+                    retVal =
+                        LTC_TRANSMIT_WAKE_UP(ltc_state->spiSeqPtr); /* Send dummy byte to wake up the daisy chain */
                     LTC_CondBasedStateTransition(
                         ltc_state,
                         retVal,
@@ -878,11 +895,10 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                         LTC_STATEMACH_INITIALIZATION,
                         LTC_ENTRY_INITIALIZATION,
                         LTC_STATEMACH_SHORTTIME);
-
                 } else if (ltc_state->substate == LTC_RE_ENTRY_INITIALIZATION) {
                     LTC_SaveLastStates(ltc_state);
-                    retVal =
-                        LTC_TransmitWakeUp(ltc_state->spiSeqPtr); /* Send dummy byte again to wake up the daisy chain */
+                    retVal = LTC_TRANSMIT_WAKE_UP(
+                        ltc_state->spiSeqPtr); /* Send dummy byte again to wake up the daisy chain */
                     LTC_CondBasedStateTransition(
                         ltc_state,
                         retVal,
@@ -893,7 +909,6 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                         LTC_STATEMACH_INITIALIZATION,
                         LTC_RE_ENTRY_INITIALIZATION,
                         LTC_STATEMACH_SHORTTIME);
-
                 } else if (ltc_state->substate == LTC_START_INIT_INITIALIZATION) {
                     LTC_SaveLastStates(ltc_state);
                     ltc_state->check_spi_flag = STD_OK;
@@ -910,7 +925,6 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                         LTC_STATEMACH_INITIALIZATION,
                         LTC_CHECK_INITIALIZATION,
                         ltc_state->commandDataTransferTime + LTC_TRANSMISSION_TIMEOUT);
-
                 } else if (ltc_state->substate == LTC_CHECK_INITIALIZATION) {
                     /* Read values written in config register, currently unused */
                     LTC_SaveLastStates(ltc_state);
@@ -926,7 +940,6 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                         LTC_STATEMACH_INITIALIZATION,
                         LTC_EXIT_INITIALIZATION,
                         ltc_state->commandDataTransferTime + LTC_TRANSMISSION_TIMEOUT);
-
                 } else if (ltc_state->substate == LTC_EXIT_INITIALIZATION) {
                     LTC_SaveLastStates(ltc_state);
                     ++ltc_state->spiSeqPtr;
@@ -1022,7 +1035,6 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                         LTC_READ_VOLTAGE_REGISTER_B_RDCVB_READVOLTAGE,
                         LTC_STATEMACH_SHORTTIME);
                     break;
-
                 } else if (ltc_state->substate == LTC_READ_VOLTAGE_REGISTER_B_RDCVB_READVOLTAGE) {
                     retVal = LTC_CheckPec(ltc_state, ltc_state->ltcData.rxBuffer, ltc_state->currentString);
                     DIAG_CheckEvent(retVal, ltc_state->pecDiagErrorEntry, DIAG_STRING, ltc_state->currentString);
@@ -1046,7 +1058,6 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                         LTC_READ_VOLTAGE_REGISTER_C_RDCVC_READVOLTAGE,
                         LTC_STATEMACH_SHORTTIME);
                     break;
-
                 } else if (ltc_state->substate == LTC_READ_VOLTAGE_REGISTER_C_RDCVC_READVOLTAGE) {
                     retVal = LTC_CheckPec(ltc_state, ltc_state->ltcData.rxBuffer, ltc_state->currentString);
                     DIAG_CheckEvent(retVal, ltc_state->pecDiagErrorEntry, DIAG_STRING, ltc_state->currentString);
@@ -1070,7 +1081,6 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                         LTC_READ_VOLTAGE_REGISTER_D_RDCVD_READVOLTAGE,
                         LTC_STATEMACH_SHORTTIME);
                     break;
-
                 } else if (ltc_state->substate == LTC_READ_VOLTAGE_REGISTER_D_RDCVD_READVOLTAGE) {
                     retVal = LTC_CheckPec(ltc_state, ltc_state->ltcData.rxBuffer, ltc_state->currentString);
                     DIAG_CheckEvent(retVal, ltc_state->pecDiagErrorEntry, DIAG_STRING, ltc_state->currentString);
@@ -1107,7 +1117,6 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                             LTC_STATEMACH_SHORTTIME);
                     }
                     break;
-
                 } else if (ltc_state->substate == LTC_READ_VOLTAGE_REGISTER_E_RDCVE_READVOLTAGE) {
                     retVal = LTC_CheckPec(ltc_state, ltc_state->ltcData.rxBuffer, ltc_state->currentString);
                     DIAG_CheckEvent(retVal, ltc_state->pecDiagErrorEntry, DIAG_STRING, ltc_state->currentString);
@@ -1144,7 +1153,6 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                             LTC_STATEMACH_SHORTTIME);
                     }
                     break;
-
                 } else if (ltc_state->substate == LTC_READ_VOLTAGE_REGISTER_F_RDCVF_READVOLTAGE) {
                     retVal = LTC_CheckPec(ltc_state, ltc_state->ltcData.rxBuffer, ltc_state->currentString);
                     DIAG_CheckEvent(retVal, ltc_state->pecDiagErrorEntry, DIAG_STRING, ltc_state->currentString);
@@ -1168,7 +1176,6 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                         LTC_EXIT_READVOLTAGE,
                         LTC_STATEMACH_SHORTTIME);
                     break;
-
                 } else if (ltc_state->substate == LTC_EXIT_READVOLTAGE) {
                     retVal = LTC_CheckPec(ltc_state, ltc_state->ltcData.rxBuffer, ltc_state->currentString);
                     DIAG_CheckEvent(retVal, ltc_state->pecDiagErrorEntry, DIAG_STRING, ltc_state->currentString);
@@ -1256,9 +1263,9 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                             (ltc_state->commandDataTransferTime + LTC_TRANSMISSION_TIMEOUT));
                     }
                     break;
-
                 } else if (ltc_state->substate == LTC_SEND_CLOCK_STCOMM_MUXMEASUREMENT_CONFIG) {
-                    if ((ltc_state->timer == 0) && (AFE_IsTransmitOngoing(ltc_state) == true)) {
+                    bool transmitOngoing = AFE_IsTransmitOngoing(ltc_state);
+                    if ((ltc_state->timer == 0) && (transmitOngoing == true)) {
                         DIAG_Handler(
                             ltc_state->spiDiagErrorEntry, DIAG_EVENT_NOT_OK, DIAG_STRING, ltc_state->currentString);
                     } else {
@@ -1293,9 +1300,9 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                             LTC_STATEMACH_SHORTTIME);
                     }
                     break;
-
                 } else if (ltc_state->substate == LTC_READ_I2C_TRANSMISSION_RESULT_RDCOMM_MUXMEASUREMENT_CONFIG) {
-                    if ((ltc_state->timer == 0) && (AFE_IsTransmitOngoing(ltc_state) == true)) {
+                    bool transmitOngoing = AFE_IsTransmitOngoing(ltc_state);
+                    if ((ltc_state->timer == 0) && (transmitOngoing == true)) {
                         DIAG_Handler(
                             ltc_state->spiDiagErrorEntry, DIAG_EVENT_NOT_OK, DIAG_STRING, ltc_state->currentString);
                     } else {
@@ -1321,9 +1328,9 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                         LTC_READ_I2C_TRANSMISSION_CHECK_MUXMEASUREMENT_CONFIG,
                         LTC_STATEMACH_SHORTTIME);
                     break;
-
                 } else if (ltc_state->substate == LTC_READ_I2C_TRANSMISSION_CHECK_MUXMEASUREMENT_CONFIG) {
-                    if ((ltc_state->timer == 0) && (AFE_IsTransmitOngoing(ltc_state) == true)) {
+                    bool transmitOngoing = AFE_IsTransmitOngoing(ltc_state);
+                    if ((ltc_state->timer == 0) && (transmitOngoing == true)) {
                         DIAG_Handler(
                             ltc_state->spiDiagErrorEntry, DIAG_EVENT_NOT_OK, DIAG_STRING, ltc_state->currentString);
                     } else {
@@ -1344,7 +1351,6 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                     LTC_StateTransition(
                         ltc_state, LTC_STATEMACH_MUXMEASUREMENT, LTC_STATEMACH_MUXMEASUREMENT, LTC_STATEMACH_SHORTTIME);
                     break;
-
                 } else if (ltc_state->substate == LTC_STATEMACH_MUXMEASUREMENT) {
                     if (ltc_state->muxmeas_seqptr[ltc_state->currentString]->muxCh == 0xFF) {
                         /* actual multiplexer is switched off, so do not make a measurement and follow up with next step (mux configuration) */
@@ -1355,7 +1361,8 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                         break;
                     } else {
                         if (LTC_GOTO_MUX_CHECK == false) {
-                            if ((ltc_state->timer == 0) && (AFE_IsTransmitOngoing(ltc_state) == true)) {
+                            bool transmitOngoing = AFE_IsTransmitOngoing(ltc_state);
+                            if ((ltc_state->timer == 0) && (transmitOngoing == true)) {
                                 DIAG_Handler(
                                     ltc_state->spiDiagErrorEntry,
                                     DIAG_EVENT_NOT_OK,
@@ -1391,7 +1398,6 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                         LTC_STATEMACH_READMUXMEASUREMENT,
                         LTC_STATEMACH_SHORTTIME);
                     break;
-
                 } else if (ltc_state->substate == LTC_STATEMACH_READMUXMEASUREMENT) {
                     ltc_state->check_spi_flag = STD_OK;
 
@@ -1413,9 +1419,9 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                         LTC_STATEMACH_STOREMUXMEASUREMENT,
                         LTC_STATEMACH_SHORTTIME);
                     break;
-
                 } else if (ltc_state->substate == LTC_STATEMACH_STOREMUXMEASUREMENT) {
-                    if ((ltc_state->timer == 0) && (AFE_IsTransmitOngoing(ltc_state) == true)) {
+                    bool transmitOngoing = AFE_IsTransmitOngoing(ltc_state);
+                    if ((ltc_state->timer == 0) && (transmitOngoing == true)) {
                         DIAG_Handler(
                             ltc_state->spiDiagErrorEntry, DIAG_EVENT_NOT_OK, DIAG_STRING, ltc_state->currentString);
                     } else {
@@ -1540,9 +1546,9 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                         LTC_CONFIG2_BALANCECONTROL,
                         LTC_STATEMACH_SHORTTIME);
                     break;
-
                 } else if (ltc_state->substate == LTC_CONFIG2_BALANCECONTROL) {
-                    if ((ltc_state->timer == 0) && (AFE_IsTransmitOngoing(ltc_state) == true)) {
+                    bool transmitOngoing = AFE_IsTransmitOngoing(ltc_state);
+                    if ((ltc_state->timer == 0) && (transmitOngoing == true)) {
                         DIAG_Handler(
                             ltc_state->spiDiagErrorEntry, DIAG_EVENT_NOT_OK, DIAG_STRING, ltc_state->currentString);
                     } else {
@@ -1585,9 +1591,9 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                     }
 
                     break;
-
                 } else if (ltc_state->substate == LTC_CONFIG2_BALANCECONTROL_END) {
-                    if ((ltc_state->timer == 0) && (AFE_IsTransmitOngoing(ltc_state) == true)) {
+                    bool transmitOngoing = AFE_IsTransmitOngoing(ltc_state);
+                    if ((ltc_state->timer == 0) && (transmitOngoing == true)) {
                         DIAG_Handler(
                             ltc_state->spiDiagErrorEntry, DIAG_EVENT_NOT_OK, DIAG_STRING, ltc_state->currentString);
                     } else {
@@ -1654,7 +1660,6 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                         LTC_READ_AUXILIARY_REGISTER_B_RDAUXB,
                         LTC_STATEMACH_SHORTTIME);
                     break;
-
                 } else if (ltc_state->substate == LTC_READ_AUXILIARY_REGISTER_B_RDAUXB) {
                     retVal = LTC_CheckPec(ltc_state, ltc_state->ltcData.rxBuffer, ltc_state->currentString);
                     DIAG_CheckEvent(retVal, ltc_state->pecDiagErrorEntry, DIAG_STRING, ltc_state->currentString);
@@ -1692,7 +1697,6 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                             LTC_STATEMACH_SHORTTIME);
                     }
                     break;
-
                 } else if (ltc_state->substate == LTC_READ_AUXILIARY_REGISTER_C_RDAUXC) {
                     retVal = LTC_CheckPec(ltc_state, ltc_state->ltcData.rxBuffer, ltc_state->currentString);
                     DIAG_CheckEvent(retVal, ltc_state->pecDiagErrorEntry, DIAG_STRING, ltc_state->currentString);
@@ -1716,7 +1720,6 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                         LTC_READ_AUXILIARY_REGISTER_D_RDAUXD,
                         LTC_STATEMACH_SHORTTIME);
                     break;
-
                 } else if (ltc_state->substate == LTC_READ_AUXILIARY_REGISTER_D_RDAUXD) {
                     retVal = LTC_CheckPec(ltc_state, ltc_state->ltcData.rxBuffer, ltc_state->currentString);
                     DIAG_CheckEvent(retVal, ltc_state->pecDiagErrorEntry, DIAG_STRING, ltc_state->currentString);
@@ -1740,7 +1743,6 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                         LTC_EXIT_READAUXILIARY_ALLGPIOS,
                         LTC_STATEMACH_SHORTTIME);
                     break;
-
                 } else if (ltc_state->substate == LTC_EXIT_READAUXILIARY_ALLGPIOS) {
                     retVal = LTC_CheckPec(ltc_state, ltc_state->ltcData.rxBuffer, ltc_state->currentString);
                     DIAG_CheckEvent(retVal, ltc_state->pecDiagErrorEntry, DIAG_STRING, ltc_state->currentString);
@@ -1784,7 +1786,6 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                         LTC_READ_FEEDBACK_BALANCECONTROL,
                         LTC_STATEMACH_SHORTTIME);
                     break;
-
                 } else if (ltc_state->substate == LTC_READ_FEEDBACK_BALANCECONTROL) {
                     ltc_state->check_spi_flag = STD_OK;
                     AFE_SetTransmitOngoing(ltc_state);
@@ -1804,9 +1805,9 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                         LTC_STATEMACH_BALANCEFEEDBACK,
                         LTC_SAVE_FEEDBACK_BALANCECONTROL,
                         LTC_STATEMACH_SHORTTIME);
-
                 } else if (ltc_state->substate == LTC_SAVE_FEEDBACK_BALANCECONTROL) {
-                    if ((ltc_state->timer == 0) && (AFE_IsTransmitOngoing(ltc_state) == true)) {
+                    bool transmitOngoing = AFE_IsTransmitOngoing(ltc_state);
+                    if ((ltc_state->timer == 0) && (transmitOngoing == true)) {
                         DIAG_Handler(
                             ltc_state->spiDiagErrorEntry, DIAG_EVENT_NOT_OK, DIAG_STRING, ltc_state->currentString);
                         LTC_StateTransition(ltc_state, LTC_STATEMACH_STARTMEAS, LTC_ENTRY, LTC_STATEMACH_SHORTTIME);
@@ -1859,9 +1860,9 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                     }
 
                     break;
-
                 } else if (ltc_state->substate == LTC_TEMP_SENS_SEND_CLOCK_STCOMM1) {
-                    if ((ltc_state->timer == 0) && (AFE_IsTransmitOngoing(ltc_state) == true)) {
+                    bool transmitOngoing = AFE_IsTransmitOngoing(ltc_state);
+                    if ((ltc_state->timer == 0) && (transmitOngoing == true)) {
                         DIAG_Handler(
                             ltc_state->spiDiagErrorEntry, DIAG_EVENT_NOT_OK, DIAG_STRING, ltc_state->currentString);
                         LTC_StateTransition(ltc_state, LTC_STATEMACH_STARTMEAS, LTC_ENTRY, LTC_STATEMACH_SHORTTIME);
@@ -1884,9 +1885,9 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                         LTC_TEMP_SENS_READ_DATA1,
                         LTC_STATEMACH_SHORTTIME);
                     break;
-
                 } else if (ltc_state->substate == LTC_TEMP_SENS_READ_DATA1) {
-                    if ((ltc_state->timer == 0) && (AFE_IsTransmitOngoing(ltc_state) == true)) {
+                    bool transmitOngoing = AFE_IsTransmitOngoing(ltc_state);
+                    if ((ltc_state->timer == 0) && (transmitOngoing == true)) {
                         DIAG_Handler(
                             ltc_state->spiDiagErrorEntry, DIAG_EVENT_NOT_OK, DIAG_STRING, ltc_state->currentString);
                         LTC_StateTransition(ltc_state, LTC_STATEMACH_STARTMEAS, LTC_ENTRY, LTC_STATEMACH_SHORTTIME);
@@ -1920,9 +1921,9 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                     }
 
                     break;
-
                 } else if (ltc_state->substate == LTC_TEMP_SENS_SEND_CLOCK_STCOMM2) {
-                    if ((ltc_state->timer == 0) && (AFE_IsTransmitOngoing(ltc_state) == true)) {
+                    bool transmitOngoing = AFE_IsTransmitOngoing(ltc_state);
+                    if ((ltc_state->timer == 0) && (transmitOngoing == true)) {
                         DIAG_Handler(
                             ltc_state->spiDiagErrorEntry, DIAG_EVENT_NOT_OK, DIAG_STRING, ltc_state->currentString);
                         LTC_StateTransition(ltc_state, LTC_STATEMACH_STARTMEAS, LTC_ENTRY, LTC_STATEMACH_SHORTTIME);
@@ -1946,7 +1947,8 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                         LTC_STATEMACH_SHORTTIME);
                     break;
                 } else if (ltc_state->substate == LTC_TEMP_SENS_READ_I2C_TRANSMISSION_RESULT_RDCOMM) {
-                    if ((ltc_state->timer == 0) && (AFE_IsTransmitOngoing(ltc_state) == true)) {
+                    bool transmitOngoing = AFE_IsTransmitOngoing(ltc_state);
+                    if ((ltc_state->timer == 0) && (transmitOngoing == true)) {
                         DIAG_Handler(
                             ltc_state->spiDiagErrorEntry, DIAG_EVENT_NOT_OK, DIAG_STRING, ltc_state->currentString);
                         LTC_StateTransition(ltc_state, LTC_STATEMACH_STARTMEAS, LTC_ENTRY, LTC_STATEMACH_SHORTTIME);
@@ -1974,9 +1976,9 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                         LTC_TEMP_SENS_SAVE_TEMP,
                         LTC_STATEMACH_SHORTTIME);
                     break;
-
                 } else if (ltc_state->substate == LTC_TEMP_SENS_SAVE_TEMP) {
-                    if ((ltc_state->timer == 0) && (AFE_IsTransmitOngoing(ltc_state) == true)) {
+                    bool transmitOngoing = AFE_IsTransmitOngoing(ltc_state);
+                    if ((ltc_state->timer == 0) && (transmitOngoing == true)) {
                         DIAG_Handler(
                             ltc_state->spiDiagErrorEntry, DIAG_EVENT_NOT_OK, DIAG_STRING, ltc_state->currentString);
                         LTC_StateTransition(ltc_state, LTC_STATEMACH_STARTMEAS, LTC_ENTRY, LTC_STATEMACH_SHORTTIME);
@@ -2029,9 +2031,9 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                             (ltc_state->commandDataTransferTime + LTC_TRANSMISSION_TIMEOUT));
                     }
                     break;
-
                 } else if (ltc_state->substate == LTC_SEND_CLOCK_STCOMM_MUXMEASUREMENT_CONFIG) {
-                    if ((ltc_state->timer == 0) && (AFE_IsTransmitOngoing(ltc_state) == true)) {
+                    bool transmitOngoing = AFE_IsTransmitOngoing(ltc_state);
+                    if ((ltc_state->timer == 0) && (transmitOngoing == true)) {
                         DIAG_Handler(
                             ltc_state->spiDiagErrorEntry, DIAG_EVENT_NOT_OK, DIAG_STRING, ltc_state->currentString);
                         LTC_StateTransition(ltc_state, LTC_STATEMACH_STARTMEAS, LTC_ENTRY, LTC_STATEMACH_SHORTTIME);
@@ -2087,9 +2089,9 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                     }
 
                     break;
-
                 } else if (ltc_state->substate == LTC_USER_IO_SEND_CLOCK_STCOMM) {
-                    if ((ltc_state->timer == 0) && (AFE_IsTransmitOngoing(ltc_state) == true)) {
+                    bool transmitOngoing = AFE_IsTransmitOngoing(ltc_state);
+                    if ((ltc_state->timer == 0) && (transmitOngoing == true)) {
                         DIAG_Handler(
                             ltc_state->spiDiagErrorEntry, DIAG_EVENT_NOT_OK, DIAG_STRING, ltc_state->currentString);
                         LTC_StateTransition(ltc_state, LTC_STATEMACH_STARTMEAS, LTC_ENTRY, LTC_STATEMACH_SHORTTIME);
@@ -2112,9 +2114,9 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                         LTC_USER_IO_READ_I2C_TRANSMISSION_RESULT_RDCOMM,
                         LTC_STATEMACH_SHORTTIME);
                     break;
-
                 } else if (ltc_state->substate == LTC_USER_IO_READ_I2C_TRANSMISSION_RESULT_RDCOMM) {
-                    if ((ltc_state->timer == 0) && (AFE_IsTransmitOngoing(ltc_state) == true)) {
+                    bool transmitOngoing = AFE_IsTransmitOngoing(ltc_state);
+                    if ((ltc_state->timer == 0) && (transmitOngoing == true)) {
                         DIAG_Handler(
                             ltc_state->spiDiagErrorEntry, DIAG_EVENT_NOT_OK, DIAG_STRING, ltc_state->currentString);
                         LTC_StateTransition(ltc_state, LTC_STATEMACH_STARTMEAS, LTC_ENTRY, LTC_STATEMACH_SHORTTIME);
@@ -2142,9 +2144,9 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                         LTC_USER_IO_SAVE_DATA,
                         LTC_STATEMACH_SHORTTIME);
                     break;
-
                 } else if (ltc_state->substate == LTC_USER_IO_SAVE_DATA) {
-                    if ((ltc_state->timer == 0) && (AFE_IsTransmitOngoing(ltc_state) == true)) {
+                    bool transmitOngoing = AFE_IsTransmitOngoing(ltc_state);
+                    if ((ltc_state->timer == 0) && (transmitOngoing == true)) {
                         DIAG_Handler(
                             ltc_state->spiDiagErrorEntry, DIAG_EVENT_NOT_OK, DIAG_STRING, ltc_state->currentString);
                         LTC_StateTransition(ltc_state, LTC_STATEMACH_STARTMEAS, LTC_ENTRY, LTC_STATEMACH_SHORTTIME);
@@ -2194,14 +2196,13 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                         LTC_ENTRY,
                         LTC_STATEMACH_SHORTTIME);
                     break;
-
                 } else if (ltc_state->substate == LTC_USER_IO_SEND_CLOCK_STCOMM_TI) {
-                    if ((ltc_state->timer == 0) && (AFE_IsTransmitOngoing(ltc_state) == true)) {
+                    bool transmitOngoing = AFE_IsTransmitOngoing(ltc_state);
+                    if ((ltc_state->timer == 0) && (transmitOngoing == true)) {
                         DIAG_Handler(
                             ltc_state->spiDiagErrorEntry, DIAG_EVENT_NOT_OK, DIAG_STRING, ltc_state->currentString);
                         LTC_StateTransition(ltc_state, LTC_STATEMACH_STARTMEAS, LTC_ENTRY, LTC_STATEMACH_SHORTTIME);
                         break;
-
                     } else {
                         DIAG_Handler(
                             ltc_state->spiDiagErrorEntry, DIAG_EVENT_OK, DIAG_STRING, ltc_state->currentString);
@@ -2220,7 +2221,6 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                         LTC_ENTRY,
                         LTC_STATEMACH_SHORTTIME);
                     break;
-
                 } else if (ltc_state->substate == LTC_USER_IO_SET_OUTPUT_REGISTER_TI) {
                     ltc_state->check_spi_flag = STD_OK;
                     AFE_SetTransmitOngoing(ltc_state);
@@ -2241,9 +2241,9 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                         LTC_ENTRY,
                         LTC_STATEMACH_SHORTTIME);
                     break;
-
                 } else if (ltc_state->substate == LTC_USER_IO_READ_I2C_TRANSMISSION_RESULT_RDCOMM_TI_SECOND) {
-                    if ((ltc_state->timer == 0) && (AFE_IsTransmitOngoing(ltc_state) == true)) {
+                    bool transmitOngoing = AFE_IsTransmitOngoing(ltc_state);
+                    if ((ltc_state->timer == 0) && (transmitOngoing == true)) {
                         DIAG_Handler(
                             ltc_state->spiDiagErrorEntry, DIAG_EVENT_NOT_OK, DIAG_STRING, ltc_state->currentString);
                         LTC_StateTransition(ltc_state, LTC_STATEMACH_STARTMEAS, LTC_ENTRY, LTC_STATEMACH_SHORTTIME);
@@ -2294,14 +2294,13 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                         LTC_ENTRY,
                         LTC_STATEMACH_SHORTTIME);
                     break;
-
                 } else if (ltc_state->substate == LTC_USER_IO_SEND_CLOCK_STCOMM_TI) {
-                    if ((ltc_state->timer == 0) && (AFE_IsTransmitOngoing(ltc_state) == true)) {
+                    bool transmitOngoing = AFE_IsTransmitOngoing(ltc_state);
+                    if ((ltc_state->timer == 0) && (transmitOngoing == true)) {
                         DIAG_Handler(
                             ltc_state->spiDiagErrorEntry, DIAG_EVENT_NOT_OK, DIAG_STRING, ltc_state->currentString);
                         LTC_StateTransition(ltc_state, LTC_STATEMACH_STARTMEAS, LTC_ENTRY, LTC_STATEMACH_SHORTTIME);
                         break;
-
                     } else {
                         DIAG_Handler(
                             ltc_state->spiDiagErrorEntry, DIAG_EVENT_OK, DIAG_STRING, ltc_state->currentString);
@@ -2320,7 +2319,6 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                         LTC_ENTRY,
                         LTC_STATEMACH_SHORTTIME);
                     break;
-
                 } else if (ltc_state->substate == LTC_USER_IO_READ_INPUT_REGISTER_TI_FIRST) {
                     ltc_state->check_spi_flag = STD_OK;
                     AFE_SetTransmitOngoing(ltc_state);
@@ -2342,9 +2340,9 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                         LTC_ENTRY,
                         LTC_STATEMACH_SHORTTIME);
                     break;
-
                 } else if (ltc_state->substate == LTC_USER_IO_READ_I2C_TRANSMISSION_RESULT_RDCOMM_TI_SECOND) {
-                    if ((ltc_state->timer == 0) && (AFE_IsTransmitOngoing(ltc_state) == true)) {
+                    bool transmitOngoing = AFE_IsTransmitOngoing(ltc_state);
+                    if ((ltc_state->timer == 0) && (transmitOngoing == true)) {
                         DIAG_Handler(
                             ltc_state->spiDiagErrorEntry, DIAG_EVENT_NOT_OK, DIAG_STRING, ltc_state->currentString);
                         LTC_StateTransition(ltc_state, LTC_STATEMACH_STARTMEAS, LTC_ENTRY, LTC_STATEMACH_SHORTTIME);
@@ -2388,9 +2386,9 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                         LTC_ENTRY,
                         LTC_STATEMACH_SHORTTIME);
                     break;
-
                 } else if (ltc_state->substate == LTC_USER_IO_READ_I2C_TRANSMISSION_RESULT_RDCOMM_TI_THIRD) {
-                    if ((ltc_state->timer == 0) && (AFE_IsTransmitOngoing(ltc_state) == true)) {
+                    bool transmitOngoing = AFE_IsTransmitOngoing(ltc_state);
+                    if ((ltc_state->timer == 0) && (transmitOngoing == true)) {
                         DIAG_Handler(
                             ltc_state->spiDiagErrorEntry, DIAG_EVENT_NOT_OK, DIAG_STRING, ltc_state->currentString);
                         LTC_StateTransition(ltc_state, LTC_STATEMACH_STARTMEAS, LTC_ENTRY, LTC_STATEMACH_SHORTTIME);
@@ -2414,7 +2412,8 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                         LTC_STATEMACH_SHORTTIME);
                     break;
                 } else if (ltc_state->substate == LTC_USER_IO_READ_I2C_TRANSMISSION_RESULT_RDCOMM_TI_FOURTH) {
-                    if ((ltc_state->timer == 0) && (AFE_IsTransmitOngoing(ltc_state) == true)) {
+                    bool transmitOngoing = AFE_IsTransmitOngoing(ltc_state);
+                    if ((ltc_state->timer == 0) && (transmitOngoing == true)) {
                         DIAG_Handler(
                             ltc_state->spiDiagErrorEntry, DIAG_EVENT_NOT_OK, DIAG_STRING, ltc_state->currentString);
                         LTC_StateTransition(ltc_state, LTC_STATEMACH_STARTMEAS, LTC_ENTRY, LTC_STATEMACH_SHORTTIME);
@@ -2442,9 +2441,9 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                         LTC_USER_IO_SAVE_DATA_TI,
                         LTC_STATEMACH_SHORTTIME);
                     break;
-
                 } else if (ltc_state->substate == LTC_USER_IO_SAVE_DATA_TI) {
-                    if ((ltc_state->timer == 0) && (AFE_IsTransmitOngoing(ltc_state) == true)) {
+                    bool transmitOngoing = AFE_IsTransmitOngoing(ltc_state);
+                    if ((ltc_state->timer == 0) && (transmitOngoing == true)) {
                         DIAG_Handler(
                             ltc_state->spiDiagErrorEntry, DIAG_EVENT_NOT_OK, DIAG_STRING, ltc_state->currentString);
                         LTC_StateTransition(ltc_state, LTC_STATEMACH_STARTMEAS, LTC_ENTRY, LTC_STATEMACH_SHORTTIME);
@@ -2500,9 +2499,9 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                     }
 
                     break;
-
                 } else if (ltc_state->substate == LTC_EEPROM_SEND_CLOCK_STCOMM1) {
-                    if ((ltc_state->timer == 0) && (AFE_IsTransmitOngoing(ltc_state) == true)) {
+                    bool transmitOngoing = AFE_IsTransmitOngoing(ltc_state);
+                    if ((ltc_state->timer == 0) && (transmitOngoing == true)) {
                         DIAG_Handler(
                             ltc_state->spiDiagErrorEntry, DIAG_EVENT_NOT_OK, DIAG_STRING, ltc_state->currentString);
                         LTC_StateTransition(ltc_state, LTC_STATEMACH_STARTMEAS, LTC_ENTRY, LTC_STATEMACH_SHORTTIME);
@@ -2525,9 +2524,9 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                         LTC_EEPROM_READ_DATA2,
                         LTC_STATEMACH_SHORTTIME);
                     break;
-
                 } else if (ltc_state->substate == LTC_EEPROM_READ_DATA2) {
-                    if ((ltc_state->timer == 0) && (AFE_IsTransmitOngoing(ltc_state) == true)) {
+                    bool transmitOngoing = AFE_IsTransmitOngoing(ltc_state);
+                    if ((ltc_state->timer == 0) && (transmitOngoing == true)) {
                         DIAG_Handler(
                             ltc_state->spiDiagErrorEntry, DIAG_EVENT_NOT_OK, DIAG_STRING, ltc_state->currentString);
                         LTC_StateTransition(ltc_state, LTC_STATEMACH_STARTMEAS, LTC_ENTRY, LTC_STATEMACH_SHORTTIME);
@@ -2556,9 +2555,9 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                         LTC_EEPROM_SEND_CLOCK_STCOMM2,
                         LTC_STATEMACH_SHORTTIME);
                     break;
-
                 } else if (ltc_state->substate == LTC_EEPROM_SEND_CLOCK_STCOMM2) {
-                    if ((ltc_state->timer == 0) && (AFE_IsTransmitOngoing(ltc_state) == true)) {
+                    bool transmitOngoing = AFE_IsTransmitOngoing(ltc_state);
+                    if ((ltc_state->timer == 0) && (transmitOngoing == true)) {
                         DIAG_Handler(
                             ltc_state->spiDiagErrorEntry, DIAG_EVENT_NOT_OK, DIAG_STRING, ltc_state->currentString);
                         LTC_StateTransition(ltc_state, LTC_STATEMACH_STARTMEAS, LTC_ENTRY, LTC_STATEMACH_SHORTTIME);
@@ -2582,7 +2581,8 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                         LTC_STATEMACH_SHORTTIME);
                     break;
                 } else if (ltc_state->substate == LTC_EEPROM_READ_I2C_TRANSMISSION_RESULT_RDCOMM) {
-                    if ((ltc_state->timer == 0) && (AFE_IsTransmitOngoing(ltc_state) == true)) {
+                    bool transmitOngoing = AFE_IsTransmitOngoing(ltc_state);
+                    if ((ltc_state->timer == 0) && (transmitOngoing == true)) {
                         DIAG_Handler(
                             ltc_state->spiDiagErrorEntry, DIAG_EVENT_NOT_OK, DIAG_STRING, ltc_state->currentString);
                         LTC_StateTransition(ltc_state, LTC_STATEMACH_STARTMEAS, LTC_ENTRY, LTC_STATEMACH_SHORTTIME);
@@ -2610,9 +2610,9 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                         LTC_EEPROM_SAVE_READ,
                         LTC_STATEMACH_SHORTTIME);
                     break;
-
                 } else if (ltc_state->substate == LTC_EEPROM_SAVE_READ) {
-                    if ((ltc_state->timer == 0) && (AFE_IsTransmitOngoing(ltc_state) == true)) {
+                    bool transmitOngoing = AFE_IsTransmitOngoing(ltc_state);
+                    if ((ltc_state->timer == 0) && (transmitOngoing == true)) {
                         DIAG_Handler(
                             ltc_state->spiDiagErrorEntry, DIAG_EVENT_NOT_OK, DIAG_STRING, ltc_state->currentString);
                         LTC_StateTransition(ltc_state, LTC_STATEMACH_STARTMEAS, LTC_ENTRY, LTC_STATEMACH_SHORTTIME);
@@ -2667,9 +2667,9 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                     }
 
                     break;
-
                 } else if (ltc_state->substate == LTC_EEPROM_SEND_CLOCK_STCOMM3) {
-                    if ((ltc_state->timer == 0) && (AFE_IsTransmitOngoing(ltc_state) == true)) {
+                    bool transmitOngoing = AFE_IsTransmitOngoing(ltc_state);
+                    if ((ltc_state->timer == 0) && (transmitOngoing == true)) {
                         DIAG_Handler(
                             ltc_state->spiDiagErrorEntry, DIAG_EVENT_NOT_OK, DIAG_STRING, ltc_state->currentString);
                         LTC_StateTransition(ltc_state, LTC_STATEMACH_STARTMEAS, LTC_ENTRY, LTC_STATEMACH_SHORTTIME);
@@ -2692,9 +2692,9 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                         LTC_EEPROM_WRITE_DATA2,
                         LTC_STATEMACH_SHORTTIME);
                     break;
-
                 } else if (ltc_state->substate == LTC_EEPROM_WRITE_DATA2) {
-                    if ((ltc_state->timer == 0) && (AFE_IsTransmitOngoing(ltc_state) == true)) {
+                    bool transmitOngoing = AFE_IsTransmitOngoing(ltc_state);
+                    if ((ltc_state->timer == 0) && (transmitOngoing == true)) {
                         DIAG_Handler(
                             ltc_state->spiDiagErrorEntry, DIAG_EVENT_NOT_OK, DIAG_STRING, ltc_state->currentString);
                         LTC_StateTransition(ltc_state, LTC_STATEMACH_STARTMEAS, LTC_ENTRY, LTC_STATEMACH_SHORTTIME);
@@ -2723,9 +2723,9 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                         LTC_EEPROM_SEND_CLOCK_STCOMM4,
                         LTC_STATEMACH_SHORTTIME);
                     break;
-
                 } else if (ltc_state->substate == LTC_EEPROM_SEND_CLOCK_STCOMM4) {
-                    if ((ltc_state->timer == 0) && (AFE_IsTransmitOngoing(ltc_state) == true)) {
+                    bool transmitOngoing = AFE_IsTransmitOngoing(ltc_state);
+                    if ((ltc_state->timer == 0) && (transmitOngoing == true)) {
                         DIAG_Handler(
                             ltc_state->spiDiagErrorEntry, DIAG_EVENT_NOT_OK, DIAG_STRING, ltc_state->currentString);
                         LTC_StateTransition(ltc_state, LTC_STATEMACH_STARTMEAS, LTC_ENTRY, LTC_STATEMACH_SHORTTIME);
@@ -2749,7 +2749,8 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                         LTC_STATEMACH_SHORTTIME);
                     break;
                 } else if (ltc_state->substate == LTC_EEPROM_FINISHED) {
-                    if ((ltc_state->timer == 0) && (AFE_IsTransmitOngoing(ltc_state) == true)) {
+                    bool transmitOngoing = AFE_IsTransmitOngoing(ltc_state);
+                    if ((ltc_state->timer == 0) && (transmitOngoing == true)) {
                         DIAG_Handler(
                             ltc_state->spiDiagErrorEntry, DIAG_EVENT_NOT_OK, DIAG_STRING, ltc_state->currentString);
                         LTC_StateTransition(ltc_state, LTC_STATEMACH_STARTMEAS, LTC_ENTRY, LTC_STATEMACH_SHORTTIME);
@@ -2821,7 +2822,6 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                         LTC_STATEMACH_OPENWIRE_CHECK,
                         LTC_REQUEST_PULLDOWN_CURRENT_OPENWIRE_CHECK,
                         LTC_STATEMACH_SHORTTIME);
-
                 } else if (ltc_state->substate == LTC_REQUEST_PULLDOWN_CURRENT_OPENWIRE_CHECK) {
                     /* Run ADOW command with PUP = 0 */
                     ltc_state->adcMode        = LTC_OW_MEASUREMENT_MODE;
@@ -2868,7 +2868,6 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                     }
                     LTC_StateTransition(
                         ltc_state, LTC_STATEMACH_OPENWIRE_CHECK, LTC_PERFORM_OPENWIRE_CHECK, LTC_STATEMACH_SHORTTIME);
-
                 } else if (ltc_state->substate == LTC_PERFORM_OPENWIRE_CHECK) {
                     /* Perform actual open-wire check */
                     for (uint8_t m = 0; m < BS_NR_OF_MODULES_PER_STRING; m++) {
@@ -2929,21 +2928,27 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
 /**
  * @brief   saves the multiplexer values read from the LTC daisy-chain.
  *
- * After a voltage measurement was initiated on GPIO 1 to read the currently selected
- * multiplexer voltage, the results is read via SPI from the daisy-chain.
- * This function is called to store the result from the transmission in a buffer.
+ * After a voltage measurement was initiated on GPIO 1 to read the currently
+ * selected multiplexer voltage, the results is read via SPI from the
+ * daisy-chain.
+ * This function is called to store the result from the transmission in a
+ * buffer.
  *
- * @param   ltc_state      state of the ltc state machine
- * @param   pRxBuff        receive buffer
- * @param   muxseqptr      pointer to the multiplexer sequence, which configures the currently selected multiplexer ID and channel
- * @param  stringNumber    string addressed
- *
+ * @param   ltc_state   state of the ltc state machine
+ * @param   pRxBuff     receive buffer
+ * @param   muxseqptr   pointer to the multiplexer sequence, which
+ *                      configures the currently selected multiplexer ID and
+ *                      channel
+ * @param  stringNumber string addressed
  */
 static void LTC_SaveMuxMeasurement(
     LTC_STATE_s *ltc_state,
     uint16_t *pRxBuff,
     LTC_MUX_CH_CFG_s *muxseqptr,
     uint8_t stringNumber) {
+    FAS_ASSERT(ltc_state != NULL_PTR);
+    FAS_ASSERT(pRxBuff != NULL_PTR);
+    FAS_ASSERT(muxseqptr != NULL_PTR);
     uint16_t val_ui           = 0;
     int16_t temperature_ddegC = 0;
     uint8_t sensor_idx        = 0;
@@ -3023,6 +3028,8 @@ static void LTC_SaveRxToVoltageBuffer(
     uint16_t *pRxBuff,
     uint8_t registerSet,
     uint8_t stringNumber) {
+    FAS_ASSERT(ltc_state != NULL_PTR);
+    FAS_ASSERT(pRxBuff != NULL_PTR);
     uint16_t cellOffset    = 0;
     uint16_t voltage_index = 0;
     uint16_t val_ui        = 0;
@@ -3133,6 +3140,8 @@ static void LTC_SaveRxToGpioBuffer(
     uint16_t *pRxBuff,
     uint8_t registerSet,
     uint8_t stringNumber) {
+    FAS_ASSERT(ltc_state != NULL_PTR);
+    FAS_ASSERT(pRxBuff != NULL_PTR);
     uint8_t i_offset    = 0;
     uint32_t bitmask    = 0;
     uint16_t buffer_LSB = 0;
@@ -3272,6 +3281,8 @@ static void LTC_SaveRxToGpioBuffer(
  * @return  muxError            STD_OK is there was no error, STD_NOT_OK if there was errors
  */
 static STD_RETURN_TYPE_e LTC_I2cCheckAck(LTC_STATE_s *ltc_state, uint16_t *pRxBuff, uint8_t mux, uint8_t stringNumber) {
+    FAS_ASSERT(ltc_state != NULL_PTR);
+    FAS_ASSERT(pRxBuff != NULL_PTR);
     STD_RETURN_TYPE_e muxError = STD_OK;
 
     for (uint16_t i = 0; i < BS_NR_OF_MODULES_PER_STRING; i++) {
@@ -3331,6 +3342,9 @@ static STD_RETURN_TYPE_e LTC_Init(
     uint16_t *pTxBuff,
     uint16_t *pRxBuff,
     uint32_t frameLength) {
+    FAS_ASSERT(pSpiInterface != NULL_PTR);
+    FAS_ASSERT(pTxBuff != NULL_PTR);
+    FAS_ASSERT(pRxBuff != NULL_PTR);
     STD_RETURN_TYPE_e retVal = STD_NOT_OK;
 
     uint8_t PEC_Check[6];
@@ -3365,7 +3379,7 @@ static STD_RETURN_TYPE_e LTC_Init(
         pTxBuff[11u + (i * 8u)] = PEC_result & 0xFFu;
     } /* end for */
 
-    retVal = LTC_TransmitReceiveData(pSpiInterface, pTxBuff, pRxBuff, frameLength);
+    retVal = LTC_TRANSMIT_RECEIVE_DATA(pSpiInterface, pTxBuff, pRxBuff, frameLength);
 
     return retVal;
 }
@@ -3395,6 +3409,10 @@ static STD_RETURN_TYPE_e LTC_BalanceControl(
     uint32_t frameLength,
     uint8_t registerSet,
     uint8_t stringNumber) {
+    FAS_ASSERT(ltc_state != NULL_PTR);
+    FAS_ASSERT(pSpiInterface != NULL_PTR);
+    FAS_ASSERT(pTxBuff != NULL_PTR);
+    FAS_ASSERT(pRxBuff != NULL_PTR);
     STD_RETURN_TYPE_e retVal = STD_OK;
 
     uint8_t PEC_Check[6];
@@ -3481,7 +3499,7 @@ static STD_RETURN_TYPE_e LTC_BalanceControl(
             pTxBuff[10u + (reverseModuleNumber * 8u)] = (PEC_result >> 8u) & 0xFFu;
             pTxBuff[11u + (reverseModuleNumber * 8u)] = PEC_result & 0xFFu;
         }
-        retVal = LTC_TransmitReceiveData(pSpiInterface, pTxBuff, pRxBuff, frameLength);
+        retVal = LTC_TRANSMIT_RECEIVE_DATA(pSpiInterface, pTxBuff, pRxBuff, frameLength);
     } else if (registerSet == 1u) { /* cells 13 to 15/18 WRCFG2 */
         pTxBuff[0] = ltc_cmdWRCFG2[0];
         pTxBuff[1] = ltc_cmdWRCFG2[1];
@@ -3539,7 +3557,7 @@ static STD_RETURN_TYPE_e LTC_BalanceControl(
             pTxBuff[10u + (reverseModuleNumber * 8u)] = (PEC_result >> 8u) & 0xFFu;
             pTxBuff[11u + (reverseModuleNumber * 8u)] = PEC_result & 0xFFu;
         }
-        retVal = LTC_TransmitReceiveData(pSpiInterface, pTxBuff, pRxBuff, frameLength);
+        retVal = LTC_TRANSMIT_RECEIVE_DATA(pSpiInterface, pTxBuff, pRxBuff, frameLength);
     } else {
         retVal = STD_NOT_OK;
     }
@@ -3555,6 +3573,7 @@ static STD_RETURN_TYPE_e LTC_BalanceControl(
  *
  */
 static void LTC_ResetErrorTable(LTC_STATE_s *ltc_state) {
+    FAS_ASSERT(ltc_state != NULL_PTR);
     for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
         for (uint16_t i = 0; i < LTC_N_LTC; i++) {
             ltc_state->ltcData.errorTable->PEC_valid[s][i] = false;
@@ -3641,27 +3660,28 @@ static STD_RETURN_TYPE_e LTC_StartVoltageMeasurement(
     SPI_INTERFACE_CONFIG_s *pSpiInterface,
     LTC_ADCMODE_e adcMode,
     LTC_ADCMEAS_CHAN_e adcMeasCh) {
+    FAS_ASSERT(pSpiInterface != NULL_PTR);
     STD_RETURN_TYPE_e retVal = STD_OK;
 
     if (adcMeasCh == LTC_ADCMEAS_ALLCHANNEL_CELLS) {
         if (adcMode == LTC_ADCMODE_FAST_DCP0) {
-            retVal = LTC_TransmitCommand(pSpiInterface, ltc_cmdADCV_fast_DCP0);
+            retVal = LTC_TRANSMIT_COMMAND(pSpiInterface, ltc_cmdADCV_fast_DCP0);
         } else if (adcMode == LTC_ADCMODE_NORMAL_DCP0) {
-            retVal = LTC_TransmitCommand(pSpiInterface, ltc_cmdADCV_normal_DCP0);
+            retVal = LTC_TRANSMIT_COMMAND(pSpiInterface, ltc_cmdADCV_normal_DCP0);
         } else if (adcMode == LTC_ADCMODE_FILTERED_DCP0) {
-            retVal = LTC_TransmitCommand(pSpiInterface, ltc_cmdADCV_filtered_DCP0);
+            retVal = LTC_TRANSMIT_COMMAND(pSpiInterface, ltc_cmdADCV_filtered_DCP0);
         } else if (adcMode == LTC_ADCMODE_FAST_DCP1) {
-            retVal = LTC_TransmitCommand(pSpiInterface, ltc_cmdADCV_fast_DCP1);
+            retVal = LTC_TRANSMIT_COMMAND(pSpiInterface, ltc_cmdADCV_fast_DCP1);
         } else if (adcMode == LTC_ADCMODE_NORMAL_DCP1) {
-            retVal = LTC_TransmitCommand(pSpiInterface, ltc_cmdADCV_normal_DCP1);
+            retVal = LTC_TRANSMIT_COMMAND(pSpiInterface, ltc_cmdADCV_normal_DCP1);
         } else if (adcMode == LTC_ADCMODE_FILTERED_DCP1) {
-            retVal = LTC_TransmitCommand(pSpiInterface, ltc_cmdADCV_filtered_DCP1);
+            retVal = LTC_TRANSMIT_COMMAND(pSpiInterface, ltc_cmdADCV_filtered_DCP1);
         } else {
             retVal = STD_NOT_OK;
         }
     } else if (adcMeasCh == LTC_ADCMEAS_SINGLECHANNEL_TWOCELLS) {
         if (adcMode == LTC_ADCMODE_FAST_DCP0) {
-            retVal = LTC_TransmitCommand(pSpiInterface, ltc_cmdADCV_fast_DCP0_twocells);
+            retVal = LTC_TRANSMIT_COMMAND(pSpiInterface, ltc_cmdADCV_fast_DCP0_twocells);
         } else {
             retVal = STD_NOT_OK;
         }
@@ -3673,63 +3693,66 @@ static STD_RETURN_TYPE_e LTC_StartVoltageMeasurement(
 
 /**
  * @brief   tells LTC daisy-chain to start measuring the voltage on GPIOS.
+ * @details This function sends an instruction to the daisy-chain via SPI to
+ *          start the measurement.
  *
- * This function sends an instruction to the daisy-chain via SPI to start the measurement.
+ * @param   pSpiInterface   pointer to SPI configuration
+ * @param   adcMode         LTC ADCmeasurement mode (fast, normal or filtered)
+ * @param   adcMeasCh       number of channels measured for GPIOS (one at a
+ *                          time, typically when multiplexers are used, or all
+ *                          five GPIOs)
  *
- * @param   pSpiInterface        pointer to SPI configuration
- * @param   adcMode              LTC ADCmeasurement mode (fast, normal or filtered)
- * @param   adcMeasCh            number of channels measured for GPIOS (one at a time, typically when multiplexers are used, or all five GPIOs)
- *
- * @return  retVal      #STD_OK if dummy byte was sent correctly by SPI, #STD_NOT_OK otherwise
- *
+ * @return  #STD_OK if dummy byte was sent correctly by SPI, #STD_NOT_OK
+ *          otherwise
  */
 static STD_RETURN_TYPE_e LTC_StartGpioMeasurement(
     SPI_INTERFACE_CONFIG_s *pSpiInterface,
     LTC_ADCMODE_e adcMode,
     LTC_ADCMEAS_CHAN_e adcMeasCh) {
+    FAS_ASSERT(pSpiInterface != NULL_PTR);
     STD_RETURN_TYPE_e retVal;
 
     if (adcMeasCh == LTC_ADCMEAS_ALLCHANNEL_GPIOS) {
         if ((adcMode == LTC_ADCMODE_FAST_DCP0) || (adcMode == LTC_ADCMODE_FAST_DCP1)) {
-            retVal = LTC_TransmitCommand(pSpiInterface, ltc_cmdADAX_fast_ALLGPIOS);
+            retVal = LTC_TRANSMIT_COMMAND(pSpiInterface, ltc_cmdADAX_fast_ALLGPIOS);
         } else if ((adcMode == LTC_ADCMODE_FILTERED_DCP0) || (adcMode == LTC_ADCMODE_FILTERED_DCP1)) {
-            retVal = LTC_TransmitCommand(pSpiInterface, ltc_cmdADAX_filtered_ALLGPIOS);
+            retVal = LTC_TRANSMIT_COMMAND(pSpiInterface, ltc_cmdADAX_filtered_ALLGPIOS);
         } else {
             /*if (adcMode == LTC_ADCMODE_NORMAL_DCP0 || adcMode == LTC_ADCMODE_NORMAL_DCP1)*/
-            retVal = LTC_TransmitCommand(pSpiInterface, ltc_cmdADAX_normal_ALLGPIOS);
+            retVal = LTC_TRANSMIT_COMMAND(pSpiInterface, ltc_cmdADAX_normal_ALLGPIOS);
         }
     } else if (adcMeasCh == LTC_ADCMEAS_SINGLECHANNEL_GPIO1) {
         /* Single Channel */
         if ((adcMode == LTC_ADCMODE_FAST_DCP0) || (adcMode == LTC_ADCMODE_FAST_DCP1)) {
-            retVal = LTC_TransmitCommand(pSpiInterface, ltc_cmdADAX_fast_GPIO1);
+            retVal = LTC_TRANSMIT_COMMAND(pSpiInterface, ltc_cmdADAX_fast_GPIO1);
         } else if ((adcMode == LTC_ADCMODE_FILTERED_DCP0) || (adcMode == LTC_ADCMODE_FILTERED_DCP1)) {
-            retVal = LTC_TransmitCommand(pSpiInterface, ltc_cmdADAX_filtered_GPIO1);
+            retVal = LTC_TRANSMIT_COMMAND(pSpiInterface, ltc_cmdADAX_filtered_GPIO1);
         } else {
             /*if (adcMode == LTC_ADCMODE_NORMAL_DCP0 || adcMode == LTC_ADCMODE_NORMAL_DCP1)*/
 
-            retVal = LTC_TransmitCommand(pSpiInterface, ltc_cmdADAX_normal_GPIO1);
+            retVal = LTC_TRANSMIT_COMMAND(pSpiInterface, ltc_cmdADAX_normal_GPIO1);
         }
     } else if (adcMeasCh == LTC_ADCMEAS_SINGLECHANNEL_GPIO2) {
         /* Single Channel */
         if ((adcMode == LTC_ADCMODE_FAST_DCP0) || (adcMode == LTC_ADCMODE_FAST_DCP1)) {
-            retVal = LTC_TransmitCommand(pSpiInterface, ltc_cmdADAX_fast_GPIO2);
+            retVal = LTC_TRANSMIT_COMMAND(pSpiInterface, ltc_cmdADAX_fast_GPIO2);
         } else if ((adcMode == LTC_ADCMODE_FILTERED_DCP0) || (adcMode == LTC_ADCMODE_FILTERED_DCP1)) {
-            retVal = LTC_TransmitCommand(pSpiInterface, ltc_cmdADAX_filtered_GPIO2);
+            retVal = LTC_TRANSMIT_COMMAND(pSpiInterface, ltc_cmdADAX_filtered_GPIO2);
         } else {
             /*if (adcMode == LTC_ADCMODE_NORMAL_DCP0 || adcMode == LTC_ADCMODE_NORMAL_DCP1)*/
 
-            retVal = LTC_TransmitCommand(pSpiInterface, ltc_cmdADAX_normal_GPIO2);
+            retVal = LTC_TRANSMIT_COMMAND(pSpiInterface, ltc_cmdADAX_normal_GPIO2);
         }
     } else if (adcMeasCh == LTC_ADCMEAS_SINGLECHANNEL_GPIO3) {
         /* Single Channel */
         if ((adcMode == LTC_ADCMODE_FAST_DCP0) || (adcMode == LTC_ADCMODE_FAST_DCP1)) {
-            retVal = LTC_TransmitCommand(pSpiInterface, ltc_cmdADAX_fast_GPIO3);
+            retVal = LTC_TRANSMIT_COMMAND(pSpiInterface, ltc_cmdADAX_fast_GPIO3);
         } else if ((adcMode == LTC_ADCMODE_FILTERED_DCP0) || (adcMode == LTC_ADCMODE_FILTERED_DCP1)) {
-            retVal = LTC_TransmitCommand(pSpiInterface, ltc_cmdADAX_filtered_GPIO3);
+            retVal = LTC_TRANSMIT_COMMAND(pSpiInterface, ltc_cmdADAX_filtered_GPIO3);
         } else {
             /*if (adcMode == LTC_ADCMODE_NORMAL_DCP0 || adcMode == LTC_ADCMODE_NORMAL_DCP1)*/
 
-            retVal = LTC_TransmitCommand(pSpiInterface, ltc_cmdADAX_normal_GPIO3);
+            retVal = LTC_TRANSMIT_COMMAND(pSpiInterface, ltc_cmdADAX_normal_GPIO3);
         }
     } else {
         retVal = STD_NOT_OK;
@@ -3754,22 +3777,23 @@ static STD_RETURN_TYPE_e LTC_StartOpenWireMeasurement(
     SPI_INTERFACE_CONFIG_s *pSpiInterface,
     LTC_ADCMODE_e adcMode,
     uint8_t PUP) {
+    FAS_ASSERT(pSpiInterface != NULL_PTR);
     STD_RETURN_TYPE_e retval = STD_NOT_OK;
     if (PUP == 0u) {
         /* pull-down current */
         if (adcMode == LTC_ADCMODE_NORMAL_DCP0) {
-            retval = LTC_TransmitCommand(pSpiInterface, ltc_BC_cmdADOW_PDOWN_normal_DCP0);
+            retval = LTC_TRANSMIT_COMMAND(pSpiInterface, ltc_BC_cmdADOW_PDOWN_normal_DCP0);
         } else if (adcMode == LTC_ADCMODE_FILTERED_DCP0) {
-            retval = LTC_TransmitCommand(pSpiInterface, ltc_BC_cmdADOW_PDOWN_filtered_DCP0);
+            retval = LTC_TRANSMIT_COMMAND(pSpiInterface, ltc_BC_cmdADOW_PDOWN_filtered_DCP0);
         } else {
             retval = STD_NOT_OK;
         }
     } else if (PUP == 1u) {
         /* pull-up current */
         if (adcMode == LTC_ADCMODE_NORMAL_DCP0) {
-            retval = LTC_TransmitCommand(pSpiInterface, ltc_BC_cmdADOW_PUP_normal_DCP0);
+            retval = LTC_TRANSMIT_COMMAND(pSpiInterface, ltc_BC_cmdADOW_PUP_normal_DCP0);
         } else if (adcMode == LTC_ADCMODE_FILTERED_DCP0) {
-            retval = LTC_TransmitCommand(pSpiInterface, ltc_BC_cmdADOW_PUP_filtered_DCP0);
+            retval = LTC_TRANSMIT_COMMAND(pSpiInterface, ltc_BC_cmdADOW_PUP_filtered_DCP0);
         } else {
             retval = STD_NOT_OK;
         }
@@ -3796,6 +3820,8 @@ static STD_RETURN_TYPE_e LTC_CheckPec(
     LTC_STATE_s *ltc_state,
     uint16_t *DataBufferSPI_RX_with_PEC,
     uint8_t stringNumber) {
+    FAS_ASSERT(ltc_state != NULL_PTR);
+    FAS_ASSERT(DataBufferSPI_RX_with_PEC != NULL_PTR);
     STD_RETURN_TYPE_e retVal = STD_OK;
     uint8_t PEC_TX[2];
     uint16_t PEC_result  = 0;
@@ -3833,26 +3859,33 @@ static STD_RETURN_TYPE_e LTC_CheckPec(
 }
 
 /**
- * @brief   send command to the LTC daisy-chain and receives data from the LTC daisy-chain.
+ * @brief   send command to the LTC daisy-chain and receives data from the LTC
+ *          daisy-chain.
+ * @details This is the core function to receive data from the LTC6813-1
+ *          daisy-chain.
+ *          A 2 byte command is sent with the corresponding PEC.
+ *          *Example*: read configuration register (RDCFG).
+ *          Only command has to be set, the function calculates the PEC
+ *          automatically.
+ *          - The data sent is:
+ *            - 2 bytes (COMMAND) 2 bytes (PEC)
+ *          - The data received is:
+ *            - 6 bytes (LTC1) 2 bytes (PEC) +
+ *            - 6 bytes (LTC2) 2 bytes (PEC) +
+ *            - 6 bytes (LTC3) 2 bytes (PEC) +
+ *            - ... +
+ *            - 6 bytes (LTC{LTC_N_LTC}) 2 bytes (PEC)
  *
- * This is the core function to receive data from the LTC6804 daisy-chain.
- * A 2 byte command is sent with the corresponding PEC. Example: read configuration register (RDCFG).
- * Only command has to be set, the function calculates the PEC automatically.
- * The data send is:
- * 2 bytes (COMMAND) 2 bytes (PEC)
- * The data received is:
- * 6 bytes (LTC1) 2 bytes (PEC) + 6 bytes (LTC2) 2 bytes (PEC) + 6 bytes (LTC3) 2 bytes (PEC) + ... + 6 bytes (LTC{LTC_N_LTC}) 2 bytes (PEC)
+ *          The function does not check the PECs. This has to be done
+ *          elsewhere.
  *
- * The function does not check the PECs. This has to be done elsewhere.
+ * @param   Command         command sent to the daisy-chain
+ * @param   pSpiInterface   pointer to SPI configuration
+ * @param   pTxBuff         transmit buffer
+ * @param   pRxBuff         receive buffer
+ * @param   frameLength     number of words to transmit
  *
- * @param   Command              command sent to the daisy-chain
- * @param   pSpiInterface        pointer to SPI configuration
- * @param   pTxBuff              transmit buffer
- * @param   pRxBuff              receive buffer
- * @param   frameLength          number of words to transmit
- *
- * @return  statusSPI            #STD_OK if SPI transmission is OK, #STD_NOT_OK otherwise
- *
+ * @return  #STD_OK if SPI transmission is OK, #STD_NOT_OK otherwise
  */
 static STD_RETURN_TYPE_e LTC_ReadRegister(
     uint16_t *Command,
@@ -3860,6 +3893,10 @@ static STD_RETURN_TYPE_e LTC_ReadRegister(
     uint16_t *pTxBuff,
     uint16_t *pRxBuff,
     uint32_t frameLength) {
+    FAS_ASSERT(Command != NULL_PTR);
+    FAS_ASSERT(pSpiInterface != NULL_PTR);
+    FAS_ASSERT(pTxBuff != NULL_PTR);
+    FAS_ASSERT(pRxBuff != NULL_PTR);
     STD_RETURN_TYPE_e retVal = STD_NOT_OK;
 
     /* DataBufferSPI_RX_with_PEC contains the data to receive.
@@ -3875,33 +3912,48 @@ static STD_RETURN_TYPE_e LTC_ReadRegister(
     pTxBuff[2] = Command[2];
     pTxBuff[3] = Command[3];
 
-    retVal = LTC_TransmitReceiveData(pSpiInterface, pTxBuff, pRxBuff, frameLength);
+    retVal = LTC_TRANSMIT_RECEIVE_DATA(pSpiInterface, pTxBuff, pRxBuff, frameLength);
 
     return retVal;
 }
 
 /**
  * @brief   sends command and data to the LTC daisy-chain.
+ * @details This is the core function to transmit data to the LTC6813-1
+ *          daisy-chain.
+ *          The data sent is:
+ *          - COMMAND +
+ *          - 6 bytes (LTC1) +
+ *          - 6 bytes (LTC2) +
+ *          - 6 bytes (LTC3) +
+ *          - ... +
+ *          - 6 bytes (LTC{LTC_N_LTC})
  *
- * This is the core function to transmit data to the LTC6804 daisy-chain.
- * The data sent is:
- * COMMAND + 6 bytes (LTC1) + 6 bytes (LTC2) + 6 bytes (LTC3) + ... + 6 bytes (LTC{LTC_N_LTC})
- * A 2 byte command is sent with the corresponding PEC. Example: write configuration register (WRCFG).
- * THe command has to be set and then the function calculates the PEC automatically.
- * The function calculates the needed PEC to send the data to the daisy-chain. The sent data has the format:
- * 2 byte-COMMAND (2 bytes PEC) + 6 bytes (LTC1) (2 bytes PEC) + 6 bytes (LTC2) (2 bytes PEC) + 6 bytes (LTC3) (2 bytes PEC) + ... + 6 bytes (LTC{LTC_N_LTC}) (2 bytes PEC)
+ *          A 2 byte command is sent with the corresponding PEC.
+ *          *Example*: write configuration register (WRCFG).
+ *          The command has to be set and then the function calculates the PEC
+ *          automatically.
+ *          The function calculates the needed PEC to send the data to the
+ *          daisy-chain.
+ *          The sent data has the format:
+ *          - 2 byte-COMMAND (2 bytes PEC) +
+ *          - 6 bytes (LTC1) (2 bytes PEC) +
+ *          - 6 bytes (LTC2) (2 bytes PEC) +
+ *          - 6 bytes (LTC3) (2 bytes PEC) +
+ *          - ... +
+ *          - 6 bytes (LTC{LTC_N_LTC}) (2 bytes PEC)
  *
- * The function returns 0. The only way to check if the transmission was successful is to read the results of the write operation.
- * (example: read configuration register after writing to it)
+ *          The function returns 0. The only way to check if the transmission
+ *          was successful is to read the results of the write operation.
+ *          (example: read configuration register after writing to it)
  *
- * @param   Command              command sent to the daisy-chain
- * @param   pSpiInterface        pointer to SPI configuration
- * @param   pTxBuff              transmit buffer
- * @param   pRxBuff              receive buffer
- * @param   frameLength          number of words to transmit
+ * @param   Command         command sent to the daisy-chain
+ * @param   pSpiInterface   pointer to SPI configuration
+ * @param   pTxBuff         transmit buffer
+ * @param   pRxBuff         receive buffer
+ * @param   frameLength     number of words to transmit
  *
- * @return                              STD_OK if SPI transmission is OK, STD_NOT_OK otherwise
- *
+ * @return  STD_OK if SPI transmission is OK, STD_NOT_OK otherwise
  */
 static STD_RETURN_TYPE_e LTC_WriteRegister(
     uint16_t *Command,
@@ -3909,6 +3961,10 @@ static STD_RETURN_TYPE_e LTC_WriteRegister(
     uint16_t *pTxBuff,
     uint16_t *pRxBuff,
     uint32_t frameLength) {
+    FAS_ASSERT(Command != NULL_PTR);
+    FAS_ASSERT(pSpiInterface != NULL_PTR);
+    FAS_ASSERT(pTxBuff != NULL_PTR);
+    FAS_ASSERT(pRxBuff != NULL_PTR);
     STD_RETURN_TYPE_e retVal = STD_NOT_OK;
 
     uint16_t PEC_result  = 0;
@@ -3933,7 +3989,7 @@ static STD_RETURN_TYPE_e LTC_WriteRegister(
         pTxBuff[11u + (i * 8u)] = PEC_result & 0xFFu;
     }
 
-    retVal = LTC_TransmitReceiveData(pSpiInterface, pTxBuff, pRxBuff, frameLength);
+    retVal = LTC_TRANSMIT_RECEIVE_DATA(pSpiInterface, pTxBuff, pRxBuff, frameLength);
 
     return retVal;
 }
@@ -3950,6 +4006,7 @@ static STD_RETURN_TYPE_e LTC_WriteRegister(
  *
  */
 static void LTC_SetMuxChCommand(uint16_t *pTxBuff, uint8_t mux, uint8_t channel) {
+    FAS_ASSERT(pTxBuff != NULL_PTR);
     for (uint16_t i = 0; i < LTC_N_LTC; i++) {
 #if SLAVE_BOARD_VERSION == 2u
 
@@ -4000,6 +4057,10 @@ static STD_RETURN_TYPE_e LTC_SendEepromReadCommand(
     uint16_t *pRxBuff,
     uint32_t frameLength,
     uint8_t step) {
+    FAS_ASSERT(ltc_state != NULL_PTR);
+    FAS_ASSERT(pSpiInterface != NULL_PTR);
+    FAS_ASSERT(pTxBuff != NULL_PTR);
+    FAS_ASSERT(pRxBuff != NULL_PTR);
     STD_RETURN_TYPE_e statusSPI = STD_NOT_OK;
 
     /* send WRCOMM to send I2C message to choose channel */
@@ -4018,6 +4079,8 @@ static STD_RETURN_TYPE_e LTC_SendEepromReadCommand(
  *
  */
 static void LTC_SetEepromReadCommand(LTC_STATE_s *ltc_state, uint16_t *pTxBuff, uint8_t step) {
+    FAS_ASSERT(ltc_state != NULL_PTR);
+    FAS_ASSERT(pTxBuff != NULL_PTR);
     DATA_READ_DATA(ltc_state->ltcData.slaveControl);
 
     uint32_t address = ltc_state->ltcData.slaveControl->eepromReadAddressToUse;
@@ -4036,7 +4099,6 @@ static void LTC_SetEepromReadCommand(LTC_STATE_s *ltc_state, uint16_t *pTxBuff, 
             pTxBuff[8u + (i * 8u)] = LTC_ICOM_BLANK | (address2 >> 4u);
             pTxBuff[9u + (i * 8u)] = LTC_FCOM_MASTER_NACK | (address2 << 4u);
         }
-
     } else { /* step == 1 */
         for (uint16_t i = 0; i < LTC_N_LTC; i++) {
             pTxBuff[4u + (i * 8u)] = LTC_ICOM_START | (0x0Au); /* 0x6 : LTC6804: ICOM START from Master */
@@ -4057,6 +4119,8 @@ static void LTC_SetEepromReadCommand(LTC_STATE_s *ltc_state, uint16_t *pTxBuff, 
  *
  */
 static void LTC_EepromSaveReadValue(LTC_STATE_s *ltc_state, uint16_t *pRxBuff) {
+    FAS_ASSERT(ltc_state != NULL_PTR);
+    FAS_ASSERT(pRxBuff != NULL_PTR);
     DATA_READ_DATA(ltc_state->ltcData.slaveControl);
 
     for (uint16_t i = 0; i < LTC_N_LTC; i++) {
@@ -4090,6 +4154,10 @@ static STD_RETURN_TYPE_e LTC_SendEepromWriteCommand(
     uint16_t *pRxBuff,
     uint32_t frameLength,
     uint8_t step) {
+    FAS_ASSERT(ltc_state != NULL_PTR);
+    FAS_ASSERT(pSpiInterface != NULL_PTR);
+    FAS_ASSERT(pTxBuff != NULL_PTR);
+    FAS_ASSERT(pRxBuff != NULL_PTR);
     STD_RETURN_TYPE_e statusSPI = STD_NOT_OK;
 
     /* send WRCOMM to send I2C message to write EEPROM */
@@ -4108,6 +4176,8 @@ static STD_RETURN_TYPE_e LTC_SendEepromWriteCommand(
  *
  */
 static void LTC_SetEepromWriteCommand(LTC_STATE_s *ltc_state, uint16_t *pTxBuff, uint8_t step) {
+    FAS_ASSERT(ltc_state != NULL_PTR);
+    FAS_ASSERT(pTxBuff != NULL_PTR);
     DATA_READ_DATA(ltc_state->ltcData.slaveControl);
 
     uint32_t address = ltc_state->ltcData.slaveControl->eepromWriteAddressToUse;
@@ -4126,7 +4196,6 @@ static void LTC_SetEepromWriteCommand(LTC_STATE_s *ltc_state, uint16_t *pTxBuff,
             pTxBuff[8u + (i * 8u)] = LTC_ICOM_BLANK | (address2 >> 4u);
             pTxBuff[9u + (i * 8u)] = LTC_FCOM_MASTER_NACK | (address2 << 4u);
         }
-
     } else { /* step == 1 */
         for (uint16_t i = 0; i < LTC_N_LTC; i++) {
             const uint8_t data = ltc_state->ltcData.slaveControl->eepromValueWrite[i];
@@ -4152,12 +4221,12 @@ static void LTC_SetEepromWriteCommand(LTC_STATE_s *ltc_state, uint16_t *pTxBuff,
  *
  * This function calls the function LTC_SetMuxChCommand() to set the data.
  *
- * @param   pSpiInterface        pointer to SPI configuration
- * @param   pTxBuff              transmit buffer
- * @param   pRxBuff              receive buffer
- * @param   frameLength          number of words to transmit
- * @param   mux                  multiplexer ID to be configured (0,1,2 or 3)
- * @param   channel              multiplexer channel to be configured (0 to 7)
+ * @param   pSpiInterface   pointer to SPI configuration
+ * @param   pTxBuff         transmit buffer
+ * @param   pRxBuff         receive buffer
+ * @param   frameLength     number of words to transmit
+ * @param   mux             multiplexer ID to be configured (0,1,2 or 3)
+ * @param   channel         multiplexer channel to be configured (0 to 7)
  *
  * @return       #STD_OK if SPI transmission is OK, #STD_NOT_OK otherwise
  */
@@ -4168,6 +4237,10 @@ static STD_RETURN_TYPE_e LTC_SetMuxChannel(
     uint32_t frameLength,
     uint8_t mux,
     uint8_t channel) {
+    FAS_ASSERT(pSpiInterface != NULL_PTR);
+    FAS_ASSERT(pTxBuff != NULL_PTR);
+    FAS_ASSERT(pRxBuff != NULL_PTR);
+
     STD_RETURN_TYPE_e statusSPI = STD_NOT_OK;
 
     /* send WRCOMM to send I2C message to choose channel */
@@ -4196,6 +4269,10 @@ static STD_RETURN_TYPE_e LTC_SendI2cCommand(
     uint16_t *pRxBuff,
     uint32_t frameLength,
     uint16_t *cmd_data) {
+    FAS_ASSERT(pSpiInterface != NULL_PTR);
+    FAS_ASSERT(pTxBuff != NULL_PTR);
+    FAS_ASSERT(pRxBuff != NULL_PTR);
+    FAS_ASSERT(cmd_data != NULL_PTR);
     STD_RETURN_TYPE_e statusSPI = STD_NOT_OK;
 
     for (uint16_t i = 0; i < BS_NR_OF_MODULES_PER_STRING; i++) {
@@ -4225,6 +4302,8 @@ static STD_RETURN_TYPE_e LTC_SendI2cCommand(
  *
  */
 static void LTC_TempSensSaveTemp(LTC_STATE_s *ltc_state, uint16_t *pRxBuff) {
+    FAS_ASSERT(ltc_state != NULL_PTR);
+    FAS_ASSERT(pRxBuff != NULL_PTR);
     DATA_READ_DATA(ltc_state->ltcData.slaveControl);
 
     for (uint16_t i = 0; i < LTC_N_LTC; i++) {
@@ -4258,6 +4337,11 @@ static STD_RETURN_TYPE_e LTC_SetPortExpander(
     uint16_t *pTxBuff,
     uint16_t *pRxBuff,
     uint32_t frameLength) {
+    FAS_ASSERT(ltc_state != NULL_PTR);
+    FAS_ASSERT(pSpiInterface != NULL_PTR);
+    FAS_ASSERT(pTxBuff != NULL_PTR);
+    FAS_ASSERT(pRxBuff != NULL_PTR);
+
     STD_RETURN_TYPE_e statusSPI = STD_NOT_OK;
 
     DATA_READ_DATA(ltc_state->ltcData.slaveControl);
@@ -4297,6 +4381,8 @@ static STD_RETURN_TYPE_e LTC_SetPortExpander(
  *
  */
 static void LTC_PortExpanderSaveValues(LTC_STATE_s *ltc_state, uint16_t *pRxBuff) {
+    FAS_ASSERT(ltc_state != NULL_PTR);
+    FAS_ASSERT(pRxBuff != NULL_PTR);
     DATA_READ_DATA(ltc_state->ltcData.slaveControl);
 
     /* extract data */
@@ -4329,6 +4415,10 @@ static STD_RETURN_TYPE_e LTC_SetPortExpanderDirectionTi(
     uint16_t *pRxBuff,
     uint32_t frameLength,
     LTC_PORT_EXPANDER_TI_DIRECTION_e direction) {
+    FAS_ASSERT(ltc_state != NULL_PTR);
+    FAS_ASSERT(pSpiInterface != NULL_PTR);
+    FAS_ASSERT(pTxBuff != NULL_PTR);
+    FAS_ASSERT(pRxBuff != NULL_PTR);
     STD_RETURN_TYPE_e statusSPI = STD_NOT_OK;
 
     DATA_READ_DATA(ltc_state->ltcData.slaveControl);
@@ -4374,6 +4464,10 @@ static STD_RETURN_TYPE_e LTC_SetPortExpanderOutputTi(
     uint16_t *pTxBuff,
     uint16_t *pRxBuff,
     uint32_t frameLength) {
+    FAS_ASSERT(ltc_state != NULL_PTR);
+    FAS_ASSERT(pSpiInterface != NULL_PTR);
+    FAS_ASSERT(pTxBuff != NULL_PTR);
+    FAS_ASSERT(pRxBuff != NULL_PTR);
     STD_RETURN_TYPE_e statusSPI = STD_NOT_OK;
 
     DATA_READ_DATA(ltc_state->ltcData.slaveControl);
@@ -4422,6 +4516,10 @@ static STD_RETURN_TYPE_e LTC_GetPortExpanderInputTi(
     uint16_t *pRxBuff,
     uint32_t frameLength,
     uint8_t step) {
+    FAS_ASSERT(ltc_state != NULL_PTR);
+    FAS_ASSERT(pSpiInterface != NULL_PTR);
+    FAS_ASSERT(pTxBuff != NULL_PTR);
+    FAS_ASSERT(pRxBuff != NULL_PTR);
     STD_RETURN_TYPE_e statusSPI = STD_NOT_OK;
 
     if (step == 0u) {
@@ -4438,7 +4536,6 @@ static STD_RETURN_TYPE_e LTC_GetPortExpanderInputTi(
             pTxBuff[8u + (i * 8u)] = LTC_ICOM_NO_TRANSMIT; /* no transmission */
             pTxBuff[9u + (i * 8u)] = 0;                    /* dummy data */
         }
-
     } else {
         DATA_READ_DATA(ltc_state->ltcData.slaveControl);
 
@@ -4468,6 +4565,8 @@ static STD_RETURN_TYPE_e LTC_GetPortExpanderInputTi(
  * @param   pTxBuff              transmit buffer
  */
 static void LTC_PortExpanderSaveValuesTi(LTC_STATE_s *ltc_state, uint16_t *pTxBuff) {
+    FAS_ASSERT(ltc_state != NULL_PTR);
+    FAS_ASSERT(pTxBuff != NULL_PTR);
     DATA_READ_DATA(ltc_state->ltcData.slaveControl);
 
     /* extract data */
@@ -4491,6 +4590,7 @@ static void LTC_PortExpanderSaveValuesTi(LTC_STATE_s *ltc_state, uint16_t *pTxBu
  *
  */
 static STD_RETURN_TYPE_e LTC_I2cClock(SPI_INTERFACE_CONFIG_s *pSpiInterface) {
+    FAS_ASSERT(pSpiInterface != NULL_PTR);
     STD_RETURN_TYPE_e statusSPI = STD_NOT_OK;
     uint16_t ltc_TXBufferClock[4u + 9u];
 
@@ -4503,7 +4603,7 @@ static STD_RETURN_TYPE_e LTC_I2cClock(SPI_INTERFACE_CONFIG_s *pSpiInterface) {
     ltc_TXBufferClock[2] = ltc_cmdSTCOMM[2];
     ltc_TXBufferClock[3] = ltc_cmdSTCOMM[3];
 
-    statusSPI = LTC_TransmitI2cCommand(pSpiInterface, ltc_TXBufferClock);
+    statusSPI = LTC_TRANSMIT_I2C_COMMAND(pSpiInterface, ltc_TXBufferClock);
 
     return statusSPI;
 }
@@ -4518,6 +4618,7 @@ static STD_RETURN_TYPE_e LTC_I2cClock(SPI_INTERFACE_CONFIG_s *pSpiInterface) {
  * @return    frequency of the SPI clock
  */
 static uint32_t LTC_GetSpiClock(SPI_INTERFACE_CONFIG_s *pSpiInterface) {
+    FAS_ASSERT(pSpiInterface != NULL_PTR);
     uint32_t SPI_Clock = 0;
     uint32_t prescaler = 0;
 
@@ -4559,6 +4660,7 @@ static uint32_t LTC_GetSpiClock(SPI_INTERFACE_CONFIG_s *pSpiInterface) {
  *
  */
 static void LTC_SetTransferTimes(LTC_STATE_s *ltc_state) {
+    FAS_ASSERT(ltc_state != NULL_PTR);
     uint32_t transferTime_us = 0;
     uint32_t SPI_Clock       = 0;
 
@@ -4596,6 +4698,7 @@ static void LTC_SetTransferTimes(LTC_STATE_s *ltc_state) {
  * @return              result of the state request that was made, taken from LTC_RETURN_TYPE_e
  */
 static LTC_RETURN_TYPE_e LTC_CheckStateRequest(LTC_STATE_s *ltc_state, LTC_REQUEST_s statereq) {
+    FAS_ASSERT(ltc_state != NULL_PTR);
     LTC_RETURN_TYPE_e retVal = LTC_OK;
     if (statereq.string >= BS_NR_OF_STRINGS) {
         retVal = LTC_ILLEGAL_REQUEST;
@@ -4618,6 +4721,7 @@ static LTC_RETURN_TYPE_e LTC_CheckStateRequest(LTC_STATE_s *ltc_state, LTC_REQUE
 }
 
 extern bool LTC_IsFirstMeasurementCycleFinished(LTC_STATE_s *ltc_state) {
+    FAS_ASSERT(ltc_state != NULL_PTR);
     bool retval = false;
 
     OS_EnterTaskCritical();

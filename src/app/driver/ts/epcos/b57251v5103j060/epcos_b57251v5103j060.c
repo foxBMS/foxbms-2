@@ -43,8 +43,8 @@
  * @file    epcos_b57251v5103j060.c
  * @author  foxBMS Team
  * @date    2018-10-30 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup TEMPERATURE_SENSORS
  * @prefix  TS
  *
@@ -198,7 +198,7 @@ extern int16_t TS_Epc00GetTemperatureFromLut(uint16_t adcVoltage_mV) {
 extern int16_t TS_Epc00GetTemperatureFromPolynomial(uint16_t adcVoltage_mV) {
     /* AXIVION Routine Generic-MissingParameterAssert: adcVoltage_mV: parameter accepts whole range */
 
-    float temperature_degC = 0.0;
+    float temperature_degC = 0.0f;
     float vadc_V           = adcVoltage_mV / 1000.0;
     float vadc2            = vadc_V * vadc_V;
     float vadc3            = vadc2 * vadc_V;

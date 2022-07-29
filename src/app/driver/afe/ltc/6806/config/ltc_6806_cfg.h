@@ -43,8 +43,8 @@
  * @file    ltc_6806_cfg.h
  * @author  foxBMS Team
  * @date    2015-02-18 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  LTC
  *
@@ -111,7 +111,7 @@
 #define LTC_HIRNG (0u)
 
 /** Open-wire voltage measurement time for fuel cells */
-#define LTC_FUEL_CELL_ADOW_TIME_MS (100U + 1U)
+#define LTC_FUEL_CELL_ADOW_TIME_MS (100u + 1u)
 
 /** Open-wire detection threshold */
 #define LTC_ADOW_THRESHOLD (-200)
@@ -162,7 +162,7 @@
 #define LTC_TIDLE_US (6700)
 
 /** LTC SPI wakeup time */
-#define LTC_SPI_WAKEUP_WAIT_TIME_US (30U)
+#define LTC_SPI_WAKEUP_WAIT_TIME_US (30u)
 
 /** Time to measure all fuel cells in normal mode 10280 &micro;s */
 #define LTC_FUELCELL_NORMAL_ALL_CELLS_MS (11)
@@ -265,14 +265,14 @@
  * Transmit functions
  * @{
  */
-#define LTC_TransmitWakeUp(spi_ltcInterface) SPI_TransmitDummyByte(spi_ltcInterface, LTC_SPI_WAKEUP_WAIT_TIME_US)
-#define LTC_TransmitI2cCommand(spi_ltcInterface, txbuf)                   \
+#define LTC_TRANSMIT_WAKE_UP(spi_ltcInterface) SPI_TransmitDummyByte(spi_ltcInterface, LTC_SPI_WAKEUP_WAIT_TIME_US)
+#define LTC_TRANSMIT_I2C_COMMAND(spi_ltcInterface, txbuf)                 \
     SPI_TransmitDummyByte(spi_ltcInterface, LTC_SPI_WAKEUP_WAIT_TIME_US); \
     SPI_TransmitData(spi_ltcInterface, txbuf, 4 + 9)
-#define LTC_TransmitCommand(spi_ltcInterface, command)                    \
+#define LTC_TRANSMIT_COMMAND(spi_ltcInterface, command)                   \
     SPI_TransmitDummyByte(spi_ltcInterface, LTC_SPI_WAKEUP_WAIT_TIME_US); \
     SPI_TransmitData(spi_ltcInterface, command, 4)
-#define LTC_TransmitReceiveData(spi_ltcInterface, txbuf, rxbuf, length)   \
+#define LTC_TRANSMIT_RECEIVE_DATA(spi_ltcInterface, txbuf, rxbuf, length) \
     SPI_TransmitDummyByte(spi_ltcInterface, LTC_SPI_WAKEUP_WAIT_TIME_US); \
     SPI_TransmitReceiveDataDma(spi_ltcInterface, txbuf, rxbuf, length)
 /**@}*/

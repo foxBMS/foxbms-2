@@ -43,8 +43,8 @@
  * @file    mcu.c
  * @author  foxBMS Team
  * @date    2019-02-19 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup DRIVERS
  * @prefix  MCU
  *
@@ -63,10 +63,10 @@
  * It is named portRTI_CNT0_CPUC0_REG
  * This must be changed to reflect the FreeRTOS configuration
  */
-#define MCU_RTI_CNT0_CPUC0_REG (0x00000001U)
+#define MCU_RTI_CNT0_CPUC0_REG (0x00000001u)
 
 /** threshold in order to limit the time spent in wait to avoid livelock in wait */
-#define MCU_US_WAIT_TIMEOUT (10000U)
+#define MCU_US_WAIT_TIMEOUT (10000u)
 
 /*========== Static Constant and Variable Definitions =======================*/
 /**

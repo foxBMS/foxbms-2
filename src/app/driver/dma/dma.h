@@ -43,8 +43,8 @@
  * @file    dma.h
  * @author  foxBMS Team
  * @date    2019-12-12 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup DRIVERS
  * @prefix  DMA
  *
@@ -61,15 +61,6 @@
 /*========== Macros and Definitions =========================================*/
 
 /*========== Extern Constant and Variable Declarations ======================*/
-/** tx control packet for DMA */
-extern g_dmaCTRL g_dmaCTRLPKT_TX;
-/** rx control packet for DMA */
-extern g_dmaCTRL g_dmaCTRLPKT_RX;
-
-/** tx control packet for N775 DMA */
-extern g_dmaCTRL dma_n775DmaControlPacketTx;
-/** rx control packet for N775 DMA */
-extern g_dmaCTRL dma_n775DmaControlPacketRx;
 
 /*========== Extern Function Prototypes =====================================*/
 
@@ -78,13 +69,6 @@ extern g_dmaCTRL dma_n775DmaControlPacketRx;
  * @details This function enables the DMA streams.
  */
 extern void DMA_Initialize(void);
-
-/**
- * @brief   Re-enables the DMA module.
- * @details This function re-enables the DMA streams. Called in DMA complete
- *          interrupt.
- */
-extern void DMA_ReInit(void);
 
 /**
  * @brief   gets the SPI transmit status.
@@ -118,26 +102,6 @@ extern void DMA_SetTxTransmitOngoingN775(void);
  * @brief   sets the SPI transmit status.
  */
 extern void DMA_SetRxTransmitOngoingN775(void);
-
-/**
- * @brief   enables the DMA module.
- * This function enables the DMA streams.
- */
-void DMA_InitN775(void);
-
-/**
- * @brief   Re-enables the DMA module.
- * This function re-enables the DMA streams.
- * Called in DMA complete interrupt.
- */
-void DMA_ReInitN775Tx(void);
-
-/**
- * @brief   Re-enables the DMA module.
- * This function re-enables the DMA streams.
- * Called in DMA complete interrupt.
- */
-void DMA_ReInitN775Rx(void);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 

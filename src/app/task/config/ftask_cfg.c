@@ -43,8 +43,8 @@
  * @file    ftask_cfg.c
  * @author  foxBMS Team
  * @date    2019-08-26 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup TASK_CONFIGURATION
  * @prefix  FTSK
  *
@@ -77,7 +77,7 @@
 #include "pex.h"
 #include "redundancy.h"
 #include "sbc.h"
-#include "sof.h"
+#include "sof_trapezoid.h"
 #include "spi.h"
 #include "sps.h"
 #include "state_estimation.h"
@@ -156,7 +156,9 @@ extern void FTSK_InitializeUserCodeEngine(void) {
     }
 
     /* Suspend AFE task if unused, otherwise it will preempt all lower priority tasks */
+#if (FOXBMS_AFE_DRIVER_TYPE_FSM == 1)
     vTaskSuspend(ftsk_taskHandleAfe);
+#endif
 
     /* Init FRAM */
     FRAM_Initialize();
@@ -219,7 +221,9 @@ extern void FTSK_RunUserCodeCyclic1ms(void) {
     OS_IncrementTimer();
     DIAG_UpdateFlags();
     /* user code */
+#if (FOXBMS_AFE_DRIVER_TYPE_FSM == 1)
     MEAS_Control();
+#endif
     CAN_ReadRxBuffer();
 }
 
@@ -277,6 +281,9 @@ extern void FTSK_RunUserCodeCyclicAlgorithm100ms(void) {
 
 void FTSK_RunUserCodeAfe(void) {
     /* user code */
+#if (FOXBMS_AFE_DRIVER_TYPE_NO_FSM == 1)
+    MEAS_Control();
+#endif
 }
 
 extern void FTSK_RunUserCodeIdle(void) {

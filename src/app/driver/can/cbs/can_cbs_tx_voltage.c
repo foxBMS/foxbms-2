@@ -43,8 +43,8 @@
  * @file    can_cbs_tx_voltage.c
  * @author  foxBMS Team
  * @date    2021-04-20 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup DRIVER
  * @prefix  CAN
  *
@@ -67,15 +67,15 @@
  * Parameters:
  * bit start, bit length, factor, offset, minimum value, maximum value
  */
-static const CAN_SIGNAL_TYPE_s cellVoltageMultiplexer  = {7u, 8u, 1.0f, 0.0f, 0.0f, 1.0f};
-static const CAN_SIGNAL_TYPE_s cellVoltage0InvalidFlag = {12u, 1u, 1.0f, 0.0f, 0.0f, 1.0f};
-static const CAN_SIGNAL_TYPE_s cellVoltage1InvalidFlag = {13u, 1u, 1.0f, 0.0f, 0.0f, 1.0f};
-static const CAN_SIGNAL_TYPE_s cellVoltage2InvalidFlag = {14u, 1u, 1.0f, 0.0f, 0.0f, 1.0f};
-static const CAN_SIGNAL_TYPE_s cellVoltage3InvalidFlag = {15u, 1u, 1.0f, 0.0f, 0.0f, 1.0f};
-static const CAN_SIGNAL_TYPE_s cellVoltage0_mV         = {11u, 13u, 1.0f, 0.0f, 0.0f, 8192.0f};
-static const CAN_SIGNAL_TYPE_s cellVoltage1_mV         = {30u, 13u, 1.0f, 0.0f, 0.0f, 8192.0f};
-static const CAN_SIGNAL_TYPE_s cellVoltage2_mV         = {33u, 13u, 1.0f, 0.0f, 0.0f, 8192.0f};
-static const CAN_SIGNAL_TYPE_s cellVoltage3_mV         = {52u, 13u, 1.0f, 0.0f, 0.0f, 8192.0f};
+static const CAN_SIGNAL_TYPE_s can_cellVoltageMultiplexer  = {7u, 8u, 1.0f, 0.0f, 0.0f, 1.0f};
+static const CAN_SIGNAL_TYPE_s can_cellVoltage0InvalidFlag = {12u, 1u, 1.0f, 0.0f, 0.0f, 1.0f};
+static const CAN_SIGNAL_TYPE_s can_cellVoltage1InvalidFlag = {13u, 1u, 1.0f, 0.0f, 0.0f, 1.0f};
+static const CAN_SIGNAL_TYPE_s can_cellVoltage2InvalidFlag = {14u, 1u, 1.0f, 0.0f, 0.0f, 1.0f};
+static const CAN_SIGNAL_TYPE_s can_cellVoltage3InvalidFlag = {15u, 1u, 1.0f, 0.0f, 0.0f, 1.0f};
+static const CAN_SIGNAL_TYPE_s can_cellVoltage0_mV         = {11u, 13u, 1.0f, 0.0f, 0.0f, 8192.0f};
+static const CAN_SIGNAL_TYPE_s can_cellVoltage1_mV         = {30u, 13u, 1.0f, 0.0f, 0.0f, 8192.0f};
+static const CAN_SIGNAL_TYPE_s can_cellVoltage2_mV         = {33u, 13u, 1.0f, 0.0f, 0.0f, 8192.0f};
+static const CAN_SIGNAL_TYPE_s can_cellVoltage3_mV         = {52u, 13u, 1.0f, 0.0f, 0.0f, 8192.0f};
 
 /*========== Extern Constant and Variable Definitions =======================*/
 
@@ -173,19 +173,23 @@ extern uint32_t CAN_TxVoltage(
     /* Set mux signal in CAN frame */
     uint32_t signalData = *pMuxId / NUMBER_OF_MUX_VOLTAGES_PER_MESSAGE;
     CAN_TxSetMessageDataWithSignalData(
-        &message, cellVoltageMultiplexer.bitStart, cellVoltageMultiplexer.bitLength, (uint32_t)signalData, endianness);
+        &message,
+        can_cellVoltageMultiplexer.bitStart,
+        can_cellVoltageMultiplexer.bitLength,
+        (uint32_t)signalData,
+        endianness);
 
     /* Set other signals in CAN frame */
-    CAN_TxVoltageSetData(*pMuxId, &message, cellVoltage0_mV, cellVoltage0InvalidFlag, endianness, kpkCanShim);
+    CAN_TxVoltageSetData(*pMuxId, &message, can_cellVoltage0_mV, can_cellVoltage0InvalidFlag, endianness, kpkCanShim);
     /* Increment multiplexer for next cell */
     (*pMuxId)++;
-    CAN_TxVoltageSetData(*pMuxId, &message, cellVoltage1_mV, cellVoltage1InvalidFlag, endianness, kpkCanShim);
+    CAN_TxVoltageSetData(*pMuxId, &message, can_cellVoltage1_mV, can_cellVoltage1InvalidFlag, endianness, kpkCanShim);
     /* Increment multiplexer for next cell */
     (*pMuxId)++;
-    CAN_TxVoltageSetData(*pMuxId, &message, cellVoltage2_mV, cellVoltage2InvalidFlag, endianness, kpkCanShim);
+    CAN_TxVoltageSetData(*pMuxId, &message, can_cellVoltage2_mV, can_cellVoltage2InvalidFlag, endianness, kpkCanShim);
     /* Increment multiplexer for next cell */
     (*pMuxId)++;
-    CAN_TxVoltageSetData(*pMuxId, &message, cellVoltage3_mV, cellVoltage3InvalidFlag, endianness, kpkCanShim);
+    CAN_TxVoltageSetData(*pMuxId, &message, can_cellVoltage3_mV, can_cellVoltage3InvalidFlag, endianness, kpkCanShim);
     /* Increment multiplexer for next cell */
     (*pMuxId)++;
 

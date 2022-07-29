@@ -43,8 +43,8 @@
  * @file    adc.h
  * @author  foxBMS Team
  * @date    2019-01-07 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup DRIVERS
  * @prefix  ADC
  *
@@ -74,7 +74,7 @@
 #define ADC_CONV_FACTOR_10BIT (1024.0f)
 
 /** End bit position in ADC Groupx Interrupt Flag Register */
-#define ADC_CONVERSION_ENDDBIT (8U)
+#define ADC_CONVERSION_ENDDBIT (8u)
 
 /**
  * State for the ADC conversion

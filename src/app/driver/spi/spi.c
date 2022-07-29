@@ -43,8 +43,8 @@
  * @file    spi.c
  * @author  foxBMS Team
  * @date    2019-12-12 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup DRIVERS
  * @prefix  SPI
  *
@@ -73,6 +73,9 @@ static uint32_t spi_txLastWord[DMA_NUMBER_SPI_INTERFACES] = {0};
 /*========== Static Constant and Variable Definitions =======================*/
 
 /*========== Extern Constant and Variable Definitions =======================*/
+
+bool spi_txFinished = false;
+bool spi_rxFinished = false;
 
 /*========== Static Function Prototypes =====================================*/
 
@@ -295,7 +298,7 @@ extern STD_RETURN_TYPE_e SPI_TransmitReceiveDataDma(
             dmaSetChEnable((dmaChannel_t)dma_spiDmaChannels[spiIndex].rxChannel, (dmaTriggerType_t)DMA_HW);
 
             /* DMA config registers written, leave privilege mode */
-            FSYS_SwitchToUserMode();
+            FSYS_SWITCH_TO_USER_MODE();
 
             /* DMA_REQ_Enable */
             /* Starts DMA requests if SPIEN is also set to 1 */
@@ -352,7 +355,7 @@ extern void SPI_Unlock(uint8_t spi) {
 
 extern void SPI_SetFunctional(spiBASE_t *pNode, enum spiPinSelect bit, bool hardwareControlled) {
     FAS_ASSERT(pNode != NULL_PTR);
-    FAS_ASSERT(bit <= (enum spiPinSelect)LARGEST_PIN_NUMBER);
+    FAS_ASSERT(bit <= (enum spiPinSelect)MCU_LARGEST_PIN_NUMBER);
 
     /* retrieve current configuration */
     spi_config_reg_t configRegisterBuffer = {0};
@@ -406,6 +409,10 @@ extern STD_RETURN_TYPE_e SPI_SlaveSetReceiveDataDma(
     pSpiInterface->pNode->INT0 &= ~DMAREQEN_BIT;
     pSpiInterface->pNode->GCR1 &= ~SPIEN_BIT;
 
+    /* Write FMT configuration in DAT1; as SPI is configured as slave, this does not provoke a transmission */
+    SPIDATAFMT_t DataFormat = pSpiInterface->pConfig->DFSEL;
+    pSpiInterface->pNode->DAT1 |= ((uint32)DataFormat << SPI_DATA_FORMAT_FIELD_POSITION);
+
     /* Set Tx buffer address */
     dmaRAMREG->PCP[(dmaChannel_t)dma_spiDmaChannels[SPI_GetSpiIndex(pSpiInterface->pNode)].txChannel].ISADDR =
         (uint32_t)pTxBuff;
@@ -428,7 +435,7 @@ extern STD_RETURN_TYPE_e SPI_SlaveSetReceiveDataDma(
         (dmaChannel_t)dma_spiDmaChannels[SPI_GetSpiIndex(pSpiInterface->pNode)].rxChannel, (dmaTriggerType_t)DMA_HW);
 
     /* DMA config registers written, leave privilege mode */
-    FSYS_SwitchToUserMode();
+    FSYS_SWITCH_TO_USER_MODE();
 
     OS_ExitTaskCritical();
 
@@ -453,7 +460,13 @@ extern void SPI_DmaSendLastByte(uint8_t spiIndex) {
     dma_spiInterfaces[spiIndex]->DAT1 = spi_txLastWord[spiIndex];
 }
 
-/* AXIVION Next Line Style Linker-Multiple_Definition: TI HAL only provides a weak implementation */
+/* AXIVION Next Codeline Style Linker-Multiple_Definition: TI HAL only provides a weak implementation */
+/* Doxygen comment needs to be here, as this is from a TI generated HAL header */
+/**
+ * @brief   SPI Interrupt callback
+ * @param[in]   spi     spi device
+ * @param       flags   flags to be passed
+ */
 void UNIT_TEST_WEAK_IMPL spiNotification(spiBASE_t *spi, uint32 flags) {
 }
 

@@ -48,6 +48,9 @@ import os
 
 def build(bld):
     """builds the driver library"""
+    ts_man = bld.env.temperature_sensor_manuf
+    ts_mod = bld.env.temperature_sensor_model
+    ts_met = bld.env.temperature_sensor_meth
     source = [
         os.path.join("adc", "adc.c"),
         os.path.join("can", "can.c"),
@@ -94,14 +97,7 @@ def build(bld):
         os.path.join("sbc", "fs8x_driver", "sbc_fs8x.c"),
         os.path.join("spi", "spi.c"),
         os.path.join("sps", "sps.c"),
-        os.path.join(
-            "ts",
-            bld.env.temperature_sensor_manuf,
-            bld.env.temperature_sensor_model,
-            bld.env.temperature_sensor_meth,
-            f"{bld.env.temperature_sensor_manuf}_{bld.env.temperature_sensor_model}"
-            f"_{bld.env.temperature_sensor_meth}.c",
-        ),
+        os.path.join("ts", ts_man, ts_mod, ts_met, f"{ts_man}_{ts_mod}" f"_{ts_met}.c"),
         os.path.join("ts", "api", "tsi_limits.c"),
         os.path.join("ts", "epcos", "b57251v5103j060", "epcos_b57251v5103j060.c"),
         os.path.join("ts", "epcos", "b57861s0103f045", "epcos_b57861s0103f045.c"),
@@ -160,9 +156,7 @@ def build(bld):
         os.path.join("..", "task", "os"),
         os.path.join("..", "task", "ftask"),
     ]
-    includes.extend(
-        bld.env.INCLUDES_OPERATING_SYSTEM + bld.env.INCLUDES_AFE + bld.env.INCLUDES_IMD
-    )
+    includes.extend(bld.env.INCLUDES_RTOS + bld.env.INCLUDES_AFE + bld.env.INCLUDES_IMD)
     cflags = bld.env.CFLAGS_FOXBMS
     target = f"{bld.env.APPNAME.lower()}-driver"
     use = [f"{bld.env.APPNAME.lower()}-afe-driver", f"{bld.env.APPNAME}-imd"]

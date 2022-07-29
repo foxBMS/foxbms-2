@@ -43,8 +43,8 @@
  * @file    diag_cbs_fram.c
  * @author  foxBMS Team
  * @date    2022-02-24 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup ENGINE
  * @prefix  DIAG
  *
@@ -66,16 +66,16 @@
 
 /*========== Extern Function Implementations ================================*/
 extern void DIAG_FramError(
-    DIAG_ID_e ch_id,
+    DIAG_ID_e diagId,
     DIAG_EVENT_e event,
     const DIAG_DATABASE_SHIM_s *const kpkDiagShim,
     uint32_t data) {
-    FAS_ASSERT(ch_id < DIAG_ID_MAX);
+    FAS_ASSERT(diagId < DIAG_ID_MAX);
     FAS_ASSERT((event == DIAG_EVENT_OK) || (event == DIAG_EVENT_NOT_OK) || (event == DIAG_EVENT_RESET));
     FAS_ASSERT(kpkDiagShim != NULL_PTR);
     (void)data; /* data is unused */
 
-    if (ch_id == DIAG_ID_FRAM_READ_CRC_ERROR) {
+    if (diagId == DIAG_ID_FRAM_READ_CRC_ERROR) {
         if (event == DIAG_EVENT_RESET) {
             kpkDiagShim->pTableError->framReadCrcError = 0;
         }

@@ -9,3 +9,7 @@
     max-width: 100%;
     overflow: visible;
 }
+
+.wy-nav-content {
+    max-width: 1200px;
+}

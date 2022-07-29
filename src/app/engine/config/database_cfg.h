@@ -43,14 +43,14 @@
  * @file    database_cfg.h
  * @author  foxBMS Team
  * @date    2015-08-18 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup ENGINE_CONFIGURATION
  * @prefix  DATA
  *
  * @brief   Database configuration header
  *
- * Provides interfaces to database configuration
+ * @details Provides interfaces to database configuration
  *
  */
 
@@ -109,7 +109,7 @@ typedef enum {
     DATA_BLOCK_ID_MAX, /**< DO NOT CHANGE, MUST BE THE LAST ENTRY */
 } DATA_BLOCK_ID_e;
 
-f_static_assert(
+FAS_STATIC_ASSERT(
     (int16_t)DATA_BLOCK_ID_MAX < UINT8_MAX,
     "Maximum number of database entries exceeds UINT8_MAX; adapted length "
     "checking in DATA_Initialize and DATA_IterateOverDatabaseEntries");
@@ -335,7 +335,7 @@ typedef struct {
     uint8_t muxError[BS_NR_OF_STRINGS];                   /*!< 0 -> no error, 1 -> error */
     uint8_t spiError[BS_NR_OF_STRINGS];                   /*!< 0 -> no error, 1 -> error */
     uint8_t afeConfigurationError[BS_NR_OF_STRINGS];      /*!< 0 -> no error, 1 -> error */
-    uint8_t afeCellvoltageError[BS_NR_OF_STRINGS];        /*!< 0 -> no error, 1 -> error */
+    uint8_t afeCellVoltageError[BS_NR_OF_STRINGS];        /*!< 0 -> no error, 1 -> error */
     uint8_t afeCellTemperatureError[BS_NR_OF_STRINGS];    /*!< 0 -> no error, 1 -> error */
     uint8_t baseCellVoltageMeasurementTimeout;            /*!< 0 -> no error, 1 -> error */
     uint8_t redundancy0CellVoltageMeasurementTimeout;     /*!< 0 -> no error, 1 -> error */
@@ -364,8 +364,8 @@ typedef struct {
     uint8_t mcuDieTemperature;                                        /*!< 0 -> no error, 1 -> error */
     uint8_t coinCellVoltage;                                          /*!< 0 -> no error, 1 -> error */
     uint8_t plausibilityCheckPackvoltage[BS_NR_OF_STRINGS];           /*!< 0 -> no error, else: error */
-    uint8_t plausibilityCheckCellvoltage[BS_NR_OF_STRINGS];           /*!< 0 -> no error, else: error */
-    uint8_t plausibilityCheckCellvoltageSpread[BS_NR_OF_STRINGS];     /*!< 0 -> no error, else: error */
+    uint8_t plausibilityCheckCellVoltage[BS_NR_OF_STRINGS];           /*!< 0 -> no error, else: error */
+    uint8_t plausibilityCheckCellVoltageSpread[BS_NR_OF_STRINGS];     /*!< 0 -> no error, else: error */
     uint8_t plausibilityCheckCelltemperatureSpread[BS_NR_OF_STRINGS]; /*!< 0 -> no error, 1 -> error */
     uint8_t plausibilityCheckCelltemperature[BS_NR_OF_STRINGS];       /*!< 0 -> no error, else: error */
     uint8_t deepDischargeDetected[BS_NR_OF_STRINGS];                  /*!< 0 -> no error, 1 -> error */
@@ -593,7 +593,7 @@ typedef struct {
      * the initialization of a database struct, uniqueId must be set to the
      * respective database entry representation in enum DATA_BLOCK_ID_e. */
     DATA_BLOCK_HEADER_s header;                               /*!< Data block header */
-    float adc1ConvertedVoltages_mV[ADC_ADC1_MAX_NR_CHANNELS]; /*!< voltages measured by the internal ADC ADC1 */
+    float adc1ConvertedVoltages_mV[MCU_ADC1_MAX_NR_CHANNELS]; /*!< voltages measured by the internal ADC ADC1 */
 } DATA_BLOCK_ADC_VOLTAGE_s;
 
 /** data block struct for the database built-in self-test */

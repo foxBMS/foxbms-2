@@ -1,15 +1,15 @@
 {
     "c89": [
-        "#warning \"Ignoring static asserts in C89/C90 mode (f_static_assert).\""
+        "#warning \"Ignoring static asserts in C89/C90 mode (FAS_STATIC_ASSERT).\""
     ],
     "c90": [
-        "#warning \"Ignoring static asserts in C89/C90 mode (f_static_assert).\""
+        "#warning \"Ignoring static asserts in C89/C90 mode (FAS_STATIC_ASSERT).\""
     ],
     "iso9899:199409": [
-        "#warning \"Ignoring static asserts in C94 mode (f_static_assert).\""
+        "#warning \"Ignoring static asserts in C94 mode (FAS_STATIC_ASSERT).\""
     ],
     "c99": [
-        "#warning \"Ignoring static asserts in C99 mode (f_static_assert).\""
+        "#warning \"Ignoring static asserts in C99 mode (FAS_STATIC_ASSERT).\""
     ],
     "c11": [],
     "c17": []

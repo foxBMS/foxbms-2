@@ -89,8 +89,9 @@ Version struct
 ^^^^^^^^^^^^^^
 
 Each binary is automatically marked with the software version from which it
-has been built. The current version is stored in the global variable
-``foxbmsVersionInfo`` and can be inspected with the debugger.
+has been built.
+The current version is stored in the global variable
+``ver_foxbmsVersionInformation`` and can be inspected with the debugger.
 
 Choice of debugger
 ------------------
@@ -104,18 +105,18 @@ debugger, as we cannot support debugger toolchains that we do not know or
 cannot recommend. Feel free to contact us, if you need more information.
 
 * The first one is the
-  `Segger J-Link PLUS <https://www.segger.com/j-link-plus.html>`_. A cheaper
-  debugger solution is the
-  `Segger J-Link BASE <https://www.segger.com/jlink_base.html>`_. Please note
-  that the debug software
-  `Ozone <https://www.segger.com/products/development-tools/ozone-j-link-debugger/#ozone-licensing>`_
+  `Segger J-Link PLUS <https://www.segger.com/j-link-plus.html>`_.
+  A cheaper debugger solution is the
+  `Segger J-Link BASE <https://www.segger.com/jlink_base.html>`_.
+  Please note that the debug software
+  `Ozone <https://www.segger.com/products/development-tools/ozone-j-link-debugger/#licensing>`_
   is not licensed with the base version of J-Link.
 
 * The second type of debugger are the debugger by
-  `Lauterbach <http://www.lauterbach.com>`_. The Lauterbach
-  debugger performs under certain conditions better, but is also more expensive
-  than the J-Link. Tracing has been tested and set up only with trace-probes
-  by Lauterbach.
+  `Lauterbach <http://www.lauterbach.com>`_.
+  The Lauterbach debugger performs under certain conditions better, but is also
+  more expensive than the J-Link.
+  Tracing has been tested and set up only with trace-probes by Lauterbach.
 
 The following sections describe configuration and usage of the debuggers
 Segger Ozone and Lauterbach Trace32.

@@ -43,18 +43,18 @@
  * @file    bender_iso165c_cfg.h
  * @author  foxBMS Team
  * @date    2021-03-17 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  I165C
  *
  * @brief   Headers for the configuration for the insulation monitoring
  *
- * Please see the manual and data sheet for detailed information about the
- * specifications and defines used within this file.
+ * @details Please see the manual and data sheet for detailed information about
+ *          the specifications and defines used within this file.
  *
- * docref: iso165C_C1_D00154_06_M_XXEN - 03/2021 - Manual
- * docref: iso165Cx_D00154_04_D_XXEN - 03/2021 - Data sheet
+ *          docref: iso165C_C1_D00154_06_M_XXEN - 03/2021 - Manual
+ *          docref: iso165Cx_D00154_04_D_XXEN - 03/2021 - Data sheet
  */
 
 #ifndef FOXBMS__BENDER_ISO165C_CFG_H_

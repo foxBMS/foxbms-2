@@ -43,8 +43,8 @@
  * @file    soa.c
  * @author  foxBMS Team
  * @date    2020-10-14 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup APPLICATION
  * @prefix  SOA
  *
@@ -85,39 +85,39 @@ extern void SOA_CheckVoltages(DATA_BLOCK_MIN_MAX_s *pMinimumMaximumCellVoltages)
 
         if (voltageMax_mV >= BC_VOLTAGE_MAX_MOL_mV) {
             /* Over voltage maximum operating limit violated */
-            DIAG_Handler(DIAG_ID_CELLVOLTAGE_OVERVOLTAGE_MOL, DIAG_EVENT_NOT_OK, DIAG_STRING, s);
+            DIAG_Handler(DIAG_ID_CELL_VOLTAGE_OVERVOLTAGE_MOL, DIAG_EVENT_NOT_OK, DIAG_STRING, s);
             if (voltageMax_mV >= BC_VOLTAGE_MAX_RSL_mV) {
                 /* Over voltage recommended safety limit violated */
-                DIAG_Handler(DIAG_ID_CELLVOLTAGE_OVERVOLTAGE_RSL, DIAG_EVENT_NOT_OK, DIAG_STRING, s);
+                DIAG_Handler(DIAG_ID_CELL_VOLTAGE_OVERVOLTAGE_RSL, DIAG_EVENT_NOT_OK, DIAG_STRING, s);
                 if (voltageMax_mV >= BC_VOLTAGE_MAX_MSL_mV) {
                     /* Over voltage maximum safety limit violated */
-                    DIAG_Handler(DIAG_ID_CELLVOLTAGE_OVERVOLTAGE_MSL, DIAG_EVENT_NOT_OK, DIAG_STRING, s);
+                    DIAG_Handler(DIAG_ID_CELL_VOLTAGE_OVERVOLTAGE_MSL, DIAG_EVENT_NOT_OK, DIAG_STRING, s);
                 }
             }
         }
         if (voltageMax_mV < BC_VOLTAGE_MAX_MSL_mV) {
             /* over voltage maximum safety limit NOT violated */
-            DIAG_Handler(DIAG_ID_CELLVOLTAGE_OVERVOLTAGE_MSL, DIAG_EVENT_OK, DIAG_STRING, s);
+            DIAG_Handler(DIAG_ID_CELL_VOLTAGE_OVERVOLTAGE_MSL, DIAG_EVENT_OK, DIAG_STRING, s);
             if (voltageMax_mV < BC_VOLTAGE_MAX_RSL_mV) {
                 /* over voltage recommended safety limit NOT violated */
-                DIAG_Handler(DIAG_ID_CELLVOLTAGE_OVERVOLTAGE_RSL, DIAG_EVENT_OK, DIAG_STRING, s);
+                DIAG_Handler(DIAG_ID_CELL_VOLTAGE_OVERVOLTAGE_RSL, DIAG_EVENT_OK, DIAG_STRING, s);
                 if (voltageMax_mV < BC_VOLTAGE_MAX_MOL_mV) {
                     /* over voltage maximum operating limit NOT violated */
-                    DIAG_Handler(DIAG_ID_CELLVOLTAGE_OVERVOLTAGE_MOL, DIAG_EVENT_OK, DIAG_STRING, s);
+                    DIAG_Handler(DIAG_ID_CELL_VOLTAGE_OVERVOLTAGE_MOL, DIAG_EVENT_OK, DIAG_STRING, s);
                 }
             }
         }
 
         if (voltageMin_mV <= BC_VOLTAGE_MIN_MOL_mV) {
             /* Under voltage maximum operating limit violated */
-            DIAG_Handler(DIAG_ID_CELLVOLTAGE_UNDERVOLTAGE_MOL, DIAG_EVENT_NOT_OK, DIAG_STRING, s);
+            DIAG_Handler(DIAG_ID_CELL_VOLTAGE_UNDERVOLTAGE_MOL, DIAG_EVENT_NOT_OK, DIAG_STRING, s);
             if (voltageMin_mV <= BC_VOLTAGE_MIN_RSL_mV) {
                 /* Under voltage recommended safety limit violated */
-                DIAG_Handler(DIAG_ID_CELLVOLTAGE_UNDERVOLTAGE_RSL, DIAG_EVENT_NOT_OK, DIAG_STRING, s);
+                DIAG_Handler(DIAG_ID_CELL_VOLTAGE_UNDERVOLTAGE_RSL, DIAG_EVENT_NOT_OK, DIAG_STRING, s);
                 if (voltageMin_mV <= BC_VOLTAGE_MIN_MSL_mV) {
                     /* Under voltage maximum safety limit violated */
                     retvalUndervoltMSL =
-                        DIAG_Handler(DIAG_ID_CELLVOLTAGE_UNDERVOLTAGE_MSL, DIAG_EVENT_NOT_OK, DIAG_STRING, s);
+                        DIAG_Handler(DIAG_ID_CELL_VOLTAGE_UNDERVOLTAGE_MSL, DIAG_EVENT_NOT_OK, DIAG_STRING, s);
 
                     /* If under voltage flag is set and deep-discharge voltage is violated */
                     if ((retvalUndervoltMSL == DIAG_HANDLER_RETURN_ERR_OCCURRED) &&
@@ -129,13 +129,13 @@ extern void SOA_CheckVoltages(DATA_BLOCK_MIN_MAX_s *pMinimumMaximumCellVoltages)
         }
         if (voltageMin_mV > BC_VOLTAGE_MIN_MSL_mV) {
             /* under voltage maximum safety limit NOT violated */
-            DIAG_Handler(DIAG_ID_CELLVOLTAGE_UNDERVOLTAGE_MSL, DIAG_EVENT_OK, DIAG_STRING, s);
+            DIAG_Handler(DIAG_ID_CELL_VOLTAGE_UNDERVOLTAGE_MSL, DIAG_EVENT_OK, DIAG_STRING, s);
             if (voltageMin_mV > BC_VOLTAGE_MIN_RSL_mV) {
                 /* under voltage recommended safety limit NOT violated */
-                DIAG_Handler(DIAG_ID_CELLVOLTAGE_UNDERVOLTAGE_RSL, DIAG_EVENT_OK, DIAG_STRING, s);
+                DIAG_Handler(DIAG_ID_CELL_VOLTAGE_UNDERVOLTAGE_RSL, DIAG_EVENT_OK, DIAG_STRING, s);
                 if (voltageMin_mV > BC_VOLTAGE_MIN_MOL_mV) {
                     /* under voltage maximum operating limit NOT violated */
-                    DIAG_Handler(DIAG_ID_CELLVOLTAGE_UNDERVOLTAGE_MOL, DIAG_EVENT_OK, DIAG_STRING, s);
+                    DIAG_Handler(DIAG_ID_CELL_VOLTAGE_UNDERVOLTAGE_MOL, DIAG_EVENT_OK, DIAG_STRING, s);
                 }
             }
         }
@@ -180,7 +180,6 @@ extern void SOA_CheckTemperatures(
                     }
                 }
             }
-
         } else {
             /* Charge */
             if (temperatureMax_ddegC >= BC_TEMPERATURE_MAX_CHARGE_MOL_ddegC) {

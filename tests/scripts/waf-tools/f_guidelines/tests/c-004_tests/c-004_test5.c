@@ -8,6 +8,6 @@
  * @ingroup TEMPERATURE_SENSORS
  * @prefix  TSEN
  *
- * @brief   TODO
+ * @brief   Add some brief description here
  *
  */

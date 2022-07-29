@@ -43,8 +43,8 @@
  * @file    can_cbs_rx_command.c
  * @author  foxBMS Team
  * @date    2021-07-28 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup DRIVER
  * @prefix  CAN
  *
@@ -162,7 +162,7 @@ static void CAN_HandleModeRequest(uint64_t signalData, const CAN_SHIM_s *const k
 
 static void CAN_HandleBalancingRequest(uint64_t signalData) {
     /* AXIVION Routine Generic-MissingParameterAssert: signalData: parameter accepts whole range */
-    /* AXIVION Next Line Style MisraC2012-2.2 MisraC2012-14.3: Depending on implementation STD_NOT_OK might be returned. */
+    /* AXIVION Next Codeline Style MisraC2012-2.2 MisraC2012-14.3: Depending on implementation STD_NOT_OK might be returned. */
     if (BAL_GetInitializationState() == STD_OK) {
         if (signalData == 0u) {
             BAL_SetStateRequest(BAL_STATE_GLOBAL_DISABLE_REQUEST);
@@ -200,22 +200,22 @@ extern uint32_t CAN_RxRequest(
 
     uint64_t signalData = 0;
     /* Get mode request */
-    /* AXIVION Next Line Style Generic-NoMagicNumbers: Signal data defined in .dbc file. */
+    /* AXIVION Next Codeline Style Generic-NoMagicNumbers: Signal data defined in .dbc file. */
     CAN_RxGetSignalDataFromMessageData(message, 1u, 2u, &signalData, endianness);
     CAN_HandleModeRequest(signalData, kpkCanShim);
 
     /* check for reset flag */
-    /* AXIVION Next Line Style Generic-NoMagicNumbers: Signal data defined in .dbc file. */
+    /* AXIVION Next Codeline Style Generic-NoMagicNumbers: Signal data defined in .dbc file. */
     CAN_RxGetSignalDataFromMessageData(message, 2u, 1u, &signalData, endianness);
     CAN_ClearAllPersistentFlags(signalData);
 
     /* Get balancing request */
-    /* AXIVION Next Line Style Generic-NoMagicNumbers: Signal data defined in .dbc file. */
+    /* AXIVION Next Codeline Style Generic-NoMagicNumbers: Signal data defined in .dbc file. */
     CAN_RxGetSignalDataFromMessageData(message, 8u, 1u, &signalData, endianness);
     CAN_HandleBalancingRequest(signalData);
 
     /* Get balancing threshold */
-    /* AXIVION Next Line Style Generic-NoMagicNumbers: Signal data defined in .dbc file. */
+    /* AXIVION Next Codeline Style Generic-NoMagicNumbers: Signal data defined in .dbc file. */
     CAN_RxGetSignalDataFromMessageData(message, 23u, 8u, &signalData, endianness);
     CAN_SetBalancingThreshold(signalData);
 

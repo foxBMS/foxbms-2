@@ -113,7 +113,9 @@ def main():
         logging.warning("Could not find any changed files.")
         sys.exit(0)
     changed_files = [
-        Path(os.path.join(ROOT, i.strip())) for i in tmp if i.endswith((".c", ".h"))
+        Path(os.path.join(ROOT, i.strip()))
+        for i in tmp
+        if i.endswith((".c", ".h")) and "addon-test" not in i
     ]
 
     m = False  # pylint: disable=invalid-name

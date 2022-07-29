@@ -43,8 +43,8 @@
  * @file    debug_default_afe_dma.h
  * @author  foxBMS Team
  * @date    2020-09-17 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup DRIVERS
  * @prefix  FAKE
  *

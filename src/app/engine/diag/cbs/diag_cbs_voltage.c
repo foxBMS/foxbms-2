@@ -43,8 +43,8 @@
  * @file    diag_cbs_voltage.c
  * @author  foxBMS Team
  * @date    2021-02-17 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup ENGINE
  * @prefix  DIAG
  *
@@ -67,30 +67,30 @@
 
 /*========== Extern Function Implementations ================================*/
 extern void DIAG_ErrorOvervoltage(
-    DIAG_ID_e ch_id,
+    DIAG_ID_e diagId,
     DIAG_EVENT_e event,
     const DIAG_DATABASE_SHIM_s *const kpkDiagShim,
     uint32_t stringNumber) {
-    FAS_ASSERT(ch_id < DIAG_ID_MAX);
+    FAS_ASSERT(diagId < DIAG_ID_MAX);
     FAS_ASSERT((event == DIAG_EVENT_OK) || (event == DIAG_EVENT_NOT_OK) || (event == DIAG_EVENT_RESET));
     FAS_ASSERT(kpkDiagShim != NULL_PTR);
     FAS_ASSERT(stringNumber < BS_NR_OF_STRINGS);
 
-    if (ch_id == DIAG_ID_CELLVOLTAGE_OVERVOLTAGE_MSL) {
+    if (diagId == DIAG_ID_CELL_VOLTAGE_OVERVOLTAGE_MSL) {
         if (event == DIAG_EVENT_RESET) {
             kpkDiagShim->pTableMsl->overVoltage[stringNumber] = 0;
         }
         if (event == DIAG_EVENT_NOT_OK) {
             kpkDiagShim->pTableMsl->overVoltage[stringNumber] = 1;
         }
-    } else if (ch_id == DIAG_ID_CELLVOLTAGE_OVERVOLTAGE_RSL) {
+    } else if (diagId == DIAG_ID_CELL_VOLTAGE_OVERVOLTAGE_RSL) {
         if (event == DIAG_EVENT_RESET) {
             kpkDiagShim->pTableRsl->overVoltage[stringNumber] = 0;
         }
         if (event == DIAG_EVENT_NOT_OK) {
             kpkDiagShim->pTableRsl->overVoltage[stringNumber] = 1;
         }
-    } else if (ch_id == DIAG_ID_CELLVOLTAGE_OVERVOLTAGE_MOL) {
+    } else if (diagId == DIAG_ID_CELL_VOLTAGE_OVERVOLTAGE_MOL) {
         if (event == DIAG_EVENT_RESET) {
             kpkDiagShim->pTableMol->overVoltage[stringNumber] = 0;
         }
@@ -101,30 +101,30 @@ extern void DIAG_ErrorOvervoltage(
 }
 
 extern void DIAG_ErrorUndervoltage(
-    DIAG_ID_e ch_id,
+    DIAG_ID_e diagId,
     DIAG_EVENT_e event,
     const DIAG_DATABASE_SHIM_s *const kpkDiagShim,
     uint32_t stringNumber) {
-    FAS_ASSERT(ch_id < DIAG_ID_MAX);
+    FAS_ASSERT(diagId < DIAG_ID_MAX);
     FAS_ASSERT((event == DIAG_EVENT_OK) || (event == DIAG_EVENT_NOT_OK) || (event == DIAG_EVENT_RESET));
     FAS_ASSERT(kpkDiagShim != NULL_PTR);
     FAS_ASSERT(stringNumber < BS_NR_OF_STRINGS);
 
-    if (ch_id == DIAG_ID_CELLVOLTAGE_UNDERVOLTAGE_MSL) {
+    if (diagId == DIAG_ID_CELL_VOLTAGE_UNDERVOLTAGE_MSL) {
         if (event == DIAG_EVENT_RESET) {
             kpkDiagShim->pTableMsl->underVoltage[stringNumber] = 0;
         }
         if (event == DIAG_EVENT_NOT_OK) {
             kpkDiagShim->pTableMsl->underVoltage[stringNumber] = 1;
         }
-    } else if (ch_id == DIAG_ID_CELLVOLTAGE_UNDERVOLTAGE_RSL) {
+    } else if (diagId == DIAG_ID_CELL_VOLTAGE_UNDERVOLTAGE_RSL) {
         if (event == DIAG_EVENT_RESET) {
             kpkDiagShim->pTableRsl->underVoltage[stringNumber] = 0;
         }
         if (event == DIAG_EVENT_NOT_OK) {
             kpkDiagShim->pTableRsl->underVoltage[stringNumber] = 1;
         }
-    } else if (ch_id == DIAG_ID_CELLVOLTAGE_UNDERVOLTAGE_MOL) {
+    } else if (diagId == DIAG_ID_CELL_VOLTAGE_UNDERVOLTAGE_MOL) {
         if (event == DIAG_EVENT_RESET) {
             kpkDiagShim->pTableMol->underVoltage[stringNumber] = 0;
         }
@@ -135,16 +135,16 @@ extern void DIAG_ErrorUndervoltage(
 }
 
 extern void DIAG_ErrorHighVoltageMeasurement(
-    DIAG_ID_e ch_id,
+    DIAG_ID_e diagId,
     DIAG_EVENT_e event,
     const DIAG_DATABASE_SHIM_s *const kpkDiagShim,
     uint32_t stringNumber) {
-    FAS_ASSERT(ch_id < DIAG_ID_MAX);
+    FAS_ASSERT(diagId < DIAG_ID_MAX);
     FAS_ASSERT((event == DIAG_EVENT_OK) || (event == DIAG_EVENT_NOT_OK) || (event == DIAG_EVENT_RESET));
     FAS_ASSERT(kpkDiagShim != NULL_PTR);
     FAS_ASSERT(stringNumber < BS_NR_OF_STRINGS);
 
-    switch (ch_id) {
+    switch (diagId) {
         case DIAG_ID_CURRENT_SENSOR_V1_MEASUREMENT_TIMEOUT:
             if (event == DIAG_EVENT_RESET) {
                 kpkDiagShim->pTableError->currentSensorTimeoutV1[stringNumber] = 0u;

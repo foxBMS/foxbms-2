@@ -43,8 +43,8 @@
  * @file    plausibility.c
  * @author  foxBMS Team
  * @date    2020-02-24 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup APPLICATION
  * @prefix  PL
  *
@@ -83,7 +83,7 @@ extern STD_RETURN_TYPE_e PL_CheckStringVoltage(int32_t voltageAfe_mV, int32_t vo
     return result;
 }
 
-extern STD_RETURN_TYPE_e PL_CheckCellvoltage(
+extern STD_RETURN_TYPE_e PL_CheckCellVoltage(
     int16_t baseCellVoltage,
     int16_t redundancy0CellVoltage,
     int16_t *pCellVoltage) {
@@ -121,10 +121,10 @@ extern STD_RETURN_TYPE_e PL_CheckCelltemperature(
 }
 
 extern STD_RETURN_TYPE_e PL_CheckVoltageSpread(
-    DATA_BLOCK_CELL_VOLTAGE_s *pCellvoltages,
+    DATA_BLOCK_CELL_VOLTAGE_s *pCellVoltages,
     DATA_BLOCK_MIN_MAX_s *pMinMaxAverageValues) {
     /* Pointer validity check */
-    FAS_ASSERT(pCellvoltages != NULL_PTR);
+    FAS_ASSERT(pCellVoltages != NULL_PTR);
     FAS_ASSERT(pMinMaxAverageValues != NULL_PTR);
 
     STD_RETURN_TYPE_e retval = STD_OK;
@@ -135,14 +135,14 @@ extern STD_RETURN_TYPE_e PL_CheckVoltageSpread(
         for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
             for (uint8_t c = 0u; c < BS_NR_OF_CELL_BLOCKS_PER_MODULE; c++) {
                 /* Only do check for valid voltages */
-                if ((pCellvoltages->invalidCellVoltage[s][m] & (0x01u << c)) == 0) {
-                    if (abs(pCellvoltages->cellVoltage_mV[s][(m * BS_NR_OF_CELL_BLOCKS_PER_MODULE) + c] -
+                if ((pCellVoltages->invalidCellVoltage[s][m] & (0x01u << c)) == 0) {
+                    if (abs(pCellVoltages->cellVoltage_mV[s][(m * BS_NR_OF_CELL_BLOCKS_PER_MODULE) + c] -
                             pMinMaxAverageValues->averageCellVoltage_mV[s]) > PL_CELL_VOLTAGE_SPREAD_TOLERANCE_mV) {
                         /* Voltage difference too large */
                         plausibilityIssueDetected = STD_NOT_OK;
                         retval                    = STD_NOT_OK;
                         /* Set this cell voltage invalid */
-                        pCellvoltages->invalidCellVoltage[s][m] |= (0x01u << c);
+                        pCellVoltages->invalidCellVoltage[s][m] |= (0x01u << c);
                     }
                 }
             }

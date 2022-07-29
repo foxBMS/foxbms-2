@@ -43,8 +43,8 @@
  * @file    bal_strategy_history.c
  * @author  foxBMS Team
  * @date    2020-05-29 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup APPLICATION
  * @prefix  BAL
  *
@@ -68,7 +68,7 @@
 /** local storage of the #DATA_BLOCK_BALANCING_CONTROL_s table */
 static DATA_BLOCK_BALANCING_CONTROL_s bal_balancing = {.header.uniqueId = DATA_BLOCK_ID_BALANCING_CONTROL};
 /** local storage of the #DATA_BLOCK_CELL_VOLTAGE_s table */
-static DATA_BLOCK_CELL_VOLTAGE_s bal_cellvoltage = {.header.uniqueId = DATA_BLOCK_ID_CELL_VOLTAGE};
+static DATA_BLOCK_CELL_VOLTAGE_s bal_cellVoltage = {.header.uniqueId = DATA_BLOCK_ID_CELL_VOLTAGE};
 
 /** contains the state of the contactor state machine */
 static BAL_STATE_s bal_state = {
@@ -123,7 +123,7 @@ static void BAL_ActivateBalancing(void) {
     float cellBalancingCurrent = 0.0f;
     uint32_t difference        = 0;
 
-    DATA_READ_DATA(&bal_balancing, &bal_cellvoltage);
+    DATA_READ_DATA(&bal_balancing, &bal_cellVoltage);
 
     for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
         uint16_t nrBalancedCells = 0u;
@@ -134,7 +134,7 @@ static void BAL_ActivateBalancing(void) {
                 if (bal_balancing.deltaCharge_mAs[s][c] > 0) {
                     bal_balancing.balancingState[s][c] = 1;
                     nrBalancedCells++;
-                    cellBalancingCurrent = ((float)(bal_cellvoltage.cellVoltage_mV[s][c])) /
+                    cellBalancingCurrent = ((float)(bal_cellVoltage.cellVoltage_mV[s][c])) /
                                            BS_BALANCING_RESISTANCE_ohm;
                     difference       = (BAL_STATEMACH_BALANCINGTIME_100ms / 10) * (uint32_t)(cellBalancingCurrent);
                     bal_state.active = true;
@@ -270,21 +270,21 @@ static void BAL_ComputeImbalances(void) {
     uint32_t DOD             = 0;
     uint32_t maxDOD          = 0;
 
-    DATA_READ_DATA(&bal_balancing, &bal_cellvoltage);
+    DATA_READ_DATA(&bal_balancing, &bal_cellVoltage);
 
     for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
-        voltageMin      = bal_cellvoltage.cellVoltage_mV[s][0];
+        voltageMin      = bal_cellVoltage.cellVoltage_mV[s][0];
         minVoltageIndex = 0;
 
         for (uint16_t c = 0u; c < BS_NR_OF_CELL_BLOCKS_PER_STRING; c++) {
-            if (bal_cellvoltage.cellVoltage_mV[s][c] <= voltageMin) {
-                voltageMin      = bal_cellvoltage.cellVoltage_mV[s][c];
+            if (bal_cellVoltage.cellVoltage_mV[s][c] <= voltageMin) {
+                voltageMin      = bal_cellVoltage.cellVoltage_mV[s][c];
                 minVoltageIndex = c;
             }
         }
 
-        SOC    = SOC_GetFromVoltage(((float)(bal_cellvoltage.cellVoltage_mV[s][minVoltageIndex])) / 1000.0f);
-        maxDOD = BC_CAPACITY_mAh * (uint32_t)((1.0f - SOC) * 3600.0f);
+        SOC = SE_GetStateOfChargeFromVoltage(((float)(bal_cellVoltage.cellVoltage_mV[s][minVoltageIndex])) / 1000.0f);
+        maxDOD                                            = BC_CAPACITY_mAh * (uint32_t)((1.0f - SOC) * 3600.0f);
         bal_balancing.deltaCharge_mAs[s][minVoltageIndex] = 0;
 
         /* update balancing threshold */
@@ -292,8 +292,8 @@ static void BAL_ComputeImbalances(void) {
 
         for (uint16_t c = 0u; c < BS_NR_OF_CELL_BLOCKS_PER_STRING; c++) {
             if (c != minVoltageIndex) {
-                if (bal_cellvoltage.cellVoltage_mV[s][c] >= (voltageMin + bal_state.balancingThreshold)) {
-                    SOC = SOC_GetFromVoltage(((float)(bal_cellvoltage.cellVoltage_mV[s][c])) / 1000.0f);
+                if (bal_cellVoltage.cellVoltage_mV[s][c] >= (voltageMin + bal_state.balancingThreshold)) {
+                    SOC = SE_GetStateOfChargeFromVoltage(((float)(bal_cellVoltage.cellVoltage_mV[s][c])) / 1000.0f);
                     DOD = BC_CAPACITY_mAh * (uint32_t)((1.0f - SOC) * 3600.0f);
                     bal_balancing.deltaCharge_mAs[s][c] = (maxDOD - DOD);
                 }

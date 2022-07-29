@@ -43,8 +43,8 @@
  * @file    ftask_freertos.c
  * @author  foxBMS Team
  * @date    2019-08-27 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup TASK
  * @prefix  FTSK
  *
@@ -63,7 +63,7 @@
 
 /*========== Macros and Definitions =========================================*/
 /** helper macro to translate the stack sizes from bytes into words as FreeRTOS requires words and not bytes */
-#define FTSK_BYTES_TO_WORDS(VARIABALE_IN_BYTES) ((VARIABALE_IN_BYTES) / BYTES_PER_WORD)
+#define FTSK_BYTES_TO_WORDS(VARIABALE_IN_BYTES) ((VARIABALE_IN_BYTES) / GEN_BYTES_PER_WORD)
 /** Stack size of engine task in words */
 #define FTSK_TASK_ENGINE_STACK_SIZE_IN_WORDS FTSK_BYTES_TO_WORDS(FTSK_TASK_ENGINE_STACK_SIZE_IN_BYTES)
 /** @brief Stack size of cyclic 1 ms task in words */
@@ -90,6 +90,7 @@
 /*========== Static Constant and Variable Definitions =======================*/
 
 /*========== Extern Constant and Variable Definitions =======================*/
+/** @brief Definition of task handle for the AFE task */
 TaskHandle_t ftsk_taskHandleAfe;
 
 volatile bool ftsk_allQueuesCreated = false;

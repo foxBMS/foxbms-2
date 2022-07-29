@@ -43,8 +43,8 @@
  * @file    test_vishay_ntcle317e4103sba_lookup-table.c
  * @author  foxBMS Team
  * @date    2021-11-02 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *

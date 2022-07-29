@@ -43,8 +43,8 @@
  * @file    bms.c
  * @author  foxBMS Team
  * @date    2020-02-24 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup ENGINE
  * @prefix  BMS
  *
@@ -329,6 +329,8 @@ static uint8_t BMS_CheckCanRequests(void) {
         retVal = BMS_REQ_ID_NORMAL;
     } else if (request.stateRequestViaCan == BMS_REQ_ID_CHARGE) {
         retVal = BMS_REQ_ID_CHARGE;
+    } else if (request.stateRequestViaCan == BMS_REQ_ID_NOREQ) {
+        retVal = BMS_REQ_ID_NOREQ;
     } else {
         /* invalid or no request, default to BMS_REQ_ID_NOREQ (already set) */
     }
@@ -713,10 +715,10 @@ void BMS_Trigger(void) {
         /****************************INITIALIZATION***************************/
         case BMS_STATEMACH_INITIALIZATION:
             BMS_SAVELASTSTATES();
-
-            bms_state.timer    = BMS_STATEMACH_LONGTIME;
-            bms_state.state    = BMS_STATEMACH_INITIALIZED;
-            bms_state.substate = BMS_ENTRY;
+            bms_state.initFinished = STD_OK;
+            bms_state.timer        = BMS_STATEMACH_LONGTIME;
+            bms_state.state        = BMS_STATEMACH_INITIALIZED;
+            bms_state.substate     = BMS_ENTRY;
             break;
 
         /****************************INITIALIZED******************************/
@@ -726,10 +728,9 @@ void BMS_Trigger(void) {
                 /* Initialization of IMD device not finished yet -> wait until this is finished before moving on */
                 bms_state.timer = BMS_STATEMACH_LONGTIME;
             } else {
-                bms_state.initFinished = STD_OK;
-                bms_state.timer        = BMS_STATEMACH_SHORTTIME;
-                bms_state.state        = BMS_STATEMACH_IDLE;
-                bms_state.substate     = BMS_ENTRY;
+                bms_state.timer    = BMS_STATEMACH_SHORTTIME;
+                bms_state.state    = BMS_STATEMACH_IDLE;
+                bms_state.substate = BMS_ENTRY;
             }
             break;
 

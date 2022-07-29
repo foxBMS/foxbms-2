@@ -44,13 +44,11 @@ needs.
 For information on VS Code see https://code.visualstudio.com/.
 """
 
-import json
 import os
 from pathlib import Path
 import re
 
 import jinja2
-import jsonschema
 from waflib import Context, Utils
 
 # This tool uses slash as path separator for the sake of simplicity as it
@@ -207,7 +205,7 @@ def configure(conf):  # pylint: disable=too-many-statements,too-many-branches
         PYTHON_ANALYSIS_EXTRA_PATHS=[waf_dir, waf_tools_dir, axivion_modules],
         PYLINT_PATH=pylint_exe,
         PYLINT_CONFIG=pylint_cfg,
-        BLACKPATH=black_exe,
+        BLACK_PATH=black_exe,
         BLACK_CONFIG=black_cfg,
         CLANG_FORMAT_EXECUTABLE=clang_format_executable,
         AXIVION_VS_CONFIG=axivion_vs_config,
@@ -222,9 +220,7 @@ def configure(conf):  # pylint: disable=too-many-statements,too-many-branches
         .read()
         .splitlines()
     )
-    vscode_defines = [
-        (f"FOXBMS_USES_{conf.env.CONF_OPERATING_SYSTEM_NAME[0].upper()}", 1)
-    ]
+    vscode_defines = [i.split("=") for i in conf.env.DEFINES]
     reg = re.compile(r"(#define)([ ])([a-zA-Z0-9_]{1,})([ ])([a-zA-Z0-9_\":. ]{1,})")
     for d in defines_read:
         define = d.split("/*")[0]
@@ -236,69 +232,28 @@ def configure(conf):  # pylint: disable=too-many-statements,too-many-branches
             if '"' in val:
                 val = val.replace('"', '\\"')
             vscode_defines.append((def_name, val))
-
-    bms_config = json.loads(
-        conf.path.find_node(os.path.join("conf", "bms", "bms.json")).read()
-    )
-    validator = conf.f_validator(
-        conf.path.find_node(
-            os.path.join("conf", "bms", "schema", "bms.schema.json")
-        ).abspath()
-    )
-    try:
-        validator.validate(bms_config)
-    except jsonschema.exceptions.ValidationError as err:
-        good_values = ", ".join([f"'{i}'" for i in err.validator_value])
-        conf.fatal(
-            f"Setting '{err.instance}' in '{'/'.join(list(err.path))}' is not "
-            f"supported.\nUse one of these: {good_values}."
-        )
-    os_name = bms_config["operating-system"]["name"]
-    rtos_details = json.loads(
-        conf.path.find_node(
-            os.path.join("src", "os", os_name, f"{os_name}_cfg.json")
-        ).read()
-    )
-
-    os_includes = [
-        Path(os.path.join("src", "os", os_name, i)).as_posix()
-        for i in rtos_details["include"]
+    rtos_includes = [
+        Path(str(conf.root.find_node(i).path_from(conf.path))).as_posix()
+        for i in conf.env.INCLUDES_RTOS
     ]
-    bal = bms_config["slave-unit"]["balancing-strategy"]
-    soc = bms_config["application"]["algorithm"]["state-estimation"]["soc"]
-    soe = bms_config["application"]["algorithm"]["state-estimation"]["soe"]
-    soh = bms_config["application"]["algorithm"]["state-estimation"]["soh"]
-
-    imd = bms_config["application"]["insulation-monitoring-device"]
-    imd_manufacturer = imd["manufacturer"]
-    imd_model = imd["model"]
-
-    chip = bms_config["slave-unit"]["analog-front-end"]["chip"]
-    if chip in ("6804-1", "6811-1", "6812-1"):
-        chip = "6813-1"
     c_cpp_properties = template.render(
         ARMCL=Path(conf.env.CC[0]).as_posix(),
-        OS=os_name,
-        OS_INCLUDES=os_includes,
-        BALANCING_STRATEGY=bal,
-        AFE_MANUFACTURER=bms_config["slave-unit"]["analog-front-end"]["manufacturer"],
-        AFE_CHIP=chip,
-        TEMPERATURE_SENSOR_MANUFACTURER=bms_config["slave-unit"]["temperature-sensor"][
-            "manufacturer"
-        ],
-        TEMPERATURE_SENSOR_MODEL=bms_config["slave-unit"]["temperature-sensor"][
-            "model"
-        ],
-        TEMPERATURE_SENSOR_METHOD=bms_config["slave-unit"]["temperature-sensor"][
-            "method"
-        ],
-        STATE_ESTIMATOR_SOC=soc,
-        STATE_ESTIMATOR_SOE=soe,
-        STATE_ESTIMATOR_SOH=soh,
-        IMD_MANUFACTURER=imd_manufacturer,
-        IMD_MODEL=imd_model,
+        RTOS=conf.env.RTOS_NAME[0],
+        RTOS_INCLUDES=rtos_includes,
+        BALANCING_STRATEGY=conf.env.balancing_strategy,
+        AFE_MANUFACTURER=conf.env.afe_manufacturer,
+        AFE_IC=conf.env.afe_ic,
+        TEMPERATURE_SENSOR_MANUFACTURER=conf.env.temperature_sensor_manuf,
+        TEMPERATURE_SENSOR_MODEL=conf.env.temperature_sensor_model,
+        TEMPERATURE_SENSOR_METHOD=conf.env.temperature_sensor_meth,
+        STATE_ESTIMATOR_SOC=conf.env.state_estimator_soc,
+        STATE_ESTIMATOR_SOE=conf.env.state_estimator_soe,
+        STATE_ESTIMATOR_SOF=conf.env.state_estimator_sof,
+        STATE_ESTIMATOR_SOH=conf.env.state_estimator_soh,
+        IMD_MANUFACTURER=conf.env.imd_manufacturer,
+        IMD_MODEL=conf.env.imd_model,
         INCLUDES=[Path(x).as_posix() for x in conf.env.INCLUDES],
-        CSTANDARD="c11",
+        C_STANDARD="c11",
         DEFINES=vscode_defines,
     )
     vsc_c_cpp_properties_file = os.path.join(

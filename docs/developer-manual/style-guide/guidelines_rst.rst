@@ -97,8 +97,8 @@ Headings (``RST:005``)
 ----------------------
 
 We follow the convention of the Python Developer's Guide for
-`Documenting Python <https://devguide.python.org/documenting/#sections>`_. Use
-the following rules to create headings:
+`reStructuredText Markup <https://devguide.python.org/documentation/markup/#sections>`_.
+Use the following rules to create headings:
 
 - # with overline, for parts
 - \* with overline, for chapters

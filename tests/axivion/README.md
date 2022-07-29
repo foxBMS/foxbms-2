@@ -53,3 +53,11 @@
         start_local_dashserver.bat
         wrapper_make_race_pdfs.bat
 ```
+
+## MISRA C:2012 Hints
+
+| Strictness | Meaning                     | Deviations                                     | foxBMS 2 specifics              |
+|------------|-----------------------------|------------------------------------------------|---------------------------------|
+| mandatory  | Rule **SHALL** be followed  | No deviations.                                 | -                               |
+| required   | Rule **SHOULD** be followed | Deviations need to be justified and documented | -                               |
+| advisory   | Rule **SHOULD** be followed | Deviations need to be documented               | Rule also needs to be justified |

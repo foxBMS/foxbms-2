@@ -43,8 +43,8 @@
  * @file    nxpfs85xx.c
  * @author  foxBMS Team
  * @date    2020-03-18 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup DRIVERS
  * @prefix  SBC
  *
@@ -107,6 +107,32 @@ FS85_STATE_s fs85xx_mcuSupervisor = {
 static STD_RETURN_TYPE_e SBC_CheckRegisterValues(uint32_t registerValue, uint32_t expectedRegisterValue);
 
 /**
+ * @brief           Updates fail safe register values
+ * @details         Updates fail safe register value of passed SBC instance
+ *                  with new values
+ * @param[in,out]   pFsRegister     pointer to fail-safe registers
+ * @param[in]       registerAddress address of register that is updated
+ * @param[in]       registerValue   register value
+ */
+static void SBC_UpdateFailSafeRegister(
+    FS85_FS_REGISTER_s *pFsRegister,
+    uint32_t registerAddress,
+    uint32_t registerValue);
+
+/**
+ * @brief           Updates main register values
+ * @details         Updates main register value of passed SBC instance with new
+ *                  values
+ * @param[in,out]   pMainRegister   pointer to main registers
+ * @param[in]       registerAddress address of register that is updated
+ * @param[in]       registerValue   register value
+ */
+static void SBC_UpdateMainRegister(
+    FS85_MAIN_REGISTERS_s *pMainRegister,
+    uint32_t registerAddress,
+    uint32_t registerValue);
+
+/**
  * @brief           Updates register values
  * @details         Updates register value of passed SBC instance with new
  *                  values
@@ -140,7 +166,7 @@ static STD_RETURN_TYPE_e SBC_ReadBackRegister(FS85_STATE_s *pInstance, bool isFa
  * @param[in]   pInstance       SBC instance that is updated
  * @param[in]   registerAddress address of register
  * @param[in]   registerValue   value that is written into register
- * @return      #STD_OK if writting was successful, other #STD_NOT_OK
+ * @return      #STD_OK if writing was successful, other #STD_NOT_OK
  */
 static STD_RETURN_TYPE_e SBC_WriteRegisterFsInit(
     FS85_STATE_s *pInstance,
@@ -155,7 +181,7 @@ static STD_RETURN_TYPE_e SBC_WriteRegisterFsInit(
  * @param[in,out]   pInstance       SBC instance that is updated
  * @param[in]       registerAddress address of register
  * @param[in]       registerValue   value that is written into register
- * @return          #STD_OK if writting was successful, other #STD_NOT_OK
+ * @return          #STD_OK if writing was successful, other #STD_NOT_OK
  */
 static STD_RETURN_TYPE_e SBC_WriteBackRegisterFsInit(
     FS85_STATE_s *pInstance,
@@ -171,7 +197,7 @@ static STD_RETURN_TYPE_e SBC_WriteBackRegisterFsInit(
  * @param[in]       registerAddress address of register
  * @param[in]       isFailSafe      true if fail-safe register, false if main register
  * @param[in]       registerValue   value that is written into register
- * @return          #STD_OK if writting was successful, other #STD_NOT_OK
+ * @return          #STD_OK if writing was successful, other #STD_NOT_OK
  */
 static STD_RETURN_TYPE_e SBC_ClearRegisterFlags(
     FS85_STATE_s *pInstance,
@@ -213,6 +239,127 @@ static STD_RETURN_TYPE_e SBC_CheckRegisterValues(uint32_t registerValue, uint32_
     return retval;
 }
 
+static void SBC_UpdateFailSafeRegister(
+    FS85_FS_REGISTER_s *pFsRegister,
+    uint32_t registerAddress,
+    uint32_t registerValue) {
+    FAS_ASSERT(pFsRegister != NULL_PTR);
+    FAS_ASSERT(registerAddress <= FS8X_M_DEVICEID_ADDR);
+    /* AXIVION Routine Generic-MissingParameterAssert: registerValue: parameter accepts whole range */
+    switch (registerAddress) {
+        case FS8X_FS_GRL_FLAGS_ADDR:
+            pFsRegister->grl_flags = registerValue;
+            break;
+        case FS8X_FS_I_OVUV_SAFE_REACTION1_ADDR:
+            pFsRegister->iOvervoltageUndervoltageSafeReaction1 = registerValue;
+            break;
+        case FS8X_FS_I_OVUV_SAFE_REACTION2_ADDR:
+            pFsRegister->iOvervoltageUndervoltageSafeReaction2 = registerValue;
+            break;
+        case FS8X_FS_I_WD_CFG_ADDR:
+            pFsRegister->iWatchdogConfiguration = registerValue;
+            break;
+        case FS8X_FS_I_SAFE_INPUTS_ADDR:
+            pFsRegister->i_safe_inputs = registerValue;
+            break;
+        case FS8X_FS_I_FSSM_ADDR:
+            pFsRegister->iFailSafeSateMachine = registerValue;
+            break;
+        case FS8X_FS_I_SVS_ADDR:
+            pFsRegister->i_svs = registerValue;
+            break;
+        case FS8X_FS_WD_WINDOW_ADDR:
+            pFsRegister->watchdogWindow = registerValue;
+            break;
+        case FS8X_FS_WD_SEED_ADDR:
+            pFsRegister->watchdogSeed = registerValue;
+            break;
+        case FS8X_FS_WD_ANSWER_ADDR:
+            pFsRegister->watchdogAnswer = registerValue;
+            break;
+        case FS8X_FS_OVUVREG_STATUS_ADDR:
+            pFsRegister->overvoltageUndervoltageRegisterStatus = registerValue;
+            break;
+        case FS8X_FS_RELEASE_FS0B_ADDR:
+            pFsRegister->releaseFs0bPin = registerValue;
+            break;
+        case FS8X_FS_SAFE_IOS_ADDR:
+            pFsRegister->safeIos = registerValue;
+            break;
+        case FS8X_FS_DIAG_SAFETY_ADDR:
+            pFsRegister->diag_safety = registerValue;
+            break;
+        case FS8X_FS_INTB_MASK_ADDR:
+            pFsRegister->intb_mask = registerValue;
+            break;
+        case FS8X_FS_STATES_ADDR:
+            pFsRegister->states = registerValue;
+            break;
+        default:
+            FAS_ASSERT(FAS_TRAP); /* This case should never be reached */
+            break;
+    }
+}
+
+static void SBC_UpdateMainRegister(
+    FS85_MAIN_REGISTERS_s *pMainRegister,
+    uint32_t registerAddress,
+    uint32_t registerValue) {
+    FAS_ASSERT(pMainRegister != NULL_PTR);
+    FAS_ASSERT(registerAddress <= FS8X_M_DEVICEID_ADDR);
+    /* AXIVION Routine Generic-MissingParameterAssert: registerValue: parameter accepts whole range */
+    switch (registerAddress) {
+        case FS8X_M_FLAG_ADDR:
+            pMainRegister->flag = registerValue;
+            break;
+        case FS8X_M_MODE_ADDR:
+            pMainRegister->mode = registerValue;
+            break;
+        case FS8X_M_REG_CTRL1_ADDR:
+            pMainRegister->registerControl1 = registerValue;
+            break;
+        case FS8X_M_REG_CTRL2_ADDR:
+            pMainRegister->registerControl2 = registerValue;
+            break;
+        case FS8X_M_AMUX_ADDR:
+            pMainRegister->analogMultiplexer = registerValue;
+            break;
+        case FS8X_M_CLOCK_ADDR:
+            pMainRegister->clock = registerValue;
+            break;
+        case FS8X_M_INT_MASK1_ADDR:
+            pMainRegister->int_mask1 = registerValue;
+            break;
+        case FS8X_M_INT_MASK2_ADDR:
+            pMainRegister->int_mask2 = registerValue;
+            break;
+        case FS8X_M_FLAG1_ADDR:
+            pMainRegister->flag1 = registerValue;
+            break;
+        case FS8X_M_FLAG2_ADDR:
+            pMainRegister->flag2 = registerValue;
+            break;
+        case FS8X_M_VMON_REGX_ADDR:
+            pMainRegister->vmon_regx = registerValue;
+            break;
+        case FS8X_M_LVB1_SVS_ADDR:
+            pMainRegister->lvb1_svs = registerValue;
+            break;
+        case FS8X_M_MEMORY0_ADDR:
+            pMainRegister->memory0 = registerValue;
+            break;
+        case FS8X_M_MEMORY1_ADDR:
+            pMainRegister->memory1 = registerValue;
+            break;
+        case FS8X_M_DEVICEID_ADDR:
+            pMainRegister->deviceId = registerValue;
+            break;
+        default:
+            FAS_ASSERT(FAS_TRAP); /* This case should never be reached */
+            break;
+    }
+}
+
 static void SBC_UpdateRegister(
     FS85_STATE_s *pInstance,
     bool isFailSafe,
@@ -224,144 +371,10 @@ static void SBC_UpdateRegister(
     /* AXIVION Routine Generic-MissingParameterAssert: registerValue: parameter accepts whole range */
 
     /* Check if fail-safe or main register needs to be updated */
-    if (isFailSafe == true) {
-        /* Update fail-safe register */
-        switch (registerAddress) {
-            case FS8X_FS_GRL_FLAGS_ADDR:
-                pInstance->fsRegister.grl_flags = registerValue;
-                break;
-
-            case FS8X_FS_I_OVUV_SAFE_REACTION1_ADDR:
-                pInstance->fsRegister.iOvervoltageUndervolateSafeReaction1 = registerValue;
-                break;
-
-            case FS8X_FS_I_OVUV_SAFE_REACTION2_ADDR:
-                pInstance->fsRegister.iOvervoltageUndervolateSafeReaction2 = registerValue;
-                break;
-
-            case FS8X_FS_I_WD_CFG_ADDR:
-                pInstance->fsRegister.iWatchdogConfiguration = registerValue;
-                break;
-
-            case FS8X_FS_I_SAFE_INPUTS_ADDR:
-                pInstance->fsRegister.i_safe_inputs = registerValue;
-                break;
-
-            case FS8X_FS_I_FSSM_ADDR:
-                pInstance->fsRegister.iFailSafeSateMachine = registerValue;
-                break;
-
-            case FS8X_FS_I_SVS_ADDR:
-                pInstance->fsRegister.i_svs = registerValue;
-                break;
-
-            case FS8X_FS_WD_WINDOW_ADDR:
-                pInstance->fsRegister.watchdogWindow = registerValue;
-                break;
-
-            case FS8X_FS_WD_SEED_ADDR:
-                pInstance->fsRegister.watchdogSeed = registerValue;
-                break;
-
-            case FS8X_FS_WD_ANSWER_ADDR:
-                pInstance->fsRegister.watchdogAnswer = registerValue;
-                break;
-
-            case FS8X_FS_OVUVREG_STATUS_ADDR:
-                pInstance->fsRegister.overvoltageUndervoltageRegisterStatus = registerValue;
-                break;
-
-            case FS8X_FS_RELEASE_FS0B_ADDR:
-                pInstance->fsRegister.releaseFs0bPin = registerValue;
-                break;
-
-            case FS8X_FS_SAFE_IOS_ADDR:
-                pInstance->fsRegister.safeIos = registerValue;
-                break;
-
-            case FS8X_FS_DIAG_SAFETY_ADDR:
-                pInstance->fsRegister.diag_safety = registerValue;
-                break;
-
-            case FS8X_FS_INTB_MASK_ADDR:
-                pInstance->fsRegister.intb_mask = registerValue;
-                break;
-
-            case FS8X_FS_STATES_ADDR:
-                pInstance->fsRegister.states = registerValue;
-                break;
-
-            default:
-                FAS_ASSERT(FAS_TRAP); /* This case should never be reached */
-                break;
-        }
-    } else {
-        /* Update main register */
-        switch (registerAddress) {
-            case FS8X_M_FLAG_ADDR:
-                pInstance->mainRegister.flag = registerValue;
-                break;
-
-            case FS8X_M_MODE_ADDR:
-                pInstance->mainRegister.mode = registerValue;
-                break;
-
-            case FS8X_M_REG_CTRL1_ADDR:
-                pInstance->mainRegister.registerControl1 = registerValue;
-                break;
-
-            case FS8X_M_REG_CTRL2_ADDR:
-                pInstance->mainRegister.registerControl2 = registerValue;
-                break;
-
-            case FS8X_M_AMUX_ADDR:
-                pInstance->mainRegister.analogMultiplexer = registerValue;
-                break;
-
-            case FS8X_M_CLOCK_ADDR:
-                pInstance->mainRegister.clock = registerValue;
-                break;
-
-            case FS8X_M_INT_MASK1_ADDR:
-                pInstance->mainRegister.int_mask1 = registerValue;
-                break;
-
-            case FS8X_M_INT_MASK2_ADDR:
-                pInstance->mainRegister.int_mask2 = registerValue;
-                break;
-
-            case FS8X_M_FLAG1_ADDR:
-                pInstance->mainRegister.flag1 = registerValue;
-                break;
-
-            case FS8X_M_FLAG2_ADDR:
-                pInstance->mainRegister.flag2 = registerValue;
-                break;
-
-            case FS8X_M_VMON_REGX_ADDR:
-                pInstance->mainRegister.vmon_regx = registerValue;
-                break;
-
-            case FS8X_M_LVB1_SVS_ADDR:
-                pInstance->mainRegister.lvb1_svs = registerValue;
-                break;
-
-            case FS8X_M_MEMORY0_ADDR:
-                pInstance->mainRegister.memory0 = registerValue;
-                break;
-
-            case FS8X_M_MEMORY1_ADDR:
-                pInstance->mainRegister.memory1 = registerValue;
-                break;
-
-            case FS8X_M_DEVICEID_ADDR:
-                pInstance->mainRegister.deviceId = registerValue;
-                break;
-
-            default:
-                FAS_ASSERT(FAS_TRAP); /* This case should never be reached */
-                break;
-        }
+    if (isFailSafe == true) { /* Update fail-safe register */
+        SBC_UpdateFailSafeRegister(&(pInstance->fsRegister), registerAddress, registerValue);
+    } else { /* Update main register */
+        SBC_UpdateMainRegister(&(pInstance->mainRegister), registerAddress, registerValue);
     }
 }
 
@@ -814,7 +827,7 @@ extern STD_RETURN_TYPE_e FS85_InitializeFsPhase(FS85_STATE_s *pInstance) {
 
     /** 3.: Clear all the flags by writing in FS_DIAG_SAFETY */
     registerValue = 0;
-    /** Flags are cleared by writting '1' to register */
+    /** Flags are cleared by writing '1' to register */
     registerValue |= (FS8X_FS_FCCU12_ERROR_DETECTED | FS8X_FS_FCCU1_ERROR_DETECTED | FS8X_FS_FCCU2_ERROR_DETECTED);
     registerValue |= FS8X_FS_ERRMON_ERROR_DETECTED;
     registerValue |= (FS8X_FS_BAD_WD_DATA_BAD_WD_REFRESH | FS8X_FS_BAD_WD_TIMING_BAD_WD_REFRESH);
@@ -828,7 +841,7 @@ extern STD_RETURN_TYPE_e FS85_InitializeFsPhase(FS85_STATE_s *pInstance) {
 
     /** Clear all the flags by writing in FS_OVUVREG_STATUS */
     registerValue = 0;
-    /** Flags are cleared by writting '1' to register */
+    /** Flags are cleared by writing '1' to register */
     registerValue |= (FS8X_FS_VCOREMON_OV_OVERVOLTAGE_REPORTED | FS8X_FS_VCOREMON_UV_UNDERVOLTAGE_REPORTED);
     registerValue |= (FS8X_FS_VDDIO_OV_OVERVOLTAGE_REPORTED | FS8X_FS_VDDIO_UV_UNDERVOLTAGE_REPORTED);
     registerValue |=
@@ -969,7 +982,7 @@ extern STD_RETURN_TYPE_e FS85_SafetyPathChecks(FS85_STATE_s *pInstance) {
     return retval;
 }
 
-/* AXIVION Next Line Style CodingStyle-Naming: The function name is pre-defined by the driver provided by NXP */
+/* AXIVION Next Codeline Style CodingStyle-Naming.Function: The name is pre-defined by the driver provided by NXP. */
 extern UNIT_TEST_WEAK_IMPL fs8x_status_t MCU_SPI_TransferData(
     SPI_INTERFACE_CONFIG_s *pSpiInterface,
     uint8_t *txFrame,
@@ -1113,7 +1126,7 @@ static STD_RETURN_TYPE_e SBC_PerformPathCheckRstb(FS85_STATE_s *pInstance) {
             IO_PinSet(pInstance->fin.pGIOport, pInstance->fin.pin);
 
             /** No further register access required -> leave privilege mode */
-            FSYS_SwitchToUserMode();
+            FSYS_SWITCH_TO_USER_MODE();
 
             /** FIN state okay, no short circuit. Update also in nvram struct */
             DIAG_Handler(DIAG_ID_SBC_FIN_STATE, DIAG_EVENT_OK, DIAG_SYSTEM, 0);
@@ -1222,3 +1235,31 @@ static STD_RETURN_TYPE_e SBC_PerformPathCheckFs0b(FS85_STATE_s *pInstance) {
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
+#ifdef UNITY_UNIT_TEST
+extern STD_RETURN_TYPE_e TEST_SBC_CheckRegisterValues(uint32_t registerValue, uint32_t expectedRegisterValue) {
+    return SBC_CheckRegisterValues(registerValue, expectedRegisterValue);
+}
+
+extern void TEST_SBC_UpdateRegister(
+    FS85_STATE_s *pInstance,
+    bool isFailSafe,
+    uint32_t registerAddress,
+    uint32_t registerValue) {
+    return SBC_UpdateRegister(pInstance, isFailSafe, registerAddress, registerValue);
+}
+
+extern void TEST_SBC_UpdateFailSafeRegister(
+    FS85_FS_REGISTER_s *pFsRegister,
+    uint32_t registerAddress,
+    uint32_t registerValue) {
+    return SBC_UpdateFailSafeRegister(pFsRegister, registerAddress, registerValue);
+}
+
+extern void TEST_SBC_UpdateMainRegister(
+    FS85_MAIN_REGISTERS_s *pMainRegister,
+    uint32_t registerAddress,
+    uint32_t registerValue) {
+    return SBC_UpdateMainRegister(pMainRegister, registerAddress, registerValue);
+}
+
+#endif

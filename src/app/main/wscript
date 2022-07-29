@@ -81,7 +81,7 @@ def build(bld):
         os.path.join("..", "task", "os"),
         os.path.join("..", "task", "config"),
     ]
-    includes.extend(bld.env.INCLUDES_OPERATING_SYSTEM + bld.env.INCLUDES_AFE)
+    includes.extend(bld.env.INCLUDES_RTOS + bld.env.INCLUDES_AFE)
     cflags = bld.env.CFLAGS_FOXBMS
     use = [
         f"{bld.env.APPNAME.lower()}-application",

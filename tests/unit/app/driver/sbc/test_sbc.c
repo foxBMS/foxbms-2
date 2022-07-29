@@ -43,8 +43,8 @@
  * @file    test_sbc.c
  * @author  foxBMS Team
  * @date    2020-07-15 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  SBC
  *
@@ -82,4 +82,22 @@ void tearDown(void) {
 /*========== Test Cases =====================================================*/
 
 void testSBC_Trigger(void) {
+}
+
+void testSBC_TriggerWatchdogIfRequired(void) {
+    TEST_ASSERT_FALSE(TEST_SBC_TriggerWatchdogIfRequired(&sbc_stateMcuSupervisor));
+    sbc_stateMcuSupervisor.watchdogTrigger = 10u;
+    /* decrement so we are going to see a trigger event */
+    for (int i = 0; i < sbc_stateMcuSupervisor.watchdogPeriod_10ms - 1; i++) {
+        TEST_ASSERT_FALSE(TEST_SBC_TriggerWatchdogIfRequired(&sbc_stateMcuSupervisor));
+    }
+    /* timer has elapsed now, we should see a trigger event */
+    SBC_TriggerWatchdog_IgnoreAndReturn(STD_OK);
+    TEST_ASSERT_TRUE(TEST_SBC_TriggerWatchdogIfRequired(&sbc_stateMcuSupervisor));
+    TEST_ASSERT_EQUAL(sbc_stateMcuSupervisor.watchdogTrigger, sbc_stateMcuSupervisor.watchdogPeriod_10ms);
+
+    /* elapse timer and fail to run watchdog trigger */
+    sbc_stateMcuSupervisor.watchdogTrigger = 1u;
+    SBC_TriggerWatchdog_IgnoreAndReturn(STD_NOT_OK);
+    TEST_ASSERT_FALSE(TEST_SBC_TriggerWatchdogIfRequired(&sbc_stateMcuSupervisor));
 }

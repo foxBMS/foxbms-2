@@ -43,8 +43,8 @@
  * @file    sbc.c
  * @author  foxBMS Team
  * @date    2020-07-14 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup DRIVERS
  * @prefix  SBC
  *
@@ -111,7 +111,7 @@ static SBC_RETURN_TYPE_e SBC_CheckStateRequest(SBC_STATE_s *pInstance, SBC_STATE
 /**
  * @brief   Re-entrance check of SBC state machine trigger function
  * @details This function is not re-entrant and should only be called time- or
- *          event-triggered. It increments the triggerentry counter from the
+ *          event-triggered. It increments the triggerEntry counter from the
  *          state variable pInstance->triggerEntry. It should never be called
  *          by two different processes, so if it is the case, triggerEntry
  *          should never be higher than 0 when this function is called.
@@ -131,6 +131,16 @@ static SBC_CHECK_REENTRANCE_e SBC_CheckReEntrance(SBC_STATE_s *pInstance);
  *                              #SYS_STATE_REQUEST_e
  */
 static SBC_STATE_REQUEST_e SBC_TransferStateRequest(SBC_STATE_s *pInstance);
+
+/**
+ * @brief           Triggers the watchdog if the timing requires it.
+ * @details         This function checks whether the watchdog timer elapses,
+ *                  and triggers the watchdog in that case.
+ * @param[in,out]   pInstance
+ * @return          retVal      current state request, taken from
+ *                              #SYS_STATE_REQUEST_e
+ */
+static bool SBC_TriggerWatchdogIfRequired(SBC_STATE_s *pInstance);
 
 /*========== Static Function Implementations ================================*/
 static void SBC_SaveLastStates(SBC_STATE_s *pInstance) {
@@ -172,16 +182,6 @@ static SBC_RETURN_TYPE_e SBC_CheckStateRequest(SBC_STATE_s *pInstance, SBC_STATE
     return retval;
 }
 
-/**
- * @brief   re-entrance check of SYS state machine trigger function
- * @details This function is not re-entrant and should only be called time- or
- *          event-triggered. It increments the triggerentry counter from the
- *          state variable sys_systemState. It should never be called by two
- *          different processes, so if it is the case, triggerentry should
- *          never be higher than 0 when this function is called.
- * @return  retval  0 if no further instance of the function is active, 0xff
- *          else
- */
 static SBC_CHECK_REENTRANCE_e SBC_CheckReEntrance(SBC_STATE_s *pInstance) {
     FAS_ASSERT(pInstance != NULL_PTR);
 
@@ -209,6 +209,27 @@ static SBC_STATE_REQUEST_e SBC_TransferStateRequest(SBC_STATE_s *pInstance) {
     OS_ExitTaskCritical();
 
     return (retval);
+}
+
+static bool SBC_TriggerWatchdogIfRequired(SBC_STATE_s *pInstance) {
+    FAS_ASSERT(pInstance != NULL_PTR);
+    bool watchdogHasBeenTriggered = false;
+    if (pInstance->watchdogTrigger > 0u) {
+        pInstance->watchdogTrigger--;
+        if (pInstance->watchdogTrigger == 0u) {
+            if (STD_OK != SBC_TriggerWatchdog(pInstance->pFs85xxInstance)) {
+                /* TODO: Do what if triggering of watchdog fails? */
+            } else {
+                watchdogHasBeenTriggered = true;
+                /* Debug LED Ball V2! :*/
+                /* gioToggleBit(hetPORT1, 1); */
+                /* Reset watchdog counter:
+                 * Decremented every SBC_TASK_CYCLE_CONTEXT_MS and checked in next cycle -> Period-1 */
+                pInstance->watchdogTrigger = pInstance->watchdogPeriod_10ms;
+            }
+        }
+    }
+    return watchdogHasBeenTriggered;
 }
 
 /*========== Extern Function Implementations ================================*/
@@ -246,20 +267,8 @@ extern void SBC_Trigger(SBC_STATE_s *pInstance) {
 
     /* Periodic watchdog triggering */
     if (pInstance->watchdogState == SBC_PERIODIC_WATCHDOG_ACTIVATED) {
-        if (pInstance->watchdogTrigger > 0u) {
-            pInstance->watchdogTrigger--;
-            if (pInstance->watchdogTrigger == 0u) {
-                if (STD_OK != SBC_TriggerWatchdog(pInstance->pFs85xxInstance)) {
-                    /* Do what if triggering of watchdog fails? */
-                } else {
-                    /* Debug LED Ball V2! :*/
-                    /* gioToggleBit(hetPORT1, 1); */
-                    /* Reset watchdog counter:
-                    * Decremented every SBC_TASK_CYCLE_CONTEXT_MS and checked in next cycle -> Period-1 */
-                    pInstance->watchdogTrigger = pInstance->watchdogPeriod_10ms;
-                }
-            }
-        }
+        /* return value is only for unit testing purposes */
+        (void)SBC_TriggerWatchdogIfRequired(pInstance);
     }
 
     if (pInstance->timer > 0u) {
@@ -387,3 +396,8 @@ extern void SBC_Trigger(SBC_STATE_s *pInstance) {
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
+#ifdef UNITY_UNIT_TEST
+extern bool TEST_SBC_TriggerWatchdogIfRequired(SBC_STATE_s *pInstance) {
+    return SBC_TriggerWatchdogIfRequired(pInstance);
+}
+#endif

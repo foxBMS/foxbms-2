@@ -11,7 +11,7 @@
             "${workspaceFolder}/src/app/application/algorithm/state_estimation/",
             "${workspaceFolder}/src/app/application/algorithm/state_estimation/soc/{{ STATE_ESTIMATOR_SOC }}",
             "${workspaceFolder}/src/app/application/algorithm/state_estimation/soe/{{ STATE_ESTIMATOR_SOE }}",
-            "${workspaceFolder}/src/app/application/algorithm/state_estimation/sof/trapezoid",
+            "${workspaceFolder}/src/app/application/algorithm/state_estimation/sof/{{ STATE_ESTIMATOR_SOF }}",
             "${workspaceFolder}/src/app/application/algorithm/state_estimation/soh/{{ STATE_ESTIMATOR_SOH }}",
             "${workspaceFolder}/src/app/application/bal",
             "${workspaceFolder}/src/app/application/bal/{{ BALANCING_STRATEGY }}",
@@ -45,7 +45,7 @@
             "${workspaceFolder}/src/app/driver/afe/api",
             "${workspaceFolder}/src/app/driver/afe/{{ AFE_MANUFACTURER }}/api/**",
             "${workspaceFolder}/src/app/driver/afe/{{ AFE_MANUFACTURER }}/common/**",
-            "${workspaceFolder}/src/app/driver/afe/{{ AFE_MANUFACTURER }}/{{ AFE_CHIP }}/**",
+            "${workspaceFolder}/src/app/driver/afe/{{ AFE_MANUFACTURER }}/{{ AFE_IC }}/**",
             "${workspaceFolder}/src/app/driver/pex",
             "${workspaceFolder}/src/app/driver/pwm",
             "${workspaceFolder}/src/app/driver/rtc",
@@ -72,11 +72,11 @@
             "${workspaceFolder}/src/app/main/include/config",
             "${workspaceFolder}/src/app/task/config",
             "${workspaceFolder}/src/app/task/ftask",
-            "${workspaceFolder}/src/app/task/ftask/{{ OS }}",
+            "${workspaceFolder}/src/app/task/ftask/{{ RTOS }}",
             "${workspaceFolder}/src/app/task/os",
-            "${workspaceFolder}/src/app/task/os/{{ OS }}",
-            "${workspaceFolder}/src/os/{{ OS }}",
-            {% for os_include in OS_INCLUDES %}"${workspaceFolder}/{{ os_include }}",
+            "${workspaceFolder}/src/app/task/os/{{ RTOS }}",
+            "${workspaceFolder}/src/os/{{ RTOS }}",
+            {% for rtos_include in RTOS_INCLUDES %}"${workspaceFolder}/{{ rtos_include }}",
             {% endfor -%}
             "${workspaceFolder}/tools/vendor/ceedling/vendor/unity/src",
             "${workspaceFolder}/tools/vendor/ceedling/vendor/c_exception/lib",
@@ -106,7 +106,7 @@
                 {% endfor %}
             ],
             "intelliSenseMode": "${default}",
-            "cStandard": "{{ CSTANDARD }}"
+            "cStandard": "{{ C_STANDARD }}"
         }
     ],
     "version": 4

@@ -1,0 +1,7 @@
+Symbol;         Meaning
+|red|;          Power path
+|dotted-red|;   Second power path (optional)
+|purple|;       CAN
+|dark-yellow|;  Contactor control and feedback
+|dark-blue|;    Insulation measurement line
+|blue|;         Daisy-chain

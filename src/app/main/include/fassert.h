@@ -43,31 +43,31 @@
  * @file    fassert.h
  * @author  foxBMS Team
  * @date    2020-03-20 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup ASSERT
  * @prefix  FAS
  *
  * @brief   Assert macro implementation
  *
  * @details The default implementation accommodates three behaviors,
- *   based on ASSERT_LEVEL symbol:
+ *   based on FAS_ASSERT_LEVEL symbol:
  *
- * - When the ASSERT_LEVEL symbol is defined as
- *   ASSERT_LEVEL_INF_LOOP_AND_DISABLE_INTERRUPTS, the FAS_ASSERT macro is
+ * - When the FAS_ASSERT_LEVEL symbol is defined as
+ *   FAS_ASSERT_LEVEL_INF_LOOP_AND_DISABLE_INTERRUPTS, the FAS_ASSERT macro is
  *   implemented as an infinite loop in which all interrupts are disabled. This
  *   will definitely trigger a watchdog reset.
  *
- * - When ASSERT_LEVEL symbol is defined as ASSERT_LEVEL_INF_LOOP_FOR_DEBUG,
+ * - When FAS_ASSERT_LEVEL symbol is defined as FAS_ASSERT_LEVEL_INF_LOOP_FOR_DEBUG,
  *   the validation performed by the FAS_ASSERT macro is enabled, and a failed
  *   validation triggers an infinite loop. This configuration is recommended
  *   for development environments, as it prevents further execution. Depending
  *   on the configuration this might lead to a watchdog reset. This mode is
  *   intended for investigation of problems by a developer.
  *
- * - When ASSERT_LEVEL symbol is defined as ASSERT_LEVEL_NO_OPERATION, the
+ * - When FAS_ASSERT_LEVEL symbol is defined as FAS_ASSERT_LEVEL_NO_OPERATION, the
  *   FAS_ASSERT macro is defined as empty and does nothing. It might be
- *   necessary to activate this mode in ressource-constrained situations.
+ *   necessary to activate this mode in resource-constrained situations.
  *   Generally it is not recommended to use this option as it will not notice
  *   the undefined system-states that the assert should catch.
  *
@@ -92,9 +92,18 @@
 
 /*========== Macros and Definitions =========================================*/
 
-/* AXIVION Disable Style MisraC2012-1.2 MisraC2012Directive-4.1: Function is
- * implemented in Assembler (see swiPortDisableInterrupts) and this is the way
- * to tell it the TI compiler */
+/* AXIVION Disable Style MisraC2012Directive-1.1: 'pragma' required to tell the
+ * TI ARM CGT compiler, that this is an interrupt function
+ * (see SPNU151V-January1998-RevisedFebruary2020: 5.11.29 The SWI_ALIAS Pragma)
+ */
+/* AXIVION Disable Style MisraC2012-1.2: Function is implemented in assembler
+ * and this is the way to tell it the TI compiler (see
+ * src\os\freertos\portable\ccs\arm_cortex-r5\portasm.asm::swiPortDisableInterrupts)
+ */
+/* AXIVION Disable Style MisraC2012-8.6: Function definition is in assembler
+ * (see
+ * src\os\freertos\portable\ccs\arm_cortex-r5\portasm.asm::swiPortDisableInterrupts)
+ */
 /**
  * @brief   Disable interrupts
  * @details This alias is mapped to an ASM function and disables all interrupts
@@ -104,7 +113,9 @@
  */
 #pragma SWI_ALIAS(FAS_DisableInterrupts, 5)
 extern void FAS_DisableInterrupts(void);
-/* AXIVION Enable Style MisraC2012-1.2 MisraC2012Directive-4.1: */
+/* AXIVION Enable Style MisraC2012-8.6: */
+/* AXIVION Enable Style MisraC2012-1.2: */
+/* AXIVION Enable Style MisraC2012Directive-1.1: */
 
 /**
  * @brief       Define that evaluates to essential boolean false thus tripping
@@ -131,7 +142,7 @@ typedef struct {
  *          This definition has to be at this position in order to be used by
  *          the macros below.
  *          If you get issues in a unit test with this being not defined, try
- *          to add this header to the unit tests includes explicitely.
+ *          to add this header to the unit tests includes explicitly.
  * @param[in]   pc      address of the program counter where the assertion
  *                      occurred
  * @param[in]   line    line where the assertion occurred
@@ -139,52 +150,52 @@ typedef struct {
 extern void FAS_StoreAssertLocation(uint32_t *pc, uint32_t line);
 
 /**
- * @def     ASSERT_LEVEL_INF_LOOP_AND_DISABLE_INTERRUPTS
+ * @def     FAS_ASSERT_LEVEL_INF_LOOP_AND_DISABLE_INTERRUPTS
  * @brief   This assert level traps the complete program by going into an
  *          infinite loop and disabling all interrupts.
  *
- * @def     ASSERT_LEVEL_INF_LOOP_FOR_DEBUG
+ * @def     FAS_ASSERT_LEVEL_INF_LOOP_FOR_DEBUG
  * @brief   This assert level traps the current task by going into an
  *          infinite loop.
  *
- * @def     ASSERT_LEVEL_NO_OPERATION
+ * @def     FAS_ASSERT_LEVEL_NO_OPERATION
  * @brief   This assert level does nothing (except for the standard recording
  *          of the assert location which does every level).
  */
-#define ASSERT_LEVEL_INF_LOOP_AND_DISABLE_INTERRUPTS (0u)
-#define ASSERT_LEVEL_INF_LOOP_FOR_DEBUG              (1u)
-#define ASSERT_LEVEL_NO_OPERATION                    (2u)
+#define FAS_ASSERT_LEVEL_INF_LOOP_AND_DISABLE_INTERRUPTS (0u)
+#define FAS_ASSERT_LEVEL_INF_LOOP_FOR_DEBUG              (1u)
+#define FAS_ASSERT_LEVEL_NO_OPERATION                    (2u)
 
 /**
- * @def     ASSERT_LEVEL
+ * @def     FAS_ASSERT_LEVEL
  * @brief   Set the assert level to a standard value if not set by the build.
  */
-#ifndef ASSERT_LEVEL
-#define ASSERT_LEVEL ASSERT_LEVEL_INF_LOOP_AND_DISABLE_INTERRUPTS
+#ifndef FAS_ASSERT_LEVEL
+#define FAS_ASSERT_LEVEL FAS_ASSERT_LEVEL_INF_LOOP_AND_DISABLE_INTERRUPTS
 #endif
 
 /*============= define how the assert shall behave =============*/
-#if ASSERT_LEVEL == ASSERT_LEVEL_INF_LOOP_AND_DISABLE_INTERRUPTS
+#if FAS_ASSERT_LEVEL == FAS_ASSERT_LEVEL_INF_LOOP_AND_DISABLE_INTERRUPTS
 /** Assert macro will trigger a watchdog reset */
 static inline void FAS_InfiniteLoop(void) {
     /* disable IRQ interrupts */
     FAS_DisableInterrupts();
-    /* AXIVION Next Line Style MisraC2012-2.2: an infinite loop is intended to stop further code execution */
+    /* AXIVION Next Codeline Style MisraC2012-2.2: an infinite loop is intended to stop further code execution */
     while (true) { /* Stay here until watchdog reset happens */
     }
 }
-#elif ASSERT_LEVEL == ASSERT_LEVEL_INF_LOOP_FOR_DEBUG
+#elif FAS_ASSERT_LEVEL == FAS_ASSERT_LEVEL_INF_LOOP_FOR_DEBUG
 /** Assert macro will stay in infinite loop */
 static inline void FAS_InfiniteLoop(void) {
     while (true) {
         /* Stay here to ease debugging */
     }
 }
-#elif ASSERT_LEVEL == ASSERT_LEVEL_NO_OPERATION
+#elif FAS_ASSERT_LEVEL == FAS_ASSERT_LEVEL_NO_OPERATION
 static inline void FAS_InfiniteLoop(void) {
 }
 #else
-#error "Invalid value for ASSERT_LEVEL"
+#error "Invalid value for FAS_ASSERT_LEVEL"
 #endif
 
 /*============= define the recording macro =============*/
@@ -207,13 +218,13 @@ static inline uint32_t __curpc(void) {
  *          It is important that this is a macro in order to insert it directly
  *          at he assert location in the code
  */
-#define FAS_ASSERT_RECORD()                                                                                      \
-    do {                                                                                                         \
-        /* AXIVION Next Line Style MisraC2012-11.5: The program counter needs to be casted to platform register
+#define FAS_ASSERT_RECORD()                                                                                          \
+    do {                                                                                                             \
+        /* AXIVION Next Codeline Style MisraC2012-11.5: The program counter needs to be casted to platform register
          width */ \
-        uint32_t *pc = (uint32_t *)__curpc();                                                                    \
-        FAS_StoreAssertLocation(pc, __LINE__);                                                                   \
-    } while (0)
+        uint32_t *pc = (uint32_t *)__curpc();                                                                        \
+        FAS_StoreAssertLocation(pc, __LINE__);                                                                       \
+    } while (false)
 
 /*============= define the assertion-macro =============*/
 /**
@@ -227,7 +238,7 @@ static inline uint32_t __curpc(void) {
  *
  *          Use this macro if you want to assert. If the assertion fails
  *          the macro will take action based on the configuration of this module.
- *          See #ASSERT_LEVEL for reference.
+ *          See #FAS_ASSERT_LEVEL for reference.
  *
  *          If the macro passes, it is just ignored. If you want to definitely
  *          fail, you can use the value #FAS_TRAP as an argument which is
@@ -245,31 +256,31 @@ static inline uint32_t __curpc(void) {
             FAS_ASSERT_RECORD(); \
             FAS_InfiniteLoop();  \
         }                        \
-    } while (0)
+    } while (false)
 #endif
 
 #if defined(__STDC_VERSION__) /* We have some newer compiler (C94 at least) */
 #if __STDC_VERSION__ == 199409L
-#warning "Ignoring static asserts in C94 mode (f_static_assert)."
-#define f_static_assert(cond, msg)
+#warning "Ignoring static asserts in C94 mode (FAS_STATIC_ASSERT)."
+#define FAS_STATIC_ASSERT(cond, msg)
 #elif __STDC_VERSION__ == 199901L
 #if defined(__TI_COMPILER_VERSION__)
 /* The TI compiler seems to have hacks to enable static assert see include/sys/cdefs.h */
-#define f_static_assert(cond, msg) _Static_assert(cond, msg)
+#define FAS_STATIC_ASSERT(cond, msg) _Static_assert(cond, msg)
 #else /* for other compilers just ignore the static assert */
-#warning "Ignoring static asserts in C99 mode (f_static_assert)."
-#define f_static_assert(...)
+#warning "Ignoring static asserts in C99 mode (FAS_STATIC_ASSERT)."
+#define FAS_STATIC_ASSERT(...)
 #endif
 #elif __STDC_VERSION__ == 201112L
-#define f_static_assert(cond, msg) _Static_assert(cond, msg)
+#define FAS_STATIC_ASSERT(cond, msg) _Static_assert(cond, msg)
 #elif __STDC_VERSION__ == 201710L
-#define f_static_assert(cond, msg) _Static_assert(cond, msg)
+#define FAS_STATIC_ASSERT(cond, msg) _Static_assert(cond, msg)
 #endif
 #else
 /* if __STDC_VERSION__ is not defined, we have some very old compiler and we
    need to ignore static asserting */
-#warning "Ignoring static asserts in C89/C90 mode (f_static_assert)."
-#define f_static_assert(cond, msg)
+#warning "Ignoring static asserts in C89/C90 mode (FAS_STATIC_ASSERT)."
+#define FAS_STATIC_ASSERT(cond, msg)
 #endif
 
 /*========== Extern Constant and Variable Declarations ======================*/

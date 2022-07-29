@@ -43,8 +43,8 @@
  * @file    interlock.h
  * @author  foxBMS Team
  * @date    2020-02-24 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup DRIVERS
  * @prefix  ILCK
  *
@@ -119,11 +119,6 @@ typedef struct {
 /*========== Extern Constant and Variable Declarations ======================*/
 
 /*========== Extern Function Prototypes =====================================*/
-/**
- * @brief   Checks the configuration of the interlock-module
- * @return  retVal (type: STD_RETURN_TYPE_e)
- */
-extern STD_RETURN_TYPE_e ILCK_Init(void);
 
 /**
  * @brief   sets the current state request of the state variable ilck_state.

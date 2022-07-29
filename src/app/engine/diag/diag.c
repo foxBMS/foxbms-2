@@ -43,16 +43,17 @@
  * @file    diag.c
  * @author  foxBMS Team
  * @date    2019-11-28 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup ENGINE
  * @prefix  DIAG
  *
  * @brief   Diagnosis driver implementation
  *
- * This diagnose module is responsible for error handling and reporting.
- * Reported errors are logged into the global database and can be reviewed
- * on user request.
+ * @details This diagnose module is responsible for error handling and
+ *          reporting.
+ *          Reported errors are logged into the global database and can be
+ *          reviewed on user request.
  */
 
 /*========== Includes =======================================================*/
@@ -162,8 +163,9 @@ STD_RETURN_TYPE_e DIAG_Initialize(DIAG_DEV_s *diag_dev_pointer) {
     diag_dev_pointer->numberOfFatalErrors = 0u;
     /* Fill pointer array with links to all diagnosis entries with a fatal error */
     for (uint16_t entry = 0u; entry < (uint16_t)DIAG_ID_MAX; entry++) {
-        if (DIAG_ID_cfg[entry].severity == DIAG_FATAL_ERROR) {
-            diag_dev_pointer->pFatalErrorLinkTable[diag_dev_pointer->numberOfFatalErrors] = &DIAG_ID_cfg[entry];
+        if (diag_diagnosisIdConfiguration[entry].severity == DIAG_FATAL_ERROR) {
+            diag_dev_pointer->pFatalErrorLinkTable[diag_dev_pointer->numberOfFatalErrors] =
+                &diag_diagnosisIdConfiguration[entry];
             diag_dev_pointer->numberOfFatalErrors++;
         }
     }
@@ -208,12 +210,12 @@ static uint8_t DIAG_EntryWrite(uint8_t eventID, DIAG_EVENT_e event, uint32_t dat
     }
 
     if (++diag.entry_cnt[eventID] > DIAG_MAX_ENTRIES_OF_ERROR) {
-        /* this type of error has been recorded too many times -> ignore to avoid filling buffer with same failurecodes */
+        /* this type of error has been recorded too many times -> ignore to avoid filling buffer with same failure codes */
         diag.entry_cnt[eventID] = DIAG_MAX_ENTRIES_OF_ERROR;
         return ret_val;
     }
 
-    /* now record failurecode */
+    /* now record failure code */
     ret_val = 0xFF;
 
     /* counts of (new) diagnosis entry records which is still not been read by
@@ -226,7 +228,7 @@ static uint8_t DIAG_EntryWrite(uint8_t eventID, DIAG_EVENT_e event, uint32_t dat
     return ret_val;
 }
 
-DIAG_RETURNTYPE_e DIAG_Handler(DIAG_ID_e diag_id, DIAG_EVENT_e event, DIAG_IMPACT_LEVEL_e impact, uint32_t data) {
+DIAG_RETURNTYPE_e DIAG_Handler(DIAG_ID_e diagId, DIAG_EVENT_e event, DIAG_IMPACT_LEVEL_e impact, uint32_t data) {
     DIAG_RETURNTYPE_e ret_val      = DIAG_HANDLER_RETURN_UNKNOWN;
     uint32_t *u32ptr_errCodemsk    = NULL_PTR;
     uint32_t *u32ptr_warnCodemsk   = NULL_PTR;
@@ -242,7 +244,7 @@ DIAG_RETURNTYPE_e DIAG_Handler(DIAG_ID_e diag_id, DIAG_EVENT_e event, DIAG_IMPAC
         return DIAG_HANDLER_RETURN_NOT_READY;
     }
 
-    if (diag_id >= DIAG_ID_MAX) {
+    if (diagId >= DIAG_ID_MAX) {
         return DIAG_HANDLER_RETURN_WRONG_ID;
     }
 
@@ -263,15 +265,15 @@ DIAG_RETURNTYPE_e DIAG_Handler(DIAG_ID_e diag_id, DIAG_EVENT_e event, DIAG_IMPAC
         stringID = data;
     }
 
-    err_enable_idx     = diag_id / 32;        /* array index of diag.err_enableflag[..] */
-    err_enable_bitmask = 1 << (diag_id % 32); /* bit number (mask) of diag.err_enableflag[idx] */
+    err_enable_idx     = diagId / 32;        /* array index of diag.err_enableflag[..] */
+    err_enable_bitmask = 1 << (diagId % 32); /* bit number (mask) of diag.err_enableflag[idx] */
 
     u32ptr_errCodemsk    = &diag.errflag[err_enable_idx];
     u32ptr_warnCodemsk   = &diag.warnflag[err_enable_idx];
-    u16ptr_threshcounter = &diag.occurrenceCounter[stringID][diag_id];
-    cfg_threshold        = diag_devptr->pConfigurationOfDiagnosisEntries[diag.id2ch[diag_id]].threshold;
-    recording_enabled    = diag_devptr->pConfigurationOfDiagnosisEntries[diag.id2ch[diag_id]].enable_recording;
-    evaluate_enabled     = diag_devptr->pConfigurationOfDiagnosisEntries[diag.id2ch[diag_id]].enable_evaluate;
+    u16ptr_threshcounter = &diag.occurrenceCounter[stringID][diagId];
+    cfg_threshold        = diag_devptr->pConfigurationOfDiagnosisEntries[diag.id2ch[diagId]].threshold;
+    recording_enabled    = diag_devptr->pConfigurationOfDiagnosisEntries[diag.id2ch[diagId]].enable_recording;
+    evaluate_enabled     = diag_devptr->pConfigurationOfDiagnosisEntries[diag.id2ch[diagId]].enable_evaluate;
 
     if (event == DIAG_EVENT_OK) {
         if ((diag.err_enableflag[err_enable_idx] & err_enable_bitmask) > 0u) {
@@ -288,12 +290,13 @@ DIAG_RETURNTYPE_e DIAG_Handler(DIAG_ID_e diag_id, DIAG_EVENT_e event, DIAG_IMPAC
                 (*u16ptr_threshcounter) = 0;
                 /* Make entry in error-memory (error disappeared) */
                 if (recording_enabled == DIAG_RECORDING_ENABLED) {
-                    DIAG_EntryWrite(diag_id, event, data);
+                    DIAG_EntryWrite(diagId, event, data);
                 }
 
                 if (evaluate_enabled == DIAG_EVALUATION_ENABLED) {
                     /* Call callback function and reset error */
-                    DIAG_ID_cfg[diag.id2ch[diag_id]].fpCallback(diag_id, DIAG_EVENT_RESET, &diag_kDatabaseShim, data);
+                    diag_diagnosisIdConfiguration[diag.id2ch[diagId]].fpCallback(
+                        diagId, DIAG_EVENT_RESET, &diag_kDatabaseShim, data);
                 }
             }
         }
@@ -311,12 +314,13 @@ DIAG_RETURNTYPE_e DIAG_Handler(DIAG_ID_e diag_id, DIAG_EVENT_e event, DIAG_IMPAC
 
                 /* Make entry in error-memory (error occurred) */
                 if (recording_enabled == DIAG_RECORDING_ENABLED) {
-                    DIAG_EntryWrite(diag_id, event, data);
+                    DIAG_EntryWrite(diagId, event, data);
                 }
 
                 if (evaluate_enabled == DIAG_EVALUATION_ENABLED) {
                     /* Call callback function and set error */
-                    DIAG_ID_cfg[diag.id2ch[diag_id]].fpCallback(diag_id, DIAG_EVENT_NOT_OK, &diag_kDatabaseShim, data);
+                    diag_diagnosisIdConfiguration[diag.id2ch[diagId]].fpCallback(
+                        diagId, DIAG_EVENT_NOT_OK, &diag_kDatabaseShim, data);
                 }
                 /* Function returns an error-message! */
                 ret_val = DIAG_HANDLER_RETURN_ERR_OCCURRED;
@@ -325,7 +329,7 @@ DIAG_RETURNTYPE_e DIAG_Handler(DIAG_ID_e diag_id, DIAG_EVENT_e event, DIAG_IMPAC
                 ret_val = DIAG_HANDLER_RETURN_ERR_OCCURRED;
             }
         } else {
-            /* Error occured BUT NOT enabled by mask */
+            /* Error occurred BUT NOT enabled by mask */
             *u32ptr_errCodemsk &= ~err_enable_bitmask;      /* ERROR:   clear corresponding bit in errflag[idx] */
             *u32ptr_warnCodemsk |= err_enable_bitmask;      /* WARNING: set corresponding bit in warnflag[idx] */
             ret_val = DIAG_HANDLER_RETURN_WARNING_OCCURRED; /* Function returns an error-message! */
@@ -337,14 +341,13 @@ DIAG_RETURNTYPE_e DIAG_Handler(DIAG_ID_e diag_id, DIAG_EVENT_e event, DIAG_IMPAC
             *u32ptr_warnCodemsk &= ~err_enable_bitmask; /* WARNING: clear corresponding bit in warnflag[idx] */
             (*u16ptr_threshcounter) = 0;
             if (recording_enabled == DIAG_RECORDING_ENABLED) {
-                DIAG_EntryWrite(
-                    diag_id,
-                    event,
-                    data); /* Make entry in error-memory (error disappeared) if error was recorded before */
+                /* Make entry in error-memory (error disappeared) if error was recorded before */
+                DIAG_EntryWrite(diagId, event, data);
             }
             if (evaluate_enabled == DIAG_EVALUATION_ENABLED) {
                 /* Call callback function and reset error */
-                DIAG_ID_cfg[diag.id2ch[diag_id]].fpCallback(diag_id, DIAG_EVENT_RESET, &diag_kDatabaseShim, data);
+                diag_diagnosisIdConfiguration[diag.id2ch[diagId]].fpCallback(
+                    diagId, DIAG_EVENT_RESET, &diag_kDatabaseShim, data);
             }
         }
         ret_val = DIAG_HANDLER_RETURN_OK; /* Function does not return an error-message! */
@@ -353,17 +356,13 @@ DIAG_RETURNTYPE_e DIAG_Handler(DIAG_ID_e diag_id, DIAG_EVENT_e event, DIAG_IMPAC
     return ret_val;
 }
 
-STD_RETURN_TYPE_e DIAG_CheckEvent(
-    STD_RETURN_TYPE_e cond,
-    DIAG_ID_e diag_id,
-    DIAG_IMPACT_LEVEL_e impact,
-    uint32_t data) {
+STD_RETURN_TYPE_e DIAG_CheckEvent(STD_RETURN_TYPE_e cond, DIAG_ID_e diagId, DIAG_IMPACT_LEVEL_e impact, uint32_t data) {
     STD_RETURN_TYPE_e retVal = STD_NOT_OK;
 
     if (cond == STD_OK) {
-        DIAG_Handler(diag_id, DIAG_EVENT_OK, impact, data);
+        DIAG_Handler(diagId, DIAG_EVENT_OK, impact, data);
     } else {
-        DIAG_Handler(diag_id, DIAG_EVENT_NOT_OK, impact, data);
+        DIAG_Handler(diagId, DIAG_EVENT_NOT_OK, impact, data);
     }
 
     return retVal;
@@ -371,7 +370,7 @@ STD_RETURN_TYPE_e DIAG_CheckEvent(
 
 uint32_t DIAG_GetDelay(DIAG_ID_e diagnosisEntry) {
     FAS_ASSERT(diagnosisEntry < DIAG_ID_MAX);
-    return DIAG_ID_cfg[diag.id2ch[(uint16_t)diagnosisEntry]].delay_ms;
+    return diag_diagnosisIdConfiguration[diag.id2ch[(uint16_t)diagnosisEntry]].delay_ms;
 }
 
 bool DIAG_IsAnyFatalErrorSet(void) {

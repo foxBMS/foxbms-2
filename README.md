@@ -25,6 +25,12 @@ Basically, the software is covered by the
 and the hardware and documentation by the
 [**Creative Commons Attribution 4.0 International License (SPDX short identifier: CC-BY-4.0)**](https://creativecommons.org/licenses/by/4.0/legalcode).
 
+## Open Source Hardware Certification
+
+foxBMS 2 has been certified as open source hardware by the
+Open Source Hardware Association under the OSHWA UID
+[DE000128](https://certification.oshwa.org/de000128.html).
+
 ## Acknowledgment
 
 For funding acknowledgements and instructions on how to acknowledge foxBMS 2

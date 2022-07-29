@@ -43,8 +43,8 @@
  * @file    test_diag_cbs_contactor.c
  * @author  foxBMS Team
  * @date    2021-02-17 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -202,8 +202,8 @@ void testDIAG_DoNothingOnWrongIdContactorModule(void) {
     /* Use a wrong ID to make sure, that this does not alter the CAN entry */
     for (uint8_t s = 0; s < BS_NR_OF_STRINGS; s++) {
         DIAG_PrechargeContactorFeedback(
-            DIAG_ID_CELLVOLTAGE_OVERVOLTAGE_RSL, DIAG_EVENT_RESET, &diag_kpkDatabaseShim, s);
-        DIAG_StringContactorFeedback(DIAG_ID_CELLVOLTAGE_OVERVOLTAGE_RSL, DIAG_EVENT_RESET, &diag_kpkDatabaseShim, s);
+            DIAG_ID_CELL_VOLTAGE_OVERVOLTAGE_RSL, DIAG_EVENT_RESET, &diag_kpkDatabaseShim, s);
+        DIAG_StringContactorFeedback(DIAG_ID_CELL_VOLTAGE_OVERVOLTAGE_RSL, DIAG_EVENT_RESET, &diag_kpkDatabaseShim, s);
     }
     for (uint8_t s = 0; s < BS_NR_OF_STRINGS; s++) {
         TEST_ASSERT_EQUAL(testValue - BS_NR_OF_STRINGS + s, diag_kpkDatabaseShim.pTableError->prechargeContactor[s]);

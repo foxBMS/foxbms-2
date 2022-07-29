@@ -77,7 +77,7 @@ def build(bld):
         "uint32 PULDIS;\n"
         "uint32 PSL;\n"
         "} gioPORT_t;\n"
-        "#define gioPORTB ((gioPORT_t *)0xFFF7BC54U)\n"
+        "#define gioPORTB ((gioPORT_t *)0xFFF7BC54u)\n"
         "void gioSetBit(gioPORT_t *port, uint32 bit, uint32 value);\n"
         "uint32 gioGetBit(gioPORT_t *port, uint32 bit);\n"
     )

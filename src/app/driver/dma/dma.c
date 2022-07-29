@@ -43,8 +43,8 @@
  * @file    dma.c
  * @author  foxBMS Team
  * @date    2019-12-12 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup DRIVERS
  * @prefix  DMA
  *
@@ -219,7 +219,7 @@ void DMA_Initialize(void) {
 }
 
 /** Function called on DMA complete interrupts (TX and RX). Defined as weak in HAL. */
-/* AXIVION Next Line Style Linker-Multiple_Definition: TI HAL only provides a weak implementation */
+/* AXIVION Next Codeline Style Linker-Multiple_Definition: TI HAL only provides a weak implementation */
 void UNIT_TEST_WEAK_IMPL dmaGroupANotification(dmaInterrupt_t inttype, uint32 channel) {
     /* AXIVION Routine Generic-MissingParameterAssert: inttype: unchecked in interrupt */
     /* AXIVION Routine Generic-MissingParameterAssert: channel: unchecked in interrupt */

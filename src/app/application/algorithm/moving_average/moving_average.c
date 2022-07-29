@@ -43,8 +43,8 @@
  * @file    moving_average.c
  * @author  foxBMS Team
  * @date    2017-12-18 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup ALGORITHMS
  * @prefix  ALGO
  *
@@ -63,36 +63,36 @@
 /** TODO */
 #define MEM_EXT_SDRAM
 
-#if ALGO_TICK_MS > ISA_CURRENT_CYCLE_TIME_MS
-#define ALGO_NUMBER_AVERAGE_VALUES_CUR_1s  ((1000u) / ALGO_TICK_MS)
-#define ALGO_NUMBER_AVERAGE_VALUES_CUR_5s  ((5000u) / ALGO_TICK_MS)
-#define ALGO_NUMBER_AVERAGE_VALUES_CUR_10s ((10000u) / ALGO_TICK_MS)
-#define ALGO_NUMBER_AVERAGE_VALUES_CUR_30s ((30000u) / ALGO_TICK_MS)
-#define ALGO_NUMBER_AVERAGE_VALUES_CUR_60s ((60000u) / ALGO_TICK_MS)
-#define ALGO_NUMBER_AVERAGE_VALUES_CUR_CFG (MOVING_AVERAGE_DURATION_CURRENT_CONFIG_MS / ALGO_TICK_MS)
+#if ALGO_TICK_ms > ISA_CURRENT_CYCLE_TIME_ms
+#define ALGO_NUMBER_AVERAGE_VALUES_CUR_1s  ((1000u) / ALGO_TICK_ms)
+#define ALGO_NUMBER_AVERAGE_VALUES_CUR_5s  ((5000u) / ALGO_TICK_ms)
+#define ALGO_NUMBER_AVERAGE_VALUES_CUR_10s ((10000u) / ALGO_TICK_ms)
+#define ALGO_NUMBER_AVERAGE_VALUES_CUR_30s ((30000u) / ALGO_TICK_ms)
+#define ALGO_NUMBER_AVERAGE_VALUES_CUR_60s ((60000u) / ALGO_TICK_ms)
+#define ALGO_NUMBER_AVERAGE_VALUES_CUR_CFG (MOVING_AVERAGE_DURATION_CURRENT_CONFIG_ms / ALGO_TICK_ms)
 #else
-#define ALGO_NUMBER_AVERAGE_VALUES_CUR_1s  ((1000u) / ISA_CURRENT_CYCLE_TIME_MS)
-#define ALGO_NUMBER_AVERAGE_VALUES_CUR_5s  ((5000u) / ISA_CURRENT_CYCLE_TIME_MS)
-#define ALGO_NUMBER_AVERAGE_VALUES_CUR_10s ((10000u) / ISA_CURRENT_CYCLE_TIME_MS)
-#define ALGO_NUMBER_AVERAGE_VALUES_CUR_30s ((30000u) / ISA_CURRENT_CYCLE_TIME_MS)
-#define ALGO_NUMBER_AVERAGE_VALUES_CUR_60s ((60000u) / ISA_CURRENT_CYCLE_TIME_MS)
-#define ALGO_NUMBER_AVERAGE_VALUES_CUR_CFG (MOVING_AVERAGE_DURATION_CURRENT_CONFIG_MS / ISA_CURRENT_CYCLE_TIME_MS)
+#define ALGO_NUMBER_AVERAGE_VALUES_CUR_1s  ((1000u) / ISA_CURRENT_CYCLE_TIME_ms)
+#define ALGO_NUMBER_AVERAGE_VALUES_CUR_5s  ((5000u) / ISA_CURRENT_CYCLE_TIME_ms)
+#define ALGO_NUMBER_AVERAGE_VALUES_CUR_10s ((10000u) / ISA_CURRENT_CYCLE_TIME_ms)
+#define ALGO_NUMBER_AVERAGE_VALUES_CUR_30s ((30000u) / ISA_CURRENT_CYCLE_TIME_ms)
+#define ALGO_NUMBER_AVERAGE_VALUES_CUR_60s ((60000u) / ISA_CURRENT_CYCLE_TIME_ms)
+#define ALGO_NUMBER_AVERAGE_VALUES_CUR_CFG (MOVING_AVERAGE_DURATION_CURRENT_CONFIG_ms / ISA_CURRENT_CYCLE_TIME_ms)
 #endif
 
-#if ALGO_TICK_MS > ISA_POWER_CYCLE_TIME_MS
-#define ALGO_NUMBER_AVERAGE_VALUES_POW_1s  ((1000u) / ALGO_TICK_MS)
-#define ALGO_NUMBER_AVERAGE_VALUES_POW_5s  ((5000u) / ALGO_TICK_MS)
-#define ALGO_NUMBER_AVERAGE_VALUES_POW_10s ((10000u) / ALGO_TICK_MS)
-#define ALGO_NUMBER_AVERAGE_VALUES_POW_30s ((30000u) / ALGO_TICK_MS)
-#define ALGO_NUMBER_AVERAGE_VALUES_POW_60s ((60000u) / ALGO_TICK_MS)
-#define ALGO_NUMBER_AVERAGE_VALUES_POW_CFG (MOVING_AVERAGE_DURATION_POWER_CONFIG_MS / ALGO_TICK_MS)
+#if ALGO_TICK_ms > ISA_POWER_CYCLE_TIME_ms
+#define ALGO_NUMBER_AVERAGE_VALUES_POW_1s  ((1000u) / ALGO_TICK_ms)
+#define ALGO_NUMBER_AVERAGE_VALUES_POW_5s  ((5000u) / ALGO_TICK_ms)
+#define ALGO_NUMBER_AVERAGE_VALUES_POW_10s ((10000u) / ALGO_TICK_ms)
+#define ALGO_NUMBER_AVERAGE_VALUES_POW_30s ((30000u) / ALGO_TICK_ms)
+#define ALGO_NUMBER_AVERAGE_VALUES_POW_60s ((60000u) / ALGO_TICK_ms)
+#define ALGO_NUMBER_AVERAGE_VALUES_POW_CFG (MOVING_AVERAGE_DURATION_POWER_CONFIG_ms / ALGO_TICK_ms)
 #else
-#define ALGO_NUMBER_AVERAGE_VALUES_POW_1s  ((1000u) / ISA_POWER_CYCLE_TIME_MS)
-#define ALGO_NUMBER_AVERAGE_VALUES_POW_5s  ((5000u) / ISA_POWER_CYCLE_TIME_MS)
-#define ALGO_NUMBER_AVERAGE_VALUES_POW_10s ((10000u) / ISA_POWER_CYCLE_TIME_MS)
-#define ALGO_NUMBER_AVERAGE_VALUES_POW_30s ((30000u) / ISA_POWER_CYCLE_TIME_MS)
-#define ALGO_NUMBER_AVERAGE_VALUES_POW_60s ((60000u) / ISA_POWER_CYCLE_TIME_MS)
-#define ALGO_NUMBER_AVERAGE_VALUES_POW_CFG (MOVING_AVERAGE_DURATION_POWER_CONFIG_MS / ISA_POWER_CYCLE_TIME_MS)
+#define ALGO_NUMBER_AVERAGE_VALUES_POW_1s  ((1000u) / ISA_POWER_CYCLE_TIME_ms)
+#define ALGO_NUMBER_AVERAGE_VALUES_POW_5s  ((5000u) / ISA_POWER_CYCLE_TIME_ms)
+#define ALGO_NUMBER_AVERAGE_VALUES_POW_10s ((10000u) / ISA_POWER_CYCLE_TIME_ms)
+#define ALGO_NUMBER_AVERAGE_VALUES_POW_30s ((30000u) / ISA_POWER_CYCLE_TIME_ms)
+#define ALGO_NUMBER_AVERAGE_VALUES_POW_60s ((60000u) / ISA_POWER_CYCLE_TIME_ms)
+#define ALGO_NUMBER_AVERAGE_VALUES_POW_CFG (MOVING_AVERAGE_DURATION_POWER_CONFIG_ms / ISA_POWER_CYCLE_TIME_ms)
 #endif
 
 /*========== Static Constant and Variable Definitions =======================*/
@@ -100,49 +100,49 @@
 /* Arrays in extern SDRAM to calculate moving average current and power */
 
 /* Check if minimum algo cycle time > current sensor sample time */
-#if ALGO_TICK_MS > ISA_CURRENT_CYCLE_TIME_MS
-#if MOVING_AVERAGE_DURATION_CURRENT_CONFIG_MS / ALGO_TICK_MS > 60000u / ALGO_TICK_MS
+#if ALGO_TICK_ms > ISA_CURRENT_CYCLE_TIME_ms
+#if MOVING_AVERAGE_DURATION_CURRENT_CONFIG_ms / ALGO_TICK_ms > 60000u / ALGO_TICK_ms
 /* If array length of configured time > 60s array take this array size */
-static float MEM_EXT_SDRAM curValues[(MOVING_AVERAGE_DURATION_CURRENT_CONFIG_MS / ALGO_TICK_MS) + 1u] = {};
-static uint32_t movingAverageCurrentLength = (MOVING_AVERAGE_DURATION_CURRENT_CONFIG_MS / ALGO_TICK_MS) + 1u;
+static float MEM_EXT_SDRAM curValues[(MOVING_AVERAGE_DURATION_CURRENT_CONFIG_ms / ALGO_TICK_ms) + 1u] = {};
+static uint32_t movingAverageCurrentLength = (MOVING_AVERAGE_DURATION_CURRENT_CONFIG_ms / ALGO_TICK_ms) + 1u;
 #else
 /* Take array size of 60s moving average */
-static float MEM_EXT_SDRAM curValues[(60000u / ALGO_TICK_MS) + 1u] = {};
-static uint32_t movingAverageCurrentLength                         = (60000u / ALGO_TICK_MS) + 1;
+static float MEM_EXT_SDRAM curValues[(60000u / ALGO_TICK_ms) + 1u] = {};
+static uint32_t movingAverageCurrentLength                         = (60000u / ALGO_TICK_ms) + 1;
 #endif
 #else
 /* If array length of configured time > 60s array take this array size */
-#if (MOVING_AVERAGE_DURATION_CURRENT_CONFIG_MS / ISA_CURRENT_CYCLE_TIME_MS) > (60000u / ISA_CURRENT_CYCLE_TIME_MS)
-static float MEM_EXT_SDRAM curValues[(MOVING_AVERAGE_DURATION_CURRENT_CONFIG_MS / ISA_CURRENT_CYCLE_TIME_MS) + 1u] = {};
-static uint32_t movingAverageCurrentLength = (MOVING_AVERAGE_DURATION_CURRENT_CONFIG_MS / ISA_CURRENT_CYCLE_TIME_MS) +
+#if (MOVING_AVERAGE_DURATION_CURRENT_CONFIG_ms / ISA_CURRENT_CYCLE_TIME_ms) > (60000u / ISA_CURRENT_CYCLE_TIME_ms)
+static float MEM_EXT_SDRAM curValues[(MOVING_AVERAGE_DURATION_CURRENT_CONFIG_ms / ISA_CURRENT_CYCLE_TIME_ms) + 1u] = {};
+static uint32_t movingAverageCurrentLength = (MOVING_AVERAGE_DURATION_CURRENT_CONFIG_ms / ISA_CURRENT_CYCLE_TIME_ms) +
                                              1u;
 #else
 /* Take array size of 60s moving average */
-static float MEM_EXT_SDRAM curValues[(60000u / ISA_CURRENT_CYCLE_TIME_MS) + 1u] = {0.0f};
-static uint32_t movingAverageCurrentLength = (60000u / ISA_CURRENT_CYCLE_TIME_MS) + 1u;
+static float MEM_EXT_SDRAM curValues[(60000u / ISA_CURRENT_CYCLE_TIME_ms) + 1u] = {0.0f};
+static uint32_t movingAverageCurrentLength = (60000u / ISA_CURRENT_CYCLE_TIME_ms) + 1u;
 #endif
 #endif
 
 /* Check if minimum algo cycle time > current sensor sample time */
-#if ALGO_TICK_MS > ISA_POWER_CYCLE_TIME_MS
-#if (MOVING_AVERAGE_DURATION_POWER_CONFIG_MS / ALGO_TICK_MS) > (60000u / ALGO_TICK_MS)
+#if ALGO_TICK_ms > ISA_POWER_CYCLE_TIME_ms
+#if (MOVING_AVERAGE_DURATION_POWER_CONFIG_ms / ALGO_TICK_ms) > (60000u / ALGO_TICK_ms)
 /* If array length of configured time > 60s array take this array size */
-static float MEM_EXT_SDRAM powValues[(MOVING_AVERAGE_DURATION_POWER_CONFIG_MS / ALGO_TICK_MS) + 1u] = {};
-static uint32_t movingAveragePowerLength = (MOVING_AVERAGE_DURATION_POWER_CONFIG_MS / ALGO_TICK_MS) + 1u;
+static float MEM_EXT_SDRAM powValues[(MOVING_AVERAGE_DURATION_POWER_CONFIG_ms / ALGO_TICK_ms) + 1u] = {};
+static uint32_t movingAveragePowerLength = (MOVING_AVERAGE_DURATION_POWER_CONFIG_ms / ALGO_TICK_ms) + 1u;
 #else
 /* Take array size of 60s moving average */
-static float MEM_EXT_SDRAM powValues[(60000u / ALGO_TICK_MS) + 1] = {};
-static uint32_t movingAveragePowerLength                          = (60000u / ALGO_TICK_MS) + 1u;
+static float MEM_EXT_SDRAM powValues[(60000u / ALGO_TICK_ms) + 1] = {};
+static uint32_t movingAveragePowerLength                          = (60000u / ALGO_TICK_ms) + 1u;
 #endif
 #else
-#if (MOVING_AVERAGE_DURATION_POWER_CONFIG_MS / ISA_POWER_CYCLE_TIME_MS) > (60000u / ISA_POWER_CYCLE_TIME_MS)
+#if (MOVING_AVERAGE_DURATION_POWER_CONFIG_ms / ISA_POWER_CYCLE_TIME_ms) > (60000u / ISA_POWER_CYCLE_TIME_ms)
 /* If array length of configured time > 60s array take this array size */
-static float MEM_EXT_SDRAM powValues[(MOVING_AVERAGE_DURATION_POWER_CONFIG_MS / ISA_POWER_CYCLE_TIME_MS) + 1u] = {};
-static uint32_t movingAveragePowerLength = (MOVING_AVERAGE_DURATION_POWER_CONFIG_MS / ISA_POWER_CYCLE_TIME_MS) + 1u;
+static float MEM_EXT_SDRAM powValues[(MOVING_AVERAGE_DURATION_POWER_CONFIG_ms / ISA_POWER_CYCLE_TIME_ms) + 1u] = {};
+static uint32_t movingAveragePowerLength = (MOVING_AVERAGE_DURATION_POWER_CONFIG_ms / ISA_POWER_CYCLE_TIME_ms) + 1u;
 #else
 /* Take array size of 60s moving average */
-static float MEM_EXT_SDRAM powValues[(60000u / ISA_POWER_CYCLE_TIME_MS) + 1u] = {0.0f};
-static uint32_t movingAveragePowerLength                                      = (60000u / ISA_POWER_CYCLE_TIME_MS) + 1u;
+static float MEM_EXT_SDRAM powValues[(60000u / ISA_POWER_CYCLE_TIME_ms) + 1u] = {0.0f};
+static uint32_t movingAveragePowerLength                                      = (60000u / ISA_POWER_CYCLE_TIME_ms) + 1u;
 #endif
 #endif
 
@@ -224,7 +224,7 @@ extern void ALGO_MovAverage(void) {
             divider = ALGO_NUMBER_AVERAGE_VALUES_CUR_CFG;
             movingAverage_tab.movingAverageCurrentConfigurableInterval_mA += (*pMovingAverageCurrentNew) / divider;
 
-            /* Then, increment pointer and substract oldest value when respective window is filled with data */
+            /* Then, increment pointer and subtract oldest value when respective window is filled with data */
             pMovingAverageCurrentNew++;
             if ((curInit & 0x01u) == 0x01u) {
                 divider = ALGO_NUMBER_AVERAGE_VALUES_CUR_1s;
@@ -343,7 +343,7 @@ extern void ALGO_MovAverage(void) {
             divider = ALGO_NUMBER_AVERAGE_VALUES_POW_CFG;
             movingAverage_tab.movingAveragePowerConfigurableInterval_mA += (*pMovingAveragePowerNew) / divider;
 
-            /* Then, increment pointer and substract oldest value when respective window is filled with data */
+            /* Then, increment pointer and subtract oldest value when respective window is filled with data */
             pMovingAveragePowerNew++;
             if ((powInit & 0x01u) == 0x01u) {
                 divider = ALGO_NUMBER_AVERAGE_VALUES_POW_1s;

@@ -43,8 +43,8 @@
  * @file    mxm_registry.c
  * @author  foxBMS Team
  * @date    2020-07-16 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup DRIVERS
  * @prefix  MXM
  *
@@ -111,7 +111,7 @@ extern STD_RETURN_TYPE_e MXM_MonRegistryConnectDevices(MXM_MONITORING_INSTANCE_s
     return retval;
 }
 
-/* AXIVION Next Line Style MisraC2012-8.7: this function is API of the registry and should therefore be extern */
+/* AXIVION Next Codeline Style MisraC2012-8.7: this function is API of the registry and should therefore be extern */
 extern uint8_t MXM_MonRegistryGetHighestConnected5XDevice(const MXM_MONITORING_INSTANCE_s *const kpkState) {
     FAS_ASSERT(kpkState != NULL_PTR);
     /* return highest connected device */
@@ -173,7 +173,7 @@ extern void MXM_MonRegistryParseVersionIntoDevices(MXM_MONITORING_INSTANCE_s *pS
             (model != (uint16_t)MXM_MODEL_ID_MAX17854)) {
             currentDevice->model = MXM_MODEL_ID_invalid;
         } else {
-            /* AXIVION Next Line Style MisraC2012-10.5: All invalid values have been cleared. */
+            /* AXIVION Next Codeline Style MisraC2012-10.5: All invalid values have been cleared. */
             currentDevice->model = (MXM_MODEL_ID_e)model;
         }
 
@@ -183,7 +183,7 @@ extern void MXM_MonRegistryParseVersionIntoDevices(MXM_MONITORING_INSTANCE_s *pS
         if (version >= (uint16_t)MXM_SILICON_VERSION_INVALID) {
             currentDevice->siliconVersion = MXM_SILICON_VERSION_INVALID;
         } else {
-            /* AXIVION Next Line Style MisraC2012-10.5: All invalid values have been cleared. */
+            /* AXIVION Next Codeline Style MisraC2012-10.5: All invalid values have been cleared. */
             currentDevice->siliconVersion = (MXM_SILICON_VERSION_e)version;
         }
     }

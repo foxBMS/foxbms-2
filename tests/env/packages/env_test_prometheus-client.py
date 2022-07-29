@@ -46,7 +46,7 @@ import argparse
 import logging
 
 # package to test
-import prometheus_client  # pylint: disable=unused-import
+import prometheus_client
 
 
 def main():
@@ -68,6 +68,11 @@ def main():
         logging.basicConfig(level=logging.DEBUG)
     else:
         logging.basicConfig(level=logging.ERROR)
+
+    # https://github.com/prometheus/client_python#counter
+    c = prometheus_client.Counter("my_failures", "Description of counter")
+    c.inc()  # Increment by 1
+    c.inc(1.6)  # Increment by given value
 
 
 if __name__ == "__main__":

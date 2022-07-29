@@ -43,8 +43,8 @@
  * @file    diag_cbs.h
  * @author  foxBMS Team
  * @date    2021-02-17 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup ENGINE
  * @prefix  DIAG
  *
@@ -67,155 +67,155 @@
 /*========== Extern Function Prototypes =====================================*/
 /**
  * @brief dummy callback function of diagnosis events
- * @param[in] ch_id         ID of entry
+ * @param[in] diagId        ID of diag entry
  * @param[in] event         OK, NOK or RESET
  * @param[in] kpkDiagShim   shim to the database entries
  * @param[in] data          data
  */
 extern void DIAG_DummyCallback(
-    DIAG_ID_e ch_id,
+    DIAG_ID_e diagId,
     DIAG_EVENT_e event,
     const DIAG_DATABASE_SHIM_s *const kpkDiagShim,
     uint32_t data);
 
 /**
  * @brief diagnosis callback function for overvoltage events
- * @param[in] ch_id         ID of diag entry
+ * @param[in] diagId        ID of diag entry
  * @param[in] event         OK, NOK or RESET
  * @param[in] kpkDiagShim   shim to the database entries
  * @param[in] stringNumber  stringNumber where overvoltage event occurred
  */
 extern void DIAG_ErrorOvervoltage(
-    DIAG_ID_e ch_id,
+    DIAG_ID_e diagId,
     DIAG_EVENT_e event,
     const DIAG_DATABASE_SHIM_s *const kpkDiagShim,
     uint32_t stringNumber);
 
 /**
  * @brief diagnosis callback function for undervoltage events
- * @param[in] ch_id         ID of diag entry
+ * @param[in] diagId        ID of diag entry
  * @param[in] event         OK, NOK or RESET
  * @param[in] kpkDiagShim   shim to the database entries
  * @param[in] stringNumber  stringNumber where undervoltage event occurred
  */
 extern void DIAG_ErrorUndervoltage(
-    DIAG_ID_e ch_id,
+    DIAG_ID_e diagId,
     DIAG_EVENT_e event,
     const DIAG_DATABASE_SHIM_s *const kpkDiagShim,
     uint32_t stringNumber);
 /**
  * @brief diagnosis callback function for overtemperature charge events
- * @param[in] ch_id         ID of diag entry
+ * @param[in] diagId        ID of diag entry
  * @param[in] event         OK, NOK or RESET
  * @param[in] kpkDiagShim   shim to the database entries
  * @param[in] stringNumber  stringNumber where overtemperature event occurred
  */
 extern void DIAG_ErrorOvertemperatureCharge(
-    DIAG_ID_e ch_id,
+    DIAG_ID_e diagId,
     DIAG_EVENT_e event,
     const DIAG_DATABASE_SHIM_s *const kpkDiagShim,
     uint32_t stringNumber);
 
 /**
  * @brief diagnosis callback function for overtemperature discharge events
- * @param[in] ch_id         ID of diag entry
+ * @param[in] diagId        ID of diag entry
  * @param[in] event         OK, NOK or RESET
  * @param[in] kpkDiagShim   shim to the database entries
  * @param[in] stringNumber  stringNumber where overtemperature event occurred
  */
 extern void DIAG_ErrorOvertemperatureDischarge(
-    DIAG_ID_e ch_id,
+    DIAG_ID_e diagId,
     DIAG_EVENT_e event,
     const DIAG_DATABASE_SHIM_s *const kpkDiagShim,
     uint32_t stringNumber);
 
 /**
  * @brief diagnosis callback function for undertemperature charge events
- * @param[in] ch_id         ID of diag entry
+ * @param[in] diagId        ID of diag entry
  * @param[in] event         OK, NOK or RESET
  * @param[in] kpkDiagShim   shim to the database entries
  * @param[in] stringNumber  stringNumber where undertemperature event occurred
  */
 extern void DIAG_ErrorUndertemperatureCharge(
-    DIAG_ID_e ch_id,
+    DIAG_ID_e diagId,
     DIAG_EVENT_e event,
     const DIAG_DATABASE_SHIM_s *const kpkDiagShim,
     uint32_t stringNumber);
 
 /**
  * @brief diagnosis callback function for undertemperature discharge events
- * @param[in] ch_id         ID of diag entry
+ * @param[in] diagId        ID of diag entry
  * @param[in] event         OK, NOK or RESET
  * @param[in] kpkDiagShim   shim to the database entries
  * @param[in] stringNumber  stringNumber where undertemperature event occurred
  */
 extern void DIAG_ErrorUndertemperatureDischarge(
-    DIAG_ID_e ch_id,
+    DIAG_ID_e diagId,
     DIAG_EVENT_e event,
     const DIAG_DATABASE_SHIM_s *const kpkDiagShim,
     uint32_t stringNumber);
 
 /**
  * @brief diagnosis callback function for overcurrent charge events
- * @param[in] ch_id         ID of diag entry
+ * @param[in] diagId        ID of diag entry
  * @param[in] event         OK, NOK or RESET
  * @param[in] kpkDiagShim   shim to the database entries
  * @param[in] stringNumber  stringNumber where overcurrent event occurred
  */
 extern void DIAG_ErrorOvercurrentCharge(
-    DIAG_ID_e ch_id,
+    DIAG_ID_e diagId,
     DIAG_EVENT_e event,
     const DIAG_DATABASE_SHIM_s *const kpkDiagShim,
     uint32_t stringNumber);
 
 /**
  * @brief diagnosis callback function for overcurrent discharge events
- * @param[in] ch_id         ID of diag entry
+ * @param[in] diagId        ID of diag entry
  * @param[in] event         OK, NOK or RESET
  * @param[in] kpkDiagShim   shim to the database entries
  * @param[in] stringNumber  stringNumber where overcurrent event occurred
  */
 extern void DIAG_ErrorOvercurrentDischarge(
-    DIAG_ID_e ch_id,
+    DIAG_ID_e diagId,
     DIAG_EVENT_e event,
     const DIAG_DATABASE_SHIM_s *const kpkDiagShim,
     uint32_t stringNumber);
 
 /**
  * @brief diagnosis callback function for overcurrent charge events
- * @param[in] ch_id         ID of diag entry
+ * @param[in] diagId        ID of diag entry
  * @param[in] event         OK, NOK or RESET
  * @param[in] kpkDiagShim   shim to the database entries
  * @param[in] stringNumber  stringNumber where overcurrent event occurred
  */
 extern void DIAG_ErrorCurrentOnOpenString(
-    DIAG_ID_e ch_id,
+    DIAG_ID_e diagId,
     DIAG_EVENT_e event,
     const DIAG_DATABASE_SHIM_s *const kpkDiagShim,
     uint32_t stringNumber);
 
 /**
  * @brief diagnosis callback function for current measurement related events
- * @param[in] ch_id         ID of diag entry
+ * @param[in] diagId        ID of diag entry
  * @param[in] event         OK, NOK or RESET
  * @param[in] kpkDiagShim   shim to the database entries
  * @param[in] stringNumber  stringNumber where event occurred
  */
 extern void DIAG_ErrorCurrentMeasurement(
-    DIAG_ID_e ch_id,
+    DIAG_ID_e diagId,
     DIAG_EVENT_e event,
     const DIAG_DATABASE_SHIM_s *const kpkDiagShim,
     uint32_t stringNumber);
 
 /**
  * @brief diagnosis callback function for current sensor related events
- * @param[in] ch_id         ID of diag entry
+ * @param[in] diagId        ID of diag entry
  * @param[in] event         OK, NOK or RESET
  * @param[in] kpkDiagShim   shim to the database entries
  * @param[in] stringNumber  stringNumber where event occurred
  */
 extern void DIAG_ErrorHighVoltageMeasurement(
-    DIAG_ID_e ch_id,
+    DIAG_ID_e diagId,
     DIAG_EVENT_e event,
     const DIAG_DATABASE_SHIM_s *const kpkDiagShim,
     uint32_t stringNumber);
@@ -224,210 +224,221 @@ extern void DIAG_ErrorHighVoltageMeasurement(
 
 /**
  * @brief Callback function for system monitoring related diagnosis events
- * @param[in] ch_id     ID of diag entry
- * @param[in] event     #DIAG_EVENT_e
- * @param[in] kpkDiagShim  shim to the database entries
- * @param[in] data      data
+ * @param[in] diagId        ID of diag entry
+ * @param[in] event         #DIAG_EVENT_e
+ * @param[in] kpkDiagShim   shim to the database entries
+ * @param[in] data          data
  */
 extern void DIAG_ErrorSystemMonitoring(
-    DIAG_ID_e ch_id,
+    DIAG_ID_e diagId,
     DIAG_EVENT_e event,
     const DIAG_DATABASE_SHIM_s *const kpkDiagShim,
     uint32_t data);
 
 /**
  * @brief Callback function for interlock related diagnosis events
- * @param[in] ch_id     ID of diag entry
- * @param[in] event     #DIAG_EVENT_e
+ * @param[in] diagId        ID of diag entry
+ * @param[in] event         #DIAG_EVENT_e
  * @param[in] kpkDiagShim  shim to the database entries
- * @param[in] data      data
+ * @param[in] data          data
  */
 extern void DIAG_ErrorInterlock(
-    DIAG_ID_e ch_id,
+    DIAG_ID_e diagId,
     DIAG_EVENT_e event,
     const DIAG_DATABASE_SHIM_s *const kpkDiagShim,
     uint32_t data);
 
 /**
  * @brief diagnosis callback function for CAN related events
- * @param[in] ch_id      ID of diag entry
- * @param[in] event     #DIAG_EVENT_e
- * @param[in] kpkDiagShim  shim to the database entries
- * @param[in] data      data
+ * @param[in] diagId        ID of diag entry
+ * @param[in] event         #DIAG_EVENT_e
+ * @param[in] kpkDiagShim   shim to the database entries
+ * @param[in] data              data
  */
 extern void DIAG_ErrorCanTiming(
-    DIAG_ID_e ch_id,
+    DIAG_ID_e diagId,
     DIAG_EVENT_e event,
     const DIAG_DATABASE_SHIM_s *const kpkDiagShim,
     uint32_t data);
 
 /**
  * @brief diagnosis callback function for CAN related events
- * @param[in] ch_id      ID of diag entry
- * @param[in] event     #DIAG_EVENT_e
- * @param[in] kpkDiagShim  shim to the database entries
- * @param[in] data      data
+ * @param[in] diagId        ID of diag entry
+ * @param[in] event         #DIAG_EVENT_e
+ * @param[in] kpkDiagShim   shim to the database entries
+ * @param[in] data          data
  */
 extern void DIAG_ErrorCanRxQueueFull(
-    DIAG_ID_e ch_id,
+    DIAG_ID_e diagId,
     DIAG_EVENT_e event,
     const DIAG_DATABASE_SHIM_s *const kpkDiagShim,
     uint32_t data);
 
 /**
  * @brief diagnosis callback function for AFE module related events
- * @param[in] ch_id         ID of diag entry
+ * @param[in] diagId        ID of diag entry
  * @param[in] event         OK, NOK or RESET
  * @param[in] kpkDiagShim   shim to the database entries
  * @param[in] stringNumber  stringNumber where AFE event occurred
  */
 extern void DIAG_ErrorAfeDriver(
-    DIAG_ID_e ch_id,
+    DIAG_ID_e diagId,
     DIAG_EVENT_e event,
     const DIAG_DATABASE_SHIM_s *const kpkDiagShim,
     uint32_t stringNumber);
 
 /**
  * @brief diagnosis callback function for AFE related events
- * @param[in] ch_id         ID of diag entry
+ * @param[in] diagId        ID of diag entry
  * @param[in] event         OK, NOK or RESET
  * @param[in] kpkDiagShim   shim to the database entries
  * @param[in] stringNumber  stringNumber where event occurred
  */
 extern void DIAG_ErrorAfe(
-    DIAG_ID_e ch_id,
+    DIAG_ID_e diagId,
     DIAG_EVENT_e event,
     const DIAG_DATABASE_SHIM_s *const kpkDiagShim,
     uint32_t stringNumber);
 
 /**
  * @brief diagnosis callback function for current sensor related events
- * @param[in] ch_id         ID of diag entry
+ * @param[in] diagId        ID of diag entry
  * @param[in] event         OK, NOK or RESET
  * @param[in] kpkDiagShim   shim to the database entries
  * @param[in] stringNumber  stringNumber where current sensor event occurred
  */
 extern void DIAG_ErrorCurrentSensor(
-    DIAG_ID_e ch_id,
+    DIAG_ID_e diagId,
     DIAG_EVENT_e event,
     const DIAG_DATABASE_SHIM_s *const kpkDiagShim,
     uint32_t stringNumber);
 
 /**
  * @brief diagnosis callback function for SBC related events
- * @param[in] ch_id     ID of diag entry
- * @param[in] event     #DIAG_EVENT_e
- * @param[in] kpkDiagShim  shim to the database entries
- * @param[in] data      data
+ * @param[in] diagId        ID of diag entry
+ * @param[in] event         #DIAG_EVENT_e
+ * @param[in] kpkDiagShim   shim to the database entries
+ * @param[in] data          data
  */
-extern void DIAG_Sbc(DIAG_ID_e ch_id, DIAG_EVENT_e event, const DIAG_DATABASE_SHIM_s *const kpkDiagShim, uint32_t data);
+extern void DIAG_Sbc(
+    DIAG_ID_e diagId,
+    DIAG_EVENT_e event,
+    const DIAG_DATABASE_SHIM_s *const kpkDiagShim,
+    uint32_t data);
 
 /**
  * @brief diagnosis callback function for plausibility check related events
- * @param[in] ch_id         ID of diag entry
+ * @param[in] diagId        ID of diag entry
  * @param[in] event         #DIAG_EVENT_e
  * @param[in] kpkDiagShim   shim to the database entries
  * @param[in] stringNumber  stringNumber where current sensor event occurred
  */
 extern void DIAG_ErrorPlausibility(
-    DIAG_ID_e ch_id,
+    DIAG_ID_e diagId,
     DIAG_EVENT_e event,
     const DIAG_DATABASE_SHIM_s *const kpkDiagShim,
     uint32_t stringNumber);
 
 /**
  * @brief diagnosis callback function for string contactor feedback related events
- * @param[in] ch_id         ID of diag entry
+ * @param[in] diagId        ID of diag entry
  * @param[in] event         #DIAG_EVENT_e
  * @param[in] kpkDiagShim   shim to the database entries
  * @param[in] stringNumber  stringNumber where contactor feedback event occurred
  */
 extern void DIAG_StringContactorFeedback(
-    DIAG_ID_e ch_id,
+    DIAG_ID_e diagId,
     DIAG_EVENT_e event,
     const DIAG_DATABASE_SHIM_s *const kpkDiagShim,
     uint32_t stringNumber);
 
 /**
  * @brief diagnosis callback function for precharge contactor feedback related events
- * @param[in] ch_id         ID of diag entry
+ * @param[in] diagId        ID of diag entry
  * @param[in] event         #DIAG_EVENT_e
  * @param[in] kpkDiagShim   shim to the database entries
  * @param[in] stringNumber  stringNumber where precharge feedback event occurred
  */
 extern void DIAG_PrechargeContactorFeedback(
-    DIAG_ID_e ch_id,
+    DIAG_ID_e diagId,
     DIAG_EVENT_e event,
     const DIAG_DATABASE_SHIM_s *const kpkDiagShim,
     uint32_t stringNumber);
 
 /**
  * @brief diagnosis callback function for plausibility check related events
- * @param[in] ch_id         ID of diag entry
+ * @param[in] diagId        ID of diag entry
  * @param[in] event         #DIAG_EVENT_e
  * @param[in] kpkDiagShim   shim to the database entries
  * @param[in] stringNumber  stringNumber where precharge feedback event occurred
  */
 extern void DIAG_PlausibilityCheck(
-    DIAG_ID_e ch_id,
+    DIAG_ID_e diagId,
     DIAG_EVENT_e event,
     const DIAG_DATABASE_SHIM_s *const kpkDiagShim,
     uint32_t stringNumber);
 
 /**
  * @brief diagnosis callback function for deep discharge events
- * @param[in] ch_id         ID of diag entry
+ * @param[in] diagId        ID of diag entry
  * @param[in] event         OK, NOK or RESET
  * @param[in] kpkDiagShim   shim to the database entries
  * @param[in] stringNumber  stringNumber where deep discharge event occurred
  */
 extern void DIAG_ErrorDeepDischarge(
-    DIAG_ID_e ch_id,
+    DIAG_ID_e diagId,
     DIAG_EVENT_e event,
     const DIAG_DATABASE_SHIM_s *const kpkDiagShim,
     uint32_t stringNumber);
 
 /**
  * @brief diagnosis callback function for current sensor related events
- * @param[in] ch_id         ID of diag entry
+ * @param[in] diagId        ID of diag entry
  * @param[in] event         OK, NOK or RESET
  * @param[in] kpkDiagShim   shim to the database entries
  * @param[in] stringNumber  TODO
  */
 extern void DIAG_ErrorPowerMeasurement(
-    DIAG_ID_e ch_id,
+    DIAG_ID_e diagId,
     DIAG_EVENT_e event,
     const DIAG_DATABASE_SHIM_s *const kpkDiagShim,
     uint32_t stringNumber);
 
+/**
+ * @brief diagnosis callback function for the insulation measurement
+ * @param[in] diagId        ID of diag entry
+ * @param[in] event         OK, NOK or RESET
+ * @param[in] kpkDiagShim   shim to the database entries
+ * @param[in] stringNumber  TODO
+ */
 extern void DIAG_Insulation(
-    DIAG_ID_e ch_id,
+    DIAG_ID_e diagId,
     DIAG_EVENT_e event,
     const DIAG_DATABASE_SHIM_s *const kpkDiagShim,
     uint32_t stringNumber);
 
 /**
  * @brief diagnosis callback function for I2C port expander related events
- * @param[in] ch_id         ID of diag entry
+ * @param[in] diagId        ID of diag entry
  * @param[in] event         OK, NOK or RESET
  * @param[in] kpkDiagShim   shim to the database entries
  * @param[in] data          not relevant
  */
 extern void DIAG_I2cPex(
-    DIAG_ID_e ch_id,
+    DIAG_ID_e diagId,
     DIAG_EVENT_e event,
     const DIAG_DATABASE_SHIM_s *const kpkDiagShim,
     uint32_t data);
 
 /**
  * @brief diagnosis callback function for FRAM related events
- * @param[in] ch_id         ID of diag entry
+ * @param[in] diagId        ID of diag entry
  * @param[in] event         OK, NOK or RESET
  * @param[in] kpkDiagShim   shim to the database entries
  * @param[in] data          not relevant
  */
 extern void DIAG_FramError(
-    DIAG_ID_e ch_id,
+    DIAG_ID_e diagId,
     DIAG_EVENT_e event,
     const DIAG_DATABASE_SHIM_s *const kpkDiagShim,
     uint32_t data);

@@ -43,8 +43,8 @@
  * @file    mxm_afe.c
  * @author  foxBMS Team
  * @date    2020-06-16 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup DRIVER
  * @prefix  AFE
  *
@@ -65,11 +65,11 @@
 /*========== Static Constant and Variable Definitions =======================*/
 
 /** state variable for the MAX17841B driver */
-/* AXIVION Next Line Style Generic-InitializeAllVariables: state variable has an initializer function */
+/* AXIVION Next Codeline Style Generic-InitializeAllVariables: state variable has an initializer function */
 static MXM_41B_INSTANCE_s mxm_41bState;
 
 /** state variable for the Battery Management protocol driver */
-/* AXIVION Next Line Style Generic-InitializeAllVariables: state variable has an initializer function */
+/* AXIVION Next Codeline Style Generic-InitializeAllVariables: state variable has an initializer function */
 static MXM_5X_INSTANCE_s mxm_5xState;
 
 /**
@@ -134,7 +134,7 @@ static MXM_MONITORING_INSTANCE_s mxm_state = {
  *          The state-machines are called in such a way that the main blocking
  *          point is the SPI interface. (That means the order is optimized so
  *          that every cycle a SPI command should be available for sending or
- *          receiving as this is the limiting ressource.)
+ *          receiving as this is the limiting resource.)
  */
 static void MXM_Tick(void);
 
@@ -190,7 +190,6 @@ extern STD_RETURN_TYPE_e AFE_TriggerIc(void) {
         mxm_state.allowStartup = allowStartup;
         /* if a first measurement has been done, operation has been requested before */
         mxm_state.operationRequested = (operationRequested || firstMeasurementDone);
-
     } else {
         MXM_Tick();
     }

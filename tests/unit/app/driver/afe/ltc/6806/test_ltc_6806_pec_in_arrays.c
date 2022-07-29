@@ -43,8 +43,8 @@
  * @file    test_ltc_6806_pec_in_arrays.c
  * @author  foxBMS Team
  * @date    2020-12-16 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -84,18 +84,6 @@ static const spiDAT1_t spi_kLtcDataConfig = {
 
 /* SPI interface configuration for LTC communication */
 SPI_INTERFACE_CONFIG_s spi_ltcInterface[BS_NR_OF_STRINGS] = {
-    {
-        .pConfig  = &spi_kLtcDataConfig,
-        .pNode    = spiREG1,
-        .pGioPort = &(spiREG1->PC3),
-        .csPin    = 2u,
-    },
-    {
-        .pConfig  = &spi_kLtcDataConfig,
-        .pNode    = spiREG1,
-        .pGioPort = &(spiREG1->PC3),
-        .csPin    = 2u,
-    },
     {
         .pConfig  = &spi_kLtcDataConfig,
         .pNode    = spiREG1,

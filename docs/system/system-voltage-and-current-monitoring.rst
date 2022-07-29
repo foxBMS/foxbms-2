@@ -7,6 +7,21 @@
 System Voltage And Current Monitoring
 #####################################
 
+.. |contactor| image:: img/contactor.png
+.. |current-sensor| image:: img/current-sensor.png
+.. |fuse| image:: img/fuse.png
+.. |imd| image:: img/imd.png
+.. |inverter| image:: img/inverter.png
+.. |msd| image:: img/msd.png
+.. |resistor| image:: img/resistor.png
+
+.. |red| image:: img/red.png
+.. |dotted-red| image:: img/dotted-red.png
+.. |purple| image:: img/purple.png
+.. |dark-yellow| image:: img/dark-yellow.png
+.. |dark-blue| image:: img/dark-blue.png
+.. |blue| image:: img/blue.png
+
 Several different voltages inside a battery system need to be measured.
 The exact number of voltages is dependent on the system topology and the
 configuration of the battery system.
@@ -28,65 +43,17 @@ indicated connected application shown on the right side the of the picture.
 
     Voltages of interest in a multi-string system (click to enlarge)
 
-
-.. |contactor| image:: img/contactor.png
-.. |current-sensor| image:: img/current-sensor.png
-.. |fuse| image:: img/fuse.png
-.. |imd| image:: img/imd.png
-.. |inverter| image:: img/inverter.png
-.. |msd| image:: img/msd.png
-.. |resistor| image:: img/resistor.png
-
-
-.. table:: Symbol description
+.. csv-table:: Symbol description
     :name: symbols-in-system-block-diagram
-    :widths: grid
+    :header-rows: 1
+    :delim: ;
+    :file: ./symbols-in-system-block-diagram.csv
 
-    +-------------------+-------------------------------+
-    | Symbol            | Meaning                       |
-    +===================+===============================+
-    | |contactor|       | Contactor                     |
-    +-------------------+-------------------------------+
-    | |current-sensor|  | Current sensor                |
-    +-------------------+-------------------------------+
-    | |fuse|            | Fuse                          |
-    +-------------------+-------------------------------+
-    | |imd|             | Insulation Measurement Device |
-    +-------------------+-------------------------------+
-    | |inverter|        | Inverter                      |
-    +-------------------+-------------------------------+
-    | |msd|             | Manual Service Disconnect     |
-    +-------------------+-------------------------------+
-    | |resistor|        | Resistor                      |
-    +-------------------+-------------------------------+
-
-
-.. |red| image:: img/red.png
-.. |dotted-red| image:: img/dotted-red.png
-.. |purple| image:: img/purple.png
-.. |dark-yellow| image:: img/dark-yellow.png
-.. |dark-blue| image:: img/dark-blue.png
-.. |blue| image:: img/blue.png
-
-.. table:: Color description
+.. csv-table:: Color description
     :name: colors-in-system-block-diagram
-    :widths: grid
-
-    +-------------------+-----------------------------------+
-    | Symbol            | Meaning                           |
-    +===================+===================================+
-    | |red|             | Power path                        |
-    +-------------------+-----------------------------------+
-    | |dotted-red|      | Second power path (optional)      |
-    +-------------------+-----------------------------------+
-    | |purple|          | CAN                               |
-    +-------------------+-----------------------------------+
-    | |dark-yellow|     | Contactor control and feedback    |
-    +-------------------+-----------------------------------+
-    | |dark-blue|       | Insulation measurement line       |
-    +-------------------+-----------------------------------+
-    | |blue|            | Daisy-chain                       |
-    +-------------------+-----------------------------------+
+    :header-rows: 1
+    :delim: ;
+    :file: ./colors-in-system-block-diagram.csv
 
 *******************
 Multi-String System

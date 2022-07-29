@@ -33,7 +33,7 @@
         "build/conf_check_*/**": true,
         "build/predefined_defines/**": true,
         "**/.lock-waf_*_build":true,
-        "**/.wafpickle-*":true,
+        "**/.wafpickle-*":true
     },
     "files.watcherExclude": {
         "**/.git/objects/**": true,
@@ -61,7 +61,8 @@
     "json.schemas": [
         {
             "fileMatch": [
-                "conf/bms/bms.json"
+                "conf/bms/bms.json",
+                "tests/variants/*.json"
             ],
             "url": "./conf/bms/schema/bms.schema.json"
         }
@@ -101,7 +102,7 @@
     {% endfor %}
     ],
     "python.formatting.provider": "black",
-    "python.formatting.blackPath": "{{ BLACKPATH }}",
+    "python.formatting.blackPath": "{{ BLACK_PATH }}",
     "python.formatting.blackArgs": [
         "--config",
         "{{ BLACK_CONFIG }}"

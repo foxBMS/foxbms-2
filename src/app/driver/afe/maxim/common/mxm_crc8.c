@@ -43,8 +43,8 @@
  * @file    mxm_crc8.c
  * @author  foxBMS Team
  * @date    2019-02-05 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup DRIVERS
  * @prefix  MXM
  *
@@ -137,7 +137,7 @@ extern uint8_t MXM_CRC8(uint16_t *pData, int32_t lenData) {
     return MXM_CRC8WithInitValue(pData, lenData, 0);
 }
 
-extern STD_RETURN_TYPE_e must_check_return MXM_CRC8SelfTest(void) {
+extern STD_RETURN_TYPE_e GEN_MUST_CHECK_RETURN MXM_CRC8SelfTest(void) {
     /* AXIVION Disable Style Generic-NoMagicNumbers: This test function uses magic numbers to test predefined values. */
     uint16_t testSequence1[4]     = {0x02u, 0x12u, 0xB1u, 0xB2u};
     const uint8_t sequence1Result = MXM_CRC8(testSequence1, 4);

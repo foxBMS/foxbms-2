@@ -6,7 +6,8 @@
         "ABC_123_12",
         "ABC_123_AB",
         "ABC_123_AB_mV",
-        "ABC_123_AB_perc"
+        "ABC_123_AB_perc",
+        "FOXBMS__ABC_ABC_123_H_"
     ],
     "invalid": [
         "_ABC",
@@ -17,6 +18,8 @@
         "abc_",
         "ABC_",
         "ABC_abc",
-        "ABC_ABC_123_"
+        "ABC_ABC_123_",
+        "FOXBMS__ABC_ABC_123_H",
+        "FOXBMS__ABC_ABC_123_"
     ]
 }

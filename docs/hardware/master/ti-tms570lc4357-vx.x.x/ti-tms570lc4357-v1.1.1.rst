@@ -6,6 +6,11 @@
 Master TMS570 ``v1.1.1``
 ========================
 
+.. note::
+
+   The changelog for this release is found at
+   :ref:`CHANGELOG_FOR_MASTER_TMS570_V1_1_1`.
+
 The following specifications must be met to ensure a safe and optimal work with
 the |bms-master| hardware.
 

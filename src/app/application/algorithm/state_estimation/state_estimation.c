@@ -43,8 +43,8 @@
  * @file    state_estimation.c
  * @author  foxBMS Team
  * @date    2020-10-07 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup APPLICATION
  * @prefix  SE
  *
@@ -72,26 +72,26 @@ static DATA_BLOCK_SOX_s se_tableSocAndSoeEstimation = {.header.uniqueId = DATA_B
 /*========== Extern Function Implementations ================================*/
 extern void SE_InitializeSoc(bool ccPresent, uint8_t stringNumber) {
     FAS_ASSERT(stringNumber < BS_NR_OF_STRINGS);
-    SOC_Init(&se_tableSocAndSoeEstimation, ccPresent, stringNumber);
+    SE_InitializeStateOfCharge(&se_tableSocAndSoeEstimation, ccPresent, stringNumber);
     DATA_WRITE_DATA(&se_tableSocAndSoeEstimation);
 }
 
 extern void SE_InitializeSoe(bool ec_present, uint8_t stringNumber) {
     FAS_ASSERT(stringNumber < BS_NR_OF_STRINGS);
-    SOE_Init(&se_tableSocAndSoeEstimation, ec_present, stringNumber);
+    SE_InitializeStateOfEnergy(&se_tableSocAndSoeEstimation, ec_present, stringNumber);
     DATA_WRITE_DATA(&se_tableSocAndSoeEstimation);
 }
 
 extern void SE_InitializeSoh(uint8_t stringNumber) {
     FAS_ASSERT(stringNumber < BS_NR_OF_STRINGS);
-    SOH_Init(&se_tableSocAndSoeEstimation, stringNumber);
+    SE_InitializeStateOfHealth(&se_tableSocAndSoeEstimation, stringNumber);
     DATA_WRITE_DATA(&se_tableSocAndSoeEstimation);
 }
 
 extern void SE_RunStateEstimations(void) {
-    SOC_Calculation(&se_tableSocAndSoeEstimation);
-    SOE_Calculation(&se_tableSocAndSoeEstimation);
-    SOH_Calculation(&se_tableSocAndSoeEstimation);
+    SE_CalculateStateOfCharge(&se_tableSocAndSoeEstimation);
+    SE_CalculateStateOfEnergy(&se_tableSocAndSoeEstimation);
+    SE_CalculateStateOfHealth(&se_tableSocAndSoeEstimation);
 
     DATA_WRITE_DATA(&se_tableSocAndSoeEstimation);
 }

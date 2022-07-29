@@ -43,8 +43,8 @@
  * @file    ltc_6806.c
  * @author  foxBMS Team
  * @date    2019-09-01 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup DRIVERS
  * @prefix  LTC
  *
@@ -117,7 +117,7 @@ uint16_t ltc_TxPecBuffer[LTC_N_BYTES_FOR_DATA_TRANSMISSION] = {0};
 static uint16_t ltc_used_cells_index[BS_NR_OF_STRINGS] = {0};
 /** local copies of database tables */
 /**@{*/
-static DATA_BLOCK_CELL_VOLTAGE_s ltc_cellvoltage         = {.header.uniqueId = DATA_BLOCK_ID_CELL_VOLTAGE_BASE};
+static DATA_BLOCK_CELL_VOLTAGE_s ltc_cellVoltage         = {.header.uniqueId = DATA_BLOCK_ID_CELL_VOLTAGE_BASE};
 static DATA_BLOCK_CELL_TEMPERATURE_s ltc_celltemperature = {.header.uniqueId = DATA_BLOCK_ID_CELL_TEMPERATURE_BASE};
 static DATA_BLOCK_ALL_GPIO_VOLTAGES_s ltc_allgpiovoltage = {.header.uniqueId = DATA_BLOCK_ID_ALL_GPIO_VOLTAGES_BASE};
 static DATA_BLOCK_OPEN_WIRE_s ltc_openwire               = {.header.uniqueId = DATA_BLOCK_ID_OPEN_WIRE_BASE};
@@ -167,7 +167,7 @@ LTC_STATE_s ltc_stateBase = {
     .ltcData.txBuffer          = ltc_TxPecBuffer,
     .ltcData.rxBuffer          = ltc_RxPecBuffer,
     .ltcData.frameLength       = LTC_N_BYTES_FOR_DATA_TRANSMISSION,
-    .ltcData.cellVoltage       = &ltc_cellvoltage,
+    .ltcData.cellVoltage       = &ltc_cellVoltage,
     .ltcData.cellTemperature   = &ltc_celltemperature,
     .ltcData.balancingFeedback = NULL_PTR,
     .ltcData.balancingControl  = NULL_PTR,
@@ -359,15 +359,20 @@ static void LTC_StateTransition(LTC_STATE_s *ltc_state, LTC_STATEMACH_e state, u
  * statemachine will transition to state_nok and substate_nok. Depending on
  * value of retVal the corresponding diagnosis entry will be called.
  *
- * @param  ltc_state:    state of the ltc state machine
- * @param  retVal:       condition to determine if statemachine will transition into ok or nok states
- * @param  diagCode:     symbolic IDs for diagnosis entry, called with #DIAG_EVENT_OK if retVal is #STD_OK, #DIAG_EVENT_NOT_OK otherwise
- * @param  state_ok      state to transition into if retVal is #STD_OK
- * @param  substate_ok:  substate to transition into if retVal is #STD_OK
- * @param  timer_ms_ok:  transition into state_ok, substate_ok after timer_ms_ok elapsed
- * @param  state_nok:    state to transition into if retVal is #STD_NOT_OK
- * @param  substate_nok: substate to transition into if retVal is #STD_NOT_OK
- * @param  timer_ms_nok: transition into state_nok, substate_nok after timer_ms_nok elapsed
+ * @param  ltc_state    state of the ltc state machine
+ * @param  retVal       condition to determine if state machine will transition
+ *                      into ok or nok states
+ * @param  diagCode     symbolic IDs for diagnosis entry, called with
+ *                      #DIAG_EVENT_OK if retVal is #STD_OK, #DIAG_EVENT_NOT_OK
+ *                      otherwise
+ * @param  state_ok     state to transition into if retVal is #STD_OK
+ * @param  substate_ok  substate to transition into if retVal is #STD_OK
+ * @param  timer_ms_ok  transition into state_ok, substate_ok after timer_ms_ok
+ *                      elapsed
+ * @param  state_nok    state to transition into if retVal is #STD_NOT_OK
+ * @param  substate_nok substate to transition into if retVal is #STD_NOT_OK
+ * @param  timer_ms_nok transition into state_nok, substate_nok after
+ *                      timer_ms_nok elapsed
  */
 static void LTC_CondBasedStateTransition(
     LTC_STATE_s *ltc_state,
@@ -678,7 +683,8 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                         ltc_state, LTC_STATEMACH_INITIALIZATION, LTC_ENTRY_INITIALIZATION, LTC_STATEMACH_SHORTTIME);
                 } else if (ltc_state->substate == LTC_ENTRY_INITIALIZATION) {
                     LTC_SaveLastStates(ltc_state);
-                    retVal = LTC_TransmitWakeUp(ltc_state->spiSeqPtr); /* Send dummy byte to wake up the daisy chain */
+                    retVal =
+                        LTC_TRANSMIT_WAKE_UP(ltc_state->spiSeqPtr); /* Send dummy byte to wake up the daisy chain */
                     LTC_CondBasedStateTransition(
                         ltc_state,
                         retVal,
@@ -689,11 +695,10 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                         LTC_STATEMACH_INITIALIZATION,
                         LTC_ENTRY_INITIALIZATION,
                         LTC_STATEMACH_SHORTTIME);
-
                 } else if (ltc_state->substate == LTC_RE_ENTRY_INITIALIZATION) {
                     LTC_SaveLastStates(ltc_state);
-                    retVal =
-                        LTC_TransmitWakeUp(ltc_state->spiSeqPtr); /* Send dummy byte again to wake up the daisy chain */
+                    retVal = LTC_TRANSMIT_WAKE_UP(
+                        ltc_state->spiSeqPtr); /* Send dummy byte again to wake up the daisy chain */
                     LTC_CondBasedStateTransition(
                         ltc_state,
                         retVal,
@@ -704,7 +709,6 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                         LTC_STATEMACH_INITIALIZATION,
                         LTC_RE_ENTRY_INITIALIZATION,
                         LTC_STATEMACH_SHORTTIME);
-
                 } else if (ltc_state->substate == LTC_START_INIT_INITIALIZATION) {
                     LTC_SaveLastStates(ltc_state);
                     ltc_state->check_spi_flag = STD_OK;
@@ -721,7 +725,6 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                         LTC_STATEMACH_INITIALIZATION,
                         LTC_CHECK_INITIALIZATION,
                         ltc_state->commandDataTransferTime + LTC_TRANSMISSION_TIMEOUT);
-
                 } else if (ltc_state->substate == LTC_CHECK_INITIALIZATION) {
                     /* Read values written in config register, currently unused */
                     LTC_SaveLastStates(ltc_state);
@@ -737,7 +740,6 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                         LTC_STATEMACH_INITIALIZATION,
                         LTC_EXIT_INITIALIZATION,
                         ltc_state->commandDataTransferTime + LTC_TRANSMISSION_TIMEOUT);
-
                 } else if (ltc_state->substate == LTC_EXIT_INITIALIZATION) {
                     LTC_SaveLastStates(ltc_state);
                     ++ltc_state->spiSeqPtr;
@@ -831,7 +833,6 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                         LTC_READ_VOLTAGE_REGISTER_B_RDCVB_READVOLTAGE,
                         LTC_STATEMACH_SHORTTIME);
                     break;
-
                 } else if (ltc_state->substate == LTC_READ_VOLTAGE_REGISTER_B_RDCVB_READVOLTAGE) {
                     retVal = LTC_CheckPec(ltc_state, ltc_state->ltcData.rxBuffer, ltc_state->currentString);
                     DIAG_CheckEvent(retVal, DIAG_ID_AFE_COM_INTEGRITY, DIAG_STRING, ltc_state->currentString);
@@ -856,7 +857,6 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                         LTC_READ_VOLTAGE_REGISTER_C_RDCVC_READVOLTAGE,
                         LTC_STATEMACH_SHORTTIME);
                     break;
-
                 } else if (ltc_state->substate == LTC_READ_VOLTAGE_REGISTER_C_RDCVC_READVOLTAGE) {
                     retVal = LTC_CheckPec(ltc_state, ltc_state->ltcData.rxBuffer, ltc_state->currentString);
                     DIAG_CheckEvent(retVal, DIAG_ID_AFE_COM_INTEGRITY, DIAG_STRING, ltc_state->currentString);
@@ -881,7 +881,6 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                         LTC_READ_VOLTAGE_REGISTER_D_RDCVD_READVOLTAGE,
                         LTC_STATEMACH_SHORTTIME);
                     break;
-
                 } else if (ltc_state->substate == LTC_READ_VOLTAGE_REGISTER_D_RDCVD_READVOLTAGE) {
                     retVal = LTC_CheckPec(ltc_state, ltc_state->ltcData.rxBuffer, ltc_state->currentString);
                     DIAG_CheckEvent(retVal, DIAG_ID_AFE_COM_INTEGRITY, DIAG_STRING, ltc_state->currentString);
@@ -906,7 +905,6 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                         LTC_READ_VOLTAGE_REGISTER_E_RDCVE_READVOLTAGE,
                         LTC_STATEMACH_SHORTTIME);
                     break;
-
                 } else if (ltc_state->substate == LTC_READ_VOLTAGE_REGISTER_E_RDCVE_READVOLTAGE) {
                     retVal = LTC_CheckPec(ltc_state, ltc_state->ltcData.rxBuffer, ltc_state->currentString);
                     DIAG_CheckEvent(retVal, DIAG_ID_AFE_COM_INTEGRITY, DIAG_STRING, ltc_state->currentString);
@@ -931,7 +929,6 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                         LTC_READ_VOLTAGE_REGISTER_F_RDCVF_READVOLTAGE,
                         LTC_STATEMACH_SHORTTIME);
                     break;
-
                 } else if (ltc_state->substate == LTC_READ_VOLTAGE_REGISTER_F_RDCVF_READVOLTAGE) {
                     retVal = LTC_CheckPec(ltc_state, ltc_state->ltcData.rxBuffer, ltc_state->currentString);
                     DIAG_CheckEvent(retVal, DIAG_ID_AFE_COM_INTEGRITY, DIAG_STRING, ltc_state->currentString);
@@ -956,7 +953,6 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                         LTC_READ_VOLTAGE_REGISTER_G_RDCVG_READVOLTAGE,
                         LTC_STATEMACH_SHORTTIME);
                     break;
-
                 } else if (ltc_state->substate == LTC_READ_VOLTAGE_REGISTER_G_RDCVG_READVOLTAGE) {
                     retVal = LTC_CheckPec(ltc_state, ltc_state->ltcData.rxBuffer, ltc_state->currentString);
                     DIAG_CheckEvent(retVal, DIAG_ID_AFE_COM_INTEGRITY, DIAG_STRING, ltc_state->currentString);
@@ -981,7 +977,6 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                         LTC_READ_VOLTAGE_REGISTER_H_RDCVH_READVOLTAGE,
                         LTC_STATEMACH_SHORTTIME);
                     break;
-
                 } else if (ltc_state->substate == LTC_READ_VOLTAGE_REGISTER_H_RDCVH_READVOLTAGE) {
                     retVal = LTC_CheckPec(ltc_state, ltc_state->ltcData.rxBuffer, ltc_state->currentString);
                     DIAG_CheckEvent(retVal, DIAG_ID_AFE_COM_INTEGRITY, DIAG_STRING, ltc_state->currentString);
@@ -1006,7 +1001,6 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                         LTC_READ_VOLTAGE_REGISTER_I_RDCVI_READVOLTAGE,
                         LTC_STATEMACH_SHORTTIME);
                     break;
-
                 } else if (ltc_state->substate == LTC_READ_VOLTAGE_REGISTER_I_RDCVI_READVOLTAGE) {
                     retVal = LTC_CheckPec(ltc_state, ltc_state->ltcData.rxBuffer, ltc_state->currentString);
                     DIAG_CheckEvent(retVal, DIAG_ID_AFE_COM_INTEGRITY, DIAG_STRING, ltc_state->currentString);
@@ -1031,7 +1025,6 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                         LTC_EXIT_READVOLTAGE,
                         LTC_STATEMACH_SHORTTIME);
                     break;
-
                 } else if (ltc_state->substate == LTC_EXIT_READVOLTAGE) {
                     retVal = LTC_CheckPec(ltc_state, ltc_state->ltcData.rxBuffer, ltc_state->currentString);
                     DIAG_CheckEvent(retVal, DIAG_ID_AFE_COM_INTEGRITY, DIAG_STRING, ltc_state->currentString);
@@ -1143,7 +1136,6 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                         LTC_STATEMACH_OPENWIRE_CHECK,
                         LTC_REQUEST_PULLDOWN_CURRENT_OPENWIRE_CHECK,
                         LTC_STATEMACH_SHORTTIME);
-
                 } else if (ltc_state->substate == LTC_REQUEST_PULLDOWN_CURRENT_OPENWIRE_CHECK) {
                     /* Run ADOW command with PUP = 0 */
                     ltc_state->adcMode        = LTC_OW_MEASUREMENT_MODE;
@@ -1191,7 +1183,6 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
 
                     LTC_StateTransition(
                         ltc_state, LTC_STATEMACH_OPENWIRE_CHECK, LTC_PERFORM_OPENWIRE_CHECK, LTC_STATEMACH_SHORTTIME);
-
                 } else if (ltc_state->substate == LTC_PERFORM_OPENWIRE_CHECK) {
                     /* Perform actual open-wire check */
 
@@ -1434,7 +1425,7 @@ static STD_RETURN_TYPE_e LTC_Init(
         pTxBuff[11u + (i * 8u)] = PEC_result & 0xFFu;
     } /* end for */
 
-    retVal = LTC_TransmitReceiveData(pSpiInterface, pTxBuff, pRxBuff, frameLength);
+    retVal = LTC_TRANSMIT_RECEIVE_DATA(pSpiInterface, pTxBuff, pRxBuff, frameLength);
 
     return retVal;
 }
@@ -1479,7 +1470,7 @@ static STD_RETURN_TYPE_e LTC_StartVoltageMeasurement(
     LTC_ADCMEAS_CHAN_e adcMeasCh) {
     STD_RETURN_TYPE_e retVal = STD_OK;
 
-    retVal = LTC_TransmitCommand(pSpiInterface, ltc_cmdADCV_normal_Fuelcell);
+    retVal = LTC_TRANSMIT_COMMAND(pSpiInterface, ltc_cmdADCV_normal_Fuelcell);
 
     return retVal;
 }
@@ -1504,10 +1495,10 @@ static STD_RETURN_TYPE_e LTC_StartOpenWireMeasurement(
 
     if (PUP == 0u) {
         /* pull-down current */
-        retval = LTC_TransmitCommand(pSpiInterface, ltc_BC_cmdADOW_PDOWN_100ms_fuelcell);
+        retval = LTC_TRANSMIT_COMMAND(pSpiInterface, ltc_BC_cmdADOW_PDOWN_100ms_fuelcell);
     } else if (PUP == 1u) {
         /* pull-up current */
-        retval = LTC_TransmitCommand(pSpiInterface, ltc_BC_cmdADOW_PUP_100ms_fuelcell);
+        retval = LTC_TRANSMIT_COMMAND(pSpiInterface, ltc_BC_cmdADOW_PUP_100ms_fuelcell);
     }
 
     return retval;
@@ -1570,26 +1561,33 @@ static STD_RETURN_TYPE_e LTC_CheckPec(
 }
 
 /**
- * @brief   send command to the LTC daisy-chain and receives data from the LTC daisy-chain.
+ * @brief   send command to the LTC daisy-chain and receives data from the LTC
+ *          daisy-chain.
+ * @details This is the core function to receive data from the LTC6806
+ *          daisy-chain.
+ *          A 2 byte command is sent with the corresponding PEC.
+ *          *Example*: read configuration register (RDCFG).
+ *          Only command has to be set, the function calculates the PEC
+ *          automatically.
+ *          - The data sent is:
+ *            - 2 bytes (COMMAND) 2 bytes (PEC)
+ *          - The data received is:
+ *            - 6 bytes (LTC1) 2 bytes (PEC) +
+ *            - 6 bytes (LTC2) 2 bytes (PEC) +
+ *            - 6 bytes (LTC3) 2 bytes (PEC) +
+ *            - ... +
+ *            - 6 bytes (LTC{LTC_N_LTC}) 2 bytes (PEC)
  *
- * This is the core function to receive data from the LTC6804 daisy-chain.
- * A 2 byte command is sent with the corresponding PEC. Example: read configuration register (RDCFG).
- * Only command has to be set, the function calculates the PEC automatically.
- * The data send is:
- * 2 bytes (COMMAND) 2 bytes (PEC)
- * The data received is:
- * 6 bytes (LTC1) 2 bytes (PEC) + 6 bytes (LTC2) 2 bytes (PEC) + 6 bytes (LTC3) 2 bytes (PEC) + ... + 6 bytes (LTC{LTC_N_LTC}) 2 bytes (PEC)
+ *          The function does not check the PECs. This has to be done
+ *          elsewhere.
  *
- * The function does not check the PECs. This has to be done elsewhere.
+ * @param   Command         command sent to the daisy-chain
+ * @param   pSpiInterface   pointer to SPI configuration
+ * @param   pTxBuff         transmit buffer
+ * @param   pRxBuff         receive buffer
+ * @param   frameLength     number of words to transmit
  *
- * @param   Command              command sent to the daisy-chain
- * @param   pSpiInterface        pointer to SPI configuration
- * @param   pTxBuff              transmit buffer
- * @param   pRxBuff              receive buffer
- * @param   frameLength          number of words to transmit
- *
- * @return  statusSPI                   #STD_OK if SPI transmission is OK, #STD_NOT_OK otherwise
- *
+ * @return  #STD_OK if SPI transmission is OK, #STD_NOT_OK otherwise
  */
 static STD_RETURN_TYPE_e LTC_ReadRegister(
     uint16_t *Command,
@@ -1613,7 +1611,7 @@ static STD_RETURN_TYPE_e LTC_ReadRegister(
     pTxBuff[2] = Command[2];
     pTxBuff[3] = Command[3];
 
-    statusSPI = LTC_TransmitReceiveData(pSpiInterface, pTxBuff, pRxBuff, frameLength);
+    statusSPI = LTC_TRANSMIT_RECEIVE_DATA(pSpiInterface, pTxBuff, pRxBuff, frameLength);
 
     return statusSPI;
 }

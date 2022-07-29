@@ -43,8 +43,8 @@
  * @file    redundancy.h
  * @author  foxBMS Team
  * @date    2020-07-31 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup APPLICATION
  * @prefix  MRC
  *
@@ -115,8 +115,8 @@
  * This structure contains all the variables relevant for the redundancy state machine.
  */
 typedef struct {
-    uint32_t lastBaseCellvoltageTimestamp;
-    uint32_t lastRedundancy0CellvoltageTimestamp;
+    uint32_t lastBaseCellVoltageTimestamp;
+    uint32_t lastRedundancy0CellVoltageTimestamp;
     uint32_t lastBaseCelltemperatureTimestamp;
     uint32_t lastRedundancy0CelltemperatureTimestamp;
     uint32_t lastStringCurrentTimestamp[BS_NR_OF_STRINGS];
@@ -176,11 +176,11 @@ extern STD_RETURN_TYPE_e TEST_MRC_CalculateCellTemperatureMinMaxAverage(
     DATA_BLOCK_CELL_TEMPERATURE_s *pValidatedTemperatures,
     DATA_BLOCK_MIN_MAX_s *pMinMaxAverageValues);
 extern STD_RETURN_TYPE_e TEST_MRC_ValidateCellVoltage(
-    DATA_BLOCK_CELL_VOLTAGE_s *pCellvoltageBase,
-    DATA_BLOCK_CELL_VOLTAGE_s *pCellvoltageRedundancy0,
+    DATA_BLOCK_CELL_VOLTAGE_s *pCellVoltageBase,
+    DATA_BLOCK_CELL_VOLTAGE_s *pCellVoltageRedundancy0,
     DATA_BLOCK_CELL_VOLTAGE_s *pValidatedVoltages);
 extern STD_RETURN_TYPE_e TEST_MRC_UpdateCellVoltageValidation(
-    DATA_BLOCK_CELL_VOLTAGE_s *pCellvoltage,
+    DATA_BLOCK_CELL_VOLTAGE_s *pCellVoltage,
     DATA_BLOCK_CELL_VOLTAGE_s *pValidatedVoltages);
 extern STD_RETURN_TYPE_e TEST_MRC_ValidateCellTemperature(
     DATA_BLOCK_CELL_TEMPERATURE_s *pCelltemperatureBase,

@@ -43,8 +43,8 @@
  * @file    mxm_battery_management.h
  * @author  foxBMS Team
  * @date    2019-01-14 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup DRIVERS
  * @prefix  MXM
  *
@@ -375,7 +375,7 @@ extern STD_RETURN_TYPE_e MXM_5XSetStateRequest(
  *          monitoring IC.
  * @return  #STD_OK if the selfcheck has been successful
  */
-extern STD_RETURN_TYPE_e must_check_return MXM_5XUserAccessibleAddressSpaceCheckerSelfCheck(void);
+extern STD_RETURN_TYPE_e GEN_MUST_CHECK_RETURN MXM_5XUserAccessibleAddressSpaceCheckerSelfCheck(void);
 
 /**
  * @brief   Initializes the state struct with default values

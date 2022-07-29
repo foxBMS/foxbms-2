@@ -1,0 +1,19 @@
+{
+    "$id": "/properties/rtos",
+    "title": "Configuration of the Operating System",
+    "required": [
+        "name"
+    ],
+    "additionalProperties": false,
+    "properties": {
+        "name": {
+            "$id": "/properties/rtos/name",
+            "title": "Name of the Real Time Operating System (must correspond to the directory name)",
+            "type": "string",
+            "enum": [
+                "freertos",
+                "safertos"
+            ]
+        }
+    }
+}

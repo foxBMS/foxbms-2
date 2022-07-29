@@ -43,8 +43,8 @@
  * @file    fstartup.c
  * @author  foxBMS Team
  * @date    2020-07-09 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup GENERAL
  * @prefix  STU
  *
@@ -99,13 +99,16 @@
 #include "HL_sys_mpu.h"
 #include "HL_errata_SSWF021_45.h"
 
+#include "fassert.h"
 #include "fstartup.h"
 #include "main.h"
+
+#include <stdlib.h>
 /* clang-format on */
 
 /*========== Macros and Definitions =========================================*/
 /** number of retries for the PLL to come up */
-#define STU_PLL_RETRIES 5U
+#define STU_PLL_RETRIES (5u)
 
 /*========== Static Constant and Variable Definitions =======================*/
 
@@ -130,8 +133,7 @@ static resetSource_t STU_GetResetSourceWithoutFlagReset(void);
 /*========== Static Function Implementations ================================*/
 
 void STU_HandlePllLockFail(void) {
-    while (1) {
-    }
+    FAS_ASSERT(FAS_TRAP);
 }
 resetSource_t STU_GetResetSourceWithoutFlagReset(void) {
     register resetSource_t rst_source;
@@ -269,7 +271,7 @@ void _c_int00(void) {
     /* call the application */
     main();
 
-    /* AXIVION Next Line Style MisraC2012-21.8: exit is called as in generated code by TI */
+    /* AXIVION Next Codeline Style MisraC2012-21.8: exit is called as in generated code by TI */
     exit(0);
 }
 

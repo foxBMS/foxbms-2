@@ -43,8 +43,8 @@
  * @file    mxm_1785x_tools.c
  * @author  foxBMS Team
  * @date    2020-07-15 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup DRIVERS
  * @prefix  MXM
  *
@@ -93,7 +93,7 @@ static uint8_t MXM_FirstSetBit(uint16_t bitmask) {
 }
 
 /*========== Extern Function Implementations ================================*/
-extern STD_RETURN_TYPE_e must_check_return MXM_FirstSetBitTest(void) {
+extern STD_RETURN_TYPE_e GEN_MUST_CHECK_RETURN MXM_FirstSetBitTest(void) {
     /* AXIVION Disable Style Generic-NoMagicNumbers: This test function uses magic numbers to test predefined values. */
 
     /* bitmasks containing only zeros should return first bit set 16 */
@@ -147,7 +147,7 @@ extern void MXM_Convert(
     }
 }
 
-extern STD_RETURN_TYPE_e must_check_return MXM_ConvertTest(void) {
+extern STD_RETURN_TYPE_e GEN_MUST_CHECK_RETURN MXM_ConvertTest(void) {
     /* AXIVION Disable Style Generic-NoMagicNumbers: This test function uses magic numbers to test predefined values. */
 
     MXM_CONVERSION_TYPE_e conversionType = MXM_CONVERSION_UNIPOLAR;
@@ -206,7 +206,7 @@ extern void MXM_ExtractValueFromRegister(uint8_t lsb, uint8_t msb, MXM_REG_BM bi
     }
 }
 
-extern STD_RETURN_TYPE_e must_check_return MXM_ExtractValueFromRegisterTest(void) {
+extern STD_RETURN_TYPE_e GEN_MUST_CHECK_RETURN MXM_ExtractValueFromRegisterTest(void) {
     /* AXIVION Disable Style Generic-NoMagicNumbers: This test function uses magic numbers to test predefined values. */
     uint8_t lsb    = 0x31u;
     uint8_t msb    = 0x85u;

@@ -43,8 +43,8 @@
  * @file    diag_cbs_contactor.c
  * @author  foxBMS Team
  * @date    2021-02-17 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup ENGINE
  * @prefix  DIAG
  *
@@ -67,16 +67,16 @@
 
 /*========== Extern Function Implementations ================================*/
 extern void DIAG_StringContactorFeedback(
-    DIAG_ID_e ch_id,
+    DIAG_ID_e diagId,
     DIAG_EVENT_e event,
     const DIAG_DATABASE_SHIM_s *const kpkDiagShim,
     uint32_t stringNumber) {
-    FAS_ASSERT(ch_id < DIAG_ID_MAX);
+    FAS_ASSERT(diagId < DIAG_ID_MAX);
     FAS_ASSERT((event == DIAG_EVENT_OK) || (event == DIAG_EVENT_NOT_OK) || (event == DIAG_EVENT_RESET));
     FAS_ASSERT(kpkDiagShim != NULL_PTR);
     FAS_ASSERT(stringNumber < BS_NR_OF_STRINGS);
 
-    if (ch_id == DIAG_ID_STRING_CONTACTOR_FEEDBACK) {
+    if (diagId == DIAG_ID_STRING_CONTACTOR_FEEDBACK) {
         if (event == DIAG_EVENT_RESET) {
             kpkDiagShim->pTableError->stringContactor[stringNumber] = 0u;
         }
@@ -87,16 +87,16 @@ extern void DIAG_StringContactorFeedback(
 }
 
 extern void DIAG_PrechargeContactorFeedback(
-    DIAG_ID_e ch_id,
+    DIAG_ID_e diagId,
     DIAG_EVENT_e event,
     const DIAG_DATABASE_SHIM_s *const kpkDiagShim,
     uint32_t stringNumber) {
-    FAS_ASSERT(ch_id < DIAG_ID_MAX);
+    FAS_ASSERT(diagId < DIAG_ID_MAX);
     FAS_ASSERT((event == DIAG_EVENT_OK) || (event == DIAG_EVENT_NOT_OK) || (event == DIAG_EVENT_RESET));
     FAS_ASSERT(kpkDiagShim != NULL_PTR);
     FAS_ASSERT(stringNumber < BS_NR_OF_STRINGS);
 
-    if (ch_id == DIAG_ID_PRECHARGE_CONTACTOR_FEEDBACK) {
+    if (diagId == DIAG_ID_PRECHARGE_CONTACTOR_FEEDBACK) {
         if (event == DIAG_EVENT_RESET) {
             kpkDiagShim->pTableError->prechargeContactor[stringNumber] = 0u;
         }

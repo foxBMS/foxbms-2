@@ -71,7 +71,7 @@ class clang_format(Task.Task):  # pylint: disable-msg=invalid-name
     #: str: color in which the command line is displayed in the terminal
     color = "BLUE"
 
-    vars = ["CLANG_FORMAT_OPTIONS"]
+    vars = ["CLANG_FORMAT_OPTIONS", "CLANG_FORMAT_CONFIGURATION_FILES"]
 
     run_str = "${CLANG_FORMAT} ${CLANG_FORMAT_OPTIONS} ${SRC[0].abspath()}"
 

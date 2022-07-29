@@ -18,7 +18,6 @@
     ],
     "invalid": [
         "_",
-        "myVar_",
         "MyVar",
         "MyVar1",
         "My1Var1",

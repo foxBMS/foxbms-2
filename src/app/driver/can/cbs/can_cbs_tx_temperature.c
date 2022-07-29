@@ -43,8 +43,8 @@
  * @file    can_cbs_tx_temperature.c
  * @author  foxBMS Team
  * @date    2021-04-20 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup DRIVER
  * @prefix  CAN
  *
@@ -66,19 +66,19 @@
  * Parameters:
  * bit start, bit length, factor, offset, minimum value, maximum value
  */
-static const CAN_SIGNAL_TYPE_s cellTemperatureMultiplexer  = {7u, 8u, 1.0f, 0.0f, 0.0f, 1.0f};
-static const CAN_SIGNAL_TYPE_s cell0TemperatureInvalidFlag = {8u, 1u, 1.0f, 0.0f, 0.0f, 1.0f};
-static const CAN_SIGNAL_TYPE_s cell1TemperatureInvalidFlag = {9u, 1u, 1.0f, 0.0f, 0.0f, 1.0f};
-static const CAN_SIGNAL_TYPE_s cell2TemperatureInvalidFlag = {10u, 1u, 1.0f, 0.0f, 0.0f, 1.0f};
-static const CAN_SIGNAL_TYPE_s cell3TemperatureInvalidFlag = {11u, 1u, 1.0f, 0.0f, 0.0f, 1.0f};
-static const CAN_SIGNAL_TYPE_s cell4TemperatureInvalidFlag = {12u, 1u, 1.0f, 0.0f, 0.0f, 1.0f};
-static const CAN_SIGNAL_TYPE_s cell5TemperatureInvalidFlag = {13u, 1u, 1.0f, 0.0f, 0.0f, 1.0f};
-static const CAN_SIGNAL_TYPE_s cell0Temperature_degC       = {23u, 8u, 1.0f, 0.0f, -128.0f, 127.0f};
-static const CAN_SIGNAL_TYPE_s cell1Temperature_degC       = {31u, 8u, 1.0f, 0.0f, -128.0f, 127.0f};
-static const CAN_SIGNAL_TYPE_s cell2Temperature_degC       = {39u, 8u, 1.0f, 0.0f, -128.0f, 127.0f};
-static const CAN_SIGNAL_TYPE_s cell3Temperature_degC       = {47u, 8u, 1.0f, 0.0f, -128.0f, 127.0f};
-static const CAN_SIGNAL_TYPE_s cell4Temperature_degC       = {55u, 8u, 1.0f, 0.0f, -128.0f, 127.0f};
-static const CAN_SIGNAL_TYPE_s cell5Temperature_degC       = {63u, 8u, 1.0f, 0.0f, -128.0f, 127.0f};
+static const CAN_SIGNAL_TYPE_s can_cellTemperatureMultiplexer  = {7u, 8u, 1.0f, 0.0f, 0.0f, 1.0f};
+static const CAN_SIGNAL_TYPE_s can_cell0TemperatureInvalidFlag = {8u, 1u, 1.0f, 0.0f, 0.0f, 1.0f};
+static const CAN_SIGNAL_TYPE_s can_cell1TemperatureInvalidFlag = {9u, 1u, 1.0f, 0.0f, 0.0f, 1.0f};
+static const CAN_SIGNAL_TYPE_s can_cell2TemperatureInvalidFlag = {10u, 1u, 1.0f, 0.0f, 0.0f, 1.0f};
+static const CAN_SIGNAL_TYPE_s can_cell3TemperatureInvalidFlag = {11u, 1u, 1.0f, 0.0f, 0.0f, 1.0f};
+static const CAN_SIGNAL_TYPE_s can_cell4TemperatureInvalidFlag = {12u, 1u, 1.0f, 0.0f, 0.0f, 1.0f};
+static const CAN_SIGNAL_TYPE_s can_cell5TemperatureInvalidFlag = {13u, 1u, 1.0f, 0.0f, 0.0f, 1.0f};
+static const CAN_SIGNAL_TYPE_s can_cell0Temperature_degC       = {23u, 8u, 1.0f, 0.0f, -128.0f, 127.0f};
+static const CAN_SIGNAL_TYPE_s can_cell1Temperature_degC       = {31u, 8u, 1.0f, 0.0f, -128.0f, 127.0f};
+static const CAN_SIGNAL_TYPE_s can_cell2Temperature_degC       = {39u, 8u, 1.0f, 0.0f, -128.0f, 127.0f};
+static const CAN_SIGNAL_TYPE_s can_cell3Temperature_degC       = {47u, 8u, 1.0f, 0.0f, -128.0f, 127.0f};
+static const CAN_SIGNAL_TYPE_s can_cell4Temperature_degC       = {55u, 8u, 1.0f, 0.0f, -128.0f, 127.0f};
+static const CAN_SIGNAL_TYPE_s can_cell5Temperature_degC       = {63u, 8u, 1.0f, 0.0f, -128.0f, 127.0f};
 
 /*========== Extern Constant and Variable Definitions =======================*/
 
@@ -194,32 +194,36 @@ extern uint32_t CAN_TxCellTemperature(
     /* Set mux signal in CAN frame */
     uint32_t signalData = *pMuxId / 6u; /* 6 temperatures per module */
     CAN_TxSetMessageDataWithSignalData(
-        &message, cellTemperatureMultiplexer.bitStart, cellTemperatureMultiplexer.bitLength, signalData, endianness);
+        &message,
+        can_cellTemperatureMultiplexer.bitStart,
+        can_cellTemperatureMultiplexer.bitLength,
+        signalData,
+        endianness);
 
     /* Set other signals in CAN frame */
     /* Each temperature frame contains 6 temperatures, with a correspond invalid flag*/
     CAN_TxTemperatureSetData(
-        *pMuxId, &message, cell0Temperature_degC, cell0TemperatureInvalidFlag, endianness, kpkCanShim);
+        *pMuxId, &message, can_cell0Temperature_degC, can_cell0TemperatureInvalidFlag, endianness, kpkCanShim);
     /* Increment multiplexer for next cell */
     (*pMuxId)++;
     CAN_TxTemperatureSetData(
-        *pMuxId, &message, cell1Temperature_degC, cell1TemperatureInvalidFlag, endianness, kpkCanShim);
+        *pMuxId, &message, can_cell1Temperature_degC, can_cell1TemperatureInvalidFlag, endianness, kpkCanShim);
     /* Increment multiplexer for next cell */
     (*pMuxId)++;
     CAN_TxTemperatureSetData(
-        *pMuxId, &message, cell2Temperature_degC, cell2TemperatureInvalidFlag, endianness, kpkCanShim);
+        *pMuxId, &message, can_cell2Temperature_degC, can_cell2TemperatureInvalidFlag, endianness, kpkCanShim);
     /* Increment multiplexer for next cell */
     (*pMuxId)++;
     CAN_TxTemperatureSetData(
-        *pMuxId, &message, cell3Temperature_degC, cell3TemperatureInvalidFlag, endianness, kpkCanShim);
+        *pMuxId, &message, can_cell3Temperature_degC, can_cell3TemperatureInvalidFlag, endianness, kpkCanShim);
     /* Increment multiplexer for next cell */
     (*pMuxId)++;
     CAN_TxTemperatureSetData(
-        *pMuxId, &message, cell4Temperature_degC, cell4TemperatureInvalidFlag, endianness, kpkCanShim);
+        *pMuxId, &message, can_cell4Temperature_degC, can_cell4TemperatureInvalidFlag, endianness, kpkCanShim);
     /* Increment multiplexer for next cell */
     (*pMuxId)++;
     CAN_TxTemperatureSetData(
-        *pMuxId, &message, cell5Temperature_degC, cell5TemperatureInvalidFlag, endianness, kpkCanShim);
+        *pMuxId, &message, can_cell5Temperature_degC, can_cell5TemperatureInvalidFlag, endianness, kpkCanShim);
     /* Increment multiplexer for next cell */
     (*pMuxId)++;
 

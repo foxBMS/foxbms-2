@@ -6,8 +6,8 @@
     "language": "en",
     // words - list of words to be always considered correct
     "words": [
-        "archiver",
         "alphanumericals",
+        "archiver",
         "cacheable",
         "contactor",
         "contactors",
@@ -21,31 +21,36 @@
         "multiline",
         "optocoupler",
         "overcurrent",
+        "overtemperature",
         "overvoltage",
         "parens",
+        "phosphane",
         "pinout",
         "pinouts",
-        "phosphane",
         "precharge",
         "precharged",
+        "precharging",
         "prepend",
         "prepending",
-        "recurse",
         "readmes",
-        "receptable",
-        "roadmap",
         "recalibrated",
+        "receptable",
+        "recurse",
+        "roadmap",
         "semihosting",
+        "solderabilty",
         "strippable",
         "substate",
         "substates",
         "supercapacitor",
         "supercapacitors",
-        "Typedefed",
         "throughs",
+        "timespan",
         "toolchain",
         "toolchains",
         "toolset",
+        "typedefed",
+        "undertemperature",
         "undervoltage",
         "unversioned",
         "vendored",
@@ -68,11 +73,17 @@
         "Erlangen",
         // Company and product names
         "Altium",
+        "Cppcheck", // a static program analysis tool
         "GitHub",
         "GitLab",
         "Mictor",
+        "OSHWA", // Open Source Hardware Association
+        "SAMTEC", // company
         "JFLASH",
         "Molex",
+        "orcid",
+        "wuerth",
+        "zenodo",
         // user name in the documentation
         "vulpes",
         "fgui",
@@ -97,6 +108,7 @@
         "SYSM",
         "FTSK",
         "FTASK",
+        "EMIF", // Extended Memory Interface
         "NOIMD",
         "MRC",
         "fstd",
@@ -105,9 +117,37 @@
         "ddeg",
         "perc",
         // C standard header
+        "assert",
+        "complex",
+        "ctype",
+        "errno",
+        "fenv",
+        "float",
+        "inttypes",
+        "iso646",
+        "limits",
+        "locale",
+        "math",
+        "setjmp",
+        "signal",
+        "stdalign",
+        "stdarg",
+        "stdatomic",
         "stdbool",
-        "MOSFET",
+        "stddef",
+        "stdint",
+        "stdio",
+        "stdlib",
+        "stdnoreturn",
+        "string",
+        "tgmath",
+        "threads",
+        "time",
+        "uchar",
+        "wchar",
+        "wctype",
         // general software terms
+        "MOSFET",
         "memcpy",
         "NTFS",
         "JTAG",
@@ -155,6 +195,7 @@
         "CBIT",
         "SIMO",
         "SOMI",
+        "docref",
         // bender
         "VIFC", // Vehicle Interface Controller
         // ARM
@@ -164,9 +205,15 @@
         "orreq",
         "msreq",
         // Compound words in defines, abbreveations from HAL, etc.
+        "ecap", // TI: abbrevation for "Enhanced Capture" driver
         "RTSV", // TI: abbrevation for "runtime support library"
-        "SPNA", // TI prefix for lots of documents (and we reference them)
-        "SCPS", // TI prefix for lots of documents (and we reference them)
+        "SPNA", // TI: prefix for lots of documents (and we reference them)
+        "SCPS", // TI: prefix for lots of documents (and we reference them)
+        "REPEATMODE", // TI: driver code
+        "BUSBUSY", // TI: driver code
+        "RAMREG", // TI: driver code
+        "SIGREGL", // TI: driver code
+        "SIGREGH", // TI: driver code
         "ADDMODERD",
         "ADDMODEWR",
         "CSHOLD",
@@ -382,6 +429,8 @@
         "VSUPUVH",
         "BTFB",
         "BTSC",
+        // protocols
+        "UART",
         // standards
         "misra",
         // hardware abbreveations or hardware components
@@ -399,12 +448,14 @@
         // Axivion
         "axivion",
         "cafecc",
+        "Codeline",
         "gravis",
         "larg",
         "preinc",
         "dashserver",
         "localbuild",
         "noauth",
+        "workitem",
         // asm keywords
         "endasmfunc",
         // third party software, tools, configuration files etc.
@@ -476,34 +527,50 @@
         "halcogen",
         // ceedling
         "cmock",
+        // html
+        "endverbatim",
         // waf
         "APPNAME",
-        "sigs",
+        "autoconfig",
+        "destdir",
+        "TARGETLIB",
         "algo",
-        "setenv",
-        "stlib",
-        "stlink",
-        "waf's",
-        "waflib",
-        "wscript",
-        "distclean",
-        "distcheck",
-        "testbuild",
-        "confcache",
-        "ccroot",
+        "bdir",
+        "bindir",
+        "bldnode",
         "bldpath",
-        "CPPPATH",
         "CCDEPS",
         "CCLINK",
-        "STLIBPATH",
+        "ccroot",
+        "confcache",
+        "CPPPATH",
         "cprogram",
-        "tiprogram",
-        "LDFLAGS",
-        "LINKDEPS",
+        "cstlib",
         "deps",
-        "bdir",
+        "distcheck",
+        "distclean",
+        "incnodes",
+        "incpaths",
+        "LDFLAGS",
+        "libdir",
+        "LIBPATH",
+        "LINKDEPS",
         "okmsg",
-        "bldnode",
+        "outdir",
+        "setenv",
+        "sigs",
+        "srcnode",
+        "stlib",
+        "STLIBPATH",
+        "stlink",
+        "taskgen",
+        "testbuild",
+        "tiprogram",
+        "tooldir",
+        "uselib",
+        "waflib",
+        "waf's",
+        "wscript",
         // variables in wscript
         "confpy",
         // rst
@@ -521,6 +588,8 @@
         "genindex",
         "modindex",
         // python
+        "maxsplit",
+        "arcname", // 'tar' package
         "pycache",
         "getenv",
         "pypi",
@@ -529,6 +598,8 @@
         "pylintrc",
         "pyproject",
         "groupby",
+        "linesep", // 'os' package
+        "pathsep", // 'os' package
         "platformdirs",
         "popen",
         "tzname",
@@ -538,6 +609,7 @@
         "hexlify",
         "startswith",
         // python packages
+        "jsonschema",
         "cffconvert",
         "clib",
         "gprof2dot",
@@ -574,7 +646,8 @@
         "ltail",
         "rankdir",
         "doublecircle",
-        // conf.py (sphinx)
+        // conf.py and sphinx
+        "autofunction",
         "numfig",
         "delim",
         //latex
@@ -590,6 +663,7 @@
         "HEXGENFLAGS",
         "NMFLAGS",
         // misc
+        "Zener",
         "pprs"
     ],
     "dictionaries": [
@@ -628,7 +702,7 @@
         "conf/unit/vsc-settings.yml",
         "docs/_ext/**",
         "docs/_themes/**",
-        "docs/stylesheetfile.css",
+        "docs/style-sheet-file.css",
         "docs/doxygen*.*",
         "docs/general/team-ad-sc.rst",
         "docs/general/team-dev.rst",
@@ -655,6 +729,8 @@
         "hardware/**/*.stp",
         // third party sources
         "src/app/driver/afe/nxp/common/MC33775A.h",
+        "src/app/driver/afe/nxp/mc33775a/vendor/*.c",
+        "src/app/driver/afe/nxp/mc33775a/vendor/*.h",
         "src/app/driver/sbc/fs8x_driver/**",
         "src/app/driver/afe/ltc/common/ltc_pec.*",
         "src/os/**",
@@ -662,6 +738,7 @@
         "tests/axivion/.axivion.preinc",
         "tests/axivion/rule_config_c.json",
         "tests/axivion/ci_config.json",
+        "tests/axivion/addon-test/**/test_*.*",
         "tests/re-names/*.json",
         "tools/dbc/*.dbc",
         "tools/dbc/*.sym",

@@ -3,6 +3,9 @@
 Tests to verify that the regular expressions that are used to check function
 names etc. are indeed correct.
 
+These are relaxed tests, as the real naming tests is implemented in the Axivion
+test (``tests/axivion/rule_config_names.py``).
+
 ## Running the Test
 
 ```

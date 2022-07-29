@@ -46,4 +46,4 @@ Helper script to recursively build the embedded sources"""
 
 def build(bld):
     """Propagates the build process details to the lower level wscript."""
-    bld.recurse(bld.env.OPERATING_SYSTEM_NAME[0])
+    bld.recurse(bld.env.RTOS_NAME[0])

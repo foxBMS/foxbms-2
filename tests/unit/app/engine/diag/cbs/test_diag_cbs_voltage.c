@@ -43,8 +43,8 @@
  * @file    test_diag_cbs_voltage.c
  * @author  foxBMS Team
  * @date    2021-02-17 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -92,20 +92,20 @@ void tearDown(void) {
 /** tests invalid input values */
 void testDIAG_ErrorOvervoltageInvalidInput(void) {
     TEST_ASSERT_FAIL_ASSERT(DIAG_ErrorOvervoltage(DIAG_ID_MAX, DIAG_EVENT_OK, &diag_kpkDatabaseShim, 0u));
-    TEST_ASSERT_FAIL_ASSERT(DIAG_ErrorOvervoltage(DIAG_ID_CELLVOLTAGE_OVERVOLTAGE_MSL, 42, &diag_kpkDatabaseShim, 0u));
-    TEST_ASSERT_FAIL_ASSERT(DIAG_ErrorOvervoltage(DIAG_ID_CELLVOLTAGE_OVERVOLTAGE_MSL, DIAG_EVENT_OK, NULL_PTR, 0u));
+    TEST_ASSERT_FAIL_ASSERT(DIAG_ErrorOvervoltage(DIAG_ID_CELL_VOLTAGE_OVERVOLTAGE_MSL, 42, &diag_kpkDatabaseShim, 0u));
+    TEST_ASSERT_FAIL_ASSERT(DIAG_ErrorOvervoltage(DIAG_ID_CELL_VOLTAGE_OVERVOLTAGE_MSL, DIAG_EVENT_OK, NULL_PTR, 0u));
     TEST_ASSERT_FAIL_ASSERT(DIAG_ErrorOvervoltage(
-        DIAG_ID_CELLVOLTAGE_OVERVOLTAGE_MSL, DIAG_EVENT_OK, &diag_kpkDatabaseShim, BS_NR_OF_STRINGS));
+        DIAG_ID_CELL_VOLTAGE_OVERVOLTAGE_MSL, DIAG_EVENT_OK, &diag_kpkDatabaseShim, BS_NR_OF_STRINGS));
 }
 
 /** tests invalid input values */
 void testDIAG_ErrorUndervoltageInvalidInput(void) {
     TEST_ASSERT_FAIL_ASSERT(DIAG_ErrorUndervoltage(DIAG_ID_MAX, DIAG_EVENT_OK, &diag_kpkDatabaseShim, 0u));
     TEST_ASSERT_FAIL_ASSERT(
-        DIAG_ErrorUndervoltage(DIAG_ID_CELLVOLTAGE_UNDERVOLTAGE_MSL, 42, &diag_kpkDatabaseShim, 0u));
-    TEST_ASSERT_FAIL_ASSERT(DIAG_ErrorUndervoltage(DIAG_ID_CELLVOLTAGE_UNDERVOLTAGE_MSL, DIAG_EVENT_OK, NULL_PTR, 0u));
+        DIAG_ErrorUndervoltage(DIAG_ID_CELL_VOLTAGE_UNDERVOLTAGE_MSL, 42, &diag_kpkDatabaseShim, 0u));
+    TEST_ASSERT_FAIL_ASSERT(DIAG_ErrorUndervoltage(DIAG_ID_CELL_VOLTAGE_UNDERVOLTAGE_MSL, DIAG_EVENT_OK, NULL_PTR, 0u));
     TEST_ASSERT_FAIL_ASSERT(DIAG_ErrorUndervoltage(
-        DIAG_ID_CELLVOLTAGE_UNDERVOLTAGE_MSL, DIAG_EVENT_OK, &diag_kpkDatabaseShim, BS_NR_OF_STRINGS));
+        DIAG_ID_CELL_VOLTAGE_UNDERVOLTAGE_MSL, DIAG_EVENT_OK, &diag_kpkDatabaseShim, BS_NR_OF_STRINGS));
 }
 
 /** tests invalid input values */

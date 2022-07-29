@@ -45,9 +45,10 @@ import os
 
 def build(bld):
     """builds the algorithm library"""
-    soc = bld.env.ALGORITHM_SOC
-    soe = bld.env.ALGORITHM_SOE
-    soh = bld.env.ALGORITHM_SOH
+    soc = bld.env.state_estimator_soc
+    soe = bld.env.state_estimator_soe
+    sof = bld.env.state_estimator_sof
+    soh = bld.env.state_estimator_soh
     source = [
         os.path.join("algorithm.c"),
         os.path.join("config", "algorithm_cfg.c"),
@@ -56,11 +57,11 @@ def build(bld):
         os.path.join("state_estimation", "soc", soc, f"soc_{soc}.c"),
         os.path.join("state_estimation", "soe", soe, f"soe_{soe}_cfg.c"),
         os.path.join("state_estimation", "soe", soe, f"soe_{soe}.c"),
+        os.path.join("state_estimation", "sof", sof, f"sof_{sof}.c"),
+        os.path.join("state_estimation", "sof", sof, f"sof_{sof}_cfg.c"),
         os.path.join("state_estimation", "soh", soh, f"soh_{soh}.c"),
         os.path.join("state_estimation", "soh", soh, f"soh_{soh}_cfg.c"),
         os.path.join(".", "state_estimation", "state_estimation.c"),
-        os.path.join(".", "state_estimation", "sof", "trapezoid", "sof.c"),
-        os.path.join(".", "state_estimation", "sof", "trapezoid", "sof_cfg.c"),
     ]
     includes = [
         ".",
@@ -69,8 +70,8 @@ def build(bld):
         "state_estimation",
         os.path.join("state_estimation", "soc", soc),
         os.path.join("state_estimation", "soe", soe),
+        os.path.join("state_estimation", "sof", sof),
         os.path.join("state_estimation", "soh", soh),
-        os.path.join("state_estimation", "sof", "trapezoid"),
         os.path.join("..", "config"),
         os.path.join("..", "..", "application", "bms"),
         os.path.join("..", "..", "driver", "config"),
@@ -86,7 +87,7 @@ def build(bld):
         os.path.join("..", "..", "task", "config"),
         os.path.join("..", "..", "task", "os"),
     ]
-    includes.extend(bld.env.INCLUDES_OPERATING_SYSTEM)
+    includes.extend(bld.env.INCLUDES_RTOS)
     cflags = bld.env.CFLAGS_FOXBMS
     target = f"{bld.env.APPNAME.lower()}-algorithms"
     bld.stlib(

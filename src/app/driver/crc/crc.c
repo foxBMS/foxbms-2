@@ -43,8 +43,8 @@
  * @file    crc.c
  * @author  foxBMS Team
  * @date    2022-02-22 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup DRIVERS
  * @prefix  CRC
  *
@@ -94,10 +94,9 @@ extern STD_RETURN_TYPE_e CRC_CalculateCrc(uint64_t *pCrc, uint8_t *pData, uint32
         /* Set mode to Full-CPU Mode to start the computation when writing the data*/
         crcREG1->CTRL2 |= CRC_FULL_CPU_MODE_SET_MASK;
 
-        /* AXIVION Disable Style MisraC2012-11.3: 64 bit access needed, partial 32 bit access starts computation */
+        /* AXIVION Next Codeline Style MisraC2012-11.3: 64 bit access needed, partial 32 bit access starts computation */
         /* Pointer to access the two signature registers, where input data will be written */
         volatile uint64_t *pCrcRegister = (volatile uint64 *)(&crcREG1->PSA_SIGREGL1);
-        /* AXIVION Enable Style MisraC2012-11.3: */
 
         /* Treat packets of 64 bit data */
         while (remainingBytes >= CRC_REGISTER_SIZE_IN_BYTES) {

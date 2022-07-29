@@ -43,14 +43,12 @@
  * @file    spi_cfg.c
  * @author  foxBMS Team
  * @date    2020-03-05 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  SPI
  *
  * @brief   Configuration for the SPI module
- *
- *
  *
  */
 
@@ -105,15 +103,15 @@ static spiDAT1_t spi_kMxmDataConfig = {
 static spiDAT1_t spi_kNxp775DataConfigTx[BS_NR_OF_STRINGS] = {
     {.CS_HOLD = TRUE,      /* If true, HW chip select kept active */
      .WDEL    = TRUE,      /* Activation of delay between words */
-     .DFSEL   = SPI_FMT_0, /* Data word format selection */
-     .CSNR    = SPI_HARDWARE_CHIP_SELECT_2_ACTIVE},
+     .DFSEL   = SPI_FMT_2, /* Data word format selection */
+     .CSNR    = SPI_HARDWARE_CHIP_SELECT_1_ACTIVE},
 };
 
 /** SPI data configuration struct for NXP MC33775A communication, Rx part */
 static spiDAT1_t spi_kNxp775DataConfigRx[BS_NR_OF_STRINGS] = {
     {.CS_HOLD = TRUE,      /* If true, HW chip select kept active */
      .WDEL    = TRUE,      /* Activation of delay between words */
-     .DFSEL   = SPI_FMT_0, /* Data word format selection */
+     .DFSEL   = SPI_FMT_2, /* Data word format selection */
      .CSNR    = SPI_HARDWARE_CHIP_SELECT_0_ACTIVE},
 };
 
@@ -183,7 +181,7 @@ SPI_INTERFACE_CONFIG_s spi_ltcInterface[BS_NR_OF_STRINGS] = {
 };
 
 /** SPI interface configuration for MXM communication */
-SPI_INTERFACE_CONFIG_s spi_MxmInterface = {
+SPI_INTERFACE_CONFIG_s spi_mxmInterface = {
     .pConfig  = &spi_kMxmDataConfig,
     .pNode    = spiREG4,
     .pGioPort = &(spiREG4->PC3),
@@ -197,7 +195,7 @@ SPI_INTERFACE_CONFIG_s spi_nxp775InterfaceTx[BS_NR_OF_STRINGS] = {
         .pConfig  = &spi_kNxp775DataConfigTx[0u],
         .pNode    = spiREG1,
         .pGioPort = &(spiREG1->PC3),
-        .csPin    = 2u,
+        .csPin    = 1u,
         .csType   = SPI_CHIP_SELECT_HARDWARE,
     },
 };
@@ -226,8 +224,8 @@ SPI_INTERFACE_CONFIG_s spi_framInterface = {
 SPI_INTERFACE_CONFIG_s spi_spsInterface = {
     .pConfig  = &spi_kSpsDataConfigLowSpeed,
     .pNode    = spiREG2,
-    .pGioPort = &SPS_SPI_CS_GIOPORT,
-    .csPin    = SPS_SPI_CS_PIN,
+    .pGioPort = &SPI_SPS_CS_GIOPORT,
+    .csPin    = SPI_SPS_CS_PIN,
     .csType   = SPI_CHIP_SELECT_SOFTWARE,
 };
 

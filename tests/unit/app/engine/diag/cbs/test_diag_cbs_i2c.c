@@ -43,8 +43,8 @@
  * @file    test_diag_cbs_i2c.c
  * @author  foxBMS Team
  * @date    2021-09-29 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -118,6 +118,6 @@ void testDIAG_I2cPexDoNothingOnWrongId(void) {
     /* Use a wrong ID to make sure, that this does not alter the I2C entry */
     uint8_t testValue                             = 42;
     diag_kpkDatabaseShim.pTableError->i2cPexError = testValue;
-    DIAG_I2cPex(DIAG_ID_CELLVOLTAGE_OVERVOLTAGE_RSL, DIAG_EVENT_RESET, &diag_kpkDatabaseShim, 0u);
+    DIAG_I2cPex(DIAG_ID_CELL_VOLTAGE_OVERVOLTAGE_RSL, DIAG_EVENT_RESET, &diag_kpkDatabaseShim, 0u);
     TEST_ASSERT_EQUAL(testValue, diag_kpkDatabaseShim.pTableError->i2cPexError);
 }

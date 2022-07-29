@@ -43,8 +43,8 @@
  * @file    test_bms.c
  * @author  foxBMS Team
  * @date    2020-04-01 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -73,11 +73,11 @@
 #include "test_assert_helper.h"
 
 /*========== Definitions and Implementations for Unit Test ==================*/
-DIAG_ID_CFG_s DIAG_ID_cfg[] = {};
+DIAG_ID_CFG_s diag_diagnosisIdConfiguration[] = {};
 
 DIAG_DEV_s diag_device = {
-    .nrOfConfiguredDiagnosisEntries   = sizeof(DIAG_ID_cfg) / sizeof(DIAG_ID_CFG_s),
-    .pConfigurationOfDiagnosisEntries = &DIAG_ID_cfg[0],
+    .nrOfConfiguredDiagnosisEntries   = sizeof(diag_diagnosisIdConfiguration) / sizeof(DIAG_ID_CFG_s),
+    .pConfigurationOfDiagnosisEntries = &diag_diagnosisIdConfiguration[0],
     .numberOfFatalErrors              = 0u,
 };
 

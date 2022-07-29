@@ -43,8 +43,8 @@
  * @file    mcu.h
  * @author  foxBMS Team
  * @date    2019-02-19 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup DRIVERS
  * @prefix  MCU
  *
@@ -67,13 +67,13 @@
  * @details Checked in the data sheet spnu563a: The largest pin number that is
  *          used is 31.
 */
-#define LARGEST_PIN_NUMBER (31u)
+#define MCU_LARGEST_PIN_NUMBER (31u)
 
 /**
  * @brief   maximum number of channels measured by the ADC1
  * @details Checked in the data sheet spnu563a: ADC1 supports 32 channels
  */
-#define ADC_ADC1_MAX_NR_CHANNELS (32U)
+#define MCU_ADC1_MAX_NR_CHANNELS (32u)
 
 #ifndef UNITY_UNIT_TEST
 /** Address of Free Running Counter 0 (FRC0) */

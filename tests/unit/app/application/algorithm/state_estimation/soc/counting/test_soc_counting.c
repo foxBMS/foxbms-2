@@ -43,8 +43,8 @@
  * @file    test_soc_counting.c
  * @author  foxBMS Team
  * @date    2020-10-07 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -73,10 +73,10 @@ void setUp(void) {
 void tearDown(void) {
 }
 
-void testSOC_GetFromVoltage(void) {
+void testSE_GetStateOfChargeFromVoltage(void) {
     float test_soc          = -1.0;
     int16_t test_voltage_mV = 3780;
-    test_soc                = SOC_GetFromVoltage(test_voltage_mV);
+    test_soc                = SE_GetStateOfChargeFromVoltage(test_voltage_mV);
     TEST_ASSERT_EQUAL(64.0f, test_soc);
 }
 

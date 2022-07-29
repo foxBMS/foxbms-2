@@ -43,8 +43,8 @@
  * @file    mxm_17852.c
  * @author  foxBMS Team
  * @date    2021-11-24 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup DRIVERS
  * @prefix  MXM
  *
@@ -253,7 +253,7 @@ extern void MXM_StateMachineOperation(MXM_MONITORING_INSTANCE_s *pState) {
                 if (pState->mxmVoltageCellCounter < (uint8_t)UINT8_MAX) {
                     pState->mxmVoltageCellCounter++;
                 }
-                f_static_assert(
+                FAS_STATIC_ASSERT(
                     MXM_VOLTAGE_READ_ARRAY_LENGTH <= (uint8_t)UINT8_MAX,
                     "invalid define MXM_VOLTAGE_READ_ARRAY_LENGTH");
                 /* modified: read one additional aux entry */

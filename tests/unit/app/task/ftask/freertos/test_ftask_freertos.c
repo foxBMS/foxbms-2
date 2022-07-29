@@ -43,8 +43,8 @@
  * @file    test_ftask_freertos.c
  * @author  foxBMS Team
  * @date    2021-11-26 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -64,6 +64,8 @@
 TEST_FILE("ftask_freertos.c")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
+TaskHandle_t ftsk_taskHandleAfe;
+
 OS_TASK_DEFINITION_s ftsk_taskDefinitionEngine = {
     OS_PRIORITY_REAL_TIME,
     FTSK_TASK_ENGINE_PHASE,

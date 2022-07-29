@@ -43,8 +43,8 @@
  * @file    test_can.c
  * @author  foxBMS Team
  * @date    2020-04-01 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -75,7 +75,7 @@
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 /* Dummy for version file implementation */
-const VERSION_s foxbmsVersionInfo = {
+const VER_VERSION_s ver_foxbmsVersionInformation = {
     .underVersionControl     = true,
     .isDirty                 = true,
     .major                   = 1,

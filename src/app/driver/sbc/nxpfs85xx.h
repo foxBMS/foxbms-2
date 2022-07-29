@@ -43,8 +43,8 @@
  * @file    nxpfs85xx.h
  * @author  foxBMS Team
  * @date    2020-03-18 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup DRIVERS
  * @prefix  FS85
  *
@@ -70,8 +70,8 @@
  * for register description see data sheet FS84_FS85 - Rev. 3.0 - 9 April 2019 */
 typedef struct {
     uint16_t grl_flags;                             /*!< FS8X_FS_GRL_FLAGS_ADDR */
-    uint16_t iOvervoltageUndervolateSafeReaction1;  /*!< FS8X_FS_I_OVUV_SAFE_REACTION1_ADDR */
-    uint16_t iOvervoltageUndervolateSafeReaction2;  /*!< FS8X_FS_I_OVUV_SAFE_REACTION2_ADDR */
+    uint16_t iOvervoltageUndervoltageSafeReaction1; /*!< FS8X_FS_I_OVUV_SAFE_REACTION1_ADDR */
+    uint16_t iOvervoltageUndervoltageSafeReaction2; /*!< FS8X_FS_I_OVUV_SAFE_REACTION2_ADDR */
     uint16_t iWatchdogConfiguration;                /*!< FS8X_FS_I_WD_CFG_ADDR */
     uint16_t i_safe_inputs;                         /*!< FS8X_FS_I_SAFE_INPUTS_ADDR */
     uint16_t iFailSafeSateMachine;                  /*!< FS8X_FS_I_FSSM_ADDR */
@@ -197,5 +197,21 @@ extern STD_RETURN_TYPE_e FS85_SafetyPathChecks(FS85_STATE_s *pInstance);
 extern STD_RETURN_TYPE_e SBC_TriggerWatchdog(FS85_STATE_s *pInstance);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
+#ifdef UNITY_UNIT_TEST
+extern STD_RETURN_TYPE_e TEST_SBC_CheckRegisterValues(uint32_t registerValue, uint32_t expectedRegisterValue);
+extern void TEST_SBC_UpdateRegister(
+    FS85_STATE_s *pInstance,
+    bool isFailSafe,
+    uint32_t registerAddress,
+    uint32_t registerValue);
+extern void TEST_SBC_UpdateFailSafeRegister(
+    FS85_FS_REGISTER_s *pFsRegister,
+    uint32_t registerAddress,
+    uint32_t registerValue);
+extern void TEST_SBC_UpdateMainRegister(
+    FS85_MAIN_REGISTERS_s *pMainRegister,
+    uint32_t registerAddress,
+    uint32_t registerValue);
+#endif
 
 #endif /* FOXBMS__NXPFS85XX_H_ */

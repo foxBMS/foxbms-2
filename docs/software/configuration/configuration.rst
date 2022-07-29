@@ -104,8 +104,8 @@ The project provides two basic configuration options:
 Source Options
 ^^^^^^^^^^^^^^
 
-Some BMS configurations require compiling different sources. That applies to
-the Operating System and the measurement
+Some BMS configurations require compiling different sources.
+That applies to the Operating System and the measurement
 IC.
 
 .. note::

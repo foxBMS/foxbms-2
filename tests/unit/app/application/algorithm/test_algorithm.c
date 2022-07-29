@@ -43,8 +43,8 @@
  * @file    test_algorithm.c
  * @author  foxBMS Team
  * @date    2020-06-30 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -137,7 +137,7 @@ void testUnlockInitializationInvalidAlgorithmConfiguration(void) {
 
     const uint32_t storeCycleTime = algo_algorithms[0].cycleTime_ms;
     /* set to an invalid cycle time */
-    algo_algorithms[0].cycleTime_ms = ALGO_TICK_MS + 1u;
+    algo_algorithms[0].cycleTime_ms = ALGO_TICK_ms + 1u;
 
     TEST_ASSERT_FAIL_ASSERT(ALGO_MainFunction());
 

@@ -1,0 +1,30 @@
+{
+    "Analysis": {
+        "Metric-TokenFileMetric.Check": {
+            "_active": true
+        },
+        "Metric-TokenFileMetric.Debug": {
+            "_active": true
+        },
+        "Metric-TokenFileMetric.Fixme": {
+            "_active": true
+        },
+        "Metric-TokenFileMetric.Hack": {
+            "_active": true
+        },
+        "Metric-TokenFileMetric.Todo": {
+            "_active": true
+        },
+        "Metric-TokenFileMetric.XXX": {
+            "_active": true
+        }
+    },
+    "_Format": "1.0",
+    "_Version": "7.4.0",
+    "_VersionNum": [
+        7,
+        4,
+        0,
+        9870
+    ]
+}

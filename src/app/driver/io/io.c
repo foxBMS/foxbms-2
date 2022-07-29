@@ -43,8 +43,8 @@
  * @file    io.c
  * @author  foxBMS Team
  * @date    2020-06-05 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup DRIVERS
  * @prefix  IO
  *
@@ -72,35 +72,35 @@
 
 extern void IO_SetPinDirectionToOutput(volatile uint32_t *pRegisterAddress, uint32_t pin) {
     FAS_ASSERT(pRegisterAddress != NULL_PTR);
-    FAS_ASSERT(pin <= LARGEST_PIN_NUMBER);
+    FAS_ASSERT(pin <= MCU_LARGEST_PIN_NUMBER);
 
     *pRegisterAddress |= (uint32_t)((uint32_t)1u << pin);
 }
 
 extern void IO_SetPinDirectionToInput(volatile uint32_t *pRegisterAddress, uint32_t pin) {
     FAS_ASSERT(pRegisterAddress != NULL_PTR);
-    FAS_ASSERT(pin <= LARGEST_PIN_NUMBER);
+    FAS_ASSERT(pin <= MCU_LARGEST_PIN_NUMBER);
 
     *pRegisterAddress &= ~(uint32_t)((uint32_t)1u << pin);
 }
 
 extern void IO_PinSet(volatile uint32_t *pRegisterAddress, uint32_t pin) {
     FAS_ASSERT(pRegisterAddress != NULL_PTR);
-    FAS_ASSERT(pin <= LARGEST_PIN_NUMBER);
+    FAS_ASSERT(pin <= MCU_LARGEST_PIN_NUMBER);
 
     *pRegisterAddress |= (uint32_t)((uint32_t)1u << pin);
 }
 
 extern void IO_PinReset(volatile uint32_t *pRegisterAddress, uint32_t pin) {
     FAS_ASSERT(pRegisterAddress != NULL_PTR);
-    FAS_ASSERT(pin <= LARGEST_PIN_NUMBER);
+    FAS_ASSERT(pin <= MCU_LARGEST_PIN_NUMBER);
 
     *pRegisterAddress &= ~(uint32_t)((uint32_t)1u << pin);
 }
 
 extern STD_PIN_STATE_e IO_PinGet(const volatile uint32_t *pRegisterAddress, uint32_t pin) {
     FAS_ASSERT(pRegisterAddress != NULL_PTR);
-    FAS_ASSERT(pin <= LARGEST_PIN_NUMBER);
+    FAS_ASSERT(pin <= MCU_LARGEST_PIN_NUMBER);
 
     STD_PIN_STATE_e retval = STD_PIN_UNDEFINED;
     uint8_t pinState       = (uint8_t)((*pRegisterAddress & ((uint32_t)1u << (pin))) >> pin);

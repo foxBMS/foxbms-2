@@ -1,0 +1,119 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+#
+# Copyright (c) 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# All rights reserved.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#
+# 1. Redistributions of source code must retain the above copyright notice, this
+#    list of conditions and the following disclaimer.
+#
+# 2. Redistributions in binary form must reproduce the above copyright notice,
+#    this list of conditions and the following disclaimer in the documentation
+#    and/or other materials provided with the distribution.
+#
+# 3. Neither the name of the copyright holder nor the names of its
+#    contributors may be used to endorse or promote products derived from
+#    this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+# OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#
+# We kindly request you to use one or more of the following phrases to refer to
+# foxBMS in your hardware, software, documentation or advertising materials:
+#
+# - "This product uses parts of foxBMS®"
+# - "This product includes parts of foxBMS®"
+# - "This product is derived from foxBMS®"
+
+"""TODO"""
+
+import os
+from waflib.Utils import unversioned_sys_platform
+
+NXP_MC33775A_VENDOR_HASHES = {
+    os.path.join("vendor", "MC33775A.h"): {
+        "win32": b"\xe0\xeb1\xf2\xa19P;\x8d\xb5\xa9\x8c\xa81\xd9M",
+        "linux": b"N\x8d\x1d_N\x0b\xd4\x9c\x89\x05\xbf-\xdd*\xaa\x02",
+    },
+    os.path.join("vendor", "uc_msg_t.c"): {
+        "win32": b"\xec79\xabfh>\x83%p\xa1\x92\xca5\xca\x7f",
+        "linux": b"!\xf1x@\xa8\xac\x057\xa5\xfdJ[\x96T\x11\xb7",
+    },
+    os.path.join("vendor", "uc_msg_t.h"): {
+        "win32": b"\xbe\xd4\x11w\xa2\xae\xa1\xe2}e3\xa95\x8aH\xcb",
+        "linux": b"\x93E*y\x8d\xfe\x83\xf1\xaa;\x97\xdd\xc0\xbd7\xac",
+    },
+}
+
+
+def build(bld):
+    """builds the measurement ic driver library for NXP MC33775A"""
+    source = [
+        os.path.join("..", "api", "nxp_afe.c"),
+        os.path.join("api", "nxp_mc33775a_afe.c"),
+        os.path.join("nxp_afe_dma.c"),
+        os.path.join("config", "nxp_afe_dma_cfg.c"),
+        os.path.join("nxp_mc33775a.c"),
+        os.path.join("nxp_mc33775a-ll.c"),
+        os.path.join("config", "nxp_mc33775a_cfg.c"),
+        os.path.join("vendor", "uc_msg_t.c"),
+    ]
+    includes = [
+        ".",
+        os.path.join("api"),
+        os.path.join("config"),
+        os.path.join("vendor"),
+        os.path.join("..", "api"),
+        os.path.join("..", "..", "api"),
+        os.path.join("..", "..", "..", "config"),
+        os.path.join("..", "..", "..", "dma"),
+        os.path.join("..", "..", "..", "foxmath"),
+        os.path.join("..", "..", "..", "io"),
+        os.path.join("..", "..", "..", "mcu"),
+        os.path.join("..", "..", "..", "pex"),
+        os.path.join("..", "..", "..", "spi"),
+        os.path.join("..", "..", "..", "ts"),
+        os.path.join("..", "..", "..", "ts", "api"),
+        os.path.join("..", "..", "..", "..", "application", "config"),
+        os.path.join("..", "..", "..", "..", "engine", "config"),
+        os.path.join("..", "..", "..", "..", "engine", "database"),
+        os.path.join("..", "..", "..", "..", "engine", "diag"),
+        os.path.join("..", "..", "..", "..", "main", "include"),
+        os.path.join("..", "..", "..", "..", "task", "config"),
+        os.path.join("..", "..", "..", "..", "task", "config"),
+        os.path.join("..", "..", "..", "..", "task", "ftask"),
+        os.path.join("..", "..", "..", "..", "task", "os"),
+    ]
+    includes.extend(bld.env.INCLUDES_RTOS)
+    cflags = bld.env.CFLAGS_FOXBMS
+    target = f"{bld.env.APPNAME.lower()}-afe-driver"
+    bld.stlib(
+        source=source,
+        includes=includes,
+        use=f"{bld.env.APPNAME.lower()}-nxp-afe",
+        cflags=cflags,
+        target=target,
+    )
+
+    for k, val in NXP_MC33775A_VENDOR_HASHES.items():
+        node = bld.path.find_node(k)
+        node_hash = node.h_file()
+        if not node_hash == val[unversioned_sys_platform()]:
+            bld.fatal(
+                "File hash of vendored file does not match "
+                f"('{node}' should return {val[unversioned_sys_platform()]} "
+                f"but returned {node_hash}."
+            )

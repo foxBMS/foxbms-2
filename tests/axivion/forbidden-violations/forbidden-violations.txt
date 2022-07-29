@@ -138,12 +138,54 @@ MisraC2012-22.5
 MisraC2012-22.6
 
 # Generic
+Generic-CComments
+Generic-DoxygenCommentAtDefinition
+Generic-DoxygenCommentInHeader
+Generic-DuplicateIncludeGuard
+Generic-ForbiddenFunctions
 Generic-IncludeKind
+Generic-MaxConditions
+Generic-MaxOneStmtPerLine
+Generic-MissingIncludeGuard
+Generic-MissingOverride
+Generic-MissingSelfHeaderInclude
+Generic-MixedUpArgumentOrder
+Generic-NoAbsoluteInclude
+Generic-NoCommaSequence
+Generic-NoCompilerWarnings
+Generic-NoConditionalOperator
+Generic-NoConstCasts
 Generic-NoConstOnLHS
+Generic-NoEllipsis
+Generic-NoEmptyStructs
+Generic-NoExternInImpl
+Generic-NoFunctionDefinitionInHeader
+Generic-NoImplicitTypeConversion
+Generic-NoIncludePaths
+Generic-NoIrregularInclude
+Generic-NoLeakingReferenceToLocal
+Generic-NoLinkerWarnings
+Generic-NoMalloc
+Generic-NoReferenceToLocalVariable
+Generic-NoSemicolonAtEndOfMacro
+Generic-NoSingleCharIdentifier
+Generic-NoStaticInHeader
+Generic-NoTabs
+Generic-NoTrailingWhitespace
+Generic-NoUncheckedPointerParamDereference
 Generic-NoUnsafeMacro
+Generic-NoWhitespaceMemberSelection
+Generic-TooManyIncludes
+Generic-TypedefCheck
+Generic-WrongIncludeCasing
 
 # CertC
+CertC-PRE01
+CertC-PRE04
+CertC-PRE06
+CertC-PRE08
 CertC-PRE31
+CertC-PRE02
 
 # Style
 CodingStyle-FilenameNaming
@@ -154,3 +196,11 @@ CodingStyle-NoBlankLinesAtBraces
 CodingStyle-NoSingleCharIdentifier
 CodingStyle-NoTabs
 CodingStyle-NoTrailingWhitespace
+CodingStyle-FileExtensionNaming
+CodingStyle-FilenameNaming
+CodingStyle-MaxOneStmtPerLine
+CodingStyle-NoSingleCharIdentifier
+CodingStyle-NoWhitespaceMemberSelection
+CodingStyle-TooManyIncludes
+
+Linker-Multiple_Definition

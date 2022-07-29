@@ -45,4 +45,4 @@ Helper script to recursively build the embedded sources"""
 
 def build(bld):
     """selects the driver library to be build"""
-    bld.recurse(bld.env.afe_chip)
+    bld.recurse(bld.env.afe_ic)

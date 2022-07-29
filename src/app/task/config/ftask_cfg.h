@@ -43,8 +43,8 @@
  * @file    ftask_cfg.h
  * @author  foxBMS Team
  * @date    2019-08-26 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup TASK_CONFIGURATION
  * @prefix  FTSK
  *
@@ -279,8 +279,8 @@ extern void FTSK_RunUserCodeCyclicAlgorithm100ms(void);
 
 /**
  * @brief   Continuously running task for AFEs
- * @details Used to implement the communications with AFEs,
- *          for drivers that do not use a cyclic task.
+ * @details Implements the communications with AFEs, without
+ *          statemachine.
  * @ingroup API_OS
  */
 extern void FTSK_RunUserCodeAfe(void);

@@ -43,8 +43,8 @@
  * @file    os.h
  * @author  foxBMS Team
  * @date    2019-08-27 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup OS
  * @prefix  OS
  *
@@ -98,18 +98,18 @@ typedef enum {
 
 /** @brief  enum of OS boot states */
 typedef enum {
-    OS_OFF,                          /**< system is off                                                   */
-    OS_INITIALIZE_SCHEDULER,         /**< state right before initalizing the scheduler                    */
-    OS_CREATE_QUEUES,                /**< state right before queues are created                           */
-    OS_CREATE_TASKS,                 /**< state right before tasks are created                            */
-    OS_INIT_PRE_OS,                  /**< state right after tasks are created                             */
-    OS_SCHEDULER_RUNNING,            /**< scheduler is running                                            */
-    OS_ENGINE_RUNNING,               /**< state right after scheduler is started and engine is initalized */
-    OS_PRECYCLIC_INIT_HAS_FINISHED,  /**< state after the precyclic init has finished                     */
-    OS_SYSTEM_RUNNING,               /**< system is running                                               */
-    OS_INIT_OS_FATALERROR_SCHEDULER, /**< error in scheduler                                              */
-    OS_INIT_OS_FATALERROR,           /**< fatal error                                                     */
-    OS_BOOT_STATE_MAX,               /**< DO NOT CHANGE, MUST BE THE LAST ENTRY */
+    OS_OFF,                                    /**< system is off                                                   */
+    OS_INITIALIZE_SCHEDULER,                   /**< state right before initializing the scheduler                    */
+    OS_CREATE_QUEUES,                          /**< state right before queues are created                           */
+    OS_CREATE_TASKS,                           /**< state right before tasks are created                            */
+    OS_INIT_PRE_OS,                            /**< state right after tasks are created                             */
+    OS_SCHEDULER_RUNNING,                      /**< scheduler is running                                            */
+    OS_ENGINE_RUNNING,                         /**< state right after scheduler is started and engine is initalized */
+    OS_PRE_CYCLIC_INITIALIZATION_HAS_FINISHED, /**< state after the pre-cyclic init has finished                    */
+    OS_SYSTEM_RUNNING,                         /**< system is running                                               */
+    OS_INIT_OS_FATALERROR_SCHEDULER,           /**< error in scheduler                                              */
+    OS_INIT_OS_FATALERROR,                     /**< fatal error                                                     */
+    OS_BOOT_STATE_MAX,                         /**< DO NOT CHANGE, MUST BE THE LAST ENTRY */
 } OS_BOOT_STATE_e;
 
 /** @brief  OS timer */
@@ -164,7 +164,7 @@ extern void OS_InitializeOperatingSystem(void);
  * @details This is necessary for the combination of
  *          configSUPPORT_STATIC_ALLOCATION and configUSE_TIMERS.
  *          This is an FreeRTOS function an does not adhere to foxBMS function
- *          naming convetions.
+ *          naming conventions.
  * @param   ppxTimerTaskTCBBuffer   TODO
  * @param   ppxTimerTaskStackBuffer TODO
  * @param   pulTimerTaskStackSize   TODO
@@ -178,7 +178,7 @@ extern void vApplicationGetTimerTaskMemory(
 /**
  * @brief   Hook function for the idle task
  * @details This is an FreeRTOS function an does not adhere to foxBMS function
- *          naming convetions
+ *          naming conventions
  */
 extern void vApplicationIdleHook(void);
 
@@ -227,12 +227,6 @@ extern uint32_t OS_GetTickCount(void);
 extern void OS_DelayTaskUntil(uint32_t *pPreviousWakeTime, uint32_t milliseconds);
 
 /**
- * @brief   Handles the tick increment of operating systick timer
- * @details TODO
- */
-extern void OS_SystemTickHandler(void);
-
-/**
  * @brief   Marks the current task as requiring FPU context
  * @details In order to avoid corruption of the registers of the floating
  *          point unit during a task switch, every task that uses the FPU has
@@ -247,7 +241,7 @@ extern void OS_MarkTaskAsRequiringFpuContext(void);
 
 /**
  * @brief   Receive an item from a queue
- * @details This function needs to implement the wrapper to OS specfic queue
+ * @details This function needs to implement the wrapper to OS specific queue
  *          posting.
  *          The queue needs to be implement in a FreeRTOS compatible way.
  *          This function must not be called from within an interrupt service
@@ -264,7 +258,7 @@ extern OS_STD_RETURN_e OS_ReceiveFromQueue(OS_QUEUE xQueue, void *const pvBuffer
 
 /**
  * @brief   Post an item to the back the provided queue
- * @details This function needs to implement the wrapper to OS specfic queue
+ * @details This function needs to implement the wrapper to OS specific queue
  *          posting.
  *          The queue needs to be implement in a FreeRTOS compatible way.
  * @param   xQueue          FreeRTOS compatible queue handle that should be
@@ -277,7 +271,7 @@ extern OS_STD_RETURN_e OS_SendToBackOfQueue(OS_QUEUE xQueue, const void *const p
 
 /**
  * @brief   Post an item to the back the provided queue during an ISR
- * @details This function needs to implement the wrapper to OS specfic queue
+ * @details This function needs to implement the wrapper to OS specific queue
  *          posting.
  * @param   xQueue                      queue handle that should be posted to.
  * @param   pvItemToQueue               Pointer to the item to be posted in the
@@ -296,7 +290,7 @@ extern OS_STD_RETURN_e OS_SendToBackOfQueueFromIsr(
 
 /**
  * @brief   Check if messages are waiting for queue
- * @details This function needs to implement the wrapper to OS specfic queue
+ * @details This function needs to implement the wrapper to OS specific queue
  *          posting.
  * @param   xQueue                   queue handle that should be posted to.
  * @return number of message currently stored in xQueue
@@ -307,7 +301,7 @@ extern uint32_t OS_GetNumberOfStoredMessagesInQueue(OS_QUEUE xQueue);
  * @brief   This function checks if timeToPass has passed since the last timestamp to now
  * @details This function retrieves the current time stamp with #OS_GetTickCount(),
  *          compares it to the oldTimestamp_ms and checks if more or equal of
- *          timetoPass_ms timer increments have passed.
+ *          timeToPass_ms timer increments have passed.
  * @param[in]   oldTimeStamp_ms timestamp that shall be compared to the current time in ms
  * @param[in]   timeToPass_ms   timer increments (in ms) that shall pass between oldTimeStamp_ms and now
  * @returns     true in the case that more than timeToPass_ms timer increments have passed, otherwise false
@@ -318,7 +312,7 @@ extern bool OS_CheckTimeHasPassed(uint32_t oldTimeStamp_ms, uint32_t timeToPass_
  * @brief   This function checks if timeToPass has passed since the last timestamp to now
  * @details This function is passed the current time stamp as argument currentTimeStamp_ms,
  *          compares it to the oldTimestamp_ms and checks if more or equal of
- *          timetoPass_ms timer increments have passed.
+ *          timeToPass_ms timer increments have passed.
  * @param[in]   oldTimeStamp_ms     timestamp that shall be compared to the current time in ms
  * @param[in]   currentTimeStamp_ms timestamp of the current time in ms
  * @param[in]   timeToPass_ms       timer increments (in ms) that shall pass between oldTimeStamp_ms and now

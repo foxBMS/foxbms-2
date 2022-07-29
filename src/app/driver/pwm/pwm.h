@@ -43,8 +43,8 @@
  * @file    pwm.h
  * @author  foxBMS Team
  * @date    2021-10-07 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup DRIVERS
  * @prefix  PWM
  *
@@ -65,7 +65,7 @@
 #include "HL_reg_ecap.h"
 
 /*========== Macros and Definitions =========================================*/
-
+/** type definition for PWM signal parameters */
 typedef struct {
     float dutyCycle_perc;
     float frequency_Hz;
@@ -95,7 +95,7 @@ extern void PWM_StopPwm(void);
 extern void PWM_SetDutyCycle(uint16_t dutyCycle_perm);
 
 /**  @brief  Get dutycycle and frequency of input PWM signal */
-extern PWM_SIGNAL_s ECAP_GetPwmData(void);
+extern PWM_SIGNAL_s PWM_GetPwmData(void);
 
 /**
  * @brief  Get initialization state of ecap module

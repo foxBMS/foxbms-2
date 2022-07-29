@@ -43,8 +43,8 @@
  * @file    test_diag_cbs_fram.c
  * @author  foxBMS Team
  * @date    2022-02-24 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -118,6 +118,6 @@ void testDIAG_FramErrorDoNothingOnWrongId(void) {
     /* Use a wrong ID to make sure, that this does not alter the FRAM entry */
     uint8_t testValue                                  = 42;
     diag_kpkDatabaseShim.pTableError->framReadCrcError = testValue;
-    DIAG_FramError(DIAG_ID_CELLVOLTAGE_OVERVOLTAGE_RSL, DIAG_EVENT_RESET, &diag_kpkDatabaseShim, 0u);
+    DIAG_FramError(DIAG_ID_CELL_VOLTAGE_OVERVOLTAGE_RSL, DIAG_EVENT_RESET, &diag_kpkDatabaseShim, 0u);
     TEST_ASSERT_EQUAL(testValue, diag_kpkDatabaseShim.pTableError->framReadCrcError);
 }

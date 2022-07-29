@@ -43,8 +43,8 @@
  * @file    mxm_1785x_tools.h
  * @author  foxBMS Team
  * @date    2020-07-15 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup DRIVERS
  * @prefix  MXM
  *
@@ -244,7 +244,7 @@ typedef struct {
     uint8_t muxCounter;            /*!< counter for the currently selected mux channel */
     uint8_t diagnosticCounter;     /*!< upward counter for determining when a diagnostic cycle should be entered */
     MXM_DC_BYTE_e dcByte;          /*!< content of the data-check-byte */
-    uint8_t mxmVoltageCellCounter; /*!< counter for getting all cellvoltages */
+    uint8_t mxmVoltageCellCounter; /*!< counter for getting all cell voltages */
     uint8_t highest5xDevice;       /*!< address of highest monitoring device of the 5x family */
     MXM_5X_STATE_REQUEST_STATUS_e requestStatus5x;                /*!< status of request to 5x */
     MXM_5X_COMMAND_PAYLOAD_s batteryCmdBuffer;                    /*!< buffer for Battery Management Commands */
@@ -310,7 +310,7 @@ extern void MXM_Convert(
  *          the #MXM_Convert()-function computes the values as expected.
  * @return  #STD_OK on successful execution, otherwise #STD_NOT_OK
  */
-extern STD_RETURN_TYPE_e must_check_return MXM_ConvertTest(void);
+extern STD_RETURN_TYPE_e GEN_MUST_CHECK_RETURN MXM_ConvertTest(void);
 
 /**
  * @brief   Extract a value from a single register.
@@ -336,14 +336,14 @@ extern void MXM_ExtractValueFromRegister(uint8_t lsb, uint8_t msb, MXM_REG_BM bi
  *          as expected.
  * @return  #STD_OK if the self-check has passed successfully
  */
-extern STD_RETURN_TYPE_e must_check_return MXM_ExtractValueFromRegisterTest(void);
+extern STD_RETURN_TYPE_e GEN_MUST_CHECK_RETURN MXM_ExtractValueFromRegisterTest(void);
 
 /**
  * @brief   Test #MXM_FirstSetBit().
  * @details Tests the function #MXM_FirstSetBit() if it works as expected.
  * @return  #STD_OK if the self-check has passed successfully
  */
-extern STD_RETURN_TYPE_e must_check_return MXM_FirstSetBitTest(void);
+extern STD_RETURN_TYPE_e GEN_MUST_CHECK_RETURN MXM_FirstSetBitTest(void);
 
 /**
  * @brief   convert a unipolar 14bit-value and shifts it into the 16bit-format

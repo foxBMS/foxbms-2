@@ -43,8 +43,8 @@
  * @file    ltc_afe_dma.c
  * @author  foxBMS Team
  * @date    2020-05-27 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup DRIVERS
  * @prefix  AFE
  *
@@ -72,10 +72,12 @@
 /*========== Extern Function Implementations ================================*/
 
 extern bool AFE_IsTransmitOngoing(LTC_STATE_s *pLtcState) {
+    FAS_ASSERT(pLtcState != NULL_PTR);
     return pLtcState->transmit_ongoing;
 }
 
 extern void AFE_SetTransmitOngoing(LTC_STATE_s *pLtcState) {
+    FAS_ASSERT(pLtcState != NULL_PTR);
     pLtcState->transmit_ongoing = true;
 }
 

@@ -39,10 +39,26 @@
 # - "This product is derived from foxBMS®"
 
 """sets the version package etc."""
+import os
 
-__version__ = "1.3.0"
+__version__ = "1.4.0"
 __appname__ = "foxBMS 2"
 __author__ = "The foxBMS Team"
 __copyright__ = "(c) 2010 - 2022 foxBMS"
 __author__ = "The foxBMS Team"
 __email__ = "info@foxbms.org"
+
+MODULE_DIR = os.path.dirname(os.path.realpath(__file__))
+MODULE_FOXBMS_LOGO = os.path.join(MODULE_DIR, "_static", "logo_foxbms.png")
+MODULE_FHG_IISB_LOGO = os.path.join(MODULE_DIR, "_static", "logo_fhg_iisb.png")
+MODULE_README_FILE = os.path.join(MODULE_DIR, "..", "README.md")
+MODULE_LICENSE_FILE = os.path.join(MODULE_DIR, "..", "LICENSE.md")
+MODULE_LOCAL_DOC_PATH = os.path.join(
+    MODULE_DIR, "..", "..", "..", "build", "docs", "index.html"
+)
+FOXBMS_URL = "https://foxbms.org"
+FOXBMS_DOC_BASE_URL = "https://iisb-foxbms.iisb.fraunhofer.de/"
+FOXBMS_DOC_URL = f"{FOXBMS_DOC_BASE_URL}/foxbms/gen2/docs/html/latest/"
+FOXBMS_LICENSE_FALLBACK_URL = (
+    f"{FOXBMS_DOC_BASE_URL}foxbms/gen2/docs/html/latest/general/license.html"
+)

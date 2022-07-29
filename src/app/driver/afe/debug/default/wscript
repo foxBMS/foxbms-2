@@ -71,7 +71,7 @@ def build(bld):
         os.path.join("..", "..", "..", "..", "engine", "diag"),
         os.path.join("..", "..", "..", "..", "task", "os"),
     ]
-    includes.extend(bld.env.INCLUDES_OPERATING_SYSTEM)
+    includes.extend(bld.env.INCLUDES_RTOS)
     cflags = bld.env.CFLAGS_FOXBMS
     target = f"{bld.env.APPNAME.lower()}-afe-driver"
     bld.stlib(

@@ -44,6 +44,8 @@ flags) into a separate file"""
 import os
 import traceback
 
+from copy import deepcopy
+
 from waflib import Context, Errors, Logs, Utils
 from waflib.Configure import conf
 
@@ -140,11 +142,26 @@ def get_defines(self, *k, **kw):
     --confcache to have a good debug experience on the build process while not
     cluttering the output directory.
     """
-
+    programs = []
+    for i in self.env:
+        if i.startswith("ARM"):
+            if self.env[i][0].endswith(".exe"):
+                programs.append(self.env[i][0])
+    arguments = deepcopy(self.env.CFLAGS)
+    if "--strict_ansi" in self.env.CFLAGS_FOXBMS:
+        arguments.append("--strict_ansi")
+    debug_info = (
+        "/*\nBuild information:\n  "
+        + "\n  ".join(programs)
+        + "\n\n  "
+        + "\n  ".join(arguments)
+        + f"\n\n  using {self.env.PPM}"
+        + "\n*/"
+    )
     testfile_basename = "predefined_defines"
     kw["features"] = "c"
     kw["idx"] = 0
-    kw["fragment"] = "int main() {\n    return 0;\n}\n"
+    kw["fragment"] = f"{debug_info}\nint main() {{\n    return 0;\n}}\n"
     kw["out_name"] = testfile_basename
     kw["compile_filename"] = f"{testfile_basename}.c"
     kw["msg"] = "Getting predefined compiler defines"

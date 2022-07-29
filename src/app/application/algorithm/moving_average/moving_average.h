@@ -43,8 +43,8 @@
  * @file    moving_average.h
  * @author  foxBMS Team
  * @date    2017-12-18 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup ALGORITHMS
  * @prefix  ALGO
  *
@@ -60,11 +60,11 @@
 
 /*========== Macros and Definitions =========================================*/
 
-#define MOVING_AVERAGE_DURATION_CURRENT_CONFIG_MS (3000u)
-#define MOVING_AVERAGE_DURATION_POWER_CONFIG_MS   (3000u)
+#define MOVING_AVERAGE_DURATION_CURRENT_CONFIG_ms (3000u)
+#define MOVING_AVERAGE_DURATION_POWER_CONFIG_ms   (3000u)
 
-#define ISA_CURRENT_CYCLE_TIME_MS (200u)
-#define ISA_POWER_CYCLE_TIME_MS   (200u)
+#define ISA_CURRENT_CYCLE_TIME_ms (200u)
+#define ISA_POWER_CYCLE_TIME_ms   (200u)
 
 /*========== Extern Constant and Variable Declarations ======================*/
 

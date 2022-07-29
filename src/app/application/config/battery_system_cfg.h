@@ -43,8 +43,8 @@
  * @file    battery_system_cfg.h
  * @author  foxBMS Team
  * @date    2019-12-10 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup BATTERY_SYSTEM_CONFIGURATION
  * @prefix  BS
  *
@@ -93,15 +93,15 @@ typedef enum {
  * @details For details see
  *          <a href="../../../../introduction/naming-conventions.html" target="_blank">Naming Conventions</a>.
  *          Implementation detail: The number of parallel strings cannot exceed
- *          #REPEAT_MAXIMUM_REPETITIONS unless the implementation of the
+ *          #GEN_REPEAT_MAXIMUM_REPETITIONS unless the implementation of the
  *          repetition macro is adapted.
  * @ptype   uint
  */
 #define BS_NR_OF_STRINGS (1u)
 
-/* safety check: due to implementation BS_NR_OF_STRINGS may not be larger than REPEAT_MAXIMUM_REPETITIONS */
-#if (BS_NR_OF_STRINGS > REPEAT_MAXIMUM_REPETITIONS)
-#error "Too large number of strings, please check implementation of REPEAT_U()."
+/* safety check: due to implementation BS_NR_OF_STRINGS may not be larger than GEN_REPEAT_MAXIMUM_REPETITIONS */
+#if (BS_NR_OF_STRINGS > GEN_REPEAT_MAXIMUM_REPETITIONS)
+#error "Too large number of strings, please check implementation of GEN_REPEAT_U()."
 #endif
 
 /**
@@ -122,7 +122,7 @@ typedef enum {
  *          <a href="../../../../introduction/naming-conventions.html" target="_blank">Naming Conventions</a>.
  * @ptype   uint
  */
-#define BS_NR_OF_CELL_BLOCKS_PER_MODULE (18u)
+#define BS_NR_OF_CELL_BLOCKS_PER_MODULE (14u)
 
 /**
  * @ingroup CONFIG_BATTERYSYSTEM
@@ -136,6 +136,8 @@ typedef enum {
 
 #if BS_NR_OF_CELL_BLOCKS_PER_MODULE <= 12u
 #define BS_MAX_SUPPORTED_CELLS (12u)
+#elif BS_NR_OF_CELL_BLOCKS_PER_MODULE <= 14u
+#define BS_MAX_SUPPORTED_CELLS (14u)
 #elif BS_NR_OF_CELL_BLOCKS_PER_MODULE <= 15u
 #define BS_MAX_SUPPORTED_CELLS (15u)
 #elif BS_NR_OF_CELL_BLOCKS_PER_MODULE <= 16u
@@ -164,6 +166,8 @@ typedef enum {
  */
 #if BS_MAX_SUPPORTED_CELLS == 12u
 #define BS_NR_OF_GPIOS_PER_MODULE (5u)
+#elif BS_MAX_SUPPORTED_CELLS == 14u
+#define BS_NR_OF_GPIOS_PER_MODULE (8u)
 #else
 #define BS_NR_OF_GPIOS_PER_MODULE (9u)
 #endif
@@ -293,10 +297,10 @@ typedef enum {
 #define BS_NR_OF_VOLTAGES_FROM_MCU_ADC (2)
 
 /** Number of contactors in addition to string contactors (e.g., PRECHARGE).*/
-#define BS_NR_OF_CONTACTORS_OUTSIDE_STRINGS (1U)
+#define BS_NR_OF_CONTACTORS_OUTSIDE_STRINGS (1u)
 
 /** Number of contactors. One per string + main and precharge */
-#define BS_NR_OF_CONTACTORS ((2U * BS_NR_OF_STRINGS) + BS_NR_OF_CONTACTORS_OUTSIDE_STRINGS)
+#define BS_NR_OF_CONTACTORS ((2u * BS_NR_OF_STRINGS) + BS_NR_OF_CONTACTORS_OUTSIDE_STRINGS)
 
 /**
  * @brief   current threshold for determing rest state of battery. If absolute

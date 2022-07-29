@@ -43,8 +43,8 @@
  * @file    adc.c
  * @author  foxBMS Team
  * @date    2019-01-07 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup DRIVERS
  * @prefix  ADC
  *
@@ -68,9 +68,9 @@
  */
 static ADC_STATE_e adc_conversionState = ADC_START_CONVERSION;
 
-static adcData_t adc1RawVoltages[ADC_ADC1_MAX_NR_CHANNELS] = {0};
+static adcData_t adc_adc1RawVoltages[MCU_ADC1_MAX_NR_CHANNELS] = {0};
 
-static DATA_BLOCK_ADC_VOLTAGE_s adc1Voltages = {.header.uniqueId = DATA_BLOCK_ID_ADC_VOLTAGE};
+static DATA_BLOCK_ADC_VOLTAGE_s adc_adc1Voltages = {.header.uniqueId = DATA_BLOCK_ID_ADC_VOLTAGE};
 
 /*========== Extern Constant and Variable Definitions =======================*/
 
@@ -118,11 +118,12 @@ extern void ADC_Control(void) {
 
         /* Start initialization procedure, data sheet figure 106 page 79 */
         case ADC_CONVERSION_FINISHED:
-            adcGetData(adcREG1, adcGROUP1, &adc1RawVoltages[0]);
-            for (uint8_t i = 0U; i < ADC_ADC1_MAX_NR_CHANNELS; i++) {
-                adc1Voltages.adc1ConvertedVoltages_mV[i] = ADC_ConvertVoltage((float)(adc1RawVoltages[i].value));
+            adcGetData(adcREG1, adcGROUP1, &adc_adc1RawVoltages[0]);
+            for (uint8_t i = 0u; i < MCU_ADC1_MAX_NR_CHANNELS; i++) {
+                adc_adc1Voltages.adc1ConvertedVoltages_mV[i] =
+                    ADC_ConvertVoltage((float)(adc_adc1RawVoltages[i].value));
             }
-            DATA_WRITE_DATA(&adc1Voltages);
+            DATA_WRITE_DATA(&adc_adc1Voltages);
             adc_conversionState = ADC_START_CONVERSION;
             break;
 

@@ -42,7 +42,7 @@ The license texts are included verbatim in this documentation.
 |foxbms| Software License
 =========================
 
-- foxBMS 2 software is licensed under the BSD 3-Clause License.
+- |foxbms| software is licensed under the BSD 3-Clause License.
 - The SPDX short identifier is
   `BSD-3-Clause <https://spdx.org/licenses/BSD-3-Clause.html>`_.
 
@@ -52,7 +52,7 @@ The license text is included in this documentation at
 |foxbms| Hardware and Documentation License
 ===========================================
 
-- foxBMS 2 hardware and documentation is licensed under the
+- |foxbms| documentation is licensed under the
   Creative Commons Attribution 4.0 International License.
   The license can be obtained from
   https://creativecommons.org/licenses/by/4.0/.
@@ -61,6 +61,15 @@ The license text is included in this documentation at
 
 The license text is included in this documentation at
 :ref:`CREATIVE_COMMONS_ATTRIBUTION_4_0_INTERNATIONAL_LICENSE`.
+
+.. _OPEN_SOURCE_HARDWARE_CERTIFICATION:
+
+Open Source Hardware Certification
+==================================
+
+|foxbms| has been certified as open source hardware by the
+Open Source Hardware Association under the OSHWA UID
+`DE000128 <https://certification.oshwa.org/de000128.html>`_.
 
 Further Information
 ===================

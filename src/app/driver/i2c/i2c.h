@@ -43,8 +43,8 @@
  * @file    i2c.h
  * @author  foxBMS Team
  * @date    2021-07-22 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup DRIVERS
  * @prefix  I2C
  *
@@ -63,7 +63,7 @@
 /*========== Macros and Definitions =========================================*/
 
 /** Timeout to avoid infinite loops when waiting for flags */
-#define I2C_TIMEOUT_ITERATIONS (1000u)
+#define I2C_TIMEOUT_ITERATIONS (200u)
 
 /** Transmitter DMA enable */
 #define I2C_TXDMAEN (0x2u)

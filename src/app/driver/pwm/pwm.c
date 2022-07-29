@@ -43,8 +43,8 @@
  * @file    pwm.c
  * @author  foxBMS Team
  * @date    2021-10-07 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup DRIVERS
  * @prefix  PWM
  *
@@ -59,6 +59,7 @@
 #include "HL_etpwm.h"
 #include "HL_system.h"
 
+#include "foxmath.h"
 #include "fsystem.h"
 
 /*========== Macros and Definitions =========================================*/
@@ -71,9 +72,10 @@
 /** full period in promill */
 #define PWM_FULL_PERIOD_PERM (1000u)
 
+/** stores the initialization states of the different parts of the module */
 typedef struct {
-    bool ecapInitialized;
-    bool etpwmInitialized;
+    bool ecapInitialized;  /**< initialization state of the enhanced capture module */
+    bool etpwmInitialized; /**< initialization state of the pwm module */
 } PWM_INITIALIZATION_STATE_s;
 
 /*========== Static Constant and Variable Definitions =======================*/
@@ -132,7 +134,7 @@ extern void PWM_StartPwm(void) {
     FAS_ASSERT(raisePrivilegeResult == 0);
     etpwmStartTBCLK();
     /* done; go back to user mode */
-    FSYS_SwitchToUserMode();
+    FSYS_SWITCH_TO_USER_MODE();
 }
 
 extern void PWM_StopPwm(void) {
@@ -141,7 +143,7 @@ extern void PWM_StopPwm(void) {
     FAS_ASSERT(raisePrivilegeResult == 0);
     etpwmStopTBCLK();
     /* done; go back to user mode */
-    FSYS_SwitchToUserMode();
+    FSYS_SWITCH_TO_USER_MODE();
 }
 
 extern void PWM_SetDutyCycle(uint16_t dutyCycle_perm) {
@@ -164,7 +166,13 @@ extern void PWM_SetDutyCycle(uint16_t dutyCycle_perm) {
     etpwmSetCmpA(etpwmREG1, PWM_ComputeCounterValueFromDutyCycle(correctedDutyCycle_perm));
 }
 
+/** called in case of ECAP interrupt, defined as weak in HAL */
+/* AXIVION Next Codeline Style Linker-Multiple_Definition: TI HAL only provides a weak implementation */
+/* AXIVION Next Codeline Style MisraC2012-2.7: parameter needed by API  */
 extern void ecapNotification(ecapBASE_t *ecap, uint16 flags) {
+    FAS_ASSERT(ecap != NULL_PTR);
+    /* AXIVION Routine Generic-MissingParameterAssert: flags: parameter accept whole range */
+
     /* Counter value of rising edge */
     uint32_t capture1 = ecapGetCAP1(ecapREG1);
     /* Counter value of falling edge */
@@ -172,19 +180,25 @@ extern void ecapNotification(ecapBASE_t *ecap, uint16 flags) {
     /* Counter value of next rising edge */
     uint32_t capture3 = ecapGetCAP3(ecapREG1);
 
-    /* Counter 3 - Counter 1: Period in counter ticks */
-    /* Convert MHz to Hz */
-    ecap_inputPwmSignal.frequency_Hz = 1.0f / ((float)(capture3 - capture1) / (HCLK_FREQ * 1000000.0f));
+    if (capture3 != capture1) {
+        /* Counter 3 - Counter 1: Period in counter ticks */
+        /* Convert MHz to Hz */
+        ecap_inputPwmSignal.frequency_Hz = 1.0f / ((float)(capture3 - capture1) / (HCLK_FREQ * 1000000.0f));
 
-    /* Counter 2 - Counter 1: Duty cycle in counter ticks */
-    ecap_inputPwmSignal.dutyCycle_perc = (float)(capture2 - capture1) / (float)(capture3 - capture1) * 100.0f;
+        /* Counter 2 - Counter 1: Duty cycle in counter ticks */
+        ecap_inputPwmSignal.dutyCycle_perc = (float)(capture2 - capture1) / (float)(capture3 - capture1) *
+                                             UNIT_CONVERSION_FACTOR_100_FLOAT;
+    } else {
+        ecap_inputPwmSignal.frequency_Hz   = 0.0f;
+        ecap_inputPwmSignal.dutyCycle_perc = 0.0f;
+    }
 }
 
 bool PWM_IsEcapModuleInitialized(void) {
     return pwm_state.ecapInitialized;
 }
 
-extern PWM_SIGNAL_s ECAP_GetPwmData(void) {
+extern PWM_SIGNAL_s PWM_GetPwmData(void) {
     /* TODO: how to ensure that values have been updated? add timestamp? Add counter?*/
     return ecap_inputPwmSignal;
 }

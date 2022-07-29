@@ -43,8 +43,8 @@
  * @file    test_ltc_afe_dma.c
  * @author  foxBMS Team
  * @date    2020-06-10 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -76,10 +76,10 @@ uint8_t ltc_TXPECbuffer[LTC_N_BYTES_FOR_DATA_TRANSMISSION] = {0};
 #define DMA_REQ_LINE_SPI3_TX (DMA_REQ15)
 #define DMA_REQ_LINE_SPI3_RX (DMA_REQ14)
 
-#define BIG_ENDIAN    (3U)
-#define ELEMENT_COUNT (1U)
-#define DMAREQEN_BIT  (0x10000U)
-#define SPIEN_BIT     (0x1000000U)
+#define BIG_ENDIAN    (3u)
+#define ELEMENT_COUNT (1u)
+#define DMAREQEN_BIT  (0x10000u)
+#define SPIEN_BIT     (0x1000000u)
 
 #define DMA_REQ_LINE_TX (DMA_REQ_LINE_SPI1_TX)
 #define DMA_REQ_LINE_RX (DMA_REQ_LINE_SPI1_RX)

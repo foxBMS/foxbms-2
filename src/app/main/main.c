@@ -43,8 +43,8 @@
  * @file    main.c
  * @author  foxBMS Team
  * @date    2019-08-27 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup GENERAL
  * @prefix  TODO
  *
@@ -109,17 +109,14 @@ int main(void) {
 
     OS_InitializeOperatingSystem();
     if (OS_INIT_PRE_OS != os_boot) {
-        while (true) {
-            /* Could not create Queues, Mutexes, Events and Tasks
-               do not boot further from this point on*/
-        }
+        /* Could not create Queues, Mutexes, Events and Tasks do not boot further from this point on */
+        FAS_ASSERT(FAS_TRAP);
     }
 
     if (STD_OK != CHK_ValidateChecksum()) {
         if (DIAG_HANDLER_RETURN_OK != DIAG_Handler(DIAG_ID_FLASHCHECKSUM, DIAG_EVENT_NOT_OK, DIAG_SYSTEM, 0u)) {
-            while (true) {
-                /* Could not validate checksum do not boot further from this point on */
-            }
+            /* Could not validate checksum do not boot further from this point on */
+            FAS_ASSERT(FAS_TRAP);
         }
     }
 
@@ -127,7 +124,7 @@ int main(void) {
 
     OS_StartScheduler();
     /* we must never get here; there is no way to determine the exit state of this program,
-     * but for the sake of correctness we exit with an errorcode */
+     * but for the sake of correctness we exit with an error code */
     return 1;
 }
 

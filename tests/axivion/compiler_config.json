@@ -32,10 +32,9 @@
                     "variadic_macros": "enabled"
                 },
                 "language_version": "C11",
-                "native_compiler": "C:\\ti\\ccs1100\\ccs\\tools\\compiler\\ti-cgt-arm_20.2.5.LTS\\bin\\armcl.exe",
+                "native_compiler": "C:\\ti\\ccs1100\\ccs\\tools\\compiler\\ti-cgt-arm_20.2.5.LTS\\bin\\armcl.EXE",
                 "preprocessing": {
                     "predefined_macros": {
-                        "_INLINE": "1",
                         "_OPTIMIZE_FOR_SPACE": "1",
                         "__32bis__": "1",
                         "__ARM_32BIT_STATE": "1",
@@ -82,7 +81,10 @@
                         "__SIZEOF_WCHAR_T__": "2",
                         "__SIZEOF_WINT_T__": "2",
                         "__SIZE_T_TYPE__": "unsigned",
+                        "__STDC_HOSTED__": "1",
                         "__STDC_NO_THREADS__": "1",
+                        "__STDC_UTF_16__": "1",
+                        "__STDC_UTF_32__": "1",
                         "__TI_ARM_V7R4__": "1",
                         "__TI_ARM_V7R5__": "1",
                         "__TI_ARM_V7__": "1",
@@ -94,7 +96,7 @@
                         "__TI_EABI_SUPPORT__": "1",
                         "__TI_EABI__": "1",
                         "__TI_GNU_ATTRIBUTE_SUPPORT__": "1",
-                        "__TI_STRICT_ANSI_MODE__": "0",
+                        "__TI_STRICT_ANSI_MODE__": "1",
                         "__TI_STRICT_FP_MODE__": "1",
                         "__TI_TMS470_V7R4__": "1",
                         "__TI_TMS470_V7R5__": "1",
@@ -112,12 +114,111 @@
                     "sys_include_envvar": null,
                     "sys_include_path": [
                         "C:\\ti\\ccs1100\\ccs\\tools\\compiler\\ti-cgt-arm_20.2.5.LTS\\include"
-                    ]
+                    ],
+                    "user_include_path": []
                 }
             },
-            "language_c.command.#": "C:\\ti\\ccs1100\\ccs\\tools\\compiler\\ti-cgt-arm_20.2.5.LTS\\bin\\armcl.exe",
+            "language_c.command.#": "C:\\ti\\ccs1100\\ccs\\tools\\compiler\\ti-cgt-arm_20.2.5.LTS\\bin\\armcl.EXE --silicon_version=7R5 --code_state=32 --float_support=VFPv3D16 -g --diag_wrap=off --display_error_number --enum_type=packed --abi=eabi --c11 -Ooff --issue_remarks --strict_ansi",
             "language_c.info.#": "20.2.5\n",
+            "language_cxx": {
+                "features": {
+                    "exceptions": false,
+                    "runtime_type_information": false
+                },
+                "language_version": "Cpp14",
+                "native_compiler": "C:\\ti\\ccs1100\\ccs\\tools\\compiler\\ti-cgt-arm_20.2.5.LTS\\bin\\armcl.EXE",
+                "preprocessing": {
+                    "predefined_macros": {
+                        "_BOOL": "1",
+                        "_OPTIMIZE_FOR_SPACE": "1",
+                        "_WCHAR_T": "1",
+                        "__32bis__": "1",
+                        "__ARM_32BIT_STATE": "1",
+                        "__ARM_ACLE": "200",
+                        "__ARM_ARCH": "7",
+                        "__ARM_ARCH_ISA_ARM": "1",
+                        "__ARM_ARCH_ISA_THUMB": "2",
+                        "__ARM_ARCH_PROFILE": "82",
+                        "__ARM_BIG_ENDIAN": "1",
+                        "__ARM_FEATURE_CLZ": "1",
+                        "__ARM_FEATURE_DSP": "1",
+                        "__ARM_FEATURE_LDREX": "15",
+                        "__ARM_FEATURE_SAT": "1",
+                        "__ARM_FEATURE_SIMD32": "1",
+                        "__ARM_FEATURE_UNALIGNED": "1",
+                        "__ARM_FP": "12",
+                        "__ARM_FP16_ARGS": "1",
+                        "__ARM_FP16_FORMAT_IEEE": "1",
+                        "__ARM_PCS": "1",
+                        "__ARM_PCS_VFP": "1",
+                        "__ARM_SIZEOF_MINIMAL_ENUM": "1",
+                        "__ARM_SIZEOF_WCHAR_T": "2",
+                        "__ARRAY_OPERATORS": "1",
+                        "__BIG_ENDIAN__": "1",
+                        "__CHAR16_T_AND_CHAR32_T": "1",
+                        "__CHAR_BIT__": "8",
+                        "__COMPILER_VERSION__": "20002005",
+                        "__EDG_VERSION__": "413",
+                        "__ELF__": "1",
+                        "__INT_MAX__": "2147483647",
+                        "__LONG_LONG_MAX__": "9223372036854775807",
+                        "__LONG_MAX__": "2147483647",
+                        "__PLACEMENT_DELETE": "1",
+                        "__PRAGMA_REDEFINE_EXTNAME": "1",
+                        "__PTRDIFF_T_TYPE__": "int",
+                        "__SCHAR_MAX__": "127",
+                        "__SHRT_MAX__": "32767",
+                        "__SIZEOF_DOUBLE__": "8",
+                        "__SIZEOF_FLOAT__": "4",
+                        "__SIZEOF_INT__": "4",
+                        "__SIZEOF_LONG_DOUBLE__": "8",
+                        "__SIZEOF_LONG_LONG__": "8",
+                        "__SIZEOF_LONG__": "4",
+                        "__SIZEOF_PTRDIFF_T__": "4",
+                        "__SIZEOF_SHORT__": "2",
+                        "__SIZEOF_SIZE_T__": "4",
+                        "__SIZEOF_WCHAR_T__": "2",
+                        "__SIZEOF_WINT_T__": "2",
+                        "__SIZE_T_TYPE__": "unsigned",
+                        "__STDC_HOSTED__": "1",
+                        "__TI_ARM_V7R4__": "1",
+                        "__TI_ARM_V7R5__": "1",
+                        "__TI_ARM_V7__": "1",
+                        "__TI_ARM__": "1",
+                        "__TI_C99_COMPLEX_ENABLED__": "1",
+                        "__TI_COMPILER_VERSION_QUAL_ID__": "21103",
+                        "__TI_COMPILER_VERSION_QUAL__": "QUAL_LETTER",
+                        "__TI_COMPILER_VERSION__": "20002005",
+                        "__TI_EABI_SUPPORT__": "1",
+                        "__TI_EABI__": "1",
+                        "__TI_GNU_ATTRIBUTE_SUPPORT__": "1",
+                        "__TI_STRICT_ANSI_MODE__": "1",
+                        "__TI_STRICT_FP_MODE__": "1",
+                        "__TI_TMS470_V7R4__": "1",
+                        "__TI_TMS470_V7R5__": "1",
+                        "__TI_TMS470_V7__": "1",
+                        "__TI_VFPV3D16_SUPPORT__": "1",
+                        "__TI_VFP_SUPPORT__": "1",
+                        "__TI_WCHAR_T_BITS__": "16",
+                        "__TMS470__": "1",
+                        "__VARIADIC_TEMPLATES": "1",
+                        "__WCHAR_T_TYPE__": "unsigned short",
+                        "__big_endian__": "1",
+                        "__eabi__": "1",
+                        "__edg_front_end__": "1",
+                        "__unsigned_chars__": "1"
+                    },
+                    "sys_include_path": [
+                        "C:\\ti\\ccs1100\\ccs\\tools\\compiler\\ti-cgt-arm_20.2.5.LTS\\include\\libcxx",
+                        "C:\\ti\\ccs1100\\ccs\\tools\\compiler\\ti-cgt-arm_20.2.5.LTS\\include"
+                    ],
+                    "user_include_path": []
+                }
+            },
+            "language_cxx.command.#": "C:\\ti\\ccs1100\\ccs\\tools\\compiler\\ti-cgt-arm_20.2.5.LTS\\bin\\armcl.EXE --silicon_version=7R5 --code_state=32 --float_support=VFPv3D16 -g --diag_wrap=off --display_error_number --enum_type=packed --abi=eabi --c11 -Ooff --issue_remarks --strict_ansi",
+            "language_cxx.info.#": "20.2.5\n",
             "linker": {
+                "library_path": [],
                 "advanced": {
                     "ignore_input_files": {
                         "$(delta:+)": [
@@ -382,7 +483,7 @@
                             "parameter_mode": "mandatory_immediate"
                         },
                         "-o": {
-                            "action": "IgnoreSwitch",
+                            "action": "OutputFile",
                             "parameter_mode": "mandatory_space_or_immediate"
                         },
                         "-qq": {

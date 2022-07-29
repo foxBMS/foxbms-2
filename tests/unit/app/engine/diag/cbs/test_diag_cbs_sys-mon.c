@@ -43,8 +43,8 @@
  * @file    test_diag_cbs_sys-mon.c
  * @author  foxBMS Team
  * @date    2021-02-17 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -103,25 +103,26 @@ void testDIAG_ErrorSystemMonitoring(void) {
 
     const uint8_t numberOfTasks = sizeof(tasks) / sizeof(tasks[0]);
     for (uint8_t i = 0; i < numberOfTasks; i++) {
-        DIAG_ErrorSystemMonitoring(DIAG_ID_SYSTEMMONITORING, DIAG_EVENT_RESET, &diag_kpkDatabaseShim, i);
-        DIAG_ErrorSystemMonitoring(DIAG_ID_SYSTEMMONITORING, DIAG_EVENT_NOT_OK, &diag_kpkDatabaseShim, i);
-        DIAG_ErrorSystemMonitoring(DIAG_ID_SYSTEMMONITORING, DIAG_EVENT_OK, &diag_kpkDatabaseShim, i);
+        DIAG_ErrorSystemMonitoring(DIAG_ID_SYSTEM_MONITORING, DIAG_EVENT_RESET, &diag_kpkDatabaseShim, i);
+        DIAG_ErrorSystemMonitoring(DIAG_ID_SYSTEM_MONITORING, DIAG_EVENT_NOT_OK, &diag_kpkDatabaseShim, i);
+        DIAG_ErrorSystemMonitoring(DIAG_ID_SYSTEM_MONITORING, DIAG_EVENT_OK, &diag_kpkDatabaseShim, i);
     }
 }
 
-void testDIAG_DoNothingOnWrongIdSystemMonitoringModule(void) {
-    /* Use a wrong ID to make sure, that this does not alter the CAN entry */
-    DIAG_ErrorSystemMonitoring(DIAG_ID_CELLVOLTAGE_OVERVOLTAGE_RSL, DIAG_EVENT_RESET, &diag_kpkDatabaseShim, 0u);
+void testDIAG_ErrorSystemMonitoringInvalidInput2(void) {
+    /* Use a wrong diagnosis ID to make sure, that we assert as expected */
+    TEST_ASSERT_FAIL_ASSERT(
+        DIAG_ErrorSystemMonitoring(DIAG_ID_CELL_VOLTAGE_OVERVOLTAGE_RSL, DIAG_EVENT_RESET, &diag_kpkDatabaseShim, 0u));
 }
 
 /** test against invalid input */
 void testDIAG_ErrorSystemMonitoringInvalidInput0(void) {
     /* check the task ID is allowed */
     TEST_ASSERT_FAIL_ASSERT(
-        DIAG_ErrorSystemMonitoring(DIAG_ID_SYSTEMMONITORING, DIAG_EVENT_OK, &diag_kpkDatabaseShim, 42u));
+        DIAG_ErrorSystemMonitoring(DIAG_ID_SYSTEM_MONITORING, DIAG_EVENT_OK, &diag_kpkDatabaseShim, 42u));
 }
 void testDIAG_ErrorSystemMonitoringInvalidInput1(void) {
     TEST_ASSERT_FAIL_ASSERT(DIAG_ErrorSystemMonitoring(DIAG_ID_MAX, DIAG_EVENT_OK, &diag_kpkDatabaseShim, 0u));
-    TEST_ASSERT_FAIL_ASSERT(DIAG_ErrorSystemMonitoring(DIAG_ID_SYSTEMMONITORING, 42, &diag_kpkDatabaseShim, 0u));
-    TEST_ASSERT_FAIL_ASSERT(DIAG_ErrorSystemMonitoring(DIAG_ID_SYSTEMMONITORING, DIAG_EVENT_OK, NULL_PTR, 0u));
+    TEST_ASSERT_FAIL_ASSERT(DIAG_ErrorSystemMonitoring(DIAG_ID_SYSTEM_MONITORING, 42, &diag_kpkDatabaseShim, 0u));
+    TEST_ASSERT_FAIL_ASSERT(DIAG_ErrorSystemMonitoring(DIAG_ID_SYSTEM_MONITORING, DIAG_EVENT_OK, NULL_PTR, 0u));
 }

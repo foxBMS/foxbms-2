@@ -43,8 +43,8 @@
  * @file    bender_iso165c.c
  * @author  foxBMS Team
  * @date    2019-04-07 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup DRIVERS
  * @prefix  I165C
  *
@@ -65,7 +65,7 @@
 #include "ftask.h"
 
 /*========== Macros and Definitions =========================================*/
-/** statemachine short time definition in trigger calls until next state is processed */
+/** state machine short time definition in trigger calls until next state is processed */
 #define I165C_FSM_SHORT_TIME (1u)
 
 /* -------------- State defines ---------------------------------------------*/
@@ -202,7 +202,6 @@ static I165C_RUNNING_STATE_s i165c_runningState = {
     .previousState         = I165C_FSM_STATE_RUNNING_DUMMY,
     .receptionTries        = 0u,
     .receptionTriesMessage = 0u,
-
 };
 
 static I165C_DISABLE_STATE_s i165c_disableState = {
@@ -212,7 +211,6 @@ static I165C_DISABLE_STATE_s i165c_disableState = {
     .previousState         = I165C_FSM_STATE_DISABLE_DUMMY,
     .receptionTries        = 0u,
     .receptionTriesMessage = 0u,
-
 };
 
 static CAN_BUFFERELEMENT_s i165c_canTxMessage = {0u};
@@ -1103,7 +1101,6 @@ static IMD_FSM_STATES_e I165C_Initialize(void) {
                     /* Reset state machine in case a re-initialization is necessary */
                     I165C_SetInitializationState(
                         &i165c_initializationState, I165C_FSM_STATE_INITIALIZATION_HAS_NEVER_RUN, I165C_FSM_SHORT_TIME);
-
                 } else {
                     /* Issue: 621 */
                 }
@@ -1289,7 +1286,7 @@ static IMD_FSM_STATES_e I165C_Running(DATA_BLOCK_INSULATION_MONITORING_s *pTable
                 if (I165C_GetImdInfo(&i165c_canRxMessage) == false) {
                     i165c_runningState.receptionTriesMessage++;
                     /* Issue: 621 */
-                    /* IMD_Info not comming: restart initialization procedure?
+                    /* IMD_Info not coming: restart initialization procedure?
                     if (i165c_runningState.receptionTriesMessage >= I165C_IMD_INFO_RECEIVE_ATTEMPTS) {*/
                 } else {
                     i165c_runningState.receptionTriesMessage = 0u;

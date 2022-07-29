@@ -43,8 +43,8 @@
  * @file    bms_cfg.h
  * @author  foxBMS Team
  * @date    2020-02-24 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup ENGINE_CONFIGURATION
  * @prefix  BMS
  *
@@ -146,7 +146,7 @@
  * @brief   Time to wait in #BMS_Trigger() calls after precharge opened because
  *          precharge failed
  */
-#define BMS_TIME_WAIT_AFTERPRECHARGEFAIL (300U)
+#define BMS_TIME_WAIT_AFTERPRECHARGEFAIL (300u)
 
 /**
  * @brief   Timeout in 1*10ms to wait before re-entering to precharge

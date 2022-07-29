@@ -43,8 +43,8 @@
  * @file    diag_cbs_afe.c
  * @author  foxBMS Team
  * @date    2021-02-17 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup ENGINE
  * @prefix  DIAG
  *
@@ -67,51 +67,51 @@
 
 /*========== Extern Function Implementations ================================*/
 extern void DIAG_ErrorAfe(
-    DIAG_ID_e ch_id,
+    DIAG_ID_e diagId,
     DIAG_EVENT_e event,
     const DIAG_DATABASE_SHIM_s *const kpkDiagShim,
     uint32_t stringNumber) {
-    FAS_ASSERT(ch_id < DIAG_ID_MAX);
+    FAS_ASSERT(diagId < DIAG_ID_MAX);
     FAS_ASSERT((event == DIAG_EVENT_OK) || (event == DIAG_EVENT_NOT_OK) || (event == DIAG_EVENT_RESET));
     FAS_ASSERT(kpkDiagShim != NULL_PTR);
     FAS_ASSERT(stringNumber < BS_NR_OF_STRINGS);
 
-    if (ch_id == DIAG_ID_AFE_CELL_VOLTAGE_MEAS_ERROR) {
+    if (diagId == DIAG_ID_AFE_CELL_VOLTAGE_MEAS_ERROR) {
         if (event == DIAG_EVENT_RESET) {
-            kpkDiagShim->pTableError->afeCellvoltageError[stringNumber] = 0;
+            kpkDiagShim->pTableError->afeCellVoltageError[stringNumber] = 0;
         }
         if (event == DIAG_EVENT_NOT_OK) {
-            kpkDiagShim->pTableError->afeCellvoltageError[stringNumber] = 1;
+            kpkDiagShim->pTableError->afeCellVoltageError[stringNumber] = 1;
         }
-    } else if (ch_id == DIAG_ID_AFE_CELL_TEMPERATURE_MEAS_ERROR) {
+    } else if (diagId == DIAG_ID_AFE_CELL_TEMPERATURE_MEAS_ERROR) {
         if (event == DIAG_EVENT_RESET) {
             kpkDiagShim->pTableError->afeCellTemperatureError[stringNumber] = 0;
         }
         if (event == DIAG_EVENT_NOT_OK) {
             kpkDiagShim->pTableError->afeCellTemperatureError[stringNumber] = 1;
         }
-    } else if (ch_id == DIAG_ID_BASE_CELL_VOLTAGE_MESUREMENT_TIMEOUT) {
+    } else if (diagId == DIAG_ID_BASE_CELL_VOLTAGE_MEASUREMENT_TIMEOUT) {
         if (event == DIAG_EVENT_RESET) {
             kpkDiagShim->pTableError->baseCellVoltageMeasurementTimeout = 0;
         }
         if (event == DIAG_EVENT_NOT_OK) {
             kpkDiagShim->pTableError->baseCellVoltageMeasurementTimeout = 1;
         }
-    } else if (ch_id == DIAG_ID_REDUNDANCY0_CELL_VOLTAGE_MESUREMENT_TIMEOUT) {
+    } else if (diagId == DIAG_ID_REDUNDANCY0_CELL_VOLTAGE_MEASUREMENT_TIMEOUT) {
         if (event == DIAG_EVENT_RESET) {
             kpkDiagShim->pTableError->redundancy0CellVoltageMeasurementTimeout = 0;
         }
         if (event == DIAG_EVENT_NOT_OK) {
             kpkDiagShim->pTableError->redundancy0CellVoltageMeasurementTimeout = 1;
         }
-    } else if (ch_id == DIAG_ID_BASE_CELL_TEMPERATURE_MESUREMENT_TIMEOUT) {
+    } else if (diagId == DIAG_ID_BASE_CELL_TEMPERATURE_MEASUREMENT_TIMEOUT) {
         if (event == DIAG_EVENT_RESET) {
             kpkDiagShim->pTableError->baseCellTemperatureMeasurementTimeout = 0;
         }
         if (event == DIAG_EVENT_NOT_OK) {
             kpkDiagShim->pTableError->baseCellTemperatureMeasurementTimeout = 1;
         }
-    } else if (ch_id == DIAG_ID_REDUNDANCY0_CELL_TEMPERATURE_MESUREMENT_TIMEOUT) {
+    } else if (diagId == DIAG_ID_REDUNDANCY0_CELL_TEMPERATURE_MEASUREMENT_TIMEOUT) {
         if (event == DIAG_EVENT_RESET) {
             kpkDiagShim->pTableError->redundancy0CellTemperatureMeasurementTimeout = 0;
         }
@@ -122,44 +122,44 @@ extern void DIAG_ErrorAfe(
 }
 
 extern void DIAG_ErrorAfeDriver(
-    DIAG_ID_e ch_id,
+    DIAG_ID_e diagId,
     DIAG_EVENT_e event,
     const DIAG_DATABASE_SHIM_s *const kpkDiagShim,
     uint32_t stringNumber) {
-    FAS_ASSERT(ch_id < DIAG_ID_MAX);
+    FAS_ASSERT(diagId < DIAG_ID_MAX);
     FAS_ASSERT((event == DIAG_EVENT_OK) || (event == DIAG_EVENT_NOT_OK) || (event == DIAG_EVENT_RESET));
     FAS_ASSERT(kpkDiagShim != NULL_PTR);
     FAS_ASSERT(stringNumber < BS_NR_OF_STRINGS);
 
-    if (ch_id == DIAG_ID_AFE_SPI) {
+    if (diagId == DIAG_ID_AFE_SPI) {
         if (event == DIAG_EVENT_RESET) {
             kpkDiagShim->pTableError->spiError[stringNumber] = 0;
         }
         if (event == DIAG_EVENT_NOT_OK) {
             kpkDiagShim->pTableError->spiError[stringNumber] = 1;
         }
-    } else if (ch_id == DIAG_ID_AFE_COM_INTEGRITY) {
+    } else if (diagId == DIAG_ID_AFE_COM_INTEGRITY) {
         if (event == DIAG_EVENT_RESET) {
             kpkDiagShim->pTableError->crcError[stringNumber] = 0;
         }
         if (event == DIAG_EVENT_NOT_OK) {
             kpkDiagShim->pTableError->crcError[stringNumber] = 1;
         }
-    } else if (ch_id == DIAG_ID_AFE_MUX) {
+    } else if (diagId == DIAG_ID_AFE_MUX) {
         if (event == DIAG_EVENT_RESET) {
             kpkDiagShim->pTableError->muxError[stringNumber] = 0;
         }
         if (event == DIAG_EVENT_NOT_OK) {
             kpkDiagShim->pTableError->muxError[stringNumber] = 1;
         }
-    } else if (ch_id == DIAG_ID_AFE_CONFIG) {
+    } else if (diagId == DIAG_ID_AFE_CONFIG) {
         if (event == DIAG_EVENT_RESET) {
             kpkDiagShim->pTableError->afeConfigurationError[stringNumber] = 0;
         }
         if (event == DIAG_EVENT_NOT_OK) {
             kpkDiagShim->pTableError->afeConfigurationError[stringNumber] = 1;
         }
-    } else if (ch_id == DIAG_ID_AFE_OPEN_WIRE) {
+    } else if (diagId == DIAG_ID_AFE_OPEN_WIRE) {
         if (event == DIAG_EVENT_RESET) {
             kpkDiagShim->pTableError->open_wire[stringNumber] = 0;
         }

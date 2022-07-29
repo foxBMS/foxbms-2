@@ -43,8 +43,8 @@
  * @file    ltc_6813-1_cfg.c
  * @author  foxBMS Team
  * @date    2015-02-18 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  LTC
  *
@@ -201,19 +201,22 @@ const uint8_t ltc_muxsensortemperatur_cfg[BS_NR_OF_TEMP_SENSORS_PER_MODULE] = {
 };
 
 const uint8_t ltc_voltage_input_used[BS_MAX_SUPPORTED_CELLS] = {
-#if (BS_MAX_SUPPORTED_CELLS == 12) || (BS_MAX_SUPPORTED_CELLS == 15) || (BS_MAX_SUPPORTED_CELLS == 18) || \
-    (BS_MAX_SUPPORTED_CELLS == 36)
+#if (BS_MAX_SUPPORTED_CELLS == 12) || (BS_MAX_SUPPORTED_CELLS == 14) || (BS_MAX_SUPPORTED_CELLS == 15) || \
+    (BS_MAX_SUPPORTED_CELLS == 18) || (BS_MAX_SUPPORTED_CELLS == 36)
     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
 #endif
+#if (BS_MAX_SUPPORTED_CELLS == 14) || (BS_MAX_SUPPORTED_CELLS == 15) || (BS_MAX_SUPPORTED_CELLS == 18) || \
+    (BS_MAX_SUPPORTED_CELLS == 36)
+    1, 1,
+#endif
 #if (BS_MAX_SUPPORTED_CELLS == 15) || (BS_MAX_SUPPORTED_CELLS == 18) || (BS_MAX_SUPPORTED_CELLS == 36)
-    1, 1, 1,
+    1,
 #endif
 #if (BS_MAX_SUPPORTED_CELLS == 18) || (BS_MAX_SUPPORTED_CELLS == 36)
     1, 1, 1,
 #endif
 #if (BS_MAX_SUPPORTED_CELLS == 36)
     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-
 #endif
 };
 

@@ -43,8 +43,8 @@
  * @file    i2c.c
  * @author  foxBMS Team
  * @date    2021-07-22 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup DRIVERS
  * @prefix  I2C
  *
@@ -445,15 +445,14 @@ extern STD_RETURN_TYPE_e I2C_ReadDma(uint32_t slaveAddress, uint8_t readAddress,
         FAS_ASSERT(raisePrivilegeResult == 0);
 
         /* Set Tx buffer address */
-        /* AXIVION Disable Style MisraC2012-1.1: Cast necessary for DMA configuration */
+        /* AXIVION Next Codeline Style MisraC2012-1.1: Cast necessary for DMA configuration */
         dmaRAMREG->PCP[(dmaChannel_t)DMA_CHANNEL_I2C_RX].IDADDR = (uint32_t)readData;
-        /* AXIVION Enable Style MisraC2012-1.1: */
         /* Set number of Tx bytes to transmit */
         dmaRAMREG->PCP[(dmaChannel_t)DMA_CHANNEL_I2C_RX].ITCOUNT = (nrBytes << 16U) | 1U;
 
         dmaSetChEnable((dmaChannel_t)DMA_CHANNEL_I2C_RX, (dmaTriggerType_t)DMA_HW);
 
-        FSYS_SwitchToUserMode(); /* DMA config registers written, leave privileged mode */
+        FSYS_SWITCH_TO_USER_MODE(); /* DMA config registers written, leave privileged mode */
         OS_ExitTaskCritical();
 
         i2cREG1->DMACR |= (uint32_t)I2C_RXDMAEN; /* Activate I2C DMA RX */
@@ -517,15 +516,15 @@ extern STD_RETURN_TYPE_e I2C_WriteDma(
         FAS_ASSERT(raisePrivilegeResult == 0);
 
         /* Set Tx buffer address */
-        /* AXIVION Disable Style MisraC2012-1.1: Cast necessary for DMA configuration */
+        /* AXIVION Next Codeline Style MisraC2012-1.1: Cast necessary for DMA configuration */
         dmaRAMREG->PCP[(dmaChannel_t)DMA_CHANNEL_I2C_TX].ISADDR = (uint32_t)writeData;
-        /* AXIVION Enable Style MisraC2012-1.1: */
+
         /* Set number of Tx bytes to transmit */
         dmaRAMREG->PCP[(dmaChannel_t)DMA_CHANNEL_I2C_TX].ITCOUNT = (nrBytes << 16U) | 1U;
 
         dmaSetChEnable((dmaChannel_t)DMA_CHANNEL_I2C_TX, (dmaTriggerType_t)DMA_HW);
 
-        FSYS_SwitchToUserMode(); /* DMA config registers written, leave privileged mode */
+        FSYS_SWITCH_TO_USER_MODE(); /* DMA config registers written, leave privileged mode */
         OS_ExitTaskCritical();
 
         i2cSetMode(i2cREG1, (uint32_t)I2C_MASTER);           /* Set as master */

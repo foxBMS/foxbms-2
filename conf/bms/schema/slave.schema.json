@@ -3,7 +3,6 @@
     "title": "Configuration of Slave Unit",
     "required": [
         "analog-front-end",
-        "balancing-strategy",
         "temperature-sensor"
     ],
     "additionalProperties": false,
@@ -13,7 +12,7 @@
             "title": "Configuration of the Analog Front-End",
             "required": [
                 "manufacturer",
-                "chip"
+                "ic"
             ],
             "additionalProperties": false,
             "properties": {
@@ -28,7 +27,7 @@
                         "debug"
                     ]
                 },
-                "chip": {
+                "ic": {
                     "$id": "/properties/slave-unit/analog-front-end/chip",
                     "title": "Name of the Analog Front-End (must correspond to the directory name)",
                     "type": "string"
@@ -45,7 +44,7 @@
             },
             "then": {
                 "properties": {
-                    "chip": {
+                    "ic": {
                         "enum": [
                             "6804-1",
                             "6806",
@@ -68,9 +67,9 @@
                 },
                 "then": {
                     "properties": {
-                        "chip": {
+                        "ic": {
                             "enum": [
-                                "common"
+                                "mc33775a"
                             ]
                         }
                     }
@@ -87,7 +86,7 @@
                     },
                     "then": {
                         "properties": {
-                            "chip": {
+                            "ic": {
                                 "enum": [
                                     "max17852"
                                 ]
@@ -106,7 +105,7 @@
                         },
                         "then": {
                             "properties": {
-                                "chip": {
+                                "ic": {
                                     "enum": [
                                         "default"
                                     ]
@@ -116,16 +115,6 @@
                     }
                 }
             }
-        },
-        "balancing-strategy": {
-            "$id": "/properties/slave-unit/balancing-strategy",
-            "title": "Balancing strategy",
-            "type": "string",
-            "enum": [
-                "voltage",
-                "history",
-                "none"
-            ]
         },
         "temperature-sensor": {
             "$id": "/properties/slave-unit/temperature-sensor",

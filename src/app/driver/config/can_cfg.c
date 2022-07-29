@@ -43,15 +43,15 @@
  * @file    can_cfg.c
  * @author  foxBMS Team
  * @date    2019-12-04 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  CAN
  *
  * @brief   Configuration for the CAN module
  *
- * The CAN bus settings and the received messages and their
- * reception handling are to be specified here.
+ * @details The CAN bus settings and the received messages and their
+ *          reception handling are to be specified here.
  *
  *
  */
@@ -70,13 +70,13 @@
 /*========== Static Constant and Variable Definitions =======================*/
 
 /** Multiplexer values @{*/
-static uint8_t voltageMux               = 0u;
-static uint8_t temperatureMux           = 0u;
-static uint8_t stringStateMux           = 0u;
-static uint8_t stringValuesMux          = 0u;
-static uint8_t stringMinMaxMux          = 0u;
-static uint8_t stringStateEstimationMux = 0u;
-static uint8_t stringValues2Mux         = 0u;
+static uint8_t can_voltageMux               = 0u;
+static uint8_t can_temperatureMux           = 0u;
+static uint8_t can_stringStateMux           = 0u;
+static uint8_t can_stringValuesMux          = 0u;
+static uint8_t can_stringMinMaxMux          = 0u;
+static uint8_t can_stringStateEstimationMux = 0u;
+static uint8_t can_stringValues2Mux         = 0u;
 /**@}*/
 
 /*========== Extern Constant and Variable Definitions =======================*/
@@ -110,7 +110,7 @@ const CAN_MSG_TX_TYPE_s can_txMessages[] = {
      CAN_TX_VOLTAGES_PHASE_MS,
      CAN_BIG_ENDIAN,
      &CAN_TxVoltage,
-     &voltageMux}, /*!< Cell voltages */
+     &can_voltageMux}, /*!< Cell voltages */
     {CAN1_NODE,
      CAN_ID_TX_TEMPERATURES,
      CAN_DLC,
@@ -118,7 +118,7 @@ const CAN_MSG_TX_TYPE_s can_txMessages[] = {
      CAN_TX_TEMPERATURES_PHASE_MS,
      CAN_BIG_ENDIAN,
      &CAN_TxCellTemperature,
-     &temperatureMux}, /*!< Cell temperatures */
+     &can_temperatureMux}, /*!< Cell temperatures */
     {CAN1_NODE,
      CAN_ID_TX_LIMIT_VALUES,
      CAN_DLC,
@@ -158,7 +158,7 @@ const CAN_MSG_TX_TYPE_s can_txMessages[] = {
      CAN_TX_STRING_STATE_PHASE_MS,
      CAN_BIG_ENDIAN,
      &CAN_TxStringState,
-     &stringStateMux}, /*!< String state values */
+     &can_stringStateMux}, /*!< String state values */
     {CAN1_NODE,
      CAN_ID_TX_STRING_VALUES,
      CAN_DLC,
@@ -166,7 +166,7 @@ const CAN_MSG_TX_TYPE_s can_txMessages[] = {
      CAN_TX_STRING_VALUES_PHASE_MS,
      CAN_BIG_ENDIAN,
      &CAN_TxStringValues,
-     &stringValuesMux}, /*!< String values */
+     &can_stringValuesMux}, /*!< String values */
     {CAN1_NODE,
      CAN_ID_TX_STRING_MINIMUM_MAXIMUM,
      CAN_DLC,
@@ -174,7 +174,7 @@ const CAN_MSG_TX_TYPE_s can_txMessages[] = {
      CAN_TX_STRING_MINIMUM_MAXIMUM_PHASE_MS,
      CAN_BIG_ENDIAN,
      &CAN_TxStringMinimumMaximumValues,
-     &stringMinMaxMux}, /*!< String minimum maximum values */
+     &can_stringMinMaxMux}, /*!< String minimum maximum values */
     {CAN1_NODE,
      CAN_ID_TX_STRING_STATE_ESTIMATION,
      CAN_DLC,
@@ -182,7 +182,7 @@ const CAN_MSG_TX_TYPE_s can_txMessages[] = {
      CAN_TX_STRING_STATE_ESTIMATION_PHASE_MS,
      CAN_BIG_ENDIAN,
      &CAN_TxStringStateEstimation,
-     &stringStateEstimationMux}, /*!< String minimum maximum values */
+     &can_stringStateEstimationMux}, /*!< String minimum maximum values */
     {CAN1_NODE,
      CAN_ID_TX_STRING_VALUES_2,
      CAN_DLC,
@@ -190,8 +190,7 @@ const CAN_MSG_TX_TYPE_s can_txMessages[] = {
      CAN_TX_STRING_VALUES_2_PHASE_MS,
      CAN_BIG_ENDIAN,
      &CAN_TxStringValues2,
-     &stringValues2Mux}, /*!< String minimum maximum values */
-
+     &can_stringValues2Mux}, /*!< String minimum maximum values */
 };
 
 /* ***************************************
@@ -205,7 +204,7 @@ const CAN_MSG_RX_TYPE_s can_rxMessages[] = {
      CAN_ID_IMD_RESPONSE,
      CAN_DLC,
      CAN_LITTLE_ENDIAN,
-     &CAN_RxImdResponse}, /*!< response mesage from iso165c */
+     &CAN_RxImdResponse}, /*!< response message from iso165c */
 
     {CAN1_NODE, CAN_ID_COMMAND, CAN_DLC, CAN_BIG_ENDIAN, &CAN_RxRequest},           /*!< state request      */
     {CAN1_NODE, CAN_ID_SOFTWARE_RESET, CAN_DLC, CAN_LITTLE_ENDIAN, &CAN_RxSwReset}, /*!< software reset     */

@@ -43,8 +43,8 @@
  * @file    os.c
  * @author  foxBMS Team
  * @date    2019-08-27 (date of creation)
- * @updated 2022-05-30 (date of last update)
- * @version v1.3.0
+ * @updated 2022-07-28 (date of last update)
+ * @version v1.4.0
  * @ingroup OS
  * @prefix  OS
  *
@@ -114,17 +114,17 @@ extern void OS_IncrementTimer(void) {
 }
 /* AXIVION Enable Style Generic-MaxNesting: */
 
-/* AXIVION Next Line Style Generic-MissingParameterAssert: The function is designed and tested for full range */
+/* AXIVION Next Codeline Style Generic-MissingParameterAssert: The function is designed and tested for full range */
 extern bool OS_CheckTimeHasPassedWithTimestamp(
     uint32_t oldTimeStamp_ms,
     uint32_t currentTimeStamp_ms,
     uint32_t timeToPass_ms) {
-    /* AXIVION Next Line Style MisraC2012Directive-4.1: correct handling of underflows is checked with unit tests */
+    /* AXIVION Next Codeline Style MisraC2012Directive-4.1: correct handling of underflows is checked with unit tests */
     const uint32_t timeDifference_ms = currentTimeStamp_ms - oldTimeStamp_ms;
-    bool timehasPassed               = false;
+    bool timeHasPassed               = false;
 
     if (timeToPass_ms == 0u) {
-        timehasPassed = true;
+        timeHasPassed = true;
     } else if (timeDifference_ms == 0u) {
         /* case timeToPass_ms is 0u has already been extracted
            therefore, only the cases where full UINT32_MAX time has passed
@@ -132,15 +132,15 @@ extern bool OS_CheckTimeHasPassedWithTimestamp(
            passed between these two timestamps and will therefore return false.
          */
     } else if (timeDifference_ms >= timeToPass_ms) {
-        timehasPassed = true;
+        timeHasPassed = true;
     } else {
-        /* timehasPassed is already false, nothing to do */
+        /* timeHasPassed is already false, nothing to do */
     }
 
-    return timehasPassed;
+    return timeHasPassed;
 }
 
-/* AXIVION Next Line Style Generic-MissingParameterAssert: The function is designed and tested for full range */
+/* AXIVION Next Codeline Style Generic-MissingParameterAssert: The function is designed and tested for full range */
 extern bool OS_CheckTimeHasPassed(uint32_t oldTimeStamp_ms, uint32_t timeToPass_ms) {
     return OS_CheckTimeHasPassedWithTimestamp(oldTimeStamp_ms, OS_GetTickCount(), timeToPass_ms);
 }
@@ -148,24 +148,28 @@ extern bool OS_CheckTimeHasPassed(uint32_t oldTimeStamp_ms, uint32_t timeToPass_
 extern STD_RETURN_TYPE_e OS_CheckTimeHasPassedSelfTest(void) {
     STD_RETURN_TYPE_e selfCheckReturnValue = STD_OK;
 
-    /* AXIVION Next Line Style MisraC2012-2.2 MisraC2012-14.3: If the code works as expected, this self test function is expected to always return the same value */
+    /* AXIVION Next Codeline Style MisraC2012-2.2 MisraC2012-14.3: If the code works as expected, this self test
+       function is expected to always return the same value */
     if (OS_CheckTimeHasPassedWithTimestamp(0u, 0u, 0u) != true) {
         /* AXIVION Next Line Style FaultDetection-UnusedAssignments: All cases collected, using each not necessary. */
         selfCheckReturnValue = STD_NOT_OK;
     }
 
     if (OS_CheckTimeHasPassedWithTimestamp(0u, 1u, 1u) != true) {
-        /* AXIVION Next Line Style FaultDetection-UnusedAssignments: All cases collected, using each not necessary. */
+        /* AXIVION Next Codeline Style FaultDetection-UnusedAssignments: All cases collected, using each not
+           necessary. */
         selfCheckReturnValue = STD_NOT_OK;
     }
 
     if (OS_CheckTimeHasPassedWithTimestamp(1u, 2u, 2u) != false) {
-        /* AXIVION Next Line Style FaultDetection-UnusedAssignments: All cases collected, using each not necessary. */
+        /* AXIVION Next Codeline Style FaultDetection-UnusedAssignments: All cases collected, using each not
+           necessary. */
         selfCheckReturnValue = STD_NOT_OK;
     }
 
     if (OS_CheckTimeHasPassedWithTimestamp(0u, 1u, 0u) != true) {
-        /* AXIVION Next Line Style FaultDetection-UnusedAssignments: All cases collected, using each not necessary. */
+        /* AXIVION Next Codeline Style FaultDetection-UnusedAssignments: All cases collected, using each not
+        necessary. */
         selfCheckReturnValue = STD_NOT_OK;
     }
 
