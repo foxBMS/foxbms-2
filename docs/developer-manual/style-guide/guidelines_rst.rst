@@ -96,8 +96,8 @@ Examples:
 Headings (``RST:005``)
 ----------------------
 
-We follow the convention of the Python Developer's Guide for
-`reStructuredText Markup <https://devguide.python.org/documentation/markup/#sections>`_.
+We follow the convention of the
+*Python Developer's Guide for reStructuredText Markup*.
 Use the following rules to create headings:
 
 - # with overline, for parts

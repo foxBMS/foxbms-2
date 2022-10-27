@@ -1,0 +1,6 @@
+<Major/Minor/Bugfix> release of foxBMS 2 (vx.y.z)
+
+* <add text here>
+
+For a detailed list of changes, please refer to the documentation at
+https://iisb-foxbms.iisb.fraunhofer.de/foxbms/gen2/docs/html/vx.y.z/general/changelog.html.

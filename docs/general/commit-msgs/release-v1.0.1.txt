@@ -1,0 +1,9 @@
+Bugfix release of foxBMS 2 (v1.0.1)
+
+* updated the documentation
+* updated master board
+* minor toolchain improvements
+
+For a detailed list of changes, please refer to the documentation
+at
+https://iisb-foxbms.iisb.fraunhofer.de/foxbms/gen2/docs/html/v1.0.1/general/changelog.html

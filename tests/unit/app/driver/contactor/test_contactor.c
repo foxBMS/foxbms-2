@@ -43,8 +43,8 @@
  * @file    test_contactor.c
  * @author  foxBMS Team
  * @date    2020-03-31 (date of creation)
- * @updated 2022-07-28 (date of last update)
- * @version v1.4.0
+ * @updated 2022-10-27 (date of last update)
+ * @version v1.4.1
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -55,6 +55,7 @@
 /*========== Includes =======================================================*/
 #include "unity.h"
 #include "Mockcontactor_cfg.h"
+#include "Mockdiag.h"
 #include "Mockfassert.h"
 #include "Mockio.h"
 #include "Mockmcu.h"
@@ -69,10 +70,30 @@ BS_STRING_PRECHARGE_PRESENT_e bs_stringsWithPrecharge[BS_NR_OF_STRINGS] = {
     BS_STRING_WITH_PRECHARGE,
 };
 
-CONT_CONTACTOR_STATE_s cont_contactorStates[BS_NR_OF_CONTACTORS] = {
-    {CONT_SWITCH_OFF, CONT_SWITCH_OFF, CONT_FEEDBACK_THROUGH_CURRENT, 0u, CONT_STRING0_PLUS},
-    {CONT_SWITCH_OFF, CONT_SWITCH_OFF, CONT_FEEDBACK_THROUGH_CURRENT, 1u, CONT_STRING0_MINUS},
-    {CONT_SWITCH_OFF, CONT_SWITCH_OFF, CONT_FEEDBACK_THROUGH_CURRENT, 2u, CONT_STRING1_PLUS},
+CONT_CONTACTOR_STATE_s cont_contactorStates[] = {
+    /* String contactors configuration */
+    {CONT_SWITCH_OFF,
+     CONT_SWITCH_OFF,
+     CONT_FEEDBACK_NORMALLY_OPEN,
+     BS_STRING0,
+     CONT_PLUS,
+     SPS_CHANNEL_0,
+     CONT_CHARGING_DIRECTION},
+    {CONT_SWITCH_OFF,
+     CONT_SWITCH_OFF,
+     CONT_FEEDBACK_NORMALLY_OPEN,
+     BS_STRING0,
+     CONT_MINUS,
+     SPS_CHANNEL_1,
+     CONT_DISCHARGING_DIRECTION},
+    /* Precharge contactors configuration */
+    {CONT_SWITCH_OFF,
+     CONT_SWITCH_OFF,
+     CONT_HAS_NO_FEEDBACK,
+     BS_STRING0,
+     CONT_PRECHARGE,
+     SPS_CHANNEL_2,
+     CONT_BIDIRECTIONAL},
 };
 
 /*========== Setup and Teardown =============================================*/
@@ -93,60 +114,4 @@ void testCONT_InitializationCheckOfContactorRegistryWrongAffiliation(void) {
     /* act as if a channel is wrongly affiliated */
     SPS_GetChannelAffiliation_IgnoreAndReturn(SPS_AFF_GENERAL_IO);
     TEST_ASSERT_FAIL_ASSERT(TEST_CONT_InitializationCheckOfContactorRegistry());
-}
-void testCONT_ResolveContactorNameExistingNamesFirst(void) {
-    /* check if the name of the first entry returns the first entry of the array */
-    CONT_CONTACTOR_INDEX index = 0u;
-    TEST_ASSERT_PASS_ASSERT(TEST_ASSERT_EQUAL(index, TEST_CONT_ResolveContactorName(cont_contactorStates[index].name)));
-}
-
-void testCONT_ResolveContactorNameExistingNamesLast(void) {
-    /* check if the name of the last entry returns the last entry of the array */
-    CONT_CONTACTOR_INDEX index = BS_NR_OF_CONTACTORS - 1u;
-    TEST_ASSERT_PASS_ASSERT(TEST_ASSERT_EQUAL(index, TEST_CONT_ResolveContactorName(cont_contactorStates[index].name)));
-}
-
-void testCONT_ResolveContactorNameInvalidName(void) {
-    /* check if an invalid name asserts */
-    TEST_ASSERT_FAIL_ASSERT(TEST_ASSERT_EQUAL(0u, TEST_CONT_ResolveContactorName(84u)));
-}
-
-void testCONT_SetContactorStateInvalidState(void) {
-    SPS_RequestContactorState_Ignore();
-
-    TEST_ASSERT_FAIL_ASSERT(CONT_SetContactorState(0u, 42u));
-}
-
-void testCONT_SetContactorStateInvalidContactorNumber(void) {
-    SPS_RequestContactorState_Ignore();
-
-    TEST_ASSERT_FAIL_ASSERT(CONT_SetContactorState(42u, CONT_SWITCH_OFF));
-}
-
-void testCONT_SetContactorStateCopyStates(void) {
-    /* Check that every contactor is requested off when undef is used */
-    for (uint8_t contactor = 0u; contactor < BS_NR_OF_CONTACTORS; contactor++) {
-        /* when undef is called, channels should not be touched normally */
-        SPS_RequestContactorState_Expect(contactor, SPS_CHANNEL_OFF);
-        TEST_ASSERT_PASS_ASSERT(TEST_ASSERT_EQUAL(STD_NOT_OK, CONT_SetContactorState(contactor, CONT_SWITCH_UNDEF)));
-    }
-
-    /* Check that every contactor is requested on */
-    for (uint8_t contactor = 0u; contactor < BS_NR_OF_CONTACTORS; contactor++) {
-        SPS_RequestContactorState_Expect(contactor, SPS_CHANNEL_ON);
-        TEST_ASSERT_PASS_ASSERT(TEST_ASSERT_EQUAL(STD_OK, CONT_SetContactorState(contactor, CONT_SWITCH_ON)));
-    }
-
-    /* Check that every contactor is requested off when undef is used */
-    for (uint8_t contactor = 0u; contactor < BS_NR_OF_CONTACTORS; contactor++) {
-        /* when undef is called, channels should not be touched normally */
-        SPS_RequestContactorState_Expect(contactor, SPS_CHANNEL_ON);
-        TEST_ASSERT_PASS_ASSERT(TEST_ASSERT_EQUAL(STD_NOT_OK, CONT_SetContactorState(contactor, CONT_SWITCH_UNDEF)));
-    }
-
-    /* Check that every contactor is requested off */
-    for (uint8_t contactor = 0u; contactor < BS_NR_OF_CONTACTORS; contactor++) {
-        SPS_RequestContactorState_Expect(contactor, SPS_CHANNEL_OFF);
-        TEST_ASSERT_PASS_ASSERT(TEST_ASSERT_EQUAL(STD_OK, CONT_SetContactorState(contactor, CONT_SWITCH_OFF)));
-    }
 }

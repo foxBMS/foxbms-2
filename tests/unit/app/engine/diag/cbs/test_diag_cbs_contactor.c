@@ -43,8 +43,8 @@
  * @file    test_diag_cbs_contactor.c
  * @author  foxBMS Team
  * @date    2021-02-17 (date of creation)
- * @updated 2022-07-28 (date of last update)
- * @version v1.4.0
+ * @updated 2022-10-27 (date of last update)
+ * @version v1.4.1
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -84,8 +84,9 @@ const DIAG_DATABASE_SHIM_s diag_kpkDatabaseShim = {
 /*========== Setup and Teardown =============================================*/
 void setUp(void) {
     for (uint8_t s = 0; s < BS_NR_OF_STRINGS; s++) {
-        diag_kpkDatabaseShim.pTableError->stringContactor[s]    = 0u;
-        diag_kpkDatabaseShim.pTableError->prechargeContactor[s] = 0u;
+        diag_kpkDatabaseShim.pTableError->stringMinusContactor[s] = 0u;
+        diag_kpkDatabaseShim.pTableError->stringPlusContactor[s]  = 0u;
+        diag_kpkDatabaseShim.pTableError->prechargeContactor[s]   = 0u;
     }
 }
 
@@ -97,47 +98,50 @@ void tearDown(void) {
 void testDiagContactorStringContactorFeedback(void) {
     for (uint8_t s = 0; s < BS_NR_OF_STRINGS; s++) {
         /* reset event sets the string contactor feedback back in ok mode */
-        DIAG_StringContactorFeedback(DIAG_ID_STRING_CONTACTOR_FEEDBACK, DIAG_EVENT_RESET, &diag_kpkDatabaseShim, s);
+        DIAG_StringContactorFeedback(
+            DIAG_ID_STRING_MINUS_CONTACTOR_FEEDBACK, DIAG_EVENT_RESET, &diag_kpkDatabaseShim, s);
     }
     for (uint8_t s = 0; s < BS_NR_OF_STRINGS; s++) {
         /* reset event sets the string contactor feedback back in ok mode */
-        TEST_ASSERT_EQUAL(0, diag_kpkDatabaseShim.pTableError->stringContactor[s]);
+        TEST_ASSERT_EQUAL(0, diag_kpkDatabaseShim.pTableError->stringMinusContactor[s]);
     }
 
     for (uint8_t s = 0; s < BS_NR_OF_STRINGS; s++) {
         /* reset event sets the string contactor feedback back in ok mode */
-        DIAG_StringContactorFeedback(DIAG_ID_STRING_CONTACTOR_FEEDBACK, DIAG_EVENT_OK, &diag_kpkDatabaseShim, s);
+        DIAG_StringContactorFeedback(DIAG_ID_STRING_MINUS_CONTACTOR_FEEDBACK, DIAG_EVENT_OK, &diag_kpkDatabaseShim, s);
     }
     for (uint8_t s = 0; s < BS_NR_OF_STRINGS; s++) {
         /* reset event sets the string contactor feedback back in ok mode */
-        TEST_ASSERT_EQUAL(0, diag_kpkDatabaseShim.pTableError->stringContactor[s]);
+        TEST_ASSERT_EQUAL(0, diag_kpkDatabaseShim.pTableError->stringMinusContactor[s]);
     }
 
     /* not ok event sets the string contactor feedback back in not ok mode */
     for (uint8_t s = 0; s < BS_NR_OF_STRINGS; s++) {
         /* reset event sets the string contactor feedback back in ok mode */
-        DIAG_StringContactorFeedback(DIAG_ID_STRING_CONTACTOR_FEEDBACK, DIAG_EVENT_NOT_OK, &diag_kpkDatabaseShim, s);
+        DIAG_StringContactorFeedback(
+            DIAG_ID_STRING_MINUS_CONTACTOR_FEEDBACK, DIAG_EVENT_NOT_OK, &diag_kpkDatabaseShim, s);
     }
     for (uint8_t s = 0; s < BS_NR_OF_STRINGS; s++) {
         /* reset event sets the string contactor feedback back in ok mode */
-        TEST_ASSERT_EQUAL(1, diag_kpkDatabaseShim.pTableError->stringContactor[s]);
+        TEST_ASSERT_EQUAL(1, diag_kpkDatabaseShim.pTableError->stringMinusContactor[s]);
     }
 
     /* string contactor feedback can be resetted via ok event (instead a reset is required), therefore the
      * string contactor feedback must stay in not ok mode */
     for (uint8_t s = 0; s < BS_NR_OF_STRINGS; s++) {
-        DIAG_StringContactorFeedback(DIAG_ID_STRING_CONTACTOR_FEEDBACK, DIAG_EVENT_OK, &diag_kpkDatabaseShim, s);
+        DIAG_StringContactorFeedback(DIAG_ID_STRING_MINUS_CONTACTOR_FEEDBACK, DIAG_EVENT_OK, &diag_kpkDatabaseShim, s);
     }
     for (uint8_t s = 0; s < BS_NR_OF_STRINGS; s++) {
-        TEST_ASSERT_EQUAL(1, diag_kpkDatabaseShim.pTableError->stringContactor[s]);
+        TEST_ASSERT_EQUAL(1, diag_kpkDatabaseShim.pTableError->stringMinusContactor[s]);
     }
 
     /* reset event sets the string contactor feedback back in ok mode */
     for (uint8_t s = 0; s < BS_NR_OF_STRINGS; s++) {
-        DIAG_StringContactorFeedback(DIAG_ID_STRING_CONTACTOR_FEEDBACK, DIAG_EVENT_RESET, &diag_kpkDatabaseShim, s);
+        DIAG_StringContactorFeedback(
+            DIAG_ID_STRING_MINUS_CONTACTOR_FEEDBACK, DIAG_EVENT_RESET, &diag_kpkDatabaseShim, s);
     }
     for (uint8_t s = 0; s < BS_NR_OF_STRINGS; s++) {
-        TEST_ASSERT_EQUAL(0, diag_kpkDatabaseShim.pTableError->stringContactor[s]);
+        TEST_ASSERT_EQUAL(0, diag_kpkDatabaseShim.pTableError->stringMinusContactor[s]);
     }
 }
 
@@ -191,23 +195,13 @@ void testDiagContactorPrechargeContactorFeedback(void) {
     }
 }
 
-void testDIAG_DoNothingOnWrongIdContactorModule(void) {
-    uint8_t testValue = 42;
-    for (uint8_t s = 0; s < BS_NR_OF_STRINGS; s++) {
-        diag_kpkDatabaseShim.pTableError->stringContactor[s]    = testValue;
-        diag_kpkDatabaseShim.pTableError->prechargeContactor[s] = testValue;
-        testValue++;
-    }
-
+void testDIAG_AssertOnWrongIdContactorModule(void) {
     /* Use a wrong ID to make sure, that this does not alter the CAN entry */
     for (uint8_t s = 0; s < BS_NR_OF_STRINGS; s++) {
-        DIAG_PrechargeContactorFeedback(
-            DIAG_ID_CELL_VOLTAGE_OVERVOLTAGE_RSL, DIAG_EVENT_RESET, &diag_kpkDatabaseShim, s);
-        DIAG_StringContactorFeedback(DIAG_ID_CELL_VOLTAGE_OVERVOLTAGE_RSL, DIAG_EVENT_RESET, &diag_kpkDatabaseShim, s);
-    }
-    for (uint8_t s = 0; s < BS_NR_OF_STRINGS; s++) {
-        TEST_ASSERT_EQUAL(testValue - BS_NR_OF_STRINGS + s, diag_kpkDatabaseShim.pTableError->prechargeContactor[s]);
-        TEST_ASSERT_EQUAL(testValue - BS_NR_OF_STRINGS + s, diag_kpkDatabaseShim.pTableError->stringContactor[s]);
+        TEST_ASSERT_FAIL_ASSERT(DIAG_PrechargeContactorFeedback(
+            DIAG_ID_CELL_VOLTAGE_OVERVOLTAGE_RSL, DIAG_EVENT_RESET, &diag_kpkDatabaseShim, s));
+        TEST_ASSERT_FAIL_ASSERT(DIAG_StringContactorFeedback(
+            DIAG_ID_CELL_VOLTAGE_OVERVOLTAGE_RSL, DIAG_EVENT_RESET, &diag_kpkDatabaseShim, s));
     }
 }
 
@@ -215,11 +209,11 @@ void testDIAG_DoNothingOnWrongIdContactorModule(void) {
 void testDIAG_StringContactorFeedbackInvalidInput(void) {
     TEST_ASSERT_FAIL_ASSERT(DIAG_StringContactorFeedback(DIAG_ID_MAX, DIAG_EVENT_OK, &diag_kpkDatabaseShim, 0u));
     TEST_ASSERT_FAIL_ASSERT(
-        DIAG_StringContactorFeedback(DIAG_ID_STRING_CONTACTOR_FEEDBACK, 42, &diag_kpkDatabaseShim, 0u));
+        DIAG_StringContactorFeedback(DIAG_ID_STRING_MINUS_CONTACTOR_FEEDBACK, 42, &diag_kpkDatabaseShim, 0u));
     TEST_ASSERT_FAIL_ASSERT(
-        DIAG_StringContactorFeedback(DIAG_ID_STRING_CONTACTOR_FEEDBACK, DIAG_EVENT_OK, NULL_PTR, 0u));
+        DIAG_StringContactorFeedback(DIAG_ID_STRING_MINUS_CONTACTOR_FEEDBACK, DIAG_EVENT_OK, NULL_PTR, 0u));
     TEST_ASSERT_FAIL_ASSERT(DIAG_StringContactorFeedback(
-        DIAG_ID_STRING_CONTACTOR_FEEDBACK, DIAG_EVENT_OK, &diag_kpkDatabaseShim, BS_NR_OF_STRINGS));
+        DIAG_ID_STRING_MINUS_CONTACTOR_FEEDBACK, DIAG_EVENT_OK, &diag_kpkDatabaseShim, BS_NR_OF_STRINGS));
 }
 
 /** tests invalid input values */

@@ -1,0 +1,28 @@
+/* entries in this file are ordered by ascending order */
+
+/* define has no value, and will be treated as if equal 0 */
+"--"diag_suppress=195
+
+/* function has no prototype */
+"--"diag_error=225
+
+/* unnecessary semicolon at line end */
+"--"diag_error=383
+
+/* not referenced */
+"--"diag_remark=880
+
+/* signed and unsigned comparison */
+"--"diag_error=2142
+
+/* shadowing variable */
+"--"diag_remark=2710
+
+/* enum comparison of different enum types */
+"--"diag_error=2912
+
+/* automatic Runtime Support library selection */
+"--"diag_error=10205
+
+/* Symbol defined multiple times */
+"--"diag_remark=10252

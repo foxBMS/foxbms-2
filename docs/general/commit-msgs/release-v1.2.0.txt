@@ -1,0 +1,8 @@
+Minor release of foxBMS 2 (v1.2.0)
+
+* Initial release of the hardware design files (e.g., schematics, layout, BOM and STEP file etc.) of the BMS-Master Board (hardware version: ``v1.1.1``)
+* Added new drivers for port expander, interlock, humidity/temperature sensor and LED
+* Support for second CAN interface
+* Renamed the measurement IC (MIC) driver to analog front-end driver (AFE)
+
+For a detailed list of changes, please refer to the documentation at https://iisb-foxbms.iisb.fraunhofer.de/foxbms/gen2/docs/html/v1.2.0/general/changelog.html.

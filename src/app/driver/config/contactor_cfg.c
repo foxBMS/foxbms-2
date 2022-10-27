@@ -43,8 +43,8 @@
  * @file    contactor_cfg.c
  * @author  foxBMS Team
  * @date    2020-02-11 (date of creation)
- * @updated 2022-07-28 (date of last update)
- * @version v1.4.0
+ * @updated 2022-10-27 (date of last update)
+ * @version v1.4.1
  * @ingroup DRIVERS_CONF
  * @prefix  CONT
  *
@@ -55,15 +55,37 @@
 /*========== Includes =======================================================*/
 #include "contactor_cfg.h"
 
+#include "sps_cfg.h"
+
 /*========== Macros and Definitions =========================================*/
 
 /*========== Static Constant and Variable Definitions =======================*/
 
 /*========== Extern Constant and Variable Definitions =======================*/
 CONT_CONTACTOR_STATE_s cont_contactorStates[BS_NR_OF_CONTACTORS] = {
-    {CONT_SWITCH_OFF, CONT_SWITCH_OFF, CONT_FEEDBACK_THROUGH_CURRENT, 0u, CONT_STRING0_PLUS},
-    {CONT_SWITCH_OFF, CONT_SWITCH_OFF, CONT_FEEDBACK_THROUGH_CURRENT, 1u, CONT_STRING0_MINUS},
-    {CONT_SWITCH_OFF, CONT_SWITCH_OFF, CONT_FEEDBACK_THROUGH_CURRENT, 2u, CONT_PRECHARGE},
+    /* String contactors configuration */
+    {CONT_SWITCH_OFF,
+     CONT_SWITCH_OFF,
+     CONT_FEEDBACK_NORMALLY_OPEN,
+     BS_STRING0,
+     CONT_PLUS,
+     SPS_CHANNEL_0,
+     CONT_CHARGING_DIRECTION},
+    {CONT_SWITCH_OFF,
+     CONT_SWITCH_OFF,
+     CONT_FEEDBACK_NORMALLY_OPEN,
+     BS_STRING0,
+     CONT_MINUS,
+     SPS_CHANNEL_1,
+     CONT_DISCHARGING_DIRECTION},
+    /* Precharge contactor configuration */
+    {CONT_SWITCH_OFF,
+     CONT_SWITCH_OFF,
+     CONT_HAS_NO_FEEDBACK,
+     BS_STRING0,
+     CONT_PRECHARGE,
+     SPS_CHANNEL_2,
+     CONT_BIDIRECTIONAL},
 };
 
 /*========== Static Function Prototypes =====================================*/

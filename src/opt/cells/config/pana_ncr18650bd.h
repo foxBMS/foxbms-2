@@ -43,8 +43,8 @@
  * @file    pana_ncr18650bd.h
  * @author  foxBMS Team
  * @date    2018-10-02 (date of creation)
- * @updated 2022-07-28 (date of last update)
- * @version v1.4.0
+ * @updated 2022-10-27 (date of last update)
+ * @version v1.4.1
  * @ingroup BATTERY_CELL_CONF
  * @prefix  BC
  *

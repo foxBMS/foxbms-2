@@ -43,8 +43,8 @@
  * @file    diag.c
  * @author  foxBMS Team
  * @date    2019-11-28 (date of creation)
- * @updated 2022-07-28 (date of last update)
- * @version v1.4.0
+ * @updated 2022-10-27 (date of last update)
+ * @version v1.4.1
  * @ingroup ENGINE
  * @prefix  DIAG
  *
@@ -170,6 +170,18 @@ STD_RETURN_TYPE_e DIAG_Initialize(DIAG_DEV_s *diag_dev_pointer) {
         }
     }
 
+    /** Iterate over #diag_diagnosisIdConfiguration and check that a meaningful
+     *  state transition time is configured if a severity of #DIAG_FATAL_ERROR
+     *  is configured. */
+    for (uint16_t diagnosisEntry = 0u; diagnosisEntry < diag_dev_pointer->nrOfConfiguredDiagnosisEntries;
+         diagnosisEntry++) {
+        bool fatalErrorDetected = (bool)(diag_diagnosisIdConfiguration[diagnosisEntry].severity == DIAG_FATAL_ERROR);
+        bool discardDelay = (bool)(diag_diagnosisIdConfiguration[diagnosisEntry].delay_ms == DIAG_DELAY_DISCARDED);
+        if (fatalErrorDetected && discardDelay) {
+            /* Configuration error. Fatal error configured but delay is discared.*/
+            FAS_ASSERT(FAS_TRAP);
+        }
+    }
     diag.state = DIAG_STATE_INITIALIZED;
     return retval;
 }

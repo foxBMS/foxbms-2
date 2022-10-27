@@ -23,6 +23,8 @@ __pycache__
 /qa-chain/*
 
 *.log
+*log*.txt
+*log/*
 
 *.patch
 *.diff
@@ -51,3 +53,6 @@ __pycache__
 *.exe
 
 /races.txt
+
+# CAN log files
+*.asc

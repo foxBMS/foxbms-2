@@ -43,8 +43,8 @@
  * @file    diag_cbs.h
  * @author  foxBMS Team
  * @date    2021-02-17 (date of creation)
- * @updated 2022-07-28 (date of last update)
- * @version v1.4.0
+ * @updated 2022-10-27 (date of last update)
+ * @version v1.4.1
  * @ingroup ENGINE
  * @prefix  DIAG
  *
@@ -438,6 +438,19 @@ extern void DIAG_I2cPex(
  * @param[in] data          not relevant
  */
 extern void DIAG_FramError(
+    DIAG_ID_e diagId,
+    DIAG_EVENT_e event,
+    const DIAG_DATABASE_SHIM_s *const kpkDiagShim,
+    uint32_t data);
+
+/**
+ * @brief diagnosis callback function for ALERT flag
+ * @param[in] diagId        ID of diag entry
+ * @param[in] event         OK, NOK or RESET
+ * @param[in] kpkDiagShim   shim to the database entries
+ * @param[in] data          not relevant
+ */
+extern void DIAG_AlertFlag(
     DIAG_ID_e diagId,
     DIAG_EVENT_e event,
     const DIAG_DATABASE_SHIM_s *const kpkDiagShim,

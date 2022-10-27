@@ -43,8 +43,8 @@
  * @file    bender_iso165c_cfg.c
  * @author  foxBMS Team
  * @date    2021-03-17 (date of creation)
- * @updated 2022-07-28 (date of last update)
- * @version v1.4.0
+ * @updated 2022-10-27 (date of last update)
+ * @version v1.4.1
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  I165C
  *

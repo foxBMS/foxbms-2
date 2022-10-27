@@ -35,7 +35,7 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-FOXBMS_2_CCS_VERSION_STRICT: "v20.2.5.LTS"
+FOXBMS_2_CCS_VERSION_STRICT: "v20.2.6.LTS"
 
 INCLUDE_PATHS:
   win32:

@@ -1,0 +1,89 @@
+VERSION ""
+
+
+NS_ :
+
+BS_:
+
+BU_: Vector__XXX
+
+BO_ 544 foxBMS_State: 8 Vector__XXX
+SG_ foxBMS_State : 3|4@0+ (1,0) [0|15] "" Vector__XXX
+SG_ foxBMS_generalError : 10|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ foxBMS_generalWarning : 9|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ foxBMS_Error_dieTemperatureMCU : 18|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ foxBMS_Error_OvertempPCB : 19|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ foxBMS_Error_UndertempPCB : 20|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ foxBMS_Error_PrechargeVolt : 16|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ foxBMS_Error_PrechargeCurrent : 17|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ foxBMS_insulationMonitoring : 13|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ foxBMS_chargingComplete : 8|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ foxBMS_EmergencyShutoff : 11|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ foxBMS_MainFuseBlown : 21|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ foxBMS_insulationResistance : 63|8@0+ (100,0) [0|25500] "kOhm" Vector__XXX
+SG_ foxBMS_Error_Interlock : 22|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ foxBMS_Error_Insulation : 23|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ foxBMS_Error_Cantiming : 24|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ foxBMS_SysMonError : 12|1@1+ (1,0) [0|1] "" Vector__XXX
+SG_ foxBMS_alertFlag : 27|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ foxBMS_NegativeContState : 5|1@1+ (1,0) [0|1] "" Vector__XXX
+SG_ foxBMS_PositiveContState : 6|1@1+ (1,0) [0|1] "" Vector__XXX
+SG_ foxBMS_PrechargeContState : 7|1@1+ (1,0) [0|1] "" Vector__XXX
+SG_ foxBMS_AuxiliaryFuseBlown : 23|1@1+ (1,0) [0|1] "" Vector__XXX
+SG_ foxBMS_chargingFuseBlown : 24|1@1+ (1,0) [0|1] "" Vector__XXX
+
+
+CM_ BO_ 544 "Message contains foxBMS state (in:can_cbs_tx_state.c:CAN_TxState)";
+CM_ SG_ 544 foxBMS_generalError "0x00: No error detected, 0x01: Error detected";
+CM_ SG_ 544 foxBMS_generalWarning "0x00: No warning detected, 0x01: Warning detected";
+CM_ SG_ 544 foxBMS_Error_dieTemperatureMCU "0x00: No error, 0x01: Error detected";
+CM_ SG_ 544 foxBMS_Error_OvertempPCB "foxBMS Master-PCB: 0x00: No error, 0x01: Error detected";
+CM_ SG_ 544 foxBMS_Error_UndertempPCB "foxBMS Master-PCB: 0x00: No error, 0x01: Error detected";
+CM_ SG_ 544 foxBMS_Error_PrechargeVolt "0x00: precharging successful, 0x01: precharge aborted because of voltage difference";
+CM_ SG_ 544 foxBMS_Error_PrechargeCurrent "0x00: precharging successful, 0x01: precharge aborted because current limit violated";
+CM_ SG_ 544 foxBMS_insulationMonitoring "0x00: insulation monitoring active, 0x01: insulation monitoring not active";
+CM_ SG_ 544 foxBMS_chargingComplete "0x01: charging complete";
+CM_ SG_ 544 foxBMS_EmergencyShutoff "The BMS is preparing to open the contactors soon due to detected error";
+CM_ SG_ 544 foxBMS_MainFuseBlown "0x00: fuse okay, 0x01: fuse blown";
+CM_ SG_ 544 foxBMS_Error_Interlock "0x00: interlock okay, 0x01: interlock open";
+CM_ SG_ 544 foxBMS_Error_Insulation "0x00: No error, 0x01: Error detected";
+CM_ SG_ 544 foxBMS_Error_Cantiming "0x00: No error, 0x01: Error detected";
+CM_ SG_ 544 foxBMS_SysMonError "If this bit is set, it indicates that a task has violated its timing requirements.";
+CM_ SG_ 544 foxBMS_alertFlag "foxBMS Alter flag: 0x00: No error, 0x01: Alert flag set";
+CM_ SG_ 544 foxBMS_NegativeContState "0x00: contactor switched OFF, 0x01: contactor switched ON";
+CM_ SG_ 544 foxBMS_PositiveContState "0x00: contactor switched OFF, 0x01: contactor switched ON";
+CM_ SG_ 544 foxBMS_PrechargeContState "0x00: contactor switched OFF, 0x01: contactor switched ON";
+CM_ SG_ 544 foxBMS_AuxiliaryFuseBlown "0x00: fuse okay, 0x01: fuse blown";
+CM_ SG_ 544 foxBMS_chargingFuseBlown "0x00: fuse okay, 0x01: fuse blown";
+
+BA_DEF_  "BusType" STRING ;
+BA_DEF_ SG_  "GenSigStartValue" FLOAT -3.4E+038 3.4E+038;
+
+BA_DEF_DEF_  "BusType" "CAN";
+BA_DEF_DEF_  "GenSigStartValue" 0;
+
+BA_ "BusType" "CAN";
+
+BA_ "GenSigStartValue" SG_ 544 foxBMS_State 0;
+BA_ "GenSigStartValue" SG_ 544 foxBMS_generalError 0;
+BA_ "GenSigStartValue" SG_ 544 foxBMS_generalWarning 0;
+BA_ "GenSigStartValue" SG_ 544 foxBMS_Error_dieTemperatureMCU 0;
+BA_ "GenSigStartValue" SG_ 544 foxBMS_Error_OvertempPCB 0;
+BA_ "GenSigStartValue" SG_ 544 foxBMS_Error_UndertempPCB 0;
+BA_ "GenSigStartValue" SG_ 544 foxBMS_Error_PrechargeVolt 0;
+BA_ "GenSigStartValue" SG_ 544 foxBMS_Error_PrechargeCurrent 0;
+BA_ "GenSigStartValue" SG_ 544 foxBMS_insulationMonitoring 0;
+BA_ "GenSigStartValue" SG_ 544 foxBMS_chargingComplete 0;
+BA_ "GenSigStartValue" SG_ 544 foxBMS_EmergencyShutoff 0;
+BA_ "GenSigStartValue" SG_ 544 foxBMS_MainFuseBlown 0;
+BA_ "GenSigStartValue" SG_ 544 foxBMS_insulationResistance 0;
+BA_ "GenSigStartValue" SG_ 544 foxBMS_Error_Interlock 0;
+BA_ "GenSigStartValue" SG_ 544 foxBMS_Error_Insulation 0;
+BA_ "GenSigStartValue" SG_ 544 foxBMS_Error_Cantiming 0;
+BA_ "GenSigStartValue" SG_ 544 foxBMS_SysMonError 0;
+BA_ "GenSigStartValue" SG_ 544 foxBMS_alertFlag 0;
+BA_ "GenSigStartValue" SG_ 544 foxBMS_NegativeContState 0;
+BA_ "GenSigStartValue" SG_ 544 foxBMS_PositiveContState 0;
+BA_ "GenSigStartValue" SG_ 544 foxBMS_PrechargeContState 0;
+BA_ "GenSigStartValue" SG_ 544 foxBMS_AuxiliaryFuseBlown 0;
+BA_ "GenSigStartValue" SG_ 544 foxBMS_chargingFuseBlown 0;

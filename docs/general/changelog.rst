@@ -42,6 +42,57 @@ Versioning follows then these rules:
 - increasing ``PATCH`` fixes bugs in a backwards compatible manner
 
 ********************
+[1.4.1] - 2022-10-27
+********************
+
+|foxbms| updated to TI ARM CGT 20.2.6.LTS.
+Installation instructions are found at :numref:`css_install`.
+
+Added
+=====
+
+- The new default compiler set in ``conf/env/paths_win32.txt`` and
+  ``conf/env/paths_linux.txt`` is now TI ARM CGT v20.2.6.LTS (shipped with CCS
+  ``12.0.0``).
+- Added driver for *Murata NCU15XH103F6Sxx* temperature sensor
+
+Changed
+=======
+
+- Updated the hardware design files (e.g., schematics, layout, BOM and STEP
+  file etc.) of the |bms-master|  to ``v1.1.5`` (see
+  :ref:`CHANGELOG_FOR_MASTER_TMS570_V1_1_5`).
+- Updated documentation of the interface using the |max17841b| transceiver
+  chip.
+- The implementation of the CAN driver has been changed to simplify adding
+  new messages.
+  Furthermore it is now possible to force a certain style on how CAN messages
+  are defined in the symbol/dbc files as well as in the source code.
+  For further information see :ref:`HOW_TO_USE_THE_CAN_MODULE`.
+- Updated version of ``.sym`` file for the definition of the CAN messages and
+  signals to v6.0 (from 5.0).
+- Update the static code analysis to Axivion 7.4.6 (from 7.4.0).
+
+Deprecated
+==========
+
+Removed
+=======
+
+- Unused calculation of MOL, RSL and MSL curves for trapezoid algorithm in
+  ``SOF`` module.
+
+Fixed
+=====
+
+- In ``ADC`` module, corrected formula making the conversion from raw ADC
+  reading to voltage in mV.
+- The address of two diagnostic registers in the Smart Power Switch driver
+  was wrong.
+- Endianness definition throughout the CAN signals was inconsistent. Not all
+  signals were correctly defined as big-endian.
+
+********************
 [1.4.0] - 2022-07-29
 ********************
 
@@ -127,11 +178,11 @@ Fixed
 [1.3.0] - 2022-05-30
 ********************
 
-|foxbms| updated to TI ARM CGT 20.2.5.LTS. Installation instructions are found
-at :numref:`css_install`.
+|foxbms| updated to TI ARM CGT 20.2.5.LTS.
+Installation instructions are found at :numref:`css_install`.
 
-|foxbms| updated to LLVM 13.0.0. Installation instructions are found at
-:numref:`llvm_install`.
+|foxbms| updated to LLVM 13.0.0.
+Installation instructions are found at :numref:`llvm_install`.
 
 Added
 =====

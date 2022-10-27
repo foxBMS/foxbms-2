@@ -39,12 +39,25 @@
 # - "This product is derived from foxBMS®"
 
 """Testing 'pathspec' package"""
-
+import sys
 import argparse
 import logging
 
+from pathlib import Path
+
 # package to test
 import pathspec  # pylint: disable=unused-import
+
+import git
+from git.exc import InvalidGitRepositoryError
+
+SCRIPT_DIR = Path(__file__).parent.resolve()
+
+try:
+    repo = git.Repo(SCRIPT_DIR, search_parent_directories=True)
+    REPO_ROOT = Path(repo.git.rev_parse("--show-toplevel"))
+except InvalidGitRepositoryError:
+    sys.exit("Test can only be run in a git repository.")
 
 
 def main():
@@ -66,6 +79,11 @@ def main():
         logging.basicConfig(level=logging.DEBUG)
     else:
         logging.basicConfig(level=logging.ERROR)
+
+    gitignore = Path(REPO_ROOT / ".gitignore").read_text(encoding="utf-8")
+    pathspec.PathSpec.from_lines(
+        pathspec.patterns.GitWildMatchPattern, gitignore.splitlines()
+    )
 
 
 if __name__ == "__main__":

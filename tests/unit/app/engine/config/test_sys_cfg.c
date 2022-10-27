@@ -43,8 +43,8 @@
  * @file    test_sys_cfg.c
  * @author  foxBMS Team
  * @date    2020-04-02 (date of creation)
- * @updated 2022-07-28 (date of last update)
- * @version v1.4.0
+ * @updated 2022-10-27 (date of last update)
+ * @version v1.4.1
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -55,6 +55,7 @@
 /*========== Includes =======================================================*/
 #include "unity.h"
 #include "Mockcan.h"
+#include "Mockcan_cfg_tx_boot-message.h"
 
 #include "sys_cfg.h"
 
@@ -69,7 +70,7 @@ void tearDown(void) {
 
 /*========== Test Cases =====================================================*/
 void testSysSendBootMessageExists(void) {
-    CAN_TransmitBootMessage_IgnoreAndReturn(STD_OK);
-    CAN_TransmitDieId_IgnoreAndReturn(STD_OK);
+    CANTX_TransmitBootMessage_IgnoreAndReturn(STD_OK);
+    CANTX_TransmitDieId_IgnoreAndReturn(STD_OK);
     SYS_SendBootMessage();
 }

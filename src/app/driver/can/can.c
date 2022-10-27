@@ -43,8 +43,8 @@
  * @file    can.c
  * @author  foxBMS Team
  * @date    2019-12-04 (date of creation)
- * @updated 2022-07-28 (date of last update)
- * @version v1.4.0
+ * @updated 2022-10-27 (date of last update)
+ * @version v1.4.1
  * @ingroup DRIVERS
  * @prefix  CAN
  *
@@ -76,24 +76,6 @@
 
 /** upper limit of timestamp counts for a valid CAN timing */
 #define CAN_TIMING_UPPER_LIMIT_COUNTS (105u)
-
-/** maximum distance from release that can be encoded in the boot message */
-#define CAN_BOOT_MESSAGE_MAXIMUM_RELEASE_DISTANCE (31u)
-#if CAN_BOOT_MESSAGE_MAXIMUM_RELEASE_DISTANCE > UINT8_MAX
-#error "This code assumes that the define is smaller or equal to UINT8_MAX")
-#endif
-
-/** bit position of boot message byte 3 version control flag */
-#define CAN_BOOT_MESSAGE_BYTE_3_BIT_VERSION_CONTROL (0u)
-
-/** bit position of boot message byte 3 dirty flag */
-#define CAN_BOOT_MESSAGE_BYTE_3_BIT_DIRTY_FLAG (1u)
-
-/** bit position of boot message byte 3 release distance overflow flag */
-#define CAN_BOOT_MESSAGE_BYTE_3_BIT_DISTANCE_OVERFLOW_FLAG (2u)
-
-/** bit position of boot message byte 3 release distance counter */
-#define CAN_BOOT_MESSAGE_BYTE_3_BIT_DISTANCE_COUNTER (3u)
 
 /** return value of function canGetData if no data was lost during reception */
 #define CAN_HAL_RETVAL_NO_DATA_LOST (1u)
@@ -202,7 +184,7 @@ static void CAN_InitializeTransceiver(void) {
 
 static void CAN_ValidateConfiguredTxMessagePeriod(void) {
     for (uint16_t i = 0u; i < can_txLength; i++) {
-        if (can_txMessages[i].repetitionTime == 0u) {
+        if (can_txMessages[i].timing.period == 0u) {
             FAS_ASSERT(FAS_TRAP);
         }
     }
@@ -218,7 +200,7 @@ extern void CAN_Initialize(void) {
 extern STD_RETURN_TYPE_e CAN_DataSend(canBASE_t *pNode, uint32_t id, uint8 *pData) {
     FAS_ASSERT(pNode != NULL_PTR);
     FAS_ASSERT(pData != NULL_PTR);
-    FAS_ASSERT((pNode == CAN1_NODE) || (pNode == CAN2_NODE));
+    FAS_ASSERT((pNode == CAN_NODE_1) || (pNode == CAN_NODE_2));
     /* AXIVION Routine Generic-MissingParameterAssert: id: parameter accepts whole range */
 
     STD_RETURN_TYPE_e result = STD_NOT_OK;
@@ -256,19 +238,14 @@ static STD_RETURN_TYPE_e CAN_PeriodicTransmit(void) {
     uint8_t data[8]              = {0};
 
     for (uint16_t i = 0u; i < can_txLength; i++) {
-        if (((counterTicks * CAN_TICK_ms) % (can_txMessages[i].repetitionTime)) == can_txMessages[i].repetitionPhase) {
+        if (((counterTicks * CAN_TICK_ms) % (can_txMessages[i].timing.period)) == can_txMessages[i].timing.phase) {
             if (can_txMessages[i].callbackFunction != NULL_PTR) {
                 can_txMessages[i].callbackFunction(
-                    can_txMessages[i].id,
-                    can_txMessages[i].dlc,
-                    can_txMessages[i].endianness,
-                    data,
-                    can_txMessages[i].pMuxId,
-                    &can_kShim);
+                    can_txMessages[i].message, data, can_txMessages[i].pMuxId, &can_kShim);
                 /* CAN messages are currently discarded if all message boxes
                  * are full. They will not be retransmitted within the next
                  * call of CAN_PeriodicTransmit() */
-                CAN_DataSend(can_txMessages[i].canNode, can_txMessages[i].id, data);
+                CAN_DataSend(can_txMessages[i].canNode, can_txMessages[i].message.id, data);
                 retVal = STD_OK;
             }
         }
@@ -353,19 +330,15 @@ static void CAN_CheckCanTiming(void) {
 }
 
 extern void CAN_ReadRxBuffer(void) {
-    CAN_BUFFERELEMENT_s can_rxBuffer = {0};
+    CAN_BUFFER_ELEMENT_s can_rxBuffer = {0};
     if (ftsk_allQueuesCreated == true) {
         while (OS_ReceiveFromQueue(ftsk_canRxQueue, (void *)&can_rxBuffer, 0u) == OS_SUCCESS) {
             /* data queue was not empty */
             for (uint16_t i = 0u; i < can_rxLength; i++) {
-                if ((can_rxBuffer.canNode == can_rxMessages[i].canNode) && (can_rxBuffer.id == can_rxMessages[i].id)) {
+                if ((can_rxBuffer.canNode == can_rxMessages[i].canNode) &&
+                    (can_rxBuffer.id == can_rxMessages[i].message.id)) {
                     if (can_rxMessages[i].callbackFunction != NULL_PTR) {
-                        can_rxMessages[i].callbackFunction(
-                            can_rxMessages[i].id,
-                            can_rxMessages[i].dlc,
-                            can_rxMessages[i].endianness,
-                            can_rxBuffer.data,
-                            &can_kShim);
+                        can_rxMessages[i].callbackFunction(can_rxMessages[i].message, can_rxBuffer.data, &can_kShim);
                     }
                 }
             }
@@ -447,8 +420,8 @@ static void CAN_TxInterrupt(canBASE_t *pNode, uint32 messageBox) {
 static void CAN_RxInterrupt(canBASE_t *pNode, uint32 messageBox) {
     FAS_ASSERT(pNode != NULL_PTR);
 
-    CAN_BUFFERELEMENT_s can_rxBuffer = {0u};
-    uint8_t messageData[CAN_DLC]     = {0u};
+    CAN_BUFFER_ELEMENT_s can_rxBuffer    = {0u};
+    uint8_t messageData[CAN_DEFAULT_DLC] = {0u};
     /**
      *  Read even if queues are not created, otherwise message boxes get full.
      *  Possible return values:
@@ -496,78 +469,6 @@ void UNIT_TEST_WEAK_IMPL canMessageNotification(canBASE_t *node, uint32 messageB
     } else {
         CAN_RxInterrupt(node, messageBox);
     }
-}
-
-extern STD_RETURN_TYPE_e CAN_TransmitBootMessage(void) {
-    uint8_t data[] = {GEN_REPEAT_U(0u, GEN_STRIP(CAN_MAX_DLC))};
-
-    /* Set major number */
-    data[CAN_BYTE_0_POSITION] = ver_foxbmsVersionInformation.major;
-    /* Set minor number */
-    data[CAN_BYTE_1_POSITION] = ver_foxbmsVersionInformation.minor;
-    /* Set patch number */
-    data[CAN_BYTE_2_POSITION] = ver_foxbmsVersionInformation.patch;
-
-    /* intermediate variable for message byte 3 */
-    uint8_t versionControlByte = 0u;
-
-    /* Set version control flags */
-    if (ver_foxbmsVersionInformation.underVersionControl == true) {
-        versionControlByte |= (0x01u << CAN_BOOT_MESSAGE_BYTE_3_BIT_VERSION_CONTROL);
-    }
-    if (ver_foxbmsVersionInformation.isDirty == true) {
-        versionControlByte |= (0x01u << CAN_BOOT_MESSAGE_BYTE_3_BIT_DIRTY_FLAG);
-    }
-    /* Set overflow flag (if release distance is larger than 31) */
-    if (ver_foxbmsVersionInformation.distanceFromLastRelease > CAN_BOOT_MESSAGE_MAXIMUM_RELEASE_DISTANCE) {
-        /* we need to set the overflow flag */
-        versionControlByte |= (0x01u << CAN_BOOT_MESSAGE_BYTE_3_BIT_DISTANCE_OVERFLOW_FLAG);
-    }
-
-    /* Set release distance (capped to maximum value) */
-    const uint8_t distanceCapped = (uint8_t)MATH_MinimumOfTwoUint16_t(
-        ver_foxbmsVersionInformation.distanceFromLastRelease, (uint16_t)CAN_BOOT_MESSAGE_MAXIMUM_RELEASE_DISTANCE);
-    versionControlByte |= (distanceCapped << CAN_BOOT_MESSAGE_BYTE_3_BIT_DISTANCE_COUNTER);
-
-    /* assign assembled byte to databyte */
-    data[CAN_BYTE_3_POSITION] = versionControlByte;
-
-    /* Read out device register with unique ID */
-    const uint32_t deviceRegister = systemREG1->DEVID;
-
-    /* Set unique ID */
-    data[CAN_BYTE_4_POSITION] = (uint8_t)((deviceRegister >> 24u) & 0xFFu);
-    data[CAN_BYTE_5_POSITION] = (uint8_t)((deviceRegister >> 16u) & 0xFFu);
-    data[CAN_BYTE_6_POSITION] = (uint8_t)((deviceRegister >> 8u) & 0xFFu);
-    data[CAN_BYTE_7_POSITION] = (uint8_t)(deviceRegister & 0xFFu);
-
-    STD_RETURN_TYPE_e retval = CAN_DataSend(CAN1_NODE, CAN_ID_BOOT_MESSAGE, &data[0]);
-
-    return retval;
-}
-
-extern STD_RETURN_TYPE_e CAN_TransmitDieId(void) {
-    uint8_t data[] = {GEN_REPEAT_U(0u, GEN_STRIP(CAN_MAX_DLC))};
-
-    /* Read out device register with die ID low and high */
-    const uint32_t dieIdLow  = systemREG1->DIEIDL;
-    const uint32_t dieIdHigh = systemREG1->DIEIDH;
-
-    /* set die ID */
-    /* AXIVION Disable Style Generic-NoMagicNumbers: The magic numbers are used to divide down the registers into the CAN message */
-    data[CAN_BYTE_0_POSITION] = (uint8_t)((dieIdHigh >> 24u) & 0xFFu);
-    data[CAN_BYTE_1_POSITION] = (uint8_t)((dieIdHigh >> 16u) & 0xFFu);
-    data[CAN_BYTE_2_POSITION] = (uint8_t)((dieIdHigh >> 8u) & 0xFFu);
-    data[CAN_BYTE_3_POSITION] = (uint8_t)(dieIdHigh & 0xFFu);
-    data[CAN_BYTE_4_POSITION] = (uint8_t)((dieIdLow >> 24u) & 0xFFu);
-    data[CAN_BYTE_5_POSITION] = (uint8_t)((dieIdLow >> 16u) & 0xFFu);
-    data[CAN_BYTE_6_POSITION] = (uint8_t)((dieIdLow >> 8u) & 0xFFu);
-    data[CAN_BYTE_7_POSITION] = (uint8_t)(dieIdLow & 0xFFu);
-    /* AXIVION Enable Style Generic-NoMagicNumbers: */
-
-    STD_RETURN_TYPE_e retval = CAN_DataSend(CAN1_NODE, CAN_ID_DIE_ID, &data[0]);
-
-    return retval;
 }
 
 /*========== Getter for static Variables (Unit Test) ========================*/

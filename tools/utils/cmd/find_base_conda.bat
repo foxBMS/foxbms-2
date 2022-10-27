@@ -41,7 +41,7 @@
 @PUSHD %~dp0
 
 @REM get conda environment name
-@CALL :NORMALIZEPATH "%~dp0..\..\..\conf\env\conda_env_win32.yaml"
+@CALL :NORMALIZE_PATH "%~dp0..\..\..\conf\env\conda_env_win32.yaml"
 @SET CONDA_ENV_FILE=%NORMALIZED_PATH%
 @FOR /f "usebackq tokens=*" %%A IN ("%CONDA_ENV_FILE%") DO @(
     @FOR /F "tokens=1" %%B IN ("%%A") DO @(
@@ -114,6 +114,6 @@
 
 @POPD
 
-:NORMALIZEPATH
+:NORMALIZE_PATH
     @SET NORMALIZED_PATH=%~dpfn1
     @EXIT /B

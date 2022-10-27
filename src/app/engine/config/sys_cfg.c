@@ -43,8 +43,8 @@
  * @file    sys_cfg.c
  * @author  foxBMS Team
  * @date    2020-02-24 (date of creation)
- * @updated 2022-07-28 (date of last update)
- * @version v1.4.0
+ * @updated 2022-10-27 (date of last update)
+ * @version v1.4.1
  * @ingroup ENGINE_CONFIGURATION
  * @prefix  SYS
  *
@@ -54,7 +54,7 @@
 /*========== Includes =======================================================*/
 #include "sys_cfg.h"
 
-#include "can.h"
+#include "can_cfg_tx_boot-message.h"
 
 /*========== Macros and Definitions =========================================*/
 
@@ -70,8 +70,8 @@
 void SYS_SendBootMessage(void) {
     /* the system can do not much with the result of the function at this stage
     therefore discard it */
-    (void)CAN_TransmitBootMessage();
-    (void)CAN_TransmitDieId();
+    (void)CANTX_TransmitBootMessage();
+    (void)CANTX_TransmitDieId();
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/

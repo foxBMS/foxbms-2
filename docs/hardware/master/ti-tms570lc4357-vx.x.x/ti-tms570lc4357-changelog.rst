@@ -6,6 +6,21 @@
 Changelog for Master TMS570
 ===========================
 
+.. _CHANGELOG_FOR_MASTER_TMS570_V1_1_5:
+
+v1.1.5
+------
+
+- Fixed Farnell order code for 100nF/50V/0402
+- Updated project BOM
+
+.. _CHANGELOG_FOR_MASTER_TMS570_V1_1_4:
+
+v1.1.4
+------
+
+- Improved SBC wake-up pulse generation circuit by changing value of R7233 to 470kOhm
+
 .. _CHANGELOG_FOR_MASTER_TMS570_V1_1_3:
 
 v1.1.3

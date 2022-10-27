@@ -43,8 +43,8 @@
  * @file    contactor_cfg.h
  * @author  foxBMS Team
  * @date    2020-02-11 (date of creation)
- * @updated 2022-07-28 (date of last update)
- * @version v1.4.0
+ * @updated 2022-10-27 (date of last update)
+ * @version v1.4.1
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  CONT
  *
@@ -64,26 +64,13 @@
 
 /*========== Macros and Definitions =========================================*/
 
-/*================== Main precharge configuration ====================*/
-
 /*========== Extern Constant and Variable Declarations ======================*/
 /** Symbolic names for the possible states of the contactors */
 typedef enum {
-    CONT_SWITCH_OFF,   /*!< Contactor off       --> Contactor is open */
-    CONT_SWITCH_ON,    /*!< Contactor on        --> Contactor is closed */
-    CONT_SWITCH_UNDEF, /*!< Contactor undefined --> Contactor state not known */
+    CONT_SWITCH_OFF,       /*!< Contactor off       --> Contactor is open */
+    CONT_SWITCH_ON,        /*!< Contactor on        --> Contactor is closed */
+    CONT_SWITCH_UNDEFINED, /*!< Contactor undefined --> Contactor state not known */
 } CONT_ELECTRICAL_STATE_TYPE_e;
-
-/** Symbolic names for the contactors */
-typedef enum {
-    CONT_STRING0_PLUS,  /*!< Contactor in string0 plus path */
-    CONT_STRING0_MINUS, /*!< Contactor in string0 minus path */
-    CONT_STRING1_PLUS,  /*!< Contactor in string1 plus path */
-    CONT_STRING1_MINUS, /*!< Contactor in string1 minus path */
-    CONT_STRING2_PLUS,  /*!< Contactor in string2 plus path */
-    CONT_STRING2_MINUS, /*!< Contactor in string2 minus path */
-    CONT_PRECHARGE,     /*!< Precharge contactor */
-} CONT_NAMES_e;
 
 /** Symbolic names defining the electric behavior of the contactor */
 typedef enum {
@@ -93,20 +80,44 @@ typedef enum {
     CONT_HAS_NO_FEEDBACK,          /*!< Feedback line of the contactor is not used */
 } CONT_FEEDBACK_TYPE_e;
 
+/** Contactor type */
+typedef enum {
+    CONT_PLUS,      /*!< Contactor is placed in HV plus path */
+    CONT_MINUS,     /*!< Contactor is placed in HV minus path */
+    CONT_PRECHARGE, /*!< Contactor is used as precharge contactor, installed as a plus contactor */
+    CONT_UNDEFINED, /*!< Undefined contactor */
+} CONT_TYPE_e;
+
+/**
+ * Some contactors are designed and optimized to open current that is flowing
+ * in one direction to provide maximum current breaking capability. This
+ * direction is then dependent on how the contactors are installed withing the
+ * battery system. If bidirectional contactors are used, the main power
+ * terminals can be connected in either direction and the current breaking
+ * capability is the same for both directions.
+ */
+typedef enum {
+    CONT_CHARGING_DIRECTION,    /*!< Contactor is preferred opened in charge current direction */
+    CONT_DISCHARGING_DIRECTION, /*!< Contactor is preferred opened in discharge current direction */
+    CONT_BIDIRECTIONAL,         /*!< Contactor has no preferred way of being opened depending on the current flow */
+} CONT_CURRENT_BREAKING_DIRECTION_e;
+
 /** Status struct for a registry of all contactors */
 typedef struct {
     CONT_ELECTRICAL_STATE_TYPE_e currentSet;    /*!< current setpoint for the contactor */
     CONT_ELECTRICAL_STATE_TYPE_e feedback;      /*!< feedback from the contactor */
     const CONT_FEEDBACK_TYPE_e feedbackPinType; /*!< type of feedback that the contactor uses */
+    const BS_STRING_ID_e stringIndex;           /*!< index in which string the contactor is placed */
+    const CONT_TYPE_e type;                     /*!< type of contactor */
     const SPS_CHANNEL_INDEX spsChannel;         /*!< channel index of the SPS to which this contactor is connected */
-    const CONT_NAMES_e name;                    /*!< name of the contactor */
+    const CONT_CURRENT_BREAKING_DIRECTION_e breakingDirection; /*!< preferred contactor opening direction */
 } CONT_CONTACTOR_STATE_s;
-
-/** central state registry of all contactors of the system */
-extern CONT_CONTACTOR_STATE_s cont_contactorStates[BS_NR_OF_CONTACTORS];
 
 /** index number of the contactor array; not to be confused with #SPS_CHANNEL_INDEX */
 typedef uint8_t CONT_CONTACTOR_INDEX;
+
+/** central state registry of all contactors of the system */
+extern CONT_CONTACTOR_STATE_s cont_contactorStates[BS_NR_OF_CONTACTORS];
 
 /*========== Extern Function Prototypes =====================================*/
 

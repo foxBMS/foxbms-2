@@ -41,5 +41,26 @@
 @set AXIVION_LOCAL_BUILD=TRUE
 @set STORE_REQUESTS_CA_BUNDLE=%REQUESTS_CA_BUNDLE%
 @set REQUESTS_CA_BUNDLE=%USERPROFILE%\.bauhaus\auto.crt
+
+
+@FOR /F "tokens=* USEBACKQ" %%F IN (`git branch --show-current`) DO @(
+    @SET AXIVION_BRANCH_NAME=%%F
+)
+
+@SET projectName=foxbms-2
+@SET analysisProjectName = %projectName% + "-" + %AXIVION_BRANCH_NAME% + "-" + %USERNAME%
+@ECHO %analysisProjectName%
+
+@SET projectShadowRepo=%USERPROFILE%\.bauhaus\%projectName%
+@ECHO Shadow repo is at '%projectShadowRepo%'.
+@IF NOT EXIST %projectShadowRepo% (
+    @mkdir %projectShadowRepo%
+)
+
+@IF %ERRORLEVEL% NEQ 0 (
+    @EXIT /b %ERRORLEVEL%
+)
+@ECHO Dashboard url is: %AXIVION_DASHBOARD_URL%
+
 @call %~dp0start_analysis.bat
 @set REQUESTS_CA_BUNDLE=%STORE_REQUESTS_CA_BUNDLE%

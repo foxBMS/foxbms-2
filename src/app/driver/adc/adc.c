@@ -43,8 +43,8 @@
  * @file    adc.c
  * @author  foxBMS Team
  * @date    2019-01-07 (date of creation)
- * @updated 2022-07-28 (date of last update)
- * @version v1.4.0
+ * @updated 2022-10-27 (date of last update)
+ * @version v1.4.1
  * @ingroup DRIVERS
  * @prefix  ADC
  *
@@ -78,19 +78,19 @@ static DATA_BLOCK_ADC_VOLTAGE_s adc_adc1Voltages = {.header.uniqueId = DATA_BLOC
 
 /**
  * @brief   converts reading from ADC to a voltage in mV.
- * @param   adcValue_mV     value read from ADC
+ * @param   adcCounts       digital value read by ADC
  * @return  voltage in mV
  */
-static float ADC_ConvertVoltage(float adcValue_mV);
+static float ADC_ConvertVoltage(uint16_t adcCounts);
 
 /*========== Static Function Implementations ================================*/
 
-static float ADC_ConvertVoltage(float adcValue_mV) {
+static float ADC_ConvertVoltage(uint16_t adcCounts) {
     /* AXIVION Routine Generic-MissingParameterAssert: adcValue_mV: parameter accepts whole range */
 
     /** For details to equation see Equation 28 in Technical Reference Manual SPNU563A - March 2018 page 852 */
-    float result_mV = ((ADC_CONV_FACTOR_12BIT * (adcValue_mV - ADC_VREFLOW_mV)) / (ADC_VREFHIGH_mV - ADC_VREFLOW_mV)) -
-                      0.5f;
+    float result_mV = (((adcCounts + ADC_CONV_OFFSET) * (ADC_VREFHIGH_mV - ADC_VREFLOW_mV)) / ADC_CONV_FACTOR_12BIT) +
+                      ADC_VREFLOW_mV;
 
     return result_mV;
 }
@@ -120,8 +120,7 @@ extern void ADC_Control(void) {
         case ADC_CONVERSION_FINISHED:
             adcGetData(adcREG1, adcGROUP1, &adc_adc1RawVoltages[0]);
             for (uint8_t i = 0u; i < MCU_ADC1_MAX_NR_CHANNELS; i++) {
-                adc_adc1Voltages.adc1ConvertedVoltages_mV[i] =
-                    ADC_ConvertVoltage((float)(adc_adc1RawVoltages[i].value));
+                adc_adc1Voltages.adc1ConvertedVoltages_mV[i] = ADC_ConvertVoltage(adc_adc1RawVoltages[i].value);
             }
             DATA_WRITE_DATA(&adc_adc1Voltages);
             adc_conversionState = ADC_START_CONVERSION;

@@ -43,8 +43,8 @@
  * @file    test_can_helper.c
  * @author  foxBMS Team
  * @date    2021-04-22 (date of creation)
- * @updated 2022-07-28 (date of last update)
- * @version v1.4.0
+ * @updated 2022-10-27 (date of last update)
+ * @version v1.4.1
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -64,7 +64,7 @@
 
 #include "database_cfg.h"
 
-#include "can_cbs.h"
+#include "can_cbs_tx.h"
 #include "can_helper.h"
 #include "test_assert_helper.h"
 

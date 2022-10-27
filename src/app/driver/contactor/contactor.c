@@ -43,8 +43,8 @@
  * @file    contactor.c
  * @author  foxBMS Team
  * @date    2020-02-11 (date of creation)
- * @updated 2022-07-28 (date of last update)
- * @version v1.4.0
+ * @updated 2022-10-27 (date of last update)
+ * @version v1.4.1
  * @ingroup DRIVERS
  * @prefix  CONT
  *
@@ -55,6 +55,7 @@
 /*========== Includes =======================================================*/
 #include "contactor.h"
 
+#include "diag.h"
 #include "mcu.h"
 #include "sps.h"
 
@@ -66,95 +67,48 @@
 
 /*========== Static Function Prototypes =====================================*/
 /**
- * @brief   Resolves the contactor index from a contactor name
- * @details Searches in the contactor index by iteration from front to back for
- *          the contactor name and returns the first hit.
- * @param[in]   name    Name of the contactor
- * @returns     index number of the entry in the contactor array
+ * @brief   Reads the feedback of all contactors
+ * @details Gathers the feedback of all contactors from the configured feedback
+ *          source (#CONT_FEEDBACK_TYPE_e). If #CONT_HAS_NO_FEEDBACK is
+ *          configured,it is assumed that the contactor has reached the
+ *          requested state.
  */
-static CONT_CONTACTOR_INDEX CONT_ResolveContactorName(const CONT_NAMES_e name);
-
-/**
- * @brief   Gets the contactor name from a contactor index
- * @param[in]   index   index number of the contactor
- * @returns     Returns the name of the contactor
- */
-static CONT_NAMES_e CONT_GetContactorName(const CONT_CONTACTOR_INDEX index);
-
-/**
- * @brief   Returns the sps channel index from a contactor index
- * @details Currently this implementation maps simply in ascending order
- */
-static SPS_CHANNEL_INDEX CONT_GetSpsChannelIndexFromContactor(const CONT_CONTACTOR_INDEX contactor);
-
-/**
- * @brief   Sets SPS channels according to contactors
- * @details Currently this implementation assumes simple ascending order.
- * @param[in]   contactor   index of the contactor that should be set
- */
-static void CONT_SetSpsChannelFromContactor(const CONT_CONTACTOR_INDEX contactor);
+static void CONT_GetFeedbackOfAllContactors(void);
 
 /** conducts an initialization test of the contactor registry and asserts at failure */
 static void CONT_InitializationCheckOfContactorRegistry(void);
 
 /*========== Static Function Implementations ================================*/
-static CONT_CONTACTOR_INDEX CONT_ResolveContactorName(const CONT_NAMES_e name) {
-    CONT_CONTACTOR_INDEX contactor = 0u;
-    bool hit                       = false;
-    do {
-        if (name == cont_contactorStates[contactor].name) {
-            /* contactor found, therefore abort */
-            hit = true;
+static void CONT_GetFeedbackOfAllContactors(void) {
+    /* Iterate over all contactors */
+    for (CONT_CONTACTOR_INDEX contactor = 0; contactor < BS_NR_OF_CONTACTORS; contactor++) {
+        /* Use different feedback sources depending on the individual contactor configuration */
+        if (cont_contactorStates[contactor].feedbackPinType == CONT_HAS_NO_FEEDBACK) {
+            /* no feedback: assume set value is true */
+            cont_contactorStates[contactor].feedback = cont_contactorStates[contactor].currentSet;
+        } else if (cont_contactorStates[contactor].feedbackPinType == CONT_FEEDBACK_THROUGH_CURRENT) {
+            /* feedback from current: ask SPS driver for feedback */
+            cont_contactorStates[contactor].feedback =
+                SPS_GetChannelCurrentFeedback(cont_contactorStates[contactor].spsChannel);
+        } else if (CONT_FEEDBACK_NORMALLY_OPEN == cont_contactorStates[contactor].feedbackPinType) {
+            cont_contactorStates[contactor].feedback =
+                SPS_GetChannelPexFeedback(cont_contactorStates[contactor].spsChannel, true);
         } else {
-            /* continue and increase contactor counter */
-            contactor++;
+            /* CONT_FEEDBACK_NORMALLY_CLOSED */
+            cont_contactorStates[contactor].feedback =
+                SPS_GetChannelPexFeedback(cont_contactorStates[contactor].spsChannel, false);
         }
-    } while ((contactor < BS_NR_OF_CONTACTORS) && (true != hit));
-
-    /* an unknown contactor may not exist */
-    FAS_ASSERT(hit == true);
-
-    return contactor;
-}
-
-static CONT_NAMES_e CONT_GetContactorName(const CONT_CONTACTOR_INDEX index) {
-    FAS_ASSERT(index < BS_NR_OF_CONTACTORS);
-    return cont_contactorStates[index].name;
-}
-
-static SPS_CHANNEL_INDEX CONT_GetSpsChannelIndexFromContactor(const CONT_CONTACTOR_INDEX contactor) {
-    FAS_ASSERT(contactor < BS_NR_OF_CONTACTORS);
-    return cont_contactorStates[contactor].spsChannel;
-}
-
-static void CONT_SetSpsChannelFromContactor(const CONT_CONTACTOR_INDEX contactor) {
-    FAS_ASSERT(contactor < BS_NR_OF_CONTACTORS);
-    switch (cont_contactorStates[contactor].currentSet) {
-        case CONT_SWITCH_UNDEF:
-        case CONT_SWITCH_OFF:
-            SPS_RequestContactorState(CONT_GetSpsChannelIndexFromContactor(contactor), SPS_CHANNEL_OFF);
-            break;
-        case CONT_SWITCH_ON:
-            SPS_RequestContactorState(CONT_GetSpsChannelIndexFromContactor(contactor), SPS_CHANNEL_ON);
-            break;
-        default:
-            FAS_ASSERT(FAS_TRAP);
-            break;
     }
 }
 
 static void CONT_InitializationCheckOfContactorRegistry(void) {
-    /* iterate over each contactor and compare found name with resolved name (if a name is used double this would
+    /* Iterate over each contactor and compare found name with resolved name (if a name is used double this would
      always return the first entry and we would have the second entry from iterating here) */
     for (CONT_CONTACTOR_INDEX contactor = 0u; contactor < BS_NR_OF_CONTACTORS; contactor++) {
-        const CONT_CONTACTOR_INDEX resolvedContactor = CONT_ResolveContactorName(cont_contactorStates[contactor].name);
-        FAS_ASSERT(contactor == resolvedContactor);
-        const CONT_NAMES_e contactorName = CONT_GetContactorName(contactor);
-        FAS_ASSERT(cont_contactorStates[contactor].name == contactorName);
+        /* TODO: add check that only one contactor of each type is configured for each string */
 
-        /* convention at the moment: sps channel index has to be the same as contactor index; this may change in
-           future implementations */
-        FAS_ASSERT(contactor == cont_contactorStates[contactor].spsChannel);
+        /* Check that a configured SPS channel number is not higher than the number of available SPS channels */
+        FAS_ASSERT(cont_contactorStates[contactor].spsChannel < SPS_NR_OF_AVAILABLE_SPS_CHANNELS);
 
         /* every contactor channel has to be affiliated with contactor */
         const SPS_CHANNEL_AFFILIATION_e channelAffiliation =
@@ -164,139 +118,130 @@ static void CONT_InitializationCheckOfContactorRegistry(void) {
 }
 
 /*========== Extern Function Implementations ================================*/
-extern CONT_ELECTRICAL_STATE_TYPE_e CONT_GetContactorSetValue(const CONT_NAMES_e name) {
-    CONT_CONTACTOR_INDEX contactorNumber                 = CONT_ResolveContactorName(name);
-    CONT_ELECTRICAL_STATE_TYPE_e contactorSetInformation = cont_contactorStates[contactorNumber].currentSet;
-    return contactorSetInformation;
-}
-
-extern void CONT_GetContactorFeedback(void) {
-    for (CONT_CONTACTOR_INDEX contactor = 0; contactor < BS_NR_OF_CONTACTORS; contactor++) {
-        if (CONT_HAS_NO_FEEDBACK == cont_contactorStates[contactor].feedbackPinType) {
-            /* no feedback: assume set value is true */
-            cont_contactorStates[contactor].feedback = cont_contactorStates[contactor].currentSet;
-        } else if (CONT_FEEDBACK_THROUGH_CURRENT == cont_contactorStates[contactor].feedbackPinType) {
-            /* feedback from current: ask SPS driver for feedback */
-            cont_contactorStates[contactor].feedback =
-                SPS_GetChannelCurrentFeedback(CONT_GetSpsChannelIndexFromContactor(contactor));
-        } else if (CONT_FEEDBACK_NORMALLY_OPEN == cont_contactorStates[contactor].feedbackPinType) {
-            cont_contactorStates[contactor].feedback =
-                SPS_GetChannelPexFeedback(CONT_GetSpsChannelIndexFromContactor(contactor), true);
-        } else {
-            /* CONT_FEEDBACK_NORMALLY_CLOSED */
-            cont_contactorStates[contactor].feedback =
-                SPS_GetChannelPexFeedback(CONT_GetSpsChannelIndexFromContactor(contactor), false);
+extern void CONT_CheckFeedback(void) {
+    /* Get the feedback from all contactors from the configured feedback sources */
+    CONT_GetFeedbackOfAllContactors();
+    /* Check the contactor feedback */
+    for (CONT_CONTACTOR_INDEX contactor = 0u; contactor < BS_NR_OF_CONTACTORS; contactor++) {
+        /* TODO: add check that only one contactor of each type is configured for each string */
+        DIAG_EVENT_e feedbackStatus = DIAG_EVENT_NOT_OK;
+        if (cont_contactorStates[contactor].currentSet == cont_contactorStates[contactor].feedback) {
+            /* Set feedback status to okay, if expected and actual contactor state match */
+            feedbackStatus = DIAG_EVENT_OK;
+        }
+        switch (cont_contactorStates[contactor].type) {
+            case CONT_PLUS:
+                DIAG_Handler(
+                    DIAG_ID_STRING_PLUS_CONTACTOR_FEEDBACK,
+                    feedbackStatus,
+                    DIAG_STRING,
+                    (uint8_t)cont_contactorStates[contactor].stringIndex);
+                break;
+            case CONT_MINUS:
+                DIAG_Handler(
+                    DIAG_ID_STRING_MINUS_CONTACTOR_FEEDBACK,
+                    feedbackStatus,
+                    DIAG_STRING,
+                    (uint8_t)cont_contactorStates[contactor].stringIndex);
+                break;
+            case CONT_PRECHARGE:
+                DIAG_Handler(
+                    DIAG_ID_PRECHARGE_CONTACTOR_FEEDBACK,
+                    feedbackStatus,
+                    DIAG_STRING,
+                    (uint8_t)cont_contactorStates[contactor].stringIndex);
+                break;
+            default:
+                /* Type: CONT_UNDEFINED -> trap */
+                FAS_ASSERT(FAS_TRAP);
         }
     }
 }
 
-extern STD_RETURN_TYPE_e CONT_SetContactorState(
-    const CONT_NAMES_e name,
-    CONT_ELECTRICAL_STATE_TYPE_e requestedContactorState) {
-    CONT_CONTACTOR_INDEX contactor = CONT_ResolveContactorName(name);
-    FAS_ASSERT(contactor < BS_NR_OF_CONTACTORS);
-    FAS_ASSERT(
-        (requestedContactorState == CONT_SWITCH_OFF) || (requestedContactorState == CONT_SWITCH_ON) ||
-        (requestedContactorState == CONT_SWITCH_UNDEF));
-
-    STD_RETURN_TYPE_e retVal = STD_OK;
-
-    if (requestedContactorState == CONT_SWITCH_ON) {
-        cont_contactorStates[contactor].currentSet = CONT_SWITCH_ON;
-    } else if (requestedContactorState == CONT_SWITCH_OFF) {
-        cont_contactorStates[contactor].currentSet = CONT_SWITCH_OFF;
-    } else {
-        retVal = STD_NOT_OK;
+extern STD_RETURN_TYPE_e CONT_OpenContactor(uint8_t stringNumber, CONT_TYPE_e contactor) {
+    FAS_ASSERT(stringNumber < BS_NR_OF_STRINGS);
+    FAS_ASSERT(contactor != CONT_UNDEFINED);
+    STD_RETURN_TYPE_e retval = STD_NOT_OK;
+    /* Iterate over contactor array, find the correct one and request state change via SPS module */
+    for (uint8_t contactorIndex = 0u; contactorIndex < BS_NR_OF_CONTACTORS; contactorIndex++) {
+        if (((BS_STRING_ID_e)stringNumber == cont_contactorStates[contactorIndex].stringIndex) &&
+            (contactor == cont_contactorStates[contactorIndex].type)) {
+            /* Set set state in cont_contactorStates array */
+            cont_contactorStates[contactorIndex].currentSet = CONT_SWITCH_OFF;
+            /* Request contactor state via SPS module */
+            SPS_RequestContactorState(cont_contactorStates[contactorIndex].spsChannel, SPS_CHANNEL_OFF);
+            retval = STD_OK;
+            break;
+        }
     }
-
-    CONT_SetSpsChannelFromContactor(contactor);
-
-    return retVal;
+    return retval;
 }
 
-/**
- * @brief   checks the feedback of the contactors
- *
- * @details makes a DIAG entry for each contactor when the feedback does not match the set value
- */
-extern void CONT_CheckFeedback(void) {
-    CONT_GetContactorFeedback();
-    /* TODO implement when contactor feedback is available */
-}
-
-extern STD_RETURN_TYPE_e CONT_CloseString(uint8_t stringNumber) {
+extern STD_RETURN_TYPE_e CONT_CloseContactor(uint8_t stringNumber, CONT_TYPE_e contactor) {
     FAS_ASSERT(stringNumber < BS_NR_OF_STRINGS);
-    /* String contactors in the list start at index 0
-     * so string number corresponds to contactor index
-     */
-    return CONT_SetContactorState(CONT_GetContactorName(stringNumber), CONT_SWITCH_ON);
-}
-
-extern STD_RETURN_TYPE_e CONT_OpenString(uint8_t stringNumber) {
-    FAS_ASSERT(stringNumber < BS_NR_OF_STRINGS);
-    /* String contactors in the list start at index 0
-     * so string number corresponds to contactor index
-     */
-    /* TODO: implement current check and similar when opening */
-    return CONT_SetContactorState(CONT_GetContactorName(stringNumber), CONT_SWITCH_OFF);
+    FAS_ASSERT(contactor != CONT_UNDEFINED);
+    STD_RETURN_TYPE_e retval = STD_NOT_OK;
+    /* Iterate over contactor array, find the correct one and request state change via SPS module */
+    for (uint8_t contactorIndex = 0u; contactorIndex < BS_NR_OF_CONTACTORS; contactorIndex++) {
+        if (((BS_STRING_ID_e)stringNumber == cont_contactorStates[contactorIndex].stringIndex) &&
+            (contactor == cont_contactorStates[contactorIndex].type)) {
+            /* Set set state in cont_contactorStates array */
+            cont_contactorStates[contactorIndex].currentSet = CONT_SWITCH_ON;
+            /* Request contactor state via SPS module */
+            SPS_RequestContactorState(cont_contactorStates[contactorIndex].spsChannel, SPS_CHANNEL_ON);
+            retval = STD_OK;
+            break;
+        }
+    }
+    return retval;
 }
 
 extern STD_RETURN_TYPE_e CONT_ClosePrecharge(uint8_t stringNumber) {
     FAS_ASSERT(stringNumber < BS_NR_OF_STRINGS);
-    STD_RETURN_TYPE_e retVal         = STD_NOT_OK;
-    uint8_t prechargeContactorNumber = 0u;
-    FAS_STATIC_ASSERT((BS_NR_OF_STRINGS <= (uint8_t)UINT8_MAX), "This code assumes BS_NR_OF_STRINGS fits into uint8_t");
-
-    /* Precharge contactors in the list stay after string contactors
-     * so it has index (number of contactors)-1
-     */
+    STD_RETURN_TYPE_e retVal = STD_NOT_OK;
+    /* Check if passed string has configured a precharge contactor */
     if (bs_stringsWithPrecharge[stringNumber] == BS_STRING_WITH_PRECHARGE) {
-        /* Find contactor number corresponding to precharge of the requested string */
-        for (uint8_t stringPrechargeNumber = 0u; stringPrechargeNumber < BS_NR_OF_STRINGS; stringPrechargeNumber++) {
-            if (bs_stringsWithPrecharge[stringPrechargeNumber] == BS_STRING_WITH_PRECHARGE) {
-                if (stringPrechargeNumber == stringNumber) {
-                    break;
-                }
-                prechargeContactorNumber++;
-            }
-        }
-        if ((BS_NR_OF_STRINGS + prechargeContactorNumber) < BS_NR_OF_CONTACTORS) {
-            retVal = CONT_SetContactorState(
-                CONT_GetContactorName(BS_NR_OF_STRINGS + prechargeContactorNumber), CONT_SWITCH_ON);
-        }
+        retVal = CONT_CloseContactor(stringNumber, CONT_PRECHARGE);
     }
     return retVal;
 }
 
 extern STD_RETURN_TYPE_e CONT_OpenPrecharge(uint8_t stringNumber) {
     FAS_ASSERT(stringNumber < BS_NR_OF_STRINGS);
-    STD_RETURN_TYPE_e retVal         = STD_NOT_OK;
-    uint8_t prechargeContactorNumber = 0u;
-
-    /* Precharge contactors in the list stay after string contactors
-     * so it has index (number of contactors)-1
-     */
+    STD_RETURN_TYPE_e retVal = STD_NOT_OK;
+    /* Check if passed string has configured a precharge contactor */
     if (bs_stringsWithPrecharge[stringNumber] == BS_STRING_WITH_PRECHARGE) {
-        /* Find contactor number corresponding to precharge of the requested string */
-        for (uint8_t stringPrechargeNumber = 0u; stringPrechargeNumber < BS_NR_OF_STRINGS; stringPrechargeNumber++) {
-            if (bs_stringsWithPrecharge[stringPrechargeNumber] == BS_STRING_WITH_PRECHARGE) {
-                if (stringPrechargeNumber == stringNumber) {
-                    break;
-                }
-                prechargeContactorNumber++;
-            }
-        }
-        if ((BS_NR_OF_STRINGS + prechargeContactorNumber) < BS_NR_OF_CONTACTORS) {
-            retVal = CONT_SetContactorState(
-                CONT_GetContactorName(BS_NR_OF_STRINGS + prechargeContactorNumber), CONT_SWITCH_OFF);
-        }
+        retVal = CONT_OpenContactor(stringNumber, CONT_PRECHARGE);
     }
     return retVal;
 }
 
-extern CONT_ELECTRICAL_STATE_TYPE_e CONT_GetState(uint8_t contactorNumber) {
-    FAS_ASSERT(contactorNumber < BS_NR_OF_CONTACTORS);
-    return (cont_contactorStates[contactorNumber].feedback);
+extern void CONT_OpenAllPrechargeContactors(void) {
+    /* Iterate over all contactors and open all precharge contactors */
+    for (uint8_t contactorIndex = 0u; contactorIndex < BS_NR_OF_CONTACTORS; contactorIndex++) {
+        /* Set off a request to open all precharge contactors regardless of
+         * their current state as we want to reach a safe state */
+        if (cont_contactorStates[contactorIndex].type == CONT_PRECHARGE) {
+            /* Request opening via SPS module */
+            SPS_RequestContactorState(cont_contactorStates[contactorIndex].spsChannel, SPS_CHANNEL_OFF);
+            cont_contactorStates[contactorIndex].currentSet = CONT_SWITCH_OFF;
+        }
+    }
+}
+
+extern CONT_ELECTRICAL_STATE_TYPE_e CONT_GetContactorState(uint8_t stringNumber, CONT_TYPE_e contactorType) {
+    FAS_ASSERT(stringNumber < BS_NR_OF_STRINGS);
+    FAS_ASSERT(contactorType != CONT_UNDEFINED);
+    CONT_ELECTRICAL_STATE_TYPE_e feedback = CONT_SWITCH_UNDEFINED;
+    /* Iterate over all contactors and return the requested feedback */
+    for (uint8_t contactorIndex = 0u; contactorIndex < BS_NR_OF_CONTACTORS; contactorIndex++) {
+        if ((cont_contactorStates[contactorIndex].stringIndex == (BS_STRING_ID_e)stringNumber) &&
+            (contactorType == cont_contactorStates[contactorIndex].type)) {
+            feedback = cont_contactorStates[contactorIndex].feedback;
+            break;
+        }
+    }
+    return feedback;
 }
 
 extern void CONT_Initialize(void) {
@@ -307,8 +252,5 @@ extern void CONT_Initialize(void) {
 #ifdef UNITY_UNIT_TEST
 extern void TEST_CONT_InitializationCheckOfContactorRegistry() {
     CONT_InitializationCheckOfContactorRegistry();
-}
-extern CONT_CONTACTOR_INDEX TEST_CONT_ResolveContactorName(const CONT_NAMES_e name) {
-    return CONT_ResolveContactorName(name);
 }
 #endif /* UNITY_UNIT_TEST */

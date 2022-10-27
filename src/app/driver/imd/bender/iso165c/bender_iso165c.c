@@ -43,8 +43,8 @@
  * @file    bender_iso165c.c
  * @author  foxBMS Team
  * @date    2019-04-07 (date of creation)
- * @updated 2022-07-28 (date of last update)
- * @version v1.4.0
+ * @updated 2022-10-27 (date of last update)
+ * @version v1.4.1
  * @ingroup DRIVERS
  * @prefix  I165C
  *
@@ -60,6 +60,7 @@
 #include "database_cfg.h"
 
 #include "can.h"
+#include "can_cfg_rx-message-definitions.h"
 #include "can_helper.h"
 #include "database.h"
 #include "ftask.h"
@@ -213,8 +214,8 @@ static I165C_DISABLE_STATE_s i165c_disableState = {
     .receptionTriesMessage = 0u,
 };
 
-static CAN_BUFFERELEMENT_s i165c_canTxMessage = {0u};
-static CAN_BUFFERELEMENT_s i165c_canRxMessage = {0u};
+static CAN_BUFFER_ELEMENT_s i165c_canTxMessage = {0u};
+static CAN_BUFFER_ELEMENT_s i165c_canRxMessage = {0u};
 
 /*========== Extern Constant and Variable Definitions =======================*/
 
@@ -290,7 +291,7 @@ static IMD_FSM_STATES_e I165C_Running(DATA_BLOCK_INSULATION_MONITORING_s *pTable
  * @details Used before starting a new transmission.
  * @param[in,out] pCanMessage  pointer to CAN data to be reset
  */
-static void I165C_ResetCanData(CAN_BUFFERELEMENT_s *pCanMessage);
+static void I165C_ResetCanData(CAN_BUFFER_ELEMENT_s *pCanMessage);
 
 /**
  * @brief   Write data in data word for CAN transmission.
@@ -299,7 +300,7 @@ static void I165C_ResetCanData(CAN_BUFFERELEMENT_s *pCanMessage);
  * @param   data        data to be written in data word
  * @param[in] pCanMessage  CAN structure to be used for transmission
  */
-static void I165C_WriteDataWord(uint8_t dataWord, uint16_t data, CAN_BUFFERELEMENT_s *pCanMessage);
+static void I165C_WriteDataWord(uint8_t dataWord, uint16_t data, CAN_BUFFER_ELEMENT_s *pCanMessage);
 
 /**
  * @brief   Get data in data word from CAN transmission.
@@ -308,7 +309,7 @@ static void I165C_WriteDataWord(uint8_t dataWord, uint16_t data, CAN_BUFFERELEME
  * @param[out] pData  pointer where to put read data from data word
  * @param canMessage  CAN structure used for transmission
  */
-static void I165C_ReadDataWord(uint8_t dataWord, uint16_t *pData, CAN_BUFFERELEMENT_s canMessage);
+static void I165C_ReadDataWord(uint8_t dataWord, uint16_t *pData, CAN_BUFFER_ELEMENT_s canMessage);
 
 /**
  * @brief   Get data in data word from CAN transmission, for the specific
@@ -318,7 +319,7 @@ static void I165C_ReadDataWord(uint8_t dataWord, uint16_t *pData, CAN_BUFFERELEM
  * @param[out] pData  pointer where to put read data from data word
  * @param   canMessage  CAN structure used for transmission
  */
-static void I165C_ReadDataWordImdInfo(uint8_t dataWord, uint16_t *pData, CAN_BUFFERELEMENT_s canMessage);
+static void I165C_ReadDataWordImdInfo(uint8_t dataWord, uint16_t *pData, CAN_BUFFER_ELEMENT_s canMessage);
 
 /**
  * @brief   Get data in data byte from CAN transmission.
@@ -327,7 +328,7 @@ static void I165C_ReadDataWordImdInfo(uint8_t dataWord, uint16_t *pData, CAN_BUF
  * @param[out] pData  pointer where to put read data from data byte
  * @param   canMessage  CAN structure used for transmission
  */
-static void I165C_ReadDataByte(uint8_t dataByte, uint8_t *pData, CAN_BUFFERELEMENT_s canMessage);
+static void I165C_ReadDataByte(uint8_t dataByte, uint8_t *pData, CAN_BUFFER_ELEMENT_s canMessage);
 
 /**
  * @brief   Compose CAN message for CAN transmission.
@@ -337,7 +338,7 @@ static void I165C_ReadDataByte(uint8_t dataByte, uint8_t *pData, CAN_BUFFERELEME
  *                      further)
  * @param[out] pCanMessage  pointer to CAN structure to be used for transmission
  */
-static void I165C_WriteCmd(uint8_t id, uint8_t command, CAN_BUFFERELEMENT_s *pCanMessage);
+static void I165C_WriteCmd(uint8_t id, uint8_t command, CAN_BUFFER_ELEMENT_s *pCanMessage);
 
 /**
  * @brief   Check if iso165c acknowledged reception of sent message
@@ -348,7 +349,7 @@ static void I165C_WriteCmd(uint8_t id, uint8_t command, CAN_BUFFERELEMENT_s *pCa
  * @param[in] pCanMessage  pointer to CAN data sent by the iso165c
  * @return  true if transmission acknowledged, false otherwise
  */
-static bool I165C_CheckResponse(uint8_t command, CAN_BUFFERELEMENT_s *pCanMessage);
+static bool I165C_CheckResponse(uint8_t command, CAN_BUFFER_ELEMENT_s *pCanMessage);
 
 /**
  * @brief   Get IMD Info from iso165c
@@ -356,7 +357,7 @@ static bool I165C_CheckResponse(uint8_t command, CAN_BUFFERELEMENT_s *pCanMessag
  * @param[in] pCanMessage  pointer to CAN data sent by the iso165c
  * @return  true if IMD_Info message was received, false otherwise
  */
-static bool I165C_GetImdInfo(CAN_BUFFERELEMENT_s *pCanMessage);
+static bool I165C_GetImdInfo(CAN_BUFFER_ELEMENT_s *pCanMessage);
 
 /**
  * @brief   Check if iso165c was initialized and is running
@@ -367,7 +368,7 @@ static bool I165C_GetImdInfo(CAN_BUFFERELEMENT_s *pCanMessage);
  * @param[in] canMessage  IMD_Info to be checked, sent by the iso165c
  * @return  true if IMD_Info was received, false otherwise
  */
-static bool I165C_IsSelfTestFinished(CAN_BUFFERELEMENT_s canMessage);
+static bool I165C_IsSelfTestFinished(CAN_BUFFER_ELEMENT_s canMessage);
 
 /**
  * @brief   Check if iso165c has already been performed previously
@@ -376,7 +377,7 @@ static bool I165C_IsSelfTestFinished(CAN_BUFFERELEMENT_s canMessage);
  * @param[in] canMessage  IMD_Info to be checked, sent by the iso165c
  * @return  true if self-test has already been executed, false otherwise
  */
-static bool I165C_HasSelfTestBeenExecuted(CAN_BUFFERELEMENT_s canMessage);
+static bool I165C_HasSelfTestBeenExecuted(CAN_BUFFER_ELEMENT_s canMessage);
 
 /**
  * @brief   Set state of HV relay
@@ -398,7 +399,7 @@ static void I165C_RequestRelayState(uint8_t relay);
  * @param[in] relayState  relay opened or closed
  * @return  true if state matches, otherwise false
  */
-static bool I165C_CheckRelayState(CAN_BUFFERELEMENT_s canMessage, uint8_t relay, uint8_t relayState);
+static bool I165C_CheckRelayState(CAN_BUFFER_ELEMENT_s canMessage, uint8_t relay, uint8_t relayState);
 
 /**
  * @brief   Set measurement mode
@@ -412,7 +413,7 @@ static void I165C_SetMeasurementMode(uint8_t mode);
  * @param[in] mode IMD measurement mode (activated or deactivated)
  * @return true, if measurement mode matches, otherwise false
  */
-static bool I165C_CheckMeasurementMode(CAN_BUFFERELEMENT_s canMessage, uint8_t mode);
+static bool I165C_CheckMeasurementMode(CAN_BUFFER_ELEMENT_s canMessage, uint8_t mode);
 
 /**
  * @brief   Set average factor of the insulation resistance averaging algorithm
@@ -427,7 +428,7 @@ static void I165C_SetAveragingFactor(uint8_t averagingFactor);
  * @param[in] pCanMessage pointer to CAN data sent by the iso165c
  * @return  true if Acknowledge has been received, otherwise false
  */
-static bool I165C_CheckAcknowledgeArrived(uint8_t command, uint8_t *pTries, CAN_BUFFERELEMENT_s *pCanMessage);
+static bool I165C_CheckAcknowledgeArrived(uint8_t command, uint8_t *pTries, CAN_BUFFER_ELEMENT_s *pCanMessage);
 
 /*========== Static Function Implementations ================================*/
 static void I165C_SetInitializationState(
@@ -498,14 +499,14 @@ static void I165C_SetDisableState(
     }
 }
 
-static void I165C_ResetCanData(CAN_BUFFERELEMENT_s *pCanMessage) {
+static void I165C_ResetCanData(CAN_BUFFER_ELEMENT_s *pCanMessage) {
     FAS_ASSERT(pCanMessage != NULL_PTR);
-    for (uint8_t i = 0u; i < CAN_DLC; i++) {
+    for (uint8_t i = 0u; i < CAN_DEFAULT_DLC; i++) {
         pCanMessage->data[i] = 0u;
     }
 }
 
-static void I165C_WriteDataWord(uint8_t dataWord, uint16_t data, CAN_BUFFERELEMENT_s *pCanMessage) {
+static void I165C_WriteDataWord(uint8_t dataWord, uint16_t data, CAN_BUFFER_ELEMENT_s *pCanMessage) {
     FAS_ASSERT(pCanMessage != NULL_PTR);
     /* See data sheet section 6.1 page 15 */
     if (dataWord == I165C_DW1) {
@@ -518,7 +519,7 @@ static void I165C_WriteDataWord(uint8_t dataWord, uint16_t data, CAN_BUFFERELEME
     }
 }
 
-static void I165C_ReadDataWord(uint8_t dataWord, uint16_t *pData, CAN_BUFFERELEMENT_s canMessage) {
+static void I165C_ReadDataWord(uint8_t dataWord, uint16_t *pData, CAN_BUFFER_ELEMENT_s canMessage) {
     FAS_ASSERT(pData != NULL_PTR);
     /* See data sheet section 6.1 page 15 */
     if (dataWord == I165C_DW1) {
@@ -535,7 +536,7 @@ static void I165C_ReadDataWord(uint8_t dataWord, uint16_t *pData, CAN_BUFFERELEM
     }
 }
 
-static void I165C_ReadDataWordImdInfo(uint8_t dataWord, uint16_t *pData, CAN_BUFFERELEMENT_s canMessage) {
+static void I165C_ReadDataWordImdInfo(uint8_t dataWord, uint16_t *pData, CAN_BUFFER_ELEMENT_s canMessage) {
     FAS_ASSERT(pData != NULL_PTR);
     /* See data sheet section 6.1 page 15 */
     if (dataWord == I165C_DW1) {
@@ -552,7 +553,7 @@ static void I165C_ReadDataWordImdInfo(uint8_t dataWord, uint16_t *pData, CAN_BUF
     }
 }
 
-static void I165C_ReadDataByte(uint8_t dataByte, uint8_t *pData, CAN_BUFFERELEMENT_s canMessage) {
+static void I165C_ReadDataByte(uint8_t dataByte, uint8_t *pData, CAN_BUFFER_ELEMENT_s canMessage) {
     FAS_ASSERT(pData != NULL_PTR);
     /* See data sheet section 6.1 page 15 */
     switch (dataByte) {
@@ -574,7 +575,7 @@ static void I165C_ReadDataByte(uint8_t dataByte, uint8_t *pData, CAN_BUFFERELEME
     }
 }
 
-static void I165C_WriteCmd(uint8_t id, uint8_t command, CAN_BUFFERELEMENT_s *pCanMessage) {
+static void I165C_WriteCmd(uint8_t id, uint8_t command, CAN_BUFFER_ELEMENT_s *pCanMessage) {
     FAS_ASSERT(pCanMessage != NULL_PTR);
     /* CAN message is a request, set ID accordingly */
     pCanMessage->id = id;
@@ -582,7 +583,7 @@ static void I165C_WriteCmd(uint8_t id, uint8_t command, CAN_BUFFERELEMENT_s *pCa
     pCanMessage->data[CAN_BYTE_0_POSITION] = command;
 }
 
-static bool I165C_CheckResponse(uint8_t command, CAN_BUFFERELEMENT_s *pCanMessage) {
+static bool I165C_CheckResponse(uint8_t command, CAN_BUFFER_ELEMENT_s *pCanMessage) {
     FAS_ASSERT(pCanMessage != NULL_PTR);
     bool messageReceived   = false;
     uint8_t numberItems    = 0u;
@@ -594,7 +595,7 @@ static bool I165C_CheckResponse(uint8_t command, CAN_BUFFERELEMENT_s *pCanMessag
         if (numberItems > 0u) {
             if (OS_ReceiveFromQueue(ftsk_imdCanDataQueue, (void *)pCanMessage, 0u) == OS_SUCCESS) {
                 /* data queue was no empty */
-                if ((command == pCanMessage->data[CAN_BYTE_0_POSITION]) && (pCanMessage->id == CAN_ID_IMD_RESPONSE)) {
+                if ((command == pCanMessage->data[CAN_BYTE_0_POSITION]) && (pCanMessage->id == CANRX_IMD_RESPONSE_ID)) {
                     messageReceived = true;
                     break;
                 }
@@ -606,7 +607,7 @@ static bool I165C_CheckResponse(uint8_t command, CAN_BUFFERELEMENT_s *pCanMessag
     return messageReceived;
 }
 
-static bool I165C_GetImdInfo(CAN_BUFFERELEMENT_s *pCanMessage) {
+static bool I165C_GetImdInfo(CAN_BUFFER_ELEMENT_s *pCanMessage) {
     FAS_ASSERT(pCanMessage != NULL_PTR);
     bool imdInfoReceived   = false;
     uint8_t numberItems    = 0u;
@@ -630,7 +631,7 @@ static bool I165C_GetImdInfo(CAN_BUFFERELEMENT_s *pCanMessage) {
     return imdInfoReceived;
 }
 
-static bool I165C_IsSelfTestFinished(CAN_BUFFERELEMENT_s canMessage) {
+static bool I165C_IsSelfTestFinished(CAN_BUFFER_ELEMENT_s canMessage) {
     bool initialized = true;
     uint16_t data    = 0u;
 
@@ -669,7 +670,7 @@ static bool I165C_IsSelfTestFinished(CAN_BUFFERELEMENT_s canMessage) {
     return initialized;
 }
 
-static bool I165C_HasSelfTestBeenExecuted(CAN_BUFFERELEMENT_s canMessage) {
+static bool I165C_HasSelfTestBeenExecuted(CAN_BUFFER_ELEMENT_s canMessage) {
     bool anySelfTestExecuted = false;
     uint16_t data            = 0u;
 
@@ -715,7 +716,7 @@ static void I165C_RequestRelayState(uint8_t relay) {
     CAN_DataSend(I165C_CAN_NODE, i165c_canTxMessage.id, i165c_canTxMessage.data);
 }
 
-static bool I165C_CheckRelayState(CAN_BUFFERELEMENT_s canMessage, uint8_t relay, uint8_t relayState) {
+static bool I165C_CheckRelayState(CAN_BUFFER_ELEMENT_s canMessage, uint8_t relay, uint8_t relayState) {
     FAS_ASSERT((relay == I165C_D_VIFC_HV_RELAIS_NEGATIVE) || (relay == I165C_D_VIFC_HV_RELAIS_POSITIVE));
     FAS_ASSERT((relayState == I165C_RELAY_STATE_OPEN) || (relayState == I165C_RELAY_STATE_CLOSED));
     bool checkSuccess = true;
@@ -748,7 +749,7 @@ static void I165C_SetMeasurementMode(uint8_t mode) {
     CAN_DataSend(I165C_CAN_NODE, i165c_canTxMessage.id, i165c_canTxMessage.data);
 }
 
-static bool I165C_CheckMeasurementMode(CAN_BUFFERELEMENT_s canMessage, uint8_t mode) {
+static bool I165C_CheckMeasurementMode(CAN_BUFFER_ELEMENT_s canMessage, uint8_t mode) {
     FAS_ASSERT((mode == I165C_ENABLE_MEASUREMENT) || (mode == I165C_DISABLE_MEASUREMENT));
     bool measurementModeMatches = false;
     uint16_t dVIFCStatus        = 0u;
@@ -780,7 +781,7 @@ static void I165C_SetAveragingFactor(uint8_t averagingFactor) {
     CAN_DataSend(I165C_CAN_NODE, i165c_canTxMessage.id, i165c_canTxMessage.data);
 }
 
-static bool I165C_CheckAcknowledgeArrived(uint8_t command, uint8_t *pTries, CAN_BUFFERELEMENT_s *pCanMessage) {
+static bool I165C_CheckAcknowledgeArrived(uint8_t command, uint8_t *pTries, CAN_BUFFER_ELEMENT_s *pCanMessage) {
     FAS_ASSERT(pTries != NULL_PTR);
     FAS_ASSERT(pCanMessage != NULL_PTR);
     /* AXIVION Routine Generic-MissingParameterAssert: command: parameter accepts whole range */
@@ -1486,34 +1487,34 @@ extern IMD_FSM_STATES_e IMD_ProcessShutdownState(void) {
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
 #ifdef UNITY_UNIT_TEST
-extern void TEST_I165C_ResetCanData(CAN_BUFFERELEMENT_s *canMessage) {
+extern void TEST_I165C_ResetCanData(CAN_BUFFER_ELEMENT_s *canMessage) {
     I165C_ResetCanData(canMessage);
 }
-extern void TEST_I165C_WriteDataWord(uint8_t dataWord, uint16_t data, CAN_BUFFERELEMENT_s *canMessage) {
+extern void TEST_I165C_WriteDataWord(uint8_t dataWord, uint16_t data, CAN_BUFFER_ELEMENT_s *canMessage) {
     I165C_WriteDataWord(dataWord, data, canMessage);
 }
-extern void TEST_I165C_ReadDataWord(uint8_t dataWord, uint16_t *data, CAN_BUFFERELEMENT_s canMessage) {
+extern void TEST_I165C_ReadDataWord(uint8_t dataWord, uint16_t *data, CAN_BUFFER_ELEMENT_s canMessage) {
     I165C_ReadDataWord(dataWord, data, canMessage);
 }
-extern void TEST_I165C_ReadDataWordImdInfo(uint8_t dataWord, uint16_t *data, CAN_BUFFERELEMENT_s canMessage) {
+extern void TEST_I165C_ReadDataWordImdInfo(uint8_t dataWord, uint16_t *data, CAN_BUFFER_ELEMENT_s canMessage) {
     I165C_ReadDataWordImdInfo(dataWord, data, canMessage);
 }
-extern void TEST_I165C_ReadDataByte(uint8_t dataByte, uint8_t *data, CAN_BUFFERELEMENT_s canMessage) {
+extern void TEST_I165C_ReadDataByte(uint8_t dataByte, uint8_t *data, CAN_BUFFER_ELEMENT_s canMessage) {
     I165C_ReadDataByte(dataByte, data, canMessage);
 }
-extern void TEST_I165C_WriteCmd(uint8_t id, uint8_t command, CAN_BUFFERELEMENT_s *canMessage) {
+extern void TEST_I165C_WriteCmd(uint8_t id, uint8_t command, CAN_BUFFER_ELEMENT_s *canMessage) {
     I165C_WriteCmd(id, command, canMessage);
 }
-extern bool TEST_I165C_CheckResponse(uint8_t command, CAN_BUFFERELEMENT_s *canMessage) {
+extern bool TEST_I165C_CheckResponse(uint8_t command, CAN_BUFFER_ELEMENT_s *canMessage) {
     return I165C_CheckResponse(command, canMessage);
 }
-extern bool TEST_I165C_GetImdInfo(CAN_BUFFERELEMENT_s *canMessage) {
+extern bool TEST_I165C_GetImdInfo(CAN_BUFFER_ELEMENT_s *canMessage) {
     return I165C_GetImdInfo(canMessage);
 }
-extern bool TEST_I165C_IsSelfTestFinished(CAN_BUFFERELEMENT_s canMessage) {
+extern bool TEST_I165C_IsSelfTestFinished(CAN_BUFFER_ELEMENT_s canMessage) {
     return I165C_IsSelfTestFinished(canMessage);
 }
-extern bool TEST_I165C_CheckAcknowledgeArrived(uint8_t command, uint8_t *tries, CAN_BUFFERELEMENT_s *canMessage) {
+extern bool TEST_I165C_CheckAcknowledgeArrived(uint8_t command, uint8_t *tries, CAN_BUFFER_ELEMENT_s *canMessage) {
     return I165C_CheckAcknowledgeArrived(command, tries, canMessage);
 }
 

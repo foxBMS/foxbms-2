@@ -43,8 +43,8 @@
  * @file    test_bms.c
  * @author  foxBMS Team
  * @date    2020-04-01 (date of creation)
- * @updated 2022-07-28 (date of last update)
- * @version v1.4.0
+ * @updated 2022-10-27 (date of last update)
+ * @version v1.4.1
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -68,6 +68,8 @@
 #include "Mockplausibility.h"
 #include "Mocksoa.h"
 
+#include "sps_cfg.h"
+
 #include "bms.h"
 #include "foxmath.h"
 #include "test_assert_helper.h"
@@ -83,6 +85,32 @@ DIAG_DEV_s diag_device = {
 
 BS_STRING_PRECHARGE_PRESENT_e bs_stringsWithPrecharge[BS_NR_OF_STRINGS] = {
     BS_STRING_WITH_PRECHARGE,
+};
+
+CONT_CONTACTOR_STATE_s cont_contactorStates[] = {
+    /* String contactors configuration */
+    {CONT_SWITCH_OFF,
+     CONT_SWITCH_OFF,
+     CONT_FEEDBACK_NORMALLY_OPEN,
+     BS_STRING0,
+     CONT_PLUS,
+     SPS_CHANNEL_0,
+     CONT_CHARGING_DIRECTION},
+    {CONT_SWITCH_OFF,
+     CONT_SWITCH_OFF,
+     CONT_FEEDBACK_NORMALLY_OPEN,
+     BS_STRING0,
+     CONT_MINUS,
+     SPS_CHANNEL_1,
+     CONT_DISCHARGING_DIRECTION},
+    /* Precharge contactors configuration */
+    {CONT_SWITCH_OFF,
+     CONT_SWITCH_OFF,
+     CONT_HAS_NO_FEEDBACK,
+     BS_STRING0,
+     CONT_PRECHARGE,
+     SPS_CHANNEL_2,
+     CONT_BIDIRECTIONAL},
 };
 
 /*========== Setup and Teardown =============================================*/

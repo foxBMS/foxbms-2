@@ -1,0 +1,3 @@
+Pin;    Signal;     Description
+1;      UART_TX_p;  UART TX positive
+2;      UART_TX_n;  UART TX negative

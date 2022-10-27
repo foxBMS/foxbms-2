@@ -3,7 +3,9 @@
 .. |timestamp| date:: %Y-%m-%d %H:%M:%S
 
 .. |foxbms| replace:: foxBMS 2
-.. |version_foxbms| replace:: ``1.4.0``
+.. |version_foxbms| replace:: ``1.4.1``
+.. |foxbms.org| replace:: https://foxbms.org
+.. |docs.foxbms.org| replace:: https://docs.foxbms.org
 .. |github_foxbms| replace:: https://github.com/foxBMS/
 .. |foxbms_repository| replace:: https://github.com/foxBMS/foxbms-2
 .. _Fraunhofer IISB: https://www.iisb.fraunhofer.de
@@ -29,8 +31,8 @@
 .. |texas-instruments| replace:: Texas Instruments
 
 .. |code-composer-studio| replace:: Code Composer Studio
-.. _Code Composer Studio: https://www.ti.com/tool/download/CCSTUDIO/10.3.1.00003
-.. |version_ccs| replace:: ``10.3.1``
+.. _Code Composer Studio: https://www.ti.com/tool/download/CCSTUDIO/12.0.0
+.. |version_ccs| replace:: ``12.0.0``
 
 .. |halcogen| replace:: HALCoGen
 .. _HALCoGen: https://www.ti.com/tool/HALCOGEN
@@ -41,8 +43,8 @@
 .. |version_llvm| replace:: ``13.0.0``
 .. |path_llvm| replace:: ``C:\Program Files\LLVM\13.0.0``
 
-.. |version_pcan_se| replace:: ``Version 6.4.1``
-.. |version_sym_file| replace:: ``Version 5.0``
+.. |version_pcan_se| replace:: ``Version 6.5.2``
+.. |version_sym_file| replace:: ``Version 6.0``
 
 .. _Ruby: https://www.ruby-lang.org/
 

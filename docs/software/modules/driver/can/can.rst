@@ -45,17 +45,19 @@ The sent message parameters are:
 
 - CAN ID of message to be sent.
 - data length code, number of bytes to send. Default 8, maximum 8.
-- repetition time, period of transmission in ms. Must be a multiple of 10.
-- repetition phase, delay for the first transmission. Avoids sending all
-  messages with same period at the same time.
+- repetition time, period of transmission in ms.
+  Must be a multiple of 10.
+- repetition phase, delay for the first transmission.
+  Avoids sending all messages with same period at the same time.
 - byte order, endianness (big or little endian) of CAN data.
 - callback function, pointer to the function that is called when the message
   has to be sent.
-- multiplexer, pointer to a number. This is used to multiplex data in CAN
-  messages. A static variable must be defined to be used as multiplexer.
+- multiplexer, pointer to a number.
+  This is used to multiplex data in CAN messages.
+  A static variable must be defined to be used as multiplexer.
 
-The data of the CAN message is divided into signals. Data for each signal
-is prepared within the callback function.
+The data of the CAN message is divided into signals.
+Data for each signal is prepared within the callback function.
 The developer must implement the signals as needed by the application.
 
 Two helper functions are defined for this task,
@@ -79,12 +81,13 @@ store the CAN message in the variable used by the low-level driver for
 the actual transmission.
 
 The function ``CAN_PeriodicTransmit()`` is called every 10ms by the 10ms task.
-It parses all the elements of ``can_txMessages[]``. If the time has been
-reached to send the messages, the corresponding callback function is called.
+It parses all the elements of ``can_txMessages[]``.
+If the time has been reached to send the messages, the corresponding callback
+function is called.
 
-The message is then sent with the function ``CAN_DataSend()``. The function
-``CAN_DataSend()`` can also be used to send a CAN message directly anywhere
-else in the code.
+The message is then sent with the function ``CAN_DataSend()``.
+The function ``CAN_DataSend()`` can also be used to send a CAN message directly
+anywhere else in the code.
 
 Messages to receive
 ^^^^^^^^^^^^^^^^^^^

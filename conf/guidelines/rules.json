@@ -22,6 +22,7 @@
     "**/*~",
     "**/__pycache__/**",
     "**/foxbms-2_axivion_report.json",
+    "**/*.asc",
     ".git/**",
     ".lock-waf_*_build",
     ".mypy_cache/**",
@@ -49,6 +50,7 @@
     "src/os/safertos/**/*.asm",
     "src/os/safertos/**/*.c",
     "src/os/safertos/**/*.h",
+    "tests/axivion/qualification-test/qualification-kit/**",
     "tests/scripts/waf-core/general/**",
     "tests/scripts/waf-core/init/**",
     "tests/scripts/waf-core/install/**",
@@ -125,19 +127,15 @@
   "posix_3.206": {
     "name": "GENERAL:004",
     "exclude": [
-      "**/*.dbc",
       "**/*.patch",
-      "**/*.sym",
       "tools/utils/git-hooks/pre-commit"
     ]
   },
   "trailing_whitespace": {
     "name": "GENERAL:005",
     "exclude": [
-      "**/*.dbc",
       "**/*.dil",
       "**/*.patch",
-      "**/*.sym",
       "tools/gui/data/pcan_view_v2.0.trc"
     ]
   },
@@ -374,6 +372,7 @@
             "docs/developer-manual/style-guide/examples/c-028*.c",
             "docs/developer-manual/style-guide/state-machine-example/state-machine.c",
             "docs/software/build-process/misc/libproject-example.c",
+            "docs/software/modules/driver/can/can_how-to_tx.c",
             "docs/software/modules/engine/database/database_how-to.c",
             "docs/software/modules/task/ftask/ftask_how-to.c",
             "src/**",

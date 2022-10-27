@@ -43,13 +43,14 @@
  * @file    diag_cbs_contactor.c
  * @author  foxBMS Team
  * @date    2021-02-17 (date of creation)
- * @updated 2022-07-28 (date of last update)
- * @version v1.4.0
+ * @updated 2022-10-27 (date of last update)
+ * @version v1.4.1
  * @ingroup ENGINE
  * @prefix  DIAG
  *
  * @brief   Diagnosis driver implementation
- * @details TODO
+ * @details This file implements the diagnosis callback functions for all
+ *          contactor related events.
  */
 
 /*========== Includes =======================================================*/
@@ -76,13 +77,23 @@ extern void DIAG_StringContactorFeedback(
     FAS_ASSERT(kpkDiagShim != NULL_PTR);
     FAS_ASSERT(stringNumber < BS_NR_OF_STRINGS);
 
-    if (diagId == DIAG_ID_STRING_CONTACTOR_FEEDBACK) {
+    if (diagId == DIAG_ID_STRING_MINUS_CONTACTOR_FEEDBACK) {
         if (event == DIAG_EVENT_RESET) {
-            kpkDiagShim->pTableError->stringContactor[stringNumber] = 0u;
+            kpkDiagShim->pTableError->stringMinusContactor[stringNumber] = 0u;
         }
         if (event == DIAG_EVENT_NOT_OK) {
-            kpkDiagShim->pTableError->stringContactor[stringNumber] = 1u;
+            kpkDiagShim->pTableError->stringMinusContactor[stringNumber] = 1u;
         }
+    } else if (diagId == DIAG_ID_STRING_PLUS_CONTACTOR_FEEDBACK) {
+        if (event == DIAG_EVENT_RESET) {
+            kpkDiagShim->pTableError->stringPlusContactor[stringNumber] = 0u;
+        }
+        if (event == DIAG_EVENT_NOT_OK) {
+            kpkDiagShim->pTableError->stringPlusContactor[stringNumber] = 1u;
+        }
+    } else {
+        /* This function should not be called with other diagnosis IDs */
+        FAS_ASSERT(FAS_TRAP);
     }
 }
 
@@ -103,6 +114,9 @@ extern void DIAG_PrechargeContactorFeedback(
         if (event == DIAG_EVENT_NOT_OK) {
             kpkDiagShim->pTableError->prechargeContactor[stringNumber] = 1u;
         }
+    } else {
+        /* This function should not be called with other diagnosis IDs */
+        FAS_ASSERT(FAS_TRAP);
     }
 }
 

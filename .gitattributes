@@ -12,3 +12,6 @@ tools/waf linguist-vendored
 
 # files tracked with Git LFS
 *.zip filter=lfs diff=lfs merge=lfs -text
+
+tests/axivion/qualification-test/qualification-kit/**/*.json -diff -merge -text
+tests/axivion/qualification-test/qualification-kit/**/*.py -diff -merge -text

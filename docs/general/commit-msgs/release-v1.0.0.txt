@@ -1,0 +1,1 @@
+Initial commit of foxBMS 2 (v1.0.0)

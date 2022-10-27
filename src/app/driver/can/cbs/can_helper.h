@@ -43,8 +43,8 @@
  * @file    can_helper.h
  * @author  foxBMS Team
  * @date    2021-04-22 (date of creation)
- * @updated 2022-07-28 (date of last update)
- * @version v1.4.0
+ * @updated 2022-10-27 (date of last update)
+ * @version v1.4.1
  * @ingroup DRIVERS
  * @prefix  CAN
  *
@@ -105,7 +105,7 @@ extern void CAN_TxPrepareSignalData(float *pSignal, CAN_SIGNAL_TYPE_s signalProp
  * This function takes the raw signal data and
  * applies offset and factor to convert
  * the raw value.
- * @param[out]  pSignalConverted   coverted signal data
+ * @param[out]  pSignalConverted   converted signal data
  * @param[in]   signalRaw          raw signal data
  * @param[in]   signalProperties   signal properties (factor, offset, min, max)
  */

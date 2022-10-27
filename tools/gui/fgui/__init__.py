@@ -41,7 +41,7 @@
 """sets the version package etc."""
 import os
 
-__version__ = "1.4.0"
+__version__ = "1.4.1"
 __appname__ = "foxBMS 2"
 __author__ = "The foxBMS Team"
 __copyright__ = "(c) 2010 - 2022 foxBMS"

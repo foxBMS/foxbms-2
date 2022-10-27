@@ -43,8 +43,8 @@
  * @file    battery_cell_cfg.h
  * @author  foxBMS Team
  * @date    2017-03-14 (date of creation)
- * @updated 2022-07-28 (date of last update)
- * @version v1.4.0
+ * @updated 2022-10-27 (date of last update)
+ * @version v1.4.1
  * @ingroup BATTERY_CELL_CONFIGURATION
  * @prefix  BC
  *

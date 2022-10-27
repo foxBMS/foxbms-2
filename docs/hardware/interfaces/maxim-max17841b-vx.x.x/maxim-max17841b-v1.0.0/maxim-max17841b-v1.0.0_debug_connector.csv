@@ -1,0 +1,13 @@
+Pin;    Signal;     Description
+1;     ``GND``;\-
+2;     ``GND``;\-
+3;     ``MCU_SPI4.CS0``;UART channel 2
+4;      ``MCU_SPI1.CS1``;UART channel 1
+5;     ``MCU_SPI4.SIMO``;UART channel 2
+6;      ``MCU_SPI1.SIMO0``;UART channel 1
+7;     ``MCU_SPI4.SOMI``;UART channel 2
+8;      ``MCU_SPI1.SOMI0``;UART channel 1
+9;     ``MCU_SPI4.CLK``;UART channel 2
+10;      ``MCU_SPI1.CLK``;UART channel 1
+11;     ``IF_INT2``;UART channel 2 [max17841b] interrupt
+12;     ``IF_INT0``;UART channel 1 [max17841b] interrupt

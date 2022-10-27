@@ -32,24 +32,16 @@ SG_ foxBMS_inletTemperature : 39|8@0- (1,0) [-128|127] "degC" Vector__XXX
 SG_ foxBMS_outletTemperature : 47|8@0- (1,0) [-128|127] "degC" Vector__XXX
 
 
-BO_ 640 foxBMS_StringValues: 8 Vector__XXX
-SG_ foxBMS_StringValues_Mux M : 7|3@0+ (1,0) [0|0] "" Vector__XXX
-SG_ foxBMS_String0_current m0 : 19|18@0- (0.01,0) [-1310.72|1310.71] "A" Vector__XXX
-SG_ foxBMS_String0_voltage m0 : 4|17@0+ (0.01,0) [0|1310.71] "V" Vector__XXX
-SG_ foxBMS_String0_power m0 : 33|18@0- (0.01,0) [-1310.72|1310.71] "kW" Vector__XXX
-SG_ foxBMS_String1_current m1 : 19|18@0- (0.01,0) [-1310.72|1310.71] "A" Vector__XXX
-SG_ foxBMS_String1_voltage m1 : 4|17@0+ (0.01,0) [0|1310.71] "V" Vector__XXX
-SG_ foxBMS_String1_power m1 : 33|18@0- (0.01,0) [-1310.72|1310.71] "kW" Vector__XXX
-SG_ foxBMS_String2_current m2 : 19|18@0- (0.01,0) [-1310.72|1310.71] "A" Vector__XXX
-SG_ foxBMS_String2_voltage m2 : 4|17@0+ (0.01,0) [0|1310.71] "V" Vector__XXX
-SG_ foxBMS_String2_power m2 : 33|18@0- (0.01,0) [-1310.72|1310.71] "kW" Vector__XXX
+BO_ 640 foxBMS_StringValuesP0: 8 Vector__XXX
+SG_ foxBMS_StringValuesP0_Mux M : 7|3@0+ (1,0) [0|0] "" Vector__XXX
+SG_ foxBMS_String0Current : 19|18@0- (0.01,0) [-1310.72|1310.71] "A" Vector__XXX
+SG_ foxBMS_String0Voltage : 4|17@0+ (0.01,0) [0|1310.71] "V" Vector__XXX
+SG_ foxBMS_String0Power : 33|18@0- (0.01,0) [-1310.72|1310.71] "kW" Vector__XXX
 
 
-BO_ 643 foxBMS_StringValues2: 8 Vector__XXX
-SG_ foxBMS_StringValues2_Mux M : 7|4@0+ (1,0) [0|0] "" Vector__XXX
-SG_ String0_energyCount m0 : 15|32@0- (1,0) [-2147483648|2147483647] "Wh" Vector__XXX
-SG_ String1_energyCount m1 : 15|32@0- (1,0) [-2147483648|2147483647] "Wh" Vector__XXX
-SG_ String2_energyCount m2 : 15|32@0- (1,0) [-2147483648|2147483647] "Wh" Vector__XXX
+BO_ 643 foxBMS_StringValuesP1: 8 Vector__XXX
+SG_ foxBMS_StringValuesP1_Mux M : 7|4@0+ (1,0) [0|0] "" Vector__XXX
+SG_ foxBMS_String0EnergyCount : 15|32@0- (1,0) [-2147483648|2147483647] "Wh" Vector__XXX
 
 
 BO_ 549 foxBMS_PackStateEstimation: 8 Vector__XXX
@@ -59,8 +51,8 @@ SG_ foxBMS_packEnergy : 47|24@0+ (0.01,0) [0|167772.15] "kWh" Vector__XXX
 SG_ foxBMS_packSoh : 27|12@0+ (0.025,0) [0|102.375] "%" Vector__XXX
 
 
-BO_ 576 foxBMS_CellVoltage: 8 Vector__XXX
-SG_ foxBMS_CellVoltage_Mux M : 7|8@0+ (1,0) [0|0] "" Vector__XXX
+BO_ 576 foxBMS_CellVoltages: 8 Vector__XXX
+SG_ foxBMS_CellVoltages_Mux M : 7|8@0+ (1,0) [0|0] "" Vector__XXX
 SG_ cellVoltage_000_invalidFlag m0 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_001_invalidFlag m0 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellVoltage_002_invalidFlag m0 : 14|1@0+ (1,0) [0|1] "" Vector__XXX
@@ -495,8 +487,8 @@ SG_ cellVoltage_214 m53 : 33|13@0+ (1,0) [0|8191] "mV" Vector__XXX
 SG_ cellVoltage_215 m53 : 52|13@0+ (1,0) [0|8191] "mV" Vector__XXX
 
 
-BO_ 592 foxBMS_CellTemperature: 8 Vector__XXX
-SG_ foxBMS_CellTemperature_Mux M : 7|8@0+ (1,0) [0|0] "" Vector__XXX
+BO_ 592 foxBMS_CellTemperatures: 8 Vector__XXX
+SG_ foxBMS_CellTemperatures_Mux M : 7|8@0+ (1,0) [0|0] "" Vector__XXX
 SG_ cellTemperature_000_invalidFlag m0 : 8|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellTemperature_001_invalidFlag m0 : 9|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ cellTemperature_002_invalidFlag m0 : 10|1@0+ (1,0) [0|1] "" Vector__XXX
@@ -859,19 +851,19 @@ SG_ cellTemperature_178 m29 : 55|8@0- (1,0) [-128|127] "degC" Vector__XXX
 SG_ cellTemperature_179 m29 : 63|8@0- (1,0) [-128|127] "degC" Vector__XXX
 
 
-BO_ 560 foxBMS_Command: 8 Vector__XXX
+BO_ 560 foxBMS_BmsStateRequest: 8 Vector__XXX
 SG_ foxBMS_modeRequest : 1|2@0+ (1,0) [0|3] "" Vector__XXX
 SG_ foxBMS_activateBalancing : 8|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ foxBMS_balancingThreshold : 23|8@0+ (1,0) [0|255] "mV" Vector__XXX
 SG_ foxBMS_externallyPrecharged : 3|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ foxBMS_resetFlags : 2|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ foxBMS_chargerConnected : 4|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ foxBMS_disableInsulationMon : 5|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ foxBMS_heaterOverride_ON : 6|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ foxBMS_heaterOverride_OFF : 7|1@1+ (1,0) [0|1] "" Vector__XXX
+SG_ foxBMS_resetFlags : 2|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ foxBMS_chargerConnected : 4|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ foxBMS_disableInsulationMon : 5|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ foxBMS_heaterOverride_ON : 6|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ foxBMS_heaterOverride_OFF : 7|1@0+ (1,0) [0|1] "" Vector__XXX
 
 
-BO_ 544 foxBMS_State: 8 Vector__XXX
+BO_ 544 foxBMS_BmsState: 8 Vector__XXX
 SG_ foxBMS_State : 3|4@0+ (1,0) [0|15] "" Vector__XXX
 SG_ BMS_nrOfConnectedStrings : 7|4@0+ (1,0) [0|15] "" Vector__XXX
 SG_ foxBMS_generalError : 10|1@0+ (1,0) [0|1] "" Vector__XXX
@@ -894,211 +886,88 @@ SG_ foxBMS_Error_Insulation : 23|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ foxBMS_Error_Cantiming : 24|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ foxBMS_Error_PackOvercurr_Charge : 25|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ foxBMS_Error_PackOvercur_Dischrg : 26|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ foxBMS_SysMonError : 12|1@1+ (1,0) [0|1] "" Vector__XXX
+SG_ foxBMS_SysMonError : 12|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ foxBMS_alertFlag : 27|1@0+ (1,0) [0|1] "" Vector__XXX
 
 
 BO_ 545 foxBMS_StringState: 8 Vector__XXX
 SG_ foxBMS_StringState_Mux M : 3|4@0+ (1,0) [0|0] "" Vector__XXX
-SG_ String0_stringConnected m0 : 4|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ String0_balancing_active m0 : 5|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ String0_Err_overtemp_charge m0 : 8|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ String0_Err_undertemp_charge m0 : 9|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ String0_Err_overtemp_discharge m0 : 10|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ String0_Err_undertemp_discharge m0 : 11|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ String0_Err_Overcurrent_charge m0 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ String0_Err_Overcurre_discharge m0 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ String0_Err_Overvoltage m0 : 14|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ String0_Err_Undervoltage m0 : 15|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ String0_Err_deep_discharge m0 : 7|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ String0_Err_CS_currentMeas m0 : 43|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ String0_Err_positiveContactor m0 : 32|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ String0_Err_openWire m0 : 49|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ String0_openWireNumber m0 : 63|8@0+ (1,0) [0|255] "" Vector__XXX
-SG_ String0_Err_plaus_cell_volt m0 : 52|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ String0_Err_plaus_cell_temp m0 : 51|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ String0_Err_plaus_string_volt m0 : 53|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ String0_Err_slave_hardware m0 : 34|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ String0_Err_dsyChainBase_Comm m0 : 35|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ String0_Err_dsyChainPrim_CRC m0 : 37|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ String0_Err_dsyChainRedun_Comm m0 : 36|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ String0_Err_dsyChainRedun_CRC m0 : 38|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ String0_Err_dsyPrim_voltMeasOor m0 : 39|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ String0_Err_dsyRedun_voltMeasOor m0 : 40|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ String0_Err_dsyPrim_tempMeasOor m0 : 41|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ String0_Err_dsyRedun_tempMeasOor m0 : 42|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ String0_Err_CS_coulombCountMeas m0 : 44|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ String0_Err_CS_energyCountMeas m0 : 45|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ String0_Err_plaus_volt_spread m0 : 55|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ String0_Err_plaus_temp_spread m0 : 54|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ String0_fuseBlown m0 : 6|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ String0_Warning_overvoltage_MOL m0 : 22|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ String0_Warning_undervoltage_MOL m0 : 23|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ String0_Wrng_chargeOverTemp_MOL m0 : 16|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ String0_Wrng_dischrgOverTemp_MOL m0 : 18|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ String0_Wrng_chargeUnderTemp_MOL m0 : 17|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ String0_Wrng_dischrgUnderTmp_MOL m0 : 19|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ String0_Wrng_chargeOverCur_MOL m0 : 20|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ String0_Wrng_dischargOverCur_MOL m0 : 21|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ String0_Wrng_chargeOverTemp_RSL m0 : 24|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ String0_Wrng_chargeUnderTemp_RSL m0 : 25|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ String0_Wrng_dischrgOverTemp_RSL m0 : 26|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ String0_Wrng_dischrgUnderTmp_RSL m0 : 27|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ String0_Wrng_chargeOverCur_RSL m0 : 28|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ String0_Wrng_dischargOverCur_RSL m0 : 29|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ String0_Wrng_overvoltage_RSL m0 : 30|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ String0_Wrng_undervoltage_RSL m0 : 31|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ String0_Err_negativeContactor m0 : 33|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ String0_Err_CS_voltage1Meas m0 : 46|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ String0_Err_CS_voltage2Meas m0 : 47|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ String0_Err_CS_voltage3Meas m0 : 48|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ String1_stringConnected m1 : 4|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ String1_balancing_active m1 : 5|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ String1_Err_overtemp_charge m1 : 8|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ String1_Err_undertemp_charge m1 : 9|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ String1_Err_overtemp_discharge m1 : 10|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ String1_Err_undertemp_discharge m1 : 11|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ String1_Err_Overcurrent_charge m1 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ String1_Err_Overcurre_discharge m1 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ String1_Err_Overvoltage m1 : 14|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ String1_Err_Undervoltage m1 : 15|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ String1_Err_deep_discharge m1 : 7|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ String1_Err_CS_currentMeas m1 : 43|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ String1_Err_positiveContactor m1 : 32|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ String1_Err_openWire m1 : 49|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ String1_openWireNumber m1 : 63|8@0+ (1,0) [0|255] "" Vector__XXX
-SG_ String1_Err_plaus_cell_volt m1 : 52|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ String1_Err_plaus_cell_temp m1 : 51|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ String1_Err_plaus_string_volt m1 : 53|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ String1_Err_slave_hardware m1 : 34|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ String1_Err_dsyChainPrim_Comm m1 : 35|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ String1_Err_dsyChainPrim_CRC m1 : 37|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ String1_Err_dsyChainRedun_Comm m1 : 36|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ String1_Err_dsyChainRedun_CRC m1 : 38|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ String1_Err_dsyPrim_voltMeasOor m1 : 39|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ String1_Err_dsyRedun_voltMeasOor m1 : 40|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ String1_Err_dsyPrim_tempMeasOor m1 : 41|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ String1_Err_dsyRedun_tempMeasOor m1 : 42|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ String1_Err_CS_coulombCountMeas m1 : 44|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ String1_Err_CS_energyCountMeas m1 : 45|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ String1_Err_plaus_volt_spread m1 : 55|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ String1_Err_plaus_temp_spread m1 : 54|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ String1_fuseBlown m1 : 6|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ String1_Warning_overvoltage_MOL m1 : 22|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ String1_Warning_undervoltage_MOL m1 : 23|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ String1_Wrng_chargeOverTemp_MOL m1 : 16|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ String1_Wrng_dischrgOverTemp_MOL m1 : 18|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ String1_Wrng_chargeUnderTemp_MOL m1 : 17|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ String1_Wrng_dischrgUnderTmp_MOL m1 : 19|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ String1_Wrng_chargeOverCur_MOL m1 : 20|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ String1_Wrng_dischargOverCur_MOL m1 : 21|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ String1_Wrng_chargeOverTemp_RSL m1 : 24|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ String1_Wrng_chargeUnderTemp_RSL m1 : 25|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ String1_Wrng_dischrgOverTemp_RSL m1 : 26|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ String1_Wrng_dischrgUnderTmp_RSL m1 : 27|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ String1_Wrng_chargeOverCur_RSL m1 : 28|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ String1_Wrng_dischargOverCur_RSL m1 : 29|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ String1_Wrng_overvoltage_RSL m1 : 30|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ String1_Wrng_undervoltage_RSL m1 : 31|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ String1_Err_negativeContactor m1 : 33|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ String1_Err_CS_voltage1Meas m1 : 46|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ String1_Err_CS_voltage2Meas m1 : 47|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ String1_Err_CS_voltage3Meas m1 : 48|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ String2_stringConnected m2 : 4|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ String2_balancing_active m2 : 5|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ String2_Err_overtemp_charge m2 : 8|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ String2_Err_undertemp_charge m2 : 9|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ String2_Err_overtemp_discharge m2 : 10|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ String2_Err_undertemp_discharge m2 : 11|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ String2_Err_Overcurrent_charge m2 : 12|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ String2_Err_Overcurre_discharge m2 : 13|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ String2_Err_Overvoltage m2 : 14|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ String2_Err_Undervoltage m2 : 15|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ String2_Err_deep_discharge m2 : 7|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ String2_Err_CS_currentMeas m2 : 43|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ String2_Err_positiveContactor m2 : 32|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ String2_Err_openWire m2 : 49|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ String2_openWireNumber m2 : 63|8@0+ (1,0) [0|255] "" Vector__XXX
-SG_ String2_Err_plaus_cell_volt m2 : 52|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ String2_Err_plaus_cell_temp m2 : 51|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ String2_Err_plaus_string_volt m2 : 53|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ String2_Err_slave_hardware m2 : 34|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ String2_Err_dsyChainPrim_Comm m2 : 35|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ String2_Err_dsyChainPrim_CRC m2 : 37|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ String2_Err_dsyChainRedun_Comm m2 : 36|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ String2_Err_dsyChainRedun_CRC m2 : 38|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ String2_Err_dsyPrim_voltMeasOor m2 : 39|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ String2_Err_dsyRedun_voltMeasOor m2 : 40|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ String2_Err_dsyPrim_tempMeasOor m2 : 41|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ String2_Err_dsyRedun_tempMeasOor m2 : 42|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ String2_Err_CS_coulombCountMeas m2 : 44|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ String2_Err_CS_energyCountMeas m2 : 45|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ String2_Err_plaus_volt_spread m2 : 55|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ String2_Err_plaus_temp_spread m2 : 54|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ String2_fuseBlown m2 : 6|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ String2_Warning_overvoltage_MOL m2 : 22|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ String2_Warning_undervoltage_MOL m2 : 23|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ String2_Wrng_chargeOverTemp_MOL m2 : 16|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ String2_Wrng_dischrgOverTemp_MOL m2 : 18|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ String2_Wrng_chargeUnderTemp_MOL m2 : 17|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ String2_Wrng_dischrgUnderTmp_MOL m2 : 19|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ String2_Wrng_chargeOverCur_MOL m2 : 20|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ String2_Wrng_dischargOverCur_MOL m2 : 21|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ String2_Wrng_chargeOverTemp_RSL m2 : 24|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ String2_Wrng_chargeUnderTemp_RSL m2 : 25|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ String2_Wrng_dischrgOverTemp_RSL m2 : 26|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ String2_Wrng_dischrgUnderTmp_RSL m2 : 27|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ String2_Wrng_chargeOverCur_RSL m2 : 28|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ String2_Wrng_dischargOverCur_RSL m2 : 29|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ String2_Wrng_overvoltage_RSL m2 : 30|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ String2_Wrng_undervoltage_RSL m2 : 31|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ String2_Err_negativeContactor m2 : 33|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ String2_Err_CS_voltage1Meas m2 : 46|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ String2_Err_CS_voltage2Meas m2 : 47|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ String2_Err_CS_voltage3Meas m2 : 48|1@1+ (1,0) [0|1] "" Vector__XXX
+SG_ String0_stringConnected : 4|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ String0_balancing_active : 5|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ String0_Err_overtemp_charge : 8|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ String0_Err_undertemp_charge : 9|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ String0_Err_overtemp_discharge : 10|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ String0_Err_undertemp_discharge : 11|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ String0_Err_Overcurrent_charge : 12|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ String0_Err_Overcurre_discharge : 13|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ String0_Err_Overvoltage : 14|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ String0_Err_Undervoltage : 15|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ String0_Err_deep_discharge : 7|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ String0_Err_CS_currentMeas : 43|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ String0_Err_positiveContactor : 32|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ String0_Err_openWire : 49|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ String0_openWireNumber : 63|8@0+ (1,0) [0|255] "" Vector__XXX
+SG_ String0_Err_plaus_cell_volt : 52|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ String0_Err_plaus_cell_temp : 51|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ String0_Err_plaus_string_volt : 53|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ String0_Err_slave_hardware : 34|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ String0_Err_dsyChainBase_Comm : 35|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ String0_Err_dsyChainPrim_CRC : 37|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ String0_Err_dsyChainRedun_Comm : 36|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ String0_Err_dsyChainRedun_CRC : 38|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ String0_Err_dsyPrim_voltMeasOor : 39|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ String0_Err_dsyRedun_voltMeasOor : 40|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ String0_Err_dsyPrim_tempMeasOor : 41|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ String0_Err_dsyRedun_tempMeasOor : 42|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ String0_Err_CS_coulombCountMeas : 44|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ String0_Err_CS_energyCountMeas : 45|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ String0_Err_plaus_volt_spread : 55|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ String0_Err_plaus_temp_spread : 54|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ String0_fuseBlown : 6|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ String0_Warning_overvoltage_MOL : 22|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ String0_Warning_undervoltage_MOL : 23|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ String0_Wrng_chargeOverTemp_MOL : 16|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ String0_Wrng_dischrgOverTemp_MOL : 18|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ String0_Wrng_chargeUnderTemp_MOL : 17|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ String0_Wrng_dischrgUnderTmp_MOL : 19|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ String0_Wrng_chargeOverCur_MOL : 20|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ String0_Wrng_dischargOverCur_MOL : 21|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ String0_Wrng_chargeOverTemp_RSL : 24|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ String0_Wrng_chargeUnderTemp_RSL : 25|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ String0_Wrng_dischrgOverTemp_RSL : 26|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ String0_Wrng_dischrgUnderTmp_RSL : 27|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ String0_Wrng_chargeOverCur_RSL : 28|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ String0_Wrng_dischargOverCur_RSL : 29|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ String0_Wrng_overvoltage_RSL : 30|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ String0_Wrng_undervoltage_RSL : 31|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ String0_Err_negativeContactor : 33|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ String0_Err_CS_voltage1Meas : 46|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ String0_Err_CS_voltage2Meas : 47|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ String0_Err_CS_voltage3Meas : 48|1@0+ (1,0) [0|1] "" Vector__XXX
 
 
 BO_ 641 foxBMS_StringMinMaxValues: 8 Vector__XXX
 SG_ foxBMS_StringMinMaxValues_Mux M : 3|4@0+ (1,0) [0|0] "" Vector__XXX
-SG_ String0_minimumCellVoltage m0 : 18|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ String0_maximumCellVoltage m0 : 15|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ String0_maximumCellTemperature m0 : 37|9@0- (0.5,0) [-128|127.5] "degC" Vector__XXX
-SG_ String0_minimumCellTemperature m0 : 44|9@0- (0.5,0) [-128|127.5] "degC" Vector__XXX
-SG_ String1_minimumCellVoltage m1 : 18|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ String1_maximumCellVoltage m1 : 15|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ String1_maximumCellTemperature m1 : 37|9@0- (0.5,0) [-128|127.5] "degC" Vector__XXX
-SG_ String1_minimumCellTemperature m1 : 44|9@0- (0.5,0) [-128|127.5] "degC" Vector__XXX
-SG_ String2_minimumCellVoltage m2 : 18|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ String2_maximumCellVoltage m2 : 15|13@0+ (1,0) [0|8191] "mV" Vector__XXX
-SG_ String2_maximumCellTemperature m2 : 37|9@0- (0.5,0) [-128|127.5] "degC" Vector__XXX
-SG_ String2_minimumCellTemperature m2 : 44|9@0- (0.5,0) [-128|127.5] "degC" Vector__XXX
+SG_ String0_minimumCellVoltage : 18|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ String0_maximumCellVoltage : 15|13@0+ (1,0) [0|8191] "mV" Vector__XXX
+SG_ String0_maximumCellTemperature : 37|9@0- (0.5,0) [-128|127.5] "degC" Vector__XXX
+SG_ String0_minimumCellTemperature : 44|9@0- (0.5,0) [-128|127.5] "degC" Vector__XXX
 
 
 BO_ 642 foxBMS_StringStateEstimation: 8 Vector__XXX
 SG_ foxBMS_StringStateEstimation_Mux M : 7|4@0+ (1,0) [0|0] "" Vector__XXX
-SG_ String0_minimumSOC m0 : 3|9@0+ (0.25,0) [0|127.75] "%" Vector__XXX
-SG_ String0_averageSOC m0 : 10|9@0+ (0.25,0) [0|127.5] "%" Vector__XXX
-SG_ String0_maximumSOC m0 : 17|9@0+ (0.25,0) [0|63.75] "%" Vector__XXX
-SG_ String0_SOE m0 : 24|9@0+ (0.25,0) [0|127.5] "%" Vector__XXX
-SG_ String0_Energy_kWh m0 : 54|15@0+ (0.01,0) [0|327.67] "kWh" Vector__XXX
-SG_ String0_SOH m0 : 47|9@0+ (0.25,0) [0|127.5] "%" Vector__XXX
-SG_ String1_minimumSOC m1 : 3|9@0+ (0.25,0) [0|127.75] "%" Vector__XXX
-SG_ String1_averageSOC m1 : 10|9@0+ (0.25,0) [0|127.5] "%" Vector__XXX
-SG_ String1_maximumSOC m1 : 17|9@0+ (0.25,0) [0|63.75] "%" Vector__XXX
-SG_ String1_SOE m1 : 24|9@0+ (0.25,0) [0|127.5] "%" Vector__XXX
-SG_ String1_Energy_kWh m1 : 54|15@0+ (0.01,0) [0|327.67] "kWh" Vector__XXX
-SG_ String1_SOH m1 : 47|9@0+ (0.25,0) [0|127.5] "%" Vector__XXX
-SG_ String2_minimumSOC m2 : 3|9@0+ (0.25,0) [0|127.75] "%" Vector__XXX
-SG_ String2_averageSOC m2 : 10|9@0+ (0.25,0) [0|127.5] "%" Vector__XXX
-SG_ String2_maximumSOC m2 : 17|9@0+ (0.25,0) [0|63.75] "%" Vector__XXX
-SG_ String2_SOE m2 : 24|9@0+ (0.25,0) [0|127.5] "%" Vector__XXX
-SG_ String2_Energy_kWh m2 : 54|15@0+ (0.01,0) [0|327.67] "kWh" Vector__XXX
-SG_ String2_SOH m2 : 47|9@0+ (0.25,0) [0|127.5] "%" Vector__XXX
+SG_ String0_minimumSOC : 3|9@0+ (0.25,0) [0|127.75] "%" Vector__XXX
+SG_ String0_averageSOC : 10|9@0+ (0.25,0) [0|127.5] "%" Vector__XXX
+SG_ String0_maximumSOC : 17|9@0+ (0.25,0) [0|63.75] "%" Vector__XXX
+SG_ String0_SOE : 24|9@0+ (0.25,0) [0|127.5] "%" Vector__XXX
+SG_ String0_Energy_kWh : 54|15@0+ (0.01,0) [0|327.67] "kWh" Vector__XXX
+SG_ String0_SOH : 47|9@0+ (0.25,0) [0|127.5] "%" Vector__XXX
 
 
 BO_ 512 foxBMS_Debug: 8 Vector__XXX
 
 
-BO_ 1313 IVT0_Msg_Result_I: 6 Vector__XXX
+BO_ 1313 foxBMS_String0Current: 6 Vector__XXX
 SG_ IVT0_Result_I_systemError : 15|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ IVT0_Result_I_OCS : 12|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ IVT0_Result_I_overallMeasError : 14|1@0+ (1,0) [0|1] "" Vector__XXX
@@ -1108,7 +977,7 @@ SG_ IVT0_MsgCount_Result_I : 11|4@0+ (1,0) [0|15] "" Vector__XXX
 SG_ IVT0_Result_I_mA : 23|32@0- (1,0) [-2147483648|2147483647] "mA" Vector__XXX
 
 
-BO_ 1314 IVT0_Msg_Result_U1: 6 Vector__XXX
+BO_ 1314 foxBMS_String0Voltage1: 6 Vector__XXX
 SG_ IVT0_Result_U1_systemError : 15|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ IVT0_Result_U1_overallMeasError : 14|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ IVT0_Result_U1_channelMeasError : 13|1@0+ (1,0) [0|1] "" Vector__XXX
@@ -1118,7 +987,7 @@ SG_ IVT0_MsgCount_Result_U1 : 11|4@0+ (1,0) [0|15] "" Vector__XXX
 SG_ IVT0_Result_U1_mV : 23|32@0- (1,0) [-2147483648|2147483647] "mV" Vector__XXX
 
 
-BO_ 1315 IVT0_Msg_Result_U2: 6 Vector__XXX
+BO_ 1315 foxBMS_String0Voltage2: 6 Vector__XXX
 SG_ IVT0_Result_U2_systemError : 15|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ IVT0_Result_U2_OCS : 12|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ IVT0_Result_U2_overallMeasError : 14|1@0+ (1,0) [0|1] "" Vector__XXX
@@ -1128,7 +997,7 @@ SG_ IVT0_MsgCount_Result_U2 : 11|4@0+ (1,0) [0|15] "" Vector__XXX
 SG_ IVT0_Result_U2_mV : 23|32@0- (1,0) [-2147483648|2147483647] "mV" Vector__XXX
 
 
-BO_ 1316 IVT0_Msg_Result_U3: 6 Vector__XXX
+BO_ 1316 foxBMS_String0Voltage3: 6 Vector__XXX
 SG_ IVT0_Result_U3_systemError : 15|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ IVT0_Result_U3_OCS : 12|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ IVT0_Result_U3_overallMeasError : 14|1@0+ (1,0) [0|1] "" Vector__XXX
@@ -1138,7 +1007,7 @@ SG_ IVT0_MsgCount_Result_U3 : 11|4@0+ (1,0) [0|15] "" Vector__XXX
 SG_ IVT0_Result_U3_mV : 23|32@0- (1,0) [-2147483648|2147483647] "mV" Vector__XXX
 
 
-BO_ 1317 IVT0_Msg_Result_T: 6 Vector__XXX
+BO_ 1317 foxBMS_String0Temperature: 6 Vector__XXX
 SG_ IVT0_Result_T_systemError : 15|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ IVT0_Result_T_OCS : 12|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ IVT0_Result_T_overallMeasError : 14|1@0+ (1,0) [0|1] "" Vector__XXX
@@ -1148,7 +1017,7 @@ SG_ IVT0_MsgCount_Result_T : 11|4@0+ (1,0) [0|15] "" Vector__XXX
 SG_ IVT0_Result_T_ddegC : 23|32@0- (0.1,0) [-214748364.8|214748364.7] "ddegC" Vector__XXX
 
 
-BO_ 1318 IVT0_Msg_Result_W: 6 Vector__XXX
+BO_ 1318 foxBMS_String0Power: 6 Vector__XXX
 SG_ IVT0_Result_W_systemError : 15|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ IVT0_Result_W_OCS : 12|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ IVT0_Result_W_overallMeasError : 14|1@0+ (1,0) [0|1] "" Vector__XXX
@@ -1158,7 +1027,7 @@ SG_ IVT0_MsgCount_Result_W : 11|4@0+ (1,0) [0|15] "" Vector__XXX
 SG_ IVT0_ID_Result_W : 7|8@0+ (1,0) [5|5] "" Vector__XXX
 
 
-BO_ 1319 IVT0_Msg_Result_As: 6 Vector__XXX
+BO_ 1319 foxBMS_String0CurrentCounter: 6 Vector__XXX
 SG_ IVT0_Result_As_systemError : 15|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ IVT0_Result_As_OCS : 12|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ IVT0_Result_As_overallMeasError : 14|1@0+ (1,0) [0|1] "" Vector__XXX
@@ -1168,7 +1037,7 @@ SG_ IVT0_MsgCount_Result_As : 11|4@0+ (1,0) [0|15] "" Vector__XXX
 SG_ IVT0_ID_Result_As : 7|8@0+ (1,0) [6|6] "" Vector__XXX
 
 
-BO_ 1320 IVT0_Msg_Result_Wh: 6 Vector__XXX
+BO_ 1320 foxBMS_String0EnergyCounter: 6 Vector__XXX
 SG_ IVT0_Result_Wh_systemError : 15|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ IVT0_Result_Wh_OCS : 12|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ IVT0_Result_Wh_overallMeasError : 14|1@0+ (1,0) [0|1] "" Vector__XXX
@@ -1178,188 +1047,28 @@ SG_ IVT0_MsgCount_Result_Wh : 11|4@0+ (1,0) [0|15] "" Vector__XXX
 SG_ IVT0_ID_Result_Wh : 7|8@0+ (1,0) [7|7] "" Vector__XXX
 
 
-BO_ 1569 IVT1_Msg_Result_I: 6 Vector__XXX
-SG_ IVT1_Result_I_systemError : 15|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT1_Result_I_OCS : 12|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT1_Result_I_overallMeasError : 14|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT1_Result_I_channelMeasError : 13|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT1_ID_Result_I : 7|8@0+ (1,0) [0|255] "" Vector__XXX
-SG_ IVT1_MsgCount_Result_I : 11|4@0+ (1,0) [0|15] "" Vector__XXX
-SG_ IVT1_Result_I_mA : 23|32@0- (1,0) [-2147483648|2147483647] "mA" Vector__XXX
-
-
-BO_ 1570 IVT1_Msg_Result_U1: 6 Vector__XXX
-SG_ IVT1_Result_U1_systemError : 15|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT1_Result_U1_overallMeasError : 14|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT1_Result_U1_channelMeasError : 13|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT1_Result_U1_OCS : 12|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT1_ID_Result_U1 : 7|8@0+ (1,0) [1|1] "" Vector__XXX
-SG_ IVT1_MsgCount_Result_U1 : 11|4@0+ (1,0) [0|15] "" Vector__XXX
-SG_ IVT1_Result_U1_mV : 23|32@0- (1,0) [-2147483648|2147483647] "mV" Vector__XXX
-
-
-BO_ 1571 IVT1_Msg_Result_U2: 6 Vector__XXX
-SG_ IVT1_Result_U2_systemError : 15|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT1_Result_U2_OCS : 12|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT1_Result_U2_overallMeasError : 14|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT1_Result_U2_channelMeasError : 13|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT1_ID_Result_U2 : 7|8@0+ (1,0) [2|2] "" Vector__XXX
-SG_ IVT1_MsgCount_Result_U2 : 11|4@0+ (1,0) [0|15] "" Vector__XXX
-SG_ IVT1_Result_U2_mV : 23|32@0- (1,0) [-2147483648|2147483647] "mV" Vector__XXX
-
-
-BO_ 1572 IVT1_Msg_Result_U3: 6 Vector__XXX
-SG_ IVT1_Result_U3_systemError : 15|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT1_Result_U3_OCS : 12|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT1_Result_U3_overallMeasError : 14|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT1_Result_U3_channelMeasError : 13|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT1_ID_Result_U3 : 7|8@0+ (1,0) [3|3] "" Vector__XXX
-SG_ IVT1_MsgCount_Result_U3 : 11|4@0+ (1,0) [0|15] "" Vector__XXX
-SG_ IVT1_Result_U3_mV : 23|32@0- (1,0) [-2147483648|2147483647] "mV" Vector__XXX
-
-
-BO_ 1573 IVT1_Msg_Result_T: 6 Vector__XXX
-SG_ IVT1_Result_T_systemError : 15|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT1_Result_T_OCS : 12|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT1_Result_T_overallMeasError : 14|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT1_Result_T_channelMeasError : 13|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT1_ID_Result_T : 7|8@0+ (1,0) [4|4] "" Vector__XXX
-SG_ IVT1_MsgCount_Result_T : 11|4@0+ (1,0) [0|15] "" Vector__XXX
-SG_ IVT1_Result_T_ddegC : 23|32@0- (0.1,0) [-214748364.8|214748364.7] "ddegC" Vector__XXX
-
-
-BO_ 1574 IVT1_Msg_Result_W: 6 Vector__XXX
-SG_ IVT1_Result_W_systemError : 15|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT1_Result_W_OCS : 12|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT1_Result_W_overallMeasError : 14|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT1_Result_W_channelMeasError : 13|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT1_Result_W : 23|32@0- (1,0) [-2147483648|2147483647] "W" Vector__XXX
-SG_ IVT1_MsgCount_Result_W : 11|4@0+ (1,0) [0|15] "" Vector__XXX
-SG_ IVT1_ID_Result_W : 7|8@0+ (1,0) [5|5] "" Vector__XXX
-
-
-BO_ 1575 IVT1_Msg_Result_As: 6 Vector__XXX
-SG_ IVT1_Result_As_systemError : 15|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT1_Result_As_OCS : 12|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT1_Result_As_overallMeasError : 14|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT1_Result_As_channelMeasError : 13|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT1_Result_As : 23|32@0- (1,0) [-2147483648|2147483647] "As" Vector__XXX
-SG_ IVT1_MsgCount_Result_As : 11|4@0+ (1,0) [0|15] "" Vector__XXX
-SG_ IVT1_ID_Result_As : 7|8@0+ (1,0) [6|6] "" Vector__XXX
-
-
-BO_ 1576 IVT1_Msg_Result_Wh: 6 Vector__XXX
-SG_ IVT1_Result_Wh_systemError : 15|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT1_Result_Wh_OCS : 12|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT1_Result_Wh_overallMeasError : 14|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT1_Result_Wh_channelMeasError : 13|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT1_Result_Wh : 23|32@0- (1,0) [-2147483648|2147483647] "Wh" Vector__XXX
-SG_ IVT1_MsgCount_Result_Wh : 11|4@0+ (1,0) [0|15] "" Vector__XXX
-SG_ IVT1_ID_Result_Wh : 7|8@0+ (1,0) [7|7] "" Vector__XXX
-
-
-BO_ 1825 IVT2_Msg_Result_I: 6 Vector__XXX
-SG_ IVT2_Result_I_systemError : 15|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT2_Result_I_OCS : 12|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT2_Result_I_overallMeasError : 14|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT2_Result_I_channelMeasError : 13|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT2_ID_Result_I : 7|8@0+ (1,0) [0|255] "" Vector__XXX
-SG_ IVT2_MsgCount_Result_I : 11|4@0+ (1,0) [0|15] "" Vector__XXX
-SG_ IVT2_Result_I_mA : 23|32@0- (1,0) [-2147483648|2147483647] "mA" Vector__XXX
-
-
-BO_ 1826 IVT2_Msg_Result_U1: 6 Vector__XXX
-SG_ IVT2_Result_U1_systemError : 15|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT2_Result_U1_overallMeasError : 14|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT2_Result_U1_channelMeasError : 13|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT2_Result_U1_OCS : 12|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT2_ID_Result_U1 : 7|8@0+ (1,0) [1|1] "" Vector__XXX
-SG_ IVT2_MsgCount_Result_U1 : 11|4@0+ (1,0) [0|15] "" Vector__XXX
-SG_ IVT2_Result_U1_mV : 23|32@0- (1,0) [-2147483648|2147483647] "mV" Vector__XXX
-
-
-BO_ 1827 IVT2_Msg_Result_U2: 6 Vector__XXX
-SG_ IVT2_Result_U2_systemError : 15|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT2_Result_U2_OCS : 12|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT2_Result_U2_overallMeasError : 14|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT2_Result_U2_channelMeasError : 13|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT2_ID_Result_U2 : 7|8@0+ (1,0) [2|2] "" Vector__XXX
-SG_ IVT2_MsgCount_Result_U2 : 11|4@0+ (1,0) [0|15] "" Vector__XXX
-SG_ IVT2_Result_U2_mV : 23|32@0- (1,0) [-2147483648|2147483647] "mV" Vector__XXX
-
-
-BO_ 1828 IVT2_Msg_Result_U3: 6 Vector__XXX
-SG_ IVT2_Result_U3_systemError : 15|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT2_Result_U3_OCS : 12|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT2_Result_U3_overallMeasError : 14|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT2_Result_U3_channelMeasError : 13|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT2_ID_Result_U3 : 7|8@0+ (1,0) [3|3] "" Vector__XXX
-SG_ IVT2_MsgCount_Result_U3 : 11|4@0+ (1,0) [0|15] "" Vector__XXX
-SG_ IVT2_Result_U3_mV : 23|32@0- (1,0) [-2147483648|2147483647] "mV" Vector__XXX
-
-
-BO_ 1829 IVT2_Msg_Result_T: 6 Vector__XXX
-SG_ IVT2_Result_T_systemError : 15|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT2_Result_T_OCS : 12|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT2_Result_T_overallMeasError : 14|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT2_Result_T_channelMeasError : 13|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT2_ID_Result_T : 7|8@0+ (1,0) [4|4] "" Vector__XXX
-SG_ IVT2_MsgCount_Result_T : 11|4@0+ (1,0) [0|15] "" Vector__XXX
-SG_ IVT2_Result_T_ddegC : 23|32@0- (0.1,0) [-214748364.8|214748364.7] "ddegC" Vector__XXX
-
-
-BO_ 1830 IVT2_Msg_Result_W: 6 Vector__XXX
-SG_ IVT2_Result_W_systemError : 15|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT2_Result_W_OCS : 12|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT2_Result_W_overallMeasError : 14|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT2_Result_W_channelMeasError : 13|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT2_Result_W : 23|32@0- (1,0) [-2147483648|2147483647] "W" Vector__XXX
-SG_ IVT2_MsgCount_Result_W : 11|4@0+ (1,0) [0|15] "" Vector__XXX
-SG_ IVT2_ID_Result_W : 7|8@0+ (1,0) [5|5] "" Vector__XXX
-
-
-BO_ 1831 IVT2_Msg_Result_As: 6 Vector__XXX
-SG_ IVT2_Result_As_systemError : 15|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT2_Result_As_OCS : 12|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT2_Result_As_overallMeasError : 14|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT2_Result_As_channelMeasError : 13|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT2_Result_As : 23|32@0- (1,0) [-2147483648|2147483647] "As" Vector__XXX
-SG_ IVT2_MsgCount_Result_As : 11|4@0+ (1,0) [0|15] "" Vector__XXX
-SG_ IVT2_ID_Result_As : 7|8@0+ (1,0) [6|6] "" Vector__XXX
-
-
-BO_ 1832 IVT2_Msg_Result_Wh: 6 Vector__XXX
-SG_ IVT2_Result_Wh_systemError : 15|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT2_Result_Wh_OCS : 12|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT2_Result_Wh_overallMeasError : 14|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT2_Result_Wh_channelMeasError : 13|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ IVT2_Result_Wh : 23|32@0- (1,0) [-2147483648|2147483647] "Wh" Vector__XXX
-SG_ IVT2_MsgCount_Result_Wh : 11|4@0+ (1,0) [0|15] "" Vector__XXX
-SG_ IVT2_ID_Result_Wh : 7|8@0+ (1,0) [7|7] "" Vector__XXX
-
-
-BO_ 409 foxBMS_Startup: 8 Vector__XXX
+BO_ 409 foxBMS_Boot: 8 Vector__XXX
 SG_ foxBMS_majorVersionNumber : 7|8@0+ (1,0) [0|255] "" Vector__XXX
 SG_ foxBMS_minorVersionNumber : 15|8@0+ (1,0) [0|255] "" Vector__XXX
 SG_ foxBMS_patchVersionNumber : 23|8@0+ (1,0) [0|255] "" Vector__XXX
 SG_ foxBMS_uniqueId : 39|32@0+ (1,0) [0|4294967295] "" Vector__XXX
-SG_ foxBMS_underVersionControl : 24|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ foxBMS_dirtyFlag : 25|1@1+ (1,0) [0|1] "" Vector__XXX
+SG_ foxBMS_underVersionControl : 24|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ foxBMS_dirtyFlag : 25|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ foxBMS_releaseDistance : 31|5@0+ (1,0) [0|31] "" Vector__XXX
-SG_ foxBMS_releaseDistanceOverflow : 26|1@1+ (1,0) [0|1] "" Vector__XXX
+SG_ foxBMS_releaseDistanceOverflow : 26|1@0+ (1,0) [0|1] "" Vector__XXX
 
 
-BO_ 550 foxBMS_DetailState: 8 Vector__XXX
-SG_ foxBMS_TimingViolationEngine : 0|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ foxBMS_TimingViolation1ms : 1|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ foxBMS_TimingViolation10ms : 2|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ foxBMS_TimingViolation100ms : 3|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ foxBMS_TimingViolation100msAlgo : 4|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ foxBMS_TimingViolation10msRec : 10|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ foxBMS_TimingViolation100msRec : 11|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ foxBMS_TimingViolation100msAlgoR : 12|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ foxBMS_TimingViolationEngineRec : 8|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ foxBMS_TimingViolation1msRec : 9|1@1+ (1,0) [0|1] "" Vector__XXX
+BO_ 550 foxBMS_BmsStateDetails: 8 Vector__XXX
+SG_ foxBMS_TimingViolationEngine : 0|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ foxBMS_TimingViolation1ms : 1|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ foxBMS_TimingViolation10ms : 2|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ foxBMS_TimingViolation100ms : 3|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ foxBMS_TimingViolation100msAlgo : 4|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ foxBMS_TimingViolation10msRec : 10|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ foxBMS_TimingViolation100msRec : 11|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ foxBMS_TimingViolation100msAlgoR : 12|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ foxBMS_TimingViolationEngineRec : 8|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ foxBMS_TimingViolation1msRec : 9|1@0+ (1,0) [0|1] "" Vector__XXX
 
 
 BO_ 551 foxBMS_DieId: 8 Vector__XXX
@@ -1369,31 +1078,29 @@ SG_ MCU_xWaferCoordinate : 51|12@0+ (1,0) [0|1] "" Vector__XXX
 SG_ MCU_yWaferCoordinate : 47|12@0+ (1,0) [0|1] "" Vector__XXX
 
 
-CM_ BO_ 546 "(in:can_cbs_tx_system_values.c:CAN_TxPackValues)";
+CM_ BO_ 546 "(in:can_cbs_tx_system-values.c:CANTX_PackValues, fv:tx)";
 CM_ SG_ 546 foxBMS_packCurrent "Battery pack current";
 CM_ SG_ 546 foxBMS_batteryVoltage "Battery voltage between negative and positive pole of the battery";
 CM_ SG_ 546 foxBMS_busVoltage "Battery voltage between negative pole and after main positive contactor";
 CM_ SG_ 546 foxBMS_packPower "Battery power";
-CM_ BO_ 548 "(in:can_cbs_tx_limits.c:CAN_TxLimitValues)";
+CM_ BO_ 548 "(in:can_cbs_tx_limit-values.c:CANTX_LimitValues, fv:tx)";
 CM_ SG_ 548 foxBMS_maxChargeCurrent "Maximum battery pack charge current";
 CM_ SG_ 548 foxBMS_maxDischargeCurrent "Maximum battery pack discharge current";
-CM_ BO_ 547 "(in:can_cbs_tx_minmax.c:CAN_TxMinimumMaximumValues)";
+CM_ BO_ 547 "(in:can_cbs_tx_minimum-maximum-values.c:CANTX_MinimumMaximumValues, fv:tx)";
 CM_ SG_ 547 foxBMS_minimumCellVoltage "Minimum cell voltage of all connected strings, if no string connected maximum value of whole system is transmitted";
 CM_ SG_ 547 foxBMS_maximumCellVoltage "Maximum cell voltage of all connected strings, if no string connected maximum value of whole system is transmitted";
 CM_ SG_ 547 foxBMS_maximumCellTemp "Maximum cell temperature of all connected strings, if no string connected maximum value of whole system is transmitted";
 CM_ SG_ 547 foxBMS_minimumCellTemp "Minium cell temperature of all connected string, if no string connected maximum value of whole system is transmitted";
-CM_ BO_ 640 "Message contains string voltage, current and power (in:can_cbs_tx_system_values.c:CAN_TxStringValues)";
-CM_ BO_ 643 "Message contains energy counting value (in:can_cbs_tx_system_values.c:CAN_TxStringValues2)";
-CM_ SG_ 643 String0_energyCount "Current sensor string 0 energy counting value";
-CM_ SG_ 643 String1_energyCount "Current sensor string 1 energy counting value";
-CM_ SG_ 643 String2_energyCount "Current sensor string 2 energy counting value";
-CM_ BO_ 549 "(in:can_cbs_tx_state_estimation.c:CAN_TxStateEstimation)";
+CM_ BO_ 640 "Message contains string voltage, current and power (in:can_cbs_tx_system-values.c:CANTX_StringValuesP0, fv:tx)";
+CM_ BO_ 643 "Message contains energy counting value (in:can_cbs_tx_system-values.c:CANTX_StringValuesP1, fv:tx)";
+CM_ SG_ 643 foxBMS_String0EnergyCount "Current sensor string 0 energy counting value";
+CM_ BO_ 549 "(in:can_cbs_tx_pack-state-estimation.c:CANTX_PackStateEstimation, fv:tx)";
 CM_ SG_ 549 foxBMS_packSoc "SOC currently connected to HV bus (100% if all strings connected and all strings at 100%)";
 CM_ SG_ 549 foxBMS_packSoe "SOE currently connected to HV bus (100% if all strings connected and all strings at 100%)";
 CM_ SG_ 549 foxBMS_packEnergy "Energy left in Wh that is currently connected to HV bus";
-CM_ BO_ 576 "(in:can_cbs_tx_voltage.c:CAN_TxVoltage)";
-CM_ BO_ 592 "(in:can_cbs_tx_temperature.c:CAN_TxCellTemperature)";
-CM_ BO_ 560 "(in:can_cbs_rx_command.c:CAN_RxRequest)";
+CM_ BO_ 576 "(in:can_cbs_tx_cell-voltages.c:CANTX_CellVoltages, fv:tx)";
+CM_ BO_ 592 "(in:can_cbs_tx_cell-temperatures.c:CANTX_CellTemperatures, fv:tx)";
+CM_ BO_ 560 "(in:can_cbs_rx_state-request.c:CANRX_BmsStateRequest, fv:rx)";
 CM_ SG_ 560 foxBMS_modeRequest "0x0: Disconnect strings from HV bus, 0x01: Connect strings to HV bus to start discharge, 0x02: Connect strings to HV bus to start charging";
 CM_ SG_ 560 foxBMS_activateBalancing "0: Deactivate balancing, 1: Activate balancing";
 CM_ SG_ 560 foxBMS_balancingThreshold "Required voltage difference to minimum cell voltage to activate balancing";
@@ -1403,7 +1110,7 @@ CM_ SG_ 560 foxBMS_chargerConnected "0x00: charger not connected, 0x01: charger 
 CM_ SG_ 560 foxBMS_disableInsulationMon "0x00: Check battery system insulation, 0x01: Do not check insulation of battery system";
 CM_ SG_ 560 foxBMS_heaterOverride_ON "0: no override active, 1: override active -> force heater on";
 CM_ SG_ 560 foxBMS_heaterOverride_OFF "0: no override active, 1: override active -> force heater off";
-CM_ BO_ 544 "Message contains foxBMS state (in:can_cbs_tx_state.c:CAN_TxState)";
+CM_ BO_ 544 "Message contains foxBMS state (in:can_cbs_tx_state.c:CANTX_BmsState, fv:tx)";
 CM_ SG_ 544 foxBMS_generalError "0x00: No error detected, 0x01: Error detected";
 CM_ SG_ 544 foxBMS_generalWarning "0x00: No warning detected, 0x01: Warning detected";
 CM_ SG_ 544 foxBMS_Error_dieTemperatureMCU "0x00: No error, 0x01: Error detected";
@@ -1423,7 +1130,8 @@ CM_ SG_ 544 foxBMS_Error_Cantiming "0x00: No error, 0x01: Error detected";
 CM_ SG_ 544 foxBMS_Error_PackOvercurr_Charge "0x00: No error, 0x01: Error detected";
 CM_ SG_ 544 foxBMS_Error_PackOvercur_Dischrg "0x00: No error, 0x01: Error detected";
 CM_ SG_ 544 foxBMS_SysMonError "If this bit is set, it indicates that a task has violated its timing requirements.";
-CM_ BO_ 545 "Message contains string related error and warning flags (in:can_cbs_tx_state.c:CAN_TxStringState)";
+CM_ SG_ 544 foxBMS_alertFlag "foxBMS Alter flag: 0x00: No error, 0x01: Alert flag set";
+CM_ BO_ 545 "Message contains string related error and warning flags (in:can_cbs_tx_state.c:CANTX_StringState, fv:tx)";
 CM_ SG_ 545 String0_stringConnected "0x00: String not connected, 0x01: String connected to HV bus";
 CM_ SG_ 545 String0_balancing_active "0x00: No balancing active, 0x01: Balancing in this string active";
 CM_ SG_ 545 String0_Err_overtemp_charge "0x00: No error, 0x01: Error: Flag will be set if maximum cell temperature is above 45 degree celsius.";
@@ -1455,116 +1163,26 @@ CM_ SG_ 545 String0_Err_CS_coulombCountMeas "0x00: No error, 0x01: Error";
 CM_ SG_ 545 String0_Err_CS_energyCountMeas "0x00: No error, 0x01: Error";
 CM_ SG_ 545 String0_Err_plaus_volt_spread "0x00: No error, 0x01: Error";
 CM_ SG_ 545 String0_Err_plaus_temp_spread "0x00: No error, 0x01: Error";
-CM_ SG_ 545 String1_stringConnected "0x00: String not connected, 0x01: String connected to HV bus";
-CM_ SG_ 545 String1_balancing_active "0x00: No balancing active, 0x01: Balancing in this string active";
-CM_ SG_ 545 String1_Err_overtemp_charge "0x00: No error, 0x01: Error: Flag will be set if maximum cell temperature is above 45 degree celsius.";
-CM_ SG_ 545 String1_Err_undertemp_charge "0x00: No error, 0x01: Error: Flag will be set if minimum cell temperature is below 0 degree celsius.";
-CM_ SG_ 545 String1_Err_overtemp_discharge "0x00: No error, 0x01: Error: Flag will be set if maximum cell temperature is above 60 degree celsius.";
-CM_ SG_ 545 String1_Err_undertemp_discharge "0x00: No error, 0x01: Error: Flag will be set if minimum cell temperature is below -20 degree celsius.";
-CM_ SG_ 545 String1_Err_Overcurrent_charge "0x00: No error, 0x01: Error: Flag will be set if string charge current is above 30400mA.";
-CM_ SG_ 545 String1_Err_Overcurre_discharge "0x00: No error, 0x01: Error: Flag will be set if discharge current is above maximum string current.";
-CM_ SG_ 545 String1_Err_Overvoltage "0x00: No error, 0x01: Error: Flag will be set if maximum cell voltage is above 4200mV.";
-CM_ SG_ 545 String1_Err_Undervoltage "0x00: No error, 0x01: Error: Flag will be set if minimum cell voltage is below 3000mV. This equals roughly 4% remaining SOC. Minimum data sheet values if 2500mV.";
-CM_ SG_ 545 String1_Err_deep_discharge "0x00: No error, 0x01: Error";
-CM_ SG_ 545 String1_Err_CS_currentMeas "0x00: No error, 0x01: Error";
-CM_ SG_ 545 String1_Err_positiveContactor "0x00: No error, 0x01: Error";
-CM_ SG_ 545 String1_Err_openWire "0x00: No error, 0x01: Error";
-CM_ SG_ 545 String1_openWireNumber "Number of first open wire that has been detected in this string";
-CM_ SG_ 545 String1_Err_plaus_cell_volt "0x00: No error, 0x01: Error";
-CM_ SG_ 545 String1_Err_plaus_cell_temp "0x00: No error, 0x01: Error";
-CM_ SG_ 545 String1_Err_plaus_string_volt "0x00: No error, 0x01: Error";
-CM_ SG_ 545 String1_Err_slave_hardware "0x00: No error, 0x01: Error";
-CM_ SG_ 545 String1_Err_dsyChainPrim_Comm "0x00: No error, 0x01: Error (i.e. SPI)";
-CM_ SG_ 545 String1_Err_dsyChainPrim_CRC "0x00: No error, 0x01: Error";
-CM_ SG_ 545 String1_Err_dsyChainRedun_Comm "0x00: No error, 0x01: Error";
-CM_ SG_ 545 String1_Err_dsyChainRedun_CRC "0x00: No error, 0x01: Error";
-CM_ SG_ 545 String1_Err_dsyPrim_voltMeasOor "0x00: No error, 0x01: Error";
-CM_ SG_ 545 String1_Err_dsyRedun_voltMeasOor "0x00: No error, 0x01: Error";
-CM_ SG_ 545 String1_Err_dsyPrim_tempMeasOor "0x00: No error, 0x01: Error";
-CM_ SG_ 545 String1_Err_dsyRedun_tempMeasOor "0x00: No error, 0x01: Error";
-CM_ SG_ 545 String1_Err_CS_coulombCountMeas "0x00: No error, 0x01: Error";
-CM_ SG_ 545 String1_Err_CS_energyCountMeas "0x00: No error, 0x01: Error";
-CM_ SG_ 545 String1_Err_plaus_volt_spread "0x00: No error, 0x01: Error";
-CM_ SG_ 545 String1_Err_plaus_temp_spread "0x00: No error, 0x01: Error";
-CM_ SG_ 545 String2_stringConnected "0x00: String not connected, 0x01: String connected to HV bus";
-CM_ SG_ 545 String2_balancing_active "0x00: No balancing active, 0x01: Balancing in this string active";
-CM_ SG_ 545 String2_Err_overtemp_charge "0x00: No error, 0x01: Error: Flag will be set if maximum cell temperature is above 45 degree celsius.";
-CM_ SG_ 545 String2_Err_undertemp_charge "0x00: No error, 0x01: Error: Flag will be set if minimum cell temperature is below 0 degree celsius.";
-CM_ SG_ 545 String2_Err_overtemp_discharge "0x00: No error, 0x01: Error: Flag will be set if maximum cell temperature is above 60 degree celsius.";
-CM_ SG_ 545 String2_Err_undertemp_discharge "0x00: No error, 0x01: Error: Flag will be set if minimum cell temperature is below -20 degree celsius.";
-CM_ SG_ 545 String2_Err_Overcurrent_charge "0x00: No error, 0x01: Error: Flag will be set if string charge current is above 30400mA.";
-CM_ SG_ 545 String2_Err_Overcurre_discharge "0x00: No error, 0x01: Error: Flag will be set if discharge current is above maximum string current.";
-CM_ SG_ 545 String2_Err_Overvoltage "0x00: No error, 0x01: Error: Flag will be set if maximum cell voltage is above 4200mV.";
-CM_ SG_ 545 String2_Err_Undervoltage "0x00: No error, 0x01: Error: Flag will be set if minimum cell voltage is below 3000mV. This equals roughly 4% remaining SOC. Minimum data sheet values if 2500mV.";
-CM_ SG_ 545 String2_Err_deep_discharge "0x00: No error, 0x01: Error";
-CM_ SG_ 545 String2_Err_CS_currentMeas "0x00: No error, 0x01: Error";
-CM_ SG_ 545 String2_Err_positiveContactor "0x00: No error, 0x01: Error";
-CM_ SG_ 545 String2_Err_openWire "0x00: No error, 0x01: Error";
-CM_ SG_ 545 String2_openWireNumber "Number of first open wire that has been detected in this string";
-CM_ SG_ 545 String2_Err_plaus_cell_volt "0x00: No error, 0x01: Error";
-CM_ SG_ 545 String2_Err_plaus_cell_temp "0x00: No error, 0x01: Error";
-CM_ SG_ 545 String2_Err_plaus_string_volt "0x00: No error, 0x01: Error";
-CM_ SG_ 545 String2_Err_slave_hardware "0x00: No error, 0x01: Error";
-CM_ SG_ 545 String2_Err_dsyChainPrim_Comm "0x00: No error, 0x01: Error (i.e. SPI)";
-CM_ SG_ 545 String2_Err_dsyChainPrim_CRC "0x00: No error, 0x01: Error";
-CM_ SG_ 545 String2_Err_dsyChainRedun_Comm "0x00: No error, 0x01: Error";
-CM_ SG_ 545 String2_Err_dsyChainRedun_CRC "0x00: No error, 0x01: Error";
-CM_ SG_ 545 String2_Err_dsyPrim_voltMeasOor "0x00: No error, 0x01: Error";
-CM_ SG_ 545 String2_Err_dsyRedun_voltMeasOor "0x00: No error, 0x01: Error";
-CM_ SG_ 545 String2_Err_dsyPrim_tempMeasOor "0x00: No error, 0x01: Error";
-CM_ SG_ 545 String2_Err_dsyRedun_tempMeasOor "0x00: No error, 0x01: Error";
-CM_ SG_ 545 String2_Err_CS_coulombCountMeas "0x00: No error, 0x01: Error";
-CM_ SG_ 545 String2_Err_CS_energyCountMeas "0x00: No error, 0x01: Error";
-CM_ SG_ 545 String2_Err_plaus_volt_spread "0x00: No error, 0x01: Error";
-CM_ SG_ 545 String2_Err_plaus_temp_spread "0x00: No error, 0x01: Error";
-CM_ BO_ 641 "Message contains minimum and maximum cell temperature and cell voltage values of respective string (in:can_cbs_tx_minmax.c:CAN_TxStringMinimumMaximumValues)";
+CM_ BO_ 641 "Message contains minimum and maximum cell temperature and cell voltage values of respective string (in:can_cbs_tx_minimum-maximum-values.c:CANTX_StringMinimumMaximumValues, fv:tx)";
 CM_ SG_ 641 String0_minimumCellVoltage "Minimum cell voltage in this string";
 CM_ SG_ 641 String0_maximumCellVoltage "Maximum cell voltage in this string";
 CM_ SG_ 641 String0_maximumCellTemperature "Maximum cell temperature in this string";
 CM_ SG_ 641 String0_minimumCellTemperature "Minium cell temperature in this string";
-CM_ SG_ 641 String1_minimumCellVoltage "Minimum cell voltage in this string";
-CM_ SG_ 641 String1_maximumCellVoltage "Maximum cell voltage in this string";
-CM_ SG_ 641 String1_maximumCellTemperature "Maximum cell temperature in this string";
-CM_ SG_ 641 String1_minimumCellTemperature "Minium cell temperature in this string";
-CM_ SG_ 641 String2_minimumCellVoltage "Minimum cell voltage in this string";
-CM_ SG_ 641 String2_maximumCellVoltage "Maximum cell voltage in this string";
-CM_ SG_ 641 String2_maximumCellTemperature "Maximum cell temperature in this string";
-CM_ SG_ 641 String2_minimumCellTemperature "Minium cell temperature in this string";
-CM_ BO_ 642 "Message contains SOC, SOE and SOH state estimations (in:can_cbs_tx_state_estimation.c:CAN_TxStringStateEstimation)";
+CM_ BO_ 642 "Message contains SOC, SOE and SOH state estimations (in:can_cbs_tx_string-state-estimation.c:CANTX_StringStateEstimation, fv:tx)";
 CM_ SG_ 642 String0_SOE "SOE is depending on current direction, if battery system is charging: SOE_max is transmitted, else SOE_min";
 CM_ SG_ 642 String0_Energy_kWh "Remaining energy left in this string";
-CM_ SG_ 642 String1_SOE "SOE is depending on current direction, if battery system is charging: SOE_max is transmitted, else SOE_min";
-CM_ SG_ 642 String1_Energy_kWh "Remaining energy left in this string";
-CM_ SG_ 642 String2_SOE "SOE is depending on current direction, if battery system is charging: SOE_max is transmitted, else SOE_min";
-CM_ SG_ 642 String2_Energy_kWh "Remaining energy left in this string";
-CM_ BO_ 512 "Reserved - for debug/development purpose only (in:can_cbs_rx_misc.c:CAN_RxDebug)";
-CM_ BO_ 1313 "Current sensor string 0: current (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)";
-CM_ BO_ 1314 "Current sensor string 0: voltage 1 (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)";
-CM_ BO_ 1315 "Current sensor string 0: voltage 2 (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)";
-CM_ BO_ 1316 "Current sensor string 0: voltage 3 (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)";
-CM_ BO_ 1317 "Current sensor string 0: temperature (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)";
-CM_ BO_ 1318 "Current sensor string 0: power (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)";
-CM_ BO_ 1319 "Current sensor string 0: coulomb counting (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)";
-CM_ BO_ 1320 "Current sensor string 0: energy counting (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)";
-CM_ BO_ 1569 "Current sensor string 1: current (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)";
-CM_ BO_ 1570 "Current sensor string 1: voltage 1 (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)";
-CM_ BO_ 1571 "Current sensor string 1: voltage 2 (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)";
-CM_ BO_ 1572 "Current sensor string 1: voltage 3 (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)";
-CM_ BO_ 1573 "Current sensor string 1: temperature (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)";
-CM_ BO_ 1574 "Current sensor string 1: power (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)";
-CM_ BO_ 1575 "Current sensor string 1: coulomb counting (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)";
-CM_ BO_ 1576 "Current sensor string 1: energy counting (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)";
-CM_ BO_ 1825 "Current sensor string 2: current (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)";
-CM_ BO_ 1826 "Current sensor string 2: voltage 1 (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)";
-CM_ BO_ 1827 "Current sensor string 2: voltage 2 (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)";
-CM_ BO_ 1828 "Current sensor string 2: voltage 3 (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)";
-CM_ BO_ 1829 "Current sensor string 2: temperature (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)";
-CM_ BO_ 1830 "Current sensor string 2: power (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)";
-CM_ BO_ 1831 "Current sensor string 2: coulomb counting (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)";
-CM_ BO_ 1832 "Current sensor string 2: energy counting (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)";
-CM_ BO_ 409 "(in:can.c:CAN_TransmitBootMessage)";
+CM_ BO_ 512 "Reserved - for debug/development purpose only (in:can_cbs_rx_misc.c:CANRX_Debug, fv:rx)";
+CM_ BO_ 1313 "Current sensor string 0: current (in:can_cbs_rx_current-sensor.c:CANRX_CurrentSensor, fv:rx); Isabellenhuette data sheet name: IVT0_Msg_Result_I";
+CM_ BO_ 1314 "Current sensor string 0: voltage 1 (in:can_cbs_rx_current-sensor.c:CANRX_CurrentSensor, fv:rx); Isabellenhuette data sheet name: IVT0_Msg_Result_U1";
+CM_ BO_ 1315 "Current sensor string 0: voltage 2 (in:can_cbs_rx_current-sensor.c:CANRX_CurrentSensor, fv:rx); Isabellenhuette data sheet name: IVT0_Msg_Result_U2";
+CM_ BO_ 1316 "Current sensor string 0: voltage 3 (in:can_cbs_rx_current-sensor.c:CANRX_CurrentSensor, fv:rx); Isabellenhuette data sheet name: IVT0_Msg_Result_U3";
+CM_ BO_ 1317 "Current sensor string 0: temperature (in:can_cbs_rx_current-sensor.c:CANRX_CurrentSensor, fv:rx); Isabellenhuette data sheet name: IVT0_Msg_Result_T";
+CM_ BO_ 1318 "Current sensor string 0: power (in:can_cbs_rx_current-sensor.c:CANRX_CurrentSensor, fv:rx); Isabellenhuette data sheet name: IVT0_Msg_Result_W";
+CM_ BO_ 1319 "Current sensor string 0: coulomb counting (in:can_cbs_rx_current-sensor.c:CANRX_CurrentSensor, fv:rx); Isabellenhuette data sheet name: IVT0_Msg_Result_As";
+CM_ BO_ 1320 "Current sensor string 0: energy counting (in:can_cbs_rx_current-sensor.c:CANRX_CurrentSensor, fv:rx); Isabellenhuette data sheet name: IVT0_Msg_Result_Wh";
+CM_ BO_ 409 "(in:can_cfg_tx_boot-message.c:CANTX_TransmitBootMessage, fv:tx)";
 CM_ SG_ 409 foxBMS_uniqueId "Content of Device Identification Register (DEVID)";
-CM_ BO_ 550 "Transmits details on flags transmitted by foxBMS_State (in:can_cbs_tx_state.c:CAN_TxDetailState)";
+CM_ BO_ 550 "Transmits details on flags transmitted by foxBMS_State (in:can_cbs_tx_state.c:CANTX_BmsStateDetails, fv:tx)";
 CM_ SG_ 550 foxBMS_TimingViolationEngine "Indicates whether the timing of the engine task has been violated.";
 CM_ SG_ 550 foxBMS_TimingViolation1ms "Indicates whether the timing of the 1ms task has been violated.";
 CM_ SG_ 550 foxBMS_TimingViolation10ms "Indicates whether the timing of the 10ms task has been violated.";
@@ -1575,19 +1193,35 @@ CM_ SG_ 550 foxBMS_TimingViolation100msRec "Indicates whether a violation of the
 CM_ SG_ 550 foxBMS_TimingViolation100msAlgoR "Indicates whether a violation of the timing of the 100ms algorithm task has been recorded.";
 CM_ SG_ 550 foxBMS_TimingViolationEngineRec "Indicates whether a violation of the timing of the engine task has been recorded.";
 CM_ SG_ 550 foxBMS_TimingViolation1msRec "Indicates whether a violation of the timing of the 1ms task has been recorded.";
-CM_ BO_ 551 "Transmits the unique die id of the MCU on which foxBMS is currently running (in:can.c:CAN_TransmitDieId)";
+CM_ BO_ 551 "Transmits the unique die id of the MCU on which foxBMS is currently running (in:can_cfg_tx_boot-message.c:CANTX_TransmitDieId, fv:tx)";
 CM_ SG_ 551 MCU_lotNumber "lot number of the MCU (read from DIEIDH register)";
 CM_ SG_ 551 MCU_waferNumber "wafer number of the MCU (read from DIEDL register)";
 CM_ SG_ 551 MCU_xWaferCoordinate "x coordinate of the MCU die on the wafer (read from DIEIDL register)";
 CM_ SG_ 551 MCU_yWaferCoordinate "y coordinate of the MCU die on the wafer (read from DIEIDL register)";
 
 BA_DEF_  "BusType" STRING ;
+BA_DEF_ BO_  "GenMsgCycleTime" INT 0 65535;
 BA_DEF_ SG_  "GenSigStartValue" FLOAT -3.4E+038 3.4E+038;
 
 BA_DEF_DEF_  "BusType" "CAN";
+BA_DEF_DEF_  "GenMsgCycleTime" 0;
 BA_DEF_DEF_  "GenSigStartValue" 0;
 
 BA_ "BusType" "CAN";
+
+BA_ "GenMsgCycleTime" BO_ 546 100;
+BA_ "GenMsgCycleTime" BO_ 548 100;
+BA_ "GenMsgCycleTime" BO_ 547 100;
+BA_ "GenMsgCycleTime" BO_ 640 100;
+BA_ "GenMsgCycleTime" BO_ 643 100;
+BA_ "GenMsgCycleTime" BO_ 549 1000;
+BA_ "GenMsgCycleTime" BO_ 576 5400;
+BA_ "GenMsgCycleTime" BO_ 592 4500;
+BA_ "GenMsgCycleTime" BO_ 544 100;
+BA_ "GenMsgCycleTime" BO_ 545 100;
+BA_ "GenMsgCycleTime" BO_ 641 100;
+BA_ "GenMsgCycleTime" BO_ 642 1000;
+BA_ "GenMsgCycleTime" BO_ 550 1000;
 
 BA_ "GenSigStartValue" SG_ 546 foxBMS_packCurrent 0;
 BA_ "GenSigStartValue" SG_ 546 foxBMS_batteryVoltage 0;
@@ -1605,18 +1239,10 @@ BA_ "GenSigStartValue" SG_ 547 foxBMS_maximumCellTemp 0;
 BA_ "GenSigStartValue" SG_ 547 foxBMS_minimumCellTemp 0;
 BA_ "GenSigStartValue" SG_ 547 foxBMS_inletTemperature 0;
 BA_ "GenSigStartValue" SG_ 547 foxBMS_outletTemperature 0;
-BA_ "GenSigStartValue" SG_ 640 foxBMS_String0_current 0;
-BA_ "GenSigStartValue" SG_ 640 foxBMS_String0_voltage 0;
-BA_ "GenSigStartValue" SG_ 640 foxBMS_String0_power 0;
-BA_ "GenSigStartValue" SG_ 640 foxBMS_String1_current 0;
-BA_ "GenSigStartValue" SG_ 640 foxBMS_String1_voltage 0;
-BA_ "GenSigStartValue" SG_ 640 foxBMS_String1_power 0;
-BA_ "GenSigStartValue" SG_ 640 foxBMS_String2_current 0;
-BA_ "GenSigStartValue" SG_ 640 foxBMS_String2_voltage 0;
-BA_ "GenSigStartValue" SG_ 640 foxBMS_String2_power 0;
-BA_ "GenSigStartValue" SG_ 643 String0_energyCount 0;
-BA_ "GenSigStartValue" SG_ 643 String1_energyCount 0;
-BA_ "GenSigStartValue" SG_ 643 String2_energyCount 0;
+BA_ "GenSigStartValue" SG_ 640 foxBMS_String0Current 0;
+BA_ "GenSigStartValue" SG_ 640 foxBMS_String0Voltage 0;
+BA_ "GenSigStartValue" SG_ 640 foxBMS_String0Power 0;
+BA_ "GenSigStartValue" SG_ 643 foxBMS_String0EnergyCount 0;
 BA_ "GenSigStartValue" SG_ 549 foxBMS_packSoc 0;
 BA_ "GenSigStartValue" SG_ 549 foxBMS_packSoe 0;
 BA_ "GenSigStartValue" SG_ 549 foxBMS_packEnergy 0;
@@ -2445,6 +2071,7 @@ BA_ "GenSigStartValue" SG_ 544 foxBMS_Error_Cantiming 0;
 BA_ "GenSigStartValue" SG_ 544 foxBMS_Error_PackOvercurr_Charge 0;
 BA_ "GenSigStartValue" SG_ 544 foxBMS_Error_PackOvercur_Dischrg 0;
 BA_ "GenSigStartValue" SG_ 544 foxBMS_SysMonError 0;
+BA_ "GenSigStartValue" SG_ 544 foxBMS_alertFlag 0;
 BA_ "GenSigStartValue" SG_ 545 String0_stringConnected 0;
 BA_ "GenSigStartValue" SG_ 545 String0_balancing_active 0;
 BA_ "GenSigStartValue" SG_ 545 String0_Err_overtemp_charge 0;
@@ -2497,140 +2124,16 @@ BA_ "GenSigStartValue" SG_ 545 String0_Err_negativeContactor 0;
 BA_ "GenSigStartValue" SG_ 545 String0_Err_CS_voltage1Meas 0;
 BA_ "GenSigStartValue" SG_ 545 String0_Err_CS_voltage2Meas 0;
 BA_ "GenSigStartValue" SG_ 545 String0_Err_CS_voltage3Meas 0;
-BA_ "GenSigStartValue" SG_ 545 String1_stringConnected 0;
-BA_ "GenSigStartValue" SG_ 545 String1_balancing_active 0;
-BA_ "GenSigStartValue" SG_ 545 String1_Err_overtemp_charge 0;
-BA_ "GenSigStartValue" SG_ 545 String1_Err_undertemp_charge 0;
-BA_ "GenSigStartValue" SG_ 545 String1_Err_overtemp_discharge 0;
-BA_ "GenSigStartValue" SG_ 545 String1_Err_undertemp_discharge 0;
-BA_ "GenSigStartValue" SG_ 545 String1_Err_Overcurrent_charge 0;
-BA_ "GenSigStartValue" SG_ 545 String1_Err_Overcurre_discharge 0;
-BA_ "GenSigStartValue" SG_ 545 String1_Err_Overvoltage 0;
-BA_ "GenSigStartValue" SG_ 545 String1_Err_Undervoltage 0;
-BA_ "GenSigStartValue" SG_ 545 String1_Err_deep_discharge 0;
-BA_ "GenSigStartValue" SG_ 545 String1_Err_CS_currentMeas 0;
-BA_ "GenSigStartValue" SG_ 545 String1_Err_positiveContactor 0;
-BA_ "GenSigStartValue" SG_ 545 String1_Err_openWire 0;
-BA_ "GenSigStartValue" SG_ 545 String1_openWireNumber 0;
-BA_ "GenSigStartValue" SG_ 545 String1_Err_plaus_cell_volt 0;
-BA_ "GenSigStartValue" SG_ 545 String1_Err_plaus_cell_temp 0;
-BA_ "GenSigStartValue" SG_ 545 String1_Err_plaus_string_volt 0;
-BA_ "GenSigStartValue" SG_ 545 String1_Err_slave_hardware 0;
-BA_ "GenSigStartValue" SG_ 545 String1_Err_dsyChainPrim_Comm 0;
-BA_ "GenSigStartValue" SG_ 545 String1_Err_dsyChainPrim_CRC 0;
-BA_ "GenSigStartValue" SG_ 545 String1_Err_dsyChainRedun_Comm 0;
-BA_ "GenSigStartValue" SG_ 545 String1_Err_dsyChainRedun_CRC 0;
-BA_ "GenSigStartValue" SG_ 545 String1_Err_dsyPrim_voltMeasOor 0;
-BA_ "GenSigStartValue" SG_ 545 String1_Err_dsyRedun_voltMeasOor 0;
-BA_ "GenSigStartValue" SG_ 545 String1_Err_dsyPrim_tempMeasOor 0;
-BA_ "GenSigStartValue" SG_ 545 String1_Err_dsyRedun_tempMeasOor 0;
-BA_ "GenSigStartValue" SG_ 545 String1_Err_CS_coulombCountMeas 0;
-BA_ "GenSigStartValue" SG_ 545 String1_Err_CS_energyCountMeas 0;
-BA_ "GenSigStartValue" SG_ 545 String1_Err_plaus_volt_spread 0;
-BA_ "GenSigStartValue" SG_ 545 String1_Err_plaus_temp_spread 0;
-BA_ "GenSigStartValue" SG_ 545 String1_fuseBlown 0;
-BA_ "GenSigStartValue" SG_ 545 String1_Warning_overvoltage_MOL 0;
-BA_ "GenSigStartValue" SG_ 545 String1_Warning_undervoltage_MOL 0;
-BA_ "GenSigStartValue" SG_ 545 String1_Wrng_chargeOverTemp_MOL 0;
-BA_ "GenSigStartValue" SG_ 545 String1_Wrng_dischrgOverTemp_MOL 0;
-BA_ "GenSigStartValue" SG_ 545 String1_Wrng_chargeUnderTemp_MOL 0;
-BA_ "GenSigStartValue" SG_ 545 String1_Wrng_dischrgUnderTmp_MOL 0;
-BA_ "GenSigStartValue" SG_ 545 String1_Wrng_chargeOverCur_MOL 0;
-BA_ "GenSigStartValue" SG_ 545 String1_Wrng_dischargOverCur_MOL 0;
-BA_ "GenSigStartValue" SG_ 545 String1_Wrng_chargeOverTemp_RSL 0;
-BA_ "GenSigStartValue" SG_ 545 String1_Wrng_chargeUnderTemp_RSL 0;
-BA_ "GenSigStartValue" SG_ 545 String1_Wrng_dischrgOverTemp_RSL 0;
-BA_ "GenSigStartValue" SG_ 545 String1_Wrng_dischrgUnderTmp_RSL 0;
-BA_ "GenSigStartValue" SG_ 545 String1_Wrng_chargeOverCur_RSL 0;
-BA_ "GenSigStartValue" SG_ 545 String1_Wrng_dischargOverCur_RSL 0;
-BA_ "GenSigStartValue" SG_ 545 String1_Wrng_overvoltage_RSL 0;
-BA_ "GenSigStartValue" SG_ 545 String1_Wrng_undervoltage_RSL 0;
-BA_ "GenSigStartValue" SG_ 545 String1_Err_negativeContactor 0;
-BA_ "GenSigStartValue" SG_ 545 String1_Err_CS_voltage1Meas 0;
-BA_ "GenSigStartValue" SG_ 545 String1_Err_CS_voltage2Meas 0;
-BA_ "GenSigStartValue" SG_ 545 String1_Err_CS_voltage3Meas 0;
-BA_ "GenSigStartValue" SG_ 545 String2_stringConnected 0;
-BA_ "GenSigStartValue" SG_ 545 String2_balancing_active 0;
-BA_ "GenSigStartValue" SG_ 545 String2_Err_overtemp_charge 0;
-BA_ "GenSigStartValue" SG_ 545 String2_Err_undertemp_charge 0;
-BA_ "GenSigStartValue" SG_ 545 String2_Err_overtemp_discharge 0;
-BA_ "GenSigStartValue" SG_ 545 String2_Err_undertemp_discharge 0;
-BA_ "GenSigStartValue" SG_ 545 String2_Err_Overcurrent_charge 0;
-BA_ "GenSigStartValue" SG_ 545 String2_Err_Overcurre_discharge 0;
-BA_ "GenSigStartValue" SG_ 545 String2_Err_Overvoltage 0;
-BA_ "GenSigStartValue" SG_ 545 String2_Err_Undervoltage 0;
-BA_ "GenSigStartValue" SG_ 545 String2_Err_deep_discharge 0;
-BA_ "GenSigStartValue" SG_ 545 String2_Err_CS_currentMeas 0;
-BA_ "GenSigStartValue" SG_ 545 String2_Err_positiveContactor 0;
-BA_ "GenSigStartValue" SG_ 545 String2_Err_openWire 0;
-BA_ "GenSigStartValue" SG_ 545 String2_openWireNumber 0;
-BA_ "GenSigStartValue" SG_ 545 String2_Err_plaus_cell_volt 0;
-BA_ "GenSigStartValue" SG_ 545 String2_Err_plaus_cell_temp 0;
-BA_ "GenSigStartValue" SG_ 545 String2_Err_plaus_string_volt 0;
-BA_ "GenSigStartValue" SG_ 545 String2_Err_slave_hardware 0;
-BA_ "GenSigStartValue" SG_ 545 String2_Err_dsyChainPrim_Comm 0;
-BA_ "GenSigStartValue" SG_ 545 String2_Err_dsyChainPrim_CRC 0;
-BA_ "GenSigStartValue" SG_ 545 String2_Err_dsyChainRedun_Comm 0;
-BA_ "GenSigStartValue" SG_ 545 String2_Err_dsyChainRedun_CRC 0;
-BA_ "GenSigStartValue" SG_ 545 String2_Err_dsyPrim_voltMeasOor 0;
-BA_ "GenSigStartValue" SG_ 545 String2_Err_dsyRedun_voltMeasOor 0;
-BA_ "GenSigStartValue" SG_ 545 String2_Err_dsyPrim_tempMeasOor 0;
-BA_ "GenSigStartValue" SG_ 545 String2_Err_dsyRedun_tempMeasOor 0;
-BA_ "GenSigStartValue" SG_ 545 String2_Err_CS_coulombCountMeas 0;
-BA_ "GenSigStartValue" SG_ 545 String2_Err_CS_energyCountMeas 0;
-BA_ "GenSigStartValue" SG_ 545 String2_Err_plaus_volt_spread 0;
-BA_ "GenSigStartValue" SG_ 545 String2_Err_plaus_temp_spread 0;
-BA_ "GenSigStartValue" SG_ 545 String2_fuseBlown 0;
-BA_ "GenSigStartValue" SG_ 545 String2_Warning_overvoltage_MOL 0;
-BA_ "GenSigStartValue" SG_ 545 String2_Warning_undervoltage_MOL 0;
-BA_ "GenSigStartValue" SG_ 545 String2_Wrng_chargeOverTemp_MOL 0;
-BA_ "GenSigStartValue" SG_ 545 String2_Wrng_dischrgOverTemp_MOL 0;
-BA_ "GenSigStartValue" SG_ 545 String2_Wrng_chargeUnderTemp_MOL 0;
-BA_ "GenSigStartValue" SG_ 545 String2_Wrng_dischrgUnderTmp_MOL 0;
-BA_ "GenSigStartValue" SG_ 545 String2_Wrng_chargeOverCur_MOL 0;
-BA_ "GenSigStartValue" SG_ 545 String2_Wrng_dischargOverCur_MOL 0;
-BA_ "GenSigStartValue" SG_ 545 String2_Wrng_chargeOverTemp_RSL 0;
-BA_ "GenSigStartValue" SG_ 545 String2_Wrng_chargeUnderTemp_RSL 0;
-BA_ "GenSigStartValue" SG_ 545 String2_Wrng_dischrgOverTemp_RSL 0;
-BA_ "GenSigStartValue" SG_ 545 String2_Wrng_dischrgUnderTmp_RSL 0;
-BA_ "GenSigStartValue" SG_ 545 String2_Wrng_chargeOverCur_RSL 0;
-BA_ "GenSigStartValue" SG_ 545 String2_Wrng_dischargOverCur_RSL 0;
-BA_ "GenSigStartValue" SG_ 545 String2_Wrng_overvoltage_RSL 0;
-BA_ "GenSigStartValue" SG_ 545 String2_Wrng_undervoltage_RSL 0;
-BA_ "GenSigStartValue" SG_ 545 String2_Err_negativeContactor 0;
-BA_ "GenSigStartValue" SG_ 545 String2_Err_CS_voltage1Meas 0;
-BA_ "GenSigStartValue" SG_ 545 String2_Err_CS_voltage2Meas 0;
-BA_ "GenSigStartValue" SG_ 545 String2_Err_CS_voltage3Meas 0;
 BA_ "GenSigStartValue" SG_ 641 String0_minimumCellVoltage 0;
 BA_ "GenSigStartValue" SG_ 641 String0_maximumCellVoltage 0;
 BA_ "GenSigStartValue" SG_ 641 String0_maximumCellTemperature 0;
 BA_ "GenSigStartValue" SG_ 641 String0_minimumCellTemperature 0;
-BA_ "GenSigStartValue" SG_ 641 String1_minimumCellVoltage 0;
-BA_ "GenSigStartValue" SG_ 641 String1_maximumCellVoltage 0;
-BA_ "GenSigStartValue" SG_ 641 String1_maximumCellTemperature 0;
-BA_ "GenSigStartValue" SG_ 641 String1_minimumCellTemperature 0;
-BA_ "GenSigStartValue" SG_ 641 String2_minimumCellVoltage 0;
-BA_ "GenSigStartValue" SG_ 641 String2_maximumCellVoltage 0;
-BA_ "GenSigStartValue" SG_ 641 String2_maximumCellTemperature 0;
-BA_ "GenSigStartValue" SG_ 641 String2_minimumCellTemperature 0;
 BA_ "GenSigStartValue" SG_ 642 String0_minimumSOC 0;
 BA_ "GenSigStartValue" SG_ 642 String0_averageSOC 0;
 BA_ "GenSigStartValue" SG_ 642 String0_maximumSOC 0;
 BA_ "GenSigStartValue" SG_ 642 String0_SOE 0;
 BA_ "GenSigStartValue" SG_ 642 String0_Energy_kWh 0;
 BA_ "GenSigStartValue" SG_ 642 String0_SOH 0;
-BA_ "GenSigStartValue" SG_ 642 String1_minimumSOC 0;
-BA_ "GenSigStartValue" SG_ 642 String1_averageSOC 0;
-BA_ "GenSigStartValue" SG_ 642 String1_maximumSOC 0;
-BA_ "GenSigStartValue" SG_ 642 String1_SOE 0;
-BA_ "GenSigStartValue" SG_ 642 String1_Energy_kWh 0;
-BA_ "GenSigStartValue" SG_ 642 String1_SOH 0;
-BA_ "GenSigStartValue" SG_ 642 String2_minimumSOC 0;
-BA_ "GenSigStartValue" SG_ 642 String2_averageSOC 0;
-BA_ "GenSigStartValue" SG_ 642 String2_maximumSOC 0;
-BA_ "GenSigStartValue" SG_ 642 String2_SOE 0;
-BA_ "GenSigStartValue" SG_ 642 String2_Energy_kWh 0;
-BA_ "GenSigStartValue" SG_ 642 String2_SOH 0;
 BA_ "GenSigStartValue" SG_ 1313 IVT0_Result_I_systemError 0;
 BA_ "GenSigStartValue" SG_ 1313 IVT0_Result_I_OCS 0;
 BA_ "GenSigStartValue" SG_ 1313 IVT0_Result_I_overallMeasError 0;
@@ -2687,118 +2190,6 @@ BA_ "GenSigStartValue" SG_ 1320 IVT0_Result_Wh_channelMeasError 0;
 BA_ "GenSigStartValue" SG_ 1320 IVT0_Result_Wh 0;
 BA_ "GenSigStartValue" SG_ 1320 IVT0_MsgCount_Result_Wh 0;
 BA_ "GenSigStartValue" SG_ 1320 IVT0_ID_Result_Wh 7;
-BA_ "GenSigStartValue" SG_ 1569 IVT1_Result_I_systemError 0;
-BA_ "GenSigStartValue" SG_ 1569 IVT1_Result_I_OCS 0;
-BA_ "GenSigStartValue" SG_ 1569 IVT1_Result_I_overallMeasError 0;
-BA_ "GenSigStartValue" SG_ 1569 IVT1_Result_I_channelMeasError 0;
-BA_ "GenSigStartValue" SG_ 1569 IVT1_ID_Result_I 0;
-BA_ "GenSigStartValue" SG_ 1569 IVT1_MsgCount_Result_I 0;
-BA_ "GenSigStartValue" SG_ 1569 IVT1_Result_I_mA 0;
-BA_ "GenSigStartValue" SG_ 1570 IVT1_Result_U1_systemError 0;
-BA_ "GenSigStartValue" SG_ 1570 IVT1_Result_U1_overallMeasError 0;
-BA_ "GenSigStartValue" SG_ 1570 IVT1_Result_U1_channelMeasError 0;
-BA_ "GenSigStartValue" SG_ 1570 IVT1_Result_U1_OCS 0;
-BA_ "GenSigStartValue" SG_ 1570 IVT1_ID_Result_U1 1;
-BA_ "GenSigStartValue" SG_ 1570 IVT1_MsgCount_Result_U1 0;
-BA_ "GenSigStartValue" SG_ 1570 IVT1_Result_U1_mV 0;
-BA_ "GenSigStartValue" SG_ 1571 IVT1_Result_U2_systemError 0;
-BA_ "GenSigStartValue" SG_ 1571 IVT1_Result_U2_OCS 0;
-BA_ "GenSigStartValue" SG_ 1571 IVT1_Result_U2_overallMeasError 0;
-BA_ "GenSigStartValue" SG_ 1571 IVT1_Result_U2_channelMeasError 0;
-BA_ "GenSigStartValue" SG_ 1571 IVT1_ID_Result_U2 2;
-BA_ "GenSigStartValue" SG_ 1571 IVT1_MsgCount_Result_U2 0;
-BA_ "GenSigStartValue" SG_ 1571 IVT1_Result_U2_mV 0;
-BA_ "GenSigStartValue" SG_ 1572 IVT1_Result_U3_systemError 0;
-BA_ "GenSigStartValue" SG_ 1572 IVT1_Result_U3_OCS 0;
-BA_ "GenSigStartValue" SG_ 1572 IVT1_Result_U3_overallMeasError 0;
-BA_ "GenSigStartValue" SG_ 1572 IVT1_Result_U3_channelMeasError 0;
-BA_ "GenSigStartValue" SG_ 1572 IVT1_ID_Result_U3 3;
-BA_ "GenSigStartValue" SG_ 1572 IVT1_MsgCount_Result_U3 0;
-BA_ "GenSigStartValue" SG_ 1572 IVT1_Result_U3_mV 0;
-BA_ "GenSigStartValue" SG_ 1573 IVT1_Result_T_systemError 0;
-BA_ "GenSigStartValue" SG_ 1573 IVT1_Result_T_OCS 0;
-BA_ "GenSigStartValue" SG_ 1573 IVT1_Result_T_overallMeasError 0;
-BA_ "GenSigStartValue" SG_ 1573 IVT1_Result_T_channelMeasError 0;
-BA_ "GenSigStartValue" SG_ 1573 IVT1_ID_Result_T 4;
-BA_ "GenSigStartValue" SG_ 1573 IVT1_MsgCount_Result_T 0;
-BA_ "GenSigStartValue" SG_ 1573 IVT1_Result_T_ddegC 0;
-BA_ "GenSigStartValue" SG_ 1574 IVT1_Result_W_systemError 0;
-BA_ "GenSigStartValue" SG_ 1574 IVT1_Result_W_OCS 0;
-BA_ "GenSigStartValue" SG_ 1574 IVT1_Result_W_overallMeasError 0;
-BA_ "GenSigStartValue" SG_ 1574 IVT1_Result_W_channelMeasError 0;
-BA_ "GenSigStartValue" SG_ 1574 IVT1_Result_W 0;
-BA_ "GenSigStartValue" SG_ 1574 IVT1_MsgCount_Result_W 0;
-BA_ "GenSigStartValue" SG_ 1574 IVT1_ID_Result_W 5;
-BA_ "GenSigStartValue" SG_ 1575 IVT1_Result_As_systemError 0;
-BA_ "GenSigStartValue" SG_ 1575 IVT1_Result_As_OCS 0;
-BA_ "GenSigStartValue" SG_ 1575 IVT1_Result_As_overallMeasError 0;
-BA_ "GenSigStartValue" SG_ 1575 IVT1_Result_As_channelMeasError 0;
-BA_ "GenSigStartValue" SG_ 1575 IVT1_Result_As 0;
-BA_ "GenSigStartValue" SG_ 1575 IVT1_MsgCount_Result_As 0;
-BA_ "GenSigStartValue" SG_ 1575 IVT1_ID_Result_As 6;
-BA_ "GenSigStartValue" SG_ 1576 IVT1_Result_Wh_systemError 0;
-BA_ "GenSigStartValue" SG_ 1576 IVT1_Result_Wh_OCS 0;
-BA_ "GenSigStartValue" SG_ 1576 IVT1_Result_Wh_overallMeasError 0;
-BA_ "GenSigStartValue" SG_ 1576 IVT1_Result_Wh_channelMeasError 0;
-BA_ "GenSigStartValue" SG_ 1576 IVT1_Result_Wh 0;
-BA_ "GenSigStartValue" SG_ 1576 IVT1_MsgCount_Result_Wh 0;
-BA_ "GenSigStartValue" SG_ 1576 IVT1_ID_Result_Wh 7;
-BA_ "GenSigStartValue" SG_ 1825 IVT2_Result_I_systemError 0;
-BA_ "GenSigStartValue" SG_ 1825 IVT2_Result_I_OCS 0;
-BA_ "GenSigStartValue" SG_ 1825 IVT2_Result_I_overallMeasError 0;
-BA_ "GenSigStartValue" SG_ 1825 IVT2_Result_I_channelMeasError 0;
-BA_ "GenSigStartValue" SG_ 1825 IVT2_ID_Result_I 0;
-BA_ "GenSigStartValue" SG_ 1825 IVT2_MsgCount_Result_I 0;
-BA_ "GenSigStartValue" SG_ 1825 IVT2_Result_I_mA 0;
-BA_ "GenSigStartValue" SG_ 1826 IVT2_Result_U1_systemError 0;
-BA_ "GenSigStartValue" SG_ 1826 IVT2_Result_U1_overallMeasError 0;
-BA_ "GenSigStartValue" SG_ 1826 IVT2_Result_U1_channelMeasError 0;
-BA_ "GenSigStartValue" SG_ 1826 IVT2_Result_U1_OCS 0;
-BA_ "GenSigStartValue" SG_ 1826 IVT2_ID_Result_U1 1;
-BA_ "GenSigStartValue" SG_ 1826 IVT2_MsgCount_Result_U1 0;
-BA_ "GenSigStartValue" SG_ 1826 IVT2_Result_U1_mV 0;
-BA_ "GenSigStartValue" SG_ 1827 IVT2_Result_U2_systemError 0;
-BA_ "GenSigStartValue" SG_ 1827 IVT2_Result_U2_OCS 0;
-BA_ "GenSigStartValue" SG_ 1827 IVT2_Result_U2_overallMeasError 0;
-BA_ "GenSigStartValue" SG_ 1827 IVT2_Result_U2_channelMeasError 0;
-BA_ "GenSigStartValue" SG_ 1827 IVT2_ID_Result_U2 2;
-BA_ "GenSigStartValue" SG_ 1827 IVT2_MsgCount_Result_U2 0;
-BA_ "GenSigStartValue" SG_ 1827 IVT2_Result_U2_mV 0;
-BA_ "GenSigStartValue" SG_ 1828 IVT2_Result_U3_systemError 0;
-BA_ "GenSigStartValue" SG_ 1828 IVT2_Result_U3_OCS 0;
-BA_ "GenSigStartValue" SG_ 1828 IVT2_Result_U3_overallMeasError 0;
-BA_ "GenSigStartValue" SG_ 1828 IVT2_Result_U3_channelMeasError 0;
-BA_ "GenSigStartValue" SG_ 1828 IVT2_ID_Result_U3 3;
-BA_ "GenSigStartValue" SG_ 1828 IVT2_MsgCount_Result_U3 0;
-BA_ "GenSigStartValue" SG_ 1828 IVT2_Result_U3_mV 0;
-BA_ "GenSigStartValue" SG_ 1829 IVT2_Result_T_systemError 0;
-BA_ "GenSigStartValue" SG_ 1829 IVT2_Result_T_OCS 0;
-BA_ "GenSigStartValue" SG_ 1829 IVT2_Result_T_overallMeasError 0;
-BA_ "GenSigStartValue" SG_ 1829 IVT2_Result_T_channelMeasError 0;
-BA_ "GenSigStartValue" SG_ 1829 IVT2_ID_Result_T 4;
-BA_ "GenSigStartValue" SG_ 1829 IVT2_MsgCount_Result_T 0;
-BA_ "GenSigStartValue" SG_ 1829 IVT2_Result_T_ddegC 0;
-BA_ "GenSigStartValue" SG_ 1830 IVT2_Result_W_systemError 0;
-BA_ "GenSigStartValue" SG_ 1830 IVT2_Result_W_OCS 0;
-BA_ "GenSigStartValue" SG_ 1830 IVT2_Result_W_overallMeasError 0;
-BA_ "GenSigStartValue" SG_ 1830 IVT2_Result_W_channelMeasError 0;
-BA_ "GenSigStartValue" SG_ 1830 IVT2_Result_W 0;
-BA_ "GenSigStartValue" SG_ 1830 IVT2_MsgCount_Result_W 0;
-BA_ "GenSigStartValue" SG_ 1830 IVT2_ID_Result_W 5;
-BA_ "GenSigStartValue" SG_ 1831 IVT2_Result_As_systemError 0;
-BA_ "GenSigStartValue" SG_ 1831 IVT2_Result_As_OCS 0;
-BA_ "GenSigStartValue" SG_ 1831 IVT2_Result_As_overallMeasError 0;
-BA_ "GenSigStartValue" SG_ 1831 IVT2_Result_As_channelMeasError 0;
-BA_ "GenSigStartValue" SG_ 1831 IVT2_Result_As 0;
-BA_ "GenSigStartValue" SG_ 1831 IVT2_MsgCount_Result_As 0;
-BA_ "GenSigStartValue" SG_ 1831 IVT2_ID_Result_As 6;
-BA_ "GenSigStartValue" SG_ 1832 IVT2_Result_Wh_systemError 0;
-BA_ "GenSigStartValue" SG_ 1832 IVT2_Result_Wh_OCS 0;
-BA_ "GenSigStartValue" SG_ 1832 IVT2_Result_Wh_overallMeasError 0;
-BA_ "GenSigStartValue" SG_ 1832 IVT2_Result_Wh_channelMeasError 0;
-BA_ "GenSigStartValue" SG_ 1832 IVT2_Result_Wh 0;
-BA_ "GenSigStartValue" SG_ 1832 IVT2_MsgCount_Result_Wh 0;
-BA_ "GenSigStartValue" SG_ 1832 IVT2_ID_Result_Wh 7;
 BA_ "GenSigStartValue" SG_ 409 foxBMS_majorVersionNumber 0;
 BA_ "GenSigStartValue" SG_ 409 foxBMS_minorVersionNumber 0;
 BA_ "GenSigStartValue" SG_ 409 foxBMS_patchVersionNumber 0;
@@ -2822,13 +2213,14 @@ BA_ "GenSigStartValue" SG_ 551 MCU_waferNumber 0;
 BA_ "GenSigStartValue" SG_ 551 MCU_xWaferCoordinate 0;
 BA_ "GenSigStartValue" SG_ 551 MCU_yWaferCoordinate 0;
 
-VAL_ 640 foxBMS_StringValues_Mux 0 "mux_valuesString_0" 1 "mux_valuesString_1" 2 "mux_valuesString_2" ;
-VAL_ 643 foxBMS_StringValues2_Mux 0 "mux_values2String_0" 1 "mux_values2String_1" 2 "mux_values2String_2" ;
-VAL_ 576 foxBMS_CellVoltage_Mux 0 "mux_cellVoltage_000_003" 1 "mux_cellVoltage_004_007" 2 "mux_cellVoltage_008_011" 3 "mux_cellVoltage_012_015" 4 "mux_cellVoltage_016_019" 5 "mux_cellVoltage_020_023" 6 "mux_cellVoltage_024_027" 7 "mux_cellVoltage_028_031" 8 "mux_cellVoltage_032_035" 9 "mux_cellVoltage_036_039" 10 "mux_cellVoltage_040_043" 11 "mux_cellVoltage_044_047" 12 "mux_cellVoltage_048_051" 13 "mux_cellVoltage_052_055" 14 "mux_cellVoltage_056_059" 15 "mux_cellVoltage_060_063" 16 "mux_cellVoltage_064_067" 17 "mux_cellVoltage_068_071" 18 "mux_cellVoltage_072_075" 19 "mux_cellVoltage_076_079" 20 "mux_cellVoltage_080_083" 21 "mux_cellVoltage_084_087" 22 "mux_cellVoltage_088_091" 23 "mux_cellVoltage_092_095" 24 "mux_cellVoltage_096_099" 25 "mux_cellVoltage_100_103" 26 "mux_cellVoltage_104_107" 27 "mux_cellVoltage_108_111" 28 "mux_cellVoltage_112_115" 29 "mux_cellVoltage_116_119" 30 "mux_cellVoltage_120_123" 31 "mux_cellVoltage_124_127" 32 "mux_cellVoltage_128_131" 33 "mux_cellVoltage_132_135" 34 "mux_cellVoltage_136_139" 35 "mux_cellVoltage_140_143"
+VAL_ 640 foxBMS_StringValuesP0_Mux 0 "mux_valuesP0String_0" ;
+VAL_ 643 foxBMS_StringValuesP1_Mux 0 "mux_valuesP1String_0" ;
+VAL_ 576 foxBMS_CellVoltages_Mux 0 "mux_cellVoltage_000_003" 1 "mux_cellVoltage_004_007" 2 "mux_cellVoltage_008_011" 3 "mux_cellVoltage_012_015" 4 "mux_cellVoltage_016_019" 5 "mux_cellVoltage_020_023" 6 "mux_cellVoltage_024_027" 7 "mux_cellVoltage_028_031" 8 "mux_cellVoltage_032_035" 9 "mux_cellVoltage_036_039" 10 "mux_cellVoltage_040_043" 11 "mux_cellVoltage_044_047" 12 "mux_cellVoltage_048_051" 13 "mux_cellVoltage_052_055" 14 "mux_cellVoltage_056_059" 15 "mux_cellVoltage_060_063" 16 "mux_cellVoltage_064_067" 17 "mux_cellVoltage_068_071" 18 "mux_cellVoltage_072_075" 19 "mux_cellVoltage_076_079" 20 "mux_cellVoltage_080_083" 21 "mux_cellVoltage_084_087" 22 "mux_cellVoltage_088_091" 23 "mux_cellVoltage_092_095" 24 "mux_cellVoltage_096_099" 25 "mux_cellVoltage_100_103" 26 "mux_cellVoltage_104_107" 27 "mux_cellVoltage_108_111" 28 "mux_cellVoltage_112_115" 29 "mux_cellVoltage_116_119" 30 "mux_cellVoltage_120_123" 31 "mux_cellVoltage_124_127" 32 "mux_cellVoltage_128_131" 33 "mux_cellVoltage_132_135" 34 "mux_cellVoltage_136_139" 35 "mux_cellVoltage_140_143"
 36 "mux_cellVoltage_144_147" 37 "mux_cellVoltage_148_151" 38 "mux_cellVoltage_152_155" 39 "mux_cellVoltage_156_159" 40 "mux_cellVoltage_160_163" 41 "mux_cellVoltage_164_167" 42 "mux_cellVoltage_168_171" 43 "mux_cellVoltage_172_175" 44 "mux_cellVoltage_176_179" 45 "mux_cellVoltage_180_183" 46 "mux_cellVoltage_184_187" 47 "mux_cellVoltage_188_191" 48 "mux_cellVoltage_192_195" 49 "mux_cellVoltage_196_199" 50 "mux_cellVoltage_200_203" 51 "mux_cellVoltage_204_207" 52 "mux_cellVoltage_208_211" 53 "mux_cellVoltage_212_215" ;
-VAL_ 592 foxBMS_CellTemperature_Mux 0 "mux_cellTemperature_000_005" 1 "mux_cellTemperature_006_011" 2 "mux_cellTemperature_012_017" 3 "mux_cellTemperature_018_023" 4 "mux_cellTemperature_024_029" 5 "mux_cellTemperature_030_035" 6 "mux_cellTemperature_036_041" 7 "mux_cellTemperature_042_047" 8 "mux_cellTemperature_048_053" 9 "mux_cellTemperature_054_059" 10 "mux_cellTemperature_060_065" 11 "mux_cellTemperature_066_071" 12 "mux_cellTemperature_072_077" 13 "mux_cellTemperature_078_083" 14 "mux_cellTemperature_084_089" 15 "mux_cellTemperature_090_095" 16 "mux_cellTemperature_096_101" 17 "mux_cellTemperature_102_107" 18 "mux_cellTemperature_108_113" 19 "mux_cellTemperature_114_119" 20 "mux_cellTemperature_120_125" 21 "mux_cellTemperature_126_131" 22 "mux_cellTemperature_132_137" 23 "mux_cellTemperature_138_143" 24 "mux_cellTemperature_144_149" 25 "mux_cellTemperature_150_155" 26 "mux_cellTemperature_156_161" 27 "mux_cellTemperature_162_167" 28 "mux_cellTemperature_168_173" 29 "mux_cellTemperature_174_179" ;
-VAL_ 545 foxBMS_StringState_Mux 0 "mux_stateString0" 1 "mux_stateString1" 2 "mux_stateString2" ;
-VAL_ 641 foxBMS_StringMinMaxValues_Mux 0 "mux_minMaxValuesString0" 1 "mux_minMaxValuesString1" 2 "mux_minMaxValuesString2" ;
-VAL_ 642 foxBMS_StringStateEstimation_Mux 0 "mux_String0_SOC_SOE" 1 "mux_String1_SOC_SOE" 2 "mux_String2_SOC_SOE" ;
+VAL_ 592 foxBMS_CellTemperatures_Mux 0 "mux_cellTemperature_000_005" 1 "mux_cellTemperature_006_011" 2 "mux_cellTemperature_012_017" 3 "mux_cellTemperature_018_023" 4 "mux_cellTemperature_024_029" 5 "mux_cellTemperature_030_035" 6 "mux_cellTemperature_036_041" 7 "mux_cellTemperature_042_047" 8 "mux_cellTemperature_048_053" 9 "mux_cellTemperature_054_059" 10 "mux_cellTemperature_060_065" 11 "mux_cellTemperature_066_071" 12 "mux_cellTemperature_072_077" 13 "mux_cellTemperature_078_083" 14 "mux_cellTemperature_084_089" 15 "mux_cellTemperature_090_095" 16 "mux_cellTemperature_096_101" 17 "mux_cellTemperature_102_107" 18 "mux_cellTemperature_108_113" 19 "mux_cellTemperature_114_119" 20 "mux_cellTemperature_120_125" 21 "mux_cellTemperature_126_131" 22 "mux_cellTemperature_132_137" 23 "mux_cellTemperature_138_143" 24 "mux_cellTemperature_144_149" 25 "mux_cellTemperature_150_155" 26 "mux_cellTemperature_156_161" 27 "mux_cellTemperature_162_167" 28 "mux_cellTemperature_168_173" 29 "mux_cellTemperature_174_179" ;
+VAL_ 545 foxBMS_StringState_Mux 0 "mux_stateString0" ;
+VAL_ 641 foxBMS_StringMinMaxValues_Mux 0 "mux_minMaxValuesString0" ;
+VAL_ 642 foxBMS_StringStateEstimation_Mux 0 "mux_String0_SOC_SOE" ;
 VAL_ 560 foxBMS_modeRequest 0 "mode_Standby" 1 "mode_Discharge" 2 "mode_Charge" ;
 VAL_ 544 foxBMS_State 0 "BMS_UNINITIALIZED" 1 "BMS_INITIALIZATION" 2 "BMS_INITIALIZED" 3 "BMS_IDLE" 4 "BMS_OPEN_CONTACTORS" 5 "BMS_STANDBY" 6 "BMS_PRECHARGE" 7 "BMS_NORMAL" 8 "BMS_DISCHARGE" 9 "BMS_CHARGE" 10 "BMS_ERROR" 11 "BMS_UNDEFINED" ;
+VAL_ 545 String0_fuseBlown 0 "Fuse okay" 1 "Fuse blown" ;

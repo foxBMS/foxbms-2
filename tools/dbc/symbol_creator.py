@@ -42,6 +42,7 @@
 
 import argparse
 import logging
+import math
 from pathlib import Path
 
 SCRIPT_PATH = Path(__file__).parent.resolve()
@@ -97,18 +98,20 @@ def main():
     cell_voltages = SCRIPT_PATH / "multiplexed_cell_voltages_for_sym_file.txt"
     volts = []
     name = "cellVoltage"
+    cycle_time_ms = str(math.ceil(args.number_of_cells / 4) * 100)
     for i in range(0, args.number_of_cells):
         volts.append("[foxBMS_CellVoltage]")
         if not i:
             volts.append("ID=240h")
-        volts.append("DLC=8")
+        volts.append("Len=8")
+        volts.append(f"CycleTime={cycle_time_ms} -p")
         volts.append(
             f"Mux=mux_{name}_{(i * 4):03d}_{((i * 4) + 3):03d} 0,8 {sym_hex(i)}  -m"
         )
-        volts.append(f"Var={name}_{(i * 4):03d}_invalidFlag unsigned 11,1 -m")
-        volts.append(f"Var={name}_{((i * 4) + 1):03d}_invalidFlag unsigned 10,1 -m")
-        volts.append(f"Var={name}_{((i * 4) + 2):03d}_invalidFlag unsigned 9,1 -m")
-        volts.append(f"Var={name}_{((i * 4) + 3):03d}_invalidFlag unsigned 8,1 -m")
+        volts.append(f"Var={name}_{(i * 4):03d}_invalidFlag bit 11,1 -m")
+        volts.append(f"Var={name}_{((i * 4) + 1):03d}_invalidFlag bit 10,1 -m")
+        volts.append(f"Var={name}_{((i * 4) + 2):03d}_invalidFlag bit 9,1 -m")
+        volts.append(f"Var={name}_{((i * 4) + 3):03d}_invalidFlag bit 8,1 -m")
         volts.append(f"Var={name}_{(i * 4):03d} unsigned 12,13 -m /u:mV")
         volts.append(f"Var={name}_{((i * 4) + 1):03d} unsigned 25,13 -m /u:mV")
         volts.append(f"Var={name}_{((i * 4) + 2):03d} unsigned 38,13 -m /u:mV")
@@ -119,20 +122,22 @@ def main():
     cell_temperatures = SCRIPT_PATH / "multiplexed_cell_temperatures_for_sym_file.txt"
     temps = []
     name = "cellTemperature"
+    cycle_time_ms = str(math.ceil(args.number_of_cell_temperatures / 6) * 100)
     for i in range(0, args.number_of_cell_temperatures):
         temps.append("[foxBMS_CellTemperature]")
         if not i:
             temps.append("ID=250h")
-        temps.append("DLC=8")
+        temps.append("Len=8")
+        temps.append(f"CycleTime={cycle_time_ms} -p")
         temps.append(
             f"Mux=mux_{name}_{(i * 6):03d}_{((i * 6) + 5):03d} 0,8 {sym_hex(i)}  -m"
         )
-        temps.append(f"Var={name}_{(i * 6):03d}_invalidFlag unsigned 15,1 -m")
-        temps.append(f"Var={name}_{((i * 6) + 1):03d}_invalidFlag unsigned 14,1 -m")
-        temps.append(f"Var={name}_{((i * 6) + 2):03d}_invalidFlag unsigned 13,1 -m")
-        temps.append(f"Var={name}_{((i * 6) + 3):03d}_invalidFlag unsigned 12,1 -m")
-        temps.append(f"Var={name}_{((i * 6) + 4):03d}_invalidFlag unsigned 11,1 -m")
-        temps.append(f"Var={name}_{((i * 6) + 5):03d}_invalidFlag unsigned 10,1 -m")
+        temps.append(f"Var={name}_{(i * 6):03d}_invalidFlag bit 15,1 -m")
+        temps.append(f"Var={name}_{((i * 6) + 1):03d}_invalidFlag bit 14,1 -m")
+        temps.append(f"Var={name}_{((i * 6) + 2):03d}_invalidFlag bit 13,1 -m")
+        temps.append(f"Var={name}_{((i * 6) + 3):03d}_invalidFlag bit 12,1 -m")
+        temps.append(f"Var={name}_{((i * 6) + 4):03d}_invalidFlag bit 11,1 -m")
+        temps.append(f"Var={name}_{((i * 6) + 5):03d}_invalidFlag bit 10,1 -m")
         temps.append(f"Var={name}_{(i * 6):03d} signed 16,8 -m /u:degC")
         temps.append(f"Var={name}_{((i * 6) + 1):03d} signed 24,8 -m /u:degC")
         temps.append(f"Var={name}_{((i * 6) + 2):03d} signed 32,8 -m /u:degC")

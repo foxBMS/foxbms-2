@@ -1,5 +1,8 @@
 # Axivion Bauhaus Suite Configuration for foxBMS 2
 
+> **NOTE:** For running local Axivion builds see
+  [scripts/README.md](scripts/README.md)
+
 ## Directory Description
 
 - This directory contains the Axivion setup for the TI ARM CGT compiler for TI
@@ -46,6 +49,7 @@
 └───scripts
         ci_check_freshness_of_architecture_svg.py
         dep_analysis.py
+        get_local_host.py
         gravis_export_architecture_svg.py
         start_analysis.bat
         start_local_analysis.bat

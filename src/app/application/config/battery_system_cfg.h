@@ -43,8 +43,8 @@
  * @file    battery_system_cfg.h
  * @author  foxBMS Team
  * @date    2019-12-10 (date of creation)
- * @updated 2022-07-28 (date of last update)
- * @version v1.4.0
+ * @updated 2022-10-27 (date of last update)
+ * @version v1.4.1
  * @ingroup BATTERY_SYSTEM_CONFIGURATION
  * @prefix  BS
  *
@@ -71,11 +71,7 @@ typedef enum {
     BS_STRING_WITHOUT_PRECHARGE,
 } BS_STRING_PRECHARGE_PRESENT_e;
 
-/**
- * Symbolic identifiers for strings.
- * Currently unused.
- * Added for future compatibility.
- */
+/** Symbolic identifiers for strings. */
 typedef enum {
     BS_STRING0    = 0u,
     BS_STRING1    = 1u,
@@ -219,6 +215,28 @@ typedef enum {
 #endif /* CURRENT_SENSOR_PRESENT == true */
 
 /**
+ * @brief Maximum break current of main contactors.
+ * @details The contacts of the main contactors can be welded, when attempting
+ *          to interrupt the current flow while a current higher than the
+ *          maximum break current of the contactor is flowing.
+ *
+ *          Thus, the contactors will not be opened if the floating current is
+ *          above this value. The fuse should trigger to interrupt current
+ *          flows above this value.
+ */
+#define BS_MAIN_CONTACTORS_MAXIMUM_BREAK_CURRENT_mA (500000)
+
+/**
+ * @brief Maximum fuse trigger duration
+ * @details If the current is above #BS_MAIN_CONTACTORS_MAXIMUM_BREAK_CURRENT_mA,
+ *          the BMS state machine will wait this time until the fuse triggers so
+ *          that the current will be interrupted by the fuse and not the
+ *          contactors. After this time, the BMS will nevertheless try to open
+ *          the contactors.
+ */
+#define BS_MAIN_FUSE_MAXIMUM_TRIGGER_DURATION_ms (30000u)
+
+/**
  * @brief   Maximum string current limit in mA that is used in the SOA module
  *          to check for string overcurrent
 * @details When maximum safety limit (MSL) is violated, error state is
@@ -258,23 +276,6 @@ typedef enum {
 
 /**
  * @ingroup CONFIG_BATTERYSYSTEM
- * @brief   Checking if current is in SOF limits of cells.
- * @details If set to true the current is checked against the SOF limits.
- *          If set to false the current is checked against the constant values
- *          for charging and discharging:
- *          - #BC_CURRENT_MAX_DISCHARGE_MSL_mA
- *          - #BC_CURRENT_MAX_DISCHARGE_RSL_mA
- *          - #BC_CURRENT_MAX_DISCHARGE_MOL_mA
- *
- *          - #BC_CURRENT_MAX_CHARGE_MSL_mA
- *          - #BC_CURRENT_MAX_CHARGE_RSL_mA
- *          - #BC_CURRENT_MAX_CHARGE_MOL_mA
- * @ptype   bool
- */
-#define BMS_CHECK_SOF_CURRENT_LIMITS (true)
-
-/**
- * @ingroup CONFIG_BATTERYSYSTEM
  * @brief   Defines behaviour if an insulation error is detected
  * @details - If set to true: contactors will be opened
  *          - If set to false: contactors will NOT be opened
@@ -299,7 +300,9 @@ typedef enum {
 /** Number of contactors in addition to string contactors (e.g., PRECHARGE).*/
 #define BS_NR_OF_CONTACTORS_OUTSIDE_STRINGS (1u)
 
-/** Number of contactors. One per string + main and precharge */
+/** Total number of contactors in system:
+ *  - Two contactors per string (string+ and string-)
+ *  - One optional precharge contactor for each string */
 #define BS_NR_OF_CONTACTORS ((2u * BS_NR_OF_STRINGS) + BS_NR_OF_CONTACTORS_OUTSIDE_STRINGS)
 
 /**
@@ -390,6 +393,8 @@ typedef enum {
 /** Periodic open-wire check time in ERROR state in ms */
 #define BS_ERROR_OPEN_WIRE_PERIOD_ms (30000)
 /**@}*/
+
+FAS_STATIC_ASSERT((BS_NR_OF_STRINGS <= (uint8_t)UINT8_MAX), "This code assumes BS_NR_OF_STRINGS fits into uint8_t");
 
 /*========== Extern Constant and Variable Declarations ======================*/
 /** Precharge presence of not for each string */

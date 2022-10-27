@@ -43,8 +43,8 @@
  * @file    redundancy.c
  * @author  foxBMS Team
  * @date    2020-07-31 (date of creation)
- * @updated 2022-07-28 (date of last update)
- * @version v1.4.0
+ * @updated 2022-10-27 (date of last update)
+ * @version v1.4.1
  * @ingroup APPLICATION
  * @prefix  MRC
  *
@@ -668,9 +668,11 @@ static void MRC_ValidateBatteryVoltageMeasurement(void) {
     if (0 != numberOfValidStringVoltages) {
         /* AXIVION Next Codeline Style MisraC2012Directive-4.1: truncation impossible;
            we sum INT32 values x times and divide by x, resulting in INT32 */
-        mrc_tablePackValues.batteryVoltage_mV = (int32_t)(sumOfStringValues_mV / numberOfValidStringVoltages);
+        mrc_tablePackValues.batteryVoltage_mV     = (int32_t)(sumOfStringValues_mV / numberOfValidStringVoltages);
+        mrc_tablePackValues.invalidBatteryVoltage = 0u;
     } else {
-        mrc_tablePackValues.batteryVoltage_mV = INT32_MAX;
+        mrc_tablePackValues.batteryVoltage_mV     = INT32_MAX;
+        mrc_tablePackValues.invalidBatteryVoltage = 1u;
     }
 }
 

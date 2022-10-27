@@ -43,8 +43,8 @@
  * @file    bender_iso165c.h
  * @author  foxBMS Team
  * @date    2019-04-07 (date of creation)
- * @updated 2022-07-28 (date of last update)
- * @version v1.4.0
+ * @updated 2022-10-27 (date of last update)
+ * @version v1.4.1
  * @ingroup DRIVERS
  * @prefix  I165C
  *
@@ -73,16 +73,16 @@
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 #ifdef UNITY_UNIT_TEST
-extern void TEST_I165C_ResetCanData(CAN_BUFFERELEMENT_s *canMessage);
-extern void TEST_I165C_WriteDataWord(uint8_t dataWord, uint16_t data, CAN_BUFFERELEMENT_s *canMessage);
-extern void TEST_I165C_ReadDataWord(uint8_t dataWord, uint16_t *data, CAN_BUFFERELEMENT_s canMessage);
-extern void TEST_I165C_ReadDataWordImdInfo(uint8_t dataWord, uint16_t *data, CAN_BUFFERELEMENT_s canMessage);
-extern void TEST_I165C_ReadDataByte(uint8_t dataByte, uint8_t *data, CAN_BUFFERELEMENT_s canMessage);
-extern void TEST_I165C_WriteCmd(uint8_t id, uint8_t command, CAN_BUFFERELEMENT_s *canMessage);
-extern bool TEST_I165C_CheckResponse(uint8_t command, CAN_BUFFERELEMENT_s *canMessage);
-extern bool TEST_I165C_GetImdInfo(CAN_BUFFERELEMENT_s *canMessage);
-extern bool TEST_I165C_IsSelfTestFinished(CAN_BUFFERELEMENT_s canMessage);
-extern bool TEST_I165C_CheckAcknowledgeArrived(uint8_t command, uint8_t *tries, CAN_BUFFERELEMENT_s *canMessage);
+extern void TEST_I165C_ResetCanData(CAN_BUFFER_ELEMENT_s *canMessage);
+extern void TEST_I165C_WriteDataWord(uint8_t dataWord, uint16_t data, CAN_BUFFER_ELEMENT_s *canMessage);
+extern void TEST_I165C_ReadDataWord(uint8_t dataWord, uint16_t *data, CAN_BUFFER_ELEMENT_s canMessage);
+extern void TEST_I165C_ReadDataWordImdInfo(uint8_t dataWord, uint16_t *data, CAN_BUFFER_ELEMENT_s canMessage);
+extern void TEST_I165C_ReadDataByte(uint8_t dataByte, uint8_t *data, CAN_BUFFER_ELEMENT_s canMessage);
+extern void TEST_I165C_WriteCmd(uint8_t id, uint8_t command, CAN_BUFFER_ELEMENT_s *canMessage);
+extern bool TEST_I165C_CheckResponse(uint8_t command, CAN_BUFFER_ELEMENT_s *canMessage);
+extern bool TEST_I165C_GetImdInfo(CAN_BUFFER_ELEMENT_s *canMessage);
+extern bool TEST_I165C_IsSelfTestFinished(CAN_BUFFER_ELEMENT_s canMessage);
+extern bool TEST_I165C_CheckAcknowledgeArrived(uint8_t command, uint8_t *tries, CAN_BUFFER_ELEMENT_s *canMessage);
 #endif
 
 #endif /* FOXBMS__BENDER_ISO165C_H_ */

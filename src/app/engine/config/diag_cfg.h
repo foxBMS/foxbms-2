@@ -43,8 +43,8 @@
  * @file    diag_cfg.h
  * @author  foxBMS Team
  * @date    2019-11-28 (date of creation)
- * @updated 2022-07-28 (date of last update)
- * @version v1.4.0
+ * @updated 2022-10-27 (date of last update)
+ * @version v1.4.1
  * @ingroup ENGINE_CONFIGURATION
  * @prefix  DIAG
  *
@@ -101,10 +101,27 @@
 #define DIAG_ERROR_CAN_TIMING_CC_SENSITIVITY (100) /*!< logging level of CAN timing errors on the current sensor */
 #define DIAG_ERROR_CAN_SENSOR_SENSITIVITY    (100) /*!< logging level of CAN errors on the current sensor */
 
-/** logging level of errors connected with the contactor feedback */
+/**
+ * Logging after 20th event for errors connected related to the contactor
+ * feedback. This value is chosen to be so large because of the time delay
+ * between the request for a state and the actual physical response. It is
+ * caused by the SPI transaction to the SPS module, the rise time of the
+ * control signal and the actual opening/closing of the contactor. Only then
+ * can the feedback be read correctly, which also take some additional delay
+ * depending on the feedback source. */
 #define DIAG_ERROR_CONTACTOR_FEEDBACK_SENSITIVITY (20)
 
-/** define if delay in #DIAG_ID_CFG_s is discarded because of severity level */
+/** ---------------- DEFINES FOR ERROR STATE TRANSITION DELAY----------------
+ * These defines configure the delay before the transition to the error state
+ * occurs if a fault is detected. During this time the BMS can alert a
+ * superordinate control unit that the contactors will be opened soon. The
+ * superior control unit can take action and e.g., reduce the current until
+ * the transition to error state takes place.
+ *
+ * The delay is not taken into account if severity level #DIAG_FATAL_ERROR of
+ * type #DIAG_SEVERITY_LEVEL_e is configured in config array #diag_diagnosisIdConfiguration.
+ * For any other severity, #DIAG_DELAY_DISCARDED can be used as a dummy value.
+ */
 #define DIAG_DELAY_DISCARDED (UINT32_MAX)
 /** no delay after error is detected, open contactors instantaneous */
 #define DIAG_NO_DELAY (0u)
@@ -210,7 +227,8 @@ typedef enum {
     DIAG_ID_AFE_OPEN_WIRE, /*!< an open (broken) sense wire has been detected on the battery cell measurement */
     DIAG_ID_PLAUSIBILITY_PACK_VOLTAGE, /*!< the plausibility module has decided that the pack voltage is implausible */
     DIAG_ID_INTERLOCK_FEEDBACK, /*!< the interlock feedback indicates it to be open (but it is expected to be closed) */
-    DIAG_ID_STRING_CONTACTOR_FEEDBACK,    /*!< the feedback on a string contactor does not match the expected value */
+    DIAG_ID_STRING_MINUS_CONTACTOR_FEEDBACK, /*!< the feedback on a string minus contactor does not match the expected value */
+    DIAG_ID_STRING_PLUS_CONTACTOR_FEEDBACK, /*!< the feedback on a string plus contactor does not match the expected value */
     DIAG_ID_PRECHARGE_CONTACTOR_FEEDBACK, /*!< the feedback on a precharge contactor does not match the expected value */
     DIAG_ID_SBC_FIN_STATE,                /*!< the state of the FIN signal in the SBC is not ok */
     DIAG_ID_SBC_RSTB_STATE,               /*!< an activation of the RSTB pin of the SBC has been detected */
@@ -230,7 +248,8 @@ typedef enum {
     DIAG_ID_INSULATION_GROUND_ERROR,           /*!< insulation monitoring has detected a ground error */
     DIAG_ID_I2C_PEX_ERROR,                     /*!< general error with the port expanders */
     DIAG_ID_FRAM_READ_CRC_ERROR,               /*!< CRC does not match when reading from the FRAM */
-    DIAG_ID_MAX,                               /*!< MAX indicator - do not change */
+    DIAG_ID_ALERT_MODE, /*!< Critical error while opening the contactors. Fuse has not triggered */
+    DIAG_ID_MAX,        /*!< MAX indicator - do not change */
 } DIAG_ID_e;
 
 /** diagnosis check result (event) */

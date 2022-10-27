@@ -43,8 +43,8 @@
  * @file    test_ftask.c
  * @author  foxBMS Team
  * @date    2020-04-02 (date of creation)
- * @updated 2022-07-28 (date of last update)
- * @version v1.4.0
+ * @updated 2022-10-27 (date of last update)
+ * @version v1.4.1
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -97,9 +97,9 @@ TaskHandle_t ftsk_taskHandleAfe;
 #define FTSK_DATA_QUEUE_LENGTH      (1u)
 #define FTSK_DATA_QUEUE_ITEM_SIZE   (sizeof(DATA_QUEUE_MESSAGE_s))
 #define FTSK_IMD_QUEUE_LENGTH       (5u)
-#define FTSK_IMD_QUEUE_ITEM_SIZE    (sizeof(CAN_BUFFERELEMENT_s))
+#define FTSK_IMD_QUEUE_ITEM_SIZE    (sizeof(CAN_BUFFER_ELEMENT_s))
 #define FTSK_CAN_RX_QUEUE_LENGTH    (50u)
-#define FTSK_CAN_RX_QUEUE_ITEM_SIZE (sizeof(CAN_BUFFERELEMENT_s))
+#define FTSK_CAN_RX_QUEUE_ITEM_SIZE (sizeof(CAN_BUFFER_ELEMENT_s))
 
 volatile OS_BOOT_STATE_e os_boot = OS_OFF;
 volatile OS_TIMER_s os_timer     = {0, 0, 0, 0, 0, 0, 0};

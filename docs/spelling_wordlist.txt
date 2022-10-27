@@ -51,6 +51,7 @@ enum
 enums
 expander
 extern
+Farnell
 ferroelectric
 fiducial
 filename
@@ -61,6 +62,7 @@ foxbms
 foxBMS
 foxmath
 fram
+Fraunhofer
 freertos
 freeRTOS
 functionalities

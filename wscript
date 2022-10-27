@@ -77,7 +77,7 @@ top = "."  # pylint:disable=invalid-name
 APPNAME = "foxBMS"
 """name of the application. This is used in various waf functions"""
 
-VERSION = "1.4.0"
+VERSION = "1.4.1"
 """version of the application. This is used in various waf functions. This
 version must match the version number defined in ``macros.txt``. Otherwise a
 configuration error is thrown."""
@@ -648,6 +648,7 @@ def build(bld):  # pylint: disable=too-many-branches,too-many-statements
                 os.path.join(
                     "docs", "developer-manual", "style-guide", "state-machine-example"
                 ),
+                os.path.join("docs", "software", "modules", "driver", "can"),
                 os.path.join("docs", "software", "modules", "engine", "database"),
                 os.path.join("docs", "software", "modules", "task", "ftask"),
             ],
@@ -1053,3 +1054,25 @@ def check_test_files(ctx):
         err_msg += f"Missing test file for:  {i} (should be in: {test_file})\n"
     if diff:
         ctx.fatal(f"{err_msg}\nTest files are missing.")
+
+
+def get_axivion_files(ctx):
+    """get all relevant test files. The output is meant to be used in
+    tests/axivion/qualification-test/run_axivion_qualification_kit_tests.bat"""
+    as_seen_from = ctx.path.find_node("tests/axivion/qualification-test")
+    all_test_files = ctx.path.ant_glob(
+        [
+            "tests/axivion/qualification-test/qualification-kit/**/*.c",
+            "tests/axivion/qualification-test/qualification-kit/**/*.tst",
+        ],
+    )
+    tests = []
+    for i in all_test_files:
+        real_path = pathlib.Path(i.parent.path_from(as_seen_from)).as_posix().split("/")
+        g_path = "".join(["*/" for _ in real_path])
+        if g_path not in tests:
+            tests.append(g_path)
+    resulting_glob = []
+    for i in tests:
+        resulting_glob.extend([f"{i}*.c", f"{i}*.tst"])
+    print(" ".join(sorted(resulting_glob)))

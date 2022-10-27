@@ -82,7 +82,8 @@ Running the Tests
 ^^^^^^^^^^^^^^^^^
 
 Press :kbd:`Ctrl + Shift + B` and run the task *axivion analysis*. This task
-runs the Axivion analysis script ``tests/axivion/scripts/start_analysis.bat``.
+runs the Axivion analysis script
+``tests/axivion/scripts/start_local_analysis.bat``.
 
 Issues
 ^^^^^^

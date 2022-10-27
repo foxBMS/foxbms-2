@@ -43,8 +43,8 @@
  * @file    bms.h
  * @author  foxBMS Team
  * @date    2020-02-24 (date of creation)
- * @updated 2022-07-28 (date of last update)
- * @version v1.4.0
+ * @updated 2022-10-27 (date of last update)
+ * @version v1.4.1
  * @ingroup ENGINE
  * @prefix  BMS
  *
@@ -59,6 +59,8 @@
 /*========== Includes =======================================================*/
 #include "battery_system_cfg.h"
 #include "bms_cfg.h"
+
+#include "contactor.h"
 
 /*========== Macros and Definitions =========================================*/
 
@@ -90,7 +92,7 @@ typedef enum {
     BMS_STATEMACH_INITIALIZATION,
     BMS_STATEMACH_INITIALIZED,
     BMS_STATEMACH_IDLE,
-    BMS_STATEMACH_OPENCONTACTORS,
+    BMS_STATEMACH_OPEN_CONTACTORS,
     BMS_STATEMACH_STANDBY,
     BMS_STATEMACH_PRECHARGE,
     BMS_STATEMACH_NORMAL,
@@ -130,41 +132,42 @@ typedef enum {
     BMS_PRECHARGE_CLOSE_PRECHARGE,
     BMS_PRECHARGE_CHECK_VOLTAGES,
     BMS_PRECHARGE_OPEN_PRECHARGE,
+    BMS_PRECHARGE_CHECK_OPEN_PRECHARGE,
     BMS_OPEN_FIRST_CONTACTOR,
     BMS_OPEN_SECOND_CONTACTOR_MINUS,
     BMS_OPEN_SECOND_CONTACTOR_PLUS,
-    BMS_CLOSE_FIRST_STRING_PRECHARGE_STATE,
-    BMS_CHECK_CLOSE_FIRST_STRING_PRECHARGE_STATE,
+    BMS_CHECK_CLOSE_SECOND_STRING_CONTACTOR_PRECHARGE_STATE,
     BMS_CHECK_ERROR_FLAGS_PRECHARGE,
     BMS_CHECK_ERROR_FLAGS_PRECHARGE_FIRST_STRING,
     BMS_PRECHARGE_CLOSE_NEXT_STRING,
+    BMS_CLOSE_SECOND_CONTACTOR_PLUS,
     BMS_CHECK_STRING_CLOSED,
     BMS_CHECK_ERROR_FLAGS_PRECHARGE_CLOSINGSTRINGS,
     BMS_CHECK_ERROR_FLAGS_CLOSINGPRECHARGE,
     BMS_NORMAL_CLOSE_NEXT_STRING,
+    BMS_NORMAL_CLOSE_SECOND_STRING_CONTACTOR,
     BMS_OPEN_ALL_PRECHARGES,
     BMS_CHECK_ALL_PRECHARGES_OPEN,
     BMS_OPEN_STRINGS_ENTRY,
-    BMS_OPEN_STRINGS,
-    BMS_CHECK_STRING_OPEN,
+    BMS_OPEN_FIRST_STRING_CONTACTOR,
+    BMS_OPEN_SECOND_STRING_CONTACTOR,
+    BMS_CHECK_SECOND_STRING_CONTACTOR,
     BMS_OPEN_STRINGS_EXIT,
 } BMS_STATEMACH_SUB_e;
 
-/** State requests for the BMS statemachine */
+/** State requests for the BMS state machine */
 typedef enum {
     BMS_STATE_INIT_REQUEST,  /*!< request for initialization */
     BMS_STATE_ERROR_REQUEST, /*!< request for ERROR state */
     BMS_STATE_NO_REQUEST,    /*!< dummy request for no request */
 } BMS_STATE_REQUEST_e;
 
-/**
- * Possible return values when state requests are made to the BMS statemachine
- */
+/** Possible return values when state requests are made to the BMS state machine */
 typedef enum {
     BMS_OK,                  /*!< request was successful */
     BMS_REQUEST_PENDING,     /*!< error: another request is currently processed */
     BMS_ILLEGAL_REQUEST,     /*!< error: request can not be executed */
-    BMS_ALREADY_INITIALIZED, /*!< error: BMS statemachine already initialized */
+    BMS_ALREADY_INITIALIZED, /*!< error: BMS state machine already initialized */
 } BMS_RETURN_TYPE_e;
 
 /** Power path type (discharge or charge) */
@@ -181,31 +184,34 @@ typedef enum {
  */
 typedef struct {
     uint16_t timer; /*!< time in ms before the state machine processes the next state, e.g. in counts of 1ms */
-    BMS_STATE_REQUEST_e stateRequest;          /*!< current state request made to the state machine */
-    BMS_STATEMACH_e state;                     /*!< current state of State Machine */
-    BMS_STATEMACH_SUB_e substate;              /*!< current substate of the state machine */
-    BMS_STATEMACH_e laststate;                 /*!< previous state of the state machine */
-    BMS_STATEMACH_SUB_e lastsubstate;          /*!< previous substate of the state machine */
-    uint32_t ErrRequestCounter;                /*!< counts the number of illegal requests to the LTC state machine */
-    STD_RETURN_TYPE_e initFinished;            /*!< #STD_OK if the initialization has passed, #STD_NOT_OK otherwise */
-    uint8_t triggerentry;                      /*!< counter for re-entrance protection (function running flag) */
-    uint8_t counter;                           /*!< general purpose counter */
-    BMS_CURRENT_FLOW_STATE_e currentFlowState; /*!< state of battery system */
-    uint32_t restTimer_10ms;                   /*!< timer until battery system is at rest */
-    uint16_t OscillationTimeout;               /*!< timeout to prevent oscillation of contactors */
-    uint8_t PrechargeTryCounter;               /*!< timeout to prevent oscillation of contactors */
-    BMS_POWER_PATH_TYPE_e powerPath;           /*!< power path type (discharge or charge) */
-    uint8_t numberOfClosedStrings;             /*!< number of closed strings */
-    uint16_t stringOpenTimeout;                /*!< timeout to abort if string opening takes too long */
-    uint32_t nextstringclosedtimer;            /*!< timer to wait if the next string was closed */
-    uint16_t stringCloseTimeout;               /*!< timeout to abort if a string takes too long to close */
-    BMS_STATEMACH_e nextstate;                 /*!< next state of the State Machine */
-    uint8_t firstClosedString;                 /*!< strings with highest or lowest voltage, that was closed first */
-    uint16_t prechargeOpenTimeout;             /*!< timeout to abort if string opening takes too long */
-    uint16_t prechargeCloseTimeout;            /*!< timeout to abort if a string takes too long to close */
-    uint32_t remainingDelay_ms;                /*!< time until statemachine should switch to error state */
-    uint32_t minimumActiveDelay_ms;            /*!< minimum delay time of all active fatal errors */
-    bool transitionToErrorState;               /*!< flag if fatal error has been detected and delay is active */
+    BMS_STATE_REQUEST_e stateRequest;           /*!< current state request made to the state machine */
+    BMS_STATEMACH_e state;                      /*!< current state of State Machine */
+    BMS_STATEMACH_SUB_e substate;               /*!< current substate of the state machine */
+    BMS_STATEMACH_e laststate;                  /*!< previous state of the state machine */
+    BMS_STATEMACH_SUB_e lastsubstate;           /*!< previous substate of the state machine */
+    uint32_t ErrRequestCounter;                 /*!< counts the number of illegal requests to the LTC state machine */
+    STD_RETURN_TYPE_e initFinished;             /*!< #STD_OK if the initialization has passed, #STD_NOT_OK otherwise */
+    uint8_t triggerentry;                       /*!< counter for re-entrance protection (function running flag) */
+    uint8_t counter;                            /*!< general purpose counter */
+    BMS_CURRENT_FLOW_STATE_e currentFlowState;  /*!< state of battery system */
+    uint32_t restTimer_10ms;                    /*!< timer until battery system is at rest */
+    uint16_t OscillationTimeout;                /*!< timeout to prevent oscillation of contactors */
+    uint8_t PrechargeTryCounter;                /*!< timeout to prevent oscillation of contactors */
+    BMS_POWER_PATH_TYPE_e powerPath;            /*!< power path type (discharge or charge) */
+    uint8_t numberOfClosedStrings;              /*!< number of closed strings */
+    uint16_t stringOpenTimeout;                 /*!< timeout to abort if string opening takes too long */
+    uint32_t nextstringclosedtimer;             /*!< timer to wait if the next string was closed */
+    uint16_t stringCloseTimeout;                /*!< timeout to abort if a string takes too long to close */
+    BMS_STATEMACH_e nextstate;                  /*!< next state of the State Machine */
+    uint8_t firstClosedString;                  /*!< strings with highest or lowest voltage, that was closed first */
+    uint16_t prechargeOpenTimeout;              /*!< timeout to abort if string opening takes too long */
+    uint16_t prechargeCloseTimeout;             /*!< timeout to abort if a string takes too long to close */
+    uint32_t remainingDelay_ms;                 /*!< time until state machine should switch to error state */
+    uint32_t minimumActiveDelay_ms;             /*!< minimum delay time of all active fatal errors */
+    uint32_t timeAboveContactorBreakCurrent_ms; /*!< duration of current flow above maximum contactor break current */
+    uint8_t stringToBeOpened;                   /*!< string that is currently opened */
+    CONT_TYPE_e contactorToBeOpened;            /*!< contactor that is currently opened */
+    bool transitionToErrorState;                /*!< flag if fatal error has been detected and delay is active */
     uint8_t closedPrechargeContactors[BS_NR_OF_STRINGS]; /*!< strings whose precharge contactors are closed */
     uint8_t closedStrings[BS_NR_OF_STRINGS];             /*!< strings whose contactors are closed */
     uint8_t deactivatedStrings[BS_NR_OF_STRINGS]; /*!< Deactivated strings after error detection, cannot be closed */

@@ -43,8 +43,8 @@
  * @file    bms_cfg.h
  * @author  foxBMS Team
  * @date    2020-02-24 (date of creation)
- * @updated 2022-07-28 (date of last update)
- * @version v1.4.0
+ * @updated 2022-10-27 (date of last update)
+ * @version v1.4.1
  * @ingroup ENGINE_CONFIGURATION
  * @prefix  BMS
  *
@@ -95,28 +95,31 @@
 #endif
 
 /**
- * @brief   BMS statemachine short time definition in #BMS_Trigger() calls
+ * @brief   BMS state machine short time definition in #BMS_Trigger() calls
  *          until next state/substate is processed
  */
 #define BMS_STATEMACH_SHORTTIME (1u)
 
 /**
- * @brief   BMS statemachine medium time definition in #BMS_Trigger() calls
+ * @brief   BMS state machine medium time definition in #BMS_Trigger() calls
  *          until next state/substate is processed
  */
 #define BMS_STATEMACH_MEDIUMTIME (5u)
 
 /**
- * @brief   BMS statemachine long time definition in #BMS_Trigger() calls until
+ * @brief   BMS state machine long time definition in #BMS_Trigger() calls until
  *          next state/substate is processed
  */
 #define BMS_STATEMACH_LONGTIME (10u)
 
-/** Time in #BMS_Trigger() calls to wait after closing a string */
-#define BMS_TIME_WAIT_AFTER_STRING_CLOSED (20u)
+/** Time in #BMS_Trigger() calls to wait after closing any string minus or string plus contactor */
+#define BMS_WAIT_TIME_AFTER_CLOSING_STRING_CONTACTOR (20u)
 
-/** Time in #BMS_Trigger() calls to wait after opening a string */
-#define BMS_TIME_WAIT_AFTER_OPENING_STRING (10u)
+/** Time in #BMS_Trigger() calls to wait after opening any string minus or string plus contactor */
+#define BMS_WAIT_TIME_AFTER_OPENING_STRING_CONTACTOR (10u)
+
+/** Time in #BMS_Trigger() calls to wait between closing complete strings */
+#define BMS_WAIT_TIME_BETWEEN_CLOSING_STRINGS (10u)
 
 /**
  * @brief   Timeout in #BMS_Trigger() calls when closing a string after which
@@ -124,7 +127,10 @@
  */
 #define BMS_STRING_CLOSE_TIMEOUT (500u)
 
-/** Timeout in #BMS_Trigger() calls to wait after opening a string */
+/**
+ * @brief   Timeout in #BMS_Trigger() calls when opening a string after which
+ *          the state machines goes to error if the string still has not opened
+ */
 #define BMS_STRING_OPEN_TIMEOUT (1000u)
 
 /**

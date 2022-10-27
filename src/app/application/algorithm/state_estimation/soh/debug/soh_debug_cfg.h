@@ -43,8 +43,8 @@
  * @file    soh_debug_cfg.h
  * @author  foxBMS Team
  * @date    2021-12-14 (date of creation)
- * @updated 2022-07-28 (date of last update)
- * @version v1.4.0
+ * @updated 2022-10-27 (date of last update)
+ * @version v1.4.1
  * @ingroup APPLICATION
  * @prefix  SOH
  *

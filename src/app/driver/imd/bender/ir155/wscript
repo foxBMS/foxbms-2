@@ -77,6 +77,6 @@ def build(bld):
         source=source,
         use="imd-device",
         includes=includes,
-        target=f"{bld.env.APPNAME}-imd",
+        target=f"{bld.env.APPNAME.lower()}-imd",
         cflags=cflags,
     )

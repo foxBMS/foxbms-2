@@ -43,8 +43,8 @@
  * @file    bender_iso165c_cfg.h
  * @author  foxBMS Team
  * @date    2021-03-17 (date of creation)
- * @updated 2022-07-28 (date of last update)
- * @version v1.4.0
+ * @updated 2022-10-27 (date of last update)
+ * @version v1.4.1
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  I165C
  *
@@ -71,7 +71,7 @@
 
 /*========== Macros and Definitions =========================================*/
 /** CAN Node the IMD device is connected to */
-#define I165C_CAN_NODE (CAN1_NODE)
+#define I165C_CAN_NODE (CAN_NODE_1)
 
 /** Switch if bender iso165C or iso165C-1 is used
  *  true:  iso165C
@@ -141,11 +141,11 @@
 /** type of messages to communicate with I165C */
 
 /** cyclic message, transmitted every second */
-#define I165C_MESSAGETYPE_IMD_INFO (CAN_ID_IMD_INFO)
+#define I165C_MESSAGETYPE_IMD_INFO (CANRX_IMD_INFO_ID)
 /** message for requests (self test, reset, set values...) */
-#define I165C_MESSAGETYPE_IMD_REQUEST (CAN_ID_IMD_REQUEST)
+#define I165C_MESSAGETYPE_IMD_REQUEST (CANRX_IMD_REQUEST_ID)
 /** answer message, always send by I165C when it received a request*/
-#define I165C_MESSAGETYPE_IMD_RESPONSE (CAN_ID_IMD_RESPONSE)
+#define I165C_MESSAGETYPE_IMD_RESPONSE (CANRX_IMD_RESPONSE_ID)
 
 /** control commands (CTL) */
 

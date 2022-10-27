@@ -43,8 +43,8 @@
  * @file    debug_default.c
  * @author  foxBMS Team
  * @date    2020-09-17 (date of creation)
- * @updated 2022-07-28 (date of last update)
- * @version v1.4.0
+ * @updated 2022-10-27 (date of last update)
+ * @version v1.4.1
  * @ingroup DRIVER
  * @prefix  FAKE
  *
@@ -72,19 +72,19 @@
 #define FAKE_CELL_TEMPERATURE_ddegC ((BC_TEMPERATURE_MAX_CHARGE_MOL_ddegC + BC_TEMPERATURE_MIN_CHARGE_MOL_ddegC) / 2u)
 
 /**
- * statemachine short time definition in #FAKE_TriggerAfe calls
+ * state machine short time definition in #FAKE_TriggerAfe calls
  * until next state is processed
  */
 #define FAKE_FSM_SHORT_TIME (1u)
 
 /**
- * statemachine medium time definition in #FAKE_TriggerAfe calls
+ * state machine medium time definition in #FAKE_TriggerAfe calls
  * until next state/substate is processed
  */
 #define FAKE_FSM_MEDIUM_TIME (5u)
 
 /**
- * statemachine long time definition in #FAKE_TriggerAfe calls
+ * state machine long time definition in #FAKE_TriggerAfe calls
  * until next state/substate is processed
  */
 #define FAKE_FSM_LONG_TIME (10u)
@@ -340,8 +340,10 @@ static STD_RETURN_TYPE_e FAKE_SaveFakeVoltageMeasurementData(FAKE_STATE_s *pFake
     STD_RETURN_TYPE_e successfullSave = STD_OK;
 
     for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
+        pFakeState->data.cellVoltage->nrValidCellVoltages[s] = 0u;
         for (uint16_t i = 0u; i < BS_NR_OF_CELL_BLOCKS_PER_STRING; i++) {
             pFakeState->data.cellVoltage->cellVoltage_mV[s][i] = FAKE_CELL_VOLTAGE_mV;
+            pFakeState->data.cellVoltage->nrValidCellVoltages[s] += 1u;
         }
     }
 
@@ -438,7 +440,7 @@ static FAKE_FSM_STATES_e FAKE_ProcessRunningState(FAKE_STATE_s *pFakeState) {
             break;
 
         case FAKE_FSM_SUBSTATE_RUNNING_SAVE_TEMPERATURE_MEASUREMENT_DATA:
-            if (STD_OK == FAKE_SaveFakeVoltageMeasurementData(pFakeState)) {
+            if (STD_OK == FAKE_SaveFakeTemperatureMeasurementData(pFakeState)) {
                 FAKE_SetSubstate(
                     pFakeState, FAKE_FSM_SUBSTATE_RUNNING_SAVE_VOLTAGE_MEASUREMENT_DATA, FAKE_FSM_LONG_TIME);
             } else {

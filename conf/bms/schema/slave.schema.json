@@ -132,6 +132,7 @@
                     "type": "string",
                     "enum": [
                         "epcos",
+                        "murata",
                         "vishay",
                         "fake"
                     ]
@@ -175,7 +176,7 @@
                     "properties": {
                         "manufacturer": {
                             "enum": [
-                                "vishay"
+                                "murata"
                             ]
                         }
                     }
@@ -184,8 +185,7 @@
                     "properties": {
                         "model": {
                             "enum": [
-                                "ntcalug01a103g",
-                                "ntcle317e4103sba"
+                                "ncu15xh103f6sxx"
                             ]
                         }
                     }
@@ -195,7 +195,7 @@
                         "properties": {
                             "manufacturer": {
                                 "enum": [
-                                    "fake"
+                                    "vishay"
                                 ]
                             }
                         }
@@ -204,8 +204,29 @@
                         "properties": {
                             "model": {
                                 "enum": [
-                                    "none"
+                                    "ntcalug01a103g",
+                                    "ntcle317e4103sba"
                                 ]
+                            }
+                        }
+                    },
+                    "else": {
+                        "if": {
+                            "properties": {
+                                "manufacturer": {
+                                    "enum": [
+                                        "fake"
+                                    ]
+                                }
+                            }
+                        },
+                        "then": {
+                            "properties": {
+                                "model": {
+                                    "enum": [
+                                        "none"
+                                    ]
+                                }
                             }
                         }
                     }

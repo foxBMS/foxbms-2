@@ -1,0 +1,19 @@
+Bugfix release of foxBMS 2 (v1.4.1)
+
+* The BMS Master hardware has been updated to v1.1.5.
+* CAN:
+  * The implementation of the CAN driver has been changed to simplify adding
+    new messages.
+  * Endianness definition throughout the CAN signals was inconsistent. Not all
+    signals were correctly defined as big-endian.
+  * Updated the version of .sym file for the definition of the CAN messages to
+    format version 6.0.
+* Fixed equation that does the conversion from raw ADC reading to voltage (mV).
+* Fixed the address for reading two diagnostic registers in the Smart Power
+  Switch driver.
+* Maintenance:
+  * TI CCS version 12.0.0, including TI ARM CGT 20.2.6, are now the defaults.
+  * Update the Axivion static code analysis to version 7.4.6.
+
+For a detailed list of changes, please refer to the documentation at
+https://iisb-foxbms.iisb.fraunhofer.de/foxbms/gen2/docs/html/v1.4.1/general/changelog.html.

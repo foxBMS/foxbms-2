@@ -43,8 +43,8 @@
  * @file    database_cfg.h
  * @author  foxBMS Team
  * @date    2015-08-18 (date of creation)
- * @updated 2022-07-28 (date of last update)
- * @version v1.4.0
+ * @updated 2022-10-27 (date of last update)
+ * @version v1.4.1
  * @ingroup ENGINE_CONFIGURATION
  * @prefix  DATA
  *
@@ -328,7 +328,8 @@ typedef struct {
      * respective database entry representation in enum DATA_BLOCK_ID_e. */
     DATA_BLOCK_HEADER_s header;                           /*!< Data block header */
     uint8_t currentSensor[BS_NR_OF_STRINGS];              /*!< 0 -> no error, 1 -> error, not responding */
-    uint8_t stringContactor[BS_NR_OF_STRINGS];            /*!< 0 -> no error, 1 -> error, not responding */
+    uint8_t stringMinusContactor[BS_NR_OF_STRINGS];       /*!< 0 -> no error, 1 -> error, not responding */
+    uint8_t stringPlusContactor[BS_NR_OF_STRINGS];        /*!< 0 -> no error, 1 -> error, not responding */
     uint8_t prechargeContactor[BS_NR_OF_STRINGS];         /*!< 0 -> no error, 1 -> error, not responding */
     uint8_t interlock;                                    /*!< 0 -> no error, 1 -> error */
     uint8_t crcError[BS_NR_OF_STRINGS];                   /*!< 0 -> no error, 1 -> error */
@@ -379,6 +380,7 @@ typedef struct {
     bool timingViolation10ms;      /*!< timing violation in 10ms task */
     bool timingViolation100ms;     /*!< timing violation in 100ms task */
     bool timingViolation100msAlgo; /*!< timing violation in 100ms algorithm task */
+    bool alertFlag;                /*!< true: ALERT situation detected, false: everything okay */
 } DATA_BLOCK_ERRORSTATE_s;
 
 /** data block struct of contactor feedback */
@@ -419,18 +421,6 @@ typedef struct {
         [BS_NR_OF_STRINGS];                                  /*!< recommended continuous operating discharge current */
     float recommendedPeakChargeCurrent_mA[BS_NR_OF_STRINGS]; /*!< recommended peak operating charge current */
     float recommendedPeakDischargeCurrent_mA[BS_NR_OF_STRINGS]; /*!< recommended peak operating discharge current */
-    float continuousMolChargeCurrent_mA[BS_NR_OF_STRINGS];      /*!< charge current maximum operating level */
-    float continuousMolDischargeCurrent_mA[BS_NR_OF_STRINGS];   /*!< discharge current maximum operating level */
-    float peakMolChargeCurrent_mA[BS_NR_OF_STRINGS];            /*!< charge current maximum operating level */
-    float peakMolDischargeCurrent_mA[BS_NR_OF_STRINGS];         /*!< discharge current maximum operating level */
-    float continuousRslChargeCurrent_mA[BS_NR_OF_STRINGS];      /*!< charge current recommended safety level */
-    float continuousRslDischargeCurrent_mA[BS_NR_OF_STRINGS];   /*!< discharge current recommended safety level */
-    float peakRslChargeCurrent_mA[BS_NR_OF_STRINGS];            /*!< charge current recommended safety level */
-    float peakRslDischargeCurrent_mA[BS_NR_OF_STRINGS];         /*!< discharge current recommended safety level */
-    float continuousMslChargeCurrent_mA[BS_NR_OF_STRINGS];      /*!< charge current maximum safety level */
-    float continuousMslDischargeCurrent_mA[BS_NR_OF_STRINGS];   /*!< discharge current maximum safety level */
-    float peakMslChargeCurrent_mA[BS_NR_OF_STRINGS];            /*!< charge current maximum safety level */
-    float peakMslDischargeCurrent_mA[BS_NR_OF_STRINGS];         /*!< discharge current maximum safety level */
 } DATA_BLOCK_SOF_s;
 
 /** data block struct of system state */

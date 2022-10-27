@@ -43,8 +43,8 @@
  * @file    general.h
  * @author  foxBMS Team
  * @date    2019-09-24 (date of creation)
- * @updated 2022-07-28 (date of last update)
- * @version v1.4.0
+ * @updated 2022-10-27 (date of last update)
+ * @version v1.4.1
  * @ingroup GENERAL_CONF
  * @prefix  GEN
  *

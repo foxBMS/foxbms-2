@@ -1,0 +1,8 @@
+Minor release of foxBMS 2 (v1.1.0)
+
+* Release of new master schematic
+* Implementation of CAN messages
+
+For a detailed list of changes, please refer to the documentation
+at
+https://iisb-foxbms.iisb.fraunhofer.de/foxbms/gen2/docs/html/v1.1.0/general/changelog.html

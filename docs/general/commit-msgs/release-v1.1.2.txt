@@ -1,0 +1,4 @@
+Bugfix release of foxBMS 2 (v1.1.2)
+
+added Axivion configuration
+added system block diagram

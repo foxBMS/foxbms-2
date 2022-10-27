@@ -1,753 +1,792 @@
-FormatVersion=5.0 // Do not edit this line!
+FormatVersion=6.0 // Do not edit this line!
+UniqueVariables=True
 Title="foxBMS"
 
 {ENUMS}
-enum modeRequest_e(0="mode_Standby",  // Disconnect strings from HV bus
-  1="mode_Discharge",  // Connect strings to HV bus to start discharge
+Enum=foxBMS_ModeRequest(0="mode_Standby", // Disconnect strings from HV bus
+  1="mode_Discharge", // Connect strings to HV bus to start discharge
   2="mode_Charge") // Connect strings to HV bus to start charging
 // Possible states (i.e., values) the BMS state machine can have
-enum state_e(0="BMS_UNINITIALIZED",  // BMS state machine is uninitialized
-  1="BMS_INITIALIZATION",  // BMS state machine is currently trying to initialize
-  2="BMS_INITIALIZED",  // BMS state machine is initialized
-  3="BMS_IDLE",  // BMS state machine is idling
-  4="BMS_OPEN_CONTACTORS", 5="BMS_STANDBY", 6="BMS_PRECHARGE", 7="BMS_NORMAL",
-  8="BMS_DISCHARGE", 9="BMS_CHARGE", 10="BMS_ERROR", 11="BMS_UNDEFINED")
+Enum=foxBMS_State(0="BMS_UNINITIALIZED", // BMS state machine is uninitialized
+  1="BMS_INITIALIZATION", // BMS state machine is currently trying to initialize
+  2="BMS_INITIALIZED", // BMS state machine is initialized
+  3="BMS_IDLE", // BMS state machine is idling
+  4="BMS_OPEN_CONTACTORS", 5="BMS_STANDBY", 6="BMS_PRECHARGE", 7="BMS_NORMAL", 8="BMS_DISCHARGE", 9="BMS_CHARGE",
+  10="BMS_ERROR", 11="BMS_UNDEFINED")
+Enum=foxBMS_FuseState(0="Fuse okay", 1="Fuse blown")
 
 {SENDRECEIVE}
 
 [foxBMS_PackValues]
-ID=222h	// (in:can_cbs_tx_system_values.c:CAN_TxPackValues)
-DLC=8
-Var=foxBMS_packCurrent signed 46,18 -m /u:A /f:0.01	// Battery pack current
-Var=foxBMS_batteryVoltage unsigned 0,14 -m /u:V /f:0.1	// Battery voltage between negative and positive pole of the battery
-Var=foxBMS_busVoltage unsigned 14,14 -m /u:V /f:0.1	// Battery voltage between negative pole and after main positive contactor
-Var=foxBMS_packPower signed 28,18 -m /u:kW /f:0.01	// Battery power
+ID=222h // (in:can_cbs_tx_system-values.c:CANTX_PackValues, fv:tx)
+Len=8
+CycleTime=100 -p
+Var=foxBMS_packCurrent signed 46,18 -m /u:A /f:0.01 // Battery pack current
+Var=foxBMS_batteryVoltage unsigned 0,14 -m /u:V /f:0.1 // Battery voltage between negative and positive pole of the battery
+Var=foxBMS_busVoltage unsigned 14,14 -m /u:V /f:0.1 // Battery voltage between negative pole and after main positive contactor
+Var=foxBMS_packPower signed 28,18 -m /u:kW /f:0.01 // Battery power
 
 [foxBMS_LimitValues]
-ID=224h	// (in:can_cbs_tx_limits.c:CAN_TxLimitValues)
-DLC=8
-Var=foxBMS_maxChargeCurrent unsigned 12,12 -m /u:A /f:0.25	// Maximum battery pack charge current
-Var=foxBMS_maxDischargeCurrent unsigned 0,12 -m /u:A /f:0.25	// Maximum battery pack discharge current
+ID=224h // (in:can_cbs_tx_limit-values.c:CANTX_LimitValues, fv:tx)
+Len=8
+CycleTime=100 -p
+Var=foxBMS_maxChargeCurrent unsigned 12,12 -m /u:A /f:0.25 // Maximum battery pack charge current
+Var=foxBMS_maxDischargeCurrent unsigned 0,12 -m /u:A /f:0.25 // Maximum battery pack discharge current
 Var=foxBMS_maxChargePower unsigned 36,12 -m /u:kW /f:0.2
 Var=foxBMS_maxDischargePower unsigned 24,12 -m /u:kW /f:0.1
 Var=foxBMS_maxBatteryVoltage unsigned 48,8 -m /u:V /f:4
 Var=foxBMS_minBatteryVoltage unsigned 56,8 -m /u:V /f:4
 
 [foxBMS_MinimumMaximumValues]
-ID=223h	// (in:can_cbs_tx_minmax.c:CAN_TxMinimumMaximumValues)
-DLC=8
-Var=foxBMS_minimumCellVoltage unsigned 13,13 -m /u:mV	// Minimum cell voltage of all connected strings, if no string connected maximum value of whole system is transmitted
-Var=foxBMS_maximumCellVoltage unsigned 0,13 -m /u:mV	// Maximum cell voltage of all connected strings, if no string connected maximum value of whole system is transmitted
-Var=foxBMS_maximumCellTemp signed 48,8 -m /u:degC	// Maximum cell temperature of all connected strings, if no string connected maximum value of whole system is transmitted
-Var=foxBMS_minimumCellTemp signed 56,8 -m /u:degC	// Minium cell temperature of all connected string, if no string connected maximum value of whole system is transmitted
+ID=223h // (in:can_cbs_tx_minimum-maximum-values.c:CANTX_MinimumMaximumValues, fv:tx)
+Len=8
+CycleTime=100 -p
+Var=foxBMS_minimumCellVoltage unsigned 13,13 -m /u:mV // Minimum cell voltage of all connected strings, if no string connected maximum value of whole system is transmitted
+Var=foxBMS_maximumCellVoltage unsigned 0,13 -m /u:mV // Maximum cell voltage of all connected strings, if no string connected maximum value of whole system is transmitted
+Var=foxBMS_maximumCellTemp signed 48,8 -m /u:degC // Maximum cell temperature of all connected strings, if no string connected maximum value of whole system is transmitted
+Var=foxBMS_minimumCellTemp signed 56,8 -m /u:degC // Minium cell temperature of all connected string, if no string connected maximum value of whole system is transmitted
 Var=foxBMS_inletTemperature signed 32,8 -m /u:degC
 Var=foxBMS_outletTemperature signed 40,8 -m /u:degC
 
-[foxBMS_StringValues]
-ID=280h	// Message contains string voltage, current and power (in:can_cbs_tx_system_values.c:CAN_TxStringValues)
-DLC=8
-Mux=mux_valuesString_0 0,3 0  -m
-Var=foxBMS_String0_current signed 20,18 -m /u:A /f:0.01
-Var=foxBMS_String0_voltage unsigned 3,17 -m /u:V /f:0.01
-Var=foxBMS_String0_power signed 38,18 -m /u:kW /f:0.01
+[foxBMS_StringValuesP0]
+ID=280h // Message contains string voltage, current and power (in:can_cbs_tx_system-values.c:CANTX_StringValuesP0, fv:tx)
+Len=8
+CycleTime=100 -p
+Mux=mux_valuesP0String_0 0,3 0 -m
+Var=foxBMS_String0Current signed 20,18 -m /u:A /f:0.01
+Var=foxBMS_String0Voltage unsigned 3,17 -m /u:V /f:0.01
+Var=foxBMS_String0Power signed 38,18 -m /u:kW /f:0.01
 
-[foxBMS_StringValues]
-DLC=8
-Mux=mux_valuesString_1 0,3 1  -m
-Var=foxBMS_String1_current signed 20,18 -m /u:A /f:0.01
-Var=foxBMS_String1_voltage unsigned 3,17 -m /u:V /f:0.01
-Var=foxBMS_String1_power signed 38,18 -m /u:kW /f:0.01
-
-[foxBMS_StringValues]
-DLC=8
-Mux=mux_valuesString_2 0,3 2  -m
-Var=foxBMS_String2_current signed 20,18 -m /u:A /f:0.01
-Var=foxBMS_String2_voltage unsigned 3,17 -m /u:V /f:0.01
-Var=foxBMS_String2_power signed 38,18 -m /u:kW /f:0.01
-
-[foxBMS_StringValues2]
-ID=283h	// Message contains energy counting value (in:can_cbs_tx_system_values.c:CAN_TxStringValues2)
-DLC=8
-Mux=mux_values2String_0 0,4 0  -m
-Var=String0_energyCount signed 8,32 -m /u:Wh	// Current sensor string 0 energy counting value
-
-[foxBMS_StringValues2]
-DLC=8
-Mux=mux_values2String_1 0,4 1  -m
-Var=String1_energyCount signed 8,32 -m /u:Wh	// Current sensor string 1 energy counting value
-
-[foxBMS_StringValues2]
-DLC=8
-Mux=mux_values2String_2 0,4 2  -m
-Var=String2_energyCount signed 8,32 -m /u:Wh	// Current sensor string 2 energy counting value
+[foxBMS_StringValuesP1]
+ID=283h // Message contains energy counting value (in:can_cbs_tx_system-values.c:CANTX_StringValuesP1, fv:tx)
+Len=8
+CycleTime=100 -p
+Mux=mux_valuesP1String_0 0,4 0 -m
+Var=foxBMS_String0EnergyCount signed 8,32 -m /u:Wh // Current sensor string 0 energy counting value
 
 [foxBMS_PackStateEstimation]
-ID=225h	// (in:can_cbs_tx_state_estimation.c:CAN_TxStateEstimation)
-DLC=8
-Var=foxBMS_packSoc unsigned 0,14 -m /u:% /f:0.01 /d:0	// SOC currently connected to HV bus (100% if all strings connected and all strings at 100%)
-Var=foxBMS_packSoe unsigned 14,14 -m /u:% /f:0.01 /d:0	// SOE currently connected to HV bus (100% if all strings connected and all strings at 100%)
-Var=foxBMS_packEnergy unsigned 40,24 -m /u:kWh /f:0.01	// Energy left in Wh that is currently connected to HV bus
+ID=225h // (in:can_cbs_tx_pack-state-estimation.c:CANTX_PackStateEstimation, fv:tx)
+Len=8
+CycleTime=1000 -p
+Var=foxBMS_packSoc unsigned 0,14 -m /u:% /f:0.01 // SOC currently connected to HV bus (100% if all strings connected and all strings at 100%)
+Var=foxBMS_packSoe unsigned 14,14 -m /u:% /f:0.01 // SOE currently connected to HV bus (100% if all strings connected and all strings at 100%)
+Var=foxBMS_packEnergy unsigned 40,24 -m /u:kWh /f:0.01 // Energy left in Wh that is currently connected to HV bus
 Var=foxBMS_packSoh unsigned 28,12 -m /u:% /f:0.025
 
-[foxBMS_CellVoltage]
-ID=240h	// (in:can_cbs_tx_voltage.c:CAN_TxVoltage)
-DLC=8
-Mux=mux_cellVoltage_000_003 0,8 0  -m
-Var=cellVoltage_000_invalidFlag unsigned 11,1 -m
-Var=cellVoltage_001_invalidFlag unsigned 10,1 -m
-Var=cellVoltage_002_invalidFlag unsigned 9,1 -m
-Var=cellVoltage_003_invalidFlag unsigned 8,1 -m
+[foxBMS_CellVoltages]
+ID=240h // (in:can_cbs_tx_cell-voltages.c:CANTX_CellVoltages, fv:tx)
+Len=8
+CycleTime=5400 -p
+Mux=mux_cellVoltage_000_003 0,8 0 -m
+Var=cellVoltage_000_invalidFlag bit 11,1 -m
+Var=cellVoltage_001_invalidFlag bit 10,1 -m
+Var=cellVoltage_002_invalidFlag bit 9,1 -m
+Var=cellVoltage_003_invalidFlag bit 8,1 -m
 Var=cellVoltage_000 unsigned 12,13 -m /u:mV
 Var=cellVoltage_001 unsigned 25,13 -m /u:mV
 Var=cellVoltage_002 unsigned 38,13 -m /u:mV
 Var=cellVoltage_003 unsigned 51,13 -m /u:mV
 
-[foxBMS_CellVoltage]
-DLC=8
-Mux=mux_cellVoltage_004_007 0,8 1  -m
-Var=cellVoltage_004_invalidFlag unsigned 11,1 -m
-Var=cellVoltage_005_invalidFlag unsigned 10,1 -m
-Var=cellVoltage_006_invalidFlag unsigned 9,1 -m
-Var=cellVoltage_007_invalidFlag unsigned 8,1 -m
+[foxBMS_CellVoltages]
+Len=8
+CycleTime=5400 -p
+Mux=mux_cellVoltage_004_007 0,8 1 -m
+Var=cellVoltage_004_invalidFlag bit 11,1 -m
+Var=cellVoltage_005_invalidFlag bit 10,1 -m
+Var=cellVoltage_006_invalidFlag bit 9,1 -m
+Var=cellVoltage_007_invalidFlag bit 8,1 -m
 Var=cellVoltage_004 unsigned 12,13 -m /u:mV
 Var=cellVoltage_005 unsigned 25,13 -m /u:mV
 Var=cellVoltage_006 unsigned 38,13 -m /u:mV
 Var=cellVoltage_007 unsigned 51,13 -m /u:mV
 
-[foxBMS_CellVoltage]
-DLC=8
-Mux=mux_cellVoltage_008_011 0,8 2  -m
-Var=cellVoltage_008_invalidFlag unsigned 11,1 -m
-Var=cellVoltage_009_invalidFlag unsigned 10,1 -m
-Var=cellVoltage_010_invalidFlag unsigned 9,1 -m
-Var=cellVoltage_011_invalidFlag unsigned 8,1 -m
+[foxBMS_CellVoltages]
+Len=8
+CycleTime=5400 -p
+Mux=mux_cellVoltage_008_011 0,8 2 -m
+Var=cellVoltage_008_invalidFlag bit 11,1 -m
+Var=cellVoltage_009_invalidFlag bit 10,1 -m
+Var=cellVoltage_010_invalidFlag bit 9,1 -m
+Var=cellVoltage_011_invalidFlag bit 8,1 -m
 Var=cellVoltage_008 unsigned 12,13 -m /u:mV
 Var=cellVoltage_009 unsigned 25,13 -m /u:mV
 Var=cellVoltage_010 unsigned 38,13 -m /u:mV
 Var=cellVoltage_011 unsigned 51,13 -m /u:mV
 
-[foxBMS_CellVoltage]
-DLC=8
-Mux=mux_cellVoltage_012_015 0,8 3  -m
-Var=cellVoltage_012_invalidFlag unsigned 11,1 -m
-Var=cellVoltage_013_invalidFlag unsigned 10,1 -m
-Var=cellVoltage_014_invalidFlag unsigned 9,1 -m
-Var=cellVoltage_015_invalidFlag unsigned 8,1 -m
+[foxBMS_CellVoltages]
+Len=8
+CycleTime=5400 -p
+Mux=mux_cellVoltage_012_015 0,8 3 -m
+Var=cellVoltage_012_invalidFlag bit 11,1 -m
+Var=cellVoltage_013_invalidFlag bit 10,1 -m
+Var=cellVoltage_014_invalidFlag bit 9,1 -m
+Var=cellVoltage_015_invalidFlag bit 8,1 -m
 Var=cellVoltage_012 unsigned 12,13 -m /u:mV
 Var=cellVoltage_013 unsigned 25,13 -m /u:mV
 Var=cellVoltage_014 unsigned 38,13 -m /u:mV
 Var=cellVoltage_015 unsigned 51,13 -m /u:mV
 
-[foxBMS_CellVoltage]
-DLC=8
-Mux=mux_cellVoltage_016_019 0,8 4  -m
-Var=cellVoltage_016_invalidFlag unsigned 11,1 -m
-Var=cellVoltage_017_invalidFlag unsigned 10,1 -m
-Var=cellVoltage_018_invalidFlag unsigned 9,1 -m
-Var=cellVoltage_019_invalidFlag unsigned 8,1 -m
+[foxBMS_CellVoltages]
+Len=8
+CycleTime=5400 -p
+Mux=mux_cellVoltage_016_019 0,8 4 -m
+Var=cellVoltage_016_invalidFlag bit 11,1 -m
+Var=cellVoltage_017_invalidFlag bit 10,1 -m
+Var=cellVoltage_018_invalidFlag bit 9,1 -m
+Var=cellVoltage_019_invalidFlag bit 8,1 -m
 Var=cellVoltage_016 unsigned 12,13 -m /u:mV
 Var=cellVoltage_017 unsigned 25,13 -m /u:mV
 Var=cellVoltage_018 unsigned 38,13 -m /u:mV
 Var=cellVoltage_019 unsigned 51,13 -m /u:mV
 
-[foxBMS_CellVoltage]
-DLC=8
-Mux=mux_cellVoltage_020_023 0,8 5  -m
-Var=cellVoltage_020_invalidFlag unsigned 11,1 -m
-Var=cellVoltage_021_invalidFlag unsigned 10,1 -m
-Var=cellVoltage_022_invalidFlag unsigned 9,1 -m
-Var=cellVoltage_023_invalidFlag unsigned 8,1 -m
+[foxBMS_CellVoltages]
+Len=8
+CycleTime=5400 -p
+Mux=mux_cellVoltage_020_023 0,8 5 -m
+Var=cellVoltage_020_invalidFlag bit 11,1 -m
+Var=cellVoltage_021_invalidFlag bit 10,1 -m
+Var=cellVoltage_022_invalidFlag bit 9,1 -m
+Var=cellVoltage_023_invalidFlag bit 8,1 -m
 Var=cellVoltage_020 unsigned 12,13 -m /u:mV
 Var=cellVoltage_021 unsigned 25,13 -m /u:mV
 Var=cellVoltage_022 unsigned 38,13 -m /u:mV
 Var=cellVoltage_023 unsigned 51,13 -m /u:mV
 
-[foxBMS_CellVoltage]
-DLC=8
-Mux=mux_cellVoltage_024_027 0,8 6  -m
-Var=cellVoltage_024_invalidFlag unsigned 11,1 -m
-Var=cellVoltage_025_invalidFlag unsigned 10,1 -m
-Var=cellVoltage_026_invalidFlag unsigned 9,1 -m
-Var=cellVoltage_027_invalidFlag unsigned 8,1 -m
+[foxBMS_CellVoltages]
+Len=8
+CycleTime=5400 -p
+Mux=mux_cellVoltage_024_027 0,8 6 -m
+Var=cellVoltage_024_invalidFlag bit 11,1 -m
+Var=cellVoltage_025_invalidFlag bit 10,1 -m
+Var=cellVoltage_026_invalidFlag bit 9,1 -m
+Var=cellVoltage_027_invalidFlag bit 8,1 -m
 Var=cellVoltage_024 unsigned 12,13 -m /u:mV
 Var=cellVoltage_025 unsigned 25,13 -m /u:mV
 Var=cellVoltage_026 unsigned 38,13 -m /u:mV
 Var=cellVoltage_027 unsigned 51,13 -m /u:mV
 
-[foxBMS_CellVoltage]
-DLC=8
-Mux=mux_cellVoltage_028_031 0,8 7  -m
-Var=cellVoltage_028_invalidFlag unsigned 11,1 -m
-Var=cellVoltage_029_invalidFlag unsigned 10,1 -m
-Var=cellVoltage_030_invalidFlag unsigned 9,1 -m
-Var=cellVoltage_031_invalidFlag unsigned 8,1 -m
+[foxBMS_CellVoltages]
+Len=8
+CycleTime=5400 -p
+Mux=mux_cellVoltage_028_031 0,8 7 -m
+Var=cellVoltage_028_invalidFlag bit 11,1 -m
+Var=cellVoltage_029_invalidFlag bit 10,1 -m
+Var=cellVoltage_030_invalidFlag bit 9,1 -m
+Var=cellVoltage_031_invalidFlag bit 8,1 -m
 Var=cellVoltage_028 unsigned 12,13 -m /u:mV
 Var=cellVoltage_029 unsigned 25,13 -m /u:mV
 Var=cellVoltage_030 unsigned 38,13 -m /u:mV
 Var=cellVoltage_031 unsigned 51,13 -m /u:mV
 
-[foxBMS_CellVoltage]
-DLC=8
-Mux=mux_cellVoltage_032_035 0,8 8  -m
-Var=cellVoltage_032_invalidFlag unsigned 11,1 -m
-Var=cellVoltage_033_invalidFlag unsigned 10,1 -m
-Var=cellVoltage_034_invalidFlag unsigned 9,1 -m
-Var=cellVoltage_035_invalidFlag unsigned 8,1 -m
+[foxBMS_CellVoltages]
+Len=8
+CycleTime=5400 -p
+Mux=mux_cellVoltage_032_035 0,8 8 -m
+Var=cellVoltage_032_invalidFlag bit 11,1 -m
+Var=cellVoltage_033_invalidFlag bit 10,1 -m
+Var=cellVoltage_034_invalidFlag bit 9,1 -m
+Var=cellVoltage_035_invalidFlag bit 8,1 -m
 Var=cellVoltage_032 unsigned 12,13 -m /u:mV
 Var=cellVoltage_033 unsigned 25,13 -m /u:mV
 Var=cellVoltage_034 unsigned 38,13 -m /u:mV
 Var=cellVoltage_035 unsigned 51,13 -m /u:mV
 
-[foxBMS_CellVoltage]
-DLC=8
-Mux=mux_cellVoltage_036_039 0,8 9  -m
-Var=cellVoltage_036_invalidFlag unsigned 11,1 -m
-Var=cellVoltage_037_invalidFlag unsigned 10,1 -m
-Var=cellVoltage_038_invalidFlag unsigned 9,1 -m
-Var=cellVoltage_039_invalidFlag unsigned 8,1 -m
+[foxBMS_CellVoltages]
+Len=8
+CycleTime=5400 -p
+Mux=mux_cellVoltage_036_039 0,8 9 -m
+Var=cellVoltage_036_invalidFlag bit 11,1 -m
+Var=cellVoltage_037_invalidFlag bit 10,1 -m
+Var=cellVoltage_038_invalidFlag bit 9,1 -m
+Var=cellVoltage_039_invalidFlag bit 8,1 -m
 Var=cellVoltage_036 unsigned 12,13 -m /u:mV
 Var=cellVoltage_037 unsigned 25,13 -m /u:mV
 Var=cellVoltage_038 unsigned 38,13 -m /u:mV
 Var=cellVoltage_039 unsigned 51,13 -m /u:mV
 
-[foxBMS_CellVoltage]
-DLC=8
-Mux=mux_cellVoltage_040_043 0,8 0Ah  -m
-Var=cellVoltage_040_invalidFlag unsigned 11,1 -m
-Var=cellVoltage_041_invalidFlag unsigned 10,1 -m
-Var=cellVoltage_042_invalidFlag unsigned 9,1 -m
-Var=cellVoltage_043_invalidFlag unsigned 8,1 -m
+[foxBMS_CellVoltages]
+Len=8
+CycleTime=5400 -p
+Mux=mux_cellVoltage_040_043 0,8 0Ah -m
+Var=cellVoltage_040_invalidFlag bit 11,1 -m
+Var=cellVoltage_041_invalidFlag bit 10,1 -m
+Var=cellVoltage_042_invalidFlag bit 9,1 -m
+Var=cellVoltage_043_invalidFlag bit 8,1 -m
 Var=cellVoltage_040 unsigned 12,13 -m /u:mV
 Var=cellVoltage_041 unsigned 25,13 -m /u:mV
 Var=cellVoltage_042 unsigned 38,13 -m /u:mV
 Var=cellVoltage_043 unsigned 51,13 -m /u:mV
 
-[foxBMS_CellVoltage]
-DLC=8
-Mux=mux_cellVoltage_044_047 0,8 0Bh  -m
-Var=cellVoltage_044_invalidFlag unsigned 11,1 -m
-Var=cellVoltage_045_invalidFlag unsigned 10,1 -m
-Var=cellVoltage_046_invalidFlag unsigned 9,1 -m
-Var=cellVoltage_047_invalidFlag unsigned 8,1 -m
+[foxBMS_CellVoltages]
+Len=8
+CycleTime=5400 -p
+Mux=mux_cellVoltage_044_047 0,8 0Bh -m
+Var=cellVoltage_044_invalidFlag bit 11,1 -m
+Var=cellVoltage_045_invalidFlag bit 10,1 -m
+Var=cellVoltage_046_invalidFlag bit 9,1 -m
+Var=cellVoltage_047_invalidFlag bit 8,1 -m
 Var=cellVoltage_044 unsigned 12,13 -m /u:mV
 Var=cellVoltage_045 unsigned 25,13 -m /u:mV
 Var=cellVoltage_046 unsigned 38,13 -m /u:mV
 Var=cellVoltage_047 unsigned 51,13 -m /u:mV
 
-[foxBMS_CellVoltage]
-DLC=8
-Mux=mux_cellVoltage_048_051 0,8 0Ch  -m
-Var=cellVoltage_048_invalidFlag unsigned 11,1 -m
-Var=cellVoltage_049_invalidFlag unsigned 10,1 -m
-Var=cellVoltage_050_invalidFlag unsigned 9,1 -m
-Var=cellVoltage_051_invalidFlag unsigned 8,1 -m
+[foxBMS_CellVoltages]
+Len=8
+CycleTime=5400 -p
+Mux=mux_cellVoltage_048_051 0,8 0Ch -m
+Var=cellVoltage_048_invalidFlag bit 11,1 -m
+Var=cellVoltage_049_invalidFlag bit 10,1 -m
+Var=cellVoltage_050_invalidFlag bit 9,1 -m
+Var=cellVoltage_051_invalidFlag bit 8,1 -m
 Var=cellVoltage_048 unsigned 12,13 -m /u:mV
 Var=cellVoltage_049 unsigned 25,13 -m /u:mV
 Var=cellVoltage_050 unsigned 38,13 -m /u:mV
 Var=cellVoltage_051 unsigned 51,13 -m /u:mV
 
-[foxBMS_CellVoltage]
-DLC=8
-Mux=mux_cellVoltage_052_055 0,8 0Dh  -m
-Var=cellVoltage_052_invalidFlag unsigned 11,1 -m
-Var=cellVoltage_053_invalidFlag unsigned 10,1 -m
-Var=cellVoltage_054_invalidFlag unsigned 9,1 -m
-Var=cellVoltage_055_invalidFlag unsigned 8,1 -m
+[foxBMS_CellVoltages]
+Len=8
+CycleTime=5400 -p
+Mux=mux_cellVoltage_052_055 0,8 0Dh -m
+Var=cellVoltage_052_invalidFlag bit 11,1 -m
+Var=cellVoltage_053_invalidFlag bit 10,1 -m
+Var=cellVoltage_054_invalidFlag bit 9,1 -m
+Var=cellVoltage_055_invalidFlag bit 8,1 -m
 Var=cellVoltage_052 unsigned 12,13 -m /u:mV
 Var=cellVoltage_053 unsigned 25,13 -m /u:mV
 Var=cellVoltage_054 unsigned 38,13 -m /u:mV
 Var=cellVoltage_055 unsigned 51,13 -m /u:mV
 
-[foxBMS_CellVoltage]
-DLC=8
-Mux=mux_cellVoltage_056_059 0,8 0Eh  -m
-Var=cellVoltage_056_invalidFlag unsigned 11,1 -m
-Var=cellVoltage_057_invalidFlag unsigned 10,1 -m
-Var=cellVoltage_058_invalidFlag unsigned 9,1 -m
-Var=cellVoltage_059_invalidFlag unsigned 8,1 -m
+[foxBMS_CellVoltages]
+Len=8
+CycleTime=5400 -p
+Mux=mux_cellVoltage_056_059 0,8 0Eh -m
+Var=cellVoltage_056_invalidFlag bit 11,1 -m
+Var=cellVoltage_057_invalidFlag bit 10,1 -m
+Var=cellVoltage_058_invalidFlag bit 9,1 -m
+Var=cellVoltage_059_invalidFlag bit 8,1 -m
 Var=cellVoltage_056 unsigned 12,13 -m /u:mV
 Var=cellVoltage_057 unsigned 25,13 -m /u:mV
 Var=cellVoltage_058 unsigned 38,13 -m /u:mV
 Var=cellVoltage_059 unsigned 51,13 -m /u:mV
 
-[foxBMS_CellVoltage]
-DLC=8
-Mux=mux_cellVoltage_060_063 0,8 0Fh  -m
-Var=cellVoltage_060_invalidFlag unsigned 11,1 -m
-Var=cellVoltage_061_invalidFlag unsigned 10,1 -m
-Var=cellVoltage_062_invalidFlag unsigned 9,1 -m
-Var=cellVoltage_063_invalidFlag unsigned 8,1 -m
+[foxBMS_CellVoltages]
+Len=8
+CycleTime=5400 -p
+Mux=mux_cellVoltage_060_063 0,8 0Fh -m
+Var=cellVoltage_060_invalidFlag bit 11,1 -m
+Var=cellVoltage_061_invalidFlag bit 10,1 -m
+Var=cellVoltage_062_invalidFlag bit 9,1 -m
+Var=cellVoltage_063_invalidFlag bit 8,1 -m
 Var=cellVoltage_060 unsigned 12,13 -m /u:mV
 Var=cellVoltage_061 unsigned 25,13 -m /u:mV
 Var=cellVoltage_062 unsigned 38,13 -m /u:mV
 Var=cellVoltage_063 unsigned 51,13 -m /u:mV
 
-[foxBMS_CellVoltage]
-DLC=8
-Mux=mux_cellVoltage_064_067 0,8 10h  -m
-Var=cellVoltage_064_invalidFlag unsigned 11,1 -m
-Var=cellVoltage_065_invalidFlag unsigned 10,1 -m
-Var=cellVoltage_066_invalidFlag unsigned 9,1 -m
-Var=cellVoltage_067_invalidFlag unsigned 8,1 -m
+[foxBMS_CellVoltages]
+Len=8
+CycleTime=5400 -p
+Mux=mux_cellVoltage_064_067 0,8 10h -m
+Var=cellVoltage_064_invalidFlag bit 11,1 -m
+Var=cellVoltage_065_invalidFlag bit 10,1 -m
+Var=cellVoltage_066_invalidFlag bit 9,1 -m
+Var=cellVoltage_067_invalidFlag bit 8,1 -m
 Var=cellVoltage_064 unsigned 12,13 -m /u:mV
 Var=cellVoltage_065 unsigned 25,13 -m /u:mV
 Var=cellVoltage_066 unsigned 38,13 -m /u:mV
 Var=cellVoltage_067 unsigned 51,13 -m /u:mV
 
-[foxBMS_CellVoltage]
-DLC=8
-Mux=mux_cellVoltage_068_071 0,8 11h  -m
-Var=cellVoltage_068_invalidFlag unsigned 11,1 -m
-Var=cellVoltage_069_invalidFlag unsigned 10,1 -m
-Var=cellVoltage_070_invalidFlag unsigned 9,1 -m
-Var=cellVoltage_071_invalidFlag unsigned 8,1 -m
+[foxBMS_CellVoltages]
+Len=8
+CycleTime=5400 -p
+Mux=mux_cellVoltage_068_071 0,8 11h -m
+Var=cellVoltage_068_invalidFlag bit 11,1 -m
+Var=cellVoltage_069_invalidFlag bit 10,1 -m
+Var=cellVoltage_070_invalidFlag bit 9,1 -m
+Var=cellVoltage_071_invalidFlag bit 8,1 -m
 Var=cellVoltage_068 unsigned 12,13 -m /u:mV
 Var=cellVoltage_069 unsigned 25,13 -m /u:mV
 Var=cellVoltage_070 unsigned 38,13 -m /u:mV
 Var=cellVoltage_071 unsigned 51,13 -m /u:mV
 
-[foxBMS_CellVoltage]
-DLC=8
-Mux=mux_cellVoltage_072_075 0,8 12h  -m
-Var=cellVoltage_072_invalidFlag unsigned 11,1 -m
-Var=cellVoltage_073_invalidFlag unsigned 10,1 -m
-Var=cellVoltage_074_invalidFlag unsigned 9,1 -m
-Var=cellVoltage_075_invalidFlag unsigned 8,1 -m
+[foxBMS_CellVoltages]
+Len=8
+CycleTime=5400 -p
+Mux=mux_cellVoltage_072_075 0,8 12h -m
+Var=cellVoltage_072_invalidFlag bit 11,1 -m
+Var=cellVoltage_073_invalidFlag bit 10,1 -m
+Var=cellVoltage_074_invalidFlag bit 9,1 -m
+Var=cellVoltage_075_invalidFlag bit 8,1 -m
 Var=cellVoltage_072 unsigned 12,13 -m /u:mV
 Var=cellVoltage_073 unsigned 25,13 -m /u:mV
 Var=cellVoltage_074 unsigned 38,13 -m /u:mV
 Var=cellVoltage_075 unsigned 51,13 -m /u:mV
 
-[foxBMS_CellVoltage]
-DLC=8
-Mux=mux_cellVoltage_076_079 0,8 13h  -m
-Var=cellVoltage_076_invalidFlag unsigned 11,1 -m
-Var=cellVoltage_077_invalidFlag unsigned 10,1 -m
-Var=cellVoltage_078_invalidFlag unsigned 9,1 -m
-Var=cellVoltage_079_invalidFlag unsigned 8,1 -m
+[foxBMS_CellVoltages]
+Len=8
+CycleTime=5400 -p
+Mux=mux_cellVoltage_076_079 0,8 13h -m
+Var=cellVoltage_076_invalidFlag bit 11,1 -m
+Var=cellVoltage_077_invalidFlag bit 10,1 -m
+Var=cellVoltage_078_invalidFlag bit 9,1 -m
+Var=cellVoltage_079_invalidFlag bit 8,1 -m
 Var=cellVoltage_076 unsigned 12,13 -m /u:mV
 Var=cellVoltage_077 unsigned 25,13 -m /u:mV
 Var=cellVoltage_078 unsigned 38,13 -m /u:mV
 Var=cellVoltage_079 unsigned 51,13 -m /u:mV
 
-[foxBMS_CellVoltage]
-DLC=8
-Mux=mux_cellVoltage_080_083 0,8 14h  -m
-Var=cellVoltage_080_invalidFlag unsigned 11,1 -m
-Var=cellVoltage_081_invalidFlag unsigned 10,1 -m
-Var=cellVoltage_082_invalidFlag unsigned 9,1 -m
-Var=cellVoltage_083_invalidFlag unsigned 8,1 -m
+[foxBMS_CellVoltages]
+Len=8
+CycleTime=5400 -p
+Mux=mux_cellVoltage_080_083 0,8 14h -m
+Var=cellVoltage_080_invalidFlag bit 11,1 -m
+Var=cellVoltage_081_invalidFlag bit 10,1 -m
+Var=cellVoltage_082_invalidFlag bit 9,1 -m
+Var=cellVoltage_083_invalidFlag bit 8,1 -m
 Var=cellVoltage_080 unsigned 12,13 -m /u:mV
 Var=cellVoltage_081 unsigned 25,13 -m /u:mV
 Var=cellVoltage_082 unsigned 38,13 -m /u:mV
 Var=cellVoltage_083 unsigned 51,13 -m /u:mV
 
-[foxBMS_CellVoltage]
-DLC=8
-Mux=mux_cellVoltage_084_087 0,8 15h  -m
-Var=cellVoltage_084_invalidFlag unsigned 11,1 -m
-Var=cellVoltage_085_invalidFlag unsigned 10,1 -m
-Var=cellVoltage_086_invalidFlag unsigned 9,1 -m
-Var=cellVoltage_087_invalidFlag unsigned 8,1 -m
+[foxBMS_CellVoltages]
+Len=8
+CycleTime=5400 -p
+Mux=mux_cellVoltage_084_087 0,8 15h -m
+Var=cellVoltage_084_invalidFlag bit 11,1 -m
+Var=cellVoltage_085_invalidFlag bit 10,1 -m
+Var=cellVoltage_086_invalidFlag bit 9,1 -m
+Var=cellVoltage_087_invalidFlag bit 8,1 -m
 Var=cellVoltage_084 unsigned 12,13 -m /u:mV
 Var=cellVoltage_085 unsigned 25,13 -m /u:mV
 Var=cellVoltage_086 unsigned 38,13 -m /u:mV
 Var=cellVoltage_087 unsigned 51,13 -m /u:mV
 
-[foxBMS_CellVoltage]
-DLC=8
-Mux=mux_cellVoltage_088_091 0,8 16h  -m
-Var=cellVoltage_088_invalidFlag unsigned 11,1 -m
-Var=cellVoltage_089_invalidFlag unsigned 10,1 -m
-Var=cellVoltage_090_invalidFlag unsigned 9,1 -m
-Var=cellVoltage_091_invalidFlag unsigned 8,1 -m
+[foxBMS_CellVoltages]
+Len=8
+CycleTime=5400 -p
+Mux=mux_cellVoltage_088_091 0,8 16h -m
+Var=cellVoltage_088_invalidFlag bit 11,1 -m
+Var=cellVoltage_089_invalidFlag bit 10,1 -m
+Var=cellVoltage_090_invalidFlag bit 9,1 -m
+Var=cellVoltage_091_invalidFlag bit 8,1 -m
 Var=cellVoltage_088 unsigned 12,13 -m /u:mV
 Var=cellVoltage_089 unsigned 25,13 -m /u:mV
 Var=cellVoltage_090 unsigned 38,13 -m /u:mV
 Var=cellVoltage_091 unsigned 51,13 -m /u:mV
 
-[foxBMS_CellVoltage]
-DLC=8
-Mux=mux_cellVoltage_092_095 0,8 17h  -m
-Var=cellVoltage_092_invalidFlag unsigned 11,1 -m
-Var=cellVoltage_093_invalidFlag unsigned 10,1 -m
-Var=cellVoltage_094_invalidFlag unsigned 9,1 -m
-Var=cellVoltage_095_invalidFlag unsigned 8,1 -m
+[foxBMS_CellVoltages]
+Len=8
+CycleTime=5400 -p
+Mux=mux_cellVoltage_092_095 0,8 17h -m
+Var=cellVoltage_092_invalidFlag bit 11,1 -m
+Var=cellVoltage_093_invalidFlag bit 10,1 -m
+Var=cellVoltage_094_invalidFlag bit 9,1 -m
+Var=cellVoltage_095_invalidFlag bit 8,1 -m
 Var=cellVoltage_092 unsigned 12,13 -m /u:mV
 Var=cellVoltage_093 unsigned 25,13 -m /u:mV
 Var=cellVoltage_094 unsigned 38,13 -m /u:mV
 Var=cellVoltage_095 unsigned 51,13 -m /u:mV
 
-[foxBMS_CellVoltage]
-DLC=8
-Mux=mux_cellVoltage_096_099 0,8 18h  -m
-Var=cellVoltage_096_invalidFlag unsigned 11,1 -m
-Var=cellVoltage_097_invalidFlag unsigned 10,1 -m
-Var=cellVoltage_098_invalidFlag unsigned 9,1 -m
-Var=cellVoltage_099_invalidFlag unsigned 8,1 -m
+[foxBMS_CellVoltages]
+Len=8
+CycleTime=5400 -p
+Mux=mux_cellVoltage_096_099 0,8 18h -m
+Var=cellVoltage_096_invalidFlag bit 11,1 -m
+Var=cellVoltage_097_invalidFlag bit 10,1 -m
+Var=cellVoltage_098_invalidFlag bit 9,1 -m
+Var=cellVoltage_099_invalidFlag bit 8,1 -m
 Var=cellVoltage_096 unsigned 12,13 -m /u:mV
 Var=cellVoltage_097 unsigned 25,13 -m /u:mV
 Var=cellVoltage_098 unsigned 38,13 -m /u:mV
 Var=cellVoltage_099 unsigned 51,13 -m /u:mV
 
-[foxBMS_CellVoltage]
-DLC=8
-Mux=mux_cellVoltage_100_103 0,8 19h  -m
-Var=cellVoltage_100_invalidFlag unsigned 11,1 -m
-Var=cellVoltage_101_invalidFlag unsigned 10,1 -m
-Var=cellVoltage_102_invalidFlag unsigned 9,1 -m
-Var=cellVoltage_103_invalidFlag unsigned 8,1 -m
+[foxBMS_CellVoltages]
+Len=8
+CycleTime=5400 -p
+Mux=mux_cellVoltage_100_103 0,8 19h -m
+Var=cellVoltage_100_invalidFlag bit 11,1 -m
+Var=cellVoltage_101_invalidFlag bit 10,1 -m
+Var=cellVoltage_102_invalidFlag bit 9,1 -m
+Var=cellVoltage_103_invalidFlag bit 8,1 -m
 Var=cellVoltage_100 unsigned 12,13 -m /u:mV
 Var=cellVoltage_101 unsigned 25,13 -m /u:mV
 Var=cellVoltage_102 unsigned 38,13 -m /u:mV
 Var=cellVoltage_103 unsigned 51,13 -m /u:mV
 
-[foxBMS_CellVoltage]
-DLC=8
-Mux=mux_cellVoltage_104_107 0,8 1Ah  -m
-Var=cellVoltage_104_invalidFlag unsigned 11,1 -m
-Var=cellVoltage_105_invalidFlag unsigned 10,1 -m
-Var=cellVoltage_106_invalidFlag unsigned 9,1 -m
-Var=cellVoltage_107_invalidFlag unsigned 8,1 -m
+[foxBMS_CellVoltages]
+Len=8
+CycleTime=5400 -p
+Mux=mux_cellVoltage_104_107 0,8 1Ah -m
+Var=cellVoltage_104_invalidFlag bit 11,1 -m
+Var=cellVoltage_105_invalidFlag bit 10,1 -m
+Var=cellVoltage_106_invalidFlag bit 9,1 -m
+Var=cellVoltage_107_invalidFlag bit 8,1 -m
 Var=cellVoltage_104 unsigned 12,13 -m /u:mV
 Var=cellVoltage_105 unsigned 25,13 -m /u:mV
 Var=cellVoltage_106 unsigned 38,13 -m /u:mV
 Var=cellVoltage_107 unsigned 51,13 -m /u:mV
 
-[foxBMS_CellVoltage]
-DLC=8
-Mux=mux_cellVoltage_108_111 0,8 1Bh  -m
-Var=cellVoltage_108_invalidFlag unsigned 11,1 -m
-Var=cellVoltage_109_invalidFlag unsigned 10,1 -m
-Var=cellVoltage_110_invalidFlag unsigned 9,1 -m
-Var=cellVoltage_111_invalidFlag unsigned 8,1 -m
+[foxBMS_CellVoltages]
+Len=8
+CycleTime=5400 -p
+Mux=mux_cellVoltage_108_111 0,8 1Bh -m
+Var=cellVoltage_108_invalidFlag bit 11,1 -m
+Var=cellVoltage_109_invalidFlag bit 10,1 -m
+Var=cellVoltage_110_invalidFlag bit 9,1 -m
+Var=cellVoltage_111_invalidFlag bit 8,1 -m
 Var=cellVoltage_108 unsigned 12,13 -m /u:mV
 Var=cellVoltage_109 unsigned 25,13 -m /u:mV
 Var=cellVoltage_110 unsigned 38,13 -m /u:mV
 Var=cellVoltage_111 unsigned 51,13 -m /u:mV
 
-[foxBMS_CellVoltage]
-DLC=8
-Mux=mux_cellVoltage_112_115 0,8 1Ch  -m
-Var=cellVoltage_112_invalidFlag unsigned 11,1 -m
-Var=cellVoltage_113_invalidFlag unsigned 10,1 -m
-Var=cellVoltage_114_invalidFlag unsigned 9,1 -m
-Var=cellVoltage_115_invalidFlag unsigned 8,1 -m
+[foxBMS_CellVoltages]
+Len=8
+CycleTime=5400 -p
+Mux=mux_cellVoltage_112_115 0,8 1Ch -m
+Var=cellVoltage_112_invalidFlag bit 11,1 -m
+Var=cellVoltage_113_invalidFlag bit 10,1 -m
+Var=cellVoltage_114_invalidFlag bit 9,1 -m
+Var=cellVoltage_115_invalidFlag bit 8,1 -m
 Var=cellVoltage_112 unsigned 12,13 -m /u:mV
 Var=cellVoltage_113 unsigned 25,13 -m /u:mV
 Var=cellVoltage_114 unsigned 38,13 -m /u:mV
 Var=cellVoltage_115 unsigned 51,13 -m /u:mV
 
-[foxBMS_CellVoltage]
-DLC=8
-Mux=mux_cellVoltage_116_119 0,8 1Dh  -m
-Var=cellVoltage_116_invalidFlag unsigned 11,1 -m
-Var=cellVoltage_117_invalidFlag unsigned 10,1 -m
-Var=cellVoltage_118_invalidFlag unsigned 9,1 -m
-Var=cellVoltage_119_invalidFlag unsigned 8,1 -m
+[foxBMS_CellVoltages]
+Len=8
+CycleTime=5400 -p
+Mux=mux_cellVoltage_116_119 0,8 1Dh -m
+Var=cellVoltage_116_invalidFlag bit 11,1 -m
+Var=cellVoltage_117_invalidFlag bit 10,1 -m
+Var=cellVoltage_118_invalidFlag bit 9,1 -m
+Var=cellVoltage_119_invalidFlag bit 8,1 -m
 Var=cellVoltage_116 unsigned 12,13 -m /u:mV
 Var=cellVoltage_117 unsigned 25,13 -m /u:mV
 Var=cellVoltage_118 unsigned 38,13 -m /u:mV
 Var=cellVoltage_119 unsigned 51,13 -m /u:mV
 
-[foxBMS_CellVoltage]
-DLC=8
-Mux=mux_cellVoltage_120_123 0,8 1Eh  -m
-Var=cellVoltage_120_invalidFlag unsigned 11,1 -m
-Var=cellVoltage_121_invalidFlag unsigned 10,1 -m
-Var=cellVoltage_122_invalidFlag unsigned 9,1 -m
-Var=cellVoltage_123_invalidFlag unsigned 8,1 -m
+[foxBMS_CellVoltages]
+Len=8
+CycleTime=5400 -p
+Mux=mux_cellVoltage_120_123 0,8 1Eh -m
+Var=cellVoltage_120_invalidFlag bit 11,1 -m
+Var=cellVoltage_121_invalidFlag bit 10,1 -m
+Var=cellVoltage_122_invalidFlag bit 9,1 -m
+Var=cellVoltage_123_invalidFlag bit 8,1 -m
 Var=cellVoltage_120 unsigned 12,13 -m /u:mV
 Var=cellVoltage_121 unsigned 25,13 -m /u:mV
 Var=cellVoltage_122 unsigned 38,13 -m /u:mV
 Var=cellVoltage_123 unsigned 51,13 -m /u:mV
 
-[foxBMS_CellVoltage]
-DLC=8
-Mux=mux_cellVoltage_124_127 0,8 1Fh  -m
-Var=cellVoltage_124_invalidFlag unsigned 11,1 -m
-Var=cellVoltage_125_invalidFlag unsigned 10,1 -m
-Var=cellVoltage_126_invalidFlag unsigned 9,1 -m
-Var=cellVoltage_127_invalidFlag unsigned 8,1 -m
+[foxBMS_CellVoltages]
+Len=8
+CycleTime=5400 -p
+Mux=mux_cellVoltage_124_127 0,8 1Fh -m
+Var=cellVoltage_124_invalidFlag bit 11,1 -m
+Var=cellVoltage_125_invalidFlag bit 10,1 -m
+Var=cellVoltage_126_invalidFlag bit 9,1 -m
+Var=cellVoltage_127_invalidFlag bit 8,1 -m
 Var=cellVoltage_124 unsigned 12,13 -m /u:mV
 Var=cellVoltage_125 unsigned 25,13 -m /u:mV
 Var=cellVoltage_126 unsigned 38,13 -m /u:mV
 Var=cellVoltage_127 unsigned 51,13 -m /u:mV
 
-[foxBMS_CellVoltage]
-DLC=8
-Mux=mux_cellVoltage_128_131 0,8 20h  -m
-Var=cellVoltage_128_invalidFlag unsigned 11,1 -m
-Var=cellVoltage_129_invalidFlag unsigned 10,1 -m
-Var=cellVoltage_130_invalidFlag unsigned 9,1 -m
-Var=cellVoltage_131_invalidFlag unsigned 8,1 -m
+[foxBMS_CellVoltages]
+Len=8
+CycleTime=5400 -p
+Mux=mux_cellVoltage_128_131 0,8 20h -m
+Var=cellVoltage_128_invalidFlag bit 11,1 -m
+Var=cellVoltage_129_invalidFlag bit 10,1 -m
+Var=cellVoltage_130_invalidFlag bit 9,1 -m
+Var=cellVoltage_131_invalidFlag bit 8,1 -m
 Var=cellVoltage_128 unsigned 12,13 -m /u:mV
 Var=cellVoltage_129 unsigned 25,13 -m /u:mV
 Var=cellVoltage_130 unsigned 38,13 -m /u:mV
 Var=cellVoltage_131 unsigned 51,13 -m /u:mV
 
-[foxBMS_CellVoltage]
-DLC=8
-Mux=mux_cellVoltage_132_135 0,8 21h  -m
-Var=cellVoltage_132_invalidFlag unsigned 11,1 -m
-Var=cellVoltage_133_invalidFlag unsigned 10,1 -m
-Var=cellVoltage_134_invalidFlag unsigned 9,1 -m
-Var=cellVoltage_135_invalidFlag unsigned 8,1 -m
+[foxBMS_CellVoltages]
+Len=8
+CycleTime=5400 -p
+Mux=mux_cellVoltage_132_135 0,8 21h -m
+Var=cellVoltage_132_invalidFlag bit 11,1 -m
+Var=cellVoltage_133_invalidFlag bit 10,1 -m
+Var=cellVoltage_134_invalidFlag bit 9,1 -m
+Var=cellVoltage_135_invalidFlag bit 8,1 -m
 Var=cellVoltage_132 unsigned 12,13 -m /u:mV
 Var=cellVoltage_133 unsigned 25,13 -m /u:mV
 Var=cellVoltage_134 unsigned 38,13 -m /u:mV
 Var=cellVoltage_135 unsigned 51,13 -m /u:mV
 
-[foxBMS_CellVoltage]
-DLC=8
-Mux=mux_cellVoltage_136_139 0,8 22h  -m
-Var=cellVoltage_136_invalidFlag unsigned 11,1 -m
-Var=cellVoltage_137_invalidFlag unsigned 10,1 -m
-Var=cellVoltage_138_invalidFlag unsigned 9,1 -m
-Var=cellVoltage_139_invalidFlag unsigned 8,1 -m
+[foxBMS_CellVoltages]
+Len=8
+CycleTime=5400 -p
+Mux=mux_cellVoltage_136_139 0,8 22h -m
+Var=cellVoltage_136_invalidFlag bit 11,1 -m
+Var=cellVoltage_137_invalidFlag bit 10,1 -m
+Var=cellVoltage_138_invalidFlag bit 9,1 -m
+Var=cellVoltage_139_invalidFlag bit 8,1 -m
 Var=cellVoltage_136 unsigned 12,13 -m /u:mV
 Var=cellVoltage_137 unsigned 25,13 -m /u:mV
 Var=cellVoltage_138 unsigned 38,13 -m /u:mV
 Var=cellVoltage_139 unsigned 51,13 -m /u:mV
 
-[foxBMS_CellVoltage]
-DLC=8
-Mux=mux_cellVoltage_140_143 0,8 23h  -m
-Var=cellVoltage_140_invalidFlag unsigned 11,1 -m
-Var=cellVoltage_141_invalidFlag unsigned 10,1 -m
-Var=cellVoltage_142_invalidFlag unsigned 9,1 -m
-Var=cellVoltage_143_invalidFlag unsigned 8,1 -m
+[foxBMS_CellVoltages]
+Len=8
+CycleTime=5400 -p
+Mux=mux_cellVoltage_140_143 0,8 23h -m
+Var=cellVoltage_140_invalidFlag bit 11,1 -m
+Var=cellVoltage_141_invalidFlag bit 10,1 -m
+Var=cellVoltage_142_invalidFlag bit 9,1 -m
+Var=cellVoltage_143_invalidFlag bit 8,1 -m
 Var=cellVoltage_140 unsigned 12,13 -m /u:mV
 Var=cellVoltage_141 unsigned 25,13 -m /u:mV
 Var=cellVoltage_142 unsigned 38,13 -m /u:mV
 Var=cellVoltage_143 unsigned 51,13 -m /u:mV
 
-[foxBMS_CellVoltage]
-DLC=8
-Mux=mux_cellVoltage_144_147 0,8 24h  -m
-Var=cellVoltage_144_invalidFlag unsigned 11,1 -m
-Var=cellVoltage_145_invalidFlag unsigned 10,1 -m
-Var=cellVoltage_146_invalidFlag unsigned 9,1 -m
-Var=cellVoltage_147_invalidFlag unsigned 8,1 -m
+[foxBMS_CellVoltages]
+Len=8
+CycleTime=5400 -p
+Mux=mux_cellVoltage_144_147 0,8 24h -m
+Var=cellVoltage_144_invalidFlag bit 11,1 -m
+Var=cellVoltage_145_invalidFlag bit 10,1 -m
+Var=cellVoltage_146_invalidFlag bit 9,1 -m
+Var=cellVoltage_147_invalidFlag bit 8,1 -m
 Var=cellVoltage_144 unsigned 12,13 -m /u:mV
 Var=cellVoltage_145 unsigned 25,13 -m /u:mV
 Var=cellVoltage_146 unsigned 38,13 -m /u:mV
 Var=cellVoltage_147 unsigned 51,13 -m /u:mV
 
-[foxBMS_CellVoltage]
-DLC=8
-Mux=mux_cellVoltage_148_151 0,8 25h  -m
-Var=cellVoltage_148_invalidFlag unsigned 11,1 -m
-Var=cellVoltage_149_invalidFlag unsigned 10,1 -m
-Var=cellVoltage_150_invalidFlag unsigned 9,1 -m
-Var=cellVoltage_151_invalidFlag unsigned 8,1 -m
+[foxBMS_CellVoltages]
+Len=8
+CycleTime=5400 -p
+Mux=mux_cellVoltage_148_151 0,8 25h -m
+Var=cellVoltage_148_invalidFlag bit 11,1 -m
+Var=cellVoltage_149_invalidFlag bit 10,1 -m
+Var=cellVoltage_150_invalidFlag bit 9,1 -m
+Var=cellVoltage_151_invalidFlag bit 8,1 -m
 Var=cellVoltage_148 unsigned 12,13 -m /u:mV
 Var=cellVoltage_149 unsigned 25,13 -m /u:mV
 Var=cellVoltage_150 unsigned 38,13 -m /u:mV
 Var=cellVoltage_151 unsigned 51,13 -m /u:mV
 
-[foxBMS_CellVoltage]
-DLC=8
-Mux=mux_cellVoltage_152_155 0,8 26h  -m
-Var=cellVoltage_152_invalidFlag unsigned 11,1 -m
-Var=cellVoltage_153_invalidFlag unsigned 10,1 -m
-Var=cellVoltage_154_invalidFlag unsigned 9,1 -m
-Var=cellVoltage_155_invalidFlag unsigned 8,1 -m
+[foxBMS_CellVoltages]
+Len=8
+CycleTime=5400 -p
+Mux=mux_cellVoltage_152_155 0,8 26h -m
+Var=cellVoltage_152_invalidFlag bit 11,1 -m
+Var=cellVoltage_153_invalidFlag bit 10,1 -m
+Var=cellVoltage_154_invalidFlag bit 9,1 -m
+Var=cellVoltage_155_invalidFlag bit 8,1 -m
 Var=cellVoltage_152 unsigned 12,13 -m /u:mV
 Var=cellVoltage_153 unsigned 25,13 -m /u:mV
 Var=cellVoltage_154 unsigned 38,13 -m /u:mV
 Var=cellVoltage_155 unsigned 51,13 -m /u:mV
 
-[foxBMS_CellVoltage]
-DLC=8
-Mux=mux_cellVoltage_156_159 0,8 27h  -m
-Var=cellVoltage_156_invalidFlag unsigned 11,1 -m
-Var=cellVoltage_157_invalidFlag unsigned 10,1 -m
-Var=cellVoltage_158_invalidFlag unsigned 9,1 -m
-Var=cellVoltage_159_invalidFlag unsigned 8,1 -m
+[foxBMS_CellVoltages]
+Len=8
+CycleTime=5400 -p
+Mux=mux_cellVoltage_156_159 0,8 27h -m
+Var=cellVoltage_156_invalidFlag bit 11,1 -m
+Var=cellVoltage_157_invalidFlag bit 10,1 -m
+Var=cellVoltage_158_invalidFlag bit 9,1 -m
+Var=cellVoltage_159_invalidFlag bit 8,1 -m
 Var=cellVoltage_156 unsigned 12,13 -m /u:mV
 Var=cellVoltage_157 unsigned 25,13 -m /u:mV
 Var=cellVoltage_158 unsigned 38,13 -m /u:mV
 Var=cellVoltage_159 unsigned 51,13 -m /u:mV
 
-[foxBMS_CellVoltage]
-DLC=8
-Mux=mux_cellVoltage_160_163 0,8 28h  -m
-Var=cellVoltage_160_invalidFlag unsigned 11,1 -m
-Var=cellVoltage_161_invalidFlag unsigned 10,1 -m
-Var=cellVoltage_162_invalidFlag unsigned 9,1 -m
-Var=cellVoltage_163_invalidFlag unsigned 8,1 -m
+[foxBMS_CellVoltages]
+Len=8
+CycleTime=5400 -p
+Mux=mux_cellVoltage_160_163 0,8 28h -m
+Var=cellVoltage_160_invalidFlag bit 11,1 -m
+Var=cellVoltage_161_invalidFlag bit 10,1 -m
+Var=cellVoltage_162_invalidFlag bit 9,1 -m
+Var=cellVoltage_163_invalidFlag bit 8,1 -m
 Var=cellVoltage_160 unsigned 12,13 -m /u:mV
 Var=cellVoltage_161 unsigned 25,13 -m /u:mV
 Var=cellVoltage_162 unsigned 38,13 -m /u:mV
 Var=cellVoltage_163 unsigned 51,13 -m /u:mV
 
-[foxBMS_CellVoltage]
-DLC=8
-Mux=mux_cellVoltage_164_167 0,8 29h  -m
-Var=cellVoltage_164_invalidFlag unsigned 11,1 -m
-Var=cellVoltage_165_invalidFlag unsigned 10,1 -m
-Var=cellVoltage_166_invalidFlag unsigned 9,1 -m
-Var=cellVoltage_167_invalidFlag unsigned 8,1 -m
+[foxBMS_CellVoltages]
+Len=8
+CycleTime=5400 -p
+Mux=mux_cellVoltage_164_167 0,8 29h -m
+Var=cellVoltage_164_invalidFlag bit 11,1 -m
+Var=cellVoltage_165_invalidFlag bit 10,1 -m
+Var=cellVoltage_166_invalidFlag bit 9,1 -m
+Var=cellVoltage_167_invalidFlag bit 8,1 -m
 Var=cellVoltage_164 unsigned 12,13 -m /u:mV
 Var=cellVoltage_165 unsigned 25,13 -m /u:mV
 Var=cellVoltage_166 unsigned 38,13 -m /u:mV
 Var=cellVoltage_167 unsigned 51,13 -m /u:mV
 
-[foxBMS_CellVoltage]
-DLC=8
-Mux=mux_cellVoltage_168_171 0,8 2Ah  -m
-Var=cellVoltage_168_invalidFlag unsigned 11,1 -m
-Var=cellVoltage_169_invalidFlag unsigned 10,1 -m
-Var=cellVoltage_170_invalidFlag unsigned 9,1 -m
-Var=cellVoltage_171_invalidFlag unsigned 8,1 -m
+[foxBMS_CellVoltages]
+Len=8
+CycleTime=5400 -p
+Mux=mux_cellVoltage_168_171 0,8 2Ah -m
+Var=cellVoltage_168_invalidFlag bit 11,1 -m
+Var=cellVoltage_169_invalidFlag bit 10,1 -m
+Var=cellVoltage_170_invalidFlag bit 9,1 -m
+Var=cellVoltage_171_invalidFlag bit 8,1 -m
 Var=cellVoltage_168 unsigned 12,13 -m /u:mV
 Var=cellVoltage_169 unsigned 25,13 -m /u:mV
 Var=cellVoltage_170 unsigned 38,13 -m /u:mV
 Var=cellVoltage_171 unsigned 51,13 -m /u:mV
 
-[foxBMS_CellVoltage]
-DLC=8
-Mux=mux_cellVoltage_172_175 0,8 2Bh  -m
-Var=cellVoltage_172_invalidFlag unsigned 11,1 -m
-Var=cellVoltage_173_invalidFlag unsigned 10,1 -m
-Var=cellVoltage_174_invalidFlag unsigned 9,1 -m
-Var=cellVoltage_175_invalidFlag unsigned 8,1 -m
+[foxBMS_CellVoltages]
+Len=8
+CycleTime=5400 -p
+Mux=mux_cellVoltage_172_175 0,8 2Bh -m
+Var=cellVoltage_172_invalidFlag bit 11,1 -m
+Var=cellVoltage_173_invalidFlag bit 10,1 -m
+Var=cellVoltage_174_invalidFlag bit 9,1 -m
+Var=cellVoltage_175_invalidFlag bit 8,1 -m
 Var=cellVoltage_172 unsigned 12,13 -m /u:mV
 Var=cellVoltage_173 unsigned 25,13 -m /u:mV
 Var=cellVoltage_174 unsigned 38,13 -m /u:mV
 Var=cellVoltage_175 unsigned 51,13 -m /u:mV
 
-[foxBMS_CellVoltage]
-DLC=8
-Mux=mux_cellVoltage_176_179 0,8 2Ch  -m
-Var=cellVoltage_176_invalidFlag unsigned 11,1 -m
-Var=cellVoltage_177_invalidFlag unsigned 10,1 -m
-Var=cellVoltage_178_invalidFlag unsigned 9,1 -m
-Var=cellVoltage_179_invalidFlag unsigned 8,1 -m
+[foxBMS_CellVoltages]
+Len=8
+CycleTime=5400 -p
+Mux=mux_cellVoltage_176_179 0,8 2Ch -m
+Var=cellVoltage_176_invalidFlag bit 11,1 -m
+Var=cellVoltage_177_invalidFlag bit 10,1 -m
+Var=cellVoltage_178_invalidFlag bit 9,1 -m
+Var=cellVoltage_179_invalidFlag bit 8,1 -m
 Var=cellVoltage_176 unsigned 12,13 -m /u:mV
 Var=cellVoltage_177 unsigned 25,13 -m /u:mV
 Var=cellVoltage_178 unsigned 38,13 -m /u:mV
 Var=cellVoltage_179 unsigned 51,13 -m /u:mV
 
-[foxBMS_CellVoltage]
-DLC=8
-Mux=mux_cellVoltage_180_183 0,8 2Dh  -m
-Var=cellVoltage_180_invalidFlag unsigned 11,1 -m
-Var=cellVoltage_181_invalidFlag unsigned 10,1 -m
-Var=cellVoltage_182_invalidFlag unsigned 9,1 -m
-Var=cellVoltage_183_invalidFlag unsigned 8,1 -m
+[foxBMS_CellVoltages]
+Len=8
+CycleTime=5400 -p
+Mux=mux_cellVoltage_180_183 0,8 2Dh -m
+Var=cellVoltage_180_invalidFlag bit 11,1 -m
+Var=cellVoltage_181_invalidFlag bit 10,1 -m
+Var=cellVoltage_182_invalidFlag bit 9,1 -m
+Var=cellVoltage_183_invalidFlag bit 8,1 -m
 Var=cellVoltage_180 unsigned 12,13 -m /u:mV
 Var=cellVoltage_181 unsigned 25,13 -m /u:mV
 Var=cellVoltage_182 unsigned 38,13 -m /u:mV
 Var=cellVoltage_183 unsigned 51,13 -m /u:mV
 
-[foxBMS_CellVoltage]
-DLC=8
-Mux=mux_cellVoltage_184_187 0,8 2Eh  -m
-Var=cellVoltage_184_invalidFlag unsigned 11,1 -m
-Var=cellVoltage_185_invalidFlag unsigned 10,1 -m
-Var=cellVoltage_186_invalidFlag unsigned 9,1 -m
-Var=cellVoltage_187_invalidFlag unsigned 8,1 -m
+[foxBMS_CellVoltages]
+Len=8
+CycleTime=5400 -p
+Mux=mux_cellVoltage_184_187 0,8 2Eh -m
+Var=cellVoltage_184_invalidFlag bit 11,1 -m
+Var=cellVoltage_185_invalidFlag bit 10,1 -m
+Var=cellVoltage_186_invalidFlag bit 9,1 -m
+Var=cellVoltage_187_invalidFlag bit 8,1 -m
 Var=cellVoltage_184 unsigned 12,13 -m /u:mV
 Var=cellVoltage_185 unsigned 25,13 -m /u:mV
 Var=cellVoltage_186 unsigned 38,13 -m /u:mV
 Var=cellVoltage_187 unsigned 51,13 -m /u:mV
 
-[foxBMS_CellVoltage]
-DLC=8
-Mux=mux_cellVoltage_188_191 0,8 2Fh  -m
-Var=cellVoltage_188_invalidFlag unsigned 11,1 -m
-Var=cellVoltage_189_invalidFlag unsigned 10,1 -m
-Var=cellVoltage_190_invalidFlag unsigned 9,1 -m
-Var=cellVoltage_191_invalidFlag unsigned 8,1 -m
+[foxBMS_CellVoltages]
+Len=8
+CycleTime=5400 -p
+Mux=mux_cellVoltage_188_191 0,8 2Fh -m
+Var=cellVoltage_188_invalidFlag bit 11,1 -m
+Var=cellVoltage_189_invalidFlag bit 10,1 -m
+Var=cellVoltage_190_invalidFlag bit 9,1 -m
+Var=cellVoltage_191_invalidFlag bit 8,1 -m
 Var=cellVoltage_188 unsigned 12,13 -m /u:mV
 Var=cellVoltage_189 unsigned 25,13 -m /u:mV
 Var=cellVoltage_190 unsigned 38,13 -m /u:mV
 Var=cellVoltage_191 unsigned 51,13 -m /u:mV
 
-[foxBMS_CellVoltage]
-DLC=8
-Mux=mux_cellVoltage_192_195 0,8 30h  -m
-Var=cellVoltage_192_invalidFlag unsigned 11,1 -m
-Var=cellVoltage_193_invalidFlag unsigned 10,1 -m
-Var=cellVoltage_194_invalidFlag unsigned 9,1 -m
-Var=cellVoltage_195_invalidFlag unsigned 8,1 -m
+[foxBMS_CellVoltages]
+Len=8
+CycleTime=5400 -p
+Mux=mux_cellVoltage_192_195 0,8 30h -m
+Var=cellVoltage_192_invalidFlag bit 11,1 -m
+Var=cellVoltage_193_invalidFlag bit 10,1 -m
+Var=cellVoltage_194_invalidFlag bit 9,1 -m
+Var=cellVoltage_195_invalidFlag bit 8,1 -m
 Var=cellVoltage_192 unsigned 12,13 -m /u:mV
 Var=cellVoltage_193 unsigned 25,13 -m /u:mV
 Var=cellVoltage_194 unsigned 38,13 -m /u:mV
 Var=cellVoltage_195 unsigned 51,13 -m /u:mV
 
-[foxBMS_CellVoltage]
-DLC=8
-Mux=mux_cellVoltage_196_199 0,8 31h  -m
-Var=cellVoltage_196_invalidFlag unsigned 11,1 -m
-Var=cellVoltage_197_invalidFlag unsigned 10,1 -m
-Var=cellVoltage_198_invalidFlag unsigned 9,1 -m
-Var=cellVoltage_199_invalidFlag unsigned 8,1 -m
+[foxBMS_CellVoltages]
+Len=8
+CycleTime=5400 -p
+Mux=mux_cellVoltage_196_199 0,8 31h -m
+Var=cellVoltage_196_invalidFlag bit 11,1 -m
+Var=cellVoltage_197_invalidFlag bit 10,1 -m
+Var=cellVoltage_198_invalidFlag bit 9,1 -m
+Var=cellVoltage_199_invalidFlag bit 8,1 -m
 Var=cellVoltage_196 unsigned 12,13 -m /u:mV
 Var=cellVoltage_197 unsigned 25,13 -m /u:mV
 Var=cellVoltage_198 unsigned 38,13 -m /u:mV
 Var=cellVoltage_199 unsigned 51,13 -m /u:mV
 
-[foxBMS_CellVoltage]
-DLC=8
-Mux=mux_cellVoltage_200_203 0,8 32h  -m
-Var=cellVoltage_200_invalidFlag unsigned 11,1 -m
-Var=cellVoltage_201_invalidFlag unsigned 10,1 -m
-Var=cellVoltage_202_invalidFlag unsigned 9,1 -m
-Var=cellVoltage_203_invalidFlag unsigned 8,1 -m
+[foxBMS_CellVoltages]
+Len=8
+CycleTime=5400 -p
+Mux=mux_cellVoltage_200_203 0,8 32h -m
+Var=cellVoltage_200_invalidFlag bit 11,1 -m
+Var=cellVoltage_201_invalidFlag bit 10,1 -m
+Var=cellVoltage_202_invalidFlag bit 9,1 -m
+Var=cellVoltage_203_invalidFlag bit 8,1 -m
 Var=cellVoltage_200 unsigned 12,13 -m /u:mV
 Var=cellVoltage_201 unsigned 25,13 -m /u:mV
 Var=cellVoltage_202 unsigned 38,13 -m /u:mV
 Var=cellVoltage_203 unsigned 51,13 -m /u:mV
 
-[foxBMS_CellVoltage]
-DLC=8
-Mux=mux_cellVoltage_204_207 0,8 33h  -m
-Var=cellVoltage_204_invalidFlag unsigned 11,1 -m
-Var=cellVoltage_205_invalidFlag unsigned 10,1 -m
-Var=cellVoltage_206_invalidFlag unsigned 9,1 -m
-Var=cellVoltage_207_invalidFlag unsigned 8,1 -m
+[foxBMS_CellVoltages]
+Len=8
+CycleTime=5400 -p
+Mux=mux_cellVoltage_204_207 0,8 33h -m
+Var=cellVoltage_204_invalidFlag bit 11,1 -m
+Var=cellVoltage_205_invalidFlag bit 10,1 -m
+Var=cellVoltage_206_invalidFlag bit 9,1 -m
+Var=cellVoltage_207_invalidFlag bit 8,1 -m
 Var=cellVoltage_204 unsigned 12,13 -m /u:mV
 Var=cellVoltage_205 unsigned 25,13 -m /u:mV
 Var=cellVoltage_206 unsigned 38,13 -m /u:mV
 Var=cellVoltage_207 unsigned 51,13 -m /u:mV
 
-[foxBMS_CellVoltage]
-DLC=8
-Mux=mux_cellVoltage_208_211 0,8 34h  -m
-Var=cellVoltage_208_invalidFlag unsigned 11,1 -m
-Var=cellVoltage_209_invalidFlag unsigned 10,1 -m
-Var=cellVoltage_210_invalidFlag unsigned 9,1 -m
-Var=cellVoltage_211_invalidFlag unsigned 8,1 -m
+[foxBMS_CellVoltages]
+Len=8
+CycleTime=5400 -p
+Mux=mux_cellVoltage_208_211 0,8 34h -m
+Var=cellVoltage_208_invalidFlag bit 11,1 -m
+Var=cellVoltage_209_invalidFlag bit 10,1 -m
+Var=cellVoltage_210_invalidFlag bit 9,1 -m
+Var=cellVoltage_211_invalidFlag bit 8,1 -m
 Var=cellVoltage_208 unsigned 12,13 -m /u:mV
 Var=cellVoltage_209 unsigned 25,13 -m /u:mV
 Var=cellVoltage_210 unsigned 38,13 -m /u:mV
 Var=cellVoltage_211 unsigned 51,13 -m /u:mV
 
-[foxBMS_CellVoltage]
-DLC=8
-Mux=mux_cellVoltage_212_215 0,8 35h  -m
-Var=cellVoltage_212_invalidFlag unsigned 11,1 -m
-Var=cellVoltage_213_invalidFlag unsigned 10,1 -m
-Var=cellVoltage_214_invalidFlag unsigned 9,1 -m
-Var=cellVoltage_215_invalidFlag unsigned 8,1 -m
+[foxBMS_CellVoltages]
+Len=8
+CycleTime=5400 -p
+Mux=mux_cellVoltage_212_215 0,8 35h -m
+Var=cellVoltage_212_invalidFlag bit 11,1 -m
+Var=cellVoltage_213_invalidFlag bit 10,1 -m
+Var=cellVoltage_214_invalidFlag bit 9,1 -m
+Var=cellVoltage_215_invalidFlag bit 8,1 -m
 Var=cellVoltage_212 unsigned 12,13 -m /u:mV
 Var=cellVoltage_213 unsigned 25,13 -m /u:mV
 Var=cellVoltage_214 unsigned 38,13 -m /u:mV
 Var=cellVoltage_215 unsigned 51,13 -m /u:mV
 
-[foxBMS_CellTemperature]
-ID=250h	// (in:can_cbs_tx_temperature.c:CAN_TxCellTemperature)
-DLC=8
-Mux=mux_cellTemperature_000_005 0,8 0  -m
-Var=cellTemperature_000_invalidFlag unsigned 15,1 -m
-Var=cellTemperature_001_invalidFlag unsigned 14,1 -m
-Var=cellTemperature_002_invalidFlag unsigned 13,1 -m
-Var=cellTemperature_003_invalidFlag unsigned 12,1 -m
-Var=cellTemperature_004_invalidFlag unsigned 11,1 -m
-Var=cellTemperature_005_invalidFlag unsigned 10,1 -m
+[foxBMS_CellTemperatures]
+ID=250h // (in:can_cbs_tx_cell-temperatures.c:CANTX_CellTemperatures, fv:tx)
+Len=8
+CycleTime=4500 -p
+Mux=mux_cellTemperature_000_005 0,8 0 -m
+Var=cellTemperature_000_invalidFlag bit 15,1 -m
+Var=cellTemperature_001_invalidFlag bit 14,1 -m
+Var=cellTemperature_002_invalidFlag bit 13,1 -m
+Var=cellTemperature_003_invalidFlag bit 12,1 -m
+Var=cellTemperature_004_invalidFlag bit 11,1 -m
+Var=cellTemperature_005_invalidFlag bit 10,1 -m
 Var=cellTemperature_000 signed 16,8 -m /u:degC
 Var=cellTemperature_001 signed 24,8 -m /u:degC
 Var=cellTemperature_002 signed 32,8 -m /u:degC
@@ -755,15 +794,16 @@ Var=cellTemperature_003 signed 40,8 -m /u:degC
 Var=cellTemperature_004 signed 48,8 -m /u:degC
 Var=cellTemperature_005 signed 56,8 -m /u:degC
 
-[foxBMS_CellTemperature]
-DLC=8
-Mux=mux_cellTemperature_006_011 0,8 1  -m
-Var=cellTemperature_006_invalidFlag unsigned 15,1 -m
-Var=cellTemperature_007_invalidFlag unsigned 14,1 -m
-Var=cellTemperature_008_invalidFlag unsigned 13,1 -m
-Var=cellTemperature_009_invalidFlag unsigned 12,1 -m
-Var=cellTemperature_010_invalidFlag unsigned 11,1 -m
-Var=cellTemperature_011_invalidFlag unsigned 10,1 -m
+[foxBMS_CellTemperatures]
+Len=8
+CycleTime=4500 -p
+Mux=mux_cellTemperature_006_011 0,8 1 -m
+Var=cellTemperature_006_invalidFlag bit 15,1 -m
+Var=cellTemperature_007_invalidFlag bit 14,1 -m
+Var=cellTemperature_008_invalidFlag bit 13,1 -m
+Var=cellTemperature_009_invalidFlag bit 12,1 -m
+Var=cellTemperature_010_invalidFlag bit 11,1 -m
+Var=cellTemperature_011_invalidFlag bit 10,1 -m
 Var=cellTemperature_006 signed 16,8 -m /u:degC
 Var=cellTemperature_007 signed 24,8 -m /u:degC
 Var=cellTemperature_008 signed 32,8 -m /u:degC
@@ -771,15 +811,16 @@ Var=cellTemperature_009 signed 40,8 -m /u:degC
 Var=cellTemperature_010 signed 48,8 -m /u:degC
 Var=cellTemperature_011 signed 56,8 -m /u:degC
 
-[foxBMS_CellTemperature]
-DLC=8
-Mux=mux_cellTemperature_012_017 0,8 2  -m
-Var=cellTemperature_012_invalidFlag unsigned 15,1 -m
-Var=cellTemperature_013_invalidFlag unsigned 14,1 -m
-Var=cellTemperature_014_invalidFlag unsigned 13,1 -m
-Var=cellTemperature_015_invalidFlag unsigned 12,1 -m
-Var=cellTemperature_016_invalidFlag unsigned 11,1 -m
-Var=cellTemperature_017_invalidFlag unsigned 10,1 -m
+[foxBMS_CellTemperatures]
+Len=8
+CycleTime=4500 -p
+Mux=mux_cellTemperature_012_017 0,8 2 -m
+Var=cellTemperature_012_invalidFlag bit 15,1 -m
+Var=cellTemperature_013_invalidFlag bit 14,1 -m
+Var=cellTemperature_014_invalidFlag bit 13,1 -m
+Var=cellTemperature_015_invalidFlag bit 12,1 -m
+Var=cellTemperature_016_invalidFlag bit 11,1 -m
+Var=cellTemperature_017_invalidFlag bit 10,1 -m
 Var=cellTemperature_012 signed 16,8 -m /u:degC
 Var=cellTemperature_013 signed 24,8 -m /u:degC
 Var=cellTemperature_014 signed 32,8 -m /u:degC
@@ -787,15 +828,16 @@ Var=cellTemperature_015 signed 40,8 -m /u:degC
 Var=cellTemperature_016 signed 48,8 -m /u:degC
 Var=cellTemperature_017 signed 56,8 -m /u:degC
 
-[foxBMS_CellTemperature]
-DLC=8
-Mux=mux_cellTemperature_018_023 0,8 3  -m
-Var=cellTemperature_018_invalidFlag unsigned 15,1 -m
-Var=cellTemperature_019_invalidFlag unsigned 14,1 -m
-Var=cellTemperature_020_invalidFlag unsigned 13,1 -m
-Var=cellTemperature_021_invalidFlag unsigned 12,1 -m
-Var=cellTemperature_022_invalidFlag unsigned 11,1 -m
-Var=cellTemperature_023_invalidFlag unsigned 10,1 -m
+[foxBMS_CellTemperatures]
+Len=8
+CycleTime=4500 -p
+Mux=mux_cellTemperature_018_023 0,8 3 -m
+Var=cellTemperature_018_invalidFlag bit 15,1 -m
+Var=cellTemperature_019_invalidFlag bit 14,1 -m
+Var=cellTemperature_020_invalidFlag bit 13,1 -m
+Var=cellTemperature_021_invalidFlag bit 12,1 -m
+Var=cellTemperature_022_invalidFlag bit 11,1 -m
+Var=cellTemperature_023_invalidFlag bit 10,1 -m
 Var=cellTemperature_018 signed 16,8 -m /u:degC
 Var=cellTemperature_019 signed 24,8 -m /u:degC
 Var=cellTemperature_020 signed 32,8 -m /u:degC
@@ -803,15 +845,16 @@ Var=cellTemperature_021 signed 40,8 -m /u:degC
 Var=cellTemperature_022 signed 48,8 -m /u:degC
 Var=cellTemperature_023 signed 56,8 -m /u:degC
 
-[foxBMS_CellTemperature]
-DLC=8
-Mux=mux_cellTemperature_024_029 0,8 4  -m
-Var=cellTemperature_024_invalidFlag unsigned 15,1 -m
-Var=cellTemperature_025_invalidFlag unsigned 14,1 -m
-Var=cellTemperature_026_invalidFlag unsigned 13,1 -m
-Var=cellTemperature_027_invalidFlag unsigned 12,1 -m
-Var=cellTemperature_028_invalidFlag unsigned 11,1 -m
-Var=cellTemperature_029_invalidFlag unsigned 10,1 -m
+[foxBMS_CellTemperatures]
+Len=8
+CycleTime=4500 -p
+Mux=mux_cellTemperature_024_029 0,8 4 -m
+Var=cellTemperature_024_invalidFlag bit 15,1 -m
+Var=cellTemperature_025_invalidFlag bit 14,1 -m
+Var=cellTemperature_026_invalidFlag bit 13,1 -m
+Var=cellTemperature_027_invalidFlag bit 12,1 -m
+Var=cellTemperature_028_invalidFlag bit 11,1 -m
+Var=cellTemperature_029_invalidFlag bit 10,1 -m
 Var=cellTemperature_024 signed 16,8 -m /u:degC
 Var=cellTemperature_025 signed 24,8 -m /u:degC
 Var=cellTemperature_026 signed 32,8 -m /u:degC
@@ -819,15 +862,16 @@ Var=cellTemperature_027 signed 40,8 -m /u:degC
 Var=cellTemperature_028 signed 48,8 -m /u:degC
 Var=cellTemperature_029 signed 56,8 -m /u:degC
 
-[foxBMS_CellTemperature]
-DLC=8
-Mux=mux_cellTemperature_030_035 0,8 5  -m
-Var=cellTemperature_030_invalidFlag unsigned 15,1 -m
-Var=cellTemperature_031_invalidFlag unsigned 14,1 -m
-Var=cellTemperature_032_invalidFlag unsigned 13,1 -m
-Var=cellTemperature_033_invalidFlag unsigned 12,1 -m
-Var=cellTemperature_034_invalidFlag unsigned 11,1 -m
-Var=cellTemperature_035_invalidFlag unsigned 10,1 -m
+[foxBMS_CellTemperatures]
+Len=8
+CycleTime=4500 -p
+Mux=mux_cellTemperature_030_035 0,8 5 -m
+Var=cellTemperature_030_invalidFlag bit 15,1 -m
+Var=cellTemperature_031_invalidFlag bit 14,1 -m
+Var=cellTemperature_032_invalidFlag bit 13,1 -m
+Var=cellTemperature_033_invalidFlag bit 12,1 -m
+Var=cellTemperature_034_invalidFlag bit 11,1 -m
+Var=cellTemperature_035_invalidFlag bit 10,1 -m
 Var=cellTemperature_030 signed 16,8 -m /u:degC
 Var=cellTemperature_031 signed 24,8 -m /u:degC
 Var=cellTemperature_032 signed 32,8 -m /u:degC
@@ -835,15 +879,16 @@ Var=cellTemperature_033 signed 40,8 -m /u:degC
 Var=cellTemperature_034 signed 48,8 -m /u:degC
 Var=cellTemperature_035 signed 56,8 -m /u:degC
 
-[foxBMS_CellTemperature]
-DLC=8
-Mux=mux_cellTemperature_036_041 0,8 6  -m
-Var=cellTemperature_036_invalidFlag unsigned 15,1 -m
-Var=cellTemperature_037_invalidFlag unsigned 14,1 -m
-Var=cellTemperature_038_invalidFlag unsigned 13,1 -m
-Var=cellTemperature_039_invalidFlag unsigned 12,1 -m
-Var=cellTemperature_040_invalidFlag unsigned 11,1 -m
-Var=cellTemperature_041_invalidFlag unsigned 10,1 -m
+[foxBMS_CellTemperatures]
+Len=8
+CycleTime=4500 -p
+Mux=mux_cellTemperature_036_041 0,8 6 -m
+Var=cellTemperature_036_invalidFlag bit 15,1 -m
+Var=cellTemperature_037_invalidFlag bit 14,1 -m
+Var=cellTemperature_038_invalidFlag bit 13,1 -m
+Var=cellTemperature_039_invalidFlag bit 12,1 -m
+Var=cellTemperature_040_invalidFlag bit 11,1 -m
+Var=cellTemperature_041_invalidFlag bit 10,1 -m
 Var=cellTemperature_036 signed 16,8 -m /u:degC
 Var=cellTemperature_037 signed 24,8 -m /u:degC
 Var=cellTemperature_038 signed 32,8 -m /u:degC
@@ -851,15 +896,16 @@ Var=cellTemperature_039 signed 40,8 -m /u:degC
 Var=cellTemperature_040 signed 48,8 -m /u:degC
 Var=cellTemperature_041 signed 56,8 -m /u:degC
 
-[foxBMS_CellTemperature]
-DLC=8
-Mux=mux_cellTemperature_042_047 0,8 7  -m
-Var=cellTemperature_042_invalidFlag unsigned 15,1 -m
-Var=cellTemperature_043_invalidFlag unsigned 14,1 -m
-Var=cellTemperature_044_invalidFlag unsigned 13,1 -m
-Var=cellTemperature_045_invalidFlag unsigned 12,1 -m
-Var=cellTemperature_046_invalidFlag unsigned 11,1 -m
-Var=cellTemperature_047_invalidFlag unsigned 10,1 -m
+[foxBMS_CellTemperatures]
+Len=8
+CycleTime=4500 -p
+Mux=mux_cellTemperature_042_047 0,8 7 -m
+Var=cellTemperature_042_invalidFlag bit 15,1 -m
+Var=cellTemperature_043_invalidFlag bit 14,1 -m
+Var=cellTemperature_044_invalidFlag bit 13,1 -m
+Var=cellTemperature_045_invalidFlag bit 12,1 -m
+Var=cellTemperature_046_invalidFlag bit 11,1 -m
+Var=cellTemperature_047_invalidFlag bit 10,1 -m
 Var=cellTemperature_042 signed 16,8 -m /u:degC
 Var=cellTemperature_043 signed 24,8 -m /u:degC
 Var=cellTemperature_044 signed 32,8 -m /u:degC
@@ -867,15 +913,16 @@ Var=cellTemperature_045 signed 40,8 -m /u:degC
 Var=cellTemperature_046 signed 48,8 -m /u:degC
 Var=cellTemperature_047 signed 56,8 -m /u:degC
 
-[foxBMS_CellTemperature]
-DLC=8
-Mux=mux_cellTemperature_048_053 0,8 8  -m
-Var=cellTemperature_048_invalidFlag unsigned 15,1 -m
-Var=cellTemperature_049_invalidFlag unsigned 14,1 -m
-Var=cellTemperature_050_invalidFlag unsigned 13,1 -m
-Var=cellTemperature_051_invalidFlag unsigned 12,1 -m
-Var=cellTemperature_052_invalidFlag unsigned 11,1 -m
-Var=cellTemperature_053_invalidFlag unsigned 10,1 -m
+[foxBMS_CellTemperatures]
+Len=8
+CycleTime=4500 -p
+Mux=mux_cellTemperature_048_053 0,8 8 -m
+Var=cellTemperature_048_invalidFlag bit 15,1 -m
+Var=cellTemperature_049_invalidFlag bit 14,1 -m
+Var=cellTemperature_050_invalidFlag bit 13,1 -m
+Var=cellTemperature_051_invalidFlag bit 12,1 -m
+Var=cellTemperature_052_invalidFlag bit 11,1 -m
+Var=cellTemperature_053_invalidFlag bit 10,1 -m
 Var=cellTemperature_048 signed 16,8 -m /u:degC
 Var=cellTemperature_049 signed 24,8 -m /u:degC
 Var=cellTemperature_050 signed 32,8 -m /u:degC
@@ -883,15 +930,16 @@ Var=cellTemperature_051 signed 40,8 -m /u:degC
 Var=cellTemperature_052 signed 48,8 -m /u:degC
 Var=cellTemperature_053 signed 56,8 -m /u:degC
 
-[foxBMS_CellTemperature]
-DLC=8
-Mux=mux_cellTemperature_054_059 0,8 9  -m
-Var=cellTemperature_054_invalidFlag unsigned 15,1 -m
-Var=cellTemperature_055_invalidFlag unsigned 14,1 -m
-Var=cellTemperature_056_invalidFlag unsigned 13,1 -m
-Var=cellTemperature_057_invalidFlag unsigned 12,1 -m
-Var=cellTemperature_058_invalidFlag unsigned 11,1 -m
-Var=cellTemperature_059_invalidFlag unsigned 10,1 -m
+[foxBMS_CellTemperatures]
+Len=8
+CycleTime=4500 -p
+Mux=mux_cellTemperature_054_059 0,8 9 -m
+Var=cellTemperature_054_invalidFlag bit 15,1 -m
+Var=cellTemperature_055_invalidFlag bit 14,1 -m
+Var=cellTemperature_056_invalidFlag bit 13,1 -m
+Var=cellTemperature_057_invalidFlag bit 12,1 -m
+Var=cellTemperature_058_invalidFlag bit 11,1 -m
+Var=cellTemperature_059_invalidFlag bit 10,1 -m
 Var=cellTemperature_054 signed 16,8 -m /u:degC
 Var=cellTemperature_055 signed 24,8 -m /u:degC
 Var=cellTemperature_056 signed 32,8 -m /u:degC
@@ -899,15 +947,16 @@ Var=cellTemperature_057 signed 40,8 -m /u:degC
 Var=cellTemperature_058 signed 48,8 -m /u:degC
 Var=cellTemperature_059 signed 56,8 -m /u:degC
 
-[foxBMS_CellTemperature]
-DLC=8
-Mux=mux_cellTemperature_060_065 0,8 0Ah  -m
-Var=cellTemperature_060_invalidFlag unsigned 15,1 -m
-Var=cellTemperature_061_invalidFlag unsigned 14,1 -m
-Var=cellTemperature_062_invalidFlag unsigned 13,1 -m
-Var=cellTemperature_063_invalidFlag unsigned 12,1 -m
-Var=cellTemperature_064_invalidFlag unsigned 11,1 -m
-Var=cellTemperature_065_invalidFlag unsigned 10,1 -m
+[foxBMS_CellTemperatures]
+Len=8
+CycleTime=4500 -p
+Mux=mux_cellTemperature_060_065 0,8 0Ah -m
+Var=cellTemperature_060_invalidFlag bit 15,1 -m
+Var=cellTemperature_061_invalidFlag bit 14,1 -m
+Var=cellTemperature_062_invalidFlag bit 13,1 -m
+Var=cellTemperature_063_invalidFlag bit 12,1 -m
+Var=cellTemperature_064_invalidFlag bit 11,1 -m
+Var=cellTemperature_065_invalidFlag bit 10,1 -m
 Var=cellTemperature_060 signed 16,8 -m /u:degC
 Var=cellTemperature_061 signed 24,8 -m /u:degC
 Var=cellTemperature_062 signed 32,8 -m /u:degC
@@ -915,15 +964,16 @@ Var=cellTemperature_063 signed 40,8 -m /u:degC
 Var=cellTemperature_064 signed 48,8 -m /u:degC
 Var=cellTemperature_065 signed 56,8 -m /u:degC
 
-[foxBMS_CellTemperature]
-DLC=8
-Mux=mux_cellTemperature_066_071 0,8 0Bh  -m
-Var=cellTemperature_066_invalidFlag unsigned 15,1 -m
-Var=cellTemperature_067_invalidFlag unsigned 14,1 -m
-Var=cellTemperature_068_invalidFlag unsigned 13,1 -m
-Var=cellTemperature_069_invalidFlag unsigned 12,1 -m
-Var=cellTemperature_070_invalidFlag unsigned 11,1 -m
-Var=cellTemperature_071_invalidFlag unsigned 10,1 -m
+[foxBMS_CellTemperatures]
+Len=8
+CycleTime=4500 -p
+Mux=mux_cellTemperature_066_071 0,8 0Bh -m
+Var=cellTemperature_066_invalidFlag bit 15,1 -m
+Var=cellTemperature_067_invalidFlag bit 14,1 -m
+Var=cellTemperature_068_invalidFlag bit 13,1 -m
+Var=cellTemperature_069_invalidFlag bit 12,1 -m
+Var=cellTemperature_070_invalidFlag bit 11,1 -m
+Var=cellTemperature_071_invalidFlag bit 10,1 -m
 Var=cellTemperature_066 signed 16,8 -m /u:degC
 Var=cellTemperature_067 signed 24,8 -m /u:degC
 Var=cellTemperature_068 signed 32,8 -m /u:degC
@@ -931,15 +981,16 @@ Var=cellTemperature_069 signed 40,8 -m /u:degC
 Var=cellTemperature_070 signed 48,8 -m /u:degC
 Var=cellTemperature_071 signed 56,8 -m /u:degC
 
-[foxBMS_CellTemperature]
-DLC=8
-Mux=mux_cellTemperature_072_077 0,8 0Ch  -m
-Var=cellTemperature_072_invalidFlag unsigned 15,1 -m
-Var=cellTemperature_073_invalidFlag unsigned 14,1 -m
-Var=cellTemperature_074_invalidFlag unsigned 13,1 -m
-Var=cellTemperature_075_invalidFlag unsigned 12,1 -m
-Var=cellTemperature_076_invalidFlag unsigned 11,1 -m
-Var=cellTemperature_077_invalidFlag unsigned 10,1 -m
+[foxBMS_CellTemperatures]
+Len=8
+CycleTime=4500 -p
+Mux=mux_cellTemperature_072_077 0,8 0Ch -m
+Var=cellTemperature_072_invalidFlag bit 15,1 -m
+Var=cellTemperature_073_invalidFlag bit 14,1 -m
+Var=cellTemperature_074_invalidFlag bit 13,1 -m
+Var=cellTemperature_075_invalidFlag bit 12,1 -m
+Var=cellTemperature_076_invalidFlag bit 11,1 -m
+Var=cellTemperature_077_invalidFlag bit 10,1 -m
 Var=cellTemperature_072 signed 16,8 -m /u:degC
 Var=cellTemperature_073 signed 24,8 -m /u:degC
 Var=cellTemperature_074 signed 32,8 -m /u:degC
@@ -947,15 +998,16 @@ Var=cellTemperature_075 signed 40,8 -m /u:degC
 Var=cellTemperature_076 signed 48,8 -m /u:degC
 Var=cellTemperature_077 signed 56,8 -m /u:degC
 
-[foxBMS_CellTemperature]
-DLC=8
-Mux=mux_cellTemperature_078_083 0,8 0Dh  -m
-Var=cellTemperature_078_invalidFlag unsigned 15,1 -m
-Var=cellTemperature_079_invalidFlag unsigned 14,1 -m
-Var=cellTemperature_080_invalidFlag unsigned 13,1 -m
-Var=cellTemperature_081_invalidFlag unsigned 12,1 -m
-Var=cellTemperature_082_invalidFlag unsigned 11,1 -m
-Var=cellTemperature_083_invalidFlag unsigned 10,1 -m
+[foxBMS_CellTemperatures]
+Len=8
+CycleTime=4500 -p
+Mux=mux_cellTemperature_078_083 0,8 0Dh -m
+Var=cellTemperature_078_invalidFlag bit 15,1 -m
+Var=cellTemperature_079_invalidFlag bit 14,1 -m
+Var=cellTemperature_080_invalidFlag bit 13,1 -m
+Var=cellTemperature_081_invalidFlag bit 12,1 -m
+Var=cellTemperature_082_invalidFlag bit 11,1 -m
+Var=cellTemperature_083_invalidFlag bit 10,1 -m
 Var=cellTemperature_078 signed 16,8 -m /u:degC
 Var=cellTemperature_079 signed 24,8 -m /u:degC
 Var=cellTemperature_080 signed 32,8 -m /u:degC
@@ -963,15 +1015,16 @@ Var=cellTemperature_081 signed 40,8 -m /u:degC
 Var=cellTemperature_082 signed 48,8 -m /u:degC
 Var=cellTemperature_083 signed 56,8 -m /u:degC
 
-[foxBMS_CellTemperature]
-DLC=8
-Mux=mux_cellTemperature_084_089 0,8 0Eh  -m
-Var=cellTemperature_084_invalidFlag unsigned 15,1 -m
-Var=cellTemperature_085_invalidFlag unsigned 14,1 -m
-Var=cellTemperature_086_invalidFlag unsigned 13,1 -m
-Var=cellTemperature_087_invalidFlag unsigned 12,1 -m
-Var=cellTemperature_088_invalidFlag unsigned 11,1 -m
-Var=cellTemperature_089_invalidFlag unsigned 10,1 -m
+[foxBMS_CellTemperatures]
+Len=8
+CycleTime=4500 -p
+Mux=mux_cellTemperature_084_089 0,8 0Eh -m
+Var=cellTemperature_084_invalidFlag bit 15,1 -m
+Var=cellTemperature_085_invalidFlag bit 14,1 -m
+Var=cellTemperature_086_invalidFlag bit 13,1 -m
+Var=cellTemperature_087_invalidFlag bit 12,1 -m
+Var=cellTemperature_088_invalidFlag bit 11,1 -m
+Var=cellTemperature_089_invalidFlag bit 10,1 -m
 Var=cellTemperature_084 signed 16,8 -m /u:degC
 Var=cellTemperature_085 signed 24,8 -m /u:degC
 Var=cellTemperature_086 signed 32,8 -m /u:degC
@@ -979,15 +1032,16 @@ Var=cellTemperature_087 signed 40,8 -m /u:degC
 Var=cellTemperature_088 signed 48,8 -m /u:degC
 Var=cellTemperature_089 signed 56,8 -m /u:degC
 
-[foxBMS_CellTemperature]
-DLC=8
-Mux=mux_cellTemperature_090_095 0,8 0Fh  -m
-Var=cellTemperature_090_invalidFlag unsigned 15,1 -m
-Var=cellTemperature_091_invalidFlag unsigned 14,1 -m
-Var=cellTemperature_092_invalidFlag unsigned 13,1 -m
-Var=cellTemperature_093_invalidFlag unsigned 12,1 -m
-Var=cellTemperature_094_invalidFlag unsigned 11,1 -m
-Var=cellTemperature_095_invalidFlag unsigned 10,1 -m
+[foxBMS_CellTemperatures]
+Len=8
+CycleTime=4500 -p
+Mux=mux_cellTemperature_090_095 0,8 0Fh -m
+Var=cellTemperature_090_invalidFlag bit 15,1 -m
+Var=cellTemperature_091_invalidFlag bit 14,1 -m
+Var=cellTemperature_092_invalidFlag bit 13,1 -m
+Var=cellTemperature_093_invalidFlag bit 12,1 -m
+Var=cellTemperature_094_invalidFlag bit 11,1 -m
+Var=cellTemperature_095_invalidFlag bit 10,1 -m
 Var=cellTemperature_090 signed 16,8 -m /u:degC
 Var=cellTemperature_091 signed 24,8 -m /u:degC
 Var=cellTemperature_092 signed 32,8 -m /u:degC
@@ -995,15 +1049,16 @@ Var=cellTemperature_093 signed 40,8 -m /u:degC
 Var=cellTemperature_094 signed 48,8 -m /u:degC
 Var=cellTemperature_095 signed 56,8 -m /u:degC
 
-[foxBMS_CellTemperature]
-DLC=8
-Mux=mux_cellTemperature_096_101 0,8 10h  -m
-Var=cellTemperature_096_invalidFlag unsigned 15,1 -m
-Var=cellTemperature_097_invalidFlag unsigned 14,1 -m
-Var=cellTemperature_098_invalidFlag unsigned 13,1 -m
-Var=cellTemperature_099_invalidFlag unsigned 12,1 -m
-Var=cellTemperature_100_invalidFlag unsigned 11,1 -m
-Var=cellTemperature_101_invalidFlag unsigned 10,1 -m
+[foxBMS_CellTemperatures]
+Len=8
+CycleTime=4500 -p
+Mux=mux_cellTemperature_096_101 0,8 10h -m
+Var=cellTemperature_096_invalidFlag bit 15,1 -m
+Var=cellTemperature_097_invalidFlag bit 14,1 -m
+Var=cellTemperature_098_invalidFlag bit 13,1 -m
+Var=cellTemperature_099_invalidFlag bit 12,1 -m
+Var=cellTemperature_100_invalidFlag bit 11,1 -m
+Var=cellTemperature_101_invalidFlag bit 10,1 -m
 Var=cellTemperature_096 signed 16,8 -m /u:degC
 Var=cellTemperature_097 signed 24,8 -m /u:degC
 Var=cellTemperature_098 signed 32,8 -m /u:degC
@@ -1011,15 +1066,16 @@ Var=cellTemperature_099 signed 40,8 -m /u:degC
 Var=cellTemperature_100 signed 48,8 -m /u:degC
 Var=cellTemperature_101 signed 56,8 -m /u:degC
 
-[foxBMS_CellTemperature]
-DLC=8
-Mux=mux_cellTemperature_102_107 0,8 11h  -m
-Var=cellTemperature_102_invalidFlag unsigned 15,1 -m
-Var=cellTemperature_103_invalidFlag unsigned 14,1 -m
-Var=cellTemperature_104_invalidFlag unsigned 13,1 -m
-Var=cellTemperature_105_invalidFlag unsigned 12,1 -m
-Var=cellTemperature_106_invalidFlag unsigned 11,1 -m
-Var=cellTemperature_107_invalidFlag unsigned 10,1 -m
+[foxBMS_CellTemperatures]
+Len=8
+CycleTime=4500 -p
+Mux=mux_cellTemperature_102_107 0,8 11h -m
+Var=cellTemperature_102_invalidFlag bit 15,1 -m
+Var=cellTemperature_103_invalidFlag bit 14,1 -m
+Var=cellTemperature_104_invalidFlag bit 13,1 -m
+Var=cellTemperature_105_invalidFlag bit 12,1 -m
+Var=cellTemperature_106_invalidFlag bit 11,1 -m
+Var=cellTemperature_107_invalidFlag bit 10,1 -m
 Var=cellTemperature_102 signed 16,8 -m /u:degC
 Var=cellTemperature_103 signed 24,8 -m /u:degC
 Var=cellTemperature_104 signed 32,8 -m /u:degC
@@ -1027,15 +1083,16 @@ Var=cellTemperature_105 signed 40,8 -m /u:degC
 Var=cellTemperature_106 signed 48,8 -m /u:degC
 Var=cellTemperature_107 signed 56,8 -m /u:degC
 
-[foxBMS_CellTemperature]
-DLC=8
-Mux=mux_cellTemperature_108_113 0,8 12h  -m
-Var=cellTemperature_108_invalidFlag unsigned 15,1 -m
-Var=cellTemperature_109_invalidFlag unsigned 14,1 -m
-Var=cellTemperature_110_invalidFlag unsigned 13,1 -m
-Var=cellTemperature_111_invalidFlag unsigned 12,1 -m
-Var=cellTemperature_112_invalidFlag unsigned 11,1 -m
-Var=cellTemperature_113_invalidFlag unsigned 10,1 -m
+[foxBMS_CellTemperatures]
+Len=8
+CycleTime=4500 -p
+Mux=mux_cellTemperature_108_113 0,8 12h -m
+Var=cellTemperature_108_invalidFlag bit 15,1 -m
+Var=cellTemperature_109_invalidFlag bit 14,1 -m
+Var=cellTemperature_110_invalidFlag bit 13,1 -m
+Var=cellTemperature_111_invalidFlag bit 12,1 -m
+Var=cellTemperature_112_invalidFlag bit 11,1 -m
+Var=cellTemperature_113_invalidFlag bit 10,1 -m
 Var=cellTemperature_108 signed 16,8 -m /u:degC
 Var=cellTemperature_109 signed 24,8 -m /u:degC
 Var=cellTemperature_110 signed 32,8 -m /u:degC
@@ -1043,15 +1100,16 @@ Var=cellTemperature_111 signed 40,8 -m /u:degC
 Var=cellTemperature_112 signed 48,8 -m /u:degC
 Var=cellTemperature_113 signed 56,8 -m /u:degC
 
-[foxBMS_CellTemperature]
-DLC=8
-Mux=mux_cellTemperature_114_119 0,8 13h  -m
-Var=cellTemperature_114_invalidFlag unsigned 15,1 -m
-Var=cellTemperature_115_invalidFlag unsigned 14,1 -m
-Var=cellTemperature_116_invalidFlag unsigned 13,1 -m
-Var=cellTemperature_117_invalidFlag unsigned 12,1 -m
-Var=cellTemperature_118_invalidFlag unsigned 11,1 -m
-Var=cellTemperature_119_invalidFlag unsigned 10,1 -m
+[foxBMS_CellTemperatures]
+Len=8
+CycleTime=4500 -p
+Mux=mux_cellTemperature_114_119 0,8 13h -m
+Var=cellTemperature_114_invalidFlag bit 15,1 -m
+Var=cellTemperature_115_invalidFlag bit 14,1 -m
+Var=cellTemperature_116_invalidFlag bit 13,1 -m
+Var=cellTemperature_117_invalidFlag bit 12,1 -m
+Var=cellTemperature_118_invalidFlag bit 11,1 -m
+Var=cellTemperature_119_invalidFlag bit 10,1 -m
 Var=cellTemperature_114 signed 16,8 -m /u:degC
 Var=cellTemperature_115 signed 24,8 -m /u:degC
 Var=cellTemperature_116 signed 32,8 -m /u:degC
@@ -1059,15 +1117,16 @@ Var=cellTemperature_117 signed 40,8 -m /u:degC
 Var=cellTemperature_118 signed 48,8 -m /u:degC
 Var=cellTemperature_119 signed 56,8 -m /u:degC
 
-[foxBMS_CellTemperature]
-DLC=8
-Mux=mux_cellTemperature_120_125 0,8 14h  -m
-Var=cellTemperature_120_invalidFlag unsigned 15,1 -m
-Var=cellTemperature_121_invalidFlag unsigned 14,1 -m
-Var=cellTemperature_122_invalidFlag unsigned 13,1 -m
-Var=cellTemperature_123_invalidFlag unsigned 12,1 -m
-Var=cellTemperature_124_invalidFlag unsigned 11,1 -m
-Var=cellTemperature_125_invalidFlag unsigned 10,1 -m
+[foxBMS_CellTemperatures]
+Len=8
+CycleTime=4500 -p
+Mux=mux_cellTemperature_120_125 0,8 14h -m
+Var=cellTemperature_120_invalidFlag bit 15,1 -m
+Var=cellTemperature_121_invalidFlag bit 14,1 -m
+Var=cellTemperature_122_invalidFlag bit 13,1 -m
+Var=cellTemperature_123_invalidFlag bit 12,1 -m
+Var=cellTemperature_124_invalidFlag bit 11,1 -m
+Var=cellTemperature_125_invalidFlag bit 10,1 -m
 Var=cellTemperature_120 signed 16,8 -m /u:degC
 Var=cellTemperature_121 signed 24,8 -m /u:degC
 Var=cellTemperature_122 signed 32,8 -m /u:degC
@@ -1075,15 +1134,16 @@ Var=cellTemperature_123 signed 40,8 -m /u:degC
 Var=cellTemperature_124 signed 48,8 -m /u:degC
 Var=cellTemperature_125 signed 56,8 -m /u:degC
 
-[foxBMS_CellTemperature]
-DLC=8
-Mux=mux_cellTemperature_126_131 0,8 15h  -m
-Var=cellTemperature_126_invalidFlag unsigned 15,1 -m
-Var=cellTemperature_127_invalidFlag unsigned 14,1 -m
-Var=cellTemperature_128_invalidFlag unsigned 13,1 -m
-Var=cellTemperature_129_invalidFlag unsigned 12,1 -m
-Var=cellTemperature_130_invalidFlag unsigned 11,1 -m
-Var=cellTemperature_131_invalidFlag unsigned 10,1 -m
+[foxBMS_CellTemperatures]
+Len=8
+CycleTime=4500 -p
+Mux=mux_cellTemperature_126_131 0,8 15h -m
+Var=cellTemperature_126_invalidFlag bit 15,1 -m
+Var=cellTemperature_127_invalidFlag bit 14,1 -m
+Var=cellTemperature_128_invalidFlag bit 13,1 -m
+Var=cellTemperature_129_invalidFlag bit 12,1 -m
+Var=cellTemperature_130_invalidFlag bit 11,1 -m
+Var=cellTemperature_131_invalidFlag bit 10,1 -m
 Var=cellTemperature_126 signed 16,8 -m /u:degC
 Var=cellTemperature_127 signed 24,8 -m /u:degC
 Var=cellTemperature_128 signed 32,8 -m /u:degC
@@ -1091,15 +1151,16 @@ Var=cellTemperature_129 signed 40,8 -m /u:degC
 Var=cellTemperature_130 signed 48,8 -m /u:degC
 Var=cellTemperature_131 signed 56,8 -m /u:degC
 
-[foxBMS_CellTemperature]
-DLC=8
-Mux=mux_cellTemperature_132_137 0,8 16h  -m
-Var=cellTemperature_132_invalidFlag unsigned 15,1 -m
-Var=cellTemperature_133_invalidFlag unsigned 14,1 -m
-Var=cellTemperature_134_invalidFlag unsigned 13,1 -m
-Var=cellTemperature_135_invalidFlag unsigned 12,1 -m
-Var=cellTemperature_136_invalidFlag unsigned 11,1 -m
-Var=cellTemperature_137_invalidFlag unsigned 10,1 -m
+[foxBMS_CellTemperatures]
+Len=8
+CycleTime=4500 -p
+Mux=mux_cellTemperature_132_137 0,8 16h -m
+Var=cellTemperature_132_invalidFlag bit 15,1 -m
+Var=cellTemperature_133_invalidFlag bit 14,1 -m
+Var=cellTemperature_134_invalidFlag bit 13,1 -m
+Var=cellTemperature_135_invalidFlag bit 12,1 -m
+Var=cellTemperature_136_invalidFlag bit 11,1 -m
+Var=cellTemperature_137_invalidFlag bit 10,1 -m
 Var=cellTemperature_132 signed 16,8 -m /u:degC
 Var=cellTemperature_133 signed 24,8 -m /u:degC
 Var=cellTemperature_134 signed 32,8 -m /u:degC
@@ -1107,15 +1168,16 @@ Var=cellTemperature_135 signed 40,8 -m /u:degC
 Var=cellTemperature_136 signed 48,8 -m /u:degC
 Var=cellTemperature_137 signed 56,8 -m /u:degC
 
-[foxBMS_CellTemperature]
-DLC=8
-Mux=mux_cellTemperature_138_143 0,8 17h  -m
-Var=cellTemperature_138_invalidFlag unsigned 15,1 -m
-Var=cellTemperature_139_invalidFlag unsigned 14,1 -m
-Var=cellTemperature_140_invalidFlag unsigned 13,1 -m
-Var=cellTemperature_141_invalidFlag unsigned 12,1 -m
-Var=cellTemperature_142_invalidFlag unsigned 11,1 -m
-Var=cellTemperature_143_invalidFlag unsigned 10,1 -m
+[foxBMS_CellTemperatures]
+Len=8
+CycleTime=4500 -p
+Mux=mux_cellTemperature_138_143 0,8 17h -m
+Var=cellTemperature_138_invalidFlag bit 15,1 -m
+Var=cellTemperature_139_invalidFlag bit 14,1 -m
+Var=cellTemperature_140_invalidFlag bit 13,1 -m
+Var=cellTemperature_141_invalidFlag bit 12,1 -m
+Var=cellTemperature_142_invalidFlag bit 11,1 -m
+Var=cellTemperature_143_invalidFlag bit 10,1 -m
 Var=cellTemperature_138 signed 16,8 -m /u:degC
 Var=cellTemperature_139 signed 24,8 -m /u:degC
 Var=cellTemperature_140 signed 32,8 -m /u:degC
@@ -1123,15 +1185,16 @@ Var=cellTemperature_141 signed 40,8 -m /u:degC
 Var=cellTemperature_142 signed 48,8 -m /u:degC
 Var=cellTemperature_143 signed 56,8 -m /u:degC
 
-[foxBMS_CellTemperature]
-DLC=8
-Mux=mux_cellTemperature_144_149 0,8 18h  -m
-Var=cellTemperature_144_invalidFlag unsigned 15,1 -m
-Var=cellTemperature_145_invalidFlag unsigned 14,1 -m
-Var=cellTemperature_146_invalidFlag unsigned 13,1 -m
-Var=cellTemperature_147_invalidFlag unsigned 12,1 -m
-Var=cellTemperature_148_invalidFlag unsigned 11,1 -m
-Var=cellTemperature_149_invalidFlag unsigned 10,1 -m
+[foxBMS_CellTemperatures]
+Len=8
+CycleTime=4500 -p
+Mux=mux_cellTemperature_144_149 0,8 18h -m
+Var=cellTemperature_144_invalidFlag bit 15,1 -m
+Var=cellTemperature_145_invalidFlag bit 14,1 -m
+Var=cellTemperature_146_invalidFlag bit 13,1 -m
+Var=cellTemperature_147_invalidFlag bit 12,1 -m
+Var=cellTemperature_148_invalidFlag bit 11,1 -m
+Var=cellTemperature_149_invalidFlag bit 10,1 -m
 Var=cellTemperature_144 signed 16,8 -m /u:degC
 Var=cellTemperature_145 signed 24,8 -m /u:degC
 Var=cellTemperature_146 signed 32,8 -m /u:degC
@@ -1139,15 +1202,16 @@ Var=cellTemperature_147 signed 40,8 -m /u:degC
 Var=cellTemperature_148 signed 48,8 -m /u:degC
 Var=cellTemperature_149 signed 56,8 -m /u:degC
 
-[foxBMS_CellTemperature]
-DLC=8
-Mux=mux_cellTemperature_150_155 0,8 19h  -m
-Var=cellTemperature_150_invalidFlag unsigned 15,1 -m
-Var=cellTemperature_151_invalidFlag unsigned 14,1 -m
-Var=cellTemperature_152_invalidFlag unsigned 13,1 -m
-Var=cellTemperature_153_invalidFlag unsigned 12,1 -m
-Var=cellTemperature_154_invalidFlag unsigned 11,1 -m
-Var=cellTemperature_155_invalidFlag unsigned 10,1 -m
+[foxBMS_CellTemperatures]
+Len=8
+CycleTime=4500 -p
+Mux=mux_cellTemperature_150_155 0,8 19h -m
+Var=cellTemperature_150_invalidFlag bit 15,1 -m
+Var=cellTemperature_151_invalidFlag bit 14,1 -m
+Var=cellTemperature_152_invalidFlag bit 13,1 -m
+Var=cellTemperature_153_invalidFlag bit 12,1 -m
+Var=cellTemperature_154_invalidFlag bit 11,1 -m
+Var=cellTemperature_155_invalidFlag bit 10,1 -m
 Var=cellTemperature_150 signed 16,8 -m /u:degC
 Var=cellTemperature_151 signed 24,8 -m /u:degC
 Var=cellTemperature_152 signed 32,8 -m /u:degC
@@ -1155,15 +1219,16 @@ Var=cellTemperature_153 signed 40,8 -m /u:degC
 Var=cellTemperature_154 signed 48,8 -m /u:degC
 Var=cellTemperature_155 signed 56,8 -m /u:degC
 
-[foxBMS_CellTemperature]
-DLC=8
-Mux=mux_cellTemperature_156_161 0,8 1Ah  -m
-Var=cellTemperature_156_invalidFlag unsigned 15,1 -m
-Var=cellTemperature_157_invalidFlag unsigned 14,1 -m
-Var=cellTemperature_158_invalidFlag unsigned 13,1 -m
-Var=cellTemperature_159_invalidFlag unsigned 12,1 -m
-Var=cellTemperature_160_invalidFlag unsigned 11,1 -m
-Var=cellTemperature_161_invalidFlag unsigned 10,1 -m
+[foxBMS_CellTemperatures]
+Len=8
+CycleTime=4500 -p
+Mux=mux_cellTemperature_156_161 0,8 1Ah -m
+Var=cellTemperature_156_invalidFlag bit 15,1 -m
+Var=cellTemperature_157_invalidFlag bit 14,1 -m
+Var=cellTemperature_158_invalidFlag bit 13,1 -m
+Var=cellTemperature_159_invalidFlag bit 12,1 -m
+Var=cellTemperature_160_invalidFlag bit 11,1 -m
+Var=cellTemperature_161_invalidFlag bit 10,1 -m
 Var=cellTemperature_156 signed 16,8 -m /u:degC
 Var=cellTemperature_157 signed 24,8 -m /u:degC
 Var=cellTemperature_158 signed 32,8 -m /u:degC
@@ -1171,15 +1236,16 @@ Var=cellTemperature_159 signed 40,8 -m /u:degC
 Var=cellTemperature_160 signed 48,8 -m /u:degC
 Var=cellTemperature_161 signed 56,8 -m /u:degC
 
-[foxBMS_CellTemperature]
-DLC=8
-Mux=mux_cellTemperature_162_167 0,8 1Bh  -m
-Var=cellTemperature_162_invalidFlag unsigned 15,1 -m
-Var=cellTemperature_163_invalidFlag unsigned 14,1 -m
-Var=cellTemperature_164_invalidFlag unsigned 13,1 -m
-Var=cellTemperature_165_invalidFlag unsigned 12,1 -m
-Var=cellTemperature_166_invalidFlag unsigned 11,1 -m
-Var=cellTemperature_167_invalidFlag unsigned 10,1 -m
+[foxBMS_CellTemperatures]
+Len=8
+CycleTime=4500 -p
+Mux=mux_cellTemperature_162_167 0,8 1Bh -m
+Var=cellTemperature_162_invalidFlag bit 15,1 -m
+Var=cellTemperature_163_invalidFlag bit 14,1 -m
+Var=cellTemperature_164_invalidFlag bit 13,1 -m
+Var=cellTemperature_165_invalidFlag bit 12,1 -m
+Var=cellTemperature_166_invalidFlag bit 11,1 -m
+Var=cellTemperature_167_invalidFlag bit 10,1 -m
 Var=cellTemperature_162 signed 16,8 -m /u:degC
 Var=cellTemperature_163 signed 24,8 -m /u:degC
 Var=cellTemperature_164 signed 32,8 -m /u:degC
@@ -1187,15 +1253,16 @@ Var=cellTemperature_165 signed 40,8 -m /u:degC
 Var=cellTemperature_166 signed 48,8 -m /u:degC
 Var=cellTemperature_167 signed 56,8 -m /u:degC
 
-[foxBMS_CellTemperature]
-DLC=8
-Mux=mux_cellTemperature_168_173 0,8 1Ch  -m
-Var=cellTemperature_168_invalidFlag unsigned 15,1 -m
-Var=cellTemperature_169_invalidFlag unsigned 14,1 -m
-Var=cellTemperature_170_invalidFlag unsigned 13,1 -m
-Var=cellTemperature_171_invalidFlag unsigned 12,1 -m
-Var=cellTemperature_172_invalidFlag unsigned 11,1 -m
-Var=cellTemperature_173_invalidFlag unsigned 10,1 -m
+[foxBMS_CellTemperatures]
+Len=8
+CycleTime=4500 -p
+Mux=mux_cellTemperature_168_173 0,8 1Ch -m
+Var=cellTemperature_168_invalidFlag bit 15,1 -m
+Var=cellTemperature_169_invalidFlag bit 14,1 -m
+Var=cellTemperature_170_invalidFlag bit 13,1 -m
+Var=cellTemperature_171_invalidFlag bit 12,1 -m
+Var=cellTemperature_172_invalidFlag bit 11,1 -m
+Var=cellTemperature_173_invalidFlag bit 10,1 -m
 Var=cellTemperature_168 signed 16,8 -m /u:degC
 Var=cellTemperature_169 signed 24,8 -m /u:degC
 Var=cellTemperature_170 signed 32,8 -m /u:degC
@@ -1203,15 +1270,16 @@ Var=cellTemperature_171 signed 40,8 -m /u:degC
 Var=cellTemperature_172 signed 48,8 -m /u:degC
 Var=cellTemperature_173 signed 56,8 -m /u:degC
 
-[foxBMS_CellTemperature]
-DLC=8
-Mux=mux_cellTemperature_174_179 0,8 1Dh  -m
-Var=cellTemperature_174_invalidFlag unsigned 15,1 -m
-Var=cellTemperature_175_invalidFlag unsigned 14,1 -m
-Var=cellTemperature_176_invalidFlag unsigned 13,1 -m
-Var=cellTemperature_177_invalidFlag unsigned 12,1 -m
-Var=cellTemperature_178_invalidFlag unsigned 11,1 -m
-Var=cellTemperature_179_invalidFlag unsigned 10,1 -m
+[foxBMS_CellTemperatures]
+Len=8
+CycleTime=4500 -p
+Mux=mux_cellTemperature_174_179 0,8 1Dh -m
+Var=cellTemperature_174_invalidFlag bit 15,1 -m
+Var=cellTemperature_175_invalidFlag bit 14,1 -m
+Var=cellTemperature_176_invalidFlag bit 13,1 -m
+Var=cellTemperature_177_invalidFlag bit 12,1 -m
+Var=cellTemperature_178_invalidFlag bit 11,1 -m
+Var=cellTemperature_179_invalidFlag bit 10,1 -m
 Var=cellTemperature_174 signed 16,8 -m /u:degC
 Var=cellTemperature_175 signed 24,8 -m /u:degC
 Var=cellTemperature_176 signed 32,8 -m /u:degC
@@ -1219,278 +1287,135 @@ Var=cellTemperature_177 signed 40,8 -m /u:degC
 Var=cellTemperature_178 signed 48,8 -m /u:degC
 Var=cellTemperature_179 signed 56,8 -m /u:degC
 
-[foxBMS_Command]
-ID=230h	// (in:can_cbs_rx_command.c:CAN_RxRequest)
-DLC=8
-Var=foxBMS_modeRequest unsigned 6,2 -m /e:modeRequest_e	// 0x0: Disconnect strings from HV bus, 0x01: Connect strings to HV bus to start discharge, 0x02: Connect strings to HV bus to start charging
-Var=foxBMS_activateBalancing bit 15,1 -m	// 0: Deactivate balancing, 1: Activate balancing
-Var=foxBMS_balancingThreshold unsigned 16,8 -m /u:mV	// Required voltage difference to minimum cell voltage to activate balancing
-Var=foxBMS_externallyPrecharged bit 4,1 -m	// 0x0: HV bus not externally precharged, 0x01: HV bus externally precharged
-Var=foxBMS_resetFlags bit 2,1	// 0x01: reset persistent flags
-Var=foxBMS_chargerConnected bit 4,1	// 0x00: charger not connected, 0x01: charger connected
-Var=foxBMS_disableInsulationMon bit 5,1	// 0x00: Check battery system insulation, 0x01: Do not check insulation of battery system
-Var=foxBMS_heaterOverride_ON bit 6,1	// 0: no override active, 1: override active -> force heater on
-Var=foxBMS_heaterOverride_OFF unsigned 7,1	// 0: no override active, 1: override active -> force heater off
+[foxBMS_BmsStateRequest]
+ID=230h // (in:can_cbs_rx_state-request.c:CANRX_BmsStateRequest, fv:rx)
+Len=8
+Var=foxBMS_modeRequest unsigned 6,2 -m /e:foxBMS_ModeRequest // 0x0: Disconnect strings from HV bus, 0x01: Connect strings to HV bus to start discharge, 0x02: Connect strings to HV bus to start charging
+Var=foxBMS_activateBalancing bit 15,1 -m // 0: Deactivate balancing, 1: Activate balancing
+Var=foxBMS_balancingThreshold unsigned 16,8 -m /u:mV // Required voltage difference to minimum cell voltage to activate balancing
+Var=foxBMS_externallyPrecharged bit 4,1 -m // 0x0: HV bus not externally precharged, 0x01: HV bus externally precharged
+Var=foxBMS_resetFlags bit 5,1 -m // 0x01: reset persistent flags
+Var=foxBMS_chargerConnected bit 3,1 -m // 0x00: charger not connected, 0x01: charger connected
+Var=foxBMS_disableInsulationMon bit 2,1 -m // 0x00: Check battery system insulation, 0x01: Do not check insulation of battery system
+Var=foxBMS_heaterOverride_ON bit 1,1 -m // 0: no override active, 1: override active -> force heater on
+Var=foxBMS_heaterOverride_OFF bit 0,1 -m // 0: no override active, 1: override active -> force heater off
 
-[foxBMS_State]
-ID=220h	// Message contains foxBMS state (in:can_cbs_tx_state.c:CAN_TxState)
-DLC=8
-Var=foxBMS_State unsigned 4,4 -m /e:state_e
+[foxBMS_BmsState]
+ID=220h // Message contains foxBMS state (in:can_cbs_tx_state.c:CANTX_BmsState, fv:tx)
+Len=8
+CycleTime=100 -p
+Var=foxBMS_State unsigned 4,4 -m /e:foxBMS_State
 Var=BMS_nrOfConnectedStrings unsigned 0,4 -m
-Var=foxBMS_generalError bit 13,1 -m	// 0x00: No error detected, 0x01: Error detected
-Var=foxBMS_generalWarning bit 14,1 -m	// 0x00: No warning detected, 0x01: Warning detected
-Var=foxBMS_Error_dieTemperatureMCU bit 21,1 -m	// 0x00: No error, 0x01: Error detected
-Var=foxBMS_Error_OvertempPCB bit 20,1 -m	// foxBMS Master-PCB: 0x00: No error, 0x01: Error detected
-Var=foxBMS_Error_UndertempPCB bit 19,1 -m	// foxBMS Master-PCB: 0x00: No error, 0x01: Error detected
-Var=foxBMS_Error_PrechargeVolt bit 23,1 -m	// 0x00: precharging successful, 0x01: precharge aborted because of voltage difference
-Var=foxBMS_Error_PrechargeCurrent bit 22,1 -m	// 0x00: precharging successful, 0x01: precharge aborted because current limit violated
-Var=foxBMS_heaterState bit 9,1 -m	// 0x00: Heater not activated, 0x01: Heater activated
-Var=foxBMS_coolingState bit 8,1 -m	// 0x00: Cooling not activated, 0x01: Cooling activated
-Var=foxBMS_insulationMonitoring bit 10,1 -m	// 0x00: insulation monitoring active, 0x01: insulation monitoring not active
-Var=foxBMS_chargingComplete bit 15,1 -m	// 0x01: charging complete
-Var=foxBMS_EmergencyShutoff bit 12,1 -m	// The BMS is preparing to open the contactors soon due to detected error
-Var=foxBMS_MainFuseBlown bit 18,1 -m	// 0x00: fuse okay, 0x01: fuse blown
+Var=foxBMS_generalError bit 13,1 -m // 0x00: No error detected, 0x01: Error detected
+Var=foxBMS_generalWarning bit 14,1 -m // 0x00: No warning detected, 0x01: Warning detected
+Var=foxBMS_Error_dieTemperatureMCU bit 21,1 -m // 0x00: No error, 0x01: Error detected
+Var=foxBMS_Error_OvertempPCB bit 20,1 -m // foxBMS Master-PCB: 0x00: No error, 0x01: Error detected
+Var=foxBMS_Error_UndertempPCB bit 19,1 -m // foxBMS Master-PCB: 0x00: No error, 0x01: Error detected
+Var=foxBMS_Error_PrechargeVolt bit 23,1 -m // 0x00: precharging successful, 0x01: precharge aborted because of voltage difference
+Var=foxBMS_Error_PrechargeCurrent bit 22,1 -m // 0x00: precharging successful, 0x01: precharge aborted because current limit violated
+Var=foxBMS_heaterState bit 9,1 -m // 0x00: Heater not activated, 0x01: Heater activated
+Var=foxBMS_coolingState bit 8,1 -m // 0x00: Cooling not activated, 0x01: Cooling activated
+Var=foxBMS_insulationMonitoring bit 10,1 -m // 0x00: insulation monitoring active, 0x01: insulation monitoring not active
+Var=foxBMS_chargingComplete bit 15,1 -m // 0x01: charging complete
+Var=foxBMS_EmergencyShutoff bit 12,1 -m // The BMS is preparing to open the contactors soon due to detected error
+Var=foxBMS_MainFuseBlown bit 18,1 -m // 0x00: fuse okay, 0x01: fuse blown
 Var=foxBMS_insulationResistance unsigned 56,8 -m /u:kOhm /f:10
-Var=foxBMS_Error_Interlock bit 17,1 -m	// 0x00: interlock okay, 0x01: interlock open
+Var=foxBMS_Error_Interlock bit 17,1 -m // 0x00: interlock okay, 0x01: interlock open
 Var=foxBMS_NrDeactivatedStrings unsigned 52,4 -m
-Var=foxBMS_Error_Insulation bit 16,1 -m	// 0x00: No error, 0x01: Error detected
-Var=foxBMS_Error_Cantiming bit 31,1 -m	// 0x00: No error, 0x01: Error detected
-Var=foxBMS_Error_PackOvercurr_Charge bit 30,1 -m	// 0x00: No error, 0x01: Error detected
-Var=foxBMS_Error_PackOvercur_Dischrg bit 29,1 -m	// 0x00: No error, 0x01: Error detected
-Var=foxBMS_SysMonError bit 12,1 /ln:"system monitoring error"	// If this bit is set, it indicates that a task has violated its timing requirements.
+Var=foxBMS_Error_Insulation bit 16,1 -m // 0x00: No error, 0x01: Error detected
+Var=foxBMS_Error_Cantiming bit 31,1 -m // 0x00: No error, 0x01: Error detected
+Var=foxBMS_Error_PackOvercurr_Charge bit 30,1 -m // 0x00: No error, 0x01: Error detected
+Var=foxBMS_Error_PackOvercur_Dischrg bit 29,1 -m // 0x00: No error, 0x01: Error detected
+Var=foxBMS_SysMonError bit 11,1 -m /ln:"system monitoring error" // If this bit is set, it indicates that a task has violated its timing requirements.
+Var=foxBMS_alertFlag bit 28,1 -m // foxBMS Alter flag: 0x00: No error, 0x01: Alert flag set
 
 [foxBMS_StringState]
-ID=221h	// Message contains string related error and warning flags (in:can_cbs_tx_state.c:CAN_TxStringState)
-DLC=8
-Mux=mux_stateString0 4,4 0  -m
-Var=String0_stringConnected bit 3,1 -m	// 0x00: String not connected, 0x01: String connected to HV bus
-Var=String0_balancing_active bit 2,1 -m	// 0x00: No balancing active, 0x01: Balancing in this string active
-Var=String0_Err_overtemp_charge bit 15,1 -m	// 0x00: No error, 0x01: Error: Flag will be set if maximum cell temperature is above 45 degree celsius.
-Var=String0_Err_undertemp_charge bit 14,1 -m	// 0x00: No error, 0x01: Error: Flag will be set if minimum cell temperature is below 0 degree celsius.
-Var=String0_Err_overtemp_discharge bit 13,1 -m	// 0x00: No error, 0x01: Error: Flag will be set if maximum cell temperature is above 60 degree celsius.
-Var=String0_Err_undertemp_discharge bit 12,1 -m	// 0x00: No error, 0x01: Error: Flag will be set if minimum cell temperature is below -20 degree celsius.
-Var=String0_Err_Overcurrent_charge bit 11,1 -m	// 0x00: No error, 0x01: Error: Flag will be set if string charge current is above 30400mA.
-Var=String0_Err_Overcurre_discharge bit 10,1 -m	// 0x00: No error, 0x01: Error: Flag will be set if discharge current is above maximum string current.
-Var=String0_Err_Overvoltage bit 9,1 -m	// 0x00: No error, 0x01: Error: Flag will be set if maximum cell voltage is above 4200mV.
-Var=String0_Err_Undervoltage bit 8,1 -m	// 0x00: No error, 0x01: Error: Flag will be set if minimum cell voltage is below 3000mV. This equals roughly 4% remaining SOC. Minimum data sheet values if 2500mV.
-Var=String0_Err_deep_discharge bit 0,1 -m	// 0x00: No error, 0x01: Error
-Var=String0_Err_CS_currentMeas bit 44,1 -m	// 0x00: No error, 0x01: Error
-Var=String0_Err_positiveContactor bit 39,1 -m	// 0x00: No error, 0x01: Error
-Var=String0_Err_openWire bit 54,1 -m	// 0x00: No error, 0x01: Error
-Var=String0_openWireNumber unsigned 56,8 -m	// Number of first open wire that has been detected in this string
-Var=String0_Err_plaus_cell_volt bit 51,1 -m	// 0x00: No error, 0x01: Error
-Var=String0_Err_plaus_cell_temp bit 52,1 -m	// 0x00: No error, 0x01: Error
-Var=String0_Err_plaus_string_volt bit 50,1 -m	// 0x00: No error, 0x01: Error
-Var=String0_Err_slave_hardware bit 37,1 -m	// 0x00: No error, 0x01: Error
-Var=String0_Err_dsyChainBase_Comm bit 36,1 -m	// 0x00: No error, 0x01: Error (i.e. SPI)
-Var=String0_Err_dsyChainPrim_CRC bit 34,1 -m	// 0x00: No error, 0x01: Error
-Var=String0_Err_dsyChainRedun_Comm bit 35,1 -m	// 0x00: No error, 0x01: Error
-Var=String0_Err_dsyChainRedun_CRC bit 33,1 -m	// 0x00: No error, 0x01: Error
-Var=String0_Err_dsyPrim_voltMeasOor bit 32,1 -m	// 0x00: No error, 0x01: Error
-Var=String0_Err_dsyRedun_voltMeasOor bit 47,1 -m	// 0x00: No error, 0x01: Error
-Var=String0_Err_dsyPrim_tempMeasOor bit 46,1 -m	// 0x00: No error, 0x01: Error
-Var=String0_Err_dsyRedun_tempMeasOor bit 45,1 -m	// 0x00: No error, 0x01: Error
-Var=String0_Err_CS_coulombCountMeas bit 43,1 -m	// 0x00: No error, 0x01: Error
-Var=String0_Err_CS_energyCountMeas bit 42,1 -m	// 0x00: No error, 0x01: Error
-Var=String0_Err_plaus_volt_spread bit 48,1 -m	// 0x00: No error, 0x01: Error
-Var=String0_Err_plaus_temp_spread bit 49,1 -m	// 0x00: No error, 0x01: Error
-Var=String0_fuseBlown bit 6,1 /ln:"0x00: fuse okay, 0x01: fuse blown"
-Var=String0_Warning_overvoltage_MOL bit 22,1
-Var=String0_Warning_undervoltage_MOL bit 23,1
-Var=String0_Wrng_chargeOverTemp_MOL bit 16,1
-Var=String0_Wrng_dischrgOverTemp_MOL bit 18,1
-Var=String0_Wrng_chargeUnderTemp_MOL bit 17,1
-Var=String0_Wrng_dischrgUnderTmp_MOL bit 19,1
-Var=String0_Wrng_chargeOverCur_MOL bit 20,1
-Var=String0_Wrng_dischargOverCur_MOL bit 21,1
-Var=String0_Wrng_chargeOverTemp_RSL bit 24,1
-Var=String0_Wrng_chargeUnderTemp_RSL bit 25,1
-Var=String0_Wrng_dischrgOverTemp_RSL bit 26,1
-Var=String0_Wrng_dischrgUnderTmp_RSL bit 27,1
-Var=String0_Wrng_chargeOverCur_RSL bit 28,1
-Var=String0_Wrng_dischargOverCur_RSL bit 29,1
-Var=String0_Wrng_overvoltage_RSL bit 30,1
-Var=String0_Wrng_undervoltage_RSL bit 31,1
-Var=String0_Err_negativeContactor bit 33,1
-Var=String0_Err_CS_voltage1Meas bit 46,1
-Var=String0_Err_CS_voltage2Meas bit 47,1
-Var=String0_Err_CS_voltage3Meas bit 48,1
-
-[foxBMS_StringState]
-DLC=8
-Mux=mux_stateString1 4,4 1  -m
-Var=String1_stringConnected bit 3,1 -m	// 0x00: String not connected, 0x01: String connected to HV bus
-Var=String1_balancing_active bit 2,1 -m	// 0x00: No balancing active, 0x01: Balancing in this string active
-Var=String1_Err_overtemp_charge bit 15,1 -m	// 0x00: No error, 0x01: Error: Flag will be set if maximum cell temperature is above 45 degree celsius.
-Var=String1_Err_undertemp_charge bit 14,1 -m	// 0x00: No error, 0x01: Error: Flag will be set if minimum cell temperature is below 0 degree celsius.
-Var=String1_Err_overtemp_discharge bit 13,1 -m	// 0x00: No error, 0x01: Error: Flag will be set if maximum cell temperature is above 60 degree celsius.
-Var=String1_Err_undertemp_discharge bit 12,1 -m	// 0x00: No error, 0x01: Error: Flag will be set if minimum cell temperature is below -20 degree celsius.
-Var=String1_Err_Overcurrent_charge bit 11,1 -m	// 0x00: No error, 0x01: Error: Flag will be set if string charge current is above 30400mA.
-Var=String1_Err_Overcurre_discharge bit 10,1 -m	// 0x00: No error, 0x01: Error: Flag will be set if discharge current is above maximum string current.
-Var=String1_Err_Overvoltage bit 9,1 -m	// 0x00: No error, 0x01: Error: Flag will be set if maximum cell voltage is above 4200mV.
-Var=String1_Err_Undervoltage bit 8,1 -m	// 0x00: No error, 0x01: Error: Flag will be set if minimum cell voltage is below 3000mV. This equals roughly 4% remaining SOC. Minimum data sheet values if 2500mV.
-Var=String1_Err_deep_discharge bit 0,1 -m	// 0x00: No error, 0x01: Error
-Var=String1_Err_CS_currentMeas bit 44,1 -m	// 0x00: No error, 0x01: Error
-Var=String1_Err_positiveContactor bit 39,1 -m	// 0x00: No error, 0x01: Error
-Var=String1_Err_openWire bit 54,1 -m	// 0x00: No error, 0x01: Error
-Var=String1_openWireNumber unsigned 56,8 -m	// Number of first open wire that has been detected in this string
-Var=String1_Err_plaus_cell_volt bit 51,1 -m	// 0x00: No error, 0x01: Error
-Var=String1_Err_plaus_cell_temp bit 52,1 -m	// 0x00: No error, 0x01: Error
-Var=String1_Err_plaus_string_volt bit 50,1 -m	// 0x00: No error, 0x01: Error
-Var=String1_Err_slave_hardware bit 37,1 -m	// 0x00: No error, 0x01: Error
-Var=String1_Err_dsyChainPrim_Comm bit 36,1 -m	// 0x00: No error, 0x01: Error (i.e. SPI)
-Var=String1_Err_dsyChainPrim_CRC bit 34,1 -m	// 0x00: No error, 0x01: Error
-Var=String1_Err_dsyChainRedun_Comm bit 35,1 -m	// 0x00: No error, 0x01: Error
-Var=String1_Err_dsyChainRedun_CRC bit 33,1 -m	// 0x00: No error, 0x01: Error
-Var=String1_Err_dsyPrim_voltMeasOor bit 32,1 -m	// 0x00: No error, 0x01: Error
-Var=String1_Err_dsyRedun_voltMeasOor bit 47,1 -m	// 0x00: No error, 0x01: Error
-Var=String1_Err_dsyPrim_tempMeasOor bit 46,1 -m	// 0x00: No error, 0x01: Error
-Var=String1_Err_dsyRedun_tempMeasOor bit 45,1 -m	// 0x00: No error, 0x01: Error
-Var=String1_Err_CS_coulombCountMeas bit 43,1 -m	// 0x00: No error, 0x01: Error
-Var=String1_Err_CS_energyCountMeas bit 42,1 -m	// 0x00: No error, 0x01: Error
-Var=String1_Err_plaus_volt_spread bit 48,1 -m	// 0x00: No error, 0x01: Error
-Var=String1_Err_plaus_temp_spread bit 49,1 -m	// 0x00: No error, 0x01: Error
-Var=String1_fuseBlown bit 6,1 /ln:"0x00: fuse okay, 0x01: fuse blown"
-Var=String1_Warning_overvoltage_MOL bit 22,1
-Var=String1_Warning_undervoltage_MOL bit 23,1
-Var=String1_Wrng_chargeOverTemp_MOL bit 16,1
-Var=String1_Wrng_dischrgOverTemp_MOL bit 18,1
-Var=String1_Wrng_chargeUnderTemp_MOL bit 17,1
-Var=String1_Wrng_dischrgUnderTmp_MOL bit 19,1
-Var=String1_Wrng_chargeOverCur_MOL bit 20,1
-Var=String1_Wrng_dischargOverCur_MOL bit 21,1
-Var=String1_Wrng_chargeOverTemp_RSL bit 24,1
-Var=String1_Wrng_chargeUnderTemp_RSL bit 25,1
-Var=String1_Wrng_dischrgOverTemp_RSL bit 26,1
-Var=String1_Wrng_dischrgUnderTmp_RSL bit 27,1
-Var=String1_Wrng_chargeOverCur_RSL bit 28,1
-Var=String1_Wrng_dischargOverCur_RSL bit 29,1
-Var=String1_Wrng_overvoltage_RSL bit 30,1
-Var=String1_Wrng_undervoltage_RSL bit 31,1
-Var=String1_Err_negativeContactor bit 33,1
-Var=String1_Err_CS_voltage1Meas bit 46,1
-Var=String1_Err_CS_voltage2Meas bit 47,1
-Var=String1_Err_CS_voltage3Meas bit 48,1
-
-[foxBMS_StringState]
-DLC=8
-Mux=mux_stateString2 4,4 2  -m
-Var=String2_stringConnected bit 3,1 -m	// 0x00: String not connected, 0x01: String connected to HV bus
-Var=String2_balancing_active bit 2,1 -m	// 0x00: No balancing active, 0x01: Balancing in this string active
-Var=String2_Err_overtemp_charge bit 15,1 -m	// 0x00: No error, 0x01: Error: Flag will be set if maximum cell temperature is above 45 degree celsius.
-Var=String2_Err_undertemp_charge bit 14,1 -m	// 0x00: No error, 0x01: Error: Flag will be set if minimum cell temperature is below 0 degree celsius.
-Var=String2_Err_overtemp_discharge bit 13,1 -m	// 0x00: No error, 0x01: Error: Flag will be set if maximum cell temperature is above 60 degree celsius.
-Var=String2_Err_undertemp_discharge bit 12,1 -m	// 0x00: No error, 0x01: Error: Flag will be set if minimum cell temperature is below -20 degree celsius.
-Var=String2_Err_Overcurrent_charge bit 11,1 -m	// 0x00: No error, 0x01: Error: Flag will be set if string charge current is above 30400mA.
-Var=String2_Err_Overcurre_discharge bit 10,1 -m	// 0x00: No error, 0x01: Error: Flag will be set if discharge current is above maximum string current.
-Var=String2_Err_Overvoltage bit 9,1 -m	// 0x00: No error, 0x01: Error: Flag will be set if maximum cell voltage is above 4200mV.
-Var=String2_Err_Undervoltage bit 8,1 -m	// 0x00: No error, 0x01: Error: Flag will be set if minimum cell voltage is below 3000mV. This equals roughly 4% remaining SOC. Minimum data sheet values if 2500mV.
-Var=String2_Err_deep_discharge bit 0,1 -m	// 0x00: No error, 0x01: Error
-Var=String2_Err_CS_currentMeas bit 44,1 -m	// 0x00: No error, 0x01: Error
-Var=String2_Err_positiveContactor bit 39,1 -m	// 0x00: No error, 0x01: Error
-Var=String2_Err_openWire bit 54,1 -m	// 0x00: No error, 0x01: Error
-Var=String2_openWireNumber unsigned 56,8 -m	// Number of first open wire that has been detected in this string
-Var=String2_Err_plaus_cell_volt bit 51,1 -m	// 0x00: No error, 0x01: Error
-Var=String2_Err_plaus_cell_temp bit 52,1 -m	// 0x00: No error, 0x01: Error
-Var=String2_Err_plaus_string_volt bit 50,1 -m	// 0x00: No error, 0x01: Error
-Var=String2_Err_slave_hardware bit 37,1 -m	// 0x00: No error, 0x01: Error
-Var=String2_Err_dsyChainPrim_Comm bit 36,1 -m	// 0x00: No error, 0x01: Error (i.e. SPI)
-Var=String2_Err_dsyChainPrim_CRC bit 34,1 -m	// 0x00: No error, 0x01: Error
-Var=String2_Err_dsyChainRedun_Comm bit 35,1 -m	// 0x00: No error, 0x01: Error
-Var=String2_Err_dsyChainRedun_CRC bit 33,1 -m	// 0x00: No error, 0x01: Error
-Var=String2_Err_dsyPrim_voltMeasOor bit 32,1 -m	// 0x00: No error, 0x01: Error
-Var=String2_Err_dsyRedun_voltMeasOor bit 47,1 -m	// 0x00: No error, 0x01: Error
-Var=String2_Err_dsyPrim_tempMeasOor bit 46,1 -m	// 0x00: No error, 0x01: Error
-Var=String2_Err_dsyRedun_tempMeasOor bit 45,1 -m	// 0x00: No error, 0x01: Error
-Var=String2_Err_CS_coulombCountMeas bit 43,1 -m	// 0x00: No error, 0x01: Error
-Var=String2_Err_CS_energyCountMeas bit 42,1 -m	// 0x00: No error, 0x01: Error
-Var=String2_Err_plaus_volt_spread bit 48,1 -m	// 0x00: No error, 0x01: Error
-Var=String2_Err_plaus_temp_spread bit 49,1 -m	// 0x00: No error, 0x01: Error
-Var=String2_fuseBlown bit 6,1 /ln:"0x00: fuse okay, 0x01: fuse blown"
-Var=String2_Warning_overvoltage_MOL bit 22,1
-Var=String2_Warning_undervoltage_MOL bit 23,1
-Var=String2_Wrng_chargeOverTemp_MOL bit 16,1
-Var=String2_Wrng_dischrgOverTemp_MOL bit 18,1
-Var=String2_Wrng_chargeUnderTemp_MOL bit 17,1
-Var=String2_Wrng_dischrgUnderTmp_MOL bit 19,1
-Var=String2_Wrng_chargeOverCur_MOL bit 20,1
-Var=String2_Wrng_dischargOverCur_MOL bit 21,1
-Var=String2_Wrng_chargeOverTemp_RSL bit 24,1
-Var=String2_Wrng_chargeUnderTemp_RSL bit 25,1
-Var=String2_Wrng_dischrgOverTemp_RSL bit 26,1
-Var=String2_Wrng_dischrgUnderTmp_RSL bit 27,1
-Var=String2_Wrng_chargeOverCur_RSL bit 28,1
-Var=String2_Wrng_dischargOverCur_RSL bit 29,1
-Var=String2_Wrng_overvoltage_RSL bit 30,1
-Var=String2_Wrng_undervoltage_RSL bit 31,1
-Var=String2_Err_negativeContactor bit 33,1
-Var=String2_Err_CS_voltage1Meas bit 46,1
-Var=String2_Err_CS_voltage2Meas bit 47,1
-Var=String2_Err_CS_voltage3Meas bit 48,1
+ID=221h // Message contains string related error and warning flags (in:can_cbs_tx_state.c:CANTX_StringState, fv:tx)
+Len=8
+CycleTime=100 -p
+Mux=mux_stateString0 4,4 0 -m
+Var=String0_stringConnected bit 3,1 -m // 0x00: String not connected, 0x01: String connected to HV bus
+Var=String0_balancing_active bit 2,1 -m // 0x00: No balancing active, 0x01: Balancing in this string active
+Var=String0_Err_overtemp_charge bit 15,1 -m // 0x00: No error, 0x01: Error: Flag will be set if maximum cell temperature is above 45 degree celsius.
+Var=String0_Err_undertemp_charge bit 14,1 -m // 0x00: No error, 0x01: Error: Flag will be set if minimum cell temperature is below 0 degree celsius.
+Var=String0_Err_overtemp_discharge bit 13,1 -m // 0x00: No error, 0x01: Error: Flag will be set if maximum cell temperature is above 60 degree celsius.
+Var=String0_Err_undertemp_discharge bit 12,1 -m // 0x00: No error, 0x01: Error: Flag will be set if minimum cell temperature is below -20 degree celsius.
+Var=String0_Err_Overcurrent_charge bit 11,1 -m // 0x00: No error, 0x01: Error: Flag will be set if string charge current is above 30400mA.
+Var=String0_Err_Overcurre_discharge bit 10,1 -m // 0x00: No error, 0x01: Error: Flag will be set if discharge current is above maximum string current.
+Var=String0_Err_Overvoltage bit 9,1 -m // 0x00: No error, 0x01: Error: Flag will be set if maximum cell voltage is above 4200mV.
+Var=String0_Err_Undervoltage bit 8,1 -m // 0x00: No error, 0x01: Error: Flag will be set if minimum cell voltage is below 3000mV. This equals roughly 4% remaining SOC. Minimum data sheet values if 2500mV.
+Var=String0_Err_deep_discharge bit 0,1 -m // 0x00: No error, 0x01: Error
+Var=String0_Err_CS_currentMeas bit 44,1 -m // 0x00: No error, 0x01: Error
+Var=String0_Err_positiveContactor bit 39,1 -m // 0x00: No error, 0x01: Error
+Var=String0_Err_openWire bit 54,1 -m // 0x00: No error, 0x01: Error
+Var=String0_openWireNumber unsigned 56,8 -m // Number of first open wire that has been detected in this string
+Var=String0_Err_plaus_cell_volt bit 51,1 -m // 0x00: No error, 0x01: Error
+Var=String0_Err_plaus_cell_temp bit 52,1 -m // 0x00: No error, 0x01: Error
+Var=String0_Err_plaus_string_volt bit 50,1 -m // 0x00: No error, 0x01: Error
+Var=String0_Err_slave_hardware bit 37,1 -m // 0x00: No error, 0x01: Error
+Var=String0_Err_dsyChainBase_Comm bit 36,1 -m // 0x00: No error, 0x01: Error (i.e. SPI)
+Var=String0_Err_dsyChainPrim_CRC bit 34,1 -m // 0x00: No error, 0x01: Error
+Var=String0_Err_dsyChainRedun_Comm bit 35,1 -m // 0x00: No error, 0x01: Error
+Var=String0_Err_dsyChainRedun_CRC bit 33,1 -m // 0x00: No error, 0x01: Error
+Var=String0_Err_dsyPrim_voltMeasOor bit 32,1 -m // 0x00: No error, 0x01: Error
+Var=String0_Err_dsyRedun_voltMeasOor bit 47,1 -m // 0x00: No error, 0x01: Error
+Var=String0_Err_dsyPrim_tempMeasOor bit 46,1 -m // 0x00: No error, 0x01: Error
+Var=String0_Err_dsyRedun_tempMeasOor bit 45,1 -m // 0x00: No error, 0x01: Error
+Var=String0_Err_CS_coulombCountMeas bit 43,1 -m // 0x00: No error, 0x01: Error
+Var=String0_Err_CS_energyCountMeas bit 42,1 -m // 0x00: No error, 0x01: Error
+Var=String0_Err_plaus_volt_spread bit 48,1 -m // 0x00: No error, 0x01: Error
+Var=String0_Err_plaus_temp_spread bit 49,1 -m // 0x00: No error, 0x01: Error
+Var=String0_fuseBlown bit 1,1 -m /e:foxBMS_FuseState /ln:"0x00: fuse okay, 0x01: fuse blown"
+Var=String0_Warning_overvoltage_MOL bit 17,1 -m
+Var=String0_Warning_undervoltage_MOL bit 16,1 -m
+Var=String0_Wrng_chargeOverTemp_MOL bit 23,1 -m
+Var=String0_Wrng_dischrgOverTemp_MOL bit 21,1 -m
+Var=String0_Wrng_chargeUnderTemp_MOL bit 22,1 -m
+Var=String0_Wrng_dischrgUnderTmp_MOL bit 20,1 -m
+Var=String0_Wrng_chargeOverCur_MOL bit 19,1 -m
+Var=String0_Wrng_dischargOverCur_MOL bit 18,1 -m
+Var=String0_Wrng_chargeOverTemp_RSL bit 31,1 -m
+Var=String0_Wrng_chargeUnderTemp_RSL bit 30,1 -m
+Var=String0_Wrng_dischrgOverTemp_RSL bit 29,1 -m
+Var=String0_Wrng_dischrgUnderTmp_RSL bit 28,1 -m
+Var=String0_Wrng_chargeOverCur_RSL bit 27,1 -m
+Var=String0_Wrng_dischargOverCur_RSL bit 26,1 -m
+Var=String0_Wrng_overvoltage_RSL bit 25,1 -m
+Var=String0_Wrng_undervoltage_RSL bit 24,1 -m
+Var=String0_Err_negativeContactor bit 38,1 -m
+Var=String0_Err_CS_voltage1Meas bit 41,1 -m
+Var=String0_Err_CS_voltage2Meas bit 40,1 -m
+Var=String0_Err_CS_voltage3Meas bit 55,1 -m
 
 [foxBMS_StringMinMaxValues]
-ID=281h	// Message contains minimum and maximum cell temperature and cell voltage values of respective string (in:can_cbs_tx_minmax.c:CAN_TxStringMinimumMaximumValues)
-DLC=8
-Mux=mux_minMaxValuesString0 4,4 0  -m
-Var=String0_minimumCellVoltage unsigned 21,13 -m /u:mV	// Minimum cell voltage in this string
-Var=String0_maximumCellVoltage unsigned 8,13 -m /u:mV	// Maximum cell voltage in this string
-Var=String0_maximumCellTemperature signed 34,9 -m /u:degC /f:0.5	// Maximum cell temperature in this string
-Var=String0_minimumCellTemperature signed 43,9 -m /u:degC /f:0.5	// Minium cell temperature in this string
-
-[foxBMS_StringMinMaxValues]
-DLC=8
-Mux=mux_minMaxValuesString1 4,4 1  -m
-Var=String1_minimumCellVoltage unsigned 21,13 -m /u:mV	// Minimum cell voltage in this string
-Var=String1_maximumCellVoltage unsigned 8,13 -m /u:mV	// Maximum cell voltage in this string
-Var=String1_maximumCellTemperature signed 34,9 -m /u:degC /f:0.5	// Maximum cell temperature in this string
-Var=String1_minimumCellTemperature signed 43,9 -m /u:degC /f:0.5	// Minium cell temperature in this string
-
-[foxBMS_StringMinMaxValues]
-DLC=8
-Mux=mux_minMaxValuesString2 4,4 2  -m
-Var=String2_minimumCellVoltage unsigned 21,13 -m /u:mV	// Minimum cell voltage in this string
-Var=String2_maximumCellVoltage unsigned 8,13 -m /u:mV	// Maximum cell voltage in this string
-Var=String2_maximumCellTemperature signed 34,9 -m /u:degC /f:0.5	// Maximum cell temperature in this string
-Var=String2_minimumCellTemperature signed 43,9 -m /u:degC /f:0.5	// Minium cell temperature in this string
+ID=281h // Message contains minimum and maximum cell temperature and cell voltage values of respective string (in:can_cbs_tx_minimum-maximum-values.c:CANTX_StringMinimumMaximumValues, fv:tx)
+Len=8
+CycleTime=100 -p
+Mux=mux_minMaxValuesString0 4,4 0 -m
+Var=String0_minimumCellVoltage unsigned 21,13 -m /u:mV // Minimum cell voltage in this string
+Var=String0_maximumCellVoltage unsigned 8,13 -m /u:mV // Maximum cell voltage in this string
+Var=String0_maximumCellTemperature signed 34,9 -m /u:degC /f:0.5 // Maximum cell temperature in this string
+Var=String0_minimumCellTemperature signed 43,9 -m /u:degC /f:0.5 // Minium cell temperature in this string
 
 [foxBMS_StringStateEstimation]
-ID=282h	// Message contains SOC, SOE and SOH state estimations (in:can_cbs_tx_state_estimation.c:CAN_TxStringStateEstimation)
-DLC=8
-Mux=mux_String0_SOC_SOE 0,4 0  -m
-Var=String0_minimumSOC unsigned 4,9 -m /u:% /f:0.25 /d:0
-Var=String0_averageSOC unsigned 13,9 -m /u:% /f:0.25 /max:127.5 /d:0
-Var=String0_maximumSOC unsigned 22,9 -m /u:% /f:0.25 /max:63.75 /d:0
-Var=String0_SOE unsigned 31,9 -m /u:% /f:0.25 /max:127.5 /d:0	// SOE is depending on current direction, if battery system is charging: SOE_max is transmitted, else SOE_min
-Var=String0_Energy_kWh unsigned 49,15 -m /u:kWh /f:0.01	// Remaining energy left in this string
+ID=282h // Message contains SOC, SOE and SOH state estimations (in:can_cbs_tx_string-state-estimation.c:CANTX_StringStateEstimation, fv:tx)
+Len=8
+CycleTime=1000 -p
+Mux=mux_String0_SOC_SOE 0,4 0 -m
+Var=String0_minimumSOC unsigned 4,9 -m /u:% /f:0.25
+Var=String0_averageSOC unsigned 13,9 -m /u:% /f:0.25 /max:127.5
+Var=String0_maximumSOC unsigned 22,9 -m /u:% /f:0.25 /max:63.75
+Var=String0_SOE unsigned 31,9 -m /u:% /f:0.25 /max:127.5 // SOE is depending on current direction, if battery system is charging: SOE_max is transmitted, else SOE_min
+Var=String0_Energy_kWh unsigned 49,15 -m /u:kWh /f:0.01 // Remaining energy left in this string
 Var=String0_SOH unsigned 40,9 -m /u:% /f:0.25 /max:127.5
 
-[foxBMS_StringStateEstimation]
-DLC=8
-Mux=mux_String1_SOC_SOE 0,4 1  -m
-Var=String1_minimumSOC unsigned 4,9 -m /u:% /f:0.25 /d:0
-Var=String1_averageSOC unsigned 13,9 -m /u:% /f:0.25 /max:127.5 /d:0
-Var=String1_maximumSOC unsigned 22,9 -m /u:% /f:0.25 /max:63.75 /d:0
-Var=String1_SOE unsigned 31,9 -m /u:% /f:0.25 /max:127.5 /d:0	// SOE is depending on current direction, if battery system is charging: SOE_max is transmitted, else SOE_min
-Var=String1_Energy_kWh unsigned 49,15 -m /u:kWh /f:0.01	// Remaining energy left in this string
-Var=String1_SOH unsigned 40,9 -m /u:% /f:0.25 /max:127.5
-
-[foxBMS_StringStateEstimation]
-DLC=8
-Mux=mux_String2_SOC_SOE 0,4 2  -m
-Var=String2_minimumSOC unsigned 4,9 -m /u:% /f:0.25 /d:0
-Var=String2_averageSOC unsigned 13,9 -m /u:% /f:0.25 /max:127.5 /d:0
-Var=String2_maximumSOC unsigned 22,9 -m /u:% /f:0.25 /max:63.75 /d:0
-Var=String2_SOE unsigned 31,9 -m /u:% /f:0.25 /max:127.5 /d:0	// SOE is depending on current direction, if battery system is charging: SOE_max is transmitted, else SOE_min
-Var=String2_Energy_kWh unsigned 49,15 -m /u:kWh /f:0.01	// Remaining energy left in this string
-Var=String2_SOH unsigned 40,9 -m /u:% /f:0.25 /max:127.5
-
 [foxBMS_Debug]
-ID=200h	// Reserved - for debug/development purpose only (in:can_cbs_rx_misc.c:CAN_RxDebug)
-DLC=8
+ID=200h // Reserved - for debug/development purpose only (in:can_cbs_rx_misc.c:CANRX_Debug, fv:rx)
+Len=8
 
-[IVT0_Msg_Result_I]
-ID=521h	// Current sensor string 0: current (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)
-DLC=6
+[foxBMS_String0Current]
+ID=521h // Current sensor string 0: current (in:can_cbs_rx_current-sensor.c:CANRX_CurrentSensor, fv:rx); Isabellenhuette data sheet name: IVT0_Msg_Result_I
+Len=6
 Var=IVT0_Result_I_systemError bit 8,1 -m
 Var=IVT0_Result_I_OCS bit 11,1 -m
 Var=IVT0_Result_I_overallMeasError bit 9,1 -m
@@ -1499,9 +1424,9 @@ Var=IVT0_ID_Result_I unsigned 0,8 -m
 Var=IVT0_MsgCount_Result_I unsigned 12,4 -m
 Var=IVT0_Result_I_mA signed 16,32 -m /u:mA
 
-[IVT0_Msg_Result_U1]
-ID=522h	// Current sensor string 0: voltage 1 (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)
-DLC=6
+[foxBMS_String0Voltage1]
+ID=522h // Current sensor string 0: voltage 1 (in:can_cbs_rx_current-sensor.c:CANRX_CurrentSensor, fv:rx); Isabellenhuette data sheet name: IVT0_Msg_Result_U1
+Len=6
 Var=IVT0_Result_U1_systemError bit 8,1 -m
 Var=IVT0_Result_U1_overallMeasError bit 9,1 -m
 Var=IVT0_Result_U1_channelMeasError bit 10,1 -m
@@ -1510,9 +1435,9 @@ Var=IVT0_ID_Result_U1 unsigned 0,8 -m /min:1 /max:1 /d:1
 Var=IVT0_MsgCount_Result_U1 unsigned 12,4 -m
 Var=IVT0_Result_U1_mV signed 16,32 -m /u:mV
 
-[IVT0_Msg_Result_U2]
-ID=523h	// Current sensor string 0: voltage 2 (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)
-DLC=6
+[foxBMS_String0Voltage2]
+ID=523h // Current sensor string 0: voltage 2 (in:can_cbs_rx_current-sensor.c:CANRX_CurrentSensor, fv:rx); Isabellenhuette data sheet name: IVT0_Msg_Result_U2
+Len=6
 Var=IVT0_Result_U2_systemError bit 8,1 -m
 Var=IVT0_Result_U2_OCS bit 11,1 -m
 Var=IVT0_Result_U2_overallMeasError bit 9,1 -m
@@ -1521,9 +1446,9 @@ Var=IVT0_ID_Result_U2 unsigned 0,8 -m /min:2 /max:2 /d:2
 Var=IVT0_MsgCount_Result_U2 unsigned 12,4 -m
 Var=IVT0_Result_U2_mV signed 16,32 -m /u:mV
 
-[IVT0_Msg_Result_U3]
-ID=524h	// Current sensor string 0: voltage 3 (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)
-DLC=6
+[foxBMS_String0Voltage3]
+ID=524h // Current sensor string 0: voltage 3 (in:can_cbs_rx_current-sensor.c:CANRX_CurrentSensor, fv:rx); Isabellenhuette data sheet name: IVT0_Msg_Result_U3
+Len=6
 Var=IVT0_Result_U3_systemError bit 8,1 -m
 Var=IVT0_Result_U3_OCS bit 11,1 -m
 Var=IVT0_Result_U3_overallMeasError bit 9,1 -m
@@ -1532,20 +1457,20 @@ Var=IVT0_ID_Result_U3 unsigned 0,8 -m /min:3 /max:3 /d:3
 Var=IVT0_MsgCount_Result_U3 unsigned 12,4 -m
 Var=IVT0_Result_U3_mV signed 16,32 -m /u:mV
 
-[IVT0_Msg_Result_T]
-ID=525h	// Current sensor string 0: temperature (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)
-DLC=6
+[foxBMS_String0Temperature]
+ID=525h // Current sensor string 0: temperature (in:can_cbs_rx_current-sensor.c:CANRX_CurrentSensor, fv:rx); Isabellenhuette data sheet name: IVT0_Msg_Result_T
+Len=6
 Var=IVT0_Result_T_systemError bit 8,1 -m
 Var=IVT0_Result_T_OCS bit 11,1 -m
 Var=IVT0_Result_T_overallMeasError bit 9,1 -m
 Var=IVT0_Result_T_channelMeasError bit 10,1 -m
 Var=IVT0_ID_Result_T unsigned 0,8 -m /min:4 /max:4 /d:4
 Var=IVT0_MsgCount_Result_T unsigned 12,4 -m
-Var=IVT0_Result_T_ddegC signed 16,32 -m /u:ddegC /f:0.1 /d:0
+Var=IVT0_Result_T_ddegC signed 16,32 -m /u:ddegC /f:0.1
 
-[IVT0_Msg_Result_W]
-ID=526h	// Current sensor string 0: power (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)
-DLC=6
+[foxBMS_String0Power]
+ID=526h // Current sensor string 0: power (in:can_cbs_rx_current-sensor.c:CANRX_CurrentSensor, fv:rx); Isabellenhuette data sheet name: IVT0_Msg_Result_W
+Len=6
 Var=IVT0_Result_W_systemError bit 8,1 -m
 Var=IVT0_Result_W_OCS bit 11,1 -m
 Var=IVT0_Result_W_overallMeasError bit 9,1 -m
@@ -1554,9 +1479,9 @@ Var=IVT0_Result_W signed 16,32 -m /u:W
 Var=IVT0_MsgCount_Result_W unsigned 12,4 -m
 Var=IVT0_ID_Result_W unsigned 0,8 -m /min:5 /max:5 /d:5
 
-[IVT0_Msg_Result_As]
-ID=527h	// Current sensor string 0: coulomb counting (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)
-DLC=6
+[foxBMS_String0CurrentCounter]
+ID=527h // Current sensor string 0: coulomb counting (in:can_cbs_rx_current-sensor.c:CANRX_CurrentSensor, fv:rx); Isabellenhuette data sheet name: IVT0_Msg_Result_As
+Len=6
 Var=IVT0_Result_As_systemError bit 8,1 -m
 Var=IVT0_Result_As_OCS bit 11,1 -m
 Var=IVT0_Result_As_overallMeasError bit 9,1 -m
@@ -1565,9 +1490,9 @@ Var=IVT0_Result_As signed 16,32 -m /u:As
 Var=IVT0_MsgCount_Result_As unsigned 12,4 -m
 Var=IVT0_ID_Result_As unsigned 0,8 -m /min:6 /max:6 /d:6
 
-[IVT0_Msg_Result_Wh]
-ID=528h	// Current sensor string 0: energy counting (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)
-DLC=6
+[foxBMS_String0EnergyCounter]
+ID=528h // Current sensor string 0: energy counting (in:can_cbs_rx_current-sensor.c:CANRX_CurrentSensor, fv:rx); Isabellenhuette data sheet name: IVT0_Msg_Result_Wh
+Len=6
 Var=IVT0_Result_Wh_systemError bit 8,1 -m
 Var=IVT0_Result_Wh_OCS bit 11,1 -m
 Var=IVT0_Result_Wh_overallMeasError bit 9,1 -m
@@ -1576,212 +1501,37 @@ Var=IVT0_Result_Wh signed 16,32 -m /u:Wh
 Var=IVT0_MsgCount_Result_Wh unsigned 12,4 -m
 Var=IVT0_ID_Result_Wh unsigned 0,8 -m /min:7 /max:7 /d:7
 
-[IVT1_Msg_Result_I]
-ID=621h	// Current sensor string 1: current (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)
-DLC=6
-Var=IVT1_Result_I_systemError bit 8,1 -m
-Var=IVT1_Result_I_OCS bit 11,1 -m
-Var=IVT1_Result_I_overallMeasError bit 9,1 -m
-Var=IVT1_Result_I_channelMeasError bit 10,1 -m
-Var=IVT1_ID_Result_I unsigned 0,8 -m
-Var=IVT1_MsgCount_Result_I unsigned 12,4 -m
-Var=IVT1_Result_I_mA signed 16,32 -m /u:mA
-
-[IVT1_Msg_Result_U1]
-ID=622h	// Current sensor string 1: voltage 1 (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)
-DLC=6
-Var=IVT1_Result_U1_systemError bit 8,1 -m
-Var=IVT1_Result_U1_overallMeasError bit 9,1 -m
-Var=IVT1_Result_U1_channelMeasError bit 10,1 -m
-Var=IVT1_Result_U1_OCS bit 11,1 -m
-Var=IVT1_ID_Result_U1 unsigned 0,8 -m /min:1 /max:1 /d:1
-Var=IVT1_MsgCount_Result_U1 unsigned 12,4 -m
-Var=IVT1_Result_U1_mV signed 16,32 -m /u:mV
-
-[IVT1_Msg_Result_U2]
-ID=623h	// Current sensor string 1: voltage 2 (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)
-DLC=6
-Var=IVT1_Result_U2_systemError bit 8,1 -m
-Var=IVT1_Result_U2_OCS bit 11,1 -m
-Var=IVT1_Result_U2_overallMeasError bit 9,1 -m
-Var=IVT1_Result_U2_channelMeasError bit 10,1 -m
-Var=IVT1_ID_Result_U2 unsigned 0,8 -m /min:2 /max:2 /d:2
-Var=IVT1_MsgCount_Result_U2 unsigned 12,4 -m
-Var=IVT1_Result_U2_mV signed 16,32 -m /u:mV
-
-[IVT1_Msg_Result_U3]
-ID=624h	// Current sensor string 1: voltage 3 (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)
-DLC=6
-Var=IVT1_Result_U3_systemError bit 8,1 -m
-Var=IVT1_Result_U3_OCS bit 11,1 -m
-Var=IVT1_Result_U3_overallMeasError bit 9,1 -m
-Var=IVT1_Result_U3_channelMeasError bit 10,1 -m
-Var=IVT1_ID_Result_U3 unsigned 0,8 -m /min:3 /max:3 /d:3
-Var=IVT1_MsgCount_Result_U3 unsigned 12,4 -m
-Var=IVT1_Result_U3_mV signed 16,32 -m /u:mV
-
-[IVT1_Msg_Result_T]
-ID=625h	// Current sensor string 1: temperature (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)
-DLC=6
-Var=IVT1_Result_T_systemError bit 8,1 -m
-Var=IVT1_Result_T_OCS bit 11,1 -m
-Var=IVT1_Result_T_overallMeasError bit 9,1 -m
-Var=IVT1_Result_T_channelMeasError bit 10,1 -m
-Var=IVT1_ID_Result_T unsigned 0,8 -m /min:4 /max:4 /d:4
-Var=IVT1_MsgCount_Result_T unsigned 12,4 -m
-Var=IVT1_Result_T_ddegC signed 16,32 -m /u:ddegC /f:0.1 /d:0
-
-[IVT1_Msg_Result_W]
-ID=626h	// Current sensor string 1: power (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)
-DLC=6
-Var=IVT1_Result_W_systemError bit 8,1 -m
-Var=IVT1_Result_W_OCS bit 11,1 -m
-Var=IVT1_Result_W_overallMeasError bit 9,1 -m
-Var=IVT1_Result_W_channelMeasError bit 10,1 -m
-Var=IVT1_Result_W signed 16,32 -m /u:W
-Var=IVT1_MsgCount_Result_W unsigned 12,4 -m
-Var=IVT1_ID_Result_W unsigned 0,8 -m /min:5 /max:5 /d:5
-
-[IVT1_Msg_Result_As]
-ID=627h	// Current sensor string 1: coulomb counting (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)
-DLC=6
-Var=IVT1_Result_As_systemError bit 8,1 -m
-Var=IVT1_Result_As_OCS bit 11,1 -m
-Var=IVT1_Result_As_overallMeasError bit 9,1 -m
-Var=IVT1_Result_As_channelMeasError bit 10,1 -m
-Var=IVT1_Result_As signed 16,32 -m /u:As
-Var=IVT1_MsgCount_Result_As unsigned 12,4 -m
-Var=IVT1_ID_Result_As unsigned 0,8 -m /min:6 /max:6 /d:6
-
-[IVT1_Msg_Result_Wh]
-ID=628h	// Current sensor string 1: energy counting (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)
-DLC=6
-Var=IVT1_Result_Wh_systemError bit 8,1 -m
-Var=IVT1_Result_Wh_OCS bit 11,1 -m
-Var=IVT1_Result_Wh_overallMeasError bit 9,1 -m
-Var=IVT1_Result_Wh_channelMeasError bit 10,1 -m
-Var=IVT1_Result_Wh signed 16,32 -m /u:Wh
-Var=IVT1_MsgCount_Result_Wh unsigned 12,4 -m
-Var=IVT1_ID_Result_Wh unsigned 0,8 -m /min:7 /max:7 /d:7
-
-[IVT2_Msg_Result_I]
-ID=721h	// Current sensor string 2: current (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)
-DLC=6
-Var=IVT2_Result_I_systemError bit 8,1 -m
-Var=IVT2_Result_I_OCS bit 11,1 -m
-Var=IVT2_Result_I_overallMeasError bit 9,1 -m
-Var=IVT2_Result_I_channelMeasError bit 10,1 -m
-Var=IVT2_ID_Result_I unsigned 0,8 -m
-Var=IVT2_MsgCount_Result_I unsigned 12,4 -m
-Var=IVT2_Result_I_mA signed 16,32 -m /u:mA
-
-[IVT2_Msg_Result_U1]
-ID=722h	// Current sensor string 2: voltage 1 (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)
-DLC=6
-Var=IVT2_Result_U1_systemError bit 8,1 -m
-Var=IVT2_Result_U1_overallMeasError bit 9,1 -m
-Var=IVT2_Result_U1_channelMeasError bit 10,1 -m
-Var=IVT2_Result_U1_OCS bit 11,1 -m
-Var=IVT2_ID_Result_U1 unsigned 0,8 -m /min:1 /max:1 /d:1
-Var=IVT2_MsgCount_Result_U1 unsigned 12,4 -m
-Var=IVT2_Result_U1_mV signed 16,32 -m /u:mV
-
-[IVT2_Msg_Result_U2]
-ID=723h	// Current sensor string 2: voltage 2 (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)
-DLC=6
-Var=IVT2_Result_U2_systemError bit 8,1 -m
-Var=IVT2_Result_U2_OCS bit 11,1 -m
-Var=IVT2_Result_U2_overallMeasError bit 9,1 -m
-Var=IVT2_Result_U2_channelMeasError bit 10,1 -m
-Var=IVT2_ID_Result_U2 unsigned 0,8 -m /min:2 /max:2 /d:2
-Var=IVT2_MsgCount_Result_U2 unsigned 12,4 -m
-Var=IVT2_Result_U2_mV signed 16,32 -m /u:mV
-
-[IVT2_Msg_Result_U3]
-ID=724h	// Current sensor string 2: voltage 3 (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)
-DLC=6
-Var=IVT2_Result_U3_systemError bit 8,1 -m
-Var=IVT2_Result_U3_OCS bit 11,1 -m
-Var=IVT2_Result_U3_overallMeasError bit 9,1 -m
-Var=IVT2_Result_U3_channelMeasError bit 10,1 -m
-Var=IVT2_ID_Result_U3 unsigned 0,8 -m /min:3 /max:3 /d:3
-Var=IVT2_MsgCount_Result_U3 unsigned 12,4 -m
-Var=IVT2_Result_U3_mV signed 16,32 -m /u:mV
-
-[IVT2_Msg_Result_T]
-ID=725h	// Current sensor string 2: temperature (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)
-DLC=6
-Var=IVT2_Result_T_systemError bit 8,1 -m
-Var=IVT2_Result_T_OCS bit 11,1 -m
-Var=IVT2_Result_T_overallMeasError bit 9,1 -m
-Var=IVT2_Result_T_channelMeasError bit 10,1 -m
-Var=IVT2_ID_Result_T unsigned 0,8 -m /min:4 /max:4 /d:4
-Var=IVT2_MsgCount_Result_T unsigned 12,4 -m
-Var=IVT2_Result_T_ddegC signed 16,32 -m /u:ddegC /f:0.1 /d:0
-
-[IVT2_Msg_Result_W]
-ID=726h	// Current sensor string 2: power (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)
-DLC=6
-Var=IVT2_Result_W_systemError bit 8,1 -m
-Var=IVT2_Result_W_OCS bit 11,1 -m
-Var=IVT2_Result_W_overallMeasError bit 9,1 -m
-Var=IVT2_Result_W_channelMeasError bit 10,1 -m
-Var=IVT2_Result_W signed 16,32 -m /u:W
-Var=IVT2_MsgCount_Result_W unsigned 12,4 -m
-Var=IVT2_ID_Result_W unsigned 0,8 -m /min:5 /max:5 /d:5
-
-[IVT2_Msg_Result_As]
-ID=727h	// Current sensor string 2: coulomb counting (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)
-DLC=6
-Var=IVT2_Result_As_systemError bit 8,1 -m
-Var=IVT2_Result_As_OCS bit 11,1 -m
-Var=IVT2_Result_As_overallMeasError bit 9,1 -m
-Var=IVT2_Result_As_channelMeasError bit 10,1 -m
-Var=IVT2_Result_As signed 16,32 -m /u:As
-Var=IVT2_MsgCount_Result_As unsigned 12,4 -m
-Var=IVT2_ID_Result_As unsigned 0,8 -m /min:6 /max:6 /d:6
-
-[IVT2_Msg_Result_Wh]
-ID=728h	// Current sensor string 2: energy counting (in:can_cbs_rx_current_sensor.c:CAN_RxCurrentSensor)
-DLC=6
-Var=IVT2_Result_Wh_systemError bit 8,1 -m
-Var=IVT2_Result_Wh_OCS bit 11,1 -m
-Var=IVT2_Result_Wh_overallMeasError bit 9,1 -m
-Var=IVT2_Result_Wh_channelMeasError bit 10,1 -m
-Var=IVT2_Result_Wh signed 16,32 -m /u:Wh
-Var=IVT2_MsgCount_Result_Wh unsigned 12,4 -m
-Var=IVT2_ID_Result_Wh unsigned 0,8 -m /min:7 /max:7 /d:7
-
-[foxBMS_Startup]
-ID=199h	// (in:can.c:CAN_TransmitBootMessage)
-DLC=8
+[foxBMS_Boot]
+ID=199h // (in:can_cfg_tx_boot-message.c:CANTX_TransmitBootMessage, fv:tx)
+Len=8
 Var=foxBMS_majorVersionNumber unsigned 0,8 -m
 Var=foxBMS_minorVersionNumber unsigned 8,8 -m
 Var=foxBMS_patchVersionNumber unsigned 16,8 -m
-Var=foxBMS_uniqueId unsigned 32,32 -m	// Content of Device Identification Register (DEVID)
-Var=foxBMS_underVersionControl bit 24,1
-Var=foxBMS_dirtyFlag bit 25,1
+Var=foxBMS_uniqueId unsigned 32,32 -m // Content of Device Identification Register (DEVID)
+Var=foxBMS_underVersionControl bit 31,1 -m
+Var=foxBMS_dirtyFlag bit 30,1 -m
 Var=foxBMS_releaseDistance unsigned 24,5 -m
-Var=foxBMS_releaseDistanceOverflow bit 26,1
+Var=foxBMS_releaseDistanceOverflow bit 29,1 -m
 
-[foxBMS_DetailState]
-ID=226h	// Transmits details on flags transmitted by foxBMS_State (in:can_cbs_tx_state.c:CAN_TxDetailState)
-DLC=8
-Var=foxBMS_TimingViolationEngine bit 0,1 /ln:"timing violation engine task"	// Indicates whether the timing of the engine task has been violated.
-Var=foxBMS_TimingViolation1ms bit 1,1 /ln:"timing violation 1ms task"	// Indicates whether the timing of the 1ms task has been violated.
-Var=foxBMS_TimingViolation10ms bit 2,1 /ln:"timing violation 10ms task"	// Indicates whether the timing of the 10ms task has been violated.
-Var=foxBMS_TimingViolation100ms bit 3,1 /ln:"timing violation 100ms task"	// Indicates whether the timing of the 100ms task has been violated.
-Var=foxBMS_TimingViolation100msAlgo bit 4,1 /ln:"timing violation 100ms algorithm task"	// Indicates whether the timing of the 100ms algorithm task has been violated.
-Var=foxBMS_TimingViolation10msRec bit 10,1 /ln:"timing violation 10ms task recorded"	// Indicates whether a violation of the timing of the 10ms task has been recorded.
-Var=foxBMS_TimingViolation100msRec bit 11,1 /ln:"timing violation 100ms task recorded"	// Indicates whether a violation of the timing of the 100ms task has been recorded.
-Var=foxBMS_TimingViolation100msAlgoR bit 12,1 /ln:"timing violation 100ms algorithm task recorded"	// Indicates whether a violation of the timing of the 100ms algorithm task has been recorded.
-Var=foxBMS_TimingViolationEngineRec bit 8,1 /ln:"timing violation engine task recorded"	// Indicates whether a violation of the timing of the engine task has been recorded.
-Var=foxBMS_TimingViolation1msRec bit 9,1 /ln:"timing violation 1ms task recorded"	// Indicates whether a violation of the timing of the 1ms task has been recorded.
+[foxBMS_BmsStateDetails]
+ID=226h // Transmits details on flags transmitted by foxBMS_State (in:can_cbs_tx_state.c:CANTX_BmsStateDetails, fv:tx)
+Len=8
+CycleTime=1000 -p
+Var=foxBMS_TimingViolationEngine bit 7,1 -m /ln:"timing violation engine task" // Indicates whether the timing of the engine task has been violated.
+Var=foxBMS_TimingViolation1ms bit 6,1 -m /ln:"timing violation 1ms task" // Indicates whether the timing of the 1ms task has been violated.
+Var=foxBMS_TimingViolation10ms bit 5,1 -m /ln:"timing violation 10ms task" // Indicates whether the timing of the 10ms task has been violated.
+Var=foxBMS_TimingViolation100ms bit 4,1 -m /ln:"timing violation 100ms task" // Indicates whether the timing of the 100ms task has been violated.
+Var=foxBMS_TimingViolation100msAlgo bit 3,1 -m /ln:"timing violation 100ms algorithm task" // Indicates whether the timing of the 100ms algorithm task has been violated.
+Var=foxBMS_TimingViolation10msRec bit 13,1 -m /ln:"timing violation 10ms task recorded" // Indicates whether a violation of the timing of the 10ms task has been recorded.
+Var=foxBMS_TimingViolation100msRec bit 12,1 -m /ln:"timing violation 100ms task recorded" // Indicates whether a violation of the timing of the 100ms task has been recorded.
+Var=foxBMS_TimingViolation100msAlgoR bit 11,1 -m /ln:"timing violation 100ms algorithm task recorded" // Indicates whether a violation of the timing of the 100ms algorithm task has been recorded.
+Var=foxBMS_TimingViolationEngineRec bit 15,1 -m /ln:"timing violation engine task recorded" // Indicates whether a violation of the timing of the engine task has been recorded.
+Var=foxBMS_TimingViolation1msRec bit 14,1 -m /ln:"timing violation 1ms task recorded" // Indicates whether a violation of the timing of the 1ms task has been recorded.
 
 [foxBMS_DieId]
-ID=227h	// Transmits the unique die id of the MCU on which foxBMS is currently running (in:can.c:CAN_TransmitDieId)
-DLC=8
-Var=MCU_lotNumber unsigned 8,24 -m /max:1 /ln:"lot number of the MCU"	// lot number of the MCU (read from DIEIDH register)
-Var=MCU_waferNumber unsigned 32,8 -m /max:1 /ln:"wafer number of the MCU"	// wafer number of the MCU (read from DIEDL register)
-Var=MCU_xWaferCoordinate unsigned 52,12 -m /max:1 /ln:"x wafer coordinate"	// x coordinate of the MCU die on the wafer (read from DIEIDL register)
-Var=MCU_yWaferCoordinate unsigned 40,12 -m /max:1 /ln:"y wafer coordinate"	// y coordinate of the MCU die on the wafer (read from DIEIDL register)
+ID=227h // Transmits the unique die id of the MCU on which foxBMS is currently running (in:can_cfg_tx_boot-message.c:CANTX_TransmitDieId, fv:tx)
+Len=8
+Var=MCU_lotNumber unsigned 8,24 -m /max:1 /ln:"lot number of the MCU" // lot number of the MCU (read from DIEIDH register)
+Var=MCU_waferNumber unsigned 32,8 -m /max:1 /ln:"wafer number of the MCU" // wafer number of the MCU (read from DIEDL register)
+Var=MCU_xWaferCoordinate unsigned 52,12 -m /max:1 /ln:"x wafer coordinate" // x coordinate of the MCU die on the wafer (read from DIEIDL register)
+Var=MCU_yWaferCoordinate unsigned 40,12 -m /max:1 /ln:"y wafer coordinate" // y coordinate of the MCU die on the wafer (read from DIEIDL register)

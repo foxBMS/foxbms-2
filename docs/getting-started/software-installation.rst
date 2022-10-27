@@ -70,9 +70,9 @@ later steps of this manual.
    :caption: Downloading a release
    :name: download-foxbms-2
 
-   C:\Users\vulpes\Documents>curl -Ss -L -o foxbms-2-v1.4.0.zip https://github.com/foxBMS/foxbms-2/archive/v1.4.0.zip
-   C:\Users\vulpes\Documents>tar -x -f foxbms-2-v1.4.0.zip
-   C:\Users\vulpes\Documents>ren foxbms-2-1.4.0 foxbms-2
+   C:\Users\vulpes\Documents>curl -Ss -L -o foxbms-2-v1.4.1.zip https://github.com/foxBMS/foxbms-2/archive/v1.4.1.zip
+   C:\Users\vulpes\Documents>tar -x -f foxbms-2-v1.4.1.zip
+   C:\Users\vulpes\Documents>ren foxbms-2-1.4.1 foxbms-2
    C:\Users\vulpes\Documents>cd foxbms-2
 
 .. note::
@@ -126,8 +126,8 @@ Download `Code Composer Studio`_ (CCS) version |version_ccs| and run the
 installer (chose ``Windows single file installer for CCS IDE``).
 Do **not** change the default installation directory chosen by the installer
 and let the installer proceed with the installation into the installation
-directory (i.e. ``C:\ti\...`` for CCS ``10.3.1``). Select the
-``Hercules™ Safety MCUs`` option during the installation.
+directory (e.g., ``C:\ti\ccs1031`` for CCS ``10.3.1``).
+Select the ``Hercules™ Safety MCUs`` option during the installation.
 
 Installing Code Composer Studio may take a while.
 

@@ -43,8 +43,8 @@
  * @file    ftask.h
  * @author  foxBMS Team
  * @date    2019-08-27 (date of creation)
- * @updated 2022-07-28 (date of last update)
- * @version v1.4.0
+ * @updated 2022-10-27 (date of last update)
+ * @version v1.4.1
  * @ingroup TASK
  * @prefix  FTSK
  *
@@ -71,12 +71,12 @@
 /** Length of queue that is used in the insulation measurement device (IMD) */
 #define FTSK_IMD_QUEUE_LENGTH (5u)
 /** Size of queue item that is used in the IMD driver */
-#define FTSK_IMD_QUEUE_ITEM_SIZE_IN_BYTES (sizeof(CAN_BUFFERELEMENT_s))
+#define FTSK_IMD_QUEUE_ITEM_SIZE_IN_BYTES (sizeof(CAN_BUFFER_ELEMENT_s))
 
 /** Length of queue that is used in the can module for receiving messages */
 #define FTSK_CAN_RX_QUEUE_LENGTH (50u)
 /** Size of queue item that is used in the can driver */
-#define FTSK_CAN_RX_QUEUE_ITEM_SIZE_IN_BYTES (sizeof(CAN_BUFFERELEMENT_s))
+#define FTSK_CAN_RX_QUEUE_ITEM_SIZE_IN_BYTES (sizeof(CAN_BUFFER_ELEMENT_s))
 
 /*========== Extern Constant and Variable Declarations ======================*/
 /** handle of the database queue */

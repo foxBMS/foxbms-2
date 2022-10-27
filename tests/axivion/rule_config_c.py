@@ -89,7 +89,7 @@ analysis["Parallelism-UnsafeVarAccess"].partitions = {
 
 def disallow_unjustified_deviations(issue):
     """forbid suppressing without justification"""
-    if issue.disabled:  # TODO: see mail #9172
+    if hasattr(issue, "disabled"):  # TODO: see mail #9172
         if not issue.justification:
             issue.disabled = False
 

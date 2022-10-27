@@ -43,8 +43,8 @@
  * @file    test_can.c
  * @author  foxBMS Team
  * @date    2020-04-01 (date of creation)
- * @updated 2022-07-28 (date of last update)
- * @version v1.4.0
+ * @updated 2022-10-27 (date of last update)
+ * @version v1.4.1
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -74,17 +74,38 @@
 #include "test_assert_helper.h"
 
 /*========== Definitions and Implementations for Unit Test ==================*/
-/* Dummy for version file implementation */
-const VER_VERSION_s ver_foxbmsVersionInformation = {
-    .underVersionControl     = true,
-    .isDirty                 = true,
-    .major                   = 1,
-    .minor                   = 1,
-    .patch                   = 1,
-    .distanceFromLastRelease = 42,
-    .commitHash              = "deadbeef",
-    .gitRemote               = "onTheDarkSideOfTheMoon.git",
-};
+
+/* see src/app/driver/config/can_cfg_rx-message-definitions.h, but we omit
+   this include here */
+#define CANRX_NOT_PERIODIC (0u)
+
+/* TX test case */
+#define TEST_CANTX_ID_DUMMY        (0x001)
+#define TEST_CANTX_DUMMY_PERIOD_ms (100)
+#define TEST_CANTX_DUMMY_PHASE_ms  (0)
+
+#define TEST_CANTX_DUMMY_MESSAGE                                                 \
+    {                                                                            \
+        .id         = TEST_CANTX_ID_DUMMY,                                       \
+        .dlc        = CAN_DEFAULT_DLC,                                           \
+        .endianness = CAN_LITTLE_ENDIAN,                                         \
+    },                                                                           \
+    {                                                                            \
+        .period = TEST_CANTX_DUMMY_PERIOD_ms, .phase = TEST_CANTX_DUMMY_PHASE_ms \
+    }
+
+/* Rx test case*/
+#define TEST_CANRX_ID_DUMMY (0x002)
+
+#define TEST_CANRX_DUMMY_MESSAGE           \
+    {                                      \
+        .id         = TEST_CANRX_ID_DUMMY, \
+        .dlc        = CAN_DEFAULT_DLC,     \
+        .endianness = CAN_LITTLE_ENDIAN,   \
+    },                                     \
+    {                                      \
+        .period = CANRX_NOT_PERIODIC       \
+    }
 
 static DATA_BLOCK_CELL_VOLTAGE_s can_tableCellVoltages     = {.header.uniqueId = DATA_BLOCK_ID_CELL_VOLTAGE};
 static DATA_BLOCK_CELL_TEMPERATURE_s can_tableTemperatures = {.header.uniqueId = DATA_BLOCK_ID_CELL_TEMPERATURE};
@@ -105,22 +126,27 @@ const CAN_SHIM_s can_kShim = {
     .pTableStateRequest    = &can_tableStateRequest,
 };
 
-static uint32_t can_dummy(
-    uint32_t id,
-    uint8_t dlc,
-    CAN_ENDIANNESS_e endianness,
+static uint32_t TEST_CANTX_DummyCallback(
+    CAN_MESSAGE_PROPERTIES_s message,
     uint8_t *pCanData,
     uint8_t *pMuxId,
-    const CAN_SHIM_s const *kpkCanShim) {
+    const CAN_SHIM_s *const kpkCanShim) {
     return 0;
 }
 
-const CAN_MSG_TX_TYPE_s can_txMessages[] = {
-    {CAN1_NODE, 0x001, 8, 100, 0, CAN_LITTLE_ENDIAN, &can_dummy, NULL_PTR},
+static uint32_t TEST_CANRX_DummyCallback(
+    CAN_MESSAGE_PROPERTIES_s message,
+    const uint8_t *const kpkCanData,
+    const CAN_SHIM_s *const kpkCanShim) {
+    return 0;
+}
+
+const CAN_TX_MESSAGE_TYPE_s can_txMessages[] = {
+    {CAN_NODE_1, TEST_CANTX_DUMMY_MESSAGE, &TEST_CANTX_DummyCallback, NULL_PTR},
 };
 
-const CAN_MSG_RX_TYPE_s can_rxMessages[] = {
-    {CAN1_NODE, 0x002, 8, CAN_LITTLE_ENDIAN, &can_dummy},
+const CAN_RX_MESSAGE_TYPE_s can_rxMessages[] = {
+    {CAN_NODE_1, TEST_CANRX_DUMMY_MESSAGE, &TEST_CANRX_DummyCallback},
 };
 
 const uint8_t can_txLength = sizeof(can_txMessages) / sizeof(can_txMessages[0]);
@@ -166,7 +192,7 @@ void testDataSendNullPointerAsData(void) {
 }
 
 void testDataSendNoMessagePending(void) {
-    canBASE_t *pNode = CAN1_NODE;
+    canBASE_t *pNode = CAN_NODE_1;
     uint8_t data     = 0;
 
     canIsTxMessagePending_IgnoreAndReturn(1u);
@@ -177,7 +203,7 @@ void testDataSendNoMessagePending(void) {
 }
 
 void testDataSendMessagePending(void) {
-    canBASE_t *pNode = CAN1_NODE;
+    canBASE_t *pNode = CAN_NODE_1;
     uint8_t data     = 0;
 
     /* simulate first messageBox has pending message */
@@ -241,7 +267,7 @@ void testCAN_TransmitBootMessage(void) {
 }
 
 /**
- * @brief   test #CAN_TransmitDieId()
+ * @brief   test #CANTX_TransmitDieId()
  * @details Currently not implemented. Implementing a test for this function
  *          would require implementing a harness that mocks away the
  *          systemREG1 (defined in HAL) as otherwise the test would attempt to
@@ -251,5 +277,5 @@ void testCAN_TransmitBootMessage(void) {
  *          tested in the integration test.
  *
 */
-void testCAN_TransmitDieId(void) {
+void testCANTX_TransmitDieId(void) {
 }

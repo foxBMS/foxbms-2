@@ -1,0 +1,8 @@
+Minor release of foxBMS 2 (v1.3.0)
+
+* Added master and slave hardware documentation
+* Added CRC checks in the FRAM driver
+* Enhanced insulation monitoring driver
+* Added Bender IR155 driver
+
+For a detailed list of changes, please refer to the documentation at https://iisb-foxbms.iisb.fraunhofer.de/foxbms/gen2/docs/html/v1.3.0/general/changelog.html.

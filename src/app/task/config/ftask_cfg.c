@@ -43,8 +43,8 @@
  * @file    ftask_cfg.c
  * @author  foxBMS Team
  * @date    2019-08-26 (date of creation)
- * @updated 2022-07-28 (date of last update)
- * @version v1.4.0
+ * @updated 2022-10-27 (date of last update)
+ * @version v1.4.1
  * @ingroup TASK_CONFIGURATION
  * @prefix  FTSK
  *
@@ -232,7 +232,6 @@ extern void FTSK_RunUserCodeCyclic10ms(void) {
     /* user code */
     SYSM_UpdateFramData();
     SYS_Trigger(&sys_state);
-    BMS_Trigger();
     ILCK_Trigger();
     ADC_Control();
     SPS_Ctrl();
@@ -247,6 +246,11 @@ extern void FTSK_RunUserCodeCyclic10ms(void) {
         MRC_ValidatePackMeasurement();
         ftsk_cyclic10msCounter = 0;
     }
+    /* Call BMS_Trigger function at the end of the 10ms task to allow previously
+     * called modules in this task to update respectively evaluate their new.
+     * This minimizes the delay between data evaluation and the reaction from
+     * the BMS module */
+    BMS_Trigger();
     ftsk_cyclic10msCounter++;
 }
 

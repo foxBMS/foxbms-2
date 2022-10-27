@@ -1,0 +1,8 @@
+Minor release of foxBMS 2 (v1.2.1)
+
+* Added documentation for slave LTC-based interface and slaves
+* improved MAXIM MAX17852 and MAX17841B driver
+* make git a required software installation in order to work with the foxBMS 2 repository
+* update conda environment
+
+For a detailed list of changes, please refer to the documentation at https://iisb-foxbms.iisb.fraunhofer.de/foxbms/gen2/docs/html/v1.2.1/general/changelog.html.

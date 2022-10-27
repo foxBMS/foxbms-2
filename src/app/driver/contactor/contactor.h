@@ -43,8 +43,8 @@
  * @file    contactor.h
  * @author  foxBMS Team
  * @date    2020-02-11 (date of creation)
- * @updated 2022-07-28 (date of last update)
- * @version v1.4.0
+ * @updated 2022-10-27 (date of last update)
+ * @version v1.4.1
  * @ingroup DRIVERS
  * @prefix  CONT
  *
@@ -63,82 +63,37 @@
 /*========== Extern Constant and Variable Declarations ======================*/
 
 /*========== Extern Function Prototypes =====================================*/
-
 /**
- * @brief   Gets the latest value the contactors were set to.
- * @param[in]   name    name of the contactor
- * @return  returns CONT_SWITCH_OFF or CONT_SWITCH_ON
- */
-extern CONT_ELECTRICAL_STATE_TYPE_e CONT_GetContactorSetValue(const CONT_NAMES_e name);
-
-/**
- * @brief   Reads the feedback pin of every contactor and returns its current
- *          value (#CONT_SWITCH_OFF/#CONT_SWITCH_ON).
- * @details If the contactor has a feedback pin the measured feedback is
- *          returned. If the contactor has no feedback pin, it is assumed that
- *          after a certain time the contactor has reached the requested state.
- */
-void CONT_GetContactorFeedback(void);
-
-/**
- * @brief   Sets the contactor state to its requested state, if the contactor
- *          is at that time not in the requested state.
- * @details If the new state was already requested, but not reached (meaning
- *          the measured feedback does not return the requested state), there
- *          are two states: it can be still ok (#STD_OK), because the contactor
- *          has some time left to get physically in the requested state (passed
- *          time since the request is lower than the limit) or it can be not ok
- *          (#STD_NOT_OK), because there is timing violation, i.e. the
- *          contactor has surpassed the maximum time for getting in the
- *          requested state. It returns #STD_OK if the requested state was
- *          successfully set or if the contactor was at the requested state
- *          before.
- * @param   name
- * @param   requestedContactorState
- * @return  retVal (type: STD_RETURN_TYPE_e)
- */
-extern STD_RETURN_TYPE_e CONT_SetContactorState(
-    const CONT_NAMES_e name,
-    CONT_ELECTRICAL_STATE_TYPE_e requestedContactorState);
-
-/** @brief Substates of the CONT state machine */
-typedef enum {
-    CONT_ENTRY,
-    CONT_SET_EDGE_LOW_INIT,
-    CONT_SET_EDGE_HIGH,
-    CONT_SET_EDGE_LOW,
-    CONT_CHECK_REQUESTS,
-} CONT_STATEMACH_SUB_e;
-
-/**
- * @brief   Gets the current state.
+ * @brief   Returns the current contactor state.
  * @details This function is used in the functioning of the CONT state machine.
- * @param   contactorNumber     contactor to be addressed
+ * @param   stringNumber string in which the contactor is placed
+ * @param   contactorType contactor type for which the feedback is requested
  * @return  current state, taken from #CONT_ELECTRICAL_STATE_TYPE_e
  */
-extern CONT_ELECTRICAL_STATE_TYPE_e CONT_GetState(uint8_t contactorNumber);
+extern CONT_ELECTRICAL_STATE_TYPE_e CONT_GetContactorState(uint8_t stringNumber, CONT_TYPE_e contactorType);
 
 /**
- * @brief   Closes the contactor of a string.
- * @details This function makes a close state request to the contactor of a
- *          specific string.
+ * @brief   Opens the contactor
+ * @details This function makes an open state request to the specific contactor
  * @param stringNumber    String addressed
+ * @param contactor       contactor adressed
  */
-extern STD_RETURN_TYPE_e CONT_CloseString(uint8_t stringNumber);
+extern STD_RETURN_TYPE_e CONT_OpenContactor(uint8_t stringNumber, CONT_TYPE_e contactor);
 
 /**
- * @brief   Opens the contactor of a string.
- * @details This function makes an open state request to the contactor of a
- *          specific string.
+ * @brief   Closes the contactor
+ * @details This function makes an close state request to the specific contactor
  * @param stringNumber    String addressed
+ * @param contactor       contactor adressed
  */
-extern STD_RETURN_TYPE_e CONT_OpenString(uint8_t stringNumber);
+extern STD_RETURN_TYPE_e CONT_CloseContactor(uint8_t stringNumber, CONT_TYPE_e contactor);
 
 /**
  * @brief   Closes precharge.
  * @details This function makes a close state request to the precharge
  *          contactor.
  * @param stringNumber    String addressed
+ * @return #STD_OK if requested contactor exists and close requested, otherwise #STD_NOT_OK
  */
 extern STD_RETURN_TYPE_e CONT_ClosePrecharge(uint8_t stringNumber);
 
@@ -151,7 +106,15 @@ extern STD_RETURN_TYPE_e CONT_ClosePrecharge(uint8_t stringNumber);
 extern STD_RETURN_TYPE_e CONT_OpenPrecharge(uint8_t stringNumber);
 
 /**
- * @brief   checks the feedback of the contactors
+ * @brief   Open all currently closed precharge contactors
+ * @details This function iterates over all contactors and opens all currently
+ *          closed precharge contactors
+ * @return  none (void)
+ */
+extern void CONT_OpenAllPrechargeContactors(void);
+
+/**
+ * @brief   checks the feedback of all contactors
  * @details makes a DIAG entry for each contactor when the feedback does not
  *          match the set value
  */
@@ -165,7 +128,6 @@ extern void CONT_Initialize(void);
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 #ifdef UNITY_UNIT_TEST
 extern void TEST_CONT_InitializationCheckOfContactorRegistry(void);
-extern CONT_CONTACTOR_INDEX TEST_CONT_ResolveContactorName(const CONT_NAMES_e name);
 #endif /* UNITY_UNIT_TEST */
 
 #endif /* FOXBMS__CONTACTOR_H_ */

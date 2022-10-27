@@ -43,8 +43,8 @@
  * @file    plausibility.h
  * @author  foxBMS Team
  * @date    2020-02-24 (date of creation)
- * @updated 2022-07-28 (date of last update)
- * @version v1.4.0
+ * @updated 2022-10-27 (date of last update)
+ * @version v1.4.1
  * @ingroup APPLICATION
  * @prefix  PL
  *

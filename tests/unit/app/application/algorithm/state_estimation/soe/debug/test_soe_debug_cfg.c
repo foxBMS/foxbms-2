@@ -43,8 +43,8 @@
  * @file    test_soe_debug_cfg.c
  * @author  foxBMS Team
  * @date    2020-10-14 (date of creation)
- * @updated 2022-07-28 (date of last update)
- * @version v1.4.0
+ * @updated 2022-10-27 (date of last update)
+ * @version v1.4.1
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *

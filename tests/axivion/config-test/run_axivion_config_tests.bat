@@ -38,7 +38,7 @@
 @setlocal enableextensions enabledelayedexpansion
 
 @pushd %~dp0
-@CALL :NORMALIZEPATH "%~dp0\..\
+@CALL :NORMALIZE_PATH "%~dp0\..\"
 @SET BAUHAUS_CONFIG=%NORMALIZED_PATH%
 @ECHO Setting 'BAUHAUS_CONFIG' to '%BAUHAUS_CONFIG%'
 
@@ -46,9 +46,15 @@
     @echo %%s | findstr /i "bauhaus">nul && (@SET BAUHAUS_DIR=%%s)
 )
 
-@REM preferr the perform_tests.exe that is found on PATH
+@REM ensure output directory
+@SET AXIVION_BUILD_DIR=%~dp0..\..\..\build\axivion
+@IF NOT EXIST %AXIVION_BUILD_DIR% (
+    @mkdir %AXIVION_BUILD_DIR%
+)
+
+@REM prefer the perform_tests.exe that is found on PATH
 @SET TEST_EXE=perform_tests.exe
-@ECHO Seraching program '%TEST_EXE%'
+@ECHO Searching program '%TEST_EXE%'
 @WHERE %TEST_EXE% 1>NUL 2>NUL
 @IF %ERRORLEVEL% neq 0 (
     @ECHO '%TEST_EXE%' is not in %%PATH%%
@@ -73,6 +79,6 @@
 @popd
 @EXIT /B %ERRORLEVEL%
 
-:NORMALIZEPATH
+:NORMALIZE_PATH
     @SET NORMALIZED_PATH=%~dpfn1
     @EXIT /B

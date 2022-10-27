@@ -43,8 +43,8 @@
  * @file    can_cfg.h
  * @author  foxBMS Team
  * @date    2019-12-04 (date of creation)
- * @updated 2022-07-28 (date of last update)
- * @version v1.4.0
+ * @updated 2022-10-27 (date of last update)
+ * @version v1.4.1
  * @ingroup DRIVERS
  * @prefix  CAN
  *
@@ -68,9 +68,12 @@
 /*========== Macros and Definitions =========================================*/
 
 /** register on which the CAN interface is connected @{*/
-#define CAN1_NODE (canREG1)
-#define CAN2_NODE (canREG2)
+#define CAN_NODE_1 (canREG1)
+#define CAN_NODE_2 (canREG2)
 /**@}*/
+
+#define CAN_NODE_IMD            (CAN_NODE_1)
+#define CAN_NODE_CURRENT_SENSOR (CAN_NODE_1)
 
 /**
  * Configuration of CAN transceiver pins to the respective port expander pins.
@@ -86,166 +89,11 @@
 #define CAN_MAX_11BIT_ID (2048u)
 /** Maximum length of Data Length Code */
 #define CAN_MAX_DLC (8u)
-
 /** Default DLC */
-#define CAN_DLC (8u)
-
-/** TX messages - pack related */
-
-/** CAN message ID for boot message */
-#define CAN_ID_BOOT_MESSAGE (0x199u)
-/** CAN message ID for die id message */
-#define CAN_ID_DIE_ID (0x227u)
-/** CAN message ID to send state */
-#define CAN_ID_TX_STATE (0x220u)
-/** Periodicity of CAN state messages in ms */
-#define CAN_TX_STATE_PERIOD_MS (100u)
-/** Phase of CAN state messages in ms */
-#define CAN_TX_STATE_PHASE_MS (0u)
-/** CAN message ID to send detail state */
-#define CAN_ID_TX_DETAIL_STATE (0x226u)
-/** Periodicity of CAN detail state messages in ms */
-#define CAN_TX_DETAIL_STATE_PERIOD_MS (1000u)
-/** Phase of CAN detail state messages in ms */
-#define CAN_TX_DETAIL_STATE_PHASE_MS (100u)
-
-/** CAN message ID to send voltages */
-#define CAN_ID_TX_VOLTAGES (0x240u)
-/** Periodicity of CAN voltage messages in ms */
-#define CAN_TX_VOLTAGES_PERIOD_MS (100u)
-/** Phase of CAN voltage messages in ms */
-#define CAN_TX_VOLTAGES_PHASE_MS (10u)
-
-/** CAN message ID to send temperatures */
-#define CAN_ID_TX_TEMPERATURES (0x250u)
-/** Periodicity of CAN temperature messages in ms */
-#define CAN_TX_TEMPERATURES_PERIOD_MS (200u)
-/** Phase of CAN temperature messages in ms */
-#define CAN_TX_TEMPERATURES_PHASE_MS (20u)
-
-/** CAN message ID to send limit values */
-#define CAN_ID_TX_LIMIT_VALUES (0x224u)
-/** Periodicity of CAN limit messages in ms */
-#define CAN_TX_LIMIT_VALUES_PERIOD_MS (100u)
-/** Phase of CAN limit messages in ms */
-#define CAN_TX_LIMIT_VALUES_PHASE_MS (30u)
-
-/** CAN message ID to send minimum and maximum values */
-#define CAN_ID_TX_MINIMUM_MAXIMUM_VALUES (0x223u)
-/** Periodicity of CAN minimum and maximum value messages in ms */
-#define CAN_TX_MINIMUM_MAXIMUM_VALUES_PERIOD_MS (100u)
-/** Phase of CAN minimum and maximum value  messages in ms */
-#define CAN_TX_MINIMUM_MAXIMUM_VALUES_PHASE_MS (40u)
-
-/** CAN message ID to send pack state estimation values */
-#define CAN_ID_TX_PACK_STATE_ESTIMATION (0x225u)
-/** Periodicity of CAN pack state estimation messages in ms */
-#define CAN_TX_PACK_STATE_ESTIMATION_PERIOD_MS (1000u)
-/** Phase of CAN pack state estimation messages in ms */
-#define CAN_TX_PACK_STATE_ESTIMATION_PHASE_MS (50u)
-
-/** CAN message ID to send pack values */
-#define CAN_ID_TX_PACK_VALUES (0x222u)
-/** Periodicity of CAN pack values messages in ms */
-#define CAN_TX_PACK_VALUES_PERIOD_MS (100u)
-/** Phase of CAN pack values messages in ms */
-#define CAN_TX_PACK_VALUES_PHASE_MS (60u)
-
-/** TX messages - string related */
-
-/** CAN message ID to send string state */
-#define CAN_ID_TX_STRING_STATE (0x221u)
-/** Periodicity of CAN string state messages in ms */
-#define CAN_TX_STRING_STATE_PERIOD_MS (100u)
-/** Phase of CAN string state messages in ms */
-#define CAN_TX_STRING_STATE_PHASE_MS (70u)
-
-/** CAN message ID to send string values */
-#define CAN_ID_TX_STRING_VALUES (0x280u)
-/** Periodicity of CAN string state messages in ms */
-#define CAN_TX_STRING_VALUES_PERIOD_MS (100u)
-/** Phase of CAN string state messages in ms */
-#define CAN_TX_STRING_VALUES_PHASE_MS (80u)
-
-/** CAN message ID to send string minimum and maximum values */
-#define CAN_ID_TX_STRING_MINIMUM_MAXIMUM (0x281u)
-/** Periodicity of CAN string state messages in ms */
-#define CAN_TX_STRING_MINIMUM_MAXIMUM_PERIOD_MS (100u)
-/** Phase of CAN string state messages in ms */
-#define CAN_TX_STRING_MINIMUM_MAXIMUM_PHASE_MS (90u)
-
-/** CAN message ID to send string minimum and maximum values */
-#define CAN_ID_TX_STRING_STATE_ESTIMATION (0x282u)
-/** Periodicity of CAN string state messages in ms */
-#define CAN_TX_STRING_STATE_ESTIMATION_PERIOD_MS (1000u)
-/** Phase of CAN string state messages in ms */
-#define CAN_TX_STRING_STATE_ESTIMATION_PHASE_MS (0u)
-
-/** CAN message ID to send string values 2 */
-#define CAN_ID_TX_STRING_VALUES_2 (0x283u)
-/** Periodicity of CAN string state messages in ms */
-#define CAN_TX_STRING_VALUES_2_PERIOD_MS (100u)
-/** Phase of CAN string state messages in ms */
-#define CAN_TX_STRING_VALUES_2_PHASE_MS (10u)
-
-/** RX messages */
-
-/** CAN message ID to perform a software reset */
-#define CAN_ID_SOFTWARE_RESET (0x95u)
-
-/** CAN message ID to perform a state request */
-#define CAN_ID_COMMAND (0x230u)
-
-/** CAN message ID for debug message */
-#define CAN_ID_DEBUG (0x200u)
-
-/** CAN message ID to get software version */
-#define CAN_ID_SW_VERSION (0x777u)
-
-/**
- * -------------------------CAUTION-------------------------
- * The 3 following defines are used by the insulation monitoring device (IMD).
- * If they are changed, the IMD will not work anymore
- * -------------------------CAUTION-------------------------
- */
-/** CAN message ID for info message from iso165c */
-#define CAN_ID_IMD_INFO (0x37u)
-/** CAN message ID for request message to iso165c */
-#define CAN_ID_IMD_REQUEST (0x22u)
-/** CAN message ID for response message from iso165c */
-#define CAN_ID_IMD_RESPONSE (0x23u)
-
-/** IDs for the messages from the current sensors */
-/** String 0 @{*/
-#define CAN_ID_STRING0_CURRENT         (0x521u)
-#define CAN_ID_STRING0_VOLTAGE1        (0x522u)
-#define CAN_ID_STRING0_VOLTAGE2        (0x523u)
-#define CAN_ID_STRING0_VOLTAGE3        (0x524u)
-#define CAN_ID_STRING0_TEMPERATURE     (0x525u)
-#define CAN_ID_STRING0_POWER           (0x526u)
-#define CAN_ID_STRING0_CURRENT_COUNTER (0x527u)
-#define CAN_ID_STRING0_ENERGY_COUNTER  (0x528u)
-/**@}
- * String 1 @{*/
-#define CAN_ID_STRING1_CURRENT         (0x621u)
-#define CAN_ID_STRING1_VOLTAGE1        (0x622u)
-#define CAN_ID_STRING1_VOLTAGE2        (0x623u)
-#define CAN_ID_STRING1_VOLTAGE3        (0x624u)
-#define CAN_ID_STRING1_TEMPERATURE     (0x625u)
-#define CAN_ID_STRING1_POWER           (0x626u)
-#define CAN_ID_STRING1_CURRENT_COUNTER (0x627u)
-#define CAN_ID_STRING1_ENERGY_COUNTER  (0x628u)
-/**@}
- * String 2 @{*/
-#define CAN_ID_STRING2_CURRENT         (0x721u)
-#define CAN_ID_STRING2_VOLTAGE1        (0x722u)
-#define CAN_ID_STRING2_VOLTAGE2        (0x723u)
-#define CAN_ID_STRING2_VOLTAGE3        (0x724u)
-#define CAN_ID_STRING2_TEMPERATURE     (0x725u)
-#define CAN_ID_STRING2_POWER           (0x726u)
-#define CAN_ID_STRING2_CURRENT_COUNTER (0x727u)
-#define CAN_ID_STRING2_ENERGY_COUNTER  (0x728u)
-/**@}*/
+#define CAN_DEFAULT_DLC (8u)
+/** Default DLC for messages that are defined by the foxBMS project, i.e., not
+ * defined by third party software and/or hardware. */
+#define CAN_FOXBMS_MESSAGES_DEFAULT_DLC (8u)
 
 /* **************************************************************************************
  *  CAN BUFFER OPTIONS
@@ -305,7 +153,7 @@ typedef struct {
     canBASE_t *canNode;        /*!< CAN node on which the message has been received */
     uint32_t id;               /*!< ID of the CAN message */
     uint8_t data[CAN_MAX_DLC]; /*!< payload of the CAN message */
-} CAN_BUFFERELEMENT_s;
+} CAN_BUFFER_ELEMENT_s;
 
 /** composite type for storing and passing on the local database table handles */
 typedef struct {
@@ -326,51 +174,61 @@ typedef struct {
     DATA_BLOCK_MOL_FLAG_s *pTableMol;                     /*!< database table with MOL flags */
 } CAN_SHIM_s;
 
+/** definition of a CAN message (without data) */
+typedef struct {
+    uint32_t id;                 /*!< message ID */
+    uint8_t dlc;                 /*!< data length */
+    CAN_ENDIANNESS_e endianness; /*!< Byte order (big or little endian) */
+} CAN_MESSAGE_PROPERTIES_s;
+
+/** timing information of a CAN TX message */
+typedef struct {
+    uint32_t period; /*!< CAN message cycle time */
+    uint32_t phase;  /*!< CAN message startup (first send) offset */
+} CAN_TX_MESSAGE_TIMING_s;
+
+/** timing information of a CAN RX message */
+typedef struct {
+    uint32_t period; /*!< expected CAN message cycle time */
+} CAN_RX_MESSAGE_TIMING_s;
+
 /** type definition for tx callback functions used in CAN messages */
 typedef uint32_t (*CAN_TxCallbackFunction_f)(
-    uint32_t ID,
-    uint8_t DLC,
-    CAN_ENDIANNESS_e endianness,
-    uint8_t *candata,
+    CAN_MESSAGE_PROPERTIES_s message,
+    uint8_t *canData,
     uint8_t *pMuxId,
     const CAN_SHIM_s *const kpkCanShim);
 
 /** type definition for rx callback functions used in CAN messages */
 typedef uint32_t (*CAN_RxCallbackFunction_f)(
-    uint32_t ID,
-    uint8_t DLC,
-    CAN_ENDIANNESS_e endianness,
+    CAN_MESSAGE_PROPERTIES_s message,
     const uint8_t *const kpkCanData,
     const CAN_SHIM_s *const kpkCanShim);
 
 /** type definition for structure of a TX CAN message */
 typedef struct {
     canBASE_t *canNode;                        /*!< CAN node on which the message is transmitted */
-    uint32_t id;                               /*!< CAN message id */
-    uint8_t dlc;                               /*!< CAN message data length code */
-    uint32_t repetitionTime;                   /*!< CAN message cycle time */
-    uint32_t repetitionPhase;                  /*!< CAN message startup (first send) offset */
-    CAN_ENDIANNESS_e endianness;               /*!< Byte order (big or little endian) */
+    CAN_MESSAGE_PROPERTIES_s message;          /*!< CAN message */
+    CAN_TX_MESSAGE_TIMING_s timing;            /*!< time and phase */
     CAN_TxCallbackFunction_f callbackFunction; /*!< CAN message callback after message is sent */
     uint8_t *pMuxId; /*!< for multiplexed signals: callback can use this as pointer to a mux variable, NULL_PTR if
                             unused*/
-} CAN_MSG_TX_TYPE_s;
+} CAN_TX_MESSAGE_TYPE_s;
 
 /** type definition for structure of an RX CAN message */
 typedef struct {
     canBASE_t *canNode;                        /*!< CAN node on which the message is received */
-    uint32_t id;                               /*!< message ID */
-    uint8_t dlc;                               /*!< data length */
-    CAN_ENDIANNESS_e endianness;               /*!< Byte order (big or little endian) */
+    CAN_MESSAGE_PROPERTIES_s message;          /*!< CAN message */
+    CAN_RX_MESSAGE_TIMING_s timing;            /*!< time and phase */
     CAN_RxCallbackFunction_f callbackFunction; /*!< CAN message callback after message is received */
-} CAN_MSG_RX_TYPE_s;
+} CAN_RX_MESSAGE_TYPE_s;
 
 /** variable for storing and passing on the local database table handles */
 extern const CAN_SHIM_s can_kShim;
 
 /*========== Extern Constant and Variable Declarations ======================*/
-extern const CAN_MSG_TX_TYPE_s can_txMessages[];
-extern const CAN_MSG_RX_TYPE_s can_rxMessages[];
+extern const CAN_TX_MESSAGE_TYPE_s can_txMessages[];
+extern const CAN_RX_MESSAGE_TYPE_s can_rxMessages[];
 
 /** array length for transmission CAN0 message definition @{*/
 extern const uint8_t can_txLength;

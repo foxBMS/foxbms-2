@@ -79,6 +79,13 @@
     @EXIT /b 1
 )
 
+@IF NOT EXIST %~dp0\.vscode\settings.json (
+    @ECHO VS code settings do not exist.
+    @ECHO Creating VS Code setup^.^.^.
+    @%~dp0\waf configure
+    @ECHO Done^.^.^.
+)
+
 @PUSHD %~dp0
 @start "foxBMS Development" /b %VS_CODE% .
 @IF %ERRORLEVEL% NEQ 0 (

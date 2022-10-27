@@ -55,6 +55,7 @@ def build(bld):
         os.path.join("config", "sys_mon_cfg.c"),
         os.path.join("database", "database.c"),
         os.path.join("database", "database_helper.c"),
+        os.path.join("diag", "cbs", "diag_cbs_bms.c"),
         os.path.join("diag", "cbs", "diag_cbs_can.c"),
         os.path.join("diag", "cbs", "diag_cbs_contactor.c"),
         os.path.join("diag", "cbs", "diag_cbs_current.c"),

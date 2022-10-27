@@ -14,6 +14,8 @@ Supported Temperature Sensors
     Epcos
     Epc
     Fak
+    Murata
+    Mur
     Vishay
     Vis
 
@@ -30,6 +32,7 @@ implement the :ref:`temperature_sensor_api`.
     ./epcos/b57251v5103j060.rst
     ./epcos/b57861s0103f045.rst
     ./fake/none.rst
+    ./murata/ncu15xh103f6sxx.rst
     ./vishay/ntcalug01a103g.rst
     ./vishay/ntcle317e4103sba.rst
 

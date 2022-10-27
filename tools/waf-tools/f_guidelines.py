@@ -740,7 +740,7 @@ class c_check_doxygen(Task.Task):
 
     def keyword(self):
         """Displayed keyword for check"""
-        return f"Checking filelevel doxygen ({self.rule_name})"
+        return f"Checking file level doxygen ({self.rule_name})"
 
 
 class c_check_define_guard(Task.Task):

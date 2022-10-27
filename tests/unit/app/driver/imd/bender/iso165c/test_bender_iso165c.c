@@ -43,8 +43,8 @@
  * @file    test_bender_iso165c.c
  * @author  foxBMS Team
  * @date    2021-01-19 (date of creation)
- * @updated 2022-07-28 (date of last update)
- * @version v1.4.0
+ * @updated 2022-10-27 (date of last update)
+ * @version v1.4.1
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -65,6 +65,7 @@
 #include "Mockos.h"
 
 #include "bender_iso165c.h"
+#include "can_cfg_rx-message-definitions.h"
 #include "test_assert_helper.h"
 
 /*========== Definitions and Implementations for Unit Test ==================*/
@@ -88,7 +89,7 @@ void tearDown(void) {
  *
  */
 void testMessageComposition(void) {
-    CAN_BUFFERELEMENT_s canMessage;
+    CAN_BUFFER_ELEMENT_s canMessage;
     uint8_t dataWord;
     uint8_t dataByte;
     uint16_t data16;
@@ -193,25 +194,25 @@ void testMessageComposition(void) {
     TEST_ASSERT_FAIL_ASSERT(TEST_I165C_CheckResponse(command, NULL_PTR));
 
     /* Check that response ID corresponds to awaited acknowledge */
-    canMessage.id       = CAN_ID_IMD_RESPONSE;
+    canMessage.id       = CANRX_IMD_RESPONSE_ID;
     canMessage.data[0u] = 0xA;
     command             = 0xA;
     TEST_ASSERT_EQUAL(true, TEST_I165C_CheckResponse(command, &canMessage));
 
     /* Check that response ID does not correspond to awaited acknowledge */
-    canMessage.id       = CAN_ID_IMD_RESPONSE;
+    canMessage.id       = CANRX_IMD_RESPONSE_ID;
     canMessage.data[0u] = 0xA;
     command             = 0xB;
     TEST_ASSERT_EQUAL(false, TEST_I165C_CheckResponse(command, &canMessage));
 
-    /* Check that response failed if ID is not CAN_ID_IMD_RESPONSE, even if response matches command */
-    canMessage.id       = CAN_ID_IMD_INFO;
+    /* Check that response failed if ID is not CANRX_IMD_RESPONSE_ID, even if response matches command */
+    canMessage.id       = CANRX_IMD_INFO_ID;
     canMessage.data[0u] = 0xA;
     command             = 0xA;
     TEST_ASSERT_EQUAL(false, TEST_I165C_CheckResponse(command, &canMessage));
 
-    /* Check that response failed if ID is not CAN_ID_IMD_RESPONSE, if respose does not match command */
-    canMessage.id       = CAN_ID_IMD_INFO;
+    /* Check that response failed if ID is not CANRX_IMD_RESPONSE_ID, if respose does not match command */
+    canMessage.id       = CANRX_IMD_INFO_ID;
     canMessage.data[0u] = 0xA;
     command             = 0xB;
     TEST_ASSERT_EQUAL(false, TEST_I165C_CheckResponse(command, &canMessage));
@@ -258,7 +259,7 @@ void testMessageComposition(void) {
     TEST_ASSERT_FAIL_ASSERT(TEST_I165C_CheckAcknowledgeArrived(command, &tries, NULL_PTR));
 
     /* Acknowledge arrived */
-    canMessage.id      = CAN_ID_IMD_RESPONSE;
+    canMessage.id      = CANRX_IMD_RESPONSE_ID;
     tries              = 0u;
     command            = 0xA;
     canMessage.data[0] = 0xA;
@@ -269,7 +270,7 @@ void testMessageComposition(void) {
     TEST_ASSERT_EQUAL(0u, tries);
 
     /* Acknowledge not arrived, increment try counter */
-    canMessage.id      = CAN_ID_IMD_RESPONSE;
+    canMessage.id      = CANRX_IMD_RESPONSE_ID;
     tries              = 0u;
     command            = 0xA;
     canMessage.data[0] = 0xB;

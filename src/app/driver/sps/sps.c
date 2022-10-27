@@ -43,8 +43,8 @@
  * @file    sps.c
  * @author  foxBMS Team
  * @date    2020-10-14 (date of creation)
- * @updated 2022-07-28 (date of last update)
- * @version v1.4.0
+ * @updated 2022-10-27 (date of last update)
+ * @version v1.4.1
  * @ingroup DRIVERS
  * @prefix  SPS
  *
@@ -365,7 +365,7 @@ static void SPS_SetCommandTxBuffer(const SPS_ACTION_e action) {
 
         case SPS_ACTION_READ_EN_IRQ_PIN:
             SPS_GlobalRegisterRead(
-                SPS_EN_IRQ_PIN_DIAG_REGISTER_ADDRESS, SPS_READ_DIAGNOSTIC_REGISTER, sps_spiTxRegisterBuffer);
+                SPS_ISR_IRQ_DIAG_REGISTER_ADDRESS, SPS_READ_DIAGNOSTIC_REGISTER, sps_spiTxRegisterBuffer);
             break;
 
         default:
@@ -595,12 +595,18 @@ extern void SPS_Initialize(void) {
 }
 
 extern void SPS_RequestContactorState(SPS_CHANNEL_INDEX channelIndex, SPS_CHANNEL_FUNCTION_e channelFunction) {
+    FAS_ASSERT(channelIndex < SPS_NR_OF_AVAILABLE_SPS_CHANNELS);
+    /* AXIVION Routine Generic-MissingParameterAssert: channelFunction: parameter accepts all defined enums */
+    /* Allow only contactor related SPS outputs to be operated with this function */
     const SPS_CHANNEL_AFFILIATION_e channelAffiliation = SPS_GetChannelAffiliation(channelIndex);
     FAS_ASSERT(SPS_AFF_CONTACTOR == channelAffiliation);
     SPS_RequestChannelState(channelIndex, channelFunction);
 }
 
 extern void SPS_RequestGeneralIoState(SPS_CHANNEL_INDEX channelIndex, SPS_CHANNEL_FUNCTION_e channelFunction) {
+    FAS_ASSERT(channelIndex < SPS_NR_OF_AVAILABLE_SPS_CHANNELS);
+    /* AXIVION Routine Generic-MissingParameterAssert: channelFunction: parameter accepts all defined enums */
+    /* Allow only general IO related SPS outputs to be operated with this function */
     const SPS_CHANNEL_AFFILIATION_e channelAffiliation = SPS_GetChannelAffiliation(channelIndex);
     FAS_ASSERT(SPS_AFF_GENERAL_IO == channelAffiliation);
     SPS_RequestChannelState(channelIndex, channelFunction);

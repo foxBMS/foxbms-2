@@ -23,7 +23,7 @@
         "**/build/**/*.ppm": true,
         "**/build/**/*.ppr": true,
         "**/build/**/*.pprs": true,
-        "**/conf/hcg/include/**":true,
+        "**/conf/hcg/include/**": true,
         ".github/**": true,
         ".gitlab/**": true,
         ".vscode/**": true,
@@ -32,8 +32,10 @@
         "build/axivion/**": true,
         "build/conf_check_*/**": true,
         "build/predefined_defines/**": true,
-        "**/.lock-waf_*_build":true,
-        "**/.wafpickle-*":true
+        "**/.lock-waf_*_build": true,
+        "**/.wafpickle-*": true,
+        "**/*.gcov": true,
+        "**/*.zip": true
     },
     "files.watcherExclude": {
         "**/.git/objects/**": true,
@@ -44,7 +46,8 @@
         "**/build/**/*.pp": true,
         "**/build/**/*.ppr": true,
         "**/build/**/*.pprs": true,
-        "**/conf/hcg/include/**": true
+        "**/conf/hcg/include/**": true,
+        "tests/axivion/qualification-kit/**": true
     },
     "search.exclude": {
         "**/node_modules": true,
@@ -55,7 +58,8 @@
         "**build/**/*.pp": true,
         "**build/**/*.ppr": true,
         "**build/**/*.pprs": true,
-        "**/conf/hcg/include/**": true
+        "**/conf/hcg/include/**": true,
+        "tests/axivion/qualification-kit/**": true
     },
     "css.validate": false,
     "json.schemas": [

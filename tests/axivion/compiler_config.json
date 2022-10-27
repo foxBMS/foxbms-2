@@ -32,7 +32,7 @@
                     "variadic_macros": "enabled"
                 },
                 "language_version": "C11",
-                "native_compiler": "C:\\ti\\ccs1100\\ccs\\tools\\compiler\\ti-cgt-arm_20.2.5.LTS\\bin\\armcl.EXE",
+                "native_compiler": "C:\\ti\\ccs1200\\ccs\\tools\\compiler\\ti-cgt-arm_20.2.6.LTS\\bin\\armcl.EXE",
                 "preprocessing": {
                     "predefined_macros": {
                         "_OPTIMIZE_FOR_SPACE": "1",
@@ -113,20 +113,20 @@
                     },
                     "sys_include_envvar": null,
                     "sys_include_path": [
-                        "C:\\ti\\ccs1100\\ccs\\tools\\compiler\\ti-cgt-arm_20.2.5.LTS\\include"
+                        "C:\\ti\\ccs1200\\ccs\\tools\\compiler\\ti-cgt-arm_20.2.6.LTS\\include"
                     ],
                     "user_include_path": []
                 }
             },
-            "language_c.command.#": "C:\\ti\\ccs1100\\ccs\\tools\\compiler\\ti-cgt-arm_20.2.5.LTS\\bin\\armcl.EXE --silicon_version=7R5 --code_state=32 --float_support=VFPv3D16 -g --diag_wrap=off --display_error_number --enum_type=packed --abi=eabi --c11 -Ooff --issue_remarks --strict_ansi",
-            "language_c.info.#": "20.2.5\n",
+            "language_c.command.#": "C:\\ti\\ccs1200\\ccs\\tools\\compiler\\ti-cgt-arm_20.2.6.LTS\\bin\\armcl.EXE --silicon_version=7R5 --code_state=32 --float_support=VFPv3D16 -g --diag_wrap=off --display_error_number --enum_type=packed --abi=eabi --c11 -Ooff --issue_remarks --strict_ansi",
+            "language_c.info.#": "20.2.6\n",
             "language_cxx": {
                 "features": {
                     "exceptions": false,
                     "runtime_type_information": false
                 },
                 "language_version": "Cpp14",
-                "native_compiler": "C:\\ti\\ccs1100\\ccs\\tools\\compiler\\ti-cgt-arm_20.2.5.LTS\\bin\\armcl.EXE",
+                "native_compiler": "C:\\ti\\ccs1200\\ccs\\tools\\compiler\\ti-cgt-arm_20.2.6.LTS\\bin\\armcl.EXE",
                 "preprocessing": {
                     "predefined_macros": {
                         "_BOOL": "1",
@@ -209,23 +209,23 @@
                         "__unsigned_chars__": "1"
                     },
                     "sys_include_path": [
-                        "C:\\ti\\ccs1100\\ccs\\tools\\compiler\\ti-cgt-arm_20.2.5.LTS\\include\\libcxx",
-                        "C:\\ti\\ccs1100\\ccs\\tools\\compiler\\ti-cgt-arm_20.2.5.LTS\\include"
+                        "C:\\ti\\ccs1200\\ccs\\tools\\compiler\\ti-cgt-arm_20.2.6.LTS\\include\\libcxx",
+                        "C:\\ti\\ccs1200\\ccs\\tools\\compiler\\ti-cgt-arm_20.2.6.LTS\\include"
                     ],
                     "user_include_path": []
                 }
             },
-            "language_cxx.command.#": "C:\\ti\\ccs1100\\ccs\\tools\\compiler\\ti-cgt-arm_20.2.5.LTS\\bin\\armcl.EXE --silicon_version=7R5 --code_state=32 --float_support=VFPv3D16 -g --diag_wrap=off --display_error_number --enum_type=packed --abi=eabi --c11 -Ooff --issue_remarks --strict_ansi",
-            "language_cxx.info.#": "20.2.5\n",
+            "language_cxx.command.#": "C:\\ti\\ccs1200\\ccs\\tools\\compiler\\ti-cgt-arm_20.2.6.LTS\\bin\\armcl.EXE --silicon_version=7R5 --code_state=32 --float_support=VFPv3D16 -g --diag_wrap=off --display_error_number --enum_type=packed --abi=eabi --c11 -Ooff --issue_remarks --strict_ansi",
+            "language_cxx.info.#": "20.2.6\n",
             "linker": {
-                "library_path": [],
                 "advanced": {
                     "ignore_input_files": {
                         "$(delta:+)": [
                             "*.cmd"
                         ]
                     }
-                }
+                },
+                "library_path": []
             },
             "preincludes": {
                 "$(delta:+)": [
@@ -549,11 +549,11 @@
         }
     },
     "_Format": "1.0",
-    "_Version": "7.4.0",
+    "_Version": "7.4.6",
     "_VersionNum": [
         7,
         4,
-        0,
-        9870
+        6,
+        10210
     ]
 }

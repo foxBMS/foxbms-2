@@ -4,6 +4,24 @@
     "version": "0.2",
     // language - current active spelling language
     "language": "en",
+    "enabledLanguageIds": [
+        "bat",
+        "bibtex",
+        "c",
+        "cpp",
+        "css",
+        "diff",
+        "html",
+        "json",
+        "jsonc",
+        "markdown",
+        "plaintext",
+        "powershell",
+        "python",
+        "shellscript",
+        "xml",
+        "yaml"
+    ],
     // words - list of words to be always considered correct
     "words": [
         "alphanumericals",
@@ -89,9 +107,17 @@
         "fgui",
         // Windows related
         "USERPROFILE",
+        "ERRORLEVEL",
         "LOCALAPPDATA",
         "APPDATA",
+        // cmd, batch
+        "dpfn",
+        "enabledelayedexpansion",
+        "enableextensions",
         "findstr",
+        "popd",
+        "pushd",
+        "setlocal",
         // file extensions
         "vsdx",
         // file names
@@ -103,6 +129,8 @@
         "AFE", // Analog Front-End
         "AFES", // Analog Front-Ends
         "BALS",
+        "CANRX", // CAN receive
+        "CANTX", // CAN transmit
         "HTSEN",
         "ILCK",
         "SYSM",
@@ -149,6 +177,9 @@
         // general software terms
         "MOSFET",
         "memcpy",
+        "realloc",
+        "calloc",
+        "mcalloc",
         "NTFS",
         "JTAG",
         "unstaged",
@@ -440,6 +471,7 @@
         "pcan",
         "lauterbach",
         "epcos",
+        "murata",
         "vishay",
         "mram", // Magnetoresistive Random Access Memory
         "ntcalug", // temperature sensor form vishay
@@ -456,6 +488,7 @@
         "localbuild",
         "noauth",
         "workitem",
+        "TESTCASE",
         // asm keywords
         "endasmfunc",
         // third party software, tools, configuration files etc.
@@ -609,6 +642,7 @@
         "hexlify",
         "startswith",
         // python packages
+        "cantools",
         "jsonschema",
         "cffconvert",
         "clib",
@@ -673,7 +707,7 @@
         "softwareTerms",
         "misc"
     ],
-    "flagWords":[
+    "flagWords": [
         "endianess",
         "datasheet"
     ],
@@ -739,6 +773,7 @@
         "tests/axivion/rule_config_c.json",
         "tests/axivion/ci_config.json",
         "tests/axivion/addon-test/**/test_*.*",
+        "tests/axivion/qualification-test/qualification-kit/**",
         "tests/re-names/*.json",
         "tools/dbc/*.dbc",
         "tools/dbc/*.sym",

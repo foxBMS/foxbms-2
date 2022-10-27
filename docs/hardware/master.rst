@@ -22,3 +22,4 @@ The documentation for the different versions can be found at.
 
     ./master/ti-tms570lc4357-vx.x.x/ti-tms570lc4357-v1.1.1.rst
     ./master/ti-tms570lc4357-vx.x.x/ti-tms570lc4357-v1.1.3.rst
+    ./master/ti-tms570lc4357-vx.x.x/ti-tms570lc4357-v1.1.5.rst

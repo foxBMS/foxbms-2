@@ -43,8 +43,8 @@
  * @file    sps_cfg.h
  * @author  foxBMS Team
  * @date    2020-10-14 (date of creation)
- * @updated 2022-07-28 (date of last update)
- * @version v1.4.0
+ * @updated 2022-10-27 (date of last update)
+ * @version v1.4.1
  * @ingroup DRIVERS_CONF
  * @prefix  SPS
  *
@@ -82,6 +82,17 @@
 /** Number of SPS IC that are populated on the hardware (in daisy-chain) */
 #define SPS_NR_OF_IC (2u)
 
+/** Defines for the individual SPS channels @{ */
+#define SPS_CHANNEL_0 ((SPS_CHANNEL_INDEX)0)
+#define SPS_CHANNEL_1 ((SPS_CHANNEL_INDEX)1)
+#define SPS_CHANNEL_2 ((SPS_CHANNEL_INDEX)2)
+#define SPS_CHANNEL_3 ((SPS_CHANNEL_INDEX)3)
+#define SPS_CHANNEL_4 ((SPS_CHANNEL_INDEX)4)
+#define SPS_CHANNEL_5 ((SPS_CHANNEL_INDEX)5)
+#define SPS_CHANNEL_6 ((SPS_CHANNEL_INDEX)6)
+#define SPS_CHANNEL_7 ((SPS_CHANNEL_INDEX)7)
+/**@}*/
+
 /** One channel for each contactor is required in this application */
 #define SPS_NR_OF_REQUIRED_CONTACTOR_CHANNELS (BS_NR_OF_CONTACTORS)
 
@@ -110,12 +121,12 @@
 #define SPS_C_CONTROL_REGISTER_ADDRESS      (0x16u)
 /**@}*/
 /** Addresses of used diagnostic registers @{ */
-#define SPS_OD_IOUT1_DIAG_REGISTER_ADDRESS    (0x08u)
-#define SPS_OD_IOUT2_DIAG_REGISTER_ADDRESS    (0x09u)
-#define SPS_OD_IOUT3_DIAG_REGISTER_ADDRESS    (0x0Au)
-#define SPS_OD_IOUT4_DIAG_REGISTER_ADDRESS    (0x0Bu)
-#define SPS_EN_IRQ_PIN_DIAG_REGISTER_ADDRESS  (0x11u)
-#define SPS_EN_WARN_PIN_DIAG_REGISTER_ADDRESS (0x13u)
+#define SPS_ISR_IRQ_DIAG_REGISTER_ADDRESS  (0x06u)
+#define SPS_ISR_WARN_DIAG_REGISTER_ADDRESS (0x07u)
+#define SPS_OD_IOUT1_DIAG_REGISTER_ADDRESS (0x08u)
+#define SPS_OD_IOUT2_DIAG_REGISTER_ADDRESS (0x09u)
+#define SPS_OD_IOUT3_DIAG_REGISTER_ADDRESS (0x0Au)
+#define SPS_OD_IOUT4_DIAG_REGISTER_ADDRESS (0x0Bu)
 /**@}*/
 
 /**

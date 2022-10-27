@@ -1,0 +1,35 @@
+FormatVersion=5.0 // Do not edit this line!
+Title="2022-09-12_foxbms"
+
+{ENUMS}
+enum VtSig_foxBMS_modeRequest(0="mode_Standby", 1="mode_Discharge",
+  2="mode_Charge")
+
+{SENDRECEIVE}
+
+[foxBMS_State]
+ID=220h	// Message contains foxBMS state (in:can_cbs_tx_state.c:CAN_TxState)
+DLC=8
+Var=foxBMS_State unsigned 4,4 -m
+Var=foxBMS_generalError bit 13,1 -m	// 0x00: No error detected, 0x01: Error detected
+Var=foxBMS_generalWarning bit 14,1 -m	// 0x00: No warning detected, 0x01: Warning detected
+Var=foxBMS_Error_dieTemperatureMCU bit 21,1 -m	// 0x00: No error, 0x01: Error detected
+Var=foxBMS_Error_OvertempPCB bit 20,1 -m	// foxBMS Master-PCB: 0x00: No error, 0x01: Error detected
+Var=foxBMS_Error_UndertempPCB bit 19,1 -m	// foxBMS Master-PCB: 0x00: No error, 0x01: Error detected
+Var=foxBMS_Error_PrechargeVolt bit 23,1 -m	// 0x00: precharging successful, 0x01: precharge aborted because of voltage difference
+Var=foxBMS_Error_PrechargeCurrent bit 22,1 -m	// 0x00: precharging successful, 0x01: precharge aborted because current limit violated
+Var=foxBMS_insulationMonitoring bit 10,1 -m	// 0x00: insulation monitoring active, 0x01: insulation monitoring not active
+Var=foxBMS_chargingComplete bit 15,1 -m	// 0x01: charging complete
+Var=foxBMS_EmergencyShutoff bit 12,1 -m	// The BMS is preparing to open the contactors soon due to detected error
+Var=foxBMS_MainFuseBlown bit 18,1 -m	// 0x00: fuse okay, 0x01: fuse blown
+Var=foxBMS_insulationResistance unsigned 56,8 -m /u:kOhm /f:100 /d:0
+Var=foxBMS_Error_Interlock bit 17,1 -m	// 0x00: interlock okay, 0x01: interlock open
+Var=foxBMS_Error_Insulation bit 16,1 -m	// 0x00: No error, 0x01: Error detected
+Var=foxBMS_Error_Cantiming bit 31,1 -m	// 0x00: No error, 0x01: Error detected
+Var=foxBMS_SysMonError bit 12,1	// If this bit is set, it indicates that a task has violated its timing requirements.
+Var=foxBMS_alertFlag bit 28,1 -m	// foxBMS Alter flag: 0x00: No error, 0x01: Alert flag set
+Var=foxBMS_NegativeContState bit 5,1	// 0x00: contactor switched OFF, 0x01: contactor switched ON
+Var=foxBMS_PositiveContState bit 6,1	// 0x00: contactor switched OFF, 0x01: contactor switched ON
+Var=foxBMS_PrechargeContState bit 7,1	// 0x00: contactor switched OFF, 0x01: contactor switched ON
+Var=foxBMS_AuxiliaryFuseBlown bit 23,1	// 0x00: fuse okay, 0x01: fuse blown
+Var=foxBMS_chargingFuseBlown bit 24,1	// 0x00: fuse okay, 0x01: fuse blown

@@ -43,8 +43,8 @@
  * @file    sof_trapezoid_cfg.h
  * @author  foxBMS Team
  * @date    2020-10-07 (date of creation)
- * @updated 2022-07-28 (date of last update)
- * @version v1.4.0
+ * @updated 2022-10-27 (date of last update)
+ * @version v1.4.1
  * @ingroup APPLICATION_CONFIGURATION
  * @prefix  SOF
  *
@@ -58,37 +58,21 @@
 /*========== Includes =======================================================*/
 #include "general.h"
 
+#include "battery_cell_cfg.h"
+
 /*========== Macros and Definitions =========================================*/
 
 /**
  * Maximum current in mA in charge direction that a string can sustain.
  * Normally set once for the specific battery cell from data sheet
  */
-#define SOF_STRING_CURRENT_CONTINUOUS_CHARGE_mA (120000.00f)
-
-/**
- * Different alarm levels for the maximum continuous charge current in mA.
- * @{
- */
-#define SOF_MOL_STRING_CURRENT_CONTINUOUS_CHARGE_mA (10000.00f)
-#define SOF_RSL_STRING_CURRENT_CONTINUOUS_CHARGE_mA (11500.00f)
-#define SOF_MSL_STRING_CURRENT_CONTINUOUS_CHARGE_mA (12200.00f)
-/**@}*/
+#define SOF_STRING_CURRENT_CONTINUOUS_CHARGE_mA ((float)BC_CURRENT_MAX_CHARGE_MOL_mA)
 
 /**
  * Maximum current in mA in discharge direction that a string can deliver.
  * Normally set once for the specific battery cell from data sheet.
  */
-#define SOF_STRING_CURRENT_CONTINUOUS_DISCHARGE_mA (120000.00f)
-
-/**
- * Different alarm levels for the maximum continuous string discharge current in mA.
- * @{
- */
-#define SOF_MOL_STRING_CURRENT_CONTINUOUS_DISCHARGE_mA (10000.00f)
-#define SOF_RSL_STRING_CURRENT_CONTINUOUS_DISCHARGE_mA (11500.00f)
-#define SOF_MSL_STRING_CURRENT_CONTINUOUS_DISCHARGE_mA (12200.00f)
-/**@}*/
+#define SOF_STRING_CURRENT_CONTINUOUS_DISCHARGE_mA ((float)BC_CURRENT_MAX_DISCHARGE_MOL_mA)
 
 /**
  * Current in mA that the string should be able to discharge when in
@@ -98,223 +82,80 @@
 #define SOF_STRING_CURRENT_LIMP_HOME_mA (20000.00f)
 
 /**
- * Different alarm levels for the limp home current in mA
- * @{
- */
-#define SOF_MOL_STRING_CURRENT_LIMP_HOME_mA (20000.00f)
-#define SOF_RSL_STRING_CURRENT_LIMP_HOME_mA (20000.00f)
-#define SOF_MSL_STRING_CURRENT_LIMP_HOME_mA (20000.00f)
-/**@}*/
-
-/**
  * Cold temperature in deci &deg;C where the derating of maximum discharge
  * current starts, i.e., below this temperature battery pack should not deliver
  * full discharge current.
  */
-#define SOF_TEMPERATURE_LOW_CUTOFF_DISCHARGE_ddegC (0)
-
-/**
- * Different alarm levels for the cold temperature in deci &deg;C where the
- * derating of maximum discharge current starts, i.e., below this temperature
- * battery pack should not deliver full discharge current.
- * @{
- */
-#define SOF_MOL_TEMPERATURE_LOW_CUTOFF_DISCHARGE_ddegC (0)
-#define SOF_RSL_TEMPERATURE_LOW_CUTOFF_DISCHARGE_ddegC (0)
-#define SOF_MSL_TEMPERATURE_LOW_CUTOFF_DISCHARGE_ddegC (0)
-/**@}*/
+#define SOF_TEMPERATURE_LOW_CUTOFF_DISCHARGE_ddegC (BC_TEMPERATURE_MIN_DISCHARGE_MOL_ddegC)
 
 /**
  * Cold temperature in deci &deg;C where the derating of maximum discharge
  * current is fully applied, i.e., below this temperature battery pack should
  * not deliver any current in discharge direction.
  */
-#define SOF_TEMPERATURE_LOW_LIMIT_DISCHARGE_ddegC (-100)
-
-/**
- * Different alarm levels for the cold temperature in deci &deg;C where the
- * derating of maximum discharge current is fully applied. Below this
- * temperature the battery pack should not deliver any current in discharge
- * direction.
- * @{
- */
-#define SOF_MOL_TEMPERATURE_LOW_LIMIT_DISCHARGE_ddegC (-100)
-#define SOF_RSL_TEMPERATURE_LOW_LIMIT_DISCHARGE_ddegC (-100)
-#define SOF_MSL_TEMPERATURE_LOW_LIMIT_DISCHARGE_ddegC (-100)
-/**@}*/
+#define SOF_TEMPERATURE_LOW_LIMIT_DISCHARGE_ddegC (BC_TEMPERATURE_MIN_DISCHARGE_MSL_ddegC)
 
 /**
  * Cold temperature in deci &deg;C where the derating of maximum charge current
  * starts, i.e., below this temperature battery pack should not deliver full
  * charge current.
  */
-#define SOF_TEMPERATURE_LOW_CUTOFF_CHARGE_ddegC (0)
-
-/**
- * Different alarm levels for the cold temperature in deci &deg;C where the
- * derating of maximum charge current starts, i.e., below this temperature
- * battery pack should not deliver full charge current
- * @{
- */
-#define SOF_MOL_TEMPERATURE_LOW_CUTOFF_CHARGE_ddegC (0)
-#define SOF_RSL_TEMPERATURE_LOW_CUTOFF_CHARGE_ddegC (0)
-#define SOF_MSL_TEMPERATURE_LOW_CUTOFF_CHARGE_ddegC (0)
-/**@}*/
+#define SOF_TEMPERATURE_LOW_CUTOFF_CHARGE_ddegC (BC_TEMPERATURE_MIN_CHARGE_MOL_ddegC)
 
 /**
  * Cold temperature in deci &deg;C where the derating of maximum charge current
  * is fully applied, i.e., below this temperature battery pack should not
  * deliver any current in charge direction.
  */
-#define SOF_TEMPERATURE_LOW_LIMIT_CHARGE_ddegC (-100)
-
-/**
- * Different alarm levels for the cold temperature in deci &deg;C where the
- * derating of maximum charge current is fully applied. Below this temperature
- * the battery pack should not deliver any current in charge direction.
- * @{
- */
-#define SOF_MOL_TEMPERATURE_LOW_LIMIT_CHARGE_ddegC (-100)
-#define SOF_RSL_TEMPERATURE_LOW_LIMIT_CHARGE_ddegC (-100)
-#define SOF_MSL_TEMPERATURE_LOW_LIMIT_CHARGE_ddegC (-100)
-/**@}*/
+#define SOF_TEMPERATURE_LOW_LIMIT_CHARGE_ddegC (BC_TEMPERATURE_MIN_CHARGE_MSL_ddegC)
 
 /**
  * Hot temperature in deci &deg;C where the derating of maximum discharge
  * current starts, i.e., above this temperature battery pack should not deliver
  * full discharge current.
  */
-#define SOF_TEMPERATURE_HIGH_CUTOFF_DISCHARGE_ddegC (450)
-
-/**
- * Different alarm levels for the high temperature in deci &deg;C where the
- * derating of maximum discharge current starts, i.e., above this temperature
- * battery pack should not deliver full discharge current
- * @{
- */
-#define SOF_MOL_TEMPERATURE_HIGH_CUTOFF_DISCHARGE_ddegC (450)
-#define SOF_RSL_TEMPERATURE_HIGH_CUTOFF_DISCHARGE_ddegC (450)
-#define SOF_MSL_TEMPERATURE_HIGH_CUTOFF_DISCHARGE_ddegC (450)
-/**@}*/
+#define SOF_TEMPERATURE_HIGH_CUTOFF_DISCHARGE_ddegC (BC_TEMPERATURE_MAX_DISCHARGE_MOL_ddegC)
 
 /**
  * Hot temperature in deci &deg;C where the derating of maximum discharge
  * current is fully applied, i.e., above this temperature battery pack should
  * not deliver any current in discharge direction.
  */
-#define SOF_TEMPERATURE_HIGH_LIMIT_DISCHARGE_ddegC (550)
-
-/**
- * Different alarm levels for the high temperature in deci &deg;C where the
- * derating of maximum discharge current is fully applied. Above this
- * temperature the battery pack should not deliver any current in discharge
- * direction.
- * @{
- */
-#define SOF_MOL_TEMPERATURE_HIGH_LIMIT_DISCHARGE_ddegC (550)
-#define SOF_RSL_TEMPERATURE_HIGH_LIMIT_DISCHARGE_ddegC (550)
-#define SOF_MSL_TEMPERATURE_HIGH_LIMIT_DISCHARGE_ddegC (550)
-/**@}*/
+#define SOF_TEMPERATURE_HIGH_LIMIT_DISCHARGE_ddegC (BC_TEMPERATURE_MAX_DISCHARGE_MSL_ddegC)
 
 /**
  * Hot temperature in deci &deg;C where the derating of maximum charge current
  * starts, i.e., above this temperature battery pack should not deliver full
  * charge current.
  */
-#define SOF_TEMPERATURE_HIGH_CUTOFF_CHARGE_ddegC (450)
-
-/**
- * Different alarm levels for the high temperature in deci &deg;C where the
- * derating of maximum charge current starts, i.e., above this temperature
- * battery pack should not deliver full charge current
- * @{
- */
-#define SOF_MOL_TEMPERATURE_HIGH_CUTOFF_CHARGE_ddegC (450)
-#define SOF_RSL_TEMPERATURE_HIGH_CUTOFF_CHARGE_ddegC (450)
-#define SOF_MSL_TEMPERATURE_HIGH_CUTOFF_CHARGE_ddegC (450)
-/**@}*/
+#define SOF_TEMPERATURE_HIGH_CUTOFF_CHARGE_ddegC (BC_TEMPERATURE_MAX_CHARGE_MOL_ddegC)
 
 /**
  * Hot temperature in deci &deg;C  where the derating of maximum charge current
  * is fully applied, i.e., above this temperature battery pack should not
  * deliver any current in charge direction.
  */
-#define SOF_TEMPERATURE_HIGH_LIMIT_CHARGE_ddegC (550)
-
-/**
- * Different alarm levels for the high temperature in deci &deg;C  where the
- * derating of maximum charge current is fully applied. Above this temperature
- * the battery pack should not deliver any current in charge direction.
- * @{
- */
-#define SOF_MOL_TEMPERATURE_HIGH_LIMIT_CHARGE_ddegC (550)
-#define SOF_RSL_TEMPERATURE_HIGH_LIMIT_CHARGE_ddegC (550)
-#define SOF_MSL_TEMPERATURE_HIGH_LIMIT_CHARGE_ddegC (550)
-/**@}*/
+#define SOF_TEMPERATURE_HIGH_LIMIT_CHARGE_ddegC (BC_TEMPERATURE_MAX_CHARGE_MSL_ddegC)
 
 /**
  * Above this voltage value battery pack should not be exposed to full current in charge direction.
  */
-#define SOF_VOLTAGE_CUTOFF_CHARGE_mV (2400)
-
-/**
- * Different alarm levels for the upper voltage limit where the derating of
- * maximum charge current starts. Above this value the battery pack
- * should not deliver full current in charge direction.
- * @{
- */
-#define SOF_MOL_VOLTAGE_CUTOFF_CHARGE_mV (2400)
-#define SOF_RSL_VOLTAGE_CUTOFF_CHARGE_mV (2400)
-#define SOF_MSL_VOLTAGE_CUTOFF_CHARGE_mV (2400)
-/**@}*/
+#define SOF_VOLTAGE_CUTOFF_CHARGE_mV (BC_VOLTAGE_MAX_MOL_mV)
 
 /**
  * Above this voltage value battery pack should not be exposed to any current in charge direction.
  */
-#define SOF_VOLTAGE_LIMIT_CHARGE_mV (2550)
-
-/**
- * Different alarm levels for the upper voltage limit where the derating of
- * maximum charge current is fully applied. Above this value the battery pack
- * should not deliver any current in charge direction.
- * @{
- */
-#define SOF_MOL_VOLTAGE_LIMIT_CHARGE_mV (2550)
-#define SOF_RSL_VOLTAGE_LIMIT_CHARGE_mV (2550)
-#define SOF_MSL_VOLTAGE_LIMIT_CHARGE_mV (2550)
-/**@}*/
+#define SOF_VOLTAGE_LIMIT_CHARGE_mV (BC_VOLTAGE_MAX_RSL_mV)
 
 /**
  * Below this voltage value battery pack should not deliver full current in discharge direction.
  */
-#define SOF_VOLTAGE_CUTOFF_DISCHARGE_mV (2000)
-
-/**
- * Different alarm levels for the lower voltage limit where the derating of
- * maximum discharge current starts. Below this value the battery pack
- * should not deliver full current in discharge direction.
- * @{
- */
-#define SOF_MOL_VOLTAGE_CUTOFF_DISCHARGE_mV (2000)
-#define SOF_RSL_VOLTAGE_CUTOFF_DISCHARGE_mV (2000)
-#define SOF_MSL_VOLTAGE_CUTOFF_DISCHARGE_mV (2000)
-/**@}*/
+#define SOF_VOLTAGE_CUTOFF_DISCHARGE_mV (BC_VOLTAGE_MIN_MOL_mV)
 
 /**
  * Below this voltage value battery pack should not deliver any current in discharge direction.
  */
-#define SOF_VOLTAGE_LIMIT_DISCHARGE_mV (1750)
-
-/**
- * Different alarm levels for the lower voltage limit where the derating of
- * maximum discharge is fully applied. Below this value the battery pack
- * should not deliver any current in discharge direction.
- * @{
- */
-#define SOF_MOL_VOLTAGE_LIMIT_DISCHARGE_mV (1750)
-#define SOF_RSL_VOLTAGE_LIMIT_DISCHARGE_mV (1750)
-#define SOF_MSL_VOLTAGE_LIMIT_DISCHARGE_mV (1750)
-/**@}*/
+#define SOF_VOLTAGE_LIMIT_DISCHARGE_mV (BC_VOLTAGE_MIN_RSL_mV)
 
 /**
  * structure for configuration of SoF Calculation
@@ -354,16 +195,6 @@ typedef struct {
  * Configuration values for the SOF window of the recommended battery current
  */
 extern const SOF_CONFIG_s sof_recommendedCurrent;
-
-/**
- * Configuration values for the SOF window of the different alarm levels (MOL,
- * RSL and MSL)
- * @{
- */
-extern const SOF_CONFIG_s sof_maximumOperatingLimit;
-extern const SOF_CONFIG_s sof_recommendedSafetyLimit;
-extern const SOF_CONFIG_s sof_configMaximumSafetyLimit;
-/**@}*/
 
 /*========== Extern Function Prototypes =====================================*/
 

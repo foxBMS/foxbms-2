@@ -43,8 +43,8 @@
  * @file    can.h
  * @author  foxBMS Team
  * @date    2019-12-04 (date of creation)
- * @updated 2022-07-28 (date of last update)
- * @version v1.4.0
+ * @updated 2022-10-27 (date of last update)
+ * @version v1.4.1
  * @ingroup DRIVERS
  * @prefix  CAN
  *
@@ -89,7 +89,7 @@ typedef struct {
 
 /**
  * @brief   Sends over CAN the data passed in parameters.
- * This function goes over the messageboxes and marks the ones that should
+ * This function goes over the message boxes and marks the ones that should
  * be sent.
  * @param[in,out]   pNode   CAN interface to use
  * @param[in]       id      ID of message to send
@@ -147,18 +147,6 @@ extern bool CAN_IsCurrentSensorCcPresent(uint8_t stringNumber);
  * @return  true if EC message is being received, false otherwise
  */
 extern bool CAN_IsCurrentSensorEcPresent(uint8_t stringNumber);
-
-/**
- * @brief   Transmit startup boot message
- * @return  #STD_OK if transmission successful, otherwise #STD_NOT_OK
- */
-extern STD_RETURN_TYPE_e CAN_TransmitBootMessage(void);
-
-/**
- * @brief   Transmit chip id
- * @return  #STD_OK if transmission successful, otherwise #STD_NOT_OK
- */
-extern STD_RETURN_TYPE_e CAN_TransmitDieId(void);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 #ifdef UNITY_UNIT_TEST

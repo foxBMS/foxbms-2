@@ -58,7 +58,7 @@ try:
 except ImportError:
     pass
 
-FILE_RE = r"\(in:(.*):(.*)\)"
+FILE_RE = r"\(in:([a-z_-]{1,}\.c):([A-Z]{2,5}_.*), fv:((tx)|(rx))\)"
 FILE_RE_COMPILED = re.compile(FILE_RE)
 
 
@@ -99,7 +99,7 @@ def evaluate_implementation(callback_file: Path, function_name: str) -> bool:
 
 
 def main():
-    """This script produces a symbole file for cell voltages and temperatures"""
+    """This script checks whether a expected callback is implemented."""
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "-v",

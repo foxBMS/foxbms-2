@@ -43,8 +43,8 @@
  * @file    sof_trapezoid_cfg.c
  * @author  foxBMS Team
  * @date    2020-10-07 (date of creation)
- * @updated 2022-07-28 (date of last update)
- * @version v1.4.0
+ * @updated 2022-10-27 (date of last update)
+ * @version v1.4.1
  * @ingroup APPLICATION
  * @prefix  SOF
  *
@@ -77,57 +77,6 @@ const SOF_CONFIG_s sof_recommendedCurrent = {
     .cutoffUpperCellVoltage_mV            = SOF_VOLTAGE_CUTOFF_CHARGE_mV,
     .limitLowerCellVoltage_mV             = SOF_VOLTAGE_LIMIT_DISCHARGE_mV,
     .cutoffLowerCellVoltage_mV            = SOF_VOLTAGE_CUTOFF_DISCHARGE_mV};
-
-const SOF_CONFIG_s sof_maximumOperatingLimit = {
-    .maximumChargeCurrent_mA              = SOF_MOL_STRING_CURRENT_CONTINUOUS_CHARGE_mA,
-    .maximumDischargeCurrent_mA           = SOF_MOL_STRING_CURRENT_CONTINUOUS_DISCHARGE_mA,
-    .limpHomeCurrent_mA                   = SOF_MOL_STRING_CURRENT_LIMP_HOME_mA,
-    .cutoffLowTemperatureDischarge_ddegC  = SOF_MOL_TEMPERATURE_LOW_CUTOFF_DISCHARGE_ddegC,
-    .limitLowTemperatureDischarge_ddegC   = SOF_MOL_TEMPERATURE_LOW_LIMIT_DISCHARGE_ddegC,
-    .cutoffLowTemperatureCharge_ddegC     = SOF_MOL_TEMPERATURE_LOW_CUTOFF_CHARGE_ddegC,
-    .limitLowTemperatureCharge_ddegC      = SOF_MOL_TEMPERATURE_LOW_LIMIT_CHARGE_ddegC,
-    .cutoffHighTemperatureDischarge_ddegC = SOF_MOL_TEMPERATURE_HIGH_CUTOFF_DISCHARGE_ddegC,
-    .limitHighTemperatureDischarge_ddegC  = SOF_MOL_TEMPERATURE_HIGH_LIMIT_DISCHARGE_ddegC,
-    .cutoffHighTemperatureCharge_ddegC    = SOF_MOL_TEMPERATURE_HIGH_CUTOFF_CHARGE_ddegC,
-    .limitHighTemperatureCharge_ddegC     = SOF_MOL_TEMPERATURE_HIGH_LIMIT_CHARGE_ddegC,
-    .limitUpperCellVoltage_mV             = SOF_MOL_VOLTAGE_LIMIT_CHARGE_mV,
-    .cutoffUpperCellVoltage_mV            = SOF_MOL_VOLTAGE_CUTOFF_CHARGE_mV,
-    .limitLowerCellVoltage_mV             = SOF_MOL_VOLTAGE_LIMIT_DISCHARGE_mV,
-    .cutoffLowerCellVoltage_mV            = SOF_MOL_VOLTAGE_CUTOFF_DISCHARGE_mV};
-
-const SOF_CONFIG_s sof_recommendedSafetyLimit = {
-    .maximumChargeCurrent_mA              = SOF_RSL_STRING_CURRENT_CONTINUOUS_CHARGE_mA,
-    .maximumDischargeCurrent_mA           = SOF_RSL_STRING_CURRENT_CONTINUOUS_DISCHARGE_mA,
-    .limpHomeCurrent_mA                   = SOF_RSL_STRING_CURRENT_LIMP_HOME_mA,
-    .cutoffLowTemperatureDischarge_ddegC  = SOF_RSL_TEMPERATURE_LOW_CUTOFF_DISCHARGE_ddegC,
-    .limitLowTemperatureDischarge_ddegC   = SOF_RSL_TEMPERATURE_LOW_LIMIT_DISCHARGE_ddegC,
-    .cutoffLowTemperatureCharge_ddegC     = SOF_RSL_TEMPERATURE_LOW_CUTOFF_CHARGE_ddegC,
-    .limitLowTemperatureCharge_ddegC      = SOF_RSL_TEMPERATURE_LOW_LIMIT_CHARGE_ddegC,
-    .cutoffHighTemperatureDischarge_ddegC = SOF_RSL_TEMPERATURE_HIGH_CUTOFF_DISCHARGE_ddegC,
-    .limitHighTemperatureDischarge_ddegC  = SOF_RSL_TEMPERATURE_HIGH_LIMIT_DISCHARGE_ddegC,
-    .cutoffHighTemperatureCharge_ddegC    = SOF_RSL_TEMPERATURE_HIGH_CUTOFF_CHARGE_ddegC,
-    .limitHighTemperatureCharge_ddegC     = SOF_RSL_TEMPERATURE_HIGH_LIMIT_CHARGE_ddegC,
-    .limitUpperCellVoltage_mV             = SOF_RSL_VOLTAGE_LIMIT_CHARGE_mV,
-    .cutoffUpperCellVoltage_mV            = SOF_RSL_VOLTAGE_CUTOFF_CHARGE_mV,
-    .limitLowerCellVoltage_mV             = SOF_RSL_VOLTAGE_LIMIT_DISCHARGE_mV,
-    .cutoffLowerCellVoltage_mV            = SOF_RSL_VOLTAGE_CUTOFF_DISCHARGE_mV};
-
-const SOF_CONFIG_s sof_configMaximumSafetyLimit = {
-    .maximumChargeCurrent_mA              = SOF_MSL_STRING_CURRENT_CONTINUOUS_CHARGE_mA,
-    .maximumDischargeCurrent_mA           = SOF_MSL_STRING_CURRENT_CONTINUOUS_DISCHARGE_mA,
-    .limpHomeCurrent_mA                   = SOF_MSL_STRING_CURRENT_LIMP_HOME_mA,
-    .cutoffLowTemperatureDischarge_ddegC  = SOF_MSL_TEMPERATURE_LOW_CUTOFF_DISCHARGE_ddegC,
-    .limitLowTemperatureDischarge_ddegC   = SOF_MSL_TEMPERATURE_LOW_LIMIT_DISCHARGE_ddegC,
-    .cutoffLowTemperatureCharge_ddegC     = SOF_MSL_TEMPERATURE_LOW_CUTOFF_CHARGE_ddegC,
-    .limitLowTemperatureCharge_ddegC      = SOF_MSL_TEMPERATURE_LOW_LIMIT_CHARGE_ddegC,
-    .cutoffHighTemperatureDischarge_ddegC = SOF_MSL_TEMPERATURE_HIGH_CUTOFF_DISCHARGE_ddegC,
-    .limitHighTemperatureDischarge_ddegC  = SOF_MSL_TEMPERATURE_HIGH_LIMIT_DISCHARGE_ddegC,
-    .cutoffHighTemperatureCharge_ddegC    = SOF_MSL_TEMPERATURE_HIGH_CUTOFF_CHARGE_ddegC,
-    .limitHighTemperatureCharge_ddegC     = SOF_MSL_TEMPERATURE_HIGH_LIMIT_CHARGE_ddegC,
-    .limitUpperCellVoltage_mV             = SOF_MSL_VOLTAGE_LIMIT_CHARGE_mV,
-    .cutoffUpperCellVoltage_mV            = SOF_MSL_VOLTAGE_CUTOFF_CHARGE_mV,
-    .limitLowerCellVoltage_mV             = SOF_MSL_VOLTAGE_LIMIT_DISCHARGE_mV,
-    .cutoffLowerCellVoltage_mV            = SOF_MSL_VOLTAGE_CUTOFF_DISCHARGE_mV};
 
 /*========== Static Function Prototypes =====================================*/
 
