@@ -1,0 +1,30 @@
+Setting;                                                                    Details (define name)
+Defines whether discharge current is seen as positive or negative;          ``BS_POSITIVE_DISCHARGE_CURRENT``
+Number of parallel strings in the battery pack;                             ``BS_NR_OF_STRINGS``
+Number of modules in a string;                                              ``BS_NR_OF_MODULES_PER_STRING``
+Number of cells per module;                                                 ``BS_NR_OF_CELL_BLOCKS_PER_MODULE``
+Number of battery cells in a parallel cell connection per battery module;   ``BS_NR_OF_PARALLEL_CELLS_PER_MODULE``
+Value of the balancing resistors on the slave-board;                        ``BS_BALANCING_RESISTANCE_ohm``
+Number of used GPIOs on the slave-board;                                    ``BS_NR_OF_GPIOS_PER_MODULE``
+Number of temperature sensors per battery module;                           ``BS_NR_OF_TEMP_SENSORS_PER_MODULE``
+Defines whether CAN based current sensor is present or not;                 ``BS_CURRENT_SENSOR_PRESENT``
+Maximum break current of main contactors;                                   ``BS_MAIN_CONTACTORS_MAXIMUM_BREAK_CURRENT_mA``
+Maximum fuse trigger duration;                                              ``BS_MAIN_FUSE_MAXIMUM_TRIGGER_DURATION_ms``
+Maximum string current limit in mA that is used in the SOA module;          ``BS_MAXIMUM_STRING_CURRENT_mA``
+Define if interlock feedback should be discarded or not;                    ``BS_IGNORE_INTERLOCK_FEEDBACK``
+Defines whether CAN timing shall be evaluated or not;                       ``BS_CHECK_CAN_TIMING``
+Defines whether balancing shall be available or not;                        ``BS_BALANCING_DEFAULT_INACTIVE``
+Number of contactors in addition to string contactors (e.g., precharge);    ``BS_NR_OF_CONTACTORS_OUTSIDE_STRINGS``
+Current threshold for determining rest state of battery;                    ``BS_REST_CURRENT_mA``
+Wait time in 10ms before battery system is at rest;                         ``BS_RELAXATION_PERIOD_10ms``
+Current sensor threshold for 0 current in mA as the sensor has a;           ``BS_CS_THRESHOLD_NO_CURRENT_mA``
+Maximum voltage drop over fuse;                                             ``BS_MAX_VOLTAGE_DROP_OVER_FUSE_mV``
+|tbc|;                                                                      ``BS_CHECK_FUSE_PLACED_IN_NORMAL_PATH``
+|tbc|;                                                                      ``BS_CHECK_FUSE_PLACED_IN_CHARGE_PATH``
+Enable open-wire checks during standby;                                     ``BS_STANDBY_PERIODIC_OPEN_WIRE_CHECK``
+Periodic open-wire check time in STANDBY state in ms;                       ``BS_STANDBY_OPEN_WIRE_PERIOD_ms``
+Open-wire check in normal mode (set to true or false);                      ``BS_NORMAL_PERIODIC_OPEN_WIRE_CHECK``
+Periodic open-wire check time in NORMAL state in ms;                        ``BS_NORMAL_OPEN_WIRE_PERIOD_ms``
+Open-wire check in charge mode (set to true or false);                      ``BS_CHARGE_PERIODIC_OPEN_WIRE_CHECK``
+Periodic open-wire check time in CHARGE state in ms;                        ``BS_CHARGE_OPEN_WIRE_PERIOD_ms``
+Periodic open-wire check time in ERROR state in ms;                         ``BS_ERROR_OPEN_WIRE_PERIOD_ms``

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    bms.c
  * @author  foxBMS Team
  * @date    2020-02-24 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup ENGINE
  * @prefix  BMS
  *
@@ -66,6 +66,9 @@
 #include "meas.h"
 #include "os.h"
 #include "soa.h"
+
+#include <stdbool.h>
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 /** default value for unset "active delay time" */
@@ -355,8 +358,8 @@ static void BMS_GetMeasurementValues(void) {
 }
 
 static uint8_t BMS_CheckCanRequests(void) {
-    uint8_t retVal                    = BMS_REQ_ID_NOREQ;
-    DATA_BLOCK_STATEREQUEST_s request = {.header.uniqueId = DATA_BLOCK_ID_STATEREQUEST};
+    uint8_t retVal                     = BMS_REQ_ID_NOREQ;
+    DATA_BLOCK_STATE_REQUEST_s request = {.header.uniqueId = DATA_BLOCK_ID_STATE_REQUEST};
 
     DATA_READ_DATA(&request);
 
@@ -384,7 +387,7 @@ static void BMS_CheckOpenSenseWire(void) {
             /* Iterate over all voltage sense wires: cells per module + 1 */
             for (uint8_t wire = 0u; wire < (BS_NR_OF_CELL_BLOCKS_PER_MODULE + 1); wire++) {
                 /* open wire detected */
-                if (bms_tableOpenWire.openwire[s][(wire + (m * (BS_NR_OF_CELL_BLOCKS_PER_MODULE + 1))) == 1] > 0u) {
+                if (bms_tableOpenWire.openWire[s][(wire + (m * (BS_NR_OF_CELL_BLOCKS_PER_MODULE + 1))) == 1] > 0u) {
                     openWireDetected++;
 
                     /* Add additional error handling here */
@@ -415,14 +418,28 @@ static STD_RETURN_TYPE_e BMS_CheckPrecharge(uint8_t stringNumber, const DATA_BLO
         const int64_t cont_prechargeVoltDiff_mV = MATH_AbsInt64_t(
             (int64_t)pPackValues->stringVoltage_mV[stringNumber] - (int64_t)pPackValues->highVoltageBusVoltage_mV);
 
+        /* Check if precharging has been successful */
         if ((cont_prechargeVoltDiff_mV < BMS_PRECHARGE_VOLTAGE_THRESHOLD_mV) &&
             (current_mA < BMS_PRECHARGE_CURRENT_THRESHOLD_mA)) {
             retVal = STD_OK;
+            (void)DIAG_Handler(DIAG_ID_PRECHARGE_ABORT_REASON_VOLTAGE, DIAG_EVENT_OK, DIAG_STRING, stringNumber);
+            (void)DIAG_Handler(DIAG_ID_PRECHARGE_ABORT_REASON_CURRENT, DIAG_EVENT_OK, DIAG_STRING, stringNumber);
         } else {
+            if (cont_prechargeVoltDiff_mV >= BMS_PRECHARGE_VOLTAGE_THRESHOLD_mV) {
+                /* Voltage difference too large */
+                (void)DIAG_Handler(
+                    DIAG_ID_PRECHARGE_ABORT_REASON_VOLTAGE, DIAG_EVENT_NOT_OK, DIAG_STRING, stringNumber);
+                (void)DIAG_Handler(DIAG_ID_PRECHARGE_ABORT_REASON_CURRENT, DIAG_EVENT_OK, DIAG_STRING, stringNumber);
+            }
+            if (current_mA >= BMS_PRECHARGE_CURRENT_THRESHOLD_mA) {
+                /* Current flow too high */
+                (void)DIAG_Handler(
+                    DIAG_ID_PRECHARGE_ABORT_REASON_CURRENT, DIAG_EVENT_NOT_OK, DIAG_STRING, stringNumber);
+                (void)DIAG_Handler(DIAG_ID_PRECHARGE_ABORT_REASON_VOLTAGE, DIAG_EVENT_OK, DIAG_STRING, stringNumber);
+            }
             retVal = STD_NOT_OK;
         }
     }
-
     return retVal;
 }
 
@@ -493,22 +510,22 @@ static bool BMS_IsContactorFeedbackValid(uint8_t stringNumber, CONT_TYPE_e conta
     FAS_ASSERT(contactorType != CONT_UNDEFINED);
     bool feedbackValid = false;
     /* Read latest error flags from database */
-    DATA_BLOCK_ERRORSTATE_s tableErrorFlags = {.header.uniqueId = DATA_BLOCK_ID_ERRORSTATE};
+    DATA_BLOCK_ERROR_STATE_s tableErrorFlags = {.header.uniqueId = DATA_BLOCK_ID_ERROR_STATE};
     DATA_READ_DATA(&tableErrorFlags);
     /* Check if contactor feedback is valid */
     switch (contactorType) {
         case CONT_PLUS:
-            if (tableErrorFlags.stringPlusContactor[stringNumber] == 0u) {
+            if (tableErrorFlags.contactorInPositivePathOfStringFeedbackError[stringNumber] == false) {
                 feedbackValid = true;
             }
             break;
         case CONT_MINUS:
-            if (tableErrorFlags.stringMinusContactor[stringNumber] == 0u) {
+            if (tableErrorFlags.contactorInNegativePathOfStringFeedbackError[stringNumber] == false) {
                 feedbackValid = true;
             }
             break;
         case CONT_PRECHARGE:
-            if (tableErrorFlags.prechargeContactor[stringNumber] == 0u) {
+            if (tableErrorFlags.prechargeContactorFeedbackError[stringNumber] == false) {
                 feedbackValid = true;
             }
             break;
@@ -648,7 +665,7 @@ static void BMS_UpdateBatsysState(DATA_BLOCK_PACK_VALUES_s *pPackValues) {
 
     /* Only update system state if current value is valid */
     if (pPackValues->invalidPackCurrent == 0u) {
-        if (POSITIVE_DISCHARGE_CURRENT == true) {
+        if (BS_POSITIVE_DISCHARGE_CURRENT == true) {
             /* Positive current values equal a discharge of the battery system */
             if (pPackValues->packCurrent_mA >= BS_REST_CURRENT_mA) { /* TODO: string use pack current */
                 bms_state.currentFlowState = BMS_DISCHARGING;
@@ -807,7 +824,7 @@ BMS_RETURN_TYPE_e BMS_SetStateRequest(BMS_STATE_REQUEST_e statereq) {
 
 void BMS_Trigger(void) {
     BMS_STATE_REQUEST_e statereq                = BMS_STATE_NO_REQUEST;
-    DATA_BLOCK_SYSTEMSTATE_s systemstate        = {.header.uniqueId = DATA_BLOCK_ID_SYSTEMSTATE};
+    DATA_BLOCK_SYSTEM_STATE_s systemstate       = {.header.uniqueId = DATA_BLOCK_ID_SYSTEM_STATE};
     uint32_t timestamp                          = OS_GetTickCount();
     static uint32_t nextOpenWireCheck           = 0;
     STD_RETURN_TYPE_e retVal                    = STD_NOT_OK;
@@ -1574,7 +1591,7 @@ extern BMS_CURRENT_FLOW_STATE_e BMS_GetCurrentFlowDirection(int32_t current_mA) 
     /* AXIVION Routine Generic-MissingParameterAssert: current_mA: parameter accepts whole range */
     BMS_CURRENT_FLOW_STATE_e retVal = BMS_DISCHARGING;
 
-    if (POSITIVE_DISCHARGE_CURRENT == true) {
+    if (BS_POSITIVE_DISCHARGE_CURRENT == true) {
         if (current_mA >= BS_REST_CURRENT_mA) {
             retVal = BMS_DISCHARGING;
         } else if (current_mA <= -BS_REST_CURRENT_mA) {

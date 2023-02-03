@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -184,7 +184,7 @@ def main():
             )
             continue
         # now we are sure, that the file that should contain the implementation
-        # exists, and we can evalute it.
+        # exists, and we can evaluate it.
         if not evaluate_implementation(search_file, m[2]):
             errors += 1
     return errors

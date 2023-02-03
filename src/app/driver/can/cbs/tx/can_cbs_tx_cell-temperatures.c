@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    can_cbs_tx_cell-temperatures.c
  * @author  foxBMS Team
  * @date    2021-04-20 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup DRIVER
  * @prefix  CANTX
  *
@@ -57,6 +57,9 @@
 #include "can_cfg_tx-message-definitions.h"
 #include "can_helper.h"
 #include "foxmath.h"
+
+#include <math.h>
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 
@@ -150,8 +153,8 @@ static void CANTX_TemperatureSetData(
             endianness);
 
         /* Temperature data */
-        float signalData_degC =
-            (float)kpkCanShim->pTableCellTemperature
+        float_t signalData_degC =
+            (float_t)kpkCanShim->pTableCellTemperature
                 ->cellTemperature_ddegC[stringNumber][(moduleNumber * BS_NR_OF_TEMP_SENSORS_PER_MODULE) + sensorNumber];
         signalData_degC /= UNIT_CONVERSION_FACTOR_10_FLOAT; /* Convert temperature from decidegC to degC */
         /* Apply offset and factor, check min/max limits */
@@ -173,6 +176,7 @@ extern uint32_t CANTX_CellTemperatures(
     uint8_t *pMuxId,
     const CAN_SHIM_s *const kpkCanShim) {
     FAS_ASSERT(message.id == CANTX_CELL_TEMPERATURES_ID);
+    FAS_ASSERT(message.idType == CANTX_CELL_TEMPERATURES_ID_TYPE);
     FAS_ASSERT(message.dlc == CAN_FOXBMS_MESSAGES_DEFAULT_DLC);
     FAS_ASSERT(pCanData != NULL_PTR);
     FAS_ASSERT(pMuxId != NULL_PTR);
@@ -263,5 +267,4 @@ extern uint32_t CANTX_CellTemperatures(
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
 #ifdef UNITY_UNIT_TEST
-
 #endif

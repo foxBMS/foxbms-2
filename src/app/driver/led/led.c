@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    led.c
  * @author  foxBMS Team
  * @date    2021-09-28 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup DRIVERS
  * @prefix  LED
  *
@@ -59,7 +59,10 @@
 
 #include "HL_reg_het.h"
 
+#include "fassert.h"
 #include "io.h"
+
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 /** Periodic call time of function #LED_Trigger */
@@ -72,7 +75,7 @@
 
 /*========== Static Constant and Variable Definitions =======================*/
 /** duration of a half a LED blink cycle in ms */
-uint32_t led_onOffTime_ms = 0u;
+static uint32_t led_onOffTime_ms = 0u;
 
 /*========== Extern Constant and Variable Definitions =======================*/
 
@@ -87,8 +90,9 @@ extern void LED_SetDebugLed(void) {
 
 extern void LED_Trigger(void) {
     OS_EnterTaskCritical();
-    uint32_t local_led_onOffTime_ms = led_onOffTime_ms;
+    uint32_t led_tmpOnOffTime_ms = led_onOffTime_ms;
     OS_ExitTaskCritical();
+    FAS_ASSERT(led_tmpOnOffTime_ms != 0u);
 
     static uint32_t counter = 0u;
     if (counter == UINT32_MAX) {
@@ -96,8 +100,8 @@ extern void LED_Trigger(void) {
         counter = 0u;
     }
     counter++;
-    FAS_ASSERT(local_led_onOffTime_ms != 0u);
-    if (0u == (((uint64_t)counter * LED_PERIODIC_CALL_TIME_ms) % local_led_onOffTime_ms)) {
+
+    if (0u == (((uint64_t)counter * LED_PERIODIC_CALL_TIME_ms) % led_tmpOnOffTime_ms)) {
         if (STD_PIN_HIGH == IO_PinGet(&LED_PORT->DIN, LED_PIN)) {
             IO_PinReset(&LED_PORT->DOUT, LED_PIN);
         } else {
@@ -114,3 +118,11 @@ extern void LED_SetToggleTime(uint32_t onOffTime_ms) {
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
+#ifdef UNITY_UNIT_TEST
+extern uint32_t TEST_LED_GetOnOffTime(void) {
+    return led_onOffTime_ms;
+}
+extern void TEST_LED_SetOnOffTime(uint32_t val) {
+    led_onOffTime_ms = val;
+}
+#endif

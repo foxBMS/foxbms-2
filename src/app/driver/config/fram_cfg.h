@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    fram_cfg.h
  * @author  foxBMS Team
  * @date    2020-03-05 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup DRIVERS
  * @prefix  FRAM
  *
@@ -57,9 +57,13 @@
 #define FOXBMS__FRAM_CFG_H_
 
 /*========== Includes =======================================================*/
-#include "general.h"
 
 #include "battery_system_cfg.h"
+
+#include "fstd_types.h"
+
+#include <math.h>
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 
@@ -117,7 +121,9 @@ typedef enum {
 typedef struct {
     FRAM_PROJECT_ID project; /*!< an identifier for the project, it is not
                                     intended to migrate between different projects */
-    uint16_t version;        /*!< version counter, i.e. for updating to a new version in the same project */
+    uint8_t major;           /*!< major release version */
+    uint8_t minor;           /*!< minor release version */
+    uint8_t patch;           /*!< patch release version */
 } FRAM_VERSION_s;
 
 /** struct for the FRAM entry of the SBC driver */
@@ -128,24 +134,24 @@ typedef struct {
 
 /**
  * state of charge (SOC). Since SOC is voltage dependent, three different
- * values are used, min, max and average. SOC defined as a float number between
+ * values are used, min, max and average. SOC defined as a float_t number between
  * 0.0f and 100.0f (0% and 100%)
  */
 typedef struct {
-    float minimumSoc_perc[BS_NR_OF_STRINGS]; /*!< minimum SOC */
-    float maximumSoc_perc[BS_NR_OF_STRINGS]; /*!< maximum SOC */
-    float averageSoc_perc[BS_NR_OF_STRINGS]; /*!< average SOC */
+    float_t minimumSoc_perc[BS_NR_OF_STRINGS]; /*!< minimum SOC */
+    float_t maximumSoc_perc[BS_NR_OF_STRINGS]; /*!< maximum SOC */
+    float_t averageSoc_perc[BS_NR_OF_STRINGS]; /*!< average SOC */
 } FRAM_SOC_s;
 
 /**
  * state of energy (SOE). Since SOE is voltage dependent, three different
- * values are used, min, max and average. SOE defined as a float number between
+ * values are used, min, max and average. SOE defined as a float_t number between
  * 0.0f and 100.0f (0% and 100%)
  */
 typedef struct {
-    float minimumSoe_perc[BS_NR_OF_STRINGS]; /*!< minimum SOE */
-    float maximumSoe_perc[BS_NR_OF_STRINGS]; /*!< maximum SOE */
-    float averageSoe_perc[BS_NR_OF_STRINGS]; /*!< average SOE */
+    float_t minimumSoe_perc[BS_NR_OF_STRINGS]; /*!< minimum SOE */
+    float_t maximumSoe_perc[BS_NR_OF_STRINGS]; /*!< maximum SOE */
+    float_t averageSoe_perc[BS_NR_OF_STRINGS]; /*!< average SOE */
 } FRAM_SOE_s;
 
 /** flag to indicate if a deep-discharge in a string has been detected */
@@ -206,5 +212,7 @@ extern FRAM_INSULATION_FLAG_s fram_insulationFlags;
 /*========== Extern Function Prototypes =====================================*/
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
+#ifdef UNITY_UNIT_TEST
+#endif
 
 #endif /* FOXBMS__FRAM_CFG_H_ */

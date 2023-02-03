@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    spi_cfg-helper.h
  * @author  foxBMS Team
  * @date    2021-12-08 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  SPI
  *
@@ -179,5 +179,7 @@
 /*========== Extern Function Prototypes =====================================*/
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
+#ifdef UNITY_UNIT_TEST
+#endif
 
 #endif /* FOXBMS__SPI_CFG_HELPER_H_ */

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    can_cbs_rx_state-request.c
  * @author  foxBMS Team
  * @date    2021-07-28 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup DRIVER
  * @prefix  CANRX
  *
@@ -63,11 +63,13 @@
 #include "os.h"
 #include "sys_mon.h"
 
+#include <stdint.h>
+
 /*========== Macros and Definitions =========================================*/
 /**
  * @brief   CAN state request update time
  * @details When a new CAN state request is received, it leads to an update
- *          of #DATA_BLOCK_STATEREQUEST_s::stateRequestViaCan if one of the
+ *          of #DATA_BLOCK_STATE_REQUEST_s::stateRequestViaCan if one of the
  *          following conditions is met:
  *
  *             - The new request is different than the old request.
@@ -188,6 +190,7 @@ extern uint32_t CANRX_BmsStateRequest(
     const uint8_t *const kpkCanData,
     const CAN_SHIM_s *const kpkCanShim) {
     FAS_ASSERT(message.id == CANRX_BMS_STATE_REQUEST_ID);
+    FAS_ASSERT(message.idType == CANRX_BMS_STATE_REQUEST_ID_TYPE);
     FAS_ASSERT(message.dlc == CAN_FOXBMS_MESSAGES_DEFAULT_DLC);
     FAS_ASSERT(kpkCanData != NULL_PTR);
     FAS_ASSERT(kpkCanShim != NULL_PTR);
@@ -227,5 +230,4 @@ extern uint32_t CANRX_BmsStateRequest(
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
 #ifdef UNITY_UNIT_TEST
-
 #endif

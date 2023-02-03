@@ -8,11 +8,6 @@ Interface MAX17841B ``v1.0.0``
 
 .. |local_interface_version|  replace:: ``1.0.0``
 
-.. note::
-
-   The design for this interface is not complete.
-   If you are interested in a design, please contact us.
-
 --------
 Overview
 --------
@@ -101,8 +96,9 @@ Schematic and Board Layout
 More information about the board schematic and layout files can be found in
 section :ref:`DESIGN_RESOURCES`.
 For better debugging, there are test-points on the PCB for all relevant IO
-signals. In addition to test-points, a pin header (J101) allows an easier
-connection to a logic analyzer.
+signals.
+In addition to test-points, a pin header (J101) allows an easier connection to
+a logic analyzer.
 
 ---------
 Functions

@@ -21,15 +21,19 @@
 */
 
 /*========== Includes =======================================================*/
-#include "general.h"
 
 #include "nxp_mc33775a-ll.h"
 
+#include "spi_cfg.h"
+
 #include "dma.h"
+#include "fassert.h"
 #include "io.h"
 #include "mcu.h"
 #include "os.h"
 #include "spi.h"
+
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 
@@ -87,37 +91,6 @@ static uint16_t n775FromTplRxBuffer
  */
 static void N775_ConvertMessageToBuffer(uint16_t *pBuffer, uc_msg_t message);
 
-#if (N775_USE_NOTIFICATIONS == false)
-/**
- * @brief   Wait for the SPI transmit communication to complete, blocking
- *
- * return   0 if transaction completed interrupt did not come,
- *          non zero value otherwise
- */
-static uint16_t N775_WaitForTxCompleted(void);
-
-/**
- * @brief   Wait for the SPI receive communication to complete, blocking
- *
- * return   0 if transaction completed interrupt did not come,
- *          non zero value otherwise
- */
-static uint16_t N775_WaitForRxCompleted(void);
-#else
-/**
- * @brief   Clear pending notifications
- *
- * Used to clear pending Tx notifications made by the read function
- * when writing to registers: when reading, commands are sent on SPI1.
- * In the SPI1 ISR, a notification is made, but it is not used: the system
- * waits for the SPI Rx notification from SPI4. As a consequence, when the
- * write function is called after the read function, there is already a
- * notification pending. The function waiting for the notification in the
- * ISR of SPI1 exits immediately instead of waiting for the end of the
- * transmission.
- */
-void N775_ClearNotifications(void);
-
 /**
  * @brief   Wait for the SPI transmit communication to complete, using notifications
  *
@@ -133,7 +106,6 @@ static uint32_t N775_WaitForTxCompletedNotification(void);
  *          N775_NO_NOTIFIED_VALUE if timeout reached
  */
 static uint32_t N775_WaitForRxCompletedNotification(void);
-#endif
 
 /*========== Static Function Implementations ================================*/
 
@@ -145,45 +117,13 @@ static void N775_ConvertMessageToBuffer(uint16_t *pBuffer, uc_msg_t message) {
     pBuffer[3u] = message.crc;
 }
 
-#if (N775_USE_NOTIFICATIONS == false)
-static uint16_t N775_WaitForTxCompleted(void) {
-    uint16_t timeoutTx = N775_SPI_WRITE_TIMEOUT_US;
-    while (false == spi_txFinished) {
-        MCU_delay_us(1);
-        timeoutTx--;
-        if (timeoutTx == 0u) {
-            break;
-        }
-    }
-    MCU_delay_us(N775_WAIT_TIME_AFTER_WRITE_US);
-    return timeoutTx;
-}
-
-static uint16_t N775_WaitForRxCompleted(void) {
-    uint16_t timeoutRx = N775_SPI_READ_TIMEOUT_US;
-    while (spi_rxFinished == false) {
-        MCU_delay_us(1u);
-        timeoutRx--;
-        if (timeoutRx == 0u) {
-            break;
-        }
-    }
-    MCU_delay_us(N775_WAIT_TIME_AFTER_READ_US);
-    return timeoutRx;
-}
-#else
-void N775_ClearNotifications(void) {
-    xTaskNotifyStateClearIndexed(NULL, N775_NOTIFICATION_TX_INDEX);
-}
-
 static uint32_t N775_WaitForTxCompletedNotification(void) {
     uint32_t notifiedValueTx = N775_NO_NOTIFIED_VALUE;
     /**
      * Suspend task and wait for SPI send DMA RX finished notification,
      * clear notification value on entry and exit
      */
-    xTaskNotifyWaitIndexed(
-        N775_NOTIFICATION_TX_INDEX, UINT32_MAX, UINT32_MAX, &notifiedValueTx, N775_NOTIFICATION_TX_TIMEOUT_ms);
+    OS_WaitForNotificationIndexed(N775_NOTIFICATION_TX_INDEX, &notifiedValueTx, N775_NOTIFICATION_TX_TIMEOUT_ms);
     return notifiedValueTx;
 }
 
@@ -193,11 +133,9 @@ static uint32_t N775_WaitForRxCompletedNotification(void) {
      * Suspend task and wait for DMA RX notification,
      * clear notification value on entry and exit
      */
-    xTaskNotifyWaitIndexed(
-        N775_NOTIFICATION_RX_INDEX, UINT32_MAX, UINT32_MAX, &notifiedValueRx, N775_NOTIFICATION_RX_TIMEOUT_ms);
+    OS_WaitForNotificationIndexed(N775_NOTIFICATION_RX_INDEX, &notifiedValueRx, N775_NOTIFICATION_RX_TIMEOUT_ms);
     return notifiedValueRx;
 }
-#endif
 
 /*========== Extern Function Implementations ================================*/
 
@@ -217,14 +155,20 @@ extern void N775_CommunicationWrite(
         BMS1_CMD_WRITE, 0, (deviceAddress | (1u << 6u)), registerAddress, 0, &value, &message);
     N775_ConvertMessageToBuffer(n775ToTplTxBuffer, message);
 
-    spi_txFinished = false;
-#if (N775_USE_NOTIFICATIONS == true)
-    N775_ClearNotifications();
-#endif
+    /*
+     * Used to clear a pending Tx notification made by the read function
+     * when writing to registers: when reading, commands are sent on SPI1.
+     * In the SPI1 ISR, a notification is made, but it is not used: the system
+     * waits for the SPI Rx notification from SPI4. As a consequence, when the
+     * write function is called after the read function, there is already a
+     * notification pending. The function waiting for the notification in the
+     * ISR of SPI1 exits immediately instead of waiting for the end of the
+     * transmission.
+     */
+    (void)OS_ClearNotificationIndexed(N775_NOTIFICATION_TX_INDEX);
+
     SPI_TransmitReceiveDataDma(pSpiInterface, n775ToTplTxBuffer, n775ToTplRxBuffer, 4u);
-#if (N775_USE_NOTIFICATIONS == false)
-    (void)N775_WaitForTxCompleted();
-#else
+
     uint32_t notificationTx = N775_WaitForTxCompletedNotification();
     if (notificationTx != N775_TX_NOTIFIED_VALUE) {
         /* Tx DMA interrupt has not come, release Tx SPI interface */
@@ -233,7 +177,6 @@ extern void N775_CommunicationWrite(
         spi_busyFlags[spiIndex] = SPI_IDLE;
         OS_ExitTaskCritical();
     }
-#endif
 }
 
 extern N775_COMMUNICATION_STATUS_e N775_CommunicationRead(
@@ -334,14 +277,9 @@ extern N775_COMMUNICATION_STATUS_e N775_CommunicationReadMultiple(
     SPI_SlaveSetReceiveDataDma(n775_state->pSpiRxSequence, n775FromTplTxBuffer, n775FromTplRxBuffer, rxBufferLength);
 
     /* send message */
-    spi_rxFinished = false;
     SPI_TransmitReceiveDataDma(n775_state->pSpiTxSequence, n775ToTplTxBuffer, n775ToTplRxBuffer, 4u);
     bool n775_rxCompleted = true;
-#if (N775_USE_NOTIFICATIONS == false)
-    if (0u == N775_WaitForRxCompleted()) {
-        n775_rxCompleted = false;
-    }
-#else
+
     uint32_t notificationRx = N775_WaitForRxCompletedNotification();
     if (notificationRx != N775_RX_NOTIFIED_VALUE) {
         n775_rxCompleted = false;
@@ -351,7 +289,6 @@ extern N775_COMMUNICATION_STATUS_e N775_CommunicationReadMultiple(
         spi_busyFlags[spiIndex] = SPI_IDLE;
         OS_ExitTaskCritical();
     }
-#endif
 
     if (n775_rxCompleted == false) {
         n775_state->pSpiRxSequence->pNode->INT0 &= ~DMAREQEN_BIT;
@@ -549,3 +486,5 @@ extern N775_COMMUNICATION_STATUS_e N775_CommunicationDecomposeMessage(
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
+#ifdef UNITY_UNIT_TEST
+#endif

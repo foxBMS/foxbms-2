@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    ltc_6813-1_cfg.h
  * @author  foxBMS Team
  * @date    2015-02-18 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  LTC
  *
@@ -67,9 +67,11 @@
 #include "ltc_afe_dma.h"
 #include "spi.h"
 
+#include <stdbool.h>
+#include <stdint.h>
+
 /*========== Macros and Definitions =========================================*/
 /**
- * @ingroup CONFIG_LTC
  * If set to 1 LTC driver is configured to use foxBMS slave boards version 1.x
  * If set to 2 LTC driver is configured to use foxBMS slave boards version 2.x
  */
@@ -79,6 +81,16 @@
 #elif SLAVE_BOARD_VERSION == 2
 #else
 #error Please select the slave board version you want to use. Configuration file: \src\module\config\ltc_cfg.h
+#endif
+
+/**
+ * @def     LTC_6813_MAX_SUPPORTED_CELLS
+ * @brief   Defines the maximal number of supported cells per module
+ */
+#define LTC_6813_MAX_SUPPORTED_CELLS (18u)
+
+#if BS_NR_OF_CELL_BLOCKS_PER_MODULE > LTC_6813_MAX_SUPPORTED_CELLS
+#error "Number of cell blocks per module cannot be higher than maximum number of cells per module"
 #endif
 
 /**
@@ -326,7 +338,7 @@ extern LTC_MUX_SEQUENCE_s ltc_mux_seq;
 extern const uint8_t ltc_muxsensortemperatur_cfg[BS_NR_OF_TEMP_SENSORS_PER_MODULE];
 
 /** Lookup table to indicate which voltage inputs are used */
-extern const uint8_t ltc_voltage_input_used[BS_MAX_SUPPORTED_CELLS];
+extern const uint8_t ltc_voltage_input_used[LTC_6813_MAX_SUPPORTED_CELLS];
 
 /*========== Extern Function Prototypes =====================================*/
 
@@ -343,5 +355,7 @@ extern const uint8_t ltc_voltage_input_used[BS_MAX_SUPPORTED_CELLS];
 extern int16_t LTC_ConvertMuxVoltagesToTemperatures(uint16_t adcVoltage_mV);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
+#ifdef UNITY_UNIT_TEST
+#endif
 
 #endif /* FOXBMS__LTC_6813_1_CFG_H_ */

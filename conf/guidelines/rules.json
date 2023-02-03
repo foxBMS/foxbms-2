@@ -8,6 +8,7 @@
     "png",
     "gif",
     "ico",
+    "o",
     "vsdx",
     "pyc",
     "svg",
@@ -15,6 +16,7 @@
     "tar.bz2",
     "tar.gz",
     "vsdx",
+    "~vsdx",
     "zip"
   ],
   "global": [
@@ -23,8 +25,8 @@
     "**/__pycache__/**",
     "**/foxbms-2_axivion_report.json",
     "**/*.asc",
+    "**/.lock-waf_*_build",
     ".git/**",
-    ".lock-waf_*_build",
     ".mypy_cache/**",
     ".vscode/**",
     "build/**",
@@ -50,7 +52,9 @@
     "src/os/safertos/**/*.asm",
     "src/os/safertos/**/*.c",
     "src/os/safertos/**/*.h",
+    "tests/axivion/compiler-errata/ti-cgt-arm*/**",
     "tests/axivion/qualification-test/qualification-kit/**",
+    "tests/unit/build/**",
     "tests/scripts/waf-core/general/**",
     "tests/scripts/waf-core/init/**",
     "tests/scripts/waf-core/install/**",
@@ -67,6 +71,8 @@
     "name": "GENERAL:001",
     "regex": "^[a-z0-9_\\-.]*$",
     "exclude": [
+      "**/*.~vsdx",
+      "**/LICENSE.md",
       "**/README.md",
       ".github/PULL_REQUEST_TEMPLATE.md",
       ".gitlab/**",
@@ -78,8 +84,8 @@
       "conf/hcg/**/*.c",
       "conf/hcg/**/*.cmd",
       "conf/hcg/**/*.h",
-      "**/LICENSE.md",
-      "src/os/freertos/README.ti-halcogen.md"
+      "src/os/freertos/README.ti-halcogen.md",
+      "tests/axivion/**/*cafeCC*"
     ]
   },
   "unique_filenames": {
@@ -89,6 +95,7 @@
       "**/.dummy",
       "**/.gitignore",
       "**/__init__.py",
+      "**/__main__.py",
       "**/README.md",
       "**/wscript",
       "tests/axivion/addon-test/**/ok.c",
@@ -160,7 +167,6 @@
       "header": {
         "name": "C:002",
         "exclude": [
-          "src/app/driver/afe/ltc/common/ltc_pec.*",
           "src/app/driver/sbc/fs8x_driver/**",
           "src/app/driver/afe/nxp/mc33775a/nxp_mc33775a-ll.*"
         ],
@@ -211,13 +217,11 @@
       "doxygen": {
         "name": "C:004",
         "exclude": [
-          "docs/developer-manual/style-guide/examples/*.c",
-          "docs/developer-manual/style-guide/examples/*.h",
-          "src/app/driver/afe/ltc/common/ltc_pec.*",
           "src/app/driver/afe/nxp/mc33775a/nxp_mc33775a-ll.*",
           "src/app/driver/sbc/fs8x_driver/sbc_fs8x*.*",
           "src/app/main/linker_script_elf.cmd",
-          "src/os/**"
+          "src/os/**",
+          "tests/axivion/axivion_preinc.h"
         ],
         "regex": [
           "\/\\*\\*$",
@@ -240,10 +244,10 @@
           "**/*.h"
         ],
         "exclude": [
-          "src/app/driver/afe/ltc/common/ltc_pec.*",
           "src/app/driver/afe/nxp/mc33775a/nxp_mc33775a-ll.h",
           "src/app/driver/sbc/fs8x_driver/**",
-          "src/os/**"
+          "src/os/**",
+          "tests/axivion/axivion_preinc.h"
         ],
         "prefix": "FOXBMS__",
         "suffix": "_H_",
@@ -256,20 +260,15 @@
       },
       "sections": {
         "exclude": [
-          "src/app/driver/afe/ltc/common/ltc_pec.*",
           "src/app/driver/sbc/fs8x_driver/**",
-          "src/app/main/linker_script_elf.cmd"
+          "src/app/main/linker_script_elf.cmd",
+          "tests/axivion/axivion_preinc.h"
         ],
         "name": "C:006",
         "header": {
           "exclude": [
             "conf/tpl/test_c.h",
             "docs/developer-manual/style-guide/examples/c-006-test.h",
-            "docs/developer-manual/style-guide/examples/c-007_abc*.h",
-            "docs/developer-manual/style-guide/examples/c-008.h",
-            "docs/developer-manual/style-guide/examples/c-011.h",
-            "docs/developer-manual/style-guide/examples/c-013.h",
-            "docs/developer-manual/style-guide/examples/c-015.h",
             "tests/unit/**"
           ],
           "sections": [
@@ -283,30 +282,8 @@
         "source": {
           "exclude": [
             "conf/tpl/test_c.c",
-            "docs/developer-manual/style-guide/examples/c-004.c",
-            "docs/developer-manual/style-guide/examples/c-005.c",
+            "docs/software/unit-tests/test_abc.c",
             "docs/developer-manual/style-guide/examples/c-006-test.c",
-            "docs/developer-manual/style-guide/examples/c-007_abc*.c",
-            "docs/developer-manual/style-guide/examples/c-008.c",
-            "docs/developer-manual/style-guide/examples/c-009.c",
-            "docs/developer-manual/style-guide/examples/c-011.c",
-            "docs/developer-manual/style-guide/examples/c-012.c",
-            "docs/developer-manual/style-guide/examples/c-013.c",
-            "docs/developer-manual/style-guide/examples/c-015.c",
-            "docs/developer-manual/style-guide/examples/c-016.c",
-            "docs/developer-manual/style-guide/examples/c-017.c",
-            "docs/developer-manual/style-guide/examples/c-018.c",
-            "docs/developer-manual/style-guide/examples/c-018.c",
-            "docs/developer-manual/style-guide/examples/c-019.c",
-            "docs/developer-manual/style-guide/examples/c-020.c",
-            "docs/developer-manual/style-guide/examples/c-021.c",
-            "docs/developer-manual/style-guide/examples/c-022.c",
-            "docs/developer-manual/style-guide/examples/c-023.c",
-            "docs/developer-manual/style-guide/examples/c-024.c",
-            "docs/developer-manual/style-guide/examples/c-025.c",
-            "docs/developer-manual/style-guide/examples/c-026.c",
-            "docs/developer-manual/style-guide/examples/c-027.c",
-            "docs/developer-manual/style-guide/examples/c-028*.c",
             "src/app/driver/config/can_cfg.c",
             "src/app/engine/config/diag_cfg.c",
             "src/app/engine/config/sys_mon_cfg.c",
@@ -327,14 +304,9 @@
         "test_header": {
           "exclude": [
             "conf/tpl/c.h",
-            "docs/developer-manual/style-guide/examples/c-006-source.h",
-            "docs/developer-manual/style-guide/examples/c-007_abc*.h",
-            "docs/developer-manual/style-guide/examples/c-008.h",
-            "docs/developer-manual/style-guide/examples/c-011.h",
-            "docs/developer-manual/style-guide/examples/c-013.h",
-            "docs/developer-manual/style-guide/examples/c-015.h",
             "docs/developer-manual/style-guide/state-machine-example/state-machine.h",
             "docs/software/build-process/misc/libproject-example.h",
+            "docs/software/unit-tests/abc.h",
             "src/**",
             "tests/variants/lib-build/*"
           ],
@@ -349,7 +321,8 @@
             "docs/developer-manual/style-guide/examples/c-004.c",
             "docs/developer-manual/style-guide/examples/c-005.c",
             "docs/developer-manual/style-guide/examples/c-006-source.c",
-            "docs/developer-manual/style-guide/examples/c-007_abc*.c",
+            "docs/developer-manual/style-guide/examples/c-007_abc.c",
+            "docs/developer-manual/style-guide/examples/c-007_abc_cfg.c",
             "docs/developer-manual/style-guide/examples/c-008.c",
             "docs/developer-manual/style-guide/examples/c-009.c",
             "docs/developer-manual/style-guide/examples/c-011.c",
@@ -358,7 +331,6 @@
             "docs/developer-manual/style-guide/examples/c-015.c",
             "docs/developer-manual/style-guide/examples/c-016.c",
             "docs/developer-manual/style-guide/examples/c-017.c",
-            "docs/developer-manual/style-guide/examples/c-018.c",
             "docs/developer-manual/style-guide/examples/c-018.c",
             "docs/developer-manual/style-guide/examples/c-019.c",
             "docs/developer-manual/style-guide/examples/c-020.c",
@@ -369,12 +341,15 @@
             "docs/developer-manual/style-guide/examples/c-025.c",
             "docs/developer-manual/style-guide/examples/c-026.c",
             "docs/developer-manual/style-guide/examples/c-027.c",
-            "docs/developer-manual/style-guide/examples/c-028*.c",
+            "docs/developer-manual/style-guide/examples/c-028-battery-defines.c",
+            "docs/developer-manual/style-guide/examples/c-028.c",
             "docs/developer-manual/style-guide/state-machine-example/state-machine.c",
             "docs/software/build-process/misc/libproject-example.c",
             "docs/software/modules/driver/can/can_how-to_tx.c",
             "docs/software/modules/engine/database/database_how-to.c",
             "docs/software/modules/task/ftask/ftask_how-to.c",
+            "docs/software/unit-tests/abc.c",
+            "docs/software/unit-tests/run_abc.c",
             "src/**",
             "tests/c-std/c-std-test.c",
             "tests/variants/lib-build/*"
@@ -417,7 +392,8 @@
       "header": {
         "name": "PYTHON:002",
         "exclude": [
-          "tests/axivion/addon/**"
+          "tests/axivion/addon/**",
+          "tools/gui/fgui/misc/logo.py"
         ],
         "text": [
           "#!/usr/bin/env python3",

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -39,6 +39,25 @@
  *
  */
 
+/**
+ * @file    c-023.c
+ * @author  foxBMS Team
+ * @date    2021-06-04 (date of creation)
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
+ * @ingroup GUIDELINES
+ * @prefix  ABC
+ *
+ * @brief   Example code to show the application of the C coding guidelines
+ * @details This code implements an example for C:023
+ *
+ */
+
+/*========== Includes =======================================================*/
+
+#include <stdint.h>
+
+/*========== Macros and Definitions =========================================*/
 /** Symbolic names for weekdays */
 typedef enum {
     ABC_MONDAY,    /**< First day of the week */
@@ -47,3 +66,17 @@ typedef enum {
     ABC_SUNDAY,    /**< Last day of the week */
     ABC_DAYS_E_MAX /**< Max marker */
 } ABC_DAYS_e;
+
+/*========== Static Constant and Variable Definitions =======================*/
+
+/*========== Extern Constant and Variable Definitions =======================*/
+
+/*========== Static Function Prototypes =====================================*/
+
+/*========== Static Function Implementations ================================*/
+
+/*========== Extern Function Implementations ================================*/
+
+/*========== Externalized Static Function Implementations (Unit Test) =======*/
+#ifdef UNITY_UNIT_TEST
+#endif

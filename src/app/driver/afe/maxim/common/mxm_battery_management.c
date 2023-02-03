@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,22 +43,29 @@
  * @file    mxm_battery_management.c
  * @author  foxBMS Team
  * @date    2019-01-14 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup DRIVERS
  * @prefix  MXM
  *
- * @brief   Driver for the MAX17841B ASCI and MAX1785x monitoring chip
+ * @brief   Driver for the MAX17841B ASCI and MAX1785x analog front-end
  *
  * @details def
  *
  */
 
 /*========== Includes =======================================================*/
+#include "general.h"
+
 #include "mxm_battery_management.h"
 
 #include "diag.h"
+#include "fassert.h"
+#include "fstd_types.h"
 #include "os.h"
+
+#include <stdbool.h>
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 
@@ -1064,7 +1071,7 @@ void MXM_5XStateMachine(MXM_41B_INSTANCE_s *pInstance41b, MXM_5X_INSTANCE_s *pIn
             break;
         default:
             FAS_ASSERT(FAS_TRAP);
-            break;
+            break; /* LCOV_EXCL_LINE */
     }
 }
 
@@ -1116,3 +1123,5 @@ extern STD_RETURN_TYPE_e GEN_MUST_CHECK_RETURN MXM_5XUserAccessibleAddressSpaceC
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
+#ifdef UNITY_UNIT_TEST
+#endif

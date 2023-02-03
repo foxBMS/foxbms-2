@@ -1,0 +1,44 @@
+{
+    "Project": {
+        "TIARMToolchain": {
+            "language_c": {
+                "preprocessing": {
+                    "predefined_macros": {
+                        "$(delta:+)": {
+                            "_Imaginary": "_Complex"
+                        },
+                        "$(delta:-)": []
+                    }
+                }
+            },
+            "preincludes": {
+                "$(delta:+)": [
+                    "axivion_preinc.h"
+                ],
+                "$(delta:-)": [
+                    "$(builtin:AXIVION_INSTALLDIR)\\profiles\\ti\\axivion_preinc.h"
+                ]
+            },
+            "switches": {
+                "mapping": {
+                    "$(delta:+)": {
+                        "--abi": {
+                            "action": "IgnoreSwitch",
+                            "parameter_mode": "mandatory_space_or_equal"
+                        }
+                    },
+                    "$(delta:-)": []
+                },
+                "response_file_preprocessor": "\"$(builtin:AXIVION_INSTALLDIR)/bin/cafe\" -E -P"
+            }
+        }
+    },
+    "_Format": "1.0",
+    "_Version": "7.5.0",
+    "_VersionNum": [
+        7,
+        5,
+        0,
+        11376
+    ]
+}

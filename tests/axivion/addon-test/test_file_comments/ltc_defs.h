@@ -9,7 +9,7 @@
  * @ingroup DRIVERS
  * @prefix  LTC
  *
- * @brief   Headers for the driver for the LTC monitoring chip.
+ * @brief   Headers for the driver for the LTC analog front-end.
  *
  */
 //^stdout:3: error: Missing tags in comment: @details (Rule IISB-DoxygenFileComment)

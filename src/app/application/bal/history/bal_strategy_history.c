@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    bal_strategy_history.c
  * @author  foxBMS Team
  * @date    2020-05-29 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup APPLICATION
  * @prefix  BAL
  *
@@ -61,6 +61,10 @@
 #include "database.h"
 #include "os.h"
 #include "state_estimation.h"
+
+#include <math.h>
+#include <stdbool.h>
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 
@@ -120,8 +124,8 @@ static void BAL_ComputeImbalances(void);
 /*========== Static Function Implementations ================================*/
 
 static void BAL_ActivateBalancing(void) {
-    float cellBalancingCurrent = 0.0f;
-    uint32_t difference        = 0;
+    float_t cellBalancingCurrent = 0.0f;
+    uint32_t difference          = 0;
 
     DATA_READ_DATA(&bal_balancing, &bal_cellVoltage);
 
@@ -134,7 +138,7 @@ static void BAL_ActivateBalancing(void) {
                 if (bal_balancing.deltaCharge_mAs[s][c] > 0) {
                     bal_balancing.balancingState[s][c] = 1;
                     nrBalancedCells++;
-                    cellBalancingCurrent = ((float)(bal_cellVoltage.cellVoltage_mV[s][c])) /
+                    cellBalancingCurrent = ((float_t)(bal_cellVoltage.cellVoltage_mV[s][c])) /
                                            BS_BALANCING_RESISTANCE_ohm;
                     difference       = (BAL_STATEMACH_BALANCINGTIME_100ms / 10) * (uint32_t)(cellBalancingCurrent);
                     bal_state.active = true;
@@ -266,7 +270,7 @@ static bool BAL_CheckImbalances(void) {
 static void BAL_ComputeImbalances(void) {
     uint16_t voltageMin      = 0;
     uint16_t minVoltageIndex = 0;
-    float SOC                = 0.0f;
+    float_t SOC              = 0.0f;
     uint32_t DOD             = 0;
     uint32_t maxDOD          = 0;
 
@@ -283,7 +287,7 @@ static void BAL_ComputeImbalances(void) {
             }
         }
 
-        SOC = SE_GetStateOfChargeFromVoltage(((float)(bal_cellVoltage.cellVoltage_mV[s][minVoltageIndex])) / 1000.0f);
+        SOC = SE_GetStateOfChargeFromVoltage(((float_t)(bal_cellVoltage.cellVoltage_mV[s][minVoltageIndex])) / 1000.0f);
         maxDOD                                            = BC_CAPACITY_mAh * (uint32_t)((1.0f - SOC) * 3600.0f);
         bal_balancing.deltaCharge_mAs[s][minVoltageIndex] = 0;
 
@@ -293,7 +297,7 @@ static void BAL_ComputeImbalances(void) {
         for (uint16_t c = 0u; c < BS_NR_OF_CELL_BLOCKS_PER_STRING; c++) {
             if (c != minVoltageIndex) {
                 if (bal_cellVoltage.cellVoltage_mV[s][c] >= (voltageMin + bal_state.balancingThreshold)) {
-                    SOC = SE_GetStateOfChargeFromVoltage(((float)(bal_cellVoltage.cellVoltage_mV[s][c])) / 1000.0f);
+                    SOC = SE_GetStateOfChargeFromVoltage(((float_t)(bal_cellVoltage.cellVoltage_mV[s][c])) / 1000.0f);
                     DOD = BC_CAPACITY_mAh * (uint32_t)((1.0f - SOC) * 3600.0f);
                     bal_balancing.deltaCharge_mAs[s][c] = (maxDOD - DOD);
                 }
@@ -369,13 +373,6 @@ extern void BAL_Trigger(void) {
     bal_state.triggerEntry--;
 }
 
-/*========== Externalized Static Function Implementations (Unit Test) =======*/
-#ifdef UNITY_UNIT_TEST
-extern BAL_STATEMACH_e BAL_GetState(void) {
-    return bal_state.state;
-}
-#endif
-
 /*================== Getter for static Variables (Unit Test) ==============*/
 #ifdef UNITY_UNIT_TEST
 extern DATA_BLOCK_BALANCING_CONTROL_s *TEST_BAL_GetBalancingControl(void) {
@@ -384,5 +381,12 @@ extern DATA_BLOCK_BALANCING_CONTROL_s *TEST_BAL_GetBalancingControl(void) {
 
 extern BAL_STATE_s *TEST_BAL_GetBalancingState(void) {
     return &bal_state;
+}
+#endif
+
+/*========== Externalized Static Function Implementations (Unit Test) =======*/
+#ifdef UNITY_UNIT_TEST
+extern BAL_STATEMACH_e BAL_GetState(void) {
+    return bal_state.state;
 }
 #endif

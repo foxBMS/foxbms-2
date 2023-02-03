@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -39,11 +39,31 @@
  *
  */
 
+/**
+ * @file    c-011.h
+ * @author  foxBMS Team
+ * @date    2021-06-04 (date of creation)
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
+ * @ingroup GUIDELINES
+ * @prefix  NONE
+ *
+ * @brief   Example code to show the application of the C coding guidelines
+ * @details This code implements an example for C:011
+ *
+ */
+
 #ifndef FOXBMS__C_011_H_
 #define FOXBMS__C_011_H_
 
-#include "general.h"
+/*========== Includes =======================================================*/
+#include <stdint.h>
 
+/*========== Macros and Definitions =========================================*/
+
+/*========== Extern Constant and Variable Declarations ======================*/
+
+/*========== Extern Function Prototypes =====================================*/
 /**
  * @brief   Does this and that
  * @details Detailed description of this function
@@ -52,5 +72,9 @@
  * @return  some uint8_t which describes xyz
  */
 extern uint8_t ABC_ImportantFunction(uint8_t *pPointer, uint8_t length);
+
+/*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
+#ifdef UNITY_UNIT_TEST
+#endif
 
 #endif /* FOXBMS__C_011_H_ */

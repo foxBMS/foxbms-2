@@ -12,6 +12,8 @@ Module Files
 Driver
 ^^^^^^
 
+- ``src/app/engine/sys/reset.c`` (`API <../../../../_static/doxygen/src/html/reset_8c.html>`__, `source <../../../../_static/doxygen/src/html/reset_8c_source.html>`__)
+- ``src/app/engine/sys/reset.h`` (`API <../../../../_static/doxygen/src/html/reset_8h.html>`__, `source <../../../../_static/doxygen/src/html/reset_8h_source.html>`__)
 - ``src/app/engine/sys/sys.c`` (`API <../../../../_static/doxygen/src/html/sys_8c.html>`__, `source <../../../../_static/doxygen/src/html/sys_8c_source.html>`__)
 - ``src/app/engine/sys/sys.h`` (`API <../../../../_static/doxygen/src/html/sys_8h.html>`__, `source <../../../../_static/doxygen/src/html/sys_8h_source.html>`__)
 

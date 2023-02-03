@@ -1,0 +1,115 @@
+.. include:: ./../../../macros.txt
+.. include:: ./../../../units.txt
+
+.. _MC33775A_BASED_14_CELL_SLAVE___V1_0_0__:
+
+MC33775A-based 14-Cell Slave ``v1.0.0``
+=======================================
+
+.. note::
+
+   The changelog for this release is found at
+   :ref:`CHANGELOG_FOR_SLAVE_MC33775_V1_0_0`.
+
+.. |local_slave_version|  replace:: ``1.0.0``
+
+--------
+Overview
+--------
+
+.. important::
+
+   The following description only applies for the |mc33775a|\ -based 14 cell
+   |BMS-Slave| hardware version |local_slave_version|.
+
+.. hint::
+
+   All connector pinouts described below follow the
+   :ref:`CONVENTION_FOR_MOLEX_3_0_CONNECTOR_PIN_NUMBERING`.
+
+--------------
+Specifications
+--------------
+
+^^^^^^^^^^^^^^^^^^
+Electrical Ratings
+^^^^^^^^^^^^^^^^^^
+
+|tbc|
+
+^^^^^^^^^^^^^^^^^^^^^
+Mechanical Dimensions
+^^^^^^^^^^^^^^^^^^^^^
+
+.. csv-table:: Mechanical Dimensions
+   :name: mc33775a_slave_14cell_v1.0.0_mechanical_dimensions
+   :header-rows: 1
+   :delim: ;
+   :file: ./14-nxp-mc33775a-v1.0.0/14-nxp-mc33775a-v1.0.0_mechanical-dimensions.csv
+
+^^^^^^^^^^^^^
+Block Diagram
+^^^^^^^^^^^^^
+
+|tbc|
+
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+Schematic and Board Layout
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+More information about the board schematic and layout files can be found in
+section :ref:`DESIGN_RESOURCES`.
+
+---------
+Functions
+---------
+
+^^^^^^^^^^^^^^^^^^^^^^^^
+Cell Voltage Measurement
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+|tbc|
+
+^^^^^^^^^^^^^^^^^^^^^^
+Passive Cell Balancing
+^^^^^^^^^^^^^^^^^^^^^^
+
+|tbc|
+
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Global Cell Balancing Feedback
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+|tbc|
+
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Temperature Sensor Measurement
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+|tbc|
+
+^^^^^^^^^^^^^^^
+On-board EEPROM
+^^^^^^^^^^^^^^^
+
+|tbc|
+
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+isoSPI Daisy Chain Connection
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The data transmission between the slaves and between the slaves and the basic
+board takes place using the TPL interface.
+
+|tbc|
+
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Hardware Settings / Options
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+|tbc|
+
+Status LED
+""""""""""
+
+|tbc|

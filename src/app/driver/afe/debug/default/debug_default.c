@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    debug_default.c
  * @author  foxBMS Team
  * @date    2020-09-17 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup DRIVER
  * @prefix  FAKE
  *
@@ -53,7 +53,6 @@
  */
 
 /*========== Includes =======================================================*/
-#include "general.h"
 
 #include "debug_default.h"
 
@@ -62,7 +61,10 @@
 
 #include "database.h"
 #include "diag.h"
+#include "fstd_types.h"
 #include "os.h"
+
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 /** faked cell voltage value for all cell voltages in mV */
@@ -320,7 +322,7 @@ static void FAKE_SetFirstMeasurementCycleFinished(FAKE_STATE_s *pFakeState) {
         }
 
         for (i = 0; i < (BS_NR_OF_MODULES_PER_STRING * (BS_NR_OF_CELL_BLOCKS_PER_MODULE + 1)); i++) {
-            pFakeState->data.openWire->openwire[s][i] = 0;
+            pFakeState->data.openWire->openWire[s][i] = 0;
         }
         pFakeState->data.openWire->state = 0;
     }
@@ -416,7 +418,7 @@ static FAKE_FSM_STATES_e FAKE_ProcessInitializationState(FAKE_STATE_s *pFakeStat
 
         default:
             FAS_ASSERT(FAS_TRAP);
-            break;
+            break; /* LCOV_EXCL_LINE */
     }
     return nextState;
 }
@@ -450,7 +452,7 @@ static FAKE_FSM_STATES_e FAKE_ProcessRunningState(FAKE_STATE_s *pFakeState) {
 
         default:
             FAS_ASSERT(FAS_TRAP);
-            break;
+            break; /* LCOV_EXCL_LINE */
     }
 
     return nextState;

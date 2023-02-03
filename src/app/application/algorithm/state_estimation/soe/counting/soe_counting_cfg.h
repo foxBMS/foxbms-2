@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    soe_counting_cfg.h
  * @author  foxBMS Team
  * @date    2020-10-07 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup APPLICATION
  * @prefix  SOE
  *
@@ -56,26 +56,30 @@
 #define FOXBMS__SOE_COUNTING_CFG_H_
 
 /*========== Includes =======================================================*/
-#include "general.h"
 
 #include "battery_cell_cfg.h"
 #include "battery_system_cfg.h"
+
+#include <math.h>
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 /**
  * Cell energy used for SOE calculation, in this case Wh counting
  * Specified once according to data sheet of cell usually.
  */
-#define SOE_CELL_ENERGY_Wh ((float)BC_ENERGY_Wh)
+#define SOE_CELL_ENERGY_Wh ((float_t)BC_ENERGY_Wh)
 
 /** Slice energy in Wh */
 #define SOE_STRING_ENERGY_Wh \
-    (BC_ENERGY_Wh * (float)(BS_NR_OF_CELL_BLOCKS_PER_STRING * BS_NR_OF_PARALLEL_CELLS_PER_MODULE))
+    (BC_ENERGY_Wh * (float_t)(BS_NR_OF_CELL_BLOCKS_PER_STRING * BS_NR_OF_PARALLEL_CELLS_PER_MODULE))
 
 /*========== Extern Constant and Variable Declarations ======================*/
 
 /*========== Extern Function Prototypes =====================================*/
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
+#ifdef UNITY_UNIT_TEST
+#endif
 
 #endif /* FOXBMS__SOE_COUNTING_CFG_H_ */

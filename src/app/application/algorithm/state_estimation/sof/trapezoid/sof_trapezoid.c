@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    sof_trapezoid.c
  * @author  foxBMS Team
  * @date    2020-10-07 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup APPLICATION_CONFIGURATION
  * @prefix  SOF
  *
@@ -64,6 +64,9 @@
 #include "state_estimation.h"
 
 #include <float.h>
+#include <math.h>
+#include <stdbool.h>
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 
@@ -361,8 +364,8 @@ extern void SOF_Calculation(void) {
     sof_tableSofValues.recommendedPeakPackDischargeCurrent_mA       = 0.0f;
 
     uint8_t nrClosedStrings = 0;
-    float minDischarge_mA   = FLT_MAX;
-    float minCharge_mA      = FLT_MAX;
+    float_t minDischarge_mA = FLT_MAX;
+    float_t minCharge_mA    = FLT_MAX;
 
     for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
         SOF_CURRENT_LIMITS_s voltageBasedSof     = {0};
@@ -370,14 +373,14 @@ extern void SOF_Calculation(void) {
         /* Calculate allowed current if string is connected */
         if (BMS_IsStringClosed(s) == true) {
             SOF_CalculateVoltageBasedCurrentLimit(
-                (float)sof_tableMinimumMaximumValues.minimumCellVoltage_mV[s],
-                (float)sof_tableMinimumMaximumValues.maximumCellVoltage_mV[s],
+                (float_t)sof_tableMinimumMaximumValues.minimumCellVoltage_mV[s],
+                (float_t)sof_tableMinimumMaximumValues.maximumCellVoltage_mV[s],
                 &voltageBasedSof,
                 &sof_recommendedCurrent,
                 &sof_curveRecommendedOperatingCurrent);
             SOF_CalculateTemperatureBasedCurrentLimit(
-                (float)sof_tableMinimumMaximumValues.minimumTemperature_ddegC[s],
-                (float)sof_tableMinimumMaximumValues.maximumTemperature_ddegC[s],
+                (float_t)sof_tableMinimumMaximumValues.minimumTemperature_ddegC[s],
+                (float_t)sof_tableMinimumMaximumValues.maximumTemperature_ddegC[s],
                 &temperatureBasedSof,
                 &sof_recommendedCurrent,
                 &sof_curveRecommendedOperatingCurrent);
@@ -404,18 +407,18 @@ extern void SOF_Calculation(void) {
         }
     }
 
-    if (minCharge_mA > (float)BS_MAXIMUM_STRING_CURRENT_mA) {
-        minCharge_mA = (float)BS_MAXIMUM_STRING_CURRENT_mA;
+    if (minCharge_mA > (float_t)BS_MAXIMUM_STRING_CURRENT_mA) {
+        minCharge_mA = (float_t)BS_MAXIMUM_STRING_CURRENT_mA;
     }
-    if (minDischarge_mA > (float)BS_MAXIMUM_STRING_CURRENT_mA) {
-        minDischarge_mA = (float)BS_MAXIMUM_STRING_CURRENT_mA;
+    if (minDischarge_mA > (float_t)BS_MAXIMUM_STRING_CURRENT_mA) {
+        minDischarge_mA = (float_t)BS_MAXIMUM_STRING_CURRENT_mA;
     }
 
     /* Compute recommended pack values */
-    sof_tableSofValues.recommendedContinuousPackChargeCurrent_mA    = (float)nrClosedStrings * minCharge_mA;
-    sof_tableSofValues.recommendedContinuousPackDischargeCurrent_mA = (float)nrClosedStrings * minDischarge_mA;
-    sof_tableSofValues.recommendedPeakPackChargeCurrent_mA          = (float)nrClosedStrings * minCharge_mA;
-    sof_tableSofValues.recommendedPeakPackDischargeCurrent_mA       = (float)nrClosedStrings * minDischarge_mA;
+    sof_tableSofValues.recommendedContinuousPackChargeCurrent_mA    = (float_t)nrClosedStrings * minCharge_mA;
+    sof_tableSofValues.recommendedContinuousPackDischargeCurrent_mA = (float_t)nrClosedStrings * minDischarge_mA;
+    sof_tableSofValues.recommendedPeakPackChargeCurrent_mA          = (float_t)nrClosedStrings * minCharge_mA;
+    sof_tableSofValues.recommendedPeakPackDischargeCurrent_mA       = (float_t)nrClosedStrings * minDischarge_mA;
 
     /* Check if currently a transition into ERROR state in the BMS state
      * machine is ongoing. Set allowed current to 0 if this is the case.

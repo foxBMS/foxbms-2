@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -39,11 +39,35 @@
  *
  */
 
+/**
+ * @file    c-013.h
+ * @author  foxBMS Team
+ * @date    2023-01-13 (date of creation)
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
+ * @ingroup GUIDELINES
+ * @prefix  NONE
+ *
+ * @brief   Example code to show the application of the C coding guidelines
+ * @details This code implements an example for C:013
+ *
+ */
+
 #ifndef FOXBMS__C_013_H_
 #define FOXBMS__C_013_H_
 
-#include "general.h"
+/*========== Includes =======================================================*/
+#include <stdint.h>
 
-int16_t ABC_SomeFunction(uint8_t x, uint8_t y, uint8_t z);
+/*========== Macros and Definitions =========================================*/
+
+/*========== Extern Constant and Variable Declarations ======================*/
+
+/*========== Extern Function Prototypes =====================================*/
+extern int16_t ABC_SomeFunction(uint8_t x, uint8_t y, uint8_t z);
+
+/*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
+#ifdef UNITY_UNIT_TEST
+#endif
 
 #endif /* FOXBMS__C_013_H_ */

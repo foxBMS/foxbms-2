@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    meas.h
  * @author  foxBMS Team
  * @date    2020-02-24 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup DRIVERS
  * @prefix  MEAS
  *
@@ -58,7 +58,11 @@
 #define FOXBMS__MEAS_H_
 
 /*========== Includes =======================================================*/
-#include "general.h"
+
+#include "fstd_types.h"
+
+#include <stdbool.h>
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 
@@ -139,5 +143,7 @@ extern STD_RETURN_TYPE_e MEAS_RequestEepromWrite(uint8_t string);
 extern STD_RETURN_TYPE_e MEAS_RequestOpenWireCheck(uint8_t string);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
+#ifdef UNITY_UNIT_TEST
+#endif
 
 #endif /* FOXBMS__MEAS_H_ */

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_can_cfg_tx.c
  * @author  foxBMS Team
  * @date    2020-07-28 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -67,13 +67,15 @@
 #include "can_cfg.h"
 #include "database_cfg.h"
 
+#include <stdbool.h>
+
 TEST_FILE("can_cfg_tx.c")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 
-QueueHandle_t ftsk_dataQueue        = NULL_PTR;
-QueueHandle_t ftsk_imdCanDataQueue  = NULL_PTR;
-QueueHandle_t ftsk_canRxQueue       = NULL_PTR;
+OS_QUEUE ftsk_dataQueue             = NULL_PTR;
+OS_QUEUE ftsk_imdCanDataQueue       = NULL_PTR;
+OS_QUEUE ftsk_canRxQueue            = NULL_PTR;
 volatile bool ftsk_allQueuesCreated = false;
 
 /*========== Setup and Teardown =============================================*/

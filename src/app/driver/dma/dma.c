@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    dma.c
  * @author  foxBMS Team
  * @date    2019-12-12 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup DRIVERS
  * @prefix  DMA
  *
@@ -56,8 +56,11 @@
 #include "dma.h"
 
 #include "afe_dma.h"
+#include "ftask.h"
 #include "i2c.h"
 #include "spi.h"
+
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 
@@ -194,28 +197,56 @@ void DMA_Initialize(void) {
     /* Configuration for I2C1 */
 
     /* assign dma request to Tx channel */
-    dmaReqAssign((dmaChannel_t)DMA_CHANNEL_I2C_TX, (dmaRequest_t)DMA_REQ_LINE_I2C_TX);
+    dmaReqAssign((dmaChannel_t)DMA_CHANNEL_I2C1_TX, (dmaRequest_t)DMA_REQ_LINE_I2C1_TX);
     /* assign dma request to Rx channel */
-    dmaReqAssign((dmaChannel_t)DMA_CHANNEL_I2C_RX, (dmaRequest_t)DMA_REQ_LINE_I2C_RX);
+    dmaReqAssign((dmaChannel_t)DMA_CHANNEL_I2C1_RX, (dmaRequest_t)DMA_REQ_LINE_I2C1_RX);
 
     /* Enable Interrupt after reception of data
        Group A - Interrupts (FTC, LFS, HBC, and BTC) are routed to the ARM CPU
        User software should configure only Group A interrupts */
-    dmaEnableInterrupt((dmaChannel_t)(dmaChannel_t)DMA_CHANNEL_I2C_TX, (dmaInterrupt_t)BTC, (dmaIntGroup_t)DMA_INTA);
-    dmaEnableInterrupt((dmaChannel_t)(dmaChannel_t)DMA_CHANNEL_I2C_RX, (dmaInterrupt_t)BTC, (dmaIntGroup_t)DMA_INTA);
+    dmaEnableInterrupt((dmaChannel_t)(dmaChannel_t)DMA_CHANNEL_I2C1_TX, (dmaInterrupt_t)BTC, (dmaIntGroup_t)DMA_INTA);
+    dmaEnableInterrupt((dmaChannel_t)(dmaChannel_t)DMA_CHANNEL_I2C1_RX, (dmaInterrupt_t)BTC, (dmaIntGroup_t)DMA_INTA);
+    dmaEnableInterrupt((dmaChannel_t)(dmaChannel_t)DMA_CHANNEL_I2C1_RX, (dmaInterrupt_t)LFS, (dmaIntGroup_t)DMA_INTA);
 
     dma_controlPacketI2cTx.DADD = (uint32_t)(&(i2cREG1->DXR)) + DMA_BIG_ENDIAN_ADDRESS_8BIT;
     dma_controlPacketI2cRx.SADD = (uint32_t)(&(i2cREG1->DRR)) + DMA_BIG_ENDIAN_ADDRESS_8BIT;
 
     /* Set dma control packet for Tx */
-    dmaSetCtrlPacket((dmaChannel_t)DMA_CHANNEL_I2C_TX, dma_controlPacketI2cTx);
+    dmaSetCtrlPacket((dmaChannel_t)DMA_CHANNEL_I2C1_TX, dma_controlPacketI2cTx);
 
     /* Set dma control packet for Rx */
-    dmaSetCtrlPacket((dmaChannel_t)DMA_CHANNEL_I2C_RX, dma_controlPacketI2cRx);
+    dmaSetCtrlPacket((dmaChannel_t)DMA_CHANNEL_I2C1_RX, dma_controlPacketI2cRx);
 
     /* Set the dma channels to trigger on h/w request */
-    dmaSetChEnable((dmaChannel_t)DMA_CHANNEL_I2C_TX, (dmaTriggerType_t)DMA_HW);
-    dmaSetChEnable((dmaChannel_t)DMA_CHANNEL_I2C_RX, (dmaTriggerType_t)DMA_HW);
+    dmaSetChEnable((dmaChannel_t)DMA_CHANNEL_I2C1_TX, (dmaTriggerType_t)DMA_HW);
+    dmaSetChEnable((dmaChannel_t)DMA_CHANNEL_I2C1_RX, (dmaTriggerType_t)DMA_HW);
+
+    /* Configuration for I2C2 */
+
+    /* assign dma request to Tx channel */
+    dmaReqAssign((dmaChannel_t)DMA_CHANNEL_I2C2_TX, (dmaRequest_t)DMA_REQ_LINE_I2C2_TX);
+    /* assign dma request to Rx channel */
+    dmaReqAssign((dmaChannel_t)DMA_CHANNEL_I2C2_RX, (dmaRequest_t)DMA_REQ_LINE_I2C2_RX);
+
+    /* Enable Interrupt after reception of data
+       Group A - Interrupts (FTC, LFS, HBC, and BTC) are routed to the ARM CPU
+       User software should configure only Group A interrupts */
+    dmaEnableInterrupt((dmaChannel_t)(dmaChannel_t)DMA_CHANNEL_I2C2_TX, (dmaInterrupt_t)BTC, (dmaIntGroup_t)DMA_INTA);
+    dmaEnableInterrupt((dmaChannel_t)(dmaChannel_t)DMA_CHANNEL_I2C2_RX, (dmaInterrupt_t)BTC, (dmaIntGroup_t)DMA_INTA);
+    dmaEnableInterrupt((dmaChannel_t)(dmaChannel_t)DMA_CHANNEL_I2C2_RX, (dmaInterrupt_t)LFS, (dmaIntGroup_t)DMA_INTA);
+
+    dma_controlPacketI2cTx.DADD = (uint32_t)(&(i2cREG2->DXR)) + DMA_BIG_ENDIAN_ADDRESS_8BIT;
+    dma_controlPacketI2cRx.SADD = (uint32_t)(&(i2cREG2->DRR)) + DMA_BIG_ENDIAN_ADDRESS_8BIT;
+
+    /* Set dma control packet for Tx */
+    dmaSetCtrlPacket((dmaChannel_t)DMA_CHANNEL_I2C2_TX, dma_controlPacketI2cTx);
+
+    /* Set dma control packet for Rx */
+    dmaSetCtrlPacket((dmaChannel_t)DMA_CHANNEL_I2C2_RX, dma_controlPacketI2cRx);
+
+    /* Set the dma channels to trigger on h/w request */
+    dmaSetChEnable((dmaChannel_t)DMA_CHANNEL_I2C2_TX, (dmaTriggerType_t)DMA_HW);
+    dmaSetChEnable((dmaChannel_t)DMA_CHANNEL_I2C2_RX, (dmaTriggerType_t)DMA_HW);
 }
 
 /** Function called on DMA complete interrupts (TX and RX). Defined as weak in HAL. */
@@ -225,9 +256,12 @@ void UNIT_TEST_WEAK_IMPL dmaGroupANotification(dmaInterrupt_t inttype, uint32 ch
     /* AXIVION Routine Generic-MissingParameterAssert: channel: unchecked in interrupt */
 
     if (inttype == (dmaInterrupt_t)BTC) {
-        uint16_t timeoutIterations = 0u;
-        uint8_t spiIndex           = 0u;
+        uint16_t timeoutIterations          = 0u;
+        uint8_t spiIndex                    = 0u;
+        BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+        bool success                        = true;
         switch (channel) {
+            /* DMA for SPI Tx */
             case DMA_CHANNEL_SPI1_TX:
             case DMA_CHANNEL_SPI2_TX:
             case DMA_CHANNEL_SPI3_TX:
@@ -254,6 +288,7 @@ void UNIT_TEST_WEAK_IMPL dmaGroupANotification(dmaInterrupt_t inttype, uint32 ch
                 SPI_DmaSendLastByte(spiIndex);
                 break;
 
+            /* DMA for SPI Rx */
             case DMA_CHANNEL_SPI1_RX:
             case DMA_CHANNEL_SPI2_RX:
             case DMA_CHANNEL_SPI3_RX:
@@ -275,13 +310,13 @@ void UNIT_TEST_WEAK_IMPL dmaGroupANotification(dmaInterrupt_t inttype, uint32 ch
                     /* Set slave SPI Chip Select pins as GIO to deactivate slave SPI Chip Select pins */
                     dma_spiInterfaces[spiIndex]->PC0 &= SPI_PC0_CLEAR_HW_CS_MASK;
 
-                    /* Specific call for measurement ICs */
+                    /* Specific call for AFEs */
                     AFE_DmaCallback(spiIndex);
                 } else { /* SPI configured as master */
                     /* RX DMA interrupt, transmission finished, disable DMA */
                     dma_spiInterfaces[spiIndex]->INT0 &= ~DMAREQEN_BIT;
 
-                    /* Specific call for measurement ICs */
+                    /* Specific call for AFEs */
                     if (spiIndex == SPI_GetSpiIndex(spiREG1)) {
                         AFE_DmaCallback(spiIndex);
                     }
@@ -289,30 +324,98 @@ void UNIT_TEST_WEAK_IMPL dmaGroupANotification(dmaInterrupt_t inttype, uint32 ch
                 }
                 break;
 
-            case DMA_CHANNEL_I2C_TX:
-                i2cREG1->DMACR &= ~(uint32)0x2u;
-                /* Wait until Stop is detected */
-                timeoutIterations = I2C_TIMEOUT_ITERATIONS;
-                while ((i2cIsStopDetected(i2cREG1) == 0u) && (timeoutIterations > 0u)) {
-                    timeoutIterations--;
-                }
-                /* Clear the Stop condition */
-                i2cClearSCD(i2cREG1);
+            /* DMA for I2C Tx */
+            case DMA_CHANNEL_I2C1_TX:
+                i2cREG1->DMACR &= ~((uint32_t)I2C_TXDMAEN);
+                (void)xTaskNotifyIndexedFromISR(
+                    I2C_TASK_HANDLE,
+                    I2C_NOTIFICATION_TX_INDEX,
+                    I2C_TX_NOTIFIED_VALUE,
+                    eSetValueWithOverwrite,
+                    &xHigherPriorityTaskWoken);
+                portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
                 break;
-            case DMA_CHANNEL_I2C_RX:
-                i2cREG1->DMACR &= ~(uint32)0x1u;
-                /* Wait until Stop is detected */
-                timeoutIterations = I2C_TIMEOUT_ITERATIONS;
-                while ((i2cIsStopDetected(i2cREG1) == 0u) && (timeoutIterations > 0u)) {
-                    timeoutIterations--;
+            case DMA_CHANNEL_I2C2_TX:
+                i2cREG2->DMACR &= ~((uint32_t)I2C_TXDMAEN);
+                (void)xTaskNotifyIndexedFromISR(
+                    I2C_TASK_HANDLE,
+                    I2C_NOTIFICATION_TX_INDEX,
+                    I2C_TX_NOTIFIED_VALUE,
+                    eSetValueWithOverwrite,
+                    &xHigherPriorityTaskWoken);
+                portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+                break;
+
+            /* DMA for I2C Rx */
+            case DMA_CHANNEL_I2C1_RX:
+                i2cREG1->DMACR &= ~((uint32_t)I2C_RXDMAEN);
+                /* Received all but the last byte, now wait until receive buffer is filled with the last byte to receive */
+                success = I2C_WaitReceive(i2cREG1, I2C_TIMEOUT_us);
+                if (success == false) {
+                    /* Set Stop condition */
+                    i2cREG1->MDR |= (uint32_t)I2C_REPEATMODE;
+                    i2cSetStop(i2cREG1);
+                    (void)xTaskNotifyIndexedFromISR(
+                        I2C_TASK_HANDLE,
+                        I2C_NOTIFICATION_RX_INDEX,
+                        I2C_RX_NOTCOME_VALUE,
+                        eSetValueWithOverwrite,
+                        &xHigherPriorityTaskWoken);
+                    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+                } else {
+                    i2c_rxLastByteInterface1 = I2C_ReadLastRxByte(i2cREG1);
+                    (void)xTaskNotifyIndexedFromISR(
+                        I2C_TASK_HANDLE,
+                        I2C_NOTIFICATION_RX_INDEX,
+                        I2C_RX_NOTIFIED_VALUE,
+                        eSetValueWithOverwrite,
+                        &xHigherPriorityTaskWoken);
+                    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
                 }
-                /* Clear the Stop condition */
-                i2cClearSCD(i2cREG1);
+                break;
+            case DMA_CHANNEL_I2C2_RX:
+                i2cREG2->DMACR &= ~((uint32_t)I2C_RXDMAEN);
+                /* Received all but the last byte, now wait until receive buffer is filled with the last byte to receive */
+                success = I2C_WaitReceive(i2cREG2, I2C_TIMEOUT_us);
+                if (success == false) {
+                    /* Set Stop condition */
+                    i2cREG2->MDR |= (uint32_t)I2C_REPEATMODE;
+                    i2cSetStop(i2cREG2);
+                    (void)xTaskNotifyIndexedFromISR(
+                        I2C_TASK_HANDLE,
+                        I2C_NOTIFICATION_RX_INDEX,
+                        I2C_RX_NOTCOME_VALUE,
+                        eSetValueWithOverwrite,
+                        &xHigherPriorityTaskWoken);
+                    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+                } else {
+                    i2c_rxLastByteInterface2 = I2C_ReadLastRxByte(i2cREG2);
+                    (void)xTaskNotifyIndexedFromISR(
+                        I2C_TASK_HANDLE,
+                        I2C_NOTIFICATION_RX_INDEX,
+                        I2C_RX_NOTIFIED_VALUE,
+                        eSetValueWithOverwrite,
+                        &xHigherPriorityTaskWoken);
+                    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+                }
                 break;
             default:
                 break;
         }
     }
+    /* Interrupt before last transfer is started */
+    if (inttype == (dmaInterrupt_t)LFS) {
+        if (channel == DMA_CHANNEL_I2C1_RX) {
+            /* Before last byte is received, set stop to generate NACK*/
+            i2cSetStop(i2cREG1);
+        }
+        if (channel == DMA_CHANNEL_I2C2_RX) {
+            /* Before last byte is received, set stop to generate NACK*/
+            i2cSetStop(i2cREG2);
+        }
+    }
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
+#ifdef UNITY_UNIT_TEST
+#endif

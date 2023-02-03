@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    os.c
  * @author  foxBMS Team
  * @date    2019-08-27 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup OS
  * @prefix  OS
  *
@@ -55,7 +55,12 @@
 /*========== Includes =======================================================*/
 #include "os.h"
 
+#include "fstd_types.h"
 #include "ftask.h"
+#include "rtc.h"
+
+#include <stdbool.h>
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 
@@ -92,6 +97,7 @@ void OS_InitializeOperatingSystem(void) {
    although it exceeds the maximum nesting level and changing the
    implementation would not be beneficial for understanding the function. */
 extern void OS_IncrementTimer(void) {
+    RTC_IncrementSystemTime();
     if (++os_timer.timer_1ms > 9u) { /* 10ms */
         os_timer.timer_1ms = 0u;
         if (++os_timer.timer_10ms > 9u) { /* 100ms */
@@ -151,7 +157,8 @@ extern STD_RETURN_TYPE_e OS_CheckTimeHasPassedSelfTest(void) {
     /* AXIVION Next Codeline Style MisraC2012-2.2 MisraC2012-14.3: If the code works as expected, this self test
        function is expected to always return the same value */
     if (OS_CheckTimeHasPassedWithTimestamp(0u, 0u, 0u) != true) {
-        /* AXIVION Next Line Style FaultDetection-UnusedAssignments: All cases collected, using each not necessary. */
+        /* AXIVION Next Codeline Style FaultDetection-UnusedAssignments: All cases collected, using each not
+           necessary. */
         selfCheckReturnValue = STD_NOT_OK;
     }
 

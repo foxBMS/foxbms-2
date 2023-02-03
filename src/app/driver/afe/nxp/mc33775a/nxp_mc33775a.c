@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,12 +43,12 @@
  * @file    nxp_mc33775a.c
  * @author  foxBMS Team
  * @date    2020-05-08 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup DRIVERS
  * @prefix  N775
  *
- * @brief   Driver for the MC33775A monitoring chip.
+ * @brief   Driver for the MC33775A analog front-end.
  *
  */
 
@@ -65,13 +65,21 @@
 #include "MC33775A.h"
 #pragma diag_pop
 
+#include "afe.h"
 #include "afe_dma.h"
 #include "database.h"
 #include "diag.h"
+#include "fassert.h"
+#include "fstd_types.h"
+#include "ftask.h"
 #include "io.h"
 #include "mcu.h"
 #include "os.h"
 #include "spi.h"
+
+#include <math.h>
+#include <stdbool.h>
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 
@@ -86,7 +94,7 @@ static DATA_BLOCK_ALL_GPIO_VOLTAGES_s n775_allGpioVoltage   = {.header.uniqueId 
 static DATA_BLOCK_BALANCING_FEEDBACK_s n775_balancingFeedback = {
     .header.uniqueId = DATA_BLOCK_ID_BALANCING_FEEDBACK_BASE};
 static DATA_BLOCK_SLAVE_CONTROL_s n775_slaveControl = {.header.uniqueId = DATA_BLOCK_ID_SLAVE_CONTROL};
-static DATA_BLOCK_OPEN_WIRE_s n775_openwire         = {.header.uniqueId = DATA_BLOCK_ID_OPEN_WIRE_BASE};
+static DATA_BLOCK_OPEN_WIRE_s n775_openWire         = {.header.uniqueId = DATA_BLOCK_ID_OPEN_WIRE_BASE};
 /**@}*/
 static N775_SUPPLY_CURRENT_s n775_supplyCurrent = {0};
 static N775_ERRORTABLE_s n775_errorTable        = {0};
@@ -110,84 +118,33 @@ N775_STATE_s n775_stateBase = {
     .n775Data.balancingFeedback = &n775_balancingFeedback,
     .n775Data.balancingControl  = &n775_balancingControl,
     .n775Data.slaveControl      = &n775_slaveControl,
-    .n775Data.openWire          = &n775_openwire,
+    .n775Data.openWire          = &n775_openWire,
     .n775Data.supplyCurrent     = &n775_supplyCurrent,
     .n775Data.errorTable        = &n775_errorTable,
 };
 
 /*========== Static Function Prototypes =====================================*/
 static void N775_SetFirstMeasurementCycleFinished(N775_STATE_s *n775_state);
-uint16_t n775_CrcAddItem(uint16_t remainder, uint16_t item);
-uint16_t n775_CalcCrc(const N775_MESSAGE_s *msg);
-
 static void N775_InitializeDatabase(N775_STATE_s *n775_state);
-void N775_ResetStringSequence(N775_STATE_s *n775_state);
-void N775_IncrementStringSequence(N775_STATE_s *n775_state);
-void N775_ResetMuxIndex(N775_STATE_s *n775_state);
-void N775_IncrementMuxIndex(N775_STATE_s *n775_state);
-void N775_ErrorHandling(N775_STATE_s *n775_state, N775_COMMUNICATION_STATUS_e returnedValue, uint8_t module);
-void N775_Init(N775_STATE_s *n775_state);
-STD_RETURN_TYPE_e N775_Enumerate(N775_STATE_s *n775_state);
-void N775_I2cInit(N775_STATE_s *n775_state);
-void N775_StartMeasurement(N775_STATE_s *n775_state);
-void N775_CaptureMeasurement(N775_STATE_s *n775_state);
-STD_RETURN_TYPE_e N775_SetMuxChannel(N775_STATE_s *n775_state);
-void N775_BalanceSetup(N775_STATE_s *n775_state);
-void N775_BalanceControl(N775_STATE_s *n775_state);
-void N775_waitTime(uint32_t milliseconds);
+static void N775_ResetStringSequence(N775_STATE_s *n775_state);
+static void N775_IncrementStringSequence(N775_STATE_s *n775_state);
+static void N775_ResetMuxIndex(N775_STATE_s *n775_state);
+static void N775_IncrementMuxIndex(N775_STATE_s *n775_state);
+static void N775_ErrorHandling(N775_STATE_s *n775_state, N775_COMMUNICATION_STATUS_e returnedValue, uint8_t module);
+static void N775_Init(N775_STATE_s *n775_state);
+static STD_RETURN_TYPE_e N775_Enumerate(N775_STATE_s *n775_state);
+static void N775_I2cInit(N775_STATE_s *n775_state);
+static void N775_StartMeasurement(N775_STATE_s *n775_state);
+static void N775_CaptureMeasurement(N775_STATE_s *n775_state);
+static STD_RETURN_TYPE_e N775_TransmitI2c(N775_STATE_s *n775_state);
+static STD_RETURN_TYPE_e N775_SetMuxChannel(N775_STATE_s *n775_state);
+static void N775_BalanceSetup(N775_STATE_s *n775_state);
+static void N775_BalanceControl(N775_STATE_s *n775_state);
+static void N775_waitTime(uint32_t milliseconds);
 
 /*========== Static Function Implementations ================================*/
 
 /*========== Extern Function Implementations ================================*/
-
-/**
- * @brief   Called to calculate the CRC of a message.
- *
- * @param   remainder
- * @param   item
- *
- * @return  remainder
- *
- */
-uint16_t n775_CrcAddItem(uint16_t remainder, uint16_t item) {
-    uint16_t local_remainder = remainder;
-
-    local_remainder ^= item;
-
-    for (int i = 0; i < 16; i++) {
-        /*
-         * Try to divide the current data bit.
-         */
-        if ((local_remainder & 0x8000u) > 0u) {
-            local_remainder = (local_remainder << 1u) ^ ((0x9eb2u << 1u) + 0x1u);
-        } else {
-            local_remainder = (local_remainder << 1u);
-        }
-    }
-
-    return (local_remainder);
-}
-
-/**
- * @brief   Calculate the CRC of a message.
- *
- * @param   msg
- *
- * @return  crc
- *
- */
-uint16_t n775_CalcCrc(const N775_MESSAGE_s *msg) {
-    uint16_t remainder = 0;
-
-    remainder = n775_CrcAddItem(remainder, msg->head);
-    remainder = n775_CrcAddItem(remainder, msg->dataHead);
-
-    for (int i = 0; i < (msg->dataLength - 3); i++) {
-        remainder = n775_CrcAddItem(remainder, msg->data[i]);
-    }
-
-    return (remainder);
-}
 
 /**
  * @brief   in the database, initializes the fields related to the N775 driver.
@@ -200,6 +157,7 @@ uint16_t n775_CalcCrc(const N775_MESSAGE_s *msg) {
  *
  */
 static void N775_InitializeDatabase(N775_STATE_s *n775_state) {
+    FAS_ASSERT(n775_state != NULL_PTR);
     uint16_t iterator = 0;
 
     for (uint8_t stringNumber = 0u; stringNumber < BS_NR_OF_STRINGS; stringNumber++) {
@@ -249,6 +207,8 @@ static void N775_InitializeDatabase(N775_STATE_s *n775_state) {
 }
 
 void N775_Meas(N775_STATE_s *n775_state) {
+    FAS_ASSERT(n775_state != NULL_PTR);
+
     N775_InitializeDatabase(n775_state);
     /* Initialize SPI sequence pointers */
     n775_state->pSpiTxSequenceStart = spi_nxp775InterfaceTx;
@@ -278,6 +238,8 @@ void N775_Meas(N775_STATE_s *n775_state) {
             }
             N775_BalanceControl(n775_state);
 
+            N775_TransmitI2c(n775_state);
+
             for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
                 if (N775_IsFirstMeasurementCycleFinished(n775_state) == true) {
                     if (n775_state->n775Data.errorTable->noCommunicationTimeout[n775_state->currentString][m] == 0u) {
@@ -301,13 +263,115 @@ void N775_Meas(N775_STATE_s *n775_state) {
     }
 }
 
+STD_RETURN_TYPE_e N775_I2cWrite(uint8_t module, uint8_t deviceAddress, uint8_t *pData, uint8_t dataLength) {
+    FAS_ASSERT(pData != NULL_PTR);
+    FAS_ASSERT((dataLength > 0u) && (dataLength <= 13u));
+    STD_RETURN_TYPE_e retVal = STD_NOT_OK;
+    AFE_I2C_QUEUE_s transactionData;
+
+    transactionData.module          = module;
+    transactionData.deviceAddress   = deviceAddress;
+    transactionData.writeDataLength = dataLength;
+    transactionData.transferType    = AFE_I2C_TRANSFER_TYPE_WRITE;
+    for (uint8_t i = 0u; i < dataLength; i++) {
+        transactionData.writeData[i] = pData[i];
+    }
+    if (OS_SendToBackOfQueue(ftsk_afeToI2cQueue, (void *)&transactionData, 0u) == OS_SUCCESS) {
+        /* queue is not full */
+        /* wating for transfer to finish */
+        if (OS_ReceiveFromQueue(ftsk_afeFromI2cQueue, (void *)&transactionData, N775_I2C_FINISHED_TIMEOUT_ms) ==
+            OS_SUCCESS) {
+            if (transactionData.transferType == AFE_I2C_TRANSFER_TYPE_WRITE_SUCCESS) {
+                retVal = STD_OK;
+            }
+        }
+    } else {
+        /* queue is full */
+    }
+
+    return retVal;
+}
+
+STD_RETURN_TYPE_e N775_I2cWriteRead(
+    uint8_t module,
+    uint8_t deviceAddress,
+    uint8_t *pDataWrite,
+    uint8_t writeDataLength,
+    uint8_t *pDataRead,
+    uint8_t readDataLength) {
+    FAS_ASSERT(pDataWrite != NULL_PTR);
+    FAS_ASSERT(pDataRead != NULL_PTR);
+    FAS_ASSERT(writeDataLength > 0u);
+    FAS_ASSERT(readDataLength > 0u);
+    FAS_ASSERT((uint16_t)(writeDataLength + readDataLength) <= 12u);
+    STD_RETURN_TYPE_e retVal = STD_NOT_OK;
+    AFE_I2C_QUEUE_s transactionData;
+
+    transactionData.module          = module;
+    transactionData.deviceAddress   = deviceAddress;
+    transactionData.writeDataLength = writeDataLength;
+    transactionData.readDataLength  = readDataLength;
+    transactionData.transferType    = AFE_I2C_TRANSFER_TYPE_WRITEREAD;
+    for (uint8_t i = 0u; i < writeDataLength; i++) {
+        transactionData.writeData[i] = pDataWrite[i];
+    }
+    if (OS_SendToBackOfQueue(ftsk_afeToI2cQueue, (void *)&transactionData, 0u) == OS_SUCCESS) {
+        /* queue is not full */
+        /* wating for transfer to finish */
+        if (OS_ReceiveFromQueue(ftsk_afeFromI2cQueue, (void *)&transactionData, N775_I2C_FINISHED_TIMEOUT_ms) ==
+            OS_SUCCESS) {
+            if (transactionData.transferType == AFE_I2C_TRANSFER_TYPE_READ_SUCCESS) {
+                for (uint8_t i = 0u; i < readDataLength; i++) {
+                    pDataRead[i] = transactionData.readData[i];
+                }
+                retVal = STD_OK;
+            }
+        }
+    } else {
+        /* queue is full */
+    }
+
+    return retVal;
+}
+
+STD_RETURN_TYPE_e N775_I2cRead(uint8_t module, uint8_t deviceAddress, uint8_t *pData, uint8_t dataLength) {
+    FAS_ASSERT(pData != NULL_PTR);
+    FAS_ASSERT((dataLength > 0u) && (dataLength <= 13u));
+    STD_RETURN_TYPE_e retVal = STD_NOT_OK;
+    AFE_I2C_QUEUE_s transactionData;
+
+    transactionData.module         = module;
+    transactionData.deviceAddress  = deviceAddress;
+    transactionData.readDataLength = dataLength;
+    transactionData.transferType   = AFE_I2C_TRANSFER_TYPE_READ;
+    if (OS_SendToBackOfQueue(ftsk_afeToI2cQueue, (void *)&transactionData, 0u) == OS_SUCCESS) {
+        /* queue is not full */
+        /* wating for transfer to finish */
+        if (OS_ReceiveFromQueue(ftsk_afeFromI2cQueue, (void *)&transactionData, N775_I2C_FINISHED_TIMEOUT_ms) ==
+            OS_SUCCESS) {
+            if (transactionData.transferType == AFE_I2C_TRANSFER_TYPE_READ_SUCCESS) {
+                for (uint8_t i = 0u; i < dataLength; i++) {
+                    pData[i] = transactionData.readData[i];
+                }
+                retVal = STD_OK;
+            }
+        }
+    } else {
+        /* queue is full */
+    }
+
+    return retVal;
+}
+
 /**
  * @brief   reset index in string sequence.
  *
  * @param n775_state    state of the N775A driver
  *
  */
-void N775_ResetStringSequence(N775_STATE_s *n775_state) {
+static void N775_ResetStringSequence(N775_STATE_s *n775_state) {
+    FAS_ASSERT(n775_state != NULL_PTR);
+
     n775_state->currentString  = 0u;
     n775_state->pSpiTxSequence = n775_state->pSpiTxSequenceStart + n775_state->currentString;
     n775_state->pSpiRxSequence = n775_state->pSpiRxSequenceStart + n775_state->currentString;
@@ -319,7 +383,9 @@ void N775_ResetStringSequence(N775_STATE_s *n775_state) {
  * @param n775_state    state of the N775A driver
  *
  */
-void N775_IncrementStringSequence(N775_STATE_s *n775_state) {
+static void N775_IncrementStringSequence(N775_STATE_s *n775_state) {
+    FAS_ASSERT(n775_state != NULL_PTR);
+
     n775_state->currentString++;
     n775_state->pSpiTxSequence = n775_state->pSpiTxSequenceStart + n775_state->currentString;
     n775_state->pSpiRxSequence = n775_state->pSpiRxSequenceStart + n775_state->currentString;
@@ -331,7 +397,9 @@ void N775_IncrementStringSequence(N775_STATE_s *n775_state) {
  * @param n775_state    state of the N775A driver
  *
  */
-void N775_ResetMuxIndex(N775_STATE_s *n775_state) {
+static void N775_ResetMuxIndex(N775_STATE_s *n775_state) {
+    FAS_ASSERT(n775_state != NULL_PTR);
+
     n775_state->currentMux[n775_state->currentString]   = 0u;
     n775_state->pMuxSequence[n775_state->currentString] = n775_state->pMuxSequenceStart[n775_state->currentString];
 }
@@ -342,7 +410,9 @@ void N775_ResetMuxIndex(N775_STATE_s *n775_state) {
  * @param n775_state    state of the N775A driver
  *
  */
-void N775_IncrementMuxIndex(N775_STATE_s *n775_state) {
+static void N775_IncrementMuxIndex(N775_STATE_s *n775_state) {
+    FAS_ASSERT(n775_state != NULL_PTR);
+
     n775_state->currentMux[n775_state->currentString]++;
     if (n775_state->currentMux[n775_state->currentString] >= N775_MUX_SEQUENCE_LENGTH) {
         n775_state->currentMux[n775_state->currentString] = 0u;
@@ -362,7 +432,9 @@ void N775_IncrementMuxIndex(N775_STATE_s *n775_state) {
  * @param module        number of module addressed
  *
  */
-void N775_ErrorHandling(N775_STATE_s *n775_state, N775_COMMUNICATION_STATUS_e returnedValue, uint8_t module) {
+static void N775_ErrorHandling(N775_STATE_s *n775_state, N775_COMMUNICATION_STATUS_e returnedValue, uint8_t module) {
+    FAS_ASSERT(n775_state != NULL_PTR);
+
     if (returnedValue == N775_COMMUNICATION_OK) {
         n775_state->n775Data.errorTable->communicationOk[n775_state->currentString][module]        = true;
         n775_state->n775Data.errorTable->noCommunicationTimeout[n775_state->currentString][module] = true;
@@ -391,7 +463,7 @@ void N775_ErrorHandling(N775_STATE_s *n775_state, N775_COMMUNICATION_STATUS_e re
  * @param  n775_state  state of the N775A driver
  *
  */
-void N775_Init(N775_STATE_s *n775_state) {
+static void N775_Init(N775_STATE_s *n775_state) {
     FAS_ASSERT(n775_state != NULL_PTR);
 
     /* Reset mux sequence */
@@ -413,7 +485,7 @@ void N775_Init(N775_STATE_s *n775_state) {
  * @param  n775_state  state of the N775A driver
  *
  */
-STD_RETURN_TYPE_e N775_Enumerate(N775_STATE_s *n775_state) {
+static STD_RETURN_TYPE_e N775_Enumerate(N775_STATE_s *n775_state) {
     FAS_ASSERT(n775_state != NULL_PTR);
     uint16_t readValue                        = 0u;
     uint16_t uid[3u]                          = {0};
@@ -490,8 +562,9 @@ STD_RETURN_TYPE_e N775_Enumerate(N775_STATE_s *n775_state) {
  * @param  n775_state  state of the N775A driver
  *
  */
-void N775_I2cInit(N775_STATE_s *n775_state) {
+static void N775_I2cInit(N775_STATE_s *n775_state) {
     FAS_ASSERT(n775_state != NULL_PTR);
+
     /* Enable the I2C module and select 400 kHz */
     N775_CommunicationWrite(
         N775_BROADCAST_ADDRESS,
@@ -510,7 +583,7 @@ void N775_I2cInit(N775_STATE_s *n775_state) {
  * @param  n775_state  state of the N775A driver
  *
  */
-void N775_StartMeasurement(N775_STATE_s *n775_state) {
+static void N775_StartMeasurement(N775_STATE_s *n775_state) {
     FAS_ASSERT(n775_state != NULL_PTR);
 
     /* Enable cell voltage measurements */
@@ -538,7 +611,7 @@ void N775_StartMeasurement(N775_STATE_s *n775_state) {
  * @param  n775_state  state of the N775A driver
  *
  */
-void N775_CaptureMeasurement(N775_STATE_s *n775_state) {
+static void N775_CaptureMeasurement(N775_STATE_s *n775_state) {
     FAS_ASSERT(n775_state != NULL_PTR);
 
     uint16_t primaryRawValues[20]                   = {0u};
@@ -592,7 +665,7 @@ void N775_CaptureMeasurement(N775_STATE_s *n775_state) {
                     primaryValues[c + 1u] = (int16_t)primaryRawValues[c + 1u];
                     n775_state->n775Data.cellVoltage
                         ->cellVoltage_mV[n775_state->currentString][c + (m * BS_NR_OF_CELL_BLOCKS_PER_MODULE)] =
-                        (((float)primaryValues[c + 1u]) * 154.0e-6f * 1000.0f);
+                        (((float_t)primaryValues[c + 1u]) * 154.0e-6f * 1000.0f);
                 } else {
                     error++;
                 }
@@ -603,7 +676,7 @@ void N775_CaptureMeasurement(N775_STATE_s *n775_state) {
                     primaryValues[g + 16u] = (int16_t)primaryRawValues[g + 16u];
                     n775_state->n775Data.allGpioVoltage
                         ->gpioVoltages_mV[n775_state->currentString][g + (m * BS_NR_OF_GPIOS_PER_MODULE)] =
-                        (((float)primaryValues[g + 16u]) * 154.0e-6f * 1000.0f);
+                        (((float_t)primaryValues[g + 16u]) * 154.0e-6f * 1000.0f);
                 } else {
                     gpio03Error = true;
                     error++;
@@ -613,7 +686,7 @@ void N775_CaptureMeasurement(N775_STATE_s *n775_state) {
             if (N775_INVALID_REGISTER_VALUE != primaryRawValues[15u]) {
                 primaryValues[15u] = (int16_t)primaryRawValues[15u];
                 n775_state->n775Data.cellVoltage->moduleVoltage_mV[n775_state->currentString][m] =
-                    (((float)primaryValues[15u]) * 2.58e-3f * 1000.0f);
+                    (((float_t)primaryValues[15u]) * 2.58e-3f * 1000.0f);
             } else {
                 error++;
             }
@@ -626,7 +699,7 @@ void N775_CaptureMeasurement(N775_STATE_s *n775_state) {
                     secondaryValues[g - 4u] = (int16_t)secondaryRawValues[g - 4u];
                     n775_state->n775Data.allGpioVoltage
                         ->gpioVoltages_mV[n775_state->currentString][g + (m * BS_NR_OF_GPIOS_PER_MODULE)] =
-                        (((float)secondaryValues[g - 4u]) * 154.0e-6f * 1000.0f);
+                        (((float_t)secondaryValues[g - 4u]) * 154.0e-6f * 1000.0f);
                 } else {
                     gpio47Error = true;
                     error++;
@@ -669,7 +742,7 @@ void N775_CaptureMeasurement(N775_STATE_s *n775_state) {
                 if (N775_INVALID_REGISTER_VALUE != currentRawValue) {
                     currentValue = (int16_t)currentRawValue;
                     n775_state->n775Data.supplyCurrent->current[n775_state->currentString][m] =
-                        (((float)currentValue) * 7.69e-6f * 1000.0f);
+                        (((float_t)currentValue) * 7.69e-6f * 1000.0f);
                 } else {
                     error++;
                 }
@@ -682,6 +755,326 @@ void N775_CaptureMeasurement(N775_STATE_s *n775_state) {
 }
 
 /**
+ * @brief   tranmit over I2C on NXP slave.
+ *
+ * @param  n775_state       state of the N775A driver
+ *
+ */
+static STD_RETURN_TYPE_e N775_TransmitI2c(N775_STATE_s *n775_state) {
+    FAS_ASSERT(n775_state != NULL_PTR);
+    uint8_t i2cAddressByte                    = 0u;
+    uint16_t readValue                        = 0u;
+    uint16_t tries                            = 0u;
+    STD_RETURN_TYPE_e retVal                  = STD_OK;
+    N775_COMMUNICATION_STATUS_e returnedValue = N775_COMMUNICATION_OK;
+    AFE_I2C_QUEUE_s transactionData;
+
+    if (ftsk_allQueuesCreated == true) {
+        if (OS_ReceiveFromQueue(ftsk_afeToI2cQueue, (void *)&transactionData, 0u) == OS_SUCCESS) {
+            /* Queue was not empty */
+            i2cAddressByte            = (transactionData.deviceAddress << 1u) & 0xFEu; /* I2C address has only 7 bits */
+            uint8_t nack              = 0u;
+            uint8_t registerIncrement = 0u;
+            uint16_t registerStartAddress = 0u;
+            uint16_t dataToWrite          = 0u;
+            uint8_t byteIndex             = 0u;
+            uint8_t bytesWritten          = 0u;
+            uint8_t msbIndex              = 1u;
+            uint8_t lsbIndex              = 1u;
+
+            switch (transactionData.transferType) {
+                case AFE_I2C_TRANSFER_TYPE_WRITE:
+                    transactionData.transferType = AFE_I2C_TRANSFER_TYPE_WRITE_FAIL;
+                    /* First prepare data to send on I2C bus in registers */
+                    i2cAddressByte |= N775_I2C_WRITE;
+                    /* Set I2C device address for write access followed by first byte of data */
+                    N775_CommunicationWrite(
+                        transactionData.module + 1u,
+                        MC33775_I2C_DATA0_OFFSET,
+                        (i2cAddressByte << MC33775_I2C_DATA0_BYTE0_POS) |
+                            (transactionData.writeData[0u] << MC33775_I2C_DATA0_BYTE1_POS),
+                        n775_state->pSpiTxSequence);
+
+                    if (transactionData.writeDataLength > 1u) {
+                        /* Now set data to be written to I2C device */
+                        registerStartAddress = MC33775_I2C_DATA1_OFFSET;
+                        registerIncrement    = 0u;
+                        byteIndex            = 1u;
+                        dataToWrite          = 0u;
+                        while (byteIndex < transactionData.writeDataLength) {
+                            /* Each subsequent data register contains two bytes of read data */
+
+                            if ((byteIndex % 2u) != 0u) {
+                                dataToWrite |= (uint16_t)(transactionData.writeData[byteIndex]) & 0xFFu;
+                                bytesWritten++;
+                            } else {
+                                dataToWrite |= ((uint16_t)(transactionData.writeData[byteIndex]) << 8u) & 0xFF00u;
+                                bytesWritten++;
+                            }
+                            byteIndex++;
+                            if ((bytesWritten == 2u) || (byteIndex == transactionData.writeDataLength)) {
+                                N775_CommunicationWrite(
+                                    transactionData.module + 1u,
+                                    registerStartAddress + registerIncrement,
+                                    dataToWrite,
+                                    n775_state->pSpiTxSequence);
+                                registerIncrement++;
+                                bytesWritten = 0u;
+                                dataToWrite  = 0u;
+                            }
+                        }
+                    }
+                    /* Data to write ready, now start transmisison */
+                    /* Write into the control register to start transaction */
+                    N775_CommunicationWrite(
+                        transactionData.module + 1u,
+                        MC33775_I2C_CTRL_OFFSET,
+                        /* transactionData.writeDataLength + 1u: data + I2C device address byte */
+                        ((transactionData.writeDataLength + 1u) << MC33775_I2C_CTRL_START_POS) |
+                            ((MC33775_I2C_CTRL_STPAFTER_STOP_ENUM_VAL << MC33775_I2C_CTRL_STPAFTER_POS) +
+                             (0u << MC33775_I2C_CTRL_RDAFTER_POS)),
+                        n775_state->pSpiTxSequence);
+                    /* Wait until transaction ends */
+                    tries = N775_FLAG_READY_TRIES;
+                    do {
+                        returnedValue = N775_CommunicationRead(
+                            transactionData.module + 1u, MC33775_I2C_STAT_OFFSET, &readValue, n775_state);
+                        tries--;
+                        N775_waitTime(2u);
+                    } while ((readValue & MC33775_I2C_STAT_PENDING_MSK) && (returnedValue == N775_COMMUNICATION_OK) &&
+                             (tries > 0u));
+
+                    if ((returnedValue == N775_COMMUNICATION_OK) && (tries > 0u)) {
+                        retVal                       = STD_OK;
+                        transactionData.transferType = AFE_I2C_TRANSFER_TYPE_WRITE_SUCCESS;
+                    }
+                    if (OS_SendToBackOfQueue(ftsk_afeFromI2cQueue, (void *)&transactionData, 0u) == OS_SUCCESS) {
+                        /* Queue is not full */
+                    } else {
+                        /* Queue is full */
+                        retVal = STD_NOT_OK;
+                    }
+                    break;
+
+                case AFE_I2C_TRANSFER_TYPE_READ:
+                    transactionData.transferType = AFE_I2C_TRANSFER_TYPE_READ_FAIL;
+                    i2cAddressByte |= N775_I2C_READ;
+                    /* First prepare address to send on I2C bus in registers */
+                    N775_CommunicationWrite(
+                        transactionData.module + 1u,
+                        MC33775_I2C_DATA0_OFFSET,
+                        i2cAddressByte << MC33775_I2C_DATA0_BYTE0_POS,
+                        n775_state->pSpiTxSequence);
+                    /* Write into the control register to start transaction */
+                    /* Stop condition after transfer, no repeated start */
+                    N775_CommunicationWrite(
+                        transactionData.module + 1u,
+                        MC33775_I2C_CTRL_OFFSET,
+                        /* transactionData.dataLength + 1u: data + I2C device address byte */
+                        ((transactionData.readDataLength + 1u) << MC33775_I2C_CTRL_START_POS) |
+                            ((1u << MC33775_I2C_CTRL_STPAFTER_POS) + (0u << MC33775_I2C_CTRL_RDAFTER_POS)),
+                        n775_state->pSpiTxSequence);
+                    /* Wait until transaction ends */
+                    tries = N775_FLAG_READY_TRIES;
+                    do {
+                        returnedValue = N775_CommunicationRead(
+                            transactionData.module + 1u, MC33775_I2C_STAT_OFFSET, &readValue, n775_state);
+                        tries--;
+                        N775_waitTime(2u);
+                    } while ((readValue & MC33775_I2C_STAT_PENDING_MSK) && (returnedValue == N775_COMMUNICATION_OK) &&
+                             (tries > 0u));
+                    /* Now retrieve read data */
+                    nack = readValue & MC33775_I2C_STAT_NACKRCV_MSK;
+                    if ((returnedValue == N775_COMMUNICATION_OK) && (tries > 0u) && (nack == 0u)) {
+                        uint16_t readData[13u] = {0u};
+                        /* In data registers, bytes0 contains the address, read data begins at byte1 */
+                        /* First data register contains byte1, second data register byte2 and byte3, ... */
+                        uint16_t nrOfRegisterToRead = (transactionData.readDataLength / 2u) + 1u;
+                        returnedValue               = N775_CommunicationReadMultiple(
+                            transactionData.module + 1u,
+                            nrOfRegisterToRead,
+                            4u,
+                            MC33775_I2C_DATA0_OFFSET,
+                            readData,
+                            n775_state);
+
+                        /* First data register only contains one byte of the read data */
+                        transactionData.readData[0u] = (uint8_t)((readData[0u] & 0xFF00) >> 8u);
+                        byteIndex                    = 1u;
+                        msbIndex                     = 1u;
+                        lsbIndex                     = 1u;
+                        while (byteIndex < transactionData.readDataLength) {
+                            /* Each subsequent data register contains two bytes of read data */
+                            if ((byteIndex % 2u) != 0u) {
+                                transactionData.readData[byteIndex] = (uint8_t)(readData[lsbIndex] & 0xFFu);
+                                lsbIndex++;
+                            } else {
+                                transactionData.readData[byteIndex] = (uint8_t)((readData[msbIndex] & 0xFF00u) >> 8u);
+                                msbIndex++;
+                            }
+                            byteIndex++;
+                        }
+                        retVal                       = STD_OK;
+                        transactionData.transferType = AFE_I2C_TRANSFER_TYPE_READ_SUCCESS;
+                    }
+                    if (OS_SendToBackOfQueue(ftsk_afeFromI2cQueue, (void *)&transactionData, 0u) == OS_SUCCESS) {
+                        /* Queue is not full */
+                    } else {
+                        /* Queue is full */
+                        retVal = STD_NOT_OK;
+                    }
+                    break;
+
+                case AFE_I2C_TRANSFER_TYPE_WRITEREAD:
+                    transactionData.transferType = AFE_I2C_TRANSFER_TYPE_READ_FAIL;
+                    /* First prepare address to send on I2C bus in registers */
+                    N775_CommunicationWrite(
+                        transactionData.module + 1u,
+                        MC33775_I2C_DATA0_OFFSET,
+                        ((i2cAddressByte | N775_I2C_WRITE) << MC33775_I2C_DATA0_BYTE0_POS) |
+                            (transactionData.writeData[0u] << MC33775_I2C_DATA0_BYTE1_POS),
+                        n775_state->pSpiTxSequence);
+
+                    if (transactionData.writeDataLength > 1u) {
+                        /* Now set data to be written to I2C device */
+                        registerStartAddress                                       = MC33775_I2C_DATA1_OFFSET;
+                        registerIncrement                                          = 0u;
+                        byteIndex                                                  = 1u;
+                        dataToWrite                                                = 0u;
+                        transactionData.writeData[transactionData.writeDataLength] = i2cAddressByte | N775_I2C_READ;
+                        while (byteIndex < (transactionData.writeDataLength + 1)) {
+                            /* Each subsequent data register contains two bytes of read data */
+
+                            if ((byteIndex % 2u) != 0u) {
+                                dataToWrite |= (uint16_t)(transactionData.writeData[byteIndex]) & 0xFFu;
+                                bytesWritten++;
+                            } else {
+                                dataToWrite |= ((uint16_t)(transactionData.writeData[byteIndex]) << 8u) & 0xFF00u;
+                                bytesWritten++;
+                            }
+                            byteIndex++;
+                            if ((bytesWritten == 2u) || (byteIndex == (transactionData.writeDataLength + 1))) {
+                                N775_CommunicationWrite(
+                                    transactionData.module + 1u,
+                                    registerStartAddress + registerIncrement,
+                                    dataToWrite,
+                                    n775_state->pSpiTxSequence);
+                                registerIncrement++;
+                                bytesWritten = 0u;
+                                dataToWrite  = 0u;
+                            }
+                        }
+                    } else {
+                        N775_CommunicationWrite(
+                            transactionData.module + 1u,
+                            MC33775_I2C_DATA1_OFFSET,
+                            ((i2cAddressByte | N775_I2C_READ) << MC33775_I2C_DATA1_BYTE2_POS),
+                            n775_state->pSpiTxSequence);
+                    }
+
+                    /* Write into the control register to start transaction */
+                    /* Stop condition after transfer, repeated start */
+                    N775_CommunicationWrite(
+                        transactionData.module + 1u,
+                        MC33775_I2C_CTRL_OFFSET,
+                        /* transaction length: I2C device address byte for write + data to write
+                                   + I2C device address byte for read + data to read */
+                        ((transactionData.writeDataLength + transactionData.readDataLength + 2u)
+                         << MC33775_I2C_CTRL_START_POS) |
+                            ((1u << MC33775_I2C_CTRL_STPAFTER_POS) +
+                             ((1u + transactionData.writeDataLength) << MC33775_I2C_CTRL_RDAFTER_POS)),
+                        n775_state->pSpiTxSequence);
+                    /* Wait until transaction ends */
+                    tries = N775_FLAG_READY_TRIES;
+                    do {
+                        returnedValue = N775_CommunicationRead(
+                            transactionData.module + 1u, MC33775_I2C_STAT_OFFSET, &readValue, n775_state);
+                        tries--;
+                        N775_waitTime(2u);
+                    } while ((readValue & MC33775_I2C_STAT_PENDING_MSK) && (returnedValue == N775_COMMUNICATION_OK) &&
+                             (tries > 0u));
+                    /* Now retrieve read data */
+                    nack = readValue & MC33775_I2C_STAT_NACKRCV_MSK;
+                    if ((returnedValue == N775_COMMUNICATION_OK) && (tries > 0u) && (nack == 0u)) {
+                        uint16_t readData[13u] = {0u};
+                        /* First data to read is at least in this register */
+                        uint16_t registerOffset = MC33775_I2C_DATA0_OFFSET;
+                        /* Find offset of first register to read */
+                        registerOffset += (transactionData.writeDataLength + 2u) / 2u;
+                        /* In data registers, byte0 contains the device address, byte1 the first byte written */
+                        /* I2C device address byte for read is present before the first read byte */
+                        uint16_t nrOfRegisterToRead = 0u;
+                        if ((transactionData.writeDataLength % 2u) == 0u) {
+                            nrOfRegisterToRead = (transactionData.readDataLength + 1u) / 2u;
+                        } else {
+                            nrOfRegisterToRead = (transactionData.readDataLength / 2u) + 1u;
+                        }
+
+                        returnedValue = N775_CommunicationReadMultiple(
+                            transactionData.module + 1u, nrOfRegisterToRead, 4u, registerOffset, readData, n775_state);
+
+                        /* Second data register only contains one byte of the read data (byte3)
+                           Read data starts at second register because:
+                           byte0: I2C device address for write access
+                           byte1: first byte written
+                           I2C device address byte for read is present before the first read byte
+                           */
+                        if (((transactionData.writeDataLength + 1) % 2u) != 0u) {
+                            byteIndex = 0u;
+                            msbIndex  = 0u;
+                            lsbIndex  = 0u;
+                            while (byteIndex < transactionData.readDataLength) {
+                                /* Each subsequent data register contains two bytes of read data */
+                                if ((byteIndex % 2u) == 0u) {
+                                    transactionData.readData[byteIndex] = (uint8_t)(readData[lsbIndex] & 0xFFu);
+                                    lsbIndex++;
+                                } else {
+                                    transactionData.readData[byteIndex] =
+                                        (uint8_t)((readData[msbIndex] & 0xFF00u) >> 8u);
+                                    msbIndex++;
+                                }
+                                byteIndex++;
+                            }
+                        } else {
+                            byteIndex = 0u;
+                            msbIndex  = 0u;
+                            lsbIndex  = 1u;
+                            while (byteIndex < transactionData.readDataLength) {
+                                /* Each subsequent data register contains two bytes of read data */
+                                if ((byteIndex % 2u) != 0u) {
+                                    transactionData.readData[byteIndex] = (uint8_t)(readData[lsbIndex] & 0xFFu);
+                                    lsbIndex++;
+                                } else {
+                                    transactionData.readData[byteIndex] =
+                                        (uint8_t)((readData[msbIndex] & 0xFF00u) >> 8u);
+                                    msbIndex++;
+                                }
+                                byteIndex++;
+                            }
+                        }
+                        retVal                       = STD_OK;
+                        transactionData.transferType = AFE_I2C_TRANSFER_TYPE_READ_SUCCESS;
+                    }
+                    if (OS_SendToBackOfQueue(ftsk_afeFromI2cQueue, (void *)&transactionData, 0u) == OS_SUCCESS) {
+                        /* Queue is not full */
+                    } else {
+                        /* Queue is full */
+                        retVal = STD_NOT_OK;
+                    }
+                    break;
+
+                default:
+                    /* Invalid value transfer type */
+                    FAS_ASSERT(FAS_TRAP);
+                    break;
+            }
+        }
+    }
+
+    return retVal;
+}
+
+/**
  * @brief   sets mux channel.
  *
  * This function uses I2C to set the mux channel.
@@ -689,7 +1082,7 @@ void N775_CaptureMeasurement(N775_STATE_s *n775_state) {
  * @param  n775_state  state of the N775A driver
  *
  */
-STD_RETURN_TYPE_e N775_SetMuxChannel(N775_STATE_s *n775_state) {
+static STD_RETURN_TYPE_e N775_SetMuxChannel(N775_STATE_s *n775_state) {
     FAS_ASSERT(n775_state != NULL_PTR);
     FAS_ASSERT(n775_state->pMuxSequence[n775_state->currentString]->muxId < 4u);
     FAS_ASSERT(n775_state->pMuxSequence[n775_state->currentString]->muxChannel <= 0xFFu);
@@ -698,7 +1091,7 @@ STD_RETURN_TYPE_e N775_SetMuxChannel(N775_STATE_s *n775_state) {
     uint8_t dataI2c                           = 0u;
     uint8_t addressI2c_write                  = N775_ADG728_ADDRESS_UPPERBITS;
     uint8_t addressI2c_read                   = N775_ADG728_ADDRESS_UPPERBITS;
-    uint16_t timeout                          = 0u;
+    uint16_t tries                            = 0u;
     STD_RETURN_TYPE_e retVAL                  = STD_OK;
     N775_COMMUNICATION_STATUS_e returnedValue = N775_COMMUNICATION_OK;
 
@@ -747,14 +1140,15 @@ STD_RETURN_TYPE_e N775_SetMuxChannel(N775_STATE_s *n775_state) {
      * Wait util transaction ends, test on last device in daisy-chain
      * So device address = number of modules
      */
-    timeout = N775_FLAG_READY_TIMEOUT;
+    tries = N775_FLAG_READY_TRIES;
     do {
         returnedValue =
             N775_CommunicationRead(BS_NR_OF_MODULES_PER_STRING, MC33775_I2C_STAT_OFFSET, &readValue, n775_state);
-        timeout--;
-    } while ((readValue & MC33775_I2C_STAT_PENDING_MSK) && (returnedValue == N775_COMMUNICATION_OK) && (timeout > 0u));
+        tries--;
+        N775_waitTime(2u);
+    } while ((readValue & MC33775_I2C_STAT_PENDING_MSK) && (returnedValue == N775_COMMUNICATION_OK) && (tries > 0u));
 
-    if (returnedValue == N775_COMMUNICATION_OK) {
+    if ((returnedValue == N775_COMMUNICATION_OK) && (tries > 0u)) {
         /**
          *  Get I2C read data, on last device in daisy-chain
          *  Use result to set error state for all slaves to avoid
@@ -796,7 +1190,7 @@ STD_RETURN_TYPE_e N775_SetMuxChannel(N775_STATE_s *n775_state) {
  * @param  n775_state  state of the N775A driver
  *
  */
-void N775_BalanceSetup(N775_STATE_s *n775_state) {
+static void N775_BalanceSetup(N775_STATE_s *n775_state) {
     FAS_ASSERT(n775_state != NULL_PTR);
 
     /* Set global timeout counter to max value */
@@ -835,7 +1229,7 @@ void N775_BalanceSetup(N775_STATE_s *n775_state) {
  * @param  n775_state  state of the N775A driver
  *
  */
-void N775_BalanceControl(N775_STATE_s *n775_state) {
+static void N775_BalanceControl(N775_STATE_s *n775_state) {
     FAS_ASSERT(n775_state != NULL_PTR);
 
     N775_BalanceSetup(n775_state);
@@ -858,15 +1252,8 @@ void N775_BalanceControl(N775_STATE_s *n775_state) {
     }
 }
 
-/**
- * @brief   gets the measurement initialization status.
- *
- * @param  n775_state  state of the N775A driver
- *
- * @return  retval  true if a first measurement cycle was made, false otherwise
- *
- */
 extern bool N775_IsFirstMeasurementCycleFinished(N775_STATE_s *n775_state) {
+    FAS_ASSERT(n775_state != NULL_PTR);
     bool retval = false;
 
     OS_EnterTaskCritical();
@@ -883,6 +1270,8 @@ extern bool N775_IsFirstMeasurementCycleFinished(N775_STATE_s *n775_state) {
  *
  */
 static void N775_SetFirstMeasurementCycleFinished(N775_STATE_s *n775_state) {
+    FAS_ASSERT(n775_state != NULL_PTR);
+
     OS_EnterTaskCritical();
     n775_state->firstMeasurementMade = true;
     OS_ExitTaskCritical();
@@ -896,7 +1285,7 @@ extern void TEST_N775_SetFirstMeasurementCycleFinished(N775_STATE_s *n775_state)
  * @brief   waits for a definite amount of time in ms.
  *
  * This function uses FreeRTOS. It blocks the tasks for
- * the given amount of miliseconds.
+ * the given amount of milliseconds.
  *
  * @param  milliseconds  time to wait in ms
  *
@@ -908,3 +1297,5 @@ void N775_waitTime(uint32_t milliseconds) {
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
+#ifdef UNITY_UNIT_TEST
+#endif

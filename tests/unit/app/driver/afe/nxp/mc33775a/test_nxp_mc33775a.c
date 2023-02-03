@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_nxp_mc33775a.c
  * @author  foxBMS Team
  * @date    2021-10-20 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -72,12 +72,12 @@
 #include "spi_cfg-helper.h"
 #include "uc_msg_t.h"
 
+#include <stdbool.h>
+#include <stdint.h>
+
 TEST_FILE("nxp_mc33775a.c")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
-
-bool spi_txFinished = false;
-bool spi_rxFinished = false;
 
 /** SPI data configuration struct for NXP MC33775A communication, Tx part */
 static spiDAT1_t spi_kNxp775DataConfigTx[BS_NR_OF_STRINGS] = {
@@ -156,6 +156,10 @@ N775_MUX_CH_CFG_s n775_muxSequence[N775_MUX_SEQUENCE_LENGTH] = {
         .muxChannel = 7,
     },
 };
+
+volatile bool ftsk_allQueuesCreated = false;
+OS_QUEUE ftsk_afeToI2cQueue;
+OS_QUEUE ftsk_afeFromI2cQueue;
 
 /*========== Setup and Teardown =============================================*/
 void setUp(void) {

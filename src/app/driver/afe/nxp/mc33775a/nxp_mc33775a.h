@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,12 +43,12 @@
  * @file    nxp_mc33775a.h
  * @author  foxBMS Team
  * @date    2020-05-08 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup DRIVERS
  * @prefix  N775
  *
- * @brief   Headers for the driver for the MC33775A monitoring chip.
+ * @brief   Headers for the driver for the MC33775A analog front-end.
  *
  */
 
@@ -57,6 +57,8 @@
 
 /*========== Includes =======================================================*/
 #include "nxp_mc33775a_cfg.h"
+
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 
@@ -80,7 +82,55 @@ extern N775_STATE_s n775_stateBase;
  */
 extern void N775_Meas(N775_STATE_s *n775_state);
 
+/**
+ * @brief   gets the measurement initialization status.
+ *
+ * @param   n775_state  state of the N775A driver
+ *
+ * @return  true if a first measurement cycle was made, false otherwise
+ *
+ */
 extern bool N775_IsFirstMeasurementCycleFinished(N775_STATE_s *n775_state);
+
+/**
+ * @brief   trigger a write on the I2C bus of the slave.
+ *
+ * @param  module         module number to address in the daisy-chain
+ * @param  deviceAddress  address of the I2C device addressed
+ * @param  pData          data to write on I2C bus
+ * @param  dataLength     number of bytes to write
+ *
+ */
+extern STD_RETURN_TYPE_e N775_I2cWrite(uint8_t module, uint8_t deviceAddress, uint8_t *pData, uint8_t dataLength);
+
+/**
+ * @brief   trigger a read on the I2C bus of the slave, first write address of register to read.
+ *
+ * @param  module           module number to address in the daisy-chain
+ * @param  deviceAddress    address of the I2C device addressed
+ * @param  pDataWrite       data written on I2C bus
+ * @param  writeDataLength  number of bytes to write
+ * @param  pDataRead       data read on I2C bus
+ * @param  readDataLength  number of bytes to read
+ *
+ */
+extern STD_RETURN_TYPE_e N775_I2cWriteRead(
+    uint8_t module,
+    uint8_t deviceAddress,
+    uint8_t *pDataWrite,
+    uint8_t writeDataLength,
+    uint8_t *pDataRead,
+    uint8_t readDataLength);
+/**
+ * @brief   trigger a read on the I2C bus of the slave.
+ *
+ * @param  module         module number to address in the daisy-chain
+ * @param  deviceAddress  address of the I2C device addressed
+ * @param  pData          data read on I2C bus
+ * @param  dataLength     number of bytes to read
+ *
+ */
+extern STD_RETURN_TYPE_e N775_I2cRead(uint8_t module, uint8_t deviceAddress, uint8_t *pData, uint8_t dataLength);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 #ifdef UNITY_UNIT_TEST

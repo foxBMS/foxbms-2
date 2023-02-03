@@ -96,10 +96,10 @@ In the ``SECTIONS`` part of the linker file, the following has to be added:
     .sharedRAM : {} > SHAREDRAM
     /* USER CODE END */
 
-Working with FreeRTOS
-^^^^^^^^^^^^^^^^^^^^^
+Working with |freertos|
+^^^^^^^^^^^^^^^^^^^^^^^
 
-Care must be taken if working with FreeRTOS: the OS will override the
+Care must be taken if working with |freertos|: the OS will override the
 properties of the area defined in |halcogen|.
 
 To avoid this, the function ``vPortStoreTaskMPUSettings()`` has to be modified.

@@ -15,8 +15,8 @@ Driver
 - ``src/app/task/os/os.c`` (`API <../../../../_static/doxygen/src/html/os_8c.html>`__, `source <../../../../_static/doxygen/src/html/os_8c_source.html>`__)
 - ``src/app/task/os/os.h`` (`API <../../../../_static/doxygen/src/html/os_8h.html>`__, `source <../../../../_static/doxygen/src/html/os_8h_source.html>`__)
 
-FreeRTOS
-""""""""
+|freertos|
+""""""""""
 
 - ``src/app/task/os/freertos/os_freertos.c`` (`API <../../../../_static/doxygen/src/html/os__freertos_8c.html>`__, `source <../../../../_static/doxygen/src/html/os__freertos_8c_source.html>`__)
 

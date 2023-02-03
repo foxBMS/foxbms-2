@@ -510,6 +510,29 @@ In the I2C_STAT register (address 0xC02), the status of the transmission can be 
 Bit 1 (ACTIVE) states that a transmission is ongoing. TO check is the ongoing transmission is finished, the register
 must be polled until the value 0 is read for the ACTIVE bit.
 
+Three wrapper functions have been added:
+
+ - ``N775_I2cRead()``
+ - ``N775_I2cWrite()``
+ - ``N775_I2cWriteRead()``
+
+They are similar to the functions used by the MCU, except that the communication takes place over
+the |I2C| bus of the |nxp775|. They take care of writing to and reading from the registers
+described above.
+
+When they are called, they write in the queue ``ftsk_afeToI2cQueue`` that an |I2C| transaction
+must take place and the calling task is blocked. It waits for the queue ``ftsk_afeFromI2cQueue``
+to be filled with one element.
+For a write operation, the data to write on the bus is written to the queue ``ftsk_afeToI2cQueue``, too.
+Elements of the type ``AFE_I2C_QUEUE_s`` are used for the communication with the queue.
+
+In each measurement cycle of the |nxp775|, the function ``N775_TransmitI2c()`` is called once and reads
+the queue ``ftsk_afeToI2cQueue``. If a transaction must take place, it is executed.
+The outcome of the transaction (success or fail) is written  to the queue ``ftsk_afeFromI2cQueue``.
+If data was read, the read data is written to the queue ``ftsk_afeFromI2cQueue``, too.
+The calling function is then unblocked. If it does not get feedback in the queue within
+``N775_I2C_FINISHED_TIMEOUT_ms``, the transaction is considered to have failed.
+
 GPIOs
 -----
 

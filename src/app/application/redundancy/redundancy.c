@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    redundancy.c
  * @author  foxBMS Team
  * @date    2020-07-31 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup APPLICATION
  * @prefix  MRC
  *
@@ -62,6 +62,10 @@
 #include "foxmath.h"
 #include "os.h"
 #include "plausibility.h"
+
+#include <math.h>
+#include <stdbool.h>
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 
@@ -845,14 +849,14 @@ static STD_RETURN_TYPE_e MRC_CalculateCellTemperatureMinMaxAverage(
         uint16_t nrValidCelltemperatures = 0u;
         int16_t min                      = INT16_MAX;
         int16_t max                      = INT16_MIN;
-        float sum_ddegC                  = 0.0f;
+        float_t sum_ddegC                = 0.0f;
 
         for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
             for (uint8_t c = 0u; c < BS_NR_OF_TEMP_SENSORS_PER_MODULE; c++) {
                 if ((pValidatedTemperatures->invalidCellTemperature[s][m] & (0x01u << c)) == 0u) {
                     /* Cell temperature is valid -> use this voltage for subsequent calculations */
                     nrValidCelltemperatures++;
-                    sum_ddegC += (float)pValidatedTemperatures
+                    sum_ddegC += (float_t)pValidatedTemperatures
                                      ->cellTemperature_ddegC[s][(m * BS_NR_OF_TEMP_SENSORS_PER_MODULE) + c];
 
                     if (pValidatedTemperatures->cellTemperature_ddegC[s][(m * BS_NR_OF_TEMP_SENSORS_PER_MODULE) + c] <
@@ -882,7 +886,7 @@ static STD_RETURN_TYPE_e MRC_CalculateCellTemperatureMinMaxAverage(
 
         /* Prevent division by 0, if all cell voltages are invalid */
         if (nrValidCelltemperatures > 0u) {
-            pMinMaxAverageValues->averageTemperature_ddegC[s] = (sum_ddegC / (float)nrValidCelltemperatures);
+            pMinMaxAverageValues->averageTemperature_ddegC[s] = (sum_ddegC / (float_t)nrValidCelltemperatures);
         } else {
             pMinMaxAverageValues->averageTemperature_ddegC[s] = 0.0f;
             retval                                            = STD_NOT_OK;

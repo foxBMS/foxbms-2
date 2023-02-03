@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    sys_mon.h
  * @author  foxBMS Team
  * @date    2019-11-28 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup ENGINE
  * @prefix  SYSM
  *
@@ -58,6 +58,8 @@
 #include "sys_mon_cfg.h"
 
 #include "fram.h"
+
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 /** defines entry or exit */
@@ -147,9 +149,10 @@ extern void SYSM_CopyFramStruct(const FRAM_SYS_MON_RECORD_s *const kpkFrom, FRAM
 /*========== Getter for static Variables (Unit Test) ========================*/
 #ifdef UNITY_UNIT_TEST
 extern SYSM_NOTIFICATION_s *TEST_SYSM_GetNotifications(void);
-
 #endif
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
+#ifdef UNITY_UNIT_TEST
+#endif
 
 #endif /* FOXBMS__SYS_MON_H_ */

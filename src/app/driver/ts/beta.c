@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    beta.c
  * @author  foxBMS Team
  * @date    2020-01-17 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup TEMPERATURE_SENSORS
  * @prefix  BETA
  *
@@ -56,6 +56,10 @@
 #include "beta.h"
 
 #include "foxmath.h"
+
+#include <math.h>
+#include <stdbool.h>
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 
@@ -74,16 +78,20 @@
  * different R_ntc values are used for the calculation.
  */
 /**@{*/
-#if BETA_POSITION_IN_RESISTOR_DIVIDER_IS_R_1 == true
-#define BETA_ADC_VOLTAGE_V_MAX_V \
-    (float)((BETA_RESISTOR_DIVIDER_SUPPLY_VOLTAGE_V * BETA_ResistanceFromTemperature(1400)) / (BETA_ResistanceFromTemperature(1400) + BETA_RESISTOR_DIVIDER_RESISTANCE_R_1_R_2_Ohm))
-#define BETA_ADC_VOLTAGE_V_MIN_V \
-    (float)((BETA_RESISTOR_DIVIDER_SUPPLY_VOLTAGE_V * BETA_ResistanceFromTemperature(-400)) / (BETA_ResistanceFromTemperature(-400) + BETA_RESISTOR_DIVIDER_RESISTANCE_R_1_R_2_Ohm))
+#if defined(BETA_POSITION_IN_RESISTOR_DIVIDER_IS_R_1) && (BETA_POSITION_IN_RESISTOR_DIVIDER_IS_R_1 == true)
+#define BETA_ADC_VOLTAGE_V_MAX_V                                                          \
+    (float_t)(                                                                            \
+        (BETA_RESISTOR_DIVIDER_SUPPLY_VOLTAGE_V * BETA_ResistanceFromTemperature(1400)) / \
+        (BETA_ResistanceFromTemperature(1400) + BETA_RESISTOR_DIVIDER_RESISTANCE_R_1_R_2_Ohm))
+#define BETA_ADC_VOLTAGE_V_MIN_V                                                          \
+    (float_t)(                                                                            \
+        (BETA_RESISTOR_DIVIDER_SUPPLY_VOLTAGE_V * BETA_ResistanceFromTemperature(-400)) / \
+        (BETA_ResistanceFromTemperature(-400) + BETA_RESISTOR_DIVIDER_RESISTANCE_R_1_R_2_Ohm))
 #else /* BETA_POSITION_IN_RESISTOR_DIVIDER_IS_R_1 == false */
 #define BETA_ADC_VOLTAGE_V_MIN_V \
-    ((float)((BETA_RESISTOR_DIVIDER_SUPPLY_VOLTAGE_V * BETA_ResistanceFromTemperature(1400)) / (BETA_ResistanceFromTemperature(1400) + BETA_RESISTOR_DIVIDER_RESISTANCE_R_1_R_2_Ohm)))
+    ((float_t)((BETA_RESISTOR_DIVIDER_SUPPLY_VOLTAGE_V * BETA_ResistanceFromTemperature(1400)) / (BETA_ResistanceFromTemperature(1400) + BETA_RESISTOR_DIVIDER_RESISTANCE_R_1_R_2_Ohm)))
 #define BETA_ADC_VOLTAGE_V_MAX_V \
-    ((float)((BETA_RESISTOR_DIVIDER_SUPPLY_VOLTAGE_V * BETA_ResistanceFromTemperature(-400)) / (BETA_ResistanceFromTemperature(-400) + BETA_RESISTOR_DIVIDER_RESISTANCE_R_1_R_2_Ohm)))
+    ((float_t)((BETA_RESISTOR_DIVIDER_SUPPLY_VOLTAGE_V * BETA_ResistanceFromTemperature(-400)) / (BETA_ResistanceFromTemperature(-400) + BETA_RESISTOR_DIVIDER_RESISTANCE_R_1_R_2_Ohm)))
 #endif
 /**@}*/
 
@@ -95,8 +103,8 @@
 
 extern int16_t BETA_GetTemperatureFromBeta(uint16_t adcVoltage_mV) {
     int16_t temperature_ddegC = 0;
-    float resistance_Ohm      = 0.0f;
-    float adcVoltage_V        = (float)adcVoltage_mV / 1000.0f; /* Convert mV to V */
+    float_t resistance_Ohm    = 0.0f;
+    float_t adcVoltage_V      = (float_t)adcVoltage_mV / 1000.0f; /* Convert mV to V */
 
     /* Check for valid ADC measurements to prevent undefined behavior */
     if (adcVoltage_V > BETA_ADC_VOLTAGE_V_MAX_V) {
@@ -107,7 +115,7 @@ extern int16_t BETA_GetTemperatureFromBeta(uint16_t adcVoltage_mV) {
         temperature_ddegC = INT16_MAX;
     } else {
         /* Calculate NTC resistance based on measured ADC voltage */
-#if BETA_POSITION_IN_RESISTOR_DIVIDER_IS_R_1 == true
+#if defined(BETA_POSITION_IN_RESISTOR_DIVIDER_IS_R_1) && (BETA_POSITION_IN_RESISTOR_DIVIDER_IS_R_1 == true)
         /* R_1 = R_2 * ( ( V_supply / V_adc ) - 1 ) */
         resistance_Ohm = BETA_RESISTOR_DIVIDER_RESISTANCE_R_1_R_2_Ohm *
                          ((BETA_RESISTOR_DIVIDER_SUPPLY_VOLTAGE_V / adcVoltage_V) - 1);
@@ -124,12 +132,12 @@ extern int16_t BETA_GetTemperatureFromBeta(uint16_t adcVoltage_mV) {
     return temperature_ddegC;
 }
 
-extern int16_t BETA_TemperatureFromResistance(float resistance_Ohm) {
+extern int16_t BETA_TemperatureFromResistance(float_t resistance_Ohm) {
     int16_t temperature_ddegC = 0;
     if (resistance_Ohm > 0.0f) {
-        float temperature_degC = (1.0f / ((log(resistance_Ohm / BETA_R_REF_Ohm) / BETA_BETACOEFFICIENT) +
-                                          (1.0f / (BETA_T_REF_C + BETA_KELVIN)))) -
-                                 BETA_KELVIN;
+        float_t temperature_degC = (1.0f / ((log(resistance_Ohm / BETA_R_REF_Ohm) / BETA_BETACOEFFICIENT) +
+                                            (1.0f / (BETA_T_REF_C + BETA_KELVIN)))) -
+                                   BETA_KELVIN;
         temperature_ddegC = (int16_t)(10.0f * temperature_degC); /* Convert to deci &deg;C */
     } else {
         /* Invalid value if as resistance can not be negative */
@@ -138,12 +146,14 @@ extern int16_t BETA_TemperatureFromResistance(float resistance_Ohm) {
     return temperature_ddegC;
 }
 
-extern float BETA_ResistanceFromTemperature(int16_t temperature_ddegC) {
-    float resistance_Ohm = 0.0f;
-    resistance_Ohm       = BETA_R_REF_Ohm *
-                     exp(BETA_BETACOEFFICIENT * ((1.0f / (((float)temperature_ddegC / 10.0f) + BETA_KELVIN)) -
+extern float_t BETA_ResistanceFromTemperature(int16_t temperature_ddegC) {
+    float_t resistance_Ohm = 0.0f;
+    resistance_Ohm         = BETA_R_REF_Ohm *
+                     exp(BETA_BETACOEFFICIENT * ((1.0f / (((float_t)temperature_ddegC / 10.0f) + BETA_KELVIN)) -
                                                  (1.0f / (BETA_T_REF_C + BETA_KELVIN))));
     return resistance_Ohm;
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
+#ifdef UNITY_UNIT_TEST
+#endif

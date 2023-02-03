@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_can_helper.c
  * @author  foxBMS Team
  * @date    2021-04-22 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -59,7 +59,6 @@
 #include "Mockdiag.h"
 #include "Mockfoxmath.h"
 #include "Mockimd.h"
-#include "Mockmpu_prototypes.h"
 #include "Mockos.h"
 
 #include "database_cfg.h"
@@ -67,6 +66,9 @@
 #include "can_cbs_tx.h"
 #include "can_helper.h"
 #include "test_assert_helper.h"
+
+#include <stdbool.h>
+#include <stdint.h>
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 

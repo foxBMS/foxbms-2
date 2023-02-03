@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_i2c.c
  * @author  foxBMS Team
  * @date    2021-07-23 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -56,7 +56,9 @@
 #include "unity.h"
 #include "MockHL_i2c.h"
 #include "MockHL_sys_dma.h"
+#include "Mockmcu.h"
 #include "Mockos.h"
+#include "Mocktask.h"
 
 #include "i2c.h"
 

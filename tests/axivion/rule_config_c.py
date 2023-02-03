@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -44,16 +44,16 @@ import axivion.config  # pylint: disable=import-error
 
 analysis = axivion.config.get_analysis()
 
-analysis["Generic-LocalInclude"].msg["add_include"].disabled = True
-analysis["Generic-LocalInclude"].msg["add_symbol_declaration"].disabled = True
+analysis["Generic-LocalInclude"].msg["add_include"].disabled = False
+analysis["Generic-LocalInclude"].msg["add_symbol_declaration"].disabled = False
 analysis["Generic-LocalInclude"].msg["bad_pch_use"].disabled = True
 analysis["Generic-LocalInclude"].msg["circular_include"].disabled = False
 analysis["Generic-LocalInclude"].msg["contents_covered_include"].disabled = True
 analysis["Generic-LocalInclude"].msg["covered_include"].disabled = True
 analysis["Generic-LocalInclude"].msg["local_decl_instead_of_include"].disabled = True
 analysis["Generic-LocalInclude"].msg["local_def_instead_of_include"].disabled = True
-analysis["Generic-LocalInclude"].msg["more_precise_include"].disabled = True
-analysis["Generic-LocalInclude"].msg["move_include"].disabled = True
+analysis["Generic-LocalInclude"].msg["more_precise_include"].disabled = False
+analysis["Generic-LocalInclude"].msg["move_include"].disabled = False
 analysis["Generic-LocalInclude"].msg["move_include_with_many_clients"].disabled = True
 analysis["Generic-LocalInclude"].msg["unused_include"].disabled = False
 

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    bender_iso165c_cfg.h
  * @author  foxBMS Team
  * @date    2021-03-17 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  I165C
  *
@@ -61,13 +61,14 @@
 #define FOXBMS__BENDER_ISO165C_CFG_H_
 
 /*========== Includes =======================================================*/
-#include "general.h"
 
 /* clang-format off */
 #include "imd.h"
 /* clang-format on */
 
 #include "can_cfg.h"
+
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 /** CAN Node the IMD device is connected to */
@@ -143,9 +144,13 @@
 /** cyclic message, transmitted every second */
 #define I165C_MESSAGETYPE_IMD_INFO (CANRX_IMD_INFO_ID)
 /** message for requests (self test, reset, set values...) */
-#define I165C_MESSAGETYPE_IMD_REQUEST (CANRX_IMD_REQUEST_ID)
+#define I165C_MESSAGETYPE_IMD_REQUEST (CANTX_IMD_REQUEST_ID)
 /** answer message, always send by I165C when it received a request*/
 #define I165C_MESSAGETYPE_IMD_RESPONSE (CANRX_IMD_RESPONSE_ID)
+/** RX message identifier type */
+#define I165C_RX_MESSAGE_IDENTIFIER_TYPE (CANRX_IMD_ID_TYPE)
+/** TX message identifier type */
+#define I165C_TX_MESSAGE_IDENTIFIER_TYPE (CANTX_IMD_ID_TYPE)
 
 /** control commands (CTL) */
 
@@ -330,5 +335,7 @@
 /*========== Extern Function Prototypes =====================================*/
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
+#ifdef UNITY_UNIT_TEST
+#endif
 
 #endif /* FOXBMS__BENDER_ISO165C_CFG_H_ */

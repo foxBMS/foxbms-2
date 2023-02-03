@@ -20,6 +20,7 @@ to know when interacting with it.
 
 Checking Database Entries
 -------------------------
+
 The build process automatically checks instances of database entries if they
 are correctly initialized. For correct operation of the database functions
 it is vital that each variable representing a database table has its member

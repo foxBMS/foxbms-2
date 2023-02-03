@@ -34,7 +34,7 @@ The following steps need to be applied:
 
    - Add the ``include`` directory in all ``wscript``-files where needed. This
      will affect most ``wscript``-files. This looks e.g., like this for a
-     FreeRTOS and LTC6806 configuration:
+     |freertos| and LTC6806 configuration:
 
      .. literalinclude:: without-halcogen/without-halcogen_diff-includes.diff
         :language: diff

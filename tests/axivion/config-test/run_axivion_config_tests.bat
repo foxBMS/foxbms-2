@@ -1,4 +1,4 @@
-@REM Copyright (c) 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+@REM Copyright (c) 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 @REM All rights reserved.
 @REM
 @REM SPDX-License-Identifier: BSD-3-Clause
@@ -73,7 +73,7 @@
     )
 )
 @echo Found '%TEST_RUNNER%'
-@%TEST_RUNNER% test_*.c* test_*/test_*.c*
+@%TEST_RUNNER% test_*.c*
 @SET TEST_RUNNER_EXIT_LEVEL=%ERRORLEVEL%
 @SET BAUHAUS_CONFIG=
 @popd

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    can_cfg.c
  * @author  foxBMS Team
  * @date    2019-12-04 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  CAN
  *
@@ -62,6 +62,8 @@
 #include "database.h"
 #include "ftask.h"
 
+#include <stdint.h>
+
 /*========== Macros and Definitions =========================================*/
 
 /*========== Static Function Prototypes =====================================*/
@@ -69,6 +71,13 @@
 /*========== Static Constant and Variable Definitions =======================*/
 
 /*========== Extern Constant and Variable Definitions =======================*/
+const CAN_NODE_s can_node1 = {
+    .canNodeRegister = canREG1,
+};
+
+const CAN_NODE_s can_node2Isolated = {
+    .canNodeRegister = canREG2,
+};
 
 /** local copies of database tables */
 /**@{*/
@@ -77,11 +86,11 @@ static DATA_BLOCK_CELL_TEMPERATURE_s can_tableTemperatures    = {.header.uniqueI
 static DATA_BLOCK_MIN_MAX_s can_tableMinimumMaximumValues     = {.header.uniqueId = DATA_BLOCK_ID_MIN_MAX};
 static DATA_BLOCK_CURRENT_SENSOR_s can_tableCurrentSensor     = {.header.uniqueId = DATA_BLOCK_ID_CURRENT_SENSOR};
 static DATA_BLOCK_OPEN_WIRE_s can_tableOpenWire               = {.header.uniqueId = DATA_BLOCK_ID_OPEN_WIRE_BASE};
-static DATA_BLOCK_STATEREQUEST_s can_tableStateRequest        = {.header.uniqueId = DATA_BLOCK_ID_STATEREQUEST};
+static DATA_BLOCK_STATE_REQUEST_s can_tableStateRequest       = {.header.uniqueId = DATA_BLOCK_ID_STATE_REQUEST};
 static DATA_BLOCK_PACK_VALUES_s can_tablePackValues           = {.header.uniqueId = DATA_BLOCK_ID_PACK_VALUES};
 static DATA_BLOCK_SOF_s can_tableSof                          = {.header.uniqueId = DATA_BLOCK_ID_SOF};
 static DATA_BLOCK_SOX_s can_tableSox                          = {.header.uniqueId = DATA_BLOCK_ID_SOX};
-static DATA_BLOCK_ERRORSTATE_s can_tableErrorState            = {.header.uniqueId = DATA_BLOCK_ID_ERRORSTATE};
+static DATA_BLOCK_ERROR_STATE_s can_tableErrorState           = {.header.uniqueId = DATA_BLOCK_ID_ERROR_STATE};
 static DATA_BLOCK_INSULATION_MONITORING_s can_tableInsulation = {
     .header.uniqueId = DATA_BLOCK_ID_INSULATION_MONITORING};
 static DATA_BLOCK_MSL_FLAG_s can_tableMslFlags = {.header.uniqueId = DATA_BLOCK_ID_MSL_FLAG};
@@ -115,5 +124,4 @@ const CAN_SHIM_s can_kShim = {
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
 #ifdef UNITY_UNIT_TEST
-
 #endif

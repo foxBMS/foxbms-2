@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    can_cbs_rx_imd.c
  * @author  foxBMS Team
  * @date    2021-04-20 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup DRIVER
  * @prefix  CANRX
  *
@@ -57,6 +57,8 @@
 #include "can_cfg_rx-message-definitions.h"
 #include "can_helper.h"
 #include "foxmath.h"
+
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 
@@ -76,6 +78,7 @@ extern uint32_t CANRX_ImdInfo(
     /* This handler is only implemented for little endian */
     FAS_ASSERT(message.endianness == CAN_LITTLE_ENDIAN);
     FAS_ASSERT(message.id == CANRX_IMD_INFO_ID);
+    FAS_ASSERT(message.idType == CANRX_IMD_ID_TYPE);
     FAS_ASSERT(message.dlc <= CAN_MAX_DLC); /* Currently max 8 bytes in a CAN frame */
     FAS_ASSERT(kpkCanData != NULL_PTR);
     FAS_ASSERT(kpkCanShim != NULL_PTR);
@@ -100,6 +103,7 @@ extern uint32_t CANRX_ImdResponse(
     /* This handler is only implemented for little endian */
     FAS_ASSERT(message.endianness == CAN_LITTLE_ENDIAN);
     FAS_ASSERT(message.id == CANRX_IMD_RESPONSE_ID);
+    FAS_ASSERT(message.idType == CANRX_IMD_ID_TYPE);
     FAS_ASSERT(message.dlc <= CAN_MAX_DLC); /* Currently max 8 bytes in a CAN frame */
     FAS_ASSERT(kpkCanData != NULL_PTR);
     FAS_ASSERT(kpkCanShim != NULL_PTR);
@@ -120,3 +124,5 @@ extern uint32_t CANRX_ImdResponse(
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
+#ifdef UNITY_UNIT_TEST
+#endif

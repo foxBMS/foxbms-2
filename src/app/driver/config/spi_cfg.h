@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    spi_cfg.h
  * @author  foxBMS Team
  * @date    2020-03-05 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  SPI
  *
@@ -57,12 +57,13 @@
 #define FOXBMS__SPI_CFG_H_
 
 /*========== Includes =======================================================*/
-#include "general.h"
 
 #include "battery_system_cfg.h"
 
 #include "HL_het.h"
 #include "HL_spi.h"
+
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 
@@ -73,6 +74,9 @@
 #define SPI_SPI4_INDEX (3u)
 #define SPI_SPI5_INDEX (4u)
 /**@}*/
+
+/* Number of SPI interfaces */
+#define SPI_NR_SPI_INTERFACES (5u)
 
 /** Bit in SPIDAT1 register that activates hardware Chip Select hold */
 #define SPI_CSHOLD_BIT (0x10000000u)
@@ -98,11 +102,8 @@
 /** Max number of hardware chip select pins */
 #define SPI_MAX_NUMBER_HW_CS (6u)
 
-/** GIO defines for SPI for Smart Power Switches @{ */
-#define SPI_SPS_CS_GIOPORT     (hetREG2->DOUT)
-#define SPI_SPS_CS_GIOPORT_DIR (hetREG2->DIR)
-#define SPI_SPS_CS_PIN         (1u)
-/**@}*/
+/** SBC MCU chip select pin */
+#define SPI_SBC_MCU_CHIP_SELECT_PIN (0u)
 
 /** enum for spi interface state */
 typedef enum {
@@ -115,6 +116,7 @@ typedef enum {
 typedef enum {
     SPI_CHIP_SELECT_HARDWARE,
     SPI_CHIP_SELECT_SOFTWARE,
+    SPI_CHIP_SELECT_MAX,
 } SPI_CHIP_SELECT_TYPE_e;
 /* INCLUDE MARKER FOR THE DOCUMENTATION; DO NOT MOVE spi-documentation-cs-type-stop-include */
 
@@ -129,6 +131,27 @@ typedef struct {
 } SPI_INTERFACE_CONFIG_s;
 /* INCLUDE MARKER FOR THE DOCUMENTATION; DO NOT MOVE spi-documentation-configuration-stop-include */
 
+/* -------------- SPI Configurations --------------------------------------- */
+/** LTC chip select pin */
+#define SPI_LTC_CHIP_SELECT_PIN (1u)
+
+/** Maxim chip select pin */
+#define SPI_MAXIM_CHIP_SELECT_PIN (0u)
+
+/** NXP chip select pin @{ */
+#define SPI_NXP_TX_CHIP_SELECT_PIN (1u)
+#define SPI_NXP_RX_CHIP_SELECT_PIN (0u)
+/**@}*/
+
+/** FRAM chip select pin */
+#define SPI_FRAM_CHIP_SELECT_PIN (1u)
+
+/** GIO defines for SPI for Smart Power Switches @{ */
+#define SPI_SPS_CS_GIOPORT     (hetREG2->DOUT)
+#define SPI_SPS_CS_GIOPORT_DIR (hetREG2->DIR)
+#define SPI_SPS_CS_PIN         (1u) /* Connected to pin 1 of HET register */
+/**@}*/
+
 /*========== Extern Constant and Variable Declarations ======================*/
 extern SPI_INTERFACE_CONFIG_s spi_ltcInterface[BS_NR_OF_STRINGS];
 extern SPI_INTERFACE_CONFIG_s spi_mxmInterface;
@@ -136,9 +159,7 @@ extern SPI_INTERFACE_CONFIG_s spi_nxp775InterfaceTx[BS_NR_OF_STRINGS];
 extern SPI_INTERFACE_CONFIG_s spi_nxp775InterfaceRx[BS_NR_OF_STRINGS];
 extern SPI_INTERFACE_CONFIG_s spi_framInterface;
 extern SPI_INTERFACE_CONFIG_s spi_spsInterface;
-extern SPI_INTERFACE_CONFIG_s spi_adc0Interface;
-extern SPI_INTERFACE_CONFIG_s spi_adc1Interface;
-extern SPI_INTERFACE_CONFIG_s spi_kSbcMcuInterface;
+extern SPI_INTERFACE_CONFIG_s spi_sbcMcuInterface;
 
 extern SPI_BUSY_STATE_e spi_busyFlags[];
 
@@ -158,5 +179,7 @@ extern void SPI_SpsInterfaceSwitchToHighSpeed(SPI_INTERFACE_CONFIG_s *pSpiSpsInt
 extern void SPI_SpsInterfaceSwitchToLowSpeed(SPI_INTERFACE_CONFIG_s *pSpiSpsInterface);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
+#ifdef UNITY_UNIT_TEST
+#endif
 
 #endif /* FOXBMS__SPI_CFG_H_ */

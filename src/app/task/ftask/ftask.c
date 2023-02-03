@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    ftask.c
  * @author  foxBMS Team
  * @date    2019-08-27 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup TASK
  * @prefix  FTSK
  *
@@ -56,6 +56,8 @@
 #include "ftask.h"
 
 #include "sys_mon.h"
+
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 
@@ -213,6 +215,26 @@ extern void FTSK_CreateTaskCyclicAlgorithm100ms(void *const pvParameters) {
 
 /* AXIVION Next Codeline Style MisraC2012Directive-1.1 MisraC2012-1.2 FaultDetection-DeadBranches: tell the CCS
    compiler tell compiler this function is a task, context save not necessary */
+#pragma TASK(FTSK_CreateTaskI2c)
+extern void FTSK_CreateTaskI2c(void *const pvParameters) {
+    FAS_ASSERT(pvParameters == NULL_PTR);
+    OS_MarkTaskAsRequiringFpuContext();
+
+    /* AXIVION Next Codeline Style Generic-NoEmptyLoops: wait until the 1ms cyclic task setup has finished the
+       pre-cyclic initialization sequence  */
+    while (os_boot != OS_PRE_CYCLIC_INITIALIZATION_HAS_FINISHED) {
+    }
+
+    /* AXIVION Next Codeline Style MisraC2012-2.2 FaultDetection-DeadBranches: FreeRTOS task setup requires an infinite
+     * loop for the user code (see www.freertos.org/a00125.html)*/
+    while (true) {
+        /* user code implementation */
+        FTSK_RunUserCodeI2c();
+    }
+}
+
+/* AXIVION Next Codeline Style MisraC2012Directive-1.1 MisraC2012-1.2 FaultDetection-DeadBranches: tell the CCS
+   compiler tell compiler this function is a task, context save not necessary */
 #pragma TASK(FTSK_CreateTaskAfe)
 extern void FTSK_CreateTaskAfe(void *const pvParameters) {
     FAS_ASSERT(pvParameters == NULL_PTR);
@@ -232,3 +254,5 @@ extern void FTSK_CreateTaskAfe(void *const pvParameters) {
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
+#ifdef UNITY_UNIT_TEST
+#endif

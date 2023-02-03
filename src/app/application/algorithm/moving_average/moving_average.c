@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    moving_average.c
  * @author  foxBMS Team
  * @date    2017-12-18 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup ALGORITHMS
  * @prefix  ALGO
  *
@@ -58,6 +58,11 @@
 #include "algorithm_cfg.h"
 
 #include "database.h"
+#include "fstd_types.h"
+
+#include <math.h>
+#include <stdbool.h>
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 /** TODO */
@@ -103,22 +108,23 @@
 #if ALGO_TICK_ms > ISA_CURRENT_CYCLE_TIME_ms
 #if MOVING_AVERAGE_DURATION_CURRENT_CONFIG_ms / ALGO_TICK_ms > 60000u / ALGO_TICK_ms
 /* If array length of configured time > 60s array take this array size */
-static float MEM_EXT_SDRAM curValues[(MOVING_AVERAGE_DURATION_CURRENT_CONFIG_ms / ALGO_TICK_ms) + 1u] = {};
+static float_t MEM_EXT_SDRAM curValues[(MOVING_AVERAGE_DURATION_CURRENT_CONFIG_ms / ALGO_TICK_ms) + 1u] = {};
 static uint32_t movingAverageCurrentLength = (MOVING_AVERAGE_DURATION_CURRENT_CONFIG_ms / ALGO_TICK_ms) + 1u;
 #else
 /* Take array size of 60s moving average */
-static float MEM_EXT_SDRAM curValues[(60000u / ALGO_TICK_ms) + 1u] = {};
-static uint32_t movingAverageCurrentLength                         = (60000u / ALGO_TICK_ms) + 1;
+static float_t MEM_EXT_SDRAM curValues[(60000u / ALGO_TICK_ms) + 1u] = {};
+static uint32_t movingAverageCurrentLength                           = (60000u / ALGO_TICK_ms) + 1;
 #endif
 #else
 /* If array length of configured time > 60s array take this array size */
 #if (MOVING_AVERAGE_DURATION_CURRENT_CONFIG_ms / ISA_CURRENT_CYCLE_TIME_ms) > (60000u / ISA_CURRENT_CYCLE_TIME_ms)
-static float MEM_EXT_SDRAM curValues[(MOVING_AVERAGE_DURATION_CURRENT_CONFIG_ms / ISA_CURRENT_CYCLE_TIME_ms) + 1u] = {};
+static float_t MEM_EXT_SDRAM
+    curValues[(MOVING_AVERAGE_DURATION_CURRENT_CONFIG_ms / ISA_CURRENT_CYCLE_TIME_ms) + 1u] = {};
 static uint32_t movingAverageCurrentLength = (MOVING_AVERAGE_DURATION_CURRENT_CONFIG_ms / ISA_CURRENT_CYCLE_TIME_ms) +
                                              1u;
 #else
 /* Take array size of 60s moving average */
-static float MEM_EXT_SDRAM curValues[(60000u / ISA_CURRENT_CYCLE_TIME_ms) + 1u] = {0.0f};
+static float_t MEM_EXT_SDRAM curValues[(60000u / ISA_CURRENT_CYCLE_TIME_ms) + 1u] = {0.0f};
 static uint32_t movingAverageCurrentLength = (60000u / ISA_CURRENT_CYCLE_TIME_ms) + 1u;
 #endif
 #endif
@@ -127,43 +133,43 @@ static uint32_t movingAverageCurrentLength = (60000u / ISA_CURRENT_CYCLE_TIME_ms
 #if ALGO_TICK_ms > ISA_POWER_CYCLE_TIME_ms
 #if (MOVING_AVERAGE_DURATION_POWER_CONFIG_ms / ALGO_TICK_ms) > (60000u / ALGO_TICK_ms)
 /* If array length of configured time > 60s array take this array size */
-static float MEM_EXT_SDRAM powValues[(MOVING_AVERAGE_DURATION_POWER_CONFIG_ms / ALGO_TICK_ms) + 1u] = {};
+static float_t MEM_EXT_SDRAM powValues[(MOVING_AVERAGE_DURATION_POWER_CONFIG_ms / ALGO_TICK_ms) + 1u] = {};
 static uint32_t movingAveragePowerLength = (MOVING_AVERAGE_DURATION_POWER_CONFIG_ms / ALGO_TICK_ms) + 1u;
 #else
 /* Take array size of 60s moving average */
-static float MEM_EXT_SDRAM powValues[(60000u / ALGO_TICK_ms) + 1] = {};
-static uint32_t movingAveragePowerLength                          = (60000u / ALGO_TICK_ms) + 1u;
+static float_t MEM_EXT_SDRAM powValues[(60000u / ALGO_TICK_ms) + 1] = {};
+static uint32_t movingAveragePowerLength                            = (60000u / ALGO_TICK_ms) + 1u;
 #endif
 #else
 #if (MOVING_AVERAGE_DURATION_POWER_CONFIG_ms / ISA_POWER_CYCLE_TIME_ms) > (60000u / ISA_POWER_CYCLE_TIME_ms)
 /* If array length of configured time > 60s array take this array size */
-static float MEM_EXT_SDRAM powValues[(MOVING_AVERAGE_DURATION_POWER_CONFIG_ms / ISA_POWER_CYCLE_TIME_ms) + 1u] = {};
+static float_t MEM_EXT_SDRAM powValues[(MOVING_AVERAGE_DURATION_POWER_CONFIG_ms / ISA_POWER_CYCLE_TIME_ms) + 1u] = {};
 static uint32_t movingAveragePowerLength = (MOVING_AVERAGE_DURATION_POWER_CONFIG_ms / ISA_POWER_CYCLE_TIME_ms) + 1u;
 #else
 /* Take array size of 60s moving average */
-static float MEM_EXT_SDRAM powValues[(60000u / ISA_POWER_CYCLE_TIME_ms) + 1u] = {0.0f};
-static uint32_t movingAveragePowerLength                                      = (60000u / ISA_POWER_CYCLE_TIME_ms) + 1u;
+static float_t MEM_EXT_SDRAM powValues[(60000u / ISA_POWER_CYCLE_TIME_ms) + 1u] = {0.0f};
+static uint32_t movingAveragePowerLength = (60000u / ISA_POWER_CYCLE_TIME_ms) + 1u;
 #endif
 #endif
 
 /** Pointer for current moving average calculation @{*/
-static float *pMovingAverageCurrentNew  = &curValues[0];
-static float *pMovingAverageCurrent_1s  = &curValues[0];
-static float *pMovingAverageCurrent_5s  = &curValues[0];
-static float *pMovingAverageCurrent_10s = &curValues[0];
-static float *pMovingAverageCurrent_30s = &curValues[0];
-static float *pMovingAverageCurrent_60s = &curValues[0];
-static float *pMovingAverageCurrent_cfg = &curValues[0];
+static float_t *pMovingAverageCurrentNew  = &curValues[0];
+static float_t *pMovingAverageCurrent_1s  = &curValues[0];
+static float_t *pMovingAverageCurrent_5s  = &curValues[0];
+static float_t *pMovingAverageCurrent_10s = &curValues[0];
+static float_t *pMovingAverageCurrent_30s = &curValues[0];
+static float_t *pMovingAverageCurrent_60s = &curValues[0];
+static float_t *pMovingAverageCurrent_cfg = &curValues[0];
 /**@}*/
 
 /** Pointer for power moving average calculation @{*/
-static float *pMovingAveragePowerNew  = &powValues[0];
-static float *pMovingAveragePower_1s  = &powValues[0];
-static float *pMovingAveragePower_5s  = &powValues[0];
-static float *pMovingAveragePower_10s = &powValues[0];
-static float *pMovingAveragePower_30s = &powValues[0];
-static float *pMovingAveragePower_60s = &powValues[0];
-static float *pMovingAveragePower_cfg = &powValues[0];
+static float_t *pMovingAveragePowerNew  = &powValues[0];
+static float_t *pMovingAveragePower_1s  = &powValues[0];
+static float_t *pMovingAveragePower_5s  = &powValues[0];
+static float_t *pMovingAveragePower_10s = &powValues[0];
+static float_t *pMovingAveragePower_30s = &powValues[0];
+static float_t *pMovingAveragePower_60s = &powValues[0];
+static float_t *pMovingAveragePower_cfg = &powValues[0];
 /**@}*/
 
 /*========== Extern Constant and Variable Definitions =======================*/
@@ -181,7 +187,7 @@ extern void ALGO_MovAverage(void) {
     static uint8_t curInit   = 0u; /* bit0: 1s, bit1: 5s, bit2: 10s, bit3: 30s, bit4: 60s, bit5: cfg */
     static uint8_t powInit   = 0u; /* bit0: 1s, bit1: 5s, bit2: 10s, bit3: 30s, bit4: 60s, bit5: cfg */
     static uint8_t newValues = 0u;
-    float divider            = 0.0f;
+    float_t divider          = 0.0f;
     bool validValues         = true;
 
     DATA_READ_DATA(&curPow_tab);
@@ -433,3 +439,5 @@ extern void ALGO_MovAverage(void) {
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
+#ifdef UNITY_UNIT_TEST
+#endif

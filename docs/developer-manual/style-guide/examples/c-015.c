@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -39,13 +39,43 @@
  *
  */
 
+/**
+ * @file    c-015.c
+ * @author  foxBMS Team
+ * @date    2021-06-04 (date of creation)
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
+ * @ingroup GUIDELINES
+ * @prefix  ABC
+ *
+ * @brief   Example code to show the application of the C coding guidelines
+ * @details This code implements an example for C:015
+ *
+ */
+
+/*========== Includes =======================================================*/
 #include "c-015.h"
 
-extern uint32_t ABC_ArrayAverage(uint8_t *pArray, uint8_t arrayLength, uint8_t additionalParameter) {
-    /* AXIVION Routine Generic-MissingParameterAssert: additionalParameter: This parameter is unused in this example */
+#include "fassert.h"
+#include "fstd_types.h"
 
+#include <stdint.h>
+
+/*========== Macros and Definitions =========================================*/
+
+/*========== Static Constant and Variable Definitions =======================*/
+
+/*========== Extern Constant and Variable Definitions =======================*/
+
+/*========== Static Function Prototypes =====================================*/
+
+/*========== Static Function Implementations ================================*/
+
+/*========== Extern Function Implementations ================================*/
+extern uint32_t ABC_ArrayAverage(uint8_t *pArray, uint8_t arrayLength, uint8_t additionalParameter) {
     FAS_ASSERT(pArray != NULL_PTR);
     FAS_ASSERT(arrayLength > 0u);
+    /* AXIVION Routine Generic-MissingParameterAssert: additionalParameter: This parameter is unused in this example */
 
     /* unused parameter just for the example */
     (void)additionalParameter;
@@ -58,3 +88,7 @@ extern uint32_t ABC_ArrayAverage(uint8_t *pArray, uint8_t arrayLength, uint8_t a
     sum /= arrayLength;
     return sum;
 }
+
+/*========== Externalized Static Function Implementations (Unit Test) =======*/
+#ifdef UNITY_UNIT_TEST
+#endif

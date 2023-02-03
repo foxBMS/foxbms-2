@@ -1,0 +1,29 @@
+Setting;                                        Details (define name)
+Maximum discharge temperature MSL;              ``BC_TEMPERATURE_MAX_DISCHARGE_MSL_ddegC``
+Maximum discharge temperature RSL;              ``BC_TEMPERATURE_MAX_DISCHARGE_RSL_ddegC``
+Maximum discharge temperature MOL;              ``BC_TEMPERATURE_MAX_DISCHARGE_MOL_ddegC``
+Minimum discharge temperature MSL;              ``BC_TEMPERATURE_MIN_DISCHARGE_MSL_ddegC``
+Minimum discharge temperature RSL;              ``BC_TEMPERATURE_MIN_DISCHARGE_RSL_ddegC``
+Minimum discharge temperature MOL;              ``BC_TEMPERATURE_MIN_DISCHARGE_MOL_ddegC``
+Maximum temperature limit during charge MSL;    ``BC_TEMPERATURE_MAX_CHARGE_MSL_ddegC``
+Maximum temperature limit during charge RSL;    ``BC_TEMPERATURE_MAX_CHARGE_RSL_ddegC``
+Maximum temperature limit during charge MOL;    ``BC_TEMPERATURE_MAX_CHARGE_MOL_ddegC``
+Minimum temperature limit during discharge MSL; ``BC_TEMPERATURE_MIN_CHARGE_MSL_ddegC``
+Minimum temperature limit during discharge RSL; ``BC_TEMPERATURE_MIN_CHARGE_RSL_ddegC``
+Minimum temperature limit during discharge MOL; ``BC_TEMPERATURE_MIN_CHARGE_MOL_ddegC``
+Maximum cell voltage limit MSL;                 ``BC_VOLTAGE_MAX_MSL_mV``
+Maximum cell voltage limit RSL;                 ``BC_VOLTAGE_MAX_RSL_mV``
+Maximum cell voltage limit MOL;                 ``BC_VOLTAGE_MAX_MOL_mV``
+Nominal cell voltage;                           ``BC_VOLTAGE_NOMINAL_mV``
+Minimum cell voltage limit MSL;                 ``BC_VOLTAGE_MIN_MSL_mV``
+Minimum cell voltage limit RSL;                 ``BC_VOLTAGE_MIN_RSL_mV``
+Minimum cell voltage limit MOL;                 ``BC_VOLTAGE_MIN_MOL_mV``
+Deep-discharge cell voltage limit;              ``BC_VOLTAGE_DEEP_DISCHARGE_mV``
+Maximum discharge current limit MSL;            ``BC_CURRENT_MAX_DISCHARGE_MSL_mA``
+Maximum discharge current limit RSL;            ``BC_CURRENT_MAX_DISCHARGE_RSL_mA``
+Maximum discharge current limit MOL;            ``BC_CURRENT_MAX_DISCHARGE_MOL_mA``
+Maximum charge current limit MSL;               ``BC_CURRENT_MAX_CHARGE_MSL_mA``
+Maximum charge current limit RSL;               ``BC_CURRENT_MAX_CHARGE_RSL_mA``
+Maximum charge current limit MOL;               ``BC_CURRENT_MAX_CHARGE_MOL_mA``
+Cell capacity used for SOC calculation;         ``BC_CAPACITY_mAh``
+Cell energy;                                    ``BC_ENERGY_Wh``

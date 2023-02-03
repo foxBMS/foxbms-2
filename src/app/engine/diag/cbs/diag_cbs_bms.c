@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    diag_cbs_bms.c
  * @author  foxBMS Team
  * @date    2022-07-26 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup APPLICATION
  * @prefix  DIAG
  *
@@ -54,6 +54,10 @@
 
 /*========== Includes =======================================================*/
 #include "diag_cbs.h"
+#include "fassert.h"
+#include "fstd_types.h"
+
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 
@@ -78,11 +82,44 @@ extern void DIAG_AlertFlag(
     (void)data; /* data is unused */
 
     if (event == DIAG_EVENT_RESET) {
-        kpkDiagShim->pTableError->alertFlag = false;
+        kpkDiagShim->pTableError->alertFlagSetError = false;
     }
     if (event == DIAG_EVENT_NOT_OK) {
-        kpkDiagShim->pTableError->alertFlag = true;
+        kpkDiagShim->pTableError->alertFlagSetError = true;
+    }
+}
+
+extern void DIAG_PrechargeProcess(
+    DIAG_ID_e diagId,
+    DIAG_EVENT_e event,
+    const DIAG_DATABASE_SHIM_s *const kpkDiagShim,
+    uint32_t stringNumber) {
+    FAS_ASSERT(
+        (diagId == DIAG_ID_PRECHARGE_ABORT_REASON_VOLTAGE) || (diagId == DIAG_ID_PRECHARGE_ABORT_REASON_CURRENT));
+    FAS_ASSERT((event == DIAG_EVENT_OK) || (event == DIAG_EVENT_NOT_OK) || (event == DIAG_EVENT_RESET));
+    FAS_ASSERT(kpkDiagShim != NULL_PTR);
+    FAS_ASSERT(stringNumber < BS_NR_OF_STRINGS);
+
+    if (diagId == DIAG_ID_PRECHARGE_ABORT_REASON_VOLTAGE) {
+        if (event == DIAG_EVENT_RESET) {
+            kpkDiagShim->pTableError->prechargeAbortedDueToVoltage[stringNumber] = false;
+        }
+        if (event == DIAG_EVENT_NOT_OK) {
+            kpkDiagShim->pTableError->prechargeAbortedDueToVoltage[stringNumber] = true;
+        }
+    } else if (diagId == DIAG_ID_PRECHARGE_ABORT_REASON_CURRENT) {
+        if (event == DIAG_EVENT_RESET) {
+            kpkDiagShim->pTableError->prechargeAbortedDueToCurrent[stringNumber] = false;
+        }
+        if (event == DIAG_EVENT_NOT_OK) {
+            kpkDiagShim->pTableError->prechargeAbortedDueToCurrent[stringNumber] = true;
+        }
+    } else {
+        /* We should never reach this case */
+        FAS_ASSERT(FAS_TRAP);
     }
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
+#ifdef UNITY_UNIT_TEST
+#endif

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    version_cfg.h
  * @author  foxBMS Team
  * @date    2021-07-14 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup GENERAL
  * @prefix  VER
  *
@@ -56,7 +56,9 @@
 #define FOXBMS__VERSION_CFG_H_
 
 /*========== Includes =======================================================*/
-#include "general.h"
+
+#include <stdbool.h>
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 /** maximum length of the string #VER_VERSION_s::gitRemote
@@ -94,5 +96,7 @@ extern const VER_VERSION_s ver_foxbmsVersionInformation;
 /*========== Extern Function Prototypes =====================================*/
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
+#ifdef UNITY_UNIT_TEST
+#endif
 
 #endif /* FOXBMS__VERSION_CFG_H_ */

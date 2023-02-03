@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    diag_cbs_current-sensor.c
  * @author  foxBMS Team
  * @date    2021-02-17 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup ENGINE
  * @prefix  DIAG
  *
@@ -54,6 +54,10 @@
 
 /*========== Includes =======================================================*/
 #include "diag_cbs.h"
+#include "fassert.h"
+#include "fstd_types.h"
+
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 
@@ -78,26 +82,28 @@ void DIAG_ErrorCurrentSensor(
 
     if (diagId == DIAG_ID_CURRENT_SENSOR_RESPONDING) {
         if (event == DIAG_EVENT_RESET) {
-            kpkDiagShim->pTableError->currentSensor[stringNumber] = 0;
+            kpkDiagShim->pTableError->currentSensorNotRespondingError[stringNumber] = false;
         }
         if (event == DIAG_EVENT_NOT_OK) {
-            kpkDiagShim->pTableError->currentSensor[stringNumber] = 1;
+            kpkDiagShim->pTableError->currentSensorNotRespondingError[stringNumber] = true;
         }
     } else if (diagId == DIAG_ID_CAN_CC_RESPONDING) {
         if (event == DIAG_EVENT_RESET) {
-            kpkDiagShim->pTableError->canTimingCc[stringNumber] = 0;
+            kpkDiagShim->pTableError->currentSensorCoulombCounterTimeoutError[stringNumber] = false;
         }
         if (event == DIAG_EVENT_NOT_OK) {
-            kpkDiagShim->pTableError->canTimingCc[stringNumber] = 1;
+            kpkDiagShim->pTableError->currentSensorCoulombCounterTimeoutError[stringNumber] = true;
         }
     } else if (diagId == DIAG_ID_CAN_EC_RESPONDING) {
         if (event == DIAG_EVENT_RESET) {
-            kpkDiagShim->pTableError->canTimingEc[stringNumber] = 0;
+            kpkDiagShim->pTableError->currentSensorEnergyCounterTimeoutError[stringNumber] = false;
         }
         if (event == DIAG_EVENT_NOT_OK) {
-            kpkDiagShim->pTableError->canTimingEc[stringNumber] = 1;
+            kpkDiagShim->pTableError->currentSensorEnergyCounterTimeoutError[stringNumber] = true;
         }
     }
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
+#ifdef UNITY_UNIT_TEST
+#endif

@@ -29,6 +29,8 @@
 #include "spi.h"
 #include "uc_msg_t.h"
 
+#include <stdint.h>
+
 /*========== Macros and Definitions =========================================*/
 
 /** defines for addresses */
@@ -146,5 +148,7 @@ N775_COMMUNICATION_STATUS_e N775_CommunicationDecomposeMessage(
     uint8_t string);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
+#ifdef UNITY_UNIT_TEST
+#endif
 
 #endif /* FOXBMS__NXP_MC33775A_LL_H_ */

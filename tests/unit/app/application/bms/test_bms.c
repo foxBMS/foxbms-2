@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_bms.c
  * @author  foxBMS Team
  * @date    2020-04-01 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -73,6 +73,8 @@
 #include "bms.h"
 #include "foxmath.h"
 #include "test_assert_helper.h"
+
+#include <stdbool.h>
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 DIAG_ID_CFG_s diag_diagnosisIdConfiguration[] = {};
@@ -266,6 +268,8 @@ void testCheckPrechargeIterateStub(void) {
         char buffer[30];
         snprintf(buffer, 30, "Loop iteration %d.", i);
         for (uint8_t s = 0; s < BS_NR_OF_STRINGS; s++) {
+            DIAG_Handler_IgnoreAndReturn(DIAG_HANDLER_RETURN_OK);
+            DIAG_Handler_IgnoreAndReturn(DIAG_HANDLER_RETURN_OK);
             TEST_ASSERT_EQUAL_MESSAGE(
                 prechargeExpectedResults[s][i], TEST_BMS_CheckPrecharge(s, &tablePackValues), buffer);
         }
@@ -282,7 +286,7 @@ void testBMS_GetCurrentFlowDirectionWithTypicalValues(void) {
     always valid for the currently active defines.
     */
 
-#if (POSITIVE_DISCHARGE_CURRENT == true)
+#if (BS_POSITIVE_DISCHARGE_CURRENT == true)
     /* discharge is positive */
 
     /* maximum positive current has to be discharge */
@@ -320,14 +324,14 @@ void testCheckCurrentValueDirectionWithCurrentZeroMaxAndMin(void) {
     TEST_ASSERT_EQUAL(BMS_AT_REST, BMS_GetCurrentFlowDirection(0u));
 
     /* Set the current to #INT32_MAX */
-#if (POSITIVE_DISCHARGE_CURRENT == true)
+#if (BS_POSITIVE_DISCHARGE_CURRENT == true)
     TEST_ASSERT_EQUAL(BMS_DISCHARGING, BMS_GetCurrentFlowDirection(INT32_MAX));
 #else
     TEST_ASSERT_EQUAL(BMS_CHARGING, BMS_GetCurrentFlowDirection(INT32_MAX));
 #endif
 
     /* Set the current to #INT32_MIN */
-#if (POSITIVE_DISCHARGE_CURRENT == true)
+#if (BS_POSITIVE_DISCHARGE_CURRENT == true)
     TEST_ASSERT_EQUAL(BMS_CHARGING, BMS_GetCurrentFlowDirection(INT32_MIN));
 #else
     TEST_ASSERT_EQUAL(BMS_DISCHARGING, BMS_GetCurrentFlowDirection(INT32_MIN));
@@ -341,9 +345,24 @@ void testCheckCurrentValueDirectionWithCurrentZeroMaxAndMin(void) {
  */
 void testBMS_CheckPrechargeInvalidStringNumber(void) {
     DATA_BLOCK_PACK_VALUES_s tablePackValues = {.header.uniqueId = DATA_BLOCK_ID_PACK_VALUES};
+
+    /* Invalid string number */
+    DIAG_Handler_IgnoreAndReturn(DIAG_HANDLER_RETURN_OK);
+    DIAG_Handler_IgnoreAndReturn(DIAG_HANDLER_RETURN_OK);
     TEST_ASSERT_FAIL_ASSERT(TEST_BMS_CheckPrecharge(BS_NR_OF_STRINGS, &tablePackValues));
+
+    /* Invalid string number */
+    DIAG_Handler_IgnoreAndReturn(DIAG_HANDLER_RETURN_OK);
+    DIAG_Handler_IgnoreAndReturn(DIAG_HANDLER_RETURN_OK);
     TEST_ASSERT_FAIL_ASSERT(TEST_BMS_CheckPrecharge(BS_NR_OF_STRINGS + 1u, &tablePackValues));
+
+    /* Invalid string number */
+    DIAG_Handler_IgnoreAndReturn(DIAG_HANDLER_RETURN_OK);
+    DIAG_Handler_IgnoreAndReturn(DIAG_HANDLER_RETURN_OK);
     TEST_ASSERT_FAIL_ASSERT(TEST_BMS_CheckPrecharge(UINT8_MAX, &tablePackValues));
 
+    /* Valid string number */
+    DIAG_Handler_IgnoreAndReturn(DIAG_HANDLER_RETURN_OK);
+    DIAG_Handler_IgnoreAndReturn(DIAG_HANDLER_RETURN_OK);
     TEST_ASSERT_PASS_ASSERT(TEST_BMS_CheckPrecharge(0u, &tablePackValues));
 }

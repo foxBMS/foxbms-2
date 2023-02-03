@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    pwm.c
  * @author  foxBMS Team
  * @date    2021-10-07 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup DRIVERS
  * @prefix  PWM
  *
@@ -59,8 +59,12 @@
 #include "HL_etpwm.h"
 #include "HL_system.h"
 
+#include "fassert.h"
 #include "foxmath.h"
 #include "fsystem.h"
+
+#include <math.h>
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 /** lower threshold permill */
@@ -134,7 +138,7 @@ extern void PWM_StartPwm(void) {
     FAS_ASSERT(raisePrivilegeResult == 0);
     etpwmStartTBCLK();
     /* done; go back to user mode */
-    FSYS_SWITCH_TO_USER_MODE();
+    FSYS_SwitchToUserMode();
 }
 
 extern void PWM_StopPwm(void) {
@@ -143,7 +147,7 @@ extern void PWM_StopPwm(void) {
     FAS_ASSERT(raisePrivilegeResult == 0);
     etpwmStopTBCLK();
     /* done; go back to user mode */
-    FSYS_SWITCH_TO_USER_MODE();
+    FSYS_SwitchToUserMode();
 }
 
 extern void PWM_SetDutyCycle(uint16_t dutyCycle_perm) {
@@ -183,10 +187,10 @@ extern void ecapNotification(ecapBASE_t *ecap, uint16 flags) {
     if (capture3 != capture1) {
         /* Counter 3 - Counter 1: Period in counter ticks */
         /* Convert MHz to Hz */
-        ecap_inputPwmSignal.frequency_Hz = 1.0f / ((float)(capture3 - capture1) / (HCLK_FREQ * 1000000.0f));
+        ecap_inputPwmSignal.frequency_Hz = 1.0f / ((float_t)(capture3 - capture1) / (HCLK_FREQ * 1000000.0f));
 
         /* Counter 2 - Counter 1: Duty cycle in counter ticks */
-        ecap_inputPwmSignal.dutyCycle_perc = (float)(capture2 - capture1) / (float)(capture3 - capture1) *
+        ecap_inputPwmSignal.dutyCycle_perc = (float_t)(capture2 - capture1) / (float_t)(capture3 - capture1) *
                                              UNIT_CONVERSION_FACTOR_100_FLOAT;
     } else {
         ecap_inputPwmSignal.frequency_Hz   = 0.0f;
@@ -211,3 +215,5 @@ extern int16_t TEST_PWM_GetLinearOffset(void) {
 #endif
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
+#ifdef UNITY_UNIT_TEST
+#endif

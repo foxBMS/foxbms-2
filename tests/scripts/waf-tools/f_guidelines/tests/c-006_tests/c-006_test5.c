@@ -16,3 +16,7 @@
 /*========== Extern Function Implementations ================================*/
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
+
+
+#ifdef UNITY_UNIT_TEST
+#endif

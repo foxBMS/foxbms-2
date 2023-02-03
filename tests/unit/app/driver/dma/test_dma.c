@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_dma.c
  * @author  foxBMS Team
  * @date    2020-04-01 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -58,14 +58,18 @@
 #include "MockHL_spi.h"
 #include "MockHL_sys_dma.h"
 #include "Mockafe_dma.h"
+#include "Mocki2c.h"
 #include "Mockio.h"
 #include "Mockspi.h"
+#include "Mocktask.h"
 
 #include "dma.h"
 
 TEST_FILE("dma.c")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
+TaskHandle_t ftsk_taskHandleI2c;
+
 static const spiDAT1_t spi_kLtcDataConfig = {
     /* struct is implemented in the TI HAL and uses uppercase true and false */
     .CS_HOLD = FALSE,     /* The HW chip select signal is deactivated */
@@ -116,6 +120,9 @@ spiBASE_t *dma_spiInterfaces[DMA_NUMBER_SPI_INTERFACES] = {
     spiREG4, /* SPI4 */
     spiREG5, /* SPI5 */
 };
+
+uint8_t i2c_rxLastByteInterface1 = 0u;
+uint8_t i2c_rxLastByteInterface2 = 0u;
 
 /*========== Setup and Teardown =============================================*/
 void setUp(void) {

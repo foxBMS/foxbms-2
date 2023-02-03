@@ -25,19 +25,6 @@
                     "tmpfile",
                     "xPortRaisePrivilege"
                 ]
-            },
-            "types": {
-                "allow_single_bitfield_as_bool": true,
-                "user_bool_types": [
-                    "bool",
-                    "Bool",
-                    "BOOL",
-                    "bool_t",
-                    "BOOLEAN",
-                    "boolean_t",
-                    "STD_BOOLEAN_TYPE_e",
-                    "tBool"
-                ]
             }
         },
         "Architecture": {
@@ -259,7 +246,7 @@
             "naming_convention": "^[A-Z][A-Z0-9]*_s$"
         },
         "CodingStyle-Naming.StructField": {
-            "_active": false
+            "_active": true
         },
         "CodingStyle-Naming.Union": {
             "_active": false
@@ -461,6 +448,26 @@
                 "*/*_fwd.h",
                 "Q*"
             ],
+            "msg": {
+                "add_include": {
+                    "disabled": false
+                },
+                "add_symbol_declaration": {
+                    "disabled": false
+                },
+                "circular_include": {
+                    "disabled": false
+                },
+                "more_precise_include": {
+                    "disabled": false
+                },
+                "move_include": {
+                    "disabled": false
+                },
+                "unused_include": {
+                    "disabled": false
+                }
+            },
             "routines_can_be_redeclared": true,
             "typedefs_can_be_redeclared": true
         },
@@ -884,17 +891,7 @@
             "_active": true
         },
         "MisraC2012-16.1": {
-            "_active": true,
-            "acceptable_end_items": [
-                "Exit_Switch",
-                "Return_Statement"
-            ],
-            "acceptable_middle_items": [
-                "Exit_Switch",
-                "Return_Statement",
-                "Switch_Case_Label"
-            ],
-            "allow_if": true
+            "_active": true
         },
         "MisraC2012-16.2": {
             "_active": true
@@ -1294,8 +1291,7 @@
             "_active": true
         },
         "MisraC2012Directive-4.6": {
-            "_active": true,
-            "allow_floating_point": true
+            "_active": true
         },
         "MisraC2012Directive-4.7": {
             "_active": true
@@ -1384,11 +1380,11 @@
         }
     },
     "_Format": "1.0",
-    "_Version": "7.4.6",
+    "_Version": "7.5.0",
     "_VersionNum": [
         7,
-        4,
-        6,
-        10210
+        5,
+        0,
+        11376
     ]
 }

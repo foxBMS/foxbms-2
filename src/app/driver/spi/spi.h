@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    spi.h
  * @author  foxBMS Team
  * @date    2019-12-12 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup DRIVERS
  * @prefix  SPI
  *
@@ -58,25 +58,28 @@
 /*========== Includes =======================================================*/
 #include "spi_cfg.h"
 
+#include "fstd_types.h"
+
+#include <stdint.h>
+
 /*========== Macros and Definitions =========================================*/
 
 /*========== Extern Constant and Variable Declarations ======================*/
 
-/* Flag to indicate that N775 Tx was finished */
-extern bool spi_txFinished;
-
-/* Flag to indicate that N775 Rx was finished */
-extern bool spi_rxFinished;
-
 /*========== Extern Function Prototypes =====================================*/
+/**
+ * @brief   Initializes the SPI module
+ * @details First the low level initialization (using the HAL functions) is
+ *          done.
+ *          After that the chip select setup for the peripherals is configured.
+*/
+extern void SPI_Initialize(void);
 
 /* INCLUDE MARKER FOR THE DOCUMENTATION; DO NOT MOVE spi-documentation-dummy-start-include */
 /**
  * @brief   Sends a dummy byte to wake up the SPI interface.
- *
  * @param   pSpiInterface pointer to SPI interface configuration
  * @param   delay delay to wait after dummy byte transfer
- *
  * @return  status of the SPI transfer
  */
 extern STD_RETURN_TYPE_e SPI_TransmitDummyByte(SPI_INTERFACE_CONFIG_s *pSpiInterface, uint32_t delay);
@@ -117,7 +120,7 @@ extern STD_RETURN_TYPE_e SPI_TransmitReceiveData(
 
 /* INCLUDE MARKER FOR THE DOCUMENTATION; DO NOT MOVE spi-documentation-fram-start-include */
 /**
- * @brief   Transmits and receives data on SPI without DMA, wrappe for FRAM
+ * @brief   Transmits and receives data on SPI without DMA, wrapper for FRAM
  * @details This function can be used to send and receive data via SPI. SPI
  *          communication is performed in blocking mode and chip select is
  *          set/reset automatically.
@@ -229,5 +232,10 @@ extern STD_RETURN_TYPE_e SPI_CheckInterfaceAvailable(spiBASE_t *pNode);
 extern uint8_t SPI_GetSpiIndex(spiBASE_t *pNode);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
+#ifdef UNITY_UNIT_TEST
+extern void TEST_SPI_InitializeChipSelects(void);
+extern uint8_t TEST_SPI_GetChipSelectPin(SPI_CHIP_SELECT_TYPE_e csType, uint32_t csPin);
+extern uint8_t TEST_SPI_GetHardwareChipSelectPin(uint8_t csPin);
+#endif
 
 #endif /* FOXBMS__SPI_H_ */

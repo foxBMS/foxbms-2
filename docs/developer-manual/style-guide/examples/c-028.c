@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -39,19 +39,49 @@
  *
  */
 
-#include "general.h"
+/**
+ * @file    c-028.c
+ * @author  foxBMS Team
+ * @date    2021-06-04 (date of creation)
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
+ * @ingroup GUIDELINES
+ * @prefix  ABC
+ *
+ * @brief   Example code to show the application of the C coding guidelines
+ * @details This code implements an example for C:028
+ *
+ */
 
-static void C28_ForLoop(uint8_t kSomeNumber);
-static void C28_While(uint8_t condition);
+/*========== Includes =======================================================*/
 
-static void C28_ForLoop(uint8_t kSomeNumber) {
+#include <stdint.h>
+
+/*========== Macros and Definitions =========================================*/
+
+/*========== Static Constant and Variable Definitions =======================*/
+
+/*========== Extern Constant and Variable Definitions =======================*/
+
+/*========== Static Function Prototypes =====================================*/
+static void ABC_ForLoop(uint8_t kSomeNumber);
+static void ABC_While(uint8_t condition);
+
+/*========== Static Function Implementations ================================*/
+static void ABC_ForLoop(uint8_t kSomeNumber) {
     for (uint8_t i = 0u; i < kSomeNumber; ++i) {
         /* code */
     }
 }
 
-static void C28_While(uint8_t condition) {
+static void ABC_While(uint8_t condition) {
     while (condition) {
         /* This should never happen, since ... */
     }
 }
+
+/*========== Extern Function Implementations ================================*/
+
+/*========== Externalized Static Function Implementations (Unit Test) =======*/
+#ifdef UNITY_UNIT_TEST
+#endif

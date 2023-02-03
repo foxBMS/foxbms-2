@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    lib-build_main.c
  * @author  foxBMS Team
  * @date    2020-10-06 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup GENERAL
  * @prefix  TODO
  *
@@ -58,13 +58,10 @@
 #include "main.h"
 /* clang-format on */
 
-#include "HL_can.h"
 #include "HL_gio.h"
-#include "HL_spi.h"
 #include "HL_sys_core.h"
 
 #include "adc.h"
-#include "can.h"
 #include "checksum.h"
 #include "contactor.h"
 #include "diag.h"
@@ -73,6 +70,7 @@
 #include "masterinfo.h"
 #include "meas.h"
 #include "os.h"
+#include "spi.h"
 #include "sps.h"
 
 /*========== Macros and Definitions =========================================*/
@@ -91,14 +89,12 @@ int main(void) {
     MINFO_SetResetSource(getResetSource()); /* Get reset source and clear respective flags */
     _enable_IRQ_interrupt_();
     gioInit();
-    canInit();
-    spiInit();
+    SPI_Initialize();
     CONT_Initialize();
     SPS_Initialize();
     MEAS_Initialize();
     DMA_Initialize();
     DIAG_Initialize(&diag_device);
-    CAN_Initialize();
 
     OS_InitializeOperatingSystem();
     if (OS_INIT_PRE_OS != os_boot) {
@@ -124,3 +120,5 @@ int main(void) {
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
+#ifdef UNITY_UNIT_TEST
+#endif

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    diag_cbs_fram.c
  * @author  foxBMS Team
  * @date    2022-02-24 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup ENGINE
  * @prefix  DIAG
  *
@@ -53,6 +53,10 @@
 
 /*========== Includes =======================================================*/
 #include "diag_cbs.h"
+#include "fassert.h"
+#include "fstd_types.h"
+
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 
@@ -77,12 +81,14 @@ extern void DIAG_FramError(
 
     if (diagId == DIAG_ID_FRAM_READ_CRC_ERROR) {
         if (event == DIAG_EVENT_RESET) {
-            kpkDiagShim->pTableError->framReadCrcError = 0;
+            kpkDiagShim->pTableError->framReadCrcError = false;
         }
         if (event == DIAG_EVENT_NOT_OK) {
-            kpkDiagShim->pTableError->framReadCrcError = 1;
+            kpkDiagShim->pTableError->framReadCrcError = true;
         }
     }
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
+#ifdef UNITY_UNIT_TEST
+#endif

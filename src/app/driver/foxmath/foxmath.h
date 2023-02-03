@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    foxmath.h
  * @author  foxBMS Team
  * @date    2018-01-18 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup DRIVERS
  * @prefix  MATH
  *
@@ -61,11 +61,11 @@
 #define FOXBMS__FOXMATH_H_
 
 /*========== Includes =======================================================*/
-#include "general.h"
 
+#include <math.h>
+#include <stdint.h>
 /* AXIVION Disable Style Generic-LocalInclude: foxmath is intended as a library and therefore includes all useful libraries */
 #include <float.h>
-#include <math.h>
 #include <stdlib.h>
 /* AXIVION Enable Style Generic-LocalInclude: */
 
@@ -101,12 +101,12 @@ extern void MATH_StartupSelfTest(void);
  *
  * @return  interpolated value (float)
  */
-extern float MATH_LinearInterpolation(
-    const float x1,
-    const float y1,
-    const float x2,
-    const float y2,
-    const float x_interpolate);
+extern float_t MATH_LinearInterpolation(
+    const float_t x1,
+    const float_t y1,
+    const float_t x2,
+    const float_t y2,
+    const float_t x_interpolate);
 
 /**
  * @brief Swap bytes of uint16_t value
@@ -132,7 +132,7 @@ extern uint64_t MATH_SwapBytesUint64_t(const uint64_t val);
  * @param[in] value2   value 2
  * @return  minimum value
  */
-extern float MATH_MinimumOfTwoFloats(const float value1, const float value2);
+extern float_t MATH_MinimumOfTwoFloats(const float_t value1, const float_t value2);
 
 /**
  * @brief   Returns the minimum of the passed uint8_t values
@@ -165,5 +165,7 @@ extern int32_t MATH_AbsInt32_t(const int32_t value);
 extern int64_t MATH_AbsInt64_t(const int64_t value);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
+#ifdef UNITY_UNIT_TEST
+#endif
 
 #endif /* FOXBMS__FOXMATH_H_ */

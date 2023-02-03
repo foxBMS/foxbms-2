@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    bender_ir155.c
  * @author  foxBMS Team
  * @date    2014-02-11 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup DRIVERS
  * @prefix  IR155
  *
@@ -60,6 +60,9 @@
 #include "database.h"
 #include "fram.h"
 #include "io.h"
+
+#include <stdbool.h>
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 
@@ -199,7 +202,7 @@ static IMD_FSM_STATES_e IR155_MeasureInsulation(DATA_BLOCK_INSULATION_MONITORING
         pTableInsulationMonitoring->dfIsWarnableResistanceDetected = false;
     }
 
-    /* TODO: bool dfIsMeasurmentedUpToDate; Check if measurement result is up to data */
+    /* TODO: bool dfIsMeasurementUpToDate; Check if measurement result is up to data */
     return IMD_FSM_STATE_RUNNING;
 }
 
@@ -226,3 +229,5 @@ extern IMD_FSM_STATES_e IMD_ProcessShutdownState(void) {
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
+#ifdef UNITY_UNIT_TEST
+#endif

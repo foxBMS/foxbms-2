@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    ftask_how-to.c
  * @author  foxBMS Team
  * @date    2019-08-27 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup SOME_GROUP
  * @prefix  FTSK
  *
@@ -53,9 +53,9 @@
  */
 
 /*========== Includes =======================================================*/
-#include "general.h"
-
 #include "HL_gio.h"
+
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 
@@ -101,9 +101,6 @@ typedef struct {
 /*========== Static Function Implementations ================================*/
 
 /*========== Extern Function Implementations ================================*/
-
-/*========== Externalized Static Function Implementations (Unit Test) =======*/
-
 /* ftask-example-cyclic-100ms-start */
 void FTSK_RunUserCodeCyclic100ms(void) {
     /* user code */
@@ -119,3 +116,5 @@ void FTSK_RunUserCodeCyclic100ms(void) {
     ftsk_cyclic_100ms_counter++;
 }
 /* ftask-example-cyclic-100ms-end */
+
+/*========== Externalized Static Function Implementations (Unit Test) =======*/

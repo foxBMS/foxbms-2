@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_debug_default.c
  * @author  foxBMS Team
  * @date    2020-09-17 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -53,7 +53,6 @@
  */
 
 /*========== Includes =======================================================*/
-#include "general.h"
 
 #include "unity.h"
 #include "Mockdatabase.h"
@@ -64,6 +63,9 @@
 
 #include "afe.h"
 #include "debug_default.h"
+
+#include <stdbool.h>
+#include <stdint.h>
 
 /* it's important to mention the implementation in debug_default.c
 here in order to test the correct implementation */

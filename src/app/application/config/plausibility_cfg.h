@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    plausibility_cfg.h
  * @author  foxBMS Team
  * @date    2020-02-24 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup APPLICATION_CONFIGURATION
  * @prefix  PL
  *
@@ -56,11 +56,10 @@
 #define FOXBMS__PLAUSIBILITY_CFG_H_
 
 /*========== Includes =======================================================*/
-#include "battery_cell_cfg.h"
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 /**
- * @ingroup CONFIG_PLAUSIBILITY
  * @brief   Maximum difference between pack voltage measurement from
  *          AFE and current sensor
  * @ptype   int
@@ -70,7 +69,6 @@
 #define PL_STRING_VOLTAGE_TOLERANCE_mV (3000)
 
 /**
- * @ingroup CONFIG_PLAUSIBILITY
  * @brief   Maximum difference between redundant cell voltage measurement
  * @ptype   int
  * \par Range:
@@ -79,7 +77,6 @@
 #define PL_CELL_VOLTAGE_TOLERANCE_mV (10)
 
 /**
- * @ingroup CONFIG_PLAUSIBILITY
  * @brief   Maximum difference between redundant cell temperature measurements
  *          in deci kelvin
  * @ptype   int
@@ -89,7 +86,6 @@
 #define PL_CELL_TEMPERATURE_TOLERANCE_dK (50)
 
 /**
- * @ingroup CONFIG_PLAUSIBILITY
  * @brief   Maximum deviation between a single cell voltage measurement and the
  *          average cell voltage
  * @ptype   int
@@ -99,7 +95,6 @@
 #define PL_CELL_VOLTAGE_SPREAD_TOLERANCE_mV (300)
 
 /**
- * @ingroup CONFIG_PLAUSIBILITY
  * @brief   Maximum deviation between a single cell temperature measurement and
  *          the average cell temperature in deci kelvin
  * @ptype   int
@@ -113,5 +108,7 @@
 /*========== Extern Function Prototypes =====================================*/
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
+#ifdef UNITY_UNIT_TEST
+#endif
 
 #endif /* FOXBMS__PLAUSIBILITY_CFG_H_ */

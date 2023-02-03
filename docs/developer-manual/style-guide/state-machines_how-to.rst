@@ -729,7 +729,7 @@ The ``default`` case is implemented to assert on illegal substates:
             /* ... */
         default:
             FAS_ASSERT(FAS_TRAP);
-            break;
+            break; /* LCOV_EXCL_LINE */
         }
     }
 
@@ -802,7 +802,7 @@ implementation is shown below:
 
             default:
                 FAS_ASSERT(FAS_TRAP);
-                break;
+                break; /* LCOV_EXCL_LINE */
         }
         return nextState;
     }

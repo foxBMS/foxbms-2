@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,9 +43,9 @@
  * @file    lg_inr18650mj1.c
  * @author  foxBMS Team
  * @date    2017-11-07 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
- * @ingroup BATTERY_CELL_CONF
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
+ * @ingroup BATTERY_CELL_CONFIGURATION
  * @prefix  BC
  *
  * @brief   Configuration of the battery cell
@@ -56,6 +56,8 @@
 
 /*========== Includes =======================================================*/
 #include "lg_inr18650mj1.h"
+
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 
@@ -113,3 +115,5 @@ uint16_t bc_lginr18650mj1SoeLutLength = sizeof(bc_lginr18650mj1SoeLut) / sizeof(
 /*========== Extern Function Implementations ================================*/
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
+#ifdef UNITY_UNIT_TEST
+#endif

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    database.c
  * @author  foxBMS Team
  * @date    2015-08-18 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup ENGINE
  * @prefix  DATA
  *
@@ -65,11 +65,14 @@
  */
 
 /*========== Includes =======================================================*/
+#include "general.h"
+
 #include "database.h"
 
 #include "ftask.h"
 #include "os.h"
 
+#include <stdint.h>
 #include <string.h>
 
 /*========== Macros and Definitions =========================================*/
@@ -378,3 +381,5 @@ extern void DATA_ExecuteDataBist(void) {
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
+#ifdef UNITY_UNIT_TEST
+#endif

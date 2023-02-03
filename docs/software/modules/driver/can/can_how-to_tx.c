@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    can_how-to_tx.c
  * @author  foxBMS Team
  * @date    2022-09-12 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup SOME_GROUP
  * @prefix  CAN
  *
@@ -54,19 +54,23 @@
  */
 
 /*========== Includes =======================================================*/
-#include "general.h"
 
 #include "can_cfg.h"
 
 /*========== Macros and Definitions =========================================*/
 
 /* example-can-message-id-macro-start */
-/** CAN message ID to send state */
-#define CANTX_BMS_STATE_ID (0x220u)
-/** Periodicity of CAN state messages in ms */
-#define CANTX_BMS_STATE_PERIOD_ms (100u)
-/** Phase of CAN state messages in ms */
-#define CANTX_BMS_STATE_PHASE_ms (0u)
+/** CAN message properties for BMS state message. Required properties are:
+ * - Message ID
+ * - Identifier type (standard or extended)
+ * - Message period and phase in ms
+ * - Endianness of message data @{*/
+#define CANTX_BMS_STATE_ID         (0x220u)
+#define CANTX_BMS_STATE_ID_TYPE    (CAN_STANDARD_IDENTIFIER_11_BIT)
+#define CANTX_BMS_STATE_PERIOD_ms  (100u)
+#define CANTX_BMS_STATE_PHASE_ms   (0u)
+#define CANTX_BMS_STATE_ENDIANNESS (CAN_BIG_ENDIAN)
+/**@}*/
 /* example-can-message-id-macro-end */
 
 /* example-can-message-id-details-start */
@@ -74,7 +78,8 @@
     {                                                                          \
         .dlc        = CAN_DEFAULT_DLC,                                         \
         .id         = CANTX_BMS_STATE_ID,                                      \
-        .endianness = CAN_BIG_ENDIAN,                                          \
+        .endianness = CANTX_BMS_STATE_ENDIANNESS,                              \
+        .idType     = CANTX_BMS_STATE_ID_TYPE,                                 \
     },                                                                         \
     {                                                                          \
         .period = CANTX_BMS_STATE_PERIOD_ms, .phase = CANTX_BMS_STATE_PHASE_ms \
@@ -116,3 +121,5 @@ extern uint32_t CANTX_BmsState(
 /* example-can-tx-messages-callback-definition-end */
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
+#ifdef UNITY_UNIT_TEST
+#endif

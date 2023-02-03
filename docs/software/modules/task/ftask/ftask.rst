@@ -15,8 +15,8 @@ Driver
 - ``src/app/task/ftask/ftask.c`` (`API <../../../../_static/doxygen/src/html/ftask_8c.html>`__, `source <../../../../_static/doxygen/src/html/ftask_8c_source.html>`__)
 - ``src/app/task/ftask/ftask.h`` (`API <../../../../_static/doxygen/src/html/ftask_8h.html>`__, `source <../../../../_static/doxygen/src/html/ftask_8h_source.html>`__)
 
-FreeRTOS
-""""""""
+|freertos|
+""""""""""
 
 - ``src/app/task/ftask/freertos/ftask_freertos.c`` (`API <../../../../_static/doxygen/src/html/ftask__freertos_8c.html>`__, `source <../../../../_static/doxygen/src/html/ftask__freertos_8c_source.html>`__)
 

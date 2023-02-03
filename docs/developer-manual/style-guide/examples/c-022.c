@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -39,11 +39,42 @@
  *
  */
 
-#include "general.h"
+/**
+ * @file    c-022.c
+ * @author  foxBMS Team
+ * @date    2021-06-04 (date of creation)
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
+ * @ingroup GUIDELINES
+ * @prefix  ABC
+ *
+ * @brief   Example code to show the application of the C coding guidelines
+ * @details This code implements an example for C:022
+ *
+ */
 
+/*========== Includes =======================================================*/
+
+#include <stdint.h>
+
+/*========== Macros and Definitions =========================================*/
 /** Symbolic names for battery system state */
 typedef struct {
     uint16_t year; /*!< year */
     uint8_t month; /*!< month (1: january ... 12: december) */
     uint8_t day;   /*!< day of the month */
 } ABC_DATE_s;
+
+/*========== Static Constant and Variable Definitions =======================*/
+
+/*========== Extern Constant and Variable Definitions =======================*/
+
+/*========== Static Function Prototypes =====================================*/
+
+/*========== Static Function Implementations ================================*/
+
+/*========== Extern Function Implementations ================================*/
+
+/*========== Externalized Static Function Implementations (Unit Test) =======*/
+#ifdef UNITY_UNIT_TEST
+#endif

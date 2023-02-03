@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_can_cbs_rx_state-request.c
  * @author  foxBMS Team
  * @date    2021-07-28 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -62,7 +62,6 @@
 #include "Mockdiag.h"
 #include "Mockfoxmath.h"
 #include "Mockimd.h"
-#include "Mockmpu_prototypes.h"
 #include "Mockos.h"
 #include "Mocksys_mon.h"
 
@@ -73,6 +72,9 @@
 #include "can_helper.h"
 #include "test_assert_helper.h"
 
+#include <stdbool.h>
+#include <stdint.h>
+
 TEST_FILE("can_cbs_rx_state-request.c")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
@@ -82,18 +84,18 @@ static DATA_BLOCK_CELL_TEMPERATURE_s can_tableTemperatures    = {.header.uniqueI
 static DATA_BLOCK_MIN_MAX_s can_tableMinimumMaximumValues     = {.header.uniqueId = DATA_BLOCK_ID_MIN_MAX};
 static DATA_BLOCK_CURRENT_SENSOR_s can_tableCurrentSensor     = {.header.uniqueId = DATA_BLOCK_ID_CURRENT_SENSOR};
 static DATA_BLOCK_OPEN_WIRE_s can_tableOpenWire               = {.header.uniqueId = DATA_BLOCK_ID_OPEN_WIRE_BASE};
-static DATA_BLOCK_STATEREQUEST_s can_tableStateRequest        = {.header.uniqueId = DATA_BLOCK_ID_STATEREQUEST};
+static DATA_BLOCK_STATE_REQUEST_s can_tableStateRequest       = {.header.uniqueId = DATA_BLOCK_ID_STATE_REQUEST};
 static DATA_BLOCK_PACK_VALUES_s can_tablePackValues           = {.header.uniqueId = DATA_BLOCK_ID_PACK_VALUES};
 static DATA_BLOCK_SOF_s can_tableSof                          = {.header.uniqueId = DATA_BLOCK_ID_SOF};
 static DATA_BLOCK_SOX_s can_tableSox                          = {.header.uniqueId = DATA_BLOCK_ID_SOX};
-static DATA_BLOCK_ERRORSTATE_s can_tableErrorState            = {.header.uniqueId = DATA_BLOCK_ID_ERRORSTATE};
+static DATA_BLOCK_ERROR_STATE_s can_tableErrorState           = {.header.uniqueId = DATA_BLOCK_ID_ERROR_STATE};
 static DATA_BLOCK_INSULATION_MONITORING_s can_tableInsulation = {
     .header.uniqueId = DATA_BLOCK_ID_INSULATION_MONITORING};
 static DATA_BLOCK_MSL_FLAG_s can_tableMslFlags = {.header.uniqueId = DATA_BLOCK_ID_MSL_FLAG};
 static DATA_BLOCK_RSL_FLAG_s can_tableRslFlags = {.header.uniqueId = DATA_BLOCK_ID_RSL_FLAG};
 static DATA_BLOCK_MOL_FLAG_s can_tableMolFlags = {.header.uniqueId = DATA_BLOCK_ID_MOL_FLAG};
 
-QueueHandle_t imd_canDataQueue = NULL_PTR;
+OS_QUEUE imd_canDataQueue = NULL_PTR;
 
 const CAN_SHIM_s can_kShim = {
     .pQueueImd             = &imd_canDataQueue,
@@ -131,6 +133,7 @@ void tearDown(void) {
 void testRxRequestIllegalInput(void) {
     CAN_MESSAGE_PROPERTIES_s testMessage = {
         .id         = CAN_MAX_11BIT_ID,
+        .idType     = CAN_STANDARD_IDENTIFIER_11_BIT,
         .dlc        = 0u,
         .endianness = CAN_LITTLE_ENDIAN,
     };
@@ -157,8 +160,9 @@ void testRxRequestIllegalInput(void) {
 void testRxRequestModeRequest(void) {
     CAN_MESSAGE_PROPERTIES_s testMessage = {
         .id         = CANRX_BMS_STATE_REQUEST_ID,
+        .idType     = CANRX_BMS_STATE_REQUEST_ID_TYPE,
         .dlc        = CAN_FOXBMS_MESSAGES_DEFAULT_DLC,
-        .endianness = CAN_BIG_ENDIAN,
+        .endianness = CANRX_BMS_STATE_REQUEST_ENDIANNESS,
     };
 
     uint8_t canData[CAN_MAX_DLC] = {0};
@@ -218,8 +222,9 @@ void testRxRequestModeRequest(void) {
 void testRxRequestBalancingRequest(void) {
     CAN_MESSAGE_PROPERTIES_s testMessage = {
         .id         = CANRX_BMS_STATE_REQUEST_ID,
+        .idType     = CANRX_BMS_STATE_REQUEST_ID_TYPE,
         .dlc        = CAN_FOXBMS_MESSAGES_DEFAULT_DLC,
-        .endianness = CAN_BIG_ENDIAN,
+        .endianness = CANRX_BMS_STATE_REQUEST_ENDIANNESS,
     };
     uint8_t canData[CAN_MAX_DLC] = {0};
 
@@ -256,8 +261,9 @@ void testRxRequestBalancingRequest(void) {
 void testRxRequestResetFlags(void) {
     CAN_MESSAGE_PROPERTIES_s testMessage = {
         .id         = CANRX_BMS_STATE_REQUEST_ID,
+        .idType     = CANRX_BMS_STATE_REQUEST_ID_TYPE,
         .dlc        = CAN_FOXBMS_MESSAGES_DEFAULT_DLC,
-        .endianness = CAN_BIG_ENDIAN,
+        .endianness = CANRX_BMS_STATE_REQUEST_ENDIANNESS,
     };
     uint8_t canData[CAN_MAX_DLC] = {0};
 

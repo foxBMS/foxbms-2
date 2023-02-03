@@ -1,4 +1,4 @@
-@REM Copyright (c) 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+@REM Copyright (c) 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 @REM All rights reserved.
 @REM
 @REM SPDX-License-Identifier: BSD-3-Clause
@@ -38,9 +38,9 @@
 @SETLOCAL EnableExtensions EnableDelayedExpansion
 
 @NET FILE 1>NUL 2>NUL
-@IF %errorlevel% NEQ 0 (
+@IF %ERRORLEVEL% NEQ 0 (
     @ECHO [31mInstalling LLVM with this script requires an elevated terminal.[0m
-    @ECHO Open cmd.exe again with administrative privilges ^("Run as administrator"^) and run the script again.
+    @ECHO Open cmd.exe again with administrative privileges ^("Run as administrator"^) and run the script again.
     @ECHO Exiting...
     @PAUSE
     @EXIT /b 1
@@ -66,6 +66,21 @@
     )
 )
 
+@IF EXIST "%LLVM_BASE_INSTALL_DIRECTORY%\Uninstall.exe" (
+    @"%LLVM_BASE_INSTALL_DIRECTORY%\Uninstall.exe" /S
+)
+
+@REM Maybe there is already a versioned installation
+@FOR /F "tokens=* USEBACKQ" %%F IN (`dir "%LLVM_BASE_INSTALL_DIRECTORY%" /b /o-n`) do @(
+  @set "LATEST_LLVM_VERSION=%%F"
+  @goto :done
+)
+:done
+@IF EXIST "%LLVM_BASE_INSTALL_DIRECTORY%\%LATEST_LLVM_VERSION%\Uninstall.exe" (
+    @"%LLVM_BASE_INSTALL_DIRECTORY%\%LATEST_LLVM_VERSION%\Uninstall.exe" /S
+)
+
+@REM Cleanup what ever might be left over during uninstallation
 @RMDIR /s /q "%LLVM_BASE_INSTALL_DIRECTORY%"
 
 @ECHO Downloading LLVM

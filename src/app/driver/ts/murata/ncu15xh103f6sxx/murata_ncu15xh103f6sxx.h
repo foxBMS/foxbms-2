@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    murata_ncu15xh103f6sxx.h
  * @author  foxBMS Team
  * @date    2022-10-12 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup TEMPERATURE_SENSORS
  * @prefix  TS
  *
@@ -75,7 +75,8 @@
 #define FOXBMS__MURATA_NCU15XH103F6SXX_H_
 
 /*========== Includes =======================================================*/
-#include "general.h"
+
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 /**
@@ -117,5 +118,7 @@ extern int16_t TS_Mur00GetTemperatureFromPolynomial(uint16_t adcVoltage_mV);
 /*========== Extern Function Prototypes =====================================*/
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
+#ifdef UNITY_UNIT_TEST
+#endif
 
 #endif /* FOXBMS__MURATA_NCU15XH103F6SXX_H_ */

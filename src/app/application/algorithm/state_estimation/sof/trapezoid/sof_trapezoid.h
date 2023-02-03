@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    sof_trapezoid.h
  * @author  foxBMS Team
  * @date    2020-10-07 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup APPLICATION
  * @prefix  SOF
  *
@@ -58,16 +58,19 @@
 /*========== Includes =======================================================*/
 #include "sof_trapezoid_cfg.h"
 
+#include <math.h>
+#include <stdint.h>
+
 /*========== Macros and Definitions =========================================*/
 /**
  * struct definition for 4 different values: in two current directions (charge,
  * discharge) for two use cases (peak and continuous)
  */
 typedef struct {
-    float continuousChargeCurrent_mA;    /*!< maximum current for continues charging */
-    float peakChargeCurrent_mA;          /*!< maximum current for peak charging */
-    float continuousDischargeCurrent_mA; /*!< maximum current for continues discharging */
-    float peakDischargeCurrent_mA;       /*!< maximum current for peak discharging */
+    float_t continuousChargeCurrent_mA;    /*!< maximum current for continues charging */
+    float_t peakChargeCurrent_mA;          /*!< maximum current for peak charging */
+    float_t continuousDischargeCurrent_mA; /*!< maximum current for continues discharging */
+    float_t peakDischargeCurrent_mA;       /*!< maximum current for peak discharging */
 } SOF_CURRENT_LIMITS_s;
 
 /**
@@ -75,20 +78,20 @@ typedef struct {
  * voltage, temperature and charge/discharge dependent.
  */
 typedef struct {
-    float slopeLowTemperatureDischarge;   /*!< low temperature dependent derating slope for discharge current */
-    float offsetLowTemperatureDischarge;  /*!< discharge current offset for low temperature dependent derating */
-    float slopeHighTemperatureDischarge;  /*!< high temperature dependent derating slope for discharge current */
-    float offsetHighTemperatureDischarge; /*!< discharge current offset for high temperature dependent derating */
+    float_t slopeLowTemperatureDischarge;   /*!< low temperature dependent derating slope for discharge current */
+    float_t offsetLowTemperatureDischarge;  /*!< discharge current offset for low temperature dependent derating */
+    float_t slopeHighTemperatureDischarge;  /*!< high temperature dependent derating slope for discharge current */
+    float_t offsetHighTemperatureDischarge; /*!< discharge current offset for high temperature dependent derating */
 
-    float slopeLowTemperatureCharge;   /*!< low temperature dependent derating slope for charge current */
-    float offsetLowTemperatureCharge;  /*!< charge current offset for low temperature dependent derating */
-    float slopeHighTemperatureCharge;  /*!< high temperature dependent derating slope for charge current */
-    float offsetHighTemperatureCharge; /*!< charge current offset for high temperature dependent derating */
+    float_t slopeLowTemperatureCharge;   /*!< low temperature dependent derating slope for charge current */
+    float_t offsetLowTemperatureCharge;  /*!< charge current offset for low temperature dependent derating */
+    float_t slopeHighTemperatureCharge;  /*!< high temperature dependent derating slope for charge current */
+    float_t offsetHighTemperatureCharge; /*!< charge current offset for high temperature dependent derating */
 
-    float slopeUpperCellVoltage;  /*!< upper cell voltage derating slope for charge and discharge current */
-    float offsetUpperCellVoltage; /*!< charge/discharge current offset for upper voltage derating */
-    float slopeLowerCellVoltage;  /*!< lower cell voltage derating slope for charge and discharge current */
-    float offsetLowerCellVoltage; /*!< charge/discharge current offset for lower voltage derating */
+    float_t slopeUpperCellVoltage;  /*!< upper cell voltage derating slope for charge and discharge current */
+    float_t offsetUpperCellVoltage; /*!< charge/discharge current offset for upper voltage derating */
+    float_t slopeLowerCellVoltage;  /*!< lower cell voltage derating slope for charge and discharge current */
+    float_t offsetLowerCellVoltage; /*!< charge/discharge current offset for lower voltage derating */
 } SOF_CURVE_s;
 
 /*========== Extern Constant and Variable Declarations ======================*/
@@ -127,5 +130,5 @@ extern void TEST_SOF_CalculateTemperatureBasedCurrentLimit(
 extern SOF_CURRENT_LIMITS_s TEST_SOF_MinimumOfTwoSofValues(
     SOF_CURRENT_LIMITS_s voltageBasedLimits,
     SOF_CURRENT_LIMITS_s temperatureBasedLimits);
-#endif /* UNITY_UNIT_TEST */
+#endif
 #endif /* FOXBMS__SOF_TRAPEZOID_H_ */

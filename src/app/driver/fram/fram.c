@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    fram.c
  * @author  foxBMS Team
  * @date    2020-03-05 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup DRIVERS
  * @prefix  FRAM
  *
@@ -56,11 +56,17 @@
 /*========== Includes =======================================================*/
 #include "fram.h"
 
+#include "version_cfg.h"
+
 #include "crc.h"
 #include "diag.h"
+#include "fassert.h"
+#include "fstd_types.h"
 #include "io.h"
 #include "mcu.h"
 #include "spi.h"
+
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 
@@ -100,10 +106,22 @@ extern void FRAM_Initialize(void) {
 
     /* ASSERT that size of variables does not exceed FRAM size */
     FAS_ASSERT(!(address > FRAM_MAX_ADDRESS));
+
+    /* Read FRAM version struct - Set CRC error flag if this fails */
+    if (FRAM_ACCESS_OK != FRAM_ReadData(FRAM_BLOCK_ID_VERSION)) {
+        (void)DIAG_Handler(DIAG_ID_FRAM_READ_CRC_ERROR, DIAG_EVENT_NOT_OK, DIAG_SYSTEM, 0u);
+    }
 }
 
 extern STD_RETURN_TYPE_e FRAM_ReinitializeAllEntries(void) {
     STD_RETURN_TYPE_e retVal = STD_OK;
+
+    /* Reset FRAM version struct information */
+    fram_version.project = FRAM_PROJECT_ID_FOXBMS_BASELINE;
+    fram_version.major   = ver_foxbmsVersionInformation.major;
+    fram_version.minor   = ver_foxbmsVersionInformation.minor;
+    fram_version.patch   = ver_foxbmsVersionInformation.patch;
+
     for (uint16_t i = 0u; i < FRAM_BLOCK_MAX; i++) {
         if (FRAM_WriteData((FRAM_BLOCK_ID_e)i) != FRAM_ACCESS_OK) {
             retVal = STD_OK;
@@ -271,3 +289,5 @@ extern FRAM_RETURN_TYPE_e FRAM_ReadData(FRAM_BLOCK_ID_e blockId) {
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
+#ifdef UNITY_UNIT_TEST
+#endif

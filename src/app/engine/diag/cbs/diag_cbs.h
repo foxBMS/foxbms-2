@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    diag_cbs.h
  * @author  foxBMS Team
  * @date    2021-02-17 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup ENGINE
  * @prefix  DIAG
  *
@@ -56,9 +56,10 @@
 #define FOXBMS__DIAG_CBS_H_
 
 /*========== Includes =======================================================*/
-#include "general.h"
 
 #include "diag_cfg.h"
+
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 
@@ -424,7 +425,7 @@ extern void DIAG_Insulation(
  * @param[in] kpkDiagShim   shim to the database entries
  * @param[in] data          not relevant
  */
-extern void DIAG_I2cPex(
+extern void DIAG_I2c(
     DIAG_ID_e diagId,
     DIAG_EVENT_e event,
     const DIAG_DATABASE_SHIM_s *const kpkDiagShim,
@@ -444,6 +445,19 @@ extern void DIAG_FramError(
     uint32_t data);
 
 /**
+ * @brief diagnosis callback function for RTC related events
+ * @param[in] diagId        ID of diag entry
+ * @param[in] event         OK, NOK or RESET
+ * @param[in] kpkDiagShim   shim to the database entries
+ * @param[in] data          not relevant
+ */
+extern void DIAG_Rtc(
+    DIAG_ID_e diagId,
+    DIAG_EVENT_e event,
+    const DIAG_DATABASE_SHIM_s *const kpkDiagShim,
+    uint32_t data);
+
+/**
  * @brief diagnosis callback function for ALERT flag
  * @param[in] diagId        ID of diag entry
  * @param[in] event         OK, NOK or RESET
@@ -456,6 +470,21 @@ extern void DIAG_AlertFlag(
     const DIAG_DATABASE_SHIM_s *const kpkDiagShim,
     uint32_t data);
 
+/**
+ * @brief diagnosis callback function for precharge abort reasons
+ * @param[in] diagId        ID of diag entry
+ * @param[in] event         OK, NOK or RESET
+ * @param[in] kpkDiagShim   shim to the database entries
+ * @param[in] stringNumber  stringNumber where precharging is performed
+ */
+extern void DIAG_PrechargeProcess(
+    DIAG_ID_e diagId,
+    DIAG_EVENT_e event,
+    const DIAG_DATABASE_SHIM_s *const kpkDiagShim,
+    uint32_t stringNumber);
+
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
+#ifdef UNITY_UNIT_TEST
+#endif
 
 #endif /* FOXBMS__DIAG_CBS_H_ */

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    can_cfg.h
  * @author  foxBMS Team
  * @date    2019-12-04 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup DRIVERS
  * @prefix  CAN
  *
@@ -59,21 +59,31 @@
 #define FOXBMS__CAN_CFG_H_
 
 /*========== Includes =======================================================*/
-#include "general.h"
 
 #include "HL_can.h"
 
 #include "database.h"
 
+#include <stdint.h>
+
 /*========== Macros and Definitions =========================================*/
 
-/** register on which the CAN interface is connected @{*/
-#define CAN_NODE_1 (canREG1)
-#define CAN_NODE_2 (canREG2)
-/**@}*/
+/* ****************************************************************************
+ *  CAN NODE OPTIONS
+ *****************************************************************************/
+/** CAN node configuration struct */
+typedef struct {
+    canBASE_t *canNodeRegister; /*!< register on which the CAN interface is connected */
+} CAN_NODE_s;
 
+/** CAN node defines @{*/
+#define CAN_NODE_1 ((CAN_NODE_s *)&can_node1)
+#define CAN_NODE_2 ((CAN_NODE_s *)&can_node2Isolated)
+
+#define CAN_NODE_DEBUG_MESSAGE  (CAN_NODE_1)
 #define CAN_NODE_IMD            (CAN_NODE_1)
 #define CAN_NODE_CURRENT_SENSOR (CAN_NODE_1)
+/**@}*/
 
 /**
  * Configuration of CAN transceiver pins to the respective port expander pins.
@@ -148,11 +158,19 @@ typedef enum {
     CAN_BIG_ENDIAN,
 } CAN_ENDIANNESS_e;
 
+/** CAN identifier type. Standard or extended identifier */
+typedef enum {
+    CAN_STANDARD_IDENTIFIER_11_BIT,
+    CAN_EXTENDED_IDENTIFIER_29_BIT,
+    CAN_INVALID_TYPE,
+} CAN_IDENTIFIER_TYPE_e;
+
 /** Buffer element used to store the ID and data of a CAN RX message */
 typedef struct {
-    canBASE_t *canNode;        /*!< CAN node on which the message has been received */
-    uint32_t id;               /*!< ID of the CAN message */
-    uint8_t data[CAN_MAX_DLC]; /*!< payload of the CAN message */
+    CAN_NODE_s *canNode;          /*!< CAN node on which the message has been received */
+    uint32_t id;                  /*!< ID of the CAN message */
+    CAN_IDENTIFIER_TYPE_e idType; /*!< Standard or Extended identifier */
+    uint8_t data[CAN_MAX_DLC];    /*!< payload of the CAN message */
 } CAN_BUFFER_ELEMENT_s;
 
 /** composite type for storing and passing on the local database table handles */
@@ -163,11 +181,11 @@ typedef struct {
     DATA_BLOCK_MIN_MAX_s *pTableMinMax;                   /*!< database table with min/max values */
     DATA_BLOCK_CURRENT_SENSOR_s *pTableCurrentSensor;     /*!< database table with current sensor measurements */
     DATA_BLOCK_OPEN_WIRE_s *pTableOpenWire;               /*!< database table with open wire status */
-    DATA_BLOCK_STATEREQUEST_s *pTableStateRequest;        /*!< database table with state requests */
+    DATA_BLOCK_STATE_REQUEST_s *pTableStateRequest;       /*!< database table with state requests */
     DATA_BLOCK_PACK_VALUES_s *pTablePackValues;           /*!< database table with pack values */
     DATA_BLOCK_SOF_s *pTableSof;                          /*!< database table with SOF values */
     DATA_BLOCK_SOX_s *pTableSox;                          /*!< database table with SOC and SOE values */
-    DATA_BLOCK_ERRORSTATE_s *pTableErrorState;            /*!< database table with error state variables */
+    DATA_BLOCK_ERROR_STATE_s *pTableErrorState;           /*!< database table with error state variables */
     DATA_BLOCK_INSULATION_MONITORING_s *pTableInsulation; /*!< database table with insulation monitoring info */
     DATA_BLOCK_MSL_FLAG_s *pTableMsl;                     /*!< database table with MSL flags */
     DATA_BLOCK_RSL_FLAG_s *pTableRsl;                     /*!< database table with RSL flags */
@@ -176,9 +194,10 @@ typedef struct {
 
 /** definition of a CAN message (without data) */
 typedef struct {
-    uint32_t id;                 /*!< message ID */
-    uint8_t dlc;                 /*!< data length */
-    CAN_ENDIANNESS_e endianness; /*!< Byte order (big or little endian) */
+    uint32_t id;                  /*!< message ID */
+    CAN_IDENTIFIER_TYPE_e idType; /*!< Standard or Extended identifier */
+    uint8_t dlc;                  /*!< data length */
+    CAN_ENDIANNESS_e endianness;  /*!< Byte order (big or little endian) */
 } CAN_MESSAGE_PROPERTIES_s;
 
 /** timing information of a CAN TX message */
@@ -207,7 +226,7 @@ typedef uint32_t (*CAN_RxCallbackFunction_f)(
 
 /** type definition for structure of a TX CAN message */
 typedef struct {
-    canBASE_t *canNode;                        /*!< CAN node on which the message is transmitted */
+    CAN_NODE_s *canNode;                       /*!< CAN node on which the message is transmitted */
     CAN_MESSAGE_PROPERTIES_s message;          /*!< CAN message */
     CAN_TX_MESSAGE_TIMING_s timing;            /*!< time and phase */
     CAN_TxCallbackFunction_f callbackFunction; /*!< CAN message callback after message is sent */
@@ -215,20 +234,28 @@ typedef struct {
                             unused*/
 } CAN_TX_MESSAGE_TYPE_s;
 
+/* TODO: timing check not implemented for RX messages! */
 /** type definition for structure of an RX CAN message */
 typedef struct {
-    canBASE_t *canNode;                        /*!< CAN node on which the message is received */
+    CAN_NODE_s *canNode;                       /*!< CAN node on which the message is received */
     CAN_MESSAGE_PROPERTIES_s message;          /*!< CAN message */
     CAN_RX_MESSAGE_TIMING_s timing;            /*!< time and phase */
     CAN_RxCallbackFunction_f callbackFunction; /*!< CAN message callback after message is received */
 } CAN_RX_MESSAGE_TYPE_s;
 
+/*========== Extern Constant and Variable Declarations ======================*/
 /** variable for storing and passing on the local database table handles */
 extern const CAN_SHIM_s can_kShim;
 
-/*========== Extern Constant and Variable Declarations ======================*/
+/** CAN node configurations for CAN1 and CAN2 (isolated) @{*/
+extern const CAN_NODE_s can_node1;
+extern const CAN_NODE_s can_node2Isolated;
+/**@}*/
+
+/** CAN RX and TX message configuration structs @{*/
 extern const CAN_TX_MESSAGE_TYPE_s can_txMessages[];
 extern const CAN_RX_MESSAGE_TYPE_s can_rxMessages[];
+/**@}*/
 
 /** array length for transmission CAN0 message definition @{*/
 extern const uint8_t can_txLength;
@@ -237,8 +264,8 @@ extern const uint8_t can_rxLength;
 
 /*========== Extern Function Prototypes =====================================*/
 
-/*========== Externalized Static Function Implementations (Unit Test) =======*/
-
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
+#ifdef UNITY_UNIT_TEST
+#endif
 
 #endif /* FOXBMS__CAN_CFG_H_ */

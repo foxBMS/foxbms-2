@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -62,7 +62,7 @@ def build(bld):
         os.path.join("..", "..", "..", "..", "src", "app", "main", "include"),
     ]
     cflags = bld.env.CFLAGS_FOXBMS
-    bld.path.find_or_declare("mcu.h").write(
+    bld.path.find_or_declare("os.h").write(
         "/* dummy file */\n"
         "extern void OS_EnterTaskCritical();\n"
         "extern void OS_ExitTaskCritical();\n"

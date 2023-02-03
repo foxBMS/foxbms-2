@@ -3,7 +3,6 @@
         "Analysis-GlobalOptions": {
             "global_excludes": [
                 "C:/ti/*",
-                "*src/app/driver/afe/ltc/common/ltc_pec.*",
                 "*src/app/driver/afe/nxp/mc33775a/vendor/*",
                 "*src/app/driver/sbc/fs8x_driver/*",
                 "*src/hal/*",
@@ -55,7 +54,7 @@
         },
         "Database": {
             "ci_mode": {
-                "directory": "",
+                "directory": "$(AXIVION_DATABASES_DIR=.)",
                 "filename": "$(env:databaseFileRemote=)"
             }
         },
@@ -65,11 +64,11 @@
         }
     },
     "_Format": "1.0",
-    "_Version": "7.4.6",
+    "_Version": "7.5.0",
     "_VersionNum": [
         7,
-        4,
-        6,
-        10210
+        5,
+        0,
+        11376
     ]
 }

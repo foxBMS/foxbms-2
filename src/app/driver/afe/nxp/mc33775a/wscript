@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -60,7 +60,7 @@ NXP_MC33775A_VENDOR_HASHES = {
 
 
 def build(bld):
-    """builds the measurement ic driver library for NXP MC33775A"""
+    """builds the AFE driver library for NXP MC33775A"""
     source = [
         os.path.join("..", "api", "nxp_afe.c"),
         os.path.join("api", "nxp_mc33775a_afe.c"),
@@ -84,6 +84,7 @@ def build(bld):
         os.path.join("..", "..", "..", "io"),
         os.path.join("..", "..", "..", "mcu"),
         os.path.join("..", "..", "..", "pex"),
+        os.path.join("..", "..", "..", "rtc"),
         os.path.join("..", "..", "..", "spi"),
         os.path.join("..", "..", "..", "ts"),
         os.path.join("..", "..", "..", "ts", "api"),

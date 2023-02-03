@@ -1,4 +1,4 @@
-@REM Copyright (c) 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+@REM Copyright (c) 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 @REM All rights reserved.
 @REM
 @REM SPDX-License-Identifier: BSD-3-Clause
@@ -50,6 +50,6 @@
 @ECHO Installing dependencies
 @PUSHD %~dp0..\vendor\ceedling
 @ECHO %__CD__%
-@%RUBY_INSTALL_DIRECTORY%\bin\bundle install %1
+@%RUBY_INSTALL_DIRECTORY%\bin\bundle install
 @POPD
 @ECHO Done

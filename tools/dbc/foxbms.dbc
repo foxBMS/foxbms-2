@@ -888,6 +888,7 @@ SG_ foxBMS_Error_PackOvercurr_Charge : 25|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ foxBMS_Error_PackOvercur_Dischrg : 26|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ foxBMS_SysMonError : 12|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ foxBMS_alertFlag : 27|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ foxBMS_NvramCrcError : 28|1@0+ (1,0) [0|1] "" Vector__XXX
 
 
 BO_ 545 foxBMS_StringState: 8 Vector__XXX
@@ -965,6 +966,22 @@ SG_ String0_SOH : 47|9@0+ (0.25,0) [0|127.5] "%" Vector__XXX
 
 
 BO_ 512 foxBMS_Debug: 8 Vector__XXX
+SG_ foxBMS_Debug_Mux M : 7|8@0+ (1,0) [0|0] "" Vector__XXX
+SG_ SetHundredthOfSeconds m1 : 15|7@0+ (1,0) [0|127] "" Vector__XXX
+SG_ SetSeconds m1 : 8|6@0+ (1,0) [0|63] "" Vector__XXX
+SG_ SetMinutes m1 : 18|6@0+ (1,0) [0|63] "" Vector__XXX
+SG_ SetHours m1 : 28|5@0+ (1,0) [0|31] "" Vector__XXX
+SG_ SetWeekday m1 : 39|3@0+ (1,0) [0|7] "" Vector__XXX
+SG_ SetDay m1 : 36|5@0+ (1,0) [0|31] "" Vector__XXX
+SG_ SetMonth m1 : 47|4@0+ (1,0) [0|15] "" Vector__XXX
+SG_ SetYear m1 : 43|7@0+ (1,0) [0|127] "" Vector__XXX
+SG_ foxBMS_GetMcuLotNumber m0 : 10|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ foxBMS_GetBmsSoftwareVersion m0 : 8|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ foxBMS_GetMcuUniqueDieId m0 : 9|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ foxBMS_GetMcuWaferInformation m0 : 11|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ foxBMS_TriggerSoftwareReset m2 : 39|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ InitializeFram m3 : 27|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ foxBMS_RequestRtcTime m4 : 8|1@0+ (1,0) [0|1] "" Vector__XXX
 
 
 BO_ 1313 foxBMS_String0Current: 6 Vector__XXX
@@ -1047,17 +1064,6 @@ SG_ IVT0_MsgCount_Result_Wh : 11|4@0+ (1,0) [0|15] "" Vector__XXX
 SG_ IVT0_ID_Result_Wh : 7|8@0+ (1,0) [7|7] "" Vector__XXX
 
 
-BO_ 409 foxBMS_Boot: 8 Vector__XXX
-SG_ foxBMS_majorVersionNumber : 7|8@0+ (1,0) [0|255] "" Vector__XXX
-SG_ foxBMS_minorVersionNumber : 15|8@0+ (1,0) [0|255] "" Vector__XXX
-SG_ foxBMS_patchVersionNumber : 23|8@0+ (1,0) [0|255] "" Vector__XXX
-SG_ foxBMS_uniqueId : 39|32@0+ (1,0) [0|4294967295] "" Vector__XXX
-SG_ foxBMS_underVersionControl : 24|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ foxBMS_dirtyFlag : 25|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ foxBMS_releaseDistance : 31|5@0+ (1,0) [0|31] "" Vector__XXX
-SG_ foxBMS_releaseDistanceOverflow : 26|1@0+ (1,0) [0|1] "" Vector__XXX
-
-
 BO_ 550 foxBMS_BmsStateDetails: 8 Vector__XXX
 SG_ foxBMS_TimingViolationEngine : 0|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ foxBMS_TimingViolation1ms : 1|1@0+ (1,0) [0|1] "" Vector__XXX
@@ -1071,11 +1077,34 @@ SG_ foxBMS_TimingViolationEngineRec : 8|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ foxBMS_TimingViolation1msRec : 9|1@0+ (1,0) [0|1] "" Vector__XXX
 
 
-BO_ 551 foxBMS_DieId: 8 Vector__XXX
-SG_ MCU_lotNumber : 15|24@0+ (1,0) [0|1] "" Vector__XXX
-SG_ MCU_waferNumber : 39|8@0+ (1,0) [0|1] "" Vector__XXX
-SG_ MCU_xWaferCoordinate : 51|12@0+ (1,0) [0|1] "" Vector__XXX
-SG_ MCU_yWaferCoordinate : 47|12@0+ (1,0) [0|1] "" Vector__XXX
+BO_ 551 foxBMS_DebugResponse: 8 Vector__XXX
+SG_ foxBMS_DebugResponse_Mux M : 7|8@0+ (1,0) [0|0] "" Vector__XXX
+SG_ MCU_waferNumber m3 : 15|8@0+ (1,0) [0|1] "" Vector__XXX
+SG_ MCU_xWaferCoordinate m3 : 27|12@0+ (1,0) [0|1] "" Vector__XXX
+SG_ MCU_yWaferCoordinate m3 : 23|12@0+ (1,0) [0|1] "" Vector__XXX
+SG_ MCU_LotNumber m2 : 15|32@0+ (1,0) [0|1] "" Vector__XXX
+SG_ MCU_uniqueId m1 : 15|32@0+ (1,0) [0|4294967295] "" Vector__XXX
+SG_ foxBMS_dirtyFlag m0 : 33|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ foxBMS_majorVersionNumber m0 : 15|8@0+ (1,0) [0|255] "" Vector__XXX
+SG_ foxBMS_minorVersionNumber m0 : 23|8@0+ (1,0) [0|255] "" Vector__XXX
+SG_ foxBMS_patchVersionNumber m0 : 31|8@0+ (1,0) [0|255] "" Vector__XXX
+SG_ foxBMS_releaseDistance m0 : 39|5@0+ (1,0) [0|31] "" Vector__XXX
+SG_ foxBMS_releaseDistanceOverflow m0 : 34|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ foxBMS_underVersionControl m0 : 32|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ foxBMS_MagicBootData m15 : 15|56@0+ (1,0) [0|1] "" Vector__XXX
+SG_ GetDay m4 : 36|5@0+ (1,0) [0|31] "" Vector__XXX
+SG_ GetHours m4 : 28|5@0+ (1,0) [0|31] "" Vector__XXX
+SG_ GetHundredthOfSeconds m4 : 15|7@0+ (1,0) [0|127] "" Vector__XXX
+SG_ GetMinutes m4 : 18|6@0+ (1,0) [0|63] "" Vector__XXX
+SG_ GetMonth m4 : 47|4@0+ (1,0) [0|15] "" Vector__XXX
+SG_ GetSeconds m4 : 8|6@0+ (1,0) [0|63] "" Vector__XXX
+SG_ GetWeekday m4 : 39|3@0+ (1,0) [0|7] "" Vector__XXX
+SG_ GetYear m4 : 43|7@0+ (1,0) [0|127] "" Vector__XXX
+
+
+BO_ 513 foxBMS_UnsupportedMultiplexerVal: 8 Vector__XXX
+SG_ foxBMS_MessageId : 7|32@0+ (1,0) [0|1] "" Vector__XXX
+SG_ foxBMS_MultiplexerValue : 39|32@0+ (1,0) [0|1] "" Vector__XXX
 
 
 CM_ BO_ 546 "(in:can_cbs_tx_system-values.c:CANTX_PackValues, fv:tx)";
@@ -1131,6 +1160,7 @@ CM_ SG_ 544 foxBMS_Error_PackOvercurr_Charge "0x00: No error, 0x01: Error detect
 CM_ SG_ 544 foxBMS_Error_PackOvercur_Dischrg "0x00: No error, 0x01: Error detected";
 CM_ SG_ 544 foxBMS_SysMonError "If this bit is set, it indicates that a task has violated its timing requirements.";
 CM_ SG_ 544 foxBMS_alertFlag "foxBMS Alter flag: 0x00: No error, 0x01: Alert flag set";
+CM_ SG_ 544 foxBMS_NvramCrcError "0x00: No NVRAM CRC Error detected, 0x01: NVRAM CRC Error detected";
 CM_ BO_ 545 "Message contains string related error and warning flags (in:can_cbs_tx_state.c:CANTX_StringState, fv:tx)";
 CM_ SG_ 545 String0_stringConnected "0x00: String not connected, 0x01: String connected to HV bus";
 CM_ SG_ 545 String0_balancing_active "0x00: No balancing active, 0x01: Balancing in this string active";
@@ -1163,6 +1193,7 @@ CM_ SG_ 545 String0_Err_CS_coulombCountMeas "0x00: No error, 0x01: Error";
 CM_ SG_ 545 String0_Err_CS_energyCountMeas "0x00: No error, 0x01: Error";
 CM_ SG_ 545 String0_Err_plaus_volt_spread "0x00: No error, 0x01: Error";
 CM_ SG_ 545 String0_Err_plaus_temp_spread "0x00: No error, 0x01: Error";
+CM_ SG_ 545 String0_Err_negativeContactor "0x00: No error, 0x01: Error";
 CM_ BO_ 641 "Message contains minimum and maximum cell temperature and cell voltage values of respective string (in:can_cbs_tx_minimum-maximum-values.c:CANTX_StringMinimumMaximumValues, fv:tx)";
 CM_ SG_ 641 String0_minimumCellVoltage "Minimum cell voltage in this string";
 CM_ SG_ 641 String0_maximumCellVoltage "Maximum cell voltage in this string";
@@ -1171,7 +1202,7 @@ CM_ SG_ 641 String0_minimumCellTemperature "Minium cell temperature in this stri
 CM_ BO_ 642 "Message contains SOC, SOE and SOH state estimations (in:can_cbs_tx_string-state-estimation.c:CANTX_StringStateEstimation, fv:tx)";
 CM_ SG_ 642 String0_SOE "SOE is depending on current direction, if battery system is charging: SOE_max is transmitted, else SOE_min";
 CM_ SG_ 642 String0_Energy_kWh "Remaining energy left in this string";
-CM_ BO_ 512 "Reserved - for debug/development purpose only (in:can_cbs_rx_misc.c:CANRX_Debug, fv:rx)";
+CM_ BO_ 512 "Reserved - for debug/development purpose only (in:can_cbs_rx_debug.c:CANRX_Debug, fv:rx)";
 CM_ BO_ 1313 "Current sensor string 0: current (in:can_cbs_rx_current-sensor.c:CANRX_CurrentSensor, fv:rx); Isabellenhuette data sheet name: IVT0_Msg_Result_I";
 CM_ BO_ 1314 "Current sensor string 0: voltage 1 (in:can_cbs_rx_current-sensor.c:CANRX_CurrentSensor, fv:rx); Isabellenhuette data sheet name: IVT0_Msg_Result_U1";
 CM_ BO_ 1315 "Current sensor string 0: voltage 2 (in:can_cbs_rx_current-sensor.c:CANRX_CurrentSensor, fv:rx); Isabellenhuette data sheet name: IVT0_Msg_Result_U2";
@@ -1180,8 +1211,6 @@ CM_ BO_ 1317 "Current sensor string 0: temperature (in:can_cbs_rx_current-sensor
 CM_ BO_ 1318 "Current sensor string 0: power (in:can_cbs_rx_current-sensor.c:CANRX_CurrentSensor, fv:rx); Isabellenhuette data sheet name: IVT0_Msg_Result_W";
 CM_ BO_ 1319 "Current sensor string 0: coulomb counting (in:can_cbs_rx_current-sensor.c:CANRX_CurrentSensor, fv:rx); Isabellenhuette data sheet name: IVT0_Msg_Result_As";
 CM_ BO_ 1320 "Current sensor string 0: energy counting (in:can_cbs_rx_current-sensor.c:CANRX_CurrentSensor, fv:rx); Isabellenhuette data sheet name: IVT0_Msg_Result_Wh";
-CM_ BO_ 409 "(in:can_cfg_tx_boot-message.c:CANTX_TransmitBootMessage, fv:tx)";
-CM_ SG_ 409 foxBMS_uniqueId "Content of Device Identification Register (DEVID)";
 CM_ BO_ 550 "Transmits details on flags transmitted by foxBMS_State (in:can_cbs_tx_state.c:CANTX_BmsStateDetails, fv:tx)";
 CM_ SG_ 550 foxBMS_TimingViolationEngine "Indicates whether the timing of the engine task has been violated.";
 CM_ SG_ 550 foxBMS_TimingViolation1ms "Indicates whether the timing of the 1ms task has been violated.";
@@ -1193,11 +1222,13 @@ CM_ SG_ 550 foxBMS_TimingViolation100msRec "Indicates whether a violation of the
 CM_ SG_ 550 foxBMS_TimingViolation100msAlgoR "Indicates whether a violation of the timing of the 100ms algorithm task has been recorded.";
 CM_ SG_ 550 foxBMS_TimingViolationEngineRec "Indicates whether a violation of the timing of the engine task has been recorded.";
 CM_ SG_ 550 foxBMS_TimingViolation1msRec "Indicates whether a violation of the timing of the 1ms task has been recorded.";
-CM_ BO_ 551 "Transmits the unique die id of the MCU on which foxBMS is currently running (in:can_cfg_tx_boot-message.c:CANTX_TransmitDieId, fv:tx)";
-CM_ SG_ 551 MCU_lotNumber "lot number of the MCU (read from DIEIDH register)";
+CM_ BO_ 551 "(in:can_cbs_tx_debug-response.c:CANTX_DebugResponse, fv:tx)";
 CM_ SG_ 551 MCU_waferNumber "wafer number of the MCU (read from DIEDL register)";
 CM_ SG_ 551 MCU_xWaferCoordinate "x coordinate of the MCU die on the wafer (read from DIEIDL register)";
 CM_ SG_ 551 MCU_yWaferCoordinate "y coordinate of the MCU die on the wafer (read from DIEIDL register)";
+CM_ SG_ 551 MCU_LotNumber "lot number of the MCU (read from DIEIDH register)";
+CM_ SG_ 551 MCU_uniqueId "Content of Device Identification Register (DEVID)";
+CM_ BO_ 513 "(in:can_cbs_tx_unsupported-message.c:CANTX_UnsupportedMultiplexerValue, fv:tx)";
 
 BA_DEF_  "BusType" STRING ;
 BA_DEF_ BO_  "GenMsgCycleTime" INT 0 65535;
@@ -2072,6 +2103,7 @@ BA_ "GenSigStartValue" SG_ 544 foxBMS_Error_PackOvercurr_Charge 0;
 BA_ "GenSigStartValue" SG_ 544 foxBMS_Error_PackOvercur_Dischrg 0;
 BA_ "GenSigStartValue" SG_ 544 foxBMS_SysMonError 0;
 BA_ "GenSigStartValue" SG_ 544 foxBMS_alertFlag 0;
+BA_ "GenSigStartValue" SG_ 544 foxBMS_NvramCrcError 0;
 BA_ "GenSigStartValue" SG_ 545 String0_stringConnected 0;
 BA_ "GenSigStartValue" SG_ 545 String0_balancing_active 0;
 BA_ "GenSigStartValue" SG_ 545 String0_Err_overtemp_charge 0;
@@ -2134,6 +2166,21 @@ BA_ "GenSigStartValue" SG_ 642 String0_maximumSOC 0;
 BA_ "GenSigStartValue" SG_ 642 String0_SOE 0;
 BA_ "GenSigStartValue" SG_ 642 String0_Energy_kWh 0;
 BA_ "GenSigStartValue" SG_ 642 String0_SOH 0;
+BA_ "GenSigStartValue" SG_ 512 SetHundredthOfSeconds 0;
+BA_ "GenSigStartValue" SG_ 512 SetSeconds 0;
+BA_ "GenSigStartValue" SG_ 512 SetMinutes 0;
+BA_ "GenSigStartValue" SG_ 512 SetHours 0;
+BA_ "GenSigStartValue" SG_ 512 SetWeekday 0;
+BA_ "GenSigStartValue" SG_ 512 SetDay 0;
+BA_ "GenSigStartValue" SG_ 512 SetMonth 0;
+BA_ "GenSigStartValue" SG_ 512 SetYear 0;
+BA_ "GenSigStartValue" SG_ 512 foxBMS_GetMcuLotNumber 0;
+BA_ "GenSigStartValue" SG_ 512 foxBMS_GetBmsSoftwareVersion 0;
+BA_ "GenSigStartValue" SG_ 512 foxBMS_GetMcuUniqueDieId 0;
+BA_ "GenSigStartValue" SG_ 512 foxBMS_GetMcuWaferInformation 0;
+BA_ "GenSigStartValue" SG_ 512 foxBMS_TriggerSoftwareReset 0;
+BA_ "GenSigStartValue" SG_ 512 InitializeFram 0;
+BA_ "GenSigStartValue" SG_ 512 foxBMS_RequestRtcTime 0;
 BA_ "GenSigStartValue" SG_ 1313 IVT0_Result_I_systemError 0;
 BA_ "GenSigStartValue" SG_ 1313 IVT0_Result_I_OCS 0;
 BA_ "GenSigStartValue" SG_ 1313 IVT0_Result_I_overallMeasError 0;
@@ -2190,14 +2237,6 @@ BA_ "GenSigStartValue" SG_ 1320 IVT0_Result_Wh_channelMeasError 0;
 BA_ "GenSigStartValue" SG_ 1320 IVT0_Result_Wh 0;
 BA_ "GenSigStartValue" SG_ 1320 IVT0_MsgCount_Result_Wh 0;
 BA_ "GenSigStartValue" SG_ 1320 IVT0_ID_Result_Wh 7;
-BA_ "GenSigStartValue" SG_ 409 foxBMS_majorVersionNumber 0;
-BA_ "GenSigStartValue" SG_ 409 foxBMS_minorVersionNumber 0;
-BA_ "GenSigStartValue" SG_ 409 foxBMS_patchVersionNumber 0;
-BA_ "GenSigStartValue" SG_ 409 foxBMS_uniqueId 0;
-BA_ "GenSigStartValue" SG_ 409 foxBMS_underVersionControl 0;
-BA_ "GenSigStartValue" SG_ 409 foxBMS_dirtyFlag 0;
-BA_ "GenSigStartValue" SG_ 409 foxBMS_releaseDistance 0;
-BA_ "GenSigStartValue" SG_ 409 foxBMS_releaseDistanceOverflow 0;
 BA_ "GenSigStartValue" SG_ 550 foxBMS_TimingViolationEngine 0;
 BA_ "GenSigStartValue" SG_ 550 foxBMS_TimingViolation1ms 0;
 BA_ "GenSigStartValue" SG_ 550 foxBMS_TimingViolation10ms 0;
@@ -2208,10 +2247,29 @@ BA_ "GenSigStartValue" SG_ 550 foxBMS_TimingViolation100msRec 0;
 BA_ "GenSigStartValue" SG_ 550 foxBMS_TimingViolation100msAlgoR 0;
 BA_ "GenSigStartValue" SG_ 550 foxBMS_TimingViolationEngineRec 0;
 BA_ "GenSigStartValue" SG_ 550 foxBMS_TimingViolation1msRec 0;
-BA_ "GenSigStartValue" SG_ 551 MCU_lotNumber 0;
 BA_ "GenSigStartValue" SG_ 551 MCU_waferNumber 0;
 BA_ "GenSigStartValue" SG_ 551 MCU_xWaferCoordinate 0;
 BA_ "GenSigStartValue" SG_ 551 MCU_yWaferCoordinate 0;
+BA_ "GenSigStartValue" SG_ 551 MCU_LotNumber 0;
+BA_ "GenSigStartValue" SG_ 551 MCU_uniqueId 0;
+BA_ "GenSigStartValue" SG_ 551 foxBMS_dirtyFlag 0;
+BA_ "GenSigStartValue" SG_ 551 foxBMS_majorVersionNumber 0;
+BA_ "GenSigStartValue" SG_ 551 foxBMS_minorVersionNumber 0;
+BA_ "GenSigStartValue" SG_ 551 foxBMS_patchVersionNumber 0;
+BA_ "GenSigStartValue" SG_ 551 foxBMS_releaseDistance 0;
+BA_ "GenSigStartValue" SG_ 551 foxBMS_releaseDistanceOverflow 0;
+BA_ "GenSigStartValue" SG_ 551 foxBMS_underVersionControl 0;
+BA_ "GenSigStartValue" SG_ 551 foxBMS_MagicBootData 0;
+BA_ "GenSigStartValue" SG_ 551 GetDay 0;
+BA_ "GenSigStartValue" SG_ 551 GetHours 0;
+BA_ "GenSigStartValue" SG_ 551 GetHundredthOfSeconds 0;
+BA_ "GenSigStartValue" SG_ 551 GetMinutes 0;
+BA_ "GenSigStartValue" SG_ 551 GetMonth 0;
+BA_ "GenSigStartValue" SG_ 551 GetSeconds 0;
+BA_ "GenSigStartValue" SG_ 551 GetWeekday 0;
+BA_ "GenSigStartValue" SG_ 551 GetYear 0;
+BA_ "GenSigStartValue" SG_ 513 foxBMS_MessageId 0;
+BA_ "GenSigStartValue" SG_ 513 foxBMS_MultiplexerValue 0;
 
 VAL_ 640 foxBMS_StringValuesP0_Mux 0 "mux_valuesP0String_0" ;
 VAL_ 643 foxBMS_StringValuesP1_Mux 0 "mux_valuesP1String_0" ;
@@ -2221,6 +2279,21 @@ VAL_ 592 foxBMS_CellTemperatures_Mux 0 "mux_cellTemperature_000_005" 1 "mux_cell
 VAL_ 545 foxBMS_StringState_Mux 0 "mux_stateString0" ;
 VAL_ 641 foxBMS_StringMinMaxValues_Mux 0 "mux_minMaxValuesString0" ;
 VAL_ 642 foxBMS_StringStateEstimation_Mux 0 "mux_String0_SOC_SOE" ;
-VAL_ 560 foxBMS_modeRequest 0 "mode_Standby" 1 "mode_Discharge" 2 "mode_Charge" ;
+VAL_ 512 foxBMS_Debug_Mux 1 "foxBMS_Rtc" 0 "foxBMS_VersionInfo" 2 "foxBMS_SoftwareReset" 3 "foxBMS_FramInitialization" 4 "foxBMS_TimeInfo" ;
+VAL_ 551 foxBMS_DebugResponse_Mux 3 "foxBMS_McuWaferInformation" 2 "foxBMS_McuLotNumber" 1 "foxBMS_McuUniqueDieId" 0 "foxBMS_BmsSoftwareVersionInfo" 15 "foxBMS_BootInformation" 4 "foxBMS_RtcTime" ;
+VAL_ 560 foxBMS_modeRequest 0 "Standby" 1 "Discharge" 2 "Charge" ;
 VAL_ 544 foxBMS_State 0 "BMS_UNINITIALIZED" 1 "BMS_INITIALIZATION" 2 "BMS_INITIALIZED" 3 "BMS_IDLE" 4 "BMS_OPEN_CONTACTORS" 5 "BMS_STANDBY" 6 "BMS_PRECHARGE" 7 "BMS_NORMAL" 8 "BMS_DISCHARGE" 9 "BMS_CHARGE" 10 "BMS_ERROR" 11 "BMS_UNDEFINED" ;
+VAL_ 544 foxBMS_Error_dieTemperatureMCU 0 "No Error" 1 "Error" ;
+VAL_ 544 foxBMS_Error_Interlock 0 "No Error" 1 "Error" ;
+VAL_ 544 foxBMS_alertFlag 0 "No Error" 1 "Error" ;
+VAL_ 544 foxBMS_NvramCrcError 0 "No Error" 1 "Error" ;
+VAL_ 545 String0_Err_deep_discharge 0 "No Error" 1 "Error" ;
+VAL_ 545 String0_Err_positiveContactor 0 "No Error" 1 "Error" ;
 VAL_ 545 String0_fuseBlown 0 "Fuse okay" 1 "Fuse blown" ;
+VAL_ 545 String0_Err_negativeContactor 0 "No Error" 1 "Error" ;
+VAL_ 512 SetWeekday 1 "Monday" 2 "Tuesday" 3 "Wednesday" 4 "Thursday" 5 "Friday" 6 "Saturday" 0 "Sunday" ;
+VAL_ 512 SetMonth 1 "January" 2 "February" 3 "March" 4 "Mai" 5 "April" 6 "June" 7 "July" 8 "August" 9 "September" 10 "October" 11 "November" 12 "December" ;
+VAL_ 512 foxBMS_TriggerSoftwareReset 0 "NO_SOFTWARE_RESET" 1 "SOFTWARE_RESET" ;
+VAL_ 512 InitializeFram 0 "NO_FRAM_INITIALIZATION" 1 "FRAM_INITIALIZATION" ;
+VAL_ 551 GetMonth 1 "January" 2 "February" 3 "March" 4 "Mai" 5 "April" 6 "June" 7 "July" 8 "August" 9 "September" 10 "October" 11 "November" 12 "December" ;
+VAL_ 551 GetWeekday 1 "Monday" 2 "Tuesday" 3 "Wednesday" 4 "Thursday" 5 "Friday" 6 "Saturday" 0 "Sunday" ;

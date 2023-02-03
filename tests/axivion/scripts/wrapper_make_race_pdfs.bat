@@ -1,4 +1,4 @@
-@REM Copyright (c) 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+@REM Copyright (c) 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 @REM All rights reserved.
 @REM
 @REM SPDX-License-Identifier: BSD-3-Clause
@@ -38,5 +38,5 @@
 @SETLOCAL EnableExtensions EnableDelayedExpansion
 
 @SET BAUHAUS_CONFIG=%~dp0\..\
-@SET PATH=%PATH%;C:\Bauhaus\7.4.6\doc\html\_downloads\87991abe35fa881bf14ce6d55f075d2d
+@SET PATH=%PATH%;C:\Bauhaus\7.5.0\doc\html\_downloads\87991abe35fa881bf14ce6d55f075d2d
 @call make_race_pdfs.bat %USERPROFILE%\.bauhaus\localbuild\projects\foxbms-2.ir %USERPROFILE%\.bauhaus\localbuild\projects\foxbms-2.rfg

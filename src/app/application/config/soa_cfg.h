@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    soa_cfg.h
  * @author  foxBMS Team
  * @date    2020-10-14 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup APPLICATION_CONFIGURATION
  * @prefix  SOA
  *
@@ -56,9 +56,11 @@
 #define FOXBMS__SOA_CFG_H_
 
 /*========== Includes =======================================================*/
-#include "general.h"
 
 #include "bms.h"
+
+#include <stdbool.h>
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 
@@ -71,7 +73,7 @@
  * @param[in]   currentDirection charging or discharging
  * @return   true if pack current limit is violated, otherwise false
  */
-bool SOA_IsPackCurrentLimitViolated(uint32_t current_mA, BMS_CURRENT_FLOW_STATE_e currentDirection);
+extern bool SOA_IsPackCurrentLimitViolated(uint32_t current_mA, BMS_CURRENT_FLOW_STATE_e currentDirection);
 
 /**
  * @brief   Checks if string current limit is violated
@@ -79,7 +81,7 @@ bool SOA_IsPackCurrentLimitViolated(uint32_t current_mA, BMS_CURRENT_FLOW_STATE_
  * @param[in]   currentDirection charging or discharging
  * @return  true if string current limit is violated, otherwise false
  */
-bool SOA_IsStringCurrentLimitViolated(uint32_t current_mA, BMS_CURRENT_FLOW_STATE_e currentDirection);
+extern bool SOA_IsStringCurrentLimitViolated(uint32_t current_mA, BMS_CURRENT_FLOW_STATE_e currentDirection);
 
 /**
  * @brief   Checks if cell current limit is violated
@@ -87,7 +89,7 @@ bool SOA_IsStringCurrentLimitViolated(uint32_t current_mA, BMS_CURRENT_FLOW_STAT
  * @param[in]   currentDirection charging or discharging
  * @return  true if cell current limit is violated, otherwise false
  */
-bool SOA_IsCellCurrentLimitViolated(uint32_t current_mA, BMS_CURRENT_FLOW_STATE_e currentDirection);
+extern bool SOA_IsCellCurrentLimitViolated(uint32_t current_mA, BMS_CURRENT_FLOW_STATE_e currentDirection);
 
 /**
  * @brief   Checks if string current is floating while contactors are open
@@ -95,8 +97,10 @@ bool SOA_IsCellCurrentLimitViolated(uint32_t current_mA, BMS_CURRENT_FLOW_STATE_
  * @param[in]   stringNumber string that is checked
  * @return  true if cell current limit is violated, otherwise false
  */
-bool SOA_IsCurrentOnOpenString(BMS_CURRENT_FLOW_STATE_e currentDirection, uint8_t stringNumber);
+extern bool SOA_IsCurrentOnOpenString(BMS_CURRENT_FLOW_STATE_e currentDirection, uint8_t stringNumber);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
+#ifdef UNITY_UNIT_TEST
+#endif
 
 #endif /* FOXBMS__SOA_CFG_H_ */

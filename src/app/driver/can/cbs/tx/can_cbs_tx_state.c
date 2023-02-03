@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    can_cbs_tx_state.c
  * @author  foxBMS Team
  * @date    2021-07-21 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup DRIVER
  * @prefix  CANTX
  *
@@ -59,6 +59,9 @@
 #include "can_helper.h"
 #include "diag.h"
 #include "sys_mon.h"
+
+#include <math.h>
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 
@@ -77,9 +80,12 @@ static bool CANTX_AnySysMonTimingIssueDetected(const CAN_SHIM_s *const kpkCanShi
     SYSM_GetRecordedTimingViolations(&recordedTimingViolations);
 
     const bool anyTimingViolation =
-        (recordedTimingViolations.recordedViolationAny || kpkCanShim->pTableErrorState->timingViolationEngine ||
-         kpkCanShim->pTableErrorState->timingViolation1ms || kpkCanShim->pTableErrorState->timingViolation10ms ||
-         kpkCanShim->pTableErrorState->timingViolation100ms || kpkCanShim->pTableErrorState->timingViolation100msAlgo);
+        (recordedTimingViolations.recordedViolationAny ||
+         kpkCanShim->pTableErrorState->taskEngineTimingViolationError ||
+         kpkCanShim->pTableErrorState->task1msTimingViolationError ||
+         kpkCanShim->pTableErrorState->task10msTimingViolationError ||
+         kpkCanShim->pTableErrorState->task100msTimingViolationError ||
+         kpkCanShim->pTableErrorState->task100msAlgoTimingViolationError);
 
     return anyTimingViolation;
 }
@@ -110,15 +116,15 @@ extern uint32_t CANTX_BmsState(
     /* set data in CAN frame */
     CAN_TxSetMessageDataWithSignalData(&messageData, 7u, 4u, data, message.endianness);
 
+    /* General warning: TODO */
+
     /* General error - implement now */
     data = CAN_ConvertBooleanToInteger(DIAG_IsAnyFatalErrorSet());
-    CAN_TxSetMessageDataWithSignalData(&messageData, 11u, 1u, data, message.endianness);
-
-    /* General warning: TODO */
+    CAN_TxSetMessageDataWithSignalData(&messageData, 10u, 1u, data, message.endianness);
 
     /* Emergency shutoff */
     data = CAN_ConvertBooleanToInteger(BMS_IsTransitionToErrorStateActive());
-    CAN_TxSetMessageDataWithSignalData(&messageData, 10u, 1u, data, message.endianness);
+    CAN_TxSetMessageDataWithSignalData(&messageData, 11u, 1u, data, message.endianness);
 
     /* Number of deactivated strings: TODO */
 
@@ -131,13 +137,13 @@ extern uint32_t CANTX_BmsState(
     CAN_TxSetMessageDataWithSignalData(&messageData, 13u, 1u, data, message.endianness);
 
     /* Error: insulation */
-    data = CAN_ConvertBooleanToInteger(kpkCanShim->pTableErrorState->criticalLowInsulationResistance);
+    data = CAN_ConvertBooleanToInteger(kpkCanShim->pTableErrorState->criticalLowInsulationResistanceError);
     CAN_TxSetMessageDataWithSignalData(&messageData, 23u, 1u, data, message.endianness);
 
     /* Insulation resistance */
-    float signalData = (float)kpkCanShim->pTableInsulation->insulationResistance_kOhm;
-    signalData       = signalData * 0.1f; /* convert kOhm to 10kOhm */
-    data             = (uint64_t)signalData;
+    float_t signalData = (float_t)kpkCanShim->pTableInsulation->insulationResistance_kOhm;
+    signalData         = signalData * 0.1f; /* convert kOhm to 10kOhm */
+    data               = (uint64_t)signalData;
     CAN_TxSetMessageDataWithSignalData(&messageData, 63u, 8u, data, message.endianness);
 
     /* Charging complete: TODO */
@@ -145,24 +151,41 @@ extern uint32_t CANTX_BmsState(
     /* Heater state: TODO */
     /* Cooling state: TODO */
 
-    /* Error: Precharge voltage: TODO */
-    /* Error: Precharge current: TODO */
+    /* Error: Precharge voltage */
+    data = 0u; /* No precharge error detected */
+    for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
+        if (kpkCanShim->pTableErrorState->prechargeAbortedDueToVoltage[s] == true) {
+            data = 1u;
+        }
+    }
+    CAN_TxSetMessageDataWithSignalData(&messageData, 16u, 1u, data, message.endianness);
+
+    /* Error: Precharge current */
+    data = 0u; /* No precharge error detected */
+    for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
+        if (kpkCanShim->pTableErrorState->prechargeAbortedDueToCurrent[s] == true) {
+            data = 1u;
+        }
+    }
+    CAN_TxSetMessageDataWithSignalData(&messageData, 17u, 1u, data, message.endianness);
 
     /* Error: MCU die temperature */
-    data = kpkCanShim->pTableErrorState->mcuDieTemperature;
+    data = CAN_ConvertBooleanToInteger(kpkCanShim->pTableErrorState->mcuDieTemperatureViolationError);
     CAN_TxSetMessageDataWithSignalData(&messageData, 18u, 1u, data, message.endianness);
 
     /* Error: master overtemperature: TODO */
     /* Error: master undertemperature: TODO */
 
+    /* Main fuse state */
+    data = CAN_ConvertBooleanToInteger(kpkCanShim->pTableErrorState->mainFuseError);
+    CAN_TxSetMessageDataWithSignalData(&messageData, 21u, 1u, data, message.endianness);
+
     /* Error: interlock */
-    data = kpkCanShim->pTableErrorState->interlock;
+    data = CAN_ConvertBooleanToInteger(kpkCanShim->pTableErrorState->interlockOpenedError);
     CAN_TxSetMessageDataWithSignalData(&messageData, 22u, 1u, data, message.endianness);
 
-    /* Main fuse state: TODO */
-
     /* Error: Can timing */
-    data = kpkCanShim->pTableErrorState->canTiming;
+    data = kpkCanShim->pTableErrorState->stateRequestTimingViolationError;
     CAN_TxSetMessageDataWithSignalData(&messageData, 24u, 1u, data, message.endianness);
 
     /* Error: Overcurrent pack charge */
@@ -172,6 +195,14 @@ extern uint32_t CANTX_BmsState(
     /* Error: Overcurrent pack discharge */
     data = kpkCanShim->pTableMsl->packDischargeOvercurrent;
     CAN_TxSetMessageDataWithSignalData(&messageData, 26u, 1u, data, message.endianness);
+
+    /* Error: Alert flag */
+    data = CAN_ConvertBooleanToInteger(kpkCanShim->pTableErrorState->alertFlagSetError);
+    CAN_TxSetMessageDataWithSignalData(&messageData, 27u, 1u, data, message.endianness);
+
+    /* Error: NVRAM CRC */
+    data = CAN_ConvertBooleanToInteger(kpkCanShim->pTableErrorState->framReadCrcError);
+    CAN_TxSetMessageDataWithSignalData(&messageData, 28u, 1u, data, message.endianness);
     /* AXIVION Enable Style Generic-NoMagicNumbers: */
 
     /* now copy data in the buffer that will be use to send data */
@@ -186,6 +217,7 @@ extern uint32_t CANTX_BmsStateDetails(
     uint8_t *pMuxId,
     const CAN_SHIM_s *const kpkCanShim) {
     FAS_ASSERT(message.id == CANTX_BMS_STATE_DETAILS_ID);
+    FAS_ASSERT(message.idType == CANTX_BMS_STATE_DETAILS_ID_TYPE);
     FAS_ASSERT(message.dlc == CAN_FOXBMS_MESSAGES_DEFAULT_DLC);
     FAS_ASSERT(pCanData != NULL_PTR);
     FAS_ASSERT(pMuxId == NULL_PTR); /* pMuxId is not used here, therefore has to be NULL_PTR */
@@ -198,19 +230,19 @@ extern uint32_t CANTX_BmsStateDetails(
 
     /* AXIVION Disable Style Generic-NoMagicNumbers: Signal data defined in .dbc file. */
     /* current violation engine */
-    uint64_t data = CAN_ConvertBooleanToInteger(kpkCanShim->pTableErrorState->timingViolationEngine);
+    uint64_t data = CAN_ConvertBooleanToInteger(kpkCanShim->pTableErrorState->taskEngineTimingViolationError);
     CAN_TxSetMessageDataWithSignalData(&messageData, 0u, 1u, data, message.endianness);
     /* current violation 1ms */
-    data = CAN_ConvertBooleanToInteger(kpkCanShim->pTableErrorState->timingViolation1ms);
+    data = CAN_ConvertBooleanToInteger(kpkCanShim->pTableErrorState->task1msTimingViolationError);
     CAN_TxSetMessageDataWithSignalData(&messageData, 1u, 1u, data, message.endianness);
     /* current violation 10ms */
-    data = CAN_ConvertBooleanToInteger(kpkCanShim->pTableErrorState->timingViolation10ms);
+    data = CAN_ConvertBooleanToInteger(kpkCanShim->pTableErrorState->task10msTimingViolationError);
     CAN_TxSetMessageDataWithSignalData(&messageData, 2u, 1u, data, message.endianness);
     /* current violation 100ms */
-    data = CAN_ConvertBooleanToInteger(kpkCanShim->pTableErrorState->timingViolation100ms);
+    data = CAN_ConvertBooleanToInteger(kpkCanShim->pTableErrorState->task100msTimingViolationError);
     CAN_TxSetMessageDataWithSignalData(&messageData, 3u, 1u, data, message.endianness);
     /* current violation 100ms algorithm */
-    data = CAN_ConvertBooleanToInteger(kpkCanShim->pTableErrorState->timingViolation100msAlgo);
+    data = CAN_ConvertBooleanToInteger(kpkCanShim->pTableErrorState->task100msAlgoTimingViolationError);
     CAN_TxSetMessageDataWithSignalData(&messageData, 4u, 1u, data, message.endianness);
 
     /* recorded violation engine */
@@ -242,6 +274,7 @@ extern uint32_t CANTX_StringState(
     uint8_t *pMuxId,
     const CAN_SHIM_s *const kpkCanShim) {
     FAS_ASSERT(message.id == CANTX_STRING_STATE_ID);
+    FAS_ASSERT(message.idType == CANTX_STRING_STATE_ID_TYPE);
     FAS_ASSERT(message.dlc == CAN_FOXBMS_MESSAGES_DEFAULT_DLC);
     FAS_ASSERT(pCanData != NULL_PTR);
     FAS_ASSERT(pMuxId != NULL_PTR);
@@ -272,16 +305,11 @@ extern uint32_t CANTX_StringState(
     /* Balancing active: TODO */
 
     /* String fuse blown */
-    if ((kpkCanShim->pTableErrorState->fuseStateCharge[stringNumber] == 1u) ||
-        (kpkCanShim->pTableErrorState->fuseStateNormal[stringNumber] == 1u)) {
-        data = 1u;
-    } else {
-        data = 0u;
-    }
+    data = CAN_ConvertBooleanToInteger(kpkCanShim->pTableErrorState->stringFuseError[stringNumber]);
     CAN_TxSetMessageDataWithSignalData(&messageData, 6u, 1u, data, message.endianness);
 
     /* Error: Deep-discharge */
-    data = kpkCanShim->pTableErrorState->deepDischargeDetected[stringNumber];
+    data = CAN_ConvertBooleanToInteger(kpkCanShim->pTableErrorState->deepDischargeDetectedError[stringNumber]);
     CAN_TxSetMessageDataWithSignalData(&messageData, 7u, 1u, data, message.endianness);
 
     /* Error: Overtemperature charge */
@@ -410,34 +438,42 @@ extern uint32_t CANTX_StringState(
     data = kpkCanShim->pTableRsl->underVoltage[stringNumber];
     CAN_TxSetMessageDataWithSignalData(&messageData, 31u, 1u, data, message.endianness);
 
-    /* Error: Positive string contactor: TODO */
-    /* Error: Negative string contactor: TODO */
+    /* Error: Positive string contactor */
+    data = CAN_ConvertBooleanToInteger(
+        kpkCanShim->pTableErrorState->contactorInPositivePathOfStringFeedbackError[stringNumber]);
+    CAN_TxSetMessageDataWithSignalData(&messageData, 32u, 1u, data, message.endianness);
+
+    /* Error: Negative string contactor */
+    data = CAN_ConvertBooleanToInteger(
+        kpkCanShim->pTableErrorState->contactorInNegativePathOfStringFeedbackError[stringNumber]);
+    CAN_TxSetMessageDataWithSignalData(&messageData, 33u, 1u, data, message.endianness);
+
     /* Error: Slave hardware: TODO */
 
     /* Error: Daisy-chain base: communication */
-    data = kpkCanShim->pTableErrorState->spiError[stringNumber];
+    data = kpkCanShim->pTableErrorState->afeCommunicationSpiError[stringNumber];
     CAN_TxSetMessageDataWithSignalData(&messageData, 35u, 1u, data, message.endianness);
 
     /* Error: Daisy-chain redundancy: communication: TODO */
     /* Error: Daisy-chain base: CRC */
-    data = kpkCanShim->pTableErrorState->crcError[stringNumber];
+    data = kpkCanShim->pTableErrorState->afeCommunicationCrcError[stringNumber];
     CAN_TxSetMessageDataWithSignalData(&messageData, 37u, 1u, data, message.endianness);
 
     /* Error: Daisy-chain redundancy: CRC: TODO */
     /* Error: Daisy-chain base: Voltage out of operating range */
-    data = kpkCanShim->pTableErrorState->afeCellVoltageError[stringNumber];
+    data = kpkCanShim->pTableErrorState->afeCellVoltageInvalidError[stringNumber];
     CAN_TxSetMessageDataWithSignalData(&messageData, 39u, 1u, data, message.endianness);
 
     /* Error: Daisy-chain redundancy: Voltage out of operating range: TODO */
     /* Error: Daisy-chain base: Temperature out of operating range */
-    data = kpkCanShim->pTableErrorState->afeCellTemperatureError[stringNumber];
+    data = kpkCanShim->pTableErrorState->afeCellTemperatureInvalidError[stringNumber];
     CAN_TxSetMessageDataWithSignalData(&messageData, 41u, 1u, data, message.endianness);
 
     /* Error: Daisy-chain redundancy: Voltage out of operating range: TODO */
 
     /* Error: current measurement */
-    if ((kpkCanShim->pTableErrorState->currentMeasurementError[stringNumber] == 1u) ||
-        (kpkCanShim->pTableErrorState->currentMeasurementTimeout[stringNumber] == 1u)) {
+    if ((kpkCanShim->pTableErrorState->currentMeasurementInvalidError[stringNumber] == true) ||
+        (kpkCanShim->pTableErrorState->currentMeasurementTimeoutError[stringNumber] == true)) {
         data = 1u;
     } else {
         data = 0u;
@@ -445,44 +481,47 @@ extern uint32_t CANTX_StringState(
     CAN_TxSetMessageDataWithSignalData(&messageData, 43u, 1u, data, message.endianness);
 
     /* Error: Coulomb counting measurement */
-    data = kpkCanShim->pTableErrorState->canTimingCc[stringNumber];
+    data = kpkCanShim->pTableErrorState->currentSensorCoulombCounterTimeoutError[stringNumber];
     CAN_TxSetMessageDataWithSignalData(&messageData, 44u, 1u, data, message.endianness);
 
     /* Error: Energy counting measurement */
-    data = kpkCanShim->pTableErrorState->canTimingEc[stringNumber];
+    data = kpkCanShim->pTableErrorState->currentSensorEnergyCounterTimeoutError[stringNumber];
     CAN_TxSetMessageDataWithSignalData(&messageData, 45u, 1u, data, message.endianness);
 
     /* Error: Current sensor V1 measurement */
-    data = kpkCanShim->pTableErrorState->currentSensorTimeoutV1[stringNumber];
+    data = kpkCanShim->pTableErrorState->currentSensorVoltage1TimeoutError[stringNumber];
     CAN_TxSetMessageDataWithSignalData(&messageData, 46u, 1u, data, message.endianness);
 
-    /* Error: Current sensor V2 measurement: TODO */
+    /* Error: Current sensor V2 measurement */
+    data = kpkCanShim->pTableErrorState->currentSensorVoltage2TimeoutError[stringNumber];
+    CAN_TxSetMessageDataWithSignalData(&messageData, 47u, 1u, data, message.endianness);
+
     /* Error: Current sensor V3 measurement */
-    data = kpkCanShim->pTableErrorState->currentSensorTimeoutV3[stringNumber];
+    data = kpkCanShim->pTableErrorState->currentSensorVoltage3TimeoutError[stringNumber];
     CAN_TxSetMessageDataWithSignalData(&messageData, 48u, 1u, data, message.endianness);
 
     /* Error: Open wire */
-    data = kpkCanShim->pTableErrorState->open_wire[stringNumber];
+    data = kpkCanShim->pTableErrorState->openWireDetectedError[stringNumber];
     CAN_TxSetMessageDataWithSignalData(&messageData, 49u, 1u, data, message.endianness);
 
     /* Error: Plausibility: Cell temperature */
-    data = kpkCanShim->pTableErrorState->plausibilityCheckCelltemperature[stringNumber];
+    data = kpkCanShim->pTableErrorState->plausibilityCheckCellTemperatureError[stringNumber];
     CAN_TxSetMessageDataWithSignalData(&messageData, 51u, 1u, data, message.endianness);
 
     /* Error: Plausibility: Cell voltage */
-    data = kpkCanShim->pTableErrorState->plausibilityCheckCellVoltage[stringNumber];
+    data = kpkCanShim->pTableErrorState->plausibilityCheckCellVoltageError[stringNumber];
     CAN_TxSetMessageDataWithSignalData(&messageData, 52u, 1u, data, message.endianness);
 
     /* Error: Plausibility: String voltage */
-    data = kpkCanShim->pTableErrorState->plausibilityCheckPackvoltage[stringNumber];
+    data = kpkCanShim->pTableErrorState->plausibilityCheckPackVoltageError[stringNumber];
     CAN_TxSetMessageDataWithSignalData(&messageData, 53u, 1u, data, message.endianness);
 
     /* Error: Plausibility: Cell temperature spread */
-    data = kpkCanShim->pTableErrorState->plausibilityCheckCelltemperatureSpread[stringNumber];
+    data = kpkCanShim->pTableErrorState->plausibilityCheckCellTemperatureSpreadError[stringNumber];
     CAN_TxSetMessageDataWithSignalData(&messageData, 54u, 1u, data, message.endianness);
 
     /* Error: Plausibility: Cell voltage spread */
-    data = kpkCanShim->pTableErrorState->plausibilityCheckCellVoltageSpread[stringNumber];
+    data = kpkCanShim->pTableErrorState->plausibilityCheckCellVoltageSpreadError[stringNumber];
     CAN_TxSetMessageDataWithSignalData(&messageData, 55u, 1u, data, message.endianness);
     /* AXIVION Enable Style Generic-NoMagicNumbers: */
 
@@ -504,5 +543,4 @@ extern uint32_t CANTX_StringState(
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
 #ifdef UNITY_UNIT_TEST
-
 #endif

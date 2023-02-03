@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    soc_debug.c
  * @author  foxBMS Team
  * @date    2020-10-14 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup APPLICATION
  * @prefix  SOC
  *
@@ -54,6 +54,12 @@
 
 /*========== Includes =======================================================*/
 #include "soc_debug.h"
+
+#include "database_cfg.h"
+
+#include <math.h>
+#include <stdbool.h>
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 
@@ -75,8 +81,10 @@ extern void SE_CalculateStateOfCharge(DATA_BLOCK_SOX_s *pSocValues) {
     FAS_ASSERT(pSocValues != NULL_PTR);
 }
 
-extern float SE_GetStateOfChargeFromVoltage(int16_t voltage_mV) {
+extern float_t SE_GetStateOfChargeFromVoltage(int16_t voltage_mV) {
     return 0.50f;
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
+#ifdef UNITY_UNIT_TEST
+#endif

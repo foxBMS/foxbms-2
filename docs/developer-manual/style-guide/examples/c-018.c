@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -39,22 +39,54 @@
  *
  */
 
-#include "general.h"
+/**
+ * @file    c-018.c
+ * @author  foxBMS Team
+ * @date    2021-06-04 (date of creation)
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
+ * @ingroup GUIDELINES
+ * @prefix  ABC
+ *
+ * @brief   Example code to show the application of the C coding guidelines
+ * @details This code implements an example for C:018
+ *
+ */
 
+/*========== Includes =======================================================*/
+#include "fstd_types.h"
+
+#include <stdint.h>
+
+/*========== Macros and Definitions =========================================*/
 typedef struct {
     uint32_t value;
-} INIT_STRUCT_s;
+} ABC_INIT_STRUCT_s;
 
-typedef uint8_t SOME_FUNCTION_TYPE_f(void);     /* typedef of a function type */
-uint32_t myVariable                 = 0;        /* local uint32_t variable */
-static uint32_t *abc_pMyPointer     = NULL_PTR; /* static uint32_t pointer */
-static INIT_STRUCT_s abc_initStruct = {0};      /* static init struct */
-INIT_STRUCT_s *pInitStruct          = NULL_PTR; /* local pointer to some init struct */
-SOME_FUNCTION_TYPE_f *fpMyFunction;             /* local function pointer using a typedef */
+typedef uint8_t ABC_SOME_FUNCTION_TYPE_f(void); /* typedef of a function type */
 
-void ABC_AssignSomeValue() {
-    abc_pMyPointer = &myVariable;
-    myVariable     = *abc_pMyPointer;
-    myVariable     = abc_initStruct.value;
-    myVariable     = pInitStruct->value;
+/*========== Static Constant and Variable Definitions =======================*/
+static uint32_t *abc_pMyPointer         = NULL_PTR; /* static uint32_t pointer */
+static ABC_INIT_STRUCT_s abc_initStruct = {0};      /* static init struct */
+static uint32_t abc_myVariable          = 0;        /* local uint32_t variable */
+
+/*========== Extern Constant and Variable Definitions =======================*/
+ABC_INIT_STRUCT_s *abc_pInitStruct = NULL_PTR; /* local pointer to some init struct */
+ABC_SOME_FUNCTION_TYPE_f *abc_fpMyFunction;    /* local function pointer using a typedef */
+
+/*========== Static Function Prototypes =====================================*/
+static void ABC_AssignSomeValue(void);
+
+/*========== Static Function Implementations ================================*/
+static void ABC_AssignSomeValue(void) {
+    abc_pMyPointer = &abc_myVariable;
+    abc_myVariable = *abc_pMyPointer;
+    abc_myVariable = abc_initStruct.value;
+    abc_myVariable = abc_pInitStruct->value;
 }
+
+/*========== Extern Function Implementations ================================*/
+
+/*========== Externalized Static Function Implementations (Unit Test) =======*/
+#ifdef UNITY_UNIT_TEST
+#endif

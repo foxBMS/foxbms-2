@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    can_cfg_rx.c
  * @author  foxBMS Team
  * @date    2019-12-04 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  CANRX
  *
@@ -64,6 +64,8 @@
 #include "database.h"
 #include "ftask.h"
 
+#include <stdint.h>
+
 /*========== Macros and Definitions =========================================*/
 
 /*========== Static Constant and Variable Definitions =======================*/
@@ -75,7 +77,6 @@ const CAN_RX_MESSAGE_TYPE_s can_rxMessages[] = {
     {CAN_NODE_IMD, CANRX_IMD_INFO_MESSAGE, &CANRX_ImdInfo},
     {CAN_NODE_IMD, CANRX_IMD_RESPONSE_MESSAGE, &CANRX_ImdResponse},
     {CAN_NODE_1, CANRX_BMS_STATE_REQUEST_MESSAGE, &CANRX_BmsStateRequest},
-    {CAN_NODE_1, CANRX_SOFTWARE_RESET_MESSAGE, &CANRX_SoftwareReset},
     {CAN_NODE_CURRENT_SENSOR, CANRX_STRING0_CURRENT_MESSAGE, &CANRX_CurrentSensor},
     {CAN_NODE_CURRENT_SENSOR, CANRX_STRING0_VOLTAGE1_MESSAGE, &CANRX_CurrentSensor},
     {CAN_NODE_CURRENT_SENSOR, CANRX_STRING0_VOLTAGE2_MESSAGE, &CANRX_CurrentSensor},
@@ -84,8 +85,7 @@ const CAN_RX_MESSAGE_TYPE_s can_rxMessages[] = {
     {CAN_NODE_CURRENT_SENSOR, CANRX_STRING0_POWER_MESSAGE, &CANRX_CurrentSensor},
     {CAN_NODE_CURRENT_SENSOR, CANRX_STRING0_CURRENT_COUNTER_MESSAGE, &CANRX_CurrentSensor},
     {CAN_NODE_CURRENT_SENSOR, CANRX_STRING0_ENERGY_COUNTER_MESSAGE, &CANRX_CurrentSensor},
-    {CAN_NODE_1, CANRX_DEBUG_MESSAGE, &CANRX_Debug},
-    {CAN_NODE_1, CANRX_SOFTWARE_VERSION_MESSAGE, &CANRX_SoftwareVersion},
+    {CAN_NODE_DEBUG_MESSAGE, CANRX_DEBUG_MESSAGE, &CANRX_Debug},
 };
 
 /** length of CAN message arrays */
@@ -99,5 +99,4 @@ const uint8_t can_rxLength = sizeof(can_rxMessages) / sizeof(can_rxMessages[0]);
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
 #ifdef UNITY_UNIT_TEST
-
 #endif

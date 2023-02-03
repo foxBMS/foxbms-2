@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_os.c
  * @author  foxBMS Team
  * @date    2020-03-13 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  OS
  *
@@ -58,10 +58,14 @@
 #include "Mockftask_cfg.h"
 #include "Mockportmacro.h"
 #include "Mockqueue.h"
+#include "Mockrtc.h"
 #include "Mocktask.h"
 
 #include "os.h"
 #include "test_assert_helper.h"
+
+#include <stdbool.h>
+#include <stdint.h>
 
 TEST_FILE("os.c")
 TEST_FILE("os_freertos.c")
@@ -91,6 +95,7 @@ void testOSTaskInitCallsFTSKFunctions(void) {
 void testOS_IncrementTimer(void) {
     OS_TIMER_s testTimerExpected = {0u, 0u, 0u, 0u, 0u, 0u, 0u};
 
+    RTC_IncrementSystemTime_Expect();
     OS_IncrementTimer();
     /* Set expected value */
     testTimerExpected.timer_1ms = 1u;
@@ -98,6 +103,7 @@ void testOS_IncrementTimer(void) {
 
     /* Call trigger function 9 more times -> 9ms + 1ms have passed: 10ms in total */
     for (uint8_t i = 0; i < 9; i++) {
+        RTC_IncrementSystemTime_Expect();
         OS_IncrementTimer();
     }
     /* Set expected value */
@@ -108,8 +114,9 @@ void testOS_IncrementTimer(void) {
     /* Set timer to 99ms and call trigger function one more time -> 100ms passed */
     test_timer->timer_1ms  = 9u;
     test_timer->timer_10ms = 9u;
+    RTC_IncrementSystemTime_Expect();
     OS_IncrementTimer();
-    /* Set extpected value */
+    /* Set expected value */
     testTimerExpected.timer_1ms   = 0u;
     testTimerExpected.timer_10ms  = 0u;
     testTimerExpected.timer_100ms = 1u;
@@ -123,8 +130,9 @@ void testOS_IncrementTimer(void) {
     test_timer->timer_min   = 0u;
     test_timer->timer_h     = 0u;
     test_timer->timer_d     = 0u;
+    RTC_IncrementSystemTime_Expect();
     OS_IncrementTimer();
-    /* Set extpected value */
+    /* Set expected value */
     testTimerExpected.timer_1ms   = 0u;
     testTimerExpected.timer_10ms  = 0u;
     testTimerExpected.timer_100ms = 0u;
@@ -142,8 +150,9 @@ void testOS_IncrementTimer(void) {
     test_timer->timer_min   = 0u;
     test_timer->timer_h     = 0u;
     test_timer->timer_d     = 0u;
+    RTC_IncrementSystemTime_Expect();
     OS_IncrementTimer();
-    /* Set extpected value */
+    /* Set expected value */
     testTimerExpected.timer_1ms   = 0u;
     testTimerExpected.timer_10ms  = 0u;
     testTimerExpected.timer_100ms = 0u;
@@ -161,8 +170,9 @@ void testOS_IncrementTimer(void) {
     test_timer->timer_min   = 59u;
     test_timer->timer_h     = 0u;
     test_timer->timer_d     = 0u;
+    RTC_IncrementSystemTime_Expect();
     OS_IncrementTimer();
-    /* Set extpected value */
+    /* Set expected value */
     testTimerExpected.timer_1ms   = 0u;
     testTimerExpected.timer_10ms  = 0u;
     testTimerExpected.timer_100ms = 0u;
@@ -180,8 +190,9 @@ void testOS_IncrementTimer(void) {
     test_timer->timer_min   = 59u;
     test_timer->timer_h     = 23u;
     test_timer->timer_d     = 0u;
+    RTC_IncrementSystemTime_Expect();
     OS_IncrementTimer();
-    /* Set extpected value */
+    /* Set expected value */
     testTimerExpected.timer_1ms   = 0u;
     testTimerExpected.timer_10ms  = 0u;
     testTimerExpected.timer_100ms = 0u;
@@ -204,8 +215,9 @@ void testOS_TriggerTimerOverflow(void) {
     test_timer->timer_min   = 59u;
     test_timer->timer_h     = 23u;
     test_timer->timer_d     = UINT16_MAX;
+    RTC_IncrementSystemTime_Expect();
     OS_IncrementTimer();
-    /* Set extpected value */
+    /* Set expected value */
     testTimerExpected.timer_1ms   = 0u;
     testTimerExpected.timer_10ms  = 0u;
     testTimerExpected.timer_100ms = 0u;

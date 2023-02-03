@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    sps.c
  * @author  foxBMS Team
  * @date    2020-10-14 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup DRIVERS
  * @prefix  SPS
  *
@@ -53,6 +53,8 @@
  */
 
 /*========== Includes =======================================================*/
+#include "general.h"
+
 #include "sps.h"
 
 #include "database.h"
@@ -61,6 +63,9 @@
 #include "os.h"
 #include "pex.h"
 #include "spi.h"
+
+#include <math.h>
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 
@@ -458,7 +463,7 @@ static void SPS_GlobalReadCurrent(const uint8_t outputAllDevices) {
             uint8_t buffer_position = channel / SPS_NR_CONTACTOR_PER_IC;
             uint16_t buffer = sps_spiRxReadAnswerDuringChannelControl[(SPS_SPI_BUFFERSIZE - 1u - buffer_position)] &
                               SPS_BITMASK_DIAGNOSTIC_ONDEMAND_OUTPUT_CURRENT;
-            sps_channelStatus[channel].current_mA = (float)buffer * SPS_I_MEASUREMENT_LSB_mA;
+            sps_channelStatus[channel].current_mA = (float_t)buffer * SPS_I_MEASUREMENT_LSB_mA;
         }
     }
 }
@@ -585,7 +590,7 @@ extern void SPS_Ctrl(void) {
                 break;
             default:
                 FAS_ASSERT(FAS_TRAP);
-                break;
+                break; /* LCOV_EXCL_LINE */
         }
     }
 }
@@ -618,7 +623,7 @@ extern CONT_ELECTRICAL_STATE_TYPE_e SPS_GetChannelCurrentFeedback(const SPS_CHAN
     CONT_ELECTRICAL_STATE_TYPE_e channelFeedback = CONT_SWITCH_OFF;
 
     OS_EnterTaskCritical();
-    float channelCurrent_mA = sps_channelStatus[channelIndex].current_mA;
+    float_t channelCurrent_mA = sps_channelStatus[channelIndex].current_mA;
     OS_ExitTaskCritical();
 
     if (channelCurrent_mA > sps_channelStatus[channelIndex].thresholdFeedbackOn_mA) {
@@ -673,4 +678,4 @@ extern uint8_t TEST_SPS_GetSpsTimer(void) {
 extern void TEST_SPS_SetSpsTimer(const uint8_t newTimer) {
     sps_timer = newTimer;
 }
-#endif /* UNITY_UNIT_TEST */
+#endif

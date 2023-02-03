@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    spi.c
  * @author  foxBMS Team
  * @date    2019-12-12 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup DRIVERS
  * @prefix  SPI
  *
@@ -60,28 +60,100 @@
 #include "HL_sys_common.h"
 
 #include "dma.h"
+#include "fstd_types.h"
 #include "fsystem.h"
 #include "io.h"
+#include "mcu.h"
 #include "os.h"
+#include "spi_cfg-helper.h"
 
-static uint32_t spi_txLastWord[DMA_NUMBER_SPI_INTERFACES] = {0};
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 /** Bitfield to check for transmission errors in SPI FLAG register */
 #define SPI_FLAG_REGISTER_TRANSMISSION_ERRORS (0x5Fu)
 
 /*========== Static Constant and Variable Definitions =======================*/
+static uint32_t spi_txLastWord[DMA_NUMBER_SPI_INTERFACES] = {0};
+
+/** Defines for hardware chip select pins @{ */
+#define SPI_HARDWARE_CHIP_SELECT_PIN_0 (0u)
+#define SPI_HARDWARE_CHIP_SELECT_PIN_1 (1u)
+#define SPI_HARDWARE_CHIP_SELECT_PIN_2 (2u)
+#define SPI_HARDWARE_CHIP_SELECT_PIN_3 (3u)
+#define SPI_HARDWARE_CHIP_SELECT_PIN_4 (4u)
+#define SPI_HARDWARE_CHIP_SELECT_PIN_5 (5u)
+/**@}*/
 
 /*========== Extern Constant and Variable Definitions =======================*/
 
-bool spi_txFinished = false;
-bool spi_rxFinished = false;
-
 /*========== Static Function Prototypes =====================================*/
+static void SPI_InitializeChipSelects(void);
+static uint8_t SPI_GetChipSelectPin(SPI_CHIP_SELECT_TYPE_e chipSelectType, uint32_t chipSelectPin);
+static uint8_t SPI_GetHardwareChipSelectPin(uint8_t chipSelectPin);
 
 /*========== Static Function Implementations ================================*/
+static uint8_t SPI_GetHardwareChipSelectPin(uint8_t chipSelectPin) {
+    FAS_ASSERT(chipSelectPin < SPI_MAX_NUMBER_HW_CS);
+
+    uint8_t mappedHardwareChipSelectPin = SPI_HARDWARE_CHIP_SELECT_DISABLE_ALL;
+    switch (chipSelectPin) {
+        case SPI_HARDWARE_CHIP_SELECT_PIN_0:
+            mappedHardwareChipSelectPin = SPI_HARDWARE_CHIP_SELECT_0_ACTIVE;
+            break;
+        case SPI_HARDWARE_CHIP_SELECT_PIN_1:
+            mappedHardwareChipSelectPin = SPI_HARDWARE_CHIP_SELECT_1_ACTIVE;
+            break;
+        case SPI_HARDWARE_CHIP_SELECT_PIN_2:
+            mappedHardwareChipSelectPin = SPI_HARDWARE_CHIP_SELECT_2_ACTIVE;
+            break;
+        case SPI_HARDWARE_CHIP_SELECT_PIN_3:
+            mappedHardwareChipSelectPin = SPI_HARDWARE_CHIP_SELECT_3_ACTIVE;
+            break;
+        case SPI_HARDWARE_CHIP_SELECT_PIN_4:
+            mappedHardwareChipSelectPin = SPI_HARDWARE_CHIP_SELECT_4_ACTIVE;
+            break;
+        case SPI_HARDWARE_CHIP_SELECT_PIN_5:
+            mappedHardwareChipSelectPin = SPI_HARDWARE_CHIP_SELECT_5_ACTIVE;
+            break;
+        default:                  /* something went really wrong */
+            FAS_ASSERT(FAS_TRAP); /* LCOV_EXCL_LINE */
+            break;                /* LCOV_EXCL_LINE */
+    }
+    return mappedHardwareChipSelectPin;
+}
+static uint8_t SPI_GetChipSelectPin(SPI_CHIP_SELECT_TYPE_e chipSelectType, uint32_t chipSelectPin) {
+    FAS_ASSERT((chipSelectType == SPI_CHIP_SELECT_HARDWARE) || (chipSelectType == SPI_CHIP_SELECT_SOFTWARE));
+    FAS_ASSERT(chipSelectPin <= MCU_LARGEST_PIN_NUMBER);
+
+    uint8_t mappedChipSelectPin = (uint8_t)chipSelectPin;
+    /* for software chips select, there is nothing more to sanitize or map, therefore it is just needed to further
+       analyze the hardware chip select setting */
+    if (chipSelectType == SPI_CHIP_SELECT_HARDWARE) {
+        mappedChipSelectPin = SPI_GetHardwareChipSelectPin(mappedChipSelectPin);
+    }
+
+    return mappedChipSelectPin;
+}
+static void SPI_InitializeChipSelects(void) {
+    for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
+        spi_ltcInterface[s].pConfig->CSNR = SPI_GetChipSelectPin(spi_ltcInterface[s].csType, spi_ltcInterface[s].csPin);
+        spi_nxp775InterfaceTx[s].pConfig->CSNR =
+            SPI_GetChipSelectPin(spi_nxp775InterfaceTx[s].csType, spi_nxp775InterfaceTx[s].csPin);
+        spi_nxp775InterfaceRx[s].pConfig->CSNR =
+            SPI_GetChipSelectPin(spi_nxp775InterfaceRx[s].csType, spi_nxp775InterfaceRx[s].csPin);
+    }
+    spi_mxmInterface.pConfig->CSNR    = SPI_GetChipSelectPin(spi_mxmInterface.csType, spi_mxmInterface.csPin);
+    spi_framInterface.pConfig->CSNR   = SPI_GetChipSelectPin(spi_framInterface.csType, spi_framInterface.csPin);
+    spi_spsInterface.pConfig->CSNR    = SPI_GetChipSelectPin(spi_spsInterface.csType, spi_spsInterface.csPin);
+    spi_sbcMcuInterface.pConfig->CSNR = SPI_GetChipSelectPin(spi_sbcMcuInterface.csType, spi_sbcMcuInterface.csPin);
+}
 
 /*========== Extern Function Implementations ================================*/
+extern void SPI_Initialize(void) {
+    spiInit();
+    SPI_InitializeChipSelects();
+}
 
 extern STD_RETURN_TYPE_e SPI_TransmitDummyByte(SPI_INTERFACE_CONFIG_s *pSpiInterface, uint32_t delay) {
     FAS_ASSERT(pSpiInterface != NULL_PTR);
@@ -298,7 +370,7 @@ extern STD_RETURN_TYPE_e SPI_TransmitReceiveDataDma(
             dmaSetChEnable((dmaChannel_t)dma_spiDmaChannels[spiIndex].rxChannel, (dmaTriggerType_t)DMA_HW);
 
             /* DMA config registers written, leave privilege mode */
-            FSYS_SWITCH_TO_USER_MODE();
+            FSYS_SwitchToUserMode();
 
             /* DMA_REQ_Enable */
             /* Starts DMA requests if SPIEN is also set to 1 */
@@ -435,7 +507,7 @@ extern STD_RETURN_TYPE_e SPI_SlaveSetReceiveDataDma(
         (dmaChannel_t)dma_spiDmaChannels[SPI_GetSpiIndex(pSpiInterface->pNode)].rxChannel, (dmaTriggerType_t)DMA_HW);
 
     /* DMA config registers written, leave privilege mode */
-    FSYS_SWITCH_TO_USER_MODE();
+    FSYS_SwitchToUserMode();
 
     OS_ExitTaskCritical();
 
@@ -503,3 +575,14 @@ extern uint8_t SPI_GetSpiIndex(spiBASE_t *pNode) {
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
+#ifdef UNITY_UNIT_TEST
+extern void TEST_SPI_InitializeChipSelects(void) {
+    return SPI_InitializeChipSelects();
+}
+extern uint8_t TEST_SPI_GetChipSelectPin(SPI_CHIP_SELECT_TYPE_e csType, uint32_t csPin) {
+    return SPI_GetChipSelectPin(csType, csPin);
+}
+extern uint8_t TEST_SPI_GetHardwareChipSelectPin(uint8_t csPin) {
+    return SPI_GetHardwareChipSelectPin(csPin);
+}
+#endif

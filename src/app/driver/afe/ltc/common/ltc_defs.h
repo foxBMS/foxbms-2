@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,12 +43,12 @@
  * @file    ltc_defs.h
  * @author  foxBMS Team
  * @date    2015-09-01 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup DRIVERS
  * @prefix  LTC
  *
- * @brief   Headers for the driver for the LTC monitoring chip.
+ * @brief   Headers for the driver for the LTC analog front-end.
  *
  */
 
@@ -56,13 +56,14 @@
 #define FOXBMS__LTC_DEFS_H_
 
 /*========== Includes =======================================================*/
-#include "general.h"
 
 #include "diag_cfg.h"
 #include "ltc_cfg.h"
 
 #include "database.h"
 #include "spi.h"
+
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 
@@ -75,12 +76,15 @@ typedef struct {
     uint8_t mux3[BS_NR_OF_STRINGS][LTC_N_LTC];      /*!<    */
 } LTC_ERRORTABLE_s;
 
-/** struct for storing information on the openwire detection */
+/** struct for storing information on the openWire detection */
 typedef struct {
     int16_t openWirePup[BS_NR_OF_STRINGS][BS_NR_OF_CELL_BLOCKS_PER_STRING];
     int16_t openWirePdown[BS_NR_OF_STRINGS][BS_NR_OF_CELL_BLOCKS_PER_STRING];
     int32_t openWireDelta[BS_NR_OF_STRINGS][BS_NR_OF_CELL_BLOCKS_PER_STRING];
 } LTC_OPENWIRE_DETECTION_s;
+
+/* Size of a data packet */
+#define LTC_DATA_SIZE_IN_BYTES (6u)
 
 /*========== Extern Constant and Variable Declarations ======================*/
 
@@ -533,7 +537,7 @@ typedef struct {
     LTC_ADCMEAS_CHAN_e
         adcMeasChreq; /*!< requested number of channels measured for GPIOS (one at a time for multiplexers or all five GPIOs) */
     uint8_t
-        numberOfMeasuredMux; /*!< number of multiplexer channels measured by the LTC chip before a voltage measurement is made */
+        numberOfMeasuredMux; /*!< number of multiplexer channels measured by the LTC analog front-end before a voltage measurement is made */
     uint32_t ErrPECCounter; /*!< counts the number of times there was A PEC (CRC) error during communication with LTC */
     uint8_t
         ErrRetryCounter; /*!< counts how many times the drivers retried to communicate with LTC in case of a communication error */
@@ -588,5 +592,7 @@ typedef struct {
 /*========== Extern Function Prototypes =====================================*/
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
+#ifdef UNITY_UNIT_TEST
+#endif
 
 #endif /* FOXBMS__LTC_DEFS_H_ */

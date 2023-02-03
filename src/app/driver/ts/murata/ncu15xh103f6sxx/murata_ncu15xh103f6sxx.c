@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    murata_ncu15xh103f6sxx.c
  * @author  foxBMS Team
  * @date    2022-10-12 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup TEMPERATURE_SENSORS
  * @prefix  TS
  *
@@ -55,8 +55,13 @@
 /*========== Includes =======================================================*/
 #include "murata_ncu15xh103f6sxx.h"
 
+#include "fassert.h"
 #include "foxmath.h"
 #include "temperature_sensor_defs.h"
+
+#include <math.h>
+#include <stdbool.h>
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 
@@ -87,16 +92,17 @@ static const uint16_t ts_ncu15xh103f6sxxLutSize = sizeof(ts_ncu15xh103f6sxxLut) 
  * different R_ntc values are used for the calculation.
  * @{
  */
-#if TS_MURATA_NCU15XH103F6SXX_POSITION_IN_RESISTOR_DIVIDER_IS_R_1 == true
+#if defined(TS_MURATA_NCU15XH103F6SXX_POSITION_IN_RESISTOR_DIVIDER_IS_R_1) && \
+    (TS_MURATA_NCU15XH103F6SXX_POSITION_IN_RESISTOR_DIVIDER_IS_R_1 == true)
 #define TS_MURATA_NCU15XH103F6SXX_ADC_VOLTAGE_V_MAX_V \
-    ((float)((TS_MURATA_NCU15XH103F6SXX_RESISTOR_DIVIDER_SUPPLY_VOLTAGE_V * ts_ncu15xh103f6sxxLut[ts_ncu15xh103f6sxxLutSize-1u].resistance_Ohm) / (ts_ncu15xh103f6sxxLut[ts_ncu15xh103f6sxxLutSize-1u].resistance_Ohm+TS_MURATA_NCU15XH103F6SXX_RESISTOR_DIVIDER_RESISTANCE_R_1_R_2_Ohm)))
+    ((float_t)((TS_MURATA_NCU15XH103F6SXX_RESISTOR_DIVIDER_SUPPLY_VOLTAGE_V * ts_ncu15xh103f6sxxLut[ts_ncu15xh103f6sxxLutSize-1u].resistance_Ohm) / (ts_ncu15xh103f6sxxLut[ts_ncu15xh103f6sxxLutSize-1u].resistance_Ohm+TS_MURATA_NCU15XH103F6SXX_RESISTOR_DIVIDER_RESISTANCE_R_1_R_2_Ohm)))
 #define TS_MURATA_NCU15XH103F6SXX_ADC_VOLTAGE_V_MIN_V \
-    ((float)((TS_MURATA_NCU15XH103F6SXX_RESISTOR_DIVIDER_SUPPLY_VOLTAGE_V * ts_ncu15xh103f6sxxLut[0u].resistance_Ohm) / (ts_ncu15xh103f6sxxLut[0u].resistance_Ohm+TS_MURATA_NCU15XH103F6SXX_RESISTOR_DIVIDER_RESISTANCE_R_1_R_2_Ohm)))
+    ((float_t)((TS_MURATA_NCU15XH103F6SXX_RESISTOR_DIVIDER_SUPPLY_VOLTAGE_V * ts_ncu15xh103f6sxxLut[0u].resistance_Ohm) / (ts_ncu15xh103f6sxxLut[0u].resistance_Ohm+TS_MURATA_NCU15XH103F6SXX_RESISTOR_DIVIDER_RESISTANCE_R_1_R_2_Ohm)))
 #else /* TS_MURATA_NCU15XH103F6SXX_POSITION_IN_RESISTOR_DIVIDER_IS_R_1 is false */
 #define TS_MURATA_NCU15XH103F6SXX_ADC_VOLTAGE_V_MIN_V \
-    ((float)((TS_MURATA_NCU15XH103F6SXX_RESISTOR_DIVIDER_SUPPLY_VOLTAGE_V * ts_ncu15xh103f6sxxLut[ts_ncu15xh103f6sxxLutSize-1u].resistance_Ohm) / (ts_ncu15xh103f6sxxLut[ts_ncu15xh103f6sxxLutSize-1u].resistance_Ohm+TS_MURATA_NCU15XH103F6SXX_RESISTOR_DIVIDER_RESISTANCE_R_1_R_2_Ohm)))
+    ((float_t)((TS_MURATA_NCU15XH103F6SXX_RESISTOR_DIVIDER_SUPPLY_VOLTAGE_V * ts_ncu15xh103f6sxxLut[ts_ncu15xh103f6sxxLutSize-1u].resistance_Ohm) / (ts_ncu15xh103f6sxxLut[ts_ncu15xh103f6sxxLutSize-1u].resistance_Ohm+TS_MURATA_NCU15XH103F6SXX_RESISTOR_DIVIDER_RESISTANCE_R_1_R_2_Ohm)))
 #define TS_MURATA_NCU15XH103F6SXX_ADC_VOLTAGE_V_MAX_V \
-    ((float)((TS_MURATA_NCU15XH103F6SXX_RESISTOR_DIVIDER_SUPPLY_VOLTAGE_V * ts_ncu15xh103f6sxxLut[0u].resistance_Ohm) / (ts_ncu15xh103f6sxxLut[0u].resistance_Ohm+TS_MURATA_NCU15XH103F6SXX_RESISTOR_DIVIDER_RESISTANCE_R_1_R_2_Ohm)))
+    ((float_t)((TS_MURATA_NCU15XH103F6SXX_RESISTOR_DIVIDER_SUPPLY_VOLTAGE_V * ts_ncu15xh103f6sxxLut[0u].resistance_Ohm) / (ts_ncu15xh103f6sxxLut[0u].resistance_Ohm+TS_MURATA_NCU15XH103F6SXX_RESISTOR_DIVIDER_RESISTANCE_R_1_R_2_Ohm)))
 #endif
 /**@}*/
 
@@ -108,7 +114,7 @@ static const uint16_t ts_ncu15xh103f6sxxLutSize = sizeof(ts_ncu15xh103f6sxxLut) 
 
 extern int16_t TS_Mur00GetTemperatureFromLut(uint16_t adcVoltage_mV) {
     int16_t temperature_ddegC = INT16_MIN;
-    float adcVoltage_V        = (float)adcVoltage_mV / TS_SCALING_FACTOR_1V_IN_MV_FLOAT; /* Convert mV to V */
+    float_t adcVoltage_V      = (float_t)adcVoltage_mV / TS_SCALING_FACTOR_1V_IN_MV_FLOAT; /* Convert mV to V */
 
     /* Check for valid ADC measurements to prevent undefined behavior */
     if (adcVoltage_V > TS_MURATA_NCU15XH103F6SXX_ADC_VOLTAGE_V_MAX_V) {
@@ -119,13 +125,15 @@ extern int16_t TS_Mur00GetTemperatureFromLut(uint16_t adcVoltage_mV) {
         temperature_ddegC = INT16_MAX;
     } else {
         /* Calculate NTC resistance based on measured ADC voltage */
-#if TS_MURATA_NCU15XH103F6SXX_POSITION_IN_RESISTOR_DIVIDER_IS_R_1 == true
+#if defined(TS_MURATA_NCU15XH103F6SXX_POSITION_IN_RESISTOR_DIVIDER_IS_R_1) && \
+    (TS_MURATA_NCU15XH103F6SXX_POSITION_IN_RESISTOR_DIVIDER_IS_R_1 == true)
         /* R_1 = R_2 * ( ( V_supply / V_adc ) - 1 ) */
-        const float resistance_Ohm = TS_MURATA_NCU15XH103F6SXX_RESISTOR_DIVIDER_RESISTANCE_R_1_R_2_Ohm *
-                                     ((TS_MURATA_NCU15XH103F6SXX_RESISTOR_DIVIDER_SUPPLY_VOLTAGE_V / adcVoltage_V) - 1);
+        const float_t resistance_Ohm =
+            TS_MURATA_NCU15XH103F6SXX_RESISTOR_DIVIDER_RESISTANCE_R_1_R_2_Ohm *
+            ((TS_MURATA_NCU15XH103F6SXX_RESISTOR_DIVIDER_SUPPLY_VOLTAGE_V / adcVoltage_V) - 1);
 #else  /* TS_MURATA_NCU15XH103F6SXX_POSITION_IN_RESISTOR_DIVIDER_IS_R_1 is false */
         /* formula: R_2 = R_1 * ( V_2 / ( V_supply - V_adc ) ) */
-        const float resistance_Ohm =
+        const float_t resistance_Ohm =
             TS_MURATA_NCU15XH103F6SXX_RESISTOR_DIVIDER_RESISTANCE_R_1_R_2_Ohm *
             (adcVoltage_V / (TS_MURATA_NCU15XH103F6SXX_RESISTOR_DIVIDER_SUPPLY_VOLTAGE_V - adcVoltage_V));
 #endif /* TS_MURATA_NCU15XH103F6SXX_POSITION_IN_RESISTOR_DIVIDER_IS_R_1 */
@@ -145,9 +153,9 @@ extern int16_t TS_Mur00GetTemperatureFromLut(uint16_t adcVoltage_mV) {
               (between_low >= ts_ncu15xh103f6sxxLutSize))) {   /* measured resistance < minimum LUT resistance */
             temperature_ddegC = (int16_t)MATH_LinearInterpolation(
                 ts_ncu15xh103f6sxxLut[between_low].resistance_Ohm,
-                (float)ts_ncu15xh103f6sxxLut[between_low].temperature_ddegC,
+                (float_t)ts_ncu15xh103f6sxxLut[between_low].temperature_ddegC,
                 ts_ncu15xh103f6sxxLut[between_high].resistance_Ohm,
-                (float)ts_ncu15xh103f6sxxLut[between_high].temperature_ddegC,
+                (float_t)ts_ncu15xh103f6sxxLut[between_high].temperature_ddegC,
                 resistance_Ohm);
         }
     }
@@ -165,3 +173,5 @@ extern int16_t TS_Mur00GetTemperatureFromPolynomial(uint16_t adcVoltage_mV) {
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
+#ifdef UNITY_UNIT_TEST
+#endif

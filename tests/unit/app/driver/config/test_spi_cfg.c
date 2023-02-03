@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_spi_cfg.c
  * @author  foxBMS Team
  * @date    2020-04-01 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -69,9 +69,6 @@ void tearDown(void) {
 }
 
 /*========== Test Cases =====================================================*/
-void testDummy(void) {
-}
-
 void testSPI_SpsInterfaceSwitchToHighSpeedNullPointer(void) {
     TEST_ASSERT_FAIL_ASSERT(SPI_SpsInterfaceSwitchToHighSpeed(NULL_PTR));
 }

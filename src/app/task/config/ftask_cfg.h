@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    ftask_cfg.h
  * @author  foxBMS Team
  * @date    2019-08-26 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup TASK_CONFIGURATION
  * @prefix  FTSK
  *
@@ -56,9 +56,10 @@
 #define FOXBMS__FTASK_CFG_H_
 
 /*========== Includes =======================================================*/
-#include "general.h"
 
 #include "os.h"
+
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 /** @brief Stack size of engine task */
@@ -83,7 +84,7 @@
 #define FTSK_TASK_CYCLIC_1MS_STACK_SIZE_IN_BYTES (1024u)
 
 /** @brief Priority of cyclic 1ms task */
-#define FTSK_TASK_CYCLIC_1MS_PRIORITY (OS_PRIORITY_ABOVE_HIGH)
+#define FTSK_TASK_CYCLIC_1MS_PRIORITY (OS_PRIORITY_VERY_HIGH)
 
 /** @brief Phase of cyclic 1ms task */
 #define FTSK_TASK_CYCLIC_1MS_PHASE (0u)
@@ -151,6 +152,24 @@
 /** @brief pvParameters of the 100ms task for algorithms  */
 #define FTSK_TASK_CYCLIC_ALGORITHM_100MS_PV_PARAMETERS (NULL_PTR)
 
+/** @brief Stack size of continuously running task for I2C */
+#define FTSK_TASK_I2C_STACK_SIZE_IN_BYTES (2048u / 4u)
+
+/** @brief Priority of continuously running task for I2C */
+#define FTSK_TASK_I2C_PRIORITY (FTSK_TASK_CYCLIC_10MS_PRIORITY)
+
+/** @brief Phase of continuously running task for I2C */
+#define FTSK_TASK_I2C_PHASE (0u)
+
+/** @brief Cycle time of continuously running task for I2C */
+#define FTSK_TASK_I2C_CYCLE_TIME (0u)
+
+/** @brief Maximum allowed jitter of continuously running task for I2C */
+#define FTSK_TASK_AFE_MAXIMUM_JITTER (5u)
+
+/** @brief pvParameters of the continuously running task for I2C  */
+#define FTSK_TASK_I2C_PV_PARAMETERS (NULL_PTR)
+
 /** @brief Stack size of continuously running task for AFEs */
 #define FTSK_TASK_AFE_STACK_SIZE_IN_BYTES (2048u / 4u)
 
@@ -173,56 +192,59 @@
 /**
  * @brief   Task configuration of the engine task
  * @details Task for database and system monitoring
- * @ingroup API_OS
  */
 extern OS_TASK_DEFINITION_s ftsk_taskDefinitionEngine;
 
 /**
  * @brief   Task configuration of the cyclic 1 ms task
  * @details Cyclic 1 ms task
- * @ingroup API_OS
  */
 extern OS_TASK_DEFINITION_s ftsk_taskDefinitionCyclic1ms;
 
 /**
  * @brief   Task configuration of the cyclic 10 ms task
  * @details Cyclic 10 ms task
- * @ingroup API_OS
  */
 extern OS_TASK_DEFINITION_s ftsk_taskDefinitionCyclic10ms;
 
 /**
  * @brief   Task configuration of the cyclic 100 ms task
  * @details Cyclic 100 ms task
- * @ingroup API_OS
  */
 extern OS_TASK_DEFINITION_s ftsk_taskDefinitionCyclic100ms;
 
 /**
  * @brief   Task configuration of the cyclic 100 ms task for algorithms
  * @details Cyclic 100 ms task for algorithms
- * @ingroup API_OS
  */
 extern OS_TASK_DEFINITION_s ftsk_taskDefinitionCyclicAlgorithm100ms;
 
 /**
+ * @brief   Task configuration of the continuously running task for MCU I2C communication
+ * @details Continuously running task for MCU I2C communication
+ */
+extern OS_TASK_DEFINITION_s ftsk_taskDefinitionI2c;
+
+/**
  * @brief   Task configuration of the continuously running task for AFEs
  * @details Continuously running task for AFEs
- * @ingroup API_OS
  */
 extern OS_TASK_DEFINITION_s ftsk_taskDefinitionAfe;
 
 /**
  * @brief Definition of task handles
- * @ingroup API_OS
  */
-extern TaskHandle_t ftsk_taskHandleAfe;
+extern TaskHandle_t ftsk_taskHandleI2c;
+
+/**
+ * @brief Definition of task handles
+ */
+extern OS_TASK_HANDLE ftsk_taskHandleAfe;
 
 /*========== Extern Function Prototypes =====================================*/
 /**
  * @brief   Initializes the database
  * @details Start up after scheduler starts
- * @ingroup API_OS
  * @warning Do not change the content of this function. This will very likely
  *          break the system. This function is kept in the configuration file
  *          to have a uniform task configuration.
@@ -233,7 +255,6 @@ extern void FTSK_InitializeUserCodeEngine(void);
  * @brief   Engine task for the database and the system monitoring module
  * @details Start up after scheduler start. First task to be run, all other
  *          tasks only starts when this task has started
- * @ingroup API_OS
  * @warning Do not change the content of this function. This will very likely
  *          break the system. This function is kept in the configuration file
  *          to have a uniform task configuration.
@@ -245,43 +266,42 @@ extern void FTSK_RunUserCodeEngine(void);
  * @details This function is called after the scheduler started but before any
  *          cyclic task runs. Here modules get initialized that are not used
  *          during the startup process.
- * @ingroup API_OS
  */
 extern void FTSK_InitializeUserCodePreCyclicTasks(void);
 
 /**
  * @brief   Cyclic 1 ms task
  * @details TODO
- * @ingroup API_OS
  */
 extern void FTSK_RunUserCodeCyclic1ms(void);
 
 /**
  * @brief   Cyclic 10 ms task
  * @details TODO
- * @ingroup API_OS
  */
 extern void FTSK_RunUserCodeCyclic10ms(void);
 
 /**
  * @brief   Cyclic 100 ms task
  * @details TODO
- * @ingroup API_OS
  */
 extern void FTSK_RunUserCodeCyclic100ms(void);
 
 /**
  * @brief   Cyclic 100 ms task for algorithms
  * @details TODO
- * @ingroup API_OS
  */
 extern void FTSK_RunUserCodeCyclicAlgorithm100ms(void);
 
 /**
+ * @brief   Continuously running task for I2C
+ * @details Implements the MCU communication over I2C
+ */
+extern void FTSK_RunUserCodeI2c(void);
+
+/**
  * @brief   Continuously running task for AFEs
- * @details Implements the communications with AFEs, without
- *          statemachine.
- * @ingroup API_OS
+ * @details Implements the communications with AFEs without state machine.
  */
 extern void FTSK_RunUserCodeAfe(void);
 
@@ -290,10 +310,11 @@ extern void FTSK_RunUserCodeAfe(void);
  * @details Called by #vApplicationIdleHook() if configUSE_IDLE_HOOK in
  *          FreeRTOSConfig.h is enabled. If you do not need this hook, you can
  *          disable it in the FreeRTOS configuration.
- * @ingroup API_OS
  */
 extern void FTSK_RunUserCodeIdle(void);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
+#ifdef UNITY_UNIT_TEST
+#endif
 
 #endif /* FOXBMS__FTASK_CFG_H_ */

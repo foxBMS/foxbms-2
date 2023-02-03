@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_diag_cbs_fram.c
  * @author  foxBMS Team
  * @date    2022-02-24 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -59,11 +59,13 @@
 #include "diag_cbs.h"
 #include "test_assert_helper.h"
 
+#include <stdbool.h>
+
 TEST_FILE("diag_cbs_fram.c")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
-/** local copy of the #DATA_BLOCK_ERRORSTATE_s table */
-static DATA_BLOCK_ERRORSTATE_s test_tableErrorFlags = {.header.uniqueId = DATA_BLOCK_ID_ERRORSTATE};
+/** local copy of the #DATA_BLOCK_ERROR_STATE_s table */
+static DATA_BLOCK_ERROR_STATE_s test_tableErrorFlags = {.header.uniqueId = DATA_BLOCK_ID_ERROR_STATE};
 
 /** local copy of the #DATA_BLOCK_MOL_FLAG_s table */
 static DATA_BLOCK_MOL_FLAG_s test_tableMolFlags = {.header.uniqueId = DATA_BLOCK_ID_MOL_FLAG};
@@ -83,7 +85,7 @@ const DIAG_DATABASE_SHIM_s diag_kpkDatabaseShim = {
 
 /*========== Setup and Teardown =============================================*/
 void setUp(void) {
-    diag_kpkDatabaseShim.pTableError->framReadCrcError = 0;
+    diag_kpkDatabaseShim.pTableError->framReadCrcError = false;
 }
 
 void tearDown(void) {
@@ -93,18 +95,18 @@ void tearDown(void) {
 void testDIAGFramError(void) {
     /* reset event sets the FRAM in ok mode */
     DIAG_FramError(DIAG_ID_FRAM_READ_CRC_ERROR, DIAG_EVENT_RESET, &diag_kpkDatabaseShim, 0u);
-    TEST_ASSERT_EQUAL(0, diag_kpkDatabaseShim.pTableError->framReadCrcError);
+    TEST_ASSERT_EQUAL(false, diag_kpkDatabaseShim.pTableError->framReadCrcError);
     /* ok event must not change the FRAM state */
     DIAG_FramError(DIAG_ID_FRAM_READ_CRC_ERROR, DIAG_EVENT_OK, &diag_kpkDatabaseShim, 0u);
-    TEST_ASSERT_EQUAL(0, diag_kpkDatabaseShim.pTableError->framReadCrcError);
+    TEST_ASSERT_EQUAL(false, diag_kpkDatabaseShim.pTableError->framReadCrcError);
 
     /* not ok event sets the FRAM crc error back in not ok mode */
     DIAG_FramError(DIAG_ID_FRAM_READ_CRC_ERROR, DIAG_EVENT_NOT_OK, &diag_kpkDatabaseShim, 0u);
-    TEST_ASSERT_EQUAL(1, diag_kpkDatabaseShim.pTableError->framReadCrcError);
+    TEST_ASSERT_EQUAL(true, diag_kpkDatabaseShim.pTableError->framReadCrcError);
 
     /* reset event sets the FRAM error back in ok mode */
     DIAG_FramError(DIAG_ID_FRAM_READ_CRC_ERROR, DIAG_EVENT_RESET, &diag_kpkDatabaseShim, 0u);
-    TEST_ASSERT_EQUAL(0, diag_kpkDatabaseShim.pTableError->framReadCrcError);
+    TEST_ASSERT_EQUAL(false, diag_kpkDatabaseShim.pTableError->framReadCrcError);
 }
 
 /** test against invalid input */
@@ -116,7 +118,7 @@ void testDIAG_FramErrorInvalidInput(void) {
 
 void testDIAG_FramErrorDoNothingOnWrongId(void) {
     /* Use a wrong ID to make sure, that this does not alter the FRAM entry */
-    uint8_t testValue                                  = 42;
+    uint8_t testValue                                  = true;
     diag_kpkDatabaseShim.pTableError->framReadCrcError = testValue;
     DIAG_FramError(DIAG_ID_CELL_VOLTAGE_OVERVOLTAGE_RSL, DIAG_EVENT_RESET, &diag_kpkDatabaseShim, 0u);
     TEST_ASSERT_EQUAL(testValue, diag_kpkDatabaseShim.pTableError->framReadCrcError);

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    battery_system_cfg.h
  * @author  foxBMS Team
  * @date    2019-12-10 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup BATTERY_SYSTEM_CONFIGURATION
  * @prefix  BS
  *
@@ -63,6 +63,11 @@
 /*========== Includes =======================================================*/
 #include "general.h"
 
+#include "fassert.h"
+
+#include <stdbool.h>
+#include <stdint.h>
+
 /*========== Macros and Definitions =========================================*/
 
 /** Symbolic identifiers for strings with precharge */
@@ -80,11 +85,9 @@ typedef enum {
 } BS_STRING_ID_e;
 
 /** Define if discharge current is seen as positive or negative */
-#define POSITIVE_DISCHARGE_CURRENT (true)
+#define BS_POSITIVE_DISCHARGE_CURRENT (true)
 
-/**  */
 /**
- * @ingroup CONFIG_BATTERYSYSTEM
  * @brief   Number of parallel strings in the battery pack
  * @details For details see
  *          <a href="../../../../introduction/naming-conventions.html" target="_blank">Naming Conventions</a>.
@@ -101,7 +104,6 @@ typedef enum {
 #endif
 
 /**
- * @ingroup CONFIG_BATTERYSYSTEM
  * @brief   number of modules in a string
  * @details For details see
  *          <a href="../../../../introduction/naming-conventions.html" target="_blank">Naming Conventions</a>.
@@ -110,7 +112,6 @@ typedef enum {
 #define BS_NR_OF_MODULES_PER_STRING (1u)
 
 /**
- * @ingroup CONFIG_BATTERYSYSTEM
  * @brief   number of cells per module
  * @details number of cells per module, where parallel cells are
  *          counted as one cell block.
@@ -118,10 +119,9 @@ typedef enum {
  *          <a href="../../../../introduction/naming-conventions.html" target="_blank">Naming Conventions</a>.
  * @ptype   uint
  */
-#define BS_NR_OF_CELL_BLOCKS_PER_MODULE (14u)
+#define BS_NR_OF_CELL_BLOCKS_PER_MODULE (18u)
 
 /**
- * @ingroup CONFIG_BATTERYSYSTEM
  * @brief   number of battery cells in a parallel cell connection per battery
  *          module
  * @details For details see
@@ -130,50 +130,30 @@ typedef enum {
  */
 #define BS_NR_OF_PARALLEL_CELLS_PER_MODULE (1u)
 
-#if BS_NR_OF_CELL_BLOCKS_PER_MODULE <= 12u
-#define BS_MAX_SUPPORTED_CELLS (12u)
-#elif BS_NR_OF_CELL_BLOCKS_PER_MODULE <= 14u
-#define BS_MAX_SUPPORTED_CELLS (14u)
-#elif BS_NR_OF_CELL_BLOCKS_PER_MODULE <= 15u
-#define BS_MAX_SUPPORTED_CELLS (15u)
-#elif BS_NR_OF_CELL_BLOCKS_PER_MODULE <= 16u
-#define BS_MAX_SUPPORTED_CELLS (16u)
-#elif BS_NR_OF_CELL_BLOCKS_PER_MODULE <= 18u
-#define BS_MAX_SUPPORTED_CELLS (18u)
-#elif BS_NR_OF_CELL_BLOCKS_PER_MODULE == 36u
-#define BS_MAX_SUPPORTED_CELLS (36u)
-#else
-#error "Unsupported number of cells per module, higher than 18 and not 36"
-#endif
-
-/**
- * @def     BS_MAX_SUPPORTED_CELLS
- * @brief   Defines the maximal number of supported cells per module
- */
-
 /** Value of the balancing resistors on the slave-board */
 #define BS_BALANCING_RESISTANCE_ohm (100.0)
 
 /**
  * @def     BS_NR_OF_GPIOS_PER_MODULE
- * @brief   Number of GPIOs on the LTC IC
- * @details - 5 for 12 cell version
- *          - 9 for 18 cell version
+ * @brief   Defines the number of GPIOs
  */
-#if BS_MAX_SUPPORTED_CELLS == 12u
-#define BS_NR_OF_GPIOS_PER_MODULE (5u)
-#elif BS_MAX_SUPPORTED_CELLS == 14u
-#define BS_NR_OF_GPIOS_PER_MODULE (8u)
-#else
-#define BS_NR_OF_GPIOS_PER_MODULE (9u)
-#endif
+#define BS_NR_OF_GPIOS_PER_MODULE (10u)
 
 /**
- * @ingroup CONFIG_BATTERYSYSTEM
+ * @def     BS_NR_OF_GPAS_PER_MODULE
+ * @brief   Defines the number of GPA inputs
+ */
+#define BS_NR_OF_GPAS_PER_MODULE (2u)
+
+/**
  * @brief   number of temperature sensors per battery module
  * @ptype   int
  */
 #define BS_NR_OF_TEMP_SENSORS_PER_MODULE (8u)
+
+#if BS_NR_OF_TEMP_SENSORS_PER_MODULE > BS_NR_OF_GPIOS_PER_MODULE
+#error "Number of temperature inputs cannot be higher than number of GPIOs"
+#endif
 
 /** number of battery cells in the system */
 #define BS_NR_OF_CELL_BLOCKS_PER_STRING (BS_NR_OF_MODULES_PER_STRING * BS_NR_OF_CELL_BLOCKS_PER_MODULE)
@@ -182,11 +162,6 @@ typedef enum {
 /** number of temperature sensors in the battery system */
 #define BS_NR_OF_TEMP_SENSORS (BS_NR_OF_TEMP_SENSORS_PER_STRING * BS_NR_OF_STRINGS)
 
-/** number of temperature sensors on each ADC0 channel of the slave-board */
-#define BS_NR_OF_TEMP_SENSORS_ON_SADC0 (3u)
-/** number of temperature sensors on each ADC1 channel of the slave-board */
-#define BS_NR_OF_TEMP_SENSORS_ON_SADC1 (3u)
-
 /**
  * @details - If set to false, foxBMS does not check for the presence of a
  *            current sensor.
@@ -194,9 +169,9 @@ typedef enum {
  *            sensor. If sensor stops responding during runtime, an error is
  *            raised.
  */
-#define CURRENT_SENSOR_PRESENT (false)
+#define BS_CURRENT_SENSOR_PRESENT (false)
 
-#if CURRENT_SENSOR_PRESENT == true
+#if BS_CURRENT_SENSOR_PRESENT == true
 /**
  * defines if the Isabellenhuette current sensor is used in cyclic or triggered mode
  */
@@ -204,18 +179,18 @@ typedef enum {
 /* #define CURRENT_SENSOR_ISABELLENHUETTE_TRIGGERED */
 
 /** Delay in ms after which it is considered the current measurement is not responding anymore. */
-#define BS_CURRENT_MEASUREMENT_RESPONSE_TIMEOUT_MS (200u)
+#define BS_CURRENT_MEASUREMENT_RESPONSE_TIMEOUT_ms (200u)
 
 /** Delay in ms after which it is considered the coulomb counting is not responding anymore. */
-#define BS_COULOMB_COUNTING_MEASUREMENT_RESPONSE_TIMEOUT_MS (2000u)
+#define BS_COULOMB_COUNTING_MEASUREMENT_RESPONSE_TIMEOUT_ms (2000u)
 
 /** Delay in ms after which it is considered the energy counting is not responding anymore. */
-#define BS_ENERGY_COUNTING_MEASUREMENT_RESPONSE_TIMEOUT_MS (2000u)
+#define BS_ENERGY_COUNTING_MEASUREMENT_RESPONSE_TIMEOUT_ms (2000u)
 
-#endif /* CURRENT_SENSOR_PRESENT == true */
+#endif /* BS_CURRENT_SENSOR_PRESENT == true */
 
 /**
- * @brief Maximum break current of main contactors.
+ * @brief   Maximum break current of main contactors.
  * @details The contacts of the main contactors can be welded, when attempting
  *          to interrupt the current flow while a current higher than the
  *          maximum break current of the contactor is flowing.
@@ -227,7 +202,7 @@ typedef enum {
 #define BS_MAIN_CONTACTORS_MAXIMUM_BREAK_CURRENT_mA (500000)
 
 /**
- * @brief Maximum fuse trigger duration
+ * @brief   Maximum fuse trigger duration
  * @details If the current is above #BS_MAIN_CONTACTORS_MAXIMUM_BREAK_CURRENT_mA,
  *          the BMS state machine will wait this time until the fuse triggers so
  *          that the current will be interrupted by the fuse and not the
@@ -239,7 +214,7 @@ typedef enum {
 /**
  * @brief   Maximum string current limit in mA that is used in the SOA module
  *          to check for string overcurrent
-* @details When maximum safety limit (MSL) is violated, error state is
+* @details  When maximum safety limit (MSL) is violated, error state is
  *          requested and contactors will open.
  */
 #define BS_MAXIMUM_STRING_CURRENT_mA (10000u)
@@ -253,7 +228,6 @@ typedef enum {
 #define BS_MAXIMUM_PACK_CURRENT_mA (10000u * BS_NR_OF_STRINGS)
 
 /**
- * @ingroup CONFIG_BATTERYSYSTEM
  * @brief   Define if interlock feedback should be discarded or not
  * @details True: interlock feedback will be discarded
  *          False: interlock feedback will evaluated
@@ -261,41 +235,27 @@ typedef enum {
 #define BS_IGNORE_INTERLOCK_FEEDBACK (false)
 
 /**
+ * @brief   Defines whether CAN timing shall be evaluated or not
  * @details - If set to false, foxBMS does not check CAN timing.
  *          - If set to true, foxBMS checks CAN timing. A valid request must
  *            come every 100ms, within the 95-150ms window.
  */
-#define CHECK_CAN_TIMING (true)
+#define BS_CHECK_CAN_TIMING (true)
 
 /**
+ * @brief   Defines whether balancing shall be available or not
  * @details - If set to true, balancing is deactivated completely.
  *          - If set to false, foxBMS checks when balancing must be done and
  *            activates it accordingly.
  */
-#define BALANCING_DEFAULT_INACTIVE (true)
+#define BS_BALANCING_DEFAULT_INACTIVE (true)
 
 /**
- * @ingroup CONFIG_BATTERYSYSTEM
- * @brief   Defines behaviour if an insulation error is detected
- * @details - If set to true: contactors will be opened
- *          - If set to false: contactors will NOT be opened
- */
-#define BMS_OPEN_CONTACTORS_ON_INSULATION_ERROR (false)
-
-/**
- * @ingroup CONFIG_BATTERYSYSTEM
  * @brief   number of high voltage inputs measured by current sensors (like
  *          IVT-MOD)
  * @ptype   int
  */
 #define BS_NR_OF_VOLTAGES_FROM_CURRENT_SENSOR (3u)
-
-/**
- * @ingroup CONFIG_BATTERYSYSTEM
- * @brief   number of voltages measured by MCU internal ADC
- * @ptype   int
- */
-#define BS_NR_OF_VOLTAGES_FROM_MCU_ADC (2)
 
 /** Number of contactors in addition to string contactors (e.g., PRECHARGE).*/
 #define BS_NR_OF_CONTACTORS_OUTSIDE_STRINGS (1u)
@@ -306,7 +266,7 @@ typedef enum {
 #define BS_NR_OF_CONTACTORS ((2u * BS_NR_OF_STRINGS) + BS_NR_OF_CONTACTORS_OUTSIDE_STRINGS)
 
 /**
- * @brief   current threshold for determing rest state of battery. If absolute
+ * @brief   current threshold for determining rest state of battery. If absolute
  *          current is below this limit value the battery is resting.
  */
 #define BS_REST_CURRENT_mA (200)
@@ -397,11 +357,13 @@ typedef enum {
 FAS_STATIC_ASSERT((BS_NR_OF_STRINGS <= (uint8_t)UINT8_MAX), "This code assumes BS_NR_OF_STRINGS fits into uint8_t");
 
 /*========== Extern Constant and Variable Declarations ======================*/
-/** Precharge presence of not for each string */
+/** Defines whether a string can be used to precharge or not */
 extern BS_STRING_PRECHARGE_PRESENT_e bs_stringsWithPrecharge[BS_NR_OF_STRINGS];
 
 /*========== Extern Function Prototypes =====================================*/
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
+#ifdef UNITY_UNIT_TEST
+#endif
 
 #endif /* FOXBMS__BATTERY_SYSTEM_CFG_H_ */

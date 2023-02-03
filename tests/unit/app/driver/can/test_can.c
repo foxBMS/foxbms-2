@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_can.c
  * @author  foxBMS Team
  * @date    2020-04-01 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -73,6 +73,9 @@
 #include "can.h"
 #include "test_assert_helper.h"
 
+#include <stdbool.h>
+#include <stdint.h>
+
 /*========== Definitions and Implementations for Unit Test ==================*/
 
 /* see src/app/driver/config/can_cfg_rx-message-definitions.h, but we omit
@@ -89,6 +92,7 @@
         .id         = TEST_CANTX_ID_DUMMY,                                       \
         .dlc        = CAN_DEFAULT_DLC,                                           \
         .endianness = CAN_LITTLE_ENDIAN,                                         \
+        .idType     = CAN_STANDARD_IDENTIFIER_11_BIT,                            \
     },                                                                           \
     {                                                                            \
         .period = TEST_CANTX_DUMMY_PERIOD_ms, .phase = TEST_CANTX_DUMMY_PHASE_ms \
@@ -97,24 +101,33 @@
 /* Rx test case*/
 #define TEST_CANRX_ID_DUMMY (0x002)
 
-#define TEST_CANRX_DUMMY_MESSAGE           \
-    {                                      \
-        .id         = TEST_CANRX_ID_DUMMY, \
-        .dlc        = CAN_DEFAULT_DLC,     \
-        .endianness = CAN_LITTLE_ENDIAN,   \
-    },                                     \
-    {                                      \
-        .period = CANRX_NOT_PERIODIC       \
+#define TEST_CANRX_DUMMY_MESSAGE                      \
+    {                                                 \
+        .id         = TEST_CANRX_ID_DUMMY,            \
+        .dlc        = CAN_DEFAULT_DLC,                \
+        .endianness = CAN_LITTLE_ENDIAN,              \
+        .idType     = CAN_STANDARD_IDENTIFIER_11_BIT, \
+    },                                                \
+    {                                                 \
+        .period = CANRX_NOT_PERIODIC                  \
     }
+
+const CAN_NODE_s can_node1 = {
+    .canNodeRegister = canREG1,
+};
+
+const CAN_NODE_s can_node2Isolated = {
+    .canNodeRegister = canREG2,
+};
 
 static DATA_BLOCK_CELL_VOLTAGE_s can_tableCellVoltages     = {.header.uniqueId = DATA_BLOCK_ID_CELL_VOLTAGE};
 static DATA_BLOCK_CELL_TEMPERATURE_s can_tableTemperatures = {.header.uniqueId = DATA_BLOCK_ID_CELL_TEMPERATURE};
 static DATA_BLOCK_MIN_MAX_s can_tableMinimumMaximumValues  = {.header.uniqueId = DATA_BLOCK_ID_MIN_MAX};
 static DATA_BLOCK_CURRENT_SENSOR_s can_tableCurrentSensor  = {.header.uniqueId = DATA_BLOCK_ID_CURRENT_SENSOR};
 static DATA_BLOCK_OPEN_WIRE_s can_tableOpenWire            = {.header.uniqueId = DATA_BLOCK_ID_OPEN_WIRE_BASE};
-static DATA_BLOCK_STATEREQUEST_s can_tableStateRequest     = {.header.uniqueId = DATA_BLOCK_ID_STATEREQUEST};
+static DATA_BLOCK_STATE_REQUEST_s can_tableStateRequest    = {.header.uniqueId = DATA_BLOCK_ID_STATE_REQUEST};
 
-QueueHandle_t imd_canDataQueue = NULL_PTR;
+OS_QUEUE imd_canDataQueue = NULL_PTR;
 
 const CAN_SHIM_s can_kShim = {
     .pQueueImd             = &imd_canDataQueue,
@@ -154,9 +167,9 @@ const uint8_t can_rxLength = sizeof(can_rxMessages) / sizeof(can_rxMessages[0]);
 
 CAN_STATE_s *canTestState = NULL_PTR;
 
-QueueHandle_t ftsk_dataQueue        = NULL_PTR;
-QueueHandle_t ftsk_imdCanDataQueue  = NULL_PTR;
-QueueHandle_t ftsk_canRxQueue       = NULL_PTR;
+OS_QUEUE ftsk_dataQueue             = NULL_PTR;
+OS_QUEUE ftsk_imdCanDataQueue       = NULL_PTR;
+OS_QUEUE ftsk_canRxQueue            = NULL_PTR;
 volatile bool ftsk_allQueuesCreated = false;
 
 /*========== Setup and Teardown =============================================*/
@@ -180,47 +193,56 @@ void testDataSendNullPointerAsNode(void) {
     canIsTxMessagePending_IgnoreAndReturn(0u);
     canUpdateID_Ignore();
     canTransmit_IgnoreAndReturn(0u);
-    TEST_ASSERT_FAIL_ASSERT(CAN_DataSend(NULL_PTR, 0u, &data));
+    TEST_ASSERT_FAIL_ASSERT(CAN_DataSend(NULL_PTR, 0u, CAN_STANDARD_IDENTIFIER_11_BIT, &data));
 }
 
 void testDataSendNullPointerAsData(void) {
-    canBASE_t node = {0};
+    CAN_NODE_s node = {0};
     canIsTxMessagePending_IgnoreAndReturn(0u);
     canUpdateID_Ignore();
     canTransmit_IgnoreAndReturn(0u);
-    TEST_ASSERT_FAIL_ASSERT(CAN_DataSend(&node, 0u, NULL_PTR));
+    TEST_ASSERT_FAIL_ASSERT(CAN_DataSend(&node, 0u, CAN_STANDARD_IDENTIFIER_11_BIT, NULL_PTR));
 }
 
 void testDataSendNoMessagePending(void) {
-    canBASE_t *pNode = CAN_NODE_1;
-    uint8_t data     = 0;
+    CAN_NODE_s *pNode = CAN_NODE_2;
+    uint8_t data      = 0;
 
     canIsTxMessagePending_IgnoreAndReturn(1u);
 
     for (uint8_t i = 0u; i < 32; i++) {
-        TEST_ASSERT_EQUAL(STD_NOT_OK, CAN_DataSend(pNode, i, &data));
+        TEST_ASSERT_EQUAL(STD_NOT_OK, CAN_DataSend(pNode, i, CAN_STANDARD_IDENTIFIER_11_BIT, &data));
     }
 }
 
+void testDataSendInvalidIdentifierType(void) {
+    CAN_NODE_s *pNode                    = CAN_NODE_1;
+    uint8_t data                         = 0;
+    CAN_IDENTIFIER_TYPE_e identifierType = CAN_INVALID_TYPE;
+
+    canIsTxMessagePending_IgnoreAndReturn(1u);
+    TEST_ASSERT_FAIL_ASSERT(CAN_DataSend(pNode, TEST_CANTX_ID_DUMMY, identifierType, &data));
+}
+
 void testDataSendMessagePending(void) {
-    canBASE_t *pNode = CAN_NODE_1;
-    uint8_t data     = 0;
+    CAN_NODE_s *pNode = CAN_NODE_1;
+    uint8_t data      = 0;
 
     /* simulate first messageBox has pending message */
-    canIsTxMessagePending_ExpectAndReturn(pNode, 1, 0u);
-    canUpdateID_Expect(pNode, 1, 0x20040000u);
-    canTransmit_ExpectAndReturn(pNode, 1, &data, 0u);
-    TEST_ASSERT_EQUAL(STD_OK, CAN_DataSend(pNode, 0x001, &data));
+    canIsTxMessagePending_ExpectAndReturn(pNode->canNodeRegister, 1, 0u);
+    canUpdateID_Expect(pNode->canNodeRegister, 1, 0x20040000u);
+    canTransmit_ExpectAndReturn(pNode->canNodeRegister, 1, &data, 0u);
+    TEST_ASSERT_EQUAL(STD_OK, CAN_DataSend(pNode, 0x001, CAN_STANDARD_IDENTIFIER_11_BIT, &data));
 
     /* simulate messageBox until the highest to have no pending messages */
     for (uint8_t messageBox = 1u; messageBox < (CAN_NR_OF_TX_MESSAGE_BOX - 1); messageBox++) {
-        canIsTxMessagePending_ExpectAndReturn(pNode, messageBox, 1u);
+        canIsTxMessagePending_ExpectAndReturn(pNode->canNodeRegister, messageBox, 1u);
     }
     /* last message box has message pending */
-    canIsTxMessagePending_ExpectAndReturn(pNode, CAN_NR_OF_TX_MESSAGE_BOX - 1, 0u);
-    canUpdateID_Expect(pNode, CAN_NR_OF_TX_MESSAGE_BOX - 1, 0x20040000u);
-    canTransmit_ExpectAndReturn(pNode, CAN_NR_OF_TX_MESSAGE_BOX - 1, &data, 0u);
-    TEST_ASSERT_EQUAL(STD_OK, CAN_DataSend(pNode, 0x001, &data));
+    canIsTxMessagePending_ExpectAndReturn(pNode->canNodeRegister, CAN_NR_OF_TX_MESSAGE_BOX - 1, 0u);
+    canUpdateID_Expect(pNode->canNodeRegister, CAN_NR_OF_TX_MESSAGE_BOX - 1, 0x20040000u);
+    canTransmit_ExpectAndReturn(pNode->canNodeRegister, CAN_NR_OF_TX_MESSAGE_BOX - 1, &data, 0u);
+    TEST_ASSERT_EQUAL(STD_OK, CAN_DataSend(pNode, 0x001, CAN_STANDARD_IDENTIFIER_11_BIT, &data));
 }
 
 void testEnablePeriodic(void) {
@@ -261,21 +283,4 @@ void testIsCurrentSensorCcPresent(void) {
         /* check state again */
         TEST_ASSERT_EQUAL(true, canTestState->currentSensorCCPresent[s]);
     }
-}
-
-void testCAN_TransmitBootMessage(void) {
-}
-
-/**
- * @brief   test #CANTX_TransmitDieId()
- * @details Currently not implemented. Implementing a test for this function
- *          would require implementing a harness that mocks away the
- *          systemREG1 (defined in HAL) as otherwise the test would attempt to
- *          read random memory addresses.
- *          Since the benefit of testing this function on unit level is rather
- *          low (next to no interaction with rest of code base), it should be
- *          tested in the integration test.
- *
-*/
-void testCANTX_TransmitDieId(void) {
 }

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_diag_cbs_interlock.c
  * @author  foxBMS Team
  * @date    2021-02-17 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -59,11 +59,14 @@
 #include "diag_cbs.h"
 #include "test_assert_helper.h"
 
+#include <stdbool.h>
+#include <stdint.h>
+
 TEST_FILE("diag_cbs_interlock.c")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
-/** local copy of the #DATA_BLOCK_ERRORSTATE_s table */
-static DATA_BLOCK_ERRORSTATE_s test_tableErrorFlags = {.header.uniqueId = DATA_BLOCK_ID_ERRORSTATE};
+/** local copy of the #DATA_BLOCK_ERROR_STATE_s table */
+static DATA_BLOCK_ERROR_STATE_s test_tableErrorFlags = {.header.uniqueId = DATA_BLOCK_ID_ERROR_STATE};
 
 /** local copy of the #DATA_BLOCK_MOL_FLAG_s table */
 static DATA_BLOCK_MOL_FLAG_s test_tableMolFlags = {.header.uniqueId = DATA_BLOCK_ID_MOL_FLAG};
@@ -83,7 +86,7 @@ const DIAG_DATABASE_SHIM_s diag_kpkDatabaseShim = {
 
 /*========== Setup and Teardown =============================================*/
 void setUp(void) {
-    diag_kpkDatabaseShim.pTableError->interlock = 0;
+    diag_kpkDatabaseShim.pTableError->interlockOpenedError = false;
 }
 
 void tearDown(void) {
@@ -93,22 +96,22 @@ void tearDown(void) {
 void testDiagInterlock(void) {
     /* reset event sets the interlock back in ok mode */
     DIAG_ErrorInterlock(DIAG_ID_INTERLOCK_FEEDBACK, DIAG_EVENT_RESET, &diag_kpkDatabaseShim, 0u);
-    TEST_ASSERT_EQUAL(0, diag_kpkDatabaseShim.pTableError->interlock);
+    TEST_ASSERT_EQUAL(false, diag_kpkDatabaseShim.pTableError->interlockOpenedError);
     /* ok event must not change the interlock state */
     DIAG_ErrorInterlock(DIAG_ID_INTERLOCK_FEEDBACK, DIAG_EVENT_OK, &diag_kpkDatabaseShim, 0u);
-    TEST_ASSERT_EQUAL(0, diag_kpkDatabaseShim.pTableError->interlock);
+    TEST_ASSERT_EQUAL(false, diag_kpkDatabaseShim.pTableError->interlockOpenedError);
 
     /* not ok event sets the interlock back in not ok mode */
     DIAG_ErrorInterlock(DIAG_ID_INTERLOCK_FEEDBACK, DIAG_EVENT_NOT_OK, &diag_kpkDatabaseShim, 0u);
-    TEST_ASSERT_EQUAL(1, diag_kpkDatabaseShim.pTableError->interlock);
+    TEST_ASSERT_EQUAL(true, diag_kpkDatabaseShim.pTableError->interlockOpenedError);
     /* interlock can be resetted via ok event (instead a reset is required), therefore the
      * interlock must stay in not ok mode */
     DIAG_ErrorInterlock(DIAG_ID_INTERLOCK_FEEDBACK, DIAG_EVENT_OK, &diag_kpkDatabaseShim, 0u);
-    TEST_ASSERT_EQUAL(1, diag_kpkDatabaseShim.pTableError->interlock);
+    TEST_ASSERT_EQUAL(true, diag_kpkDatabaseShim.pTableError->interlockOpenedError);
 
     /* reset event sets the interlock back in ok mode */
     DIAG_ErrorInterlock(DIAG_ID_INTERLOCK_FEEDBACK, DIAG_EVENT_RESET, &diag_kpkDatabaseShim, 0u);
-    TEST_ASSERT_EQUAL(0, diag_kpkDatabaseShim.pTableError->interlock);
+    TEST_ASSERT_EQUAL(false, diag_kpkDatabaseShim.pTableError->interlockOpenedError);
 }
 
 /** tests invalid input values */

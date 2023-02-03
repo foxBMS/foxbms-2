@@ -18,6 +18,7 @@
         "plaintext",
         "powershell",
         "python",
+        "restructuredtext",
         "shellscript",
         "xml",
         "yaml"
@@ -35,9 +36,13 @@
         "initialisms",
         "inplace",
         "intrinsics",
+        "layermarker",
+        "logfiles",
         "microcontroller",
         "multiline",
+        "opamps",
         "optocoupler",
+        "optocouplers",
         "overcurrent",
         "overtemperature",
         "overvoltage",
@@ -54,6 +59,8 @@
         "recalibrated",
         "receptable",
         "recurse",
+        "reinitialization",
+        "resetted",
         "roadmap",
         "semihosting",
         "solderabilty",
@@ -70,8 +77,12 @@
         "typedefed",
         "undertemperature",
         "undervoltage",
+        "uninitialization",
+        "uninitialize",
+        "uninstallation",
         "unversioned",
         "vendored",
+        "warnable",
         // Abbreviations
         "pdfs", // plural PDF
         "pkgs", // plural packages
@@ -82,6 +93,8 @@
     "ignoreWords": [
         // project name
         "foxbms",
+        "foxBMS",
+        "FOXBMS",
         // some german words
         "angewandten",
         "Forschung",
@@ -105,19 +118,30 @@
         // user name in the documentation
         "vulpes",
         "fgui",
+        "lvac", // gui frame name
         // Windows related
         "USERPROFILE",
+        "CODEPAGE",
         "ERRORLEVEL",
         "LOCALAPPDATA",
         "APPDATA",
         // cmd, batch
+        "chcp",
         "dpfn",
         "enabledelayedexpansion",
         "enableextensions",
         "findstr",
         "popd",
+        "usebackq",
         "pushd",
         "setlocal",
+        "xcopy",
+        // NSIS installer arguments
+        "noassocfiles",
+        "nomodpath",
+        // bash
+        "substr",
+        "gsub",
         // file extensions
         "vsdx",
         // file names
@@ -174,6 +198,8 @@
         "uchar",
         "wchar",
         "wctype",
+        // C functions
+        "realloc",
         // general software terms
         "MOSFET",
         "memcpy",
@@ -236,6 +262,7 @@
         "orreq",
         "msreq",
         // Compound words in defines, abbreveations from HAL, etc.
+        "SPIDATAFMT_t", // TI: driver code
         "ecap", // TI: abbrevation for "Enhanced Capture" driver
         "RTSV", // TI: abbrevation for "runtime support library"
         "SPNA", // TI: prefix for lots of documents (and we reference them)
@@ -468,7 +495,8 @@
         "fram", // Ferroelectric Random Access Memory
         "isabellenhuette",
         "tektronix",
-        "pcan",
+        "pcan", // Prodcut of the company PEAK Systems GmBH
+        "USBBUS", // name of the PCAN USB buses in the "python-can" library
         "lauterbach",
         "epcos",
         "murata",
@@ -553,6 +581,7 @@
         "gcov",
         "gcovr",
         "msys",
+        "lcov",
         "devkit",
         "conda",
         "condarc",
@@ -650,6 +679,7 @@
         "iterrows",
         "pstats",
         "numpy",
+        "matplotlib",
         "mypy",
         "statsmodels",
         "scikit",
@@ -662,8 +692,15 @@
         "qtpy",
         "ruamel",
         //wxpython
-        "vscroll",
-        "wxagg",
+        "vscroll", // style
+        "Colour", // BackgroundColour etc.
+        "gridlib", // subpackge of wx.grid
+        "RADIOBOX", // wxpython control window name
+        "NUMPAD", // wxpython Event name
+        "CHECKLISTBOX", // wxpython control window name
+        "CHOICEDLG", // wxpython choice dialog
+        // python-can
+        "bustype",
         // matplotlib
         "xlabel",
         "ylabel",
@@ -680,7 +717,7 @@
         "ltail",
         "rankdir",
         "doublecircle",
-        // conf.py and sphinx
+        // sphinx
         "autofunction",
         "numfig",
         "delim",
@@ -701,6 +738,8 @@
         "pprs"
     ],
     "dictionaries": [
+        "cpp",
+        "python",
         "wordsEn",
         "wordsEnGb",
         "companies",
@@ -712,76 +751,82 @@
         "datasheet"
     ],
     "ignorePaths": [
-        "**/package-lock.json",
-        "**/node_modules/**",
-        "**/vscode-extension/**",
+        "**/*rules-2012.txt",
         "**/.git/objects/**",
         "**/__pycache__/**",
-        // our directories and files
-        "**/*rules-2012.txt",
-        ".git*",
-        ".vscode",
-        "build/**",
+        "**/node_modules/**",
+        "**/package-lock.json",
+        "**/vscode-extension/**",
         ".clang-format",
+        ".git*",
+        ".lock-waf_*", // waf's lock file in the top level
         ".mailmap",
+        ".vscode",
         "BSD-3-Clause.txt",
+        "build/**",
         "CC-BY-4.0.txt",
+        "CITATION.cff",
         "conf/cc/linker_pulls.json",
         "conf/env/conda_env_*.yaml",
-        "conf/spa/.pylintrc",
-        "conf/hcg/**",
         "conf/guidelines/rules.json",
+        "conf/hcg/**",
+        "conf/spa/.pylintrc",
         "conf/unit/ceedling.cmd",
         "conf/unit/project.yml",
         "conf/unit/vsc-settings.yml",
         "docs/_ext/**",
         "docs/_themes/**",
-        "docs/style-sheet-file.css",
+        "docs/conf.py",
         "docs/doxygen*.*",
+        "docs/general/licenses-packages-conda-env-spelling.txt",
+        "docs/general/licenses-packages-conda-env-spelling-build-strings.txt",
+        "docs/general/licenses-packages-conda-env-win32.csv",
+        "docs/general/license-tables/license-info_packages-conda-env-linux.csv",
+        "docs/general/license-tables/license-info_packages-conda-env-win32.csv",
+        "docs/general/license-tables/license-packages-conda-env-spelling.txt",
+        "docs/general/license-tables/license-packages-conda-env-spelling-build-strings.txt",
         "docs/general/team-ad-sc.rst",
         "docs/general/team-dev.rst",
         "docs/general/team-former.rst",
-        "docs/spelling_wordlist.txt",
-        "docs/software/configuration/fstartup.c-check.txt",
-        "docs/general/licenses-packages-conda-env-win32.csv",
-        "docs/general/licenses-packages-conda-env-spelling.txt",
-        "docs/general/licenses-packages-conda-env-spelling-build-strings.txt",
         "docs/misc/bibliography.rst",
-        "hardware/**/*.Harness",
-        "hardware/**/*.SchDoc",
-        "hardware/**/*.PcbDoc",
+        "docs/software/configuration/fstartup.c-check.txt",
+        "docs/spelling_wordlist.txt",
+        "docs/style-sheet-file.css",
         "hardware/**/*.Annotation",
         "hardware/**/*.BomDoc",
-        "hardware/**/*.PrjPCB",
-        "hardware/**/*.PrjPcbVariants",
-        "hardware/**/*.PrjPcbStructure",
-        "hardware/**/*.OutJob",
         "hardware/**/*.DbLib",
-        "hardware/**/*.SchLib",
-        "hardware/**/*.PcbLib",
+        "hardware/**/*.Harness",
         "hardware/**/*.mdb",
+        "hardware/**/*.OutJob",
+        "hardware/**/*.PcbDoc",
+        "hardware/**/*.PcbLib",
+        "hardware/**/*.PrjPCB",
+        "hardware/**/*.PrjPcbStructure",
+        "hardware/**/*.PrjPcbVariants",
+        "hardware/**/*.SchDoc",
+        "hardware/**/*.SchLib",
         "hardware/**/*.stp",
-        // third party sources
         "src/app/driver/afe/nxp/common/MC33775A.h",
         "src/app/driver/afe/nxp/mc33775a/vendor/*.c",
         "src/app/driver/afe/nxp/mc33775a/vendor/*.h",
         "src/app/driver/sbc/fs8x_driver/**",
-        "src/app/driver/afe/ltc/common/ltc_pec.*",
         "src/os/**",
-        "tests/axivion/predefined_macros.txt",
-        "tests/axivion/.axivion.preinc",
-        "tests/axivion/rule_config_c.json",
-        "tests/axivion/ci_config.json",
+        "tests/axivion/axivion_preinc.h",
         "tests/axivion/addon-test/**/test_*.*",
+        "tests/axivion/ci_config.json",
+        "tests/axivion/compiler_config.json",
+        "tests/axivion/predefined_macros.txt",
         "tests/axivion/qualification-test/qualification-kit/**",
+        "tests/axivion/rule_config_c.json",
         "tests/re-names/*.json",
         "tools/dbc/*.dbc",
         "tools/dbc/*.sym",
         "tools/debugger/lauterbach/*.in",
         "tools/debugger/ozone/*.jdebug.*",
-        // waf
-        ".lock-waf_*",
-        "tools/waf3-*/**",
-        "tools/waf"
+        "tools/debugger/ozone\foxbms.jflash",
+        "tools/gui/fgui/misc/logo.py", // just binary code
+        "tools/waf", // waf binary
+        "tools/waf3-*/**", // unpacked waf sources
+        "tools/waf-verify-sig.py"
     ]
 }

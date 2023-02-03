@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    ltc_afe_dma.h
  * @author  foxBMS Team
  * @date    2020-05-27 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup DRIVERS
  * @prefix  AFE
  *
@@ -61,6 +61,9 @@
 /* clang-format on */
 #include "ltc_defs.h"
 #include "dma_cfg.h"
+
+#include <stdbool.h>
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 
@@ -92,5 +95,7 @@ extern bool AFE_IsTransmitOngoing(LTC_STATE_s *pLtcState);
 extern void AFE_SetTransmitOngoing(LTC_STATE_s *pLtcState);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
+#ifdef UNITY_UNIT_TEST
+#endif
 
 #endif /* FOXBMS__LTC_AFE_DMA_H_ */

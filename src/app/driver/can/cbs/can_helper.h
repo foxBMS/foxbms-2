@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    can_helper.h
  * @author  foxBMS Team
  * @date    2021-04-22 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup DRIVERS
  * @prefix  CAN
  *
@@ -57,9 +57,11 @@
 #define FOXBMS__CAN_HELPER_H_
 
 /*========== Includes =======================================================*/
-#include "general.h"
 
 #include "can_cfg.h"
+
+#include <math.h>
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 
@@ -80,10 +82,10 @@
 typedef struct {
     uint8_t bitStart;  /*!< start bit of signal in CAN message */
     uint8_t bitLength; /*!< length bit of signal in CAN message */
-    float factor;      /*!< scaling factor applied to data */
-    float offset;      /*!< offset applied to data */
-    float min;         /*!< minimum allowed value for signal */
-    float max;         /*!< maximum allowed value for signal */
+    float_t factor;    /*!< scaling factor applied to data */
+    float_t offset;    /*!< offset applied to data */
+    float_t min;       /*!< minimum allowed value for signal */
+    float_t max;       /*!< maximum allowed value for signal */
 } CAN_SIGNAL_TYPE_s;
 
 /*========== Extern Constant and Variable Declarations ======================*/
@@ -98,7 +100,7 @@ typedef struct {
  * @param[in,out] pSignal            signal data
  * @param[in]     signalProperties   signal properties (factor, offset, min, max)
  */
-extern void CAN_TxPrepareSignalData(float *pSignal, CAN_SIGNAL_TYPE_s signalProperties);
+extern void CAN_TxPrepareSignalData(float_t *pSignal, CAN_SIGNAL_TYPE_s signalProperties);
 
 /**
  * @brief   Convert raw signal data.
@@ -109,7 +111,10 @@ extern void CAN_TxPrepareSignalData(float *pSignal, CAN_SIGNAL_TYPE_s signalProp
  * @param[in]   signalRaw          raw signal data
  * @param[in]   signalProperties   signal properties (factor, offset, min, max)
  */
-extern void CAN_RxConvertRawSignalData(float *pSignalConverted, float signalRaw, CAN_SIGNAL_TYPE_s signalProperties);
+extern void CAN_RxConvertRawSignalData(
+    float_t *pSignalConverted,
+    float_t signalRaw,
+    CAN_SIGNAL_TYPE_s signalProperties);
 
 /**
  * @brief   Puts CAN signal data in a 64-bit variable.
@@ -177,8 +182,8 @@ extern void CAN_RxGetMessageDataFromCanData(
  */
 extern uint8_t CAN_ConvertBooleanToInteger(bool input);
 
-/*========== Externalized Static Function Implementations (Unit Test) =======*/
-
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
+#ifdef UNITY_UNIT_TEST
+#endif
 
 #endif /* FOXBMS__CAN_HELPER_H_ */

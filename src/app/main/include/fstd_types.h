@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    fstd_types.h
  * @author  foxBMS Team
  * @date    2015-12-20 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup GENERAL_CONF
  * @prefix  STD
  *
@@ -55,6 +55,7 @@
 #define FOXBMS__FSTD_TYPES_H_
 
 /*========== Includes =======================================================*/
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 
@@ -93,5 +94,7 @@ typedef enum {
 /*========== Extern Function Prototypes =====================================*/
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
+#ifdef UNITY_UNIT_TEST
+#endif
 
 #endif /* FOXBMS__FSTD_TYPES_H_ */

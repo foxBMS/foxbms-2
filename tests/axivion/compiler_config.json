@@ -2,35 +2,8 @@
     "Project": {
         "TIARMToolchain": {
             "_active": true,
-            "file_extensions": {
-                "assembler": [
-                    ".asm"
-                ],
-                "c": [
-                    ".c",
-                    ".h"
-                ],
-                "ignore": [
-                    ".cmd",
-                    ".res"
-                ],
-                "library": [
-                    ".a",
-                    ".lib"
-                ],
-                "object": ".obj"
-            },
             "language_c": {
-                "default_options": [
-                    "--unsigned_chars",
-                    "--short_enums",
-                    "--diag_suppress=1819"
-                ],
-                "emulated_compiler_version": 90000,
-                "features": {
-                    "clang_feature_test_macros": true,
-                    "variadic_macros": "enabled"
-                },
+                "features": {},
                 "language_version": "C11",
                 "native_compiler": "C:\\ti\\ccs1200\\ccs\\tools\\compiler\\ti-cgt-arm_20.2.6.LTS\\bin\\armcl.EXE",
                 "preprocessing": {
@@ -59,7 +32,7 @@
                         "__ARM_SIZEOF_WCHAR_T": "2",
                         "__BIG_ENDIAN__": "1",
                         "__CHAR_BIT__": "8",
-                        "__COMPILER_VERSION__": "20002005",
+                        "__COMPILER_VERSION__": "20002006",
                         "__EDG_VERSION__": "413",
                         "__ELF__": "1",
                         "__INT_MAX__": "2147483647",
@@ -90,9 +63,9 @@
                         "__TI_ARM_V7__": "1",
                         "__TI_ARM__": "1",
                         "__TI_C99_COMPLEX_ENABLED__": "1",
-                        "__TI_COMPILER_VERSION_QUAL_ID__": "21103",
+                        "__TI_COMPILER_VERSION_QUAL_ID__": "22020",
                         "__TI_COMPILER_VERSION_QUAL__": "QUAL_LETTER",
-                        "__TI_COMPILER_VERSION__": "20002005",
+                        "__TI_COMPILER_VERSION__": "20002006",
                         "__TI_EABI_SUPPORT__": "1",
                         "__TI_EABI__": "1",
                         "__TI_GNU_ATTRIBUTE_SUPPORT__": "1",
@@ -111,11 +84,9 @@
                         "__edg_front_end__": "1",
                         "__unsigned_chars__": "1"
                     },
-                    "sys_include_envvar": null,
                     "sys_include_path": [
-                        "C:\\ti\\ccs1200\\ccs\\tools\\compiler\\ti-cgt-arm_20.2.6.LTS\\include"
-                    ],
-                    "user_include_path": []
+                        "C:/ti/ccs1200/ccs/tools/compiler/ti-cgt-arm_20.2.6.LTS/include"
+                    ]
                 }
             },
             "language_c.command.#": "C:\\ti\\ccs1200\\ccs\\tools\\compiler\\ti-cgt-arm_20.2.6.LTS\\bin\\armcl.EXE --silicon_version=7R5 --code_state=32 --float_support=VFPv3D16 -g --diag_wrap=off --display_error_number --enum_type=packed --abi=eabi --c11 -Ooff --issue_remarks --strict_ansi",
@@ -157,7 +128,7 @@
                         "__BIG_ENDIAN__": "1",
                         "__CHAR16_T_AND_CHAR32_T": "1",
                         "__CHAR_BIT__": "8",
-                        "__COMPILER_VERSION__": "20002005",
+                        "__COMPILER_VERSION__": "20002006",
                         "__EDG_VERSION__": "413",
                         "__ELF__": "1",
                         "__INT_MAX__": "2147483647",
@@ -186,9 +157,9 @@
                         "__TI_ARM_V7__": "1",
                         "__TI_ARM__": "1",
                         "__TI_C99_COMPLEX_ENABLED__": "1",
-                        "__TI_COMPILER_VERSION_QUAL_ID__": "21103",
+                        "__TI_COMPILER_VERSION_QUAL_ID__": "22020",
                         "__TI_COMPILER_VERSION_QUAL__": "QUAL_LETTER",
-                        "__TI_COMPILER_VERSION__": "20002005",
+                        "__TI_COMPILER_VERSION__": "20002006",
                         "__TI_EABI_SUPPORT__": "1",
                         "__TI_EABI__": "1",
                         "__TI_GNU_ATTRIBUTE_SUPPORT__": "1",
@@ -209,303 +180,23 @@
                         "__unsigned_chars__": "1"
                     },
                     "sys_include_path": [
-                        "C:\\ti\\ccs1200\\ccs\\tools\\compiler\\ti-cgt-arm_20.2.6.LTS\\include\\libcxx",
-                        "C:\\ti\\ccs1200\\ccs\\tools\\compiler\\ti-cgt-arm_20.2.6.LTS\\include"
-                    ],
-                    "user_include_path": []
+                        "C:/ti/ccs1200/ccs/tools/compiler/ti-cgt-arm_20.2.6.LTS/include/libcxx",
+                        "C:/ti/ccs1200/ccs/tools/compiler/ti-cgt-arm_20.2.6.LTS/include"
+                    ]
                 }
             },
             "language_cxx.command.#": "C:\\ti\\ccs1200\\ccs\\tools\\compiler\\ti-cgt-arm_20.2.6.LTS\\bin\\armcl.EXE --silicon_version=7R5 --code_state=32 --float_support=VFPv3D16 -g --diag_wrap=off --display_error_number --enum_type=packed --abi=eabi --c11 -Ooff --issue_remarks --strict_ansi",
             "language_cxx.info.#": "20.2.6\n",
             "linker": {
-                "advanced": {
-                    "ignore_input_files": {
-                        "$(delta:+)": [
-                            "*.cmd"
-                        ]
-                    }
-                },
                 "library_path": []
             },
-            "preincludes": {
-                "$(delta:+)": [
-                    ".axivion.preinc"
-                ],
-                "$(delta:-)": [
-                    "$(builtin:AXIVION_INSTALLDIR)\\profiles\\ti\\axivion_preinc.h"
-                ]
-            },
+            "preincludes": [
+                "$(builtin:AXIVION_INSTALLDIR)\\profiles\\ti\\axivion_preinc.h"
+            ],
             "switches": {
                 "mapping": {
-                    "$(delta:+)": {
-                        "--abi": {
-                            "action": "IgnoreSwitch",
-                            "parameter_mode": "mandatory_space_or_equal"
-                        },
-                        "--advice:performance": {
-                            "action": "IgnoreSwitch",
-                            "parameter_mode": "mandatory_space_or_equal"
-                        },
-                        "--asm_directory": {
-                            "action": "OutputDirectory",
-                            "parameter_mode": "mandatory_space_or_equal"
-                        },
-                        "--be32": {
-                            "action": "IgnoreSwitch",
-                            "parameter_mode": "none"
-                        },
-                        "--cmd_file": {
-                            "action": "IgnoreSwitch",
-                            "parameter_mode": "mandatory_space_or_equal"
-                        },
-                        "--code_state": {
-                            "action": "IgnoreSwitch",
-                            "parameter_mode": "mandatory_space_or_equal"
-                        },
-                        "--compile_only": {
-                            "action": "CompileMode",
-                            "parameter_mode": "none"
-                        },
-                        "--define": {
-                            "action": "DefineMacro",
-                            "parameter_mode": "mandatory_space_or_equal"
-                        },
-                        "--diag_warning": {
-                            "action": "IgnoreSwitch",
-                            "parameter_mode": "mandatory_space_or_equal"
-                        },
-                        "--diag_wrap": {
-                            "action": "IgnoreSwitch",
-                            "parameter_mode": "mandatory_space_or_equal"
-                        },
-                        "--display_error_number": {
-                            "action": "IgnoreSwitch",
-                            "parameter_mode": "none"
-                        },
-                        "--emit_warnings_as_errors": {
-                            "action": "IgnoreSwitch",
-                            "parameter_mode": "none"
-                        },
-                        "--end-group": {
-                            "action": "-larg --end_group",
-                            "parameter_mode": "none"
-                        },
-                        "--endian": {
-                            "action": "IgnoreSwitch",
-                            "parameter_mode": "mandatory_space_or_equal"
-                        },
-                        "--enum_type=int": {
-                            "action": "--no_short_enums",
-                            "parameter_mode": "none"
-                        },
-                        "--enum_type=packed": {
-                            "action": "--short_enums",
-                            "parameter_mode": "none"
-                        },
-                        "--exceptions": {
-                            "action": "-carg --exceptions --rtti",
-                            "parameter_mode": "none"
-                        },
-                        "--float_support": {
-                            "action": "IgnoreSwitch",
-                            "parameter_mode": "mandatory_space_or_equal"
-                        },
-                        "--fp_mode": {
-                            "action": "IgnoreSwitch",
-                            "parameter_mode": "mandatory_space_or_equal"
-                        },
-                        "--gen_cross_reference_listing": {
-                            "action": "IgnoreSwitch",
-                            "parameter_mode": "none"
-                        },
-                        "--gen_func_info_listing": {
-                            "action": "IgnoreSwitch",
-                            "parameter_mode": "none"
-                        },
-                        "--gen_preprocessor_listing": {
-                            "action": "IgnoreSwitch",
-                            "parameter_mode": "none"
-                        },
-                        "--heap_size": {
-                            "action": "IgnoreSwitch",
-                            "parameter_mode": "mandatory_space_or_equal"
-                        },
-                        "--include_path": {
-                            "action": "IncludeDirectoryList",
-                            "parameter_mode": "mandatory_space_or_equal"
-                        },
-                        "--issue_remarks": {
-                            "action": "IgnoreSwitch",
-                            "parameter_mode": "none"
-                        },
-                        "--library": {
-                            "action": "LinkLibrary",
-                            "parameter_mode": "mandatory_space_or_equal"
-                        },
-                        "--neon": {
-                            "action": "IgnoreSwitch",
-                            "parameter_mode": "none"
-                        },
-                        "--obj_directory": {
-                            "action": "OutputDirectory",
-                            "parameter_mode": "mandatory_space_or_equal"
-                        },
-                        "--opt_for_speed": {
-                            "action": "IgnoreSwitch",
-                            "parameter_mode": "mandatory_space_or_equal"
-                        },
-                        "--optimize_with_debug": {
-                            "action": "IgnoreSwitch",
-                            "parameter_mode": "mandatory_space_or_equal"
-                        },
-                        "--output_file": {
-                            "action": "OutputFile",
-                            "parameter_mode": "mandatory_space_or_equal"
-                        },
-                        "--plain_char=signed": {
-                            "action": "--signed_chars",
-                            "parameter_mode": "none"
-                        },
-                        "--plain_char=unsigned": {
-                            "action": "--unsigned_chars",
-                            "parameter_mode": "none"
-                        },
-                        "--preproc_dependency": {
-                            "action": "DependencyFile",
-                            "parameter_mode": "mandatory_space_or_equal"
-                        },
-                        "--preproc_with_compile": {
-                            "action": "CompileMode",
-                            "parameter_mode": "none"
-                        },
-                        "--ram_model": {
-                            "action": "IgnoreSwitch",
-                            "parameter_mode": "none"
-                        },
-                        "--reread_libs": {
-                            "action": "IgnoreSwitch",
-                            "parameter_mode": "none"
-                        },
-                        "--rom_model": {
-                            "action": "IgnoreSwitch",
-                            "parameter_mode": "none"
-                        },
-                        "--run_linker": {
-                            "action": "IgnoreSwitch",
-                            "parameter_mode": "none"
-                        },
-                        "--scan_libraries": {
-                            "action": "IgnoreSwitch",
-                            "parameter_mode": "none"
-                        },
-                        "--search_path": {
-                            "action": "LibraryDirectory",
-                            "parameter_mode": "mandatory_space_or_equal"
-                        },
-                        "--silicon_version": {
-                            "action": "IgnoreSwitch",
-                            "parameter_mode": "mandatory_space_or_equal"
-                        },
-                        "--stack_size": {
-                            "action": "IgnoreSwitch",
-                            "parameter_mode": "mandatory_space_or_equal"
-                        },
-                        "--start-group": {
-                            "action": "-larg --start_group",
-                            "parameter_mode": "none"
-                        },
-                        "--strict_ansi": {
-                            "action": "IgnoreSwitch",
-                            "parameter_mode": "none"
-                        },
-                        "--strict_compatibility": {
-                            "action": "IgnoreSwitch",
-                            "parameter_mode": "mandatory_space_or_equal"
-                        },
-                        "--symdebug:dwarf": {
-                            "action": "IgnoreSwitch",
-                            "parameter_mode": "none"
-                        },
-                        "--unaligned_access": {
-                            "action": "IgnoreSwitch",
-                            "parameter_mode": "mandatory_space_or_equal"
-                        },
-                        "--undef_sym": {
-                            "action": "IgnoreSwitch",
-                            "parameter_mode": "mandatory_space_or_equal"
-                        },
-                        "--unused_section_elimination": {
-                            "action": "IgnoreSwitch",
-                            "parameter_mode": "none"
-                        },
-                        "--vcu_support": {
-                            "action": "IgnoreSwitch",
-                            "parameter_mode": "mandatory_space_or_equal"
-                        },
-                        "--warn_sections": {
-                            "action": "IgnoreSwitch",
-                            "parameter_mode": "none"
-                        },
-                        "--wchar_t": {
-                            "action": "IgnoreSwitch",
-                            "parameter_mode": "mandatory_space_or_equal"
-                        },
-                        "--xml_link_info": {
-                            "action": "IgnoreSwitch",
-                            "parameter_mode": "mandatory_space_or_equal"
-                        },
-                        "--zero_init": {
-                            "action": "IgnoreSwitch",
-                            "parameter_mode": "mandatory_space_or_equal"
-                        },
-                        "-@": {
-                            "action": "CompilerResponseFile",
-                            "parameter_mode": "mandatory_space_or_immediate"
-                        },
-                        "-O": {
-                            "action": "IgnoreSwitch",
-                            "parameter_mode": "mandatory_immediate"
-                        },
-                        "-g": {
-                            "action": "IgnoreSwitch",
-                            "parameter_mode": "none"
-                        },
-                        "-i": {
-                            "action": "IgnoreSwitch",
-                            "parameter_mode": "mandatory_immediate"
-                        },
-                        "-me": {
-                            "action": "IgnoreSwitch",
-                            "parameter_mode": "none"
-                        },
-                        "-mv": {
-                            "action": "IgnoreSwitch",
-                            "parameter_mode": "mandatory_immediate"
-                        },
-                        "-o": {
-                            "action": "OutputFile",
-                            "parameter_mode": "mandatory_space_or_immediate"
-                        },
-                        "-qq": {
-                            "action": "IgnoreSwitch",
-                            "parameter_mode": "none"
-                        },
-                        "-rtti": {
-                            "action": "--rtti",
-                            "parameter_mode": "none"
-                        },
-                        "-with_ir_suffix;": {
-                            "action": "WithIRSuffix",
-                            "parameter_mode": "mandatory_immediate"
-                        },
-                        "-z": {
-                            "action": "IgnoreSwitch",
-                            "parameter_mode": "none"
-                        }
-                    },
                     "$(delta:-)": []
-                },
-                "passthrough_double_minus": true
+                }
             },
             "types": {
                 "char_bits": 8,
@@ -549,11 +240,11 @@
         }
     },
     "_Format": "1.0",
-    "_Version": "7.4.6",
+    "_Version": "7.5.0",
     "_VersionNum": [
         7,
-        4,
-        6,
-        10210
+        5,
+        0,
+        11376
     ]
 }

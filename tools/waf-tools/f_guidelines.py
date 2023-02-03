@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -948,6 +948,15 @@ class c_check_sections(Task.Task):
         found_section = []
         errors = []
         previous_line = ""
+        for i in section_strings:
+            if txt.count(i) > 1:
+                errors.append(
+                    (
+                        GuidelineViolations.C_SECTION,
+                        0,
+                        f"'{i}' found more often than expected.",
+                    )
+                )
         for i, line in enumerate(txt.splitlines()):
             for j, comment_string in enumerate(section_strings):
                 if comment_string == line:

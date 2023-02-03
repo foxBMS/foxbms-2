@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    nxpfs85xx.c
  * @author  foxBMS Team
  * @date    2020-03-18 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup DRIVERS
  * @prefix  SBC
  *
@@ -62,10 +62,13 @@
 
 #include "diag.h"
 #include "fram.h"
+#include "fstd_types.h"
 #include "fsystem.h"
 #include "io.h"
 #include "masterinfo.h"
 #include "mcu.h"
+
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 
@@ -79,11 +82,11 @@ typedef enum {
 
 /*========== Extern Constant and Variable Definitions =======================*/
 FS85_STATE_s fs85xx_mcuSupervisor = {
-    .pSpiInterface                  = &spi_kSbcMcuInterface,
+    .pSpiInterface                  = &spi_sbcMcuInterface,
     .configValues.watchdogSeed      = FS8x_WD_SEED_DEFAULT,
     .configValues.communicationMode = fs8xSPI,
     .configValues.i2cAddressOtp     = 0, /* Not used as SPI is selected */
-    .fin.finUsed                    = true,
+    .fin.finUsed                    = false,
     .fin.finState                   = STD_NOT_OK,
     .fin.pGIOport = &(systemREG1->SYSPC4), /* FIN connected to ECLK1 (ball A12): PRIVILEGE MODE REQUIRED! */
     .fin.pin      = 0,
@@ -297,7 +300,7 @@ static void SBC_UpdateFailSafeRegister(
             break;
         default:
             FAS_ASSERT(FAS_TRAP); /* This case should never be reached */
-            break;
+            break;                /* LCOV_EXCL_LINE */
     }
 }
 
@@ -356,7 +359,7 @@ static void SBC_UpdateMainRegister(
             break;
         default:
             FAS_ASSERT(FAS_TRAP); /* This case should never be reached */
-            break;
+            break;                /* LCOV_EXCL_LINE */
     }
 }
 
@@ -1126,7 +1129,7 @@ static STD_RETURN_TYPE_e SBC_PerformPathCheckRstb(FS85_STATE_s *pInstance) {
             IO_PinSet(pInstance->fin.pGIOport, pInstance->fin.pin);
 
             /** No further register access required -> leave privilege mode */
-            FSYS_SWITCH_TO_USER_MODE();
+            FSYS_SwitchToUserMode();
 
             /** FIN state okay, no short circuit. Update also in nvram struct */
             DIAG_Handler(DIAG_ID_SBC_FIN_STATE, DIAG_EVENT_OK, DIAG_SYSTEM, 0);
@@ -1134,10 +1137,10 @@ static STD_RETURN_TYPE_e SBC_PerformPathCheckRstb(FS85_STATE_s *pInstance) {
             pInstance->nvram.data->finState = STD_OK;
 
             /** Continue with RSTB assertion test */
-            test_assertionRSTB = true;
+            test_assertionRSTB = false;
         } else {
             /** Power-cycle but no FIN pin used -> continue with RSTB check */
-            test_assertionRSTB = true;
+            test_assertionRSTB = false;
         }
     } else if (rstReason == EXT_RESET) {
         /** Last reset reason was external reset via nRST pin (EXT_RESET)
@@ -1149,7 +1152,7 @@ static STD_RETURN_TYPE_e SBC_PerformPathCheckRstb(FS85_STATE_s *pInstance) {
             pInstance->nvram.data->finState = STD_NOT_OK;
             /** FIN state not okay, but still in SBC init phase after power-cycle
              * continue now with RSTB assertion */
-            test_assertionRSTB = true;
+            test_assertionRSTB = false;
         } else if ((SBC_INIT_PHASE_e)pInstance->nvram.data->phase == SBC_RSTB_ASSERTION_TEST) {
             /** Reset was triggered by SPI RSTB assertion test -> continue with SBC init phase */
             test_assertionRSTB = false;

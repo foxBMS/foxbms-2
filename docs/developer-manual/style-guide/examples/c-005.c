@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -39,9 +39,35 @@
  *
  */
 
-#ifndef FOXBMS__C_005_H_
-#define FOXBMS__C_005_H_
+/**
+ * @file    c-005.c
+ * @author  foxBMS Team
+ * @date    2023-01-13 (date of creation)
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
+ * @ingroup GUIDELINES
+ * @prefix  NONE
+ *
+ * @brief   Example code to show the application of the C coding guidelines
+ * @details This code implements an example for C:005
+ *
+ */
 
-/* some code */
+/*========== Includes =======================================================*/
+#include "c-005.h"
 
-#endif /* FOXBMS__C_005_H_ */
+/*========== Macros and Definitions =========================================*/
+
+/*========== Static Constant and Variable Definitions =======================*/
+
+/*========== Extern Constant and Variable Definitions =======================*/
+
+/*========== Static Function Prototypes =====================================*/
+
+/*========== Static Function Implementations ================================*/
+
+/*========== Extern Function Implementations ================================*/
+
+/*========== Externalized Static Function Implementations (Unit Test) =======*/
+#ifdef UNITY_UNIT_TEST
+#endif

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    can_cfg_rx-message-definitions.h
  * @author  foxBMS Team
  * @date    2022-07-01 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup DRIVERS
  * @prefix  CANRX
  *
@@ -58,46 +58,60 @@
 /*========== Includes =======================================================*/
 #include "can_cfg.h"
 
+#include <stdint.h>
+
 /*========== Macros and Definitions =========================================*/
 #define CANRX_NOT_PERIODIC (0u)
 
 /* Message IDs */
 
-/** CAN message ID to perform a software reset */
-#define CANRX_SOFTWARE_RESET_ID (0x95u)
-/** Periodicity of CAN software reset messages in ms */
-#define CANRX_SOFTWARE_RESET_PERIOD_ms (CANRX_NOT_PERIODIC)
+/** CAN message properties for state request message. Required properties are:
+ * - Message ID
+ * - Identifier type (standard or extended)
+ * - Expected message period in ms or if asynchronous message
+ * - Endianness of message data @{*/
+#define CANRX_BMS_STATE_REQUEST_ID         (0x230u)
+#define CANRX_BMS_STATE_REQUEST_ID_TYPE    (CAN_STANDARD_IDENTIFIER_11_BIT)
+#define CANRX_BMS_STATE_REQUEST_PERIOD_ms  (CANRX_NOT_PERIODIC)
+#define CANRX_BMS_STATE_REQUEST_ENDIANNESS (CAN_BIG_ENDIAN)
+/**@} */
 
-/** CAN message ID to perform a state request */
-#define CANRX_BMS_STATE_REQUEST_ID (0x230u)
-/** Periodicity of CAN software reset messages in ms */
-#define CANRX_BMS_STATE_REQUEST_PERIOD_ms (CANRX_NOT_PERIODIC)
-
-/** CAN message ID for debug message */
-#define CANRX_DEBUG_ID (0x200u)
-/** Periodicity of CAN software reset messages in ms */
-#define CANRX_DEBUG_PERIOD_ms (CANRX_NOT_PERIODIC)
-
-/** CAN message ID to get software version */
-#define CANRX_SOFTWARE_VERSION_ID (0x777u)
-/** Periodicity of CAN ID to get the software version in ms */
-#define CANRX_SOFTWARE_VERSION_PERIOD_ms (CANRX_NOT_PERIODIC)
+/** CAN message properties for debug message. Required properties are:
+ * - Message ID
+ * - Identifier type (standard or extended)
+ * - Expected message period in ms or if asynchronous message
+ * - Endianness of message data @{*/
+#define CANRX_DEBUG_ID         (0x200u)
+#define CANRX_DEBUG_ID_TYPE    (CAN_STANDARD_IDENTIFIER_11_BIT)
+#define CANRX_DEBUG_PERIOD_ms  (CANRX_NOT_PERIODIC)
+#define CANRX_DEBUG_ENDIANNESS (CAN_BIG_ENDIAN)
+/**@}*/
 
 /**
  * -------------------------CAUTION-------------------------
- * The 3 following defines are used by the insulation monitoring device (IMD).
+ * The following defines are used by the insulation monitoring device (IMD).
  * If they are changed, the IMD will not work anymore
  * -------------------------CAUTION-------------------------
  */
 /** CAN message ID for info message from iso165c */
 #define CANRX_IMD_INFO_ID (0x37u)
-/** CAN message ID for request message to iso165c */
-#define CANRX_IMD_REQUEST_ID (0x22u)
 /** CAN message ID for response message from iso165c */
 #define CANRX_IMD_RESPONSE_ID (0x23u)
+/** CAN message identifier type */
+#define CANRX_IMD_ID_TYPE (CAN_STANDARD_IDENTIFIER_11_BIT)
 
-/** IDs for the messages from the current sensors */
-/** String 0 @{*/
+/** CAN message properties for Isabellenhuette current sensor messages. Properties are:
+ * - Data length of current sensor CAN messages
+ * - Identifier type (standard or extended)
+ * - Endianness of message data @{*/
+#define CANRX_CURRENT_SENSOR_MESSAGES_DLC        (6u)
+#define CANRX_CURRENT_SENSOR_MESSAGES_ID_TYPE    (CAN_STANDARD_IDENTIFIER_11_BIT)
+#define CANRX_CURRENT_SENSOR_MESSAGES_ENDIANNESS (CAN_BIG_ENDIAN)
+/**@} */
+
+/** CAN message properties for string 0 current sensor messages. Properties for each message are:
+ * - Message ID
+ * - Expected message period in ms or if asynchronous message @{*/
 #define CANRX_STRING0_CURRENT_ID                (0x521u)
 #define CANRX_STRING0_CURRENT_PERIOD_ms         (CANRX_NOT_PERIODIC)
 #define CANRX_STRING0_VOLTAGE1_ID               (0x522u)
@@ -116,38 +130,33 @@
 #define CANRX_STRING0_ENERGY_COUNTER_PERIOD_ms  (CANRX_NOT_PERIODIC)
 /**@} */
 
-/** The Isabellenhuette current sensors use a data length code of 6 */
-#define CANRX_CURRENT_SENSOR_MESSAGES_DLC (6u)
-
 /* composed Rx  messages */
 
 /* AXIVION Disable Style Generic-NoUnsafeMacro: These macros MUST only be used
    to populate the 'can_rxMessages' array. The type of this array expects data
    exactly as it is provided here and therefore these macros are good (for this
    and only for this purpose!).*/
-#define CANRX_DEBUG_MESSAGE              \
-    {                                    \
-        .id         = CANRX_DEBUG_ID,    \
-        .dlc        = CAN_DEFAULT_DLC,   \
-        .endianness = CAN_LITTLE_ENDIAN, \
-    },                                   \
-    {                                    \
-        .period = CANRX_DEBUG_PERIOD_ms  \
-    }
 
-#define CANRX_SOFTWARE_VERSION_MESSAGE             \
-    {                                              \
-        .id         = CANRX_SOFTWARE_VERSION_ID,   \
-        .dlc        = CAN_DEFAULT_DLC,             \
-        .endianness = CAN_LITTLE_ENDIAN,           \
-    },                                             \
-    {                                              \
-        .period = CANRX_SOFTWARE_VERSION_PERIOD_ms \
+/*  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    timing check not implemented for RX messages!
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+*/
+
+#define CANRX_DEBUG_MESSAGE                   \
+    {                                         \
+        .id         = CANRX_DEBUG_ID,         \
+        .idType     = CANRX_DEBUG_ID_TYPE,    \
+        .dlc        = CAN_DEFAULT_DLC,        \
+        .endianness = CANRX_DEBUG_ENDIANNESS, \
+    },                                        \
+    {                                         \
+        .period = CANRX_DEBUG_PERIOD_ms       \
     }
 
 #define CANRX_IMD_INFO_MESSAGE           \
     {                                    \
         .id         = CANRX_IMD_INFO_ID, \
+        .idType     = CANRX_IMD_ID_TYPE, \
         .dlc        = CAN_DEFAULT_DLC,   \
         .endianness = CAN_LITTLE_ENDIAN, \
     },                                   \
@@ -158,6 +167,7 @@
 #define CANRX_IMD_RESPONSE_MESSAGE           \
     {                                        \
         .id         = CANRX_IMD_RESPONSE_ID, \
+        .idType     = CANRX_IMD_ID_TYPE,     \
         .dlc        = CAN_DEFAULT_DLC,       \
         .endianness = CAN_LITTLE_ENDIAN,     \
     },                                       \
@@ -165,104 +175,103 @@
         .period = CANRX_NOT_PERIODIC         \
     }
 
-#define CANRX_BMS_STATE_REQUEST_MESSAGE             \
-    {                                               \
-        .id         = CANRX_BMS_STATE_REQUEST_ID,   \
-        .dlc        = CAN_DEFAULT_DLC,              \
-        .endianness = CAN_BIG_ENDIAN,               \
-    },                                              \
-    {                                               \
-        .period = CANRX_BMS_STATE_REQUEST_PERIOD_ms \
-    }
-
-#define CANRX_SOFTWARE_RESET_MESSAGE             \
-    {                                            \
-        .id         = CANRX_SOFTWARE_RESET_ID,   \
-        .dlc        = CAN_DEFAULT_DLC,           \
-        .endianness = CAN_LITTLE_ENDIAN,         \
-    },                                           \
-    {                                            \
-        .period = CANRX_SOFTWARE_RESET_PERIOD_ms \
-    }
-
-#define CANRX_STRING0_CURRENT_MESSAGE                    \
-    {                                                    \
-        .id         = CANRX_STRING0_CURRENT_ID,          \
-        .dlc        = CANRX_CURRENT_SENSOR_MESSAGES_DLC, \
-        .endianness = CAN_BIG_ENDIAN,                    \
-    },                                                   \
-    {                                                    \
-        .period = CANRX_STRING0_CURRENT_PERIOD_ms        \
-    }
-
-#define CANRX_STRING0_VOLTAGE1_MESSAGE                   \
-    {                                                    \
-        .id         = CANRX_STRING0_VOLTAGE1_ID,         \
-        .dlc        = CANRX_CURRENT_SENSOR_MESSAGES_DLC, \
-        .endianness = CAN_BIG_ENDIAN,                    \
-    },                                                   \
-    {                                                    \
-        .period = CANRX_STRING0_VOLTAGE1_PERIOD_ms       \
-    }
-
-#define CANRX_STRING0_VOLTAGE2_MESSAGE                   \
-    {                                                    \
-        .id         = CANRX_STRING0_VOLTAGE2_ID,         \
-        .dlc        = CANRX_CURRENT_SENSOR_MESSAGES_DLC, \
-        .endianness = CAN_BIG_ENDIAN,                    \
-    },                                                   \
-    {                                                    \
-        .period = CANRX_STRING0_VOLTAGE2_PERIOD_ms       \
-    }
-
-#define CANRX_STRING0_VOLTAGE3_MESSAGE                   \
-    {                                                    \
-        .id         = CANRX_STRING0_VOLTAGE3_ID,         \
-        .dlc        = CANRX_CURRENT_SENSOR_MESSAGES_DLC, \
-        .endianness = CAN_BIG_ENDIAN,                    \
-    },                                                   \
-    {                                                    \
-        .period = CANRX_STRING0_VOLTAGE3_PERIOD_ms       \
-    }
-
-#define CANRX_STRING0_TEMPERATURE_MESSAGE                \
-    {                                                    \
-        .id         = CANRX_STRING0_TEMPERATURE_ID,      \
-        .dlc        = CANRX_CURRENT_SENSOR_MESSAGES_DLC, \
-        .endianness = CAN_BIG_ENDIAN,                    \
-    },                                                   \
-    {                                                    \
-        .period = CANRX_STRING0_TEMPERATURE_PERIOD_ms    \
-    }
-
-#define CANRX_STRING0_POWER_MESSAGE                      \
-    {                                                    \
-        .id         = CANRX_STRING0_POWER_ID,            \
-        .dlc        = CANRX_CURRENT_SENSOR_MESSAGES_DLC, \
-        .endianness = CAN_BIG_ENDIAN,                    \
-    },                                                   \
-    {                                                    \
-        .period = CANRX_STRING0_POWER_PERIOD_ms          \
-    }
-
-#define CANRX_STRING0_CURRENT_COUNTER_MESSAGE             \
+#define CANRX_BMS_STATE_REQUEST_MESSAGE                   \
     {                                                     \
-        .id         = CANRX_STRING0_CURRENT_COUNTER_ID,   \
-        .dlc        = CANRX_CURRENT_SENSOR_MESSAGES_DLC,  \
-        .endianness = CAN_BIG_ENDIAN,                     \
+        .id         = CANRX_BMS_STATE_REQUEST_ID,         \
+        .idType     = CANRX_BMS_STATE_REQUEST_ID_TYPE,    \
+        .dlc        = CAN_DEFAULT_DLC,                    \
+        .endianness = CANRX_BMS_STATE_REQUEST_ENDIANNESS, \
     },                                                    \
     {                                                     \
-        .period = CANRX_STRING0_CURRENT_COUNTER_PERIOD_ms \
+        .period = CANRX_BMS_STATE_REQUEST_PERIOD_ms       \
     }
 
-#define CANRX_STRING0_ENERGY_COUNTER_MESSAGE             \
-    {                                                    \
-        .id         = CANRX_STRING0_ENERGY_COUNTER_ID,   \
-        .dlc        = CANRX_CURRENT_SENSOR_MESSAGES_DLC, \
-        .endianness = CAN_BIG_ENDIAN,                    \
-    },                                                   \
-    {                                                    \
-        .period = CANRX_STRING0_ENERGY_COUNTER_PERIOD_ms \
+#define CANRX_STRING0_CURRENT_MESSAGE                           \
+    {                                                           \
+        .id         = CANRX_STRING0_CURRENT_ID,                 \
+        .idType     = CANRX_CURRENT_SENSOR_MESSAGES_ID_TYPE,    \
+        .dlc        = CANRX_CURRENT_SENSOR_MESSAGES_DLC,        \
+        .endianness = CANRX_CURRENT_SENSOR_MESSAGES_ENDIANNESS, \
+    },                                                          \
+    {                                                           \
+        .period = CANRX_STRING0_CURRENT_PERIOD_ms               \
+    }
+
+#define CANRX_STRING0_VOLTAGE1_MESSAGE                          \
+    {                                                           \
+        .id         = CANRX_STRING0_VOLTAGE1_ID,                \
+        .idType     = CANRX_CURRENT_SENSOR_MESSAGES_ID_TYPE,    \
+        .dlc        = CANRX_CURRENT_SENSOR_MESSAGES_DLC,        \
+        .endianness = CANRX_CURRENT_SENSOR_MESSAGES_ENDIANNESS, \
+    },                                                          \
+    {                                                           \
+        .period = CANRX_STRING0_VOLTAGE1_PERIOD_ms              \
+    }
+
+#define CANRX_STRING0_VOLTAGE2_MESSAGE                          \
+    {                                                           \
+        .id         = CANRX_STRING0_VOLTAGE2_ID,                \
+        .idType     = CANRX_CURRENT_SENSOR_MESSAGES_ID_TYPE,    \
+        .dlc        = CANRX_CURRENT_SENSOR_MESSAGES_DLC,        \
+        .endianness = CANRX_CURRENT_SENSOR_MESSAGES_ENDIANNESS, \
+    },                                                          \
+    {                                                           \
+        .period = CANRX_STRING0_VOLTAGE2_PERIOD_ms              \
+    }
+
+#define CANRX_STRING0_VOLTAGE3_MESSAGE                          \
+    {                                                           \
+        .id         = CANRX_STRING0_VOLTAGE3_ID,                \
+        .idType     = CANRX_CURRENT_SENSOR_MESSAGES_ID_TYPE,    \
+        .dlc        = CANRX_CURRENT_SENSOR_MESSAGES_DLC,        \
+        .endianness = CANRX_CURRENT_SENSOR_MESSAGES_ENDIANNESS, \
+    },                                                          \
+    {                                                           \
+        .period = CANRX_STRING0_VOLTAGE3_PERIOD_ms              \
+    }
+
+#define CANRX_STRING0_TEMPERATURE_MESSAGE                       \
+    {                                                           \
+        .id         = CANRX_STRING0_TEMPERATURE_ID,             \
+        .idType     = CANRX_CURRENT_SENSOR_MESSAGES_ID_TYPE,    \
+        .dlc        = CANRX_CURRENT_SENSOR_MESSAGES_DLC,        \
+        .endianness = CANRX_CURRENT_SENSOR_MESSAGES_ENDIANNESS, \
+    },                                                          \
+    {                                                           \
+        .period = CANRX_STRING0_TEMPERATURE_PERIOD_ms           \
+    }
+
+#define CANRX_STRING0_POWER_MESSAGE                             \
+    {                                                           \
+        .id         = CANRX_STRING0_POWER_ID,                   \
+        .idType     = CANRX_CURRENT_SENSOR_MESSAGES_ID_TYPE,    \
+        .dlc        = CANRX_CURRENT_SENSOR_MESSAGES_DLC,        \
+        .endianness = CANRX_CURRENT_SENSOR_MESSAGES_ENDIANNESS, \
+    },                                                          \
+    {                                                           \
+        .period = CANRX_STRING0_POWER_PERIOD_ms                 \
+    }
+
+#define CANRX_STRING0_CURRENT_COUNTER_MESSAGE                   \
+    {                                                           \
+        .id         = CANRX_STRING0_CURRENT_COUNTER_ID,         \
+        .idType     = CANRX_CURRENT_SENSOR_MESSAGES_ID_TYPE,    \
+        .dlc        = CANRX_CURRENT_SENSOR_MESSAGES_DLC,        \
+        .endianness = CANRX_CURRENT_SENSOR_MESSAGES_ENDIANNESS, \
+    },                                                          \
+    {                                                           \
+        .period = CANRX_STRING0_CURRENT_COUNTER_PERIOD_ms       \
+    }
+
+#define CANRX_STRING0_ENERGY_COUNTER_MESSAGE                    \
+    {                                                           \
+        .id         = CANRX_STRING0_ENERGY_COUNTER_ID,          \
+        .idType     = CANRX_CURRENT_SENSOR_MESSAGES_ID_TYPE,    \
+        .dlc        = CANRX_CURRENT_SENSOR_MESSAGES_DLC,        \
+        .endianness = CANRX_CURRENT_SENSOR_MESSAGES_ENDIANNESS, \
+    },                                                          \
+    {                                                           \
+        .period = CANRX_STRING0_ENERGY_COUNTER_PERIOD_ms        \
     }
 /* AXIVION Enable Style Generic-NoUnsafeMacro */
 
@@ -271,5 +280,7 @@
 /*========== Extern Function Prototypes =====================================*/
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
+#ifdef UNITY_UNIT_TEST
+#endif
 
 #endif /* FOXBMS__CAN_CFG_RX_MESSAGE_DEFINITIONS_H_ */

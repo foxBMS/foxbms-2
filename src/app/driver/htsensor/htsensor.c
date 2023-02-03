@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    htsensor.c
  * @author  foxBMS Team
  * @date    2021-08-05 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup DRIVERS
  * @prefix  HTSEN
  *
@@ -58,16 +58,19 @@
 #include "database.h"
 #include "i2c.h"
 
+#include <math.h>
+#include <stdbool.h>
+#include <stdint.h>
+
 /*========== Macros and Definitions =========================================*/
 
+/** Sensor I2C interface */
+#define HTSEN_I2C_INTERFACE (i2cREG1)
 /** Sensor I2C address */
 #define HTSEN_I2C_ADDRESS (0x44u)
 
-/** Timeout to avoid infinite loops when waiting for results */
-#define HTSEN_READ_TIMEOUT_10ms (10u)
-
-/** Timeout to wait for measurement in 10ms */
-#define HTSEN_TIME_MEAS_WAIT_10ms (2u)
+/** Number of read tries before restart, to avoid infinite waiting for results */
+#define HTSEN_READ_TRIES (5u)
 
 /** Conversion coefficients to get measurement from raw temperature value @{ */
 #define HTSEN_TEMP_SCALING     (175.0f)
@@ -109,7 +112,7 @@
  * Not recommended: if system is stopped during clock stretching,
  * sensor could be blocked in this mode and render I2C bus unusable.
  * !!!---WARNING---!!!: if clock stretching is used, the timeout in the
- * receive loop of the function #I2C_ReadDirect() must be adapted,
+ * receive loop of the function #I2C_Read() must be adapted,
  * the current value is too small compared to the time the slave will
  * make the master wait in the clock stretching mode.
  *
@@ -146,20 +149,15 @@
 /**@}*/
 
 /*========== Static Constant and Variable Definitions =======================*/
-
-/**
- * @brief   describes the current state of the measurement
- * @details This variable is used as a state-variable for switching through the
- *          steps of a conversion.
- */
-static HTSEN_STATE_e htsen_state = HTSEN_START_MEAS;
-/** counter to wait before reading measurements after they were triggered */
-static uint8_t htsen_counter = 0u;
-/** timeout to restart measurement cycle if waiting too much to get results */
-static uint8_t htsen_timeout_10ms = 0u;
+#pragma SET_DATA_SECTION(".sharedRAM")
+uint8_t i2cReadBuffer[HTSEN_TOTAL_DATA_LENGTH_IN_BYTES] = {0u, 0u, 0u, 0u, 0u, 0u};
+uint8_t i2cWriteBuffer[2u]                              = {HTSEN_SINGLE_MEAS_MSB, HTSEN_SINGLE_MEAS_LSB};
+#pragma SET_DATA_SECTION()
 
 /** variable to store the measurement results */
 static DATA_BLOCK_HTSEN_s htsen_data = {.header.uniqueId = DATA_BLOCK_ID_HTSEN};
+/** number of tries to read the sensor data before requested a new measurement */
+static uint8_t htsen_readTries = 0u;
 
 /*========== Extern Constant and Variable Definitions =======================*/
 
@@ -210,54 +208,41 @@ static uint8_t HTSEN_CalculateCrc8(const uint8_t *data, uint32_t length) {
 
 static int16_t HTSEN_ConvertRawTemperature(uint16_t data) {
     /* AXIVION Routine Generic-MissingParameterAssert: data: parameter accepts whole range */
-    float temperature_ddeg = HTSEN_TEMP_DEG_TO_DDEG *
-                             (HTSEN_TEMP_OFFSET + (HTSEN_TEMP_SCALING * (((float)data) / HTSEN_FULL_SCALE)));
+    float_t temperature_ddeg = HTSEN_TEMP_DEG_TO_DDEG *
+                               (HTSEN_TEMP_OFFSET + (HTSEN_TEMP_SCALING * (((float_t)data) / HTSEN_FULL_SCALE)));
     return (int16_t)temperature_ddeg;
 }
 
 static uint8_t HTSEN_ConvertRawHumidity(uint16_t data) {
-    float humidity_perc = (HTSEN_HUMIDITY_SCALING * (((float)data) / HTSEN_FULL_SCALE));
+    float_t humidity_perc = (HTSEN_HUMIDITY_SCALING * (((float_t)data) / HTSEN_FULL_SCALE));
     return (uint8_t)humidity_perc;
 }
 
 /*========== Extern Function Implementations ================================*/
 
 extern void HTSEN_Trigger(void) {
-    uint8_t i2cWriteBuffer[2u]                              = {HTSEN_SINGLE_MEAS_MSB, HTSEN_SINGLE_MEAS_LSB};
-    uint8_t i2cReadBuffer[HTSEN_TOTAL_DATA_LENGTH_IN_BYTES] = {0u, 0u, 0u, 0u, 0u, 0u};
-    STD_RETURN_TYPE_e i2cReadReturn                         = STD_NOT_OK;
+    static HTSEN_STATE_e htsenState    = HTSEN_START_MEAS;
+    STD_RETURN_TYPE_e htsenReturnValue = STD_OK;
+    uint32_t current_time              = OS_GetTickCount();
 
-    switch (htsen_state) {
+    switch (htsenState) {
         case HTSEN_START_MEAS:
-            /* Write to sensor to start measurement */
-            if (STD_OK == I2C_WriteDirect(HTSEN_I2C_ADDRESS, 2u, i2cWriteBuffer)) {
-                htsen_counter      = HTSEN_TIME_MEAS_WAIT_10ms;
-                htsen_timeout_10ms = HTSEN_READ_TIMEOUT_10ms;
-                htsen_state        = HTSEN_WAIT_FOR_RESULTS;
+            /* Trigger a measurement */
+            htsenReturnValue = I2C_WriteDma(HTSEN_I2C_INTERFACE, HTSEN_I2C_ADDRESS, 2u, i2cWriteBuffer);
+            OS_DelayTaskUntil(&current_time, 2u);
+            if (htsenReturnValue == STD_OK) {
+                htsenState = HTSEN_READ_RESULTS;
             }
+            htsen_readTries = HTSEN_READ_TRIES;
             break;
-
-        case HTSEN_WAIT_FOR_RESULTS:
-            if (htsen_counter > 0u) {
-                htsen_counter--;
-            }
-            if (htsen_counter == 0u) {
-                htsen_state = HTSEN_READ_RESULTS;
-                break;
-            }
-            break;
-
         case HTSEN_READ_RESULTS:
-            i2cReadReturn = I2C_ReadDirect(HTSEN_I2C_ADDRESS, HTSEN_TOTAL_DATA_LENGTH_IN_BYTES, i2cReadBuffer);
-            if (i2cReadReturn != STD_OK) {
-                if (htsen_timeout_10ms > 0u) {
-                    htsen_timeout_10ms--;
-                }
-                if (htsen_timeout_10ms == 0u) {
-                    htsen_state = HTSEN_START_MEAS;
-                }
-            } else {
-                /* If measurement finished, retrieve values */
+            /* Try to read values */
+            htsenReturnValue =
+                I2C_ReadDma(HTSEN_I2C_INTERFACE, HTSEN_I2C_ADDRESS, HTSEN_TOTAL_DATA_LENGTH_IN_BYTES, i2cReadBuffer);
+            OS_DelayTaskUntil(&current_time, 2u);
+            if (htsenReturnValue == STD_OK) {
+                /* If sensor acknowledges on I2C bus, results are available */
+                /* Check if CRC valid */
                 /* Only take temperature value if CRC valid */
                 if (i2cReadBuffer[HTSEN_TEMPERATURE_BYTE_CRC] ==
                     HTSEN_CalculateCrc8(&i2cReadBuffer[HTSEN_TEMPERATURE_MSB], HTSEN_MEASUREMENT_LENGTH_IN_BYTES)) {
@@ -273,10 +258,16 @@ extern void HTSEN_Trigger(void) {
                         (uint16_t)i2cReadBuffer[HTSEN_HUMIDITY_LSB]);
                 }
                 DATA_WRITE_DATA(&htsen_data);
-                htsen_state = HTSEN_START_MEAS;
+                htsenState = HTSEN_START_MEAS;
+            } else {
+                /* If sensor does not acknowledge on I2C bus, results are not available ye */
+                if (htsen_readTries > 0u) {
+                    htsen_readTries--;
+                } else {
+                    htsenState = HTSEN_START_MEAS;
+                }
             }
             break;
-
         default:
             /* invalid state */
             FAS_ASSERT(FAS_TRAP);
@@ -291,4 +282,4 @@ extern void HTSEN_Trigger(void) {
 extern uint8_t TEST_HTSEN_TestCalculateCrc8(uint8_t *data, uint32_t length) {
     return HTSEN_CalculateCrc8(data, 2u);
 }
-#endif /* UNITY_UNIT_TEST */
+#endif

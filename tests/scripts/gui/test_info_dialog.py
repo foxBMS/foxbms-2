@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -79,7 +79,7 @@ def get_git_root(path: str) -> str:
 ROOT = get_git_root(os.path.realpath(__file__))
 
 sys.path.insert(1, os.path.abspath(os.path.join(ROOT, "tools", "gui")))
-from fgui import info_dialog  # pylint:disable=wrong-import-position
+from fgui.misc import info_dialog  # pylint:disable=wrong-import-position
 
 
 class TestDialog(unittest.TestCase):

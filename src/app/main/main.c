@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    main.c
  * @author  foxBMS Team
  * @date    2019-08-27 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup GENERAL
  * @prefix  TODO
  *
@@ -56,13 +56,11 @@
 /*========== Includes =======================================================*/
 #include "main.h"
 
-#include "HL_can.h"
 #include "HL_crc.h"
 #include "HL_etpwm.h"
 #include "HL_gio.h"
 #include "HL_het.h"
 #include "HL_pinmux.h"
-#include "HL_spi.h"
 #include "HL_sys_core.h"
 
 #include "adc.h"
@@ -75,6 +73,9 @@
 #include "masterinfo.h"
 #include "os.h"
 #include "pwm.h"
+#include "spi.h"
+
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 
@@ -92,8 +93,7 @@ int main(void) {
     _enable_IRQ_interrupt_();
     muxInit();
     gioInit();
-    canInit();
-    spiInit();
+    SPI_Initialize();
     adcInit();
     hetInit();
     etpwmInit();
@@ -129,3 +129,5 @@ int main(void) {
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
+#ifdef UNITY_UNIT_TEST
+#endif

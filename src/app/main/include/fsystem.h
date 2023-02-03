@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    fsystem.h
  * @author  foxBMS Team
  * @date    2020-07-21 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup SYSTEM
  * @prefix  FSYS
  *
@@ -56,6 +56,7 @@
 #define FOXBMS__FSYSTEM_H_
 
 /*========== Includes =======================================================*/
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 
@@ -103,7 +104,7 @@
  *          * Target address is contained in r14
  *          \verbatim bx      r14 \endverbatim
  *
- *          It is important to issue #FSYS_SWITCH_TO_USER_MODE() after the
+ *          It is important to issue #FSYS_SwitchToUserMode() after the
  *          privileged mode is no longer needed. Otherwise the system would
  *          stay in privileged mode.
  *
@@ -119,17 +120,19 @@ extern long FSYS_RaisePrivilege(void);
 /* AXIVION Enable Style Generic-DoxygenCommentInHeader: */
 
 /**
- * @def     FSYS_SWITCH_TO_USER_MODE()
  * @brief   Switch back to user mode
  * @details This macro is used after raising the privileges with
  *          #FSYS_RaisePrivilege(). Failure to call this macro may lead to
  *          unintended system behavior.
  */
 #ifndef UNITY_UNIT_TEST
-#define FSYS_SWITCH_TO_USER_MODE() \
-    { __asm(" CPS #0x10"); }
+#pragma FUNC_ALWAYS_INLINE(FSYS_SwitchToUserMode)
+static inline void FSYS_SwitchToUserMode(void) {
+    __asm(" CPS #0x10");
+}
+
 #else
-#define FSYS_SWITCH_TO_USER_MODE()
+#define FSYS_SwitchToUserMode()
 #endif
 
 /*========== Extern Constant and Variable Declarations ======================*/
@@ -137,5 +140,7 @@ extern long FSYS_RaisePrivilege(void);
 /*========== Extern Function Prototypes =====================================*/
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
+#ifdef UNITY_UNIT_TEST
+#endif
 
 #endif /* FOXBMS__FSYSTEM_H_ */

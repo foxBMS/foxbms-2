@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    soc_counting_cfg.h
  * @author  foxBMS Team
  * @date    2020-10-07 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup APPLICATION
  * @prefix  SOC
  *
@@ -56,10 +56,11 @@
 #define FOXBMS__SOC_COUNTING_CFG_H_
 
 /*========== Includes =======================================================*/
-#include "general.h"
 
 #include "battery_cell_cfg.h"
 #include "battery_system_cfg.h"
+
+#include <math.h>
 
 /*========== Macros and Definitions =========================================*/
 
@@ -67,17 +68,19 @@
  * Cell capacity used for SOC calculation, in this case Ah counting
  * Specified once according to data sheet of cell usually.
  */
-#define SOC_STRING_CAPACITY_mAh ((float)(BS_NR_OF_PARALLEL_CELLS_PER_MODULE * BC_CAPACITY_mAh))
+#define SOC_STRING_CAPACITY_mAh ((float_t)(BS_NR_OF_PARALLEL_CELLS_PER_MODULE * BC_CAPACITY_mAh))
 
 /** #SOC_STRING_CAPACITY_mAh in mAs */
-#define SOC_STRING_CAPACITY_mAs ((float)(SOC_STRING_CAPACITY_mAh * 3600.0f))
+#define SOC_STRING_CAPACITY_mAs ((float_t)(SOC_STRING_CAPACITY_mAh * 3600.0f))
 /** #SOC_STRING_CAPACITY_mAs in As */
-#define SOC_STRING_CAPACITY_As ((float)(SOC_STRING_CAPACITY_mAs / 1000.0f))
+#define SOC_STRING_CAPACITY_As ((float_t)(SOC_STRING_CAPACITY_mAs / 1000.0f))
 
 /*========== Extern Constant and Variable Declarations ======================*/
 
 /*========== Extern Function Prototypes =====================================*/
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
+#ifdef UNITY_UNIT_TEST
+#endif
 
 #endif /* FOXBMS__SOC_COUNTING_CFG_H_ */

@@ -62,7 +62,7 @@ class IisbFileLicenseRule(iisb_base.IISBRule, analysis.AnalysisRule):
         re.compile(re.escape(s))
         for s in """/**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause

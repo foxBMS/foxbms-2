@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    diag_cbs_insulation.c
  * @author  foxBMS Team
  * @date    2021-02-22 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup ENGINE
  * @prefix  DIAG
  *
@@ -54,6 +54,9 @@
 
 /*========== Includes =======================================================*/
 #include "diag_cbs.h"
+#include "fstd_types.h"
+
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 
@@ -78,33 +81,35 @@ extern void DIAG_Insulation(
 
     if (diagId == DIAG_ID_INSULATION_MEASUREMENT_VALID) {
         if (event == DIAG_EVENT_RESET) {
-            kpkDiagShim->pTableError->insulationMeasurementValid = true;
+            kpkDiagShim->pTableError->insulationMeasurementInvalidError = false;
         }
         if (event == DIAG_EVENT_NOT_OK) {
-            kpkDiagShim->pTableError->insulationMeasurementValid = false;
+            kpkDiagShim->pTableError->insulationMeasurementInvalidError = true;
         }
     } else if (diagId == DIAG_ID_LOW_INSULATION_RESISTANCE_ERROR) {
         if (event == DIAG_EVENT_RESET) {
-            kpkDiagShim->pTableError->criticalLowInsulationResistance = false;
+            kpkDiagShim->pTableError->criticalLowInsulationResistanceError = false;
         }
         if (event == DIAG_EVENT_NOT_OK) {
-            kpkDiagShim->pTableError->criticalLowInsulationResistance = true;
+            kpkDiagShim->pTableError->criticalLowInsulationResistanceError = true;
         }
     } else if (diagId == DIAG_ID_LOW_INSULATION_RESISTANCE_WARNING) {
         if (event == DIAG_EVENT_RESET) {
-            kpkDiagShim->pTableError->warnableLowInsulationResistance = false;
+            kpkDiagShim->pTableError->warnableLowInsulationResistanceError = false;
         }
         if (event == DIAG_EVENT_NOT_OK) {
-            kpkDiagShim->pTableError->warnableLowInsulationResistance = true;
+            kpkDiagShim->pTableError->warnableLowInsulationResistanceError = true;
         }
     } else if (diagId == DIAG_ID_INSULATION_GROUND_ERROR) {
         if (event == DIAG_EVENT_RESET) {
-            kpkDiagShim->pTableError->insulationGroundFaultDetected = false;
+            kpkDiagShim->pTableError->insulationGroundFaultDetectedError = false;
         }
         if (event == DIAG_EVENT_NOT_OK) {
-            kpkDiagShim->pTableError->insulationGroundFaultDetected = true;
+            kpkDiagShim->pTableError->insulationGroundFaultDetectedError = true;
         }
     }
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
+#ifdef UNITY_UNIT_TEST
+#endif

@@ -1,5 +1,6 @@
 {
     "_Layers": [
+        "additional_compiler_config.json",
         "compiler_config.json",
         "ci_config.json",
         "architecture_config.json",

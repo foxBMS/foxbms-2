@@ -20,7 +20,7 @@ Vendor Driver
    system.
 
 
-- ``src/app/driver/sbc/fs8x_driver/sbc_fs8x_assert.h.c`` (`API <../../../../_static/doxygen/src/html/sbc__fs8x__assert_8h.html>`__, `source <../../../../_static/doxygen/src/html/sbc__fs8x__assert_8h_source.html>`__)
+- ``src/app/driver/sbc/fs8x_driver/sbc_fs8x_assert.h`` (`API <../../../../_static/doxygen/src/html/sbc__fs8x__assert_8h.html>`__, `source <../../../../_static/doxygen/src/html/sbc__fs8x__assert_8h_source.html>`__)
 - ``src/app/driver/sbc/fs8x_driver/sbc_fs8x_common.h`` (`API <../../../../_static/doxygen/src/html/sbc__fs8x__common_8h.html>`__, `source <../../../../_static/doxygen/src/html/sbc__fs8x__common_8h_source.html>`__)
 - ``src/app/driver/sbc/fs8x_driver/sbc_fs8x_communication.c`` (`API <../../../../_static/doxygen/src/html/sbc__fs8x__communication_8c.html>`__, `source <../../../../_static/doxygen/src/html/sbc__fs8x__communication_8c_source.html>`__)
 - ``src/app/driver/sbc/fs8x_driver/sbc_fs8x_communication.h`` (`API <../../../../_static/doxygen/src/html/sbc__fs8x__communication_8h.html>`__, `source <../../../../_static/doxygen/src/html/sbc__fs8x__communication_8h_source.html>`__)

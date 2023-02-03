@@ -3,9 +3,9 @@ UniqueVariables=True
 Title="foxBMS"
 
 {ENUMS}
-Enum=foxBMS_ModeRequest(0="mode_Standby", // Disconnect strings from HV bus
-  1="mode_Discharge", // Connect strings to HV bus to start discharge
-  2="mode_Charge") // Connect strings to HV bus to start charging
+Enum=foxBMS_ModeRequest(0="Standby", // Disconnect strings from HV bus
+  1="Discharge", // Connect strings to HV bus to start discharge
+  2="Charge") // Connect strings to HV bus to start charging
 // Possible states (i.e., values) the BMS state machine can have
 Enum=foxBMS_State(0="BMS_UNINITIALIZED", // BMS state machine is uninitialized
   1="BMS_INITIALIZATION", // BMS state machine is currently trying to initialize
@@ -14,6 +14,15 @@ Enum=foxBMS_State(0="BMS_UNINITIALIZED", // BMS state machine is uninitialized
   4="BMS_OPEN_CONTACTORS", 5="BMS_STANDBY", 6="BMS_PRECHARGE", 7="BMS_NORMAL", 8="BMS_DISCHARGE", 9="BMS_CHARGE",
   10="BMS_ERROR", 11="BMS_UNDEFINED")
 Enum=foxBMS_FuseState(0="Fuse okay", 1="Fuse blown")
+// Error
+Enum=foxBMS_ErrorFlag(0="No Error", // No Error detected
+  1="Error") // Error detected
+Enum=foxBMS_RtcWeekday(1="Monday", 2="Tuesday", 3="Wednesday", 4="Thursday", 5="Friday", 6="Saturday", 0="Sunday")
+Enum=foxBMS_SoftwareReset(0="NO_SOFTWARE_RESET", // Do not trigger a software reset
+  1="SOFTWARE_RESET") // Trigger a software reset
+Enum=foxBMS_FramInitialization(0="NO_FRAM_INITIALIZATION", 1="FRAM_INITIALIZATION")
+Enum=foxBMS_RtcMonth(1="January", 2="February", 3="March", 4="Mai", 5="April", 6="June", 7="July", 8="August",
+  9="September", 10="October", 11="November", 12="December")
 
 {SENDRECEIVE}
 
@@ -1308,7 +1317,7 @@ Var=foxBMS_State unsigned 4,4 -m /e:foxBMS_State
 Var=BMS_nrOfConnectedStrings unsigned 0,4 -m
 Var=foxBMS_generalError bit 13,1 -m // 0x00: No error detected, 0x01: Error detected
 Var=foxBMS_generalWarning bit 14,1 -m // 0x00: No warning detected, 0x01: Warning detected
-Var=foxBMS_Error_dieTemperatureMCU bit 21,1 -m // 0x00: No error, 0x01: Error detected
+Var=foxBMS_Error_dieTemperatureMCU bit 21,1 -m /e:foxBMS_ErrorFlag // 0x00: No error, 0x01: Error detected
 Var=foxBMS_Error_OvertempPCB bit 20,1 -m // foxBMS Master-PCB: 0x00: No error, 0x01: Error detected
 Var=foxBMS_Error_UndertempPCB bit 19,1 -m // foxBMS Master-PCB: 0x00: No error, 0x01: Error detected
 Var=foxBMS_Error_PrechargeVolt bit 23,1 -m // 0x00: precharging successful, 0x01: precharge aborted because of voltage difference
@@ -1320,14 +1329,15 @@ Var=foxBMS_chargingComplete bit 15,1 -m // 0x01: charging complete
 Var=foxBMS_EmergencyShutoff bit 12,1 -m // The BMS is preparing to open the contactors soon due to detected error
 Var=foxBMS_MainFuseBlown bit 18,1 -m // 0x00: fuse okay, 0x01: fuse blown
 Var=foxBMS_insulationResistance unsigned 56,8 -m /u:kOhm /f:10
-Var=foxBMS_Error_Interlock bit 17,1 -m // 0x00: interlock okay, 0x01: interlock open
+Var=foxBMS_Error_Interlock bit 17,1 -m /e:foxBMS_ErrorFlag // 0x00: interlock okay, 0x01: interlock open
 Var=foxBMS_NrDeactivatedStrings unsigned 52,4 -m
 Var=foxBMS_Error_Insulation bit 16,1 -m // 0x00: No error, 0x01: Error detected
 Var=foxBMS_Error_Cantiming bit 31,1 -m // 0x00: No error, 0x01: Error detected
 Var=foxBMS_Error_PackOvercurr_Charge bit 30,1 -m // 0x00: No error, 0x01: Error detected
 Var=foxBMS_Error_PackOvercur_Dischrg bit 29,1 -m // 0x00: No error, 0x01: Error detected
 Var=foxBMS_SysMonError bit 11,1 -m /ln:"system monitoring error" // If this bit is set, it indicates that a task has violated its timing requirements.
-Var=foxBMS_alertFlag bit 28,1 -m // foxBMS Alter flag: 0x00: No error, 0x01: Alert flag set
+Var=foxBMS_alertFlag bit 28,1 -m /e:foxBMS_ErrorFlag // foxBMS Alter flag: 0x00: No error, 0x01: Alert flag set
+Var=foxBMS_NvramCrcError bit 27,1 -m /e:foxBMS_ErrorFlag // 0x00: No NVRAM CRC Error detected, 0x01: NVRAM CRC Error detected
 
 [foxBMS_StringState]
 ID=221h // Message contains string related error and warning flags (in:can_cbs_tx_state.c:CANTX_StringState, fv:tx)
@@ -1344,9 +1354,9 @@ Var=String0_Err_Overcurrent_charge bit 11,1 -m // 0x00: No error, 0x01: Error: F
 Var=String0_Err_Overcurre_discharge bit 10,1 -m // 0x00: No error, 0x01: Error: Flag will be set if discharge current is above maximum string current.
 Var=String0_Err_Overvoltage bit 9,1 -m // 0x00: No error, 0x01: Error: Flag will be set if maximum cell voltage is above 4200mV.
 Var=String0_Err_Undervoltage bit 8,1 -m // 0x00: No error, 0x01: Error: Flag will be set if minimum cell voltage is below 3000mV. This equals roughly 4% remaining SOC. Minimum data sheet values if 2500mV.
-Var=String0_Err_deep_discharge bit 0,1 -m // 0x00: No error, 0x01: Error
+Var=String0_Err_deep_discharge bit 0,1 -m /e:foxBMS_ErrorFlag // 0x00: No error, 0x01: Error
 Var=String0_Err_CS_currentMeas bit 44,1 -m // 0x00: No error, 0x01: Error
-Var=String0_Err_positiveContactor bit 39,1 -m // 0x00: No error, 0x01: Error
+Var=String0_Err_positiveContactor bit 39,1 -m /e:foxBMS_ErrorFlag // 0x00: No error, 0x01: Error
 Var=String0_Err_openWire bit 54,1 -m // 0x00: No error, 0x01: Error
 Var=String0_openWireNumber unsigned 56,8 -m // Number of first open wire that has been detected in this string
 Var=String0_Err_plaus_cell_volt bit 51,1 -m // 0x00: No error, 0x01: Error
@@ -1382,7 +1392,7 @@ Var=String0_Wrng_chargeOverCur_RSL bit 27,1 -m
 Var=String0_Wrng_dischargOverCur_RSL bit 26,1 -m
 Var=String0_Wrng_overvoltage_RSL bit 25,1 -m
 Var=String0_Wrng_undervoltage_RSL bit 24,1 -m
-Var=String0_Err_negativeContactor bit 38,1 -m
+Var=String0_Err_negativeContactor bit 38,1 -m /e:foxBMS_ErrorFlag // 0x00: No error, 0x01: Error
 Var=String0_Err_CS_voltage1Meas bit 41,1 -m
 Var=String0_Err_CS_voltage2Meas bit 40,1 -m
 Var=String0_Err_CS_voltage3Meas bit 55,1 -m
@@ -1410,8 +1420,40 @@ Var=String0_Energy_kWh unsigned 49,15 -m /u:kWh /f:0.01 // Remaining energy left
 Var=String0_SOH unsigned 40,9 -m /u:% /f:0.25 /max:127.5
 
 [foxBMS_Debug]
-ID=200h // Reserved - for debug/development purpose only (in:can_cbs_rx_misc.c:CANRX_Debug, fv:rx)
+ID=200h // Reserved - for debug/development purpose only (in:can_cbs_rx_debug.c:CANRX_Debug, fv:rx)
 Len=8
+Mux=foxBMS_Rtc 0,8 1 -m
+Var=SetHundredthOfSeconds unsigned 8,7 -m
+Var=SetSeconds unsigned 15,6 -m
+Var=SetMinutes unsigned 21,6 -m
+Var=SetHours unsigned 27,5 -m
+Var=SetWeekday unsigned 32,3 -m /e:foxBMS_RtcWeekday
+Var=SetDay unsigned 35,5 -m
+Var=SetMonth unsigned 40,4 -m /e:foxBMS_RtcMonth
+Var=SetYear unsigned 44,7 -m
+
+[foxBMS_Debug]
+Len=8
+Mux=foxBMS_VersionInfo 0,8 0 -m
+Var=foxBMS_GetMcuLotNumber bit 13,1 -m
+Var=foxBMS_GetBmsSoftwareVersion bit 15,1 -m
+Var=foxBMS_GetMcuUniqueDieId bit 14,1 -m
+Var=foxBMS_GetMcuWaferInformation bit 12,1 -m
+
+[foxBMS_Debug]
+Len=8
+Mux=foxBMS_SoftwareReset 0,8 2 -m
+Var=foxBMS_TriggerSoftwareReset bit 32,1 -m /e:foxBMS_SoftwareReset
+
+[foxBMS_Debug]
+Len=8
+Mux=foxBMS_FramInitialization 0,8 3 -m
+Var=InitializeFram bit 28,1 -m /e:foxBMS_FramInitialization
+
+[foxBMS_Debug]
+Len=8
+Mux=foxBMS_TimeInfo 0,8 4 -m
+Var=foxBMS_RequestRtcTime bit 15,1 -m
 
 [foxBMS_String0Current]
 ID=521h // Current sensor string 0: current (in:can_cbs_rx_current-sensor.c:CANRX_CurrentSensor, fv:rx); Isabellenhuette data sheet name: IVT0_Msg_Result_I
@@ -1501,18 +1543,6 @@ Var=IVT0_Result_Wh signed 16,32 -m /u:Wh
 Var=IVT0_MsgCount_Result_Wh unsigned 12,4 -m
 Var=IVT0_ID_Result_Wh unsigned 0,8 -m /min:7 /max:7 /d:7
 
-[foxBMS_Boot]
-ID=199h // (in:can_cfg_tx_boot-message.c:CANTX_TransmitBootMessage, fv:tx)
-Len=8
-Var=foxBMS_majorVersionNumber unsigned 0,8 -m
-Var=foxBMS_minorVersionNumber unsigned 8,8 -m
-Var=foxBMS_patchVersionNumber unsigned 16,8 -m
-Var=foxBMS_uniqueId unsigned 32,32 -m // Content of Device Identification Register (DEVID)
-Var=foxBMS_underVersionControl bit 31,1 -m
-Var=foxBMS_dirtyFlag bit 30,1 -m
-Var=foxBMS_releaseDistance unsigned 24,5 -m
-Var=foxBMS_releaseDistanceOverflow bit 29,1 -m
-
 [foxBMS_BmsStateDetails]
 ID=226h // Transmits details on flags transmitted by foxBMS_State (in:can_cbs_tx_state.c:CANTX_BmsStateDetails, fv:tx)
 Len=8
@@ -1528,10 +1558,54 @@ Var=foxBMS_TimingViolation100msAlgoR bit 11,1 -m /ln:"timing violation 100ms alg
 Var=foxBMS_TimingViolationEngineRec bit 15,1 -m /ln:"timing violation engine task recorded" // Indicates whether a violation of the timing of the engine task has been recorded.
 Var=foxBMS_TimingViolation1msRec bit 14,1 -m /ln:"timing violation 1ms task recorded" // Indicates whether a violation of the timing of the 1ms task has been recorded.
 
-[foxBMS_DieId]
-ID=227h // Transmits the unique die id of the MCU on which foxBMS is currently running (in:can_cfg_tx_boot-message.c:CANTX_TransmitDieId, fv:tx)
+[foxBMS_DebugResponse]
+ID=227h // (in:can_cbs_tx_debug-response.c:CANTX_DebugResponse, fv:tx)
 Len=8
-Var=MCU_lotNumber unsigned 8,24 -m /max:1 /ln:"lot number of the MCU" // lot number of the MCU (read from DIEIDH register)
-Var=MCU_waferNumber unsigned 32,8 -m /max:1 /ln:"wafer number of the MCU" // wafer number of the MCU (read from DIEDL register)
-Var=MCU_xWaferCoordinate unsigned 52,12 -m /max:1 /ln:"x wafer coordinate" // x coordinate of the MCU die on the wafer (read from DIEIDL register)
-Var=MCU_yWaferCoordinate unsigned 40,12 -m /max:1 /ln:"y wafer coordinate" // y coordinate of the MCU die on the wafer (read from DIEIDL register)
+Mux=foxBMS_McuWaferInformation 0,8 3 -m
+Var=MCU_waferNumber unsigned 8,8 -m /max:1 /ln:"wafer number of the MCU" // wafer number of the MCU (read from DIEDL register)
+Var=MCU_xWaferCoordinate unsigned 28,12 -m /max:1 /ln:"x wafer coordinate" // x coordinate of the MCU die on the wafer (read from DIEIDL register)
+Var=MCU_yWaferCoordinate unsigned 16,12 -m /max:1 /ln:"y wafer coordinate" // y coordinate of the MCU die on the wafer (read from DIEIDL register)
+
+[foxBMS_DebugResponse]
+Len=8
+Mux=foxBMS_McuLotNumber 0,8 2 -m
+Var=MCU_LotNumber unsigned 8,32 -m /max:1 /ln:"lot number of the MCU" // lot number of the MCU (read from DIEIDH register)
+
+[foxBMS_DebugResponse]
+Len=8
+Mux=foxBMS_McuUniqueDieId 0,8 1 -m
+Var=MCU_uniqueId unsigned 8,32 -m // Content of Device Identification Register (DEVID)
+
+[foxBMS_DebugResponse]
+Len=8
+Mux=foxBMS_BmsSoftwareVersionInfo 0,8 0 -m
+Var=foxBMS_dirtyFlag bit 38,1 -m
+Var=foxBMS_majorVersionNumber unsigned 8,8 -m
+Var=foxBMS_minorVersionNumber unsigned 16,8 -m
+Var=foxBMS_patchVersionNumber unsigned 24,8 -m
+Var=foxBMS_releaseDistance unsigned 32,5 -m
+Var=foxBMS_releaseDistanceOverflow bit 37,1 -m
+Var=foxBMS_underVersionControl bit 39,1 -m
+
+[foxBMS_DebugResponse]
+Len=8
+Mux=foxBMS_BootInformation 0,8 0Fh -m
+Var=foxBMS_MagicBootData unsigned 8,56 -m /max:1
+
+[foxBMS_DebugResponse]
+Len=8
+Mux=foxBMS_RtcTime 0,8 4 -m
+Var=GetDay unsigned 35,5 -m
+Var=GetHours unsigned 27,5 -m
+Var=GetHundredthOfSeconds unsigned 8,7 -m
+Var=GetMinutes unsigned 21,6 -m
+Var=GetMonth unsigned 40,4 -m /e:foxBMS_RtcMonth
+Var=GetSeconds unsigned 15,6 -m
+Var=GetWeekday unsigned 32,3 -m /e:foxBMS_RtcWeekday
+Var=GetYear unsigned 44,7 -m
+
+[foxBMS_UnsupportedMultiplexerVal]
+ID=201h // (in:can_cbs_tx_unsupported-message.c:CANTX_UnsupportedMultiplexerValue, fv:tx)
+Len=8
+Var=foxBMS_MessageId unsigned 0,32 -m /max:1
+Var=foxBMS_MultiplexerValue unsigned 32,32 -m /max:1

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    i2c.c
  * @author  foxBMS Team
  * @date    2021-07-22 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup DRIVERS
  * @prefix  I2C
  *
@@ -55,389 +55,395 @@
 /*========== Includes =======================================================*/
 #include "i2c.h"
 
+#include "HL_system.h"
+
 #include "database.h"
 #include "diag.h"
 #include "dma.h"
+#include "fstd_types.h"
 #include "fsystem.h"
 #include "mcu.h"
+#include "os.h"
+
+#include <stdbool.h>
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 
 /*========== Static Constant and Variable Definitions =======================*/
+/* Pointer to the last byte of the table where received bytes are written, pI2cInterface */
+uint8_t i2c_rxLastByteInterface1 = 0u;
+/* Pointer to the last byte of the table where received bytes are written, i2cREG2 */
+uint8_t i2c_rxLastByteInterface2 = 0u;
 
 /*========== Extern Constant and Variable Definitions =======================*/
 
 /*========== Static Function Prototypes =====================================*/
+/**
+ * @brief   Return transmit time of a word in microseconds.
+ * @details The function uses the clock settings of the interface
+ *          to determine the time needed to transmit one word.
+ *          Word means one byte + the ACK bit.
+ * @param   pI2cInterface I2C interface to use
+ * @return  time in microseconds needed to transmit a byte on the I2C interface
+ */
+static uint32_t I2C_GetWordTransmitTime(i2cBASE_t *pI2cInterface);
+/**
+ * @brief   Waits for the I2C Tx buffer to be empty.
+ * @details When the buffer is empty, the next byte can be sent.
+ *          If the buffer is empty before timeout_us microseconds are elapsed,
+ *          the function returns true, false otherwise.
+ *          The function also returns false if a NACK condition
+ *          is detected.
+ * @param   pI2cInterface I2C interface to use
+ * @param   timeout_us    time in microseconds to wait until the buffer is empty
+ * @return  true if buffer is empty within timeout, false otherwise
+ */
+static bool I2C_WaitTransmit(i2cBASE_t *pI2cInterface, uint32_t timeout_us);
+/**
+ * @brief   Waits for a stop condition to be detected.
+ * @details When a stop condition is issued, this function waits until
+ *          the stop condition is detected on the bus. This means that
+ *          that transmission is finished. If stop is detected before
+ *          timeout_us microseconds are elapsed, the function returns true,
+ *          false otherwise.
+ * @param   pI2cInterface I2C interface to use
+ * @param   timeout_us    time in microseconds to wait until stop is detected
+ * @return  true if stop is detected within timeout, false otherwise
+ */
+static bool I2C_WaitStop(i2cBASE_t *pI2cInterface, uint32_t timeout_us);
+
+/**
+ * @brief   Wait for the I2C transmit communication to complete, using notifications
+ *
+ * @return  I2C_TX_NOTIFIED_VALUE if notification received,
+ *          I2C_NO_NOTIFIED_VALUE if timeout reached
+ */
+static uint32_t I2C_WaitForTxCompletedNotification(void);
+/**
+ * @brief   Wait for the I2C receive communication to complete, using notifications
+ *
+ * @return  I2C_RX_NOTIFIED_VALUE if notification received,
+ *          I2C_NO_NOTIFIED_VALUE if timeout reached
+ */
+static uint32_t I2C_WaitForRxCompletedNotification(void);
+/**
+ * @brief   Clear pending notifications
+ *
+ */
+static void I2C_ClearNotifications(void);
 
 /*========== Static Function Implementations ================================*/
+static uint32_t I2C_GetWordTransmitTime(i2cBASE_t *pI2cInterface) {
+    FAS_ASSERT(pI2cInterface != NULL_PTR);
+    uint32_t i2cClock_khz        = 0;
+    uint32_t prescaler           = 0;
+    uint32_t wordTransmitTime_us = 0u;
+    uint8_t dFactor              = 0u;
+
+    /* Get prescaler */
+    prescaler = pI2cInterface->PSC & I2C_PRESCALER_MASK;
+    if (prescaler == 0u) {
+        dFactor = I2C_DFACTOR_VALUE_PRESCALER_0;
+    } else if (prescaler == 1u) {
+        dFactor = I2C_DFACTOR_VALUE_PRESCALER_1;
+    } else {
+        dFactor = I2C_DFACTOR_VALUE_PRESCALER_OTHER;
+    }
+    /* This is the equation used in the HAL; seems to differ from Technical Reference Manual
+        (p.1769 eq.65, SPNU563A - March 2018) */
+    i2cClock_khz = (uint32_t)(AVCLK1_FREQ * I2C_FACTOR_MHZ_TO_HZ) /
+                   (2u * (prescaler + 1u) * (pI2cInterface->CKH + dFactor));
+    wordTransmitTime_us = (I2C_FACTOR_WORD_TO_BITS * I2C_FACTOR_S_TO_US) / i2cClock_khz;
+    return wordTransmitTime_us;
+}
+
+static bool I2C_WaitTransmit(i2cBASE_t *pI2cInterface, uint32_t timeout_us) {
+    FAS_ASSERT(pI2cInterface != NULL_PTR);
+    bool success          = true;
+    bool timeElapsed      = false;
+    uint32_t startCounter = MCU_GetFreeRunningCount();
+
+    while (((pI2cInterface->STR & (uint32_t)I2C_NACK_INT) == 0u) &&
+           ((pI2cInterface->STR & (uint32_t)I2C_TX_INT) == 0u) && (timeElapsed == false)) {
+        timeElapsed = MCU_IsTimeElapsed(startCounter, timeout_us);
+    }
+
+    if (timeElapsed == true) {
+        success = false;
+    }
+
+    return success;
+}
+
+static bool I2C_WaitStop(i2cBASE_t *pI2cInterface, uint32_t timeout_us) {
+    FAS_ASSERT(pI2cInterface != NULL_PTR);
+    bool success          = true;
+    bool timeElapsed      = false;
+    uint32_t startCounter = MCU_GetFreeRunningCount();
+
+    while ((i2cIsStopDetected(pI2cInterface) == 0u) && (timeElapsed == false)) {
+        timeElapsed = MCU_IsTimeElapsed(startCounter, timeout_us);
+    }
+
+    if (timeElapsed == true) {
+        success = false;
+    }
+
+    return success;
+}
+
+static uint32_t I2C_WaitForTxCompletedNotification(void) {
+    uint32_t notifiedValueTx = I2C_NO_NOTIFIED_VALUE;
+    /**
+     * Suspend task and wait for I2C DMA TX finished notification,
+     * clear notification value on entry and exit
+     */
+    OS_WaitForNotificationIndexed(I2C_NOTIFICATION_TX_INDEX, &notifiedValueTx, I2C_NOTIFICATION_TIMEOUT_ms);
+    return notifiedValueTx;
+}
+
+static uint32_t I2C_WaitForRxCompletedNotification(void) {
+    uint32_t notifiedValueRx = I2C_NO_NOTIFIED_VALUE;
+    /**
+     * Suspend task and wait for I2C DMA RX finished notification,
+     * clear notification value on entry and exit
+     */
+    OS_WaitForNotificationIndexed(I2C_NOTIFICATION_RX_INDEX, &notifiedValueRx, I2C_NOTIFICATION_TIMEOUT_ms);
+    return notifiedValueRx;
+}
+
+static void I2C_ClearNotifications(void) {
+    OS_ClearNotificationIndexed(I2C_NOTIFICATION_TX_INDEX);
+    OS_ClearNotificationIndexed(I2C_NOTIFICATION_RX_INDEX);
+}
 
 /*========== Extern Function Implementations ================================*/
 extern void I2C_Initialize(void) {
     i2cInit();
 }
 
-extern STD_RETURN_TYPE_e I2C_Read(uint32_t slaveAddress, uint8_t readAddress, uint32_t nrBytes, uint8_t *readData) {
+extern STD_RETURN_TYPE_e I2C_Read(
+    i2cBASE_t *pI2cInterface,
+    uint32_t slaveAddress,
+    uint32_t nrBytes,
+    uint8_t *readData) {
+    FAS_ASSERT(pI2cInterface != NULL_PTR);
     FAS_ASSERT(readData != NULL_PTR);
-
+    FAS_ASSERT(nrBytes > 0u);
+    FAS_ASSERT(slaveAddress < 128u);
     STD_RETURN_TYPE_e retVal = STD_OK;
-    uint16_t timeout         = I2C_TIMEOUT_ITERATIONS;
-    bool nack                = false;
-    uint8_t *data            = readData;
-    uint32_t count           = nrBytes;
 
-    if ((i2cREG1->STR & (uint32_t)I2C_BUSBUSY) == 0u) {
+    if ((pI2cInterface->STR & (uint32_t)I2C_BUSBUSY) == 0u) {
         /* Clear bits */
-        i2cREG1->MDR &= ~((uint32_t)I2C_STOP_COND);
-        i2cREG1->MDR &= ~((uint32_t)I2C_START_COND);
-        i2cREG1->MDR &= ~((uint32_t)I2C_REPEATMODE);
-        i2cREG1->STR |= (uint32_t)I2C_TX_INT;
-        i2cREG1->STR |= (uint32_t)I2C_RX_INT;
+        pI2cInterface->MDR &= ~((uint32_t)I2C_STOP_COND);
+        pI2cInterface->MDR &= ~((uint32_t)I2C_START_COND);
+        pI2cInterface->MDR &= ~((uint32_t)I2C_REPEATMODE);
+        pI2cInterface->STR |= (uint32_t)I2C_TX_INT;
+        pI2cInterface->STR |= (uint32_t)I2C_RX_INT;
 
-        i2cSetMode(i2cREG1, (uint32_t)I2C_MASTER);           /* Set as master */
-        i2cSetDirection(i2cREG1, (uint32_t)I2C_TRANSMITTER); /* Set as transmitter */
-        i2cSetSlaveAdd(i2cREG1, slaveAddress);               /* Set slave address */
-        i2cSetCount(i2cREG1, 1u);                            /* Send 1 byte */
-        i2cSetStart(i2cREG1);                                /* Start write */
-        i2cREG1->DXR = (uint32_t)readAddress;                /* Send register address */
+        pI2cInterface->MDR |= (uint32_t)I2C_REPEATMODE;
 
-        /* Wait until Tx buffer was copied to shift buffer */
-        timeout = I2C_TIMEOUT_ITERATIONS;
-        while (((i2cREG1->STR & (uint32_t)I2C_TX_INT) == 0u) && (timeout > 0u)) {
-            if ((i2cREG1->STR & (uint32_t)I2C_NACK) != 0u) {
-                nack = true;
-                break;
-            }
-            timeout--;
+        i2cSetMode(pI2cInterface, (uint32_t)I2C_MASTER);        /* Set as master */
+        i2cSetDirection(pI2cInterface, (uint32_t)I2C_RECEIVER); /* Set as transmitter */
+        i2cSetSlaveAdd(pI2cInterface, slaveAddress);            /* Set slave address */
+        i2cSetStart(pI2cInterface);                             /* Start receive */
+        if (nrBytes == 1u) {
+            i2cSetStop(pI2cInterface); /* generate a STOP condition */
         }
-
-        if (timeout == 0u) {
-            /* Set repeat flag */
-            i2cREG1->MDR |= (uint32_t)I2C_REPEATMODE;
-            /* Set Stop condition */
-            i2cSetStop(i2cREG1);
-            timeout = I2C_TIMEOUT_ITERATIONS;
-            while ((i2cIsStopDetected(i2cREG1) == 0u) && (timeout > 0u)) {
-                timeout--;
-            }
-            retVal = STD_NOT_OK;
-        } else {
-            /* If slave ACK received, receive data */
-            if ((i2cREG1->STR & (uint32_t)I2C_NACK) == 0u) {
-                i2cSetMode(i2cREG1, (uint32_t)I2C_MASTER);        /* Set as master */
-                i2cSetDirection(i2cREG1, (uint32_t)I2C_RECEIVER); /* Set as transmitter */
-                i2cSetCount(i2cREG1, nrBytes);                    /* Send count bytes before STOP condition */
-                i2cSetStart(i2cREG1);                             /* Start write */
-                i2cSetStop(i2cREG1);                              /* Stop condition after sending nrBytes bytes */
-
-                /* Receive nrBytes bytes in polling mode */
-                while (count > 0u) {
-                    timeout = I2C_TIMEOUT_ITERATIONS;
-                    while (((i2cREG1->STR & (uint32_t)I2C_RX_INT) == 0u) && (timeout > 0u)) {
-                        if ((i2cREG1->STR & (uint32_t)I2C_NACK_INT) != 0u) {
-                            nack = true;
-                            break;
-                        }
-                        timeout--;
-                    }
-                    if ((nack == true) || (timeout == 0u)) {
-                        break;
-                    }
-                    *data = ((uint8)i2cREG1->DRR);
-                    data++;
-                    count--;
-                }
-                if ((nack == true) || (timeout == 0u)) {
-                    /* Set repeat flag */
-                    i2cREG1->MDR |= (uint32_t)I2C_REPEATMODE;
-                    /* Set Stop condition */
-                    i2cSetStop(i2cREG1);
-                    timeout = I2C_TIMEOUT_ITERATIONS;
-                    while ((i2cIsStopDetected(i2cREG1) == 0u) && (timeout > 0u)) {
-                        timeout--;
-                    }
-                    retVal = STD_NOT_OK;
-                } else {
-                    /* Wait until Stop is detected */
-                    timeout = I2C_TIMEOUT_ITERATIONS;
-                    while ((i2cIsStopDetected(i2cREG1) == 0u) && (timeout > 0u)) {
-                        timeout--;
-                    }
-                    if (timeout == 0u) {
-                        retVal = STD_NOT_OK;
-                    } else {
-                        i2cClearSCD(i2cREG1); /* Clear the Stop condition */
-                    }
-                }
-            } else {
-                I2C_SetStopNow();
-                retVal = STD_NOT_OK;
-            }
-        }
-    } else {
-        I2C_SetStopNow();
-        retVal = STD_NOT_OK;
-    }
-
-    return retVal;
-}
-
-extern STD_RETURN_TYPE_e I2C_ReadDirect(uint32_t slaveAddress, uint32_t nrBytes, uint8_t *readData) {
-    FAS_ASSERT(readData != NULL_PTR);
-
-    STD_RETURN_TYPE_e retVal = STD_OK;
-    uint16_t timeout         = I2C_TIMEOUT_ITERATIONS;
-    bool nack                = false;
-    uint8_t *data            = readData;
-    uint32_t count           = nrBytes;
-
-    if ((i2cREG1->STR & (uint32_t)I2C_BUSBUSY) == 0u) {
-        /* Clear bits */
-        i2cREG1->MDR &= ~((uint32_t)I2C_STOP_COND);
-        i2cREG1->MDR &= ~((uint32_t)I2C_START_COND);
-        i2cREG1->MDR &= ~((uint32_t)I2C_REPEATMODE);
-        i2cREG1->STR |= (uint32_t)I2C_TX_INT;
-        i2cREG1->STR |= (uint32_t)I2C_RX_INT;
-        i2cREG1->STR |= (uint32_t)I2C_TX_INT;
-        i2cREG1->STR |= (uint32_t)I2C_RX_INT;
-
-        i2cSetMode(i2cREG1, (uint32_t)I2C_MASTER);        /* Set as master */
-        i2cSetDirection(i2cREG1, (uint32_t)I2C_RECEIVER); /* Set as transmitter */
-        i2cSetSlaveAdd(i2cREG1, slaveAddress);            /* Set slave address */
-        i2cSetCount(i2cREG1, nrBytes);                    /* Send count bytes before STOP condition */
-        i2cSetStart(i2cREG1);                             /* Start write */
-        i2cSetStop(i2cREG1);                              /* Stop condition after sending nrBytes bytes */
-
         /* Receive nrBytes bytes in polling mode */
-        while (count > 0u) {
-            timeout = I2C_TIMEOUT_ITERATIONS;
-            while (((i2cREG1->STR & (uint32_t)I2C_RX_INT) == 0u) && (timeout > 0u)) {
-                if ((i2cREG1->STR & (uint32_t)I2C_NACK_INT) != 0u) {
-                    nack = true;
-                    break;
-                }
-                timeout--;
-            }
-            if ((nack == true) || (timeout == 0u)) {
+        for (uint16_t i = 0u; i < nrBytes; i++) {
+            bool success = I2C_WaitReceive(pI2cInterface, I2C_TIMEOUT_us);
+            if (((pI2cInterface->STR & (uint32_t)I2C_NACK_INT) == (uint32_t)I2C_NACK_INT) || (success == false)) {
+                pI2cInterface->MDR |= (uint32_t)I2C_REPEATMODE;
+                i2cSetStop(pI2cInterface);
+                retVal = STD_NOT_OK;
                 break;
             }
-            *data = ((uint8)i2cREG1->DRR);
-            data++;
-            count--;
+            readData[i] = (uint8)(pI2cInterface->DRR & I2C_DDR_REGISTER_DATA_MASK);
+            if (i == (nrBytes - 2u)) {
+                i2cSetStop(pI2cInterface); /* generate a STOP condition */
+            }
         }
-        if ((nack == true) || (timeout == 0u)) {
-            /* Set repeat flag */
-            i2cREG1->MDR |= (uint32_t)I2C_REPEATMODE;
+
+        bool success = I2C_WaitStop(pI2cInterface, I2C_TIMEOUT_us);
+        if (success == false) {
             /* Set Stop condition */
-            i2cSetStop(i2cREG1);
-            timeout = I2C_TIMEOUT_ITERATIONS;
-            while ((i2cIsStopDetected(i2cREG1) == 0u) && (timeout > 0u)) {
-                timeout--;
-            }
+            pI2cInterface->MDR |= (uint32_t)I2C_REPEATMODE;
+            i2cSetStop(pI2cInterface);
             retVal = STD_NOT_OK;
-        } else {
-            /* Wait until Stop is detected */
-            timeout = I2C_TIMEOUT_ITERATIONS;
-            while ((i2cIsStopDetected(i2cREG1) == 0u) && (timeout > 0u)) {
-                timeout--;
-            }
-            if (timeout == 0u) {
-                retVal = STD_NOT_OK;
-            } else {
-                i2cClearSCD(i2cREG1); /* Clear the Stop condition */
-            }
         }
     } else {
-        I2C_SetStopNow();
         retVal = STD_NOT_OK;
     }
 
     return retVal;
 }
 
-extern STD_RETURN_TYPE_e I2C_Write(uint32_t slaveAddress, uint8_t writeAddress, uint32_t nrBytes, uint8_t *writeData) {
+extern STD_RETURN_TYPE_e I2C_Write(
+    i2cBASE_t *pI2cInterface,
+    uint32_t slaveAddress,
+    uint32_t nrBytes,
+    uint8_t *writeData) {
+    FAS_ASSERT(pI2cInterface != NULL_PTR);
     FAS_ASSERT(writeData != NULL_PTR);
-
+    FAS_ASSERT(nrBytes > 0u);
+    FAS_ASSERT(slaveAddress < 128u);
     STD_RETURN_TYPE_e retVal = STD_OK;
-    uint16_t timeout         = I2C_TIMEOUT_ITERATIONS;
-    bool nack                = false;
-    uint8_t *data            = writeData;
-    uint32_t count           = nrBytes;
 
-    if ((i2cREG1->STR & (uint32_t)I2C_BUSBUSY) == 0u) {
+    if ((pI2cInterface->STR & (uint32_t)I2C_BUSBUSY) == 0u) {
         /* Clear bits */
-        i2cREG1->MDR &= ~((uint32_t)I2C_STOP_COND);
-        i2cREG1->MDR &= ~((uint32_t)I2C_START_COND);
-        i2cREG1->MDR &= ~((uint32_t)I2C_REPEATMODE);
-        i2cREG1->STR |= (uint32_t)I2C_TX_INT;
-        i2cREG1->STR |= (uint32_t)I2C_RX_INT;
+        pI2cInterface->MDR &= ~((uint32_t)I2C_STOP_COND);
+        pI2cInterface->MDR &= ~((uint32_t)I2C_START_COND);
+        pI2cInterface->MDR &= ~((uint32_t)I2C_REPEATMODE);
+        pI2cInterface->STR |= (uint32_t)I2C_TX_INT;
+        pI2cInterface->STR |= (uint32_t)I2C_RX_INT;
 
-        i2cSetMode(i2cREG1, (uint32_t)I2C_MASTER);           /* Set as master */
-        i2cSetDirection(i2cREG1, (uint32_t)I2C_TRANSMITTER); /* Set as transmitter */
-        i2cSetSlaveAdd(i2cREG1, slaveAddress);               /* Set slave address */
-        i2cSetStop(i2cREG1);                                 /* Stop condition after sending nrBytes bytes */
-        i2cSetCount(i2cREG1, nrBytes + 1u);                  /* Send count bytes before STOP condition */
-        i2cSetStart(i2cREG1);                                /* Start write */
+        i2cSetMode(pI2cInterface, (uint32_t)I2C_MASTER);           /* Set as master */
+        i2cSetDirection(pI2cInterface, (uint32_t)I2C_TRANSMITTER); /* Set as transmitter */
+        i2cSetSlaveAdd(pI2cInterface, slaveAddress);               /* Set slave address */
+        i2cSetStop(pI2cInterface);                                 /* Stop condition after sending nrBytes bytes */
+        i2cSetCount(pI2cInterface, nrBytes);                       /* Send nrBytes bytes before STOP condition */
+        i2cSetStart(pI2cInterface);                                /* Start transmit */
 
-        /*  Send register address */
-        i2cREG1->DXR = (uint32_t)writeAddress;
-        /* Wait until Tx buffer was copied to shift buffer */
-        timeout = I2C_TIMEOUT_ITERATIONS;
-        while (((i2cREG1->STR & (uint32_t)I2C_TX_INT) == 0u) && (timeout > 0u)) {
-            if ((i2cREG1->STR & (uint32_t)I2C_NACK) != 0u) {
-                nack = true;
+        /* Send nrBytes bytes in polling mode */
+        for (uint16_t i = 0u; i < nrBytes; i++) {
+            pI2cInterface->DXR = (uint32_t)writeData[i];
+            bool success       = I2C_WaitTransmit(pI2cInterface, I2C_TIMEOUT_us);
+            if (((pI2cInterface->STR & (uint32_t)I2C_NACK_INT) == (uint32_t)I2C_NACK_INT) || (success == false)) {
+                pI2cInterface->MDR |= (uint32_t)I2C_REPEATMODE;
+                i2cSetStop(pI2cInterface);
+                retVal = STD_NOT_OK;
                 break;
             }
-            timeout--;
         }
 
-        if (timeout == 0u) {
-            i2cREG1->MDR |= (uint32_t)I2C_REPEATMODE; /* Set repeat flag */
-            i2cSetStop(i2cREG1);                      /* Set Stop condition */
-
-            timeout = I2C_TIMEOUT_ITERATIONS;
-            while ((i2cIsStopDetected(i2cREG1) == 0u) && (timeout > 0u)) {
-                timeout--;
-            }
+        bool success = I2C_WaitStop(pI2cInterface, I2C_TIMEOUT_us);
+        if (success == false) {
+            /* Set Stop condition */
+            pI2cInterface->MDR |= (uint32_t)I2C_REPEATMODE;
+            i2cSetStop(pI2cInterface);
             retVal = STD_NOT_OK;
-        } else {
-            /* If slave ACK received, send data */
-            if ((i2cREG1->STR & (uint32_t)I2C_NACK) == 0u) {
-                /* Send nrBytes bytes in polling mode */
-                while (count > 0u) {
-                    /* Wait until Tx buffer was copied to shift buffer */
-                    timeout = I2C_TIMEOUT_ITERATIONS;
-                    while (((i2cREG1->STR & (uint32_t)I2C_TX_INT) == 0u) && (timeout > 0u)) {
-                        if ((i2cREG1->STR & (uint32_t)I2C_NACK) != 0u) {
-                            nack = true;
-                            break;
-                        }
-                        timeout--;
-                    }
-                    if ((nack == true) || (timeout == 0u)) {
-                        break;
-                    }
-                    i2cREG1->DXR = (uint32_t)*data;
-                    data++;
-                    count--;
-                }
-                if ((nack == true) || (timeout == 0u)) {
-                    i2cREG1->MDR |= (uint32_t)I2C_REPEATMODE; /* Set repeat flag */
-                    i2cSetStop(i2cREG1);                      /* Set Stop condition */
-
-                    timeout = I2C_TIMEOUT_ITERATIONS;
-                    while ((i2cIsStopDetected(i2cREG1) == 0u) && (timeout > 0u)) {
-                        timeout--;
-                    }
-                    retVal = STD_NOT_OK;
-                } else {
-                    /* Wait until Stop is detected */
-                    timeout = I2C_TIMEOUT_ITERATIONS;
-                    while ((i2cIsStopDetected(i2cREG1) == 0u) && (timeout > 0u)) {
-                        timeout--;
-                    }
-                    if (timeout == 0u) {
-                        retVal = STD_NOT_OK;
-                    } else {
-                        i2cClearSCD(i2cREG1); /* Clear the Stop condition */
-                    }
-                }
-            } else {
-                I2C_SetStopNow();
-                retVal = STD_NOT_OK;
-            }
         }
     } else {
-        I2C_SetStopNow();
         retVal = STD_NOT_OK;
     }
 
     return retVal;
 }
 
-extern STD_RETURN_TYPE_e I2C_WriteDirect(uint32_t slaveAddress, uint32_t nrBytes, uint8_t *writeData) {
+extern STD_RETURN_TYPE_e I2C_WriteRead(
+    i2cBASE_t *pI2cInterface,
+    uint32_t slaveAddress,
+    uint32_t nrBytesWrite,
+    uint8_t *writeData,
+    uint32_t nrBytesRead,
+    uint8_t *readData) {
+    FAS_ASSERT(pI2cInterface != NULL_PTR);
     FAS_ASSERT(writeData != NULL_PTR);
-
+    FAS_ASSERT(nrBytesWrite > 0u);
+    FAS_ASSERT(readData != NULL_PTR);
+    FAS_ASSERT(nrBytesRead > 0u);
+    FAS_ASSERT(slaveAddress < 128u);
     STD_RETURN_TYPE_e retVal = STD_OK;
-    uint16_t timeout         = I2C_TIMEOUT_ITERATIONS;
-    bool nack                = false;
-    uint8_t *data            = writeData;
-    uint32_t count           = nrBytes;
 
-    if ((i2cREG1->STR & (uint32_t)I2C_BUSBUSY) == 0u) {
+    if ((pI2cInterface->STR & (uint32_t)I2C_BUSBUSY) == 0u) {
         /* Clear bits */
-        i2cREG1->MDR &= ~((uint32_t)I2C_STOP_COND);
-        i2cREG1->MDR &= ~((uint32_t)I2C_START_COND);
-        i2cREG1->MDR &= ~((uint32_t)I2C_REPEATMODE);
-        i2cREG1->STR |= (uint32_t)I2C_TX_INT;
-        i2cREG1->STR |= (uint32_t)I2C_RX_INT;
+        pI2cInterface->MDR &= ~((uint32_t)I2C_STOP_COND);
+        pI2cInterface->MDR &= ~((uint32_t)I2C_START_COND);
+        pI2cInterface->MDR &= ~((uint32_t)I2C_REPEATMODE);
+        pI2cInterface->STR |= (uint32_t)I2C_TX_INT;
+        pI2cInterface->STR |= (uint32_t)I2C_RX_INT;
 
-        i2cSetMode(i2cREG1, (uint32_t)I2C_MASTER);           /* Set as master */
-        i2cSetDirection(i2cREG1, (uint32_t)I2C_TRANSMITTER); /* Set as transmitter */
-        i2cSetSlaveAdd(i2cREG1, slaveAddress);               /* Set slave address */
-        i2cSetStop(i2cREG1);                                 /* Stop condition after sending nrBytes bytes */
-        i2cSetCount(i2cREG1, nrBytes);                       /* Send count bytes before STOP condition */
-        i2cSetStart(i2cREG1);                                /* Start write */
+        i2cSetMode(pI2cInterface, (uint32_t)I2C_MASTER);           /* Set as master */
+        i2cSetDirection(pI2cInterface, (uint32_t)I2C_TRANSMITTER); /* Set as transmitter */
+        i2cSetSlaveAdd(pI2cInterface, slaveAddress);               /* Set slave address */
+        i2cSetStart(pI2cInterface);                                /* Start transmit */
 
-        /* If slave ACK received, send data */
-        if ((i2cREG1->STR & (uint32_t)I2C_NACK) == 0u) {
-            /* Send nrBytes bytes in polling mode */
-            while (count > 0u) {
-                /* Wait until Tx buffer was copied to shift buffer */
-                timeout = I2C_TIMEOUT_ITERATIONS;
-                while (((i2cREG1->STR & (uint32_t)I2C_TX_INT) == 0u) && (timeout > 0u)) {
-                    if ((i2cREG1->STR & (uint32_t)I2C_NACK) != 0u) {
-                        nack = true;
-                        break;
-                    }
-                    timeout--;
-                }
-                if ((nack == true) || (timeout == 0u)) {
+        bool success = true;
+
+        /* Send nrBytesWrite bytes in polling mode */
+        for (uint16_t i = 0u; i < nrBytesWrite; i++) {
+            pI2cInterface->DXR = (uint32_t)writeData[i];
+            success            = I2C_WaitTransmit(pI2cInterface, I2C_TIMEOUT_us);
+            if (((pI2cInterface->STR & (uint32_t)I2C_NACK_INT) == (uint32_t)I2C_NACK_INT) || (success == false)) {
+                pI2cInterface->MDR |= (uint32_t)I2C_REPEATMODE;
+                i2cSetStop(pI2cInterface);
+                retVal = STD_NOT_OK;
+                break;
+            }
+        }
+
+        if (!(((pI2cInterface->STR & (uint32_t)I2C_NACK_INT) == (uint32_t)I2C_NACK_INT) || (success == false))) {
+            pI2cInterface->MDR |= (uint32_t)I2C_REPEATMODE;
+            i2cSetMode(pI2cInterface, (uint32_t)I2C_MASTER);        /* Set as master */
+            i2cSetDirection(pI2cInterface, (uint32_t)I2C_RECEIVER); /* Set as receiver */
+            i2cSetStart(pI2cInterface);                             /* Start receive */
+            if (nrBytesRead == 1u) {
+                i2cSetStop(pI2cInterface); /* generate a STOP condition */
+            }
+            /* Receive nrBytes bytes in polling mode */
+            for (uint16_t i = 0u; i < nrBytesRead; i++) {
+                success = I2C_WaitReceive(pI2cInterface, I2C_TIMEOUT_us);
+                if (((pI2cInterface->STR & (uint32_t)I2C_NACK_INT) == (uint32_t)I2C_NACK_INT) || (success == false)) {
+                    pI2cInterface->MDR |= (uint32_t)I2C_REPEATMODE;
+                    i2cSetStop(pI2cInterface);
+                    retVal = STD_NOT_OK;
                     break;
                 }
-                i2cREG1->DXR = (uint32_t)*data;
-                data++;
-                count--;
+                readData[i] = (uint8)(pI2cInterface->DRR & I2C_DDR_REGISTER_DATA_MASK);
+                if (i == (nrBytesRead - 2u)) {
+                    i2cSetStop(pI2cInterface); /* generate a STOP condition */
+                }
             }
-            if ((nack == true) || (timeout == 0u)) {
-                i2cREG1->MDR |= (uint32_t)I2C_REPEATMODE; /* Set repeat flag */
-                i2cSetStop(i2cREG1);                      /* Set Stop condition */
+        }
 
-                timeout = I2C_TIMEOUT_ITERATIONS;
-                while ((i2cIsStopDetected(i2cREG1) == 0u) && (timeout > 0u)) {
-                    timeout--;
-                }
-                retVal = STD_NOT_OK;
-            } else {
-                /* Wait until Stop is detected */
-                timeout = I2C_TIMEOUT_ITERATIONS;
-                while ((i2cIsStopDetected(i2cREG1) == 0u) && (timeout > 0u)) {
-                    timeout--;
-                }
-                if (timeout == 0u) {
-                    retVal = STD_NOT_OK;
-                } else {
-                    i2cClearSCD(i2cREG1); /* Clear the Stop condition */
-                }
-            }
-        } else {
-            I2C_SetStopNow();
+        success = I2C_WaitStop(pI2cInterface, I2C_TIMEOUT_us);
+        if (success == false) {
+            /* Set Stop condition */
+            pI2cInterface->MDR |= (uint32_t)I2C_REPEATMODE;
+            i2cSetStop(pI2cInterface);
             retVal = STD_NOT_OK;
         }
     } else {
-        I2C_SetStopNow();
         retVal = STD_NOT_OK;
     }
 
     return retVal;
 }
 
-extern STD_RETURN_TYPE_e I2C_ReadDma(uint32_t slaveAddress, uint8_t readAddress, uint32_t nrBytes, uint8_t *readData) {
+extern STD_RETURN_TYPE_e I2C_ReadDma(
+    i2cBASE_t *pI2cInterface,
+    uint32_t slaveAddress,
+    uint32_t nrBytes,
+    uint8_t *readData) {
+    FAS_ASSERT(pI2cInterface != NULL_PTR);
     FAS_ASSERT(readData != NULL_PTR);
-
+    FAS_ASSERT(nrBytes > 1u);
+    FAS_ASSERT(slaveAddress < 128u);
     STD_RETURN_TYPE_e retVal = STD_OK;
-    uint16_t timeout         = I2C_TIMEOUT_ITERATIONS;
 
-    if ((i2cREG1->STR & (uint32_t)I2C_BUSBUSY) == 0u) {
+    I2C_ClearNotifications();
+
+    if ((pI2cInterface->STR & (uint32_t)I2C_BUSBUSY) == 0u) {
+        /* Clear bits */
+        pI2cInterface->MDR &= ~((uint32_t)I2C_STOP_COND);
+        pI2cInterface->MDR &= ~((uint32_t)I2C_START_COND);
+        pI2cInterface->MDR &= ~((uint32_t)I2C_REPEATMODE);
+        pI2cInterface->STR |= (uint32_t)I2C_TX_INT;
+        pI2cInterface->STR |= (uint32_t)I2C_RX_INT;
+
+        /* DMA config */
+        dmaChannel_t channelRx = DMA_CH0;
+        if (pI2cInterface == i2cREG1) {
+            channelRx = DMA_CHANNEL_I2C1_RX;
+        } else if (pI2cInterface == i2cREG2) {
+            channelRx = DMA_CHANNEL_I2C2_RX;
+        } else {
+            /* invalid I2C interface */
+            FAS_ASSERT(FAS_TRAP);
+        }
+
         OS_EnterTaskCritical();
 
         /* Go to privileged mode to write DMA config registers */
@@ -445,51 +451,54 @@ extern STD_RETURN_TYPE_e I2C_ReadDma(uint32_t slaveAddress, uint8_t readAddress,
         FAS_ASSERT(raisePrivilegeResult == 0);
 
         /* Set Tx buffer address */
-        /* AXIVION Next Codeline Style MisraC2012-1.1: Cast necessary for DMA configuration */
-        dmaRAMREG->PCP[(dmaChannel_t)DMA_CHANNEL_I2C_RX].IDADDR = (uint32_t)readData;
-        /* Set number of Tx bytes to transmit */
-        dmaRAMREG->PCP[(dmaChannel_t)DMA_CHANNEL_I2C_RX].ITCOUNT = (nrBytes << 16U) | 1U;
+        /* AXIVION Disable Style MisraC2012-1.1: Cast necessary for DMA configuration */
+        dmaRAMREG->PCP[(dmaChannel_t)channelRx].IDADDR = (uint32_t)readData;
+        /* AXIVION Enable Style MisraC2012-1.1: */
+        /* Set number of Rx bytes to receive, (nrBytes-1) over DMA */
+        dmaRAMREG->PCP[(dmaChannel_t)channelRx].ITCOUNT = ((nrBytes - 1u) << DMA_INITIAL_FRAME_COUNTER_POSITION) | 1u;
 
-        dmaSetChEnable((dmaChannel_t)DMA_CHANNEL_I2C_RX, (dmaTriggerType_t)DMA_HW);
+        dmaSetChEnable((dmaChannel_t)channelRx, (dmaTriggerType_t)DMA_HW);
 
-        FSYS_SWITCH_TO_USER_MODE(); /* DMA config registers written, leave privileged mode */
+        FSYS_SwitchToUserMode(); /* DMA config registers written, leave privileged mode */
         OS_ExitTaskCritical();
+        /* End DMA config */
 
-        i2cREG1->DMACR |= (uint32_t)I2C_RXDMAEN; /* Activate I2C DMA RX */
+        pI2cInterface->DMACR |= (uint32_t)I2C_RXDMAEN; /* Activate I2C DMA RX */
 
-        i2cSetMode(i2cREG1, (uint32_t)I2C_MASTER);           /* Set to master */
-        i2cSetDirection(i2cREG1, (uint32_t)I2C_TRANSMITTER); /* Set as transmitter */
-        i2cSetSlaveAdd(i2cREG1, slaveAddress);               /* Set slave address */
-        i2cSetCount(i2cREG1, 1u);                            /* Write one byte to select register address */
-        i2cSetStart(i2cREG1);                                /* Start write */
-        i2cSendByte(i2cREG1, readAddress);                   /* Transmit register address */
+        pI2cInterface->MDR &= ~((uint32_t)I2C_STOP_COND);
+        pI2cInterface->MDR &= ~((uint32_t)I2C_START_COND);
+        pI2cInterface->MDR |= (uint32_t)I2C_REPEATMODE;
 
-        /* Wait until Tx buffer was copied to shift buffer */
-        while ((i2cREG1->STR & (uint32_t)I2C_TX_INT) == 0u) {
-            if ((i2cREG1->STR & (uint32_t)I2C_NACK) != 0u) {
-                break;
-            }
-        }
+        i2cSetMode(pI2cInterface, (uint32_t)I2C_MASTER);        /* Set as master */
+        i2cSetDirection(pI2cInterface, (uint32_t)I2C_RECEIVER); /* Set as transmitter */
+        i2cSetSlaveAdd(pI2cInterface, slaveAddress);            /* Set slave address */
+        i2cSetStart(pI2cInterface);                             /* Start receive */
 
-        if ((i2cREG1->STR & (uint32_t)I2C_NACK) == 0u) {
-            i2cSetDirection(i2cREG1, (uint32_t)I2C_RECEIVER); /* Set as receiver */
-            i2cSetCount(i2cREG1, nrBytes);                    /* Receive nrBytes before STOP condition */
-            i2cSetMode(i2cREG1, (uint32_t)I2C_MASTER);        /* Set as master */
-            i2cSetStop(i2cREG1);                              /* Stop condition after receiving nrBytes bytes */
-            i2cSetStart(i2cREG1); /* Set start while bus busy for REPEATED START condition */
-        } else {
-            i2cREG1->STR |= (uint32_t)I2C_NACK;   /* Clear NACK flag */
-            i2cREG1->STR |= (uint32_t)I2C_TX_INT; /* Set Tx ready flag */
-            i2cSetStop(i2cREG1);                  /* Set Stop condition */
-
-            /* Wait until Stop is detected */
-            timeout = I2C_TIMEOUT_ITERATIONS;
-            while ((i2cIsStopDetected(i2cREG1) == 0u) && (timeout > 0u)) {
-                timeout--;
-            }
-
-            i2cClearSCD(i2cREG1); /* Clear the Stop condition */
+        uint32_t notificationRx = I2C_WaitForRxCompletedNotification();
+        if (notificationRx != I2C_RX_NOTIFIED_VALUE) {
+            /* Rx not happened, deactivate DMA */
+            pI2cInterface->DMACR &= ~((uint32_t)I2C_RXDMAEN);
+            /* Set Stop condition */
+            pI2cInterface->MDR |= (uint32_t)I2C_REPEATMODE;
+            i2cSetStop(pI2cInterface);
             retVal = STD_NOT_OK;
+        } else {
+            /* Rx happened */
+            if (pI2cInterface == i2cREG1) {
+                readData[nrBytes - 1u] = i2c_rxLastByteInterface1;
+            } else if (pI2cInterface == i2cREG2) {
+                readData[nrBytes - 1u] = i2c_rxLastByteInterface2;
+            } else {
+                /* invalid I2C interface */
+                FAS_ASSERT(FAS_TRAP);
+            }
+            bool success = I2C_WaitStop(pI2cInterface, I2C_TIMEOUT_us);
+            if (success == false) {
+                /* Set Stop condition */
+                pI2cInterface->MDR |= (uint32_t)I2C_REPEATMODE;
+                i2cSetStop(pI2cInterface);
+                retVal = STD_NOT_OK;
+            }
         }
     } else {
         retVal = STD_NOT_OK;
@@ -499,16 +508,36 @@ extern STD_RETURN_TYPE_e I2C_ReadDma(uint32_t slaveAddress, uint8_t readAddress,
 }
 
 extern STD_RETURN_TYPE_e I2C_WriteDma(
+    i2cBASE_t *pI2cInterface,
     uint32_t slaveAddress,
-    uint8_t writeAddress,
     uint32_t nrBytes,
     uint8_t *writeData) {
+    FAS_ASSERT(pI2cInterface != NULL_PTR);
     FAS_ASSERT(writeData != NULL_PTR);
-
+    FAS_ASSERT(nrBytes > 0u);
+    FAS_ASSERT(slaveAddress < 128u);
     STD_RETURN_TYPE_e retVal = STD_OK;
-    uint16_t timeout         = I2C_TIMEOUT_ITERATIONS;
 
-    if ((i2cREG1->STR & (uint32_t)I2C_BUSBUSY) == 0u) {
+    I2C_ClearNotifications();
+
+    if ((pI2cInterface->STR & (uint32_t)I2C_BUSBUSY) == 0u) {
+        pI2cInterface->MDR &= ~((uint32_t)I2C_STOP_COND);
+        pI2cInterface->MDR &= ~((uint32_t)I2C_START_COND);
+        pI2cInterface->MDR &= ~((uint32_t)I2C_REPEATMODE);
+        pI2cInterface->STR |= (uint32_t)I2C_TX_INT;
+        pI2cInterface->STR |= (uint32_t)I2C_RX_INT;
+
+        /* DMA config */
+        dmaChannel_t channelTx = DMA_CH0;
+        if (pI2cInterface == i2cREG1) {
+            channelTx = DMA_CHANNEL_I2C1_TX;
+        } else if (pI2cInterface == i2cREG2) {
+            channelTx = DMA_CHANNEL_I2C2_TX;
+        } else {
+            /* invalid I2C interface */
+            FAS_ASSERT(FAS_TRAP);
+        }
+
         OS_EnterTaskCritical();
 
         /* Go to privileged mode to write DMA config registers */
@@ -516,46 +545,49 @@ extern STD_RETURN_TYPE_e I2C_WriteDma(
         FAS_ASSERT(raisePrivilegeResult == 0);
 
         /* Set Tx buffer address */
-        /* AXIVION Next Codeline Style MisraC2012-1.1: Cast necessary for DMA configuration */
-        dmaRAMREG->PCP[(dmaChannel_t)DMA_CHANNEL_I2C_TX].ISADDR = (uint32_t)writeData;
-
+        /* AXIVION Disable Style MisraC2012-1.1: Cast necessary for DMA configuration */
+        dmaRAMREG->PCP[(dmaChannel_t)channelTx].ISADDR = (uint32_t)writeData;
+        /* AXIVION Enable Style MisraC2012-1.1: */
         /* Set number of Tx bytes to transmit */
-        dmaRAMREG->PCP[(dmaChannel_t)DMA_CHANNEL_I2C_TX].ITCOUNT = (nrBytes << 16U) | 1U;
+        dmaRAMREG->PCP[(dmaChannel_t)channelTx].ITCOUNT = (nrBytes << DMA_INITIAL_FRAME_COUNTER_POSITION) | 1u;
 
-        dmaSetChEnable((dmaChannel_t)DMA_CHANNEL_I2C_TX, (dmaTriggerType_t)DMA_HW);
+        dmaSetChEnable((dmaChannel_t)channelTx, (dmaTriggerType_t)DMA_HW);
 
-        FSYS_SWITCH_TO_USER_MODE(); /* DMA config registers written, leave privileged mode */
+        FSYS_SwitchToUserMode(); /* DMA config registers written, leave privileged mode */
         OS_ExitTaskCritical();
+        /* end DMA config */
 
-        i2cSetMode(i2cREG1, (uint32_t)I2C_MASTER);           /* Set as master */
-        i2cSetDirection(i2cREG1, (uint32_t)I2C_TRANSMITTER); /* Set as transmitter */
-        i2cSetSlaveAdd(i2cREG1, slaveAddress);               /* Set slave address */
-        i2cSetStop(i2cREG1);                                 /* Stop condition after sending nrBytes bytes */
-        i2cSetCount(i2cREG1, nrBytes + 1u);      /* Send (nrBytes+1) before STOP condition (includes register address)*/
-        i2cSendByte(i2cREG1, writeAddress);      /*  Send register address */
-        i2cREG1->DMACR |= (uint32_t)I2C_TXDMAEN; /* Activate I2C DMA TX */
-        i2cSetStart(i2cREG1);                    /* Start write */
+        /* Clear bits */
+        pI2cInterface->MDR &= ~((uint32_t)I2C_STOP_COND);
+        pI2cInterface->MDR &= ~((uint32_t)I2C_START_COND);
+        pI2cInterface->MDR &= ~((uint32_t)I2C_REPEATMODE);
+        pI2cInterface->STR |= (uint32_t)I2C_TX_INT;
+        pI2cInterface->STR |= (uint32_t)I2C_RX_INT;
 
-        /* Wait until Tx buffer was copied to shift buffer */
-        while ((i2cREG1->STR & (uint32_t)I2C_TX_INT) == 0u) {
-            if ((i2cREG1->STR & (uint32_t)I2C_NACK) != 0u) {
-                break;
-            }
-        }
+        i2cSetMode(pI2cInterface, (uint32_t)I2C_MASTER);           /* Set as master */
+        i2cSetDirection(pI2cInterface, (uint32_t)I2C_TRANSMITTER); /* Set as transmitter */
+        i2cSetSlaveAdd(pI2cInterface, slaveAddress);               /* Set slave address */
+        i2cSetStop(pI2cInterface);                                 /* Stop condition after sending nrBytes bytes */
+        i2cSetCount(pI2cInterface, nrBytes);                       /* Send nrBytes bytes before STOP condition */
+        pI2cInterface->DMACR |= (uint32_t)I2C_TXDMAEN;             /* Activate I2C DMA TX */
+        i2cSetStart(pI2cInterface);                                /* Start transmit */
 
-        if ((i2cREG1->STR & (uint32_t)I2C_NACK) != 0u) {
-            i2cREG1->STR |= (uint32_t)I2C_NACK;   /* Clear NACK flag */
-            i2cREG1->STR |= (uint32_t)I2C_TX_INT; /* Set Tx ready flag */
-            i2cSetStop(i2cREG1);                  /* Set Stop condition */
-            timeout = I2C_TIMEOUT_ITERATIONS;     /* Wait until Stop is detected */
-
-            while ((i2cIsStopDetected(i2cREG1) == 0u) && (timeout > 0u)) {
-                timeout--;
-            }
-
-            i2cClearSCD(i2cREG1); /* Clear the Stop condition */
-            i2cREG1->STR &= ~(uint32_t)I2C_REPEATMODE;
+        uint32_t notificationTx = I2C_WaitForTxCompletedNotification();
+        if (notificationTx != I2C_TX_NOTIFIED_VALUE) {
+            /* Tx not happened, deactivate DMA */
+            pI2cInterface->DMACR &= ~((uint32_t)I2C_TXDMAEN);
+            /* Set Stop condition */
+            pI2cInterface->MDR |= (uint32_t)I2C_REPEATMODE;
+            i2cSetStop(pI2cInterface);
             retVal = STD_NOT_OK;
+        } else {
+            bool success = I2C_WaitStop(pI2cInterface, I2C_TIMEOUT_us);
+            if (success == false) {
+                /* Set Stop condition */
+                pI2cInterface->MDR |= (uint32_t)I2C_REPEATMODE;
+                i2cSetStop(pI2cInterface);
+                retVal = STD_NOT_OK;
+            }
         }
     } else {
         retVal = STD_NOT_OK;
@@ -564,29 +596,196 @@ extern STD_RETURN_TYPE_e I2C_WriteDma(
     return retVal;
 }
 
-extern void I2C_SetStopNow(void) {
-    /* Clear bits */
-    i2cREG1->MDR &= ~((uint32_t)I2C_STOP_COND);
-    i2cREG1->MDR &= ~((uint32_t)I2C_START_COND);
-    i2cREG1->MDR &= ~((uint32_t)I2C_REPEATMODE);
-    i2cREG1->STR |= (uint32_t)I2C_TX_INT;
-    i2cREG1->STR |= (uint32_t)I2C_RX_INT;
+extern STD_RETURN_TYPE_e I2C_WriteReadDma(
+    i2cBASE_t *pI2cInterface,
+    uint32_t slaveAddress,
+    uint32_t nrBytesWrite,
+    uint8_t *writeData,
+    uint32_t nrBytesRead,
+    uint8_t *readData) {
+    FAS_ASSERT(pI2cInterface != NULL_PTR);
+    FAS_ASSERT(writeData != NULL_PTR);
+    FAS_ASSERT(nrBytesWrite > 0u);
+    FAS_ASSERT(readData != NULL_PTR);
+    FAS_ASSERT(nrBytesRead > 1u);
+    FAS_ASSERT(slaveAddress < 128u);
+    STD_RETURN_TYPE_e retVal = STD_OK;
+    dmaChannel_t channelRx   = DMA_CH0;
+    dmaChannel_t channelTx   = DMA_CH0;
 
-    i2cREG1->MDR |= (uint32_t)I2C_REPEATMODE;            /* Set repeat flag */
-    i2cSetMode(i2cREG1, (uint32_t)I2C_MASTER);           /* Set as master */
-    i2cSetDirection(i2cREG1, (uint32_t)I2C_TRANSMITTER); /* Set as transmitter */
-    i2cSetStop(i2cREG1);                                 /* Set Stop condition */
+    I2C_ClearNotifications();
 
-    while (i2cIsStopDetected(i2cREG1) == 0u) {
+    if ((pI2cInterface->STR & (uint32_t)I2C_BUSBUSY) == 0u) {
+        /* Firt write bytes */
+
+        /* Clear bits */
+        pI2cInterface->MDR &= ~((uint32_t)I2C_STOP_COND);
+        pI2cInterface->MDR &= ~((uint32_t)I2C_START_COND);
+        pI2cInterface->MDR &= ~((uint32_t)I2C_REPEATMODE);
+        pI2cInterface->STR |= (uint32_t)I2C_TX_INT;
+        pI2cInterface->STR |= (uint32_t)I2C_RX_INT;
+
+        /* DMA config */
+        if (pI2cInterface == i2cREG1) {
+            channelTx = DMA_CHANNEL_I2C1_TX;
+        } else if (pI2cInterface == i2cREG2) {
+            channelTx = DMA_CHANNEL_I2C2_TX;
+        } else {
+            /* invalid I2C interface */
+            FAS_ASSERT(FAS_TRAP);
+        }
+
+        OS_EnterTaskCritical();
+
+        /* Go to privileged mode to write DMA config registers */
+        const int32_t raisePrivilegeResultWrite = FSYS_RaisePrivilege();
+        FAS_ASSERT(raisePrivilegeResultWrite == 0);
+
+        /* Set Tx buffer address */
+        /* AXIVION Disable Style MisraC2012-1.1: Cast necessary for DMA configuration */
+        dmaRAMREG->PCP[(dmaChannel_t)channelTx].ISADDR = (uint32_t)writeData;
+        /* AXIVION Enable Style MisraC2012-1.1: */
+        /* Set number of Tx bytes to transmit */
+        dmaRAMREG->PCP[(dmaChannel_t)channelTx].ITCOUNT = (nrBytesWrite << DMA_INITIAL_FRAME_COUNTER_POSITION) | 1u;
+
+        dmaSetChEnable((dmaChannel_t)channelTx, (dmaTriggerType_t)DMA_HW);
+
+        FSYS_SwitchToUserMode(); /* DMA config registers written, leave privileged mode */
+        OS_ExitTaskCritical();
+        /* end DMA config */
+
+        /* Clear bits */
+        pI2cInterface->MDR &= ~((uint32_t)I2C_STOP_COND);
+        pI2cInterface->MDR &= ~((uint32_t)I2C_START_COND);
+        pI2cInterface->MDR |= (uint32_t)I2C_REPEATMODE;
+        pI2cInterface->STR |= (uint32_t)I2C_TX_INT;
+        pI2cInterface->STR |= (uint32_t)I2C_RX_INT;
+
+        i2cSetMode(pI2cInterface, (uint32_t)I2C_MASTER);           /* Set as master */
+        i2cSetDirection(pI2cInterface, (uint32_t)I2C_TRANSMITTER); /* Set as transmitter */
+        i2cSetSlaveAdd(pI2cInterface, slaveAddress);               /* Set slave address */
+        pI2cInterface->DMACR |= (uint32_t)I2C_TXDMAEN;             /* Activate I2C DMA TX */
+        i2cSetStart(pI2cInterface);                                /* Start transmit */
+
+        uint32_t notificationTx = I2C_WaitForTxCompletedNotification();
+        if (notificationTx != I2C_TX_NOTIFIED_VALUE) {
+            /* Tx not happened, deactivate DMA */
+            pI2cInterface->DMACR &= ~((uint32_t)I2C_TXDMAEN);
+            /* Set Stop condition */
+            pI2cInterface->MDR |= (uint32_t)I2C_REPEATMODE;
+            i2cSetStop(pI2cInterface);
+            retVal = STD_NOT_OK;
+        } else {
+            /* Write successful, now read */
+
+            /* DMA config */
+            if (pI2cInterface == i2cREG1) {
+                channelRx = DMA_CHANNEL_I2C1_RX;
+            } else if (pI2cInterface == i2cREG2) {
+                channelRx = DMA_CHANNEL_I2C2_RX;
+            } else {
+                /* invalid I2C interface */
+                FAS_ASSERT(FAS_TRAP);
+            }
+
+            OS_EnterTaskCritical();
+
+            /* Go to privileged mode to write DMA config registers */
+            const int32_t raisePrivilegeResultRead = FSYS_RaisePrivilege();
+            FAS_ASSERT(raisePrivilegeResultRead == 0);
+
+            /* Set Rx buffer address */
+            /* AXIVION Disable Style MisraC2012-1.1: Cast necessary for DMA configuration */
+            dmaRAMREG->PCP[(dmaChannel_t)channelRx].IDADDR = (uint32_t)readData;
+            /* AXIVION Enable Style MisraC2012-1.1: */
+            /* Set number of Rx bytes to receive */
+            dmaRAMREG->PCP[(dmaChannel_t)channelRx].ITCOUNT =
+                ((nrBytesRead - 1u) << DMA_INITIAL_FRAME_COUNTER_POSITION) | 1u;
+
+            dmaSetChEnable((dmaChannel_t)channelRx, (dmaTriggerType_t)DMA_HW);
+
+            FSYS_SwitchToUserMode(); /* DMA config registers written, leave privileged mode */
+            OS_ExitTaskCritical();
+            /* end DMA config */
+
+            /* As we cannot wait on stop condition to be sure that all bytes have been sent on the bus,
+               wait until transmission is finished */
+            uint32_t wordTransmitTime_us = I2C_GetWordTransmitTime(pI2cInterface) + I2C_TX_TIME_MARGIN_us;
+
+            MCU_Delay_us(wordTransmitTime_us);
+
+            /* Clear bits */
+            pI2cInterface->MDR &= ~((uint32_t)I2C_STOP_COND);
+            pI2cInterface->MDR &= ~((uint32_t)I2C_START_COND);
+            pI2cInterface->MDR &= ~((uint32_t)I2C_REPEATMODE);
+            pI2cInterface->STR |= (uint32_t)I2C_TX_INT;
+            pI2cInterface->STR |= (uint32_t)I2C_RX_INT;
+
+            pI2cInterface->DMACR |= (uint32_t)I2C_RXDMAEN; /* Activate I2C DMA RX */
+
+            pI2cInterface->MDR |= (uint32_t)I2C_REPEATMODE;
+            i2cSetMode(pI2cInterface, (uint32_t)I2C_MASTER);        /* Set as master */
+            i2cSetDirection(pI2cInterface, (uint32_t)I2C_RECEIVER); /* Set as transmitter */
+            i2cSetStart(pI2cInterface);                             /* Start receive */
+                                                                    /* Receive nrBytes bytes with DMA */
+
+            uint32_t notificationRx = I2C_WaitForRxCompletedNotification();
+            if (notificationRx != I2C_RX_NOTIFIED_VALUE) {
+                /* Rx not happened, deactivate DMA */
+                pI2cInterface->DMACR &= ~((uint32_t)I2C_RXDMAEN);
+                /* Set Stop condition */
+                pI2cInterface->MDR |= (uint32_t)I2C_REPEATMODE;
+                i2cSetStop(pI2cInterface);
+                retVal = STD_NOT_OK;
+            } else {
+                /* Rx happened */
+                if (pI2cInterface == i2cREG1) {
+                    readData[nrBytesRead - 1u] = i2c_rxLastByteInterface1;
+                } else if (pI2cInterface == i2cREG2) {
+                    readData[nrBytesRead - 1u] = i2c_rxLastByteInterface2;
+                } else {
+                    /* invalid I2C interface */
+                    FAS_ASSERT(FAS_TRAP);
+                }
+                bool success = I2C_WaitStop(pI2cInterface, I2C_TIMEOUT_us);
+                if (success == false) {
+                    /* Set Stop condition */
+                    pI2cInterface->MDR |= (uint32_t)I2C_REPEATMODE;
+                    i2cSetStop(pI2cInterface);
+                    retVal = STD_NOT_OK;
+                }
+            }
+        }
+    } else {
+        retVal = STD_NOT_OK;
     }
 
-    i2cREG1->MDR &= ~(uint32_t)I2C_REPEATMODE; /* Reset repeat flag */
-    i2cClearSCD(i2cREG1);                      /* Clear the Stop condition */
+    return retVal;
 }
 
-/*========== Getter for static Variables (Unit Test) ========================*/
-#ifdef UNITY_UNIT_TEST
+extern uint8_t I2C_ReadLastRxByte(i2cBASE_t *pI2cInterface) {
+    FAS_ASSERT(pI2cInterface != NULL_PTR);
+    uint8_t lastReadByte = (uint8)(pI2cInterface->DRR & I2C_DDR_REGISTER_DATA_MASK);
+    return lastReadByte;
+}
 
-#endif
+extern bool I2C_WaitReceive(i2cBASE_t *pI2cInterface, uint32_t timeout_us) {
+    FAS_ASSERT(pI2cInterface != NULL_PTR);
+    bool success          = true;
+    bool timeElapsed      = false;
+    uint32_t startCounter = MCU_GetFreeRunningCount();
+
+    while (((pI2cInterface->STR & (uint32_t)I2C_RX_INT) == 0u) && (timeElapsed == false)) {
+        timeElapsed = MCU_IsTimeElapsed(startCounter, timeout_us);
+    }
+
+    if (timeElapsed == true) {
+        success = false;
+    }
+
+    return success;
+}
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
+#ifdef UNITY_UNIT_TEST
+#endif

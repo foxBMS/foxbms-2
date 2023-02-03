@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    diag_cbs_sys-mon.c
  * @author  foxBMS Team
  * @date    2021-02-17 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup ENGINE
  * @prefix  DIAG
  *
@@ -56,6 +56,9 @@
 #include "sys_mon_cfg.h"
 
 #include "diag_cbs.h"
+#include "fstd_types.h"
+
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 
@@ -93,18 +96,20 @@ extern void DIAG_ErrorSystemMonitoring(
     FAS_ASSERT(data < (uint32_t)SYSM_TASK_ID_MAX);
 
     if (data == (uint32_t)SYSM_TASK_ID_ENGINE) {
-        kpkDiagShim->pTableError->timingViolationEngine = DIAG_EventToBool(event);
+        kpkDiagShim->pTableError->taskEngineTimingViolationError = DIAG_EventToBool(event);
     } else if (data == (uint32_t)SYSM_TASK_ID_CYCLIC_1ms) {
-        kpkDiagShim->pTableError->timingViolation1ms = DIAG_EventToBool(event);
+        kpkDiagShim->pTableError->task1msTimingViolationError = DIAG_EventToBool(event);
     } else if (data == (uint32_t)SYSM_TASK_ID_CYCLIC_10ms) {
-        kpkDiagShim->pTableError->timingViolation10ms = DIAG_EventToBool(event);
+        kpkDiagShim->pTableError->task10msTimingViolationError = DIAG_EventToBool(event);
     } else if (data == (uint32_t)SYSM_TASK_ID_CYCLIC_100ms) {
-        kpkDiagShim->pTableError->timingViolation100ms = DIAG_EventToBool(event);
+        kpkDiagShim->pTableError->task100msTimingViolationError = DIAG_EventToBool(event);
     } else if (data == (uint32_t)SYSM_TASK_ID_CYCLIC_ALGORITHM_100ms) {
-        kpkDiagShim->pTableError->timingViolation100msAlgo = DIAG_EventToBool(event);
+        kpkDiagShim->pTableError->task100msAlgoTimingViolationError = DIAG_EventToBool(event);
     } else {
         FAS_ASSERT(FAS_TRAP);
     }
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
+#ifdef UNITY_UNIT_TEST
+#endif

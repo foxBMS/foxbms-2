@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    diag_cbs_sbc.c
  * @author  foxBMS Team
  * @date    2021-02-17 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup ENGINE
  * @prefix  DIAG
  *
@@ -54,6 +54,9 @@
 
 /*========== Includes =======================================================*/
 #include "diag_cbs.h"
+#include "fstd_types.h"
+
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 
@@ -77,19 +80,21 @@ extern void DIAG_Sbc(
 
     if (diagId == DIAG_ID_SBC_FIN_STATE) {
         if (event == DIAG_EVENT_RESET) {
-            kpkDiagShim->pTableError->sbcFinState = 0u;
+            kpkDiagShim->pTableError->mcuSbcFinError = false;
         }
         if (event == DIAG_EVENT_NOT_OK) {
-            kpkDiagShim->pTableError->sbcFinState = 1u;
+            kpkDiagShim->pTableError->mcuSbcFinError = true;
         }
     } else if (diagId == DIAG_ID_SBC_RSTB_STATE) {
         if (event == DIAG_EVENT_RESET) {
-            kpkDiagShim->pTableError->sbcRstbState = 0u;
+            kpkDiagShim->pTableError->mcuSbcRstbError = false;
         }
         if (event == DIAG_EVENT_NOT_OK) {
-            kpkDiagShim->pTableError->sbcRstbState = 1u;
+            kpkDiagShim->pTableError->mcuSbcRstbError = true;
         }
     }
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
+#ifdef UNITY_UNIT_TEST
+#endif

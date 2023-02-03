@@ -1,4 +1,4 @@
-@REM Copyright (c) 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+@REM Copyright (c) 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 @REM All rights reserved.
 @REM
 @REM SPDX-License-Identifier: BSD-3-Clause
@@ -52,7 +52,7 @@
 )
 
 @REM miniconda installation directories
-@IF not "%USERPROFILE%"=="%USERPROFILE: =%" @(
+@IF NOT "%USERPROFILE%"=="%USERPROFILE: =%" @(
     @SET MINICONDA_DIRECTORIES=%SystemDrive%\miniconda3\ %ProgramData%\miniconda3\
 ) ELSE @(
     @SET MINICONDA_DIRECTORIES=%USERPROFILE%\miniconda3\ %LOCALAPPDATA%\Continuum\miniconda3\ %SystemDrive%\miniconda3\ %ProgramData%\miniconda3\

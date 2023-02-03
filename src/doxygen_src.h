@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    doxygen_src.h
  * @author  foxBMS Team
  * @date    2019-06-02 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup DOXYGEN
  * @prefix  DX
  *
@@ -59,24 +59,31 @@
  * @mainpage API Documentation
  *
  * <h3>Configuration Files</h3>
+ * - @ref BATTERY_CELL_CONFIGURATION
+ * - @ref BATTERY_SYSTEM_CONFIGURATION
  * - @ref ALGORITHMS_CONFIGURATION
  * - @ref APPLICATION_CONFIGURATION
  * - @ref DRIVERS_CONFIGURATION
  * - @ref ENGINE_CONFIGURATION
  * - @ref TASK_CONFIGURATION
  *
- * @defgroup ALGORITHMS_CONFIGURATION   Algorithm configuration
+ * @defgroup BATTERY_CELL_CONFIGURATION     Battery cell configuration
  *
- * @defgroup APPLICATION_CONFIGURATION  Application configuration
+ * @defgroup BATTERY_SYSTEM_CONFIGURATION   Battery system configuration
  *
- * @defgroup DRIVERS_CONFIGURATION      Driver configuration
+ * @defgroup ALGORITHMS_CONFIGURATION       Algorithm configuration
  *
- * @defgroup ENGINE_CONFIGURATION       Engine configuration
+ * @defgroup APPLICATION_CONFIGURATION      Application configuration
  *
- * @defgroup TASK_CONFIGURATION         Task configuration
+ * @defgroup DRIVERS_CONFIGURATION          Driver configuration
+ *
+ * @defgroup ENGINE_CONFIGURATION           Engine configuration
+ *
+ * @defgroup TASK_CONFIGURATION             Task configuration
  */
 
 /*========== Includes =======================================================*/
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 
@@ -85,5 +92,7 @@
 /*========== Extern Function Prototypes =====================================*/
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
+#ifdef UNITY_UNIT_TEST
+#endif
 
 #endif /* FOXBMS__DOXYGEN_SRC_H_ */

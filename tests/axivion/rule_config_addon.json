@@ -51,6 +51,7 @@
                 "hetREG1",
                 "hetREG2",
                 "i2cREG1",
+                "NULL_PTR",
                 "spiREG1",
                 "spiREG2",
                 "spiREG3",
@@ -69,11 +70,11 @@
         }
     },
     "_Format": "1.0",
-    "_Version": "7.4.6",
+    "_Version": "7.5.0",
     "_VersionNum": [
         7,
-        4,
-        6,
-        10210
+        5,
+        0,
+        11376
     ]
 }

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -39,11 +39,35 @@
  *
  */
 
-#include "general.h"
+/**
+ * @file    c-012.c
+ * @author  foxBMS Team
+ * @date    2021-06-04 (date of creation)
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
+ * @ingroup GUIDELINES
+ * @prefix  NONE
+ *
+ * @brief   Example code to show the application of the C coding guidelines
+ * @details This code implements an example for C:012
+ *
+ */
+
+/*========== Includes =======================================================*/
+#include <stdint.h>
+
+/*========== Macros and Definitions =========================================*/
+
+/*========== Static Constant and Variable Definitions =======================*/
+
+/*========== Extern Constant and Variable Definitions =======================*/
+
+/*========== Static Function Prototypes =====================================*/
 
 static uint8_t ABC_ReturnAbc(void);
 static uint8_t ABC_ReturnDef(uint8_t another_condition, uint8_t some_long_condition);
 
+/*========== Static Function Implementations ================================*/
 static uint8_t ABC_ReturnAbc(void) {
     uint8_t result = 0;
     return result; /* No parentheses in the simple case. */
@@ -51,9 +75,15 @@ static uint8_t ABC_ReturnAbc(void) {
 
 static uint8_t ABC_ReturnDef(uint8_t another_condition, uint8_t some_long_condition) {
     uint8_t result = 0;
-    /* Parentheses OK to make a complex expression more readable. */
+    /* Parentheses ok to make a complex expression more readable. */
     /* clang-format off */
     return (some_long_condition &&
             another_condition);
     /* clang-format on */
 }
+
+/*========== Extern Function Implementations ================================*/
+
+/*========== Externalized Static Function Implementations (Unit Test) =======*/
+#ifdef UNITY_UNIT_TEST
+#endif

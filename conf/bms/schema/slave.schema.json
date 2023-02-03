@@ -28,7 +28,7 @@
                     ]
                 },
                 "ic": {
-                    "$id": "/properties/slave-unit/analog-front-end/chip",
+                    "$id": "/properties/slave-unit/analog-front-end/ic",
                     "title": "Name of the Analog Front-End (must correspond to the directory name)",
                     "type": "string"
                 }

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,12 +43,12 @@
  * @file    nxp_mc33775a_cfg.h
  * @author  foxBMS Team
  * @date    2020-05-08 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  N775
  *
- * @brief   Header for the configuration for the MC33775A monitoring chip.
+ * @brief   Header for the configuration for the MC33775A analog front-end.
  *
  */
 
@@ -62,19 +62,20 @@
 #include "nxp_mc33775a_defs.h"
 #include "spi.h"
 
+#include <stdint.h>
+
 /*========== Macros and Definitions =========================================*/
+#define N775_MAXIMUM_NUMBER_OF_SUPPORTED_CELL_MEASUREMENTS (14u)
+
+#if BS_NR_OF_CELL_BLOCKS_PER_MODULE > N775_MAXIMUM_NUMBER_OF_SUPPORTED_CELL_MEASUREMENTS
+#error "Number of cell blocks per module cannot be higher than maximum number of supported cells per IC"
+#endif
 
 /** Number of bytes to be sent over I2C to write and read I2C mux register in order to choose channel */
 #define N775_I2C_NR_BYTES_FOR_MUX_WRITE (4u)
 
 /** Number of bytes in I2C transaction after which the I2C bus should change to read*/
 #define N775_I2C_NR_BYTES_TO_SWITCH_TO_READ_FOR_UX_READ (2u)
-
-/**
- * If false, driver runs blocking for SPI transactions
- * If true, driver blocks task and waits for notification for SPI transaction
- */
-#define N775_USE_NOTIFICATIONS (true)
 
 /**
  * Index used for FreeRTOS notification sent when TX DMA interrupt comes
@@ -126,11 +127,6 @@
  * 775A Rx message length in bytes.
  */
 #define N775_RX_MESSAGE_LENGTH (4u)
-
-/**
- * 775A maximum number of cell voltages that can be measured.
- */
-#define N775_MAX_NUMBER_OF_VOLTAGES (14u)
 
 /**
  * Timeout in milliseconds added to the transmission time for interrupt-based
@@ -210,5 +206,7 @@ extern N775_MUX_CH_CFG_s n775_muxSequence[N775_MUX_SEQUENCE_LENGTH];
 extern int16_t N775_ConvertVoltagesToTemperatures(uint16_t adcVoltage_mV);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
+#ifdef UNITY_UNIT_TEST
+#endif
 
 #endif /* FOXBMS__NXP_MC33775A_CFG_H_ */

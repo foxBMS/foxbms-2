@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    mxm_afe.c
  * @author  foxBMS Team
  * @date    2020-06-16 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup DRIVER
  * @prefix  AFE
  *
@@ -52,13 +52,15 @@
  */
 
 /*========== Includes =======================================================*/
-#include "general.h"
 
 #include "afe.h"
 #include "mxm_17841b.h"
 #include "mxm_1785x.h"
 #include "mxm_battery_management.h"
 #include "os.h"
+
+#include <stdbool.h>
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 
@@ -97,7 +99,7 @@ static DATA_BLOCK_CELL_TEMPERATURE_s mxm_tableCellTemperatures = {
  */
 static DATA_BLOCK_BALANCING_CONTROL_s mxm_tableBalancingControl = {.header.uniqueId = DATA_BLOCK_ID_BALANCING_CONTROL};
 
-/** @brief Local data structure for openwire results. */
+/** @brief Local data structure for openWire results. */
 static DATA_BLOCK_OPEN_WIRE_s mxm_tableOpenWire = {.header.uniqueId = DATA_BLOCK_ID_OPEN_WIRE_BASE};
 
 /** balancing state variable */
@@ -112,7 +114,7 @@ static MXM_MONITORING_INSTANCE_s mxm_state = {
     .pInstance5X                        = &mxm_5xState,
     .pCellVoltages_table                = &mxm_tableCellVoltages,
     .pCellTemperatures_table            = &mxm_tableCellTemperatures,
-    .pOpenwire_table                    = &mxm_tableOpenWire,
+    .pOpenWire_table                    = &mxm_tableOpenWire,
     .selfCheck.crc                      = STD_NOT_OK,
     .selfCheck.conv                     = STD_NOT_OK,
     .selfCheck.firstSetBit              = STD_NOT_OK,
@@ -257,9 +259,11 @@ extern STD_RETURN_TYPE_e AFE_RequestOpenWireCheck(uint8_t string) {
     FAS_ASSERT(string < BS_NR_OF_STRINGS);
     STD_RETURN_TYPE_e retval = STD_OK;
 
-    mxm_state.openwireRequested = true;
+    mxm_state.openWireRequested = true;
 
     return retval;
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
+#ifdef UNITY_UNIT_TEST
+#endif

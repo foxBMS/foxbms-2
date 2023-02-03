@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    spi_cfg.c
  * @author  foxBMS Team
  * @date    2020-03-05 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  SPI
  *
@@ -56,6 +56,8 @@
 #include "spi_cfg.h"
 
 #include "spi_cfg-helper.h"
+
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 
@@ -80,7 +82,7 @@
  * unused  | SPI_FMT_3
  *
  * For hardware Chip Select, setting one bit to 0 in the CSNR field of the
- * SPIDAT1 regsiter activates the corresponding Chip Select pin.
+ * SPIDAT1 register activates the corresponding Chip Select pin.
  */
 
 /** SPI data configuration struct for LTC communication */
@@ -89,7 +91,8 @@ static spiDAT1_t spi_kLtcDataConfig[BS_NR_OF_STRINGS] = {
      .CS_HOLD = TRUE,      /* If true, HW chip select kept active between words */
      .WDEL    = FALSE,     /* Activation of delay between words */
      .DFSEL   = SPI_FMT_0, /* Data word format selection */
-     .CSNR    = SPI_HARDWARE_CHIP_SELECT_2_ACTIVE},
+     /* Hardware chip select is configured automatically depending on configuration in #SPI_INTERFACE_CONFIG_s */
+     .CSNR = SPI_HARDWARE_CHIP_SELECT_DISABLE_ALL},
 };
 
 /** SPI data configuration struct for MXM communication */
@@ -97,14 +100,17 @@ static spiDAT1_t spi_kMxmDataConfig = {
     .CS_HOLD = TRUE,      /* If true, HW chip select kept active */
     .WDEL    = TRUE,      /* Activation of delay between words */
     .DFSEL   = SPI_FMT_1, /* Data word format selection */
-    .CSNR    = SPI_HARDWARE_CHIP_SELECT_0_ACTIVE};
+    /* Hardware chip select is configured automatically depending on configuration in #SPI_INTERFACE_CONFIG_s */
+    .CSNR = SPI_HARDWARE_CHIP_SELECT_DISABLE_ALL,
+};
 
 /** SPI data configuration struct for NXP MC33775A communication, Tx part */
 static spiDAT1_t spi_kNxp775DataConfigTx[BS_NR_OF_STRINGS] = {
     {.CS_HOLD = TRUE,      /* If true, HW chip select kept active */
      .WDEL    = TRUE,      /* Activation of delay between words */
      .DFSEL   = SPI_FMT_2, /* Data word format selection */
-     .CSNR    = SPI_HARDWARE_CHIP_SELECT_1_ACTIVE},
+     /* Hardware chip select is configured automatically depending on configuration in #SPI_INTERFACE_CONFIG_s */
+     .CSNR = SPI_HARDWARE_CHIP_SELECT_DISABLE_ALL},
 };
 
 /** SPI data configuration struct for NXP MC33775A communication, Rx part */
@@ -112,7 +118,8 @@ static spiDAT1_t spi_kNxp775DataConfigRx[BS_NR_OF_STRINGS] = {
     {.CS_HOLD = TRUE,      /* If true, HW chip select kept active */
      .WDEL    = TRUE,      /* Activation of delay between words */
      .DFSEL   = SPI_FMT_2, /* Data word format selection */
-     .CSNR    = SPI_HARDWARE_CHIP_SELECT_0_ACTIVE},
+     /* Hardware chip select is configured automatically depending on configuration in #SPI_INTERFACE_CONFIG_s */
+     .CSNR = SPI_HARDWARE_CHIP_SELECT_DISABLE_ALL},
 };
 
 /** SPI data configuration struct for FRAM communication */
@@ -121,7 +128,9 @@ static spiDAT1_t spi_kFramDataConfig = {
     .CS_HOLD = TRUE,      /* If true, HW chip select kept active */
     .WDEL    = TRUE,      /* Activation of delay between words */
     .DFSEL   = SPI_FMT_1, /* Data word format selection */
-    .CSNR    = SPI_HARDWARE_CHIP_SELECT_DISABLE_ALL};
+    /* Hardware chip select is configured automatically depending on configuration in #SPI_INTERFACE_CONFIG_s */
+    .CSNR = SPI_HARDWARE_CHIP_SELECT_DISABLE_ALL,
+};
 
 /** SPI data configuration struct for SPS communication in low speed (4MHz) */
 static spiDAT1_t spi_kSpsDataConfigLowSpeed = {
@@ -129,7 +138,8 @@ static spiDAT1_t spi_kSpsDataConfigLowSpeed = {
     .CS_HOLD = TRUE,      /* If true, HW chip select kept active */
     .WDEL    = TRUE,      /* Activation of delay between words */
     .DFSEL   = SPI_FMT_1, /* Data word format selection */
-    .CSNR    = SPI_HARDWARE_CHIP_SELECT_1_ACTIVE,
+    /* Hardware chip select is configured automatically depending on configuration in #SPI_INTERFACE_CONFIG_s */
+    .CSNR = SPI_HARDWARE_CHIP_SELECT_DISABLE_ALL,
 };
 
 /** SPI data configuration struct for SPS communication in high speed (10MHz) */
@@ -138,23 +148,9 @@ static spiDAT1_t spi_kSpsDataConfigHighSpeed = {
     .CS_HOLD = TRUE,      /* If true, HW chip select kept active */
     .WDEL    = TRUE,      /* Activation of delay between words */
     .DFSEL   = SPI_FMT_2, /* Data word format selection */
-    .CSNR    = SPI_HARDWARE_CHIP_SELECT_1_ACTIVE};
-
-/** SPI data configuration struct for ADC communication */
-static spiDAT1_t spi_kAdc0DataConfig = {
-    /* struct is implemented in the TI HAL and uses uppercase true and false */
-    .CS_HOLD = TRUE,      /* If true, HW chip select kept active */
-    .WDEL    = TRUE,      /* Activation of delay between words */
-    .DFSEL   = SPI_FMT_2, /* Data word format selection */
-    .CSNR    = SPI_HARDWARE_CHIP_SELECT_4_ACTIVE};
-
-/** SPI data configuration struct for ADC communication */
-static spiDAT1_t spi_kAdc1DataConfig = {
-    /* struct is implemented in the TI HAL and uses uppercase true and false */
-    .CS_HOLD = TRUE,      /* If true, HW chip select kept active */
-    .WDEL    = TRUE,      /* Activation of delay between words */
-    .DFSEL   = SPI_FMT_2, /* Data word format selection */
-    .CSNR    = SPI_HARDWARE_CHIP_SELECT_5_ACTIVE};
+    /* Hardware chip select is configured automatically depending on configuration in #SPI_INTERFACE_CONFIG_s */
+    .CSNR = SPI_HARDWARE_CHIP_SELECT_DISABLE_ALL,
+};
 
 /** SPI configuration struct for SBC communication */
 static spiDAT1_t spi_kSbcDataConfig = {
@@ -162,7 +158,9 @@ static spiDAT1_t spi_kSbcDataConfig = {
     .CS_HOLD = TRUE,      /* If true, HW chip select kept active */
     .WDEL    = TRUE,      /* Activation of delay between words */
     .DFSEL   = SPI_FMT_0, /* Data word format selection */
-    .CSNR    = SPI_HARDWARE_CHIP_SELECT_1_ACTIVE};
+    /* Hardware chip select is configured automatically depending on configuration in #SPI_INTERFACE_CONFIG_s */
+    .CSNR = SPI_HARDWARE_CHIP_SELECT_DISABLE_ALL,
+};
 
 /*========== Extern Constant and Variable Definitions =======================*/
 
@@ -175,7 +173,7 @@ SPI_INTERFACE_CONFIG_s spi_ltcInterface[BS_NR_OF_STRINGS] = {
         .pConfig  = &spi_kLtcDataConfig[0u],
         .pNode    = spiREG1,
         .pGioPort = &(spiREG1->PC3),
-        .csPin    = 2u,
+        .csPin    = SPI_LTC_CHIP_SELECT_PIN,
         .csType   = SPI_CHIP_SELECT_HARDWARE,
     },
 };
@@ -185,7 +183,7 @@ SPI_INTERFACE_CONFIG_s spi_mxmInterface = {
     .pConfig  = &spi_kMxmDataConfig,
     .pNode    = spiREG4,
     .pGioPort = &(spiREG4->PC3),
-    .csPin    = 0u,
+    .csPin    = SPI_MAXIM_CHIP_SELECT_PIN,
     .csType   = SPI_CHIP_SELECT_HARDWARE,
 };
 
@@ -195,7 +193,7 @@ SPI_INTERFACE_CONFIG_s spi_nxp775InterfaceTx[BS_NR_OF_STRINGS] = {
         .pConfig  = &spi_kNxp775DataConfigTx[0u],
         .pNode    = spiREG1,
         .pGioPort = &(spiREG1->PC3),
-        .csPin    = 1u,
+        .csPin    = SPI_NXP_TX_CHIP_SELECT_PIN,
         .csType   = SPI_CHIP_SELECT_HARDWARE,
     },
 };
@@ -206,7 +204,7 @@ SPI_INTERFACE_CONFIG_s spi_nxp775InterfaceRx[BS_NR_OF_STRINGS] = {
         .pConfig  = &spi_kNxp775DataConfigRx[0u],
         .pNode    = spiREG4,
         .pGioPort = &(spiREG4->PC3),
-        .csPin    = 0u,
+        .csPin    = SPI_NXP_RX_CHIP_SELECT_PIN,
         .csType   = SPI_CHIP_SELECT_HARDWARE,
     },
 };
@@ -216,7 +214,7 @@ SPI_INTERFACE_CONFIG_s spi_framInterface = {
     .pConfig  = &spi_kFramDataConfig,
     .pNode    = spiREG3,
     .pGioPort = &(spiREG3->PC3),
-    .csPin    = 1u,
+    .csPin    = SPI_FRAM_CHIP_SELECT_PIN,
     .csType   = SPI_CHIP_SELECT_SOFTWARE,
 };
 
@@ -229,30 +227,12 @@ SPI_INTERFACE_CONFIG_s spi_spsInterface = {
     .csType   = SPI_CHIP_SELECT_SOFTWARE,
 };
 
-/** SPI interface configuration for ADC communication */
-SPI_INTERFACE_CONFIG_s spi_adc0Interface = {
-    .pConfig  = &spi_kAdc0DataConfig,
-    .pNode    = spiREG3,
-    .pGioPort = &(spiREG3->PC3),
-    .csPin    = 4u,
-    .csType   = SPI_CHIP_SELECT_SOFTWARE,
-};
-
-/** SPI interface configuration for ADC communication */
-SPI_INTERFACE_CONFIG_s spi_adc1Interface = {
-    .pConfig  = &spi_kAdc1DataConfig,
-    .pNode    = spiREG3,
-    .pGioPort = &(spiREG3->PC3),
-    .csPin    = 5u,
-    .csType   = SPI_CHIP_SELECT_SOFTWARE,
-};
-
 /** SPI interface configuration for SBC communication */
-SPI_INTERFACE_CONFIG_s spi_kSbcMcuInterface = {
+SPI_INTERFACE_CONFIG_s spi_sbcMcuInterface = {
     .pConfig  = &spi_kSbcDataConfig,
     .pNode    = spiREG2,
     .pGioPort = &(spiREG2->PC3),
-    .csPin    = 0u,
+    .csPin    = SPI_SBC_MCU_CHIP_SELECT_PIN,
     .csType   = SPI_CHIP_SELECT_HARDWARE,
 };
 
@@ -284,3 +264,5 @@ extern void SPI_SpsInterfaceSwitchToLowSpeed(SPI_INTERFACE_CONFIG_s *pSpiSpsInte
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
+#ifdef UNITY_UNIT_TEST
+#endif

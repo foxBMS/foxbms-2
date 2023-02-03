@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    can_cbs_tx_minimum-maximum-values.c
  * @author  foxBMS Team
  * @date    2021-04-20 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup DRIVER
  * @prefix  CANTX
  *
@@ -57,6 +57,9 @@
 #include "can_cbs_tx.h"
 #include "can_cfg_tx-message-definitions.h"
 #include "can_helper.h"
+
+#include <math.h>
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 
@@ -75,6 +78,7 @@ extern uint32_t CANTX_MinimumMaximumValues(
     uint8_t *pMuxId,
     const CAN_SHIM_s *const kpkCanShim) {
     FAS_ASSERT(message.id == CANTX_MINIMUM_MAXIMUM_VALUES_ID);
+    FAS_ASSERT(message.idType == CANTX_MINIMUM_MAXIMUM_VALUES_ID_TYPE);
     FAS_ASSERT(message.dlc == CAN_FOXBMS_MESSAGES_DEFAULT_DLC);
     FAS_ASSERT(pCanData != NULL_PTR);
     FAS_ASSERT(pMuxId == NULL_PTR); /* pMuxId is not used here, therefore has to be NULL_PTR */
@@ -126,16 +130,16 @@ extern uint32_t CANTX_MinimumMaximumValues(
 
     /* AXIVION Disable Style Generic-NoMagicNumbers: Signal data defined in .dbc file. */
     /* Minimum cell voltage */
-    float signalData = (float)packMinimumVoltage_mV;
-    float offset     = 0.0f;
-    float factor     = 1.0f;
-    signalData       = (signalData + offset) * factor;
-    uint64_t data    = (int64_t)signalData;
+    float_t signalData = (float_t)packMinimumVoltage_mV;
+    float_t offset     = 0.0f;
+    float_t factor     = 1.0f;
+    signalData         = (signalData + offset) * factor;
+    uint64_t data      = (int64_t)signalData;
     /* set data in CAN frame */
     CAN_TxSetMessageDataWithSignalData(&messageData, 10u, 13u, data, message.endianness);
 
     /* Maximum cell voltage */
-    signalData = (float)packMaximumVoltage_mV;
+    signalData = (float_t)packMaximumVoltage_mV;
     offset     = 0.0f;
     factor     = 1.0f;
     signalData = (signalData + offset) * factor;
@@ -144,7 +148,7 @@ extern uint32_t CANTX_MinimumMaximumValues(
     CAN_TxSetMessageDataWithSignalData(&messageData, 7u, 13u, data, message.endianness);
 
     /* Minimum cell temperature */
-    signalData = (float)packMinimumTemperature_ddegC;
+    signalData = (float_t)packMinimumTemperature_ddegC;
     offset     = 0.0f;
     factor     = 0.1f; /* convert ddegC to degC */
     signalData = (signalData + offset) * factor;
@@ -153,7 +157,7 @@ extern uint32_t CANTX_MinimumMaximumValues(
     CAN_TxSetMessageDataWithSignalData(&messageData, 63u, 8u, data, message.endianness);
 
     /* Maximum cell temperature */
-    signalData = (float)packMaximumTemperature_ddegC;
+    signalData = (float_t)packMaximumTemperature_ddegC;
     offset     = 0.0f;
     factor     = 0.1f; /* convert ddegC to degC */
     signalData = (signalData + offset) * factor;
@@ -174,6 +178,7 @@ extern uint32_t CANTX_StringMinimumMaximumValues(
     uint8_t *pMuxId,
     const CAN_SHIM_s *const kpkCanShim) {
     FAS_ASSERT(message.id == CANTX_STRING_MIN_MAX_VALUES_ID);
+    FAS_ASSERT(message.idType == CANTX_STRING_MIN_MAX_VALUES_ID_TYPE);
     FAS_ASSERT(message.dlc == CAN_FOXBMS_MESSAGES_DEFAULT_DLC);
     FAS_ASSERT(pCanData != NULL_PTR);
     FAS_ASSERT(pMuxId != NULL_PTR);
@@ -188,16 +193,16 @@ extern uint32_t CANTX_StringMinimumMaximumValues(
 
     /* AXIVION Disable Style Generic-NoMagicNumbers: Signal data defined in .dbc file. */
     /* Minimum cell voltage */
-    float signalData = (float)kpkCanShim->pTableMinMax->minimumCellVoltage_mV[stringNumber];
-    float offset     = 0.0f;
-    float factor     = 1.0f;
-    signalData       = (signalData + offset) * factor;
-    uint64_t data    = (int64_t)signalData;
+    float_t signalData = (float_t)kpkCanShim->pTableMinMax->minimumCellVoltage_mV[stringNumber];
+    float_t offset     = 0.0f;
+    float_t factor     = 1.0f;
+    signalData         = (signalData + offset) * factor;
+    uint64_t data      = (int64_t)signalData;
     /* set data in CAN frame */
     CAN_TxSetMessageDataWithSignalData(&messageData, 18u, 13u, data, message.endianness);
 
     /* Maximum cell voltage */
-    signalData = (float)kpkCanShim->pTableMinMax->maximumCellVoltage_mV[stringNumber];
+    signalData = (float_t)kpkCanShim->pTableMinMax->maximumCellVoltage_mV[stringNumber];
     offset     = 0.0f;
     factor     = 1.0f;
     signalData = (signalData + offset) * factor;
@@ -206,7 +211,7 @@ extern uint32_t CANTX_StringMinimumMaximumValues(
     CAN_TxSetMessageDataWithSignalData(&messageData, 15u, 13u, data, message.endianness);
 
     /* Minimum cell temperature */
-    signalData = (float)kpkCanShim->pTableMinMax->minimumTemperature_ddegC[stringNumber];
+    signalData = (float_t)kpkCanShim->pTableMinMax->minimumTemperature_ddegC[stringNumber];
     offset     = 0.0f;
     factor     = 0.2f; /* convert ddegC to 0.5degC */
     signalData = (signalData + offset) * factor;
@@ -215,7 +220,7 @@ extern uint32_t CANTX_StringMinimumMaximumValues(
     CAN_TxSetMessageDataWithSignalData(&messageData, 44u, 9u, data, message.endianness);
 
     /* Maximum cell temperature */
-    signalData = (float)kpkCanShim->pTableMinMax->maximumTemperature_ddegC[stringNumber];
+    signalData = (float_t)kpkCanShim->pTableMinMax->maximumTemperature_ddegC[stringNumber];
     offset     = 0.0f;
     factor     = 0.2f; /* convert ddegC to 0.5degC */
     signalData = (signalData + offset) * factor;
@@ -240,5 +245,4 @@ extern uint32_t CANTX_StringMinimumMaximumValues(
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
 #ifdef UNITY_UNIT_TEST
-
 #endif

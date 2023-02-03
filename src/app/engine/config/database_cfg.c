@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    database_cfg.c
  * @author  foxBMS Team
  * @date    2015-08-18 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup ENGINE_CONFIGURATION
  * @prefix  DATA
  *
@@ -56,6 +56,8 @@
 
 /*========== Includes =======================================================*/
 #include "database_cfg.h"
+
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 
@@ -118,7 +120,7 @@ static DATA_BLOCK_ALL_GPIO_VOLTAGES_s data_blockLtcAllGpioVoltagesRedundancy0 = 
 /**@}*/
 
 /** data block: error flags */
-static DATA_BLOCK_ERRORSTATE_s data_blockErrors = {.header.uniqueId = DATA_BLOCK_ID_ERRORSTATE};
+static DATA_BLOCK_ERROR_STATE_s data_blockErrors = {.header.uniqueId = DATA_BLOCK_ID_ERROR_STATE};
 
 /** data block: contactor feedback */
 static DATA_BLOCK_CONTACTOR_FEEDBACK_s data_blockContactorFeedback = {
@@ -132,7 +134,7 @@ static DATA_BLOCK_INTERLOCK_FEEDBACK_s data_blockInterlockFeedback = {
 static DATA_BLOCK_SOF_s data_blockSof = {.header.uniqueId = DATA_BLOCK_ID_SOF};
 
 /** data block: system state */
-static DATA_BLOCK_SYSTEMSTATE_s data_blockSystemstate = {.header.uniqueId = DATA_BLOCK_ID_SYSTEMSTATE};
+static DATA_BLOCK_SYSTEM_STATE_s data_blockSystemstate = {.header.uniqueId = DATA_BLOCK_ID_SYSTEM_STATE};
 
 /** data block: maximum safety limit violations */
 static DATA_BLOCK_MSL_FLAG_s data_blockMsl = {.header.uniqueId = DATA_BLOCK_ID_MSL_FLAG};
@@ -147,7 +149,7 @@ static DATA_BLOCK_MOL_FLAG_s data_blockMol = {.header.uniqueId = DATA_BLOCK_ID_M
 static DATA_BLOCK_SOX_s data_blockSox = {.header.uniqueId = DATA_BLOCK_ID_SOX};
 
 /** data block: can state request */
-static DATA_BLOCK_STATEREQUEST_s data_blockStaterequest = {.header.uniqueId = DATA_BLOCK_ID_STATEREQUEST};
+static DATA_BLOCK_STATE_REQUEST_s data_blockStaterequest = {.header.uniqueId = DATA_BLOCK_ID_STATE_REQUEST};
 
 /** data block: moving average */
 static DATA_BLOCK_MOVING_AVERAGE_s data_blockMovingAverage = {.header.uniqueId = DATA_BLOCK_ID_MOVING_AVERAGE};
@@ -162,7 +164,7 @@ static DATA_BLOCK_PACK_VALUES_s data_blockPackValues = {.header.uniqueId = DATA_
 /** data block: adc temperature */
 static DATA_BLOCK_ADC_VOLTAGE_s data_blockAdcVoltage = {.header.uniqueId = DATA_BLOCK_ID_ADC_VOLTAGE};
 
-/** data block: I2C humidity/temperature sensor measurements*/
+/** data block: I2C humidity/temperature sensor measurements */
 static DATA_BLOCK_HTSEN_s data_blockHumidityTemperatureSensor = {.header.uniqueId = DATA_BLOCK_ID_HTSEN};
 
 /** data block: used for self-test */
@@ -185,16 +187,16 @@ DATA_BASE_s data_database[] = {
     {(void *)(&data_blockUserMux), sizeof(DATA_BLOCK_USER_MUX_s)},
     {(void *)(&data_blockOpenWireBase), sizeof(DATA_BLOCK_OPEN_WIRE_s)},
     {(void *)(&data_blockLtcAllGpioVoltagesBase), sizeof(DATA_BLOCK_ALL_GPIO_VOLTAGES_s)},
-    {(void *)(&data_blockErrors), sizeof(DATA_BLOCK_ERRORSTATE_s)},
+    {(void *)(&data_blockErrors), sizeof(DATA_BLOCK_ERROR_STATE_s)},
     {(void *)(&data_blockContactorFeedback), sizeof(DATA_BLOCK_CONTACTOR_FEEDBACK_s)},
     {(void *)(&data_blockInterlockFeedback), sizeof(DATA_BLOCK_INTERLOCK_FEEDBACK_s)},
     {(void *)(&data_blockSof), sizeof(DATA_BLOCK_SOF_s)},
-    {(void *)(&data_blockSystemstate), sizeof(DATA_BLOCK_SYSTEMSTATE_s)},
+    {(void *)(&data_blockSystemstate), sizeof(DATA_BLOCK_SYSTEM_STATE_s)},
     {(void *)(&data_blockMsl), sizeof(DATA_BLOCK_MSL_FLAG_s)},
     {(void *)(&data_blockRsl), sizeof(DATA_BLOCK_RSL_FLAG_s)},
     {(void *)(&data_blockMol), sizeof(DATA_BLOCK_MOL_FLAG_s)},
     {(void *)(&data_blockSox), sizeof(DATA_BLOCK_SOX_s)},
-    {(void *)(&data_blockStaterequest), sizeof(DATA_BLOCK_STATEREQUEST_s)},
+    {(void *)(&data_blockStaterequest), sizeof(DATA_BLOCK_STATE_REQUEST_s)},
     {(void *)(&data_blockMovingAverage), sizeof(DATA_BLOCK_MOVING_AVERAGE_s)},
     {(void *)(&data_blockCellVoltageBase), sizeof(DATA_BLOCK_CELL_VOLTAGE_s)},
     {(void *)(&data_blockCellTemperatureBase), sizeof(DATA_BLOCK_CELL_TEMPERATURE_s)},
@@ -217,3 +219,5 @@ DATA_BASE_s data_database[] = {
 /*========== Extern Function Implementations ================================*/
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
+#ifdef UNITY_UNIT_TEST
+#endif

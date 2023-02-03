@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    mxm_17852.c
  * @author  foxBMS Team
  * @date    2021-11-24 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup DRIVERS
  * @prefix  MXM
  *
@@ -61,10 +61,15 @@
 /* clang-format on */
 
 #include "database.h"
+#include "fassert.h"
+#include "fstd_types.h"
 #include "mxm_1785x_tools.h"
 #include "mxm_battery_management.h"
 #include "mxm_registry.h"
 #include "os.h"
+
+#include <stdbool.h>
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 /** @defgroup MXM_I2C_IMPLEMENTATION symbols and settings pertaining to the I2C implementation in MXM
@@ -284,9 +289,9 @@ extern void MXM_StateMachineOperation(MXM_MONITORING_INSTANCE_s *pState) {
             }
             break;
         case MXM_OP_PINOPEN_ENTRY:
-            if (pState->openwireRequested == true) {
+            if (pState->openWireRequested == true) {
                 pState->operationSubstate = MXM_OP_PINOPEN_SET_CURRENT_SOURCES;
-                pState->openwireRequested = false;
+                pState->openWireRequested = false;
             } else {
                 pState->operationSubstate = MXM_OP_PINOPEN_EXIT;
             }
@@ -863,5 +868,4 @@ extern void MXM_StateMachineOperation(MXM_MONITORING_INSTANCE_s *pState) {
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
 #ifdef UNITY_UNIT_TEST
-
 #endif

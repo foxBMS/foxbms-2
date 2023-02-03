@@ -71,13 +71,13 @@ can be stored in the message data. The parameters are
 - pointer to 64-bit CAN message.
 - bit position in CAN message where the signal data must be stored.
 - length of the signal data in the CAN message.
-- signal data. If data is e.g. a float, it must be cast
+- signal data. Fox example, if data is a float, it must be cast
   to an integer before being passed to the function.
 - endianness (big or little endian) of CAN data.
 
 Once the CAN message is ready, the function
-``CAN_TxSetCanDataWithMessageData()`` must be called. It will
-store the CAN message in the variable used by the low-level driver for
+``CAN_TxSetCanDataWithMessageData()`` must be called.
+It will store the CAN message in the variable used by the low-level driver for
 the actual transmission.
 
 The function ``CAN_PeriodicTransmit()`` is called every 10ms by the 10ms task.
@@ -147,12 +147,13 @@ easily from the message. The parameters are
 The signal data is then available in the variable pointed to by the signal
 data pointer.
 
-A receive queue was used because usually the developer needs
-to access the database in the callback of the receive function, but this
-must not be done in an interrupt routine. With the current implementation,
-the receive interrupt routine sends the received data to the queue.
-The ``CAN_ReadRxBuffer()`` function retrieves the messages from the queue
-and calls the callbacks outside of the interrupt routine.
+A receive queue was used because usually the developer needs to access the
+database in the callback of the receive function, but this must not be done in
+an interrupt routine.
+With the current implementation, the receive interrupt routine sends the
+received data to the queue.
+The ``CAN_ReadRxBuffer()`` function retrieves the messages from the queue and
+calls the callbacks outside of the interrupt routine.
 
 Configuration in |halcogen|
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -162,9 +163,31 @@ configured as transmit message boxes, the other half as receive message boxes
 (with |halcogen|), so the macro ``CAN_NR_OF_TX_MESSAGE_BOX`` is set to 32.
 It must be adapted if the number of transmit message boxes is changed.
 
+Unfortunately, using |halcogen|, only the complete CAN interface and not the
+individual message boxes can be configured if standard or extended identifiers
+shall be used.
+
+For this reason, four receive mailboxes (mailboxes 61-64) are hard-coded during
+the initialization and overwrite the respective |halcogen| configuration for
+these mailboxes.
+The mailboxes are configured to receive all CAN messages
+with an extended 29-bit identifier. This configuration is done in function
+``CAN_ConfigureRxMailboxesForExtendedIdentifiers()``
+
+Configuration errors in |halcogen|
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 When using the CAN interface ``CAN4``, special care has to be taken because of
 a bug in |halcogen|. For more information, refer to
 :ref:`HALCOGEN_TOOL_DOCUMENTATION`.
+
+Additionally, there is a bug in |halcogen| regarding the CAN1 mailbox 42 as
+described in :ref:`HALCOGEN_TOOL_DOCUMENTATION`.
+The missing configuration for this mailbox is also done in function
+``CAN_ConfigureRxMailboxesForExtendedIdentifiers()``.
+Mailbox 42 is configured
+to receive all CAN messages with a standard 11-bit identifier.
+
 
 Callback definition
 ^^^^^^^^^^^^^^^^^^^

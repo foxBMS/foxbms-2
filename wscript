@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -77,7 +77,7 @@ top = "."  # pylint:disable=invalid-name
 APPNAME = "foxBMS"
 """name of the application. This is used in various waf functions"""
 
-VERSION = "1.4.1"
+VERSION = "1.5.0"
 """version of the application. This is used in various waf functions. This
 version must match the version number defined in ``macros.txt``. Otherwise a
 configuration error is thrown."""
@@ -201,7 +201,15 @@ def version_consistency_checker(ctx):
         ctx.fatal(f"Version information in {pys} is not correct.")
     all_c_sources = ctx.path.ant_glob(
         "docs/**/*.c docs/**/*.h src/**/*.c src/**/*.c tests/**/*.c tests/**/*.c",
-        excl=["tests/axivion/addon-test/**/*.c", "tests/axivion/addon-test/**/*.h"],
+        excl=[
+            "tests/axivion/addon-test/**/*.c",
+            "tests/axivion/addon-test/**/*.h",
+            "tests/axivion/compiler-errata/ti-cgt-arm_20.2.6.lts/**/*.c",
+            "tests/axivion/compiler-errata/ti-cgt-arm_20.2.6.lts/**/*.h",
+            "tests/axivion/qualification-test/**/*.c",
+            "tests/axivion/qualification-test/**/*.h",
+            "tests/unit/build/**",
+        ],
     )
     version_line = -1
     main_txt = ctx.path.find_node("src/app/main/main.c").read()
@@ -300,11 +308,14 @@ def configure(conf):  # pylint: disable=too-many-statements,too-many-branches
         conf.fatal(f"Project path must not contain spaces ({conf.path}).")
     conf.env.append_unique("PROJECT_ROOT", pathlib.Path(conf.path.abspath()).as_posix())
     known_max_depth = 133
-    if Utils.is_win32 and len(conf.path.abspath()) + known_max_depth > 260:
+    expected_max_path_depth = len(conf.path.abspath()) + known_max_depth
+    if Utils.is_win32 and expected_max_path_depth > 260:
         conf.fatal(
             "Build path length will exceed 260 characters.\nClone or move the "
             "repository into a shorter path."
         )
+    else:
+        Logs.debug(f"Expected max path depth: {expected_max_path_depth}")
     conf.msg("Checking project path", conf.path.abspath())
 
     version_consistency_checker(conf)
@@ -748,48 +759,73 @@ def build(bld):  # pylint: disable=too-many-branches,too-many-statements
         # fmt: off
         # pylint: disable=line-too-long
         sources = [
-            os.path.join(doc_dir, "index.rst"),
-            os.path.join(doc_dir, "macros.txt"),
-            os.path.join(doc_dir, "units.txt"),
+            os.path.join(doc_dir, "developer-manual", "hardware-developer-manual.rst"),
+            os.path.join(doc_dir, "developer-manual", "preface.rst"),
+            os.path.join(doc_dir, "developer-manual", "public-release-process.rst"),
+            os.path.join(doc_dir, "developer-manual", "software", "software-development-process.rst"),
+            os.path.join(doc_dir, "developer-manual", "software", "software-programming-language.rst"),
+            os.path.join(doc_dir, "developer-manual", "software", "software-testing.rst"),
+            os.path.join(doc_dir, "developer-manual", "software", "software-tools.rst"),
+            os.path.join(doc_dir, "developer-manual", "software", "software-verification.rst"),
+            os.path.join(doc_dir, "developer-manual", "software-developer-manual.rst"),
+            os.path.join(doc_dir, "developer-manual", "style-guide", "guidelines_c.rst"),
+            os.path.join(doc_dir, "developer-manual", "style-guide", "guidelines_python.rst"),
+            os.path.join(doc_dir, "developer-manual", "style-guide", "guidelines_rst.rst"),
+            os.path.join(doc_dir, "developer-manual", "style-guide", "state-machines_how-to.rst"),
+            os.path.join(doc_dir, "developer-manual", "style-guide", "style-guide.rst"),
             os.path.join(doc_dir, "general", "changelog.rst"),
             os.path.join(doc_dir, "general", "license.rst"),
-            os.path.join(doc_dir, "general", "licenses-packages-conda-env-win32.csv"),
-            os.path.join(doc_dir, "general", "licenses-packages-conda-env-spelling.txt"),
-            os.path.join(doc_dir, "general", "licenses-packages-conda-env-spelling-build-strings.txt"),
-            os.path.join(doc_dir, "general", "licenses-vscode-extensions.csv"),
+            os.path.join(doc_dir, "general", "license-tables", "license-info_ceedling.csv"),
+            os.path.join(doc_dir, "general", "license-tables", "license-info_freertos.csv"),
+            os.path.join(doc_dir, "general", "license-tables", "license-info_llvm.csv"),
+            os.path.join(doc_dir, "general", "license-tables", "license-info_mingw64.csv"),
+            os.path.join(doc_dir, "general", "license-tables", "license-info_miniconda.csv"),
+            os.path.join(doc_dir, "general", "license-tables", "license-info_packages-conda-env-linux.csv"),
+            os.path.join(doc_dir, "general", "license-tables", "license-info_packages-conda-env-win32.csv"),
+            os.path.join(doc_dir, "general", "license-tables", "license-info_ruby-installer.csv"),
+            os.path.join(doc_dir, "general", "license-tables", "license-info_ti-ccs.csv"),
+            os.path.join(doc_dir, "general", "license-tables", "license-info_ti-hcg.csv"),
+            os.path.join(doc_dir, "general", "license-tables", "license-info_vs-code.csv"),
+            os.path.join(doc_dir, "general", "license-tables", "license-info_vs-code_extensions.csv"),
+            os.path.join(doc_dir, "general", "license-tables", "license-info_waf-binary.csv"),
+            os.path.join(doc_dir, "general", "license-tables", "license-info_waf-unit-tests.csv"),
+            os.path.join(doc_dir, "general", "license-tables", "license-packages-conda-env-spelling-build-strings.txt"),
+            os.path.join(doc_dir, "general", "license-tables", "license-packages-conda-env-spelling.txt"),
             os.path.join(doc_dir, "general", "motivation.rst"),
-            os.path.join(doc_dir, "general", "releases.rst"),
             os.path.join(doc_dir, "general", "releases.csv"),
+            os.path.join(doc_dir, "general", "releases.rst"),
             os.path.join(doc_dir, "general", "safety", "safety.rst"),
             os.path.join(doc_dir, "general", "team.rst"),
             os.path.join(doc_dir, "general", "team-ad-sc.rst"),
             os.path.join(doc_dir, "general", "team-dev.rst"),
             os.path.join(doc_dir, "general", "team-former.rst"),
-            os.path.join(doc_dir, "introduction", "abbreviations-definitions.rst"),
-            os.path.join(doc_dir, "introduction", "bms-overview.rst"),
+            os.path.join(doc_dir, "getting-started", "first-steps-on-hardware.rst"),
             os.path.join(doc_dir, "getting-started", "getting-started.rst"),
             os.path.join(doc_dir, "getting-started", "repository-structure.rst"),
             os.path.join(doc_dir, "getting-started", "software-installation.rst"),
             os.path.join(doc_dir, "getting-started", "workspace.rst"),
-            os.path.join(doc_dir, "getting-started", "first-steps-on-hardware.rst"),
-            os.path.join(doc_dir, "hardware", "hardware.rst"),
-            os.path.join(doc_dir, "hardware", "design-resources.rst"),
             os.path.join(doc_dir, "hardware", "connectors.rst"),
+            os.path.join(doc_dir, "hardware", "design-resources.rst"),
+            os.path.join(doc_dir, "hardware", "hardware.rst"),
             os.path.join(doc_dir, "hardware", "interfaces","maxim-max17841b-vx.x.x", "maxim-max17841b-v1.0.0.rst"),
+            os.path.join(doc_dir, "index.rst"),
+            os.path.join(doc_dir, "introduction", "abbreviations-definitions.rst"),
+            os.path.join(doc_dir, "introduction", "bms-overview.rst"),
+            os.path.join(doc_dir, "macros.txt"),
             os.path.join(doc_dir, "misc", "bibliography.rst"),
             os.path.join(doc_dir, "misc", "definitions.csv"),
             os.path.join(doc_dir, "misc", "developer-manual-nomenclature.csv"),
             os.path.join(doc_dir, "misc", "indices-and-tables.rst"),
             os.path.join(doc_dir, "software", "api", "overview.rst"),
             os.path.join(doc_dir, "software", "build", "build.rst"),
-            os.path.join(doc_dir, "software", "build-process", "library-project_how-to.rst"),
             os.path.join(doc_dir, "software", "build-environment", "build-environment.rst"),
             os.path.join(doc_dir, "software", "build-environment", "build-environment_how-to.rst"),
             os.path.join(doc_dir, "software", "build-process", "build-process.rst"),
+            os.path.join(doc_dir, "software", "build-process", "library-project_how-to.rst"),
             os.path.join(doc_dir, "software", "configuration", "configuration.rst"),
             os.path.join(doc_dir, "software", "configuration", "without-halcogen_how-to.rst"),
             os.path.join(doc_dir, "software", "how-to", "how-to.rst"),
-            os.path.join(doc_dir, "software", "modules", "modules.rst"),
+            os.path.join(doc_dir, "software", "modules", "application", "algorithm", "algorithm.rst"),
             os.path.join(doc_dir, "software", "modules", "application", "algorithm", "state-estimation", "soc", "soc_counting.rst"),
             os.path.join(doc_dir, "software", "modules", "application", "algorithm", "state-estimation", "soc", "soc_debug.rst"),
             os.path.join(doc_dir, "software", "modules", "application", "algorithm", "state-estimation", "soc", "soc_none.rst"),
@@ -800,27 +836,11 @@ def build(bld):  # pylint: disable=too-many-branches,too-many-statements
             os.path.join(doc_dir, "software", "modules", "application", "algorithm", "state-estimation", "soh", "soh_debug.rst"),
             os.path.join(doc_dir, "software", "modules", "application", "algorithm", "state-estimation", "soh", "soh_none.rst"),
             os.path.join(doc_dir, "software", "modules", "application", "algorithm", "state-estimation", "state-estimation.rst"),
-            os.path.join(doc_dir, "software", "modules", "application", "algorithm", "algorithm.rst"),
             os.path.join(doc_dir, "software", "modules", "application", "bal", "bal.rst"),
             os.path.join(doc_dir, "software", "modules", "application", "bms", "bms.rst"),
             os.path.join(doc_dir, "software", "modules", "application", "plausibility", "plausibility.rst"),
             os.path.join(doc_dir, "software", "modules", "application", "redundancy", "redundancy.rst"),
             os.path.join(doc_dir, "software", "modules", "driver", "adc", "adc.rst"),
-            os.path.join(doc_dir, "software", "modules", "driver", "can", "can.rst"),
-            os.path.join(doc_dir, "software", "modules", "driver", "crc", "crc.rst"),
-            os.path.join(doc_dir, "software", "modules", "driver", "contactor", "contactor.rst"),
-            os.path.join(doc_dir, "software", "modules", "driver", "dma", "dma.rst"),
-            os.path.join(doc_dir, "software", "modules", "driver", "foxmath", "foxmath.rst"),
-            os.path.join(doc_dir, "software", "modules", "driver", "fram", "fram.rst"),
-            os.path.join(doc_dir, "software", "modules", "driver", "imd", "bender", "bender_ir155.rst"),
-            os.path.join(doc_dir, "software", "modules", "driver", "imd", "bender", "bender_iso165c.rst"),
-            os.path.join(doc_dir, "software", "modules", "driver", "imd", "none", "no-imd.rst"),
-            os.path.join(doc_dir, "software", "modules", "driver", "imd", "imd.rst"),
-            os.path.join(doc_dir, "software", "modules", "driver", "interlock", "interlock.rst"),
-            os.path.join(doc_dir, "software", "modules", "driver", "io", "io.rst"),
-            os.path.join(doc_dir, "software", "modules", "driver", "mcu", "mcu.rst"),
-            os.path.join(doc_dir, "software", "modules", "driver", "meas", "meas.rst"),
-            os.path.join(doc_dir, "software", "modules", "driver", "afe", "supported-afes.rst"),
             os.path.join(doc_dir, "software", "modules", "driver", "afe", "ltc", "6804-1.rst"),
             os.path.join(doc_dir, "software", "modules", "driver", "afe", "ltc", "6806.rst"),
             os.path.join(doc_dir, "software", "modules", "driver", "afe", "ltc", "6811-1.rst"),
@@ -828,19 +848,34 @@ def build(bld):  # pylint: disable=too-many-branches,too-many-statements
             os.path.join(doc_dir, "software", "modules", "driver", "afe", "ltc", "6813-1.rst"),
             os.path.join(doc_dir, "software", "modules", "driver", "afe", "maxim", "max1785x.rst"),
             os.path.join(doc_dir, "software", "modules", "driver", "afe", "nxp", "mc33775a.rst"),
+            os.path.join(doc_dir, "software", "modules", "driver", "afe", "supported-afes.rst"),
+            os.path.join(doc_dir, "software", "modules", "driver", "can", "can.rst"),
+            os.path.join(doc_dir, "software", "modules", "driver", "contactor", "contactor.rst"),
+            os.path.join(doc_dir, "software", "modules", "driver", "crc", "crc.rst"),
+            os.path.join(doc_dir, "software", "modules", "driver", "dma", "dma.rst"),
+            os.path.join(doc_dir, "software", "modules", "driver", "foxmath", "foxmath.rst"),
+            os.path.join(doc_dir, "software", "modules", "driver", "fram", "fram.rst"),
+            os.path.join(doc_dir, "software", "modules", "driver", "imd", "bender", "bender_ir155.rst"),
+            os.path.join(doc_dir, "software", "modules", "driver", "imd", "bender", "bender_iso165c.rst"),
+            os.path.join(doc_dir, "software", "modules", "driver", "imd", "imd.rst"),
+            os.path.join(doc_dir, "software", "modules", "driver", "imd", "none", "no-imd.rst"),
+            os.path.join(doc_dir, "software", "modules", "driver", "interlock", "interlock.rst"),
+            os.path.join(doc_dir, "software", "modules", "driver", "io", "io.rst"),
+            os.path.join(doc_dir, "software", "modules", "driver", "mcu", "mcu.rst"),
+            os.path.join(doc_dir, "software", "modules", "driver", "meas", "meas.rst"),
             os.path.join(doc_dir, "software", "modules", "driver", "rtc", "rtc.rst"),
             os.path.join(doc_dir, "software", "modules", "driver", "sbc", "sbc.rst"),
             os.path.join(doc_dir, "software", "modules", "driver", "spi", "spi.rst"),
             os.path.join(doc_dir, "software", "modules", "driver", "sps", "sps.rst"),
+            os.path.join(doc_dir, "software", "modules", "driver", "ts", "adding-a-new-ts_how-to.rst"),
             os.path.join(doc_dir, "software", "modules", "driver", "ts", "epcos", "b57251v5103j060.rst"),
             os.path.join(doc_dir, "software", "modules", "driver", "ts", "epcos", "b57861s0103f045.rst"),
             os.path.join(doc_dir, "software", "modules", "driver", "ts", "fake", "none.rst"),
+            os.path.join(doc_dir, "software", "modules", "driver", "ts", "ts.rst"),
+            os.path.join(doc_dir, "software", "modules", "driver", "ts", "ts-sensors.rst"),
+            os.path.join(doc_dir, "software", "modules", "driver", "ts", "ts-short-names.csv"),
             os.path.join(doc_dir, "software", "modules", "driver", "ts", "vishay", "ntcalug01a103g.rst"),
             os.path.join(doc_dir, "software", "modules", "driver", "ts", "vishay", "ntcle317e4103sba.rst"),
-            os.path.join(doc_dir, "software", "modules", "driver", "ts", "adding-a-new-ts_how-to.rst"),
-            os.path.join(doc_dir, "software", "modules", "driver", "ts", "ts-sensors.rst"),
-            os.path.join(doc_dir, "software", "modules", "driver", "ts", "ts.rst"),
-            os.path.join(doc_dir, "software", "modules", "driver", "ts", "ts-short-names.csv"),
             os.path.join(doc_dir, "software", "modules", "engine", "database", "database.rst"),
             os.path.join(doc_dir, "software", "modules", "engine", "database", "database_how-to.rst"),
             os.path.join(doc_dir, "software", "modules", "engine", "diag", "diag.rst"),
@@ -851,13 +886,28 @@ def build(bld):  # pylint: disable=too-many-branches,too-many-statements
             os.path.join(doc_dir, "software", "modules", "main", "fassert_how-to.rst"),
             os.path.join(doc_dir, "software", "modules", "main", "startup.rst"),
             os.path.join(doc_dir, "software", "modules", "main", "version.rst"),
+            os.path.join(doc_dir, "software", "modules", "modules.rst"),
             os.path.join(doc_dir, "software", "modules", "task", "ftask", "ftask.rst"),
             os.path.join(doc_dir, "software", "modules", "task", "ftask", "ftask_how-to.rst"),
             os.path.join(doc_dir, "software", "modules", "task", "os", "os.rst"),
             os.path.join(doc_dir, "software", "unit-tests", "unit-tests.rst"),
             os.path.join(doc_dir, "software", "unit-tests", "unit-tests_how-to.rst"),
+            os.path.join(doc_dir, "tools", "debugger", "debug-application.rst"),
+            os.path.join(doc_dir, "tools", "debugger", "debugger-lauterbach.rst"),
+            os.path.join(doc_dir, "tools", "debugger", "debugger-ozone.rst"),
+            os.path.join(doc_dir, "tools", "gui", "impl", "entry", "entry.rst"),
+            os.path.join(doc_dir, "tools", "gui", "impl", "log_parser", "log_parser.rst"),
+            os.path.join(doc_dir, "tools", "gui", "impl", "lvac", "lvac.rst"),
+            os.path.join(doc_dir, "tools", "gui", "impl", "misc", "misc.rst"),
+            os.path.join(doc_dir, "tools", "gui", "impl", "workers", "workers.rst"),
+            os.path.join(doc_dir, "tools", "gui", "gui.rst"),
+            os.path.join(doc_dir, "tools", "gui", "gui-implementation.rst"),
             os.path.join(doc_dir, "tools", "halcogen", "halcogen.rst"),
             os.path.join(doc_dir, "tools", "static-analysis", "axivion.rst"),
+            os.path.join(doc_dir, "tools", "waf-tools", "compiler-tool", "f_ti_arm_cgt.rst"),
+            os.path.join(doc_dir, "tools", "waf-tools", "compiler-tool", "f_ti_arm_helper.rst"),
+            os.path.join(doc_dir, "tools", "waf-tools", "compiler-tool", "f_ti_arm_tools.rst"),
+            os.path.join(doc_dir, "tools", "waf-tools", "compiler-tool", "f_ti_color_arm_cgt.rst"),
             os.path.join(doc_dir, "tools", "waf-tools", "f_axivion.rst"),
             os.path.join(doc_dir, "tools", "waf-tools", "f_black.rst"),
             os.path.join(doc_dir, "tools", "waf-tools", "f_bootstrap_library_project.rst"),
@@ -870,32 +920,13 @@ def build(bld):  # pylint: disable=too-many-branches,too-many-statements
             os.path.join(doc_dir, "tools", "waf-tools", "f_ozone.rst"),
             os.path.join(doc_dir, "tools", "waf-tools", "f_pylint.rst"),
             os.path.join(doc_dir, "tools", "waf-tools", "f_sphinx_build.rst"),
-            os.path.join(doc_dir, "tools", "waf-tools", "ti-arm-compiler-tools.csv"),
-            os.path.join(doc_dir, "tools", "waf-tools", "ti-arm-compiler-tools.rst"),
-            os.path.join(doc_dir, "tools", "waf-tools", "compiler-tool", "f_ti_arm_cgt.rst"),
-            os.path.join(doc_dir, "tools", "waf-tools", "compiler-tool", "f_ti_arm_helper.rst"),
-            os.path.join(doc_dir, "tools", "waf-tools", "compiler-tool", "f_ti_arm_tools.rst"),
-            os.path.join(doc_dir, "tools", "waf-tools", "compiler-tool", "f_ti_color_arm_cgt.rst"),
             os.path.join(doc_dir, "tools", "waf-tools", "f_unit_test.rst"),
             os.path.join(doc_dir, "tools", "waf-tools", "f_vscode.rst"),
+            os.path.join(doc_dir, "tools", "waf-tools", "ti-arm-compiler-tools.csv"),
+            os.path.join(doc_dir, "tools", "waf-tools", "ti-arm-compiler-tools.rst"),
             os.path.join(doc_dir, "tools", "waf-tools", "waf-tools.rst"),
-            os.path.join(doc_dir, "tools", "log-parser.rst"),
-            os.path.join(doc_dir, "tools", "debugger", "debug-application.rst"),
-            os.path.join(doc_dir, "tools", "debugger", "debugger-ozone.rst"),
-            os.path.join(doc_dir, "tools", "debugger", "debugger-lauterbach.rst"),
-            os.path.join(doc_dir, "developer-manual", "hardware-developer-manual.rst"),
-            os.path.join(doc_dir, "developer-manual", "preface.rst"),
-            os.path.join(doc_dir, "developer-manual", "software-developer-manual.rst"),
-            os.path.join(doc_dir, "developer-manual", "software", "software-development-process.rst"),
-            os.path.join(doc_dir, "developer-manual", "software", "software-programming-language.rst"),
-            os.path.join(doc_dir, "developer-manual", "software", "software-testing.rst"),
-            os.path.join(doc_dir, "developer-manual", "software", "software-tools.rst"),
-            os.path.join(doc_dir, "developer-manual", "software", "software-verification.rst"),
-            os.path.join(doc_dir, "developer-manual", "style-guide", "guidelines_c.rst"),
-            os.path.join(doc_dir, "developer-manual", "style-guide", "guidelines_rst.rst"),
-            os.path.join(doc_dir, "developer-manual", "style-guide", "guidelines_python.rst"),
-            os.path.join(doc_dir, "developer-manual", "style-guide", "state-machines_how-to.rst"),
-            os.path.join(doc_dir, "developer-manual", "style-guide", "style-guide.rst"),
+            os.path.join(doc_dir, "units.txt"),
+
         ]
         # pylint: enable=line-too-long
         # fmt: on
@@ -1028,7 +1059,6 @@ def check_test_files(ctx):
             excl=[
                 "src/app/driver/sbc/fs8x_driver/**",
                 "src/app/driver/afe/nxp/mc33775a/vendor/**",
-                "src/app/driver/afe/ltc/common/ltc_pec.*",
                 "src/hal/**",
                 "src/os/**",
             ],
@@ -1076,3 +1106,11 @@ def get_axivion_files(ctx):
     for i in tests:
         resulting_glob.extend([f"{i}*.c", f"{i}*.tst"])
     print(" ".join(sorted(resulting_glob)))
+
+
+def get_deepest_src_file(ctx):
+    """Returns the path length of all source files."""
+    all_test_files = ctx.path.ant_glob("src/**")
+    sorted_files = sorted(all_test_files, key=lambda x: len(x.path_from(ctx.path)))
+    for i in sorted_files:
+        print(len(i.abspath()), i.abspath())

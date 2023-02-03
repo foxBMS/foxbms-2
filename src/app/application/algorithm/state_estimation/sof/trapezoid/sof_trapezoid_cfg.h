@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    sof_trapezoid_cfg.h
  * @author  foxBMS Team
  * @date    2020-10-07 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup APPLICATION_CONFIGURATION
  * @prefix  SOF
  *
@@ -56,9 +56,11 @@
 #define FOXBMS__SOF_TRAPEZOID_CFG_H_
 
 /*========== Includes =======================================================*/
-#include "general.h"
 
 #include "battery_cell_cfg.h"
+
+#include <math.h>
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 
@@ -66,13 +68,13 @@
  * Maximum current in mA in charge direction that a string can sustain.
  * Normally set once for the specific battery cell from data sheet
  */
-#define SOF_STRING_CURRENT_CONTINUOUS_CHARGE_mA ((float)BC_CURRENT_MAX_CHARGE_MOL_mA)
+#define SOF_STRING_CURRENT_CONTINUOUS_CHARGE_mA ((float_t)BC_CURRENT_MAX_CHARGE_MOL_mA)
 
 /**
  * Maximum current in mA in discharge direction that a string can deliver.
  * Normally set once for the specific battery cell from data sheet.
  */
-#define SOF_STRING_CURRENT_CONTINUOUS_DISCHARGE_mA ((float)BC_CURRENT_MAX_DISCHARGE_MOL_mA)
+#define SOF_STRING_CURRENT_CONTINUOUS_DISCHARGE_mA ((float_t)BC_CURRENT_MAX_DISCHARGE_MOL_mA)
 
 /**
  * Current in mA that the string should be able to discharge when in
@@ -162,9 +164,9 @@
  */
 typedef struct {
     /** Current derating limits @{ */
-    float maximumDischargeCurrent_mA;
-    float maximumChargeCurrent_mA;
-    float limpHomeCurrent_mA;
+    float_t maximumDischargeCurrent_mA;
+    float_t maximumChargeCurrent_mA;
+    float_t limpHomeCurrent_mA;
     /**@}*/
 
     /** Low temperature derating limits @{ */
@@ -199,5 +201,7 @@ extern const SOF_CONFIG_s sof_recommendedCurrent;
 /*========== Extern Function Prototypes =====================================*/
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
+#ifdef UNITY_UNIT_TEST
+#endif
 
 #endif /* FOXBMS__SOF_TRAPEZOID_CFG_H_ */

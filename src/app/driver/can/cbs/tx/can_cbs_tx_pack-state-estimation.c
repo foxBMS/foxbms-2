@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    can_cbs_tx_pack-state-estimation.c
  * @author  foxBMS Team
  * @date    2021-07-21 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup DRIVER
  * @prefix  CANTX
  *
@@ -58,6 +58,9 @@
 #include "can_cfg_tx-message-definitions.h"
 #include "can_helper.h"
 #include "foxmath.h"
+
+#include <math.h>
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 
@@ -76,16 +79,17 @@ extern uint32_t CANTX_PackStateEstimation(
     uint8_t *pMuxId,
     const CAN_SHIM_s *const kpkCanShim) {
     FAS_ASSERT(message.id == CANTX_PACK_STATE_ESTIMATION_ID);
+    FAS_ASSERT(message.idType == CANTX_PACK_STATE_ESTIMATION_ID_TYPE);
     FAS_ASSERT(message.dlc <= CAN_MAX_DLC);
     FAS_ASSERT(pCanData != NULL_PTR);
     FAS_ASSERT(pMuxId == NULL_PTR); /* pMuxId is not used here, therefore has to be NULL_PTR */
     FAS_ASSERT(kpkCanShim != NULL_PTR);
     uint64_t messageData = 0u;
 
-    float minimumStringSoc_perc     = FLT_MAX;
-    float maximumStringSoc_perc     = FLT_MIN;
-    float minimumStringSoe_perc     = FLT_MAX;
-    float maximumStringSoe_perc     = FLT_MIN;
+    float_t minimumStringSoc_perc   = FLT_MAX;
+    float_t maximumStringSoc_perc   = FLT_MIN;
+    float_t minimumStringSoe_perc   = FLT_MAX;
+    float_t maximumStringSoe_perc   = FLT_MIN;
     uint32_t minimumStringEnergy_Wh = UINT32_MAX;
 
     DATA_READ_DATA(kpkCanShim->pTableSox);
@@ -123,8 +127,8 @@ extern uint32_t CANTX_PackStateEstimation(
         }
     }
 
-    float packSoc_perc         = 0.0f;
-    float packSoe_perc         = 0.0f;
+    float_t packSoc_perc       = 0.0f;
+    float_t packSoe_perc       = 0.0f;
     uint32_t packEnergyLeft_Wh = 0u;
 
     /* Calculate pack value */
@@ -144,11 +148,11 @@ extern uint32_t CANTX_PackStateEstimation(
     }
 
     /* SOC */
-    float signalData = packSoc_perc;
-    float offset     = 0.0f;
-    float factor     = 100.0f; /* convert from perc to 0.01perc */
-    signalData       = (signalData + offset) * factor;
-    uint64_t data    = (int64_t)signalData;
+    float_t signalData = packSoc_perc;
+    float_t offset     = 0.0f;
+    float_t factor     = 100.0f; /* convert from perc to 0.01perc */
+    signalData         = (signalData + offset) * factor;
+    uint64_t data      = (int64_t)signalData;
     /* set data in CAN frame */
     CAN_TxSetMessageDataWithSignalData(&messageData, 7u, 14u, data, message.endianness);
 
@@ -187,5 +191,4 @@ extern uint32_t CANTX_PackStateEstimation(
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
 #ifdef UNITY_UNIT_TEST
-
 #endif

@@ -32,18 +32,19 @@ of consistency there are some rules for that within the project.
 
     Filenames as well as directory names **SHOULD** only consist of lowercase
     alphanumeric characters and may include underscores (``_``), dashes
-    (``-``) and dots (``.``). A correct file or directory name matches the
-    regular expression ``^[a-z0-9_\-.]*$``. Valid exceptions are e.g.,
-    ``README.md`` and ``CHANGELOG.md``.
+    (``-``) and dots (``.``).
+    A correct file or directory name matches the regular expression
+    ``^[a-z0-9_\-.]*$``. Valid exceptions are e.g., ``README.md`` and
+    ``CHANGELOG.md``.
 
 .. _rule_general_filename_uniqueness:
 
 Filename uniqueness (``GENERAL:002``)
 -------------------------------------
 
-Unique filenames help to avoid confusion. Furthermore in case of file includes
-or imports non-unique filenames might lead to undesired behavior as wrong files
-might be used.
+Unique filenames help to avoid confusion.
+Furthermore in case of file includes or imports non-unique filenames might lead
+to undesired behavior as wrong files might be used.
 
 .. admonition:: Filename Uniqueness
 
@@ -82,7 +83,8 @@ No trailing whitespace (``GENERAL:005``)
 ----------------------------------------
 
 Undesired changes in whitespace make diffs more hard to read and are
-unnecessary. To reduce this problem, trailing whitespace is not allowed.
+unnecessary.
+To reduce this problem, trailing whitespace is not allowed.
 
 .. admonition:: No trailing whitespace
 
@@ -112,41 +114,49 @@ Further General Rules
 
 - Optimize for readability using descriptive names that would be clear even to
   people on a different team.
-- Use names that describe the purpose or intent of the object. Do not worry
-  about saving horizontal space as it is far more important to make your code
-  immediately understandable to a new reader. Minimize the use of abbreviations
-  that would likely be unknown to someone outside your project (especially
-  acronyms and initialisms). Do not abbreviate by deleting letters within a
-  word. As a rule of thumb, an abbreviation is probably ok if it's listed in
-  Wikipedia. Generally speaking, descriptiveness should be proportional to the
-  name's scope of visibility. For example, ``n`` may be a fine name within a
-  5-line function, but within the scope of a file, it's likely too vague.
+- Use names that describe the purpose or intent of the object.
+  Do not worry about saving horizontal space as it is far more important to
+  make your code immediately understandable to a new reader.
+  Minimize the use of abbreviations that would likely be unknown to someone
+  outside your project (especially acronyms and initialisms).
+  Do not abbreviate by deleting letters within a word.
+  As a rule of thumb, an abbreviation is probably ok if it's listed in
+  Wikipedia.
+  Generally speaking, descriptiveness should be proportional to the name's
+  scope of visibility.
+  For example, ``n`` may be a fine name within a 5-line function, but within
+  the scope of a file, it's likely too vague.
 - For the purposes of the naming rules below, a "word" is anything that you
-  would write in English without internal spaces. This includes abbreviations
-  and acronyms; e.g., for "camel case" or "Pascal case," in which the first
-  letter of each word is capitalized, use a name like ``StartRpc()``, not
-  ``StartRPC()``.
+  would write in English without internal spaces.
+  This includes abbreviations and acronyms; e.g., for "camel case" or "Pascal
+  case," in which the first letter of each word is capitalized, use a name like
+  ``StartRpc()``, not ``StartRPC()``.
 - Non-ASCII characters should be rare, and **MUST** use ``UTF-8`` encoding. You
   **SHOULD NOT** hard-code user-facing text in source code, even English, so
   use of non-ASCII characters should be rare. However, in certain cases it is
-  appropriate to include such words in your code. For example, if your code
-  parses data files from foreign sources, it may be appropriate to hard-code
-  the non-ASCII string(s) used in those data files as delimiters. More
-  commonly, unit test code (which does not need to be localized) might contain
-  non-ASCII strings. In such cases, you should use ``UTF-8``, since that is an
-  encoding understood by most tools able to handle more than just ASCII. Hex
-  encoding is also ok, and encouraged where it enhances readability - for
+  appropriate to include such words in your code.
+  For example, if your code parses data files from foreign sources, it may be
+  appropriate to hard-code the non-ASCII string(s) used in those data files as
+  delimiters.
+  More commonly, unit test code (which does not need to be localized) might
+  contain non-ASCII strings.
+  In such cases, you should use ``UTF-8``, since that is an encoding understood
+  by most tools able to handle more than just ASCII.
+  Hex encoding is also ok, and encouraged where it enhances readability - for
   example, "\\xEF\\xBB\\xBF", or, even more simply, u8"\\uFEFF", is the Unicode
   zero-width no-break space character, which would be invisible if included in
   the source as straight ``UTF-8``.
 - When referring to files inside the repository the UNIX-style path
-  separator **MUST** be used. When referring to files outside the repository
-  the platform specific path separator **MUST** be used (e.g.,
-  ``src/app/main/main.c`` and ``C:\Users\vulpes``).
+  separator **MUST** be used.
+  When referring to files outside the repository the platform specific path
+  separator **MUST** be used (e.g., ``src/app/main/main.c`` and
+  ``C:\Users\vulpes``).
 - References to functions should be kept as simple and maintainable as
-  possible. For example when referring to a function with the declaration
+  possible.
+  For example when referring to a function with the declaration
   ``uint8_t ABC_MyFunction(uint8_t a, bool b)`` the reference **SHOULD** only
-  use ``ABC_MyFunction()`` without arguments or ellipses. If the context
-  requires specific arguments they **MAY** be provided. The ellipses form
-  **MUST NOT** be used (see https://en.wikipedia.org/wiki/Ellipsis), e.g., do
-  **not** use ``ABC_MyFunction(...)``).
+  use ``ABC_MyFunction()`` without arguments or ellipses.
+  If the context requires specific arguments they **MAY** be provided.
+  The ellipses form **MUST NOT** be used (see
+  https://en.wikipedia.org/wiki/Ellipsis), e.g., do **not** use
+  ``ABC_MyFunction(...)``.

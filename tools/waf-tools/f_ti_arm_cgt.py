@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -672,6 +672,9 @@ class copy_elf(Task.Task):  # pylint: disable-msg=invalid-name
     """This class implements the copying of the elf file to another location
     in the build tree"""
 
+    #: int: priority of the task
+    weight = 3
+
     #: str: color in which the command line is displayed in the terminal
     color = "CYAN"
 
@@ -1185,9 +1188,9 @@ class create_version_source(Task.Task):  # pylint: disable=invalid-name
         if waf_version == "x.y.z":
             version_output["version"] = "x.y.z"
             version_output["tag"] = "0.0.0"
-            version_output["major"] = 0
-            version_output["minor"] = 0
-            version_output["patch"] = 0
+            version_output["major"] = 120  # ascii representation for "x"
+            version_output["minor"] = 121  # ascii representation for "y"
+            version_output["patch"] = 122  # ascii representation for "z"
 
         if (not version_output.get("tag") == waf_version) and (
             not waf_version == "x.y.z"
@@ -1218,7 +1221,7 @@ class create_version_source(Task.Task):  # pylint: disable=invalid-name
             " * @file    c.c",
             " * @author  foxBMS Team",
             " * @date    2019-08-27 (date of creation)",
-            " * @updated 2022-05-30 (date of last update)",
+            " * @updated 2023-01-02 (date of last update)",
             " * @version vx.y.z",
             " * @ingroup SOME_GROUP",
             " * @prefix  ABC",

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_os_freertos.c
  * @author  foxBMS Team
  * @date    2021-11-26 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -58,6 +58,7 @@
 #include "Mockftask_cfg.h"
 #include "Mockportmacro.h"
 #include "Mockqueue.h"
+#include "Mockrtc.h"
 #include "Mocktask.h"
 
 #include "os.h"
@@ -90,4 +91,32 @@ void testvApplicationIdleHookCallsUserCodeIdle(void) {
 void testOS_MarkTaskAsRequiringFpuContext(void) {
     vPortTaskUsesFPU_Expect();
     OS_MarkTaskAsRequiringFpuContext();
+}
+
+void testOS_GetNumberOfStoredMessagesInQueue(void) {
+    OS_QUEUE testQueue = {0};
+    uxQueueMessagesWaiting_ExpectAndReturn(testQueue, 5u);
+    uint32_t numberOfMessages = OS_GetNumberOfStoredMessagesInQueue(testQueue);
+    TEST_ASSERT_EQUAL(5u, numberOfMessages);
+}
+
+void testOS_SendToBackOfQueueFromIsr(void) {
+    OS_QUEUE testQueue = {0};
+    uint8_t dummyVar   = 1u;
+    xQueueGenericSendFromISR_ExpectAndReturn(testQueue, (void *)&dummyVar, NULL_PTR, queueSEND_TO_BACK, pdTRUE);
+    TEST_ASSERT_EQUAL(OS_SUCCESS, OS_SendToBackOfQueueFromIsr(testQueue, (void *)&dummyVar, NULL_PTR));
+
+    xQueueGenericSendFromISR_ExpectAndReturn(testQueue, (void *)&dummyVar, NULL_PTR, queueSEND_TO_BACK, pdFAIL);
+    TEST_ASSERT_EQUAL(OS_FAIL, OS_SendToBackOfQueueFromIsr(testQueue, (void *)&dummyVar, NULL_PTR));
+}
+
+void testOS_SendToBackOfQueue(void) {
+    OS_QUEUE testQueue   = {0};
+    uint8_t dummyVar     = 1u;
+    uint32_t ticksToWait = 1u;
+    xQueueGenericSend_ExpectAndReturn(testQueue, (void *)&dummyVar, ticksToWait, queueSEND_TO_BACK, pdTRUE);
+    TEST_ASSERT_EQUAL(OS_SUCCESS, OS_SendToBackOfQueue(testQueue, (void *)&dummyVar, ticksToWait));
+
+    xQueueGenericSend_ExpectAndReturn(testQueue, (void *)&dummyVar, ticksToWait, queueSEND_TO_BACK, errQUEUE_FULL);
+    TEST_ASSERT_EQUAL(OS_FAIL, OS_SendToBackOfQueue(testQueue, (void *)&dummyVar, ticksToWait));
 }

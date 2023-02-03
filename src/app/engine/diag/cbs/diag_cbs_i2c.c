@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    diag_cbs_i2c.c
  * @author  foxBMS Team
  * @date    2021-09-29 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup ENGINE
  * @prefix  DIAG
  *
@@ -53,6 +53,9 @@
 
 /*========== Includes =======================================================*/
 #include "diag_cbs.h"
+#include "fstd_types.h"
+
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 
@@ -65,24 +68,35 @@
 /*========== Static Function Implementations ================================*/
 
 /*========== Extern Function Implementations ================================*/
-extern void DIAG_I2cPex(
+extern void DIAG_I2c(
     DIAG_ID_e diagId,
     DIAG_EVENT_e event,
     const DIAG_DATABASE_SHIM_s *const kpkDiagShim,
     uint32_t data) {
-    FAS_ASSERT(diagId < DIAG_ID_MAX);
+    FAS_ASSERT((diagId == DIAG_ID_I2C_PEX_ERROR) || (diagId == DIAG_ID_I2C_RTC_ERROR));
     FAS_ASSERT((event == DIAG_EVENT_OK) || (event == DIAG_EVENT_NOT_OK) || (event == DIAG_EVENT_RESET));
     FAS_ASSERT(kpkDiagShim != NULL_PTR);
     (void)data; /* data is unused */
 
     if (diagId == DIAG_ID_I2C_PEX_ERROR) {
         if (event == DIAG_EVENT_RESET) {
-            kpkDiagShim->pTableError->i2cPexError = 0;
+            kpkDiagShim->pTableError->pexI2cCommunicationError = false;
         }
         if (event == DIAG_EVENT_NOT_OK) {
-            kpkDiagShim->pTableError->i2cPexError = 1;
+            kpkDiagShim->pTableError->pexI2cCommunicationError = true;
+        }
+    }
+
+    if (diagId == DIAG_ID_I2C_RTC_ERROR) {
+        if (event == DIAG_EVENT_RESET) {
+            kpkDiagShim->pTableError->i2cRtcError = false;
+        }
+        if (event == DIAG_EVENT_NOT_OK) {
+            kpkDiagShim->pTableError->i2cRtcError = true;
         }
     }
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
+#ifdef UNITY_UNIT_TEST
+#endif

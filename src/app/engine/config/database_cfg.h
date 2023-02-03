@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    database_cfg.h
  * @author  foxBMS Team
  * @date    2015-08-18 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup ENGINE_CONFIGURATION
  * @prefix  DATA
  *
@@ -58,11 +58,14 @@
 #define FOXBMS__DATABASE_CFG_H_
 
 /*========== Includes =======================================================*/
-#include "general.h"
 
 #include "battery_system_cfg.h"
 
 #include "mcu.h"
+
+#include <math.h>
+#include <stdbool.h>
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 /** configuration struct of database channel (data block) */
@@ -83,16 +86,16 @@ typedef enum {
     DATA_BLOCK_ID_USER_MUX,
     DATA_BLOCK_ID_OPEN_WIRE_BASE,
     DATA_BLOCK_ID_ALL_GPIO_VOLTAGES_BASE,
-    DATA_BLOCK_ID_ERRORSTATE,
+    DATA_BLOCK_ID_ERROR_STATE,
     DATA_BLOCK_ID_CONTACTOR_FEEDBACK,
     DATA_BLOCK_ID_INTERLOCK_FEEDBACK,
     DATA_BLOCK_ID_SOF,
-    DATA_BLOCK_ID_SYSTEMSTATE,
+    DATA_BLOCK_ID_SYSTEM_STATE,
     DATA_BLOCK_ID_MSL_FLAG,
     DATA_BLOCK_ID_RSL_FLAG,
     DATA_BLOCK_ID_MOL_FLAG,
     DATA_BLOCK_ID_SOX,
-    DATA_BLOCK_ID_STATEREQUEST,
+    DATA_BLOCK_ID_STATE_REQUEST,
     DATA_BLOCK_ID_MOVING_AVERAGE,
     DATA_BLOCK_ID_CELL_VOLTAGE_BASE,
     DATA_BLOCK_ID_CELL_TEMPERATURE_BASE,
@@ -168,7 +171,7 @@ typedef struct {
     uint16_t nrModuleMaximumCellVoltage[BS_NR_OF_STRINGS];    /*!< number of the module with maximum cell voltage */
     uint16_t nrCellMaximumCellVoltage[BS_NR_OF_STRINGS];      /*!< number of the cell with maximum cell voltage */
     uint16_t validMeasuredCellVoltages[BS_NR_OF_STRINGS];     /*!< number of valid measured cell voltages */
-    float averageTemperature_ddegC[BS_NR_OF_STRINGS];         /*!< unit: deci &deg;C */
+    float_t averageTemperature_ddegC[BS_NR_OF_STRINGS];       /*!< unit: deci &deg;C */
     int16_t minimumTemperature_ddegC[BS_NR_OF_STRINGS];       /*!< unit: deci &deg;C */
     uint16_t nrModuleMinimumTemperature[BS_NR_OF_STRINGS];    /*!< number of the module with minimum temperature */
     uint16_t nrSensorMinimumTemperature[BS_NR_OF_STRINGS];    /*!< number of the sensor with minimum temperature */
@@ -263,7 +266,7 @@ typedef struct {
     DATA_BLOCK_HEADER_s header;                            /*!< Data block header */
     uint8_t state;                                         /*!< for future use */
     uint32_t eepromReadAddressToUse;                       /*!< address to read from for  slave EEPROM */
-    uint32_t eepromReadAddressLastUsed;                    /*!< last address used to read fromfor slave EEPROM */
+    uint32_t eepromReadAddressLastUsed;                    /*!< last address used to read from slave EEPROM */
     uint32_t eepromWriteAddressToUse;                      /*!< address to write to for slave EEPROM */
     uint32_t eepromWriteAddressLastUsed;                   /*!< last address used to write to for slave EEPROM */
     uint8_t ioValueOut[BS_NR_OF_MODULES_PER_STRING];       /*!< data to be written to the port expander */
@@ -302,9 +305,9 @@ typedef struct {
     DATA_BLOCK_HEADER_s header;             /*!< Data block header */
     uint8_t state;                          /*!< for future use */
     uint16_t nrOpenWires[BS_NR_OF_STRINGS]; /*!< number of open wires */
-    uint8_t openwire[BS_NR_OF_STRINGS]
+    uint8_t openWire[BS_NR_OF_STRINGS]
                     [BS_NR_OF_MODULES_PER_STRING *
-                     (BS_NR_OF_CELL_BLOCKS_PER_MODULE + 1u)]; /*!< 1 -> open wire, 0 -> everything ok */
+                     BS_NR_OF_CELL_BLOCKS_PER_MODULE]; /*!< 1 -> open wire, 0 -> everything ok */
 } DATA_BLOCK_OPEN_WIRE_s;
 
 /** data block struct of GPIO voltage */
@@ -314,8 +317,8 @@ typedef struct {
      * respective database entry representation in enum DATA_BLOCK_ID_e. */
     DATA_BLOCK_HEADER_s header; /*!< Data block header */
     uint8_t state;              /*!< for future use */
-    uint16_t gpioVoltages_mV[BS_NR_OF_STRINGS]
-                            [BS_NR_OF_MODULES_PER_STRING * BS_NR_OF_GPIOS_PER_MODULE]; /*!< unit: mV */
+    int16_t gpioVoltages_mV[BS_NR_OF_STRINGS][BS_NR_OF_MODULES_PER_STRING * BS_NR_OF_GPIOS_PER_MODULE]; /*!< unit: mV */
+    int16_t gpaVoltages_mV[BS_NR_OF_STRINGS][BS_NR_OF_MODULES_PER_STRING * BS_NR_OF_GPAS_PER_MODULE];   /*!< unit: mV */
     uint16_t
         invalidGpioVoltages[BS_NR_OF_STRINGS]
                            [BS_NR_OF_MODULES_PER_STRING]; /*!< bitmask if voltages are valid. 0->valid, 1->invalid */
@@ -326,62 +329,66 @@ typedef struct {
     /* This struct needs to be at the beginning of every database entry. During
      * the initialization of a database struct, uniqueId must be set to the
      * respective database entry representation in enum DATA_BLOCK_ID_e. */
-    DATA_BLOCK_HEADER_s header;                           /*!< Data block header */
-    uint8_t currentSensor[BS_NR_OF_STRINGS];              /*!< 0 -> no error, 1 -> error, not responding */
-    uint8_t stringMinusContactor[BS_NR_OF_STRINGS];       /*!< 0 -> no error, 1 -> error, not responding */
-    uint8_t stringPlusContactor[BS_NR_OF_STRINGS];        /*!< 0 -> no error, 1 -> error, not responding */
-    uint8_t prechargeContactor[BS_NR_OF_STRINGS];         /*!< 0 -> no error, 1 -> error, not responding */
-    uint8_t interlock;                                    /*!< 0 -> no error, 1 -> error */
-    uint8_t crcError[BS_NR_OF_STRINGS];                   /*!< 0 -> no error, 1 -> error */
-    uint8_t muxError[BS_NR_OF_STRINGS];                   /*!< 0 -> no error, 1 -> error */
-    uint8_t spiError[BS_NR_OF_STRINGS];                   /*!< 0 -> no error, 1 -> error */
-    uint8_t afeConfigurationError[BS_NR_OF_STRINGS];      /*!< 0 -> no error, 1 -> error */
-    uint8_t afeCellVoltageError[BS_NR_OF_STRINGS];        /*!< 0 -> no error, 1 -> error */
-    uint8_t afeCellTemperatureError[BS_NR_OF_STRINGS];    /*!< 0 -> no error, 1 -> error */
-    uint8_t baseCellVoltageMeasurementTimeout;            /*!< 0 -> no error, 1 -> error */
-    uint8_t redundancy0CellVoltageMeasurementTimeout;     /*!< 0 -> no error, 1 -> error */
-    uint8_t baseCellTemperatureMeasurementTimeout;        /*!< 0 -> no error, 1 -> error */
-    uint8_t redundancy0CellTemperatureMeasurementTimeout; /*!< 0 -> no error, 1 -> error */
-    uint8_t currentMeasurementTimeout[BS_NR_OF_STRINGS];  /*!< 0 -> no error, 1 -> error */
-    uint8_t currentMeasurementError[BS_NR_OF_STRINGS];    /*!< 0 -> no error, 1 -> error */
-    uint8_t currentSensorTimeoutV1[BS_NR_OF_STRINGS];     /*!< 0 -> no error, 1 -> error */
-    uint8_t currentSensorTimeoutV3[BS_NR_OF_STRINGS];     /*!< 0 -> no error, 1 -> error */
-    uint8_t currentSensorPowerTimeout[BS_NR_OF_STRINGS];  /*!< 0 -> no error, 1 -> error */
-    uint8_t powerMeasurementError[BS_NR_OF_STRINGS];      /*!< 0 -> no error, 1 -> error */
-    bool insulationMeasurementValid;                      /*!< false -> not valid, true -> valid */
+    DATA_BLOCK_HEADER_s header;                                          /*!< Data block header */
+    bool afeCommunicationCrcError[BS_NR_OF_STRINGS];                     /*!< false -> no error, true -> error */
+    bool afeSlaveMultiplexerError[BS_NR_OF_STRINGS];                     /*!< false -> no error, true -> error */
+    bool afeCommunicationSpiError[BS_NR_OF_STRINGS];                     /*!< false -> no error, true -> error */
+    bool afeConfigurationError[BS_NR_OF_STRINGS];                        /*!< false -> no error, true -> error */
+    bool afeCellVoltageInvalidError[BS_NR_OF_STRINGS];                   /*!< false -> no error, true -> error */
+    bool afeCellTemperatureInvalidError[BS_NR_OF_STRINGS];               /*!< false -> no error, true -> error */
+    bool baseCellVoltageMeasurementTimeoutError;                         /*!< false -> no error, true -> error */
+    bool redundancy0CellVoltageMeasurementTimeoutError;                  /*!< false -> no error, true -> error */
+    bool baseCellTemperatureMeasurementTimeoutError;                     /*!< false -> no error, true -> error */
+    bool redundancy0CellTemperatureMeasurementTimeoutError;              /*!< false -> no error, true -> error */
+    bool currentMeasurementTimeoutError[BS_NR_OF_STRINGS];               /*!< false -> no error, true -> error */
+    bool currentMeasurementInvalidError[BS_NR_OF_STRINGS];               /*!< false -> no error, true -> error */
+    bool currentSensorVoltage1TimeoutError[BS_NR_OF_STRINGS];            /*!< false -> no error, true -> error */
+    bool currentSensorVoltage2TimeoutError[BS_NR_OF_STRINGS];            /*!< false -> no error, true -> error */
+    bool currentSensorVoltage3TimeoutError[BS_NR_OF_STRINGS];            /*!< false -> no error, true -> error */
+    bool currentSensorPowerTimeoutError[BS_NR_OF_STRINGS];               /*!< false -> no error, true -> error */
+    bool currentSensorCoulombCounterTimeoutError[BS_NR_OF_STRINGS];      /*!< false -> no error, true -> error */
+    bool currentSensorEnergyCounterTimeoutError[BS_NR_OF_STRINGS];       /*!< false -> no error, true -> error */
+    bool powerMeasurementInvalidError[BS_NR_OF_STRINGS];                 /*!< false -> no error, true -> error */
+    bool mainFuseError;                                                  /*!< false -> fuse ok,  true -> fuse tripped */
+    bool stringFuseError[BS_NR_OF_STRINGS];                              /*!< false -> fuse ok,  true -> fuse tripped */
+    bool openWireDetectedError[BS_NR_OF_STRINGS];                        /*!< false -> no error, true -> error */
+    bool stateRequestTimingViolationError;                               /*!< false -> no error, true -> error */
+    bool canRxQueueFullError;                                            /*!< false -> no error, true -> error */
+    bool coinCellLowVoltageError;                                        /*!< false -> no error, true -> error */
+    bool plausibilityCheckPackVoltageError[BS_NR_OF_STRINGS];            /*!< false -> no error, true -> error */
+    bool plausibilityCheckCellVoltageError[BS_NR_OF_STRINGS];            /*!< false -> no error, true -> error */
+    bool plausibilityCheckCellVoltageSpreadError[BS_NR_OF_STRINGS];      /*!< false -> no error, true -> error */
+    bool plausibilityCheckCellTemperatureError[BS_NR_OF_STRINGS];        /*!< false -> no error, true -> error */
+    bool plausibilityCheckCellTemperatureSpreadError[BS_NR_OF_STRINGS];  /*!< false -> no error, true -> error */
+    bool currentSensorNotRespondingError[BS_NR_OF_STRINGS];              /*!< false -> no error, true -> error */
+    bool contactorInNegativePathOfStringFeedbackError[BS_NR_OF_STRINGS]; /*!< false -> no error, true -> error */
+    bool contactorInPositivePathOfStringFeedbackError[BS_NR_OF_STRINGS]; /*!< false -> no error, true -> error */
+    bool prechargeContactorFeedbackError[BS_NR_OF_STRINGS];              /*!< false -> no error, true -> error */
+    bool interlockOpenedError;                                           /*!< false -> no error, true -> error */
+    bool insulationMeasurementInvalidError;                              /*!< false -> no error, true -> error */
+    bool criticalLowInsulationResistanceError; /*!< false -> no critical resistance , true -> critical low resistance */
+    bool warnableLowInsulationResistanceError; /*!< false -> no warnable resistance, true -> warnable low resistance */
     bool
-        criticalLowInsulationResistance; /*!< false -> no critical resistance measured, true -> critical low resistance measured */
-    bool
-        warnableLowInsulationResistance; /*!< false -> no warnable resistance measured, true -> warnable low resistance measured */
-    bool
-        insulationGroundFaultDetected; /*!< false -> no insulation fault between HV and chassis detected, true -> insulation fault detected */
-    uint8_t fuseStateNormal[BS_NR_OF_STRINGS];                        /*!< 0 -> fuse ok,  1 -> fuse tripped */
-    uint8_t fuseStateCharge[BS_NR_OF_STRINGS];                        /*!< 0 -> fuse ok,  1 -> fuse tripped */
-    uint8_t open_wire[BS_NR_OF_STRINGS];                              /*!< 0 -> no error, 1 -> error */
-    uint8_t canTiming;                                                /*!< 0 -> no error, 1 -> error */
-    uint8_t canRxQueueFull;                                           /*!< 0 -> no error, 1 -> error */
-    uint8_t canTimingCc[BS_NR_OF_STRINGS];                            /*!< 0 -> no error, 1 -> error */
-    uint8_t canTimingEc[BS_NR_OF_STRINGS];                            /*!< 0 -> no error, 1 -> error */
-    uint8_t mcuDieTemperature;                                        /*!< 0 -> no error, 1 -> error */
-    uint8_t coinCellVoltage;                                          /*!< 0 -> no error, 1 -> error */
-    uint8_t plausibilityCheckPackvoltage[BS_NR_OF_STRINGS];           /*!< 0 -> no error, else: error */
-    uint8_t plausibilityCheckCellVoltage[BS_NR_OF_STRINGS];           /*!< 0 -> no error, else: error */
-    uint8_t plausibilityCheckCellVoltageSpread[BS_NR_OF_STRINGS];     /*!< 0 -> no error, else: error */
-    uint8_t plausibilityCheckCelltemperatureSpread[BS_NR_OF_STRINGS]; /*!< 0 -> no error, 1 -> error */
-    uint8_t plausibilityCheckCelltemperature[BS_NR_OF_STRINGS];       /*!< 0 -> no error, else: error */
-    uint8_t deepDischargeDetected[BS_NR_OF_STRINGS];                  /*!< 0 -> no error, 1 -> error */
-    uint8_t currentOnOpenString[BS_NR_OF_STRINGS];                    /*!< 0 -> no error, 1 -> error */
-    uint8_t sbcFinState;           /*!< 0 -> okay, 1 -> error: short-circuit to RSTB */
-    uint8_t sbcRstbState;          /*!< 0 -> okay, 1 -> error: RSTB not working */
-    uint8_t i2cPexError;           /*!< the I2C port expander does not work as expected */
-    uint8_t framReadCrcError;      /*!< 0 if read CRC matches with CRC of read data , 1 otherwise */
-    bool timingViolationEngine;    /*!< timing violation in engine task */
-    bool timingViolation1ms;       /*!< timing violation in 1ms task */
-    bool timingViolation10ms;      /*!< timing violation in 10ms task */
-    bool timingViolation100ms;     /*!< timing violation in 100ms task */
-    bool timingViolation100msAlgo; /*!< timing violation in 100ms algorithm task */
-    bool alertFlag;                /*!< true: ALERT situation detected, false: everything okay */
-} DATA_BLOCK_ERRORSTATE_s;
+        insulationGroundFaultDetectedError; /*!< false -> no insulation fault between HV and chassis detected, true -> insulation fault detected */
+    bool prechargeAbortedDueToVoltage[BS_NR_OF_STRINGS];     /*!< false -> no error, true -> error */
+    bool prechargeAbortedDueToCurrent[BS_NR_OF_STRINGS];     /*!< false -> no error, true -> error */
+    bool deepDischargeDetectedError[BS_NR_OF_STRINGS];       /*!< false -> no error, true -> error */
+    bool currentOnOpenStringDetectedError[BS_NR_OF_STRINGS]; /*!< false -> no error, true -> error */
+    bool mcuDieTemperatureViolationError;                    /*!< false -> no error, true -> error */
+    bool mcuSbcFinError;                    /*!< false -> no error, true -> error: short-circuit to RSTB */
+    bool mcuSbcRstbError;                   /*!< false -> no error, true -> error: RSTB not working */
+    bool pexI2cCommunicationError;          /*!< the I2C port expander does not work as expected */
+    bool i2cRtcError;                       /*!< problem in I2C communication with RTC */
+    bool framReadCrcError;                  /*!< false if read CRC matches with CRC of read data, true otherwise */
+    bool rtcClockIntegrityError;            /*!< RTC time integrity not guaranteed, because oscillator has stopped */
+    bool rtcBatteryLowError;                /*!< RTC battery voltage is low */
+    bool taskEngineTimingViolationError;    /*!< timing violation in engine task */
+    bool task1msTimingViolationError;       /*!< timing violation in 1ms task */
+    bool task10msTimingViolationError;      /*!< timing violation in 10ms task */
+    bool task100msTimingViolationError;     /*!< timing violation in 100ms task */
+    bool task100msAlgoTimingViolationError; /*!< timing violation in 100ms algorithm task */
+    bool alertFlagSetError;                 /*!< true: ALERT situation detected, false: everything okay */
+} DATA_BLOCK_ERROR_STATE_s;
 
 /** data block struct of contactor feedback */
 typedef struct {
@@ -397,12 +404,12 @@ typedef struct {
     /* This struct needs to be at the beginning of every database entry. During
      * the initialization of a database struct, uniqueId must be set to the
      * respective database entry representation in enum DATA_BLOCK_ID_e. */
-    DATA_BLOCK_HEADER_s header;                 /*!< Data block header */
-    uint8_t interlockFeedback_IL_STATE;         /*!< feedback of interlock, connected to pin */
-    float interlockVoltageFeedback_IL_HS_VS_mV; /*!< voltage feedback of interlock, connected to ADC input 2 */
-    float interlockVoltageFeedback_IL_LS_VS_mV; /*!< voltage feedback of interlock, connected to ADC input 3 */
-    float interlockCurrentFeedback_IL_HS_CS_mA; /*!< current feedback of interlock, connected to ADC input 4 */
-    float interlockCurrentFeedback_IL_LS_CS_mA; /*!< current feedback of interlock, connected to ADC input 5 */
+    DATA_BLOCK_HEADER_s header;                   /*!< Data block header */
+    uint8_t interlockFeedback_IL_STATE;           /*!< feedback of interlock, connected to pin */
+    float_t interlockVoltageFeedback_IL_HS_VS_mV; /*!< voltage feedback of interlock, connected to ADC input 2 */
+    float_t interlockVoltageFeedback_IL_LS_VS_mV; /*!< voltage feedback of interlock, connected to ADC input 3 */
+    float_t interlockCurrentFeedback_IL_HS_CS_mA; /*!< current feedback of interlock, connected to ADC input 4 */
+    float_t interlockCurrentFeedback_IL_LS_CS_mA; /*!< current feedback of interlock, connected to ADC input 5 */
 } DATA_BLOCK_INTERLOCK_FEEDBACK_s;
 
 /** data block struct of sof limits */
@@ -410,17 +417,18 @@ typedef struct {
     /* This struct needs to be at the beginning of every database entry. During
      * the initialization of a database struct, uniqueId must be set to the
      * respective database entry representation in enum DATA_BLOCK_ID_e. */
-    DATA_BLOCK_HEADER_s header;                         /*!< Data block header */
-    float recommendedContinuousPackChargeCurrent_mA;    /*!< recommended continuous operating pack charge current */
-    float recommendedContinuousPackDischargeCurrent_mA; /*!< recommended continuous operating pack discharge current */
-    float recommendedPeakPackChargeCurrent_mA;          /*!< recommended peak operating pack charge current */
-    float recommendedPeakPackDischargeCurrent_mA;       /*!< recommended peak operating pack discharge current */
-    float recommendedContinuousChargeCurrent_mA
+    DATA_BLOCK_HEADER_s header;                        /*!< Data block header */
+    float_t recommendedContinuousPackChargeCurrent_mA; /*!< recommended continuous operating pack charge current */
+    float_t
+        recommendedContinuousPackDischargeCurrent_mA; /*!< recommended continuous operating pack discharge current */
+    float_t recommendedPeakPackChargeCurrent_mA;      /*!< recommended peak operating pack charge current */
+    float_t recommendedPeakPackDischargeCurrent_mA;   /*!< recommended peak operating pack discharge current */
+    float_t recommendedContinuousChargeCurrent_mA
         [BS_NR_OF_STRINGS]; /*!< recommended continuous operating charge current    */
-    float recommendedContinuousDischargeCurrent_mA
-        [BS_NR_OF_STRINGS];                                  /*!< recommended continuous operating discharge current */
-    float recommendedPeakChargeCurrent_mA[BS_NR_OF_STRINGS]; /*!< recommended peak operating charge current */
-    float recommendedPeakDischargeCurrent_mA[BS_NR_OF_STRINGS]; /*!< recommended peak operating discharge current */
+    float_t recommendedContinuousDischargeCurrent_mA
+        [BS_NR_OF_STRINGS]; /*!< recommended continuous operating discharge current */
+    float_t recommendedPeakChargeCurrent_mA[BS_NR_OF_STRINGS];    /*!< recommended peak operating charge current */
+    float_t recommendedPeakDischargeCurrent_mA[BS_NR_OF_STRINGS]; /*!< recommended peak operating discharge current */
 } DATA_BLOCK_SOF_s;
 
 /** data block struct of system state */
@@ -430,7 +438,7 @@ typedef struct {
      * respective database entry representation in enum DATA_BLOCK_ID_e. */
     DATA_BLOCK_HEADER_s header; /*!< Data block header */
     int32_t bmsCanState;        /*!< system state for CAN messages (e.g., standby, normal) */
-} DATA_BLOCK_SYSTEMSTATE_s;
+} DATA_BLOCK_SYSTEM_STATE_s;
 
 /** data block struct of the maximum safe limits */
 typedef struct {
@@ -499,19 +507,19 @@ typedef struct {
     /* This struct needs to be at the beginning of every database entry. During
      * the initialization of a database struct, uniqueId must be set to the
      * respective database entry representation in enum DATA_BLOCK_ID_e. */
-    DATA_BLOCK_HEADER_s header;               /*!< Data block header */
-    float averageSoc_perc[BS_NR_OF_STRINGS];  /*!< 0.0 <= averageSoc <= 100.0 */
-    float minimumSoc_perc[BS_NR_OF_STRINGS];  /*!< 0.0 <= minSoc <= 100.0 */
-    float maximumSoc_perc[BS_NR_OF_STRINGS];  /*!< 0.0 <= maxSoc <= 100.0 */
-    float averageSoe_perc[BS_NR_OF_STRINGS];  /*!< 0.0 <= averageSoe <= 100.0 */
-    float minimumSoe_perc[BS_NR_OF_STRINGS];  /*!< 0.0 <= minimumSoe <= 100.0  */
-    float maximumSoe_perc[BS_NR_OF_STRINGS];  /*!< 0.0 <= maximumSoe <= 100.0  */
-    float averageSoh_perc[BS_NR_OF_STRINGS];  /*!< 0.0 <= averageSoh <= 100.0 */
-    float minimumSoh_perc[BS_NR_OF_STRINGS];  /*!< 0.0 <= minimumSoh <= 100.0  */
-    float maximumSoh_perc[BS_NR_OF_STRINGS];  /*!< 0.0 <= maximumSoh <= 100.0  */
-    uint32_t maximumSoe_Wh[BS_NR_OF_STRINGS]; /*!< maximum string energy in Wh */
-    uint32_t averageSoe_Wh[BS_NR_OF_STRINGS]; /*!< average string energy in Wh */
-    uint32_t minimumSoe_Wh[BS_NR_OF_STRINGS]; /*!< minimum string energy in Wh */
+    DATA_BLOCK_HEADER_s header;                /*!< Data block header */
+    float_t averageSoc_perc[BS_NR_OF_STRINGS]; /*!< 0.0 <= averageSoc <= 100.0 */
+    float_t minimumSoc_perc[BS_NR_OF_STRINGS]; /*!< 0.0 <= minSoc <= 100.0 */
+    float_t maximumSoc_perc[BS_NR_OF_STRINGS]; /*!< 0.0 <= maxSoc <= 100.0 */
+    float_t averageSoe_perc[BS_NR_OF_STRINGS]; /*!< 0.0 <= averageSoe <= 100.0 */
+    float_t minimumSoe_perc[BS_NR_OF_STRINGS]; /*!< 0.0 <= minimumSoe <= 100.0  */
+    float_t maximumSoe_perc[BS_NR_OF_STRINGS]; /*!< 0.0 <= maximumSoe <= 100.0  */
+    float_t averageSoh_perc[BS_NR_OF_STRINGS]; /*!< 0.0 <= averageSoh <= 100.0 */
+    float_t minimumSoh_perc[BS_NR_OF_STRINGS]; /*!< 0.0 <= minimumSoh <= 100.0  */
+    float_t maximumSoh_perc[BS_NR_OF_STRINGS]; /*!< 0.0 <= maximumSoh <= 100.0  */
+    uint32_t maximumSoe_Wh[BS_NR_OF_STRINGS];  /*!< maximum string energy in Wh */
+    uint32_t averageSoe_Wh[BS_NR_OF_STRINGS];  /*!< average string energy in Wh */
+    uint32_t minimumSoe_Wh[BS_NR_OF_STRINGS];  /*!< minimum string energy in Wh */
 } DATA_BLOCK_SOX_s;
 
 /** data block struct of can state request */
@@ -524,26 +532,26 @@ typedef struct {
     uint8_t previousStateRequestViaCan; /*!< previous state request */
     uint8_t stateRequestViaCanPending;  /*!< pending state request */
     uint8_t stateCounter;               /*!< counts state updates */
-} DATA_BLOCK_STATEREQUEST_s;
+} DATA_BLOCK_STATE_REQUEST_s;
 
 /** data block struct of the moving average algorithm */
 typedef struct {
     /* This struct needs to be at the beginning of every database entry. During
      * the initialization of a database struct, uniqueId must be set to the
      * respective database entry representation in enum DATA_BLOCK_ID_e. */
-    DATA_BLOCK_HEADER_s header;                        /*!< Data block header */
-    float movingAverageCurrent1sInterval_mA;           /*!< current moving average over the last 1s */
-    float movingAverageCurrent5sInterval_mA;           /*!< current moving average over the last 5s */
-    float movingAverageCurrent10sInterval_mA;          /*!< current moving average over the last 10s */
-    float movingAverageCurrent30sInterval_mA;          /*!< current moving average over the last 30s */
-    float movingAverageCurrent60sInterval_mA;          /*!< current moving average over the last 60s */
-    float movingAverageCurrentConfigurableInterval_mA; /*!< current moving average over the last configured time */
-    float movingAveragePower1sInterval_mA;             /*!< power moving average over the last 1s */
-    float movingAveragePower5sInterval_mA;             /*!< power moving average over the last 5s */
-    float movingAveragePower10sInterval_mA;            /*!< power moving average over the last 10s */
-    float movingAveragePower30sInterval_mA;            /*!< power moving average over the last 30s */
-    float movingAveragePower60sInterval_mA;            /*!< power moving average over the last 60s */
-    float movingAveragePowerConfigurableInterval_mA;   /*!< power moving average over the last configured time */
+    DATA_BLOCK_HEADER_s header;                          /*!< Data block header */
+    float_t movingAverageCurrent1sInterval_mA;           /*!< current moving average over the last 1s */
+    float_t movingAverageCurrent5sInterval_mA;           /*!< current moving average over the last 5s */
+    float_t movingAverageCurrent10sInterval_mA;          /*!< current moving average over the last 10s */
+    float_t movingAverageCurrent30sInterval_mA;          /*!< current moving average over the last 30s */
+    float_t movingAverageCurrent60sInterval_mA;          /*!< current moving average over the last 60s */
+    float_t movingAverageCurrentConfigurableInterval_mA; /*!< current moving average over the last configured time */
+    float_t movingAveragePower1sInterval_mA;             /*!< power moving average over the last 1s */
+    float_t movingAveragePower5sInterval_mA;             /*!< power moving average over the last 5s */
+    float_t movingAveragePower10sInterval_mA;            /*!< power moving average over the last 10s */
+    float_t movingAveragePower30sInterval_mA;            /*!< power moving average over the last 30s */
+    float_t movingAveragePower60sInterval_mA;            /*!< power moving average over the last 60s */
+    float_t movingAveragePowerConfigurableInterval_mA;   /*!< power moving average over the last configured time */
 } DATA_BLOCK_MOVING_AVERAGE_s;
 
 /** data block struct of insulation monitoring device measurement */
@@ -564,7 +572,7 @@ typedef struct {
     bool dfIsChassisShortToHvPlus;       /*!< true: bias/tendency to the location of the insulation fault to HV plus */
     bool dfIsChassisShortToHvMinus;      /*!< true: bias/tendency to the location of the insulation fault to HV minus */
     bool dfIsDeviceErrorDetected;        /*!< true: device error detected, false: no error detected */
-    bool dfIsMeasurmentedUpToDate;       /*!< true: measurement up to-date, false: outdated */
+    bool dfIsMeasurementUpToDate;        /*!< true: measurement up to-date, false: outdated */
 } DATA_BLOCK_INSULATION_MONITORING_s;
 
 /** data block struct for the I2C humidity/temperature sensor */
@@ -582,8 +590,8 @@ typedef struct {
     /* This struct needs to be at the beginning of every database entry. During
      * the initialization of a database struct, uniqueId must be set to the
      * respective database entry representation in enum DATA_BLOCK_ID_e. */
-    DATA_BLOCK_HEADER_s header;                               /*!< Data block header */
-    float adc1ConvertedVoltages_mV[MCU_ADC1_MAX_NR_CHANNELS]; /*!< voltages measured by the internal ADC ADC1 */
+    DATA_BLOCK_HEADER_s header;                                 /*!< Data block header */
+    float_t adc1ConvertedVoltages_mV[MCU_ADC1_MAX_NR_CHANNELS]; /*!< voltages measured by the internal ADC ADC1 */
 } DATA_BLOCK_ADC_VOLTAGE_s;
 
 /** data block struct for the database built-in self-test */
@@ -604,5 +612,7 @@ extern DATA_BASE_s data_database[DATA_BLOCK_ID_MAX];
 /*========== Extern Function Prototypes =====================================*/
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
+#ifdef UNITY_UNIT_TEST
+#endif
 
 #endif /* FOXBMS__DATABASE_CFG_H_ */

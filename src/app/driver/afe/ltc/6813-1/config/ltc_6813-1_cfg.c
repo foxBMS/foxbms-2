@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,12 +43,12 @@
  * @file    ltc_6813-1_cfg.c
  * @author  foxBMS Team
  * @date    2015-02-18 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  LTC
  *
- * @brief   Configuration for the LTC monitoring chip
+ * @brief   Configuration for the LTC analog front-end
  *
  */
 
@@ -56,6 +56,8 @@
 #include "ltc_6813-1_cfg.h"
 
 #include "tsi.h"
+
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 
@@ -200,24 +202,25 @@ const uint8_t ltc_muxsensortemperatur_cfg[BS_NR_OF_TEMP_SENSORS_PER_MODULE] = {
     /* 16-1       !< index 15 = mux 1, ch 7 */
 };
 
-const uint8_t ltc_voltage_input_used[BS_MAX_SUPPORTED_CELLS] = {
-#if (BS_MAX_SUPPORTED_CELLS == 12) || (BS_MAX_SUPPORTED_CELLS == 14) || (BS_MAX_SUPPORTED_CELLS == 15) || \
-    (BS_MAX_SUPPORTED_CELLS == 18) || (BS_MAX_SUPPORTED_CELLS == 36)
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-#endif
-#if (BS_MAX_SUPPORTED_CELLS == 14) || (BS_MAX_SUPPORTED_CELLS == 15) || (BS_MAX_SUPPORTED_CELLS == 18) || \
-    (BS_MAX_SUPPORTED_CELLS == 36)
-    1, 1,
-#endif
-#if (BS_MAX_SUPPORTED_CELLS == 15) || (BS_MAX_SUPPORTED_CELLS == 18) || (BS_MAX_SUPPORTED_CELLS == 36)
+const uint8_t ltc_voltage_input_used[LTC_6813_MAX_SUPPORTED_CELLS] = {
     1,
-#endif
-#if (BS_MAX_SUPPORTED_CELLS == 18) || (BS_MAX_SUPPORTED_CELLS == 36)
-    1, 1, 1,
-#endif
-#if (BS_MAX_SUPPORTED_CELLS == 36)
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-#endif
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
 };
 
 /*========== Static Function Prototypes =====================================*/
@@ -231,3 +234,5 @@ int16_t LTC_ConvertMuxVoltagesToTemperatures(uint16_t adcVoltage_mV) {
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
+#ifdef UNITY_UNIT_TEST
+#endif

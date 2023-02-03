@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_mxm_registry.c
  * @author  foxBMS Team
  * @date    2020-07-16 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  MXM
  *
@@ -65,6 +65,9 @@
 #include "mxm_registry.h"
 #include "test_assert_helper.h"
 
+#include <stdbool.h>
+#include <stdint.h>
+
 /*========== Definitions and Implementations for Unit Test ==================*/
 static MXM_MONITORING_INSTANCE_s mxm_state = {
     .state                 = MXM_STATEMACHINE_STATES_UNINITIALIZED,
@@ -73,7 +76,7 @@ static MXM_MONITORING_INSTANCE_s mxm_state = {
     .operationRequested    = false,
     .firstMeasurementDone  = false,
     .stopRequested         = false,
-    .openwireRequested     = false,
+    .openWireRequested     = false,
     .undervoltageAlert     = false,
     .dcByte                = MXM_DC_EMPTY,
     .mxmVoltageCellCounter = 0,

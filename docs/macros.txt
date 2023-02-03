@@ -3,7 +3,7 @@
 .. |timestamp| date:: %Y-%m-%d %H:%M:%S
 
 .. |foxbms| replace:: foxBMS 2
-.. |version_foxbms| replace:: ``1.4.1``
+.. |version_foxbms| replace:: ``1.5.0``
 .. |foxbms.org| replace:: https://foxbms.org
 .. |docs.foxbms.org| replace:: https://docs.foxbms.org
 .. |github_foxbms| replace:: https://github.com/foxBMS/
@@ -13,6 +13,9 @@
 .. _BSD 3-Clause License: https://opensource.org/licenses/BSD-3-Clause
 .. |python| replace:: Python
 .. |ruby| replace:: Ruby
+
+.. |freertos| replace:: FreeRTOS
+
 
 .. |doxygen| replace:: Doxygen
 
@@ -27,8 +30,6 @@
 .. |git| replace:: Git
 .. |git-website| replace:: https://git-scm.com/
 .. _Git: https://git-scm.com/
-
-.. |texas-instruments| replace:: Texas Instruments
 
 .. |code-composer-studio| replace:: Code Composer Studio
 .. _Code Composer Studio: https://www.ti.com/tool/download/CCSTUDIO/12.0.0
@@ -108,14 +109,22 @@
 .. |rsl| replace:: *RSL*
 .. |msl| replace:: *MSL*
 
+.. |ti| replace:: Texas Instruments
 .. |adi| replace:: Analog Devices
 .. |mxm| replace:: Maxim Integrated
+
+.. |tms570lc4357| replace:: TMS570LC4357
+
+.. |ltc6820| replace:: LTC6820
+.. |max17852| replace:: MAX17852
+.. |mc33664| replace:: MC33664
 
 .. |ltc6804-1| replace:: LTC6804-1
 .. |ltc6811-1| replace:: LTC6811-1
 .. |ltc6813-1| replace:: LTC6813-1
-.. |ltc6820| replace:: LTC6820
 .. |max17841b| replace:: MAX17841B
+.. |mc33775a| replace:: MC33775A
+
 .. |master| replace:: foxBMS Master Unit
 .. |masters| replace:: foxBMS Master Units
 .. |slave| replace:: foxBMS Slave Unit

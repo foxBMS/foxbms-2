@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    sps_cfg.h
  * @author  foxBMS Team
  * @date    2020-10-14 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup DRIVERS_CONF
  * @prefix  SPS
  *
@@ -56,11 +56,13 @@
 #define FOXBMS__SPS_CFG_H_
 
 /*========== Includes =======================================================*/
-#include "general.h"
 
 #include "battery_system_cfg.h"
 
 #include "sps_types.h"
+
+#include <math.h>
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 
@@ -190,10 +192,10 @@ typedef enum {
 typedef struct {
     SPS_CHANNEL_FUNCTION_e channelRequested; /*!< requested state of the channel */
     SPS_CHANNEL_FUNCTION_e channel;          /*!< state of the channel */
-    float current_mA;                        /*!< current flow in this channel in mA */
+    float_t current_mA;                      /*!< current flow in this channel in mA */
     const SPS_CHANNEL_AFFILIATION_e
-        affiliation;                    /*!< affiliation of the channel (if it is contactor or something else) */
-    const float thresholdFeedbackOn_mA; /*!< current threshold in mA above which the channel is considered "on" */
+        affiliation;                      /*!< affiliation of the channel (if it is contactor or something else) */
+    const float_t thresholdFeedbackOn_mA; /*!< current threshold in mA above which the channel is considered "on" */
 } SPS_CHANNEL_STATE_s;
 
 /** SPS channel mapping to feedback pin */
@@ -238,5 +240,7 @@ extern const SPS_CHANNEL_FEEDBACK_MAPPING_s sps_kChannelFeedbackMapping[SPS_NR_O
 /*========== Extern Function Prototypes =====================================*/
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
+#ifdef UNITY_UNIT_TEST
+#endif
 
 #endif /* FOXBMS__SPS_CFG_H_ */

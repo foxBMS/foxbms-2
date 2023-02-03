@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_led.c
  * @author  foxBMS Team
  * @date    2020-10-05 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -58,6 +58,9 @@
 #include "Mockos.h"
 
 #include "led.h"
+#include "test_assert_helper.h"
+
+TEST_FILE("led.c")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 
@@ -70,5 +73,45 @@ void tearDown(void) {
 
 /*========== Test Cases =====================================================*/
 
-void testDummyFunction() {
+void testLED_SetDebugLed(void) {
+    IO_PinSet_Ignore();
+    LED_SetDebugLed();
+}
+
+void testLED_Trigger(void) {
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
+    TEST_LED_SetOnOffTime(0u);
+    TEST_ASSERT_FAIL_ASSERT(LED_Trigger());
+
+    TEST_LED_SetOnOffTime(100u);
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
+    IO_PinGet_IgnoreAndReturn(STD_PIN_HIGH);
+    IO_PinReset_Ignore();
+    LED_Trigger();
+
+    for (uint8_t i = 0; i < 9u; i++) {
+        OS_EnterTaskCritical_Expect();
+        OS_ExitTaskCritical_Expect();
+        LED_Trigger();
+    }
+
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
+    IO_PinGet_IgnoreAndReturn(STD_PIN_LOW);
+    IO_PinSet_Ignore();
+    LED_Trigger();
+}
+
+void testLED_SetToggleTime(void) {
+    TEST_ASSERT_FAIL_ASSERT(LED_SetToggleTime(0u));
+    TEST_ASSERT_FAIL_ASSERT(LED_SetToggleTime(101u));
+
+    TEST_LED_SetOnOffTime(0u); /* re-initialize on-off time */
+    TEST_ASSERT_PASS_ASSERT(LED_SetToggleTime(100u));
+    TEST_ASSERT_EQUAL(100u, TEST_LED_GetOnOffTime());
+
+    TEST_ASSERT_PASS_ASSERT(LED_SetToggleTime(200u));
+    TEST_ASSERT_EQUAL(200u, TEST_LED_GetOnOffTime());
 }

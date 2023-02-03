@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,12 +43,12 @@
  * @file    mxm_1785x.c
  * @author  foxBMS Team
  * @date    2019-01-15 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup DRIVERS
  * @prefix  MXM
  *
- * @brief   Driver for the MAX17841B ASCI and MAX1785x monitoring chip
+ * @brief   Driver for the MAX17841B ASCI and MAX1785x analog front-end
  *
  * @details This file contains the main-state-machine that drives the
  *          monitoring ICs of the MAX1785x family by Maxim Integrated.
@@ -56,16 +56,24 @@
  */
 
 /*========== Includes =======================================================*/
+#include "general.h"
+
 #include "mxm_1785x.h"
 
 #include "afe_plausibility.h"
 #include "database.h"
 #include "diag.h"
+#include "fassert.h"
+#include "fstd_types.h"
 #include "mxm_1785x_tools.h"
 #include "mxm_battery_management.h"
 #include "mxm_registry.h"
 #include "os.h"
 #include "tsi.h"
+
+#include <math.h>
+#include <stdbool.h>
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 
@@ -235,7 +243,7 @@ static void MXM_ParseVoltageLineReadall(
                 break;
             default:
                 FAS_ASSERT(FAS_TRAP);
-                break;
+                break; /* LCOV_EXCL_LINE */
         }
         FAS_ASSERT((calculatedModulePosition + measurementOffset) <= (uint16_t)UINT16_MAX);
         uint16_t calculatedArrayPosition = calculatedModulePosition + measurementOffset;
@@ -253,7 +261,7 @@ static void MXM_ParseVoltageLineReadall(
                 break;
             default:
                 FAS_ASSERT(FAS_TRAP);
-                break;
+                break; /* LCOV_EXCL_LINE */
         }
 
         FAS_ASSERT(i <= voltRxBufferLength);
@@ -970,7 +978,7 @@ extern bool GEN_MUST_CHECK_RETURN MXM_HandleStateReadall(
 
 extern STD_RETURN_TYPE_e MXM_ProcessOpenWire(const MXM_MONITORING_INSTANCE_s *const kpkInstance) {
     FAS_ASSERT(kpkInstance != NULL_PTR);
-    FAS_ASSERT(kpkInstance->pOpenwire_table != NULL_PTR);
+    FAS_ASSERT(kpkInstance->pOpenWire_table != NULL_PTR);
 
     const uint8_t numberOfSatellites = MXM_5XGetNumberOfSatellites(kpkInstance->pInstance5X);
     FAS_STATIC_ASSERT(
@@ -986,30 +994,30 @@ extern STD_RETURN_TYPE_e MXM_ProcessOpenWire(const MXM_MONITORING_INSTANCE_s *co
         MXM_ConvertModuleToString(calculatedModuleNumberInDaisyChain, &stringNumber, &moduleNumber);
         const uint16_t calculatedModulePosition = moduleNumber * MXM_MAXIMUM_NR_OF_CELLS_PER_MODULE;
 
-        /* step over every cell in the module and update the openwire struct accordingly */
+        /* step over every cell in the module and update the openWire struct accordingly */
         for (uint8_t c = 0u; c < MXM_MAXIMUM_NR_OF_CELLS_PER_MODULE; c++) {
             if (c < MXM_CELLS_IN_LSB) {
                 /* cell numbers under 8 can be found in the LSB */
                 const uint8_t mask = 1u << c;
                 if ((uint8_t)(mask & kpkInstance->rxBuffer[i]) > 0u) {
-                    kpkInstance->pOpenwire_table->openwire[stringNumber][calculatedModulePosition + c] = 1;
+                    kpkInstance->pOpenWire_table->openWire[stringNumber][calculatedModulePosition + c] = 1;
                 } else {
-                    kpkInstance->pOpenwire_table->openwire[stringNumber][calculatedModulePosition + c] = 0;
+                    kpkInstance->pOpenWire_table->openWire[stringNumber][calculatedModulePosition + c] = 0;
                 }
             } else {
                 /* cell numbers over or equal 8 can be found in the MSB */
                 const uint8_t mask = 1u << (c - MXM_CELLS_IN_LSB);
                 if ((uint8_t)(mask & kpkInstance->rxBuffer[i + 1u]) > 0u) {
-                    kpkInstance->pOpenwire_table->openwire[stringNumber][calculatedModulePosition + c] = 1;
+                    kpkInstance->pOpenWire_table->openWire[stringNumber][calculatedModulePosition + c] = 1;
                 } else {
-                    kpkInstance->pOpenwire_table->openwire[stringNumber][calculatedModulePosition + c] = 0;
+                    kpkInstance->pOpenWire_table->openWire[stringNumber][calculatedModulePosition + c] = 0;
                 }
             }
         }
     }
 
     /* write database block */
-    const STD_RETURN_TYPE_e dataReturn = DATA_WRITE_DATA(kpkInstance->pOpenwire_table);
+    const STD_RETURN_TYPE_e dataReturn = DATA_WRITE_DATA(kpkInstance->pOpenWire_table);
     return dataReturn;
 }
 
@@ -1136,7 +1144,7 @@ extern STD_RETURN_TYPE_e MXM_ParseVoltagesIntoDB(const MXM_MONITORING_INSTANCE_s
                                                 kpkInstance->muxCounter;
             const uint16_t temperatureIndexMxm = ((uint16_t)i_mod * MXM_MAXIMUM_NR_OF_AUX_PER_MODULE) + 2u;
             const uint16_t auxVoltage_mV       = kpkInstance->localVoltages.auxVoltages_mV[temperatureIndexMxm];
-            /* const uint16_t temporaryVoltage    = (auxVoltage_mV / ((float)3300 - auxVoltage_mV)) * 1000; */
+            /* const uint16_t temporaryVoltage    = (auxVoltage_mV / ((float_t)3300 - auxVoltage_mV)) * 1000; */
             const int16_t temperature_ddegC = TSI_GetTemperature(auxVoltage_mV);
             kpkInstance->pCellTemperatures_table->cellTemperature_ddegC[stringNumber][temperatureIndexDb] =
                 temperature_ddegC;
@@ -1186,7 +1194,7 @@ extern void MXM_InitializeStateStruct(
     pMonitoringInstance->operationRequested             = false;
     pMonitoringInstance->firstMeasurementDone           = false;
     pMonitoringInstance->stopRequested                  = false;
-    pMonitoringInstance->openwireRequested              = false;
+    pMonitoringInstance->openWireRequested              = false;
     pMonitoringInstance->undervoltageAlert              = false;
     pMonitoringInstance->muxCounter                     = 0u;
     pMonitoringInstance->diagnosticCounter              = MXM_THRESHOLD_DIAGNOSTIC_AFTER_CYCLES;
@@ -1414,7 +1422,7 @@ extern void MXM_StateMachine(MXM_MONITORING_INSTANCE_s *pInstance) {
             break;
         default:
             FAS_ASSERT(FAS_TRAP);
-            break;
+            break; /* LCOV_EXCL_LINE */
     }
 }
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -62,6 +62,10 @@ def configure(configure_context):
         configure_context.find_program("cafecc", var="AXIVION_CC")
         configure_context.find_program("irdump", var="AXIVION_IR_DUMP")
         configure_context.env.append_unique("AXIVION_IR_DUMP_ARGS", "-m")
+        try:
+            configure_context.env.PYTHON[0]
+        except IndexError:
+            configure_context.load("python")
 
 
 @conf
@@ -72,8 +76,24 @@ def patch_for_axivion_build(self, bld):  # pylint: disable=unused-argument
         return
 
     os.environ["BAUHAUS_CONFIG"] = os.path.join(bld.path.abspath(), "tests", "axivion")
-    bld.env.CC = bld.env.AXIVION_CC
-    bld.env.LINK_CC = bld.env.AXIVION_CC
+
+    # wrap python script as compiler front end, i.e. python path/to/logging_cc.py
+    logging_cc = bld.path.find_node(
+        os.path.join(
+            "tests",
+            "axivion",
+            "compiler-errata",
+            "ti-cgt-arm_20.2.6.lts",
+            "scripts",
+            "logging_cc.py",
+        )
+    )
+    if logging_cc:
+        bld.env.CC = [bld.env.PYTHON[0], logging_cc.abspath()]
+        bld.env.LINK_CC = [bld.env.PYTHON[0], logging_cc.abspath()]
+    else:
+        bld.env.CC = bld.env.AXIVION_CC
+        bld.env.LINK_CC = bld.env.AXIVION_CC
     bld.env.append_unique("LINKFLAGS", ["-echo"])  # show real linker call
     bld.env.LINKFLAGS.extend(["-larg", "--show_plan"])
     bld.env.append_unique("CFLAGS", ["-B", self.path.abspath()])

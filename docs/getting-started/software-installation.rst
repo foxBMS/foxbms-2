@@ -26,10 +26,8 @@ all required software dependencies. These are the required steps:
 #. installing the software dependencies:
 
    #. installing |git|
-   #. installing |texas-instruments| (TI)'s |code-composer-studio|
-      (required for compiling)
-   #. installing |texas-instruments| (TI)'s |halcogen| (required for code
-      generation)
+   #. installing |ti| (TI)'s |code-composer-studio| (required for compiling)
+   #. installing |ti| (TI)'s |halcogen| (required for code generation)
    #. installing Continuum's Miniconda (furnishes the Python environment used
       by |foxbms|),
    #. installing LLVM (required for code formatting)
@@ -70,9 +68,9 @@ later steps of this manual.
    :caption: Downloading a release
    :name: download-foxbms-2
 
-   C:\Users\vulpes\Documents>curl -Ss -L -o foxbms-2-v1.4.1.zip https://github.com/foxBMS/foxbms-2/archive/v1.4.1.zip
-   C:\Users\vulpes\Documents>tar -x -f foxbms-2-v1.4.1.zip
-   C:\Users\vulpes\Documents>ren foxbms-2-1.4.1 foxbms-2
+   C:\Users\vulpes\Documents>curl -Ss -L -o foxbms-2-v1.5.0.zip https://github.com/foxBMS/foxbms-2/archive/v1.5.0.zip
+   C:\Users\vulpes\Documents>tar -x -f foxbms-2-v1.5.0.zip
+   C:\Users\vulpes\Documents>ren foxbms-2-1.5.0 foxbms-2
    C:\Users\vulpes\Documents>cd foxbms-2
 
 .. note::

@@ -61,7 +61,7 @@ Block Diagram
 ^^^^^^^^^^^^^
 
 The block diagram of the |BMS-Slave| is shown in
-:numref:`Fig. %s <block_diagram_6811-1_slave_12cell_v2.1.6>`
+:numref:`Fig. %s <block_diagram_6811-1_slave_12cell_v2.1.6>`.
 
 .. _block_diagram_6811-1_slave_12cell_v2.1.6:
 .. figure:: ./12-ltc-ltc6811-1-v2.1.6/12-ltc-ltc6811-1-v2.1.6.png

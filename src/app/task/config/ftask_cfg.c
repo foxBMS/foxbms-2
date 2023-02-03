@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    ftask_cfg.c
  * @author  foxBMS Team
  * @date    2019-08-26 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup TASK_CONFIGURATION
  * @prefix  FTSK
  *
@@ -76,6 +76,7 @@
 #include "meas.h"
 #include "pex.h"
 #include "redundancy.h"
+#include "rtc.h"
 #include "sbc.h"
 #include "sof_trapezoid.h"
 #include "spi.h"
@@ -83,6 +84,8 @@
 #include "state_estimation.h"
 #include "sys.h"
 #include "sys_mon.h"
+
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 
@@ -133,6 +136,12 @@ OS_TASK_DEFINITION_s ftsk_taskDefinitionCyclicAlgorithm100ms = {
     FTSK_TASK_CYCLIC_ALGORITHM_100MS_CYCLE_TIME,
     FTSK_TASK_CYCLIC_ALGORITHM_100MS_STACK_SIZE_IN_BYTES,
     FTSK_TASK_CYCLIC_ALGORITHM_100MS_PV_PARAMETERS};
+OS_TASK_DEFINITION_s ftsk_taskDefinitionI2c = {
+    FTSK_TASK_I2C_PRIORITY,
+    FTSK_TASK_I2C_PHASE,
+    FTSK_TASK_I2C_CYCLE_TIME,
+    FTSK_TASK_I2C_STACK_SIZE_IN_BYTES,
+    FTSK_TASK_I2C_PV_PARAMETERS};
 OS_TASK_DEFINITION_s ftsk_taskDefinitionAfe = {
     FTSK_TASK_AFE_PRIORITY,
     FTSK_TASK_AFE_PHASE,
@@ -239,8 +248,7 @@ extern void FTSK_RunUserCodeCyclic10ms(void) {
     SOF_Calculation();
     ALGO_MonitorExecutionTime();
     SBC_Trigger(&sbc_stateMcuSupervisor);
-    PEX_Trigger();
-    HTSEN_Trigger();
+
     if (ftsk_cyclic10msCounter == TASK_10MS_COUNTER_FOR_50MS) {
         MRC_ValidateAfeMeasurement();
         MRC_ValidatePackMeasurement();
@@ -283,6 +291,15 @@ extern void FTSK_RunUserCodeCyclicAlgorithm100ms(void) {
     ftsk_cyclicAlgorithm100msCounter++;
 }
 
+void FTSK_RunUserCodeI2c(void) {
+    /* user code */
+    PEX_Trigger();
+    HTSEN_Trigger();
+    RTC_Trigger();
+    uint32_t current_time = OS_GetTickCount();
+    OS_DelayTaskUntil(&current_time, 2u);
+}
+
 void FTSK_RunUserCodeAfe(void) {
     /* user code */
 #if (FOXBMS_AFE_DRIVER_TYPE_NO_FSM == 1)
@@ -295,3 +312,5 @@ extern void FTSK_RunUserCodeIdle(void) {
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
+#ifdef UNITY_UNIT_TEST
+#endif

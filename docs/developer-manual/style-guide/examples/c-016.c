@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -39,15 +39,37 @@
  *
  */
 
-#include "general.h"
+/**
+ * @file    c-016.c
+ * @author  foxBMS Team
+ * @date    2021-06-04 (date of creation)
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
+ * @ingroup GUIDELINES
+ * @prefix  ABC
+ *
+ * @brief   Example code to show the application of the C coding guidelines
+ * @details This code implements an example for C:016
+ *
+ */
 
+/*========== Includes =======================================================*/
+
+#include <stdint.h>
+
+/*========== Macros and Definitions =========================================*/
+
+/*========== Static Constant and Variable Definitions =======================*/
 static uint32_t abc_staticVariable = 0u; /*!< Static variable -> prefix + doxygen comment */
 static int32_t abc_packSoc_perc    = 0;  /*!< Static variable representing physical unit -> prefix + suffix + doxygen */
 
+/*========== Extern Constant and Variable Definitions =======================*/
 extern uint32_t abc_globalVariable; /*!< Global variable -> prefix + doxygen comment */
 
+/*========== Static Function Prototypes =====================================*/
 static void ABC_StaticImportantFunction(void);
 
+/*========== Static Function Implementations ================================*/
 static void ABC_StaticImportantFunction(void) {
     uint8_t maxValue                    = 32u; /* Temporary variable to do calculations in this function */
     uint32_t maximumTemporaryVoltage_mV = 0u;  /* Variable representing physical unit -> suffix */
@@ -58,3 +80,9 @@ static void ABC_StaticImportantFunction(void) {
         /* Do something.... */
     }
 }
+
+/*========== Extern Function Implementations ================================*/
+
+/*========== Externalized Static Function Implementations (Unit Test) =======*/
+#ifdef UNITY_UNIT_TEST
+#endif

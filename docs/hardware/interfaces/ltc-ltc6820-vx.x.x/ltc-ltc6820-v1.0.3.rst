@@ -70,7 +70,6 @@ The PCB design complies with the following parameters:
 - Clearance: 1.3 |_| |mm|
 - Creepage distance: 12.5 |_| |mm|
 
-
 ^^^^^^^^^^^^^
 Block Diagram
 ^^^^^^^^^^^^^

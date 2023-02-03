@@ -69,12 +69,11 @@
                     "text": "Macro names shall use the naming convention '(prefix.upper())_ALL_CAPS' (and optional unit suffix preceded by _) or for include guards 'FOXBMS__FILENAME_H_'."
                 }
             },
-            "naming_convention": "(([A-Z][A-Z0-9]{1,4})_([A-Z0-9]([A-Z0-9_]*)).*)(?<!_)$|(FOXBMS__[A-Z1-9_]{1,}_H_)"
+            "naming_convention": "(([A-Z][A-Z0-9]{1,4})_([A-Z0-9]([A-Z0-9_]*)).*)(?<!_)$|(FOXBMS__[A-Z0-9_]{1,}_H_)"
         },
         "CodingStyle-Naming.Parameter": {
             "_active": true,
             "excludes": [
-                "*src/app/driver/afe/ltc/common/ltc_pec.*",
                 "*src/app/driver/sbc/fs8x_driver/*",
                 "*src/hal/*",
                 "*src/os/*",
@@ -87,6 +86,15 @@
             "msg": {
                 "non_compliant_name": {
                     "text": "Names of parameters shall use the naming convention camelCase (and optional unit suffix preceded by _)."
+                }
+            },
+            "naming_convention": "([a-z0-9]+)[A-Za-z0-9]*(_.*)?"
+        },
+        "CodingStyle-Naming.StructField": {
+            "_active": true,
+            "msg": {
+                "non_compliant_name": {
+                    "text": "Names of struct members shall use camelCase (and optional unit suffix preceded by _)."
                 }
             },
             "naming_convention": "([a-z0-9]+)[A-Za-z0-9]*(_.*)?"
@@ -150,11 +158,11 @@
         }
     },
     "_Format": "1.0",
-    "_Version": "7.4.6",
+    "_Version": "7.5.0",
     "_VersionNum": [
         7,
-        4,
-        6,
-        10210
+        5,
+        0,
+        11376
     ]
 }

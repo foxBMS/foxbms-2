@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -42,8 +42,32 @@
 #ifndef FOXBMS__C_015_H_
 #define FOXBMS__C_015_H_
 
-#include "general.h"
+/**
+ * @file    c-015.h
+ * @author  foxBMS Team
+ * @date    2021-06-04 (date of creation)
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
+ * @ingroup GUIDELINES
+ * @prefix  ABC
+ *
+ * @brief   Example code to show the application of the C coding guidelines
+ * @details This code implements an example for C:015
+ *
+ */
 
+/*========== Includes =======================================================*/
+#include <stdint.h>
+
+/*========== Macros and Definitions =========================================*/
+
+/*========== Extern Constant and Variable Declarations ======================*/
+
+/*========== Extern Function Prototypes =====================================*/
 extern uint32_t ABC_ArrayAverage(uint8_t *pArray, uint8_t arrayLength, uint8_t additionalParameter);
+
+/*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
+#ifdef UNITY_UNIT_TEST
+#endif
 
 #endif /* FOXBMS__C_015_H_ */

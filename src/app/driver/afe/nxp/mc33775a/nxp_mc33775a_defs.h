@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,12 +43,12 @@
  * @file    nxp_mc33775a_defs.h
  * @author  foxBMS Team
  * @date    2020-09-01 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup DRIVERS
  * @prefix  N775
  *
- * @brief   Definitions for the driver for the MC33775A monitoring chip.
+ * @brief   Definitions for the driver for the MC33775A analog front-end.
  *
  */
 
@@ -56,10 +56,11 @@
 #define FOXBMS__NXP_MC33775A_DEFS_H_
 
 /*========== Includes =======================================================*/
-#include "general.h"
 
 #include "database.h"
 #include "spi.h"
+
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 
@@ -120,8 +121,11 @@
 #define N775_ALL_CHANNEL_BALANCING_TIMER (0xFFFFu)
 /* Global balancing timer value to reach to reset it to max */
 #define N775_GLOBAL_BALANCING_TIMER_VALUE_SET_TO_MAX_AGAIN (0x1000u)
-/* Timeout used to avoid endless loop when waiting for a flag to be ready */
-#define N775_FLAG_READY_TIMEOUT (2000u)
+/* Maximum number of tries to avoid endless loop when waiting for a flag to be ready */
+#define N775_FLAG_READY_TRIES (5u)
+
+/* Timeout in ms when waiting for an I2C transaction over NXP slave */
+#define N775_I2C_FINISHED_TIMEOUT_ms (50u)
 
 /** error table for the LTC driver */
 typedef struct {
@@ -305,5 +309,7 @@ typedef struct {
 /*========== Extern Function Prototypes =====================================*/
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
+#ifdef UNITY_UNIT_TEST
+#endif
 
 #endif /* FOXBMS__NXP_MC33775A_DEFS_H_ */

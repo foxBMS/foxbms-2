@@ -16,6 +16,7 @@ Changelog
     JUnit is a test system (originally for Java)
     matcher as in `problem matcher`
     Cppcheck is a static program analysis tools
+    xxxx is the dummy date for x.y.z
 
 .. spelling::
     Axivion
@@ -25,21 +26,135 @@ Changelog
     JUnit
     matcher
     Cppcheck
+    xxxx
 
 
 All notable changes to this project will be documented in this file.
-
-The format is based on
-`Keep a Changelog <https://keepachangelog.com/en/1.0.0/>`__.
 
 |foxbms| uses the following versioning pattern ``MAJOR.MINOR.PATCH``
 where ``MAJOR``, ``MINOR`` and ``PATCH`` are numbers.
 
 Versioning follows then these rules:
 
-- increasing ``MAJOR`` introduces incompatible changes
-- increasing ``MINOR`` adds functionality in a backwards compatible manner
-- increasing ``PATCH`` fixes bugs in a backwards compatible manner
+- increasing ``MAJOR`` introduces significant changes, that require some
+  larger work to update a project to this version.
+- increasing ``MINOR`` introduces changes, that require less work than a major
+  update and most of the work should be straight forward in order to update a
+  project to this version.
+- increasing ``PATCH`` introduces minor changes, that only require minor and
+  straight forward work to update a project to this version.
+
+********************
+[1.5.0] - 2023-02-03
+********************
+
+Added
+=====
+
+- Added hardware design files (e.g., schematics, layout, BOM and STEP file
+  etc.) for the NXP MC33775A monitoring IC.
+- Added driver for the PCF2131 RTC.
+  The driver uses I2C to communicate with the IC.
+- A basic GUI to interact with the |foxbms| via CAN from a PC.
+- The software version and the die ID can be requested via CAN.
+- The FRAM can now be initialized/reinitialized via CAN.
+- Stub code for the software reset via CAN has been implemented.
+- The precharge abort reason (voltage or current) is now evaluated and the
+  result is transmitted via CAN.
+- Now CAN messages with extended identifier can be transmitted and received.
+  Four CAN mailboxes (61-63) are reserved for the reception of messages with
+  extended identifiers on each CAN.
+  The HALCoGen configuration for these mailboxes is overwritten during the
+  initialization phase.
+- The I2C driver API was reworked.
+  There are now three types of communication:
+  read, write and write followed by repeated start followed by read.
+- The I2C communication now uses DMA and is made in a separate task.
+- Basic documentation of defines that can be used to define the application
+  behavior.
+
+Changed
+=======
+
+- The default interface configuration for BMS-Slaves is the interface 1 on the
+  |bms-interface|\ s:
+
+  - for LTC-based interfaces: hardware chip select 1 on SPI 1
+  - for NXP-based interfaces: hardware chip select 1 on SPI 1
+
+- The chip select configuration has been unified.
+  The previous implementation worked like this:
+
+  - for software chip select the SPI configuration has been
+    configured directly in the configuration struct by setting the member
+    ``csPin`` to a certain pin and the member ``csType`` to
+    ``SPI_CHIP_SELECT_SOFTWARE``in a variable of type
+    ``SPI_INTERFACE_CONFIG_s``.
+  - For hardware chip select, i.e., ``csType`` set to
+    ``SPI_CHIP_SELECT_HARDWARE``, the configuration in ``csPin`` was ignored,
+    and the pin configuration in the member ``pConfig`` was evaluated.
+
+  Now, the SPI configuration is done by setting the chip select type via the
+  member ``csType`` and the pin to be used via the member ``csPin`` in a
+  variable of type ``SPI_INTERFACE_CONFIG_s``.
+  Therefore there is no need anymore the adapt the ``spiDAT1_t`` configuration,
+  when another chip select should be used.
+- The members in `DATA_BLOCK_ERROR_STATE_s` have been renamed to better reflect
+  what each entry actually indicates.
+- The type of all members in `DATA_BLOCK_ERROR_STATE_s` have been changed to
+  `bool`.
+- The order of members in `DATA_BLOCK_ERROR_STATE_s` has been changed, so that
+  the entries are logically grouped.
+  This change is transparent, as long as the application does **not** relay on
+  the memory layout.
+- Changed data type for error flags in database entries to boolean.
+- Applied the *include-what-you-use* paradigm to the |foxbms| sources.
+  The :ref:`C_CODING_GUIDELINES` have been adapted accordingly and generally
+  been improved.
+- Added dedicated enum for error flags to .dbc respectively .sym file.
+- Rewrote the CRC implementation for the LTC ICs from scratch and added
+  unit tests for the new implementation.
+- Update the static code analysis to Axivion 7.5.0 (from 7.4.6).
+- Software version is now also saved in FRAM version struct. As this is The
+  the first FRAM entry, this changes the memory layout and makes FRAM entries
+  existing prior to this version invalid.
+- A successful boot is now indicated via CAN by sending
+
+  - the magic start sequence,
+  - the software version information,
+  - the MCU die ID,
+  - the MCU lot number,
+  - the MCU wafer number and
+  - the magic end sequence.
+
+  See ``src/app/engine/config/sys_cfg.c`` for implementation details.
+
+- Updated the documentation section about Lauterbach debug probes.
+- Removed define ``BS_MAX_SUPPORTED_CELLS`` from file ``battery_system_cfg.h``
+  and moved the definition to the individual AFE implementations.
+- Use ``float_t`` instead of ``float``.
+- Aligned the hardware documentation for BMS-Master, BMS-Interface and
+  BMS-Slave (see :ref:`MASTER_OVERVIEW`, :ref:`INTERFACES_OVERVIEW`, and
+  :ref:`SLAVES_OVERVIEW`)
+- Updated the documentation section about the |foxbms| platform
+- The functionality to switch to user mode is now implemented as an inline
+  function instead of a macro.
+- The default optimization level is set to -O0 (see
+  ``conf/cc/cc-options.yaml``).
+
+Deprecated
+==========
+
+Removed
+=======
+
+Fixed
+=====
+
+- Fixed the hardware readme as it referenced the wrong |master| version.
+- Fixed the regular expression for checking the validity of macro names.
+- Fixed wrong configured chip select pin for MCU SBC. Chip select 1 instead of
+  chip select was configured.
 
 ********************
 [1.4.1] - 2022-10-27
@@ -115,9 +230,9 @@ Added
   - literal suffixes for numerical assignments
 - Added test cases for the Axivion rules (see ``tests/axivion/addon-test``)
 - The foxBMS GUI wrapper is now implemented as a module.
-- Added a driver for the NXP MC33775A monitoring IC. The driver measures
-  cell voltages, cell temperatures via an I2C multiplexer and controls
-  cell balancing.
+- Added a driver for the NXP MC33775A monitoring IC.
+  The driver measures cell voltages, cell temperatures via an I2C multiplexer
+  and controls cell balancing.
 
 Changed
 =======
@@ -231,7 +346,7 @@ Changed
 - The linker step now uses ``--start-group`` and ``--end-group`` to re-read
   libraries until all symbols are resolved instead of ``--reread_libs``.
   This change simplifies the integration of the build into Axivion.
-- FreeRTOS configuration is now validated in
+- |freertos| configuration is now validated in
   ``os_freertos_config-validation.h``.
 - Updated the documentation of the of the LTC-based interface |ltc6820| version
   1.0.3 (see :ref:`INTERFACE_LTC_6820___V1_0_3__`).
@@ -239,7 +354,7 @@ Changed
 - Updated the pinout documentation for the |bms-master| version 1.1.1
   (see :ref:`MASTER_TMS570___V1_1_1__`).
 - Update the static code analysis to Axivion 7.4.0.
-- Increased the size of the variable that describes stack sizes for FreeRTOS,
+- Increased the size of the variable that describes stack sizes for |freertos|,
   allowing for the fully supported stack size of the port.
 - The diagnosis entries for the ``LTC`` module have been renamed in order to
   reflect that they are relevant for all ``AFE`` implementations.
@@ -247,7 +362,7 @@ Changed
   several files for readability and |code| has been made aware of the schema.
 - Added a style check that constant values should be on the right hand side of
   a comparison.
-- Updated FreeRTOS to version 10.4.5 (from 10.4.3).
+- Updated |freertos| to version 10.4.5 (from 10.4.3).
 - Cleaned up the CAN callback for receiving commands.
 - Extended the script for updating the doxygen headers in source files so that
   it fetches first and then compares to the tracking branch.
@@ -371,7 +486,7 @@ Changed
 - Updated the doxygen configuration files to match the doxygen version that
   is shipped in the conda environment.
 - Switched the used C standard to C11.
-- The FreeRTOS specific implementations for the task and queue creation were
+- The |freertos| specific implementations for the task and queue creation were
   moved into ``os_freertos.c`` and ``ftask_freertos.c``.
 - Greatly enhanced the robustness and code quality of the driver for Maxim
   analog front ends.
@@ -392,9 +507,9 @@ Fixed
   configuration.
 - Fixed several MISRA-C violations and style guide violations.
 - Fixed the conda environment shell update script.
-- The signature of the FreeRTOS tasks was not correct and has been fixed to
+- The signature of the |freertos| tasks was not correct and has been fixed to
   match ``void TaskName(void *pvParameters)``.
-- Explicitly cast the variables that are passed to the FreeRTOS task creation
+- Explicitly cast the variables that are passed to the |freertos| task creation
   function.
 - Make ``NULL_PTR`` explicitly *unsigned*.
 - Fixed product number for the used trace probe in our test setup.
@@ -424,7 +539,7 @@ Added
 - Added a driver module that allows to use the enhanced PWM features of the
   MCU.
 - Adapted CAN module to receive/transmit messages either via CAN1 or CAN2.
-- Annotate maximum stack size in FreeRTOS so that debugger can catch this
+- Annotate maximum stack size in |freertos| so that debugger can catch this
   information.
 - Updated the hardware design files (e.g., schematics, layout, BOM and STEP
   file etc.) of the |bms-master|  to ``v1.1.1``.
@@ -467,7 +582,8 @@ Fixed
   commands resulted in build errors.
   Now the build is early aborted if a wrong order is supplied and a
   descriptive error message is printed to stderr.
-- The documentation included a wrong statement about how to configure FreeRTOS.
+- The documentation included a wrong statement about how to configure
+  |freertos|.
 - Battery voltage is now transmitted correctly via CAN (ID: 0x222).
 
 ********************
@@ -624,7 +740,7 @@ Changed
   environment (see :numref:`conda_env_update`).
 - CAN callback functions are now defined in separate files to increase
   readability.
-- Ring buffer for CAN RX was replaced by a FreeRTOS queue. A DIAG entry was
+- Ring buffer for CAN RX was replaced by a |freertos| queue. A DIAG entry was
   added that detects if the queue is full when trying to add an element.
 - Updated the black configuration to match the new python version
   (``Python 3.9.5``).
@@ -657,7 +773,7 @@ Deprecated
 Removed
 =======
 
-- Completely removed dynamic allocation from FreeRTOS and reduced the (unused)
+- Completely removed dynamic allocation from |freertos| and reduced the (unused)
   heap size to 0.
 - Removed deprecated option ``COLS_IN_ALPHA_INDEX`` from the doxygen
   configurations.
@@ -960,7 +1076,7 @@ Added
 - Added a state of energy |SOE| estimation implementation based on counting
   energy.
 - Added documentation of the hardware development flow.
-- Enabled the FreeRTOS idle hook in user code. That means that the function
+- Enabled the |freertos| idle hook in user code. That means that the function
   ``FTSK_UserCode_Idle()`` will be called every time the OS goes into idle
   state.
 - Extended the conda environment with a sphinx-plugin that provides
@@ -990,7 +1106,7 @@ Changed
   In order to not block the rest of the system with an algorithm that might
   take longer for computation, the algorithm module has been moved into its own
   task with a lower priority.
-- Updated FreeRTOS to version 10.4.3 (from 10.3.0).
+- Updated |freertos| to version 10.4.3 (from 10.3.0).
 - Updated waf to version 2.0.21 (from 2.0.20).
 - Consequently uses deci degree Celsius as integer-value (instead of degree
   Celsius floats) in the Temperature Sensor Interface (TSI).

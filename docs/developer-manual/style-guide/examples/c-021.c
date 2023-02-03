@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -39,7 +39,40 @@
  *
  */
 
-static const float kEuler      = 2.71828f;
-static const double kPi        = 3.141592;
-static double number           = 1248.0e6;
-static long double largeNumber = -0.5L;
+/**
+ * @file    c-021.c
+ * @author  foxBMS Team
+ * @date    2021-06-04 (date of creation)
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
+ * @ingroup GUIDELINES
+ * @prefix  ABC
+ *
+ * @brief   Example code to show the application of the C coding guidelines
+ * @details This code implements an example for C:021
+ *
+ */
+
+/*========== Includes =======================================================*/
+
+#include <stdint.h>
+
+/*========== Macros and Definitions =========================================*/
+
+/*========== Static Constant and Variable Definitions =======================*/
+static const float kEuler          = 2.71828f;
+static const double kPi            = 3.141592;
+static double abc_number           = 1248.0e6;
+static long double abc_largeNumber = -0.5L;
+
+/*========== Extern Constant and Variable Definitions =======================*/
+
+/*========== Static Function Prototypes =====================================*/
+
+/*========== Static Function Implementations ================================*/
+
+/*========== Extern Function Implementations ================================*/
+
+/*========== Externalized Static Function Implementations (Unit Test) =======*/
+#ifdef UNITY_UNIT_TEST
+#endif

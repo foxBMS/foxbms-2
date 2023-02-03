@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_diag_cbs_current-sensor.c
  * @author  foxBMS Team
  * @date    2021-02-17 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -62,8 +62,8 @@
 TEST_FILE("diag_cbs_current-sensor.c")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
-/** local copy of the #DATA_BLOCK_ERRORSTATE_s table */
-static DATA_BLOCK_ERRORSTATE_s test_tableErrorFlags = {.header.uniqueId = DATA_BLOCK_ID_ERRORSTATE};
+/** local copy of the #DATA_BLOCK_ERROR_STATE_s table */
+static DATA_BLOCK_ERROR_STATE_s test_tableErrorFlags = {.header.uniqueId = DATA_BLOCK_ID_ERROR_STATE};
 
 /** local copy of the #DATA_BLOCK_MOL_FLAG_s table */
 static DATA_BLOCK_MOL_FLAG_s test_tableMolFlags = {.header.uniqueId = DATA_BLOCK_ID_MOL_FLAG};

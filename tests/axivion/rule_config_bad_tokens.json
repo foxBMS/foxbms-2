@@ -1,7 +1,7 @@
 {
     "Analysis": {
         "Metric-TokenFileMetric.Check": {
-            "_active": true
+            "_active": false
         },
         "Metric-TokenFileMetric.Debug": {
             "_active": true
@@ -20,11 +20,11 @@
         }
     },
     "_Format": "1.0",
-    "_Version": "7.4.6",
+    "_Version": "7.5.0",
     "_VersionNum": [
         7,
-        4,
-        6,
-        10210
+        5,
+        0,
+        11376
     ]
 }

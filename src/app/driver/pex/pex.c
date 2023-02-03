@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    pex.c
  * @author  foxBMS Team
  * @date    2021-08-02 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup DRIVERS
  * @prefix  PEX
  *
@@ -59,7 +59,12 @@
 #include "i2c.h"
 #include "os.h"
 
+#include <stdint.h>
+
 /*========== Macros and Definitions =========================================*/
+/** PEX I2C interface */
+#define PEX_I2C_INTERFACE (i2cREG1)
+
 /** Number of ports per register */
 #define PEX_NR_OF_PORTS_PER_REGISTER (8u)
 
@@ -91,7 +96,10 @@
 
 /*========== Static Constant and Variable Definitions =======================*/
 /** I2C write buffer for PEX */
-static uint8_t pex_i2cDataWrite[2u] = {0};
+#pragma SET_DATA_SECTION(".sharedRAM")
+static uint8_t pex_i2cDataWrite[3u] = {0};
+static uint8_t pex_i2cDataRead[2u]  = {0};
+#pragma SET_DATA_SECTION()
 
 /**
  * These variables are used to configure the port expanders (input, output,
@@ -175,9 +183,11 @@ static STD_RETURN_TYPE_e PEX_ReadInputs(void) {
          * the data will now reflect the information in the other register in the pair.
          * For example, if you read Input port 1, then the next byte read would be Input port 0."
          */
-        uint8_t pex_i2cDataRead[2u] = {0u, 0u};
+        pex_i2cDataWrite[0u] = PEX_INPUT_PORT0_REGISTER_ADDRESS;
+        pex_i2cDataRead[0u]  = 0u;
+        pex_i2cDataRead[1u]  = 0u;
         STD_RETURN_TYPE_e i2cReadReturn =
-            I2C_Read(pex_addressList[i], PEX_INPUT_PORT0_REGISTER_ADDRESS, 2u, pex_i2cDataRead);
+            I2C_WriteReadDma(PEX_I2C_INTERFACE, pex_addressList[i], 1u, pex_i2cDataWrite, 2u, pex_i2cDataRead);
         if (i2cReadReturn == STD_NOT_OK) {
             retVal = STD_NOT_OK;
         } else {
@@ -196,10 +206,10 @@ static STD_RETURN_TYPE_e PEX_WriteOutputs(void) {
          * data sheet: Rev. 9 - 8 November 2017
          * Figure 10: one register pair can be written in one transaction
          */
-        pex_i2cDataWrite[0u] = pex_outputPort0Local[i];
-        pex_i2cDataWrite[1u] = pex_outputPort1Local[i];
-        STD_RETURN_TYPE_e i2cWriteReturn =
-            I2C_Write(pex_addressList[i], PEX_OUTPUT_PORT0_REGISTER_ADDRESS, 2u, pex_i2cDataWrite);
+        pex_i2cDataWrite[0u]             = PEX_OUTPUT_PORT0_REGISTER_ADDRESS;
+        pex_i2cDataWrite[1u]             = pex_outputPort0Local[i];
+        pex_i2cDataWrite[2u]             = pex_outputPort1Local[i];
+        STD_RETURN_TYPE_e i2cWriteReturn = I2C_WriteDma(PEX_I2C_INTERFACE, pex_addressList[i], 3u, pex_i2cDataWrite);
         if (i2cWriteReturn == STD_NOT_OK) {
             retVal = STD_NOT_OK;
         }
@@ -215,10 +225,10 @@ static STD_RETURN_TYPE_e PEX_WriteConfigPolarity(void) {
          * data sheet: Rev. 9 - 8 November 2017
          * Figure 10: one register pair can be written in one transaction
          */
-        pex_i2cDataWrite[0u] = pex_configPolarityPort0Local[i];
-        pex_i2cDataWrite[1u] = pex_configPolarityPort1Local[i];
-        STD_RETURN_TYPE_e i2cWriteReturn =
-            I2C_Write(pex_addressList[i], PEX_POL_INV_PORT0_REGISTER_ADDRESS, 2u, pex_i2cDataWrite);
+        pex_i2cDataWrite[0u]             = PEX_POL_INV_PORT0_REGISTER_ADDRESS;
+        pex_i2cDataWrite[1u]             = pex_configPolarityPort0Local[i];
+        pex_i2cDataWrite[2u]             = pex_configPolarityPort1Local[i];
+        STD_RETURN_TYPE_e i2cWriteReturn = I2C_WriteDma(PEX_I2C_INTERFACE, pex_addressList[i], 3u, pex_i2cDataWrite);
         if (i2cWriteReturn == STD_NOT_OK) {
             retVal = STD_NOT_OK;
         }
@@ -234,10 +244,10 @@ static STD_RETURN_TYPE_e PEX_WriteConfigDirection(void) {
          * data sheet: Rev. 9 - 8 November 2017
          * Figure 10: one register pair can be written in one transaction
          */
-        pex_i2cDataWrite[0u] = pex_configDirectionPort0Local[i];
-        pex_i2cDataWrite[1u] = pex_configDirectionPort1Local[i];
-        STD_RETURN_TYPE_e i2cWriteReturn =
-            I2C_Write(pex_addressList[i], PEX_DIRECTION_PORT0_REGISTER_ADDRESS, 2u, pex_i2cDataWrite);
+        pex_i2cDataWrite[0u]             = PEX_DIRECTION_PORT0_REGISTER_ADDRESS;
+        pex_i2cDataWrite[1u]             = pex_configDirectionPort0Local[i];
+        pex_i2cDataWrite[2u]             = pex_configDirectionPort1Local[i];
+        STD_RETURN_TYPE_e i2cWriteReturn = I2C_WriteDma(PEX_I2C_INTERFACE, pex_addressList[i], 3u, pex_i2cDataWrite);
         if (i2cWriteReturn == STD_NOT_OK) {
             retVal = STD_NOT_OK;
         }
@@ -301,11 +311,16 @@ extern void PEX_Initialize(void) {
 
 extern void PEX_Trigger(void) {
     PEX_CopyToLocalVariable();
+    uint32_t current_time = OS_GetTickCount();
 
     STD_RETURN_TYPE_e writeConfigDirectionReturn = PEX_WriteConfigDirection();
-    STD_RETURN_TYPE_e writeConfigPolarityReturn  = PEX_WriteConfigPolarity();
-    STD_RETURN_TYPE_e readInputsReturn           = PEX_ReadInputs();
-    STD_RETURN_TYPE_e writeOutputsReturn         = PEX_WriteOutputs();
+    OS_DelayTaskUntil(&current_time, 2u);
+    STD_RETURN_TYPE_e writeConfigPolarityReturn = PEX_WriteConfigPolarity();
+    OS_DelayTaskUntil(&current_time, 2u);
+    STD_RETURN_TYPE_e readInputsReturn = PEX_ReadInputs();
+    OS_DelayTaskUntil(&current_time, 2u);
+    STD_RETURN_TYPE_e writeOutputsReturn = PEX_WriteOutputs();
+    OS_DelayTaskUntil(&current_time, 2u);
 
     /* notify diag if one of these functions failed, but continue normally */
     if ((writeConfigDirectionReturn == STD_NOT_OK) || (writeConfigPolarityReturn == STD_NOT_OK) ||
@@ -438,9 +453,6 @@ extern void PEX_SetPinPolarityRetained(uint8_t portExpander, uint8_t pin) {
     }
 }
 
-/*========== Getter for static Variables (Unit Test) ========================*/
-#ifdef UNITY_UNIT_TEST
-
-#endif
-
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
+#ifdef UNITY_UNIT_TEST
+#endif

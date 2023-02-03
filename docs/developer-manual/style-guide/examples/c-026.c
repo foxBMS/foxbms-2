@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -39,26 +39,57 @@
  *
  */
 
-#include "general.h"
+/**
+ * @file    c-026.c
+ * @author  foxBMS Team
+ * @date    2021-06-04 (date of creation)
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
+ * @ingroup GUIDELINES
+ * @prefix  ABC
+ *
+ * @brief   Example code to show the application of the C coding guidelines
+ * @details This code implements an example for C:026
+ *
+ */
 
-uint8_t condition        = 0;
-uint8_t other_condition  = 0;
-uint8_t this_one_thing   = 0;
-uint8_t this_other_thing = 0;
-uint8_t a_third_thing    = 0;
-uint8_t a_fourth_thing   = 0;
-uint8_t yet_another      = 0;
-uint8_t last_one         = 0;
+/*========== Includes =======================================================*/
+#include <stdint.h>
 
-void ABC_ConditionalFunction(void) {
-    if (condition) {              /* no spaces inside parentheses */
-        /* code */                /* 4 space indent. */
-    } else if (other_condition) { /* The else if goes on the same line as the closing brace. */
-        /* code */                /* 4 space indent. */
-    } else {                      /* The else if goes on the same line as the closing brace. */
-        /* code */                /* 4 space indent. */
+/*========== Macros and Definitions =========================================*/
+
+/*========== Static Constant and Variable Definitions =======================*/
+/* some static variables that are set in some functions of this module */
+static uint8_t abc_condition        = 0u;
+static uint8_t abc_other_condition  = 0u;
+static uint8_t abc_this_one_thing   = 0u;
+static uint8_t abc_this_other_thing = 0u;
+static uint8_t abc_a_third_thing    = 0u;
+static uint8_t abc_a_fourth_thing   = 0u;
+static uint8_t abc_yet_another      = 0u;
+static uint8_t abc_last_one         = 0u;
+
+/*========== Extern Constant and Variable Definitions =======================*/
+
+/*========== Static Function Prototypes =====================================*/
+
+/*========== Static Function Implementations ================================*/
+
+/*========== Extern Function Implementations ================================*/
+extern void ABC_ConditionalFunction(void) {
+    if (abc_condition) {              /* no spaces inside parentheses */
+        /* code */                    /* 4 space indent. */
+    } else if (abc_other_condition) { /* The else if goes on the same line as the closing brace. */
+        /* code */                    /* 4 space indent. */
+    } else {                          /* The else if goes on the same line as the closing brace. */
+        /* code */                    /* 4 space indent. */
     }
-    if ((this_one_thing > this_other_thing) && (a_third_thing == a_fourth_thing) && (yet_another && last_one)) {
+    if ((abc_this_one_thing > abc_this_other_thing) && (abc_a_third_thing == abc_a_fourth_thing) &&
+        (abc_yet_another && abc_last_one)) {
         /* code */
     }
 }
+
+/*========== Externalized Static Function Implementations (Unit Test) =======*/
+#ifdef UNITY_UNIT_TEST
+#endif

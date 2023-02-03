@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    vishay_ntcle317e4103sba.c
  * @author  foxBMS Team
  * @date    2021-11-03 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup TEMPERATURE_SENSORS
  * @prefix  TS
  *
@@ -55,8 +55,13 @@
 /*========== Includes =======================================================*/
 #include "vishay_ntcle317e4103sba.h"
 
+#include "fassert.h"
 #include "foxmath.h"
 #include "temperature_sensor_defs.h"
+
+#include <math.h>
+#include <stdbool.h>
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 
@@ -115,16 +120,17 @@ static const uint16_t ts_ntcle317e4103sbaLutSize = sizeof(ts_ntcle317e4103sbaLut
  * different R_ntc values are used for the calculation.
  * @{
  */
-#if TS_VISHAY_NTCLE317E4103SBA_POSITION_IN_RESISTOR_DIVIDER_IS_R_1 == true
+#if defined(TS_VISHAY_NTCLE317E4103SBA_POSITION_IN_RESISTOR_DIVIDER_IS_R_1) && \
+    (TS_VISHAY_NTCLE317E4103SBA_POSITION_IN_RESISTOR_DIVIDER_IS_R_1 == true)
 #define TS_VISHAY_NTCLE317E4103SBA_ADC_VOLTAGE_V_MAX_V \
-    ((float)((TS_VISHAY_NTCLE317E4103SBA_RESISTOR_DIVIDER_SUPPLY_VOLTAGE_V * ts_ntcle317e4103sbaLut[ts_ntcle317e4103sbaLutSize-1u].resistance_Ohm) / (ts_ntcle317e4103sbaLut[ts_ntcle317e4103sbaLutSize-1u].resistance_Ohm+TS_VISHAY_NTCLE317E4103SBA_RESISTOR_DIVIDER_RESISTANCE_R_1_R_2_Ohm)))
+    ((float_t)((TS_VISHAY_NTCLE317E4103SBA_RESISTOR_DIVIDER_SUPPLY_VOLTAGE_V * ts_ntcle317e4103sbaLut[ts_ntcle317e4103sbaLutSize-1u].resistance_Ohm) / (ts_ntcle317e4103sbaLut[ts_ntcle317e4103sbaLutSize-1u].resistance_Ohm+TS_VISHAY_NTCLE317E4103SBA_RESISTOR_DIVIDER_RESISTANCE_R_1_R_2_Ohm)))
 #define TS_VISHAY_NTCLE317E4103SBA_ADC_VOLTAGE_V_MIN_V \
-    ((float)((TS_VISHAY_NTCLE317E4103SBA_RESISTOR_DIVIDER_SUPPLY_VOLTAGE_V * ts_ntcle317e4103sbaLut[0u].resistance_Ohm) / (ts_ntcle317e4103sbaLut[0u].resistance_Ohm+TS_VISHAY_NTCLE317E4103SBA_RESISTOR_DIVIDER_RESISTANCE_R_1_R_2_Ohm)))
+    ((float_t)((TS_VISHAY_NTCLE317E4103SBA_RESISTOR_DIVIDER_SUPPLY_VOLTAGE_V * ts_ntcle317e4103sbaLut[0u].resistance_Ohm) / (ts_ntcle317e4103sbaLut[0u].resistance_Ohm+TS_VISHAY_NTCLE317E4103SBA_RESISTOR_DIVIDER_RESISTANCE_R_1_R_2_Ohm)))
 #else /* TS_VISHAY_NTCLE317E4103SBA_POSITION_IN_RESISTOR_DIVIDER_IS_R_1 is false */
 #define TS_VISHAY_NTCLE317E4103SBA_ADC_VOLTAGE_V_MIN_V \
-    ((float)((TS_VISHAY_NTCLE317E4103SBA_RESISTOR_DIVIDER_SUPPLY_VOLTAGE_V * ts_ntcle317e4103sbaLut[ts_ntcle317e4103sbaLutSize-1u].resistance_Ohm) / (ts_ntcle317e4103sbaLut[ts_ntcle317e4103sbaLutSize-1u].resistance_Ohm+TS_VISHAY_NTCLE317E4103SBA_RESISTOR_DIVIDER_RESISTANCE_R_1_R_2_Ohm)))
+    ((float_t)((TS_VISHAY_NTCLE317E4103SBA_RESISTOR_DIVIDER_SUPPLY_VOLTAGE_V * ts_ntcle317e4103sbaLut[ts_ntcle317e4103sbaLutSize-1u].resistance_Ohm) / (ts_ntcle317e4103sbaLut[ts_ntcle317e4103sbaLutSize-1u].resistance_Ohm+TS_VISHAY_NTCLE317E4103SBA_RESISTOR_DIVIDER_RESISTANCE_R_1_R_2_Ohm)))
 #define TS_VISHAY_NTCLE317E4103SBA_ADC_VOLTAGE_V_MAX_V \
-    ((float)((TS_VISHAY_NTCLE317E4103SBA_RESISTOR_DIVIDER_SUPPLY_VOLTAGE_V * ts_ntcle317e4103sbaLut[0u].resistance_Ohm) / (ts_ntcle317e4103sbaLut[0u].resistance_Ohm+TS_VISHAY_NTCLE317E4103SBA_RESISTOR_DIVIDER_RESISTANCE_R_1_R_2_Ohm)))
+    ((float_t)((TS_VISHAY_NTCLE317E4103SBA_RESISTOR_DIVIDER_SUPPLY_VOLTAGE_V * ts_ntcle317e4103sbaLut[0u].resistance_Ohm) / (ts_ntcle317e4103sbaLut[0u].resistance_Ohm+TS_VISHAY_NTCLE317E4103SBA_RESISTOR_DIVIDER_RESISTANCE_R_1_R_2_Ohm)))
 #endif
 /**@}*/
 
@@ -136,7 +142,7 @@ static const uint16_t ts_ntcle317e4103sbaLutSize = sizeof(ts_ntcle317e4103sbaLut
 
 extern int16_t TS_Vis01GetTemperatureFromLut(uint16_t adcVoltage_mV) {
     int16_t temperature_ddegC = INT16_MIN;
-    float adcVoltage_V        = (float)adcVoltage_mV / TS_SCALING_FACTOR_1V_IN_MV_FLOAT; /* Convert mV to V */
+    float_t adcVoltage_V      = (float_t)adcVoltage_mV / TS_SCALING_FACTOR_1V_IN_MV_FLOAT; /* Convert mV to V */
 
     /* Check for valid ADC measurements to prevent undefined behavior */
     if (adcVoltage_V > TS_VISHAY_NTCLE317E4103SBA_ADC_VOLTAGE_V_MAX_V) {
@@ -147,14 +153,15 @@ extern int16_t TS_Vis01GetTemperatureFromLut(uint16_t adcVoltage_mV) {
         temperature_ddegC = INT16_MAX;
     } else {
         /* Calculate NTC resistance based on measured ADC voltage */
-#if TS_VISHAY_NTCLE317E4103SBA_POSITION_IN_RESISTOR_DIVIDER_IS_R_1 == true
+#if defined(TS_VISHAY_NTCLE317E4103SBA_POSITION_IN_RESISTOR_DIVIDER_IS_R_1) && \
+    (TS_VISHAY_NTCLE317E4103SBA_POSITION_IN_RESISTOR_DIVIDER_IS_R_1 == true)
         /* R_1 = R_2 * ( ( V_supply / V_adc ) - 1 ) */
-        const float resistance_Ohm =
+        const float_t resistance_Ohm =
             TS_VISHAY_NTCLE317E4103SBA_RESISTOR_DIVIDER_RESISTANCE_R_1_R_2_Ohm *
             ((TS_VISHAY_NTCLE317E4103SBA_RESISTOR_DIVIDER_SUPPLY_VOLTAGE_V / adcVoltage_V) - 1);
 #else  /* TS_VISHAY_NTCLE317E4103SBA_POSITION_IN_RESISTOR_DIVIDER_IS_R_1 is false */
         /* formula: R_2 = R_1 * ( V_2 / ( V_supply - V_adc ) ) */
-        const float resistance_Ohm =
+        const float_t resistance_Ohm =
             TS_VISHAY_NTCLE317E4103SBA_RESISTOR_DIVIDER_RESISTANCE_R_1_R_2_Ohm *
             (adcVoltage_V / (TS_VISHAY_NTCLE317E4103SBA_RESISTOR_DIVIDER_SUPPLY_VOLTAGE_V - adcVoltage_V));
 #endif /* TS_VISHAY_NTCLE317E4103SBA_POSITION_IN_RESISTOR_DIVIDER_IS_R_1 */
@@ -174,9 +181,9 @@ extern int16_t TS_Vis01GetTemperatureFromLut(uint16_t adcVoltage_mV) {
               (between_low >= ts_ntcle317e4103sbaLutSize))) {  /* measured resistance < minimum LUT resistance */
             temperature_ddegC = (int16_t)MATH_LinearInterpolation(
                 ts_ntcle317e4103sbaLut[between_low].resistance_Ohm,
-                (float)ts_ntcle317e4103sbaLut[between_low].temperature_ddegC,
+                (float_t)ts_ntcle317e4103sbaLut[between_low].temperature_ddegC,
                 ts_ntcle317e4103sbaLut[between_high].resistance_Ohm,
-                (float)ts_ntcle317e4103sbaLut[between_high].temperature_ddegC,
+                (float_t)ts_ntcle317e4103sbaLut[between_high].temperature_ddegC,
                 resistance_Ohm);
         }
     }
@@ -194,3 +201,5 @@ extern int16_t TS_Vis01GetTemperatureFromPolynomial(uint16_t adcVoltage_mV) {
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
+#ifdef UNITY_UNIT_TEST
+#endif

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_sys_mon.c
  * @author  foxBMS Team
  * @date    2020-04-02 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -63,6 +63,9 @@
 #include "fassert.h"
 #include "sys_mon.h"
 #include "test_assert_helper.h"
+
+#include <stdbool.h>
+#include <stdint.h>
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 #define DUMMY_TASK_ID_0  (0)
@@ -236,7 +239,7 @@ void testSYSM_NotifyExitTimestampProperlySetAndDurationCalculated(void) {
     SYSM_NOTIFICATION_s *notifications = TEST_SYSM_GetNotifications();
     TEST_ASSERT_EQUAL(UINT32_MAX, notifications[DUMMY_TASK_ID_0].timestampEnter);
 
-    const uint32 exitTime = 100;
+    const uint32_t exitTime = 100;
     OS_EnterTaskCritical_Expect();
     OS_ExitTaskCritical_Expect();
     TEST_ASSERT_PASS_ASSERT(SYSM_Notify(DUMMY_TASK_ID_0, SYSM_NOTIFY_EXIT, exitTime));

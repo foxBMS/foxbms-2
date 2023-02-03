@@ -100,6 +100,14 @@
     "c-006_test4.c": [
         [
             "C_SECTION",
+            0,
+            [
+                "'/*========== Extern Function Implementations ===============",
+                "=================*/' found more often than expected."
+            ]
+        ],
+        [
+            "C_SECTION",
             7,
             [
                 "/*========== Includes =====================================",

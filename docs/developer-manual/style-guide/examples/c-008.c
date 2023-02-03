@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -39,20 +39,50 @@
  *
  */
 
+/**
+ * @file    c-008.c
+ * @author  foxBMS Team
+ * @date    2021-06-04 (date of creation)
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
+ * @ingroup GUIDELINES
+ * @prefix  NONE
+ *
+ * @brief   Example code to show the application of the C coding guidelines
+ * @details This code implements an example for C:008
+ *
+ */
+
+/*========== Includes =======================================================*/
+
 #include "c-008.h"
 
+#include <stdint.h>
+
+/*========== Macros and Definitions =========================================*/
+
+/*========== Static Constant and Variable Definitions =======================*/
 static uint32_t abc_staticVariable = 0; /*!< File static variable that is used within multiple functions */
 
+/*========== Extern Constant and Variable Definitions =======================*/
 uint32_t abc_globalVariable; /*!< Important global variable that is used by multiple files/modules */
 
+/*========== Static Function Prototypes =====================================*/
 /**
  * @brief   Function to do important stuff in this file/module.
  */
 static void ABC_StaticImportantFunction(void);
 
+/*========== Static Function Implementations ================================*/
 static void ABC_StaticImportantFunction(void) {
     uint32_t temporaryVariable = 0; /* Temporary variable to do calculations in this function */
 }
 
+/*========== Extern Function Implementations ================================*/
 extern void ABC_GlobalImportantFunction(void) {
+    /* some code */
 }
+
+/*========== Externalized Static Function Implementations (Unit Test) =======*/
+#ifdef UNITY_UNIT_TEST
+#endif

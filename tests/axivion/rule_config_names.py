@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -415,11 +415,14 @@ FUNCTION_NAME_ERROR_MESSAGE = "The function name is not 'PascalCase'."
 GLOBAL_VARIABLE_ERROR_MESSAGE = "The global variable name is not 'camelCase'."
 MACRO_ERROR_MESSAGE = "The macro name is not 'ALL_CAPS'."
 PARAMETER_ERROR_MESSAGE = "The parameter name is not 'camelCase'."
+STRUCT_MEMBER_NAME_ERROR_MESSAGE = "The struct member name is not 'camelCase'."
 naming_errors = {
     "Function": (check_function_name, FUNCTION_NAME_ERROR_MESSAGE),
     "GlobalVariable": (check_global_variable_name, GLOBAL_VARIABLE_ERROR_MESSAGE),
     "Macro": (check_macro_name, MACRO_ERROR_MESSAGE),
     "Parameter": (check_parameter_name, PARAMETER_ERROR_MESSAGE),
+    # struct member and parameter follow the same convention
+    "StructField": (check_parameter_name, STRUCT_MEMBER_NAME_ERROR_MESSAGE),
 }
 
 for applicable_rule, handling in naming_errors.items():

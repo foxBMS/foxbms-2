@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    diag_cbs_power-measurement.c
  * @author  foxBMS Team
  * @date    2021-02-17 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup ENGINE
  * @prefix  DIAG
  *
@@ -54,6 +54,9 @@
 
 /*========== Includes =======================================================*/
 #include "diag_cbs.h"
+#include "fstd_types.h"
+
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 
@@ -79,9 +82,9 @@ extern void DIAG_ErrorPowerMeasurement(
     switch (diagId) {
         case DIAG_ID_CURRENT_SENSOR_POWER_MEASUREMENT_TIMEOUT:
             if (event == DIAG_EVENT_RESET) {
-                kpkDiagShim->pTableError->currentSensorPowerTimeout[stringNumber] = 0u;
+                kpkDiagShim->pTableError->currentSensorPowerTimeoutError[stringNumber] = false;
             } else if (event == DIAG_EVENT_NOT_OK) {
-                kpkDiagShim->pTableError->currentSensorPowerTimeout[stringNumber] = 1u;
+                kpkDiagShim->pTableError->currentSensorPowerTimeoutError[stringNumber] = true;
             } else {
                 /* no relevant event, do nothing */
             }
@@ -89,9 +92,9 @@ extern void DIAG_ErrorPowerMeasurement(
 
         case DIAG_ID_POWER_MEASUREMENT_ERROR:
             if (event == DIAG_EVENT_RESET) {
-                kpkDiagShim->pTableError->powerMeasurementError[stringNumber] = 0u;
+                kpkDiagShim->pTableError->powerMeasurementInvalidError[stringNumber] = false;
             } else if (event == DIAG_EVENT_NOT_OK) {
-                kpkDiagShim->pTableError->powerMeasurementError[stringNumber] = 1u;
+                kpkDiagShim->pTableError->powerMeasurementInvalidError[stringNumber] = true;
             } else {
                 /* no relevant event, do nothing */
             }
@@ -99,8 +102,10 @@ extern void DIAG_ErrorPowerMeasurement(
 
         default:
             FAS_ASSERT(FAS_TRAP);
-            break;
+            break; /* LCOV_EXCL_LINE */
     }
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
+#ifdef UNITY_UNIT_TEST
+#endif

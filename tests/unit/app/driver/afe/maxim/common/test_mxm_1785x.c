@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_mxm_1785x.c
  * @author  foxBMS Team
  * @date    2020-07-02 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  MXM
  *
@@ -75,6 +75,11 @@
 #include "mxm_1785x_tools.h"
 #include "test_assert_helper.h"
 
+#include <stdbool.h>
+#include <stdint.h>
+
+TEST_FILE("test_mxm_1785x")
+
 /*========== Definitions and Implementations for Unit Test ==================*/
 
 static DATA_BLOCK_OPEN_WIRE_s mxm_tableOpenWire = {.header.uniqueId = DATA_BLOCK_ID_OPEN_WIRE_BASE};
@@ -86,7 +91,7 @@ static MXM_MONITORING_INSTANCE_s mxm_instance = {
     .operationRequested    = false,
     .firstMeasurementDone  = false,
     .stopRequested         = false,
-    .openwireRequested     = false,
+    .openWireRequested     = false,
     .undervoltageAlert     = false,
     .dcByte                = MXM_DC_EMPTY,
     .mxmVoltageCellCounter = 0,
@@ -112,7 +117,7 @@ static MXM_MONITORING_INSTANCE_s mxm_instance = {
             .addressSpaceChecker      = STD_NOT_OK,
             .fmeaStatusASCI           = STD_NOT_OK,
         },
-    .pOpenwire_table = &mxm_tableOpenWire,
+    .pOpenWire_table = &mxm_tableOpenWire,
 };
 
 const bool mxm_allowSkippingPostInitSelfCheck = true;
@@ -297,16 +302,16 @@ void testMXM_ProcessOpenWire1SatelliteAlternatingPattern(void) {
 
     /* check for the injected pattern */
     for (uint8_t i = 0u; i < 8; i = i + 2) {
-        TEST_ASSERT_EQUAL(1, mxm_instance.pOpenwire_table->openwire[0][i]);
+        TEST_ASSERT_EQUAL(1, mxm_instance.pOpenWire_table->openWire[0][i]);
     }
     for (uint8_t i = 1u; i < 8; i = i + 2) {
-        TEST_ASSERT_EQUAL(0, mxm_instance.pOpenwire_table->openwire[0][i]);
+        TEST_ASSERT_EQUAL(0, mxm_instance.pOpenWire_table->openWire[0][i]);
     }
     for (uint8_t i = 8u; i < MXM_MAXIMUM_NR_OF_CELLS_PER_MODULE; i = i + 2) {
-        TEST_ASSERT_EQUAL(0, mxm_instance.pOpenwire_table->openwire[0][i]);
+        TEST_ASSERT_EQUAL(0, mxm_instance.pOpenWire_table->openWire[0][i]);
     }
     for (uint8_t i = 9u; i < MXM_MAXIMUM_NR_OF_CELLS_PER_MODULE; i = i + 2) {
-        TEST_ASSERT_EQUAL(1, mxm_instance.pOpenwire_table->openwire[0][i]);
+        TEST_ASSERT_EQUAL(1, mxm_instance.pOpenWire_table->openWire[0][i]);
     }
 }
 

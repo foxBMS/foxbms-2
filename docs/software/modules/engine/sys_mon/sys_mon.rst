@@ -76,7 +76,7 @@ When monitoring is enabled for a task and when the task violates its timings,
 a diagnosis entry of type ``DIAG_ID_SYSTEM_MONITORING`` is created in the
 :ref:`DIAGNOSIS_MODULE`.
 The diagnosis handler for this ID sets the appropriate error flags in the
-``DATA_BLOCK_ERRORSTATE_s`` database table.
+``DATA_BLOCK_ERROR_STATE_s`` database table.
 
 These flags will not be cleared automatically.
 The only actions that clear these flags are a power on reset cycle or sending

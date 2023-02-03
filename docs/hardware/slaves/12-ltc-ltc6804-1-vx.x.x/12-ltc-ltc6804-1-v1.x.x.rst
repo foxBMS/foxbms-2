@@ -29,7 +29,7 @@ Block Diagram
 ^^^^^^^^^^^^^
 
 The block diagram of the |BMS-Slave| is shown in
-:numref:`Fig. %s <block_diagram_6804-1_slave_12cell_v1.x.x>`
+:numref:`Fig. %s <block_diagram_6804-1_slave_12cell_v1.x.x>`.
 
 .. _block_diagram_6804-1_slave_12cell_v1.x.x:
 .. figure:: ./12-ltc-ltc6804-1-v1.x.x/12-ltc-ltc6804-1-v1.x.x.png
@@ -94,7 +94,7 @@ The connector indicated as ``Battery cell connector (16 pin)`` in
 :numref:`Fig. %s <block_diagram_6804-1_slave_12cell_v1.x.x>` has two purposes:
 
  * Supply of the |BMS-Slave|
- * Input of the cell voltages to the |ltc6804-1| monitoring chip
+ * Input of the cell voltages to the |ltc6804-1| analog front-end
 
 The layout of the connector is described in
 :numref:`Table %s <cell_voltage_connector>`.

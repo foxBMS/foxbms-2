@@ -6,6 +6,9 @@
 I2C Module
 ==========
 
+.. spelling::
+    cacheable
+
 Module Files
 ------------
 
@@ -23,37 +26,95 @@ Unit Test
 Detailed Description
 --------------------
 
-The driver consists of READ functions and WRITE functions. In all cases,
-``slaveAddress`` are the seven bits of the |I2C| slave address.
+The driver consists of READ functions and WRITE functions.
+In all cases, ``slaveAddress`` are the seven bits of the |I2C| slave address.
+
+Reading
+^^^^^^^
 
 There are two cases for READ:
 
-- ``I2C_Read()``: implements the usual way of reading. First a write operation
-  is made after the START condition, to write the address (``readAddress``)
-  to read from. Then a REPEATED START condition issued on the bus and
-  ``nrBytes`` are read. The result is stored in the data pointed by
-  ``readData``.
+- ``I2C_WriteRead()``: implements the usual way of reading.
+  First a write operation is made after the START condition and
+  ``nrBytesWrite`` are written directly.
+  The data to be written is pointed by ``writeData``.
+  Then a REPEATED START condition issued on the bus and ``nrBytesRead`` are
+  read.
+  The result is stored in the data pointed by ``readData``.
 
-- ``I2C_ReadDirect()``: a START condition is issued on the bus and
-  ``nrBytes`` are read directly. The result is stored in the data pointed by
-  ``readData``.
+- ``I2C_Read()``: a START condition is issued on the bus and ``nrBytes`` are
+   read directly.
+   The result is stored in the data pointed by ``readData``.
 
-Similarly, there are two cases for WRITE:
+Writing
+^^^^^^^
 
-- ``I2C_WriteDirect()``: a START condition is issued on the bus and
+There is one function to WRITE:
+
+- ``I2C_Write()``: a START condition is issued on the bus and
   ``nrBytes`` are written directly. The data to be written is pointed by
   ``writeData``.
 
-- ``I2C_Write()``: like the preceding function, a START condition is issued
-  on the bus and bytes are written. The difference is that ``nrBytes+1`` are
-  written: first ``writeAddress`` is written, then the data to be written
-  pointed by ``writeData``. This function is symmetric to ``I2C_Read()``,
-  where first the register address to access is written.
+DMA
+^^^
 
-Two DMA functions are also implemented, similar to the functions where
-the register address is written first before read or write.
-``dmaGroupANotification()`` is called after the bytes are written to or
-read from |I2C| to deactivate the corresponding DMA transfers.
-Currently the DMA functions lack transaction control: in case the |I2C|
-transaction does not finish or take place, this is not signaled to the
-driver.
+Three similar DMA functions are also implemented, with the suffix ``DMA`` at
+the end of the function name.
+``dmaGroupANotification()`` is called after the bytes are written to or read
+from |I2C| to deactivate the corresponding DMA transfers.
+The DMA functions lack transaction control: in case the |I2C| transaction does
+not finish or take place, this is not signaled to the driver.
+This is detected because the OS function waiting for the tasks to be notified
+times out instead of receiving a notification.
+
+.. warning::
+    When using the DMA functions, the read and write variables must be declared
+    in a non-cacheable area.
+
+Details on the implementation
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The functions all use the |I2C| interface as a master.
+
+To send bytes with a stop condition at the end, the repeat mode of the |I2C|
+interface is deactivated.
+The counter register is set with the number of bytes to send and the stop
+condition is generated.
+With this configuration, the counter is decremented each time a byte is sent.
+When the counter reaches zero, a stop bit is sent.
+
+To read bytes, the repeat mode must be activated.
+When the start condition is set, a start bit is sent and the master starts
+receiving bytes.
+The byte counter is not used.
+When the stop condition is generated, the stop bit is send, but due to the
+double buffer on the receiver side, the stop condition must be issued after
+reading the (message size-1)\ :sup:`th`\ |_| byte.
+Due to this, the DMA receive functions use the DMA last transfer started
+interrupt to issue the stop condition, but the stop bit is sent after the
+last byte is received by DMA.
+To avoid receiving one byte more than needed, when receiving ``N`` bytes,
+``N-1`` received bytes are transferred with DMA.
+The last byte is copied by the CPU in the DMA receive transfer finished
+interrupt.
+As a consequence, the following must be considered:
+
+.. warning::
+    The DMA receive functions works only to receive two bytes and more.
+    To receive one byte, the functions without DMA must be used.
+
+Task running the functions with DMA
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+As the DMA functions are non blocking, the synchronization must be taken care
+of.
+A specific task has been implemented for the communication with |I2C| devices.
+It runs continuously like the AFE task.
+At the end of the DMA function, the task will be blocked, waiting for
+a notification.
+The notification is made in the DMA complete interrupt: the task then wakes up.
+If the notification does not come within ``I2C_NOTIFICATION_TIMEOUT_ms``
+milliseconds, the task is unblocked and the I2C communication is declared to
+have failed.
+To leave CPU time for the other tasks, the |I2C| task should be blocked for at
+least 1 millisecond after each |I2C| transaction.

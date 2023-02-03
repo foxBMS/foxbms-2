@@ -101,3 +101,11 @@ The result should look like the content of :numref:`modify-can4-xml`.
          var i=0
       for(i=1;i &lt;= 64;i++)
             {
+
+Mailbox 42 configuration in CAN1
+--------------------------------
+
+|halcogen| has a bug that the initialization code of CAN1 mailbox 42 is not
+generated whatever is configured in |halcogen|.
+To use this mailbox, the user needs to initialize this mailbox manually (see
+`TI forum post <https://e2e.ti.com/support/microcontrollers/arm-based-microcontrollers-group/arm-based-microcontrollers/f/arm-based-microcontrollers-forum/905953/ccs-tms570lc4357-halcogen-can-message-configuration-bug-can1-message-41-42---can2-message-41-42>`).

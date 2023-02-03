@@ -22,3 +22,11 @@ console output, there should be a link to open.
 
 In the jupyter notebook browser you can select a notebook and then open it.
 When you click on restart and run all cells it will execute the whole notebook.
+
+## CRC-1 - 0x48F
+
+For details of the CRC polynomial see [here](./crc-10_0x48f.md).
+
+## CRC-15 - 0xC599
+
+For details of the CRC polynomial see [here](./crc-15_0xc599.md).

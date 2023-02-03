@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    can_helper.c
  * @author  foxBMS Team
  * @date    2021-04-22 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup DRIVERS
  * @prefix  CAN
  *
@@ -58,6 +58,9 @@
 
 #include "database.h"
 #include "foxmath.h"
+
+#include <math.h>
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 /** Plausibility checking can signals lengths */
@@ -139,7 +142,7 @@ static uint64_t CAN_ConvertBitStartBigEndian(uint64_t bitStart, uint64_t bitLeng
 
 /*========== Extern Function Implementations ================================*/
 
-extern void CAN_TxPrepareSignalData(float *pSignal, CAN_SIGNAL_TYPE_s signalProperties) {
+extern void CAN_TxPrepareSignalData(float_t *pSignal, CAN_SIGNAL_TYPE_s signalProperties) {
     FAS_ASSERT(pSignal != NULL_PTR);
 
     /* Check min/max limits */
@@ -158,7 +161,10 @@ extern void CAN_TxPrepareSignalData(float *pSignal, CAN_SIGNAL_TYPE_s signalProp
     *pSignal = *pSignal / signalProperties.factor;
 }
 
-extern void CAN_RxConvertRawSignalData(float *pSignalConverted, float signalRaw, CAN_SIGNAL_TYPE_s signalProperties) {
+extern void CAN_RxConvertRawSignalData(
+    float_t *pSignalConverted,
+    float_t signalRaw,
+    CAN_SIGNAL_TYPE_s signalProperties) {
     FAS_ASSERT(pSignalConverted != NULL_PTR);
     /* Apply offset and factor */
     *pSignalConverted = (signalRaw * signalProperties.factor) - signalProperties.offset;
@@ -342,3 +348,5 @@ extern uint8_t CAN_ConvertBooleanToInteger(bool input) {
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
+#ifdef UNITY_UNIT_TEST
+#endif

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    diag_cfg.h
  * @author  foxBMS Team
  * @date    2019-11-28 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup ENGINE_CONFIGURATION
  * @prefix  DIAG
  *
@@ -58,10 +58,12 @@
 #define FOXBMS__DIAG_CFG_H_
 
 /*========== Includes =======================================================*/
-#include "general.h"
 
 #include "battery_system_cfg.h"
 #include "database_cfg.h"
+
+#include <stdbool.h>
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 #define DIAG_ERROR_SENSITIVITY_FIRST_EVENT (0) /*!< logging at first event */
@@ -161,10 +163,10 @@
 
 /** composite type for storing and passing on the local database table handles */
 typedef struct {
-    DATA_BLOCK_ERRORSTATE_s *pTableError; /*!< database table with error states */
-    DATA_BLOCK_MOL_FLAG_s *pTableMol;     /*!< database table with MOL flags */
-    DATA_BLOCK_RSL_FLAG_s *pTableRsl;     /*!< database table with RSL flags */
-    DATA_BLOCK_MSL_FLAG_s *pTableMsl;     /*!< database table with MSL flags */
+    DATA_BLOCK_ERROR_STATE_s *pTableError; /*!< database table with error states */
+    DATA_BLOCK_MOL_FLAG_s *pTableMol;      /*!< database table with MOL flags */
+    DATA_BLOCK_RSL_FLAG_s *pTableRsl;      /*!< database table with RSL flags */
+    DATA_BLOCK_MSL_FLAG_s *pTableMsl;      /*!< database table with MSL flags */
 } DIAG_DATABASE_SHIM_s;
 
 /** variable for storing and passing on the local database table handles */
@@ -236,9 +238,12 @@ typedef enum {
     DIAG_ID_REDUNDANCY0_CELL_VOLTAGE_MEASUREMENT_TIMEOUT, /*!< the redundancy module has detected that the redundancy0 cell voltage measurements are missing */
     DIAG_ID_BASE_CELL_TEMPERATURE_MEASUREMENT_TIMEOUT, /*!< the redundancy module has detected that the base cell temperature measurements are missing */
     DIAG_ID_REDUNDANCY0_CELL_TEMPERATURE_MEASUREMENT_TIMEOUT, /*!< the redundancy module has detected that the redundancy0 temperature measurements are missing */
+    DIAG_ID_PRECHARGE_ABORT_REASON_VOLTAGE, /*!< precharging aborted due to a too high voltage difference */
+    DIAG_ID_PRECHARGE_ABORT_REASON_CURRENT, /*!< precharging aborted because measured current was too high */
     DIAG_ID_CURRENT_MEASUREMENT_TIMEOUT, /*!< the redundancy module has detected that the current measurement on a string is not updated */
     DIAG_ID_CURRENT_MEASUREMENT_ERROR, /*!< the redundancy module has detected a current measurement to be invalid */
     DIAG_ID_CURRENT_SENSOR_V1_MEASUREMENT_TIMEOUT, /*!< the redundancy module has detected that the voltage 1 measurement of a current sensor is not updated */
+    DIAG_ID_CURRENT_SENSOR_V2_MEASUREMENT_TIMEOUT, /*!< the redundancy module has detected that the voltage 2 measurement of a current sensor is not updated */
     DIAG_ID_CURRENT_SENSOR_V3_MEASUREMENT_TIMEOUT, /*!< the redundancy module has detected that the voltage 3 measurement of a current sensor is not updated */
     DIAG_ID_CURRENT_SENSOR_POWER_MEASUREMENT_TIMEOUT, /*!< the redundancy module has detected that the power measurement of a current sensor is not updated */
     DIAG_ID_POWER_MEASUREMENT_ERROR,      /*!< the redundancy module has detected a power measurement to be invalid */
@@ -247,6 +252,9 @@ typedef enum {
     DIAG_ID_LOW_INSULATION_RESISTANCE_WARNING, /*!< a warnable low insulation resistance has been measured */
     DIAG_ID_INSULATION_GROUND_ERROR,           /*!< insulation monitoring has detected a ground error */
     DIAG_ID_I2C_PEX_ERROR,                     /*!< general error with the port expanders */
+    DIAG_ID_I2C_RTC_ERROR,                     /*!< i2c communication error with the RTC */
+    DIAG_ID_RTC_CLOCK_INTEGRITY_ERROR,         /*!< clock integrity not garanteed error in RTC IC */
+    DIAG_ID_RTC_BATTERY_LOW_ERROR,             /*!< RTC IC battery low flag set */
     DIAG_ID_FRAM_READ_CRC_ERROR,               /*!< CRC does not match when reading from the FRAM */
     DIAG_ID_ALERT_MODE, /*!< Critical error while opening the contactors. Fuse has not triggered */
     DIAG_ID_MAX,        /*!< MAX indicator - do not change */
@@ -256,7 +264,7 @@ typedef enum {
 typedef enum {
     DIAG_EVENT_OK,     /**< diag channel event OK                */
     DIAG_EVENT_NOT_OK, /**< diag channel event NOK               */
-    DIAG_EVENT_RESET,  /**< reset diag channel eventcounter to 0 */
+    DIAG_EVENT_RESET,  /**< reset diag channel event counter to 0 */
 } DIAG_EVENT_e;
 
 /** enable or disable the diagnosis handling for an event */
@@ -276,7 +284,7 @@ typedef enum {
  * @brief   Value that is written into the field that describes whether CAN
  *          timing diag entries should be generated
  */
-#if CHECK_CAN_TIMING == true
+#if BS_CHECK_CAN_TIMING == true
 #define DIAG_CAN_TIMING (DIAG_EVALUATION_ENABLED)
 #else
 #define DIAG_CAN_TIMING (DIAG_EVALUATION_DISABLED)
@@ -287,11 +295,11 @@ typedef enum {
  * @brief   Value that is written into the field that describes whether current
  *          sensor diag entries should be generated if it is not present
  */
-#if CURRENT_SENSOR_PRESENT == true
+#if BS_CURRENT_SENSOR_PRESENT == true
 #define DIAG_CAN_SENSOR_PRESENT (DIAG_EVALUATION_ENABLED)
-#else /* CURRENT_SENSOR_PRESENT == true */
+#else /* BS_CURRENT_SENSOR_PRESENT == true */
 #define DIAG_CAN_SENSOR_PRESENT (DIAG_EVALUATION_DISABLED)
-#endif /* CURRENT_SENSOR_PRESENT */
+#endif /* BS_CURRENT_SENSOR_PRESENT */
 
 /** diagnosis severity level */
 typedef enum {
@@ -360,5 +368,7 @@ extern DIAG_ID_CFG_s diag_diagnosisIdConfiguration[DIAG_ID_MAX];
 extern void DIAG_UpdateFlags(void);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
+#ifdef UNITY_UNIT_TEST
+#endif
 
 #endif /* FOXBMS__DIAG_CFG_H_ */

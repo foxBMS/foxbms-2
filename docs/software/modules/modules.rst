@@ -44,6 +44,7 @@ Software Modules
     ./driver/contactor/contactor.rst
     ./driver/dma/dma.rst
     ./driver/foxmath/foxmath.rst
+    ./driver/foxmath/utils.rst
     ./driver/fram/fram.rst
     ./driver/htsen/htsen.rst
     ./driver/i2c/i2c.rst

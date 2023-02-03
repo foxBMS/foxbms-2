@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -61,7 +61,7 @@ def sym_hex(number):
 
 
 def main():
-    """This script produces a symbole file for cell voltages and temperatures"""
+    """This script produces a symbol file for cell voltages and temperatures"""
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "-v",

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    soe_counting.c
  * @author  foxBMS Team
  * @date    2020-10-07 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup APPLICATION
  * @prefix  SOE
  *
@@ -64,16 +64,20 @@
 #include "foxmath.h"
 #include "fram.h"
 
+#include <math.h>
+#include <stdbool.h>
+#include <stdint.h>
+
 /*========== Macros and Definitions =========================================*/
 /**
  * This structure contains all the variables relevant for the SOX.
  */
 typedef struct {
-    bool soeInitialized;                      /*!< true if the initialization has passed, false otherwise */
-    bool sensorEcUsed[BS_NR_OF_STRINGS];      /*!< true if energy counting functionality of current sensor is used */
-    float ecScalingAverage[BS_NR_OF_STRINGS]; /*!< current sensor offset scaling for average SOE */
-    float ecScalingMinimum[BS_NR_OF_STRINGS]; /*!< current sensor offset scaling for minimum SOE */
-    float ecScalingMaximum[BS_NR_OF_STRINGS]; /*!< current sensor offset scaling for maximum SOE */
+    bool soeInitialized;                        /*!< true if the initialization has passed, false otherwise */
+    bool sensorEcUsed[BS_NR_OF_STRINGS];        /*!< true if energy counting functionality of current sensor is used */
+    float_t ecScalingAverage[BS_NR_OF_STRINGS]; /*!< current sensor offset scaling for average SOE */
+    float_t ecScalingMinimum[BS_NR_OF_STRINGS]; /*!< current sensor offset scaling for minimum SOE */
+    float_t ecScalingMaximum[BS_NR_OF_STRINGS]; /*!< current sensor offset scaling for maximum SOE */
     uint32_t previousTimestamp
         [BS_NR_OF_STRINGS]; /*!< last used timestamp of current or energy counting value for SOE estimation */
 } SOE_STATE_s;
@@ -112,7 +116,7 @@ static DATA_BLOCK_CURRENT_SENSOR_s soe_tableCurrentSensor = {.header.uniqueId = 
  *
  * @return returns corresponding string energy in Wh
  */
-static uint32_t SOE_GetStringEnergyFromSoePercentage(float stringSoe_perc);
+static uint32_t SOE_GetStringEnergyFromSoePercentage(float_t stringSoe_perc);
 
 /**
  * @brief   calculates string SOE in percentage from passed string energy in Wh
@@ -121,7 +125,7 @@ static uint32_t SOE_GetStringEnergyFromSoePercentage(float stringSoe_perc);
  *
  * @return returns corresponding string SOE in percentage [0.0, 100.0]
  */
-static float SOE_GetStringSoePercentageFromEnergy(uint32_t energy_Wh);
+static float_t SOE_GetStringSoePercentageFromEnergy(uint32_t energy_Wh);
 
 /**
  * @brief   initializes database and FRAM SOE values via lookup table (average, min and max).
@@ -136,7 +140,7 @@ static void SOE_RecalibrateViaLookupTable(DATA_BLOCK_SOX_s *pSoeValues);
  *
  * @return  SOE value in percentage [0.0 - 100.0]
  */
-static float SOE_GetFromVoltage(int16_t voltage_mV);
+static float_t SOE_GetFromVoltage(int16_t voltage_mV);
 
 /**
  * @brief   sets SOE value with a parameter between 0.0 and 100.0.
@@ -151,9 +155,9 @@ static float SOE_GetFromVoltage(int16_t voltage_mV);
  */
 static void SOE_SetValue(
     DATA_BLOCK_SOX_s *pSoeValues,
-    float soeMinimumValue_perc,
-    float soeMaximumValue_perc,
-    float soeAverageValue_perc,
+    float_t soeMinimumValue_perc,
+    float_t soeMaximumValue_perc,
+    float_t soeAverageValue_perc,
     uint8_t stringNumber);
 
 /**
@@ -166,9 +170,9 @@ static void SOE_SetValue(
 static void SOE_CheckDatabaseSoePercentageLimits(DATA_BLOCK_SOX_s *pTableSoe, uint8_t stringNumber);
 
 /*========== Static Function Implementations ================================*/
-static float SOE_GetStringSoePercentageFromEnergy(uint32_t energy_Wh) {
-    float stringSoe_perc        = 0.0f;
-    const float stringEnergy_Wh = (float)energy_Wh;
+static float_t SOE_GetStringSoePercentageFromEnergy(uint32_t energy_Wh) {
+    float_t stringSoe_perc        = 0.0f;
+    const float_t stringEnergy_Wh = (float_t)energy_Wh;
     if (stringEnergy_Wh >= SOE_STRING_ENERGY_Wh) {
         stringSoe_perc = MAXIMUM_SOE_PERC;
     } else {
@@ -177,8 +181,8 @@ static float SOE_GetStringSoePercentageFromEnergy(uint32_t energy_Wh) {
     return stringSoe_perc;
 }
 
-static uint32_t SOE_GetStringEnergyFromSoePercentage(float stringSoe_perc) {
-    float energy_Wh = 0.0f;
+static uint32_t SOE_GetStringEnergyFromSoePercentage(float_t stringSoe_perc) {
+    float_t energy_Wh = 0.0f;
     if (stringSoe_perc >= MAXIMUM_SOE_PERC) {
         energy_Wh = SOE_STRING_ENERGY_Wh;
     } else if (stringSoe_perc <= MINIMUM_SOE_PERC) {
@@ -206,8 +210,8 @@ static void SOE_RecalibrateViaLookupTable(DATA_BLOCK_SOX_s *pSoeValues) {
     FRAM_WriteData(FRAM_BLOCK_ID_SOE);
 }
 
-static float SOE_GetFromVoltage(int16_t voltage_mV) {
-    float soe_perc = 50.0f;
+static float_t SOE_GetFromVoltage(int16_t voltage_mV) {
+    float_t soe_perc = 50.0f;
     /* Variables for interpolating LUT value */
     uint16_t between_high = 0;
     uint16_t between_low  = 0;
@@ -224,11 +228,11 @@ static float SOE_GetFromVoltage(int16_t voltage_mV) {
     if (!(((between_high == 0u) && (between_low == 0u)) ||       /* cell voltage > maximum LUT voltage */
           (between_low >= bc_stateOfEnergyLookupTableLength))) { /* cell voltage < minimum LUT voltage */
         soe_perc = MATH_LinearInterpolation(
-            (float)bc_stateOfEnergyLookupTable[between_low].voltage_mV,
+            (float_t)bc_stateOfEnergyLookupTable[between_low].voltage_mV,
             bc_stateOfEnergyLookupTable[between_low].value,
-            (float)bc_stateOfEnergyLookupTable[between_high].voltage_mV,
+            (float_t)bc_stateOfEnergyLookupTable[between_high].voltage_mV,
             bc_stateOfEnergyLookupTable[between_high].value,
-            (float)voltage_mV);
+            (float_t)voltage_mV);
     } else if ((between_low >= bc_stateOfEnergyLookupTableLength)) {
         /* LUT SOE values are in descending order: cell voltage < minimum LUT voltage */
         soe_perc = MINIMUM_SOE_PERC;
@@ -241,9 +245,9 @@ static float SOE_GetFromVoltage(int16_t voltage_mV) {
 
 static void SOE_SetValue(
     DATA_BLOCK_SOX_s *pSoeValues,
-    float soeMinimumValue_perc,
-    float soeMaximumValue_perc,
-    float soeAverageValue_perc,
+    float_t soeMinimumValue_perc,
+    float_t soeMaximumValue_perc,
+    float_t soeAverageValue_perc,
     uint8_t stringNumber) {
     FAS_ASSERT(pSoeValues != NULL_PTR);
 
@@ -265,17 +269,17 @@ static void SOE_SetValue(
     if (soe_state.sensorEcUsed[stringNumber] == true) {
         DATA_READ_DATA(&soe_tableCurrentSensor);
 
-        float ecOffset =
+        float_t ecOffset =
             SOE_GetStringSoePercentageFromEnergy((uint32_t)abs(soe_tableCurrentSensor.energyCounter_Wh[stringNumber]));
 
         if (soe_tableCurrentSensor.energyCounter_Wh[stringNumber] < 0) {
             ecOffset *= (-1.0f);
         }
 
-#if POSITIVE_DISCHARGE_CURRENT == false
+#if BS_POSITIVE_DISCHARGE_CURRENT == false
         ecOffset *= (-1.0f); /* negate calculated delta SOE in perc */
 
-#endif /* POSITIVE_DISCHARGE_CURRENT == false */
+#endif /* BS_POSITIVE_DISCHARGE_CURRENT == false */
 
         soe_state.ecScalingAverage[stringNumber] = fram_soe.averageSoe_perc[stringNumber] + ecOffset;
         soe_state.ecScalingMinimum[stringNumber] = fram_soe.minimumSoe_perc[stringNumber] + ecOffset;
@@ -334,17 +338,17 @@ extern void SE_InitializeStateOfEnergy(DATA_BLOCK_SOX_s *pSoeValues, bool ec_pre
         soe_state.sensorEcUsed[stringNumber] = true;
 
         /* Set scaling values */
-        float ecOffset =
+        float_t ecOffset =
             SOE_GetStringSoePercentageFromEnergy((uint32_t)abs(soe_tableCurrentSensor.energyCounter_Wh[stringNumber]));
 
         if (soe_tableCurrentSensor.energyCounter_Wh[stringNumber] < 0) {
             ecOffset *= (-1.0f);
         }
 
-#if POSITIVE_DISCHARGE_CURRENT == false
+#if BS_POSITIVE_DISCHARGE_CURRENT == false
         ecOffset *= (-1.0f); /* negate calculated delta SOE in perc */
 
-#endif /* POSITIVE_DISCHARGE_CURRENT == false */
+#endif /* BS_POSITIVE_DISCHARGE_CURRENT == false */
 
         soe_state.ecScalingMinimum[stringNumber] = fram_soe.minimumSoe_perc[stringNumber] + ecOffset;
         soe_state.ecScalingMaximum[stringNumber] = fram_soe.maximumSoe_perc[stringNumber] + ecOffset;
@@ -377,19 +381,19 @@ void SE_CalculateStateOfEnergy(DATA_BLOCK_SOX_s *pSoeValues) {
 
                     /* check if current measurement has been updated */
                     if (soe_state.previousTimestamp[s] != timestamp) {
-                        float timestep_s = (((float)timestamp - (float)previous_timestamp)) / 1000.0f;
+                        float_t timestep_s = (((float_t)timestamp - (float_t)previous_timestamp)) / 1000.0f;
                         if (timestep_s > 0.0f) {
                             /* Current in charge direction negative means SOE increasing --> BAT naming, not ROB */
-                            float deltaSOE_Wh =
-                                ((((float)soe_tableCurrentSensor.current_mA[s] / 1000.0f) *         /* convert to A */
-                                  ((float)soe_tableCurrentSensor.highVoltage_mV[s][0] / 1000.0f)) / /* convert to V */
-                                 timestep_s) /                                                      /* unit: s */
+                            float_t deltaSOE_Wh =
+                                ((((float_t)soe_tableCurrentSensor.current_mA[s] / 1000.0f) *         /* convert to A */
+                                  ((float_t)soe_tableCurrentSensor.highVoltage_mV[s][0] / 1000.0f)) / /* convert to V */
+                                 timestep_s) /                                                        /* unit: s */
                                 3600.0f; /* convert Ws -> Wh */
 
-#if POSITIVE_DISCHARGE_CURRENT == false
+#if BS_POSITIVE_DISCHARGE_CURRENT == false
                             /* negate calculated delta SOE_Wh */
                             deltaSOE_Wh *= (-1.0f);
-#endif /* POSITIVE_DISCHARGE_CURRENT == false */
+#endif /* BS_POSITIVE_DISCHARGE_CURRENT == false */
 
                             pSoeValues->averageSoe_Wh[s] -= (uint32_t)deltaSOE_Wh;
                             pSoeValues->minimumSoe_Wh[s] -= (uint32_t)deltaSOE_Wh;
@@ -410,11 +414,11 @@ void SE_CalculateStateOfEnergy(DATA_BLOCK_SOX_s *pSoeValues) {
                     /* check if ec measurement has been updated */
                     if (soe_state.previousTimestamp[s] != soe_tableCurrentSensor.timestampEnergyCounting[s]) {
                         /* Calculate SOE value with current sensor EC value */
-                        float deltaSoe_perc =
-                            (((float)soe_tableCurrentSensor.energyCounter_Wh[s] / SOE_STRING_ENERGY_Wh) *
+                        float_t deltaSoe_perc =
+                            (((float_t)soe_tableCurrentSensor.energyCounter_Wh[s] / SOE_STRING_ENERGY_Wh) *
                              UNIT_CONVERSION_FACTOR_100_FLOAT);
 
-#if POSITIVE_DISCHARGE_CURRENT == false
+#if BS_POSITIVE_DISCHARGE_CURRENT == false
                         /* negate calculated delta SOE_perc */
                         deltaSoe_perc *= (-1.0f);
 #endif
@@ -451,3 +455,5 @@ void SE_CalculateStateOfEnergy(DATA_BLOCK_SOX_s *pSoeValues) {
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
+#ifdef UNITY_UNIT_TEST
+#endif

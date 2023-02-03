@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    mxm_1785x_tools.h
  * @author  foxBMS Team
  * @date    2020-07-15 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup DRIVERS
  * @prefix  MXM
  *
@@ -59,12 +59,17 @@
 #define FOXBMS__MXM_1785X_TOOLS_H_
 
 /*========== Includes =======================================================*/
+#include "general.h"
+
 #include "mxm_cfg.h"
 
 #include "database.h"
+#include "fstd_types.h"
 #include "mxm_basic_defines.h"
 #include "mxm_battery_management.h"
 #include "mxm_register_map.h"
+
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 /**
@@ -239,7 +244,7 @@ typedef struct {
     bool operationRequested;       /*!< indicates whether the measurement cycle should run */
     bool firstMeasurementDone;     /*!< this bit is set after the first measurement cycle */
     bool stopRequested;            /*!< indicates that no new measurement cycles should be run */
-    bool openwireRequested;        /*!< indicates that an openwire-check has been requested */
+    bool openWireRequested;        /*!< indicates that an openWire-check has been requested */
     bool undervoltageAlert;        /*!< whether undervoltage alert has occurred. TODO remove? replaced by DC? */
     uint8_t muxCounter;            /*!< counter for the currently selected mux channel */
     uint8_t diagnosticCounter;     /*!< upward counter for determining when a diagnostic cycle should be entered */
@@ -255,7 +260,7 @@ typedef struct {
     MXM_5X_INSTANCE_s *const pInstance5X;                         /*!< instance-pointer of the 5x-state-machine */
     DATA_BLOCK_CELL_VOLTAGE_s *const pCellVoltages_table;         /*!< cell voltages table */
     DATA_BLOCK_CELL_TEMPERATURE_s *const pCellTemperatures_table; /*!< cell temperatures table */
-    DATA_BLOCK_OPEN_WIRE_s *const pOpenwire_table;                /*!< open wire table */
+    DATA_BLOCK_OPEN_WIRE_s *const pOpenWire_table;                /*!< open wire table */
     /**
      * @brief Local storage for cell-voltages
      *
@@ -388,5 +393,7 @@ extern void MXM_ConvertModuleToString(
     uint16_t *pModuleNumberInString);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
+#ifdef UNITY_UNIT_TEST
+#endif
 
 #endif /* FOXBMS__MXM_1785X_TOOLS_H_ */

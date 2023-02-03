@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -60,7 +60,7 @@ build system.
 """
 
 import os
-
+from pathlib import Path
 from waflib import Utils
 
 
@@ -97,13 +97,10 @@ def configure(conf):
         os.path.join(os.path.join("tools", "debugger", "ozone", "foxbms.jdebug.config"))
     )
     config = ozone_config.read()
-    config = config.replace(
-        "@PROJECT_DIR@", conf.path.get_bld().abspath().replace("\\", "/")
-    )
-    config = config.replace(
-        "@ELF_FILE@",
-        os.path.join(conf.path.get_bld().abspath(), "bin", "foxbms.elf").replace(
-            "\\", "/"
-        ),
-    )
+    bld_unix_path = Path(conf.path.get_bld().abspath()).as_posix()
+    elf_path = bld_unix_path / Path(os.path.join("bin", "foxbms.elf"))
+    config = config.replace("@PROJECT_DIR@", str(bld_unix_path))
+    config = config.replace("@PROJECT_DIR_LOWER@", str(bld_unix_path).lower())
+    config = config.replace("@ELF_FILE@", str(elf_path))
+    config = config.replace("@TIF_SPEED@", str(4))
     conf.path.get_bld().make_node("foxbms.jdebug").write(config)

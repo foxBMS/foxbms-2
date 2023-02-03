@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    can_cbs_rx_current-sensor.c
  * @author  foxBMS Team
  * @date    2021-04-20 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup DRIVER
  * @prefix  CANRX
  *
@@ -56,6 +56,8 @@
 #include "can_cbs_rx.h"
 #include "can_cfg_rx-message-definitions.h"
 #include "can_helper.h"
+
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 
@@ -82,6 +84,7 @@ extern uint32_t CANRX_CurrentSensor(
     const uint8_t *const kpkCanData,
     const CAN_SHIM_s *const kpkCanShim) {
     FAS_ASSERT(((message.id >= CANRX_STRING0_CURRENT_ID) && (message.id <= CANRX_STRING0_ENERGY_COUNTER_ID)));
+    FAS_ASSERT(message.idType == CANRX_CURRENT_SENSOR_MESSAGES_ID_TYPE);
     FAS_ASSERT(message.dlc == CANRX_CURRENT_SENSOR_MESSAGES_DLC);
     FAS_ASSERT(kpkCanData != NULL_PTR);
     FAS_ASSERT(kpkCanShim != NULL_PTR);
@@ -241,7 +244,7 @@ extern uint32_t CANRX_CurrentSensor(
 
         default:
             FAS_ASSERT(FAS_TRAP);
-            break;
+            break; /* LCOV_EXCL_LINE */
     }
 
     DATA_WRITE_DATA(kpkCanShim->pTableCurrentSensor);
@@ -250,5 +253,4 @@ extern uint32_t CANRX_CurrentSensor(
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
 #ifdef UNITY_UNIT_TEST
-
 #endif

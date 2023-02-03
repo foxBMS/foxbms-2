@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    beta.h
  * @author  foxBMS Team
  * @date    2020-01-17 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup TEMPERATURE_SENSORS
  * @prefix  BETA
  *
@@ -76,7 +76,9 @@
 #define FOXBMS__BETA_H_
 
 /*========== Includes =======================================================*/
-#include "general.h"
+
+#include <math.h>
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 /**
@@ -125,7 +127,7 @@ extern int16_t BETA_GetTemperatureFromBeta(uint16_t adcVoltage_mV);
  * @return  corresponding temperature in deci &deg;C
  *
  */
-extern int16_t BETA_TemperatureFromResistance(float resistance_Ohm);
+extern int16_t BETA_TemperatureFromResistance(float_t resistance_Ohm);
 
 /**
  * @brief   returns NTC resistance corresponding to temperature,
@@ -134,8 +136,10 @@ extern int16_t BETA_TemperatureFromResistance(float resistance_Ohm);
  * @return  corresponding resistance in Ohm
  *
  */
-extern float BETA_ResistanceFromTemperature(int16_t temperature_ddegC);
+extern float_t BETA_ResistanceFromTemperature(int16_t temperature_ddegC);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
+#ifdef UNITY_UNIT_TEST
+#endif
 
 #endif /* FOXBMS__BETA_H_ */

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    battery_cell_cfg.h
  * @author  foxBMS Team
  * @date    2017-03-14 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup BATTERY_CELL_CONFIGURATION
  * @prefix  BC
  *
@@ -61,12 +61,13 @@
 #define FOXBMS__BATTERY_CELL_CFG_H_
 
 /*========== Includes =======================================================*/
-#include "general.h"
+
+#include <math.h>
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 
 /**
- * @ingroup CONFIG_BATTERY_CELL
  * @brief   Maximum temperature limit during discharge.
  * @details When maximum safety limit (MSL) is violated, error state is
  *          requested and contactors will open. When recommended safety limit
@@ -82,7 +83,6 @@
 /**@}*/
 
 /**
- * @ingroup CONFIG_BATTERY_CELL
  * @brief   Minimum temperature limit during discharge.
  * @details When maximum safety limit (MSL) is violated, error state is
  *          requested and contactors will open. When recommended safety limit
@@ -98,7 +98,6 @@
 /**@}*/
 
 /**
- * @ingroup CONFIG_BATTERY_CELL
  * @brief   Maximum temperature limit during charge.
  * @details When maximum safety limit (MSL) is violated, error state is
  *          requested and contactors will open. When recommended safety limit
@@ -114,7 +113,6 @@
 /**@}*/
 
 /**
- * @ingroup CONFIG_BATTERY_CELL
  * @brief   Minimum temperature limit during discharge.
  * @details When maximum safety limit (MSL) is violated, error state is
  *          requested and contactors will open. When recommended safety limit
@@ -130,7 +128,6 @@
 /**@}*/
 
 /**
- * @ingroup CONFIG_BATTERY_CELL
  * @brief   Maximum cell voltage limit.
  * @details When maximum safety limit (MSL) is violated, error state is
  *          requested and contactors will open. When recommended safety limit
@@ -146,7 +143,6 @@
 /**@}*/
 
 /**
- * @ingroup CONFIG_BATTERY_CELL
  * @brief   nominal cell voltage according to data sheet
  * @ptype   int
  * @unit    mV
@@ -154,7 +150,6 @@
 #define BC_VOLTAGE_NOMINAL_mV (2500)
 
 /**
- * @ingroup CONFIG_BATTERY_CELL
  * @brief   Minimum cell voltage limit.
  * @details When maximum safety limit (MSL) is violated, error state is
  *          requested and contactors will open. When recommended safety limit
@@ -170,7 +165,6 @@
 /**@}*/
 
 /**
- * @ingroup CONFIG_BATTERY_CELL
  * @brief   Deep-discharge cell voltage limit.
  * @details If this voltage limit is violated, the cell is faulty. The BMS will
  *          not allow a closing of the contactors until this cell is replaced.
@@ -182,7 +176,6 @@
 #define BC_VOLTAGE_DEEP_DISCHARGE_mV (BC_VOLTAGE_MIN_MSL_mV)
 
 /**
- * @ingroup CONFIG_BATTERY_CELL
  * @brief   Maximum discharge current limit.
  * @details When maximum safety limit (MSL) is violated, error state is
  *          requested and contactors will open. When recommended safety limit
@@ -198,7 +191,6 @@
 /**@}*/
 
 /**
- * @ingroup CONFIG_BATTERY_CELL
  * @brief   Maximum charge current limit.
  * @details When maximum safety limit (MSL) is violated, error state is
  *          requested and contactors will open. When recommended safety limit
@@ -220,6 +212,11 @@
  */
 #define BC_CAPACITY_mAh (3500u)
 
+/**
+ * @brief   Cell energy
+ * @ptype   float
+ * @unit    Wh
+ */
 #define BC_ENERGY_Wh (10.0f)
 
 #if BC_VOLTAGE_MIN_MSL_mV < BC_VOLTAGE_DEEP_DISCHARGE_mV
@@ -229,7 +226,7 @@
 /** structure for lookup table */
 typedef struct {
     const int16_t voltage_mV; /*!< cell voltage in mV */
-    const float value;        /*!< corresponding value, can be SOC/SOE in % or capacity/energy */
+    const float_t value;      /*!< corresponding value, can be SOC/SOE in % or capacity/energy */
 } BC_LUT_s;
 
 /*========== Extern Constant and Variable Declarations ======================*/
@@ -242,5 +239,7 @@ extern const BC_LUT_s bc_stateOfEnergyLookupTable[]; /*!< SOE lookup table */
 /*========== Extern Function Prototypes =====================================*/
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
+#ifdef UNITY_UNIT_TEST
+#endif
 
 #endif /* FOXBMS__BATTERY_CELL_CFG_H_ */

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -203,7 +203,7 @@ def main():
     parser.add_argument(
         "--ignore-locs",
         dest="ignore_locs",
-        default=[".axivion.preinc", "/os/", "HL_"],
+        default=["axivion_preinc.h", "/os/", "HL_"],
         nargs="+",
         help="usage locs to be ignored",
     )

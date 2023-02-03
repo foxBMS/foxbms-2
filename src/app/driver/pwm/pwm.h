@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    pwm.h
  * @author  foxBMS Team
  * @date    2021-10-07 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup DRIVERS
  * @prefix  PWM
  *
@@ -60,15 +60,17 @@
 #define FOXBMS__PWM_H_
 
 /*========== Includes =======================================================*/
-#include "general.h"
 
 #include "HL_reg_ecap.h"
+
+#include <math.h>
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 /** type definition for PWM signal parameters */
 typedef struct {
-    float dutyCycle_perc;
-    float frequency_Hz;
+    float_t dutyCycle_perc;
+    float_t frequency_Hz;
 } PWM_SIGNAL_s;
 
 /*========== Extern Constant and Variable Declarations ======================*/
@@ -109,5 +111,7 @@ extern int16_t TEST_PWM_GetLinearOffset(void);
 #endif
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
+#ifdef UNITY_UNIT_TEST
+#endif
 
 #endif /* FOXBMS__PWM_H_ */

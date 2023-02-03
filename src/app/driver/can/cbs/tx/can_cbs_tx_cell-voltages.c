@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    can_cbs_tx_cell-voltages.c
  * @author  foxBMS Team
  * @date    2021-04-20 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup DRIVER
  * @prefix  CANTX
  *
@@ -56,6 +56,9 @@
 #include "can_cbs_tx.h"
 #include "can_cfg_tx-message-definitions.h"
 #include "can_helper.h"
+
+#include <math.h>
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 
@@ -136,9 +139,10 @@ static void CANTX_VoltageSetData(
             endianness);
 
         /*Voltage data */
-        float signalData_mV =
-            (float)(kpkCanShim->pTableCellVoltage
-                        ->cellVoltage_mV[stringNumber][(moduleNumber * BS_NR_OF_CELL_BLOCKS_PER_MODULE) + cellNumber]);
+        float_t signalData_mV =
+            (float_t)(kpkCanShim->pTableCellVoltage
+                          ->cellVoltage_mV[stringNumber]
+                                          [(moduleNumber * BS_NR_OF_CELL_BLOCKS_PER_MODULE) + cellNumber]);
         /* Apply offset and factor */
         CAN_TxPrepareSignalData(&signalData_mV, cellVoltageSignal);
         /* Set voltage data in CAN frame */
@@ -154,6 +158,7 @@ extern uint32_t CANTX_CellVoltages(
     uint8_t *pMuxId,
     const CAN_SHIM_s *const kpkCanShim) {
     FAS_ASSERT(message.id == CANTX_CELL_VOLTAGES_ID);
+    FAS_ASSERT(message.idType == CANTX_CELL_VOLTAGES_ID_TYPE);
     FAS_ASSERT(message.dlc == CAN_FOXBMS_MESSAGES_DEFAULT_DLC);
     FAS_ASSERT(pCanData != NULL_PTR);
     FAS_ASSERT(pMuxId != NULL_PTR);
@@ -204,5 +209,4 @@ extern uint32_t CANTX_CellVoltages(
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
 #ifdef UNITY_UNIT_TEST
-
 #endif

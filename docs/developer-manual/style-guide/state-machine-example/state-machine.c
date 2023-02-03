@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    state-machine.c
  * @author  foxBMS Team
  * @date    2020-10-29 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup STATE_MACHINE
  * @prefix  EG
  *
@@ -54,6 +54,13 @@
 
 /*========== Includes =======================================================*/
 #include "state-machine.h"
+
+#include "fassert.h"
+#include "fstd_types.h"
+#include "os.h"
+
+#include <stdbool.h>
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 /**
@@ -327,7 +334,7 @@ static EG_FSM_STATES_e EG_ProcessInitializationState(EG_STATE_s *pEgState) {
 
         default:
             FAS_ASSERT(FAS_TRAP);
-            break;
+            break; /* LCOV_EXCL_LINE */
     }
     return nextState;
 }
@@ -369,7 +376,7 @@ static EG_FSM_STATES_e EG_ProcessRunningState(EG_STATE_s *pEgState) {
 
         default:
             FAS_ASSERT(FAS_TRAP);
-            break;
+            break; /* LCOV_EXCL_LINE */
     }
 
     return nextState;
@@ -462,3 +469,5 @@ extern STD_RETURN_TYPE_e EG_Trigger(EG_STATE_s *pEgState) {
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
+#ifdef UNITY_UNIT_TEST
+#endif

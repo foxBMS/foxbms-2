@@ -1,5 +1,7 @@
 Function;                                   Description
 ``FTSK_RunUserCodeCyclic1ms``;              Code that should be run every 1ms
+``FTSK_RunUserCodeAfe``;                    Code for communication with AFE, continuously running task, must be blocked long enough (i.e., during bus communication) to leave CPU time for other tasks
 ``FTSK_RunUserCodeCyclic10ms``;             Code that should be run every 10ms
+``FTSK_RunUserCodeI2c``;                    Code for communication with I2C devices, continuously running task, must be blocked long enough (i.e., during bus communication) to leave CPU time for other tasks
 ``FTSK_RunUserCodeCyclic100ms``;            Code that should be run every 100ms
 ``FTSK_RunUserCodeCyclicAlgorithm100ms``;   Code that should be run every 100ms, but with a lower priority than ``FTSK_RunUserCodeCyclic100ms``

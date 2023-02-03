@@ -1,0 +1,25 @@
+Minor release of foxBMS 2 (v1.5.0)
+
+* Added hardware design files (e.g., schematics, layout, BOM and STEP file
+  etc.) for the NXP MC33775A monitoring IC.
+* Now CAN messages with extended identifier can be transmitted and received.
+* The default interface configuration for BMS-Slaves is the interface 1 on the
+  BMS-Interfaces:
+  - for LTC-based interfaces: hardware chip select 1 on SPI 1
+  - for NXP-based interfaces: hardware chip select 1 on SPI 1
+* The chip select configuration has been unified.
+* Applied the OS abstraction strictly to make the BMS application fully
+  OS agnostic.
+* The software version is now saved in FRAM version struct. As this is The
+  the first FRAM entry, this changes the memory layout and makes FRAM entries
+  existing prior to this version invalid.
+* The FRAM can now be initialized/reinitialized via CAN.
+* Added a magic CAN messages sequence that is sent on startup.
+* Added driver for the PCF2131 RTC.
+  The driver uses I2C to communicate with the IC.
+* Added a basic GUI to interact with the BMS via CAN from PC-side.
+* Maintenance:
+  * Update the Axivion static code analysis to version 7.5.0.
+
+For a detailed list of changes, please refer to the documentation at
+https://iisb-foxbms.iisb.fraunhofer.de/foxbms/gen2/docs/html/v1.5.0/general/changelog.html.

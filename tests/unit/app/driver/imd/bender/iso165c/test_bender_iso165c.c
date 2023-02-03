@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_bender_iso165c.c
  * @author  foxBMS Team
  * @date    2021-01-19 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -68,12 +68,22 @@
 #include "can_cfg_rx-message-definitions.h"
 #include "test_assert_helper.h"
 
+#include <stdbool.h>
+
 /*========== Definitions and Implementations for Unit Test ==================*/
 
-QueueHandle_t ftsk_dataQueue        = NULL_PTR;
-QueueHandle_t ftsk_imdCanDataQueue  = NULL_PTR;
-QueueHandle_t ftsk_canRxQueue       = NULL_PTR;
+OS_QUEUE ftsk_dataQueue             = NULL_PTR;
+OS_QUEUE ftsk_imdCanDataQueue       = NULL_PTR;
+OS_QUEUE ftsk_canRxQueue            = NULL_PTR;
 volatile bool ftsk_allQueuesCreated = false;
+
+const CAN_NODE_s can_node1 = {
+    .canNodeRegister = canREG1,
+};
+
+const CAN_NODE_s can_node2Isolated = {
+    .canNodeRegister = canREG2, /* Isolated CAN interface */
+};
 
 /*========== Setup and Teardown =============================================*/
 void setUp(void) {
@@ -186,6 +196,7 @@ void testMessageComposition(void) {
     /* Test that cmd is written correctly to CAN frame */
     TEST_I165C_WriteCmd(id, command, &canMessage);
     TEST_ASSERT_EQUAL(0xAu, canMessage.id);
+    TEST_ASSERT_EQUAL(I165C_RX_MESSAGE_IDENTIFIER_TYPE, canMessage.idType);
     TEST_ASSERT_EQUAL(0xBu, canMessage.data[0u]);
 
     /* Check assertion of invalid parameter */

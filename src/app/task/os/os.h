@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    os.h
  * @author  foxBMS Team
  * @date    2019-08-27 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup OS
  * @prefix  OS
  *
@@ -56,16 +56,21 @@
 #define FOXBMS__OS_H_
 
 /*========== Includes =======================================================*/
-#include "general.h"
+
+#include "fstd_types.h"
 
 #if defined(FOXBMS_USES_FREERTOS)
 #include "FreeRTOS.h"
 #include "queue.h"
+#define OS_TASK_HANDLE          TaskHandle_t
 #define OS_QUEUE                QueueHandle_t
 #define OS_IDLE_TASK_STACK_SIZE (configMINIMAL_STACK_SIZE) /**< stack size of the idle task */
 #define OS_TICK_RATE_MS         (portTICK_RATE_MS)         /**< FreeRTOS name of the tick rate */
 #define OS_ENABLE_CACHE         (false)                    /**< true: Enable cache, false: Disable cache */
 #endif
+
+#include <stdbool.h>
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 
@@ -240,6 +245,101 @@ extern void OS_DelayTaskUntil(uint32_t *pPreviousWakeTime, uint32_t milliseconds
 extern void OS_MarkTaskAsRequiringFpuContext(void);
 
 /**
+ * @brief   Wait for a notification
+ * @details This function needs to implement the wrapper to OS specific
+ *          blocking task and waiting for notification.
+ *          This function must not be called from within an interrupt service
+ *          routine (due to the FreeRTOS compatibility of the the wrapper).
+ *          This function blocks the current tasks and wait for a notification.
+ *          Typically the notification is made in an interrupt.
+ *          The notified value is passed by the notifying function.
+ *          The tasks unblocks when the notification is received or when
+ *          timeout milliseconds have passed.
+ * @param   pNotifiedValue  Value passed by the notify function
+ * @param   timeout         ticks to wait before unblocking task if no
+ *                          notification is received
+ * @return  #OS_SUCCESS if a notification was successfully received, otherwise
+ *          #OS_FAIL
+ */
+extern OS_STD_RETURN_e OS_WaitForNotification(uint32_t *pNotifiedValue, uint32_t timeout);
+
+/**
+ * @brief   Notify a task
+ * @details This function needs to implement the wrapper to OS specific
+ *          task notification.
+ *          This function is to be called from within an interrupt service
+ *          routine (due to the FreeRTOS compatibility of the the wrapper).
+ *          This function makes a notification to the task whose handle is
+ *          is passed as parameter.
+ *          Typically the notification is made in an interrupt.
+ *          The value to notify is passed to the notified task.
+ * @param   taskToNotify   Handle of task to notify.
+ * @param   notifiedValue  Value to pass to the notified task
+ * @return  #OS_SUCCESS if a notification was successfully made, otherwise
+ *          #OS_FAIL
+ */
+extern OS_STD_RETURN_e OS_NotifyFromIsr(TaskHandle_t taskToNotify, uint32_t notifiedValue);
+
+/**
+ * @brief   Wait for a notification, with index
+ * @details This function needs to implement the wrapper to OS specific
+ *          blocking task and waiting for notification.
+ *          This function must not be called from within an interrupt service
+ *          routine (due to the FreeRTOS compatibility of the the wrapper).
+ *          This function blocks the current tasks and wait for a notification
+ *          and a specific index.
+ *          Typically the notification is made in an interrupt.
+ *          The notified value and index are passed by the notifying function.
+ *          The tasks unblocks when the notification is received or when
+ *          timeout milliseconds have passed.
+ * @param   indexToWaitOn   index to wait on
+ * @param   pNotifiedValue  Value passed by the notify function
+ * @param   timeout         ticks to wait before unblocking task if no
+ *                          notification is received
+ * @return  #OS_SUCCESS if a notification was successfully received, otherwise
+ *          #OS_FAIL
+ */
+extern OS_STD_RETURN_e OS_WaitForNotificationIndexed(
+    uint32_t indexToWaitOn,
+    uint32_t *pNotifiedValue,
+    uint32_t timeout);
+
+/**
+ * @brief   Notify a task, with index
+ * @details This function needs to implement the wrapper to OS specific
+ *          task notification.
+ *          This function is to be called from within an interrupt service
+ *          routine (due to the FreeRTOS compatibility of the the wrapper).
+ *          This function makes a notification with an index to the task whose
+ *          handle is passed as parameter.
+ *          Typically the notification is made in an interrupt.
+ *          The value to notify and the index are passed to the notified task.
+ * @param   taskToNotify   Handle of task to notify
+ * @param   indexToNotify  Index to notify
+ * @param   notifiedValue  Value to pass to the notified task
+ * @return  #OS_SUCCESS if a notification was successfully made, otherwise
+ *          #OS_FAIL.
+ */
+extern OS_STD_RETURN_e OS_NotifyIndexedFromIsr(
+    TaskHandle_t taskToNotify,
+    uint32_t indexToNotify,
+    uint32_t notifiedValue);
+
+/**
+ * @brief   Clear pending notification of a task, with index
+ * @details This function needs to implement the wrapper to OS specific
+ *          task notification clearing.
+ *          It clears the pending notification for the calling task.
+ *          This function must not be called from within an interrupt service
+ *          routine (due to the FreeRTOS compatibility of the the wrapper).
+ *          This function clears a pending notification corresponding to the
+ *          index passed as parameter.
+ * @param   indexToClear   Index of the notification to clear
+ * @return  #OS_SUCCESS if a notification was pending, otherwise #OS_FAIL
+ */
+extern OS_STD_RETURN_e OS_ClearNotificationIndexed(uint32_t indexToClear);
+
+/**
  * @brief   Receive an item from a queue
  * @details This function needs to implement the wrapper to OS specific queue
  *          posting.
@@ -336,6 +436,6 @@ extern STD_RETURN_TYPE_e OS_CheckTimeHasPassedSelfTest(void);
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 #ifdef UNITY_UNIT_TEST
 extern OS_TIMER_s *TEST_OS_GetOsTimer();
-#endif /* UNITY_UNIT_TEST */
+#endif
 
 #endif /* FOXBMS__OS_H_ */

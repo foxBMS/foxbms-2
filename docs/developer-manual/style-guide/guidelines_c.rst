@@ -13,16 +13,15 @@ The source files **MUST** be successfully checked by running the waf command
 ``check_guidelines`` before files can be merged into the master branch of the
 repository.
 
-General Information
--------------------
-
 Generally |foxbms| uses for the embedded code
 `1TBS <https://en.wikipedia.org/wiki/Indentation_style#Variant:_1TBS_(OTBS)>`_.
-This is checked by ``clang-format``. The ``clang-format`` configuration is
-found in ``./.clang-format``. The ``C`` source and header files can be checked
-by running ``waf check_guidelines``. Using VS Code files are automatically
-saved correctly (see :ref:`CREATING_A_WORKSPACE`) when ``clang-format`` is
-installed (see :ref:`software_prerequisites`) using :kbd:`Ctrl-S`.
+This is checked by ``clang-format``.
+The ``clang-format`` configuration is found in ``./.clang-format``.
+The ``C`` source and header files can be checked by running
+``waf check_guidelines``.
+Using VS Code files are automatically saved correctly (see
+:ref:`CREATING_A_WORKSPACE`) when ``clang-format`` is installed (see
+:ref:`software_prerequisites`) using :kbd:`Ctrl-S`.
 
 .. warning::
 
@@ -30,12 +29,12 @@ installed (see :ref:`software_prerequisites`) using :kbd:`Ctrl-S`.
     ``build/bin/src/hal/**`` and ``src/os``) should not be changed.
     To save without reformatting use :kbd:`Ctrl-K + Ctrl-Shift-S`.
 
-The following list shows more detailed rules for |foxbms|. Every rule has some
-context and/or rationale and notes that clearly state the rules, followed by a
-correct examples. If it supports the clarification incorrect examples may also
-be shown.
+The following list shows more detailed rules for |foxbms|.
+Every rule has some context and/or rationale and notes that clearly state the
+rules, followed by a correct examples.
+If it supports the clarification incorrect examples may also be shown.
 
-The following rules generally apply and follow the naming schema
+The following rules generally apply and follow the naming pattern
 ``C:<ongoing-number>``.
 
 .. _rule_c_filenames:
@@ -43,8 +42,7 @@ The following rules generally apply and follow the naming schema
 Filenames (``C:001``)
 ---------------------
 
-Additional to the general file naming rules the following **MUST**
-be applied.
+Additional to the general file naming rules the following **MUST** be applied.
 
 .. admonition:: File name rules
 
@@ -76,11 +74,11 @@ Header (``C:002``)
     C source and header files **MUST** start with the following header:
 
    .. literalinclude:: ./../../../conf/tpl/c.c
-      :language: C
-      :linenos:
-      :lines: 1-40
-      :caption: File header for ``.c`` and ``.h`` files.
-      :name: file-header-c-and-h
+     :language: C
+     :linenos:
+     :lines: 1-40
+     :caption: File header for all ``.c`` and ``.h`` files.
+     :name: file-header-c-and-h
 
 .. _rule_c_linelength:
 
@@ -96,11 +94,13 @@ Linelength (``C:003``)
        readability, ease of cut and paste or auto-linking, e.g., if a line
        contains an example command or a literal URL longer than 120 characters
        or
-     - raw-string literal with content that exceeds 120 characters. Except for
-       test code, such literals should appear near the top of a file.
+     - raw-string literal with content that exceeds 120 characters.
+       Except for test code, such literals should appear near the top of a
+       file.
 
    - Each line of doxygen comment in your code **SHOULD** be at most 80
-     characters long. A line **MAY** exceed 80 characters if it is
+     characters long.
+     A line **MAY** exceed 80 characters if it is
 
      - a comment line which is not feasible to split without harming
        readability, auto-linking, e.g., a literal URL longer than 80 characters
@@ -141,9 +141,9 @@ File level doxygen (``C:004``)
 
 .. literalinclude:: ./examples/c-004.c
    :language: C
-   :lines: 41-
+   :lines: 41-53
    :linenos:
-   :emphasize-lines: 2-7,9
+   :emphasize-lines: 2-8,10,11
    :caption: File level doxygen for c-004.c
    :name: doxygen-test-c
 
@@ -152,7 +152,7 @@ File level doxygen (``C:004``)
 Include guard (``C:005``)
 -------------------------
 
-An include guard, is a construct used in ``C`` to avoid the problem
+An include guard is a construct used in ``C`` to avoid the problem
 of multiple inclusion when dealing with the include directive.
 
 .. admonition:: Include guard rules
@@ -167,16 +167,16 @@ of multiple inclusion when dealing with the include directive.
     - There **MUST NOT** be a blank line between ``#ifndef`` and ``#define``.
     - There **MUST** be a blank line after ``#define``.
 
-:numref:`include-guard-c-005-h` shows how this looks for a file ``c-005.h``, where
-the include guard would be ``FOXBMS__C_005_H_``.
+:numref:`include-guard-c-005-h` shows how this looks for a file ``c-005.h``,
+where the include guard would be ``FOXBMS__C_005_H_``.
 
-.. literalinclude:: ./examples/c-005.c
-    :language: C
-    :lines: 41-
-    :linenos:
-    :emphasize-lines: 1,2,6
-    :caption: Include guard for ``c-005.h``
-    :name: include-guard-c-005-h
+.. literalinclude:: ./examples/c-005.h
+   :language: C
+   :lines: 56,57,71
+   :linenos:
+   :emphasize-lines: 1,2,3
+   :caption: Include guard for ``c-005.h``
+   :name: include-guard-c-005-h
 
 .. _rule_c_sections:
 
@@ -194,40 +194,42 @@ C Sections (``C:006``)
 
 .. literalinclude:: ./examples/c-006-source.h
    :language: C
-   :lines: 41-
+   :lines: 59-67
    :linenos:
-   :emphasize-lines: 4,6,8,10,12
-   :caption: c section for ``c-006-source.h``
+   :emphasize-lines: 1,3,5,7,9
+   :caption: section markers for ``c-006-source.h``
    :name: c_section_header
 
 :numref:`c_section_source` shows how this looks for a file ``c-006-source.c``.
 
 .. literalinclude:: ./examples/c-006-source.c
    :language: C
-   :lines: 41-
+   :lines: 59-70
    :linenos:
-   :emphasize-lines: 1,3,5,7,9,11,13,15
-   :caption: c section for ``c-006-source.c``
+   :emphasize-lines: 1,3,5,7,9,11
+   :caption: section markers for ``c-006-source.c``
    :name: c_section_source
 
-:numref:`c_section_test_header` shows how this looks for a file ``./test/c-006-test.h``.
+:numref:`c_section_test_header` shows how this looks for a file
+``./test/c-006-test.h``.
 
 .. literalinclude:: ./examples/c-006-test.h
    :language: C
-   :lines: 41-
+   :lines: 59-61
    :linenos:
-   :emphasize-lines: 4,6
-   :caption: c section for ``./test/c-006-test.h``
+   :emphasize-lines: 1,3
+   :caption: section markers for ``./test/c-006-test.h``
    :name: c_section_test_header
 
-:numref:`c_section_test_source` shows how this looks for a file ``./test/c-006-test.c``.
+:numref:`c_section_test_source` shows how this looks for a file
+``./test/c-006-test.c``.
 
 .. literalinclude:: ./examples/c-006-test.c
    :language: C
-   :lines: 41-
+   :lines: 59-65
    :linenos:
-   :emphasize-lines: 4,6,8,10
-   :caption: c section for ``./test/c-006-test.c``
+   :emphasize-lines: 1,3,5,7
+   :caption: section markers for ``./test/c-006-test.c``
    :name: c_section_test_source
 
 .. _rule_c_includes:
@@ -236,25 +238,29 @@ Includes (``C:007``)
 --------------------
 
 Includes are used to insert the contents of a second file into the
-original file. There are two scenarios to be considered for file includes. They
-distinguish if the software module provides configuration files or not.
+original file.
+There are two scenarios to be considered for file includes.
+They distinguish if the software module provides configuration files or not.
 
 .. admonition:: Include rules
 
     - All includes **MUST** be listed after the ``includes`` marker.
+    - |foxbms| uses the
+      `include-what-you-use <https://include-what-you-use.org/>`_ paradigm.
     - Only required includes **MUST** be added.
-    - Forward declarations **MUST NOT** be used. Instead, you **MUST**
-      ``#include`` all the headers that declare functions you need.
+    - Forward declarations **MUST NOT** be used.
+      Instead, you **MUST** ``#include`` all the headers that declare
+      functions, types etc. you need.
     - Configuration header files **MUST** apply the following order of
       includes:
 
-        #. Include ``general.h``
+        #. Include ``general.h``, if needed
         #. A blank line
         #. Add required includes in alphabetical order according to rule
     - Other header files **MUST** apply the following order of includes:
 
-        #. Include corresponding configuration header if it exists, otherwise
-           include ``general.h``
+        #. Include ``general.h``, if needed
+        #. Include corresponding configuration header if it exists
         #. A blank line
         #. Add required includes in alphabetical order according to rule
     - Source files **MUST** apply the following order or includes:
@@ -264,16 +270,16 @@ distinguish if the software module provides configuration files or not.
         #. Add required includes in alphabetical order according to rule
     - The rule for sorting required includes is (omit block if empty):
 
-        #. ``unity.h`` (for unit tests)
+        #. ``unity.h`` (**for unit tests only**)
         #. A blank line
-        #. Generated Mock-header (for unit tests)
+        #. Generated Mock-header (**for unit tests only**)
         #. A blank line
         #. Any ``*_cfg.h`` that is included
         #. A blank line
         #. HAL-headers starting with ``HL_``-header files and ending with
            ``ti_``-header files
         #. A blank line
-        #. FreeRTOS headers starting with ``FreeRTOS.h``
+        #. |freertos| headers starting with ``FreeRTOS.h``
         #. A blank line
         #. All other required headers except Mocks
 
@@ -283,32 +289,32 @@ distinguish if the software module provides configuration files or not.
 includes **MUST** be added.
 
 .. literalinclude:: ./examples/c-007_abc_cfg.h
-    :language: C
-    :lines: 41-
-    :linenos:
-    :caption: Include order for ``c-007_abc_cfg.h``
-    :name: includes-c-007_abc_cfg-h
+   :language: C
+   :lines: 60,61
+   :linenos:
+   :caption: Include order for ``c-007_abc_cfg.h``
+   :name: includes-c-007_abc_cfg-h
 
 .. literalinclude:: ./examples/c-007_abc_cfg.c
-    :language: C
-    :lines: 41-
-    :linenos:
-    :caption: Include order for ``c-007_abc_cfg.c``
-    :name: includes-c-007_abc_cfg-c
+   :language: C
+   :lines: 57-60
+   :linenos:
+   :caption: Include order for ``c-007_abc_cfg.c``
+   :name: includes-c-007_abc_cfg-c
 
 .. literalinclude:: ./examples/c-007_abc.h
-    :language: C
-    :lines: 41-
-    :linenos:
-    :caption: Include oder for ``c-007_abc.h``
-    :name: includes-c-007_abc-h
+   :language: C
+   :lines: 60-63
+   :linenos:
+   :caption: Include oder for ``c-007_abc.h``
+   :name: includes-c-007_abc-h
 
 .. literalinclude:: ./examples/c-007_abc.c
-    :language: C
-    :lines: 41-
-    :linenos:
-    :caption: Include order for ``c-007_abc.c``
-    :name: includes-c-007_abc-c
+   :language: C
+   :lines: 57-64
+   :linenos:
+   :caption: Include order for ``c-007_abc.c``
+   :name: includes-c-007_abc-c
 
 .. _rule_c_scoping:
 
@@ -328,11 +334,11 @@ Scoping (``C:008``)
          function.
 
 .. literalinclude:: ./examples/c-008.c
-    :language: C
-    :lines: 41-
-    :linenos:
-    :caption: Narrowest variable scope
-    :name: narrowest-variable-scope
+   :language: C
+   :lines: 65,66,68,69,71-75,77-80,82-85
+   :linenos:
+   :caption: Narrowest variable scope
+   :name: narrowest-variable-scope
 
 .. _rule_c_function_names:
 
@@ -352,11 +358,11 @@ Function names (``C:009``)
 :numref:`function-names`, shows correctly named functions.
 
 .. literalinclude:: ./examples/c-009.c
-    :language: C
-    :lines: 41-
-    :linenos:
-    :caption: Function names using the uppercase module prefix.
-    :name: function-names
+   :language: C
+   :lines: 65-67,69-73
+   :linenos:
+   :caption: Function names using the uppercase module prefix.
+   :name: function-names
 
 .. _rule_c_function_scopes:
 
@@ -366,8 +372,9 @@ Function scopes (``C:010``)
 .. admonition:: Function scope rules
 
     - Global and static functions **MUST** be declared respectively with the
-      keywords ``extern`` or ``static``. This keyword **MUST** be used for the
-      function prototype declaration and the function definition.
+      keywords ``extern`` or ``static``.
+      This keyword **MUST** be used for the function prototype declaration and
+      the function definition.
     - Global function prototypes **MUST** be declared in the header file.
     - Static function prototypes **MUST** be declared in the source file.
 
@@ -406,18 +413,19 @@ Function doxygen documentation (``C:011``)
 in a header file ``c-011.h`` and source file ``c-011.c``.
 
 .. literalinclude:: ./examples/c-011.h
-    :language: C
-    :lines: 41-
-    :linenos:
-    :caption: Global function declaration in ``c-011.h``, placed in the ``Extern Function Prototypes`` section.
-    :name: function-prototype-and-doxygen
+   :language: C
+   :lines: 67-75
+   :linenos:
+   :caption: Global function declaration in ``c-011.h`` and its doxygen comment
+   :name: function-prototype-and-doxygen
 
 .. literalinclude:: ./examples/c-011.c
-    :language: C
-    :lines: 41-
-    :linenos:
-    :caption: Global function implementation in ``c-011.c``, placed in the ``Extern Function Implementations`` section.
-    :name: function-implementation-and-doxygen
+   :language: C
+   :lines: 68-74, 82-86
+   :linenos:
+   :caption: Static and global functions in ``c-011.c`` ant their doxygen
+    comments
+   :name: function-implementation-and-doxygen
 
 .. _rule_c_function_return_value:
 
@@ -426,20 +434,20 @@ Function return statement (``C:012``)
 
 .. admonition:: Return statement rules
 
-    Parentheses surrounding the return expression **SHOULD NOT** be used. Use
-    parentheses in return expressions only in places where you would use them
-    in normal assignments.
+    Parentheses surrounding the return expression **SHOULD NOT** be used.
+    Use parentheses in return expressions only in places where you would use
+    them in normal assignments.
 
 :numref:`return-parentheses-usage` shows how to correctly use parentheses and
 the return statement.
 
 .. literalinclude:: ./examples/c-012.c
-    :language: C
-    :lines: 41-
-    :linenos:
-    :emphasize-lines: 8,13-17
-    :caption: Correct usage of the ``return`` statement.
-    :name: return-parentheses-usage
+   :language: C
+   :lines: 71-74,76-84
+   :linenos:
+   :emphasize-lines: 3,7-11
+   :caption: Correct usage of the ``return`` statement.
+   :name: return-parentheses-usage
 
 .. _rule_c_function_calls:
 
@@ -450,11 +458,12 @@ Function calls (``C:013``)
 
     - Multiple arguments **SHOULD** be put on a single line to reduce the
       number of lines necessary for calling a function unless there is a
-      specific readability problem. Some style guides require formatting
-      strictly one argument on each line for simplifying editing the arguments.
+      specific readability problem.
+      Some style guides require formatting strictly one argument on each line
+      for simplifying editing the arguments.
       However, we prioritize readability over the ease of editing arguments,
-      and most readability problems are better addressed with the
-      following techniques.
+      and most readability problems are better addressed with the following
+      techniques.
     - If the arguments do not all fit on one line, they **MAY** be broken up
       onto multiple lines, with each subsequent line aligned with the first
       argument.
@@ -468,22 +477,24 @@ Function calls (``C:013``)
         - put the confusing argument on its own line with an explanatory
           comment.
         - If there is still a case where one argument is significantly more
-          readable on its own line, then put it on its own line. The decision
-          should be specific to the argument which is made more readable rather
-          than a general policy.
+          readable on its own line, then put it on its own line.
+          The decision should be specific to the argument which is made more
+          readable rather than a general policy.
         - Sometimes arguments form a structure that is important for
-          readability. In those cases, it is **RECOMMENDED** to format the
-          arguments according to that structure
+          readability.
+          In those cases, it is **RECOMMENDED** to format the arguments
+          according to that structure
 
 Different correct ways to call functions with multiple parameters or long
 function names are given in :numref:`function-call`.
 
 .. literalinclude:: ./examples/c-013.c
-    :language: C
-    :lines: 41-
-    :linenos:
-    :caption: Correct formatting of function calls.
-    :name: function-call
+   :language: C
+   :lines: 79-85,88-95,97-100,101-121
+   :linenos:
+   :emphasize-lines: 3-5,10-12,27-31,35-37
+   :caption: Correct formatting of function calls.
+   :name: function-call
 
 .. _rule_c_additional_function_rules:
 
@@ -491,7 +502,8 @@ Additional function rules (``C:014``)
 -------------------------------------
 
 Most of the following rules are checked by the clang-format configuration of
-the project. If a rule is not checked automatically it is indicated.
+the project.
+If a rule is not checked automatically it is indicated.
 
 .. admonition:: Additional Function rules
 
@@ -526,7 +538,7 @@ Function parameter checking (``C:015``)
       beginning of a function if possible.
     - Pointers passed as parameters **MUST** be checked against ``NULL_PTR``.
     - The check **SHOULD** be implemented with an assertion.
-    - If no assertion can be made for the parameter (e.g. if the parameter
+    - If no assertion can be made for the parameter (e.g., if the parameter
       intentionally accepts all possible values), the parameter **MUST** be
       marked like this at the start of the function context:
       ``/* AXIVION Routine Generic-MissingParameterAssert: *ENTITYNAME*: *RATIONALE* */``.
@@ -534,11 +546,12 @@ Function parameter checking (``C:015``)
 Parameter checking is shown in :numref:`function-input-check`.
 
 .. literalinclude:: ./examples/c-015.c
-    :language: C
-    :lines: 41-
-    :linenos:
-    :caption: Input check of function parameters
-    :name: function-input-check
+   :language: C
+   :lines: 75-91
+   :linenos:
+   :emphasize-lines: 2,3,4
+   :caption: Input check of function parameters
+   :name: function-input-check
 
 .. _rule_c_variable_names:
 
@@ -553,18 +566,23 @@ Variable names (``C:016``)
       lowercase letter and are written in "camel Case".
     - If the scope of the variable is at least file wide (more than function
       scope) or if the variable is declared static it **MUST** start with the
-      module prefix in lowercase letters. A variable representing a physical
-      unit is followed by a suffix with the SI-unit symbol ``_<unit>`` (e.g.
-      ``_mA`` for milliampere or ``K`` for Kelvin). Exceptions are non-ASCII
-      symbols as ``_perc`` for ``%``, ``_degC`` for ``°C`` and ``u`` for ``μ``.
+      module prefix in lowercase letters.
+      A variable representing a physical unit is followed by a suffix with the
+      SI-unit symbol ``_<unit>`` (e.g., ``_mA`` for milliampere or ``K`` for
+      Kelvin).
+      Exceptions are non-ASCII symbols as
+
+      - ``_perc`` for ``%``,
+      - ``_degC`` for ``°C`` and
+      - ``u`` for ``μ``.
     - A doxygen comment explaining what this variable is used for **MUST** be
       added to all static and global variables.
 
 .. literalinclude:: ./examples/c-016.c
-    :language: C
-    :lines: 41-
-    :linenos:
-    :caption: Different examples for correctly named variables.
+   :language: C
+   :lines: 63-65,67,68,70,71,73
+   :linenos:
+   :caption: Different examples for correctly named variables and functions.
 
 .. _rule_c_constant_names:
 
@@ -580,10 +598,10 @@ Constant names (``C:017``)
       capitalization cannot be used for separation.
 
 .. literalinclude:: ./examples/c-017.c
-    :language: C
-    :lines: 41-
-    :linenos:
-    :caption: Correct examples for naming constant variables.
+   :language: C
+   :lines: 63
+   :linenos:
+   :caption: Correct examples for naming constant variables.
 
 .. _rule_c_pointer_rules:
 
@@ -595,20 +613,22 @@ Pointer rules (``C:018``)
     - The general variable name rules apply (see :ref:`rule_c_variable_names`).
     - Variables used for pointers **MUST** be prefixed with a leading ``p`` in
       the case of a pointer to a variable and ``fp`` in the case of a function
-      pointer, followed by camel Case. When declaring a pointer variable or
-      argument, the asterisk **MUST** be placed adjacent to the variable name.
+      pointer, followed by camel Case.
+      When declaring a pointer variable or argument, the asterisk **MUST** be
+      placed adjacent to the variable name.
     - As function-pointer syntax can get complicated and lead to errors, a
-      function pointer **MUST** use a typedef. The typedef of a function has
-      to use the suffix ``_f``.
+      function pointer **MUST** use a typedef.
+      The typedef of a function has to use the suffix ``_f``.
     - Spaces around ``.`` or ``->`` **MUST NOT** be used when accessing
-      pointers. The following listing contains examples of correctly-formatted
-      pointer and reference expressions:
+      pointers.
+      The following listing contains examples of correctly-formatted pointer
+      and reference expressions:
 
 .. literalinclude:: ./examples/c-018.c
-    :language: C
-    :lines: 41-
-    :linenos:
-    :caption: Correct usage of pointers.
+   :language: C
+   :lines: 61-66,68-70,72-75,80-86
+   :linenos:
+   :caption: Correct usage of pointers.
 
 .. _rule_c_variable_initialization:
 
@@ -623,8 +643,8 @@ Variable initialization (``C:019``)
     - Only one variable **MUST** be initialized or declared per line.
     - No multi-definitions **MUST** be used.
     - For the initialization, the correct suffixes for unsigned, signed and
-      floating-point types **MUST** be used. See
-      :numref:`table-variable-initialization` for details.
+      floating-point types **MUST** be used.
+      See :numref:`table-variable-initialization` for details.
     - Pointers **MUST** be initialized with ``NULL_PTR`` if no other valid
       initialization is possible.
 
@@ -632,33 +652,33 @@ Variable initialization (``C:019``)
 .. _table-init-rules:
 
 .. table:: Variable initialization suffixes
-    :name: table-variable-initialization
+   :name: table-variable-initialization
 
-    +----------+----------+
-    | Type     | Suffix   |
-    +==========+==========+
-    | uint8_t  | ``u``    |
-    +----------+----------+
-    | uint16_t | ``u``    |
-    +----------+----------+
-    | uint32_t | ``u``    |
-    +----------+----------+
-    | uint64_t | ``uLL``  |
-    +----------+----------+
-    | int8_t   | ``none`` |
-    +----------+----------+
-    | int16_t  | ``none`` |
-    +----------+----------+
-    | int32_t  | ``none`` |
-    +----------+----------+
-    | int64_t  | ``LL``   |
-    +----------+----------+
+   +----------+----------+
+   | Type     | Suffix   |
+   +==========+==========+
+   | uint8_t  | ``u``    |
+   +----------+----------+
+   | uint16_t | ``u``    |
+   +----------+----------+
+   | uint32_t | ``u``    |
+   +----------+----------+
+   | uint64_t | ``uLL``  |
+   +----------+----------+
+   | int8_t   | ``none`` |
+   +----------+----------+
+   | int16_t  | ``none`` |
+   +----------+----------+
+   | int32_t  | ``none`` |
+   +----------+----------+
+   | int64_t  | ``LL``   |
+   +----------+----------+
 
 .. literalinclude:: ./examples/c-019.c
-    :language: C
-    :lines: 41-
-    :linenos:
-    :caption: Initialization examples for variables and complex types
+   :language: C
+   :lines: 61-74,78-108
+   :linenos:
+   :caption: Initialization examples for variables and complex types
 
 .. _rule_c_hexadecimal:
 
@@ -670,10 +690,10 @@ Hexadecimal values (``C:020``)
     Hexadecimal digits **MUST** be written in uppercase letters.
 
 .. literalinclude:: ./examples/c-020.c
-    :language: C
-    :lines: 41-
-    :linenos:
-    :caption: Correct usage of hexadecimal digits.
+   :language: C
+   :lines: 65,66
+   :linenos:
+   :caption: Correct usage of hexadecimal digits.
 
 .. _rule_c_floating_point:
 
@@ -683,11 +703,11 @@ Floating-point values (``C:021``)
 .. admonition:: Floating-point values rules
 
     - Floating-point literals **MUST** always have a radix point, with digits
-      on BOTH sides, even if they use exponential notation. Readability is
-      improved if all floating-point literals take this familiar form, as this
-      helps ensure that they are not mistaken for integer literals, and that
-      the E/e of the exponential notation is not mistaken for a hexadecimal
-      digit.
+      on BOTH sides, even if they use exponential notation.
+      Readability is improved if all floating-point literals take this familiar
+      form, as this helps ensure that they are not mistaken for integer
+      literals, and that the E/e of the exponential notation is not mistaken
+      for a hexadecimal digit.
     - ``float`` types **SHOULD** be used wherever possible as the float
       operations are performed in hardware while double operations are not.
 
@@ -695,21 +715,21 @@ Floating-point values (``C:021``)
 .. _table-floating-point-init-rules:
 
 .. table:: Floating-point literal initialization suffixes
-    :name: table-floating-point-initialization
+   :name: table-floating-point-initialization
 
-    +----------+----------+
-    | Type     | Suffix   |
-    +==========+==========+
-    | float    | ``f``    |
-    +----------+----------+
-    | double   | ``none`` |
-    +----------+----------+
+   +----------+----------+
+   | Type     | Suffix   |
+   +==========+==========+
+   | float_t  | ``f``    |
+   +----------+----------+
+   | double   | ``none`` |
+   +----------+----------+
 
 .. literalinclude:: ./examples/c-021.c
-    :language: C
-    :lines: 41-
-    :linenos:
-    :caption: Usage of floating-point literals.
+   :language: C
+   :lines: 63-67
+   :linenos:
+   :caption: Usage of floating-point literals.
 
 .. _rule_c_structs:
 
@@ -736,10 +756,10 @@ Structs (``C:022``)
 Example:
 
 .. literalinclude:: ./examples/c-022.c
-    :language: C
-    :lines: 41-
-    :linenos:
-    :caption: Correct struct implementation.
+   :language: C
+   :lines: 61-67
+   :linenos:
+   :caption: Correct struct implementation.
 
 .. _rule_c_enums:
 
@@ -751,22 +771,26 @@ Enums (``C:023``)
     - Enums **MUST** be commented with a doxygen style comment.
     - Enum members **MUST** be commented with a doxygen style comment.
     - Enums **MUST** be declared as typedefs.
-    - Enums **MUST** be named all uppercase with underscores ``(_)`` between each word starting with the module prefix
-      and ending with suffix ``_e``.
-    - Anonymous enums **MUST NOT** be used, instead the enum type without the suffix ``_e`` **MUST** be defined.
+    - Enums **MUST** be named all uppercase with underscores ``(_)`` between
+      each word starting with the module prefix and ending with suffix ``_e``.
+    - Anonymous enums **MUST NOT** be used, instead the enum type without the
+      suffix ``_e`` **MUST** be defined.
     - Values **MUST NOT** be assigned to specific enum members.
-    - Members **MUST** be named all in uppercase beginning with the module prefix.
+    - Members **MUST** be named all in uppercase beginning with the module
+      prefix.
     - No trailing comma **MUST** be used after the last entry.
-    - The last member **MUST** be named after the typedef struct replacing the ``_e`` with ``_E`` and appending the
-      suffix ``_MAX``.
-    - A doxygen comment describing each enum **MUST** be added above the definition.
-    - A doxygen comment describing each enum member **MUST** be added after the member.
+    - The last member **MUST** be named after the typedef struct replacing the
+      ``_e`` with ``_E`` and appending the suffix ``_MAX``.
+    - A doxygen comment describing each enum **MUST** be added above the
+      definition.
+    - A doxygen comment describing each enum member **MUST** be added after the
+      member.
 
 .. literalinclude:: ./examples/c-023.c
-    :language: C
-    :lines: 41-
-    :linenos:
-    :caption: Correct enum implementation.
+   :language: C
+   :lines: 61-69
+   :linenos:
+   :caption: Correct enum implementation.
 
 .. _rule_c_typedefs:
 
@@ -780,10 +804,10 @@ Typedefs (``C:024``)
     - Other typedef names **MUST** end with the suffix ``_t``.
 
 .. literalinclude:: ./examples/c-024.c
-    :language: C
-    :lines: 41-
-    :linenos:
-    :caption: Correct example for usage of typedefs.
+   :language: C
+   :lines: 61-67,69,70,75-81,83-92
+   :linenos:
+   :caption: Correct example for usage of typedefs.
 
 .. _rule_c_macros:
 
@@ -802,10 +826,10 @@ Macros (``C:025``)
     - It is **NOT RECOMMENDED** to use function-like macros.
 
 .. literalinclude:: ./examples/c-025.c
-    :language: C
-    :lines: 41-
-    :linenos:
-    :caption: Correct naming examples of macros.
+   :language: C
+   :lines: 59-62
+   :linenos:
+   :caption: Correct naming examples of macros.
 
 .. _rule_c_conditionals:
 
@@ -820,15 +844,15 @@ Conditionals (``C:026``)
     - A space between the ``if`` keyword and the open parenthesis and between
       the close parenthesis and the curly bracket **MUST** be placed.
     - Multiple statements in one condition **MUST** be placed into separate
-      parentheses. If you have a boolean expression that is longer than the
-      standard line length, the logical operator **MUST** be at the end of the
-      lines.
+      parentheses.
+      If you have a boolean expression that is longer than the standard line
+      length, the logical operator **MUST** be at the end of the lines.
 
 .. literalinclude:: ./examples/c-026.c
-    :language: C
-    :lines: 41-
-    :linenos:
-    :caption: Correct implementation of if-else statements.
+   :language: C
+   :lines: 62-71,79-92
+   :linenos:
+   :caption: Correct implementation of if-else statements.
 
 .. _rule_c_switch:
 
@@ -841,8 +865,8 @@ switch Statements (``C:027``)
     - Fall-throughs between cases **SHOULD NOT** be used but instead all cases
       are terminated with one single break-statement at the end of the case.
       The only exceptions for this rules are empty fall-throughs that **MUST**
-      be treated within the next case. These deliberate fall-throughs **MUST**
-      be annotated.
+      be treated within the next case.
+      These deliberate fall-throughs **MUST** be annotated.
     - Case blocks in switch statements **MUST NOT** use brackets.
     - Furthermore, switch statements **MUST** have a default case.
     - If the default case should never be executed, this **MUST** be treated as
@@ -851,10 +875,10 @@ switch Statements (``C:027``)
       directive.
 
 .. literalinclude:: ./examples/c-027.c
-    :language: C
-    :lines: 41-
-    :linenos:
-    :caption: Correct implementation of switch-case statement.
+   :language: C
+   :lines: 70-95
+   :linenos:
+   :caption: Correct implementation of switch-case statement.
 
 .. _rule_c_loop:
 
@@ -863,16 +887,16 @@ loop Statements (``C:028``)
 
 .. admonition:: loop rules
 
-    - Parentheses **MUST** be used for all loops, at all times. This is valid
-      for single-statement loops.
+    - Parentheses **MUST** be used for all loops, at all times.
+      This is valid for single-statement loops.
     - Empty loop bodies **MUST** use an empty pair of brackets and explain why
       they are empty.
 
 .. literalinclude:: ./examples/c-028.c
-    :language: C
-    :lines: 41-
-    :linenos:
-    :caption: Correct usage of spaces and parentheses in loop statements.
+   :language: C
+   :lines: 71-82
+   :linenos:
+   :caption: Correct usage of spaces and parentheses in loop statements.
 
 
 There are three defines that are typically looped over: the number of strings
@@ -884,25 +908,26 @@ These loops **MUST** follow the pattern as shown in
 :numref:`special-counter-variables-example`.
 
 .. table:: Special counter variables in for loops
-    :name: special-counter-variables
-    :widths: grid
+   :name: special-counter-variables
+   :widths: grid
 
-    +-------------------------------------+-------------------+
-    | Define                              | Counter variable  |
-    +=====================================+===================+
-    | ``BS_NR_OF_STRINGS``                | ``s``             |
-    +-------------------------------------+-------------------+
-    | ``BS_NR_OF_MODULES_PER_STRING``     | ``m``             |
-    +-------------------------------------+-------------------+
-    | ``BS_NR_OF_CELL_BLOCKS_PER_MODULE`` | ``c``             |
-    +-------------------------------------+-------------------+
+   +-------------------------------------+-------------------+
+   | Define                              | Counter variable  |
+   +=====================================+===================+
+   | ``BS_NR_OF_STRINGS``                | ``s``             |
+   +-------------------------------------+-------------------+
+   | ``BS_NR_OF_MODULES_PER_STRING``     | ``m``             |
+   +-------------------------------------+-------------------+
+   | ``BS_NR_OF_CELL_BLOCKS_PER_MODULE`` | ``c``             |
+   +-------------------------------------+-------------------+
 
 .. literalinclude:: ./examples/c-028-battery-defines.c
-    :language: C
-    :lines: 41-
-    :linenos:
-    :caption: Looping over BS_NR_OF_STRINGS, BS_NR_OF_MODULES_PER_STRING, BS_NR_OF_CELL_BLOCKS_PER_MODULE
-    :name: special-counter-variables-example
+   :language: C
+   :lines: 41-
+   :linenos:
+   :caption: Looping over ``BS_NR_OF_STRINGS``,
+      ``BS_NR_OF_MODULES_PER_STRING`` and ``BS_NR_OF_CELL_BLOCKS_PER_MODULE``
+   :name: special-counter-variables-example
 
 .. _rule_c_comment_style:
 

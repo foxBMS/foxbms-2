@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,44 +43,47 @@
  * @file    fassert.h
  * @author  foxBMS Team
  * @date    2020-03-20 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup ASSERT
  * @prefix  FAS
  *
  * @brief   Assert macro implementation
  *
  * @details The default implementation accommodates three behaviors,
- *   based on FAS_ASSERT_LEVEL symbol:
+ *          based on FAS_ASSERT_LEVEL symbol:
  *
- * - When the FAS_ASSERT_LEVEL symbol is defined as
- *   FAS_ASSERT_LEVEL_INF_LOOP_AND_DISABLE_INTERRUPTS, the FAS_ASSERT macro is
- *   implemented as an infinite loop in which all interrupts are disabled. This
- *   will definitely trigger a watchdog reset.
+ *          - When the FAS_ASSERT_LEVEL symbol is defined as
+ *            FAS_ASSERT_LEVEL_INF_LOOP_AND_DISABLE_INTERRUPTS, the FAS_ASSERT
+ *            macro is implemented as an infinite loop in which all interrupts
+ *            are disabled. This will definitely trigger a watchdog reset.
  *
- * - When FAS_ASSERT_LEVEL symbol is defined as FAS_ASSERT_LEVEL_INF_LOOP_FOR_DEBUG,
- *   the validation performed by the FAS_ASSERT macro is enabled, and a failed
- *   validation triggers an infinite loop. This configuration is recommended
- *   for development environments, as it prevents further execution. Depending
- *   on the configuration this might lead to a watchdog reset. This mode is
- *   intended for investigation of problems by a developer.
+ *          - When FAS_ASSERT_LEVEL symbol is defined as
+ *            FAS_ASSERT_LEVEL_INF_LOOP_FOR_DEBUG, the validation performed by
+ *            the FAS_ASSERT macro is enabled, and a failed validation triggers
+ *            an infinite loop. This configuration is recommended for
+ *            development environments, as it prevents further execution.
+ *            Depending on the configuration this might lead to a watchdog
+ *            reset. This mode is intended for investigation of problems by a
+ *            developer.
  *
- * - When FAS_ASSERT_LEVEL symbol is defined as FAS_ASSERT_LEVEL_NO_OPERATION, the
- *   FAS_ASSERT macro is defined as empty and does nothing. It might be
- *   necessary to activate this mode in resource-constrained situations.
- *   Generally it is not recommended to use this option as it will not notice
- *   the undefined system-states that the assert should catch.
+ *          - When FAS_ASSERT_LEVEL symbol is defined as
+ *            FAS_ASSERT_LEVEL_NO_OPERATION, the FAS_ASSERT macro is defined as
+ *            empty and does nothing. It might be necessary to activate this
+ *            mode in resource-constrained situations. Generally it is not
+ *            recommended to use this option as it will not notice the
+ *            undefined system-states that the assert should catch.
  *
+ *          Generally assertions should be used for asserting states and values
+ *          that should occur when the program is executed correctly. Do *not*
+ *          assert anything that *might* be false. As an example it is
+ *          perfectly good practice to assert that the input to a function is
+ *          not a null pointer if the function is not designed to accept null
+ *          pointers, but it is not good to check if a communication error has
+ *          occurred somewhere. Assertions should never trip in a bug-free
+ *          program.
  *
- *   Generally assertions should be used for asserting states and values that
- *   should occur when the program is executed correctly. Do *not* assert
- *   anything that *might* be false. As an example it is perfectly good
- *   practice to assert that the input to a function is not a null pointer
- *   if the function is not designed to accept null pointers, but it is not
- *   good to check if a communication error has occurred somewhere. Assertions
- *   should never trip in a bug-free program.
- *
- *   Usage is FAS_ASSERT(condition that should be true).
+ *          Usage is FAS_ASSERT(condition that should be true).
  */
 
 #ifndef FOXBMS__FASSERT_H_
@@ -199,7 +202,6 @@ static inline void FAS_InfiniteLoop(void) {
 #endif
 
 /*============= define the recording macro =============*/
-
 #ifdef UNITY_UNIT_TEST
 /**
  * @def     __curpc(x)
@@ -218,12 +220,11 @@ static inline uint32_t __curpc(void) {
  *          It is important that this is a macro in order to insert it directly
  *          at he assert location in the code
  */
-#define FAS_ASSERT_RECORD()                                                                                          \
-    do {                                                                                                             \
-        /* AXIVION Next Codeline Style MisraC2012-11.5: The program counter needs to be casted to platform register
-         width */ \
-        uint32_t *pc = (uint32_t *)__curpc();                                                                        \
-        FAS_StoreAssertLocation(pc, __LINE__);                                                                       \
+/* AXIVION Next Construct Style MisraC2012-11.5: The program counter needs to be casted to platform register width */
+#define FAS_ASSERT_RECORD()                    \
+    do {                                       \
+        uint32_t *pc = (uint32_t *)__curpc();  \
+        FAS_StoreAssertLocation(pc, __LINE__); \
     } while (false)
 
 /*============= define the assertion-macro =============*/
@@ -288,5 +289,7 @@ static inline uint32_t __curpc(void) {
 /*========== Extern Function Prototypes =====================================*/
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
+#ifdef UNITY_UNIT_TEST
+#endif
 
 #endif /* FOXBMS__FASSERT_H_ */

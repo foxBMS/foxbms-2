@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,27 +43,28 @@
  * @file    bender_iso165c.h
  * @author  foxBMS Team
  * @date    2019-04-07 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup DRIVERS
  * @prefix  I165C
  *
  * @brief   Headers for the driver for the insulation monitoring
  *
- * Module header for insulation measurements. Sets up the interface to the
- * IO and TIM module. Also sets up Bender Isometer specific settings.
- *
+ * @details Module header for insulation measurements. Sets up the interface to
+ *          the IO and TIM module.
+ *          Also sets up Bender Isometer specific settings.
  */
 
 #ifndef FOXBMS__BENDER_ISO165C_H_
 #define FOXBMS__BENDER_ISO165C_H_
 
 /*========== Includes =======================================================*/
-#include "general.h"
 
 #include "bender_iso165c_cfg.h"
 
 #include "imd.h"
+
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 

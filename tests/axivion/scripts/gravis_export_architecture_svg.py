@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -38,7 +38,7 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""This script is intended to be loaded with gravis --script SCRIPTNAME.
+"""This script is intended to be loaded with gravis --script SCRIPT_NAME.
 
 It replaces the architecture svg in the documentation with a new render
 by calling gravis, loading the architecture description, applying the
@@ -62,7 +62,7 @@ if __name__ == "__main__":
     if gravis.get_script_context() != "Startup":
         gravis.warning(
             f"wrong context: {gravis.get_script_context()} "
-            "(run this script with gravis --script SCRIPTNAME)"
+            "(run this script with gravis --script SCRIPT_NAME)"
         )
         # just exit through sys (thus not terminating gravis according to
         # gravis documentation)

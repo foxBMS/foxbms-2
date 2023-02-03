@@ -1,4 +1,4 @@
-@REM Copyright (c) 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+@REM Copyright (c) 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 @REM All rights reserved.
 @REM
 @REM SPDX-License-Identifier: BSD-3-Clause
@@ -39,6 +39,8 @@
 @SET CONDA_BASE_ENVIRONMENT_ACTIVATE_SCRIPT=""
 @CALL %~dp0\..\utils\cmd\find_base_conda.bat
 
+@CALL %~dp0\..\utils\cmd\add_pcan_to_path.bat
+
 @IF %CONDA_BASE_ENVIRONMENT_ACTIVATE_SCRIPT%=="" (
     @EXIT /b 1
 )
@@ -49,7 +51,7 @@
 @SET PYEXE=python
 @WHERE %PYEXE% 1>NUL 2>NUL
 @IF %ERRORLEVEL% neq 0 SET PYEXE=py
-@START "foxBMS 2 GUI" /b %PYEXE% -m fgui %*
+@%PYEXE% -m fgui %* -vvvv
 @POPD
 @IF %ERRORLEVEL% NEQ 0 (
     @EXIT /b %ERRORLEVEL%

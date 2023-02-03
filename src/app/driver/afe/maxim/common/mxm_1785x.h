@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,12 +43,13 @@
  * @file    mxm_1785x.h
  * @author  foxBMS Team
  * @date    2019-01-15 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup DRIVERS
  * @prefix  MXM
  *
- * @brief   Headers for the driver for the MAX17841B ASCI and MAX1785x monitoring chip
+ * @brief   Headers for the driver for the MAX17841B ASCI and MAX1785x
+ *          analog front-end
  *
  * @details def
  *
@@ -72,7 +73,7 @@
  * This state-machine is implemented in mxm_17841b.c and executed with
  * #MXM_41BStateMachine(). It handles the register- and buffer-transactions
  * required for the MAX17841B communication interface (Maxim calls
- * this chip ASCI).
+ * this analog front-end ASCI).
  *
  */
 
@@ -80,14 +81,20 @@
 #define FOXBMS__MXM_1785X_H_
 
 /*========== Includes =======================================================*/
+#include "general.h"
+
 #include "database_cfg.h"
 #include "mxm_cfg.h"
 
+#include "fstd_types.h"
 #include "mxm_17841b.h"
 #include "mxm_1785x_tools.h"
 #include "mxm_basic_defines.h"
 #include "mxm_battery_management.h"
 #include "mxm_crc8.h"
+
+#include <stdbool.h>
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 
@@ -187,7 +194,7 @@ extern bool GEN_MUST_CHECK_RETURN MXM_HandleStateReadall(
     MXM_STATEMACHINE_OPERATION_STATES_e nextState);
 
 /**
- * @brief           Processes the retrieved information on openwire
+ * @brief           Processes the retrieved information on open wire
  * @details         Parses through a retrieved RX buffer and writes into the
  *                  database.
  * @param[in,out]   kpkInstance     pointer to instance of the Maxim monitoring

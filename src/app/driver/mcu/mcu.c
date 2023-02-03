@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    mcu.c
  * @author  foxBMS Team
  * @date    2019-02-19 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup DRIVERS
  * @prefix  MCU
  *
@@ -56,6 +56,9 @@
 #include "mcu.h"
 
 #include "HL_system.h"
+
+#include <math.h>
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 
@@ -97,7 +100,7 @@ void MCU_Delay_us(uint32_t delay_us) {
      * To avoid floating point computation problems, the number of
      * increments needed to reach 1 microsecond is computed at once with:
      */
-    const uint32_t rti_nrOfCounts_us = (uint32_t)(((float)mcu_frcClock_Hz) / 1e6f);
+    const uint32_t rti_nrOfCounts_us = (uint32_t)(((float_t)mcu_frcClock_Hz) / 1e6f);
 
     /* Get current value of FRC0 counter */
     const uint32_t startValue = MCU_RTI_CNT0_FRC0_REG;
@@ -123,8 +126,22 @@ extern uint32_t MCU_GetFreeRunningCount(void) {
 
 extern uint32_t MCU_ConvertFrcDifferenceToTimespan_us(uint32_t count) {
     /* AXIVION Routine Generic-MissingParameterAssert: count: parameter accepts whole range */
-    const uint32_t rti_nrOfCounts_us = (uint32_t)(((float)mcu_frcClock_Hz) / 1e6f);
+    const uint32_t rti_nrOfCounts_us = (uint32_t)(((float_t)mcu_frcClock_Hz) / 1e6f);
     return count / rti_nrOfCounts_us;
 }
 
+extern bool MCU_IsTimeElapsed(uint32_t startCounter, uint32_t timeout_us) {
+    bool retVal                = false;
+    uint32_t counter           = MCU_GetFreeRunningCount();
+    uint32_t timeDifference_us = MCU_ConvertFrcDifferenceToTimespan_us(counter - startCounter);
+    if (timeDifference_us < timeout_us) {
+        retVal = false;
+    } else {
+        retVal = true;
+    }
+    return retVal;
+}
+
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
+#ifdef UNITY_UNIT_TEST
+#endif

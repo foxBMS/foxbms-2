@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,13 +43,13 @@
  * @file    mxm_17841b.h
  * @author  foxBMS Team
  * @date    2018-12-14 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup DRIVERS
  * @prefix  MXM
  *
  * @brief   Headers for the driver for the MAX17841B ASCI and
- *          MAX1785x monitoring chip
+ *          MAX1785x analog front-end
  *
  * @details def
  *
@@ -61,7 +61,10 @@
 /*========== Includes =======================================================*/
 #include "mxm_cfg.h"
 
+#include "fstd_types.h"
 #include "mxm_bitextract.h"
+
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 
@@ -306,5 +309,7 @@ extern STD_RETURN_TYPE_e MXM_41BSetStateRequest(
 extern void MXM_41BInitializeStateStruct(MXM_41B_INSTANCE_s *pInstance);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
+#ifdef UNITY_UNIT_TEST
+#endif
 
 #endif /* FOXBMS__MXM_17841B_H_ */

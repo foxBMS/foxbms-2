@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    state_estimation.h
  * @author  foxBMS Team
  * @date    2020-10-14 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup APPLICATION
  * @prefix  SE
  *
@@ -59,9 +59,12 @@
 #define FOXBMS__STATE_ESTIMATION_H_
 
 /*========== Includes =======================================================*/
-#include "general.h"
 
 #include "database.h"
+
+#include <math.h>
+#include <stdbool.h>
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 
@@ -118,7 +121,7 @@ extern void SE_CalculateStateOfCharge(DATA_BLOCK_SOX_s *pSocValues);
  * @param[in]   voltage_mV    voltage in mV of battery cell
  * @return  returns SOC value in percentage from 0.0% to 100.0%
  */
-extern float SE_GetStateOfChargeFromVoltage(int16_t voltage_mV);
+extern float_t SE_GetStateOfChargeFromVoltage(int16_t voltage_mV);
 
 /**
  * @brief   initializes startup state-of-energy (SOE) related values
@@ -152,5 +155,7 @@ extern void SE_CalculateStateOfHealth(DATA_BLOCK_SOX_s *pSohValues);
  */
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
+#ifdef UNITY_UNIT_TEST
+#endif
 
 #endif /* FOXBMS__STATE_ESTIMATION_H_ */

@@ -1,8 +1,8 @@
 Symbol ;            Meaning
 |contactor|;        Contactor
-|current-sensor|;   Current
+|current-sensor|;   Current sensor
 |fuse|;             Fuse
-|imd|;              Insulation
+|imd|;              Insulation measurement device
 |inverter|;         Inverter
 |msd|;              Manual service disconnect
 |resistor|;         Resistor

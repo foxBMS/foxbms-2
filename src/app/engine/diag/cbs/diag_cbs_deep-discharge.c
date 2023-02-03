@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    diag_cbs_deep-discharge.c
  * @author  foxBMS Team
  * @date    2021-02-17 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup ENGINE
  * @prefix  DIAG
  *
@@ -55,6 +55,8 @@
 /*========== Includes =======================================================*/
 #include "diag_cbs.h"
 #include "fram.h"
+
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 
@@ -79,15 +81,17 @@ void DIAG_ErrorDeepDischarge(
 
     if (diagId == DIAG_ID_DEEP_DISCHARGE_DETECTED) {
         if (event == DIAG_EVENT_RESET) {
-            kpkDiagShim->pTableError->deepDischargeDetected[stringNumber] = 0;
-            fram_deepDischargeFlags.deepDischargeFlag[stringNumber]       = false;
+            kpkDiagShim->pTableError->deepDischargeDetectedError[stringNumber] = false;
+            fram_deepDischargeFlags.deepDischargeFlag[stringNumber]            = false;
         }
         if (event == DIAG_EVENT_NOT_OK) {
-            kpkDiagShim->pTableError->deepDischargeDetected[stringNumber] = 1;
-            fram_deepDischargeFlags.deepDischargeFlag[stringNumber]       = true;
+            kpkDiagShim->pTableError->deepDischargeDetectedError[stringNumber] = true;
+            fram_deepDischargeFlags.deepDischargeFlag[stringNumber]            = true;
         }
         FRAM_WriteData(FRAM_BLOCK_ID_DEEP_DISCHARGE_FLAG);
     }
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
+#ifdef UNITY_UNIT_TEST
+#endif

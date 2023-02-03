@@ -9,8 +9,8 @@ Building the Application
 .. note::
 
    There are shell scripts ``waf.bat``/``waf.sh`` that activate the correct
-   build environment before starting the build process. It is recommended to
-   use these scripts to interact with the build system.
+   build environment before starting the build process.
+   It is recommended to use these scripts to interact with the build system.
    If these shell scripts are not used to call the build tool the following
    steps are required:
 

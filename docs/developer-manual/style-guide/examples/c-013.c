@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -39,8 +39,26 @@
  *
  */
 
-#include "general.h"
+/**
+ * @file    c-013.c
+ * @author  foxBMS Team
+ * @date    2021-06-04 (date of creation)
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
+ * @ingroup GUIDELINES
+ * @prefix  NONE
+ *
+ * @brief   Example code to show the application of the C coding guidelines
+ * @details This code implements an example for C:013
+ *
+ */
 
+/*========== Includes =======================================================*/
+#include <stdint.h>
+
+/*========== Macros and Definitions =========================================*/
+
+/*========== Static Constant and Variable Definitions =======================*/
 static uint8_t x1 = 0;
 static uint8_t x2 = 0;
 static uint8_t x3 = 0;
@@ -53,6 +71,10 @@ static uint8_t z3 = 0;
 
 static uint8_t scores[5] = {0};
 static uint8_t bases[5]  = {0};
+
+/*========== Extern Constant and Variable Definitions =======================*/
+
+/*========== Static Function Prototypes =====================================*/
 
 /* clang-format off */
 static void ABC_TransformMyWidget(
@@ -71,6 +93,7 @@ static void ABC_TransformMyWidget(
 }
 /* clang-format on */
 
+/*========== Static Function Implementations ================================*/
 static int16_t ABC_DoSomething(int16_t var, int16_t x, int16_t y, int16_t z) {
     return 0;
 }
@@ -96,3 +119,9 @@ int16_t ABC_SomeFunction(uint8_t x, uint8_t y, uint8_t z) {
     /* clang-format on */
     return result;
 }
+
+/*========== Extern Function Implementations ================================*/
+
+/*========== Externalized Static Function Implementations (Unit Test) =======*/
+#ifdef UNITY_UNIT_TEST
+#endif

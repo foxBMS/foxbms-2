@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    bender_ir155_helper.c
  * @author  foxBMS Team
  * @date    2021-09-17 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup DRIVERS
  * @prefix  IR155
  *
@@ -57,6 +57,10 @@
 #include "bender_ir155_cfg.h"
 
 #include "fram.h"
+
+#include <math.h>
+#include <stdbool.h>
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 /** Maximum measurable resistance according to formula:
@@ -112,7 +116,7 @@ extern IR155_STATE_s ir155_state = {
  * @param[in] frequency_Hz   measured signal frequency in Hz
  * @return  #IR155_MEASUREMENT_MODE_e bender measurement mode
  */
-static IR155_MEASUREMENT_MODE_e IR155_GetMeasurementMode(float frequency_Hz);
+static IR155_MEASUREMENT_MODE_e IR155_GetMeasurementMode(float_t frequency_Hz);
 
 /**
  * @brief   Calculate insulation resistance from measured dutycycle.
@@ -122,7 +126,7 @@ static IR155_MEASUREMENT_MODE_e IR155_GetMeasurementMode(float frequency_Hz);
  * @param[in] dutyCycle_perc   measured signal duty-cycle in percentage
  * @return  measured insulation resistance in kOhm
  */
-static uint32_t IR155_CalculateResistance(float dutyCycle_perc);
+static uint32_t IR155_CalculateResistance(float_t dutyCycle_perc);
 
 /**
  * @brief   Check if passed duty cycle is within interval limits
@@ -131,10 +135,10 @@ static uint32_t IR155_CalculateResistance(float dutyCycle_perc);
  * @param[in] upperLimit_perc  upper interval limit
  * @return  measured insulation resistance in kOhm
  */
-static bool IR155_IsDutyCycleWithinInterval(float dutyCycle_perc, float lowerLimit_perc, float upperLimit_perc);
+static bool IR155_IsDutyCycleWithinInterval(float_t dutyCycle_perc, float_t lowerLimit_perc, float_t upperLimit_perc);
 
 /*========== Static Function Implementations ================================*/
-static IR155_MEASUREMENT_MODE_e IR155_GetMeasurementMode(float frequency_Hz) {
+static IR155_MEASUREMENT_MODE_e IR155_GetMeasurementMode(float_t frequency_Hz) {
     FAS_ASSERT(frequency_Hz >= 0.0f);
     IR155_MEASUREMENT_MODE_e retVal = IR155_UNKNOWN;
 
@@ -164,22 +168,22 @@ static IR155_MEASUREMENT_MODE_e IR155_GetMeasurementMode(float frequency_Hz) {
     return retVal;
 }
 
-static uint32_t IR155_CalculateResistance(float dutyCycle_perc) {
+static uint32_t IR155_CalculateResistance(float_t dutyCycle_perc) {
     FAS_ASSERT(dutyCycle_perc <= 100.0f);
     FAS_ASSERT(dutyCycle_perc > 0.0f);
 
-    float insulationResistance_kOhm = 0.0f;
+    float_t insulationResistance_kOhm = 0.0f;
     if (dutyCycle_perc <= 5.0f) {
-        insulationResistance_kOhm = (float)IR155_MAXIMUM_INSULATION_RESISTANCE_kOhm;
+        insulationResistance_kOhm = (float_t)IR155_MAXIMUM_INSULATION_RESISTANCE_kOhm;
     } else if (dutyCycle_perc > 95.0f) {
-        insulationResistance_kOhm = (float)IR155_MINIMUM_INSULATION_RESISTANCE_kOhm;
+        insulationResistance_kOhm = (float_t)IR155_MINIMUM_INSULATION_RESISTANCE_kOhm;
     } else {
         insulationResistance_kOhm = ((90.0f * 1200.0f) / (dutyCycle_perc - 5.0f)) - 1200.0f;
     }
     return (uint32_t)insulationResistance_kOhm;
 }
 
-static bool IR155_IsDutyCycleWithinInterval(float dutyCycle_perc, float lowerLimit_perc, float upperLimit_perc) {
+static bool IR155_IsDutyCycleWithinInterval(float_t dutyCycle_perc, float_t lowerLimit_perc, float_t upperLimit_perc) {
     bool retval = false;
     if ((lowerLimit_perc < dutyCycle_perc) && (upperLimit_perc > dutyCycle_perc)) {
         retval = true;
@@ -376,3 +380,5 @@ IR155_MEASUREMENT_s IR155_GetMeasurementValues(void) {
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
+#ifdef UNITY_UNIT_TEST
+#endif

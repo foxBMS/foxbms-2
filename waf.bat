@@ -1,4 +1,4 @@
-@REM Copyright (c) 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+@REM Copyright (c) 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 @REM All rights reserved.
 @REM
 @REM SPDX-License-Identifier: BSD-3-Clause
@@ -45,7 +45,7 @@
 @FOR /F "tokens=* USEBACKQ" %%F IN (`chcp.com 2^>^&1`) DO @(
     @SET CODEPAGE_OUT=%%F
 )
-@REM split outoput by whitespace and use the last argument as this contains the
+@REM split output by whitespace and use the last argument as this contains the
 @REM activate code page
 @FOR %%a in (%CODEPAGE_OUT%) do @(
     @SET CODEPAGE=%%a

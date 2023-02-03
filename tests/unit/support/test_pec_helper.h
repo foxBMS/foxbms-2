@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_pec_helper.h
  * @author  foxBMS Team
  * @date    2020-12-16 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -63,7 +63,7 @@
     {                                                                              \
         uint8_t data[4] = {0};                                                     \
         TEST_LTC_Get_##array(data);                                                \
-        uint16_t result = LTC_pec15_calc(2u, data);                                \
+        uint16_t result = LTC_CalculatePec15(2u, data);                            \
         TEST_ASSERT_EQUAL((((uint16_t)data[2] << 8u) | (uint8_t)data[3]), result); \
     }
 

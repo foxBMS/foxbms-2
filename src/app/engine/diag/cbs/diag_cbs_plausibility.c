@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    diag_cbs_plausibility.c
  * @author  foxBMS Team
  * @date    2021-02-17 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup ENGINE
  * @prefix  DIAG
  *
@@ -54,6 +54,9 @@
 
 /*========== Includes =======================================================*/
 #include "diag_cbs.h"
+#include "fstd_types.h"
+
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 
@@ -78,10 +81,10 @@ extern void DIAG_ErrorPlausibility(
 
     if (diagId == DIAG_ID_PLAUSIBILITY_PACK_VOLTAGE) {
         if (event == DIAG_EVENT_RESET) {
-            kpkDiagShim->pTableError->plausibilityCheckPackvoltage[stringNumber] = 0u;
+            kpkDiagShim->pTableError->plausibilityCheckPackVoltageError[stringNumber] = false;
         }
         if (event == DIAG_EVENT_NOT_OK) {
-            kpkDiagShim->pTableError->plausibilityCheckPackvoltage[stringNumber] = 1u;
+            kpkDiagShim->pTableError->plausibilityCheckPackVoltageError[stringNumber] = true;
         }
     }
 }
@@ -98,31 +101,31 @@ extern void DIAG_PlausibilityCheck(
 
     if (diagId == DIAG_ID_PLAUSIBILITY_CELL_VOLTAGE) {
         if (event == DIAG_EVENT_RESET) {
-            kpkDiagShim->pTableError->plausibilityCheckCellVoltage[stringNumber] = 0u;
+            kpkDiagShim->pTableError->plausibilityCheckCellVoltageError[stringNumber] = false;
         }
         if (event == DIAG_EVENT_NOT_OK) {
-            kpkDiagShim->pTableError->plausibilityCheckCellVoltage[stringNumber] = 1u;
+            kpkDiagShim->pTableError->plausibilityCheckCellVoltageError[stringNumber] = true;
         }
     } else if (diagId == DIAG_ID_PLAUSIBILITY_CELL_TEMP) {
         if (event == DIAG_EVENT_RESET) {
-            kpkDiagShim->pTableError->plausibilityCheckCelltemperature[stringNumber] = 0u;
+            kpkDiagShim->pTableError->plausibilityCheckCellTemperatureError[stringNumber] = false;
         }
         if (event == DIAG_EVENT_NOT_OK) {
-            kpkDiagShim->pTableError->plausibilityCheckCelltemperature[stringNumber] = 1u;
+            kpkDiagShim->pTableError->plausibilityCheckCellTemperatureError[stringNumber] = true;
         }
     } else if (diagId == DIAG_ID_PLAUSIBILITY_CELL_VOLTAGE_SPREAD) {
         if (event == DIAG_EVENT_RESET) {
-            kpkDiagShim->pTableError->plausibilityCheckCellVoltageSpread[stringNumber] = 0u;
+            kpkDiagShim->pTableError->plausibilityCheckCellVoltageSpreadError[stringNumber] = false;
         }
         if (event == DIAG_EVENT_NOT_OK) {
-            kpkDiagShim->pTableError->plausibilityCheckCellVoltageSpread[stringNumber] = 1u;
+            kpkDiagShim->pTableError->plausibilityCheckCellVoltageSpreadError[stringNumber] = true;
         }
     } else if (diagId == DIAG_ID_PLAUSIBILITY_CELL_TEMPERATURE_SPREAD) {
         if (event == DIAG_EVENT_RESET) {
-            kpkDiagShim->pTableError->plausibilityCheckCelltemperatureSpread[stringNumber] = 0u;
+            kpkDiagShim->pTableError->plausibilityCheckCellTemperatureSpreadError[stringNumber] = false;
         }
         if (event == DIAG_EVENT_NOT_OK) {
-            kpkDiagShim->pTableError->plausibilityCheckCelltemperatureSpread[stringNumber] = 1u;
+            kpkDiagShim->pTableError->plausibilityCheckCellTemperatureSpreadError[stringNumber] = true;
         }
     } else {
         /* do nothing - trap? */
@@ -130,3 +133,5 @@ extern void DIAG_PlausibilityCheck(
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
+#ifdef UNITY_UNIT_TEST
+#endif

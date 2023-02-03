@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    sys.c
  * @author  foxBMS Team
  * @date    2020-02-24 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup ENGINE
  * @prefix  SYS
  *
@@ -52,6 +52,8 @@
  */
 
 /*========== Includes =======================================================*/
+#include "general.h"
+
 #include "sys.h"
 
 #include "algorithm.h"
@@ -61,6 +63,7 @@
 #include "contactor.h"
 #include "diag.h"
 #include "fram.h"
+#include "fstd_types.h"
 #include "imd.h"
 #include "interlock.h"
 #include "meas.h"
@@ -68,6 +71,8 @@
 #include "sbc.h"
 #include "sof_trapezoid.h"
 #include "state_estimation.h"
+
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 
@@ -341,7 +346,7 @@ static STD_RETURN_TYPE_e SYS_RunStateMachine(SYS_STATE_s *pSystemState) {
                     break;
                 }
             } else if (pSystemState->substate == SYS_WAIT_INITIALIZATION_BAL_GLOBAL_ENABLE) {
-                if (BALANCING_DEFAULT_INACTIVE == true) {
+                if (BS_BALANCING_DEFAULT_INACTIVE == true) {
                     balancingGlobalEnableState = BAL_SetStateRequest(BAL_STATE_GLOBAL_DISABLE_REQUEST);
                 } else {
                     balancingGlobalEnableState = BAL_SetStateRequest(BAL_STATE_GLOBAL_ENABLE_REQUEST);
@@ -379,7 +384,7 @@ static STD_RETURN_TYPE_e SYS_RunStateMachine(SYS_STATE_s *pSystemState) {
                     ALGO_UnlockInitialization();
                     /* MEAS_RequestOpenWireCheck(); */ /*TODO: check with strings */
                     pSystemState->timer = SYS_FSM_SHORT_TIME;
-                    if (CURRENT_SENSOR_PRESENT == true) {
+                    if (BS_CURRENT_SENSOR_PRESENT == true) {
                         pSystemState->state = SYS_STATEMACH_CHECK_CURRENT_SENSOR_PRESENCE;
                     } else {
                         pSystemState->state = SYS_STATEMACH_INITIALIZE_MISC;
@@ -469,7 +474,7 @@ static STD_RETURN_TYPE_e SYS_RunStateMachine(SYS_STATE_s *pSystemState) {
         case SYS_STATEMACH_INITIALIZE_MISC:
             SYS_SAVELASTSTATES(pSystemState);
 
-            if (CURRENT_SENSOR_PRESENT == false) {
+            if (BS_CURRENT_SENSOR_PRESENT == false) {
                 CAN_EnablePeriodic(true);
                 for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
                     SE_InitializeSoc(false, s);
@@ -692,3 +697,5 @@ extern STD_RETURN_TYPE_e SYS_Trigger(SYS_STATE_s *pSystemState) {
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
+#ifdef UNITY_UNIT_TEST
+#endif

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -38,112 +38,78 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""This is the foxBMS GUI
+"""TODO"""
+import logging
+from pathlib import Path
 
-https://foxbms.org
-"""
-
-import os
-import webbrowser
-
+import click
 import wx
-import wx.adv
-from fgui import (
-    FOXBMS_DOC_URL,
-    MODULE_FOXBMS_LOGO,
-    MODULE_LOCAL_DOC_PATH,
+from fgui.entry.entry_frame import EntryFrame
+from fgui.misc.can.can_helpers import try_to_select_can_adapter
+from fgui.misc.misc import LOG_LEVELS
+from fgui.misc.program_arguments import (
+    C_SETUP_BAUD_RATE,
+    C_SETUP_CAN_ADAPTERS,
+    C_SETUP_LOGGING,
+    C_SETUP_VERBOSITY,
+    chose_baud_rate,
+    chose_can_adapter,
+    chose_logging_dir,
+    validate_argument_combination,
 )
-from fgui.info_dialog import FoxbmsInfoDialog
-from fgui.log_parser import LogParserFrame
+from fgui.workers.can_node_worker import CanAdapterProcess
 
 
-class foxBMSMainFrame(wx.Frame):
-    """Main frame to construct the foxBMS GUI frame"""
+@click.command()
+@click.help_option("--help", "-h")
+@click.option("-v", "--verbose", **C_SETUP_VERBOSITY)
+@click.option("-c", "--can-adapter", **C_SETUP_CAN_ADAPTERS)
+@click.option("-b", "--baud-rate", **C_SETUP_BAUD_RATE)
+@click.option("-l", "--logging", "logging_dir", **C_SETUP_LOGGING)
+def main(verbose: int, can_adapter: str, baud_rate: str, logging_dir: click.Path):
+    """main entry point for the wrapper GUI application"""
+    log_level = LOG_LEVELS[min(verbose, max(LOG_LEVELS.keys()))]
+    logging.basicConfig(level=log_level)
+    logging.debug(f"Logging level: {logging.getLevelName(log_level)}")
 
-    # pylint: disable=too-many-ancestors,invalid-name
+    app = wx.App(redirect=True)
+    wx.Locale(wx.LANGUAGE_ENGLISH)
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    if not can_adapter:
+        can_adapter = chose_can_adapter()
+    else:
+        can_adapter = try_to_select_can_adapter(can_adapter)
+    logging.debug(f"CAN adapter: {can_adapter}")
 
-        self.initialize_gui()
+    if can_adapter and not baud_rate:
+        baud_rate = chose_baud_rate()
+    logging.debug(f"BAUD rate: {baud_rate}")
 
-    def initialize_gui(self):
-        """initializes the GUI elements"""
-        self.panel = wx.Panel(self, wx.ID_ANY)
+    if can_adapter and baud_rate and not logging_dir:
+        logging_dir = chose_logging_dir(logging_dir)
+    if logging_dir:
+        logging_dir = Path(logging_dir)
+    logging.debug(f"CAN Logging: {logging_dir}")
 
-        menu_bar = wx.MenuBar()
-        file_menu = wx.Menu()
-        exit_menu_item = file_menu.Append(
-            wx.Window.NewControlId(), "Exit", "Exit the application"
-        )
-        menu_bar.Append(file_menu, "&File")
-        self.Bind(wx.EVT_MENU, self.cb_on_exit, exit_menu_item)
+    validate_argument_combination(can_adapter, baud_rate, logging_dir)
 
-        log_parser_menu = wx.Menu()
-        log_parser_item = log_parser_menu.Append(
-            wx.Window.NewControlId(), "Start", "Start a new Log Parser"
-        )
-        menu_bar.Append(log_parser_menu, "&Log Parser")
-        self.Bind(wx.EVT_MENU, self.cb_start_log_parser, log_parser_item)
+    can_process = None
+    if can_adapter and baud_rate:
+        can_process = CanAdapterProcess(can_adapter, baud_rate, logging_dir)
+        can_process.daemon = True
+        can_process.start()
 
-        help_menu = wx.Menu()
-        show_info_item = help_menu.Append(wx.Window.NewControlId(), "Info", "Info")
-        open_documentation_item = help_menu.Append(
-            wx.Window.NewControlId(), "Documentation", "Documentation"
-        )
-        menu_bar.Append(help_menu, "?")
-        self.Bind(wx.EVT_MENU, self.cb_show_info, show_info_item)
-        self.Bind(wx.EVT_MENU, self.cb_open_documentation, open_documentation_item)
-        self.SetMenuBar(menu_bar)
-
-        # Add logo
-        _icon = wx.Icon()
-        logo_img = wx.Image(MODULE_FOXBMS_LOGO)
-        logo_img_size = logo_img.GetSize()
-        resized = logo_img_size / 5
-        logo_img.Rescale(resized[0], resized[1])
-        image = wx.Bitmap(logo_img)
-        _icon.CopyFromBitmap(image)
-        self.SetIcon(_icon)
-
-        # all gui elements are now initialized, so we can show the GUI
-        self.SetTitle("foxBMS")
-        self.Centre()
-        self.Show(True)
-
-    def cb_on_exit(self, event):
-        """Closes the application window"""
-        self.Close()
-
-    @classmethod
-    def cb_start_log_parser(cls, event):
-        """Start Log Parser"""
-        title = "Log Parser"
-        LogParserFrame(title=title)
-
-    @classmethod
-    def cb_open_documentation(cls, event):
-        """Shows the foxBMS documentation from local source if it exists, from
-        web if it does not"""
-        doc = MODULE_LOCAL_DOC_PATH
-        if not os.path.isfile(doc):
-            doc = FOXBMS_DOC_URL
-        webbrowser.open(doc)
-
-    @classmethod
-    def cb_show_info(cls, event):
-        """Shows the program information"""
-        about_dialog = FoxbmsInfoDialog(None, title="About foxBMS 2")
-        about_dialog.ShowModal()
-        about_dialog.Destroy()
-
-
-def main():
-    """Starts the application"""
-    app = wx.App(False)
-    foxBMSMainFrame(None)
+    EntryFrame(can_process=can_process)
     app.MainLoop()
+
+    if can_process:
+        if not can_process.g_canceled.is_set():
+            logging.debug("(1/2) start canceling CanAdapterProcess")
+            can_process.g_cancel()
+            logging.debug("(2/2) done canceling CanAdapterProcess")
+        can_process.join()
+    logging.debug("exit")
 
 
 if __name__ == "__main__":
-    main()
+    main()  # pylint: disable=no-value-for-parameter

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    sys_cfg.c
  * @author  foxBMS Team
  * @date    2020-02-24 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup ENGINE_CONFIGURATION
  * @prefix  SYS
  *
@@ -54,7 +54,10 @@
 /*========== Includes =======================================================*/
 #include "sys_cfg.h"
 
-#include "can_cfg_tx_boot-message.h"
+#include "can_cbs_tx_debug-response.h"
+#include "fassert.h"
+
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 
@@ -67,11 +70,36 @@
 /*========== Static Function Implementations ================================*/
 
 /*========== Extern Function Implementations ================================*/
+
 void SYS_SendBootMessage(void) {
-    /* the system can do not much with the result of the function at this stage
-    therefore discard it */
-    (void)CANTX_TransmitBootMessage();
-    (void)CANTX_TransmitDieId();
+    /* The magic boot sequence on CAN is:
+       - <magic boot ID>:         0xFE 0xFE 0xFE 0xFE 0xFE 0xFE 0xFE 0x0F
+       - <bms version info ID>:   <what ever the version is>
+       - <MCU die ID>:            <what ever the die ID is>
+       - <MCU lot number>:        <what ever the lot number is>
+       - <MCU wafer information>: <what ever the wafer information is>
+       - <magic boot ID>:         0x01 0x01 0x01 0x01 0x01 0x01 0x01 0x0F
+    */
+    if (CANTX_DebugResponse(CANTX_DEBUG_RESPONSE_TRANSMIT_BOOT_MAGIC_START) != STD_OK) {
+        FAS_ASSERT(FAS_TRAP);
+    }
+    if (CANTX_DebugResponse(CANTX_DEBUG_RESPONSE_TRANSMIT_BMS_VERSION_INFO) != STD_OK) {
+        FAS_ASSERT(FAS_TRAP);
+    }
+    if (CANTX_DebugResponse(CANTX_DEBUG_RESPONSE_TRANSMIT_MCU_UNIQUE_DIE_ID) != STD_OK) {
+        FAS_ASSERT(FAS_TRAP);
+    }
+    if (CANTX_DebugResponse(CANTX_DEBUG_RESPONSE_TRANSMIT_MCU_LOT_NUMBER) != STD_OK) {
+        FAS_ASSERT(FAS_TRAP);
+    }
+    if (CANTX_DebugResponse(CANTX_DEBUG_RESPONSE_TRANSMIT_MCU_WAFER_INFORMATION) != STD_OK) {
+        FAS_ASSERT(FAS_TRAP);
+    }
+    if (CANTX_DebugResponse(CANTX_DEBUG_RESPONSE_TRANSMIT_BOOT_MAGIC_END) != STD_OK) {
+        FAS_ASSERT(FAS_TRAP);
+    }
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
+#ifdef UNITY_UNIT_TEST
+#endif

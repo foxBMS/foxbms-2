@@ -180,7 +180,7 @@ All sections are listed here:
     :caption: Tools Documentation
 
     ./tools/dbc.rst
-    ./tools/log-parser.rst
+    ./tools/gui/gui.rst
     ./tools/waf-tools/waf-tools.rst
     ./tools/debugger/debug-application.rst
     ./tools/halcogen/halcogen.rst
@@ -198,6 +198,7 @@ All sections are listed here:
     ./developer-manual/style-guide/style-guide.rst
     ./developer-manual/software-developer-manual.rst
     ./developer-manual/hardware-developer-manual.rst
+    ./developer-manual/public-release-process.rst
 
 .. _MISCELLANEOUS_INFORMATION:
 

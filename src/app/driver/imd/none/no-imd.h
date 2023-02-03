@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    no-imd.h
  * @author  foxBMS Team
  * @date    2020-11-20 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup DRIVERS
  * @prefix  NONE
  *
@@ -59,9 +59,10 @@
 #define FOXBMS__NO_IMD_H_
 
 /*========== Includes =======================================================*/
-#include "general.h"
 
 #include "imd.h"
+
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 

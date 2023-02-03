@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -57,21 +57,22 @@ def build(bld):
         os.path.join("can", "cbs", "can_helper.c"),
         os.path.join("can", "cbs", "rx", "can_cbs_rx_current-sensor.c"),
         os.path.join("can", "cbs", "rx", "can_cbs_rx_imd.c"),
-        os.path.join("can", "cbs", "rx", "can_cbs_rx_misc.c"),
+        os.path.join("can", "cbs", "rx", "can_cbs_rx_debug.c"),
         os.path.join("can", "cbs", "rx", "can_cbs_rx_state-request.c"),
         os.path.join("can", "cbs", "tx", "can_cbs_tx_cell-temperatures.c"),
         os.path.join("can", "cbs", "tx", "can_cbs_tx_cell-voltages.c"),
+        os.path.join("can", "cbs", "tx", "can_cbs_tx_debug-response.c"),
         os.path.join("can", "cbs", "tx", "can_cbs_tx_limit-values.c"),
         os.path.join("can", "cbs", "tx", "can_cbs_tx_minimum-maximum-values.c"),
         os.path.join("can", "cbs", "tx", "can_cbs_tx_pack-state-estimation.c"),
         os.path.join("can", "cbs", "tx", "can_cbs_tx_state.c"),
         os.path.join("can", "cbs", "tx", "can_cbs_tx_string-state-estimation.c"),
         os.path.join("can", "cbs", "tx", "can_cbs_tx_system-values.c"),
+        os.path.join("can", "cbs", "tx", "can_cbs_tx_unsupported-message.c"),
         os.path.join("checksum", "checksum.c"),
         os.path.join("crc", "crc.c"),
         os.path.join("config", "contactor_cfg.c"),
         os.path.join("config", "can_cfg_tx.c"),
-        os.path.join("config", "can_cfg_tx_boot-message.c"),
         os.path.join("config", "can_cfg_rx.c"),
         os.path.join("config", "can_cfg.c"),
         os.path.join("config", "dma_cfg.c"),
@@ -156,6 +157,7 @@ def build(bld):
         os.path.join("..", "engine", "database"),
         os.path.join("..", "engine", "diag"),
         os.path.join("..", "engine", "hwinfo"),
+        os.path.join("..", "engine", "sys"),
         os.path.join("..", "engine", "sys_mon"),
         os.path.join("..", "main", "include", "config"),
         os.path.join("..", "main", "include"),

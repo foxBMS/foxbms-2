@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    can_cbs_tx_limit-values.c
  * @author  foxBMS Team
  * @date    2021-07-21 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup DRIVER
  * @prefix  CANTX
  *
@@ -58,6 +58,9 @@
 #include "can_cbs_tx.h"
 #include "can_cfg_tx-message-definitions.h"
 #include "can_helper.h"
+
+#include <math.h>
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 
@@ -78,6 +81,7 @@ extern uint32_t CANTX_LimitValues(
     /* pMuxId is not used here, therefore has to be NULL_PTR */
     FAS_ASSERT(pMuxId == NULL_PTR);
     FAS_ASSERT(message.id == CANTX_LIMIT_VALUES_ID);
+    FAS_ASSERT(message.idType == CANTX_LIMIT_VALUES_ID_TYPE);
     FAS_ASSERT(message.dlc == CAN_FOXBMS_MESSAGES_DEFAULT_DLC);
     FAS_ASSERT(pCanData != NULL_PTR);
     FAS_ASSERT(kpkCanShim != NULL_PTR);
@@ -87,16 +91,16 @@ extern uint32_t CANTX_LimitValues(
 
     /* AXIVION Disable Style Generic-NoMagicNumbers: Signal data defined in .dbc file. */
     /* maximum charge current */
-    float signalData = (float)kpkCanShim->pTableSof->recommendedContinuousPackChargeCurrent_mA;
-    float offset     = 0.0f;
-    float factor     = 0.004f; /* convert mA to 250mA */
-    signalData       = (signalData + offset) * factor;
-    uint64_t data    = (int64_t)signalData;
+    float_t signalData = (float_t)kpkCanShim->pTableSof->recommendedContinuousPackChargeCurrent_mA;
+    float_t offset     = 0.0f;
+    float_t factor     = 0.004f; /* convert mA to 250mA */
+    signalData         = (signalData + offset) * factor;
+    uint64_t data      = (int64_t)signalData;
     /* set data in CAN frame */
     CAN_TxSetMessageDataWithSignalData(&messageData, 11u, 12u, data, message.endianness);
 
     /* maximum discharge current */
-    signalData = (float)kpkCanShim->pTableSof->recommendedContinuousPackDischargeCurrent_mA;
+    signalData = (float_t)kpkCanShim->pTableSof->recommendedContinuousPackDischargeCurrent_mA;
     offset     = 0.0f;
     factor     = 0.004f; /* convert mA to 250mA */
     signalData = (signalData + offset) * factor;
@@ -108,7 +112,7 @@ extern uint32_t CANTX_LimitValues(
     /* TODO: maximum discharge power */
 
     /* minimum pack voltage */
-    signalData = (float)(BS_NR_OF_CELL_BLOCKS_PER_STRING * BC_VOLTAGE_MIN_MSL_mV);
+    signalData = (float_t)(BS_NR_OF_CELL_BLOCKS_PER_STRING * BC_VOLTAGE_MIN_MSL_mV);
     offset     = 0.0f;
     factor     = 0.00025f; /* convert mV to 4V */
     signalData = (signalData + offset) * factor;
@@ -117,7 +121,7 @@ extern uint32_t CANTX_LimitValues(
     CAN_TxSetMessageDataWithSignalData(&messageData, 63u, 8u, data, message.endianness);
 
     /* maximum pack voltage */
-    signalData = (float)(BS_NR_OF_CELL_BLOCKS_PER_STRING * BC_VOLTAGE_MAX_MSL_mV);
+    signalData = (float_t)(BS_NR_OF_CELL_BLOCKS_PER_STRING * BC_VOLTAGE_MAX_MSL_mV);
     offset     = 0.0f;
     factor     = 0.00025f; /* convert mV to 4V */
     signalData = (signalData + offset) * factor;
@@ -134,5 +138,4 @@ extern uint32_t CANTX_LimitValues(
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
 #ifdef UNITY_UNIT_TEST
-
 #endif

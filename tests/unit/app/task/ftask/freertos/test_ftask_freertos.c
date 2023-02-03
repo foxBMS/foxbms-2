@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_ftask_freertos.c
  * @author  foxBMS Team
  * @date    2021-11-26 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -64,7 +64,8 @@
 TEST_FILE("ftask_freertos.c")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
-TaskHandle_t ftsk_taskHandleAfe;
+OS_TASK_HANDLE ftsk_taskHandleAfe;
+OS_TASK_HANDLE ftsk_taskHandleI2c;
 
 OS_TASK_DEFINITION_s ftsk_taskDefinitionEngine = {
     OS_PRIORITY_REAL_TIME,
@@ -96,6 +97,12 @@ OS_TASK_DEFINITION_s ftsk_taskDefinitionCyclicAlgorithm100ms = {
     FTSK_TASK_CYCLIC_ALGORITHM_100MS_CYCLE_TIME,
     FTSK_TASK_CYCLIC_ALGORITHM_100MS_STACK_SIZE_IN_BYTES,
     FTSK_TASK_CYCLIC_ALGORITHM_100MS_PV_PARAMETERS};
+OS_TASK_DEFINITION_s ftsk_taskDefinitionI2c = {
+    FTSK_TASK_I2C_PRIORITY,
+    FTSK_TASK_I2C_PHASE,
+    FTSK_TASK_I2C_CYCLE_TIME,
+    FTSK_TASK_I2C_STACK_SIZE_IN_BYTES,
+    FTSK_TASK_I2C_PV_PARAMETERS};
 OS_TASK_DEFINITION_s ftsk_taskDefinitionAfe = {
     FTSK_TASK_AFE_PRIORITY,
     FTSK_TASK_AFE_PHASE,
@@ -109,7 +116,7 @@ volatile OS_BOOT_STATE_e os_boot = OS_OFF;
 uint32_t os_schedulerStartTime = 0u;
 
 /** helper function that sets up everything for the test in #testFTSK_CreateTasks() */
-void helperCreateStatic(const char *pTaskName, TaskHandle_t handleToBeReturned) {
+void helperCreateStatic(const char *pTaskName, OS_TASK_HANDLE handleToBeReturned) {
     MPU_xTaskCreateStatic_ExpectAndReturn(NULL_PTR, pTaskName, 0u, 0u, 0u, NULL_PTR, NULL_PTR, handleToBeReturned);
     MPU_xTaskCreateStatic_IgnoreArg_pxTaskCode();
     MPU_xTaskCreateStatic_IgnoreArg_ulStackDepth();
@@ -129,12 +136,13 @@ void tearDown(void) {
 /*========== Test Cases =====================================================*/
 /** test correct task creation */
 void testFTSK_CreateTasks(void) {
-    TaskHandle_t dummyHandleSuccess = (TaskHandle_t)1u;
+    OS_TASK_HANDLE dummyHandleSuccess = (OS_TASK_HANDLE)1u;
     helperCreateStatic("TaskEngine", dummyHandleSuccess);
     helperCreateStatic("TaskCyclic1ms", dummyHandleSuccess);
     helperCreateStatic("TaskCyclic10ms", dummyHandleSuccess);
     helperCreateStatic("TaskCyclic100ms", dummyHandleSuccess);
     helperCreateStatic("TaskCyclicAlgorithm100ms", dummyHandleSuccess);
+    helperCreateStatic("TaskI2c", dummyHandleSuccess);
     helperCreateStatic("TaskAfe", dummyHandleSuccess);
     FTSK_CreateTasks();
 }

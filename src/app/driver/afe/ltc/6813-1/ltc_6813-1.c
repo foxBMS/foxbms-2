@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,12 +43,12 @@
  * @file    ltc_6813-1.c
  * @author  foxBMS Team
  * @date    2019-09-01 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup DRIVERS
  * @prefix  LTC
  *
- * @brief   Driver for the LTC monitoring chip.
+ * @brief   Driver for the LTC analog front-end.
  *
  */
 
@@ -68,6 +68,9 @@
 #include "ltc_pec.h"
 #include "os.h"
 #include "pex.h"
+
+#include <stdbool.h>
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 
@@ -106,7 +109,7 @@
 uint16_t ltc_RxPecBuffer[LTC_N_BYTES_FOR_DATA_TRANSMISSION] = {0};
 uint16_t ltc_TxPecBuffer[LTC_N_BYTES_FOR_DATA_TRANSMISSION] = {0};
 #pragma SET_DATA_SECTION()
-/* AXIVION Enable Style MisraC2012-1.2: only Pec buffer needed to be in the shared RAM setcion */
+/* AXIVION Enable Style MisraC2012-1.2: only Pec buffer needed to be in the shared RAM section */
 /**@}*/
 
 /** index of used cells */
@@ -120,7 +123,7 @@ static DATA_BLOCK_BALANCING_FEEDBACK_s ltc_balancing_feedback = {
 static DATA_BLOCK_BALANCING_CONTROL_s ltc_balancing_control = {.header.uniqueId = DATA_BLOCK_ID_BALANCING_CONTROL};
 static DATA_BLOCK_SLAVE_CONTROL_s ltc_slave_control         = {.header.uniqueId = DATA_BLOCK_ID_SLAVE_CONTROL};
 static DATA_BLOCK_ALL_GPIO_VOLTAGES_s ltc_allgpiovoltage    = {.header.uniqueId = DATA_BLOCK_ID_ALL_GPIO_VOLTAGES_BASE};
-static DATA_BLOCK_OPEN_WIRE_s ltc_openwire                  = {.header.uniqueId = DATA_BLOCK_ID_OPEN_WIRE_BASE};
+static DATA_BLOCK_OPEN_WIRE_s ltc_openWire                  = {.header.uniqueId = DATA_BLOCK_ID_OPEN_WIRE_BASE};
 /**@}*/
 /** stores information on the detected open wires locally */
 static LTC_OPENWIRE_DETECTION_s ltc_openWireDetection = {0};
@@ -180,7 +183,7 @@ LTC_STATE_s ltc_stateBase = {
     .ltcData.openWireDetection = &ltc_openWireDetection,
     .ltcData.errorTable        = &ltc_errorTable,
     .ltcData.allGpioVoltages   = &ltc_allgpiovoltage,
-    .ltcData.openWire          = &ltc_openwire,
+    .ltcData.openWire          = &ltc_openWire,
     .ltcData.usedCellIndex     = ltc_used_cells_index,
     .currentString             = 0u,
     .requestedString           = 0u,
@@ -487,7 +490,7 @@ static void LTC_InitializeDatabase(LTC_STATE_s *ltc_state) {
         }
 
         for (uint16_t i = 0; i < (BS_NR_OF_MODULES_PER_STRING * (BS_NR_OF_CELL_BLOCKS_PER_MODULE + 1)); i++) {
-            ltc_state->ltcData.openWire->openwire[s][i] = 0;
+            ltc_state->ltcData.openWire->openWire[s][i] = 0;
         }
         ltc_state->ltcData.openWire->state = 0;
     }
@@ -589,9 +592,9 @@ extern void LTC_SaveVoltages(LTC_STATE_s *ltc_state, uint8_t stringNumber) {
                  * If so, everything okay, else set cell voltage measurement to invalid.
                  */
             if ((ltc_state->ltcData.openWire
-                     ->openwire[stringNumber][(m * (BS_NR_OF_CELL_BLOCKS_PER_MODULE + 1u)) + c] == 0u) &&
+                     ->openWire[stringNumber][(m * (BS_NR_OF_CELL_BLOCKS_PER_MODULE + 1u)) + c] == 0u) &&
                 (ltc_state->ltcData.openWire
-                     ->openwire[stringNumber][(m * (BS_NR_OF_CELL_BLOCKS_PER_MODULE + 1u)) + c + 1u] == 0u) &&
+                     ->openWire[stringNumber][(m * (BS_NR_OF_CELL_BLOCKS_PER_MODULE + 1u)) + c + 1u] == 0u) &&
                 ((ltc_state->ltcData.cellVoltage->invalidCellVoltage[stringNumber][m] & (0x01u << c)) == 0u)) {
                 /* Cell voltage is valid -> perform minimum/maximum plausibility check */
 
@@ -1093,7 +1096,7 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                         ltc_state->ltcData.txBuffer,
                         ltc_state->ltcData.rxBuffer,
                         ltc_state->ltcData.frameLength);
-                    if (BS_MAX_SUPPORTED_CELLS > 12) {
+                    if (LTC_6813_MAX_SUPPORTED_CELLS > 12u) {
                         LTC_CondBasedStateTransition(
                             ltc_state,
                             retVal,
@@ -1129,7 +1132,7 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                         ltc_state->ltcData.txBuffer,
                         ltc_state->ltcData.rxBuffer,
                         ltc_state->ltcData.frameLength);
-                    if (BS_MAX_SUPPORTED_CELLS > 15) {
+                    if (LTC_6813_MAX_SUPPORTED_CELLS > 15u) {
                         LTC_CondBasedStateTransition(
                             ltc_state,
                             retVal,
@@ -1179,11 +1182,11 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                 } else if (ltc_state->substate == LTC_EXIT_READVOLTAGE) {
                     retVal = LTC_CheckPec(ltc_state, ltc_state->ltcData.rxBuffer, ltc_state->currentString);
                     DIAG_CheckEvent(retVal, ltc_state->pecDiagErrorEntry, DIAG_STRING, ltc_state->currentString);
-                    if (BS_MAX_SUPPORTED_CELLS == 12) {
+                    if (LTC_6813_MAX_SUPPORTED_CELLS == 12u) {
                         LTC_SaveRxToVoltageBuffer(ltc_state, ltc_state->ltcData.rxBuffer, 3, ltc_state->currentString);
-                    } else if (BS_MAX_SUPPORTED_CELLS == 15) {
+                    } else if (LTC_6813_MAX_SUPPORTED_CELLS == 15u) {
                         LTC_SaveRxToVoltageBuffer(ltc_state, ltc_state->ltcData.rxBuffer, 4, ltc_state->currentString);
-                    } else if (BS_MAX_SUPPORTED_CELLS == 18) {
+                    } else if (LTC_6813_MAX_SUPPORTED_CELLS == 18u) {
                         LTC_SaveRxToVoltageBuffer(ltc_state, ltc_state->ltcData.rxBuffer, 5, ltc_state->currentString);
                     }
 
@@ -1673,7 +1676,7 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                         ltc_state->ltcData.rxBuffer,
                         ltc_state->ltcData.frameLength);
 
-                    if (BS_MAX_SUPPORTED_CELLS > 12) {
+                    if (LTC_6813_MAX_SUPPORTED_CELLS > 12u) {
                         LTC_CondBasedStateTransition(
                             ltc_state,
                             retVal,
@@ -1747,9 +1750,9 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                     retVal = LTC_CheckPec(ltc_state, ltc_state->ltcData.rxBuffer, ltc_state->currentString);
                     DIAG_CheckEvent(retVal, ltc_state->pecDiagErrorEntry, DIAG_STRING, ltc_state->currentString);
 
-                    if (BS_MAX_SUPPORTED_CELLS == 12) {
+                    if (LTC_6813_MAX_SUPPORTED_CELLS == 12u) {
                         LTC_SaveRxToGpioBuffer(ltc_state, ltc_state->ltcData.rxBuffer, 1, ltc_state->currentString);
-                    } else if (BS_MAX_SUPPORTED_CELLS > 12) {
+                    } else if (LTC_6813_MAX_SUPPORTED_CELLS > 12u) {
                         LTC_SaveRxToGpioBuffer(ltc_state, ltc_state->ltcData.rxBuffer, 3, ltc_state->currentString);
                     }
 
@@ -2875,14 +2878,14 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                         if (ltc_state->ltcData.openWireDetection
                                 ->openWirePup[ltc_state->requestedString][0 + (m * BS_NR_OF_CELL_BLOCKS_PER_MODULE)] ==
                             0u) {
-                            ltc_state->ltcData.openWire->openwire[ltc_state->requestedString]
+                            ltc_state->ltcData.openWire->openWire[ltc_state->requestedString]
                                                                  [0 + (m * (BS_NR_OF_CELL_BLOCKS_PER_MODULE))] = 1u;
                         }
                         /* Open-wire at Cmax: cell_pdown(BS_NR_OF_CELL_BLOCKS_PER_MODULE-1) == 0 */
                         if (ltc_state->ltcData.openWireDetection->openWirePdown[ltc_state->requestedString][(
                                 (BS_NR_OF_CELL_BLOCKS_PER_MODULE - 1) + (m * BS_NR_OF_CELL_BLOCKS_PER_MODULE))] == 0u) {
                             ltc_state->ltcData.openWire
-                                ->openwire[ltc_state->requestedString]
+                                ->openWire[ltc_state->requestedString]
                                           [BS_NR_OF_CELL_BLOCKS_PER_MODULE + (m * BS_NR_OF_CELL_BLOCKS_PER_MODULE)] =
                                 1u;
                         }
@@ -2901,7 +2904,7 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                             if (ltc_state->ltcData.openWireDetection
                                     ->openWireDelta[ltc_state->requestedString]
                                                    [c + (m * BS_NR_OF_CELL_BLOCKS_PER_MODULE)] < LTC_ADOW_THRESHOLD) {
-                                ltc_state->ltcData.openWire->openwire[ltc_state->requestedString]
+                                ltc_state->ltcData.openWire->openWire[ltc_state->requestedString]
                                                                      [c + (m * BS_NR_OF_CELL_BLOCKS_PER_MODULE)] = 1;
                             }
                         }
@@ -2970,7 +2973,7 @@ static void LTC_SaveMuxMeasurement(
 
                 if (ch_idx < (2u * 8u)) {
                     val_ui = *((uint16_t *)(&pRxBuff[6u + (1u * i * 8u)])); /* raw values, all mux on all LTCs */
-                    /* ltc_user_mux.value[i*8*2+ch_idx] = (uint16_t)(((float)(val_ui))*100e-6f*1000.0f); */ /* Unit -> in V -> in mV */
+                    /* ltc_user_mux.value[i*8*2+ch_idx] = (uint16_t)(((float_t)(val_ui))*100e-6f*1000.0f); */ /* Unit -> in V -> in mV */
                 }
             }
         } else {
@@ -3278,7 +3281,7 @@ static void LTC_SaveRxToGpioBuffer(
  * @param   mux            multiplexer to be addressed (multiplexer ID)
  * @param  stringNumber    string addressed
  *
- * @return  muxError            STD_OK is there was no error, STD_NOT_OK if there was errors
+ * @return  STD_OK if there was no error, STD_NOT_OK if there was errors
  */
 static STD_RETURN_TYPE_e LTC_I2cCheckAck(LTC_STATE_s *ltc_state, uint16_t *pRxBuff, uint8_t mux, uint8_t stringNumber) {
     FAS_ASSERT(ltc_state != NULL_PTR);
@@ -3347,7 +3350,7 @@ static STD_RETURN_TYPE_e LTC_Init(
     FAS_ASSERT(pRxBuff != NULL_PTR);
     STD_RETURN_TYPE_e retVal = STD_NOT_OK;
 
-    uint8_t PEC_Check[6];
+    uint8_t PEC_Check[LTC_DATA_SIZE_IN_BYTES];
     uint16_t PEC_result = 0;
 
     /* now construct the message to be sent: it contains the wanted data, PLUS the needed PECs */
@@ -3374,7 +3377,7 @@ static STD_RETURN_TYPE_e LTC_Init(
         PEC_Check[4] = pTxBuff[8u + (i * 8u)];
         PEC_Check[5] = pTxBuff[9u + (i * 8u)];
 
-        PEC_result              = LTC_pec15_calc(6, PEC_Check);
+        PEC_result              = LTC_CalculatePec15(LTC_DATA_SIZE_IN_BYTES, PEC_Check);
         pTxBuff[10u + (i * 8u)] = (PEC_result >> 8u) & 0xFFu;
         pTxBuff[11u + (i * 8u)] = PEC_result & 0xFFu;
     } /* end for */
@@ -3415,7 +3418,7 @@ static STD_RETURN_TYPE_e LTC_BalanceControl(
     FAS_ASSERT(pRxBuff != NULL_PTR);
     STD_RETURN_TYPE_e retVal = STD_OK;
 
-    uint8_t PEC_Check[6];
+    uint8_t PEC_Check[LTC_DATA_SIZE_IN_BYTES];
     uint16_t PEC_result = 0;
 
     LTC_GetBalancingControlValues(ltc_state);
@@ -3495,7 +3498,7 @@ static STD_RETURN_TYPE_e LTC_BalanceControl(
             PEC_Check[4] = pTxBuff[8u + (reverseModuleNumber * 8u)];
             PEC_Check[5] = pTxBuff[9u + (reverseModuleNumber * 8u)];
 
-            PEC_result                                = LTC_pec15_calc(6, PEC_Check);
+            PEC_result                                = LTC_CalculatePec15(LTC_DATA_SIZE_IN_BYTES, PEC_Check);
             pTxBuff[10u + (reverseModuleNumber * 8u)] = (PEC_result >> 8u) & 0xFFu;
             pTxBuff[11u + (reverseModuleNumber * 8u)] = PEC_result & 0xFFu;
         }
@@ -3553,7 +3556,7 @@ static STD_RETURN_TYPE_e LTC_BalanceControl(
             PEC_Check[4] = pTxBuff[8u + (reverseModuleNumber * 8u)];
             PEC_Check[5] = pTxBuff[9u + (reverseModuleNumber * 8u)];
 
-            PEC_result                                = LTC_pec15_calc(6, PEC_Check);
+            PEC_result                                = LTC_CalculatePec15(LTC_DATA_SIZE_IN_BYTES, PEC_Check);
             pTxBuff[10u + (reverseModuleNumber * 8u)] = (PEC_result >> 8u) & 0xFFu;
             pTxBuff[11u + (reverseModuleNumber * 8u)] = PEC_result & 0xFFu;
         }
@@ -3587,17 +3590,18 @@ static void LTC_ResetErrorTable(LTC_STATE_s *ltc_state) {
 
 /**
  * @brief   brief missing
- *
- * Gets the measurement time needed by the LTC chip, depending on the measurement mode and the number of channels.
- * For all cell voltages or all 5 GPIOS, the measurement time is the same.
- * For 2 cell voltages or 1 GPIO, the measurement time is the same.
- * As a consequence, this function is used for cell voltage and for GPIO measurement.
- *
+ * @details Gets the measurement time needed by the LTC analog front-end,
+ *          depending on the measurement mode and the number of channels.
+ *          For all cell voltages or all 5 GPIOS, the measurement time is the
+ *          same.
+ *          For 2 cell voltages or 1 GPIO, the measurement time is the same.
+ *          As a consequence, this function is used for cell voltage and for
+ *          GPIO measurement.
  * @param   adcMode     LTC ADCmeasurement mode (fast, normal or filtered)
- * @param   adcMeasCh   number of channels measured for GPIOS (one at a time for multiplexers or all five GPIOs)
- *                      or number of cell voltage measured (2 cells or all cells)
- *
- * @return  retVal      measurement time in ms
+ * @param   adcMeasCh   number of channels measured for GPIOS (one at a time
+ *                      for multiplexers or all five GPIOs) or number of cell
+ *                      voltage measured (2 cells or all cells)
+ * @return  measurement time in ms
  */
 static uint16_t LTC_GetMeasurementTimeCycle(LTC_ADCMODE_e adcMode, LTC_ADCMEAS_CHAN_e adcMeasCh) {
     uint16_t retVal = LTC_ADCMEAS_UNDEFINED; /* default */
@@ -3824,8 +3828,8 @@ static STD_RETURN_TYPE_e LTC_CheckPec(
     FAS_ASSERT(DataBufferSPI_RX_with_PEC != NULL_PTR);
     STD_RETURN_TYPE_e retVal = STD_OK;
     uint8_t PEC_TX[2];
-    uint16_t PEC_result  = 0;
-    uint8_t PEC_Check[6] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+    uint16_t PEC_result                       = 0;
+    uint8_t PEC_Check[LTC_DATA_SIZE_IN_BYTES] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
     /* check all PECs and put data without command and PEC in DataBufferSPI_RX (easier to use) */
     for (uint16_t i = 0; i < LTC_N_LTC; i++) {
@@ -3836,7 +3840,7 @@ static STD_RETURN_TYPE_e LTC_CheckPec(
         PEC_Check[4] = DataBufferSPI_RX_with_PEC[8u + (i * 8u)];
         PEC_Check[5] = DataBufferSPI_RX_with_PEC[9u + (i * 8u)];
 
-        PEC_result = LTC_pec15_calc(6, PEC_Check);
+        PEC_result = LTC_CalculatePec15(LTC_DATA_SIZE_IN_BYTES, PEC_Check);
         PEC_TX[0]  = (uint8_t)((PEC_result >> 8u) & 0xFFu);
         PEC_TX[1]  = (uint8_t)(PEC_result & 0xFFu);
 
@@ -3967,8 +3971,8 @@ static STD_RETURN_TYPE_e LTC_WriteRegister(
     FAS_ASSERT(pRxBuff != NULL_PTR);
     STD_RETURN_TYPE_e retVal = STD_NOT_OK;
 
-    uint16_t PEC_result  = 0;
-    uint8_t PEC_Check[6] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+    uint16_t PEC_result                       = 0;
+    uint8_t PEC_Check[LTC_DATA_SIZE_IN_BYTES] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
     pTxBuff[0] = Command[0];
     pTxBuff[1] = Command[1];
@@ -3984,7 +3988,7 @@ static STD_RETURN_TYPE_e LTC_WriteRegister(
         PEC_Check[4] = pTxBuff[8u + (i * 8u)];
         PEC_Check[5] = pTxBuff[9u + (i * 8u)];
 
-        PEC_result              = LTC_pec15_calc(6, PEC_Check);
+        PEC_result              = LTC_CalculatePec15(LTC_DATA_SIZE_IN_BYTES, PEC_Check);
         pTxBuff[10u + (i * 8u)] = (PEC_result >> 8u) & 0xFFu;
         pTxBuff[11u + (i * 8u)] = PEC_result & 0xFFu;
     }

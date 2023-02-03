@@ -3,7 +3,7 @@
 
 .. _LAUTERBACH_TRACE32_DEBUGGER:
 
-Lauterbach Trace32 debugger
+Lauterbach Trace32 Debugger
 ===========================
 
 ..
@@ -13,10 +13,30 @@ Lauterbach Trace32 debugger
 .. spelling::
     Mictor
 
-Some information can be found in ``tools/debugger/lauterbach/commands.md``.
-Please carefully read the
-`basic manual <https://www2.lauterbach.com/pdf/training_debugger.pdf>`_
-for Lauterbach.
+Required Hardware
+^^^^^^^^^^^^^^^^^
+
+For debugging the |foxbms| application with the Lauterbach tools the
+following hardware is required:
+- Lauterbach LA-3505 debugger
+- Lauterbach LA-3253 Adapter for Cortex-A/R cores (successor of the LA-7843)
+- Lauterbach Mictor-38 adapter LA-3722
+
+Debugger Software
+^^^^^^^^^^^^^^^^^
+
+The debugger software is available at
+`https://www.lauterbach.com <https://www.lauterbach.com/frames.html?download_trace32.html>`_.
+
+Lauterbach Manual
+^^^^^^^^^^^^^^^^^
+
+Refer to the
+`basic manual <https://www.lauterbach.com/pdf/training_debugger.pdf>`_
+for working with the Lauterbach debugger and tools.
+
+Setup
+^^^^^
 
 After setting up the hardware connection you should be able to load
 the Trace32 application.
@@ -38,14 +58,56 @@ to select the ELF file, then set the target to "Up"-state, download the ELF
 file onto the target and then press the "Up and Go"-button in order to reset
 the target and start with an attached debugger.
 
+Lauterbach Command Line Commands
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The subsections below show some important commands.
+
+Flash Manipulation
+------------------
+
+#. Unlock flash: ``FLASH.ReProgram ALL``
+#. Manipulate flash as needed
+#. Lock flash: ``FLASH.ReProgram OFF``
+
+
+Deleting Flash
+--------------
+
+#. Unlock flash: ``FLASH.ReProgram ALL``
+#. Erase
+
+   #. Complete flash: ``FLASH.Erase ALL``
+   #. Only certain memory range: ``FLASH.Erase (xxxxxx)--(yyyyyy)``
+
+#. Lock flash: ``FLASH.ReProgram OFF``
+
+Saving Flash to File
+--------------------
+
+#. Save flash to file: ``DATA.SAVE.BINARY filename.bin 0x08000000--0x081FFFFF``
+
+The file is saved in Lauterbach installation directory if a relative path is
+used.
+
+Writing to Flash from File
+--------------------------
+
+#. Erase flash: ``FLASH.Erase ALL``
+#. Unlock flash: ``FLASH.Program ALL``
+#. Load and flash file:
+   ``DATA.LOAD.BINARY filename.bin 0x08000000--0x081FFFFF``
+#. Lock flash: ``FLASH.Program off``
+
 Using a trace probe
 ^^^^^^^^^^^^^^^^^^^
-Lauterbach supplies in addition to the debug probes also a trace probe for the
-TMS570LC4357 target.
+If debugging alone is not sufficient and additional trace capabilities are
+required, Lauterbach supplies in addition to the debug probes also a trace
+probe for the TMS570LC4357 target.
 Please refer to their customer support for details.
 
-The setup of `Fraunhofer IISB`_ consists of a LA-3505 debugger connected to a
-LA-3580 trace probe with the LA-7992 parallel preprocessor for ARM/Cortex
+The trace  setup of `Fraunhofer IISB`_ consists of a LA-3505 debugger connected
+to a LA-3580 trace probe with the LA-7992 parallel preprocessor for ARM/Cortex
 architectures.
 |foxbms| features a compliant Mictor-38 connector in order to be able to
 connect trace ports with up to 8 bit. If you need more bandwidth, please

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -73,6 +73,12 @@ def get_git_root(path: str) -> str:
 ROOT = Path(get_git_root(os.path.realpath(__file__)))
 
 
+def chunk_list(list_to_junk, number_of_chunks):
+    """Split a list into n chunks"""
+    for i in range(0, number_of_chunks):
+        yield list_to_junk[i::number_of_chunks]
+
+
 def main():
     """This script searches for files changed in a merge request and updates the change date"""
     parser = argparse.ArgumentParser()
@@ -139,11 +145,22 @@ def main():
         any_file = True
 
     if changed_files and any_file:
-        cmd = ["git", "add"] + [
-            i.relative_to(ROOT).as_posix() for i in changed_files if i.is_file()
-        ]
-        with subprocess.Popen(cmd, stdout=subprocess.PIPE) as p:
-            p.communicate()
+        files_to_be_added = sorted(
+            [i.relative_to(ROOT).as_posix() for i in changed_files if i.is_file()]
+        )
+        # https://devblogs.microsoft.com/oldnewthing/20031210-00/?p=41553
+        nr_of_cmds = len(" ".join(files_to_be_added)) / (32767 - 1)
+        nr_of_cmds = round(nr_of_cmds + 0.5)
+        if nr_of_cmds > 1:
+            cmds = []
+            files_chunked = chunk_list(files_to_be_added, nr_of_cmds)
+            for i in files_chunked:
+                cmds.append((["git", "add"] + i))
+        else:
+            cmds = (["git", "add"] + files_to_be_added,)
+        for cmd in cmds:
+            with subprocess.Popen(cmd, stdout=subprocess.PIPE) as p:
+                p.communicate()
 
 
 if __name__ == "__main__":

@@ -2,6 +2,8 @@
 Idle task;                      \-;                                         ``FTSK_RunUserCodeIdle``;                  This task **SHOULD NOT** be modified
 Engine task;                    ``FTSK_CreateTaskEngine``;                  ``FTSK_RunUserCodeEngine``;                This task **SHOULD NOT** be modified
 1ms cyclic task;                ``FTSK_CreateTaskCyclic1ms``;               ``FTSK_RunUserCodeCyclic1ms``;             User code can be put here
+AFE non-cyclic task             ``FTSK_CreateTaskAfe``;                     ``FTSK_RunUserCodeAfe``;                   User code can be put here
 10ms cyclic task;               ``FTSK_CreateTaskCyclic10ms``;              ``FTSK_RunUserCodeCyclic10ms``;            User code can be put here
+I2C non-cyclic task             ``FTSK_CreateTaskI2c``;                     ``FTSK_RunUserCodeI2c``;                   User code can be put here
 100ms cyclic ;                  ``FTSK_CreateTaskCyclic100ms``;             ``FTSK_RunUserCodeCyclic100ms``;           User code can be put here
 100ms cyclic for algorithms;    ``FTSK_CreateTaskCyclicAlgorithm100ms``;    ``FTSK_RunUserCodeCyclicAlgorithm100ms``;  User code can be put here

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -129,7 +129,7 @@ class FoundCanMessageDefine:
     define_name: str
     msg_id: str
     where: str
-    is_dummy: bool = False
+    not_periodic: bool = False
 
 
 def construct_msg_define(msg) -> ExpectedCanMessageDefines:
@@ -156,15 +156,26 @@ def construct_msg_define(msg) -> ExpectedCanMessageDefines:
         direction = RxTx.Rx
         pref = "CANRX_"
         phase_macro = "Rx has no phase"  # receive messages have ne phase
+        message_id_macro = pref + message_id_macro
+        period_macro = pref + period_macro
+        full_message_macro = pref + full_message_macro
     elif m.group(3).lower() == "tx":
         direction = RxTx.Tx
         pref = "CANTX_"
-        phase_macro = "CANTX_" + phase_macro
+        if msg.cycle_time:
+            phase_macro = pref + phase_macro
+            period_macro = pref + period_macro
+            message_id_macro = pref + message_id_macro
+            full_message_macro = pref + full_message_macro
+        else:
+            # there will be at least one whitespace in the file, and therefore
+            # we just search for that and treat that as 'macro'
+            phase_macro = " "
+            period_macro = " "
+            message_id_macro = pref + message_id_macro
+            full_message_macro = " "
     else:
         sys.exit("Something went wrong.")
-    message_id_macro = pref + message_id_macro
-    period_macro = pref + period_macro
-    full_message_macro = pref + full_message_macro
 
     logging.debug(f"created define '{message_id_macro}' for '{msg.name}'.")
     logging.debug(f"created define '{period_macro}' for '{msg.name}'.")
@@ -201,8 +212,8 @@ def get_defines_from_file(
         )
         if found_define.msg_id.endswith("u"):
             found_define.msg_id = found_define.msg_id[:-1]
-        if "dummy" in line:
-            found_define.is_dummy = True
+        if "check_ids:not-periodic" in line:
+            found_define.not_periodic = True
         defines.append(found_define)
         logging.debug(found_define)
     return defines
@@ -366,6 +377,9 @@ def main():  # pylint: disable=too-many-branches
             exp.exp_phase_macro,
             exp.exp_full_message_macro,
         ]:
+            if i == " ":
+                errors -= 1
+                continue
             found = False
             if exp.direction == RxTx.Rx:
                 implemented_macros = all_rx_defines
@@ -393,13 +407,15 @@ def main():  # pylint: disable=too-many-branches
         # check if the id, period and phase macro appear twice in the message
         # definition file. If so, we can assume that it has been defined once
         # and used a second time.
-        dummies = [i.define_name for i in all_tx_defines + all_rx_defines if i.is_dummy]
+        not_periodic_signals = [
+            i.define_name for i in all_tx_defines + all_rx_defines if i.not_periodic
+        ]
         for i in [
             exp.exp_message_id_macro,
             exp.exp_period_macro,
             exp.exp_phase_macro,
         ]:
-            if i in dummies:
+            if i in not_periodic_signals:
                 continue
             if exp.direction == RxTx.Rx:
                 expected_file = args.rx_message_definition_file
@@ -415,7 +431,7 @@ def main():  # pylint: disable=too-many-branches
             # some message might start with the same name, therefore checking
             # if it occurs two times is not good, but modulo 2 and no remainder
             # is!
-            if not txt.count(i) % 2 == 0:
+            if not txt.count(i) % 2 == 0 and i != " ":
                 errors += 1
                 logging.error(
                     f"Expected to find {i} twice: definition and in *_MESSAGE usage.\n"
@@ -428,5 +444,5 @@ def main():  # pylint: disable=too-many-branches
 if __name__ == "__main__":
     nr_of_errors = main()
     if nr_of_errors:
-        logging.error(f"{nr_of_errors} found.")
+        logging.error(f"{nr_of_errors} errors found.")
     sys.exit(nr_of_errors)

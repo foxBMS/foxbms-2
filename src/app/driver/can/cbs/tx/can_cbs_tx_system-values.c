@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    can_cbs_tx_system-values.c
  * @author  foxBMS Team
  * @date    2021-07-21 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup DRIVER
  * @prefix  CANTX
  *
@@ -56,6 +56,9 @@
 #include "can_cbs_tx.h"
 #include "can_cfg_tx-message-definitions.h"
 #include "can_helper.h"
+
+#include <math.h>
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 
@@ -77,6 +80,7 @@ extern uint32_t CANTX_PackValues(
     FAS_ASSERT(pMuxId == NULL_PTR);
 
     FAS_ASSERT(message.id == CANTX_PACK_VALUES_ID);
+    FAS_ASSERT(message.idType == CANTX_PACK_VALUES_ID_TYPE);
     FAS_ASSERT(message.dlc == CAN_FOXBMS_MESSAGES_DEFAULT_DLC);
     FAS_ASSERT(pCanData != NULL_PTR);
     FAS_ASSERT(kpkCanShim != NULL_PTR);
@@ -87,11 +91,11 @@ extern uint32_t CANTX_PackValues(
 
     /* AXIVION Disable Style Generic-NoMagicNumbers: Signal data defined in .dbc file. */
     /* Battery voltage */
-    float signalData = kpkCanShim->pTablePackValues->batteryVoltage_mV;
-    float offset     = 0.0f;
-    float factor     = 0.01f; /* convert mV to 100mV */
-    signalData       = (signalData + offset) * factor;
-    uint64_t data    = (uint64_t)signalData;
+    float_t signalData = kpkCanShim->pTablePackValues->batteryVoltage_mV;
+    float_t offset     = 0.0f;
+    float_t factor     = 0.01f; /* convert mV to 100mV */
+    signalData         = (signalData + offset) * factor;
+    uint64_t data      = (uint64_t)signalData;
     /* set data in CAN frame */
     CAN_TxSetMessageDataWithSignalData(&messageData, 7u, 14u, data, message.endianness);
 
@@ -135,6 +139,7 @@ extern uint32_t CANTX_StringValuesP0(
     uint8_t *pMuxId,
     const CAN_SHIM_s *const kpkCanShim) {
     FAS_ASSERT(message.id == CANTX_STRING_VALUES_P0_ID);
+    FAS_ASSERT(message.idType == CANTX_STRING_VALUES_P0_ID_TYPE);
     FAS_ASSERT(message.dlc == CAN_FOXBMS_MESSAGES_DEFAULT_DLC);
     FAS_ASSERT(pCanData != NULL_PTR);
     FAS_ASSERT(pMuxId != NULL_PTR);
@@ -142,9 +147,9 @@ extern uint32_t CANTX_StringValuesP0(
     FAS_ASSERT(kpkCanShim != NULL_PTR);
     uint64_t messageData = 0u;
     uint64_t data        = 0;
-    float signalData     = 0.0f;
-    float offset         = 0.0f;
-    float factor         = 0.0f;
+    float_t signalData   = 0.0f;
+    float_t offset       = 0.0f;
+    float_t factor       = 0.0f;
 
     const uint8_t stringNumber = *pMuxId;
 
@@ -162,7 +167,7 @@ extern uint32_t CANTX_StringValuesP0(
     CAN_TxSetMessageDataWithSignalData(&messageData, 7u, 3u, data, message.endianness);
 
     /* String voltage */
-    signalData = (float)kpkCanShim->pTablePackValues->stringVoltage_mV[stringNumber];
+    signalData = (float_t)kpkCanShim->pTablePackValues->stringVoltage_mV[stringNumber];
     offset     = 0.0f;
     factor     = 0.1f; /* convert mV to 10mV */
     signalData = (signalData + offset) * factor;
@@ -171,7 +176,7 @@ extern uint32_t CANTX_StringValuesP0(
     CAN_TxSetMessageDataWithSignalData(&messageData, 4u, 17u, data, message.endianness);
 
     /* String current */
-    signalData = (float)kpkCanShim->pTablePackValues->stringCurrent_mA[stringNumber];
+    signalData = (float_t)kpkCanShim->pTablePackValues->stringCurrent_mA[stringNumber];
     offset     = 0.0f;
     factor     = 0.1f; /* convert mA to 10mA */
     signalData = (signalData + offset) * factor;
@@ -180,7 +185,7 @@ extern uint32_t CANTX_StringValuesP0(
     CAN_TxSetMessageDataWithSignalData(&messageData, 19u, 18u, data, message.endianness);
 
     /* String power */
-    signalData = (float)kpkCanShim->pTablePackValues->stringPower_W[stringNumber];
+    signalData = (float_t)kpkCanShim->pTablePackValues->stringPower_W[stringNumber];
     offset     = 0.0f;
     factor     = 0.1f; /* convert W to 10W */
     signalData = (signalData + offset) * factor;
@@ -209,6 +214,7 @@ extern uint32_t CANTX_StringValuesP1(
     uint8_t *pMuxId,
     const CAN_SHIM_s *const kpkCanShim) {
     FAS_ASSERT(message.id == CANTX_STRING_VALUES_P1_ID);
+    FAS_ASSERT(message.idType == CANTX_STRING_VALUES_P1_ID_TYPE);
     FAS_ASSERT(message.dlc == CAN_FOXBMS_MESSAGES_DEFAULT_DLC);
     FAS_ASSERT(pCanData != NULL_PTR);
     FAS_ASSERT(pMuxId != NULL_PTR);
@@ -256,5 +262,4 @@ extern uint32_t CANTX_StringValuesP1(
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
 #ifdef UNITY_UNIT_TEST
-
 #endif

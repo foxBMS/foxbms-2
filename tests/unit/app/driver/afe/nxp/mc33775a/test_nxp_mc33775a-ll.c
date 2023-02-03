@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_nxp_mc33775a-ll.c
  * @author  foxBMS Team
  * @date    2021-10-20 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -76,9 +76,6 @@ SPI_BUSY_STATE_e spi_busyFlags[] = {
     SPI_IDLE,
     SPI_IDLE,
 };
-
-bool spi_txFinished = false;
-bool spi_rxFinished = false;
 
 /*========== Setup and Teardown =============================================*/
 void setUp(void) {

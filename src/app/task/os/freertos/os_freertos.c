@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    os_freertos.c
  * @author  foxBMS Team
  * @date    2021-11-18 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup OS
  * @prefix  OS
  *
@@ -58,6 +58,8 @@
 #include "HL_sys_core.h"
 
 #include "ftask.h"
+
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 
@@ -123,6 +125,7 @@ void vApplicationIdleHook(void) {
 }
 
 #if (configCHECK_FOR_STACK_OVERFLOW > 0)
+/* FreeRTOS internal function, keep FreeRTOS types */
 void vApplicationStackOverflowHook(TaskHandle_t xTask, char *pcTaskName) {
     FAS_ASSERT(FAS_TRAP);
 }
@@ -152,6 +155,94 @@ void OS_DelayTaskUntil(uint32_t *pPreviousWakeTime, uint32_t milliseconds) {
 
 extern void OS_MarkTaskAsRequiringFpuContext(void) {
     vPortTaskUsesFPU();
+}
+
+extern OS_STD_RETURN_e OS_WaitForNotification(uint32_t *pNotifiedValue, uint32_t timeout) {
+    /* AXIVION Routine Generic-MissingParameterAssert: timeout: parameter accepts whole range */
+    FAS_ASSERT(pNotifiedValue != NULL_PTR);
+
+    OS_STD_RETURN_e notificationReceived = OS_FAIL;
+    /* FreeRTOS: This function must not be used in an interrupt service routine. */
+    /* ulBitsToClearOnEntry and ulBitsToClearOnExit set to 0xffffffff
+       to clear all the bits in the task's notification value */
+    BaseType_t xNotificationReceived = xTaskNotifyWait(UINT32_MAX, UINT32_MAX, pNotifiedValue, timeout);
+    /* FreeRTOS:xTaskNotifyWait returns pdTRUE if notification was received (otherwise pdFALSE). */
+    if (xNotificationReceived == pdTRUE) {
+        notificationReceived = OS_SUCCESS;
+    }
+    return notificationReceived;
+}
+
+extern OS_STD_RETURN_e OS_NotifyFromIsr(TaskHandle_t taskToNotify, uint32_t notifiedValue) {
+    /* AXIVION Routine Generic-MissingParameterAssert: notifiedValue: parameter accepts whole range */
+    FAS_ASSERT(taskToNotify != NULL_PTR);
+
+    OS_STD_RETURN_e notification        = OS_FAIL;
+    BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+    /* Return value dependent on the value of the eAction parameter, here set to eSetValueWithOverwrite */
+    BaseType_t xNotification =
+        xTaskNotifyFromISR(taskToNotify, notifiedValue, eSetValueWithOverwrite, &xHigherPriorityTaskWoken);
+    if (xNotification == pdTRUE) {
+        notification = OS_SUCCESS;
+    }
+    /* Make the scheduler yield when notification made, so that unblocked tasks is run immediately
+    (if priorities allow it, instead of waiting for the next OS tick) */
+    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+    return notification;
+}
+
+extern OS_STD_RETURN_e OS_WaitForNotificationIndexed(
+    uint32_t indexToWaitOn,
+    uint32_t *pNotifiedValue,
+    uint32_t timeout) {
+    /* AXIVION Routine Generic-MissingParameterAssert: timeout: parameter accepts whole range */
+    FAS_ASSERT(pNotifiedValue != NULL_PTR);
+
+    OS_STD_RETURN_e notificationReceived = OS_FAIL;
+    /* FreeRTOS: This function must not be used in an interrupt service routine. */
+    /* ulBitsToClearOnEntry and ulBitsToClearOnExit set to 0xffffffff
+       to clear all the bits in the task's notification value */
+    BaseType_t xNotificationReceived =
+        xTaskNotifyWaitIndexed(indexToWaitOn, UINT32_MAX, UINT32_MAX, pNotifiedValue, timeout);
+    /* FreeRTOS:xTaskNotifyWait returns pdTRUE if notification was received (otherwise pdFALSE). */
+    if (xNotificationReceived == pdTRUE) {
+        notificationReceived = OS_SUCCESS;
+    }
+    return notificationReceived;
+}
+
+extern OS_STD_RETURN_e OS_NotifyIndexedFromIsr(
+    TaskHandle_t taskToNotify,
+    uint32_t indexToNotify,
+    uint32_t notifiedValue) {
+    /* AXIVION Routine Generic-MissingParameterAssert: notifiedValue: parameter accepts whole range */
+    FAS_ASSERT(taskToNotify != NULL_PTR);
+
+    OS_STD_RETURN_e notification        = OS_FAIL;
+    BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+    /* Return value dependent on the value of the eAction parameter, here set to eSetValueWithOverwrite */
+    BaseType_t xNotification = xTaskNotifyIndexedFromISR(
+        taskToNotify, indexToNotify, notifiedValue, eSetValueWithOverwrite, &xHigherPriorityTaskWoken);
+    if (xNotification == pdTRUE) {
+        notification = OS_SUCCESS;
+    }
+    /* Make the scheduler yield when notification made, so that unblocked tasks is run imediately
+    (if priorities allow it, instead of waiting for the next OS tick) */
+    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+    return notification;
+}
+
+extern OS_STD_RETURN_e OS_ClearNotificationIndexed(uint32_t indexToClear) {
+    /* AXIVION Routine Generic-MissingParameterAssert: indexToClear: parameter accepts whole range */
+
+    OS_STD_RETURN_e notificationWasPending = OS_FAIL;
+    /* NULL passed for task handle: the clear is made for the calling task */
+    BaseType_t xNotificationWasPending = xTaskNotifyStateClearIndexed(NULL, indexToClear);
+    /* FreeRTOS:xTaskNotifyStateClearIndexed returns pdTRUE if a notification was pending (otherwise pdFALSE). */
+    if (xNotificationWasPending == pdTRUE) {
+        notificationWasPending = OS_SUCCESS;
+    }
+    return notificationWasPending;
 }
 
 extern OS_STD_RETURN_e OS_ReceiveFromQueue(OS_QUEUE xQueue, void *const pvBuffer, uint32_t ticksToWait) {
@@ -202,5 +293,4 @@ extern uint32_t OS_GetNumberOfStoredMessagesInQueue(OS_QUEUE xQueue) {
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
 #ifdef UNITY_UNIT_TEST
-
 #endif

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    nxp_afe_dma.c
  * @author  foxBMS Team
  * @date    2020-05-27 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup DRIVERS
  * @prefix  AFE
  *
@@ -59,7 +59,10 @@
 #include "ftask.h"
 #include "io.h"
 #include "nxp_mc33775a.h"
+#include "os.h"
 #include "spi.h"
+
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 
@@ -77,33 +80,13 @@
 void AFE_DmaCallback(uint8_t spiIndex) {
     if ((spiIndex == 0u)) {
         /* SPI 1 = Master SPI */
-        spi_txFinished = true;
-#if (N775_USE_NOTIFICATIONS == true)
-        BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-        xTaskNotifyIndexedFromISR(
-            ftsk_taskHandleAfe,
-            N775_NOTIFICATION_TX_INDEX,
-            N775_TX_NOTIFIED_VALUE,
-            eSetValueWithOverwrite,
-            &xHigherPriorityTaskWoken);
-        portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
-#endif
+        (void)OS_NotifyIndexedFromIsr(ftsk_taskHandleAfe, N775_NOTIFICATION_TX_INDEX, N775_TX_NOTIFIED_VALUE);
     } else if ((spiIndex == 3u)) {
         /* SPI 4 = Slave SPI */
         dma_spiInterfaces[spiIndex]->GCR1 &= ~SPIEN_BIT;
         /* Set slave SPI pins as GIO to deactivate them */
         dma_spiInterfaces[spiIndex]->PC0 &= 0xFFFFFF00;
-        spi_rxFinished = true;
-#if (N775_USE_NOTIFICATIONS == true)
-        BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-        xTaskNotifyIndexedFromISR(
-            ftsk_taskHandleAfe,
-            N775_NOTIFICATION_RX_INDEX,
-            N775_RX_NOTIFIED_VALUE,
-            eSetValueWithOverwrite,
-            &xHigherPriorityTaskWoken);
-        portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
-#endif
+        (void)OS_NotifyIndexedFromIsr(ftsk_taskHandleAfe, N775_NOTIFICATION_RX_INDEX, N775_RX_NOTIFIED_VALUE);
     } else {
         FAS_ASSERT(FAS_TRAP);
     }
@@ -112,3 +95,5 @@ void AFE_DmaCallback(uint8_t spiIndex) {
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
+#ifdef UNITY_UNIT_TEST
+#endif

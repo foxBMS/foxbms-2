@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_soa_cfg.c
  * @author  foxBMS Team
  * @date    2020-04-01 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -58,6 +58,9 @@
 #include "Mockbms.h"
 
 #include "soa_cfg.h"
+
+#include <stdbool.h>
+#include <stdint.h>
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 
@@ -151,7 +154,6 @@ void testSOA_IsCurrentOnOpenString(void) {
     BMS_IsStringPrecharging_ExpectAndReturn(0u, false);
     TEST_ASSERT_EQUAL(true, SOA_IsCurrentOnOpenString(BMS_CHARGING, 0u));
 
-    /* the following test can not be used as long as side-effects in if-clause are not resolved
     BMS_IsStringClosed_ExpectAndReturn(0u, true);
     BMS_IsStringPrecharging_ExpectAndReturn(0u, false);
     TEST_ASSERT_EQUAL(false, SOA_IsCurrentOnOpenString(BMS_CHARGING, 0u));
@@ -159,5 +161,4 @@ void testSOA_IsCurrentOnOpenString(void) {
     BMS_IsStringClosed_ExpectAndReturn(0u, false);
     BMS_IsStringPrecharging_ExpectAndReturn(0u, true);
     TEST_ASSERT_EQUAL(false, SOA_IsCurrentOnOpenString(BMS_CHARGING, 0u));
-    */
 }

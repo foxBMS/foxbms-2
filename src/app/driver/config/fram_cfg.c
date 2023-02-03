@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    fram_cfg.c
  * @author  foxBMS Team
  * @date    2020-03-05 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  FRAM
  *
@@ -54,6 +54,8 @@
 
 /*========== Includes =======================================================*/
 #include "fram_cfg.h"
+
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 
@@ -65,7 +67,7 @@
  * Must also be declared as external variables in fram_cfg.h
  */
 /**@{*/
-FRAM_VERSION_s fram_version  = {.project = FRAM_PROJECT_ID_FOXBMS_BASELINE, .version = 0};
+FRAM_VERSION_s fram_version  = {.project = FRAM_PROJECT_ID_FOXBMS_BASELINE, .major = 0u, .minor = 0u, .patch = 0u};
 FRAM_SOC_s fram_soc          = {0};
 FRAM_SOE_s fram_soe          = {0};
 FRAM_SBC_INIT_s fram_sbcInit = {
@@ -98,3 +100,5 @@ FRAM_BASE_HEADER_s fram_base_header[] = {
 /*========== Extern Function Implementations ================================*/
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
+#ifdef UNITY_UNIT_TEST
+#endif

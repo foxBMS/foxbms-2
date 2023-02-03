@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    mcu.h
  * @author  foxBMS Team
  * @date    2019-02-19 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup DRIVERS
  * @prefix  MCU
  *
@@ -56,9 +56,8 @@
 #define FOXBMS__MCU_H_
 
 /*========== Includes =======================================================*/
-#include "HL_sys_common.h"
-
-#include <stdint.h> /* include stdint.h instead of general.h to avoid cyclic include */
+#include <stdbool.h>
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 
@@ -115,6 +114,20 @@ extern uint32_t MCU_GetFreeRunningCount(void);
  */
 extern uint32_t MCU_ConvertFrcDifferenceToTimespan_us(uint32_t count);
 
+/**
+ * @brief   Checks if a timeout in microseconds has elapsed
+ * @details First the function #MCU_GetFreeRunningCount() must be called
+ *          to retrieve the current value of the free running counter.
+ *          This function checks if the time given as parameter has elapsed
+ *          since the counter was retrieved.
+ * @param[in]   startCounter  counter value of the FRC0, used as starting point
+ * @param[in]   timeout_us    time in microseconds to check against
+ * @returns     true if timeout has elapsed, false otherwise
+ */
+extern bool MCU_IsTimeElapsed(uint32_t startCounter, uint32_t timeout_us);
+
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
+#ifdef UNITY_UNIT_TEST
+#endif
 
 #endif /* FOXBMS__MCU_H_ */

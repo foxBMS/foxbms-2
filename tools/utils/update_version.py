@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -146,8 +146,10 @@ def update_changelog(root, iso_date_today, _from, _to):
     txt = changelog.read_text(encoding="utf-8")
     if _to == "x.y.z":
         txt = txt.splitlines()
+        if txt[47].startswith(f"[{_to}"):
+            sys.exit(f"Something went wrong. {changelog} already sets 'v{_to}'.")
         txt = (
-            txt[:42]
+            txt[:45]
             + f"""
 ********************
 [{_to}] - {MAGIC_DATE}
@@ -169,7 +171,7 @@ Fixed
 =====
 
 """.splitlines()
-            + txt[43:]
+            + txt[46:]
         )
         txt = "\n".join(txt) + "\n"
     else:
@@ -221,6 +223,8 @@ def update_release_csv(root, iso_date_today, _from, _to):
     txt = releases.read_text(encoding="utf-8")
     if _to == "x.y.z":
         txt = txt.splitlines()
+        if txt[1].startswith(f"v{_to}"):
+            sys.exit(f"Something went wrong. {releases} already sets 'v{_to}'.")
         txt = (
             [txt[0]]
             + [

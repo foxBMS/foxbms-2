@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    dma_cfg.h
  * @author  foxBMS Team
  * @date    2020-03-05 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  DMA
  *
@@ -57,14 +57,18 @@
 #define FOXBMS__DMA_CFG_H_
 
 /*========== Includes =======================================================*/
-#include "general.h"
 
 #include "battery_system_cfg.h"
 
 #include "HL_spi.h"
 #include "HL_sys_dma.h"
 
+#include <stdint.h>
+
 /*========== Macros and Definitions =========================================*/
+
+/* Position of initial frame counter in channel configuration register */
+#define DMA_INITIAL_FRAME_COUNTER_POSITION (16u)
 
 /** defines for the DMA channels */
 /**@{*/
@@ -78,8 +82,10 @@
 #define DMA_CHANNEL_SPI4_RX (DMA_CH7)
 #define DMA_CHANNEL_SPI5_TX (DMA_CH8)
 #define DMA_CHANNEL_SPI5_RX (DMA_CH9)
-#define DMA_CHANNEL_I2C_TX  (DMA_CH10)
-#define DMA_CHANNEL_I2C_RX  (DMA_CH11)
+#define DMA_CHANNEL_I2C1_TX (DMA_CH10)
+#define DMA_CHANNEL_I2C1_RX (DMA_CH11)
+#define DMA_CHANNEL_I2C2_TX (DMA_CH12)
+#define DMA_CHANNEL_I2C2_RX (DMA_CH13)
 /**@}*/
 
 /** defines for the DMA request lines */
@@ -94,8 +100,10 @@
 #define DMA_REQ_LINE_SPI4_RX (DMA_REQ24)
 #define DMA_REQ_LINE_SPI5_TX (DMA_REQ31)
 #define DMA_REQ_LINE_SPI5_RX (DMA_REQ30)
-#define DMA_REQ_LINE_I2C_TX  (DMA_REQ11)
-#define DMA_REQ_LINE_I2C_RX  (DMA_REQ10)
+#define DMA_REQ_LINE_I2C1_TX (DMA_REQ11)
+#define DMA_REQ_LINE_I2C1_RX (DMA_REQ10)
+#define DMA_REQ_LINE_I2C2_TX (DMA_REQ33)
+#define DMA_REQ_LINE_I2C2_RX (DMA_REQ32)
 /**@}*/
 
 /** define for the shift of an address for big endian 8bit */
@@ -143,5 +151,7 @@ extern spiBASE_t *dma_spiInterfaces[DMA_NUMBER_SPI_INTERFACES];
 /*========== Extern Function Prototypes =====================================*/
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
+#ifdef UNITY_UNIT_TEST
+#endif
 
 #endif /* FOXBMS__DMA_CFG_H_ */

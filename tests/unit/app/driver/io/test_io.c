@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_io.c
  * @author  foxBMS Team
  * @date    2020-06-10 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -54,8 +54,12 @@
 
 /*========== Includes =======================================================*/
 #include "unity.h"
+#include "Mockmcu.h"
 
 #include "io.h"
+#include "test_assert_helper.h"
+
+TEST_FILE("io.c")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 
@@ -68,5 +72,68 @@ void tearDown(void) {
 
 /*========== Test Cases =====================================================*/
 
-void testDummy(void) {
+void testIO_SetPinDirectionToOutput(void) {
+    volatile uint32_t registerValue = 1u;
+    TEST_ASSERT_FAIL_ASSERT(IO_SetPinDirectionToOutput(NULL_PTR, 0u));
+    TEST_ASSERT_FAIL_ASSERT(IO_SetPinDirectionToOutput(&registerValue, MCU_LARGEST_PIN_NUMBER + 1u));
+
+    /* 0 -> 1 */
+    IO_SetPinDirectionToOutput(&registerValue, 0u);
+    TEST_ASSERT_EQUAL(1u, registerValue);
+
+    /* 1 -> 1 */
+    IO_SetPinDirectionToOutput(&registerValue, 0u);
+    TEST_ASSERT_EQUAL(1u, registerValue);
+}
+
+void testIO_SetPinDirectionToInput(void) {
+    volatile uint32_t registerValue = 1u;
+    TEST_ASSERT_FAIL_ASSERT(IO_SetPinDirectionToInput(NULL_PTR, 0u));
+    TEST_ASSERT_FAIL_ASSERT(IO_SetPinDirectionToInput(&registerValue, MCU_LARGEST_PIN_NUMBER + 1u));
+
+    /* 1 -> 0 */
+    IO_SetPinDirectionToInput(&registerValue, 0u);
+    TEST_ASSERT_EQUAL(0u, registerValue);
+
+    /* 0 -> 0 */
+    IO_SetPinDirectionToInput(&registerValue, 0u);
+    TEST_ASSERT_EQUAL(0u, registerValue);
+}
+
+void testIO_PinSet(void) {
+    volatile uint32_t registerValue = 0u;
+    TEST_ASSERT_FAIL_ASSERT(IO_PinSet(NULL_PTR, 0u));
+    TEST_ASSERT_FAIL_ASSERT(IO_PinSet(&registerValue, MCU_LARGEST_PIN_NUMBER + 1u));
+
+    /* 0 -> 1 */
+    IO_PinSet(&registerValue, 0u);
+    TEST_ASSERT_EQUAL(1u, registerValue);
+
+    /* 1 -> 1 */
+    IO_PinSet(&registerValue, 0u);
+    TEST_ASSERT_EQUAL(1u, registerValue);
+}
+
+void testIO_PinReset(void) {
+    volatile uint32_t registerValue = 1u;
+    TEST_ASSERT_FAIL_ASSERT(IO_PinReset(NULL_PTR, 0u));
+    TEST_ASSERT_FAIL_ASSERT(IO_PinReset(&registerValue, MCU_LARGEST_PIN_NUMBER + 1u));
+
+    /* 1 -> 0 */
+    IO_PinReset(&registerValue, 0u);
+    TEST_ASSERT_EQUAL(0u, registerValue);
+
+    /* 0 -> 0 */
+    IO_PinReset(&registerValue, 0u);
+    TEST_ASSERT_EQUAL(0u, registerValue);
+}
+
+void testIO_PinGet(void) {
+    volatile uint32_t registerValue = 1u;
+    /* invalid argument tests */
+    TEST_ASSERT_FAIL_ASSERT(IO_PinGet(NULL_PTR, 0u));
+    TEST_ASSERT_FAIL_ASSERT(IO_PinGet(&registerValue, MCU_LARGEST_PIN_NUMBER + 1u));
+
+    TEST_ASSERT_EQUAL(STD_PIN_LOW, IO_PinGet(&registerValue, 1u));
+    TEST_ASSERT_EQUAL(STD_PIN_HIGH, IO_PinGet(&registerValue, 0u));
 }

@@ -16,13 +16,20 @@ might use ``FreeRTOS`` specific includes, types etc.
 ### Functions
 
 The following regular expression can be used to check for ``FreeRTOS`` specific
-functions:
+- macros:
+  ```
+  (taskENTER_CRITICAL|taskEXIT_CRITICAL)
+  ```
+- functions:
+  ```
+  (uxQueueMessagesWaiting|vTaskDelayUntil|xQueueReceive|xQueueSendToBack|xQueueSendToBackFromISR|xTaskGetTickCount)
+  ```
+- types:
+  ```
+  (QueueHandle_t|TaskHandle_t)
+  ```
 
-```
-(taskENTER_CRITICAL|taskEXIT_CRITICAL|uxQueueMessagesWaiting|vTaskDelayUntil|xQueueReceive|xQueueSendToBack|xQueueSendToBackFromISR|xTaskGetTickCount)
-```
-
-The corresponding OS agnostic functions are listed below:
+The corresponding OS agnostic macros, functions and types are listed below:
 
 | FreeRTOS                      | foxBMS                            |
 |-------------------------------|-----------------------------------|
@@ -34,6 +41,8 @@ The corresponding OS agnostic functions are listed below:
 | ``xQueueSendToBack``          | ``OS_SendToBackOfQueue``          |
 | ``xQueueSendToBackFromISR``   | ``OS_SendToBackOfQueueFromIsr``   |
 | ``xTaskGetTickCount``         | ``OS_GetTickCount``               |
+| ``QueueHandle_t``             | ``OS_QUEUE``                      |
+| ``TaskHandle_t``              | ``OS_TASK_HANDLE``                |
 
 ### Includes
 

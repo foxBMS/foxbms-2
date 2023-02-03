@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    diag_cbs_current.c
  * @author  foxBMS Team
  * @date    2021-02-17 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup ENGINE
  * @prefix  DIAG
  *
@@ -54,6 +54,9 @@
 
 /*========== Includes =======================================================*/
 #include "diag_cbs.h"
+#include "fstd_types.h"
+
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 
@@ -144,7 +147,7 @@ extern void DIAG_ErrorOvercurrentCharge(
 
         default:
             FAS_ASSERT(FAS_TRAP);
-            break;
+            break; /* LCOV_EXCL_LINE */
     }
 }
 
@@ -225,7 +228,7 @@ extern void DIAG_ErrorOvercurrentDischarge(
 
         default:
             FAS_ASSERT(FAS_TRAP);
-            break;
+            break; /* LCOV_EXCL_LINE */
     }
 }
 
@@ -242,9 +245,9 @@ extern void DIAG_ErrorCurrentMeasurement(
     switch (diagId) {
         case DIAG_ID_CURRENT_MEASUREMENT_TIMEOUT:
             if (event == DIAG_EVENT_RESET) {
-                kpkDiagShim->pTableError->currentMeasurementTimeout[stringNumber] = 0u;
+                kpkDiagShim->pTableError->currentMeasurementTimeoutError[stringNumber] = false;
             } else if (event == DIAG_EVENT_NOT_OK) {
-                kpkDiagShim->pTableError->currentMeasurementTimeout[stringNumber] = 1u;
+                kpkDiagShim->pTableError->currentMeasurementTimeoutError[stringNumber] = true;
             } else {
                 /* no relevant event, do nothing */
             }
@@ -252,9 +255,9 @@ extern void DIAG_ErrorCurrentMeasurement(
 
         case DIAG_ID_CURRENT_MEASUREMENT_ERROR:
             if (event == DIAG_EVENT_RESET) {
-                kpkDiagShim->pTableError->currentMeasurementError[stringNumber] = 0u;
+                kpkDiagShim->pTableError->currentMeasurementInvalidError[stringNumber] = false;
             } else if (event == DIAG_EVENT_NOT_OK) {
-                kpkDiagShim->pTableError->currentMeasurementError[stringNumber] = 1u;
+                kpkDiagShim->pTableError->currentMeasurementInvalidError[stringNumber] = true;
             } else {
                 /* no relevant event, do nothing */
             }
@@ -262,7 +265,7 @@ extern void DIAG_ErrorCurrentMeasurement(
 
         default:
             FAS_ASSERT(FAS_TRAP);
-            break;
+            break; /* LCOV_EXCL_LINE */
     }
 }
 
@@ -279,9 +282,9 @@ void DIAG_ErrorCurrentOnOpenString(
     switch (diagId) {
         case DIAG_ID_CURRENT_ON_OPEN_STRING:
             if (event == DIAG_EVENT_RESET) {
-                kpkDiagShim->pTableError->currentOnOpenString[stringNumber] = 0u;
+                kpkDiagShim->pTableError->currentOnOpenStringDetectedError[stringNumber] = false;
             } else if (event == DIAG_EVENT_NOT_OK) {
-                kpkDiagShim->pTableError->currentOnOpenString[stringNumber] = 1u;
+                kpkDiagShim->pTableError->currentOnOpenStringDetectedError[stringNumber] = true;
             } else {
                 /* no relevant event, do nothing */
             }
@@ -289,7 +292,7 @@ void DIAG_ErrorCurrentOnOpenString(
 
         default:
             FAS_ASSERT(FAS_TRAP);
-            break;
+            break; /* LCOV_EXCL_LINE */
     }
 }
 

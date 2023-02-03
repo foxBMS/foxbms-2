@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_nxp_mc33775a_afe.c
  * @author  foxBMS Team
  * @date    2020-06-10 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -53,7 +53,6 @@
  */
 
 /*========== Includes =======================================================*/
-#include "general.h"
 
 #include "unity.h"
 #include "Mockafe_dma.h"
@@ -61,6 +60,9 @@
 #include "Mocknxp_mc33775a.h"
 #include "Mockos.h"
 #include "Mockpex.h"
+
+#include <stdbool.h>
+#include <stdint.h>
 
 TEST_FILE("nxp_mc33775a_afe.c")
 
@@ -74,7 +76,7 @@ static DATA_BLOCK_ALL_GPIO_VOLTAGES_s n775_allGpioVoltage   = {.header.uniqueId 
 static DATA_BLOCK_BALANCING_FEEDBACK_s n775_balancingFeedback = {
     .header.uniqueId = DATA_BLOCK_ID_BALANCING_FEEDBACK_BASE};
 static DATA_BLOCK_SLAVE_CONTROL_s n775_slaveControl = {.header.uniqueId = DATA_BLOCK_ID_SLAVE_CONTROL};
-static DATA_BLOCK_OPEN_WIRE_s n775_openwire         = {.header.uniqueId = DATA_BLOCK_ID_OPEN_WIRE_BASE};
+static DATA_BLOCK_OPEN_WIRE_s n775_openWire         = {.header.uniqueId = DATA_BLOCK_ID_OPEN_WIRE_BASE};
 static N775_SUPPLY_CURRENT_s n775_supplyCurrent     = {0};
 static N775_ERRORTABLE_s n775_errorTable            = {0};
 
@@ -95,7 +97,7 @@ N775_STATE_s n775_stateBase = {
     .n775Data.balancingFeedback = &n775_balancingFeedback,
     .n775Data.balancingControl  = &n775_balancingControl,
     .n775Data.slaveControl      = &n775_slaveControl,
-    .n775Data.openWire          = &n775_openwire,
+    .n775Data.openWire          = &n775_openWire,
     .n775Data.supplyCurrent     = &n775_supplyCurrent,
     .n775Data.errorTable        = &n775_errorTable,
 };

@@ -1,0 +1,17 @@
+.. include:: ./../../../macros.txt
+.. include:: ./../../../units.txt
+
+.. _LTC6813_1_BASED_18_CELL_SLAVE___V1_1_4__:
+
+LTC6813-1-based 18-Cell Slave ``v1.1.4``
+========================================
+
+.. note::
+
+   The changelog for this release is found at
+   :ref:`CHANGELOG_FOR_SLAVE_LTC6813_1_V1_1_4`.
+
+.. |local_slave_version|  replace:: ``1.1.4``
+
+There are no changes that need a new documentation compared to v1.1.3,
+therefore see :ref:`LTC6813_1_BASED_18_CELL_SLAVE___V1_1_3__`.

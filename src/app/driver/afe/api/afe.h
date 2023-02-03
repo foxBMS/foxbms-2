@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    afe.h
  * @author  foxBMS Team
  * @date    2020-05-08 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup DRIVER
  * @prefix  AFE
  *
@@ -57,9 +57,44 @@
 #define FOXBMS__AFE_H_
 
 /*========== Includes =======================================================*/
-#include "general.h"
+
+#include "fstd_types.h"
+
+#include <stdbool.h>
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
+
+/** Requests for the AFE driver */
+typedef enum {
+    AFE_START_REQUEST, /*!<    */
+    AFE_STOP_REQUEST,  /*!<    */
+    AFE_NO_REQUEST,    /*!<    */
+    AFE_REQUEST_E_MAX,
+} AFE_REQUEST_e;
+
+/** Type of I2C transfer over AFE slave */
+typedef enum {
+    AFE_I2C_TRANSFER_TYPE_READ,
+    AFE_I2C_TRANSFER_TYPE_WRITEREAD,
+    AFE_I2C_TRANSFER_TYPE_READ_SUCCESS,
+    AFE_I2C_TRANSFER_TYPE_READ_FAIL,
+    AFE_I2C_TRANSFER_TYPE_WRITE,
+    AFE_I2C_TRANSFER_TYPE_WRITE_SUCCESS,
+    AFE_I2C_TRANSFER_TYPE_WRITE_FAIL,
+} AFE_I2C_TRANSFER_TYPE_e;
+
+/** Data to transmit on I2C bus over AFE slave */
+typedef struct {
+    uint8_t module;
+    AFE_I2C_TRANSFER_TYPE_e transferType;
+    uint8_t deviceAddress;
+    uint8_t registerAddress;
+    uint8_t readData[13u];
+    uint8_t readDataLength;
+    uint8_t writeData[13u];
+    uint8_t writeDataLength;
+} AFE_I2C_QUEUE_s;
 
 /** period for open wire measurement */
 #define AFE_ERROR_OPEN_WIRE_PERIOD_ms (30000u)
@@ -139,5 +174,7 @@ extern STD_RETURN_TYPE_e AFE_RequestEepromWrite(uint8_t string);
 extern STD_RETURN_TYPE_e AFE_RequestOpenWireCheck(uint8_t string);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
+#ifdef UNITY_UNIT_TEST
+#endif
 
 #endif /* FOXBMS__AFE_H_ */

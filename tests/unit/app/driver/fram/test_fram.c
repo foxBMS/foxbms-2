@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_fram.c
  * @author  foxBMS Team
  * @date    2020-04-01 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -63,11 +63,24 @@
 
 #include "fram_cfg.h"
 #include "spi_cfg.h"
+#include "version_cfg.h"
 
 #include "fassert.h"
 #include "fram.h"
 
+#include <stdbool.h>
+
 /*========== Definitions and Implementations for Unit Test ==================*/
+const VER_VERSION_s ver_foxbmsVersionInformation VER_VERSION_INFORMATION = {
+    .underVersionControl     = true,
+    .isDirty                 = true,
+    .major                   = 120,
+    .minor                   = 121,
+    .patch                   = 122,
+    .distanceFromLastRelease = 22,
+    .commitHash              = "abcdefgh",
+    .gitRemote               = "git@remote-repo.de:foxbms-2.git",
+};
 
 /*========== Setup and Teardown =============================================*/
 void setUp(void) {

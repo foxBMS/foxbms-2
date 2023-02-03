@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,14 +43,14 @@
  * @file    bender_iso165c.c
  * @author  foxBMS Team
  * @date    2019-04-07 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup DRIVERS
  * @prefix  I165C
  *
  * @brief   Driver for the insulation monitoring
  *
- * main file of bender iso165C and iso165C-1 driver
+ * @details main file of bender iso165C and iso165C-1 driver
  *
  */
 
@@ -61,9 +61,13 @@
 
 #include "can.h"
 #include "can_cfg_rx-message-definitions.h"
+#include "can_cfg_tx-message-definitions.h"
 #include "can_helper.h"
 #include "database.h"
 #include "ftask.h"
+
+#include <stdbool.h>
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 /** state machine short time definition in trigger calls until next state is processed */
@@ -578,7 +582,8 @@ static void I165C_ReadDataByte(uint8_t dataByte, uint8_t *pData, CAN_BUFFER_ELEM
 static void I165C_WriteCmd(uint8_t id, uint8_t command, CAN_BUFFER_ELEMENT_s *pCanMessage) {
     FAS_ASSERT(pCanMessage != NULL_PTR);
     /* CAN message is a request, set ID accordingly */
-    pCanMessage->id = id;
+    pCanMessage->id     = id;
+    pCanMessage->idType = I165C_TX_MESSAGE_IDENTIFIER_TYPE;
     /* First byte contains the CMD field */
     pCanMessage->data[CAN_BYTE_0_POSITION] = command;
 }
@@ -595,7 +600,8 @@ static bool I165C_CheckResponse(uint8_t command, CAN_BUFFER_ELEMENT_s *pCanMessa
         if (numberItems > 0u) {
             if (OS_ReceiveFromQueue(ftsk_imdCanDataQueue, (void *)pCanMessage, 0u) == OS_SUCCESS) {
                 /* data queue was no empty */
-                if ((command == pCanMessage->data[CAN_BYTE_0_POSITION]) && (pCanMessage->id == CANRX_IMD_RESPONSE_ID)) {
+                if ((command == pCanMessage->data[CAN_BYTE_0_POSITION]) && (pCanMessage->id == CANRX_IMD_RESPONSE_ID) &&
+                    (pCanMessage->idType == I165C_RX_MESSAGE_IDENTIFIER_TYPE)) {
                     messageReceived = true;
                     break;
                 }
@@ -702,7 +708,7 @@ static void I165C_SetRelayState(uint8_t relay, uint8_t relayState) {
     I165C_WriteDataWord(I165C_D_VIFC_HV_RELAIS_SET_REQUEST, relay, &i165c_canTxMessage);
     I165C_WriteDataWord(I165C_D_VIFC_HV_RELAIS_STATE_SET_REQUEST, relayState, &i165c_canTxMessage);
     /* Transmit CAN message */
-    CAN_DataSend(I165C_CAN_NODE, i165c_canTxMessage.id, i165c_canTxMessage.data);
+    CAN_DataSend(I165C_CAN_NODE, i165c_canTxMessage.id, i165c_canTxMessage.idType, i165c_canTxMessage.data);
 }
 
 static void I165C_RequestRelayState(uint8_t relay) {
@@ -713,7 +719,7 @@ static void I165C_RequestRelayState(uint8_t relay) {
     I165C_WriteCmd(I165C_MESSAGETYPE_IMD_REQUEST, I165C_CMD_S_VIFC_GET_HV_RELAIS, &i165c_canTxMessage);
     I165C_WriteDataWord(I165C_D_VIFC_HV_RELAIS_GET_REQUEST, relay, &i165c_canTxMessage);
     /* Transmit CAN message */
-    CAN_DataSend(I165C_CAN_NODE, i165c_canTxMessage.id, i165c_canTxMessage.data);
+    CAN_DataSend(I165C_CAN_NODE, i165c_canTxMessage.id, i165c_canTxMessage.idType, i165c_canTxMessage.data);
 }
 
 static bool I165C_CheckRelayState(CAN_BUFFER_ELEMENT_s canMessage, uint8_t relay, uint8_t relayState) {
@@ -746,7 +752,7 @@ static void I165C_SetMeasurementMode(uint8_t mode) {
     I165C_WriteCmd(I165C_MESSAGETYPE_IMD_REQUEST, I165C_CMD_S_VIFC_CTL_MEASUREMENT, &i165c_canTxMessage);
     I165C_WriteDataWord(I165C_DW_VIFC_CTL_MEASUREMENT_REQUEST, mode, &i165c_canTxMessage);
     /* Transmit CAN message */
-    CAN_DataSend(I165C_CAN_NODE, i165c_canTxMessage.id, i165c_canTxMessage.data);
+    CAN_DataSend(I165C_CAN_NODE, i165c_canTxMessage.id, i165c_canTxMessage.idType, i165c_canTxMessage.data);
 }
 
 static bool I165C_CheckMeasurementMode(CAN_BUFFER_ELEMENT_s canMessage, uint8_t mode) {
@@ -778,7 +784,7 @@ static void I165C_SetAveragingFactor(uint8_t averagingFactor) {
     I165C_WriteCmd(I165C_MESSAGETYPE_IMD_REQUEST, I165C_CMD_S_IMC_SET_MEAN_FACTOR, &i165c_canTxMessage);
     I165C_WriteDataWord(I165C_D_IMC_MEAN_FACTOR_SET_REQUEST, I165C_MEASUREMENT_AVERAGING_FACTOR, &i165c_canTxMessage);
     /* Transmit CAN message */
-    CAN_DataSend(I165C_CAN_NODE, i165c_canTxMessage.id, i165c_canTxMessage.data);
+    CAN_DataSend(I165C_CAN_NODE, i165c_canTxMessage.id, i165c_canTxMessage.idType, i165c_canTxMessage.data);
 }
 
 static bool I165C_CheckAcknowledgeArrived(uint8_t command, uint8_t *pTries, CAN_BUFFER_ELEMENT_s *pCanMessage) {
@@ -815,7 +821,7 @@ static IMD_FSM_STATES_e I165C_Initialize(void) {
                 I165C_WriteCmd(I165C_MESSAGETYPE_IMD_REQUEST, I165C_CMD_S_VIFC_CTL_LOCK, &i165c_canTxMessage);
                 I165C_WriteDataWord(I165C_D_VIFC_LOCK_MODE_CTL_REQUEST, I165C_LOCKMODE_UNLOCKED, &i165c_canTxMessage);
                 I165C_WriteDataWord(I165C_D_VIFC_LOCK_PWD_CTL_REQUEST, I165C_UNLOCK_PASSWORD, &i165c_canTxMessage);
-                CAN_DataSend(I165C_CAN_NODE, i165c_canTxMessage.id, i165c_canTxMessage.data);
+                CAN_DataSend(I165C_CAN_NODE, i165c_canTxMessage.id, i165c_canTxMessage.idType, i165c_canTxMessage.data);
                 I165C_SetInitializationState(
                     &i165c_initializationState, I165C_FSM_STATE_INITIALIZATION_UNLOCK_WAIT_ACK, I165C_FSM_SHORT_TIME);
                 break;
@@ -953,7 +959,8 @@ static IMD_FSM_STATES_e I165C_Initialize(void) {
                             I165C_SELFTEST_SCENARIO_PARAMETERCONFIG,
                             &i165c_canTxMessage);
 #endif
-                        CAN_DataSend(I165C_CAN_NODE, i165c_canTxMessage.id, i165c_canTxMessage.data);
+                        CAN_DataSend(
+                            I165C_CAN_NODE, i165c_canTxMessage.id, i165c_canTxMessage.idType, i165c_canTxMessage.data);
                         i165c_initializationState.receptionTries = 0u;
                         I165C_SetInitializationState(
                             &i165c_initializationState,
@@ -1040,7 +1047,7 @@ static IMD_FSM_STATES_e I165C_Initialize(void) {
                 I165C_WriteCmd(I165C_MESSAGETYPE_IMD_REQUEST, I165C_CMD_S_IMC_SET_R_ISO_ERR_THR, &i165c_canTxMessage);
                 I165C_WriteDataWord(
                     I165C_D_IMC_R_ISO_ERR_THR_SET_REQUEST, I165C_ERROR_THRESHOLD_kOhm, &i165c_canTxMessage);
-                CAN_DataSend(I165C_CAN_NODE, i165c_canTxMessage.id, i165c_canTxMessage.data);
+                CAN_DataSend(I165C_CAN_NODE, i165c_canTxMessage.id, i165c_canTxMessage.idType, i165c_canTxMessage.data);
                 I165C_SetInitializationState(
                     &i165c_initializationState,
                     I165C_FSM_STATE_INITIALIZATION_ERROR_THRESHOLD_WAIT_ACK,
@@ -1064,7 +1071,7 @@ static IMD_FSM_STATES_e I165C_Initialize(void) {
                 I165C_WriteCmd(I165C_MESSAGETYPE_IMD_REQUEST, I165C_CMD_S_IMC_SET_R_ISO_ERR_WRN, &i165c_canTxMessage);
                 I165C_WriteDataWord(
                     I165C_D_IMC_R_ISO_ERR_WRN_SET_REQUEST, I165C_WARNING_THRESHOLD_kOhm, &i165c_canTxMessage);
-                CAN_DataSend(I165C_CAN_NODE, i165c_canTxMessage.id, i165c_canTxMessage.data);
+                CAN_DataSend(I165C_CAN_NODE, i165c_canTxMessage.id, i165c_canTxMessage.idType, i165c_canTxMessage.data);
                 I165C_SetInitializationState(
                     &i165c_initializationState,
                     I165C_FSM_STATE_INITIALIZATION_WARNING_THRESHOLD_WAIT_ACK,
@@ -1109,7 +1116,7 @@ static IMD_FSM_STATES_e I165C_Initialize(void) {
 
             default:
                 FAS_ASSERT(FAS_TRAP);
-                break;
+                break; /* LCOV_EXCL_LINE */
         }
         i165c_initializationState.triggerEntry--;
     }
@@ -1246,7 +1253,7 @@ static IMD_FSM_STATES_e I165C_Running(DATA_BLOCK_INSULATION_MONITORING_s *pTable
             case I165C_FSM_STATE_RUNNING_READ_RESISTANCE:
                 I165C_ResetCanData(&i165c_canTxMessage);
                 I165C_WriteCmd(I165C_MESSAGETYPE_IMD_REQUEST, I165C_CMD_S_IMC_GET_R_ISO, &i165c_canTxMessage);
-                CAN_DataSend(I165C_CAN_NODE, i165c_canTxMessage.id, i165c_canTxMessage.data);
+                CAN_DataSend(I165C_CAN_NODE, i165c_canTxMessage.id, i165c_canTxMessage.idType, i165c_canTxMessage.data);
                 i165c_runningState.receptionTries = 0u;
                 I165C_SetRunningState(
                     &i165c_runningState, I165C_FSM_STATE_RUNNING_READ_RESISTANCE_WAIT_ACK, I165C_FSM_SHORT_TIME);
@@ -1335,13 +1342,13 @@ static IMD_FSM_STATES_e I165C_Running(DATA_BLOCK_INSULATION_MONITORING_s *pTable
                     }
                     if (0u != (statusFlags & (1u << I165C_RESISTANCE_VALUE_OUTDATED_SHIFT))) {
                         /* Insulation resistance value outdated */
-                        pTableInsulationMonitoring->dfIsMeasurmentedUpToDate = false;
+                        pTableInsulationMonitoring->dfIsMeasurementUpToDate = false;
                     } else {
-                        pTableInsulationMonitoring->dfIsMeasurmentedUpToDate = true;
+                        pTableInsulationMonitoring->dfIsMeasurementUpToDate = true;
                     }
                     if ((pTableInsulationMonitoring->areDeviceFlagsValid == true) &&
                         (pTableInsulationMonitoring->isImdRunning == true) &&
-                        (pTableInsulationMonitoring->dfIsMeasurmentedUpToDate == true)) {
+                        (pTableInsulationMonitoring->dfIsMeasurementUpToDate == true)) {
                         pTableInsulationMonitoring->isInsulationMeasurementValid = true;
                     } else {
                         pTableInsulationMonitoring->isInsulationMeasurementValid = false;

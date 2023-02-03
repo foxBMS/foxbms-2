@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,23 +43,28 @@
  * @file    ftask.h
  * @author  foxBMS Team
  * @date    2019-08-27 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup TASK
  * @prefix  FTSK
  *
  * @brief   Header of task driver implementation
- * @details Declars the functions that are need to needed to initialize the
- *          operating system. This includes ques, mutexes, events and tasks.
+ * @details Declares the functions that are need to needed to initialize the
+ *          operating system. This includes queues, mutexes, events and tasks.
  */
 
 #ifndef FOXBMS__FTASK_H_
 #define FOXBMS__FTASK_H_
 
 /*========== Includes =======================================================*/
+#include "can_cfg.h"
 #include "ftask_cfg.h"
 
+#include "database.h"
 #include "os.h"
+#include "rtc.h"
+
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 /** Length of queue that is used in the database */
@@ -78,15 +83,38 @@
 /** Size of queue item that is used in the can driver */
 #define FTSK_CAN_RX_QUEUE_ITEM_SIZE_IN_BYTES (sizeof(CAN_BUFFER_ELEMENT_s))
 
+#define FTSK_AFE_REQUEST_QUEUE_LENGTH    (1u)
+#define FTSK_AFE_REQUEST_QUEUE_ITEM_SIZE (sizeof(AFE_REQUEST_e))
+
+/** Length of queue that is used in the can module for receiving messages */
+#define FTSK_RTC_QUEUE_LENGTH (1u)
+/** Size of queue item that is used in the can driver */
+#define FTSK_RTC_QUEUE_ITEM_SIZE_IN_BYTES (sizeof(RTC_TIME_DATA_s))
+
+/** Length of queue that is used for I2C transmission over NXP slave */
+#define FTSK_AFEI2C_QUEUE_LENGTH (1u)
+/** Size of queue item that is used for I2C transmission over NXP slave */
+#define FTSK_AFEI2C_QUEUE_ITEM_SIZE_IN_BYTES (sizeof(AFE_I2C_QUEUE_s))
+
 /*========== Extern Constant and Variable Declarations ======================*/
-/** handle of the database queue */
+/** database queue */
 extern OS_QUEUE ftsk_databaseQueue;
 
-/** handle of the imd can data queue */
+/** queue for CAN based IMD devices */
 extern OS_QUEUE ftsk_imdCanDataQueue;
 
-/** handle of the can driver data queue */
+/** CAN driver data queue for RX messages */
 extern OS_QUEUE ftsk_canRxQueue;
+
+/** handle of the AFE driver request queue */
+extern OS_QUEUE ftsk_afeRequestQueue;
+
+/** handle of the rtc driver data queue */
+extern OS_QUEUE ftsk_rtcSetTimeQueue;
+
+/** handle of the I2C transmission over NXP slave queue */
+extern OS_QUEUE ftsk_afeToI2cQueue;
+extern OS_QUEUE ftsk_afeFromI2cQueue;
 
 /** indicator whether the queues have successfully been initialized to be used
  * in other parts of the software  */
@@ -113,7 +141,7 @@ extern void FTSK_CreateTasks(void);
  * @brief   Database-Task
  * @details The task manages the data exchange with the database and must have
  *          a higher task priority than any task using the database.
- * @ingroup API_OS
+ * @param   pvParameters parameter for the to task
  */
 extern void FTSK_CreateTaskEngine(void *const pvParameters);
 
@@ -125,6 +153,7 @@ extern void FTSK_CreateTaskEngine(void *const pvParameters);
  *          in current_time. After one cycle, the Task is set to sleep until
  *          entry time + ftsk_taskDefinitionCyclic1ms.cycleTime (in
  *          milliseconds).
+ * @param   pvParameters parameter for the to task
  */
 extern void FTSK_CreateTaskCyclic1ms(void *const pvParameters);
 
@@ -136,6 +165,7 @@ extern void FTSK_CreateTaskCyclic1ms(void *const pvParameters);
  *          saved in current_time. After one cycle, the Task is set to sleep
  *          until entry time + ftsk_taskDefinitionCyclic10ms.cycleTime (in
  *          milliseconds).
+ * @param   pvParameters parameter for the to task
  */
 extern void FTSK_CreateTaskCyclic10ms(void *const pvParameters);
 
@@ -147,6 +177,7 @@ extern void FTSK_CreateTaskCyclic10ms(void *const pvParameters);
  *          in current_time. After one cycle, the Task is set to sleep until
  *          entry time + ftsk_taskDefinitionCyclic100ms.cycleTime (in
  *          milliseconds).
+ * @param   pvParameters parameter for the to task
  */
 extern void FTSK_CreateTaskCyclic100ms(void *const pvParameters);
 
@@ -159,14 +190,23 @@ extern void FTSK_CreateTaskCyclic100ms(void *const pvParameters);
  *          until entry
  *          time + ftsk_taskDefinitionCyclicAlgorithm100ms.CycleTime (in
  *          milliseconds).
+ * @param   pvParameters parameter for the to task
  */
 extern void FTSK_CreateTaskCyclicAlgorithm100ms(void *const pvParameters);
 
 /**
+ * @brief   Creation of continuously running task for I2c
+ */
+extern void FTSK_CreateTaskI2c(void *const pvParameters);
+
+/**
  * @brief   Creation of continuously running task for AFEs
+ * @param   pvParameters parameter for the to task
  */
 extern void FTSK_CreateTaskAfe(void *const pvParameters);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
+#ifdef UNITY_UNIT_TEST
+#endif
 
 #endif /* FOXBMS__FTASK_H_ */

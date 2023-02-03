@@ -6,16 +6,18 @@
 Master Overview
 ===============
 
-**TMS570LC4357-based Master**
+TI-based Masters
+----------------
 
-The changelog for the TMS570LC4357-based Master is can be found at
+The changelog for the |tms570lc4357|\ -based masters can be found at:
 
 .. toctree::
     :maxdepth: 1
 
     ./master/ti-tms570lc4357-vx.x.x/ti-tms570lc4357-changelog.rst
 
-The documentation for the different versions can be found at.
+The documentation for the different versions of the |tms570lc4357|\ -based
+masters can be found at:
 
 .. toctree::
     :maxdepth: 1

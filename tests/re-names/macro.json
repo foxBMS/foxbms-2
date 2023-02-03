@@ -7,7 +7,8 @@
         "ABC_123_AB",
         "ABC_123_AB_mV",
         "ABC_123_AB_perc",
-        "FOXBMS__ABC_ABC_123_H_"
+        "FOXBMS__ABC_ABC_123_H_",
+        "FOXBMS__ABC_ABC_023_H_"
     ],
     "invalid": [
         "_ABC",

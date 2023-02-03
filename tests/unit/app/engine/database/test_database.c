@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2022, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_database.c
  * @author  foxBMS Team
  * @date    2020-04-01 (date of creation)
- * @updated 2022-10-27 (date of last update)
- * @version v1.4.1
+ * @updated 2023-02-03 (date of last update)
+ * @version v1.5.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -53,7 +53,6 @@
  */
 
 /*========== Includes =======================================================*/
-#include "general.h"
 
 #include "unity.h"
 #include "Mockfassert.h"
@@ -66,6 +65,8 @@
 #include "database.h"
 #include "test_assert_helper.h"
 
+#include <stdbool.h>
+
 /*========== Definitions and Implementations for Unit Test ==================*/
 /**
  * struct for message injection in database queue in #testDATA_ExecuteDataBist()
@@ -75,9 +76,9 @@ typedef struct {
     DATA_BLOCK_DUMMY_FOR_SELF_TEST_s *pDatabaseEntry[1u]; /*!< reference to table */
 } DATA_QUEUE_BIST_INJECTED_MESSAGE_s;
 
-QueueHandle_t ftsk_databaseQueue    = NULL_PTR;
-QueueHandle_t ftsk_imdCanDataQueue  = NULL_PTR;
-QueueHandle_t ftsk_canRxQueue       = NULL_PTR;
+OS_QUEUE ftsk_databaseQueue         = NULL_PTR;
+OS_QUEUE ftsk_imdCanDataQueue       = NULL_PTR;
+OS_QUEUE ftsk_canRxQueue            = NULL_PTR;
 volatile bool ftsk_allQueuesCreated = true;
 
 /*========== Setup and Teardown =============================================*/
