@@ -350,16 +350,6 @@
     "version": "0.16"
   },
   {
-    "base_url": "https://conda.anaconda.org/pypi",
-    "build_number": 0,
-    "build_string": "pypi_0",
-    "channel": "pypi",
-    "dist_name": "doorstop-2.2b5-pypi_0",
-    "name": "doorstop",
-    "platform": "pypi",
-    "version": "2.2b5"
-  },
-  {
     "base_url": "https://conda.anaconda.org/foxbms",
     "build_number": 1,
     "build_string": "1",
@@ -834,10 +824,10 @@
     "build_number": 0,
     "build_string": "pypi_0",
     "channel": "pypi",
-    "dist_name": "numpy-1.21.4-pypi_0",
+    "dist_name": "numpy-1.22.4-pypi_0",
     "name": "numpy",
     "platform": "pypi",
-    "version": "1.21.4"
+    "version": "1.22.4"
   },
   {
     "base_url": "https://conda.anaconda.org/pypi",
@@ -1018,16 +1008,6 @@
     "name": "platformdirs",
     "platform": "pypi",
     "version": "2.4.0"
-  },
-  {
-    "base_url": "https://conda.anaconda.org/pypi",
-    "build_number": 0,
-    "build_string": "pypi_0",
-    "channel": "pypi",
-    "dist_name": "plotly-5.3.1-pypi_0",
-    "name": "plotly",
-    "platform": "pypi",
-    "version": "5.3.1"
   },
   {
     "base_url": "https://repo.anaconda.com/pkgs/main",
@@ -1414,16 +1394,6 @@
     "build_number": 0,
     "build_string": "pypi_0",
     "channel": "pypi",
-    "dist_name": "scikit-learn-1.0.1-pypi_0",
-    "name": "scikit-learn",
-    "platform": "pypi",
-    "version": "1.0.1"
-  },
-  {
-    "base_url": "https://conda.anaconda.org/pypi",
-    "build_number": 0,
-    "build_string": "pypi_0",
-    "channel": "pypi",
     "dist_name": "scipy-1.7.2-pypi_0",
     "name": "scipy",
     "platform": "pypi",
@@ -1534,16 +1504,6 @@
     "build_number": 0,
     "build_string": "pypi_0",
     "channel": "pypi",
-    "dist_name": "sphinx-plotly-directive-0.1.3-pypi_0",
-    "name": "sphinx-plotly-directive",
-    "platform": "pypi",
-    "version": "0.1.3"
-  },
-  {
-    "base_url": "https://conda.anaconda.org/pypi",
-    "build_number": 0,
-    "build_string": "pypi_0",
-    "channel": "pypi",
     "dist_name": "sphinx-rtd-theme-1.0.0-pypi_0",
     "name": "sphinx-rtd-theme",
     "platform": "pypi",
@@ -1614,16 +1574,6 @@
     "build_number": 0,
     "build_string": "pypi_0",
     "channel": "pypi",
-    "dist_name": "sphinxcontrib-needs-0.7.3-pypi_0",
-    "name": "sphinxcontrib-needs",
-    "platform": "pypi",
-    "version": "0.7.3"
-  },
-  {
-    "base_url": "https://conda.anaconda.org/pypi",
-    "build_number": 0,
-    "build_string": "pypi_0",
-    "channel": "pypi",
     "dist_name": "sphinxcontrib-plantuml-0.21-pypi_0",
     "name": "sphinxcontrib-plantuml",
     "platform": "pypi",
@@ -1688,16 +1638,6 @@
     "name": "statsmodels",
     "platform": "pypi",
     "version": "0.13.0"
-  },
-  {
-    "base_url": "https://conda.anaconda.org/pypi",
-    "build_number": 0,
-    "build_string": "pypi_0",
-    "channel": "pypi",
-    "dist_name": "strictdoc-0.0.17-pypi_0",
-    "name": "strictdoc",
-    "platform": "pypi",
-    "version": "0.0.17"
   },
   {
     "base_url": "https://conda.anaconda.org/pypi",

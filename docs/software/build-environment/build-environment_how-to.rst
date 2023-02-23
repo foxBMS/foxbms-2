@@ -50,8 +50,23 @@ These steps in details:
 #. Commit the new environment file to the repository.
 #. Add changelog entry.
 
+Existing Environments
+=====================
+
++---------------------+-------+-------+
+| Environment Name    | From  | To    |
++=====================+=======+=======+
+| 2023-02-fennec-fox  | 1.5.1 | \-    |
++---------------------+-------+-------+
+| 2021-11-fennec-fox  | 1.2.1 | 1.5.0 |
++---------------------+-------+-------+
+| 2021-08-arctic-fox  | 1.1.0 | 1.2.0 |
++---------------------+-------+-------+
+| 2021-04-red-fox     | 1.0.0 | 1.0.2 |
++---------------------+-------+-------+
+
 Further Reading
----------------
+===============
 
 An explanation why build environments are used is found in
 :ref:`BUILD_ENVIRONMENT`.

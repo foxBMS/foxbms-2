@@ -43,8 +43,8 @@
  * @file    test_can_cfg_rx.c
  * @author  foxBMS Team
  * @date    2020-07-28 (date of creation)
- * @updated 2023-02-03 (date of last update)
- * @version v1.5.0
+ * @updated 2023-02-23 (date of last update)
+ * @version v1.5.1
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *

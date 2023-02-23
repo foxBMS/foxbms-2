@@ -156,7 +156,6 @@
     pip
     pip-licenses
     plantuml
-    plotly
     powershell_shortcut
     programoutput
     prometheus

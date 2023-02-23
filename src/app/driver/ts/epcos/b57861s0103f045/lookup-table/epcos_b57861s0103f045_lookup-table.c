@@ -43,8 +43,8 @@
  * @file    epcos_b57861s0103f045_lookup-table.c
  * @author  foxBMS Team
  * @date    2020-08-25 (date of creation)
- * @updated 2023-02-03 (date of last update)
- * @version v1.5.0
+ * @updated 2023-02-23 (date of last update)
+ * @version v1.5.1
  * @ingroup TEMPERATURE_SENSORS
  * @prefix  TS
  *

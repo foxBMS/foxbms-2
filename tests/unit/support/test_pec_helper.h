@@ -43,8 +43,8 @@
  * @file    test_pec_helper.h
  * @author  foxBMS Team
  * @date    2020-12-16 (date of creation)
- * @updated 2023-02-03 (date of last update)
- * @version v1.5.0
+ * @updated 2023-02-23 (date of last update)
+ * @version v1.5.1
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *

@@ -43,8 +43,8 @@
  * @file    debug_default.c
  * @author  foxBMS Team
  * @date    2020-09-17 (date of creation)
- * @updated 2023-02-03 (date of last update)
- * @version v1.5.0
+ * @updated 2023-02-23 (date of last update)
+ * @version v1.5.1
  * @ingroup DRIVER
  * @prefix  FAKE
  *
@@ -283,7 +283,7 @@ static void FAKE_SetFirstMeasurementCycleFinished(FAKE_STATE_s *pFakeState) {
     uint16_t i = 0;
 
     for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
-        pFakeState->data.cellVoltage->packVoltage_mV[s] = FAKE_CELL_VOLTAGE_mV * BS_NR_OF_CELL_BLOCKS_PER_STRING;
+        pFakeState->data.cellVoltage->stringVoltage_mV[s] = FAKE_CELL_VOLTAGE_mV * BS_NR_OF_CELL_BLOCKS_PER_STRING;
         for (i = 0; i < BS_NR_OF_CELL_BLOCKS_PER_STRING; i++) {
             pFakeState->data.cellVoltage->cellVoltage_mV[s][i] = FAKE_CELL_VOLTAGE_mV;
         }

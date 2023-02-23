@@ -43,8 +43,8 @@
  * @file    ftask_cfg.h
  * @author  foxBMS Team
  * @date    2019-08-26 (date of creation)
- * @updated 2023-02-03 (date of last update)
- * @version v1.5.0
+ * @updated 2023-02-23 (date of last update)
+ * @version v1.5.1
  * @ingroup TASK_CONFIGURATION
  * @prefix  FTSK
  *
@@ -171,7 +171,7 @@
 #define FTSK_TASK_I2C_PV_PARAMETERS (NULL_PTR)
 
 /** @brief Stack size of continuously running task for AFEs */
-#define FTSK_TASK_AFE_STACK_SIZE_IN_BYTES (2048u / 4u)
+#define FTSK_TASK_AFE_STACK_SIZE_IN_BYTES (4096u / 4u)
 
 /** @brief Priority of continuously running task for AFEs */
 #define FTSK_TASK_AFE_PRIORITY (OS_PRIORITY_ABOVE_HIGH)

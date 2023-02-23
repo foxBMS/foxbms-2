@@ -3,7 +3,7 @@
 .. |timestamp| date:: %Y-%m-%d %H:%M:%S
 
 .. |foxbms| replace:: foxBMS 2
-.. |version_foxbms| replace:: ``1.5.0``
+.. |version_foxbms| replace:: ``1.5.1``
 .. |foxbms.org| replace:: https://foxbms.org
 .. |docs.foxbms.org| replace:: https://docs.foxbms.org
 .. |github_foxbms| replace:: https://github.com/foxBMS/

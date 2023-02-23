@@ -43,8 +43,8 @@
  * @file    mxm_17841b.c
  * @author  foxBMS Team
  * @date    2018-12-14 (date of creation)
- * @updated 2023-02-03 (date of last update)
- * @version v1.5.0
+ * @updated 2023-02-23 (date of last update)
+ * @version v1.5.1
  * @ingroup DRIVERS
  * @prefix  MXM
  *

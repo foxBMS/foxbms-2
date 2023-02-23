@@ -43,8 +43,8 @@
  * @file    os_freertos.c
  * @author  foxBMS Team
  * @date    2021-11-18 (date of creation)
- * @updated 2023-02-03 (date of last update)
- * @version v1.5.0
+ * @updated 2023-02-23 (date of last update)
+ * @version v1.5.1
  * @ingroup OS
  * @prefix  OS
  *

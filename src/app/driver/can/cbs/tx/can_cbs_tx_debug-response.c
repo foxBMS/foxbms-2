@@ -43,8 +43,8 @@
  * @file    can_cbs_tx_debug-response.c
  * @author  foxBMS Team
  * @date    2019-12-04 (date of creation)
- * @updated 2023-02-03 (date of last update)
- * @version v1.5.0
+ * @updated 2023-02-23 (date of last update)
+ * @version v1.5.1
  * @ingroup DRIVERS
  * @prefix  CANTX
  *

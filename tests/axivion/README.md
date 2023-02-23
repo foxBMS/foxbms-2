@@ -13,7 +13,7 @@
   - ``architecture.gxl``, ``architecture_config.json`` and ``mapping.gxl``
     describe the software architecture of foxBMS 2.
   - ``axivion_config.json``, ``ci_config.json``, ``compiler_config.json``,
-    ``errata_config.json``, ``rule_config_c.json``, ``rule_config_c.py``
+    ``rule_config_c.json``, ``rule_config_c.py``
     provide project specific settings.
 - The subdirectory ``forbidden-violations`` contains a list of rules that shall
   be followed, i.e., it is not possible to introduce source code, that creates
@@ -35,7 +35,6 @@
 │   axivion_preinc.h
 │   ci_config.json
 │   compiler_config.json
-│   errata_config.json
 │   mapping.gxl
 │   README.md
 │   rule_config_c.json

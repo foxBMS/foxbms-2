@@ -43,8 +43,8 @@
  * @file    battery_system_cfg.c
  * @author  foxBMS Team
  * @date    2019-12-10 (date of creation)
- * @updated 2023-02-03 (date of last update)
- * @version v1.5.0
+ * @updated 2023-02-23 (date of last update)
+ * @version v1.5.1
  * @ingroup BATTERY_SYSTEM_CONFIGURATION
  * @prefix  BS
  *

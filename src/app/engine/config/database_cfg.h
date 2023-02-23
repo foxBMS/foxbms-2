@@ -43,8 +43,8 @@
  * @file    database_cfg.h
  * @author  foxBMS Team
  * @date    2015-08-18 (date of creation)
- * @updated 2023-02-03 (date of last update)
- * @version v1.5.0
+ * @updated 2023-02-23 (date of last update)
+ * @version v1.5.1
  * @ingroup ENGINE_CONFIGURATION
  * @prefix  DATA
  *
@@ -131,7 +131,7 @@ typedef struct {
      * respective database entry representation in enum DATA_BLOCK_ID_e. */
     DATA_BLOCK_HEADER_s header;                                                /*!< Data block header */
     uint8_t state;                                                             /*!< for future use */
-    int32_t packVoltage_mV[BS_NR_OF_STRINGS];                                  /*!< uint: mV */
+    int32_t stringVoltage_mV[BS_NR_OF_STRINGS];                                /*!< uint: mV */
     int16_t cellVoltage_mV[BS_NR_OF_STRINGS][BS_NR_OF_CELL_BLOCKS_PER_STRING]; /*!< unit: mV */
     uint64_t
         invalidCellVoltage[BS_NR_OF_STRINGS]
@@ -307,7 +307,7 @@ typedef struct {
     uint16_t nrOpenWires[BS_NR_OF_STRINGS]; /*!< number of open wires */
     uint8_t openWire[BS_NR_OF_STRINGS]
                     [BS_NR_OF_MODULES_PER_STRING *
-                     BS_NR_OF_CELL_BLOCKS_PER_MODULE]; /*!< 1 -> open wire, 0 -> everything ok */
+                     (BS_NR_OF_CELL_BLOCKS_PER_MODULE + 1u)]; /*!< 1 -> open wire, 0 -> everything ok */
 } DATA_BLOCK_OPEN_WIRE_s;
 
 /** data block struct of GPIO voltage */

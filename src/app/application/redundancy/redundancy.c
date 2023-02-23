@@ -43,8 +43,8 @@
  * @file    redundancy.c
  * @author  foxBMS Team
  * @date    2020-07-31 (date of creation)
- * @updated 2023-02-03 (date of last update)
- * @version v1.5.0
+ * @updated 2023-02-23 (date of last update)
+ * @version v1.5.1
  * @ingroup APPLICATION
  * @prefix  MRC
  *
@@ -593,8 +593,8 @@ static void MRC_ValidateStringVoltageMeasurement(
         /* Perform plausibility check if AFE and new current sensor measurement is valid */
         if ((updatedMeasurement == STD_OK) && (pTableCurrentSensor->invalidHighVoltageMeasurement[s][0u] == 0u) &&
             (pTableCellVoltage->nrValidCellVoltages[s] == BS_NR_OF_CELL_BLOCKS_PER_STRING)) {
-            STD_RETURN_TYPE_e voltagePlausible =
-                PL_CheckStringVoltage(pTableCellVoltage->packVoltage_mV[s], pTableCurrentSensor->highVoltage_mV[s][0u]);
+            STD_RETURN_TYPE_e voltagePlausible = PL_CheckStringVoltage(
+                pTableCellVoltage->stringVoltage_mV[s], pTableCurrentSensor->highVoltage_mV[s][0u]);
             (void)DIAG_CheckEvent(voltagePlausible, DIAG_ID_PLAUSIBILITY_PACK_VOLTAGE, DIAG_STRING, s);
 
             /* Use current sensor measurement */ /* TODO: use really current sensor? Average of both? AFE measurement? */
@@ -616,7 +616,7 @@ static void MRC_ValidateStringVoltageMeasurement(
                 mrc_tablePackValues.invalidStringVoltage[s] = 0u;
             } else if (pTableCellVoltage->nrValidCellVoltages[s] == BS_NR_OF_CELL_BLOCKS_PER_STRING) {
                 /* AFE measurement valid -> use this measurement */
-                mrc_tablePackValues.stringVoltage_mV[s]     = pTableCellVoltage->packVoltage_mV[s];
+                mrc_tablePackValues.stringVoltage_mV[s]     = pTableCellVoltage->stringVoltage_mV[s];
                 mrc_tablePackValues.invalidStringVoltage[s] = 0u;
             } else {
                 /* AFE and current sensor measurement invalid -> try to construct
@@ -626,7 +626,7 @@ static void MRC_ValidateStringVoltageMeasurement(
                     (BS_NR_OF_CELL_BLOCKS_PER_STRING - pTableCellVoltage->nrValidCellVoltages[s]);
 
                 mrc_tablePackValues.stringVoltage_mV[s] =
-                    pTableCellVoltage->packVoltage_mV[s] +
+                    pTableCellVoltage->stringVoltage_mV[s] +
                     (mrc_tableMinimumMaximumValues.averageCellVoltage_mV[s] * (int16_t)numberInvalidCellVoltages);
 
                 /* Only use this as valid value if not more than five cell voltages are invalid */
@@ -966,7 +966,7 @@ static STD_RETURN_TYPE_e MRC_ValidateCellVoltage(
             }
         }
         pValidatedVoltages->nrValidCellVoltages[s] = numberValidMeasurements;
-        pValidatedVoltages->packVoltage_mV[s]      = sum;
+        pValidatedVoltages->stringVoltage_mV[s]    = sum;
         numberValidMeasurements                    = 0u; /* Reset counter for next string */
 
         (void)DIAG_CheckEvent(noPlausibilityIssueDetected, DIAG_ID_PLAUSIBILITY_CELL_VOLTAGE, DIAG_STRING, s);

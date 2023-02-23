@@ -43,8 +43,8 @@
  * @file    ltc_6806.c
  * @author  foxBMS Team
  * @date    2019-09-01 (date of creation)
- * @updated 2023-02-03 (date of last update)
- * @version v1.5.0
+ * @updated 2023-02-23 (date of last update)
+ * @version v1.5.1
  * @ingroup DRIVERS
  * @prefix  LTC
  *
@@ -447,7 +447,7 @@ extern void LTC_SaveVoltages(LTC_STATE_s *ltc_state, uint8_t stringNumber) {
         }
     }
     DIAG_CheckEvent(cellVoltageMeasurementValid, DIAG_ID_AFE_CELL_VOLTAGE_MEAS_ERROR, DIAG_STRING, stringNumber);
-    ltc_state->ltcData.cellVoltage->packVoltage_mV[stringNumber]      = stringVoltage_mV;
+    ltc_state->ltcData.cellVoltage->stringVoltage_mV[stringNumber]    = stringVoltage_mV;
     ltc_state->ltcData.cellVoltage->nrValidCellVoltages[stringNumber] = numberValidMeasurements;
 
     /* Increment state variable each time new values are written into database */

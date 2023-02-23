@@ -54,6 +54,7 @@ expander
 expanders
 extern
 Farnell
+fennec
 ferroelectric
 fgui
 fiducial
@@ -154,9 +155,9 @@ postprocessed
 postprocessing
 powershell
 pre
-precomputed
 precharge
 precharging
+precomputed
 preinc
 prepending
 preprocess

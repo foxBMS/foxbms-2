@@ -43,8 +43,8 @@
  * @file    bender_ir155.c
  * @author  foxBMS Team
  * @date    2014-02-11 (date of creation)
- * @updated 2023-02-03 (date of last update)
- * @version v1.5.0
+ * @updated 2023-02-23 (date of last update)
+ * @version v1.5.1
  * @ingroup DRIVERS
  * @prefix  IR155
  *

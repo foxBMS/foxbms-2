@@ -16,8 +16,14 @@ tools/waf linguist-vendored
 # files tracked with Git LFS
 *.zip filter=lfs diff=lfs merge=lfs -text
 
+tests/axivion/compiler-errata/ti-cgt-arm_20.2.6.lts/**/*.c -diff -merge -text
+tests/axivion/compiler-errata/ti-cgt-arm_20.2.6.lts/**/*.cpp -diff -merge -text
+tests/axivion/compiler-errata/ti-cgt-arm_20.2.6.lts/**/*.h -diff -merge -text
 tests/axivion/compiler-errata/ti-cgt-arm_20.2.6.lts/**/*.json -diff -merge -text
 tests/axivion/compiler-errata/ti-cgt-arm_20.2.6.lts/**/*.py -diff -merge -text
 
+tests/axivion/qualification-test/qualification-kit/**/*.c -diff -merge -text
+tests/axivion/qualification-test/qualification-kit/**/*.cpp -diff -merge -text
+tests/axivion/qualification-test/qualification-kit/**/*.h -diff -merge -text
 tests/axivion/qualification-test/qualification-kit/**/*.json -diff -merge -text
 tests/axivion/qualification-test/qualification-kit/**/*.py -diff -merge -text

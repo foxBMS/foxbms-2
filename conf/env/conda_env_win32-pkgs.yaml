@@ -1,4 +1,4 @@
-name: 2021-11-fennec-fox
+name: 2023-02-fennec-fox
 channels:
   - defaults
   - foxbms
@@ -25,7 +25,6 @@ dependencies:
       - crcmod
       - dask
       - docutils
-      - doorstop==2.2b5
       - filterpy
       - gcovr
       - gitdb
@@ -43,7 +42,6 @@ dependencies:
       - nbclient
       - nbconvert
       - nbformat
-      - numpy
       - openpyxl
       - pandas
       - pandas-stubs
@@ -51,7 +49,6 @@ dependencies:
       - pip-licenses
       - plantuml
       - plantuml-markdown
-      - plotly
       - prompt-toolkit
       - psutil
       - pybtex
@@ -75,12 +72,10 @@ dependencies:
       - rsinstrument
       - ruamel-yaml
       - ruamel-yaml-clib
-      - scikit-learn
       - scipy
       - seaborn
       - sphinx
       - sphinx-copybutton
-      - sphinx-plotly-directive
       - sphinx-rtd-theme
       - sphinxcontrib-applehelp
       - sphinxcontrib-bibtex
@@ -88,12 +83,10 @@ dependencies:
       - sphinxcontrib-htmlhelp
       - sphinxcontrib-jsmath
       - sphinxcontrib-mermaid
-      - sphinxcontrib-needs
       - sphinxcontrib-plantuml
       - sphinxcontrib-serializinghtml
       - sphinxcontrib-spelling
       - statsmodels
-      - strictdoc
       - tabulate
       - toml
       - typing-extensions

@@ -43,8 +43,8 @@
  * @file    mxm_1785x.c
  * @author  foxBMS Team
  * @date    2019-01-15 (date of creation)
- * @updated 2023-02-03 (date of last update)
- * @version v1.5.0
+ * @updated 2023-02-23 (date of last update)
+ * @version v1.5.1
  * @ingroup DRIVERS
  * @prefix  MXM
  *
@@ -1099,9 +1099,9 @@ extern STD_RETURN_TYPE_e MXM_ParseVoltagesIntoDB(const MXM_MONITORING_INSTANCE_s
             kpkInstance->localVoltages.blockVoltages[i_mod];
         /* every iteration that we hit a string first (module 0), we reset the packvoltage counter */
         if (moduleNumber == 0u) {
-            kpkInstance->pCellVoltages_table->packVoltage_mV[stringNumber] = 0;
+            kpkInstance->pCellVoltages_table->stringVoltage_mV[stringNumber] = 0;
         }
-        kpkInstance->pCellVoltages_table->packVoltage_mV[stringNumber] +=
+        kpkInstance->pCellVoltages_table->stringVoltage_mV[stringNumber] +=
             (int32_t)kpkInstance->localVoltages.blockVoltages[i_mod];
         FAS_ASSERT(
             BS_NR_OF_CELL_BLOCKS_PER_MODULE <= MXM_MAXIMUM_NR_OF_CELLS_PER_MODULE); /*!< invalid configuration! */

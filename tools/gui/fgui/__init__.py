@@ -45,7 +45,7 @@ from pathlib import Path
 
 import httplib2
 
-__version__ = "1.5.0"
+__version__ = "1.5.1"
 __appname__ = "foxBMS 2"
 __author__ = "The foxBMS Team"
 __copyright__ = "(c) 2010 - 2023 foxBMS"

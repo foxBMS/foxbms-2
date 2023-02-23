@@ -1,4 +1,4 @@
-name: 2021-11-fennec-fox
+name: 2023-02-fennec-fox
 channels:
   - defaults
   - foxbms
@@ -56,7 +56,6 @@ dependencies:
       - diskcache==5.2.1
       - docopt==0.6.2
       - docutils==0.16
-      - doorstop==2.2b5
       - entrypoints==0.3
       - et-xmlfile==1.1.0
       - filterpy==1.4.5
@@ -102,7 +101,7 @@ dependencies:
       - nbformat==5.1.3
       - nest-asyncio==1.5.1
       - notebook==6.4.5
-      - numpy==1.21.4
+      - numpy==1.22.4
       - openpyxl==2.6.4
       - packaging==21.2
       - pandas==1.3.4
@@ -118,7 +117,6 @@ dependencies:
       - plantuml==0.3.0
       - plantuml-markdown==3.4.4
       - platformdirs==2.4.0
-      - plotly==5.3.1
       - prometheus-client==0.12.0
       - prompt-toolkit==3.0.22
       - psutil==5.8.0
@@ -154,7 +152,6 @@ dependencies:
       - rsinstrument==1.19.0.75
       - ruamel-yaml==0.17.17
       - ruamel-yaml-clib==0.2.6
-      - scikit-learn==1.0.1
       - scipy==1.7.2
       - seaborn==0.11.2
       - send2trash==1.8.0
@@ -165,7 +162,6 @@ dependencies:
       - sphinx==4.3.0
       - sphinx-copybutton==0.3.3
       - sphinx-panels==0.6.0
-      - sphinx-plotly-directive==0.1.3
       - sphinx-rtd-theme==1.0.0
       - sphinxcontrib-applehelp==1.0.2
       - sphinxcontrib-bibtex==2.4.1
@@ -173,14 +169,12 @@ dependencies:
       - sphinxcontrib-htmlhelp==2.0.0
       - sphinxcontrib-jsmath==1.0.1
       - sphinxcontrib-mermaid==0.7.1
-      - sphinxcontrib-needs==0.7.3
       - sphinxcontrib-plantuml==0.21
       - sphinxcontrib-programoutput==0.17
       - sphinxcontrib-qthelp==1.0.3
       - sphinxcontrib-serializinghtml==1.1.5
       - sphinxcontrib-spelling==7.2.1
       - statsmodels==0.13.0
-      - strictdoc==0.0.17
       - tabulate==0.8.9
       - tenacity==8.0.1
       - terminado==0.12.1

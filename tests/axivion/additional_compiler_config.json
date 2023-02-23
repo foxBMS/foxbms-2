@@ -1,6 +1,7 @@
 {
     "Project": {
         "TIARMToolchain": {
+            "_active": true,
             "language_c": {
                 "preprocessing": {
                     "predefined_macros": {
@@ -34,11 +35,11 @@
         }
     },
     "_Format": "1.0",
-    "_Version": "7.5.0",
+    "_Version": "7.5.2",
     "_VersionNum": [
         7,
         5,
-        0,
-        11376
+        2,
+        11578
     ]
 }

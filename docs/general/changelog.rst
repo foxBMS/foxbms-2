@@ -45,6 +45,34 @@ Versioning follows then these rules:
   straight forward work to update a project to this version.
 
 ********************
+[1.5.1] - 2023-02-23
+********************
+
+|foxbms| now ships with a new conda environment ``2023-02-fennec-fox`` and the
+local conda environment needs to be updated (see :numref:`conda_env_update`).
+
+Added
+=====
+
+Changed
+=======
+
+- Update the static code analysis to Axivion 7.5.2 (from 7.5.0).
+- Simplified the conda development environment.
+
+Deprecated
+==========
+
+Removed
+=======
+
+Fixed
+=====
+
+- Renamed struct member `packVoltage_mV` to `stringVoltage_mV` for cell voltage
+  database entry to adhere to our naming convention.
+
+********************
 [1.5.0] - 2023-02-03
 ********************
 
