@@ -113,7 +113,7 @@
 /**@}*/
 
 /**
- * @brief   Minimum temperature limit during discharge.
+ * @brief   Minimum temperature limit during charge.
  * @details When maximum safety limit (MSL) is violated, error state is
  *          requested and contactors will open. When recommended safety limit
  *          (RSL) or maximum operating limit (MOL) is violated, the respective
