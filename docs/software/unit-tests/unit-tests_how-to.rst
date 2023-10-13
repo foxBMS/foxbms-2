@@ -3,10 +3,17 @@
 
 .. _HOW_TO_USE_UNIT_TESTS:
 
-How to use unit tests
+How to use Unit Tests
 =====================
 
-Verify that the unit testing framework is work is working as expected:
+.. spelling::
+    Ootpa
+    gcc
+    el
+    bb
+    linux
+
+Verify that the unit testing framework is working as expected:
 
 .. code-block:: console
 
@@ -17,7 +24,7 @@ Typical usage and more information on the unit tests can be found in
 :ref:`Unit tests <UNIT_TESTS>`.
 
 Guidelines for the Unit Test Skeleton
-=====================================
+-------------------------------------
 
 In this example a driver that resides in `src/app/driver/abc/abc.c` and
 `src/app/driver/abc/abc.h` is added and therefore the accompanying unit tests
@@ -83,7 +90,7 @@ Static Function Tests
    wrapper even more clear.
 
 Result
-======
+------
 
 .. literalinclude:: ./abc.h
    :language: C
@@ -132,7 +139,7 @@ Using ceedling directly
 
 .. warning::
     Ceedling (the unit test runner that is used by this project) is wrapped by
-    the waf-toolchain.
+    the Waf toolchain.
     The toolchain makes sure that the path handed to ceedling contains the
     necessary applications and files, so without the wrapper extensive
     knowledge of the project structure is helpful.
@@ -140,7 +147,7 @@ Using ceedling directly
     That being said, it is normally not necessary to directly execute ceedling
     as the wrapper handles this.
 
-The waf-script of this project executes always the complete unit test-suite.
+The wscript of this project executes always the complete unit test-suite.
 This can take some time.
 When developing or debugging a unit test, it might be beneficial to have finer
 control over which test is executed.
@@ -155,7 +162,7 @@ This will not be covered in this manual.
 
 Once such a shell is available it also has to be made sure that all files that
 are generated or adapted on-the-fly are available in the ``build``-directory.
-This can be ensured by executing the waf-task ``build_unit_test`` just until
+This can be ensured by executing the Waf task ``build_unit_test`` just until
 ceedling is run by it.
 After this step (it does not matter whether the task completes or is imported
 after it has generated the dependencies) the following example can be executed.
@@ -174,3 +181,29 @@ after it has generated the dependencies) the following example can be executed.
     # should the current shell not be able to directly follow the ceedling.cmd
     # file, it might be necessary to access the vendored ceedling directly:
     ruby ../../tools/vendor/ceedling/bin/ceedling gcov:test_plausibility.c
+
+.. _linux_specific_usage:
+
+Linux specific Usage
+====================
+
+The unit test suite is developed on Windows and there works out of the box on
+all setup that install the dependencies as they are specified in
+:ref:`SOFTWARE_INSTALLATION`.
+However, it is still possible to get the unit test suite working on Linux.
+Internally it is tested with the following setup:
+
+- ``cat /etc/redhat-release``: Red Hat Enterprise Linux release 8.8 (Ootpa)
+- ``uname -mrs``: Linux 4.18.0-425.19.2.el8_7.x86_64 x86_64
+- ``gcc --version``: gcc (GCC) 8.5.0 20210514 (Red Hat 8.5.0-18)
+- ``ruby --version``: ruby 3.1.2p20 (2022-04-12 revision 4491bb740a)
+  [x86_64-linux]
+
+Running ``./waf.sh build_unit_test`` works the same as on Windows.
+There is also a wrapper to use ceedling directly, that is generated at
+``build/unit_test/ceedling.sh``.
+It can be used from the root of the repository as follows:
+
+.. code-block:: console
+
+    ./build/unit_test/ceedling.sh test:test_adc

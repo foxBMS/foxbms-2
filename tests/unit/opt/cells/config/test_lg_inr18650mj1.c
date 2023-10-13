@@ -43,8 +43,8 @@
  * @file    test_lg_inr18650mj1.c
  * @author  foxBMS Team
  * @date    2020-07-31 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -56,6 +56,9 @@
 #include "unity.h"
 
 #include "lg_inr18650mj1.h"
+
+/*========== Unit Testing Framework Directives ==============================*/
+TEST_INCLUDE_PATH("../../src/opt/cells/config")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 

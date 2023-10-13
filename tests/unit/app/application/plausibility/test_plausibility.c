@@ -43,8 +43,8 @@
  * @file    test_plausibility.c
  * @author  foxBMS Team
  * @date    2020-04-01 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -59,12 +59,13 @@
 #include "plausibility.h"
 #include "test_assert_helper.h"
 
+/*========== Unit Testing Framework Directives ==============================*/
+TEST_INCLUDE_PATH("../../src/app/application/plausibility")
+TEST_INCLUDE_PATH("../../src/app/driver/foxmath")
+TEST_INCLUDE_PATH("../../src/app/engine/diag")
+TEST_INCLUDE_PATH("../../src/app/task/config")
+
 /*========== Definitions and Implementations for Unit Test ==================*/
-/** local copies of database tables */
-/**@{*/
-static DATA_BLOCK_CELL_VOLTAGE_s cellVoltage     = {.header.uniqueId = DATA_BLOCK_ID_CELL_VOLTAGE};
-static DATA_BLOCK_CURRENT_SENSOR_s currentSensor = {.header.uniqueId = DATA_BLOCK_ID_CURRENT_SENSOR};
-/**@}*/
 
 /*========== Setup and Teardown =============================================*/
 void setUp(void) {

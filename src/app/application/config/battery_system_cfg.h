@@ -43,8 +43,8 @@
  * @file    battery_system_cfg.h
  * @author  foxBMS Team
  * @date    2019-12-10 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup BATTERY_SYSTEM_CONFIGURATION
  * @prefix  BS
  *
@@ -122,13 +122,12 @@ typedef enum {
 #define BS_NR_OF_CELL_BLOCKS_PER_MODULE (18u)
 
 /**
- * @brief   number of battery cells in a parallel cell connection per battery
- *          module
+ * @brief   number of parallel connected battery cells in a cell block
  * @details For details see
  *          <a href="../../../../introduction/naming-conventions.html" target="_blank">Naming Conventions</a>.
  * @ptype   uint
  */
-#define BS_NR_OF_PARALLEL_CELLS_PER_MODULE (1u)
+#define BS_NR_OF_PARALLEL_CELLS_PER_CELL_BLOCK (1u)
 
 /** Value of the balancing resistors on the slave-board */
 #define BS_BALANCING_RESISTANCE_ohm (100.0)

@@ -3,7 +3,7 @@
 .. |timestamp| date:: %Y-%m-%d %H:%M:%S
 
 .. |foxbms| replace:: foxBMS 2
-.. |version_foxbms| replace:: ``1.5.1``
+.. |version_foxbms| replace:: ``1.6.0``
 .. |foxbms.org| replace:: https://foxbms.org
 .. |docs.foxbms.org| replace:: https://docs.foxbms.org
 .. |github_foxbms| replace:: https://github.com/foxBMS/
@@ -44,7 +44,7 @@
 .. |version_llvm| replace:: ``13.0.0``
 .. |path_llvm| replace:: ``C:\Program Files\LLVM\13.0.0``
 
-.. |version_pcan_se| replace:: ``Version 6.5.2``
+.. |version_pcan_symbol_editor| replace:: ``Version 6.5.2``
 .. |version_sym_file| replace:: ``Version 6.0``
 
 .. _Ruby: https://www.ruby-lang.org/
@@ -96,10 +96,6 @@
 
 .. _MISRA C: https://www.misra.org.uk/
 
-.. |nxp775| replace:: MC33775A
-
-.. |nxp664| replace:: MC33664
-
 .. |soa| replace:: *SOA*
 .. |soc| replace:: *SOC*
 .. |soe| replace:: *SOE*
@@ -113,17 +109,19 @@
 .. |adi| replace:: Analog Devices
 .. |mxm| replace:: Maxim Integrated
 
-.. |tms570lc4357| replace:: TMS570LC4357
+.. |ti-tms570| replace:: TI TMS570
+.. |ti-tms570lc4357| replace:: TI TMS570LC4357
 
-.. |ltc6820| replace:: LTC6820
-.. |max17852| replace:: MAX17852
-.. |mc33664| replace:: MC33664
+.. |ltc-ltc6820| replace:: LTC LTC6820
+.. |max-max17852| replace:: Maxim MAX17852
+.. |nxp-mc33664| replace:: NXP MC33664
 
-.. |ltc6804-1| replace:: LTC6804-1
-.. |ltc6811-1| replace:: LTC6811-1
-.. |ltc6813-1| replace:: LTC6813-1
-.. |max17841b| replace:: MAX17841B
-.. |mc33775a| replace:: MC33775A
+.. |ltc-ltc6804-1| replace:: LTC LTC6804-1
+.. |ltc-ltc6811-1| replace:: LTC LTC6811-1
+.. |ltc-ltc6813-1| replace:: LTC LTC6813-1
+.. |max-max17841b| replace:: Maxim MAX17841B
+.. |nxp-mc33775a| replace:: NXP MC33775A
+.. |adi-ades1830| replace:: ADI ADES1830
 
 .. |master| replace:: foxBMS Master Unit
 .. |masters| replace:: foxBMS Master Units

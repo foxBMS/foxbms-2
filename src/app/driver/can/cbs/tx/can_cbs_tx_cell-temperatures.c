@@ -43,8 +43,8 @@
  * @file    can_cbs_tx_cell-temperatures.c
  * @author  foxBMS Team
  * @date    2021-04-20 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup DRIVER
  * @prefix  CANTX
  *
@@ -154,8 +154,7 @@ static void CANTX_TemperatureSetData(
 
         /* Temperature data */
         float_t signalData_degC =
-            (float_t)kpkCanShim->pTableCellTemperature
-                ->cellTemperature_ddegC[stringNumber][(moduleNumber * BS_NR_OF_TEMP_SENSORS_PER_MODULE) + sensorNumber];
+            (float_t)kpkCanShim->pTableCellTemperature->cellTemperature_ddegC[stringNumber][moduleNumber][sensorNumber];
         signalData_degC /= UNIT_CONVERSION_FACTOR_10_FLOAT; /* Convert temperature from decidegC to degC */
         /* Apply offset and factor, check min/max limits */
         CAN_TxPrepareSignalData(&signalData_degC, cellTemperatureSignal);

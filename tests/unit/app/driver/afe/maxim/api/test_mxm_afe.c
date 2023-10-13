@@ -43,8 +43,8 @@
  * @file    test_mxm_afe.c
  * @author  foxBMS Team
  * @date    2020-06-17 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -64,9 +64,14 @@
 
 #include "afe.h"
 
-/* it's important to mention the implementation in mxm_afe.c
-here in order to test the correct implementation */
-TEST_FILE("mxm_afe.c")
+/*========== Unit Testing Framework Directives ==============================*/
+TEST_SOURCE_FILE("mxm_afe.c")
+
+TEST_INCLUDE_PATH("../../src/app/driver/afe/api")
+TEST_INCLUDE_PATH("../../src/app/driver/afe/maxim/common")
+TEST_INCLUDE_PATH("../../src/app/driver/afe/maxim/common/config")
+TEST_INCLUDE_PATH("../../src/app/driver/config")
+TEST_INCLUDE_PATH("../../src/app/driver/spi")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 

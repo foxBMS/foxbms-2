@@ -1,0 +1,5 @@
+Description;                                                Minimum;    Typical;    Maximum;    Unit
+Battery Module Voltage;11;         --;80;         |V|
+Single Battery Cell Voltage;0;          --;5;          |V|
+Temperature Sensor Inputs;                                  --;         10k;        --;         |Ohm|
+Current consumption: AFE active;      --;         TBD;      --;         |mA|

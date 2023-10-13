@@ -86,12 +86,12 @@ class NodeStructure:  # pylint: disable=too-few-public-methods
                             self.removes.append(value_os.text)
                 continue
             for hcg_setting in self.root.iter(element.tag):
-                for hw_type in list(hcg_setting[0]):
-                    if "_GCC" in hw_type.tag:
+                for hardware_type in list(hcg_setting[0]):
+                    if "_GCC" in hardware_type.tag:
                         # we are not interested in GCC specific files as we are
                         # using TI ARM CGT
                         continue
-                    for value_hal in list(hw_type):
+                    for value_hal in list(hardware_type):
                         if value_hal.tag == "PATH":
                             if value_hal.text is not None:
                                 if value_hal.text.endswith("HL_sys_main.c"):

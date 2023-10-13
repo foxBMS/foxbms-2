@@ -10,12 +10,13 @@ Risk Assessment
 ---------------
 
 Depending on the countries of the target application, there are different
-standards to regard. In the European Union, the applicable directives lead to
-different safety requirements.
-These have a variety of risk graphs for the risk assessment. Although they are
-only slightly different they are not adaptable to each other. Since the target
-country and use of |foxbms| is unknown, the users of the system need to do a
-risk assessment on their own according to their concerns.
+standards to regard.
+In the European Union, the applicable directives lead to different safety
+requirements.
+These have a variety of risk graphs for the risk assessment.
+Although they are only slightly different they are not adaptable to each other.
+Since the target country and use of |foxbms| is unknown, the users of the
+system need to do a risk assessment on their own according to their concerns.
 
 Some European directives that can be relevant for the |foxbms| users:
 
@@ -38,7 +39,6 @@ users:
 A list of standards that might fit to the target application can be found here:
 
 - https://www.mpoweruk.com/standards.htm
-
 
 Standards
 ---------
@@ -72,7 +72,6 @@ Safety Instructions Before Using |foxbms|
     60364-4-41, IEC 60364-6, IEC 60529 (DIN VDE 0100-410, DIN VDE 0100-600,
     VDE 0470-1).
 
-
 .. danger::
     .. W012, M009
     .. image:: ./signs/mandatory/m009_handschutz_benutzen.png
@@ -88,7 +87,6 @@ Safety Instructions Before Using |foxbms|
     or disassembling the battery system. You need skills in live working in
     order to work with the battery system and assemble it. Wear personal
     insulating protective equipment.
-
 
 .. danger::
     .. W002, W016, W021, W023, W026, W028
@@ -113,13 +111,11 @@ Safety Instructions Before Using |foxbms|
         :alt: alternate text
         :align: right
 
-
     Risk of fire, explosion and chemical hazards through the battery cells. You
     need to be a battery skilled person in order to work with the battery
     system and assemble it. Use safe cells with CID, PTC and OPD. Use the
     battery system in a confined area. Keep sand, water and fire extinguisher
     close to the system to fight fire. Regard local fire safety regulations.
-
 
 .. danger::
     .. M008, M009, M010, M013, M014
@@ -153,7 +149,6 @@ Safety Instructions Before Using |foxbms|
     protection, protection glasses, protection gloves). Keep other persons in a
     safe distance.
 
-
 .. danger::
     .. W012, W026
     .. image:: ./signs/warning/w012_elektrische_spannung.png
@@ -172,7 +167,6 @@ Safety Instructions Before Using |foxbms|
     shortage. A fire might start or other hazards can occur. Leave enough room
     between the cells and use locknuts.
 
-
 .. danger::
     .. W012, W026
     .. image:: ./signs/warning/w012_elektrische_spannung.png
@@ -187,7 +181,6 @@ Safety Instructions Before Using |foxbms|
     Electric short and hazards through reversed polarity or wrong connection
     can occur. Be cautious and prevent battery cells and batteries from wrong
     connection.
-
 
 .. danger::
     .. W023, W026, M004, M009
@@ -214,7 +207,6 @@ Safety Instructions Before Using |foxbms|
     electrolyte. Regard material safety data sheet (MSDS) from the battery
     cell manufacturer.
 
-
 .. danger::
     .. W012, W026
     .. image:: ./signs/warning/w012_elektrische_spannung.png
@@ -234,7 +226,6 @@ Safety Instructions Before Using |foxbms|
     chemistry or technologies. Change all cells of a battery at the same time.
     Do not mix cells within the battery. Use only one type of cell throughout
     the whole system.
-
 
 .. warning::
     .. W016, W021, W026, W028
@@ -260,7 +251,6 @@ Safety Instructions Before Using |foxbms|
     environment to ensure flammable and toxic gases will be removed in case of
     degassing of a battery cell.
 
-
 .. warning::
     .. W012
     .. image:: ./signs/warning/w012_elektrische_spannung.png
@@ -273,7 +263,6 @@ Safety Instructions Before Using |foxbms|
     overcurrent through the electrical short. The slaves can take a maximum
     amount of 12 cells with a voltage sum between 11V and 55V. Beware of the
     amount of cells and the cell voltage.
-
 
 .. warning::
     .. W023, M004, M009
@@ -294,7 +283,6 @@ Safety Instructions Before Using |foxbms|
     chemicals and wear chemical protective gloves and safety goggles. Regard
     material safety data sheet (MSDS) from the battery cell manufacturer.
 
-
 .. warning::
     .. W012, W026
     .. image:: ./signs/warning/w012_elektrische_spannung.png
@@ -310,7 +298,6 @@ Safety Instructions Before Using |foxbms|
     solder anything directly to the cells or battery. Follow the mounting
     instructions of the manufacturer.
 
-
 .. warning::
     .. W026
     .. image:: ./signs/warning/w026_gefahren_batterien.png
@@ -323,7 +310,6 @@ Safety Instructions Before Using |foxbms|
     to detect over temperature and keep a fire extinguisher close to the
     battery system. Do not use damaged cells or batteries.
 
-
 .. warning::
     .. W012
     .. image:: ./signs/warning/w012_elektrische_spannung.png
@@ -334,7 +320,6 @@ Safety Instructions Before Using |foxbms|
     Parallel cells with an electrical short can cause a large over current and
     over temperature that bring other hazards with them. Assemble breaking
     elements between parallel cells to avoid the short current.
-
 
 .. warning::
     .. W012
@@ -347,7 +332,6 @@ Safety Instructions Before Using |foxbms|
     fire, leakage or explosion. Always use a proper charger for the cells and
     the batteries and avoid heavy loads and rapid charges and discharges.
     Remove fully charged battery packs from the charger.
-
 
 .. warning::
     .. W012, P008
@@ -364,7 +348,6 @@ Safety Instructions Before Using |foxbms|
     fault detector or an insulation monitor and regard IEC 60364-4-41 and
     IEC 60364-6 (DIN VDE 0100-410, DIN VDE 0100-600).
 
-
 .. warning::
     .. W012, P008
     .. image:: ./signs/prohibition/p008_metallteile_uhren_verboten.png
@@ -380,7 +363,6 @@ Safety Instructions Before Using |foxbms|
     tools while assembling, disassembling, maintaining, servicing or
     dismantling the battery system. Never open battery cells.
 
-
 .. warning::
     .. P003
     .. image:: ./signs/prohibition/p003_keine_offene_flamme.png
@@ -391,7 +373,6 @@ Safety Instructions Before Using |foxbms|
     Explosive or flammable environment around the battery cells or the battery
     system can start burning or explode. Do not use the battery system in an
     explosive environment.
-
 
 .. warning::
     .. W026, M016, M017
@@ -413,7 +394,6 @@ Safety Instructions Before Using |foxbms|
     Assemble and disassemble the system carefully and keep gas mask or
     breathing aid in close environment.
 
-
 .. caution::
     .. M008, M009
     .. image:: ./signs/mandatory/m008_fussschutz_benutzen.png
@@ -429,7 +409,6 @@ Safety Instructions Before Using |foxbms|
     you. Use solid housing and add handles. Wear personal protective equipment,
     gloves, shoes and other clothes for working.
 
-
 .. caution::
     .. M003
     .. image:: ./signs/mandatory/m003_gehoerschutz_benutzen.png
@@ -440,7 +419,6 @@ Safety Instructions Before Using |foxbms|
     An electric arc or exploding cell may cause loud noise. Wear ear plugs or
     ear muffs with other personal protective equipment. Stay out and keep other
     persons out of the testing area.
-
 
 .. caution::
     .. M009
@@ -453,7 +431,6 @@ Safety Instructions Before Using |foxbms|
     or threaten your health. Wear gloves while working with soldering materials
     and wash hands properly afterwards.
 
-
 .. caution::
     .. M001
     .. image:: ./signs/mandatory/m001_allgemeines_gebotszeichen.png
@@ -465,7 +442,6 @@ Safety Instructions Before Using |foxbms|
     the system. Failure of electrical or electronic parts especially safety
     responsible parts may lead to other hazards. Keep the battery system in a
     dry and clean environment and away from corrosive materials.
-
 
 .. note::
 
@@ -491,7 +467,6 @@ Safety Instructions Before Using |foxbms|
     pouch battery cells are used and the pouch bag has been damaged. Put a
     basin underneath for dripping the electrolyte.
 
-
 .. note::
 
     .. W026
@@ -503,7 +478,6 @@ Safety Instructions Before Using |foxbms|
     Undervoltage leads to a damaged cell or battery system. Prevent deep
     discharge. Never charge and use again battery cells or batteries after deep
     discharge has occurred.
-
 
 .. note::
 
@@ -517,7 +491,6 @@ Safety Instructions Before Using |foxbms|
     storage, transportation or usage. Always keep cells or batteries in their
     valid temperature range. Keep the cells and batteries out of the sun and
     use heating or cooling to keep the safe temperature range.
-
 
 .. note::
 

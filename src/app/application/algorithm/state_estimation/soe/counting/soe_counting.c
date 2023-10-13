@@ -43,8 +43,8 @@
  * @file    soe_counting.c
  * @author  foxBMS Team
  * @date    2020-10-07 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup APPLICATION
  * @prefix  SOE
  *
@@ -53,8 +53,6 @@
  */
 
 /*========== Includes =======================================================*/
-#include "soe_counting.h"
-
 #include "battery_cell_cfg.h"
 #include "battery_system_cfg.h"
 #include "soe_counting_cfg.h"
@@ -63,6 +61,7 @@
 #include "database.h"
 #include "foxmath.h"
 #include "fram.h"
+#include "state_estimation.h"
 
 #include <math.h>
 #include <stdbool.h>
@@ -70,7 +69,7 @@
 
 /*========== Macros and Definitions =========================================*/
 /**
- * This structure contains all the variables relevant for the SOX.
+ * This structure contains all the variables relevant for the SOE.
  */
 typedef struct {
     bool soeInitialized;                        /*!< true if the initialization has passed, false otherwise */
@@ -131,7 +130,7 @@ static float_t SOE_GetStringSoePercentageFromEnergy(uint32_t energy_Wh);
  * @brief   initializes database and FRAM SOE values via lookup table (average, min and max).
  * @param[out] pSoeValues   pointer to SOE database entry
  */
-static void SOE_RecalibrateViaLookupTable(DATA_BLOCK_SOX_s *pSoeValues);
+static void SOE_RecalibrateViaLookupTable(DATA_BLOCK_SOE_s *pSoeValues);
 
 /**
  * @brief   look-up table for SOE initialization
@@ -147,14 +146,14 @@ static float_t SOE_GetFromVoltage(int16_t voltage_mV);
  * @details limits the SOE value to 0.0 respectively 100.0 if a value outside
  *          of the allowed SOE range is passed. Updates local fram and database
  *          struct but does *NOT* write them
- * @param[out]  pSoeValues  pointer to SOE database enty
+ * @param[out]  pSoeValues  pointer to SOE database entry
  * @param[in]   soeMinimumValue_perc  SOE min value to set
  * @param[in]   soeMaximumValue_perc  SOE max value to set
  * @param[in]   soeAverageValue_perc  SOE average value to set
  * @param[in]   stringNumber     string addressed
  */
 static void SOE_SetValue(
-    DATA_BLOCK_SOX_s *pSoeValues,
+    DATA_BLOCK_SOE_s *pSoeValues,
     float_t soeMinimumValue_perc,
     float_t soeMaximumValue_perc,
     float_t soeAverageValue_perc,
@@ -167,7 +166,7 @@ static void SOE_SetValue(
  * @param[in,out] pTableSoe  pointer to database struct with SOE values
  * @param[in] stringNumber   string that is checked
  */
-static void SOE_CheckDatabaseSoePercentageLimits(DATA_BLOCK_SOX_s *pTableSoe, uint8_t stringNumber);
+static void SOE_CheckDatabaseSoePercentageLimits(DATA_BLOCK_SOE_s *pTableSoe, uint8_t stringNumber);
 
 /*========== Static Function Implementations ================================*/
 static float_t SOE_GetStringSoePercentageFromEnergy(uint32_t energy_Wh) {
@@ -193,7 +192,7 @@ static uint32_t SOE_GetStringEnergyFromSoePercentage(float_t stringSoe_perc) {
     return (uint32_t)energy_Wh;
 }
 
-static void SOE_RecalibrateViaLookupTable(DATA_BLOCK_SOX_s *pSoeValues) {
+static void SOE_RecalibrateViaLookupTable(DATA_BLOCK_SOE_s *pSoeValues) {
     FAS_ASSERT(pSoeValues != NULL_PTR);
     DATA_BLOCK_MIN_MAX_s tableMinimumMaximumAverage = {.header.uniqueId = DATA_BLOCK_ID_MIN_MAX};
 
@@ -244,7 +243,7 @@ static float_t SOE_GetFromVoltage(int16_t voltage_mV) {
 }
 
 static void SOE_SetValue(
-    DATA_BLOCK_SOX_s *pSoeValues,
+    DATA_BLOCK_SOE_s *pSoeValues,
     float_t soeMinimumValue_perc,
     float_t soeMaximumValue_perc,
     float_t soeAverageValue_perc,
@@ -287,7 +286,7 @@ static void SOE_SetValue(
     }
 }
 
-static void SOE_CheckDatabaseSoePercentageLimits(DATA_BLOCK_SOX_s *pTableSoe, uint8_t stringNumber) {
+static void SOE_CheckDatabaseSoePercentageLimits(DATA_BLOCK_SOE_s *pTableSoe, uint8_t stringNumber) {
     FAS_ASSERT(pTableSoe != NULL_PTR);
     FAS_ASSERT(stringNumber < BS_NR_OF_STRINGS);
 
@@ -313,7 +312,7 @@ static void SOE_CheckDatabaseSoePercentageLimits(DATA_BLOCK_SOX_s *pTableSoe, ui
 
 /*========== Extern Function Implementations ================================*/
 
-extern void SE_InitializeStateOfEnergy(DATA_BLOCK_SOX_s *pSoeValues, bool ec_present, uint8_t stringNumber) {
+extern void SE_InitializeStateOfEnergy(DATA_BLOCK_SOE_s *pSoeValues, bool ec_present, uint8_t stringNumber) {
     FAS_ASSERT(pSoeValues != NULL_PTR);
     FAS_ASSERT(stringNumber < BS_NR_OF_STRINGS);
     FRAM_ReadData(FRAM_BLOCK_ID_SOE);
@@ -357,7 +356,7 @@ extern void SE_InitializeStateOfEnergy(DATA_BLOCK_SOX_s *pSoeValues, bool ec_pre
     soe_state.soeInitialized = true;
 }
 
-void SE_CalculateStateOfEnergy(DATA_BLOCK_SOX_s *pSoeValues) {
+void SE_CalculateStateOfEnergy(DATA_BLOCK_SOE_s *pSoeValues) {
     FAS_ASSERT(pSoeValues != NULL_PTR);
     bool continueFunction = true;
     if (soe_state.soeInitialized == false) {

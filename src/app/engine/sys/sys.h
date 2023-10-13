@@ -43,8 +43,8 @@
  * @file    sys.h
  * @author  foxBMS Team
  * @date    2020-02-24 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup ENGINE
  * @prefix  SYS
  *
@@ -78,7 +78,7 @@ typedef enum {
     SYS_FSM_STATE_HAS_NEVER_RUN,  /*!< never run state - always the second state */
     SYS_FSM_STATE_UNINITIALIZED,  /*!< uninitialized state */
     SYS_FSM_STATE_INITIALIZATION, /*!< initializing the state machine */
-    SYS_FSM_STATE_RUNNING,        /*!< operational mode of the state machine  */
+    SYS_FSM_STATE_RUNNING,        /*!< operational mode of the state machine */
     SYS_FSM_STATE_ERROR,          /*!< state for error processing  */
 } SYS_FSM_STATES_e;
 
@@ -146,14 +146,14 @@ typedef enum {
     SYS_CURRENT_SENSOR_PRESENCE_ERROR,         /*!< Substate error if first measurement cycle does not complete */
 } SYS_STATEMACH_SUB_e;
 
-/** State requests for the SYS statemachine */
+/** State requests for the SYS state machine */
 typedef enum {
     SYS_STATE_INITIALIZATION_REQUEST, /*!< initialization request */
     SYS_STATE_ERROR_REQUEST,          /*!< error state requested */
     SYS_STATE_NO_REQUEST,             /*!< no request */
 } SYS_STATE_REQUEST_e;
 
-/** Possible return values when state requests are made to the SYS statemachine */
+/** Possible return values when state requests are made to the SYS state machine */
 typedef enum {
     SYS_OK,                  /*!< sys --> ok                             */
     SYS_BUSY_OK,             /*!< sys busy --> ok                        */
@@ -170,7 +170,7 @@ typedef enum {
 typedef struct {
     uint16_t timer; /*!< time in ms before the state machine processes the next state, e.g. in counts of 1ms    */
     SYS_STATE_REQUEST_e stateRequest; /*!< current state request made to the state machine                      */
-    SYS_STATEMACH_e state;            /*!< state of Driver State Machine                                        */
+    SYS_STATEMACH_e state;            /*!< state of driver state machine                                        */
     SYS_STATEMACH_SUB_e substate;     /*!< current substate of the state machine                                */
     SYS_STATEMACH_e lastState;        /*!< previous state of the state machine                                  */
     SYS_STATEMACH_SUB_e lastSubstate; /*!< previous substate of the state machine                               */

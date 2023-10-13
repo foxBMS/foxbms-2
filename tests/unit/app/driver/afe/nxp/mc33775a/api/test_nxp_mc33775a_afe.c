@@ -43,8 +43,8 @@
  * @file    test_nxp_mc33775a_afe.c
  * @author  foxBMS Team
  * @date    2020-06-10 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -64,7 +64,18 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-TEST_FILE("nxp_mc33775a_afe.c")
+/*========== Unit Testing Framework Directives ==============================*/
+TEST_SOURCE_FILE("nxp_mc33775a_afe.c")
+
+TEST_INCLUDE_PATH("../../src/app/driver/afe/api")
+TEST_INCLUDE_PATH("../../src/app/driver/afe/nxp/api")
+TEST_INCLUDE_PATH("../../src/app/driver/afe/nxp/mc33775a")
+TEST_INCLUDE_PATH("../../src/app/driver/afe/nxp/mc33775a/config")
+TEST_INCLUDE_PATH("../../src/app/driver/afe/nxp/mc33775a/vendor")
+TEST_INCLUDE_PATH("../../src/app/driver/config")
+TEST_INCLUDE_PATH("../../src/app/driver/dma")
+TEST_INCLUDE_PATH("../../src/app/driver/pex")
+TEST_INCLUDE_PATH("../../src/app/driver/spi")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 
@@ -78,7 +89,7 @@ static DATA_BLOCK_BALANCING_FEEDBACK_s n775_balancingFeedback = {
 static DATA_BLOCK_SLAVE_CONTROL_s n775_slaveControl = {.header.uniqueId = DATA_BLOCK_ID_SLAVE_CONTROL};
 static DATA_BLOCK_OPEN_WIRE_s n775_openWire         = {.header.uniqueId = DATA_BLOCK_ID_OPEN_WIRE_BASE};
 static N775_SUPPLY_CURRENT_s n775_supplyCurrent     = {0};
-static N775_ERRORTABLE_s n775_errorTable            = {0};
+static N775_ERROR_TABLE_s n775_errorTable           = {0};
 
 N775_STATE_s n775_stateBase = {
     .firstMeasurementMade       = false,

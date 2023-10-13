@@ -45,10 +45,15 @@ import re
 import sys
 from pathlib import Path
 
-import axivion.config  # pylint: disable=import-error
-from bauhaus import ir  # pylint: disable=import-error
-from bauhaus import style  # pylint: disable=import-error
-from bauhaus.ir.common.scanner import comments  # pylint: disable=import-error
+# disable import checking for Python modules that come with Axivion
+# pylint: disable=import-error
+import axivion.config
+from bauhaus import ir
+from bauhaus import style
+from bauhaus.ir.common.scanner import comments
+from bauhaus.ir.common.output.unparse import unparse_type
+
+# pylint: enable=import-error
 
 if "perform_tests" in sys.argv[0]:
     logging.basicConfig(format="%(levelname)s:%(message)s", level=logging.DEBUG)
@@ -65,9 +70,11 @@ VALID_SUFFIXES = (
     "dK",  # deci Kelvin
     "ohm",  # ohm
     "kOhm",  # kilo ohm
+    "kHz",  # kilo Hertz
     "ms",  # milliseconds
     "us",  # microseconds
     "perc",  # percentage
+    "perm",  # per mill
     "mV",  # millivolt
     "V",  # volt
     "mA",  # milliampere
@@ -75,6 +82,7 @@ VALID_SUFFIXES = (
     "mAs",  # milliampere seconds
     "mAh",  # milliampere hours
     "As",  # ampere seconds
+    "W",  # watt
     "Wh",  # watt hours
     "t",  # "typedef"
     "Hz",  # Hertz
@@ -308,13 +316,34 @@ def check_parameter_name(node: ir.Node, module_prefixes: ModulePrefixLookup) -> 
     optional suffix that indicates the unit."""
     if not node.Name:
         return True
+
+    # check for const and pointer prefixes
+    expected_prefix = ""
+    node_type: str = unparse_type(node.Its_Type)
+
+    for i in node_type.split()[::-1]:  # Clockwise/Spiral Rule
+        if i.endswith("*"):
+            expected_prefix += "p"
+        if i == "const":
+            expected_prefix += "k"
     base_name = str(node.Name)
     base_name_splitted = base_name.split("_", maxsplit=1)
     parameter_name = base_name_splitted[0]
     if not parameter_name:
         # a="_bla"; a.split("_"); ['', 'bla']
         return False
-
+    valid_indicator = True
+    if not parameter_name.startswith(expected_prefix):
+        valid_indicator = False
+    if expected_prefix:
+        try:
+            # if we can not index, the name is invalid in any case
+            first_letter_after_prefix = parameter_name[len(expected_prefix)]
+        except IndexError:
+            return False
+        # 'pabc' would otherwise be valid, but it needs to be 'pAbc'
+        if not first_letter_after_prefix == first_letter_after_prefix.upper():
+            return False
     try:  # TODO: will not work if suffix contains underscore
         parameter_name_suffix = base_name_splitted[1]
     except IndexError:
@@ -336,7 +365,7 @@ def check_parameter_name(node: ir.Node, module_prefixes: ModulePrefixLookup) -> 
             break
 
     valid_suffix = validate_suffix(parameter_name_suffix)
-    return valid_camel_case and valid_suffix
+    return all([valid_indicator, valid_camel_case, valid_suffix])
 
 
 def check_global_variable_name(
@@ -414,7 +443,10 @@ for casing, applicable_rules in prefix_check.items():
 FUNCTION_NAME_ERROR_MESSAGE = "The function name is not 'PascalCase'."
 GLOBAL_VARIABLE_ERROR_MESSAGE = "The global variable name is not 'camelCase'."
 MACRO_ERROR_MESSAGE = "The macro name is not 'ALL_CAPS'."
-PARAMETER_ERROR_MESSAGE = "The parameter name is not 'camelCase'."
+PARAMETER_ERROR_MESSAGE = (
+    "The parameter name is not 'camelCase' or does not "
+    "pre- or suffix the parameter correctly."
+)
 STRUCT_MEMBER_NAME_ERROR_MESSAGE = "The struct member name is not 'camelCase'."
 naming_errors = {
     "Function": (check_function_name, FUNCTION_NAME_ERROR_MESSAGE),

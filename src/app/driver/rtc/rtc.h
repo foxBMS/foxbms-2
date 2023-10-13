@@ -43,8 +43,8 @@
  * @file    rtc.h
  * @author  foxBMS Team
  * @date    2021-02-22 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup DRIVERS
  * @prefix  RTC
  *
@@ -105,7 +105,7 @@ typedef struct {
 
 /* Power management configuration value to switch to battery voltage
    and monitor battery voltage */
-#define RTC_CTRL3_PWRMNG_DIRECTSWITCH_LOWDETECTIONENABLE_MODE (0b011u)
+#define RTC_CTRL3_PWRMNG_DIRECTSWITCH_LOWDETECTIONENABLE_MODE (0x03u)
 
 /* Defines for the RTC CLKOUT_ctl register */
 /**@{*/

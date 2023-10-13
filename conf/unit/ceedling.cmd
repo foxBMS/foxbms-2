@@ -35,4 +35,4 @@
 @REM - "This product includes parts of foxBMS&reg;"
 @REM - "This product is derived from foxBMS&reg;"
 
-ruby ..\..\tools\vendor\ceedling\bin\ceedling %*
+@ruby ..\..\tools\vendor\ceedling\bin\ceedling %*

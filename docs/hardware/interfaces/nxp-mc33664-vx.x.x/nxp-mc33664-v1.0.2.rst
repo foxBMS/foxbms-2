@@ -14,7 +14,7 @@ Overview
 
 .. important::
 
-   The following description only applies for the |mc33664|\ -based
+   The following description only applies for the |nxp-mc33664|\ -based
    |bms-interface| hardware version |local_interface_version|.
 
 .. hint::
@@ -41,7 +41,7 @@ The mechanical dimensions of this |BMS-Interface| are shown in
    :name: nxp-mc33664-v1.0.2_mechanical-dimensions
    :width: 50 %
 
-   Mechanical dimensions of the |mc33664|\ -based |bms-interface| hardware
+   Mechanical dimensions of the |nxp-mc33664|\ -based |bms-interface| hardware
    (version |local_interface_version|).
 
 ^^^^^^^^^^^^^^^^^^^^^^^^^^

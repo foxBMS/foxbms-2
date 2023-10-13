@@ -30,10 +30,10 @@ For example the valid file names for a reStructuredText sources are
 - ``macros.txt``
 - ``software-installation.rst``
 
-.. _rule_rst_linelength:
+.. _rule_rst_line_length:
 
-Linelength (``RST:002``)
-------------------------
+Line length (``RST:002``)
+-------------------------
 
 Each line of text in your code **SHOULD** be at most 80
 characters long.

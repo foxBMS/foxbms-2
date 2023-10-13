@@ -43,8 +43,8 @@
  * @file    test_mxm_battery_management.c
  * @author  foxBMS Team
  * @date    2020-07-02 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  MXM
  *
@@ -65,6 +65,14 @@
 #include "Mockos.h"
 
 #include "mxm_battery_management.h"
+
+/*========== Unit Testing Framework Directives ==============================*/
+TEST_INCLUDE_PATH("../../src/app/driver/afe/api")
+TEST_INCLUDE_PATH("../../src/app/driver/afe/maxim/common")
+TEST_INCLUDE_PATH("../../src/app/driver/afe/maxim/common/config")
+TEST_INCLUDE_PATH("../../src/app/driver/config")
+TEST_INCLUDE_PATH("../../src/app/driver/spi")
+TEST_INCLUDE_PATH("../../src/app/engine/diag")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 

@@ -43,8 +43,8 @@
  * @file    afe.h
  * @author  foxBMS Team
  * @date    2020-05-08 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup DRIVER
  * @prefix  AFE
  *
@@ -106,8 +106,7 @@ typedef struct {
 extern STD_RETURN_TYPE_e AFE_TriggerIc(void);
 /** initializer, this function is called in order to initialize the AFE */
 extern STD_RETURN_TYPE_e AFE_Initialize(void);
-/** this function should tell the AFE that it should start measuring */
-extern STD_RETURN_TYPE_e AFE_StartMeasurement(void);
+
 /** this function returns whether the first measurement cycle has finished */
 extern bool AFE_IsFirstMeasurementCycleFinished(void);
 

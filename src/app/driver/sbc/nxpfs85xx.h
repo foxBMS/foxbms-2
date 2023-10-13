@@ -43,8 +43,8 @@
  * @file    nxpfs85xx.h
  * @author  foxBMS Team
  * @date    2020-03-18 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup DRIVERS
  * @prefix  FS85
  *
@@ -59,11 +59,8 @@
 
 /*========== Includes =======================================================*/
 #include "fram_cfg.h"
-#include "nxpfs85xx_cfg.h"
 
 #include "sbc_fs8x.h"
-#include "sbc_fs8x_communication.h"
-#include "spi.h"
 
 #include <stdint.h>
 
@@ -110,8 +107,8 @@ typedef struct {
 } FS85_MAIN_REGISTERS_s;
 
 typedef enum {
-    SBC_NORMAL_MODE,
-    SBC_DEBUG_MODE,
+    FS85_NORMAL_MODE,
+    FS85_DEBUG_MODE,
 } FS85_OPERATION_MODE_e;
 
 /** struct for FIN configuration */
@@ -124,11 +121,11 @@ typedef struct {
 
 /** stores a pointer to the persistent entry in the FRAM */
 typedef struct {
-    FRAM_BLOCK_ID_e entry; /*!< FRAM ID of persistent SBC entry in FRAM */
-    FRAM_SBC_INIT_s *data; /*!< pointer to SBC entry in FRAM module */
+    FRAM_BLOCK_ID_e entry;  /*!< FRAM ID of persistent SBC entry in FRAM */
+    FRAM_SBC_INIT_s *pData; /*!< pointer to SBC entry in FRAM module */
 } FS85_NVRAM_INFO_s;
 
-/** state struct to create SBC instance */
+/** state struct to create FS85xx instance */
 typedef struct {
     SPI_INTERFACE_CONFIG_s *pSpiInterface; /*< pointer to used SPI interface configuration */
     fs8x_drv_data_t configValues;          /*!< configuration of used communication interface */
@@ -160,14 +157,14 @@ extern STD_RETURN_TYPE_e FS85_InitializeFsPhase(FS85_STATE_s *pInstance);
  *                  fault error counter
  * @param[in,out]   pInstance                   SBC instance that is
  *                                              initialized
- * @param[out]      requiredWatchdogRefreshes   number of required good
+ * @param[out]      pRequiredWatchdogRefreshes  number of required good
  *                                              watchdog refreshes
  * @return          #STD_OK if required watchdog refreshes were calculated
  *                  successfully, otherwise #STD_NOT_OK
  */
 extern STD_RETURN_TYPE_e FS85_InitializeNumberOfRequiredWatchdogRefreshes(
     FS85_STATE_s *pInstance,
-    uint8_t *requiredWatchdogRefreshes);
+    uint8_t *pRequiredWatchdogRefreshes);
 
 /**
  * @brief           Checks if fault error counter is zero
@@ -196,24 +193,51 @@ extern STD_RETURN_TYPE_e FS85_SafetyPathChecks(FS85_STATE_s *pInstance);
  * @return          #STD_OK if watchdog has been triggered successfully,
  *                  otherwise #STD_NOT_OK
  */
-extern STD_RETURN_TYPE_e SBC_TriggerWatchdog(FS85_STATE_s *pInstance);
+extern STD_RETURN_TYPE_e FS85_TriggerWatchdog(FS85_STATE_s *pInstance);
+
+/**
+ * @brief           Check WAKE1 Signal at SBC
+ * @details         Checks ignition signal at WAKE1 pin of SBC. If falling
+ *                  edge is detected, send SBC to Standby.
+ * @param[in,out]   pInstance   SBC instance where WAKE1 is checked
+ * @return          true if ignition signal is detected, otherwise false
+ */
+extern bool FS85_CheckIgnitionSignal(FS85_STATE_s *pInstance);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 #ifdef UNITY_UNIT_TEST
-extern STD_RETURN_TYPE_e TEST_SBC_CheckRegisterValues(uint32_t registerValue, uint32_t expectedRegisterValue);
-extern void TEST_SBC_UpdateRegister(
+extern STD_RETURN_TYPE_e TEST_FS85_CheckRegisterValues(uint32_t registerValue, uint32_t expectedRegisterValue);
+extern void TEST_FS85_UpdateRegister(
     FS85_STATE_s *pInstance,
     bool isFailSafe,
     uint32_t registerAddress,
     uint32_t registerValue);
-extern void TEST_SBC_UpdateFailSafeRegister(
+extern void TEST_FS85_UpdateFailSafeRegister(
     FS85_FS_REGISTER_s *pFsRegister,
     uint32_t registerAddress,
     uint32_t registerValue);
-extern void TEST_SBC_UpdateMainRegister(
+extern void TEST_FS85_UpdateMainRegister(
     FS85_MAIN_REGISTERS_s *pMainRegister,
     uint32_t registerAddress,
     uint32_t registerValue);
+extern STD_RETURN_TYPE_e TEST_FS85_ReadBackRegister(FS85_STATE_s *pInstance, bool isFailSafe, uint8_t registerAddress);
+extern STD_RETURN_TYPE_e TEST_FS85_WriteRegisterFsInit(
+    FS85_STATE_s *pInstance,
+    uint8_t registerAddress,
+    uint16_t registerValue);
+extern STD_RETURN_TYPE_e TEST_FS85_WriteBackRegisterFsInit(
+    FS85_STATE_s *pInstance,
+    uint8_t registerAddress,
+    uint16_t registerValue);
+extern STD_RETURN_TYPE_e TEST_FS85_ClearRegisterFlags(
+    FS85_STATE_s *pInstance,
+    uint8_t registerAddress,
+    bool isFailSafe,
+    uint16_t registerValue);
+extern STD_RETURN_TYPE_e TEST_FS85_ReadBackAllRegisters(FS85_STATE_s *pInstance);
+extern STD_RETURN_TYPE_e TEST_FS85_PerformPathCheckRstb(FS85_STATE_s *pInstance);
+extern STD_RETURN_TYPE_e TEST_FS85_PerformPathCheckFs0b(FS85_STATE_s *pInstance);
+extern STD_RETURN_TYPE_e TEST_FS85_GoToStandby(FS85_STATE_s *pInstance);
 #endif
 
 #endif /* FOXBMS__NXPFS85XX_H_ */

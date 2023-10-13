@@ -48,7 +48,6 @@ v1.1.2
 - replaced Ethernet socket J2001 due to availability issues (old part number:
   Wuerth 615008185121, new part number: Wuerth 615008137421)
 
-
 .. _CHANGELOG_FOR_MASTER_TMS570_V1_1_1:
 
 v1.1.1
@@ -71,7 +70,7 @@ v1.1.1
 - modified all mounting holes to fit Wuerth SMT spacers (outer diameter = 6mm)
 - removed interlock high-side switch from default component variant due to
   availability issues
-- added HW board version coding using IO1_0 to IO1_7 of port-expander1
+- added hardware board version coding using IO1_0 to IO1_7 of port-expander1
 
 .. _CHANGELOG_FOR_MASTER_TMS570_V1_1_0:
 
@@ -84,7 +83,7 @@ v1.1.0
 - changed value of all I2C pull-up resistors from 5.1 |kOhm| to 2.49 |kOhm|
 - removed buck-boost converter IC from "default" component variant due to
   availability issues
-- removed Ethernet phy IC from "default" component variant due to availability
+- removed Ethernet PHY IC from "default" component variant due to availability
   issues
 - finalized PCB layout
 - added mechanical dimensions to draftman document
@@ -107,7 +106,7 @@ v1.0.2
 v1.0.1
 ------
 
-- corrected the supply of Vdd of the smart power switch (from 12V to 5V)
+- corrected the supply of V:sub:`dd` of the smart power switch (from 12V to 5V)
 
 .. _CHANGELOG_FOR_MASTER_TMS570_V1_0_0:
 

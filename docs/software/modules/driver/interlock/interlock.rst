@@ -18,7 +18,6 @@ Driver
 Configuration
 ^^^^^^^^^^^^^
 
-- ``src/app/driver/config/interlock_cfg.c`` (`API <../../../../_static/doxygen/src/html/interlock__cfg_8c.html>`__, `source <../../../../_static/doxygen/src/html/interlock__cfg_8c_source.html>`__)
 - ``src/app/driver/config/interlock_cfg.h`` (`API <../../../../_static/doxygen/src/html/interlock__cfg_8h.html>`__, `source <../../../../_static/doxygen/src/html/interlock__cfg_8h_source.html>`__)
 
 Unit Test

@@ -1,0 +1,5 @@
+Symbol          ; Reference Name            ; Description
+V\ :sub:`Sm`    ; ``StringVoltageM``        ; Voltage of string m
+V\ :sub:`FSm`   ; ``FusedStringVoltageM``   ; Voltage after string fuse of string m
+V\ :sub:`Pm`    ; ``PackVoltageM``          ; Pack voltage
+I\ :sub:`Sm`    ; ``StringCurrentM``        ; Current in string m

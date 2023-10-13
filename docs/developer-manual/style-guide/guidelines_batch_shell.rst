@@ -92,7 +92,6 @@ Header (``SHELL:002``)
       :caption: File header for shell scripts.
       :name: file-header-shell
 
-
 File Templates
 --------------
 

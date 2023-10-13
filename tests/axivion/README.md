@@ -48,7 +48,7 @@
 │
 └───scripts
         ci_check_freshness_of_architecture_svg.py
-        dep_analysis.py
+        dependency_analysis.py
         gravis_export_architecture_svg.py
         start_analysis.bat
         start_local_analysis.bat
@@ -62,11 +62,12 @@
 The compiler configuration file is created by running `ticgtsetup`.
 This example shows the command line for TI ARM CGT 20.2.6.
 
-```
+```pwsh
 ticgtsetup --cc "C:\ti\ccs1200\ccs\tools\compiler\ti-cgt-arm_20.2.6.LTS\bin\armcl.EXE --silicon_version=7R5 --code_state=32 --float_support=VFPv3D16 -g --diag_wrap=off --display_error_number --enum_type=packed --abi=eabi --c11 -Ooff --issue_remarks --strict_ansi" --cxx "C:\ti\ccs1200\ccs\tools\compiler\ti-cgt-arm_20.2.6.LTS\bin\armcl.EXE --silicon_version=7R5 --code_state=32 --float_support=VFPv3D16 -g --diag_wrap=off --display_error_number --enum_type=packed --abi=eabi --c11 -Ooff --issue_remarks --strict_ansi" --config tests\axivion\compiler_config.json
 ```
-With the appropiate Axivion version in PATH and the appropiate compiler version
-specified in the arguments.
+
+With the appropriate Axivion version in PATH and the appropriate compiler
+version specified in the arguments.
 
 ## `axivion_preinc.h`
 

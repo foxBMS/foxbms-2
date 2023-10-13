@@ -48,7 +48,6 @@ repository structure and avoid long command lines during build steps.
    |                 |                             | work with |foxbms|                   |
    +-----------------+-----------------------------+--------------------------------------+
 
-
 Configuration directory ``conf``
 ================================
 
@@ -59,33 +58,33 @@ The ``conf`` directory is structured into the following parts (see
    :name: introduction-repository-structure-conf-details
    :widths: grid
 
-   +-----------------+-----------------------------+--------------------------------------+
-   | directory       | long name                   | content description                  |
-   +=================+=============================+======================================+
-   | ``conf/bms``    | Battery Management System   | configuration of the BMS             |
-   |                 |                             | (e.g., which AFE is used)            |
-   +-----------------+-----------------------------+--------------------------------------+
-   | ``conf/cc``     | C compiler                  | compiler configuration               |
-   |                 |                             | (e.g., compiler flags)               |
-   +-----------------+-----------------------------+--------------------------------------+
-   | ``conf/env``    | Environment                 | environment specifications           |
-   |                 |                             | configuration files                  |
-   |                 |                             | (e.g., Conda package dependencies)   |
-   +-----------------+-----------------------------+--------------------------------------+
-   | ``conf/fmt``    | Formatting                  | formatting rules for source files    |
-   +-----------------+-----------------------------+--------------------------------------+
-   | ``conf/gl``     | Guidelines                  | Guideline check configuration        |
-   +-----------------+-----------------------------+--------------------------------------+
-   | ``conf/hcg``    | |halcogen|                  | |halcogen| configuration files for   |
-   |                 |                             | the Hardware Abstraction Layer       |
-   +-----------------+-----------------------------+--------------------------------------+
-   | ``conf/spa``    | Static Program Analysis     | configuration and template files for |
-   |                 |                             | static program analysis              |
-   +-----------------+-----------------------------+--------------------------------------+
-   | ``conf/tpl``    | Templates                   | template files for source files      |
-   +-----------------+-----------------------------+--------------------------------------+
-   | ``conf/unit``   | Unit tests                  | unit test configuration files        |
-   +-----------------+-----------------------------+--------------------------------------+
+   +-----------------------+-----------------------------+--------------------------------------+
+   | directory             | long name                   | content description                  |
+   +=======================+=============================+======================================+
+   | ``conf/bms``          | Battery Management System   | configuration of the BMS             |
+   |                       |                             | (e.g., which AFE is used)            |
+   +-----------------------+-----------------------------+--------------------------------------+
+   | ``conf/cc``           | C compiler                  | compiler configuration               |
+   |                       |                             | (e.g., compiler flags)               |
+   +-----------------------+-----------------------------+--------------------------------------+
+   | ``conf/env``          | Environment                 | environment specifications           |
+   |                       |                             | configuration files                  |
+   |                       |                             | (e.g., Conda package dependencies)   |
+   +-----------------------+-----------------------------+--------------------------------------+
+   | ``conf/fmt``          | Formatting                  | formatting rules for source files    |
+   +-----------------------+-----------------------------+--------------------------------------+
+   | ``conf/guidelines``   | Guidelines                  | Guideline check configuration        |
+   +-----------------------+-----------------------------+--------------------------------------+
+   | ``conf/hcg``          | |halcogen|                  | |halcogen| configuration files for   |
+   |                       |                             | the Hardware Abstraction Layer       |
+   +-----------------------+-----------------------------+--------------------------------------+
+   | ``conf/spa``          | Static Program Analysis     | configuration and template files for |
+   |                       |                             | static program analysis              |
+   +-----------------------+-----------------------------+--------------------------------------+
+   | ``conf/tpl``          | Templates                   | template files for source files      |
+   +-----------------------+-----------------------------+--------------------------------------+
+   | ``conf/unit``         | Unit tests                  | unit test configuration files        |
+   +-----------------------+-----------------------------+--------------------------------------+
 
 Documentation directory ``docs``
 ================================
@@ -144,6 +143,9 @@ The ``tests`` directory is structured into the following parts (see
    |                    |                          | configurations are stored here       |
    |                    |                          | (e.g., MISRA-C)                      |
    +--------------------+--------------------------+--------------------------------------+
+   | ``tests/hil``      | Hardware in the Loop     | scripts and configurations to run    |
+   |                    |                          | HIL tests                            |
+   +--------------------+--------------------------+--------------------------------------+
    | ``tests/scripts``  | scripts                  | unit test of scripts (e.g., Python,  |
    |                    |                          | shell)                               |
    +--------------------+--------------------------+--------------------------------------+
@@ -176,8 +178,8 @@ The ``tools`` directory is structured into the following parts (see
    +---------------------+----------------------------+--------------------------------------+
    | ``tools/utils``     | utils                      | unspecific helper tools and scripts  |
    +---------------------+----------------------------+--------------------------------------+
-   | ``tools/waf-tools`` | waf tools                  | waf tools that are not part of       |
-   |                     |                            | vendored waf                         |
+   | ``tools/waf-tools`` | Waf tools                  | Waf tools that are not part of       |
+   |                     |                            | vendored Waf                         |
    +---------------------+----------------------------+--------------------------------------+
-   | ``tools/waf``       | waf                        | waf binary                           |
+   | ``tools/waf``       | Waf                        | Waf binary                           |
    +---------------------+----------------------------+--------------------------------------+

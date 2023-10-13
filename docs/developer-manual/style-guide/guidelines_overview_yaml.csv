@@ -1,0 +1,3 @@
+Rule        ; Link                          | automated check
+YAML:001    ; :ref:`rule_yaml_filenames`    | No
+YAML:002    ; :ref:`rule_yaml_header`       | Yes

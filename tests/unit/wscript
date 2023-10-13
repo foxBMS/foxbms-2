@@ -1,0 +1,305 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+#
+# Copyright (c) 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# All rights reserved.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#
+# 1. Redistributions of source code must retain the above copyright notice, this
+#    list of conditions and the following disclaimer.
+#
+# 2. Redistributions in binary form must reproduce the above copyright notice,
+#    this list of conditions and the following disclaimer in the documentation
+#    and/or other materials provided with the distribution.
+#
+# 3. Neither the name of the copyright holder nor the names of its
+#    contributors may be used to endorse or promote products derived from
+#    this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+# OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#
+# We kindly request you to use one or more of the following phrases to refer to
+# foxBMS in your hardware, software, documentation or advertising materials:
+#
+# - "This product uses parts of foxBMS®"
+# - "This product includes parts of foxBMS®"
+# - "This product is derived from foxBMS®"
+
+"""Host and SPA build of the unit test suite"""
+
+# pylint: disable=missing-function-docstring
+
+import os
+from pathlib import Path
+
+from waflib import Build, Context, Logs
+from waflib.Build import BuildContext, CleanContext
+from waflib.Configure import ConfigurationContext
+from waflib.Node import Node
+from waflib.Options import OptionsContext
+from waflib.Tools import waf_unit_test
+
+
+def get_bld(self: Node):
+    """Based on the implementation get_bld():
+    https://gitlab.com/ita1024/waf/-/blob/ad7b733fc60852f77eff200b79e8b6f9562494d2/waflib/Node.py#L783-807
+    but we do not need the '__root__' feature
+    """
+    cur = self
+    lst = []
+    while cur.parent:
+        if cur is self.ctx.bldnode:
+            return self
+        if cur is self.ctx.srcnode:
+            lst.reverse()
+            return self.ctx.bldnode.make_node(lst)
+        lst.append(cur.name)
+        cur = cur.parent
+    lst.reverse()
+    lst = list(
+        filter(("..").__ne__, str(self.path_from(self.ctx.bldnode)).split(os.sep))
+    )
+    return self.ctx.bldnode.make_node(lst)
+
+
+Node.get_bld = get_bld
+
+COMMON_CFLAGS = [
+    "-g",
+    "-DGNU_COMPILER",
+    "-DUNITY_UNIT_TEST",
+    "-DUNITY_INCLUDE_EXEC_TIME",
+    "-std=c11",
+    "-Wextra",
+    "-Wall",
+    "-pedantic",
+    "-include",
+    "test_ignore_list.h",
+]
+
+VARIANTS = ["host", "axivion"]
+
+
+for x in VARIANTS:
+    for y in (BuildContext, CleanContext):
+        NAME = y.__name__.replace("Context", "").lower()
+
+        class TMP(y):  # pylint: disable=missing-class-docstring
+            __doc__ = f"""{NAME} command for the '{x}' variant"""
+
+            cmd = NAME + "_" + x
+            variant = x
+
+
+def options(opt: OptionsContext):
+    """Available build options"""
+    opt.load("compiler_c")
+    opt.load("waf_unit_test")
+
+    # remove unsupported options
+    all_contexts = Context.classes
+    all_contexts.remove(Build.InstallContext)
+    all_contexts.remove(Build.UninstallContext)
+    for k in (
+        "--targets",
+        "--distcheck-args",
+        "--out",
+        "--prefix",
+        "--destdir",
+        "--bindir",
+        "--libdir",
+        "--msvc_version",
+        "--msvc_targets",
+        "--no-msvc-lazy",
+        "--force",
+        "--testcmd",
+        "--check-c-compiler",
+    ):
+        option = opt.parser.get_option(k)
+        if option:
+            opt.parser.remove_option(k)
+
+    remaining_options = []
+    for i in opt.parser.option_groups:
+        if i.title not in (
+            "Installation and uninstallation options",
+            "Configuration options",
+        ):
+            remaining_options.append(i)
+    opt.parser.option_groups = remaining_options
+
+
+def configure(cnf: ConfigurationContext):
+    """configures gcc for the host build (gcc) and cafeCC for the SPA build."""
+    # copy environments
+    cnf.setenv("host")  # gcc (native)
+    cnf.setenv("axivion")  # cafeCC (SPA)
+
+    # host
+    cnf.setenv("host")
+    cnf.load("python")
+
+    cnf.define("FAS_ASSERT_LEVEL", 2)
+    cnf.define("FOXBMS_USES_FREERTOS", 1)
+    cnf.env.append_unique("CFLAGS", COMMON_CFLAGS)
+    cnf.env.append_value("INCLUDES", [cnf.path.find_node("support").abspath()])
+
+    cnf.options.check_c_compiler = "gcc"
+    cnf.load("compiler_c")
+
+    if cnf.env.CC_NAME.lower() == "gcc":  # test are only executable for gcc-builds
+        cnf.load("waf_unit_test")
+
+    fragment = "#include <stdint.h>\n\nint sum(int a, int b){\n    return (a + b);}\n"
+    cnf.check(features="c cstlib", fragment=fragment)
+    fragment = "int main() {\n    return 0;\n}"
+    cnf.check(features="c cprogram", fragment=fragment)
+
+    # Axivion
+    cnf.setenv("axivion")
+    cnf.load("python")
+
+    cnf.define("FAS_ASSERT_LEVEL", 2)
+    cnf.define("FOXBMS_USES_FREERTOS", 1)
+    cnf.env.append_unique("CFLAGS", COMMON_CFLAGS)
+    cnf.env.append_value("INCLUDES", [cnf.path.find_node("support").abspath()])
+
+    cnf.options.check_c_compiler = "gcc"
+    cnf.load("compiler_c")
+    cnf.env.append_unique("LINKFLAGS", ["-echo", "-larg", "--show_plan"])
+
+    cnf.find_program("axivion_config", var="AXIVION_CONFIG")
+    cnf.find_program("cafecc", var="AXIVION_CC")
+    cnf.find_program("irdump", var="AXIVION_IR_DUMP")
+    cnf.env.append_unique("AXIVION_IR_DUMP_ARGS", "-m")
+
+    cnf.env.CC = cnf.env.AXIVION_CC
+    cnf.env.LINK_CC = cnf.env.AXIVION_CC
+
+    fragment = "#include <stdint.h>\n\nint sum(int a, int b){\n    return (a + b);}\n"
+    cnf.check(features="c cstlib", fragment=fragment)
+    fragment = "int main() {\n    return 0;\n}"
+    cnf.check(features="c cprogram", fragment=fragment)
+
+
+def build(bld: BuildContext):
+    """High level definition of the build details"""
+    if not bld.variant:
+        supported_cmds = ", ".join([f"{bld.cmd}_{i}" for i in VARIANTS]).strip()
+        bld.fatal(f"supported build commands: {supported_cmds}")
+
+    bld.env = bld.all_envs[bld.variant]
+
+    # when cleaning(!), no further processing of needed
+    if not bld.cmd.startswith("build"):
+        return
+
+    root = bld.root.find_dir(os.path.join(bld.path.abspath(), "..", ".."))
+    utr = bld.root.find_dir(os.path.join(str(root.abspath()), "build", "unit_test"))
+
+    inc_unity = utr.find_dir("vendor/unity/src")
+    unity = "unity"
+    bld(
+        features="c",
+        source=[inc_unity.find_node("unity.c").relpath()],
+        includes=[inc_unity],
+        target="unity",
+    )
+
+    inc_cmock = utr.find_dir("vendor/cmock/src")
+    cmock = "cmock"
+    bld.objects(
+        source=[inc_cmock.find_node("cmock.c")],
+        includes=[inc_cmock, inc_unity],
+        target=cmock,
+    )
+
+    inc_c_exception = utr.find_dir("vendor/c_exception/lib")
+    c_exception = "CException"
+    bld.objects(
+        source=[inc_c_exception.find_node("CException.c")],
+        includes=[inc_c_exception],
+        target=c_exception,
+    )
+
+    units_under_test_file: dict = bld.path.find_node("build.json")
+    units_under_test = units_under_test_file.read_json()
+    err = 0
+    listed_files = []
+    for k, v in units_under_test.items():
+        if not root.find_node(k):
+            err += 1
+            Logs.error(f"Could not find source file '{k}'.")
+        else:
+            listed_files.append(k)
+    if err:
+        bld.fatal("Missing source files.")
+
+    files = []
+    for i in root.ant_glob("src/app/**/*.c"):
+        files.append(Path(i.path_from(root)).as_posix())
+    if diff := set(files) - set(listed_files):
+        bld.fatal(
+            "The files in the sources tree do not match the files defined "
+            f"in the build configuration '{units_under_test_file.relpath()}':\n{', '.join(diff)}"
+        )
+    for i, (k, v) in enumerate(units_under_test.items()):
+        if not k.endswith(  # TODO remove this once it is working for all tests
+            (
+                "/adc.c",
+                "/adi_ades1830_gpio_voltages.c",
+                "/crc.c",
+                "/foxmath.c",
+                "/algorithm.c",
+                "/algorithm_cfg.c",
+                "/moving_average.c",
+                "/soc_counting.c",
+                "/soc_debug.c",
+                "/soc_none.c",
+                "/soe_counting.c",
+                "/soe_debug.c",
+                "/os.c",
+            )
+        ):
+            continue
+        test_base_name = k.rsplit("/", maxsplit=1)
+        test_runner = "/".join([f"test_{test_base_name[1]}.{i}.exe"])
+        sources = [root.find_node(i) for i in v["sources"]]
+        defines = v.get("defines", [])
+        bld(
+            features="c",
+            source=sources,
+            defines=defines,
+            use=[unity, cmock, c_exception],
+            includes=[inc_c_exception, inc_cmock, inc_unity]
+            + [root.find_dir(i) for i in v["include"]],
+            target=f"objects-{i}",
+            idx=i,
+        )
+        features = "c cprogram"
+        if bld.variant == "host":
+            features += " test"
+        bld(
+            features=features,
+            use=[f"objects-{i}", unity, cmock, c_exception],
+            includes=[inc_c_exception, inc_cmock, inc_unity]
+            + [root.find_dir(i) for i in v["include"]],
+            target=bld.path.find_or_declare(test_runner),
+            idx=i,
+        )
+
+    if bld.variant == "host":
+        bld.add_post_fun(waf_unit_test.summary)

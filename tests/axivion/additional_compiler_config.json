@@ -2,16 +2,6 @@
     "Project": {
         "TIARMToolchain": {
             "_active": true,
-            "language_c": {
-                "preprocessing": {
-                    "predefined_macros": {
-                        "$(delta:+)": {
-                            "_Imaginary": "_Complex"
-                        },
-                        "$(delta:-)": []
-                    }
-                }
-            },
             "preincludes": {
                 "$(delta:+)": [
                     "axivion_preinc.h"

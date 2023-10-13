@@ -43,8 +43,8 @@
  * @file    test_can_cbs_rx_debug.c
  * @author  foxBMS Team
  * @date    2021-04-22 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -56,7 +56,7 @@
 #include "unity.h"
 #include "Mockcan.h"
 #include "Mockcan_cbs_tx_debug-response.h"
-#include "Mockcan_cbs_tx_unsupported-message.h"
+#include "Mockcan_cbs_tx_debug-unsupported-multiplexer-values.h"
 #include "Mockdatabase.h"
 #include "Mockdiag.h"
 #include "Mockfoxmath.h"
@@ -75,7 +75,22 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-TEST_FILE("can_cbs_rx_debug.c")
+/*========== Unit Testing Framework Directives ==============================*/
+TEST_SOURCE_FILE("can_cbs_rx_debug.c")
+
+TEST_INCLUDE_PATH("../../src/app/driver/can")
+TEST_INCLUDE_PATH("../../src/app/driver/can/cbs")
+TEST_INCLUDE_PATH("../../src/app/driver/can/cbs/rx")
+TEST_INCLUDE_PATH("../../src/app/driver/can/cbs/tx")
+TEST_INCLUDE_PATH("../../src/app/driver/config")
+TEST_INCLUDE_PATH("../../src/app/driver/foxmath")
+TEST_INCLUDE_PATH("../../src/app/driver/fram")
+TEST_INCLUDE_PATH("../../src/app/driver/imd")
+TEST_INCLUDE_PATH("../../src/app/driver/rtc")
+TEST_INCLUDE_PATH("../../src/app/engine/diag")
+TEST_INCLUDE_PATH("../../src/app/engine/sys")
+TEST_INCLUDE_PATH("../../src/app/task/config")
+TEST_INCLUDE_PATH("../../src/app/task/ftask")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 
@@ -107,13 +122,15 @@ static DATA_BLOCK_OPEN_WIRE_s can_tableOpenWire               = {.header.uniqueI
 static DATA_BLOCK_STATE_REQUEST_s can_tableStateRequest       = {.header.uniqueId = DATA_BLOCK_ID_STATE_REQUEST};
 static DATA_BLOCK_PACK_VALUES_s can_tablePackValues           = {.header.uniqueId = DATA_BLOCK_ID_PACK_VALUES};
 static DATA_BLOCK_SOF_s can_tableSof                          = {.header.uniqueId = DATA_BLOCK_ID_SOF};
-static DATA_BLOCK_SOX_s can_tableSox                          = {.header.uniqueId = DATA_BLOCK_ID_SOX};
+static DATA_BLOCK_SOC_s can_tableSoc                          = {.header.uniqueId = DATA_BLOCK_ID_SOC};
+static DATA_BLOCK_SOE_s can_tableSoe                          = {.header.uniqueId = DATA_BLOCK_ID_SOE};
 static DATA_BLOCK_ERROR_STATE_s can_tableErrorState           = {.header.uniqueId = DATA_BLOCK_ID_ERROR_STATE};
 static DATA_BLOCK_INSULATION_MONITORING_s can_tableInsulation = {
     .header.uniqueId = DATA_BLOCK_ID_INSULATION_MONITORING};
-static DATA_BLOCK_MSL_FLAG_s can_tableMslFlags = {.header.uniqueId = DATA_BLOCK_ID_MSL_FLAG};
-static DATA_BLOCK_RSL_FLAG_s can_tableRslFlags = {.header.uniqueId = DATA_BLOCK_ID_RSL_FLAG};
-static DATA_BLOCK_MOL_FLAG_s can_tableMolFlags = {.header.uniqueId = DATA_BLOCK_ID_MOL_FLAG};
+static DATA_BLOCK_MSL_FLAG_s can_tableMslFlags            = {.header.uniqueId = DATA_BLOCK_ID_MSL_FLAG};
+static DATA_BLOCK_RSL_FLAG_s can_tableRslFlags            = {.header.uniqueId = DATA_BLOCK_ID_RSL_FLAG};
+static DATA_BLOCK_MOL_FLAG_s can_tableMolFlags            = {.header.uniqueId = DATA_BLOCK_ID_MOL_FLAG};
+static DATA_BLOCK_AEROSOL_SENSOR_s can_tableAerosolSensor = {.header.uniqueId = DATA_BLOCK_ID_AEROSOL_SENSOR};
 
 OS_QUEUE imd_canDataQueue     = NULL_PTR;
 OS_QUEUE ftsk_rtcSetTimeQueue = NULL_PTR;
@@ -128,12 +145,14 @@ const CAN_SHIM_s can_kShim = {
     .pTableStateRequest    = &can_tableStateRequest,
     .pTablePackValues      = &can_tablePackValues,
     .pTableSof             = &can_tableSof,
-    .pTableSox             = &can_tableSox,
+    .pTableSoc             = &can_tableSoc,
+    .pTableSoe             = &can_tableSoe,
     .pTableErrorState      = &can_tableErrorState,
     .pTableInsulation      = &can_tableInsulation,
     .pTableMsl             = &can_tableMslFlags,
     .pTableRsl             = &can_tableRslFlags,
     .pTableMol             = &can_tableMolFlags,
+    .pTableAerosolSensor   = &can_tableAerosolSensor,
 };
 
 /*========== Setup and Teardown =============================================*/
@@ -325,6 +344,16 @@ void testCANRX_TriggerMcuWaferInformationMessage(void) {
     TEST_ASSERT_FAIL_ASSERT(TEST_CANRX_TriggerMcuWaferInformationMessage());
 }
 
+void testCANRX_TriggerCommitHashMessage(void) {
+    /* sending response message works as expected */
+    CANTX_DebugResponse_IgnoreAndReturn(STD_OK);
+    TEST_CANRX_TriggerCommitHashMessage();
+
+    /* sending response message does not work as expected */
+    CANTX_DebugResponse_IgnoreAndReturn(STD_NOT_OK);
+    TEST_ASSERT_FAIL_ASSERT(TEST_CANRX_TriggerCommitHashMessage());
+}
+
 void testCANRX_TriggerTimeInfoMessage(void) {
     /* sending response message works as expected */
     CANTX_DebugResponse_IgnoreAndReturn(STD_OK);
@@ -374,6 +403,17 @@ void testCANRX_CheckIfMcuWaferInformationIsRequested(void) {
     /* set bit to indicate that the MCU wafer information is requested */
     uint64_t testMessageData = ((uint64_t)1u) << 51u;
     bool isRequested         = TEST_CANRX_CheckIfMcuWaferInformationIsRequested(testMessageData, validEndianness);
+    TEST_ASSERT_TRUE(isRequested);
+}
+
+void testCANRX_CheckIfCommitHashIsRequested(void) {
+    /* test endianness assertion */
+    TEST_ASSERT_FAIL_ASSERT(TEST_CANRX_CheckIfCommitHashIsRequested(testMessageDataZero, invalidEndianness));
+
+    /* test correct message -> return true */
+    /* set bit to indicate that the MCU wafer information is requested */
+    uint64_t testMessageData = ((uint64_t)1u) << 52u;
+    bool isRequested         = TEST_CANRX_CheckIfCommitHashIsRequested(testMessageData, validEndianness);
     TEST_ASSERT_TRUE(isRequested);
 }
 

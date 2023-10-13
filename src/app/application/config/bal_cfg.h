@@ -43,8 +43,8 @@
  * @file    bal_cfg.h
  * @author  foxBMS Team
  * @date    2020-02-24 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  BAL
  *
@@ -61,14 +61,14 @@
 
 /*========== Macros and Definitions =========================================*/
 
-/** BAL statemachine short time definition in 100*ms */
+/** BAL state machine short time definition in 100*ms */
 #define BAL_STATEMACH_SHORTTIME_100ms (1u)
 
-/** BAL statemachine long time definition in 100*ms */
+/** BAL state machine long time definition in 100*ms */
 
 #define BAL_STATEMACH_LONGTIME_100ms (50u)
 
-/** BAL statemachine balancing time in 100*ms */
+/** BAL state machine balancing time in 100*ms */
 #define BAL_STATEMACH_BALANCINGTIME_100ms (10u)
 
 /** default value for the BAL voltage threshold */

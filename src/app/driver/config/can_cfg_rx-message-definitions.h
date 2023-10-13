@@ -43,8 +43,8 @@
  * @file    can_cfg_rx-message-definitions.h
  * @author  foxBMS Team
  * @date    2022-07-01 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup DRIVERS
  * @prefix  CANRX
  *
@@ -85,6 +85,17 @@
 #define CANRX_DEBUG_ID_TYPE    (CAN_STANDARD_IDENTIFIER_11_BIT)
 #define CANRX_DEBUG_PERIOD_ms  (CANRX_NOT_PERIODIC)
 #define CANRX_DEBUG_ENDIANNESS (CAN_BIG_ENDIAN)
+/**@}*/
+
+/** CAN message properties for aerosol sensor. Required properties are:
+ * - Message ID
+ * - Identifier type (standard or extended)
+ * - Expected message period in ms or if asynchronous message
+ * - Endianness of message data @{*/
+#define CANRX_AEROSOL_SENSOR_ID         (0x3C4u)
+#define CANRX_AEROSOL_SENSOR_ID_TYPE    (CAN_STANDARD_IDENTIFIER_11_BIT)
+#define CANRX_AEROSOL_SENSOR_PERIOD_ms  (1000u)
+#define CANRX_AEROSOL_SENSOR_ENDIANNESS (CAN_BIG_ENDIAN)
 /**@}*/
 
 /**
@@ -151,6 +162,17 @@
     },                                        \
     {                                         \
         .period = CANRX_DEBUG_PERIOD_ms       \
+    }
+
+#define CANRX_AEROSOL_SENSOR_MESSAGE                   \
+    {                                                  \
+        .id         = CANRX_AEROSOL_SENSOR_ID,         \
+        .idType     = CANRX_AEROSOL_SENSOR_ID_TYPE,    \
+        .dlc        = CAN_DEFAULT_DLC,                 \
+        .endianness = CANRX_AEROSOL_SENSOR_ENDIANNESS, \
+    },                                                 \
+    {                                                  \
+        .period = CANRX_AEROSOL_SENSOR_PERIOD_ms       \
     }
 
 #define CANRX_IMD_INFO_MESSAGE           \

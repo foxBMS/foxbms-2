@@ -43,8 +43,8 @@
  * @file    can_cfg_rx.c
  * @author  foxBMS Team
  * @date    2019-12-04 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  CANRX
  *
@@ -86,10 +86,11 @@ const CAN_RX_MESSAGE_TYPE_s can_rxMessages[] = {
     {CAN_NODE_CURRENT_SENSOR, CANRX_STRING0_CURRENT_COUNTER_MESSAGE, &CANRX_CurrentSensor},
     {CAN_NODE_CURRENT_SENSOR, CANRX_STRING0_ENERGY_COUNTER_MESSAGE, &CANRX_CurrentSensor},
     {CAN_NODE_DEBUG_MESSAGE, CANRX_DEBUG_MESSAGE, &CANRX_Debug},
+    {CAN_NODE_1, CANRX_AEROSOL_SENSOR_MESSAGE, &CANRX_AerosolSensor},
 };
 
 /** length of CAN message arrays */
-const uint8_t can_rxLength = sizeof(can_rxMessages) / sizeof(can_rxMessages[0]);
+const uint8_t can_rxMessagesLength = sizeof(can_rxMessages) / sizeof(can_rxMessages[0]);
 
 /*========== Static Function Prototypes =====================================*/
 

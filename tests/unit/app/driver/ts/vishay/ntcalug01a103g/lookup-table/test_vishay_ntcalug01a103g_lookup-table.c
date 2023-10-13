@@ -43,8 +43,8 @@
  * @file    test_vishay_ntcalug01a103g_lookup-table.c
  * @author  foxBMS Team
  * @date    2020-08-25 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -59,7 +59,12 @@
 #include "foxmath.h"
 #include "tsi.h"
 
-TEST_FILE("vishay_ntcalug01a103g_lookup-table.c")
+/*========== Unit Testing Framework Directives ==============================*/
+TEST_SOURCE_FILE("vishay_ntcalug01a103g_lookup-table.c")
+
+TEST_INCLUDE_PATH("../../src/app/driver/foxmath")
+TEST_INCLUDE_PATH("../../src/app/driver/ts/api")
+TEST_INCLUDE_PATH("../../src/app/driver/ts/vishay/ntcalug01a103g")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 

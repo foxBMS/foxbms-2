@@ -42,10 +42,10 @@
 
 import os
 from pathlib import Path
-
+import ssl
 import httplib2
 
-__version__ = "1.5.1"
+__version__ = "1.6.0"
 __appname__ = "foxBMS 2"
 __author__ = "The foxBMS Team"
 __copyright__ = "(c) 2010 - 2023 foxBMS"
@@ -63,6 +63,9 @@ html = httplib2.Http()
 try:
     resp = html.request(FOXBMS_DOC_URL, "HEAD")
 except TimeoutError:
+    resp = []
+    resp.append({"status": 401})
+except ssl.SSLCertVerificationError:
     resp = []
     resp.append({"status": 401})
 if int(resp[0]["status"]) >= 400:

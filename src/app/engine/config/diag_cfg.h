@@ -43,8 +43,8 @@
  * @file    diag_cfg.h
  * @author  foxBMS Team
  * @date    2019-11-28 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup ENGINE_CONFIGURATION
  * @prefix  DIAG
  *
@@ -183,6 +183,7 @@ typedef enum {
     DIAG_ID_AFE_CONFIG,        /*!< the AFE driver has recognized a configuration error */
     DIAG_ID_CAN_TIMING, /*!< the BMS does not receive CAN messages or they are not inside the expected timing constraints */
     DIAG_ID_CAN_RX_QUEUE_FULL, /*!< the reception queue of the driver is full; no new messages can be received */
+    DIAG_ID_CAN_TX_QUEUE_FULL, /*!< the transmission queue of the driver is full; all new messages will be lost */
     DIAG_ID_CAN_CC_RESPONDING, /*!< current counter measurements on the CAN bus are missing or not inside expected timing constraints */
     DIAG_ID_CAN_EC_RESPONDING, /*!< energy counter measurements on the CAN bus are missing or not inside expected timing constraints */
     DIAG_ID_CURRENT_SENSOR_RESPONDING, /*!< current sensor measurements on the CAN bus are missing or not inside expected timing constraints */
@@ -256,8 +257,9 @@ typedef enum {
     DIAG_ID_RTC_CLOCK_INTEGRITY_ERROR,         /*!< clock integrity not garanteed error in RTC IC */
     DIAG_ID_RTC_BATTERY_LOW_ERROR,             /*!< RTC IC battery low flag set */
     DIAG_ID_FRAM_READ_CRC_ERROR,               /*!< CRC does not match when reading from the FRAM */
-    DIAG_ID_ALERT_MODE, /*!< Critical error while opening the contactors. Fuse has not triggered */
-    DIAG_ID_MAX,        /*!< MAX indicator - do not change */
+    DIAG_ID_ALERT_MODE,    /*!< Critical error while opening the contactors. Fuse has not triggered */
+    DIAG_ID_AEROSOL_ALERT, /*!< high aerosol concentration detected */
+    DIAG_ID_MAX,           /*!< MAX indicator - do not change */
 } DIAG_ID_e;
 
 /** diagnosis check result (event) */

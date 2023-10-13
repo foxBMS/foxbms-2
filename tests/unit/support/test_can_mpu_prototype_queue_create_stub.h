@@ -43,8 +43,8 @@
  * @file    test_can_mpu_prototype_queue_create_stub.h
  * @author  foxBMS Team
  * @date    2021-06-09 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -57,6 +57,8 @@
 #define FOXBMS__TEST_CAN_MPU_PROTOTYPE_QUEUE_CREATE_STUB_H_
 
 /*========== Includes =======================================================*/
+
+/*========== Unit Testing Framework Directives ==============================*/
 
 /*========== Macros and Definitions =========================================*/
 

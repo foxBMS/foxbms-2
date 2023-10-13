@@ -43,8 +43,8 @@
  * @file    soc_counting.c
  * @author  foxBMS Team
  * @date    2020-10-07 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup APPLICATION
  * @prefix  SOC
  *
@@ -55,12 +55,13 @@
 /*========== Includes =======================================================*/
 #include "general.h"
 
-#include "soc_counting.h"
+#include "soc_counting_cfg.h"
 
 #include "bms.h"
 #include "database.h"
 #include "foxmath.h"
 #include "fram.h"
+#include "state_estimation.h"
 
 #include <math.h>
 #include <stdbool.h>
@@ -112,9 +113,9 @@ static float_t SOC_GetStringSocPercentageFromCharge(uint32_t charge_As);
 /**
  * @brief   initializes database and FRAM SOC values via lookup table (average,
  *          minimum and maximum).
- * @param[out] pTableSoc  pointer to database enty with SOC values
+ * @param[out] pTableSoc  pointer to database entry with SOC values
  */
-static void SOC_RecalibrateViaLookupTable(DATA_BLOCK_SOX_s *pTableSoc);
+static void SOC_RecalibrateViaLookupTable(DATA_BLOCK_SOC_s *pTableSoc);
 
 /**
  * @brief   sets SOC value with a parameter between 0.0 and 100.0.
@@ -128,7 +129,7 @@ static void SOC_RecalibrateViaLookupTable(DATA_BLOCK_SOX_s *pTableSoc);
  * @param[in]   stringNumber     addressed string
  */
 static void SOC_SetValue(
-    DATA_BLOCK_SOX_s *pTableSoc,
+    DATA_BLOCK_SOC_s *pTableSoc,
     float_t socMinimumValue_perc,
     float_t socMaximumValue_perc,
     float_t socAverageValue_perc,
@@ -140,14 +141,14 @@ static void SOC_SetValue(
  * @param[in,out] pTableSoc  pointer to database struct with SOC values
  * @param[in] stringNumber   string that is checked
  */
-static void SOC_CheckDatabaseSocPercentageLimits(DATA_BLOCK_SOX_s *pTableSoc, uint8_t stringNumber);
+static void SOC_CheckDatabaseSocPercentageLimits(DATA_BLOCK_SOC_s *pTableSoc, uint8_t stringNumber);
 
 /**
  * @brief   Set SOC-related values in non-volatile memory
  * @param[in] pTableSoc      pointer to database struct with SOC values
  * @param[in] stringNumber   addressed string
  */
-static void SOC_UpdateNvmValues(DATA_BLOCK_SOX_s *pTableSoc, uint8_t stringNumber);
+static void SOC_UpdateNvmValues(DATA_BLOCK_SOC_s *pTableSoc, uint8_t stringNumber);
 
 /*========== Static Function Implementations ================================*/
 static float_t SOC_GetStringSocPercentageFromCharge(uint32_t charge_As) {
@@ -155,7 +156,7 @@ static float_t SOC_GetStringSocPercentageFromCharge(uint32_t charge_As) {
     return UNIT_CONVERSION_FACTOR_100_FLOAT * (charge_mAs / SOC_STRING_CAPACITY_mAs);
 }
 
-static void SOC_RecalibrateViaLookupTable(DATA_BLOCK_SOX_s *pTableSoc) {
+static void SOC_RecalibrateViaLookupTable(DATA_BLOCK_SOC_s *pTableSoc) {
     FAS_ASSERT(pTableSoc != NULL_PTR);
     DATA_BLOCK_MIN_MAX_s tableMinMaxCellVoltages = {.header.uniqueId = DATA_BLOCK_ID_MIN_MAX};
     DATA_READ_DATA(&tableMinMaxCellVoltages);
@@ -172,7 +173,7 @@ static void SOC_RecalibrateViaLookupTable(DATA_BLOCK_SOX_s *pTableSoc) {
 }
 
 static void SOC_SetValue(
-    DATA_BLOCK_SOX_s *pTableSoc,
+    DATA_BLOCK_SOC_s *pTableSoc,
     float_t socMinimumValue_perc,
     float_t socMaximumValue_perc,
     float_t socAverageValue_perc,
@@ -207,7 +208,7 @@ static void SOC_SetValue(
     FRAM_WriteData(FRAM_BLOCK_ID_SOC);
 }
 
-static void SOC_CheckDatabaseSocPercentageLimits(DATA_BLOCK_SOX_s *pTableSoc, uint8_t stringNumber) {
+static void SOC_CheckDatabaseSocPercentageLimits(DATA_BLOCK_SOC_s *pTableSoc, uint8_t stringNumber) {
     FAS_ASSERT(pTableSoc != NULL_PTR);
     FAS_ASSERT(stringNumber < BS_NR_OF_STRINGS);
 
@@ -231,7 +232,7 @@ static void SOC_CheckDatabaseSocPercentageLimits(DATA_BLOCK_SOX_s *pTableSoc, ui
     }
 }
 
-static void SOC_UpdateNvmValues(DATA_BLOCK_SOX_s *pTableSoc, uint8_t stringNumber) {
+static void SOC_UpdateNvmValues(DATA_BLOCK_SOC_s *pTableSoc, uint8_t stringNumber) {
     FAS_ASSERT(pTableSoc != NULL_PTR);
     FAS_ASSERT(stringNumber < BS_NR_OF_STRINGS);
     fram_soc.averageSoc_perc[stringNumber] = pTableSoc->averageSoc_perc[stringNumber];
@@ -241,7 +242,7 @@ static void SOC_UpdateNvmValues(DATA_BLOCK_SOX_s *pTableSoc, uint8_t stringNumbe
 
 /*========== Extern Function Implementations ================================*/
 
-void SE_InitializeStateOfCharge(DATA_BLOCK_SOX_s *pSocValues, bool ccPresent, uint8_t stringNumber) {
+void SE_InitializeStateOfCharge(DATA_BLOCK_SOC_s *pSocValues, bool ccPresent, uint8_t stringNumber) {
     FAS_ASSERT(pSocValues != NULL_PTR);
     FAS_ASSERT(stringNumber < BS_NR_OF_STRINGS);
     DATA_READ_DATA(&soc_tableCurrentSensor);
@@ -283,7 +284,7 @@ void SE_InitializeStateOfCharge(DATA_BLOCK_SOX_s *pSocValues, bool ccPresent, ui
 }
 
 /* INCLUDE MARKER FOR THE DOCUMENTATION; DO NOT MOVE cc-documentation-start-include */
-void SE_CalculateStateOfCharge(DATA_BLOCK_SOX_s *pSocValues) {
+void SE_CalculateStateOfCharge(DATA_BLOCK_SOC_s *pSocValues) {
     /* INCLUDE MARKER FOR THE DOCUMENTATION; DO NOT MOVE cc-documentation-stop-include */
     FAS_ASSERT(pSocValues != NULL_PTR);
     bool continueFunction = true;

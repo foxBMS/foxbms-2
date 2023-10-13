@@ -43,8 +43,8 @@
  * @file    test_diag_cfg.c
  * @author  foxBMS Team
  * @date    2020-04-01 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -58,6 +58,9 @@
 #include "Mockdiag_cbs.h"
 
 #include "diag_cfg.h"
+
+/*========== Unit Testing Framework Directives ==============================*/
+TEST_INCLUDE_PATH("../../src/app/engine/diag/cbs")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 

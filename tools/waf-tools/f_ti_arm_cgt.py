@@ -1392,7 +1392,7 @@ class print_swi(Task.Task):  # pylint: disable=invalid-name
 
     def run(self):
         """combines all swi information in one file"""
-        # get jumptable information from asm file
+        # get jump-table information from asm file
         txt = self.inputs[0].read().splitlines()
         found = False
         table_entry = 0
@@ -1436,6 +1436,64 @@ def print_swi_aliases(self):
     src = [self.jump_table_file] + [x.outputs[0] for x in self.swi_tasks]
     self.create_task(
         "print_swi", src=src, tgt=self.path.find_or_declare(f"{self.idx}.swi.json")
+    )
+
+
+class get_stack(Task.Task):  # pylint: disable=invalid-name
+    """gathers all swi information in one file"""
+
+    after = ["link_task"]
+
+    def run(self):
+        """Gathers the stack usage information"""
+
+        def parse(txt, line_number):
+            stack_usage_re = re.compile(r"Stack usage:\s+(\d+)\s+bytes")
+            out = {"Stack usage": -1, "Called functions": [], "Indirect calls": False}
+            found_stack = False
+            found_functions = False
+            called_functions = []
+            for line in txt[line_number:]:
+                if not found_stack:
+                    m = stack_usage_re.match(line)
+                    if m and m.group(1):
+                        out["Stack usage"] = int(m.group(1))
+                        found_stack = True
+                elif line == "Function contains indirect calls.":
+                    out["Indirect calls"] = True
+                elif line == "Called functions:":
+                    found_functions = True
+                elif found_functions:
+                    if not line:
+                        break
+                    called_functions.append(line.strip())
+            out["Called functions"] = called_functions
+            return out
+
+        out = {}
+        func_re = re.compile(r"\|\s+FUNCTION:\s+(\w+)\s+|")
+        srcs = self.generator.bld.bldnode.ant_glob("**/*.aux", quiet=True)
+        for src in srcs:
+            txt_lines = src.read().splitlines()
+            for i, line in enumerate(txt_lines):
+                m = func_re.match(line)
+                if m and m.group(1):
+                    out[m.group(1)] = parse(txt_lines, i)
+
+        self.outputs[0].write_json(out)
+
+
+@TaskGen.feature("cprogram")
+@TaskGen.after_method("process_source")
+def test_exec_fun(self):
+    """get stack usage"""
+    tgt = os.path.join(
+        self.bld.bldnode.abspath(), f"{self.env.APPNAME.lower()}.stacks.json"
+    )
+    self.create_task(
+        "get_stack",
+        src=self.link_task.inputs,
+        tgt=self.path.find_or_declare(tgt),
     )
 
 

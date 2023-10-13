@@ -43,8 +43,8 @@
  * @file    test_os.c
  * @author  foxBMS Team
  * @date    2020-03-13 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  OS
  *
@@ -54,6 +54,7 @@
 
 /*========== Includes =======================================================*/
 #include "unity.h"
+#include "Mockcan.h"
 #include "Mockftask.h"
 #include "Mockftask_cfg.h"
 #include "Mockportmacro.h"
@@ -61,17 +62,30 @@
 #include "Mockrtc.h"
 #include "Mocktask.h"
 
+#include "can_cfg.h"
+
+#include "can_cbs_tx_crash-dump.h"
 #include "os.h"
 #include "test_assert_helper.h"
 
 #include <stdbool.h>
 #include <stdint.h>
 
-TEST_FILE("os.c")
-TEST_FILE("os_freertos.c")
+/*========== Unit Testing Framework Directives ==============================*/
+TEST_SOURCE_FILE("os.c")
+TEST_SOURCE_FILE("os_freertos.c")
+
+TEST_INCLUDE_PATH("../../src/app/driver/can")
+TEST_INCLUDE_PATH("../../src/app/driver/can/cbs")
+TEST_INCLUDE_PATH("../../src/app/driver/can/cbs/tx")
+TEST_INCLUDE_PATH("../../src/app/driver/config")
+TEST_INCLUDE_PATH("../../src/app/driver/rtc")
+TEST_INCLUDE_PATH("../../src/app/task/config")
+TEST_INCLUDE_PATH("../../src/app/task/ftask")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 static OS_TIMER_s *test_timer;
+OS_QUEUE ftsk_imdCanDataQueue = NULL_PTR;
 
 /*========== Setup and Teardown =============================================*/
 void setUp(void) {

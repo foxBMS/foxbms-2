@@ -43,8 +43,8 @@
  * @file    mxm_battery_management.c
  * @author  foxBMS Team
  * @date    2019-01-14 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup DRIVERS
  * @prefix  MXM
  *
@@ -427,7 +427,6 @@ static void MXM_5XHandle41BErrorState(MXM_5X_INSTANCE_s *pInstance) {
     if (pInstance->errorCounter < (uint8_t)UINT8_MAX) {
         pInstance->errorCounter++;
     }
-    return;
 }
 
 static void MXM_5XTransitionToSubstate(MXM_5X_INSTANCE_s *pInstance, MXM_5X_SUBSTATES_e substate) {
@@ -437,13 +436,11 @@ static void MXM_5XTransitionToSubstate(MXM_5X_INSTANCE_s *pInstance, MXM_5X_SUBS
     if ((pInstance->status41b == MXM_41B_STATE_PROCESSED) || (pInstance->status41b == MXM_41B_STATE_ERROR)) {
         pInstance->status41b = MXM_41B_STATE_UNSENT;
     }
-    return;
 }
 
 static void MXM_5XRepeatCurrentSubstate(MXM_5X_INSTANCE_s *pInstance) {
     FAS_ASSERT(pInstance != NULL_PTR);
     pInstance->status41b = MXM_41B_STATE_UNSENT;
-    return;
 }
 
 static void MXM_5XSignalSuccess(MXM_5X_INSTANCE_s *pInstance) {
@@ -452,7 +449,6 @@ static void MXM_5XSignalSuccess(MXM_5X_INSTANCE_s *pInstance) {
     FAS_ASSERT(pInstance->processed != NULL_PTR);
     *pInstance->processed = MXM_5X_STATE_PROCESSED;
     pInstance->state      = MXM_STATEMACH_5X_IDLE;
-    return;
 }
 
 static void MXM_5XSignalError(MXM_5X_INSTANCE_s *pInstance) {
@@ -461,7 +457,6 @@ static void MXM_5XSignalError(MXM_5X_INSTANCE_s *pInstance) {
     FAS_ASSERT(pInstance->processed != NULL_PTR);
     *pInstance->processed = MXM_5X_STATE_ERROR;
     pInstance->state      = MXM_STATEMACH_5X_IDLE;
-    return;
 }
 
 static void MXM_5XStateHandler41BFmeaCheck(MXM_5X_INSTANCE_s *pInstance5x, MXM_41B_INSTANCE_s *pInstance41b) {
@@ -1049,7 +1044,7 @@ void MXM_5XStateMachine(MXM_41B_INSTANCE_s *pInstance41b, MXM_5X_INSTANCE_s *pIn
 
     switch (pInstance5x->state) {
         case MXM_STATEMACH_5X_UNINITIALIZED:
-            /* statemachine waits here for initialization */
+            /* state machine waits here for initialization */
             break;
         case MXM_STATEMACH_5X_IDLE:
             /* idle state currently does nothing */

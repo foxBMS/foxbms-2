@@ -43,8 +43,8 @@
  * @file    soc_debug.c
  * @author  foxBMS Team
  * @date    2020-10-14 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup APPLICATION
  * @prefix  SOC
  *
@@ -53,8 +53,6 @@
  */
 
 /*========== Includes =======================================================*/
-#include "soc_debug.h"
-
 #include "database_cfg.h"
 
 #include <math.h>
@@ -72,12 +70,12 @@
 /*========== Static Function Implementations ================================*/
 
 /*========== Extern Function Implementations ================================*/
-extern void SE_InitializeStateOfCharge(DATA_BLOCK_SOX_s *pSocValues, bool ccPresent, uint8_t stringNumber) {
+extern void SE_InitializeStateOfCharge(DATA_BLOCK_SOC_s *pSocValues, bool ccPresent, uint8_t stringNumber) {
     FAS_ASSERT(pSocValues != NULL_PTR);
     FAS_ASSERT(stringNumber < BS_NR_OF_STRINGS);
 }
 
-extern void SE_CalculateStateOfCharge(DATA_BLOCK_SOX_s *pSocValues) {
+extern void SE_CalculateStateOfCharge(DATA_BLOCK_SOC_s *pSocValues) {
     FAS_ASSERT(pSocValues != NULL_PTR);
 }
 

@@ -1,12 +1,12 @@
 .. include:: ./../../../macros.txt
 .. include:: ./../../../units.txt
 
-.. _CHANGELOG_FOR_SLAVE_MC33775:
+.. _CHANGELOG_FOR_SLAVE_NXP_MC33775A:
 
-Changelog for Slave MC33775
-===========================
+Changelog for Slave NXP MC33775A
+================================
 
-.. _CHANGELOG_FOR_SLAVE_MC33775_V1_0_0:
+.. _CHANGELOG_FOR_SLAVE_NXP_MC33775A_V1_0_0:
 
 v1.0.0
 ------

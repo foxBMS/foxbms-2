@@ -43,8 +43,8 @@
  * @file    pex_cfg.h
  * @author  foxBMS Team
  * @date    2021-08-02 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  PEX
  *

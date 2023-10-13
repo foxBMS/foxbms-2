@@ -43,8 +43,8 @@
  * @file    c-019.c
  * @author  foxBMS Team
  * @date    2021-06-04 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup GUIDELINES
  * @prefix  ABC
  *
@@ -90,7 +90,7 @@ uint8_t abc_myArrayA[]  = {1, 2, 3}; /* Array has type uint8_t[3] and holds 1,2,
 uint8_t abc_myArrayC[5] = {0};       /* Array has type uint8_t[5] and holds 0,0,0,0,0 */
 
 uint8_t abc_myArrayD[4][3] = {
-    /* array of 4 arrays of 3 uint8_t's each (4x3 matrix) */
+    /* array of 4 arrays of 3 uint8_t each (4x3 matrix) */
     {1},       /* row 0 initialized to {1, 0, 0} */
     {0, 1},    /* row 1 initialized to {0, 1, 0} */
     {[2] = 1}, /* row 2 initialized to {0, 0, 1} */

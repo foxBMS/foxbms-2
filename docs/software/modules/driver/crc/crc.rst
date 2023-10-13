@@ -37,9 +37,9 @@ to the MSB.
 
 The function ``CRC_CalculateCrc()`` takes three arguments:
 
- - a ``uint64_t *`` pointer where the calculated 64 bit CRC is written
- - a ``uint8_t *`` pointer to the data
- - the length in bytes of the data
+- a ``uint64_t *`` pointer where the calculated 64 bit CRC is written
+- a ``uint8_t *`` pointer to the data
+- the length in bytes of the data
 
 .. warning::
     This function is not re-entrant: as it uses hardware registers, it

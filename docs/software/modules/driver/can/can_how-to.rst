@@ -80,7 +80,7 @@ In the symbol file the message is implemented as ``foxBMS_BmsState`` (prefix
 ``foxBMS`` followed by the message name) with the ID ``0x220``.
 As the message is transmitted from the point of view of the BMS, the comment in
 the symbol file must be
-``Message containing the foxBMS system state (in:can_cbs_tx_state.c:CANTX_BmsState, fv:tx)``.
+``Message containing the foxBMS system state (in:can_cbs_tx_bms-state.c:CANTX_BmsState, fv:tx)``.
 The new dbc file must be exported.
 
 Required Macros
@@ -141,7 +141,7 @@ The callback declaration must be done in file
 
 The callback definition must be done in the appropriate implementation file,
 i.e., for the BMS state message in
-``src\app\driver\can\cbs\tx\can_cbs_tx_state.c``.
+``src\app\driver\can\cbs\tx\can_cbs_tx_bms-state.c``.
 
 .. literalinclude:: ./can_how-to_tx.c
    :language: C
@@ -149,7 +149,7 @@ i.e., for the BMS state message in
    :start-after: example-can-tx-messages-callback-definition-start
    :end-before: example-can-tx-messages-callback-definition-end
    :caption: Definition of the callback function in
-             ``src\app\driver\can\cbs\tx\can_cbs_tx_state.c``
+             ``src\app\driver\can\cbs\tx\can_cbs_tx_bms-state.c``
    :name: callback-definition
 
 Required Variables Adaptations
@@ -166,12 +166,11 @@ The message needs to be added the transmitted messages array as follows:
              ``src/app/driver/config/can_cfg_tx.c``
    :name: adding-the-the-new-message-to-the-tx-registry
 
-
 Verification
 """"""""""""
 
 Run the check scripts to verify that the messages are implemented as described
-in this how-to's guidelines.
+in this how-to.
 
 .. code-block:: console
    :caption: Verify CAN transmit message definition and callback implementation

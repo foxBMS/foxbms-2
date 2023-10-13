@@ -21,13 +21,13 @@ Enum=foxBMS_RtcWeekday(1="Monday", 2="Tuesday", 3="Wednesday", 4="Thursday", 5="
 Enum=foxBMS_SoftwareReset(0="NO_SOFTWARE_RESET", // Do not trigger a software reset
   1="SOFTWARE_RESET") // Trigger a software reset
 Enum=foxBMS_FramInitialization(0="NO_FRAM_INITIALIZATION", 1="FRAM_INITIALIZATION")
-Enum=foxBMS_RtcMonth(1="January", 2="February", 3="March", 4="Mai", 5="April", 6="June", 7="July", 8="August",
+Enum=foxBMS_RtcMonth(1="January", 2="February", 3="March", 4="April", 5="May", 6="June", 7="July", 8="August",
   9="September", 10="October", 11="November", 12="December")
 
 {SENDRECEIVE}
 
 [foxBMS_PackValues]
-ID=222h // (in:can_cbs_tx_system-values.c:CANTX_PackValues, fv:tx)
+ID=222h // (in:can_cbs_tx_pack-values-p0.c:CANTX_PackValues, fv:tx)
 Len=8
 CycleTime=100 -p
 Var=foxBMS_packCurrent signed 46,18 -m /u:A /f:0.01 // Battery pack current
@@ -36,7 +36,7 @@ Var=foxBMS_busVoltage unsigned 14,14 -m /u:V /f:0.1 // Battery voltage between n
 Var=foxBMS_packPower signed 28,18 -m /u:kW /f:0.01 // Battery power
 
 [foxBMS_LimitValues]
-ID=224h // (in:can_cbs_tx_limit-values.c:CANTX_LimitValues, fv:tx)
+ID=224h // (in:can_cbs_tx_pack-limits.c:CANTX_LimitValues, fv:tx)
 Len=8
 CycleTime=100 -p
 Var=foxBMS_maxChargeCurrent unsigned 12,12 -m /u:A /f:0.25 // Maximum battery pack charge current
@@ -47,7 +47,7 @@ Var=foxBMS_maxBatteryVoltage unsigned 48,8 -m /u:V /f:4
 Var=foxBMS_minBatteryVoltage unsigned 56,8 -m /u:V /f:4
 
 [foxBMS_MinimumMaximumValues]
-ID=223h // (in:can_cbs_tx_minimum-maximum-values.c:CANTX_MinimumMaximumValues, fv:tx)
+ID=223h // (in:can_cbs_tx_pack-minimum-maximum-values.c:CANTX_MinimumMaximumValues, fv:tx)
 Len=8
 CycleTime=100 -p
 Var=foxBMS_minimumCellVoltage unsigned 13,13 -m /u:mV // Minimum cell voltage of all connected strings, if no string connected maximum value of whole system is transmitted
@@ -58,7 +58,7 @@ Var=foxBMS_inletTemperature signed 32,8 -m /u:degC
 Var=foxBMS_outletTemperature signed 40,8 -m /u:degC
 
 [foxBMS_StringValuesP0]
-ID=280h // Message contains string voltage, current and power (in:can_cbs_tx_system-values.c:CANTX_StringValuesP0, fv:tx)
+ID=280h // Message contains string voltage, current and power (in:can_cbs_tx_pack-values-p0.c:CANTX_StringValuesP0, fv:tx)
 Len=8
 CycleTime=100 -p
 Mux=mux_valuesP0String_0 0,3 0 -m
@@ -67,7 +67,7 @@ Var=foxBMS_String0Voltage unsigned 3,17 -m /u:V /f:0.01
 Var=foxBMS_String0Power signed 38,18 -m /u:kW /f:0.01
 
 [foxBMS_StringValuesP1]
-ID=283h // Message contains energy counting value (in:can_cbs_tx_system-values.c:CANTX_StringValuesP1, fv:tx)
+ID=283h // Message contains energy counting value (in:can_cbs_tx_pack-values-p0.c:CANTX_StringValuesP1, fv:tx)
 Len=8
 CycleTime=100 -p
 Mux=mux_valuesP1String_0 0,4 0 -m
@@ -1297,7 +1297,7 @@ Var=cellTemperature_178 signed 48,8 -m /u:degC
 Var=cellTemperature_179 signed 56,8 -m /u:degC
 
 [foxBMS_BmsStateRequest]
-ID=230h // (in:can_cbs_rx_state-request.c:CANRX_BmsStateRequest, fv:rx)
+ID=230h // (in:can_cbs_rx_bms-state-request.c:CANRX_BmsStateRequest, fv:rx)
 Len=8
 Var=foxBMS_modeRequest unsigned 6,2 -m /e:foxBMS_ModeRequest // 0x0: Disconnect strings from HV bus, 0x01: Connect strings to HV bus to start discharge, 0x02: Connect strings to HV bus to start charging
 Var=foxBMS_activateBalancing bit 15,1 -m // 0: Deactivate balancing, 1: Activate balancing
@@ -1310,7 +1310,7 @@ Var=foxBMS_heaterOverride_ON bit 1,1 -m // 0: no override active, 1: override ac
 Var=foxBMS_heaterOverride_OFF bit 0,1 -m // 0: no override active, 1: override active -> force heater off
 
 [foxBMS_BmsState]
-ID=220h // Message contains foxBMS state (in:can_cbs_tx_state.c:CANTX_BmsState, fv:tx)
+ID=220h // Message contains foxBMS state (in:can_cbs_tx_bms-state.c:CANTX_BmsState, fv:tx)
 Len=8
 CycleTime=100 -p
 Var=foxBMS_State unsigned 4,4 -m /e:foxBMS_State
@@ -1340,16 +1340,16 @@ Var=foxBMS_alertFlag bit 28,1 -m /e:foxBMS_ErrorFlag // foxBMS Alter flag: 0x00:
 Var=foxBMS_NvramCrcError bit 27,1 -m /e:foxBMS_ErrorFlag // 0x00: No NVRAM CRC Error detected, 0x01: NVRAM CRC Error detected
 
 [foxBMS_StringState]
-ID=221h // Message contains string related error and warning flags (in:can_cbs_tx_state.c:CANTX_StringState, fv:tx)
+ID=221h // Message contains string related error and warning flags (in:can_cbs_tx_bms-state.c:CANTX_StringState, fv:tx)
 Len=8
 CycleTime=100 -p
 Mux=mux_stateString0 4,4 0 -m
 Var=String0_stringConnected bit 3,1 -m // 0x00: String not connected, 0x01: String connected to HV bus
 Var=String0_balancing_active bit 2,1 -m // 0x00: No balancing active, 0x01: Balancing in this string active
-Var=String0_Err_overtemp_charge bit 15,1 -m // 0x00: No error, 0x01: Error: Flag will be set if maximum cell temperature is above 45 degree celsius.
-Var=String0_Err_undertemp_charge bit 14,1 -m // 0x00: No error, 0x01: Error: Flag will be set if minimum cell temperature is below 0 degree celsius.
-Var=String0_Err_overtemp_discharge bit 13,1 -m // 0x00: No error, 0x01: Error: Flag will be set if maximum cell temperature is above 60 degree celsius.
-Var=String0_Err_undertemp_discharge bit 12,1 -m // 0x00: No error, 0x01: Error: Flag will be set if minimum cell temperature is below -20 degree celsius.
+Var=String0_Err_overtemp_charge bit 15,1 -m // 0x00: No error, 0x01: Error: Flag will be set if maximum cell temperature is above 45 degree Celsius.
+Var=String0_Err_undertemp_charge bit 14,1 -m // 0x00: No error, 0x01: Error: Flag will be set if minimum cell temperature is below 0 degree Celsius.
+Var=String0_Err_overtemp_discharge bit 13,1 -m // 0x00: No error, 0x01: Error: Flag will be set if maximum cell temperature is above 60 degree Celsius.
+Var=String0_Err_undertemp_discharge bit 12,1 -m // 0x00: No error, 0x01: Error: Flag will be set if minimum cell temperature is below -20 degree Celsius.
 Var=String0_Err_Overcurrent_charge bit 11,1 -m // 0x00: No error, 0x01: Error: Flag will be set if string charge current is above 30400mA.
 Var=String0_Err_Overcurre_discharge bit 10,1 -m // 0x00: No error, 0x01: Error: Flag will be set if discharge current is above maximum string current.
 Var=String0_Err_Overvoltage bit 9,1 -m // 0x00: No error, 0x01: Error: Flag will be set if maximum cell voltage is above 4200mV.
@@ -1398,7 +1398,7 @@ Var=String0_Err_CS_voltage2Meas bit 40,1 -m
 Var=String0_Err_CS_voltage3Meas bit 55,1 -m
 
 [foxBMS_StringMinMaxValues]
-ID=281h // Message contains minimum and maximum cell temperature and cell voltage values of respective string (in:can_cbs_tx_minimum-maximum-values.c:CANTX_StringMinimumMaximumValues, fv:tx)
+ID=281h // Message contains minimum and maximum cell temperature and cell voltage values of respective string (in:can_cbs_tx_pack-minimum-maximum-values.c:CANTX_StringMinimumMaximumValues, fv:tx)
 Len=8
 CycleTime=100 -p
 Mux=mux_minMaxValuesString0 4,4 0 -m
@@ -1439,6 +1439,7 @@ Var=foxBMS_GetMcuLotNumber bit 13,1 -m
 Var=foxBMS_GetBmsSoftwareVersion bit 15,1 -m
 Var=foxBMS_GetMcuUniqueDieId bit 14,1 -m
 Var=foxBMS_GetMcuWaferInformation bit 12,1 -m
+Var=foxBMS_GetCommitHash bit 12,1
 
 [foxBMS_Debug]
 Len=8
@@ -1544,7 +1545,7 @@ Var=IVT0_MsgCount_Result_Wh unsigned 12,4 -m
 Var=IVT0_ID_Result_Wh unsigned 0,8 -m /min:7 /max:7 /d:7
 
 [foxBMS_BmsStateDetails]
-ID=226h // Transmits details on flags transmitted by foxBMS_State (in:can_cbs_tx_state.c:CANTX_BmsStateDetails, fv:tx)
+ID=226h // Transmits details on flags transmitted by foxBMS_State (in:can_cbs_tx_bms-state.c:CANTX_BmsStateDetails, fv:tx)
 Len=8
 CycleTime=1000 -p
 Var=foxBMS_TimingViolationEngine bit 7,1 -m /ln:"timing violation engine task" // Indicates whether the timing of the engine task has been violated.
@@ -1604,8 +1605,29 @@ Var=GetSeconds unsigned 15,6 -m
 Var=GetWeekday unsigned 32,3 -m /e:foxBMS_RtcWeekday
 Var=GetYear unsigned 44,7 -m
 
+[foxBMS_DebugResponse]
+Len=8
+Mux=foxBMS_CommitHash 0,8 5 -m
+Var=shortHash string 8,56 -m
+
 [foxBMS_UnsupportedMultiplexerVal]
-ID=201h // (in:can_cbs_tx_unsupported-message.c:CANTX_UnsupportedMultiplexerValue, fv:tx)
+ID=201h // (in:can_cbs_tx_debug-unsupported-multiplexer-values.c:CANTX_UnsupportedMultiplexerValue, fv:tx)
 Len=8
 Var=foxBMS_MessageId unsigned 0,32 -m /max:1
 Var=foxBMS_MultiplexerValue unsigned 32,32 -m /max:1
+
+[foxBMS_FatalErrors]
+ID=0FFh // (in:can_cbs_tx_crash-dump.c:CANTX_SendReasonsForFatalErrors, fv:tx)
+Len=8
+Mux=StackOverflow 0,8 0 -m
+
+[foxBMS_AerosolSensor]
+ID=3C4h // (in:can_cbs_rx_aerosol-sensor.c:CANRX_AerosolSensor, fv:rx)
+Len=8
+CycleTime=1000
+Var=particulate_matter_concentration unsigned 0,16 -m
+Var=low_power_mode_wake_up_threshold unsigned 16,16 -m
+Var=sensor_status unsigned 37,3 -m
+Var=sensor_faults unsigned 32,5 -m
+Var=rolling_counter unsigned 45,3 -m
+Var=CRC_check_code unsigned 56,8 -m

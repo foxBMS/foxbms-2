@@ -43,8 +43,8 @@
  * @file    nxp_mc33775a_defs.h
  * @author  foxBMS Team
  * @date    2020-09-01 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup DRIVERS
  * @prefix  N775
  *
@@ -136,7 +136,7 @@ typedef struct {
     bool mux1IsOK[BS_NR_OF_STRINGS][BS_NR_OF_MODULES_PER_STRING];               /*!<    */
     bool mux2IsOK[BS_NR_OF_STRINGS][BS_NR_OF_MODULES_PER_STRING];               /*!<    */
     bool mux3IsOK[BS_NR_OF_STRINGS][BS_NR_OF_MODULES_PER_STRING];               /*!<    */
-} N775_ERRORTABLE_s;
+} N775_ERROR_TABLE_s;
 
 /** error table for the LTC driver */
 typedef struct {
@@ -149,52 +149,14 @@ typedef struct {
     uint8_t muxChannel; /*!< multiplexer channel 0 - 7   */
 } N775_MUX_CH_CFG_s;
 
-/** States of the N775 state machine */
-typedef enum {
-    N775_STATEMACH_UNINITIALIZED,  /*!<    */
-    N775_STATEMACH_INITIALIZATION, /*!<    */
-    N775_STATEMACH_WAKEUP,         /*!<    */
-    N775_STATEMACH_ENUMERATE,      /*!<    */
-    N775_STATEMACH_INITIALIZED,    /*!<    */
-    N775_STATEMACH_IDLE,           /*!<    */
-    N775_STATEMACH_STARTMEAS,      /*!<    */
-    N775_STATEMACH_READVOLTAGE,    /*!<    */
-    N775_STATEMACH_BALANCECONTROL,
-} N775_STATEMACH_e;
-
-/** General substates */
-typedef enum {
-    N775_ENTRY,             /*!<        */
-    N775_SECOND_WAKEUP,     /*!<        */
-    N775_CHECK_ENUMERATION, /*!<        */
-    N775_ERROR_ENTRY,       /*!<        */
-    N775_ERROR_PROCESSED,   /*!<    */
-} N775_STATEMACH_SUB_e;
-
-/** Substates for the uninitialized state */
-typedef enum {
-    N775_ENTRY_UNINITIALIZED = 0, /*!< Initialize-sequence */
-} N775_STATEMACH_UNINITIALIZED_SUB_e;
-
-/** Substates for the initialization state */
-typedef enum {
-    /* Init-Sequence */
-    N775_ENTRY_INITIALIZATION         = 0, /*!<    */
-    N775_START_INIT_INITIALIZATION    = 1, /*!<    */
-    N775_RE_ENTRY_INITIALIZATION      = 2, /*!<    */
-    N775_READ_INITIALIZATION_REGISTER = 3, /*!<    */
-    N775_CHECK_INITIALIZATION         = 4, /*!<    */
-    N775_EXIT_INITIALIZATION          = 5, /*!<    */
-} N775_STATEMACH_INITIALIZATION_SUB_e;
-
-/** State requests for the N775 statemachine */
+/** State requests for the N775 state machine */
 typedef enum {
     N775_STATE_INITIALIZATION_REQUEST, /*!<    */
     N775_STATE_NO_REQUEST,             /*!<    */
 } N775_STATE_REQUEST_e;
 
 /**
- * Possible return values when state requests are made to the N775 statemachine
+ * Possible return values when state requests are made to the N775 state machine
  */
 typedef enum {
     N775_OK                  = 0,  /*!< N775 --> ok                             */
@@ -223,7 +185,7 @@ typedef struct {
     DATA_BLOCK_SLAVE_CONTROL_s *slaveControl;
     DATA_BLOCK_OPEN_WIRE_s *openWire; /* Wie genau open wire check behandeln? Was genau abspeichern? */
     N775_SUPPLY_CURRENT_s *supplyCurrent;
-    N775_ERRORTABLE_s *errorTable;
+    N775_ERROR_TABLE_s *errorTable;
     uint64_t uid[BS_NR_OF_STRINGS][BS_NR_OF_MODULES_PER_STRING];
 } N775_DATAPTR_s;
 

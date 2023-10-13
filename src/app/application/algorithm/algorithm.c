@@ -43,8 +43,8 @@
  * @file    algorithm.c
  * @author  foxBMS Team
  * @date    2017-12-18 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup ALGORITHMS
  * @prefix  ALGO
  *
@@ -133,13 +133,13 @@ extern void ALGO_MainFunction(void) {
         if ((runAlgorithmAsap != false) || (runAlgorithmCycleElapsed != false)) {
             /* Cycle time elapsed -> call function */
             if (algo_algorithms[i].state == ALGO_READY) {
-                /* Set state to running -> reset to READY before leaving algo function */
+                /* Set state to running -> reset to READY before leaving algorithm function */
                 algo_algorithms[i].state     = ALGO_RUNNING;
                 algo_algorithms[i].startTime = OS_GetTickCount();
                 algo_algorithms[i].fpAlgorithm();
                 ALGO_MarkAsDone(i);
             }
-            /* check if we need to reinit */
+            /* check if we need to reinitialize */
             if (algo_algorithms[i].state == ALGO_REINIT_REQUESTED) {
                 /* set to uninitialized so that the algorithm can be reinitialized */
                 algo_algorithms[i].state = ALGO_UNINITIALIZED;

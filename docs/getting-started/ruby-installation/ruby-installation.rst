@@ -17,9 +17,9 @@ Manual Ruby Installation
    temporary folder, and then can be copied back into
    ``C:\Ruby\RubyX.Y.Z.`` after the installation has finished.
 
-#. Download the |ruby| installer version ``2.7.2`` including the Devkit from
+#. Download the |ruby| installer version ``3.1.3-x64`` without the Devkit from
    `rubyinstaller.org <https://rubyinstaller.org/>`_. Use
-   ``C:\Ruby\Ruby272-x64`` as installation directory and do not add Ruby to
+   ``C:\Ruby\Ruby3.1.3-x64`` as installation directory and do not add Ruby to
    ``PATH``.
 
    .. figure:: img/ruby-installer-0.png
@@ -34,7 +34,7 @@ Manual Ruby Installation
       :caption: Installing required gems for Ceedling
 
       C:\Users\vulpes\Documents\foxbms-2>cd tools\vendor\ceedling
-      C:\Users\vulpes\Documents\foxbms-2>C:\Ruby\Ruby272-x64\bin\bundle install
+      C:\Users\vulpes\Documents\foxbms-2>C:\Ruby\Ruby3.1.3-x64\bin\bundle install
 
    Add ``--http-proxy=http://user:password@server:port`` (adapted to your
    settings) to the shown command if you are behind a proxy.

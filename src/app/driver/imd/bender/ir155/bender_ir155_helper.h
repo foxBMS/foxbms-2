@@ -43,8 +43,8 @@
  * @file    bender_ir155_helper.h
  * @author  foxBMS Team
  * @date    2021-09-17 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup DRIVERS
  * @prefix  IR155
  *
@@ -79,13 +79,13 @@
  */
 typedef enum IR155_MEASUREMENT_MODE {
     IR155_NORMAL_MODE,            /*!< PWM frequency: 10Hz */
-    IR155_SPEEDSTART_MODE,        /*!< PWM frequency: 30Hz */
+    IR155_SPEED_START_MODE,       /*!< PWM frequency: 30Hz */
     IR155_UNDERVOLTAGE_MODE,      /*!< PWM frequency: 20Hz */
     IR155_IMD_ERROR_MODE,         /*!< PWM frequency: 40Hz */
-    IR155_GROUNDERROR_MODE,       /*!< PWM frequency: 50Hz */
+    IR155_GROUND_ERROR_MODE,      /*!< PWM frequency: 50Hz */
     IR155_SHORT_CLAMP,            /*!< PWM frequency:  0Hz */
     IR155_UNDEFINED_FREQUENCY,    /*!< illegal frequency detected*/
-    IR155_DUTY_CYCLE_MEASUREMENT, /*!< corrupt signal measurement (e.g. T_on > T_periode,)*/
+    IR155_DUTY_CYCLE_MEASUREMENT, /*!< corrupt signal measurement (e.g., T_on > T_period,)*/
     IR155_NOSIGNAL,               /*!< no signal (e.g. if 100% -> wire break, if 0% -> shortcut to GND */
     IR155_UNKNOWN,
 } IR155_MEASUREMENT_MODE_e;
@@ -97,12 +97,12 @@ typedef enum IR155_MEASUREMENT_MODE {
 typedef enum IR155_MEASUREMENT_STATE {
     IR155_RESISTANCE_MEASUREMENT,           /*!< valid normal measurement working */
     IR155_RESISTANCE_MEASUREMENT_UNKNOWN,   /*!< normal measurement with undefined duty cycle */
-    IR155_RESISTANCE_ESTIMATION,            /*!< SPEEDSTART estimation working */
-    IR155_RESISTANCE_ESTIMATION_UNKNOWN,    /*!< SPEEDSTART estimation with undefined duty cycle */
-    IR155_UNDERVOLTAGE_MEASUREMENT,         /*!< SPEEDSTART estimation working */
-    IR155_UNDERVOLTAGE_MEASUREMENT_UNKNOWN, /*!< SPEEDSTART estimation with undefined duty cycle */
-    IR155_GROUND_ERROR_MODE,                /*!< ground error detected */
-    IR155_GROUND_ERROR_MODE_UNKNOWN,        /*!< ground error detected with undefined duty cycle */
+    IR155_RESISTANCE_ESTIMATION,            /*!< SPEED START estimation working */
+    IR155_RESISTANCE_ESTIMATION_UNKNOWN,    /*!< SPEED START estimation with undefined duty cycle */
+    IR155_UNDERVOLTAGE_MEASUREMENT,         /*!< SPEED START estimation working */
+    IR155_UNDERVOLTAGE_MEASUREMENT_UNKNOWN, /*!< SPEED START estimation with undefined duty cycle */
+    IR155_GROUND_ERROR_STATE,               /*!< ground error detected */
+    IR155_GROUND_ERROR_STATE_UNKNOWN,       /*!< ground error detected with undefined duty cycle */
     IR155_IMD_ERROR_MEASUREMENT,            /*!< device error detected */
     IR155_IMD_ERROR_MEASUREMENT_UNKNOWN,    /*!< device error detected with unkown duty cycle*/
     IR155_SIGNAL_SHORT,                     /*!< signal short detected */
@@ -123,7 +123,7 @@ typedef struct {
 
 /** IR155 state struct */
 typedef struct {
-    bool ir155Initialized;                 /*!< flag if IR155 module is initialied */
+    bool ir155Initialized;                 /*!< flag if IR155 module is initialized */
     IR155_MEASUREMENT_s measurement;       /*!< latest measurement */
     uint32_t timeUntilValidMeasurement_ms; /*!< time until valid measurement result is valid */
     uint16_t periodTriggerTime_ms;         /*!< periodic call time of IR155 module */

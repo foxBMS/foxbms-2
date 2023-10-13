@@ -43,8 +43,8 @@
  * @file    test_algorithm.c
  * @author  foxBMS Team
  * @date    2020-06-30 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -61,6 +61,10 @@
 #include "algorithm.h"
 #include "fstd_types.h"
 #include "test_assert_helper.h"
+
+/*========== Unit Testing Framework Directives ==============================*/
+TEST_INCLUDE_PATH("../../src/app/application/algorithm")
+TEST_INCLUDE_PATH("../../src/app/application/algorithm/config")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 ALGO_TASKS_s algo_algorithms[] = {

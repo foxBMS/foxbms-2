@@ -43,8 +43,8 @@
  * @file    c-022.c
  * @author  foxBMS Team
  * @date    2021-06-04 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup GUIDELINES
  * @prefix  ABC
  *
@@ -61,7 +61,7 @@
 /** Symbolic names for battery system state */
 typedef struct {
     uint16_t year; /*!< year */
-    uint8_t month; /*!< month (1: january ... 12: december) */
+    uint8_t month; /*!< month (1: January ... 12: December) */
     uint8_t day;   /*!< day of the month */
 } ABC_DATE_s;
 

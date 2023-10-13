@@ -43,8 +43,8 @@
  * @file    test_algorithm_stubs.h
  * @author  foxBMS Team
  * @date    2020-12-09 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -62,6 +62,8 @@
 #include "unity.h"
 
 #include "fstd_types.h"
+
+/*========== Unit Testing Framework Directives ==============================*/
 
 /*========== Macros and Definitions =========================================*/
 /** a compute function for mocking for the algorithm module */

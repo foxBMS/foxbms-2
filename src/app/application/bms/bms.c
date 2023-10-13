@@ -43,8 +43,8 @@
  * @file    bms.c
  * @author  foxBMS Team
  * @date    2020-02-24 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup ENGINE
  * @prefix  BMS
  *
@@ -98,7 +98,7 @@ static BMS_STATE_s bms_state = {
     .initFinished                      = STD_NOT_OK,
     .counter                           = 0u,
     .OscillationTimeout                = 0u,
-    .PrechargeTryCounter               = 0u,
+    .prechargeTryCounter               = 0u,
     .powerPath                         = BMS_POWER_PATH_OPEN,
     .closedStrings                     = {0u},
     .closedPrechargeContactors         = {0u},
@@ -481,7 +481,7 @@ static STD_RETURN_TYPE_e BMS_IsBatterySystemStateOkay(void) {
         }
 
         /* Check if delay from a new error is shorter then active delay from
-         * previously detected error in BMS statemachine */
+         * previously detected error in BMS state machine */
         if (bms_state.remainingDelay_ms >= bms_state.minimumActiveDelay_ms) {
             bms_state.remainingDelay_ms = bms_state.minimumActiveDelay_ms;
         }
@@ -496,7 +496,7 @@ static STD_RETURN_TYPE_e BMS_IsBatterySystemStateOkay(void) {
     /** Set previous timestamp for next call */
     previousTimestamp = timestamp;
 
-    /* Check if bms statemachine should switch to error state. This is the case
+    /* Check if bms state machine should switch to error state. This is the case
      * if the delay is activated and the remaining delay is down to 0 */
     if ((bms_state.transitionToErrorState == true) && (bms_state.remainingDelay_ms == 0u)) {
         retVal = STD_NOT_OK;
@@ -1182,7 +1182,8 @@ void BMS_Trigger(void) {
                     bms_state.substate  = BMS_ENTRY;
                     break;
                 }
-                bms_state.firstClosedString = stringNumber;
+                bms_state.prechargeTryCounter = 0u;
+                bms_state.firstClosedString   = stringNumber;
                 if (bms_state.OscillationTimeout == 0u) {
                     /* Close MINUS string contactor */
                     if (CONT_CloseContactor(bms_state.firstClosedString, CONT_MINUS) == STD_OK) {
@@ -1213,9 +1214,8 @@ void BMS_Trigger(void) {
                     contRetVal                   = CONT_ClosePrecharge(bms_state.firstClosedString);
                     bms_state.closedPrechargeContactors[stringNumber] = 1u;
                     if (contRetVal == STD_OK) {
-                        bms_state.timer               = BMS_TIME_WAIT_AFTER_CLOSING_PRECHARGE;
-                        bms_state.substate            = BMS_CHECK_ERROR_FLAGS_CLOSINGPRECHARGE;
-                        bms_state.PrechargeTryCounter = 0u;
+                        bms_state.timer    = BMS_TIME_WAIT_AFTER_CLOSING_PRECHARGE;
+                        bms_state.substate = BMS_CHECK_ERROR_FLAGS_CLOSINGPRECHARGE;
                     } else {
                         bms_state.timer     = BMS_STATEMACH_SHORTTIME;
                         bms_state.state     = BMS_STATEMACH_OPEN_CONTACTORS;
@@ -1272,12 +1272,12 @@ void BMS_Trigger(void) {
                     /* Precharging failed. Open precharge contactor. */
                     contRetVal = CONT_OpenPrecharge(bms_state.firstClosedString);
                     /* Check if retry limit has been reached */
-                    if (bms_state.PrechargeTryCounter < (BMS_PRECHARGE_TRIES - 1u)) {
+                    if (bms_state.prechargeTryCounter < (BMS_PRECHARGE_TRIES - 1u)) {
                         bms_state.closedPrechargeContactors[stringNumber] = 0u;
                         if (contRetVal == STD_OK) {
                             bms_state.timer    = BMS_TIME_WAIT_AFTERPRECHARGEFAIL;
                             bms_state.substate = BMS_PRECHARGE_CLOSE_PRECHARGE;
-                            bms_state.PrechargeTryCounter++;
+                            bms_state.prechargeTryCounter++;
                         } else {
                             bms_state.timer     = BMS_STATEMACH_SHORTTIME;
                             bms_state.state     = BMS_STATEMACH_OPEN_CONTACTORS;

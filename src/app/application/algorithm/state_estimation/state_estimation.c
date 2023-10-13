@@ -43,8 +43,8 @@
  * @file    state_estimation.c
  * @author  foxBMS Team
  * @date    2020-10-07 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup APPLICATION
  * @prefix  SE
  *
@@ -63,7 +63,9 @@
 /*========== Macros and Definitions =========================================*/
 
 /*========== Static Constant and Variable Definitions =======================*/
-static DATA_BLOCK_SOX_s se_tableSocAndSoeEstimation = {.header.uniqueId = DATA_BLOCK_ID_SOX};
+static DATA_BLOCK_SOC_s se_tableSocEstimation = {.header.uniqueId = DATA_BLOCK_ID_SOC};
+static DATA_BLOCK_SOH_s se_tableSohEstimation = {.header.uniqueId = DATA_BLOCK_ID_SOH};
+static DATA_BLOCK_SOE_s se_tableSoeEstimation = {.header.uniqueId = DATA_BLOCK_ID_SOE};
 
 /*========== Extern Constant and Variable Definitions =======================*/
 
@@ -74,28 +76,28 @@ static DATA_BLOCK_SOX_s se_tableSocAndSoeEstimation = {.header.uniqueId = DATA_B
 /*========== Extern Function Implementations ================================*/
 extern void SE_InitializeSoc(bool ccPresent, uint8_t stringNumber) {
     FAS_ASSERT(stringNumber < BS_NR_OF_STRINGS);
-    SE_InitializeStateOfCharge(&se_tableSocAndSoeEstimation, ccPresent, stringNumber);
-    DATA_WRITE_DATA(&se_tableSocAndSoeEstimation);
+    SE_InitializeStateOfCharge(&se_tableSocEstimation, ccPresent, stringNumber);
+    DATA_WRITE_DATA(&se_tableSocEstimation);
 }
 
 extern void SE_InitializeSoe(bool ec_present, uint8_t stringNumber) {
     FAS_ASSERT(stringNumber < BS_NR_OF_STRINGS);
-    SE_InitializeStateOfEnergy(&se_tableSocAndSoeEstimation, ec_present, stringNumber);
-    DATA_WRITE_DATA(&se_tableSocAndSoeEstimation);
+    SE_InitializeStateOfEnergy(&se_tableSoeEstimation, ec_present, stringNumber);
+    DATA_WRITE_DATA(&se_tableSoeEstimation);
 }
 
 extern void SE_InitializeSoh(uint8_t stringNumber) {
     FAS_ASSERT(stringNumber < BS_NR_OF_STRINGS);
-    SE_InitializeStateOfHealth(&se_tableSocAndSoeEstimation, stringNumber);
-    DATA_WRITE_DATA(&se_tableSocAndSoeEstimation);
+    SE_InitializeStateOfHealth(&se_tableSohEstimation, stringNumber);
+    DATA_WRITE_DATA(&se_tableSohEstimation);
 }
 
 extern void SE_RunStateEstimations(void) {
-    SE_CalculateStateOfCharge(&se_tableSocAndSoeEstimation);
-    SE_CalculateStateOfEnergy(&se_tableSocAndSoeEstimation);
-    SE_CalculateStateOfHealth(&se_tableSocAndSoeEstimation);
+    SE_CalculateStateOfCharge(&se_tableSocEstimation);
+    SE_CalculateStateOfEnergy(&se_tableSoeEstimation);
+    SE_CalculateStateOfHealth(&se_tableSohEstimation);
 
-    DATA_WRITE_DATA(&se_tableSocAndSoeEstimation);
+    DATA_WRITE_DATA(&se_tableSocEstimation, &se_tableSohEstimation, &se_tableSoeEstimation);
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/

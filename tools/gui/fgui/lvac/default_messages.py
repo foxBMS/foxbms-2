@@ -96,6 +96,16 @@ def _get_cell_temperatures_msg_id(dbc: Database):
     return cell_temperatures_msg.frame_id
 
 
+def _get_bms_state_msg_id(dbc: Database):
+    bms_state_msg = dbc.get_message_by_name("foxBMS_BmsState")
+    return bms_state_msg.frame_id
+
+
+def _get_bms_state_details_msg_id(dbc: Database):
+    bms_state_details_msg = dbc.get_message_by_name("foxBMS_BmsStateDetails")
+    return bms_state_details_msg.frame_id
+
+
 def _get_debug_response_msg_id(dbc: Database):
     debug_response_msg = dbc.get_message_by_name("foxBMS_DebugResponse")
     return debug_response_msg.frame_id

@@ -43,8 +43,8 @@
  * @file    imd.c
  * @author  foxBMS Team
  * @date    2021-11-04 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup DRIVERS
  * @prefix  IMD
  *
@@ -315,8 +315,8 @@ static void IMD_SetState(
 
     if ((pImdState->currentState == nextState) && (pImdState->currentSubstate == nextSubstate)) {
         /* Next state and next substate equal to current state and substate: nothing to do */
-        pImdState->nextState    = IMD_FSM_STATE_DUMMY;    /* no state transistion required -> reset */
-        pImdState->nextSubstate = IMD_FSM_SUBSTATE_DUMMY; /* no substate transistion required -> reset */
+        pImdState->nextState    = IMD_FSM_STATE_DUMMY;    /* no state transition required -> reset */
+        pImdState->nextSubstate = IMD_FSM_SUBSTATE_DUMMY; /* no substate transition required -> reset */
         earlyExit               = true;
     }
 
@@ -327,8 +327,8 @@ static void IMD_SetState(
             pImdState->currentState     = nextState;
             pImdState->previousSubstate = pImdState->currentSubstate;
             pImdState->currentSubstate  = IMD_FSM_SUBSTATE_ENTRY; /* Use entry state after a top level state change */
-            pImdState->nextState        = IMD_FSM_STATE_DUMMY;    /* no state transistion required -> reset */
-            pImdState->nextSubstate     = IMD_FSM_SUBSTATE_DUMMY; /* no substate transistion required -> reset */
+            pImdState->nextState        = IMD_FSM_STATE_DUMMY;    /* no state transition required -> reset */
+            pImdState->nextSubstate     = IMD_FSM_SUBSTATE_DUMMY; /* no substate transition required -> reset */
         } else if (pImdState->currentSubstate != nextSubstate) {
             /* Only the next substate is different, switch to it */
             IMD_SetSubstate(pImdState, nextSubstate, idleTime);

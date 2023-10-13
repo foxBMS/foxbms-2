@@ -27,7 +27,6 @@ Unit Test
 - ``tests/unit/app/engine/config/test_database_cfg.c``
 - ``tests/unit/app/engine/database/test_database.c``
 
-
 Detailed Description
 --------------------
 

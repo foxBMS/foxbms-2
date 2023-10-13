@@ -51,7 +51,6 @@ System and the Hardware Abstraction Layer.
 - ``operating_system``: ``CFLAGS`` that should only be applied to the
   operating system sources (``src/os/*``).
 
-
 ``LINKFLAGS``
 """""""""""""
 
@@ -114,7 +113,6 @@ Remarks can be added to a single build step as shown in
    The default remark settings are relatively strict to avoid common mistakes.
    **Changing them is generally not recommended**.
 
-
 .. note::
 
    It is possible to add all kinds of compiler flags in command files, this is
@@ -154,13 +152,11 @@ symbol should be pulled from where needs to be defined (see
 In this file use Unix-separator and specify the linked source as seen from the
 build directory.
 
-
 .. literalinclude:: linker_pulls/example_linker_pulls.json
     :language: json
     :caption: Linker pulls file ``linker_pulls.json``
     :name: pulls-config-file
     :linenos:
-
 
 This file needs to be specified when a program is built (see
 :ref:`linker-pulls-build-example`).

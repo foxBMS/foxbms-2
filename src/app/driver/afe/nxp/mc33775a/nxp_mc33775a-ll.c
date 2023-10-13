@@ -20,6 +20,19 @@
 * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+/**
+ * @file    nxp_mc33775a-ll.c
+ * @author  NXP
+ * @date    2022-07-29 (date of creation)
+ * @updated 2023-09-05 (date of last update)
+ * @version v1.6.0
+ * @ingroup DRIVERS
+ * @prefix  N775
+ *
+ * @brief   Low level driver for the MC33775A
+ *
+ */
+
 /*========== Includes =======================================================*/
 
 #include "nxp_mc33775a-ll.h"
@@ -183,12 +196,12 @@ extern N775_COMMUNICATION_STATUS_e N775_CommunicationRead(
     uint16_t deviceAddress,
     uint16_t registerAddress,
     uint16_t *pValue,
-    N775_STATE_s *n775_state) {
+    N775_STATE_s *pState) {
     FAS_ASSERT(pValue != NULL_PTR);
-    FAS_ASSERT(n775_state != NULL_PTR);
-    FAS_ASSERT(n775_state->pSpiTxSequence != NULL_PTR);
-    FAS_ASSERT(n775_state->pSpiRxSequence != NULL_PTR);
-    return N775_CommunicationReadMultiple(deviceAddress, 1, 1, registerAddress, pValue, n775_state);
+    FAS_ASSERT(pState != NULL_PTR);
+    FAS_ASSERT(pState->pSpiTxSequence != NULL_PTR);
+    FAS_ASSERT(pState->pSpiRxSequence != NULL_PTR);
+    return N775_CommunicationReadMultiple(deviceAddress, 1, 1, registerAddress, pValue, pState);
 }
 
 extern N775_COMMUNICATION_STATUS_e N775_CommunicationReadMultiple(
@@ -197,11 +210,11 @@ extern N775_COMMUNICATION_STATUS_e N775_CommunicationReadMultiple(
     uint16_t responseLength,
     uint16_t registerAddress,
     uint16_t *pValues,
-    N775_STATE_s *n775_state) {
+    N775_STATE_s *pState) {
     FAS_ASSERT(pValues != NULL_PTR);
-    FAS_ASSERT(n775_state != NULL_PTR);
-    FAS_ASSERT(n775_state->pSpiTxSequence != NULL_PTR);
-    FAS_ASSERT(n775_state->pSpiRxSequence != NULL_PTR);
+    FAS_ASSERT(pState != NULL_PTR);
+    FAS_ASSERT(pState->pSpiTxSequence != NULL_PTR);
+    FAS_ASSERT(pState->pSpiRxSequence != NULL_PTR);
 
     /* Number of registers to read */
     uint16_t itemsReadRemaining = numberOfItems;
@@ -274,10 +287,10 @@ extern N775_COMMUNICATION_STATUS_e N775_CommunicationReadMultiple(
         rxBufferLength <=
         (N775_WRITE_SPI_BUFFER_SIZE +
          ((N775_READ_HEADER_SPI_BUFFER_SIZE + N775_READ_PAYLOAD_SPI_BUFFER_SIZE) * N775_MAX_ANSWER_FRAMES)));
-    SPI_SlaveSetReceiveDataDma(n775_state->pSpiRxSequence, n775FromTplTxBuffer, n775FromTplRxBuffer, rxBufferLength);
+    SPI_SlaveSetReceiveDataDma(pState->pSpiRxSequence, n775FromTplTxBuffer, n775FromTplRxBuffer, rxBufferLength);
 
     /* send message */
-    SPI_TransmitReceiveDataDma(n775_state->pSpiTxSequence, n775ToTplTxBuffer, n775ToTplRxBuffer, 4u);
+    SPI_TransmitReceiveDataDma(pState->pSpiTxSequence, n775ToTplTxBuffer, n775ToTplRxBuffer, 4u);
     bool n775_rxCompleted = true;
 
     uint32_t notificationRx = N775_WaitForRxCompletedNotification();
@@ -291,8 +304,8 @@ extern N775_COMMUNICATION_STATUS_e N775_CommunicationReadMultiple(
     }
 
     if (n775_rxCompleted == false) {
-        n775_state->pSpiRxSequence->pNode->INT0 &= ~DMAREQEN_BIT;
-        n775_state->pSpiRxSequence->pNode->GCR1 &= ~SPIEN_BIT;
+        pState->pSpiRxSequence->pNode->INT0 &= ~DMAREQEN_BIT;
+        pState->pSpiRxSequence->pNode->GCR1 &= ~SPIEN_BIT;
         communicationStatus = N775_COMMUNICATION_ERROR_TIMEOUT;
     } else {
         for (uint16_t i = 0; i < nrAnswerFrames; i++) {
@@ -331,7 +344,7 @@ extern N775_COMMUNICATION_STATUS_e N775_CommunicationReadMultiple(
                 &rsp_reg_addr,
                 &rsp_length,
                 rsp_values,
-                n775_state->currentString);
+                pState->currentString);
 
             if (communicationStatus == N775_COMMUNICATION_OK) {
                 /* SM.e.30 : Communication - Unique ID */

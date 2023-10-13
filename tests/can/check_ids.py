@@ -61,7 +61,7 @@ try:
 except ImportError:
     pass
 
-FILE_RE = r"\(in:([a-z_-]{1,}\.c):([A-Z]{2,5}_.*), fv:((tx)|(rx))\)"
+FILE_RE = r"\(in:([a-z_\-0-9]{1,}\.c):([A-Z]{2,5}_.*), fv:((tx)|(rx))\)"
 FILE_RE_COMPILED = re.compile(FILE_RE)
 
 
@@ -155,7 +155,7 @@ def construct_msg_define(msg) -> ExpectedCanMessageDefines:
     if m.group(3).lower() == "rx":
         direction = RxTx.Rx
         pref = "CANRX_"
-        phase_macro = "Rx has no phase"  # receive messages have ne phase
+        phase_macro = "Rx has no phase"  # receive messages have no phase
         message_id_macro = pref + message_id_macro
         period_macro = pref + period_macro
         full_message_macro = pref + full_message_macro

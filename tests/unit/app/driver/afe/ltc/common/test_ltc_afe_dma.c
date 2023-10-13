@@ -43,8 +43,8 @@
  * @file    test_ltc_afe_dma.c
  * @author  foxBMS Team
  * @date    2020-06-10 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -68,7 +68,15 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-TEST_FILE("ltc_afe_dma.c")
+/*========== Unit Testing Framework Directives ==============================*/
+TEST_SOURCE_FILE("ltc_afe_dma.c")
+
+TEST_INCLUDE_PATH("../../src/app/driver/afe/api")
+TEST_INCLUDE_PATH("../../src/app/driver/afe/ltc/common")
+TEST_INCLUDE_PATH("../../src/app/driver/afe/ltc/common/config")
+TEST_INCLUDE_PATH("../../src/app/driver/config")
+TEST_INCLUDE_PATH("../../src/app/driver/io")
+TEST_INCLUDE_PATH("../../src/app/driver/spi")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 uint8_t ltc_RXPECbuffer[LTC_N_BYTES_FOR_DATA_TRANSMISSION] = {0};

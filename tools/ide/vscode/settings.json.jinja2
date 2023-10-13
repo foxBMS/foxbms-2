@@ -3,62 +3,63 @@
     "files.encoding": "utf8",
     "files.autoGuessEncoding": true,
     "files.exclude": {
-        "**/.git": true,
-        "**/.svn": true,
-        "**/.hg": true,
-        "**/CVS": true,
+        "**/*.gcov": true,
+        "**/*.stats": true,
+        "**/*.zip": true,
         "**/.DS_Store": true,
-        "**/LLVM/**": true,
+        "**/.git": true,
+        "**/.hg": true,
+        "**/.lock-waf_*_build": true,
+        "**/.svn": true,
+        "**/.wafpickle-*": true,
         "**/__pycache__/**": true,
-        "**/build/**/*.swi.json": true,
         "**/build/**/*.a": true,
-        "**/build/**/*.crl": true,
-        "**/build/**/*.rl": true,
-        "**/build/**/*.obj": true,
-        "**/build/**/*.log": true,
         "**/build/**/*.aux": true,
+        "**/build/**/*.crl": true,
+        "**/build/**/*.log": true,
+        "**/build/**/*.obj": true,
         "**/build/**/*.pp": true,
         "**/build/**/*.ppd": true,
         "**/build/**/*.ppi": true,
         "**/build/**/*.ppm": true,
         "**/build/**/*.ppr": true,
         "**/build/**/*.pprs": true,
+        "**/build/**/*.rl": true,
+        "**/build/**/*.swi.json": true,
         "**/conf/hcg/include/**": true,
+        "**/CVS": true,
+        "**/LLVM/**": true,
         ".github/**": true,
         ".gitlab/**": true,
         ".vscode/**": true,
-        "build/tmp**": true,
-        "build/c4che/**": true,
         "build/axivion/**": true,
+        "build/c4che/**": true,
         "build/conf_check_*/**": true,
         "build/predefined_defines/**": true,
-        "**/.lock-waf_*_build": true,
-        "**/.wafpickle-*": true,
-        "**/*.gcov": true,
-        "**/*.zip": true
+        "build/tmp**": true
     },
     "files.watcherExclude": {
         "**/.git/objects/**": true,
         "**/.git/subtree-cache/**": true,
-        "**/waf-3-*/**": true,
-        "**/LLVM/**": true,
         "**/__pycache__/**": true,
         "**/build/**/*.pp": true,
         "**/build/**/*.ppr": true,
         "**/build/**/*.pprs": true,
         "**/conf/hcg/include/**": true,
+        "**/LLVM/**": true,
+        "**/waf-3-*/**": true,
         "tests/axivion/qualification-kit/**": true
     },
     "search.exclude": {
-        "**/node_modules": true,
-        "**/bower_components": true,
         "**/*.code-search": true,
+        "**/bower_components": true,
+        "**/conf/hcg/include/**": true,
         "**/LLVM/**": true,
+        "**/node_modules": true,
         "**build/**/*.obj": true,
         "**build/**/*.pp": true,
         "**build/**/*.ppr": true,
         "**build/**/*.pprs": true,
-        "**/conf/hcg/include/**": true,
         "tests/axivion/qualification-kit/**": true
     },
     "css.validate": false,
@@ -117,7 +118,7 @@
         79
     ],
     "[shellscript]": {
-        "files.eol": "\n",
+        "files.eol": "\n"
     },
     "editor.formatOnSave": true,
     "editor.bracketPairColorization.enabled": true,
@@ -126,14 +127,14 @@
         "editor.formatOnSave": true,
         "editor.rulers": [
             79
-        ],
+        ]
     },
     "[python]": {
         "files.encoding": "utf8",
         "editor.formatOnSave": true,
         "editor.rulers": [
             79
-        ],
+        ]
     },
     "[c]": {
         "editor.formatOnSave": true,
@@ -145,8 +146,8 @@
             {
                 "column": 119,
                 "color": "#ff0000"
-            },
-        ],
+            }
+        ]
     },
     "[html]": {
         "editor.formatOnSave": false

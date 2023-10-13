@@ -17,17 +17,16 @@ hardware and software for potentially any kind of mobile and stationary
 application that uses modern rechargeable electrochemical energy storage
 systems (e.g., lithium-ion batteries, redox-flow batteries, supercapacitors):
 
- - |foxbms| Hardware: the schematics and the layout of all electronic boards
-   are available for download and the design is based on commonly available
-   components and devices, that do not require non-disclosure agreements (NDA)
-   or confidentiality agreements.
- - |foxbms| Software: the software toolchain uses only own developed open
-   source and free of charge components or free of charge third-party
-   software, and the entire BMS source code is provided online with its own
-   development environment and configuration files, thus enabling immediate
-   use on Windows operating systems. Please contact us if you are on Mac or
-   Linux.
-
+- |foxbms| Hardware: the schematics and the layout of all electronic boards
+  are available for download and the design is based on commonly available
+  components and devices, that do not require non-disclosure agreements (NDA)
+  or confidentiality agreements.
+- |foxbms| Software: the software toolchain uses only own developed open
+  source and free of charge components or free of charge third-party
+  software, and the entire BMS source code is provided online with its own
+  development environment and configuration files, thus enabling immediate
+  use on Windows operating systems. Please contact us if you are on Mac or
+  Linux.
 
 What is |foxbms| designed for?
 ------------------------------
@@ -62,14 +61,14 @@ identifier: BSD-3-Clause). This means, |foxbms| parts can be utilized
 unrestrictedly, including commercial use. The |foxbms| platform addresses
 especially:
 
- - R&D and test engineers requiring a smart and powerful, well documented BMS
-   platform
- - Engineering companies requiring a maintained and supported BMS for their
-   developments
- - Small enterprises requiring a flexible and future proof BMS for developing
-   their products
- - Large enterprises requiring a reliable and safe BMS for testing their
-   prototypes
- - Research organizations requiring a simple and universal BMS development
-   platform
- - Students looking for a free and open BMS software development toolchain
+- R&D and test engineers requiring a smart and powerful, well documented BMS
+  platform
+- Engineering companies requiring a maintained and supported BMS for their
+  developments
+- Small enterprises requiring a flexible and future proof BMS for developing
+  their products
+- Large enterprises requiring a reliable and safe BMS for testing their
+  prototypes
+- Research organizations requiring a simple and universal BMS development
+  platform
+- Students looking for a free and open BMS software development toolchain

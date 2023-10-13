@@ -93,11 +93,10 @@ Basics
 All states **MUST** be put into an enum describing the states. There are four
 states in the example (|state_uninitialized|, |state_initialization|,
 |state_running|, |state_error|) plus the boilerplate of the state machine (a
-dummy state called ``Dummy`` and a state indicating that the state machine has
-never run called ``Has_never_run``). The enum entries **MUST** use
+dummy state called ``DUMMY`` and a state indicating that the state machine has
+never run called ``HAS_NEVER_RUN``). The enum entries **MUST** use
 ``FSM_STATE`` as infix after the module prefix. Taking all these rules into
-account, the enum for the states used in this example looks like this:
-
+account, the enum for the states used in this example look like this:
 
 .. code-block:: c
    :linenos:
@@ -109,7 +108,7 @@ account, the enum for the states used in this example looks like this:
         EG_FSM_STATE_HAS_NEVER_RUN,  /*!< never run state - always the second state */
         EG_FSM_STATE_UNINITIALIZED,  /*!< uninitialized state */
         EG_FSM_STATE_INITIALIZATION, /*!< initializing the state machine */
-        EG_FSM_STATE_RUNNING,        /*!< operational mode of the state machine  */
+        EG_FSM_STATE_RUNNING,        /*!< operational mode of the state machine */
         EG_FSM_STATE_ERROR,          /*!< state for error processing  */
     } EG_FSM_STATES_e;
 
@@ -117,7 +116,7 @@ A similar pattern has to be applied for the substates. For the boilerplate, a
 dummy substate called ``Dummy`` (as in the state) and an additional substate
 called ``Entry``  have to be defined. The enum entries **MUST** use
 ``FSM_SUBSTATE`` as infix after the module prefix. Taking all these rules into
-account, the enum for the substates used in this example looks like this:
+account, the enum for the substates used in this example look like this:
 
 .. code-block:: c
    :linenos:
@@ -231,10 +230,10 @@ before continuing. Waiting is implemented via the variable ``timer`` which
 is a member of the state variable. It must be decremented one time every time
 the trigger function is called. Two cases can happen:
 
- - If it has the value zero, it stays at zero and the content of the state
-   machine is processed further.
- - If is has a non-zero value, it is decremented and the trigger function
-   exits without processing the state machine.
+- If it has the value zero, it stays at zero and the content of the state
+  machine is processed further.
+- If is has a non-zero value, it is decremented and the trigger function
+  exits without processing the state machine.
 
 To wait a definite amount of time, the ``time`` variable must only be assigned
 a non-zero value. The time to wait will depend on the periodicity with which
@@ -396,7 +395,6 @@ in state processing functions. :ref:`state_processing_functions` explains what
 state processing functions are and how they work. For now it is sufficient to
 know that state processing functions need to exist.
 
-
 If an error occurs in any of the substates of the state |state_initialization|
 the state machine needs to transfer to the state |state_error|. The transitions
 based on the states and substates would not be clearly visible in such a
@@ -524,7 +522,6 @@ this function traps.
             break;
     }
 
-
 ``EG_FSM_STATE_DUMMY``
 """"""""""""""""""""""
 
@@ -610,7 +607,6 @@ as the function ``EG_ProcessInitializationState()`` process the state
 
 At next the state processing functions ``EG_ProcessInitializationState()``
 and ``EG_ProcessRunningState()`` are explained.
-
 
 ``EG_ProcessInitializationState()``
 """""""""""""""""""""""""""""""""""
@@ -713,7 +709,6 @@ implementation:
 
         }
     }
-
 
 The ``default`` case is implemented to assert on illegal substates:
 

@@ -43,8 +43,8 @@
  * @file    doxygen_tests.h
  * @author  foxBMS Team
  * @date    2019-06-02 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  DX
  *
@@ -66,6 +66,8 @@
  */
 
 /*========== Includes =======================================================*/
+
+/*========== Unit Testing Framework Directives ==============================*/
 
 /*========== Macros and Definitions =========================================*/
 

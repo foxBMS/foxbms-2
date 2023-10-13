@@ -106,7 +106,7 @@ class PackageEntry:
 
     @staticmethod
     def date_get_today() -> str:
-        """returns the datestring for the output"""
+        """returns the date-string for the output"""
         today = date.today()
         return today.strftime("%Y-%m-%d")
 

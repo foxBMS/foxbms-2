@@ -9,7 +9,7 @@ C Coding Guidelines
 These coding guidelines **MUST** be applied to all ``C`` source and header
 files.
 
-The source files **MUST** be successfully checked by running the waf command
+The source files **MUST** be successfully checked by running the Waf command
 ``check_guidelines`` before files can be merged into the master branch of the
 repository.
 
@@ -80,12 +80,12 @@ Header (``C:002``)
      :caption: File header for all ``.c`` and ``.h`` files.
      :name: file-header-c-and-h
 
-.. _rule_c_linelength:
+.. _rule_c_line_length:
 
-Linelength (``C:003``)
-----------------------
+Line length (``C:003``)
+-----------------------
 
-.. admonition:: Linelength rules
+.. admonition:: Line length rules
 
    - Each line of text in your code **SHOULD** be at most 120 characters
      long. A line **MAY** exceed 120 characters if it is
@@ -106,7 +106,6 @@ Linelength (``C:003``)
        readability, auto-linking, e.g., a literal URL longer than 80 characters
        or
      - a raw-string literal with content that exceeds 80 characters.
-
 
 .. _rule_c_file_level_doxygen:
 
@@ -283,7 +282,6 @@ They distinguish if the software module provides configuration files or not.
         #. A blank line
         #. All other required headers except Mocks
 
-
 :numref:`includes-c-007_abc_cfg-h`, :numref:`includes-c-007_abc_cfg-c`,
 :numref:`includes-c-007_abc-h` and :numref:`includes-c-007_abc-c` show how
 includes **MUST** be added.
@@ -306,7 +304,7 @@ includes **MUST** be added.
    :language: C
    :lines: 60-63
    :linenos:
-   :caption: Include oder for ``c-007_abc.h``
+   :caption: Include order for ``c-007_abc.h``
    :name: includes-c-007_abc-h
 
 .. literalinclude:: ./examples/c-007_abc.c
@@ -541,7 +539,7 @@ Function parameter checking (``C:015``)
     - If no assertion can be made for the parameter (e.g., if the parameter
       intentionally accepts all possible values), the parameter **MUST** be
       marked like this at the start of the function context:
-      ``/* AXIVION Routine Generic-MissingParameterAssert: *ENTITYNAME*: *RATIONALE* */``.
+      ``/* AXIVION Routine Generic-MissingParameterAssert: *ENTITY_NAME*: *RATIONALE* */``.
 
 Parameter checking is shown in :numref:`function-input-check`.
 
@@ -614,7 +612,14 @@ Pointer rules (``C:018``)
     - Variables used for pointers **MUST** be prefixed with a leading ``p`` in
       the case of a pointer to a variable and ``fp`` in the case of a function
       pointer, followed by camel Case.
-      When declaring a pointer variable or argument, the asterisk **MUST** be
+    - The const rules also still apply to pointers
+      (:ref:`rule_c_constant_names`), i.e.,
+
+      - for a const pointer the prefix is ``kp``,
+      - for a pointer to a const the prefix is ``pk``, and
+      - for a const pointer to a const the prefix is ``kpk``.
+
+    - When declaring a pointer variable or argument, the asterisk **MUST** be
       placed adjacent to the variable name.
     - As function-pointer syntax can get complicated and lead to errors, a
       function pointer **MUST** use a typedef.
@@ -647,7 +652,6 @@ Variable initialization (``C:019``)
       See :numref:`table-variable-initialization` for details.
     - Pointers **MUST** be initialized with ``NULL_PTR`` if no other valid
       initialization is possible.
-
 
 .. _table-init-rules:
 
@@ -710,7 +714,6 @@ Floating-point values (``C:021``)
       for a hexadecimal digit.
     - ``float`` types **SHOULD** be used wherever possible as the float
       operations are performed in hardware while double operations are not.
-
 
 .. _table-floating-point-init-rules:
 
@@ -898,7 +901,6 @@ loop Statements (``C:028``)
    :linenos:
    :caption: Correct usage of spaces and parentheses in loop statements.
 
-
 There are three defines that are typically looped over: the number of strings
 (``BS_NR_OF_STRINGS``), the number of modules (``BS_NR_OF_MODULES_PER_STRING``)
 and the number of batteries per module (``BS_NR_OF_CELL_BLOCKS_PER_MODULE``).
@@ -911,15 +913,17 @@ These loops **MUST** follow the pattern as shown in
    :name: special-counter-variables
    :widths: grid
 
-   +-------------------------------------+-------------------+
-   | Define                              | Counter variable  |
-   +=====================================+===================+
-   | ``BS_NR_OF_STRINGS``                | ``s``             |
-   +-------------------------------------+-------------------+
-   | ``BS_NR_OF_MODULES_PER_STRING``     | ``m``             |
-   +-------------------------------------+-------------------+
-   | ``BS_NR_OF_CELL_BLOCKS_PER_MODULE`` | ``c``             |
-   +-------------------------------------+-------------------+
+   +--------------------------------------+-------------------+
+   | Define                               | Counter variable  |
+   +======================================+===================+
+   | ``BS_NR_OF_STRINGS``                 | ``s``             |
+   +--------------------------------------+-------------------+
+   | ``BS_NR_OF_MODULES_PER_STRING``      | ``m``             |
+   +--------------------------------------+-------------------+
+   | ``BS_NR_OF_CELL_BLOCKS_PER_MODULE``  | ``cb``            |
+   +--------------------------------------+-------------------+
+   | ``BS_NR_OF_TEMP_SENSORS_PER_MODULE`` | ``ts``            |
+   +--------------------------------------+-------------------+
 
 .. literalinclude:: ./examples/c-028-battery-defines.c
    :language: C
@@ -964,6 +968,14 @@ C Formatting (``C:031``)
 
 State machines (``C:032``)
 --------------------------
+
+If a driver (or similar) requires to be implemented in a state machine there
+are some hints found in :ref:`HOW_TO_WRITE_STATE_MACHINES`.
+
+.. _rule_c_unit_testing_framework_directives:
+
+Unit Testing Framework Directives (``C:033``)
+---------------------------------------------
 
 If a driver (or similar) requires to be implemented in a state machine there
 are some hints found in :ref:`HOW_TO_WRITE_STATE_MACHINES`.

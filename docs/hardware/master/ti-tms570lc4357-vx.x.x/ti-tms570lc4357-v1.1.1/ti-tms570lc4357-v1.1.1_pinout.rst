@@ -90,7 +90,6 @@ The pinout is depicted in :numref:`Table %s <ti-tms570lc4357-v1.1.1_interlock>`.
    :delim: ,
    :file: ./pinout/ti-tms570lc4357-v1.1.1_interlock.csv
 
-
 Smart Power Switches
 ####################
 

@@ -43,8 +43,8 @@
  * @file    sys.c
  * @author  foxBMS Team
  * @date    2020-02-24 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup ENGINE
  * @prefix  SYS
  *
@@ -125,29 +125,6 @@ SYS_STATE_s sys_state = {
 static SYS_CHECK_MULTIPLE_CALLS_e SYS_CheckMultipleCalls(SYS_STATE_s *pSystemState);
 
 /**
- * @brief   Sets the next state, the next substate and the timer value
- *          of the state variable.
- * @param   pSystemState   state of the example state machine
- * @param   nextState      state to be transferred into
- * @param   nextSubstate   substate to be transferred into
- * @param   idleTime       wait time for the state machine
- */
-static void SYS_SetState(
-    SYS_STATE_s *pSystemState,
-    SYS_FSM_STATES_e nextState,
-    SYS_FSM_SUBSTATES_e nextSubstate,
-    uint16_t idleTime);
-
-/**
- * @brief   Sets the next substate and the timer value
- *          of the state variable.
- * @param   pSystemState   state of the example state machine
- * @param   nextSubstate   substate to be transferred into
- * @param   idleTime       wait time for the state machine
- */
-static void SYS_SetSubstate(SYS_STATE_s *pSystemState, SYS_FSM_SUBSTATES_e nextSubstate, uint16_t idleTime);
-
-/**
  * @brief   Defines the state transitions
  * @details This function contains the implementation of the state
  *          machine, i.e., the sequence of states and substates.
@@ -174,28 +151,6 @@ static SYS_CHECK_MULTIPLE_CALLS_e SYS_CheckMultipleCalls(SYS_STATE_s *pSystemSta
     OS_ExitTaskCritical();
     return multipleCalls;
 }
-
-#pragma diag_push
-#pragma diag_suppress 179
-#pragma WEAK(SYS_SetState)
-static void SYS_SetState(
-    SYS_STATE_s *pSystemState,
-    SYS_FSM_STATES_e nextState,
-    SYS_FSM_SUBSTATES_e nextSubstate,
-    uint16_t idleTime) {
-    FAS_ASSERT(pSystemState != NULL_PTR);
-
-    pSystemState->timer = idleTime;
-}
-#pragma diag_pop
-
-#pragma diag_push
-#pragma diag_suppress 179
-#pragma WEAK(SYS_SetSubstate)
-static void SYS_SetSubstate(SYS_STATE_s *pSystemState, SYS_FSM_SUBSTATES_e nextSubstate, uint16_t idleTime) {
-    FAS_ASSERT(pSystemState != NULL_PTR);
-}
-#pragma diag_push
 
 static STD_RETURN_TYPE_e SYS_RunStateMachine(SYS_STATE_s *pSystemState) {
     STD_RETURN_TYPE_e ranStateMachine = STD_OK;

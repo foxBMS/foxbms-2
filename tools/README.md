@@ -10,7 +10,7 @@ of foxBMS 2.
 | ``debugger/*``        | Configuration files for debugger settings.                                                    |
 | ``gui/*``             | foxBMS 2 GUI.                                                                                 |
 | ``ide/vscode/*``      | Configuration file templates for VS Code settings.                                            |
-| ``utils/*``           | Helper scripts for batch and shellscript.                                                     |
+| ``utils/*``           | Helper scripts for batch and shell script.                                                    |
 | ``vendor/ceedling/*`` | Vendored ceedling files.                                                                      |
 | ``waf-tools/*``       | Tools required for the build toolchain that do not come bundled with the default waf binary.  |
 | ``waf``               | The build tool binary.                                                                        |

@@ -81,10 +81,12 @@ class CellVoltageFrame(  # pylint: disable=too-many-ancestors,too-many-instance-
         self.cells_per_module = cells_per_module
         self.grid_table = gridlib.Grid(panel)
         self.grid_table.CreateGrid(self.cells_per_module, self.modules)
+        self.grid_table.SetRowLabelSize(100)
         for i in range(0, self.modules):
             self.grid_table.SetColLabelValue(i, f"Module {i+1}")
         for i in range(0, self.cells_per_module):
             self.grid_table.SetRowLabelValue(i, f"Cell {i+1}")
+        self.grid_table.SetRowLabelAlignment(wx.ALIGN_LEFT, wx.ALIGN_CENTRE)
         for row in range(self.cells_per_module):
             for col in range(self.modules):
                 self.grid_table.SetCellValue(row, col, "None")

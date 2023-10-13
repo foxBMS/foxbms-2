@@ -43,8 +43,8 @@
  * @file    test_fake_none_polynomial.c
  * @author  foxBMS Team
  * @date    2020-08-25 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -58,7 +58,11 @@
 #include "fake_none.h"
 #include "tsi.h"
 
-TEST_FILE("fake_none_polynomial.c")
+/*========== Unit Testing Framework Directives ==============================*/
+TEST_SOURCE_FILE("fake_none_polynomial.c")
+
+TEST_INCLUDE_PATH("../../src/app/driver/ts/api")
+TEST_INCLUDE_PATH("../../src/app/driver/ts/fake/none")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 

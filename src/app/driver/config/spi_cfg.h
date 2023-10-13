@@ -43,8 +43,8 @@
  * @file    spi_cfg.h
  * @author  foxBMS Team
  * @date    2020-03-05 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  SPI
  *
@@ -132,6 +132,9 @@ typedef struct {
 /* INCLUDE MARKER FOR THE DOCUMENTATION; DO NOT MOVE spi-documentation-configuration-stop-include */
 
 /* -------------- SPI Configurations --------------------------------------- */
+/** ADI chip select pin */
+#define SPI_ADI_CHIP_SELECT_PIN (1u)
+
 /** LTC chip select pin */
 #define SPI_LTC_CHIP_SELECT_PIN (1u)
 
@@ -153,6 +156,7 @@ typedef struct {
 /**@}*/
 
 /*========== Extern Constant and Variable Declarations ======================*/
+extern SPI_INTERFACE_CONFIG_s spi_adiInterface[BS_NR_OF_STRINGS];
 extern SPI_INTERFACE_CONFIG_s spi_ltcInterface[BS_NR_OF_STRINGS];
 extern SPI_INTERFACE_CONFIG_s spi_mxmInterface;
 extern SPI_INTERFACE_CONFIG_s spi_nxp775InterfaceTx[BS_NR_OF_STRINGS];

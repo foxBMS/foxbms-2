@@ -56,7 +56,7 @@ from fgui import (
 )
 from fgui.misc.can.can_constants import DEFAULT_BAUD_RATE
 
-# we need to pylint's disable=abstract-class-instantiated it is used since the
+# we need to set up pylint disable=abstract-class-instantiated it is used since the
 # 'python-can' documentation tells that this is the way to use it. See
 # https://python-can.readthedocs.io/en/master/configuration.html
 

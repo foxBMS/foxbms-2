@@ -43,8 +43,8 @@
  * @file    soa_cfg.c
  * @author  foxBMS Team
  * @date    2020-10-14 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup APPLICATION_CONFIGURATION
  * @prefix  SOA
  *
@@ -98,11 +98,11 @@ bool SOA_IsCellCurrentLimitViolated(uint32_t current_mA, BMS_CURRENT_FLOW_STATE_
     bool currentLimitViolated = false;
     /* Only check if battery is not at rest. No overcurrent possible if battery is resting */
     if (currentDirection == BMS_CHARGING) {
-        if (current_mA > (BS_NR_OF_PARALLEL_CELLS_PER_MODULE * BC_CURRENT_MAX_CHARGE_MSL_mA)) {
+        if (current_mA > (BS_NR_OF_PARALLEL_CELLS_PER_CELL_BLOCK * BC_CURRENT_MAX_CHARGE_MSL_mA)) {
             currentLimitViolated = true;
         }
     } else if (currentDirection == BMS_DISCHARGING) {
-        if (current_mA > (BS_NR_OF_PARALLEL_CELLS_PER_MODULE * BC_CURRENT_MAX_DISCHARGE_MSL_mA)) {
+        if (current_mA > (BS_NR_OF_PARALLEL_CELLS_PER_CELL_BLOCK * BC_CURRENT_MAX_DISCHARGE_MSL_mA)) {
             currentLimitViolated = true;
         }
     } else {

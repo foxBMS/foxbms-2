@@ -99,7 +99,6 @@ BSD 3-Clause License (BSD 3-Clause "New" or "Revised" License)
 .. literalinclude:: ./../../BSD-3-Clause.txt
     :language: none
 
-
 .. _CREATIVE_COMMONS_ATTRIBUTION_4_0_INTERNATIONAL_LICENSE:
 
 Creative Commons Attribution 4.0 International License
@@ -107,7 +106,6 @@ Creative Commons Attribution 4.0 International License
 
 .. literalinclude:: ./../../CC-BY-4.0.txt
     :language: none
-
 
 ********************
 Third Party Licenses

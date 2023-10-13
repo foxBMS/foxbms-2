@@ -4,7 +4,8 @@
             "${workspaceFolder}/build/bin/src/app/main",
             "${workspaceFolder}/build/bin/src/hal/include",
             "${workspaceFolder}/build/bin/src/hal/source",
-            "${workspaceFolder}/build/unit_test/test/mocks",
+            "${workspaceFolder}/build/unit_test/test/mocks/**",
+            "${workspaceFolder}/build/unit_test/vendor/**",
             "${workspaceFolder}/src/app/application/algorithm",
             "${workspaceFolder}/src/app/application/algorithm/config",
             "${workspaceFolder}/src/app/application/algorithm/moving_average",
@@ -45,9 +46,8 @@
             "${workspaceFolder}/src/app/driver/mcu",
             "${workspaceFolder}/src/app/driver/meas",
             "${workspaceFolder}/src/app/driver/afe/api",
-            "${workspaceFolder}/src/app/driver/afe/{{ AFE_MANUFACTURER }}/api/**",
-            "${workspaceFolder}/src/app/driver/afe/{{ AFE_MANUFACTURER }}/common/**",
-            "${workspaceFolder}/src/app/driver/afe/{{ AFE_MANUFACTURER }}/{{ AFE_IC }}/**",
+            {% for afe_include in AFE_INCLUDES %}"${workspaceFolder}/{{ afe_include }}",
+            {% endfor -%}
             "${workspaceFolder}/src/app/driver/pex",
             "${workspaceFolder}/src/app/driver/pwm",
             "${workspaceFolder}/src/app/driver/rtc",
@@ -60,7 +60,7 @@
             "${workspaceFolder}/src/app/driver/ts/epcos/b57251v5103j060",
             "${workspaceFolder}/src/app/driver/ts/epcos/b57861s0103f045",
             "${workspaceFolder}/src/app/driver/ts/fake/none",
-            "${workspaceFolder}/src/app/driver/ts/murata/ncu15xh103f6sxx",
+            "${workspaceFolder}/src/app/driver/ts/murata/ncxxxxh103",
             "${workspaceFolder}/src/app/driver/ts/vishay/ntcalug01a103g",
             "${workspaceFolder}/src/app/driver/ts/vishay/ntcle317e4103sba",
             "${workspaceFolder}/src/app/driver/ts/{{TEMPERATURE_SENSOR_MANUFACTURER}}/{{TEMPERATURE_SENSOR_MODEL}}/{{TEMPERATURE_SENSOR_METHOD}}",
@@ -68,7 +68,7 @@
             "${workspaceFolder}/src/app/engine/database",
             "${workspaceFolder}/src/app/engine/diag",
             "${workspaceFolder}/src/app/engine/diag/cbs",
-            "${workspaceFolder}/src/app/engine/hwinfo",
+            "${workspaceFolder}/src/app/engine/hw_info",
             "${workspaceFolder}/src/app/engine/sys",
             "${workspaceFolder}/src/app/engine/sys_mon",
             "${workspaceFolder}/src/app/main/include",
@@ -104,6 +104,7 @@
                 ],
                 "limitSymbolsToIncludedHeaders": true
             },
+            "compilerPath": "",
             "defines": [
                 {% for define in DEFINES %}"{{ define[0] }}={{ define[1] }}"{%if not loop.last %},{%endif%}
                 {% endfor %}

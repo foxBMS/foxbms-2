@@ -43,8 +43,8 @@
  * @file    test_soe_counting.c
  * @author  foxBMS Team
  * @date    2020-10-07 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -61,7 +61,21 @@
 #include "battery_cell_cfg.h"
 
 #include "foxmath.h"
-#include "soe_counting.h"
+#include "state_estimation.h"
+
+/*========== Unit Testing Framework Directives ==============================*/
+TEST_SOURCE_FILE("soc_none.c")
+TEST_SOURCE_FILE("soe_counting.c")
+TEST_SOURCE_FILE("soh_none.c")
+
+TEST_INCLUDE_PATH("../../src/app/application/algorithm/state_estimation")
+TEST_INCLUDE_PATH("../../src/app/application/bms")
+TEST_INCLUDE_PATH("../../src/app/driver/config")
+TEST_INCLUDE_PATH("../../src/app/driver/contactor")
+TEST_INCLUDE_PATH("../../src/app/driver/foxmath")
+TEST_INCLUDE_PATH("../../src/app/driver/fram")
+TEST_INCLUDE_PATH("../../src/app/driver/sps")
+TEST_INCLUDE_PATH("../../src/app/task/config")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 FRAM_SOE_s fram_soe = {0};

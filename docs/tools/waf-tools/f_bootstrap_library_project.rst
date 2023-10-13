@@ -9,9 +9,7 @@ Bootstrap Library Project
 ..
     Comments:
 
-
 .. spelling::
-
 
 The tool is located in ``tools/waf-tools``.
 

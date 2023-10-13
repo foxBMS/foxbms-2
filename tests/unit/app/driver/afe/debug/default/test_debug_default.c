@@ -43,8 +43,8 @@
  * @file    test_debug_default.c
  * @author  foxBMS Team
  * @date    2020-09-17 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -59,7 +59,6 @@
 #include "Mockos.h"
 
 #include "battery_cell_cfg.h"
-#include "debug_default_cfg.h"
 
 #include "afe.h"
 #include "debug_default.h"
@@ -67,9 +66,12 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-/* it's important to mention the implementation in debug_default.c
-here in order to test the correct implementation */
-TEST_FILE("debug_default.c")
+/*========== Unit Testing Framework Directives ==============================*/
+TEST_SOURCE_FILE("debug_default.c")
+
+TEST_INCLUDE_PATH("../../src/app/driver/afe/api")
+TEST_INCLUDE_PATH("../../src/app/driver/afe/debug/default")
+TEST_INCLUDE_PATH("../../src/app/engine/diag")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 #define FAKE_CELL_VOLTAGE_mV (BC_VOLTAGE_NOMINAL_mV)
@@ -205,17 +207,20 @@ void testFAKE_SetFirstMeasurementCycleFinished(void) {
         .data.slaveControl        = &test_fake_slaveControlCompare,
     };
 
-    uint16_t i = 0;
-
     for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
-        for (i = 0; i < BS_NR_OF_CELL_BLOCKS_PER_STRING; i++) {
-            test_fake_stateCompare.data.cellVoltage->cellVoltage_mV[s][i] = FAKE_CELL_VOLTAGE_mV;
+        for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
+            for (uint8_t cb = 0u; cb < BS_NR_OF_CELL_BLOCKS_PER_MODULE; cb++) {
+                test_fake_stateCompare.data.cellVoltage->cellVoltage_mV[s][m][cb] = FAKE_CELL_VOLTAGE_mV;
+            }
         }
         test_fake_stateCompare.data.cellVoltage->stringVoltage_mV[s] = FAKE_CELL_VOLTAGE_mV *
                                                                        BS_NR_OF_CELL_BLOCKS_PER_STRING;
 
-        for (i = 0; i < BS_NR_OF_TEMP_SENSORS_PER_STRING; i++) {
-            test_fake_stateCompare.data.cellTemperature->cellTemperature_ddegC[s][i] = FAKE_CELL_TEMPERATURE_ddegC;
+        for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
+            for (uint8_t ts = 0; ts < BS_NR_OF_TEMP_SENSORS_PER_MODULE; ts++) {
+                test_fake_stateCompare.data.cellTemperature->cellTemperature_ddegC[s][m][ts] =
+                    FAKE_CELL_TEMPERATURE_ddegC;
+            }
         }
 
         test_fake_stateCompare.data.slaveControl->eepromReadAddressLastUsed  = 0xFFFFFFFF;

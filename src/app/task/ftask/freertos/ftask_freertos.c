@@ -43,8 +43,8 @@
  * @file    ftask_freertos.c
  * @author  foxBMS Team
  * @date    2019-08-27 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup TASK
  * @prefix  FTSK
  *
@@ -92,6 +92,10 @@
 /** size of storage area for the CAN Rx queue*/
 #define FTSK_CAN_RX_QUEUE_STORAGE_AREA (FTSK_CAN_RX_QUEUE_LENGTH * FTSK_CAN_RX_QUEUE_ITEM_SIZE_IN_BYTES)
 
+/** size of storage area for the CAN Tx unsent messages queue*/
+#define FTSK_CAN_TX_UNSENT_MESSAGES_QUEUE_STORAGE_AREA \
+    (FTSK_CAN_TX_UNSENT_MESSAGES_QUEUE_LENGTH * FTSK_CAN_TX_UNSENT_MESSAGES_QUEUE_ITEM_SIZE_IN_BYTES)
+
 /** size of storage area for the RTC set time queue*/
 #define FTSK_RTC_QUEUE_STORAGE_AREA (FTSK_RTC_QUEUE_LENGTH * FTSK_RTC_QUEUE_ITEM_SIZE_IN_BYTES)
 
@@ -115,7 +119,9 @@ OS_QUEUE ftsk_imdCanDataQueue = NULL_PTR;
 OS_QUEUE ftsk_canRxQueue = NULL_PTR;
 /* INCLUDE MARKER FOR THE DOCUMENTATION; DO NOT MOVE can-documentation-rx-queue-handle-stop-include */
 
-OS_QUEUE ftsk_afeRequestQueue;
+OS_QUEUE ftsk_canTxUnsentMessagesQueue = NULL_PTR;
+
+OS_QUEUE ftsk_afeRequestQueue = NULL_PTR;
 OS_QUEUE ftsk_rtcSetTimeQueue = NULL_PTR;
 
 OS_QUEUE ftsk_afeToI2cQueue   = NULL_PTR;
@@ -169,6 +175,18 @@ extern void FTSK_CreateQueues(void) {
         &ftsk_canRxQueueStructure);
     vQueueAddToRegistry(ftsk_canRxQueue, "CAN Receive Queue");
     FAS_ASSERT(ftsk_canRxQueue != NULL);
+
+    /* structure and array for static CAN TX unsent messages queue */
+    static uint8_t ftsk_canTxUnsentMessagesQueueStorageArea[FTSK_CAN_TX_UNSENT_MESSAGES_QUEUE_STORAGE_AREA] = {0};
+    static StaticQueue_t ftsk_canTxUnsentMessagesQueueStructure                                             = {0};
+
+    ftsk_canTxUnsentMessagesQueue = xQueueCreateStatic(
+        FTSK_CAN_TX_UNSENT_MESSAGES_QUEUE_LENGTH,
+        FTSK_CAN_TX_UNSENT_MESSAGES_QUEUE_ITEM_SIZE_IN_BYTES,
+        ftsk_canTxUnsentMessagesQueueStorageArea,
+        &ftsk_canTxUnsentMessagesQueueStructure);
+    FAS_ASSERT(ftsk_canTxUnsentMessagesQueue != NULL);
+    vQueueAddToRegistry(ftsk_canTxUnsentMessagesQueue, "CAN Transmit Unsent Messages Queue");
 
     /**
      * @brief   size of storage area for the AFE request queue

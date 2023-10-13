@@ -8,7 +8,7 @@ Python Coding Guidelines
 
 These coding guidelines **MUST** be applied to all ``Python`` files.
 
-The source files **MUST** be successfully checked by running the waf command
+The source files **MUST** be successfully checked by running the Waf command
 ``check_guidelines`` before files can be merged into the master branch of the
 repository.
 
@@ -27,7 +27,7 @@ The following rules apply for filenames of Python scripts.
     - The general file naming rules **MUST** be applied  (see
       :numref:`rule_general_filenames`), except that dashes (``-``) **SHOULD**
       not be used.
-    - Python scripts **MUST** use ``.py`` as file extension, except for waf
+    - Python scripts **MUST** use ``.py`` as file extension, except for Waf
       build scripts which use ``wscript`` as file name.
 
 For example the valid file names for batch scripts are
@@ -51,7 +51,6 @@ Header (``PYTHON:002``)
       :lines: 1-38
       :caption: File header for ``.py`` files.
       :name: file-header-py
-
 
 .. _rule_python_syntax:
 
@@ -100,7 +99,6 @@ No platform specific code (``PYTHON:006``)
 
     Python scripts **MUST** use platform independent code where ever possible.
     If platform specific is required, it **MUST** be guarded.
-
 
 Example :numref:`platform-specific-code` shows how to write platform acceptable
 platform specific code.

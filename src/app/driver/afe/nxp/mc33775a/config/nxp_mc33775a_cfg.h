@@ -43,8 +43,8 @@
  * @file    nxp_mc33775a_cfg.h
  * @author  foxBMS Team
  * @date    2020-05-08 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  N775
  *
@@ -135,11 +135,6 @@
 #define N775_TRANSMISSION_TIMEOUT (10u)
 
 /**
- * N775 statemachine short time definition in ms
- */
-#define N775_STATEMACH_SHORTTIME (1u)
-
-/**
  * N775 Maximum time from wakeup event to possible communication in ms
  * 2.4ms in data sheet
  */
@@ -179,16 +174,9 @@
  */
 #define N775_MAX_N_BYTES_FOR_DATA_RECEPTION (N775_TX_MESSAGE_LENGTH * N775_MAX_NUMBER_OF_VOLTAGES)
 
-/**
- * Transmit functions
- */
-#define N775_SendData(txbuf, rxbuf, length) SPI_TransmitReceiveDataDma(&spi_nxp775InterfaceTx[0], txbuf, rxbuf, length)
-
 /*========== Extern Constant and Variable Declarations ======================*/
 
-/**
- * Multiplexer measurement sequence
- */
+/** Multiplexer measurement sequence */
 extern N775_MUX_CH_CFG_s n775_muxSequence[N775_MUX_SEQUENCE_LENGTH];
 
 /*========== Extern Function Prototypes =====================================*/

@@ -43,8 +43,8 @@
  * @file    ftask_cfg.c
  * @author  foxBMS Team
  * @date    2019-08-26 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup TASK_CONFIGURATION
  * @prefix  FTSK
  *
@@ -159,8 +159,7 @@ extern void FTSK_InitializeUserCodeEngine(void) {
     /* See function definition doxygen comment for details */
     STD_RETURN_TYPE_e retval = DATA_Initialize();
 
-    if (retval == E_NOT_OK) {
-        /* Fatal error! */
+    if (retval == STD_NOT_OK) {
         FAS_ASSERT(FAS_TRAP);
     }
 
@@ -174,8 +173,7 @@ extern void FTSK_InitializeUserCodeEngine(void) {
 
     retval = SYSM_Init();
 
-    if (retval == E_NOT_OK) {
-        /* Fatal error! */
+    if (retval == STD_NOT_OK) {
         FAS_ASSERT(FAS_TRAP);
     }
 

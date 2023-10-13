@@ -43,8 +43,8 @@
  * @file    test_sof_trapezoid.c
  * @author  foxBMS Team
  * @date    2020-10-07 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -62,6 +62,17 @@
 
 #include "foxmath.h"
 #include "sof_trapezoid.h"
+
+/*========== Unit Testing Framework Directives ==============================*/
+TEST_INCLUDE_PATH("../../src/app/application/algorithm/state_estimation")
+TEST_INCLUDE_PATH("../../src/app/application/algorithm/state_estimation/sof/trapezoid")
+TEST_INCLUDE_PATH("../../src/app/application/bms")
+TEST_INCLUDE_PATH("../../src/app/driver/config")
+TEST_INCLUDE_PATH("../../src/app/driver/contactor")
+TEST_INCLUDE_PATH("../../src/app/driver/foxmath")
+TEST_INCLUDE_PATH("../../src/app/driver/fram")
+TEST_INCLUDE_PATH("../../src/app/driver/sps")
+TEST_INCLUDE_PATH("../../src/app/task/config")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 FRAM_SOC_s fram_soc = {0};

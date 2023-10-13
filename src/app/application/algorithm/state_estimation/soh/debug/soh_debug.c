@@ -43,8 +43,8 @@
  * @file    soh_debug.c
  * @author  foxBMS Team
  * @date    2020-10-14 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup APPLICATION
  * @prefix  SOH
  *
@@ -53,7 +53,7 @@
  */
 
 /*========== Includes =======================================================*/
-#include "soh_debug.h"
+#include "state_estimation.h"
 
 #include <stdint.h>
 
@@ -68,7 +68,7 @@
 /*========== Static Function Implementations ================================*/
 
 /*========== Extern Function Implementations ================================*/
-extern void SE_InitializeStateOfHealth(DATA_BLOCK_SOX_s *pSohValues, uint8_t stringNumber) {
+extern void SE_InitializeStateOfHealth(DATA_BLOCK_SOH_s *pSohValues, uint8_t stringNumber) {
     FAS_ASSERT(pSohValues != NULL_PTR);
     FAS_ASSERT(stringNumber < BS_NR_OF_STRINGS);
     if (stringNumber < BS_NR_OF_STRINGS) {
@@ -78,7 +78,7 @@ extern void SE_InitializeStateOfHealth(DATA_BLOCK_SOX_s *pSohValues, uint8_t str
     }
 }
 
-extern void SE_CalculateStateOfHealth(DATA_BLOCK_SOX_s *pSohValues) {
+extern void SE_CalculateStateOfHealth(DATA_BLOCK_SOH_s *pSohValues) {
     FAS_ASSERT(pSohValues != NULL_PTR);
 
     pSohValues->averageSoh_perc[0u] = 50.0f;

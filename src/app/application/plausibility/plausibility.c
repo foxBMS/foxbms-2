@@ -43,8 +43,8 @@
  * @file    plausibility.c
  * @author  foxBMS Team
  * @date    2020-02-24 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup APPLICATION
  * @prefix  PL
  *
@@ -135,16 +135,16 @@ extern STD_RETURN_TYPE_e PL_CheckVoltageSpread(
     for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
         STD_RETURN_TYPE_e plausibilityIssueDetected = STD_OK;
         for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
-            for (uint8_t c = 0u; c < BS_NR_OF_CELL_BLOCKS_PER_MODULE; c++) {
+            for (uint8_t cb = 0u; cb < BS_NR_OF_CELL_BLOCKS_PER_MODULE; cb++) {
                 /* Only do check for valid voltages */
-                if ((pCellVoltages->invalidCellVoltage[s][m] & (0x01u << c)) == 0) {
-                    if (abs(pCellVoltages->cellVoltage_mV[s][(m * BS_NR_OF_CELL_BLOCKS_PER_MODULE) + c] -
-                            pMinMaxAverageValues->averageCellVoltage_mV[s]) > PL_CELL_VOLTAGE_SPREAD_TOLERANCE_mV) {
+                if ((pCellVoltages->invalidCellVoltage[s][m] & (0x01uLL << cb)) == 0uLL) {
+                    if (abs(pCellVoltages->cellVoltage_mV[s][m][cb] - pMinMaxAverageValues->averageCellVoltage_mV[s]) >
+                        PL_CELL_VOLTAGE_SPREAD_TOLERANCE_mV) {
                         /* Voltage difference too large */
                         plausibilityIssueDetected = STD_NOT_OK;
                         retval                    = STD_NOT_OK;
                         /* Set this cell voltage invalid */
-                        pCellVoltages->invalidCellVoltage[s][m] |= (0x01u << c);
+                        pCellVoltages->invalidCellVoltage[s][m] |= (0x01u << cb);
                     }
                 }
             }
@@ -167,17 +167,17 @@ extern STD_RETURN_TYPE_e PL_CheckTemperatureSpread(
     for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
         STD_RETURN_TYPE_e plausibilityIssueDetected = STD_OK;
         for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
-            for (uint8_t c = 0u; c < BS_NR_OF_TEMP_SENSORS_PER_MODULE; c++) {
+            for (uint8_t ts = 0u; ts < BS_NR_OF_TEMP_SENSORS_PER_MODULE; ts++) {
                 /* Only do check for valid temperatures */
-                if ((pCellTemperatures->invalidCellTemperature[s][m] & (0x01u << c)) == 0) {
-                    if (abs(pCellTemperatures->cellTemperature_ddegC[s][(m * BS_NR_OF_TEMP_SENSORS_PER_MODULE) + c] -
+                if ((pCellTemperatures->invalidCellTemperature[s][m] & (0x01u << ts)) == 0) {
+                    if (abs(pCellTemperatures->cellTemperature_ddegC[s][m][ts] -
                             (int16_t)pMinMaxAverageValues->averageTemperature_ddegC[s]) >
                         PL_CELL_TEMPERATURE_SPREAD_TOLERANCE_dK) {
                         /* temperature difference too large */
                         plausibilityIssueDetected = STD_NOT_OK;
                         retval                    = STD_NOT_OK;
                         /* Set this cell temperature invalid */
-                        pCellTemperatures->invalidCellTemperature[s][m] |= (0x01u << c);
+                        pCellTemperatures->invalidCellTemperature[s][m] |= (0x01u << ts);
                     } else {
                         pCellTemperatures->nrValidTemperatures[s]++;
                     }

@@ -43,8 +43,8 @@
  * @file    test_bal_strategy_none.c
  * @author  foxBMS Team
  * @date    2020-08-03 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -66,7 +66,20 @@
 
 #include "database_cfg.h"
 
-#include "bal_strategy_none.h"
+#include "bal.h"
+
+/*========== Unit Testing Framework Directives ==============================*/
+TEST_SOURCE_FILE("bal_strategy_none.c")
+
+TEST_INCLUDE_PATH("../../src/app/application/bal")
+TEST_INCLUDE_PATH("../../src/app/application/bms")
+TEST_INCLUDE_PATH("../../src/app/driver/config")
+TEST_INCLUDE_PATH("../../src/app/driver/contactor")
+TEST_INCLUDE_PATH("../../src/app/driver/fram")
+TEST_INCLUDE_PATH("../../src/app/driver/io")
+TEST_INCLUDE_PATH("../../src/app/driver/spi")
+TEST_INCLUDE_PATH("../../src/app/driver/sps")
+TEST_INCLUDE_PATH("../../src/app/task/config")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 

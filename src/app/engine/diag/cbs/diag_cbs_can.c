@@ -43,8 +43,8 @@
  * @file    diag_cbs_can.c
  * @author  foxBMS Team
  * @date    2021-02-17 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup ENGINE
  * @prefix  DIAG
  *
@@ -103,6 +103,25 @@ extern void DIAG_ErrorCanRxQueueFull(
         if (event == DIAG_EVENT_NOT_OK) {
             kpkDiagShim->pTableError->canRxQueueFullError = true;
         }
+    }
+}
+
+extern void DIAG_ErrorCanTxQueueFull(
+    DIAG_ID_e diagId,
+    DIAG_EVENT_e event,
+    const DIAG_DATABASE_SHIM_s *const kpkDiagShim,
+    uint32_t data) {
+    /* AXIVION Routine MisraC2012-2.7: data: Parameter from function prototype */
+    /* AXIVION Routine Generic-MissingParameterAssert: data: parameter not used */
+    FAS_ASSERT(diagId == DIAG_ID_CAN_TX_QUEUE_FULL);
+    FAS_ASSERT((event == DIAG_EVENT_OK) || (event == DIAG_EVENT_NOT_OK) || (event == DIAG_EVENT_RESET));
+    FAS_ASSERT(kpkDiagShim != NULL_PTR);
+
+    if (event == DIAG_EVENT_RESET) {
+        kpkDiagShim->pTableError->canTxQueueFullError = false;
+    }
+    if (event == DIAG_EVENT_NOT_OK) {
+        kpkDiagShim->pTableError->canTxQueueFullError = true;
     }
 }
 

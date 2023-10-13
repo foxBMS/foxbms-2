@@ -33,7 +33,7 @@ SG_ foxBMS_AuxiliaryFuseBlown : 23|1@1+ (1,0) [0|1] "" Vector__XXX
 SG_ foxBMS_chargingFuseBlown : 24|1@1+ (1,0) [0|1] "" Vector__XXX
 
 
-CM_ BO_ 544 "Message contains foxBMS state (in:can_cbs_tx_state.c:CAN_TxState)";
+CM_ BO_ 544 "Message contains foxBMS state (in:can_cbs_tx_bms-state.c:CAN_TxState)";
 CM_ SG_ 544 foxBMS_generalError "0x00: No error detected, 0x01: Error detected";
 CM_ SG_ 544 foxBMS_generalWarning "0x00: No warning detected, 0x01: Warning detected";
 CM_ SG_ 544 foxBMS_Error_dieTemperatureMCU "0x00: No error, 0x01: Error detected";

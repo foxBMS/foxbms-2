@@ -76,7 +76,7 @@ def build(bld):
         os.path.join("..", "engine", "config"),
         os.path.join("..", "engine", "database"),
         os.path.join("..", "engine", "diag"),
-        os.path.join("..", "engine", "hwinfo"),
+        os.path.join("..", "engine", "hw_info"),
         os.path.join("..", "task", "os"),
         os.path.join("..", "task", "config"),
     ]

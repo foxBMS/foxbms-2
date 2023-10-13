@@ -43,8 +43,8 @@
  * @file    soc_counting_cfg.h
  * @author  foxBMS Team
  * @date    2020-10-07 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup APPLICATION
  * @prefix  SOC
  *
@@ -68,7 +68,7 @@
  * Cell capacity used for SOC calculation, in this case Ah counting
  * Specified once according to data sheet of cell usually.
  */
-#define SOC_STRING_CAPACITY_mAh ((float_t)(BS_NR_OF_PARALLEL_CELLS_PER_MODULE * BC_CAPACITY_mAh))
+#define SOC_STRING_CAPACITY_mAh ((float_t)(BS_NR_OF_PARALLEL_CELLS_PER_CELL_BLOCK * BC_CAPACITY_mAh))
 
 /** #SOC_STRING_CAPACITY_mAh in mAs */
 #define SOC_STRING_CAPACITY_mAs ((float_t)(SOC_STRING_CAPACITY_mAh * 3600.0f))

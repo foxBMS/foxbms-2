@@ -43,8 +43,8 @@
  * @file    mxm_1785x_tools.h
  * @author  foxBMS Team
  * @date    2020-07-15 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup DRIVERS
  * @prefix  MXM
  *
@@ -88,7 +88,7 @@ typedef enum {
     MXM_STATEMACHINE_STATES_MAXSTATE,            /*!< highest state */
 } MXM_STATEMACHINE_STATES_e;
 
-/** states of the #MXM_StateMachineOperation() statemachine */
+/** states of the #MXM_StateMachineOperation() state machine */
 typedef enum {
     MXM_INIT_ENTRY,
     MXM_INIT_DEVCFG1,

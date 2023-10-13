@@ -102,6 +102,16 @@ def decode_debug_response(value, dbc):
         nice_msg = f"MCU wafer information: {msg['MCU_waferNumber']} "
         nice_msg += f"(x={msg['MCU_xWaferCoordinate']}, "
         nice_msg += f"y={msg['MCU_yWaferCoordinate']}) "
+    elif mux_value == "foxBMS_CommitHash":
+        sha = ""
+        bits = str(bin(msg["shortHash"])[2:].zfill(56))
+        sha = ""
+        for i in range(0, 7):
+            start = (0 + i) * 8
+            end = start + 8
+            bitstring = bits[start:end]
+            sha += chr(int(bitstring, 2))
+        nice_msg = f"Short commit hash: {sha}"
     else:
         nice_msg = msg
     print(nice_msg)

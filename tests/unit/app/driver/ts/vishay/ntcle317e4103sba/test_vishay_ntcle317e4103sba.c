@@ -43,8 +43,8 @@
  * @file    test_vishay_ntcle317e4103sba.c
  * @author  foxBMS Team
  * @date    2021-11-02 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -58,6 +58,11 @@
 #include "foxmath.h"
 #include "test_assert_helper.h"
 #include "vishay_ntcle317e4103sba.h"
+
+/*========== Unit Testing Framework Directives ==============================*/
+TEST_INCLUDE_PATH("../../src/app/driver/foxmath")
+TEST_INCLUDE_PATH("../../src/app/driver/ts")
+TEST_INCLUDE_PATH("../../src/app/driver/ts/vishay/ntcle317e4103sba")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 
@@ -78,7 +83,7 @@ void testTS_Vis01GetTemperatureFromLutFixedValues(void) {
     TEST_ASSERT_EQUAL_INT16(INT16_MAX, TS_Vis01GetTemperatureFromLut(10u));
 }
 
-/** Polynomial is not implemeneted for this sensor */
+/** Polynomial is not implemented for this sensor */
 void testTS_Vis01GetTemperatureFromPolynomialFixedValues(void) {
     TEST_ASSERT_FAIL_ASSERT(TS_Vis01GetTemperatureFromPolynomial(1u));
 }

@@ -1,0 +1,20 @@
+.. include:: ./../../../../../macros.txt
+.. include:: ./../../../../../units.txt
+
+..
+    Comments:
+    Vishay is the name of the sensor manufacturer
+
+.. spelling::
+    Vishay
+
+.. _VISHAY_NTCLE413E2103F102L:
+
+Vishay NTCLE413E2103F102L
+=========================
+
+The Vishay NTCLE413E2103F102L is a NTC thermistor.
+The sensor features long leads making it suitable for battery system
+applications.
+More details can be found in the data sheet:
+`NTCLE413E2103F102L.pdf <https://www.vishay.com/docs/29078/ntcle413.pdf>`_.

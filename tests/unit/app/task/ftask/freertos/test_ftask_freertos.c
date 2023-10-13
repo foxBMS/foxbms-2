@@ -43,8 +43,8 @@
  * @file    test_ftask_freertos.c
  * @author  foxBMS Team
  * @date    2021-11-26 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -61,7 +61,16 @@
 
 #include "ftask.h"
 
-TEST_FILE("ftask_freertos.c")
+/*========== Unit Testing Framework Directives ==============================*/
+TEST_SOURCE_FILE("ftask_freertos.c")
+
+TEST_INCLUDE_PATH("../../src/app/driver/afe/api")
+TEST_INCLUDE_PATH("../../src/app/driver/config")
+TEST_INCLUDE_PATH("../../src/app/driver/fram")
+TEST_INCLUDE_PATH("../../src/app/driver/rtc")
+TEST_INCLUDE_PATH("../../src/app/engine/sys_mon")
+TEST_INCLUDE_PATH("../../src/app/task/config")
+TEST_INCLUDE_PATH("../../src/app/task/ftask")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 OS_TASK_HANDLE ftsk_taskHandleAfe;

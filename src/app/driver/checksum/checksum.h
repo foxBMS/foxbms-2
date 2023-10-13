@@ -43,8 +43,8 @@
  * @file    checksum.h
  * @author  foxBMS Team
  * @date    2019-12-03 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup TODO
  * @prefix  CHK
  *

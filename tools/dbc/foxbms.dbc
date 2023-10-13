@@ -979,6 +979,7 @@ SG_ foxBMS_GetMcuLotNumber m0 : 10|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ foxBMS_GetBmsSoftwareVersion m0 : 8|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ foxBMS_GetMcuUniqueDieId m0 : 9|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ foxBMS_GetMcuWaferInformation m0 : 11|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ foxBMS_GetCommitHash m0 : 12|1@1+ (1,0) [0|1] "" Vector__XXX
 SG_ foxBMS_TriggerSoftwareReset m2 : 39|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ InitializeFram m3 : 27|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ foxBMS_RequestRtcTime m4 : 8|1@0+ (1,0) [0|1] "" Vector__XXX
@@ -1100,6 +1101,7 @@ SG_ GetMonth m4 : 47|4@0+ (1,0) [0|15] "" Vector__XXX
 SG_ GetSeconds m4 : 8|6@0+ (1,0) [0|63] "" Vector__XXX
 SG_ GetWeekday m4 : 39|3@0+ (1,0) [0|7] "" Vector__XXX
 SG_ GetYear m4 : 43|7@0+ (1,0) [0|127] "" Vector__XXX
+SG_ shortHash m5 : 15|56@0+ (1,0) [0|0] "" Vector__XXX
 
 
 BO_ 513 foxBMS_UnsupportedMultiplexerVal: 8 Vector__XXX
@@ -1107,21 +1109,34 @@ SG_ foxBMS_MessageId : 7|32@0+ (1,0) [0|1] "" Vector__XXX
 SG_ foxBMS_MultiplexerValue : 39|32@0+ (1,0) [0|1] "" Vector__XXX
 
 
-CM_ BO_ 546 "(in:can_cbs_tx_system-values.c:CANTX_PackValues, fv:tx)";
+BO_ 255 foxBMS_FatalErrors: 8 Vector__XXX
+SG_ foxBMS_FatalErrors_Mux M : 7|8@0+ (1,0) [0|0] "" Vector__XXX
+
+
+BO_ 964 foxBMS_AerosolSensor: 8 Vector__XXX
+SG_ particulate_matter_concentration : 7|16@0+ (1,0) [0|65535] "" Vector__XXX
+SG_ low_power_mode_wake_up_threshold : 23|16@0+ (1,0) [0|65535] "" Vector__XXX
+SG_ sensor_status : 34|3@0+ (1,0) [0|7] "" Vector__XXX
+SG_ sensor_faults : 39|5@0+ (1,0) [0|31] "" Vector__XXX
+SG_ rolling_counter : 42|3@0+ (1,0) [0|7] "" Vector__XXX
+SG_ CRC_check_code : 63|8@0+ (1,0) [0|255] "" Vector__XXX
+
+
+CM_ BO_ 546 "(in:can_cbs_tx_pack-values-p0.c:CANTX_PackValues, fv:tx)";
 CM_ SG_ 546 foxBMS_packCurrent "Battery pack current";
 CM_ SG_ 546 foxBMS_batteryVoltage "Battery voltage between negative and positive pole of the battery";
 CM_ SG_ 546 foxBMS_busVoltage "Battery voltage between negative pole and after main positive contactor";
 CM_ SG_ 546 foxBMS_packPower "Battery power";
-CM_ BO_ 548 "(in:can_cbs_tx_limit-values.c:CANTX_LimitValues, fv:tx)";
+CM_ BO_ 548 "(in:can_cbs_tx_pack-limits.c:CANTX_LimitValues, fv:tx)";
 CM_ SG_ 548 foxBMS_maxChargeCurrent "Maximum battery pack charge current";
 CM_ SG_ 548 foxBMS_maxDischargeCurrent "Maximum battery pack discharge current";
-CM_ BO_ 547 "(in:can_cbs_tx_minimum-maximum-values.c:CANTX_MinimumMaximumValues, fv:tx)";
+CM_ BO_ 547 "(in:can_cbs_tx_pack-minimum-maximum-values.c:CANTX_MinimumMaximumValues, fv:tx)";
 CM_ SG_ 547 foxBMS_minimumCellVoltage "Minimum cell voltage of all connected strings, if no string connected maximum value of whole system is transmitted";
 CM_ SG_ 547 foxBMS_maximumCellVoltage "Maximum cell voltage of all connected strings, if no string connected maximum value of whole system is transmitted";
 CM_ SG_ 547 foxBMS_maximumCellTemp "Maximum cell temperature of all connected strings, if no string connected maximum value of whole system is transmitted";
 CM_ SG_ 547 foxBMS_minimumCellTemp "Minium cell temperature of all connected string, if no string connected maximum value of whole system is transmitted";
-CM_ BO_ 640 "Message contains string voltage, current and power (in:can_cbs_tx_system-values.c:CANTX_StringValuesP0, fv:tx)";
-CM_ BO_ 643 "Message contains energy counting value (in:can_cbs_tx_system-values.c:CANTX_StringValuesP1, fv:tx)";
+CM_ BO_ 640 "Message contains string voltage, current and power (in:can_cbs_tx_pack-values-p0.c:CANTX_StringValuesP0, fv:tx)";
+CM_ BO_ 643 "Message contains energy counting value (in:can_cbs_tx_pack-values-p0.c:CANTX_StringValuesP1, fv:tx)";
 CM_ SG_ 643 foxBMS_String0EnergyCount "Current sensor string 0 energy counting value";
 CM_ BO_ 549 "(in:can_cbs_tx_pack-state-estimation.c:CANTX_PackStateEstimation, fv:tx)";
 CM_ SG_ 549 foxBMS_packSoc "SOC currently connected to HV bus (100% if all strings connected and all strings at 100%)";
@@ -1129,7 +1144,7 @@ CM_ SG_ 549 foxBMS_packSoe "SOE currently connected to HV bus (100% if all strin
 CM_ SG_ 549 foxBMS_packEnergy "Energy left in Wh that is currently connected to HV bus";
 CM_ BO_ 576 "(in:can_cbs_tx_cell-voltages.c:CANTX_CellVoltages, fv:tx)";
 CM_ BO_ 592 "(in:can_cbs_tx_cell-temperatures.c:CANTX_CellTemperatures, fv:tx)";
-CM_ BO_ 560 "(in:can_cbs_rx_state-request.c:CANRX_BmsStateRequest, fv:rx)";
+CM_ BO_ 560 "(in:can_cbs_rx_bms-state-request.c:CANRX_BmsStateRequest, fv:rx)";
 CM_ SG_ 560 foxBMS_modeRequest "0x0: Disconnect strings from HV bus, 0x01: Connect strings to HV bus to start discharge, 0x02: Connect strings to HV bus to start charging";
 CM_ SG_ 560 foxBMS_activateBalancing "0: Deactivate balancing, 1: Activate balancing";
 CM_ SG_ 560 foxBMS_balancingThreshold "Required voltage difference to minimum cell voltage to activate balancing";
@@ -1139,7 +1154,7 @@ CM_ SG_ 560 foxBMS_chargerConnected "0x00: charger not connected, 0x01: charger 
 CM_ SG_ 560 foxBMS_disableInsulationMon "0x00: Check battery system insulation, 0x01: Do not check insulation of battery system";
 CM_ SG_ 560 foxBMS_heaterOverride_ON "0: no override active, 1: override active -> force heater on";
 CM_ SG_ 560 foxBMS_heaterOverride_OFF "0: no override active, 1: override active -> force heater off";
-CM_ BO_ 544 "Message contains foxBMS state (in:can_cbs_tx_state.c:CANTX_BmsState, fv:tx)";
+CM_ BO_ 544 "Message contains foxBMS state (in:can_cbs_tx_bms-state.c:CANTX_BmsState, fv:tx)";
 CM_ SG_ 544 foxBMS_generalError "0x00: No error detected, 0x01: Error detected";
 CM_ SG_ 544 foxBMS_generalWarning "0x00: No warning detected, 0x01: Warning detected";
 CM_ SG_ 544 foxBMS_Error_dieTemperatureMCU "0x00: No error, 0x01: Error detected";
@@ -1161,13 +1176,13 @@ CM_ SG_ 544 foxBMS_Error_PackOvercur_Dischrg "0x00: No error, 0x01: Error detect
 CM_ SG_ 544 foxBMS_SysMonError "If this bit is set, it indicates that a task has violated its timing requirements.";
 CM_ SG_ 544 foxBMS_alertFlag "foxBMS Alter flag: 0x00: No error, 0x01: Alert flag set";
 CM_ SG_ 544 foxBMS_NvramCrcError "0x00: No NVRAM CRC Error detected, 0x01: NVRAM CRC Error detected";
-CM_ BO_ 545 "Message contains string related error and warning flags (in:can_cbs_tx_state.c:CANTX_StringState, fv:tx)";
+CM_ BO_ 545 "Message contains string related error and warning flags (in:can_cbs_tx_bms-state.c:CANTX_StringState, fv:tx)";
 CM_ SG_ 545 String0_stringConnected "0x00: String not connected, 0x01: String connected to HV bus";
 CM_ SG_ 545 String0_balancing_active "0x00: No balancing active, 0x01: Balancing in this string active";
-CM_ SG_ 545 String0_Err_overtemp_charge "0x00: No error, 0x01: Error: Flag will be set if maximum cell temperature is above 45 degree celsius.";
-CM_ SG_ 545 String0_Err_undertemp_charge "0x00: No error, 0x01: Error: Flag will be set if minimum cell temperature is below 0 degree celsius.";
-CM_ SG_ 545 String0_Err_overtemp_discharge "0x00: No error, 0x01: Error: Flag will be set if maximum cell temperature is above 60 degree celsius.";
-CM_ SG_ 545 String0_Err_undertemp_discharge "0x00: No error, 0x01: Error: Flag will be set if minimum cell temperature is below -20 degree celsius.";
+CM_ SG_ 545 String0_Err_overtemp_charge "0x00: No error, 0x01: Error: Flag will be set if maximum cell temperature is above 45 degree Celsius.";
+CM_ SG_ 545 String0_Err_undertemp_charge "0x00: No error, 0x01: Error: Flag will be set if minimum cell temperature is below 0 degree Celsius.";
+CM_ SG_ 545 String0_Err_overtemp_discharge "0x00: No error, 0x01: Error: Flag will be set if maximum cell temperature is above 60 degree Celsius.";
+CM_ SG_ 545 String0_Err_undertemp_discharge "0x00: No error, 0x01: Error: Flag will be set if minimum cell temperature is below -20 degree Celsius.";
 CM_ SG_ 545 String0_Err_Overcurrent_charge "0x00: No error, 0x01: Error: Flag will be set if string charge current is above 30400mA.";
 CM_ SG_ 545 String0_Err_Overcurre_discharge "0x00: No error, 0x01: Error: Flag will be set if discharge current is above maximum string current.";
 CM_ SG_ 545 String0_Err_Overvoltage "0x00: No error, 0x01: Error: Flag will be set if maximum cell voltage is above 4200mV.";
@@ -1194,7 +1209,7 @@ CM_ SG_ 545 String0_Err_CS_energyCountMeas "0x00: No error, 0x01: Error";
 CM_ SG_ 545 String0_Err_plaus_volt_spread "0x00: No error, 0x01: Error";
 CM_ SG_ 545 String0_Err_plaus_temp_spread "0x00: No error, 0x01: Error";
 CM_ SG_ 545 String0_Err_negativeContactor "0x00: No error, 0x01: Error";
-CM_ BO_ 641 "Message contains minimum and maximum cell temperature and cell voltage values of respective string (in:can_cbs_tx_minimum-maximum-values.c:CANTX_StringMinimumMaximumValues, fv:tx)";
+CM_ BO_ 641 "Message contains minimum and maximum cell temperature and cell voltage values of respective string (in:can_cbs_tx_pack-minimum-maximum-values.c:CANTX_StringMinimumMaximumValues, fv:tx)";
 CM_ SG_ 641 String0_minimumCellVoltage "Minimum cell voltage in this string";
 CM_ SG_ 641 String0_maximumCellVoltage "Maximum cell voltage in this string";
 CM_ SG_ 641 String0_maximumCellTemperature "Maximum cell temperature in this string";
@@ -1211,7 +1226,7 @@ CM_ BO_ 1317 "Current sensor string 0: temperature (in:can_cbs_rx_current-sensor
 CM_ BO_ 1318 "Current sensor string 0: power (in:can_cbs_rx_current-sensor.c:CANRX_CurrentSensor, fv:rx); Isabellenhuette data sheet name: IVT0_Msg_Result_W";
 CM_ BO_ 1319 "Current sensor string 0: coulomb counting (in:can_cbs_rx_current-sensor.c:CANRX_CurrentSensor, fv:rx); Isabellenhuette data sheet name: IVT0_Msg_Result_As";
 CM_ BO_ 1320 "Current sensor string 0: energy counting (in:can_cbs_rx_current-sensor.c:CANRX_CurrentSensor, fv:rx); Isabellenhuette data sheet name: IVT0_Msg_Result_Wh";
-CM_ BO_ 550 "Transmits details on flags transmitted by foxBMS_State (in:can_cbs_tx_state.c:CANTX_BmsStateDetails, fv:tx)";
+CM_ BO_ 550 "Transmits details on flags transmitted by foxBMS_State (in:can_cbs_tx_bms-state.c:CANTX_BmsStateDetails, fv:tx)";
 CM_ SG_ 550 foxBMS_TimingViolationEngine "Indicates whether the timing of the engine task has been violated.";
 CM_ SG_ 550 foxBMS_TimingViolation1ms "Indicates whether the timing of the 1ms task has been violated.";
 CM_ SG_ 550 foxBMS_TimingViolation10ms "Indicates whether the timing of the 10ms task has been violated.";
@@ -1228,15 +1243,19 @@ CM_ SG_ 551 MCU_xWaferCoordinate "x coordinate of the MCU die on the wafer (read
 CM_ SG_ 551 MCU_yWaferCoordinate "y coordinate of the MCU die on the wafer (read from DIEIDL register)";
 CM_ SG_ 551 MCU_LotNumber "lot number of the MCU (read from DIEIDH register)";
 CM_ SG_ 551 MCU_uniqueId "Content of Device Identification Register (DEVID)";
-CM_ BO_ 513 "(in:can_cbs_tx_unsupported-message.c:CANTX_UnsupportedMultiplexerValue, fv:tx)";
+CM_ BO_ 513 "(in:can_cbs_tx_debug-unsupported-multiplexer-values.c:CANTX_UnsupportedMultiplexerValue, fv:tx)";
+CM_ BO_ 255 "(in:can_cbs_tx_crash-dump.c:CANTX_SendReasonsForFatalErrors, fv:tx)";
+CM_ BO_ 964 "(in:can_cbs_rx_aerosol-sensor.c:CANRX_AerosolSensor, fv:rx)";
 
 BA_DEF_  "BusType" STRING ;
 BA_DEF_ BO_  "GenMsgCycleTime" INT 0 65535;
 BA_DEF_ SG_  "GenSigStartValue" FLOAT -3.4E+038 3.4E+038;
+BA_DEF_ SG_  "SigType" ENUM "Default","Range","RangeSigned","ASCII","Discrete","Control","ReferencePGN","DTC","StringDelimiter","StringLength","StringLengthControl","MessageCounter","MessageChecksum";
 
 BA_DEF_DEF_  "BusType" "CAN";
 BA_DEF_DEF_  "GenMsgCycleTime" 0;
 BA_DEF_DEF_  "GenSigStartValue" 0;
+BA_DEF_DEF_  "SigType" "Default";
 
 BA_ "BusType" "CAN";
 
@@ -1253,6 +1272,7 @@ BA_ "GenMsgCycleTime" BO_ 545 100;
 BA_ "GenMsgCycleTime" BO_ 641 100;
 BA_ "GenMsgCycleTime" BO_ 642 1000;
 BA_ "GenMsgCycleTime" BO_ 550 1000;
+BA_ "GenMsgCycleTime" BO_ 964 1000;
 
 BA_ "GenSigStartValue" SG_ 546 foxBMS_packCurrent 0;
 BA_ "GenSigStartValue" SG_ 546 foxBMS_batteryVoltage 0;
@@ -2178,6 +2198,7 @@ BA_ "GenSigStartValue" SG_ 512 foxBMS_GetMcuLotNumber 0;
 BA_ "GenSigStartValue" SG_ 512 foxBMS_GetBmsSoftwareVersion 0;
 BA_ "GenSigStartValue" SG_ 512 foxBMS_GetMcuUniqueDieId 0;
 BA_ "GenSigStartValue" SG_ 512 foxBMS_GetMcuWaferInformation 0;
+BA_ "GenSigStartValue" SG_ 512 foxBMS_GetCommitHash 0;
 BA_ "GenSigStartValue" SG_ 512 foxBMS_TriggerSoftwareReset 0;
 BA_ "GenSigStartValue" SG_ 512 InitializeFram 0;
 BA_ "GenSigStartValue" SG_ 512 foxBMS_RequestRtcTime 0;
@@ -2270,6 +2291,14 @@ BA_ "GenSigStartValue" SG_ 551 GetWeekday 0;
 BA_ "GenSigStartValue" SG_ 551 GetYear 0;
 BA_ "GenSigStartValue" SG_ 513 foxBMS_MessageId 0;
 BA_ "GenSigStartValue" SG_ 513 foxBMS_MultiplexerValue 0;
+BA_ "GenSigStartValue" SG_ 964 particulate_matter_concentration 0;
+BA_ "GenSigStartValue" SG_ 964 low_power_mode_wake_up_threshold 0;
+BA_ "GenSigStartValue" SG_ 964 sensor_status 0;
+BA_ "GenSigStartValue" SG_ 964 sensor_faults 0;
+BA_ "GenSigStartValue" SG_ 964 rolling_counter 0;
+BA_ "GenSigStartValue" SG_ 964 CRC_check_code 0;
+
+BA_ "SigType" SG_ 551 shortHash 3;
 
 VAL_ 640 foxBMS_StringValuesP0_Mux 0 "mux_valuesP0String_0" ;
 VAL_ 643 foxBMS_StringValuesP1_Mux 0 "mux_valuesP1String_0" ;
@@ -2280,7 +2309,8 @@ VAL_ 545 foxBMS_StringState_Mux 0 "mux_stateString0" ;
 VAL_ 641 foxBMS_StringMinMaxValues_Mux 0 "mux_minMaxValuesString0" ;
 VAL_ 642 foxBMS_StringStateEstimation_Mux 0 "mux_String0_SOC_SOE" ;
 VAL_ 512 foxBMS_Debug_Mux 1 "foxBMS_Rtc" 0 "foxBMS_VersionInfo" 2 "foxBMS_SoftwareReset" 3 "foxBMS_FramInitialization" 4 "foxBMS_TimeInfo" ;
-VAL_ 551 foxBMS_DebugResponse_Mux 3 "foxBMS_McuWaferInformation" 2 "foxBMS_McuLotNumber" 1 "foxBMS_McuUniqueDieId" 0 "foxBMS_BmsSoftwareVersionInfo" 15 "foxBMS_BootInformation" 4 "foxBMS_RtcTime" ;
+VAL_ 551 foxBMS_DebugResponse_Mux 3 "foxBMS_McuWaferInformation" 2 "foxBMS_McuLotNumber" 1 "foxBMS_McuUniqueDieId" 0 "foxBMS_BmsSoftwareVersionInfo" 15 "foxBMS_BootInformation" 4 "foxBMS_RtcTime" 5 "foxBMS_CommitHash" ;
+VAL_ 255 foxBMS_FatalErrors_Mux 0 "StackOverflow" ;
 VAL_ 560 foxBMS_modeRequest 0 "Standby" 1 "Discharge" 2 "Charge" ;
 VAL_ 544 foxBMS_State 0 "BMS_UNINITIALIZED" 1 "BMS_INITIALIZATION" 2 "BMS_INITIALIZED" 3 "BMS_IDLE" 4 "BMS_OPEN_CONTACTORS" 5 "BMS_STANDBY" 6 "BMS_PRECHARGE" 7 "BMS_NORMAL" 8 "BMS_DISCHARGE" 9 "BMS_CHARGE" 10 "BMS_ERROR" 11 "BMS_UNDEFINED" ;
 VAL_ 544 foxBMS_Error_dieTemperatureMCU 0 "No Error" 1 "Error" ;
@@ -2292,8 +2322,8 @@ VAL_ 545 String0_Err_positiveContactor 0 "No Error" 1 "Error" ;
 VAL_ 545 String0_fuseBlown 0 "Fuse okay" 1 "Fuse blown" ;
 VAL_ 545 String0_Err_negativeContactor 0 "No Error" 1 "Error" ;
 VAL_ 512 SetWeekday 1 "Monday" 2 "Tuesday" 3 "Wednesday" 4 "Thursday" 5 "Friday" 6 "Saturday" 0 "Sunday" ;
-VAL_ 512 SetMonth 1 "January" 2 "February" 3 "March" 4 "Mai" 5 "April" 6 "June" 7 "July" 8 "August" 9 "September" 10 "October" 11 "November" 12 "December" ;
+VAL_ 512 SetMonth 1 "January" 2 "February" 3 "March" 4 "April" 5 "May" 6 "June" 7 "July" 8 "August" 9 "September" 10 "October" 11 "November" 12 "December" ;
 VAL_ 512 foxBMS_TriggerSoftwareReset 0 "NO_SOFTWARE_RESET" 1 "SOFTWARE_RESET" ;
 VAL_ 512 InitializeFram 0 "NO_FRAM_INITIALIZATION" 1 "FRAM_INITIALIZATION" ;
-VAL_ 551 GetMonth 1 "January" 2 "February" 3 "March" 4 "Mai" 5 "April" 6 "June" 7 "July" 8 "August" 9 "September" 10 "October" 11 "November" 12 "December" ;
+VAL_ 551 GetMonth 1 "January" 2 "February" 3 "March" 4 "April" 5 "May" 6 "June" 7 "July" 8 "August" 9 "September" 10 "October" 11 "November" 12 "December" ;
 VAL_ 551 GetWeekday 1 "Monday" 2 "Tuesday" 3 "Wednesday" 4 "Thursday" 5 "Friday" 6 "Saturday" 0 "Sunday" ;

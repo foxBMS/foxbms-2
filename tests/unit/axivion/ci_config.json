@@ -1,0 +1,80 @@
+{
+    "Analysis": {
+        "Analysis-GlobalOptions": {
+            "global_excludes": [
+                "C:/ti/*",
+                "*build/*",
+                "*src/hal/*",
+                "*src/os/*",
+                "*tools/vendor/ceedling/*"
+            ]
+        },
+        "SaveRFG": {
+            "_active": true,
+            "rfg_file": "../build/axivion/foxbms-unit-tests.elf.rfg"
+        }
+    },
+    "Project": {
+        "BuildSystemIntegration": {
+            "child_order": [
+                "Command",
+                "Linking"
+            ]
+        },
+        "Command": {
+            "_active": true,
+            "build_command": "$(builtin:AXIVION_CONFDIR)/../run_ut_gcc_build.bat configure build_axivion -v -c yes",
+            "clean_command": "$(builtin:AXIVION_CONFDIR)/../run_ut_gcc_build.bat configure clean_axivion -v -c yes",
+            "cwd": null
+        },
+        "Git": {
+            "_active": true,
+            "sourceserver_gitdir": "$(env:sourceServerGitDir=)"
+        },
+        "Linking": {
+            "_active": true,
+            "_copy_from": "Command",
+            "build_command": "$(builtin:AXIVION_CONFDIR)/link.bat"
+        },
+        "Project-GlobalOptions": {
+            "ci_mode": {
+                "clean_after": false,
+                "clean_before": "!$(env:SKIP_PREBUILD_CLEAN=false)"
+            },
+            "directory": "../../../",
+            "ir": "tests/unit/build/axivion/foxbms-unit-tests.ir",
+            "name": "$(env:analysisProjectName=foxbms-2)"
+        },
+        "Shadow": {
+            "_active": true,
+            "include_globbings": [
+                "*.[ch]"
+            ],
+            "rootpath": "build/unit_test",
+            "shadow_directory": "$(env:projectShadowRepo)"
+        }
+    },
+    "Results": {
+        "Dashboard": {
+            "dashboard_url": "$(env:AXIVION_DASHBOARD_URL=)"
+        },
+        "Database": {
+            "ci_mode": {
+                "directory": "$(AXIVION_DATABASES_DIR=.)",
+                "filename": "$(env:databaseFileRemote=)"
+            }
+        },
+        "JSONReport": {
+            "_active": true,
+            "filename": "foxbms_spa_report.json"
+        }
+    },
+    "_Format": "1.0",
+    "_Version": "7.5.2",
+    "_VersionNum": [
+        7,
+        5,
+        2,
+        11578
+    ]
+}

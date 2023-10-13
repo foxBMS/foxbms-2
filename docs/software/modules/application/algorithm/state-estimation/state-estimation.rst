@@ -8,10 +8,10 @@ State estimation
 
 |foxbms| performs various state estimations for the battery system:
 
- - state-of-charge (|soc|)
- - state-of-energy (|soe|)
- - state-of-health (|soh|)
- - state-of-function (|sof|)
+- state-of-charge (|soc|)
+- state-of-energy (|soe|)
+- state-of-health (|soh|)
+- state-of-function (|sof|)
 
 The |soc| estimation is used to estimate the currently remaining charge (|Ah|)
 within the battery system whereas the |soe| estimation provides the remaining
@@ -55,7 +55,7 @@ the battery system configuration file (`bms.json`).
     ./soe/soe_counting.rst
     ./soe/soe_debug.rst
     ./soe/soe_none.rst
-    ./sof/trapezoid.rst
+    ./sof/sof_trapezoid.rst
     ./soh/soh_debug.rst
     ./soh/soh_none.rst
 

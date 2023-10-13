@@ -43,8 +43,8 @@
  * @file    soe_counting_cfg.h
  * @author  foxBMS Team
  * @date    2020-10-07 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup APPLICATION
  * @prefix  SOE
  *
@@ -72,7 +72,7 @@
 
 /** Slice energy in Wh */
 #define SOE_STRING_ENERGY_Wh \
-    (BC_ENERGY_Wh * (float_t)(BS_NR_OF_CELL_BLOCKS_PER_STRING * BS_NR_OF_PARALLEL_CELLS_PER_MODULE))
+    (BC_ENERGY_Wh * (float_t)(BS_NR_OF_CELL_BLOCKS_PER_STRING * BS_NR_OF_PARALLEL_CELLS_PER_CELL_BLOCK))
 
 /*========== Extern Constant and Variable Declarations ======================*/
 

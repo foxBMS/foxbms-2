@@ -43,8 +43,8 @@
  * @file    can.c
  * @author  foxBMS Team
  * @date    2019-12-04 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup DRIVERS
  * @prefix  CAN
  *
@@ -135,6 +135,10 @@ static CAN_STATE_s can_state = {
     .currentSensorECPresent = {GEN_REPEAT_U(false, GEN_STRIP(BS_NR_OF_STRINGS))},
 };
 
+/** stores the number of CAN_periodicTransmit calls at which the internal
+ *  counter will reset to prevent overflow in CAN_IsPeriodElapsed */
+static uint32_t can_counterResetValue = 0u;
+
 /*========== Extern Constant and Variable Definitions =======================*/
 
 /*========== Static Function Prototypes =====================================*/
@@ -167,6 +171,16 @@ static void CAN_RxInterrupt(canBASE_t *pNode, uint32 messageBox);
  * @return  #STD_OK if a CAN transfer was made, #STD_NOT_OK otherwise
  */
 static STD_RETURN_TYPE_e CAN_PeriodicTransmit(void);
+
+/**
+ * @brief   Checks if a configured period CAN message should be transmitted depending
+ *          on the configured message period and message phase.
+ * @param   ticksSinceStart internal counter of a periodically called function
+ * @param   messageIndex    index of the message to check in the tx message array
+ * @return  true if phase matches and message should be transmitted, false otherwise
+*/
+
+static bool CAN_IsMessagePeriodElapsed(uint32_t ticksSinceStart, uint16_t messageIndex);
 
 /**
  * @brief   Checks if the CAN messages come in the specified time window
@@ -225,8 +239,24 @@ static void CAN_ConfigureRxMailboxesForExtendedIdentifiers(void);
 /** initialize the SPI interface to the CAN transceiver */
 static void CAN_InitializeTransceiver(void);
 
+/**
+ * @brief   Calculate Reset Value for internal counter in CAN_PeriodicTransmit
+ * @details Calculate the least common multiply of message periods in
+ *          can_TxMessages array. All periods will elapse at this time, so the
+ *          counter can safely be reset.
+ * @return  Reset Value for internal counter in CAN_PeriodicTransmit
+ */
+static uint32_t CAN_CalculateCounterResetValue(void);
+
 /** checks that the configured message period for Tx messages is valid */
 static void CAN_ValidateConfiguredTxMessagePeriod(void);
+
+/** checks that the configured message phase for Tx messages is valid */
+static void CAN_ValidateConfiguredTxMessagePhase(void);
+
+/** checks the  struct block for storing and passing on the local
+ * database table handle for containing no null pointers*/
+static void CAN_CheckDatabaseNullPointer(CAN_SHIM_s canShim);
 
 /**
  * @brief  get pointer CAN node configuration struct from register address
@@ -547,11 +577,40 @@ static void CAN_InitializeTransceiver(void) {
 }
 
 static void CAN_ValidateConfiguredTxMessagePeriod(void) {
-    for (uint16_t i = 0u; i < can_txLength; i++) {
-        if (can_txMessages[i].timing.period == 0u) {
+    for (uint16_t i = 0u; i < can_txMessagesLength; i++) {
+        if ((can_txMessages[i].timing.period == 0u) || ((can_txMessages[i].timing.period % CAN_TICK_ms) != 0u)) {
             FAS_ASSERT(FAS_TRAP);
         }
     }
+}
+
+static void CAN_ValidateConfiguredTxMessagePhase(void) {
+    for (uint16_t i = 0u; i < can_txMessagesLength; i++) {
+        if ((can_txMessages[i].timing.phase >= can_txMessages[i].timing.period) ||
+            ((can_txMessages[i].timing.phase % CAN_TICK_ms) != 0u)) {
+            FAS_ASSERT(FAS_TRAP);
+        }
+    }
+}
+
+static void CAN_CheckDatabaseNullPointer(CAN_SHIM_s canShim) {
+    FAS_ASSERT(canShim.pQueueImd != NULL_PTR);
+    FAS_ASSERT(canShim.pTableCellVoltage != NULL_PTR);     /*!< pointer database table with cell voltages */
+    FAS_ASSERT(canShim.pTableCellTemperature != NULL_PTR); /*!< pointer database table with cell temperatures */
+    FAS_ASSERT(canShim.pTableCurrentSensor != NULL_PTR); /*!< pointer database table with current sensor measurements */
+    FAS_ASSERT(canShim.pTableErrorState != NULL_PTR);    /*!< pointer database table with error state variables */
+    FAS_ASSERT(canShim.pTableInsulation != NULL_PTR);    /*!< pointer database table with insulation monitoring info */
+    FAS_ASSERT(canShim.pTableMinMax != NULL_PTR);        /*!< pointer database table with min/max values */
+    FAS_ASSERT(canShim.pTableMol != NULL_PTR);           /*!< pointer database table with MOL flags */
+    FAS_ASSERT(canShim.pTableMsl != NULL_PTR);           /*!< pointer database table with MSL flags */
+    FAS_ASSERT(canShim.pTableOpenWire != NULL_PTR);      /*!< pointer database table with open wire status */
+    FAS_ASSERT(canShim.pTablePackValues != NULL_PTR);    /*!< pointer database table with pack values */
+    FAS_ASSERT(canShim.pTableRsl != NULL_PTR);           /*!< pointer database table with RSL flags */
+    FAS_ASSERT(canShim.pTableSoc != NULL_PTR);           /*!< pointer database table with SOC values */
+    FAS_ASSERT(canShim.pTableSoe != NULL_PTR);           /*!< pointer database table with SOE values */
+    FAS_ASSERT(canShim.pTableSof != NULL_PTR);           /*!< pointer database table with SOF values */
+    FAS_ASSERT(canShim.pTableSoh != NULL_PTR);           /*!< pointer database table with SOH values */
+    FAS_ASSERT(canShim.pTableStateRequest != NULL_PTR);  /*!< pointer database table with state requests */
 }
 
 static CAN_NODE_s *CAN_GetNodeConfigurationStructFromRegisterAddress(canBASE_t *pNodeRegister) {
@@ -625,22 +684,102 @@ static STD_RETURN_TYPE_e CAN_PeriodicTransmit(void) {
     static uint32_t counterTicks = 0;
     uint8_t data[CAN_MAX_DLC]    = {0};
 
-    for (uint16_t i = 0u; i < can_txLength; i++) {
-        if (((counterTicks * CAN_TICK_ms) % (can_txMessages[i].timing.period)) == can_txMessages[i].timing.phase) {
+    CAN_SendMessagesFromQueue();
+
+    for (uint16_t i = 0u; i < can_txMessagesLength; i++) {
+        if (CAN_IsMessagePeriodElapsed(counterTicks, i) == true) {
             if (can_txMessages[i].callbackFunction != NULL_PTR) {
                 can_txMessages[i].callbackFunction(
                     can_txMessages[i].message, data, can_txMessages[i].pMuxId, &can_kShim);
-                /* CAN messages are currently discarded if all message boxes
-                 * are full. They will not be retransmitted within the next
-                 * call of CAN_PeriodicTransmit() */
-                CAN_DataSend(
-                    can_txMessages[i].canNode, can_txMessages[i].message.id, can_txMessages[i].message.idType, data);
+                if (CAN_DataSend(
+                        can_txMessages[i].canNode,
+                        can_txMessages[i].message.id,
+                        can_txMessages[i].message.idType,
+                        data) != STD_OK) {
+                    /* message was not sent */
+                    /* store the message */
+                    CAN_BUFFER_ELEMENT_s unsentMessage = {
+                        .canNode = can_txMessages[i].canNode,
+                        .id      = can_txMessages[i].message.id,
+                        .idType  = can_txMessages[i].message.idType,
+                        .data    = {0u, 0u, 0u, 0u, 0u, 0u, 0u, 0u}};
+
+                    for (uint8_t j = 0; j < can_txMessages[i].message.dlc; j++) {
+                        unsentMessage.data[j] = data[j];
+                    }
+
+                    /* add message to queue */
+                    if (OS_SendToBackOfQueue(ftsk_canTxUnsentMessagesQueue, (void *)&unsentMessage, 0u) == OS_SUCCESS) {
+                        /* Queue is not full */
+                        (void)DIAG_Handler(DIAG_ID_CAN_TX_QUEUE_FULL, DIAG_EVENT_OK, DIAG_SYSTEM, 0u);
+                    } else {
+                        /* Queue is full */
+                        (void)DIAG_Handler(DIAG_ID_CAN_TX_QUEUE_FULL, DIAG_EVENT_NOT_OK, DIAG_SYSTEM, 0u);
+                    }
+                }
                 retVal = STD_OK;
             }
         }
     }
 
+    /* check if counter needs to be reset */
     counterTicks++;
+    if (counterTicks == can_counterResetValue) {
+        counterTicks = 0;
+    }
+
+    return retVal;
+}
+
+static uint32_t CAN_CalculateCounterResetValue(void) {
+    /* initialize with first array entry for first iteration */
+    uint32_t resetValue = can_txMessages[0].timing.period;
+
+    /*  calculate least common multiple (LCM) of the first and second can_TxMessage period.
+        After that, calculate LCM of the next can_TxMessage period and last iterations LCM
+        until no more can_TxMessages remain. */
+    for (uint8_t i = 1u; i < can_txMessagesLength; i++) {
+        const uint32_t value1 = resetValue;
+        const uint32_t value2 = can_txMessages[i].timing.period;
+
+        /* calculate greatest common divisor using Euclid's algorithm */
+        /* the algorithm is designed for starting with bigger value, but also
+           works when starting with smaller value, so just start with value1 */
+
+        uint32_t result    = value1;
+        uint32_t divisor   = value2;
+        uint32_t tempValue = 0u;
+
+        while (divisor != 0u) {
+            tempValue = result % divisor;
+            result    = divisor;
+            divisor   = tempValue;
+        }
+
+        /* calculate least common multiple using the greatest common divisor */
+        resetValue = (value1 / result) * value2;
+        /* AXIVION Routine FaultDetection-DivisionByZero: /: message periods cannot be 0, so result is never 0 */
+        /* AXIVION Routine MisraC2012Directive-4.1: /: message periods cannot be 0, so result is never 0 */
+        /* AXIVION Routine MisraC2012Directive-4.1: *: only wraps around if periods are too big */
+    }
+
+    /* scale down to match internal counter of CAN_PeriodicTransmit */
+    resetValue /= CAN_TICK_ms;
+    return resetValue;
+}
+
+static bool CAN_IsMessagePeriodElapsed(uint32_t ticksSinceStart, uint16_t messageIndex) {
+    /* AXIVION Routine Generic-MissingParameterAssert: ticksSinceStart: parameter accepts whole range */
+    FAS_ASSERT(messageIndex < can_txMessagesLength);
+
+    bool retVal = false;
+    if (((ticksSinceStart * CAN_TICK_ms) % (can_txMessages[messageIndex].timing.period)) ==
+        can_txMessages[messageIndex].timing.phase) {
+        /* AXIVION Routine MisraC2012Directive-4.1: *: counter gets reset in periodicTransmit, no wrap around */
+        /* AXIVION Routine FaultDetection-DivisionByZero: %: message period is never zero, checked by config */
+        /* AXIVION Routine MisraC2012Directive-4.1: %: message period is never zero, checked by config */
+        retVal = true;
+    }
     return retVal;
 }
 
@@ -775,7 +914,10 @@ extern void CAN_Initialize(void) {
     /* PEX pins are used for transceiver configuration -> I2C and port expander
      * needs to be initialized previously for a successful initialization. */
     CAN_InitializeTransceiver();
+    can_counterResetValue = CAN_CalculateCounterResetValue();
     CAN_ValidateConfiguredTxMessagePeriod();
+    CAN_ValidateConfiguredTxMessagePhase();
+    CAN_CheckDatabaseNullPointer(can_kShim);
 }
 
 extern STD_RETURN_TYPE_e CAN_DataSend(CAN_NODE_s *pNode, uint32_t id, CAN_IDENTIFIER_TYPE_e idType, uint8 *pData) {
@@ -821,6 +963,21 @@ extern STD_RETURN_TYPE_e CAN_DataSend(CAN_NODE_s *pNode, uint32_t id, CAN_IDENTI
     return result;
 }
 
+extern void CAN_SendMessagesFromQueue(void) {
+    CAN_BUFFER_ELEMENT_s message = {NULL_PTR, 0u, CAN_INVALID_TYPE, {0u, 0u, 0u, 0u, 0u, 0u, 0u, 0u}};
+
+    while (OS_ReceiveFromQueue(ftsk_canTxUnsentMessagesQueue, (void *)&message, 0u) == OS_SUCCESS) {
+        /* Queue was not empty */
+        if (CAN_DataSend(message.canNode, message.id, message.idType, message.data) == STD_NOT_OK) {
+            /* Message was not sent */
+            if (OS_SendToBackOfQueue(ftsk_canTxUnsentMessagesQueue, (void *)&message, 0u) == OS_FAIL) {
+                /* Queue is full. */
+            }
+            break;
+        }
+    }
+}
+
 extern void CAN_MainFunction(void) {
     CAN_CheckCanTiming();
     if (can_state.periodicEnable == true) {
@@ -833,7 +990,7 @@ extern void CAN_ReadRxBuffer(void) {
         CAN_BUFFER_ELEMENT_s can_rxBuffer = {NULL_PTR, 0u, CAN_INVALID_TYPE, {0u, 0u, 0u, 0u, 0u, 0u, 0u, 0u}};
         while (OS_ReceiveFromQueue(ftsk_canRxQueue, (void *)&can_rxBuffer, 0u) == OS_SUCCESS) {
             /* data queue was not empty */
-            for (uint16_t i = 0u; i < can_rxLength; i++) {
+            for (uint16_t i = 0u; i < can_rxMessagesLength; i++) {
                 if ((can_rxBuffer.canNode == can_rxMessages[i].canNode) &&
                     (can_rxBuffer.id == can_rxMessages[i].message.id) &&
                     (can_rxBuffer.idType == can_rxMessages[i].message.idType)) {
@@ -889,5 +1046,55 @@ void UNIT_TEST_WEAK_IMPL canMessageNotification(canBASE_t *node, uint32 messageB
 #ifdef UNITY_UNIT_TEST
 extern CAN_STATE_s *TEST_CAN_GetCANState(void) {
     return &can_state;
+}
+extern void TEST_CAN_ValidateConfiguredTxMessagePeriod(void) {
+    CAN_ValidateConfiguredTxMessagePeriod();
+}
+extern void TEST_CAN_ValidateConfiguredTxMessagePhase(void) {
+    CAN_ValidateConfiguredTxMessagePhase();
+}
+extern void TEST_CAN_CheckDatabaseNullPointer(CAN_SHIM_s canShim) {
+    CAN_CheckDatabaseNullPointer(canShim);
+}
+extern void TEST_CAN_TxInterrupt(canBASE_t *pNode, uint32 messageBox) {
+    CAN_TxInterrupt(pNode, messageBox);
+}
+extern void TEST_CAN_RxInterrupt(canBASE_t *pNode, uint32 messageBox) {
+    CAN_RxInterrupt(pNode, messageBox);
+}
+extern STD_RETURN_TYPE_e TEST_CAN_PeriodicTransmit(void) {
+    return CAN_PeriodicTransmit();
+}
+extern uint32_t TEST_CAN_CalculateCounterResetValue(void) {
+    return CAN_CalculateCounterResetValue();
+}
+extern void TEST_CAN_CheckCanTiming(void) {
+    CAN_CheckCanTiming();
+}
+extern bool TEST_CAN_IsMessagePeriodElapsed(uint32_t ticksSinceStart, uint16_t messageIndex) {
+    return CAN_IsMessagePeriodElapsed(ticksSinceStart, messageIndex);
+}
+#if BS_CURRENT_SENSOR_PRESENT == true
+extern void TEST_CAN_SetCurrentSensorPresent(bool command, uint8_t stringNumber) {
+    CAN_SetCurrentSensorPresent(command, stringNumber);
+}
+extern void TEST_CAN_SetCurrentSensorCcPresent(bool command, uint8_t stringNumber) {
+    CAN_SetCurrentSensorCcPresent(command, stringNumber);
+}
+extern void TEST_CAN_SetCurrentSensorEcPresent(bool command, uint8_t stringNumber) {
+    CAN_SetCurrentSensorEcPresent(command, stringNumber);
+}
+extern void TEST_CAN_CheckCanTimingOfCurrentSensor(void) {
+    CAN_CheckCanTimingOfCurrentSensor();
+}
+#endif /* BS_CURRENT_SENSOR_PRESENT == true */
+extern void TEST_CAN_ConfigureRxMailboxesForExtendedIdentifiers(void) {
+    CAN_ConfigureRxMailboxesForExtendedIdentifiers();
+}
+extern void TEST_CAN_InitializeTransceiver(void) {
+    CAN_InitializeTransceiver();
+}
+extern CAN_NODE_s *TEST_CAN_GetNodeConfigurationStructFromRegisterAddress(canBASE_t *pNodeRegister) {
+    return CAN_GetNodeConfigurationStructFromRegisterAddress(pNodeRegister);
 }
 #endif

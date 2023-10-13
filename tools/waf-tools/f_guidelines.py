@@ -54,6 +54,7 @@ from waflib.Build import BuildContext
 
 # pylint: disable-msg=invalid-name
 # pylint: disable=no-member
+# pylint: disable=too-many-lines
 
 TOOLDIR = os.path.dirname(os.path.realpath(__file__))
 
@@ -102,6 +103,7 @@ class GuidelineViolations(AutoNumberGuidelineErrors):
     RST_MISSING_INCLUDE = ()
     RST_ORPHAN = ()
     RST_HEADING = ()
+    C_UNIT_TEST_DIRECTIVES = ()
 
 
 def options(opt):
@@ -278,7 +280,7 @@ class unique_filenames(Task.Task):
 class encoding(Task.Task):
     """Class to implement the utf-8 coding check
 
-    A task is only executed if a file is changed.
+    .
 
     """
 
@@ -449,7 +451,7 @@ class posix_3_206(Task.Task):
 class trailing_whitespace(Task.Task):
     """Class to implement the trailing whitespace check
 
-    A task is only executed if a file is changed.
+    .
 
     """
 
@@ -515,7 +517,7 @@ class trailing_whitespace(Task.Task):
 class tabs(Task.Task):
     """Class to implement running the trailing whitespace check
 
-    A task is only executed if a file is changed.
+    .
 
     """
 
@@ -548,7 +550,7 @@ class tabs(Task.Task):
             for err in errors:
                 Logs.error(
                     f"{self.rule_name}: File {self.inputs[0].abspath()}:{err[1]} "
-                    f"forbidden tabs found"
+                    "forbidden tabs found"
                 )
             return GuidelineViolations.GENERAL_TABS.value
         return GuidelineViolations.NO_VIOLATION.value
@@ -1039,7 +1041,7 @@ class c_check_sections(Task.Task):
 class c_check_comment_style(Task.Task):
     """Class to implement c comment style check
 
-    A task is only executed if a file is changed.
+    .
 
     """
 
@@ -1273,7 +1275,7 @@ class rst_check_include(Task.Task):
 class rst_check_heading(Task.Task):
     """Class to implement the rst heading check
 
-    A task is only executed if a file is changed.
+    .
 
     """
 
@@ -1460,11 +1462,7 @@ class rst_check_heading(Task.Task):
 
 
 class rst_check_orphan(Task.Task):
-    """Class to implement declaration of rst file orphans
-
-    A task is only executed if a file is changed
-
-    """
+    """Class to implement declaration of rst file orphans"""
 
     # color (string):  color in which the command line is displayed in the terminal
     color = "BLUE"
@@ -1494,7 +1492,7 @@ class rst_check_orphan(Task.Task):
         if error != GuidelineViolations.NO_VIOLATION:
             Logs.error(
                 f"{self.rule_name}: File: {self.inputs[0].abspath()}:"
-                f" The first line has to be ':orphan:'"
+                " The first line has to be ':orphan:'"
             )
             return GuidelineViolations.RST_ORPHAN.value
         return GuidelineViolations.NO_VIOLATION.value
@@ -1520,6 +1518,100 @@ class rst_check_orphan(Task.Task):
     def keyword(self):
         """Displayed keyword for check"""
         return f"Checking rst orphan ({self.rule_name})"
+
+
+class sort_unit_testing_directives(Task.Task):
+    """Class to implement declaration of rst file orphans"""
+
+    # color (string):  color in which the command line is displayed in the terminal
+    color = "BLUE"
+
+    before = ["clang_format"]
+
+    def run(self):
+        """calls test function and prints the error message
+
+        A list (in self.input) containing the path of the to be
+        checked file is passed as first argument in the task generation. The
+        second argument self.rule_name contains the name of the style guide rule.
+        run calls the test function and passes the first line of the to be checked
+        file. Depending on the return value of the test function an error
+        message with the filename is printed.
+
+        Returns:
+            int:
+            If no violation is found the value of
+            GuidelineViolations.NO_VIOLATION is returned. If the file does not
+            have orphan in the first line the value of
+            GuidelineViolations.RST_ORPHAN is returned
+        """
+        error = self.test(self.inputs[0].read())
+        if error:
+            print(error)
+            Logs.error(
+                f"File: {self.inputs[0].abspath()}: unit testing directives are not sorted"
+            )
+            return GuidelineViolations.C_UNIT_TEST_DIRECTIVES.value
+        return GuidelineViolations.NO_VIOLATION.value
+
+    @staticmethod
+    def test(txt: str):
+        """Implements check that the unit testing framework directives in a
+        file are correctly sorted.
+
+        Args:
+            txt (string): first line of the to be checked file
+
+        Returns:
+            fixed list of directives
+        """
+        re_test_files = re.compile(r"TEST_SOURCE_FILE\(\"(.*)\"\)")
+        re_include_paths = re.compile(r"TEST_INCLUDE_PATH\(\"(.*)\"\)")
+        test_files = []
+        include_paths = []
+        txt_input = txt.splitlines()
+        for i, line in enumerate(txt_input):
+            m = re_test_files.match(line)
+            if m:
+                test_files.append((m.group(0), i))
+            m = re_include_paths.match(line)
+            if m:
+                include_paths.append((m.group(0), i))
+        # if there are no directives, just return early
+        if not test_files and not include_paths:
+            return 0
+
+        error = 0
+        # check that the order is ok: sources, then includes, and that there is an
+        # empty line between these
+        test_files_line_nr = [i[1] for i in test_files]
+        include_paths_line_nr = [i[1] for i in include_paths]
+        if not test_files_line_nr == sorted(test_files_line_nr):
+            error = 1
+
+        if not include_paths_line_nr == sorted(include_paths_line_nr):
+            error = 2
+
+        if (
+            test_files_line_nr
+            and include_paths_line_nr
+            and not (max(test_files_line_nr) - min(include_paths_line_nr)) == -2
+        ):
+            error = 3
+
+        # check that each list is sorted alphabetically
+        if not test_files == sorted(test_files):
+            print(f"Test files should be sorted like this:\n{sorted(test_files)}")
+            error += 4
+        if not include_paths == sorted(include_paths):
+            print(f"Includes should be sorted like this:\n{sorted(include_paths)}")
+            error += 5
+
+        return error
+
+    def keyword(self):
+        """Displayed keyword for check"""
+        return "Checking sorting of unit testing directives"
 
 
 @TaskGen.feature("guidelines")
@@ -1924,10 +2016,20 @@ def process_guidelines(self):
     for rst_file in rst_to_check_orphan:
         self.create_task("rst_check_orphan", src=rst_file, rule_name=rn)
 
+    # the unit testing framework directives shall be sorted
+    unit_test_files = self.bld.path.ant_glob("tests/unit/**/*.c", quiet=True)
+    for unit_test_file in unit_test_files:
+        self.create_task(
+            "sort_unit_testing_directives", src=unit_test_file, rule_name=rn
+        )
+
 
 def check_guidelines(ctx):
     """Calls the guidelines check"""
     rules_node = ctx.path.find_node("conf/guidelines/rules.json")
+    if validate_rules_file(rules_node.read_json()):
+        ctx.fatal("Rules file is not sorted.")
+
     if not rules_node:
         ctx.fatal("Could not find guidelines file")
     rules = json.loads(rules_node.read())
@@ -1944,3 +2046,26 @@ class guidelines_context(BuildContext):
 # inject command into top-level wscript. This requires that g_module is available
 if Context.g_module:
     Context.g_module.__dict__["check_guidelines"] = check_guidelines
+
+
+def validate_rules_file(rules: dict, err: int = 0) -> int:
+    """validate that the rules file has a consistent ordering"""
+    prev_err = err
+    for k, v in rules.items():
+        if isinstance(v, dict):
+            new_err = validate_rules_file(v, err)
+            if new_err != prev_err:
+                err = new_err
+        elif isinstance(v, list):
+            if k in ("text", "sections", "regex"):
+                continue
+            try:  # only sort lists of simple types
+                if not v == sorted(v):
+                    err += 1
+                    Logs.error(
+                        f"List '{json.dumps(v)}' not sorted.\n"
+                        f"Use\n  {json.dumps(sorted(v))}\n"
+                    )
+            except TypeError:
+                pass
+    return err

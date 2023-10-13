@@ -43,8 +43,8 @@
  * @file    interlock_cfg.h
  * @author  foxBMS Team
  * @date    2020-02-24 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  ILCK
  *
@@ -101,7 +101,7 @@
 #define ILCK_FACTOR_IL_LS_CS_1_ohm (0.025f)
 
 /**
- * @brief   ILCK statemachine short time definition in #ILCK_Trigger() calls
+ * @brief   ILCK state machine short time definition in #ILCK_Trigger() calls
  *          until next state/substate is processed
  */
 #define ILCK_STATEMACH_SHORTTIME (1u)

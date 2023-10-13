@@ -43,8 +43,8 @@
  * @file    can_cbs_tx_debug-response.h
  * @author  foxBMS Team
  * @date    2022-07-01 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup SOME_GROUP
  * @prefix  CANTX
  *
@@ -73,6 +73,7 @@ typedef enum {
     CANTX_DEBUG_RESPONSE_TRANSMIT_BOOT_MAGIC_START,
     CANTX_DEBUG_RESPONSE_TRANSMIT_BOOT_MAGIC_END,
     CANTX_DEBUG_RESPONSE_TRANSMIT_RTC_TIME,
+    CANTX_DEBUG_RESPONSE_TRANSMIT_COMMIT_HASH,
 } CANTX_DEBUG_RESPONSE_ACTIONS_e;
 
 /*========== Extern Constant and Variable Declarations ======================*/

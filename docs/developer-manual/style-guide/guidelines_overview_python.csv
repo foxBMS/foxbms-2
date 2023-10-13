@@ -1,0 +1,9 @@
+
+Rule        ; Link                                    ; Automated Check
+PYTHON:001  ; :ref:`rule_python_filenames`            ; No
+PYTHON:002  ; :ref:`rule_python_header`               ; Yes
+PYTHON:003  ; :ref:`rule_python_syntax`               ; No
+PYTHON:004  ; :ref:`rule_python_formatting`           ; No
+PYTHON:005  ; :ref:`rule_python_spa`                  ; No
+PYTHON:006  ; :ref:`rule_no_platform_specific_code`   ; No
+PYTHON:007  ; :ref:`rule_python_wscript_rules`        ; No

@@ -14,7 +14,7 @@ Overview
 
 .. important::
 
-   The following description only applies for the |max17841b|\ -based
+   The following description only applies for the |max-max17841b|\ -based
    |bms-interface| hardware version |local_interface_version|.
 
 .. hint::
@@ -70,7 +70,6 @@ The PCB design complies with the following parameters:
 - Clearance: 1.3 |_| |mm|
 - Creepage distance: 12.5 |_| |mm|
 
-
 ^^^^^^^^^^^^^
 Block Diagram
 ^^^^^^^^^^^^^
@@ -84,10 +83,10 @@ A block diagram of the |bms-interface| is shown in
 
    Block diagram of the |bms-interface|
 
-Each |max17841b| communication chip from |mxm| provides one UART channel.
+Each |max-max17841b| communication chip from |mxm| provides one UART channel.
 Each channel is comprised of a RX and a TX signal, each using one insulation
 transformer.
-The |max17841b| chips are directly connected to the MCU via |spi|.
+The |max-max17841b| chips are directly connected to the MCU via |spi|.
 
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 Schematic and Board Layout
@@ -109,8 +108,8 @@ Maxim Battery Management UART communication
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The |bms-interface| offers up to two isolated Maxim Battery Management UART
-communication channels using the |max17841b| transceiver chip from |mxm|.
-The |max17841b| transceivers are controlled by the SPI signals from the
+communication channels using the |max-max17841b| transceiver chip from |mxm|.
+The |max-max17841b| transceivers are controlled by the SPI signals from the
 |bms-master|.
 The UART RX signals are available on the connectors J102 and J104.
 The pinout of the connectors is described in

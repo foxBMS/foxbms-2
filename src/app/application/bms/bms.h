@@ -43,8 +43,8 @@
  * @file    bms.h
  * @author  foxBMS Team
  * @date    2020-02-24 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup ENGINE
  * @prefix  BMS
  *
@@ -200,7 +200,7 @@ typedef struct {
     BMS_CURRENT_FLOW_STATE_e currentFlowState;  /*!< state of battery system */
     uint32_t restTimer_10ms;                    /*!< timer until battery system is at rest */
     uint16_t OscillationTimeout;                /*!< timeout to prevent oscillation of contactors */
-    uint8_t PrechargeTryCounter;                /*!< timeout to prevent oscillation of contactors */
+    uint8_t prechargeTryCounter;                /*!< timeout to prevent oscillation of contactors */
     BMS_POWER_PATH_TYPE_e powerPath;            /*!< power path type (discharge or charge) */
     uint8_t numberOfClosedStrings;              /*!< number of closed strings */
     uint16_t stringOpenTimeout;                 /*!< timeout to abort if string opening takes too long */

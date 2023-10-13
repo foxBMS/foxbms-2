@@ -1,0 +1,11 @@
+bool
+cdefs
+curpc
+endif
+goto
+ifdef
+ifndef
+mktime
+printf
+struct
+uint

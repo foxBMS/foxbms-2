@@ -1,8 +1,5 @@
-// cSpell Settings
 {
-    // Version of the setting file.  Always 0.2
     "version": "0.2",
-    // language - current active spelling language
     "language": "en",
     "enabledLanguageIds": [
         "bat",
@@ -23,14 +20,15 @@
         "xml",
         "yaml"
     ],
-    // words - list of words to be always considered correct
     "words": [
         "alphanumericals",
         "archiver",
         "cacheable",
+        "busbar",
         "contactor",
         "contactors",
         "deci",
+        "derating",
         "endianness",
         "favicon",
         "initialisms",
@@ -50,6 +48,7 @@
         "phosphane",
         "pinout",
         "pinouts",
+        "powerline",
         "precharge",
         "precharged",
         "precharging",
@@ -77,152 +76,138 @@
         "typedefed",
         "undertemperature",
         "undervoltage",
+        "unenumerated",
         "uninitialization",
         "uninitialize",
         "uninstallation",
         "unversioned",
         "vendored",
         "warnable",
-        // Abbreviations
-        "pdfs", // plural PDF
-        "pkgs", // plural packages
-        "Mbit" // megabit
+        "pdfs", // Abbreviation: plural PDF
+        "pkgs", // Abbreviation: plural packages
+        "Mbit" // Abbreviation: megabit
     ],
     "enabled": true,
     "allowCompoundWords": false,
     "ignoreWords": [
-        // project name
-        "foxbms",
-        "foxBMS",
-        "FOXBMS",
-        // some german words
-        "angewandten",
-        "Forschung",
-        "Foerderung",
-        "IISB",
-        "Schottkystrasse",
-        "Erlangen",
+        "foxbms", // project name file name friendly
+        "foxBMS", // project name in correct casing
+        "FOXBMS", // project name used in code, e.g., in macros
+        "angewandten", // german word used in the license header
+        "Forschung", // german word used in the license header
+        "Foerderung", // german word used in the license header
+        "IISB", // Short name for Fraunhofer Institute for Integrated Systems and Device Technology
+        "Schottkystrasse", // german word used in the license header
+        "Erlangen", // german word used in the license header
         // Company and product names
-        "Altium",
-        "Cppcheck", // a static program analysis tool
-        "GitHub",
-        "GitLab",
-        "Mictor",
-        "OSHWA", // Open Source Hardware Association
-        "SAMTEC", // company
-        "JFLASH",
-        "Molex",
-        "orcid",
-        "wuerth",
-        "zenodo",
-        // user name in the documentation
-        "vulpes",
-        "fgui",
-        "lvac", // gui frame name
-        // Windows related
-        "USERPROFILE",
-        "CODEPAGE",
-        "ERRORLEVEL",
-        "LOCALAPPDATA",
-        "APPDATA",
-        // cmd, batch
-        "chcp",
-        "dpfn",
-        "enabledelayedexpansion",
-        "enableextensions",
-        "findstr",
-        "popd",
-        "usebackq",
-        "pushd",
-        "setlocal",
-        "xcopy",
-        // NSIS installer arguments
-        "noassocfiles",
-        "nomodpath",
-        // bash
-        "substr",
-        "gsub",
-        // file extensions
-        "vsdx",
-        // file names
-        "isonum",
-        "fstartup",
-        "foxmath",
-        "portasm",
-        // prefixes we use in our embedded sources
-        "AFE", // Analog Front-End
-        "AFES", // Analog Front-Ends
-        "BALS",
-        "CANRX", // CAN receive
-        "CANTX", // CAN transmit
-        "HTSEN",
-        "ILCK",
-        "SYSM",
-        "FTSK",
-        "FTASK",
+        "Altium", // Name: Company
+        "Cppcheck", // Name:Software: static program analysis tool
+        "GitHub", // Name:Company
+        "GitLab", // Name:Company
+        "Mictor", // Name:Product: connector from TE Connectivity (Matched Impedance ConnecTOR)
+        "OSHWA", // Abbrevation:Organization: Open Source Hardware Association
+        "SAMTEC", // Name:Company
+        "JFLASH", // Name:Product: MCU flashing tool from Segger
+        "Molex", // Name:Company
+        "orcid", // Abbrevation:Organization: Open Researcher Contributor Identification Initiative
+        "wuerth", // Name:Company
+        "zenodo", // Name:Product: general-purpose open repository
+        "vulpes", // user name in the documentation, latin for fox
+        "fgui", // Name: name of the Python package that implements the foxBMS 2 GUI
+        "lvac", // name: name of a frame in the foxBMS 2 GUI
+        "USERPROFILE", // Windows environment variable name
+        "CODEPAGE", // Windows environment variable name
+        "ERRORLEVEL", // Windows environment variable name
+        "LOCALAPPDATA", // Windows environment variable name
+        "APPDATA", // Windows environment variable name
+        "chcp", // cmd.exe: command
+        "dpfn", // cmd.exe: command
+        "enabledelayedexpansion", // cmd.exe: Batch command
+        "enableextensions", // cmd.exe: Batch command
+        "findstr", // cmd.exe: command
+        "popd", // cmd.exe: command
+        "usebackq", // cmd.exe: command
+        "pushd", // cmd.exe: command
+        "setlocal", // cmd.exe: command
+        "xcopy", // cmd.exe: command
+        "noassocfiles", // NSIS installer argument
+        "nomodpath", // NSIS installer argument
+        "substr", // bash: command
+        "gsub", // bash: command
+        "vsdx", // file extension
+        "isonum", // Name: name of file(s) in the repository
+        "fstartup", // Name: name of file(s) in the repository
+        "foxmath", // Name: name of file(s) in the repository
+        "portasm", // Name: name of file(s) in the repository
+        "AFE", // Code:foxBMS:Prefix: Analog Front-End
+        "AFES", // see AFE
+        "BALS", // Code:foxBMS:Prefix: Balancing strategy
+        "CANRX", // Code:foxBMS:Prefix: CAN receive
+        "CANTX", // Code:foxBMS:Prefix: CAN transmit
+        "HTSEN", // Code:foxBMS:Prefix:
+        "ILCK", // Code:foxBMS:Prefix:
+        "SYSM", // Code:foxBMS:Prefix:
+        "FTSK", // Code:foxBMS:Prefix:
+        "FTASK", // Code:foxBMS:Prefix:
         "EMIF", // Extended Memory Interface
-        "NOIMD",
-        "MRC",
-        "fstd",
+        "NOIMD", // Code:foxBMS:Prefix:
+        "MRC", // Code:foxBMS:Prefix:
+        "fstd", // Name: name of file(s) in the repository
         "SHAREDRAM",
-        //unit componds
-        "ddeg",
-        "perc",
-        // C standard header
-        "assert",
-        "complex",
-        "ctype",
-        "errno",
-        "fenv",
-        "float",
-        "inttypes",
-        "iso646",
-        "limits",
-        "locale",
-        "math",
-        "setjmp",
-        "signal",
-        "stdalign",
-        "stdarg",
-        "stdatomic",
-        "stdbool",
-        "stddef",
-        "stdint",
-        "stdio",
-        "stdlib",
-        "stdnoreturn",
-        "string",
-        "tgmath",
-        "threads",
-        "time",
-        "uchar",
-        "wchar",
-        "wctype",
-        // C functions
-        "realloc",
-        // general software terms
-        "MOSFET",
-        "memcpy",
-        "realloc",
-        "calloc",
-        "mcalloc",
-        "NTFS",
-        "JTAG",
+        "ddeg", // code:unit componds: deci degree
+        "perc", // code:unit componds: percentage
+        "assert", // C standard header file
+        "complex", // C standard header file
+        "ctype", // C standard header file
+        "errno", // C standard header file
+        "fenv", // C standard header file
+        "float", // C standard header file
+        "inttypes", // C standard header file
+        "iso646", // C standard header file
+        "limits", // C standard header file
+        "locale", // C standard header file
+        "math", // C standard header file
+        "setjmp", // C standard header file
+        "signal", // C standard header file
+        "stdalign", // C standard header file
+        "stdarg", // C standard header file
+        "stdatomic", // C standard header file
+        "stdbool", // C standard header file
+        "stddef", // C standard header file
+        "stdint", // C standard header file
+        "stdio", // C standard header file
+        "stdlib", // C standard header file
+        "stdnoreturn", // C standard header file
+        "string", // C standard header file
+        "tgmath", // C standard header file
+        "threads", // C standard header file
+        "time", // C standard header file
+        "uchar", // C standard header file
+        "wchar", // C standard header file
+        "wctype", // C standard header file
+        "realloc", // C standard function
+        "MOSFET", // metal-oxide-semiconductor field-effect transistor
+        "memcpy", // C standard function
+        "realloc", // C standard function
+        "calloc", // C standard function
+        "mcalloc", // C standard function
+        "NTFS", // Abbrevation: New Technology File System
+        "JTAG", // Abbrevation:Standard: Joint Test Action Group
         "unstaged",
         "Traceback",
         "GCCRLE",
-        "LGPL",
-        "SPDX",
-        "TSPA",
+        "LGPL", // License: GNU Lesser General Public License
+        "SPDX", // Abbrevation:Standard: Software Package Data Exchange
+        "TSPA", // Abbrevation:License: TECHNOLOGY AND SOFTWARE PUBLICLY AVAILABLE
         "automodule",
         "autoclass",
-        "LLVM",
+        "LLVM", // Name:Software: set of compiler and toolchain technologies
         "untracked",
-        "mingw",
-        "mutex",
-        "posix",
-        "envs",
-        "devel",
+        "mingw", // Abbrevation:Software: Minimalist GNU for Windows
+        "mutex", // Abbrevation:Software:
+        "posix", // Abbrevation:Standard: Portable Operating System Interface
+        "envs", // Abbrevation:Generic: environments
+        "devel", // Abbrevation:Generic: development
         "libc",
         "Ooff",
         "cflags",
@@ -232,8 +217,8 @@
         "printf",
         "memset",
         "memwidth",
-        "threadsafe",
-        "threadsafety",
+        "threadsafe", // Abbrevation:Software:
+        "threadsafety", // Abbrevation:Software:
         "vlog",
         "tskdef",
         "forcolon",
@@ -253,14 +238,11 @@
         "SIMO",
         "SOMI",
         "docref",
-        // bender
-        "VIFC", // Vehicle Interface Controller
-        // ARM
-        "curpc",
-        "SPSR",
-        // ARM Assembler
-        "orreq",
-        "msreq",
+        "VIFC", // Abbrevation:Bender: Vehicle Interface Controller
+        "curpc", // ARM
+        "SPSR", // ARM
+        "orreq", // ARM Assembler
+        "msreq", // ARM Assembler
         // Compound words in defines, abbreveations from HAL, etc.
         "SPIDATAFMT_t", // TI: driver code
         "ecap", // TI: abbrevation for "Enhanced Capture" driver
@@ -272,6 +254,7 @@
         "RAMREG", // TI: driver code
         "SIGREGL", // TI: driver code
         "SIGREGH", // TI: driver code
+        "DIEDL", // TI: register name
         "ADDMODERD",
         "ADDMODEWR",
         "CSHOLD",
@@ -453,79 +436,145 @@
         "I2CRDATA2",
         "CRDATA",
         "GNDL",
-        // Maxim driver related words
-        "fmea",
-        "uphost",
-        "downhost",
-        "KBPS",
-        // NXP related words and abbrevations
-        "NXPFS",
-        "RSTB",
-        "OVUV",
-        "OVUVREG",
-        "FSSM",
-        "INTB",
-        "AMUX",
-        "VMON",
-        "REGX",
-        "DEVICEID",
-        "LBIST",
-        "BIST",
-        "ABIST",
-        "PGOOD",
-        "VCOREMON",
-        "VDDIO",
-        "FTTI",
-        "FCCU",
-        "INITFS",
-        "VBOSUVH",
-        "VBOOSTUVH",
-        "VSUPUV",
-        "VPREUVL",
-        "VPREUVH",
-        "VSUPUVL",
-        "VSUPUVH",
-        "BTFB",
-        "BTSC",
-        // protocols
-        "UART",
-        // standards
-        "misra",
-        // hardware abbreveations or hardware components
-        "fram", // Ferroelectric Random Access Memory
-        "isabellenhuette",
-        "tektronix",
-        "pcan", // Prodcut of the company PEAK Systems GmBH
+        // ADI driver related words
+        "ades", // ADI ADESxxxx
+        // ADES1830
+        "AUXREGS", // ADI ADES1830: Auxiliary registers
+        "AUXADC", // ADI ADES1830: Auxiliary ADC
+        "DTMEN", // ADI ADES1830: Discharge Timer Monitor enable
+        "DTRNG", // ADI ADES1830: Discharge Timer Range setting
+        "SOAKON", // ADI ADES1830: soak enable
+        "OWRNG", // ADI ADES1830: soak time range
+        "RDSID", // ADI ADES1830: Read serial ID
+        "CFGRB", // ADI ADES1830: Configuration Register B
+        "RSTCC", // ADI ADES1830: Clear command counter
+        "RSTF", // ADI ADES1830: reset filter
+        "TREFUP", // ADI ADES1830: IC pause time to allow the reference to power up
+        "VGPIO", // ADI ADES1830: safety
+        "OSCCHK", // ADI ADES1830: safety
+        "RDSTATA", // ADI ADES1830: safety
+        "RDSTATB", // ADI ADES1830: safety
+        "RDSTATC", // ADI ADES1830: safety
+        "RDSTATD", // ADI ADES1830: safety
+        "RDSTATE", // ADI ADES1830: safety
+        "STCR", // ADI ADES1830: register
+        "CMED", // ADI ADES1830: flag
+        "SMED", // ADI ADES1830: flag
+        "THSD", // ADI ADES1830: flag
+        "SPIFLT", // ADI ADES1830: SPI fault flag
+        "VDEL", // ADI ADES1830: supply rail delta latent
+        "CLRFLAG", // ADI ADES1830: command
+        "STDR", // ADI ADES1830: register
+        "CNTR", // ADI ADES1830: counter
+        "CFGRA", // ADI ADES1830: register
+        "TMODCHK", // ADI ADES1830: flag
+        "RDAC", // ADI ADES1830 command
+        "RDACA", // ADI ADES1830: Averaged Cell Voltage Register Group A
+        "RDACB", // ADI ADES1830: Averaged Cell Voltage Register Group B
+        "RDACC", // ADI ADES1830: Averaged Cell Voltage Register Group C
+        "RDACD", // ADI ADES1830: Averaged Cell Voltage Register Group D
+        "RDACE", // ADI ADES1830: Averaged Cell Voltage Register Group E
+        "RDACF", // ADI ADES1830: Averaged Cell Voltage Register Group F
+        "RDFCA", // ADI ADES1830: Filter Cell Voltage Register Group A
+        "RDFCB", // ADI ADES1830: Filter Cell Voltage Register Group B
+        "RDFCC", // ADI ADES1830: Filter Cell Voltage Register Group C
+        "RDFCD", // ADI ADES1830: Filter Cell Voltage Register Group D
+        "RDFCE", // ADI ADES1830: Filter Cell Voltage Register Group E
+        "RDFCF", // ADI ADES1830: Filter Cell Voltage Register Group F
+        "RDFC", // ADI ADES1830 command
+        "VCELL", // ADI generic for 'cell Voltage'
+        "RDCV", // ADI ADES1830: read cell voltage RDCVn
+        "RDCVALL", // ADI ADES1830: read all cell voltages
+        "RDSV", // ADI ADES1830: read s voltage register RDSVn
+        "RDSVA", // ADI ADES1830: read s voltage register RDSVA
+        "RDSVB", // ADI ADES1830: read s voltage register RDSVB
+        "RDSVC", // ADI ADES1830: read s voltage register RDSVC
+        "RDSVD", // ADI ADES1830: read s voltage register RDSVD
+        "RDSVE", // ADI ADES1830: read s voltage register RDSVE
+        "RDSVF", // ADI ADES1830: read s voltage register RDSVF
+        "RDRAXA", // ADI ADES1830: redundant auxiliary register A
+        "RDRAXB", // ADI ADES1830: redundant auxiliary register B
+        "RDRAXC", // ADI ADES1830: redundant auxiliary register C
+        "RDRAXD", // ADI ADES1830: redundant auxiliary register D
+        "ADSV", // ADI ADES1830 safety: command
+        "RDPWMA", // ADI ADES1830 safety: command: Read PWM register Group A
+        "WRPWMA", // ADI ADES1830 safety: command: Write PWM register Group A
+        "RDPWMB", // ADI ADES1830 safety: command: Read PWM register Group B
+        "WRPWMB", // ADI ADES1830 safety: command: Write PWM register Group B
+        "ITMP", // ADI ADES1830 status Register Group A (RDSTATA) - STBR2 & STBR3
+        "VRES", // ADI ADES1830 status Register Group B (RDSTATA) - STBR4
+        "DIETEMP", // ADI ADES1830 safety: generic abbrevation die temperature
+        "TMOD", // ADI ADES1830 safety: test mode
+        "RDAUXE", // ADI ADES1830: Read Auxiliary Register Group E
+        "unsnapshot", // ADI ADES1830: new word
+        "fmea", // MAXIM: driver related words
+        "uphost", // MAXIM: driver related words
+        "downhost", // MAXIM: driver related words
+        "KBPS", // MAXIM: driver related words
+        "NXPFS", // NXP:
+        "RSTB", // NXP:
+        "OVUV", // NXP:
+        "OVUVREG", // NXP:
+        "FSSM", // NXP:
+        "INTB", // NXP:
+        "AMUX", // NXP:
+        "VMON", // NXP:
+        "REGX", // NXP:
+        "DEVICEID", // NXP:
+        "LBIST", // NXP:
+        "BIST", // NXP:
+        "ABIST", // NXP:
+        "PGOOD", // NXP:
+        "VCOREMON", // NXP:
+        "VDDIO", // NXP:
+        "FTTI", // NXP:
+        "FCCU", // NXP:
+        "INITFS", // NXP:
+        "VBOSUVH", // NXP:
+        "VBOOSTUVH", // NXP:
+        "VSUPUV", // NXP:
+        "VPREUVL", // NXP:
+        "VPREUVH", // NXP:
+        "VSUPUVL", // NXP:
+        "VSUPUVH", // NXP:
+        "BTFB", // NXP:
+        "BTSC", // NXP:
+        "UART", // Abbrevation: Universal Asynchronous Receiver Transmitter
+        "misra", // Abbrevation: Motor Industry Software Reliability Association
+        "fram", // Abbrevation: Ferroelectric Random Access Memory
+        "isabellenhuette", // Name:Company
+        "tektronix", // Name:Company
+        "pcan", // PEAK: Prodcut of the company PEAK Systems GmBH
         "USBBUS", // name of the PCAN USB buses in the "python-can" library
-        "lauterbach",
-        "epcos",
-        "murata",
-        "vishay",
-        "mram", // Magnetoresistive Random Access Memory
+        "SENDRECEIVE", // PEAK: reserved name in 'sym' files from PEAK Systems GmBH
+        "lauterbach", // Name:Company
+        "epcos", // Name:Company
+        "murata", // Name:Company
+        "vishay", // Name:Company
+        "mram", // Abbrevation:Magnetoresistive Random Access Memory
         "ntcalug", // temperature sensor form vishay
         "ntcle", // temperature sensor form vishay
         "OHKS", // digital status pin from Bender IR155
-        // Axivion
-        "axivion",
-        "cafecc",
-        "Codeline",
-        "gravis",
-        "larg",
-        "preinc",
-        "dashserver",
-        "localbuild",
-        "noauth",
-        "workitem",
-        "TESTCASE",
-        // asm keywords
-        "endasmfunc",
+        "axivion", // Name:Company
+        "cafecc", // Axivion: compiler name
+        "Codeline", // Axivion
+        "gravis", // Axivion: tool name
+        "larg", // Axivion: linker argument name
+        "preinc", // Axivion
+        "dashserver", // Axivion: tool name
+        "localbuild", // Axivion: tool name
+        "noauth", // Axivion
+        "workitem", // Axivion
+        "irdump", // Axivion: tool name
+        "TESTCASE", // Axivion
+        "endasmfunc", // TI ARM CGT asm keyword
         // third party software, tools, configuration files etc.
-        "doxygen",
+        "doxygen", // Name:Software: Documentation softare
         "rcfile",
         "filecvt",
         "marm",
         "dilfile",
-        "Segger",
+        "Segger", // Name:Company
         "Jupyter",
         "rubyinstaller",
         "rubygems",
@@ -568,29 +617,27 @@
         "mklib",
         "gmake",
         "ruby",
-        "ceedling",
-        "ceedlingproject",
         "Mockbeta",
         "Mockdatabase",
         "Mockepcos",
         "Mockmath",
-        "freertos",
-        "safertos",
-        "rtos",
+        "freertos", // Name:Software
+        "safertos", // Name:Software
+        "rtos", // Abbrevation:Generic
         "jdebug",
         "gcov",
-        "gcovr",
-        "msys",
+        "gcovr", // Name:Python: package
+        "msys", // Abbrevation:Software: Minimal SYStem
         "lcov",
         "devkit",
         "conda",
         "condarc",
         "miniconda",
         "halcogen",
-        // ceedling
-        "cmock",
-        // html
-        "endverbatim",
+        "ceedling", // Name:Software: ceedling project
+        "cmock", // Name:Software: Cmock project
+        "cexception", // Name:Software: CException project
+        "endverbatim", // Keyword:Doxygen
         // waf
         "APPNAME",
         "autoconfig",
@@ -631,27 +678,23 @@
         "tooldir",
         "uselib",
         "waflib",
-        "waf's",
         "wscript",
-        // variables in wscript
-        "confpy",
-        // rst
-        "linkcheck",
-        "stringliteral",
-        "toctree",
-        "titlesonly",
-        "maxdepth",
-        "numref",
-        "linenos",
-        "literalinclude",
-        "subsubsection",
-        "subsubsections",
-        "doxygenfunction",
-        "genindex",
-        "modindex",
+        "linkcheck", // sphinx
+        "stringliteral", // reStructuredText
+        "toctree", // reStructuredText
+        "titlesonly", // reStructuredText
+        "maxdepth", // reStructuredText
+        "numref", // reStructuredText
+        "linenos", // reStructuredText
+        "literalinclude", // reStructuredText
+        "subsubsection", // reStructuredText
+        "subsubsections", // reStructuredText
+        "doxygenfunction", // reStructuredText
+        "genindex", // reStructuredText
+        "modindex", // reStructuredText
         // python
         "maxsplit",
-        "arcname", // 'tar' package
+        "arcname", // Python:package: tar
         "pycache",
         "getenv",
         "pypi",
@@ -660,9 +703,9 @@
         "pylintrc",
         "pyproject",
         "groupby",
-        "linesep", // 'os' package
-        "pathsep", // 'os' package
-        "platformdirs",
+        "linesep", // Python:package:os
+        "pathsep", // Python:package:os
+        "platformdirs", // Name:Python: package
         "popen",
         "tzname",
         "rglob",
@@ -670,81 +713,70 @@
         "finditer",
         "hexlify",
         "startswith",
-        // python packages
-        "cantools",
-        "jsonschema",
-        "cffconvert",
-        "clib",
-        "gprof2dot",
-        "iterrows",
-        "pstats",
-        "numpy",
-        "matplotlib",
-        "mypy",
-        "statsmodels",
-        "scikit",
-        "filterpy",
-        "dask",
-        "scipy",
-        "seaborn",
-        "pykwalify",
-        "qtconsole",
-        "qtpy",
-        "ruamel",
-        //wxpython
-        "vscroll", // style
-        "Colour", // BackgroundColour etc.
-        "gridlib", // subpackge of wx.grid
-        "RADIOBOX", // wxpython control window name
-        "NUMPAD", // wxpython Event name
-        "CHECKLISTBOX", // wxpython control window name
-        "CHOICEDLG", // wxpython choice dialog
-        // python-can
-        "bustype",
-        // matplotlib
-        "xlabel",
-        "ylabel",
-        "pyplot",
-        // graphviz
-        "fillcolor",
-        "graphviz",
-        "lhead",
-        "invis",
-        "fontcolor",
-        "darkgreen",
-        "nodesep",
-        "ranksep",
-        "ltail",
-        "rankdir",
-        "doublecircle",
-        // sphinx
-        "autofunction",
-        "numfig",
-        "delim",
-        //latex
-        "mathrm",
-        // compiler flags
-        "DASSERT",
-        "flto",
-        // compiler derived words
-        "hexgen",
-        "preproc",
-        // cc-options.yaml
-        "LINKFLAGS",
-        "HEXGENFLAGS",
-        "NMFLAGS",
-        // misc
-        "Zener",
-        "pprs"
+        "cantools", // Name:Python: package
+        "jsonschema", // Name:Python: package
+        "cffconvert", // Name:Python: package
+        "clib", // Name:Python: package
+        "gprof2dot", // Name:Python: package
+        "iterrows", // Name:Python: package
+        "pstats", // Name:Python: package
+        "numpy", // Name:Python: package
+        "matplotlib", // Name:Python: package
+        "mypy", // Name:Python: package
+        "statsmodels", // Name:Python: package
+        "scikit", // Name:Python: package
+        "filterpy", // Name:Python: package
+        "dask", // Name:Python: package
+        "scipy", // Name:Python: package
+        "seaborn", // Name:Python: package
+        "pykwalify", // Name:Python: package
+        "qtconsole", // Name:Python: package
+        "qtpy", // Name:Python: package
+        "ruamel", // Name:Python: package
+        "vscroll", // Python:package: wxpython
+        "Colour", // Python:package: wxpython
+        "gridlib", // Python:package: wxpython
+        "RADIOBOX", // Python:package: wxpython
+        "NUMPAD", // Python:package: wxpython
+        "CHECKLISTBOX", // Python:package: wxpython
+        "CHOICEDLG", // Python:package: wxpython
+        "bustype", // Python:package:python-can
+        "xlabel", // Python:package: matplotlib
+        "ylabel", // Python:package: matplotlib
+        "pyplot", // Python:package: matplotlib
+        "fillcolor", // graphviz
+        "graphviz", // graphviz
+        "lhead", // graphviz
+        "invis", // graphviz
+        "fontcolor", // graphviz
+        "darkgreen", // graphviz
+        "nodesep", // graphviz
+        "ranksep", // graphviz
+        "ltail", // graphviz
+        "rankdir", // graphviz
+        "doublecircle", // graphviz
+        "autofunction", // sphinx
+        "numfig", // sphinx
+        "delim", // sphinx
+        "mathrm", // LaTeX
+        "flto", // Linker flag
+        "hexgen", // // compiler derived words
+        "preproc", // // compiler derived words
+        "LINKFLAGS", // option name in cc-options.yaml
+        "HEXGENFLAGS", // option name in cc-options.yaml
+        "NMFLAGS", // option name in cc-options.yaml
+        "Zener", // Zener diode
+        "TIDUM", // prefix
+        "pprs" // file extension
     ],
     "dictionaries": [
-        "cpp",
-        "python",
-        "wordsEn",
-        "wordsEnGb",
         "companies",
+        "cpp",
+        "misc",
+        "python",
         "softwareTerms",
-        "misc"
+        "wordsEn",
+        "wordsEnGb"
     ],
     "flagWords": [
         "endianess",
@@ -759,7 +791,7 @@
         "**/vscode-extension/**",
         ".clang-format",
         ".git*",
-        ".lock-waf_*", // waf's lock file in the top level
+        ".lock-waf_*",
         ".mailmap",
         ".vscode",
         "BSD-3-Clause.txt",
@@ -771,7 +803,7 @@
         "conf/guidelines/rules.json",
         "conf/hcg/**",
         "conf/spa/.pylintrc",
-        "conf/unit/ceedling.cmd",
+        "conf/spell/**",
         "conf/unit/project.yml",
         "conf/unit/vsc-settings.yml",
         "docs/_ext/**",
@@ -819,15 +851,20 @@
         "tests/axivion/predefined_macros.txt",
         "tests/axivion/qualification-test/qualification-kit/**",
         "tests/axivion/rule_config_c.json",
+        "tests/env/conda_env_linux.json",
+        "tests/env/conda_env_win32.json",
         "tests/re-names/*.json",
+        "tests/unit/build.mocks.json",
+        "tests/unit/build.tests.json",
         "tools/dbc/*.dbc",
         "tools/dbc/*.sym",
         "tools/debugger/lauterbach/*.in",
         "tools/debugger/ozone/*.jdebug.*",
-        "tools/debugger/ozone\foxbms.jflash",
-        "tools/gui/fgui/misc/logo.py", // just binary code
-        "tools/waf", // waf binary
-        "tools/waf3-*/**", // unpacked waf sources
+        "tools/debugger/ozone/foxbms.jflash",
+        "tools/gui/fgui/misc/logo.py",
+        "tools/vendor/**",
+        "tools/waf",
+        "tools/waf3-*/**",
         "tools/waf-verify-sig.py"
     ]
 }

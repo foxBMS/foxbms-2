@@ -12,10 +12,8 @@ class BuildInvokerUtils
   # ==== Attributes
   #
   # * _exception_:  The exception given by a rescue statement.
-  # * _context_:    A symbol representing where in the build the exception
-  # occurs. 
-  # * _test_build_: A bool to signify if the exception occurred while building
-  # from test or source.
+  # * _context_:    A symbol representing where in the build the exception occurs. 
+  # * _test_build_: A bool to signify if the exception occurred while building from test or source.
   #
   def process_exception(exception, context, test_build=true)
     if (exception.message =~ /Don't know how to build task '(.+)'/i)
@@ -26,7 +24,7 @@ class BuildInvokerUtils
       @streaminator.stderr_puts( error_header )
 
       if (@configurator.project_use_deep_dependencies)
-        help_message = "Try fixing #include statements or adding missing file. Then run '#{REFRESH_TASK_ROOT}#{context.to_s}' task and try again."      
+        help_message = "Try fixing #include statements or adding missing file. Then run '#{REFRESH_TASK_ROOT}#{context}' task and try again."      
         @streaminator.stderr_puts( help_message )
       end
       

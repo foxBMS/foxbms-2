@@ -43,8 +43,8 @@
  * @file    mxm_1785x.h
  * @author  foxBMS Team
  * @date    2019-01-15 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup DRIVERS
  * @prefix  MXM
  *
@@ -144,7 +144,7 @@ extern void MXM_InitializeStateStruct(
 extern void MXM_CheckIfErrorCounterCanBeReset(MXM_MONITORING_INSTANCE_s *pInstance);
 
 /**
- * @brief           Fill the balancing datastructure
+ * @brief           Fill the balancing data structure
  * @details         This function fills the data-structure that describes
  *                  which balancing channels of the monitoring ICs should be
  *                  activated.
@@ -154,7 +154,7 @@ extern void MXM_CheckIfErrorCounterCanBeReset(MXM_MONITORING_INSTANCE_s *pInstan
 extern STD_RETURN_TYPE_e MXM_ConstructBalancingBuffer(MXM_BALANCING_STATE_s *pBalancingInstance);
 
 /**
- * @brief           Handle the statemachine-transactions for a WRITEALL
+ * @brief           Handle the state machine-transactions for a WRITEALL
  * @details         Before calling this function, update the command buffer of
  *                  the state-variable. Then call this function and pass on the
  *                  state-variable and the next state. The function will
@@ -171,7 +171,7 @@ extern void MXM_HandleStateWriteall(
     MXM_STATEMACHINE_OPERATION_STATES_e nextState);
 
 /**
- * @brief           Handle the statemachine-transactions for a READALL
+ * @brief           Handle the state machine-transactions for a READALL
  * @details         Call this function and pass on the state-variable, the
  *                  register to be read and the next state. The function will
  *                  handle the communication with the lower state-machine and

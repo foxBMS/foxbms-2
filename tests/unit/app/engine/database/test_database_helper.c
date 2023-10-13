@@ -43,8 +43,8 @@
  * @file    test_database_helper.c
  * @author  foxBMS Team
  * @date    2021-05-05 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -63,6 +63,8 @@
 
 #include "database_helper.h"
 #include "test_assert_helper.h"
+
+/*========== Unit Testing Framework Directives ==============================*/
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 
@@ -278,9 +280,9 @@ void testDATA_GetModuleNumberFromVoltageIndex(void) {
  *  #testDATA_GetCellNumberFromVoltageIndex */
 void testDATA_GetCellNumberFromVoltageIndex(void) {
     for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
-        for (uint8_t c = 0u; c < BS_NR_OF_CELL_BLOCKS_PER_MODULE; c++) {
-            uint16_t voltageIndex = (m * BS_NR_OF_CELL_BLOCKS_PER_MODULE) + c;
-            TEST_ASSERT_EQUAL(DATA_GetCellNumberFromVoltageIndex(voltageIndex), c);
+        for (uint8_t cb = 0u; cb < BS_NR_OF_CELL_BLOCKS_PER_MODULE; cb++) {
+            uint16_t voltageIndex = (m * BS_NR_OF_CELL_BLOCKS_PER_MODULE) + cb;
+            TEST_ASSERT_EQUAL(DATA_GetCellNumberFromVoltageIndex(voltageIndex), cb);
         }
     }
 

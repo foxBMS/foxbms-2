@@ -10,7 +10,6 @@ If |code| is available, a ``.vscode`` directory with all needed
 configurations is generated when running ``waf configure``. The
 generated workspace is properly configured.
 
-
 Launching |code|
 ----------------
 
@@ -24,7 +23,6 @@ taken into account:
    need to be correctly set.
 #. Open |code|.
 #. Goto ``File->Open Folder`` and select the cloned |foxbms| repository.
-
 
 Build Tasks
 -----------

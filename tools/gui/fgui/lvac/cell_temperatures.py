@@ -80,10 +80,12 @@ class CellTemperatureFrame(  # pylint: disable=too-many-ancestors,too-many-insta
         self.temps_per_module = temps_per_module
         self.grid_table = gridlib.Grid(panel)
         self.grid_table.CreateGrid(self.temps_per_module, self.modules)
+        self.grid_table.SetRowLabelSize(100)
         for i in range(0, self.modules):
             self.grid_table.SetColLabelValue(i, f"Module {i+1}")
         for i in range(0, self.temps_per_module):
             self.grid_table.SetRowLabelValue(i, f"Temperature {i+1}")
+        self.grid_table.SetRowLabelAlignment(wx.ALIGN_LEFT, wx.ALIGN_CENTRE)
         for row in range(self.temps_per_module):
             for col in range(self.modules):
                 self.grid_table.SetCellValue(row, col, "None")

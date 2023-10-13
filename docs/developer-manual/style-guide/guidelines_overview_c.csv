@@ -1,0 +1,35 @@
+
+Rule  ; Link                                             ; Automated Check
+C:001 ; :ref:`rule_c_filenames`                          ; No
+C:002 ; :ref:`rule_c_header`                             ; Yes
+C:003 ; :ref:`rule_c_line_length`                        ; No
+C:004 ; :ref:`rule_c_file_level_doxygen`                 ; Yes
+C:005 ; :ref:`rule_c_include_guard`                      ; Yes
+C:006 ; :ref:`rule_c_sections`                           ; Yes
+C:007 ; :ref:`rule_c_includes`                           ; No
+C:008 ; :ref:`rule_c_scoping`                            ; No
+C:009 ; :ref:`rule_c_function_names`                     ; No
+C:010 ; :ref:`rule_c_function_scopes`                    ; No
+C:011 ; :ref:`rule_c_function_doxygen_documentation`     ; No
+C:012 ; :ref:`rule_c_function_return_value`              ; No
+C:013 ; :ref:`rule_c_function_calls`                     ; No
+C:014 ; :ref:`rule_c_additional_function_rules`          ; No
+C:015 ; :ref:`rule_c_function_parameter_checking`        ; No
+C:016 ; :ref:`rule_c_variable_names`                     ; No
+C:017 ; :ref:`rule_c_constant_names`                     ; No
+C:018 ; :ref:`rule_c_pointer_rules`                      ; No
+C:019 ; :ref:`rule_c_variable_initialization`            ; No
+C:020 ; :ref:`rule_c_hexadecimal`                        ; No
+C:021 ; :ref:`rule_c_floating_point`                     ; No
+C:022 ; :ref:`rule_c_structs`                            ; No
+C:023 ; :ref:`rule_c_enums`                              ; No
+C:024 ; :ref:`rule_c_typedefs`                           ; No
+C:025 ; :ref:`rule_c_macros`                             ; No
+C:026 ; :ref:`rule_c_conditionals`                       ; No
+C:027 ; :ref:`rule_c_switch`                             ; No
+C:028 ; :ref:`rule_c_loop`                               ; No
+C:029 ; :ref:`rule_c_comment_style`                      ; Yes
+C:030 ; :ref:`rule_c_hints`                              ; No
+C:031 ; :ref:`rule_c_formatting`                         ; No
+C:032 ; :ref:`rule_c_state_machines`                     ; No
+C:033 ; :ref:`rule_c_unit_testing_framework_directives`  ; No

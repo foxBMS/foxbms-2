@@ -43,8 +43,8 @@
  * @file    debug_default.h
  * @author  foxBMS Team
  * @date    2020-09-17 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup DRIVERS
  * @prefix  FAKE
  *
@@ -72,7 +72,7 @@ typedef enum {
     FAKE_FSM_STATE_HAS_NEVER_RUN,  /*!< never run state - always the second state */
     FAKE_FSM_STATE_UNINITIALIZED,  /*!< uninitialized state */
     FAKE_FSM_STATE_INITIALIZATION, /*!< initializing the state machine */
-    FAKE_FSM_STATE_RUNNING,        /*!< operational mode of the state machine  */
+    FAKE_FSM_STATE_RUNNING,        /*!< operational mode of the state machine */
     FAKE_FSM_STATE_ERROR,          /*!< state for error processing  */
 } FAKE_FSM_STATES_e;
 

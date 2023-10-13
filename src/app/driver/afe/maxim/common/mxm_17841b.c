@@ -43,8 +43,8 @@
  * @file    mxm_17841b.c
  * @author  foxBMS Team
  * @date    2018-12-14 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup DRIVERS
  * @prefix  MXM
  *
@@ -302,21 +302,21 @@ static STD_RETURN_TYPE_e MXM_41BRegisterWrite(
     /* check if command is a write command (write addresses in MAX17841B are even) */
     if ((command % 2u) == 0u) {
         /* construct tx buffer */
-        pInstance->spiTXBuffer[0] = command;
+        pInstance->spiTxBuffer[0] = command;
         /* message has payload --> copy into buffer */
         if ((kpkPayload != NULL_PTR) && (lengthPayload != 0u)) {
             for (uint8_t i = 0u; i < lengthPayload; i++) {
-                pInstance->spiTXBuffer[i + 1u] = kpkPayload[i];
+                pInstance->spiTxBuffer[i + 1u] = kpkPayload[i];
             }
             /* null rest of tx buffer */
             for (uint8_t i = lengthPayload + 1u; i < MXM_SPI_TX_BUFFER_LENGTH; i++) {
-                pInstance->spiTXBuffer[i] = 0u;
+                pInstance->spiTxBuffer[i] = 0u;
             }
             /* send command with payload */
-            retval = MXM_SendData(pInstance->spiTXBuffer, (uint16_t)lengthPayload + 1u);
+            retval = MXM_SendData(pInstance->spiTxBuffer, (uint16_t)lengthPayload + 1u);
         } else if ((kpkPayload == NULL_PTR) && (lengthPayload == 0u)) {
             /* send command without payload */
-            retval = MXM_SendData(pInstance->spiTXBuffer, 1);
+            retval = MXM_SendData(pInstance->spiTxBuffer, 1);
         } else {
             /* invalid configuration */
         }
@@ -340,13 +340,13 @@ static STD_RETURN_TYPE_e MXM_41BRegisterRead(
     /* check if command is a read command (read addresses in MAX17841B are odd) */
     if ((command % 2u) != 0u) {
         /* construct tx buffer */
-        pInstance->spiTXBuffer[0] = command;
+        pInstance->spiTxBuffer[0] = command;
         /* null rest of tx buffer */
         for (uint16_t i = 1u; i < MXM_SPI_TX_BUFFER_LENGTH; i++) {
-            pInstance->spiTXBuffer[i] = 0u;
+            pInstance->spiTxBuffer[i] = 0u;
         }
         /* send command with payload */
-        retval = MXM_ReceiveData(pInstance->spiTXBuffer, pRxBuffer, ((uint16_t)length + 1u));
+        retval = MXM_ReceiveData(pInstance->spiTxBuffer, pRxBuffer, ((uint16_t)length + 1u));
     }
     return retval;
 }
@@ -357,8 +357,8 @@ static STD_RETURN_TYPE_e MXM_41BConfigRegisterWrite(MXM_41B_INSTANCE_s *pInstanc
     uint8_t mxm_spi_temp_buffer[MXM_41B_CONFIG_REGISTER_LENGTH] = {0};
 
     /* AXIVION Disable Style Generic-NoMagicNumbers: Magic numbers for index value of array is clear in usage */
-    mxm_spi_temp_buffer[0u] = pInstance->regRXIntEnable;
-    mxm_spi_temp_buffer[1u] = pInstance->regTXIntEnable;
+    mxm_spi_temp_buffer[0u] = pInstance->regRxIntEnable;
+    mxm_spi_temp_buffer[1u] = pInstance->regTxIntEnable;
     mxm_spi_temp_buffer[2u] = MXM_41B_RX_INT_FLAG_DEFAULT_VALUE;
     mxm_spi_temp_buffer[3u] = MXM_41B_TX_INT_FLAG_DEFAULT_VALUE;
     mxm_spi_temp_buffer[4u] = pInstance->regConfig1;
@@ -385,21 +385,21 @@ static STD_RETURN_TYPE_e MXM_41BBufferWrite(
     /* AXIVION Routine Generic-MissingParameterAssert: extendMessage: parameter accepts whole range */
 
     /* write address and length to buffer */
-    pInstance->spiTXBuffer[0] = (uint16_t)MXM_BUF_WR_LD_Q_0;
-    pInstance->spiTXBuffer[1] = (uint16_t)messageLength + extendMessage;
+    pInstance->spiTxBuffer[0] = (uint16_t)MXM_BUF_WR_LD_Q_0;
+    pInstance->spiTxBuffer[1] = (uint16_t)messageLength + extendMessage;
     /* iterate of complete TX buffer and
      * write into proper fields, null rest
      */
     for (uint8_t i = 0; i < (MXM_SPI_TX_BUFFER_LENGTH - 2u); i++) {
         if (i < messageLength) {
-            pInstance->spiTXBuffer[i + 2u] = kpkMessage[i];
+            pInstance->spiTxBuffer[i + 2u] = kpkMessage[i];
         } else {
-            pInstance->spiTXBuffer[i + 2u] = 0x00u;
+            pInstance->spiTxBuffer[i + 2u] = 0x00u;
         }
     }
 
     /* send data */
-    return MXM_SendData(pInstance->spiTXBuffer, ((uint16_t)messageLength + 2u));
+    return MXM_SendData(pInstance->spiTxBuffer, ((uint16_t)messageLength + 2u));
 }
 
 static void MXM_41BTransitionToIdleSuccess(MXM_41B_INSTANCE_s *pInstance) {
@@ -408,7 +408,6 @@ static void MXM_41BTransitionToIdleSuccess(MXM_41B_INSTANCE_s *pInstance) {
     pInstance->state      = MXM_STATEMACH_41B_IDLE;
     pInstance->substate   = MXM_41B_ENTRY_SUBSTATE;
     *pInstance->processed = MXM_41B_STATE_PROCESSED;
-    return;
 }
 
 static void MXM_41BTransitionToIdleError(MXM_41B_INSTANCE_s *pInstance) {
@@ -417,19 +416,17 @@ static void MXM_41BTransitionToIdleError(MXM_41B_INSTANCE_s *pInstance) {
     pInstance->state      = MXM_STATEMACH_41B_IDLE;
     pInstance->substate   = MXM_41B_ENTRY_SUBSTATE;
     *pInstance->processed = MXM_41B_STATE_ERROR;
-    return;
 }
 
 static void MXM_41BInitializeRegisterCopies(MXM_41B_INSTANCE_s *pInstance) {
     FAS_ASSERT(pInstance != NULL_PTR);
-    pInstance->regRXStatus    = 0u;
-    pInstance->regTXStatus    = 0u;
-    pInstance->regRXIntEnable = MXM_41B_RX_INT_ENABLE_DEFAULT_VALUE;
-    pInstance->regTXIntEnable = MXM_41B_TX_INT_ENABLE_DEFAULT_VALUE;
+    pInstance->regRxStatus    = 0u;
+    pInstance->regTxStatus    = 0u;
+    pInstance->regRxIntEnable = MXM_41B_RX_INT_ENABLE_DEFAULT_VALUE;
+    pInstance->regTxIntEnable = MXM_41B_TX_INT_ENABLE_DEFAULT_VALUE;
     pInstance->regConfig1     = MXM_41B_CONFIG_1_DEFAULT_VALUE;
     pInstance->regConfig2     = MXM_41B_CONFIG_2_DEFAULT_VALUE;
     pInstance->regConfig3     = MXM_41B_CONFIG_3_DEFAULT_VALUE;
-    return;
 }
 
 static void MXM_41BStateHandlerInit(MXM_41B_INSTANCE_s *pInstance) {
@@ -460,7 +457,7 @@ static void MXM_41BStateHandlerInit(MXM_41B_INSTANCE_s *pInstance) {
         }
     } else if (pInstance->substate == MXM_41B_INIT_READ_CONFIG_REGISTERS) {
         const STD_RETURN_TYPE_e retval = MXM_41BRegisterRead(
-            pInstance, MXM_REG_RX_INTERRUPT_ENABLE_R, pInstance->spiRXBuffer, MXM_41B_CONFIG_REGISTER_LENGTH);
+            pInstance, MXM_REG_RX_INTERRUPT_ENABLE_R, pInstance->spiRxBuffer, MXM_41B_CONFIG_REGISTER_LENGTH);
 
         if (retval == STD_OK) {
             pInstance->substate = MXM_41B_INIT_CHECK_INITIALIZATION;
@@ -494,7 +491,7 @@ static void MXM_41BStateHandlerInit(MXM_41B_INSTANCE_s *pInstance) {
                 MXM_41B_CONFIG_3_DEFAULT_VALUE};
 
             for (uint8_t i = 0; i < MXM_41B_CONFIG_REGISTER_LENGTH; i++) {
-                if (pInstance->spiRXBuffer[i + 1u] != mxm_41B_reg_default_values[i]) {
+                if (pInstance->spiRxBuffer[i + 1u] != mxm_41B_reg_default_values[i]) {
                     retval = STD_NOT_OK;
                 }
             }
@@ -520,7 +517,7 @@ static void MXM_41BStateHandlerGetVersion(MXM_41B_INSTANCE_s *pInstance) {
 
     if (pInstance->substate == MXM_41B_VERSION_REQUEST_REGISTER) {
         /* read two byte in order to read also the adjacent version register */
-        const STD_RETURN_TYPE_e retval = MXM_41BRegisterRead(pInstance, MXM_REG_MODEL_R, pInstance->spiRXBuffer, 2);
+        const STD_RETURN_TYPE_e retval = MXM_41BRegisterRead(pInstance, MXM_REG_MODEL_R, pInstance->spiRxBuffer, 2);
 
         if (retval == STD_OK) {
             pInstance->substate = MXM_41B_VERSION_VERIFY;
@@ -528,12 +525,12 @@ static void MXM_41BStateHandlerGetVersion(MXM_41B_INSTANCE_s *pInstance) {
     } else if (pInstance->substate == MXM_41B_VERSION_VERIFY) {
         if (MXM_GetSPIStateReady() == STD_OK) {
             /* get model from model register and high nibble of mask revision (should be 0x8410) */
-            pInstance->hwModel =
-                (uint16_t)((pInstance->spiRXBuffer[1] & MXM_41B_BIT_MASK_ONE_BYTE) << MXM_41B_BIT_SHIFT_HALF_BYTE);
-            pInstance->hwModel |=
-                (uint16_t)((pInstance->spiRXBuffer[2] & MXM_41B_BIT_MASK_HIGH_NIBBLE) >> MXM_41B_BIT_SHIFT_HALF_BYTE);
+            pInstance->hardwareModel =
+                (uint16_t)((pInstance->spiRxBuffer[1] & MXM_41B_BIT_MASK_ONE_BYTE) << MXM_41B_BIT_SHIFT_HALF_BYTE);
+            pInstance->hardwareModel |=
+                (uint16_t)((pInstance->spiRxBuffer[2] & MXM_41B_BIT_MASK_HIGH_NIBBLE) >> MXM_41B_BIT_SHIFT_HALF_BYTE);
             /* extract mask revision from low nibble */
-            pInstance->hwMaskRevision = (uint8_t)(pInstance->spiRXBuffer[2] & MXM_41B_BIT_MASK_LOW_NIBBLE);
+            pInstance->hardwareMaskRevision = (uint8_t)(pInstance->spiRxBuffer[2] & MXM_41B_BIT_MASK_LOW_NIBBLE);
 
             MXM_41BTransitionToIdleSuccess(pInstance);
         }
@@ -571,15 +568,15 @@ static void MXM_41BStateHandlerReadStatusRegister(MXM_41B_INSTANCE_s *pInstance)
 
     if (pInstance->substate == MXM_41B_READ_STATUS_REGISTER_SEND) {
         /* read rx and tx status register */
-        const STD_RETURN_TYPE_e retval = MXM_41BRegisterRead(pInstance, MXM_REG_RX_STATUS_R, pInstance->spiRXBuffer, 2);
+        const STD_RETURN_TYPE_e retval = MXM_41BRegisterRead(pInstance, MXM_REG_RX_STATUS_R, pInstance->spiRxBuffer, 2);
         if (retval == STD_NOT_OK) {
             MXM_41BTransitionToIdleError(pInstance);
         } else {
             pInstance->substate = MXM_41B_READ_STATUS_REGISTER_PROCESS;
         }
     } else if (pInstance->substate == MXM_41B_READ_STATUS_REGISTER_PROCESS) {
-        pInstance->regRXStatus = (uint8_t)(pInstance->spiRXBuffer[1] & 0xFFu);
-        pInstance->regTXStatus = (uint8_t)(pInstance->spiRXBuffer[2] & 0xFFu);
+        pInstance->regRxStatus = (uint8_t)(pInstance->spiRxBuffer[1] & 0xFFu);
+        pInstance->regTxStatus = (uint8_t)(pInstance->spiRxBuffer[2] & 0xFFu);
         MXM_41BTransitionToIdleSuccess(pInstance);
     } else {
         /* something is very broken */
@@ -595,14 +592,14 @@ static void MXM_41BStateHandlerUartTransaction(MXM_41B_INSTANCE_s *pInstance) {
     }
 
     if (pInstance->substate == MXM_41B_UART_READ_RX_SPACE) {
-        const STD_RETURN_TYPE_e retval = MXM_41BRegisterRead(pInstance, MXM_REG_RX_SPACE_R, pInstance->spiRXBuffer, 1u);
+        const STD_RETURN_TYPE_e retval = MXM_41BRegisterRead(pInstance, MXM_REG_RX_SPACE_R, pInstance->spiRxBuffer, 1u);
         if (retval == STD_NOT_OK) {
             MXM_41BTransitionToIdleError(pInstance);
         } else {
             pInstance->substate = MXM_41B_UART_READ_RX_SPACE_PARSE;
         }
     } else if (pInstance->substate == MXM_41B_UART_READ_RX_SPACE_PARSE) {
-        pInstance->regRxSpace = (uint8_t)(pInstance->spiRXBuffer[1] & MXM_41B_BIT_MASK_ONE_BYTE);
+        pInstance->regRxSpace = (uint8_t)(pInstance->spiRxBuffer[1] & MXM_41B_BIT_MASK_ONE_BYTE);
         pInstance->substate   = MXM_41B_UART_WRITE_LOAD_QUEUE;
 
     } else if (pInstance->substate == MXM_41B_UART_WRITE_LOAD_QUEUE) {
@@ -621,7 +618,7 @@ static void MXM_41BStateHandlerUartTransaction(MXM_41B_INSTANCE_s *pInstance) {
         const uint8_t payloadLength = pInstance->payloadLength + 1u;
         /* send read load queue */
         const STD_RETURN_TYPE_e retval =
-            MXM_41BRegisterRead(pInstance, MXM_BUF_RD_LD_Q_0, pInstance->spiRXBuffer, payloadLength);
+            MXM_41BRegisterRead(pInstance, MXM_BUF_RD_LD_Q_0, pInstance->spiRxBuffer, payloadLength);
 
         if (retval == STD_NOT_OK) {
             MXM_41BTransitionToIdleError(pInstance);
@@ -632,12 +629,12 @@ static void MXM_41BStateHandlerUartTransaction(MXM_41B_INSTANCE_s *pInstance) {
         /* verify load queue */
         STD_RETURN_TYPE_e retval = STD_OK;
         /* check message length */
-        if (pInstance->spiRXBuffer[1] != (pInstance->payloadLength + (uint16_t)pInstance->extendMessageBytes)) {
+        if (pInstance->spiRxBuffer[1] != (pInstance->payloadLength + (uint16_t)pInstance->extendMessageBytes)) {
             retval = STD_NOT_OK;
         }
         for (uint8_t i = 0; i < pInstance->payloadLength; i++) {
             FAS_ASSERT(pInstance->pPayload != NULL_PTR);
-            if (pInstance->spiRXBuffer[i + 2u] != pInstance->pPayload[i]) {
+            if (pInstance->spiRxBuffer[i + 2u] != pInstance->pPayload[i]) {
                 /* message corrupted during SPI transfer */
                 retval = STD_NOT_OK;
             }
@@ -656,7 +653,7 @@ static void MXM_41BStateHandlerUartTransaction(MXM_41B_INSTANCE_s *pInstance) {
         }
     } else if (pInstance->substate == MXM_41B_UART_WAIT_FOR_RX_STATUS_CHANGE_WRITE) {
         /* poll RX status change */
-        const STD_RETURN_TYPE_e retval = MXM_41BRegisterRead(pInstance, MXM_REG_RX_STATUS_R, pInstance->spiRXBuffer, 1);
+        const STD_RETURN_TYPE_e retval = MXM_41BRegisterRead(pInstance, MXM_REG_RX_STATUS_R, pInstance->spiRxBuffer, 1);
 
         if (retval == STD_NOT_OK) {
             MXM_41BTransitionToIdleError(pInstance);
@@ -665,7 +662,7 @@ static void MXM_41BStateHandlerUartTransaction(MXM_41B_INSTANCE_s *pInstance) {
         }
     } else if (pInstance->substate == MXM_41B_UART_WAIT_FOR_RX_STATUS_CHANGE_READ_AND_READ_BACK_RCV_BUF) {
         /* update RX status register copy with received buffer */
-        pInstance->regRXStatus = (uint8_t)(pInstance->spiRXBuffer[1] & MXM_41B_BIT_MASK_ONE_BYTE);
+        pInstance->regRxStatus = (uint8_t)(pInstance->spiRxBuffer[1] & MXM_41B_BIT_MASK_ONE_BYTE);
         /* check if RX_OVERFLOW_Status is 1 */
         MXM_41B_REG_BIT_VALUE rx_overflow_status_value = MXM_41B_REG_FALSE;
         const STD_RETURN_TYPE_e resultWrongRegisterOverflow =
@@ -691,7 +688,7 @@ static void MXM_41BStateHandlerUartTransaction(MXM_41B_INSTANCE_s *pInstance) {
             const uint8_t payloadLength = pInstance->payloadLength + 1u + pInstance->extendMessageBytes;
             /* read back receive buffer */
             const STD_RETURN_TYPE_e retval =
-                MXM_41BRegisterRead(pInstance, MXM_BUF_RD_NXT_MSG, pInstance->spiRXBuffer, payloadLength);
+                MXM_41BRegisterRead(pInstance, MXM_BUF_RD_NXT_MSG, pInstance->spiRxBuffer, payloadLength);
 
             if (retval == STD_NOT_OK) {
                 MXM_41BTransitionToIdleError(pInstance);
@@ -709,10 +706,10 @@ static void MXM_41BStateHandlerUartTransaction(MXM_41B_INSTANCE_s *pInstance) {
             }
         }
     } else if (pInstance->substate == MXM_41B_UART_READ_BACK_RECEIVE_BUFFER_SAVE) {
-        if ((pInstance->spiRXBuffer != NULL_PTR) && (pInstance->pRxBuffer != NULL_PTR)) {
+        if ((pInstance->spiRxBuffer != NULL_PTR) && (pInstance->pRxBuffer != NULL_PTR)) {
             for (uint16_t i = 0; i < ((uint16_t)pInstance->payloadLength + pInstance->extendMessageBytes); i++) {
                 if (i < pInstance->rxBufferLength) {
-                    pInstance->pRxBuffer[i] = pInstance->spiRXBuffer[i + 1u];
+                    pInstance->pRxBuffer[i] = pInstance->spiRxBuffer[i + 1u];
                 }
             }
         }
@@ -730,7 +727,7 @@ static void MXM_41BStateHandlerCheckFmea(MXM_41B_INSTANCE_s *pInstance) {
     }
 
     if (pInstance->substate == MXM_41B_FMEA_REQUEST_REGISTER) {
-        const STD_RETURN_TYPE_e retval = MXM_41BRegisterRead(pInstance, MXM_REG_FMEA_R, pInstance->spiRXBuffer, 1);
+        const STD_RETURN_TYPE_e retval = MXM_41BRegisterRead(pInstance, MXM_REG_FMEA_R, pInstance->spiRxBuffer, 1);
 
         if (retval == STD_OK) {
             pInstance->substate = MXM_41B_FMEA_VERIFY;
@@ -738,7 +735,7 @@ static void MXM_41BStateHandlerCheckFmea(MXM_41B_INSTANCE_s *pInstance) {
     } else if (pInstance->substate == MXM_41B_FMEA_VERIFY) {
         STD_RETURN_TYPE_e retval = STD_NOT_OK;
         if (MXM_GetSPIStateReady() == STD_OK) {
-            pInstance->regFmea = pInstance->spiRXBuffer[1u];
+            pInstance->regFmea = pInstance->spiRxBuffer[1u];
             if (pInstance->regFmea == 0u) {
                 retval = STD_OK;
             }
@@ -872,18 +869,18 @@ extern STD_RETURN_TYPE_e MXM_41BWriteRegisterFunction(
                 value, 4, MXM_41B_KEEP_ALIVE, pInstance->regConfig3); /* MXM_41B_KEEP_ALIVE is 0st bit of regConfig3 */
             break;
         case MXM_41B_REG_FUNCTION_RX_ERROR_INT:
-            pInstance->regRXIntEnable = mxm_41bWriteValue(
+            pInstance->regRxIntEnable = mxm_41bWriteValue(
                 value,
                 1,
                 MXM_41B_RX_ERROR,
-                pInstance->regRXIntEnable); /* MXM_41B_RX_ERROR is 7th bit of  regRXIntEnable */
+                pInstance->regRxIntEnable); /* MXM_41B_RX_ERROR is 7th bit of  regRxIntEnable */
             break;
         case MXM_41B_REG_FUNCTION_RX_OVERFLOW_INT:
-            pInstance->regRXIntEnable = mxm_41bWriteValue(
+            pInstance->regRxIntEnable = mxm_41bWriteValue(
                 value,
                 1,
                 MXM_41B_RX_OVERFLOW_INT_ENABLE,
-                pInstance->regRXIntEnable); /* MXM_41B_RX_OVERFLOW is 2nd bit of  regRXIntEnable */
+                pInstance->regRxIntEnable); /* MXM_41B_RX_OVERFLOW is 2nd bit of  regRxIntEnable */
             break;
         default:
             retval = STD_NOT_OK;
@@ -905,16 +902,16 @@ extern STD_RETURN_TYPE_e MXM_41BReadRegisterFunction(
 
     switch (registerFunction) {
         case MXM_41B_REG_FUNCTION_RX_BUSY_STATUS:
-            *pValue = mxm_41bReadValue(kpkInstance->regRXStatus, 1, MXM_41B_RX_BUSY_STATUS); /* 5th bit */
+            *pValue = mxm_41bReadValue(kpkInstance->regRxStatus, 1, MXM_41B_RX_BUSY_STATUS); /* 5th bit */
             break;
         case MXM_41B_REG_FUNCTION_RX_STOP_STATUS:
-            *pValue = mxm_41bReadValue(kpkInstance->regRXStatus, 1, MXM_41B_RX_STOP_STATUS); /* 1st bit */
+            *pValue = mxm_41bReadValue(kpkInstance->regRxStatus, 1, MXM_41B_RX_STOP_STATUS); /* 1st bit */
             break;
         case MXM_41B_REG_FUNCTION_RX_OVERFLOW_STATUS:
-            *pValue = mxm_41bReadValue(kpkInstance->regRXStatus, 1, MXM_41B_RX_OVERFLOW_STATUS); /* 3rd bit */
+            *pValue = mxm_41bReadValue(kpkInstance->regRxStatus, 1, MXM_41B_RX_OVERFLOW_STATUS); /* 3rd bit */
             break;
         case MXM_41B_REG_FUNCTION_RX_EMPTY_STATUS:
-            *pValue = mxm_41bReadValue(kpkInstance->regRXStatus, 1, MXM_41B_RX_EMPTY_STATUS); /* 0th bit */
+            *pValue = mxm_41bReadValue(kpkInstance->regRxStatus, 1, MXM_41B_RX_EMPTY_STATUS); /* 0th bit */
             break;
         case MXM_41B_REG_FUNCTION_TX_PREAMBLES:
             *pValue = mxm_41bReadValue(kpkInstance->regConfig2, 1, MXM_41B_TX_PREAMBLES); /* 5th bit */
@@ -979,27 +976,27 @@ extern void MXM_41BInitializeStateStruct(MXM_41B_INSTANCE_s *pInstance) {
 
     MXM_41BInitializeRegisterCopies(pInstance);
 
-    pInstance->state              = MXM_STATEMACH_41B_UNINITIALIZED;
-    pInstance->substate           = MXM_41B_ENTRY_SUBSTATE;
-    pInstance->pPayload           = NULL_PTR;
-    pInstance->payloadLength      = 0u;
-    pInstance->pRxBuffer          = NULL_PTR;
-    pInstance->rxBufferLength     = 0u;
-    pInstance->processed          = NULL_PTR;
-    pInstance->extendMessageBytes = 0u;
-    pInstance->waitCounter        = 0u;
-    pInstance->regRxSpace         = 0u;
-    pInstance->regFmea            = 0u;
-    pInstance->hwModel            = 0u;
-    pInstance->hwMaskRevision     = 0u;
-    pInstance->shutdownTimeStamp  = 0u;
+    pInstance->state                = MXM_STATEMACH_41B_UNINITIALIZED;
+    pInstance->substate             = MXM_41B_ENTRY_SUBSTATE;
+    pInstance->pPayload             = NULL_PTR;
+    pInstance->payloadLength        = 0u;
+    pInstance->pRxBuffer            = NULL_PTR;
+    pInstance->rxBufferLength       = 0u;
+    pInstance->processed            = NULL_PTR;
+    pInstance->extendMessageBytes   = 0u;
+    pInstance->waitCounter          = 0u;
+    pInstance->regRxSpace           = 0u;
+    pInstance->regFmea              = 0u;
+    pInstance->hardwareModel        = 0u;
+    pInstance->hardwareMaskRevision = 0u;
+    pInstance->shutdownTimeStamp    = 0u;
 
     for (uint32_t i = 0u; i < MXM_SPI_RX_BUFFER_LENGTH; i++) {
-        pInstance->spiRXBuffer[i] = 0u;
+        pInstance->spiRxBuffer[i] = 0u;
     }
 
     for (uint32_t i = 0u; i < MXM_SPI_TX_BUFFER_LENGTH; i++) {
-        pInstance->spiTXBuffer[i] = 0u;
+        pInstance->spiTxBuffer[i] = 0u;
     }
 }
 

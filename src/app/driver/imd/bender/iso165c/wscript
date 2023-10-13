@@ -48,7 +48,6 @@ import os
 def build(bld):
     """Builds the Bender iso165C and iso165C-1 monitoring device"""
     source = [
-        os.path.join("config", "bender_iso165c_cfg.c"),
         os.path.join("bender_iso165c.c"),
     ]
     includes = [

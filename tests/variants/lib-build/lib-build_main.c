@@ -43,8 +43,8 @@
  * @file    lib-build_main.c
  * @author  foxBMS Team
  * @date    2020-10-06 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup GENERAL
  * @prefix  TODO
  *
@@ -67,7 +67,7 @@
 #include "diag.h"
 #include "dma.h"
 #include "libproject-example.h"
-#include "masterinfo.h"
+#include "master_info.h"
 #include "meas.h"
 #include "os.h"
 #include "spi.h"

@@ -49,17 +49,11 @@ def build(bld):
         os.path.join("config", "ltc_6806_cfg.c"),
         os.path.join("ltc_6806.c"),
         os.path.join("..", "api", "ltc_afe.c"),
-        os.path.join("..", "common", "config", "ltc_afe_dma_cfg.c"),
         os.path.join("..", "common", "ltc_afe_dma.c"),
         os.path.join("..", "common", "ltc_pec.c"),
         os.path.join("..", "..", "api", "afe_plausibility.c"),
     ]
     includes = [
-        ".",
-        os.path.join("..", "..", "api"),
-        os.path.join("config"),
-        os.path.join("..", "common"),
-        os.path.join("..", "common", "config"),
         os.path.join("..", "..", "..", "config"),
         os.path.join("..", "..", "..", "dma"),
         os.path.join("..", "..", "..", "foxmath"),
@@ -76,6 +70,7 @@ def build(bld):
         os.path.join("..", "..", "..", "..", "main", "include"),
         os.path.join("..", "..", "..", "..", "task", "os"),
     ]
+    includes.extend(bld.env.INCLUDES_AFE)
     includes.extend(bld.env.INCLUDES_RTOS)
     cflags = bld.env.CFLAGS_FOXBMS
     target = f"{bld.env.APPNAME.lower()}-afe-driver"

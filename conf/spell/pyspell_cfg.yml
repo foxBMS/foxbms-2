@@ -1,0 +1,271 @@
+# Copyright (c) 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# All rights reserved.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#
+# 1. Redistributions of source code must retain the above copyright notice, this
+#    list of conditions and the following disclaimer.
+#
+# 2. Redistributions in binary form must reproduce the above copyright notice,
+#    this list of conditions and the following disclaimer in the documentation
+#    and/or other materials provided with the distribution.
+#
+# 3. Neither the name of the copyright holder nor the names of its
+#    contributors may be used to endorse or promote products derived from
+#    this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+# OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#
+# We kindly request you to use one or more of the following phrases to refer to
+# foxBMS in your hardware, software, documentation or advertising materials:
+#
+# - "This product uses parts of foxBMS®"
+# - "This product includes parts of foxBMS®"
+# - "This product is derived from foxBMS®"
+
+matrix:
+  - name: c
+    group: code
+    sources:
+      # third party is not checked and files with heavy usage of names from the
+      # data sheet (e.g., AFE drivers) are checked seperately to not pollute
+      # general dictionaries.
+      - ./**/*.c|!./src/os/freertos/**/*|!./src/os/safertos/**/*|!./src/app/driver/afe/adi/**/*|!./tests/unit/app/driver/afe/adi/**/*|!./src/app/driver/afe/maxim/**/*|!./src/app/driver/afe/ltc/**/*|!./tests/unit/app/driver/afe/ltc/**/*|!./tests/unit/app/driver/afe/maxim/**/*|!./tools/vendor/**/*|!./tests/axivion/qualification-test/**/*|!./tests/axivion/compiler-errata/**/*|!./src/app/driver/sbc/fs8x_driver/*
+      - ./**/*.h|!./src/os/freertos/**/*|!./src/os/safertos/**/*|!./src/app/driver/afe/adi/**/*|!./tests/unit/app/driver/afe/adi/**/*|!./src/app/driver/afe/maxim/**/*|!./src/app/driver/afe/ltc/**/*|!./tests/unit/app/driver/afe/ltc/**/*|!./tests/unit/app/driver/afe/maxim/**/*|!./tools/vendor/**/*|!./tests/axivion/qualification-test/**/*|!./tests/axivion/compiler-errata/**/*|!./src/app/driver/sbc/fs8x_driver/*|!./src/app/driver/afe/nxp/mc33775a/vendor/MC33775A.h|!./tests/axivion/axivion_preinc.h
+    pipeline:
+      - pyspelling.filters.context:
+          context_visible_first: true
+          delimiters:
+          - open: '0[xX][a-fA-F0-9]{2,8}' # hex numbers
+            close: '[u| |\)]?'
+          - open: 'kpk[A-Za-z0-9]*' # const pointer const
+            close: '[\(|\s]'
+    aspell:
+      lang: en
+      camel-case: 1
+    dictionary:
+      wordlists:
+        - ./conf/spell/dicts/lan_c.txt
+        - ./conf/spell/dicts/names.txt
+        - ./conf/spell/dicts/funs-and-vars.txt
+        - ./conf/spell/dicts/abbreviations.txt
+        - ./conf/spell/dicts/words.txt
+        - ./conf/spell/dicts/units.txt
+        - ./conf/spell/dicts/other.txt
+        - ./conf/spell/dicts/driver-ti.txt
+        - ./conf/spell/dicts/prefixes.txt
+        - ./conf/spell/dicts/freertos.txt
+  - name: c-adi
+    group: code
+    sources:
+      - ./src/app/driver/afe/adi/**/*.c
+      - ./src/app/driver/afe/adi/**/*.h
+      - ./tests/unit/app/driver/afe/adi/**/*.c
+      - ./tests/unit/app/driver/afe/adi/**/*.h
+    pipeline:
+      - pyspelling.filters.context:
+          context_visible_first: true
+          delimiters:
+          - open: '0[xX][a-fA-F0-9]{2,8}' # hex numbers
+            close: '[u| |\)]?'
+          - open: '(test_)?adi[_|-]ad[A-Za-z0-9_.-]*' # ADI files
+            close: '[:\s\)\"$"]'
+          - open: 'RunSm[A-Za-z0-9]*'
+            close: '[\(|\s]'
+          - open: 'kpk[A-Za-z0-9]*' # const pointer const
+            close: '[\(|\s]'
+    aspell:
+      lang: en
+      camel-case: 1
+    dictionary:
+      wordlists:
+        - ./conf/spell/dicts/lan_c.txt
+        - ./conf/spell/dicts/names.txt
+        - ./conf/spell/dicts/funs-and-vars.txt
+        - ./conf/spell/dicts/abbreviations.txt
+        - ./conf/spell/dicts/words.txt
+        - ./conf/spell/dicts/units.txt
+        - ./conf/spell/dicts/other.txt
+        - ./conf/spell/dicts/driver-adi.txt
+        - ./conf/spell/dicts/prefixes.txt
+        - ./conf/spell/dicts/freertos.txt
+  - name: c-maxim
+    group: code
+    sources:
+      - ./src/app/driver/afe/maxim/**/*.c
+      - ./src/app/driver/afe/maxim/**/*.h
+      - ./tests/unit/app/driver/afe/maxim/**/*.c
+      - ./tests/unit/app/driver/afe/maxim/**/*.h
+    pipeline:
+      - pyspelling.filters.context:
+          context_visible_first: true
+          delimiters:
+          - open: '0[xX][a-fA-F0-9]{2,8}' # hex numbers
+            close: '[u| |\)]?'
+          - open: '(test_)?adi[_|-]ad[A-Za-z0-9_.-]*' # ADI files
+            close: '[:\s\)\"$"]'
+          - open: 'RunSm[A-Za-z0-9]*'
+            close: '[\(|\s]'
+          - open: 'kpk[A-Za-z0-9]*' # const pointer const
+            close: '[\(|\s]'
+    aspell:
+      lang: en
+      camel-case: 1
+    dictionary:
+      wordlists:
+        - ./conf/spell/dicts/lan_c.txt
+        - ./conf/spell/dicts/names.txt
+        - ./conf/spell/dicts/funs-and-vars.txt
+        - ./conf/spell/dicts/abbreviations.txt
+        - ./conf/spell/dicts/words.txt
+        - ./conf/spell/dicts/units.txt
+        - ./conf/spell/dicts/other.txt
+        - ./conf/spell/dicts/driver-adi.txt
+        - ./conf/spell/dicts/prefixes.txt
+        - ./conf/spell/dicts/freertos.txt
+  - name: c-ltc
+    group: code
+    sources:
+      - ./src/app/driver/afe/ltc/**/*.c
+      - ./src/app/driver/afe/ltc/**/*.h
+      - ./tests/unit/app/driver/afe/ltc/**/*.c
+      - ./tests/unit/app/driver/afe/ltc/**/*.h
+    pipeline:
+      - pyspelling.filters.context:
+          context_visible_first: true
+          delimiters:
+          - open: '0[xX][a-fA-F0-9]{2,8}' # hex numbers
+            close: '[u| |\)]?'
+          - open: 'kpk[A-Za-z0-9]*' # const pointer const
+            close: '[\(|\s]'
+    aspell:
+      lang: en
+      camel-case: 1
+    dictionary:
+      wordlists:
+        - ./conf/spell/dicts/lan_c.txt
+        - ./conf/spell/dicts/names.txt
+        - ./conf/spell/dicts/funs-and-vars.txt
+        - ./conf/spell/dicts/abbreviations.txt
+        - ./conf/spell/dicts/words.txt
+        - ./conf/spell/dicts/units.txt
+        - ./conf/spell/dicts/other.txt
+        - ./conf/spell/dicts/driver-ltc.txt
+        - ./conf/spell/dicts/prefixes.txt
+        - ./conf/spell/dicts/freertos.txt
+  - name: py
+    group: code
+    sources:
+      - ./**/*.py|!./src/os/freertos/**/*|!./tools/vendor/**/*|!./tests/axivion/qualification-test/**/*|!./tests/axivion/compiler-errata/**/*|!./tools/gui/fgui/misc/logo.py|!./tests/env/packages/**/*|!./tests/scripts/waf-core/**/*
+      - ./**/wscript|!./src/os/freertos/**/*|!./tools/vendor/**/*|!./tests/axivion/qualification-test/**/*|!./tests/axivion/compiler-errata/**/*|!./tests/scripts/waf-core/**/*
+    pipeline:
+      - pyspelling.filters.url:
+      - pyspelling.filters.context:
+          context_visible_first: true
+          delimiters:
+          - open: '0[xX][a-fA-F0-9]{2,4}'
+            close: '[u| |\)]?'
+          - open: '(test_)?adi[_|-]ad[A-Za-z0-9_.-]*'
+            close: '[:\s\)\"$"]'
+    aspell:
+      lang: en
+      camel-case: 1
+    dictionary:
+      wordlists:
+        - ./conf/spell/dicts/lan_py.txt
+        - ./conf/spell/dicts/names.txt
+        - ./conf/spell/dicts/abbreviations.txt
+        - ./conf/spell/dicts/words.txt
+        - ./conf/spell/dicts/units.txt
+        - ./conf/spell/dicts/other.txt
+        - ./conf/spell/dicts/prefixes.txt
+  - name: docs
+    group: text
+    pipeline:
+      - pyspelling.filters.url:
+      - pyspelling.filters.context:
+          context_visible_first: true
+          delimiters:
+          - open: '0[xX][a-fA-F0-9]{2,4}'
+            close: '[u| |\)]?'
+          - open: '(test_)?adi[_|-]ad[A-Za-z0-9_.-]*'
+            close: '[:\s\)\"$"]'
+    sources:
+      - docs/**/*.rst
+    aspell:
+      lang: en
+      camel-case: 1
+    dictionary:
+      wordlists:
+        - ./conf/spell/dicts/docs.txt
+        - ./conf/spell/dicts/names.txt
+        - ./conf/spell/dicts/abbreviations.txt
+        - ./conf/spell/dicts/words.txt
+        - ./conf/spell/dicts/units.txt
+        - ./conf/spell/dicts/other.txt
+        - ./conf/spell/dicts/prefixes.txt
+        - ./conf/spell/dicts/freertos.txt
+  - name: readme
+    group: text
+    pipeline:
+      - pyspelling.filters.url:
+      - pyspelling.filters.context:
+          context_visible_first: true
+          delimiters:
+          - open: '0[xX][a-fA-F0-9]{2,4}'
+            close: '[u| |\)]?'
+          - open: '(test_)?adi[_|-]ad[A-Za-z0-9_.-]*'
+            close: '[:\s\)\"$"]'
+    sources:
+      - ./**/*.md|!./src/os/freertos/**/*|!./tools/vendor/**/*|!./tests/axivion/qualification-test/**/*|!./tests/axivion/compiler-errata/**/*
+    aspell:
+      lang: en
+      camel-case: 1
+    dictionary:
+      wordlists:
+        - ./conf/spell/dicts/docs.txt
+        - ./conf/spell/dicts/names.txt
+        - ./conf/spell/dicts/abbreviations.txt
+        - ./conf/spell/dicts/words.txt
+        - ./conf/spell/dicts/units.txt
+        - ./conf/spell/dicts/other.txt
+        - ./conf/spell/dicts/prefixes.txt
+        - ./conf/spell/dicts/freertos.txt
+  - name: txt
+    group: text
+    pipeline:
+      - pyspelling.filters.url:
+      - pyspelling.filters.context:
+          context_visible_first: true
+          delimiters:
+          - open: '0[xX][a-fA-F0-9]{2,4}'
+            close: '[u| |\)]?'
+          - open: '(test_)?adi[_|-]ad[A-Za-z0-9_.-]*'
+            close: '[:\s\)\"$"]'
+    sources:
+      - ./**/*.txt|!./src/os/freertos/**/*|!./tools/vendor/**/*|!./tests/axivion/qualification-test/**/*|!./tests/axivion/compiler-errata/**/*|!./conf/spell/dicts/*|!./docs/software/configuration/fstartup.c-check.txt|!./docs/macros.txt|!./docs/general/license-tables/license-packages-conda-env-spelling.txt
+    aspell:
+      lang: en
+      camel-case: 1
+    dictionary:
+      wordlists:
+        - ./conf/spell/dicts/docs.txt
+        - ./conf/spell/dicts/names.txt
+        - ./conf/spell/dicts/abbreviations.txt
+        - ./conf/spell/dicts/words.txt
+        - ./conf/spell/dicts/units.txt
+        - ./conf/spell/dicts/other.txt
+        - ./conf/spell/dicts/prefixes.txt
+        - ./conf/spell/dicts/freertos.txt

@@ -43,8 +43,8 @@
  * @file    state-machine.h
  * @author  foxBMS Team
  * @date    2020-10-29 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup STATE_MACHINE
  * @prefix  EG
  *
@@ -67,7 +67,7 @@ typedef enum {
     EG_FSM_STATE_HAS_NEVER_RUN,  /*!< never run state - always the second state */
     EG_FSM_STATE_UNINITIALIZED,  /*!< uninitialized state */
     EG_FSM_STATE_INITIALIZATION, /*!< initializing the state machine */
-    EG_FSM_STATE_RUNNING,        /*!< operational mode of the state machine  */
+    EG_FSM_STATE_RUNNING,        /*!< operational mode of the state machine */
     EG_FSM_STATE_ERROR,          /*!< state for error processing  */
 } EG_FSM_STATES_e;
 

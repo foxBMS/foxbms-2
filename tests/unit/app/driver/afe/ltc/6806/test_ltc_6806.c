@@ -43,12 +43,12 @@
  * @file    test_ltc_6806.c
  * @author  foxBMS Team
  * @date    2020-07-13 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
- * @brief   Test of the ltc.c module
+ * @brief   Test of the LTC LTC6806 driver
  *
  */
 
@@ -74,7 +74,21 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-TEST_FILE("ltc_6806.c")
+/*========== Unit Testing Framework Directives ==============================*/
+TEST_SOURCE_FILE("ltc_6806.c")
+
+TEST_INCLUDE_PATH("../../src/app/driver/afe/api")
+TEST_INCLUDE_PATH("../../src/app/driver/afe/ltc/6806/config")
+TEST_INCLUDE_PATH("../../src/app/driver/afe/ltc/common")
+TEST_INCLUDE_PATH("../../src/app/driver/afe/ltc/common")
+TEST_INCLUDE_PATH("../../src/app/driver/afe/ltc/common/config")
+TEST_INCLUDE_PATH("../../src/app/driver/config")
+TEST_INCLUDE_PATH("../../src/app/driver/config")
+TEST_INCLUDE_PATH("../../src/app/driver/dma")
+TEST_INCLUDE_PATH("../../src/app/driver/io")
+TEST_INCLUDE_PATH("../../src/app/driver/pex")
+TEST_INCLUDE_PATH("../../src/app/driver/spi")
+TEST_INCLUDE_PATH("../../src/app/engine/diag")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 
@@ -94,16 +108,6 @@ static spiDAT1_t spi_kLtcDataConfig[BS_NR_OF_STRINGS] = {
  * This is a list of structs because of multistring
  */
 SPI_INTERFACE_CONFIG_s spi_ltcInterface[BS_NR_OF_STRINGS] = {
-    {
-        .pConfig  = &spi_kLtcDataConfig[0u],
-        .pNode    = spiREG1,
-        .pGioPort = &(spiREG1->PC3),
-        .csPin    = 2u,
-        .csType   = SPI_CHIP_SELECT_HARDWARE,
-    },
-};
-
-SPI_INTERFACE_CONFIG_s spi_ltcInterfaceSecondary[BS_NR_OF_STRINGS] = {
     {
         .pConfig  = &spi_kLtcDataConfig[0u],
         .pNode    = spiREG1,

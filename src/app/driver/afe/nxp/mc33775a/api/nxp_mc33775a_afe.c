@@ -43,8 +43,8 @@
  * @file    nxp_mc33775a_afe.c
  * @author  foxBMS Team
  * @date    2020-05-08 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  N775
  *
@@ -76,7 +76,7 @@
 
 /*========== Extern Function Implementations ================================*/
 extern STD_RETURN_TYPE_e NXP_Measure(void) {
-    N775_Meas(&n775_stateBase);
+    N775_Measure(&n775_stateBase);
     return STD_OK;
 }
 
@@ -91,11 +91,6 @@ extern STD_RETURN_TYPE_e NXP_Initialize(void) {
 
 extern STD_RETURN_TYPE_e NXP_StartMeasurement(void) {
     STD_RETURN_TYPE_e retval = STD_NOT_OK;
-
-    /* if (N775_SetStateRequest(N775_STATE_INITIALIZATION_REQUEST) == N775_OK) {
-        retval = STD_OK;
-    } */
-
     return retval;
 }
 

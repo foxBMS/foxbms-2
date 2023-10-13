@@ -43,8 +43,8 @@
  * @file    test_soa_cfg.c
  * @author  foxBMS Team
  * @date    2020-04-01 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -61,6 +61,13 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+
+/*========== Unit Testing Framework Directives ==============================*/
+TEST_INCLUDE_PATH("../../src/app/application/bms")
+TEST_INCLUDE_PATH("../../src/app/driver/config")
+TEST_INCLUDE_PATH("../../src/app/driver/contactor")
+TEST_INCLUDE_PATH("../../src/app/driver/sps")
+TEST_INCLUDE_PATH("../../src/app/task/config")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 
@@ -126,8 +133,8 @@ void testSOA_IsCellCurrentLimitViolated(void) {
     TEST_ASSERT_EQUAL(false, SOA_IsCellCurrentLimitViolated(0u, BMS_RELAXATION));
     TEST_ASSERT_EQUAL(false, SOA_IsCellCurrentLimitViolated(0u, BMS_AT_REST));
 
-    uint32_t chargeLimit    = BS_NR_OF_PARALLEL_CELLS_PER_MODULE * BC_CURRENT_MAX_CHARGE_MSL_mA;
-    uint32_t dischargeLimit = BS_NR_OF_PARALLEL_CELLS_PER_MODULE * BC_CURRENT_MAX_DISCHARGE_MSL_mA;
+    uint32_t chargeLimit    = BS_NR_OF_PARALLEL_CELLS_PER_CELL_BLOCK * BC_CURRENT_MAX_CHARGE_MSL_mA;
+    uint32_t dischargeLimit = BS_NR_OF_PARALLEL_CELLS_PER_CELL_BLOCK * BC_CURRENT_MAX_DISCHARGE_MSL_mA;
 
     TEST_ASSERT_EQUAL(false, SOA_IsCellCurrentLimitViolated(chargeLimit, BMS_CHARGING));
     TEST_ASSERT_EQUAL(false, SOA_IsCellCurrentLimitViolated(dischargeLimit, BMS_DISCHARGING));

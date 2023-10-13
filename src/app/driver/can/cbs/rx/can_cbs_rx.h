@@ -43,8 +43,8 @@
  * @file    can_cbs_rx.h
  * @author  foxBMS Team
  * @date    2021-04-20 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup DRIVER
  * @prefix  CANRX
  *
@@ -122,6 +122,17 @@ extern uint32_t CANRX_Debug(
     CAN_MESSAGE_PROPERTIES_s message,
     const uint8_t *const kpkCanData,
     const CAN_SHIM_s *const kpkCanShim);
+
+/**
+ * @brief can rx callback function for aerosol sensor messages
+ * @param[in] message     contains the message ID, DLC and endianness
+ * @param[in] kpkCanData  payload of can frame
+ * @param[in] kpkCanShim  shim to the database entries
+ */
+extern uint32_t CANRX_AerosolSensor(
+    CAN_MESSAGE_PROPERTIES_s message,
+    const uint8_t *const kpkCanData,
+    const CAN_SHIM_s *const kpkCanShim);
 /**@}*/
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
@@ -140,6 +151,7 @@ extern void TEST_CANRX_TriggerMcuUniqueDieIdMessage(void);
 extern void TEST_CANRX_TriggerMcuLotNumberMessage(void);
 extern void TEST_CANRX_TriggerMcuWaferInformationMessage(void);
 extern void TEST_CANRX_TriggerTimeInfoMessage(void);
+extern void TEST_CANRX_TriggerCommitHashMessage(void);
 
 extern bool TEST_CANRX_CheckIfBmsSoftwareVersionIsRequested(uint64_t messageData, CAN_ENDIANNESS_e endianness);
 extern bool TEST_CANRX_CheckIfMcuUniqueDieIdIsRequested(uint64_t messageData, CAN_ENDIANNESS_e endianness);
@@ -148,12 +160,18 @@ extern bool TEST_CANRX_CheckIfMcuWaferInformationIsRequested(uint64_t messageDat
 extern bool TEST_CANRX_CheckIfSoftwareResetIsRequested(uint64_t messageData, CAN_ENDIANNESS_e endianness);
 extern bool TEST_CANRX_CheckIfFramInitializationIsRequested(uint64_t messageData, CAN_ENDIANNESS_e endianness);
 extern bool TEST_CANRX_CheckIfTimeInfoIsRequested(uint64_t messageData, CAN_ENDIANNESS_e endianness);
+extern bool TEST_CANRX_CheckIfCommitHashIsRequested(uint64_t messageData, CAN_ENDIANNESS_e endianness);
 
 extern void TEST_CANRX_ProcessVersionInformationMux(uint64_t messageData, CAN_ENDIANNESS_e endianness);
 extern void TEST_CANRX_ProcessRtcMux(uint64_t messageData, CAN_ENDIANNESS_e endianness);
 extern void TEST_CANRX_ProcessSoftwareResetMux(uint64_t messageData, CAN_ENDIANNESS_e endianness);
 extern void TEST_CANRX_ProcessFramInitializationMux(uint64_t messageData, CAN_ENDIANNESS_e endianness);
 extern void TEST_CANRX_ProcessTimeInfoMux(uint64_t messageData, CAN_ENDIANNESS_e endianness);
+
+extern void TEST_CANRX_HandleAerosolSensorErrors(const CAN_SHIM_s *const kpkCanShim, uint16_t signalData);
+extern void TEST_CANRX_HandleAerosolSensorStatus(const CAN_SHIM_s *const kpkCanShim, uint16_t signalData);
+extern void TEST_CANRX_SetParticulateMatterConcentration(const CAN_SHIM_s *const kpkCanShim, uint16_t signalData);
+extern void TEST_CANRX_SetAerosolSensorCrcCheckCode(const CAN_SHIM_s *const kpkCanShim, uint16_t signalData);
 #endif
 
 #endif /* FOXBMS__CAN_CBS_RX_H_ */

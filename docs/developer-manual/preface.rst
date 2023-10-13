@@ -20,7 +20,6 @@ This document is separated into a :ref:`general style-guide<STYLE_GUIDE>`, a
 :ref:`software developer manual<SOFTWARE_DEVELOPER_MANUAL>` and a
 :ref:`hardware developer manual<HARDWARE_DEVELOPER_MANUAL>`.
 
-
 Terminology
 -----------
 
@@ -32,7 +31,6 @@ and only when, they appear in all capitals and bold, as shown here.
 
 This terminology is used throughout all technical documents associated with
 |foxbms|.
-
 
 Version control
 ---------------

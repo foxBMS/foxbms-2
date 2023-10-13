@@ -43,8 +43,8 @@
  * @file    test_sys_mon.c
  * @author  foxBMS Team
  * @date    2020-04-02 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -66,6 +66,12 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+
+/*========== Unit Testing Framework Directives ==============================*/
+TEST_INCLUDE_PATH("../../src/app/driver/config")
+TEST_INCLUDE_PATH("../../src/app/driver/fram")
+TEST_INCLUDE_PATH("../../src/app/engine/diag")
+TEST_INCLUDE_PATH("../../src/app/engine/sys_mon")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 #define DUMMY_TASK_ID_0  (0)

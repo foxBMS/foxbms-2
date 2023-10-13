@@ -24,11 +24,10 @@ Generally, defines should be used as less as possible.
     :caption: Using #error directives
     :name: error-directive
 
-    #define NUMBER_OF_XYZ 3
-    #if (NUMBER_OF_XYZ > 2)
+    #define NUMBER_OF_ABC 3
+    #if (NUMBER_OF_ABC > 2)
     #error "Configurations with more than 2 XYZ are not supported"
     #endif
-
 
 The downside of using the error-directive is that the C-preprocessor runs
 before any compilation is done.
@@ -51,7 +50,6 @@ a variable is not zero.
     /* db_variable is defined in your code and should contain something */
     FAS_STATIC_ASSERT((db_variable != 0), "database may not be zero");
     /* This assertion will not compile if db_variable has size zero. */
-
 
 assertions
 ----------

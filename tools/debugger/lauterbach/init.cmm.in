@@ -10,6 +10,9 @@ GLOBAL &elf_file
 ; set default elf file relativ to this cmm-file
 &elf_file=OS.PPD()+"\@ELF_FILE@"
 
+; list of macros
+&macro_values = OS.PPD()+"\load_macro_values.cmm"
+
 ;set default search path to this cmm-file
 &elf_searchpath=OS.PPD()+"\@ELF_SEARCHPATH@"
 
@@ -36,7 +39,7 @@ cd &working_path
   Var.Frame /Locals /Caller
   WinPOS 50% 50% 50% 50%
   Var.Watch %E
-  Var.AddWatch fas_assertLocation os_timer ilck_state sys_state bms_state data_blockCellVoltage data_blockCellTemperature data_blockCurrentSensor data_blockErrors data_blockMsl data_blockRsl data_blockMol
+  Var.AddWatch os_timer ilck_state sys_state bms_state data_blockCellVoltage data_blockCellTemperature data_blockCurrentSensor data_blockErrors data_blockMsl data_blockRsl data_blockMol
 
 ;choose hex mode for input
 radix hex
@@ -267,6 +270,9 @@ SYStem.Up
 TASK.CONFIG ~~/demo/arm/kernel/freertos/freertos.t32
 MENU.ReProgram ~~/demo/arm/kernel/freertos/freertos.men
 HELP.FILTER.Add rtosfreertos
+Data.LOAD.Elf &elf_file /NOCODE
+IF OS.FILE(&macro_values)
+    do &macro_values
 
 PRINT "Initialization successful, foxBMS ready "
 ENDDO

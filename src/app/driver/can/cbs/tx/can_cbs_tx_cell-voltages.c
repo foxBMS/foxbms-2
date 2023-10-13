@@ -43,8 +43,8 @@
  * @file    can_cbs_tx_cell-voltages.c
  * @author  foxBMS Team
  * @date    2021-04-20 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup DRIVER
  * @prefix  CANTX
  *
@@ -115,17 +115,24 @@ static void CANTX_VoltageSetData(
     CAN_SIGNAL_TYPE_s cellVoltageInvalidFlagSignal,
     CAN_ENDIANNESS_e endianness,
     const CAN_SHIM_s *const kpkCanShim) {
+    /* AXIVION Routine Generic-MissingParameterAssert: muxId: parameter checked in calling function */
+    /* AXIVION Routine Generic-MissingParameterAssert: pMessage: passed parameter created from calling function */
+    /* AXIVION Routine Generic-MissingParameterAssert: cellVoltageSignal: Assertion done in CAN_TxPrepareSignalData */
+    /* AXIVION Routine Generic-MissingParameterAssert: cellVoltageInvalidFlagSignal: Assertion done by caller */
+    /* AXIVION Routine Generic-MissingParameterAssert: endianness: parameter checked in calling function */
+    /* AXIVION Routine Generic-MissingParameterAssert: kpkCanShim: parameter checked in calling function */
+
     /* cell index must not be greater than the number of cells */
     if (muxId < (BS_NR_OF_CELL_BLOCKS_PER_STRING * BS_NR_OF_STRINGS)) {
         /* Get string, module and cell number */
-        const uint8_t stringNumber = DATA_GetStringNumberFromVoltageIndex(muxId);
-        const uint8_t moduleNumber = DATA_GetModuleNumberFromVoltageIndex(muxId);
-        const uint8_t cellNumber   = DATA_GetCellNumberFromVoltageIndex(muxId);
+        const uint8_t stringNumber    = DATA_GetStringNumberFromVoltageIndex(muxId);
+        const uint8_t moduleNumber    = DATA_GetModuleNumberFromVoltageIndex(muxId);
+        const uint8_t cellBlockNumber = DATA_GetCellNumberFromVoltageIndex(muxId);
 
         uint32_t signalData_valid = 0u;
         /* Valid bits data */
-        if ((kpkCanShim->pTableCellVoltage->invalidCellVoltage[stringNumber][moduleNumber] & (0x01u << cellNumber)) ==
-            0u) {
+        if ((kpkCanShim->pTableCellVoltage->invalidCellVoltage[stringNumber][moduleNumber] &
+             (0x01u << cellBlockNumber)) == 0u) {
             signalData_valid = 0u;
         } else {
             signalData_valid = 1u;
@@ -140,9 +147,7 @@ static void CANTX_VoltageSetData(
 
         /*Voltage data */
         float_t signalData_mV =
-            (float_t)(kpkCanShim->pTableCellVoltage
-                          ->cellVoltage_mV[stringNumber]
-                                          [(moduleNumber * BS_NR_OF_CELL_BLOCKS_PER_MODULE) + cellNumber]);
+            (float_t)(kpkCanShim->pTableCellVoltage->cellVoltage_mV[stringNumber][moduleNumber][cellBlockNumber]);
         /* Apply offset and factor */
         CAN_TxPrepareSignalData(&signalData_mV, cellVoltageSignal);
         /* Set voltage data in CAN frame */
@@ -160,6 +165,7 @@ extern uint32_t CANTX_CellVoltages(
     FAS_ASSERT(message.id == CANTX_CELL_VOLTAGES_ID);
     FAS_ASSERT(message.idType == CANTX_CELL_VOLTAGES_ID_TYPE);
     FAS_ASSERT(message.dlc == CAN_FOXBMS_MESSAGES_DEFAULT_DLC);
+    FAS_ASSERT((message.endianness == CAN_LITTLE_ENDIAN) || (message.endianness == CAN_BIG_ENDIAN));
     FAS_ASSERT(pCanData != NULL_PTR);
     FAS_ASSERT(pMuxId != NULL_PTR);
     FAS_ASSERT(kpkCanShim != NULL_PTR);

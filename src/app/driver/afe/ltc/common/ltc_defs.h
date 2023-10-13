@@ -43,8 +43,8 @@
  * @file    ltc_defs.h
  * @author  foxBMS Team
  * @date    2015-09-01 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup DRIVERS
  * @prefix  LTC
  *
@@ -364,7 +364,7 @@ typedef enum {
     LTC_SAVE_MUX_MEASUREMENT_MUXMEASUREMENT,            /*!<    */
 } LTC_STATEMACH_MUXMEASUREMENT_SUB_e;
 
-/** State requests for the LTC statemachine */
+/** State requests for the LTC state machine */
 typedef enum {
     LTC_STATE_INIT_REQUEST,             /*!<    */
     LTC_STATE_USER_IO_WRITE_REQUEST,    /*!<    */
@@ -396,7 +396,7 @@ typedef enum {
 } LTC_STATE_REQUEST_e;
 
 /**
- * Possible return values when state requests are made to the LTC statemachine
+ * Possible return values when state requests are made to the LTC state machine
  */
 typedef enum {
     LTC_OK,                  /*!< LTC --> ok                             */

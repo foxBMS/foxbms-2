@@ -43,8 +43,8 @@
  * @file    can_cfg_tx.c
  * @author  foxBMS Team
  * @date    2019-12-04 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  CANTX
  *
@@ -100,7 +100,7 @@ const CAN_TX_MESSAGE_TYPE_s can_txMessages[] = {
 };
 
 /** length of CAN message arrays */
-const uint8_t can_txLength = sizeof(can_txMessages) / sizeof(can_txMessages[0]);
+const uint8_t can_txMessagesLength = sizeof(can_txMessages) / sizeof(can_txMessages[0]);
 
 /*========== Static Function Prototypes =====================================*/
 

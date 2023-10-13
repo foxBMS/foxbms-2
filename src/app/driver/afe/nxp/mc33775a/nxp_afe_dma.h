@@ -43,8 +43,8 @@
  * @file    nxp_afe_dma.h
  * @author  foxBMS Team
  * @date    2020-05-27 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup DRIVERS
  * @prefix  AFE
  *
@@ -74,29 +74,23 @@ extern g_dmaCTRL afe_n775DmaControlPacketRx;
 
 /**
  * @brief   gets the SPI transmit status.
- *
  * @return  retval  true if transmission still ongoing, false otherwise
- *
  */
 extern bool AFE_IsTxTransmitOngoing(void);
 
 /**
  * @brief   gets the SPI transmit status.
- *
  * @return  retval  true if transmission still ongoing, false otherwise
- *
  */
 extern bool AFE_IsRxTransmitOngoing(void);
 
 /**
  * @brief   sets the SPI transmit status.
- *
  */
 extern void AFE_SetTxTransmitOngoing(void);
 
 /**
  * @brief   sets the SPI transmit status.
- *
  */
 extern void AFE_SetRxTransmitOngoing(void);
 

@@ -53,8 +53,10 @@ import shlex
 import sys
 import tarfile
 import linecache
+import stat
 from binascii import hexlify
 import dataclasses
+from typing import Union
 
 import jsonschema
 from waflib import Build, Configure, Context, Errors, Logs, Options, Scripting, Utils
@@ -72,13 +74,13 @@ Configure.autoconfig = 1
 out = "build"  # pylint:disable=invalid-name
 """output directory"""
 top = "."  # pylint:disable=invalid-name
-"""waf top directory"""
+"""Waf top directory"""
 
 APPNAME = "foxBMS"
-"""name of the application. This is used in various waf functions"""
+"""name of the application. This is used in various Waf functions"""
 
-VERSION = "1.5.1"
-"""version of the application. This is used in various waf functions. This
+VERSION = "1.6.0"
+"""version of the application. This is used in various Waf functions. This
 version must match the version number defined in ``macros.txt``. Otherwise a
 configuration error is thrown."""
 
@@ -101,12 +103,13 @@ class FoxBMSDefine:
     """container for defines"""
 
     name: str
-    value: int = 0
+    value: Union[int, str, None] = 0
 
 
 AFE_SETUP = {
     "fsm": FoxBMSDefine("FOXBMS_AFE_DRIVER_TYPE_FSM", 0),
     "no-fsm": FoxBMSDefine("FOXBMS_AFE_DRIVER_TYPE_NO_FSM", 0),
+    "afe-ic": FoxBMSDefine("", None),
 }
 
 for target_type, target_val in ALL_VARIANTS.items():
@@ -143,13 +146,13 @@ for target_type, target_val in ALL_VARIANTS.items():
         contexts = old_contexts
 
 
-BLD_VARIANTS = []
-CLN_VARIANTS = []
+BUILD_VARIANTS = []
+CLEAN_VARIANTS = []
 # build and clean variants exist for all commands
 for target_type, target_val in ALL_VARIANTS.items():
     for var in target_val:
-        BLD_VARIANTS.append(f"build_{var}")
-        CLN_VARIANTS.append(f"clean_{var}")
+        BUILD_VARIANTS.append(f"build_{var}")
+        CLEAN_VARIANTS.append(f"clean_{var}")
 
 DIST_EXCLUDE = (
     f"{out}/** **/.git **/.gitignore .gitlab/** **/.gitattributes "
@@ -185,7 +188,8 @@ def version_consistency_checker(ctx):
         )
     repo_url = "https://github.com/foxBMS/foxbms-2"
     must_include_version = [
-        f"curl -Ss -L -o foxbms-2-v{VERSION}.zip {repo_url}/archive/v{VERSION}.zip",
+        f"curl --silent --show-error -L -o foxbms-2-v{VERSION}.zip "
+        f"{repo_url}/archive/v{VERSION}.zip",
         f"tar -x -f foxbms-2-v{VERSION}.zip",
         f"ren foxbms-2-{VERSION} foxbms-2",
     ]
@@ -336,6 +340,7 @@ def configure(conf):  # pylint: disable=too-many-statements,too-many-branches
     )
 
     def full_build(bld):
+        bld.env.APPNAME = "TEST_BUILD"
         c_fragment = "#include <stdint.h>\n\nint main() {\n    return 0;\n}\n"
         h_fragment = (
             "#ifndef GENERAL_H_\n#define GENERAL_H_\n#include <stdbool.h>\n"
@@ -449,15 +454,44 @@ def configure(conf):  # pylint: disable=too-many-statements,too-many-branches
     # vendor/ic includes and foxBMS specific driver adaptions
     afe_ic_inc = slave_afe["ic"]
     afe_driver_type = "fsm"
+    afe_ic_d = None
     if slave_afe["manufacturer"] == "ltc":
         if slave_afe["ic"] in ("6804-1", "6811-1", "6812-1"):
             afe_ic_inc = "6813-1"
+        if slave_afe["ic"] == "6804-1":
+            afe_ic_d = "LTC_LTC6804_1"
+        elif slave_afe["ic"] == "6806":
+            afe_ic_d = "LTC_LTC6806"
+        elif slave_afe["ic"] == "6811-1":
+            afe_ic_d = "LTC_LTC6811_1"
+        elif slave_afe["ic"] == "6812-1":
+            afe_ic_d = "LTC_LTC6812_1"
+        elif slave_afe["ic"] == "6813-1":
+            afe_ic_d = "LTC_LTC6813_1"
     elif slave_afe["manufacturer"] == "nxp":
+        afe_driver_type = "no-fsm"
         if slave_afe["ic"] == "mc33775a":
-            afe_driver_type = "no-fsm"
+            afe_ic_d = "NXP_MC33775A"
+    elif slave_afe["manufacturer"] == "adi":
+        afe_driver_type = "no-fsm"
+        if slave_afe["ic"] == "ades1830":
+            afe_ic_d = "ADI_ADES1830"
+    elif slave_afe["manufacturer"] == "debug":
+        if slave_afe["ic"] == "default":
+            afe_ic_d = "DEBUG_DEFAULT"
+    elif slave_afe["manufacturer"] == "maxim":
+        if slave_afe["ic"] == "max17852":
+            afe_ic_d = "MAX_MAX17852"
+    elif slave_afe["manufacturer"] == "ti":
+        if slave_afe["ic"] == "dummy":
+            afe_ic_d = "TI_DUMMY"
 
+    if not afe_ic_d:
+        conf.fatal("AFE IC specific define not set.")
     # set the driver type implementation accordingly
     AFE_SETUP[afe_driver_type].value = 1
+    AFE_SETUP["afe-ic"].name = "FOXBMS_AFE_DRIVER_" + afe_ic_d
+    AFE_SETUP["afe-ic"].value = 1
     for _, i in AFE_SETUP.items():
         conf.define(i.name, i.value)
 
@@ -550,7 +584,7 @@ def build(bld):  # pylint: disable=too-many-branches,too-many-statements
     if not bld.variant:
         bld.fatal(
             f"A {bld.cmd} variant must be specified. The build variants are: "
-            f"{', '.join(BLD_VARIANTS)}.\nFor more details run 'python "
+            f"{', '.join(BUILD_VARIANTS)}.\nFor more details run 'python "
             f"tools{os.sep}waf --help'"
         )
     # we need to patch the build instructions for the Axivion build, and by
@@ -625,7 +659,7 @@ def build(bld):  # pylint: disable=too-many-branches,too-many-statements
         bld(
             features="subst",
             source=source,
-            target=source.name,
+            target="project.yml",
             is_copy=True,
         )
         source = bld.path.find_node(bld.env.CEEDLING_CMD_FILE)
@@ -634,21 +668,25 @@ def build(bld):  # pylint: disable=too-many-branches,too-many-statements
             source=source,
             target=source.name,
             is_copy=True,
+            chmod=os.stat(source.abspath()).st_mode | stat.S_IEXEC,
         )
-        bld(
-            source=os.path.join("conf", "hcg", "hcg.hcg"),
-            unit_test=True,
-            startup_hash=bld.path.find_node(os.path.join("src", "hal", "startup.hash")),
-        )
+        if Utils.is_win32:
+            bld(
+                source=os.path.join("conf", "hcg", "hcg.hcg"),
+                unit_test=True,
+                startup_hash=bld.path.find_node(
+                    os.path.join("src", "hal", "startup.hash")
+                ),
+            )
+        else:
+            Logs.warn(
+                "HALCoGen not available. Assuming generated sources are available otherwise."
+            )
         bld.add_group()
         bld(features="ceedling")
 
     if bld.variant == "docs":
-        # General documentation build
-        # There are two contexts defined. The first one copies the ``wscript`` files
-        # to the build directory with a ``.py`` extension to make the build scripts
-        # autodoc-able.
-        # At next the jinja2 templates generate the specific template files for documentation.
+        # The jinja2 templates generate the specific template files for documentation.
         # At next doxygen is run, to ensure that doxygen's xml output is build.
         # After that the regular documentation can be build using sphinx-build, which
         # now includes the build documentation as well as the API documentation from
@@ -687,6 +725,7 @@ def build(bld):  # pylint: disable=too-many-branches,too-many-statements
             bld.path.find_node(os.path.join("src", "app", "driver", "afe", "ltc", "common", "ltc_pec.c")),
             bld.path.find_node(os.path.join("src", "app", "driver", "afe", "ltc", "common", "ltc_pec.h")),
             bld.path.find_node(os.path.join("src", "app", "driver", "afe", "nxp", "mc33775a","vendor")),
+            bld.path.find_node(os.path.join("tests", "unit", "build")),
         ]
         _html_footer = bld.path.find_node(os.path.join("docs", "doxygen_footer.html"))
         _layout_file = bld.path.find_node(os.path.join("docs", "doxygen_layout.xml"))
@@ -763,17 +802,42 @@ def build(bld):  # pylint: disable=too-many-branches,too-many-statements
             os.path.join(doc_dir, "developer-manual", "preface.rst"),
             os.path.join(doc_dir, "developer-manual", "public-release-process.rst"),
             os.path.join(doc_dir, "developer-manual", "software", "software-development-process.rst"),
+            os.path.join(doc_dir, "developer-manual", "software", "software-modifications.rst"),
             os.path.join(doc_dir, "developer-manual", "software", "software-programming-language.rst"),
             os.path.join(doc_dir, "developer-manual", "software", "software-testing.rst"),
             os.path.join(doc_dir, "developer-manual", "software", "software-tools.rst"),
             os.path.join(doc_dir, "developer-manual", "software", "software-verification.rst"),
             os.path.join(doc_dir, "developer-manual", "software-developer-manual.rst"),
+            os.path.join(doc_dir, "developer-manual", "style-guide", "guidelines_batch_shell.rst"),
             os.path.join(doc_dir, "developer-manual", "style-guide", "guidelines_c.rst"),
+            os.path.join(doc_dir, "developer-manual", "style-guide", "guidelines_general.rst"),
+            os.path.join(doc_dir, "developer-manual", "style-guide", "guidelines_overview.rst"),
+            os.path.join(doc_dir, "developer-manual", "style-guide", "guidelines_overview_c.csv"),
+            os.path.join(doc_dir, "developer-manual", "style-guide", "guidelines_overview_general.csv"),
+            os.path.join(doc_dir, "developer-manual", "style-guide", "guidelines_overview_python.csv"),
+            os.path.join(doc_dir, "developer-manual", "style-guide", "guidelines_overview_rst.csv"),
+            os.path.join(doc_dir, "developer-manual", "style-guide", "guidelines_overview_sh.csv"),
+            os.path.join(doc_dir, "developer-manual", "style-guide", "guidelines_overview_yaml.csv"),
             os.path.join(doc_dir, "developer-manual", "style-guide", "guidelines_python.rst"),
             os.path.join(doc_dir, "developer-manual", "style-guide", "guidelines_rst.rst"),
+            os.path.join(doc_dir, "developer-manual", "style-guide", "guidelines_yaml.rst"),
             os.path.join(doc_dir, "developer-manual", "style-guide", "state-machines_how-to.rst"),
             os.path.join(doc_dir, "developer-manual", "style-guide", "style-guide.rst"),
             os.path.join(doc_dir, "general", "changelog.rst"),
+            os.path.join(doc_dir, "general", "commit-msgs", "next-release.txt"),
+            os.path.join(doc_dir, "general", "commit-msgs", "release-v1.0.0.txt"),
+            os.path.join(doc_dir, "general", "commit-msgs", "release-v1.0.1.txt"),
+            os.path.join(doc_dir, "general", "commit-msgs", "release-v1.0.2.txt"),
+            os.path.join(doc_dir, "general", "commit-msgs", "release-v1.1.0.txt"),
+            os.path.join(doc_dir, "general", "commit-msgs", "release-v1.1.1.txt"),
+            os.path.join(doc_dir, "general", "commit-msgs", "release-v1.1.2.txt"),
+            os.path.join(doc_dir, "general", "commit-msgs", "release-v1.2.0.txt"),
+            os.path.join(doc_dir, "general", "commit-msgs", "release-v1.2.1.txt"),
+            os.path.join(doc_dir, "general", "commit-msgs", "release-v1.3.0.txt"),
+            os.path.join(doc_dir, "general", "commit-msgs", "release-v1.4.0.txt"),
+            os.path.join(doc_dir, "general", "commit-msgs", "release-v1.4.1.txt"),
+            os.path.join(doc_dir, "general", "commit-msgs", "release-v1.5.0.txt"),
+            os.path.join(doc_dir, "general", "commit-msgs", "release-v1.5.1.txt"),
             os.path.join(doc_dir, "general", "license.rst"),
             os.path.join(doc_dir, "general", "license-tables", "license-info_ceedling.csv"),
             os.path.join(doc_dir, "general", "license-tables", "license-info_freertos.csv"),
@@ -789,8 +853,8 @@ def build(bld):  # pylint: disable=too-many-branches,too-many-statements
             os.path.join(doc_dir, "general", "license-tables", "license-info_vs-code_extensions.csv"),
             os.path.join(doc_dir, "general", "license-tables", "license-info_waf-binary.csv"),
             os.path.join(doc_dir, "general", "license-tables", "license-info_waf-unit-tests.csv"),
-            os.path.join(doc_dir, "general", "license-tables", "license-packages-conda-env-spelling-build-strings.txt"),
             os.path.join(doc_dir, "general", "license-tables", "license-packages-conda-env-spelling.txt"),
+            os.path.join(doc_dir, "general", "license-tables", "license-packages-conda-env-spelling-build-strings.txt"),
             os.path.join(doc_dir, "general", "motivation.rst"),
             os.path.join(doc_dir, "general", "releases.csv"),
             os.path.join(doc_dir, "general", "releases.rst"),
@@ -801,30 +865,148 @@ def build(bld):  # pylint: disable=too-many-branches,too-many-statements
             os.path.join(doc_dir, "general", "team-former.rst"),
             os.path.join(doc_dir, "getting-started", "first-steps-on-hardware.rst"),
             os.path.join(doc_dir, "getting-started", "getting-started.rst"),
+            os.path.join(doc_dir, "getting-started", "llvm-installation", "llvm-installation.rst"),
+            os.path.join(doc_dir, "getting-started", "mingw64-installation", "mingw64-installation.rst"),
+            os.path.join(doc_dir, "getting-started", "miniconda-installation", "conda-configuration.rst"),
+            os.path.join(doc_dir, "getting-started", "miniconda-installation", "miniconda-installation.rst"),
             os.path.join(doc_dir, "getting-started", "repository-structure.rst"),
+            os.path.join(doc_dir, "getting-started", "ruby-installation", "ruby-installation.rst"),
             os.path.join(doc_dir, "getting-started", "software-installation.rst"),
             os.path.join(doc_dir, "getting-started", "workspace.rst"),
             os.path.join(doc_dir, "hardware", "connectors.rst"),
             os.path.join(doc_dir, "hardware", "design-resources.rst"),
             os.path.join(doc_dir, "hardware", "hardware.rst"),
-            os.path.join(doc_dir, "hardware", "interfaces","maxim-max17841b-vx.x.x", "maxim-max17841b-v1.0.0.rst"),
+            os.path.join(doc_dir, "hardware", "interfaces", "ltc-ltc6820-vx.x.x", "ltc-ltc6820-changelog.rst"),
+            os.path.join(doc_dir, "hardware", "interfaces", "ltc-ltc6820-vx.x.x", "ltc-ltc6820-v1.0.3", "ltc-ltc6820-v1.0.3_isospi_connectors.csv"),
+            os.path.join(doc_dir, "hardware", "interfaces", "ltc-ltc6820-vx.x.x", "ltc-ltc6820-v1.0.3", "ltc-ltc6820-v1.0.3_master_connector.csv"),
+            os.path.join(doc_dir, "hardware", "interfaces", "ltc-ltc6820-vx.x.x", "ltc-ltc6820-v1.0.3.rst"),
+            os.path.join(doc_dir, "hardware", "interfaces", "maxim-max17841b-vx.x.x", "maxim-max17841b-changelog.rst"),
+            os.path.join(doc_dir, "hardware", "interfaces", "maxim-max17841b-vx.x.x", "maxim-max17841b-v1.0.0", "maxim-max17841b-v1.0.0_debug_connector.csv"),
+            os.path.join(doc_dir, "hardware", "interfaces", "maxim-max17841b-vx.x.x", "maxim-max17841b-v1.0.0", "maxim-max17841b-v1.0.0_master_connector.csv"),
+            os.path.join(doc_dir, "hardware", "interfaces", "maxim-max17841b-vx.x.x", "maxim-max17841b-v1.0.0", "maxim-max17841b-v1.0.0_uartrx_connectors.csv"),
+            os.path.join(doc_dir, "hardware", "interfaces", "maxim-max17841b-vx.x.x", "maxim-max17841b-v1.0.0", "maxim-max17841b-v1.0.0_uarttx_connectors.csv"),
+            os.path.join(doc_dir, "hardware", "interfaces", "maxim-max17841b-vx.x.x", "maxim-max17841b-v1.0.0.rst"),
+            os.path.join(doc_dir, "hardware", "interfaces", "nxp-mc33664-vx.x.x", "nxp-mc33664-changelog.rst"),
+            os.path.join(doc_dir, "hardware", "interfaces", "nxp-mc33664-vx.x.x", "nxp-mc33664-v1.0.2.rst"),
+            os.path.join(doc_dir, "hardware", "interfaces.rst"),
+            os.path.join(doc_dir, "hardware", "master", "ti-tms570lc4357-vx.x.x", "ti-tms570lc4357-changelog.rst"),
+            os.path.join(doc_dir, "hardware", "master", "ti-tms570lc4357-vx.x.x", "ti-tms570lc4357-v1.1.1", "pinout", "ti-tms570lc4357-v1.1.1_can1.csv"),
+            os.path.join(doc_dir, "hardware", "master", "ti-tms570lc4357-vx.x.x", "ti-tms570lc4357-v1.1.1", "pinout", "ti-tms570lc4357-v1.1.1_can2.csv"),
+            os.path.join(doc_dir, "hardware", "master", "ti-tms570lc4357-vx.x.x", "ti-tms570lc4357-v1.1.1", "pinout", "ti-tms570lc4357-v1.1.1_debug.csv"),
+            os.path.join(doc_dir, "hardware", "master", "ti-tms570lc4357-vx.x.x", "ti-tms570lc4357-v1.1.1", "pinout", "ti-tms570lc4357-v1.1.1_ethernet.csv"),
+            os.path.join(doc_dir, "hardware", "master", "ti-tms570lc4357-vx.x.x", "ti-tms570lc4357-v1.1.1", "pinout", "ti-tms570lc4357-v1.1.1_extension.csv"),
+            os.path.join(doc_dir, "hardware", "master", "ti-tms570lc4357-vx.x.x", "ti-tms570lc4357-v1.1.1", "pinout", "ti-tms570lc4357-v1.1.1_interface.csv"),
+            os.path.join(doc_dir, "hardware", "master", "ti-tms570lc4357-vx.x.x", "ti-tms570lc4357-v1.1.1", "pinout", "ti-tms570lc4357-v1.1.1_interlock.csv"),
+            os.path.join(doc_dir, "hardware", "master", "ti-tms570lc4357-vx.x.x", "ti-tms570lc4357-v1.1.1", "pinout", "ti-tms570lc4357-v1.1.1_isomon.csv"),
+            os.path.join(doc_dir, "hardware", "master", "ti-tms570lc4357-vx.x.x", "ti-tms570lc4357-v1.1.1", "pinout", "ti-tms570lc4357-v1.1.1_rs485.csv"),
+            os.path.join(doc_dir, "hardware", "master", "ti-tms570lc4357-vx.x.x", "ti-tms570lc4357-v1.1.1", "pinout", "ti-tms570lc4357-v1.1.1_sps.csv"),
+            os.path.join(doc_dir, "hardware", "master", "ti-tms570lc4357-vx.x.x", "ti-tms570lc4357-v1.1.1", "pinout", "ti-tms570lc4357-v1.1.1_supply_ext.csv"),
+            os.path.join(doc_dir, "hardware", "master", "ti-tms570lc4357-vx.x.x", "ti-tms570lc4357-v1.1.1", "ti-tms570lc4357-v1.1.1_block_diagram.rst"),
+            os.path.join(doc_dir, "hardware", "master", "ti-tms570lc4357-vx.x.x", "ti-tms570lc4357-v1.1.1", "ti-tms570lc4357-v1.1.1_functional_description.rst"),
+            os.path.join(doc_dir, "hardware", "master", "ti-tms570lc4357-vx.x.x", "ti-tms570lc4357-v1.1.1", "ti-tms570lc4357-v1.1.1_pinout.rst"),
+            os.path.join(doc_dir, "hardware", "master", "ti-tms570lc4357-vx.x.x", "ti-tms570lc4357-v1.1.1.rst"),
+            os.path.join(doc_dir, "hardware", "master", "ti-tms570lc4357-vx.x.x", "ti-tms570lc4357-v1.1.3.rst"),
+            os.path.join(doc_dir, "hardware", "master", "ti-tms570lc4357-vx.x.x", "ti-tms570lc4357-v1.1.5.rst"),
+            os.path.join(doc_dir, "hardware", "master.rst"),
+            os.path.join(doc_dir, "hardware", "slaves", "12-ltc-ltc6804-1-vx.x.x", "12-ltc-ltc6804-1-v1.x.x", "12-ltc-ltc6804-1-v1.x.x_cell_temperature_connector.csv"),
+            os.path.join(doc_dir, "hardware", "slaves", "12-ltc-ltc6804-1-vx.x.x", "12-ltc-ltc6804-1-v1.x.x", "12-ltc-ltc6804-1-v1.x.x_cell_voltage_connector.csv"),
+            os.path.join(doc_dir, "hardware", "slaves", "12-ltc-ltc6804-1-vx.x.x", "12-ltc-ltc6804-1-v1.x.x", "12-ltc-ltc6804-1-v1.x.x_master_daisy_connector.csv"),
+            os.path.join(doc_dir, "hardware", "slaves", "12-ltc-ltc6804-1-vx.x.x", "12-ltc-ltc6804-1-v1.x.x", "12-ltc-ltc6804-1-v1.x.x_primary_daisy_connector.csv"),
+            os.path.join(doc_dir, "hardware", "slaves", "12-ltc-ltc6804-1-vx.x.x", "12-ltc-ltc6804-1-v1.x.x.rst"),
+            os.path.join(doc_dir, "hardware", "slaves", "12-ltc-ltc6811-1-vx.x.x", "12-ltc-ltc6811-1-changelog.rst"),
+            os.path.join(doc_dir, "hardware", "slaves", "12-ltc-ltc6811-1-vx.x.x", "12-ltc-ltc6811-1-v2.0.3", "12-ltc-ltc6811-1-v2.0.3_analog-inputs-connector.csv"),
+            os.path.join(doc_dir, "hardware", "slaves", "12-ltc-ltc6811-1-vx.x.x", "12-ltc-ltc6811-1-v2.0.3", "12-ltc-ltc6811-1-v2.0.3_cell-voltage-sense-connector.csv"),
+            os.path.join(doc_dir, "hardware", "slaves", "12-ltc-ltc6811-1-vx.x.x", "12-ltc-ltc6811-1-v2.0.3", "12-ltc-ltc6811-1-v2.0.3_daisy-input-connectors.csv"),
+            os.path.join(doc_dir, "hardware", "slaves", "12-ltc-ltc6811-1-vx.x.x", "12-ltc-ltc6811-1-v2.0.3", "12-ltc-ltc6811-1-v2.0.3_daisy-output-connectors.csv"),
+            os.path.join(doc_dir, "hardware", "slaves", "12-ltc-ltc6811-1-vx.x.x", "12-ltc-ltc6811-1-v2.0.3", "12-ltc-ltc6811-1-v2.0.3_digital-io-connector.csv"),
+            os.path.join(doc_dir, "hardware", "slaves", "12-ltc-ltc6811-1-vx.x.x", "12-ltc-ltc6811-1-v2.0.3", "12-ltc-ltc6811-1-v2.0.3_electrical-ratings.csv"),
+            os.path.join(doc_dir, "hardware", "slaves", "12-ltc-ltc6811-1-vx.x.x", "12-ltc-ltc6811-1-v2.0.3", "12-ltc-ltc6811-1-v2.0.3_extension-connector.csv"),
+            os.path.join(doc_dir, "hardware", "slaves", "12-ltc-ltc6811-1-vx.x.x", "12-ltc-ltc6811-1-v2.0.3", "12-ltc-ltc6811-1-v2.0.3_external-dc-supply-connector.csv"),
+            os.path.join(doc_dir, "hardware", "slaves", "12-ltc-ltc6811-1-vx.x.x", "12-ltc-ltc6811-1-v2.0.3", "12-ltc-ltc6811-1-v2.0.3_gpio-extension-connector.csv"),
+            os.path.join(doc_dir, "hardware", "slaves", "12-ltc-ltc6811-1-vx.x.x", "12-ltc-ltc6811-1-v2.0.3", "12-ltc-ltc6811-1-v2.0.3_mechanical-dimensions.csv"),
+            os.path.join(doc_dir, "hardware", "slaves", "12-ltc-ltc6811-1-vx.x.x", "12-ltc-ltc6811-1-v2.0.3", "12-ltc-ltc6811-1-v2.0.3_temperature-sensor-connector.csv"),
+            os.path.join(doc_dir, "hardware", "slaves", "12-ltc-ltc6811-1-vx.x.x", "12-ltc-ltc6811-1-v2.0.3.rst"),
+            os.path.join(doc_dir, "hardware", "slaves", "12-ltc-ltc6811-1-vx.x.x", "12-ltc-ltc6811-1-v2.1.2", "12-ltc-ltc6811-1-v2.1.2_analog-inputs-connector.csv"),
+            os.path.join(doc_dir, "hardware", "slaves", "12-ltc-ltc6811-1-vx.x.x", "12-ltc-ltc6811-1-v2.1.2", "12-ltc-ltc6811-1-v2.1.2_cell-voltage-sense-connector.csv"),
+            os.path.join(doc_dir, "hardware", "slaves", "12-ltc-ltc6811-1-vx.x.x", "12-ltc-ltc6811-1-v2.1.2", "12-ltc-ltc6811-1-v2.1.2_daisy-input-connectors.csv"),
+            os.path.join(doc_dir, "hardware", "slaves", "12-ltc-ltc6811-1-vx.x.x", "12-ltc-ltc6811-1-v2.1.2", "12-ltc-ltc6811-1-v2.1.2_daisy-output-connectors.csv"),
+            os.path.join(doc_dir, "hardware", "slaves", "12-ltc-ltc6811-1-vx.x.x", "12-ltc-ltc6811-1-v2.1.2", "12-ltc-ltc6811-1-v2.1.2_digital-io-connector.csv"),
+            os.path.join(doc_dir, "hardware", "slaves", "12-ltc-ltc6811-1-vx.x.x", "12-ltc-ltc6811-1-v2.1.2", "12-ltc-ltc6811-1-v2.1.2_electrical-ratings.csv"),
+            os.path.join(doc_dir, "hardware", "slaves", "12-ltc-ltc6811-1-vx.x.x", "12-ltc-ltc6811-1-v2.1.2", "12-ltc-ltc6811-1-v2.1.2_extension-connector.csv"),
+            os.path.join(doc_dir, "hardware", "slaves", "12-ltc-ltc6811-1-vx.x.x", "12-ltc-ltc6811-1-v2.1.2", "12-ltc-ltc6811-1-v2.1.2_external-dc-supply-connector.csv"),
+            os.path.join(doc_dir, "hardware", "slaves", "12-ltc-ltc6811-1-vx.x.x", "12-ltc-ltc6811-1-v2.1.2", "12-ltc-ltc6811-1-v2.1.2_gpio-extension-connector.csv"),
+            os.path.join(doc_dir, "hardware", "slaves", "12-ltc-ltc6811-1-vx.x.x", "12-ltc-ltc6811-1-v2.1.2", "12-ltc-ltc6811-1-v2.1.2_mechanical-dimensions.csv"),
+            os.path.join(doc_dir, "hardware", "slaves", "12-ltc-ltc6811-1-vx.x.x", "12-ltc-ltc6811-1-v2.1.2", "12-ltc-ltc6811-1-v2.1.2_temperature-sensor-connector.csv"),
+            os.path.join(doc_dir, "hardware", "slaves", "12-ltc-ltc6811-1-vx.x.x", "12-ltc-ltc6811-1-v2.1.2.rst"),
+            os.path.join(doc_dir, "hardware", "slaves", "12-ltc-ltc6811-1-vx.x.x", "12-ltc-ltc6811-1-v2.1.6", "12-ltc-ltc6811-1-v2.1.6_analog-inputs-connector.csv"),
+            os.path.join(doc_dir, "hardware", "slaves", "12-ltc-ltc6811-1-vx.x.x", "12-ltc-ltc6811-1-v2.1.6", "12-ltc-ltc6811-1-v2.1.6_cell-voltage-sense-connector.csv"),
+            os.path.join(doc_dir, "hardware", "slaves", "12-ltc-ltc6811-1-vx.x.x", "12-ltc-ltc6811-1-v2.1.6", "12-ltc-ltc6811-1-v2.1.6_daisy-input-connectors.csv"),
+            os.path.join(doc_dir, "hardware", "slaves", "12-ltc-ltc6811-1-vx.x.x", "12-ltc-ltc6811-1-v2.1.6", "12-ltc-ltc6811-1-v2.1.6_daisy-output-connectors.csv"),
+            os.path.join(doc_dir, "hardware", "slaves", "12-ltc-ltc6811-1-vx.x.x", "12-ltc-ltc6811-1-v2.1.6", "12-ltc-ltc6811-1-v2.1.6_digital-io-connector.csv"),
+            os.path.join(doc_dir, "hardware", "slaves", "12-ltc-ltc6811-1-vx.x.x", "12-ltc-ltc6811-1-v2.1.6", "12-ltc-ltc6811-1-v2.1.6_electrical-ratings.csv"),
+            os.path.join(doc_dir, "hardware", "slaves", "12-ltc-ltc6811-1-vx.x.x", "12-ltc-ltc6811-1-v2.1.6", "12-ltc-ltc6811-1-v2.1.6_extension-connector.csv"),
+            os.path.join(doc_dir, "hardware", "slaves", "12-ltc-ltc6811-1-vx.x.x", "12-ltc-ltc6811-1-v2.1.6", "12-ltc-ltc6811-1-v2.1.6_external-dc-supply-connector.csv"),
+            os.path.join(doc_dir, "hardware", "slaves", "12-ltc-ltc6811-1-vx.x.x", "12-ltc-ltc6811-1-v2.1.6", "12-ltc-ltc6811-1-v2.1.6_gpio-extension-connector.csv"),
+            os.path.join(doc_dir, "hardware", "slaves", "12-ltc-ltc6811-1-vx.x.x", "12-ltc-ltc6811-1-v2.1.6", "12-ltc-ltc6811-1-v2.1.6_mechanical-dimensions.csv"),
+            os.path.join(doc_dir, "hardware", "slaves", "12-ltc-ltc6811-1-vx.x.x", "12-ltc-ltc6811-1-v2.1.6", "12-ltc-ltc6811-1-v2.1.6_temperature-sensor-connector.csv"),
+            os.path.join(doc_dir, "hardware", "slaves", "12-ltc-ltc6811-1-vx.x.x", "12-ltc-ltc6811-1-v2.1.6.rst"),
+            os.path.join(doc_dir, "hardware", "slaves", "14-nxp-mc33775a-vx.x.x", "14-nxp-mc33775a-changelog.rst"),
+            os.path.join(doc_dir, "hardware", "slaves", "14-nxp-mc33775a-vx.x.x", "14-nxp-mc33775a-v1.0.0", "14-nxp-mc33775a-v1.0.0_mechanical-dimensions.csv"),
+            os.path.join(doc_dir, "hardware", "slaves", "14-nxp-mc33775a-vx.x.x", "14-nxp-mc33775a-v1.0.0.rst"),
+            os.path.join(doc_dir, "hardware", "slaves", "16-adi-ades1830-vx.x.x", "16-adi-ades1830-changelog.rst"),
+            os.path.join(doc_dir, "hardware", "slaves", "16-adi-ades1830-vx.x.x", "16-adi-ades1830-v0.9.0", "16-adi-ades1830-v0.9.0_cell_voltage-sense-connector.csv"),
+            os.path.join(doc_dir, "hardware", "slaves", "16-adi-ades1830-vx.x.x", "16-adi-ades1830-v0.9.0", "16-adi-ades1830-v0.9.0_daisy-input-connectors.csv"),
+            os.path.join(doc_dir, "hardware", "slaves", "16-adi-ades1830-vx.x.x", "16-adi-ades1830-v0.9.0", "16-adi-ades1830-v0.9.0_daisy-output-connectors.csv"),
+            os.path.join(doc_dir, "hardware", "slaves", "16-adi-ades1830-vx.x.x", "16-adi-ades1830-v0.9.0", "16-adi-ades1830-v0.9.0_electrical-ratings.csv"),
+            os.path.join(doc_dir, "hardware", "slaves", "16-adi-ades1830-vx.x.x", "16-adi-ades1830-v0.9.0", "16-adi-ades1830-v0.9.0_mechanical-dimensions.csv"),
+            os.path.join(doc_dir, "hardware", "slaves", "16-adi-ades1830-vx.x.x", "16-adi-ades1830-v0.9.0", "16-adi-ades1830-v0.9.0_temperature-sensor-connector.csv"),
+            os.path.join(doc_dir, "hardware", "slaves", "16-adi-ades1830-vx.x.x", "16-adi-ades1830-v0.9.0.rst"),
+            os.path.join(doc_dir, "hardware", "slaves", "18-ltc-ltc6813-1-vx.x.x", "18-ltc-ltc6813-1-changelog.rst"),
+            os.path.join(doc_dir, "hardware", "slaves", "18-ltc-ltc6813-1-vx.x.x", "18-ltc-ltc6813-1-v1.1.3", "18-ltc-ltc6813-1-v1.1.3_analog-inputs-connector.csv"),
+            os.path.join(doc_dir, "hardware", "slaves", "18-ltc-ltc6813-1-vx.x.x", "18-ltc-ltc6813-1-v1.1.3", "18-ltc-ltc6813-1-v1.1.3_cell_voltage-sense-connector.csv"),
+            os.path.join(doc_dir, "hardware", "slaves", "18-ltc-ltc6813-1-vx.x.x", "18-ltc-ltc6813-1-v1.1.3", "18-ltc-ltc6813-1-v1.1.3_daisy-input-connectors.csv"),
+            os.path.join(doc_dir, "hardware", "slaves", "18-ltc-ltc6813-1-vx.x.x", "18-ltc-ltc6813-1-v1.1.3", "18-ltc-ltc6813-1-v1.1.3_daisy-output-connectors.csv"),
+            os.path.join(doc_dir, "hardware", "slaves", "18-ltc-ltc6813-1-vx.x.x", "18-ltc-ltc6813-1-v1.1.3", "18-ltc-ltc6813-1-v1.1.3_digital-io-connector.csv"),
+            os.path.join(doc_dir, "hardware", "slaves", "18-ltc-ltc6813-1-vx.x.x", "18-ltc-ltc6813-1-v1.1.3", "18-ltc-ltc6813-1-v1.1.3_electrical-ratings.csv"),
+            os.path.join(doc_dir, "hardware", "slaves", "18-ltc-ltc6813-1-vx.x.x", "18-ltc-ltc6813-1-v1.1.3", "18-ltc-ltc6813-1-v1.1.3_extension-connector.csv"),
+            os.path.join(doc_dir, "hardware", "slaves", "18-ltc-ltc6813-1-vx.x.x", "18-ltc-ltc6813-1-v1.1.3", "18-ltc-ltc6813-1-v1.1.3_extension-connector_2.csv"),
+            os.path.join(doc_dir, "hardware", "slaves", "18-ltc-ltc6813-1-vx.x.x", "18-ltc-ltc6813-1-v1.1.3", "18-ltc-ltc6813-1-v1.1.3_external-dc-supply-connector.csv"),
+            os.path.join(doc_dir, "hardware", "slaves", "18-ltc-ltc6813-1-vx.x.x", "18-ltc-ltc6813-1-v1.1.3", "18-ltc-ltc6813-1-v1.1.3_gpio-extension-connector.csv"),
+            os.path.join(doc_dir, "hardware", "slaves", "18-ltc-ltc6813-1-vx.x.x", "18-ltc-ltc6813-1-v1.1.3", "18-ltc-ltc6813-1-v1.1.3_mechanical-dimensions.csv"),
+            os.path.join(doc_dir, "hardware", "slaves", "18-ltc-ltc6813-1-vx.x.x", "18-ltc-ltc6813-1-v1.1.3", "18-ltc-ltc6813-1-v1.1.3_temperature-sensor-connector.csv"),
+            os.path.join(doc_dir, "hardware", "slaves", "18-ltc-ltc6813-1-vx.x.x", "18-ltc-ltc6813-1-v1.1.3.rst"),
+            os.path.join(doc_dir, "hardware", "slaves", "18-ltc-ltc6813-1-vx.x.x", "18-ltc-ltc6813-1-v1.1.4.rst"),
+            os.path.join(doc_dir, "hardware", "slaves", "18-ltc-ltc6813-1-vx.x.x", "18-ltc-ltc6813-1-v1.1.5.rst"),
+            os.path.join(doc_dir, "hardware", "slaves.rst"),
             os.path.join(doc_dir, "index.rst"),
             os.path.join(doc_dir, "introduction", "abbreviations-definitions.rst"),
             os.path.join(doc_dir, "introduction", "bms-overview.rst"),
+            os.path.join(doc_dir, "introduction", "naming-conventions.rst"),
+            os.path.join(doc_dir, "introduction", "use-case.rst"),
             os.path.join(doc_dir, "macros.txt"),
+            os.path.join(doc_dir, "misc", "acknowledgements.rst"),
             os.path.join(doc_dir, "misc", "bibliography.rst"),
             os.path.join(doc_dir, "misc", "definitions.csv"),
             os.path.join(doc_dir, "misc", "developer-manual-nomenclature.csv"),
             os.path.join(doc_dir, "misc", "indices-and-tables.rst"),
             os.path.join(doc_dir, "software", "api", "overview.rst"),
+            os.path.join(doc_dir, "software", "architecture", "architecture.rst"),
             os.path.join(doc_dir, "software", "build", "build.rst"),
+            os.path.join(doc_dir, "software", "build", "waf-available-commands.csv"),
             os.path.join(doc_dir, "software", "build-environment", "build-environment.rst"),
             os.path.join(doc_dir, "software", "build-environment", "build-environment_how-to.rst"),
             os.path.join(doc_dir, "software", "build-process", "build-process.rst"),
             os.path.join(doc_dir, "software", "build-process", "library-project_how-to.rst"),
+            os.path.join(doc_dir, "software", "configuration", "battery-cell-configuration.csv"),
+            os.path.join(doc_dir, "software", "configuration", "battery-system-configuration.csv"),
+            os.path.join(doc_dir, "software", "configuration", "compiler", "compiler-configuration.rst"),
+            os.path.join(doc_dir, "software", "configuration", "compiler", "linker_pulls", "example_linker_output.txt"),
             os.path.join(doc_dir, "software", "configuration", "configuration.rst"),
+            os.path.join(doc_dir, "software", "configuration", "fstartup.c-check.txt"),
             os.path.join(doc_dir, "software", "configuration", "without-halcogen_how-to.rst"),
             os.path.join(doc_dir, "software", "how-to", "how-to.rst"),
+            os.path.join(doc_dir, "software", "linker-script", "linker-script.rst"),
+            os.path.join(doc_dir, "software", "linker-script", "linker-script-definitions.csv"),
             os.path.join(doc_dir, "software", "modules", "application", "algorithm", "algorithm.rst"),
             os.path.join(doc_dir, "software", "modules", "application", "algorithm", "state-estimation", "soc", "soc_counting.rst"),
             os.path.join(doc_dir, "software", "modules", "application", "algorithm", "state-estimation", "soc", "soc_debug.rst"),
@@ -832,15 +1014,21 @@ def build(bld):  # pylint: disable=too-many-branches,too-many-statements
             os.path.join(doc_dir, "software", "modules", "application", "algorithm", "state-estimation", "soe", "soe_counting.rst"),
             os.path.join(doc_dir, "software", "modules", "application", "algorithm", "state-estimation", "soe", "soe_debug.rst"),
             os.path.join(doc_dir, "software", "modules", "application", "algorithm", "state-estimation", "soe", "soe_none.rst"),
-            os.path.join(doc_dir, "software", "modules", "application", "algorithm", "state-estimation", "sof", "trapezoid.rst"),
+            os.path.join(doc_dir, "software", "modules", "application", "algorithm", "state-estimation", "sof", "sof_trapezoid.rst"),
             os.path.join(doc_dir, "software", "modules", "application", "algorithm", "state-estimation", "soh", "soh_debug.rst"),
             os.path.join(doc_dir, "software", "modules", "application", "algorithm", "state-estimation", "soh", "soh_none.rst"),
             os.path.join(doc_dir, "software", "modules", "application", "algorithm", "state-estimation", "state-estimation.rst"),
             os.path.join(doc_dir, "software", "modules", "application", "bal", "bal.rst"),
             os.path.join(doc_dir, "software", "modules", "application", "bms", "bms.rst"),
+            os.path.join(doc_dir, "software", "modules", "application", "bms", "bms_how-to.rst"),
             os.path.join(doc_dir, "software", "modules", "application", "plausibility", "plausibility.rst"),
             os.path.join(doc_dir, "software", "modules", "application", "redundancy", "redundancy.rst"),
+            os.path.join(doc_dir, "software", "modules", "application", "soa", "soa.rst"),
             os.path.join(doc_dir, "software", "modules", "driver", "adc", "adc.rst"),
+            os.path.join(doc_dir, "software", "modules", "driver", "afe", "adding-a-new-ic_how-to.rst"),
+            os.path.join(doc_dir, "software", "modules", "driver", "afe", "adi", "adi_ades1830.rst"),
+            os.path.join(doc_dir, "software", "modules", "driver", "afe", "afe.rst"),
+            os.path.join(doc_dir, "software", "modules", "driver", "afe", "debug", "default.rst"),
             os.path.join(doc_dir, "software", "modules", "driver", "afe", "ltc", "6804-1.rst"),
             os.path.join(doc_dir, "software", "modules", "driver", "afe", "ltc", "6806.rst"),
             os.path.join(doc_dir, "software", "modules", "driver", "afe", "ltc", "6811-1.rst"),
@@ -850,11 +1038,15 @@ def build(bld):  # pylint: disable=too-many-branches,too-many-statements
             os.path.join(doc_dir, "software", "modules", "driver", "afe", "nxp", "mc33775a.rst"),
             os.path.join(doc_dir, "software", "modules", "driver", "afe", "supported-afes.rst"),
             os.path.join(doc_dir, "software", "modules", "driver", "can", "can.rst"),
+            os.path.join(doc_dir, "software", "modules", "driver", "can", "can_how-to.rst"),
             os.path.join(doc_dir, "software", "modules", "driver", "contactor", "contactor.rst"),
             os.path.join(doc_dir, "software", "modules", "driver", "crc", "crc.rst"),
             os.path.join(doc_dir, "software", "modules", "driver", "dma", "dma.rst"),
             os.path.join(doc_dir, "software", "modules", "driver", "foxmath", "foxmath.rst"),
+            os.path.join(doc_dir, "software", "modules", "driver", "foxmath", "utils.rst"),
             os.path.join(doc_dir, "software", "modules", "driver", "fram", "fram.rst"),
+            os.path.join(doc_dir, "software", "modules", "driver", "htsen", "htsen.rst"),
+            os.path.join(doc_dir, "software", "modules", "driver", "i2c", "i2c.rst"),
             os.path.join(doc_dir, "software", "modules", "driver", "imd", "bender", "bender_ir155.rst"),
             os.path.join(doc_dir, "software", "modules", "driver", "imd", "bender", "bender_iso165c.rst"),
             os.path.join(doc_dir, "software", "modules", "driver", "imd", "imd.rst"),
@@ -863,6 +1055,8 @@ def build(bld):  # pylint: disable=too-many-branches,too-many-statements
             os.path.join(doc_dir, "software", "modules", "driver", "io", "io.rst"),
             os.path.join(doc_dir, "software", "modules", "driver", "mcu", "mcu.rst"),
             os.path.join(doc_dir, "software", "modules", "driver", "meas", "meas.rst"),
+            os.path.join(doc_dir, "software", "modules", "driver", "pex", "pex.rst"),
+            os.path.join(doc_dir, "software", "modules", "driver", "pwm", "pwm.rst"),
             os.path.join(doc_dir, "software", "modules", "driver", "rtc", "rtc.rst"),
             os.path.join(doc_dir, "software", "modules", "driver", "sbc", "sbc.rst"),
             os.path.join(doc_dir, "software", "modules", "driver", "spi", "spi.rst"),
@@ -871,6 +1065,7 @@ def build(bld):  # pylint: disable=too-many-branches,too-many-statements
             os.path.join(doc_dir, "software", "modules", "driver", "ts", "epcos", "b57251v5103j060.rst"),
             os.path.join(doc_dir, "software", "modules", "driver", "ts", "epcos", "b57861s0103f045.rst"),
             os.path.join(doc_dir, "software", "modules", "driver", "ts", "fake", "none.rst"),
+            os.path.join(doc_dir, "software", "modules", "driver", "ts", "murata", "ncxxxxh103.rst"),
             os.path.join(doc_dir, "software", "modules", "driver", "ts", "ts.rst"),
             os.path.join(doc_dir, "software", "modules", "driver", "ts", "ts-sensors.rst"),
             os.path.join(doc_dir, "software", "modules", "driver", "ts", "ts-short-names.csv"),
@@ -880,6 +1075,7 @@ def build(bld):  # pylint: disable=too-many-branches,too-many-statements
             os.path.join(doc_dir, "software", "modules", "engine", "database", "database_how-to.rst"),
             os.path.join(doc_dir, "software", "modules", "engine", "diag", "diag.rst"),
             os.path.join(doc_dir, "software", "modules", "engine", "diag", "diag_how-to.rst"),
+            os.path.join(doc_dir, "software", "modules", "engine", "hw_info", "hw_info.rst"),
             os.path.join(doc_dir, "software", "modules", "engine", "sys", "sys.rst"),
             os.path.join(doc_dir, "software", "modules", "engine", "sys_mon", "sys_mon.rst"),
             os.path.join(doc_dir, "software", "modules", "main", "fassert.rst"),
@@ -889,22 +1085,35 @@ def build(bld):  # pylint: disable=too-many-branches,too-many-statements
             os.path.join(doc_dir, "software", "modules", "modules.rst"),
             os.path.join(doc_dir, "software", "modules", "task", "ftask", "ftask.rst"),
             os.path.join(doc_dir, "software", "modules", "task", "ftask", "ftask_how-to.rst"),
+            os.path.join(doc_dir, "software", "modules", "task", "ftask", "ftask-function-overview.csv"),
+            os.path.join(doc_dir, "software", "modules", "task", "ftask", "ftask-user-code-functions.csv"),
             os.path.join(doc_dir, "software", "modules", "task", "os", "os.rst"),
+            os.path.join(doc_dir, "software", "overview", "sw-overview.rst"),
             os.path.join(doc_dir, "software", "unit-tests", "unit-tests.rst"),
             os.path.join(doc_dir, "software", "unit-tests", "unit-tests_how-to.rst"),
+            os.path.join(doc_dir, "spelling_wordlist.txt"),
+            os.path.join(doc_dir, "system", "bjb-measurements.csv"),
+            os.path.join(doc_dir, "system", "colors-in-system-block-diagram.csv"),
+            os.path.join(doc_dir, "system", "precharging.rst"),
+            os.path.join(doc_dir, "system", "symbols-in-system-block-diagram.csv"),
+            os.path.join(doc_dir, "system", "system-introduction.rst"),
+            os.path.join(doc_dir, "system", "system-voltage-and-current-monitoring.rst"),
+            os.path.join(doc_dir, "tools", "dbc.rst"),
             os.path.join(doc_dir, "tools", "debugger", "debug-application.rst"),
             os.path.join(doc_dir, "tools", "debugger", "debugger-lauterbach.rst"),
             os.path.join(doc_dir, "tools", "debugger", "debugger-ozone.rst"),
+            os.path.join(doc_dir, "tools", "gui", "gui.rst"),
+            os.path.join(doc_dir, "tools", "gui", "gui-implementation.rst"),
             os.path.join(doc_dir, "tools", "gui", "impl", "entry", "entry.rst"),
+            os.path.join(doc_dir, "tools", "gui", "impl", "fgui.rst"),
             os.path.join(doc_dir, "tools", "gui", "impl", "log_parser", "log_parser.rst"),
             os.path.join(doc_dir, "tools", "gui", "impl", "lvac", "lvac.rst"),
             os.path.join(doc_dir, "tools", "gui", "impl", "misc", "misc.rst"),
             os.path.join(doc_dir, "tools", "gui", "impl", "workers", "workers.rst"),
-            os.path.join(doc_dir, "tools", "gui", "gui.rst"),
-            os.path.join(doc_dir, "tools", "gui", "gui-implementation.rst"),
             os.path.join(doc_dir, "tools", "halcogen", "halcogen.rst"),
             os.path.join(doc_dir, "tools", "static-analysis", "axivion.rst"),
             os.path.join(doc_dir, "tools", "waf-tools", "compiler-tool", "f_ti_arm_cgt.rst"),
+            os.path.join(doc_dir, "tools", "waf-tools", "compiler-tool", "f_ti_arm_cgt_cc_options.rst"),
             os.path.join(doc_dir, "tools", "waf-tools", "compiler-tool", "f_ti_arm_helper.rst"),
             os.path.join(doc_dir, "tools", "waf-tools", "compiler-tool", "f_ti_arm_tools.rst"),
             os.path.join(doc_dir, "tools", "waf-tools", "compiler-tool", "f_ti_color_arm_cgt.rst"),
@@ -916,7 +1125,10 @@ def build(bld):  # pylint: disable=too-many-branches,too-many-statements
             os.path.join(doc_dir, "tools", "waf-tools", "f_git_hooks.rst"),
             os.path.join(doc_dir, "tools", "waf-tools", "f_guidelines.rst"),
             os.path.join(doc_dir, "tools", "waf-tools", "f_hcg.rst"),
+            os.path.join(doc_dir, "tools", "waf-tools", "f_j_flash.rst"),
+            os.path.join(doc_dir, "tools", "waf-tools", "f_lauterbach.rst"),
             os.path.join(doc_dir, "tools", "waf-tools", "f_miniconda_env.rst"),
+            os.path.join(doc_dir, "tools", "waf-tools", "f_node_helper.rst"),
             os.path.join(doc_dir, "tools", "waf-tools", "f_ozone.rst"),
             os.path.join(doc_dir, "tools", "waf-tools", "f_pylint.rst"),
             os.path.join(doc_dir, "tools", "waf-tools", "f_sphinx_build.rst"),
@@ -926,7 +1138,6 @@ def build(bld):  # pylint: disable=too-many-branches,too-many-statements
             os.path.join(doc_dir, "tools", "waf-tools", "ti-arm-compiler-tools.rst"),
             os.path.join(doc_dir, "tools", "waf-tools", "waf-tools.rst"),
             os.path.join(doc_dir, "units.txt"),
-
         ]
         # pylint: enable=line-too-long
         # fmt: on
@@ -940,9 +1151,9 @@ def build(bld):  # pylint: disable=too-many-branches,too-many-statements
         bld(
             features="sphinx",
             builders="html spelling",
-            outdir=".",
+            out_dir=".",
             source=source,
-            confpy=config,
+            conf_py=config,
             VERSION=bld.env.version,
             RELEASE=bld.env.version,
         )
@@ -952,7 +1163,7 @@ def build_all(ctx):  # pylint: disable=unused-argument
     """shortcut to build all variants"""
     # axivion, if existing, needs to be inserted at the end of build commands
     has_ax = ""
-    for bld_var in BLD_VARIANTS:
+    for bld_var in BUILD_VARIANTS:
         if "axivion" in bld_var:
             has_ax = "axivion"
             continue
@@ -965,11 +1176,11 @@ def clean_all(ctx):  # pylint: disable=unused-argument
     """shortcut to clean all variants"""
     # axivion, if existing, needs to be inserted at the end of clean commands
     has_ax = ""
-    for cln_var in CLN_VARIANTS:
-        if "axivion" in cln_var:
+    for i in CLEAN_VARIANTS:
+        if "axivion" in i:
             has_ax = "axivion"
             continue
-        Options.commands.append(cln_var)
+        Options.commands.append(i)
     if has_ax:
         Options.commands.append("clean_axivion")
 
@@ -1084,6 +1295,18 @@ def check_test_files(ctx):
         err_msg += f"Missing test file for:  {i} (should be in: {test_file})\n"
     if diff:
         ctx.fatal(f"{err_msg}\nTest files are missing.")
+
+    err_msg = ""
+    for test in ctx.path.ant_glob("tests/unit/**/test_*.c"):
+        for i, line in enumerate(test.read(encoding="utf-8").splitlines()):
+            if line.startswith("void test"):
+                if not line.endswith("(void) {"):
+                    err_msg += (
+                        f"{test.abspath()}:{i+1}: Test files need to have "
+                        f"the form 'test<TestName> (void) {{' ({line}\n"
+                    )
+    if err_msg:
+        ctx.fatal(f"{err_msg}\nTests are implement invalid.")
 
 
 def get_axivion_files(ctx):

@@ -43,8 +43,8 @@
  * @file    spi.c
  * @author  foxBMS Team
  * @date    2019-12-12 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup DRIVERS
  * @prefix  SPI
  *
@@ -137,6 +137,7 @@ static uint8_t SPI_GetChipSelectPin(SPI_CHIP_SELECT_TYPE_e chipSelectType, uint3
 }
 static void SPI_InitializeChipSelects(void) {
     for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
+        spi_adiInterface[s].pConfig->CSNR = SPI_GetChipSelectPin(spi_adiInterface[s].csType, spi_adiInterface[s].csPin);
         spi_ltcInterface[s].pConfig->CSNR = SPI_GetChipSelectPin(spi_ltcInterface[s].csType, spi_ltcInterface[s].csPin);
         spi_nxp775InterfaceTx[s].pConfig->CSNR =
             SPI_GetChipSelectPin(spi_nxp775InterfaceTx[s].csType, spi_nxp775InterfaceTx[s].csPin);
@@ -577,7 +578,7 @@ extern uint8_t SPI_GetSpiIndex(spiBASE_t *pNode) {
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
 #ifdef UNITY_UNIT_TEST
 extern void TEST_SPI_InitializeChipSelects(void) {
-    return SPI_InitializeChipSelects();
+    SPI_InitializeChipSelects();
 }
 extern uint8_t TEST_SPI_GetChipSelectPin(SPI_CHIP_SELECT_TYPE_e csType, uint32_t csPin) {
     return SPI_GetChipSelectPin(csType, csPin);

@@ -48,7 +48,7 @@ function _win32_get_vars() {
     if [[ $USERPROFILE = *" "* ]]; then
         MINICONDA_DIRECTORIES=($SYSTEMDRIVE/miniconda3/ $ProgramData/miniconda3/)
     else
-        MINICONDA_DIRECTORIES=($USERPROFILE/miniconda3/ $LOCALAPPDATA/Continuum/miniconda3/ $SYSTEMDRIVE/miniconda3/ $ProgramData/miniconda3/)
+        MINICONDA_DIRECTORIES=($USERPROFILE/miniconda3/ $LOCALAPPDATA/miniconda3/ $LOCALAPPDATA/Continuum/miniconda3/ $SYSTEMDRIVE/miniconda3/ $ProgramData/miniconda3/)
     fi
 
     # Activate script path (relative to the environment directory)

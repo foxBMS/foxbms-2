@@ -8,7 +8,6 @@ How to Use the Database Module
 
 This How-to shows how to add new entries to the database, and how to read and write database entries.
 
-
 How to Add a Database Entry?
 ----------------------------
 
@@ -39,7 +38,6 @@ gives ``DATA_BLOCK_ID_EXAMPLE``.
    :caption: Adding a new element **example** to the ``DATA_BLOCK_ID_e`` enum
    :name: adding-a-new-element-to-the-data-block-id-e-enum
 
-
 Second, a struct definition of the database entry has to be added in file
 ``src/app/engine/config/database_cfg.h``. This structure needs to contain a variable
 ``header`` of type ``DATA_BLOCK_HEADER_s`` at the beginning of the struct. This
@@ -67,7 +65,6 @@ the ``_s`` suffix as the typedef is a struct, which gives ``DATA_BLOCK_EXAMPLE_s
    :caption: Creating a new database struct
    :name: creating-a-new-database-struct
 
-
 The database checker basically checks that if a database struct is found (something matching
 ``DATA_BLOCK_(A_Z_0-9)_s``) that it is initialized with a corresponding ID name.
 
@@ -80,7 +77,6 @@ Examples:
 +---------------------------------------+-----------------------------------+
 | DATA_BLOCK\_\ **CELL_VOLTAGE**\ \_s   | DATA_BLOCK_ID\_\ **CELL_VOLTAGE** |
 +---------------------------------------+-----------------------------------+
-
 
 Third, in ``src/app/engine/config/database_cfg.c``, a static variable with
 the structure type must be declared. In this declaration the ``uniqueId`` of the
@@ -96,7 +92,6 @@ this database entry during once the BMS is running.
    :caption: Initialization of the static variable inside the database module
    :name: initialization-of-the-static-variable-inside-the-database-module
 
-
 Last, this declared struct must be linked to the actual database implementation
 by adding an additional entry to the structure ``DATA_BASE_s data_database[]``
 in file ``src/app/engine/config/database_cfg.c``
@@ -108,7 +103,6 @@ in file ``src/app/engine/config/database_cfg.c``
    :end-before: example-data-database-end
    :caption: Adding the struct to the database
    :name: adding-the-struct-to-the-database
-
 
 How to Read a Database Entry?
 -----------------------------
@@ -129,7 +123,6 @@ the local database entry structure.
    :caption: Reading a database entry
    :name: reading-a-database-entry
    :emphasize-lines: 4
-
 
 Up to four database entries can be accessed on the same time with one call of
 ``DATA_READ_DATA()``.
@@ -164,7 +157,6 @@ be written with one call of ``DATA_WRITE_DATA()``.
    :name: writing-a-database-entry
    :emphasize-lines: 6
 
-
 After a call of ``DATA_WRITE_DATA`` the timestamp variables in the database
 entry header are automatically updated database entry **AND** the local
 database entry structure.
@@ -180,7 +172,6 @@ Up to four database entries can be written on the same time with one call of
    :caption: Writing multiple database entries
    :name: writing-multiple-database-entries
    :emphasize-lines: 11, 12
-
 
 Further Reading
 ---------------

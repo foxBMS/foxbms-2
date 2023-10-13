@@ -43,8 +43,8 @@
  * @file    htsensor.c
  * @author  foxBMS Team
  * @date    2021-08-05 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup DRIVERS
  * @prefix  HTSEN
  *
@@ -150,8 +150,8 @@
 
 /*========== Static Constant and Variable Definitions =======================*/
 #pragma SET_DATA_SECTION(".sharedRAM")
-uint8_t i2cReadBuffer[HTSEN_TOTAL_DATA_LENGTH_IN_BYTES] = {0u, 0u, 0u, 0u, 0u, 0u};
-uint8_t i2cWriteBuffer[2u]                              = {HTSEN_SINGLE_MEAS_MSB, HTSEN_SINGLE_MEAS_LSB};
+static uint8_t htsen_i2cReadBuffer[HTSEN_TOTAL_DATA_LENGTH_IN_BYTES] = {0u, 0u, 0u, 0u, 0u, 0u};
+static uint8_t htsen_i2cWriteBuffer[2u]                              = {HTSEN_SINGLE_MEAS_MSB, HTSEN_SINGLE_MEAS_LSB};
 #pragma SET_DATA_SECTION()
 
 /** variable to store the measurement results */
@@ -228,7 +228,7 @@ extern void HTSEN_Trigger(void) {
     switch (htsenState) {
         case HTSEN_START_MEAS:
             /* Trigger a measurement */
-            htsenReturnValue = I2C_WriteDma(HTSEN_I2C_INTERFACE, HTSEN_I2C_ADDRESS, 2u, i2cWriteBuffer);
+            htsenReturnValue = I2C_WriteDma(HTSEN_I2C_INTERFACE, HTSEN_I2C_ADDRESS, 2u, htsen_i2cWriteBuffer);
             OS_DelayTaskUntil(&current_time, 2u);
             if (htsenReturnValue == STD_OK) {
                 htsenState = HTSEN_READ_RESULTS;
@@ -237,25 +237,26 @@ extern void HTSEN_Trigger(void) {
             break;
         case HTSEN_READ_RESULTS:
             /* Try to read values */
-            htsenReturnValue =
-                I2C_ReadDma(HTSEN_I2C_INTERFACE, HTSEN_I2C_ADDRESS, HTSEN_TOTAL_DATA_LENGTH_IN_BYTES, i2cReadBuffer);
+            htsenReturnValue = I2C_ReadDma(
+                HTSEN_I2C_INTERFACE, HTSEN_I2C_ADDRESS, HTSEN_TOTAL_DATA_LENGTH_IN_BYTES, htsen_i2cReadBuffer);
             OS_DelayTaskUntil(&current_time, 2u);
             if (htsenReturnValue == STD_OK) {
                 /* If sensor acknowledges on I2C bus, results are available */
                 /* Check if CRC valid */
                 /* Only take temperature value if CRC valid */
-                if (i2cReadBuffer[HTSEN_TEMPERATURE_BYTE_CRC] ==
-                    HTSEN_CalculateCrc8(&i2cReadBuffer[HTSEN_TEMPERATURE_MSB], HTSEN_MEASUREMENT_LENGTH_IN_BYTES)) {
+                if (htsen_i2cReadBuffer[HTSEN_TEMPERATURE_BYTE_CRC] ==
+                    HTSEN_CalculateCrc8(
+                        &htsen_i2cReadBuffer[HTSEN_TEMPERATURE_MSB], HTSEN_MEASUREMENT_LENGTH_IN_BYTES)) {
                     htsen_data.temperature_ddegC = HTSEN_ConvertRawTemperature(
-                        (((uint16_t)i2cReadBuffer[HTSEN_TEMPERATURE_MSB]) << HTSEN_BYTE_SHIFT) |
-                        (uint16_t)i2cReadBuffer[HTSEN_TEMPERATURE_LSB]);
+                        (((uint16_t)htsen_i2cReadBuffer[HTSEN_TEMPERATURE_MSB]) << HTSEN_BYTE_SHIFT) |
+                        (uint16_t)htsen_i2cReadBuffer[HTSEN_TEMPERATURE_LSB]);
                 }
                 /* Only take humidity value if CRC valid */
-                if (i2cReadBuffer[HTSEN_HUMIDITY_BYTE_CRC] ==
-                    HTSEN_CalculateCrc8(&i2cReadBuffer[HTSEN_HUMIDITY_MSB], HTSEN_MEASUREMENT_LENGTH_IN_BYTES)) {
+                if (htsen_i2cReadBuffer[HTSEN_HUMIDITY_BYTE_CRC] ==
+                    HTSEN_CalculateCrc8(&htsen_i2cReadBuffer[HTSEN_HUMIDITY_MSB], HTSEN_MEASUREMENT_LENGTH_IN_BYTES)) {
                     htsen_data.humidity_perc = HTSEN_ConvertRawHumidity(
-                        (((uint16_t)i2cReadBuffer[HTSEN_HUMIDITY_MSB]) << HTSEN_BYTE_SHIFT) |
-                        (uint16_t)i2cReadBuffer[HTSEN_HUMIDITY_LSB]);
+                        (((uint16_t)htsen_i2cReadBuffer[HTSEN_HUMIDITY_MSB]) << HTSEN_BYTE_SHIFT) |
+                        (uint16_t)htsen_i2cReadBuffer[HTSEN_HUMIDITY_LSB]);
                 }
                 DATA_WRITE_DATA(&htsen_data);
                 htsenState = HTSEN_START_MEAS;

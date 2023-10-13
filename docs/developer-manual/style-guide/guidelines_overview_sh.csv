@@ -1,0 +1,5 @@
+Rule        ; Link                        ; Automated Check
+BATCH:001   ; :ref:`rule_batch_filenames` ; No
+BATCH:002   ; :ref:`rule_batch_header`    ; Yes
+SHELL:001   ; :ref:`rule_shell_filenames` ; No
+SHELL:002   ; :ref:`rule_shell_header`    ; Yes

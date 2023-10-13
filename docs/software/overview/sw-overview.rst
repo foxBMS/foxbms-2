@@ -96,8 +96,8 @@ database.
 
 The two key modules used are:
 
- - ``SYS``
- - ``BMS``
+- ``SYS``
+- ``BMS``
 
 ``SYS`` has a lower priority than the database and a higher priority than
 ``BMS``. Both modules are implemented as a state machine, with a trigger

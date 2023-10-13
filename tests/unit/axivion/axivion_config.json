@@ -1,0 +1,14 @@
+{
+    "_Layers": [
+        "compiler_config.json",
+        "ci_config.json",
+        "../../axivion/rule_config_c.py",
+        "../../axivion/rule_config_c.json",
+        "../../axivion/rule_config_names.py",
+        "../../axivion/rule_config_names.json",
+        "../../axivion/rule_config_include_guard.py",
+        "../../axivion/rule_config_bad_tokens.json",
+        "../../axivion/rule_config_metric_lines.json",
+        "../../axivion/rule_config_addon.json"
+    ]
+}

@@ -43,8 +43,8 @@
  * @file    test_soh_debug.c
  * @author  foxBMS Team
  * @date    2020-10-14 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -56,8 +56,15 @@
 #include "unity.h"
 #include "Mockdatabase.h"
 
-#include "soh_debug.h"
+#include "state_estimation.h"
 #include "test_assert_helper.h"
+
+/*========== Unit Testing Framework Directives ==============================*/
+TEST_SOURCE_FILE("soc_debug.c")
+TEST_SOURCE_FILE("soe_debug.c")
+TEST_SOURCE_FILE("soh_debug.c")
+
+TEST_INCLUDE_PATH("../../src/app/application/algorithm/state_estimation")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 
@@ -71,9 +78,9 @@ void tearDown(void) {
 /*========== Test Cases =====================================================*/
 /** test invalid input values */
 void testInvalidInput(void) {
-    DATA_BLOCK_SOX_s table_test = {.header.uniqueId = DATA_BLOCK_ID_SOX};
+    DATA_BLOCK_SOH_s table_testSoh = {.header.uniqueId = DATA_BLOCK_ID_SOH};
     TEST_ASSERT_FAIL_ASSERT(SE_InitializeStateOfHealth(NULL_PTR, BS_NR_OF_STRINGS - 1u));
-    TEST_ASSERT_FAIL_ASSERT(SE_InitializeStateOfHealth(&table_test, BS_NR_OF_STRINGS));
+    TEST_ASSERT_FAIL_ASSERT(SE_InitializeStateOfHealth(&table_testSoh, BS_NR_OF_STRINGS));
 
     TEST_ASSERT_FAIL_ASSERT(SE_CalculateStateOfHealth(NULL_PTR));
 }

@@ -9,14 +9,14 @@ Master Overview
 TI-based Masters
 ----------------
 
-The changelog for the |tms570lc4357|\ -based masters can be found at:
+The changelog for the |ti-tms570lc4357|\ -based masters can be found at:
 
 .. toctree::
     :maxdepth: 1
 
     ./master/ti-tms570lc4357-vx.x.x/ti-tms570lc4357-changelog.rst
 
-The documentation for the different versions of the |tms570lc4357|\ -based
+The documentation for the different versions of the |ti-tms570lc4357|\ -based
 masters can be found at:
 
 .. toctree::

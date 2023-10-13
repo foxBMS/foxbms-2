@@ -43,8 +43,8 @@
  * @file    bender_ir155.c
  * @author  foxBMS Team
  * @date    2014-02-11 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup DRIVERS
  * @prefix  IR155
  *
@@ -67,7 +67,7 @@
 /*========== Macros and Definitions =========================================*/
 
 /**
- * Dutycycle - resistance table
+ * Duty cycle - resistance table
  * for Bender IR155-3204 (Art. No. B91068139)
  *
  *  dc | resistance/kOhm  |  description           |
@@ -136,7 +136,7 @@ static IMD_FSM_STATES_e IR155_MeasureInsulation(DATA_BLOCK_INSULATION_MONITORING
         }
 
         if (ir155_state.timeUntilValidMeasurement_ms == 0u) {
-            /* If hysteresis is over, reset diag flag and reset grounderror flag */
+            /* If hysteresis is over, reset diag flag and reset ground error flag */
             /* TODO: How to handle the ground error fault after reset? Do this in diag callback?*/
             /* Reset non-volatile ground error flag - Do this in diag callback? */
             fram_insulationFlags.groundErrorDetected = false;
@@ -180,7 +180,7 @@ static IMD_FSM_STATES_e IR155_MeasureInsulation(DATA_BLOCK_INSULATION_MONITORING
     if ((ir155_state.measurement.measurementState == IR155_RESISTANCE_MEASUREMENT_UNKNOWN) ||
         (ir155_state.measurement.measurementState == IR155_RESISTANCE_ESTIMATION_UNKNOWN) ||
         (ir155_state.measurement.measurementState == IR155_UNDERVOLTAGE_MEASUREMENT_UNKNOWN) ||
-        (ir155_state.measurement.measurementState == IR155_GROUND_ERROR_MODE_UNKNOWN)) {
+        (ir155_state.measurement.measurementState == IR155_GROUND_ERROR_STATE_UNKNOWN)) {
         pTableInsulationMonitoring->dfIsDeviceErrorDetected = true;
     } else {
         pTableInsulationMonitoring->dfIsDeviceErrorDetected = false;
@@ -189,7 +189,7 @@ static IMD_FSM_STATES_e IR155_MeasureInsulation(DATA_BLOCK_INSULATION_MONITORING
     /* Check for chassis fault */
     pTableInsulationMonitoring->dfIsChassisShortToHvPlus  = false; /* This feature is not supported by the device */
     pTableInsulationMonitoring->dfIsChassisShortToHvMinus = false; /* This feature is not supported by the device */
-    if (ir155_state.measurement.measurementState == IR155_GROUND_ERROR_MODE) {
+    if (ir155_state.measurement.measurementState == IR155_GROUND_ERROR_STATE) {
         pTableInsulationMonitoring->dfIsChassisFaultDetected = true;
     } else {
         pTableInsulationMonitoring->dfIsDeviceErrorDetected = false;

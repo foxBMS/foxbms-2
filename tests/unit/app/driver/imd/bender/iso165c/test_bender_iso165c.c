@@ -43,8 +43,8 @@
  * @file    test_bender_iso165c.c
  * @author  foxBMS Team
  * @date    2021-01-19 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -69,6 +69,19 @@
 #include "test_assert_helper.h"
 
 #include <stdbool.h>
+
+/*========== Unit Testing Framework Directives ==============================*/
+TEST_INCLUDE_PATH("../../src/app/driver/can")
+TEST_INCLUDE_PATH("../../src/app/driver/can/cbs")
+TEST_INCLUDE_PATH("../../src/app/driver/config")
+TEST_INCLUDE_PATH("../../src/app/driver/imd")
+TEST_INCLUDE_PATH("../../src/app/driver/imd/bender/iso165c")
+TEST_INCLUDE_PATH("../../src/app/driver/imd/bender/iso165c/config")
+TEST_INCLUDE_PATH("../../src/app/driver/io")
+TEST_INCLUDE_PATH("../../src/app/driver/rtc")
+TEST_INCLUDE_PATH("../../src/app/engine/diag")
+TEST_INCLUDE_PATH("../../src/app/task/config")
+TEST_INCLUDE_PATH("../../src/app/task/ftask")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 

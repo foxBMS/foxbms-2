@@ -43,8 +43,8 @@
  * @file    moving_average.c
  * @author  foxBMS Team
  * @date    2017-12-18 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup ALGORITHMS
  * @prefix  ALGO
  *
@@ -104,7 +104,7 @@
 
 /* Arrays in extern SDRAM to calculate moving average current and power */
 
-/* Check if minimum algo cycle time > current sensor sample time */
+/* Check if minimum algorithm cycle time > current sensor sample time */
 #if ALGO_TICK_ms > ISA_CURRENT_CYCLE_TIME_ms
 #if MOVING_AVERAGE_DURATION_CURRENT_CONFIG_ms / ALGO_TICK_ms > 60000u / ALGO_TICK_ms
 /* If array length of configured time > 60s array take this array size */
@@ -129,7 +129,7 @@ static uint32_t movingAverageCurrentLength = (60000u / ISA_CURRENT_CYCLE_TIME_ms
 #endif
 #endif
 
-/* Check if minimum algo cycle time > current sensor sample time */
+/* Check if minimum algorithm cycle time > current sensor sample time */
 #if ALGO_TICK_ms > ISA_POWER_CYCLE_TIME_ms
 #if (MOVING_AVERAGE_DURATION_POWER_CONFIG_ms / ALGO_TICK_ms) > (60000u / ALGO_TICK_ms)
 /* If array length of configured time > 60s array take this array size */

@@ -542,15 +542,6 @@
         <string>f src/app/driver/config/fram_cfg.c</string>
       </attr>
     </node>
-    <node id="N7139">
-      <type xlink:href="File"/>
-      <attr name="Source.Name">
-        <string>interlock_cfg.c</string>
-      </attr>
-      <attr name="Linkage.Name">
-        <string>f src/app/driver/config/interlock_cfg.c</string>
-      </attr>
-    </node>
     <node id="N7140">
       <type xlink:href="File"/>
       <attr name="Source.Name">

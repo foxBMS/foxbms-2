@@ -43,8 +43,8 @@
  * @file    test_state_estimation.c
  * @author  foxBMS Team
  * @date    2020-10-14 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -56,13 +56,17 @@
 #include "unity.h"
 #include "Mockdatabase.h"
 
-#include "soc_none.h"
-#include "soe_none.h"
-#include "soh_none.h"
 #include "state_estimation.h"
 #include "test_assert_helper.h"
 
 #include <stdbool.h>
+
+/*========== Unit Testing Framework Directives ==============================*/
+TEST_SOURCE_FILE("soc_none.c")
+TEST_SOURCE_FILE("soe_none.c")
+TEST_SOURCE_FILE("soh_none.c")
+
+TEST_INCLUDE_PATH("../../src/app/application/algorithm/state_estimation")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 
@@ -76,7 +80,9 @@ void tearDown(void) {
 /*========== Test Cases =====================================================*/
 /** test invalid input on interfaces */
 void testInvalidInput(void) {
-    DATA_BLOCK_SOX_s table_test = {.header.uniqueId = DATA_BLOCK_ID_SOX};
+    DATA_BLOCK_SOC_s table_testSoc = {.header.uniqueId = DATA_BLOCK_ID_SOC};
+    DATA_BLOCK_SOH_s table_testSoh = {.header.uniqueId = DATA_BLOCK_ID_SOH};
+    DATA_BLOCK_SOE_s table_testSoe = {.header.uniqueId = DATA_BLOCK_ID_SOE};
     TEST_ASSERT_FAIL_ASSERT(SE_InitializeSoc(true, BS_NR_OF_STRINGS));
 
     TEST_ASSERT_FAIL_ASSERT(SE_InitializeSoe(true, BS_NR_OF_STRINGS));
@@ -84,17 +90,17 @@ void testInvalidInput(void) {
     TEST_ASSERT_FAIL_ASSERT(SE_InitializeSoh(BS_NR_OF_STRINGS));
 
     TEST_ASSERT_FAIL_ASSERT(SE_InitializeStateOfCharge(NULL_PTR, true, BS_NR_OF_STRINGS - 1u));
-    TEST_ASSERT_FAIL_ASSERT(SE_InitializeStateOfCharge(&table_test, true, BS_NR_OF_STRINGS));
+    TEST_ASSERT_FAIL_ASSERT(SE_InitializeStateOfCharge(&table_testSoc, true, BS_NR_OF_STRINGS));
 
     TEST_ASSERT_FAIL_ASSERT(SE_CalculateStateOfCharge(NULL_PTR));
 
     TEST_ASSERT_FAIL_ASSERT(SE_InitializeStateOfEnergy(NULL_PTR, true, BS_NR_OF_STRINGS - 1u));
-    TEST_ASSERT_FAIL_ASSERT(SE_InitializeStateOfEnergy(&table_test, true, BS_NR_OF_STRINGS));
+    TEST_ASSERT_FAIL_ASSERT(SE_InitializeStateOfEnergy(&table_testSoe, true, BS_NR_OF_STRINGS));
 
     TEST_ASSERT_FAIL_ASSERT(SE_CalculateStateOfEnergy(NULL_PTR));
 
     TEST_ASSERT_FAIL_ASSERT(SE_InitializeStateOfHealth(NULL_PTR, BS_NR_OF_STRINGS - 1u));
-    TEST_ASSERT_FAIL_ASSERT(SE_InitializeStateOfHealth(&table_test, BS_NR_OF_STRINGS));
+    TEST_ASSERT_FAIL_ASSERT(SE_InitializeStateOfHealth(&table_testSoh, BS_NR_OF_STRINGS));
 
     TEST_ASSERT_FAIL_ASSERT(SE_CalculateStateOfHealth(NULL_PTR));
 }

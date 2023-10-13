@@ -43,8 +43,8 @@
  * @file    test_interlock.c
  * @author  foxBMS Team
  * @date    2020-04-01 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -65,6 +65,12 @@
 #include "interlock_cfg.h"
 
 #include "interlock.h"
+
+/*========== Unit Testing Framework Directives ==============================*/
+TEST_INCLUDE_PATH("../../src/app/driver/config")
+TEST_INCLUDE_PATH("../../src/app/driver/interlock")
+TEST_INCLUDE_PATH("../../src/app/driver/io")
+TEST_INCLUDE_PATH("../../src/app/engine/diag")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 
@@ -118,7 +124,7 @@ void testILCK_SetStateRequestIllegalValue(void) {
 }
 
 void testILCK_SetStateRequestDoubleInitializationWithoutStatemachine(void) {
-    /* run initialization twice, but statemachine not in between */
+    /* run initialization twice, but state machine not in between */
     IO_SetPinDirectionToOutput_Ignore();
     IO_SetPinDirectionToInput_Ignore();
     IO_PinReset_Ignore();
@@ -131,7 +137,7 @@ void testILCK_SetStateRequestDoubleInitializationWithoutStatemachine(void) {
 }
 
 void testILCK_SetStateRequestDoubleInitialization(void) {
-    /* run initialization twice and call statemachine between these requests */
+    /* run initialization twice and call state machine between these requests */
     OS_EnterTaskCritical_Expect();
     OS_ExitTaskCritical_Expect();
 
@@ -175,7 +181,7 @@ void testRunStatemachineWithoutRequest(void) {
 
 void testInitializeStatemachine(void) {
     /* run initialization */
-    /* since we are checking only for the statemachine passing through these
+    /* since we are checking only for the state machine passing through these
     states, we ignore all unnecessary functions */
 
     OS_EnterTaskCritical_Ignore();
@@ -194,7 +200,7 @@ void testInitializeStatemachine(void) {
     DIAG_Handler_IgnoreAndReturn(DIAG_HANDLER_RETURN_OK);
 
     for (uint8_t i = 0u; i < 10; i++) {
-        /* iterate calling this statemachine 10 times (one shorttime) */
+        /* iterate calling this state machine 10 times (one shorttime) */
         ILCK_Trigger();
     }
 

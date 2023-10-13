@@ -66,7 +66,7 @@ Existing Environments
 +---------------------+-------+-------+
 
 Further Reading
-===============
+---------------
 
 An explanation why build environments are used is found in
 :ref:`BUILD_ENVIRONMENT`.

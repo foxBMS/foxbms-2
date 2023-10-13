@@ -14,7 +14,7 @@ Overview
 
 .. important::
 
-   The following description only applies for the |ltc6820|\ -based
+   The following description only applies for the |ltc-ltc6820|\ -based
    |bms-interface| hardware version |local_interface_version|.
 
 .. hint::
@@ -83,9 +83,9 @@ A block diagram of the |bms-interface| is shown in
 
    Block diagram of the |bms-interface|
 
-Each of the four isoSPI channels uses one |ltc6820| communication chip from
+Each of the four isoSPI channels uses one |ltc-ltc6820| communication chip from
 |adi| and an insulation transformer.
-The |ltc6820| chips are directly connected to the MCU via |spi|.
+The |ltc-ltc6820| chips are directly connected to the MCU via |spi|.
 
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 Schematic and Board Layout
@@ -105,8 +105,8 @@ isoSPI communication
 ^^^^^^^^^^^^^^^^^^^^
 
 The |bms-interface| offers up to four isolated isoSPI communication channels
-using the |ltc6820| transceiver chip from |adi|.
-The |ltc6820| transceivers are controlled by the SPI signals from the
+using the |ltc-ltc6820| transceiver chip from |adi|.
+The |ltc-ltc6820| transceivers are controlled by the SPI signals from the
 |bms-master|.
 The isoSPI signals are available on the connectors J101, J102, J103 and J104.
 The pinout of these connectors is described in

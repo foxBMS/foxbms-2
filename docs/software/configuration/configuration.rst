@@ -31,7 +31,7 @@ This is explained in :ref:`BMS_APPLICATION`.
 It generates sources in form of ``.h`` and ``.c`` and ``.asm`` files.
 These HAL sources are generated based on the |halcogen| configuration files
 (``*.hcg`` and ``*.dil``).
-|foxbms| uses the waf tool :ref:`WAF_TOOL_HALCOGEN` to automatically run
+|foxbms| uses the Waf tool :ref:`WAF_TOOL_HALCOGEN` to automatically run
 |halcogen| and create the required sources.
 Additional information on the tool can be found in
 :ref:`HALCOGEN_TOOL_DOCUMENTATION`.
@@ -95,11 +95,10 @@ The process is illustrated in :numref:`halcogen-configuration`.
 
       HALCoGen configuration change detection process
 
-
 Enabling Cache
 ^^^^^^^^^^^^^^
 
-The |tms570lc4357| can use cache to improve performance.
+The |ti-tms570lc4357| can use cache to improve performance.
 
 - Since |foxbms| v1.3.0, cache is enabled by setting the define
   ``OS_ENABLE_CACHE`` in ``src/app/task/os/os.h`` to ``true``.
@@ -260,7 +259,6 @@ The basic, top level view on the battery system configuration is defined at:
    :header-rows: 1
    :delim: ;
    :file: ./battery-system-configuration.csv
-
 
 The symbolic names of the individual strings needs to be adapted in
 ``BS_STRING_ID_e`` to the actual number of strings in the battery system.

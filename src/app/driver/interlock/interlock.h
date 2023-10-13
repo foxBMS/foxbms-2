@@ -43,8 +43,8 @@
  * @file    interlock.h
  * @author  foxBMS Team
  * @date    2020-02-24 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup DRIVERS
  * @prefix  ILCK
  *
@@ -68,7 +68,7 @@
 typedef enum {
     /* Init-Sequence */
     ILCK_STATEMACHINE_UNINITIALIZED, /*!< Uninitialized state */
-    ILCK_STATEMACHINE_INITIALIZED,   /*!< statemachine initialized */
+    ILCK_STATEMACHINE_INITIALIZED,   /*!< state machine initialized */
     ILCK_STATEMACHINE_UNDEFINED,     /*!< undefined state */
 } ILCK_STATEMACH_e;
 
@@ -80,7 +80,7 @@ typedef enum {
 } ILCK_STATEMACH_SUB_e;
 
 /**
- * State requests for the ILCK statemachine
+ * State requests for the ILCK state machine
  */
 typedef enum {
     ILCK_STATE_INITIALIZATION_REQUEST,
@@ -88,7 +88,7 @@ typedef enum {
 } ILCK_STATE_REQUEST_e;
 
 /**
- * Possible return values when state requests are made to the ILCK statemachine
+ * Possible return values when state requests are made to the ILCK state machine
  */
 typedef enum {
     ILCK_OK,                  /*!< ILCK --> ok                             */
@@ -103,19 +103,14 @@ typedef enum {
  */
 typedef struct {
     uint16_t timer; /*!< time in ms before the state machine processes the next state, e.g. in counts of 1ms    */
-    ILCK_STATE_REQUEST_e
-        statereq; /*!< current state request made to the state machine                                        */
-    ILCK_STATEMACH_e
-        state; /*!< state of Driver State Machine                                                          */
-    ILCK_STATEMACH_SUB_e
-        substate; /*!< current substate of the state machine                                                  */
-    ILCK_STATEMACH_e
-        laststate; /*!< previous state of the state machine                                                    */
-    ILCK_STATEMACH_SUB_e
-        lastsubstate; /*!< previous substate of the state machine                                                 */
-    uint32_t ErrRequestCounter; /*!< counts the number of illegal requests to the LTC state machine */
-    uint8_t triggerentry;       /*!< counter for re-entrance protection (function running flag) */
-    uint8_t counter;            /*!< general purpose counter */
+    ILCK_STATE_REQUEST_e statereq;     /*!< current state request made to the state machine */
+    ILCK_STATEMACH_e state;            /*!< state of Driver State Machine */
+    ILCK_STATEMACH_SUB_e substate;     /*!< current substate of the state machine */
+    ILCK_STATEMACH_e laststate;        /*!< previous state of the state machine */
+    ILCK_STATEMACH_SUB_e lastsubstate; /*!< previous substate of the state machine */
+    uint32_t ErrRequestCounter;        /*!< counts the number of illegal requests to the LTC state machine */
+    uint8_t triggerentry;              /*!< counter for re-entrance protection (function running flag) */
+    uint8_t counter;                   /*!< general purpose counter */
 } ILCK_STATE_s;
 
 /*========== Extern Constant and Variable Declarations ======================*/

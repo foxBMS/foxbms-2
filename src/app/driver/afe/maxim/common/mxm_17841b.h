@@ -43,8 +43,8 @@
  * @file    mxm_17841b.h
  * @author  foxBMS Team
  * @date    2018-12-14 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup DRIVERS
  * @prefix  MXM
  *
@@ -72,7 +72,7 @@
  * @brief SPI TX buffer length
  *
  * This define defines the length of the SPI TX buffer.
- * This TX buffer is declared in #MXM_41B_INSTANCE_s::spiTXBuffer.
+ * This TX buffer is declared in #MXM_41B_INSTANCE_s::spiTxBuffer.
  * The buffer has to be large enough to accommodate every
  * relevant SPI transaction.
  */
@@ -168,20 +168,20 @@ typedef struct {
     MXM_41B_STATE_REQUEST_STATUS_e *processed; /*!< status-indicator of the state-machine */
     uint8_t extendMessageBytes;                /*!< pass on number of bytes by which the TX-message shall be extended */
     uint8_t waitCounter;                       /*!< general error counter, will be reset in funtions */
-    uint8_t regRXIntEnable;                    /*!< local storage for the RX Interrupt Enable register */
-    uint8_t regTXIntEnable;                    /*!< local storage for the TX Interrupt Enable register */
-    uint8_t regRXStatus;                       /*!< local storage for the RX Status register */
-    uint8_t regTXStatus;                       /*!< local storage for the TX status register */
+    uint8_t regRxIntEnable;                    /*!< local storage for the RX Interrupt Enable register */
+    uint8_t regTxIntEnable;                    /*!< local storage for the TX Interrupt Enable register */
+    uint8_t regRxStatus;                       /*!< local storage for the RX Status register */
+    uint8_t regTxStatus;                       /*!< local storage for the TX status register */
     uint8_t regConfig1;                        /*!< local storage for the Config 1 register */
     uint8_t regConfig2;                        /*!< local storage for the Config 2 register */
     uint8_t regConfig3;                        /*!< local storage for the Config 3 register */
     uint8_t regRxSpace;                        /*!< RX space register (shows the left space in RX buffer) */
     uint8_t regFmea;                           /*!< FMEA register */
-    uint16_t hwModel;                          /*!< model number of the connected IC */
-    uint8_t hwMaskRevision;                    /*!< mask revision of the connected IC */
+    uint16_t hardwareModel;                    /*!< model number of the connected IC */
+    uint8_t hardwareMaskRevision;              /*!< mask revision of the connected IC */
     uint32_t shutdownTimeStamp;                /*!< timestamp of the last shutdown (or startup) action */
-    uint16_t spiRXBuffer[MXM_SPI_RX_BUFFER_LENGTH]; /*!< rx buffer for SPI */
-    uint16_t spiTXBuffer[MXM_SPI_TX_BUFFER_LENGTH]; /*!< tx buffer for SPI */
+    uint16_t spiRxBuffer[MXM_SPI_RX_BUFFER_LENGTH]; /*!< rx buffer for SPI */
+    uint16_t spiTxBuffer[MXM_SPI_TX_BUFFER_LENGTH]; /*!< tx buffer for SPI */
 } MXM_41B_INSTANCE_s;
 
 /*========== Extern Constant and Variable Declarations ======================*/

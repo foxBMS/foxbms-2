@@ -68,9 +68,9 @@ later steps of this manual.
    :caption: Downloading a release
    :name: download-foxbms-2
 
-   C:\Users\vulpes\Documents>curl -Ss -L -o foxbms-2-v1.5.1.zip https://github.com/foxBMS/foxbms-2/archive/v1.5.1.zip
-   C:\Users\vulpes\Documents>tar -x -f foxbms-2-v1.5.1.zip
-   C:\Users\vulpes\Documents>ren foxbms-2-1.5.1 foxbms-2
+   C:\Users\vulpes\Documents>curl --silent --show-error -L -o foxbms-2-v1.6.0.zip https://github.com/foxBMS/foxbms-2/archive/v1.6.0.zip
+   C:\Users\vulpes\Documents>tar -x -f foxbms-2-v1.6.0.zip
+   C:\Users\vulpes\Documents>ren foxbms-2-1.6.0 foxbms-2
    C:\Users\vulpes\Documents>cd foxbms-2
 
 .. note::
@@ -145,7 +145,6 @@ Installing |halcogen| may take a while.
 Installing Miniconda and Configuration
 ======================================
 
-
 .. note::
 
    If you already have installed miniconda3 in one of the default miniconda3
@@ -209,6 +208,8 @@ Installing LLVM
 |   C:\Users\vulpes\Documents\foxbms-2>tools\utils\llvm-install.bat              |                                         |
 |                                                                                |                                         |
 +--------------------------------------------------------------------------------+-----------------------------------------+
+
+.. _ruby_install_and_gem_install:
 
 Installing Ruby and Required Gems
 =================================

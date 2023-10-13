@@ -43,8 +43,8 @@
  * @file    database_cfg.h
  * @author  foxBMS Team
  * @date    2015-08-18 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup ENGINE_CONFIGURATION
  * @prefix  DATA
  *
@@ -76,39 +76,42 @@ typedef struct {
 
 /** data block identification numbers */
 typedef enum {
-    DATA_BLOCK_ID_CELL_VOLTAGE,
-    DATA_BLOCK_ID_CELL_TEMPERATURE,
-    DATA_BLOCK_ID_MIN_MAX,
-    DATA_BLOCK_ID_CURRENT_SENSOR,
-    DATA_BLOCK_ID_BALANCING_CONTROL,
-    DATA_BLOCK_ID_SLAVE_CONTROL,
-    DATA_BLOCK_ID_BALANCING_FEEDBACK_BASE,
-    DATA_BLOCK_ID_USER_MUX,
-    DATA_BLOCK_ID_OPEN_WIRE_BASE,
-    DATA_BLOCK_ID_ALL_GPIO_VOLTAGES_BASE,
-    DATA_BLOCK_ID_ERROR_STATE,
-    DATA_BLOCK_ID_CONTACTOR_FEEDBACK,
-    DATA_BLOCK_ID_INTERLOCK_FEEDBACK,
-    DATA_BLOCK_ID_SOF,
-    DATA_BLOCK_ID_SYSTEM_STATE,
-    DATA_BLOCK_ID_MSL_FLAG,
-    DATA_BLOCK_ID_RSL_FLAG,
-    DATA_BLOCK_ID_MOL_FLAG,
-    DATA_BLOCK_ID_SOX,
-    DATA_BLOCK_ID_STATE_REQUEST,
-    DATA_BLOCK_ID_MOVING_AVERAGE,
-    DATA_BLOCK_ID_CELL_VOLTAGE_BASE,
-    DATA_BLOCK_ID_CELL_TEMPERATURE_BASE,
-    DATA_BLOCK_ID_CELL_VOLTAGE_REDUNDANCY0,
-    DATA_BLOCK_ID_CELL_TEMPERATURE_REDUNDANCY0,
-    DATA_BLOCK_ID_BALANCING_FEEDBACK_REDUNDANCY0,
-    DATA_BLOCK_ID_ALL_GPIO_VOLTAGES_REDUNDANCY0,
-    DATA_BLOCK_ID_OPEN_WIRE_REDUNDANCY0,
-    DATA_BLOCK_ID_INSULATION_MONITORING,
-    DATA_BLOCK_ID_PACK_VALUES,
-    DATA_BLOCK_ID_HTSEN,
     DATA_BLOCK_ID_ADC_VOLTAGE,
+    DATA_BLOCK_ID_AEROSOL_SENSOR,
+    DATA_BLOCK_ID_ALL_GPIO_VOLTAGES_BASE,
+    DATA_BLOCK_ID_ALL_GPIO_VOLTAGES_REDUNDANCY0,
+    DATA_BLOCK_ID_BALANCING_CONTROL,
+    DATA_BLOCK_ID_BALANCING_FEEDBACK_BASE,
+    DATA_BLOCK_ID_BALANCING_FEEDBACK_REDUNDANCY0,
+    DATA_BLOCK_ID_CELL_TEMPERATURE,
+    DATA_BLOCK_ID_CELL_TEMPERATURE_BASE,
+    DATA_BLOCK_ID_CELL_TEMPERATURE_REDUNDANCY0,
+    DATA_BLOCK_ID_CELL_VOLTAGE,
+    DATA_BLOCK_ID_CELL_VOLTAGE_BASE,
+    DATA_BLOCK_ID_CELL_VOLTAGE_REDUNDANCY0,
+    DATA_BLOCK_ID_CONTACTOR_FEEDBACK,
+    DATA_BLOCK_ID_CURRENT_SENSOR,
     DATA_BLOCK_ID_DUMMY_FOR_SELF_TEST,
+    DATA_BLOCK_ID_ERROR_STATE,
+    DATA_BLOCK_ID_HTSEN,
+    DATA_BLOCK_ID_INSULATION_MONITORING,
+    DATA_BLOCK_ID_INTERLOCK_FEEDBACK,
+    DATA_BLOCK_ID_MIN_MAX,
+    DATA_BLOCK_ID_MOL_FLAG,
+    DATA_BLOCK_ID_MOVING_AVERAGE,
+    DATA_BLOCK_ID_MSL_FLAG,
+    DATA_BLOCK_ID_OPEN_WIRE_BASE,
+    DATA_BLOCK_ID_OPEN_WIRE_REDUNDANCY0,
+    DATA_BLOCK_ID_PACK_VALUES,
+    DATA_BLOCK_ID_RSL_FLAG,
+    DATA_BLOCK_ID_SLAVE_CONTROL,
+    DATA_BLOCK_ID_SOC,
+    DATA_BLOCK_ID_SOE,
+    DATA_BLOCK_ID_SOF,
+    DATA_BLOCK_ID_SOH,
+    DATA_BLOCK_ID_STATE_REQUEST,
+    DATA_BLOCK_ID_SYSTEM_STATE,
+    DATA_BLOCK_ID_USER_MUX,
     DATA_BLOCK_ID_MAX, /**< DO NOT CHANGE, MUST BE THE LAST ENTRY */
 } DATA_BLOCK_ID_e;
 
@@ -129,10 +132,11 @@ typedef struct {
     /* This struct needs to be at the beginning of every database entry. During
      * the initialization of a database struct, uniqueId must be set to the
      * respective database entry representation in enum DATA_BLOCK_ID_e. */
-    DATA_BLOCK_HEADER_s header;                                                /*!< Data block header */
-    uint8_t state;                                                             /*!< for future use */
-    int32_t stringVoltage_mV[BS_NR_OF_STRINGS];                                /*!< uint: mV */
-    int16_t cellVoltage_mV[BS_NR_OF_STRINGS][BS_NR_OF_CELL_BLOCKS_PER_STRING]; /*!< unit: mV */
+    DATA_BLOCK_HEADER_s header;                 /*!< Data block header */
+    uint8_t state;                              /*!< for future use */
+    int32_t stringVoltage_mV[BS_NR_OF_STRINGS]; /*!< uint: mV */
+    int16_t cellVoltage_mV[BS_NR_OF_STRINGS][BS_NR_OF_MODULES_PER_STRING]
+                          [BS_NR_OF_CELL_BLOCKS_PER_MODULE]; /*!< unit: mV */
     uint64_t
         invalidCellVoltage[BS_NR_OF_STRINGS]
                           [BS_NR_OF_MODULES_PER_STRING]; /*!< bitmask if voltages are valid. 0->valid, 1->invalid */
@@ -146,9 +150,10 @@ typedef struct {
     /* This struct needs to be at the beginning of every database entry. During
      * the initialization of a database struct, uniqueId must be set to the
      * respective database entry representation in enum DATA_BLOCK_ID_e. */
-    DATA_BLOCK_HEADER_s header;                                                        /*!< Data block header */
-    uint8_t state;                                                                     /*!< for future use */
-    int16_t cellTemperature_ddegC[BS_NR_OF_STRINGS][BS_NR_OF_TEMP_SENSORS_PER_STRING]; /*!< unit: deci &deg;C */
+    DATA_BLOCK_HEADER_s header; /*!< Data block header */
+    uint8_t state;              /*!< for future use */
+    int16_t cellTemperature_ddegC[BS_NR_OF_STRINGS][BS_NR_OF_MODULES_PER_STRING]
+                                 [BS_NR_OF_TEMP_SENSORS_PER_MODULE]; /*!< unit: deci &deg;C */
     uint16_t invalidCellTemperature
         [BS_NR_OF_STRINGS][BS_NR_OF_MODULES_PER_STRING]; /*!< bitmask if temperatures are valid. 0->valid, 1->invalid */
     uint16_t nrValidTemperatures[BS_NR_OF_STRINGS];      /*!< number of valid temperatures in each string */
@@ -354,6 +359,7 @@ typedef struct {
     bool openWireDetectedError[BS_NR_OF_STRINGS];                        /*!< false -> no error, true -> error */
     bool stateRequestTimingViolationError;                               /*!< false -> no error, true -> error */
     bool canRxQueueFullError;                                            /*!< false -> no error, true -> error */
+    bool canTxQueueFullError;                                            /*!< false -> no error, true -> error */
     bool coinCellLowVoltageError;                                        /*!< false -> no error, true -> error */
     bool plausibilityCheckPackVoltageError[BS_NR_OF_STRINGS];            /*!< false -> no error, true -> error */
     bool plausibilityCheckCellVoltageError[BS_NR_OF_STRINGS];            /*!< false -> no error, true -> error */
@@ -388,6 +394,7 @@ typedef struct {
     bool task100msTimingViolationError;     /*!< timing violation in 100ms task */
     bool task100msAlgoTimingViolationError; /*!< timing violation in 100ms algorithm task */
     bool alertFlagSetError;                 /*!< true: ALERT situation detected, false: everything okay */
+    bool aerosolAlert;                      /*!< true: high aerosol concentration detected */
 } DATA_BLOCK_ERROR_STATE_s;
 
 /** data block struct of contactor feedback */
@@ -502,7 +509,7 @@ typedef struct {
     uint8_t pcbUndertemperature[BS_NR_OF_STRINGS];        /*!< 0 -> MOL NOT violated, 1 -> MOL violated */
 } DATA_BLOCK_MOL_FLAG_s;
 
-/** data block struct of sox */
+/** data block struct of SOC */
 typedef struct {
     /* This struct needs to be at the beginning of every database entry. During
      * the initialization of a database struct, uniqueId must be set to the
@@ -511,16 +518,32 @@ typedef struct {
     float_t averageSoc_perc[BS_NR_OF_STRINGS]; /*!< 0.0 <= averageSoc <= 100.0 */
     float_t minimumSoc_perc[BS_NR_OF_STRINGS]; /*!< 0.0 <= minSoc <= 100.0 */
     float_t maximumSoc_perc[BS_NR_OF_STRINGS]; /*!< 0.0 <= maxSoc <= 100.0 */
-    float_t averageSoe_perc[BS_NR_OF_STRINGS]; /*!< 0.0 <= averageSoe <= 100.0 */
-    float_t minimumSoe_perc[BS_NR_OF_STRINGS]; /*!< 0.0 <= minimumSoe <= 100.0  */
-    float_t maximumSoe_perc[BS_NR_OF_STRINGS]; /*!< 0.0 <= maximumSoe <= 100.0  */
+} DATA_BLOCK_SOC_s;
+
+/** data block struct of SOH */
+typedef struct {
+    /* This struct needs to be at the beginning of every database entry. During
+     * the initialization of a database struct, uniqueId must be set to the
+     * respective database entry representation in enum DATA_BLOCK_ID_e. */
+    DATA_BLOCK_HEADER_s header;                /*!< Data block header */
     float_t averageSoh_perc[BS_NR_OF_STRINGS]; /*!< 0.0 <= averageSoh <= 100.0 */
     float_t minimumSoh_perc[BS_NR_OF_STRINGS]; /*!< 0.0 <= minimumSoh <= 100.0  */
     float_t maximumSoh_perc[BS_NR_OF_STRINGS]; /*!< 0.0 <= maximumSoh <= 100.0  */
+} DATA_BLOCK_SOH_s;
+
+/** data block struct of SOE */
+typedef struct {
+    /* This struct needs to be at the beginning of every database entry. During
+     * the initialization of a database struct, uniqueId must be set to the
+     * respective database entry representation in enum DATA_BLOCK_ID_e. */
+    DATA_BLOCK_HEADER_s header;                /*!< Data block header */
+    float_t averageSoe_perc[BS_NR_OF_STRINGS]; /*!< 0.0 <= averageSoe <= 100.0 */
+    float_t minimumSoe_perc[BS_NR_OF_STRINGS]; /*!< 0.0 <= minimumSoe <= 100.0  */
+    float_t maximumSoe_perc[BS_NR_OF_STRINGS]; /*!< 0.0 <= maximumSoe <= 100.0  */
     uint32_t maximumSoe_Wh[BS_NR_OF_STRINGS];  /*!< maximum string energy in Wh */
     uint32_t averageSoe_Wh[BS_NR_OF_STRINGS];  /*!< average string energy in Wh */
     uint32_t minimumSoe_Wh[BS_NR_OF_STRINGS];  /*!< minimum string energy in Wh */
-} DATA_BLOCK_SOX_s;
+} DATA_BLOCK_SOE_s;
 
 /** data block struct of can state request */
 typedef struct {
@@ -603,6 +626,20 @@ typedef struct {
     uint8_t member1;            /*!< first member of self-test struct */
     uint8_t member2;            /*!< second member of self-test struct */
 } DATA_BLOCK_DUMMY_FOR_SELF_TEST_s;
+
+/** data block struct for the BAS6C-X00 aerosol sensor */
+typedef struct {
+    /* This struct needs to be at the beginning of every database entry. During
+     * the initialization of a database struct, uniqueId must be set to the
+     * respective database entry representation in enum DATA_BLOCK_ID_e. */
+    DATA_BLOCK_HEADER_s header;              /*!< Data block header */
+    uint8_t sensorStatus;                    /*!< 0: normal, 1: alarm, 2: reserved */
+    bool photoelectricError;                 /*!< true when sensor has photoelectric device fault */
+    bool supplyOvervoltageError;             /*!< true when voltage supply supplies over voltage */
+    bool supplyUndervoltageError;            /*!< true when voltage supply supplies under voltage */
+    uint16_t particulateMatterConcentration; /*!< particulate matter concentration in microgram/m^3 */
+    uint8_t crcCheckCode;                    /*!< */
+} DATA_BLOCK_AEROSOL_SENSOR_s;
 
 /** array for the database */
 extern DATA_BASE_s data_database[DATA_BLOCK_ID_MAX];

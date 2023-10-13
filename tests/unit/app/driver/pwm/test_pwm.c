@@ -43,8 +43,8 @@
  * @file    test_pwm.c
  * @author  foxBMS Team
  * @date    2021-10-08 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -66,13 +66,19 @@
 #include "pwm.h"
 #include "test_assert_helper.h"
 
+/*========== Unit Testing Framework Directives ==============================*/
+TEST_INCLUDE_PATH("../../src/app/driver/foxmath")
+TEST_INCLUDE_PATH("../../src/app/driver/pwm")
+
 /*========== Definitions and Implementations for Unit Test ==================*/
 static uint8_t fsysRaisePrivilegeReturnValue = 0u;
 long FSYS_RaisePrivilege(void) {
     return fsysRaisePrivilegeReturnValue;
 }
 
-void ecapInit(void){};
+void ecapInit(void) {
+    /* dummy implementation required for linking */
+}
 
 uint32_t ecapGetCAP1(ecapBASE_t *ecap) {
     return ecap->CAP1;

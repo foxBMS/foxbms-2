@@ -75,6 +75,7 @@ def build(bld):
         os.path.join("..", "application", "redundancy"),
         os.path.join("..", "driver", "adc"),
         os.path.join("..", "driver", "can"),
+        os.path.join("..", "driver", "can", "cbs", "tx"),
         os.path.join("..", "driver", "config"),
         os.path.join("..", "driver", "contactor"),
         os.path.join("..", "driver", "crc"),

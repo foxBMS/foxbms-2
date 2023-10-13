@@ -37,8 +37,8 @@ To avoid reading the RTC IC frequently, an RTC system timer is defined
 in ``rtc.c`` with the name ``rtc_SystemTime``.
 It has the format ``RTC_SYSTEM_TIMER_EPOCH_s``. This struct has two elements:
 
- - the time in Unix format, which means seconds since January 1st 1970
- - an additional field with milliseconds
+- the time in Unix format, which means seconds since January 1st 1970
+- an additional field with milliseconds
 
 The function ``RTC_IncrementSystemTime()`` is used to increment the RTC
 system timer.

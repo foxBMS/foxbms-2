@@ -66,6 +66,7 @@ if Utils.is_win32:
     CONDA_BASE = [
         os.path.join(os.environ["USERPROFILE"], "miniconda3"),
         os.path.join(os.environ["LOCALAPPDATA"], "Continuum", "miniconda3"),
+        os.path.join(os.environ["LOCALAPPDATA"], "miniconda3"),
         os.path.join(os.environ["ProgramData"], "Miniconda3"),
         os.path.join(os.environ["SystemDrive"], os.sep, "miniconda3"),
     ]

@@ -43,8 +43,8 @@
  * @file    debug_default.c
  * @author  foxBMS Team
  * @date    2020-09-17 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup DRIVER
  * @prefix  FAKE
  *
@@ -245,8 +245,8 @@ static void FAKE_SetState(
 
     if ((pFakeState->currentState == nextState) && (pFakeState->currentSubstate == nextSubstate)) {
         /* Next state and next substate equal to current state and substate: nothing to do */
-        pFakeState->nextState    = FAKE_FSM_STATE_DUMMY;    /* no state transistion required -> reset */
-        pFakeState->nextSubstate = FAKE_FSM_SUBSTATE_DUMMY; /* no substate transistion required -> reset */
+        pFakeState->nextState    = FAKE_FSM_STATE_DUMMY;    /* no state transition required -> reset */
+        pFakeState->nextSubstate = FAKE_FSM_SUBSTATE_DUMMY; /* no substate transition required -> reset */
         earlyExit                = true;
     }
 
@@ -257,8 +257,8 @@ static void FAKE_SetState(
             pFakeState->currentState     = nextState;
             pFakeState->previousSubstate = pFakeState->currentSubstate;
             pFakeState->currentSubstate  = FAKE_FSM_SUBSTATE_ENTRY; /* Use entry state after a top level state change */
-            pFakeState->nextState        = FAKE_FSM_STATE_DUMMY;    /* no state transistion required -> reset */
-            pFakeState->nextSubstate     = FAKE_FSM_SUBSTATE_DUMMY; /* no substate transistion required -> reset */
+            pFakeState->nextState        = FAKE_FSM_STATE_DUMMY;    /* no state transition required -> reset */
+            pFakeState->nextSubstate     = FAKE_FSM_SUBSTATE_DUMMY; /* no substate transition required -> reset */
         } else if (pFakeState->currentSubstate != nextSubstate) {
             /* Only the next substate is different, switch to it */
             FAKE_SetSubstate(pFakeState, nextSubstate, idleTime);
@@ -280,36 +280,38 @@ static void FAKE_SetFirstMeasurementCycleFinished(FAKE_STATE_s *pFakeState) {
     FAS_ASSERT(pFakeState != NULL_PTR);
     OS_EnterTaskCritical();
 
-    uint16_t i = 0;
-
     for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
         pFakeState->data.cellVoltage->stringVoltage_mV[s] = FAKE_CELL_VOLTAGE_mV * BS_NR_OF_CELL_BLOCKS_PER_STRING;
-        for (i = 0; i < BS_NR_OF_CELL_BLOCKS_PER_STRING; i++) {
-            pFakeState->data.cellVoltage->cellVoltage_mV[s][i] = FAKE_CELL_VOLTAGE_mV;
+        for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
+            for (uint8_t cb = 0u; cb < BS_NR_OF_CELL_BLOCKS_PER_MODULE; cb++) {
+                pFakeState->data.cellVoltage->cellVoltage_mV[s][m][cb] = FAKE_CELL_VOLTAGE_mV;
+            }
         }
 
         pFakeState->data.cellVoltage->state     = 0;
         pFakeState->data.cellTemperature->state = 0;
-        for (i = 0; i < BS_NR_OF_TEMP_SENSORS_PER_STRING; i++) {
-            pFakeState->data.cellTemperature->cellTemperature_ddegC[s][i] = FAKE_CELL_TEMPERATURE_ddegC;
+        for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
+            for (uint8_t ts = 0u; ts < BS_NR_OF_TEMP_SENSORS_PER_MODULE; ts++) {
+                pFakeState->data.cellTemperature->cellTemperature_ddegC[s][m][ts] = FAKE_CELL_TEMPERATURE_ddegC;
+            }
         }
 
         pFakeState->data.balancingFeedback->state = 0;
-        for (i = 0; i < BS_NR_OF_CELL_BLOCKS_PER_STRING; i++) {
-            pFakeState->data.balancingControl->balancingState[s][i] = 0;
+        for (uint16_t cb = 0u; cb < BS_NR_OF_CELL_BLOCKS_PER_STRING; cb++) {
+            pFakeState->data.balancingControl->balancingState[s][cb] = 0u;
         }
         pFakeState->data.balancingControl->nrBalancedCells[s] = 0u;
-        for (i = 0; i < BS_NR_OF_MODULES_PER_STRING; i++) {
-            pFakeState->data.balancingFeedback->value[s][i] = 0;
+        for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
+            pFakeState->data.balancingFeedback->value[s][m] = 0u;
         }
 
         pFakeState->data.slaveControl->state = 0;
-        for (i = 0; i < BS_NR_OF_MODULES_PER_STRING; i++) {
-            pFakeState->data.slaveControl->ioValueIn[i]                 = 0;
-            pFakeState->data.slaveControl->ioValueOut[i]                = 0;
-            pFakeState->data.slaveControl->externalTemperatureSensor[i] = 0;
-            pFakeState->data.slaveControl->eepromValueRead[i]           = 0;
-            pFakeState->data.slaveControl->eepromValueWrite[i]          = 0;
+        for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
+            pFakeState->data.slaveControl->ioValueIn[m]                 = 0;
+            pFakeState->data.slaveControl->ioValueOut[m]                = 0;
+            pFakeState->data.slaveControl->externalTemperatureSensor[m] = 0;
+            pFakeState->data.slaveControl->eepromValueRead[m]           = 0;
+            pFakeState->data.slaveControl->eepromValueWrite[m]          = 0;
         }
         pFakeState->data.slaveControl->eepromReadAddressLastUsed  = 0xFFFFFFFF;
         pFakeState->data.slaveControl->eepromReadAddressToUse     = 0xFFFFFFFF;
@@ -317,12 +319,12 @@ static void FAKE_SetFirstMeasurementCycleFinished(FAKE_STATE_s *pFakeState) {
         pFakeState->data.slaveControl->eepromWriteAddressToUse    = 0xFFFFFFFF;
 
         pFakeState->data.allGpioVoltages->state = 0;
-        for (i = 0; i < (BS_NR_OF_MODULES_PER_STRING * BS_NR_OF_GPIOS_PER_MODULE); i++) {
-            pFakeState->data.allGpioVoltages->gpioVoltages_mV[s][i] = 0;
+        for (uint16_t gpio = 0u; gpio < (BS_NR_OF_MODULES_PER_STRING * BS_NR_OF_GPIOS_PER_MODULE); gpio++) {
+            pFakeState->data.allGpioVoltages->gpioVoltages_mV[s][gpio] = 0;
         }
 
-        for (i = 0; i < (BS_NR_OF_MODULES_PER_STRING * (BS_NR_OF_CELL_BLOCKS_PER_MODULE + 1)); i++) {
-            pFakeState->data.openWire->openWire[s][i] = 0;
+        for (uint16_t ow = 0u; ow < (BS_NR_OF_MODULES_PER_STRING * (BS_NR_OF_CELL_BLOCKS_PER_MODULE + 1u)); ow++) {
+            pFakeState->data.openWire->openWire[s][ow] = 0u;
         }
         pFakeState->data.openWire->state = 0;
     }
@@ -339,34 +341,37 @@ static void FAKE_SetFirstMeasurementCycleFinished(FAKE_STATE_s *pFakeState) {
 
 static STD_RETURN_TYPE_e FAKE_SaveFakeVoltageMeasurementData(FAKE_STATE_s *pFakeState) {
     FAS_ASSERT(pFakeState != NULL_PTR);
-    STD_RETURN_TYPE_e successfullSave = STD_OK;
+    STD_RETURN_TYPE_e successfulSave = STD_OK;
 
     for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
         pFakeState->data.cellVoltage->nrValidCellVoltages[s] = 0u;
-        for (uint16_t i = 0u; i < BS_NR_OF_CELL_BLOCKS_PER_STRING; i++) {
-            pFakeState->data.cellVoltage->cellVoltage_mV[s][i] = FAKE_CELL_VOLTAGE_mV;
-            pFakeState->data.cellVoltage->nrValidCellVoltages[s] += 1u;
+        for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
+            for (uint16_t cb = 0u; cb < BS_NR_OF_CELL_BLOCKS_PER_MODULE; cb++) {
+                pFakeState->data.cellVoltage->cellVoltage_mV[s][m][cb] = FAKE_CELL_VOLTAGE_mV;
+                pFakeState->data.cellVoltage->nrValidCellVoltages[s] += 1u;
+            }
         }
     }
-
     DATA_WRITE_DATA(pFakeState->data.cellVoltage);
 
-    return successfullSave;
+    return successfulSave;
 }
 
 static STD_RETURN_TYPE_e FAKE_SaveFakeTemperatureMeasurementData(FAKE_STATE_s *pFakeState) {
     FAS_ASSERT(pFakeState != NULL_PTR);
-    STD_RETURN_TYPE_e successfullSave = STD_OK;
+    STD_RETURN_TYPE_e successfulSave = STD_OK;
 
     for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
-        for (uint16_t i = 0u; i < BS_NR_OF_TEMP_SENSORS_PER_STRING; i++) {
-            pFakeState->data.cellTemperature->cellTemperature_ddegC[s][i] = FAKE_CELL_TEMPERATURE_ddegC;
+        for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
+            for (uint8_t ts = 0u; ts < BS_NR_OF_TEMP_SENSORS_PER_MODULE; ts++) {
+                pFakeState->data.cellTemperature->cellTemperature_ddegC[s][m][ts] = FAKE_CELL_TEMPERATURE_ddegC;
+            }
         }
     }
 
     DATA_WRITE_DATA(pFakeState->data.cellTemperature);
 
-    return successfullSave;
+    return successfulSave;
 }
 
 static FAKE_FSM_STATES_e FAKE_ProcessInitializationState(FAKE_STATE_s *pFakeState) {

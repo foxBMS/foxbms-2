@@ -345,6 +345,8 @@
             "names": [
                 "*Notification",
                 "_c_int00",
+                "FTSK_CreateTask*",
+                "main",
                 "vApplicationIdleHook",
                 "vApplicationStackOverflowHook"
             ]
@@ -1308,6 +1310,9 @@
             "_active": true
         },
         "NextCodeline": {
+            "_active": true
+        },
+        "NextConstruct": {
             "_active": true
         },
         "NextLine": {

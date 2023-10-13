@@ -43,8 +43,8 @@
  * @file    test_io.c
  * @author  foxBMS Team
  * @date    2020-06-10 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -59,7 +59,10 @@
 #include "io.h"
 #include "test_assert_helper.h"
 
-TEST_FILE("io.c")
+/*========== Unit Testing Framework Directives ==============================*/
+TEST_SOURCE_FILE("io.c")
+
+TEST_INCLUDE_PATH("../../src/app/driver/io")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 

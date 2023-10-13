@@ -43,8 +43,8 @@
  * @file    bal_strategy_history.c
  * @author  foxBMS Team
  * @date    2020-05-29 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup APPLICATION
  * @prefix  BAL
  *
@@ -53,10 +53,9 @@
  */
 
 /*========== Includes =======================================================*/
-#include "bal_strategy_history.h"
-
 #include "battery_cell_cfg.h"
 
+#include "bal.h"
 #include "bms.h"
 #include "database.h"
 #include "os.h"
@@ -131,16 +130,17 @@ static void BAL_ActivateBalancing(void) {
 
     for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
         uint16_t nrBalancedCells = 0u;
-        for (uint8_t c = 0u; c < BS_NR_OF_CELL_BLOCKS_PER_STRING; c++) {
+        for (uint16_t c = 0u; c < BS_NR_OF_CELL_BLOCKS_PER_STRING; c++) {
             if (bal_state.balancingAllowed == false) {
                 bal_balancing.balancingState[s][c] = 0;
             } else {
                 if (bal_balancing.deltaCharge_mAs[s][c] > 0) {
                     bal_balancing.balancingState[s][c] = 1;
                     nrBalancedCells++;
-                    cellBalancingCurrent = ((float_t)(bal_cellVoltage.cellVoltage_mV[s][c])) /
+                    uint8_t moduleNumber = c / BS_NR_OF_CELL_BLOCKS_PER_MODULE;
+                    cellBalancingCurrent = ((float_t)(bal_cellVoltage.cellVoltage_mV[s][moduleNumber][c])) /
                                            BS_BALANCING_RESISTANCE_ohm;
-                    difference       = (BAL_STATEMACH_BALANCINGTIME_100ms / 10) * (uint32_t)(cellBalancingCurrent);
+                    difference       = (BAL_STATEMACH_BALANCINGTIME_100ms / 10u) * (uint32_t)(cellBalancingCurrent);
                     bal_state.active = true;
                     bal_balancing.enableBalancing = 1;
                     /* we are working with unsigned integers */
@@ -268,38 +268,50 @@ static bool BAL_CheckImbalances(void) {
 }
 
 static void BAL_ComputeImbalances(void) {
-    uint16_t voltageMin      = 0;
-    uint16_t minVoltageIndex = 0;
-    float_t SOC              = 0.0f;
-    uint32_t DOD             = 0;
-    uint32_t maxDOD          = 0;
+    int16_t voltageMin_mV                   = 0;
+    uint16_t minVoltageModuleIndex          = 0;
+    uint16_t minVoltageModuleCellBlockIndex = 0;
+    float_t SOC                             = 0.0f;
+    uint32_t DOD                            = 0;
+    uint32_t maxDOD                         = 0;
 
     DATA_READ_DATA(&bal_balancing, &bal_cellVoltage);
 
     for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
-        voltageMin      = bal_cellVoltage.cellVoltage_mV[s][0];
-        minVoltageIndex = 0;
-
-        for (uint16_t c = 0u; c < BS_NR_OF_CELL_BLOCKS_PER_STRING; c++) {
-            if (bal_cellVoltage.cellVoltage_mV[s][c] <= voltageMin) {
-                voltageMin      = bal_cellVoltage.cellVoltage_mV[s][c];
-                minVoltageIndex = c;
+        /* Assign first cell voltage to*/
+        voltageMin_mV                  = INT16_MAX;
+        minVoltageModuleIndex          = 0u;
+        minVoltageModuleCellBlockIndex = 0u;
+        for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
+            for (uint16_t cb = 0u; cb < BS_NR_OF_CELL_BLOCKS_PER_MODULE; cb++) {
+                if (bal_cellVoltage.cellVoltage_mV[s][m][cb] <= voltageMin_mV) {
+                    voltageMin_mV                  = bal_cellVoltage.cellVoltage_mV[s][m][cb];
+                    minVoltageModuleIndex          = m;
+                    minVoltageModuleCellBlockIndex = cb;
+                }
             }
         }
 
-        SOC = SE_GetStateOfChargeFromVoltage(((float_t)(bal_cellVoltage.cellVoltage_mV[s][minVoltageIndex])) / 1000.0f);
-        maxDOD                                            = BC_CAPACITY_mAh * (uint32_t)((1.0f - SOC) * 3600.0f);
-        bal_balancing.deltaCharge_mAs[s][minVoltageIndex] = 0;
+        SOC = SE_GetStateOfChargeFromVoltage(
+            ((float_t)(bal_cellVoltage.cellVoltage_mV[s][minVoltageModuleIndex][minVoltageModuleCellBlockIndex])) /
+            1000.0f);
+        maxDOD = BC_CAPACITY_mAh * (uint32_t)((1.0f - SOC) * 3600.0f);
+        bal_balancing.deltaCharge_mAs[s]
+                                     [(minVoltageModuleIndex * BS_NR_OF_CELL_BLOCKS_PER_MODULE) +
+                                      minVoltageModuleCellBlockIndex] = 0u;
 
         /* update balancing threshold */
         bal_state.balancingThreshold = BAL_GetBalancingThreshold_mV() + BAL_HYSTERESIS_mV;
 
-        for (uint16_t c = 0u; c < BS_NR_OF_CELL_BLOCKS_PER_STRING; c++) {
-            if (c != minVoltageIndex) {
-                if (bal_cellVoltage.cellVoltage_mV[s][c] >= (voltageMin + bal_state.balancingThreshold)) {
-                    SOC = SE_GetStateOfChargeFromVoltage(((float_t)(bal_cellVoltage.cellVoltage_mV[s][c])) / 1000.0f);
-                    DOD = BC_CAPACITY_mAh * (uint32_t)((1.0f - SOC) * 3600.0f);
-                    bal_balancing.deltaCharge_mAs[s][c] = (maxDOD - DOD);
+        for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
+            for (uint16_t cb = 0u; cb < BS_NR_OF_CELL_BLOCKS_PER_MODULE; cb++) {
+                if ((m != minVoltageModuleIndex) || (cb != minVoltageModuleCellBlockIndex)) {
+                    if (bal_cellVoltage.cellVoltage_mV[s][m][cb] >= (voltageMin_mV + bal_state.balancingThreshold)) {
+                        SOC = SE_GetStateOfChargeFromVoltage(
+                            ((float_t)(bal_cellVoltage.cellVoltage_mV[s][m][cb])) / 1000.0f);
+                        DOD = BC_CAPACITY_mAh * (uint32_t)((1.0f - SOC) * 3600.0f);
+                        bal_balancing.deltaCharge_mAs[s][(m * BS_NR_OF_CELL_BLOCKS_PER_MODULE) + cb] = (maxDOD - DOD);
+                    }
                 }
             }
         }

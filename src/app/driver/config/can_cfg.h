@@ -43,8 +43,8 @@
  * @file    can_cfg.h
  * @author  foxBMS Team
  * @date    2019-12-04 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup DRIVERS
  * @prefix  CAN
  *
@@ -178,18 +178,21 @@ typedef struct {
     OS_QUEUE *pQueueImd;                                  /*!< handle of the message queue */
     DATA_BLOCK_CELL_VOLTAGE_s *pTableCellVoltage;         /*!< database table with cell voltages */
     DATA_BLOCK_CELL_TEMPERATURE_s *pTableCellTemperature; /*!< database table with cell temperatures */
-    DATA_BLOCK_MIN_MAX_s *pTableMinMax;                   /*!< database table with min/max values */
     DATA_BLOCK_CURRENT_SENSOR_s *pTableCurrentSensor;     /*!< database table with current sensor measurements */
-    DATA_BLOCK_OPEN_WIRE_s *pTableOpenWire;               /*!< database table with open wire status */
-    DATA_BLOCK_STATE_REQUEST_s *pTableStateRequest;       /*!< database table with state requests */
-    DATA_BLOCK_PACK_VALUES_s *pTablePackValues;           /*!< database table with pack values */
-    DATA_BLOCK_SOF_s *pTableSof;                          /*!< database table with SOF values */
-    DATA_BLOCK_SOX_s *pTableSox;                          /*!< database table with SOC and SOE values */
     DATA_BLOCK_ERROR_STATE_s *pTableErrorState;           /*!< database table with error state variables */
     DATA_BLOCK_INSULATION_MONITORING_s *pTableInsulation; /*!< database table with insulation monitoring info */
-    DATA_BLOCK_MSL_FLAG_s *pTableMsl;                     /*!< database table with MSL flags */
-    DATA_BLOCK_RSL_FLAG_s *pTableRsl;                     /*!< database table with RSL flags */
+    DATA_BLOCK_MIN_MAX_s *pTableMinMax;                   /*!< database table with min/max values */
     DATA_BLOCK_MOL_FLAG_s *pTableMol;                     /*!< database table with MOL flags */
+    DATA_BLOCK_MSL_FLAG_s *pTableMsl;                     /*!< database table with MSL flags */
+    DATA_BLOCK_OPEN_WIRE_s *pTableOpenWire;               /*!< database table with open wire status */
+    DATA_BLOCK_PACK_VALUES_s *pTablePackValues;           /*!< database table with pack values */
+    DATA_BLOCK_RSL_FLAG_s *pTableRsl;                     /*!< database table with RSL flags */
+    DATA_BLOCK_SOC_s *pTableSoc;                          /*!< database table with SOC values */
+    DATA_BLOCK_SOE_s *pTableSoe;                          /*!< database table with SOE values */
+    DATA_BLOCK_SOF_s *pTableSof;                          /*!< database table with SOF values */
+    DATA_BLOCK_SOH_s *pTableSoh;                          /*!< database table with SOH values */
+    DATA_BLOCK_STATE_REQUEST_s *pTableStateRequest;       /*!< database table with state requests */
+    DATA_BLOCK_AEROSOL_SENSOR_s *pTableAerosolSensor;     /*!< database table with aerosol sensor measurements */
 } CAN_SHIM_s;
 
 /** definition of a CAN message (without data) */
@@ -258,8 +261,8 @@ extern const CAN_RX_MESSAGE_TYPE_s can_rxMessages[];
 /**@}*/
 
 /** array length for transmission CAN0 message definition @{*/
-extern const uint8_t can_txLength;
-extern const uint8_t can_rxLength;
+extern const uint8_t can_txMessagesLength;
+extern const uint8_t can_rxMessagesLength;
 /**@}*/
 
 /*========== Extern Function Prototypes =====================================*/

@@ -105,6 +105,7 @@ class DebugMessage:
         mcu_lot_number = 0
         mcu_unique_die_id = 0
         mcu_wafer_information = 0
+        mcu_get_commit_hash = 0
         if _type == "foxBMS_GetBmsSoftwareVersion":
             bms_software_version = 1
         elif _type == "foxBMS_GetMcuLotNumber":
@@ -113,11 +114,14 @@ class DebugMessage:
             mcu_unique_die_id = 1
         elif _type == "foxBMS_GetMcuWaferInformation":
             mcu_wafer_information = 1
+        elif _type == "foxBMS_GetCommitHash":
+            mcu_get_commit_hash = 1
         elif _type == "all":
             bms_software_version = 1
             mcu_lot_number = 1
             mcu_unique_die_id = 1
             mcu_wafer_information = 1
+            mcu_get_commit_hash = 1
         else:
             logging.error(f"Unsupported value {_type}")
         msg_data = {
@@ -126,6 +130,7 @@ class DebugMessage:
             "foxBMS_GetMcuLotNumber": mcu_lot_number,
             "foxBMS_GetMcuUniqueDieId": mcu_unique_die_id,
             "foxBMS_GetMcuWaferInformation": mcu_wafer_information,
+            "foxBMS_GetCommitHash": mcu_get_commit_hash,
         }
         data = self.message.encode(msg_data, padding=True)
         logging.debug(msg_data)

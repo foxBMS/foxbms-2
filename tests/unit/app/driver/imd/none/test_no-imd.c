@@ -43,8 +43,8 @@
  * @file    test_no-imd.c
  * @author  foxBMS Team
  * @date    2020-04-01 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -60,6 +60,13 @@
 #include "database_cfg.h"
 
 #include "no-imd.h"
+
+/*========== Unit Testing Framework Directives ==============================*/
+TEST_INCLUDE_PATH("../../src/app/driver/config")
+TEST_INCLUDE_PATH("../../src/app/driver/imd")
+TEST_INCLUDE_PATH("../../src/app/driver/imd/none")
+TEST_INCLUDE_PATH("../../src/app/task/config")
+TEST_INCLUDE_PATH("../../src/app/task/ftask")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 

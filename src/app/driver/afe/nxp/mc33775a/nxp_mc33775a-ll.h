@@ -20,6 +20,19 @@
 * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+/**
+ * @file    nxp_mc33775a-ll.h
+ * @author  NXP
+ * @date    2022-07-29 (date of creation)
+ * @updated 2023-09-05 (date of last update)
+ * @version v1.6.0
+ * @ingroup DRIVERS
+ * @prefix  N775
+ *
+ * @brief   Header for the low level driver for the MC33775A
+ *
+ */
+
 #ifndef FOXBMS__NXP_MC33775A_LL_H_
 #define FOXBMS__NXP_MC33775A_LL_H_
 
@@ -73,14 +86,14 @@ void N775_CommunicationWrite(
  * @param   deviceAddress
  * @param   registerAddress
  * @param   pValue
- * @param   n775_state
+ * @param   pState
  * @return  returns 0 on success and >=1 in error case
  */
 N775_COMMUNICATION_STATUS_e N775_CommunicationRead(
     uint16_t deviceAddress,
     uint16_t registerAddress,
     uint16_t *pValue,
-    N775_STATE_s *n775_state);
+    N775_STATE_s *pState);
 
 /**
  * @brief   Read multiple values from specific registers in a specific device
@@ -89,7 +102,7 @@ N775_COMMUNICATION_STATUS_e N775_CommunicationRead(
  * @param   responseLength
  * @param   registerAddress
  * @param   pValues
- * @param   n775_state
+ * @param   pState
  * @return  returns 0 on success and >=1 in error case
  */
 N775_COMMUNICATION_STATUS_e N775_CommunicationReadMultiple(
@@ -98,7 +111,7 @@ N775_COMMUNICATION_STATUS_e N775_CommunicationReadMultiple(
     uint16_t responseLength,
     uint16_t registerAddress,
     uint16_t *pValues,
-    N775_STATE_s *n775_state);
+    N775_STATE_s *pState);
 
 /**
  * @brief   Reset the message counter for one or all devices

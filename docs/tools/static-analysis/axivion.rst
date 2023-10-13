@@ -32,9 +32,9 @@ Setup
 -----
 
 - Install OpenJDK and make it available in PATH.
-- Install Python 3.8 from https://www.python.org/downloads/windows/. Use the
-  user installer and make sure to install the Python launcher. Leave all other
-  options as they are selected.
+- Install Python 3.8 from https://www.python.org/downloads/windows/.
+  Use the user installer and make sure to install the Python launcher.
+  Leave all other options as they are selected.
 - Extract Axivion Bauhaus Suite from the zip-file and copy it in a versioned
   directory e.g., ``C:\Bauhaus\x.y.z`` and add ``C:\Bauhaus\x.y.z\bin`` to the
   user PATH environment variable.
@@ -119,9 +119,11 @@ Advanced Usage
 Race Condition Analysis
 +++++++++++++++++++++++
 
-Go into the directory `racepdfs` and execute the wrapper batch file. This
-should generate a directory with call graphs to variables that are accessed in
-a potential unsafe manner. These can be used for closer investigation.
+Go into the directory `racepdfs` and execute the wrapper batch file.
+This should generate a directory with call graphs to variables that are
+accessed in a potential unsafe manner.
+These can be used for closer investigation.
+
 
 Updating the architecture
 -------------------------

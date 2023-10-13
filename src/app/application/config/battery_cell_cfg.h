@@ -43,8 +43,8 @@
  * @file    battery_cell_cfg.h
  * @author  foxBMS Team
  * @date    2017-03-14 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup BATTERY_CELL_CONFIGURATION
  * @prefix  BC
  *
@@ -113,7 +113,7 @@
 /**@}*/
 
 /**
- * @brief   Minimum temperature limit during discharge.
+ * @brief   Minimum temperature limit during charge.
  * @details When maximum safety limit (MSL) is violated, error state is
  *          requested and contactors will open. When recommended safety limit
  *          (RSL) or maximum operating limit (MOL) is violated, the respective

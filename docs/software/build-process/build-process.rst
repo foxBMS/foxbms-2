@@ -56,7 +56,6 @@ This failure is reported by the build system.
     did not match on
             static DATA_BLOCK_CELL_VOLTAGE_s mrc_tableCellVoltages         = {.header.uniqueId = DATA_BLOCK_ID_MIN_MAX};
 
-
 .. _afe_library_build:
 
 Building the Analog Front-End Library

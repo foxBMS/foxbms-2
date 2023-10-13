@@ -43,8 +43,8 @@
  * @file    redundancy.h
  * @author  foxBMS Team
  * @date    2020-07-31 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup APPLICATION
  * @prefix  MRC
  *

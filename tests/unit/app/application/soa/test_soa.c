@@ -43,12 +43,12 @@
  * @file    test_soa.c
  * @author  foxBMS Team
  * @date    2020-04-01 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
- * @brief   Tests for SOX module responsible for calculation of current derating and of SOC
+ * @brief   Tests for SOA module responsible for the current, voltage and temperature checking of the safe operating area.
  *
  */
 
@@ -62,6 +62,16 @@
 
 #include "foxmath.h"
 #include "soa.h"
+
+/*========== Unit Testing Framework Directives ==============================*/
+TEST_INCLUDE_PATH("../../src/app/application/bms")
+TEST_INCLUDE_PATH("../../src/app/application/soa")
+TEST_INCLUDE_PATH("../../src/app/driver/config")
+TEST_INCLUDE_PATH("../../src/app/driver/contactor")
+TEST_INCLUDE_PATH("../../src/app/driver/foxmath")
+TEST_INCLUDE_PATH("../../src/app/driver/sps")
+TEST_INCLUDE_PATH("../../src/app/engine/diag")
+TEST_INCLUDE_PATH("../../src/app/task/config")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 

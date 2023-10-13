@@ -43,8 +43,8 @@
  * @file    test_ftask.c
  * @author  foxBMS Team
  * @date    2020-04-02 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -91,6 +91,39 @@
 #include "fassert.h"
 #include "ftask.h"
 
+/*========== Unit Testing Framework Directives ==============================*/
+TEST_INCLUDE_PATH("../../src/app/application/algorithm")
+TEST_INCLUDE_PATH("../../src/app/application/algorithm/config")
+TEST_INCLUDE_PATH("../../src/app/application/algorithm/state_estimation")
+TEST_INCLUDE_PATH("../../src/app/application/algorithm/state_estimation/sof/trapezoid")
+TEST_INCLUDE_PATH("../../src/app/application/bal")
+TEST_INCLUDE_PATH("../../src/app/application/bms")
+TEST_INCLUDE_PATH("../../src/app/application/redundancy")
+TEST_INCLUDE_PATH("../../src/app/driver/adc")
+TEST_INCLUDE_PATH("../../src/app/driver/afe/api")
+TEST_INCLUDE_PATH("../../src/app/driver/can")
+TEST_INCLUDE_PATH("../../src/app/driver/config")
+TEST_INCLUDE_PATH("../../src/app/driver/contactor")
+TEST_INCLUDE_PATH("../../src/app/driver/dma")
+TEST_INCLUDE_PATH("../../src/app/driver/fram")
+TEST_INCLUDE_PATH("../../src/app/driver/htsensor")
+TEST_INCLUDE_PATH("../../src/app/driver/i2c")
+TEST_INCLUDE_PATH("../../src/app/driver/imd")
+TEST_INCLUDE_PATH("../../src/app/driver/interlock")
+TEST_INCLUDE_PATH("../../src/app/driver/led")
+TEST_INCLUDE_PATH("../../src/app/driver/meas")
+TEST_INCLUDE_PATH("../../src/app/driver/pex")
+TEST_INCLUDE_PATH("../../src/app/driver/rtc")
+TEST_INCLUDE_PATH("../../src/app/driver/sbc")
+TEST_INCLUDE_PATH("../../src/app/driver/sbc/fs8x_driver")
+TEST_INCLUDE_PATH("../../src/app/driver/spi")
+TEST_INCLUDE_PATH("../../src/app/driver/sps")
+TEST_INCLUDE_PATH("../../src/app/engine/diag")
+TEST_INCLUDE_PATH("../../src/app/engine/sys")
+TEST_INCLUDE_PATH("../../src/app/engine/sys_mon")
+TEST_INCLUDE_PATH("../../src/app/task/config")
+TEST_INCLUDE_PATH("../../src/app/task/ftask")
+
 /*========== Definitions and Implementations for Unit Test ==================*/
 OS_TASK_HANDLE ftsk_taskHandleAfe;
 
@@ -109,14 +142,6 @@ FRAM_SOC_s fram_soc              = {0};
 SBC_STATE_s sbc_stateMcuSupervisor;
 
 SYS_STATE_s sys_state = {0};
-
-static uint8_t ftsk_dataQueueStorageArea[FTSK_DATA_QUEUE_LENGTH * FTSK_DATA_QUEUE_ITEM_SIZE]      = {0};
-static uint8_t ftsk_imdQueueStorageArea[FTSK_IMD_QUEUE_LENGTH * FTSK_IMD_QUEUE_ITEM_SIZE]         = {0};
-static uint8_t ftsk_canRxQueueStorageArea[FTSK_CAN_RX_QUEUE_LENGTH * FTSK_CAN_RX_QUEUE_ITEM_SIZE] = {0};
-static StaticQueue_t ftsk_dataQueueStructure;
-static StaticQueue_t ftsk_imdQueueStructure;
-static StaticQueue_t ftsk_canRxQueueStructure;
-static StaticQueue_t ftsk_rtcQueueStructure;
 
 /*========== Setup and Teardown =============================================*/
 void setUp(void) {

@@ -43,8 +43,8 @@
  * @file    afe_plausibility.c
  * @author  foxBMS Team
  * @date    2019-01-24 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup MODULES
  * @prefix  AFE
  *
@@ -86,7 +86,7 @@ extern STD_RETURN_TYPE_e AFE_PlausibilityCheckVoltageMeasurementRange(
     return retval;
 }
 
-extern STD_RETURN_TYPE_e AFE_PlausibilityCheckTempMinMax(const int16_t celltemperature_ddegC) {
+extern STD_RETURN_TYPE_e AFE_PlausibilityCheckTempMinMax(const int16_t cellTemperature_ddegC) {
     STD_RETURN_TYPE_e retval = STD_OK;
 
     const int16_t plausibleMaximumTemperature_ddegC = TSI_GetMaximumPlausibleTemperature();
@@ -95,8 +95,8 @@ extern STD_RETURN_TYPE_e AFE_PlausibilityCheckTempMinMax(const int16_t celltempe
     /* General plausibility check: Maximum temperature may not be smaller than minimum */
     FAS_ASSERT(plausibleMaximumTemperature_ddegC >= plausibleMinimumTemperature_ddegC);
 
-    if ((celltemperature_ddegC > plausibleMaximumTemperature_ddegC) ||
-        (celltemperature_ddegC < plausibleMinimumTemperature_ddegC)) {
+    if ((cellTemperature_ddegC > plausibleMaximumTemperature_ddegC) ||
+        (cellTemperature_ddegC < plausibleMinimumTemperature_ddegC)) {
         /* Cell voltage measurement value out of measurement range */
         retval = STD_NOT_OK;
     }

@@ -1,6 +1,6 @@
 # Utils
 
-This directory and its subdirectories contain batch and shellscript helper
+This directory and its subdirectories contain batch and shell script helper
 scripts. The ``bash``
 directory contains bash scripts while ``cmd`` scripts contains batch scripts.
 

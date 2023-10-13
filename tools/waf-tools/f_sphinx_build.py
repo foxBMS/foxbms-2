@@ -54,27 +54,27 @@ class sphinx_task(Task.Task):  # pylint: disable=invalid-name
 
     .. graphviz::
         :caption: Input-output relation for conf.py
-        :name: confpy-to-docs
+        :name: conf_py-to-docs
 
         digraph ASM_TO_OBJECT {
             compound=true;
             rankdir=LR;
             nd_sphinx [label="sphinx_build", style=filled, fillcolor=green];
-            nd_confpy  [label="conf.py", style=filled];
-            nd_outdir  [label="OUTDIR/index.html", style=filled];
+            nd_conf_py  [label="conf.py", style=filled];
+            nd_out_dir  [label="OUTDIR/index.html", style=filled];
             subgraph cluster_cmd {
                 label = "Command Line";
                 rank=same;
-                nd_buildername  [label="BUILDERNAME"];
+                nd_builder_name [label="BUILDERNAME"];
                 nd_version      [label="VERSION"];
                 nd_release      [label="RELEASE"];
                 nd_dot          [label="DOT"];
                 nd_doctreedir   [label="DOCTREEDIR"];
                 nd_srcdir       [label="SRCDIR"];
             }
-            nd_sphinx       -> nd_buildername   [lhead=cluster_cmd];
-            nd_confpy       -> nd_buildername   [lhead=cluster_cmd];
-            nd_buildername  -> nd_outdir        [ltail=cluster_cmd];
+            nd_sphinx       -> nd_builder_name   [lhead=cluster_cmd];
+            nd_conf_py      -> nd_builder_name   [lhead=cluster_cmd];
+            nd_builder_name -> nd_out_dir        [ltail=cluster_cmd];
         }
     """
 
@@ -86,7 +86,7 @@ class sphinx_task(Task.Task):  # pylint: disable=invalid-name
 
     def run(self):
         """Creates a command line processed by ``Utils.subprocess.Popen`` in
-        order to build the sphinx documentation. See :numref:`confpy-to-docs`
+        order to build the sphinx documentation. See :numref:`conf_py-to-docs`
         for a simplified representation"""
         verbosity = ""
         if Logs.verbose:
@@ -138,7 +138,7 @@ class sphinx_task(Task.Task):  # pylint: disable=invalid-name
             # if the output line contains ".rst:" it indicates that an error
             # has been found. The path is relative to the source directory
             # therefore we need to construct the path to the source file with
-            # the error to generate a meaningfull errormessage
+            # the error to generate a meaningful error message
             match = re_err.search(line)
             if match:
                 err_bit += 1
@@ -249,14 +249,14 @@ def apply_sphinx(self):
         inputs.append(node)
 
     # get sphinx config (conf.py) and derive the srcdir from it.
-    if not getattr(self, "confpy", None):
+    if not getattr(self, "conf_py", None):
         raise ValueError("Path to the sphinx config must be specified ('conf.py').")
-    src_dir = self.confpy.parent.abspath()
+    src_dir = self.conf_py.parent.abspath()
 
     # set the output directory
-    if not getattr(self, "outdir", None):
-        raise ValueError("outdir must be specified.")
-    self.outdir_node = self.path.find_or_declare(getattr(self, "outdir")).get_bld()
+    if not getattr(self, "out_dir", None):
+        raise ValueError("out_dir must be specified.")
+    self.out_dir_node = self.path.find_or_declare(getattr(self, "out_dir")).get_bld()
 
     # add builders, build at least html documentation
     builders = []
@@ -269,7 +269,7 @@ def apply_sphinx(self):
         outfile = self.path.get_bld().make_node(builder)
         outfile.write(builder)
         builder_task = self.create_task("sphinx_task", inputs + [outfile])
-        builder_task.inputs.append(self.confpy)
+        builder_task.inputs.append(self.conf_py)
         builder_task.env["BUILDERNAME"] = builder
         builder_task.env["SRCDIR"] = src_dir
         builder_task.env["CONFDIR"] = src_dir
@@ -280,17 +280,17 @@ def apply_sphinx(self):
             builder_task.env["DOCTREEDIR"] = getattr(
                 self,
                 "doctreedir",
-                os.path.join(self.outdir_node.abspath(), ".doctrees"),
+                os.path.join(self.out_dir_node.abspath(), ".doctrees"),
             )
         else:
             builder_task.env["DOCTREEDIR"] = os.path.join(
-                self.outdir_node.abspath(), f".doctrees-{builder}"
+                self.out_dir_node.abspath(), f".doctrees-{builder}"
             )
             builder_task.no_errcheck_out = True
-        builder_task.env["OUTDIR"] = self.outdir_node.abspath()
+        builder_task.env["OUTDIR"] = self.out_dir_node.abspath()
         builder_task.env["VERSION"] = f"version={self.env.VERSION}"
         builder_task.env["RELEASE"] = f"release={self.env.VERSION}"
-        builder_task.outputs.append(self.outdir_node)
+        builder_task.outputs.append(self.out_dir_node)
 
 
 def configure(conf):

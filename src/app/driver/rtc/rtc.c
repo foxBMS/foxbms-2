@@ -43,8 +43,8 @@
  * @file    rtc.c
  * @author  foxBMS Team
  * @date    2021-02-22 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup DRIVERS
  * @prefix  RTC
  *
@@ -119,7 +119,7 @@ static RTC_TIME_DATA_s RTC_tmFormatToRtcFormat(struct tm timeTmFormat);
  * @param   rtcTime RTC time to write to the IC
  */
 static void RTC_WriteTime(RTC_TIME_DATA_s rtcTime) {
-    /* AXIVION Routine Generic-MissingParameterAssert: time: parameter accepts whole range */
+    /* AXIVION Routine Generic-MissingParameterAssert: rtcTime: parameter accepts whole range */
     STD_RETURN_TYPE_e retValI2c = STD_OK;
     STD_RETURN_TYPE_e retVal    = STD_OK;
 

@@ -43,8 +43,8 @@
  * @file    database_cfg.c
  * @author  foxBMS Team
  * @date    2015-08-18 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup ENGINE_CONFIGURATION
  * @prefix  DATA
  *
@@ -145,8 +145,14 @@ static DATA_BLOCK_RSL_FLAG_s data_blockRsl = {.header.uniqueId = DATA_BLOCK_ID_R
 /** data block: maximum operating limit violations */
 static DATA_BLOCK_MOL_FLAG_s data_blockMol = {.header.uniqueId = DATA_BLOCK_ID_MOL_FLAG};
 
-/** data block: sox */
-static DATA_BLOCK_SOX_s data_blockSox = {.header.uniqueId = DATA_BLOCK_ID_SOX};
+/** data block: soc */
+static DATA_BLOCK_SOC_s data_blockSoc = {.header.uniqueId = DATA_BLOCK_ID_SOC};
+
+/** data block: soh */
+static DATA_BLOCK_SOH_s data_blockSoh = {.header.uniqueId = DATA_BLOCK_ID_SOH};
+
+/** data block: soe */
+static DATA_BLOCK_SOE_s data_blockSoe = {.header.uniqueId = DATA_BLOCK_ID_SOE};
 
 /** data block: can state request */
 static DATA_BLOCK_STATE_REQUEST_s data_blockStaterequest = {.header.uniqueId = DATA_BLOCK_ID_STATE_REQUEST};
@@ -170,6 +176,9 @@ static DATA_BLOCK_HTSEN_s data_blockHumidityTemperatureSensor = {.header.uniqueI
 /** data block: used for self-test */
 static DATA_BLOCK_DUMMY_FOR_SELF_TEST_s data_blockDummyForSelfTest = {
     .header.uniqueId = DATA_BLOCK_ID_DUMMY_FOR_SELF_TEST};
+
+/** data block: aerosol sensor */
+static DATA_BLOCK_AEROSOL_SENSOR_s data_blockAerosolSensor = {.header.uniqueId = DATA_BLOCK_ID_AEROSOL_SENSOR};
 
 /**
  * @brief   channel configuration of database (data blocks)
@@ -195,7 +204,9 @@ DATA_BASE_s data_database[] = {
     {(void *)(&data_blockMsl), sizeof(DATA_BLOCK_MSL_FLAG_s)},
     {(void *)(&data_blockRsl), sizeof(DATA_BLOCK_RSL_FLAG_s)},
     {(void *)(&data_blockMol), sizeof(DATA_BLOCK_MOL_FLAG_s)},
-    {(void *)(&data_blockSox), sizeof(DATA_BLOCK_SOX_s)},
+    {(void *)(&data_blockSoc), sizeof(DATA_BLOCK_SOC_s)},
+    {(void *)(&data_blockSoh), sizeof(DATA_BLOCK_SOH_s)},
+    {(void *)(&data_blockSoe), sizeof(DATA_BLOCK_SOE_s)},
     {(void *)(&data_blockStaterequest), sizeof(DATA_BLOCK_STATE_REQUEST_s)},
     {(void *)(&data_blockMovingAverage), sizeof(DATA_BLOCK_MOVING_AVERAGE_s)},
     {(void *)(&data_blockCellVoltageBase), sizeof(DATA_BLOCK_CELL_VOLTAGE_s)},
@@ -210,6 +221,7 @@ DATA_BASE_s data_database[] = {
     {(void *)(&data_blockAdcVoltage), sizeof(DATA_BLOCK_ADC_VOLTAGE_s)},
     {(void *)(&data_blockHumidityTemperatureSensor), sizeof(DATA_BLOCK_HTSEN_s)},
     {(void *)(&data_blockDummyForSelfTest), sizeof(DATA_BLOCK_DUMMY_FOR_SELF_TEST_s)},
+    {(void *)(&data_blockAerosolSensor), sizeof(DATA_BLOCK_AEROSOL_SENSOR_s)},
 };
 
 /*========== Static Function Prototypes =====================================*/

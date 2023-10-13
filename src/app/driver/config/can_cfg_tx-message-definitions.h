@@ -43,8 +43,8 @@
  * @file    can_cfg_tx-message-definitions.h
  * @author  foxBMS Team
  * @date    2022-07-01 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup DRIVERS
  * @prefix  CANTX
  *
@@ -71,6 +71,10 @@
 /** CAN message ID for unsupported multiplexer values in messages */
 #define CANTX_UNSUPPORTED_MULTIPLEXER_VAL_ID     (0x201u) /* check_ids:not-periodic */
 #define CANTX_UNSUPPORTED_MULTIPLEXER_IDENTIFIER (CAN_STANDARD_IDENTIFIER_11_BIT)
+
+/** CAN message ID for fatal errors */
+#define CANTX_FATAL_ERRORS_ID         (0x0FFu) /* check_ids:not-periodic */
+#define CANTX_FATAL_ERRORS_IDENTIFIER (CAN_STANDARD_IDENTIFIER_11_BIT)
 
 /** CAN message properties for BMS state message. Required properties are:
  * - Message ID

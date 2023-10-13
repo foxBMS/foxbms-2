@@ -131,6 +131,8 @@ autodoc_mock_imports = ["waflib"]
 
 linkcheck_ignore = [
     r".*_static\/doxygen",
+    "https://docs.foxbms.org",
+    r"https:\/\/iisb-foxbms\.iisb\.fraunhofer\.de\/.*[\d|z]\/",
     # linkcheck can not handle the line highlighting
     "https://gitlab.com/ita1024/waf/-/blob/3536dfecf8061c6d99bac338837997c4862ee89b/waflib/TaskGen.py#L495-527",
     "https://gitlab.com/ita1024/waf/-/blob/3f8bb163290eb8fbfc3b26d61dd04aa5a6a29d4a/waf-light#L6-30",
@@ -139,6 +141,7 @@ linkcheck_ignore = [
     "../_images/battery-system-setup-pack.png",
     "../_images/battery-system-setup-bjb.png",
     "../_images/battery-system-setup-single-string.png",
+    "../_images/battery-system-precharging.png",
 ]
 
 html_theme_options = {

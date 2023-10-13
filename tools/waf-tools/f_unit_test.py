@@ -46,7 +46,7 @@ For information on Ceedling see https://github.com/ThrowTheSwitch/Ceedling.
 
 import os
 
-from waflib import Task, TaskGen
+from waflib import Task, TaskGen, Utils
 
 
 class ceedling(Task.Task):  # pylint: disable=invalid-name,too-few-public-methods
@@ -115,12 +115,17 @@ def configure(conf):
     # get build directory
     conf.env.append_unique("CEEDLING_OPTIONS", ["verbosity[3]"])
     conf.env.append_unique("CEEDLING_TEST_OPTIONS", ["test:all"])
-    conf.env.append_unique("CEEDLING_COVERAGE_OPTIONS", ["gcov:all", "utils:gcov"])
-    ceedling_project_file = conf.path.find_node(
-        os.path.join("conf", "unit", "project.yml")
-    )
+    conf.env.append_unique("CEEDLING_COVERAGE_OPTIONS", ["gcov:all"])
+
+    ceedling_project_file_dir = conf.path.find_dir(os.path.join("conf", "unit"))
+    if Utils.is_win32:
+        ext = "cmd"
+        ceedling_project_file = ceedling_project_file_dir.find_node("project_win32.yml")
+    else:
+        ext = "sh"
+        ceedling_project_file = ceedling_project_file_dir.find_node("project_posix.yml")
     ceedling_cmd_file = conf.path.find_node(
-        os.path.join("conf", "unit", "ceedling.cmd")
+        os.path.join("conf", "unit", f"ceedling.{ext}")
     )
     conf.env.CEEDLING_MAIN_PROJECT_FILE = ceedling_project_file.relpath()
     conf.env.CEEDLING_CMD_FILE = ceedling_cmd_file.relpath()

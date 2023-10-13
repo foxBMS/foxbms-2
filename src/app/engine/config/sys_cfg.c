@@ -43,8 +43,8 @@
  * @file    sys_cfg.c
  * @author  foxBMS Team
  * @date    2020-02-24 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup ENGINE_CONFIGURATION
  * @prefix  SYS
  *
@@ -75,6 +75,7 @@ void SYS_SendBootMessage(void) {
     /* The magic boot sequence on CAN is:
        - <magic boot ID>:         0xFE 0xFE 0xFE 0xFE 0xFE 0xFE 0xFE 0x0F
        - <bms version info ID>:   <what ever the version is>
+       - <commit hash>:           <what ever the git short hash is>
        - <MCU die ID>:            <what ever the die ID is>
        - <MCU lot number>:        <what ever the lot number is>
        - <MCU wafer information>: <what ever the wafer information is>
@@ -84,6 +85,9 @@ void SYS_SendBootMessage(void) {
         FAS_ASSERT(FAS_TRAP);
     }
     if (CANTX_DebugResponse(CANTX_DEBUG_RESPONSE_TRANSMIT_BMS_VERSION_INFO) != STD_OK) {
+        FAS_ASSERT(FAS_TRAP);
+    }
+    if (CANTX_DebugResponse(CANTX_DEBUG_RESPONSE_TRANSMIT_COMMIT_HASH) != STD_OK) {
         FAS_ASSERT(FAS_TRAP);
     }
     if (CANTX_DebugResponse(CANTX_DEBUG_RESPONSE_TRANSMIT_MCU_UNIQUE_DIE_ID) != STD_OK) {

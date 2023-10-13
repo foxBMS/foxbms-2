@@ -28,7 +28,6 @@ Unit Test
 - ``tests/unit/app/driver/imd/bender/ir155/test_bender_ir155.c`` (`API <../../../../../_static/doxygen/tests/html/test__bender__ir155_8c.html>`__, `source <../../../../../_static/doxygen/tests/html/test__bender__ir155_8c_source.html>`__)
 - ``tests/unit/app/driver/imd/bender/ir155/test_bender_helper_ir155.c`` (`API <../../../../../_static/doxygen/tests/html/test__bender__ir155__helper_8c.html>`__, `source <../../../../../_static/doxygen/tests/html/test__bender__ir155__helper_8c_source.html>`__)
 
-
 Description of the IMD state machine
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

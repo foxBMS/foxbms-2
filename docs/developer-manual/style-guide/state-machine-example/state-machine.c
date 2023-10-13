@@ -43,8 +43,8 @@
  * @file    state-machine.c
  * @author  foxBMS Team
  * @date    2020-10-29 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup STATE_MACHINE
  * @prefix  EG
  *
@@ -241,8 +241,8 @@ static void EG_SetState(
 
     if ((pEgState->currentState == nextState) && (pEgState->currentSubstate == nextSubstate)) {
         /* Next state and next substate equal to current state and substate: nothing to do */
-        pEgState->nextState    = EG_FSM_STATE_DUMMY;    /* no state transistion required -> reset */
-        pEgState->nextSubstate = EG_FSM_SUBSTATE_DUMMY; /* no substate transistion required -> reset */
+        pEgState->nextState    = EG_FSM_STATE_DUMMY;    /* no state transition required -> reset */
+        pEgState->nextSubstate = EG_FSM_SUBSTATE_DUMMY; /* no substate transition required -> reset */
         earlyExit              = true;
     }
 
@@ -253,8 +253,8 @@ static void EG_SetState(
             pEgState->currentState     = nextState;
             pEgState->previousSubstate = pEgState->currentSubstate;
             pEgState->currentSubstate  = EG_FSM_SUBSTATE_ENTRY; /* Use entry state after a top level state change */
-            pEgState->nextState        = EG_FSM_STATE_DUMMY;    /* no state transistion required -> reset */
-            pEgState->nextSubstate     = EG_FSM_SUBSTATE_DUMMY; /* no substate transistion required -> reset */
+            pEgState->nextState        = EG_FSM_STATE_DUMMY;    /* no state transition required -> reset */
+            pEgState->nextSubstate     = EG_FSM_SUBSTATE_DUMMY; /* no substate transition required -> reset */
         } else if (pEgState->currentSubstate != nextSubstate) {
             /* Only the next substate is different, switch to it */
             EG_SetSubstate(pEgState, nextSubstate, idleTime);

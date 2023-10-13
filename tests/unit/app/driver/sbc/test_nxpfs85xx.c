@@ -43,8 +43,8 @@
  * @file    test_nxpfs85xx.c
  * @author  foxBMS Team
  * @date    2020-04-06 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  SBC
  *
@@ -59,7 +59,7 @@
 #include "Mockfassert.h"
 #include "Mockfram.h"
 #include "Mockio.h"
-#include "Mockmasterinfo.h"
+#include "Mockmaster_info.h"
 #include "Mockmcu.h"
 #include "Mocksbc_fs8x.h"
 #include "Mocksbc_fs8x_communication.h"
@@ -70,7 +70,18 @@
 
 #include <stdbool.h>
 
-TEST_FILE("nxpfs85xx.c")
+/*========== Unit Testing Framework Directives ==============================*/
+TEST_SOURCE_FILE("nxpfs85xx.c")
+
+TEST_INCLUDE_PATH("../../src/app/driver/config")
+TEST_INCLUDE_PATH("../../src/app/driver/dma")
+TEST_INCLUDE_PATH("../../src/app/driver/fram")
+TEST_INCLUDE_PATH("../../src/app/driver/io")
+TEST_INCLUDE_PATH("../../src/app/driver/sbc")
+TEST_INCLUDE_PATH("../../src/app/driver/sbc/fs8x_driver")
+TEST_INCLUDE_PATH("../../src/app/driver/spi")
+TEST_INCLUDE_PATH("../../src/app/engine/diag")
+TEST_INCLUDE_PATH("../../src/app/engine/hw_info")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 #define REGISTER_TEST_VALUE (1234u)
@@ -78,7 +89,7 @@ TEST_FILE("nxpfs85xx.c")
 #define MAIN_REGISTER     fs85xx_mcuSupervisor.mainRegister
 #define FAILSAFE_REGISTER fs85xx_mcuSupervisor.fsRegister
 
-static const spiDAT1_t spi_kSbcDataConfig = {
+static spiDAT1_t spi_kSbcDataConfig = {
     /* struct is implemented in the TI HAL and uses uppercase true and false */
     .CS_HOLD = FALSE,     /* The HW chip select signal is deactivated */
     .WDEL    = TRUE,      /* No delay will be inserted */
@@ -114,50 +125,52 @@ void tearDown(void) {
 void testDoSomething(void) {
 }
 
-void testSBC_CheckRegisterValues(void) {
-    TEST_ASSERT_EQUAL(STD_OK, TEST_SBC_CheckRegisterValues(0u, 0u));
-    TEST_ASSERT_EQUAL(STD_OK, TEST_SBC_CheckRegisterValues(UINT32_MAX, UINT32_MAX));
-    TEST_ASSERT_EQUAL(STD_NOT_OK, TEST_SBC_CheckRegisterValues(0u, 1u));
-    TEST_ASSERT_EQUAL(STD_NOT_OK, TEST_SBC_CheckRegisterValues(0u, UINT32_MAX));
+void testFS85_CheckRegisterValues(void) {
+    TEST_ASSERT_EQUAL(STD_OK, TEST_FS85_CheckRegisterValues(0u, 0u));
+    TEST_ASSERT_EQUAL(STD_OK, TEST_FS85_CheckRegisterValues(UINT32_MAX, UINT32_MAX));
+    TEST_ASSERT_EQUAL(STD_NOT_OK, TEST_FS85_CheckRegisterValues(0u, 1u));
+    TEST_ASSERT_EQUAL(STD_NOT_OK, TEST_FS85_CheckRegisterValues(0u, UINT32_MAX));
 }
 
-void testSBC_UpdateRegister(void) {
-    TEST_SBC_UpdateRegister(&fs85xx_mcuSupervisor, true, 0u, REGISTER_TEST_VALUE);
-    TEST_SBC_UpdateRegister(&fs85xx_mcuSupervisor, false, 0u, REGISTER_TEST_VALUE);
-    TEST_ASSERT_FAIL_ASSERT(TEST_SBC_UpdateRegister(NULL_PTR, true, 0u, REGISTER_TEST_VALUE));
+void testFS85_UpdateRegister(void) {
+    TEST_FS85_UpdateRegister(&fs85xx_mcuSupervisor, true, 0u, REGISTER_TEST_VALUE);
+    TEST_FS85_UpdateRegister(&fs85xx_mcuSupervisor, false, 0u, REGISTER_TEST_VALUE);
+    TEST_ASSERT_FAIL_ASSERT(TEST_FS85_UpdateRegister(NULL_PTR, true, 0u, REGISTER_TEST_VALUE));
     TEST_ASSERT_FAIL_ASSERT(
-        TEST_SBC_UpdateRegister(&fs85xx_mcuSupervisor, true, FS8X_M_DEVICEID_ADDR + 1u, REGISTER_TEST_VALUE));
+        TEST_FS85_UpdateRegister(&fs85xx_mcuSupervisor, true, FS8X_M_DEVICEID_ADDR + 1u, REGISTER_TEST_VALUE));
 }
 
-void testSBC_UpdateFailSafeRegister(void) {
-    TEST_SBC_UpdateFailSafeRegister(
+void testFS85_UpdateFailSafeRegister(void) {
+    TEST_FS85_UpdateFailSafeRegister(
         &(fs85xx_mcuSupervisor.fsRegister), FS8X_FS_GRL_FLAGS_ADDR, REGISTER_TEST_VALUE + 0u);
-    TEST_SBC_UpdateFailSafeRegister(
+    TEST_FS85_UpdateFailSafeRegister(
         &(fs85xx_mcuSupervisor.fsRegister), FS8X_FS_I_OVUV_SAFE_REACTION1_ADDR, REGISTER_TEST_VALUE + 1u);
-    TEST_SBC_UpdateFailSafeRegister(
+    TEST_FS85_UpdateFailSafeRegister(
         &(fs85xx_mcuSupervisor.fsRegister), FS8X_FS_I_OVUV_SAFE_REACTION2_ADDR, REGISTER_TEST_VALUE + 2u);
-    TEST_SBC_UpdateFailSafeRegister(
+    TEST_FS85_UpdateFailSafeRegister(
         &(fs85xx_mcuSupervisor.fsRegister), FS8X_FS_I_WD_CFG_ADDR, REGISTER_TEST_VALUE + 3u);
-    TEST_SBC_UpdateFailSafeRegister(
+    TEST_FS85_UpdateFailSafeRegister(
         &(fs85xx_mcuSupervisor.fsRegister), FS8X_FS_I_SAFE_INPUTS_ADDR, REGISTER_TEST_VALUE + 4u);
-    TEST_SBC_UpdateFailSafeRegister(&(fs85xx_mcuSupervisor.fsRegister), FS8X_FS_I_FSSM_ADDR, REGISTER_TEST_VALUE + 5u);
-    TEST_SBC_UpdateFailSafeRegister(&(fs85xx_mcuSupervisor.fsRegister), FS8X_FS_I_SVS_ADDR, REGISTER_TEST_VALUE + 6u);
-    TEST_SBC_UpdateFailSafeRegister(
+    TEST_FS85_UpdateFailSafeRegister(&(fs85xx_mcuSupervisor.fsRegister), FS8X_FS_I_FSSM_ADDR, REGISTER_TEST_VALUE + 5u);
+    TEST_FS85_UpdateFailSafeRegister(&(fs85xx_mcuSupervisor.fsRegister), FS8X_FS_I_SVS_ADDR, REGISTER_TEST_VALUE + 6u);
+    TEST_FS85_UpdateFailSafeRegister(
         &(fs85xx_mcuSupervisor.fsRegister), FS8X_FS_WD_WINDOW_ADDR, REGISTER_TEST_VALUE + 7u);
-    TEST_SBC_UpdateFailSafeRegister(&(fs85xx_mcuSupervisor.fsRegister), FS8X_FS_WD_SEED_ADDR, REGISTER_TEST_VALUE + 8u);
-    TEST_SBC_UpdateFailSafeRegister(
+    TEST_FS85_UpdateFailSafeRegister(
+        &(fs85xx_mcuSupervisor.fsRegister), FS8X_FS_WD_SEED_ADDR, REGISTER_TEST_VALUE + 8u);
+    TEST_FS85_UpdateFailSafeRegister(
         &(fs85xx_mcuSupervisor.fsRegister), FS8X_FS_WD_ANSWER_ADDR, REGISTER_TEST_VALUE + 9u);
-    TEST_SBC_UpdateFailSafeRegister(
+    TEST_FS85_UpdateFailSafeRegister(
         &(fs85xx_mcuSupervisor.fsRegister), FS8X_FS_OVUVREG_STATUS_ADDR, REGISTER_TEST_VALUE + 10u);
-    TEST_SBC_UpdateFailSafeRegister(
+    TEST_FS85_UpdateFailSafeRegister(
         &(fs85xx_mcuSupervisor.fsRegister), FS8X_FS_RELEASE_FS0B_ADDR, REGISTER_TEST_VALUE + 11u);
-    TEST_SBC_UpdateFailSafeRegister(
+    TEST_FS85_UpdateFailSafeRegister(
         &(fs85xx_mcuSupervisor.fsRegister), FS8X_FS_SAFE_IOS_ADDR, REGISTER_TEST_VALUE + 12u);
-    TEST_SBC_UpdateFailSafeRegister(
+    TEST_FS85_UpdateFailSafeRegister(
         &(fs85xx_mcuSupervisor.fsRegister), FS8X_FS_DIAG_SAFETY_ADDR, REGISTER_TEST_VALUE + 13u);
-    TEST_SBC_UpdateFailSafeRegister(
+    TEST_FS85_UpdateFailSafeRegister(
         &(fs85xx_mcuSupervisor.fsRegister), FS8X_FS_INTB_MASK_ADDR, REGISTER_TEST_VALUE + 14u);
-    TEST_SBC_UpdateFailSafeRegister(&(fs85xx_mcuSupervisor.fsRegister), FS8X_FS_STATES_ADDR, REGISTER_TEST_VALUE + 15u);
+    TEST_FS85_UpdateFailSafeRegister(
+        &(fs85xx_mcuSupervisor.fsRegister), FS8X_FS_STATES_ADDR, REGISTER_TEST_VALUE + 15u);
 
     TEST_ASSERT_EQUAL(FAILSAFE_REGISTER.grl_flags, REGISTER_TEST_VALUE + 0u);
     TEST_ASSERT_EQUAL(FAILSAFE_REGISTER.iOvervoltageUndervoltageSafeReaction1, REGISTER_TEST_VALUE + 1u);
@@ -177,22 +190,23 @@ void testSBC_UpdateFailSafeRegister(void) {
     TEST_ASSERT_EQUAL(FAILSAFE_REGISTER.states, REGISTER_TEST_VALUE + 15u);
 }
 
-void testSBC_UpdateMainRegister(void) {
-    TEST_SBC_UpdateMainRegister(&(fs85xx_mcuSupervisor.mainRegister), FS8X_M_FLAG_ADDR, REGISTER_TEST_VALUE + 0u);
-    TEST_SBC_UpdateMainRegister(&(fs85xx_mcuSupervisor.mainRegister), FS8X_M_MODE_ADDR, REGISTER_TEST_VALUE + 1u);
-    TEST_SBC_UpdateMainRegister(&(fs85xx_mcuSupervisor.mainRegister), FS8X_M_REG_CTRL1_ADDR, REGISTER_TEST_VALUE + 2u);
-    TEST_SBC_UpdateMainRegister(&(fs85xx_mcuSupervisor.mainRegister), FS8X_M_REG_CTRL2_ADDR, REGISTER_TEST_VALUE + 3u);
-    TEST_SBC_UpdateMainRegister(&(fs85xx_mcuSupervisor.mainRegister), FS8X_M_AMUX_ADDR, REGISTER_TEST_VALUE + 4u);
-    TEST_SBC_UpdateMainRegister(&(fs85xx_mcuSupervisor.mainRegister), FS8X_M_CLOCK_ADDR, REGISTER_TEST_VALUE + 5u);
-    TEST_SBC_UpdateMainRegister(&(fs85xx_mcuSupervisor.mainRegister), FS8X_M_INT_MASK1_ADDR, REGISTER_TEST_VALUE + 6u);
-    TEST_SBC_UpdateMainRegister(&(fs85xx_mcuSupervisor.mainRegister), FS8X_M_INT_MASK2_ADDR, REGISTER_TEST_VALUE + 7u);
-    TEST_SBC_UpdateMainRegister(&(fs85xx_mcuSupervisor.mainRegister), FS8X_M_FLAG1_ADDR, REGISTER_TEST_VALUE + 8u);
-    TEST_SBC_UpdateMainRegister(&(fs85xx_mcuSupervisor.mainRegister), FS8X_M_FLAG2_ADDR, REGISTER_TEST_VALUE + 9u);
-    TEST_SBC_UpdateMainRegister(&(fs85xx_mcuSupervisor.mainRegister), FS8X_M_VMON_REGX_ADDR, REGISTER_TEST_VALUE + 10u);
-    TEST_SBC_UpdateMainRegister(&(fs85xx_mcuSupervisor.mainRegister), FS8X_M_LVB1_SVS_ADDR, REGISTER_TEST_VALUE + 11u);
-    TEST_SBC_UpdateMainRegister(&(fs85xx_mcuSupervisor.mainRegister), FS8X_M_MEMORY0_ADDR, REGISTER_TEST_VALUE + 12u);
-    TEST_SBC_UpdateMainRegister(&(fs85xx_mcuSupervisor.mainRegister), FS8X_M_MEMORY1_ADDR, REGISTER_TEST_VALUE + 13u);
-    TEST_SBC_UpdateMainRegister(&(fs85xx_mcuSupervisor.mainRegister), FS8X_M_DEVICEID_ADDR, REGISTER_TEST_VALUE + 14u);
+void testFS85_UpdateMainRegister(void) {
+    TEST_FS85_UpdateMainRegister(&(fs85xx_mcuSupervisor.mainRegister), FS8X_M_FLAG_ADDR, REGISTER_TEST_VALUE + 0u);
+    TEST_FS85_UpdateMainRegister(&(fs85xx_mcuSupervisor.mainRegister), FS8X_M_MODE_ADDR, REGISTER_TEST_VALUE + 1u);
+    TEST_FS85_UpdateMainRegister(&(fs85xx_mcuSupervisor.mainRegister), FS8X_M_REG_CTRL1_ADDR, REGISTER_TEST_VALUE + 2u);
+    TEST_FS85_UpdateMainRegister(&(fs85xx_mcuSupervisor.mainRegister), FS8X_M_REG_CTRL2_ADDR, REGISTER_TEST_VALUE + 3u);
+    TEST_FS85_UpdateMainRegister(&(fs85xx_mcuSupervisor.mainRegister), FS8X_M_AMUX_ADDR, REGISTER_TEST_VALUE + 4u);
+    TEST_FS85_UpdateMainRegister(&(fs85xx_mcuSupervisor.mainRegister), FS8X_M_CLOCK_ADDR, REGISTER_TEST_VALUE + 5u);
+    TEST_FS85_UpdateMainRegister(&(fs85xx_mcuSupervisor.mainRegister), FS8X_M_INT_MASK1_ADDR, REGISTER_TEST_VALUE + 6u);
+    TEST_FS85_UpdateMainRegister(&(fs85xx_mcuSupervisor.mainRegister), FS8X_M_INT_MASK2_ADDR, REGISTER_TEST_VALUE + 7u);
+    TEST_FS85_UpdateMainRegister(&(fs85xx_mcuSupervisor.mainRegister), FS8X_M_FLAG1_ADDR, REGISTER_TEST_VALUE + 8u);
+    TEST_FS85_UpdateMainRegister(&(fs85xx_mcuSupervisor.mainRegister), FS8X_M_FLAG2_ADDR, REGISTER_TEST_VALUE + 9u);
+    TEST_FS85_UpdateMainRegister(
+        &(fs85xx_mcuSupervisor.mainRegister), FS8X_M_VMON_REGX_ADDR, REGISTER_TEST_VALUE + 10u);
+    TEST_FS85_UpdateMainRegister(&(fs85xx_mcuSupervisor.mainRegister), FS8X_M_LVB1_SVS_ADDR, REGISTER_TEST_VALUE + 11u);
+    TEST_FS85_UpdateMainRegister(&(fs85xx_mcuSupervisor.mainRegister), FS8X_M_MEMORY0_ADDR, REGISTER_TEST_VALUE + 12u);
+    TEST_FS85_UpdateMainRegister(&(fs85xx_mcuSupervisor.mainRegister), FS8X_M_MEMORY1_ADDR, REGISTER_TEST_VALUE + 13u);
+    TEST_FS85_UpdateMainRegister(&(fs85xx_mcuSupervisor.mainRegister), FS8X_M_DEVICEID_ADDR, REGISTER_TEST_VALUE + 14u);
 
     TEST_ASSERT_EQUAL(MAIN_REGISTER.flag, REGISTER_TEST_VALUE + 0u);
     TEST_ASSERT_EQUAL(MAIN_REGISTER.mode, REGISTER_TEST_VALUE + 1u);
@@ -209,4 +223,16 @@ void testSBC_UpdateMainRegister(void) {
     TEST_ASSERT_EQUAL(MAIN_REGISTER.memory0, REGISTER_TEST_VALUE + 12u);
     TEST_ASSERT_EQUAL(MAIN_REGISTER.memory1, REGISTER_TEST_VALUE + 13u);
     TEST_ASSERT_EQUAL(MAIN_REGISTER.deviceId, REGISTER_TEST_VALUE + 14u);
+}
+
+void testFS85_CheckIgnitionSignal(void) {
+    FS8x_ReadRegister_IgnoreAndReturn(fs8xStatusOk);
+    TEST_ASSERT_PASS_ASSERT(FS85_CheckIgnitionSignal(&fs85xx_mcuSupervisor));
+    TEST_ASSERT_FAIL_ASSERT(FS85_CheckIgnitionSignal(NULL_PTR));
+}
+
+void testFS85_GoToStandby(void) {
+    FS8x_WriteRegister_IgnoreAndReturn(fs8xStatusOk);
+    TEST_ASSERT_PASS_ASSERT(TEST_FS85_GoToStandby(&fs85xx_mcuSupervisor));
+    TEST_ASSERT_FAIL_ASSERT(TEST_FS85_GoToStandby(NULL_PTR));
 }

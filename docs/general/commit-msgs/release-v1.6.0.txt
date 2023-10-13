@@ -1,0 +1,15 @@
+Minor release of foxBMS 2 (v1.6.0)
+
+* foxBMS now supports the ADI ADES1830 AFE.
+* The default FreeRTOS behavior for foxBMS 2 is now to check for stack
+  overflows. The BMS still tries to send a CAN message about the occurred
+  problem.
+* The BMS tried to precharge a infinite times. This setting is now controlled
+  by setting `BMS_PRECHARGE_TRIES` to a meaningful, finite number (needs to
+  be defined by the user as part of the application setup)
+* The calculation of the string power has been fixed.
+* The SOX database entry has been split into SOC, SOH, and SOE to simplify
+  adding further estimations.
+
+For a detailed list of changes, please refer to the documentation at
+https://iisb-foxbms.iisb.fraunhofer.de/foxbms/gen2/docs/html/v1.6.0/general/changelog.html.

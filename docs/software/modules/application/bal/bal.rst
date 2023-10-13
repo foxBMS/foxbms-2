@@ -13,9 +13,7 @@ Driver
 ^^^^^^
 
 - ``src/app/application/bms/history/bal_strategy_history.c`` (`API <../../../../_static/doxygen/src/html/bal__strategy__history_8c.html>`__, `source <../../../../_static/doxygen/src/html/bal__strategy__history_8c_source.html>`__)
-- ``src/app/application/bms/history/bal_strategy_history.h`` (`API <../../../../_static/doxygen/src/html/bal__strategy__history_8h.html>`__, `source <../../../../_static/doxygen/src/html/bal__strategy__history_8h_source.html>`__)
 - ``src/app/application/bms/none/bal_strategy_none.c`` (`API <../../../../_static/doxygen/src/html/bal__strategy__none_8c.html>`__, `source <../../../../_static/doxygen/src/html/bal__strategy__none_8c_source.html>`__)
-- ``src/app/application/bms/none/bal_strategy_none.h`` (`API <../../../../_static/doxygen/src/html/bal__strategy__none_8h.html>`__, `source <../../../../_static/doxygen/src/html/bal__strategy__none_8h_source.html>`__)
 - ``src/app/application/bms/voltage/bal_strategy_voltage.c`` (`API <../../../../_static/doxygen/src/html/bal__strategy__voltage_8c.html>`__, `source <../../../../_static/doxygen/src/html/bal__strategy__voltage_8c_source.html>`__)
 - ``src/app/application/bms/voltage/bal_strategy_voltage.h`` (`API <../../../../_static/doxygen/src/html/bal__strategy__voltage_8h.html>`__, `source <../../../../_static/doxygen/src/html/bal__strategy__voltage_8h_source.html>`__)
 - ``src/app/application/bms/bal.c`` (`API <../../../../_static/doxygen/src/html/bal_8c.html>`__, `source <../../../../_static/doxygen/src/html/bal_8c_source.html>`__)
@@ -35,7 +33,6 @@ Unit Test
 
 Detailed Description
 --------------------
-
 
 .. _BALANCING_MODULE_VOLTAGE_BASED_BALANCING:
 
@@ -88,8 +85,10 @@ each specific cell only if its cell voltage is above the minimum cell voltage of
 threshold is set in this case to ``BAL_GetBalancingThreshold_mV()`` + ``BAL_HYSTERESIS_mV``.
 
 The correspondence between cell voltage and SOC must be defined by the user depending on the specific battery cells
-used. Currently, it is done in the function ``SE_GetStateOfChargeFromVoltage()`` in ``sox.c``. This function gets a voltage in V
-and return an SOC between 0.0 and 1.0.
+used.
+Currently, it is done in the function ``SE_GetStateOfChargeFromVoltage()`` in
+``soc_counting.c``, ``soc_debug.c``, ``soc_none.c``, or ``state_estimation.h``.
+This function gets a voltage in V and return an SOC between 0.0 and 1.0.
 
 .. _BALANCING_MODULE_NO_BALANCING:
 

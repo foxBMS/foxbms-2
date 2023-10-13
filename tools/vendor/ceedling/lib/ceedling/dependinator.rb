@@ -1,36 +1,22 @@
 
 class Dependinator
 
-  constructor :configurator, :project_config_manager, :test_includes_extractor, :file_path_utils, :rake_wrapper, :file_wrapper
-
-  def touch_force_rebuild_files
-    @file_wrapper.touch( @configurator.project_test_force_rebuild_filepath )
-    @file_wrapper.touch( @configurator.project_release_force_rebuild_filepath ) if (@configurator.project_release_build)
-  end
-
+  constructor :configurator, :project_config_manager, :test_context_extractor, :file_path_utils, :rake_wrapper, :file_wrapper
 
 
   def load_release_object_deep_dependencies(dependencies_list)
     dependencies_list.each do |dependencies_file|
-      if File.exists?(dependencies_file)
+      if File.exist?(dependencies_file)
         @rake_wrapper.load_dependencies( dependencies_file )
       end
     end
   end
 
 
-  def enhance_release_file_dependencies(files)
-    files.each do |filepath|
-      @rake_wrapper[filepath].enhance( [@configurator.project_release_force_rebuild_filepath] ) if (@project_config_manager.release_config_changed)
-    end
-  end
-
-
-
   def load_test_object_deep_dependencies(files_list)
     dependencies_list = @file_path_utils.form_test_dependencies_filelist(files_list)
     dependencies_list.each do |dependencies_file|
-      if File.exists?(dependencies_file)
+      if File.exist?(dependencies_file)
         @rake_wrapper.load_dependencies(dependencies_file)
       end
     end

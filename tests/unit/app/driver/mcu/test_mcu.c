@@ -43,8 +43,8 @@
  * @file    test_mcu.c
  * @author  foxBMS Team
  * @date    2020-04-01 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -56,6 +56,8 @@
 #include "unity.h"
 
 #include "mcu.h"
+
+/*========== Unit Testing Framework Directives ==============================*/
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 volatile uint32_t MCU_RTI_CNT0_FRC0_REG = 0u;

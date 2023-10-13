@@ -43,8 +43,8 @@
  * @file    test_os_freertos.c
  * @author  foxBMS Team
  * @date    2021-11-26 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -54,6 +54,7 @@
 
 /*========== Includes =======================================================*/
 #include "unity.h"
+#include "Mockcan_cbs_tx_crash-dump.h"
 #include "Mockftask.h"
 #include "Mockftask_cfg.h"
 #include "Mockportmacro.h"
@@ -64,7 +65,15 @@
 #include "os.h"
 #include "test_assert_helper.h"
 
-TEST_FILE("os_freertos.c")
+/*========== Unit Testing Framework Directives ==============================*/
+TEST_SOURCE_FILE("os_freertos.c")
+
+TEST_INCLUDE_PATH("../../src/app/driver/can/cbs")
+TEST_INCLUDE_PATH("../../src/app/driver/can/cbs/tx")
+TEST_INCLUDE_PATH("../../src/app/driver/config")
+TEST_INCLUDE_PATH("../../src/app/driver/rtc")
+TEST_INCLUDE_PATH("../../src/app/task/config")
+TEST_INCLUDE_PATH("../../src/app/task/ftask")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 

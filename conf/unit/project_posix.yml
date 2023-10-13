@@ -1,0 +1,192 @@
+# Copyright (c) 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# All rights reserved.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#
+# 1. Redistributions of source code must retain the above copyright notice, this
+#    list of conditions and the following disclaimer.
+#
+# 2. Redistributions in binary form must reproduce the above copyright notice,
+#    this list of conditions and the following disclaimer in the documentation
+#    and/or other materials provided with the distribution.
+#
+# 3. Neither the name of the copyright holder nor the names of its
+#    contributors may be used to endorse or promote products derived from
+#    this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+# OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#
+# We kindly request you to use one or more of the following phrases to refer to
+# foxBMS in your hardware, software, documentation or advertising materials:
+#
+# - "This product uses parts of foxBMS®"
+# - "This product includes parts of foxBMS®"
+# - "This product is derived from foxBMS®"
+
+---
+##############################################################################
+# Important:                                                                 #
+# Paths must be given as seen from the build variant root directory          #
+##############################################################################
+
+:project:
+  :use_exceptions: TRUE
+  :use_test_preprocessor: TRUE
+  :use_mocks: TRUE
+  :use_auxiliary_dependencies: TRUE
+  :build_root: .
+  :test_file_prefix: test_
+  :which_ceedling: ../../tools/vendor/ceedling
+  :ceedling_version: 0.32.0
+  :default_tasks:
+    - test:all
+  :test_threads: 8
+  :compile_threads: 8
+
+:environment: []
+
+:extension:
+  :executable: .out
+
+:paths:
+  :test:
+    - +:../../tests/unit/**
+    - -:../../tests/unit/support
+  :source:
+    - ../../src/app/**
+    - ../../src/opt/**
+  :include:
+    - +:./include/**
+    - +:./../../src/os/freertos/include
+    - +:./../../src/os/freertos/portable/ccs/arm_cortex-r5
+    - +:./../../src/app/main/include
+    - +:./../../src/app/main/include/config
+    - +:./../../src/app/application/config
+    - +:./../../src/app/engine/config
+    - +:./../../src/app/engine/database
+    - +:./../../src/app/driver/mcu
+    - +:./../../src/app/task/os
+  :support:
+    - ../../tests/unit/support/**
+
+:flags:
+  :test:
+    :compile:
+      :*:
+        - -std=c11
+        - -Wextra
+        - -Wall
+        - -pedantic
+        - -include test_ignore_list.h
+        - -Werror
+
+:defines:
+  :test: &config-test-defines
+    :*: &match-all-tests
+      - UNITY_UNIT_TEST
+      - FAS_ASSERT_LEVEL=2
+      - UNITY_INCLUDE_EXEC_TIME
+      - FOXBMS_USES_FREERTOS=1
+      - _POSIX_C_SOURCE=200809L
+    :test_adi_ades1830*:
+      - FOXBMS_AFE_DRIVER_ADI_ADES1830=1u
+  :preprocess:
+    <<: *config-test-defines
+    :*:
+      - *match-all-tests
+      - INC_FREERTOS_H
+
+:cmock:
+  :when_no_prototypes: :warn
+  :enforce_strict_ordering: TRUE
+  :mock_prefix: Mock
+  :weak: ""
+  :strippables:
+    [
+      "(.FREERTOS_SYSTEM_CALL)",
+      "(.PRIVILEGED_FUNCTION)",
+      "(portDONT_DISCARD)",
+      "(?:TEST_LTC_DECLARE_GET\\s*\\(+.*?\\)+)",
+      "(?:TEST_LTC_DEFINE_GET\\s*\\(+.*?\\)+)",
+    ]
+  :includes:
+    - "FreeRTOSConfig.h"
+    - "FreeRTOS.h"
+    - "portmacro.h"
+    - "mpu_wrappers.h"
+    - "portable.h"
+    - "task.h"
+    - "queue.h"
+    - "semphr.h"
+    - "stream_buffer.h"
+    - "event_groups.h"
+    - "string.h"
+  :plugins:
+    - :ignore
+    - :callback
+    - :ignore_arg
+    - :return_thru_ptr
+  :treat_externs: :include
+  :treat_as:
+    uint8: HEX8
+    uint16: HEX16
+    uint32: UINT32
+    int8: INT8
+    bool: UINT8
+
+#:tools:
+# Ceedling defaults to using gcc for compiling, linking, etc.
+# As [:tools] is blank, gcc will be used (so long as it's in your system path)
+# See documentation to configure a given toolchain for use
+
+:tools_test_linker:
+  :arguments:
+    - -lm
+    - -flto
+:tools_gcov_linker:
+  :arguments:
+    - -lm
+    - -flto
+:gcov:
+  :utilities:
+    - gcovr
+  :reports:
+    - HtmlDetailed
+    - Text
+    - Cobertura
+  :gcovr:
+    :report_root: "../../"
+    :report_exclude: ".*vendor.*|.*build.*|.*test.*|.*tests.*|.*lib.*|.*Test.*|.*src.hal.*|.*src.os.*"
+    :exclude_directories: ".*tests.*|.*src.os.*|.*build.*|.*src.app.driver.sbc.fs8x_driver."
+    :sort_percentage: true
+    :sort_uncovered: false
+    :html_medium_threshold: 60
+    :html_high_threshold: 85
+    :print_summary: true
+    :threads: 8
+    :keep: false
+
+:junit_tests_report:
+  :artifact_filename: report_junit.xml
+
+:plugins:
+  :load_paths:
+    - ../../tools/vendor/ceedling/plugins
+  :enabled:
+    - gcov
+    - stdout_pretty_tests_report
+    - module_generator
+    - xml_tests_report
+    - junit_tests_report

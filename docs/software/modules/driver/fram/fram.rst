@@ -30,7 +30,7 @@ Description
 -----------
 
 The FRAM (ferroelectric random access memory) used is the model CY15B102QN.
-It is a 2 Mbit logically organized as 256K × 8 bits.
+It is a 2 Mbit logically organized as 256K x 8 bits.
 It is non-volatile, does not need to be supplied to retain its data and can
 be written a virtually unlimited number of times.
 The FRAM is driven by an SPI interface.
@@ -89,11 +89,11 @@ layout.
 
 The read and write functions return one of the following four values:
 
- - ``FRAM_ACCESS_OK``: the write or read access was successful and
-   the CRC read matches with the CRC calculated on the read data.
- - ``FRAM_ACCESS_SPI_BUSY``: the SPI is busy, the transaction could not
-   take place.
- - ``FRAM_ACCESS_CRC_BUSY``: the CRC hardware is busy, the transaction
-   could not take place.
- - ``FRAM_ACCESS_CRC_ERROR``: the data was read from the FRAM but the read
-   CRC does not match with the CRC computed on the read data.
+- ``FRAM_ACCESS_OK``: the write or read access was successful and
+  the CRC read matches with the CRC calculated on the read data.
+- ``FRAM_ACCESS_SPI_BUSY``: the SPI is busy, the transaction could not
+  take place.
+- ``FRAM_ACCESS_CRC_BUSY``: the CRC hardware is busy, the transaction
+  could not take place.
+- ``FRAM_ACCESS_CRC_ERROR``: the data was read from the FRAM but the read
+  CRC does not match with the CRC computed on the read data.

@@ -64,7 +64,6 @@ modified (see :numref:`ftask_special_task_idle`).
 The following sections show how tasks are created, configured and how task behavior can be changed. Code sections that
 are not meant to be modified by user are indicated in the code, e.g., for the Engine task:
 
-
 .. code-block:: c
    :linenos:
    :emphasize-lines: 2-3,6-7
@@ -105,7 +104,6 @@ Engine task:
 
 Before and after the the User Code Function is run, the :ref:`SYSTEM_MONITORING_MODULE` is notified that either the
 User Code Function will be run or has run. This enables to determine if a task returns within the expected time frame.
-
 
 .. code-block:: c
    :linenos:
@@ -153,7 +151,6 @@ user/application code (``FTSK_InitializeUserCodePreCyclicTasks``).
 All tasks share the suffix ``FTSK_RunUserCode`` for a consistent implementation
 of the Task Creator Functions and are not meant to be changed.
 
-
 FTSK_InitializeUserCodeEngine
 """""""""""""""""""""""""""""
 
@@ -169,7 +166,6 @@ FTSK_RunUserCodeEngine
 
 This task triggers the database and the system monitoring modules. The database module copies all data from the queue
 into the database variables. The system monitoring checks that all tasks run within their specified time frames.
-
 
 .. _ftask_special_task_idle:
 

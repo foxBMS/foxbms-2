@@ -32,9 +32,9 @@ will open and disconnect the battery.
 Three power contactors are used to connect and disconnect the battery modules
 from the load:
 
- - Main Contactor Plus
- - Main Contactor Minus
- - Pre-charge contactor
+- Main Contactor Plus
+- Main Contactor Minus
+- Pre-charge contactor
 
 There is no separate charge path, discharging and charging are made through
 the main contactors.

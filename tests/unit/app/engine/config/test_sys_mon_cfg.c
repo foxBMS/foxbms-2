@@ -43,8 +43,8 @@
  * @file    test_sys_mon_cfg.c
  * @author  foxBMS Team
  * @date    2020-04-02 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -57,6 +57,11 @@
 
 #include "sys_mon_cfg.h"
 
+/*========== Unit Testing Framework Directives ==============================*/
+TEST_INCLUDE_PATH("../../src/app/driver/config")
+TEST_INCLUDE_PATH("../../src/app/driver/fram")
+TEST_INCLUDE_PATH("../../src/app/task/config")
+
 /*========== Definitions and Implementations for Unit Test ==================*/
 
 /*========== Setup and Teardown =============================================*/
@@ -67,7 +72,7 @@ void tearDown(void) {
 }
 
 /*========== Test Cases =====================================================*/
-void testSYSMDummyCallbackExists() {
+void testSYSMDummyCallbackExists(void) {
     SYSM_TASK_ID_e dummy = SYSM_TASK_ID_MAX;
     TEST_SYSM_DummyCallback(dummy);
 }

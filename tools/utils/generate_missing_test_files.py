@@ -128,7 +128,7 @@ def main():
         out_txt[42] = f" * @file    {missing_file.name}"
         out_txt[44] = f" * @date    {today_iso} (date of creation)"
         out_txt[45] = f" * @updated {today_iso} (date of last update)"
-        out_txt[57] = f'TEST_FILE("{source_file}")'
+        out_txt[57] = f'TEST_SOURCE_FILE("{source_file}")'
         if not missing_file.parent.exists():
             missing_file.parent.mkdir()
         missing_file.write_text("\n".join(out_txt) + "\n", encoding="utf-8")

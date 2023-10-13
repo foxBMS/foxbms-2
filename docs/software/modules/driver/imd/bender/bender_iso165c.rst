@@ -83,7 +83,6 @@ The disabling process is implemented in function `I165C_Disable`.
 Insulation measurement
 """"""""""""""""""""""
 
-
 The state flow diagram of the periodic insulation measurement procedure of the
 Bender iso165C state machine is depicted below.
 

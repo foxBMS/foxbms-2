@@ -53,15 +53,12 @@ def build(bld):
         os.path.join("algorithm.c"),
         os.path.join("config", "algorithm_cfg.c"),
         os.path.join("moving_average", "moving_average.c"),
-        os.path.join("state_estimation", "soc", soc, f"soc_{soc}_cfg.c"),
         os.path.join("state_estimation", "soc", soc, f"soc_{soc}.c"),
-        os.path.join("state_estimation", "soe", soe, f"soe_{soe}_cfg.c"),
         os.path.join("state_estimation", "soe", soe, f"soe_{soe}.c"),
         os.path.join("state_estimation", "sof", sof, f"sof_{sof}.c"),
         os.path.join("state_estimation", "sof", sof, f"sof_{sof}_cfg.c"),
         os.path.join("state_estimation", "soh", soh, f"soh_{soh}.c"),
-        os.path.join("state_estimation", "soh", soh, f"soh_{soh}_cfg.c"),
-        os.path.join(".", "state_estimation", "state_estimation.c"),
+        os.path.join("state_estimation", "state_estimation.c"),
     ]
     includes = [
         ".",

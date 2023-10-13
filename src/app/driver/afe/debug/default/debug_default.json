@@ -2,7 +2,6 @@
     "include": [
         "../../api",
         ".",
-        "api",
-        "config"
+        "api"
     ]
 }

@@ -69,11 +69,15 @@ from ..misc.program_arguments import (
 from ..workers.can_node_worker import CanAdapterProcess
 from ..workers.gui_sync_worker import SyncThread
 from ..workers.send_worker import PeriodicSendThread
+from .bms_state import BmsStateFrame
 from .cell_temperatures import CellTemperatureFrame
 from .cell_voltages import CellVoltageFrame
+from .debug_response import decode_debug_response
 from .default_messages import (
     _get_balancing_threshold_limits,
     _get_balancing_threshold_signal,
+    _get_bms_state_details_msg_id,
+    _get_bms_state_msg_id,
     _get_bms_state_request_message,
     _get_cell_temperatures_msg_id,
     _get_cell_voltages_msg_id,
@@ -82,7 +86,6 @@ from .default_messages import (
     _get_state_request_signal_mode,
     _set_bms_state_request_message,
 )
-from .debug_response import decode_debug_response
 from .msgs.msg_debug import DebugMessage, DebugMessageState
 
 TITLE = f"{__appname__} - Live View and Control - {__version__}"
@@ -168,9 +171,24 @@ class LiveViewAndControlMainFrame(  # pylint:disable=too-many-ancestors,too-many
         )
         self.f_cell_temperatures.Show()
 
+        self.f_bms_state = BmsStateFrame(
+            title="BMS State and BMS State Details",
+            parent=self.GetParent(),
+            dbc=self.dbc,
+            pos=(
+                self.f_cell_voltages.GetPosition()[0]
+                + self.f_cell_voltages.GetSize()[0]
+                + 30,
+                self.f_cell_voltages.GetPosition()[1],
+            ),
+        )
+        self.f_bms_state.Show()
+
         # DBC/CAN stuff
         self.cell_voltages_msg_id = _get_cell_voltages_msg_id(self.dbc)
         self.cell_temperatures_msg_id = _get_cell_temperatures_msg_id(self.dbc)
+        self.bms_state_msg_id = _get_bms_state_msg_id(self.dbc)
+        self.bms_state_details_msg_id = _get_bms_state_details_msg_id(self.dbc)
         # construct BMS State Request Message
         self.state_request_msg: Message = _get_bms_state_request_message(self.dbc)
         self.state_request_signal_mode = _get_state_request_signal_mode(
@@ -456,6 +474,8 @@ class LiveViewAndControlMainFrame(  # pylint:disable=too-many-ancestors,too-many
             self.f_cell_voltages.update_cell_voltages(value)
         elif _get_message_type(value, self.cell_temperatures_msg_id):
             self.f_cell_temperatures.update_cell_temperatures(value)
+        elif _get_message_type(value, self.bms_state_msg_id):
+            self.f_bms_state.update_bms_state_info(value)
         elif _get_message_type(value, self.debug_response_msg_id):
             decode_debug_response(value, self.dbc)
 
@@ -475,6 +495,8 @@ class LiveViewAndControlMainFrame(  # pylint:disable=too-many-ancestors,too-many
             self.f_cell_temperatures.NewDestroy()
         if getattr(self, "f_cell_voltages", None):
             self.f_cell_voltages.NewDestroy()
+        if getattr(self, "f_bms_state", None):
+            self.f_bms_state.NewDestroy()
         if (self.sync_worker and self.sync_worker.is_alive()) or (
             self.send_worker and self.send_worker.is_alive()
         ):
@@ -493,6 +515,9 @@ class LiveViewAndControlMainFrame(  # pylint:disable=too-many-ancestors,too-many
         if getattr(self, "f_cell_voltages", None):
             self.f_cell_voltages.Raise()
             self.f_cell_voltages.Iconize(False)
+        if getattr(self, "f_bms_state", None):
+            self.f_bms_state.Raise()
+            self.f_bms_state.Iconize(False)
         self.Raise()
 
 

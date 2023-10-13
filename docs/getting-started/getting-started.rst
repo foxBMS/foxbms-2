@@ -33,7 +33,6 @@ They must be read as they are used throughout the whole documentation.
 Software Installation
 *********************
 
-
 The :ref:`SOFTWARE_INSTALLATION` part of the documentation explains
 how to install and configure the toolchain that is used for working on the
 embedded software.

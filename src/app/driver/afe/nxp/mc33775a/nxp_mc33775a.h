@@ -43,13 +43,15 @@
  * @file    nxp_mc33775a.h
  * @author  foxBMS Team
  * @date    2020-05-08 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup DRIVERS
  * @prefix  N775
  *
  * @brief   Headers for the driver for the MC33775A analog front-end.
- *
+ * @details Defines the interface to perform measurements with the MC33775A:
+ *          It further defines functions to write to and read from the I2C bus
+ *          that is implement of the AFE.
  */
 
 #ifndef FOXBMS__NXP_MC33775A_H_
@@ -64,55 +66,38 @@
 
 /*========== Extern Constant and Variable Declarations ======================*/
 
-/**
- * Variable containing the state machine state for the MC33775A driver.
- */
+/** state of the state machine for the MC33775A driver */
 extern N775_STATE_s n775_stateBase;
 
 /*========== Extern Function Prototypes =====================================*/
 
 /**
- * @brief   trigger function for the N775 driver state machine.
- *
- * This function contains the sequence of events in the N775 state machine.
- * It must be called time-triggered, every 1ms.
- *
- * @param  n775_state  state of the N775A driver
- *
+ * @brief   trigger a read on the I2C bus of the slave.
+ * @param   module          module number to address in the daisy-chain
+ * @param   deviceAddress   address of the I2C device addressed
+ * @param   pData           data read on I2C bus
+ * @param   dataLength      number of bytes to read
  */
-extern void N775_Meas(N775_STATE_s *n775_state);
+extern STD_RETURN_TYPE_e N775_I2cRead(uint8_t module, uint8_t deviceAddress, uint8_t *pData, uint8_t dataLength);
 
 /**
- * @brief   gets the measurement initialization status.
- *
- * @param   n775_state  state of the N775A driver
- *
- * @return  true if a first measurement cycle was made, false otherwise
- *
- */
-extern bool N775_IsFirstMeasurementCycleFinished(N775_STATE_s *n775_state);
-
-/**
- * @brief   trigger a write on the I2C bus of the slave.
- *
+ * @brief  trigger a write on the I2C bus of the slave.
  * @param  module         module number to address in the daisy-chain
  * @param  deviceAddress  address of the I2C device addressed
  * @param  pData          data to write on I2C bus
  * @param  dataLength     number of bytes to write
- *
  */
 extern STD_RETURN_TYPE_e N775_I2cWrite(uint8_t module, uint8_t deviceAddress, uint8_t *pData, uint8_t dataLength);
 
 /**
- * @brief   trigger a read on the I2C bus of the slave, first write address of register to read.
- *
- * @param  module           module number to address in the daisy-chain
- * @param  deviceAddress    address of the I2C device addressed
- * @param  pDataWrite       data written on I2C bus
- * @param  writeDataLength  number of bytes to write
- * @param  pDataRead       data read on I2C bus
- * @param  readDataLength  number of bytes to read
- *
+ * @brief   trigger a read on the I2C bus of the slave, first write address of
+ *          register to read.
+ * @param   module          module number to address in the daisy-chain
+ * @param   deviceAddress   address of the I2C device addressed
+ * @param   pDataWrite      data written on I2C bus
+ * @param   writeDataLength number of bytes to write
+ * @param   pDataRead       data read on I2C bus
+ * @param   readDataLength  number of bytes to read
  */
 extern STD_RETURN_TYPE_e N775_I2cWriteRead(
     uint8_t module,
@@ -121,23 +106,43 @@ extern STD_RETURN_TYPE_e N775_I2cWriteRead(
     uint8_t writeDataLength,
     uint8_t *pDataRead,
     uint8_t readDataLength);
+
 /**
- * @brief   trigger a read on the I2C bus of the slave.
- *
- * @param  module         module number to address in the daisy-chain
- * @param  deviceAddress  address of the I2C device addressed
- * @param  pData          data read on I2C bus
- * @param  dataLength     number of bytes to read
- *
+ * @brief   gets the measurement initialization status.
+ * @param   pState state of the N775A driver
+ * @return  true if a first measurement cycle was made, false otherwise
  */
-extern STD_RETURN_TYPE_e N775_I2cRead(uint8_t module, uint8_t deviceAddress, uint8_t *pData, uint8_t dataLength);
+extern bool N775_IsFirstMeasurementCycleFinished(N775_STATE_s *pState);
+
+/**
+ * @brief   trigger function for the N775 driver state machine.
+ * @details This function contains the sequence of events in the N775 state
+ *          machine.
+ *          It must be called time-triggered, every 1ms.
+ * @param   pState state of the N775A driver
+ */
+extern void N775_Measure(N775_STATE_s *pState);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 #ifdef UNITY_UNIT_TEST
-/* Start test functions */
-extern uint8_t TEST_N775_CheckReEntrance();
-extern void TEST_N775_SetFirstMeasurementCycleFinished(N775_STATE_s *n775_state);
-/* End test functions */
+#include "nxp_mc33775a-ll.h"
+extern void TEST_N775_BalanceControl(N775_STATE_s *pState);
+extern void TEST_N775_BalanceSetup(N775_STATE_s *pState);
+extern void TEST_N775_CaptureMeasurement(N775_STATE_s *pState);
+extern STD_RETURN_TYPE_e TEST_N775_Enumerate(N775_STATE_s *pState);
+extern void TEST_N775_ErrorHandling(N775_STATE_s *pState, N775_COMMUNICATION_STATUS_e returnedValue, uint8_t module);
+extern void TEST_N775_IncrementMuxIndex(N775_STATE_s *pState);
+extern void TEST_N775_IncrementStringSequence(N775_STATE_s *pState);
+extern void TEST_N775_Initialize(N775_STATE_s *pState);
+extern void TEST_N775_InitializeDatabase(N775_STATE_s *pState);
+extern void TEST_N775_InitializeI2c(N775_STATE_s *pState);
+extern void TEST_N775_ResetStringSequence(N775_STATE_s *pState);
+extern void TEST_N775_ResetMuxIndex(N775_STATE_s *pState);
+extern void TEST_N775_SetFirstMeasurementCycleFinished(N775_STATE_s *pState);
+extern STD_RETURN_TYPE_e TEST_N775_SetMuxChannel(N775_STATE_s *pState);
+extern void TEST_N775_StartMeasurement(N775_STATE_s *pState);
+extern STD_RETURN_TYPE_e TEST_N775_TransmitI2c(N775_STATE_s *pState);
+extern void TEST_N775_Wait(uint32_t milliseconds);
 #endif
 
 #endif /* FOXBMS__NXP_MC33775A_H_ */

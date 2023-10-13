@@ -1,15 +1,15 @@
 .. include:: ./../../../macros.txt
 .. include:: ./../../../units.txt
 
-.. _MC33775A_BASED_14_CELL_SLAVE___V1_0_0__:
+.. _NXP_MC33775A_BASED_14_CELL_SLAVE___V1_0_0__:
 
-MC33775A-based 14-Cell Slave ``v1.0.0``
-=======================================
+NXP MC33775A-based 14-Cell Slave ``v1.0.0``
+===========================================
 
 .. note::
 
    The changelog for this release is found at
-   :ref:`CHANGELOG_FOR_SLAVE_MC33775_V1_0_0`.
+   :ref:`CHANGELOG_FOR_SLAVE_NXP_MC33775A_V1_0_0`.
 
 .. |local_slave_version|  replace:: ``1.0.0``
 
@@ -19,8 +19,8 @@ Overview
 
 .. important::
 
-   The following description only applies for the |mc33775a|\ -based 14 cell
-   |BMS-Slave| hardware version |local_slave_version|.
+   The following description only applies for the |nxp-mc33775a|\ -based 14
+   cell |BMS-Slave| hardware version |local_slave_version|.
 
 .. hint::
 

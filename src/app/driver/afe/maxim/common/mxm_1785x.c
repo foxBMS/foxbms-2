@@ -43,8 +43,8 @@
  * @file    mxm_1785x.c
  * @author  foxBMS Team
  * @date    2019-01-15 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup DRIVERS
  * @prefix  MXM
  *
@@ -119,7 +119,7 @@ static const AFE_PLAUSIBILITY_VALUES_s mxm_plausibleCellVoltages = {
 
 /*========== Static Function Prototypes =====================================*/
 
-/** @brief Retrieves data from lower statemachine and writes it to the rx buffer. */
+/** @brief Retrieves data from lower state machine and writes it to the rx buffer. */
 static void MXM_GetDataFrom5XStateMachine(MXM_MONITORING_INSTANCE_s *pInstance);
 
 /**
@@ -1105,25 +1105,23 @@ extern STD_RETURN_TYPE_e MXM_ParseVoltagesIntoDB(const MXM_MONITORING_INSTANCE_s
             (int32_t)kpkInstance->localVoltages.blockVoltages[i_mod];
         FAS_ASSERT(
             BS_NR_OF_CELL_BLOCKS_PER_MODULE <= MXM_MAXIMUM_NR_OF_CELLS_PER_MODULE); /*!< invalid configuration! */
-        for (uint8_t i_bat = 0; i_bat < BS_NR_OF_CELL_BLOCKS_PER_MODULE; i_bat++) {
-            uint16_t cell_counter_db           = (moduleNumber * BS_NR_OF_CELL_BLOCKS_PER_MODULE) + i_bat;
-            uint16_t cell_counter_max          = ((uint16_t)i_mod * MXM_MAXIMUM_NR_OF_CELLS_PER_MODULE) + i_bat;
+        for (uint8_t cb = 0u; cb < BS_NR_OF_CELL_BLOCKS_PER_MODULE; cb++) {
+            uint16_t cell_counter_max          = ((uint16_t)i_mod * MXM_MAXIMUM_NR_OF_CELLS_PER_MODULE) + cb;
             const uint16_t cellVoltageLocal_mV = kpkInstance->localVoltages.cellVoltages_mV[cell_counter_max];
             if ((int32_t)cellVoltageLocal_mV > INT16_MAX) {
-                kpkInstance->pCellVoltages_table->cellVoltage_mV[stringNumber][cell_counter_db] = INT16_MAX;
+                kpkInstance->pCellVoltages_table->cellVoltage_mV[stringNumber][i_mod][cb] = INT16_MAX;
             } else {
-                kpkInstance->pCellVoltages_table->cellVoltage_mV[stringNumber][cell_counter_db] =
+                kpkInstance->pCellVoltages_table->cellVoltage_mV[stringNumber][i_mod][cb] =
                     (int16_t)cellVoltageLocal_mV;
             }
             const STD_RETURN_TYPE_e valueIsPlausible = AFE_PlausibilityCheckVoltageMeasurementRange(
-                kpkInstance->pCellVoltages_table->cellVoltage_mV[stringNumber][cell_counter_db],
-                mxm_plausibleCellVoltages);
+                kpkInstance->pCellVoltages_table->cellVoltage_mV[stringNumber][i_mod][cb], mxm_plausibleCellVoltages);
             if ((valueIsPlausible == STD_OK) && moduleIsConnected) {
                 numberValidVoltageMeasurements[stringNumber]++;
             } else {
                 /* Invalidate cell voltage measurement */
                 kpkInstance->pCellVoltages_table->invalidCellVoltage[stringNumber][moduleNumber] |=
-                    ((uint64_t)1u << i_bat);
+                    ((uint64_t)1u << cb);
             }
         }
     }
@@ -1140,14 +1138,13 @@ extern STD_RETURN_TYPE_e MXM_ParseVoltagesIntoDB(const MXM_MONITORING_INSTANCE_s
 
         /* store aux measurement from AUX2 (MUX0) */
         if (kpkInstance->muxCounter < BS_NR_OF_TEMP_SENSORS_PER_MODULE) {
-            const uint16_t temperatureIndexDb = (moduleNumber * BS_NR_OF_TEMP_SENSORS_PER_MODULE) +
-                                                kpkInstance->muxCounter;
+            const uint16_t temperatureIndexDb  = kpkInstance->muxCounter;
             const uint16_t temperatureIndexMxm = ((uint16_t)i_mod * MXM_MAXIMUM_NR_OF_AUX_PER_MODULE) + 2u;
             const uint16_t auxVoltage_mV       = kpkInstance->localVoltages.auxVoltages_mV[temperatureIndexMxm];
             /* const uint16_t temporaryVoltage    = (auxVoltage_mV / ((float_t)3300 - auxVoltage_mV)) * 1000; */
             const int16_t temperature_ddegC = TSI_GetTemperature(auxVoltage_mV);
-            kpkInstance->pCellTemperatures_table->cellTemperature_ddegC[stringNumber][temperatureIndexDb] =
-                temperature_ddegC;
+            kpkInstance->pCellTemperatures_table
+                ->cellTemperature_ddegC[stringNumber][moduleNumber][temperatureIndexDb] = temperature_ddegC;
             const STD_RETURN_TYPE_e valueIsPlausible = AFE_PlausibilityCheckTempMinMax(temperature_ddegC);
             if ((valueIsPlausible == STD_OK) && moduleIsConnected) {
                 numberValidTemperatureMeasurements[stringNumber]++;

@@ -6,7 +6,7 @@
 Waf Tools
 =========
 
-There are |foxbms| specific tools that do not come with waf by default.
+There are |foxbms| specific tools that do not come with Waf by default.
 These tools are included in ``tools/waf-tools`` and implemented as Python
 scripts.
 The terms `tool` and `script` are used as synonyms in the following.

@@ -43,8 +43,8 @@
  * @file    test_sys.c
  * @author  foxBMS Team
  * @date    2020-04-02 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -77,6 +77,31 @@
 
 #include "sys.h"
 #include "test_assert_helper.h"
+
+/*========== Unit Testing Framework Directives ==============================*/
+TEST_SOURCE_FILE("sys.c")
+
+TEST_INCLUDE_PATH("../../src/app/application/algorithm")
+TEST_INCLUDE_PATH("../../src/app/application/algorithm/config")
+TEST_INCLUDE_PATH("../../src/app/application/algorithm/state_estimation")
+TEST_INCLUDE_PATH("../../src/app/application/algorithm/state_estimation/sof/trapezoid")
+TEST_INCLUDE_PATH("../../src/app/application/bal")
+TEST_INCLUDE_PATH("../../src/app/application/bms")
+TEST_INCLUDE_PATH("../../src/app/driver/afe/api")
+TEST_INCLUDE_PATH("../../src/app/driver/can")
+TEST_INCLUDE_PATH("../../src/app/driver/config")
+TEST_INCLUDE_PATH("../../src/app/driver/contactor")
+TEST_INCLUDE_PATH("../../src/app/driver/fram")
+TEST_INCLUDE_PATH("../../src/app/driver/imd")
+TEST_INCLUDE_PATH("../../src/app/driver/interlock")
+TEST_INCLUDE_PATH("../../src/app/driver/meas")
+TEST_INCLUDE_PATH("../../src/app/driver/sbc")
+TEST_INCLUDE_PATH("../../src/app/driver/sbc/fs8x_driver")
+TEST_INCLUDE_PATH("../../src/app/driver/spi")
+TEST_INCLUDE_PATH("../../src/app/driver/sps")
+TEST_INCLUDE_PATH("../../src/app/engine/diag")
+TEST_INCLUDE_PATH("../../src/app/engine/sys")
+TEST_INCLUDE_PATH("../../src/app/task/config")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 SBC_STATE_s sbc_stateMcuSupervisor;

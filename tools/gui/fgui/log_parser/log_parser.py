@@ -71,7 +71,7 @@ class LogParserFrame(  # pylint: disable=too-many-ancestors,disable=too-many-ins
         self.Centre()
         self.basic_gui()
         self.all_checked_sig = []
-        self.plot_dfs = []
+        self.plot_data_frames = []
         self.all_sig = []
         self.is_running = True
         self.dbc_file = str(
@@ -253,7 +253,7 @@ class LogParserFrame(  # pylint: disable=too-many-ancestors,disable=too-many-ins
             plot_df.insert(
                 1, signal_name + " in " + unit.replace("Â°C", "°C"), signal_val
             )
-            self.plot_dfs.append(plot_df)
+            self.plot_data_frames.append(plot_df)
 
     def read_pcan_log_v1(self):  # pylint: disable=too-many-locals
         """Read data to selected signals from PCAN log v1 file"""
@@ -303,7 +303,7 @@ class LogParserFrame(  # pylint: disable=too-many-ancestors,disable=too-many-ins
                         except KeyError:
                             msg = "Signal" + str(signal_name) + " is not in dictionary."
                             wx.MessageBox(msg, "Error", wx.OK | wx.ICON_ERROR)
-                            self.plot_dfs.clear()
+                            self.plot_data_frames.clear()
                             return
                         signal_timestamp.append(timestamp)
                         signal_val.append(decoded_sig_val)
@@ -361,7 +361,7 @@ class LogParserFrame(  # pylint: disable=too-many-ancestors,disable=too-many-ins
                         except KeyError:
                             msg = "Signal" + str(signal_name) + " is not in dictionary."
                             wx.MessageBox(msg, "Error", wx.OK | wx.ICON_ERROR)
-                            self.plot_dfs.clear()
+                            self.plot_data_frames.clear()
                             return
                         signal_timestamp.append(timestamp)
                         signal_val.append(decoded_sig_val)
@@ -420,7 +420,7 @@ class LogParserFrame(  # pylint: disable=too-many-ancestors,disable=too-many-ins
 
                             msg = "Signal" + str(signal_name) + " is not in dictionary."
                             wx.MessageBox(msg, "Error", wx.OK | wx.ICON_ERROR)
-                            self.plot_dfs.clear()
+                            self.plot_data_frames.clear()
                             return
                         signal_timestamp.append(timestamp)
                         signal_val.append(decoded_sig_val)
@@ -433,10 +433,10 @@ class LogParserFrame(  # pylint: disable=too-many-ancestors,disable=too-many-ins
 
     def plot_selected_signals(self, units):
         """Plot the data of the selected signals from the read log file"""
-        if len(self.plot_dfs) < 1:
+        if len(self.plot_data_frames) < 1:
             msg = "No signals chosen or signals not in Log files."
             wx.MessageBox(msg, "Error", wx.OK | wx.ICON_ERROR)
-            self.plot_dfs.clear()
+            self.plot_data_frames.clear()
             return
 
         # set figure size depending on subplot count
@@ -454,8 +454,10 @@ class LogParserFrame(  # pylint: disable=too-many-ancestors,disable=too-many-ins
         axes_units[0].append(first_ax)
         axes_units[1].append(units[0])
 
-        # check all dataframes if a new plot is needed or a suiting subplot exists
-        for i_df, df in enumerate(self.plot_dfs):  # pylint: disable=invalid-name
+        # check all data-frames if a new plot is needed or a suiting subplot exists
+        for i_df, data_frame in enumerate(
+            self.plot_data_frames
+        ):  # pylint: disable=invalid-name
             new_ax = True
             for i_unit, unit in enumerate(axes_units[1]):
                 if unit == units[i_df]:
@@ -468,10 +470,12 @@ class LogParserFrame(  # pylint: disable=too-many-ancestors,disable=too-many-ins
                 axes_units[0].append(plt_ax)
                 axes_units[1].append(units[i_df])
 
-            df.plot(x=df.columns[0], y=df.columns[1], kind="line", ax=plt_ax)
+            data_frame.plot(
+                x=data_frame.columns[0], y=data_frame.columns[1], kind="line", ax=plt_ax
+            )
             plt.xlabel("Time(ms)")
             plt_ax.legend(bbox_to_anchor=(0, 1.02, 1, 0.2), loc="lower left")
-        self.plot_dfs.clear()
+        self.plot_data_frames.clear()
 
         plt.show()
 

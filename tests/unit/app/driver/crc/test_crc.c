@@ -43,8 +43,8 @@
  * @file    test_crc.c
  * @author  foxBMS Team
  * @date    2022-02-23 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -57,6 +57,9 @@
 #include "Mockfassert.h"
 
 #include "crc.h"
+
+/*========== Unit Testing Framework Directives ==============================*/
+TEST_INCLUDE_PATH("../../src/app/driver/crc")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 

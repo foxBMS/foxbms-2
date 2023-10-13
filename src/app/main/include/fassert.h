@@ -43,8 +43,8 @@
  * @file    fassert.h
  * @author  foxBMS Team
  * @date    2020-03-20 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup ASSERT
  * @prefix  FAS
  *
@@ -183,7 +183,8 @@ extern void FAS_StoreAssertLocation(uint32_t *pc, uint32_t line);
 static inline void FAS_InfiniteLoop(void) {
     /* disable IRQ interrupts */
     FAS_DisableInterrupts();
-    /* AXIVION Next Codeline Style MisraC2012-2.2: an infinite loop is intended to stop further code execution */
+    /* AXIVION Next Codeline Style MisraC2012-2.2 Generic-NoEmptyLoops: an
+       infinite loop is intended to stop further code execution */
     while (true) { /* Stay here until watchdog reset happens */
     }
 }

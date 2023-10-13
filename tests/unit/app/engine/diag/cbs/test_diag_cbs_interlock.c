@@ -43,8 +43,8 @@
  * @file    test_diag_cbs_interlock.c
  * @author  foxBMS Team
  * @date    2021-02-17 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -62,7 +62,10 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-TEST_FILE("diag_cbs_interlock.c")
+/*========== Unit Testing Framework Directives ==============================*/
+TEST_SOURCE_FILE("diag_cbs_interlock.c")
+
+TEST_INCLUDE_PATH("../../src/app/engine/diag/cbs")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 /** local copy of the #DATA_BLOCK_ERROR_STATE_s table */

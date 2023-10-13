@@ -43,8 +43,8 @@
  * @file    mxm_afe.c
  * @author  foxBMS Team
  * @date    2020-06-16 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup DRIVER
  * @prefix  AFE
  *

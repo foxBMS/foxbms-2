@@ -43,8 +43,8 @@
  * @file    test_bal_cfg.c
  * @author  foxBMS Team
  * @date    2022-02-26 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -57,6 +57,8 @@
 #include "Mockos.h"
 
 #include "bal_cfg.h"
+
+/*========== Unit Testing Framework Directives ==============================*/
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 

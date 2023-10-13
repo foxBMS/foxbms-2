@@ -3,39 +3,45 @@
     "7z",
     "coverage",
     "exe",
-    "svg",
-    "pyc",
-    "png",
     "gif",
     "ico",
+    "jpg",
     "o",
-    "vsdx",
+    "png",
+    "pptx",
     "pyc",
+    "pyc",
+    "stats",
+    "svg",
     "svg",
     "tar",
     "tar.bz2",
     "tar.gz",
     "vsdx",
-    "~vsdx",
-    "zip"
+    "vsdx",
+    "zip",
+    "~pptx",
+    "~vsdx"
   ],
   "global": [
     "**/**.log",
+    "**/*.asc",
     "**/*~",
+    "**/.lock-waf_*_build",
+    "**/.vscode/**",
     "**/__pycache__/**",
     "**/foxbms-2_axivion_report.json",
-    "**/*.asc",
-    "**/.lock-waf_*_build",
+    "**/foxbms_spa_report.json",
     ".git/**",
     ".mypy_cache/**",
-    ".vscode/**",
-    "build/**",
     "build-tools-tests/**",
+    "build/**",
     "conf/hcg/include/*",
     "conf/hcg/source/*",
     "docs/_ext/**",
     "foxbms/**",
     "libbuild/**",
+    "spa-artifacts/**",
     "src/app/driver/afe/nxp/mc33775a/vendor/**",
     "src/app/driver/sbc/fs8x_driver/**",
     "src/os/freertos/**/*.asm",
@@ -45,32 +51,34 @@
     "src/os/freertos/GitHub-FreeRTOS-Kernel-Home.url",
     "src/os/freertos/History.txt",
     "src/os/freertos/LICENSE.md",
-    "src/os/freertos/portable/memmang/ReadMe.url",
-    "src/os/freertos/portable/readme.txt",
     "src/os/freertos/Quick_Start_Guide.url",
     "src/os/freertos/README.md",
+    "src/os/freertos/portable/memmang/ReadMe.url",
+    "src/os/freertos/portable/readme.txt",
     "src/os/safertos/**/*.asm",
     "src/os/safertos/**/*.c",
     "src/os/safertos/**/*.h",
     "tests/axivion/compiler-errata/ti-cgt-arm*/**",
     "tests/axivion/qualification-test/qualification-kit/**",
-    "tests/unit/build/**",
     "tests/scripts/waf-core/general/**",
     "tests/scripts/waf-core/init/**",
     "tests/scripts/waf-core/install/**",
     "tests/scripts/waf-core/install_group/**",
     "tests/scripts/waf-core/preproc/**",
     "tests/scripts/waf-tools/f_guidelines/tests/**",
+    "tests/unit/build/**",
     "tools/.waf3-**",
+    "tools/dbc/third-party/**",
     "tools/vendor/**",
     "tools/waf",
-    "tools/waf3-**",
-    "tools/waf-verify-sig.py"
+    "tools/waf-verify-sig.py",
+    "tools/waf3-**"
   ],
   "file_names": {
     "name": "GENERAL:001",
     "regex": "^[a-z0-9_\\-.]*$",
     "exclude": [
+      "**/*.py1.stats",
       "**/*.~vsdx",
       "**/LICENSE.md",
       "**/README.md",
@@ -94,13 +102,18 @@
       "**/.clang-format",
       "**/.dummy",
       "**/.gitignore",
+      "**/README.md",
       "**/__init__.py",
       "**/__main__.py",
-      "**/README.md",
+      "**/dir_exists",
+      "**/misc.py",
       "**/wscript",
       "tests/axivion/addon-test/**/ok.c",
-      "tests/axivion/addon-test/test_unique_filename/**",
       "tests/axivion/addon-test/test_*/**",
+      "tests/axivion/addon-test/test_unique_filename/**",
+      "tests/unit/axivion/axivion_config.json",
+      "tests/unit/axivion/ci_config.json",
+      "tests/unit/axivion/compiler_config.json",
       "tools/gui/LICENSE.md"
     ]
   },
@@ -167,8 +180,8 @@
       "header": {
         "name": "C:002",
         "exclude": [
-          "src/app/driver/sbc/fs8x_driver/**",
-          "src/app/driver/afe/nxp/mc33775a/nxp_mc33775a-ll.*"
+          "src/app/driver/afe/nxp/mc33775a/nxp_mc33775a-ll.*",
+          "src/app/driver/sbc/fs8x_driver/**"
         ],
         "text": [
           "/**",
@@ -282,8 +295,8 @@
         "source": {
           "exclude": [
             "conf/tpl/test_c.c",
-            "docs/software/unit-tests/test_abc.c",
             "docs/developer-manual/style-guide/examples/c-006-test.c",
+            "docs/software/unit-tests/test_abc.c",
             "src/app/driver/config/can_cfg.c",
             "src/app/engine/config/diag_cfg.c",
             "src/app/engine/config/sys_mon_cfg.c",
@@ -304,6 +317,14 @@
         "test_header": {
           "exclude": [
             "conf/tpl/c.h",
+            "docs/developer-manual/style-guide/examples/c-005.h",
+            "docs/developer-manual/style-guide/examples/c-006-source.h",
+            "docs/developer-manual/style-guide/examples/c-007_abc.h",
+            "docs/developer-manual/style-guide/examples/c-007_abc_cfg.h",
+            "docs/developer-manual/style-guide/examples/c-008.h",
+            "docs/developer-manual/style-guide/examples/c-011.h",
+            "docs/developer-manual/style-guide/examples/c-013.h",
+            "docs/developer-manual/style-guide/examples/c-015.h",
             "docs/developer-manual/style-guide/state-machine-example/state-machine.h",
             "docs/software/build-process/misc/libproject-example.h",
             "docs/software/unit-tests/abc.h",
@@ -312,6 +333,7 @@
           ],
           "sections": [
             "/*========== Includes =======================================================*/",
+            "/*========== Unit Testing Framework Directives ==============================*/",
             "/*========== Macros and Definitions =========================================*/"
           ]
         },
@@ -352,10 +374,13 @@
             "docs/software/unit-tests/run_abc.c",
             "src/**",
             "tests/c-std/c-std-test.c",
-            "tests/variants/lib-build/*"
+            "tests/variants/lib-build/*",
+            "tools/crc/crc-10_0x48f.c",
+            "tools/crc/crc-15_0xc599.c"
           ],
           "sections": [
             "/*========== Includes =======================================================*/",
+            "/*========== Unit Testing Framework Directives ==============================*/",
             "/*========== Definitions and Implementations for Unit Test ==================*/",
             "/*========== Setup and Teardown =============================================*/",
             "/*========== Test Cases =====================================================*/"
@@ -510,7 +535,8 @@
     },
     "YAML": {
       "exclude": [
-        "conf/env/conda_env_*.yaml"
+        "conf/env/conda_env_*.yaml",
+        "tests/hil/hil-env.yaml"
       ],
       "files": [
         "**/*.dot",

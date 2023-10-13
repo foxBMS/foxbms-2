@@ -57,7 +57,7 @@ class doxygen(Task.Task):  # pylint: disable=invalid-name
                     key, val = i_txt.split("=")
                     self.doxygen_config[key] = val.split(" ")
                 except ValueError:
-                    # not simple parseable, ignore, as we are only interested
+                    # not simple parsable, ignore, as we are only interested
                     # in a few simple values
                     pass
         self.doxygen_input = []  # pylint: disable=attribute-defined-outside-init

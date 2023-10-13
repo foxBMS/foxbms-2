@@ -43,8 +43,8 @@
  * @file    test_sps.c
  * @author  foxBMS Team
  * @date    2020-10-28 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -72,9 +72,17 @@
 
 #include <stdbool.h>
 
+/*========== Unit Testing Framework Directives ==============================*/
+TEST_INCLUDE_PATH("../../src/app/driver/config")
+TEST_INCLUDE_PATH("../../src/app/driver/contactor")
+TEST_INCLUDE_PATH("../../src/app/driver/io")
+TEST_INCLUDE_PATH("../../src/app/driver/pex")
+TEST_INCLUDE_PATH("../../src/app/driver/spi")
+TEST_INCLUDE_PATH("../../src/app/driver/sps")
+
 /*========== Definitions and Implementations for Unit Test ==================*/
 /** SPI data configuration struct for SPS communication */
-static const spiDAT1_t spi_kSpsDataConfig = {
+static spiDAT1_t spi_kSpsDataConfig = {
     /* struct is implemented in the TI HAL and uses uppercase true and false */
     .CS_HOLD = FALSE,     /*!< The HW chip select signal is deactivated */
     .WDEL    = TRUE,      /*!< No delay will be inserted */

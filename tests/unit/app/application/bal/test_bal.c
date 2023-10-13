@@ -43,8 +43,8 @@
  * @file    test_bal.c
  * @author  foxBMS Team
  * @date    2020-08-05 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -63,6 +63,9 @@
 
 #include <stdbool.h>
 #include <stdio.h>
+
+/*========== Unit Testing Framework Directives ==============================*/
+TEST_INCLUDE_PATH("../../src/app/application/bal")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 BAL_STATE_s initState;

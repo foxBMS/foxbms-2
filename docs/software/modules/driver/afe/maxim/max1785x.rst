@@ -41,7 +41,6 @@ The three main modules are:
   * Implementation of the operation state machine in ``mxm_17852.c``.
     This implementation is selected by the driver variant in ``bms.json``.
 
-
 Configuration
 -------------
 
@@ -54,7 +53,7 @@ In order to adapt the driver to new interface hardware, it is necessary to
 adapt the following:
 
   * Ensure that the functions that interact with the shutdown pin of
-    the |max17841b| bridge IC are correct.
+    the |max-max17841b| bridge IC are correct.
     They are implemented in ``mxm_cfg.c``.
   * Check the |spi| configuration of the system and that it aligns with
     the capabilities of the bridge IC.
@@ -118,7 +117,7 @@ The following flow chart describes the main flow of this ``AFE`` driver.
           op_balancing --> op_mux_control
       }
 
-* State `Unitialized`: This is the default state of the driver.
+* State `Uninitialized`: This is the default state of the driver.
   The driver transitions with the next execution into the
   `Pre-Initialization Self Check` state.
 

@@ -1,0 +1,448 @@
+VERSION "HNNBNNNYNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN/4/%%%/4/'%**4NNN///"
+
+
+NS_ : 
+	NS_DESC_
+	CM_
+	BA_DEF_
+	BA_
+	VAL_
+	CAT_DEF_
+	CAT_
+	FILTER
+	BA_DEF_DEF_
+	EV_DATA_
+	ENVVAR_DATA_
+	SGTYPE_
+	SGTYPE_VAL_
+	BA_DEF_SGTYPE_
+	BA_SGTYPE_
+	SIG_TYPE_REF_
+	VAL_TABLE_
+	SIG_GROUP_
+	SIG_VALTYPE_
+	SIGTYPE_VALTYPE_
+	BO_TX_BU_
+	BA_DEF_REL_
+	BA_REL_
+	BA_DEF_DEF_REL_
+	BU_SG_REL_
+	BU_EV_REL_
+	BU_BO_REL_
+	SG_MUL_VAL_
+
+BS_:
+
+BU_: Master IMD_StandAlone
+VAL_TABLE_ IMD_State_Executed 1 "NotExecuted" 0 "Executed" ;
+VAL_TABLE_ D_IMC_R_ISO_BIAS 2 "HV_1_POS" 1 "HV_1_NEG" 0 "Unknown" ;
+VAL_TABLE_ D_VIFC_POWER_MODE 100 "Unkown" 3 "PowerDown" 2 "PowerUp" 1 "PowerOn" 0 "PowerOff" ;
+VAL_TABLE_ IMD_State_Activity 1 "Deactivated" 0 "Activated" ;
+VAL_TABLE_ D_VIFC_IMC_ALIVE 100 "Unknown" 2 "OutOfRange" 1 "Error" 0 "Running" ;
+VAL_TABLE_ D_VIFC_HV_RELAIS 100 "Unknown" 1 "HV_1_POS" 0 "HV_1_NEG" ;
+VAL_TABLE_ D_VIFC_LOCK_MODE 100 "Unknown" 2 "BlockedToManyRetries" 1 "Locked" 0 "Unlocked" ;
+VAL_TABLE_ D_VIFC_VERSION_INDEX 2 "Firmware ID" 1 "Firmware" 0 "Bootloader" ;
+VAL_TABLE_ D_IMC_SELFTEST_SCR 2 "ParameterConfig" 1 "OverAll" 0 "NoAction" ;
+VAL_TABLE_ D_IMC_CALIB_STEP 6 "GainCalibrationHV2" 5 "OffsetCalibrationHV2" 4 "ARef_12V_5V_Calibration" 3 "IsoCalibration" 2 "GainCalibrationHV1" 1 "OffsetCalibrationHV1" 0 "NoAction" ;
+VAL_TABLE_ IMD_State_Warning 1 "Warning" 0 "NoWarning" ;
+VAL_TABLE_ D_VIFC_HV_RELAIS_STATE 100 "Unknown" 1 "HVEnabled" 0 "HVDisabled" ;
+VAL_TABLE_ D_IMD_ERROR_CODE 1040 "VIFC_InvalidResponseCmd" 1039 "VIFC_CommunicationError" 1038 "VIFC_NoResponseTimeout" 1037 "VIFC_RepeatedOrMissingFrame" 1035 "VIFC_UnknownCommand" 1034 "VIFC_InvalidParameter" 1033 "VIFC_ChecksumErrorInFrame" 1032 "VIFC_Timeout10msExpired" 1002 "VIFC_CmdUnavailable" 1001 "VIFC_QueueFullCommandRejected" 1000 "VIFC_CommandLocked" 37 "RepeatedOrMissingFrame" 36 "ErrorDuringWritingEEProms" 35 "UnknownCommand" 34 "InvalidParameter" 33 "ChecksumErrorInFrame" 32 "Timeout10msExpired" ;
+VAL_TABLE_ IMD_Commands 255 "S_IMD_ERROR_FRAME" 226 "S_VIFC_GET_IMC_ALIVE" 225 "S_VIFC_GET_TEMP" 224 "S_VIFC_GET_LOCK" 223 "S_VIFC_GET_POWER_MODE" 222 "S_VIFC_GET_VERSION" 221 "S_VIFC_GET_HV_RELAIS" 220 "S_VIFC_GET_STATUS" 210 "S_VIFC_SET_HV_RELAIS" 203 "S_VIFC_CTL_MEASUREMENT" 202 "S_VIFC_CTL_LOCK" 201 "S_VIFC_CTL_POWER_MODE" 200 "S_VIFC_CTL_IMC_RESET" 90 "S_IMC_GET_TEST_CNT" 61 "S_IMC_GET_MANUFACTURER" 60 "S_IMC_GET_MEAN_FACTOR" 59 "S_IMC_GET_EEPROM" 58 "S_IMC_GET_HV_2" 57 "S_IMC_GET_R_ISO_WRN_THR" 55 "S_IMC_GET_STATUS" 54 "S_IMC_GET_HV_1" 53 "S_IMC_GET_R_ISO" 51 "S_IMC_GET_VERSION" 50 "S_IMC_GET_R_ISO_ERR_THR" 43 "S_IMC_SET_MEAN_FACTOR" 42 "S_IMC_SET_EEPROM" 41 "S_IMC_SET_R_ISO_WRN_THR" 40 "S_IMC_SET_R_ISO_ERR_THR" 35 "S_IMC_CTL_SYS_UPDATE" 34 "S_IMC_CTL_CALIB" 33 "S_IMC_CTL_SELFTEST" 0 "S_VIFC_CTL_DUMMY" ;
+VAL_TABLE_ IMD_State_Run 100 "Unknown" 1 "Running" 0 "NotRunning" ;
+VAL_TABLE_ IMD_State_Error 1 "Error" 0 "NoError" ;
+
+
+BO_ 1912 UDS_IMD_FLASH_RESP: 8 IMD_StandAlone
+ SG_ UDS_IMD_FLASH_RESP_B7 : 56|8@1+ (1,0) [0|0] ""  Master
+ SG_ UDS_IMD_FLASH_RESP_B6 : 48|8@1+ (1,0) [0|0] ""  Master
+ SG_ UDS_IMD_FLASH_RESP_B5 : 40|8@1+ (1,0) [0|0] ""  Master
+ SG_ UDS_IMD_FLASH_RESP_B4 : 32|8@1+ (1,0) [0|0] ""  Master
+ SG_ UDS_IMD_FLASH_RESP_B3 : 24|8@1+ (1,0) [0|0] ""  Master
+ SG_ UDS_IMD_FLASH_RESP_B2 : 16|8@1+ (1,0) [0|0] ""  Master
+ SG_ UDS_IMD_FLASH_RESP_B1 : 8|8@1+ (1,0) [0|0] ""  Master
+ SG_ UDS_IMD_FLASH_RESP_B0 : 0|8@1+ (1,0) [0|0] ""  Master
+
+BO_ 1806 UDS_IMD_FLASH_REQ: 8 Master
+ SG_ UDS_IMD_FLASH_REQ_B7 : 56|8@1+ (1,0) [0|0] ""  IMD_StandAlone
+ SG_ UDS_IMD_FLASH_REQ_B6 : 48|8@1+ (1,0) [0|0] ""  IMD_StandAlone
+ SG_ UDS_IMD_FLASH_REQ_B5 : 40|8@1+ (1,0) [0|0] ""  IMD_StandAlone
+ SG_ UDS_IMD_FLASH_REQ_B4 : 32|8@1+ (1,0) [0|0] ""  IMD_StandAlone
+ SG_ UDS_IMD_FLASH_REQ_B3 : 24|8@1+ (1,0) [0|0] ""  IMD_StandAlone
+ SG_ UDS_IMD_FLASH_REQ_B2 : 16|8@1+ (1,0) [0|0] ""  IMD_StandAlone
+ SG_ UDS_IMD_FLASH_REQ_B1 : 8|8@1+ (1,0) [0|0] ""  IMD_StandAlone
+ SG_ UDS_IMD_FLASH_REQ_B0 : 0|8@1+ (1,0) [0|0] ""  IMD_StandAlone
+
+BO_ 35 IMD_Response: 5 IMD_StandAlone
+ SG_ IG_VIFC_STATUS_04_VIFC_CmdError m220 : 12|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ IG_VIFC_STATUS_13_ST_ParamConfig m220 : 21|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ IG_VIFC_STATUS_12_ST_Overall m220 : 20|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ IG_IMC_STATUS_EXT_15_Reserved m55 : 39|1@1+ (1,0) [0|0] ""  Master
+ SG_ IG_IMC_STATUS_EXT_06_Reserved m55 : 30|1@1+ (1,0) [0|0] ""  Master
+ SG_ IG_VIFC_VERSION_MIN m222 : 24|8@1+ (1,0) [0|0] ""  Master
+ SG_ IG_IMC_VERSION_MIN m51 : 24|8@1+ (1,0) [0|0] ""  Master
+ SG_ IG_IMC_MANUFACT_INDEX m61 : 8|16@1+ (1,0) [0|0] ""  Master
+ SG_ IG_IMC_MANUFACT_DATA m61 : 24|16@1+ (1,0) [0|0] ""  Master
+ SG_ IG_IMC_STATUS_EXT_14_IDString m55 : 38|1@1+ (1,0) [0|0] ""  Master
+ SG_ IG_IMC_STATUS_EXT_13_HV2 m55 : 37|1@1+ (1,0) [0|0] ""  Master
+ SG_ IG_IMC_STATUS_EXT_12_HV1 m55 : 36|1@1+ (1,0) [0|0] ""  Master
+ SG_ IG_IMC_STATUS_EXT_11_FuseBits m55 : 35|1@1+ (1,0) [0|0] ""  Master
+ SG_ IG_IMC_R_ISO_CNT m53 : 32|8@1+ (1,0) [0|0] "Count"  Master
+ SG_ IG_IMC_R_ISO_BIAS m53 : 24|8@1+ (1,0) [0|0] ""  Master
+ SG_ IG_VIFC_TEMP m225 : 8|16@1+ (1,0) [0|0] "°C"  Master
+ SG_ IG_VIFC_IMC_ALIVE m226 : 8|16@1+ (1,0) [0|0] ""  Master
+ SG_ IG_VIFC_POWER_MODE m223 : 8|16@1+ (1,0) [0|0] ""  Master
+ SG_ IC_VIFC_POWER_MODE m201 : 8|16@1+ (1,0) [0|0] ""  Master
+ SG_ IS_IMC_MEAN_FACTOR m43 : 8|16@1+ (1,0) [0|0] ""  Master
+ SG_ IS_IMC_EEPROM_INDEX m42 : 8|16@1+ (1,0) [0|0] ""  Master
+ SG_ IS_IMC_EEPROM_DATA m42 : 24|16@1+ (1,0) [0|0] ""  Master
+ SG_ IC_IMC_CALIB_STEP m34 : 8|16@1+ (1,0) [0|0] ""  Master
+ SG_ IS_IMC_R_ISO_WRN_THR m41 : 8|16@1+ (1,0) [0|0] "kOhm"  Master
+ SG_ IS_IMC_R_ISO_ERR_THR m40 : 8|16@1+ (1,0) [0|0] "kOhm"  Master
+ SG_ IC_VIFC_MEASURE_MODE m203 : 8|16@1+ (1,0) [0|0] ""  Master
+ SG_ IC_VIFC_LOCK_MODE m202 : 8|16@1+ (1,0) [0|0] ""  Master
+ SG_ IS_VIFC_HV_RELAIS_STATE m210 : 24|16@1+ (1,0) [0|0] ""  Master
+ SG_ IS_VIFC_HV_RELAIS m210 : 8|16@1+ (1,0) [0|0] ""  Master
+ SG_ IG_IMC_EEPROM_DATA m59 : 24|16@1+ (1,0) [0|0] ""  Master
+ SG_ IG_IMC_EEPROM_INDEX m59 : 8|16@1+ (1,0) [0|0] ""  Master
+ SG_ IG_IMC_MEAN_FACTOR m60 : 8|16@1+ (1,0) [0|0] ""  Master
+ SG_ IG_VIFC_LOCK_MODE m224 : 8|16@1+ (1,0) [0|0] ""  Master
+ SG_ IG_VIFC_STATUS_08_Outdated m220 : 16|1@1+ (1,0) [0|0] ""  Master
+ SG_ IG_VIFC_STATUS_02_IMC_Alive m220 : 10|1@1+ (1,0) [0|0] ""  Master
+ SG_ IG_VIFC_STATUS_01_IMCConnection m220 : 9|1@1+ (1,0) [0|0] ""  Master
+ SG_ IG_VIFC_STATUS_00_IsoMeasurement m220 : 8|1@1+ (1,0) [0|0] ""  Master
+ SG_ IG_VIFC_VERSION_INDEX m222 : 8|16@1+ (1,0) [0|0] ""  Master
+ SG_ IG_VIFC_HV_RELAIS_STATE m221 : 24|16@1+ (1,0) [0|0] ""  Master
+ SG_ IG_VIFC_HV_RELAIS m221 : 8|16@1+ (1,0) [0|0] ""  Master
+ SG_ IG_IMC_STATUS_EXT_10_12V_NEG m55 : 34|1@1+ (1,0) [0|0] ""  Master
+ SG_ IG_IMC_STATUS_EXT_09_12V_POS m55 : 33|1@1+ (1,0) [0|0] ""  Master
+ SG_ IG_IMC_STATUS_EXT_08_TestPulse m55 : 32|1@1+ (1,0) [0|0] ""  Master
+ SG_ IG_IMC_STATUS_EXT_07_Parameter m55 : 31|1@1+ (1,0) [0|0] ""  Master
+ SG_ IG_IMC_STATUS_EXT_05_Stack m55 : 29|1@1+ (1,0) [0|0] ""  Master
+ SG_ IG_IMC_STATUS_EXT_04_RAM m55 : 28|1@1+ (1,0) [0|0] ""  Master
+ SG_ IG_IMC_STATUS_EXT_03_Flash m55 : 27|1@1+ (1,0) [0|0] ""  Master
+ SG_ IG_IMC_STATUS_EXT_02_EEPROM m55 : 26|1@1+ (1,0) [0|0] ""  Master
+ SG_ IG_IMC_STATUS_EXT_01_Hardware m55 : 25|1@1+ (1,0) [0|0] ""  Master
+ SG_ IG_IMC_STATUS_EXT_00_Calibration m55 : 24|1@1+ (1,0) [0|0] ""  Master
+ SG_ IG_IMC_STATUS_05_IsoWarning m55 : 13|1@1+ (1,0) [0|0] ""  Master
+ SG_ IG_IMC_STATUS_04_Selftest m55 : 12|1@1+ (1,0) [0|0] ""  Master
+ SG_ IG_IMC_STATUS_03_Calibration m55 : 11|1@1+ (1,0) [0|0] ""  Master
+ SG_ IG_IMC_STATUS_02_System m55 : 10|1@1+ (1,0) [0|0] ""  Master
+ SG_ IG_IMC_STATUS_01_Ground m55 : 9|1@1+ (1,0) [0|0] ""  Master
+ SG_ IG_IMC_STATUS_00_IsoFailure m55 : 8|1@1+ (1,0) [0|0] ""  Master
+ SG_ IG_IMD_ERROR_CODE m255 : 8|16@1+ (1,0) [0|0] ""  Master
+ SG_ IG_IMC_HV_2 m58 : 8|16@1+ (1,0) [0|0] "Volt"  Master
+ SG_ IG_IMC_HV_1 m54 : 8|16@1+ (1,0) [0|0] "Volt"  Master
+ SG_ IG_IMC_R_ISO_WRN_THR m57 : 8|16@1+ (1,0) [0|0] "kOhm"  Master
+ SG_ IG_IMC_R_ISO_ERR_THR m50 : 8|16@1+ (1,0) [0|0] "kOhm"  Master
+ SG_ IG_IMC_R_ISO m53 : 8|16@1+ (1,0) [0|0] "kOhm"  Master
+ SG_ IC_IMC_SELFTEST_SCR m33 : 8|16@1+ (1,0) [0|0] ""  Master
+ SG_ IG_IMC_TEST_CNT m90 : 8|16@1+ (1,0) [0|0] "Calls"  Master
+ SG_ IG_VIFC_VERSION_MAJ m222 : 32|8@1+ (1,0) [0|0] ""  Master
+ SG_ IG_IMC_VERSION_INDEX m51 : 8|16@1+ (1,0) [0|0] ""  Master
+ SG_ IG_IMC_VERSION_MAJ m51 : 32|8@1+ (1,0) [0|0] ""  Master
+ SG_ IG_IMD_FAILED_CMD m255 : 24|8@1+ (1,0) [0|0] ""  Master
+ SG_ IMD_Response_DataWord2 m0 : 24|16@1+ (1,0) [0|0] ""  Master
+ SG_ IMD_Response_DataWord1 m0 : 8|16@1+ (1,0) [0|0] ""  Master
+ SG_ IMD_Response_Command M : 0|8@1+ (1,0) [0|0] ""  Master
+
+BO_ 34 IMD_Request: 5 Master
+ SG_ MG_IMC_MANUFACT_INDEX m61 : 8|16@1+ (1,0) [0|0] ""  IMD_StandAlone
+ SG_ MG_VIFC_POWER_MODE m223 : 8|16@1+ (1,0) [0|0] ""  IMD_StandAlone
+ SG_ MC_VIFC_POWER_MODE m201 : 8|16@1+ (1,0) [0|0] ""  IMD_StandAlone
+ SG_ MG_VIFC_VERSION_INDEX m222 : 8|16@1+ (1,0) [0|0] ""  IMD_StandAlone
+ SG_ MG_IMC_VERSION_INDEX m51 : 8|16@1+ (1,0) [0|0] ""  IMD_StandAlone
+ SG_ MG_IMC_EEPROM_INDEX m59 : 8|16@1+ (1,0) [0|0] ""  IMD_StandAlone
+ SG_ MC_VIFC_MEASURE_MODE m203 : 8|16@1+ (1,0) [0|0] ""  IMD_StandAlone
+ SG_ MS_IMC_MEAN_FACTOR m43 : 8|16@1+ (1,0) [1|20] ""  IMD_StandAlone
+ SG_ MS_IMC_EEPROM_DATA m42 : 24|16@1+ (1,0) [0|0] ""  IMD_StandAlone
+ SG_ MS_IMC_EEPROM_INDEX m42 : 8|16@1+ (1,0) [0|0] ""  IMD_StandAlone
+ SG_ MC_VIFC_LOCK_PWD m202 : 24|16@1+ (1,0) [0|0] ""  IMD_StandAlone
+ SG_ MC_VIFC_LOCK_MODE m202 : 8|16@1+ (1,0) [0|0] ""  IMD_StandAlone
+ SG_ IMD_Request_DataWord2 m0 : 24|16@1+ (1,0) [0|0] ""  IMD_StandAlone
+ SG_ IMD_Request_DataWord1 m0 : 8|16@1+ (1,0) [0|0] ""  IMD_StandAlone
+ SG_ IMD_Request_Command M : 0|8@1+ (1,0) [0|0] ""  IMD_StandAlone
+ SG_ MS_VIFC_HV_RELAIS_STATE m210 : 24|16@1+ (1,0) [0|0] ""  IMD_StandAlone
+ SG_ MS_IMC_R_ISO_WRN_THR m41 : 8|16@1+ (1,0) [40|2000] "kOhm"  IMD_StandAlone
+ SG_ MC_IMC_CALIB_STEP m34 : 8|16@1+ (1,0) [0|0] ""  IMD_StandAlone
+ SG_ MS_VIFC_HV_RELAIS m210 : 8|16@1+ (1,0) [0|0] ""  IMD_StandAlone
+ SG_ MC_IMC_SELFTEST_SCR m33 : 8|16@1+ (1,0) [0|0] ""  IMD_StandAlone
+ SG_ MS_IMC_R_ISO_ERR_THR m40 : 8|16@1+ (1,0) [30|1000] "kOhm"  IMD_StandAlone
+
+BO_ 55 IMD_Info: 6 IMD_StandAlone
+ SG_ II_VIFC_STATUS_04_VIFC_CmdError : 36|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ II_VIFC_STATUS_13_ST_ParamConfig : 45|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ II_VIFC_STATUS_12_ST_Overall : 44|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ II_VIFC_STATUS_08_Outdated : 40|1@1+ (1,0) [0|0] ""  Master
+ SG_ II_VIFC_STATUS_02_IMC_Alive : 34|1@1+ (1,0) [0|0] ""  Master
+ SG_ II_VIFC_STATUS_01_IMC_Connection : 33|1@1+ (1,0) [0|0] ""  Master
+ SG_ II_VIFC_STATUS_00_IsoMeasurement : 32|1@1+ (1,0) [0|0] ""  Master
+ SG_ II_IMC_R_ISO : 0|16@1+ (1,0) [0|0] "kOhm"  Master
+ SG_ II_IMC_STATUS_05_IsoWarning : 21|1@1+ (1,0) [0|0] ""  Master
+ SG_ II_IMC_STATUS_04_Selftest : 20|1@1+ (1,0) [0|0] ""  Master
+ SG_ II_IMC_STATUS_03_Calibration : 19|1@1+ (1,0) [0|0] ""  Master
+ SG_ II_IMC_STATUS_02_System : 18|1@1+ (1,0) [0|0] ""  Master
+ SG_ II_IMC_STATUS_01_Ground : 17|1@1+ (1,0) [0|0] ""  Master
+ SG_ II_IMC_STATUS_00_IsoFailure : 16|1@1+ (1,0) [0|0] ""  Master
+
+
+
+BA_DEF_  "BusType" STRING ;
+BA_DEF_  "GenNWMApBusSleep" STRING ;
+BA_DEF_  "GenNWMApCanNormal" STRING ;
+BA_DEF_  "GenNWMApCanOff" STRING ;
+BA_DEF_  "GenNWMApCanOn" STRING ;
+BA_DEF_  "GenNWMApCanSleep" STRING ;
+BA_DEF_  "GenNWMApCanWakeUp" STRING ;
+BA_DEF_  "GenNWMGotoMode_Awake" STRING ;
+BA_DEF_  "GenNWMGotoMode_BusSleep" STRING ;
+BA_DEF_  "GenNWMSleepTime" INT 0 1000000;
+BA_DEF_  "GenNWMTalkNM" STRING ;
+BA_DEF_  "Manufacturer" STRING ;
+BA_DEF_  "NmhBaseAddress" HEX 0 536870911;
+BA_DEF_  "NmhMessageCount" INT 0 256;
+BA_DEF_  "NmType" STRING ;
+BA_DEF_  "VersionDay" INT 1 31;
+BA_DEF_  "VersionMonth" INT 1 12;
+BA_DEF_  "VersionWeek" INT 1 52;
+BA_DEF_  "VersionYear" INT 0 99;
+BA_DEF_  "VersionNumber" INT 0 65535;
+BA_DEF_  "Baudrate" INT 0 250000;
+BA_DEF_  "SamplePointMin" INT 1 100;
+BA_DEF_  "SamplePointMax" INT 1 100;
+BA_DEF_  "SyncJumpWidthMin" INT 1 4;
+BA_DEF_  "SyncJumpWidthMax" INT 1 4;
+BA_DEF_  "NmhTimeoutTimer" INT 0 65535;
+BA_DEF_  "NmhWaitBusSleepTimer" INT 0 65535;
+BA_DEF_  "NmhPrepareBusSleepTimer" INT 0 65535;
+BA_DEF_  "NmhLongTimer" INT 0 65535;
+BA_DEF_  "NmhNStart" INT 0 255;
+BA_DEF_ BU_  "GenNodAutoGenDsp" ENUM  "No","Yes";
+BA_DEF_ BU_  "GenNodAutoGenSnd" ENUM  "No","Yes";
+BA_DEF_ BU_  "GenNodSleepTime" INT 0 1000000;
+BA_DEF_ BU_  "ILUsed" ENUM  "No","Yes";
+BA_DEF_ BU_  "ECUVariantDefault" ENUM  "No","Yes";
+BA_DEF_ BU_  "ECUVariantGroup" STRING ;
+BA_DEF_ BU_  "Fehlerort" HEX 0 1000000;
+BA_DEF_ BU_  "NodeLayerModules" STRING ;
+BA_DEF_ BU_  "NmhNode" ENUM  "No","Yes";
+BA_DEF_ BU_  "NmNode" ENUM  "No","Yes";
+BA_DEF_ BU_  "NmStationAddress" HEX 0 63;
+BA_DEF_ BO_  "DiagRequest" ENUM  "No","Yes";
+BA_DEF_ BO_  "DiagResponse" ENUM  "No","Yes";
+BA_DEF_ BO_  "DiagState" ENUM  "No","Yes";
+BA_DEF_ BO_  "GenMsgAutoGenDsp" ENUM  "No","Yes";
+BA_DEF_ BO_  "GenMsgAutoGenSnd" ENUM  "No","Yes";
+BA_DEF_ BO_  "GenMsgChkConstant" HEX 0 4095;
+BA_DEF_ BO_  "GenMsgCycleTime" INT 0 65535;
+BA_DEF_ BO_  "GenMsgCycleTimeFast" INT 0 65535;
+BA_DEF_ BO_  "GenMsgDelayTime" INT 0 100000;
+BA_DEF_ BO_  "GenMsgILSupport" ENUM  "No","Yes";
+BA_DEF_ BO_  "GenMsgNrOfRepetition" INT 0 100;
+BA_DEF_ BO_  "GenMsgPDUConstants" STRING ;
+BA_DEF_ BO_  "GenMsgSendType" ENUM  "Cyclic","not_used","not_used","not_used","not_used","not_used","not_used","IfActive","NoMsgSendType";
+BA_DEF_ BO_  "GenMsgStartDelayTime" INT 0 100000;
+BA_DEF_ BO_  "NmMessage" ENUM  "No","Yes";
+BA_DEF_ BO_  "NmhMessage" ENUM  "No","Yes";
+BA_DEF_ BO_  "MsgType" ENUM  "Broadcast","Event","NM ","NMH","TP2.0","ISO-TP ","BAP","EID";
+BA_DEF_ BO_  "Timeoutzeit" INT 0 1000000;
+BA_DEF_ SG_  "GenSigActiveRepetitions" INT -2147483648 2147483647;
+BA_DEF_ SG_  "GenSigAutoGenDsp" ENUM  "No","Yes";
+BA_DEF_ SG_  "GenSigAutoGenSnd" ENUM  "No","Yes";
+BA_DEF_ SG_  "GenSigEnvVarType" ENUM  "int","float","undef";
+BA_DEF_ SG_  "GenSigInactiveValue" INT -2147483648 2147483647;
+BA_DEF_ SG_  "GenSigSendType" ENUM  "Cyclic","OnWrite","OnWriteWithRepetition","OnChange","OnChangeWithRepetition","IfActive","IfActiveWithRepetition","NoSigSendType","OnChangeAndIfActive","OnChangeAndIfActiveWithRepetition";
+BA_DEF_ SG_  "GenSigStartValue" INT -2147483648 2147483647;
+BA_DEF_ SG_  "NWM-WakeupAllowed" ENUM  "No","Yes";
+BA_DEF_ SG_  "GenSigFuncType" ENUM  "NoFunction","MsgCounter","CRC-8","XOR","XOR-2","DatedBit","SW-Kl15","CHK","Constant","Protocol";
+BA_DEF_ SG_  "GenSigSwitchedByIgnition" ENUM  "No","Yes";
+BA_DEF_ SG_  "Fehlerwert" HEX 0 2147483647;
+BA_DEF_ SG_  "GenSigMissingSourceValue" HEX 0 2147483647;
+BA_DEF_REL_ BU_SG_REL_  "GenSigTimeoutTime" INT 0 65535;
+BA_DEF_DEF_  "BusType" "";
+BA_DEF_DEF_  "GenNWMApBusSleep" "";
+BA_DEF_DEF_  "GenNWMApCanNormal" "";
+BA_DEF_DEF_  "GenNWMApCanOff" "";
+BA_DEF_DEF_  "GenNWMApCanOn" "";
+BA_DEF_DEF_  "GenNWMApCanSleep" "";
+BA_DEF_DEF_  "GenNWMApCanWakeUp" "";
+BA_DEF_DEF_  "GenNWMGotoMode_Awake" "";
+BA_DEF_DEF_  "GenNWMGotoMode_BusSleep" "";
+BA_DEF_DEF_  "GenNWMSleepTime" 0;
+BA_DEF_DEF_  "GenNWMTalkNM" "";
+BA_DEF_DEF_  "Manufacturer" "";
+BA_DEF_DEF_  "NmhBaseAddress" 0;
+BA_DEF_DEF_  "NmhMessageCount" 1;
+BA_DEF_DEF_  "NmType" "None";
+BA_DEF_DEF_  "VersionDay" 20;
+BA_DEF_DEF_  "VersionMonth" 8;
+BA_DEF_DEF_  "VersionWeek" 33;
+BA_DEF_DEF_  "VersionYear" 10;
+BA_DEF_DEF_  "VersionNumber" 0;
+BA_DEF_DEF_  "Baudrate" 0;
+BA_DEF_DEF_  "SamplePointMin" 1;
+BA_DEF_DEF_  "SamplePointMax" 1;
+BA_DEF_DEF_  "SyncJumpWidthMin" 1;
+BA_DEF_DEF_  "SyncJumpWidthMax" 1;
+BA_DEF_DEF_  "NmhTimeoutTimer" 0;
+BA_DEF_DEF_  "NmhWaitBusSleepTimer" 0;
+BA_DEF_DEF_  "NmhPrepareBusSleepTimer" 0;
+BA_DEF_DEF_  "NmhLongTimer" 0;
+BA_DEF_DEF_  "NmhNStart" 0;
+BA_DEF_DEF_  "GenNodAutoGenDsp" "Yes";
+BA_DEF_DEF_  "GenNodAutoGenSnd" "Yes";
+BA_DEF_DEF_  "GenNodSleepTime" 0;
+BA_DEF_DEF_  "ILUsed" "Yes";
+BA_DEF_DEF_  "ECUVariantDefault" "Yes";
+BA_DEF_DEF_  "ECUVariantGroup" "";
+BA_DEF_DEF_  "Fehlerort" 0;
+BA_DEF_DEF_  "NodeLayerModules" "";
+BA_DEF_DEF_  "NmhNode" "Yes";
+BA_DEF_DEF_  "NmNode" "No";
+BA_DEF_DEF_  "NmStationAddress" 0;
+BA_DEF_DEF_  "DiagRequest" "No";
+BA_DEF_DEF_  "DiagResponse" "No";
+BA_DEF_DEF_  "DiagState" "No";
+BA_DEF_DEF_  "GenMsgAutoGenDsp" "Yes";
+BA_DEF_DEF_  "GenMsgAutoGenSnd" "Yes";
+BA_DEF_DEF_  "GenMsgChkConstant" 0;
+BA_DEF_DEF_  "GenMsgCycleTime" 0;
+BA_DEF_DEF_  "GenMsgCycleTimeFast" 0;
+BA_DEF_DEF_  "GenMsgDelayTime" 0;
+BA_DEF_DEF_  "GenMsgILSupport" "No";
+BA_DEF_DEF_  "GenMsgNrOfRepetition" 0;
+BA_DEF_DEF_  "GenMsgPDUConstants" "";
+BA_DEF_DEF_  "GenMsgSendType" "NoMsgSendType";
+BA_DEF_DEF_  "GenMsgStartDelayTime" 0;
+BA_DEF_DEF_  "NmMessage" "No";
+BA_DEF_DEF_  "NmhMessage" "No";
+BA_DEF_DEF_  "MsgType" "Broadcast";
+BA_DEF_DEF_  "Timeoutzeit" 0;
+BA_DEF_DEF_  "GenSigActiveRepetitions" 0;
+BA_DEF_DEF_  "GenSigAutoGenDsp" "No";
+BA_DEF_DEF_  "GenSigAutoGenSnd" "No";
+BA_DEF_DEF_  "GenSigEnvVarType" "undef";
+BA_DEF_DEF_  "GenSigInactiveValue" 0;
+BA_DEF_DEF_  "GenSigSendType" "NoSigSendType";
+BA_DEF_DEF_  "GenSigStartValue" 0;
+BA_DEF_DEF_  "NWM-WakeupAllowed" "No";
+BA_DEF_DEF_  "GenSigFuncType" "NoFunction";
+BA_DEF_DEF_  "GenSigSwitchedByIgnition" "Yes";
+BA_DEF_DEF_  "Fehlerwert" 0;
+BA_DEF_DEF_  "GenSigMissingSourceValue" 0;
+BA_DEF_DEF_REL_ "GenSigTimeoutTime" 0;
+BA_ "BusType" "CAN";
+BA_ "GenNWMApBusSleep" "NMIndNetSDN()";
+BA_ "GenNWMApCanNormal" "apCanNormal()";
+BA_ "GenNWMApCanOff" "NMIndnetOff()";
+BA_ "GenNWMApCanOn" "NMIndnetOn()";
+BA_ "GenNWMApCanSleep" "apCanSleep()";
+BA_ "GenNWMApCanWakeUp" "apCanWakeUp()";
+BA_ "GenNWMGotoMode_Awake" "Nmh_ReqNetOn()";
+BA_ "GenNWMGotoMode_BusSleep" "Nmh_ReqNetOff()";
+BA_ "GenNWMSleepTime" 4000;
+BA_ "GenNWMTalkNM" "Nmh_ReqNetOn()";
+BA_ "Manufacturer" "HMC";
+BA_ "NmhBaseAddress" 1824;
+BA_ "NmhMessageCount" 32;
+BA_ "NmType" "NM-High";
+BA_ "VersionDay" 20;
+BA_ "VersionMonth" 8;
+BA_ "VersionWeek" 33;
+BA_ "VersionYear" 10;
+BA_ "VersionNumber" 91;
+BA_ "Baudrate" 250000;
+BA_ "SamplePointMin" 80;
+BA_ "SamplePointMax" 84;
+BA_ "SyncJumpWidthMin" 1;
+BA_ "SyncJumpWidthMax" 4;
+BA_ "NmhTimeoutTimer" 1000;
+BA_ "NmhWaitBusSleepTimer" 750;
+BA_ "NmhPrepareBusSleepTimer" 500;
+BA_ "NmhLongTimer" 200;
+BA_ "NmhNStart" 5;
+BA_ "NmhNode" BU_ IMD_StandAlone 0;
+BA_ "GenMsgCycleTime" BO_ 55 1000;
+BA_ "GenMsgSendType" BO_ 55 0;
+BA_ "GenSigSendType" SG_ 35 IG_IMC_STATUS_04_Selftest 3;
+BA_ "GenSigSendType" SG_ 35 IG_IMC_STATUS_03_Calibration 3;
+BA_ "GenSigSendType" SG_ 35 IG_IMC_STATUS_02_System 3;
+BA_ "GenSigSendType" SG_ 35 IG_IMC_STATUS_01_Ground 3;
+BA_ "GenSigSendType" SG_ 35 IG_IMC_STATUS_00_IsoFailure 3;
+BA_ "GenSigStartValue" SG_ 34 MS_IMC_MEAN_FACTOR 10;
+BA_ "GenSigStartValue" SG_ 34 MS_IMC_R_ISO_WRN_THR 200;
+BA_ "GenSigStartValue" SG_ 34 MC_IMC_SELFTEST_SCR 6;
+BA_ "GenSigStartValue" SG_ 34 MS_IMC_R_ISO_ERR_THR 100;
+BA_ "GenSigSendType" SG_ 55 II_IMC_STATUS_04_Selftest 3;
+BA_ "GenSigSendType" SG_ 55 II_IMC_STATUS_03_Calibration 3;
+BA_ "GenSigSendType" SG_ 55 II_IMC_STATUS_02_System 3;
+BA_ "GenSigSendType" SG_ 55 II_IMC_STATUS_01_Ground 3;
+BA_ "GenSigSendType" SG_ 55 II_IMC_STATUS_00_IsoFailure 3;
+VAL_ 35 IG_VIFC_STATUS_04_VIFC_CmdError 1 "Error" 0 "NoError" ;
+VAL_ 35 IG_VIFC_STATUS_13_ST_ParamConfig 1 "NotExecuted" 0 "Executed" ;
+VAL_ 35 IG_VIFC_STATUS_12_ST_Overall 1 "NotExecuted" 0 "Executed" ;
+VAL_ 35 IG_IMC_STATUS_EXT_15_Reserved 1 "Error" 0 "NoError" ;
+VAL_ 35 IG_IMC_STATUS_EXT_06_Reserved 1 "Error" 0 "NoError" ;
+VAL_ 35 IG_IMC_STATUS_EXT_14_IDString 1 "Error" 0 "NoError" ;
+VAL_ 35 IG_IMC_STATUS_EXT_13_HV2 1 "Error" 0 "NoError" ;
+VAL_ 35 IG_IMC_STATUS_EXT_12_HV1 1 "Error" 0 "NoError" ;
+VAL_ 35 IG_IMC_STATUS_EXT_11_FuseBits 1 "Error" 0 "NoError" ;
+VAL_ 35 IG_IMC_R_ISO_BIAS 2 "HV_1_POS" 1 "HV_1_NEG" 0 "Unknown" ;
+VAL_ 35 IG_VIFC_IMC_ALIVE 100 "Unknown" 2 "OutOfRange" 1 "Error" 0 "Running" ;
+VAL_ 35 IG_VIFC_POWER_MODE 100 "Unkown" 3 "PowerDown" 2 "PowerUp" 1 "PowerOn" 0 "PowerOff" ;
+VAL_ 35 IC_VIFC_POWER_MODE 100 "Unkown" 3 "PowerDown" 2 "PowerUp" 1 "PowerOn" 0 "PowerOff" ;
+VAL_ 35 IC_IMC_CALIB_STEP 6 "GainCalibrationHV2" 5 "OffsetCalibrationHV2" 4 "ARef_12V_5V_Calibration" 3 "IsoCalibration" 2 "GainCalibrationHV1" 1 "OffsetCalibrationHV1" 0 "NoAction" ;
+VAL_ 35 IC_VIFC_LOCK_MODE 100 "Unknown" 2 "BlockedToManyRetries" 1 "Locked" 0 "Unlocked" ;
+VAL_ 35 IS_VIFC_HV_RELAIS_STATE 100 "Unknown" 1 "HVEnabled" 0 "HVDisabled" ;
+VAL_ 35 IS_VIFC_HV_RELAIS 100 "Unknown" 1 "HV_1_POS" 0 "HV_1_NEG" ;
+VAL_ 35 IG_VIFC_LOCK_MODE 100 "Unknown" 2 "BlockedToManyRetries" 1 "Locked" 0 "Unlocked" ;
+VAL_ 35 IG_VIFC_STATUS_02_IMC_Alive 1 "Error" 0 "NoError" ;
+VAL_ 35 IG_VIFC_STATUS_01_IMCConnection 1 "Error" 0 "NoError" ;
+VAL_ 35 IG_VIFC_STATUS_00_IsoMeasurement 1 "Deactivated" 0 "Activated" ;
+VAL_ 35 IG_VIFC_VERSION_INDEX 1 "Firmware" 0 "Bootloader" ;
+VAL_ 35 IG_VIFC_HV_RELAIS_STATE 100 "Unknown" 1 "HVEnabled" 0 "HVDisabled" ;
+VAL_ 35 IG_VIFC_HV_RELAIS 100 "Unknown" 1 "HV_1_POS" 0 "HV_1_NEG" ;
+VAL_ 35 IG_IMC_STATUS_EXT_10_12V_NEG 1 "Error" 0 "NoError" ;
+VAL_ 35 IG_IMC_STATUS_EXT_09_12V_POS 1 "Error" 0 "NoError" ;
+VAL_ 35 IG_IMC_STATUS_EXT_08_TestPulse 1 "Error" 0 "NoError" ;
+VAL_ 35 IG_IMC_STATUS_EXT_07_Parameter 1 "Error" 0 "NoError" ;
+VAL_ 35 IG_IMC_STATUS_EXT_05_Stack 1 "Error" 0 "NoError" ;
+VAL_ 35 IG_IMC_STATUS_EXT_04_RAM 1 "Error" 0 "NoError" ;
+VAL_ 35 IG_IMC_STATUS_EXT_03_Flash 1 "Error" 0 "NoError" ;
+VAL_ 35 IG_IMC_STATUS_EXT_02_EEPROM 1 "Error" 0 "NoError" ;
+VAL_ 35 IG_IMC_STATUS_EXT_01_Hardware 1 "Error" 0 "NoError" ;
+VAL_ 35 IG_IMC_STATUS_EXT_00_Calibration 1 "Error" 0 "NoError" ;
+VAL_ 35 IG_IMC_STATUS_05_IsoWarning 1 "Warning" 0 "NoWarning" ;
+VAL_ 35 IG_IMC_STATUS_04_Selftest 100 "Unknown" 1 "Running" 0 "NotRunning" ;
+VAL_ 35 IG_IMC_STATUS_03_Calibration 100 "Unknown" 1 "Running" 0 "NotRunning" ;
+VAL_ 35 IG_IMC_STATUS_02_System 1 "Error" 0 "NoError" ;
+VAL_ 35 IG_IMC_STATUS_01_Ground 1 "Error" 0 "NoError" ;
+VAL_ 35 IG_IMC_STATUS_00_IsoFailure 1 "Error" 0 "NoError" ;
+VAL_ 35 IG_IMD_ERROR_CODE 1038 "VIFC_NoResponseTimeout" 1037 "VIFC_RepeatedOrMissingFrame" 1035 "VIFC_UnknownCommand" 1034 "VIFC_InvalidParameter" 1033 "VIFC_ChecksumErrorInFrame" 1032 "VIFC_Timeout10msExpired" 1001 "VIFC_QueueFullCommandRejected" 1000 "VIFC_CommandLocked" 37 "RepeatedOrMissingFrame" 36 "ErrorDuringWritingEEProms" 35 "UnknownCommand" 34 "InvalidParameter" 33 "ChecksumErrorInFrame" 32 "Timeout10msExpired" ;
+VAL_ 35 IC_IMC_SELFTEST_SCR 2 "ParameterConfig" 1 "OverAll" 0 "NoAction" ;
+VAL_ 35 IG_IMC_VERSION_INDEX 3 "Firmware Hash" 2 "Firmware ID" 1 "Firmware" 0 "Bootloader" ;
+VAL_ 35 IG_IMD_FAILED_CMD 255 "S_IMD_ERROR_FRAME" 226 "S_VIFC_GET_IMC_ALIVE" 225 "S_VIFC_GET_TEMP" 224 "S_VIFC_GET_LOCK" 223 "S_VIFC_GET_POWER_MODE" 222 "S_VIFC_GET_VERSION" 221 "S_VIFC_GET_HV_RELAIS" 220 "S_VIFC_GET_STATUS" 210 "S_VIFC_SET_HV_RELAIS" 203 "S_VIFC_CTL_MEASUREMENT" 202 "S_VIFC_CTL_LOCK" 201 "S_VIFC_CTL_POWER_MODE" 200 "S_VIFC_CTL_IMC_RESET" 90 "S_IMC_GET_TEST_CNT" 61 "S_IMC_GET_MANUFACTURER" 60 "S_IMC_GET_MEAN_FACTOR" 59 "S_IMC_GET_EEPROM" 58 "S_IMC_GET_HV_2" 57 "S_IMC_GET_R_ISO_WRN_THR" 55 "S_IMC_GET_STATUS" 54 "S_IMC_GET_HV_1" 53 "S_IMC_GET_R_ISO" 51 "S_IMC_GET_VERSION" 50 "S_IMC_GET_R_ISO_ERR_THR" 43 "S_IMC_SET_MEAN_FACTOR" 42 "S_IMC_SET_EEPROM" 41 "S_IMC_SET_R_ISO_WRN_THR" 40 "S_IMC_SET_R_ISO_ERR_THR" 35 "S_IMC_CTL_SYS_UPDATE" 34 "S_IMC_CTL_CALIB" 33 "S_IMC_CTL_SELFTEST" 0 "S_VIFC_CTL_DUMMY" ;
+VAL_ 35 IMD_Response_Command 255 "S_IMD_ERROR_FRAME" 226 "S_VIFC_GET_IMC_ALIVE" 225 "S_VIFC_GET_TEMP" 224 "S_VIFC_GET_LOCK" 223 "S_VIFC_GET_POWER_MODE" 222 "S_VIFC_GET_VERSION" 221 "S_VIFC_GET_HV_RELAIS" 220 "S_VIFC_GET_STATUS" 210 "S_VIFC_SET_HV_RELAIS" 203 "S_VIFC_CTL_MEASUREMENT" 202 "S_VIFC_CTL_LOCK" 201 "S_VIFC_CTL_POWER_MODE" 200 "S_VIFC_CTL_IMC_RESET" 90 "S_IMC_GET_TEST_CNT" 61 "S_IMC_GET_MANUFACTURER" 60 "S_IMC_GET_MEAN_FACTOR" 59 "S_IMC_GET_EEPROM" 58 "S_IMC_GET_HV_2" 57 "S_IMC_GET_R_ISO_WRN_THR" 55 "S_IMC_GET_STATUS" 54 "S_IMC_GET_HV_1" 53 "S_IMC_GET_R_ISO" 51 "S_IMC_GET_VERSION" 50 "S_IMC_GET_R_ISO_ERR_THR" 43 "S_IMC_SET_MEAN_FACTOR" 42 "S_IMC_SET_EEPROM" 41 "S_IMC_SET_R_ISO_WRN_THR" 40 "S_IMC_SET_R_ISO_ERR_THR" 35 "S_IMC_CTL_SYS_UPDATE" 34 "S_IMC_CTL_CALIB" 33 "S_IMC_CTL_SELFTEST" 0 "S_VIFC_CTL_DUMMY" ;
+VAL_ 34 MG_VIFC_POWER_MODE 100 "Unkown" 3 "PowerDown" 2 "PowerUp" 1 "PowerOn" 0 "PowerOff" ;
+VAL_ 34 MC_VIFC_POWER_MODE 100 "Unkown" 3 "PowerDown" 2 "PowerUp" 1 "PowerOn" 0 "PowerOff" ;
+VAL_ 34 MG_VIFC_VERSION_INDEX 2 "Firmware ID" 1 "Firmware" 0 "Bootloader" ;
+VAL_ 34 MG_IMC_VERSION_INDEX 2 "Firmware ID" 1 "Firmware" 0 "Bootloader" ;
+VAL_ 34 MC_VIFC_MEASURE_MODE 1 "Activated" 0 "Deactivated" ;
+VAL_ 34 MC_VIFC_LOCK_MODE 100 "Unknown" 2 "BlockedToManyRetries" 1 "Locked" 0 "Unlocked" ;
+VAL_ 34 IMD_Request_Command 255 "S_IMD_ERROR_FRAME" 226 "S_VIFC_GET_IMC_ALIVE" 225 "S_VIFC_GET_TEMP" 224 "S_VIFC_GET_LOCK" 223 "S_VIFC_GET_POWER_MODE" 222 "S_VIFC_GET_VERSION" 221 "S_VIFC_GET_HV_RELAIS" 220 "S_VIFC_GET_STATUS" 210 "S_VIFC_SET_HV_RELAIS" 203 "S_VIFC_CTL_MEASUREMENT" 202 "S_VIFC_CTL_LOCK" 201 "S_VIFC_CTL_POWER_MODE" 200 "S_VIFC_CTL_IMC_RESET" 90 "S_IMC_GET_TEST_CNT" 61 "S_IMC_GET_MANUFACTURER" 60 "S_IMC_GET_MEAN_FACTOR" 59 "S_IMC_GET_EEPROM" 58 "S_IMC_GET_HV_2" 57 "S_IMC_GET_R_ISO_WRN_THR" 55 "S_IMC_GET_STATUS" 54 "S_IMC_GET_HV_1" 53 "S_IMC_GET_R_ISO" 51 "S_IMC_GET_VERSION" 50 "S_IMC_GET_R_ISO_ERR_THR" 43 "S_IMC_SET_MEAN_FACTOR" 42 "S_IMC_SET_EEPROM" 41 "S_IMC_SET_R_ISO_WRN_THR" 40 "S_IMC_SET_R_ISO_ERR_THR" 35 "S_IMC_CTL_SYS_UPDATE" 34 "S_IMC_CTL_CALIB" 33 "S_IMC_CTL_SELFTEST" 0 "S_VIFC_CTL_DUMMY" ;
+VAL_ 34 MS_VIFC_HV_RELAIS_STATE 100 "Unknown" 1 "HVEnabled" 0 "HVDisabled" ;
+VAL_ 34 MC_IMC_CALIB_STEP 6 "GainCalibrationHV2" 5 "OffsetCalibrationHV2" 4 "ARef_12V_5V_Calibration" 3 "IsoCalibration" 2 "GainCalibrationHV1" 1 "OffsetCalibrationHV1" 0 "NoAction" ;
+VAL_ 34 MS_VIFC_HV_RELAIS 100 "Unknown" 1 "HV_1_POS" 0 "HV_1_NEG" ;
+VAL_ 34 MC_IMC_SELFTEST_SCR 2 "ParameterConfig" 1 "OverAll" 0 "NoAction" ;
+VAL_ 55 II_VIFC_STATUS_04_VIFC_CmdError 1 "Error" 0 "NoError" ;
+VAL_ 55 II_VIFC_STATUS_13_ST_ParamConfig 1 "NotExecuted" 0 "Executed" ;
+VAL_ 55 II_VIFC_STATUS_12_ST_Overall 1 "NotExecuted" 0 "Executed" ;
+VAL_ 55 II_VIFC_STATUS_02_IMC_Alive 1 "Error" 0 "NoError" ;
+VAL_ 55 II_VIFC_STATUS_01_IMC_Connection 1 "Error" 0 "NoError" ;
+VAL_ 55 II_VIFC_STATUS_00_IsoMeasurement 1 "Deactivated" 0 "Activated" ;
+VAL_ 55 II_IMC_STATUS_05_IsoWarning 1 "Warning" 0 "NoWarning" ;
+VAL_ 55 II_IMC_STATUS_04_Selftest 100 "Unknown" 1 "Running" 0 "NotRunning" ;
+VAL_ 55 II_IMC_STATUS_03_Calibration 100 "Unknown" 1 "Running" 0 "NotRunning" ;
+VAL_ 55 II_IMC_STATUS_02_System 1 "Error" 0 "NoError" ;
+VAL_ 55 II_IMC_STATUS_01_Ground 1 "Error" 0 "NoError" ;
+VAL_ 55 II_IMC_STATUS_00_IsoFailure 1 "Error" 0 "NoError" ;
+

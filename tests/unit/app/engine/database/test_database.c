@@ -43,8 +43,8 @@
  * @file    test_database.c
  * @author  foxBMS Team
  * @date    2020-04-01 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -66,6 +66,12 @@
 #include "test_assert_helper.h"
 
 #include <stdbool.h>
+
+/*========== Unit Testing Framework Directives ==============================*/
+TEST_INCLUDE_PATH("../../src/app/driver/config")
+TEST_INCLUDE_PATH("../../src/app/driver/rtc")
+TEST_INCLUDE_PATH("../../src/app/task/config")
+TEST_INCLUDE_PATH("../../src/app/task/ftask")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 /**
@@ -108,10 +114,6 @@ OS_STD_RETURN_e DATA_mpuInjectValuesForExecuteBISTTestCallback(
 }
 
 void testDATA_ExecuteDataBist(void) {
-    DATA_BLOCK_DUMMY_FOR_SELF_TEST_s dummyTable = {.header.uniqueId = DATA_BLOCK_ID_DUMMY_FOR_SELF_TEST};
-    const uint8_t testValue                     = DATA_DUMMY_VALUE_UINT8_T_ALTERNATING_BIT_PATTERN;
-    dummyTable.member1                          = UINT8_MAX;
-    dummyTable.member2                          = testValue;
     OS_SendToBackOfQueue_Stub(&DATA_mpuInjectValuesForExecuteBISTTestCallback);
     TEST_ASSERT_PASS_ASSERT(DATA_ExecuteDataBist());
 }

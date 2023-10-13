@@ -43,8 +43,8 @@
  * @file    os.h
  * @author  foxBMS Team
  * @date    2019-08-27 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup OS
  * @prefix  OS
  *
@@ -59,6 +59,10 @@
 
 #include "fstd_types.h"
 
+/* clang-format off */
+#include <stdbool.h>
+/* clang-format on */
+
 #if defined(FOXBMS_USES_FREERTOS)
 #include "FreeRTOS.h"
 #include "queue.h"
@@ -69,7 +73,6 @@
 #define OS_ENABLE_CACHE         (false)                    /**< true: Enable cache, false: Disable cache */
 #endif
 
-#include <stdbool.h>
 #include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/

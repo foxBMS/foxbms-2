@@ -27,7 +27,6 @@ access the hardware and its peripherals. This enables encapsulation of the
 actual BMS software implementation from the hardware and eases porting the
 |foxbms| software to different microcontrollers.
 
-
 The open-source real-time operating system |freertos| is the centerpiece of
 the software architecture.
 Its reliable kernel is ideally suited to ensure the compliance of all soft and
@@ -64,7 +63,6 @@ The foxBMS software itself is grouped into three different layers:
   errors, ...), state estimation functionalities (state-of-charge, state-of-
   health, state-of-energy) and the vehicle specific BMS application is done
   within the **application layer**.
-
 
   .. figure:: img/axivion_architecture.svg
       :alt: Detailed software architecture

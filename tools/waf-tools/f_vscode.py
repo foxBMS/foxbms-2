@@ -72,6 +72,7 @@ def configure(conf):  # pylint: disable=too-many-statements,too-many-branches
     - configure a project if code was found"""
     # create a VS Code workspace if code is installed on this platform
     is_remote_session = False
+    conf.start_msg("Checking for program 'code'")
     if Utils.is_win32:
         conf.find_program("code", mandatory=False)
         if not conf.env.CODE:
@@ -92,9 +93,10 @@ def configure(conf):  # pylint: disable=too-many-statements,too-many-branches
             code_server_dir = os.path.join(os.path.expanduser("~"), ".vscode-server")
             is_remote_session = os.path.isdir(code_server_dir)
             conf.msg("Found 'vscode-server' (remote session)", code_server_dir)
-
     if not (conf.env.CODE or is_remote_session):
+        conf.end_msg(False)
         return
+    conf.end_msg(conf.env.get_flat("CODE") or "remote")
     conf.start_msg("Creating workspace")
     vscode_dir = conf.path.make_node(".vscode")
     vscode_dir.mkdir()
@@ -236,13 +238,16 @@ def configure(conf):  # pylint: disable=too-many-statements,too-many-branches
         Path(str(conf.root.find_node(i).path_from(conf.path))).as_posix()
         for i in conf.env.INCLUDES_RTOS
     ]
+    afe_includes = [
+        Path(str(conf.root.find_node(i).path_from(conf.path))).as_posix()
+        for i in conf.env.INCLUDES_AFE
+    ]
     c_cpp_properties = template.render(
         ARMCL=Path(conf.env.CC[0]).as_posix(),
         RTOS=conf.env.RTOS_NAME[0],
         RTOS_INCLUDES=rtos_includes,
         BALANCING_STRATEGY=conf.env.balancing_strategy,
-        AFE_MANUFACTURER=conf.env.afe_manufacturer,
-        AFE_IC=conf.env.afe_ic,
+        AFE_INCLUDES=afe_includes,
         TEMPERATURE_SENSOR_MANUFACTURER=conf.env.temperature_sensor_manuf,
         TEMPERATURE_SENSOR_MODEL=conf.env.temperature_sensor_model,
         TEMPERATURE_SENSOR_METHOD=conf.env.temperature_sensor_meth,

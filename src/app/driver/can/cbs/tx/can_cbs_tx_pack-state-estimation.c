@@ -43,8 +43,8 @@
  * @file    can_cbs_tx_pack-state-estimation.c
  * @author  foxBMS Team
  * @date    2021-07-21 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup DRIVER
  * @prefix  CANTX
  *
@@ -92,21 +92,21 @@ extern uint32_t CANTX_PackStateEstimation(
     float_t maximumStringSoe_perc   = FLT_MIN;
     uint32_t minimumStringEnergy_Wh = UINT32_MAX;
 
-    DATA_READ_DATA(kpkCanShim->pTableSox);
+    DATA_READ_DATA(kpkCanShim->pTableSoc, kpkCanShim->pTableSoe);
 
     /* Check current direction  */
     if (BMS_GetBatterySystemState() == BMS_CHARGING) {
         /* If battery system is charging use maximum values */
         for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
             if (BMS_IsStringClosed(s) == true) {
-                if (maximumStringSoc_perc < kpkCanShim->pTableSox->maximumSoc_perc[s]) {
-                    maximumStringSoc_perc = kpkCanShim->pTableSox->maximumSoc_perc[s];
+                if (maximumStringSoc_perc < kpkCanShim->pTableSoc->maximumSoc_perc[s]) {
+                    maximumStringSoc_perc = kpkCanShim->pTableSoc->maximumSoc_perc[s];
                 }
-                if (maximumStringSoe_perc < kpkCanShim->pTableSox->maximumSoe_perc[s]) {
-                    maximumStringSoe_perc = kpkCanShim->pTableSox->maximumSoe_perc[s];
+                if (maximumStringSoe_perc < kpkCanShim->pTableSoe->maximumSoe_perc[s]) {
+                    maximumStringSoe_perc = kpkCanShim->pTableSoe->maximumSoe_perc[s];
                 }
-                if (minimumStringEnergy_Wh > kpkCanShim->pTableSox->minimumSoe_Wh[s]) {
-                    minimumStringEnergy_Wh = kpkCanShim->pTableSox->minimumSoe_Wh[s];
+                if (minimumStringEnergy_Wh > kpkCanShim->pTableSoe->minimumSoe_Wh[s]) {
+                    minimumStringEnergy_Wh = kpkCanShim->pTableSoe->minimumSoe_Wh[s];
                 }
             }
         }
@@ -114,14 +114,14 @@ extern uint32_t CANTX_PackStateEstimation(
         /* If battery system is discharging or at rest use minimum values */
         for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
             if (BMS_IsStringClosed(s) == true) {
-                if (minimumStringSoc_perc > kpkCanShim->pTableSox->minimumSoc_perc[s]) {
-                    minimumStringSoc_perc = kpkCanShim->pTableSox->minimumSoc_perc[s];
+                if (minimumStringSoc_perc > kpkCanShim->pTableSoc->minimumSoc_perc[s]) {
+                    minimumStringSoc_perc = kpkCanShim->pTableSoc->minimumSoc_perc[s];
                 }
-                if (minimumStringSoe_perc > kpkCanShim->pTableSox->minimumSoe_perc[s]) {
-                    minimumStringSoe_perc = kpkCanShim->pTableSox->minimumSoe_perc[s];
+                if (minimumStringSoe_perc > kpkCanShim->pTableSoe->minimumSoe_perc[s]) {
+                    minimumStringSoe_perc = kpkCanShim->pTableSoe->minimumSoe_perc[s];
                 }
-                if (minimumStringEnergy_Wh > kpkCanShim->pTableSox->minimumSoe_Wh[s]) {
-                    minimumStringEnergy_Wh = kpkCanShim->pTableSox->minimumSoe_Wh[s];
+                if (minimumStringEnergy_Wh > kpkCanShim->pTableSoe->minimumSoe_Wh[s]) {
+                    minimumStringEnergy_Wh = kpkCanShim->pTableSoe->minimumSoe_Wh[s];
                 }
             }
         }

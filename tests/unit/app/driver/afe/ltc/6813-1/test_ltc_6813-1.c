@@ -43,8 +43,8 @@
  * @file    test_ltc_6813-1.c
  * @author  foxBMS Team
  * @date    2020-03-30 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -74,11 +74,26 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-TEST_FILE("ltc_6813-1.c")
+/*========== Unit Testing Framework Directives ==============================*/
+TEST_SOURCE_FILE("ltc_6813-1.c")
+
+TEST_INCLUDE_PATH("../../src/app/driver/afe/api")
+TEST_INCLUDE_PATH("../../src/app/driver/afe/ltc/6813-1/config")
+TEST_INCLUDE_PATH("../../src/app/driver/afe/ltc/common")
+TEST_INCLUDE_PATH("../../src/app/driver/afe/ltc/common")
+TEST_INCLUDE_PATH("../../src/app/driver/afe/ltc/common/config")
+TEST_INCLUDE_PATH("../../src/app/driver/config")
+TEST_INCLUDE_PATH("../../src/app/driver/config")
+TEST_INCLUDE_PATH("../../src/app/driver/dma")
+TEST_INCLUDE_PATH("../../src/app/driver/io")
+TEST_INCLUDE_PATH("../../src/app/driver/pex")
+TEST_INCLUDE_PATH("../../src/app/driver/spi")
+TEST_INCLUDE_PATH("../../src/app/driver/ts/api")
+TEST_INCLUDE_PATH("../../src/app/engine/diag")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 /* SPI data configuration struct for LTC communication */
-static const spiDAT1_t spi_kLtcDataConfig = {
+static spiDAT1_t spi_kLtcDataConfig = {
     /* struct is implemented in the TI HAL and uses uppercase true and false */
     .CS_HOLD = FALSE,     /* The HW chip select signal is deactivated */
     .WDEL    = TRUE,      /* No delay will be inserted */
@@ -88,15 +103,6 @@ static const spiDAT1_t spi_kLtcDataConfig = {
 
 /* SPI interface configuration for LTC communication */
 SPI_INTERFACE_CONFIG_s spi_ltcInterface[BS_NR_OF_STRINGS] = {
-    {
-        .pConfig  = &spi_kLtcDataConfig,
-        .pNode    = spiREG1,
-        .pGioPort = &(spiREG1->PC3),
-        .csPin    = 2u,
-    },
-};
-
-SPI_INTERFACE_CONFIG_s spi_ltcInterfaceSecondary[BS_NR_OF_STRINGS] = {
     {
         .pConfig  = &spi_kLtcDataConfig,
         .pNode    = spiREG1,
@@ -138,7 +144,7 @@ void testLTC_SetFirstMeasurementCycleFinished(void) {
     TEST_ASSERT_EQUAL_UINT8(true, test_ltc_state.first_measurement_made);
 }
 
-void testLTC_ConvertMuxVoltagesToTemperatures() {
+void testLTC_ConvertMuxVoltagesToTemperatures(void) {
     TSI_GetTemperature_ExpectAndReturn(0, 0u);
     int16_t x = 0;
     x         = LTC_ConvertMuxVoltagesToTemperatures(0);

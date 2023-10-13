@@ -43,8 +43,8 @@
  * @file    diag_cbs.h
  * @author  foxBMS Team
  * @date    2021-02-17 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup ENGINE
  * @prefix  DIAG
  *
@@ -263,13 +263,27 @@ extern void DIAG_ErrorCanTiming(
     uint32_t data);
 
 /**
- * @brief diagnosis callback function for CAN related events
+ * @brief diagnosis callback function for CAN Rx related events
  * @param[in] diagId        ID of diag entry
  * @param[in] event         #DIAG_EVENT_e
  * @param[in] kpkDiagShim   shim to the database entries
  * @param[in] data          data
  */
 extern void DIAG_ErrorCanRxQueueFull(
+    DIAG_ID_e diagId,
+    DIAG_EVENT_e event,
+    const DIAG_DATABASE_SHIM_s *const kpkDiagShim,
+    uint32_t data);
+
+/**
+ * @brief diagnosis callback function for CAN Tx related events
+ * @param[in] diagId        ID of diag entry
+ * @param[in] event         #DIAG_EVENT_e
+ * @param[in] kpkDiagShim   shim to the database entries
+ * @param[in] data          data
+ */
+
+extern void DIAG_ErrorCanTxQueueFull(
     DIAG_ID_e diagId,
     DIAG_EVENT_e event,
     const DIAG_DATABASE_SHIM_s *const kpkDiagShim,
@@ -482,6 +496,19 @@ extern void DIAG_PrechargeProcess(
     DIAG_EVENT_e event,
     const DIAG_DATABASE_SHIM_s *const kpkDiagShim,
     uint32_t stringNumber);
+
+/**
+ * @brief diagnosis callback function for aerosol alert
+ * @param[in] diagId        ID of diag entry
+ * @param[in] event         OK, NOK or RESET
+ * @param[in] kpkDiagShim   shim to the database entries
+ * @param[in] data          not relevant
+ */
+extern void DIAG_AerosolAlert(
+    DIAG_ID_e diagId,
+    DIAG_EVENT_e event,
+    const DIAG_DATABASE_SHIM_s *const kpkDiagShim,
+    uint32_t data);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 #ifdef UNITY_UNIT_TEST

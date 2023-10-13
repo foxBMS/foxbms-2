@@ -43,8 +43,8 @@
  * @file    infinite-loop-helper.h
  * @author  foxBMS Team
  * @date    2022-12-05 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup GENERAL_CONF
  * @prefix  GEN
  *

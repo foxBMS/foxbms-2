@@ -38,7 +38,9 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""TODO"""
+"""Helper Build Script: ./src/app/driver/afe/nxp
+
+Helper script to recursively build the variant of the NXP AFE"""
 
 
 def build(bld):

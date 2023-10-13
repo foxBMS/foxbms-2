@@ -43,8 +43,8 @@
  * @file    bender_ir155_helper.c
  * @author  foxBMS Team
  * @date    2021-09-17 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup DRIVERS
  * @prefix  IR155
  *
@@ -95,7 +95,7 @@
 /*========== Static Constant and Variable Definitions =======================*/
 
 /*========== Extern Constant and Variable Definitions =======================*/
-extern IR155_STATE_s ir155_state = {
+IR155_STATE_s ir155_state = {
     .ir155Initialized                     = false,
     .measurement.isMeasurementValid       = false,
     .measurement.isUndervoltageDetected   = false,
@@ -119,7 +119,7 @@ extern IR155_STATE_s ir155_state = {
 static IR155_MEASUREMENT_MODE_e IR155_GetMeasurementMode(float_t frequency_Hz);
 
 /**
- * @brief   Calculate insulation resistance from measured dutycycle.
+ * @brief   Calculate insulation resistance from measured duty cycle.
  * @details Function check, that passed duty-cycle lies within allowed range.
  *          Otherwise, the calculated resistance will be limited to the next
  *          reasonable value.
@@ -150,8 +150,9 @@ static IR155_MEASUREMENT_MODE_e IR155_GetMeasurementMode(float_t frequency_Hz) {
         (frequency_Hz < IR155_UNDERVOLTAGE_UPPER_FREQUENCY_Hz)) {
         retVal = IR155_UNDERVOLTAGE_MODE; /* should not be detected as default threshold 0V, EOL Bender configurable! */
     } else if (
-        (frequency_Hz >= IR155_SPEEDSTART_LOWER_FREQUENCY_Hz) && (frequency_Hz < IR155_SPEEDSTART_UPPER_FREQUENCY_Hz)) {
-        retVal = IR155_SPEEDSTART_MODE;
+        (frequency_Hz >= IR155_SPEED_START_LOWER_FREQUENCY_Hz) &&
+        (frequency_Hz < IR155_SPEED_START_UPPER_FREQUENCY_Hz)) {
+        retVal = IR155_SPEED_START_MODE;
     } else if (
         (frequency_Hz >= IR155_IMD_DEVICE_ERROR_LOWER_FREQUENCY_Hz) &&
         (frequency_Hz < IR155_IMD_DEVICE_ERROR_UPPER_FREQUENCY_Hz)) {
@@ -159,7 +160,7 @@ static IR155_MEASUREMENT_MODE_e IR155_GetMeasurementMode(float_t frequency_Hz) {
     } else if (
         (frequency_Hz >= IR155_GROUND_ERROR_LOWER_FREQUENCY_Hz) &&
         (frequency_Hz < IR155_GROUND_ERROR_UPPER_FREQUENCY_Hz)) {
-        retVal = IR155_GROUNDERROR_MODE;
+        retVal = IR155_GROUND_ERROR_MODE;
     } else if (frequency_Hz <= IR155_MINIMUM_FREQUENCY_Hz) {
         retVal = IR155_SHORT_CLAMP;
     } else {
@@ -204,7 +205,7 @@ void IR155_Initialize(uint8_t triggerTime_ms) {
     /* Read non-volatile FRAM */
     FRAM_ReadData(FRAM_BLOCK_ID_INSULATION_FLAG);
 
-    /* Check grounderror flag */
+    /* Check ground error flag */
     if (fram_insulationFlags.groundErrorDetected == true) {
         /* GROUND ERROR occurred before shutting down */
         ir155_state.timeUntilValidMeasurement_ms = IR155_WAIT_TIME_AFTER_GROUND_ERROR_ms;
@@ -288,7 +289,7 @@ IR155_MEASUREMENT_s IR155_GetMeasurementValues(void) {
             }
             break;
 
-        case IR155_SPEEDSTART_MODE:
+        case IR155_SPEED_START_MODE:
             measurementResult.isUndervoltageDetected = false;
             if (true == IR155_IsDutyCycleWithinInterval(
                             measurementResult.pwmSignal.dutyCycle_perc,
@@ -345,7 +346,7 @@ IR155_MEASUREMENT_s IR155_GetMeasurementValues(void) {
                 measurementResult.isMeasurementValid = false;
             }
             break;
-        case IR155_GROUNDERROR_MODE:
+        case IR155_GROUND_ERROR_MODE:
             measurementResult.isUndervoltageDetected = false;
             measurementResult.resistance_kOhm        = IR155_MINIMUM_INSULATION_RESISTANCE_kOhm;
             if (true == IR155_IsDutyCycleWithinInterval(
@@ -354,10 +355,10 @@ IR155_MEASUREMENT_s IR155_GetMeasurementValues(void) {
                             IR155_GROUND_ERROR_UPPER_DUTY_CYCLE_LIMIT_perc)) {
                 /* Error detected and verified with duty cycle */
                 measurementResult.isMeasurementValid = true;
-                measurementResult.measurementState   = IR155_GROUND_ERROR_MODE;
+                measurementResult.measurementState   = IR155_GROUND_ERROR_STATE;
             } else {
                 /* Error detected but invalid duty cycle */
-                measurementResult.measurementState   = IR155_GROUND_ERROR_MODE_UNKNOWN;
+                measurementResult.measurementState   = IR155_GROUND_ERROR_STATE_UNKNOWN;
                 measurementResult.isMeasurementValid = false;
             }
             break;

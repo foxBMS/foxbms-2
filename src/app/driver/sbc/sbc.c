@@ -43,8 +43,8 @@
  * @file    sbc.c
  * @author  foxBMS Team
  * @date    2020-07-14 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup DRIVERS
  * @prefix  SBC
  *
@@ -82,13 +82,14 @@ SBC_STATE_s sbc_stateMcuSupervisor = {
     .substate     = SBC_ENTRY,
     .lastState    = SBC_STATEMACHINE_UNINITIALIZED,
     .lastSubstate = SBC_ENTRY,
-    .illegalRequestsCounter = 0u, /*!< counts the number of illegal requests to the SBC state machine   */
-    .retryCounter           = 0u, /*!< counter to retry subsystem initialization if fails               */
-    .requestWatchdogTrigger = 0u, /*!< correct value set during init process                            */
-    .triggerEntry           = 0u, /*!< counter for re-entrance protection (function running flag)       */
-    .pFs85xxInstance        = &fs85xx_mcuSupervisor, /*!< pointer to FS85xx instance                    */
-    .watchdogState          = SBC_PERIODIC_WATCHDOG_DEACTIVATED,
-    .watchdogPeriod_10ms    = 10u,
+    .illegalRequestsCounter  = 0u, /*!< counts the number of illegal requests to the SBC state machine   */
+    .retryCounter            = 0u, /*!< counter to retry subsystem initialization if fails               */
+    .requestWatchdogTrigger  = 0u, /*!< correct value set during init process                            */
+    .triggerEntry            = 0u, /*!< counter for re-entrance protection (function running flag)       */
+    .pFs85xxInstance         = &fs85xx_mcuSupervisor, /*!< pointer to FS85xx instance                    */
+    .watchdogState           = SBC_PERIODIC_WATCHDOG_DEACTIVATED,
+    .watchdogPeriod_10ms     = 10u,
+    .useIgnitionForPowerDown = true,
 };
 
 /*========== Static Function Prototypes =====================================*/
@@ -129,8 +130,7 @@ static SBC_CHECK_REENTRANCE_e SBC_CheckReEntrance(SBC_STATE_s *pInstance);
  *                  machine. It resets the value from stateRequest to
  *                  #SBC_STATE_NO_REQUEST
  * @param[in,out]   pInstance
- * @return          retVal      current state request, taken from
- *                              #SYS_STATE_REQUEST_e
+ * @return          current state request, taken from #SBC_STATE_REQUEST_e
  */
 static SBC_STATE_REQUEST_e SBC_TransferStateRequest(SBC_STATE_s *pInstance);
 
@@ -139,10 +139,19 @@ static SBC_STATE_REQUEST_e SBC_TransferStateRequest(SBC_STATE_s *pInstance);
  * @details         This function checks whether the watchdog timer elapses,
  *                  and triggers the watchdog in that case.
  * @param[in,out]   pInstance
- * @return          retVal      current state request, taken from
+ * @return          true if watchdog has been triggered, false otherwise
  *                              #SYS_STATE_REQUEST_e
  */
 static bool SBC_TriggerWatchdogIfRequired(SBC_STATE_s *pInstance);
+
+/**
+ * @brief           Handle ignition/clamp 15 signal.
+ * @details         Checks ignition signal (clamp 15) and put BMS in shutdown
+ *                  mode if ignition signal is not detected anymore.
+ * @param[in,out]   pInstance   SBC instance where ignition signal is connected
+ * @return          true if ignition signal is detected, false otherwise
+ */
+static bool SBC_IsIgnitionSignalDetected(SBC_STATE_s *pInstance);
 
 /*========== Static Function Implementations ================================*/
 static void SBC_SaveLastStates(SBC_STATE_s *pInstance) {
@@ -219,7 +228,7 @@ static bool SBC_TriggerWatchdogIfRequired(SBC_STATE_s *pInstance) {
     if (pInstance->watchdogTrigger > 0u) {
         pInstance->watchdogTrigger--;
         if (pInstance->watchdogTrigger == 0u) {
-            if (STD_OK != SBC_TriggerWatchdog(pInstance->pFs85xxInstance)) {
+            if (STD_OK != FS85_TriggerWatchdog(pInstance->pFs85xxInstance)) {
                 /* TODO: Do what if triggering of watchdog fails? */
             } else {
                 watchdogHasBeenTriggered = true;
@@ -232,6 +241,12 @@ static bool SBC_TriggerWatchdogIfRequired(SBC_STATE_s *pInstance) {
         }
     }
     return watchdogHasBeenTriggered;
+}
+
+static bool SBC_IsIgnitionSignalDetected(SBC_STATE_s *pInstance) {
+    FAS_ASSERT(pInstance != NULL_PTR);
+
+    return FS85_CheckIgnitionSignal(pInstance->pFs85xxInstance);
 }
 
 /*========== Extern Function Implementations ================================*/
@@ -381,6 +396,10 @@ extern void SBC_Trigger(SBC_STATE_s *pInstance) {
         case SBC_STATEMACHINE_RUNNING:
             SBC_SaveLastStates(pInstance);
             pInstance->timer = SBC_STATEMACHINE_LONGTIME;
+            if (pInstance->useIgnitionForPowerDown == true) {
+                /* Return value is currently discarded, shutdown handling needs to be implemented */
+                (void)SBC_IsIgnitionSignalDetected(pInstance);
+            }
             break;
 
         /****************************ERROR*************************************/
@@ -399,7 +418,20 @@ extern void SBC_Trigger(SBC_STATE_s *pInstance) {
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
 #ifdef UNITY_UNIT_TEST
+extern void TEST_SBC_SaveLastStates(SBC_STATE_s *pInstance) {
+    SBC_SaveLastStates(pInstance);
+}
+extern SBC_RETURN_TYPE_e TEST_SBC_CheckStateRequest(SBC_STATE_s *pInstance, SBC_STATE_REQUEST_e stateRequest) {
+    return SBC_CheckStateRequest(pInstance, stateRequest);
+}
+
+extern SBC_CHECK_REENTRANCE_e TEST_SBC_CheckReEntrance(SBC_STATE_s *pInstance) {
+    return TEST_SBC_CheckReEntrance(pInstance);
+}
 extern bool TEST_SBC_TriggerWatchdogIfRequired(SBC_STATE_s *pInstance) {
     return SBC_TriggerWatchdogIfRequired(pInstance);
+}
+extern bool TEST_SBC_IsIgnitionSignalDetected(SBC_STATE_s *pInstance) {
+    return SBC_IsIgnitionSignalDetected(pInstance);
 }
 #endif

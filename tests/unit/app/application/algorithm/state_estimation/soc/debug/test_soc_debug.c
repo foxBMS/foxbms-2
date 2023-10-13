@@ -43,8 +43,8 @@
  * @file    test_soc_debug.c
  * @author  foxBMS Team
  * @date    2020-10-14 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -54,8 +54,16 @@
 
 /*========== Includes =======================================================*/
 #include "unity.h"
+#include "Mockdatabase.h"
 
-#include "soc_debug.h"
+#include "state_estimation.h"
+
+/*========== Unit Testing Framework Directives ==============================*/
+TEST_SOURCE_FILE("soc_debug.c")
+TEST_SOURCE_FILE("soe_debug.c")
+TEST_SOURCE_FILE("soh_debug.c")
+
+TEST_INCLUDE_PATH("../../src/app/application/algorithm/state_estimation")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 

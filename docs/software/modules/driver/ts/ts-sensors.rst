@@ -32,9 +32,10 @@ implement the :ref:`temperature_sensor_api`.
     ./epcos/b57251v5103j060.rst
     ./epcos/b57861s0103f045.rst
     ./fake/none.rst
-    ./murata/ncu15xh103f6sxx.rst
+    ./murata/ncxxxxh103.rst
     ./vishay/ntcalug01a103g.rst
     ./vishay/ntcle317e4103sba.rst
+    ./vishay/ntcle413e2103f102l.rst
 
 These temperature sensors have *short name* in order to be able to write
 shorter function and variable names. The *short names* are list in

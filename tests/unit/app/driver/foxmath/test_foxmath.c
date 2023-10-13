@@ -43,8 +43,8 @@
  * @file    test_foxmath.c
  * @author  foxBMS Team
  * @date    2020-04-01 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -56,6 +56,9 @@
 #include "unity.h"
 
 #include "foxmath.h"
+
+/*========== Unit Testing Framework Directives ==============================*/
+TEST_INCLUDE_PATH("../../src/app/driver/foxmath")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 uint16_t val16;
@@ -83,18 +86,18 @@ void tearDown(void) {
 }
 
 /*========== Test Cases =====================================================*/
-void test_linearInterpolation_X1EqualsX2() {
+void test_linearInterpolation_X1EqualsX2(void) {
     coord_x1 = coord_x2;
     TEST_ASSERT_EQUAL(coord_y1, MATH_LinearInterpolation(coord_x1, coord_y1, coord_x2, coord_y2, coord_x_interpolate));
 }
 
-void test_linearInterpolation_interpolateBetweenX1AndX2() {
+void test_linearInterpolation_interpolateBetweenX1AndX2(void) {
     TEST_ASSERT_EQUAL(75.0f, MATH_LinearInterpolation(10.f, 50.f, 20.f, 100.f, 15.f));
     TEST_ASSERT_EQUAL(87.0f, MATH_LinearInterpolation(10.f, 50.f, 20.f, 100.f, 17.5f));
     TEST_ASSERT_EQUAL(50.0f, MATH_LinearInterpolation(10.f, 50.f, 20.f, 100.f, 10.0001f));
 }
 
-void test_linearInterpolation_extrapolateFromX1AndX2() {
+void test_linearInterpolation_extrapolateFromX1AndX2(void) {
     TEST_ASSERT_EQUAL(100.0f, MATH_LinearInterpolation(10.f, 50.f, 20.f, 100.f, 20.1f));
     TEST_ASSERT_EQUAL(-100.0f, MATH_LinearInterpolation(10.f, 50.f, 20.f, 100.f, -20.f));
     TEST_ASSERT_EQUAL(16739465.0f, MATH_LinearInterpolation(10.f, 50.f, 20.f, 100.f, 3347893.0f));

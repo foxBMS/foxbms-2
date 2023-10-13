@@ -43,8 +43,8 @@
  * @file    test_soc_counting.c
  * @author  foxBMS Team
  * @date    2020-10-07 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -59,9 +59,27 @@
 #include "Mockfram.h"
 
 #include "battery_cell_cfg.h"
+#include "soc_counting_cfg.h"
 
 #include "foxmath.h"
-#include "soc_counting.h"
+#include "state_estimation.h"
+
+#include <math.h>
+
+/*========== Unit Testing Framework Directives ==============================*/
+TEST_SOURCE_FILE("soc_counting.c")
+TEST_SOURCE_FILE("soe_none.c")
+TEST_SOURCE_FILE("soh_none.c")
+
+TEST_INCLUDE_PATH("../../src/app/application/algorithm/state_estimation")
+TEST_INCLUDE_PATH("../../src/app/application/algorithm/state_estimation/soc/counting")
+TEST_INCLUDE_PATH("../../src/app/application/bms")
+TEST_INCLUDE_PATH("../../src/app/driver/config")
+TEST_INCLUDE_PATH("../../src/app/driver/contactor")
+TEST_INCLUDE_PATH("../../src/app/driver/foxmath")
+TEST_INCLUDE_PATH("../../src/app/driver/fram")
+TEST_INCLUDE_PATH("../../src/app/driver/sps")
+TEST_INCLUDE_PATH("../../src/app/task/config")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 FRAM_SOC_s fram_soc = {0};
@@ -74,7 +92,7 @@ void tearDown(void) {
 }
 
 void testSE_GetStateOfChargeFromVoltage(void) {
-    float test_soc          = -1.0;
+    float_t test_soc        = -1.0f;
     int16_t test_voltage_mV = 3780;
     test_soc                = SE_GetStateOfChargeFromVoltage(test_voltage_mV);
     TEST_ASSERT_EQUAL(64.0f, test_soc);

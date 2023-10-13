@@ -1,0 +1,3062 @@
+{
+    "src/app/application/algorithm/algorithm.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_algorithm",
+            "src/app/application/algorithm",
+            "src/app/application/algorithm/config",
+            "src/app/application/config",
+            "src/app/driver/mcu",
+            "src/app/engine/config",
+            "src/app/engine/database",
+            "src/app/main/include",
+            "src/app/main/include/config",
+            "src/app/task/os",
+            "src/os/freertos/include",
+            "src/os/freertos/portable/ccs/arm_cortex-r5"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_algorithm/Mockalgorithm_cfg.c",
+            "build/unit_test/test/mocks/test_algorithm/Mockos.c",
+            "build/unit_test/test/mocks/test_algorithm/Mocktest_algorithm_stubs.c",
+            "src/app/application/algorithm/algorithm.c",
+            "tests/unit/app/application/algorithm/test_algorithm.c",
+            "build/unit_test/test/runners/test_algorithm_runner.c"
+        ]
+    },
+    "src/app/application/algorithm/config/algorithm_cfg.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_algorithm_cfg",
+            "src/app/application/algorithm/config",
+            "src/app/application/algorithm/moving_average",
+            "src/app/application/config",
+            "src/app/driver/mcu",
+            "src/app/engine/config",
+            "src/app/engine/database",
+            "src/app/main/include",
+            "src/app/main/include/config",
+            "src/app/task/os",
+            "src/os/freertos/include",
+            "src/os/freertos/portable/ccs/arm_cortex-r5"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_algorithm_cfg/Mockdatabase.c",
+            "build/unit_test/test/mocks/test_algorithm_cfg/Mockmoving_average.c",
+            "build/unit_test/test/mocks/test_algorithm_cfg/Mockos.c",
+            "src/app/application/algorithm/config/algorithm_cfg.c",
+            "tests/unit/app/application/algorithm/config/test_algorithm_cfg.c",
+            "build/unit_test/test/runners/test_algorithm_cfg_runner.c"
+        ]
+    },
+    "src/app/application/algorithm/moving_average/moving_average.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_moving_average",
+            "src/app/application/algorithm/config",
+            "src/app/application/algorithm/moving_average",
+            "src/app/application/config",
+            "src/app/driver/mcu",
+            "src/app/engine/config",
+            "src/app/engine/database",
+            "src/app/main/include",
+            "src/app/main/include/config",
+            "src/app/task/os",
+            "src/os/freertos/include",
+            "src/os/freertos/portable/ccs/arm_cortex-r5"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_moving_average/Mockdatabase.c",
+            "build/unit_test/test/mocks/test_moving_average/Mockos.c",
+            "src/app/application/algorithm/moving_average/moving_average.c",
+            "tests/unit/app/application/algorithm/moving_average/test_moving_average.c",
+            "build/unit_test/test/runners/test_moving_average_runner.c"
+        ]
+    },
+    "src/app/application/algorithm/state_estimation/soc/counting/soc_counting.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_soc_counting",
+            "src/app/application/algorithm/state_estimation",
+            "src/app/application/algorithm/state_estimation/soc/counting",
+            "src/app/application/bms",
+            "src/app/driver/config",
+            "src/app/driver/contactor",
+            "src/app/driver/foxmath",
+            "src/app/driver/fram",
+            "src/app/driver/sps",
+            "src/app/task/config",
+            "src/app/application/config",
+            "src/app/driver/mcu",
+            "src/app/engine/config",
+            "src/app/engine/database",
+            "src/app/main/include",
+            "src/app/main/include/config",
+            "src/app/task/os",
+            "src/os/freertos/include",
+            "src/os/freertos/portable/ccs/arm_cortex-r5"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_soc_counting/Mockbms.c",
+            "build/unit_test/test/mocks/test_soc_counting/Mockdatabase.c",
+            "build/unit_test/test/mocks/test_soc_counting/Mockfram.c",
+            "src/app/application/algorithm/state_estimation/soc/counting/soc_counting.c",
+            "src/app/driver/foxmath/foxmath.c",
+            "src/app/application/config/battery_cell_cfg.c",
+            "tests/unit/app/application/algorithm/state_estimation/soc/counting/test_soc_counting.c",
+            "build/unit_test/test/runners/test_soc_counting_runner.c"
+        ]
+    },
+    "src/app/application/algorithm/state_estimation/soc/debug/soc_debug.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_soc_debug",
+            "src/app/application/algorithm/state_estimation",
+            "src/app/application/config",
+            "src/app/driver/mcu",
+            "src/app/engine/config",
+            "src/app/engine/database",
+            "src/app/main/include",
+            "src/app/main/include/config",
+            "src/app/task/os",
+            "src/os/freertos/include",
+            "src/os/freertos/portable/ccs/arm_cortex-r5",
+            "include",
+            "..tests/unit/support",
+            "test/mocks/test_soc_debug"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_soc_debug/Mockdatabase.c",
+            "src/app/application/algorithm/state_estimation/soc/debug/soc_debug.c",
+            "tests/unit/app/application/algorithm/state_estimation/soc/debug/test_soc_debug.c",
+            "build/unit_test/test/runners/test_soc_debug_runner.c"
+        ]
+    },
+    "src/app/application/algorithm/state_estimation/soc/none/soc_none.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_soc_none",
+            "src/app/application/algorithm/state_estimation",
+            "src/app/application/config",
+            "src/app/driver/mcu",
+            "src/app/engine/config",
+            "src/app/engine/database",
+            "src/app/main/include",
+            "src/app/main/include/config",
+            "src/app/task/os",
+            "src/os/freertos/include",
+            "src/os/freertos/portable/ccs/arm_cortex-r5"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_soc_none/Mockdatabase.c",
+            "src/app/application/algorithm/state_estimation/soc/none/soc_none.c",
+            "tests/unit/app/application/algorithm/state_estimation/soc/none/test_soc_none.c",
+            "build/unit_test/test/runners/test_soc_none_runner.c"
+        ]
+    },
+    "src/app/application/algorithm/state_estimation/soe/counting/soe_counting.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_soe_counting",
+            "src/app/application/algorithm/state_estimation",
+            "src/app/application/bms",
+            "src/app/driver/config",
+            "src/app/driver/contactor",
+            "src/app/driver/foxmath",
+            "src/app/driver/fram",
+            "src/app/driver/sps",
+            "src/app/task/config",
+            "src/app/application/config",
+            "src/app/driver/mcu",
+            "src/app/engine/config",
+            "src/app/engine/database",
+            "src/app/main/include",
+            "src/app/main/include/config",
+            "src/app/task/os",
+            "src/os/freertos/include",
+            "src/os/freertos/portable/ccs/arm_cortex-r5"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_soe_counting/Mockbms.c",
+            "build/unit_test/test/mocks/test_soe_counting/Mockdatabase.c",
+            "build/unit_test/test/mocks/test_soe_counting/Mockfram.c",
+            "src/app/application/algorithm/state_estimation/soe/counting/soe_counting.c",
+            "src/app/application/config/battery_cell_cfg.c",
+            "src/app/driver/foxmath/foxmath.c",
+            "tests/unit/app/application/algorithm/state_estimation/soe/counting/test_soe_counting.c",
+            "build/unit_test/test/runners/test_soe_counting_runner.c"
+        ]
+    },
+    "src/app/application/algorithm/state_estimation/soe/debug/soe_debug.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_soe_debug",
+            "src/app/application/algorithm/state_estimation",
+            "src/app/application/config",
+            "src/app/driver/mcu",
+            "src/app/engine/config",
+            "src/app/engine/database",
+            "src/app/main/include",
+            "src/app/main/include/config",
+            "src/app/task/os",
+            "src/os/freertos/include",
+            "src/os/freertos/portable/ccs/arm_cortex-r5"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_soe_debug/Mockdatabase.c",
+            "src/app/application/algorithm/state_estimation/soe/debug/soe_debug.c",
+            "tests/unit/app/application/algorithm/state_estimation/soe/debug/test_soe_debug.c",
+            "build/unit_test/test/runners/test_soe_debug_runner.c"
+        ]
+    },
+    "src/app/application/algorithm/state_estimation/soe/none/soe_none.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_soe_none"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_soe_none/Mockdatabase.c",
+            "src/app/application/algorithm/state_estimation/soe/none/soe_none.c",
+            "tests/unit/app/application/algorithm/state_estimation/soe/none/test_soe_none.c",
+            "build/unit_test/test/runners/test_soe_none_runner.c"
+        ]
+    },
+    "src/app/application/algorithm/state_estimation/sof/trapezoid/sof_trapezoid.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_sof_trapezoid"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_sof_trapezoid/Mockbms.c",
+            "build/unit_test/test/mocks/test_sof_trapezoid/Mockdatabase.c",
+            "build/unit_test/test/mocks/test_sof_trapezoid/Mockfram.c",
+            "src/app/application/algorithm/state_estimation/sof/trapezoid/sof_trapezoid.c",
+            "tests/unit/app/application/algorithm/state_estimation/sof/trapezoid/test_sof_trapezoid.c",
+            "build/unit_test/test/runners/test_sof_trapezoid_runner.c"
+        ]
+    },
+    "src/app/application/algorithm/state_estimation/sof/trapezoid/sof_trapezoid_cfg.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_sof_trapezoid_cfg"
+        ],
+        "sources": [
+            "src/app/application/algorithm/state_estimation/sof/trapezoid/sof_trapezoid_cfg.c",
+            "tests/unit/app/application/algorithm/state_estimation/sof/trapezoid/test_sof_trapezoid_cfg.c",
+            "build/unit_test/test/runners/test_sof_trapezoid_cfg_runner.c"
+        ]
+    },
+    "src/app/application/algorithm/state_estimation/soh/debug/soh_debug.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_soh_debug"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_soh_debug/Mockdatabase.c",
+            "src/app/application/algorithm/state_estimation/soh/debug/soh_debug.c",
+            "tests/unit/app/application/algorithm/state_estimation/soh/debug/test_soh_debug.c",
+            "build/unit_test/test/runners/test_soh_debug_runner.c"
+        ]
+    },
+    "src/app/application/algorithm/state_estimation/soh/none/soh_none.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_soh_none"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_soh_none/Mockdatabase.c",
+            "src/app/application/algorithm/state_estimation/soh/none/soh_none.c",
+            "tests/unit/app/application/algorithm/state_estimation/soh/none/test_soh_none.c",
+            "build/unit_test/test/runners/test_soh_none_runner.c"
+        ]
+    },
+    "src/app/application/algorithm/state_estimation/state_estimation.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_state_estimation"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_state_estimation/Mockdatabase.c",
+            "src/app/application/algorithm/state_estimation/state_estimation.c",
+            "tests/unit/app/application/algorithm/state_estimation/test_state_estimation.c",
+            "build/unit_test/test/runners/test_state_estimation_runner.c"
+        ]
+    },
+    "src/app/application/bal/bal.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_bal"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_bal/Mockdatabase.c",
+            "build/unit_test/test/mocks/test_bal/Mockos.c",
+            "src/app/application/bal/bal.c",
+            "tests/unit/app/application/bal/test_bal.c",
+            "build/unit_test/test/runners/test_bal_runner.c"
+        ]
+    },
+    "src/app/application/bal/history/bal_strategy_history.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_bal_strategy_history"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_bal_strategy_history/Mockbal_cfg.c",
+            "build/unit_test/test/mocks/test_bal_strategy_history/Mockbattery_system_cfg.c",
+            "build/unit_test/test/mocks/test_bal_strategy_history/Mockbms.c",
+            "build/unit_test/test/mocks/test_bal_strategy_history/Mockdatabase.c",
+            "build/unit_test/test/mocks/test_bal_strategy_history/Mockfassert.c",
+            "build/unit_test/test/mocks/test_bal_strategy_history/Mockfram.c",
+            "build/unit_test/test/mocks/test_bal_strategy_history/Mockio.c",
+            "build/unit_test/test/mocks/test_bal_strategy_history/Mockmcu.c",
+            "build/unit_test/test/mocks/test_bal_strategy_history/Mockos.c",
+            "build/unit_test/test/mocks/test_bal_strategy_history/Mockspi.c",
+            "build/unit_test/test/mocks/test_bal_strategy_history/Mockstate_estimation.c",
+            "src/app/application/bal/history/bal_strategy_history.c",
+            "tests/unit/app/application/bal/history/test_bal_strategy_history.c",
+            "build/unit_test/test/runners/test_bal_strategy_history_runner.c"
+        ]
+    },
+    "src/app/application/bal/none/bal_strategy_none.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_bal_strategy_none"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_bal_strategy_none/Mockbattery_system_cfg.c",
+            "build/unit_test/test/mocks/test_bal_strategy_none/Mockbms.c",
+            "build/unit_test/test/mocks/test_bal_strategy_none/Mockdatabase.c",
+            "build/unit_test/test/mocks/test_bal_strategy_none/Mockfassert.c",
+            "build/unit_test/test/mocks/test_bal_strategy_none/Mockfram.c",
+            "build/unit_test/test/mocks/test_bal_strategy_none/Mockio.c",
+            "build/unit_test/test/mocks/test_bal_strategy_none/Mockmcu.c",
+            "build/unit_test/test/mocks/test_bal_strategy_none/Mockos.c",
+            "build/unit_test/test/mocks/test_bal_strategy_none/Mockspi.c",
+            "src/app/application/bal/none/bal_strategy_none.c",
+            "tests/unit/app/application/bal/none/test_bal_strategy_none.c",
+            "build/unit_test/test/runners/test_bal_strategy_none_runner.c"
+        ]
+    },
+    "src/app/application/bal/voltage/bal_strategy_voltage.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_bal_strategy_voltage"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_bal_strategy_voltage/Mockbal_cfg.c",
+            "build/unit_test/test/mocks/test_bal_strategy_voltage/Mockbattery_system_cfg.c",
+            "build/unit_test/test/mocks/test_bal_strategy_voltage/Mockbms.c",
+            "build/unit_test/test/mocks/test_bal_strategy_voltage/Mockdatabase.c",
+            "build/unit_test/test/mocks/test_bal_strategy_voltage/Mockfassert.c",
+            "build/unit_test/test/mocks/test_bal_strategy_voltage/Mockfram.c",
+            "build/unit_test/test/mocks/test_bal_strategy_voltage/Mockio.c",
+            "build/unit_test/test/mocks/test_bal_strategy_voltage/Mockmcu.c",
+            "build/unit_test/test/mocks/test_bal_strategy_voltage/Mockos.c",
+            "build/unit_test/test/mocks/test_bal_strategy_voltage/Mockspi.c",
+            "src/app/application/bal/voltage/bal_strategy_voltage.c",
+            "tests/unit/app/application/bal/voltage/test_bal_strategy_voltage.c",
+            "build/unit_test/test/runners/test_bal_strategy_voltage_runner.c"
+        ]
+    },
+    "src/app/application/bms/bms.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_bms"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_bms/Mockafe.c",
+            "build/unit_test/test/mocks/test_bms/Mockbal.c",
+            "build/unit_test/test/mocks/test_bms/Mockbattery_system_cfg.c",
+            "build/unit_test/test/mocks/test_bms/Mockcontactor.c",
+            "build/unit_test/test/mocks/test_bms/Mockdatabase.c",
+            "build/unit_test/test/mocks/test_bms/Mockdiag.c",
+            "build/unit_test/test/mocks/test_bms/Mockfassert.c",
+            "build/unit_test/test/mocks/test_bms/Mockimd.c",
+            "build/unit_test/test/mocks/test_bms/Mockinterlock.c",
+            "build/unit_test/test/mocks/test_bms/Mockled.c",
+            "build/unit_test/test/mocks/test_bms/Mockmeas.c",
+            "build/unit_test/test/mocks/test_bms/Mockos.c",
+            "build/unit_test/test/mocks/test_bms/Mockplausibility.c",
+            "build/unit_test/test/mocks/test_bms/Mocksoa.c",
+            "src/app/application/bms/bms.c",
+            "tests/unit/app/application/bms/test_bms.c",
+            "build/unit_test/test/runners/test_bms_runner.c"
+        ]
+    },
+    "src/app/application/config/bal_cfg.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_bal_cfg"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_bal_cfg/Mockos.c",
+            "src/app/application/config/bal_cfg.c",
+            "tests/unit/app/application/config/test_bal_cfg.c",
+            "build/unit_test/test/runners/test_bal_cfg_runner.c"
+        ]
+    },
+    "src/app/application/config/battery_cell_cfg.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_battery_cell_cfg"
+        ],
+        "sources": [
+            "src/app/application/config/battery_cell_cfg.c",
+            "tests/unit/app/application/config/test_battery_cell_cfg.c",
+            "build/unit_test/test/runners/test_battery_cell_cfg_runner.c"
+        ]
+    },
+    "src/app/application/config/battery_system_cfg.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_battery_system_cfg"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_battery_system_cfg/Mockdatabase.c",
+            "src/app/application/config/battery_system_cfg.c",
+            "tests/unit/app/application/config/test_battery_system_cfg.c",
+            "build/unit_test/test/runners/test_battery_system_cfg_runner.c"
+        ]
+    },
+    "src/app/application/config/soa_cfg.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_soa_cfg"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_soa_cfg/Mockbattery_cell_cfg.c",
+            "build/unit_test/test/mocks/test_soa_cfg/Mockbms.c",
+            "src/app/application/config/soa_cfg.c",
+            "tests/unit/app/application/config/test_soa_cfg.c",
+            "build/unit_test/test/runners/test_soa_cfg_runner.c"
+        ]
+    },
+    "src/app/application/plausibility/plausibility.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_plausibility"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_plausibility/Mockdiag.c",
+            "src/app/application/plausibility/plausibility.c",
+            "tests/unit/app/application/plausibility/test_plausibility.c",
+            "build/unit_test/test/runners/test_plausibility_runner.c"
+        ]
+    },
+    "src/app/application/redundancy/redundancy.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_redundancy"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_redundancy/Mockbms.c",
+            "build/unit_test/test/mocks/test_redundancy/Mockdatabase.c",
+            "build/unit_test/test/mocks/test_redundancy/Mockdatabase_helper.c",
+            "build/unit_test/test/mocks/test_redundancy/Mockdiag.c",
+            "build/unit_test/test/mocks/test_redundancy/Mockos.c",
+            "build/unit_test/test/mocks/test_redundancy/Mockplausibility.c",
+            "src/app/application/redundancy/redundancy.c",
+            "tests/unit/app/application/redundancy/test_redundancy.c",
+            "build/unit_test/test/runners/test_redundancy_runner.c"
+        ]
+    },
+    "src/app/application/soa/soa.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_soa"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_soa/Mockbms.c",
+            "build/unit_test/test/mocks/test_soa/Mockcontactor.c",
+            "build/unit_test/test/mocks/test_soa/Mockdatabase.c",
+            "build/unit_test/test/mocks/test_soa/Mockdiag.c",
+            "build/unit_test/test/mocks/test_soa/Mocksoa_cfg.c",
+            "src/app/application/soa/soa.c",
+            "tests/unit/app/application/soa/test_soa.c",
+            "build/unit_test/test/runners/test_soa_runner.c"
+        ]
+    },
+    "src/app/driver/adc/adc.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_adc",
+            "src/app/driver/adc",
+            "src/app/application/config",
+            "src/app/driver/mcu",
+            "src/app/engine/config",
+            "src/app/engine/database",
+            "src/app/main/include",
+            "src/app/main/include/config",
+            "src/app/task/os",
+            "src/os/freertos/include",
+            "src/os/freertos/portable/ccs/arm_cortex-r5"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_adc/MockHL_adc.c",
+            "build/unit_test/test/mocks/test_adc/Mockdatabase.c",
+            "build/unit_test/test/mocks/test_adc/Mockfassert.c",
+            "src/app/driver/adc/adc.c",
+            "tests/unit/app/driver/adc/test_adc.c",
+            "build/unit_test/test/runners/test_adc_runner.c"
+        ]
+    },
+    "src/app/driver/afe/adi/ades1830/adi_ades1830_balancing.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_adi_ades1830_balancing"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_adi_ades1830_balancing/Mockadi_ades183x.c",
+            "build/unit_test/test/mocks/test_adi_ades1830_balancing/Mockadi_ades183x_helpers.c",
+            "build/unit_test/test/mocks/test_adi_ades1830_balancing/Mockadi_ades183x_pec.c",
+            "build/unit_test/test/mocks/test_adi_ades1830_balancing/Mockadi_ades183x_voltages.c",
+            "build/unit_test/test/mocks/test_adi_ades1830_balancing/Mockdatabase.c",
+            "build/unit_test/test/mocks/test_adi_ades1830_balancing/Mockfassert.c",
+            "build/unit_test/test/mocks/test_adi_ades1830_balancing/Mockftask.c",
+            "build/unit_test/test/mocks/test_adi_ades1830_balancing/Mockio.c",
+            "build/unit_test/test/mocks/test_adi_ades1830_balancing/Mockos.c",
+            "build/unit_test/test/mocks/test_adi_ades1830_balancing/Mockpex.c",
+            "build/unit_test/test/mocks/test_adi_ades1830_balancing/Mockspi.c",
+            "build/unit_test/test/mocks/test_adi_ades1830_balancing/Mockspi_cfg.c",
+            "build/unit_test/test/mocks/test_adi_ades1830_balancing/Mocktask.c",
+            "build/unit_test/test/mocks/test_adi_ades1830_balancing/Mocktsi.c",
+            "src/app/driver/afe/adi/ades1830/adi_ades1830_balancing.c",
+            "tests/unit/app/driver/afe/adi/ades1830/test_adi_ades1830_balancing.c",
+            "build/unit_test/test/runners/test_adi_ades1830_balancing_runner.c"
+        ]
+    },
+    "src/app/driver/afe/adi/ades1830/adi_ades1830_gpio_voltages.c": {
+        "defines": [
+            "FOXBMS_AFE_DRIVER_ADI_ADES1830=1u"
+        ],
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_adi_ades1830_gpio_voltages",
+            "src/app/application/config",
+            "src/app/driver/afe/adi/ades1830",
+            "src/app/driver/afe/adi/common/ades183x",
+            "src/app/driver/afe/adi/common/ades183x/config",
+            "src/app/driver/afe/adi/common/ades183x/pec",
+            "src/app/driver/afe/api",
+            "src/app/driver/config",
+            "src/app/driver/dma",
+            "src/app/driver/io",
+            "src/app/driver/pex",
+            "src/app/driver/rtc",
+            "src/app/driver/spi",
+            "src/app/driver/ts/api",
+            "src/app/engine/database",
+            "src/app/engine/diag",
+            "src/app/task/config",
+            "src/app/task/ftask",
+            "src/app/application/config",
+            "src/app/driver/mcu",
+            "src/app/engine/config",
+            "src/app/engine/database",
+            "src/app/main/include",
+            "src/app/main/include/config",
+            "src/app/task/os",
+            "src/os/freertos/include",
+            "src/os/freertos/portable/ccs/arm_cortex-r5"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_adi_ades1830_gpio_voltages/Mockadi_ades183x_cfg.c",
+            "build/unit_test/test/mocks/test_adi_ades1830_gpio_voltages/Mockos.c",
+            "build/unit_test/test/mocks/test_adi_ades1830_gpio_voltages/Mockspi.c",
+            "src/app/driver/afe/adi/ades1830/adi_ades1830_gpio_voltages.c",
+            "src/app/driver/afe/adi/common/ades183x/adi_ades183x_helpers.c",
+            "src/app/driver/afe/adi/common/ades183x/adi_ades183x_buffers.c",
+            "src/app/driver/afe/adi/common/ades183x/adi_ades183x_commands.c",
+            "src/app/driver/afe/adi/common/ades183x/pec/adi_ades183x_pec.c",
+            "tests/unit/app/driver/afe/adi/ades1830/test_adi_ades1830_gpio_voltages.c",
+            "build/unit_test/test/runners/test_adi_ades1830_gpio_voltages_runner.c"
+        ]
+    },
+    "src/app/driver/afe/adi/ades1830/config/adi_ades1830_cfg.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_adi_ades1830_cfg"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_adi_ades1830_cfg/Mocktsi.c",
+            "src/app/driver/afe/adi/ades1830/config/adi_ades1830_cfg.c",
+            "tests/unit/app/driver/afe/adi/ades1830/config/test_adi_ades1830_cfg.c",
+            "build/unit_test/test/runners/test_adi_ades1830_cfg_runner.c"
+        ]
+    },
+    "src/app/driver/afe/adi/common/ades183x/adi_ades183x.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_adi_ades183x"
+        ],
+        "sources": [
+            "src/app/driver/afe/adi/common/ades183x/adi_ades183x.c",
+            "tests/unit/app/driver/afe/adi/common/ades183x/test_adi_ades183x.c",
+            "build/unit_test/test/runners/test_adi_ades183x_runner.c"
+        ]
+    },
+    "src/app/driver/afe/adi/common/ades183x/adi_ades183x_buffers.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_adi_ades183x_buffers"
+        ],
+        "sources": [
+            "src/app/driver/afe/adi/common/ades183x/adi_ades183x_buffers.c",
+            "tests/unit/app/driver/afe/adi/common/ades183x/test_adi_ades183x_buffers.c",
+            "build/unit_test/test/runners/test_adi_ades183x_buffers_runner.c"
+        ]
+    },
+    "src/app/driver/afe/adi/common/ades183x/adi_ades183x_commands.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_adi_ades183x_commands"
+        ],
+        "sources": [
+            "src/app/driver/afe/adi/common/ades183x/adi_ades183x_commands.c",
+            "tests/unit/app/driver/afe/adi/common/ades183x/test_adi_ades183x_commands.c",
+            "build/unit_test/test/runners/test_adi_ades183x_commands_runner.c"
+        ]
+    },
+    "src/app/driver/afe/adi/common/ades183x/adi_ades183x_commands_voltages.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_adi_ades183x_commands_voltages"
+        ],
+        "sources": [
+            "src/app/driver/afe/adi/common/ades183x/adi_ades183x_commands_voltages.c",
+            "tests/unit/app/driver/afe/adi/common/ades183x/test_adi_ades183x_commands_voltages.c",
+            "build/unit_test/test/runners/test_adi_ades183x_commands_voltages_runner.c"
+        ]
+    },
+    "src/app/driver/afe/adi/common/ades183x/adi_ades183x_diagnostic_w.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_adi_ades183x_diagnostic_w"
+        ],
+        "sources": [
+            "src/app/driver/afe/adi/common/ades183x/_w.c",
+            "tests/unit/app/driver/afe/adi/common/ades183x/test_adi_ades183x_diagnostic_w.c",
+            "build/unit_test/test/runners/test_adi_ades183x_diagnostic_w_runner.c"
+        ]
+    },
+    "src/app/driver/afe/adi/common/ades183x/adi_ades183x_helpers.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_adi_ades183x_helpers"
+        ],
+        "sources": [
+            "src/app/driver/afe/adi/common/ades183x/adi_ades183x_helpers.c",
+            "tests/unit/app/driver/afe/adi/common/ades183x/test_adi_ades183x_helpers.c",
+            "build/unit_test/test/runners/test_adi_ades183x_helpers_runner.c"
+        ]
+    },
+    "src/app/driver/afe/adi/common/ades183x/adi_ades183x_initialization.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_adi_ades183x_initialization"
+        ],
+        "sources": [
+            "src/app/driver/afe/adi/common/ades183x/adi_ades183x_initialization.c",
+            "tests/unit/app/driver/afe/adi/common/ades183x/test_adi_ades183x_initialization.c",
+            "build/unit_test/test/runners/test_adi_ades183x_initialization_runner.c"
+        ]
+    },
+    "src/app/driver/afe/adi/common/ades183x/adi_ades183x_temperatures.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_adi_ades183x_temperatures"
+        ],
+        "sources": [
+            "src/app/driver/afe/adi/common/ades183x/adi_ades183x_temperatures.c",
+            "tests/unit/app/driver/afe/adi/common/ades183x/test_adi_ades183x_temperatures.c",
+            "build/unit_test/test/runners/test_adi_ades183x_temperatures_runner.c"
+        ]
+    },
+    "src/app/driver/afe/adi/common/ades183x/adi_ades183x_voltages.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_adi_ades183x_voltages"
+        ],
+        "sources": [
+            "src/app/driver/afe/adi/common/ades183x/adi_ades183x_voltages.c",
+            "tests/unit/app/driver/afe/adi/common/ades183x/test_adi_ades183x_voltages.c",
+            "build/unit_test/test/runners/test_adi_ades183x_voltages_runner.c"
+        ]
+    },
+    "src/app/driver/afe/adi/common/ades183x/api/adi_ades183x_afe.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_adi_ades183x_afe"
+        ],
+        "sources": [
+            "src/app/driver/afe/adi/common/ades183x/api/adi_ades183x_afe.c",
+            "tests/unit/app/driver/afe/adi/common/ades183x/api/test_adi_ades183x_afe.c",
+            "build/unit_test/test/runners/test_adi_ades183x_afe_runner.c"
+        ]
+    },
+    "src/app/driver/afe/adi/common/ades183x/api/adi_ades183x_afe_dma.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_adi_ades183x_afe_dma"
+        ],
+        "sources": [
+            "src/app/driver/afe/adi/common/ades183x/api/adi_ades183x_afe_dma.c",
+            "tests/unit/app/driver/afe/adi/common/ades183x/api/test_adi_ades183x_afe_dma.c",
+            "build/unit_test/test/runners/test_adi_ades183x_afe_dma_runner.c"
+        ]
+    },
+    "src/app/driver/afe/adi/common/ades183x/config/adi_ades183x_cfg.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_adi_ades183x_cfg"
+        ],
+        "sources": [
+            "src/app/driver/afe/adi/common/ades183x/config/adi_ades183x_cfg.c",
+            "tests/unit/app/driver/afe/adi/common/ades183x/config/test_adi_ades183x_cfg.c",
+            "build/unit_test/test/runners/test_adi_ades183x_cfg_runner.c"
+        ]
+    },
+    "src/app/driver/afe/adi/common/ades183x/pec/adi_ades183x_pec.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_adi_ades183x_pec"
+        ],
+        "sources": [
+            "src/app/driver/afe/adi/common/ades183x/pec/adi_ades183x_pec.c",
+            "tests/unit/app/driver/afe/adi/common/ades183x/pec/test_adi_ades183x_pec.c",
+            "build/unit_test/test/runners/test_adi_ades183x_pec_runner.c"
+        ]
+    },
+    "src/app/driver/afe/api/afe_plausibility.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_afe_plausibility"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_afe_plausibility/Mocktsi.c",
+            "src/app/driver/afe/api/afe_plausibility.c",
+            "tests/unit/app/driver/afe/api/test_afe_plausibility.c",
+            "build/unit_test/test/runners/test_afe_plausibility_runner.c"
+        ]
+    },
+    "src/app/driver/afe/debug/default/api/debug_default_afe.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_debug_default_afe"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_debug_default_afe/Mockdatabase.c",
+            "build/unit_test/test/mocks/test_debug_default_afe/Mockdebug_default.c",
+            "src/app/driver/afe/debug/default/api/debug_default_afe.c",
+            "tests/unit/app/driver/afe/debug/default/api/test_debug_default_afe.c",
+            "build/unit_test/test/runners/test_debug_default_afe_runner.c"
+        ]
+    },
+    "src/app/driver/afe/debug/default/api/debug_default_afe_dma.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_debug_default_afe_dma"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_debug_default_afe_dma/Mockdebug_default.c",
+            "build/unit_test/test/mocks/test_debug_default_afe_dma/Mockfassert.c",
+            "src/app/driver/afe/debug/default/api/debug_default_afe_dma.c",
+            "tests/unit/app/driver/afe/debug/default/api/test_debug_default_afe_dma.c",
+            "build/unit_test/test/runners/test_debug_default_afe_dma_runner.c"
+        ]
+    },
+    "src/app/driver/afe/debug/default/debug_default.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_debug_default"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_debug_default/Mockdatabase.c",
+            "build/unit_test/test/mocks/test_debug_default/Mockos.c",
+            "src/app/driver/afe/debug/default/debug_default.c",
+            "tests/unit/app/driver/afe/debug/default/test_debug_default.c",
+            "build/unit_test/test/runners/test_debug_default_runner.c"
+        ]
+    },
+    "src/app/driver/afe/ltc/6806/config/ltc_6806_cfg.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_ltc_6806_cfg"
+        ],
+        "sources": [
+            "src/app/driver/afe/ltc/6806/config/ltc_6806_cfg.c",
+            "tests/unit/app/driver/afe/ltc/6806/config/test_ltc_6806_cfg.c",
+            "build/unit_test/test/runners/test_ltc_6806_cfg_runner.c"
+        ]
+    },
+    "src/app/driver/afe/ltc/6806/ltc_6806.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_ltc_6806"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_ltc_6806/Mockafe_plausibility.c",
+            "build/unit_test/test/mocks/test_ltc_6806/Mockdatabase.c",
+            "build/unit_test/test/mocks/test_ltc_6806/Mockdiag.c",
+            "build/unit_test/test/mocks/test_ltc_6806/Mockdma.c",
+            "build/unit_test/test/mocks/test_ltc_6806/Mockfassert.c",
+            "build/unit_test/test/mocks/test_ltc_6806/Mockio.c",
+            "build/unit_test/test/mocks/test_ltc_6806/Mockltc_afe_dma.c",
+            "build/unit_test/test/mocks/test_ltc_6806/Mockltc_pec.c",
+            "build/unit_test/test/mocks/test_ltc_6806/Mockos.c",
+            "build/unit_test/test/mocks/test_ltc_6806/Mockpex.c",
+            "build/unit_test/test/mocks/test_ltc_6806/Mockspi.c",
+            "src/app/driver/afe/ltc/6806/ltc_6806.c",
+            "tests/unit/app/driver/afe/ltc/6806/test_ltc_6806.c",
+            "build/unit_test/test/runners/test_ltc_6806_runner.c"
+        ]
+    },
+    "src/app/driver/afe/ltc/6813-1/config/ltc_6813-1_cfg.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_ltc_6813-1_cfg"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_ltc_6813-1_cfg/Mocktsi.c",
+            "src/app/driver/afe/ltc/6813-1/config/ltc_6813-1_cfg.c",
+            "tests/unit/app/driver/afe/ltc/6813-1/config/test_ltc_6813-1_cfg.c",
+            "build/unit_test/test/runners/test_ltc_6813-1_cfg_runner.c"
+        ]
+    },
+    "src/app/driver/afe/ltc/6813-1/ltc_6813-1.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_ltc_6813-1"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_ltc_6813-1/Mockafe_plausibility.c",
+            "build/unit_test/test/mocks/test_ltc_6813-1/Mockdatabase.c",
+            "build/unit_test/test/mocks/test_ltc_6813-1/Mockdiag.c",
+            "build/unit_test/test/mocks/test_ltc_6813-1/Mockdma.c",
+            "build/unit_test/test/mocks/test_ltc_6813-1/Mockfassert.c",
+            "build/unit_test/test/mocks/test_ltc_6813-1/Mockio.c",
+            "build/unit_test/test/mocks/test_ltc_6813-1/Mockltc_afe_dma.c",
+            "build/unit_test/test/mocks/test_ltc_6813-1/Mockltc_pec.c",
+            "build/unit_test/test/mocks/test_ltc_6813-1/Mockos.c",
+            "build/unit_test/test/mocks/test_ltc_6813-1/Mockpex.c",
+            "build/unit_test/test/mocks/test_ltc_6813-1/Mockspi.c",
+            "build/unit_test/test/mocks/test_ltc_6813-1/Mocktsi.c",
+            "src/app/driver/afe/ltc/6813-1/ltc_6813-1.c",
+            "tests/unit/app/driver/afe/ltc/6813-1/test_ltc_6813-1.c",
+            "build/unit_test/test/runners/test_ltc_6813-1_runner.c"
+        ]
+    },
+    "src/app/driver/afe/ltc/api/ltc_afe.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_ltc_afe"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_ltc_afe/MockHL_sys_dma.c",
+            "build/unit_test/test/mocks/test_ltc_afe/Mockltc.c",
+            "src/app/driver/afe/ltc/api/ltc_afe.c",
+            "tests/unit/app/driver/afe/ltc/api/test_ltc_afe.c",
+            "build/unit_test/test/runners/test_ltc_afe_runner.c"
+        ]
+    },
+    "src/app/driver/afe/ltc/common/ltc_afe_dma.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_ltc_afe_dma"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_ltc_afe_dma/MockHL_sys_dma.c",
+            "build/unit_test/test/mocks/test_ltc_afe_dma/Mockfassert.c",
+            "build/unit_test/test/mocks/test_ltc_afe_dma/Mockio.c",
+            "build/unit_test/test/mocks/test_ltc_afe_dma/Mockltc.c",
+            "build/unit_test/test/mocks/test_ltc_afe_dma/Mockspi.c",
+            "src/app/driver/afe/ltc/common/ltc_afe_dma.c",
+            "tests/unit/app/driver/afe/ltc/common/test_ltc_afe_dma.c",
+            "build/unit_test/test/runners/test_ltc_afe_dma_runner.c"
+        ]
+    },
+    "src/app/driver/afe/ltc/common/ltc_pec.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_ltc_pec"
+        ],
+        "sources": [
+            "src/app/driver/afe/ltc/common/ltc_pec.c",
+            "tests/unit/app/driver/afe/ltc/common/test_ltc_pec.c",
+            "build/unit_test/test/runners/test_ltc_pec_runner.c"
+        ]
+    },
+    "src/app/driver/afe/maxim/api/mxm_afe.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_mxm_afe"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_mxm_afe/MockHL_sys_dma.c",
+            "build/unit_test/test/mocks/test_mxm_afe/Mockmxm_17841b.c",
+            "build/unit_test/test/mocks/test_mxm_afe/Mockmxm_1785x.c",
+            "build/unit_test/test/mocks/test_mxm_afe/Mockmxm_battery_management.c",
+            "build/unit_test/test/mocks/test_mxm_afe/Mockmxm_cfg.c",
+            "build/unit_test/test/mocks/test_mxm_afe/Mockos.c",
+            "src/app/driver/afe/maxim/api/mxm_afe.c",
+            "tests/unit/app/driver/afe/maxim/api/test_mxm_afe.c",
+            "build/unit_test/test/runners/test_mxm_afe_runner.c"
+        ]
+    },
+    "src/app/driver/afe/maxim/common/config/mxm_cfg.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_mxm_cfg"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_mxm_cfg/Mockdiag.c",
+            "build/unit_test/test/mocks/test_mxm_cfg/Mockfassert.c",
+            "build/unit_test/test/mocks/test_mxm_cfg/Mockio.c",
+            "build/unit_test/test/mocks/test_mxm_cfg/Mockspi.c",
+            "build/unit_test/test/mocks/test_mxm_cfg/Mockspi_cfg.c",
+            "src/app/driver/afe/maxim/common/config/mxm_cfg.c",
+            "tests/unit/app/driver/afe/maxim/common/config/test_mxm_cfg.c",
+            "build/unit_test/test/runners/test_mxm_cfg_runner.c"
+        ]
+    },
+    "src/app/driver/afe/maxim/common/mxm_17841b.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_mxm_17841b"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_mxm_17841b/Mockfassert.c",
+            "build/unit_test/test/mocks/test_mxm_17841b/Mockmxm_cfg.c",
+            "build/unit_test/test/mocks/test_mxm_17841b/Mockos.c",
+            "src/app/driver/afe/maxim/common/mxm_17841b.c",
+            "tests/unit/app/driver/afe/maxim/common/test_mxm_17841b.c",
+            "build/unit_test/test/runners/test_mxm_17841b_runner.c"
+        ]
+    },
+    "src/app/driver/afe/maxim/common/mxm_1785x.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_mxm_1785x"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_mxm_1785x/Mockafe_plausibility.c",
+            "build/unit_test/test/mocks/test_mxm_1785x/Mockdatabase.c",
+            "build/unit_test/test/mocks/test_mxm_1785x/Mockdiag.c",
+            "build/unit_test/test/mocks/test_mxm_1785x/Mockfassert.c",
+            "build/unit_test/test/mocks/test_mxm_1785x/Mockmxm_17841b.c",
+            "build/unit_test/test/mocks/test_mxm_1785x/Mockmxm_41b_register_map.c",
+            "build/unit_test/test/mocks/test_mxm_1785x/Mockmxm_battery_management.c",
+            "build/unit_test/test/mocks/test_mxm_1785x/Mockmxm_cfg.c",
+            "build/unit_test/test/mocks/test_mxm_1785x/Mockmxm_crc8.c",
+            "build/unit_test/test/mocks/test_mxm_1785x/Mockmxm_registry.c",
+            "build/unit_test/test/mocks/test_mxm_1785x/Mockos.c",
+            "build/unit_test/test/mocks/test_mxm_1785x/Mocktsi.c",
+            "src/app/driver/afe/maxim/common/mxm_1785x.c",
+            "tests/unit/app/driver/afe/maxim/common/test_mxm_1785x.c",
+            "build/unit_test/test/runners/test_mxm_1785x_runner.c"
+        ]
+    },
+    "src/app/driver/afe/maxim/common/mxm_1785x_tools.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_mxm_1785x_tools"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_mxm_1785x_tools/Mockfassert.c",
+            "build/unit_test/test/mocks/test_mxm_1785x_tools/Mockmxm_cfg.c",
+            "src/app/driver/afe/maxim/common/mxm_1785x_tools.c",
+            "tests/unit/app/driver/afe/maxim/common/test_mxm_1785x_tools.c",
+            "build/unit_test/test/runners/test_mxm_1785x_tools_runner.c"
+        ]
+    },
+    "src/app/driver/afe/maxim/common/mxm_afe_dma.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_mxm_afe_dma"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_mxm_afe_dma/MockHL_sys_dma.c",
+            "build/unit_test/test/mocks/test_mxm_afe_dma/Mockfassert.c",
+            "src/app/driver/afe/maxim/common/mxm_afe_dma.c",
+            "tests/unit/app/driver/afe/maxim/common/test_mxm_afe_dma.c",
+            "build/unit_test/test/runners/test_mxm_afe_dma_runner.c"
+        ]
+    },
+    "src/app/driver/afe/maxim/common/mxm_battery_management.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_mxm_battery_management"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_mxm_battery_management/Mockdiag.c",
+            "build/unit_test/test/mocks/test_mxm_battery_management/Mockfassert.c",
+            "build/unit_test/test/mocks/test_mxm_battery_management/Mockmxm_17841b.c",
+            "build/unit_test/test/mocks/test_mxm_battery_management/Mockmxm_41b_register_map.c",
+            "build/unit_test/test/mocks/test_mxm_battery_management/Mockmxm_cfg.c",
+            "build/unit_test/test/mocks/test_mxm_battery_management/Mockmxm_crc8.c",
+            "build/unit_test/test/mocks/test_mxm_battery_management/Mockos.c",
+            "src/app/driver/afe/maxim/common/mxm_battery_management.c",
+            "tests/unit/app/driver/afe/maxim/common/test_mxm_battery_management.c",
+            "build/unit_test/test/runners/test_mxm_battery_management_runner.c"
+        ]
+    },
+    "src/app/driver/afe/maxim/common/mxm_bitextract.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_mxm_bitextract"
+        ],
+        "sources": [
+            "src/app/driver/afe/maxim/common/mxm_bitextract.c",
+            "tests/unit/app/driver/afe/maxim/common/test_mxm_bitextract.c",
+            "build/unit_test/test/runners/test_mxm_bitextract_runner.c"
+        ]
+    },
+    "src/app/driver/afe/maxim/common/mxm_crc8.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_mxm_crc8"
+        ],
+        "sources": [
+            "src/app/driver/afe/maxim/common/mxm_crc8.c",
+            "tests/unit/app/driver/afe/maxim/common/test_mxm_crc8.c",
+            "build/unit_test/test/runners/test_mxm_crc8_runner.c"
+        ]
+    },
+    "src/app/driver/afe/maxim/common/mxm_registry.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_mxm_registry"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_mxm_registry/Mockfassert.c",
+            "build/unit_test/test/mocks/test_mxm_registry/Mockmxm_1785x.c",
+            "build/unit_test/test/mocks/test_mxm_registry/Mockmxm_basic_defines.c",
+            "src/app/driver/afe/maxim/common/mxm_registry.c",
+            "tests/unit/app/driver/afe/maxim/common/test_mxm_registry.c",
+            "build/unit_test/test/runners/test_mxm_registry_runner.c"
+        ]
+    },
+    "src/app/driver/afe/maxim/max17852/mxm_17852.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_mxm_17852"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_mxm_17852/Mockafe_plausibility.c",
+            "build/unit_test/test/mocks/test_mxm_17852/Mockdatabase.c",
+            "build/unit_test/test/mocks/test_mxm_17852/Mockdiag.c",
+            "build/unit_test/test/mocks/test_mxm_17852/Mockfassert.c",
+            "build/unit_test/test/mocks/test_mxm_17852/Mockmxm_17841b.c",
+            "build/unit_test/test/mocks/test_mxm_17852/Mockmxm_41b_register_map.c",
+            "build/unit_test/test/mocks/test_mxm_17852/Mockmxm_battery_management.c",
+            "build/unit_test/test/mocks/test_mxm_17852/Mockmxm_cfg.c",
+            "build/unit_test/test/mocks/test_mxm_17852/Mockmxm_crc8.c",
+            "build/unit_test/test/mocks/test_mxm_17852/Mockmxm_registry.c",
+            "build/unit_test/test/mocks/test_mxm_17852/Mockos.c",
+            "build/unit_test/test/mocks/test_mxm_17852/Mocktsi.c",
+            "src/app/driver/afe/maxim/max17852/mxm_17852.c",
+            "tests/unit/app/driver/afe/maxim/max17852/test_mxm_17852.c",
+            "build/unit_test/test/runners/test_mxm_17852_runner.c"
+        ]
+    },
+    "src/app/driver/afe/nxp/api/nxp_afe.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_nxp_afe"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_nxp_afe/MockHL_sys_dma.c",
+            "build/unit_test/test/mocks/test_nxp_afe/Mocknxp_afe.c",
+            "src/app/driver/afe/nxp/api/nxp_afe.c",
+            "tests/unit/app/driver/afe/nxp/api/test_nxp_afe.c",
+            "build/unit_test/test/runners/test_nxp_afe_runner.c"
+        ]
+    },
+    "src/app/driver/afe/nxp/mc33775a/api/nxp_mc33775a_afe.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_nxp_mc33775a_afe"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_nxp_mc33775a_afe/Mockafe_dma.c",
+            "build/unit_test/test/mocks/test_nxp_mc33775a_afe/Mockdma.c",
+            "build/unit_test/test/mocks/test_nxp_mc33775a_afe/Mocknxp_mc33775a.c",
+            "build/unit_test/test/mocks/test_nxp_mc33775a_afe/Mockos.c",
+            "build/unit_test/test/mocks/test_nxp_mc33775a_afe/Mockpex.c",
+            "src/app/driver/afe/nxp/mc33775a/api/nxp_mc33775a_afe.c",
+            "tests/unit/app/driver/afe/nxp/mc33775a/api/test_nxp_mc33775a_afe.c",
+            "build/unit_test/test/runners/test_nxp_mc33775a_afe_runner.c"
+        ]
+    },
+    "src/app/driver/afe/nxp/mc33775a/config/nxp_mc33775a_cfg.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_nxp_mc33775a_cfg"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_nxp_mc33775a_cfg/Mocktsi.c",
+            "src/app/driver/afe/nxp/mc33775a/config/nxp_mc33775a_cfg.c",
+            "tests/unit/app/driver/afe/nxp/mc33775a/config/test_nxp_mc33775a_cfg.c",
+            "build/unit_test/test/runners/test_nxp_mc33775a_cfg_runner.c"
+        ]
+    },
+    "src/app/driver/afe/nxp/mc33775a/nxp_afe_dma.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_nxp_afe_dma"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_nxp_afe_dma/Mockdma.c",
+            "build/unit_test/test/mocks/test_nxp_afe_dma/Mockio.c",
+            "build/unit_test/test/mocks/test_nxp_afe_dma/Mockmcu.c",
+            "build/unit_test/test/mocks/test_nxp_afe_dma/Mocknxp_mc33775a-ll.c",
+            "build/unit_test/test/mocks/test_nxp_afe_dma/Mocknxp_mc33775a.c",
+            "build/unit_test/test/mocks/test_nxp_afe_dma/Mockos.c",
+            "build/unit_test/test/mocks/test_nxp_afe_dma/Mockspi.c",
+            "build/unit_test/test/mocks/test_nxp_afe_dma/Mocktask.c",
+            "src/app/driver/afe/nxp/mc33775a/nxp_afe_dma.c",
+            "tests/unit/app/driver/afe/nxp/mc33775a/test_nxp_afe_dma.c",
+            "build/unit_test/test/runners/test_nxp_afe_dma_runner.c"
+        ]
+    },
+    "src/app/driver/afe/nxp/mc33775a/nxp_mc33775a-ll.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_nxp_mc33775a-ll"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_nxp_mc33775a-ll/Mockdma.c",
+            "build/unit_test/test/mocks/test_nxp_mc33775a-ll/Mockio.c",
+            "build/unit_test/test/mocks/test_nxp_mc33775a-ll/Mockmcu.c",
+            "build/unit_test/test/mocks/test_nxp_mc33775a-ll/Mockos.c",
+            "build/unit_test/test/mocks/test_nxp_mc33775a-ll/Mockspi.c",
+            "build/unit_test/test/mocks/test_nxp_mc33775a-ll/Mocktask.c",
+            "src/app/driver/afe/nxp/mc33775a/nxp_mc33775a-ll.c",
+            "tests/unit/app/driver/afe/nxp/mc33775a/test_nxp_mc33775a-ll.c",
+            "build/unit_test/test/runners/test_nxp_mc33775a-ll_runner.c"
+        ]
+    },
+    "src/app/driver/afe/nxp/mc33775a/nxp_mc33775a.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_nxp_mc33775a"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_nxp_mc33775a/MockHL_gio.c",
+            "build/unit_test/test/mocks/test_nxp_mc33775a/MockHL_system.c",
+            "build/unit_test/test/mocks/test_nxp_mc33775a/Mockafe_dma.c",
+            "build/unit_test/test/mocks/test_nxp_mc33775a/Mockdatabase.c",
+            "build/unit_test/test/mocks/test_nxp_mc33775a/Mockdiag.c",
+            "build/unit_test/test/mocks/test_nxp_mc33775a/Mockftask.c",
+            "build/unit_test/test/mocks/test_nxp_mc33775a/Mockio.c",
+            "build/unit_test/test/mocks/test_nxp_mc33775a/Mockmcu.c",
+            "build/unit_test/test/mocks/test_nxp_mc33775a/Mocknxp_mc33775a-ll.c",
+            "build/unit_test/test/mocks/test_nxp_mc33775a/Mocknxp_mc33775a_cfg.c",
+            "build/unit_test/test/mocks/test_nxp_mc33775a/Mockos.c",
+            "build/unit_test/test/mocks/test_nxp_mc33775a/Mockspi.c",
+            "src/app/driver/afe/nxp/mc33775a/nxp_mc33775a.c",
+            "tests/unit/app/driver/afe/nxp/mc33775a/test_nxp_mc33775a.c",
+            "build/unit_test/test/runners/test_nxp_mc33775a_runner.c"
+        ]
+    },
+    "src/app/driver/afe/nxp/mc33775a/vendor/uc_msg_t.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_uc_msg_t"
+        ],
+        "sources": [
+            "src/app/driver/afe/nxp/mc33775a/vendor/uc_msg_t.c",
+            "tests/unit/app/driver/afe/nxp/mc33775a/vendor/test_uc_msg_t.c",
+            "None"
+        ]
+    },
+    "src/app/driver/afe/ti/api/ti_afe.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_ti_afe"
+        ],
+        "sources": [
+            "src/app/driver/afe/ti/api/ti_afe.c",
+            "tests/unit/app/driver/afe/ti/api/test_ti_afe.c",
+            "build/unit_test/test/runners/test_ti_afe_runner.c"
+        ]
+    },
+    "src/app/driver/afe/ti/common/api/ti_bq79xxx_afe_dma.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_ti_bq79xxx_afe_dma"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_ti_bq79xxx_afe_dma/Mockdma.c",
+            "build/unit_test/test/mocks/test_ti_bq79xxx_afe_dma/Mockio.c",
+            "build/unit_test/test/mocks/test_ti_bq79xxx_afe_dma/Mockmcu.c",
+            "build/unit_test/test/mocks/test_ti_bq79xxx_afe_dma/Mockos.c",
+            "build/unit_test/test/mocks/test_ti_bq79xxx_afe_dma/Mockspi.c",
+            "build/unit_test/test/mocks/test_ti_bq79xxx_afe_dma/Mocktask.c",
+            "src/app/driver/afe/ti/common/api/ti_bq79xxx_afe_dma.c",
+            "tests/unit/app/driver/afe/ti/common/api/test_ti_bq79xxx_afe_dma.c",
+            "build/unit_test/test/runners/test_ti_bq79xxx_afe_dma_runner.c"
+        ]
+    },
+    "src/app/driver/afe/ti/dummy/api/ti_dummy_afe.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_ti_dummy_afe"
+        ],
+        "sources": [
+            "src/app/driver/afe/ti/dummy/api/ti_dummy_afe.c",
+            "tests/unit/app/driver/afe/ti/dummy/api/test_ti_dummy_afe.c",
+            "build/unit_test/test/runners/test_ti_dummy_afe_runner.c"
+        ]
+    },
+    "src/app/driver/afe/ti/dummy/ti_dummy.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_ti_dummy"
+        ],
+        "sources": [
+            "src/app/driver/afe/ti/dummy/ti_dummy.c",
+            "tests/unit/app/driver/afe/ti/dummy/test_ti_dummy.c",
+            "build/unit_test/test/runners/test_ti_dummy_runner.c"
+        ]
+    },
+    "src/app/driver/can/can.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_can"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_can/MockHL_can.c",
+            "build/unit_test/test/mocks/test_can/Mockcan_cfg.c",
+            "build/unit_test/test/mocks/test_can/Mockdatabase.c",
+            "build/unit_test/test/mocks/test_can/Mockdiag.c",
+            "build/unit_test/test/mocks/test_can/Mockfoxmath.c",
+            "build/unit_test/test/mocks/test_can/Mockftask.c",
+            "build/unit_test/test/mocks/test_can/Mockimd.c",
+            "build/unit_test/test/mocks/test_can/Mockio.c",
+            "build/unit_test/test/mocks/test_can/Mockmcu.c",
+            "build/unit_test/test/mocks/test_can/Mockos.c",
+            "build/unit_test/test/mocks/test_can/Mockpex.c",
+            "build/unit_test/test/mocks/test_can/Mockqueue.c",
+            "build/unit_test/test/mocks/test_can/Mocktest_can_mpu_prototype_queue_create_stub.c",
+            "src/app/driver/can/can.c",
+            "tests/unit/app/driver/can/test_can.c",
+            "build/unit_test/test/runners/test_can_runner.c"
+        ]
+    },
+    "src/app/driver/can/cbs/can_helper.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_can_helper"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_can_helper/Mockcan.c",
+            "build/unit_test/test/mocks/test_can_helper/Mockdatabase.c",
+            "build/unit_test/test/mocks/test_can_helper/Mockdiag.c",
+            "build/unit_test/test/mocks/test_can_helper/Mockfoxmath.c",
+            "build/unit_test/test/mocks/test_can_helper/Mockimd.c",
+            "build/unit_test/test/mocks/test_can_helper/Mockos.c",
+            "src/app/driver/can/cbs/can_helper.c",
+            "tests/unit/app/driver/can/cbs/test_can_helper.c",
+            "build/unit_test/test/runners/test_can_helper_runner.c"
+        ]
+    },
+    "src/app/driver/can/cbs/rx/can_cbs_rx_aerosol-sensor.c": {
+        "include": [
+            "build/unit_test/include",
+            "build_unit_test/test/mocks/test_can_cbs_rx_aerosol-sensor"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_can_cbs_rx_aerosol-sensor/Mockcan.c",
+            "build/unit_test/test/mocks/test_can_cbs_rx_aerosol-sensor/Mockdatabase.c",
+            "build/unit_test/test/mocks/test_can_cbs_rx_aerosol-sensor/Mockdiag.c",
+            "build/unit_test/test/mocks/test_can_cbs_rx_aerosol-sensor/Mockfoxmath.c",
+            "build/unit_test/test/mocks/test_can_cbs_rx_aerosol-sensor/Mockimd.c",
+            "build/unit_test/test/mocks/test_can_cbs_rx_aerosol-sensor/Mockos.c",
+            "src/app/driver/can/cbs/rx/can_cbs_rx_aerosol-sensor.c",
+            "test/unit/app/driver/can/cbs/rx/test_can_cbs_rx_aerosol-sensor.c",
+            "build_unit_test/test/runners/test_can_cbs_rx_aerosol-sensor_runner.c"
+        ]
+    },
+    "src/app/driver/can/cbs/rx/can_cbs_rx_bms-state-request.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_can_cbs_rx_bms-state-request"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_can_cbs_rx_bms-state-request/Mockbal.c",
+            "build/unit_test/test/mocks/test_can_cbs_rx_bms-state-request/Mockbal_cfg.c",
+            "build/unit_test/test/mocks/test_can_cbs_rx_bms-state-request/Mockbms_cfg.c",
+            "build/unit_test/test/mocks/test_can_cbs_rx_bms-state-request/Mockcan.c",
+            "build/unit_test/test/mocks/test_can_cbs_rx_bms-state-request/Mockdatabase.c",
+            "build/unit_test/test/mocks/test_can_cbs_rx_bms-state-request/Mockdiag.c",
+            "build/unit_test/test/mocks/test_can_cbs_rx_bms-state-request/Mockfoxmath.c",
+            "build/unit_test/test/mocks/test_can_cbs_rx_bms-state-request/Mockimd.c",
+            "build/unit_test/test/mocks/test_can_cbs_rx_bms-state-request/Mockos.c",
+            "build/unit_test/test/mocks/test_can_cbs_rx_bms-state-request/Mocksys_mon.c",
+            "src/app/driver/can/cbs/rx/can_cbs_rx_bms-state-request.c",
+            "tests/unit/app/driver/can/cbs/rx/test_can_cbs_rx_bms-state-request.c",
+            "build/unit_test/test/runners/test_can_cbs_rx_bms-state-request_runner.c"
+        ]
+    },
+    "src/app/driver/can/cbs/rx/can_cbs_rx_current-sensor.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_can_cbs_rx_current-sensor"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_can_cbs_rx_current-sensor/Mockcan.c",
+            "build/unit_test/test/mocks/test_can_cbs_rx_current-sensor/Mockdatabase.c",
+            "build/unit_test/test/mocks/test_can_cbs_rx_current-sensor/Mockdiag.c",
+            "build/unit_test/test/mocks/test_can_cbs_rx_current-sensor/Mockfoxmath.c",
+            "build/unit_test/test/mocks/test_can_cbs_rx_current-sensor/Mockimd.c",
+            "build/unit_test/test/mocks/test_can_cbs_rx_current-sensor/Mockos.c",
+            "src/app/driver/can/cbs/rx/can_cbs_rx_current-sensor.c",
+            "tests/unit/app/driver/can/cbs/rx/test_can_cbs_rx_current-sensor.c",
+            "build/unit_test/test/runners/test_can_cbs_rx_current-sensor_runner.c"
+        ]
+    },
+    "src/app/driver/can/cbs/rx/can_cbs_rx_debug.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_can_cbs_rx_debug"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_can_cbs_rx_debug/Mockcan.c",
+            "build/unit_test/test/mocks/test_can_cbs_rx_debug/Mockcan_cbs_tx_debug-response.c",
+            "build/unit_test/test/mocks/test_can_cbs_rx_debug/Mockcan_cbs_tx_unsupported-message.c",
+            "build/unit_test/test/mocks/test_can_cbs_rx_debug/Mockdatabase.c",
+            "build/unit_test/test/mocks/test_can_cbs_rx_debug/Mockdiag.c",
+            "build/unit_test/test/mocks/test_can_cbs_rx_debug/Mockfoxmath.c",
+            "build/unit_test/test/mocks/test_can_cbs_rx_debug/Mockfram.c",
+            "build/unit_test/test/mocks/test_can_cbs_rx_debug/Mockimd.c",
+            "build/unit_test/test/mocks/test_can_cbs_rx_debug/Mockos.c",
+            "build/unit_test/test/mocks/test_can_cbs_rx_debug/Mockreset.c",
+            "src/app/driver/can/cbs/rx/can_cbs_rx_debug.c",
+            "tests/unit/app/driver/can/cbs/rx/test_can_cbs_rx_debug.c",
+            "build/unit_test/test/runners/test_can_cbs_rx_debug_runner.c"
+        ]
+    },
+    "src/app/driver/can/cbs/rx/can_cbs_rx_imd-info.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_can_cbs_rx_imd-info"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_can_cbs_rx_imd-info/Mockcan.c",
+            "build/unit_test/test/mocks/test_can_cbs_rx_imd-info/Mockdatabase.c",
+            "build/unit_test/test/mocks/test_can_cbs_rx_imd-info/Mockdiag.c",
+            "build/unit_test/test/mocks/test_can_cbs_rx_imd-info/Mockfoxmath.c",
+            "build/unit_test/test/mocks/test_can_cbs_rx_imd-info/Mockimd.c",
+            "build/unit_test/test/mocks/test_can_cbs_rx_imd-info/Mockos.c",
+            "src/app/driver/can/cbs/rx/can_cbs_rx_imd-info.c",
+            "tests/unit/app/driver/can/cbs/rx/test_can_cbs_rx_imd-info.c",
+            "build/unit_test/test/runners/test_can_cbs_rx_imd-info_runner.c"
+        ]
+    },
+    "src/app/driver/can/cbs/rx/can_cbs_rx_imd-response.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_can_cbs_rx_imd-response"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_can_cbs_rx_imd-response/Mockcan.c",
+            "build/unit_test/test/mocks/test_can_cbs_rx_imd-response/Mockdatabase.c",
+            "build/unit_test/test/mocks/test_can_cbs_rx_imd-response/Mockdiag.c",
+            "build/unit_test/test/mocks/test_can_cbs_rx_imd-response/Mockfoxmath.c",
+            "build/unit_test/test/mocks/test_can_cbs_rx_imd-response/Mockimd.c",
+            "build/unit_test/test/mocks/test_can_cbs_rx_imd-response/Mockos.c",
+            "src/app/driver/can/cbs/tx/can_cbs_rx_imd-response.c",
+            "tests/unit/app/driver/can/cbs/rx/test_can_cbs_rx_imd-response.c",
+            "build/unit_test/test/runners/test_can_cbs_rx_imd-response_runner.c"
+        ]
+    },
+    "src/app/driver/can/cbs/tx/can_cbs_tx_bms-state-details.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_can_cbs_tx_bms_state"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_can_cbs_tx_bms-state-details/Mockbms.c",
+            "build/unit_test/test/mocks/test_can_cbs_tx_bms-state-details/Mockcan.c",
+            "build/unit_test/test/mocks/test_can_cbs_tx_bms-state-details/Mockdatabase.c",
+            "build/unit_test/test/mocks/test_can_cbs_tx_bms-state-details/Mockdiag.c",
+            "build/unit_test/test/mocks/test_can_cbs_tx_bms-state-details/Mockfoxmath.c",
+            "build/unit_test/test/mocks/test_can_cbs_tx_bms-state-details/Mockimd.c",
+            "build/unit_test/test/mocks/test_can_cbs_tx_bms-state-details/Mockos.c",
+            "build/unit_test/test/mocks/test_can_cbs_tx_bms-state-details/Mocksys_mon.c",
+            "src/app/driver/can/cbs/tx/can_cbs_tx_bms-state-details.c",
+            "tests/unit/app/driver/can/cbs/tx/test_can_cbs_tx_bms-state-details.c",
+            "build/unit_test/test/runners/test_can_cbs_tx_bms-state-details_runner.c"
+        ]
+    },
+    "src/app/driver/can/cbs/tx/can_cbs_tx_bms-state.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_can_cbs_tx_bms_state"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_can_cbs_tx_bms-state/Mockbms.c",
+            "build/unit_test/test/mocks/test_can_cbs_tx_bms-state/Mockcan.c",
+            "build/unit_test/test/mocks/test_can_cbs_tx_bms-state/Mockdatabase.c",
+            "build/unit_test/test/mocks/test_can_cbs_tx_bms-state/Mockdiag.c",
+            "build/unit_test/test/mocks/test_can_cbs_tx_bms-state/Mockfoxmath.c",
+            "build/unit_test/test/mocks/test_can_cbs_tx_bms-state/Mockimd.c",
+            "build/unit_test/test/mocks/test_can_cbs_tx_bms-state/Mockos.c",
+            "build/unit_test/test/mocks/test_can_cbs_tx_bms-state/Mocksys_mon.c",
+            "src/app/driver/can/cbs/tx/can_cbs_tx_bms-state.c",
+            "tests/unit/app/driver/can/cbs/tx/test_can_cbs_tx_bms-state.c",
+            "build/unit_test/test/runners/test_can_cbs_tx_bms-state_runner.c"
+        ]
+    },
+    "src/app/driver/can/cbs/tx/can_cbs_tx_cell-temperatures.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_can_cbs_tx_cell-temperatures"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_can_cbs_tx_cell-temperatures/Mockcan.c",
+            "build/unit_test/test/mocks/test_can_cbs_tx_cell-temperatures/Mockdatabase.c",
+            "build/unit_test/test/mocks/test_can_cbs_tx_cell-temperatures/Mockdiag.c",
+            "build/unit_test/test/mocks/test_can_cbs_tx_cell-temperatures/Mockfoxmath.c",
+            "build/unit_test/test/mocks/test_can_cbs_tx_cell-temperatures/Mockimd.c",
+            "build/unit_test/test/mocks/test_can_cbs_tx_cell-temperatures/Mockos.c",
+            "src/app/driver/can/cbs/tx/can_cbs_tx_cell-temperatures.c",
+            "tests/unit/app/driver/can/cbs/tx/test_can_cbs_tx_cell-temperatures.c",
+            "build/unit_test/test/runners/test_can_cbs_tx_cell-temperatures_runner.c"
+        ]
+    },
+    "src/app/driver/can/cbs/tx/can_cbs_tx_cell-voltages.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_can_cbs_tx_cell-voltages"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_can_cbs_tx_cell-voltages/Mockcan.c",
+            "build/unit_test/test/mocks/test_can_cbs_tx_cell-voltages/Mockdatabase.c",
+            "build/unit_test/test/mocks/test_can_cbs_tx_cell-voltages/Mockdiag.c",
+            "build/unit_test/test/mocks/test_can_cbs_tx_cell-voltages/Mockfoxmath.c",
+            "build/unit_test/test/mocks/test_can_cbs_tx_cell-voltages/Mockimd.c",
+            "build/unit_test/test/mocks/test_can_cbs_tx_cell-voltages/Mockos.c",
+            "src/app/driver/can/cbs/tx/can_cbs_tx_cell-voltages.c",
+            "tests/unit/app/driver/can/cbs/tx/test_can_cbs_tx_cell-voltages.c",
+            "build/unit_test/test/runners/test_can_cbs_tx_cell-voltages_runner.c"
+        ]
+    },
+    "src/app/driver/can/cbs/tx/can_cbs_tx_crash-dump.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_can_cbs_tx_crash-dump"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_can_cbs_tx_crash-dump/Mockcan.c",
+            "src/app/driver/can/cbs/tx/can_cbs_tx_crash-dump.c",
+            "tests/unit/app/driver/can/cbs/tx/test_can_cbs_tx_crash-dump.c",
+            "build/unit_test/test/runners/test_can_cbs_tx_crash-dump_runner.c"
+        ]
+    },
+    "src/app/driver/can/cbs/tx/can_cbs_tx_debug-response.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_can_cbs_tx_debug-response"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_can_cbs_tx_debug-response/Mockcan.c",
+            "build/unit_test/test/mocks/test_can_cbs_tx_debug-response/Mockfoxmath.c",
+            "build/unit_test/test/mocks/test_can_cbs_tx_debug-response/Mockrtc.c",
+            "src/app/driver/can/cbs/tx/can_cbs_tx_debug-response.c",
+            "tests/unit/app/driver/can/cbs/tx/test_can_cbs_tx_debug-response.c",
+            "build/unit_test/test/runners/test_can_cbs_tx_debug-response_runner.c"
+        ]
+    },
+    "src/app/driver/can/cbs/tx/can_cbs_tx_debug-unsupported-multiplexer-values.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_can_cbs_tx_debug-unsupported-multiplexer-values"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_can_cbs_tx_debug-unsupported-multiplexer-values/Mockcan.c",
+            "build/unit_test/test/mocks/test_can_cbs_tx_debug-unsupported-multiplexer-values/Mockcan_helper.c",
+            "build/unit_test/test/mocks/test_can_cbs_tx_debug-unsupported-multiplexer-values/Mockdatabase.c",
+            "build/unit_test/test/mocks/test_can_cbs_tx_debug-unsupported-multiplexer-values/Mockdiag.c",
+            "build/unit_test/test/mocks/test_can_cbs_tx_debug-unsupported-multiplexer-values/Mockfoxmath.c",
+            "build/unit_test/test/mocks/test_can_cbs_tx_debug-unsupported-multiplexer-values/Mockimd.c",
+            "build/unit_test/test/mocks/test_can_cbs_tx_debug-unsupported-multiplexer-values/Mockos.c",
+            "src/app/driver/can/cbs/tx/can_cbs_tx_debug-unsupported-multiplexer-values.c",
+            "tests/unit/app/driver/can/cbs/tx/test_can_cbs_tx_debug-unsupported-multiplexer-values.c",
+            "build/unit_test/test/runners/test_can_cbs_tx_debug-unsupported-multiplexer-values_runner.c"
+        ]
+    },
+    "src/app/driver/can/cbs/tx/can_cbs_tx_imd-request.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_can_cbs_tx_imd-request"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_can_cbs_tx_imd-request/Mockcan.c",
+            "build/unit_test/test/mocks/test_can_cbs_tx_imd-request/Mockdatabase.c",
+            "build/unit_test/test/mocks/test_can_cbs_tx_imd-request/Mockdiag.c",
+            "build/unit_test/test/mocks/test_can_cbs_tx_imd-request/Mockfoxmath.c",
+            "build/unit_test/test/mocks/test_can_cbs_tx_imd-request/Mockimd.c",
+            "build/unit_test/test/mocks/test_can_cbs_tx_imd-request/Mockos.c",
+            "src/app/driver/can/cbs/tx/can_cbs_tx_imd-request.c",
+            "tests/unit/app/driver/can/cbs/rx/test_can_cbs_tx_imd-request.c",
+            "build/unit_test/test/runners/test_can_cbs_tx_imd-request_runner.c"
+        ]
+    },
+    "src/app/driver/can/cbs/tx/can_cbs_tx_pack-limits.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_can_cbs_tx_pack-limits"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_can_cbs_tx_pack-limits/Mockcan.c",
+            "build/unit_test/test/mocks/test_can_cbs_tx_pack-limits/Mockdatabase.c",
+            "build/unit_test/test/mocks/test_can_cbs_tx_pack-limits/Mockdiag.c",
+            "build/unit_test/test/mocks/test_can_cbs_tx_pack-limits/Mockfoxmath.c",
+            "build/unit_test/test/mocks/test_can_cbs_tx_pack-limits/Mockimd.c",
+            "build/unit_test/test/mocks/test_can_cbs_tx_pack-limits/Mockos.c",
+            "src/app/driver/can/cbs/tx/can_cbs_tx_pack-limits.c",
+            "tests/unit/app/driver/can/cbs/tx/test_can_cbs_tx_pack-limits.c",
+            "build/unit_test/test/runners/test_can_cbs_tx_pack-limits_runner.c"
+        ]
+    },
+    "src/app/driver/can/cbs/tx/can_cbs_tx_pack-minimum-maximum-values.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_can_cbs_tx_pack-minimum-maximum-values"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_can_cbs_tx_pack-minimum-maximum-values/Mockbms.c",
+            "build/unit_test/test/mocks/test_can_cbs_tx_pack-minimum-maximum-values/Mockcan.c",
+            "build/unit_test/test/mocks/test_can_cbs_tx_pack-minimum-maximum-values/Mockdatabase.c",
+            "build/unit_test/test/mocks/test_can_cbs_tx_pack-minimum-maximum-values/Mockdiag.c",
+            "build/unit_test/test/mocks/test_can_cbs_tx_pack-minimum-maximum-values/Mockfoxmath.c",
+            "build/unit_test/test/mocks/test_can_cbs_tx_pack-minimum-maximum-values/Mockimd.c",
+            "build/unit_test/test/mocks/test_can_cbs_tx_pack-minimum-maximum-values/Mockos.c",
+            "src/app/driver/can/cbs/tx/can_cbs_tx_pack-minimum-maximum-values.c",
+            "tests/unit/app/driver/can/cbs/tx/test_can_cbs_tx_pack-minimum-maximum-values.c",
+            "build/unit_test/test/runners/test_can_cbs_tx_pack-minimum-maximum-values_runner.c"
+        ]
+    },
+    "src/app/driver/can/cbs/tx/can_cbs_tx_pack-state-estimation.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_can_cbs_tx_pack-state-estimation"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_can_cbs_tx_pack-state-estimation/Mockbms.c",
+            "build/unit_test/test/mocks/test_can_cbs_tx_pack-state-estimation/Mockcan.c",
+            "build/unit_test/test/mocks/test_can_cbs_tx_pack-state-estimation/Mockdatabase.c",
+            "build/unit_test/test/mocks/test_can_cbs_tx_pack-state-estimation/Mockdiag.c",
+            "build/unit_test/test/mocks/test_can_cbs_tx_pack-state-estimation/Mockfoxmath.c",
+            "build/unit_test/test/mocks/test_can_cbs_tx_pack-state-estimation/Mockimd.c",
+            "build/unit_test/test/mocks/test_can_cbs_tx_pack-state-estimation/Mockos.c",
+            "src/app/driver/can/cbs/tx/can_cbs_tx_pack-state-estimation.c",
+            "tests/unit/app/driver/can/cbs/tx/test_can_cbs_tx_pack-state-estimation.c",
+            "build/unit_test/test/runners/test_can_cbs_tx_pack-state-estimation_runner.c"
+        ]
+    },
+    "src/app/driver/can/cbs/tx/can_cbs_tx_pack-values-p0.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_can_cbs_tx_pack-values-p0"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_can_cbs_tx_pack-values-p0/Mockcan.c",
+            "build/unit_test/test/mocks/test_can_cbs_tx_pack-values-p0/Mockdatabase.c",
+            "build/unit_test/test/mocks/test_can_cbs_tx_pack-values-p0/Mockdiag.c",
+            "build/unit_test/test/mocks/test_can_cbs_tx_pack-values-p0/Mockfoxmath.c",
+            "build/unit_test/test/mocks/test_can_cbs_tx_pack-values-p0/Mockimd.c",
+            "build/unit_test/test/mocks/test_can_cbs_tx_pack-values-p0/Mockos.c",
+            "src/app/driver/can/cbs/tx/can_cbs_tx_pack-values-p0.c",
+            "tests/unit/app/driver/can/cbs/tx/test_can_cbs_tx_pack-values-p0.c",
+            "build/unit_test/test/runners/test_can_cbs_tx_pack-values-p0_runner.c"
+        ]
+    },
+    "src/app/driver/can/cbs/tx/can_cbs_tx_pack-values-p1.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_can_cbs_tx_pack-values"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_can_cbs_tx_pack-values/Mockcan.c",
+            "build/unit_test/test/mocks/test_can_cbs_tx_pack-values/Mockdatabase.c",
+            "build/unit_test/test/mocks/test_can_cbs_tx_pack-values/Mockdiag.c",
+            "build/unit_test/test/mocks/test_can_cbs_tx_pack-values/Mockfoxmath.c",
+            "build/unit_test/test/mocks/test_can_cbs_tx_pack-values/Mockimd.c",
+            "build/unit_test/test/mocks/test_can_cbs_tx_pack-values/Mockos.c",
+            "src/app/driver/can/cbs/tx/can_cbs_tx_pack-values-p1.c",
+            "tests/unit/app/driver/can/cbs/tx/test_can_cbs_tx_pack-values.c",
+            "build/unit_test/test/runners/test_can_cbs_tx_pack-values_runner.c"
+        ]
+    },
+    "src/app/driver/can/cbs/tx/can_cbs_tx_string-minimum-maximum-values.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_can_cbs_tx_string-minimum-maximum-values"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_can_cbs_tx_string-minimum-maximum-values/Mockbms.c",
+            "build/unit_test/test/mocks/test_can_cbs_tx_string-minimum-maximum-values/Mockcan.c",
+            "build/unit_test/test/mocks/test_can_cbs_tx_string-minimum-maximum-values/Mockdatabase.c",
+            "build/unit_test/test/mocks/test_can_cbs_tx_string-minimum-maximum-values/Mockdiag.c",
+            "build/unit_test/test/mocks/test_can_cbs_tx_string-minimum-maximum-values/Mockfoxmath.c",
+            "build/unit_test/test/mocks/test_can_cbs_tx_string-minimum-maximum-values/Mockimd.c",
+            "build/unit_test/test/mocks/test_can_cbs_tx_string-minimum-maximum-values/Mockos.c",
+            "src/app/driver/can/cbs/tx/can_cbs_tx_string-minimum-maximum-values.c",
+            "tests/unit/app/driver/can/cbs/tx/test_can_cbs_tx_string-minimum-maximum-values.c",
+            "build/unit_test/test/runners/test_can_cbs_tx_string-minimum-maximum-values_runner.c"
+        ]
+    },
+    "src/app/driver/can/cbs/tx/can_cbs_tx_string-state-estimation.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_can_cbs_tx_string-state-estimation"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_can_cbs_tx_string-state-estimation/Mockbms.c",
+            "build/unit_test/test/mocks/test_can_cbs_tx_string-state-estimation/Mockcan.c",
+            "build/unit_test/test/mocks/test_can_cbs_tx_string-state-estimation/Mockdatabase.c",
+            "build/unit_test/test/mocks/test_can_cbs_tx_string-state-estimation/Mockdiag.c",
+            "build/unit_test/test/mocks/test_can_cbs_tx_string-state-estimation/Mockfoxmath.c",
+            "build/unit_test/test/mocks/test_can_cbs_tx_string-state-estimation/Mockimd.c",
+            "build/unit_test/test/mocks/test_can_cbs_tx_string-state-estimation/Mockos.c",
+            "src/app/driver/can/cbs/tx/can_cbs_tx_string-state-estimation.c",
+            "tests/unit/app/driver/can/cbs/tx/test_can_cbs_tx_string-state-estimation.c",
+            "build/unit_test/test/runners/test_can_cbs_tx_string-state-estimation_runner.c"
+        ]
+    },
+    "src/app/driver/can/cbs/tx/can_cbs_tx_string-state.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_can_cbs_tx_string-state"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_can_cbs_tx_string-state/Mockcan.c",
+            "build/unit_test/test/mocks/test_can_cbs_tx_string-state/Mockdatabase.c",
+            "build/unit_test/test/mocks/test_can_cbs_tx_string-state/Mockdiag.c",
+            "build/unit_test/test/mocks/test_can_cbs_tx_string-state/Mockfoxmath.c",
+            "build/unit_test/test/mocks/test_can_cbs_tx_string-state/Mockimd.c",
+            "build/unit_test/test/mocks/test_can_cbs_tx_string-state/Mockos.c",
+            "src/app/driver/can/cbs/tx/can_cbs_tx_string-state.c",
+            "tests/unit/app/driver/can/cbs/tx/test_can_cbs_tx_string-state.c",
+            "build/unit_test/test/runners/test_can_cbs_tx_string-state_runner.c"
+        ]
+    },
+    "src/app/driver/can/cbs/tx/can_cbs_tx_string-values-p0.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_can_cbs_tx_string-values-p0"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_can_cbs_tx_string-values-p0/Mockcan.c",
+            "build/unit_test/test/mocks/test_can_cbs_tx_string-values-p0/Mockdatabase.c",
+            "build/unit_test/test/mocks/test_can_cbs_tx_string-values-p0/Mockdiag.c",
+            "build/unit_test/test/mocks/test_can_cbs_tx_string-values-p0/Mockfoxmath.c",
+            "build/unit_test/test/mocks/test_can_cbs_tx_string-values-p0/Mockimd.c",
+            "build/unit_test/test/mocks/test_can_cbs_tx_string-values-p0/Mockos.c",
+            "src/app/driver/can/cbs/tx/can_cbs_tx_string-values-p0.c",
+            "tests/unit/app/driver/can/cbs/tx/test_can_cbs_tx_string-values-p0.c",
+            "build/unit_test/test/runners/test_can_cbs_tx_string-values-p0_runner.c"
+        ]
+    },
+    "src/app/driver/can/cbs/tx/can_cbs_tx_string-values-p1.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_can_cbs_tx_string-values"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_can_cbs_tx_string-values/Mockcan.c",
+            "build/unit_test/test/mocks/test_can_cbs_tx_string-values/Mockdatabase.c",
+            "build/unit_test/test/mocks/test_can_cbs_tx_string-values/Mockdiag.c",
+            "build/unit_test/test/mocks/test_can_cbs_tx_string-values/Mockfoxmath.c",
+            "build/unit_test/test/mocks/test_can_cbs_tx_string-values/Mockimd.c",
+            "build/unit_test/test/mocks/test_can_cbs_tx_string-values/Mockos.c",
+            "src/app/driver/can/cbs/tx/can_cbs_tx_string-values-p1.c",
+            "tests/unit/app/driver/can/cbs/tx/test_can_cbs_tx_string-values.c",
+            "build/unit_test/test/runners/test_can_cbs_tx_string-values_runner.c"
+        ]
+    },
+    "src/app/driver/checksum/checksum.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_checksum"
+        ],
+        "sources": [
+            "src/app/driver/checksum/checksum.c",
+            "tests/unit/app/driver/checksum/test_checksum.c",
+            "build/unit_test/test/runners/test_checksum_runner.c"
+        ]
+    },
+    "src/app/driver/config/can_cfg.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_can_cfg"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_can_cfg/Mockcan.c",
+            "build/unit_test/test/mocks/test_can_cfg/Mockdatabase.c",
+            "build/unit_test/test/mocks/test_can_cfg/Mockdiag.c",
+            "build/unit_test/test/mocks/test_can_cfg/Mockfoxmath.c",
+            "build/unit_test/test/mocks/test_can_cfg/Mockftask.c",
+            "build/unit_test/test/mocks/test_can_cfg/Mockimd.c",
+            "build/unit_test/test/mocks/test_can_cfg/Mockmpu_prototypes.c",
+            "build/unit_test/test/mocks/test_can_cfg/Mockos.c",
+            "src/app/driver/config/can_cfg.c",
+            "tests/unit/app/driver/config/test_can_cfg.c",
+            "build/unit_test/test/runners/test_can_cfg_runner.c"
+        ]
+    },
+    "src/app/driver/config/can_cfg_rx.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_can_cfg_rx"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_can_cfg_rx/Mockcan.c",
+            "build/unit_test/test/mocks/test_can_cfg_rx/Mockcan_cbs_rx.c",
+            "build/unit_test/test/mocks/test_can_cfg_rx/Mockdatabase.c",
+            "build/unit_test/test/mocks/test_can_cfg_rx/Mockdiag.c",
+            "build/unit_test/test/mocks/test_can_cfg_rx/Mockfoxmath.c",
+            "build/unit_test/test/mocks/test_can_cfg_rx/Mockftask.c",
+            "build/unit_test/test/mocks/test_can_cfg_rx/Mockimd.c",
+            "build/unit_test/test/mocks/test_can_cfg_rx/Mockmpu_prototypes.c",
+            "build/unit_test/test/mocks/test_can_cfg_rx/Mockos.c",
+            "src/app/driver/config/can_cfg_rx.c",
+            "tests/unit/app/driver/config/test_can_cfg_rx.c",
+            "build/unit_test/test/runners/test_can_cfg_rx_runner.c"
+        ]
+    },
+    "src/app/driver/config/can_cfg_tx.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_can_cfg_tx"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_can_cfg_tx/Mockcan.c",
+            "build/unit_test/test/mocks/test_can_cfg_tx/Mockcan_cbs_tx.c",
+            "build/unit_test/test/mocks/test_can_cfg_tx/Mockdatabase.c",
+            "build/unit_test/test/mocks/test_can_cfg_tx/Mockdiag.c",
+            "build/unit_test/test/mocks/test_can_cfg_tx/Mockfoxmath.c",
+            "build/unit_test/test/mocks/test_can_cfg_tx/Mockftask.c",
+            "build/unit_test/test/mocks/test_can_cfg_tx/Mockimd.c",
+            "build/unit_test/test/mocks/test_can_cfg_tx/Mockmpu_prototypes.c",
+            "build/unit_test/test/mocks/test_can_cfg_tx/Mockos.c",
+            "src/app/driver/config/can_cfg_tx.c",
+            "tests/unit/app/driver/config/test_can_cfg_tx.c",
+            "build/unit_test/test/runners/test_can_cfg_tx_runner.c"
+        ]
+    },
+    "src/app/driver/config/contactor_cfg.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_contactor_cfg"
+        ],
+        "sources": [
+            "src/app/driver/config/contactor_cfg.c",
+            "tests/unit/app/driver/config/test_contactor_cfg.c",
+            "build/unit_test/test/runners/test_contactor_cfg_runner.c"
+        ]
+    },
+    "src/app/driver/config/dma_cfg.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_dma_cfg"
+        ],
+        "sources": [
+            "src/app/driver/config/dma_cfg.c",
+            "tests/unit/app/driver/config/test_dma_cfg.c",
+            "build/unit_test/test/runners/test_dma_cfg_runner.c"
+        ]
+    },
+    "src/app/driver/config/fram_cfg.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_fram_cfg"
+        ],
+        "sources": [
+            "src/app/driver/config/fram_cfg.c",
+            "tests/unit/app/driver/config/test_fram_cfg.c",
+            "build/unit_test/test/runners/test_fram_cfg_runner.c"
+        ]
+    },
+    "src/app/driver/config/pex_cfg.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_pex_cfg"
+        ],
+        "sources": [
+            "src/app/driver/config/pex_cfg.c",
+            "tests/unit/app/driver/config/test_pex_cfg.c",
+            "build/unit_test/test/runners/test_pex_cfg_runner.c"
+        ]
+    },
+    "src/app/driver/config/spi_cfg.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_spi_cfg"
+        ],
+        "sources": [
+            "src/app/driver/config/spi_cfg.c",
+            "tests/unit/app/driver/config/test_spi_cfg.c",
+            "build/unit_test/test/runners/test_spi_cfg_runner.c"
+        ]
+    },
+    "src/app/driver/config/sps_cfg.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_sps_cfg"
+        ],
+        "sources": [
+            "src/app/driver/config/sps_cfg.c",
+            "tests/unit/app/driver/config/test_sps_cfg.c",
+            "build/unit_test/test/runners/test_sps_cfg_runner.c"
+        ]
+    },
+    "src/app/driver/contactor/contactor.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_contactor"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_contactor/Mockcontactor_cfg.c",
+            "build/unit_test/test/mocks/test_contactor/Mockdiag.c",
+            "build/unit_test/test/mocks/test_contactor/Mockfassert.c",
+            "build/unit_test/test/mocks/test_contactor/Mockio.c",
+            "build/unit_test/test/mocks/test_contactor/Mockmcu.c",
+            "build/unit_test/test/mocks/test_contactor/Mocksps.c",
+            "build/unit_test/test/mocks/test_contactor/Mocksps_cfg.c",
+            "src/app/driver/contactor/contactor.c",
+            "tests/unit/app/driver/contactor/test_contactor.c",
+            "build/unit_test/test/runners/test_contactor_runner.c"
+        ]
+    },
+    "src/app/driver/crc/crc.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_crc",
+            "src/app/driver/crc",
+            "src/app/application/config",
+            "src/app/driver/mcu",
+            "src/app/engine/config",
+            "src/app/engine/database",
+            "src/app/main/include",
+            "src/app/main/include/config",
+            "src/app/task/os",
+            "src/os/freertos/include",
+            "src/os/freertos/portable/ccs/arm_cortex-r5"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_crc/Mockfassert.c",
+            "src/app/driver/crc/crc.c",
+            "tests/unit/app/driver/crc/test_crc.c",
+            "build/unit_test/test/runners/test_crc_runner.c"
+        ]
+    },
+    "src/app/driver/dma/dma.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_dma"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_dma/MockHL_i2c.c",
+            "build/unit_test/test/mocks/test_dma/MockHL_spi.c",
+            "build/unit_test/test/mocks/test_dma/MockHL_sys_dma.c",
+            "build/unit_test/test/mocks/test_dma/Mockafe_dma.c",
+            "build/unit_test/test/mocks/test_dma/Mocki2c.c",
+            "build/unit_test/test/mocks/test_dma/Mockio.c",
+            "build/unit_test/test/mocks/test_dma/Mockspi.c",
+            "build/unit_test/test/mocks/test_dma/Mocktask.c",
+            "src/app/driver/dma/dma.c",
+            "tests/unit/app/driver/dma/test_dma.c",
+            "build/unit_test/test/runners/test_dma_runner.c"
+        ]
+    },
+    "src/app/driver/foxmath/foxmath.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_foxmath",
+            "src/app/driver/foxmath",
+            "src/app/application/config",
+            "src/app/driver/mcu",
+            "src/app/engine/config",
+            "src/app/engine/database",
+            "src/app/main/include",
+            "src/app/main/include/config",
+            "src/app/task/os",
+            "src/os/freertos/include",
+            "src/os/freertos/portable/ccs/arm_cortex-r5"
+        ],
+        "sources": [
+            "src/app/driver/foxmath/foxmath.c",
+            "tests/unit/app/driver/foxmath/test_foxmath.c",
+            "build/unit_test/test/runners/test_foxmath_runner.c"
+        ]
+    },
+    "src/app/driver/fram/fram.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_fram"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_fram/MockHL_spi.c",
+            "build/unit_test/test/mocks/test_fram/Mockcrc.c",
+            "build/unit_test/test/mocks/test_fram/Mockdiag.c",
+            "build/unit_test/test/mocks/test_fram/Mockio.c",
+            "build/unit_test/test/mocks/test_fram/Mockmcu.c",
+            "build/unit_test/test/mocks/test_fram/Mockspi.c",
+            "src/app/driver/fram/fram.c",
+            "tests/unit/app/driver/fram/test_fram.c",
+            "build/unit_test/test/runners/test_fram_runner.c"
+        ]
+    },
+    "src/app/driver/htsensor/htsensor.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_htsensor"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_htsensor/MockHL_i2c.c",
+            "build/unit_test/test/mocks/test_htsensor/MockHL_sys_dma.c",
+            "build/unit_test/test/mocks/test_htsensor/Mockdatabase.c",
+            "build/unit_test/test/mocks/test_htsensor/Mocki2c.c",
+            "build/unit_test/test/mocks/test_htsensor/Mockos.c",
+            "src/app/driver/htsensor/htsensor.c",
+            "tests/unit/app/driver/htsensor/test_htsensor.c",
+            "build/unit_test/test/runners/test_htsensor_runner.c"
+        ]
+    },
+    "src/app/driver/i2c/i2c.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_i2c"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_i2c/MockHL_i2c.c",
+            "build/unit_test/test/mocks/test_i2c/MockHL_sys_dma.c",
+            "build/unit_test/test/mocks/test_i2c/Mockmcu.c",
+            "build/unit_test/test/mocks/test_i2c/Mockos.c",
+            "build/unit_test/test/mocks/test_i2c/Mocktask.c",
+            "src/app/driver/i2c/i2c.c",
+            "tests/unit/app/driver/i2c/test_i2c.c",
+            "build/unit_test/test/runners/test_i2c_runner.c"
+        ]
+    },
+    "src/app/driver/imd/bender/ir155/bender_ir155.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_bender_ir155"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_bender_ir155/Mockbender_ir155_helper.c",
+            "build/unit_test/test/mocks/test_bender_ir155/Mockdatabase.c",
+            "build/unit_test/test/mocks/test_bender_ir155/Mockdiag.c",
+            "build/unit_test/test/mocks/test_bender_ir155/Mockfram.c",
+            "build/unit_test/test/mocks/test_bender_ir155/Mockio.c",
+            "build/unit_test/test/mocks/test_bender_ir155/Mockos.c",
+            "src/app/driver/imd/bender/ir155/bender_ir155.c",
+            "tests/unit/app/driver/imd/bender/ir155/test_bender_ir155.c",
+            "build/unit_test/test/runners/test_bender_ir155_runner.c"
+        ]
+    },
+    "src/app/driver/imd/bender/ir155/bender_ir155_helper.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_bender_ir155_helper"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_bender_ir155_helper/Mockfram.c",
+            "build/unit_test/test/mocks/test_bender_ir155_helper/Mockio.c",
+            "build/unit_test/test/mocks/test_bender_ir155_helper/Mockpwm.c",
+            "src/app/driver/imd/bender/ir155/bender_ir155_helper.c",
+            "tests/unit/app/driver/imd/bender/ir155/test_bender_ir155_helper.c",
+            "build/unit_test/test/runners/test_bender_ir155_helper_runner.c"
+        ]
+    },
+    "src/app/driver/imd/bender/iso165c/bender_iso165c.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_bender_iso165c"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_bender_iso165c/Mockcan.c",
+            "build/unit_test/test/mocks/test_bender_iso165c/Mockcan_cfg.c",
+            "build/unit_test/test/mocks/test_bender_iso165c/Mockdatabase.c",
+            "build/unit_test/test/mocks/test_bender_iso165c/Mockdiag.c",
+            "build/unit_test/test/mocks/test_bender_iso165c/Mockftask.c",
+            "build/unit_test/test/mocks/test_bender_iso165c/Mockio.c",
+            "build/unit_test/test/mocks/test_bender_iso165c/Mockmcu.c",
+            "build/unit_test/test/mocks/test_bender_iso165c/Mockmpu_prototypes.c",
+            "build/unit_test/test/mocks/test_bender_iso165c/Mockos.c",
+            "src/app/driver/imd/bender/iso165c/bender_iso165c.c",
+            "tests/unit/app/driver/imd/bender/iso165c/test_bender_iso165c.c",
+            "build/unit_test/test/runners/test_bender_iso165c_runner.c"
+        ]
+    },
+    "src/app/driver/imd/imd.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_imd"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_imd/Mockdatabase.c",
+            "build/unit_test/test/mocks/test_imd/Mockdiag.c",
+            "build/unit_test/test/mocks/test_imd/Mockos.c",
+            "src/app/driver/imd/imd.c",
+            "tests/unit/app/driver/imd/test_imd.c",
+            "build/unit_test/test/runners/test_imd_runner.c"
+        ]
+    },
+    "src/app/driver/imd/none/no-imd.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_no-imd"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_no-imd/Mockdatabase.c",
+            "src/app/driver/imd/none/no-imd.c",
+            "tests/unit/app/driver/imd/none/test_no-imd.c",
+            "build/unit_test/test/runners/test_no-imd_runner.c"
+        ]
+    },
+    "src/app/driver/interlock/interlock.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_interlock"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_interlock/MockHL_het.c",
+            "build/unit_test/test/mocks/test_interlock/Mockdatabase.c",
+            "build/unit_test/test/mocks/test_interlock/Mockdiag.c",
+            "build/unit_test/test/mocks/test_interlock/Mockfassert.c",
+            "build/unit_test/test/mocks/test_interlock/Mockio.c",
+            "build/unit_test/test/mocks/test_interlock/Mockos.c",
+            "src/app/driver/interlock/interlock.c",
+            "tests/unit/app/driver/interlock/test_interlock.c",
+            "build/unit_test/test/runners/test_interlock_runner.c"
+        ]
+    },
+    "src/app/driver/io/io.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_io"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_io/Mockmcu.c",
+            "src/app/driver/io/io.c",
+            "tests/unit/app/driver/io/test_io.c",
+            "build/unit_test/test/runners/test_io_runner.c"
+        ]
+    },
+    "src/app/driver/led/led.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_led"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_led/Mockio.c",
+            "build/unit_test/test/mocks/test_led/Mockos.c",
+            "src/app/driver/led/led.c",
+            "tests/unit/app/driver/led/test_led.c",
+            "build/unit_test/test/runners/test_led_runner.c"
+        ]
+    },
+    "src/app/driver/mcu/mcu.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_mcu"
+        ],
+        "sources": [
+            "src/app/driver/mcu/mcu.c",
+            "tests/unit/app/driver/mcu/test_mcu.c",
+            "build/unit_test/test/runners/test_mcu_runner.c"
+        ]
+    },
+    "src/app/driver/meas/meas.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_meas"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_meas/Mockafe.c",
+            "src/app/driver/meas/meas.c",
+            "tests/unit/app/driver/meas/test_meas.c",
+            "build/unit_test/test/runners/test_meas_runner.c"
+        ]
+    },
+    "src/app/driver/pex/pex.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_pex"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_pex/MockHL_i2c.c",
+            "build/unit_test/test/mocks/test_pex/Mockdatabase.c",
+            "build/unit_test/test/mocks/test_pex/Mockdiag.c",
+            "build/unit_test/test/mocks/test_pex/Mocki2c.c",
+            "build/unit_test/test/mocks/test_pex/Mockos.c",
+            "build/unit_test/test/mocks/test_pex/Mockportmacro.c",
+            "src/app/driver/pex/pex.c",
+            "tests/unit/app/driver/pex/test_pex.c",
+            "build/unit_test/test/runners/test_pex_runner.c"
+        ]
+    },
+    "src/app/driver/pwm/pwm.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_pwm"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_pwm/MockHL_etpwm.c",
+            "src/app/driver/pwm/pwm.c",
+            "tests/unit/app/driver/pwm/test_pwm.c",
+            "build/unit_test/test/runners/test_pwm_runner.c"
+        ]
+    },
+    "src/app/driver/rtc/rtc.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_rtc"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_rtc/MockHL_i2c.c",
+            "build/unit_test/test/mocks/test_rtc/MockHL_sys_dma.c",
+            "build/unit_test/test/mocks/test_rtc/Mockdatabase.c",
+            "build/unit_test/test/mocks/test_rtc/Mockdiag.c",
+            "build/unit_test/test/mocks/test_rtc/Mocki2c.c",
+            "build/unit_test/test/mocks/test_rtc/Mockos.c",
+            "src/app/driver/rtc/rtc.c",
+            "tests/unit/app/driver/rtc/test_rtc.c",
+            "build/unit_test/test/runners/test_rtc_runner.c"
+        ]
+    },
+    "src/app/driver/sbc/fs8x_driver/sbc_fs8x.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_sbc_fs8x"
+        ],
+        "sources": [
+            "src/app/driver/sbc/fs8x_driver/sbc_fs8x.c",
+            "tests/unit/app/driver/sbc/fs8x_driver/test_sbc_fs8x.c",
+            "None"
+        ]
+    },
+    "src/app/driver/sbc/fs8x_driver/sbc_fs8x_communication.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_sbc_fs8x_communication"
+        ],
+        "sources": [
+            "src/app/driver/sbc/fs8x_driver/sbc_fs8x_communication.c",
+            "tests/unit/app/driver/sbc/fs8x_driver/test_sbc_fs8x_communication.c",
+            "None"
+        ]
+    },
+    "src/app/driver/sbc/nxpfs85xx.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_nxpfs85xx"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_nxpfs85xx/Mockdiag.c",
+            "build/unit_test/test/mocks/test_nxpfs85xx/Mockdma.c",
+            "build/unit_test/test/mocks/test_nxpfs85xx/Mockfassert.c",
+            "build/unit_test/test/mocks/test_nxpfs85xx/Mockfram.c",
+            "build/unit_test/test/mocks/test_nxpfs85xx/Mockio.c",
+            "build/unit_test/test/mocks/test_nxpfs85xx/Mockmaster_info.c",
+            "build/unit_test/test/mocks/test_nxpfs85xx/Mockmcu.c",
+            "build/unit_test/test/mocks/test_nxpfs85xx/Mocksbc_fs8x.c",
+            "build/unit_test/test/mocks/test_nxpfs85xx/Mocksbc_fs8x_communication.c",
+            "build/unit_test/test/mocks/test_nxpfs85xx/Mockspi.c",
+            "src/app/driver/sbc/nxpfs85xx.c",
+            "tests/unit/app/driver/sbc/test_nxpfs85xx.c",
+            "build/unit_test/test/runners/test_nxpfs85xx_runner.c"
+        ]
+    },
+    "src/app/driver/sbc/sbc.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_sbc"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_sbc/Mockdma.c",
+            "build/unit_test/test/mocks/test_sbc/Mockio.c",
+            "build/unit_test/test/mocks/test_sbc/Mockmcu.c",
+            "build/unit_test/test/mocks/test_sbc/Mocknxpfs85xx.c",
+            "build/unit_test/test/mocks/test_sbc/Mockos.c",
+            "build/unit_test/test/mocks/test_sbc/Mockportmacro.c",
+            "build/unit_test/test/mocks/test_sbc/Mocksbc_fs8x.c",
+            "build/unit_test/test/mocks/test_sbc/Mocksbc_fs8x_communication.c",
+            "build/unit_test/test/mocks/test_sbc/Mockspi.c",
+            "src/app/driver/sbc/sbc.c",
+            "tests/unit/app/driver/sbc/test_sbc.c",
+            "build/unit_test/test/runners/test_sbc_runner.c"
+        ]
+    },
+    "src/app/driver/spi/spi.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_spi"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_spi/MockHL_spi.c",
+            "build/unit_test/test/mocks/test_spi/MockHL_sys_dma.c",
+            "build/unit_test/test/mocks/test_spi/Mockdma_cfg.c",
+            "build/unit_test/test/mocks/test_spi/Mockio.c",
+            "build/unit_test/test/mocks/test_spi/Mockmcu.c",
+            "build/unit_test/test/mocks/test_spi/Mockos.c",
+            "build/unit_test/test/mocks/test_spi/Mockspi_cfg.c",
+            "src/app/driver/spi/spi.c",
+            "tests/unit/app/driver/spi/test_spi.c",
+            "build/unit_test/test/runners/test_spi_runner.c"
+        ]
+    },
+    "src/app/driver/sps/sps.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_sps"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_sps/Mockcontactor.c",
+            "build/unit_test/test/mocks/test_sps/Mockcontactor_cfg.c",
+            "build/unit_test/test/mocks/test_sps/Mockdatabase.c",
+            "build/unit_test/test/mocks/test_sps/Mockio.c",
+            "build/unit_test/test/mocks/test_sps/Mockmcu.c",
+            "build/unit_test/test/mocks/test_sps/Mockos.c",
+            "build/unit_test/test/mocks/test_sps/Mockpex.c",
+            "build/unit_test/test/mocks/test_sps/Mockpex_cfg.c",
+            "build/unit_test/test/mocks/test_sps/Mockspi.c",
+            "build/unit_test/test/mocks/test_sps/Mockspi_cfg.c",
+            "build/unit_test/test/mocks/test_sps/Mocksps_cfg.c",
+            "build/unit_test/test/mocks/test_sps/Mocksps_types.c",
+            "src/app/driver/sps/sps.c",
+            "tests/unit/app/driver/sps/test_sps.c",
+            "build/unit_test/test/runners/test_sps_runner.c"
+        ]
+    },
+    "src/app/driver/ts/api/tsi_limits.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_tsi_limits"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_tsi_limits/Mocktsi_plausibility_cfg.c",
+            "src/app/driver/ts/api/tsi_limits.c",
+            "tests/unit/app/driver/ts/api/test_tsi_limits.c",
+            "build/unit_test/test/runners/test_tsi_limits_runner.c"
+        ]
+    },
+    "src/app/driver/ts/beta.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_beta"
+        ],
+        "sources": [
+            "src/app/driver/ts/beta.c",
+            "tests/unit/app/driver/ts/test_beta.c",
+            "build/unit_test/test/runners/test_beta_runner.c"
+        ]
+    },
+    "src/app/driver/ts/epcos/b57251v5103j060/epcos_b57251v5103j060.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_epcos_b57251v5103j060"
+        ],
+        "sources": [
+            "src/app/driver/ts/epcos/b57251v5103j060/epcos_b57251v5103j060.c",
+            "tests/unit/app/driver/ts/epcos/b57251v5103j060/test_epcos_b57251v5103j060.c",
+            "build/unit_test/test/runners/test_epcos_b57251v5103j060_runner.c"
+        ]
+    },
+    "src/app/driver/ts/epcos/b57251v5103j060/lookup-table/epcos_b57251v5103j060_lookup-table.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_epcos_b57251v5103j060_lookup-table"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_epcos_b57251v5103j060_lookup-table/Mockepcos_b57251v5103j060.c",
+            "src/app/driver/ts/epcos/b57251v5103j060/lookup-table/epcos_b57251v5103j060_lookup-table.c",
+            "tests/unit/app/driver/ts/epcos/b57251v5103j060/lookup-table/test_epcos_b57251v5103j060_lookup-table.c",
+            "build/unit_test/test/runners/test_epcos_b57251v5103j060_lookup-table_runner.c"
+        ]
+    },
+    "src/app/driver/ts/epcos/b57251v5103j060/polynomial/epcos_b57251v5103j060_polynomial.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_epcos_b57251v5103j060_polynomial"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_epcos_b57251v5103j060_polynomial/Mockepcos_b57251v5103j060.c",
+            "src/app/driver/ts/epcos/b57251v5103j060/polynomial/epcos_b57251v5103j060_polynomial.c",
+            "tests/unit/app/driver/ts/epcos/b57251v5103j060/polynomial/test_epcos_b57251v5103j060_polynomial.c",
+            "build/unit_test/test/runners/test_epcos_b57251v5103j060_polynomial_runner.c"
+        ]
+    },
+    "src/app/driver/ts/epcos/b57861s0103f045/epcos_b57861s0103f045.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_epcos_b57861s0103f045"
+        ],
+        "sources": [
+            "src/app/driver/ts/epcos/b57861s0103f045/epcos_b57861s0103f045.c",
+            "tests/unit/app/driver/ts/epcos/b57861s0103f045/test_epcos_b57861s0103f045.c",
+            "build/unit_test/test/runners/test_epcos_b57861s0103f045_runner.c"
+        ]
+    },
+    "src/app/driver/ts/epcos/b57861s0103f045/lookup-table/epcos_b57861s0103f045_lookup-table.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_epcos_b57861s0103f045_lookup-table"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_epcos_b57861s0103f045_lookup-table/Mockepcos_b57861s0103f045.c",
+            "src/app/driver/ts/epcos/b57861s0103f045/lookup-table/epcos_b57861s0103f045_lookup-table.c",
+            "tests/unit/app/driver/ts/epcos/b57861s0103f045/lookup-table/test_epcos_b57861s0103f045_lookup-table.c",
+            "build/unit_test/test/runners/test_epcos_b57861s0103f045_lookup-table_runner.c"
+        ]
+    },
+    "src/app/driver/ts/epcos/b57861s0103f045/polynomial/epcos_b57861s0103f045_polynomial.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_epcos_b57861s0103f045_polynomial"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_epcos_b57861s0103f045_polynomial/Mockepcos_b57861s0103f045.c",
+            "src/app/driver/ts/epcos/b57861s0103f045/polynomial/epcos_b57861s0103f045_polynomial.c",
+            "tests/unit/app/driver/ts/epcos/b57861s0103f045/polynomial/test_epcos_b57861s0103f045_polynomial.c",
+            "build/unit_test/test/runners/test_epcos_b57861s0103f045_polynomial_runner.c"
+        ]
+    },
+    "src/app/driver/ts/fake/none/fake_none.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_fake_none"
+        ],
+        "sources": [
+            "src/app/driver/ts/fake/none/fake_none.c",
+            "tests/unit/app/driver/ts/fake/none/test_fake_none.c",
+            "build/unit_test/test/runners/test_fake_none_runner.c"
+        ]
+    },
+    "src/app/driver/ts/fake/none/lookup-table/fake_none_lookup-table.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_fake_none_lookup-table"
+        ],
+        "sources": [
+            "src/app/driver/ts/fake/none/lookup-table/fake_none_lookup-table.c",
+            "tests/unit/app/driver/ts/fake/none/lookup-table/test_fake_none_lookup-table.c",
+            "build/unit_test/test/runners/test_fake_none_lookup-table_runner.c"
+        ]
+    },
+    "src/app/driver/ts/fake/none/polynomial/fake_none_polynomial.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_fake_none_polynomial"
+        ],
+        "sources": [
+            "src/app/driver/ts/fake/none/polynomial/fake_none_polynomial.c",
+            "tests/unit/app/driver/ts/fake/none/polynomial/test_fake_none_polynomial.c",
+            "build/unit_test/test/runners/test_fake_none_polynomial_runner.c"
+        ]
+    },
+    "src/app/driver/ts/murata/ncxxxxh103/lookup-table/murata_ncxxxxh103_lookup-table.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_murata_ncxxxxh103_lookup-table"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_murata_ncxxxxh103_lookup-table/Mockmurata_ncxxxxh103.c",
+            "src/app/driver/ts/murata/ncxxxxh103/lookup-table/murata_ncxxxxh103_lookup-table.c",
+            "tests/unit/app/driver/ts/murata/ncxxxxh103/lookup-table/test_murata_ncxxxxh103_lookup-table.c",
+            "build/unit_test/test/runners/test_murata_ncxxxxh103_lookup-table_runner.c"
+        ]
+    },
+    "src/app/driver/ts/murata/ncxxxxh103/murata_ncxxxxh103.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_murata_ncxxxxh103"
+        ],
+        "sources": [
+            "src/app/driver/ts/murata/ncxxxxh103/murata_ncxxxxh103.c",
+            "tests/unit/app/driver/ts/murata/ncxxxxh103/test_murata_ncxxxxh103.c",
+            "build/unit_test/test/runners/test_murata_ncxxxxh103_runner.c"
+        ]
+    },
+    "src/app/driver/ts/murata/ncxxxxh103/polynomial/murata_ncxxxxh103_polynomial.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_murata_ncxxxxh103_polynomial"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_murata_ncxxxxh103_polynomial/Mockmurata_ncxxxxh103.c",
+            "src/app/driver/ts/murata/ncxxxxh103/polynomial/murata_ncxxxxh103_polynomial.c",
+            "tests/unit/app/driver/ts/murata/ncxxxxh103/polynomial/test_murata_ncxxxxh103_polynomial.c",
+            "build/unit_test/test/runners/test_murata_ncxxxxh103_polynomial_runner.c"
+        ]
+    },
+    "src/app/driver/ts/vishay/ntcalug01a103g/lookup-table/vishay_ntcalug01a103g_lookup-table.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_vishay_ntcalug01a103g_lookup-table"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_vishay_ntcalug01a103g_lookup-table/Mockvishay_ntcalug01a103g.c",
+            "src/app/driver/ts/vishay/ntcalug01a103g/lookup-table/vishay_ntcalug01a103g_lookup-table.c",
+            "tests/unit/app/driver/ts/vishay/ntcalug01a103g/lookup-table/test_vishay_ntcalug01a103g_lookup-table.c",
+            "build/unit_test/test/runners/test_vishay_ntcalug01a103g_lookup-table_runner.c"
+        ]
+    },
+    "src/app/driver/ts/vishay/ntcalug01a103g/polynomial/vishay_ntcalug01a103g_polynomial.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_vishay_ntcalug01a103g_polynomial"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_vishay_ntcalug01a103g_polynomial/Mockvishay_ntcalug01a103g.c",
+            "src/app/driver/ts/vishay/ntcalug01a103g/polynomial/vishay_ntcalug01a103g_polynomial.c",
+            "tests/unit/app/driver/ts/vishay/ntcalug01a103g/polynomial/test_vishay_ntcalug01a103g_polynomial.c",
+            "build/unit_test/test/runners/test_vishay_ntcalug01a103g_polynomial_runner.c"
+        ]
+    },
+    "src/app/driver/ts/vishay/ntcalug01a103g/vishay_ntcalug01a103g.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_vishay_ntcalug01a103g"
+        ],
+        "sources": [
+            "src/app/driver/ts/vishay/ntcalug01a103g/vishay_ntcalug01a103g.c",
+            "tests/unit/app/driver/ts/vishay/ntcalug01a103g/test_vishay_ntcalug01a103g.c",
+            "build/unit_test/test/runners/test_vishay_ntcalug01a103g_runner.c"
+        ]
+    },
+    "src/app/driver/ts/vishay/ntcle317e4103sba/lookup-table/vishay_ntcle317e4103sba_lookup-table.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_vishay_ntcle317e4103sba_lookup-table"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_vishay_ntcle317e4103sba_lookup-table/Mockvishay_ntcle317e4103sba.c",
+            "src/app/driver/ts/vishay/ntcle317e4103sba/lookup-table/vishay_ntcle317e4103sba_lookup-table.c",
+            "tests/unit/app/driver/ts/vishay/ntcle317e4103sba/lookup-table/test_vishay_ntcle317e4103sba_lookup-table.c",
+            "build/unit_test/test/runners/test_vishay_ntcle317e4103sba_lookup-table_runner.c"
+        ]
+    },
+    "src/app/driver/ts/vishay/ntcle317e4103sba/vishay_ntcle317e4103sba.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_vishay_ntcle317e4103sba"
+        ],
+        "sources": [
+            "src/app/driver/ts/vishay/ntcle317e4103sba/vishay_ntcle317e4103sba.c",
+            "tests/unit/app/driver/ts/vishay/ntcle317e4103sba/test_vishay_ntcle317e4103sba.c",
+            "build/unit_test/test/runners/test_vishay_ntcle317e4103sba_runner.c"
+        ]
+    },
+    "src/app/driver/ts/vishay/ntcle413e2103f102l/lookup-table/vishay_ntcle413e2103f102l_lookup-table.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_vishay_ntcle413e2103f102l_lookup-table"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_vishay_ntcle413e2103f102l_lookup-table/Mockvishay_ntcle413e2103f102l.c",
+            "src/app/driver/ts/vishay/ntcle413e2103f102l/lookup-table/vishay_ntcle413e2103f102l_lookup-table.c",
+            "tests/unit/app/driver/ts/vishay/ntcle413e2103f102l/lookup-table/test_vishay_ntcle413e2103f102l_lookup-table.c",
+            "build/unit_test/test/runners/test_vishay_ntcle413e2103f102l_lookup-table_runner.c"
+        ]
+    },
+    "src/app/driver/ts/vishay/ntcle413e2103f102l/vishay_ntcle413e2103f102l.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_vishay_ntcle413e2103f102l"
+        ],
+        "sources": [
+            "src/app/driver/ts/vishay/ntcle413e2103f102l/vishay_ntcle413e2103f102l.c",
+            "tests/unit/app/driver/ts/vishay/ntcle413e2103f102l/test_vishay_ntcle413e2103f102l.c",
+            "build/unit_test/test/runners/test_vishay_ntcle413e2103f102l_runner.c"
+        ]
+    },
+    "src/app/engine/config/database_cfg.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_database_cfg"
+        ],
+        "sources": [
+            "src/app/engine/config/database_cfg.c",
+            "tests/unit/app/engine/config/test_database_cfg.c",
+            "build/unit_test/test/runners/test_database_cfg_runner.c"
+        ]
+    },
+    "src/app/engine/config/diag_cfg.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_diag_cfg"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_diag_cfg/Mockdatabase.c",
+            "build/unit_test/test/mocks/test_diag_cfg/Mockdiag_cbs.c",
+            "src/app/engine/config/diag_cfg.c",
+            "tests/unit/app/engine/config/test_diag_cfg.c",
+            "build/unit_test/test/runners/test_diag_cfg_runner.c"
+        ]
+    },
+    "src/app/engine/config/sys_cfg.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_sys_cfg"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_sys_cfg/Mockcan_cbs_tx_debug-response.c",
+            "build/unit_test/test/mocks/test_sys_cfg/Mockcan_cfg.c",
+            "src/app/engine/config/sys_cfg.c",
+            "tests/unit/app/engine/config/test_sys_cfg.c",
+            "build/unit_test/test/runners/test_sys_cfg_runner.c"
+        ]
+    },
+    "src/app/engine/config/sys_mon_cfg.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_sys_mon_cfg"
+        ],
+        "sources": [
+            "src/app/engine/config/sys_mon_cfg.c",
+            "tests/unit/app/engine/config/test_sys_mon_cfg.c",
+            "build/unit_test/test/runners/test_sys_mon_cfg_runner.c"
+        ]
+    },
+    "src/app/engine/database/database.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_database"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_database/Mockfassert.c",
+            "build/unit_test/test/mocks/test_database/Mockftask.c",
+            "build/unit_test/test/mocks/test_database/Mockmpu_prototypes.c",
+            "build/unit_test/test/mocks/test_database/Mockos.c",
+            "src/app/engine/database/database.c",
+            "tests/unit/app/engine/database/test_database.c",
+            "build/unit_test/test/runners/test_database_runner.c"
+        ]
+    },
+    "src/app/engine/database/database_helper.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_database_helper"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_database_helper/Mockfassert.c",
+            "build/unit_test/test/mocks/test_database_helper/Mockmpu_prototypes.c",
+            "build/unit_test/test/mocks/test_database_helper/Mockos.c",
+            "src/app/engine/database/database_helper.c",
+            "tests/unit/app/engine/database/test_database_helper.c",
+            "build/unit_test/test/runners/test_database_helper_runner.c"
+        ]
+    },
+    "src/app/engine/diag/cbs/diag_cbs_aerosol-sensor.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_diag_cbs_aerosol-sensor"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_diag_cbs_aerosol-sensor/Mockdiag_cfg.c",
+            "src/app/engine/diag/cbs/diag_cbs_aerosol-sensor.c",
+            "tests/unit/app/engine/diag/cbs/test_diag_cbs_aerosol-sensor.c",
+            "build/unit_test/test/runners/test_diag_cbs_aerosol-sensor_runner.c"
+        ]
+    },
+    "src/app/engine/diag/cbs/diag_cbs_afe.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_diag_cbs_afe"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_diag_cbs_afe/Mockdiag_cfg.c",
+            "src/app/engine/diag/cbs/diag_cbs_afe.c",
+            "tests/unit/app/engine/diag/cbs/test_diag_cbs_afe.c",
+            "build/unit_test/test/runners/test_diag_cbs_afe_runner.c"
+        ]
+    },
+    "src/app/engine/diag/cbs/diag_cbs_bms.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_diag_cbs_bms"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_diag_cbs_bms/Mockdiag_cfg.c",
+            "src/app/engine/diag/cbs/diag_cbs_bms.c",
+            "tests/unit/app/engine/diag/cbs/test_diag_cbs_bms.c",
+            "build/unit_test/test/runners/test_diag_cbs_bms_runner.c"
+        ]
+    },
+    "src/app/engine/diag/cbs/diag_cbs_can.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_diag_cbs_can"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_diag_cbs_can/Mockdiag_cfg.c",
+            "src/app/engine/diag/cbs/diag_cbs_can.c",
+            "tests/unit/app/engine/diag/cbs/test_diag_cbs_can.c",
+            "build/unit_test/test/runners/test_diag_cbs_can_runner.c"
+        ]
+    },
+    "src/app/engine/diag/cbs/diag_cbs_contactor.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_diag_cbs_contactor"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_diag_cbs_contactor/Mockdiag_cfg.c",
+            "src/app/engine/diag/cbs/diag_cbs_contactor.c",
+            "tests/unit/app/engine/diag/cbs/test_diag_cbs_contactor.c",
+            "build/unit_test/test/runners/test_diag_cbs_contactor_runner.c"
+        ]
+    },
+    "src/app/engine/diag/cbs/diag_cbs_current-sensor.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_diag_cbs_current-sensor"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_diag_cbs_current-sensor/Mockdiag_cfg.c",
+            "src/app/engine/diag/cbs/diag_cbs_current-sensor.c",
+            "tests/unit/app/engine/diag/cbs/test_diag_cbs_current-sensor.c",
+            "build/unit_test/test/runners/test_diag_cbs_current-sensor_runner.c"
+        ]
+    },
+    "src/app/engine/diag/cbs/diag_cbs_current.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_diag_cbs_current"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_diag_cbs_current/Mockdiag_cfg.c",
+            "src/app/engine/diag/cbs/diag_cbs_current.c",
+            "tests/unit/app/engine/diag/cbs/test_diag_cbs_current.c",
+            "build/unit_test/test/runners/test_diag_cbs_current_runner.c"
+        ]
+    },
+    "src/app/engine/diag/cbs/diag_cbs_deep-discharge.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_diag_cbs_deep-discharge"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_diag_cbs_deep-discharge/Mockdiag_cfg.c",
+            "build/unit_test/test/mocks/test_diag_cbs_deep-discharge/Mockfram.c",
+            "src/app/engine/diag/cbs/diag_cbs_deep-discharge.c",
+            "tests/unit/app/engine/diag/cbs/test_diag_cbs_deep-discharge.c",
+            "build/unit_test/test/runners/test_diag_cbs_deep-discharge_runner.c"
+        ]
+    },
+    "src/app/engine/diag/cbs/diag_cbs_dummy.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_diag_cbs_dummy"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_diag_cbs_dummy/Mockdiag_cfg.c",
+            "src/app/engine/diag/cbs/diag_cbs_dummy.c",
+            "tests/unit/app/engine/diag/cbs/test_diag_cbs_dummy.c",
+            "build/unit_test/test/runners/test_diag_cbs_dummy_runner.c"
+        ]
+    },
+    "src/app/engine/diag/cbs/diag_cbs_fram.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_diag_cbs_fram"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_diag_cbs_fram/Mockdiag_cfg.c",
+            "src/app/engine/diag/cbs/diag_cbs_fram.c",
+            "tests/unit/app/engine/diag/cbs/test_diag_cbs_fram.c",
+            "build/unit_test/test/runners/test_diag_cbs_fram_runner.c"
+        ]
+    },
+    "src/app/engine/diag/cbs/diag_cbs_i2c.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_diag_cbs_i2c"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_diag_cbs_i2c/Mockdiag_cfg.c",
+            "src/app/engine/diag/cbs/diag_cbs_i2c.c",
+            "tests/unit/app/engine/diag/cbs/test_diag_cbs_i2c.c",
+            "build/unit_test/test/runners/test_diag_cbs_i2c_runner.c"
+        ]
+    },
+    "src/app/engine/diag/cbs/diag_cbs_insulation.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_diag_cbs_insulation"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_diag_cbs_insulation/Mockdiag_cfg.c",
+            "src/app/engine/diag/cbs/diag_cbs_insulation.c",
+            "tests/unit/app/engine/diag/cbs/test_diag_cbs_insulation.c",
+            "build/unit_test/test/runners/test_diag_cbs_insulation_runner.c"
+        ]
+    },
+    "src/app/engine/diag/cbs/diag_cbs_interlock.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_diag_cbs_interlock"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_diag_cbs_interlock/Mockdiag_cfg.c",
+            "src/app/engine/diag/cbs/diag_cbs_interlock.c",
+            "tests/unit/app/engine/diag/cbs/test_diag_cbs_interlock.c",
+            "build/unit_test/test/runners/test_diag_cbs_interlock_runner.c"
+        ]
+    },
+    "src/app/engine/diag/cbs/diag_cbs_plausibility.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_diag_cbs_plausibility"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_diag_cbs_plausibility/Mockdiag_cfg.c",
+            "src/app/engine/diag/cbs/diag_cbs_plausibility.c",
+            "tests/unit/app/engine/diag/cbs/test_diag_cbs_plausibility.c",
+            "build/unit_test/test/runners/test_diag_cbs_plausibility_runner.c"
+        ]
+    },
+    "src/app/engine/diag/cbs/diag_cbs_power-measurement.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_diag_cbs_power-measurement"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_diag_cbs_power-measurement/Mockdiag_cfg.c",
+            "src/app/engine/diag/cbs/diag_cbs_power-measurement.c",
+            "tests/unit/app/engine/diag/cbs/test_diag_cbs_power-measurement.c",
+            "build/unit_test/test/runners/test_diag_cbs_power-measurement_runner.c"
+        ]
+    },
+    "src/app/engine/diag/cbs/diag_cbs_rtc.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_diag_cbs_rtc"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_diag_cbs_rtc/Mockdiag_cfg.c",
+            "src/app/engine/diag/cbs/diag_cbs_rtc.c",
+            "tests/unit/app/engine/diag/cbs/test_diag_cbs_rtc.c",
+            "build/unit_test/test/runners/test_diag_cbs_rtc_runner.c"
+        ]
+    },
+    "src/app/engine/diag/cbs/diag_cbs_sbc.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_diag_cbs_sbc"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_diag_cbs_sbc/Mockdiag_cfg.c",
+            "src/app/engine/diag/cbs/diag_cbs_sbc.c",
+            "tests/unit/app/engine/diag/cbs/test_diag_cbs_sbc.c",
+            "build/unit_test/test/runners/test_diag_cbs_sbc_runner.c"
+        ]
+    },
+    "src/app/engine/diag/cbs/diag_cbs_sys-mon.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_diag_cbs_sys-mon"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_diag_cbs_sys-mon/Mockdiag_cfg.c",
+            "build/unit_test/test/mocks/test_diag_cbs_sys-mon/Mocksys_mon_cfg.c",
+            "src/app/engine/diag/cbs/diag_cbs_sys-mon.c",
+            "tests/unit/app/engine/diag/cbs/test_diag_cbs_sys-mon.c",
+            "build/unit_test/test/runners/test_diag_cbs_sys-mon_runner.c"
+        ]
+    },
+    "src/app/engine/diag/cbs/diag_cbs_temperature.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_diag_cbs_temperature"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_diag_cbs_temperature/Mockdiag_cfg.c",
+            "src/app/engine/diag/cbs/diag_cbs_temperature.c",
+            "tests/unit/app/engine/diag/cbs/test_diag_cbs_temperature.c",
+            "build/unit_test/test/runners/test_diag_cbs_temperature_runner.c"
+        ]
+    },
+    "src/app/engine/diag/cbs/diag_cbs_voltage.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_diag_cbs_voltage"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_diag_cbs_voltage/Mockdiag_cfg.c",
+            "src/app/engine/diag/cbs/diag_cbs_voltage.c",
+            "tests/unit/app/engine/diag/cbs/test_diag_cbs_voltage.c",
+            "build/unit_test/test/runners/test_diag_cbs_voltage_runner.c"
+        ]
+    },
+    "src/app/engine/diag/diag.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_diag"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_diag/Mockdatabase.c",
+            "build/unit_test/test/mocks/test_diag/Mockdiag_cbs.c",
+            "src/app/engine/diag/diag.c",
+            "tests/unit/app/engine/diag/test_diag.c",
+            "build/unit_test/test/runners/test_diag_runner.c"
+        ]
+    },
+    "src/app/engine/hw_info/master_info.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_master_info"
+        ],
+        "sources": [
+            "src/app/engine/hw_info/master_info.c",
+            "tests/unit/app/engine/hw_info/test_master_info.c",
+            "build/unit_test/test/runners/test_master_info_runner.c"
+        ]
+    },
+    "src/app/engine/sys/reset.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_reset"
+        ],
+        "sources": [
+            "src/app/engine/sys/reset.c",
+            "tests/unit/app/engine/sys/test_reset.c",
+            "build/unit_test/test/runners/test_reset_runner.c"
+        ]
+    },
+    "src/app/engine/sys/sys.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_sys"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_sys/Mockafe.c",
+            "build/unit_test/test/mocks/test_sys/Mockalgorithm.c",
+            "build/unit_test/test/mocks/test_sys/Mockbal.c",
+            "build/unit_test/test/mocks/test_sys/Mockbms.c",
+            "build/unit_test/test/mocks/test_sys/Mockcan.c",
+            "build/unit_test/test/mocks/test_sys/Mockcontactor.c",
+            "build/unit_test/test/mocks/test_sys/Mockdatabase.c",
+            "build/unit_test/test/mocks/test_sys/Mockdiag.c",
+            "build/unit_test/test/mocks/test_sys/Mockfassert.c",
+            "build/unit_test/test/mocks/test_sys/Mockfram.c",
+            "build/unit_test/test/mocks/test_sys/Mockimd.c",
+            "build/unit_test/test/mocks/test_sys/Mockinterlock.c",
+            "build/unit_test/test/mocks/test_sys/Mockmeas.c",
+            "build/unit_test/test/mocks/test_sys/Mockos.c",
+            "build/unit_test/test/mocks/test_sys/Mocksbc.c",
+            "build/unit_test/test/mocks/test_sys/Mocksof_trapezoid.c",
+            "build/unit_test/test/mocks/test_sys/Mockstate_estimation.c",
+            "build/unit_test/test/mocks/test_sys/Mocksys_cfg.c",
+            "src/app/engine/sys/sys.c",
+            "tests/unit/app/engine/sys/test_sys.c",
+            "build/unit_test/test/runners/test_sys_runner.c"
+        ]
+    },
+    "src/app/engine/sys_mon/sys_mon.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_sys_mon"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_sys_mon/Mockdiag.c",
+            "build/unit_test/test/mocks/test_sys_mon/Mockfram.c",
+            "build/unit_test/test/mocks/test_sys_mon/Mockfram_cfg.c",
+            "build/unit_test/test/mocks/test_sys_mon/Mockos.c",
+            "build/unit_test/test/mocks/test_sys_mon/Mocksys_mon_cfg.c",
+            "src/app/engine/sys_mon/sys_mon.c",
+            "tests/unit/app/engine/sys_mon/test_sys_mon.c",
+            "build/unit_test/test/runners/test_sys_mon_runner.c"
+        ]
+    },
+    "src/app/main/fassert.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_fassert"
+        ],
+        "sources": [
+            "src/app/main/fassert.c",
+            "tests/unit/app/main/test_fassert.c",
+            "build/unit_test/test/runners/test_fassert_runner.c"
+        ]
+    },
+    "src/app/main/fstartup.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_fstartup"
+        ],
+        "sources": [
+            "src/app/main/fstartup.c",
+            "tests/unit/app/main/test_fstartup.c",
+            "build/unit_test/test/runners/test_fstartup_runner.c"
+        ]
+    },
+    "src/app/main/main.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_main"
+        ],
+        "sources": [
+            "src/app/main/main.c",
+            "tests/unit/app/main/test_main.c",
+            "build/unit_test/test/runners/test_main_runner.c"
+        ]
+    },
+    "src/app/task/config/ftask_cfg.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_ftask_cfg"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_ftask_cfg/MockHL_gio.c",
+            "build/unit_test/test/mocks/test_ftask_cfg/Mockadc.c",
+            "build/unit_test/test/mocks/test_ftask_cfg/Mockafe.c",
+            "build/unit_test/test/mocks/test_ftask_cfg/Mockalgorithm.c",
+            "build/unit_test/test/mocks/test_ftask_cfg/Mockbal.c",
+            "build/unit_test/test/mocks/test_ftask_cfg/Mockbms.c",
+            "build/unit_test/test/mocks/test_ftask_cfg/Mockcan.c",
+            "build/unit_test/test/mocks/test_ftask_cfg/Mockcontactor.c",
+            "build/unit_test/test/mocks/test_ftask_cfg/Mockdatabase.c",
+            "build/unit_test/test/mocks/test_ftask_cfg/Mockdiag.c",
+            "build/unit_test/test/mocks/test_ftask_cfg/Mockdiag_cfg.c",
+            "build/unit_test/test/mocks/test_ftask_cfg/Mockfram.c",
+            "build/unit_test/test/mocks/test_ftask_cfg/Mockhtsensor.c",
+            "build/unit_test/test/mocks/test_ftask_cfg/Mocki2c.c",
+            "build/unit_test/test/mocks/test_ftask_cfg/Mockimd.c",
+            "build/unit_test/test/mocks/test_ftask_cfg/Mockinterlock.c",
+            "build/unit_test/test/mocks/test_ftask_cfg/Mockled.c",
+            "build/unit_test/test/mocks/test_ftask_cfg/Mockmeas.c",
+            "build/unit_test/test/mocks/test_ftask_cfg/Mockmpu_prototypes.c",
+            "build/unit_test/test/mocks/test_ftask_cfg/Mockos.c",
+            "build/unit_test/test/mocks/test_ftask_cfg/Mockpex.c",
+            "build/unit_test/test/mocks/test_ftask_cfg/Mockredundancy.c",
+            "build/unit_test/test/mocks/test_ftask_cfg/Mockrtc.c",
+            "build/unit_test/test/mocks/test_ftask_cfg/Mocksbc.c",
+            "build/unit_test/test/mocks/test_ftask_cfg/Mocksof_trapezoid.c",
+            "build/unit_test/test/mocks/test_ftask_cfg/Mocksps.c",
+            "build/unit_test/test/mocks/test_ftask_cfg/Mockstate_estimation.c",
+            "build/unit_test/test/mocks/test_ftask_cfg/Mocksys.c",
+            "build/unit_test/test/mocks/test_ftask_cfg/Mocksys_mon.c",
+            "src/app/task/config/ftask_cfg.c",
+            "tests/unit/app/task/config/test_ftask_cfg.c",
+            "build/unit_test/test/runners/test_ftask_cfg_runner.c"
+        ]
+    },
+    "src/app/task/ftask/freertos/ftask_freertos.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_ftask_freertos"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_ftask_freertos/Mockftask_cfg.c",
+            "build/unit_test/test/mocks/test_ftask_freertos/Mockmpu_prototypes.c",
+            "build/unit_test/test/mocks/test_ftask_freertos/Mockos.c",
+            "build/unit_test/test/mocks/test_ftask_freertos/Mocksys_mon.c",
+            "src/app/task/ftask/freertos/ftask_freertos.c",
+            "tests/unit/app/task/ftask/freertos/test_ftask_freertos.c",
+            "build/unit_test/test/runners/test_ftask_freertos_runner.c"
+        ]
+    },
+    "src/app/task/ftask/ftask.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_ftask"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_ftask/MockHL_gio.c",
+            "build/unit_test/test/mocks/test_ftask/Mockadc.c",
+            "build/unit_test/test/mocks/test_ftask/Mockafe.c",
+            "build/unit_test/test/mocks/test_ftask/Mockalgorithm.c",
+            "build/unit_test/test/mocks/test_ftask/Mockbal.c",
+            "build/unit_test/test/mocks/test_ftask/Mockbms.c",
+            "build/unit_test/test/mocks/test_ftask/Mockcan.c",
+            "build/unit_test/test/mocks/test_ftask/Mockcontactor.c",
+            "build/unit_test/test/mocks/test_ftask/Mockdatabase.c",
+            "build/unit_test/test/mocks/test_ftask/Mockdiag.c",
+            "build/unit_test/test/mocks/test_ftask/Mockdiag_cfg.c",
+            "build/unit_test/test/mocks/test_ftask/Mockfram.c",
+            "build/unit_test/test/mocks/test_ftask/Mockhtsensor.c",
+            "build/unit_test/test/mocks/test_ftask/Mocki2c.c",
+            "build/unit_test/test/mocks/test_ftask/Mockimd.c",
+            "build/unit_test/test/mocks/test_ftask/Mockinterlock.c",
+            "build/unit_test/test/mocks/test_ftask/Mockled.c",
+            "build/unit_test/test/mocks/test_ftask/Mockmeas.c",
+            "build/unit_test/test/mocks/test_ftask/Mockmpu_prototypes.c",
+            "build/unit_test/test/mocks/test_ftask/Mockos.c",
+            "build/unit_test/test/mocks/test_ftask/Mockpex.c",
+            "build/unit_test/test/mocks/test_ftask/Mockredundancy.c",
+            "build/unit_test/test/mocks/test_ftask/Mockrtc.c",
+            "build/unit_test/test/mocks/test_ftask/Mocksbc.c",
+            "build/unit_test/test/mocks/test_ftask/Mocksof_trapezoid.c",
+            "build/unit_test/test/mocks/test_ftask/Mocksps.c",
+            "build/unit_test/test/mocks/test_ftask/Mockstate_estimation.c",
+            "build/unit_test/test/mocks/test_ftask/Mocksys.c",
+            "build/unit_test/test/mocks/test_ftask/Mocksys_mon.c",
+            "src/app/task/ftask/ftask.c",
+            "tests/unit/app/task/ftask/test_ftask.c",
+            "build/unit_test/test/runners/test_ftask_runner.c"
+        ]
+    },
+    "src/app/task/os/freertos/os_freertos.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_os_freertos"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_os_freertos/Mockcan_cbs_tx_fatal-errors.c",
+            "build/unit_test/test/mocks/test_os_freertos/Mockftask.c",
+            "build/unit_test/test/mocks/test_os_freertos/Mockftask_cfg.c",
+            "build/unit_test/test/mocks/test_os_freertos/Mockportmacro.c",
+            "build/unit_test/test/mocks/test_os_freertos/Mockqueue.c",
+            "build/unit_test/test/mocks/test_os_freertos/Mockrtc.c",
+            "build/unit_test/test/mocks/test_os_freertos/Mocktask.c",
+            "src/app/task/os/freertos/os_freertos.c",
+            "tests/unit/app/task/os/freertos/test_os_freertos.c",
+            "build/unit_test/test/runners/test_os_freertos_runner.c"
+        ]
+    },
+    "src/app/task/os/os.c": {
+        "include": [
+            "build/unit_test/include",
+            "build/unit_test/test/mocks/test_os",
+            "src/app/driver/can",
+            "src/app/driver/can/cbs",
+            "src/app/driver/can/cbs/tx",
+            "src/app/driver/config",
+            "src/app/driver/rtc",
+            "src/app/task/config",
+            "src/app/task/ftask",
+            "src/app/application/config",
+            "src/app/driver/mcu",
+            "src/app/engine/config",
+            "src/app/engine/database",
+            "src/app/main/include",
+            "src/app/main/include/config",
+            "src/app/task/os",
+            "src/os/freertos/include",
+            "src/os/freertos/portable/ccs/arm_cortex-r5"
+        ],
+        "sources": [
+            "build/unit_test/test/mocks/test_os/Mockcan.c",
+            "build/unit_test/test/mocks/test_os/Mockftask.c",
+            "build/unit_test/test/mocks/test_os/Mockftask_cfg.c",
+            "build/unit_test/test/mocks/test_os/Mockportmacro.c",
+            "build/unit_test/test/mocks/test_os/Mockqueue.c",
+            "build/unit_test/test/mocks/test_os/Mockrtc.c",
+            "build/unit_test/test/mocks/test_os/Mocktask.c",
+            "src/app/task/os/freertos/os_freertos.c",
+            "src/app/driver/can/cbs/tx/can_cbs_tx_crash-dump.c",
+            "src/app/driver/config/can_cfg.c",
+            "src/app/task/os/os.c",
+            "tests/unit/app/task/os/test_os.c",
+            "build/unit_test/test/runners/test_os_runner.c"
+        ]
+    }
+}

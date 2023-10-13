@@ -43,8 +43,8 @@
  * @file    test_bender_ir155_helper.c
  * @author  foxBMS Team
  * @date    2020-11-02 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -59,6 +59,17 @@
 #include "Mockpwm.h"
 
 #include "bender_ir155_helper.h"
+
+/*========== Unit Testing Framework Directives ==============================*/
+TEST_INCLUDE_PATH("../../src/app/driver/config")
+TEST_INCLUDE_PATH("../../src/app/driver/fram")
+TEST_INCLUDE_PATH("../../src/app/driver/imd")
+TEST_INCLUDE_PATH("../../src/app/driver/imd/bender/ir155")
+TEST_INCLUDE_PATH("../../src/app/driver/imd/bender/ir155/config")
+TEST_INCLUDE_PATH("../../src/app/driver/io")
+TEST_INCLUDE_PATH("../../src/app/driver/pwm")
+TEST_INCLUDE_PATH("../../src/app/task/config")
+TEST_INCLUDE_PATH("../../src/app/task/ftask")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 FRAM_INSULATION_FLAG_s fram_insulationFlags;

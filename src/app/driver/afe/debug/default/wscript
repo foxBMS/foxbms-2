@@ -50,14 +50,9 @@ def build(bld):
     source = [
         os.path.join("api", "debug_default_afe.c"),
         os.path.join("api", "debug_default_afe_dma.c"),
-        os.path.join("config", "debug_default_cfg.c"),
         os.path.join("debug_default.c"),
     ]
     includes = [
-        os.path.join("..", "..", "api"),
-        os.path.join("."),
-        os.path.join("api"),
-        os.path.join("config"),
         os.path.join("..", "..", "..", "config"),
         os.path.join("..", "..", "..", "io"),
         os.path.join("..", "..", "..", "spi"),
@@ -71,6 +66,7 @@ def build(bld):
         os.path.join("..", "..", "..", "..", "engine", "diag"),
         os.path.join("..", "..", "..", "..", "task", "os"),
     ]
+    includes.extend(bld.env.INCLUDES_AFE)
     includes.extend(bld.env.INCLUDES_RTOS)
     cflags = bld.env.CFLAGS_FOXBMS
     target = f"{bld.env.APPNAME.lower()}-afe-driver"

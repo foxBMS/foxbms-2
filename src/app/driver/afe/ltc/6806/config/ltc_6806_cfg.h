@@ -43,8 +43,8 @@
  * @file    ltc_6806_cfg.h
  * @author  foxBMS Team
  * @date    2015-02-18 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  LTC
  *
@@ -178,7 +178,7 @@
 /** Time to measure all fuel cells in normal mode 10280 &micro;s */
 #define LTC_FUELCELL_NORMAL_ALL_CELLS_MS (11)
 
-/** LTC statemachine short time definition in ms */
+/** LTC state machine short time definition in ms */
 #define LTC_STATEMACH_SHORTTIME (1)
 
 /**
@@ -236,9 +236,9 @@
  */
 #define LTC_STATEMACH_MEAS_SINGLE_FILTERED_TCYCLE (35)
 
-/** LTC statemachine sequence error timing in ms */
+/** LTC state machine sequence error timing in ms */
 #define LTC_STATEMACH_SEQERRTTIME (5)
-/** LTC statemachine CRC-transmission error timing in ms */
+/** LTC state machine CRC-transmission error timing in ms */
 #define LTC_STATEMACH_PECERRTIME (1)
 
 /**

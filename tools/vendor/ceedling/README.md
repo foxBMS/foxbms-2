@@ -1,5 +1,4 @@
-Ceedling
---------
+# Ceedling
 
 This directory contains the vendored files of Ceedling, the unit-test-runner
 used by this project. It is released, if not otherwise specified under the

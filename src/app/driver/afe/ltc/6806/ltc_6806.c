@@ -43,8 +43,8 @@
  * @file    ltc_6806.c
  * @author  foxBMS Team
  * @date    2019-09-01 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup DRIVERS
  * @prefix  LTC
  *
@@ -299,33 +299,36 @@ static LTC_RETURN_TYPE_e LTC_CheckStateRequest(LTC_STATE_s *ltc_state, LTC_REQUE
  *
  */
 static void LTC_InitializeDatabase(LTC_STATE_s *ltc_state) {
-    uint16_t i = 0;
-
     for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
-        ltc_state->ltcData.cellVoltage->state = 0;
-        for (i = 0; i < BS_NR_OF_CELL_BLOCKS_PER_STRING; i++) {
-            ltc_state->ltcData.cellVoltage->cellVoltage_mV[s][i]      = 0;
-            ltc_state->ltcData.openWireDetection->openWirePup[s][i]   = 0;
-            ltc_state->ltcData.openWireDetection->openWirePdown[s][i] = 0;
-            ltc_state->ltcData.openWireDetection->openWireDelta[s][i] = 0;
+        ltc_state->ltcData.cellVoltage->state = 0u;
+        for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
+            for (uint8_t cb = 0u; cb < BS_NR_OF_CELL_BLOCKS_PER_MODULE; cb++) {
+                ltc_state->ltcData.cellVoltage->cellVoltage_mV[s][m][cb] = 0;
+            }
+        }
+        for (uint16_t cb = 0u; cb < BS_NR_OF_CELL_BLOCKS_PER_STRING; cb++) {
+            ltc_state->ltcData.openWireDetection->openWirePup[s][cb]   = 0;
+            ltc_state->ltcData.openWireDetection->openWirePdown[s][cb] = 0;
+            ltc_state->ltcData.openWireDetection->openWireDelta[s][cb] = 0;
         }
 
         ltc_state->ltcData.cellTemperature->state = 0;
-        for (i = 0; i < BS_NR_OF_TEMP_SENSORS_PER_STRING; i++) {
-            ltc_state->ltcData.cellTemperature->cellTemperature_ddegC[s][i] = 0;
+        for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
+            for (uint8_t ts = 0u; ts < BS_NR_OF_TEMP_SENSORS_PER_MODULE; ts++) {
+                ltc_state->ltcData.cellTemperature->cellTemperature_ddegC[s][m][ts] = 0;
+            }
         }
 
-        ltc_state->ltcData.allGpioVoltages->state = 0;
-        for (i = 0; i < (BS_NR_OF_MODULES_PER_STRING * BS_NR_OF_GPIOS_PER_MODULE); i++) {
-            ltc_state->ltcData.allGpioVoltages->gpioVoltages_mV[s][i] = 0;
+        ltc_state->ltcData.allGpioVoltages->state = 0u;
+        for (uint16_t gpio = 0u; gpio < (BS_NR_OF_MODULES_PER_STRING * BS_NR_OF_GPIOS_PER_MODULE); gpio++) {
+            ltc_state->ltcData.allGpioVoltages->gpioVoltages_mV[s][gpio] = 0;
         }
 
-        for (i = 0; i < (BS_NR_OF_MODULES_PER_STRING * (BS_NR_OF_CELL_BLOCKS_PER_MODULE + 1)); i++) {
-            ltc_state->ltcData.openWire->openWire[s][i] = 0;
+        for (uint16_t ow = 0u; ow < (BS_NR_OF_MODULES_PER_STRING * (BS_NR_OF_CELL_BLOCKS_PER_MODULE + 1)); ow++) {
+            ltc_state->ltcData.openWire->openWire[s][ow] = 0u;
         }
-        ltc_state->ltcData.openWire->state = 0;
+        ltc_state->ltcData.openWire->state = 0u;
     }
-
     DATA_WRITE_DATA(ltc_state->ltcData.cellVoltage, ltc_state->ltcData.cellTemperature, ltc_state->ltcData.openWire);
 }
 
@@ -356,9 +359,9 @@ static void LTC_StateTransition(LTC_STATE_s *ltc_state, LTC_STATEMACH_e state, u
 /**
  * @brief   condition-based state transition depending on retVal
  *
- * If retVal is #STD_OK, after timer_ms_ok is elapsed the LTC statemachine will
+ * If retVal is #STD_OK, after timer_ms_ok is elapsed the LTC state machine will
  * transition into state_ok and substate_ok, otherwise after timer_ms_nok the
- * statemachine will transition to state_nok and substate_nok. Depending on
+ * state machine will transition to state_nok and substate_nok. Depending on
  * value of retVal the corresponding diagnosis entry will be called.
  *
  * @param  ltc_state    state of the ltc state machine
@@ -410,7 +413,7 @@ extern void LTC_SaveVoltages(LTC_STATE_s *ltc_state, uint8_t stringNumber) {
     int32_t stringVoltage_mV                      = 0;
     uint16_t numberValidMeasurements              = 0;
     for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
-        for (uint8_t c = 0u; c < BS_NR_OF_CELL_BLOCKS_PER_MODULE; c++) {
+        for (uint8_t cb = 0u; cb < BS_NR_OF_CELL_BLOCKS_PER_MODULE; cb++) {
             /* ------- 1. Check open-wires -----------------
                  * Is cell N input not open wire &&
                  * Is cell N+1 input not open wire &&
@@ -418,30 +421,28 @@ extern void LTC_SaveVoltages(LTC_STATE_s *ltc_state, uint8_t stringNumber) {
                  * If so, everything okay, else set cell voltage measurement to invalid.
                  */
             if ((ltc_state->ltcData.openWire
-                     ->openWire[stringNumber][(m * (BS_NR_OF_CELL_BLOCKS_PER_MODULE + 1u)) + c] == 0u) &&
+                     ->openWire[stringNumber][(m * (BS_NR_OF_CELL_BLOCKS_PER_MODULE + 1u)) + cb] == 0u) &&
                 (ltc_state->ltcData.openWire
-                     ->openWire[stringNumber][(m * (BS_NR_OF_CELL_BLOCKS_PER_MODULE + 1u)) + c + 1u] == 0u) &&
-                ((ltc_state->ltcData.cellVoltage->invalidCellVoltage[stringNumber][m] & (0x01u << c)) == 0u)) {
+                     ->openWire[stringNumber][(m * (BS_NR_OF_CELL_BLOCKS_PER_MODULE + 1u)) + cb + 1u] == 0u) &&
+                ((ltc_state->ltcData.cellVoltage->invalidCellVoltage[stringNumber][m] & (0x01u << cb)) == 0u)) {
                 /* Cell voltage is valid -> perform minimum/maximum plausibility check */
 
                 /* ------- 2. Perform minimum/maximum measurement range check ---------- */
                 if (STD_OK == AFE_PlausibilityCheckVoltageMeasurementRange(
-                                  ltc_state->ltcData.cellVoltage
-                                      ->cellVoltage_mV[stringNumber][(m * BS_NR_OF_CELL_BLOCKS_PER_MODULE) + c],
+                                  ltc_state->ltcData.cellVoltage->cellVoltage_mV[stringNumber][m][cb],
                                   ltc_plausibleCellVoltages6806)) {
                     /* Cell voltage is valid ->  calculate string voltage */
                     /* -------- 3. Calculate string values ------------- */
-                    stringVoltage_mV += ltc_state->ltcData.cellVoltage
-                                            ->cellVoltage_mV[stringNumber][(m * BS_NR_OF_CELL_BLOCKS_PER_MODULE) + c];
+                    stringVoltage_mV += ltc_state->ltcData.cellVoltage->cellVoltage_mV[stringNumber][m][cb];
                     numberValidMeasurements++;
                 } else {
                     /* Invalidate cell voltage measurement */
-                    ltc_state->ltcData.cellVoltage->invalidCellVoltage[stringNumber][m] |= (0x01u << c);
+                    ltc_state->ltcData.cellVoltage->invalidCellVoltage[stringNumber][m] |= (0x01uLL << cb);
                     cellVoltageMeasurementValid = STD_NOT_OK;
                 }
             } else {
                 /* Set cell voltage measurement value invalid, if not already invalid because of PEC Error */
-                ltc_state->ltcData.cellVoltage->invalidCellVoltage[stringNumber][m] |= (0x01u << c);
+                ltc_state->ltcData.cellVoltage->invalidCellVoltage[stringNumber][m] |= (0x01uLL << cb);
                 cellVoltageMeasurementValid = STD_NOT_OK;
             }
         }
@@ -460,23 +461,21 @@ extern void LTC_SaveTemperatures(LTC_STATE_s *ltc_state, uint8_t stringNumber) {
     STD_RETURN_TYPE_e cellTemperatureMeasurementValid = STD_OK;
     uint16_t numberValidMeasurements                  = 0;
     for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
-        for (uint8_t c = 0u; c < BS_NR_OF_TEMP_SENSORS_PER_MODULE; c++) {
+        for (uint8_t ts = 0u; ts < BS_NR_OF_TEMP_SENSORS_PER_MODULE; ts++) {
             /* ------- 1. Check valid flag  -----------------
                  * Is cell temperature valid because of previous PEC error
                  * If so, everything okay, else set cell temperature measurement to invalid.
                  */
-            if ((ltc_state->ltcData.cellTemperature->invalidCellTemperature[stringNumber][m] & (0x01u << c)) == 0u) {
+            if ((ltc_state->ltcData.cellTemperature->invalidCellTemperature[stringNumber][m] & (0x01u << ts)) == 0u) {
                 /* Cell temperature is valid -> perform minimum/maximum plausibility check */
 
                 /* ------- 2. Perform minimum/maximum measurement range check ---------- */
-                if (STD_OK ==
-                    AFE_PlausibilityCheckTempMinMax(
-                        ltc_state->ltcData.cellTemperature
-                            ->cellTemperature_ddegC[stringNumber][(m * BS_NR_OF_TEMP_SENSORS_PER_MODULE) + c])) {
+                if (STD_OK == AFE_PlausibilityCheckTempMinMax(
+                                  ltc_state->ltcData.cellTemperature->cellTemperature_ddegC[stringNumber][m][ts])) {
                     numberValidMeasurements++;
                 } else {
                     /* Invalidate cell temperature measurement */
-                    ltc_state->ltcData.cellTemperature->invalidCellTemperature[stringNumber][m] |= (0x01u << c);
+                    ltc_state->ltcData.cellTemperature->invalidCellTemperature[stringNumber][m] |= (0x01u << ts);
                     cellTemperatureMeasurementValid = STD_NOT_OK;
                 }
             } else {
@@ -1126,9 +1125,12 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                     ltc_state->reusageMeasurementMode = LTC_NOT_REUSED;
 
                     /* Copy data from voltage struct into open-wire struct */
-                    for (uint16_t i = 0u; i < BS_NR_OF_CELL_BLOCKS_PER_STRING; i++) {
-                        ltc_state->ltcData.openWireDetection->openWirePup[ltc_state->requestedString][i] =
-                            ltc_state->ltcData.cellVoltage->cellVoltage_mV[ltc_state->requestedString][i];
+                    for (uint16_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
+                        for (uint8_t cb = 0u; cb < BS_NR_OF_CELL_BLOCKS_PER_MODULE; cb++) {
+                            ltc_state->ltcData.openWireDetection
+                                ->openWirePup[ltc_state->requestedString][(m * BS_NR_OF_CELL_BLOCKS_PER_MODULE) + cb] =
+                                ltc_state->ltcData.cellVoltage->cellVoltage_mV[ltc_state->requestedString][m][cb];
+                        }
                     }
 
                     /* Set number of ADOW retries - send ADOW command with pull-down two times */
@@ -1178,11 +1180,14 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                     ltc_state->reusageMeasurementMode = LTC_NOT_REUSED;
 
                     /* Copy data from voltage struct into open-wire struct */
-                    for (uint16_t i = 0u; i < BS_NR_OF_CELL_BLOCKS_PER_STRING; i++) {
-                        ltc_state->ltcData.openWireDetection->openWirePdown[ltc_state->requestedString][i] =
-                            ltc_state->ltcData.cellVoltage->cellVoltage_mV[ltc_state->requestedString][i];
+                    for (uint16_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
+                        for (uint16_t cb = 0u; cb < BS_NR_OF_CELL_BLOCKS_PER_MODULE; cb++) {
+                            ltc_state->ltcData.openWireDetection
+                                ->openWirePdown[ltc_state->requestedString]
+                                               [(m * BS_NR_OF_CELL_BLOCKS_PER_MODULE) + cb] =
+                                ltc_state->ltcData.cellVoltage->cellVoltage_mV[ltc_state->requestedString][m][cb];
+                        }
                     }
-
                     LTC_StateTransition(
                         ltc_state, LTC_STATEMACH_OPENWIRE_CHECK, LTC_PERFORM_OPENWIRE_CHECK, LTC_STATEMACH_SHORTTIME);
                 } else if (ltc_state->substate == LTC_PERFORM_OPENWIRE_CHECK) {
@@ -1292,7 +1297,7 @@ static void LTC_SaveRXtoVoltagebuffer_Fuelcell(
     uint8_t stringNumber) {
     uint16_t cellOffset = 0;
     uint16_t val_ui     = 0;
-    int16_t voltage     = 0;
+    int16_t voltage_mV  = 0;
     uint64_t bitmask    = 0;
     uint16_t buffer_LSB = 0;
     uint16_t buffer_MSB = 0;
@@ -1340,15 +1345,14 @@ static void LTC_SaveRXtoVoltagebuffer_Fuelcell(
 
             /* Check signed bit if measured value is negative or not */
             if ((val_ui & (1u << (12u - 1u))) == 0u) {
-                voltage = (int16_t)(((val_ui & 0x7FFu)) * LTC_FUEL_CELL_LSB_RESOLUTION_mV); /* Unit mV */
+                voltage_mV = (int16_t)(((val_ui & 0x7FFu)) * LTC_FUEL_CELL_LSB_RESOLUTION_mV); /* Unit mV */
             } else {
-                voltage = (int16_t)(((((~val_ui) + 1) & 0x7FF)) * (-LTC_FUEL_CELL_LSB_RESOLUTION_mV)); /* Unit mV */
+                voltage_mV = (int16_t)(((((~val_ui) + 1) & 0x7FF)) * (-LTC_FUEL_CELL_LSB_RESOLUTION_mV)); /* Unit mV */
             }
 
             if (ltc_state->ltcData.errorTable->PEC_valid[stringNumber][m] == true) {
-                ltc_state->ltcData.cellVoltage->cellVoltage_mV[stringNumber]
-                                                              [(ltc_state->ltcData.usedCellIndex[stringNumber]) +
-                                                               (m * BS_NR_OF_CELL_BLOCKS_PER_MODULE)] = voltage;
+                ltc_state->ltcData.cellVoltage
+                    ->cellVoltage_mV[stringNumber][m][ltc_state->ltcData.usedCellIndex[stringNumber]] = voltage_mV;
                 bitmask = ~bitmask; /* negate bitmask to only validate flags of this voltage register */
                 ltc_state->ltcData.cellVoltage->invalidCellVoltage[stringNumber][(m / LTC_NUMBER_OF_LTC_PER_MODULE)] &=
                     bitmask;
@@ -1783,18 +1787,18 @@ extern void TEST_LTC_SetFirstMeasurementCycleFinished(LTC_STATE_s *ltc_state) {
         }                                                  \
     }
 
-TEST_LTC_DEFINE_GET(ltc_cmdWRCFG);
-TEST_LTC_DEFINE_GET(ltc_cmdRDCFG);
-TEST_LTC_DEFINE_GET(ltc_cmdRDCVA_Fuelcell);
-TEST_LTC_DEFINE_GET(ltc_cmdRDCVB_Fuelcell);
-TEST_LTC_DEFINE_GET(ltc_cmdRDCVC_Fuelcell);
-TEST_LTC_DEFINE_GET(ltc_cmdRDCVD_Fuelcell);
-TEST_LTC_DEFINE_GET(ltc_cmdRDCVE_Fuelcell);
-TEST_LTC_DEFINE_GET(ltc_cmdRDCVF_Fuelcell);
-TEST_LTC_DEFINE_GET(ltc_cmdRDCVG_Fuelcell);
-TEST_LTC_DEFINE_GET(ltc_cmdRDCVH_Fuelcell);
-TEST_LTC_DEFINE_GET(ltc_cmdRDCVI_Fuelcell);
-TEST_LTC_DEFINE_GET(ltc_cmdADCV_normal_Fuelcell);
-TEST_LTC_DEFINE_GET(ltc_BC_cmdADOW_PUP_100ms_fuelcell);
-TEST_LTC_DEFINE_GET(ltc_BC_cmdADOW_PDOWN_100ms_fuelcell);
+TEST_LTC_DEFINE_GET(ltc_cmdWRCFG)
+TEST_LTC_DEFINE_GET(ltc_cmdRDCFG)
+TEST_LTC_DEFINE_GET(ltc_cmdRDCVA_Fuelcell)
+TEST_LTC_DEFINE_GET(ltc_cmdRDCVB_Fuelcell)
+TEST_LTC_DEFINE_GET(ltc_cmdRDCVC_Fuelcell)
+TEST_LTC_DEFINE_GET(ltc_cmdRDCVD_Fuelcell)
+TEST_LTC_DEFINE_GET(ltc_cmdRDCVE_Fuelcell)
+TEST_LTC_DEFINE_GET(ltc_cmdRDCVF_Fuelcell)
+TEST_LTC_DEFINE_GET(ltc_cmdRDCVG_Fuelcell)
+TEST_LTC_DEFINE_GET(ltc_cmdRDCVH_Fuelcell)
+TEST_LTC_DEFINE_GET(ltc_cmdRDCVI_Fuelcell)
+TEST_LTC_DEFINE_GET(ltc_cmdADCV_normal_Fuelcell)
+TEST_LTC_DEFINE_GET(ltc_BC_cmdADOW_PUP_100ms_fuelcell)
+TEST_LTC_DEFINE_GET(ltc_BC_cmdADOW_PDOWN_100ms_fuelcell)
 #endif

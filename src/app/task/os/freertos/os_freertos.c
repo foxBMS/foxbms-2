@@ -43,8 +43,8 @@
  * @file    os_freertos.c
  * @author  foxBMS Team
  * @date    2021-11-18 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup OS
  * @prefix  OS
  *
@@ -57,6 +57,7 @@
 
 #include "HL_sys_core.h"
 
+#include "can_cbs_tx_crash-dump.h"
 #include "ftask.h"
 
 #include <stdint.h>
@@ -126,7 +127,22 @@ void vApplicationIdleHook(void) {
 
 #if (configCHECK_FOR_STACK_OVERFLOW > 0)
 /* FreeRTOS internal function, keep FreeRTOS types */
+/* AXIVION Next Codeline Style CodingStyle-Naming.Function: keep the parameter
+   names as provided by FreeRTOS */
+/* AXIVION Next Codeline Style MisraC2012-2.7: The parameters are only required
+   by the API given through FreeRTOS and are not used (as they are not needed),
+   therefore it is save to ignore them. */
+/* AXIVION Next Codeline Style MisraC2012-8.13: The types of the parameters are
+   provided by the API. As stated, the parameters are not used, therefore the
+   'const'-qualifier can be ignored.  */
+/* AXIVION Next Codeline Style Generic-MissingParameterAssert: As stated above,
+   the parameters are not used, so there is no reason to assert their on their
+   values.*/
 void vApplicationStackOverflowHook(TaskHandle_t xTask, char *pcTaskName) {
+    /* After the FreeRTOS stack overflow detection has been triggered, try to
+       instantly send a CAN message, that tells the higher level control unit,
+       that a stack overflow appeared in one of the FreeRTOS tasks. */
+    CANTX_SendReasonsForFatalErrors(CANTX_FATAL_ERRORS_ACTIONS_STACK_OVERFLOW);
     FAS_ASSERT(FAS_TRAP);
 }
 #endif /* configCHECK_FOR_STACK_OVERFLOW */
@@ -226,7 +242,7 @@ extern OS_STD_RETURN_e OS_NotifyIndexedFromIsr(
     if (xNotification == pdTRUE) {
         notification = OS_SUCCESS;
     }
-    /* Make the scheduler yield when notification made, so that unblocked tasks is run imediately
+    /* Make the scheduler yield when notification made, so that unblocked tasks is run immediately
     (if priorities allow it, instead of waiting for the next OS tick) */
     portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
     return notification;

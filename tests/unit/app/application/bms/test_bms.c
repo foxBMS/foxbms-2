@@ -43,8 +43,8 @@
  * @file    test_bms.c
  * @author  foxBMS Team
  * @date    2020-04-01 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -76,8 +76,26 @@
 
 #include <stdbool.h>
 
+/*========== Unit Testing Framework Directives ==============================*/
+TEST_INCLUDE_PATH("../../src/app/application/bal")
+TEST_INCLUDE_PATH("../../src/app/application/bms")
+TEST_INCLUDE_PATH("../../src/app/application/plausibility")
+TEST_INCLUDE_PATH("../../src/app/application/soa")
+TEST_INCLUDE_PATH("../../src/app/driver/afe/api")
+TEST_INCLUDE_PATH("../../src/app/driver/config")
+TEST_INCLUDE_PATH("../../src/app/driver/contactor")
+TEST_INCLUDE_PATH("../../src/app/driver/foxmath")
+TEST_INCLUDE_PATH("../../src/app/driver/imd")
+TEST_INCLUDE_PATH("../../src/app/driver/interlock")
+TEST_INCLUDE_PATH("../../src/app/driver/led")
+TEST_INCLUDE_PATH("../../src/app/driver/meas")
+TEST_INCLUDE_PATH("../../src/app/driver/sps")
+TEST_INCLUDE_PATH("../../src/app/engine/diag")
+TEST_INCLUDE_PATH("../../src/app/task/config")
+
 /*========== Definitions and Implementations for Unit Test ==================*/
-DIAG_ID_CFG_s diag_diagnosisIdConfiguration[] = {};
+
+DIAG_ID_CFG_s diag_diagnosisIdConfiguration[] = {0};
 
 DIAG_DEV_s diag_device = {
     .nrOfConfiguredDiagnosisEntries   = sizeof(diag_diagnosisIdConfiguration) / sizeof(DIAG_ID_CFG_s),

@@ -120,8 +120,8 @@ the main build system, special care has to be taken that the correct source
 files are attracted.
 This mainly applies to the implementations of the lookup-table and polynomial
 function as they do not have a separate header file.
-Use ``TEST_FILE("good-sensor_temp123_polynomial.c")`` in the test file in order
-to hint the correct source file to the unit test build system.
+Use ``TEST_SOURCE_FILE("good-sensor_temp123_polynomial.c")`` in the test file
+in order to hint the correct source file to the unit test build system.
 
 Updating the IDE configuration
 ------------------------------

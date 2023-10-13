@@ -43,8 +43,8 @@
  * @file    sys_cfg.h
  * @author  foxBMS Team
  * @date    2020-02-24 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup ENGINE_CONFIGURATION
  * @prefix  SYS
  *
@@ -70,13 +70,13 @@
 #define SYS_TASK_CYCLE_CONTEXT_MS (10u)
 
 /**
- * SYS statemachine short time definition in #SYS_Trigger() calls until next
+ * SYS state machine short time definition in #SYS_Trigger() calls until next
  * state/substate is processed
  */
 #define SYS_FSM_SHORT_TIME (1u)
 
 /**
- * SYS statemachine medium time definition in #SYS_Trigger() calls until next
+ * SYS state machine medium time definition in #SYS_Trigger() calls until next
  * state/substate is processed
  */
 #define SYS_FSM_MEDIUM_TIME (5u)

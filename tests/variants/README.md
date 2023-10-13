@@ -23,5 +23,5 @@ must be named:
 ``freertos_ltc-6813-1_vbb_cc-cc-tr-none_none-no-imd.json``
 
 For more complex build variants a directory must be created the all required
-files must be placed in that directory. See the library build in ``lib-build``
-to see how it can be done.
+files must be placed in that directory.
+See the library build in ``lib-build`` to see how it can be done.

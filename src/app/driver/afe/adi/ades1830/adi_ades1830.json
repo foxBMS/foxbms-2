@@ -1,0 +1,11 @@
+{
+    "include": [
+        ".",
+        "config",
+        "../common/ades183x",
+        "../common/ades183x/api",
+        "../common/ades183x/config",
+        "../common/ades183x/pec",
+        "../../api"
+    ]
+}

@@ -65,19 +65,12 @@ def build(bld):
         os.path.join("..", "api", "nxp_afe.c"),
         os.path.join("api", "nxp_mc33775a_afe.c"),
         os.path.join("nxp_afe_dma.c"),
-        os.path.join("config", "nxp_afe_dma_cfg.c"),
         os.path.join("nxp_mc33775a.c"),
         os.path.join("nxp_mc33775a-ll.c"),
         os.path.join("config", "nxp_mc33775a_cfg.c"),
         os.path.join("vendor", "uc_msg_t.c"),
     ]
     includes = [
-        ".",
-        os.path.join("api"),
-        os.path.join("config"),
-        os.path.join("vendor"),
-        os.path.join("..", "api"),
-        os.path.join("..", "..", "api"),
         os.path.join("..", "..", "..", "config"),
         os.path.join("..", "..", "..", "dma"),
         os.path.join("..", "..", "..", "foxmath"),
@@ -98,6 +91,7 @@ def build(bld):
         os.path.join("..", "..", "..", "..", "task", "ftask"),
         os.path.join("..", "..", "..", "..", "task", "os"),
     ]
+    includes.extend(bld.env.INCLUDES_AFE)
     includes.extend(bld.env.INCLUDES_RTOS)
     cflags = bld.env.CFLAGS_FOXBMS
     target = f"{bld.env.APPNAME.lower()}-afe-driver"

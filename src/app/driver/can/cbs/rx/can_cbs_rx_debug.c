@@ -43,8 +43,8 @@
  * @file    can_cbs_rx_debug.c
  * @author  foxBMS Team
  * @date    2021-04-20 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup DRIVER
  * @prefix  CANRX
  *
@@ -55,7 +55,7 @@
 /*========== Includes =======================================================*/
 #include "can_cbs_rx.h"
 #include "can_cbs_tx_debug-response.h"
-#include "can_cbs_tx_unsupported-message.h"
+#include "can_cbs_tx_debug-unsupported-multiplexer-values.h"
 #include "can_cfg_rx-message-definitions.h"
 #include "can_helper.h"
 #include "fram.h"
@@ -99,6 +99,8 @@
 #define CANRX_MUX_VERSION_INFO_SIGNAL_GET_MCU_LOT_NUMBER_LENGTH           (CANRX_BIT)
 #define CANRX_MUX_VERSION_INFO_SIGNAL_GET_MCU_WAFER_INFORMATION_START_BIT (11u)
 #define CANRX_MUX_VERSION_INFO_SIGNAL_GET_MCU_WAFER_INFORMATION_LENGTH    (CANRX_BIT)
+#define CANRX_MUX_VERSION_INFO_SIGNAL_GET_COMMIT_HASH_START_BIT           (12u)
+#define CANRX_MUX_VERSION_INFO_SIGNAL_GET_COMMIT_HASH_LENGTH              (CANRX_BIT)
 /** @} */
 
 /** @{
@@ -305,6 +307,19 @@ static bool CANRX_CheckIfMcuWaferInformationIsRequested(uint64_t messageData, CA
  * @brief   Triggers sending of the MCU wafer information message
  */
 static void CANRX_TriggerMcuWaferInformationMessage(void);
+
+/**
+ * @brief   Check if the commit hash is requested
+ * @param   messageData message data of the CAN message
+ * @param   endianness  endianness of the message
+ * @returns true if the information is requested, false otherwise
+ */
+static bool CANRX_CheckIfCommitHashIsRequested(uint64_t messageData, CAN_ENDIANNESS_e endianness);
+
+/**
+ * @brief   Triggers sending of the commit hash message
+ */
+static void CANRX_TriggerCommitHashMessage(void);
 
 /**
  * @brief   Check if a software reset is requested
@@ -576,6 +591,32 @@ static bool CANRX_CheckIfMcuWaferInformationIsRequested(uint64_t messageData, CA
     return isRequested;
 }
 
+static void CANRX_TriggerCommitHashMessage(void) {
+    /* send the debug message containing the MCU wafer information and trap if this does not work */
+    if (CANTX_DebugResponse(CANTX_DEBUG_RESPONSE_TRANSMIT_COMMIT_HASH) != STD_OK) {
+        FAS_ASSERT(FAS_TRAP);
+    }
+}
+static bool CANRX_CheckIfCommitHashIsRequested(uint64_t messageData, CAN_ENDIANNESS_e endianness) {
+    /* AXIVION Routine Generic-MissingParameterAssert: messageData: parameter accept whole range */
+    FAS_ASSERT(endianness == CAN_BIG_ENDIAN);
+
+    bool isRequested    = false;
+    uint64_t signalData = 0u;
+
+    /* get MCU wafer information bit from the CAN message */
+    CAN_RxGetSignalDataFromMessageData(
+        messageData,
+        CANRX_MUX_VERSION_INFO_SIGNAL_GET_COMMIT_HASH_START_BIT,
+        CANRX_MUX_VERSION_INFO_SIGNAL_GET_COMMIT_HASH_LENGTH,
+        &signalData,
+        endianness);
+    if (signalData == 1u) {
+        isRequested = true;
+    }
+    return isRequested;
+}
+
 static void CANRX_TriggerMcuWaferInformationMessage(void) {
     /* send the debug message containing the MCU wafer information and trap if this does not work */
     if (CANTX_DebugResponse(CANTX_DEBUG_RESPONSE_TRANSMIT_MCU_WAFER_INFORMATION) != STD_OK) {
@@ -599,6 +640,9 @@ static void CANRX_ProcessVersionInformationMux(uint64_t messageData, CAN_ENDIANN
     }
     if (CANRX_CheckIfMcuWaferInformationIsRequested(messageData, endianness) == true) {
         CANRX_TriggerMcuWaferInformationMessage();
+    }
+    if (CANRX_CheckIfCommitHashIsRequested(messageData, endianness) == true) {
+        CANRX_TriggerCommitHashMessage();
     }
 }
 
@@ -775,19 +819,22 @@ extern uint8_t TEST_CANRX_GetYear(uint64_t messageData, CAN_ENDIANNESS_e endiann
 
 /* export actions */
 extern void TEST_CANRX_TriggerBmsSoftwareVersionMessage(void) {
-    return CANRX_TriggerBmsSoftwareVersionMessage();
+    CANRX_TriggerBmsSoftwareVersionMessage();
 }
 extern void TEST_CANRX_TriggerMcuUniqueDieIdMessage(void) {
-    return CANRX_TriggerMcuUniqueDieIdMessage();
+    CANRX_TriggerMcuUniqueDieIdMessage();
 }
 extern void TEST_CANRX_TriggerMcuLotNumberMessage(void) {
-    return CANRX_TriggerMcuLotNumberMessage();
+    CANRX_TriggerMcuLotNumberMessage();
 }
 extern void TEST_CANRX_TriggerMcuWaferInformationMessage(void) {
-    return CANRX_TriggerMcuWaferInformationMessage();
+    CANRX_TriggerMcuWaferInformationMessage();
 }
 extern void TEST_CANRX_TriggerTimeInfoMessage(void) {
-    return CANRX_TriggerTimeInfoMessage();
+    CANRX_TriggerTimeInfoMessage();
+}
+extern void TEST_CANRX_TriggerCommitHashMessage(void) {
+    CANRX_TriggerCommitHashMessage();
 }
 
 /* export check if functions */
@@ -811,6 +858,9 @@ extern bool TEST_CANRX_CheckIfFramInitializationIsRequested(uint64_t messageData
 }
 extern bool TEST_CANRX_CheckIfTimeInfoIsRequested(uint64_t messageData, CAN_ENDIANNESS_e endianness) {
     return CANRX_CheckIfTimeInfoIsRequested(messageData, endianness);
+}
+extern bool TEST_CANRX_CheckIfCommitHashIsRequested(uint64_t messageData, CAN_ENDIANNESS_e endianness) {
+    return CANRX_CheckIfCommitHashIsRequested(messageData, endianness);
 }
 
 /* export mux processing functions */

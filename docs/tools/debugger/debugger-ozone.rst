@@ -92,7 +92,7 @@ Tracing with Segger J-Trace PRO Cortex
 Apart from debug probes, Segger also supplies trace probes.
 With these devices it is possible to stream internal information from the MCU
 such as the program counter directly to the debugger.
-For the |tms570lc4357| target it is necessary to use the Segger J-Trace PRO
+For the |ti-tms570lc4357| target it is necessary to use the Segger J-Trace PRO
 Cortex model.
 According to its documentation it is able to trace with a data width of 4 bit.
 

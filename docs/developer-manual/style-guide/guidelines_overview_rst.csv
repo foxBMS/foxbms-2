@@ -1,0 +1,8 @@
+Rule     ; Link                        ; Automated Check
+RST:001  ; :ref:`rule_rst_filenames`   ; No
+RST:002  ; :ref:`rule_rst_line_length` ; No
+RST:003  ; :ref:`rule_rst_include`     ; Yes
+RST:004  ; :ref:`rule_rst_links`       ; Yes
+RST:005  ; :ref:`rule_rst_headings`    ; Yes
+RST:006  ; :ref:`rule_rst_orphan`      ; Yes
+RST:007  ; :ref:`rule_rst_sentence`    ; No

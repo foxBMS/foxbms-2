@@ -43,8 +43,8 @@
  * @file    test_ltc_pec.c
  * @author  foxBMS Team
  * @date    2022-11-04 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -59,7 +59,10 @@
 #include "ltc_pec.h"
 #include "test_assert_helper.h"
 
-TEST_FILE("ltc_pec.c")
+/*========== Unit Testing Framework Directives ==============================*/
+TEST_SOURCE_FILE("ltc_pec.c")
+
+TEST_INCLUDE_PATH("../../src/app/driver/afe/ltc/common")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 

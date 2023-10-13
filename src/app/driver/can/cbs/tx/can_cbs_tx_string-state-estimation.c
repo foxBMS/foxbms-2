@@ -43,8 +43,8 @@
  * @file    can_cbs_tx_string-state-estimation.c
  * @author  foxBMS Team
  * @date    2021-07-21 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup DRIVER
  * @prefix  CANTX
  *
@@ -99,7 +99,7 @@ extern uint32_t CANTX_StringStateEstimation(
     CAN_TxSetMessageDataWithSignalData(&messageData, 7u, 4u, data, message.endianness);
 
     /* Minimum SOC */
-    float_t signalData = kpkCanShim->pTableSox->minimumSoc_perc[stringNumber];
+    float_t signalData = kpkCanShim->pTableSoc->minimumSoc_perc[stringNumber];
     float_t offset     = 0.0f;
     float_t factor     = 4.0f; /* convert from perc to 0.25perc */
     signalData         = (signalData + offset) * factor;
@@ -108,7 +108,7 @@ extern uint32_t CANTX_StringStateEstimation(
     CAN_TxSetMessageDataWithSignalData(&messageData, 3u, 9u, data, message.endianness);
 
     /* Average SOC */
-    signalData = kpkCanShim->pTableSox->averageSoc_perc[stringNumber];
+    signalData = kpkCanShim->pTableSoc->averageSoc_perc[stringNumber];
     offset     = 0.0f;
     factor     = 4.0f; /* convert from perc to 0.25perc */
     signalData = (signalData + offset) * factor;
@@ -117,7 +117,7 @@ extern uint32_t CANTX_StringStateEstimation(
     CAN_TxSetMessageDataWithSignalData(&messageData, 10u, 9u, data, message.endianness);
 
     /* Maximum SOC */
-    signalData = kpkCanShim->pTableSox->maximumSoc_perc[stringNumber];
+    signalData = kpkCanShim->pTableSoc->maximumSoc_perc[stringNumber];
     offset     = 0.0f;
     factor     = 4.0f; /* convert from perc to 0.25perc */
     signalData = (signalData + offset) * factor;
@@ -127,9 +127,9 @@ extern uint32_t CANTX_StringStateEstimation(
 
     /* SOE */
     if (BMS_CHARGING == BMS_GetCurrentFlowDirection(kpkCanShim->pTablePackValues->stringCurrent_mA[stringNumber])) {
-        signalData = kpkCanShim->pTableSox->maximumSoe_perc[stringNumber];
+        signalData = kpkCanShim->pTableSoe->maximumSoe_perc[stringNumber];
     } else {
-        signalData = kpkCanShim->pTableSox->minimumSoe_perc[stringNumber];
+        signalData = kpkCanShim->pTableSoe->minimumSoe_perc[stringNumber];
     }
     offset     = 0.0f;
     factor     = 4.0f; /* convert from perc to 0.25perc */
@@ -148,7 +148,7 @@ extern uint32_t CANTX_StringStateEstimation(
     CAN_TxSetMessageDataWithSignalData(&messageData, 47u, 9u, data, message.endianness);
 
     /* String energy */
-    signalData = kpkCanShim->pTableSox->minimumSoe_Wh[stringNumber];
+    signalData = kpkCanShim->pTableSoe->minimumSoe_Wh[stringNumber];
     offset     = 0.0f;
     factor     = 0.1f; /* convert from Wh to 10Wh */
     signalData = (signalData + offset) * factor;

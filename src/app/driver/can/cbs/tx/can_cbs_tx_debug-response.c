@@ -43,8 +43,8 @@
  * @file    can_cbs_tx_debug-response.c
  * @author  foxBMS Team
  * @date    2019-12-04 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup DRIVERS
  * @prefix  CANTX
  *
@@ -79,7 +79,7 @@
 /*========== Macros and Definitions =========================================*/
 
 /** @{
- * multiplexer setup for the debug message
+ * multiplexer setup for the debug response message
  */
 #define CANTX_DEBUG_RESPONSE_MESSAGE_MUX_START_BIT (0x7u)
 #define CANTX_DEBUG_RESPONSE_MESSAGE_MUX_LENGTH    (8u)
@@ -90,6 +90,7 @@
 #define CANTX_DEBUG_RESPONSE_MESSAGE_MUX_VALUE_MCU_LOT_NUMBER            (0x02u)
 #define CANTX_DEBUG_RESPONSE_MESSAGE_MUX_VALUE_MCU_WAFER_INFORMATION     (0x03u)
 #define CANTX_DEBUG_RESPONSE_MESSAGE_MUX_VALUE_RTC_TIME                  (0x04u)
+#define CANTX_DEBUG_RESPONSE_MESSAGE_MUX_VALUE_COMMIT_HASH               (0x05u)
 #define CANTX_DEBUG_RESPONSE_MESSAGE_MUX_VALUE_BOOT_INFORMATION          (0x0Fu)
 
 /** @{
@@ -179,8 +180,8 @@
 /** @{
  * Magic data, i.e., bit muster, in the boot message
  */
-#define CANTX_BOOT_MAGIC_DATA_START (0b11111110111111101111111011111110111111101111111011111110uLL)
-#define CANTX_BOOT_MAGIC_DATA_END   (0b00000001000000010000000100000001000000010000000100000001uLL)
+#define CANTX_BOOT_MAGIC_DATA_START (0xFEFEFEFEFEFEFEuLL)
+#define CANTX_BOOT_MAGIC_DATA_END   (0x01010101010101uLL)
 /** @} */
 
 /** @{
@@ -196,6 +197,27 @@
 #define CANTX_WAFER_Y_COORDINATE_SHIFT_12_BITS (12uLL)
 #define CANTX_WAFER_NUMBER_BITMASK             (0xFF000000uLL)
 #define CANTX_WAFER_NUMBER_SHIFT_24_BITS       (24uLL)
+/** @} */
+
+/** @{
+ * configuration of the BMS software version information signals for
+ * multiplexer 'CommitHash' in the 'DebugResponse' message
+ */
+#define CANTX_MUX_COMMIT_HASH_SIGNAL_CHAR_0_START_BIT (15u)
+#define CANTX_MUX_COMMIT_HASH_SIGNAL_CHAR_1_START_BIT (23u)
+#define CANTX_MUX_COMMIT_HASH_SIGNAL_CHAR_2_START_BIT (31u)
+#define CANTX_MUX_COMMIT_HASH_SIGNAL_CHAR_3_START_BIT (39u)
+#define CANTX_MUX_COMMIT_HASH_SIGNAL_CHAR_4_START_BIT (47u)
+#define CANTX_MUX_COMMIT_HASH_SIGNAL_CHAR_5_START_BIT (55u)
+#define CANTX_MUX_COMMIT_HASH_SIGNAL_CHAR_6_START_BIT (63u)
+#define CANTX_MUX_COMMIT_HASH_SIGNAL_CHAR_LENGTH      (8u)
+#define CANTX_MUX_COMMIT_HASH_CHAR_0                  (0u)
+#define CANTX_MUX_COMMIT_HASH_CHAR_1                  (1u)
+#define CANTX_MUX_COMMIT_HASH_CHAR_2                  (2u)
+#define CANTX_MUX_COMMIT_HASH_CHAR_3                  (3u)
+#define CANTX_MUX_COMMIT_HASH_CHAR_4                  (4u)
+#define CANTX_MUX_COMMIT_HASH_CHAR_5                  (5u)
+#define CANTX_MUX_COMMIT_HASH_CHAR_6                  (6u)
 /** @} */
 
 /*========== Static Constant and Variable Definitions =======================*/
@@ -251,6 +273,12 @@ static STD_RETURN_TYPE_e CANTX_TransmitBootMagicEnd(void);
  */
 static STD_RETURN_TYPE_e CANTX_TransmitRtcTime(void);
 
+/**
+ * @brief Transmit the commit hash
+ * @return #STD_OK if transmission successful, otherwise #STD_NOT_OK
+*/
+static STD_RETURN_TYPE_e CANTX_TransmitCommitHash(void);
+
 /*========== Static Function Implementations ================================*/
 
 static STD_RETURN_TYPE_e CANTX_TransmitBmsVersionInfo(void) {
@@ -272,7 +300,7 @@ static STD_RETURN_TYPE_e CANTX_TransmitBmsVersionInfo(void) {
         underVersionControl = 1;
     }
 
-    uint64_t message = 0;
+    uint64_t message = 0u;
     CAN_TxSetMessageDataWithSignalData(
         &message,
         CANTX_DEBUG_RESPONSE_MESSAGE_MUX_START_BIT,
@@ -334,7 +362,7 @@ static STD_RETURN_TYPE_e CANTX_TransmitMcuUniqueDieId(void) {
     /* Read out device register with unique ID */
     const uint32_t deviceRegister = systemREG1->DEVID;
 
-    uint64_t message = 0;
+    uint64_t message = 0u;
     CAN_TxSetMessageDataWithSignalData(
         &message,
         CANTX_DEBUG_RESPONSE_MESSAGE_MUX_START_BIT,
@@ -360,7 +388,7 @@ static STD_RETURN_TYPE_e CANTX_TransmitMcuLotNumber(void) {
     /* Read out device register with die ID high */
     const uint32_t dieIdHigh = systemREG1->DIEIDH; /* equals the lot number */
 
-    uint64_t message = 0;
+    uint64_t message = 0u;
     CAN_TxSetMessageDataWithSignalData(
         &message,
         CANTX_DEBUG_RESPONSE_MESSAGE_MUX_START_BIT,
@@ -392,7 +420,7 @@ static STD_RETURN_TYPE_e CANTX_TransmitMcuWaferInformation(void) {
     uint64_t yWaferCoordinate = (dieIdLow & CANTX_WAFER_Y_COORDINATE_BITMASK) >> CANTX_WAFER_Y_COORDINATE_SHIFT_12_BITS;
     uint64_t waferNumber      = (dieIdLow & CANTX_WAFER_NUMBER_BITMASK) >> CANTX_WAFER_NUMBER_SHIFT_24_BITS;
 
-    uint64_t message = 0;
+    uint64_t message = 0u;
     CAN_TxSetMessageDataWithSignalData(
         &message,
         CANTX_DEBUG_RESPONSE_MESSAGE_MUX_START_BIT,
@@ -428,7 +456,7 @@ static STD_RETURN_TYPE_e CANTX_TransmitBootMagic(uint64_t messageData) {
     FAS_ASSERT((messageData == CANTX_BOOT_MAGIC_DATA_START) || (messageData == CANTX_BOOT_MAGIC_DATA_END));
     uint8_t data[] = {GEN_REPEAT_U(0u, GEN_STRIP(CAN_MAX_DLC))};
 
-    uint64_t message = 0;
+    uint64_t message = 0u;
     CAN_TxSetMessageDataWithSignalData(
         &message,
         CANTX_DEBUG_RESPONSE_MESSAGE_MUX_START_BIT,
@@ -456,7 +484,7 @@ static STD_RETURN_TYPE_e CANTX_TransmitRtcTime(void) {
 
     RTC_TIME_DATA_s currentRtcTime = RTC_GetSystemTimeRtcFormat();
 
-    uint64_t message = 0;
+    uint64_t message = 0u;
     CAN_TxSetMessageDataWithSignalData(
         &message,
         CANTX_DEBUG_RESPONSE_MESSAGE_MUX_START_BIT,
@@ -518,6 +546,74 @@ static STD_RETURN_TYPE_e CANTX_TransmitRtcTime(void) {
     return successfullyQueued;
 }
 
+static STD_RETURN_TYPE_e CANTX_TransmitCommitHash(void) {
+    uint8_t data[]   = {GEN_REPEAT_U(0u, GEN_STRIP(CAN_MAX_DLC))};
+    uint64_t message = 0u;
+
+    /* set message data with mux value and first seven chars of commit hash*/
+    CAN_TxSetMessageDataWithSignalData(
+        &message,
+        CANTX_DEBUG_RESPONSE_MESSAGE_MUX_START_BIT,
+        CANTX_DEBUG_RESPONSE_MESSAGE_MUX_LENGTH,
+        CANTX_DEBUG_RESPONSE_MESSAGE_MUX_VALUE_COMMIT_HASH,
+        CAN_BIG_ENDIAN);
+    uint64_t signalData = (uint64_t)ver_foxbmsVersionInformation.commitHash[CANTX_MUX_COMMIT_HASH_CHAR_0];
+    CAN_TxSetMessageDataWithSignalData(
+        &message,
+        CANTX_MUX_COMMIT_HASH_SIGNAL_CHAR_0_START_BIT,
+        CANTX_MUX_COMMIT_HASH_SIGNAL_CHAR_LENGTH,
+        signalData,
+        CAN_BIG_ENDIAN);
+    signalData = (uint64_t)ver_foxbmsVersionInformation.commitHash[CANTX_MUX_COMMIT_HASH_CHAR_1];
+    CAN_TxSetMessageDataWithSignalData(
+        &message,
+        CANTX_MUX_COMMIT_HASH_SIGNAL_CHAR_1_START_BIT,
+        CANTX_MUX_COMMIT_HASH_SIGNAL_CHAR_LENGTH,
+        signalData,
+        CAN_BIG_ENDIAN);
+    signalData = (uint64_t)ver_foxbmsVersionInformation.commitHash[CANTX_MUX_COMMIT_HASH_CHAR_2];
+    CAN_TxSetMessageDataWithSignalData(
+        &message,
+        CANTX_MUX_COMMIT_HASH_SIGNAL_CHAR_2_START_BIT,
+        CANTX_MUX_COMMIT_HASH_SIGNAL_CHAR_LENGTH,
+        signalData,
+        CAN_BIG_ENDIAN);
+    signalData = (uint64_t)ver_foxbmsVersionInformation.commitHash[CANTX_MUX_COMMIT_HASH_CHAR_3];
+    CAN_TxSetMessageDataWithSignalData(
+        &message,
+        CANTX_MUX_COMMIT_HASH_SIGNAL_CHAR_3_START_BIT,
+        CANTX_MUX_COMMIT_HASH_SIGNAL_CHAR_LENGTH,
+        signalData,
+        CAN_BIG_ENDIAN);
+    signalData = (uint64_t)ver_foxbmsVersionInformation.commitHash[CANTX_MUX_COMMIT_HASH_CHAR_4];
+    CAN_TxSetMessageDataWithSignalData(
+        &message,
+        CANTX_MUX_COMMIT_HASH_SIGNAL_CHAR_4_START_BIT,
+        CANTX_MUX_COMMIT_HASH_SIGNAL_CHAR_LENGTH,
+        signalData,
+        CAN_BIG_ENDIAN);
+    signalData = (uint64_t)ver_foxbmsVersionInformation.commitHash[CANTX_MUX_COMMIT_HASH_CHAR_5];
+    CAN_TxSetMessageDataWithSignalData(
+        &message,
+        CANTX_MUX_COMMIT_HASH_SIGNAL_CHAR_5_START_BIT,
+        CANTX_MUX_COMMIT_HASH_SIGNAL_CHAR_LENGTH,
+        signalData,
+        CAN_BIG_ENDIAN);
+    signalData = (uint64_t)ver_foxbmsVersionInformation.commitHash[CANTX_MUX_COMMIT_HASH_CHAR_6];
+    CAN_TxSetMessageDataWithSignalData(
+        &message,
+        CANTX_MUX_COMMIT_HASH_SIGNAL_CHAR_6_START_BIT,
+        CANTX_MUX_COMMIT_HASH_SIGNAL_CHAR_LENGTH,
+        signalData,
+        CAN_BIG_ENDIAN);
+
+    CAN_TxSetCanDataWithMessageData(message, &data[0], CAN_BIG_ENDIAN);
+    STD_RETURN_TYPE_e successfullyQueued =
+        CAN_DataSend(CAN_NODE_DEBUG_MESSAGE, CANTX_DEBUG_RESPONSE_ID, CANTX_DEBUG_IDENTIFIER, &data[0]);
+
+    return successfullyQueued;
+}
+
 /*========== Extern Function Implementations ================================*/
 extern STD_RETURN_TYPE_e CANTX_DebugResponse(CANTX_DEBUG_RESPONSE_ACTIONS_e action) {
     STD_RETURN_TYPE_e successfullyQueued = STD_NOT_OK;
@@ -543,12 +639,16 @@ extern STD_RETURN_TYPE_e CANTX_DebugResponse(CANTX_DEBUG_RESPONSE_ACTIONS_e acti
         case CANTX_DEBUG_RESPONSE_TRANSMIT_RTC_TIME:
             successfullyQueued = CANTX_TransmitRtcTime();
             break;
+        case CANTX_DEBUG_RESPONSE_TRANSMIT_COMMIT_HASH:
+            successfullyQueued = CANTX_TransmitCommitHash();
+            break;
         default:
             FAS_ASSERT(FAS_TRAP);
             break; /* LCOV_EXCL_LINE */
     }
     return successfullyQueued;
 }
+
 /*========== Getter for static Variables (Unit Test) ========================*/
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/

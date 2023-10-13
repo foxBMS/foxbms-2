@@ -43,8 +43,8 @@
  * @file    bal.h
  * @author  foxBMS Team
  * @date    2020-02-24 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup APPLICATION
  * @prefix  BAL
  *
@@ -97,7 +97,7 @@ typedef enum {
 } BAL_STATEMACH_SUB_e;
 
 /**
- * State requests for the BAL statemachine
+ * State requests for the BAL state machine
  */
 typedef enum {
     BAL_STATE_INIT_REQUEST,           /*!<    */
@@ -106,11 +106,11 @@ typedef enum {
     BAL_STATE_ALLOWBALANCING_REQUEST, /*!<    */
     BAL_STATE_GLOBAL_DISABLE_REQUEST, /*!<    */
     BAL_STATE_GLOBAL_ENABLE_REQUEST,  /*!<    */
-    BAL_STATE_NO_REQUEST,             /*!< default state: no request to the statemachine */
+    BAL_STATE_NO_REQUEST,             /*!< default state: no request to the state machine */
 } BAL_STATE_REQUEST_e;
 
 /**
- * Possible return values when state requests are made to the BAL statemachine
+ * Possible return values when state requests are made to the BAL state machine
  */
 typedef enum {
     BAL_OK,                  /*!< BAL --> ok */
@@ -137,7 +137,7 @@ typedef struct {
     uint8_t lastSubstate;                     /*!< previous substate of the state machine */
     uint8_t triggerEntry;                     /*!< counter for re-entrance protection (function running flag) */
     uint32_t errorRequestCounter;             /*!< counts the number of illegal requests to the BAL state machine */
-    STD_RETURN_TYPE_e initializationFinished; /*!< #STD_OK if statemachine initialized, otherwise #STD_NOT_OK */
+    STD_RETURN_TYPE_e initializationFinished; /*!< #STD_OK if state machine initialized, otherwise #STD_NOT_OK */
     bool active;                              /*!< indicate if balancing active or not */
     int32_t balancingThreshold;               /*!< effective balancing threshold */
     bool balancingAllowed;                    /*!< flag to disable balancing */

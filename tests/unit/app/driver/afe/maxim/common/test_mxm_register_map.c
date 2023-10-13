@@ -43,8 +43,8 @@
  * @file    test_mxm_register_map.c
  * @author  foxBMS Team
  * @date    2020-04-07 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -58,7 +58,9 @@
 #include "unity.h"
 
 #include "mxm_register_map.h"
-TEST_FILE("mxm_register_map.h")
+
+/*========== Unit Testing Framework Directives ==============================*/
+TEST_INCLUDE_PATH("../../src/app/driver/afe/maxim/common")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 
@@ -71,11 +73,11 @@ void tearDown(void) {
 
 /*========== Test Cases =====================================================*/
 void testMXMRegisterMapExamplesForMASK(void) {
-    TEST_ASSERT_EQUAL(1u, MXM_REG_BIT_DEFN(0, 0));
+    TEST_ASSERT_EQUAL(0x01u, MXM_REG_BIT_DEFN(0, 0));
 
-    TEST_ASSERT_EQUAL(0b1000u, MXM_REG_BIT_DEFN(3, 3));
+    TEST_ASSERT_EQUAL(0x08u, MXM_REG_BIT_DEFN(3, 3));
 
-    TEST_ASSERT_EQUAL(0b00111000u, MXM_REG_BIT_DEFN(3, 5));
+    TEST_ASSERT_EQUAL(0x38u, MXM_REG_BIT_DEFN(3, 5));
 
     TEST_ASSERT_EQUAL(0xFFFFu, MXM_REG_BIT_DEFN(0u, 15u));
 }

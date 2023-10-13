@@ -64,7 +64,7 @@
 #define configGENERATE_RUN_TIME_STATS              ( 0 )
 #define configUSE_MALLOC_FAILED_HOOK               ( 0 )
 
-#define configCHECK_FOR_STACK_OVERFLOW             ( 0 )
+#define configCHECK_FOR_STACK_OVERFLOW             ( 2 )
 #define configRECORD_STACK_HIGH_ADDRESS            ( 1 )
 
 #define configAPPLICATION_ALLOCATED_HEAP           ( 0 )

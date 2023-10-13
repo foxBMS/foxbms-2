@@ -43,8 +43,8 @@
  * @file    sbc.h
  * @author  foxBMS Team
  * @date    2020-07-14 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup DRIVERS
  * @prefix  SBC
  *
@@ -168,6 +168,7 @@ typedef struct {
     SBC_PERIODIC_WATCHDOG_STATE_e watchdogState; /*!< state if periodic watchdog trigger is required or not */
     FS85_STATE_s *pFs85xxInstance;               /*!< pointer to FS85xx instance */
     uint16_t watchdogPeriod_10ms;                /*!< watchdog trigger frequency in 10ms */
+    bool useIgnitionForPowerDown; /*!< configures whether ignition signal is used for power down requests */
 } SBC_STATE_s;
 
 /*========== Extern Constant and Variable Declarations ======================*/
@@ -212,6 +213,7 @@ extern void SBC_Trigger(SBC_STATE_s *pInstance);
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 #ifdef UNITY_UNIT_TEST
 extern bool TEST_SBC_TriggerWatchdogIfRequired(SBC_STATE_s *pInstance);
+extern bool TEST_SBC_IsIgnitionSignalDetected(SBC_STATE_s *pInstance);
 #endif
 
 #endif /* FOXBMS__SBC_H_ */

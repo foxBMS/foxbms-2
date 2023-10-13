@@ -43,8 +43,8 @@
  * @file    test_debug_default_afe.c
  * @author  foxBMS Team
  * @date    2020-05-25 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -58,13 +58,13 @@
 #include "Mockdatabase.h"
 #include "Mockdebug_default.h"
 
-#include "debug_default_cfg.h"
-
 #include "afe.h"
 
-/* it's important to mention the implementation in debug_default_afe.c
-here in order to test the correct implementation */
-TEST_FILE("debug_default_afe.c")
+/*========== Unit Testing Framework Directives ==============================*/
+TEST_SOURCE_FILE("debug_default_afe.c")
+
+TEST_INCLUDE_PATH("../../src/app/driver/afe/api")
+TEST_INCLUDE_PATH("../../src/app/driver/afe/debug/default")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 
@@ -83,7 +83,7 @@ void testAFE_TriggerIcAlwaysOk(void) {
     TEST_ASSERT_EQUAL(STD_OK, AFE_TriggerIc());
 }
 
-void testAFE_InitializeializeDummy(void) {
+void testAFE_InitializeDummy(void) {
     FAKE_Initialize_ExpectAndReturn(STD_OK);
     TEST_ASSERT_EQUAL(STD_OK, AFE_Initialize());
 }

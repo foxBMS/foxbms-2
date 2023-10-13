@@ -43,8 +43,8 @@
  * @file    afe_plausibility.h
  * @author  foxBMS Team
  * @date    2019-01-24 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup MODULES
  * @prefix  AFE
  *
@@ -101,9 +101,9 @@ extern STD_RETURN_TYPE_e AFE_PlausibilityCheckVoltageMeasurementRange(
 /**
  * @brief  Cell temperature plausibility check
  *
- * @param  celltemperature_ddegC  cell temperature that is checked in deci &deg;C
+ * @param  cellTemperature_ddegC  cell temperature that is checked in deci &deg;C
  */
-extern STD_RETURN_TYPE_e AFE_PlausibilityCheckTempMinMax(const int16_t celltemperature_ddegC);
+extern STD_RETURN_TYPE_e AFE_PlausibilityCheckTempMinMax(const int16_t cellTemperature_ddegC);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 #ifdef UNITY_UNIT_TEST

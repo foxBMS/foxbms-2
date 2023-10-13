@@ -43,8 +43,8 @@
  * @file    c-006-test.h
  * @author  foxBMS Team
  * @date    2021-06-04 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup GUIDELINES
  * @prefix  NONE
  *
@@ -57,6 +57,8 @@
 #define FOXBMS__C_006_TEST_H_
 
 /*========== Includes =======================================================*/
+
+/*========== Unit Testing Framework Directives ==============================*/
 
 /*========== Macros and Definitions =========================================*/
 

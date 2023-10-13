@@ -40,11 +40,11 @@
 @TITLE Installing Ruby
 
 @ECHO Downloading Ruby
-@SET RUBYINSTALLER="%USERPROFILE%\Downloads\rubyinstaller-devkit-2.7.2-1-x64.exe"
-@SET RUBY_INSTALL_DIRECTORY=C:\Ruby\Ruby272-x64
-@curl.exe -fsSL https://github.com/oneclick/rubyinstaller2/releases/download/RubyInstaller-2.7.2-1/rubyinstaller-devkit-2.7.2-1-x64.exe -o "%USERPROFILE%\Downloads\rubyinstaller-devkit-2.7.2-1-x64.exe"
+@SET RUBYINSTALLER="%USERPROFILE%\Downloads\rubyinstaller-3.1.3-1-x64.exe"
+@SET RUBY_INSTALL_DIRECTORY=C:\Ruby\Ruby3.1.3-x64
+@curl.exe -fsSL https://github.com/oneclick/rubyinstaller2/releases/download/RubyInstaller-3.1.3-1/rubyinstaller-3.1.3-1-x64.exe -o "%USERPROFILE%\Downloads\rubyinstaller-3.1.3-1-x64.exe"
 @ECHO Done
-@ECHO Installing Ruby 2.7.2-x64
+@ECHO Installing Ruby 3.1.3-x64
 @%RUBYINSTALLER% /verysilent /dir="%RUBY_INSTALL_DIRECTORY%" /tasks="noassocfiles,nomodpath,noridkinstall"
 @ECHO Done
 @ECHO Installing dependencies

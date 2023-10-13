@@ -43,8 +43,8 @@
  * @file    test_c.c
  * @author  foxBMS Team
  * @date    2020-08-10 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -55,7 +55,8 @@
 /*========== Includes =======================================================*/
 #include "unity.h"
 
-TEST_FILE("c.c")
+/*========== Unit Testing Framework Directives ==============================*/
+TEST_SOURCE_FILE("c.c")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 

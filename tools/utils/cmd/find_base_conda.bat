@@ -55,7 +55,7 @@
 @IF NOT "%USERPROFILE%"=="%USERPROFILE: =%" @(
     @SET MINICONDA_DIRECTORIES=%SystemDrive%\miniconda3\ %ProgramData%\miniconda3\
 ) ELSE @(
-    @SET MINICONDA_DIRECTORIES=%USERPROFILE%\miniconda3\ %LOCALAPPDATA%\Continuum\miniconda3\ %SystemDrive%\miniconda3\ %ProgramData%\miniconda3\
+    @SET MINICONDA_DIRECTORIES=%USERPROFILE%\miniconda3\ %LOCALAPPDATA%\miniconda3\ %LOCALAPPDATA%\Continuum\miniconda3\ %SystemDrive%\miniconda3\ %ProgramData%\miniconda3\
 )
 
 @REM Activate script path (relative to the environment directory)

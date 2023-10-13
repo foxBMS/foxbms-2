@@ -65,7 +65,7 @@ if Utils.is_win32:
 
 def options(opt):
     """Lauterbach waf tool configuration options"""
-    homedrive = os.getenv("HOMEDRIVE", os.path.join("C", os.sep))
+    homedrive = os.getenv("HOMEDRIVE", "C:")
     lauterbach_installation_directory = [
         os.path.join(homedrive, os.sep, "T32-tms"),
         os.path.join(homedrive, os.sep, "T32"),
@@ -95,13 +95,13 @@ def configure(conf):
         )
     conf.find_program("t32marm", var="T32MARM", mandatory=False)
     if not conf.env.T32MARM:
-        lauterbach_bin_diretories = [
+        lauterbach_bin_directories = [
             os.path.join(i, "bin", "windows64") for i in conf.options.LAUTERBACH_BASE
         ]
         conf.find_program(
             "t32marm",
             var="T32MARM",
-            path_list=lauterbach_bin_diretories,
+            path_list=lauterbach_bin_directories,
             mandatory=False,
         )
     conf.end_msg(conf.env.get_flat("T32MARM"))
@@ -120,6 +120,11 @@ def configure(conf):
     )
     t32_cmm = conf.path.find_node(
         os.path.join(os.path.join("tools", "debugger", "lauterbach", "t32.cmm.in"))
+    )
+    load_macro_values = conf.path.find_node(
+        os.path.join(
+            os.path.join("tools", "debugger", "lauterbach", "load_macro_values.cmm.in")
+        )
     )
 
     t32_root = conf.root.find_node(conf.env.FILECVT[0]).parent.abspath()
@@ -146,6 +151,12 @@ def configure(conf):
     t32_cmm = t32_cmm.replace("@INIT_FILE@", init_cmm_node.name)
     t32_cmm_node = conf.path.get_bld().make_node("t32.cmm")
     t32_cmm_node.write(t32_cmm)
+
+    load_macro_values = load_macro_values.read()
+    replacements = ""
+    load_macro_values = load_macro_values.replace("@MACROS_AND_VALUES@", replacements)
+    load_macro_values_node = conf.path.get_bld().make_node("load_macro_values.cmm")
+    load_macro_values_node.write(load_macro_values)
 
     path = os.path.join(conf.path.get_bld().abspath(), "run_t32marm.lnk")
 

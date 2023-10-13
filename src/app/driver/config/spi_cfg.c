@@ -43,8 +43,8 @@
  * @file    spi_cfg.c
  * @author  foxBMS Team
  * @date    2020-03-05 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  SPI
  *
@@ -84,6 +84,16 @@
  * For hardware Chip Select, setting one bit to 0 in the CSNR field of the
  * SPIDAT1 register activates the corresponding Chip Select pin.
  */
+
+/** SPI data configuration struct for ADI communication */
+static spiDAT1_t spi_kAdiDataConfig[BS_NR_OF_STRINGS] = {
+    {                      /* struct is implemented in the TI HAL and uses uppercase true and false */
+     .CS_HOLD = TRUE,      /* If true, HW chip select kept active between words */
+     .WDEL    = FALSE,     /* Activation of delay between words */
+     .DFSEL   = SPI_FMT_0, /* Data word format selection */
+     /* Hardware chip select is configured automatically depending on configuration in #SPI_INTERFACE_CONFIG_s */
+     .CSNR = SPI_HARDWARE_CHIP_SELECT_DISABLE_ALL},
+};
 
 /** SPI data configuration struct for LTC communication */
 static spiDAT1_t spi_kLtcDataConfig[BS_NR_OF_STRINGS] = {
@@ -163,6 +173,20 @@ static spiDAT1_t spi_kSbcDataConfig = {
 };
 
 /*========== Extern Constant and Variable Definitions =======================*/
+
+/**
+ * SPI interface configuration for ADI communication
+ * This is a list of structs because of multistring
+ */
+SPI_INTERFACE_CONFIG_s spi_adiInterface[BS_NR_OF_STRINGS] = {
+    {
+        .pConfig  = &spi_kAdiDataConfig[0u],
+        .pNode    = spiREG1,
+        .pGioPort = &(spiREG1->PC3),
+        .csPin    = SPI_ADI_CHIP_SELECT_PIN,
+        .csType   = SPI_CHIP_SELECT_HARDWARE,
+    },
+};
 
 /**
  * SPI interface configuration for LTC communication

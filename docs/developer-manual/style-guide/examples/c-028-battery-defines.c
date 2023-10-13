@@ -43,8 +43,8 @@
  * @file    c-028-battery-defines.c
  * @author  foxBMS Team
  * @date    2021-06-04 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup GUIDELINES
  * @prefix  ABC
  *
@@ -75,7 +75,7 @@ static void C28_BatteriesLoop(void) {
         /* string related code */
         for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
             /* module related code */
-            for (uint8_t c = 0u; c < BS_NR_OF_CELL_BLOCKS_PER_MODULE; c++) {
+            for (uint8_t cb = 0u; cb < BS_NR_OF_CELL_BLOCKS_PER_MODULE; cb++) {
                 /* cell related code */
             }
         }

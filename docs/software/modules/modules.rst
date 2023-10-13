@@ -23,7 +23,7 @@ Software Modules
 
     ./engine/database/database.rst
     ./engine/diag/diag.rst
-    ./engine/hwinfo/hwinfo.rst
+    ./engine/hw_info/hw_info.rst
     ./engine/sys/sys.rst
     ./engine/sys_mon/sys_mon.rst
 

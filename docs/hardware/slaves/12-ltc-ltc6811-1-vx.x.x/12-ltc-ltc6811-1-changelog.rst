@@ -1,19 +1,19 @@
 .. include:: ./../../../macros.txt
 .. include:: ./../../../units.txt
 
-.. _CHANGELOG_FOR_SLAVE_LTC6811_1:
+.. _CHANGELOG_FOR_SLAVE_LTC_LTC6811_1:
 
-Changelog for Slave LTC6811-1
-=============================
+Changelog for Slave LTC LTC6811-1
+=================================
 
-.. _CHANGELOG_FOR_SLAVE_LTC6811_1_v2_1_7:
+.. _CHANGELOG_FOR_SLAVE_LTC_LTC6811_1_v2_1_7:
 
 v2.1.7
 ------
 
 - modified component designators to be compatible with 18cell versions
 
-.. _CHANGELOG_FOR_SLAVE_LTC6811_1_v2_1_6:
+.. _CHANGELOG_FOR_SLAVE_LTC_LTC6811_1_v2_1_6:
 
 v2.1.6
 ------
@@ -22,7 +22,7 @@ v2.1.6
 - added RC filters on NTC sensor inputs
 - added DC/DC converters for 5V LTC supplies
 
-.. _CHANGELOG_FOR_SLAVE_LTC6811_1_v2_1_5:
+.. _CHANGELOG_FOR_SLAVE_LTC_LTC6811_1_v2_1_5:
 
 v2.1.5
 ------
@@ -30,7 +30,7 @@ v2.1.5
 - Replaced opamps, port expanders and optocouplers with AEC-Q100 compliant ones
 - Modified silkscreen texts
 
-.. _CHANGELOG_FOR_SLAVE_LTC6811_1_v2_1_4:
+.. _CHANGELOG_FOR_SLAVE_LTC_LTC6811_1_v2_1_4:
 
 v2.1.4
 ------
@@ -38,14 +38,14 @@ v2.1.4
 - Primary software timer is now switched on by default
 - added layermarker on PCB
 
-.. _CHANGELOG_FOR_SLAVE_LTC6811_1_v2_1_3:
+.. _CHANGELOG_FOR_SLAVE_LTC_LTC6811_1_v2_1_3:
 
 v2.1.3
 ------
 
 - replaced EOL port expander with PCF8574
 
-.. _CHANGELOG_FOR_SLAVE_LTC6811_1_v2_1_2:
+.. _CHANGELOG_FOR_SLAVE_LTC_LTC6811_1_v2_1_2:
 
 v2.1.2
 ------
@@ -54,7 +54,7 @@ v2.1.2
 - created hierarchical design
 - introduced minor improvements to design
 
-.. _CHANGELOG_FOR_SLAVE_LTC6811_1_v2_1_1:
+.. _CHANGELOG_FOR_SLAVE_LTC_LTC6811_1_v2_1_1:
 
 v2.1.1
 ------
@@ -62,7 +62,7 @@ v2.1.1
 - improved isolation distances between external DC/DC converter supply and
   battery module signals
 
-.. _CHANGELOG_FOR_SLAVE_LTC6811_1_v2_1_0:
+.. _CHANGELOG_FOR_SLAVE_LTC_LTC6811_1_v2_1_0:
 
 v2.1.0
 ------
@@ -72,23 +72,23 @@ v2.1.0
 - switched connection of balancing resistors from serial to parallel
 - replaced isoSPI transformers HX1188NL with HM2102NL
 
-.. _CHANGELOG_FOR_SLAVE_LTC6811_1_v2_0_3:
+.. _CHANGELOG_FOR_SLAVE_LTC_LTC6811_1_v2_0_3:
 
 v2.0.3
 ------
 
 - fixed isoSPI transformer CMC issue
 
-.. _CHANGELOG_FOR_SLAVE_LTC6811_1_v2_0_2:
+.. _CHANGELOG_FOR_SLAVE_LTC_LTC6811_1_v2_0_2:
 
 v2.0.2
 ------
 
-- replaced LTC1380 MUXs with ADG728 (400 kHz I2C)
+- replaced LTC1380 multiplexer with ADG728 (400 kHz I2C)
 - adjusted connection of 100 ohm resistors for V+/V_REG supply
 - reduced value of I2C pull-up resistors to 1k2
 
-.. _CHANGELOG_FOR_SLAVE_LTC6811_1_v2_0_1:
+.. _CHANGELOG_FOR_SLAVE_LTC_LTC6811_1_v2_0_1:
 
 v2.0.1
 ------
@@ -98,7 +98,7 @@ v2.0.1
 - enlarged T201/301 cooling area
 - Replaced PCF8574 with PCA8574 (400 kHz I2C)
 
-.. _CHANGELOG_FOR_SLAVE_LTC6811_1_v2_0_0:
+.. _CHANGELOG_FOR_SLAVE_LTC_LTC6811_1_v2_0_0:
 
 v2.0.0
 ------

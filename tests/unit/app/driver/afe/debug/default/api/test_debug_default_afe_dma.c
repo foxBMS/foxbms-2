@@ -43,8 +43,8 @@
  * @file    test_debug_default_afe_dma.c
  * @author  foxBMS Team
  * @date    2020-06-10 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -57,13 +57,14 @@
 #include "Mockdebug_default.h"
 #include "Mockfassert.h"
 
-#include "debug_default_cfg.h"
+#include "afe_dma.h"
 
-#include "debug_default_afe_dma.h"
+/*========== Unit Testing Framework Directives ==============================*/
+TEST_SOURCE_FILE("debug_default_afe_dma.c")
 
-/* it's important to mention the implementation in debug_default_afe_dma.c
-here in order to test the correct implementation */
-TEST_FILE("debug_default_afe_dma.c")
+TEST_INCLUDE_PATH("../../src/app/driver/afe/api")
+TEST_INCLUDE_PATH("../../src/app/driver/afe/debug/default")
+TEST_INCLUDE_PATH("../../src/app/driver/config")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 

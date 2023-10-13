@@ -43,8 +43,8 @@
  * @file    imd.h
  * @author  foxBMS Team
  * @date    2020-11-20 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup DRIVERS
  * @prefix  IMD
  *
@@ -73,15 +73,15 @@
 /** Minimum required insulation resistance - Warning threshold */
 #define IMD_WARNING_THRESHOLD_INSULATION_RESISTANCE_kOhm (750u)
 
-/** Possible return values when state requests are made to the IMD statemachine */
+/** Possible return values when state requests are made to the IMD state machine */
 typedef enum {
     IMD_REQUEST_OK,          /*!< request was successful */
     IMD_REQUEST_PENDING,     /*!< requested to be executed */
     IMD_ILLEGAL_REQUEST,     /*!< Request can not be executed */
-    IMD_ALREADY_INITIALIZED, /*!< IMD statemachine already initialized */
+    IMD_ALREADY_INITIALIZED, /*!< IMD state machine already initialized */
 } IMD_RETURN_TYPE_e;
 
-/** State requests for the IMD statemachine */
+/** State requests for the IMD state machine */
 typedef enum {
     IMD_STATE_INITIALIZE_REQUEST, /*!< request for initialization */
     IMD_STATE_SWITCH_ON_REQUEST,  /*!< request to switch on IMD device */
@@ -97,7 +97,7 @@ typedef enum {
     IMD_FSM_STATE_INITIALIZATION, /*!< initializing the state machine */
     IMD_FSM_STATE_IMD_ENABLE,     /*!< switch on IMD */
     IMD_FSM_STATE_SHUTDOWN,       /*!< shut down state of IMD state machine */
-    IMD_FSM_STATE_RUNNING,        /*!< operational mode of the state machine  */
+    IMD_FSM_STATE_RUNNING,        /*!< operational mode of the state machine */
     IMD_FSM_STATE_ERROR,          /*!< state for error processing  */
 } IMD_FSM_STATES_e;
 
@@ -105,7 +105,7 @@ typedef enum {
 
 /*========== Extern Function Prototypes =====================================*/
 /**
- * @brief   Request initialization of IMD statemachine
+ * @brief   Request initialization of IMD state machine
  * @return  Always #IMD_REQUEST_OK
  */
 extern IMD_RETURN_TYPE_e IMD_RequestInitialization(void);
@@ -125,7 +125,7 @@ extern IMD_RETURN_TYPE_e IMD_RequestMeasurementStop(void);
 /**
  * @brief   Gets the initialization state.
  * @details This function is used for getting the IMD initialization state.
- * @return  true if statemachine initialized, otherwise false
+ * @return  true if state machine initialized, otherwise false
  */
 extern bool IMD_GetInitializationState(void);
 
@@ -144,7 +144,7 @@ extern STD_RETURN_TYPE_e IMD_Trigger(void);
  * @details This function needs to be implemented in the dedicated driver. This
  *          function initializes the required SW modules and peripherals but
  *          does not start the actual IMD measurement.
- * @return  #IMD_FSM_STATE_INITIALIZATION if initialization not fininished and
+ * @return  #IMD_FSM_STATE_INITIALIZATION if initialization not finished and
  *          another call is required. #IMD_FSM_STATE_IMD_ENABLE if
  *          initialization is finished and #IMD_FSM_STATE_ERROR if an error is
  *          detected that prohibits a working IMD driver.
@@ -155,7 +155,7 @@ extern IMD_FSM_STATES_e IMD_ProcessInitializationState(void);
  * @brief   Processes the IMD enable state
  * @details This function needs to be implemented in the dedicated driver. This
  *          function enables the actual IMD device to start the insulation
- *          measurement. Functionality need to be fullfilled after one call.
+ *          measurement. Functionality need to be fulfilled after one call.
  * @return  #IMD_FSM_STATE_RUNNING if startup has been completed. Returns #IMD_FSM_STATE_ERROR if an error is
  *          detected that prohibits a working IMD driver.
  */
@@ -177,7 +177,7 @@ extern IMD_FSM_STATES_e IMD_ProcessRunningState(DATA_BLOCK_INSULATION_MONITORING
  * @details This function needs to be implemented in the dedicated driver. This
  *          function disables the actual IMD device to stop the insulation
  *          measurement.
- * @return  #IMD_FSM_STATE_SHUTDOWN if shutdown state is not fininished and
+ * @return  #IMD_FSM_STATE_SHUTDOWN if shutdown state is not finished and
  *          another call is required. #IMD_FSM_STATE_IMD_ENABLE if shut down
  *          has been completed and #IMD_FSM_STATE_ERROR if an error is detected
  *          that prohibits a working IMD driver.

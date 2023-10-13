@@ -43,8 +43,8 @@
  * @file    test_can_cbs_tx_pack-state-estimation.c
  * @author  foxBMS Team
  * @date    2021-07-27 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -70,7 +70,20 @@
 
 #include <stdbool.h>
 
-TEST_FILE("can_cbs_tx_pack-state-estimation.c")
+/*========== Unit Testing Framework Directives ==============================*/
+TEST_SOURCE_FILE("can_cbs_tx_pack-state-estimation.c")
+
+TEST_INCLUDE_PATH("../../src/app/application/bms")
+TEST_INCLUDE_PATH("../../src/app/driver/can")
+TEST_INCLUDE_PATH("../../src/app/driver/can/cbs")
+TEST_INCLUDE_PATH("../../src/app/driver/can/cbs/tx")
+TEST_INCLUDE_PATH("../../src/app/driver/config")
+TEST_INCLUDE_PATH("../../src/app/driver/contactor")
+TEST_INCLUDE_PATH("../../src/app/driver/foxmath")
+TEST_INCLUDE_PATH("../../src/app/driver/imd")
+TEST_INCLUDE_PATH("../../src/app/driver/sps")
+TEST_INCLUDE_PATH("../../src/app/engine/diag")
+TEST_INCLUDE_PATH("../../src/app/task/config")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 
@@ -82,13 +95,15 @@ static DATA_BLOCK_OPEN_WIRE_s can_tableOpenWire               = {.header.uniqueI
 static DATA_BLOCK_STATE_REQUEST_s can_tableStateRequest       = {.header.uniqueId = DATA_BLOCK_ID_STATE_REQUEST};
 static DATA_BLOCK_PACK_VALUES_s can_tablePackValues           = {.header.uniqueId = DATA_BLOCK_ID_PACK_VALUES};
 static DATA_BLOCK_SOF_s can_tableSof                          = {.header.uniqueId = DATA_BLOCK_ID_SOF};
-static DATA_BLOCK_SOX_s can_tableSox                          = {.header.uniqueId = DATA_BLOCK_ID_SOX};
+static DATA_BLOCK_SOC_s can_tableSoc                          = {.header.uniqueId = DATA_BLOCK_ID_SOC};
+static DATA_BLOCK_SOE_s can_tableSoe                          = {.header.uniqueId = DATA_BLOCK_ID_SOE};
 static DATA_BLOCK_ERROR_STATE_s can_tableErrorState           = {.header.uniqueId = DATA_BLOCK_ID_ERROR_STATE};
 static DATA_BLOCK_INSULATION_MONITORING_s can_tableInsulation = {
     .header.uniqueId = DATA_BLOCK_ID_INSULATION_MONITORING};
-static DATA_BLOCK_MSL_FLAG_s can_tableMslFlags = {.header.uniqueId = DATA_BLOCK_ID_MSL_FLAG};
-static DATA_BLOCK_RSL_FLAG_s can_tableRslFlags = {.header.uniqueId = DATA_BLOCK_ID_RSL_FLAG};
-static DATA_BLOCK_MOL_FLAG_s can_tableMolFlags = {.header.uniqueId = DATA_BLOCK_ID_MOL_FLAG};
+static DATA_BLOCK_MSL_FLAG_s can_tableMslFlags            = {.header.uniqueId = DATA_BLOCK_ID_MSL_FLAG};
+static DATA_BLOCK_RSL_FLAG_s can_tableRslFlags            = {.header.uniqueId = DATA_BLOCK_ID_RSL_FLAG};
+static DATA_BLOCK_MOL_FLAG_s can_tableMolFlags            = {.header.uniqueId = DATA_BLOCK_ID_MOL_FLAG};
+static DATA_BLOCK_AEROSOL_SENSOR_s can_tableAerosolSensor = {.header.uniqueId = DATA_BLOCK_ID_AEROSOL_SENSOR};
 
 OS_QUEUE imd_canDataQueue = NULL_PTR;
 
@@ -102,15 +117,15 @@ const CAN_SHIM_s can_kShim = {
     .pTableStateRequest    = &can_tableStateRequest,
     .pTablePackValues      = &can_tablePackValues,
     .pTableSof             = &can_tableSof,
-    .pTableSox             = &can_tableSox,
+    .pTableSoc             = &can_tableSoc,
+    .pTableSoe             = &can_tableSoe,
     .pTableErrorState      = &can_tableErrorState,
     .pTableInsulation      = &can_tableInsulation,
     .pTableMsl             = &can_tableMslFlags,
     .pTableRsl             = &can_tableRslFlags,
     .pTableMol             = &can_tableMolFlags,
+    .pTableAerosolSensor   = &can_tableAerosolSensor,
 };
-
-static uint8_t muxId = 0u;
 
 /*========== Setup and Teardown =============================================*/
 void setUp(void) {
@@ -130,14 +145,14 @@ void testCAN_TxStateEstimationCharging(void) {
     uint8_t data[8] = {0};
 
     for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
-        can_kShim.pTableSox->minimumSoc_perc[s] = 71.2f;
-        can_kShim.pTableSox->maximumSoc_perc[s] = 74.2f;
-        can_kShim.pTableSox->minimumSoe_perc[s] = 74.6f;
-        can_kShim.pTableSox->maximumSoe_perc[s] = 78.1f;
-        can_kShim.pTableSox->minimumSoe_Wh[s]   = 19200 / BS_NR_OF_STRINGS;
+        can_kShim.pTableSoc->minimumSoc_perc[s] = 71.2f;
+        can_kShim.pTableSoc->maximumSoc_perc[s] = 74.2f;
+        can_kShim.pTableSoe->minimumSoe_perc[s] = 74.6f;
+        can_kShim.pTableSoe->maximumSoe_perc[s] = 78.1f;
+        can_kShim.pTableSoe->minimumSoe_Wh[s]   = 19200 / BS_NR_OF_STRINGS;
     }
 
-    DATA_Read1DataBlock_IgnoreAndReturn(0u);
+    DATA_Read2DataBlocks_IgnoreAndReturn(0u);
     /* System is currently charging */
     BMS_GetBatterySystemState_IgnoreAndReturn(BMS_CHARGING);
     /* All strings connected */
@@ -179,14 +194,14 @@ void testCAN_TxStateEstimationDischarging(void) {
     uint8_t data[8] = {0};
 
     for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
-        can_kShim.pTableSox->minimumSoc_perc[s] = 74.2f;
-        can_kShim.pTableSox->maximumSoc_perc[s] = 78.2f;
-        can_kShim.pTableSox->minimumSoe_perc[s] = 78.1f;
-        can_kShim.pTableSox->maximumSoe_perc[s] = 83.1f;
-        can_kShim.pTableSox->minimumSoe_Wh[s]   = 19200 / BS_NR_OF_STRINGS;
+        can_kShim.pTableSoc->minimumSoc_perc[s] = 74.2f;
+        can_kShim.pTableSoc->maximumSoc_perc[s] = 78.2f;
+        can_kShim.pTableSoe->minimumSoe_perc[s] = 78.1f;
+        can_kShim.pTableSoe->maximumSoe_perc[s] = 83.1f;
+        can_kShim.pTableSoe->minimumSoe_Wh[s]   = 19200 / BS_NR_OF_STRINGS;
     }
 
-    DATA_Read1DataBlock_IgnoreAndReturn(0u);
+    DATA_Read2DataBlocks_IgnoreAndReturn(0u);
     /* System is currently charging */
     BMS_GetBatterySystemState_IgnoreAndReturn(BMS_DISCHARGING);
     /* All strings connected */

@@ -43,8 +43,8 @@
  * @file    test_mxm_afe_dma.c
  * @author  foxBMS Team
  * @date    2020-06-17 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -57,8 +57,14 @@
 #include "MockHL_sys_dma.h"
 #include "Mockfassert.h"
 
-#include "mxm_afe_dma.h"
+#include "afe_dma.h"
 #include "test_assert_helper.h"
+
+/*========== Unit Testing Framework Directives ==============================*/
+TEST_SOURCE_FILE("mxm_afe_dma.c")
+
+TEST_INCLUDE_PATH("../../src/app/driver/afe/api")
+TEST_INCLUDE_PATH("../../src/app/driver/config")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 

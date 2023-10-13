@@ -43,8 +43,8 @@
  * @file    test_dma.c
  * @author  foxBMS Team
  * @date    2020-04-01 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -65,18 +65,21 @@
 
 #include "dma.h"
 
-TEST_FILE("dma.c")
+/*========== Unit Testing Framework Directives ==============================*/
+TEST_SOURCE_FILE("dma.c")
+
+TEST_INCLUDE_PATH("../../src/app/driver/afe/api")
+TEST_INCLUDE_PATH("../../src/app/driver/config")
+TEST_INCLUDE_PATH("../../src/app/driver/dma")
+TEST_INCLUDE_PATH("../../src/app/driver/i2c")
+TEST_INCLUDE_PATH("../../src/app/driver/io")
+TEST_INCLUDE_PATH("../../src/app/driver/rtc")
+TEST_INCLUDE_PATH("../../src/app/driver/spi")
+TEST_INCLUDE_PATH("../../src/app/task/config")
+TEST_INCLUDE_PATH("../../src/app/task/ftask")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 TaskHandle_t ftsk_taskHandleI2c;
-
-static const spiDAT1_t spi_kLtcDataConfig = {
-    /* struct is implemented in the TI HAL and uses uppercase true and false */
-    .CS_HOLD = FALSE,     /* The HW chip select signal is deactivated */
-    .WDEL    = TRUE,      /* No delay will be inserted */
-    .DFSEL   = SPI_FMT_0, /* Data word format select: Data format 0 (SPI1) */
-    .CSNR    = 0x0,       /* Chip select (CS) number, 0x01h for CS[0] */
-};
 
 uint32_t spi_saveFmt0[] = {
     0U,

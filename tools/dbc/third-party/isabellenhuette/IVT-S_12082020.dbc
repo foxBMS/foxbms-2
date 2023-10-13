@@ -1,0 +1,471 @@
+VERSION ""
+
+
+NS_ : 
+	NS_DESC_
+	CM_
+	BA_DEF_
+	BA_
+	VAL_
+	CAT_DEF_
+	CAT_
+	FILTER
+	BA_DEF_DEF_
+	EV_DATA_
+	ENVVAR_DATA_
+	SGTYPE_
+	SGTYPE_VAL_
+	BA_DEF_SGTYPE_
+	BA_SGTYPE_
+	SIG_TYPE_REF_
+	VAL_TABLE_
+	SIG_GROUP_
+	SIG_VALTYPE_
+	SIGTYPE_VALTYPE_
+	BO_TX_BU_
+	BA_DEF_REL_
+	BA_REL_
+	BA_DEF_DEF_REL_
+	BU_SG_REL_
+	BU_EV_REL_
+	BU_BO_REL_
+	SG_MUL_VAL_
+
+BS_:
+
+BU_: Host IVT_Mod
+VAL_TABLE_ _B9_Voltage_Channels 3 "3 Channels" 0 "0 Channels" ;
+VAL_TABLE_ _B9_Supply_Voltage 1 "12 / 24 V nominal supply voltage" ;
+VAL_TABLE_ _B9_Current 2500 "2500 A" 1000 "1000 A" 500 "500 A" 300 "300 A" 100 "100 A" ;
+VAL_TABLE_ _B9_Device_Type 2 "IVT-S" 1 "IVT-Mod" ;
+VAL_TABLE_ VtDevice_Com 2 "CAN 2 - not terminated" 1 "CAN 1 - terminated" 0 "none" ;
+VAL_TABLE_ VtDevice_TOI 3 "I" ;
+VAL_TABLE_ VtResetErrorLogdata 7 "Reset error current implausible" 6 "Reset error Vref" 5 "Reset error Underflow ADC ch2" 4 "Reset error Overflow ADC ch2" 3 "Reset error Underflow ADC ch1" 2 "Reset error Overflow ADC ch1" 1 "Reset error ADC interrupt" 0 "Reset all measurement errors" ;
+VAL_TABLE_ VtID_Result 0 "Vt_Result_inaktive" 8 "Vt_Result_Wh" 7 "Vt_Result_Ah" 6 "Vt_Result_W" 5 "Vt_Result_T" 4 "Vt_Result_U3" 3 "Vt_Result_U2" 2 "Vt_Result_U1" 1 "Vt_Result_I" ;
+VAL_TABLE_ VtID_Cmd 54 "Set_THRESHOLD_neg" 53 "Set_THRESHOLD_pos" 32 "Set_MODE_Result_I" 16 "Set_CAN_ID_Result_I" 52 "Set_MODE" 51 "START_OC_TEST" 50 "STORE" 49 "TRIGGER" 48 "Reset_Err_Log" 39 "Set_MODE_Result_Wh" 38 "Set_MODE_Result_Ah" 37 "Set_MODE_Result_W" 23 "Set_CAN_ID_Result_Wh" 22 "Set_CAN_ID_Result_Ah" 21 "Set_CAN_ID_Result_W" 20 "Set_CAN_ID_Result_T" 35 "Set_MODE_Result_U3" 31 "Set_CAN_ID_Cmd" 29 "Set_CAN_ID_Response" 19 "Set_CAN_ID_Result_U3" 18 "Set_CAN_ID_Result_U2" 36 "Set_MODE_Result_T" 34 "Set_MODE_Result_U2" 33 "Set_MODE_Result_U1" 17 "Set_CAN_ID_Result_U1" ;
+VAL_TABLE_ VtTriggerMode 2 "CYCLIC" 1 "TRIGGERED" 0 "DISABLED" ;
+VAL_TABLE_ VtRunMode 1 "START" 0 "STOP" ;
+VAL_TABLE_ VtID_Response 149 "ARTICLE_NUMBER" 148 "SERIAL NUMBER" 147 "SW_VERSION" 146 "DEVICE_ID" 145 "STATUS" 143 "CAN_ID" 142 "STORE_to_default" 134 "START_OC_TEST" 133 "Description for the value '0x85'" 132 "THRESHOLD" 131 "CONFIG" 130 "MODE" 129 "STORE" 128 "TRIGGER" ;
+
+
+BO_ 3221225472 VECTOR__INDEPENDENT_SIG_MSG: 0 Vector__XXX
+ SG_ _B1_Resp_Trigger_Mask : 0|16@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _B9_Resp_Device_spare : 0|8@0+ (1,0) [0|0] "" Vector__XXX
+
+BO_ 1320 IVT_Msg_Result_Wh: 6 IVT_Mod
+ SG_ IVT_Result_Wh_System_Error : 15|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ IVT_Result_Wh_OCS : 12|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ IVT_Result_Wh_Measurement_Error : 14|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ IVT_Result_Wh_Channel_Error : 13|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ IVT_Result_Wh : 23|32@0- (1,0) [-2147483648|2147483647] "Wh"  Host
+ SG_ IVT_MsgCount_Result_Wh : 11|4@0+ (1,0) [0|0] ""  Host
+ SG_ IVT_ID_Result_Wh : 7|8@0+ (1,0) [7|7] ""  Host
+
+BO_ 1319 IVT_Msg_Result_As: 6 IVT_Mod
+ SG_ IVT_Result_As_System_Error : 15|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ IVT_Result_As_OCS : 12|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ IVT_Result_As_Measurement_Error : 14|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ IVT_Result_As_Channel_Error : 13|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ IVT_Result_As : 23|32@0- (1,0) [-21474836478|2147483647] "As"  Host
+ SG_ IVT_MsgCount_Result_As : 11|4@0+ (1,0) [0|0] ""  Host
+ SG_ IVT_ID_Result_As : 7|8@0+ (1,0) [6|6] ""  Host
+
+BO_ 1318 IVT_Msg_Result_W: 6 IVT_Mod
+ SG_ IVT_Result_W_System_Error : 15|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ IVT_Result_W_OCS : 12|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ IVT_Result_W_Measurement_Error : 14|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ IVT_Result_W_Channel_Error : 13|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ IVT_Result_W : 23|32@0- (1,0) [-2147483648|2147483647] "W"  Host
+ SG_ IVT_MsgCount_Result_W : 11|4@0+ (1,0) [0|0] ""  Host
+ SG_ IVT_ID_Result_W : 7|8@0+ (1,0) [5|5] ""  Host
+
+BO_ 1297 IVT_Msg_Response: 8 IVT_Mod
+ SG_ _B1_Trigger_spare m177 : 15|8@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _B1_07_Trigger_WH m177 : 23|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _B1_06_Trigger_As m177 : 22|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _B1_05_Trigger_W m177 : 21|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _B1_04_Trigger_T m177 : 20|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _B1_03_Trigger_U3 m177 : 19|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _B1_02_Trigger_U2 m177 : 18|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _B1_01_Trigger_U1 m177 : 17|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _B1_00_Trigger_I m177 : 16|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _B2_Resp_Store_Device_SN m178 : 23|32@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _FF_Wrong_Command m255 : 15|8@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _BF_Restart_Alive_SN m191 : 31|32@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _BF_Restart_Alive_Cmd_ID m191 : 15|16@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _BA_Resp_SW_Ver_Vear m186 : 39|8@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _BA_Resp_SW_Ver_Revision m186 : 31|8@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _BA_Resp_SW_Ver_Month m186 : 40|8@1- (1,0) [0|0] "" Vector__XXX
+ SG_ _BA_Resp_SW_Ver_Minor m186 : 23|8@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _BA_Resp_SW_Ver_Internal m186 : 63|8@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _BA_Resp_SW_Ver_Day m186 : 55|8@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _B9_Resp_Device_Com m185 : 47|8@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _B9_Resp_Device_current m185 : 23|12@0+ (1,0) [0|0] "A" Vector__XXX
+ SG_ _B9_Resp_Device_TOI m185 : 39|8@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _B9_Resp_Device_V_supply m185 : 55|8@0+ (1,0) [0|0] "V" Vector__XXX
+ SG_ _B9_Resp_Device_Voltage_chan m185 : 27|4@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _80_Resp_MeasError_Item m128 : 15|8@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _80_Resp_MeasError_Count_Mask m128 : 23|16@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _81_Resp_SystemError_Item m129 : 15|8@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _81_Resp_SystemError_Count_Mask m129 : 23|16@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _82_Resp_AllLogData_Item m130 : 15|8@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _82_Resp_AllLogData_Counter m130 : 23|48@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _83_Resp_LogData_Item m131 : 15|8@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _83_Resp_LogData_Counter m131 : 23|48@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _90_Resp_Can_ID_SN_I m144 : 31|32@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _90_Resp_Can_ID_val_I m144 : 15|16@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _91_Resp_Can_ID_SN_U1 m145 : 31|32@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _91_Resp_Can_ID_val_U1 m145 : 15|16@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _92_Resp_Can_ID_SN_U2 m146 : 31|32@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _92_Resp_Can_ID_val_U2 m146 : 15|16@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _93_Resp_Can_ID_SN_U3 m147 : 31|32@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _93_Resp_Can_ID_val_U3 m147 : 15|16@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _94_Resp_Can_ID_SN_T m148 : 31|32@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _94_Resp_Can_ID_val_T m148 : 15|16@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _95_Resp_Can_ID_SN_W m149 : 31|32@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _95_Resp_Can_ID_val_W m149 : 15|16@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _96_Resp_Can_ID_SN_As m150 : 31|32@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _96_Resp_Can_ID_val_As m150 : 15|16@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _97_Resp_Can_ID_SN_Wh m151 : 31|32@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _97_Resp_Can_ID_val_Wh m151 : 15|16@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _9D_Resp_Can_ID_SN_Command m157 : 31|32@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _9D_Resp_Can_ID_val_Command m157 : 15|16@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _9F_Resp_Can_ID_SN_Response m159 : 31|32@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _9F_Resp_Can_ID_val_Response m159 : 15|16@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _A0_Resp_CycleTime_I m160 : 23|16@0+ (1,0) [0|0] "ms" Vector__XXX
+ SG_ _A0_Resp_Endianess_I m160 : 14|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _A0_Resp_Sign_I m160 : 15|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _A0_Resp_TriggerMode_I m160 : 9|2@0+ (1,0) [0|2] "" Vector__XXX
+ SG_ _A1_Resp_CycleTime_U1 m161 : 23|16@0+ (1,0) [0|0] "ms" Vector__XXX
+ SG_ _A1_Resp_Endianess_U1 m161 : 14|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _A1_Resp_Sign_U1 m161 : 15|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _A1_Resp_TriggerMode_U1 m161 : 9|2@0+ (1,0) [0|2] "" Vector__XXX
+ SG_ _A2_Resp_CycleTime_U2 m162 : 23|16@0+ (1,0) [0|0] "ms" Vector__XXX
+ SG_ _A2_Resp_Endianess_U2 m162 : 14|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _A2_Resp_Sign_U2 m162 : 15|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _A2_Resp_TriggerMode_U2 m162 : 9|2@0+ (1,0) [0|2] "" Vector__XXX
+ SG_ _A3_Resp_CycleTime_U3 m163 : 23|16@0+ (1,0) [0|0] "ms" Vector__XXX
+ SG_ _A3_Resp_Endianess_U3 m163 : 14|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _A3_Resp_Sign_U3 m163 : 15|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _A3_Resp_TriggerMode_U3 m163 : 9|2@0+ (1,0) [0|2] "" Vector__XXX
+ SG_ _A4_Resp_CycleTime_T m164 : 23|16@0+ (1,0) [0|0] "ms" Vector__XXX
+ SG_ _A4_Resp_Endianess_T m164 : 14|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _A4_Resp_Sign_T m164 : 15|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _A4_Resp_TriggerMode_T m164 : 9|2@0+ (1,0) [0|2] "" Vector__XXX
+ SG_ _A5_Resp_CycleTime_W m165 : 23|16@0+ (1,0) [0|0] "ms" Vector__XXX
+ SG_ _A5_Resp_Endianess_W m165 : 14|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _A5_Resp_Sign_W m165 : 15|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _A5_Resp_TriggerMode_W m165 : 9|2@0+ (1,0) [0|2] "" Vector__XXX
+ SG_ _A6_Resp_CycleTime_As m166 : 23|16@0+ (1,0) [0|0] "ms" Vector__XXX
+ SG_ _A6_Resp_Endianess_As m166 : 14|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _A6_Resp_Sign_As m166 : 15|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _A6_Resp_TriggerMode_As m166 : 9|2@0+ (1,0) [0|2] "" Vector__XXX
+ SG_ _A7_Resp_CycleTime_WH m167 : 23|16@0+ (1,0) [0|0] "ms" Vector__XXX
+ SG_ _A7_Resp_Endianess_WH m167 : 14|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _A7_Resp_Sign_WH m167 : 15|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _A7_Resp_TriggerMode_WH m167 : 9|2@0+ (1,0) [0|2] "" Vector__XXX
+ SG_ _B0_Resp_Reset_Item m176 : 15|16@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _B0_Resp_Reset_Device_SN m176 : 31|32@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _B2_Resp_Store_dummy m178 : 15|8@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _B3_Resp_Oc_Test_Time m179 : 15|16@0+ (1,0) [0|65535] "ms" Vector__XXX
+ SG_ _B4_Resp_Actual_Mode m180 : 8|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _B4_Resp_Code_Level m180 : 31|16@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _B4_Resp_Startup_Mode m180 : 16|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _B5_Resp_OC_Pos_Reset_Threshold m181 : 31|16@0- (1,0) [0|0] "" Vector__XXX
+ SG_ _B5_Resp_OC_Pos_Set_Threshold m181 : 15|16@0- (1,0) [0|0] "" Vector__XXX
+ SG_ _B6_Resp_OC_Neg_Reset_Threshold m182 : 31|16@0- (1,0) [0|0] "" Vector__XXX
+ SG_ _B6_Resp_OC_Neg_Set_Threshold m182 : 15|16@0- (1,0) [0|0] "" Vector__XXX
+ SG_ _B9_Resp_Device_type m185 : 15|8@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _BA_Resp_SW_Ver_Major_HW m186 : 15|8@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _BB_Resp_Serien_Nr m187 : 15|32@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _BC_Resp_Art_N m188 : 15|56@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ IVT_ID_Response M : 7|8@0+ (1,0) [0|0] ""  Host
+
+BO_ 1317 IVT_Msg_Result_T: 6 IVT_Mod
+ SG_ IVT_Result_T_System_Error : 15|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ IVT_Result_T_OCS : 12|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ IVT_Result_T_Measurement_Error : 14|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ IVT_Result_T_Channel_Error : 13|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ IVT_ID_Result_T : 7|8@0+ (1,0) [4|4] ""  Host
+ SG_ IVT_Result_T : 23|32@0- (0.1,0) [-2147483648|2147483647] "°C"  Host
+ SG_ IVT_MsgCount_Result_T : 11|4@0+ (1,0) [0|0] ""  Host
+
+BO_ 1316 IVT_Msg_Result_U3: 6 IVT_Mod
+ SG_ IVT_Result_U3_System_Error : 15|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ IVT_Result_U3_OCS : 12|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ IVT_Result_U3_Measurement_Error : 14|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ IVT_Result_U3_Channel_Error : 13|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ IVT_ID_Result_U3 : 7|8@0+ (1,0) [3|3] ""  Host
+ SG_ IVT_Result_U3 : 23|32@0- (1,0) [-2147483648|2147483647] "mV"  Host
+ SG_ IVT_MsgCount_Result_U3 : 11|4@0+ (1,0) [0|0] ""  Host
+
+BO_ 1315 IVT_Msg_Result_U2: 6 IVT_Mod
+ SG_ IVT_Result_U2_System_Error : 15|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ IVT_Result_U2_OCS : 12|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ IVT_Result_U2_Measurement_Error : 14|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ IVT_Result_U2_Channel_Error : 13|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ IVT_ID_Result_U2 : 7|8@0+ (1,0) [2|2] ""  Host
+ SG_ IVT_MsgCount_Result_U2 : 11|4@0+ (1,0) [0|0] ""  Host
+ SG_ IVT_Result_U2 : 23|32@0- (1,0) [-2147483648|2147483647] "mV"  Host
+
+BO_ 1314 IVT_Msg_Result_U1: 6 IVT_Mod
+ SG_ IVT_Result_U1_System_Error : 15|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ IVT_Result_U1_Measurement_Error : 14|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ IVT_Result_U1_Channel_Error : 13|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ IVT_Result_U1_OCS : 12|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ IVT_ID_Result_U1 : 7|8@0+ (1,0) [1|1] ""  Host
+ SG_ IVT_Result_U1 : 23|32@0- (1,0) [-2147483648|2147483647] "mV"  Host
+ SG_ IVT_MsgCount_Result_U1 : 11|4@0+ (1,0) [0|0] ""  Host
+
+BO_ 1313 IVT_Msg_Result_I: 6 IVT_Mod
+ SG_ IVT_Result_I_System_Error : 15|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ IVT_Result_I_OCS : 12|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ IVT_Result_I_Measurement_Error : 14|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ IVT_Result_I_Channel_Error : 13|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ IVT_ID_Result_I : 7|8@0+ (1,0) [0|0] ""  Host
+ SG_ IVT_MsgCount_Result_I : 11|4@0+ (1,0) [0|0] ""  Host
+ SG_ IVT_Result_I : 23|32@0- (1,0) [-2147483648|2147483647] "mA"  Host
+
+BO_ 1041 IVT_Msg_Cmd: 8 Host
+ SG_ _31_01_Trigger_U1 m49 : 17|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _31_07_Trigger_WH m49 : 23|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _31_06_Trigger_As m49 : 22|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _31_05_Trigger_W m49 : 21|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _31_04_Trigger_T m49 : 20|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _31_03_Trigger_U3 m49 : 19|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _31_Trigger_spare m49 : 15|8@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _31_02_Trigger_U2 m49 : 18|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _10_Set_Can_ID_SN_I m16 : 31|32@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _10_Set_Can_ID_val_I m16 : 15|16@0+ (1,0) [0|2047] ""  IVT_Mod
+ SG_ _11_Set_Can_ID_SN_U1 m17 : 31|32@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _11_Set_Can_ID_val_U1 m17 : 15|16@0+ (1,0) [0|2047] "" Vector__XXX
+ SG_ _12_Set_Can_ID_SN_U2 m18 : 31|32@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _12_Set_Can_ID_val_U2 m18 : 15|16@0+ (1,0) [0|2047] "" Vector__XXX
+ SG_ _13_Set_Can_ID_SN_U3 m19 : 31|32@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _13_Set_Can_ID_val_U3 m19 : 15|16@0+ (1,0) [0|2047] "" Vector__XXX
+ SG_ _14_Set_Can_ID_SN_T m20 : 31|32@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _14_Set_Can_ID_val_T m20 : 15|16@0+ (1,0) [0|2047] "" Vector__XXX
+ SG_ _15_Set_Can_ID_SN_W m21 : 31|32@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _15_Set_Can_ID_val_W m21 : 15|16@0+ (1,0) [0|2047] "" Vector__XXX
+ SG_ _16_Set_Can_ID_SN_As m22 : 31|32@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _16_Set_Can_ID_val_As m22 : 15|16@0+ (1,0) [0|2047] "" Vector__XXX
+ SG_ _17_Set_Can_ID_SN_Wh m23 : 31|32@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _17_Set_Can_ID_val_Wh m23 : 15|16@0+ (1,0) [0|2047] "" Vector__XXX
+ SG_ _1D_Set_Can_ID_SN_Command m29 : 31|32@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _1D_Set_Can_ID_val_Command m29 : 15|16@0+ (1,0) [0|2047] "" Vector__XXX
+ SG_ _1F_Set_Can_ID_SN_Response m31 : 31|32@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _1F_Set_Can_ID_val_Response m31 : 15|16@0+ (1,0) [0|2047] "" Vector__XXX
+ SG_ _20_Conf_CycleTime_I m32 : 23|16@0+ (1,0) [0|0] "ms" Vector__XXX
+ SG_ _20_Conf_Endianess_I m32 : 14|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _20_Conf_Sign_I m32 : 15|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _20_Conf_TriggerMode_I m32 : 9|2@0+ (1,0) [0|2] "" Vector__XXX
+ SG_ _21_Conf_CycleTime_U1 m33 : 23|16@0+ (1,0) [0|0] "ms" Vector__XXX
+ SG_ _21_Conf_Endianess_U1 m33 : 14|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _21_Conf_Sign_U1 m33 : 15|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _21_Conf_TriggerMode_U1 m33 : 9|2@0+ (1,0) [0|2] "" Vector__XXX
+ SG_ _22_Conf_CycleTime_U2 m34 : 23|16@0+ (1,0) [0|0] "ms" Vector__XXX
+ SG_ _22_Conf_Endianess_U2 m34 : 14|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _22_Conf_Sign_U2 m34 : 15|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _22_Conf_TriggerMode_U2 m34 : 9|2@0+ (1,0) [0|2] "" Vector__XXX
+ SG_ _23_Conf_CycleTime_U3 m35 : 23|16@0+ (1,0) [0|0] "ms" Vector__XXX
+ SG_ _23_Conf_Endianess_U3 m35 : 14|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _23_Conf_Sign_U3 m35 : 15|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _23_Conf_TriggerMode_U3 m35 : 9|2@0+ (1,0) [0|2] "" Vector__XXX
+ SG_ _24_Conf_CycleTime_T m36 : 23|16@0+ (1,0) [0|0] "ms" Vector__XXX
+ SG_ _24_Conf_Endianess_T m36 : 14|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _24_Conf_Sign_T m36 : 15|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _24_Conf_TriggerMode_T m36 : 9|2@0+ (1,0) [0|2] "" Vector__XXX
+ SG_ _25_Conf_CycleTime_W m37 : 23|16@0+ (1,0) [0|0] "ms" Vector__XXX
+ SG_ _25_Conf_Endianess_W m37 : 14|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _25_Conf_Sign_W m37 : 15|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _25_Conf_TriggerMode_W m37 : 9|2@0+ (1,0) [0|2] "" Vector__XXX
+ SG_ _26_Conf_CycleTime_As m38 : 23|16@0+ (1,0) [0|0] "ms" Vector__XXX
+ SG_ _26_Conf_Endianess_As m38 : 14|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _26_Conf_Sign_As m38 : 15|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _26_Conf_TriggerMode_As m38 : 9|2@0+ (1,0) [0|2] "" Vector__XXX
+ SG_ _27_Conf_CycleTime_WH m39 : 23|16@0+ (1,0) [0|0] "ms" Vector__XXX
+ SG_ _27_Conf_Endianess_WH m39 : 14|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _27_Conf_Sign_WH m39 : 15|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _27_Conf_TriggerMode_WH m39 : 9|2@0+ (1,0) [0|2] "" Vector__XXX
+ SG_ _30_Reset_Item m48 : 15|16@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _30_Reset_Device_SN m48 : 31|32@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _31_00_Trigger_I m49 : 16|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _32_Store_dummy m50 : 15|8@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _33_Oc_Test_Time m51 : 15|16@0+ (1,0) [0|65535] "ms" Vector__XXX
+ SG_ _34_Actual_Mode m52 : 8|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _34_Code_Level m52 : 31|16@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _34_Startup_Mode m52 : 16|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _35_OC_Pos_Reset_Threshold m53 : 31|16@0- (1,0) [0|0] "A" Vector__XXX
+ SG_ _35_OC_Pos_Set_Threshold m53 : 15|16@0- (1,0) [0|0] "A" Vector__XXX
+ SG_ _36_OC_Neg_Reset_Threshold m54 : 31|16@0- (1,0) [0|0] "A" Vector__XXX
+ SG_ _36_OC_Neg_Set_Threshold m54 : 15|16@0- (1,0) [0|0] "A" Vector__XXX
+ SG_ _3A_RESTART_to_Bitrate m58 : 15|8@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _3D_Restart_Default_Dummy m61 : 15|8@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _3F_Restart_Dummy m63 : 15|8@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _40_Get_MeasError_Item m64 : 15|8@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _41_Get_SystemError_Item m65 : 15|8@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _42_Get_AllLogData_Item m66 : 15|8@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _43_Get_LogData_Item m67 : 15|8@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _50_Get_Can_ID_SN_I m80 : 31|32@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _51_Get_Can_ID_SN_U1 m81 : 31|32@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _52_Get_Can_ID_SN_U2 m82 : 31|32@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _53_Get_Can_ID_SN_U3 m83 : 31|32@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _54_Get_Can_ID_SN_T m84 : 31|32@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _55_Get_Can_ID_SN_W m85 : 31|32@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _56_Get_Can_ID_SN_As m86 : 31|32@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _57_Get_Can_ID_SN_Wh m87 : 31|32@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _5D_Get_Can_ID_SN_Command m93 : 31|32@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _5F_Get_Can_ID_SN_Response m95 : 31|32@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _60_Get_Result_dummy_I m96 : 15|8@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _61_Get_Result_dummy_U1 m97 : 15|8@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _62_Get_Result_dummy_U2 m98 : 15|8@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _63_Get_Result_dummy_U3 m99 : 15|8@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _64_Get_Result_dummy_T m100 : 15|8@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _65_Get_Result_dummy_W m101 : 15|8@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _66_Get_Result_dummy_As m102 : 15|8@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _67_Get_Result_dummy_Wh m103 : 15|8@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _73_Get_OC_Test_dummy m115 : 15|8@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _74_Get_Mode_dummy m116 : 15|8@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _75_Get_OC_Pos_dummy m117 : 15|8@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _76_Get_OC_Neg_dummy m118 : 15|8@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _79_Get_Device_Id_dummy m121 : 15|8@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _7A_Get_SW_Version_dummy m122 : 15|8@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _7B_Get_Serien_Nr_dummy m123 : 15|8@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ _7C_Get_Art_Nr_dummy m124 : 15|8@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ IVT_ID_Cmd M : 7|8@0+ (1,0) [0|0] ""  IVT_Mod
+
+
+
+CM_ BO_ 3221225472 "This is a message for not used signals, created by Vector CANdb++ DBC OLE DB Provider.";
+BA_DEF_ BU_  "Manufacturer" STRING ;
+BA_DEF_ BU_  "ILUsed" ENUM  "No","Yes";
+BA_DEF_ BO_  "GenMsgStartDelayTime" INT 0 1000;
+BA_DEF_ SG_  "NWM_WakeupAllowed" ENUM  "no","yes";
+BA_DEF_ BO_  "NmMessage" ENUM  "no","yes";
+BA_DEF_ BO_  "GenMsgILSupport" ENUM  "No","Yes";
+BA_DEF_ BU_  "NmNode" ENUM  "no","yes";
+BA_DEF_ BU_  "NmStationAddress" INT 0 63;
+BA_DEF_  "NmBaseAddress" HEX 1024 1087;
+BA_DEF_ BO_  "GenMsgCycleTimeFast" INT 0 1000;
+BA_DEF_  "BusType" STRING ;
+BA_DEF_ BO_  "GenMsgCycleTime" INT 0 1000;
+BA_DEF_ BO_  "GenMsgDelayTime" INT 0 1000;
+BA_DEF_ BO_  "GenMsgNrOfRepetition" INT 0 10;
+BA_DEF_ BO_  "GenMsgSendType" ENUM  "Cyclic","NotUsed","NotUsed","NotUsed","NotUsed","Cyclic","NotUsed","IfActive","NoMsgSendType","NotUsed","vector_leerstring";
+BA_DEF_ SG_  "GenSigInactiveValue" INT 0 100000;
+BA_DEF_ SG_  "GenSigSendType" ENUM  "Cyclic","OnWrite","OnWriteWithRepetition","OnChange","OnChangeWithRepetition","IfActive","IfActiveWithRepetition","NoSigSendType","NotUsed","NotUsed","NotUsed","NotUsed","NotUsed";
+BA_DEF_ SG_  "GenSigStartValue" FLOAT 0 100000000000;
+BA_DEF_DEF_  "Manufacturer" "Isabellenhuette";
+BA_DEF_DEF_  "ILUsed" "Yes";
+BA_DEF_DEF_  "GenMsgStartDelayTime" 0;
+BA_DEF_DEF_  "NWM_WakeupAllowed" "no";
+BA_DEF_DEF_  "NmMessage" "no";
+BA_DEF_DEF_  "GenMsgILSupport" "Yes";
+BA_DEF_DEF_  "NmNode" "no";
+BA_DEF_DEF_  "NmStationAddress" 0;
+BA_DEF_DEF_  "NmBaseAddress" 1024;
+BA_DEF_DEF_  "GenMsgCycleTimeFast" 0;
+BA_DEF_DEF_  "BusType" "CAN";
+BA_DEF_DEF_  "GenMsgCycleTime" 0;
+BA_DEF_DEF_  "GenMsgDelayTime" 0;
+BA_DEF_DEF_  "GenMsgNrOfRepetition" 0;
+BA_DEF_DEF_  "GenMsgSendType" "NoMsgSendType";
+BA_DEF_DEF_  "GenSigInactiveValue" 0;
+BA_DEF_DEF_  "GenSigSendType" "OnWrite";
+BA_DEF_DEF_  "GenSigStartValue" 0;
+BA_ "ILUsed" BU_ IVT_Mod 1;
+BA_ "NmNode" BU_ IVT_Mod 1;
+BA_ "Manufacturer" BU_ IVT_Mod "Isabellenhuette";
+BA_ "GenMsgSendType" BO_ 1320 1;
+BA_ "GenMsgSendType" BO_ 1319 1;
+BA_ "GenMsgSendType" BO_ 1318 1;
+BA_ "GenMsgSendType" BO_ 1297 1;
+BA_ "GenMsgSendType" BO_ 1317 1;
+BA_ "GenMsgSendType" BO_ 1316 1;
+BA_ "GenMsgSendType" BO_ 1315 1;
+BA_ "GenMsgSendType" BO_ 1314 1;
+BA_ "GenMsgSendType" BO_ 1313 1;
+BA_ "GenMsgSendType" BO_ 1041 7;
+BA_ "NmMessage" BO_ 1041 1;
+BA_ "GenSigSendType" SG_ 1320 IVT_Result_Wh 7;
+BA_ "GenSigStartValue" SG_ 1320 IVT_Result_Wh 0;
+BA_ "GenSigSendType" SG_ 1320 IVT_ID_Result_Wh 7;
+BA_ "GenSigStartValue" SG_ 1320 IVT_ID_Result_Wh 7;
+BA_ "GenSigStartValue" SG_ 1319 IVT_Result_As 0;
+BA_ "GenSigSendType" SG_ 1319 IVT_ID_Result_As 7;
+BA_ "GenSigStartValue" SG_ 1319 IVT_ID_Result_As 6;
+BA_ "GenSigStartValue" SG_ 1318 IVT_Result_W 0;
+BA_ "GenSigSendType" SG_ 1318 IVT_ID_Result_W 7;
+BA_ "GenSigStartValue" SG_ 1318 IVT_ID_Result_W 5;
+BA_ "GenSigStartValue" SG_ 1297 _A0_Resp_TriggerMode_I 2;
+BA_ "GenSigStartValue" SG_ 1297 _A4_Resp_TriggerMode_T 2;
+BA_ "GenSigStartValue" SG_ 1297 _A5_Resp_TriggerMode_W 2;
+BA_ "GenSigStartValue" SG_ 1297 _A6_Resp_TriggerMode_As 2;
+BA_ "GenSigStartValue" SG_ 1297 _A7_Resp_TriggerMode_WH 2;
+BA_ "GenSigSendType" SG_ 1317 IVT_ID_Result_T 7;
+BA_ "GenSigStartValue" SG_ 1317 IVT_ID_Result_T 4;
+BA_ "GenSigStartValue" SG_ 1317 IVT_Result_T 0;
+BA_ "GenSigSendType" SG_ 1316 IVT_ID_Result_U3 7;
+BA_ "GenSigStartValue" SG_ 1316 IVT_ID_Result_U3 3;
+BA_ "GenSigSendType" SG_ 1315 IVT_ID_Result_U2 7;
+BA_ "GenSigStartValue" SG_ 1315 IVT_ID_Result_U2 2;
+BA_ "GenSigSendType" SG_ 1314 IVT_ID_Result_U1 7;
+BA_ "GenSigStartValue" SG_ 1314 IVT_ID_Result_U1 1;
+BA_ "GenSigSendType" SG_ 1314 IVT_Result_U1 7;
+BA_ "GenSigSendType" SG_ 1313 IVT_ID_Result_I 7;
+BA_ "GenSigStartValue" SG_ 1313 IVT_ID_Result_I 0;
+BA_ "GenSigSendType" SG_ 1313 IVT_Result_I 7;
+BA_ "GenSigStartValue" SG_ 1313 IVT_Result_I 0;
+BA_ "GenSigStartValue" SG_ 1041 _20_Conf_TriggerMode_I 2;
+BA_ "GenSigStartValue" SG_ 1041 _24_Conf_TriggerMode_T 2;
+BA_ "GenSigStartValue" SG_ 1041 _25_Conf_TriggerMode_W 2;
+BA_ "GenSigStartValue" SG_ 1041 _26_Conf_TriggerMode_As 2;
+BA_ "GenSigStartValue" SG_ 1041 _27_Conf_TriggerMode_WH 2;
+VAL_ 1320 IVT_ID_Result_Wh 7 "Vt_Result_Wh" ;
+VAL_ 1319 IVT_ID_Result_As 6 "Vt_Result_As" ;
+VAL_ 1318 IVT_ID_Result_W 5 "Vt_Result_W" ;
+VAL_ 1297 _B9_Resp_Device_Com 2 "CAN 2 - not terminated" 1 "CAN 1 - terminated" 0 "none" ;
+VAL_ 1297 _B9_Resp_Device_current 2500 "2500 A" 1000 "1000 A" 500 "500 A" 300 "300 A" 100 "100 A" ;
+VAL_ 1297 _B9_Resp_Device_TOI 3 "I" ;
+VAL_ 1297 _B9_Resp_Device_V_supply 1 "12 / 24 V nominal supply voltage" ;
+VAL_ 1297 _B9_Resp_Device_Voltage_chan 3 "3 Channels" 0 "0 Channels" ;
+VAL_ 1297 _80_Resp_MeasError_Item 15 "Resp error calibration data" 14 "Resp error ntc-I OpenCirc" 13 "Resp error ntc-h OpenCirc" 12 "Resp error meas U3 OpenCirc" 11 "Resp error meas U2 OpenCirc" 10 "Resp error meas U1 OpenCirc" 9 "Resp error meas I1 OpenCirc" 8 "Resp  error therm EMF correction" 7 "Resp error cur meas implausible" 6 "Resp error Vref" 5 "Resp error Underflow ADC ch 2" 4 "Resp error Overflow ADC ch 2" 3 "Resp error Underflow ADC ch 1" 2 "Reso error Overflow ADC ch 1" 1 "Resp error ADC interrupt" 0 "Resonse all meas errors" ;
+VAL_ 1297 _81_Resp_SystemError_Item 16 "Resp error Reset EMC" 15 "Resp error Reset Watchdog" 14 "Resp error Reset illegal opcode" 13 "Resp error ADC Clock" 12 "Resp error eeprom r/w" 11 "Resp error Overcurrent detection" 10 "Resp error Configuration" 9 "Resp error System Init" 8 "Resp error System Clock" 7 "Resp error Power failure" 6 "Resp error Undertemp" 5 "Resp error Overtemp" 4 "Resp error CAN bus transmit Data" 3 "Resp error CAN bus receive Data" 2 "Resp error Parameter CRC" 1 "Resp error code CRC" 0 "Resonse all SystemErrors" ;
+VAL_ 1297 _82_Resp_AllLogData_Item 42 "Resp temp minimum" 41 "Resp temp maxmimum" 40 "Resp U3 minimum" 39 "Resp U3 maximum" 38 "Resp U2 minimum" 37 "Resp U2 maxmimum" 36 "Resp U1 minimum" 35 "Resp U1 maximum" 34 "Resp current minimum" 33 "Resp current maximum" 28 "Resp oc negative activated" 27 "Resp oc positive activated" 26 "Resp run temp out spec limits" 25 "Resp run temp in spec limits" 24 "Resp run volt 3 out spec limits" 23 "Resp run volt 3 in spec limits" 22 "Resp run volt 2 out spec limits" 21 "Resp run volt 2 in spec limits" 20 "Resp run volt 1 out spec limits" 19 "Resp run volt 1 in spec limits" 18 "Resp run cur out spec limits" 17 "Resp run cur in spec limits" 16 "Resp run overall" 6 "Resp energy counter discharging" 5 "Resp energy counter charging" 4 "Resp energy counter overall" 3 "Resp Ah counter discharging" 2 "Resp Ah counter charging" 1 "Resp Ah counter overall" 0 "Response on Overall Logdata" ;
+VAL_ 1297 _83_Resp_LogData_Item 42 "Resp temp minimum" 41 "Resp temp maxmimum" 40 "Resp U3 minimum" 39 "Resp U3 maximum" 38 "Resp U2 minimum" 37 "Resp U2 maxmimum" 36 "Resp U1 minimum" 35 "Resp U1 maximum" 34 "Resp current minimum" 33 "Resp current maximum" 28 "Resp oc negative activated" 27 "Resp oc positive activated" 26 "Resp run temp out spec limits" 25 "Resp run temp in spec limits" 24 "Resp run volt 3 out spec limits" 23 "Resp run volt 3 in spec limits" 22 "Resp run volt 2 out spec limits" 21 "Resp run volt 2 in spec limits" 20 "Resp run volt 1 out spec limits" 19 "Resp run volt 1 in spec limits" 18 "Resp run cur out spec limits" 17 "Resp run cur in spec limits" 16 "Resp run overall" 6 "Resp energy counter discharging" 5 "Resp energy counter charging" 4 "Resp energy counter overall" 3 "Resp Ah counter discharging" 2 "Resp Ah counter charging" 1 "Resp Ah counter overall" 0 "Response all Logdata SinceReset" ;
+VAL_ 1297 _A0_Resp_TriggerMode_I 2 "CYCLIC" 1 "TRIGGERED" 0 "DISABLED" ;
+VAL_ 1297 _A1_Resp_TriggerMode_U1 2 "CYCLIC" 1 "TRIGGERED" 0 "DISABLED" ;
+VAL_ 1297 _A2_Resp_TriggerMode_U2 2 "CYCLIC" 1 "TRIGGERED" 0 "DISABLED" ;
+VAL_ 1297 _A3_Resp_TriggerMode_U3 2 "CYCLIC" 1 "TRIGGERED" 0 "DISABLED" ;
+VAL_ 1297 _A4_Resp_TriggerMode_T 2 "CYCLIC" 1 "TRIGGERED" 0 "DISABLED" ;
+VAL_ 1297 _A5_Resp_TriggerMode_W 2 "CYCLIC" 1 "TRIGGERED" 0 "DISABLED" ;
+VAL_ 1297 _A6_Resp_TriggerMode_As 2 "CYCLIC" 1 "TRIGGERED" 0 "DISABLED" ;
+VAL_ 1297 _A7_Resp_TriggerMode_WH 2 "CYCLIC" 1 "TRIGGERED" 0 "DISABLED" ;
+VAL_ 1297 _B0_Resp_Reset_Item 554 "Reset temp minimum" 553 "Reset temp maximum" 552 "Reset U3 minimum" 551 "Reset U3 maximum" 550 "Reset U2 minimum" 549 "Reset U2 maximum" 548 "Reset U1 minimum" 547 "Reset U1 maximum" 546 "Reset Current minimum" 545 "Reset Current maximum" 540 "Reset Run overcur neg activated" 539 "Reset Run overcur pos activated" 538 "Reset Run temp out spec limits" 537 "Reset Run temp in spec limits" 536 "Reset Run volt 3 out spec limits" 535 "Reset Run volt 3 in spec limits" 534 "Reset Run volt 2 out spec limits" 533 "Reset Run volt 2 in spec limits" 532 "Reset Run volt 1 out spec limits" 531 "Reset Run volt 1 in spec limits" 530 "Reset Run cur out spec limits" 529 "Reset Run cur in spec limits" 528 "Reset Runtime overall" 518 "Reset Energy counter discharging" 517 "Reset Energy counter charging" 516 "Reset Energy counter overall" 515 "Reset Ah counter discharging" 514 "Reset Ah counter charging" 513 "Reset Ah counter overall" 512 "Reset all Logdata Since Reset" 272 "Reset Reset EMC" 271 "Reset Reset Watchdog" 270 "Reset illegal opcode" 269 "Reset ADC Clock" 268 "Reset eeprom r/w" 267 "Reset overcurrent detection" 266 "Reset configuration" 265 "Reset system init" 264 "Reset system clock" 263 "Reset power failure" 262 "Reset undertemp" 261 "Reset overtemp" 260 "Reset CAN bus transmit Data" 259 "Reset CAN bus receive Data" 258 "Reset Parameter CRC" 257 "Reset Code CRC" 256 "Reset all System errors" 15 "Reset calibration data " 14 "Reset ntc-I OpenCircuit" 13 "Reset ntc-h OpenCircuit" 12 "Reset voltage measU3 OpenCircuit" 11 "Reset voltage measU2 OpenCircuit" 10 "Reset voltage measU1 OpenCircuit" 9 "Reset current measI1 OpenCircuit" 8 "Reset thermal EMF correction" 7 "Reset error current implausible" 6 "Reset error Vref" 5 "Reset error Underflow ADC ch2" 4 "Reset error Overflow ADC ch2" 3 "Reset error Underflow ADC ch1" 2 "Reset error Overflow ADC ch1" 1 "Reset error ADC interrupt" 0 "Reset all measurement errors" ;
+VAL_ 1297 _B4_Resp_Actual_Mode 1 "RUN" 0 "STOP" ;
+VAL_ 1297 _B4_Resp_Startup_Mode 1 "Run" 0 "Stop" ;
+VAL_ 1297 _B9_Resp_Device_type 2 "IVT-S" 1 "IVT-Mod" ;
+VAL_ 1297 IVT_ID_Response 255 "Resp_Cmd_Wrong_Command" 191 "Resp_Get_Set_ALIVE" 188 "Resp_Get_Set_ArtNr" 187 "Resp_Get_Set_Serialnumber" 186 "Resp_Get_Set_SW_VERSION" 185 "Resp_Get_Set_DEVICE_ID" 182 "Resp_Get_Set_THRESHOLD_NEG" 181 "Resp_Get_Set_THRESHOLD_POS" 180 "Resp_Get_Set_MODE" 179 "Resp_Get_Set_OC_TEST_TIME" 178 "Resp_Get_Set_STORE" 177 "Resp_Get_Set_TRIGGER" 176 "Resp_Get_Set_Reset_Error_Logdata" 167 "Resp_Config_Result_Wh" 166 "Resp_Config_Result_As" 165 "Resp_Config_Result_W" 164 "Resp_Config_Result_T" 163 "Resp_Config_Result_U3" 162 "Resp_Config_Result_U2" 161 "Resp_Config_Result_U1" 160 "Resp_Config_Result_I" 159 "Resp_CAN_ID_Response" 157 "Resp_CAN_ID_Command" 151 "Resp_CAN_ID_Res_Wh" 150 "Resp_CAN_ID_Res_As" 149 "Resp_CAN_ID_Res_W" 144 "Resp_CAN_ID_Res_I" 148 "Resp_CAN_ID_Res_T" 147 "Resp_CAN_ID_Res_U3" 146 "Resp_CAN_ID_Res_U2" 145 "Resp_CAN_ID_Res_U1" 131 "Resp_Error_Log_Logdata_Since_Res" 130 "Resp_Error_Log_Overall_Logdata" 129 "Resp_Error_Log_System_Error" 128 "Resp_Error_Log_Measurement_Error" ;
+VAL_ 1317 IVT_ID_Result_T 4 "Vt_Result_T" ;
+VAL_ 1316 IVT_ID_Result_U3 3 "Vt_Result_U3" ;
+VAL_ 1315 IVT_ID_Result_U2 2 "Vt_Result_U2" ;
+VAL_ 1314 IVT_ID_Result_U1 1 "Vt_Result_U1" ;
+VAL_ 1313 IVT_ID_Result_I 0 "Vt_Result_I" ;
+VAL_ 1041 _20_Conf_TriggerMode_I 2 "CYCLIC" 1 "TRIGGERED" 0 "DISABLED" ;
+VAL_ 1041 _21_Conf_TriggerMode_U1 2 "CYCLIC" 1 "TRIGGERED" 0 "DISABLED" ;
+VAL_ 1041 _22_Conf_TriggerMode_U2 2 "CYCLIC" 1 "TRIGGERED" 0 "DISABLED" ;
+VAL_ 1041 _23_Conf_TriggerMode_U3 2 "CYCLIC" 1 "TRIGGERED" 0 "DISABLED" ;
+VAL_ 1041 _24_Conf_TriggerMode_T 2 "CYCLIC" 1 "TRIGGERED" 0 "DISABLED" ;
+VAL_ 1041 _25_Conf_TriggerMode_W 2 "CYCLIC" 1 "TRIGGERED" 0 "DISABLED" ;
+VAL_ 1041 _26_Conf_TriggerMode_As 2 "CYCLIC" 1 "TRIGGERED" 0 "DISABLED" ;
+VAL_ 1041 _27_Conf_TriggerMode_WH 2 "CYCLIC" 1 "TRIGGERED" 0 "DISABLED" ;
+VAL_ 1041 _30_Reset_Item 554 "Reset temp minimum" 553 "Reset temp maximum" 552 "Reset U3 minimum" 551 "Reset U3 maximum" 550 "Reset U2 minimum" 549 "Reset U2 maximum" 548 "Reset U1 minimum" 547 "Reset U1 maximum" 546 "Reset Current minimum" 545 "Reset Current maximum" 540 "Reset Run overcur neg activated" 539 "Reset Run overcur pos activated" 538 "Reset Run temp out spec limits" 537 "Reset Run temp in spec limits" 536 "Reset Run volt 3 out spec limits" 535 "Reset Run volt 3 in spec limits" 534 "Reset Run volt 2 out spec limits" 533 "Reset Run volt 2 in spec limits" 532 "Reset Run volt 1 out spec limits" 531 "Reset Run volt 1 in spec limits" 530 "Reset Run cur out spec limits" 529 "Reset Run cur in spec limits" 528 "Reset Runtime overall" 518 "Reset Energy counter discharging" 517 "Reset Energy counter charging" 516 "Reset Energy counter overall" 515 "Reset Ah counter discharging" 514 "Reset Ah counter charging" 513 "Reset Ah counter overall" 512 "Reset all Logdata Since Reset" 272 "Reset Reset EMC" 271 "Reset Reset Watchdog" 270 "Reset illegal opcode" 269 "Reset ADC Clock" 268 "Reset eeprom r/w" 267 "Reset overcurrent detection" 266 "Reset configuration" 265 "Reset system init" 264 "Reset system clock" 263 "Reset power failure" 262 "Reset undertemp" 261 "Reset overtemp" 260 "Reset CAN bus transmit Data" 259 "Reset CAN bus receive Data" 258 "Reset Parameter CRC" 257 "Reset Code CRC" 256 "Reset all System errors" 15 "Reset calibration data " 14 "Reset ntc-I OpenCircuit" 13 "Reset ntc-h OpenCircuit" 12 "Reset voltage measU3 OpenCircuit" 11 "Reset voltage measU2 OpenCircuit" 10 "Reset voltage measU1 OpenCircuit" 9 "Reset current measI1 OpenCircuit" 8 "Reset thermal EMF correction" 7 "Reset error current implausible" 6 "Reset error Vref" 5 "Reset error Underflow ADC ch2" 4 "Reset error Overflow ADC ch2" 3 "Reset error Underflow ADC ch1" 2 "Reset error Overflow ADC ch1" 1 "Reset error ADC interrupt" 0 "Reset all measurement errors" ;
+VAL_ 1041 _34_Actual_Mode 1 "START" 0 "STOP" ;
+VAL_ 1041 _34_Startup_Mode 1 "START" 0 "STOP" ;
+VAL_ 1041 _3A_RESTART_to_Bitrate 8 "250k" 4 "500k" 2 "1000k" ;
+VAL_ 1041 _40_Get_MeasError_Item 15 "Get error calibration data" 14 "Get error ntc-I OpenCirc." 13 "Get error ntc-h OpenCirc." 12 "Get error volt meas U3 OpenCirc." 11 "Get error volt meas U2 OpenCirc." 10 "Get error volt meas U1 OpenCirc." 9 "Get error cur meas I1 OpenCirc." 8 "Get error thermal EMF correction" 7 "Get error cur meas implausible" 6 "Get error Vref" 5 "Get error Underflow ADC ch 2" 4 "Get error Overflow ADC ch 2" 3 "Get error Underflow ADC ch 1" 2 "Get error Overflow ADC ch 1" 1 "Get error ADC interrupt" 0 "Get all meas Errors" ;
+VAL_ 1041 _41_Get_SystemError_Item 16 "Get error reset EMC" 15 "Get error reset Watchdog" 14 "Get error reset illegal opcode" 13 "Get error ADC clock" 12 "Get error eeprom r/w" 11 "Get error overcurrent detection" 10 "Get error configuration" 9 "Get error system init" 8 "Get error system clock" 7 "Get error power failure" 6 "Get error undertemp" 5 "Get error overtemp" 4 "Get error CAN bus transmit Data" 3 "Get error CAN  bus receive Data" 2 "Get error Code Parameter CRC" 1 "Get error Code CRC" 0 "Get all System errors" ;
+VAL_ 1041 _42_Get_AllLogData_Item 42 "Get Temperature minimum" 41 "Get Temperature maximum" 40 "Get U3 minimum" 39 "Get U3 maxmimum " 38 "Get U2 minimum" 37 "Get U2 maximum" 36 "Get U1 minimum" 35 "Get U1 maxmimum" 34 "Get current minimum" 33 "Get current maximum" 28 "Get run overcur neg activated" 27 "Get run overcur pos activated" 26 "Get run temp out spec limits" 25 "Get run temp in spec limits" 24 "Get run volt2 out spec limits" 23 "Get run volt3 in spec limits" 22 "Get run volt2 out spec limits" 21 "Get run volt2 in spec limits" 20 "Get run volt1 out spec limits" 19 "Get run volt1 in spec limits" 18 "Get run cur out spec limits" 17 "Get Run cur in spec limits" 16 "Get Runtime overall" 6 "Get Energy counter discharging" 5 "Get Energy counter charging" 4 "Get Energy counter overall" 3 "Get Ah counter discharging" 2 "Get Ah counter charging" 1 "Get Ah counter overall" 0 "Get Overall Logdata" ;
+VAL_ 1041 _43_Get_LogData_Item 42 "Get Temperature minimum" 41 "Get Temperature maximum" 40 "Get U3 minimum" 39 "Get U3 maxmimum " 38 "Get U2 minimum" 37 "Get U2 maximum" 36 "Get U1 minimum" 35 "Get U1 maxmimum" 34 "Get current minimum" 33 "Get current maximum" 28 "Get run overcur neg activated" 27 "Get run overcur pos activated" 26 "Get run temp out spec limits" 25 "Get run temp in spec limits" 24 "Get run volt2 out spec limits" 23 "Get run volt3 in spec limits" 22 "Get run volt2 out spec limits" 21 "Get run volt2 in spec limits" 20 "Get run volt1 out spec limits" 19 "Get run volt1 in spec limits" 18 "Get run cur out spec limits" 17 "Get Run cur in spec limits" 16 "Get Runtime overall" 6 "Get Energy counter discharging" 5 "Get Energy counter charging" 4 "Get Energy counter overall" 3 "Get Ah counter discharging" 2 "Get Ah counter charging" 1 "Get Ah counter overall" 0 "Get Overall Logdata" ;
+VAL_ 1041 IVT_ID_Cmd 124 "Get_cmd_and_info_ArtNr" 123 "Get_cmd_and_info_SN" 122 "Get_cmd_and_info_SW_Version" 121 "Get_cmd_and_info_DEVICE_ID" 118 "Get_cmd_and_info_THRESHOLD_NEG" 117 "Get_cmd_and_info_THRESHOLD_POS" 116 "Get_cmd_and_info_MODE" 115 "Get_cmd_and_info_OC_TEST_TIME" 103 "Get_Config_Res_Wh" 102 "Get_Config_Res_As" 101 "Get_Config_Res_W" 100 "Get_Config_Res_T" 99 "Get_Config_Res_U3" 98 "Get_Config_Res_U2" 97 "Get_Config_Res_U1" 96 "Get_Config_Res_I" 95 "Get_CAN_ID_Response" 93 "Get_CAN_ID_Command" 87 "Get_CAN_ID_Res_Wh" 86 "Get_CAN_ID_Res_As" 85 "Get_CAN_ID_Res_W" 84 "Get_CAN_ID_Res_T" 83 "Get_CAN_ID_Res_U3" 82 "Get_CAN_ID_Res_U2" 81 "Get_CAN_ID_Res_U1" 80 "Get_CAN_ID_Res_I" 67 "Get_Logdata_Since_Reset" 66 "Get_Overall_Logdata" 65 "Get_System_Errors" 64 "Get_Measurement_Errors" 63 "Set_RESTART" 61 "Set_RESTART_to_default" 58 "RESTART_to_Bitrate" 54 "Set_THRESHOLD_neg" 53 "Set_THRESHOLD_pos" 32 "Set_MODE_Result_I" 16 "Set_CAN_ID_Result_I" 52 "Set_MODE" 51 "START_OC_TEST" 50 "STORE" 49 "TRIGGER" 48 "Reset_Err_Log" 39 "Set_MODE_Result_Wh" 38 "Set_MODE_Result_As" 37 "Set_MODE_Result_W" 23 "Set_CAN_ID_Result_Wh" 22 "Set_CAN_ID_Result_As" 21 "Set_CAN_ID_Result_W" 20 "Set_CAN_ID_Result_T" 35 "Set_MODE_Result_U3" 31 "Set_CAN_ID_Response" 29 "Set_CAN_ID_Cmd" 19 "Set_CAN_ID_Result_U3" 18 "Set_CAN_ID_Result_U2" 36 "Set_MODE_Result_T" 34 "Set_MODE_Result_U2" 33 "Set_MODE_Result_U1" 17 "Set_CAN_ID_Result_U1" ;
+

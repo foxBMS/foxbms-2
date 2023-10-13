@@ -24,9 +24,9 @@ target.
 Usage
 -----
 
-The tool is encapsulated in our waf-script.
+The tool is encapsulated in our Waf tool.
 Additionally it is automatically executed on our CI-jobs.
-The usage as a waf-tool is explained in
+The usage as a Waf tool is explained in
 :ref:`How to Use Unit tests <HOW_TO_USE_UNIT_TESTS>`.
 This part also explains how to use the tool directly in a shell.
 The benefit is that the output in the shell is colored and single tests can be
@@ -497,7 +497,6 @@ plausible.
 For both tests the mock is told what it will receive and what it should return.
 Variants of these mock-functions exist that allow to ignore calls to this
 function, or to add a callback for more complex return values.
-
 
 Further reading
 ---------------

@@ -43,8 +43,8 @@
  * @file    can.h
  * @author  foxBMS Team
  * @date    2019-12-04 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup DRIVERS
  * @prefix  CAN
  *
@@ -103,6 +103,11 @@ typedef struct {
 extern STD_RETURN_TYPE_e CAN_DataSend(CAN_NODE_s *pNode, uint32_t id, CAN_IDENTIFIER_TYPE_e idType, uint8 *pData);
 
 /**
+ * @brief Reads messages from TX Queue and sends them via CAN.
+*/
+extern void CAN_SendMessagesFromQueue(void);
+
+/**
  * @brief   Calls the functions to drive the CAN interface.
  * Makes the CAN timing checks and sends the periodic messages.
  */
@@ -155,6 +160,25 @@ extern bool CAN_IsCurrentSensorEcPresent(uint8_t stringNumber);
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 #ifdef UNITY_UNIT_TEST
 extern CAN_STATE_s *TEST_CAN_GetCANState(void);
+extern void TEST_CAN_ValidateConfiguredTxMessagePeriod(void);
+extern void TEST_CAN_ValidateConfiguredTxMessagePhase(void);
+extern void TEST_CAN_CheckDatabaseNullPointer(CAN_SHIM_s canShim);
+extern void TEST_CAN_TxInterrupt(canBASE_t *pNode, uint32 messageBox);
+extern void TEST_CAN_RxInterrupt(canBASE_t *pNode, uint32 messageBox);
+extern STD_RETURN_TYPE_e TEST_CAN_PeriodicTransmit(void);
+extern uint32_t TEST_CAN_CalculateCounterResetValue(void);
+extern void TEST_CAN_CheckCanTiming(void);
+extern bool TEST_CAN_IsMessagePeriodElapsed(uint32_t ticksSinceStart, uint16_t messageIndex);
+#if BS_CURRENT_SENSOR_PRESENT == true
+extern void TEST_CAN_SetCurrentSensorPresent(bool command, uint8_t stringNumber);
+extern void TEST_CAN_SetCurrentSensorCcPresent(bool command, uint8_t stringNumber);
+extern void TEST_CAN_SetCurrentSensorEcPresent(bool command, uint8_t stringNumber);
+extern void TEST_CAN_CheckCanTimingOfCurrentSensor(void);
+#endif /* BS_CURRENT_SENSOR_PRESENT == true */
+extern void TEST_CAN_ConfigureRxMailboxesForExtendedIdentifiers(void);
+extern void TEST_CAN_InitializeTransceiver(void);
+extern CAN_NODE_s *TEST_CAN_GetNodeConfigurationStructFromRegisterAddress(canBASE_t *pNodeRegister);
+extern STD_RETURN_TYPE_e TEST_CAN_PeriodicTransmit(void);
 #endif
 
 #endif /* FOXBMS__CAN_H_ */

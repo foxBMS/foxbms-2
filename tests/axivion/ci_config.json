@@ -60,7 +60,7 @@
         },
         "JSONReport": {
             "_active": true,
-            "filename": "foxbms-2_axivion_report.json"
+            "filename": "foxbms_spa_report.json"
         }
     },
     "_Format": "1.0",

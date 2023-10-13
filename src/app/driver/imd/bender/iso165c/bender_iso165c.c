@@ -43,8 +43,8 @@
  * @file    bender_iso165c.c
  * @author  foxBMS Team
  * @date    2019-04-07 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup DRIVERS
  * @prefix  I165C
  *
@@ -413,8 +413,8 @@ static void I165C_SetMeasurementMode(uint8_t mode);
 
 /**
  * @brief   Check measurement mode
- * @param[in] canMessage  IMD_Info to be checked, sent by the iso165c
- * @param[in] mode IMD measurement mode (activated or deactivated)
+ * @param[in] canMessage    IMD_Info to be checked, sent by the iso165c
+ * @param[in] mode          IMD measurement mode (activated or deactivated)
  * @return true, if measurement mode matches, otherwise false
  */
 static bool I165C_CheckMeasurementMode(CAN_BUFFER_ELEMENT_s canMessage, uint8_t mode);
@@ -1438,11 +1438,11 @@ static IMD_FSM_STATES_e I165C_Disable(void) {
                             I165C_FSM_SHORT_TIME);
                     } else {
                         i165c_disableState.receptionTries++;
-                        /* Issue: 621 */
+                        /* Issue: #621 */
                     }
                 } else {
                     i165c_disableState.receptionTriesMessage++;
-                    /* Issue: 621 */
+                    /* Issue: #621 */
                 }
                 break;
 

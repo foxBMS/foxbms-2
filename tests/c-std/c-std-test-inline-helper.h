@@ -43,8 +43,8 @@
  * @file    c-std-test-inline-helper.h
  * @author  foxBMS Team
  * @date    2022-03-16 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup TESTS
  * @prefix  TEST
  *
@@ -55,6 +55,8 @@
 #define FOXBMS__C_STD_TEST_INLINE_HELPER_H_
 
 /*========== Includes =======================================================*/
+
+/*========== Unit Testing Framework Directives ==============================*/
 
 /*========== Macros and Definitions =========================================*/
 #if defined(__STDC_VERSION__) /* We have some newer compiler (C94 at least) */

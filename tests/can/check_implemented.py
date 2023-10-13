@@ -58,7 +58,7 @@ try:
 except ImportError:
     pass
 
-FILE_RE = r"\(in:([a-z_-]{1,}\.c):([A-Z]{2,5}_.*), fv:((tx)|(rx))\)"
+FILE_RE = r"\(in:([a-z_\-0-9]{1,}\.c):([A-Z]{2,5}_.*), fv:((tx)|(rx))\)"
 FILE_RE_COMPILED = re.compile(FILE_RE)
 
 

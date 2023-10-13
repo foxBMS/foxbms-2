@@ -8,7 +8,7 @@ enum VtSig_foxBMS_modeRequest(0="mode_Standby", 1="mode_Discharge",
 {SENDRECEIVE}
 
 [foxBMS_State]
-ID=220h	// Message contains foxBMS state (in:can_cbs_tx_state.c:CAN_TxState)
+ID=220h	// Message contains foxBMS state (in:can_cbs_tx_bms_state.c:CAN_TxState)
 DLC=8
 Var=foxBMS_State unsigned 4,4 -m
 Var=foxBMS_generalError bit 13,1 -m	// 0x00: No error detected, 0x01: Error detected

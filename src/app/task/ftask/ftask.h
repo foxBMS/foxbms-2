@@ -43,8 +43,8 @@
  * @file    ftask.h
  * @author  foxBMS Team
  * @date    2019-08-27 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup TASK
  * @prefix  FTSK
  *
@@ -83,6 +83,11 @@
 /** Size of queue item that is used in the can driver */
 #define FTSK_CAN_RX_QUEUE_ITEM_SIZE_IN_BYTES (sizeof(CAN_BUFFER_ELEMENT_s))
 
+/** Length of queue that is used in the can module for tracking unsent messages */
+#define FTSK_CAN_TX_UNSENT_MESSAGES_QUEUE_LENGTH (5u)
+/** Size of queue item that is used in the can driver */
+#define FTSK_CAN_TX_UNSENT_MESSAGES_QUEUE_ITEM_SIZE_IN_BYTES (sizeof(CAN_BUFFER_ELEMENT_s))
+
 #define FTSK_AFE_REQUEST_QUEUE_LENGTH    (1u)
 #define FTSK_AFE_REQUEST_QUEUE_ITEM_SIZE (sizeof(AFE_REQUEST_e))
 
@@ -105,6 +110,9 @@ extern OS_QUEUE ftsk_imdCanDataQueue;
 
 /** CAN driver data queue for RX messages */
 extern OS_QUEUE ftsk_canRxQueue;
+
+/** CAN driver data queue for unsent TX messages */
+extern OS_QUEUE ftsk_canTxUnsentMessagesQueue;
 
 /** handle of the AFE driver request queue */
 extern OS_QUEUE ftsk_afeRequestQueue;

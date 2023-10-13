@@ -43,8 +43,8 @@
  * @file    sys_mon_cfg.c
  * @author  foxBMS Team
  * @date    2019-11-28 (date of creation)
- * @updated 2023-02-23 (date of last update)
- * @version v1.5.1
+ * @updated 2023-10-12 (date of last update)
+ * @version v1.6.0
  * @ingroup ENGINE_CONFIGURATION
  * @prefix  SYSM
  *
@@ -127,6 +127,6 @@ static void SYSM_DummyCallback(SYSM_TASK_ID_e taskId) {
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
 #ifdef UNITY_UNIT_TEST
 void TEST_SYSM_DummyCallback(SYSM_TASK_ID_e taskId) {
-    return SYSM_DummyCallback(taskId);
+    SYSM_DummyCallback(taskId);
 }
 #endif
