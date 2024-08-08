@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,13 +43,12 @@
  * @file    database.c
  * @author  foxBMS Team
  * @date    2015-08-18 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup ENGINE
  * @prefix  DATA
  *
  * @brief   Database module implementation
- *
  * @details The database read/write functions put references to the database
  *          entries to be read/written in the database queue. The function
  *          DATA_Task() reads the queue to get the database entries to be
@@ -190,9 +189,9 @@ static void DATA_CopyData(
         /* Copy database entry in passed struct */
         /* memcpy has no return value therefore there is nothing to check: casting to void */
         (void)memcpy(pPassedDataStruct, pDatabaseStruct, dataLength);
-    } else {
-        /* invalid database operation */
-        FAS_ASSERT(FAS_TRAP);
+    } else {                             /* LCOV_EXCL_LINE */
+        /* invalid database operation */ /* LCOV_EXCL_LINE */
+        FAS_ASSERT(FAS_TRAP);            /* LCOV_EXCL_LINE */
     }
 }
 
@@ -382,4 +381,25 @@ extern void DATA_ExecuteDataBist(void) {
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
 #ifdef UNITY_UNIT_TEST
+extern void TEST_DATA_IterateOverDatabaseEntries(const DATA_QUEUE_MESSAGE_s *kpReceiveMessage) {
+    DATA_IterateOverDatabaseEntries(kpReceiveMessage);
+}
+
+extern STD_RETURN_TYPE_e TEST_DATA_AccessDatabaseEntries(
+    DATA_BLOCK_ACCESS_TYPE_e accessType,
+    void *pData0,
+    void *pData1,
+    void *pData2,
+    void *pData3) {
+    return DATA_AccessDatabaseEntries(accessType, pData0, pData1, pData2, pData3);
+}
+
+extern void TEST_DATA_CopyData(
+    DATA_BLOCK_ACCESS_TYPE_e accessType,
+    uint32_t dataLength,
+    void *pDatabaseStruct,
+    void *pPassedDataStruct) {
+    DATA_CopyData(accessType, dataLength, pDatabaseStruct, pPassedDataStruct);
+}
+
 #endif

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,8 +43,8 @@
  * @file    test_soh_none.c
  * @author  foxBMS Team
  * @date    2020-10-14 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -68,6 +68,7 @@ TEST_INCLUDE_PATH("../../src/app/application/algorithm/state_estimation")
 TEST_INCLUDE_PATH("../../src/app/task/config")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
+DATA_BLOCK_SOH_s table_testSoh = {.header.uniqueId = DATA_BLOCK_ID_SOH};
 
 /*========== Setup and Teardown =============================================*/
 void setUp(void) {
@@ -77,11 +78,47 @@ void tearDown(void) {
 }
 
 /*========== Test Cases =====================================================*/
-/** test invalid input values */
-void testInvalidInput(void) {
-    DATA_BLOCK_SOH_s table_testSoh = {.header.uniqueId = DATA_BLOCK_ID_SOH};
+/**
+ * @brief   Testing extern function #SE_InitializeStateOfHealth
+ * @details The following cases need to be tested:
+ *          - Argument validation:
+ *            - AT1/2: NULL_PTR for pSohValues -> assert
+ *            - AT2/2: invalid string number -> assert
+ *          - Routine validation:
+ *            - RT1/1: function shall do nothing
+ */
+void testSE_InitializeStateOfHealth(void) {
+    /* ======= Assertion tests ============================================= */
+    /* ======= AT1/2 ======= */
     TEST_ASSERT_FAIL_ASSERT(SE_InitializeStateOfHealth(NULL_PTR, BS_NR_OF_STRINGS - 1u));
+    /* ======= AT2/2 ======= */
     TEST_ASSERT_FAIL_ASSERT(SE_InitializeStateOfHealth(&table_testSoh, BS_NR_OF_STRINGS));
 
+    /* ======= Routine tests =============================================== */
+    /* ======= RT1/1: Test implementation */
+    /* ======= RT1/1: call function under test */
+    SE_InitializeStateOfHealth(&table_testSoh, BS_NR_OF_STRINGS - 1u);
+    /* ======= RT1/1: test output verification */
+    /* nothing to be verified */
+}
+
+/**
+ * @brief   Testing extern function #SE_CalculateStateOfHealth
+ * @details The following cases need to be tested:
+ *          - Argument validation:
+ *            - AT1/1: NULL_PTR for pSohValues -> assert
+ *          - Routine validation:
+ *            - RT1/1: function shall do nothing
+ */
+void testSE_CalculateStateOfHealth(void) {
+    /* ======= Assertion tests ============================================= */
+    /* ======= AT1/1 ======= */
     TEST_ASSERT_FAIL_ASSERT(SE_CalculateStateOfHealth(NULL_PTR));
+
+    /* ======= Routine tests =============================================== */
+    /* ======= RT1/1: Test implementation */
+    /* ======= RT1/1: call function under test */
+    SE_CalculateStateOfHealth(&table_testSoh);
+    /* ======= RT1/1: test output verification */
+    /* nothing to be verified */
 }

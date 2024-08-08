@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,13 +43,13 @@
  * @file    can_cbs_rx.h
  * @author  foxBMS Team
  * @date    2021-04-20 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
- * @ingroup DRIVER
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
+ * @ingroup DRIVERS
  * @prefix  CANRX
  *
  * @brief   CAN callbacks header
- *
+ * @details TODO
  */
 
 #ifndef FOXBMS__CAN_CBS_RX_H_
@@ -69,7 +69,7 @@
 
 /** RX callback functions @{ */
 /**
- * @brief can rx callback function for IMD info messages
+ * @brief   CAN Rx callback function for IMD info messages
  * @param[in] message     contains the message ID, DLC and endianness
  * @param[in] kpkCanData  payload of can frame
  * @param[in] kpkCanShim  shim to the database entries
@@ -80,7 +80,7 @@ extern uint32_t CANRX_ImdInfo(
     const CAN_SHIM_s *const kpkCanShim);
 
 /**
- * @brief can rx callback function for IMD response messages
+ * @brief   CAN Rx callback function for IMD response messages
  * @param[in] message     contains the message ID, DLC and endianness
  * @param[in] kpkCanData  payload of can frame
  * @param[in] kpkCanShim  shim to the database entries
@@ -91,7 +91,7 @@ extern uint32_t CANRX_ImdResponse(
     const CAN_SHIM_s *const kpkCanShim);
 
 /**
- * @brief can rx callback function for state requests
+ * @brief   CAN Rx callback function for state requests
  * @param[in] message     contains the message ID, DLC and endianness
  * @param[in] kpkCanData  payload of can frame
  * @param[in] kpkCanShim  shim to the database entries
@@ -102,7 +102,7 @@ extern uint32_t CANRX_BmsStateRequest(
     const CAN_SHIM_s *const kpkCanShim);
 
 /**
- * @brief can rx callback function for current sensor measurements
+ * @brief   CAN Rx callback function for current sensor measurements
  * @param[in] message     contains the message ID, DLC and endianness
  * @param[in] kpkCanData  payload of can frame
  * @param[in] kpkCanShim  shim to the database entries
@@ -113,7 +113,7 @@ extern uint32_t CANRX_CurrentSensor(
     const CAN_SHIM_s *const kpkCanShim);
 
 /**
- * @brief can rx callback function for debug messages
+ * @brief   CAN Rx callback function for debug messages
  * @param[in] message     contains the message ID, DLC and endianness
  * @param[in] kpkCanData  payload of can frame
  * @param[in] kpkCanShim  shim to the database entries
@@ -124,7 +124,7 @@ extern uint32_t CANRX_Debug(
     const CAN_SHIM_s *const kpkCanShim);
 
 /**
- * @brief can rx callback function for aerosol sensor messages
+ * @brief   CAN Rx callback function for aerosol sensor messages
  * @param[in] message     contains the message ID, DLC and endianness
  * @param[in] kpkCanData  payload of can frame
  * @param[in] kpkCanShim  shim to the database entries
@@ -133,10 +133,53 @@ extern uint32_t CANRX_AerosolSensor(
     CAN_MESSAGE_PROPERTIES_s message,
     const uint8_t *const kpkCanData,
     const CAN_SHIM_s *const kpkCanShim);
+
+/**
+ * @brief   CAN Rx callback function to handle cell-temperatures message
+ * @param[in] message     contains the message ID, DLC and endianness
+ * @param[in] kpkCanData  payload of can frame
+ * @param[in] kpkCanShim  shim to the database entries
+ */
+extern uint32_t CANRX_CellTemperatures(
+    CAN_MESSAGE_PROPERTIES_s message,
+    const uint8_t *const kpkCanData,
+    const CAN_SHIM_s *const kpkCanShim);
+
+/**
+ * @brief   CAN Rx callback function to handle cell-voltages message
+ * @param[in] message     contains the message ID, DLC and endianness
+ * @param[in] kpkCanData  payload of can frame
+ * @param[in] kpkCanShim  shim to the database entries
+ */
+extern uint32_t CANRX_CellVoltages(
+    CAN_MESSAGE_PROPERTIES_s message,
+    const uint8_t *const kpkCanData,
+    const CAN_SHIM_s *const kpkCanShim);
 /**@}*/
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 #ifdef UNITY_UNIT_TEST
+/* externalized functions from src/app/driver/can/cbs/rx/can_cbs_rx_current-sensor.c */
+extern void TEST_CANRX_HandleChannelError(const CAN_SHIM_s *const kpkCanShim, uint32_t messageId, uint8_t stringNumber);
+extern void TEST_CANRX_ResetError(const CAN_SHIM_s *const kpkCanShim, uint8_t stringNumber);
+extern void TEST_CANRX_HandleMeasurementError(const CAN_SHIM_s *const kpkCanShim, uint8_t stringNumber);
+extern void TEST_CANRX_HandleSystemError(const CAN_SHIM_s *const kpkCanShim, uint8_t stringNumber);
+extern void TEST_CANRX_HandleSensorData(
+    const CAN_SHIM_s *const kpkCanShim,
+    uint32_t messageId,
+    uint8_t stringNumber,
+    int32_t signalData);
+extern void TEST_CANRX_SetCurrent(const CAN_SHIM_s *const kpkCanShim, uint8_t stringNumber, int32_t signalData);
+extern void TEST_CANRX_SetVoltageU1(const CAN_SHIM_s *const kpkCanShim, uint8_t stringNumber, int32_t signalData);
+extern void TEST_CANRX_SetVoltageU2(const CAN_SHIM_s *const kpkCanShim, uint8_t stringNumber, int32_t signalData);
+extern void TEST_CANRX_SetVoltageU3(const CAN_SHIM_s *const kpkCanShim, uint8_t stringNumber, int32_t signalData);
+extern void TEST_CANRX_SetTemperature(const CAN_SHIM_s *const kpkCanShim, uint8_t stringNumber, int32_t signalData);
+extern void TEST_CANRX_SetPower(const CAN_SHIM_s *const kpkCanShim, uint8_t stringNumber, int32_t signalData);
+extern void TEST_CANRX_SetCoulombCounting(const CAN_SHIM_s *const kpkCanShim, uint8_t stringNumber, int32_t signalData);
+extern void TEST_CANRX_SetEnergyCounting(const CAN_SHIM_s *const kpkCanShim, uint8_t stringNumber, int32_t signalData);
+extern uint8_t TEST_CANRX_SetStringNumberBasedOnCanMessageId(uint32_t messageId);
+
+/* externalized functions from src/app/driver/can/cbs/rx/can_cbs_rx_debug.c */
 extern uint8_t TEST_CANRX_GetHundredthOfSeconds(uint64_t messageData, CAN_ENDIANNESS_e endianness);
 extern uint8_t TEST_CANRX_GetSeconds(uint64_t messageData, CAN_ENDIANNESS_e endianness);
 extern uint8_t TEST_CANRX_GetMinutes(uint64_t messageData, CAN_ENDIANNESS_e endianness);
@@ -152,6 +195,7 @@ extern void TEST_CANRX_TriggerMcuLotNumberMessage(void);
 extern void TEST_CANRX_TriggerMcuWaferInformationMessage(void);
 extern void TEST_CANRX_TriggerTimeInfoMessage(void);
 extern void TEST_CANRX_TriggerCommitHashMessage(void);
+extern void TEST_CANRX_TriggerBuildConfigurationMessage(void);
 
 extern bool TEST_CANRX_CheckIfBmsSoftwareVersionIsRequested(uint64_t messageData, CAN_ENDIANNESS_e endianness);
 extern bool TEST_CANRX_CheckIfMcuUniqueDieIdIsRequested(uint64_t messageData, CAN_ENDIANNESS_e endianness);
@@ -161,6 +205,7 @@ extern bool TEST_CANRX_CheckIfSoftwareResetIsRequested(uint64_t messageData, CAN
 extern bool TEST_CANRX_CheckIfFramInitializationIsRequested(uint64_t messageData, CAN_ENDIANNESS_e endianness);
 extern bool TEST_CANRX_CheckIfTimeInfoIsRequested(uint64_t messageData, CAN_ENDIANNESS_e endianness);
 extern bool TEST_CANRX_CheckIfCommitHashIsRequested(uint64_t messageData, CAN_ENDIANNESS_e endianness);
+extern bool TEST_CANRX_CheckIfBuildConfigurationIsRequested(uint64_t messageData, CAN_ENDIANNESS_e endianness);
 
 extern void TEST_CANRX_ProcessVersionInformationMux(uint64_t messageData, CAN_ENDIANNESS_e endianness);
 extern void TEST_CANRX_ProcessRtcMux(uint64_t messageData, CAN_ENDIANNESS_e endianness);
@@ -172,6 +217,21 @@ extern void TEST_CANRX_HandleAerosolSensorErrors(const CAN_SHIM_s *const kpkCanS
 extern void TEST_CANRX_HandleAerosolSensorStatus(const CAN_SHIM_s *const kpkCanShim, uint16_t signalData);
 extern void TEST_CANRX_SetParticulateMatterConcentration(const CAN_SHIM_s *const kpkCanShim, uint16_t signalData);
 extern void TEST_CANRX_SetAerosolSensorCrcCheckCode(const CAN_SHIM_s *const kpkCanShim, uint16_t signalData);
+
+/* externalized functions from src/app/driver/can/cbs/rx/can_cbs_rx_bms-state-request.c */
+extern void TEST_CANRX_ClearAllPersistentFlags(uint64_t messageData);
+extern void TEST_CANRX_HandleModeRequest(uint64_t messageData, const CAN_SHIM_s *const kpkCanShim);
+extern void TEST_CANRX_HandleBalancingRequest(uint64_t messageData);
+extern void TEST_CANRX_SetBalancingThreshold(uint64_t messageData);
+
+/* externalized functions from src/app/driver/can/cbs/rx/can_cbs_rx_cell-temperatures.c */
+extern void TEST_CANRX_GetCanAfeCellTemperaturesFromMessage(
+    CAN_CAN2AFE_CELL_TEMPERATURES_QUEUE_s *pCellTemperatures,
+    uint64_t messageData);
+/* externalized functions from src/app/driver/can/cbs/rx/can_cbs_rx_cell-voltages.c */
+extern void TEST_CANRX_GetCanAfeCellVoltagesFromMessage(
+    CAN_CAN2AFE_CELL_VOLTAGES_QUEUE_s *pCellVoltages,
+    uint64_t messageData);
 #endif
 
 #endif /* FOXBMS__CAN_CBS_RX_H_ */

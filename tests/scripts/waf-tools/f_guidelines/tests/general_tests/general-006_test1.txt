@@ -1,4 +1,0 @@
-This line does not include tabs.
-This line includes	tabs.	
-This line does not include tabs.
-This line includes	tabs.	

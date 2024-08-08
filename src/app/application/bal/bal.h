@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,13 +43,13 @@
  * @file    bal.h
  * @author  foxBMS Team
  * @date    2020-02-24 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup APPLICATION
  * @prefix  BAL
  *
  * @brief   Header for the driver for balancing
- *
+ * @details TODO
  */
 
 #ifndef FOXBMS__BAL_H_
@@ -76,9 +76,9 @@ typedef enum {
     BAL_STATEMACH_CHECK_BALANCING, /*!<    */
     BAL_STATEMACH_BALANCE,         /*!<    */
     BAL_STATEMACH_NO_BALANCING,    /*!<    */
-    BAL_STATEMACH_ALLOWBALANCING,  /*!<    */
-    BAL_STATEMACH_GLOBALDISABLE,   /*!<    */
-    BAL_STATEMACH_GLOBALENABLE,    /*!<    */
+    BAL_STATEMACH_ALLOW_BALANCING, /*!<    */
+    BAL_STATEMACH_GLOBAL_DISABLE,  /*!<    */
+    BAL_STATEMACH_GLOBAL_ENABLE,   /*!<    */
     BAL_STATEMACH_UNDEFINED,       /*!< undefined state */
     BAL_STATEMACH_RESERVED1,       /*!< reserved state */
     BAL_STATEMACH_ERROR,           /*!< Error-State: */
@@ -100,13 +100,13 @@ typedef enum {
  * State requests for the BAL state machine
  */
 typedef enum {
-    BAL_STATE_INIT_REQUEST,           /*!<    */
-    BAL_STATE_ERROR_REQUEST,          /*!<    */
-    BAL_STATE_NO_BALANCING_REQUEST,   /*!<    */
-    BAL_STATE_ALLOWBALANCING_REQUEST, /*!<    */
-    BAL_STATE_GLOBAL_DISABLE_REQUEST, /*!<    */
-    BAL_STATE_GLOBAL_ENABLE_REQUEST,  /*!<    */
-    BAL_STATE_NO_REQUEST,             /*!< default state: no request to the state machine */
+    BAL_STATE_INIT_REQUEST,            /*!<    */
+    BAL_STATE_ERROR_REQUEST,           /*!<    */
+    BAL_STATE_NO_BALANCING_REQUEST,    /*!<    */
+    BAL_STATE_ALLOW_BALANCING_REQUEST, /*!<    */
+    BAL_STATE_GLOBAL_DISABLE_REQUEST,  /*!<    */
+    BAL_STATE_GLOBAL_ENABLE_REQUEST,   /*!<    */
+    BAL_STATE_NO_REQUEST,              /*!< default state: no request to the state machine */
 } BAL_STATE_REQUEST_e;
 
 /**
@@ -184,7 +184,7 @@ extern BAL_RETURN_TYPE_e BAL_CheckStateRequest(BAL_STATE_s *pCurrentState, BAL_S
  * @param   pCurrentState   pointer to the current state
  * @param   stateRequest    state request to set
  */
-extern void BAL_ProcessStateUninitalized(BAL_STATE_s *pCurrentState, BAL_STATE_REQUEST_e stateRequest);
+extern void BAL_ProcessStateUninitialized(BAL_STATE_s *pCurrentState, BAL_STATE_REQUEST_e stateRequest);
 
 /**
  * @brief   State machine subfunction to initialize the balancing state machine
@@ -193,7 +193,7 @@ extern void BAL_ProcessStateUninitalized(BAL_STATE_s *pCurrentState, BAL_STATE_R
 extern void BAL_ProcessStateInitialization(BAL_STATE_s *currentState);
 
 /**
- * @brief   State machine subfunction to transfer from an initalized state to
+ * @brief   State machine subfunction to transfer from an initialized state to
  *          "running" states of th state machine
  * @details TODO
  */

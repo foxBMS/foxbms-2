@@ -6,16 +6,6 @@
 General Rules
 =============
 
-..
-    Comments:
-    uFEFF is a Unicode zero-width no-break space character
-
-.. spelling::
-    uFEFF
-    xEF
-    xBB
-    xBF
-
 The following rules generally apply and follow the naming schema
 ``GENERAL:<ongoing-number>``.
 

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,13 +43,17 @@
  * @file    adi_ades183x.h
  * @author  foxBMS Team
  * @date    2015-09-01 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup DRIVERS
  * @prefix  ADI
  *
- * @brief   Headers for the driver for the ADI analog front-end.
- *
+ * @brief   Declarations for the driver of the ADI ADES18x family of
+ *          analog front-ends.
+ * @details Declares the high-level functions for the ADI ADES18x family driver
+ *          The #ADI_ActivateInterfaceBoard function is specific to the
+ *          hardware that communicates with the daisy-chain, i.e., for foxBMS 2
+ *          it defines the setup of the port expander.
  */
 
 #ifndef FOXBMS__ADI_ADES183X_H_
@@ -95,25 +99,25 @@ extern STD_RETURN_TYPE_e ADI_MakeRequest(AFE_REQUEST_e request);
 /**
  * @brief   Implements the actual measurement sequence for the ADI driver.
  * @details This function contains the sequence of events
- * @param   adiState state of the adi driver
+ * @param   pAdiState state of the adi driver
  */
-extern void ADI_MeasurementCycle(ADI_STATE_s *adiState);
+extern void ADI_MeasurementCycle(ADI_STATE_s *pAdiState);
 
 /**
  * @brief   Gets the measurement initialization status.
- * @param   adiState state of the adi driver
+ * @param   pAdiState state of the adi driver
  * @return  true if a first measurement cycle was made, false otherwise
  */
-extern bool ADI_IsFirstMeasurementCycleFinished(ADI_STATE_s *adiState);
+extern bool ADI_IsFirstMeasurementCycleFinished(ADI_STATE_s *pAdiState);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 #ifdef UNITY_UNIT_TEST
-extern void TEST_ADI_AccessToDatabase(ADI_STATE_s *adiState);
-extern void TEST_ADI_BalanceControl(ADI_STATE_s *adiState);
+extern void TEST_ADI_AccessToDatabase(ADI_STATE_s *pAdiState);
+extern void TEST_ADI_BalanceControl(ADI_STATE_s *pAdiState);
 extern STD_RETURN_TYPE_e TEST_ADI_GetRequest(AFE_REQUEST_e *request);
-extern bool TEST_ADI_ProcessMeasurementNotStartedState(ADI_STATE_s *adiState, AFE_REQUEST_e *request);
-extern void TEST_ADI_RunCurrentStringMeasurement(ADI_STATE_s *adiState);
-extern void TEST_ADI_SetFirstMeasurementCycleFinished(ADI_STATE_s *adiState);
+extern bool TEST_ADI_ProcessMeasurementNotStartedState(ADI_STATE_s *pAdiState, AFE_REQUEST_e *request);
+extern void TEST_ADI_RunCurrentStringMeasurement(ADI_STATE_s *pAdiState);
+extern void TEST_ADI_SetFirstMeasurementCycleFinished(ADI_STATE_s *pAdiState);
 #endif
 
 #endif /* FOXBMS__ADI_ADES183X_H_ */

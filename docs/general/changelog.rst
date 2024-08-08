@@ -7,32 +7,6 @@
 Changelog
 #########
 
-..
-    Comments:
-    Axivion is the company that builds the Axivion Bauhaus suite
-    PEC stands for pack error check
-    slaveplausibility is the old name of a plausibility module
-    sym is the file extension of a symbol file
-    JUnit is a test system (originally for Java)
-    matcher as in `problem matcher`
-    Cppcheck is a static program analysis tools
-    Werror gcc
-    Wextra gcc
-    xxxx is the dummy date for x.y.z
-
-.. spelling::
-    Axivion
-    PEC
-    slaveplausibility
-    sym
-    JUnit
-    matcher
-    Cppcheck
-    Werror
-    Wextra
-    xxxx
-    ba
-
 All notable changes to this project will be documented in this file.
 
 |foxbms| uses the following versioning pattern ``MAJOR.MINOR.PATCH``
@@ -49,13 +23,199 @@ Versioning follows then these rules:
   straight forward work to update a project to this version.
 
 ********************
+[1.7.0] - 2024-08-08
+********************
+
+|foxbms| now ships with a new `venv` environment `2024-08-pale-fox`.
+See :ref:`SOFTWARE_INSTALLATION` for information on updating.
+
+In order to get the unit tests working the Ruby Gems need to the updated.
+See :ref:`SOFTWARE_INSTALLATION` for information on installing the Ruby Gems.
+
+|foxbms| now ships with a set of |code| workspaces that are created at
+configuration time:
+
+- generic: at the root of the repository.
+  Useful setup for working on the entire repository, but not perfectly setup
+  for specific tasks (see below what might be suited better).
+- ``src``: configured for developing the target/embedded software
+- ``tests/unit``: configured for developing the unit tests of the
+  target/embedded software
+
+Added
+=====
+
+- Add two can callback functions and an AFE driver to extract the debug cell
+  temperatures and cell voltages from the related CAN messages and write them
+  to their relevant database entries.
+- Added script to plot periods between CAN messages.
+- The CAN driver has been improved.
+  The implementation of cyclic and asynchronously message is split into
+  separate files to simplify the maintainability and addition of new messages
+  (see :ref:`HOW_TO_USE_THE_CAN_MODULE`).
+- The implementation of macros that compose a CAN message has been made
+  consistently (see :ref:`HOW_TO_USE_THE_CAN_MODULE`).
+- The ``f_DebugBuildConfiguration`` message was added.
+  It transmits the contents of the files ``battery_system_cfg.c``,
+  ``battery_cell_cfg.c`` and ``bms.json``.
+  It is requested via the ``f_Debug`` message.
+- Additional naming conventions have been defined.
+- The temperature sensor Semitec 103JT has been implemented.
+- Add a short installation summary as markdown document in the repository root
+  (`INSTALL.md`).
+  This document shall only serve as a summary while the detailed instructions
+  are still document at :ref:`SOFTWARE_INSTALLATION`.
+- Added energy and charge throughput accumulation in charge and discharge
+  direction.
+- Added more unit tests for ADI ADES1830 AFE driver.
+
+Changed
+=======
+
+- Changed database definition in struct ``DATA_BLOCK_BALANCING_CONTROL_s`` for
+  ``balancingState`` and ``deltaCharge_mAs`` from a two-dimensional array
+  (``xxx[BS_NR_OF_STRINGS][BS_NR_OF_CELL_BLOCKS_PER_STRING]``) to
+  three-dimensional array
+  (``xxx[BS_NR_OF_STRINGS][BS_NR_OF_MODULES_PER_STRING][BS_NR_OF_CELL_BLOCKS_PER_MODULE]``).
+  Renamed ``balancingState`` to ``activateBalancing`` and made it bool.
+- Changed the algorithm to activate balancing in |ltc-ltc6813-1|\ -driver.
+- Datatype for cell voltage and cell temperature invalid flags has been changed
+  to boolean (from bit masks).
+- Move the interpretation of Bender iso165c can messages from the driver
+  to the corresponding can callback files and use the ``can_helper``
+  functions for the implementation.
+- Fix iteration over cell temperature array in ``LTC_InitializeDatabase``
+  in the |ltc-ltc6813-1|\ -driver.
+- Updated the unit test framework ``Ceedling`` to version ``1.0.0-ba45d2c``.
+  This fixes the problem, that ``Ceedling`` always exited with error code 0
+  despite there were errors.
+- Some unit tests for the ADI ADES1830 AFE were broken.
+  The unit tests do now work as expected.
+- Improved documentation.
+- Move ``pyproject.toml`` from ``conf/fmt/pyproject.toml`` to the root of the
+  the repository.
+- Renamed defines for NXP PCA9539 port expander pin definitions.
+- The definition of the CAN messages has been improved:
+
+  - CAN messages and signals now use a ``f_`` instead of a ``foxBMS_`` prefix.
+  - Enums are now used for displaying most of the signal values.
+  - The message definitions have been changed to improve the message layout.
+    The messages have been changed as follows (an \* for the old message name
+    and ID indicates, that the message did previously not exist):
+
+    +---------------------------------------+-----------+---------------------------------------+-----------+
+    | Old Message Definition                            | New Message Definition                            |
+    +=======================================+===========+=======================================+===========+
+    | **Name**                              | **ID**    | **Name**                              | **ID**    |
+    +---------------------------------------+-----------+---------------------------------------+-----------+
+    | ``foxBMS_FatalErrors``                | 0FFh      | ``f_CrashDump``                       | 0FFh      |
+    +---------------------------------------+-----------+---------------------------------------+-----------+
+    | ``foxBMS_BmsStateRequest``            | 230h      | ``f_BmsStateRequest``                 | 210h      |
+    +---------------------------------------+-----------+---------------------------------------+-----------+
+    | ``foxBMS_BmsState``                   | 220h      | ``f_BmsState``                        | 220h      |
+    +---------------------------------------+-----------+---------------------------------------+-----------+
+    | ``foxBMS_BmsStateDetails``            | 226h      | ``f_BmsStateDetails``                 | 221h      |
+    +---------------------------------------+-----------+---------------------------------------+-----------+
+    | ``foxBMS_PackMinMaxValues``           | 223h      | ``f_PackMinimumMaximumValues``        | 231h      |
+    +---------------------------------------+-----------+---------------------------------------+-----------+
+    | ``foxBMS_PackLimits``                 | 224h      | ``f_PackLimits``                      | 232h      |
+    +---------------------------------------+-----------+---------------------------------------+-----------+
+    | ``foxBMS_PackValues``                 | 222h      | ``f_PackValuesP0``                    | 233h      |
+    +---------------------------------------+-----------+---------------------------------------+-----------+
+    | \*                                    | \*        | ``f_PackValuesP1``                    | 234h      |
+    +---------------------------------------+-----------+---------------------------------------+-----------+
+    | ``foxBMS_CellVoltages``               | 240h      | ``f_CellVoltages``                    | 250h      |
+    +---------------------------------------+-----------+---------------------------------------+-----------+
+    | ``foxBMS_CellTemperatures``           | 250h      | ``f_CellTemperatures``                | 260h      |
+    +---------------------------------------+-----------+---------------------------------------+-----------+
+    | ``foxBMS_Debug``                      | 200h      | ``f_Debug``                           | 300h      |
+    +---------------------------------------+-----------+---------------------------------------+-----------+
+    | ``foxBMS_DebugResponse``              | 227h      | ``f_DebugResponse``                   | 301h      |
+    +---------------------------------------+-----------+---------------------------------------+-----------+
+    | ``foxBMS_PackStateEstimation``        | 225h      | ``f_PackStateEstimation``             | 235h      |
+    +---------------------------------------+-----------+---------------------------------------+-----------+
+    | ``foxBMS_StringState``                | 221h      | ``f_StringState``                     | 240h      |
+    +---------------------------------------+-----------+---------------------------------------+-----------+
+    | ``foxBMS_StringMinMaxValues``         | 281h      | ``f_StringMinimumMaximumValues``      | 241h      |
+    +---------------------------------------+-----------+---------------------------------------+-----------+
+    | ``foxBMS_StringValuesP0``             | 280h      | ``f_StringValuesP0``                  | 243h      |
+    +---------------------------------------+-----------+---------------------------------------+-----------+
+    | ``foxBMS_StringValuesP1``             | 283h      | ``f_StringValuesP1``                  | 244h      |
+    +---------------------------------------+-----------+---------------------------------------+-----------+
+    | ``foxBMS_StringStateEstimation``      | 282h      | ``f_StringStateEstimation``           | 245h      |
+    +---------------------------------------+-----------+---------------------------------------+-----------+
+    | ``foxBMS_CellVoltages``               | 240h      | ``f_CellVoltages``                    | 250h      |
+    +---------------------------------------+-----------+---------------------------------------+-----------+
+    | ``foxBMS_CellTemperatures``           | 250h      | ``f_CellTemperatures``                | 260h      |
+    +---------------------------------------+-----------+---------------------------------------+-----------+
+    | ``foxBMS_Debug``                      | 200h      | ``f_Debug``                           | 300h      |
+    +---------------------------------------+-----------+---------------------------------------+-----------+
+    | ``foxBMS_DebugResponse``              | 227h      | ``f_DebugResponse``                   | 301h      |
+    +---------------------------------------+-----------+---------------------------------------+-----------+
+    | ``foxBMS_PackStateEstimation``        | 225h      | ``f_PackStateEstimation``             | 235h      |
+    +---------------------------------------+-----------+---------------------------------------+-----------+
+    | ``foxBMS_StringState``                | 221h      | ``f_StringState``                     | 240h      |
+    +---------------------------------------+-----------+---------------------------------------+-----------+
+    | ``foxBMS_StringMinMaxValues``         | 281h      | ``f_StringMinimumMaximumValues``      | 241h      |
+    +---------------------------------------+-----------+---------------------------------------+-----------+
+    | ``foxBMS_StringValuesP0``             | 280h      | ``f_StringValuesP0``                  | 243h      |
+    +---------------------------------------+-----------+---------------------------------------+-----------+
+    | ``foxBMS_StringValuesP1``             | 283h      | ``f_StringValuesP1``                  | 244h      |
+    +---------------------------------------+-----------+---------------------------------------+-----------+
+    | ``foxBMS_StringStateEstimation``      | 282h      | ``f_StringStateEstimation``           | 245h      |
+    +---------------------------------------+-----------+---------------------------------------+-----------+
+    | ``foxBMS_CellVoltages``               | 240h      | ``f_CellVoltages``                    | 250h      |
+    +---------------------------------------+-----------+---------------------------------------+-----------+
+    | ``foxBMS_CellTemperatures``           | 250h      | ``f_CellTemperatures``                | 260h      |
+    +---------------------------------------+-----------+---------------------------------------+-----------+
+    | ``foxBMS_StringState``                | 221h      | ``f_StringState``                     | 240h      |
+    +---------------------------------------+-----------+---------------------------------------+-----------+
+    | ``foxBMS_Debug``                      | 200h      | ``f_Debug``                           | 300h      |
+    +---------------------------------------+-----------+---------------------------------------+-----------+
+    | ``foxBMS_DebugResponse``              | 227h      | ``f_DebugResponse``                   | 301h      |
+    +---------------------------------------+-----------+---------------------------------------+-----------+
+    | ``foxBMS_UnsupportedMultiplexerVal``  | 201h      | ``f_DebugUnsupportedMultiplexerVal``  | 302h      |
+    +---------------------------------------+-----------+---------------------------------------+-----------+
+
+Deprecated
+==========
+
+Removed
+=======
+
+- The GUI has been removed (was implemented in ``tools/gui/*``).
+
+Fixed
+=====
+
+- Fixed crash in |nxp-mc33775a| driver, which was caused by a wrong stop
+  condition when iterating over cell voltages in function
+  ``N775_InitializeDatabase``.
+- Fixed bug in |nxp-mc33775a| driver, which caused an out-of-bounce access
+  when reading out the unique device ID in function ``N775_Enumerate``.
+- Fixed bug in |nxp-mc33775a| driver, which caused the daisy-chain to be not
+  initialized correctly in some cases. No measurement data could be read from
+  the daisy-chain in these cases.
+- Fixed bug in |nxp-mc33775a| driver, which caused the the invalid flags for
+  cell voltages and cell temperatures to be not set correctly.
+- Fixed bug in |nxp-mc33775a| driver, that string voltage was not calculated
+  correctly. For this reason, diagnosis entry
+  ``DIAG_ID_PLAUSIBILITY_PACK_VOLTAGE`` was always set. String voltage is now
+  calculated by adding up the individual valid cell voltage measurements.
+- Fixed error in function ``FRAM_ReinitializeAllEntries``, always returned
+  ``STD_OK``.
+- Fixed upper address part calculation from the FRAM address.
+- Fixed the Unix time by setting ``RTC_CTIME_YEAR_START`` to 1970.
+- Fixed typos.
+
+********************
 [1.6.0] - 2023-10-12
 ********************
 
 Starting with this release, |foxbms| now supports the ADI ADES1830 AFE.
 
-This release updates the unit testing framework ``Ceedling`` to 0.32.0-52ba9d2
-and requires an update of Ruby.
+This release updates the unit testing framework ``Ceedling`` to
+``0.32.0-52ba9d2`` and requires an update of Ruby.
 To update Ruby and the required Gems see :ref:`ruby_install_and_gem_install`.
 For information on the unit testing framework see (:ref:`UNIT_TESTS`).
 
@@ -63,7 +223,7 @@ Added
 =====
 
 - Support for the ADI ADES1830 AFE (see :ref:`ADI_ADES1830`).
-- The GUI (:ref:`FOXBMS_2_GUI`) now also displays the *BMS state*.
+- The GUI now also displays the *BMS state*.
 - Documentation of the precharging process (:ref:`PRECHARGING`).
 - The temperature sensor Vishay NTCLE413E2103F102L has been implemented.
 - A logging file is created in a post-build process that shows the stack
@@ -124,6 +284,8 @@ Changed
     ``tools\debugger\lauterbach\get_macro_values.py`` script needs to be run.
     After that, the created file needs to be loaded again in the Lauterbach
     command line by ``do <path/to/repo>/build/load_macro_values.cmm``.
+  - Disabled configuration for Trace32 python API in file
+    ``tools/debugger/lauterbach/config.t32.cmm.in``.
 
 - Renamed driver for *Murata NCU15XH103F6Sxx* temperature sensor to
   *NCxxxXH103* as the temperature characteristic is identical for multiple
@@ -164,7 +326,7 @@ Fixed
 ********************
 
 |foxbms| now ships with a new conda environment ``2023-02-fennec-fox`` and the
-local conda environment needs to be updated (see :numref:`conda_env_update`).
+local conda environment needs to be updated.
 
 Added
 =====
@@ -293,7 +455,8 @@ Removed
 Fixed
 =====
 
-- Fixed the hardware readme as it referenced the wrong |master| version.
+- Fixed the hardware readme as it referenced the wrong |foxbms-bms-master|
+  version.
 - Fixed the regular expression for checking the validity of macro names.
 - Fixed wrong configured chip select pin for MCU SBC. Chip select 1 instead of
   chip select 0 was configured.
@@ -439,7 +602,7 @@ Fixed
 Installation instructions are found at :numref:`css_install`.
 
 |foxbms| updated to LLVM 13.0.0.
-Installation instructions are found at :numref:`llvm_install`.
+Installation instructions are found in the LLVM section.
 
 Added
 =====
@@ -581,7 +744,7 @@ Fixed
 ********************
 
 |foxbms| now ships with a new conda environment ``2021-11-fennec-fox`` and the
-local conda environment needs to be updated (see :numref:`conda_env_update`).
+local conda environment needs to be updated.
 
 Added
 =====
@@ -676,8 +839,7 @@ Added
 - Implemented feedback through auxiliary contacts for the contactor driver.
 - Debug LED is now toggled depending on system state (slow: okay, fast: error)
 - Added an option to install a pre-commit hook in the repository.
-  The pre-commit hook runs the guidelines check (see
-  :ref:`WAF_TOOL_GIT_HOOKS`).
+  The pre-commit hook runs the guidelines check.
 - Added a driver module that allows to use the enhanced PWM features of the
   MCU.
 - Adapted CAN module to receive/transmit messages either via CAN1 or CAN2.
@@ -744,22 +906,22 @@ Added
 - Added minimal documentation for Axivion setup.
 - Improved the Axivion configuration:
 
-  * use ``FAS_ASSERT`` as assert macro in order to be compliant with the style
+  - use ``FAS_ASSERT`` as assert macro in order to be compliant with the style
     guide
-  * fix some includes (library-inclusions and unnecessary inclusions)
-  * adds the Axivion example for race condition analysis and a minimal
+  - fix some includes (library-inclusions and unnecessary inclusions)
+  - adds the Axivion example for race condition analysis and a minimal
     configuration of entry points
-  * updates ``.axivion.preinc`` with missing symbols
-  * makes cafeCC point to the right compiler library
-  * excludes vendored code from analysis
-  * disables all naming conventions (as they are currently not configured and
+  - updates ``.axivion.preinc`` with missing symbols
+  - makes cafeCC point to the right compiler library
+  - excludes vendored code from analysis
+  - disables all naming conventions (as they are currently not configured and
     thus horribly noisy)
-  * disables the NoImplicitTypeConversion check as it is very noisy and better
+  - disables the NoImplicitTypeConversion check as it is very noisy and better
     done with appropriate MISRA rules
-  * detect unsafe variable access by defining task priorities
-  * make Axivion less noisy, by disabling unused style-checks.
-  * Made rules for loop-counter variables more strict.
-  * enabling more detailed computation of findings (Abstract Interpretation in
+  - detect unsafe variable access by defining task priorities
+  - make Axivion less noisy, by disabling unused style-checks.
+  - Made rules for loop-counter variables more strict.
+  - enabling more detailed computation of findings (Abstract Interpretation in
     Static Semantic Analysis).
 
 Changed
@@ -822,7 +984,7 @@ configured in ``conf/env/paths_win32.txt``. For installation instructions
 see :numref:`css_install`.
 
 |foxbms| now ships with a new conda environment ``2021-08-arctic-fox`` and the
-local conda environment needs to be updated (see :numref:`conda_env_update`).
+local conda environment needs to be updated.
 
 Added
 =====
@@ -879,7 +1041,7 @@ Changed
 - Reorganized the compiler tests in ``tests/ccs/*``.
 - Updated the development conda environment to ``2021-06-arctic-fox``. Please
   run the ``conda-update-env.bat`` script in order to update your local
-  environment (see :numref:`conda_env_update`).
+  environment.
 - CAN callback functions are now defined in separate files to increase
   readability.
 - Ring buffer for CAN RX was replaced by a |freertos| queue. A DIAG entry was

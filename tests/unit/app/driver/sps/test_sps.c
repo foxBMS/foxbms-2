@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,8 +43,8 @@
  * @file    test_sps.c
  * @author  foxBMS Team
  * @date    2020-10-28 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -111,14 +111,14 @@ SPS_CHANNEL_STATE_s sps_channelStatus[SPS_NR_OF_AVAILABLE_SPS_CHANNELS] = {
 };
 
 const SPS_CHANNEL_FEEDBACK_MAPPING_s sps_kChannelFeedbackMapping[SPS_NR_OF_AVAILABLE_SPS_CHANNELS] = {
-    {PEX_PORT_EXPANDER1, PEX_PIN00},
-    {PEX_PORT_EXPANDER1, PEX_PIN01},
-    {PEX_PORT_EXPANDER1, PEX_PIN02},
-    {PEX_PORT_EXPANDER1, PEX_PIN03},
-    {PEX_PORT_EXPANDER1, PEX_PIN04},
-    {PEX_PORT_EXPANDER1, PEX_PIN05},
-    {PEX_PORT_EXPANDER1, PEX_PIN06},
-    {PEX_PORT_EXPANDER1, PEX_PIN07},
+    {PEX_PORT_EXPANDER1, PEX_PORT_0_PIN_0},
+    {PEX_PORT_EXPANDER1, PEX_PORT_0_PIN_1},
+    {PEX_PORT_EXPANDER1, PEX_PORT_0_PIN_2},
+    {PEX_PORT_EXPANDER1, PEX_PORT_0_PIN_3},
+    {PEX_PORT_EXPANDER1, PEX_PORT_0_PIN_4},
+    {PEX_PORT_EXPANDER1, PEX_PORT_0_PIN_5},
+    {PEX_PORT_EXPANDER1, PEX_PORT_0_PIN_6},
+    {PEX_PORT_EXPANDER1, PEX_PORT_0_PIN_7},
 };
 
 /*========== Setup and Teardown =============================================*/
@@ -508,18 +508,18 @@ void testContactorSwitchOnAndOff(void) {
 /** test the states of PEX feedback function */
 void testSPS_GetChannelPexFeedback(void) {
     /* report pin state 0 with normally open --> should report switch off */
-    PEX_GetPin_ExpectAndReturn(PEX_PORT_EXPANDER1, PEX_PIN00, 0u);
+    PEX_GetPin_ExpectAndReturn(PEX_PORT_EXPANDER1, PEX_PORT_0_PIN_0, 0u);
     TEST_ASSERT_EQUAL(CONT_SWITCH_OFF, SPS_GetChannelPexFeedback(0u, true));
 
     /* report pin state 1 with normally open --> should report switch on */
-    PEX_GetPin_ExpectAndReturn(PEX_PORT_EXPANDER1, PEX_PIN00, 1u);
+    PEX_GetPin_ExpectAndReturn(PEX_PORT_EXPANDER1, PEX_PORT_0_PIN_0, 1u);
     TEST_ASSERT_EQUAL(CONT_SWITCH_ON, SPS_GetChannelPexFeedback(0u, true));
 
     /* report pin state 0 with normally closed --> should report switch on */
-    PEX_GetPin_ExpectAndReturn(PEX_PORT_EXPANDER1, PEX_PIN00, 0u);
+    PEX_GetPin_ExpectAndReturn(PEX_PORT_EXPANDER1, PEX_PORT_0_PIN_0, 0u);
     TEST_ASSERT_EQUAL(CONT_SWITCH_ON, SPS_GetChannelPexFeedback(0u, false));
 
     /* report pin state 1 with normally closed --> should report switch off */
-    PEX_GetPin_ExpectAndReturn(PEX_PORT_EXPANDER1, PEX_PIN00, 1u);
+    PEX_GetPin_ExpectAndReturn(PEX_PORT_EXPANDER1, PEX_PORT_0_PIN_0, 1u);
     TEST_ASSERT_EQUAL(CONT_SWITCH_OFF, SPS_GetChannelPexFeedback(0u, false));
 }

@@ -7,17 +7,17 @@ Creating a Workspace
 ====================
 
 If |code| is available, a ``.vscode`` directory with all needed
-configurations is generated when running ``waf configure``. The
-generated workspace is properly configured.
+configurations is generated when running ``.\fox.ps1 waf configure``.
+The generated workspace is properly configured.
 
 Launching |code|
 ----------------
 
-It is best to use the provided launcher script ``ide.bat`` to open |code| as
-then all environment variables are automatically correctly set.
+It is best to use the provided launcher script ``.\fox.ps1 ide`` to open
+|code| as then all environment variables are automatically correctly set.
 
-If using the launcher scripts is not desired the following steps need to be
-taken into account:
+If using ``fox.py`` is not desired the following steps need to be taken into
+account:
 
 #. All required build tools etc. need to be in path and environment variables
    need to be correctly set.
@@ -26,17 +26,14 @@ taken into account:
 
 Build Tasks
 -----------
-Build commands are executed by running ``Build Tasks``. A ``Build Task`` is
-executed either selecting ``Terminal->Run Build Task`` from the menu or
-pressing :kbd:`Ctrl + Shift + B`. A list of possible build commands is shown
-and the desired one can be executed by clicking with the cursor or navigating
-with the arrow keys and pressing :kbd:`Enter`.
+Build commands are executed by running ``Build Tasks``.
 
-Test Explorer
--------------
-With the Test Explorer (which is listed among the recommended extensions)
-you can directly interact with the :ref:`Ceedling unit tests <UNIT_TESTS>`.
-The Test Explorer is found in the activity bar under ``Test``.
+A ``Build Task`` is executed either selecting ``Terminal->Run Build Task`` from
+the menu or pressing :kbd:`Ctrl + Shift + B`.
+
+A list of possible build commands is shown and the desired one can be executed
+by clicking with the cursor or navigating with the arrow keys and pressing
+:kbd:`Enter`.
 
 Hints
 -----

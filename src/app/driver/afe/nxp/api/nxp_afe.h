@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,12 +43,13 @@
  * @file    nxp_afe.h
  * @author  foxBMS Team
  * @date    2021-06-04 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
- * @ingroup DRIVER
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
+ * @ingroup DRIVERS
  * @prefix  NXP
  *
  * @brief   AFE driver wrapper layer for NXP ICs
+ * @details TODO
  */
 
 #ifndef FOXBMS__NXP_AFE_H_
@@ -89,9 +90,9 @@ extern STD_RETURN_TYPE_e NXP_RequestOpenWireCheck(uint8_t string);
 extern STD_RETURN_TYPE_e NXP_StartMeasurement(void);
 /** Function to check if at least one measurement cycle has been made */
 extern bool NXP_IsFirstMeasurementCycleFinished(void);
-/** Function to request a read of the I2C port expnader on the slaves */
+/** Function to request a read of the I2C port expander on the slaves */
 extern STD_RETURN_TYPE_e NXP_RequestIoRead(uint8_t string);
-/** Function to request a write to the I2C port expnader on the slaves */
+/** Function to request a write to the I2C port expander on the slaves */
 STD_RETURN_TYPE_e NXP_RequestIoWrite(uint8_t string);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/

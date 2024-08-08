@@ -1,4 +1,4 @@
-# Copyright (c) 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -65,7 +65,7 @@ CFLAGS:
     - --emit_warnings_as_errors
   # additional flags for the library
   foxbms:
-    - -Ooff
+    - -O0
     - -DASSERT_LEVEL=0
     - --issue_remarks
     - --strict_ansi

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,8 +43,8 @@
  * @file    test_ltc_6813-1_pec_in_arrays.c
  * @author  foxBMS Team
  * @date    2020-03-30 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -150,9 +150,9 @@ void testCommandArrays(void) {
     TEST_ASSERT_PEC_CORRECT_IN_ARRAY(ltc_cmdADAX_normal_GPIO3);
     TEST_ASSERT_PEC_CORRECT_IN_ARRAY(ltc_cmdADAX_filtered_GPIO3);
     TEST_ASSERT_PEC_CORRECT_IN_ARRAY(ltc_cmdADAX_fast_GPIO3);
-    TEST_ASSERT_PEC_CORRECT_IN_ARRAY(ltc_cmdADAX_normal_ALLGPIOS);
-    TEST_ASSERT_PEC_CORRECT_IN_ARRAY(ltc_cmdADAX_filtered_ALLGPIOS);
-    TEST_ASSERT_PEC_CORRECT_IN_ARRAY(ltc_cmdADAX_fast_ALLGPIOS);
+    TEST_ASSERT_PEC_CORRECT_IN_ARRAY(ltc_cmdADAX_normal_ALL_GPIOS);
+    TEST_ASSERT_PEC_CORRECT_IN_ARRAY(ltc_cmdADAX_filtered_ALL_GPIOS);
+    TEST_ASSERT_PEC_CORRECT_IN_ARRAY(ltc_cmdADAX_fast_ALL_GPIOS);
     TEST_ASSERT_PEC_CORRECT_IN_ARRAY(ltc_BC_cmdADOW_PUP_normal_DCP0);
     TEST_ASSERT_PEC_CORRECT_IN_ARRAY(ltc_BC_cmdADOW_PDOWN_normal_DCP0);
     TEST_ASSERT_PEC_CORRECT_IN_ARRAY(ltc_BC_cmdADOW_PUP_filtered_DCP0);

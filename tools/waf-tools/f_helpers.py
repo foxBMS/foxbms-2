@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 #
-# Copyright (c) 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -38,8 +37,7 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""Various helper functions used in the foxBMS waf toolchain
-"""
+"""Various helper functions used in the foxBMS waf toolchain"""
 
 import pathlib
 import json
@@ -57,7 +55,7 @@ def f_validator(
 ):
     """Returns a validator with resolved relative references"""
     schema_path = pathlib.Path(schema_path).resolve().as_posix()
-    with open(schema_path, mode="r", encoding="utf-8") as f:
+    with open(schema_path, encoding="utf-8") as f:
         schema = json.load(f)
     if Utils.is_win32:
         uri_template = "file:///{0}"

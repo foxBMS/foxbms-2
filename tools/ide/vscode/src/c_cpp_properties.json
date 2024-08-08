@@ -1,0 +1,24 @@
+{
+  "env": {
+    "ProjectIncludePath": []
+  },
+  "configurations": [
+    {
+      "name": "Win32",
+      "includePath": [
+        "${ProjectIncludePath}"
+      ],
+      "browse": {
+        "path": [
+          "${ProjectIncludePath}"
+        ],
+        "limitSymbolsToIncludedHeaders": true
+      },
+      "cStandard": "c11",
+      "compilerPath": "compilerPath-place-holder",
+      "defines": [],
+      "intelliSenseMode": "windows-gcc-x64"
+    }
+  ],
+  "version": 4
+}

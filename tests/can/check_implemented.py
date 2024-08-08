@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 #
-# Copyright (c) 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -40,6 +39,7 @@
 
 """Python script to check if all callbacks defined in the .dbc file are
 implemented in callback functions."""
+
 import argparse
 import logging
 import os
@@ -66,7 +66,7 @@ def get_git_root(path: str) -> str:
     """helper function to find the repository root
 
     Args:
-        path (string): path of test_f_guidelines
+        path (string): path of file in git repository
 
     Returns:
         root (string): root path of the git repository
@@ -90,11 +90,12 @@ def evaluate_implementation(callback_file: Path, function_name: str) -> bool:
     """Checks whether a function name is found in a source file or not."""
     found = False
     impl = callback_file.read_text()
-    if function_name in impl:
-        logging.info(f"Found '{function_name}' in '{callback_file}'.")
+    search_str = rf"extern\s+(uint32_t|void|STD_RETURN_TYPE_e)\s+{function_name}\("
+    if re.search(search_str, impl, flags=re.MULTILINE):
+        logging.info("Found '%s' in '%s'.", function_name, callback_file)
         found = True
     else:
-        logging.error(f"Did not find '{function_name}' in '{callback_file}'.")
+        logging.error("Did not find '%s' in '%s'.", function_name, callback_file)
     return found
 
 
@@ -151,18 +152,25 @@ def main():
         if not i.comment:
             errors += 1
             logging.error(
-                f"Could not find any comment for message '{i.name}' ({hex(i.frame_id)})."
+                "Could not find any comment for message '%s' (%s).",
+                i.name,
+                hex(i.frame_id),
             )
             continue
         logging.info(
-            f"Found comment for message '{i.name}' ({hex(i.frame_id)}): '{i.comment}'."
+            "Found comment for message '%s' (%s): '%s'.",
+            i.name,
+            hex(i.frame_id),
+            i.comment,
         )
         m = FILE_RE_COMPILED.search(i.comment)  # pylint: disable=invalid-name
         if not m:
             errors += 1
             logging.error(
-                "Could not find comment for message "
-                f"'{i.name}' ({hex(i.frame_id)}) that matches '{FILE_RE}'."
+                "Could not find comment for message '%s' (%s) that matches '%s'.",
+                i.name,
+                hex(i.frame_id),
+                FILE_RE,
             )
             continue
         # we found a comment should point to the correct implementation file
@@ -172,15 +180,17 @@ def main():
         except IndexError:
             errors += 1
             logging.error(
-                f"Could not find implementation file '{m[1]}' for "
-                f"message '{i.name}'."
+                "Could not find implementation file '%s' for message '%s'.",
+                m[1],
+                i.name,
             )
             continue
         if not search_file.is_file():
             errors += 1
             logging.error(
-                f"Path to implementation file '{search_file}' for "
-                f"message '{i.name}' is not a file."
+                "Path to implementation file '%s' for message '%s' is not a file.",
+                search_file,
+                i.name,
             )
             continue
         # now we are sure, that the file that should contain the implementation

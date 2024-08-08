@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,13 +43,13 @@
  * @file    nxp_mc33775a_afe.c
  * @author  foxBMS Team
  * @date    2020-05-08 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  N775
  *
  * @brief   Configuration for the MC33775A analog front-end
- *
+ * @details TODO
  */
 
 /*========== Includes =======================================================*/
@@ -81,8 +81,8 @@ extern STD_RETURN_TYPE_e NXP_Measure(void) {
 }
 
 extern STD_RETURN_TYPE_e NXP_Initialize(void) {
-    PEX_SetPinDirectionOutput(PEX_PORT_EXPANDER3, PEX_PIN10);
-    PEX_SetPin(PEX_PORT_EXPANDER3, PEX_PIN10);
+    PEX_SetPinDirectionOutput(PEX_PORT_EXPANDER3, PEX_PORT_1_PIN_0);
+    PEX_SetPin(PEX_PORT_EXPANDER3, PEX_PORT_1_PIN_0);
     /* Leave time for the PEX to be triggered in the 10ms task */
     uint32_t current_time = OS_GetTickCount();
     OS_DelayTaskUntil(&current_time, 10u);

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,14 +43,13 @@
  * @file    bender_ir155_cfg.h
  * @author  foxBMS Team
  * @date    2021-09-17 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  IR155
  *
  * @brief   Headers for the configuration for the insulation monitoring
- *
- *
+ * @details TODO
  */
 
 #ifndef FOXBMS__BENDER_IR155_CFG_H_
@@ -71,7 +70,7 @@
 /**
  * During this time, the results of Bender Isometer aren't to be trusted
  * wait time in [ms] <= 65535;
- * IR155_WAIT_TIME_AFTER_GNDERROR
+ * IR155_WAIT_TIME_AFTER_GROUND_ERROR
  * \par Type:
  * int
  * \par Range:
@@ -80,7 +79,7 @@
  * ms
  * \par Default:
  * 25000
-*/
+ */
 #define IR155_WAIT_TIME_AFTER_GROUND_ERROR_ms (25000u)
 
 /** Time after startup, until the first valid measurement result is available */
@@ -88,7 +87,7 @@
 
 /* Symbolic names for the different measurement modes of Bender Isometer. */
 
-/** 0 Hz -> Hi > short-circuit to Ub + (Kl. 15); Low > IMD off or short-circuit
+/** 0 Hz -> Hi > short-circuit to U_b + (Kl. 15); Low > IMD off or short-circuit
  *  to Kl. 31 */
 #define IR155_MINIMUM_FREQUENCY_Hz (5.0f) /* Define a minimum frequency as 0 Hz can not be measured by PWM module */
 

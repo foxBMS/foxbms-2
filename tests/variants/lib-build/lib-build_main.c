@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,8 +43,8 @@
  * @file    lib-build_main.c
  * @author  foxBMS Team
  * @date    2020-10-06 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup GENERAL
  * @prefix  TODO
  *
@@ -58,20 +58,28 @@
 #include "main.h"
 /* clang-format on */
 
+#include "HL_adc.h"
+#include "HL_crc.h"
+#include "HL_etpwm.h"
 #include "HL_gio.h"
+#include "HL_het.h"
+#include "HL_pinmux.h"
 #include "HL_sys_core.h"
 
 #include "adc.h"
 #include "checksum.h"
-#include "contactor.h"
 #include "diag.h"
 #include "dma.h"
+#include "foxmath.h"
+#include "i2c.h"
+#include "led.h"
 #include "libproject-example.h"
 #include "master_info.h"
-#include "meas.h"
 #include "os.h"
+#include "pwm.h"
 #include "spi.h"
-#include "sps.h"
+
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 
@@ -84,39 +92,50 @@
 /*========== Static Function Implementations ================================*/
 
 /*========== Extern Function Implementations ================================*/
-int main(void) {
+#ifndef UNITY_UNIT_TEST
+int main(void)
+#else
+int unit_test_main(void)
+#endif
+{
     SUPER_Function(0, 1);
     MINFO_SetResetSource(getResetSource()); /* Get reset source and clear respective flags */
     _enable_IRQ_interrupt_();
+    muxInit();
     gioInit();
     SPI_Initialize();
-    CONT_Initialize();
-    SPS_Initialize();
-    MEAS_Initialize();
+    adcInit();
+    hetInit();
+    etpwmInit();
+    crcInit();
+    LED_SetDebugLed();
+    I2C_Initialize();
     DMA_Initialize();
+    PWM_Initialize();
     DIAG_Initialize(&diag_device);
+    MATH_StartupSelfTest();
+    const STD_RETURN_TYPE_e checkTimeHasPassedSelfTestReturnValue = OS_CheckTimeHasPassedSelfTest();
+    FAS_ASSERT(checkTimeHasPassedSelfTestReturnValue == STD_OK);
 
     OS_InitializeOperatingSystem();
     if (OS_INIT_PRE_OS != os_boot) {
-        while (true) {
-            /* Could not create Queues, Mutexes, Events and Tasks
-               do not boot further from this point on*/
-        }
+        /* Could not create Queues, Mutexes, Events and Tasks do not boot further from this point on */
+        FAS_ASSERT(FAS_TRAP);
     }
 
     if (STD_OK != CHK_ValidateChecksum()) {
         if (DIAG_HANDLER_RETURN_OK != DIAG_Handler(DIAG_ID_FLASHCHECKSUM, DIAG_EVENT_NOT_OK, DIAG_SYSTEM, 0u)) {
-            while (true) {
-                /* Could not validate checksum do not boot further from this point on */
-            }
+            /* Could not validate checksum do not boot further from this point on */
+            FAS_ASSERT(FAS_TRAP);
         }
     }
 
     os_schedulerStartTime = OS_GetTickCount();
 
     OS_StartScheduler();
-    while (true) {
-    }
+    /* we must never get here; there is no way to determine the exit state of this program,
+     * but for the sake of correctness we exit with an error code */
+    return 1;
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/

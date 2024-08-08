@@ -503,9 +503,9 @@ Further reading
 
 .. _CEEDLING_FURTHER_READING:
 
-* `Ceedling command line interface <https://github.com/ThrowTheSwitch/Ceedling/blob/master/docs/CeedlingPacket.md>`_
-* `Introduction to CMock and mocking <http://www.throwtheswitch.org/cmock>`_
-* `API of CMock <https://github.com/ThrowTheSwitch/CMock/blob/master/docs/CMock_Summary.md>`_
-* `Assertion summary of Unity <https://github.com/ThrowTheSwitch/Unity/blob/master/docs/UnityAssertionsReference.md>`_
-* Further tutorials can be found in the
+- `Ceedling command line interface <https://github.com/ThrowTheSwitch/Ceedling/blob/master/docs/CeedlingPacket.md>`_
+- `Introduction to CMock and mocking <http://www.throwtheswitch.org/cmock>`_
+- `API of CMock <https://github.com/ThrowTheSwitch/CMock/blob/master/docs/CMock_Summary.md>`_
+- `Assertion summary of Unity <https://github.com/ThrowTheSwitch/Unity/blob/master/docs/UnityAssertionsReference.md>`_
+- Further tutorials can be found in the
   `GitHub-project of ceedling <https://github.com/ThrowTheSwitch/Ceedling/tree/master/docs>`_

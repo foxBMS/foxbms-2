@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 #
-# Copyright (c) 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -45,8 +44,10 @@ by calling gravis, loading the architecture description, applying the
 layout that is stored under version control and exporting this view as a
 replacement to the original architecture svg.
 """
+
 import os
 import sys
+from pathlib import Path
 
 try:
     from bauhaus import gravis
@@ -99,5 +100,5 @@ if __name__ == "__main__":
     gravis.load_layout(file_layout)
     gravis.update()
     gravis.save_as_svg(file_output_architecture)
-    print(f"exported architecture to {file_output_architecture}")
+    print(f"exported architecture to {Path(file_output_architecture).resolve()}")
     exit(0)  # pylint: disable=consider-using-sys-exit; (Described in Axivion docs)

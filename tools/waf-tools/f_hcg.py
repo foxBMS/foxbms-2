@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 #
-# Copyright (c) 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -38,8 +37,7 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""Implements a waf tool to use TI HALCoGen (https://www.ti.com/tool/HALCOGEN)
-"""
+"""Implements a waf tool to use TI HALCoGen (https://www.ti.com/tool/HALCOGEN)"""
 
 import binascii
 import os
@@ -76,6 +74,7 @@ class NodeStructure:  # pylint: disable=too-few-public-methods
                             device_setting.tag == "tools"
                             and device_setting.text != "ti"
                         ):
+                            # pylint: disable-next=broad-exception-raised
                             raise BaseException("tool not supported")
             if element.tag == "OS":
                 for os_setting in self.root.iter(element.tag):
@@ -284,9 +283,7 @@ class hcg_compiler(Task.Task):  # pylint: disable=invalid-name
         )
         if not startup_node:
             self.generator.bld.fatal("Could not find startup source.")
-        hl_sys_startup_file = self.outputs.index(
-            startup_node
-        )  # pylint: disable=no-member
+        hl_sys_startup_file = self.outputs.index(startup_node)  # pylint: disable=no-member
         if not hl_sys_startup_file:
             self.generator.bld.fatal("Could not find 'HL_sys_startup.c'.")
         generated_file_hash = binascii.hexlify(
@@ -319,7 +316,7 @@ def fix_gen_hal_incs(self):
     """Add path to HALCoGen generated header files to every build"""
     if self.env.HCG_GEN_HAL_INC_PATHS:
         inc_paths = [os.path.join(i, "include") for i in self.env.HCG_GEN_HAL_INC_PATHS]
-        if not inc_paths in self.env.INCPATHS:
+        if inc_paths not in self.env.INCPATHS:
             self.env.append_unique("INCPATHS", inc_paths)
 
 

@@ -1,3 +1,0 @@
-This file has many empty newlines at the end and this is bad.
-
-

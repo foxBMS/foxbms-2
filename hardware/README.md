@@ -1,7 +1,7 @@
 # Hardware
 
 The hardware designs of foxBMS 2 can be found at the following address:
-https://iisb-foxbms.iisb.fraunhofer.de/foxbms/gen2/hardware/release
+<https://iisb-foxbms.iisb.fraunhofer.de/foxbms/gen2/hardware/release>
 
 The hardware design files belonging to this release are:
 
@@ -11,7 +11,7 @@ The hardware design files belonging to this release are:
 
 | Item                          | Version | File                                                                                                                                            |
 |-------------------------------|---------|-------------------------------------------------------------------------------------------------------------------------------------------------|
-| TI BMS-Master                 | 1.1.5   | [TI TMS570LC4357 Master v1.1.3](https://iisb-foxbms.iisb.fraunhofer.de/foxbms/gen2/hardware/release/master-v1.1.5.zip)                          |
+| TI BMS-Master                 | 1.1.5   | [TI TMS570LC4357 Master v1.1.5](https://iisb-foxbms.iisb.fraunhofer.de/foxbms/gen2/hardware/release/master-v1.1.5.zip)                          |
 
 ## BMS-Interfaces
 
@@ -26,7 +26,6 @@ The hardware design files belonging to this release are:
 | Item                          | Version   | File                                                                                                                                          |
 |-------------------------------|-----------|-----------------------------------------------------------------------------------------------------------------------------------------------|
 | NXP Interface (MC33664)       | 1.0.2     | [NXP MC33664 Interface v1.0.2](https://iisb-foxbms.iisb.fraunhofer.de/foxbms/gen2/hardware/release/interface-nxp-mc33664-v1.0.2.zip)          |
-
 
 ### MAXIM-based BMS-Interfaces
 

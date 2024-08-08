@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,8 +43,8 @@
  * @file    test_ltc_afe_dma.c
  * @author  foxBMS Team
  * @date    2020-06-10 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -91,8 +91,6 @@ uint8_t ltc_TXPECbuffer[LTC_N_BYTES_FOR_DATA_TRANSMISSION] = {0};
 
 #define BIG_ENDIAN    (3u)
 #define ELEMENT_COUNT (1u)
-#define DMAREQEN_BIT  (0x10000u)
-#define SPIEN_BIT     (0x1000000u)
 
 #define DMA_REQ_LINE_TX (DMA_REQ_LINE_SPI1_TX)
 #define DMA_REQ_LINE_RX (DMA_REQ_LINE_SPI1_RX)
@@ -102,11 +100,11 @@ LTC_STATE_s ltc_stateBase = {
     .statereq                = LTC_STATE_NO_REQUEST,
     .state                   = LTC_STATEMACH_UNINITIALIZED,
     .substate                = 0,
-    .laststate               = LTC_STATEMACH_UNINITIALIZED,
-    .lastsubstate            = 0,
-    .adcModereq              = LTC_ADCMODE_FAST_DCP0,
+    .lastState               = LTC_STATEMACH_UNINITIALIZED,
+    .lastSubstate            = 0,
+    .adcModeRequest          = LTC_ADCMODE_FAST_DCP0,
     .adcMode                 = LTC_ADCMODE_FAST_DCP0,
-    .adcMeasChreq            = LTC_ADCMEAS_UNDEFINED,
+    .adcMeasChannelRequest   = LTC_ADCMEAS_UNDEFINED,
     .adcMeasCh               = LTC_ADCMEAS_UNDEFINED,
     .numberOfMeasuredMux     = 32,
     .triggerentry            = 0,

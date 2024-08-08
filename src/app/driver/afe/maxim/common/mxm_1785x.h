@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,38 +43,35 @@
  * @file    mxm_1785x.h
  * @author  foxBMS Team
  * @date    2019-01-15 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup DRIVERS
  * @prefix  MXM
  *
  * @brief   Headers for the driver for the MAX17841B ASCI and MAX1785x
  *          analog front-end
+ * @details Battery monitoring driver for MAX1785x battery monitoring ICs.
  *
- * @details def
+ *          This module supplies a driver for the Battery Monitoring ICs of the
+ *          MAX1785x-family by Maxim Integrated.
  *
- */
-
-/**
- * @brief Battery monitoring driver for MAX1785x battery monitoring ICs.
+ *          Entry point for the module is the function #MXM_Tick() in
+ *          mxm_afe.c.
+ *          It handles the measurement flow and the coordination of the
+ *          underlying state-machines.
+ *          Below this layer two state-machines are implemented.
  *
- * This module supplies a driver for the Battery Monitoring ICs of the
- * MAX1785x-family by Maxim Integrated.
- *
- * Entry point for the module is the function #MXM_Tick() in mxm_afe.c. It handles
- * the measurement flow and the coordination of the underlying state-machines.
- * Below this layer two state-machines are implemented.
- *
- * The state-machine in mxm_battery_management.c is executed with the
- * #MXM_5XStateMachine()-function.
- * This state-machine exposes commands of the Maxim Battery Management Protocol
- * to the upper layers. Below, it translates these commands into state-changes
- * for the underlying state-machine.
- * This state-machine is implemented in mxm_17841b.c and executed with
- * #MXM_41BStateMachine(). It handles the register- and buffer-transactions
- * required for the MAX17841B communication interface (Maxim calls
- * this analog front-end ASCI).
- *
+ *          The state-machine in mxm_battery_management.c is executed with the
+ *          #MXM_5XStateMachine()-function.
+ *          This state-machine exposes commands of the Maxim Battery Management
+ *          Protocol to the upper layers.
+ *          Below, it translates these commands into state-changes for the
+ *          underlying state-machine.
+ *          This state-machine is implemented in mxm_17841b.c and executed with
+ *          #MXM_41BStateMachine().
+ *          It handles the register- and buffer-transactions required for the
+ *          MAX17841B communication interface (Maxim calls this analog
+ *          front-end ASCI).
  */
 
 #ifndef FOXBMS__MXM_1785X_H_
@@ -246,7 +243,7 @@ extern void MXM_StateMachineOperation(MXM_MONITORING_INSTANCE_s *pState);
  *                        not recover on its own
  */
 extern MXM_MONITORING_STATE_e GEN_MUST_CHECK_RETURN
-    MXM_MonGetVoltages(MXM_MONITORING_INSTANCE_s *pState, MXM_REG_NAME_e regAddress);
+MXM_MonGetVoltages(MXM_MONITORING_INSTANCE_s *pState, MXM_REG_NAME_e regAddress);
 
 /**
  * @brief   Copies measured voltage data into the database.
@@ -275,13 +272,13 @@ extern STD_RETURN_TYPE_e MXM_ParseVoltagesIntoDB(const MXM_MONITORING_INSTANCE_s
 extern MXM_MODEL_ID_e MXM_GetModelIdOfDaisyChain(void);
 
 /**
- * @brief           Execute all preinit selfchecks.
+ * @brief           Execute all pre-init self-checks.
  * @details         Executes the following self-checks:
  *                      - #MXM_CRC8SelfTest()
  *                      - #MXM_ConvertTest()
  *                      - #MXM_FirstSetBitTest()
  *                      - #MXM_ExtractValueFromRegisterTest()
- *                      - #MXM_ParseVoltageReadallTest()
+ *                      - #MXM_ParseVoltageReadAllTest()
  *                      - #MXM_5XUserAccessibleAddressSpaceCheckerSelfCheck()
  *
  *                  These self-checks do not need an initialized daisy-chain
@@ -299,12 +296,12 @@ extern STD_RETURN_TYPE_e MXM_PreInitSelfCheck(MXM_MONITORING_INSTANCE_s *pState)
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 #ifdef UNITY_UNIT_TEST
-extern STD_RETURN_TYPE_e TEST_MXM_ParseVoltageReadallTest(MXM_MONITORING_INSTANCE_s *pInstance);
+extern STD_RETURN_TYPE_e TEST_MXM_ParseVoltageReadAllTest(MXM_MONITORING_INSTANCE_s *pInstance);
 extern STD_RETURN_TYPE_e TEST_MXM_ParseVoltagesIntoDB(MXM_MONITORING_INSTANCE_s *pInstance);
-extern STD_RETURN_TYPE_e TEST_MXM_ParseVoltageReadall(
+extern STD_RETURN_TYPE_e TEST_MXM_ParseVoltageReadAll(
     uint8_t *voltRxBuffer,
     uint16_t voltRxBufferLength,
-    MXM_DATA_STORAGE_s *datastorage,
+    MXM_DATA_STORAGE_s *dataStorage,
     MXM_CONVERSION_TYPE_e conversionType);
 #endif
 

@@ -12,8 +12,8 @@ A list of some useful lauterbach command line commands:
 
 1. Unlock flash: ``FLASH.ReProgram ALL``
 1. Erase
-   -  Complete flash: ``FLASH.Erase ALL``
-   -  Only certain memory range: ``FLASH.Erase (xxxxxx)--(yyyyyy)``
+   - Complete flash: ``FLASH.Erase ALL``
+   - Only certain memory range: ``FLASH.Erase (xxxxxx)--(yyyyyy)``
 1. Lock flash: ``FLASH.ReProgram OFF``
 
 ## Saving Flash to File

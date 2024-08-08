@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,8 +43,8 @@
  * @file    test_soh_debug.c
  * @author  foxBMS Team
  * @date    2020-10-14 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -76,11 +76,24 @@ void tearDown(void) {
 }
 
 /*========== Test Cases =====================================================*/
-/** test invalid input values */
-void testInvalidInput(void) {
-    DATA_BLOCK_SOH_s table_testSoh = {.header.uniqueId = DATA_BLOCK_ID_SOH};
-    TEST_ASSERT_FAIL_ASSERT(SE_InitializeStateOfHealth(NULL_PTR, BS_NR_OF_STRINGS - 1u));
-    TEST_ASSERT_FAIL_ASSERT(SE_InitializeStateOfHealth(&table_testSoh, BS_NR_OF_STRINGS));
 
+void testSE_InitializeStateOfHealth(void) {
+    static DATA_BLOCK_SOH_s se_tableSohEstimation = {.header.uniqueId = DATA_BLOCK_ID_SOH};
+    TEST_ASSERT_FAIL_ASSERT(SE_InitializeStateOfHealth(NULL_PTR, 0u));
+    TEST_ASSERT_FAIL_ASSERT(SE_InitializeStateOfHealth(&se_tableSohEstimation, BS_NR_OF_STRINGS));
+
+    SE_InitializeStateOfHealth(&se_tableSohEstimation, 0u);
+    TEST_ASSERT_EQUAL_FLOAT(0.0f, se_tableSohEstimation.averageSoh_perc[0]);
+    TEST_ASSERT_EQUAL_FLOAT(0.0f, se_tableSohEstimation.minimumSoh_perc[0]);
+    TEST_ASSERT_EQUAL_FLOAT(0.0f, se_tableSohEstimation.maximumSoh_perc[0]);
+}
+
+void testSE_CalculateStateOfHealth(void) {
+    static DATA_BLOCK_SOH_s se_tableSohEstimation = {.header.uniqueId = DATA_BLOCK_ID_SOH};
     TEST_ASSERT_FAIL_ASSERT(SE_CalculateStateOfHealth(NULL_PTR));
+
+    SE_CalculateStateOfHealth(&se_tableSohEstimation);
+    TEST_ASSERT_EQUAL_FLOAT(50.0f, se_tableSohEstimation.averageSoh_perc[0]);
+    TEST_ASSERT_EQUAL_FLOAT(49.9f, se_tableSohEstimation.minimumSoh_perc[0]);
+    TEST_ASSERT_EQUAL_FLOAT(50.1f, se_tableSohEstimation.maximumSoh_perc[0]);
 }

@@ -1,0 +1,62 @@
+{
+  "Analysis": {
+    "CWE-Bad-Coding-Practices-562": {
+      "exclude_in_macros": {
+        "$(delta:+)": [
+          "TEST_ASSERT_FAIL_ASSERT"
+        ]
+      }
+    },
+    "CodingStyle-Naming.Function": {
+      "exceptions": {
+        "$(delta:+)": [
+          "setUp",
+          "tearDown"
+        ]
+      }
+    },
+    "CodingStyle-Naming.Macro": {
+      "excludes": {
+        "$(delta:+)": [
+          "MC33775A.h"
+        ]
+      }
+    },
+    "Generic-DoxygenCommentInHeader": {
+      "excludes": {
+        "$(delta:+)": [
+          "MC33775A.h"
+        ]
+      }
+    },
+    "MisraC2012-1.2": {
+      "excludes": {
+        "$(delta:+)": [
+          "test_ignore_list.h"
+        ]
+      }
+    },
+    "MisraC2012-21.4": {
+      "exclude_in_macros": {
+        "$(delta:+)": [
+          "TEST_ASSERT_FAIL_ASSERT"
+        ]
+      }
+    },
+    "MisraC2012Directive-1.1": {
+      "excludes": {
+        "$(delta:+)": [
+          "test_ignore_list.h"
+        ]
+      }
+    }
+  },
+  "_Format": "1.0",
+  "_Version": "7.5.2",
+  "_VersionNum": [
+    7,
+    5,
+    2,
+    11578
+  ]
+}

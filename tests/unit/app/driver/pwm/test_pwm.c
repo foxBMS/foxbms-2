@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,8 +43,8 @@
  * @file    test_pwm.c
  * @author  foxBMS Team
  * @date    2021-10-08 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -57,7 +57,7 @@
 #include "MockHL_etpwm.h"
 
 /* HL_ecap.h can not be mocked, due to 'ecapNotification' is implemented in
-   'pwm.c' and this would then lead to multiple defintions.
+   'pwm.c' and this would then lead to multiple definitions.
    The solution is to only include the real HAL header, and then implement
    stubs for the required functions (ecapInit, ecapGetCAP1, ecapGetCAP2,
    ecapGetCAP3). */
@@ -76,8 +76,7 @@ long FSYS_RaisePrivilege(void) {
     return fsysRaisePrivilegeReturnValue;
 }
 
-void ecapInit(void) {
-    /* dummy implementation required for linking */
+void ecapInit(void) { /* dummy implementation required for linking */
 }
 
 uint32_t ecapGetCAP1(ecapBASE_t *ecap) {

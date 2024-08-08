@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,13 +43,13 @@
  * @file    spi_cfg.c
  * @author  foxBMS Team
  * @date    2020-03-05 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  SPI
  *
  * @brief   Configuration for the SPI module
- *
+ * @details TODO
  */
 
 /*========== Includes =======================================================*/
@@ -85,6 +85,7 @@
  * SPIDAT1 register activates the corresponding Chip Select pin.
  */
 
+#if defined(FOXBMS_AFE_DRIVER_ADI) && (FOXBMS_AFE_DRIVER_ADI == 1)
 /** SPI data configuration struct for ADI communication */
 static spiDAT1_t spi_kAdiDataConfig[BS_NR_OF_STRINGS] = {
     {                      /* struct is implemented in the TI HAL and uses uppercase true and false */
@@ -94,7 +95,13 @@ static spiDAT1_t spi_kAdiDataConfig[BS_NR_OF_STRINGS] = {
      /* Hardware chip select is configured automatically depending on configuration in #SPI_INTERFACE_CONFIG_s */
      .CSNR = SPI_HARDWARE_CHIP_SELECT_DISABLE_ALL},
 };
+#endif
 
+#if defined(FOXBMS_AFE_DRIVER_DEBUG) && (FOXBMS_AFE_DRIVER_DEBUG == 1)
+/* no SPI data configuration needed */
+#endif
+
+#if defined(FOXBMS_AFE_DRIVER_LTC) && (FOXBMS_AFE_DRIVER_LTC == 1)
 /** SPI data configuration struct for LTC communication */
 static spiDAT1_t spi_kLtcDataConfig[BS_NR_OF_STRINGS] = {
     {                      /* struct is implemented in the TI HAL and uses uppercase true and false */
@@ -104,7 +111,9 @@ static spiDAT1_t spi_kLtcDataConfig[BS_NR_OF_STRINGS] = {
      /* Hardware chip select is configured automatically depending on configuration in #SPI_INTERFACE_CONFIG_s */
      .CSNR = SPI_HARDWARE_CHIP_SELECT_DISABLE_ALL},
 };
+#endif
 
+#if defined(FOXBMS_AFE_DRIVER_MAXIM) && (FOXBMS_AFE_DRIVER_MAXIM == 1)
 /** SPI data configuration struct for MXM communication */
 static spiDAT1_t spi_kMxmDataConfig = {
     .CS_HOLD = TRUE,      /* If true, HW chip select kept active */
@@ -113,7 +122,9 @@ static spiDAT1_t spi_kMxmDataConfig = {
     /* Hardware chip select is configured automatically depending on configuration in #SPI_INTERFACE_CONFIG_s */
     .CSNR = SPI_HARDWARE_CHIP_SELECT_DISABLE_ALL,
 };
+#endif
 
+#if defined(FOXBMS_AFE_DRIVER_NXP) && (FOXBMS_AFE_DRIVER_NXP == 1)
 /** SPI data configuration struct for NXP MC33775A communication, Tx part */
 static spiDAT1_t spi_kNxp775DataConfigTx[BS_NR_OF_STRINGS] = {
     {.CS_HOLD = TRUE,      /* If true, HW chip select kept active */
@@ -131,6 +142,11 @@ static spiDAT1_t spi_kNxp775DataConfigRx[BS_NR_OF_STRINGS] = {
      /* Hardware chip select is configured automatically depending on configuration in #SPI_INTERFACE_CONFIG_s */
      .CSNR = SPI_HARDWARE_CHIP_SELECT_DISABLE_ALL},
 };
+#endif
+
+#if defined(FOXBMS_AFE_DRIVER_TI) && (FOXBMS_AFE_DRIVER_TI == 1)
+/* currently not supported */
+#endif
 
 /** SPI data configuration struct for FRAM communication */
 static spiDAT1_t spi_kFramDataConfig = {
@@ -174,9 +190,10 @@ static spiDAT1_t spi_kSbcDataConfig = {
 
 /*========== Extern Constant and Variable Definitions =======================*/
 
+#if defined(FOXBMS_AFE_DRIVER_ADI) && (FOXBMS_AFE_DRIVER_ADI == 1)
 /**
  * SPI interface configuration for ADI communication
- * This is a list of structs because of multistring
+ * This is a list of structs because of multi-string
  */
 SPI_INTERFACE_CONFIG_s spi_adiInterface[BS_NR_OF_STRINGS] = {
     {
@@ -187,10 +204,16 @@ SPI_INTERFACE_CONFIG_s spi_adiInterface[BS_NR_OF_STRINGS] = {
         .csType   = SPI_CHIP_SELECT_HARDWARE,
     },
 };
+#endif
 
+#if defined(FOXBMS_AFE_DRIVER_DEBUG) && (FOXBMS_AFE_DRIVER_DEBUG == 1)
+/* no SPI data configuration needed */
+#endif
+
+#if defined(FOXBMS_AFE_DRIVER_LTC) && (FOXBMS_AFE_DRIVER_LTC == 1)
 /**
  * SPI interface configuration for LTC communication
- * This is a list of structs because of multistring
+ * This is a list of structs because of multi-string
  */
 SPI_INTERFACE_CONFIG_s spi_ltcInterface[BS_NR_OF_STRINGS] = {
     {
@@ -201,7 +224,9 @@ SPI_INTERFACE_CONFIG_s spi_ltcInterface[BS_NR_OF_STRINGS] = {
         .csType   = SPI_CHIP_SELECT_HARDWARE,
     },
 };
+#endif
 
+#if defined(FOXBMS_AFE_DRIVER_MAXIM) && (FOXBMS_AFE_DRIVER_MAXIM == 1)
 /** SPI interface configuration for MXM communication */
 SPI_INTERFACE_CONFIG_s spi_mxmInterface = {
     .pConfig  = &spi_kMxmDataConfig,
@@ -210,7 +235,9 @@ SPI_INTERFACE_CONFIG_s spi_mxmInterface = {
     .csPin    = SPI_MAXIM_CHIP_SELECT_PIN,
     .csType   = SPI_CHIP_SELECT_HARDWARE,
 };
+#endif
 
+#if defined(FOXBMS_AFE_DRIVER_NXP) && (FOXBMS_AFE_DRIVER_NXP == 1)
 /** SPI interface configuration for N775 communication Tx part */
 SPI_INTERFACE_CONFIG_s spi_nxp775InterfaceTx[BS_NR_OF_STRINGS] = {
     {
@@ -232,6 +259,11 @@ SPI_INTERFACE_CONFIG_s spi_nxp775InterfaceRx[BS_NR_OF_STRINGS] = {
         .csType   = SPI_CHIP_SELECT_HARDWARE,
     },
 };
+#endif
+
+#if defined(FOXBMS_AFE_DRIVER_TI) && (FOXBMS_AFE_DRIVER_TI == 1)
+/* currently not supported */
+#endif
 
 /** SPI interface configuration for FRAM communication */
 SPI_INTERFACE_CONFIG_s spi_framInterface = {

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,13 +43,13 @@
  * @file    infinite-loop-helper.h
  * @author  foxBMS Team
  * @date    2022-12-05 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
- * @ingroup GENERAL_CONF
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
+ * @ingroup MAIN_CONFIGURATION
  * @prefix  GEN
  *
  * @brief   Macros for implementing testable infinite loops
- *
+ * @details TODO
  */
 
 #ifndef FOXBMS__INFINITE_LOOP_HELPER_H_

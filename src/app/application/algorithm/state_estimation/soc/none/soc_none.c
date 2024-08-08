@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,13 +43,13 @@
  * @file    soc_none.c
  * @author  foxBMS Team
  * @date    2020-10-14 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup APPLICATION
  * @prefix  SOC
  *
  * @brief   SOC module responsible for calculation of state-of-charge (SOC)
- *
+ * @details TODO
  */
 
 /*========== Includes =======================================================*/
@@ -71,6 +71,7 @@
 /*========== Extern Function Implementations ================================*/
 extern void SE_InitializeStateOfCharge(DATA_BLOCK_SOC_s *pSocValues, bool ccPresent, uint8_t stringNumber) {
     FAS_ASSERT(pSocValues != NULL_PTR);
+    FAS_ASSERT((ccPresent == true) || (ccPresent == false)); /* LCOV_EXCL_LINE */
     FAS_ASSERT(stringNumber < BS_NR_OF_STRINGS);
 }
 
@@ -79,6 +80,7 @@ extern void SE_CalculateStateOfCharge(DATA_BLOCK_SOC_s *pSocValues) {
 }
 
 extern float_t SE_GetStateOfChargeFromVoltage(int16_t voltage_mV) {
+    /* AXIVION Routine Generic-MissingParameterAssert: voltage_mV: parameter accepts whole range */
     return 0.0f;
 }
 

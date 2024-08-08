@@ -1,41 +1,80 @@
+# =========================================================================
+#   Ceedling - Test-Centered Build System for C
+#   ThrowTheSwitch.org
+#   Copyright (c) 2010-24 Mike Karlesky, Mark VanderVoord, & Greg Williams
+#   SPDX-License-Identifier: MIT
+# =========================================================================
+
 require 'ceedling/plugin'
 require 'ceedling/constants'
+require 'ceedling/exceptions'
 require 'gcov_constants'
 require 'gcovr_reportinator'
 require 'reportgenerator_reportinator'
 
 class Gcov < Plugin
-  attr_reader :config
-
+  
+  # `Plugin` setup()
   def setup
     @result_list = []
 
-    @config = {
-      gcov_html_report_filter: GCOV_FILTER_EXCLUDE
-    }
+    @project_config = @ceedling[:configurator].project_config_hash
 
-    @plugin_root = File.expand_path(File.join(File.dirname(__FILE__), '..'))
-    @coverage_template_all = @ceedling[:file_wrapper].read(File.join(@plugin_root, 'assets/template.erb'))
+    # Are any reports enabled?
+    @reports_enabled = reports_enabled?( @project_config[:gcov_reports] )
+    
+    # Was a gcov: task on the command line?
+    @cli_gcov_task = @ceedling[:system_wrapper].get_cmdline().any?{|item| item.include?( GCOV_TASK_ROOT )}
 
-    config = @ceedling[:configurator].project_config_hash
-    @reports_enabled = reports_enabled?( config[:gcov_reports] )
+    # Validate the gcov tools if coverage summaries are enabled (summaries rely on the `gcov` tool)
+    # Note: This gcov tool is a different configuration than the gcov tool used by ReportGenerator
+    if summaries_enabled?( @project_config )
+      @ceedling[:tool_validator].validate(
+        tool: TOOLS_GCOV_SUMMARY,
+        boom: true
+      )
+    end
 
-    # This may raise an exception because of configuration or tool installation issues.
-    # Best to complain about it before allowing any tasks to run.
-    @reportinators = build_reportinators( config[:gcov_utilities], @reports_enabled )
+    # Validate configuration and tools while building Reportinators
+    @reportinators = build_reportinators( 
+      @project_config[:gcov_utilities],
+      @reports_enabled,
+      @cli_gcov_task
+    )
+
+    # Convenient instance variable references
+    @configurator = @ceedling[:configurator]
+    @loginator = @ceedling[:loginator]
+    @test_invoker = @ceedling[:test_invoker]
+    @plugin_reportinator = @ceedling[:plugin_reportinator]
+    @file_path_utils = @ceedling[:file_path_utils]
+    @file_wrapper = @ceedling[:file_wrapper]
+    @tool_executor = @ceedling[:tool_executor]
+
+    @mutex = Mutex.new()
+  end
+
+  # Called within class and also externally by plugin Rakefile
+  # No parameters enables the opportunity for latter mechanism
+  def automatic_reporting_enabled?
+    return (@project_config[:gcov_report_task] == false)
   end
 
   def generate_coverage_object_file(test, source, object)
+    # Non-coverage compiler
     tool = TOOLS_TEST_COMPILER
     msg = nil
 
+    # Handle assembly file that comes through
+    if File.extname(source) == EXTENSION_ASSEMBLY
+      tool = TOOLS_TEST_ASSEMBLER
     # If a source file (not unity, mocks, etc.) is to be compiled use code coverage compiler
-    if @ceedling[:configurator].collection_all_source.to_a.include?(source)
+    elsif @configurator.collection_all_source.include?(source)
       tool = TOOLS_GCOV_COMPILER
       msg = "Compiling #{File.basename(source)} with coverage..."
     end
 
-    @ceedling[:test_invoker].compile_test_component(
+    @test_invoker.compile_test_component(
       tool:    tool,
       context: GCOV_SYM,
       test:    test,
@@ -45,149 +84,199 @@ class Gcov < Plugin
       )
   end
 
+  # `Plugin` build step hook
   def post_test_fixture_execute(arg_hash)
     result_file = arg_hash[:result_file]
 
-    if (result_file =~ /#{GCOV_RESULTS_PATH}/) && !@result_list.include?(result_file)
-      @result_list << arg_hash[:result_file]
+    @mutex.synchronize do
+      if (result_file =~ /#{GCOV_RESULTS_PATH}/) && !@result_list.include?(result_file)
+        @result_list << arg_hash[:result_file]
+      end
     end
   end
 
+  # `Plugin` build step hook
   def post_build
-    # Do nothing unless a gcov: task was used
-    return unless @ceedling[:task_invoker].invoked?(/^#{GCOV_TASK_ROOT}/)
+    # Do nothing unless a gcov: task was on the command line
+    return unless @cli_gcov_task
 
-    # Assemble test results
-    results = @ceedling[:plugin_reportinator].assemble_test_results(@result_list)
-    hash = {
-      header: GCOV_ROOT_NAME.upcase,
-      results: results
-    }
+    # Only present plugin-based test results if raw test results disabled by a reporting plugin
+    if !@configurator.plugins_display_raw_test_results
+      results = {}
 
-    # Print unit test suite results
-    @ceedling[:plugin_reportinator].run_test_results_report(hash) do
-      message = ''
-      message = 'Unit test failures.' if results[:counts][:failed] > 0
-      message
+      # Assemble test results
+      @mutex.synchronize do
+        results = @plugin_reportinator.assemble_test_results( @result_list )
+      end
+
+      hash = {
+        header: GCOV_ROOT_NAME.upcase,
+        results: results
+      }
+
+      # Print unit test suite results
+      @plugin_reportinator.run_test_results_report( hash ) do
+        message = ''
+        message = 'Unit test failures.' if results[:counts][:failed] > 0
+        message
+      end
     end
 
-    # Prinnt a short report of coverage results for each source file exercised by a test
-    report_per_file_coverage_results()
+    # Print summary of coverage to console for each source file exercised by a test
+    console_coverage_summaries() if summaries_enabled?( @project_config )
 
-    # Run coverage report generation
-    generate_coverage_reports() if not automatic_reporting_disabled?
+    # Run full coverage report generation
+    generate_coverage_reports() if automatic_reporting_enabled?
   end
 
+  # `Plugin` build step hook
   def summary
-    result_list = @ceedling[:file_path_utils].form_pass_results_filelist(GCOV_RESULTS_PATH, COLLECTION_ALL_TESTS)
+    # Only present plugin-based test results if raw test results disabled by a reporting plugin
+    return if @configurator.plugins_display_raw_test_results
 
-    # Get test results for only those tests in our configuration and for those only tests with results on disk
+    # Build up the list of passing results from all tests
+    result_list = @file_path_utils.form_pass_results_filelist(
+      GCOV_RESULTS_PATH,
+      COLLECTION_ALL_TESTS
+    )
+
     hash = {
       header: GCOV_ROOT_NAME.upcase,
-      results: @ceedling[:plugin_reportinator].assemble_test_results(result_list, boom: false)
+      # Collect all existing test results (success or failing) in the filesystem,
+      # limited to our test collection
+      :results => @plugin_reportinator.assemble_test_results(
+        result_list,
+        {:boom => false}
+      )
     }
 
-    @ceedling[:plugin_reportinator].run_test_results_report(hash)
+    @plugin_reportinator.run_test_results_report(hash)
   end
 
-  def automatic_reporting_disabled?
-    config = @ceedling[:configurator].project_config_hash
-
-    task = config[:gcov_report_task]
-
-    return task if not task.nil?
-
-    return false
-  end
-
-  def generate_coverage_reports
-    return if (not @reports_enabled) or @reportinators.empty?
-
-    # Create the artifacts output directory.
-    @ceedling[:file_wrapper].mkdir( GCOV_ARTIFACTS_PATH )
+  # Called within class and also externally by conditionally regnerated Rake task
+  # No parameters enables the opportunity for latter mechanism
+  def generate_coverage_reports()
+    return if not @reports_enabled
 
     @reportinators.each do |reportinator|
-      reportinator.make_reports( @ceedling[:configurator].project_config_hash )
+      # Create the artifacts output directory.
+      @file_wrapper.mkdir( reportinator.artifacts_path )
+
+      # Generate reports
+      reportinator.generate_reports( @configurator.project_config_hash )
     end
   end
 
-  private ###################################
+  ### Private ###
 
-  def report_per_file_coverage_results()
-    banner = @ceedling[:plugin_reportinator].generate_banner( "#{GCOV_ROOT_NAME.upcase}: CODE COVERAGE SUMMARY" )
-    @ceedling[:streaminator].stdout_puts "\n" + banner
+  private
+
+  def reports_enabled?(cfg_reports)
+    return !cfg_reports.empty?
+  end
+
+  def summaries_enabled?(config)
+    return config[:gcov_summaries]
+  end
+
+  def utility_enabled?(opts, utility_name)
+    return opts.map(&:upcase).include?( utility_name.upcase )
+  end
+
+  def console_coverage_summaries()
+    banner = @plugin_reportinator.generate_banner( "#{GCOV_ROOT_NAME.upcase}: CODE COVERAGE SUMMARY" )
+    @loginator.log "\n" + banner
 
     # Iterate over each test run and its list of source files
-    @ceedling[:test_invoker].each_test_with_sources do |test, sources|
-      heading = @ceedling[:plugin_reportinator].generate_heading( test )
-      @ceedling[:streaminator].stdout_puts(heading)
+    @test_invoker.each_test_with_sources do |test, sources|
+      heading = @plugin_reportinator.generate_heading( test )
+      @loginator.log(heading)
 
       sources.each do |source|
         filename = File.basename(source)
         name     = filename.ext('')
-        command  = @ceedling[:tool_executor].build_command_line(
-                     TOOLS_GCOV_REPORT,
+        command  = @tool_executor.build_command_line(
+                     TOOLS_GCOV_SUMMARY,
                      [], # No additional arguments
                      filename, # .c source file that should have been compiled with coverage
                      File.join(GCOV_BUILD_OUTPUT_PATH, test) # <build>/gcov/out/<test name> for coverage data files
                    )
 
-        # Run the gcov tool and collect raw coverage report
-        shell_results  = @ceedling[:tool_executor].exec(command[:line], command[:options])
+        # Do not raise an exception if `gcov` terminates with a non-zero exit code, just note it and move on.
+        # Recent releases of `gcov` have become more strict and vocal about errors and exit codes.
+        command[:options][:boom] = false
+
+        # Run the gcov tool and collect the raw coverage report
+        shell_results  = @tool_executor.exec( command )
         results        = shell_results[:output].strip
 
-        # Skip to next loop iteration if no coverage results.
-        # A source component may have been compiled with coverage but none of its code actually called in a test.
-        # In this case, gcov does not produce an error, only blank results.
-        if results.empty?
-          @ceedling[:streaminator].stdout_puts("#{filename} : No functions called or code paths exercised by test\n")
-          next
+        # Handle errors instead of raising a shell exception
+        if shell_results[:exit_code] != 0
+          debug = "gcov error (#{shell_results[:exit_code]}) while processing #{filename}... #{results}"
+          @loginator.log( debug, Verbosity::DEBUG, LogLabels::ERROR )
+          @loginator.log( "gcov was unable to process coverage for #{filename}", Verbosity::COMPLAIN )
+          next # Skip to next loop iteration
         end
 
-        # If results include intended source, extract details from console
-        if results =~ /(File\s+'#{Regexp.escape(source)}'.+$)/m
-          # Reformat from first line as filename banner to each line labeled with the filename
-          # Only extract the first four lines of the console report (to avoid spidering coverage reports through libs, etc.)
-          report = Regexp.last_match(1).lines.to_a[1..4].map { |line| filename + ' | ' + line }.join('')
-          @ceedling[:streaminator].stdout_puts(report + "\n")
-        
-        # Otherwise, no coverage results were found
+        # A source component may have been compiled with coverage but none of its code actually called in a test.
+        # In this case, versions of gcov may not produce an error, only blank results.
+        if results.empty?
+          msg = "No functions called or code paths exercised by test for #{filename}"
+          @loginator.log( msg, Verbosity::COMPLAIN, LogLabels::NOTICE )
+          next # Skip to next loop iteration
+        end
+
+        # Source filepath to be extracted from gcov coverage results via regex
+        _source = ''
+
+        # Extract (relative) filepath from results and expand to absolute path
+        matches = results.match(/File\s+'(.+)'/)
+        if matches.nil? or matches.length() != 2
+          msg = "Could not extract filepath via regex from gcov results for #{test}::#{File.basename(source)}"
+          @loginator.log( msg, Verbosity::DEBUG, LogLabels::ERROR )
         else
-          msg = "ERROR: Could not find coverage results for #{source} component of #{test}"
-          @ceedling[:streaminator].stderr_puts( msg, Verbosity::NORMAL )
+          # Expand to full path from likely partial path to ensure correct matches on source component within gcov results
+          _source = File.expand_path(matches[1])
+        end
+
+        # If gcov results include intended source (comparing absolute paths), report coverage details summaries
+        if _source == File.expand_path(source)
+          # Reformat from first line as filename banner to each line of statistics labeled with the filename
+          # Only extract the first four lines of the console report (to avoid spidering coverage reports through libs, etc.)
+          report = results.lines.to_a[1..4].map { |line| filename + ' | ' + line }.join('')
+          @loginator.log(report + "\n")
+        
+        # Otherwise, found no coverage results
+        else
+          msg = "Found no coverage results for #{test}::#{File.basename(source)}"
+          @loginator.log( msg, Verbosity::COMPLAIN )
         end
       end
     end
   end
 
-  def reports_enabled?(cfg_reports)
-    return false if cfg_reports.nil? or cfg_reports.empty?
-    return true
-  end
-
-  def build_reportinators(cfg_utils, enabled)
+  def build_reportinators(config, enabled, gcov_task)
     reportinators = []
 
-    return [] if not enabled
+    # Do not instantiate reportinators (and tool validation) unless reports enabled and a gcov: task present in command line
+    return reportinators if ((!enabled) or (!gcov_task))
 
-    # Remove unsupported reporting utilities.
-    if (not cfg_utils.nil?)
-      cfg_utils.reject! { |item| !(UTILITY_NAMES.map(&:upcase).include? item.upcase) }
-    end
-
-    # Default to gcovr when no reporting utilities are specified.
-    if cfg_utils.nil? || cfg_utils.empty?
-      cfg_utils = [UTILITY_NAME_GCOVR]
+    config.each do |reportinator|
+      if not GCOV_UTILITY_NAMES.map(&:upcase).include?( reportinator.upcase )
+        options = GCOV_UTILITY_NAMES.map{ |utility| "'#{utility}'" }.join(', ')
+        msg = "Plugin configuration :gcov ↳ :utilities => `#{reportinator}` is not a recognized option {#{options}}."
+        raise CeedlingException.new(msg)
+      end
     end
 
     # Run reports using gcovr
-    if utility_enabled?( cfg_utils, UTILITY_NAME_GCOVR )
+    if utility_enabled?( config, GCOV_UTILITY_NAME_GCOVR )
       reportinator = GcovrReportinator.new( @ceedling )
       reportinators << reportinator
     end
 
     # Run reports using ReportGenerator
-    if utility_enabled?( cfg_utils, UTILITY_NAME_REPORT_GENERATOR )
+    if utility_enabled?( config, GCOV_UTILITY_NAME_REPORT_GENERATOR )
       reportinator = ReportGeneratorReportinator.new( @ceedling )
       reportinators << reportinator
     end
@@ -195,24 +284,5 @@ class Gcov < Plugin
     return reportinators
   end
 
-  # Returns true if the given utility is enabled, otherwise returns false.
-  def utility_enabled?(opts, utility_name)
-    enabled = !(opts.nil?) && (opts.map(&:upcase).include? utility_name.upcase)
-
-    # Simple check for utility installation
-    # system() result is nil if could not run command
-    if enabled and system(utility_name, '--version', [:out, :err] => File::NULL).nil?
-      @ceedling[:streaminator].stderr_puts("ERROR: gcov report generation tool '#{utility_name}'' not installed.", Verbosity::NORMAL)
-      raise
-    end
-
-    return enabled
-  end
-
 end
 
-# end blocks always executed following rake run
-END {
-  # cache our input configurations to use in comparison upon next execution
-  @ceedling[:cacheinator].cache_test_config(@ceedling[:setupinator].config_hash) if @ceedling[:task_invoker].invoked?(/^#{GCOV_TASK_ROOT}/)
-}

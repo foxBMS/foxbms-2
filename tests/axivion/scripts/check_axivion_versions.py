@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 #
-# Copyright (c) 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -41,32 +40,38 @@
 """Check that the Axivion version specifier is the same in all configuration
 files"""
 
-import sys
 import json
+import logging
+import sys
+import shutil
+from subprocess import Popen, PIPE
 from pathlib import Path
 
-import git
-from git.exc import InvalidGitRepositoryError
 
-SCRIPT_DIR = Path(__file__).parent.resolve()
+def get_repo_root():
+    """extract the commit date of a file as datetime from git"""
+    git = shutil.which("git")
+    if not git:
+        sys.exit("Could not find git.")
+    cmd = [git, "rev-parse", "--show-toplevel"]
+    with Popen(cmd, cwd=str(Path(__file__).parent), stdout=PIPE) as p:
+        std_out = p.communicate()[0]
+    root = Path(std_out.decode("utf-8").strip())
+    logging.debug("Repository root is: %s", root)
+    return root
 
-try:
-    repo = git.Repo(SCRIPT_DIR, search_parent_directories=True)
-    REPO_ROOT = Path(repo.git.rev_parse("--show-toplevel"))
-except InvalidGitRepositoryError:
-    sys.exit("Test can only be run in a git repository.")
+
+CONFIG_FILES_EXCL = ["axivion_config.json", "axivion_self_tests.json"]
 
 
 def get_axivion_configuration_files() -> list:
     """Find all Axivion configuration files"""
+    repo_root = get_repo_root()
     return [
         i
-        for i in (REPO_ROOT / "tests/axivion").glob("*.json")
-        if not i.name == "axivion_config.json"
-    ] + [
-        i
-        for i in (REPO_ROOT / "tests/unit/axivion").glob("*.json")
-        if not i.name == "axivion_config.json"
+        for i in list((repo_root / "tests/axivion").glob("*.json"))
+        + list((repo_root / "tests/unit/axivion").glob("*.json"))
+        if i.name not in CONFIG_FILES_EXCL
     ]
 
 
@@ -75,18 +80,12 @@ def main():
     errors = []
     file_and_version_info = []
     for i in get_axivion_configuration_files():
-        with open(i, "r", encoding="utf-8") as f:
-            cfg = json.load(f)
-        try:
-            cfg["_Version"]
-        except KeyError:
+        with open(i, encoding="utf-8") as f:
+            cfg: dict = json.load(f)
+        if not cfg.get("_Version", ""):
             errors.append(f"{i}: '_Version' not specified")
-            continue
-        try:
-            cfg["_VersionNum"]
-        except KeyError:
+        if not cfg.get("_VersionNum", ""):
             errors.append(f"{i}: '_VersionNum' not specified")
-            continue
 
         file_and_version_info.append((i, cfg["_Version"], cfg["_VersionNum"]))
 
@@ -112,6 +111,9 @@ def main():
 
     for i in errors:
         print(i, file=sys.stderr)
+
+    if any(True for i in sys.argv if "-v" in i):
+        print("All version numbers match.")
 
     sys.exit(len(errors))
 

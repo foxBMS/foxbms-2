@@ -722,9 +722,9 @@ The ``default`` case is implemented to assert on illegal substates:
         EG_FSM_STATES_e nextState = EG_FSM_STATE_INITIALIZATION; /* default behavior: stay in state */
         switch (pEgState->currentSubstate) {
             /* ... */
-        default:
-            FAS_ASSERT(FAS_TRAP);
-            break; /* LCOV_EXCL_LINE */
+        default:                  /* LCOV_EXCL_LINE */
+            FAS_ASSERT(FAS_TRAP); /* LCOV_EXCL_LINE */
+            break;                /* LCOV_EXCL_LINE */
         }
     }
 
@@ -795,9 +795,9 @@ implementation is shown below:
                 }
                 break;
 
-            default:
-                FAS_ASSERT(FAS_TRAP);
-                break; /* LCOV_EXCL_LINE */
+            default:                  /* LCOV_EXCL_LINE */
+                FAS_ASSERT(FAS_TRAP); /* LCOV_EXCL_LINE */
+                break;                /* LCOV_EXCL_LINE */
         }
         return nextState;
     }

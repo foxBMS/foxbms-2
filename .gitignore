@@ -1,4 +1,6 @@
 /.vscode/
+/src/.vscode/
+/tests/unit/.vscode/
 /build/
 /build-tools-tests/
 /*build/
@@ -7,17 +9,26 @@
 /conf/hcg/source/*
 /conf/hcg/*_bak.dil
 /conf/hcg/*_bak.hcg
+/tmp/*
 
+*/tmp/*
 *c4che*
 /foxbms*/
 tools/*waf3-*/
 tools/waf-sig*
+tools/utils/waf-sig*
 .lock-waf*
+.wafpickle-*
 *.bz2
 *.gz
 *.zip
 *.7z
 *.stats
+*.html
+
+#
+libbuild/
+lib-build/
 
 # spelling
 dictionary.dic
@@ -53,10 +64,14 @@ __pycache__
 
 *.~*
 *.~$*
+~$*
 
 **/foxbms-2_axivion_report*.json
+**/foxbms_spa_report*.json
 spa-artifacts/
 
+*.o
+*.obj
 *.exe
 
 /races.txt
@@ -65,3 +80,14 @@ spa-artifacts/
 *.asc
 
 *.tmp
+
+# coverage files
+.coverage
+htmlcov/
+
+*.mk
+*.rsp
+*.dmr
+*.tmw
+buildInfo.*
+codeInfo.*

@@ -36,7 +36,7 @@
  * @date 9-Oct-2018
  * @copyright Copyright (c) 2016 - 2018, NXP Semiconductors, Inc.
  *
- * @updated 2020-03-18 (date of last update)
+ * @updated 2024-01-09 (date of last update)
  * Adapted driver to pass interface configuration as parameter into the
  * functions to enable the usage of multiple ICs in the system.
  */

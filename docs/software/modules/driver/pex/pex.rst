@@ -12,19 +12,19 @@ Module Files
 Driver
 ^^^^^^
 
-- ``src/app/driver/pex/pex.c`` (`API <../../../../_static/doxygen/src/html/pex_8c.html>`__, `source <../../../../_static/doxygen/src/html/pex_8c_source.html>`__)
-- ``src/app/driver/pex/pex.h`` (`API <../../../../_static/doxygen/src/html/pex_8h.html>`__, `source <../../../../_static/doxygen/src/html/pex_8h_source.html>`__)
+- ``src/app/driver/pex/pex.c``
+- ``src/app/driver/pex/pex.h``
 
 Configuration
 ^^^^^^^^^^^^^
 
-- ``src/app/driver/config/pex_cfg.c`` (`API <../../../../_static/doxygen/src/html/pex__cfg_8c.html>`__, `source <../../../../_static/doxygen/src/html/pex__cfg_8c_source.html>`__)
-- ``src/app/driver/config/pex_cfg.h`` (`API <../../../../_static/doxygen/src/html/pex__cfg_8h.html>`__, `source <../../../../_static/doxygen/src/html/pex__cfg_8h_source.html>`__)
+- ``src/app/driver/config/pex_cfg.c``
+- ``src/app/driver/config/pex_cfg.h``
 
 Unit Test
 ^^^^^^^^^
 
-- ``tests/unit/app/driver/pex/test_pex.c`` (`API <../../../../_static/doxygen/tests/html/test__pex_8c.html>`__, `source <../../../../_static/doxygen/tests/html/test__pex_8c_source.html>`__)
+- ``tests/unit/app/driver/pex/test_pex.c``
 
 Detailed Description
 --------------------

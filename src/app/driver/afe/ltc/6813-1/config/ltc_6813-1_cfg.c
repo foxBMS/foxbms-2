@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,13 +43,13 @@
  * @file    ltc_6813-1_cfg.c
  * @author  foxBMS Team
  * @date    2015-02-18 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  LTC
  *
  * @brief   Configuration for the LTC analog front-end
- *
+ * @details TODO
  */
 
 /*========== Includes =======================================================*/
@@ -183,7 +183,7 @@ LTC_MUX_SEQUENCE_s ltc_mux_seq = {
     .seqptr      = &ltc_mux_seq_main_ch1[0],
     .nr_of_steps = (sizeof(ltc_mux_seq_main_ch1) / sizeof(LTC_MUX_CH_CFG_s))};
 
-const uint8_t ltc_muxsensortemperatur_cfg[BS_NR_OF_TEMP_SENSORS_PER_MODULE] = {
+const uint8_t ltc_muxSensorTemperature_cfg[BS_NR_OF_TEMP_SENSORS_PER_MODULE] = {
     1 - 1, /*!< index 0 = mux 0, ch 0 */
     2 - 1, /*!< index 1 = mux 0, ch 1 */
     3 - 1, /*!< index 2 = mux 0, ch 2 */
@@ -192,14 +192,14 @@ const uint8_t ltc_muxsensortemperatur_cfg[BS_NR_OF_TEMP_SENSORS_PER_MODULE] = {
     6 - 1, /*!< index 5 = mux 0, ch 5 */
     7 - 1, /*!< index 6 = mux 0, ch 6 */
     8 - 1, /*!< index 7 = mux 0, ch 7 */
-    /* 9-1 ,      !< index 8 = mux 1, ch 0 */
-    /* 10-1 ,     !< index 9 = mux 1, ch 1 */
-    /* 11-1 ,     !< index 10 = mux 1, ch 2 */
-    /* 12-1 ,     !< index 11 = mux 1, ch 3 */
-    /* 13-1 ,     !< index 12 = mux 1, ch 4 */
-    /* 14-1 ,     !< index 13 = mux 1, ch 5 */
-    /* 15-1 ,     !< index 14 = mux 1, ch 6 */
-    /* 16-1       !< index 15 = mux 1, ch 7 */
+           /* 9-1 ,      !< index 8 = mux 1, ch 0 */
+           /* 10-1 ,     !< index 9 = mux 1, ch 1 */
+           /* 11-1 ,     !< index 10 = mux 1, ch 2 */
+           /* 12-1 ,     !< index 11 = mux 1, ch 3 */
+           /* 13-1 ,     !< index 12 = mux 1, ch 4 */
+           /* 14-1 ,     !< index 13 = mux 1, ch 5 */
+           /* 15-1 ,     !< index 14 = mux 1, ch 6 */
+           /* 16-1       !< index 15 = mux 1, ch 7 */
 };
 
 const uint8_t ltc_voltage_input_used[LTC_6813_MAX_SUPPORTED_CELLS] = {
@@ -230,7 +230,28 @@ const uint8_t ltc_voltage_input_used[LTC_6813_MAX_SUPPORTED_CELLS] = {
 /*========== Extern Function Implementations ================================*/
 
 int16_t LTC_ConvertMuxVoltagesToTemperatures(uint16_t adcVoltage_mV) {
-    return TSI_GetTemperature(adcVoltage_mV); /* Convert degree celsius to deci degree celsius */
+    return TSI_GetTemperature(adcVoltage_mV); /* Convert degree Celsius to deci degree Celsius */
+}
+
+uint8_t LTC_GetVoltageInputIndexFromCellBlockIndex(uint8_t indexCellBlock) {
+    FAS_ASSERT(indexCellBlock < BS_NR_OF_CELL_BLOCKS_PER_MODULE);
+    uint8_t voltageInputIndex  = 0u;
+    uint8_t usedVoltageIndices = 0u;
+    for (uint8_t index = 0u; index < LTC_6813_MAX_SUPPORTED_CELLS; index++) {
+        /* Cell is connected to this input */
+        if (ltc_voltage_input_used[index] == 1u) {
+            /* Increment the count of the used cell voltage inputs for each
+             * array index of ltc_voltage_input_used that indicates a used input.
+             * Check before incrementing we have already found correct index
+             * of the requested cell block index */
+            if (indexCellBlock == usedVoltageIndices) {
+                voltageInputIndex = index;
+                break;
+            }
+            usedVoltageIndices++;
+        }
+    }
+    return voltageInputIndex;
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,8 +43,8 @@
  * @file    ftask_how-to.c
  * @author  foxBMS Team
  * @date    2019-08-27 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup SOME_GROUP
  * @prefix  FTSK
  *
@@ -86,8 +86,8 @@ typedef struct {
  */
 typedef struct {
     /* This struct needs to be at the beginning of every database entry. During
-    * the initialization of a database struct, uniqueId must be set to the
-    * respective database entry representation in enum DATA_BLOCK_ID_e. */
+     * the initialization of a database struct, uniqueId must be set to the
+     * respective database entry representation in enum DATA_BLOCK_ID_e. */
     DATA_BLOCK_HEADER_s header;
     uint16_t dummyValue;
 } DATA_BLOCK_EXAMPLE_s;
@@ -118,3 +118,5 @@ void FTSK_RunUserCodeCyclic100ms(void) {
 /* ftask-example-cyclic-100ms-end */
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
+#ifdef UNITY_UNIT_TEST
+#endif

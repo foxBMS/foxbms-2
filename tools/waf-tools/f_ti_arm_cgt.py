@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 #
-# Copyright (c) 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -38,8 +37,9 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""Implements a waf tool to use TI ARM CGT (https://www.ti.com/tool/ARM-CGT).
-"""
+"""Implements a waf tool to use TI ARM CGT (https://www.ti.com/tool/ARM-CGT)."""
+
+# pylint: disable=too-many-statements,too-many-lines,too-many-locals
 
 import binascii
 import json
@@ -58,9 +58,12 @@ from waflib.TaskGen import taskgen_method
 from waflib.Tools import c_preproc
 from waflib.Tools.ccroot import link_task
 
-import f_ti_arm_cgt_cc_options  # pylint: disable=unused-import
-import f_ti_arm_helper  # pylint: disable=unused-import
-import f_ti_arm_tools  # pylint: disable=unused-import
+# pylint: disable=unused-import
+import f_ti_arm_cgt_cc_options  # noqa: F401
+import f_ti_arm_helper  # noqa: F401
+import f_ti_arm_tools  # noqa: F401
+
+# pylint: enable=unused-import
 import f_ti_color_arm_cgt
 
 HAVE_GIT = False
@@ -158,7 +161,7 @@ class asm(Task.Task):  # pylint: disable-msg=invalid-name,too-few-public-methods
     #: fun: function to be used as scanner method
     scan = c_preproc.scan
 
-    def keyword(self):  # pylint: disable=no-self-use
+    def keyword(self):
         """displayed keyword when assembler source files are compiled"""
         return "Compiling"
 
@@ -314,7 +317,7 @@ class c(Task.Task):  # pylint: disable-msg=invalid-name,too-few-public-methods
     #: fun: function to be used as scanner method
     scan = c_preproc.scan
 
-    def keyword(self):  # pylint: disable=no-self-use
+    def keyword(self):
         """displayed keyword when source files are compiled"""
         return "Compiling"
 
@@ -363,7 +366,7 @@ class c_pp(Task.Task):  # pylint: disable-msg=invalid-name,too-few-public-method
     #: fun: function to be used as scanner method
     scan = c_preproc.scan
 
-    def keyword(self):  # pylint: disable=no-self-use
+    def keyword(self):
         """displayed keyword when source files are parsed for pp information"""
         return "Preprocessing"
 
@@ -412,7 +415,7 @@ class c_ppi(Task.Task):  # pylint: disable-msg=invalid-name,too-few-public-metho
     #: fun: function to be used as scanner method
     scan = c_preproc.scan
 
-    def keyword(self):  # pylint: disable=no-self-use
+    def keyword(self):
         """displayed keyword when source files are parsed for ppi information"""
         return "Parsing"
 
@@ -461,7 +464,7 @@ class c_ppd(Task.Task):  # pylint: disable-msg=invalid-name,too-few-public-metho
     #: fun: function to be used as scanner method
     scan = c_preproc.scan
 
-    def keyword(self):  # pylint: disable=no-self-use
+    def keyword(self):
         """displayed keyword when source files are parsed for ppd information"""
         return "Parsing"
 
@@ -510,7 +513,7 @@ class c_ppm(Task.Task):  # pylint: disable-msg=invalid-name,too-few-public-metho
     #: fun: function to be used as scanner method
     scan = c_preproc.scan
 
-    def keyword(self):  # pylint: disable=no-self-use
+    def keyword(self):
         """displayed keyword when source files are parsed for ppm information"""
         return "Parsing"
 
@@ -591,7 +594,7 @@ class cprogram(link_task):  # pylint: disable-msg=invalid-name,too-few-public-me
             return [], []
         if not std:
             return [], []
-        if not "#10252" in std:
+        if "#10252" not in std:
             return [], []
         # now we know that at least some warning has been printed to stdout that
         # includes the linker remark #10252 and that a pull file has been
@@ -644,8 +647,8 @@ class cprogram(link_task):  # pylint: disable-msg=invalid-name,too-few-public-me
 
         return hits, errors
 
-    def keyword(self):  # pylint: disable=no-self-use
-        """displayed keyword when black is linking the target"""
+    def keyword(self):
+        """displayed keyword when linking the target"""
         return "Linking"
 
 
@@ -657,7 +660,7 @@ class stlink_task(link_task):  # pylint: disable-msg=invalid-name,too-few-public
         "${AR} ${ARFLAGS} ${AR_TGT_F} ${TGT[0].abspath()} ${AR_SRC_F}${SRC}",
     ]
 
-    def keyword(self):  # pylint: disable=no-self-use
+    def keyword(self):
         """displayed keyword when linking"""
         return "Linking"
 
@@ -686,7 +689,7 @@ class copy_elf(Task.Task):  # pylint: disable-msg=invalid-name
         for in_file, out_file in zip(self.inputs, self.outputs):
             shutil.copy2(in_file.abspath(), out_file.abspath())
 
-    def keyword(self):  # pylint: disable=no-self-use
+    def keyword(self):
         """displayed keyword when copying the elf file"""
         return "Copy"
 
@@ -748,7 +751,7 @@ def tiprogram(bld, *k, **kw):
 
     if "linker_pulls" in kw:
         scan_opt = "--scan_libraries"
-        if not scan_opt in bld.env.LINKFLAGS and not scan_opt in kw["linkflags"]:
+        if scan_opt not in bld.env.LINKFLAGS and scan_opt not in kw["linkflags"]:
             bld.fatal(
                 "'linker_pulls' was specified without linker flag '--scan_libraries'."
             )
@@ -841,7 +844,7 @@ def check_duplicate_and_not_existing_includes(self):
             item
             for t in duplicates
             for item in t
-            if not os.sep + "build" + os.sep in item
+            if os.sep + "build" + os.sep not in item
         ]
         duplicates = list(set(duplicates))
         err += f"Duplicate include directories are: {duplicates}\n"
@@ -865,7 +868,7 @@ class hexgen(Task.Task):  # pylint: disable-msg=invalid-name
     """str: string to be interpolated to create the command line to create a
     hex file from an elf file."""
 
-    def keyword(self):  # pylint: disable=no-self-use
+    def keyword(self):
         """displayed keyword when generating the hex file"""
         return "Compiling"
 
@@ -907,7 +910,7 @@ class bingen(Task.Task):  # pylint: disable-msg=invalid-name
     """str: string to be interpolated to create the command line to create a
     bin file from an elf file."""
 
-    def keyword(self):  # pylint: disable=no-self-use
+    def keyword(self):
         """displayed keyword when generating the bin file"""
         return "Compiling"
 
@@ -983,7 +986,7 @@ class size(Task.Task):  # pylint: disable-msg=invalid-name
         if err:
             Logs.error(err)
 
-    def keyword(self):  # pylint: disable=no-self-use
+    def keyword(self):
         """displayed keyword when size is run on object files"""
         return "Processing size"
 
@@ -1013,7 +1016,7 @@ class nm(Task.Task):  # pylint: disable-msg=invalid-name,too-few-public-methods
     """str: string to be interpolated to create the command line to create a
     nm file from an ``*.obj``, ``*.a`` or ``*.elf`` file."""
 
-    def keyword(self):  # pylint: disable=no-self-use
+    def keyword(self):
         """displayed keyword when armnm is run on object files"""
         return "Processing nm"
 
@@ -1027,9 +1030,7 @@ def remove_stuff_from_pp(self):
         self.create_task("clean_pp_file", node.outputs[0], outs)
 
 
-class clean_pp_file(
-    Task.Task
-):  # pylint: disable-msg=invalid-name,too-few-public-methods
+class clean_pp_file(Task.Task):  # pylint: disable-msg=invalid-name,too-few-public-methods
     """Task to remove some information from the preprocessed files"""
 
     #: str: color in which the command line is displayed in the terminal
@@ -1058,7 +1059,7 @@ class clean_pp_file(
             txt = re.sub(rep[0], rep[1], txt)
         self.outputs[1].write(txt, encoding="utf-8")
 
-    def keyword(self):  # pylint: disable=no-self-use
+    def keyword(self):
         """displayed keyword when post-processing the pre-processed files"""
         return "Postprocessing"
 
@@ -1077,6 +1078,8 @@ class create_version_source(Task.Task):  # pylint: disable=invalid-name
 
     #: list of str: extensions that trigger a re-build
     ext_out = [".h"]
+
+    always_run = True
 
     def get_remote(self):
         """returns the git remote"""
@@ -1200,6 +1203,9 @@ class create_version_source(Task.Task):  # pylint: disable=invalid-name
                 f"version defined in waf ({waf_version})."
             )
 
+        # get information for the build configuration struct
+        build_configuration = self.get_build_configuration()
+
         # note: these values have to be in line with the corresponding defines
         # in version_cfg.h
         commit_hash_maximum_string_length = 9
@@ -1221,7 +1227,7 @@ class create_version_source(Task.Task):  # pylint: disable=invalid-name
             " * @file    c.c",
             " * @author  foxBMS Team",
             " * @date    2019-08-27 (date of creation)",
-            " * @updated 2023-01-02 (date of last update)",
+            " * @updated 2024-01-09 (date of last update)",
             " * @version vx.y.z",
             " * @ingroup SOME_GROUP",
             " * @prefix  ABC",
@@ -1243,6 +1249,7 @@ class create_version_source(Task.Task):  # pylint: disable=invalid-name
         ]
         for finding, _replacement in zip(doxygen_comment_tpl, doxygen_comment):
             txt = txt.replace(finding, _replacement)
+        # pylint: disable=line-too-long
         marker = "/*========== Static Constant and Variable Definitions =======================*/"
         txt = txt.replace(
             marker,
@@ -1258,12 +1265,142 @@ class create_version_source(Task.Task):  # pylint: disable=invalid-name
                     f"    .distanceFromLastRelease = {distance_int},",
                     f'    .commitHash = "{commit_hash}",',
                     f'    .gitRemote = "{git_remote[:git_remote_maximum_string_length]}",',
+                    "};\n",
+                    "const VER_BUILD_CONFIGURATION_s ver_foxbmsBuildConfiguration = {",
+                    f"    .socAlgorithm = SOC_ALGORITHM_{build_configuration['soc_state_estimator']},",
+                    f"    .soeAlgorithm = SOE_ALGORITHM_{build_configuration['soe_state_estimator']},",
+                    f"    .sofAlgorithm = SOF_ALGORITHM_{build_configuration['sof_state_estimator']},",
+                    f"    .sohAlgorithm = SOH_ALGORITHM_{build_configuration['soh_state_estimator']},",
+                    f"    .imdName = {build_configuration['imd_name']},",
+                    f"    .balancingStrategy = BALANCING_STRATEGY_{build_configuration['balancing_strategy']},",
+                    f"    .rtos = {build_configuration['rtos']},",
+                    f"    .afeName = {build_configuration['afe_name']},",
+                    f"    .temperatureSensorName = {build_configuration['temp_sensor_name']},",
+                    f"    .temperatureSensorMethod = {build_configuration['temp_sensor_method']},",
                     "};",
                 ]
             ),
         )
+        # pylint: enable=line-too-long
 
         self.outputs[0].write(txt, encoding="utf-8")
+
+    def get_build_configuration(self):  # pylint: disable=too-many-branches
+        """Puts together the information for the build configuration struct
+        returns the build configuration in a dictionary"""
+        build_configuration = {}
+
+        # get state estimators
+        build_configuration["soc_state_estimator"] = "INVALID"
+        if not self.env.state_estimator_soc == []:
+            build_configuration["soc_state_estimator"] = str(
+                self.env.state_estimator_soc
+            ).upper()
+        build_configuration["soe_state_estimator"] = "INVALID"
+        if not self.env.state_estimator_soe == []:
+            build_configuration["soe_state_estimator"] = str(
+                self.env.state_estimator_soe
+            ).upper()
+        build_configuration["sof_state_estimator"] = "INVALID"
+        if not self.env.state_estimator_sof == []:
+            build_configuration["sof_state_estimator"] = str(
+                self.env.state_estimator_sof
+            ).upper()
+        build_configuration["soh_state_estimator"] = "INVALID"
+        if not self.env.state_estimator_soh == []:
+            build_configuration["soh_state_estimator"] = str(
+                self.env.state_estimator_soh
+            ).upper()
+
+        # get imd name
+        imd_man = str(self.env.imd_manufacturer)
+        imd_model = str(self.env.imd_model)
+        imd_name = "IMD_NONE"
+        if imd_man == "bender":
+            if imd_model == "iso165c":
+                imd_name = f"IMD_{imd_man.upper()}_ISO_165C"
+            elif imd_model == "ir155":
+                imd_name = f"IMD_{imd_man.upper()}_IR_155"
+        build_configuration["imd_name"] = imd_name
+
+        # get balancing strategy
+        build_configuration["balancing_strategy"] = "NONE"
+        if not self.env.balancing_strategy == []:
+            build_configuration["balancing_strategy"] = str(
+                self.env.balancing_strategy
+            ).upper()
+
+        # get rtos
+        build_configuration["rtos"] = "FREERTOS"
+        if not self.env.RTOS_NAME == []:
+            build_configuration["rtos"] = str(self.env.RTOS_NAME[0]).upper()
+
+        # get afe name
+        afe_man = str(self.env.afe_manufacturer)
+        afe_ic = str(self.env.afe_ic)
+        afe_ic_d = "DEBUG_DEFAULT"
+        if afe_man == "ltc":
+            if afe_ic in ("6804-1", "6811-1", "6812-1"):
+                afe_ic_d = "6813-1"
+            if afe_ic == "6804-1":
+                afe_ic_d = f"{afe_man.upper()}_LTC6804_1"
+            elif afe_ic == "6806":
+                afe_ic_d = f"{afe_man.upper()}_LTC6806"
+            elif afe_ic == "6811-1":
+                afe_ic_d = f"{afe_man.upper()}_LTC6811_1"
+            elif afe_ic == "6812-1":
+                afe_ic_d = f"{afe_man.upper()}_LTC6812_1"
+            elif afe_ic == "6813-1":
+                afe_ic_d = f"{afe_man.upper()}_LTC6813_1"
+        elif afe_man == "nxp":
+            if afe_ic == "mc33775a":
+                afe_ic_d = f"{afe_man.upper()}_MC33775A"
+        elif afe_man == "adi":
+            if afe_ic == "ades1830":
+                afe_ic_d = f"{afe_man.upper()}_ADES1830"
+        elif afe_man == "debug":
+            if afe_ic == "default":
+                afe_ic_d = f"{afe_man.upper()}_DEFAULT"
+        elif afe_man == "maxim":
+            if afe_ic == "max17852":
+                afe_ic_d = f"{afe_man.upper()}_MAX17852"
+        elif afe_man == "ti":
+            if afe_ic == "dummy":
+                afe_ic_d = "TI_DUMMY"
+        build_configuration["afe_name"] = afe_ic_d
+
+        # get temp sensor name
+        temp_sensor_man = str(self.env.temperature_sensor_manuf)
+        temp_sensor_model = str(self.env.temperature_sensor_model)
+        temp_sensor = "FAK00"
+        if temp_sensor_man == "epcos":
+            if temp_sensor_model == "b57251v5103j060":
+                temp_sensor = "EPC00"
+            elif temp_sensor_model == "b57861s0103f045":
+                temp_sensor = "EPC01"
+        elif temp_sensor_man == "murata":
+            if temp_sensor_model == "ncxxxxh103":
+                temp_sensor = "MUR00"
+        elif temp_sensor_man == "semitec":
+            if temp_sensor_model == "103jt":
+                temp_sensor = "SEM00"
+        elif temp_sensor_man == "vishay":
+            if temp_sensor_model == "ntcalug01a103g":
+                temp_sensor = "VIS00"
+            elif temp_sensor_model == "ntcle317e4103sba":
+                temp_sensor = "VIS01"
+            elif temp_sensor_model == "ntcle413e2103f102l":
+                temp_sensor = "VIS02"
+        build_configuration["temp_sensor_name"] = temp_sensor
+
+        # get temp sensor method
+        temp_sensor_meth = str(self.env.temperature_sensor_meth)
+        temp_sensor_method = "LOOKUP_TABLE"
+        if temp_sensor_meth == "polynomial":
+            temp_sensor_method = "POLYNOMIAL"
+        build_configuration["temp_sensor_method"] = temp_sensor_method
+
+        return build_configuration
 
     def sig_explicit_deps(self):
         """Defines how to get signature of this task (and thus when to rerun it)"""
@@ -1285,7 +1422,8 @@ def create_version_file(self):
                     "Not a git repository. Proceeding without version information."
                 )
             repo = None
-        except:  # pylint: disable=bare-except
+        # pylint: disable=bare-except
+        except:  # noqa: E722
             Logs.error(f"An unexpected error occurred:\n{sys.exc_info()[0]}")
             Logs.warn("Proceeding without version information.")
             repo = None

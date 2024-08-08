@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,8 +43,8 @@
  * @file    ftask.h
  * @author  foxBMS Team
  * @date    2019-08-27 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup TASK
  * @prefix  FTSK
  *
@@ -101,6 +101,14 @@
 /** Size of queue item that is used for I2C transmission over NXP slave */
 #define FTSK_AFEI2C_QUEUE_ITEM_SIZE_IN_BYTES (sizeof(AFE_I2C_QUEUE_s))
 
+/** Length of queue that is used for data transmission from CAN to AFE slave */
+#define FTSK_CAN2AFE_CELL_TEMPERATURES_QUEUE_LENGTH (5u)
+#define FTSK_CAN2AFE_CELL_VOLTAGES_QUEUE_LENGTH     (5u)
+
+/** Size of queue item that is used for data transmission from CAN to AFE slave */
+#define FTSK_CAN2AFE_CELL_TEMPERATURES_QUEUE_ITEM_SIZE_IN_BYTES (sizeof(CAN_CAN2AFE_CELL_TEMPERATURES_QUEUE_s))
+#define FTSK_CAN2AFE_CELL_VOLTAGES_QUEUE_ITEM_SIZE_IN_BYTES     (sizeof(CAN_CAN2AFE_CELL_VOLTAGES_QUEUE_s))
+
 /*========== Extern Constant and Variable Declarations ======================*/
 /** database queue */
 extern OS_QUEUE ftsk_databaseQueue;
@@ -123,6 +131,12 @@ extern OS_QUEUE ftsk_rtcSetTimeQueue;
 /** handle of the I2C transmission over NXP slave queue */
 extern OS_QUEUE ftsk_afeToI2cQueue;
 extern OS_QUEUE ftsk_afeFromI2cQueue;
+
+/** handle of the queue to transmit the received can message (cell temperature / cell voltage) to the debug/can afe */
+extern OS_QUEUE ftsk_canToAfeCellVoltagesQueue;
+
+/** handle of the queue to transmit the received can message (cell temperature / cell voltage) to the debug/can afe */
+extern OS_QUEUE ftsk_canToAfeCellTemperaturesQueue;
 
 /** indicator whether the queues have successfully been initialized to be used
  * in other parts of the software  */

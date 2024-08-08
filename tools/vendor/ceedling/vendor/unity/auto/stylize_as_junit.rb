@@ -1,3 +1,10 @@
+# =========================================================================
+#   Unity - A Test Framework for C
+#   ThrowTheSwitch.org
+#   Copyright (c) 2007-24 Mike Karlesky, Mark VanderVoord, & Greg Williams
+#   SPDX-License-Identifier: MIT
+# =========================================================================
+
 #!/usr/bin/ruby
 #
 # unity_to_junit.rb
@@ -99,7 +106,7 @@ class UnityToJUnit
       test_file = if test_file_str.length < 2
                     result_file
                   else
-                    test_file_str[0] + ':' + test_file_str[1]
+                    "#{test_file_str[0]}:#{test_file_str[1]}"
                   end
       result_output[:source][:path] = File.dirname(test_file)
       result_output[:source][:file] = File.basename(test_file)

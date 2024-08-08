@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,16 +43,20 @@
  * @file    adi_ades1830_gpio_voltages.c
  * @author  foxBMS Team
  * @date    2019-08-27 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
- * @ingroup SOME_GROUP
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
+ * @ingroup DRIVERS
  * @prefix  ADI
  *
- * @brief   Implementation of some software
- *
+ * @brief   Reading and the GPIO voltage registers of the ADI ADES1830
+ * @details Implements all required functionalities for reading the GPIO
+ *          voltage registers in the of the ADI ADES1830.
  */
 
 /*========== Includes =======================================================*/
+/* AXIVION Next Codeline Generic-LocalInclude: 'adi_ades183x_gpio_voltages.h'
+ * declares the prototype for the callback 'ADI_GetGpioVoltages', i.e., it is
+ * own header file for this compilation unit */
 /* clang-format off */
 #include "adi_ades183x_gpio_voltages.h"
 /* clang-format on */
@@ -84,27 +88,27 @@
  *          GPIO voltages.
  *          This function is called to store the result from the transmission
  *          buffer to the appropriate location in the driver.
- * @param   adiState        state of the ADI driver
- * @param   data            receive buffer
+ * @param   pAdiState       state of the ADI driver
+ * @param   pData           receive buffer
  * @param   registerSet     auxiliary register that was read (voltage register
  *                          A, B, C or D).
  * @param   storeLocation   location where read data has to be stored
  */
 static void ADI_SaveRxToGpioVoltageBuffer(
-    ADI_STATE_s *adiState,
-    uint8_t *data,
+    ADI_STATE_s *pAdiState,
+    uint8_t *pData,
     uint8_t registerSet,
     ADI_AUXILIARY_STORE_LOCATION_e storeLocation);
 
 /*========== Static Function Implementations ================================*/
-/* RequirementId: D7.1 V0R4 FUN-2.10.01.02 */
+/* RequirementId: D7.1 V1R0 FUN-2.10.01.02 */
 static void ADI_SaveRxToGpioVoltageBuffer(
-    ADI_STATE_s *adiState,
-    uint8_t *data,
+    ADI_STATE_s *pAdiState,
+    uint8_t *pData,
     uint8_t registerSet,
     ADI_AUXILIARY_STORE_LOCATION_e storeLocation) {
-    FAS_ASSERT(adiState != NULL_PTR);
-    FAS_ASSERT(data != NULL_PTR);
+    FAS_ASSERT(pAdiState != NULL_PTR);
+    FAS_ASSERT(pData != NULL_PTR);
     FAS_ASSERT(
         (registerSet == ADI_AUXILIARY_RESULT_REGISTER_SET_A) || (registerSet == ADI_AUXILIARY_RESULT_REGISTER_SET_B) ||
         (registerSet == ADI_AUXILIARY_RESULT_REGISTER_SET_C) || (registerSet == ADI_AUXILIARY_RESULT_REGISTER_SET_D) ||
@@ -127,13 +131,13 @@ static void ADI_SaveRxToGpioVoltageBuffer(
 
     switch (storeLocation) {
         case ADI_AUXILIARY_VOLTAGE:
-            pGpioVoltageTable = adiState->data.allGpioVoltages;
+            pGpioVoltageTable = pAdiState->data.allGpioVoltages;
             break;
         case ADI_REDUNDANT_AUXILIARY_VOLTAGE:
-            pGpioVoltageTable = adiState->data.allGpioVoltagesRedundant;
+            pGpioVoltageTable = pAdiState->data.allGpioVoltagesRedundant;
             break;
         case ADI_AUXILIARY_VOLTAGE_OPEN_WIRE:
-            pGpioVoltageTable = adiState->data.allGpioVoltageOpenWire;
+            pGpioVoltageTable = pAdiState->data.allGpioVoltageOpenWire;
             break;
         default:                  /* LCOV_EXCL_LINE */
             FAS_ASSERT(FAS_TRAP); /* LCOV_EXCL_LINE */
@@ -171,28 +175,28 @@ static void ADI_SaveRxToGpioVoltageBuffer(
         for (uint16_t gpio = voltageStartNumber; gpio < numberOfVoltagesInRegister; gpio++) {
             voltageIndex = gpio + cellOffset;
             if (voltageIndex < BS_NR_OF_GPIOS_PER_MODULE) {
-                bufferMSB = (uint16_t)(data
+                bufferMSB = (uint16_t)(pData
                                            [(ADI_RAW_VOLTAGE_SIZE_IN_BYTES * gpio) +
                                             (m * ADI_MAX_REGISTER_SIZE_IN_BYTES) + 1u]);
                 bufferLSB =
-                    (uint16_t)(data[(ADI_RAW_VOLTAGE_SIZE_IN_BYTES * gpio) + (m * ADI_MAX_REGISTER_SIZE_IN_BYTES)]);
+                    (uint16_t)(pData[(ADI_RAW_VOLTAGE_SIZE_IN_BYTES * gpio) + (m * ADI_MAX_REGISTER_SIZE_IN_BYTES)]);
                 rawValue     = bufferLSB | (bufferMSB << ADI_BYTE_SHIFT);
                 signedValue  = (int16_t)rawValue;
                 floatVoltage = ((float_t)signedValue * ADI_VOLTAGE_CONVERSION_FACTOR * ADI_VOLTAGE_CONVERSION_UNIT) +
                                ADI_VOLTAGE_CONVERSION_OFFSET;
                 voltage = (int16_t)floatVoltage; /* Unit mV */
 
-                /* RequirementId: D7.1 V0R4 SIF-4.40.02.01 */
+                /* RequirementId: D7.1 V1R0 SIF-4.40.02.01 */
                 /* Check that register does not contain cleared value */
                 if (rawValue != ADI_REGISTER_CLEARED_VALUE) {
-                    adiState->data.errorTable->auxiliaryRegisterContentIsNotStuck[adiState->currentString][m] = true;
+                    pAdiState->data.errorTable->auxiliaryRegisterContentIsNotStuck[pAdiState->currentString][m] = true;
                     /* Check PEC for every IC in the daisy-chain */
-                    if (adiState->data.errorTable->crcIsOk[adiState->currentString][m] == true) {
-                        pGpioVoltageTable->gpioVoltages_mV[adiState->currentString]
+                    if (pAdiState->data.errorTable->crcIsOk[pAdiState->currentString][m] == true) {
+                        pGpioVoltageTable->gpioVoltages_mV[pAdiState->currentString]
                                                           [voltageIndex + (m * BS_NR_OF_GPIOS_PER_MODULE)] = voltage;
                     }
                 } else {
-                    adiState->data.errorTable->auxiliaryRegisterContentIsNotStuck[adiState->currentString][m] = false;
+                    pAdiState->data.errorTable->auxiliaryRegisterContentIsNotStuck[pAdiState->currentString][m] = false;
                 }
             }
         }
@@ -201,10 +205,10 @@ static void ADI_SaveRxToGpioVoltageBuffer(
 
 /*========== Extern Function Implementations ================================*/
 extern void ADI_GetGpioVoltages(
-    ADI_STATE_s *adiState,
+    ADI_STATE_s *pAdiState,
     ADI_AUXILIARY_REGISTER_TYPE_e registerType,
     ADI_AUXILIARY_STORE_LOCATION_e storeLocation) {
-    FAS_ASSERT(adiState != NULL_PTR);
+    FAS_ASSERT(pAdiState != NULL_PTR);
     FAS_ASSERT((registerType == ADI_AUXILIARY_REGISTER) || (registerType == ADI_REDUNDANT_AUXILIARY_REGISTER));
     FAS_ASSERT(
         (storeLocation == ADI_AUXILIARY_VOLTAGE) || (storeLocation == ADI_REDUNDANT_AUXILIARY_VOLTAGE) ||
@@ -235,29 +239,29 @@ extern void ADI_GetGpioVoltages(
     }
 
     ADI_CopyCommandBits(registerA, adi_command);
-    ADI_ReadRegister(adi_command, adi_dataReceive, adiState);
-    ADI_SaveRxToGpioVoltageBuffer(adiState, adi_dataReceive, ADI_AUXILIARY_RESULT_REGISTER_SET_A, storeLocation);
+    ADI_ReadRegister(adi_command, adi_dataReceive, pAdiState);
+    ADI_SaveRxToGpioVoltageBuffer(pAdiState, adi_dataReceive, ADI_AUXILIARY_RESULT_REGISTER_SET_A, storeLocation);
 
     ADI_CopyCommandBits(registerB, adi_command);
-    ADI_ReadRegister(adi_command, adi_dataReceive, adiState);
-    ADI_SaveRxToGpioVoltageBuffer(adiState, adi_dataReceive, ADI_AUXILIARY_RESULT_REGISTER_SET_B, storeLocation);
+    ADI_ReadRegister(adi_command, adi_dataReceive, pAdiState);
+    ADI_SaveRxToGpioVoltageBuffer(pAdiState, adi_dataReceive, ADI_AUXILIARY_RESULT_REGISTER_SET_B, storeLocation);
 
     ADI_CopyCommandBits(registerC, adi_command);
-    ADI_ReadRegister(adi_command, adi_dataReceive, adiState);
-    ADI_SaveRxToGpioVoltageBuffer(adiState, adi_dataReceive, ADI_AUXILIARY_RESULT_REGISTER_SET_C, storeLocation);
+    ADI_ReadRegister(adi_command, adi_dataReceive, pAdiState);
+    ADI_SaveRxToGpioVoltageBuffer(pAdiState, adi_dataReceive, ADI_AUXILIARY_RESULT_REGISTER_SET_C, storeLocation);
 
     ADI_CopyCommandBits(registerD, adi_command);
-    ADI_ReadRegister(adi_command, adi_dataReceive, adiState);
-    ADI_SaveRxToGpioVoltageBuffer(adiState, adi_dataReceive, ADI_AUXILIARY_RESULT_REGISTER_SET_D, storeLocation);
+    ADI_ReadRegister(adi_command, adi_dataReceive, pAdiState);
+    ADI_SaveRxToGpioVoltageBuffer(pAdiState, adi_dataReceive, ADI_AUXILIARY_RESULT_REGISTER_SET_D, storeLocation);
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
 #ifdef UNITY_UNIT_TEST
 extern void TEST_ADI_SaveRxToGpioVoltageBuffer(
-    ADI_STATE_s *adiState,
-    uint8_t *data,
+    ADI_STATE_s *pAdiState,
+    uint8_t *pData,
     uint8_t registerSet,
     ADI_AUXILIARY_STORE_LOCATION_e storeLocation) {
-    ADI_SaveRxToGpioVoltageBuffer(adiState, data, registerSet, storeLocation);
+    ADI_SaveRxToGpioVoltageBuffer(pAdiState, pData, registerSet, storeLocation);
 }
 #endif

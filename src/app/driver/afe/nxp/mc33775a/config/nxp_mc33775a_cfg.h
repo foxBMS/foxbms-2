@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,13 +43,13 @@
  * @file    nxp_mc33775a_cfg.h
  * @author  foxBMS Team
  * @date    2020-05-08 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  N775
  *
  * @brief   Header for the configuration for the MC33775A analog front-end.
- *
+ * @details TODO
  */
 
 #ifndef FOXBMS__NXP_MC33775A_CFG_H_
@@ -109,16 +109,6 @@
 #define N775_NOTIFICATION_RX_TIMEOUT_ms (2u)
 
 /**
- * Number of used N775-ICs
- */
-#define N775_N_N775 (BS_NR_OF_MODULES_PER_STRING)
-
-/**
- * Number of N775-ICs per battery module
- */
-#define N775_NUMBER_OF_N775_PER_MODULE (1u)
-
-/**
  * 775A Tx message length in bytes.
  */
 #define N775_TX_MESSAGE_LENGTH (7u)
@@ -127,52 +117,6 @@
  * 775A Rx message length in bytes.
  */
 #define N775_RX_MESSAGE_LENGTH (4u)
-
-/**
- * Timeout in milliseconds added to the transmission time for interrupt-based
- * SPI transmission.
- */
-#define N775_TRANSMISSION_TIMEOUT (10u)
-
-/**
- * N775 Maximum time from wakeup event to possible communication in ms
- * 2.4ms in data sheet
- */
-#define N775_TWAKECOM_MS (3u)
-
-/**
- * N775 Time between two consecutive wake-up messages in ms
- * 4ms in data sheet
- */
-#define N775_TDWAKE_MS (4u)
-
-/**
- * N775 time for daisy-chain to wake-up in ms
- */
-#define N775_TIME_DAISYCHAIN_WAKEUP_MS (N775_N_N775 * (N775_TWAKECOM_MS + N775_TDWAKE_MS))
-
-/**
- * N775 time between two wake up commands in ms
- */
-#define N775_TIME_BETWEEN_WAKEUP_MS (4u)
-
-/**
- * N775 time after enumeraiton in ms
- */
-#define N775_TIME_AFTER_ENUMERATION_MS (1u)
-
-/**
- * Maximum number of re-tries in case of SPI error during the communication with daisy chain
- * before going into error state
- */
-#define N775_TRANSMIT_SPIERRLIMIT (3u)
-
-/**
- * Max number of Bytes to be received from daisy-chain
- * This limit is not due to the hardware.
- * It is only to set the length of the receive buffer for DMA.
- */
-#define N775_MAX_N_BYTES_FOR_DATA_RECEPTION (N775_TX_MESSAGE_LENGTH * N775_MAX_NUMBER_OF_VOLTAGES)
 
 /*========== Extern Constant and Variable Declarations ======================*/
 

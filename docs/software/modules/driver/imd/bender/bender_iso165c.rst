@@ -12,22 +12,28 @@ Module Files
 Driver
 ^^^^^^
 
-- ``src/app/driver/imd/bender/iso165c/bender_iso165c.c`` (`API <../../../../../_static/doxygen/src/html/bender__iso165c_8c.html>`__, `source <../../../../../_static/doxygen/src/html/bender__iso165c_8c_source.html>`__)
-- ``src/app/driver/imd/bender/iso165c/bender_iso165c.h`` (`API <../../../../../_static/doxygen/src/html/bender__iso165c_8h.html>`__, `source <../../../../../_static/doxygen/src/html/bender__iso165c_8h_source.html>`__)
+- ``src/app/driver/imd/bender/iso165c/bender_iso165c.c``
+- ``src/app/driver/imd/bender/iso165c/bender_iso165c.h``
 
 Configuration
 ^^^^^^^^^^^^^
 
-- ``src/app/driver/imd/bender/iso165c/bender_iso165c.c`` (`API <../../../../../_static/doxygen/src/html/bender__iso165c__cfg_8c.html>`__, `source <../../../../../_static/doxygen/src/html/bender__iso165c_8c_source.html>`__)
-- ``src/app/driver/imd/bender/iso165c/bender_iso165c.h`` (`API <../../../../../_static/doxygen/src/html/bender__iso165c__cfg_8h.html>`__, `source <../../../../../_static/doxygen/src/html/bender__iso165c_8h_source.html>`__)
+- ``src/app/driver/imd/bender/iso165c/bender_iso165c.c``
+- ``src/app/driver/imd/bender/iso165c/bender_iso165c.h``
 
 Unit Test
 ^^^^^^^^^
 
-- ``tests/unit/app/driver/imd/bender/iso165c/test_bender_iso165c.c`` (`API <../../../../../_static/doxygen/tests/html/test__bender__iso165c_8c.html>`__, `source <../../../../../_static/doxygen/tests/html/test__bender__iso165c_8c_source.html>`__)
+- ``tests/unit/app/driver/imd/bender/iso165c/test_bender_iso165c.c``
 
 Description
 -----------
+
+Communication
+^^^^^^^^^^^^^
+
+The Bender iso165C is connected to the BMS via CAN-bus, the handling
+of the messages is implemented in the can callback files.
 
 Description of the IMD state machine
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -36,10 +42,10 @@ The Bender iso165C driver is interfaced and controlled by the superimposed
 :ref:`IMD state machine<INSULATION_MEASUREMENT_DEVICE>`.
 The required functionality, that needs to be provided by this driver is:
 
-* Initialize the Bender iso165C device
-* Activate the insulation measurement
-* Deactivate the insulation measurement
-* Measurement of the insulation resistance
+- Initialize the Bender iso165C device
+- Activate the insulation measurement
+- Deactivate the insulation measurement
+- Measurement of the insulation resistance
 
 Each functionality is implemented in a dedicated state machine that is
 explained in detail in the following.

@@ -6,19 +6,6 @@
 Supported Temperature Sensors
 =============================
 
-..
-    Comments:
-    Manufacturer names and their short names
-
-.. spelling::
-    Epcos
-    Epc
-    Fak
-    Murata
-    Mur
-    Vishay
-    Vis
-
 |foxbms| supports various Temperature sensors from different manufacturers as
 the list below shows.
 

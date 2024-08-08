@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,12 +43,13 @@
  * @file    sys_mon.c
  * @author  foxBMS Team
  * @date    2019-11-28 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup ENGINE
  * @prefix  SYSM
  *
  * @brief   system monitoring module
+ * @details TODO
  */
 
 /*========== Includes =======================================================*/
@@ -137,20 +138,20 @@ static bool SYSM_ConvertRecordedTimingsToViolation(uint32_t duration, uint32_t t
 }
 
 /*========== Extern Function Implementations ================================*/
-STD_RETURN_TYPE_e SYSM_Init(void) {
+STD_RETURN_TYPE_e SYSM_Initialize(void) {
     /* no need to check for the configuration as it is already checked with a
        static assert */
 
     /* read from FRAM interface the sys mon violations */
     (void)FRAM_ReadData(FRAM_BLOCK_ID_SYS_MON_RECORD);
     /* copy FRAM into local shadow copy */
-    SYSM_CopyFramStruct(&fram_sys_mon_record, &sysm_localFramCopy);
+    SYSM_CopyFramStruct(&fram_sysMonViolationRecord, &sysm_localFramCopy);
 
     return STD_OK;
 }
 
 void SYSM_CheckNotifications(void) {
-    static uint32_t sysm_timestamp = 0;
+    static uint32_t sysm_timestamp = 0u;
 
     /** early exit if nothing to do */
     uint32_t local_timer = OS_GetTickCount();
@@ -159,8 +160,8 @@ void SYSM_CheckNotifications(void) {
     }
     sysm_timestamp = local_timer;
 
-    uint32_t time_since_last_call = 0;
-    uint32_t max_allowed_jitter   = 0;
+    uint32_t time_since_last_call = 0u;
+    uint32_t max_allowed_jitter   = 0u;
 
     for (SYSM_TASK_ID_e taskId = (SYSM_TASK_ID_e)0; taskId < SYSM_TASK_ID_MAX; taskId++) {
         if (sysm_ch_cfg[taskId].enable == SYSM_ENABLED) {
@@ -204,7 +205,7 @@ extern void SYSM_GetRecordedTimingViolations(SYSM_TIMING_VIOLATION_RESPONSE_s *p
 
     OS_EnterTaskCritical();
     FRAM_SYS_MON_RECORD_s localSysMonRecord = {0};
-    SYSM_CopyFramStruct(&fram_sys_mon_record, &localSysMonRecord);
+    SYSM_CopyFramStruct(&fram_sysMonViolationRecord, &localSysMonRecord);
     OS_ExitTaskCritical();
 
     if (localSysMonRecord.anyTimingIssueOccurred == false) {
@@ -261,7 +262,7 @@ extern void SYSM_UpdateFramData(void) {
     OS_ExitTaskCritical();
     if (updateNecessary == true) {
         OS_EnterTaskCritical();
-        SYSM_CopyFramStruct(&sysm_localFramCopy, &fram_sys_mon_record);
+        SYSM_CopyFramStruct(&sysm_localFramCopy, &fram_sysMonViolationRecord);
         sysm_flagFramCopyHasChanges = false;
         OS_ExitTaskCritical();
 
@@ -296,4 +297,14 @@ extern SYSM_NOTIFICATION_s *TEST_SYSM_GetNotifications(void) {
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
 #ifdef UNITY_UNIT_TEST
+/* Helper functions */
+extern bool TEST_SYSM_GetStaticVariableFlagFramCopyHasChanges(void) {
+    return sysm_flagFramCopyHasChanges;
+}
+extern bool TEST_SYSM_SetStaticVariableFlagFramCopyHasChanges(bool value) {
+    bool oldValue               = sysm_flagFramCopyHasChanges;
+    sysm_flagFramCopyHasChanges = value;
+    return oldValue;
+}
+
 #endif

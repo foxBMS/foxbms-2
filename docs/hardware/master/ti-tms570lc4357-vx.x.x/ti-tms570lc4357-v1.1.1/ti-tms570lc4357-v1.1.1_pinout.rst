@@ -123,12 +123,12 @@ The pinout and pin usage is described in
 Extension connector
 ###################
 
-For the connection to the |bms-extension|, a 120-pole Samtec Edge Rate
+For the connection to an optional |bms-extension|, a 120-pole Samtec Edge Rate
 mezzanine connector (J9002) is used.
 The pinout and pin usage is described in
 :numref:`Table %s <ti-tms570lc4357-v1.1.1_interface>`.
 
-.. csv-table:: Signal connector to |bms-extension| (J9002)
+.. csv-table:: Signal connector to an optional |bms-extension| (J9002)
    :name: ti-tms570lc4357-v1.1.1_extension
    :header-rows: 1
    :delim: ,

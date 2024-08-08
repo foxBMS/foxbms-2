@@ -6,6 +6,35 @@
 Safety
 ======
 
+..
+    cSpell:ignore elektrische
+    cSpell:ignore spannung
+    cSpell:ignore handschutz
+    cSpell:ignore benutzen
+    cSpell:ignore explosionsgefaehrliche
+    cSpell:ignore stoffe
+    cSpell:ignore giftige
+    cSpell:ignore aetzende
+    cSpell:ignore gefahren
+    cSpell:ignore batterien
+    cSpell:ignore feuergefaehrliche
+    cSpell:ignore fussschutz
+    cSpell:ignore schutzkleidung
+    cSpell:ignore gesichtsschutz
+    cSpell:ignore kopfschutz
+    cSpell:ignore augenschutz
+    cSpell:ignore brandfoerdernde
+    cSpell:ignore metallteile
+    cSpell:ignore uhren
+    cSpell:ignore keine
+    cSpell:ignore atemschutz
+    cSpell:ignore offene
+    cSpell:ignore flamme
+    cSpell:ignore maske
+    cSpell:ignore gehoerschutz
+    cSpell:ignore allgemeines
+    cSpell:ignore gebotszeichen
+
 Risk Assessment
 ---------------
 
@@ -36,10 +65,6 @@ users:
 - EN 50156 (Furnaces)
 - etc ...
 
-A list of standards that might fit to the target application can be found here:
-
-- https://www.mpoweruk.com/standards.htm
-
 Standards
 ---------
 
@@ -54,7 +79,6 @@ similar ones should be regarded:
 
 Recommended readings:
 
-- http://www.mpoweruk.com
 - http://batteryuniversity.com
 
 Safety Instructions Before Using |foxbms|

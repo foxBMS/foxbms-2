@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,13 +43,13 @@
  * @file    interlock.h
  * @author  foxBMS Team
  * @date    2020-02-24 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup DRIVERS
  * @prefix  ILCK
  *
  * @brief   Headers for the driver for the interlock.
- *
+ * @details TODO
  */
 
 #ifndef FOXBMS__INTERLOCK_H_
@@ -106,8 +106,8 @@ typedef struct {
     ILCK_STATE_REQUEST_e statereq;     /*!< current state request made to the state machine */
     ILCK_STATEMACH_e state;            /*!< state of Driver State Machine */
     ILCK_STATEMACH_SUB_e substate;     /*!< current substate of the state machine */
-    ILCK_STATEMACH_e laststate;        /*!< previous state of the state machine */
-    ILCK_STATEMACH_SUB_e lastsubstate; /*!< previous substate of the state machine */
+    ILCK_STATEMACH_e lastState;        /*!< previous state of the state machine */
+    ILCK_STATEMACH_SUB_e lastSubstate; /*!< previous substate of the state machine */
     uint32_t ErrRequestCounter;        /*!< counts the number of illegal requests to the LTC state machine */
     uint8_t triggerentry;              /*!< counter for re-entrance protection (function running flag) */
     uint8_t counter;                   /*!< general purpose counter */

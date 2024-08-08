@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,12 +43,13 @@
  * @file    test_soa.c
  * @author  foxBMS Team
  * @date    2020-04-01 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
- * @brief   Tests for SOA module responsible for the current, voltage and temperature checking of the safe operating area.
+ * @brief   Tests for SOA module responsible for the current, voltage and
+ *          temperature checking of the safe operating area.
  *
  */
 
@@ -58,10 +59,11 @@
 #include "Mockcontactor.h"
 #include "Mockdatabase.h"
 #include "Mockdiag.h"
+#include "Mockfoxmath.h"
 #include "Mocksoa_cfg.h"
 
-#include "foxmath.h"
 #include "soa.h"
+#include "test_assert_helper.h"
 
 /*========== Unit Testing Framework Directives ==============================*/
 TEST_INCLUDE_PATH("../../src/app/application/bms")
@@ -82,7 +84,87 @@ void setUp(void) {
 void tearDown(void) {
 }
 
-void testDummy(void) {
+/*========== Test Cases =====================================================*/
+/**
+ * @brief   Testing function SOA_CheckVoltages
+ * @details The following cases will be tested:
+ *          - Argument validation:
+ *            - AT1/1: NULL_PTR for pMinimumMaximumCellVoltages &rarr; assert
+ *          - Routine validation:
+ *            - RT1/x: TODO
+ */
+void testSOA_CheckVoltages(void) {
+    /* ======= Assertion tests ============================================= */
+    DATA_BLOCK_MIN_MAX_s pMinimumMaximumCellVoltages = {.header.uniqueId = DATA_BLOCK_ID_MIN_MAX};
+    /* ======= AT1/1: Assertion test */
+    TEST_ASSERT_FAIL_ASSERT(SOA_CheckVoltages(NULL_PTR));
+
+    /* ======= Routine tests =============================================== */
+    /* ======= RT1/x: Test implementation */
+    for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
+        DIAG_Handler_ExpectAndReturn(
+            DIAG_ID_CELL_VOLTAGE_OVERVOLTAGE_MSL, DIAG_EVENT_OK, DIAG_STRING, s, DIAG_HANDLER_RETURN_OK);
+        DIAG_Handler_ExpectAndReturn(
+            DIAG_ID_CELL_VOLTAGE_OVERVOLTAGE_RSL, DIAG_EVENT_OK, DIAG_STRING, s, DIAG_HANDLER_RETURN_OK);
+        DIAG_Handler_ExpectAndReturn(
+            DIAG_ID_CELL_VOLTAGE_OVERVOLTAGE_MOL, DIAG_EVENT_OK, DIAG_STRING, s, DIAG_HANDLER_RETURN_OK);
+
+        DIAG_Handler_ExpectAndReturn(
+            DIAG_ID_CELL_VOLTAGE_UNDERVOLTAGE_MOL, DIAG_EVENT_NOT_OK, DIAG_STRING, s, DIAG_HANDLER_RETURN_OK);
+        DIAG_Handler_ExpectAndReturn(
+            DIAG_ID_CELL_VOLTAGE_UNDERVOLTAGE_RSL, DIAG_EVENT_NOT_OK, DIAG_STRING, s, DIAG_HANDLER_RETURN_OK);
+        DIAG_Handler_ExpectAndReturn(
+            DIAG_ID_CELL_VOLTAGE_UNDERVOLTAGE_MSL, DIAG_EVENT_NOT_OK, DIAG_STRING, s, DIAG_HANDLER_RETURN_OK);
+    }
+    /* ======= RT1/1: call function under test */
+    SOA_CheckVoltages(&pMinimumMaximumCellVoltages);
+
+    /* ======= RT1/1: test output verification */
+    /* TODO */
 }
 
-/*========== Test Cases =====================================================*/
+/**
+ * @brief   Testing function SOA_CheckTemperatures
+ * @details The following cases will be tested:
+ *          - Argument validation:
+ *            - AT1/2: NULL_PTR for pMinimumMaximumCellTemperatures &rarr; assert
+ *            - AT2/2: NULL_PTR for pCurrent &rarr; assert
+ *          - Routine validation:
+ *            - RT1/x: TODO
+ */
+void testSOA_CheckTemperatures(void) {
+    /* ======= Assertion tests ============================================= */
+    DATA_BLOCK_MIN_MAX_s pMinimumMaximumCellVoltages = {.header.uniqueId = DATA_BLOCK_ID_MIN_MAX};
+    DATA_BLOCK_PACK_VALUES_s pCurrent                = {.header.uniqueId = DATA_BLOCK_ID_PACK_VALUES};
+    int32_t i_current;
+
+    /* ======= AT1/2: Assertion test */
+    TEST_ASSERT_FAIL_ASSERT(SOA_CheckTemperatures(NULL_PTR, &pCurrent));
+    /* ======= AT2/2: Assertion test */
+    TEST_ASSERT_FAIL_ASSERT(SOA_CheckTemperatures(&pMinimumMaximumCellVoltages, NULL_PTR));
+
+    /* ======= Routine tests =============================================== */
+    /* ======= RT1/x: Test implementation */
+    for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
+        i_current = pCurrent.stringCurrent_mA[s];
+        BMS_GetCurrentFlowDirection_ExpectAndReturn(i_current, BMS_AT_REST);
+        DIAG_Handler_ExpectAndReturn(
+            DIAG_ID_TEMP_OVERTEMPERATURE_CHARGE_MSL, DIAG_EVENT_OK, DIAG_STRING, s, DIAG_HANDLER_RETURN_OK);
+        DIAG_Handler_ExpectAndReturn(
+            DIAG_ID_TEMP_OVERTEMPERATURE_CHARGE_RSL, DIAG_EVENT_OK, DIAG_STRING, s, DIAG_HANDLER_RETURN_OK);
+        DIAG_Handler_ExpectAndReturn(
+            DIAG_ID_TEMP_OVERTEMPERATURE_CHARGE_MOL, DIAG_EVENT_OK, DIAG_STRING, s, DIAG_HANDLER_RETURN_OK);
+        BMS_GetCurrentFlowDirection_ExpectAndReturn(i_current, BMS_AT_REST);
+        DIAG_Handler_ExpectAndReturn(
+            DIAG_ID_TEMP_UNDERTEMPERATURE_CHARGE_MSL, DIAG_EVENT_OK, DIAG_STRING, s, DIAG_HANDLER_RETURN_OK);
+        DIAG_Handler_ExpectAndReturn(
+            DIAG_ID_TEMP_UNDERTEMPERATURE_CHARGE_RSL, DIAG_EVENT_OK, DIAG_STRING, s, DIAG_HANDLER_RETURN_OK);
+        DIAG_Handler_ExpectAndReturn(
+            DIAG_ID_TEMP_UNDERTEMPERATURE_CHARGE_MOL, DIAG_EVENT_OK, DIAG_STRING, s, DIAG_HANDLER_RETURN_OK);
+    }
+    /* ======= RT1/1: call function under test */
+    SOA_CheckTemperatures(&pMinimumMaximumCellVoltages, &pCurrent);
+
+    /* ======= RT1/1: test output verification */
+    /* TODO */
+}

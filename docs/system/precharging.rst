@@ -24,8 +24,8 @@ components or weld shutting of the main contactor by limiting the inrush current
 As shown in :numref:`battery-system-precharging`, a precharge circuit consists
 of:
 
-* a precharge resistor to limit the inrush current
-* a switch or contactor in series to the precharge resistor to
+- a precharge resistor to limit the inrush current
+- a switch or contactor in series to the precharge resistor to
   activate/deactivate precharging
 
 .. figure:: img/battery-system-precharging.png
@@ -42,11 +42,11 @@ Operation modes
 
 Basically, a battery system has three operating modes.
 
-* *Off*: All contactors connecting the battery system with the application are
+- *Off*: All contactors connecting the battery system with the application are
   open.
-* *On*: All contactors connecting the battery system with the application are
+- *On*: All contactors connecting the battery system with the application are
   closed, i.e., power can be drawn from the system.
-* *Precharge*: The application is electrically connected to the battery system.
+- *Precharge*: The application is electrically connected to the battery system.
   The precharging contactor is closed to start the precharging process until
   the inrush current meets a defined threshold in the maximum specified time.
   If the application could be not precharged within the expected maximum time,

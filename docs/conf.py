@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 #
-# Copyright (c) 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -38,27 +37,25 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
+# pylint: skip-file
+
 import os
 import sys
 import time
 
-import sphinx_rtd_theme
-
-# pylint: skip-file
+import sphinx_rtd_theme  # noqa: F401
 
 sys.path = [
     os.path.abspath("."),
-    os.path.abspath("./../tools/gui"),
     os.path.abspath("./../tools/waf3-2.0.22-1241519b19b496207abef1f72bbf61c2/waflib"),
     os.path.abspath("./../tools/.waf3-2.0.22-1241519b19b496207abef1f72bbf61c2/waflib"),
     os.path.abspath("./../tools/waf-tools"),
-    os.path.abspath("./../tests/scripts/waf-tools/f_guidelines"),
     os.path.abspath("./../tests/scripts/waf-tools/f_hcg"),
 ] + sys.path
 
 project = "foxBMS 2"
 copyright = (
-    "2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten "
+    "2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten "
     "Forschung e.V. All rights reserved. See license section for further "
     "information"
 )
@@ -71,8 +68,6 @@ extensions = [
     "sphinx.ext.intersphinx",
     "sphinx.ext.napoleon",
     "sphinxcontrib.bibtex",
-    "sphinxcontrib.mermaid",
-    "sphinxcontrib.spelling",
 ]
 
 
@@ -101,36 +96,9 @@ numfig = True
 bibtex_bibfiles = ["references.bib"]
 bibtex_default_style = "alpha"
 
-spelling_lang = "en_US"
-tokenizer_lang = "en_US"
-spelling_word_list_filename = ["spelling_wordlist.txt"]
-spelling_ignore_pypi_package_names = False
-spelling_ignore_wiki_words = True
-spelling_show_suggestions = True
-spelling_exclude_patterns = [
-    "misc/bibliography.rst",
-    "general/team.rst",
-    "general/team-ad-sc.rst",
-    "general/team-dev.rst",
-    "general/team-former.rst",
-]
-# disable git contributor scanning in spelling module if no git repository
-try:
-    import git
-
-    try:
-        _ = git.Repo(".").git_dir
-        spelling_ignore_contributor_names = True
-    except git.exc.InvalidGitRepositoryError:
-        spelling_ignore_contributor_names = False
-except ImportError:
-    spelling_ignore_contributor_names = False
-
 autodoc_mock_imports = ["waflib"]
 
-
 linkcheck_ignore = [
-    r".*_static\/doxygen",
     "https://docs.foxbms.org",
     r"https:\/\/iisb-foxbms\.iisb\.fraunhofer\.de\/.*[\d|z]\/",
     # linkcheck can not handle the line highlighting

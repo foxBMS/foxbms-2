@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 #
-# Copyright (c) 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -61,7 +60,7 @@ def get_git_root(path: str) -> str:
     """helper function to find the repository root
 
     Args:
-        path (string): path of test_f_guidelines
+        path (string): path of file in git repository
 
     Returns:
         root (string): root path of the git repository
@@ -114,7 +113,8 @@ if not ax_install:
     sys.exit("Could not find an Axivion installation.")
 
 sys.path.append(ax_install)
-from bauhaus import rfg  # pylint: disable=import-error,wrong-import-position
+# pylint: disable-next=import-error,wrong-import-position
+from bauhaus import rfg  # noqa: E402
 
 
 class RfgParsing:
@@ -226,12 +226,12 @@ def main():
     args.rfg_file = Path(args.rfg_file)
     if not args.rfg_file.is_file():
         sys.exit(f"Could not find input file '{args.rfg_file.resolve()}'.")
-    logging.debug(f"Found input file '{args.rfg_file.resolve()}'.")
+    logging.debug("Found input file '%s'.", args.rfg_file.resolve())
     logging.info("Analysing rfg file...")
     rfg_analysis = RfgParsing(rfg.Graph(args.rfg_file.resolve()))
     rfg_analysis.export_dependencies(ignore=args.ignore_locs)
     logging.info("Done...")
-    logging.info(f"Saving output to '{args.out.resolve()}'")
+    logging.info("Saving output to '%s'", args.out.resolve())
     rfg_analysis.save(args.out.resolve())
     logging.info("Done...")
 

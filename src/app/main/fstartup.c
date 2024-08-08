@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,13 +43,12 @@
  * @file    fstartup.c
  * @author  foxBMS Team
  * @date    2020-07-09 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
- * @ingroup GENERAL
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
+ * @ingroup MAIN
  * @prefix  STU
  *
  * @brief   Startup code
- *
  * @details This file contains startup code mostly identical to TI code.
  *          Function "_c_int00" is extracted from file "HL_sys_startup.c" and
  *          function "STU_GetResetSourceWithoutFlagReset" is taken from file
@@ -121,7 +120,7 @@
  * @brief   Handler for a failed PLL lock
  * @details If the PLL can not be locked the, this function shall be called to
  *          ensure that the application no further starts.
- * @return  This function never returns */
+ *          This function never returns */
 static void STU_HandlePllLockFail(void);
 
 /**
@@ -131,6 +130,11 @@ static void STU_HandlePllLockFail(void);
  * @return  returns reset reason
  */
 static resetSource_t STU_GetResetSourceWithoutFlagReset(void);
+
+#ifdef UNITY_UNIT_TEST
+extern void __TI_auto_init(void) {
+}
+#endif
 
 /*========== Static Function Implementations ================================*/
 
@@ -165,7 +169,8 @@ resetSource_t STU_GetResetSourceWithoutFlagReset(void) {
         /* Reset caused due Debug reset request */
         rst_source = DEBUG_RESET;
     } else if ((SYS_EXCEPTION & (uint32)CPU0_RESET) != 0U) {
-        /* Reset caused due to CPU0 reset. CPU reset can be caused by CPU self-test completion, or by toggling the "CPU RESET" bit of the CPU Reset Control Register. */
+        /* Reset caused due to CPU0 reset. CPU reset can be caused by CPU self-test completion, or by toggling the "CPU
+         * RESET" bit of the CPU Reset Control Register. */
         rst_source = CPU0_RESET;
     } else {
         /* No_reset occurred. */
@@ -205,7 +210,7 @@ void _c_int00(void) {
                 /* Put system in a safe state */
                 STU_HandlePllLockFail();
             }
-
+            /* FALLTHRU */
         case DEBUG_RESET:
         case EXT_RESET:
 
@@ -216,14 +221,14 @@ void _c_int00(void) {
 
             /* Enable CPU Event Export */
             /* This allows the CPU to signal any single-bit or double-bit errors detected
-         * by its ECC logic for accesses to program flash or data RAM.
-         */
+             * by its ECC logic for accesses to program flash or data RAM.
+             */
             _coreEnableEventBusExport_();
 
             /* Check if there were ESM group3 errors during power-up.
-         * These could occur during eFuse auto-load or during reads from flash OTP
-         * during power-up. Device operation is not reliable and not recommended
-         * in this case. */
+             * These could occur during eFuse auto-load or during reads from flash OTP
+             * during power-up. Device operation is not reliable and not recommended
+             * in this case. */
             if ((esmREG->SR1[2]) != 0U) {
                 esmGroup3Notification(esmREG, esmREG->SR1[2]);
             }
@@ -253,8 +258,8 @@ void _c_int00(void) {
         case CPU0_RESET:
             /* Enable CPU Event Export */
             /* This allows the CPU to signal any single-bit or double-bit errors detected
-         * by its ECC logic for accesses to program flash or data RAM.
-         */
+             * by its ECC logic for accesses to program flash or data RAM.
+             */
             _coreEnableEventBusExport_();
             break;
 
@@ -270,8 +275,10 @@ void _c_int00(void) {
     /* initialize global variable and constructors */
     __TI_auto_init();
 
+#ifndef UNITY_UNIT_TEST
     /* call the application */
     main();
+#endif
 
     /* AXIVION Next Codeline Style MisraC2012-21.8: exit is called as in generated code by TI */
     exit(0);

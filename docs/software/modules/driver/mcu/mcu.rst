@@ -12,8 +12,8 @@ Module Files
 Driver
 ^^^^^^
 
-- ``src/app/driver/mcu/mcu.c`` (`API <../../../../_static/doxygen/src/html/mcu_8c.html>`__, `source <../../../../_static/doxygen/src/html/mcu_8c_source.html>`__)
-- ``src/app/driver/mcu/mcu.h`` (`API <../../../../_static/doxygen/src/html/mcu_8h.html>`__, `source <../../../../_static/doxygen/src/html/mcu_8h_source.html>`__)
+- ``src/app/driver/mcu/mcu.c``
+- ``src/app/driver/mcu/mcu.h``
 
 Configuration
 ^^^^^^^^^^^^^
@@ -23,7 +23,7 @@ Configuration
 Unit Test
 ^^^^^^^^^
 
-- ``tests/unit/app/driver/mcu/test_mcu.c`` (`API <../../../../_static/doxygen/tests/html/test__mcu_8c.html>`__, `source <../../../../_static/doxygen/tests/html/test__mcu_8c_source.html>`__)
+- ``tests/unit/app/driver/mcu/test_mcu.c``
 
 Description
 -----------

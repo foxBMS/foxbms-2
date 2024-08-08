@@ -6,9 +6,6 @@
 TI ARM CGT Console Colorizer Tool
 =================================
 
-.. spelling::
-    Colorizer
-
 The tool is located in ``tools/waf-tools``.
 
 Tool Documentation

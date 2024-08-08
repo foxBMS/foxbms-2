@@ -8,9 +8,9 @@ Python Coding Guidelines
 
 These coding guidelines **MUST** be applied to all ``Python`` files.
 
-The source files **MUST** be successfully checked by running the Waf command
-``check_guidelines`` before files can be merged into the master branch of the
-repository.
+
+The source files **MUST** be successfully checked by running the ``pre-commit``
+check before files can be merged into the master branch of the repository.
 
 The following rules generally apply and follow the naming schema
 ``PYTHON:<ongoing-number>``.
@@ -74,8 +74,8 @@ Uniform formatting makes code easier to read to all developers.
 
 .. admonition:: Python formatting rules
 
-    Python source files are checked for correct formatting by ``black``. The
-    ``black`` configuration can be found in ``conf/fmt/pyproject.toml``.
+    Python source files are checked for correct formatting by ``ruff``.
+    The ``ruff`` configuration can be found in ``pyproject.toml``.
 
 .. _rule_python_spa:
 
@@ -116,7 +116,7 @@ platform specific code.
 -------------------------------------------
 
 ``includes`` and ``source`` or might be less readable if they are split over
-multiple lines (as ``black`` would format it like this on default). Therefore
+multiple lines (as ``ruff`` would format it like this on default). Therefore
 ``includes`` and ``source`` might be written as follows, if it increases
 readability:
 
@@ -127,9 +127,9 @@ readability:
     :caption: Format ``includes`` in ``wscript``
     :name: format-includes-in-wscript
 
-- ``# fmt: off`` disables black on formatting starting from that line and
+- ``# fmt: off`` disables formatting starting from that line and
   ``# pylint: disable=line-too-long`` disables the pylint error message
   starting from that line.
-- ``# fmt: on`` re-activates black on formatting starting from that line and
+- ``# fmt: on`` re-activates on formatting starting from that line and
   ``# pylint: enable=line-too-long`` re-activates the pylint error message
   starting from that line.

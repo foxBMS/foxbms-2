@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 #
-# Copyright (c) 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -40,8 +39,10 @@
 
 """Host and SPA build of the unit test suite"""
 
-# pylint: disable=missing-function-docstring
+# pylint: disable=too-many-locals
 
+import collections
+import hashlib
 import os
 from pathlib import Path
 
@@ -51,6 +52,18 @@ from waflib.Configure import ConfigurationContext
 from waflib.Node import Node
 from waflib.Options import OptionsContext
 from waflib.Tools import waf_unit_test
+from waflib.Utils import unversioned_sys_platform
+
+
+def sorting_error(unit_under_test, test_case, setup, key):
+    """Display an error message"""
+    err_msg = (
+        f"File under test: '{unit_under_test}'\n"
+        f"  Test case: '{test_case}'\n\n"
+        f"  key: '{key}': should be:"
+        f"  {sorted(setup[key])}\n\n"
+    )
+    return err_msg
 
 
 def get_bld(self: Node):
@@ -82,6 +95,7 @@ COMMON_CFLAGS = [
     "-DGNU_COMPILER",
     "-DUNITY_UNIT_TEST",
     "-DUNITY_INCLUDE_EXEC_TIME",
+    "-DUNITY_USE_COMMAND_LINE_ARGS",
     "-std=c11",
     "-Wextra",
     "-Wall",
@@ -106,6 +120,7 @@ for x in VARIANTS:
 
 def options(opt: OptionsContext):
     """Available build options"""
+    opt.top = "."
     opt.load("compiler_c")
     opt.load("waf_unit_test")
 
@@ -144,6 +159,16 @@ def options(opt: OptionsContext):
 
 def configure(cnf: ConfigurationContext):
     """configures gcc for the host build (gcc) and cafeCC for the SPA build."""
+    bauhaus_config = os.getenv("BAUHAUS_CONFIG", "")
+    if not bauhaus_config:
+        cnf.fatal("Environment variable 'BAUHAUS_CONFIG' must be set.")
+
+    expected = (Path(cnf.path.abspath()) / "axivion").as_posix()
+    actual = Path(bauhaus_config).as_posix()
+
+    if expected != actual:
+        cnf.fatal(f"Environment variable 'BAUHAUS_CONFIG' must be set to {expected}.")
+
     # copy environments
     cnf.setenv("host")  # gcc (native)
     cnf.setenv("axivion")  # cafeCC (SPA)
@@ -179,12 +204,19 @@ def configure(cnf: ConfigurationContext):
 
     cnf.options.check_c_compiler = "gcc"
     cnf.load("compiler_c")
-    cnf.env.append_unique("LINKFLAGS", ["-echo", "-larg", "--show_plan"])
 
-    cnf.find_program("axivion_config", var="AXIVION_CONFIG")
-    cnf.find_program("cafecc", var="AXIVION_CC")
-    cnf.find_program("irdump", var="AXIVION_IR_DUMP")
+    try:
+        cnf.find_program("axivion_config", var="AXIVION_CONFIG")
+        cnf.find_program("cafecc", var="AXIVION_CC")
+        cnf.find_program("irdump", var="AXIVION_IR_DUMP")
+    except cnf.errors.ConfigurationError as err:
+        Logs.warn(
+            "Could not configure Axivion build, so it will not be "
+            f"available. Error:\n\n{err}\n"
+        )
+        return
     cnf.env.append_unique("AXIVION_IR_DUMP_ARGS", "-m")
+    cnf.env.append_unique("LINKFLAGS", ["-echo", "-larg", "--show_plan"])
 
     cnf.env.CC = cnf.env.AXIVION_CC
     cnf.env.LINK_CC = cnf.env.AXIVION_CC
@@ -195,11 +227,18 @@ def configure(cnf: ConfigurationContext):
     cnf.check(features="c cprogram", fragment=fragment)
 
 
+# pylint: disable=too-many-branches,too-many-statements
 def build(bld: BuildContext):
     """High level definition of the build details"""
     if not bld.variant:
         supported_cmds = ", ".join([f"{bld.cmd}_{i}" for i in VARIANTS]).strip()
         bld.fatal(f"supported build commands: {supported_cmds}")
+
+    if bld.variant == "axivion" and not bld.env.AXIVION_IR_DUMP:
+        bld.fatal(
+            "Axivion support was not successfully configured, "
+            "therefore it is not available."
+        )
 
     bld.env = bld.all_envs[bld.variant]
 
@@ -235,11 +274,17 @@ def build(bld: BuildContext):
         target=c_exception,
     )
 
-    units_under_test_file: dict = bld.path.find_node("build.json")
-    units_under_test = units_under_test_file.read_json()
+    units_under_test_file: Node = bld.path.find_node("build.json")
+    units_under_test: dict = units_under_test_file.read_json()
     err = 0
     listed_files = []
     for k, v in units_under_test.items():
+        # maybe the unit test cannot be performed on the platform the tests
+        # are built, so just exclude the test and print a warning
+        if skip_platforms := units_under_test.get("skip", ""):
+            if unversioned_sys_platform() in skip_platforms:
+                Logs.warn(f"Test '{k}' is not available on this platform.")
+                continue
         if not root.find_node(k):
             err += 1
             Logs.error(f"Could not find source file '{k}'.")
@@ -247,59 +292,152 @@ def build(bld: BuildContext):
             listed_files.append(k)
     if err:
         bld.fatal("Missing source files.")
+    # check that everything is well sorted
 
+    for k, v in units_under_test.items():
+        for i, test in enumerate(v):
+            if test.get("defines", []) != sorted(test.get("defines", [])):
+                bld.fatal(sorting_error(k, i, test, "defines"))
+            if test.get("include", []) != sorted(test.get("include", [])):
+                bld.fatal(sorting_error(k, i, test, "include"))
+            if test.get("sources", []) != sorted(test.get("sources", [])):
+                bld.fatal(sorting_error(k, i, test, "sources"))
     files = []
-    for i in root.ant_glob("src/app/**/*.c"):
+    for i in root.ant_glob(
+        "src/app/**/*.c src/opt/cells/config/*.c",
+        excl=[
+            "**/vendor/**",
+            "**/fs8x_driver/**",  # vendored SBC files
+        ]
+        + [str(root.find_node("src/app/driver/afe/maxim/common/mxm_register_map.h"))],
+    ):
         files.append(Path(i.path_from(root)).as_posix())
     if diff := set(files) - set(listed_files):
         bld.fatal(
             "The files in the sources tree do not match the files defined "
             f"in the build configuration '{units_under_test_file.relpath()}':\n{', '.join(diff)}"
         )
+
+    # all test files shall be included somewhere in the source tree, otherwise
+    # the test file is not compiled and therefore not tested
+    relevant_test_files = []
+
+    for i in root.ant_glob(
+        "tests/unit/**/test_*.c",
+        excl=[
+            # these are the dummy files, see
+            # tests/unit/app/driver/afe/adi/common/ades183x/README.md
+            "tests/unit/app/driver/afe/adi/common/ades183x/**",
+            "tests/unit/support/**",
+        ],
+        quiet=True,
+    ):
+        relevant_test_files.append(Path(i.path_from(root)).as_posix())
+
+    for i in relevant_test_files:
+        found = False
+        for k, tests in units_under_test.items():
+            for test in tests:
+                if i in test.get("sources", []):
+                    found = True
+                    break
+        if not found:
+            txt = (Path(root.abspath()) / Path(i)).read_text(encoding="utf-8")
+            if "/* this is a dummy test file */" not in txt:
+                bld.fatal(f"Test file '{i}' is not listed in any build instruction.")
+    test_runners = []
+    test_implementation_files = []
     for i, (k, v) in enumerate(units_under_test.items()):
-        if not k.endswith(  # TODO remove this once it is working for all tests
-            (
-                "/adc.c",
-                "/adi_ades1830_gpio_voltages.c",
-                "/crc.c",
-                "/foxmath.c",
-                "/algorithm.c",
-                "/algorithm_cfg.c",
-                "/moving_average.c",
-                "/soc_counting.c",
-                "/soc_debug.c",
-                "/soc_none.c",
-                "/soe_counting.c",
-                "/soe_debug.c",
-                "/os.c",
+        for test in v:
+            # check if the test file shall be ignored
+            if test.get("ignore", False):
+                if not test.get("_comment", ""):
+                    bld.fatal(
+                        "Ignored test files require an explanation "
+                        f"comment (test file {k})."
+                    )
+                continue
+
+            test_base_name = k.rsplit("/", maxsplit=1)
+            test_name = ""
+            test_runner = ""
+            unit_under_test = f"{test_base_name[1].rsplit('.', maxsplit=1)[0]}"
+            expected_unit_under_test_infix = (
+                test.get("runner-alias", None) or unit_under_test
             )
-        ):
-            continue
-        test_base_name = k.rsplit("/", maxsplit=1)
-        test_runner = "/".join([f"test_{test_base_name[1]}.{i}.exe"])
-        sources = [root.find_node(i) for i in v["sources"]]
-        defines = v.get("defines", [])
-        bld(
-            features="c",
-            source=sources,
-            defines=defines,
-            use=[unity, cmock, c_exception],
-            includes=[inc_c_exception, inc_cmock, inc_unity]
-            + [root.find_dir(i) for i in v["include"]],
-            target=f"objects-{i}",
-            idx=i,
-        )
-        features = "c cprogram"
-        if bld.variant == "host":
-            features += " test"
-        bld(
-            features=features,
-            use=[f"objects-{i}", unity, cmock, c_exception],
-            includes=[inc_c_exception, inc_cmock, inc_unity]
-            + [root.find_dir(i) for i in v["include"]],
-            target=bld.path.find_or_declare(test_runner),
-            idx=i,
-        )
+            expected_test_name = f"test_{expected_unit_under_test_infix}.c"
+            expected_runner_name = f"test_{expected_unit_under_test_infix}_runner.c"
+            for source in test["sources"]:
+                if source.endswith(f"/{expected_runner_name}"):
+                    test_runners.append(source)
+                    if not test_runner:
+                        test_runner = source
+                if source.endswith(f"/{expected_test_name}"):
+                    test_implementation_files.append(source)
+                    if not test_name:
+                        test_name = source
+            if not test_runner:
+                bld.fatal(
+                    f"DUT: {k}: Could not find expected runner file "
+                    f"'{expected_runner_name}' in sources list"
+                )
+            if not test_name:
+                bld.fatal(
+                    f"DUT: {k}: Could not find expected test file "
+                    f"'{expected_test_name}' in sources list"
+                )
+            # to avoid recompilations, but still give every test binary an
+            # unique name, we hash the filename into a integer
+            run_id = int.from_bytes(hashlib.md5(test_runner.encode()).digest(), "big")
+            test_runner_out = f"{test_runner}.{run_id}.exe"
+            sources = []
+            for source in test["sources"]:
+                found = root.find_node(source)
+                if not found:
+                    bld.fatal(
+                        f"Could not find source '{source}' defined for '{test_runner}'."
+                    )
+                sources.append(found)
+            defines = test.get("defines", [])
+            cflags = test.get("flags", [])
+            bld(
+                features="c",
+                source=sources,
+                defines=defines,
+                cflags=cflags,
+                use=[unity, cmock, c_exception],
+                includes=[inc_c_exception, inc_cmock, inc_unity]
+                + [root.find_dir(i) for i in test["include"]],
+                target=f"objects-{run_id}",
+                idx=run_id,
+            )
+            features = "c cprogram"
+            if bld.variant == "host":
+                features += " test"
+            bld(
+                features=features,
+                use=[f"objects-{run_id}", unity, cmock, c_exception],
+                includes=[inc_c_exception, inc_cmock, inc_unity]
+                + [root.find_dir(i) for i in test["include"]],
+                target=bld.path.find_or_declare(test_runner_out),
+                idx=run_id,
+            )
 
     if bld.variant == "host":
         bld.add_post_fun(waf_unit_test.summary)
+
+    duplicate_test_runners = [
+        item for item, count in collections.Counter(test_runners).items() if count > 1
+    ]
+    if duplicate_test_runners:
+        bld.fatal(f"Some runners are listed more than once:\n{duplicate_test_runners}")
+
+    duplicate_test_implementation_files = [
+        item
+        for item, count in collections.Counter(test_implementation_files).items()
+        if count > 1
+    ]
+    if duplicate_test_implementation_files:
+        bld.fatal(
+            f"Some runners are listed more than once:\n{duplicate_test_implementation_files}"
+        )

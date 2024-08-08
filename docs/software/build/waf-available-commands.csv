@@ -2,6 +2,8 @@ Command/Option;             Description
 ``build_all``;              Shortcut to run all available build commands
 ``build_bin``;              Builds the binaries
 ``build_docs``;             Builds the documentation
+``build_doxygen_src``;      Builds the doxygen documentation for the sources
+``build_doxygen_tests``;    Builds the doxygen documentation for the tests
 ``build_unit_test``;        Builds and runs all unit tests for the embedded sources
 ``clean_all``;              Shortcut to run all available clean commands
 ``clean_bin``;              Cleans all binaries

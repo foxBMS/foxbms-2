@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,15 +43,13 @@
  * @file    mxm_registry.h
  * @author  foxBMS Team
  * @date    2020-07-16 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup DRIVERS
  * @prefix  MXM
  *
  * @brief   Functions in order to have a registry of monitoring ICs
- *
  * @details Monitoring registry stores information about the connected ICs.
- *
  */
 
 #ifndef FOXBMS__MXM_REGISTRY_H_
@@ -129,7 +127,7 @@ extern void MXM_MonRegistryParseStatusFmeaIntoDevices(MXM_MONITORING_INSTANCE_s 
  * @details     If a monitoring device is reset, it will set the ALRTRST bit in
  *              #MXM_REG_STATUS1. This should not happen during normal operation.
  *              If this happens, initialization of the devices is lost and has
- *              to be restored. This is done by reseting the state machine.
+ *              to be restored. This is done by resetting the state machine.
  * @param[in,out]   kpkState    state-pointer
  * @returns true if a device has been reset, false otherwise
  */

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,13 +43,13 @@
  * @file    doxygen_src.h
  * @author  foxBMS Team
  * @date    2019-06-02 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup DOXYGEN
  * @prefix  DX
  *
  * @brief   Mainpage doxygen documentation
- *
+ * @details TODO
  */
 
 #ifndef FOXBMS__DOXYGEN_SRC_H_
@@ -61,25 +61,46 @@
  * <h3>Configuration Files</h3>
  * - @ref BATTERY_CELL_CONFIGURATION
  * - @ref BATTERY_SYSTEM_CONFIGURATION
+ * - @ref ALGORITHMS
  * - @ref ALGORITHMS_CONFIGURATION
+ * - @ref APPLICATION
  * - @ref APPLICATION_CONFIGURATION
+ * - @ref DRIVERS
  * - @ref DRIVERS_CONFIGURATION
+ * - @ref ENGINE
  * - @ref ENGINE_CONFIGURATION
  * - @ref TASK_CONFIGURATION
+ * - @ref MAIN
+ * - @ref MAIN_CONFIGURATION
+ * - @ref OS
  *
  * @defgroup BATTERY_CELL_CONFIGURATION     Battery cell configuration
  *
  * @defgroup BATTERY_SYSTEM_CONFIGURATION   Battery system configuration
  *
- * @defgroup ALGORITHMS_CONFIGURATION       Algorithm configuration
+ * @defgroup ALGORITHMS                     Algorithms
+ * @defgroup ALGORITHMS_CONFIGURATION       Algorithm configurations
  *
- * @defgroup APPLICATION_CONFIGURATION      Application configuration
+ * @defgroup APPLICATION                    Application
+ * @defgroup APPLICATION_CONFIGURATION      Application configurations
  *
- * @defgroup DRIVERS_CONFIGURATION          Driver configuration
+ * @defgroup DRIVERS                        Driver
+ * @defgroup DRIVERS_CONFIGURATION          Driver configurations
  *
- * @defgroup ENGINE_CONFIGURATION           Engine configuration
+ * @defgroup ENGINE                         Engine
+ * @defgroup ENGINE_CONFIGURATION           Engine configurations
  *
+ * @defgroup TASK                           Task
  * @defgroup TASK_CONFIGURATION             Task configuration
+ *
+ * @defgroup MAIN                           Main
+ * @defgroup MAIN_CONFIGURATION             Main configuration
+ *
+ * @defgroup OS                             Operating system
+ *
+ * @defgroup STATE_MACHINE                  State machines (dummy group)
+ * @defgroup DOXYGEN                        Doxygen configuration (dummy group)
+ *
  */
 
 /*========== Includes =======================================================*/

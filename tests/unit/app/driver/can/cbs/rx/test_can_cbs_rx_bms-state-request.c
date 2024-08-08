@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,8 +43,8 @@
  * @file    test_can_cbs_rx_bms-state-request.c
  * @author  foxBMS Team
  * @date    2021-07-28 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -58,6 +58,7 @@
 #include "Mockbal_cfg.h"
 #include "Mockbms_cfg.h"
 #include "Mockcan.h"
+#include "Mockcan_helper.h"
 #include "Mockdatabase.h"
 #include "Mockdiag.h"
 #include "Mockfoxmath.h"
@@ -69,7 +70,6 @@
 
 #include "can_cbs_rx.h"
 #include "can_cfg_rx-message-definitions.h"
-#include "can_helper.h"
 #include "test_assert_helper.h"
 
 #include <stdbool.h>
@@ -112,6 +112,12 @@ static DATA_BLOCK_AEROSOL_SENSOR_s can_tableAerosolSensor = {.header.uniqueId = 
 
 OS_QUEUE imd_canDataQueue = NULL_PTR;
 
+uint64_t testSignalData[5u] = {0u, 1u, 2u, 3u, 0x10000u};
+
+uint64_t testMessageData = UINT64_MAX;
+
+uint64_t testMessageDataZero = 0u;
+
 const CAN_SHIM_s can_kShim = {
     .pQueueImd             = &imd_canDataQueue,
     .pTableCellVoltage     = &can_tableCellVoltages,
@@ -132,6 +138,8 @@ const CAN_SHIM_s can_kShim = {
     .pTableAerosolSensor   = &can_tableAerosolSensor,
 };
 
+uint8_t testCanData[CAN_MAX_DLC] = {0x01u, 0x23u, 0x45u, 0x67u, 0x89u, 0xABu, 0xCDu, 0xEFu};
+
 /*========== Setup and Teardown =============================================*/
 void setUp(void) {
     can_tableStateRequest.previousStateRequestViaCan = 0u;
@@ -144,5 +152,279 @@ void tearDown(void) {
 }
 
 /*========== Test Cases =====================================================*/
-void testDummy(void) {
+/**
+ * @brief   Testing CANTX_BmsStateRequest
+ * @details The following cases need to be tested:
+ *          - Argument validation:
+ *            - AT1/6: message id invalid -> assert
+ *            - AT2/6: message id type invalid -> assert
+ *            - AT3/6: message dlc invalid -> assert
+ *            - AT4/6: message endianness invalid -> assert
+ *            - AT5/6: NULL_PTR for kpkCanData -> assert
+ *            - AT6/6: NULL_PTR for kpkCanShim -> assert
+ *          - Routine validation:
+ *            - RT1/1: All functions are called successfully
+ */
+void testCANRX_BmsStateRequest(void) {
+    /* ======= Assertion tests ============================================= */
+    CAN_MESSAGE_PROPERTIES_s testMessage = {
+        .id         = CAN_MAX_11BIT_ID,
+        .idType     = CAN_STANDARD_IDENTIFIER_11_BIT,
+        .dlc        = 8u,
+        .endianness = CAN_BIG_ENDIAN,
+    };
+    /* ======= AT1/6 ======= */
+    TEST_ASSERT_FAIL_ASSERT(CANRX_BmsStateRequest(testMessage, testCanData, &can_kShim));
+    testMessage.id = CANRX_BMS_STATE_REQUEST_ID;
+    /* ======= AT2/6 ======= */
+    testMessage.idType = CAN_EXTENDED_IDENTIFIER_29_BIT;
+    TEST_ASSERT_FAIL_ASSERT(CANRX_BmsStateRequest(testMessage, testCanData, &can_kShim));
+    testMessage.idType = CAN_STANDARD_IDENTIFIER_11_BIT;
+    /* ======= AT3/6 ======= */
+    testMessage.dlc = 0u;
+    TEST_ASSERT_FAIL_ASSERT(CANRX_BmsStateRequest(testMessage, testCanData, &can_kShim));
+    testMessage.dlc = CAN_MAX_DLC;
+    /* ======= AT4/6 ======= */
+    testMessage.endianness = CAN_LITTLE_ENDIAN;
+    TEST_ASSERT_FAIL_ASSERT(CANRX_BmsStateRequest(testMessage, testCanData, &can_kShim));
+    testMessage.endianness = CAN_BIG_ENDIAN;
+    /* ======= AT5/6 ======= */
+    TEST_ASSERT_FAIL_ASSERT(CANRX_BmsStateRequest(testMessage, NULL_PTR, &can_kShim));
+    /* ======= AT6/6 ======= */
+    TEST_ASSERT_FAIL_ASSERT(CANRX_BmsStateRequest(testMessage, testCanData, NULL_PTR));
+
+    /* ======= Routine tests =============================================== */
+    /* ======= RT1/1: Test implementation */
+    DIAG_Handler_IgnoreAndReturn(DIAG_HANDLER_RETURN_OK);
+    SYSM_ClearAllTimingViolations_Ignore();
+    OS_CheckTimeHasPassed_IgnoreAndReturn(false);
+    BAL_GetInitializationState_IgnoreAndReturn(STD_OK);
+    BAL_SetStateRequest_IgnoreAndReturn(BAL_OK);
+    BAL_SetBalancingThreshold_Ignore();
+
+    DATA_Read1DataBlock_ExpectAndReturn(can_kShim.pTableStateRequest, STD_OK);
+    CAN_RxGetMessageDataFromCanData_Expect(&testMessageDataZero, testCanData, CANRX_BMS_STATE_REQUEST_ENDIANNESS);
+    CAN_RxGetMessageDataFromCanData_ReturnThruPtr_pMessage(&testMessageData);
+    CAN_RxGetSignalDataFromMessageData_Expect(
+        testMessageData, 1u, 2u, &testSignalData[0u], CANRX_BMS_STATE_REQUEST_ENDIANNESS);
+    CAN_RxGetSignalDataFromMessageData_Expect(
+        testMessageData, 2u, 1u, &testSignalData[0u], CANRX_BMS_STATE_REQUEST_ENDIANNESS);
+    CAN_RxGetSignalDataFromMessageData_Expect(
+        testMessageData, 8u, 1u, &testSignalData[0u], CANRX_BMS_STATE_REQUEST_ENDIANNESS);
+    CAN_RxGetSignalDataFromMessageData_Expect(
+        testMessageData, 23u, 8u, &testSignalData[0u], CANRX_BMS_STATE_REQUEST_ENDIANNESS);
+    DATA_Write1DataBlock_ExpectAndReturn(can_kShim.pTableStateRequest, STD_OK);
+    /* ======= RT1/1: Call function under test */
+    uint32_t testResult = CANRX_BmsStateRequest(testMessage, testCanData, &can_kShim);
+    /* ======= RT1/1: Test output verification */
+    TEST_ASSERT_EQUAL(0u, testResult);
+}
+
+/**
+ * @brief   Testing CANRX_ClearAllPersistentFlags
+ * @details The following cases need to be tested:
+ *          - Argument validation:
+ *            - None
+ *          - Routine validation:
+ *            - RT1/2: No clearing of flags requested
+ *            - RT2/2: Clearing of flags requested 1 String
+ */
+void testCANRX_ClearAllPersistentFlags(void) {
+    /* ======= Routine tests =============================================== */
+    /* ======= RT1/2: Test implementation */
+    CAN_RxGetSignalDataFromMessageData_Expect(
+        testMessageData, 2u, 1u, &testSignalData[0u], CANRX_BMS_STATE_REQUEST_ENDIANNESS);
+    CAN_RxGetSignalDataFromMessageData_ReturnThruPtr_pCanSignal(&testSignalData[0u]);
+    /* ======= RT1/2: Call function under test */
+    TEST_CANRX_ClearAllPersistentFlags(testMessageData);
+
+    /* ======= RT2/2: Test implementation */
+    CAN_RxGetSignalDataFromMessageData_Expect(
+        testMessageData, 2u, 1u, &testSignalData[0u], CANRX_BMS_STATE_REQUEST_ENDIANNESS);
+    CAN_RxGetSignalDataFromMessageData_ReturnThruPtr_pCanSignal(&testSignalData[1u]);
+    DIAG_Handler_ExpectAndReturn(
+        DIAG_ID_DEEP_DISCHARGE_DETECTED, DIAG_EVENT_OK, DIAG_STRING, 0u, DIAG_HANDLER_RETURN_OK);
+    SYSM_ClearAllTimingViolations_Expect();
+    /* ======= RT2/2: Call function under test */
+    TEST_CANRX_ClearAllPersistentFlags(testMessageData);
+}
+
+/**
+ * @brief   Testing CANRX_HandleModeRequest
+ * @details The following cases need to be tested:
+ *          - Argument validation:
+ *            - AT1/1: NULL_PTR for kpkCanShim -> assert
+ *          - Routine validation:
+ *            - RT1/7: standby requested
+ *            - RT2/7: discharge requested
+ *            - RT3/7: charge requested
+ *            - RT4/7: invalid request
+ *            - RT5/7: state counter overflow
+ *            - RT6/7: same state as previous; OS_CheckTimeHasPassed returns true
+ *            - RT7/7: same state as previous; OS_CheckTimeHasPassed returns false
+ */
+void testCANRX_HandleModeRequest(void) {
+    /* ======= Assertion tests ============================================= */
+    /* ======= AT1/1 ======= */
+    TEST_ASSERT_FAIL_ASSERT(TEST_CANRX_HandleModeRequest(testMessageData, NULL_PTR));
+    /* ======= Routine tests =============================================== */
+    can_tableStateRequest.previousStateRequestViaCan = BMS_REQ_ID_NOREQ;
+    can_tableStateRequest.stateCounter               = 0u;
+    /* ======= RT1/7: Test implementation */
+    CAN_RxGetSignalDataFromMessageData_Expect(
+        testMessageData, 1u, 2u, &testSignalData[0u], CANRX_BMS_STATE_REQUEST_ENDIANNESS);
+    CAN_RxGetSignalDataFromMessageData_ReturnThruPtr_pCanSignal(&testSignalData[0u]);
+    /* ======= RT1/7: Call function under test */
+    TEST_CANRX_HandleModeRequest(testMessageData, &can_kShim);
+    /* ======= RT1/7: Test output verification */
+    TEST_ASSERT_EQUAL(BMS_REQ_ID_NOREQ, can_tableStateRequest.previousStateRequestViaCan);
+    TEST_ASSERT_EQUAL(BMS_REQ_ID_STANDBY, can_tableStateRequest.stateRequestViaCan);
+    TEST_ASSERT_EQUAL(BMS_REQ_ID_STANDBY, can_tableStateRequest.stateRequestViaCanPending);
+    TEST_ASSERT_EQUAL(1u, can_tableStateRequest.stateCounter);
+
+    /* ======= RT2/7: Test implementation */
+    CAN_RxGetSignalDataFromMessageData_Expect(
+        testMessageData, 1u, 2u, &testSignalData[0u], CANRX_BMS_STATE_REQUEST_ENDIANNESS);
+    CAN_RxGetSignalDataFromMessageData_ReturnThruPtr_pCanSignal(&testSignalData[1u]);
+    /* ======= RT2/7: Call function under test */
+    TEST_CANRX_HandleModeRequest(testMessageData, &can_kShim);
+    /* ======= RT2/7: Test output verification */
+    TEST_ASSERT_EQUAL(BMS_REQ_ID_STANDBY, can_tableStateRequest.previousStateRequestViaCan);
+    TEST_ASSERT_EQUAL(BMS_REQ_ID_NORMAL, can_tableStateRequest.stateRequestViaCan);
+    TEST_ASSERT_EQUAL(BMS_REQ_ID_NORMAL, can_tableStateRequest.stateRequestViaCanPending);
+    TEST_ASSERT_EQUAL(2u, can_tableStateRequest.stateCounter);
+
+    /* ======= RT3/7: Test implementation */
+    CAN_RxGetSignalDataFromMessageData_Expect(
+        testMessageData, 1u, 2u, &testSignalData[0u], CANRX_BMS_STATE_REQUEST_ENDIANNESS);
+    CAN_RxGetSignalDataFromMessageData_ReturnThruPtr_pCanSignal(&testSignalData[2u]);
+    /* ======= RT3/7: Call function under test */
+    TEST_CANRX_HandleModeRequest(testMessageData, &can_kShim);
+    /* ======= RT3/7: Test output verification */
+    TEST_ASSERT_EQUAL(BMS_REQ_ID_NORMAL, can_tableStateRequest.previousStateRequestViaCan);
+    TEST_ASSERT_EQUAL(BMS_REQ_ID_CHARGE, can_tableStateRequest.stateRequestViaCan);
+    TEST_ASSERT_EQUAL(BMS_REQ_ID_CHARGE, can_tableStateRequest.stateRequestViaCanPending);
+    TEST_ASSERT_EQUAL(3u, can_tableStateRequest.stateCounter);
+
+    /* ======= RT4/7: Test implementation */
+    CAN_RxGetSignalDataFromMessageData_Expect(
+        testMessageData, 1u, 2u, &testSignalData[0u], CANRX_BMS_STATE_REQUEST_ENDIANNESS);
+    CAN_RxGetSignalDataFromMessageData_ReturnThruPtr_pCanSignal(&testSignalData[3u]);
+    /* ======= RT4/7: Call function under test */
+    TEST_CANRX_HandleModeRequest(testMessageData, &can_kShim);
+    /* ======= RT4/7: Test output verification */
+    TEST_ASSERT_EQUAL(BMS_REQ_ID_CHARGE, can_tableStateRequest.previousStateRequestViaCan);
+    TEST_ASSERT_EQUAL(BMS_REQ_ID_NOREQ, can_tableStateRequest.stateRequestViaCan);
+    TEST_ASSERT_EQUAL(BMS_REQ_ID_NOREQ, can_tableStateRequest.stateRequestViaCanPending);
+    TEST_ASSERT_EQUAL(4u, can_tableStateRequest.stateCounter);
+
+    /* ======= RT5/7: Test implementation */
+    can_tableStateRequest.stateCounter = UINT8_MAX;
+    CAN_RxGetSignalDataFromMessageData_Expect(
+        testMessageData, 1u, 2u, &testSignalData[0u], CANRX_BMS_STATE_REQUEST_ENDIANNESS);
+    CAN_RxGetSignalDataFromMessageData_ReturnThruPtr_pCanSignal(&testSignalData[3u]);
+    OS_CheckTimeHasPassed_ExpectAndReturn(can_tableStateRequest.header.timestamp, 3000u, false);
+    /* ======= RT5/7: Call function under test */
+    TEST_CANRX_HandleModeRequest(testMessageData, &can_kShim);
+    /* ======= RT5/7: Test output verification */
+    TEST_ASSERT_EQUAL(BMS_REQ_ID_NOREQ, can_tableStateRequest.previousStateRequestViaCan);
+    TEST_ASSERT_EQUAL(BMS_REQ_ID_NOREQ, can_tableStateRequest.stateRequestViaCan);
+    TEST_ASSERT_EQUAL(BMS_REQ_ID_NOREQ, can_tableStateRequest.stateRequestViaCanPending);
+    TEST_ASSERT_EQUAL(0u, can_tableStateRequest.stateCounter);
+
+    /* ======= RT6/7: Test implementation */
+    can_tableStateRequest.stateRequestViaCan = BMS_REQ_ID_STANDBY;
+    CAN_RxGetSignalDataFromMessageData_Expect(
+        testMessageData, 1u, 2u, &testSignalData[0u], CANRX_BMS_STATE_REQUEST_ENDIANNESS);
+    CAN_RxGetSignalDataFromMessageData_ReturnThruPtr_pCanSignal(&testSignalData[0u]);
+    OS_CheckTimeHasPassed_ExpectAndReturn(can_tableStateRequest.header.timestamp, 3000u, true);
+    /* ======= RT6/7: Call function under test */
+    TEST_CANRX_HandleModeRequest(testMessageData, &can_kShim);
+    /* ======= RT6/7: Test output verification */
+    TEST_ASSERT_EQUAL(BMS_REQ_ID_STANDBY, can_tableStateRequest.previousStateRequestViaCan);
+    TEST_ASSERT_EQUAL(BMS_REQ_ID_STANDBY, can_tableStateRequest.stateRequestViaCan);
+    TEST_ASSERT_EQUAL(BMS_REQ_ID_STANDBY, can_tableStateRequest.stateRequestViaCanPending);
+    TEST_ASSERT_EQUAL(1u, can_tableStateRequest.stateCounter);
+
+    /* ======= RT7/7: Test implementation */
+    can_tableStateRequest.stateRequestViaCan = BMS_REQ_ID_NORMAL;
+    CAN_RxGetSignalDataFromMessageData_Expect(
+        testMessageData, 1u, 2u, &testSignalData[0u], CANRX_BMS_STATE_REQUEST_ENDIANNESS);
+    CAN_RxGetSignalDataFromMessageData_ReturnThruPtr_pCanSignal(&testSignalData[1u]);
+    OS_CheckTimeHasPassed_ExpectAndReturn(can_tableStateRequest.header.timestamp, 3000u, false);
+    /* ======= RT7/7: Call function under test */
+    TEST_CANRX_HandleModeRequest(testMessageData, &can_kShim);
+    /* ======= RT7/7: Test output verification */
+    TEST_ASSERT_EQUAL(BMS_REQ_ID_NORMAL, can_tableStateRequest.previousStateRequestViaCan);
+    TEST_ASSERT_EQUAL(BMS_REQ_ID_NORMAL, can_tableStateRequest.stateRequestViaCan);
+    TEST_ASSERT_EQUAL(BMS_REQ_ID_STANDBY, can_tableStateRequest.stateRequestViaCanPending);
+    TEST_ASSERT_EQUAL(2u, can_tableStateRequest.stateCounter);
+}
+
+/**
+ * @brief   Testing CANRX_HandleBalancingRequest
+ * @details The following cases need to be tested:
+ *          - Argument validation:
+ *            - None
+ *          - Routine validation:
+ *            - RT1/3: Disable balancing
+ *            - RT2/3: Enable balancing
+ *            - RT3/3: Balancing not initialized
+ */
+void testCANRX_HandleBalancingRequest(void) {
+    /* ======= Assertion tests ============================================= */
+    /* ======= AT1/1 ======= */
+    /* ======= Routine tests =============================================== */
+    /* ======= RT1/3: Test implementation */
+    CAN_RxGetSignalDataFromMessageData_Expect(
+        testMessageData, 8u, 1u, &testSignalData[0u], CANRX_BMS_STATE_REQUEST_ENDIANNESS);
+    CAN_RxGetSignalDataFromMessageData_ReturnThruPtr_pCanSignal(&testSignalData[0u]);
+    BAL_GetInitializationState_ExpectAndReturn(STD_OK);
+    BAL_SetStateRequest_ExpectAndReturn(BAL_STATE_GLOBAL_DISABLE_REQUEST, BAL_OK);
+    /* ======= RT1/3: Call function under test */
+    TEST_CANRX_HandleBalancingRequest(testMessageData);
+
+    /* ======= RT2/3: Test implementation */
+    CAN_RxGetSignalDataFromMessageData_Expect(
+        testMessageData, 8u, 1u, &testSignalData[0u], CANRX_BMS_STATE_REQUEST_ENDIANNESS);
+    CAN_RxGetSignalDataFromMessageData_ReturnThruPtr_pCanSignal(&testSignalData[1u]);
+    BAL_GetInitializationState_ExpectAndReturn(STD_OK);
+    BAL_SetStateRequest_ExpectAndReturn(BAL_STATE_GLOBAL_ENABLE_REQUEST, BAL_OK);
+    /* ======= RT2/3: Call function under test */
+    TEST_CANRX_HandleBalancingRequest(testMessageData);
+
+    /* ======= RT3/3: Test implementation */
+    CAN_RxGetSignalDataFromMessageData_Expect(
+        testMessageData, 8u, 1u, &testSignalData[0u], CANRX_BMS_STATE_REQUEST_ENDIANNESS);
+    BAL_GetInitializationState_ExpectAndReturn(STD_NOT_OK);
+    /* ======= RT3/3: Call function under test */
+    TEST_CANRX_HandleBalancingRequest(testMessageData);
+}
+
+/**
+ * @brief   Testing
+ * @details The following cases need to be tested:
+ *          - Argument validation:
+ *            - None
+ *          - Routine validation:
+ *            - RT1/2: Function reads and handles data correctly
+ *            - RT2/2: Requested threshold higher than maximum value
+ */
+void testCANRX_SetBalancingThreshold(void) {
+    /* ======= Routine tests =============================================== */
+    /* ======= RT1/2: Test implementation */
+    CAN_RxGetSignalDataFromMessageData_Expect(
+        testMessageData, 23u, 8u, &testSignalData[0u], CANRX_BMS_STATE_REQUEST_ENDIANNESS);
+    CAN_RxGetSignalDataFromMessageData_ReturnThruPtr_pCanSignal(&testSignalData[1u]);
+    BAL_SetBalancingThreshold_Expect(testSignalData[1u]);
+    /* ======= RT1/2: Call function under test */
+    TEST_CANRX_SetBalancingThreshold(testMessageData);
+
+    /* ======= RT2/2: Test implementation */
+    CAN_RxGetSignalDataFromMessageData_Expect(
+        testMessageData, 23u, 8u, &testSignalData[0u], CANRX_BMS_STATE_REQUEST_ENDIANNESS);
+    CAN_RxGetSignalDataFromMessageData_ReturnThruPtr_pCanSignal(&testSignalData[4u]);
+    BAL_SetBalancingThreshold_Expect(UINT16_MAX);
+    /* ======= RT2/2: Call function under test */
+    TEST_CANRX_SetBalancingThreshold(testMessageData);
 }

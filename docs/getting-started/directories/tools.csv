@@ -1,0 +1,11 @@
+Directory Name     ; Long Name                   ; Content Description
+``crc``            ; Cyclic redundancy check     ; Helper script and information for working with CRC-functions
+``dbc``            ; CAN Database                ; CAN message and signal description
+``debugger``       ; Debugger                    ; Debugger setups and usage
+``deploy``         ; Deploy                      ; Scripts for deploying the generated documentation internally
+``ide``            ; Editor/IDEs                 ; Setups for editors and Integrated Development Environments
+``precharge``      ; Precharge                   ; Script to help dimensioning the precharge resistor
+``utils``          ; Utils                       ; Unspecific helper tools and scripts
+``vendor``         ; Vendor                      ; Vendored, unchanged files
+``waf-tools``      ; Waf tools                   ; Waf tools that are not part of vendored Waf
+``waf``            ; Waf                         ; Waf binary

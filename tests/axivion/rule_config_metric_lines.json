@@ -1,104 +1,104 @@
 {
-    "Analysis": {
-        "Metric-Comment.Density": {
-            "_active": true,
-            "min_value": 0.15
-        },
-        "Metric-Lines.Class.LOC": {
-            "_active": false
-        },
-        "Metric-Lines.Comment": {
-            "_active": true
-        },
-        "Metric-Lines.Empty": {
-            "_active": true,
-            "max_value": 20,
-            "min_value": 0
-        },
-        "Metric-Lines.File.Code": {
-            "_active": true,
-            "min_value": 0
-        },
-        "Metric-Lines.File.Comment": {
-            "_active": true,
-            "min_value": 10
-        },
-        "Metric-Lines.File.CommentRatio": {
-            "_active": true,
-            "min_value": 0.15
-        },
-        "Metric-Lines.File.LOC": {
-            "_active": true,
-            "max_value": 800,
-            "min_value": 0
-        },
-        "Metric-Lines.LOC": {
-            "_active": true
-        },
-        "Metric-Lines.OnlyComment": {
-            "_active": true
-        },
-        "Metric-Lines.PP.Define": {
-            "_active": true
-        },
-        "Metric-Lines.PP.Elif": {
-            "_active": true
-        },
-        "Metric-Lines.PP.Else": {
-            "_active": true
-        },
-        "Metric-Lines.PP.Endif": {
-            "_active": true
-        },
-        "Metric-Lines.PP.Error": {
-            "_active": true
-        },
-        "Metric-Lines.PP.Ident": {
-            "_active": true
-        },
-        "Metric-Lines.PP.If": {
-            "_active": true
-        },
-        "Metric-Lines.PP.Ifdef": {
-            "_active": true
-        },
-        "Metric-Lines.PP.Ifndef": {
-            "_active": true
-        },
-        "Metric-Lines.PP.Include": {
-            "_active": true
-        },
-        "Metric-Lines.PP.Line": {
-            "_active": true
-        },
-        "Metric-Lines.PP.Pragma": {
-            "_active": true
-        },
-        "Metric-Lines.PP.Undef": {
-            "_active": true
-        },
-        "Metric-Lines.PP.Warning": {
-            "_active": true
-        },
-        "Metric-Lines.Routine.Code": {
-            "_active": true,
-            "min_value": 1
-        },
-        "Metric-Lines.Routine.CommentRatio": {
-            "_active": true,
-            "min_value": 0.15
-        },
-        "Metric-Lines.Routine.LOC": {
-            "_active": true,
-            "max_value": 100
-        }
+  "Analysis": {
+    "Metric-Comment.Density": {
+      "_active": true,
+      "min_value": 0.15
     },
-    "_Format": "1.0",
-    "_Version": "7.5.2",
-    "_VersionNum": [
-        7,
-        5,
-        2,
-        11578
-    ]
+    "Metric-Lines.Class.LOC": {
+      "_active": false
+    },
+    "Metric-Lines.Comment": {
+      "_active": true
+    },
+    "Metric-Lines.Empty": {
+      "_active": true,
+      "max_value": 20,
+      "min_value": 0
+    },
+    "Metric-Lines.File.Code": {
+      "_active": true,
+      "min_value": 0
+    },
+    "Metric-Lines.File.Comment": {
+      "_active": true,
+      "min_value": 10
+    },
+    "Metric-Lines.File.CommentRatio": {
+      "_active": true,
+      "min_value": 0.15
+    },
+    "Metric-Lines.File.LOC": {
+      "_active": true,
+      "max_value": 800,
+      "min_value": 0
+    },
+    "Metric-Lines.LOC": {
+      "_active": true
+    },
+    "Metric-Lines.OnlyComment": {
+      "_active": true
+    },
+    "Metric-Lines.PP.Define": {
+      "_active": true
+    },
+    "Metric-Lines.PP.Elif": {
+      "_active": true
+    },
+    "Metric-Lines.PP.Else": {
+      "_active": true
+    },
+    "Metric-Lines.PP.Endif": {
+      "_active": true
+    },
+    "Metric-Lines.PP.Error": {
+      "_active": true
+    },
+    "Metric-Lines.PP.Ident": {
+      "_active": true
+    },
+    "Metric-Lines.PP.If": {
+      "_active": true
+    },
+    "Metric-Lines.PP.Ifdef": {
+      "_active": true
+    },
+    "Metric-Lines.PP.Ifndef": {
+      "_active": true
+    },
+    "Metric-Lines.PP.Include": {
+      "_active": true
+    },
+    "Metric-Lines.PP.Line": {
+      "_active": true
+    },
+    "Metric-Lines.PP.Pragma": {
+      "_active": true
+    },
+    "Metric-Lines.PP.Undef": {
+      "_active": true
+    },
+    "Metric-Lines.PP.Warning": {
+      "_active": true
+    },
+    "Metric-Lines.Routine.Code": {
+      "_active": true,
+      "min_value": 1
+    },
+    "Metric-Lines.Routine.CommentRatio": {
+      "_active": true,
+      "min_value": 0.15
+    },
+    "Metric-Lines.Routine.LOC": {
+      "_active": true,
+      "max_value": 100
+    }
+  },
+  "_Format": "1.0",
+  "_Version": "7.5.2",
+  "_VersionNum": [
+    7,
+    5,
+    2,
+    11578
+  ]
 }

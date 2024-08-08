@@ -31,9 +31,7 @@ word must only contain one byte (i.e., the value must not be greater than
 
 A common parameter to all AFE functions has the type ``ADI_STATE_s``.
 This structure is used to control the flow of the AFE driver.
-The structure holds the following information
-(for implementation details see
-`here <../../../../_static/doxygen/src/html/structADI__STATE__s.html>`__):
+The structure holds the following information:
 
 - A boolean indicating if the driver has been initialized or not, i.e., whether
   the first measurement has been started or not.
@@ -51,9 +49,7 @@ The structure holds the following information
   It also stores the command counter for each string and an error table
   with all error flags.
 
-The ``ADI_DATA_s`` structure contains the following data
-(for implementation details see
-`here <../../../../_static/doxygen/src/html/structADI__DATAPTR__s.html>`__):
+The ``ADI_DATA_s`` structure contains the following data:
 
 - A pointer to the SPI receive and the transmit buffer
 - All measurements (e.g., cell voltages, cell temperatures, GPIO voltages)
@@ -62,9 +58,7 @@ The ``ADI_DATA_s`` structure contains the following data
 - An internal variable of the driver used for redundant auxiliary voltage
   check.
 
-The ``ADI_ERROR_TABLE_s`` structure contains the error status of the driver
-(for implementation details see
-`here <../../../../_static/doxygen/src/html/structADI__ERROR__TABLE__s.html>`__):
+The ``ADI_ERROR_TABLE_s`` structure contains the error status of the driver:
 
 - Flag indicating if PEC correct or not
 - Flag indicating if the command counter of the driver matches the internal
@@ -121,8 +115,8 @@ If they are not defined, the following definitions must be added:
 
     /** data block struct of balancing control */
     typedef struct {
-        uint8_t balancingState[ADI_NR_OF_STRINGS]
-                            [ADI_NR_OF_CELL_BLOCKS_PER_STRING]; /*!< 0: no balancing, 1: balancing active     */
+        bool activateBalancing[ADI_NR_OF_STRINGS][ADI_NR_OF_MODULES_PER_STRING]
+                            [ADI_NR_OF_CELL_BLOCKS_PER_MODULE]; /*!< 0: no balancing, 1: balancing active     */
     } DATA_BLOCK_BALANCING_CONTROL_s;
 
     /** data block struct of cell open wire */

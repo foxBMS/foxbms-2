@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,8 +43,8 @@
  * @file    fram.c
  * @author  foxBMS Team
  * @date    2020-03-05 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup DRIVERS
  * @prefix  FRAM
  *
@@ -65,6 +65,7 @@
 #include "io.h"
 #include "mcu.h"
 #include "spi.h"
+#include "utils.h"
 
 #include <stdint.h>
 
@@ -75,13 +76,15 @@
 
 /** control commands for the FRAM */
 /**@{*/
-#define FRAM_WRITECOMMAND       (0x02u)
-#define FRAM_READCOMMAND        (0x03u)
-#define FRAM_WRITEENABLECOMMAND (0x06u)
+#define FRAM_WRITE_COMMAND        (0x02u)
+#define FRAM_READ_COMMAND         (0x03u)
+#define FRAM_WRITE_ENABLE_COMMAND (0x06u)
 /**@}*/
 
-/** maximal memory address of the FRAM */
-#define FRAM_MAX_ADDRESS (0x3FFFFu)
+#define FRAM_MAX_ADDRESS         (0x03FFFFu) /**< maximal memory FRAM address */
+#define FRAM_ADDRESS_UPPER_PART  (0x030000u) /**< upper part of the FRAM memory address */
+#define FRAM_ADDRESS_MIDDLE_PART (0x00FF00u) /**< middle part of the FRAM memory address */
+#define FRAM_ADDRESS_LOWER_PART  (0x0000FFu) /**< lower part of the FRAM memory address */
 
 /*========== Static Constant and Variable Definitions =======================*/
 
@@ -99,9 +102,9 @@ extern void FRAM_Initialize(void) {
     /* Reset error flag at startup */
     (void)DIAG_Handler(DIAG_ID_FRAM_READ_CRC_ERROR, DIAG_EVENT_OK, DIAG_SYSTEM, 0u);
     /* find address of all variables in FRAM  by parsing length of data*/
-    for (uint16_t i = 0u; i < FRAM_BLOCK_MAX; i++) {
-        (fram_base_header[i]).address = address;
-        address += (fram_base_header[i]).datalength + FRAM_CRC_HEADER_SIZE;
+    for (uint8_t i = 0u; i < (uint8_t)FRAM_BLOCK_MAX; i++) {
+        (fram_databaseHeader[i]).address = address;
+        address += (fram_databaseHeader[i]).datalength + FRAM_CRC_HEADER_SIZE;
     }
 
     /* ASSERT that size of variables does not exceed FRAM size */
@@ -122,9 +125,9 @@ extern STD_RETURN_TYPE_e FRAM_ReinitializeAllEntries(void) {
     fram_version.minor   = ver_foxbmsVersionInformation.minor;
     fram_version.patch   = ver_foxbmsVersionInformation.patch;
 
-    for (uint16_t i = 0u; i < FRAM_BLOCK_MAX; i++) {
+    for (uint8_t i = 0u; i < (uint8_t)FRAM_BLOCK_MAX; i++) {
         if (FRAM_WriteData((FRAM_BLOCK_ID_e)i) != FRAM_ACCESS_OK) {
-            retVal = STD_OK;
+            retVal = STD_NOT_OK;
         }
     }
     return retVal;
@@ -140,9 +143,9 @@ extern FRAM_RETURN_TYPE_e FRAM_WriteData(FRAM_BLOCK_ID_e blockId) {
     /* FRAM must use SW Chip Select configuration*/
     FAS_ASSERT(spi_framInterface.csType == SPI_CHIP_SELECT_SOFTWARE);
 
-    uint32_t address = (fram_base_header[blockId]).address;
-    uint32_t size    = (fram_base_header[blockId]).datalength;
-    uint8_t *pWrite  = (uint8_t *)(fram_base_header[blockId].blockptr);
+    uint32_t address = (fram_databaseHeader[blockId]).address;
+    uint32_t size    = (fram_databaseHeader[blockId]).datalength;
+    uint8_t *pWrite  = (uint8_t *)(fram_databaseHeader[blockId].blockptr);
 
     STD_RETURN_TYPE_e crcRetVal = CRC_CalculateCrc(&crc, pWrite, size);
 
@@ -152,7 +155,7 @@ extern FRAM_RETURN_TYPE_e FRAM_WriteData(FRAM_BLOCK_ID_e blockId) {
         if (spiRetVal == STD_OK) {
             /* send write enable command */
             IO_PinReset(spi_framInterface.pGioPort, spi_framInterface.csPin);
-            uint16_t write = FRAM_WRITEENABLECOMMAND;
+            uint16_t write = FRAM_WRITE_ENABLE_COMMAND;
             SPI_FramTransmitReceiveData(&spi_framInterface, &write, &read, 1u);
             IO_PinSet(spi_framInterface.pGioPort, spi_framInterface.csPin);
             MCU_Delay_us(FRAM_DELAY_AFTER_WRITE_ENABLE_US);
@@ -162,19 +165,15 @@ extern FRAM_RETURN_TYPE_e FRAM_WriteData(FRAM_BLOCK_ID_e blockId) {
             IO_PinReset(spi_framInterface.pGioPort, spi_framInterface.csPin);
 
             /* send write command */
-            write = FRAM_WRITECOMMAND;
+            write = FRAM_WRITE_COMMAND;
             SPI_FramTransmitReceiveData(&spi_framInterface, &write, &read, 1u);
 
-            /* send upper part of address */
-            write = (address & 0x3F0000u) >> 16u;
+            /* send in this order: upper, middle and lower part of address */
+            write = (uint16_t)((address & FRAM_ADDRESS_UPPER_PART) >> UTIL_SHIFT_TWO_BYTES);
             SPI_FramTransmitReceiveData(&spi_framInterface, &write, &read, 1u);
-
-            /* send middle part of address */
-            write = (address & 0xFF00u) >> 8u;
+            write = (uint16_t)((address & FRAM_ADDRESS_MIDDLE_PART) >> UTIL_SHIFT_ONE_BYTE);
             SPI_FramTransmitReceiveData(&spi_framInterface, &write, &read, 1u);
-
-            /* send lower part of address */
-            write = address & 0xFFu;
+            write = (uint16_t)((address & FRAM_ADDRESS_LOWER_PART) >> UTIL_SHIFT_ZERO_BYTES);
             SPI_FramTransmitReceiveData(&spi_framInterface, &write, &read, 1u);
 
             /* send CRC */
@@ -185,7 +184,7 @@ extern FRAM_RETURN_TYPE_e FRAM_WriteData(FRAM_BLOCK_ID_e blockId) {
                 pWrite++;
             }
 
-            pWrite = (uint8_t *)(fram_base_header[blockId].blockptr);
+            pWrite = (uint8_t *)(fram_databaseHeader[blockId].blockptr);
 
             /* send data */
             while (size > 0u) {
@@ -220,15 +219,15 @@ extern FRAM_RETURN_TYPE_e FRAM_ReadData(FRAM_BLOCK_ID_e blockId) {
     STD_RETURN_TYPE_e spiRetVal = SPI_Lock(SPI_GetSpiIndex(spi_framInterface.pNode));
 
     if (spiRetVal == STD_OK) {
-        uint32_t address = (fram_base_header[blockId]).address;
-        uint32_t size    = (fram_base_header[blockId]).datalength;
+        uint32_t address = (fram_databaseHeader[blockId]).address;
+        uint32_t size    = (fram_databaseHeader[blockId]).datalength;
 
         /* get data to be read */
         /* set chip select low to start transmission */
         IO_PinReset(spi_framInterface.pGioPort, spi_framInterface.csPin);
 
         /* send write command */
-        uint16_t write = FRAM_READCOMMAND;
+        uint16_t write = FRAM_READ_COMMAND;
         SPI_FramTransmitReceiveData(&spi_framInterface, &write, &read, 1u);
 
         /* send upper part of address */
@@ -236,11 +235,11 @@ extern FRAM_RETURN_TYPE_e FRAM_ReadData(FRAM_BLOCK_ID_e blockId) {
         SPI_FramTransmitReceiveData(&spi_framInterface, &write, &read, 1u);
 
         /* send middle part of address */
-        write = (address & 0xFF00u) >> 8u;
+        write = (address & 0x00FF00u) >> 8u;
         SPI_FramTransmitReceiveData(&spi_framInterface, &write, &read, 1u);
 
         /* send lower part of address */
-        write = address & 0xFFu;
+        write = address & 0x0000FFu;
         SPI_FramTransmitReceiveData(&spi_framInterface, &write, &read, 1u);
 
         /* read CRC */
@@ -252,7 +251,7 @@ extern FRAM_RETURN_TYPE_e FRAM_ReadData(FRAM_BLOCK_ID_e blockId) {
             pRead++;
         }
 
-        pRead = (uint8_t *)(fram_base_header[blockId].blockptr);
+        pRead = (uint8_t *)(fram_databaseHeader[blockId].blockptr);
 
         /* read data */
         write = 0;
@@ -268,8 +267,8 @@ extern FRAM_RETURN_TYPE_e FRAM_ReadData(FRAM_BLOCK_ID_e blockId) {
 
         SPI_Unlock(SPI_GetSpiIndex(spi_framInterface.pNode));
 
-        pRead                       = (uint8_t *)(fram_base_header[blockId].blockptr);
-        size                        = (fram_base_header[blockId]).datalength;
+        pRead                       = (uint8_t *)(fram_databaseHeader[blockId].blockptr);
+        size                        = (fram_databaseHeader[blockId]).datalength;
         uint64_t crcCalculated      = 0u;
         STD_RETURN_TYPE_e crcRetVal = CRC_CalculateCrc(&crcCalculated, pRead, size);
 

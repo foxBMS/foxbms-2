@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 #
-# Copyright (c) 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -47,7 +46,7 @@ from pathlib import Path
 
 # disable import checking for Python modules that come with Axivion
 # pylint: disable=import-error
-import axivion.config
+import axivion.config  # pylint: disable=no-name-in-module
 from bauhaus import ir
 from bauhaus import style
 from bauhaus.ir.common.scanner import comments
@@ -60,7 +59,7 @@ if "perform_tests" in sys.argv[0]:
     logging.getLogger().setLevel(logging.DEBUG)
 
 
-ANALYSIS = axivion.config.get_analysis()
+ANALYSIS = axivion.config.get_analysis()  # pylint: disable=c-extension-no-member
 
 UNKNOWN_PREFIX_ERROR_MESSAGE = "Unknown which module prefix to check."
 
@@ -109,12 +108,7 @@ def get_rule_type_from_name(rule_name: str) -> str:
 
 @style.workitem(inputs=(ir.Graph, comments.scan_and_cache_comments), repeat=True)
 class ModulePrefixLookup(style.WorkItem):
-    """Fetches the module prefix based on a regex from the provided source file
-
-    hint: check that this regex is consistent with
-    'conf/guidelines/rules.json:languages:C:doxygen:regex:{xy}'
-    setting
-    """
+    """Fetches the module prefix based on a regex from the provided source file"""
 
     prefix_re = re.compile(r"@prefix\s+(\S+)(?:\s|\n|$)", flags=re.MULTILINE)
 
@@ -209,15 +203,15 @@ def check_macro_name(node: ir.Node, module_prefixes: ModulePrefixLookup) -> bool
         not node.type() == "Predefined_Object_Macro_Definition"
         and not node.Name.startswith("__")
     ):
-        logging.debug(f"node.Name: {node.Name}")
+        logging.debug("node.Name: %s", node.Name)
     else:
         logging.getLogger().setLevel(logging.FATAL)  # ignore output
 
     for file in containing_modules(node):
         if file in module_prefixes:
-            logging.debug(f"found prefix: {module_prefixes[file]}")
+            logging.debug("found prefix: %s", module_prefixes[file])
             if not node.Name.startswith(module_prefixes[file].upper() + "_"):
-                logging.debug(f"Check if '{node.Name}' is a include guard.")
+                logging.debug("Check if '%s' is a include guard.", node.Name)
                 # check that we are not hitting an include guard, as
                 # include guards use the pattern 'FOXBMS__{FILENAME}_H_'
                 file_name_to_guard = "".join(
@@ -225,21 +219,21 @@ def check_macro_name(node: ir.Node, module_prefixes: ModulePrefixLookup) -> bool
                 )
                 define_guard = f"FOXBMS__{file_name_to_guard}_H_"
                 if node.Name == define_guard:
-                    logging.debug(f"found include guard ('{node.Name}').")
-                    logging.debug(f"Done for '{node.Name}'.\n")
+                    logging.debug("found include guard ('%s').", node.Name)
+                    logging.debug("Done for '%s'.\n", node.Name)
                     return True
-                logging.debug(f"'{node.Name}' is not an include guard.")
+                logging.debug("'%s' is not an include guard.", node.Name)
             # we have not hit an include guard, now check that the macro starts
             # with the prefix is all uppercase and optionally ends with one of
             # the valid suffixes
             if not node.Name.startswith(module_prefixes[file].upper() + "_"):
                 # macro does not use the module prefix
-                logging.error(f"'{node.Name}' is missing the prefix.")
-                logging.debug(f"Done for '{node.Name}'.\n")
+                logging.error("'%s' is missing the prefix.", node.Name)
+                logging.debug("Done for '%s'.\n", node.Name)
                 return False
             if node.Name == node.Name.upper():
-                logging.debug(f"'{node.Name}' uses a valid name.")
-                logging.debug(f"Done for '{node.Name}'.\n")
+                logging.debug("'%s' uses a valid name.", node.Name)
+                logging.debug("Done for '%s'.\n", node.Name)
                 return True
             # we start with the prefix, but the macro is not all uppercase,
             # so maybe we appended a valid suffix
@@ -249,10 +243,10 @@ def check_macro_name(node: ir.Node, module_prefixes: ModulePrefixLookup) -> bool
                     # we need to subtract additionally -1 because of the underscore
                     without_suffix = node.Name[: len(node.Name) - len(suffix) - 1]
                     if without_suffix == without_suffix.upper():
-                        logging.debug(f"Done for '{node.Name}'.\n")
+                        logging.debug("Done for '%s'.\n", node.Name)
                         return True
-    logging.error(f"'{node.Name}' uses an invalid macro name.")
-    logging.debug(f"Done for '{node.Name}'.\n")
+    logging.error("'%s' uses an invalid macro name.", node.Name)
+    logging.debug("Done for '%s'.\n", node.Name)
     logging.getLogger().setLevel(logging.DEBUG)  # reset logging level
     return False
 

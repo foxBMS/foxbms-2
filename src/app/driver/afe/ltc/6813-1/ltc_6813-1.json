@@ -1,9 +1,9 @@
 {
-    "include": [
-        ".",
-        "config",
-        "../common",
-        "../common/config",
-        "../../api"
-    ]
+  "include": [
+    ".",
+    "config",
+    "../common",
+    "../common/config",
+    "../../api"
+  ]
 }

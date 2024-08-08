@@ -14,16 +14,6 @@ HALCoGen
    to use a pre-generated HAL instead of generating it in the compilation step
    in :ref:`HOW_TO_USE_GENERATED_SOURCES_FROM_HALCOGEN`.
 
-..
-    Comments:
-    bld is the waf object
-    hcg and dil are file extensions for HALCoGen projects
-
-.. spelling::
-    bld
-    hcg
-    dil
-
 The tool is located in ``tools/waf-tools``.
 
 .. automodule:: f_hcg

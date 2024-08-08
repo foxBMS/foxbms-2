@@ -11,6 +11,7 @@
 .. |ms| replace:: ms
 .. |Ohm| replace:: :math:`{\Omega}`
 .. |kOhm| replace:: :math:`{k\Omega}`
+.. |MOhm| replace:: :math:`{M\Omega}`
 .. |g| replace:: g
 .. |W| replace:: W
 .. |V| replace:: V

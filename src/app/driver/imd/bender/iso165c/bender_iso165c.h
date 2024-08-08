@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,13 +43,12 @@
  * @file    bender_iso165c.h
  * @author  foxBMS Team
  * @date    2019-04-07 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup DRIVERS
  * @prefix  I165C
  *
  * @brief   Headers for the driver for the insulation monitoring
- *
  * @details Module header for insulation measurements. Sets up the interface to
  *          the IO and TIM module.
  *          Also sets up Bender Isometer specific settings.
@@ -74,15 +73,8 @@
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 #ifdef UNITY_UNIT_TEST
-extern void TEST_I165C_ResetCanData(CAN_BUFFER_ELEMENT_s *canMessage);
-extern void TEST_I165C_WriteDataWord(uint8_t dataWord, uint16_t data, CAN_BUFFER_ELEMENT_s *canMessage);
-extern void TEST_I165C_ReadDataWord(uint8_t dataWord, uint16_t *data, CAN_BUFFER_ELEMENT_s canMessage);
-extern void TEST_I165C_ReadDataWordImdInfo(uint8_t dataWord, uint16_t *data, CAN_BUFFER_ELEMENT_s canMessage);
-extern void TEST_I165C_ReadDataByte(uint8_t dataByte, uint8_t *data, CAN_BUFFER_ELEMENT_s canMessage);
-extern void TEST_I165C_WriteCmd(uint8_t id, uint8_t command, CAN_BUFFER_ELEMENT_s *canMessage);
 extern bool TEST_I165C_CheckResponse(uint8_t command, CAN_BUFFER_ELEMENT_s *canMessage);
 extern bool TEST_I165C_GetImdInfo(CAN_BUFFER_ELEMENT_s *canMessage);
-extern bool TEST_I165C_IsSelfTestFinished(CAN_BUFFER_ELEMENT_s canMessage);
 extern bool TEST_I165C_CheckAcknowledgeArrived(uint8_t command, uint8_t *tries, CAN_BUFFER_ELEMENT_s *canMessage);
 #endif
 

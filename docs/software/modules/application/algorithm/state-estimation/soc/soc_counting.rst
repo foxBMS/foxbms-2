@@ -12,17 +12,17 @@ Module Files
 Driver
 ^^^^^^
 
-- ``src/app/application/algorithm/state_estimation/soc/counting/soc_counting.c`` (`API <./../../../../../../_static/doxygen/src/html/soc__counting_8c.html>`__, `source <./../../../../../../_static/doxygen/src/html/soc__counting_8c_source.html>`__)
+- ``src/app/application/algorithm/state_estimation/soc/counting/soc_counting.c``
 
 Configuration
 ^^^^^^^^^^^^^
 
-- ``src/app/application/algorithm/state_estimation/soc/counting/soc_counting_cfg.h`` (`API <./../../../../../../_static/doxygen/src/html/soc__counting__cfg_8h.html>`__, `source <./../../../../../../_static/doxygen/src/html/soc__counting__cfg_8h_source.html>`__)
+- ``src/app/application/algorithm/state_estimation/soc/counting/soc_counting_cfg.h``
 
 Unit Test
 ^^^^^^^^^
 
-- ``tests/unit/app/application/algorithm/state_estimation/soc/counting/test_soc_counting.c`` (`API <./../../../../../../_static/doxygen/tests/html/test__soc__counting_8c.html>`__, `source <./../../../../../../_static/doxygen/tests/html/test__soc__counting_8c_source.html>`__)
+- ``tests/unit/app/application/algorithm/state_estimation/soc/counting/test_soc_counting.c``
 
 Detailed Description
 --------------------
@@ -41,3 +41,26 @@ made in the :ref:`cc-function-name`.
    :end-before: /* INCLUDE MARKER FOR THE DOCUMENTATION; DO NOT MOVE cc-documentation-stop-include */
    :caption: Function implementing Coulomb-counting
    :name: cc-function-name
+
+SE_CalculateStateOfCharge
+-------------------------
+
+Charge and Discharge Throughput can be calculated in two ways, depending if an
+external analog current counting value is available or not. The algorithm is
+implemented as follows:
+
+If analog current counting value is available:
+
+1. Calculate the charge difference between the latest and the previous current counting value.
+1. Check current flow direction to evaluate if charge/discharge is ongoing.
+1. Accumulate either charge or discharge throughput in |soc| database entry.
+1. Save time step
+1. Save current counting value
+
+
+If analog current counting value is *NOT* available:
+
+1. Manually integrate current to calculate amount of charge since last call.
+1. Check current flow direction to evaluate if charge/discharge is ongoing.
+1. Accumulate either charge or discharge throughput in |soc| database entry.
+1. Save time step

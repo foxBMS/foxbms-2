@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,15 +43,13 @@
  * @file    nxpfs85xx.c
  * @author  foxBMS Team
  * @date    2020-03-18 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup DRIVERS
  * @prefix  FS85
  *
  * @brief   Driver for the FS85xx module
- *
  * @details It must always be used when creating new c source files.
- *
  */
 
 /*========== Includes =======================================================*/
@@ -245,7 +243,7 @@ static STD_RETURN_TYPE_e FS85_PerformPathCheckFs0b(FS85_STATE_s *pInstance);
  *  @brief          Sends SBC to Standby Mode
  *  @details        Sets GOTOSTBY Bit on SBC via SPI.
  *  @param          pInstance   SBC Instance to send to Standby
-*/
+ */
 static STD_RETURN_TYPE_e FS85_GoToStandby(FS85_STATE_s *pInstance);
 
 /*========== Static Function Implementations ================================*/
@@ -586,7 +584,7 @@ extern STD_RETURN_TYPE_e FS85_InitializeFsPhase(FS85_STATE_s *pInstance) {
 
     The FS85 is now ready. If everything is OK for the MCU, it can release its own
     safety path and the ECU starts.
- */
+  */
 
     /* --------------------- First: Verify --------------------------------- */
 

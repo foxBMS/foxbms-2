@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 #
-# Copyright (c) 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -123,18 +122,18 @@ def main():
             try:
                 macro, value = line.split(" ", maxsplit=1)
             except ValueError:
-                logging.debug(f"{macro} has no value. Ignoring...")
+                logging.debug("%s has no value. Ignoring...", line)
                 continue
             if not value.startswith("("):
                 value = f"({value})"
             macros.append((macro, value))
-    macros = list(set((tuple(i) for i in macros)))
-    logging.info(f"Adding {len(macros)} macro(s).")
+    macros = list({tuple(i) for i in macros})
+    logging.info("Adding %s macro(s).", len(macros))
 
     macro_cmm_file_in = REPO_ROOT / "tools/debugger/lauterbach/load_macro_values.cmm.in"
     if not macro_cmm_file_in.is_file():
-        sys.exit(f"Could not find file {macro_cmm_file_in}")
-    logging.info(f"Reading configuration file '{macro_cmm_file_in}'")
+        sys.exit("Could not find file %s", macro_cmm_file_in)
+    logging.info("Reading configuration file '%s'", macro_cmm_file_in)
     txt = macro_cmm_file_in.read_text(encoding="utf-8")
     replacement = "\n".join(
         [f"sYmbol.CREATE.MACRO {macro} {value}" for macro, value in macros]
@@ -142,7 +141,7 @@ def main():
     macro_cmm_file_out = REPO_ROOT / "build/load_macro_values.cmm"
     REPO_ROOT.mkdir(exist_ok=True)
     txt = txt.replace("@MACROS_AND_VALUES@", replacement)
-    logging.info(f"Writing configuration file '{macro_cmm_file_out}'")
+    logging.info("Writing configuration file '%s'", macro_cmm_file_out)
     macro_cmm_file_out.write_text(txt, encoding="utf-8")
     logging.info("Done...")
 

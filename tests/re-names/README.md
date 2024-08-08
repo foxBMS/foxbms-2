@@ -8,8 +8,8 @@ test (``tests/axivion/rule_config_names.py``).
 
 ## Running the Test
 
-```console
-<repo-root>\tools\utils\cmd\run-python-script.bat tests\re-names\test_names_regex.py
+```pwsh
+PS C:\Users\vulpes\Documents\foxbms-2> .\fox.ps1 run-script tests\re-names\test_names_regex.py
 ```
 
 ## Adding Tests

@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 #
-# Copyright (c) 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -43,10 +42,11 @@
 """
 
 import os
-import re
 import sys
 
-from waflib import Logs, Node, Task, TaskGen, Utils
+from waflib import Logs, Task, TaskGen, Utils
+
+from waflib.Configure import ConfigurationContext
 
 
 class sphinx_task(Task.Task):  # pylint: disable=invalid-name
@@ -113,111 +113,12 @@ class sphinx_task(Task.Task):  # pylint: disable=invalid-name
         Logs.info(cmd)
         env = self.env.env or None
         cwd = self.generator.bld.path.get_bld().abspath()
-        proc = Utils.subprocess.Popen(
-            cmd.split(),
-            stdin=Utils.subprocess.PIPE,
-            stdout=Utils.subprocess.PIPE,
-            stderr=Utils.subprocess.PIPE,
-            env=env,
-            cwd=cwd,
-        )
+        proc = Utils.subprocess.Popen(cmd.split(), env=env, cwd=cwd)
 
-        std_out, std_err = proc.communicate()
-        std_out = std_out.decode(errors="ignore")
-        std_err = std_err.decode(errors="ignore")
-        ret = getattr(self, "check_output_" + self.env.BUILDERNAME)(std_out, std_err)
-        if ret:
-            self.generator.bld.fatal(f"Could not build {self.env.BUILDERNAME}")
-
-    def check_output_spelling(self, std_out, std_err):
-        """check if the spelling task generates any real errors"""
-        err_bit = 0
-        re_splitter = r":([0-9]{1,}):"
-        re_err = re.compile(r"\.rst" + re_splitter)
-        for line in std_out.strip().splitlines():
-            # if the output line contains ".rst:" it indicates that an error
-            # has been found. The path is relative to the source directory
-            # therefore we need to construct the path to the source file with
-            # the error to generate a meaningful error message
-            match = re_err.search(line)
-            if match:
-                err_bit += 1
-                err_msg = re.split(re_splitter, line)
-                err_file = os.path.normpath(os.path.join(self.env.SRCDIR, err_msg[0]))
-                err_line = err_msg[1]
-                err_word = err_msg[2]
-                Logs.error(f"{err_file}:{err_line}:error:{err_word}")
-            else:
-                if Logs.verbose:
-                    print(line)
-        for line in std_err.strip().splitlines():
-            if self.removedinsphinx30warning(line):
-                continue
-            Logs.error(line)
-            if not err_bit:
-                err_bit = 1
-
-        return err_bit
-
-    def check_output_linkcheck(self, std_out, std_err):
-        """check if the linkcheck task generates any real errors"""
-        err_bit = 0
-        re_splitter = r"(\[[ ]{0,2}\d{1,3}\%\])"
-        re_err = r"line\s{0,}(\d{1,})\s{0,}\)(.*)"
-        current_file = ""
-        for line in std_out.strip().splitlines():
-            try:
-                current_file = os.path.normpath(
-                    os.path.join(
-                        self.env.SRCDIR, re.split(re_splitter, line)[2].strip() + ".rst"
-                    )
-                )
-            except IndexError:
-                pass
-            if "broken " in line:
-                line = re.sub(r"\s\s+", " ", line)
-                err_bit += 1
-                try:
-                    line, msg = re.split(re_err, line)
-                    Logs.error(f"{current_file}:{line}:{msg}")
-                except ValueError:
-                    Logs.error(line)
-            else:
-                if Logs.verbose:
-                    print(line)
-        for line in std_err.strip().splitlines():
-            if self.removedinsphinx30warning(line):
-                continue
-            Logs.error(line)
-            if not err_bit:
-                err_bit = 1
-
-        return err_bit
-
-    def check_output_html(self, std_out, std_err):
-        """check if the html task generates any real errors"""
-        err_bit = 0
-        for line in std_out.strip().splitlines():
-            if Logs.verbose:
-                print(line)
-        for line in std_err.strip().splitlines():
-            if self.removedinsphinx30warning(line):
-                continue
-            Logs.error(line)
-            if not err_bit:
-                err_bit = 1
-
-        return err_bit
-
-    @staticmethod
-    def removedinsphinx30warning(_str):
-        """The warning ``RemovedInSphinx30Warning`` is not a valid warning in
-        our build therefore it can skipped to fail the build."""
-        ret = False
-        if "RemovedInSphinx30Warning".lower() in _str.lower():
-            Logs.warn(_str)
-            ret = True
-        return ret
+        proc.communicate()
+        if not proc.returncode:
+            print(f"Index file: {cwd+ os.sep}index.html.")
+        return proc.returncode
 
     def __str__(self):
         """for printing"""
@@ -228,25 +129,10 @@ class sphinx_task(Task.Task):  # pylint: disable=invalid-name
         return f"Compiling {self.env['BUILDERNAME']}"
 
 
-@TaskGen.extension(".rst", ".txt", ".csv")
-def rst(self, node):  # pylint: disable=unused-argument
-    """dummy function to be able to use
-    ``bld(features="sphinx", source="abc*.rst", ...)``."""
-
-
 @TaskGen.feature("sphinx")
 @TaskGen.before_method("process_source")
 def apply_sphinx(self):
     """Set up the task generator with a Sphinx instance and create a task."""
-    inputs = []
-    for i in Utils.to_list(self.source):
-        if not isinstance(i, Node.Node):
-            node = self.path.find_node(i)
-        else:
-            node = i
-        if not node:
-            raise ValueError(f"Source file '{i}'' not found.")
-        inputs.append(node)
 
     # get sphinx config (conf.py) and derive the srcdir from it.
     if not getattr(self, "conf_py", None):
@@ -268,7 +154,7 @@ def apply_sphinx(self):
     for builder in builders:
         outfile = self.path.get_bld().make_node(builder)
         outfile.write(builder)
-        builder_task = self.create_task("sphinx_task", inputs + [outfile])
+        builder_task = self.create_task("sphinx_task", [outfile])
         builder_task.inputs.append(self.conf_py)
         builder_task.env["BUILDERNAME"] = builder
         builder_task.env["SRCDIR"] = src_dir
@@ -293,11 +179,7 @@ def apply_sphinx(self):
         builder_task.outputs.append(self.out_dir_node)
 
 
-def configure(conf):
-    """Check if the following programs are available
-
-    - ``sphinx-build``,
-    - ``dot``
-    """
+def configure(conf: ConfigurationContext):
+    """Check that sphinx-build and dot are available"""
     conf.find_program("sphinx-build", var="SPHINX_BUILD")
     conf.find_program("dot", var="DOT")

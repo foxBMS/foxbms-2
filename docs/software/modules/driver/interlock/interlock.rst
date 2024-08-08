@@ -12,18 +12,18 @@ Module Files
 Driver
 ^^^^^^
 
-- ``src/app/driver/interlock/interlock.c`` (`API <../../../../_static/doxygen/src/html/interlock_8c.html>`__, `source <../../../../_static/doxygen/src/html/interlock_8c_source.html>`__)
-- ``src/app/driver/interlock/interlock.h`` (`API <../../../../_static/doxygen/src/html/interlock_8h.html>`__, `source <../../../../_static/doxygen/src/html/interlock_8h_source.html>`__)
+- ``src/app/driver/interlock/interlock.c``
+- ``src/app/driver/interlock/interlock.h``
 
 Configuration
 ^^^^^^^^^^^^^
 
-- ``src/app/driver/config/interlock_cfg.h`` (`API <../../../../_static/doxygen/src/html/interlock__cfg_8h.html>`__, `source <../../../../_static/doxygen/src/html/interlock__cfg_8h_source.html>`__)
+- ``src/app/driver/config/interlock_cfg.h``
 
 Unit Test
 ^^^^^^^^^
 
-- ``tests/unit/app/driver/interlock/test_interlock.c`` (`API <../../../../_static/doxygen/tests/html/test__interlock_8c.html>`__, `source <../../../../_static/doxygen/tests/html/test__interlock_8c_source.html>`__)
+- ``tests/unit/app/driver/interlock/test_interlock.c``
 
 Description
 -----------
@@ -46,7 +46,7 @@ Circuit description
 ^^^^^^^^^^^^^^^^^^^
 
 The interlock circuit consists of a main path that is continuously supplied by
-the static power supply of the |master|.
+the static power supply of the |foxbms-bms-master|.
 In :numref:`interlock-circuit-simplified` this is called
 ``static low-power supply``.
 This supply does not have to be enabled and is powered by the 5V rail of the

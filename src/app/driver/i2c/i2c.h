@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,8 +43,8 @@
  * @file    i2c.h
  * @author  foxBMS Team
  * @date    2021-07-22 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup DRIVERS
  * @prefix  I2C
  *
@@ -69,9 +69,9 @@
 #define I2C_TIMEOUT_us (1000u)
 
 /* Transmitter DMA enable */
-#define I2C_TXDMAEN (0x2u)
+#define I2C_TX_DMA_ENABLE (0x2u)
 /* Receiver  DMA enable */
-#define I2C_RXDMAEN (0x1u)
+#define I2C_RX_DMA_ENABLE (0x1u)
 
 /* Mask to select data byte from Data Receive Register */
 #define I2C_DDR_REGISTER_DATA_MASK (0xFFu)
@@ -106,7 +106,7 @@
 #define I2C_FACTOR_WORD_TO_BITS (9u)
 /**
  * Value of d factor in I2C configuration, depends on prescaler value
- * See Technical Reference Manual p.1769 eq.65, (SPNU563A - March 2018)
+ * docref: Technical Reference Manual p.1769 eq.65, (SPNU563A - March 2018)
  * @{
  */
 #define I2C_DFACTOR_VALUE_PRESCALER_0     (7u)

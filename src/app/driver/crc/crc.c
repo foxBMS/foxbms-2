@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,8 +43,8 @@
  * @file    crc.c
  * @author  foxBMS Team
  * @date    2022-02-22 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup DRIVERS
  * @prefix  CRC
  *
@@ -74,6 +74,8 @@
 /*========== Extern Function Implementations ================================*/
 
 extern STD_RETURN_TYPE_e CRC_CalculateCrc(uint64_t *pCrc, uint8_t *pData, uint32_t lengthInBytes) {
+    FAS_ASSERT(pCrc != NULL_PTR);
+    FAS_ASSERT(pData != NULL_PTR);
     static uint16_t crcCalls         = 0u;
     CRC_REGISTER_SIDE_e registerSide = CRC_REGISTER_LOW;
     uint32_t dataBufferLow           = 0u;
@@ -81,9 +83,6 @@ extern STD_RETURN_TYPE_e CRC_CalculateCrc(uint64_t *pCrc, uint8_t *pData, uint32
     uint32_t remainingBytes          = lengthInBytes;
     uint32_t remainingData           = 0u;
     STD_RETURN_TYPE_e retVal         = STD_OK;
-
-    FAS_ASSERT(pCrc != NULL_PTR);
-    FAS_ASSERT(pData != NULL_PTR);
 
     uint8_t *pRead = pData;
 
@@ -99,7 +98,8 @@ extern STD_RETURN_TYPE_e CRC_CalculateCrc(uint64_t *pCrc, uint8_t *pData, uint32
         /* Set mode to Full-CPU Mode to start the computation when writing the data*/
         crcREG1->CTRL2 |= CRC_FULL_CPU_MODE_SET_MASK;
 
-        /* AXIVION Next Codeline Style MisraC2012-11.3: 64 bit access needed, partial 32 bit access starts computation */
+        /* AXIVION Next Codeline Style MisraC2012-11.3: 64 bit access needed, partial 32 bit access starts computation
+         */
         /* Pointer to access the two signature registers, where input data will be written */
         volatile uint64_t *pCrcRegister = (volatile uint64 *)(&crcREG1->PSA_SIGREGL1);
 

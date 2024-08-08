@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 #
-# Copyright (c) 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -40,9 +39,9 @@
 
 """Axivion rules configured for the foxBMS 2 project."""
 
-import axivion.config  # pylint: disable=import-error
+import axivion.config  # pylint: disable=import-error,no-name-in-module
 
-analysis = axivion.config.get_analysis()
+analysis = axivion.config.get_analysis()  # pylint: disable=c-extension-no-member
 
 analysis["Generic-LocalInclude"].msg["add_include"].disabled = False
 analysis["Generic-LocalInclude"].msg["add_symbol_declaration"].disabled = False

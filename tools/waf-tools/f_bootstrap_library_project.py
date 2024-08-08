@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 #
-# Copyright (c) 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -50,7 +49,6 @@ import re
 import tarfile
 from tempfile import NamedTemporaryFile
 
-import black
 from waflib import Context
 from waflib.Build import BuildContext
 
@@ -73,13 +71,14 @@ def bootstrap_library_project(ctx):
         ctx.path.find_node("LICENSE.md"),
     ]
     tools = [
-        ctx.path.find_node("waf.bat"),
-        ctx.path.find_node("waf.sh"),
+        ctx.path.find_node("fox.bat"),
+        ctx.path.find_node("fox.ps1"),
+        ctx.path.find_node("fox.py"),
+        ctx.path.find_node("fox.sh"),
         ctx.path.find_node("tools/waf"),
-        ctx.path.find_node("tools/waf-tools/f_miniconda_env.py"),
-        ctx.path.find_node("tools/waf-tools/why.py"),
     ]
     tools.extend(ctx.path.ant_glob("conf/env/** conf/cc/remarks.txt tools/utils/**"))
+    tools.extend(ctx.path.ant_glob("cli/**/*.py"))
     lib_cc_options = ctx.path.find_node(
         "docs/software/build-process/misc/libcc-options.yaml"
     )
@@ -107,12 +106,6 @@ def bootstrap_library_project(ctx):
     compiler_tool_txt_new = re.sub(
         r'\s{0,}(,)?\s{0,}"hcg_compiler"\s{0,}(,)?\s{0,}', "", compiler_tool_txt_new
     )
-    try:
-        compiler_tool_txt_new = black.format_file_contents(
-            compiler_tool_txt_new, fast=False, mode=black.FileMode()
-        )
-    except black.NothingChanged:
-        pass
     commit_id = "unknown"
     try:
         repo = Repo(search_parent_directories=True)
@@ -124,7 +117,7 @@ def bootstrap_library_project(ctx):
         f"build a library for foxBMS (based on {commit_id}).\n\nFor details visit "
         "https://foxbms.org.\n"
     )
-    with tarfile.open("library-project.tar.bz2", mode="w:bz2") as tar:
+    with tarfile.open("library-project.tar.gz", mode="w:gz") as tar:
         for i in tools + misc:
             tar.add(i.relpath())
         tar.add(

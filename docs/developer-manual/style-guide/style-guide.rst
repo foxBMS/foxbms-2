@@ -22,6 +22,5 @@ guidelines.
     ./guidelines_c.rst
     ./guidelines_python.rst
     ./guidelines_rst.rst
-    ./guidelines_batch_shell.rst
-    ./guidelines_yaml.rst
+    ./guidelines_shell_scripts.rst
     ./guidelines_overview.rst

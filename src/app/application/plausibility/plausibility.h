@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,12 +43,13 @@
  * @file    plausibility.h
  * @author  foxBMS Team
  * @date    2020-02-24 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup APPLICATION
  * @prefix  PL
  *
- * @brief   plausibility checks for cell voltage and cell temperatures
+ * @brief   Plausibility checks for cell voltage and cell temperatures
+ * @details TODO
  *
  */
 
@@ -98,16 +99,16 @@ extern STD_RETURN_TYPE_e PL_CheckCellVoltage(
 /**
  * @brief Cell temperature plausibility check between two redundant cell temperature measurement values
  *
- * @param[in]  baseCelltemperature         cell temperature from base measurement
- * @param[in]  redundancy0Celltemperature  cell temperature from redundant measurement
- * @param[out] pCelltemperature            output cell temperature after plausibility check
+ * @param[in]  baseCellTemperature         cell temperature from base measurement
+ * @param[in]  redundancy0CellTemperature  cell temperature from redundant measurement
+ * @param[out] pCellTemperature            output cell temperature after plausibility check
  *
  * @return #STD_OK if cell voltage valid, otherwise #STD_NOT_OK
  */
-extern STD_RETURN_TYPE_e PL_CheckCelltemperature(
-    int16_t baseCelltemperature,
-    int16_t redundancy0Celltemperature,
-    int16_t *pCelltemperature);
+extern STD_RETURN_TYPE_e PL_CheckCellTemperature(
+    int16_t baseCellTemperature,
+    int16_t redundancy0CellTemperature,
+    int16_t *pCellTemperature);
 
 /**
  * @brief  Cell voltage spread plausibility check

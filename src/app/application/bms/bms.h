@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,14 +43,13 @@
  * @file    bms.h
  * @author  foxBMS Team
  * @date    2020-02-24 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup ENGINE
  * @prefix  BMS
  *
- * @brief   bms driver header
- *
- *
+ * @brief   BMS driver header
+ * @details TODO
  */
 
 #ifndef FOXBMS__BMS_H_
@@ -76,17 +75,17 @@ typedef enum {
     BMS_AT_REST,     /*!< battery is resting */
 } BMS_CURRENT_FLOW_STATE_e;
 
-/** Symbolic names for busyness of the syscontrol */
+/** Symbolic names for busyness of the BMS control */
 typedef enum {
-    BMS_CHECK_OK,     /*!< syscontrol ok */
-    BMS_CHECK_BUSY,   /*!< syscontrol busy */
-    BMS_CHECK_NOT_OK, /*!< syscontrol not ok */
+    BMS_CHECK_OK,     /*!< BMS control ok */
+    BMS_CHECK_BUSY,   /*!< BMS control busy */
+    BMS_CHECK_NOT_OK, /*!< BMS control not ok */
 } BMS_CHECK_e;
 
 /** Symbolic names to take precharge into account or not */
 typedef enum {
-    BMS_DO_NOT_TAKE_PRECHARGE_INTO_ACCCOUNT, /*!< do not take precharge into account */
-    BMS_TAKE_PRECHARGE_INTO_ACCCOUNT,        /*!< do take precharge into account */
+    BMS_DO_NOT_TAKE_PRECHARGE_INTO_ACCOUNT, /*!< do not take precharge into account */
+    BMS_TAKE_PRECHARGE_INTO_ACCOUNT,        /*!< do take precharge into account */
 } BMS_CONSIDER_PRECHARGE_e;
 
 /** States of the SYS state machine */
@@ -110,17 +109,17 @@ typedef enum {
 /** CAN states of the BMS state machine */
 typedef enum {
     /* Init-Sequence */
-    BMS_CANSTATE_UNINITIALIZED,
-    BMS_CANSTATE_INITIALIZATION,
-    BMS_CANSTATE_INITIALIZED,
-    BMS_CANSTATE_IDLE,
-    BMS_CANSTATE_OPENCONTACTORS,
-    BMS_CANSTATE_STANDBY,
-    BMS_CANSTATE_PRECHARGE,
-    BMS_CANSTATE_NORMAL,
-    BMS_CANSTATE_CHARGE,
-    BMS_CANSTATE_ERROR,
-} BMS_CANSTATE_e;
+    BMS_CAN_STATE_UNINITIALIZED,
+    BMS_CAN_STATE_INITIALIZATION,
+    BMS_CAN_STATE_INITIALIZED,
+    BMS_CAN_STATE_IDLE,
+    BMS_CAN_STATE_OPEN_CONTACTORS,
+    BMS_CAN_STATE_STANDBY,
+    BMS_CAN_STATE_PRECHARGE,
+    BMS_CAN_STATE_NORMAL,
+    BMS_CAN_STATE_CHARGE,
+    BMS_CAN_STATE_ERROR,
+} BMS_CAN_STATE_e;
 
 /** Substates of the SYS state machine */
 typedef enum {
@@ -146,12 +145,12 @@ typedef enum {
     BMS_PRECHARGE_CLOSE_NEXT_STRING,
     BMS_CLOSE_SECOND_CONTACTOR_PLUS,
     BMS_CHECK_STRING_CLOSED,
-    BMS_CHECK_ERROR_FLAGS_PRECHARGE_CLOSINGSTRINGS,
-    BMS_CHECK_ERROR_FLAGS_CLOSINGPRECHARGE,
+    BMS_CHECK_ERROR_FLAGS_PRECHARGE_CLOSING_STRINGS,
+    BMS_CHECK_ERROR_FLAGS_CLOSING_PRECHARGE,
     BMS_NORMAL_CLOSE_NEXT_STRING,
     BMS_NORMAL_CLOSE_SECOND_STRING_CONTACTOR,
-    BMS_OPEN_ALL_PRECHARGES,
-    BMS_CHECK_ALL_PRECHARGES_OPEN,
+    BMS_OPEN_ALL_PRECHARGE_CONTACTORS,
+    BMS_CHECK_ALL_PRECHARGE_CONTACTORS_OPEN,
     BMS_OPEN_STRINGS_ENTRY,
     BMS_OPEN_FIRST_STRING_CONTACTOR,
     BMS_OPEN_SECOND_STRING_CONTACTOR,
@@ -191,8 +190,8 @@ typedef struct {
     BMS_STATE_REQUEST_e stateRequest;           /*!< current state request made to the state machine */
     BMS_STATEMACH_e state;                      /*!< current state of State Machine */
     BMS_STATEMACH_SUB_e substate;               /*!< current substate of the state machine */
-    BMS_STATEMACH_e laststate;                  /*!< previous state of the state machine */
-    BMS_STATEMACH_SUB_e lastsubstate;           /*!< previous substate of the state machine */
+    BMS_STATEMACH_e lastState;                  /*!< previous state of the state machine */
+    BMS_STATEMACH_SUB_e lastSubstate;           /*!< previous substate of the state machine */
     uint32_t ErrRequestCounter;                 /*!< counts the number of illegal requests to the LTC state machine */
     STD_RETURN_TYPE_e initFinished;             /*!< #STD_OK if the initialization has passed, #STD_NOT_OK otherwise */
     uint8_t triggerentry;                       /*!< counter for re-entrance protection (function running flag) */
@@ -204,9 +203,9 @@ typedef struct {
     BMS_POWER_PATH_TYPE_e powerPath;            /*!< power path type (discharge or charge) */
     uint8_t numberOfClosedStrings;              /*!< number of closed strings */
     uint16_t stringOpenTimeout;                 /*!< timeout to abort if string opening takes too long */
-    uint32_t nextstringclosedtimer;             /*!< timer to wait if the next string was closed */
+    uint32_t nextStringClosedTimer;             /*!< timer to wait if the next string was closed */
     uint16_t stringCloseTimeout;                /*!< timeout to abort if a string takes too long to close */
-    BMS_STATEMACH_e nextstate;                  /*!< next state of the State Machine */
+    BMS_STATEMACH_e nextState;                  /*!< next state of the State Machine */
     uint8_t firstClosedString;                  /*!< strings with highest or lowest voltage, that was closed first */
     uint16_t prechargeOpenTimeout;              /*!< timeout to abort if string opening takes too long */
     uint16_t prechargeCloseTimeout;             /*!< timeout to abort if a string takes too long to close */
@@ -271,11 +270,11 @@ extern void BMS_Trigger(void);
 extern BMS_CURRENT_FLOW_STATE_e BMS_GetBatterySystemState(void);
 
 /**
-  * @brief   Get current flow direction, current value as function parameter
-  * @param[in]   current_mA current that is flowing
-  * @return  #BMS_DISCHARGING or #BMS_CHARGING depending on current direction.
-  *          Return #BMS_AT_REST. ((type: #BMS_CURRENT_FLOW_STATE_e)
-  */
+ * @brief   Get current flow direction, current value as function parameter
+ * @param[in]   current_mA current that is flowing
+ * @return  #BMS_DISCHARGING or #BMS_CHARGING depending on current direction.
+ *          Return #BMS_AT_REST. ((type: #BMS_CURRENT_FLOW_STATE_e)
+ */
 extern BMS_CURRENT_FLOW_STATE_e BMS_GetCurrentFlowDirection(int32_t current_mA);
 
 /**
@@ -325,7 +324,7 @@ extern uint8_t TEST_BMS_GetClosestString(BMS_CONSIDER_PRECHARGE_e precharge, DAT
 extern uint8_t TEST_BMS_GetLowestString(BMS_CONSIDER_PRECHARGE_e precharge, DATA_BLOCK_PACK_VALUES_s *pPackValues);
 extern int32_t TEST_BMS_GetStringVoltageDifference(uint8_t string, DATA_BLOCK_PACK_VALUES_s *pPackValues);
 extern int32_t TEST_BMS_GetAverageStringCurrent(DATA_BLOCK_PACK_VALUES_s *pPackValues);
-extern void TEST_BMS_UpdateBatsysState(DATA_BLOCK_PACK_VALUES_s *pPackValues);
+extern void TEST_BMS_UpdateBatterySystemState(DATA_BLOCK_PACK_VALUES_s *pPackValues);
 #endif
 
 #endif /* FOXBMS__BMS_H_ */

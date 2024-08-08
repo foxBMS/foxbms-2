@@ -6,13 +6,6 @@
 Build Process
 =============
 
-..
-    Comments:
-    none
-
-.. spelling::
-    SWI
-
 This section addresses relevant steps in the build process that are important
 to know when interacting with it.
 

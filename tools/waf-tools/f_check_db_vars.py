@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 #
-# Copyright (c) 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -156,7 +155,7 @@ class check_db_vars(Task.Task):  # pylint: disable=invalid-name
                         "Project will not compile with that error."
                     )
 
-    def keyword(self):  # pylint: disable=no-self-use
+    def keyword(self):
         """displayed keyword when this check is run"""
         return "Checking for database variables in"
 

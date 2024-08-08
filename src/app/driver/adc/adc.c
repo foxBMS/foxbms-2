@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,13 +43,13 @@
  * @file    adc.c
  * @author  foxBMS Team
  * @date    2019-01-07 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup DRIVERS
  * @prefix  ADC
  *
  * @brief   Driver for the ADC module.
- *
+ * @details TODO
  */
 
 /*========== Includes =======================================================*/
@@ -92,9 +92,10 @@ static float_t ADC_ConvertVoltage(uint16_t adcCounts);
 static float_t ADC_ConvertVoltage(uint16_t adcCounts) {
     /* AXIVION Routine Generic-MissingParameterAssert: adcValue_mV: parameter accepts whole range */
 
-    /** For details to equation see Equation 28 in Technical Reference Manual SPNU563A - March 2018 page 852 */
-    float_t result_mV = (((adcCounts + ADC_CONV_OFFSET) * (ADC_VREFHIGH_mV - ADC_VREFLOW_mV)) / ADC_CONV_FACTOR_12BIT) +
-                        ADC_VREFLOW_mV;
+    /** docref: For details to equation see Equation 28 in Technical Reference Manual SPNU563A - March 2018 page 852 */
+    float_t result_mV =
+        (((adcCounts + ADC_CONVERSION_OFFSET) * (ADC_VREFHIGH_mV - ADC_VREFLOW_mV)) / ADC_CONVERSION_FACTOR_12BIT) +
+        ADC_VREFLOW_mV;
 
     return result_mV;
 }
@@ -130,13 +131,21 @@ extern void ADC_Control(void) {
             adc_conversionState = ADC_START_CONVERSION;
             break;
 
-        default:
-            /* invalid state */
-            FAS_ASSERT(FAS_TRAP);
-            break;
+        default: /* invalid state */ /* LCOV_EXCL_LINE */
+            FAS_ASSERT(FAS_TRAP);    /* LCOV_EXCL_LINE */
+            break;                   /* LCOV_EXCL_LINE */
     }
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
 #ifdef UNITY_UNIT_TEST
+extern float_t TEST_ADC_ConvertVoltage(uint16_t adcCounts) {
+    return ADC_ConvertVoltage(adcCounts);
+}
+extern void TEST_ADC_SetAdcConversionState(ADC_STATE_e state) {
+    adc_conversionState = state;
+}
+extern ADC_STATE_e TEST_ADC_GetAdcConversionState(void) {
+    return adc_conversionState;
+}
 #endif

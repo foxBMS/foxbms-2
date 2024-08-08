@@ -6,15 +6,6 @@
 Releases
 ========
 
-..
-    Comments:
-    vx version dummy
-    xxxx is the dummy date for x.y.z
-
-.. spelling::
-    vx
-    xxxx
-
 |foxbms| Releases
 -----------------
 

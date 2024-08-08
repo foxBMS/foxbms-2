@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,8 +43,8 @@
  * @file    test_can_cbs_rx_debug.c
  * @author  foxBMS Team
  * @date    2021-04-22 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -55,6 +55,7 @@
 /*========== Includes =======================================================*/
 #include "unity.h"
 #include "Mockcan.h"
+#include "Mockcan_cbs_tx_debug-build-configuration.h"
 #include "Mockcan_cbs_tx_debug-response.h"
 #include "Mockcan_cbs_tx_debug-unsupported-multiplexer-values.h"
 #include "Mockdatabase.h"
@@ -81,7 +82,7 @@ TEST_SOURCE_FILE("can_cbs_rx_debug.c")
 TEST_INCLUDE_PATH("../../src/app/driver/can")
 TEST_INCLUDE_PATH("../../src/app/driver/can/cbs")
 TEST_INCLUDE_PATH("../../src/app/driver/can/cbs/rx")
-TEST_INCLUDE_PATH("../../src/app/driver/can/cbs/tx")
+TEST_INCLUDE_PATH("../../src/app/driver/can/cbs/tx-async")
 TEST_INCLUDE_PATH("../../src/app/driver/config")
 TEST_INCLUDE_PATH("../../src/app/driver/foxmath")
 TEST_INCLUDE_PATH("../../src/app/driver/fram")
@@ -170,16 +171,19 @@ void testCANRX_DebugAssertionsParamMessage(void) {
     /* testing assertions, therefore only dummy CAN data required in this test */
     /* test assert for wrong message ID */
     CAN_MESSAGE_PROPERTIES_s testMessage = {
-        .id         = CAN_MAX_11BIT_ID, /* invalid ID */
-        .idType     = CANRX_DEBUG_ID_TYPE,
-        .dlc        = 0u,                     /* invalid data length */
-        .endianness = CANRX_DEBUG_ENDIANNESS, /* valid endianness */
+        .id         = CAN_MAX_11BIT_ID,               /* invalid ID */
+        .idType     = CAN_EXTENDED_IDENTIFIER_29_BIT, /* invalid ID-type*/
+        .dlc        = 0u,                             /* invalid data length */
+        .endianness = CANRX_DEBUG_ENDIANNESS,         /* valid endianness */
     };
     TEST_ASSERT_FAIL_ASSERT(CANRX_Debug(testMessage, testCanDataZeroArray, &can_kShim));
 
-    /* fix message ID, therfore only the DLC length is wrong and must lead to
-       an assertion. */
+    /* fix message ID, therfore the invalid ID-type must lead to an assertion*/
     testMessage.id = CANRX_DEBUG_ID;
+    TEST_ASSERT_FAIL_ASSERT(CANRX_Debug(testMessage, testCanDataZeroArray, &can_kShim));
+
+    /* fix message ID-type, therefore only DLC length is wrong and must lead to an assertion.*/
+    testMessage.idType = CAN_STANDARD_IDENTIFIER_11_BIT;
     TEST_ASSERT_FAIL_ASSERT(CANRX_Debug(testMessage, testCanDataZeroArray, &can_kShim));
 
     /* fix the message, as we now need to test the rest of the arguments assertions */
@@ -209,7 +213,7 @@ void testCANRX_DebugInvalidMultiplexerValues(void) {
     uint8_t testCanData[CAN_MAX_DLC] = {0};
 
     testCanData[0] = INVALID_MULTIPLEXER_VALUE; /* invalid multiplexer value */
-    CANTX_UnsupportedMultiplexerValue_Expect(CANRX_DEBUG_ID, INVALID_MULTIPLEXER_VALUE);
+    CANTX_DebugUnsupportedMultiplexerVal_Expect(CANRX_DEBUG_ID, INVALID_MULTIPLEXER_VALUE);
     CANRX_Debug(validRxDebugTestMessage, testCanData, &can_kShim);
 }
 
@@ -364,6 +368,16 @@ void testCANRX_TriggerTimeInfoMessage(void) {
     TEST_ASSERT_FAIL_ASSERT(TEST_CANRX_TriggerTimeInfoMessage());
 }
 
+void testCANRX_TriggerBuildConfigurationMessage(void) {
+    /* sending response message works as expected */
+    CANTX_DebugBuildConfiguration_IgnoreAndReturn(STD_OK);
+    TEST_CANRX_TriggerBuildConfigurationMessage();
+
+    /* sending response message does not work as expected */
+    CANTX_DebugBuildConfiguration_IgnoreAndReturn(STD_NOT_OK);
+    TEST_ASSERT_FAIL_ASSERT(TEST_CANRX_TriggerBuildConfigurationMessage());
+}
+
 /*********************************************************************************************************************/
 void testCANRX_CheckIfBmsSoftwareVersionIsRequested(void) {
     /* test endianness assertion */
@@ -449,6 +463,17 @@ void testCANRX_CheckIfTimeInfoIsRequested(void) {
     TEST_ASSERT_TRUE(isRequested);
 }
 
+void testCANRX_CheckIfBuildConfigurationIsRequested(void) {
+    /* test endianness assertion */
+    TEST_ASSERT_FAIL_ASSERT(TEST_CANRX_CheckIfBuildConfigurationIsRequested(testMessageDataZero, invalidEndianness))
+
+    /* test correct message -> return true */
+    /* set bit to indicate that the BMS time information is requested */
+    uint64_t testMessageData = ((uint64_t)1u) << 53u;
+    bool isRequested         = TEST_CANRX_CheckIfBuildConfigurationIsRequested(testMessageData, validEndianness);
+    TEST_ASSERT_TRUE(isRequested);
+}
+
 /*********************************************************************************************************************/
 /* test if all functions that process the multiplexer values (pattern: CANRX_Process.*Mux) */
 void testCANRX_ProcessVersionInformationMux(void) {
@@ -469,6 +494,14 @@ void testCANRX_ProcessVersionInformationMux(void) {
 
     testMessageData = ((uint64_t)1u) << 51u; /* set bit to indicate that the MCU wafer information is requested */
     CANTX_DebugResponse_ExpectAndReturn(CANTX_DEBUG_RESPONSE_TRANSMIT_MCU_WAFER_INFORMATION, STD_OK);
+    TEST_CANRX_ProcessVersionInformationMux(testMessageData, validEndianness);
+
+    testMessageData = ((uint64_t)1u) << 52u; /* set bit to indicate that the MCU wafer information is requested */
+    CANTX_DebugResponse_ExpectAndReturn(CANTX_DEBUG_RESPONSE_TRANSMIT_COMMIT_HASH, STD_OK);
+    TEST_CANRX_ProcessVersionInformationMux(testMessageData, validEndianness);
+
+    testMessageData = ((uint64_t)1u) << 53u; /* set bit to indicate that the MCU wafer information is requested */
+    CANTX_DebugBuildConfiguration_ExpectAndReturn(STD_OK);
     TEST_CANRX_ProcessVersionInformationMux(testMessageData, validEndianness);
 }
 

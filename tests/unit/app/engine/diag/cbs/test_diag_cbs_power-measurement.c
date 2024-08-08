@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,8 +43,8 @@
  * @file    test_diag_cbs_power-measurement.c
  * @author  foxBMS Team
  * @date    2021-02-17 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -92,13 +92,63 @@ void tearDown(void) {
 }
 
 /*========== Test Cases =====================================================*/
-/** tests invalid input values */
+/**
+ * @brief   Testing DIAG_ErrorHighVoltageMeasurementInvalidInput
+ * @details The following cases need to be tested:
+ *          - Argument validation:
+ *            - AT1/4: invalid diagnosis event ID &rarr; assert
+ *            - AT2/4: invalid diagnosis event &rarr; assert
+ *            - AT3/4: NULL_PTR for kpkDiagShim &rarr; assert
+ *            - AT4/4: Invalid String number &rarr; assert
+ *          - Routine validation:
+ *            - RT1/5: Checks whether the error bit is set correctly
+ *                     when a power timeout occurs in the current sensor.
+ *                     Tests whether the error bit is set correctly
+ *                     in the event of "reset" and "not ok".
+ *            - RT2/5: Checks whether the error bit is set correctly
+ *                     when a power measurement invalid error occurs.
+ *                     Tests whether the error bit is set correctly
+ *                     in the event of "reset" and "not ok".
+ */
 void testDIAG_ErrorPowerMeasurementInvalidInput(void) {
+    /* ======= Assertion tests ============================================= */
+    /* ======= AT1/4 ======= */
     TEST_ASSERT_FAIL_ASSERT(DIAG_ErrorPowerMeasurement(DIAG_ID_MAX, DIAG_EVENT_OK, &diag_kpkDatabaseShim, 0u));
+    /* ======= AT2/4 ======= */
     TEST_ASSERT_FAIL_ASSERT(
         DIAG_ErrorPowerMeasurement(DIAG_ID_CURRENT_SENSOR_POWER_MEASUREMENT_TIMEOUT, 42, &diag_kpkDatabaseShim, 0u));
+    /* ======= AT3/4 ======= */
     TEST_ASSERT_FAIL_ASSERT(
         DIAG_ErrorPowerMeasurement(DIAG_ID_CURRENT_SENSOR_POWER_MEASUREMENT_TIMEOUT, DIAG_EVENT_OK, NULL_PTR, 0u));
+    /* ======= AT4/4 ======= */
     TEST_ASSERT_FAIL_ASSERT(DIAG_ErrorPowerMeasurement(
         DIAG_ID_CURRENT_SENSOR_POWER_MEASUREMENT_TIMEOUT, DIAG_EVENT_OK, &diag_kpkDatabaseShim, BS_NR_OF_STRINGS));
+
+    /* ======= Routine tests =============================================== */
+    /* ======= RT1/2: Test implementation */
+    diag_kpkDatabaseShim.pTableError->currentSensorPowerTimeoutError[0u] = true;
+    /* ======= RT1/2: call function under test */
+    DIAG_ErrorPowerMeasurement(
+        DIAG_ID_CURRENT_SENSOR_POWER_MEASUREMENT_TIMEOUT, DIAG_EVENT_RESET, &diag_kpkDatabaseShim, 0u);
+    TEST_ASSERT_FALSE(diag_kpkDatabaseShim.pTableError->currentSensorPowerTimeoutError[0u]);
+    /* ======= RT1/2: Test implementation */
+    diag_kpkDatabaseShim.pTableError->currentSensorPowerTimeoutError[0u] = false;
+    /* ======= RT1/2: call function under test */
+    DIAG_ErrorPowerMeasurement(
+        DIAG_ID_CURRENT_SENSOR_POWER_MEASUREMENT_TIMEOUT, DIAG_EVENT_NOT_OK, &diag_kpkDatabaseShim, 0u);
+    /* ======= RT1/2: test output verification */
+    TEST_ASSERT_TRUE(diag_kpkDatabaseShim.pTableError->currentSensorPowerTimeoutError[0u]);
+
+    /* ======= RT2/2: Test implementation */
+    diag_kpkDatabaseShim.pTableError->powerMeasurementInvalidError[0u] = true;
+    /* ======= RT2/2: call function under test */
+    DIAG_ErrorPowerMeasurement(DIAG_ID_POWER_MEASUREMENT_ERROR, DIAG_EVENT_RESET, &diag_kpkDatabaseShim, 0u);
+    /* ======= RT2/2: test output verification */
+    TEST_ASSERT_FALSE(diag_kpkDatabaseShim.pTableError->powerMeasurementInvalidError[0u]);
+    /* ======= RT2/2: Test implementation */
+    diag_kpkDatabaseShim.pTableError->powerMeasurementInvalidError[0u] = false;
+    /* ======= RT2/2: call function under test */
+    DIAG_ErrorPowerMeasurement(DIAG_ID_POWER_MEASUREMENT_ERROR, DIAG_EVENT_NOT_OK, &diag_kpkDatabaseShim, 0u);
+    /* ======= RT2/2: test output verification */
+    TEST_ASSERT_TRUE(diag_kpkDatabaseShim.pTableError->powerMeasurementInvalidError[0u]);
 }

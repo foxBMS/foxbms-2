@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,8 +43,8 @@
  * @file    test_mxm_1785x.c
  * @author  foxBMS Team
  * @date    2020-07-02 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  MXM
  *
@@ -112,14 +112,14 @@ static MXM_MONITORING_INSTANCE_s mxm_instance = {
             .lsb           = 0x00,
             .msb           = 0x00,
             .deviceAddress = 0x00,
-            .blocksize     = 0,
+            .blockSize     = 0,
             .model         = MXM_MODEL_ID_MAX17852,
         },
     .resultSelfCheck = STD_NOT_OK,
     .selfCheck =
         {
             .crc                      = STD_NOT_OK,
-            .conv                     = STD_NOT_OK,
+            .conversion               = STD_NOT_OK,
             .firstSetBit              = STD_NOT_OK,
             .extractValueFromRegister = STD_NOT_OK,
             .parseVoltageReadall      = STD_NOT_OK,
@@ -161,8 +161,8 @@ void tearDown(void) {
 }
 
 /*========== Test Cases =====================================================*/
-void testMXM_ParseVoltageReadallTest(void) {
-    TEST_ASSERT_PASS_ASSERT(TEST_ASSERT_EQUAL(STD_OK, TEST_MXM_ParseVoltageReadallTest(&mxm_instance)));
+void testMXM_ParseVoltageReadAllTest(void) {
+    TEST_ASSERT_PASS_ASSERT(TEST_ASSERT_EQUAL(STD_OK, TEST_MXM_ParseVoltageReadAllTest(&mxm_instance)));
 }
 
 /** This test aims to provoke the assertion that checks if the battery system fits the internal configuration */
@@ -178,17 +178,17 @@ void testMXM_ConstructBalancingBufferTest(void) {
     TEST_ASSERT_PASS_ASSERT(MXM_ConstructBalancingBuffer(&balancingInstance));
 }
 
-void testTEST_MXM_ParseVoltageReadallNullPointer(void) {
+void testTEST_MXM_ParseVoltageReadAllNullPointer(void) {
     uint8_t voltRxBuffer           = 0;
-    MXM_DATA_STORAGE_s datastorage = {0};
+    MXM_DATA_STORAGE_s dataStorage = {0};
 
-    TEST_ASSERT_FAIL_ASSERT(TEST_MXM_ParseVoltageReadall(NULL_PTR, 0u, &datastorage, 0u));
+    TEST_ASSERT_FAIL_ASSERT(TEST_MXM_ParseVoltageReadAll(NULL_PTR, 0u, &dataStorage, 0u));
 
-    TEST_ASSERT_FAIL_ASSERT(TEST_MXM_ParseVoltageReadall(&voltRxBuffer, 0u, NULL_PTR, 0u));
+    TEST_ASSERT_FAIL_ASSERT(TEST_MXM_ParseVoltageReadAll(&voltRxBuffer, 0u, NULL_PTR, 0u));
 }
 
-void testMXM_ParseVoltageReadallTestNullPointer(void) {
-    TEST_ASSERT_FAIL_ASSERT(TEST_MXM_ParseVoltageReadallTest(NULL_PTR));
+void testMXM_ParseVoltageReadAllTestNullPointer(void) {
+    TEST_ASSERT_FAIL_ASSERT(TEST_MXM_ParseVoltageReadAllTest(NULL_PTR));
 }
 
 void testMXM_ParseVoltagesIntoDBNullPointer(void) {

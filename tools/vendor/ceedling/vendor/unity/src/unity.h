@@ -1,16 +1,17 @@
-/* ==========================================
-    Unity Project - A Test Framework for C
-    Copyright (c) 2007-21 Mike Karlesky, Mark VanderVoord, Greg Williams
-    [Released under MIT License. Please refer to license.txt for details]
-========================================== */
+/* =========================================================================
+    Unity - A Test Framework for C
+    ThrowTheSwitch.org
+    Copyright (c) 2007-24 Mike Karlesky, Mark VanderVoord, & Greg Williams
+    SPDX-License-Identifier: MIT
+========================================================================= */
 
 #ifndef UNITY_FRAMEWORK_H
 #define UNITY_FRAMEWORK_H
 #define UNITY
 
 #define UNITY_VERSION_MAJOR    2
-#define UNITY_VERSION_MINOR    5
-#define UNITY_VERSION_BUILD    4
+#define UNITY_VERSION_MINOR    6
+#define UNITY_VERSION_BUILD    0
 #define UNITY_VERSION          ((UNITY_VERSION_MAJOR << 16) | (UNITY_VERSION_MINOR << 8) | UNITY_VERSION_BUILD)
 
 #ifdef __cplusplus

@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 #
-# Copyright (c) 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -59,7 +58,7 @@ def get_git_root(path: str = os.path.realpath(__file__)) -> Path:
     """helper function to find the repository root
 
     Args:
-        path (string): path of test_f_guidelines
+        path (string): path of file in git repository
 
     Returns:
         root (string): root path of the git repository
@@ -78,7 +77,7 @@ def date_get_today() -> str:
 def get_previous_release(repo: Path) -> str:
     """Return the previous version number"""
     path = str(repo / "docs" / "general" / "releases.csv")
-    with open(path, "r", encoding="utf-8") as f:
+    with open(path, encoding="utf-8") as f:
         reader = csv.DictReader(f, delimiter=";")
         for row in reader:
             if row["foxBMS 2"] != "vx.y.z":
@@ -93,28 +92,36 @@ def update_c_h_files(root, iso_date_today, _from, _to):
         + list((root / "docs").rglob("**/*.[c|h]"))
         + list((root / "src").rglob("**/*.[c|h]"))
         + list((root / "tests").rglob("**/*.[c|h]"))
+        + list((root / "tools/crc").rglob("**/*.[c|h]"))
     )
     updated = re.compile(r" \* @updated (\d{4}-\d{2}-\d{2}) \(date of last update\)")
     updated_new = f" * @updated {iso_date_today} (date of last update)"
     old_version = f" * @version v{_from}"
     new_version = f" * @version v{_to}"
-    logging.debug(f"from: {old_version}")
-    logging.debug(f"to: {new_version}")
+    logging.debug("from: %s", old_version)
+    logging.debug("to: %s", new_version)
     for i in all_c_h_files:
+        do_replace = False
         try:
             txt = i.read_text(encoding="utf-8")
-        except:  # pylint: disable=bare-except
+        # pylint: disable=bare-except
+        except:  # noqa: E722
             continue
         if " * @author  foxBMS Team" in txt:
-            # re-read file to ensure ascii encoding on our files
-            txt = i.read_text(encoding="ascii")
-            logging.debug(f"Found foxBMS 2 file: {i}")
-            if old_version in txt:
-                logging.debug("...Replacing version")
-                txt = txt.replace(old_version, new_version, 1)
-                logging.debug("...Replacing updated")
-                txt = updated.sub(updated_new, txt)
-                i.write_text(txt, encoding="ascii")
+            do_replace = True
+        elif "nxp_mc33775a-ll" in i.name:
+            do_replace = True
+        if not do_replace:
+            continue
+        # re-read file to ensure ascii encoding on our files
+        txt = i.read_text(encoding="ascii")
+        logging.debug("Found foxBMS 2 file: %s", i)
+        if old_version in txt:
+            logging.debug("...Replacing version")
+            txt = txt.replace(old_version, new_version, 1)
+            logging.debug("...Replacing updated")
+            txt = updated.sub(updated_new, txt)
+            i.write_text(txt, encoding="ascii")
 
 
 def update_wscript(root, _from, _to):
@@ -142,14 +149,14 @@ def update_citation(root, iso_date_today, _from, _to):
 def update_changelog(root, iso_date_today, _from, _to):
     """Update changelog"""
     changelog = root / "docs" / "general" / "changelog.rst"
-    logging.debug(f"Patching {changelog}")
+    logging.debug("Patching %s", changelog)
     txt = changelog.read_text(encoding="utf-8")
     if _to == "x.y.z":
         txt = txt.splitlines()
         if txt[47].startswith(f"[{_to}"):
             sys.exit(f"Something went wrong. {changelog} already sets 'v{_to}'.")
         txt = (
-            txt[:45]
+            txt[:49]
             + f"""
 ********************
 [{_to}] - {MAGIC_DATE}
@@ -171,7 +178,7 @@ Fixed
 =====
 
 """.splitlines()
-            + txt[46:]
+            + txt[50:]
         )
         txt = "\n".join(txt) + "\n"
     else:
@@ -195,7 +202,7 @@ def update_commit_fragments(root, previous_release, _from, _to):
         except ValueError:
             sys.exit("unexpected version identifier")
     commit_msg_file = root / "docs" / "general" / "commit-msgs" / "next-release.txt"
-    logging.debug(f"Patching {commit_msg_file}")
+    logging.debug("Patching %s", commit_msg_file)
     txt = commit_msg_file.read_text(encoding="utf-8")
     txt = txt.replace("<Major/Minor/Bugfix>", change_type)
     txt = txt.replace(f"foxBMS 2 (v{_from})", f"foxBMS 2 (v{_to})")
@@ -262,15 +269,7 @@ def update_doc_macros(root, _from, _to):
     macros.write_text(txt, encoding="utf-8")
 
 
-def update_fgui(root, _from, _to):
-    """Update fgui module"""
-    fgui = root / "tools" / "gui" / "fgui" / "__init__.py"
-    txt = fgui.read_text(encoding="utf-8")
-    txt = txt.replace(f'__version__ = "{_from}"', f'__version__ = "{_to}"', 1)
-    fgui.write_text(txt, encoding="utf-8")
-
-
-def main():  # pylint: disable=too-many-statements
+def main():
     """Update the version information in all relevant files."""
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -324,7 +323,6 @@ def main():  # pylint: disable=too-many-statements
     update_release_csv(root, iso_date_today, _from, _to)
     update_installation_instructions(root, _from, _to)
     update_doc_macros(root, _from, _to)
-    update_fgui(root, _from, _to)
 
 
 if __name__ == "__main__":

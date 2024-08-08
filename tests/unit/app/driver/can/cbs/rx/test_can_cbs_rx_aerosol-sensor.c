@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,8 +43,8 @@
  * @file    test_can_cbs_rx_aerosol-sensor.c
  * @author  foxBMS Team
  * @date    2023-08-31 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -296,37 +296,37 @@ void testCANRX_AerosolSensor(void) {
 
     /* ======= AT1/5 ======= */
     CAN_MESSAGE_PROPERTIES_s testMessageInvalidId = {
-        .id         = CAN_MAX_11BIT_ID,                /* invalid message id */
-        .idType     = CANRX_AEROSOL_SENSOR_ID_TYPE,    /* valid id type */
-        .dlc        = CAN_DEFAULT_DLC,                 /* valid dlc */
-        .endianness = CANRX_AEROSOL_SENSOR_ENDIANNESS, /* valid endianness */
+        .id         = CAN_MAX_11BIT_ID,                    /* invalid message id */
+        .idType     = CANRX_BAS_AEROSOL_SENSOR_ID_TYPE,    /* valid id type */
+        .dlc        = CAN_DEFAULT_DLC,                     /* valid dlc */
+        .endianness = CANRX_BAS_AEROSOL_SENSOR_ENDIANNESS, /* valid endianness */
     };
     TEST_ASSERT_FAIL_ASSERT(CANRX_AerosolSensor(testMessageInvalidId, canData, &can_kShim));
 
     /* ======= AT2/5 ======= */
     CAN_MESSAGE_PROPERTIES_s testMessageInvalidIdType = {
-        .id         = CANRX_AEROSOL_SENSOR_ID,         /* valid message id */
-        .idType     = CAN_EXTENDED_IDENTIFIER_29_BIT,  /* invalid id type */
-        .dlc        = CAN_DEFAULT_DLC,                 /* valid dlc */
-        .endianness = CANRX_AEROSOL_SENSOR_ENDIANNESS, /* valid endianness */
+        .id         = CANRX_BAS_AEROSOL_SENSOR_ID,         /* valid message id */
+        .idType     = CAN_EXTENDED_IDENTIFIER_29_BIT,      /* invalid id type */
+        .dlc        = CAN_DEFAULT_DLC,                     /* valid dlc */
+        .endianness = CANRX_BAS_AEROSOL_SENSOR_ENDIANNESS, /* valid endianness */
     };
     TEST_ASSERT_FAIL_ASSERT(CANRX_AerosolSensor(testMessageInvalidIdType, canData, &can_kShim));
 
     /* ======= AT3/5 ======= */
     CAN_MESSAGE_PROPERTIES_s testMessageInvalidDlc = {
-        .id         = CANRX_AEROSOL_SENSOR_ID,         /* valid message id */
-        .idType     = CANRX_AEROSOL_SENSOR_ID_TYPE,    /* valid id type */
-        .dlc        = CAN_DEFAULT_DLC + 1u,            /* invalid dlc */
-        .endianness = CANRX_AEROSOL_SENSOR_ENDIANNESS, /* valid endianness */
+        .id         = CANRX_BAS_AEROSOL_SENSOR_ID,         /* valid message id */
+        .idType     = CANRX_BAS_AEROSOL_SENSOR_ID_TYPE,    /* valid id type */
+        .dlc        = CAN_DEFAULT_DLC + 1u,                /* invalid dlc */
+        .endianness = CANRX_BAS_AEROSOL_SENSOR_ENDIANNESS, /* valid endianness */
     };
     TEST_ASSERT_FAIL_ASSERT(CANRX_AerosolSensor(testMessageInvalidDlc, canData, &can_kShim));
 
     /* ======= AT4/5 ======= */
     CAN_MESSAGE_PROPERTIES_s validTestMessage = {
-        .id         = CANRX_AEROSOL_SENSOR_ID,         /* valid message id */
-        .idType     = CANRX_AEROSOL_SENSOR_ID_TYPE,    /* valid id type */
-        .dlc        = CAN_DEFAULT_DLC,                 /* valid dlc */
-        .endianness = CANRX_AEROSOL_SENSOR_ENDIANNESS, /* valid endianness */
+        .id         = CANRX_BAS_AEROSOL_SENSOR_ID,         /* valid message id */
+        .idType     = CANRX_BAS_AEROSOL_SENSOR_ID_TYPE,    /* valid id type */
+        .dlc        = CAN_DEFAULT_DLC,                     /* valid dlc */
+        .endianness = CANRX_BAS_AEROSOL_SENSOR_ENDIANNESS, /* valid endianness */
     };
     TEST_ASSERT_FAIL_ASSERT(CANRX_AerosolSensor(validTestMessage, NULL_PTR, &can_kShim));
 

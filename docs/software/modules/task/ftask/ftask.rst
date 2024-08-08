@@ -12,19 +12,19 @@ Module Files
 Driver
 ^^^^^^
 
-- ``src/app/task/ftask/ftask.c`` (`API <../../../../_static/doxygen/src/html/ftask_8c.html>`__, `source <../../../../_static/doxygen/src/html/ftask_8c_source.html>`__)
-- ``src/app/task/ftask/ftask.h`` (`API <../../../../_static/doxygen/src/html/ftask_8h.html>`__, `source <../../../../_static/doxygen/src/html/ftask_8h_source.html>`__)
+- ``src/app/task/ftask/ftask.c``
+- ``src/app/task/ftask/ftask.h``
 
 |freertos|
 """"""""""
 
-- ``src/app/task/ftask/freertos/ftask_freertos.c`` (`API <../../../../_static/doxygen/src/html/ftask__freertos_8c.html>`__, `source <../../../../_static/doxygen/src/html/ftask__freertos_8c_source.html>`__)
+- ``src/app/task/ftask/freertos/ftask_freertos.c``
 
 Configuration
 ^^^^^^^^^^^^^
 
-- ``src/app/task/config/ftask_cfg.c`` (`API <../../../../_static/doxygen/src/html/ftask__cfg_8c.html>`__, `source <../../../../_static/doxygen/src/html/ftask__cfg_8c_source.html>`__)
-- ``src/app/task/config/ftask_cfg.h`` (`API <../../../../_static/doxygen/src/html/ftask__cfg_8h.html>`__, `source <../../../../_static/doxygen/src/html/ftask__cfg_8h_source.html>`__)
+- ``src/app/task/config/ftask_cfg.c``
+- ``src/app/task/config/ftask_cfg.h``
 
 Unit Test
 ^^^^^^^^^

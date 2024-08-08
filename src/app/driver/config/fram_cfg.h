@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,14 +43,13 @@
  * @file    fram_cfg.h
  * @author  foxBMS Team
  * @date    2020-03-05 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup DRIVERS
  * @prefix  FRAM
  *
  * @brief   Headers for the configuration for the FRAM module
- *
- *
+ * @details TODO
  */
 
 #ifndef FOXBMS__FRAM_CFG_H_
@@ -63,6 +62,7 @@
 #include "fstd_types.h"
 
 #include <math.h>
+#include <stdbool.h>
 #include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
@@ -112,6 +112,8 @@ typedef enum {
     FRAM_BLOCK_MAX, /**< DO NOT CHANGE, MUST BE THE LAST ENTRY */
 } FRAM_BLOCK_ID_e;
 
+FAS_STATIC_ASSERT(((uint32_t)FRAM_BLOCK_MAX < (uint32_t)UINT8_MAX), "Looping over 'FRAM_BLOCK_MAX' assumes 'uint8_t'.");
+
 /**
  * @brief   Stores the version of the memory layout of the FRAM
  * @details This struct stores with which memory-layout version the FRAM has
@@ -138,9 +140,11 @@ typedef struct {
  * 0.0f and 100.0f (0% and 100%)
  */
 typedef struct {
-    float_t minimumSoc_perc[BS_NR_OF_STRINGS]; /*!< minimum SOC */
-    float_t maximumSoc_perc[BS_NR_OF_STRINGS]; /*!< maximum SOC */
-    float_t averageSoc_perc[BS_NR_OF_STRINGS]; /*!< average SOC */
+    float_t minimumSoc_perc[BS_NR_OF_STRINGS];        /*!< minimum SOC */
+    float_t maximumSoc_perc[BS_NR_OF_STRINGS];        /*!< maximum SOC */
+    float_t averageSoc_perc[BS_NR_OF_STRINGS];        /*!< average SOC */
+    float_t chargeThroughput_As[BS_NR_OF_STRINGS];    /*!<  Charge througput */
+    float_t dischargeThroughput_As[BS_NR_OF_STRINGS]; /*!< Discharge througput */
 } FRAM_SOC_s;
 
 /**
@@ -149,9 +153,11 @@ typedef struct {
  * 0.0f and 100.0f (0% and 100%)
  */
 typedef struct {
-    float_t minimumSoe_perc[BS_NR_OF_STRINGS]; /*!< minimum SOE */
-    float_t maximumSoe_perc[BS_NR_OF_STRINGS]; /*!< maximum SOE */
-    float_t averageSoe_perc[BS_NR_OF_STRINGS]; /*!< average SOE */
+    float_t minimumSoe_perc[BS_NR_OF_STRINGS];              /*!< minimum SOE */
+    float_t maximumSoe_perc[BS_NR_OF_STRINGS];              /*!< maximum SOE */
+    float_t averageSoe_perc[BS_NR_OF_STRINGS];              /*!< average SOE */
+    float_t chargeEnergyThroughput_Wh[BS_NR_OF_STRINGS];    /*!< inflow of energy */
+    float_t dischargeEnergyThroughput_Wh[BS_NR_OF_STRINGS]; /*!< outflow of energy */
 } FRAM_SOE_s;
 
 /** flag to indicate if a deep-discharge in a string has been detected */
@@ -161,7 +167,7 @@ typedef struct {
 
 /** flag to indicate if insulation ground error has been detected */
 typedef struct {
-    bool groundErrorDetected; /*!< false (0): no error, true (1): gorund error detected */
+    bool groundErrorDetected; /*!< false (0): no error, true (1): ground error detected */
 } FRAM_INSULATION_FLAG_s;
 
 /**
@@ -194,7 +200,7 @@ typedef struct {
 
 /*========== Extern Constant and Variable Declarations ======================*/
 
-extern FRAM_BASE_HEADER_s fram_base_header[FRAM_BLOCK_MAX];
+extern FRAM_BASE_HEADER_s fram_databaseHeader[FRAM_BLOCK_MAX];
 
 /**
  * Variables to be stored in FRAM
@@ -205,7 +211,7 @@ extern FRAM_SOC_s fram_soc;
 extern FRAM_SOE_s fram_soe;
 extern FRAM_SBC_INIT_s fram_sbcInit;
 extern FRAM_DEEP_DISCHARGE_FLAG_s fram_deepDischargeFlags;
-extern FRAM_SYS_MON_RECORD_s fram_sys_mon_record;
+extern FRAM_SYS_MON_RECORD_s fram_sysMonViolationRecord;
 extern FRAM_INSULATION_FLAG_s fram_insulationFlags;
 /**@}*/
 

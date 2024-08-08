@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,13 +43,13 @@
  * @file    spi.c
  * @author  foxBMS Team
  * @date    2019-12-12 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup DRIVERS
  * @prefix  SPI
  *
  * @brief   Driver for the SPI module.
- *
+ * @details TODO
  */
 
 /*========== Includes =======================================================*/
@@ -70,7 +70,7 @@
 #include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
-/** Bitfield to check for transmission errors in SPI FLAG register */
+/** Bit field to check for transmission errors in SPI FLAG register */
 #define SPI_FLAG_REGISTER_TRANSMISSION_ERRORS (0x5Fu)
 
 /*========== Static Constant and Variable Definitions =======================*/
@@ -88,8 +88,43 @@ static uint32_t spi_txLastWord[DMA_NUMBER_SPI_INTERFACES] = {0};
 /*========== Extern Constant and Variable Definitions =======================*/
 
 /*========== Static Function Prototypes =====================================*/
+/**
+ * @brief   Initializes all chip selects of the SPI module
+ * @details This initialization includes SPI initialization of the
+ *          - System Base Chip (SBC)
+ *          - Ferroelectric Random Access Memory (FRAM)
+ *          - Smart Power Switch (SPS)
+ *          - and the specific AFE interface board.
+ */
 static void SPI_InitializeChipSelects(void);
+
+/**
+ * @brief   Initializes the chip selects of the SPI module that are specific
+ *          for an AFE interface board
+ * @details This function is implemented several times for each support AFE
+ *          family:
+ *          - ADI
+ *          - LTC
+ *          - MXM
+ *          - NXP
+ *          - unit test (dummy implementation)
+ */
+static void SPI_InitializeChipSelectsAfe(uint8_t string);
+
+/**
+ * @brief   Gets the chip select pin (independently whether it is a hard- or
+ *          software chip selected one)
+ * @param   chipSelectType  typ of chip select (hard- or software)
+ * @param   chipSelectPin   number of the selected pin
+ * @return  the mapped chip select pin
+ */
 static uint8_t SPI_GetChipSelectPin(SPI_CHIP_SELECT_TYPE_e chipSelectType, uint32_t chipSelectPin);
+
+/**
+ * @brief   Gets the hardware chip select pin
+ * @param   chipSelectPin number of the selected pin
+ * @return  the mapped chip select pin
+ */
 static uint8_t SPI_GetHardwareChipSelectPin(uint8_t chipSelectPin);
 
 /*========== Static Function Implementations ================================*/
@@ -135,16 +170,78 @@ static uint8_t SPI_GetChipSelectPin(SPI_CHIP_SELECT_TYPE_e chipSelectType, uint3
 
     return mappedChipSelectPin;
 }
+
+#if defined(FOXBMS_AFE_DRIVER_ADI) && (FOXBMS_AFE_DRIVER_ADI == 1)
+static void SPI_InitializeChipSelectsAfe(uint8_t string) {
+    FAS_ASSERT(string < BS_NR_OF_STRINGS);
+    spi_adiInterface[string].pConfig->CSNR =
+        SPI_GetChipSelectPin(spi_adiInterface[string].csType, spi_adiInterface[string].csPin);
+}
+#endif
+
+#if defined(FOXBMS_AFE_DRIVER_DEBUG) && (FOXBMS_AFE_DRIVER_DEBUG == 1)
+static void SPI_InitializeChipSelectsAfe(uint8_t string) {
+    FAS_ASSERT(string < BS_NR_OF_STRINGS);
+    (void)string;
+}
+#endif
+
+#if defined(FOXBMS_AFE_DRIVER_LTC) && (FOXBMS_AFE_DRIVER_LTC == 1)
+static void SPI_InitializeChipSelectsAfe(uint8_t string) {
+    FAS_ASSERT(string < BS_NR_OF_STRINGS);
+    spi_ltcInterface[string].pConfig->CSNR =
+        SPI_GetChipSelectPin(spi_ltcInterface[string].csType, spi_ltcInterface[string].csPin);
+}
+#endif
+
+#if defined(FOXBMS_AFE_DRIVER_MAXIM) && (FOXBMS_AFE_DRIVER_MAXIM == 1)
+static void SPI_InitializeChipSelectsAfe(uint8_t string) {
+    FAS_ASSERT(string < BS_NR_OF_STRINGS);
+    /* MAXIM driver does not support multistring, therefore ignore the parameter
+       for builds with more than one string */
+    if (string == 0u) {
+        spi_mxmInterface.pConfig->CSNR = SPI_GetChipSelectPin(spi_mxmInterface.csType, spi_mxmInterface.csPin);
+    }
+}
+#endif
+
+#if defined(FOXBMS_AFE_DRIVER_NXP) && (FOXBMS_AFE_DRIVER_NXP == 1)
+static void SPI_InitializeChipSelectsAfe(uint8_t string) {
+    FAS_ASSERT(string < BS_NR_OF_STRINGS);
+    spi_nxp775InterfaceTx[string].pConfig->CSNR =
+        SPI_GetChipSelectPin(spi_nxp775InterfaceTx[string].csType, spi_nxp775InterfaceTx[string].csPin);
+    spi_nxp775InterfaceRx[string].pConfig->CSNR =
+        SPI_GetChipSelectPin(spi_nxp775InterfaceRx[string].csType, spi_nxp775InterfaceRx[string].csPin);
+}
+#endif
+
+#if defined(FOXBMS_AFE_DRIVER_TI) && (FOXBMS_AFE_DRIVER_TI == 1)
+static void SPI_InitializeChipSelectsAfe(uint8_t string) {
+    FAS_ASSERT(string < BS_NR_OF_STRINGS);
+    (void)string;
+}
+#endif
+
+/* if ony UNITY_UNIT_TEST is defined and all other AFE drivers are not enabled
+ * then just the dummy implementation shall be tested.
+ * The implementation of the other interfaces is then tested in separate test
+ * files, that define UNITY_UNIT_TEST and(!) the specific AFE family define. */
+/* AXIVION Disable Style Generic-MaxConditions: This way it is ensured, that all other cases need to be implemented */
+#if defined(UNITY_UNIT_TEST) &&                                                                                 \
+    (!defined(FOXBMS_AFE_DRIVER_ADI) && !defined(FOXBMS_AFE_DRIVER_DEBUG) && !defined(FOXBMS_AFE_DRIVER_LTC) && \
+     !defined(FOXBMS_AFE_DRIVER_MAXIM) && !defined(FOXBMS_AFE_DRIVER_NXP) && !defined(FOXBMS_AFE_DRIVER_TI))
+/* AXIVION Enable Style Generic-MaxConditions */
+
+static void SPI_InitializeChipSelectsAfe(uint8_t string) {
+    FAS_ASSERT(string < BS_NR_OF_STRINGS);
+    (void)string;
+}
+#endif
+
 static void SPI_InitializeChipSelects(void) {
     for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
-        spi_adiInterface[s].pConfig->CSNR = SPI_GetChipSelectPin(spi_adiInterface[s].csType, spi_adiInterface[s].csPin);
-        spi_ltcInterface[s].pConfig->CSNR = SPI_GetChipSelectPin(spi_ltcInterface[s].csType, spi_ltcInterface[s].csPin);
-        spi_nxp775InterfaceTx[s].pConfig->CSNR =
-            SPI_GetChipSelectPin(spi_nxp775InterfaceTx[s].csType, spi_nxp775InterfaceTx[s].csPin);
-        spi_nxp775InterfaceRx[s].pConfig->CSNR =
-            SPI_GetChipSelectPin(spi_nxp775InterfaceRx[s].csType, spi_nxp775InterfaceRx[s].csPin);
+        SPI_InitializeChipSelectsAfe(s);
     }
-    spi_mxmInterface.pConfig->CSNR    = SPI_GetChipSelectPin(spi_mxmInterface.csType, spi_mxmInterface.csPin);
     spi_framInterface.pConfig->CSNR   = SPI_GetChipSelectPin(spi_framInterface.csType, spi_framInterface.csPin);
     spi_spsInterface.pConfig->CSNR    = SPI_GetChipSelectPin(spi_spsInterface.csType, spi_spsInterface.csPin);
     spi_sbcMcuInterface.pConfig->CSNR = SPI_GetChipSelectPin(spi_sbcMcuInterface.csType, spi_sbcMcuInterface.csPin);
@@ -174,7 +271,7 @@ extern STD_RETURN_TYPE_e SPI_TransmitData(SPI_INTERFACE_CONFIG_s *pSpiInterface,
 
     /* Lock SPI hardware to prevent concurrent read/write commands */
     if (STD_OK == SPI_Lock(SPI_GetSpiIndex(pSpiInterface->pNode))) {
-        pSpiInterface->pNode->GCR1 |= SPIEN_BIT;
+        pSpiInterface->pNode->GCR1 |= DMA_SPI_ENABLE_BIT;
 
         /** SW Chip Select */
         if (pSpiInterface->csType == SPI_CHIP_SELECT_SOFTWARE) {
@@ -231,7 +328,7 @@ extern STD_RETURN_TYPE_e SPI_TransmitReceiveData(
 
     /* Lock SPI hardware to prevent concurrent read/write commands */
     if (STD_OK == SPI_Lock(SPI_GetSpiIndex(pSpiInterface->pNode))) {
-        pSpiInterface->pNode->GCR1 |= SPIEN_BIT;
+        pSpiInterface->pNode->GCR1 |= DMA_SPI_ENABLE_BIT;
 
         /** SW Chip Select */
         if (pSpiInterface->csType == SPI_CHIP_SELECT_SOFTWARE) {
@@ -311,7 +408,7 @@ extern STD_RETURN_TYPE_e SPI_TransmitReceiveDataDma(
         spi_busyFlags[spiIndex] = SPI_BUSY;
 
         /* Check that not SPI transmission over DMA is taking place */
-        if ((pSpiInterface->pNode->INT0 & DMAREQEN_BIT) == 0x0) {
+        if ((pSpiInterface->pNode->INT0 & DMA_REQUEST_ENABLE_BIT) == 0x0) {
             /**
              *  Activate HW Chip Select according to bitmask register CSNR
              *  by setting pins as SPI functional pins
@@ -354,9 +451,9 @@ extern STD_RETURN_TYPE_e SPI_TransmitReceiveDataDma(
             dmaRAMREG->PCP[(dmaChannel_t)dma_spiDmaChannels[spiIndex].txChannel].ISADDR =
                 (uint32_t)(&pTxBuff[1u]); /* First word sent manually to write configuration in SPIDAT1 register */
             /**
-              *  Set number of Tx words to send
-              *  Last word sent in ISR to set CSHOLD = 0
-              */
+             *  Set number of Tx words to send
+             *  Last word sent in ISR to set CSHOLD = 0
+             */
             dmaRAMREG->PCP[(dmaChannel_t)dma_spiDmaChannels[spiIndex].txChannel].ITCOUNT =
                 ((frameLength - 2u) << 16U) | 1U; /* Last word sent manually to write CSHOLD in SPIDAT1 register */
 
@@ -375,21 +472,21 @@ extern STD_RETURN_TYPE_e SPI_TransmitReceiveDataDma(
 
             /* DMA_REQ_Enable */
             /* Starts DMA requests if SPIEN is also set to 1 */
-            pSpiInterface->pNode->GCR1 |= SPIEN_BIT;
+            pSpiInterface->pNode->GCR1 |= DMA_SPI_ENABLE_BIT;
             uint32_t txBuffer = pTxBuff[0u];
             txBuffer |= ((uint32)DataFormat << 24U) | ((uint32)ChipSelect << 16U) | (WDelay) | (Chip_Select_Hold);
             /**
-                        *  Send first word without DMA because when writing config to DAT1
-                        *  the HW CS pin are asserted immediately, even if SPIEN bit in GCR1 is 0.
-                        *  The C2TDELAY is then taken into account before the transmission.
-                        */
+             *  Send first word without DMA because when writing config to DAT1
+             *  the HW CS pin are asserted immediately, even if SPIEN bit in GCR1 is 0.
+             *  The C2TDELAY is then taken into account before the transmission.
+             */
             pSpiInterface->pNode->DAT1 = txBuffer;
             uint32_t timeoutIterations = SPI_TX_EMPTY_TIMEOUT_ITERATIONS;
             while (((pSpiInterface->pNode->FLG & (uint32)((uint32_t)1u << SPI_TX_BUFFER_EMPTY_FLAG_POSITION)) == 0u) &&
                    (timeoutIterations > 0u)) {
                 timeoutIterations--;
             }
-            pSpiInterface->pNode->INT0 |= DMAREQEN_BIT;
+            pSpiInterface->pNode->INT0 |= DMA_REQUEST_ENABLE_BIT;
 
             retVal = STD_OK;
         }
@@ -479,8 +576,8 @@ extern STD_RETURN_TYPE_e SPI_SlaveSetReceiveDataDma(
     (void)FSYS_RaisePrivilege();
 
     /* DMA_REQ Disable */
-    pSpiInterface->pNode->INT0 &= ~DMAREQEN_BIT;
-    pSpiInterface->pNode->GCR1 &= ~SPIEN_BIT;
+    pSpiInterface->pNode->INT0 &= ~DMA_REQUEST_ENABLE_BIT;
+    pSpiInterface->pNode->GCR1 &= ~DMA_SPI_ENABLE_BIT;
 
     /* Write FMT configuration in DAT1; as SPI is configured as slave, this does not provoke a transmission */
     SPIDATAFMT_t DataFormat = pSpiInterface->pConfig->DFSEL;
@@ -522,8 +619,8 @@ extern STD_RETURN_TYPE_e SPI_SlaveSetReceiveDataDma(
 
     /* DMA_REQ Enable */
     /* Starts DMA requests if SPIEN is also set to 1 */
-    pSpiInterface->pNode->GCR1 |= SPIEN_BIT;
-    pSpiInterface->pNode->INT0 |= DMAREQEN_BIT;
+    pSpiInterface->pNode->GCR1 |= DMA_SPI_ENABLE_BIT;
+    pSpiInterface->pNode->INT0 |= DMA_REQUEST_ENABLE_BIT;
 
     return retVal;
 }
@@ -586,4 +683,8 @@ extern uint8_t TEST_SPI_GetChipSelectPin(SPI_CHIP_SELECT_TYPE_e csType, uint32_t
 extern uint8_t TEST_SPI_GetHardwareChipSelectPin(uint8_t csPin) {
     return SPI_GetHardwareChipSelectPin(csPin);
 }
+extern void TEST_SPI_InitializeChipSelectsAfe(uint8_t string) {
+    SPI_InitializeChipSelectsAfe(string);
+}
+
 #endif

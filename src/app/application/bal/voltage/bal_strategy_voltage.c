@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,13 +43,13 @@
  * @file    bal_strategy_voltage.c
  * @author  foxBMS Team
  * @date    2020-05-29 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup APPLICATION
  * @prefix  BAL
  *
  * @brief   Driver for the Balancing module
- *
+ * @details TODO
  */
 
 /*========== Includes =======================================================*/
@@ -134,15 +134,15 @@ static bool BAL_ActivateBalancing(void) {
         for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
             for (uint8_t cb = 0u; cb < BS_NR_OF_CELL_BLOCKS_PER_MODULE; cb++) {
                 if (cellVoltage.cellVoltage_mV[s][m][cb] > (min + bal_state.balancingThreshold)) {
-                    bal_balancing.balancingState[s][(m * BS_NR_OF_CELL_BLOCKS_PER_MODULE) + cb] = 1u;
-                    finished                                                                    = false;
+                    bal_balancing.activateBalancing[s][m][cb] = true;
+                    finished                                  = false;
                     /* set without hysteresis so that we now balance all cells that are below the initial threshold */
                     bal_state.balancingThreshold  = BAL_GetBalancingThreshold_mV();
                     bal_state.active              = true;
-                    bal_balancing.enableBalancing = 1;
+                    bal_balancing.enableBalancing = true;
                     nrBalancedCells++;
                 } else {
-                    bal_balancing.balancingState[s][(m * BS_NR_OF_CELL_BLOCKS_PER_MODULE) + cb] = 0;
+                    bal_balancing.activateBalancing[s][m][cb] = false;
                 }
             }
         }
@@ -155,13 +155,15 @@ static bool BAL_ActivateBalancing(void) {
 
 static void BAL_Deactivate(void) {
     for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
-        for (uint16_t i = 0u; i < BS_NR_OF_CELL_BLOCKS_PER_STRING; i++) {
-            bal_balancing.balancingState[s][i]  = 0;
-            bal_balancing.deltaCharge_mAs[s][i] = 0;
+        for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
+            for (uint16_t cb = 0u; cb < BS_NR_OF_CELL_BLOCKS_PER_MODULE; cb++) {
+                bal_balancing.activateBalancing[s][m][cb] = false;
+                bal_balancing.deltaCharge_mAs[s][m][cb]   = 0u;
+            }
         }
         bal_balancing.nrBalancedCells[s] = 0u;
     }
-    bal_balancing.enableBalancing = 0;
+    bal_balancing.enableBalancing = false;
     bal_state.active              = false;
 
     DATA_WRITE_DATA(&bal_balancing);
@@ -171,7 +173,7 @@ static void BAL_ProcessStateCheckBalancing(BAL_STATE_REQUEST_e state_request) {
     if (state_request == BAL_STATE_NO_BALANCING_REQUEST) {
         bal_state.balancingAllowed = false;
     }
-    if (state_request == BAL_STATE_ALLOWBALANCING_REQUEST) {
+    if (state_request == BAL_STATE_ALLOW_BALANCING_REQUEST) {
         bal_state.balancingAllowed = true;
     }
 
@@ -192,7 +194,7 @@ static void BAL_ProcessStateBalancing(BAL_STATE_REQUEST_e state_request) {
     if (state_request == BAL_STATE_NO_BALANCING_REQUEST) {
         bal_state.balancingAllowed = false;
     }
-    if (state_request == BAL_STATE_ALLOWBALANCING_REQUEST) {
+    if (state_request == BAL_STATE_ALLOW_BALANCING_REQUEST) {
         bal_state.balancingAllowed = true;
     }
 
@@ -236,7 +238,7 @@ static void BAL_ProcessStateBalancing(BAL_STATE_REQUEST_e state_request) {
                 bal_state.substate = BAL_ENTRY;
             }
         }
-        bal_state.timer = BAL_STATEMACH_BALANCINGTIME_100ms;
+        bal_state.timer = BAL_STATEMACH_BALANCING_TIME_100ms;
         return;
     } else if (bal_state.substate == BAL_CHECK_CURRENT) {
         if (BMS_GetBatterySystemState() == BMS_AT_REST) {
@@ -248,7 +250,7 @@ static void BAL_ProcessStateBalancing(BAL_STATE_REQUEST_e state_request) {
             bal_state.state    = BAL_STATEMACH_CHECK_BALANCING;
             bal_state.substate = BAL_ENTRY;
         }
-        bal_state.timer = BAL_STATEMACH_BALANCINGTIME_100ms;
+        bal_state.timer = BAL_STATEMACH_BALANCING_TIME_100ms;
         return;
     } else if (bal_state.substate == BAL_ACTIVATE_BALANCING) {
         if (bal_state.balancingAllowed == false) {
@@ -260,7 +262,7 @@ static void BAL_ProcessStateBalancing(BAL_STATE_REQUEST_e state_request) {
             bal_state.substate = BAL_ENTRY;
         } else {
             if (BAL_ActivateBalancing() == true) {
-                /* set threshold with hysteresis in order to prevent too early reenabling of balancing */
+                /* set threshold with hysteresis in order to prevent too early re-enabling of balancing */
                 bal_state.balancingThreshold = BAL_GetBalancingThreshold_mV() + BAL_HYSTERESIS_mV;
                 bal_state.state              = BAL_STATEMACH_CHECK_BALANCING;
                 bal_state.substate           = BAL_ENTRY;
@@ -269,7 +271,7 @@ static void BAL_ProcessStateBalancing(BAL_STATE_REQUEST_e state_request) {
                 bal_state.substate = BAL_ENTRY;
             }
         }
-        bal_state.timer = BAL_STATEMACH_BALANCINGTIME_100ms;
+        bal_state.timer = BAL_STATEMACH_BALANCING_TIME_100ms;
         return;
     }
 }
@@ -280,17 +282,17 @@ extern STD_RETURN_TYPE_e BAL_GetInitializationState(void) {
 }
 
 extern BAL_RETURN_TYPE_e BAL_SetStateRequest(BAL_STATE_REQUEST_e stateRequest) {
-    BAL_RETURN_TYPE_e retVal = BAL_OK;
+    BAL_RETURN_TYPE_e returnValue = BAL_OK;
 
     OS_EnterTaskCritical();
-    retVal = BAL_CheckStateRequest(&bal_state, stateRequest);
+    returnValue = BAL_CheckStateRequest(&bal_state, stateRequest);
 
-    if (retVal == BAL_OK) {
+    if (returnValue == BAL_OK) {
         bal_state.stateRequest = stateRequest;
     }
     OS_ExitTaskCritical();
 
-    return retVal;
+    return returnValue;
 }
 
 extern void BAL_Trigger(void) {
@@ -312,7 +314,7 @@ extern void BAL_Trigger(void) {
         case BAL_STATEMACH_UNINITIALIZED:
             BAL_SaveLastStates(&bal_state);
             stateRequest = BAL_TransferStateRequest(&bal_state);
-            BAL_ProcessStateUninitalized(&bal_state, stateRequest);
+            BAL_ProcessStateUninitialized(&bal_state, stateRequest);
             break;
         case BAL_STATEMACH_INITIALIZATION:
             BAL_SaveLastStates(&bal_state);

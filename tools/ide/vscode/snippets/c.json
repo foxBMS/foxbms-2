@@ -1,32 +1,32 @@
 {
-    "For Strings Loop": {
-        "prefix": [
-            "for-strings"
-        ],
-        "body": [
-            "for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {",
-            "}"
-        ],
-        "description": "For loop to iterate over the number of strings."
-    },
-    "For Modules Loop": {
-        "prefix": [
-            "for-modules"
-        ],
-        "body": [
-            "for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {",
-            "}"
-        ],
-        "description": "For loop to iterate over the number of modules per string."
-    },
-    "For Cells per Module Loop": {
-        "prefix": [
-            "for-cells-per-module"
-        ],
-        "body": [
-            "for (uint8_t c = 0u; c < BS_NR_OF_CELL_BLOCKS_PER_MODULE; c++) {",
-            "}"
-        ],
-        "description": "For loop to iterate over the number of cells per module."
-    }
+  "For Cells per Module Loop": {
+    "body": [
+      "for (uint8_t cb = 0u; cb < BS_NR_OF_CELL_BLOCKS_PER_MODULE; cc++) {",
+      "}"
+    ],
+    "description": "For loop to iterate over the number of cells per module.",
+    "prefix": [
+      "for-cells-per-module"
+    ]
+  },
+  "For Modules Loop": {
+    "body": [
+      "for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {",
+      "}"
+    ],
+    "description": "For loop to iterate over the number of modules per string.",
+    "prefix": [
+      "for-modules"
+    ]
+  },
+  "For Strings Loop": {
+    "body": [
+      "for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {",
+      "}"
+    ],
+    "description": "For loop to iterate over the number of strings.",
+    "prefix": [
+      "for-strings"
+    ]
+  }
 }

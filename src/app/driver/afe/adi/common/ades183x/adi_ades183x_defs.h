@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,13 +43,13 @@
  * @file    adi_ades183x_defs.h
  * @author  foxBMS Team
  * @date    2015-09-01 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup DRIVERS
  * @prefix  ADI
  *
  * @brief   Headers for the driver for the ades183x analog front-end.
- *
+ * @details TODO
  */
 
 #ifndef FOXBMS__ADI_ADES183X_DEFS_H_
@@ -141,8 +141,8 @@ typedef enum {
 #define ADI_DEFAULT_MUTE_ST_SETUP            (0u)
 #define ADI_DEFAULT_SNAP_ST_SETUP            (0u)
 #define ADI_DEFAULT_VUV_0_7_SETUP            (0u)
-#define ADI_DEFAULT_VUV_8_11_SETUP           (0x8u)
-#define ADI_DEFAULT_VOV_0_3_SETUP            (0xFu)
+#define ADI_DEFAULT_VUV_8_11_SETUP           (0x08u)
+#define ADI_DEFAULT_VOV_0_3_SETUP            (0x0Fu)
 #define ADI_DEFAULT_VOV_4_11_SETUP           (0x7Fu)
 #define ADI_DEFAULT_DCT0_0_5_SETUP           (0u)
 #define ADI_DEFAULT_DTRNG_SETUP              (0u)
@@ -388,20 +388,20 @@ typedef enum {
 #define ADI_FCOM_MASTER_NACK_STOP (0x09u)
 /**@}*/
 
-/* RequirementId: D7.1 V0R4 SIF-4.30.03.01 */
+/* RequirementId: D7.1 V1R0 SIF-4.30.03.01 */
 /** error table for the driver */
 typedef struct {
     bool spiIsOk[BS_NR_OF_STRINGS];
-    /* RequirementId: D7.1 V0R4 SIF-4.10.02.02 */
-    /* RequirementId: D7.1 V0R4 SIF-4.20.03.01 */
+    /* RequirementId: D7.1 V1R0 SIF-4.10.02.04 */
+    /* RequirementId: D7.1 V1R0 SIF-4.20.03.01 */
     bool crcIsOk[BS_NR_OF_STRINGS][ADI_N_ADI];
     bool commandCounterIsOk[BS_NR_OF_STRINGS][ADI_N_ADI];
-    /* RequirementId: D7.1 V0R4 SIF-4.20.02.01 */
+    /* RequirementId: D7.1 V1R0 SIF-4.20.02.01 */
     bool configurationAIsOk[BS_NR_OF_STRINGS][ADI_N_ADI];
     bool configurationBIsOk[BS_NR_OF_STRINGS][ADI_N_ADI];
-    /* RequirementId: D7.1 V0R4 SIF-4.40.01.03 */
+    /* RequirementId: D7.1 V1R0 SIF-4.40.01.02 */
     bool voltageRegisterContentIsNotStuck[BS_NR_OF_STRINGS][ADI_N_ADI];
-    /* RequirementId: D7.1 V0R4 SIF-4.40.02.03 */
+    /* RequirementId: D7.1 V1R0 SIF-4.40.02.02 */
     bool auxiliaryRegisterContentIsNotStuck[BS_NR_OF_STRINGS][ADI_N_ADI];
     bool adcComparisonIsOk[BS_NR_OF_STRINGS][ADI_N_ADI];
     bool compFlagIsCleared[BS_NR_OF_STRINGS][ADI_N_ADI];
@@ -446,7 +446,7 @@ typedef struct {
     bool initClearedAuxValuesAreOk[BS_NR_OF_STRINGS][ADI_N_ADI];
     bool pecCheckHasNoLatentFault[BS_NR_OF_STRINGS][ADI_N_ADI];
     bool compareLogicFaultFlagHasNoLatentFault[BS_NR_OF_STRINGS][ADI_N_ADI];
-    /* RequirementId: D7.1 V0R4 SIF-4.40.01.03 */
+    /* RequirementId: D7.1 V1R0 SIF-4.40.01.02 */
     bool noClockFreezeDetectorIsOk[BS_NR_OF_STRINGS][ADI_N_ADI];
 } ADI_ERROR_TABLE_s;
 
@@ -946,7 +946,7 @@ typedef struct {
 #define ADI_CFGRB0_VUV_0_7_MASK (0xFFu)
 /* CFGRB1 */
 #define ADI_CFGRB1_VUV_8_11_POS  (0u)
-#define ADI_CFGRB1_VUV_8_11_MASK (0xFu)
+#define ADI_CFGRB1_VUV_8_11_MASK (0x0Fu)
 #define ADI_CFGRB1_VOV_0_3_POS   (4u)
 #define ADI_CFGRB1_VOV_0_3_MASK  (0xF0u)
 /* CFGRB2 */
@@ -1204,11 +1204,11 @@ typedef struct {
     bool firstDiagnosticMade;    /*!< flag indicates if all diagnostics made at least one time for all strings */
     uint8_t spiNumberInterfaces; /*!< number of SPI channels that have to be measured */
     uint8_t currentString;       /*!< string currently being addressed */
-    uint8_t redundantAuxiliaryChannel
-        [BS_NR_OF_STRINGS]; /*!< auxiliary channel for which a redundant measurement must be made */
-    uint64_t serialId[BS_NR_OF_STRINGS][ADI_N_ADI]; /*!< serial ID of the IC */
-    uint8_t revision[BS_NR_OF_STRINGS][ADI_N_ADI];  /*!< revision of the IC */
-    ADI_DATA_s data;                                /*!< contains pointers to the local data buffer */
+    uint8_t redundantAuxiliaryChannel[BS_NR_OF_STRINGS]; /*!< auxiliary channel for which a redundant measurement must
+                                                            be made */
+    uint64_t serialId[BS_NR_OF_STRINGS][ADI_N_ADI];      /*!< serial ID of the IC */
+    uint8_t revision[BS_NR_OF_STRINGS][ADI_N_ADI];       /*!< revision of the IC */
+    ADI_DATA_s data;                                     /*!< contains pointers to the local data buffer */
 } ADI_STATE_s;
 
 /*========== Extern Function Prototypes =====================================*/

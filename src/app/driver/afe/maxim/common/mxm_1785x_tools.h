@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,16 +43,14 @@
  * @file    mxm_1785x_tools.h
  * @author  foxBMS Team
  * @date    2020-07-15 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup DRIVERS
  * @prefix  MXM
  *
  * @brief   This is a collection of helper functions for the MAX1785x ICs
- *
  * @details This collection of helper functions for the MAX1785x ICs helps to
  *          calculate the lsb and msb for register values and similar tasks.
- *
  */
 
 #ifndef FOXBMS__MXM_1785X_TOOLS_H_
@@ -175,20 +173,20 @@ typedef enum {
 } MXM_MONITORING_STATE_e;
 
 /**
- * struct describing the different return values of selfchecks that the driver can execute
+ * struct describing the different return values of self-checks that the driver can execute
  */
 typedef struct {
     STD_RETURN_TYPE_e crc;         /*!< CRC self-check; stores the return value of #MXM_CRC8SelfTest(). */
-    STD_RETURN_TYPE_e conv;        /*!< Conversion self-check; stores the return value of #MXM_ConvertTest(). */
+    STD_RETURN_TYPE_e conversion;  /*!< Conversion self-check; stores the return value of #MXM_ConvertTest(). */
     STD_RETURN_TYPE_e firstSetBit; /*!< First Set Bit self-check; stores the return value of #MXM_FirstSetBitTest(). */
-    STD_RETURN_TYPE_e
-        extractValueFromRegister; /*!< Extract value from Register self-check; stores the return value of #MXM_ExtractValueFromRegisterTest(). */
-    STD_RETURN_TYPE_e
-        parseVoltageReadall; /*!< Voltage parsing of READALL; stores the return value of #MXM_ParseVoltageReadallTest(). */
-    STD_RETURN_TYPE_e
-        addressSpaceChecker; /*!< Address space checker; stores the return value of #MXM_5XUserAccessibleAddressSpaceCheckerSelfCheck(). */
-    STD_RETURN_TYPE_e
-        fmeaStatusASCI; /*!< MAX17841B FMEA register; stores the value of the FMEA check conducted in the state #MXM_STATEMACH_41B_CHECK_FMEA. */
+    STD_RETURN_TYPE_e extractValueFromRegister; /*!< Extract value from Register self-check; stores the return value of
+                                                   #MXM_ExtractValueFromRegisterTest(). */
+    STD_RETURN_TYPE_e parseVoltageReadall;      /*!< Voltage parsing of READALL; stores the return value of
+                                                   #MXM_ParseVoltageReadAllTest(). */
+    STD_RETURN_TYPE_e addressSpaceChecker;      /*!< Address space checker; stores the return value of
+                                                   #MXM_5XUserAccessibleAddressSpaceCheckerSelfCheck(). */
+    STD_RETURN_TYPE_e fmeaStatusASCI; /*!< MAX17841B FMEA register; stores the value of the FMEA check conducted in the
+                                         state #MXM_STATEMACH_41B_CHECK_FMEA. */
 } MXM_SELFCHECK_s;
 
 /* TODO implement filling of values */
@@ -226,7 +224,7 @@ typedef struct {
     bool oddCellsNeedBalancing;       /*!< indicates that odd cells need balancing */
     bool evenCellsBalancingProcessed; /*!< balancing of even cells has been processed */
     bool oddCellsBalancingProcessed;  /*!< balancing of odd cells has been processed */
-    uint16_t cellsToBalance;          /*!< bitfield used for register BALSWCTRL, 16 bits for upt to 14 cells */
+    uint16_t cellsToBalance;          /*!< bit field used for register BALSWCTRL, 16 bits for up to 14 cells */
     uint32_t previousTimeStamp;       /*!< timestamp of previous balancing checkpoint */
     uint32_t currentTimeStamp;        /*!< timestamp of current balancing checkpoint */
     DATA_BLOCK_BALANCING_CONTROL_s *const pBalancingControl_table; /*!< balancing control table */
@@ -278,7 +276,8 @@ typedef struct {
     MXM_DATA_STORAGE_s localVoltages;
     MXM_REGISTRY_ENTRY_s registry[MXM_MAXIMUM_NR_OF_MODULES]; /*!< registry for connected monitoring ICs */
     uint8_t rxBuffer[MXM_RX_BUFFER_LENGTH]; /*!< buffer that stores the incoming data from the lower state-machines.
-        It contains the command sequence as it is received on the ASCI together with the Battery Management Protocol command. */
+        It contains the command sequence as it is received on the ASCI together with the Battery Management Protocol
+        command. */
 } MXM_MONITORING_INSTANCE_s;
 
 /*========== Extern Constant and Variable Declarations ======================*/
@@ -363,15 +362,15 @@ extern void MXM_Unipolar14BitInto16Bit(uint16_t inputValue, uint8_t *lsb, uint8_
 
 /**
  * @brief   convert a voltage value into a unipolar 14bit value
- * @details Takes a voltage value in mV together with a reference for fullscale
+ * @details Takes a voltage value in mV together with a reference for full scale
  *          values into a unipolar 14bit value.
  * @param[in]   voltage_mV              voltage in mV
- * @param[in]   fullscaleReference_mV   value of the fullscale in mV;
+ * @param[in]   fullScaleReference_mV   value of the full scale in mV;
  *                                      typically 5000
  * @return      unipolar 14bit value for usage with
  *              #MXM_Unipolar14BitInto16Bit()
  */
-extern uint16_t MXM_VoltageIntoUnipolar14Bit(uint16_t voltage_mV, uint16_t fullscaleReference_mV);
+extern uint16_t MXM_VoltageIntoUnipolar14Bit(uint16_t voltage_mV, uint16_t fullScaleReference_mV);
 
 /**
  * @brief       Get the string and module number from a global module number

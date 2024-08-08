@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,9 +43,9 @@
  * @file    test_adi_ades1830_balancing.c
  * @author  foxBMS Team
  * @date    2019-08-27 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
- * @ingroup SOME_GROUP
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
+ * @ingroup DRIVERS
  * @prefix  ADI
  *
  * @brief   Implementation of some software
@@ -187,19 +187,16 @@ void testADI_DetermineBalancingRegisterConfiguration(void) {
                         ADI_GetStoredVoltageIndex_IgnoreAndReturn(c);
                     }
                     /* Reset balancing control table */
-                    adi_stateBase.data.balancingControl
-                        ->balancingState[s][(m * (BS_NR_OF_CELL_BLOCKS_PER_MODULE)) + c] = 0u;
+                    adi_stateBase.data.balancingControl->activateBalancing[s][m][c] = false;
                     /* Set balancing control table values for 0xAA pattern */
                     if (data == 0xAAu) {
                         if (c % 2u != 0u) {
-                            adi_stateBase.data.balancingControl
-                                ->balancingState[s][(m * (BS_NR_OF_CELL_BLOCKS_PER_MODULE)) + c] = 1u;
+                            adi_stateBase.data.balancingControl->activateBalancing[s][m][c] = true;
                         }
                     } /* Set balancing control table values for 0x55 pattern */
                     if (data == 0x55u) {
                         if (c % 2u == 0u) {
-                            adi_stateBase.data.balancingControl
-                                ->balancingState[s][(m * (BS_NR_OF_CELL_BLOCKS_PER_MODULE)) + c] = 1u;
+                            adi_stateBase.data.balancingControl->activateBalancing[s][m][c] = true;
                         }
                     }
                 }

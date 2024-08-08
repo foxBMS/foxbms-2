@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,19 +43,19 @@
  * @file    main.c
  * @author  foxBMS Team
  * @date    2019-08-27 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
- * @ingroup GENERAL
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
+ * @ingroup MAIN
  * @prefix  TODO
  *
  * @brief   Main function
- *
  * @details TODO
  */
 
 /*========== Includes =======================================================*/
 #include "main.h"
 
+#include "HL_adc.h"
 #include "HL_crc.h"
 #include "HL_etpwm.h"
 #include "HL_gio.h"
@@ -88,7 +88,12 @@
 /*========== Static Function Implementations ================================*/
 
 /*========== Extern Function Implementations ================================*/
-int main(void) {
+#ifndef UNITY_UNIT_TEST
+int main(void)
+#else
+int unit_test_main(void)
+#endif
+{
     MINFO_SetResetSource(getResetSource()); /* Get reset source and clear respective flags */
     _enable_IRQ_interrupt_();
     muxInit();

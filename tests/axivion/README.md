@@ -8,54 +8,37 @@
 - This directory contains the Axivion setup for the TI ARM CGT compiler for TI
   TMS570LC4357 and the project architecture.
   The Axivion setup is done in the following files:
-  - ``axivion_preinc.h`` and ``compiler_config.json``
+  - `axivion_preinc.h` and `compiler_config.json`
     describe compiler built-ins for the TI ARM CGT compiler for TMS570LC4357.
-  - ``architecture.gxl``, ``architecture_config.json`` and ``mapping.gxl``
+  - `architecture.gxl`, `architecture_config.json` and `mapping.gxl`
     describe the software architecture of foxBMS 2.
-  - ``axivion_config.json``, ``ci_config.json``, ``compiler_config.json``,
-    ``rule_config_c.json``, ``rule_config_c.py``
+  - `axivion_config.json`, `ci_config.json`, `compiler_config.json`,
+    `rule_config_c.json`, `rule_config_c.py`
     provide project specific settings.
-- The subdirectory ``forbidden-violations`` contains a list of rules that shall
-  be followed, i.e., it is not possible to introduce source code, that creates
-  an Axivion warning/error for that type (``forbidden-violations.txt``).
+- The script `axivion_self_tests.py` and its accompanying configuration script
+  `axivion_self_tests.json` implement self tests of Axivion and the project
+  specific configuration.
+- The subdirectory `violations` contains a list of rules that shall be
+  followed, i.e., it is not possible to introduce source code, that creates
+  an Axivion warning/error for that type (`forbidden-rule-violations.txt`).
   A script is included to verify that such source code can not be introduced to
-  the default branch (``check_forbidden_violations.py``).
-- The subdirectory ``scripts`` contains a set of helper scripts to
+  the default branch (`check_violations.py`).
+- The subdirectory `scripts` contains a set of helper scripts to
   interact with Axivion or the output of an Axivion build.
   See [scripts/README.md](scripts/README.md) for a detailed description.
 
-```
-(repository-root)/tests/axivion
-│   .clang-format
-│   .gitignore
-│   architecture.gxl
-│   architecture_config.json
-│   architecture_hierarchy_belongs_to_layout.gvl
-│   axivion_config.json
-│   axivion_preinc.h
-│   ci_config.json
-│   compiler_config.json
-│   mapping.gxl
-│   README.md
-│   rule_config_c.json
-│   rule_config_c.py
-│   rule_config_names.json
-│   rule_config_names.py
-│
-├───forbidden-violations
-│       check_forbidden_violations.py
-│       forbidden-violations.txt
-│
-└───scripts
-        ci_check_freshness_of_architecture_svg.py
-        dependency_analysis.py
-        gravis_export_architecture_svg.py
-        start_analysis.bat
-        start_local_analysis.bat
-        start_local_analysis.sh
-        start_local_dashserver.bat
-        wrapper_make_race_pdfs.bat
-```
+## Self Tests
+
+There are four self tests implemented:
+
+- project specific rule extensions to Axivion (`addon`).
+  The accompanying tests are in (`addon-test`),
+- tests that the project specific configuration for naming conventions is
+  correct (`config-test`),
+- Axivion Tool Qualification Kit (`qualification-test`), and
+- TI ARM CGT 20.2.6.LTS compiler errata tests (`compiler-errata`).
+
+Available tests can be run using the script `axivion_self_tests.py`.
 
 ## `compiler_config.json`
 

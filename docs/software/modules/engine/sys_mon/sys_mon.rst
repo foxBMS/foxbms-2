@@ -12,20 +12,20 @@ Module Files
 Driver
 ^^^^^^
 
-- ``src/app/engine/sys_mon/sys_mon.c`` (`API <../../../../_static/doxygen/src/html/sys__mon_8c.html>`__, `source <../../../../_static/doxygen/src/html/sys__mon_8c_source.html>`__)
-- ``src/app/engine/sys_mon/sys_mon.h`` (`API <../../../../_static/doxygen/src/html/sys__mon_8h.html>`__, `source <../../../../_static/doxygen/src/html/sys__mon_8h_source.html>`__)
+- ``src/app/engine/sys_mon/sys_mon.c``
+- ``src/app/engine/sys_mon/sys_mon.h``
 
 Configuration
 ^^^^^^^^^^^^^
 
-- ``src/app/engine/config/sys_mon_cfg.c`` (`API <../../../../_static/doxygen/src/html/sys__mon__cfg_8c.html>`__, `source <../../../../_static/doxygen/src/html/sys__mon__cfg_8c_source.html>`__)
-- ``src/app/engine/config/sys_mon_cfg.h`` (`API <../../../../_static/doxygen/src/html/sys__mon__cfg_8h.html>`__, `source <../../../../_static/doxygen/src/html/sys__mon__cfg_8h_source.html>`__)
+- ``src/app/engine/config/sys_mon_cfg.c``
+- ``src/app/engine/config/sys_mon_cfg.h``
 
 Unit Test
 ^^^^^^^^^
 
-- ``tests/unit/app/engine/config/test_sys_mon_cfg.c`` (`API <../../../../_static/doxygen/tests/html/test__sys__mon__cfg_8c.html>`__, `source <../../../../_static/doxygen/tests/html/test__sys__mon__cfg_8c_source.html>`__)
-- ``tests/unit/app/engine/sys_mon/test_sys_mon.c`` (`API <../../../../_static/doxygen/tests/html/test__sys__mon_8c.html>`__, `source <../../../../_static/doxygen/tests/html/test__sys__mon_8c_source.html>`__)
+- ``tests/unit/app/engine/config/test_sys_mon_cfg.c``
+- ``tests/unit/app/engine/sys_mon/test_sys_mon.c``
 
 Detailed Description
 --------------------

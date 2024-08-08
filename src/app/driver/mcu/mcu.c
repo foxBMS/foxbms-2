@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,13 +43,13 @@
  * @file    mcu.c
  * @author  foxBMS Team
  * @date    2019-02-19 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup DRIVERS
  * @prefix  MCU
  *
  * @brief   Driver for the MCU module.
- *
+ * @details TODO
  */
 
 /*========== Includes =======================================================*/
@@ -68,15 +68,15 @@
  */
 #define MCU_RTI_CNT0_CPUC0_REG (0x00000001u)
 
-/** threshold in order to limit the time spent in wait to avoid livelock in wait */
+/** threshold in order to limit the time spent in wait to avoid live lock in wait */
 #define MCU_US_WAIT_TIMEOUT (10000u)
 
 /*========== Static Constant and Variable Definitions =======================*/
 /**
  * @brief   frequency of the FRC0 counter
- * @details refer to data sheet SPNU563A-March 2018 p. 585 formula 23
+ * @details refer to data sheet docref: SPNU563A-March 2018 p. 585 formula 23
  */
-static const uint32_t mcu_frcClock_Hz = (uint32_t)((RTI_FREQ)*1000000.0f) / ((MCU_RTI_CNT0_CPUC0_REG) + 1u);
+static const uint32_t mcu_frcClock_Hz = (uint32_t)((RTI_FREQ) * 1000000.0f) / ((MCU_RTI_CNT0_CPUC0_REG) + 1u);
 
 /*========== Extern Constant and Variable Definitions =======================*/
 

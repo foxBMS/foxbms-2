@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,8 +43,8 @@
  * @file    test_mxm_registry.c
  * @author  foxBMS Team
  * @date    2020-07-16 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  MXM
  *
@@ -95,14 +95,14 @@ static MXM_MONITORING_INSTANCE_s mxm_state = {
             .lsb           = 0x00,
             .msb           = 0x00,
             .deviceAddress = 0x00,
-            .blocksize     = 0,
+            .blockSize     = 0,
             .model         = MXM_MODEL_ID_MAX17852,
         },
     .resultSelfCheck = STD_NOT_OK,
     .selfCheck =
         {
             .crc                      = STD_NOT_OK,
-            .conv                     = STD_NOT_OK,
+            .conversion               = STD_NOT_OK,
             .firstSetBit              = STD_NOT_OK,
             .extractValueFromRegister = STD_NOT_OK,
             .parseVoltageReadall      = STD_NOT_OK,
@@ -353,7 +353,7 @@ void testMXM_CheckIfADeviceHasBeenReset(void) {
 }
 
 /** check that invalid values trip #MXM_CheckIfADeviceIsConnected() */
-void testMXM_CheckIfADeviceIsConnectedinvalidValues(void) {
+void testMXM_CheckIfADeviceIsConnectedInvalidValues(void) {
     TEST_ASSERT_FAIL_ASSERT(MXM_CheckIfADeviceIsConnected(NULL_PTR, 0u));
     TEST_ASSERT_FAIL_ASSERT(MXM_CheckIfADeviceIsConnected(&mxm_state, MXM_MAXIMUM_NR_OF_MODULES + 1u));
 }

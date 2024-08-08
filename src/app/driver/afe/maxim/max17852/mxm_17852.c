@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,8 +43,8 @@
  * @file    mxm_17852.c
  * @author  foxBMS Team
  * @date    2021-11-24 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup DRIVERS
  * @prefix  MXM
  *
@@ -151,8 +151,9 @@ extern void MXM_StateMachineOperation(MXM_MONITORING_INSTANCE_s *pState) {
             break;
         case MXM_OP_DIAGNOSTIC_STATUS1:
             if (MXM_HandleStateReadall(pState, MXM_REG_STATUS1, MXM_OP_DIAGNOSTIC_STATUS2) == true) {
-                const uint8_t temp_len =
-                    (uint8_t)((BATTERY_MANAGEMENT_TX_LENGTH_READALL + (2uL * MXM_5XGetNumberOfSatellites(pState->pInstance5X))) & (uint8_t)UINT8_MAX);
+                const uint8_t temp_len = (uint8_t)((BATTERY_MANAGEMENT_TX_LENGTH_READALL +
+                                                    (2uL * MXM_5XGetNumberOfSatellites(pState->pInstance5X))) &
+                                                   (uint8_t)UINT8_MAX);
                 MXM_MonRegistryParseStatusFmeaIntoDevices(pState, temp_len);
                 const bool someDeviceHasBeenReset = MXM_CheckIfADeviceHasBeenReset(pState);
                 if (someDeviceHasBeenReset == true) {
@@ -163,29 +164,33 @@ extern void MXM_StateMachineOperation(MXM_MONITORING_INSTANCE_s *pState) {
             break;
         case MXM_OP_DIAGNOSTIC_STATUS2:
             if (MXM_HandleStateReadall(pState, MXM_REG_STATUS2, MXM_OP_DIAGNOSTIC_STATUS3) == true) {
-                const uint8_t temp_len =
-                    (uint8_t)((BATTERY_MANAGEMENT_TX_LENGTH_READALL + (2uL * MXM_5XGetNumberOfSatellites(pState->pInstance5X))) & (uint8_t)UINT8_MAX);
+                const uint8_t temp_len = (uint8_t)((BATTERY_MANAGEMENT_TX_LENGTH_READALL +
+                                                    (2uL * MXM_5XGetNumberOfSatellites(pState->pInstance5X))) &
+                                                   (uint8_t)UINT8_MAX);
                 MXM_MonRegistryParseStatusFmeaIntoDevices(pState, temp_len);
             }
             break;
         case MXM_OP_DIAGNOSTIC_STATUS3:
             if (MXM_HandleStateReadall(pState, MXM_REG_STATUS3, MXM_OP_DIAGNOSTIC_FMEA1) == true) {
-                const uint8_t temp_len =
-                    (uint8_t)((BATTERY_MANAGEMENT_TX_LENGTH_READALL + (2uL * MXM_5XGetNumberOfSatellites(pState->pInstance5X))) & (uint8_t)UINT8_MAX);
+                const uint8_t temp_len = (uint8_t)((BATTERY_MANAGEMENT_TX_LENGTH_READALL +
+                                                    (2uL * MXM_5XGetNumberOfSatellites(pState->pInstance5X))) &
+                                                   (uint8_t)UINT8_MAX);
                 MXM_MonRegistryParseStatusFmeaIntoDevices(pState, temp_len);
             }
             break;
         case MXM_OP_DIAGNOSTIC_FMEA1:
             if (MXM_HandleStateReadall(pState, MXM_REG_FMEA1, MXM_OP_DIAGNOSTIC_FMEA2) == true) {
-                const uint8_t temp_len =
-                    (uint8_t)((BATTERY_MANAGEMENT_TX_LENGTH_READALL + (2uL * MXM_5XGetNumberOfSatellites(pState->pInstance5X))) & (uint8_t)UINT8_MAX);
+                const uint8_t temp_len = (uint8_t)((BATTERY_MANAGEMENT_TX_LENGTH_READALL +
+                                                    (2uL * MXM_5XGetNumberOfSatellites(pState->pInstance5X))) &
+                                                   (uint8_t)UINT8_MAX);
                 MXM_MonRegistryParseStatusFmeaIntoDevices(pState, temp_len);
             }
             break;
         case MXM_OP_DIAGNOSTIC_FMEA2:
             if (MXM_HandleStateReadall(pState, MXM_REG_FMEA2, MXM_OP_DIAGNOSTIC_CLEAR_STATUS2) == true) {
-                const uint8_t temp_len =
-                    (uint8_t)((BATTERY_MANAGEMENT_TX_LENGTH_READALL + (2uL * MXM_5XGetNumberOfSatellites(pState->pInstance5X))) & (uint8_t)UINT8_MAX);
+                const uint8_t temp_len = (uint8_t)((BATTERY_MANAGEMENT_TX_LENGTH_READALL +
+                                                    (2uL * MXM_5XGetNumberOfSatellites(pState->pInstance5X))) &
+                                                   (uint8_t)UINT8_MAX);
                 MXM_MonRegistryParseStatusFmeaIntoDevices(pState, temp_len);
             }
             break;
@@ -477,8 +482,9 @@ extern void MXM_StateMachineOperation(MXM_MONITORING_INSTANCE_s *pState) {
             break;
         case MXM_OP_BAL_READ_BALSTAT:
             if (MXM_HandleStateReadall(pState, MXM_REG_BALSTAT, MXM_OP_BAL_EXIT) == true) {
-                const uint8_t temp_len =
-                    (uint8_t)((BATTERY_MANAGEMENT_TX_LENGTH_READALL + (2uL * MXM_5XGetNumberOfSatellites(pState->pInstance5X))) & (uint8_t)UINT8_MAX);
+                const uint8_t temp_len = (uint8_t)((BATTERY_MANAGEMENT_TX_LENGTH_READALL +
+                                                    (2uL * MXM_5XGetNumberOfSatellites(pState->pInstance5X))) &
+                                                   (uint8_t)UINT8_MAX);
                 MXM_MonRegistryParseStatusFmeaIntoDevices(pState, temp_len);
             }
             break;
@@ -505,11 +511,11 @@ extern void MXM_StateMachineOperation(MXM_MONITORING_INSTANCE_s *pState) {
             pState->operationSubstate = MXM_INIT_DEVCFG1;
             break;
         case MXM_INIT_DEVCFG1:
-            /* switch to single UART with external loopback */
+            /* switch to single UART with external loop back */
             if (pState->requestStatus5x == MXM_5X_STATE_UNSENT) {
                 pState->batteryCmdBuffer.regAddress = MXM_REG_DEVCFG1;
                 pState->batteryCmdBuffer.lsb        = 0x00u; /* alert interface disabled */
-                pState->batteryCmdBuffer.msb        = 0x01u; /* single uart with external loopback*/
+                pState->batteryCmdBuffer.msb        = 0x01u; /* single uart with external loop back*/
             }
             MXM_HandleStateWriteall(pState, MXM_INIT_DEVCFG2);
             break;
@@ -543,24 +549,27 @@ extern void MXM_StateMachineOperation(MXM_MONITORING_INSTANCE_s *pState) {
         case MXM_INIT_GET_VERSION:
             /* add version information to registry */
             if (MXM_HandleStateReadall(pState, MXM_REG_VERSION, MXM_INIT_GET_ID1) == true) {
-                uint8_t temp_len =
-                    (uint8_t)((BATTERY_MANAGEMENT_TX_LENGTH_READALL + (2uL * MXM_5XGetNumberOfSatellites(pState->pInstance5X))) & (uint8_t)UINT8_MAX);
+                uint8_t temp_len = (uint8_t)((BATTERY_MANAGEMENT_TX_LENGTH_READALL +
+                                              (2uL * MXM_5XGetNumberOfSatellites(pState->pInstance5X))) &
+                                             (uint8_t)UINT8_MAX);
                 MXM_MonRegistryParseVersionIntoDevices(pState, temp_len);
             }
             break;
         case MXM_INIT_GET_ID1:
             /* add ID1 to registry */
             if (MXM_HandleStateReadall(pState, MXM_REG_ID1, MXM_INIT_GET_ID2) == true) {
-                uint8_t temp_len =
-                    (uint8_t)((BATTERY_MANAGEMENT_TX_LENGTH_READALL + (2uL * MXM_5XGetNumberOfSatellites(pState->pInstance5X))) & (uint8_t)UINT8_MAX);
+                uint8_t temp_len = (uint8_t)((BATTERY_MANAGEMENT_TX_LENGTH_READALL +
+                                              (2uL * MXM_5XGetNumberOfSatellites(pState->pInstance5X))) &
+                                             (uint8_t)UINT8_MAX);
                 MXM_MonRegistryParseIdIntoDevices(pState, temp_len, MXM_REG_ID1);
             }
             break;
         case MXM_INIT_GET_ID2:
             /* add ID2 to registry */
             if (MXM_HandleStateReadall(pState, MXM_REG_ID2, MXM_INIT_MEASUREEN1) == true) {
-                uint8_t temp_len =
-                    (uint8_t)((BATTERY_MANAGEMENT_TX_LENGTH_READALL + (2uL * MXM_5XGetNumberOfSatellites(pState->pInstance5X))) & (uint8_t)UINT8_MAX);
+                uint8_t temp_len = (uint8_t)((BATTERY_MANAGEMENT_TX_LENGTH_READALL +
+                                              (2uL * MXM_5XGetNumberOfSatellites(pState->pInstance5X))) &
+                                             (uint8_t)UINT8_MAX);
                 MXM_MonRegistryParseIdIntoDevices(pState, temp_len, MXM_REG_ID2);
             }
             break;
@@ -813,13 +822,13 @@ extern void MXM_StateMachineOperation(MXM_MONITORING_INSTANCE_s *pState) {
             break;
         case MXM_INIT_I2C_CFG:
             /* configure I2CCFG to
-               * 400kHz
-               * Alternate write Mode (just a pointer without data)
-               * Combined Format
-               * 7 Bit addressing
-               * one byte pointer length
-               * default
-               */
+             * 400kHz
+             * Alternate write Mode (just a pointer without data)
+             * Combined Format
+             * 7 Bit addressing
+             * one byte pointer length
+             * default
+             */
             if (pState->requestStatus5x == MXM_5X_STATE_UNSENT) {
                 pState->batteryCmdBuffer.regAddress = MXM_REG_I2CCFG;
                 pState->batteryCmdBuffer.lsb        = 0x00u;

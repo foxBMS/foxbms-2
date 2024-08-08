@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,14 +43,13 @@
  * @file    battery_cell_cfg.h
  * @author  foxBMS Team
  * @date    2017-03-14 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup BATTERY_CELL_CONFIGURATION
  * @prefix  BC
  *
  * @brief   Configuration of the battery cell (e.g., minimum and maximum cell
  *          voltage)
- *
  * @details This files contains basic macros of the battery cell in order to
  *          derive needed inputs in other parts of the software. These macros
  *          are all depended on the hardware.
@@ -159,9 +158,9 @@
  * @unit    mV
  */
 /**@{*/
-#define BC_VOLTAGE_MIN_MSL_mV (1700)
-#define BC_VOLTAGE_MIN_RSL_mV (1750)
-#define BC_VOLTAGE_MIN_MOL_mV (1780)
+#define BC_VOLTAGE_MIN_MSL_mV (1500)
+#define BC_VOLTAGE_MIN_RSL_mV (1550)
+#define BC_VOLTAGE_MIN_MOL_mV (1580)
 /**@}*/
 
 /**

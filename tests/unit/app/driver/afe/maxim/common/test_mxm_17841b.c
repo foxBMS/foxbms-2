@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,8 +43,8 @@
  * @file    test_mxm_17841b.c
  * @author  foxBMS Team
  * @date    2020-06-22 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  MXM
  *
@@ -61,7 +61,7 @@
 #include "Mockos.h"
 
 #include "mxm_17841b.h"
-#include "mxm_bitextract.h"
+#include "mxm_bit_extract.h"
 #include "test_assert_helper.h"
 
 #include <stdbool.h>
@@ -148,7 +148,7 @@ void testSetStateRequestInvalidInstancePointer(void) {
  *          #MXM_STATEMACH_41B_INIT. This is check by evaluating the return
  *          value of #MXM_41BSetStateRequest().
  */
-void testOnlyAllowedTransitionFromUnitializedIsInit(void) {
+void testOnlyAllowedTransitionFromUninitializedIsInitialized(void) {
     TEST_ASSERT_EQUAL(
         STD_NOT_OK,
         MXM_41BSetStateRequest(
@@ -247,34 +247,34 @@ void testWriteRegisterFunctionWithLegalValues(void) {
     TEST_ASSERT_EQUAL((0x10u | (1u << 5u)), mxm_41bState.regConfig2);
 
     /* standard state should be third, second, first and zero bit set */
-    TEST_ASSERT_EQUAL(0xFu, mxm_41bState.regConfig3);
+    TEST_ASSERT_EQUAL(0x0Fu, mxm_41bState.regConfig3);
 
     /* 0us --> 0 */
     TEST_ASSERT_EQUAL(
         STD_OK,
         MXM_41BWriteRegisterFunction(&mxm_41bState, MXM_41B_REG_FUNCTION_KEEP_ALIVE, MXM_41B_REG_KEEP_ALIVE_0US));
-    TEST_ASSERT_EQUAL(0x0u, mxm_41bState.regConfig3);
+    TEST_ASSERT_EQUAL(0x00u, mxm_41bState.regConfig3);
 
     /* 10us --> 1 */
     TEST_ASSERT_EQUAL(
         STD_OK,
         MXM_41BWriteRegisterFunction(&mxm_41bState, MXM_41B_REG_FUNCTION_KEEP_ALIVE, MXM_41B_REG_KEEP_ALIVE_10US));
-    TEST_ASSERT_EQUAL(0x1u, mxm_41bState.regConfig3);
+    TEST_ASSERT_EQUAL(0x01u, mxm_41bState.regConfig3);
 
     /* 640us --> 0x7 */
     TEST_ASSERT_EQUAL(
         STD_OK,
         MXM_41BWriteRegisterFunction(&mxm_41bState, MXM_41B_REG_FUNCTION_KEEP_ALIVE, MXM_41B_REG_KEEP_ALIVE_640US));
-    TEST_ASSERT_EQUAL(0x7u, mxm_41bState.regConfig3);
+    TEST_ASSERT_EQUAL(0x07u, mxm_41bState.regConfig3);
 
     /* INF DLY --> 0xF */
     TEST_ASSERT_EQUAL(
         STD_OK,
         MXM_41BWriteRegisterFunction(&mxm_41bState, MXM_41B_REG_FUNCTION_KEEP_ALIVE, MXM_41B_REG_KEEP_ALIVE_INF_DLY));
-    TEST_ASSERT_EQUAL(0xFu, mxm_41bState.regConfig3);
+    TEST_ASSERT_EQUAL(0x0Fu, mxm_41bState.regConfig3);
 
     /* standard state should be zero */
-    TEST_ASSERT_EQUAL(0x0u, mxm_41bState.regRxIntEnable);
+    TEST_ASSERT_EQUAL(0x00u, mxm_41bState.regRxIntEnable);
 
     /* rx error int on --> 0x80 */
     TEST_ASSERT_EQUAL(
@@ -284,20 +284,20 @@ void testWriteRegisterFunctionWithLegalValues(void) {
     /* rx error int off --> 0 */
     TEST_ASSERT_EQUAL(
         STD_OK, MXM_41BWriteRegisterFunction(&mxm_41bState, MXM_41B_REG_FUNCTION_RX_ERROR_INT, MXM_41B_REG_FALSE));
-    TEST_ASSERT_EQUAL(0x0u, mxm_41bState.regRxIntEnable);
+    TEST_ASSERT_EQUAL(0x00u, mxm_41bState.regRxIntEnable);
 
     /* standard state should be zero */
-    TEST_ASSERT_EQUAL(0x0u, mxm_41bState.regRxIntEnable);
+    TEST_ASSERT_EQUAL(0x00u, mxm_41bState.regRxIntEnable);
 
     /* rx overflow int on --> 0x8 */
     TEST_ASSERT_EQUAL(
         STD_OK, MXM_41BWriteRegisterFunction(&mxm_41bState, MXM_41B_REG_FUNCTION_RX_OVERFLOW_INT, MXM_41B_REG_TRUE));
-    TEST_ASSERT_EQUAL(0x8u, mxm_41bState.regRxIntEnable);
+    TEST_ASSERT_EQUAL(0x08u, mxm_41bState.regRxIntEnable);
 
     /* rx overflow int off --> 0 */
     TEST_ASSERT_EQUAL(
         STD_OK, MXM_41BWriteRegisterFunction(&mxm_41bState, MXM_41B_REG_FUNCTION_RX_OVERFLOW_INT, MXM_41B_REG_FALSE));
-    TEST_ASSERT_EQUAL(0x0u, mxm_41bState.regRxIntEnable);
+    TEST_ASSERT_EQUAL(0x00u, mxm_41bState.regRxIntEnable);
 }
 /** @}
  * end of tests for function MXM_41BWriteRegisterFunction */
@@ -570,7 +570,7 @@ void testStateInitNormalFlow(void) {
     /* next call the timestamp will be checked again, simulate time is up */
     OS_CheckTimeHasPassed_ExpectAndReturn(shutdownTimestamp, 0u, true);
     OS_CheckTimeHasPassed_IgnoreArg_timeToPass_ms();
-    /* now the bridge IC should be reenabled */
+    /* now the bridge IC should be re-enabled */
     MXM_EnableBridgeIc_Expect();
     MXM_41BStateMachine(&mxm_41bState);
 

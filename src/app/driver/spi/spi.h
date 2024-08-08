@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,13 +43,13 @@
  * @file    spi.h
  * @author  foxBMS Team
  * @date    2019-12-12 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup DRIVERS
  * @prefix  SPI
  *
  * @brief   Headers for the driver for the SPI module.
- *
+ * @details TODO
  */
 
 #ifndef FOXBMS__SPI_H_
@@ -72,7 +72,7 @@
  * @details First the low level initialization (using the HAL functions) is
  *          done.
  *          After that the chip select setup for the peripherals is configured.
-*/
+ */
 extern void SPI_Initialize(void);
 
 /* INCLUDE MARKER FOR THE DOCUMENTATION; DO NOT MOVE spi-documentation-dummy-start-include */
@@ -130,7 +130,6 @@ extern STD_RETURN_TYPE_e SPI_TransmitReceiveData(
  * @param   pTxBuff pointer to data that is transmitted by the SPI interface
  * @param   pRxBuff pointer to data that is received by the SPI interface
  * @param   frameLength number of bytes to be transmitted by the SPI interface
- * @return  status of the SPI transfer
  */
 extern void SPI_FramTransmitReceiveData(
     SPI_INTERFACE_CONFIG_s *pSpiInterface,
@@ -220,7 +219,7 @@ extern void SPI_DmaSendLastByte(uint8_t spiIndex);
  * @details This function just checks for SPI_PENDING and groups SPI_READY and
  *          SPI_...
  * @param[in]   pNode   handle of the SPI node that should be checked
- * @returns     #STD_RETURN_TYPE_e indicating wether the interface is ok to be used.
+ * @returns     #STD_RETURN_TYPE_e indicating whether the interface is ok to be used.
  */
 extern STD_RETURN_TYPE_e SPI_CheckInterfaceAvailable(spiBASE_t *pNode);
 
@@ -236,6 +235,7 @@ extern uint8_t SPI_GetSpiIndex(spiBASE_t *pNode);
 extern void TEST_SPI_InitializeChipSelects(void);
 extern uint8_t TEST_SPI_GetChipSelectPin(SPI_CHIP_SELECT_TYPE_e csType, uint32_t csPin);
 extern uint8_t TEST_SPI_GetHardwareChipSelectPin(uint8_t csPin);
+extern void TEST_SPI_InitializeChipSelectsAfe(uint8_t string);
 #endif
 
 #endif /* FOXBMS__SPI_H_ */

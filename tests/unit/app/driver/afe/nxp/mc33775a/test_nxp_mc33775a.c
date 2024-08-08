@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,8 +43,8 @@
  * @file    test_nxp_mc33775a.c
  * @author  foxBMS Team
  * @date    2021-10-20 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -68,9 +68,14 @@
 #include "Mockspi.h"
 
 #include "MC33775A.h"
+#include "foxmath.h"
 #include "nxp_mc33775a.h"
 #include "spi_cfg-helper.h"
 #include "uc_msg_t.h"
+
+/* clang-format off */
+#include "test_assert_helper.h"
+/* clang-format on */
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -84,6 +89,7 @@ TEST_INCLUDE_PATH("../../src/app/driver/afe/nxp/mc33775a/config")
 TEST_INCLUDE_PATH("../../src/app/driver/afe/nxp/mc33775a/vendor")
 TEST_INCLUDE_PATH("../../src/app/driver/config")
 TEST_INCLUDE_PATH("../../src/app/driver/dma")
+TEST_INCLUDE_PATH("../../src/app/driver/foxmath")
 TEST_INCLUDE_PATH("../../src/app/driver/io")
 TEST_INCLUDE_PATH("../../src/app/driver/rtc")
 TEST_INCLUDE_PATH("../../src/app/driver/spi")
@@ -183,3 +189,290 @@ void tearDown(void) {
 }
 
 /*========== Test Cases =====================================================*/
+void testN775_BalanceControl(void) {
+    /* ======= Assertion tests ============================================= */
+    /* ======= AT1/1 ======= */
+    TEST_ASSERT_FAIL_ASSERT(TEST_N775_BalanceControl(NULL_PTR));
+
+    /* ======= Routine tests =============================================== */
+    DATA_BLOCK_BALANCING_CONTROL_s n775_tableBalancingControl = {.header.uniqueId = DATA_BLOCK_ID_BALANCING_CONTROL};
+
+    N775_STATE_s n775_testState = {
+        .currentString             = 0u,
+        .pSpiTxSequence            = spi_nxp775InterfaceTx,
+        .n775Data.balancingControl = &n775_tableBalancingControl,
+    };
+
+    /* ======= RT1/1 ======= */
+    /* Only test function N775_BalanceControl */
+    N775_CommunicationWrite_Ignore();
+    DATA_Read1DataBlock_IgnoreAndReturn(STD_OK);
+
+    /* Activate balancing for all cells */
+    for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
+        for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
+            for (uint8_t cb = 0u; cb < BS_NR_OF_CELL_BLOCKS_PER_MODULE; cb++) {
+                n775_testState.n775Data.balancingControl->activateBalancing[s][m][cb] = true;
+            }
+        }
+    }
+
+    for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
+        N775_CommunicationWrite_Ignore();
+    }
+    TEST_ASSERT_PASS_ASSERT(TEST_N775_BalanceControl(&n775_testState));
+}
+
+void testN775_BalanceSetup(void) {
+    /* ======= Assertion tests ============================================= */
+    /* ======= AT1/1 ======= */
+    TEST_ASSERT_FAIL_ASSERT(TEST_N775_BalanceSetup(NULL_PTR))
+}
+void testN775_CaptureMeasurement(void) {
+    /* ======= Assertion tests ============================================= */
+    /* ======= AT1/1 ======= */
+    TEST_ASSERT_FAIL_ASSERT(TEST_N775_CaptureMeasurement(NULL_PTR));
+}
+void testN775_Enumerate(void) {
+    /* ======= Assertion tests ============================================= */
+    /* ======= AT1/1 ======= */
+    TEST_ASSERT_FAIL_ASSERT(TEST_N775_Enumerate(NULL_PTR));
+}
+void testN775_ErrorHandling(void) {
+    /* ======= Assertion tests ============================================= */
+    /* ======= AT1/1 ======= */
+    TEST_ASSERT_FAIL_ASSERT(TEST_N775_ErrorHandling(NULL_PTR, N775_COMMUNICATION_OK, 0u));
+
+    /* ======= Routine tests =============================================== */
+    N775_ERROR_TABLE_s n775_errorTable = {0};
+
+    N775_STATE_s n775TestState = {
+        .currentString       = 0u,
+        .n775Data.errorTable = &n775_errorTable,
+    };
+
+    /* ======= RT1/4: Test implementation */
+    uint8_t currentModule = 0u;
+
+    n775TestState.n775Data.errorTable->communicationOk[n775TestState.currentString][currentModule]        = false;
+    n775TestState.n775Data.errorTable->noCommunicationTimeout[n775TestState.currentString][currentModule] = false;
+    n775TestState.n775Data.errorTable->crcIsValid[n775TestState.currentString][currentModule]             = false;
+    /* ======= RT1/4: call function under test */
+    TEST_N775_ErrorHandling(&n775TestState, N775_COMMUNICATION_OK, 0u);
+    /* ======= RT1/4: test output verification */
+    TEST_ASSERT_TRUE(n775TestState.n775Data.errorTable->communicationOk[n775TestState.currentString][currentModule]);
+    TEST_ASSERT_TRUE(
+        n775TestState.n775Data.errorTable->noCommunicationTimeout[n775TestState.currentString][currentModule]);
+    TEST_ASSERT_TRUE(n775TestState.n775Data.errorTable->crcIsValid[n775TestState.currentString][currentModule]);
+
+    /* ======= RT2/4: Test implementation */
+    n775TestState.n775Data.errorTable->communicationOk[n775TestState.currentString][currentModule]        = true;
+    n775TestState.n775Data.errorTable->noCommunicationTimeout[n775TestState.currentString][currentModule] = true;
+    n775TestState.n775Data.errorTable->crcIsValid[n775TestState.currentString][currentModule]             = true;
+    /* ======= RT2/4: call function under test */
+    TEST_N775_ErrorHandling(&n775TestState, N775_COMMUNICATION_ERROR_SHORT_MESSAGE, 0u);
+    /* ======= RT2/4: test output verification */
+    TEST_ASSERT_FALSE(n775TestState.n775Data.errorTable->communicationOk[n775TestState.currentString][currentModule]);
+    TEST_ASSERT_TRUE(
+        n775TestState.n775Data.errorTable->noCommunicationTimeout[n775TestState.currentString][currentModule]);
+    TEST_ASSERT_TRUE(n775TestState.n775Data.errorTable->crcIsValid[n775TestState.currentString][currentModule]);
+
+    /* ======= RT3/4: Test implementation */
+    n775TestState.n775Data.errorTable->communicationOk[n775TestState.currentString][currentModule]        = true;
+    n775TestState.n775Data.errorTable->noCommunicationTimeout[n775TestState.currentString][currentModule] = true;
+    n775TestState.n775Data.errorTable->crcIsValid[n775TestState.currentString][currentModule]             = true;
+    /* ======= RT3/4: call function under test */
+    TEST_N775_ErrorHandling(&n775TestState, N775_COMMUNICATION_ERROR_TIMEOUT, 0u);
+    /* ======= RT3/4: test output verification */
+    TEST_ASSERT_FALSE(n775TestState.n775Data.errorTable->communicationOk[n775TestState.currentString][currentModule]);
+    TEST_ASSERT_FALSE(
+        n775TestState.n775Data.errorTable->noCommunicationTimeout[n775TestState.currentString][currentModule]);
+    TEST_ASSERT_TRUE(n775TestState.n775Data.errorTable->crcIsValid[n775TestState.currentString][currentModule]);
+
+    /* ======= RT4/4: Test implementation */
+    n775TestState.n775Data.errorTable->communicationOk[n775TestState.currentString][currentModule]        = true;
+    n775TestState.n775Data.errorTable->noCommunicationTimeout[n775TestState.currentString][currentModule] = true;
+    n775TestState.n775Data.errorTable->crcIsValid[n775TestState.currentString][currentModule]             = true;
+    /* ======= RT4/4: call function under test */
+    TEST_N775_ErrorHandling(&n775TestState, N775_COMMUNICATION_ERROR_WRONG_CRC, 0u);
+    /* ======= RT4/4: test output verification */
+    TEST_ASSERT_FALSE(n775TestState.n775Data.errorTable->communicationOk[n775TestState.currentString][currentModule]);
+    TEST_ASSERT_TRUE(
+        n775TestState.n775Data.errorTable->noCommunicationTimeout[n775TestState.currentString][currentModule]);
+    TEST_ASSERT_FALSE(n775TestState.n775Data.errorTable->crcIsValid[n775TestState.currentString][currentModule]);
+}
+
+void testN775_IncrementMuxIndex(void) {
+    /* ======= Assertion tests ============================================= */
+    /* ======= AT1/1 ======= */
+    TEST_ASSERT_FAIL_ASSERT(TEST_N775_IncrementMuxIndex(NULL_PTR));
+
+    /* ======= Routine tests =============================================== */
+    N775_STATE_s n775TestState = {
+        .currentString     = 0u,
+        .pMuxSequenceStart = {0},
+        .pMuxSequence      = {0},
+    };
+
+    /* ======= RT1/2: Test implementation */
+    n775TestState.currentMux[n775TestState.currentString] = 0u;
+    /* ======= RT1/2: call function under test */
+    TEST_N775_IncrementMuxIndex(&n775TestState);
+    /* ======= RT1/2: test output verification */
+    /* TODO: assert missing */
+
+    /* ======= RT2/2: Test implementation */
+    n775TestState.currentMux[n775TestState.currentString] = N775_MUX_SEQUENCE_LENGTH;
+    /* ======= RT2/2: call function under test */
+    TEST_N775_IncrementMuxIndex(&n775TestState);
+    /* ======= RT2/2: test output verification */
+    TEST_ASSERT_EQUAL(0u, n775TestState.currentMux[n775TestState.currentString]);
+}
+void testN775_IncrementStringSequence(void) {
+    /* ======= Assertion tests ============================================= */
+    /* ======= AT1/1 ======= */
+    TEST_ASSERT_FAIL_ASSERT(TEST_N775_IncrementStringSequence(NULL_PTR));
+}
+void testN775_Initialize(void) {
+    /* ======= Assertion tests ============================================= */
+    /* ======= AT1/1 ======= */
+    TEST_ASSERT_FAIL_ASSERT(TEST_N775_Initialize(NULL_PTR));
+}
+void testN775_InitializeDatabase(void) {
+    /* ======= Assertion tests ============================================= */
+    /* ======= AT1/1 ======= */
+    TEST_ASSERT_FAIL_ASSERT(TEST_N775_InitializeDatabase(NULL_PTR));
+}
+void testN775_InitializeI2c(void) {
+    /* ======= Assertion tests ============================================= */
+    /* ======= AT1/1 ======= */
+    TEST_ASSERT_FAIL_ASSERT(TEST_N775_InitializeI2c(NULL_PTR));
+}
+void testN775_ResetStringSequence(void) {
+    /* ======= Assertion tests ============================================= */
+    /* ======= AT1/1 ======= */
+    TEST_ASSERT_FAIL_ASSERT(TEST_N775_ResetStringSequence(NULL_PTR));
+}
+void testN775_ResetMuxIndex(void) {
+    /* ======= Assertion tests ============================================= */
+    /* ======= AT1/1 ======= */
+    TEST_ASSERT_FAIL_ASSERT(TEST_N775_ResetMuxIndex(NULL_PTR));
+}
+void testN775_SetFirstMeasurementCycleFinished(void) {
+    /* ======= Assertion tests ============================================= */
+    /* ======= AT1/1 ======= */
+    TEST_ASSERT_FAIL_ASSERT(TEST_N775_SetFirstMeasurementCycleFinished(NULL_PTR));
+
+    /* ======= Routine tests =============================================== */
+    N775_STATE_s n775TestState = {
+        .firstMeasurementMade = false,
+    };
+
+    /* ======= RT1/2: Test implementation */
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
+    /* ======= RT1/2: call function under test */
+    TEST_N775_SetFirstMeasurementCycleFinished(&n775TestState);
+    /* ======= RT1/2: test output verification */
+    TEST_ASSERT_TRUE(n775TestState.firstMeasurementMade);
+}
+void testN775_SetMuxChannel(void) {
+    /* ======= Assertion tests ============================================= */
+    /* ======= AT1/1 ======= */
+    TEST_ASSERT_FAIL_ASSERT(TEST_N775_SetMuxChannel(NULL_PTR));
+}
+void testN775_StartMeasurement(void) {
+    /* ======= Assertion tests ============================================= */
+    /* ======= AT1/1 ======= */
+    TEST_ASSERT_FAIL_ASSERT(TEST_N775_StartMeasurement(NULL_PTR));
+}
+void testN775_TransmitI2c(void) {
+    /* ======= Assertion tests ============================================= */
+    /* ======= AT1/1 ======= */
+    TEST_ASSERT_FAIL_ASSERT(TEST_N775_TransmitI2c(NULL_PTR));
+}
+void testN775_Wait(void) {
+    const uint32_t waitTime = 1u;
+    uint32_t currentTime    = 2u;
+    OS_GetTickCount_ExpectAndReturn(currentTime);
+    OS_DelayTaskUntil_Expect(&currentTime, waitTime);
+    TEST_N775_Wait(waitTime);
+}
+
+/**
+ * @brief   Testing extern function #N775_I2cRead
+ * @details The following cases need to be tested:
+ *          - Argument validation:
+ *            - AT1/2: NULL_PTR for pData -> &rarr; assert
+ *            - AT2/2: invalid data length -> &rarr; assert
+ *          - Routine validation:
+ *            - TODO
+ */
+void testN775_I2cRead(void) {
+    /* ======= Assertion tests ============================================= */
+    uint8_t data                            = 0u;
+    const uint8_t validModuleNumber         = 0u;
+    const uint8_t validDeviceAddress        = 0u;
+    const uint8_t validDataLength           = 1u;
+    const uint8_t invalidDataLengthTooSmall = 0u;
+    const uint8_t invalidDataLengthTooLarge = 14u;
+    /* ======= AT1/2 ======= */
+    TEST_ASSERT_FAIL_ASSERT(N775_I2cRead(validModuleNumber, validDeviceAddress, NULL_PTR, validDataLength));
+    /* ======= AT1/2:1 ===== */
+    TEST_ASSERT_FAIL_ASSERT(N775_I2cRead(validModuleNumber, validDeviceAddress, &data, invalidDataLengthTooSmall));
+    /* ======= AT1/2:2 ===== */
+    TEST_ASSERT_FAIL_ASSERT(N775_I2cRead(validModuleNumber, validDeviceAddress, &data, invalidDataLengthTooLarge));
+    /* ======= Routine tests =============================================== */
+}
+
+void testN775_I2cWrite(void) {
+    /* ======= Assertion tests ============================================= */
+    /* ======= AT1/1 ======= */
+    TEST_ASSERT_FAIL_ASSERT(TEST_N775_TransmitI2c(NULL_PTR));
+}
+
+/**
+ * @brief   Testing extern function #N775_I2cRead
+ * @details The following cases need to be tested:
+ *          - Argument validation:
+ *            - AT1/5: NULL_PTR for pDataWrite -> &rarr; assert
+ *            - AT2/5: NULL_PTR for pDataRead -> &rarr; assert
+ *            - AT3/5: invalid write data length -> &rarr; assert
+ *            - AT4/5: invalid read data length -> &rarr; assert
+ *            - AT5/5: invalid data length combination -> &rarr; assert
+ *          - Routine validation:
+ *            - TODO
+ */
+void testN775_I2cWriteRead(void) {
+    /* ======= Assertion tests ============================================= */
+    uint8_t writeData = 0u;
+    uint8_t readData  = 0u;
+
+    const uint8_t validModuleNumber  = 0u;
+    const uint8_t validDeviceAddress = 0u;
+
+    /* ======= AT1/5 ======= */
+    TEST_ASSERT_FAIL_ASSERT(N775_I2cWriteRead(validModuleNumber, validDeviceAddress, NULL_PTR, 1u, &readData, 1u));
+    /* ======= AT2/5 ======= */
+    TEST_ASSERT_FAIL_ASSERT(N775_I2cWriteRead(validModuleNumber, validDeviceAddress, &writeData, 1u, NULL_PTR, 1u));
+    /* ======= AT3/5 ======= */
+    TEST_ASSERT_FAIL_ASSERT(N775_I2cWriteRead(validModuleNumber, validDeviceAddress, &writeData, 0u, &readData, 1u));
+    /* ======= AT4/5 ======= */
+    TEST_ASSERT_FAIL_ASSERT(N775_I2cWriteRead(validModuleNumber, validDeviceAddress, &writeData, 1u, &readData, 0u));
+    /* ======= AT5/5 ======= */
+    TEST_ASSERT_FAIL_ASSERT(N775_I2cWriteRead(validModuleNumber, validDeviceAddress, &writeData, 6u, &readData, 7u));
+
+    /* ======= Routine tests =============================================== */
+}
+
+void testN775_IsFirstMeasurementCycleFinished(void) {
+    /* ======= Assertion tests ============================================= */
+    /* ======= AT1/1 ======= */
+    TEST_ASSERT_FAIL_ASSERT(N775_IsFirstMeasurementCycleFinished(NULL_PTR));
+}
+
+void testN775_Measure(void) {
+    /* ======= Assertion tests ============================================= */
+    /* ======= AT1/1 ======= */
+    TEST_ASSERT_FAIL_ASSERT(N775_Measure(NULL_PTR));
+}

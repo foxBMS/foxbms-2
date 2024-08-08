@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,12 +43,13 @@
  * @file    bms.c
  * @author  foxBMS Team
  * @date    2020-02-24 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup ENGINE
  * @prefix  BMS
  *
  * @brief   bms driver implementation
+ * @details TODO
  */
 
 /*========== Includes =======================================================*/
@@ -77,9 +78,9 @@
 /**
  * Saves the last state and the last substate
  */
-#define BMS_SAVELASTSTATES()                  \
-    bms_state.laststate    = bms_state.state; \
-    bms_state.lastsubstate = bms_state.substate
+#define BMS_SAVE_LAST_STATES()                \
+    bms_state.lastState    = bms_state.state; \
+    bms_state.lastSubstate = bms_state.substate
 
 /*========== Static Constant and Variable Definitions =======================*/
 
@@ -91,8 +92,8 @@ static BMS_STATE_s bms_state = {
     .stateRequest                      = BMS_STATE_NO_REQUEST,
     .state                             = BMS_STATEMACH_UNINITIALIZED,
     .substate                          = BMS_ENTRY,
-    .laststate                         = BMS_STATEMACH_UNINITIALIZED,
-    .lastsubstate                      = BMS_ENTRY,
+    .lastState                         = BMS_STATEMACH_UNINITIALIZED,
+    .lastSubstate                      = BMS_ENTRY,
     .triggerentry                      = 0u,
     .ErrRequestCounter                 = 0u,
     .initFinished                      = STD_NOT_OK,
@@ -106,9 +107,9 @@ static BMS_STATE_s bms_state = {
     .deactivatedStrings                = {0},
     .firstClosedString                 = 0u,
     .stringOpenTimeout                 = 0u,
-    .nextstringclosedtimer             = 0u,
+    .nextStringClosedTimer             = 0u,
     .stringCloseTimeout                = 0u,
-    .nextstate                         = BMS_STATEMACH_STANDBY,
+    .nextState                         = BMS_STATEMACH_STANDBY,
     .restTimer_10ms                    = BS_RELAXATION_PERIOD_10ms,
     .currentFlowState                  = BMS_RELAXATION,
     .remainingDelay_ms                 = BMS_NO_ACTIVE_DELAY_TIME_ms,
@@ -218,9 +219,9 @@ static STD_RETURN_TYPE_e BMS_CheckPrecharge(uint8_t stringNumber, const DATA_BLO
 /**
  * @brief   Returns ID of string with highest total voltage
  * @details This is used to close the first string when drive-off is requested.
- * @param[in]   precharge   If #BMS_DO_NOT_TAKE_PRECHARGE_INTO_ACCCOUNT,
+ * @param[in]   precharge   If #BMS_DO_NOT_TAKE_PRECHARGE_INTO_ACCOUNT,
  *                          precharge availability for string is ignored.
- *                          if #BMS_TAKE_PRECHARGE_INTO_ACCCOUNT, only select
+ *                          if #BMS_TAKE_PRECHARGE_INTO_ACCOUNT, only select
  *                          string that has precharge available.
  * @param[in]   pPackValues pointer to pack values database entry
  * @return  index of string with highest voltage If no string is available,
@@ -231,9 +232,9 @@ static uint8_t BMS_GetHighestString(BMS_CONSIDER_PRECHARGE_e precharge, DATA_BLO
 /**
  * @brief   Returns ID of string with voltage closest to first closed string voltage
  * @details This is used to close further strings in drive.
- * @param[in]   precharge   If #BMS_DO_NOT_TAKE_PRECHARGE_INTO_ACCCOUNT,
+ * @param[in]   precharge   If #BMS_DO_NOT_TAKE_PRECHARGE_INTO_ACCOUNT,
  *                          precharge availability for string is ignored.
- *                          if #BMS_TAKE_PRECHARGE_INTO_ACCCOUNT, only select
+ *                          if #BMS_TAKE_PRECHARGE_INTO_ACCOUNT, only select
  *                          string that has precharge available.
  * @param[in]   pPackValues pointer to pack values database entry
  * @return  index of string with voltage closest to the first closed string voltage.
@@ -280,7 +281,7 @@ static int32_t BMS_GetAverageStringCurrent(DATA_BLOCK_PACK_VALUES_s *pPackValues
  *          current values
  * @param[in]   pPackValues  recent measured values from current sensor
  */
-static void BMS_UpdateBatsysState(DATA_BLOCK_PACK_VALUES_s *pPackValues);
+static void BMS_UpdateBatterySystemState(DATA_BLOCK_PACK_VALUES_s *pPackValues);
 
 /**
  * @brief   Get first string contactor that should be opened depending on the
@@ -288,7 +289,7 @@ static void BMS_UpdateBatsysState(DATA_BLOCK_PACK_VALUES_s *pPackValues);
  * @details Check the mounting direction of the contactors and open the
  *          contactor that is mounted in the preferred current flow direction.
  *          Open the plus contactor first if, there is no contactor in
- *          preferred direction to the curren flow to open available. This may
+ *          preferred direction to the current flow to open available. This may
  *          be either because both contactors are installed in the same
  *          direction or because the contactors are bidirectional.
  * @param stringNumber         string that will be opened
@@ -545,7 +546,7 @@ static uint8_t BMS_GetHighestString(BMS_CONSIDER_PRECHARGE_e precharge, DATA_BLO
         if ((pPackValues->stringVoltage_mV[s] >= max_stringVoltage_mV) &&
             (pPackValues->invalidStringVoltage[s] == 0u)) {
             if (bms_state.deactivatedStrings[s] == 0u) {
-                if (precharge == BMS_DO_NOT_TAKE_PRECHARGE_INTO_ACCCOUNT) {
+                if (precharge == BMS_DO_NOT_TAKE_PRECHARGE_INTO_ACCOUNT) {
                     max_stringVoltage_mV = pPackValues->stringVoltage_mV[s];
                     highest_string_index = s;
                 } else {
@@ -590,7 +591,7 @@ static uint8_t BMS_GetClosestString(BMS_CONSIDER_PRECHARGE_e precharge, DATA_BLO
                 int32_t voltageDifference_mV        = labs(closedStringVoltage_mV - pPackValues->stringVoltage_mV[s]);
                 if (voltageDifference_mV <= minimumVoltageDifference_mV) {
                     if (bms_state.deactivatedStrings[s] == 0u) {
-                        if (precharge == BMS_TAKE_PRECHARGE_INTO_ACCCOUNT) {
+                        if (precharge == BMS_TAKE_PRECHARGE_INTO_ACCOUNT) {
                             if (bs_stringsWithPrecharge[s] == BS_STRING_WITH_PRECHARGE) {
                                 minimumVoltageDifference_mV = voltageDifference_mV;
                                 closestStringIndex          = s;
@@ -616,7 +617,7 @@ static uint8_t BMS_GetLowestString(BMS_CONSIDER_PRECHARGE_e precharge, DATA_BLOC
         if ((pPackValues->stringVoltage_mV[s] <= min_stringVoltage_mV) &&
             (pPackValues->invalidStringVoltage[s] == 0u)) {
             if (bms_state.deactivatedStrings[s] == 0u) {
-                if (precharge == BMS_DO_NOT_TAKE_PRECHARGE_INTO_ACCCOUNT) {
+                if (precharge == BMS_DO_NOT_TAKE_PRECHARGE_INTO_ACCOUNT) {
                     min_stringVoltage_mV = pPackValues->stringVoltage_mV[s];
                     lowest_string_index  = s;
                 } else {
@@ -660,7 +661,7 @@ static int32_t BMS_GetAverageStringCurrent(DATA_BLOCK_PACK_VALUES_s *pPackValues
     return average_current;
 }
 
-static void BMS_UpdateBatsysState(DATA_BLOCK_PACK_VALUES_s *pPackValues) {
+static void BMS_UpdateBatterySystemState(DATA_BLOCK_PACK_VALUES_s *pPackValues) {
     FAS_ASSERT(pPackValues != NULL_PTR);
 
     /* Only update system state if current value is valid */
@@ -675,7 +676,7 @@ static void BMS_UpdateBatsysState(DATA_BLOCK_PACK_VALUES_s *pPackValues) {
                 bms_state.restTimer_10ms   = BS_RELAXATION_PERIOD_10ms;
             } else {
                 /* Current below rest current: either battery system is at rest
-             * or the relaxation process is still ongoing */
+                 * or the relaxation process is still ongoing */
                 if (bms_state.restTimer_10ms == 0u) {
                     /* Rest timer elapsed -> battery system at rest */
                     bms_state.currentFlowState = BMS_AT_REST;
@@ -694,7 +695,7 @@ static void BMS_UpdateBatsysState(DATA_BLOCK_PACK_VALUES_s *pPackValues) {
                 bms_state.restTimer_10ms   = BS_RELAXATION_PERIOD_10ms;
             } else {
                 /* Current below rest current: either battery system is at rest
-             * or the relaxation process is still ongoing */
+                 * or the relaxation process is still ongoing */
                 if (bms_state.restTimer_10ms == 0u) {
                     /* Rest timer elapsed -> battery system at rest */
                     bms_state.currentFlowState = BMS_AT_REST;
@@ -824,7 +825,7 @@ BMS_RETURN_TYPE_e BMS_SetStateRequest(BMS_STATE_REQUEST_e statereq) {
 
 void BMS_Trigger(void) {
     BMS_STATE_REQUEST_e statereq                = BMS_STATE_NO_REQUEST;
-    DATA_BLOCK_SYSTEM_STATE_s systemstate       = {.header.uniqueId = DATA_BLOCK_ID_SYSTEM_STATE};
+    DATA_BLOCK_SYSTEM_STATE_s systemState       = {.header.uniqueId = DATA_BLOCK_ID_SYSTEM_STATE};
     uint32_t timestamp                          = OS_GetTickCount();
     static uint32_t nextOpenWireCheck           = 0;
     STD_RETURN_TYPE_e retVal                    = STD_NOT_OK;
@@ -836,7 +837,7 @@ void BMS_Trigger(void) {
 
     if (bms_state.state != BMS_STATEMACH_UNINITIALIZED) {
         BMS_GetMeasurementValues();
-        BMS_UpdateBatsysState(&bms_tablePackValues);
+        BMS_UpdateBatterySystemState(&bms_tablePackValues);
         SOA_CheckVoltages(&bms_tableMinMax);
         SOA_CheckTemperatures(&bms_tableMinMax, &bms_tablePackValues);
         SOA_CheckCurrent(&bms_tablePackValues);
@@ -849,8 +850,8 @@ void BMS_Trigger(void) {
         return;
     }
 
-    if (bms_state.nextstringclosedtimer > 0u) {
-        bms_state.nextstringclosedtimer--;
+    if (bms_state.nextStringClosedTimer > 0u) {
+        bms_state.nextStringClosedTimer--;
     }
     if (bms_state.stringOpenTimeout > 0u) {
         bms_state.stringOpenTimeout--;
@@ -878,7 +879,7 @@ void BMS_Trigger(void) {
             /* waiting for Initialization Request */
             statereq = BMS_TransferStateRequest();
             if (statereq == BMS_STATE_INIT_REQUEST) {
-                BMS_SAVELASTSTATES();
+                BMS_SAVE_LAST_STATES();
                 bms_state.timer    = BMS_STATEMACH_SHORTTIME;
                 bms_state.state    = BMS_STATEMACH_INITIALIZATION;
                 bms_state.substate = BMS_ENTRY;
@@ -891,7 +892,7 @@ void BMS_Trigger(void) {
 
         /****************************INITIALIZATION***************************/
         case BMS_STATEMACH_INITIALIZATION:
-            BMS_SAVELASTSTATES();
+            BMS_SAVE_LAST_STATES();
             /* Reset ALERT mode flag */
             DIAG_Handler(DIAG_ID_ALERT_MODE, DIAG_EVENT_OK, DIAG_SYSTEM, 0u);
             bms_state.initFinished = STD_OK;
@@ -902,7 +903,7 @@ void BMS_Trigger(void) {
 
         /****************************INITIALIZED******************************/
         case BMS_STATEMACH_INITIALIZED:
-            BMS_SAVELASTSTATES();
+            BMS_SAVE_LAST_STATES();
             if (IMD_RequestInsulationMeasurement() == IMD_ILLEGAL_REQUEST) {
                 /* Initialization of IMD device not finished yet -> wait until this is finished before moving on */
                 bms_state.timer = BMS_STATEMACH_LONGTIME;
@@ -915,12 +916,12 @@ void BMS_Trigger(void) {
 
         /****************************IDLE*************************************/
         case BMS_STATEMACH_IDLE:
-            BMS_SAVELASTSTATES();
+            BMS_SAVE_LAST_STATES();
 
             if (bms_state.substate == BMS_ENTRY) {
-                DATA_READ_DATA(&systemstate);
-                systemstate.bmsCanState = BMS_CANSTATE_IDLE;
-                DATA_WRITE_DATA(&systemstate);
+                DATA_READ_DATA(&systemState);
+                systemState.bmsCanState = BMS_CAN_STATE_IDLE;
+                DATA_WRITE_DATA(&systemState);
                 bms_state.timer    = BMS_STATEMACH_SHORTTIME;
                 bms_state.substate = BMS_CHECK_ERROR_FLAGS;
                 break;
@@ -928,7 +929,7 @@ void BMS_Trigger(void) {
                 if (BMS_IsBatterySystemStateOkay() == STD_NOT_OK) {
                     bms_state.timer     = BMS_STATEMACH_SHORTTIME;
                     bms_state.state     = BMS_STATEMACH_OPEN_CONTACTORS;
-                    bms_state.nextstate = BMS_STATEMACH_ERROR;
+                    bms_state.nextState = BMS_STATEMACH_ERROR;
                     bms_state.substate  = BMS_ENTRY;
                     break;
                 } else {
@@ -939,7 +940,7 @@ void BMS_Trigger(void) {
             } else if (bms_state.substate == BMS_CHECK_STATE_REQUESTS) {
                 bms_state.timer     = BMS_STATEMACH_SHORTTIME;
                 bms_state.state     = BMS_STATEMACH_OPEN_CONTACTORS;
-                bms_state.nextstate = BMS_STATEMACH_STANDBY;
+                bms_state.nextState = BMS_STATEMACH_STANDBY;
                 bms_state.substate  = BMS_ENTRY;
                 break;
             }
@@ -947,14 +948,14 @@ void BMS_Trigger(void) {
 
         /****************************OPEN CONTACTORS**************************/
         case BMS_STATEMACH_OPEN_CONTACTORS:
-            BMS_SAVELASTSTATES();
+            BMS_SAVE_LAST_STATES();
 
             if (bms_state.substate == BMS_ENTRY) {
                 BAL_SetStateRequest(BAL_STATE_NO_BALANCING_REQUEST);
                 bms_state.timer    = BMS_STATEMACH_SHORTTIME;
-                bms_state.substate = BMS_OPEN_ALL_PRECHARGES;
+                bms_state.substate = BMS_OPEN_ALL_PRECHARGE_CONTACTORS;
                 break;
-            } else if (bms_state.substate == BMS_OPEN_ALL_PRECHARGES) {
+            } else if (bms_state.substate == BMS_OPEN_ALL_PRECHARGE_CONTACTORS) {
                 /* Precharge contactors can always be opened as the precharge
                  * resistor limits the maximum current */
                 CONT_OpenAllPrechargeContactors();
@@ -973,7 +974,7 @@ void BMS_Trigger(void) {
                     /* Current is below maximum break current -> open first contactor
                      * Check the mounting direction of the contactors and open the contactor that is mounted in the
                      * preferred current flow direction. Open the plus contactor first if, there is no contactor
-                     * in preferred direction to the curren flow to open available. This may be either because both
+                     * in preferred direction to the current flow to open available. This may be either because both
                      * contactors are installed in the same direction or because the contactors are bidirectional.
                      */
                     const BMS_CURRENT_FLOW_STATE_e flowDirection =
@@ -1071,7 +1072,7 @@ void BMS_Trigger(void) {
                     break;
                 }
             } else if (bms_state.substate == BMS_OPEN_STRINGS_EXIT) {
-                if (bms_state.nextstate == BMS_STATEMACH_STANDBY) {
+                if (bms_state.nextState == BMS_STATEMACH_STANDBY) {
                     /* Opening due to STANDBY request -> switch to BMS_STATEMACH_STANDBY */
                     bms_state.timer    = BMS_STATEMACH_SHORTTIME;
                     bms_state.state    = BMS_STATEMACH_STANDBY;
@@ -1090,23 +1091,23 @@ void BMS_Trigger(void) {
 
         /****************************STANDBY**********************************/
         case BMS_STATEMACH_STANDBY:
-            BMS_SAVELASTSTATES();
+            BMS_SAVE_LAST_STATES();
             if (bms_state.substate == BMS_ENTRY) {
-                BAL_SetStateRequest(BAL_STATE_ALLOWBALANCING_REQUEST);
+                BAL_SetStateRequest(BAL_STATE_ALLOW_BALANCING_REQUEST);
 #if BS_STANDBY_PERIODIC_OPEN_WIRE_CHECK == TRUE
                 nextOpenWireCheck = timestamp + BS_STANDBY_OPEN_WIRE_PERIOD_ms;
 #endif /* BS_STANDBY_PERIODIC_OPEN_WIRE_CHECK == TRUE */
-                bms_state.timer    = BMS_STATEMACH_MEDIUMTIME;
+                bms_state.timer    = BMS_STATEMACH_MEDIUM_TIME;
                 bms_state.substate = BMS_CHECK_ERROR_FLAGS_INTERLOCK;
-                DATA_READ_DATA(&systemstate);
-                systemstate.bmsCanState = BMS_CANSTATE_STANDBY;
-                DATA_WRITE_DATA(&systemstate);
+                DATA_READ_DATA(&systemState);
+                systemState.bmsCanState = BMS_CAN_STATE_STANDBY;
+                DATA_WRITE_DATA(&systemState);
                 break;
             } else if (bms_state.substate == BMS_CHECK_ERROR_FLAGS_INTERLOCK) {
                 if (BMS_IsBatterySystemStateOkay() == STD_NOT_OK) {
                     bms_state.timer     = BMS_STATEMACH_SHORTTIME;
                     bms_state.state     = BMS_STATEMACH_OPEN_CONTACTORS;
-                    bms_state.nextstate = BMS_STATEMACH_ERROR;
+                    bms_state.nextState = BMS_STATEMACH_ERROR;
                     bms_state.substate  = BMS_ENTRY;
                     break;
                 } else {
@@ -1122,7 +1123,7 @@ void BMS_Trigger(void) {
                 if (BMS_IsBatterySystemStateOkay() == STD_NOT_OK) {
                     bms_state.timer     = BMS_STATEMACH_SHORTTIME;
                     bms_state.state     = BMS_STATEMACH_OPEN_CONTACTORS;
-                    bms_state.nextstate = BMS_STATEMACH_ERROR;
+                    bms_state.nextState = BMS_STATEMACH_ERROR;
                     bms_state.substate  = BMS_ENTRY;
                     break;
                 } else {
@@ -1133,7 +1134,7 @@ void BMS_Trigger(void) {
             } else if (bms_state.substate == BMS_CHECK_STATE_REQUESTS) {
                 if (BMS_CheckCanRequests() == BMS_REQ_ID_NORMAL) {
                     bms_state.powerPath = BMS_POWER_PATH_0;
-                    bms_state.nextstate = BMS_STATEMACH_DISCHARGE;
+                    bms_state.nextState = BMS_STATEMACH_DISCHARGE;
                     bms_state.timer     = BMS_STATEMACH_SHORTTIME;
                     bms_state.state     = BMS_STATEMACH_PRECHARGE;
                     bms_state.substate  = BMS_ENTRY;
@@ -1141,7 +1142,7 @@ void BMS_Trigger(void) {
                 }
                 if (BMS_CheckCanRequests() == BMS_REQ_ID_CHARGE) {
                     bms_state.powerPath = BMS_POWER_PATH_1;
-                    bms_state.nextstate = BMS_STATEMACH_CHARGE;
+                    bms_state.nextState = BMS_STATEMACH_CHARGE;
                     bms_state.timer     = BMS_STATEMACH_SHORTTIME;
                     bms_state.state     = BMS_STATEMACH_PRECHARGE;
                     bms_state.substate  = BMS_ENTRY;
@@ -1164,21 +1165,21 @@ void BMS_Trigger(void) {
 
         /****************************PRECHARGE********************************/
         case BMS_STATEMACH_PRECHARGE:
-            BMS_SAVELASTSTATES();
+            BMS_SAVE_LAST_STATES();
 
             if (bms_state.substate == BMS_ENTRY) {
-                DATA_READ_DATA(&systemstate);
-                systemstate.bmsCanState = BMS_CANSTATE_PRECHARGE;
-                DATA_WRITE_DATA(&systemstate);
-                if (bms_state.nextstate == BMS_STATEMACH_CHARGE) {
-                    stringNumber = BMS_GetLowestString(BMS_TAKE_PRECHARGE_INTO_ACCCOUNT, &bms_tablePackValues);
+                DATA_READ_DATA(&systemState);
+                systemState.bmsCanState = BMS_CAN_STATE_PRECHARGE;
+                DATA_WRITE_DATA(&systemState);
+                if (bms_state.nextState == BMS_STATEMACH_CHARGE) {
+                    stringNumber = BMS_GetLowestString(BMS_TAKE_PRECHARGE_INTO_ACCOUNT, &bms_tablePackValues);
                 } else {
-                    stringNumber = BMS_GetHighestString(BMS_TAKE_PRECHARGE_INTO_ACCCOUNT, &bms_tablePackValues);
+                    stringNumber = BMS_GetHighestString(BMS_TAKE_PRECHARGE_INTO_ACCOUNT, &bms_tablePackValues);
                 }
                 if (stringNumber == BMS_NO_STRING_AVAILABLE) {
                     bms_state.timer     = BMS_STATEMACH_SHORTTIME;
                     bms_state.state     = BMS_STATEMACH_OPEN_CONTACTORS;
-                    bms_state.nextstate = BMS_STATEMACH_ERROR;
+                    bms_state.nextState = BMS_STATEMACH_ERROR;
                     bms_state.substate  = BMS_ENTRY;
                     break;
                 }
@@ -1194,14 +1195,14 @@ void BMS_Trigger(void) {
                         /* Invalid contactor requested */
                         bms_state.timer     = BMS_STATEMACH_SHORTTIME;
                         bms_state.state     = BMS_STATEMACH_OPEN_CONTACTORS;
-                        bms_state.nextstate = BMS_STATEMACH_ERROR;
+                        bms_state.nextState = BMS_STATEMACH_ERROR;
                         bms_state.substate  = BMS_ENTRY;
                     }
                 } else if (BMS_IsBatterySystemStateOkay() == STD_NOT_OK) {
                     /* If precharge re-enter timeout not elapsed, wait (and check errors while waiting) */
                     bms_state.timer     = BMS_STATEMACH_SHORTTIME;
                     bms_state.state     = BMS_STATEMACH_OPEN_CONTACTORS;
-                    bms_state.nextstate = BMS_STATEMACH_ERROR;
+                    bms_state.nextState = BMS_STATEMACH_ERROR;
                     bms_state.substate  = BMS_ENTRY;
                     break;
                 }
@@ -1215,18 +1216,18 @@ void BMS_Trigger(void) {
                     bms_state.closedPrechargeContactors[stringNumber] = 1u;
                     if (contRetVal == STD_OK) {
                         bms_state.timer    = BMS_TIME_WAIT_AFTER_CLOSING_PRECHARGE;
-                        bms_state.substate = BMS_CHECK_ERROR_FLAGS_CLOSINGPRECHARGE;
+                        bms_state.substate = BMS_CHECK_ERROR_FLAGS_CLOSING_PRECHARGE;
                     } else {
                         bms_state.timer     = BMS_STATEMACH_SHORTTIME;
                         bms_state.state     = BMS_STATEMACH_OPEN_CONTACTORS;
-                        bms_state.nextstate = BMS_STATEMACH_ERROR;
+                        bms_state.nextState = BMS_STATEMACH_ERROR;
                         bms_state.substate  = BMS_ENTRY;
                     }
                 } else if (bms_state.stringCloseTimeout == 0u) {
                     /* String takes too long to close */
                     bms_state.timer     = BMS_STATEMACH_SHORTTIME;
                     bms_state.state     = BMS_STATEMACH_OPEN_CONTACTORS;
-                    bms_state.nextstate = BMS_STATEMACH_ERROR;
+                    bms_state.nextState = BMS_STATEMACH_ERROR;
                     bms_state.substate  = BMS_ENTRY;
                 } else {
                     /* String not closed, re-issue closing request */
@@ -1234,11 +1235,11 @@ void BMS_Trigger(void) {
                     bms_state.timer = BMS_STATEMACH_SHORTTIME;
                 }
                 break;
-            } else if (bms_state.substate == BMS_CHECK_ERROR_FLAGS_CLOSINGPRECHARGE) {
+            } else if (bms_state.substate == BMS_CHECK_ERROR_FLAGS_CLOSING_PRECHARGE) {
                 if (BMS_IsBatterySystemStateOkay() == STD_NOT_OK) {
                     bms_state.timer     = BMS_STATEMACH_SHORTTIME;
                     bms_state.state     = BMS_STATEMACH_OPEN_CONTACTORS;
-                    bms_state.nextstate = BMS_STATEMACH_ERROR;
+                    bms_state.nextState = BMS_STATEMACH_ERROR;
                     bms_state.substate  = BMS_ENTRY;
                     break;
                 } else {
@@ -1250,7 +1251,7 @@ void BMS_Trigger(void) {
                 if (BMS_CheckCanRequests() == BMS_REQ_ID_STANDBY) {
                     bms_state.timer     = BMS_STATEMACH_SHORTTIME;
                     bms_state.state     = BMS_STATEMACH_OPEN_CONTACTORS;
-                    bms_state.nextstate = BMS_STATEMACH_STANDBY;
+                    bms_state.nextState = BMS_STATEMACH_STANDBY;
                     bms_state.substate  = BMS_ENTRY;
                     break;
                 } else {
@@ -1275,13 +1276,13 @@ void BMS_Trigger(void) {
                     if (bms_state.prechargeTryCounter < (BMS_PRECHARGE_TRIES - 1u)) {
                         bms_state.closedPrechargeContactors[stringNumber] = 0u;
                         if (contRetVal == STD_OK) {
-                            bms_state.timer    = BMS_TIME_WAIT_AFTERPRECHARGEFAIL;
+                            bms_state.timer    = BMS_TIME_WAIT_AFTER_PRECHARGE_FAIL;
                             bms_state.substate = BMS_PRECHARGE_CLOSE_PRECHARGE;
                             bms_state.prechargeTryCounter++;
                         } else {
                             bms_state.timer     = BMS_STATEMACH_SHORTTIME;
                             bms_state.state     = BMS_STATEMACH_OPEN_CONTACTORS;
-                            bms_state.nextstate = BMS_STATEMACH_ERROR;
+                            bms_state.nextState = BMS_STATEMACH_ERROR;
                             bms_state.substate  = BMS_ENTRY;
                         }
                         break;
@@ -1289,7 +1290,7 @@ void BMS_Trigger(void) {
                         bms_state.closedPrechargeContactors[stringNumber] = 0u;
                         bms_state.timer                                   = BMS_STATEMACH_SHORTTIME;
                         bms_state.state                                   = BMS_STATEMACH_OPEN_CONTACTORS;
-                        bms_state.nextstate                               = BMS_STATEMACH_ERROR;
+                        bms_state.nextState                               = BMS_STATEMACH_ERROR;
                         bms_state.substate                                = BMS_ENTRY;
                         break;
                     }
@@ -1300,13 +1301,13 @@ void BMS_Trigger(void) {
                     bms_state.closedStrings[bms_state.firstClosedString] = 1u;
                     bms_state.numberOfClosedStrings++;
                     bms_state.timer    = BMS_WAIT_TIME_AFTER_CLOSING_STRING_CONTACTOR;
-                    bms_state.substate = BMS_CHECK_ERROR_FLAGS_PRECHARGE_CLOSINGSTRINGS;
+                    bms_state.substate = BMS_CHECK_ERROR_FLAGS_PRECHARGE_CLOSING_STRINGS;
                     break;
                 } else if (bms_state.stringCloseTimeout == 0u) {
                     /* String takes too long to close */
                     bms_state.timer     = BMS_STATEMACH_SHORTTIME;
                     bms_state.state     = BMS_STATEMACH_OPEN_CONTACTORS;
-                    bms_state.nextstate = BMS_STATEMACH_ERROR;
+                    bms_state.nextState = BMS_STATEMACH_ERROR;
                     bms_state.substate  = BMS_ENTRY;
                     break;
                 } else {
@@ -1320,7 +1321,7 @@ void BMS_Trigger(void) {
                 if (BMS_IsBatterySystemStateOkay() == STD_NOT_OK) {
                     bms_state.timer     = BMS_STATEMACH_SHORTTIME;
                     bms_state.state     = BMS_STATEMACH_OPEN_CONTACTORS;
-                    bms_state.nextstate = BMS_STATEMACH_ERROR;
+                    bms_state.nextState = BMS_STATEMACH_ERROR;
                     bms_state.substate  = BMS_ENTRY;
                     break;
                 } else {
@@ -1328,12 +1329,12 @@ void BMS_Trigger(void) {
                     bms_state.substate = BMS_CHECK_CLOSE_SECOND_STRING_CONTACTOR_PRECHARGE_STATE;
                     break;
                 }
-            } else if (bms_state.substate == BMS_CHECK_ERROR_FLAGS_PRECHARGE_CLOSINGSTRINGS) {
+            } else if (bms_state.substate == BMS_CHECK_ERROR_FLAGS_PRECHARGE_CLOSING_STRINGS) {
                 /* Always make one error check after the first string was closed successfully */
                 if (BMS_IsBatterySystemStateOkay() == STD_NOT_OK) {
                     bms_state.timer     = BMS_STATEMACH_SHORTTIME;
                     bms_state.state     = BMS_STATEMACH_OPEN_CONTACTORS;
-                    bms_state.nextstate = BMS_STATEMACH_ERROR;
+                    bms_state.nextState = BMS_STATEMACH_ERROR;
                     bms_state.substate  = BMS_ENTRY;
                     break;
                 } else {
@@ -1350,7 +1351,7 @@ void BMS_Trigger(void) {
                 } else {
                     bms_state.timer     = BMS_STATEMACH_SHORTTIME;
                     bms_state.state     = BMS_STATEMACH_OPEN_CONTACTORS;
-                    bms_state.nextstate = BMS_STATEMACH_ERROR;
+                    bms_state.nextState = BMS_STATEMACH_ERROR;
                     bms_state.substate  = BMS_ENTRY;
                 }
                 break;
@@ -1365,7 +1366,7 @@ void BMS_Trigger(void) {
                     /* Precharge contactor takes too long to open */
                     bms_state.timer     = BMS_STATEMACH_SHORTTIME;
                     bms_state.state     = BMS_STATEMACH_OPEN_CONTACTORS;
-                    bms_state.nextstate = BMS_STATEMACH_ERROR;
+                    bms_state.nextState = BMS_STATEMACH_ERROR;
                     bms_state.substate  = BMS_ENTRY;
                     break;
                 } else {
@@ -1382,28 +1383,28 @@ void BMS_Trigger(void) {
 
         /****************************NORMAL**************************************/
         case BMS_STATEMACH_NORMAL:
-            BMS_SAVELASTSTATES();
+            BMS_SAVE_LAST_STATES();
 
             if (bms_state.substate == BMS_ENTRY) {
 #if BS_NORMAL_PERIODIC_OPEN_WIRE_CHECK == TRUE
                 nextOpenWireCheck = timestamp + BS_NORMAL_OPEN_WIRE_PERIOD_ms;
 #endif /* BS_NORMAL_PERIODIC_OPEN_WIRE_CHECK == TRUE */
-                DATA_READ_DATA(&systemstate);
-                if (bms_state.nextstate == BMS_STATEMACH_CHARGE) {
-                    systemstate.bmsCanState = BMS_CANSTATE_CHARGE;
+                DATA_READ_DATA(&systemState);
+                if (bms_state.nextState == BMS_STATEMACH_CHARGE) {
+                    systemState.bmsCanState = BMS_CAN_STATE_CHARGE;
                 } else {
-                    systemstate.bmsCanState = BMS_CANSTATE_NORMAL;
+                    systemState.bmsCanState = BMS_CAN_STATE_NORMAL;
                 }
-                DATA_WRITE_DATA(&systemstate);
+                DATA_WRITE_DATA(&systemState);
                 bms_state.timer                 = BMS_STATEMACH_SHORTTIME;
                 bms_state.substate              = BMS_CHECK_ERROR_FLAGS;
-                bms_state.nextstringclosedtimer = 0u;
+                bms_state.nextStringClosedTimer = 0u;
                 break;
             } else if (bms_state.substate == BMS_CHECK_ERROR_FLAGS) {
                 if (BMS_IsBatterySystemStateOkay() == STD_NOT_OK) {
                     bms_state.timer     = BMS_STATEMACH_SHORTTIME;
                     bms_state.state     = BMS_STATEMACH_OPEN_CONTACTORS;
-                    bms_state.nextstate = BMS_STATEMACH_ERROR;
+                    bms_state.nextState = BMS_STATEMACH_ERROR;
                     bms_state.substate  = BMS_ENTRY;
                     break;
                 } else {
@@ -1415,7 +1416,7 @@ void BMS_Trigger(void) {
                 if (BMS_CheckCanRequests() == BMS_REQ_ID_STANDBY) {
                     bms_state.timer     = BMS_STATEMACH_SHORTTIME;
                     bms_state.state     = BMS_STATEMACH_OPEN_CONTACTORS;
-                    bms_state.nextstate = BMS_STATEMACH_STANDBY;
+                    bms_state.nextState = BMS_STATEMACH_STANDBY;
                     bms_state.substate  = BMS_ENTRY;
                     break;
                 } else {
@@ -1430,9 +1431,9 @@ void BMS_Trigger(void) {
                     break;
                 }
             } else if (bms_state.substate == BMS_NORMAL_CLOSE_NEXT_STRING) {
-                if (bms_state.nextstringclosedtimer == 0u) {
+                if (bms_state.nextStringClosedTimer == 0u) {
                     nextStringNumber =
-                        BMS_GetClosestString(BMS_DO_NOT_TAKE_PRECHARGE_INTO_ACCCOUNT, &bms_tablePackValues);
+                        BMS_GetClosestString(BMS_DO_NOT_TAKE_PRECHARGE_INTO_ACCOUNT, &bms_tablePackValues);
                     if (nextStringNumber == BMS_NO_STRING_AVAILABLE) {
                         bms_state.timer    = BMS_STATEMACH_SHORTTIME;
                         bms_state.substate = BMS_CHECK_ERROR_FLAGS;
@@ -1441,9 +1442,10 @@ void BMS_Trigger(void) {
                         (BMS_GetStringVoltageDifference(nextStringNumber, &bms_tablePackValues) <=
                          BMS_NEXT_STRING_VOLTAGE_LIMIT_MV) &&
                         (BMS_GetAverageStringCurrent(&bms_tablePackValues) <= BMS_AVERAGE_STRING_CURRENT_LIMIT_MA)) {
-                        /* Voltage/current conditions suitable to close a further string. Close first string contactor */
+                        /* Voltage/current conditions suitable to close a further string. Close first string contactor
+                         */
                         CONT_CloseContactor(nextStringNumber, CONT_MINUS);
-                        bms_state.nextstringclosedtimer = BMS_STRING_CLOSE_TIMEOUT;
+                        bms_state.nextStringClosedTimer = BMS_STRING_CLOSE_TIMEOUT;
                         bms_state.timer                 = BMS_WAIT_TIME_AFTER_CLOSING_STRING_CONTACTOR;
                         bms_state.substate              = BMS_NORMAL_CLOSE_SECOND_STRING_CONTACTOR;
                         break;
@@ -1464,7 +1466,7 @@ void BMS_Trigger(void) {
                     /* String takes too long to close */
                     bms_state.timer     = BMS_STATEMACH_SHORTTIME;
                     bms_state.state     = BMS_STATEMACH_OPEN_CONTACTORS;
-                    bms_state.nextstate = BMS_STATEMACH_ERROR;
+                    bms_state.nextState = BMS_STATEMACH_ERROR;
                     bms_state.substate  = BMS_ENTRY;
                     break;
                 } else {
@@ -1478,7 +1480,7 @@ void BMS_Trigger(void) {
                 if (contactorState == CONT_SWITCH_ON) {
                     bms_state.numberOfClosedStrings++;
                     bms_state.closedStrings[nextStringNumber] = 1u;
-                    bms_state.nextstringclosedtimer           = BMS_WAIT_TIME_BETWEEN_CLOSING_STRINGS;
+                    bms_state.nextStringClosedTimer           = BMS_WAIT_TIME_BETWEEN_CLOSING_STRINGS;
                     /* Go to begin of NORMAL case to redo the full procedure with error check and request check */
                     bms_state.substate = BMS_CHECK_ERROR_FLAGS;
                     break;
@@ -1486,19 +1488,19 @@ void BMS_Trigger(void) {
                     /* String takes too long to close */
                     bms_state.timer     = BMS_STATEMACH_SHORTTIME;
                     bms_state.state     = BMS_STATEMACH_OPEN_CONTACTORS;
-                    bms_state.nextstate = BMS_STATEMACH_ERROR;
+                    bms_state.nextState = BMS_STATEMACH_ERROR;
                     bms_state.substate  = BMS_ENTRY;
                     break;
                 } else if (BMS_IsBatterySystemStateOkay() == STD_NOT_OK) {
                     bms_state.timer     = BMS_STATEMACH_SHORTTIME;
                     bms_state.state     = BMS_STATEMACH_OPEN_CONTACTORS;
-                    bms_state.nextstate = BMS_STATEMACH_ERROR;
+                    bms_state.nextState = BMS_STATEMACH_ERROR;
                     bms_state.substate  = BMS_ENTRY;
                     break;
                 } else if (BMS_CheckCanRequests() == BMS_REQ_ID_STANDBY) {
                     bms_state.timer     = BMS_STATEMACH_SHORTTIME;
                     bms_state.state     = BMS_STATEMACH_OPEN_CONTACTORS;
-                    bms_state.nextstate = BMS_STATEMACH_STANDBY;
+                    bms_state.nextState = BMS_STATEMACH_STANDBY;
                     bms_state.substate  = BMS_ENTRY;
                     break;
                 } else {
@@ -1514,13 +1516,13 @@ void BMS_Trigger(void) {
 
         /****************************ERROR*************************************/
         case BMS_STATEMACH_ERROR:
-            BMS_SAVELASTSTATES();
+            BMS_SAVE_LAST_STATES();
 
             if (bms_state.substate == BMS_ENTRY) {
                 /* Set BMS System state to error */
-                DATA_READ_DATA(&systemstate);
-                systemstate.bmsCanState = BMS_CANSTATE_ERROR;
-                DATA_WRITE_DATA(&systemstate);
+                DATA_READ_DATA(&systemState);
+                systemState.bmsCanState = BMS_CAN_STATE_ERROR;
+                DATA_WRITE_DATA(&systemState);
                 /* Deactivate balancing */
                 BAL_SetStateRequest(BAL_STATE_NO_BALANCING_REQUEST);
                 /* Change LED toggle frequency to indicate an error */
@@ -1552,7 +1554,7 @@ void BMS_Trigger(void) {
             } else if (bms_state.substate == BMS_CHECK_STATE_REQUESTS) {
                 if (BMS_CheckCanRequests() == BMS_REQ_ID_STANDBY) {
                     /* Activate balancing again */
-                    BAL_SetStateRequest(BAL_STATE_ALLOWBALANCING_REQUEST);
+                    BAL_SetStateRequest(BAL_STATE_ALLOW_BALANCING_REQUEST);
                     /* Set LED frequency to normal operation as we leave error
                        state subsequently */
                     LED_SetToggleTime(LED_NORMAL_OPERATION_ON_OFF_TIME_ms);
@@ -1560,7 +1562,7 @@ void BMS_Trigger(void) {
                     /* Verify that all contactors are opened and switch to
                      * STANDBY state afterwards */
                     bms_state.state     = BMS_STATEMACH_OPEN_CONTACTORS;
-                    bms_state.nextstate = BMS_STATEMACH_STANDBY;
+                    bms_state.nextState = BMS_STATEMACH_STANDBY;
                     bms_state.substate  = BMS_ENTRY;
                     break;
                 } else {
@@ -1682,8 +1684,8 @@ extern int32_t TEST_BMS_GetStringVoltageDifference(uint8_t string, DATA_BLOCK_PA
 extern int32_t TEST_BMS_GetAverageStringCurrent(DATA_BLOCK_PACK_VALUES_s *pPackValues) {
     return BMS_GetAverageStringCurrent(pPackValues);
 }
-extern void TEST_BMS_UpdateBatsysState(DATA_BLOCK_PACK_VALUES_s *pPackValues) {
-    BMS_UpdateBatsysState(pPackValues);
+extern void TEST_BMS_UpdateBatterySystemState(DATA_BLOCK_PACK_VALUES_s *pPackValues) {
+    BMS_UpdateBatterySystemState(pPackValues);
 }
 
 #endif

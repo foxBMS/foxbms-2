@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,18 +43,16 @@
  * @file    mxm_crc8.h
  * @author  foxBMS Team
  * @date    2019-02-05 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup DRIVERS
  * @prefix  MXM
  *
  * @brief   Headers for the CRC8 calculation for Maxim Integrated
  *          Monitoring devices
- *
  * @details This module supports the calculation of a CRC8 based on the
  *          polynomial described in the Maxim data sheets.
  *          The polynomial is 0xA6.
- *
  */
 
 #ifndef FOXBMS__MXM_CRC8_H_
@@ -79,7 +77,7 @@
  *          with the polynomial 0xA6. This function calls
  *          #MXM_CRC8WithInitValue() with CRC set to 0x00.
  *          The result should be 0x00 if you include the CRC into
- *          the datastream.
+ *          the data stream.
  * @param[in]   pData   array-pointer with data to be cyclic redundancy checked
  * @param[in]   lenData length of array
  * @return      uint8_t containing the computed CRC

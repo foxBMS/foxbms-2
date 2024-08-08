@@ -12,22 +12,22 @@ Module Files
 Driver
 ^^^^^^
 
-- ``src/app/engine/sys/reset.c`` (`API <../../../../_static/doxygen/src/html/reset_8c.html>`__, `source <../../../../_static/doxygen/src/html/reset_8c_source.html>`__)
-- ``src/app/engine/sys/reset.h`` (`API <../../../../_static/doxygen/src/html/reset_8h.html>`__, `source <../../../../_static/doxygen/src/html/reset_8h_source.html>`__)
-- ``src/app/engine/sys/sys.c`` (`API <../../../../_static/doxygen/src/html/sys_8c.html>`__, `source <../../../../_static/doxygen/src/html/sys_8c_source.html>`__)
-- ``src/app/engine/sys/sys.h`` (`API <../../../../_static/doxygen/src/html/sys_8h.html>`__, `source <../../../../_static/doxygen/src/html/sys_8h_source.html>`__)
+- ``src/app/engine/sys/reset.c``
+- ``src/app/engine/sys/reset.h``
+- ``src/app/engine/sys/sys.c``
+- ``src/app/engine/sys/sys.h``
 
 Configuration
 ^^^^^^^^^^^^^
 
-- ``src/app/engine/config/sys_cfg.c`` (`API <../../../../_static/doxygen/src/html/sys__cfg_8c.html>`__, `source <../../../../_static/doxygen/src/html/sys__cfg_8c_source.html>`__)
-- ``src/app/engine/config/sys_cfg.h`` (`API <../../../../_static/doxygen/src/html/sys__cfg_8h.html>`__, `source <../../../../_static/doxygen/src/html/sys__cfg_8h_source.html>`__)
+- ``src/app/engine/config/sys_cfg.c``
+- ``src/app/engine/config/sys_cfg.h``
 
 Unit Test
 ^^^^^^^^^
 
-- ``tests/unit/app/engine/config/test_sys_cfg.c`` (`API <../../../../_static/doxygen/tests/html/test__sys__cfg_8c.html>`__, `source <../../../../_static/doxygen/tests/html/test__sys__cfg_8c_source.html>`__)
-- ``tests/unit/app/engine/sys/test_sys.c`` (`API <../../../../_static/doxygen/tests/html/test__sys_8c.html>`__, `source <../../../../_static/doxygen/tests/html/test__sys_8c_source.html>`__)
+- ``tests/unit/app/engine/config/test_sys_cfg.c``
+- ``tests/unit/app/engine/sys/test_sys.c``
 
 Detailed Description
 --------------------

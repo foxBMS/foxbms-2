@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,14 +43,13 @@
  * @file    c-019.c
  * @author  foxBMS Team
  * @date    2021-06-04 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup GUIDELINES
  * @prefix  ABC
  *
  * @brief   Example code to show the application of the C coding guidelines
  * @details This code implements an example for C:019
- *
  */
 
 /*========== Includes =======================================================*/
@@ -94,7 +93,7 @@ uint8_t abc_myArrayD[4][3] = {
     {1},       /* row 0 initialized to {1, 0, 0} */
     {0, 1},    /* row 1 initialized to {0, 1, 0} */
     {[2] = 1}, /* row 2 initialized to {0, 0, 1} */
-};             /* row 3 initialized to {0, 0, 0} */
+}; /* row 3 initialized to {0, 0, 0} */
 
 ABC_POINT_s abc_myPoint = {1.2, 1.3}; /* p.x=1.2, p.y=1.3, p.z=0.0 */
 

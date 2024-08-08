@@ -1,26 +1,26 @@
 {
-    "valid": [
-        "ABC_ABC",
-        "ABC_A123",
-        "ABC_123",
-        "ABC_123_12",
-        "ABC_123_AB",
-        "ABC_123_AB_mV",
-        "ABC_123_AB_perc",
-        "FOXBMS__ABC_ABC_123_H_",
-        "FOXBMS__ABC_ABC_023_H_"
-    ],
-    "invalid": [
-        "_ABC",
-        "_ABC_",
-        "_abc",
-        "_abc_",
-        "abc",
-        "abc_",
-        "ABC_",
-        "ABC_abc",
-        "ABC_ABC_123_",
-        "FOXBMS__ABC_ABC_123_H",
-        "FOXBMS__ABC_ABC_123_"
-    ]
+  "invalid": [
+    "_ABC",
+    "_ABC_",
+    "_abc",
+    "_abc_",
+    "abc",
+    "abc_",
+    "ABC_",
+    "ABC_abc",
+    "ABC_ABC_123_",
+    "FOXBMS__ABC_ABC_123_H",
+    "FOXBMS__ABC_ABC_123_"
+  ],
+  "valid": [
+    "ABC_ABC",
+    "ABC_A123",
+    "ABC_123",
+    "ABC_123_12",
+    "ABC_123_AB",
+    "ABC_123_AB_mV",
+    "ABC_123_AB_perc",
+    "FOXBMS__ABC_ABC_123_H_",
+    "FOXBMS__ABC_ABC_023_H_"
+  ]
 }

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,13 +43,13 @@
  * @file    algorithm_cfg.c
  * @author  foxBMS Team
  * @date    2017-12-18 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup ALGORITHMS_CONFIGURATION
  * @prefix  ALGO
  *
  * @brief   Configuration for the algorithm module
- *
+ * @details TODO
  */
 
 /*========== Includes =======================================================*/
@@ -68,7 +68,7 @@
 /*========== Extern Constant and Variable Definitions =======================*/
 /** array of algorithms that should be executed */
 ALGO_TASKS_s algo_algorithms[] = {
-    {ALGO_UNINITIALIZED, 100, 1000, 0, NULL_PTR, &ALGO_MovAverage},
+    {ALGO_UNINITIALIZED, 100, 1000, 0, NULL_PTR, &ALGO_MovingAverage},
 };
 
 const uint16_t algo_length = sizeof(algo_algorithms) / sizeof(algo_algorithms[0]);

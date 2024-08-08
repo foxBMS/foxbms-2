@@ -1,21 +1,17 @@
-require 'ceedling/constants'
-require 'benchmark'
+# =========================================================================
+#   Ceedling - Test-Centered Build System for C
+#   ThrowTheSwitch.org
+#   Copyright (c) 2010-24 Mike Karlesky, Mark VanderVoord, & Greg Williams
+#   SPDX-License-Identifier: MIT
+# =========================================================================
 
-class ShellExecutionException < RuntimeError
-  attr_reader :shell_result
-  def initialize(shell_result:, message:)
-    @shell_result = shell_result
-    super(message)
-  end
-end
+require 'ceedling/constants'
+require 'ceedling/exceptions'
+require 'benchmark'
 
 class ToolExecutor
 
-  constructor :configurator, :tool_executor_helper, :streaminator, :verbosinator, :system_wrapper
-
-  def setup
-
-  end
+  constructor :configurator, :tool_executor_helper, :loginator, :verbosinator, :system_wrapper
 
   # build up a command line from yaml provided config
 
@@ -23,44 +19,48 @@ class ToolExecutor
   def build_command_line(tool_config, extra_params, *args)
     command = {}
 
-    # basic premise is to iterate top to bottom through arguments using '$' as
-    #  a string replacement indicator to expand globals or inline yaml arrays
-    #  into command line arguments via substitution strings
-    # executable must be quoted if it includes spaces (common on windows)
-    executable = @tool_executor_helper.osify_path_separators( expandify_element(tool_config[:name], tool_config[:executable], *args) )
-    executable = "\"#{executable}\"" if executable.include?(' ')
+    command[:name] = tool_config[:name]
+    command[:executable] = tool_config[:executable]
+
+    command[:options] = {} # Blank to hold options set before `exec()` processes
+
+    # Basic premise is to iterate top to bottom through arguments using '$' as
+    # a string replacement indicator to expand globals or inline yaml arrays
+    # into command line arguments via substitution strings.
+    executable = @tool_executor_helper.osify_path_separators(
+      expandify_element(tool_config[:name], tool_config[:executable], *args)
+    )
+
     command[:line] = [
       executable,
       extra_params.join(' ').strip,
       build_arguments(tool_config[:name], tool_config[:arguments], *args),
       ].reject{|s| s.nil? || s.empty?}.join(' ').strip
 
-    command[:options] = {
-      :stderr_redirect => @tool_executor_helper.stderr_redirection(tool_config, @configurator.project_logging)
-      }
+    @loginator.log( "Command: #{command}", Verbosity::DEBUG )
 
     return command
   end
 
 
   # shell out, execute command, and return response
-  def exec(command, options={}, args=[])
+  def exec(command, args=[])
+    options = command[:options]
+
     options[:boom] = true if (options[:boom].nil?)
     options[:stderr_redirect] = StdErrRedirect::NONE if (options[:stderr_redirect].nil?)
 
     # Build command line
     command_line = [
-      command.strip,
+      command[:line].strip,
       args,
       @tool_executor_helper.stderr_redirect_cmdline_append( options ),
       ].flatten.compact.join(' ')
 
-    @streaminator.stderr_puts("Verbose: #{__method__}(): #{command_line}", Verbosity::DEBUG)
-
     shell_result = {}
 
     time = Benchmark.realtime do
-      shell_result = @system_wrapper.shell_capture3( command_line, options[:boom] )
+      shell_result = @system_wrapper.shell_capture3( command:command_line, boom:options[:boom] )
     end
     shell_result[:time] = time
 
@@ -70,17 +70,20 @@ class ToolExecutor
       shell_result[:output].gsub!(/\033\[\d\dm/,'')
     end
 
-    @tool_executor_helper.print_happy_results( command_line, shell_result, options[:boom] )
-    @tool_executor_helper.print_error_results( command_line, shell_result, options[:boom] )
+    @tool_executor_helper.log_results( command_line, shell_result )
 
-    # Go boom if exit code is not 0 and we want to debug (in some cases we don't want a non-0 exit code to raise)
+    # Go boom if exit code is not 0 and that code means a fatal error
+    # (Sometimes we don't want a non-0 exit code to cause an exception as the exit code may not mean a build-ending failure)
     if ((shell_result[:exit_code] != 0) and options[:boom])
-      raise ShellExecutionException.new(shell_result: shell_result, message: "Tool exited with an error")
+      raise ShellExecutionException.new(
+        shell_result: shell_result,
+        # Titleize the command's name -- each word is capitalized and any underscores replaced with spaces
+        name: "'#{command[:name].split(/ |\_/).map(&:capitalize).join(" ")}' " + "(#{command[:executable]})"
+      )
     end
 
     return shell_result
   end
-
 
   private #############################
 
@@ -126,8 +129,8 @@ class ToolExecutor
       args_index = ($2.to_i - 1)
 
       if (args.nil? or args[args_index].nil?)
-        @streaminator.stderr_puts("ERROR: Tool '#{tool_name}' expected valid argument data to accompany replacement operator #{$1}.", Verbosity::ERRORS)
-        raise
+        error = "Tool '#{tool_name}' expected valid argument data to accompany replacement operator #{$1}."
+        raise CeedlingException.new( error )
       end
 
       match = /#{Regexp.escape($1)}/
@@ -171,8 +174,8 @@ class ToolExecutor
     expand = hash[hash.keys[0]]
 
     if (expand.nil?)
-      @streaminator.stderr_puts("ERROR: Tool '#{tool_name}' could not expand nil elements for substitution string '#{substitution}'.", Verbosity::ERRORS)
-      raise
+      error = "Tool '#{tool_name}' could not expand nil elements for substitution string '#{substitution}'."
+      raise CeedlingException.new( error )
     end
 
     # array-ify expansion input if only a single string
@@ -189,19 +192,19 @@ class ToolExecutor
       elsif (@system_wrapper.constants_include?(item))
         const = Object.const_get(item)
         if (const.nil?)
-          @streaminator.stderr_puts("ERROR: Tool '#{tool_name}' found constant '#{item}' to be nil.", Verbosity::ERRORS)
-          raise
+          error = "Tool '#{tool_name}' found constant '#{item}' to be nil."
+          raise CeedlingException.new( error )
         else
           elements << const
         end
       elsif (item.class == Array)
         elements << item
       elsif (item.class == String)
-        @streaminator.stderr_puts("ERROR: Tool '#{tool_name}' cannot expand nonexistent value '#{item}' for substitution string '#{substitution}'.", Verbosity::ERRORS)
-        raise
+        error = "Tool '#{tool_name}' cannot expand nonexistent value '#{item}' for substitution string '#{substitution}'."
+        raise CeedlingException.new( error )
       else
-        @streaminator.stderr_puts("ERROR: Tool '#{tool_name}' cannot expand value having type '#{item.class}' for substitution string '#{substitution}'.", Verbosity::ERRORS)
-        raise
+        error = "Tool '#{tool_name}' cannot expand value having type '#{item.class}' for substitution string '#{substitution}'."
+        raise CeedlingException.new( error )
       end
     end
 

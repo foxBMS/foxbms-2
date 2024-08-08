@@ -30,3 +30,21 @@ battery system are illustrated in :numref:`battery-elements-naming`.
   of a **battery pack** and a **battery junction box (BJB)**. The BJB contains
   the elements used to control the current flow like power contactors and
   fuses.
+
+The BMS consists of two main components,
+
+- one **BMS-Master** and
+- one or more **BMS-Slave**\ (s).
+
+Generally, the |bms-master| is connected to the |bms-slaves| via an
+communication interface.
+The |bms-slaves| are wired to the battery cells of a module, so that the
+|bms-slaves| are able to measure specific physical quantities on the module
+(see :numref:`bms-components-naming`).
+
+.. figure:: img/bms-components.png
+   :alt: Naming conventions for BMS components
+   :name: bms-components-naming
+   :width: 100 %
+
+   Naming conventions for BMS components

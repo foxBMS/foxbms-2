@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,8 +43,8 @@
  * @file    test_plausibility.c
  * @author  foxBMS Team
  * @date    2020-04-01 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -76,61 +76,61 @@ void tearDown(void) {
 
 /*========== Test Cases =====================================================*/
 
-void testCheckPackVoltagecellVoltageandcurrentSensorBothZero(void) {
+void testCheckPackVoltageCellVoltageAndCurrentSensorBothZero(void) {
     int32_t packVoltage_mV = 0;
     int32_t highVoltage_mV = 0;
     TEST_ASSERT_EQUAL(PL_CheckStringVoltage(packVoltage_mV, highVoltage_mV), STD_OK);
 }
 
-void testCheckPackVoltagecellVoltageandcurrentSensorBothMaximum(void) {
+void testCheckPackVoltageCellVoltageAndCurrentSensorBothMaximum(void) {
     int32_t packVoltage_mV = INT32_MAX;
     int32_t highVoltage_mV = INT32_MAX;
     TEST_ASSERT_EQUAL(PL_CheckStringVoltage(packVoltage_mV, highVoltage_mV), STD_OK);
 }
 
-void testCheckPackVoltagecellVoltageandcurrentSensorDifferenceEqualsTolerance(void) {
+void testCheckPackVoltageCellVoltageAndCurrentSensorDifferenceEqualsTolerance(void) {
     int32_t packVoltage_mV = 0;
     int32_t highVoltage_mV = PL_STRING_VOLTAGE_TOLERANCE_mV;
     TEST_ASSERT_EQUAL(PL_CheckStringVoltage(packVoltage_mV, highVoltage_mV), STD_NOT_OK);
 }
 
-void testCheckPackVoltagecellVoltageandcurrentSensorDifferenceEqualsToleranceMinusOne(void) {
+void testCheckPackVoltageCellVoltageAndCurrentSensorDifferenceEqualsToleranceMinusOne(void) {
     int32_t packVoltage_mV = 0;
     int32_t highVoltage_mV = PL_STRING_VOLTAGE_TOLERANCE_mV - 1;
     TEST_ASSERT_EQUAL(PL_CheckStringVoltage(packVoltage_mV, highVoltage_mV), STD_OK);
 }
 
-void testCheckPackVoltagecellVoltageandcurrentSensorDifferenceEqualsTolerancePlusOne(void) {
+void testCheckPackVoltageCellVoltageAndCurrentSensorDifferenceEqualsTolerancePlusOne(void) {
     int32_t packVoltage_mV = 0;
     int32_t highVoltage_mV = PL_STRING_VOLTAGE_TOLERANCE_mV + 1;
     TEST_ASSERT_EQUAL(PL_CheckStringVoltage(packVoltage_mV, highVoltage_mV), STD_NOT_OK);
 }
 
-void testCheckPackVoltagecellVoltageandcurrentSensorDifferenceEqualValue(void) {
+void testCheckPackVoltageCellVoltageAndCurrentSensorDifferenceEqualValue(void) {
     int32_t packVoltage_mV = 4242;
     int32_t highVoltage_mV = 4242;
     TEST_ASSERT_EQUAL(PL_CheckStringVoltage(packVoltage_mV, highVoltage_mV), STD_OK);
 }
 
-void testCheckPackVoltagecellVoltageandcurrentSensorDifferenceINT32MaxMinus(void) {
+void testCheckPackVoltageCellVoltageAndCurrentSensorDifferenceINT32MaxMinus(void) {
     int32_t packVoltage_mV = 0;
     int32_t highVoltage_mV = INT32_MAX;
     TEST_ASSERT_EQUAL(PL_CheckStringVoltage(packVoltage_mV, highVoltage_mV), STD_NOT_OK);
 }
 
-void testCheckPackVoltagecellVoltageandcurrentSensorDifferenceINT32MaxPlus(void) {
+void testCheckPackVoltageCellVoltageAndCurrentSensorDifferenceINT32MaxPlus(void) {
     int32_t packVoltage_mV = INT32_MAX - (PL_STRING_VOLTAGE_TOLERANCE_mV + 100);
     int32_t highVoltage_mV = INT32_MAX;
     TEST_ASSERT_EQUAL(PL_CheckStringVoltage(packVoltage_mV, highVoltage_mV), STD_NOT_OK);
 }
 
-void testCheckPackVoltagecellVoltageandcurrentSensorDifferenceINT32MaxPlusTooMuch(void) {
+void testCheckPackVoltageCellVoltageAndCurrentSensorDifferenceINT32MaxPlusTooMuch(void) {
     int32_t packVoltage_mV = INT32_MAX - (PL_STRING_VOLTAGE_TOLERANCE_mV + 1);
     int32_t highVoltage_mV = INT32_MAX;
     TEST_ASSERT_EQUAL(PL_CheckStringVoltage(packVoltage_mV, highVoltage_mV), STD_NOT_OK);
 }
 
-void testCheckPackVoltagecellVoltageandcurrentSensorDifferenceINT32Max(void) {
+void testCheckPackVoltageCellVoltageAndCurrentSensorDifferenceINT32Max(void) {
     int32_t packVoltage_mV = INT32_MAX;
     int32_t highVoltage_mV = INT32_MAX;
     TEST_ASSERT_EQUAL(PL_CheckStringVoltage(packVoltage_mV, highVoltage_mV), STD_OK);

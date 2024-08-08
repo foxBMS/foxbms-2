@@ -6,13 +6,6 @@
 J-Flash
 =======
 
-..
-    Comments:
-    Segger is the company that builds Ozone and J-Link
-
-.. spelling::
-    Segger
-
 The tool is located in ``tools/waf-tools``.
 
 Tool Documentation

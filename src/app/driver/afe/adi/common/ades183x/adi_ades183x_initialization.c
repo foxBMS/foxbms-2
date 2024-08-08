@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,13 +43,13 @@
  * @file    adi_ades183x_initialization.c
  * @author  foxBMS Team
  * @date    2019-08-27 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
- * @ingroup DRIVER
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
+ * @ingroup DRIVERS
  * @prefix  ADI
  *
  * @brief   Implementation of some software
- *
+ * @details TODO
  */
 
 /*========== Includes =======================================================*/
@@ -505,10 +505,10 @@ static void ADI_WakeUpDaisyChain(ADI_STATE_s *adiState) {
 }
 
 /*========== Extern Function Implementations ================================*/
-/* RequirementId: D7.1 V0R4 FUN-4.10.01.01 */
-/* RequirementId: D7.1 V0R4 FUN-4.10.01.02 */
-/* RequirementId: D7.1 V0R4 FUN-4.10.02.01 */
-/* RequirementId: D7.1 V0R4 FUN-6.10.02.01 */
+/* RequirementId: D7.1 V1R0 FUN-4.10.01.01 */
+/* RequirementId: D7.1 V1R0 FUN-4.10.01.02 */
+/* RequirementId: D7.1 V1R0 FUN-4.10.02.01 */
+/* RequirementId: D7.1 V1R0 FUN-6.10.02.02 */
 extern void ADI_InitializeMeasurement(ADI_STATE_s *adiState) {
     FAS_ASSERT(adiState != NULL_PTR);
 

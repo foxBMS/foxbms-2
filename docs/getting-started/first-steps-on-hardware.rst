@@ -17,9 +17,9 @@ and to recap the process of setting up the toolchain.
     embedded target, it is absolutely necessary to have these three
     components in place:
 
-        * the embedded device itself,
-        * a power supply,
-        * a debugger.
+      * the embedded device itself,
+      * a power supply,
+      * a debugger.
 
 Setup
 -----
@@ -29,9 +29,9 @@ Details on the software installation can be found in
 :ref:`SOFTWARE_INSTALLATION`.
 Most notable parts of the toolchain are:
 
-  * the conda environment,
-  * the compiler toolchain,
-  * and a debugger.
+- the conda environment,
+- the compiler toolchain,
+- and a debugger.
 
 Compilation
 -----------
@@ -39,9 +39,9 @@ Compilation
 Details on this step are described in :ref:`BUILDING_THE_APPLICATION`.
 The following steps should pass and result in the application being built.
 
-.. code-block:: console
+.. code-block:: powershell
 
-     C:\Users\vulpes\Documents\foxbms-2>waf configure build_bin
+     PS C:\Users\vulpes\Documents\foxbms-2> .\fox.ps1 waf configure build_bin
 
 If any error messages occur, they have to be investigated before continuing.
 
@@ -64,15 +64,10 @@ The following steps go through the most important parts of the workflow.
 If they work as expected, it can be assumed that the debugger toolchain is
 functional.
 
-  * Connect the debugger to the target.
-  * Supply power to the target.
-  * Attach the debugger in the debug tool to the target and download the
-    built binary to the target.
-  * Start the target.
+- Connect the debugger to the target.
+- Supply power to the target.
+- Attach the debugger in the debug tool to the target and download the
+  built binary to the target.
+- Start the target.
 
 After these steps, it should be possible to halt and re-start the target.
-The variable ``os_timer`` should show incremented values when halting the
-target.
-Central data structures such as ``bms_state``, ``sys_state``,
-``cont_contactorStates`` and ``ltc_cellVoltage`` (for
-:ref:`AFEs <ANALOG_FRONT_END_API>` of the LTC family).

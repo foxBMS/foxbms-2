@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -81,13 +81,13 @@
 
 #define VFILL_FLASH_PATTERN (0xffffffff)
 
-/* size of VER_VERSION_INFORMATION (has to be large enough to accomodate the version struct) */
+/* size of VER_VERSION_INFORMATION (has to be large enough to accommodate the version struct) */
 #define VERSION_INFORMATION_SIZE (0xC0)
 
 /* size of the VECTORS table */
 #define VECTORS_TABLE_SIZE (0x20)
 
-/* size of KERNEL (accomodates the OS) */
+/* size of KERNEL (accommodates the OS) */
 #define KERNEL_FUNCTIONS_SIZE (0x8000)
 
 /* remaining size of flash bank 0 as at the beginning of flash bank 0 the vector

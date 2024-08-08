@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 #
-# Copyright (c) 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -40,23 +39,10 @@
 
 """TODO"""
 
+import binascii
 import os
-from waflib.Utils import unversioned_sys_platform
 
-NXP_MC33775A_VENDOR_HASHES = {
-    os.path.join("vendor", "MC33775A.h"): {
-        "win32": b"\xe0\xeb1\xf2\xa19P;\x8d\xb5\xa9\x8c\xa81\xd9M",
-        "linux": b"N\x8d\x1d_N\x0b\xd4\x9c\x89\x05\xbf-\xdd*\xaa\x02",
-    },
-    os.path.join("vendor", "uc_msg_t.c"): {
-        "win32": b"\xec79\xabfh>\x83%p\xa1\x92\xca5\xca\x7f",
-        "linux": b"!\xf1x@\xa8\xac\x057\xa5\xfdJ[\x96T\x11\xb7",
-    },
-    os.path.join("vendor", "uc_msg_t.h"): {
-        "win32": b"\xbe\xd4\x11w\xa2\xae\xa1\xe2}e3\xa95\x8aH\xcb",
-        "linux": b"\x93E*y\x8d\xfe\x83\xf1\xaa;\x97\xdd\xc0\xbd7\xac",
-    },
-}
+from waflib.Utils import unversioned_sys_platform
 
 
 def build(bld):
@@ -103,12 +89,13 @@ def build(bld):
         target=target,
     )
 
-    for k, val in NXP_MC33775A_VENDOR_HASHES.items():
-        node = bld.path.find_node(k)
+    hashes = bld.path.find_node("nxp_mc33775a-ll_vendor-hashes.json").read_json()
+    for i in hashes:
+        node = bld.path.find_node(i["path"])
         node_hash = node.h_file()
-        if not node_hash == val[unversioned_sys_platform()]:
+        if not node_hash == binascii.a2b_hex(i["hash"][unversioned_sys_platform()]):
             bld.fatal(
                 "File hash of vendored file does not match "
-                f"('{node}' should return {val[unversioned_sys_platform()]} "
+                f"('{node}' should return {i['hash'][unversioned_sys_platform()]} "
                 f"but returned {node_hash}."
             )

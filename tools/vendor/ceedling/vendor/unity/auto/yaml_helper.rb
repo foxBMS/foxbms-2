@@ -1,15 +1,19 @@
-# ==========================================
-#   Unity Project - A Test Framework for C
-#   Copyright (c) 2007 Mike Karlesky, Mark VanderVoord, Greg Williams
-#   [Released under MIT License. Please refer to license.txt for details]
-# ==========================================
+# =========================================================================
+#   Unity - A Test Framework for C
+#   ThrowTheSwitch.org
+#   Copyright (c) 2007-24 Mike Karlesky, Mark VanderVoord, & Greg Williams
+#   SPDX-License-Identifier: MIT
+# =========================================================================
 
 require 'yaml'
 
 module YamlHelper
   def self.load(body)
-    YAML.respond_to?(:unsafe_load) ?
-      YAML.unsafe_load(body) : YAML.load(body)
+    if YAML.respond_to?(:unsafe_load)
+      YAML.unsafe_load(body)
+    else
+      YAML.load(body)
+    end
   end
 
   def self.load_file(file)

@@ -5,7 +5,7 @@
 The *standard* way of building and running the unit tests is to run
 ``waf build_unit_test`` in the root of the repository.
 
-This runs the unit test suite using Ceedling.
+This runs the unit test suite using ``Ceedling``.
 
 The overview of the results of the unit tests (if they are successfully run) is
 then found at
@@ -20,28 +20,31 @@ is done for the actual software (``<repository-root>/src``).
 ### Workflow
 
 To achieve this, this directory holds a configuration to build the unit tests
-directly, without using Ceedling, but instead using ``gcc`` and ``cafeCC``
+directly, without using ``Ceedling``, but instead using ``gcc`` and ``cafeCC``
 directly.
-**However, it is required to first run the Ceedling based unit test, as this
+**However, it is required to first run the ``Ceedling`` based unit test, as this
 creates the mocks and runners for the test files.**
 
 The workflow is therefore as follows (assuming the user name is ``vulpes`` and
 the repository is cloned into ``C:\Users\vulpes\Documents\foxbms-2``):
 
-```cmd
-C:\Users\vulpes>cd "C:\Users\vulpes\Documents\foxbms-2"
-C:\Users\vulpes\Documents\foxbms-2>waf build_unit_test
-@REM the mocks and unit tests are now created and the test suite runs
-C:\Users\vulpes\Documents\foxbms-2>cd "tests\unit"
-@REM configure the project
-C:\Users\vulpes\Documents\foxbms-2\tests\unit>run_ut_gcc_build.bat configure
-@REM use 'build_host' to create a host build of the unit tests; this is the
-@REM same as ceedling does; this just exists to ensure, that the test suite
-@REM builds and works as expected
-C:\Users\vulpes\Documents\foxbms-2\tests\unit>run_ut_gcc_build.bat build_host
-@REM Run an Axivion build (argument: 'build_axivion'), to pass the results to
-@REM Axivion Suite
-C:\Users\vulpes\Documents\foxbms-2\tests\unit>run_ut_gcc_build.bat build_axivion
+```pwsh
+PS C:\Users\vulpes>cd "C:\Users\vulpes\Documents\foxbms-2"
+# build the unit tests (as mocks etc. are required)
+PS C:\Users\vulpes\Documents\foxbms-2> .\fox.ps1 waf build_unit_test
+# the mocks and unit tests are now created and the test suite runs
+PS C:\Users\vulpes\Documents\foxbms-2> cd "tests\unit"
+# set the environment variable 'BAUHAUS_CONFIG'
+$env:BAUHAUS_CONFIG="C:\Users\vulpes\Documents\foxbms-2\tests\unit\axivion"
+# configure the project
+PS C:\Users\vulpes\Documents\foxbms-2> .\fox.ps1 waf --cwd tests\unit configure
+# use 'build_host' to create a host build of the unit tests; this is the
+# same as ceedling does; this just exists to ensure, that the test suite
+# builds and works as expected
+PS C:\Users\vulpes\Documents\foxbms-2> .\fox.ps1 waf --cwd tests\unit build_host
+# Run an Axivion build (argument: 'build_axivion'), to pass the results to
+# Axivion Suite
+PS C:\Users\vulpes\Documents\foxbms-2> .\fox.ps1 waf --cwd tests\unit build_axivion
 ```
 
 The analysis of the test source is configured in
@@ -51,175 +54,149 @@ The analysis of the test source is configured in
 
 - Analyze what ceedling does, when it creates a test suite for a specific test,
   e.g., ``src/app/driver/crc/crc.c`` by running:
+
+  ```pwsh
+  PS C:\Users\vulpes\Documents\foxbms-2> cd "build\unit_test"
+  PS C:\Users\vulpes\Documents\foxbms-2> .\fox.ps1 ceedling test:test_crc.c
+  ```
+
+- ``Ceedling`` will then tell what it actually does:
+
   ```cmd
-  C:\Users\vulpes\Documents\foxbms-2>cd "build\unit_test"
-  C:\Users\vulpes\Documents\foxbms-2>..\..\conf\unit\ceedling.cmd test:test_crc.c
-  ```
-- Ceedling will then tell what it actually does:
-  ```
-  Test 'test_crc.c'
-  -----------------
-  Generating include list for fassert.h...
-  Creating mock for fassert...
+  C:\Users\vulpes\Documents\foxbms-2> .\fox.ps1 ceedling test:test_crc.c
+
+  Loaded project configuration at default location using ./project.yml
+
+  Ceedling set up completed in 17.22 seconds
+
+  Preparing Build Paths...
+
+  Extracting Build Directive Macros
+  ---------------------------------
+  Parsing test_crc.c...
+
+  Ingesting Test Configurations
+  -----------------------------
+  Collecting search paths, flags, and defines for test_crc.c...
+
+  Collecting Testing Context
+  --------------------------
+  Extracting #include statements via preprocessor from test_crc.c...
+  Processing #include statements for test_crc.c...
+
+  Determining Files to be Generated...
+
+  Preprocessing for Mocks
+  -----------------------
+  Preprocessing test_crc::fassert.h...
+  Extracting #include statements via preprocessor from test_crc::fassert.h...
+
+  Mocking
+  -------
+  Generating mock for test_crc::fassert.h...
+
+  Preprocessing for Test Runners
+  ------------------------------
+  Preprocessing test_crc.c...
+  Loading #include statement listing file for test_crc.c...
+
+  Test Runners
+  ------------
   Generating runner for test_crc.c...
-  Compiling test_crc_runner.c...
+
+  Determining Artifacts to Be Built...
+
+  Building Objects
+  ----------------
   Compiling test_crc.c...
-  Compiling Mockfassert.c...
-  Compiling crc.c...
+  Compiling test_crc::crc.c...
+  Compiling test_crc::unity.c...
+  Compiling test_crc::cmock.c...
+  Compiling test_crc::CException.c...
+  Compiling test_crc::test_crc_runner.c...
+  Compiling test_crc::Mockfassert.c...
+
+  Building Test Executables
+  -------------------------
   Linking test_crc.out...
+
+  Executing
+  ---------
   Running test_crc.out...
+
+  Running Raw Tests Output Report
+  -------------------------------
+  Tests produced no extra console output.
+
+  --------------------
+  OVERALL TEST SUMMARY
+  --------------------
+  TESTED:  1
+  PASSED:  1
+  FAILED:  0
+  IGNORED: 0
+
+  Running Test Suite Reports
+  --------------------------
+  Generating artifact ./artifacts/test/junit_tests_report.xml...
+  Generating artifact ./artifacts/test/cppunit_tests_report.xml...
+
+  Ceedling operations completed in 5.25 seconds
   ```
+
 - It can be seen, that the test of the ``crc`` module requires generating some
   mocks and compiling these and other files, linking all that together and
   finally running the created test binary.
-- In order to add this Ceedling-based test to this build, the following needs
-  to be done in ``build.test.json``:
-  - a new list item must be created with this basic setup:
-    ```json
-    {
-        "uut": {
-            "source": "",
-            "includes": [],
-            "framework-includes": []
-        },
-        "test": {
-            "includes": [],
-            "framework-includes": []
-        },
-        "runner": {
-            "includes": [],
-            "framework-includes": [],
-            "use": []
-        }
-    }
-    ```
+- In order to add this ``Ceedling``-based test to this build, the following
+  needs to be done in ``build.json``.
+  The list of ``includes`` can be derived from the test file itself (see the
+  ``TEST_INCLUDE_PATH`` macro) and the paths configured in
+  ``conf/unit/project_win32.yml`` or ``conf/unit/project_posix.yml``.
+  The list of ``sources`` from the list of included mocks, plus the unit under
+  test itself plus all files that are added via ``TEST_SOURCE_FILE`` in the
+  test file.
+  Specific ``defines`` can be added per test.
+  For the file ``src/app/driver/crc/crc.c`` the setup looks then like this:
 
-  - In this item the source of the new *unit-under-test* (key: ``uut``, sub key
-    ``source``) must be added, e.g., for this exampling it then would be
+  ```json
+  "src/app/driver/crc/crc.c": [
+      {
+          "include": [
+              "build/unit_test/include",
+              "build/unit_test/test/mocks/test_crc",
+              "src/app/driver/crc",
+              "src/app/application/config",
+              "src/app/driver/mcu",
+              "src/app/engine/config",
+              "src/app/engine/database",
+              "src/app/main/include",
+              "src/app/main/include/config",
+              "src/app/task/os",
+              "src/os/freertos/include",
+              "src/os/freertos/portable/ccs/arm_cortex-r5"
+          ],
+          "sources": [
+              "build/unit_test/test/mocks/test_crc/Mockfassert.c",
+              "src/app/driver/crc/crc.c",
+              "tests/unit/app/driver/crc/test_crc.c",
+              "build/unit_test/test/runners/test_crc_runner.c"
+          ]
+      }
+  ]
+  ```
 
-    ``"source" : "src/app/driver/crc/crc.c"``.
+  Note: This is a list of tests, i.e., there can be multiple tests per
+  implementation file, see for example for ``src/app/driver/can/can.c``:
 
-  - Trying to compile this unit-under-test (``run_ut_gcc_build.bat -v -j 1``)
-    will fail, as most likely includes are missing.
-  - Therefore, the includes now need to added. The includes from the source
-    tree (key: ``includes``) are added by the using the path relative to the
-    repository root and the Ceedling and mock includes (key:
-    ``framework-includes``) are added by using magic names.
-    These magic names, and their respective values they are replaced with, are:
-    - ``cexception`` for ``tools/vendor/ceedling/vendor/c_exception/lib``,
-    - ``mocks`` for ``build/unit_test/test/mocks``,
-    - ``cmock`` for ``tools/vendor/ceedling/vendor/cmock/src`` and
-    - ``unity`` for ``tools/vendor/ceedling/vendor/unity/src``.
+  - ``tests/unit/app/driver/can/test_can.c``
+  - ``tests/unit/app/driver/can/test_can_1.c``
+  - ``tests/unit/app/driver/can/test_can_2.c``
 
-    Add ``includes`` and ``framework-includes`` as required, i.e., the
-    unit-under-test needs to compile without any error.
-    For this example, the ``uut`` key looks then like this:
-    ```json
-    "uut": {
-        "source": "src/app/driver/crc/crc.c",
-        "includes": [
-            "src/app/main/include"
-        ],
-        "framework-includes": [
-            "cexception"
-        ]
-    }
-    ```
-  - At next, the ``test`` key needs to defined.
-    The name of the test file is derived from the unit-under-test, i.e., in
-    example it is ``tests/unit/app/driver/crc/test_crc.c``.
-    The build system therefore automatically derives the name of the test file
-    and only the ``includes`` and ``framework`` includes needed to be added.
-    This works the same as way as described above.
-    For this example, the ``test`` key looks then like this:
-    ```json
-    "test": {
-        "includes": [
-            "src/app/driver/crc",
-            "src/app/main/include",
-            "src/os/freertos/include",
-            "src/os/freertos/include",
-            "src/os/freertos/portable/ccs/arm_cortex-r5"
-        ],
-        "framework-includes": [
-            "cexception",
-            "mocks",
-            "unity"
-        ]
-    }
-    ```
-  - As last step, the test runner needs to added using the key ``runner``.
-    The name of the test runner source is also derived automatically and is
-    therefore omitted in the configuration file.
-    Adding ``includes`` and ``framework-includes`` again works the same way.
-    As creating the test runner requires a linking step, it is needed to add a
-    list of required objects in order to link the binary (key: ``use``).
-    The ``use`` key again accepts the magic strings. These are for the Ceedling
-    objects:
-    - ``cexception`` built from
-      ``tools/vendor/ceedling/vendor/c_exception/lib/CException.c``,
-    - ``cmock`` built from
-      ``tools/vendor/ceedling/vendor/cmock/src/cmock.c`` and
-    - ``unity`` built from
-      ``tools/vendor/ceedling/vendor/unity/src/unity.c``.
-
-    Furthermore, all other objects from other build steps for this binary
-    that are required for linking are also defined by magic strings.
-    The magic string for a object is the base name of the file that is compiled
-    in all lowercase and without file extension.
-    Based on the output from the original ceedling build it is seen, that
-    ``Mockfassert.c`` needs to be compiled for that test, which means the
-    object is required for linking.
-    To add this object the entry in the ``use`` list would be ``mockfassert``.
-    The unit-under-test as well as the test and the test runner are
-    automatically added as required objects and are therefore omitted.
-    For this example, the ``runner`` key looks then like this:
-    ```json
-    "runner": {
-        "includes": [
-            "src/app/main/include",
-            "src/os/freertos/include",
-            "src/os/freertos/include",
-            "src/os/freertos/portable/ccs/arm_cortex-r5"
-        ],
-        "framework-includes": [
-            "cexception",
-            "cmock",
-            "mocks",
-            "unity"
-        ],
-        "use": [
-            "cexception",
-            "cmock",
-            "mockfassert",
-            "unity"
-        ]
-    }
-    ```
-  - For some tests, more than just the unit-under-test, test file and test
-    runner are needed to be compiled and linked into the final test binary.
-    For these cases, the ``needs`` key can used.
-    This key contains a list of the additional sources.
-    For each entry in ``needs``, the ``source``, the ``includes`` and the
-    ``framework-includes`` can be added as needed in the same way as described above.
-    The objects that are created do not need to be added to the list in the
-    ``use`` key of the runner, as they are automatically added by the build
-    system.
-
-
-### Adding a New Mock to Build
-
-If a new mock is created, it needs to be added in ``build.mocks.json``.
-There it is only required to provide the path of the mock relative to
-``build/unit_test`` using the key ``source`` and the includes relative to the
-repository root using the key ``includes``.
-
-
-# Configuration
+## Configuration
 
 Most of the Axivion configuration is the same for the embedded source and the
 unit tests (compare ``test/axivion/axivion_config.json`` and
 ``tests/unit/axivion/axivion_config.json``).
 The main difference is that unit test functions need to start with ``test`` as
 the ceedling requires this (and accordingly to our guidelines would functions
-would need to start with ``TEST``.)
+would need to start with ``TEST``).

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,13 +43,14 @@
  * @file    adi_ades183x_temperatures.c
  * @author  foxBMS Team
  * @date    2019-08-27 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
- * @ingroup DRIVER
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
+ * @ingroup DRIVERS
  * @prefix  ADI
  *
- * @brief   Implementation of some software
- *
+ * @brief   Helper functions related to temperature measurement
+ * @details This driver implements a helper function to convert the voltages
+ *          that are measured on the GPIOs into a temperature.
  */
 
 /*========== Includes =======================================================*/
@@ -95,20 +96,20 @@ static uint16_t ADI_GetStoredTemperatureIndex(uint16_t registerGpioIndex) {
 }
 
 /*========== Extern Function Implementations ================================*/
-/* RequirementId: D7.1 V0R4 FUN-2.10.01.01 */
-extern void ADI_GetTemperatures(ADI_STATE_s *adiState) {
-    FAS_ASSERT(adiState != NULL_PTR);
+/* RequirementId: D7.1 V1R0 FUN-2.10.01.01 */
+extern void ADI_GetTemperatures(ADI_STATE_s *pAdiState) {
+    FAS_ASSERT(pAdiState != NULL_PTR);
 
     for (uint16_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
         for (uint16_t registerGpioIndex = 0u; registerGpioIndex < BS_NR_OF_GPIOS_PER_MODULE; registerGpioIndex++) {
             if (adi_temperatureInputsUsed[registerGpioIndex] == 1u) {
+                uint16_t gpioIndex              = (m * BS_NR_OF_GPIOS_PER_MODULE) + registerGpioIndex;
                 uint16_t storedTemperatureIndex = ADI_GetStoredTemperatureIndex(registerGpioIndex);
-                int16_t temperature             = ADI_ConvertGpioVoltageToTemperature(
-                    adiState->data.allGpioVoltages->gpioVoltages_mV[adiState->currentString]
-                                                                   [(m * BS_NR_OF_GPIOS_PER_MODULE) +
-                                                                    registerGpioIndex]); /* unit: decidegree C */
-                adiState->data.cellTemperature
-                    ->cellTemperature_ddegC[adiState->currentString][m][storedTemperatureIndex] = temperature;
+                /* temperature: unit is in deci-degree C */
+                int16_t temperature = ADI_ConvertGpioVoltageToTemperature(
+                    pAdiState->data.allGpioVoltages->gpioVoltages_mV[pAdiState->currentString][gpioIndex]);
+                pAdiState->data.cellTemperature
+                    ->cellTemperature_ddegC[pAdiState->currentString][m][storedTemperatureIndex] = temperature;
             }
         }
     }

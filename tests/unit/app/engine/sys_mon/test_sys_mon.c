@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,12 +43,12 @@
  * @file    test_sys_mon.c
  * @author  foxBMS Team
  * @date    2020-04-02 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
- * @brief   Tests for the sys_mon module
+ * @brief   Tests for the System Monitoring module
  *
  */
 
@@ -117,7 +117,7 @@ SYSM_MONITORING_CFG_s sysm_ch_cfg[3] = {
 };
 
 /** placeholder variable for the FRAM entry of sys mon */
-FRAM_SYS_MON_RECORD_s fram_sys_mon_record = {0};
+FRAM_SYS_MON_RECORD_s fram_sysMonViolationRecord = {0};
 
 /*========== Setup and Teardown =============================================*/
 void setUp(void) {
@@ -132,17 +132,17 @@ void setUp(void) {
     notifications[DUMMY_TASK_ID_2].timestampExit  = 0;
     notifications[DUMMY_TASK_ID_2].duration       = 0;
 
-    fram_sys_mon_record.anyTimingIssueOccurred              = false;
-    fram_sys_mon_record.taskEngineViolatingDuration         = 0u;
-    fram_sys_mon_record.taskEngineEnterTimestamp            = 0u;
-    fram_sys_mon_record.task1msViolatingDuration            = 0u;
-    fram_sys_mon_record.task1msEnterTimestamp               = 0u;
-    fram_sys_mon_record.task10msViolatingDuration           = 0u;
-    fram_sys_mon_record.task10msEnterTimestamp              = 0u;
-    fram_sys_mon_record.task100msViolatingDuration          = 0u;
-    fram_sys_mon_record.task100msEnterTimestamp             = 0u;
-    fram_sys_mon_record.task100msAlgorithmViolatingDuration = 0u;
-    fram_sys_mon_record.task100msAlgorithmEnterTimestamp    = 0u;
+    fram_sysMonViolationRecord.anyTimingIssueOccurred              = false;
+    fram_sysMonViolationRecord.taskEngineViolatingDuration         = 0u;
+    fram_sysMonViolationRecord.taskEngineEnterTimestamp            = 0u;
+    fram_sysMonViolationRecord.task1msViolatingDuration            = 0u;
+    fram_sysMonViolationRecord.task1msEnterTimestamp               = 0u;
+    fram_sysMonViolationRecord.task10msViolatingDuration           = 0u;
+    fram_sysMonViolationRecord.task10msEnterTimestamp              = 0u;
+    fram_sysMonViolationRecord.task100msViolatingDuration          = 0u;
+    fram_sysMonViolationRecord.task100msEnterTimestamp             = 0u;
+    fram_sysMonViolationRecord.task100msAlgorithmViolatingDuration = 0u;
+    fram_sysMonViolationRecord.task100msAlgorithmEnterTimestamp    = 0u;
 }
 
 void tearDown(void) {
@@ -212,7 +212,7 @@ void testSYSM_CheckNotificationsProvokeDurationViolationWithRecording(void) {
     /* check if violation has been recorded */
     FRAM_WriteData_ExpectAndReturn(FRAM_BLOCK_ID_SYS_MON_RECORD, STD_OK);
     SYSM_UpdateFramData();
-    TEST_ASSERT_EQUAL(true, fram_sys_mon_record.anyTimingIssueOccurred);
+    TEST_ASSERT_EQUAL(true, fram_sysMonViolationRecord.anyTimingIssueOccurred);
 }
 
 void testSYSM_NotifyInvalidTaskID(void) {
@@ -266,25 +266,50 @@ void testSYSM_NotifyHitAssertWithIllegalNotifyType(void) {
     TEST_ASSERT_NOT_EQUAL(UINT32_MAX, notifications[DUMMY_TASK_ID_0].timestampExit);
 }
 
-/** test the edge cases of the function that can return recorded violations */
+/**
+ * @brief   Testing extern function #SYSM_GetRecordedTimingViolations
+ * @details The following cases need to be tested:
+ *          - Argument validation:
+ *            - AT1/1: NULL_PTR for pAnswer &rarr; assert
+ *          - Routine validation:
+ *            - RT1/2:
+ *            - RT2/2:
+ */
 void testSYSM_GetRecordedTimingViolations(void) {
-    OS_EnterTaskCritical_Ignore();
-    OS_ExitTaskCritical_Ignore();
+    /* ======= AT1/2: Assertion test */
+    TEST_ASSERT_FAIL_ASSERT(SYSM_GetRecordedTimingViolations(NULL_PTR));
 
-    /* default state is no violation, therefore no flag should be set */
+    /* ======= Routine tests =============================================== */
     SYSM_TIMING_VIOLATION_RESPONSE_s violationResponse = {0};
+    /* ======= RT1/2: Test implementation */
+    /* default state is no violation, therefore no flag should be set */
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
+
+    /* ======= RT1/2: call function under test */
     SYSM_GetRecordedTimingViolations(&violationResponse);
+
+    /* ======= RT1/2: test output verification */
     TEST_ASSERT_FALSE(violationResponse.recordedViolationEngine);
     TEST_ASSERT_FALSE(violationResponse.recordedViolation1ms);
     TEST_ASSERT_FALSE(violationResponse.recordedViolation10ms);
     TEST_ASSERT_FALSE(violationResponse.recordedViolation100ms);
     TEST_ASSERT_FALSE(violationResponse.recordedViolation100msAlgo);
 
-    /* when the general flag is set and one deviates in duration or entry, the violation should be set */
-    fram_sys_mon_record.anyTimingIssueOccurred   = true;
-    fram_sys_mon_record.taskEngineEnterTimestamp = 100u;
-    fram_sys_mon_record.task1msViolatingDuration = 5u;
+    /* ======= RT2/2: Test implementation */
+    /* when the general flag is set and one deviates in duration or entry,
+     * the violation should be set */
+    fram_sysMonViolationRecord.anyTimingIssueOccurred   = true;
+    fram_sysMonViolationRecord.taskEngineEnterTimestamp = 100u;
+    fram_sysMonViolationRecord.task1msViolatingDuration = 5u;
+
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
+
+    /* ======= RT1/2: call function under test */
     SYSM_GetRecordedTimingViolations(&violationResponse);
+
+    /* ======= RT1/2: test output verification */
     TEST_ASSERT_TRUE(violationResponse.recordedViolationAny);
     TEST_ASSERT_TRUE(violationResponse.recordedViolationEngine);
     TEST_ASSERT_TRUE(violationResponse.recordedViolation1ms);
@@ -293,44 +318,189 @@ void testSYSM_GetRecordedTimingViolations(void) {
     TEST_ASSERT_FALSE(violationResponse.recordedViolation100msAlgo);
 }
 
-/** test #SYSM_CopyFramStruct() and its reaction to invalid input */
-void testSYSM_CopyFramStructInvalidInput(void) {
-    FRAM_SYS_MON_RECORD_s dummy = {0};
-    TEST_ASSERT_FAIL_ASSERT(SYSM_CopyFramStruct(NULL_PTR, &dummy));
-    TEST_ASSERT_FAIL_ASSERT(SYSM_CopyFramStruct(&dummy, NULL_PTR));
+/**
+ * @brief   Testing extern function #SYSM_ClearAllTimingViolations
+ * @details The following cases need to be tested:
+ *          - Argument validation:
+ *            - none (void function)
+ *          - Routine validation:
+ *            - RT1/2: all timing violations records shall be cleared
+ */
+void testSYSM_ClearAllTimingViolations(void) {
+    /* ======= Assertion tests ============================================= */
+    /* none */
+
+    /* ======= Routine tests =============================================== */
+    fram_sysMonViolationRecord.anyTimingIssueOccurred              = true;
+    fram_sysMonViolationRecord.taskEngineEnterTimestamp            = 1u;
+    fram_sysMonViolationRecord.taskEngineViolatingDuration         = 2u;
+    fram_sysMonViolationRecord.task1msEnterTimestamp               = 3u;
+    fram_sysMonViolationRecord.task1msViolatingDuration            = 4u;
+    fram_sysMonViolationRecord.task10msEnterTimestamp              = 5u;
+    fram_sysMonViolationRecord.task10msViolatingDuration           = 6u;
+    fram_sysMonViolationRecord.task100msEnterTimestamp             = 7u;
+    fram_sysMonViolationRecord.task100msViolatingDuration          = 8u;
+    fram_sysMonViolationRecord.task100msAlgorithmEnterTimestamp    = 9u;
+    fram_sysMonViolationRecord.task100msAlgorithmViolatingDuration = 10u;
+
+    /* ======= RT1/1: Test implementation */
+    for (SYSM_TASK_ID_e taskId = (SYSM_TASK_ID_e)0; taskId < SYSM_TASK_ID_MAX; taskId++) {
+        (void)DIAG_Handler_ExpectAndReturn(
+            DIAG_ID_SYSTEM_MONITORING, DIAG_EVENT_OK, DIAG_SYSTEM, (uint32_t)taskId, STD_OK);
+    }
+    OS_EnterTaskCritical_Expect(); /* in SYSM_ClearAllTimingViolations */
+    OS_ExitTaskCritical_Expect();  /* in SYSM_ClearAllTimingViolations */
+
+    OS_EnterTaskCritical_Expect(); /* in SYSM_UpdateFramData */
+    OS_ExitTaskCritical_Expect();  /* in SYSM_UpdateFramData */
+    OS_EnterTaskCritical_Expect(); /* in SYSM_UpdateFramData: in branch */
+    OS_ExitTaskCritical_Expect();  /* in SYSM_UpdateFramData: in branch */
+
+    FRAM_WriteData_ExpectAndReturn(FRAM_BLOCK_ID_SYS_MON_RECORD, STD_OK);
+
+    /* the called function alters a module static variable;
+     * get the value to restore it */
+    bool oldValue = TEST_SYSM_GetStaticVariableFlagFramCopyHasChanges();
+
+    /* ======= RT1/1: call function under test */
+    SYSM_ClearAllTimingViolations();
+
+    /* ======= RT1/1: test output verification */
+    TEST_ASSERT_FALSE(fram_sysMonViolationRecord.anyTimingIssueOccurred);
+    TEST_ASSERT_EQUAL_UINT32(fram_sysMonViolationRecord.taskEngineEnterTimestamp, 0u);
+    TEST_ASSERT_EQUAL_UINT32(fram_sysMonViolationRecord.taskEngineViolatingDuration, 0u);
+    TEST_ASSERT_EQUAL_UINT32(fram_sysMonViolationRecord.task1msEnterTimestamp, 0u);
+    TEST_ASSERT_EQUAL_UINT32(fram_sysMonViolationRecord.task1msViolatingDuration, 0u);
+    TEST_ASSERT_EQUAL_UINT32(fram_sysMonViolationRecord.task10msEnterTimestamp, 0u);
+    TEST_ASSERT_EQUAL_UINT32(fram_sysMonViolationRecord.task10msViolatingDuration, 0u);
+    TEST_ASSERT_EQUAL_UINT32(fram_sysMonViolationRecord.task100msEnterTimestamp, 0u);
+    TEST_ASSERT_EQUAL_UINT32(fram_sysMonViolationRecord.task100msViolatingDuration, 0u);
+    TEST_ASSERT_EQUAL_UINT32(fram_sysMonViolationRecord.task100msAlgorithmEnterTimestamp, 0u);
+    TEST_ASSERT_EQUAL_UINT32(fram_sysMonViolationRecord.task100msAlgorithmViolatingDuration, 0u);
+
+    /* restore old value */
+    (void)TEST_SYSM_SetStaticVariableFlagFramCopyHasChanges(oldValue);
 }
 
-/** test copy function of #SYSM_CopyFramStruct() */
+/**
+ * @brief   Testing extern function #SYSM_UpdateFramData
+ * @details The following cases need to be tested:
+ *          - Argument validation:
+ *            - none (void function)
+ *          - Routine validation:
+ *            - RT1/2: no update are required, i.e., nothing to do.
+ *            - RT2/2: an update is due, check that the updated values get
+ *                     copied.
+ */
+void testSYSM_UpdateFramData(void) {
+    /* ======= Assertion tests ============================================= */
+    /* none */
+
+    /* ======= Routine tests =============================================== */
+    /* ensure the test is meaningful, i.e., input and output are not equal */
+
+    /* ======= RT1/2: Test implementation */
+    /* store the old value, so that we can reset the variable after the test */
+    bool oldValue = TEST_SYSM_SetStaticVariableFlagFramCopyHasChanges(false);
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
+
+    /* ======= RT1/2: call function under test */
+
+    SYSM_UpdateFramData();
+    /* ======= RT1/2: test output verification */
+    /* nothing shall be changed */
+    /* TODO: check memory */
+
+    /* restore old value */
+    (void)TEST_SYSM_SetStaticVariableFlagFramCopyHasChanges(oldValue);
+
+    /* ======= RT2/2: Test implementation */
+    /* store the old value, so that we can reset the variable after the test */
+    oldValue = TEST_SYSM_SetStaticVariableFlagFramCopyHasChanges(true);
+
+    /* ======= RT1/2: call function under test */
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
+    /* we do not need the information, whether FRAM_WriteData was successful or not */
+    (void)FRAM_WriteData_ExpectAndReturn(FRAM_BLOCK_ID_SYS_MON_RECORD, STD_OK);
+
+    SYSM_UpdateFramData();
+    /* ======= RT1/2: test output verification */
+    /* values should have been changed */
+    /* TODO: check memory */
+
+    /* restore old value */
+    (void)TEST_SYSM_SetStaticVariableFlagFramCopyHasChanges(oldValue);
+}
+
+/**
+ * @brief   Testing extern function #SYSM_CopyFramStruct
+ * @details The following cases need to be tested:
+ *          - Argument validation:
+ *            - AT1/2: NULL_PTR for kpkFrom &rarr; assert
+ *            - AT2/2: NULL_PTR for pTo &rarr; assert
+ *          - Routine validation:
+ *            - RT1/1: all elements get copied.
+ */
 void testSYSM_CopyFramStruct(void) {
+    /* ======= Assertion tests ============================================= */
+    FRAM_SYS_MON_RECORD_s assertionDummy = {
+        .anyTimingIssueOccurred              = false,
+        .task100msAlgorithmEnterTimestamp    = 0u,
+        .task100msAlgorithmViolatingDuration = 0u,
+        .task100msEnterTimestamp             = 0u,
+        .task100msViolatingDuration          = 0u,
+        .task10msEnterTimestamp              = 0u,
+        .task10msViolatingDuration           = 0u,
+        .task1msEnterTimestamp               = 0u,
+        .task1msViolatingDuration            = 0u,
+        .taskEngineEnterTimestamp            = 0u,
+        .taskEngineViolatingDuration         = 0u,
+    };
+    /* ======= AT1/2: Assertion test */
+    TEST_ASSERT_FAIL_ASSERT(SYSM_CopyFramStruct(NULL_PTR, &assertionDummy));
+    /* ======= AT1/2: Assertion test */
+    TEST_ASSERT_FAIL_ASSERT(SYSM_CopyFramStruct(&assertionDummy, NULL_PTR));
+
+    /* ======= Routine tests =============================================== */
     FRAM_SYS_MON_RECORD_s input = {
         .anyTimingIssueOccurred              = true,
-        .task100msAlgorithmEnterTimestamp    = 1,
-        .task100msAlgorithmViolatingDuration = 2,
-        .task100msEnterTimestamp             = 3,
-        .task100msViolatingDuration          = 4,
-        .task10msEnterTimestamp              = 5,
-        .task10msViolatingDuration           = 6,
-        .task1msEnterTimestamp               = 7,
-        .task1msViolatingDuration            = 8,
-        .taskEngineEnterTimestamp            = 9,
-        .taskEngineViolatingDuration         = 10,
+        .task100msAlgorithmEnterTimestamp    = 1u,
+        .task100msAlgorithmViolatingDuration = 2u,
+        .task100msEnterTimestamp             = 3u,
+        .task100msViolatingDuration          = 4u,
+        .task10msEnterTimestamp              = 5u,
+        .task10msViolatingDuration           = 6u,
+        .task1msEnterTimestamp               = 7u,
+        .task1msViolatingDuration            = 8u,
+        .taskEngineEnterTimestamp            = 9u,
+        .taskEngineViolatingDuration         = 10u,
     };
     FRAM_SYS_MON_RECORD_s output = {
         .anyTimingIssueOccurred              = false,
-        .task100msAlgorithmEnterTimestamp    = 0,
-        .task100msAlgorithmViolatingDuration = 0,
-        .task100msEnterTimestamp             = 0,
-        .task100msViolatingDuration          = 0,
-        .task10msEnterTimestamp              = 0,
-        .task10msViolatingDuration           = 0,
-        .task1msEnterTimestamp               = 0,
-        .task1msViolatingDuration            = 0,
-        .taskEngineEnterTimestamp            = 0,
-        .taskEngineViolatingDuration         = 0,
+        .task100msAlgorithmEnterTimestamp    = 0u,
+        .task100msAlgorithmViolatingDuration = 0u,
+        .task100msEnterTimestamp             = 0u,
+        .task100msViolatingDuration          = 0u,
+        .task10msEnterTimestamp              = 0u,
+        .task10msViolatingDuration           = 0u,
+        .task1msEnterTimestamp               = 0u,
+        .task1msViolatingDuration            = 0u,
+        .taskEngineEnterTimestamp            = 0u,
+        .taskEngineViolatingDuration         = 0u,
     };
 
+    /* ======= RT1/1: Test implementation */
+    /* ensure the test is meaningful, i.e., input and output are not equal */
     TEST_ASSERT_NOT_EQUAL(input.anyTimingIssueOccurred, output.anyTimingIssueOccurred);
+
+    /* ======= RT1/1: call function under test */
     SYSM_CopyFramStruct(&input, &output);
+
+    /* ======= RT1/1: test output verification */
     TEST_ASSERT_EQUAL(input.anyTimingIssueOccurred, output.anyTimingIssueOccurred);
     TEST_ASSERT_EQUAL(input.task100msAlgorithmEnterTimestamp, output.task100msAlgorithmEnterTimestamp);
     TEST_ASSERT_EQUAL(input.task100msAlgorithmViolatingDuration, output.task100msAlgorithmViolatingDuration);

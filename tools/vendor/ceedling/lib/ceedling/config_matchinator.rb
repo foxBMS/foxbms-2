@@ -1,4 +1,11 @@
+# =========================================================================
+#   Ceedling - Test-Centered Build System for C
+#   ThrowTheSwitch.org
+#   Copyright (c) 2010-24 Mike Karlesky, Mark VanderVoord, & Greg Williams
+#   SPDX-License-Identifier: MIT
+# =========================================================================
 
+require 'ceedling/exceptions'
 
 # :<section>:
 #   :<context>:
@@ -10,74 +17,72 @@
 
 class ConfigMatchinator
 
-  constructor :configurator, :streaminator
+  constructor :configurator, :loginator, :reportinator
 
-  def config_include?(section:, context:, operation:nil)
+  def config_include?(primary:, secondary:, tertiary:nil)
     # Create configurator accessor method
-    accessor = (section.to_s + '_' + context.to_s).to_sym
+    accessor = (primary.to_s + '_' + secondary.to_s).to_sym
 
-    # If no entry in configuration for context in this section, bail out
+    # If no entry in configuration for secondary in primary, bail out
     return false if not @configurator.respond_to?( accessor )
 
-    # If operation undefined, we've progressed as far as we need and already know the config is present
-    return true if operation.nil?
+    # If tertiary undefined, we've progressed as far as we need and already know the config is present
+    return true if tertiary.nil?
 
     # Get element associated with this context
     elem = @configurator.send( accessor )
 
-    # If [section][context] is a simple array
+    # If [primary][secondary] is a simple array
     if elem.is_a?(Array)
-      # A list instead of a hash, means [operation] is not present
+      # A list instead of a hash, means [tertiary] is not present
       return false
 
-    # If [section][context] is a hash
+    # If [primary][secondary] is a hash
     elsif elem.is_a?(Hash)
-      return elem.include?( operation )
+      return elem.include?( tertiary )
     end
 
-    # Otherwise, [section][context] is something that cannot contain an [operation] sub-hash
+    # Otherwise, [primary][secondary] is something that cannot contain a [tertiary] sub-hash
     return false
   end
 
-  def get_config(section:, context:, operation:nil)
+  def get_config(primary:, secondary:, tertiary:nil)
     # Create configurator accessor method
-    accessor = (section.to_s + '_' + context.to_s).to_sym
+    accessor = (primary.to_s + '_' + secondary.to_s).to_sym
 
-    # If no entry in configuration for context in this section, bail out
+    # If no entry in configuration for secondary in primary, bail out
     return nil if not @configurator.respond_to?( accessor )
 
-    # Get config element associated with this context
+    # Get config element associated with this secondary
     elem = @configurator.send( accessor )
 
-    # If [section][context] is a simple array
+    # If [primary][secondary] is a simple array
     if elem.class == Array
-      # If no operation specified, then a simple array makes sense
-      return elem if operation.nil?
+      # If no tertiary specified, then a simple array makes sense
+      return elem if tertiary.nil?
 
-      # Otherwise, if an operation is specified but we have an array, go boom
-      error = "ERROR: [#{section}][#{context}] present in project configuration but does not contain [#{operation}]."
-      @streaminator.stderr_puts(error, Verbosity::ERRORS)
-      raise
+      # Otherwise, if an tertiary is specified but we have an array, go boom
+      error = ":#{primary} ↳ :#{secondary} present in project configuration but does not contain :#{tertiary}."
+      raise CeedlingException.new( error )
 
-    # If [section][context] is a hash
+    # If [primary][secondary] is a hash
     elsif elem.class == Hash
-      if not operation.nil?
-        # Bail out if we're looking for an [operation] sub-hash, but it's not present
-        return nil if not elem.include?( operation )
+      if not tertiary.nil?
+        # Bail out if we're looking for an [tertiary] sub-hash, but it's not present
+        return nil if not elem.include?( tertiary )
 
-        # Return array or hash at operation
-        return elem[operation]
+        # Return array or hash at tertiary
+        return elem[tertiary]
 
-      # If operation is not being queried, but we have a hash, return the hash
+      # If tertiary is not being queried, but we have a hash, return the hash
       else
         return elem
       end
 
-    # If [section][context] is nothing we expect--something other than an array or hash
+    # If [primary][secondary] is nothing we expect--something other than an array or hash
     else
-      error = "ERROR: [#{section}][#{context}] in project configuration is neither a list nor hash."
-      @streaminator.stderr_puts(error, Verbosity::ERRORS)
-      raise
+      error = ":#{primary} ↳ :#{secondary} in project configuration is neither a list nor hash."
+      raise CeedlingException.new( error )
     end
 
     return nil
@@ -87,10 +92,9 @@ class ConfigMatchinator
     # Look for matcher keys with missing values
     hash.each do |k, v|
       if v == nil
-        operation = operation.nil? ? '' : "[#{operation}]"
-        error = "ERROR: Missing list of values for [#{section}][#{context}]#{operation}[#{k}] matcher in project configuration."
-        @streaminator.stderr_puts(error, Verbosity::ERRORS)
-        raise
+        path = generate_matcher_path( section, context, operation )
+        error = "Missing list of values for #{path} ↳ '#{k}' matcher in project configuration."
+        raise CeedlingException.new( error )
       end
     end
   end
@@ -101,56 +105,98 @@ class ConfigMatchinator
 
     # Sanity check
     if filepath.nil?
-      @streaminator.stderr_puts("NOTICE: [#{section}][#{context}]#{operation} > '#{matcher}' matching provided nil #{filepath}", Verbosity::ERROR)
-      raise
+      path = generate_matcher_path(section, context, operation)
+      error = "#{path} ↳ #{matcher} matching provided nil #{filepath}"
+      raise CeedlingException.new(error)
     end
 
     # Iterate through every hash touple [matcher key, values array]
-    # In prioritized order match test filepath against each matcher key...
-    #  1. Wildcard
-    #  2. Any filepath matching
-    #  3. Regex
-    #
-    # Wildcard and filepath matching can look like valid regexes, so they must be evaluated first.
+    # In prioritized order match test filepath against each matcher key.
+    # This order matches on special patterns first to ensure no funny business with simple substring matching 
+    #  1. All files wildcard ('*')
+    #  2. Regex (/.../)
+    #  3. Wildcard filepath matching (e.g. 'name*')
+    #  4. Any filepath matching (substring matching)
     #
     # Each element of the collected _values array will be an array of values.
 
     hash.each do |matcher, values|
-      # 1. Try wildcard matching -- return values for every test filepath if '*' is found in values matching key
-      if ('*' == matcher.to_s.strip)
-        _values += values
+      mtached = false
+      _matcher = matcher.to_s.strip
 
-      # 2. Try filepath literal matching (including substring matching) with each values matching key
-      elsif (filepath.include?(matcher.to_s.strip))
-        _values += values
+      # 1. Try gross wildcard matching -- return values for all test filepaths if '*' is the matching key
+      if ('*' == _matcher)
+        matched = true
 
-      # 3. Try regular expression matching against all values matching keys that are regexes (ignore if not a valid regex)
-      # Note: We use logical AND here so that we get a meaningful fall-through to the else reporting condition.
-      #       Nesting the actual regex matching beneath validity checking improperly catches unmatched regexes
-      elsif (regex?(matcher.to_s.strip)) and (!(filepath =~ /#{matcher.to_s.strip}/).nil?)
-        _values += values
+      # 2. Try regular expression matching against all values matching keys that are regexes (ignore if not a valid regex)
+      #    Note: We use logical AND here so that we get a meaningful fall-through condition.
+      #          Nesting the actual regex matching beneath validity checking improperly catches unmatched regexes
+      elsif (regex?(_matcher)) and (!(form_regex(_matcher).match(filepath)).nil?)
+        matched = true
 
-      else
-        operation = operation.nil? ? '' : "[#{operation}]"
-        @streaminator.stderr_puts("NOTICE: [#{section}][#{context}]#{operation} > '#{matcher}' did not match #{filepath}", Verbosity::DEBUG)
+      # 3. Try wildcard matching -- return values for any test filepath that matches with '*' expansion
+      #    Treat matcher as a regex:
+      #      1. Escape any regex characters (e.g. '-')
+      #      2. Convert any now escaped '\*'s into '.*'
+      #      3. Match filepath against regex-ified matcher
+      elsif (filepath =~ /#{Regexp.escape(matcher).gsub('\*', '.*')}/)
+        matched = true
+
+      # 4. Try filepath literal matching (including substring matching) with each matching key
+      #    Note: (3) will do this if the matcher key lacks a '*', but this is a just-in-case backup
+      elsif (filepath.include?(_matcher))
+        matched = true
       end        
+
+      if matched
+        _values += values
+        matched_notice(section:section, context:context, operation:operation, matcher:_matcher, filepath:filepath)
+      else # No match
+        path = generate_matcher_path(section, context, operation)
+        @loginator.log("#{path} ↳ `#{matcher}` did not match #{filepath}", Verbosity::DEBUG)
+      end
     end
 
     return _values.flatten # Flatten to handle YAML aliases
   end
 
+  ### Private ###
+
   private
 
+  def matched_notice(section:, context:, operation:, matcher:, filepath:)
+    path = generate_matcher_path(section, context, operation)
+    @loginator.log("#{path} ↳ #{matcher} matched #{filepath}", Verbosity::OBNOXIOUS)
+  end
+
+  def generate_matcher_path(*keys)
+    return @reportinator.generate_config_walk(keys)
+  end
+
+  # Assumes expr is a string and has been stripped
   def regex?(expr)
     valid = true
 
+    if !expr.start_with?('/')
+      return false
+    end
+
+    if !expr.end_with? ('/')
+      return false
+    end
+
     begin
-      Regexp.new(expr)
+      Regexp.new(expr[1..-2])
     rescue RegexpError
       valid = false
     end
 
     return valid
+  end
+
+  # Assumes expr is /.../
+  def form_regex(expr)
+    return Regexp.new(expr[1..-2])
   end
 
 end

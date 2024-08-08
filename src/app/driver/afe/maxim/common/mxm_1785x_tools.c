@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,16 +43,14 @@
  * @file    mxm_1785x_tools.c
  * @author  foxBMS Team
  * @date    2020-07-15 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup DRIVERS
  * @prefix  MXM
  *
  * @brief   This is a collection of helper functions for the MAX1785x ICs
- *
  * @details This collection of helper functions for the MAX1785x ICs helps to
  *          calculate the lsb and msb for register values and similar tasks.
- *
  */
 
 /*========== Includes =======================================================*/
@@ -255,15 +253,15 @@ extern void MXM_Unipolar14BitInto16Bit(uint16_t inputValue, uint8_t *lsb, uint8_
     *msb = (uint8_t)(workingCopy >> MXM_TOOLS_LENGTH_BYTE);
 }
 
-extern uint16_t MXM_VoltageIntoUnipolar14Bit(uint16_t voltage_mV, uint16_t fullscaleReference_mV) {
+extern uint16_t MXM_VoltageIntoUnipolar14Bit(uint16_t voltage_mV, uint16_t fullScaleReference_mV) {
     /* AXIVION Routine Generic-MissingParameterAssert: voltage_mV: parameter accepts whole range */
-    /* AXIVION Routine Generic-MissingParameterAssert: fullscaleReference_mV: parameter accepts whole range */
+    /* AXIVION Routine Generic-MissingParameterAssert: fullScaleReference_mV: parameter accepts whole range */
 
     uint32_t temporaryVoltage = voltage_mV;
-    /* multiply by the 14bit fullscale */
+    /* multiply by the 14bit fullScale */
     temporaryVoltage = temporaryVoltage * 0x3FFFu;
-    /* return divided by fullscale_reference */
-    return (uint16_t)(temporaryVoltage / fullscaleReference_mV);
+    /* return divided by fullScale_reference */
+    return (uint16_t)(temporaryVoltage / fullScaleReference_mV);
 }
 
 extern void MXM_ConvertModuleToString(

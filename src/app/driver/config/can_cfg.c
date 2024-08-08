@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,17 +43,14 @@
  * @file    can_cfg.c
  * @author  foxBMS Team
  * @date    2019-12-04 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  CAN
  *
  * @brief   Configuration for the CAN module
- *
  * @details The CAN bus settings and the received messages and their
  *          reception handling are to be specified here.
- *
- *
  */
 
 /*========== Includes =======================================================*/
@@ -65,8 +62,6 @@
 #include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
-
-/*========== Static Function Prototypes =====================================*/
 
 /*========== Static Constant and Variable Definitions =======================*/
 
@@ -99,7 +94,6 @@ static DATA_BLOCK_SOF_s can_tableSof                      = {.header.uniqueId = 
 static DATA_BLOCK_SOH_s can_tableSoh                      = {.header.uniqueId = DATA_BLOCK_ID_SOH};
 static DATA_BLOCK_STATE_REQUEST_s can_tableStateRequest   = {.header.uniqueId = DATA_BLOCK_ID_STATE_REQUEST};
 static DATA_BLOCK_AEROSOL_SENSOR_s can_tableAerosolSensor = {.header.uniqueId = DATA_BLOCK_ID_AEROSOL_SENSOR};
-
 /**@}*/
 
 const CAN_SHIM_s can_kShim = {

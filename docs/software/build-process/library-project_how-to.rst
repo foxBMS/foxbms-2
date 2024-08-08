@@ -16,24 +16,24 @@ The following example describes the workflow. In this scenario partner **A**
 develops on |foxbms| while Part **B** should only provide a library to **A**.
 
 - **A** bootstraps a minimal development project. This minimal project is named
-  ``library-project.tar.bz2``.
+  ``library-project.tar.gz``.
 
-  .. code-block:: console
+  .. code-block:: powershell
     :caption: Bootstrapping the minimal library project
 
-    C:\Users\Partner_A\Documents\foxbms-2>waf.bat bootstrap-library-project
+    PC C:\Users\Partner_A\Documents\foxbms-2> .\fox.ps1 waf bootstrap-library-project
 
-- **A** shares the archive ``library-project.tar.bz2`` with **B**.
+- **A** shares the archive ``library-project.tar.gz`` with **B**.
 - **B** installs a |code-composer-studio| as described in :ref:`css_install`.
 - **B** installs a Python environment as described in
-  :ref:`miniconda_install_and_configuration`.
+  :ref:`python_installation_and_configuration`.
 - **B** builds a library by adding sources etc. to the minimal project as
   needed and builds the library.
 
-  .. code-block:: console
+  .. code-block:: powershell
     :caption: Building the Library
 
-    C:\Users\Partner_B\Documents\foxbms-2>waf.bat build
+    PS C:\Users\Partner_B\Documents\foxbms-2> .\fox.ps1 waf build
 
 - **B** shares the library and accompanying headers with **A**.
 - **A** saves the library and accompanying headers and adds the path to the

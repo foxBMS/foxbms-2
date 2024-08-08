@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,8 +43,8 @@
  * @file    test_database.c
  * @author  foxBMS Team
  * @date    2020-04-01 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -63,6 +63,7 @@
 #include "database_cfg.h"
 
 #include "database.h"
+#include "fstd_types.h"
 #include "test_assert_helper.h"
 
 #include <stdbool.h>
@@ -87,6 +88,16 @@ OS_QUEUE ftsk_imdCanDataQueue       = NULL_PTR;
 OS_QUEUE ftsk_canRxQueue            = NULL_PTR;
 volatile bool ftsk_allQueuesCreated = true;
 
+/** data block struct for the database built-in self-test */
+typedef struct {
+    /* This struct needs to be at the beginning of every database entry. During
+     * the initialization of a database struct, uniqueId must be set to the
+     * respective database entry representation in enum DATA_BLOCK_ID_e. */
+    DATA_BLOCK_HEADER_s header; /*!< Data block header */
+    uint8_t member1;            /*!< first member of self-test struct */
+    uint8_t member2;            /*!< second member of self-test struct */
+} DATA_BLOCK_TEST_s;
+
 /*========== Setup and Teardown =============================================*/
 void setUp(void) {
 }
@@ -94,7 +105,507 @@ void setUp(void) {
 void tearDown(void) {
 }
 
-void testDummy(void) {
+/**
+ * @brief   Testing externalized static function DATA_AccessDatabaseEntries
+ * @details The following cases need to be tested:
+ *          - Argument validation:
+ *            - AT1/2: invalid access type &rarr; assert
+ *            - AT2/2: NULL_PTR for pData0 &rarr; assert
+ *          - Routine validation:
+ *            - RT1/1: TODO
+ */
+void testDATA_AccessDatabaseEntries(void) {
+    /* ======= Assertion tests ============================================= */
+    const DATA_BLOCK_ACCESS_TYPE_e invalidAccessType = 300u;
+    const DATA_BLOCK_ACCESS_TYPE_e validAccessType   = DATA_WRITE_ACCESS;
+    uint8_t dummyValue                               = 0u;
+    void *pValidDummy0                               = &dummyValue;
+    void *pValidDummy1                               = &dummyValue; /* not used for interface test, see function */
+    void *pValidDummy2                               = &dummyValue; /* not used for interface test, see function */
+    void *pValidDummy3                               = &dummyValue; /* not used for interface test, see function */
+    /* ======= AT1/2: Assertion test */
+    TEST_ASSERT_FAIL_ASSERT(
+        TEST_DATA_AccessDatabaseEntries(invalidAccessType, pValidDummy0, pValidDummy1, pValidDummy2, pValidDummy3));
+    /* ======= AT2/2: Assertion test */
+    TEST_ASSERT_FAIL_ASSERT(
+        TEST_DATA_AccessDatabaseEntries(validAccessType, NULL_PTR, pValidDummy1, pValidDummy2, pValidDummy3));
+
+    /* ======= Routine tests =============================================== */
+    const DATA_BLOCK_ACCESS_TYPE_e readAccess  = DATA_WRITE_ACCESS;
+    const DATA_BLOCK_ACCESS_TYPE_e writeAccess = DATA_READ_ACCESS;
+    /* ======= RT1/2: Test implementation */
+    OS_SendToBackOfQueue_IgnoreAndReturn(STD_OK);
+    /* ======= RT1/2: call function under test */
+    const STD_RETURN_TYPE_e readSuccessfully =
+        TEST_DATA_AccessDatabaseEntries(readAccess, pValidDummy0, pValidDummy1, pValidDummy2, pValidDummy3);
+    /* ======= RT1/2: test output verification */
+    TEST_ASSERT_EQUAL(STD_OK, readSuccessfully);
+
+    /* ======= RT2/2: Test implementation */
+    OS_SendToBackOfQueue_IgnoreAndReturn(STD_NOT_OK);
+    /* ======= RT2/2: call function under test */
+    const STD_RETURN_TYPE_e writeUnsuccessfully =
+        TEST_DATA_AccessDatabaseEntries(writeAccess, pValidDummy0, pValidDummy1, pValidDummy2, pValidDummy3);
+    /* ======= RT2/2: test output verification */
+    TEST_ASSERT_EQUAL(STD_NOT_OK, writeUnsuccessfully);
+}
+
+/**
+ * @brief   Testing externalized static function DATA_CopyData
+ * @details The following cases need to be tested:
+ *          - Argument validation:
+ *            - TODO
+ *          - Routine validation:
+ *            - TODO
+ */
+void testDATA_CopyData(void) {
+    /* ======= Assertion tests ============================================= */
+    const DATA_BLOCK_ACCESS_TYPE_e invalidAccessType = 300u;
+    uint32_t dataLength                              = 20u;
+    uint8_t dummyValue                               = 0u;
+    void *pValidDummy0                               = &dummyValue;
+    void *pValidDummy1                               = &dummyValue; /* not used for interface test, see function */
+    /* ======= AT1/3: Assertion test */
+    TEST_ASSERT_FAIL_ASSERT(TEST_DATA_CopyData(invalidAccessType, dataLength, pValidDummy0, pValidDummy1));
+    /* ======= AT2/3: Assertion test */
+    TEST_ASSERT_FAIL_ASSERT(TEST_DATA_CopyData(DATA_WRITE_ACCESS, dataLength, NULL_PTR, pValidDummy1));
+    /* ======= AT3/3: Assertion test */
+    TEST_ASSERT_FAIL_ASSERT(TEST_DATA_CopyData(DATA_READ_ACCESS, dataLength, pValidDummy0, NULL_PTR));
+
+    /* ======= Routine tests =============================================== */
+    /* ======= RT1/2: Test implementation */
+    /* Note: uniqueId is not used in this function so we can set it anything,
+     * that is not 0, so that we have something to compare against */
+    DATA_BLOCK_TEST_s fromEntry = {
+        .header.uniqueId          = (DATA_BLOCK_ID_e)1u,
+        .header.previousTimestamp = 3u,
+        .header.timestamp         = 4u,
+        .member1                  = 12u,
+        .member2                  = 42u,
+    };
+    DATA_BLOCK_TEST_s toEntry = {
+        .header.uniqueId          = (DATA_BLOCK_ID_e)0u,
+        .header.previousTimestamp = 0u,
+        .header.timestamp         = 0u,
+        .member1                  = 0u,
+        .member2                  = 0u,
+    };
+    dataLength = sizeof(DATA_BLOCK_TEST_s);
+    /* ======= RT1/2: call function under test */
+    TEST_DATA_CopyData(DATA_READ_ACCESS, dataLength, &toEntry, &fromEntry);
+    /* ======= RT1/2: test output verification */
+    TEST_ASSERT_EQUAL_MEMORY(&fromEntry, &toEntry, dataLength);
+
+    /* ======= RT2/2: Test implementation */
+    /* Note: uniqueId is not used in this function so we can set it anything,
+     * that is not 0, so that we have something to compare against */
+    fromEntry.header.uniqueId          = (DATA_BLOCK_ID_e)2u;
+    fromEntry.header.previousTimestamp = 12u;
+    fromEntry.header.timestamp         = 13u;
+    fromEntry.member1                  = 0x1Au;
+    fromEntry.member2                  = 0xA0u;
+
+    toEntry.header.uniqueId          = (DATA_BLOCK_ID_e)0u;
+    toEntry.header.previousTimestamp = 0u;
+    toEntry.header.timestamp         = 0u;
+    toEntry.member1                  = 0u;
+    toEntry.member2                  = 0u;
+
+    const uint32_t newTimestamp     = 15u;
+    DATA_BLOCK_TEST_s expectedEntry = {
+        .header.uniqueId          = (DATA_BLOCK_ID_e)2u,
+        .header.previousTimestamp = 13u,
+        .header.timestamp         = newTimestamp,
+        .member1                  = 0x1Au,
+        .member2                  = 0xA0u,
+    };
+
+    OS_GetTickCount_ExpectAndReturn(newTimestamp);
+    /* ======= RT2/2: call function under test */
+    TEST_DATA_CopyData(DATA_WRITE_ACCESS, dataLength, &toEntry, &fromEntry);
+    /* ======= RT2/2: test output verification */
+    TEST_ASSERT_EQUAL_MEMORY(&expectedEntry, &toEntry, dataLength);
+}
+
+/**
+ * @brief   Testing externalized static function DATA_IterateOverDatabaseEntries
+ * @details The following cases need to be tested:
+ *          - Argument validation:
+ *            - TODO
+ *          - Routine validation:
+ *            - TODO
+ */
+void testDATA_IterateOverDatabaseEntries(void) {
+    /* ======= Assertion tests ============================================= */
+    /* ======= AT1/1: Assertion test */
+    TEST_ASSERT_FAIL_ASSERT(TEST_DATA_IterateOverDatabaseEntries(NULL_PTR));
+
+    /* ======= Routine tests =============================================== */
+    /* ======= RT1/2: Test implementation */
+    static DATA_BLOCK_CELL_VOLTAGE_s entry_blockCellVoltage = {.header.uniqueId = DATA_BLOCK_ID_CELL_VOLTAGE};
+    DATA_QUEUE_MESSAGE_s messages[4u]                       = {
+        {
+                                  .accessType     = DATA_READ_ACCESS,
+                                  .pDatabaseEntry = (void *)&entry_blockCellVoltage,
+        },
+        {
+                                  .pDatabaseEntry = NULL_PTR,
+        },
+        {
+                                  .pDatabaseEntry = NULL_PTR,
+        },
+        {
+                                  .pDatabaseEntry = NULL_PTR,
+        },
+    };
+    /* ======= RT1/2: call function under test */
+    TEST_DATA_IterateOverDatabaseEntries(messages);
+    /* ======= RT1/2: test output verification */
+    /* TODO comparison */
+
+    /* ======= RT2/2: Test implementation */
+    static DATA_BLOCK_CELL_VOLTAGE_s entry_blockInvalidId = {.header.uniqueId = DATA_BLOCK_ID_MAX};
+    DATA_QUEUE_MESSAGE_s invalidMessages[4]               = {
+        {
+                          .accessType     = DATA_READ_ACCESS,
+                          .pDatabaseEntry = (void *)&entry_blockInvalidId,
+        },
+        {
+                          .pDatabaseEntry = NULL_PTR,
+        },
+        {
+                          .pDatabaseEntry = NULL_PTR,
+        },
+        {
+                          .pDatabaseEntry = NULL_PTR,
+        },
+    };
+    /* ======= RT2/2: call function under test */
+    TEST_ASSERT_FAIL_ASSERT(TEST_DATA_IterateOverDatabaseEntries(invalidMessages));
+    /* ======= RT2/2: test output verification */
+    /* nothing to do */
+}
+
+/**
+ * @brief   Testing external function #DATA_Initialize
+ * @details The following cases need to be tested:
+ *          - Argument validation:
+ *            - TODO
+ *          - Routine validation:
+ *            - TODO
+ */
+void testDATA_Initialize(void) {
+}
+
+/**
+ * @brief   Testing external function #DATA_Task
+ * @details The following cases need to be tested:
+ *          - Argument validation:
+ *            - TODO
+ *          - Routine validation:
+ *            - TODO
+ */
+void testDATA_Task(void) {
+}
+
+/**
+ * @brief   Testing extern function #DATA_Read1DataBlock
+ * @details The following cases need to be tested:
+ *          - Argument validation:
+ *            - AT1/1: NULL_PTR for pDataToReceiver0 &rarr; assert
+ *          - Routine validation:
+ *            - RT1/1: TODO
+ */
+void testDATA_Read1DataBlock(void) {
+    /* ======= Assertion tests ============================================= */
+    /* ======= AT1/1: Assertion test */
+    TEST_ASSERT_FAIL_ASSERT(DATA_Read1DataBlock(NULL_PTR));
+
+    /* ======= Routine tests =============================================== */
+    uint8_t dummyValue = 0u;
+    void *pValidDummy0 = &dummyValue;
+    /* ======= RT1/2: Test implementation */
+    OS_SendToBackOfQueue_IgnoreAndReturn(STD_OK);
+    /* ======= RT1/2: call function under test */
+    const STD_RETURN_TYPE_e readSuccessfully = DATA_Read1DataBlock(pValidDummy0);
+    /* ======= RT1/2: test output verification */
+    TEST_ASSERT_EQUAL(STD_OK, readSuccessfully);
+
+    /* ======= RT2/2: Test implementation */
+    OS_SendToBackOfQueue_IgnoreAndReturn(STD_NOT_OK);
+    /* ======= RT2/2: call function under test */
+    const STD_RETURN_TYPE_e readUnsuccessfully = DATA_Read1DataBlock(pValidDummy0);
+    /* ======= RT2/2: test output verification */
+    TEST_ASSERT_EQUAL(STD_NOT_OK, readUnsuccessfully);
+}
+
+/**
+ * @brief   Testing extern function #DATA_Read2DataBlocks
+ * @details The following cases need to be tested:
+ *          - Argument validation:
+ *            - AT1/2: NULL_PTR for pDataToReceiver0 &rarr; assert
+ *            - AT2/2: NULL_PTR for pDataToReceiver1 &rarr; assert
+ *          - Routine validation:
+ *            - RT1/1: TODO
+ */
+void testDATA_Read2DataBlocks(void) {
+    /* ======= Assertion tests ============================================= */
+    uint8_t dummyValue = 0u;
+    void *pValidDummy0 = &dummyValue;
+    void *pValidDummy1 = &dummyValue;
+    /* ======= AT1/2: Assertion test */
+    TEST_ASSERT_FAIL_ASSERT(DATA_Read2DataBlocks(NULL_PTR, pValidDummy1));
+    /* ======= AT2/2: Assertion test */
+    TEST_ASSERT_FAIL_ASSERT(DATA_Read2DataBlocks(pValidDummy0, NULL_PTR));
+
+    /* ======= Routine tests =============================================== */
+    /* ======= RT1/2: Test implementation */
+    OS_SendToBackOfQueue_IgnoreAndReturn(STD_OK);
+    /* ======= RT1/2: call function under test */
+    const STD_RETURN_TYPE_e readSuccessfully = DATA_Read2DataBlocks(pValidDummy0, pValidDummy1);
+    /* ======= RT1/2: test output verification */
+    TEST_ASSERT_EQUAL(STD_OK, readSuccessfully);
+
+    /* ======= RT2/2: Test implementation */
+    OS_SendToBackOfQueue_IgnoreAndReturn(STD_NOT_OK);
+    /* ======= RT2/2: call function under test */
+    const STD_RETURN_TYPE_e readUnsuccessfully = DATA_Read2DataBlocks(pValidDummy0, pValidDummy1);
+    /* ======= RT2/2: test output verification */
+    TEST_ASSERT_EQUAL(STD_NOT_OK, readUnsuccessfully);
+}
+
+/**
+ * @brief   Testing extern function #DATA_Read3DataBlocks
+ * @details The following cases need to be tested:
+ *          - Argument validation:
+ *            - AT1/3: NULL_PTR for pDataToReceiver0 &rarr; assert
+ *            - AT2/3: NULL_PTR for pDataToReceiver1 &rarr; assert
+ *            - AT3/3: NULL_PTR for pDataToReceiver2 &rarr; assert
+ *          - Routine validation:
+ *            - RT1/1: TODO
+ */
+void testDATA_Read3DataBlocks(void) {
+    /* ======= Assertion tests ============================================= */
+    uint8_t dummyValue = 0u;
+    void *pValidDummy0 = &dummyValue;
+    void *pValidDummy1 = &dummyValue;
+    void *pValidDummy2 = &dummyValue;
+    /* ======= AT1/3: Assertion test */
+    TEST_ASSERT_FAIL_ASSERT(DATA_Read3DataBlocks(NULL_PTR, pValidDummy1, pValidDummy2));
+    /* ======= AT2/3: Assertion test */
+    TEST_ASSERT_FAIL_ASSERT(DATA_Read3DataBlocks(pValidDummy0, NULL_PTR, pValidDummy2));
+    /* ======= AT3/3: Assertion test */
+    TEST_ASSERT_FAIL_ASSERT(DATA_Read3DataBlocks(pValidDummy0, pValidDummy1, NULL_PTR));
+
+    /* ======= Routine tests =============================================== */
+    /* ======= RT1/2: Test implementation */
+    OS_SendToBackOfQueue_IgnoreAndReturn(STD_OK);
+    /* ======= RT1/2: call function under test */
+    const STD_RETURN_TYPE_e readSuccessfully = DATA_Read3DataBlocks(pValidDummy0, pValidDummy1, pValidDummy2);
+    /* ======= RT1/2: test output verification */
+    TEST_ASSERT_EQUAL(STD_OK, readSuccessfully);
+
+    /* ======= RT2/2: Test implementation */
+    OS_SendToBackOfQueue_IgnoreAndReturn(STD_NOT_OK);
+    /* ======= RT2/2: call function under test */
+    const STD_RETURN_TYPE_e readUnsuccessfully = DATA_Read3DataBlocks(pValidDummy0, pValidDummy1, pValidDummy2);
+    /* ======= RT2/2: test output verification */
+    TEST_ASSERT_EQUAL(STD_NOT_OK, readUnsuccessfully);
+}
+
+/**
+ * @brief   Testing extern function #DATA_Read4DataBlocks
+ * @details The following cases need to be tested:
+ *          - Argument validation:
+ *            - AT1/4: NULL_PTR for pDataToReceiver0 &rarr; assert
+ *            - AT2/4: NULL_PTR for pDataToReceiver1 &rarr; assert
+ *            - AT3/4: NULL_PTR for pDataToReceiver2 &rarr; assert
+ *            - AT4/4: NULL_PTR for pDataToReceiver3 &rarr; assert
+ *          - Routine validation:
+ *            - RT1/1: TODO
+ */
+void testDATA_Read4DataBlocks(void) {
+    /* ======= Assertion tests ============================================= */
+    uint8_t dummyValue = 0u;
+    void *pValidDummy0 = &dummyValue;
+    void *pValidDummy1 = &dummyValue;
+    void *pValidDummy2 = &dummyValue;
+    void *pValidDummy3 = &dummyValue;
+    /* ======= AT1/4: Assertion test */
+    TEST_ASSERT_FAIL_ASSERT(DATA_Read4DataBlocks(NULL_PTR, pValidDummy1, pValidDummy2, pValidDummy3));
+    /* ======= AT2/4: Assertion test */
+    TEST_ASSERT_FAIL_ASSERT(DATA_Read4DataBlocks(pValidDummy0, NULL_PTR, pValidDummy2, pValidDummy3));
+    /* ======= AT3/4: Assertion test */
+    TEST_ASSERT_FAIL_ASSERT(DATA_Read4DataBlocks(pValidDummy0, pValidDummy1, NULL_PTR, pValidDummy3));
+    /* ======= AT4/4: Assertion test */
+    TEST_ASSERT_FAIL_ASSERT(DATA_Read4DataBlocks(pValidDummy0, pValidDummy1, pValidDummy2, NULL_PTR));
+
+    /* ======= Routine tests =============================================== */
+    /* ======= RT1/2: Test implementation */
+    OS_SendToBackOfQueue_IgnoreAndReturn(STD_OK);
+    /* ======= RT1/2: call function under test */
+    const STD_RETURN_TYPE_e readSuccessfully =
+        DATA_Read4DataBlocks(pValidDummy0, pValidDummy1, pValidDummy2, pValidDummy3);
+    /* ======= RT1/2: test output verification */
+    TEST_ASSERT_EQUAL(STD_OK, readSuccessfully);
+
+    /* ======= RT2/2: Test implementation */
+    OS_SendToBackOfQueue_IgnoreAndReturn(STD_NOT_OK);
+    /* ======= RT2/2: call function under test */
+    const STD_RETURN_TYPE_e readUnsuccessfully =
+        DATA_Read4DataBlocks(pValidDummy0, pValidDummy1, pValidDummy2, pValidDummy3);
+    /* ======= RT2/2: test output verification */
+    TEST_ASSERT_EQUAL(STD_NOT_OK, readUnsuccessfully);
+}
+
+/**
+ * @brief   Testing extern function #DATA_Write1DataBlock
+ * @details The following cases need to be tested:
+ *          - Argument validation:
+ *            - AT1/1: NULL_PTR for pDataFromSender0 &rarr; assert
+ *          - Routine validation:
+ *            - RT1/1: TODO
+ */
+void testDATA_Write1DataBlock(void) {
+    /* ======= Assertion tests ============================================= */
+    /* ======= AT1/1: Assertion test */
+    TEST_ASSERT_FAIL_ASSERT(DATA_Write1DataBlock(NULL_PTR));
+
+    /* ======= Routine tests =============================================== */
+    uint8_t dummyValue = 0u;
+    void *pValidDummy0 = &dummyValue;
+    /* ======= RT1/2: Test implementation */
+    OS_SendToBackOfQueue_IgnoreAndReturn(STD_OK);
+    /* ======= RT1/2: call function under test */
+    const STD_RETURN_TYPE_e writeSuccessfully = DATA_Write1DataBlock(pValidDummy0);
+    /* ======= RT1/2: test output verification */
+    TEST_ASSERT_EQUAL(STD_OK, writeSuccessfully);
+
+    /* ======= RT2/2: Test implementation */
+    OS_SendToBackOfQueue_IgnoreAndReturn(STD_NOT_OK);
+    /* ======= RT2/2: call function under test */
+    const STD_RETURN_TYPE_e writeUnsuccessfully = DATA_Write1DataBlock(pValidDummy0);
+    /* ======= RT2/2: test output verification */
+    TEST_ASSERT_EQUAL(STD_NOT_OK, writeUnsuccessfully);
+}
+
+/**
+ * @brief   Testing extern function #DATA_Write2DataBlocks
+ * @details The following cases need to be tested:
+ *          - Argument validation:
+ *            - AT1/2: NULL_PTR for pDataFromSender0 &rarr; assert
+ *            - AT2/2: NULL_PTR for pDataFromSender1 &rarr; assert
+ *          - Routine validation:
+ *            - RT1/1: TODO
+ */
+void testDATA_Write2DataBlocks(void) {
+    /* ======= Assertion tests ============================================= */
+    uint8_t dummyValue = 0u;
+    void *pValidDummy0 = &dummyValue;
+    void *pValidDummy1 = &dummyValue;
+    /* ======= AT1/2: Assertion test */
+    TEST_ASSERT_FAIL_ASSERT(DATA_Write2DataBlocks(NULL_PTR, pValidDummy1));
+    /* ======= AT2/2: Assertion test */
+    TEST_ASSERT_FAIL_ASSERT(DATA_Write2DataBlocks(pValidDummy0, NULL_PTR));
+
+    /* ======= Routine tests =============================================== */
+    /* ======= RT1/2: Test implementation */
+    OS_SendToBackOfQueue_IgnoreAndReturn(STD_OK);
+    /* ======= RT1/2: call function under test */
+    const STD_RETURN_TYPE_e writeSuccessfully = DATA_Write2DataBlocks(pValidDummy0, pValidDummy1);
+    /* ======= RT1/2: test output verification */
+    TEST_ASSERT_EQUAL(STD_OK, writeSuccessfully);
+
+    /* ======= RT2/2: Test implementation */
+    OS_SendToBackOfQueue_IgnoreAndReturn(STD_NOT_OK);
+    /* ======= RT2/2: call function under test */
+    const STD_RETURN_TYPE_e writeUnsuccessfully = DATA_Write2DataBlocks(pValidDummy0, pValidDummy1);
+    /* ======= RT2/2: test output verification */
+    TEST_ASSERT_EQUAL(STD_NOT_OK, writeUnsuccessfully);
+}
+
+/**
+ * @brief   Testing extern function #DATA_Write3DataBlocks
+ * @details The following cases need to be tested:
+ *          - Argument validation:
+ *            - AT1/3: NULL_PTR for pDataFromSender0 &rarr; assert
+ *            - AT2/3: NULL_PTR for pDataFromSender1 &rarr; assert
+ *            - AT3/3: NULL_PTR for pDataFromSender2 &rarr; assert
+ *          - Routine validation:
+ *            - RT1/1: TODO
+ */
+void testDATA_Write3DataBlocks(void) {
+    /* ======= Assertion tests ============================================= */
+    uint8_t dummyValue = 0u;
+    void *pValidDummy0 = &dummyValue;
+    void *pValidDummy1 = &dummyValue;
+    void *pValidDummy2 = &dummyValue;
+    /* ======= AT1/3: Assertion test */
+    TEST_ASSERT_FAIL_ASSERT(DATA_Write3DataBlocks(NULL_PTR, pValidDummy1, pValidDummy2));
+    /* ======= AT2/3: Assertion test */
+    TEST_ASSERT_FAIL_ASSERT(DATA_Write3DataBlocks(pValidDummy0, NULL_PTR, pValidDummy2));
+    /* ======= AT3/3: Assertion test */
+    TEST_ASSERT_FAIL_ASSERT(DATA_Write3DataBlocks(pValidDummy0, pValidDummy1, NULL_PTR));
+
+    /* ======= Routine tests =============================================== */
+    /* ======= RT1/2: Test implementation */
+    OS_SendToBackOfQueue_IgnoreAndReturn(STD_OK);
+    /* ======= RT1/2: call function under test */
+    const STD_RETURN_TYPE_e writeSuccessfully = DATA_Write3DataBlocks(pValidDummy0, pValidDummy1, pValidDummy2);
+    /* ======= RT1/2: test output verification */
+    TEST_ASSERT_EQUAL(STD_OK, writeSuccessfully);
+
+    /* ======= RT2/2: Test implementation */
+    OS_SendToBackOfQueue_IgnoreAndReturn(STD_NOT_OK);
+    /* ======= RT2/2: call function under test */
+    const STD_RETURN_TYPE_e writeUnsuccessfully = DATA_Write3DataBlocks(pValidDummy0, pValidDummy1, pValidDummy2);
+    /* ======= RT2/2: test output verification */
+    TEST_ASSERT_EQUAL(STD_NOT_OK, writeUnsuccessfully);
+}
+
+/**
+ * @brief   Testing extern function #DATA_Write4DataBlocks
+ * @details The following cases need to be tested:
+ *          - Argument validation:
+ *            - AT1/4: NULL_PTR for pDataFromSender0 &rarr; assert
+ *            - AT2/4: NULL_PTR for pDataFromSender1 &rarr; assert
+ *            - AT3/4: NULL_PTR for pDataFromSender2 &rarr; assert
+ *            - AT4/4: NULL_PTR for pDataFromSender3 &rarr; assert
+ *          - Routine validation:
+ *            - RT1/1: TODO
+ */
+void testDATA_Write4DataBlocks(void) {
+    /* ======= Assertion tests ============================================= */
+    uint8_t dummyValue = 0u;
+    void *pValidDummy0 = &dummyValue;
+    void *pValidDummy1 = &dummyValue;
+    void *pValidDummy2 = &dummyValue;
+    void *pValidDummy3 = &dummyValue;
+    /* ======= AT1/4: Assertion test */
+    TEST_ASSERT_FAIL_ASSERT(DATA_Write4DataBlocks(NULL_PTR, pValidDummy1, pValidDummy2, pValidDummy3));
+    /* ======= AT2/4: Assertion test */
+    TEST_ASSERT_FAIL_ASSERT(DATA_Write4DataBlocks(pValidDummy0, NULL_PTR, pValidDummy2, pValidDummy3));
+    /* ======= AT3/4: Assertion test */
+    TEST_ASSERT_FAIL_ASSERT(DATA_Write4DataBlocks(pValidDummy0, pValidDummy1, NULL_PTR, pValidDummy3));
+    /* ======= AT4/4: Assertion test */
+    TEST_ASSERT_FAIL_ASSERT(DATA_Write4DataBlocks(pValidDummy0, pValidDummy1, pValidDummy2, NULL_PTR));
+
+    /* ======= Routine tests =============================================== */
+    /* ======= RT1/2: Test implementation */
+    OS_SendToBackOfQueue_IgnoreAndReturn(STD_OK);
+    /* ======= RT1/2: call function under test */
+    const STD_RETURN_TYPE_e writeSuccessfully =
+        DATA_Write4DataBlocks(pValidDummy0, pValidDummy1, pValidDummy2, pValidDummy3);
+    /* ======= RT1/2: test output verification */
+    TEST_ASSERT_EQUAL(STD_OK, writeSuccessfully);
+
+    /* ======= RT2/2: Test implementation */
+    OS_SendToBackOfQueue_IgnoreAndReturn(STD_NOT_OK);
+    /* ======= RT2/2: call function under test */
+    const STD_RETURN_TYPE_e writeUnsuccessfully =
+        DATA_Write4DataBlocks(pValidDummy0, pValidDummy1, pValidDummy2, pValidDummy3);
+    /* ======= RT2/2: test output verification */
+    TEST_ASSERT_EQUAL(STD_NOT_OK, writeUnsuccessfully);
 }
 
 /** callback for #testDATA_ExecuteDataBist(); this not work for other instances */
@@ -113,6 +624,14 @@ OS_STD_RETURN_e DATA_mpuInjectValuesForExecuteBISTTestCallback(
     return OS_SUCCESS;
 }
 
+/**
+ * @brief   Testing extern function DATA_ExecuteDataBist
+ * @details The following cases need to be tested:
+ *          - Argument validation:
+ *            - none
+ *          - Routine validation:
+ *            - TODO
+ */
 void testDATA_ExecuteDataBist(void) {
     OS_SendToBackOfQueue_Stub(&DATA_mpuInjectValuesForExecuteBISTTestCallback);
     TEST_ASSERT_PASS_ASSERT(DATA_ExecuteDataBist());

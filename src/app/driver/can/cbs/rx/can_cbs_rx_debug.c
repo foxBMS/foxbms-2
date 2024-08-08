@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,9 +43,9 @@
  * @file    can_cbs_rx_debug.c
  * @author  foxBMS Team
  * @date    2021-04-20 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
- * @ingroup DRIVER
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
+ * @ingroup DRIVERS
  * @prefix  CANRX
  *
  * @brief   CAN driver Rx callback implementation
@@ -53,7 +53,10 @@
  */
 
 /*========== Includes =======================================================*/
+/* AXIVION Next Codeline Generic-LocalInclude: 'can_cbs_rx.h' declares the
+ * prototype for the callback 'CANRX_Debug' */
 #include "can_cbs_rx.h"
+#include "can_cbs_tx_debug-build-configuration.h"
 #include "can_cbs_tx_debug-response.h"
 #include "can_cbs_tx_debug-unsupported-multiplexer-values.h"
 #include "can_cfg_rx-message-definitions.h"
@@ -67,9 +70,6 @@
 #include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
-
-#define CANRX_BIT (1u)
-
 /** @{
  * multiplexer setup for the debug message
  */
@@ -92,15 +92,17 @@
  * 'VersionInformation' in the 'Debug message
  */
 #define CANRX_MUX_VERSION_INFO_SIGNAL_GET_BMS_SOFTWARE_VERSION_START_BIT  (8u)
-#define CANRX_MUX_VERSION_INFO_SIGNAL_GET_BMS_SOFTWARE_VERSION_LENGTH     (CANRX_BIT)
+#define CANRX_MUX_VERSION_INFO_SIGNAL_GET_BMS_SOFTWARE_VERSION_LENGTH     (CAN_BIT)
 #define CANRX_MUX_VERSION_INFO_SIGNAL_GET_MCU_UNIQUE_DIE_ID_START_BIT     (9u)
-#define CANRX_MUX_VERSION_INFO_SIGNAL_GET_MCU_UNIQUE_DIE_ID_LENGTH        (CANRX_BIT)
+#define CANRX_MUX_VERSION_INFO_SIGNAL_GET_MCU_UNIQUE_DIE_ID_LENGTH        (CAN_BIT)
 #define CANRX_MUX_VERSION_INFO_SIGNAL_GET_MCU_LOT_NUMBER_START_BIT        (10u)
-#define CANRX_MUX_VERSION_INFO_SIGNAL_GET_MCU_LOT_NUMBER_LENGTH           (CANRX_BIT)
+#define CANRX_MUX_VERSION_INFO_SIGNAL_GET_MCU_LOT_NUMBER_LENGTH           (CAN_BIT)
 #define CANRX_MUX_VERSION_INFO_SIGNAL_GET_MCU_WAFER_INFORMATION_START_BIT (11u)
-#define CANRX_MUX_VERSION_INFO_SIGNAL_GET_MCU_WAFER_INFORMATION_LENGTH    (CANRX_BIT)
+#define CANRX_MUX_VERSION_INFO_SIGNAL_GET_MCU_WAFER_INFORMATION_LENGTH    (CAN_BIT)
 #define CANRX_MUX_VERSION_INFO_SIGNAL_GET_COMMIT_HASH_START_BIT           (12u)
-#define CANRX_MUX_VERSION_INFO_SIGNAL_GET_COMMIT_HASH_LENGTH              (CANRX_BIT)
+#define CANRX_MUX_VERSION_INFO_SIGNAL_GET_COMMIT_HASH_LENGTH              (CAN_BIT)
+#define CANRX_MUX_VERSION_INFO_SIGNAL_GET_BUILD_CONFIGURATION_START_BIT   (13u)
+#define CANRX_MUX_VERSION_INFO_SIGNAL_GET_BUILD_CONFIGURATION_LENGTH      (CAN_BIT)
 /** @} */
 
 /** @{
@@ -130,7 +132,7 @@
  * in the 'Debug' message
  */
 #define CANRX_MUX_SOFTWARE_SIGNAL_TRIGGER_SOFTWARE_RESET_START_BIT (39u)
-#define CANRX_MUX_SOFTWARE_SIGNAL_TRIGGER_SOFTWARE_RESET_LENGTH    (CANRX_BIT)
+#define CANRX_MUX_SOFTWARE_SIGNAL_TRIGGER_SOFTWARE_RESET_LENGTH    (CAN_BIT)
 /** @} */
 
 /** @{
@@ -138,7 +140,7 @@
  * in the 'Debug' message
  */
 #define CANRX_MUX_SOFTWARE_SIGNAL_TRIGGER_FRAM_INITIALIZATION_START_BIT (27u)
-#define CANRX_MUX_SOFTWARE_SIGNAL_TRIGGER_FRAM_INITIALIZATION_LENGTH    (CANRX_BIT)
+#define CANRX_MUX_SOFTWARE_SIGNAL_TRIGGER_FRAM_INITIALIZATION_LENGTH    (CAN_BIT)
 /** @} */
 
 /** @{
@@ -146,7 +148,7 @@
  * in the 'Debug' message
  */
 #define CANRX_MUX_SOFTWARE_SIGNAL_TRIGGER_REQUEST_RTC_TIME_START_BIT (8u)
-#define CANRX_MUX_SOFTWARE_SIGNAL_TRIGGER_REQUEST_RTC_TIME_LENGTH    (CANRX_BIT)
+#define CANRX_MUX_SOFTWARE_SIGNAL_TRIGGER_REQUEST_RTC_TIME_LENGTH    (CAN_BIT)
 /** @} */
 
 /*========== Static Constant and Variable Definitions =======================*/
@@ -244,7 +246,7 @@ static uint8_t CANRX_GetDay(uint64_t messageData, CAN_ENDIANNESS_e endianness);
  * @brief   Parses the CAN message to retrieve the month information
  * @param   messageData message data of the CAN message
  * @param   endianness  endianness of the message
-* @returns  Decoded month information
+ * @returns  Decoded month information
  */
 static uint8_t CANRX_GetMonth(uint64_t messageData, CAN_ENDIANNESS_e endianness);
 
@@ -252,7 +254,7 @@ static uint8_t CANRX_GetMonth(uint64_t messageData, CAN_ENDIANNESS_e endianness)
  * @brief   Parses the CAN message to retrieve the year information
  * @param   messageData message data of the CAN message
  * @param   endianness  endianness of the message
-* @returns  Decoded year information
+ * @returns  Decoded year information
  */
 static uint8_t CANRX_GetYear(uint64_t messageData, CAN_ENDIANNESS_e endianness);
 
@@ -322,6 +324,19 @@ static bool CANRX_CheckIfCommitHashIsRequested(uint64_t messageData, CAN_ENDIANN
 static void CANRX_TriggerCommitHashMessage(void);
 
 /**
+ * @brief   Check if the build configuration is requested
+ * @param   messageData message data of the CAN message
+ * @param   endianness  endianness of the message
+ * @returns true if the information is requested, false otherwise
+ */
+static bool CANRX_CheckIfBuildConfigurationIsRequested(uint64_t messageData, CAN_ENDIANNESS_e endianness);
+
+/**
+ * @brief   Triggers sending of the build configuration message
+ */
+static void CANRX_TriggerBuildConfigurationMessage(void);
+
+/**
  * @brief   Check if a software reset is requested
  * @param   messageData message data of the CAN message
  * @param   endianness  endianness of the message
@@ -353,7 +368,7 @@ static void CANRX_TriggerTimeInfoMessage(void);
 /*========== Static Function Implementations ================================*/
 
 static uint8_t CANRX_GetHundredthOfSeconds(uint64_t messageData, CAN_ENDIANNESS_e endianness) {
-    /* AXIVION Routine Generic-MissingParameterAssert: messageData: parameter accept whole range */
+    /* AXIVION Routine Generic-MissingParameterAssert: messageData: parameter accepts whole range */
     FAS_ASSERT(endianness == CAN_BIG_ENDIAN);
 
     uint64_t signalData = 0u;
@@ -369,7 +384,7 @@ static uint8_t CANRX_GetHundredthOfSeconds(uint64_t messageData, CAN_ENDIANNESS_
 }
 
 static uint8_t CANRX_GetSeconds(uint64_t messageData, CAN_ENDIANNESS_e endianness) {
-    /* AXIVION Routine Generic-MissingParameterAssert: messageData: parameter accept whole range */
+    /* AXIVION Routine Generic-MissingParameterAssert: messageData: parameter accepts whole range */
     FAS_ASSERT(endianness == CAN_BIG_ENDIAN);
 
     uint64_t signalData = 0u;
@@ -386,7 +401,7 @@ static uint8_t CANRX_GetSeconds(uint64_t messageData, CAN_ENDIANNESS_e endiannes
 }
 
 static uint8_t CANRX_GetMinutes(uint64_t messageData, CAN_ENDIANNESS_e endianness) {
-    /* AXIVION Routine Generic-MissingParameterAssert: messageData: parameter accept whole range */
+    /* AXIVION Routine Generic-MissingParameterAssert: messageData: parameter accepts whole range */
     FAS_ASSERT(endianness == CAN_BIG_ENDIAN);
 
     uint64_t signalData = 0u;
@@ -403,7 +418,7 @@ static uint8_t CANRX_GetMinutes(uint64_t messageData, CAN_ENDIANNESS_e endiannes
 }
 
 static uint8_t CANRX_GetHours(uint64_t messageData, CAN_ENDIANNESS_e endianness) {
-    /* AXIVION Routine Generic-MissingParameterAssert: messageData: parameter accept whole range */
+    /* AXIVION Routine Generic-MissingParameterAssert: messageData: parameter accepts whole range */
     FAS_ASSERT(endianness == CAN_BIG_ENDIAN);
 
     uint64_t signalData = 0u;
@@ -416,7 +431,7 @@ static uint8_t CANRX_GetHours(uint64_t messageData, CAN_ENDIANNESS_e endianness)
 }
 
 static uint8_t CANRX_GetWeekday(uint64_t messageData, CAN_ENDIANNESS_e endianness) {
-    /* AXIVION Routine Generic-MissingParameterAssert: messageData: parameter accept whole range */
+    /* AXIVION Routine Generic-MissingParameterAssert: messageData: parameter accepts whole range */
     FAS_ASSERT(endianness == CAN_BIG_ENDIAN);
 
     uint64_t signalData = 0u;
@@ -433,7 +448,7 @@ static uint8_t CANRX_GetWeekday(uint64_t messageData, CAN_ENDIANNESS_e endiannes
 }
 
 static uint8_t CANRX_GetDay(uint64_t messageData, CAN_ENDIANNESS_e endianness) {
-    /* AXIVION Routine Generic-MissingParameterAssert: messageData: parameter accept whole range */
+    /* AXIVION Routine Generic-MissingParameterAssert: messageData: parameter accepts whole range */
     FAS_ASSERT(endianness == CAN_BIG_ENDIAN);
 
     uint64_t signalData = 0u;
@@ -446,7 +461,7 @@ static uint8_t CANRX_GetDay(uint64_t messageData, CAN_ENDIANNESS_e endianness) {
 }
 
 static uint8_t CANRX_GetMonth(uint64_t messageData, CAN_ENDIANNESS_e endianness) {
-    /* AXIVION Routine Generic-MissingParameterAssert: messageData: parameter accept whole range */
+    /* AXIVION Routine Generic-MissingParameterAssert: messageData: parameter accepts whole range */
     FAS_ASSERT(endianness == CAN_BIG_ENDIAN);
 
     /* Get month information form the message and return that value */
@@ -459,7 +474,7 @@ static uint8_t CANRX_GetMonth(uint64_t messageData, CAN_ENDIANNESS_e endianness)
 }
 
 static uint8_t CANRX_GetYear(uint64_t messageData, CAN_ENDIANNESS_e endianness) {
-    /* AXIVION Routine Generic-MissingParameterAssert: messageData: parameter accept whole range */
+    /* AXIVION Routine Generic-MissingParameterAssert: messageData: parameter accepts whole range */
     FAS_ASSERT(endianness == CAN_BIG_ENDIAN);
 
     /* Get year information form the message and return that value */
@@ -472,26 +487,26 @@ static uint8_t CANRX_GetYear(uint64_t messageData, CAN_ENDIANNESS_e endianness) 
 }
 
 static void CANRX_ProcessRtcMux(uint64_t messageData, CAN_ENDIANNESS_e endianness) {
-    /* AXIVION Routine Generic-MissingParameterAssert: messageData: parameter accept whole range */
+    /* AXIVION Routine Generic-MissingParameterAssert: messageData: parameter accepts whole range */
     FAS_ASSERT(endianness == CAN_BIG_ENDIAN);
 
-    RTC_TIME_DATA_s time = {0};
+    RTC_TIME_DATA_s timeData = {0};
 
-    time.hundredthOfSeconds = CANRX_GetHundredthOfSeconds(messageData, endianness);
-    time.seconds            = CANRX_GetSeconds(messageData, endianness);
-    time.minutes            = CANRX_GetMinutes(messageData, endianness);
-    time.hours              = CANRX_GetHours(messageData, endianness);
-    time.weekday            = CANRX_GetWeekday(messageData, endianness);
-    time.day                = CANRX_GetDay(messageData, endianness);
-    time.month              = CANRX_GetMonth(messageData, endianness);
-    time.year               = CANRX_GetYear(messageData, endianness);
-    if (OS_SendToBackOfQueue(ftsk_rtcSetTimeQueue, (void *)&time, 0u) == OS_SUCCESS) {
+    timeData.hundredthOfSeconds = CANRX_GetHundredthOfSeconds(messageData, endianness);
+    timeData.seconds            = CANRX_GetSeconds(messageData, endianness);
+    timeData.minutes            = CANRX_GetMinutes(messageData, endianness);
+    timeData.hours              = CANRX_GetHours(messageData, endianness);
+    timeData.weekday            = CANRX_GetWeekday(messageData, endianness);
+    timeData.day                = CANRX_GetDay(messageData, endianness);
+    timeData.month              = CANRX_GetMonth(messageData, endianness);
+    timeData.year               = CANRX_GetYear(messageData, endianness);
+    if (OS_SendToBackOfQueue(ftsk_rtcSetTimeQueue, (void *)&timeData, 0u) == OS_SUCCESS) {
         /* queue is not full */
     }
 }
 
 static bool CANRX_CheckIfBmsSoftwareVersionIsRequested(uint64_t messageData, CAN_ENDIANNESS_e endianness) {
-    /* AXIVION Routine Generic-MissingParameterAssert: messageData: parameter accept whole range */
+    /* AXIVION Routine Generic-MissingParameterAssert: messageData: parameter accepts whole range */
     FAS_ASSERT(endianness == CAN_BIG_ENDIAN);
 
     bool isRequested    = false;
@@ -518,7 +533,7 @@ static void CANRX_TriggerBmsSoftwareVersionMessage(void) {
 }
 
 static bool CANRX_CheckIfMcuUniqueDieIdIsRequested(uint64_t messageData, CAN_ENDIANNESS_e endianness) {
-    /* AXIVION Routine Generic-MissingParameterAssert: messageData: parameter accept whole range */
+    /* AXIVION Routine Generic-MissingParameterAssert: messageData: parameter accepts whole range */
     FAS_ASSERT(endianness == CAN_BIG_ENDIAN);
 
     bool isRequested    = false;
@@ -545,7 +560,7 @@ static void CANRX_TriggerMcuUniqueDieIdMessage(void) {
 }
 
 static bool CANRX_CheckIfMcuLotNumberIsRequested(uint64_t messageData, CAN_ENDIANNESS_e endianness) {
-    /* AXIVION Routine Generic-MissingParameterAssert: messageData: parameter accept whole range */
+    /* AXIVION Routine Generic-MissingParameterAssert: messageData: parameter accepts whole range */
     FAS_ASSERT(endianness == CAN_BIG_ENDIAN);
 
     bool isRequested    = false;
@@ -572,7 +587,7 @@ static void CANRX_TriggerMcuLotNumberMessage(void) {
 }
 
 static bool CANRX_CheckIfMcuWaferInformationIsRequested(uint64_t messageData, CAN_ENDIANNESS_e endianness) {
-    /* AXIVION Routine Generic-MissingParameterAssert: messageData: parameter accept whole range */
+    /* AXIVION Routine Generic-MissingParameterAssert: messageData: parameter accepts whole range */
     FAS_ASSERT(endianness == CAN_BIG_ENDIAN);
 
     bool isRequested    = false;
@@ -598,7 +613,7 @@ static void CANRX_TriggerCommitHashMessage(void) {
     }
 }
 static bool CANRX_CheckIfCommitHashIsRequested(uint64_t messageData, CAN_ENDIANNESS_e endianness) {
-    /* AXIVION Routine Generic-MissingParameterAssert: messageData: parameter accept whole range */
+    /* AXIVION Routine Generic-MissingParameterAssert: messageData: parameter accepts whole range */
     FAS_ASSERT(endianness == CAN_BIG_ENDIAN);
 
     bool isRequested    = false;
@@ -617,6 +632,32 @@ static bool CANRX_CheckIfCommitHashIsRequested(uint64_t messageData, CAN_ENDIANN
     return isRequested;
 }
 
+static void CANRX_TriggerBuildConfigurationMessage(void) {
+    /* send the debug message containing the MCU wafer information and trap if this does not work */
+    if (CANTX_DebugBuildConfiguration() != STD_OK) {
+        FAS_ASSERT(FAS_TRAP);
+    }
+}
+static bool CANRX_CheckIfBuildConfigurationIsRequested(uint64_t messageData, CAN_ENDIANNESS_e endianness) {
+    /* AXIVION Routine Generic-MissingParameterAssert: messageData: parameter accepts whole range */
+    FAS_ASSERT(endianness == CAN_BIG_ENDIAN);
+
+    bool isRequested    = false;
+    uint64_t signalData = 0u;
+
+    /* get MCU wafer information bit from the CAN message */
+    CAN_RxGetSignalDataFromMessageData(
+        messageData,
+        CANRX_MUX_VERSION_INFO_SIGNAL_GET_BUILD_CONFIGURATION_START_BIT,
+        CANRX_MUX_VERSION_INFO_SIGNAL_GET_BUILD_CONFIGURATION_LENGTH,
+        &signalData,
+        endianness);
+    if (signalData == 1u) {
+        isRequested = true;
+    }
+    return isRequested;
+}
+
 static void CANRX_TriggerMcuWaferInformationMessage(void) {
     /* send the debug message containing the MCU wafer information and trap if this does not work */
     if (CANTX_DebugResponse(CANTX_DEBUG_RESPONSE_TRANSMIT_MCU_WAFER_INFORMATION) != STD_OK) {
@@ -625,7 +666,7 @@ static void CANRX_TriggerMcuWaferInformationMessage(void) {
 }
 
 static void CANRX_ProcessVersionInformationMux(uint64_t messageData, CAN_ENDIANNESS_e endianness) {
-    /* AXIVION Routine Generic-MissingParameterAssert: messageData: parameter accept whole range */
+    /* AXIVION Routine Generic-MissingParameterAssert: messageData: parameter accepts whole range */
     FAS_ASSERT(endianness == CAN_BIG_ENDIAN);
 
     /* check if any of the version information is requested and if so transmit the information */
@@ -644,10 +685,13 @@ static void CANRX_ProcessVersionInformationMux(uint64_t messageData, CAN_ENDIANN
     if (CANRX_CheckIfCommitHashIsRequested(messageData, endianness) == true) {
         CANRX_TriggerCommitHashMessage();
     }
+    if (CANRX_CheckIfBuildConfigurationIsRequested(messageData, endianness) == true) {
+        CANRX_TriggerBuildConfigurationMessage();
+    }
 }
 
 static bool CANRX_CheckIfSoftwareResetIsRequested(uint64_t messageData, CAN_ENDIANNESS_e endianness) {
-    /* AXIVION Routine Generic-MissingParameterAssert: messageData: parameter accept whole range */
+    /* AXIVION Routine Generic-MissingParameterAssert: messageData: parameter accepts whole range */
     FAS_ASSERT(endianness == CAN_BIG_ENDIAN);
 
     bool isRequested    = false;
@@ -667,7 +711,7 @@ static bool CANRX_CheckIfSoftwareResetIsRequested(uint64_t messageData, CAN_ENDI
 }
 
 static bool CANRX_CheckIfFramInitializationIsRequested(uint64_t messageData, CAN_ENDIANNESS_e endianness) {
-    /* AXIVION Routine Generic-MissingParameterAssert: messageData: parameter accept whole range */
+    /* AXIVION Routine Generic-MissingParameterAssert: messageData: parameter accepts whole range */
     FAS_ASSERT(endianness == CAN_BIG_ENDIAN);
 
     bool isRequested    = false;
@@ -687,7 +731,7 @@ static bool CANRX_CheckIfFramInitializationIsRequested(uint64_t messageData, CAN
 }
 
 static void CANRX_ProcessSoftwareResetMux(uint64_t messageData, CAN_ENDIANNESS_e endianness) {
-    /* AXIVION Routine Generic-MissingParameterAssert: messageData: parameter accept whole range */
+    /* AXIVION Routine Generic-MissingParameterAssert: messageData: parameter accepts whole range */
     FAS_ASSERT(endianness == CAN_BIG_ENDIAN);
 
     /* trigger software reset, if requested*/
@@ -697,7 +741,7 @@ static void CANRX_ProcessSoftwareResetMux(uint64_t messageData, CAN_ENDIANNESS_e
 }
 
 static void CANRX_ProcessFramInitializationMux(uint64_t messageData, CAN_ENDIANNESS_e endianness) {
-    /* AXIVION Routine Generic-MissingParameterAssert: messageData: parameter accept whole range */
+    /* AXIVION Routine Generic-MissingParameterAssert: messageData: parameter accepts whole range */
     FAS_ASSERT(endianness == CAN_BIG_ENDIAN);
 
     /* trigger FRAM initialization, if requested*/
@@ -707,7 +751,7 @@ static void CANRX_ProcessFramInitializationMux(uint64_t messageData, CAN_ENDIANN
 }
 
 static void CANRX_ProcessTimeInfoMux(uint64_t messageData, CAN_ENDIANNESS_e endianness) {
-    /* AXIVION Routine Generic-MissingParameterAssert: messageData: parameter accept whole range */
+    /* AXIVION Routine Generic-MissingParameterAssert: messageData: parameter accepts whole range */
     FAS_ASSERT(endianness == CAN_BIG_ENDIAN);
 
     /* trigger RTC time information message, if requested*/
@@ -717,7 +761,7 @@ static void CANRX_ProcessTimeInfoMux(uint64_t messageData, CAN_ENDIANNESS_e endi
 }
 
 static bool CANRX_CheckIfTimeInfoIsRequested(uint64_t messageData, CAN_ENDIANNESS_e endianness) {
-    /* AXIVION Routine Generic-MissingParameterAssert: messageData: parameter accept whole range */
+    /* AXIVION Routine Generic-MissingParameterAssert: messageData: parameter accepts whole range */
     FAS_ASSERT(endianness == CAN_BIG_ENDIAN);
 
     bool isRequested    = false;
@@ -782,7 +826,7 @@ extern uint32_t CANRX_Debug(
             CANRX_ProcessTimeInfoMux(messageData, message.endianness);
             break;
         default:
-            CANTX_UnsupportedMultiplexerValue(message.id, (uint32_t)muxValue);
+            CANTX_DebugUnsupportedMultiplexerVal(message.id, (uint32_t)muxValue);
             break;
     }
     return 0u;
@@ -836,6 +880,9 @@ extern void TEST_CANRX_TriggerTimeInfoMessage(void) {
 extern void TEST_CANRX_TriggerCommitHashMessage(void) {
     CANRX_TriggerCommitHashMessage();
 }
+extern void TEST_CANRX_TriggerBuildConfigurationMessage(void) {
+    CANRX_TriggerBuildConfigurationMessage();
+}
 
 /* export check if functions */
 extern bool TEST_CANRX_CheckIfBmsSoftwareVersionIsRequested(uint64_t messageData, CAN_ENDIANNESS_e endianness) {
@@ -861,6 +908,9 @@ extern bool TEST_CANRX_CheckIfTimeInfoIsRequested(uint64_t messageData, CAN_ENDI
 }
 extern bool TEST_CANRX_CheckIfCommitHashIsRequested(uint64_t messageData, CAN_ENDIANNESS_e endianness) {
     return CANRX_CheckIfCommitHashIsRequested(messageData, endianness);
+}
+extern bool TEST_CANRX_CheckIfBuildConfigurationIsRequested(uint64_t messageData, CAN_ENDIANNESS_e endianness) {
+    return CANRX_CheckIfBuildConfigurationIsRequested(messageData, endianness);
 }
 
 /* export mux processing functions */

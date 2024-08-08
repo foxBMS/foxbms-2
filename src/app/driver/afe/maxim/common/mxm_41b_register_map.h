@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,13 +43,13 @@
  * @file    mxm_41b_register_map.h
  * @author  foxBMS Team
  * @date    2020-06-25 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup DRIVERS
  * @prefix  MXM
  *
  * @brief   Register map of the MAX17841 bridge IC
- *
+ * @details TODO
  */
 
 #ifndef FOXBMS__MXM_41B_REGISTER_MAP_H_
@@ -77,7 +77,8 @@ typedef uint8_t MXM_41B_BUF_CMD_t;
  */
 typedef uint8_t MXM_41B_REG_ADD_t;
 
-/* AXIVION Disable Style MisraC2012-2.5: For completeness, this section lists all register addresses even though the driver does not use them. */
+/* AXIVION Disable Style MisraC2012-2.5: For completeness, this section lists all register addresses even though the
+ * driver does not use them. */
 /**
  * @brief Reset transmit buffer to default state and clear TX_Q and LD_Q
  */

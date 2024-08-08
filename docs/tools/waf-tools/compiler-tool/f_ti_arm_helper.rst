@@ -6,15 +6,6 @@
 TI ARM CGT Helper Tools
 =======================
 
-..
-    Comments:
-    some waf specific words
-
-.. spelling::
-    config
-    testbuild
-    confcache
-
 The tool is located in ``tools/waf-tools``.
 
 Tool Documentation

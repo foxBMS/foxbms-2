@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 #
-# Copyright (c) 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -50,9 +49,11 @@ from waflib import TaskGen
 from waflib.TaskGen import taskgen_method
 from waflib.Configure import conf
 
-import f_ti_arm_helper  # pylint: disable=unused-import
-import f_ti_arm_tools  # pylint: disable=unused-import
-import f_ti_color_arm_cgt  # pylint: disable=unused-import
+# pylint: disable=unused-import
+import f_ti_arm_helper  # noqa: F401
+import f_ti_arm_tools  # noqa: F401
+import f_ti_color_arm_cgt  # noqa: F401
+# pylint: enable=unused-import
 
 
 def configure(configure_context):

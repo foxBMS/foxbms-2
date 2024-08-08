@@ -4,9 +4,7 @@ ID=T32
 TMP=@TMP@
 SYS=@SYS@
 
-; T32 API Access (TCP recommended by Lauterbach)
-RCL=NETTCP
-PORT=20000
+@TCP@
 
 ;SCREEN=
 ;MWI

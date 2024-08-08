@@ -1,23 +1,30 @@
-
+# =========================================================================
+#   Ceedling - Test-Centered Build System for C
+#   ThrowTheSwitch.org
+#   Copyright (c) 2010-24 Mike Karlesky, Mark VanderVoord, & Greg Williams
+#   SPDX-License-Identifier: MIT
+# =========================================================================
 
 rule(/#{PROJECT_TEST_BUILD_OUTPUT_PATH}\/#{'.+\\' + EXTENSION_OBJECT}$/ => [
     proc do |task_name|
       _, object = (task_name.split('+'))
-      @ceedling[:file_finder].find_compilation_input_file(object)
+      @ceedling[:file_finder].find_build_input_file(filepath: object, context: TEST_SYM)
     end
   ]) do |target|
     test, object = (target.name.split('+'))
 
-    if (File.basename(target.source) =~ /#{EXTENSION_SOURCE}$/)
-      @ceedling[:test_invoker].compile_test_component(test: test.to_sym, source: target.source, object: object)
-    elsif (defined?(TEST_BUILD_USE_ASSEMBLY) && TEST_BUILD_USE_ASSEMBLY)
-      @ceedling[:generator].generate_object_file(
-        TOOLS_TEST_ASSEMBLER,
-        OPERATION_ASSEMBLE_SYM,
-        TEST_SYM,
-        object.source,
-        object.name )
+    tool = TOOLS_TEST_COMPILER
+
+    if @ceedling[:file_wrapper].extname(target.source) == EXTENSION_ASSEMBLY
+      tool = TOOLS_TEST_ASSEMBLER
     end
+
+    @ceedling[:test_invoker].compile_test_component(
+      tool: tool,
+      test: test.to_sym,
+      source: target.source,
+      object: object
+    )
   end
 
 namespace TEST_SYM do
@@ -29,8 +36,6 @@ namespace TEST_SYM do
     :test_fixture   => TOOLS_TEST_FIXTURE
   }
 
-  @ceedling[:unity_utils].create_test_runner_additional_args
-
   # use rules to increase efficiency for large projects (instead of iterating through all sources and creating defined tasks)
   rule(/^#{TEST_TASK_ROOT}\S+$/ => [ # test task names by regex
       proc do |task_name|
@@ -39,7 +44,7 @@ namespace TEST_SYM do
         @ceedling[:file_finder].find_test_from_file_path(test)
       end
   ]) do |test|
-    @ceedling[:rake_wrapper][:test_deps].invoke
+    @ceedling[:rake_wrapper][:prepare].invoke
     @ceedling[:test_invoker].setup_and_invoke(tests:[test.source], options:{:force_run => true, :build_only => false}.merge(TOOL_COLLECTION_TEST_RULES))
   end
 end

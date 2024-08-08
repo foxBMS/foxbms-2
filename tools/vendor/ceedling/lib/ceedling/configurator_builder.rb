@@ -1,14 +1,19 @@
+# =========================================================================
+#   Ceedling - Test-Centered Build System for C
+#   ThrowTheSwitch.org
+#   Copyright (c) 2010-24 Mike Karlesky, Mark VanderVoord, & Greg Williams
+#   SPDX-License-Identifier: MIT
+# =========================================================================
+
 require 'rubygems'
-require 'rake'            # for ext() method
+require 'rake'                     # for ext() method
 require 'ceedling/file_path_utils' # for class methods
 require 'ceedling/defaults'
 require 'ceedling/constants'       # for Verbosity constants class & base file paths
 
-
-
 class ConfiguratorBuilder
 
-  constructor :file_system_utils, :file_wrapper, :system_wrapper
+  constructor :file_path_collection_utils, :file_wrapper, :system_wrapper
 
 
   def build_global_constant(elem, value)
@@ -24,6 +29,7 @@ class ConfiguratorBuilder
     # Create global constant
     Object.module_eval("#{formatted_key} = value")
   end
+
 
   def build_global_constants(config)
     config.each_pair do |key, value|
@@ -54,7 +60,7 @@ class ConfiguratorBuilder
 
     config.each_key do | parent |
 
-      # gracefully handle empty top-level entries
+      # Gracefully handle empty top-level entries
       next if (config[parent].nil?)
 
       case config[parent]
@@ -63,12 +69,14 @@ class ConfiguratorBuilder
           key = "#{parent.to_s.downcase}_#{hash.keys[0].to_s.downcase}".to_sym
           new_hash[key] = hash[hash.keys[0]]
         end
+
       when Hash
         config[parent].each_pair do | child, value |
           key = "#{parent.to_s.downcase}_#{child.to_s.downcase}".to_sym
           new_hash[key] = value
         end
-      # handle entries with no children, only values
+
+      # Handle entries with no children, only values
       else
         new_hash["#{parent.to_s.downcase}".to_sym] = config[parent]
       end
@@ -79,34 +87,26 @@ class ConfiguratorBuilder
   end
 
 
+  # If config lacks an entry that defaults posseses, add a config entry with the default value
   def populate_defaults(config, defaults)
     defaults.keys.sort.each do |section|
-      defaults[section].keys.sort.each do |entry|
-        config[section] = {} if config[section].nil?
-        config[section][entry] = defaults[section][entry].deep_clone if (config[section][entry].nil?)
+      case defaults[section]
+      when Hash
+        defaults[section].keys.sort.each do |entry|
+          config[section] = {} if config[section].nil?
+          config[section][entry] = defaults[section][entry].deep_clone if (config[section][entry].nil?)
+        end
+
+      when Array
+        config[section] = defaults[section] 
       end
     end
   end
 
 
   def cleanup(in_hash)
-    # ensure that include files inserted into test runners have file extensions & proper ones at that
+    # Ensure that include files inserted into test runners have file extensions & proper ones at that
     in_hash[:test_runner_includes].map!{|include| include.ext(in_hash[:extension_header])}
-  end
-
-
-  def set_exception_handling(in_hash)
-    # If project defines exception handling, do not change the setting.
-    # But, if the project omits exception handling setting...
-    if not in_hash[:project_use_exceptions]
-      # Automagically set it if cmock is configured for it
-      if in_hash[:cmock_plugins] && in_hash[:cmock_plugins].include?(:cexception)
-        in_hash[:project_use_exceptions] = true
-      # Otherwise, disable exceptions for the project
-      else
-        in_hash[:project_use_exceptions] = false
-      end  
-    end
   end
 
 
@@ -138,19 +138,17 @@ class ConfiguratorBuilder
       [:project_release_artifacts_path,         File.join(project_build_artifacts_root, RELEASE_BASE_PATH), in_hash[:project_release_build] ],
       [:project_release_build_cache_path,       File.join(project_build_release_root, 'cache'),             in_hash[:project_release_build] ],
       [:project_release_build_output_path,      File.join(project_build_release_root, 'out'),               in_hash[:project_release_build] ],
-      [:project_release_build_output_asm_path,  File.join(project_build_release_root, 'out', 'asm'),        in_hash[:project_release_build] ],
-      [:project_release_build_output_c_path,    File.join(project_build_release_root, 'out', 'c'),          in_hash[:project_release_build] ],
       [:project_release_dependencies_path,      File.join(project_build_release_root, 'dependencies'),      in_hash[:project_release_build] ],
 
-      [:project_log_path,   File.join(in_hash[:project_build_root], 'logs'), true ],
+      [:project_log_path,                       File.join(in_hash[:project_build_root], 'logs'), true ],
 
-      [:project_test_preprocess_includes_path,  File.join(project_build_tests_root, 'preprocess/includes'), in_hash[:project_use_test_preprocessor] ],
-      [:project_test_preprocess_files_path,     File.join(project_build_tests_root, 'preprocess/files'),    in_hash[:project_use_test_preprocessor] ],
+      [:project_test_preprocess_includes_path,  File.join(project_build_tests_root, 'preprocess/includes'), (in_hash[:project_use_test_preprocessor] != :none) ],
+      [:project_test_preprocess_files_path,     File.join(project_build_tests_root, 'preprocess/files'),    (in_hash[:project_use_test_preprocessor] != :none) ],
     ]
 
     out_hash[:project_build_paths] = []
 
-    # fetch already set mock path
+    # Fetch already set mock path
     out_hash[:project_build_paths] << in_hash[:cmock_mock_path] if (in_hash[:project_use_mocks])
 
     paths.each do |path|
@@ -158,9 +156,9 @@ class ConfiguratorBuilder
       build_path               = path[1]
       build_path_add_condition = path[2]
 
-      # insert path into build paths if associated with true condition
+      # Insert path into build paths if associated with true condition
       out_hash[:project_build_paths] << build_path if build_path_add_condition
-      # set path symbol name and path for each entry in paths array
+      # Set path symbol name and path for each entry in paths array
       out_hash[build_path_name] = build_path
     end
 
@@ -168,16 +166,18 @@ class ConfiguratorBuilder
   end
 
 
-  def set_rakefile_components(in_hash)
+  def set_rakefile_components(ceedling_lib_path, in_hash)
     out_hash = {
-      :project_rakefile_component_files =>
-        [File.join(CEEDLING_LIB, 'ceedling', 'tasks_base.rake'),
-         File.join(CEEDLING_LIB, 'ceedling', 'tasks_filesystem.rake'),
-         File.join(CEEDLING_LIB, 'ceedling', 'tasks_tests.rake'),
-         File.join(CEEDLING_LIB, 'ceedling', 'rules_tests.rake')]}
+      :project_rakefile_component_files => [
+         File.join( ceedling_lib_path, 'tasks_base.rake' ),
+         File.join( ceedling_lib_path, 'tasks_filesystem.rake' ),
+         File.join( ceedling_lib_path, 'tasks_tests.rake' ),
+         File.join( ceedling_lib_path, 'rules_tests.rake' )
+         ]
+      }
 
-    out_hash[:project_rakefile_component_files] << File.join(CEEDLING_LIB, 'ceedling', 'rules_release.rake') if (in_hash[:project_release_build])
-    out_hash[:project_rakefile_component_files] << File.join(CEEDLING_LIB, 'ceedling', 'tasks_release.rake') if (in_hash[:project_release_build])
+    out_hash[:project_rakefile_component_files] << File.join( ceedling_lib_path, 'rules_release.rake' ) if (in_hash[:project_release_build])
+    out_hash[:project_rakefile_component_files] << File.join( ceedling_lib_path, 'tasks_release.rake' ) if (in_hash[:project_release_build])
 
     return out_hash
   end
@@ -197,16 +197,65 @@ class ConfiguratorBuilder
   end
 
 
-  def collect_project_options(in_hash)
-    options = []
+  def set_build_thread_counts(in_hash)
+    require 'etc'
 
-    in_hash[:project_options_paths].each do |path|
-      options << @file_wrapper.directory_listing( File.join(path, '*.yml') )
+    auto_thread_count = (Etc.nprocessors + 4)
+
+    compile_threads = in_hash[:project_compile_threads]
+    test_threads = in_hash[:project_test_threads]
+
+    case compile_threads
+    when Integer
+      # Do nothing--value already validated
+    when Symbol
+      # If a symbol, it's already been validated as legal
+      compile_threads = auto_thread_count if compile_threads == :auto
+    end
+
+    case test_threads
+    when Integer
+      # Do nothing--value already validated
+    when Symbol
+      # If a symbol, it's already been validated as legal
+      test_threads = auto_thread_count if test_threads == :auto
     end
 
     return {
-      :collection_project_options => options.flatten
-      }
+      :project_compile_threads => compile_threads,
+      :project_test_threads => test_threads
+    }
+  end
+
+
+  def set_test_preprocessor_accessors(in_hash)
+    accessors = {}
+
+    # :project_use_test_preprocessor already validated
+    case in_hash[:project_use_test_preprocessor]
+    when :none
+      accessors = {
+        :project_use_test_preprocessor_tests => false,
+        :project_use_test_preprocessor_mocks => false
+      }    
+    when :all
+      accessors = {
+        :project_use_test_preprocessor_tests => true,
+        :project_use_test_preprocessor_mocks => true
+      }    
+    when :tests
+      accessors = {
+        :project_use_test_preprocessor_tests => true,
+        :project_use_test_preprocessor_mocks => false
+      }    
+    when :mocks
+      accessors = {
+        :project_use_test_preprocessor_tests => false,
+        :project_use_test_preprocessor_mocks => true
+      }    
+    end
+
+    return accessors
   end
 
 
@@ -219,9 +268,9 @@ class ConfiguratorBuilder
       path_keys << key
     end
 
-    # sorted to provide assured order of traversal in test calls on mocks
-    path_keys.sort.each do |key|
-      out_hash["collection_#{key}".to_sym] = @file_system_utils.collect_paths( in_hash[key] )
+    path_keys.each do |key|
+      _collection = "collection_#{key}".to_sym
+      out_hash[_collection] = @file_path_collection_utils.collect_paths( in_hash[key] )
     end
 
     return out_hash
@@ -232,7 +281,7 @@ class ConfiguratorBuilder
     return {
       :collection_paths_source_and_include =>
         ( in_hash[:collection_paths_source] +
-          in_hash[:collection_paths_include] ).select {|x| File.directory?(x)}
+          in_hash[:collection_paths_include] )
       }
   end
 
@@ -252,10 +301,10 @@ class ConfiguratorBuilder
   def collect_test_support_source_include_paths(in_hash)
     return {
       :collection_paths_test_support_source_include =>
-        (in_hash[:collection_paths_test] +
-        in_hash[:collection_paths_support] +
-        in_hash[:collection_paths_source] +
-        in_hash[:collection_paths_include] ).select {|x| File.directory?(x)}
+        ( in_hash[:collection_paths_test] +
+          in_hash[:collection_paths_support] +
+          in_hash[:collection_paths_source] +
+          in_hash[:collection_paths_include] )
       }
   end
 
@@ -281,9 +330,13 @@ class ConfiguratorBuilder
       all_tests.include( File.join(path, "#{in_hash[:project_test_file_prefix]}*#{in_hash[:extension_source]}") )
     end
 
-    @file_system_utils.revise_file_list( all_tests, in_hash[:files_test] )
+    # Force Rake::FileList to expand patterns to ensure it happens (FileList is a bit unreliable)
+    all_tests.resolve()
 
-    return {:collection_all_tests => all_tests}
+    return {
+      # Add / subtract files via :files ↳ :test
+      :collection_all_tests => @file_path_collection_utils.revise_filelist( all_tests, in_hash[:files_test] )
+    }
   end
 
 
@@ -302,25 +355,31 @@ class ConfiguratorBuilder
       all_assembly.include( File.join(path, "*#{in_hash[:extension_assembly]}") )
     end
 
-    # Also add files that we are explicitly adding via :files:assembly: section
-    @file_system_utils.revise_file_list( all_assembly, in_hash[:files_assembly] )
+    # Force Rake::FileList to expand patterns to ensure it happens (FileList is a bit unreliable)
+    all_assembly.resolve()
 
-    return {:collection_all_assembly => all_assembly}
+    return {
+      # Add / subtract files via :files ↳ :assembly
+      :collection_all_assembly => @file_path_collection_utils.revise_filelist( all_assembly, in_hash[:files_assembly] )
+    }
+
   end
 
 
   def collect_source(in_hash)
     all_source = @file_wrapper.instantiate_file_list
-    in_hash[:collection_paths_source].each do |path|
-      if File.exist?(path) and not File.directory?(path)
-        all_source.include( path )
-      else
-        all_source.include( File.join(path, "*#{in_hash[:extension_source]}") )
-      end
-    end
-    @file_system_utils.revise_file_list( all_source, in_hash[:files_source] )
 
-    return {:collection_all_source => all_source}
+    in_hash[:collection_paths_source].each do |path|
+      all_source.include( File.join(path, "*#{in_hash[:extension_source]}") )
+    end
+
+    # Force Rake::FileList to expand patterns to ensure it happens (FileList is a bit unreliable)
+    all_source.resolve()
+
+    return {
+      # Add / subtract files via :files ↳ :source
+      :collection_all_source => @file_path_collection_utils.revise_filelist( all_source, in_hash[:files_source] )
+    }
   end
 
 
@@ -336,69 +395,84 @@ class ConfiguratorBuilder
       all_headers.include( File.join(path, "*#{in_hash[:extension_header]}") )
     end
 
-    @file_system_utils.revise_file_list( all_headers, in_hash[:files_include] )
+    # Force Rake::FileList to expand patterns to ensure it happens (FileList is a bit unreliable)
+    all_headers.resolve()
 
-    return {:collection_all_headers => all_headers}
+    return {
+      # Add / subtract files via :files ↳ :include
+      :collection_all_headers => @file_path_collection_utils.revise_filelist( all_headers, in_hash[:files_include] )
+    }
   end
 
 
-  def collect_release_existing_compilation_input(in_hash)
+  def collect_release_build_input(in_hash)
     release_input = @file_wrapper.instantiate_file_list
 
-    paths =
-      in_hash[:collection_paths_source] +
-      in_hash[:collection_paths_include]
+    paths = []
+    paths << in_hash[:project_build_vendor_cexception_path] if (in_hash[:project_use_exceptions])
 
-    paths << File.join(in_hash[:cexception_vendor_path], CEXCEPTION_LIB_PATH) if (in_hash[:project_use_exceptions])
-
+    # Collect vendor framework code files
     paths.each do |path|
-      release_input.include( File.join(path, "*#{in_hash[:extension_header]}") )
-      if File.exist?(path) and not File.directory?(path)
-        release_input.include( path )
-      else
-        release_input.include( File.join(path, "*#{in_hash[:extension_source]}") )
-      end
+      release_input.include( File.join(path, '*' + EXTENSION_CORE_SOURCE) )
     end
 
-    @file_system_utils.revise_file_list( release_input, in_hash[:files_source] )
-    @file_system_utils.revise_file_list( release_input, in_hash[:files_include] )
-    # finding assembly files handled explicitly through other means
+    # Collect source files
+    in_hash[:collection_paths_source].each do |path|
+      release_input.include( File.join(path, "*#{in_hash[:extension_source]}") )
+      release_input.include( File.join(path, "*#{in_hash[:extension_assembly]}") ) if in_hash[:release_build_use_assembly]
+    end
 
-    return {:collection_release_existing_compilation_input => release_input}
+    # Add / subtract files via :files ↳ :source & :files ↳ :assembly
+    revisions =  in_hash[:files_source]
+    revisions += in_hash[:files_assembly] if in_hash[:release_build_use_assembly]
+
+    # Force Rake::FileList to expand patterns to ensure it happens (FileList is a bit unreliable)
+    release_input.resolve()
+
+    return {
+      :collection_release_build_input => @file_path_collection_utils.revise_filelist( release_input, revisions )
+    }
   end
 
 
-  def collect_all_existing_compilation_input(in_hash)
+  # Collect all test build code that exists in the configured paths (runners and mocks are handled at build time)
+  def collect_existing_test_build_input(in_hash)
     all_input = @file_wrapper.instantiate_file_list
 
-    paths =
-      in_hash[:collection_paths_test] +
-      in_hash[:collection_paths_support] +
-      in_hash[:collection_paths_source] +
-      in_hash[:collection_paths_include]
-
     # Vendor paths for frameworks
+    paths = []
     paths << in_hash[:project_build_vendor_unity_path]
     paths << in_hash[:project_build_vendor_cexception_path] if (in_hash[:project_use_exceptions])
     paths << in_hash[:project_build_vendor_cmock_path]      if (in_hash[:project_use_mocks])
 
+    # Collect vendor framework code files
     paths.each do |path|
-      all_input.include( File.join(path, "*#{in_hash[:extension_header]}") )
-      if File.exist?(path) and not File.directory?(path)
-        all_input.include( path )
-      else
-        all_input.include( File.join(path, "*#{in_hash[:extension_source]}") )
-        all_input.include( File.join(path, "*#{in_hash[:extension_assembly]}") ) if (defined?(TEST_BUILD_USE_ASSEMBLY) && TEST_BUILD_USE_ASSEMBLY)
-      end
+      all_input.include( File.join(path, '*' + EXTENSION_CORE_SOURCE) )
     end
 
-    @file_system_utils.revise_file_list( all_input, in_hash[:files_test] )
-    @file_system_utils.revise_file_list( all_input, in_hash[:files_support] )
-    @file_system_utils.revise_file_list( all_input, in_hash[:files_source] )
-    @file_system_utils.revise_file_list( all_input, in_hash[:files_include] )
-    # finding assembly files handled explicitly through other means
+    paths =
+      in_hash[:collection_paths_test] +
+      in_hash[:collection_paths_support] +
+      in_hash[:collection_paths_source]
 
-    return {:collection_all_existing_compilation_input => all_input}
+    # Collect code files
+    paths.each do |path|
+      all_input.include( File.join(path, "*#{in_hash[:extension_source]}") )
+      all_input.include( File.join(path, "*#{in_hash[:extension_assembly]}") ) if in_hash[:test_build_use_assembly]
+    end
+
+    # Add / subtract files via :files entries
+    revisions =  in_hash[:files_test]
+    revisions += in_hash[:files_support]
+    revisions += in_hash[:files_source]
+    revisions += in_hash[:files_assembly] if in_hash[:test_build_use_assembly]
+
+    # Force Rake::FileList to expand patterns to ensure it happens (FileList is a bit unreliable)
+    all_input.resolve()
+
+    return {
+      :collection_existing_test_build_input => @file_path_collection_utils.revise_filelist( all_input, revisions )
+    }
   end
 
 
@@ -416,20 +490,60 @@ class ConfiguratorBuilder
     sources = []
     support = @file_wrapper.instantiate_file_list()
 
-    @file_system_utils.revise_file_list( support, in_hash[:files_support] )
+    paths = in_hash[:collection_paths_support]
+
+    # Collect code files
+    paths.each do |path|
+      support.include( File.join(path, "*#{in_hash[:extension_source]}") )
+      support.include( File.join(path, "*#{in_hash[:extension_assembly]}") ) if in_hash[:test_build_use_assembly]
+    end
+
+    # Force Rake::FileList to expand patterns to ensure it happens (FileList is a bit unreliable)
+    support.resolve()
+
+    support = @file_path_collection_utils.revise_filelist( support, in_hash[:files_support] )
 
     support.each { |file| sources << file }
 
-    # create object files from all the sources
+    # Create object files from all the sources
     objects = sources.map { |file| File.basename(file) }
 
-    # no build paths here so plugins can remap if necessary (i.e. path mapping happens at runtime)
+    # No build paths here so plugins can remap if necessary (i.e. path mapping happens at runtime)
     objects.map! { |object| object.ext(in_hash[:extension_object]) }
 
-    return { :collection_all_support => sources,
-             :collection_test_fixture_extra_link_objects => objects
-           }
+    return { 
+      :collection_all_support => sources,
+      :collection_test_fixture_extra_link_objects => objects
+    }
   end
+
+
+  # .c files without path
+  def collect_vendor_framework_sources(in_hash)
+    sources = []
+    filelist = @file_wrapper.instantiate_file_list()
+
+    # Vendor paths for frameworks
+    paths = get_vendor_paths(in_hash)
+
+    # Collect vendor framework code files
+    paths.each do |path|
+      filelist.include( File.join(path, '*' + EXTENSION_CORE_SOURCE) )
+    end
+
+    # Force Rake::FileList to expand patterns to ensure it happens (FileList is a bit unreliable)
+    filelist.resolve()
+
+    # Extract just source file names
+    filelist.each do |filepath|
+      sources << File.basename(filepath)
+    end
+
+    return {:collection_vendor_framework_sources => sources}
+  end
+
+
+  ### Private ###
 
   private
 

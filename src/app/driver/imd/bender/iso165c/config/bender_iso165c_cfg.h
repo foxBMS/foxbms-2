@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,13 +43,12 @@
  * @file    bender_iso165c_cfg.h
  * @author  foxBMS Team
  * @date    2021-03-17 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  I165C
  *
  * @brief   Headers for the configuration for the insulation monitoring
- *
  * @details Please see the manual and data sheet for detailed information about
  *          the specifications and defines used within this file.
  *
@@ -67,6 +66,9 @@
 /* clang-format on */
 
 #include "can_cfg.h"
+
+#include "can_cfg_rx-message-definitions.h"
+#include "can_cfg_tx-async-message-definitions.h"
 
 #include <stdint.h>
 
@@ -112,7 +114,7 @@
 /** Maximum queue timeout time in milliseconds */
 #define I165C_QUEUE_TIMEOUT_ms ((TickType_t)0u)
 
-/** datsheet version: iso165C_D00154_03_M_XXEN/01.2019 */
+/** data sheet version: iso165C_D00154_03_M_XXEN/01.2019 */
 
 /**
  * frames have up to two data words
@@ -142,25 +144,21 @@
 /** type of messages to communicate with I165C */
 
 /** cyclic message, transmitted every second */
-#define I165C_MESSAGETYPE_IMD_INFO (CANRX_IMD_INFO_ID)
+#define I165C_MESSAGE_TYPE_IMD_INFO (CANRX_IMD_INFO_ID)
 /** message for requests (self test, reset, set values...) */
-#define I165C_MESSAGETYPE_IMD_REQUEST (CANTX_IMD_REQUEST_ID)
-/** answer message, always send by I165C when it received a request*/
-#define I165C_MESSAGETYPE_IMD_RESPONSE (CANRX_IMD_RESPONSE_ID)
-/** RX message identifier type */
-#define I165C_RX_MESSAGE_IDENTIFIER_TYPE (CANRX_IMD_ID_TYPE)
+#define I165C_MESSAGE_TYPE_IMD_REQUEST (CANTX_IMD_REQUEST_ID)
 /** TX message identifier type */
-#define I165C_TX_MESSAGE_IDENTIFIER_TYPE (CANTX_IMD_ID_TYPE)
+#define I165C_TX_MESSAGE_IDENTIFIER_TYPE (CANTX_IMD_REQUEST_ID_TYPE)
 
 /** control commands (CTL) */
 
 /** trigger self test */
-#define I165C_CMD_S_IMC_CTL_SELFTEST            (0x21u)
-#define I165C_D_IMC_SELFTEST_SCR_CTL_REQUEST    (I165C_DW1)
-#define I165C_D_IMC_SELFTEST_SCR_CTL_RESPONSE   (I165C_DW1)
-#define I165C_SELFTEST_SCENARIO_NO_ACTION       (0u)
-#define I165C_SELFTEST_SCENARIO_OVERALL         (1u)
-#define I165C_SELFTEST_SCENARIO_PARAMETERCONFIG (2u)
+#define I165C_CMD_S_IMC_CTL_SELFTEST             (0x21u)
+#define I165C_D_IMC_SELFTEST_SCR_CTL_REQUEST     (I165C_DW1)
+#define I165C_D_IMC_SELFTEST_SCR_CTL_RESPONSE    (I165C_DW1)
+#define I165C_SELFTEST_SCENARIO_NO_ACTION        (0u)
+#define I165C_SELFTEST_SCENARIO_OVERALL          (1u)
+#define I165C_SELFTEST_SCENARIO_PARAMETER_CONFIG (2u)
 /** reset I165C */
 #define I165C_CMD_S_VIFC_CTL_IMC_RESET (0xC8u)
 
@@ -169,18 +167,19 @@
 #define I165C_D_VIFC_LOCK_MODE_CTL_REQUEST  (I165C_DW1)
 #define I165C_D_VIFC_LOCK_MODE_CTL_RESPONSE (I165C_DW1)
 #define I165C_D_VIFC_LOCK_PWD_CTL_REQUEST   (I165C_DW2)
-#define I165C_LOCKMODE_UNLOCKED             (0u)
-#define I165C_LOCKMODE_LOCKED               (1u)
-#define I165C_LOCKMODE_UNKNOWN              (100u)
+#define I165C_LOCK_MODE_UNLOCKED            (0u)
+#define I165C_LOCK_MODE_LOCKED              (1u)
+#define I165C_LOCK_MODE_UNKNOWN             (100u)
 #define I165C_UNLOCK_PASSWORD               (0u)
 #define I165C_LOCK_PASSWORD                 (0xFFFFu)
 
 /** change measurement mode */
-#define I165C_CMD_S_VIFC_CTL_MEASUREMENT      (0xCBu)
-#define I165C_DW_VIFC_CTL_MEASUREMENT_REQUEST (I165C_DW1)
-#define I165C_DISABLE_MEASUREMENT             (0u)
-#define I165C_ENABLE_MEASUREMENT              (1u)
-#define I165C_MEASUREMENT_MODE_UNKNOWN        (100u)
+#define I165C_CMD_S_VIFC_CTL_MEASUREMENT       (0xCBu)
+#define I165C_D_VIFC_MEASURE_MODE_CTL_REQUEST  (I165C_DW1)
+#define I165C_D_VIFC_Measure_MODE_CTL_RESPONSE (I165C_DW1)
+#define I165C_DISABLE_MEASUREMENT              (0u)
+#define I165C_ENABLE_MEASUREMENT               (1u)
+#define I165C_MEASUREMENT_MODE_UNKNOWN         (100u)
 
 /**
  * set commands (SET)
@@ -195,9 +194,9 @@
 #define I165C_D_IMC_R_ISO_ERR_THR_SET_REQUEST  (I165C_DW1)
 #define I165C_D_IMC_R_ISO_ERR_THR_SET_RESPONSE (I165C_DW1)
 /** set warning threshold */
-#define I165C_CMD_S_IMC_SET_R_ISO_ERR_WRN      (0x29u)
-#define I165C_D_IMC_R_ISO_ERR_WRN_SET_REQUEST  (I165C_DW1)
-#define I165C_D_IMC_R_ISO_ERR_WRN_SET_RESPONSE (I165C_DW1)
+#define I165C_CMD_S_IMC_SET_R_ISO_WRN_THR      (0x29u)
+#define I165C_D_IMC_R_ISO_WRN_THR_SET_REQUEST  (I165C_DW1)
+#define I165C_D_IMC_R_ISO_WRN_THR_SET_RESPONSE (I165C_DW1)
 /** set the mean factor of the insulation resistance averaging algorithm */
 #define I165C_CMD_S_IMC_SET_MEAN_FACTOR      (0x2Bu)
 #define I165C_D_IMC_MEAN_FACTOR_SET_REQUEST  (I165C_DW1)
@@ -300,15 +299,15 @@
 #define I165C_D_IMC_MANUFACT_DATA_GET_RESPONSE  (I165C_DW2)
 
 /** get internal status of the D_VIFC_STATUS */
-#define I165C_CMD_S_VIFC_GET_STATUS                       (0xDCu)
-#define I165C_D_VIFC_STATUS_GET_RESPONSE                  (I165C_DW1)
-#define I165C_INSULATION_MEASUREMENT_STATUS_SHIFT         (0u)
-#define I165C_IMC_CONNECTIVITY_SHIFT                      (1u)
-#define I165C_IMC_ALIVE_STATUS_DETECTION_SHIFT            (2u)
-#define I165C_VIFC_COMMAND_SHIFT                          (4u)
-#define I165C_RESISTANCE_VALUE_OUTDATED_SHIFT             (8u)
-#define I165C_IMC_SELFTEST_OVERALL_SCENARIO_SHIFT         (12u)
-#define I165C_IMC_SELFTEST_PARAMETERCONFIG_SCENARIO_SHIFT (13u)
+#define I165C_CMD_S_VIFC_GET_STATUS                        (0xDCu)
+#define I165C_D_VIFC_STATUS_GET_RESPONSE                   (I165C_DW1)
+#define I165C_INSULATION_MEASUREMENT_STATUS_SHIFT          (0u)
+#define I165C_IMC_CONNECTIVITY_SHIFT                       (1u)
+#define I165C_IMC_ALIVE_STATUS_DETECTION_SHIFT             (2u)
+#define I165C_VIFC_COMMAND_SHIFT                           (4u)
+#define I165C_RESISTANCE_VALUE_OUTDATED_SHIFT              (8u)
+#define I165C_IMC_SELFTEST_OVERALL_SCENARIO_SHIFT          (12u)
+#define I165C_IMC_SELFTEST_PARAMETER_CONFIG_SCENARIO_SHIFT (13u)
 
 /** get state of the HV relays in the HV coupling network */
 #define I165C_CMD_S_VIFC_GET_HV_RELAIS            (0xDDu)
@@ -322,7 +321,7 @@
 
 /** get software version of the VIFC */
 #define I165C_CMD_S_VIFC_GET_VERSION            (0xDEu)
-#define I165C_D_IMC_VERSION_INDEX_GET_REQUEST   (I165C_DW1)
+#define I165C_D_VIFC_VERSION_INDEX_GET_REQUEST  (I165C_DW1)
 #define I165C_D_VIFC_VERSION_INDEX_GET_RESPONSE (I165C_DW1)
 #define I165C_D_VIFC_VERSION_GET_RESPONSE       (I165C_DW2)
 

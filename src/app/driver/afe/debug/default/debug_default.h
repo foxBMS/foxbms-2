@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,13 +43,13 @@
  * @file    debug_default.h
  * @author  foxBMS Team
  * @date    2020-09-17 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup DRIVERS
  * @prefix  FAKE
  *
  * @brief   Header for the driver of the fake AFE driver
- *
+ * @details TODO
  */
 
 #ifndef FOXBMS__DEBUG_DEFAULT_H_
@@ -81,7 +81,8 @@ typedef enum {
     FAKE_FSM_SUBSTATE_DUMMY,                                     /*!< dummy state - always the first substate */
     FAKE_FSM_SUBSTATE_ENTRY,                                     /*!< entry state - always the second substate */
     FAKE_FSM_SUBSTATE_INITIALIZATION_FINISH_FIRST_MEASUREMENT,   /*!< finish the first fake measurement */
-    FAKE_FSM_SUBSTATE_INITIALIZATION_FIRST_MEASUREMENT_FINISHED, /*!< cleanup substate after the first fake measurement */
+    FAKE_FSM_SUBSTATE_INITIALIZATION_FIRST_MEASUREMENT_FINISHED, /*!< cleanup substate after the first fake measurement
+                                                                  */
     FAKE_FSM_SUBSTATE_INITIALIZATION_EXIT,                       /*!< last initialization substate */
     FAKE_FSM_SUBSTATE_RUNNING_SAVE_VOLTAGE_MEASUREMENT_DATA,     /*!< state to continuously save the measurement data */
     FAKE_FSM_SUBSTATE_RUNNING_SAVE_TEMPERATURE_MEASUREMENT_DATA, /*!< state to continuously save the measurement data */

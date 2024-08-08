@@ -68,7 +68,7 @@ Convention for Wuerth WR-MJ connector
 Debug adapters
 --------------
 
-The |master| is connected to the debugger through a debug port.
+The |foxbms-bms-master| is connected to the debugger through a debug port.
 On the standard design, a Mictor 38 pin connector is used with the pin
 numbering described in :ref:`CONVENTION_FOR_MICTOR_CONNECTOR_PIN_NUMBERING`.
 
@@ -81,8 +81,8 @@ from Segger can be used.
 This is just an example, other manufacturers such as Lauterbach have similar
 adapters.
 
-On more compact, derived designs of the |master| a connector according to the
-compact TI 20 pin connector is used.
+On more compact, derived designs of the |foxbms-bms-master| a connector
+according to the compact TI 20 pin connector is used.
 On this connector, only JTAG connections are supported.
 This connector can be interfaced for example with part number
 `8.06.06 <https://www.segger.com/products/production/flasher/accessories/adapters/ti-cti-20-adapter/>`_

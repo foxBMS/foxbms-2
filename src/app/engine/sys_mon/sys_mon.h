@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,12 +43,13 @@
  * @file    sys_mon.h
  * @author  foxBMS Team
  * @date    2019-11-28 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup ENGINE
  * @prefix  SYSM
  *
- * @brief   system monitoring module
+ * @brief   System monitoring module
+ * @details TODO
  */
 
 #ifndef FOXBMS__SYS_MON_H_
@@ -59,6 +60,7 @@
 
 #include "fram.h"
 
+#include <stdbool.h>
 #include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
@@ -76,7 +78,7 @@ typedef struct {
     uint32_t duration;        /**< duration between last complete entry and exit cycle */
 } SYSM_NOTIFICATION_s;
 
-/** compact data fromat for reporting violation states */
+/** compact data format for reporting violation states */
 typedef struct {
     bool recordedViolationAny;       /*!< compound flag indicating if any violation occurred */
     bool recordedViolationEngine;    /*!< flag indicating if a engine violation is recorded */
@@ -95,7 +97,7 @@ typedef struct {
  *          monitoring related functionality
  * @return  #STD_OK if no configuration error detected, otherwise #STD_NOT_OK
  */
-extern STD_RETURN_TYPE_e SYSM_Init(void);
+extern STD_RETURN_TYPE_e SYSM_Initialize(void);
 
 /**
  * @brief   overall system monitoring
@@ -153,6 +155,9 @@ extern SYSM_NOTIFICATION_s *TEST_SYSM_GetNotifications(void);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 #ifdef UNITY_UNIT_TEST
+/* Helper functions */
+extern bool TEST_SYSM_GetStaticVariableFlagFramCopyHasChanges(void);
+extern bool TEST_SYSM_SetStaticVariableFlagFramCopyHasChanges(bool value);
 #endif
 
 #endif /* FOXBMS__SYS_MON_H_ */

@@ -9,16 +9,24 @@ C Coding Guidelines
 These coding guidelines **MUST** be applied to all ``C`` source and header
 files.
 
-The source files **MUST** be successfully checked by running the Waf command
-``check_guidelines`` before files can be merged into the master branch of the
-repository.
+The source files **MUST** be successfully checked by running the ``pre-commit``
+check before files can be merged into the master branch of the repository.
 
 Generally |foxbms| uses for the embedded code
-`1TBS <https://en.wikipedia.org/wiki/Indentation_style#Variant:_1TBS_(OTBS)>`_.
+`1TBS <https://en.wikipedia.org/wiki/Indentation_style#One_True_Brace>`_.
 This is checked by ``clang-format``.
-The ``clang-format`` configuration is found in ``./.clang-format``.
+The ``clang-format`` configuration is found in the root of the repository in
+``.clang-format``.
+Directories that should not be automatically formatted must include a
+``.clang-format`` file to disable automatic formatting:
+
+.. code-block:: yaml
+
+   DisableFormat: true
+   SortIncludes: false
+
 The ``C`` source and header files can be checked by running
-``waf check_guidelines``.
+``pre-commit``.
 Using VS Code files are automatically saved correctly (see
 :ref:`CREATING_A_WORKSPACE`) when ``clang-format`` is installed (see
 :ref:`software_prerequisites`) using :kbd:`Ctrl-S`.
@@ -171,7 +179,7 @@ where the include guard would be ``FOXBMS__C_005_H_``.
 
 .. literalinclude:: ./examples/c-005.h
    :language: C
-   :lines: 56,57,71
+   :lines: 55,56,70
    :linenos:
    :emphasize-lines: 1,2,3
    :caption: Include guard for ``c-005.h``
@@ -193,7 +201,7 @@ C Sections (``C:006``)
 
 .. literalinclude:: ./examples/c-006-source.h
    :language: C
-   :lines: 59-67
+   :lines: 58-66
    :linenos:
    :emphasize-lines: 1,3,5,7,9
    :caption: section markers for ``c-006-source.h``
@@ -203,9 +211,9 @@ C Sections (``C:006``)
 
 .. literalinclude:: ./examples/c-006-source.c
    :language: C
-   :lines: 59-70
+   :lines: 55-69
    :linenos:
-   :emphasize-lines: 1,3,5,7,9,11
+   :emphasize-lines: 1,3,5,7,9,11,13,15
    :caption: section markers for ``c-006-source.c``
    :name: c_section_source
 
@@ -214,9 +222,9 @@ C Sections (``C:006``)
 
 .. literalinclude:: ./examples/c-006-test.h
    :language: C
-   :lines: 59-61
+   :lines: 58-62
    :linenos:
-   :emphasize-lines: 1,3
+   :emphasize-lines: 1,3,5
    :caption: section markers for ``./test/c-006-test.h``
    :name: c_section_test_header
 
@@ -225,9 +233,9 @@ C Sections (``C:006``)
 
 .. literalinclude:: ./examples/c-006-test.c
    :language: C
-   :lines: 59-65
+   :lines: 58-66
    :linenos:
-   :emphasize-lines: 1,3,5,7
+   :emphasize-lines: 1,3,5,7,9
    :caption: section markers for ``./test/c-006-test.c``
    :name: c_section_test_source
 
@@ -288,28 +296,28 @@ includes **MUST** be added.
 
 .. literalinclude:: ./examples/c-007_abc_cfg.h
    :language: C
-   :lines: 60,61
+   :lines: 59,60
    :linenos:
    :caption: Include order for ``c-007_abc_cfg.h``
    :name: includes-c-007_abc_cfg-h
 
 .. literalinclude:: ./examples/c-007_abc_cfg.c
    :language: C
-   :lines: 57-60
+   :lines: 56-59
    :linenos:
    :caption: Include order for ``c-007_abc_cfg.c``
    :name: includes-c-007_abc_cfg-c
 
 .. literalinclude:: ./examples/c-007_abc.h
    :language: C
-   :lines: 60-63
+   :lines: 59-62
    :linenos:
    :caption: Include order for ``c-007_abc.h``
    :name: includes-c-007_abc-h
 
 .. literalinclude:: ./examples/c-007_abc.c
    :language: C
-   :lines: 57-64
+   :lines: 56-63
    :linenos:
    :caption: Include order for ``c-007_abc.c``
    :name: includes-c-007_abc-c
@@ -333,7 +341,7 @@ Scoping (``C:008``)
 
 .. literalinclude:: ./examples/c-008.c
    :language: C
-   :lines: 65,66,68,69,71-75,77-80,82-85
+   :lines: 63-80
    :linenos:
    :caption: Narrowest variable scope
    :name: narrowest-variable-scope
@@ -357,7 +365,7 @@ Function names (``C:009``)
 
 .. literalinclude:: ./examples/c-009.c
    :language: C
-   :lines: 65-67,69-73
+   :lines: 64-65,68-71
    :linenos:
    :caption: Function names using the uppercase module prefix.
    :name: function-names
@@ -412,14 +420,14 @@ in a header file ``c-011.h`` and source file ``c-011.c``.
 
 .. literalinclude:: ./examples/c-011.h
    :language: C
-   :lines: 67-75
+   :lines: 66-73
    :linenos:
    :caption: Global function declaration in ``c-011.h`` and its doxygen comment
    :name: function-prototype-and-doxygen
 
 .. literalinclude:: ./examples/c-011.c
    :language: C
-   :lines: 68-74, 82-86
+   :lines: 67-84
    :linenos:
    :caption: Static and global functions in ``c-011.c`` ant their doxygen
     comments
@@ -441,7 +449,7 @@ the return statement.
 
 .. literalinclude:: ./examples/c-012.c
    :language: C
-   :lines: 71-74,76-84
+   :lines: 70-73,75-82
    :linenos:
    :emphasize-lines: 3,7-11
    :caption: Correct usage of the ``return`` statement.
@@ -488,9 +496,9 @@ function names are given in :numref:`function-call`.
 
 .. literalinclude:: ./examples/c-013.c
    :language: C
-   :lines: 79-85,88-95,97-100,101-121
+   :lines: 78-83,87-93,96-98,100-120
    :linenos:
-   :emphasize-lines: 3-5,10-12,27-31,35-37
+   :emphasize-lines: 3-5,9-11,25-29,32-34
    :caption: Correct formatting of function calls.
    :name: function-call
 
@@ -545,7 +553,7 @@ Parameter checking is shown in :numref:`function-input-check`.
 
 .. literalinclude:: ./examples/c-015.c
    :language: C
-   :lines: 75-91
+   :lines: 74-89
    :linenos:
    :emphasize-lines: 2,3,4
    :caption: Input check of function parameters
@@ -578,7 +586,7 @@ Variable names (``C:016``)
 
 .. literalinclude:: ./examples/c-016.c
    :language: C
-   :lines: 63-65,67,68,70,71,73
+   :lines: 62-63,66,73,74,78
    :linenos:
    :caption: Different examples for correctly named variables and functions.
 
@@ -597,7 +605,7 @@ Constant names (``C:017``)
 
 .. literalinclude:: ./examples/c-017.c
    :language: C
-   :lines: 63
+   :lines: 62
    :linenos:
    :caption: Correct examples for naming constant variables.
 
@@ -631,7 +639,7 @@ Pointer rules (``C:018``)
 
 .. literalinclude:: ./examples/c-018.c
    :language: C
-   :lines: 61-66,68-70,72-75,80-86
+   :lines: 61-65,68-70,73,74,80-85
    :linenos:
    :caption: Correct usage of pointers.
 
@@ -680,7 +688,7 @@ Variable initialization (``C:019``)
 
 .. literalinclude:: ./examples/c-019.c
    :language: C
-   :lines: 61-74,78-108
+   :lines: 60-72,78-106
    :linenos:
    :caption: Initialization examples for variables and complex types
 
@@ -695,7 +703,7 @@ Hexadecimal values (``C:020``)
 
 .. literalinclude:: ./examples/c-020.c
    :language: C
-   :lines: 65,66
+   :lines: 64,65
    :linenos:
    :caption: Correct usage of hexadecimal digits.
 
@@ -730,7 +738,7 @@ Floating-point values (``C:021``)
 
 .. literalinclude:: ./examples/c-021.c
    :language: C
-   :lines: 63-67
+   :lines: 62-65
    :linenos:
    :caption: Usage of floating-point literals.
 
@@ -760,7 +768,7 @@ Example:
 
 .. literalinclude:: ./examples/c-022.c
    :language: C
-   :lines: 61-67
+   :lines: 60-65
    :linenos:
    :caption: Correct struct implementation.
 
@@ -791,7 +799,7 @@ Enums (``C:023``)
 
 .. literalinclude:: ./examples/c-023.c
    :language: C
-   :lines: 61-69
+   :lines: 60-67
    :linenos:
    :caption: Correct enum implementation.
 
@@ -808,7 +816,7 @@ Typedefs (``C:024``)
 
 .. literalinclude:: ./examples/c-024.c
    :language: C
-   :lines: 61-67,69,70,75-81,83-92
+   :lines: 59,91
    :linenos:
    :caption: Correct example for usage of typedefs.
 
@@ -830,7 +838,7 @@ Macros (``C:025``)
 
 .. literalinclude:: ./examples/c-025.c
    :language: C
-   :lines: 59-62
+   :lines: 58-61
    :linenos:
    :caption: Correct naming examples of macros.
 
@@ -853,7 +861,7 @@ Conditionals (``C:026``)
 
 .. literalinclude:: ./examples/c-026.c
    :language: C
-   :lines: 62-71,79-92
+   :lines: 61-69,78-90
    :linenos:
    :caption: Correct implementation of if-else statements.
 
@@ -879,7 +887,7 @@ switch Statements (``C:027``)
 
 .. literalinclude:: ./examples/c-027.c
    :language: C
-   :lines: 70-95
+   :lines: 69-93
    :linenos:
    :caption: Correct implementation of switch-case statement.
 
@@ -897,7 +905,7 @@ loop Statements (``C:028``)
 
 .. literalinclude:: ./examples/c-028.c
    :language: C
-   :lines: 71-82
+   :lines: 70-80
    :linenos:
    :caption: Correct usage of spaces and parentheses in loop statements.
 

@@ -1,3 +1,10 @@
+# =========================================================================
+#   Ceedling - Test-Centered Build System for C
+#   ThrowTheSwitch.org
+#   Copyright (c) 2010-24 Mike Karlesky, Mark VanderVoord, & Greg Williams
+#   SPDX-License-Identifier: MIT
+# =========================================================================
+
 require 'reportgenerator_reportinator'
 require 'gcovr_reportinator'
 
@@ -8,7 +15,7 @@ directory(GCOV_DEPENDENCIES_PATH)
 
 CLEAN.include(File.join(GCOV_BUILD_OUTPUT_PATH, '*'))
 CLEAN.include(File.join(GCOV_RESULTS_PATH, '*'))
-CLEAN.include(File.join(GCOV_ARTIFACTS_PATH, '*'))
+CLEAN.include(File.join(GCOV_ARTIFACTS_PATH, '**/*'))
 CLEAN.include(File.join(GCOV_DEPENDENCIES_PATH, '*'))
 
 CLOBBER.include(File.join(GCOV_BUILD_PATH, '**/*'))
@@ -16,7 +23,7 @@ CLOBBER.include(File.join(GCOV_BUILD_PATH, '**/*'))
 rule(/#{GCOV_BUILD_OUTPUT_PATH}\/#{'.+\\' + EXTENSION_OBJECT}$/ => [
     proc do |task_name|
       _, object = (task_name.split('+'))
-      @ceedling[:file_finder].find_compilation_input_file(object)
+      @ceedling[:file_finder].find_build_input_file(filepath: object, context: GCOV_SYM)
     end
   ]) do |target|
     test, object = (target.name.split('+'))
@@ -29,23 +36,21 @@ task directories: [GCOV_BUILD_OUTPUT_PATH, GCOV_RESULTS_PATH, GCOV_DEPENDENCIES_
 namespace GCOV_SYM do
 
   desc 'Run code coverage for all tests'
-  task all: [:test_deps] do
-    @ceedling[:configurator].replace_flattened_config(@ceedling[GCOV_SYM].config)
-    @ceedling[:test_invoker].setup_and_invoke(tests:COLLECTION_ALL_TESTS, context:GCOV_SYM, options:TOOL_COLLECTION_GCOV_TASKS)
-    @ceedling[:configurator].restore_config
+  task all: [:prepare] do
+    @ceedling[:test_invoker].setup_and_invoke( tests:COLLECTION_ALL_TESTS, context:GCOV_SYM, options:TOOL_COLLECTION_GCOV_TASKS )
   end
 
   desc 'Run single test w/ coverage ([*] test or source file name, no path).'
   task :* do
-    message = "\nOops! '#{GCOV_ROOT_NAME}:*' isn't a real task. " \
+    message = "Oops! '#{GCOV_ROOT_NAME}:*' isn't a real task. " \
               "Use a real test or source file name (no path) in place of the wildcard.\n" \
-              "Example: rake #{GCOV_ROOT_NAME}:foo.c\n\n"
+              "Example: `ceedling #{GCOV_ROOT_NAME}:foo.c`"
 
-    @ceedling[:streaminator].stdout_puts(message)
+    @ceedling[:loginator].log( message, Verbosity::ERRORS )
   end
 
   desc 'Run tests by matching regular expression pattern.'
-  task :pattern, [:regex] => [:test_deps] do |_t, args|
+  task :pattern, [:regex] => [:prepare] do |_t, args|
     matches = []
 
     COLLECTION_ALL_TESTS.each do |test|
@@ -53,16 +58,14 @@ namespace GCOV_SYM do
     end
 
     if !matches.empty?
-      @ceedling[:configurator].replace_flattened_config(@ceedling[GCOV_SYM].config)
-      @ceedling[:test_invoker].setup_and_invoke(tests:matches, context:GCOV_SYM, options:{ force_run: false }.merge(TOOL_COLLECTION_GCOV_TASKS))
-      @ceedling[:configurator].restore_config
+      @ceedling[:test_invoker].setup_and_invoke( tests:matches, context:GCOV_SYM, options:{ force_run: false }.merge(TOOL_COLLECTION_GCOV_TASKS) )
     else
-      @ceedling[:streaminator].stdout_puts("\nFound no tests matching pattern /#{args.regex}/.")
+      @ceedling[:loginator].log("\nFound no tests matching pattern /#{args.regex}/.")
     end
   end
 
   desc 'Run tests whose test path contains [dir] or [dir] substring.'
-  task :path, [:dir] => [:test_deps] do |_t, args|
+  task :path, [:dir] => [:prepare] do |_t, args|
     matches = []
 
     COLLECTION_ALL_TESTS.each do |test|
@@ -70,16 +73,13 @@ namespace GCOV_SYM do
     end
 
     if !matches.empty?
-      @ceedling[:configurator].replace_flattened_config(@ceedling[GCOV_SYM].config)
-      @ceedling[:test_invoker].setup_and_invoke(tests:matches, context:GCOV_SYM, options:{ force_run: false }.merge(TOOL_COLLECTION_GCOV_TASKS))
-      @ceedling[:configurator].restore_config
+      @ceedling[:test_invoker].setup_and_invoke( tests:matches, context:GCOV_SYM, options:{ force_run: false }.merge(TOOL_COLLECTION_GCOV_TASKS) )
     else
-      @ceedling[:streaminator].stdout_puts("\nFound no tests including the given path or path component.")
+      @ceedling[:loginator].log( 'Found no tests including the given path or path component', Verbosity::ERRORS )
     end
   end
 
-  # use a rule to increase efficiency for large projects
-  # gcov test tasks by regex
+  # Use a rule to increase efficiency for large projects -- gcov test tasks by regex
   rule(/^#{GCOV_TASK_ROOT}\S+$/ => [
          proc do |task_name|
            test = task_name.sub(/#{GCOV_TASK_ROOT}/, '')
@@ -87,21 +87,17 @@ namespace GCOV_SYM do
            @ceedling[:file_finder].find_test_from_file_path(test)
          end
        ]) do |test|
-    @ceedling[:rake_wrapper][:test_deps].invoke
-    @ceedling[:configurator].replace_flattened_config(@ceedling[GCOV_SYM].config)
-    @ceedling[:test_invoker].setup_and_invoke(tests:[test.source], context:GCOV_SYM, options:TOOL_COLLECTION_GCOV_TASKS)
-    @ceedling[:configurator].restore_config
+    @ceedling[:rake_wrapper][:prepare].invoke
+    @ceedling[:test_invoker].setup_and_invoke( tests:[test.source], context:GCOV_SYM, options:TOOL_COLLECTION_GCOV_TASKS )
   end
 end
 
-# If gcov config enables separate report generation task, create the task
-if @ceedling[GCOV_SYM].automatic_reporting_disabled?
+# If gcov config enables dedicated report generation task, create the task
+if not @ceedling[GCOV_SYM].automatic_reporting_enabled?
 namespace GCOV_REPORT_NAMESPACE_SYM do
   desc "Generate reports from coverage results (Note: a #{GCOV_SYM}: task must be executed first)"
   task GCOV_SYM do
-    @ceedling[:configurator].replace_flattened_config(@ceedling[GCOV_SYM].config)
     @ceedling[:gcov].generate_coverage_reports()
-    @ceedling[:configurator].restore_config
   end
 end
 end

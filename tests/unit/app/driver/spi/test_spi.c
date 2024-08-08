@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,8 +43,8 @@
  * @file    test_spi.c
  * @author  foxBMS Team
  * @date    2020-04-01 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -100,53 +100,6 @@ DMA_CHANNEL_CONFIG_s dma_spiDmaChannels[DMA_NUMBER_SPI_INTERFACES] = {
     {DMA_CH8, DMA_CH9}, /*!< SPI5 */
 };
 
-/** SPI data configuration struct for ADI communication */
-static spiDAT1_t spi_kAdiDataConfig[BS_NR_OF_STRINGS] = {
-    {                      /* struct is implemented in the TI HAL and uses uppercase true and false */
-     .CS_HOLD = TRUE,      /* If true, HW chip select kept active between words */
-     .WDEL    = FALSE,     /* Activation of delay between words */
-     .DFSEL   = SPI_FMT_0, /* Data word format selection */
-     /* Hardware chip select is configured automatically depending on configuration in #SPI_INTERFACE_CONFIG_s */
-     .CSNR = SPI_HARDWARE_CHIP_SELECT_DISABLE_ALL},
-};
-
-/** SPI data configuration struct for LTC communication */
-static spiDAT1_t spi_kLtcDataConfig[BS_NR_OF_STRINGS] = {
-    {                      /* struct is implemented in the TI HAL and uses uppercase true and false */
-     .CS_HOLD = TRUE,      /* If true, HW chip select kept active between words */
-     .WDEL    = FALSE,     /* Activation of delay between words */
-     .DFSEL   = SPI_FMT_0, /* Data word format selection */
-     /* Hardware chip select is configured automatically depending on configuration in #SPI_INTERFACE_CONFIG_s */
-     .CSNR = SPI_HARDWARE_CHIP_SELECT_DISABLE_ALL},
-};
-
-/** SPI data configuration struct for MXM communication */
-static spiDAT1_t spi_kMxmDataConfig = {
-    .CS_HOLD = TRUE,      /* If true, HW chip select kept active */
-    .WDEL    = TRUE,      /* Activation of delay between words */
-    .DFSEL   = SPI_FMT_1, /* Data word format selection */
-    /* Hardware chip select is configured automatically depending on configuration in #SPI_INTERFACE_CONFIG_s */
-    .CSNR = SPI_HARDWARE_CHIP_SELECT_DISABLE_ALL,
-};
-
-/** SPI data configuration struct for NXP MC33775A communication, Tx part */
-static spiDAT1_t spi_kNxp775DataConfigTx[BS_NR_OF_STRINGS] = {
-    {.CS_HOLD = TRUE,      /* If true, HW chip select kept active */
-     .WDEL    = TRUE,      /* Activation of delay between words */
-     .DFSEL   = SPI_FMT_2, /* Data word format selection */
-     /* Hardware chip select is configured automatically depending on configuration in #SPI_INTERFACE_CONFIG_s */
-     .CSNR = SPI_HARDWARE_CHIP_SELECT_DISABLE_ALL},
-};
-
-/** SPI data configuration struct for NXP MC33775A communication, Rx part */
-static spiDAT1_t spi_kNxp775DataConfigRx[BS_NR_OF_STRINGS] = {
-    {.CS_HOLD = TRUE,      /* If true, HW chip select kept active */
-     .WDEL    = TRUE,      /* Activation of delay between words */
-     .DFSEL   = SPI_FMT_2, /* Data word format selection */
-     /* Hardware chip select is configured automatically depending on configuration in #SPI_INTERFACE_CONFIG_s */
-     .CSNR = SPI_HARDWARE_CHIP_SELECT_DISABLE_ALL},
-};
-
 /** SPI data configuration struct for FRAM communication */
 static spiDAT1_t spi_kFramDataConfig = {
     /* struct is implemented in the TI HAL and uses uppercase true and false */
@@ -175,65 +128,6 @@ static spiDAT1_t spi_kSbcDataConfig = {
     .DFSEL   = SPI_FMT_0, /* Data word format selection */
     /* Hardware chip select is configured automatically depending on configuration in #SPI_INTERFACE_CONFIG_s */
     .CSNR = SPI_HARDWARE_CHIP_SELECT_DISABLE_ALL,
-};
-
-/**
- * SPI interface configuration for ADI communication
- * This is a list of structs because of multi string
- */
-SPI_INTERFACE_CONFIG_s spi_adiInterface[BS_NR_OF_STRINGS] = {
-    {
-        .pConfig  = &spi_kAdiDataConfig[0u],
-        .pNode    = spiREG1,
-        .pGioPort = &(spiREG1->PC3),
-        .csPin    = 1u,
-        .csType   = SPI_CHIP_SELECT_HARDWARE,
-    },
-};
-
-/**
- * SPI interface configuration for LTC communication
- * This is a list of structs because of multi string
- */
-SPI_INTERFACE_CONFIG_s spi_ltcInterface[BS_NR_OF_STRINGS] = {
-    {
-        .pConfig  = &spi_kLtcDataConfig[0u],
-        .pNode    = spiREG1,
-        .pGioPort = &(spiREG1->PC3),
-        .csPin    = 1u,
-        .csType   = SPI_CHIP_SELECT_HARDWARE,
-    },
-};
-
-/** SPI interface configuration for MXM communication */
-SPI_INTERFACE_CONFIG_s spi_mxmInterface = {
-    .pConfig  = &spi_kMxmDataConfig,
-    .pNode    = spiREG4,
-    .pGioPort = &(spiREG4->PC3),
-    .csPin    = 0u,
-    .csType   = SPI_CHIP_SELECT_HARDWARE,
-};
-
-/** SPI interface configuration for N775 communication Tx part */
-SPI_INTERFACE_CONFIG_s spi_nxp775InterfaceTx[BS_NR_OF_STRINGS] = {
-    {
-        .pConfig  = &spi_kNxp775DataConfigTx[0u],
-        .pNode    = spiREG1,
-        .pGioPort = &(spiREG1->PC3),
-        .csPin    = 1u,
-        .csType   = SPI_CHIP_SELECT_HARDWARE,
-    },
-};
-
-/** SPI interface configuration for N775 communication, Rx part */
-SPI_INTERFACE_CONFIG_s spi_nxp775InterfaceRx[BS_NR_OF_STRINGS] = {
-    {
-        .pConfig  = &spi_kNxp775DataConfigRx[0u],
-        .pNode    = spiREG4,
-        .pGioPort = &(spiREG4->PC3),
-        .csPin    = 0u,
-        .csType   = SPI_CHIP_SELECT_HARDWARE,
-    },
 };
 
 /** SPI interface configuration for FRAM communication */
@@ -304,20 +198,37 @@ void testSPI_InitializeChipSelects(void) {
 
     /* ======= Routine tests =============================================== */
     /* ======= RT1/1: Test implementation */
-    const uint8_t currentString = 0u;
 
     /* ======= RT1/1: call function under test */
     TEST_SPI_InitializeChipSelects();
 
     /* ======= RT1/1: test output verification */
-    TEST_ASSERT_EQUAL(SPI_HARDWARE_CHIP_SELECT_1_ACTIVE, spi_adiInterface[currentString].pConfig->CSNR);
-    TEST_ASSERT_EQUAL(SPI_HARDWARE_CHIP_SELECT_1_ACTIVE, spi_ltcInterface[currentString].pConfig->CSNR);
-    TEST_ASSERT_EQUAL(SPI_HARDWARE_CHIP_SELECT_1_ACTIVE, spi_nxp775InterfaceTx[currentString].pConfig->CSNR);
-    TEST_ASSERT_EQUAL(SPI_HARDWARE_CHIP_SELECT_0_ACTIVE, spi_nxp775InterfaceRx[currentString].pConfig->CSNR);
-    TEST_ASSERT_EQUAL(SPI_HARDWARE_CHIP_SELECT_0_ACTIVE, spi_mxmInterface.pConfig->CSNR);
     TEST_ASSERT_EQUAL(1u, spi_framInterface.pConfig->CSNR);
     TEST_ASSERT_EQUAL(1u, spi_spsInterface.pConfig->CSNR);
     TEST_ASSERT_EQUAL(SPI_HARDWARE_CHIP_SELECT_0_ACTIVE, spi_sbcMcuInterface.pConfig->CSNR);
+}
+
+/**
+ * @brief   Testing static function #SPI_InitializeChipSelectsAfe
+ * @details The following cases need to be tested:
+ *          - Argument validation:
+ *            - AT1/1: invalid string -> assert
+ *          - Routine validation:
+ *            - RT1/1: nothing to do, as this is a dummy functions for testing
+ */
+void testSPI_InitializeChipSelectsAfe(void) {
+    /* ======= Assertion tests ============================================= */
+    /* ======= AT1/1 ======= */
+    TEST_ASSERT_FAIL_ASSERT(TEST_SPI_InitializeChipSelectsAfe(BS_NR_OF_STRINGS));
+
+    /* ======= Routine tests =============================================== */
+    /* ======= RT1/1: Test implementation */
+    /* ======= RT1/1: call function under test */
+    for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
+        TEST_SPI_InitializeChipSelectsAfe(s);
+    }
+    /* ======= RT1/1: test output verification */
+    /* nothing to check */
 }
 
 /**

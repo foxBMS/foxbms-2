@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,16 +43,14 @@
  * @file    mxm_1785x.c
  * @author  foxBMS Team
  * @date    2019-01-15 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup DRIVERS
  * @prefix  MXM
  *
  * @brief   Driver for the MAX17841B ASCI and MAX1785x analog front-end
- *
  * @details This file contains the main-state-machine that drives the
  *          monitoring ICs of the MAX1785x family by Maxim Integrated.
- *
  */
 
 /*========== Includes =======================================================*/
@@ -168,7 +166,7 @@ static void MXM_ParseVoltageLineReadall(
  *              like #MXM_MONITORING_INSTANCE_s::localVoltages.
  * @param[in]   kpkVoltageRxBuffer      array-pointer to the RX buffer
  * @param[in]   voltageRxBufferLength   length of the RX buffer
- * @param[out]  datastorage             contains all measured voltages for local
+ * @param[out]  dataStorage             contains all measured voltages for local
  *                                      consumption in the module
  * @param[in]   conversionType          type of conversion that has been used for
  *                                      the measured data
@@ -176,15 +174,15 @@ static void MXM_ParseVoltageLineReadall(
  *              valid message or the conversion-type is unknown,
  *              otherwise #STD_OK
  */
-static STD_RETURN_TYPE_e MXM_ParseVoltageReadall(
+static STD_RETURN_TYPE_e MXM_ParseVoltageReadAll(
     const uint8_t *const kpkVoltageRxBuffer,
     uint16_t voltageRxBufferLength,
-    MXM_DATA_STORAGE_s *datastorage,
+    MXM_DATA_STORAGE_s *dataStorage,
     MXM_CONVERSION_TYPE_e conversionType);
 
 /**
- * @brief   Test the #MXM_ParseVoltageReadall()-function
- * @details Test the function #MXM_ParseVoltageReadall() by passing predefined
+ * @brief   Test the #MXM_ParseVoltageReadAll()-function
+ * @details Test the function #MXM_ParseVoltageReadAll() by passing predefined
  *          RX buffer to it and checking the outcome. This function writes to
  *          the variable #MXM_MONITORING_INSTANCE_s::localVoltages and nulls it
  *          completely after execution. It is intended as a self-check that can
@@ -192,7 +190,7 @@ static STD_RETURN_TYPE_e MXM_ParseVoltageReadall(
  * @return  #STD_OK if the self-check has been performed successfully,
  *          otherwise #STD_NOT_OK
  */
-static STD_RETURN_TYPE_e GEN_MUST_CHECK_RETURN MXM_ParseVoltageReadallTest(MXM_MONITORING_INSTANCE_s *pInstance);
+static STD_RETURN_TYPE_e GEN_MUST_CHECK_RETURN MXM_ParseVoltageReadAllTest(MXM_MONITORING_INSTANCE_s *pInstance);
 
 /*========== Static Function Implementations ================================*/
 
@@ -275,14 +273,14 @@ static void MXM_ParseVoltageLineReadall(
     }
 }
 
-static STD_RETURN_TYPE_e MXM_ParseVoltageReadall(
+static STD_RETURN_TYPE_e MXM_ParseVoltageReadAll(
     const uint8_t *const kpkVoltageRxBuffer,
     uint16_t voltageRxBufferLength,
-    MXM_DATA_STORAGE_s *datastorage,
+    MXM_DATA_STORAGE_s *dataStorage,
     MXM_CONVERSION_TYPE_e conversionType) {
     STD_RETURN_TYPE_e retval = STD_OK;
     FAS_ASSERT(kpkVoltageRxBuffer != NULL_PTR);
-    FAS_ASSERT(datastorage != NULL_PTR);
+    FAS_ASSERT(dataStorage != NULL_PTR);
     /* AXIVION Routine Generic-MissingParameterAssert: voltageRxBufferLength: parameter accepts whole range */
     /* AXIVION Routine Generic-MissingParameterAssert: conversionType: parameter accepts whole range */
 
@@ -306,7 +304,7 @@ static STD_RETURN_TYPE_e MXM_ParseVoltageReadall(
                     voltageRxBufferLength,
                     MXM_OFFSET_CELL_1,
                     conversionType,
-                    datastorage->cellVoltages_mV,
+                    dataStorage->cellVoltages_mV,
                     MXM_MEASURE_CELL_VOLTAGE,
                     MXM_REF_UNIPOLAR_CELL_mV);
                 break;
@@ -316,7 +314,7 @@ static STD_RETURN_TYPE_e MXM_ParseVoltageReadall(
                     voltageRxBufferLength,
                     MXM_OFFSET_CELL_2,
                     conversionType,
-                    datastorage->cellVoltages_mV,
+                    dataStorage->cellVoltages_mV,
                     MXM_MEASURE_CELL_VOLTAGE,
                     MXM_REF_UNIPOLAR_CELL_mV);
                 break;
@@ -326,7 +324,7 @@ static STD_RETURN_TYPE_e MXM_ParseVoltageReadall(
                     voltageRxBufferLength,
                     MXM_OFFSET_CELL_3,
                     conversionType,
-                    datastorage->cellVoltages_mV,
+                    dataStorage->cellVoltages_mV,
                     MXM_MEASURE_CELL_VOLTAGE,
                     MXM_REF_UNIPOLAR_CELL_mV);
                 break;
@@ -336,7 +334,7 @@ static STD_RETURN_TYPE_e MXM_ParseVoltageReadall(
                     voltageRxBufferLength,
                     MXM_OFFSET_CELL_4,
                     conversionType,
-                    datastorage->cellVoltages_mV,
+                    dataStorage->cellVoltages_mV,
                     MXM_MEASURE_CELL_VOLTAGE,
                     MXM_REF_UNIPOLAR_CELL_mV);
                 break;
@@ -346,7 +344,7 @@ static STD_RETURN_TYPE_e MXM_ParseVoltageReadall(
                     voltageRxBufferLength,
                     MXM_OFFSET_CELL_5,
                     conversionType,
-                    datastorage->cellVoltages_mV,
+                    dataStorage->cellVoltages_mV,
                     MXM_MEASURE_CELL_VOLTAGE,
                     MXM_REF_UNIPOLAR_CELL_mV);
                 break;
@@ -356,7 +354,7 @@ static STD_RETURN_TYPE_e MXM_ParseVoltageReadall(
                     voltageRxBufferLength,
                     MXM_OFFSET_CELL_6,
                     conversionType,
-                    datastorage->cellVoltages_mV,
+                    dataStorage->cellVoltages_mV,
                     MXM_MEASURE_CELL_VOLTAGE,
                     MXM_REF_UNIPOLAR_CELL_mV);
                 break;
@@ -366,7 +364,7 @@ static STD_RETURN_TYPE_e MXM_ParseVoltageReadall(
                     voltageRxBufferLength,
                     MXM_OFFSET_CELL_7,
                     conversionType,
-                    datastorage->cellVoltages_mV,
+                    dataStorage->cellVoltages_mV,
                     MXM_MEASURE_CELL_VOLTAGE,
                     MXM_REF_UNIPOLAR_CELL_mV);
                 break;
@@ -376,7 +374,7 @@ static STD_RETURN_TYPE_e MXM_ParseVoltageReadall(
                     voltageRxBufferLength,
                     MXM_OFFSET_CELL_8,
                     conversionType,
-                    datastorage->cellVoltages_mV,
+                    dataStorage->cellVoltages_mV,
                     MXM_MEASURE_CELL_VOLTAGE,
                     MXM_REF_UNIPOLAR_CELL_mV);
                 break;
@@ -386,7 +384,7 @@ static STD_RETURN_TYPE_e MXM_ParseVoltageReadall(
                     voltageRxBufferLength,
                     MXM_OFFSET_CELL_9,
                     conversionType,
-                    datastorage->cellVoltages_mV,
+                    dataStorage->cellVoltages_mV,
                     MXM_MEASURE_CELL_VOLTAGE,
                     MXM_REF_UNIPOLAR_CELL_mV);
                 break;
@@ -396,7 +394,7 @@ static STD_RETURN_TYPE_e MXM_ParseVoltageReadall(
                     voltageRxBufferLength,
                     MXM_OFFSET_CELL_10,
                     conversionType,
-                    datastorage->cellVoltages_mV,
+                    dataStorage->cellVoltages_mV,
                     MXM_MEASURE_CELL_VOLTAGE,
                     MXM_REF_UNIPOLAR_CELL_mV);
                 break;
@@ -406,7 +404,7 @@ static STD_RETURN_TYPE_e MXM_ParseVoltageReadall(
                     voltageRxBufferLength,
                     MXM_OFFSET_CELL_11,
                     conversionType,
-                    datastorage->cellVoltages_mV,
+                    dataStorage->cellVoltages_mV,
                     MXM_MEASURE_CELL_VOLTAGE,
                     MXM_REF_UNIPOLAR_CELL_mV);
                 break;
@@ -416,7 +414,7 @@ static STD_RETURN_TYPE_e MXM_ParseVoltageReadall(
                     voltageRxBufferLength,
                     MXM_OFFSET_CELL_12,
                     conversionType,
-                    datastorage->cellVoltages_mV,
+                    dataStorage->cellVoltages_mV,
                     MXM_MEASURE_CELL_VOLTAGE,
                     MXM_REF_UNIPOLAR_CELL_mV);
                 break;
@@ -426,7 +424,7 @@ static STD_RETURN_TYPE_e MXM_ParseVoltageReadall(
                     voltageRxBufferLength,
                     MXM_OFFSET_CELL_13,
                     conversionType,
-                    datastorage->cellVoltages_mV,
+                    dataStorage->cellVoltages_mV,
                     MXM_MEASURE_CELL_VOLTAGE,
                     MXM_REF_UNIPOLAR_CELL_mV);
                 break;
@@ -436,7 +434,7 @@ static STD_RETURN_TYPE_e MXM_ParseVoltageReadall(
                     voltageRxBufferLength,
                     MXM_OFFSET_CELL_14,
                     conversionType,
-                    datastorage->cellVoltages_mV,
+                    dataStorage->cellVoltages_mV,
                     MXM_MEASURE_CELL_VOLTAGE,
                     MXM_REF_UNIPOLAR_CELL_mV);
                 break;
@@ -446,7 +444,7 @@ static STD_RETURN_TYPE_e MXM_ParseVoltageReadall(
                     voltageRxBufferLength,
                     MXM_OFFSET_AUX0,
                     conversionType,
-                    datastorage->auxVoltages_mV,
+                    dataStorage->auxVoltages_mV,
                     MXM_MEASURE_TEMP,
                     MXM_REF_VAA_mV);
                 break;
@@ -456,7 +454,7 @@ static STD_RETURN_TYPE_e MXM_ParseVoltageReadall(
                     voltageRxBufferLength,
                     MXM_OFFSET_AUX2,
                     conversionType,
-                    datastorage->auxVoltages_mV,
+                    dataStorage->auxVoltages_mV,
                     MXM_MEASURE_TEMP,
                     MXM_REF_VAA_mV);
                 break;
@@ -466,7 +464,7 @@ static STD_RETURN_TYPE_e MXM_ParseVoltageReadall(
                     voltageRxBufferLength,
                     MXM_OFFSET_AUX3,
                     conversionType,
-                    datastorage->auxVoltages_mV,
+                    dataStorage->auxVoltages_mV,
                     MXM_MEASURE_TEMP,
                     MXM_REF_VAA_mV);
                 break;
@@ -476,7 +474,7 @@ static STD_RETURN_TYPE_e MXM_ParseVoltageReadall(
                     voltageRxBufferLength,
                     MXM_OFFSET_BLOCK,
                     conversionType,
-                    datastorage->blockVoltages,
+                    dataStorage->blockVoltages,
                     MXM_MEASURE_BLOCK_VOLTAGE,
                     65000u);
                 /* TODO scaling and variable size  (65000)*/
@@ -490,7 +488,7 @@ static STD_RETURN_TYPE_e MXM_ParseVoltageReadall(
     return retval;
 }
 
-static STD_RETURN_TYPE_e GEN_MUST_CHECK_RETURN MXM_ParseVoltageReadallTest(MXM_MONITORING_INSTANCE_s *pInstance) {
+static STD_RETURN_TYPE_e GEN_MUST_CHECK_RETURN MXM_ParseVoltageReadAllTest(MXM_MONITORING_INSTANCE_s *pInstance) {
     FAS_ASSERT(pInstance != NULL_PTR);
     STD_RETURN_TYPE_e retval = STD_OK;
 
@@ -504,8 +502,8 @@ static STD_RETURN_TYPE_e GEN_MUST_CHECK_RETURN MXM_ParseVoltageReadallTest(MXM_M
     }
 
     /* not a readall buffer */
-    testBuffer[0] = BATTERY_MANAGEMENT_HELLOALL;
-    if (MXM_ParseVoltageReadall(testBuffer, testBufferLength, &pInstance->localVoltages, MXM_CONVERSION_UNIPOLAR) !=
+    testBuffer[0] = BATTERY_MANAGEMENT_HELLO_ALL;
+    if (MXM_ParseVoltageReadAll(testBuffer, testBufferLength, &pInstance->localVoltages, MXM_CONVERSION_UNIPOLAR) !=
         STD_NOT_OK) {
         /* AXIVION Next Codeline Style FaultDetection-UnusedAssignments: return value collects all negative results. */
         retval = STD_NOT_OK;
@@ -514,7 +512,7 @@ static STD_RETURN_TYPE_e GEN_MUST_CHECK_RETURN MXM_ParseVoltageReadallTest(MXM_M
     /* not a cell voltage register */
     testBuffer[0] = BATTERY_MANAGEMENT_READALL;
     testBuffer[1] = (uint8_t)MXM_REG_VERSION;
-    if (MXM_ParseVoltageReadall(testBuffer, testBufferLength, &pInstance->localVoltages, MXM_CONVERSION_UNIPOLAR) !=
+    if (MXM_ParseVoltageReadAll(testBuffer, testBufferLength, &pInstance->localVoltages, MXM_CONVERSION_UNIPOLAR) !=
         STD_NOT_OK) {
         /* AXIVION Next Codeline Style FaultDetection-UnusedAssignments: return value collects all negative results. */
         retval = STD_NOT_OK;
@@ -523,8 +521,9 @@ static STD_RETURN_TYPE_e GEN_MUST_CHECK_RETURN MXM_ParseVoltageReadallTest(MXM_M
     /* bogus conversion type */
     testBuffer[0] = BATTERY_MANAGEMENT_READALL;
     testBuffer[1] = (uint8_t)MXM_REG_CELL1;
-    /* AXIVION Next Codeline Style MisraC2012Directive-4.1 MisraC2012-10.5: explicitly invalid value in order to provoke error response */
-    if (MXM_ParseVoltageReadall(testBuffer, testBufferLength, &pInstance->localVoltages, (MXM_CONVERSION_TYPE_e)42) !=
+    /* AXIVION Next Codeline Style MisraC2012Directive-4.1 MisraC2012-10.5: explicitly invalid value in order to provoke
+     * error response */
+    if (MXM_ParseVoltageReadAll(testBuffer, testBufferLength, &pInstance->localVoltages, (MXM_CONVERSION_TYPE_e)42) !=
         STD_NOT_OK) {
         /* AXIVION Next Codeline Style FaultDetection-UnusedAssignments: return value collects all negative results. */
         retval = STD_NOT_OK;
@@ -534,7 +533,7 @@ static STD_RETURN_TYPE_e GEN_MUST_CHECK_RETURN MXM_ParseVoltageReadallTest(MXM_M
     testBuffer[0]    = BATTERY_MANAGEMENT_READALL;
     testBuffer[1]    = (uint8_t)MXM_REG_CELL1;
     testBufferLength = 5;
-    if (MXM_ParseVoltageReadall(testBuffer, testBufferLength, &pInstance->localVoltages, MXM_CONVERSION_UNIPOLAR) !=
+    if (MXM_ParseVoltageReadAll(testBuffer, testBufferLength, &pInstance->localVoltages, MXM_CONVERSION_UNIPOLAR) !=
         STD_NOT_OK) {
         /* AXIVION Next Codeline Style FaultDetection-UnusedAssignments: return value collects all negative results. */
         retval = STD_NOT_OK;
@@ -552,7 +551,7 @@ static STD_RETURN_TYPE_e GEN_MUST_CHECK_RETURN MXM_ParseVoltageReadallTest(MXM_M
     testBuffer[8]    = 0x42u; /* DATACHECKBYTE, irrelevant for function, filled with dummy bytes */
     testBuffer[9]    = 0x44u; /* CRCBYTE, irrelevant for function, filled with dummy bytes */
     testBufferLength = 10u;
-    if (MXM_ParseVoltageReadall(testBuffer, testBufferLength, &pInstance->localVoltages, MXM_CONVERSION_UNIPOLAR) !=
+    if (MXM_ParseVoltageReadAll(testBuffer, testBufferLength, &pInstance->localVoltages, MXM_CONVERSION_UNIPOLAR) !=
         STD_OK) {
         /* AXIVION Next Codeline Style FaultDetection-UnusedAssignments: return value collects all negative results. */
         retval = STD_NOT_OK;
@@ -560,7 +559,8 @@ static STD_RETURN_TYPE_e GEN_MUST_CHECK_RETURN MXM_ParseVoltageReadallTest(MXM_M
         if ((pInstance->localVoltages.cellVoltages_mV[0] != MXM_REF_UNIPOLAR_CELL_mV) ||
             (pInstance->localVoltages.cellVoltages_mV[14] != 0u) ||
             (pInstance->localVoltages.cellVoltages_mV[28] != MXM_REF_UNIPOLAR_CELL_mV)) {
-            /* AXIVION Next Codeline Style FaultDetection-UnusedAssignments: return value collects all negative results. */
+            /* AXIVION Next Codeline Style FaultDetection-UnusedAssignments: return value collects all negative results.
+             */
             retval = STD_NOT_OK;
         }
     }
@@ -582,7 +582,7 @@ static STD_RETURN_TYPE_e GEN_MUST_CHECK_RETURN MXM_ParseVoltageReadallTest(MXM_M
     testBuffer[8]    = 0x42u; /* DATACHECKBYTE, irrelevant for function, filled with dummy bytes */
     testBuffer[9]    = 0x44u; /* CRCBYTE, irrelevant for function, filled with dummy bytes */
     testBufferLength = 10;
-    if (MXM_ParseVoltageReadall(testBuffer, testBufferLength, &pInstance->localVoltages, MXM_CONVERSION_UNIPOLAR) !=
+    if (MXM_ParseVoltageReadAll(testBuffer, testBufferLength, &pInstance->localVoltages, MXM_CONVERSION_UNIPOLAR) !=
         STD_OK) {
         /* AXIVION Next Codeline Style FaultDetection-UnusedAssignments: return value collects all negative results. */
         retval = STD_NOT_OK;
@@ -590,7 +590,8 @@ static STD_RETURN_TYPE_e GEN_MUST_CHECK_RETURN MXM_ParseVoltageReadallTest(MXM_M
         if ((pInstance->localVoltages.cellVoltages_mV[1] != MXM_REF_UNIPOLAR_CELL_mV) ||
             (pInstance->localVoltages.cellVoltages_mV[15] != 0u) ||
             (pInstance->localVoltages.cellVoltages_mV[29] != MXM_REF_UNIPOLAR_CELL_mV)) {
-            /* AXIVION Next Codeline Style FaultDetection-UnusedAssignments: return value collects all negative results. */
+            /* AXIVION Next Codeline Style FaultDetection-UnusedAssignments: return value collects all negative results.
+             */
             retval = STD_NOT_OK;
         }
     }
@@ -608,13 +609,14 @@ static STD_RETURN_TYPE_e GEN_MUST_CHECK_RETURN MXM_ParseVoltageReadallTest(MXM_M
     testBuffer[4]    = 0x42u; /* DATACHECKBYTE, irrelevant for function, filled with dummy bytes */
     testBuffer[5]    = 0x44u; /* CRCBYTE, irrelevant for function, filled with dummy bytes */
     testBufferLength = 6;
-    if (MXM_ParseVoltageReadall(testBuffer, testBufferLength, &pInstance->localVoltages, MXM_CONVERSION_UNIPOLAR) !=
+    if (MXM_ParseVoltageReadAll(testBuffer, testBufferLength, &pInstance->localVoltages, MXM_CONVERSION_UNIPOLAR) !=
         STD_OK) {
         /* AXIVION Next Codeline Style FaultDetection-UnusedAssignments: return value collects all negative results. */
         retval = STD_NOT_OK;
     } else {
         if (pInstance->localVoltages.cellVoltages_mV[2] != MXM_REF_UNIPOLAR_CELL_mV) {
-            /* AXIVION Next Codeline Style FaultDetection-UnusedAssignments: return value collects all negative results. */
+            /* AXIVION Next Codeline Style FaultDetection-UnusedAssignments: return value collects all negative results.
+             */
             retval = STD_NOT_OK;
         }
     }
@@ -632,13 +634,14 @@ static STD_RETURN_TYPE_e GEN_MUST_CHECK_RETURN MXM_ParseVoltageReadallTest(MXM_M
     testBuffer[4]    = 0x42u; /* DATACHECKBYTE, irrelevant for function, filled with dummy bytes */
     testBuffer[5]    = 0x44u; /* CRCBYTE, irrelevant for function, filled with dummy bytes */
     testBufferLength = 6;
-    if (MXM_ParseVoltageReadall(testBuffer, testBufferLength, &pInstance->localVoltages, MXM_CONVERSION_UNIPOLAR) !=
+    if (MXM_ParseVoltageReadAll(testBuffer, testBufferLength, &pInstance->localVoltages, MXM_CONVERSION_UNIPOLAR) !=
         STD_OK) {
         /* AXIVION Next Codeline Style FaultDetection-UnusedAssignments: return value collects all negative results. */
         retval = STD_NOT_OK;
     } else {
         if (pInstance->localVoltages.cellVoltages_mV[3] != MXM_REF_UNIPOLAR_CELL_mV) {
-            /* AXIVION Next Codeline Style FaultDetection-UnusedAssignments: return value collects all negative results. */
+            /* AXIVION Next Codeline Style FaultDetection-UnusedAssignments: return value collects all negative results.
+             */
             retval = STD_NOT_OK;
         }
     }
@@ -656,13 +659,14 @@ static STD_RETURN_TYPE_e GEN_MUST_CHECK_RETURN MXM_ParseVoltageReadallTest(MXM_M
     testBuffer[4]    = 0x42u; /* DATACHECKBYTE, irrelevant for function, filled with dummy bytes */
     testBuffer[5]    = 0x44u; /* CRCBYTE, irrelevant for function, filled with dummy bytes */
     testBufferLength = 6;
-    if (MXM_ParseVoltageReadall(testBuffer, testBufferLength, &pInstance->localVoltages, MXM_CONVERSION_UNIPOLAR) !=
+    if (MXM_ParseVoltageReadAll(testBuffer, testBufferLength, &pInstance->localVoltages, MXM_CONVERSION_UNIPOLAR) !=
         STD_OK) {
         /* AXIVION Next Codeline Style FaultDetection-UnusedAssignments: return value collects all negative results. */
         retval = STD_NOT_OK;
     } else {
         if (pInstance->localVoltages.cellVoltages_mV[4] != MXM_REF_UNIPOLAR_CELL_mV) {
-            /* AXIVION Next Codeline Style FaultDetection-UnusedAssignments: return value collects all negative results. */
+            /* AXIVION Next Codeline Style FaultDetection-UnusedAssignments: return value collects all negative results.
+             */
             retval = STD_NOT_OK;
         }
     }
@@ -680,13 +684,14 @@ static STD_RETURN_TYPE_e GEN_MUST_CHECK_RETURN MXM_ParseVoltageReadallTest(MXM_M
     testBuffer[4]    = 0x42u; /* DATACHECKBYTE, irrelevant for function, filled with dummy bytes */
     testBuffer[5]    = 0x44u; /* CRCBYTE, irrelevant for function, filled with dummy bytes */
     testBufferLength = 6;
-    if (MXM_ParseVoltageReadall(testBuffer, testBufferLength, &pInstance->localVoltages, MXM_CONVERSION_UNIPOLAR) !=
+    if (MXM_ParseVoltageReadAll(testBuffer, testBufferLength, &pInstance->localVoltages, MXM_CONVERSION_UNIPOLAR) !=
         STD_OK) {
         /* AXIVION Next Codeline Style FaultDetection-UnusedAssignments: return value collects all negative results. */
         retval = STD_NOT_OK;
     } else {
         if (pInstance->localVoltages.cellVoltages_mV[5] != MXM_REF_UNIPOLAR_CELL_mV) {
-            /* AXIVION Next Codeline Style FaultDetection-UnusedAssignments: return value collects all negative results. */
+            /* AXIVION Next Codeline Style FaultDetection-UnusedAssignments: return value collects all negative results.
+             */
             retval = STD_NOT_OK;
         }
     }
@@ -704,13 +709,14 @@ static STD_RETURN_TYPE_e GEN_MUST_CHECK_RETURN MXM_ParseVoltageReadallTest(MXM_M
     testBuffer[4]    = 0x42u; /* DATACHECKBYTE, irrelevant for function, filled with dummy bytes */
     testBuffer[5]    = 0x44u; /* CRCBYTE, irrelevant for function, filled with dummy bytes */
     testBufferLength = 6;
-    if (MXM_ParseVoltageReadall(testBuffer, testBufferLength, &pInstance->localVoltages, MXM_CONVERSION_UNIPOLAR) !=
+    if (MXM_ParseVoltageReadAll(testBuffer, testBufferLength, &pInstance->localVoltages, MXM_CONVERSION_UNIPOLAR) !=
         STD_OK) {
         /* AXIVION Next Codeline Style FaultDetection-UnusedAssignments: return value collects all negative results. */
         retval = STD_NOT_OK;
     } else {
         if (pInstance->localVoltages.cellVoltages_mV[6] != MXM_REF_UNIPOLAR_CELL_mV) {
-            /* AXIVION Next Codeline Style FaultDetection-UnusedAssignments: return value collects all negative results. */
+            /* AXIVION Next Codeline Style FaultDetection-UnusedAssignments: return value collects all negative results.
+             */
             retval = STD_NOT_OK;
         }
     }
@@ -728,13 +734,14 @@ static STD_RETURN_TYPE_e GEN_MUST_CHECK_RETURN MXM_ParseVoltageReadallTest(MXM_M
     testBuffer[4]    = 0x42u; /* DATACHECKBYTE, irrelevant for function, filled with dummy bytes */
     testBuffer[5]    = 0x44u; /* CRCBYTE, irrelevant for function, filled with dummy bytes */
     testBufferLength = 6;
-    if (MXM_ParseVoltageReadall(testBuffer, testBufferLength, &pInstance->localVoltages, MXM_CONVERSION_UNIPOLAR) !=
+    if (MXM_ParseVoltageReadAll(testBuffer, testBufferLength, &pInstance->localVoltages, MXM_CONVERSION_UNIPOLAR) !=
         STD_OK) {
         /* AXIVION Next Codeline Style FaultDetection-UnusedAssignments: return value collects all negative results. */
         retval = STD_NOT_OK;
     } else {
         if (pInstance->localVoltages.cellVoltages_mV[7] != MXM_REF_UNIPOLAR_CELL_mV) {
-            /* AXIVION Next Codeline Style FaultDetection-UnusedAssignments: return value collects all negative results. */
+            /* AXIVION Next Codeline Style FaultDetection-UnusedAssignments: return value collects all negative results.
+             */
             retval = STD_NOT_OK;
         }
     }
@@ -752,13 +759,14 @@ static STD_RETURN_TYPE_e GEN_MUST_CHECK_RETURN MXM_ParseVoltageReadallTest(MXM_M
     testBuffer[4]    = 0x42u; /* DATACHECKBYTE, irrelevant for function, filled with dummy bytes */
     testBuffer[5]    = 0x44u; /* CRCBYTE, irrelevant for function, filled with dummy bytes */
     testBufferLength = 6;
-    if (MXM_ParseVoltageReadall(testBuffer, testBufferLength, &pInstance->localVoltages, MXM_CONVERSION_UNIPOLAR) !=
+    if (MXM_ParseVoltageReadAll(testBuffer, testBufferLength, &pInstance->localVoltages, MXM_CONVERSION_UNIPOLAR) !=
         STD_OK) {
         /* AXIVION Next Codeline Style FaultDetection-UnusedAssignments: return value collects all negative results. */
         retval = STD_NOT_OK;
     } else {
         if (pInstance->localVoltages.cellVoltages_mV[8] != MXM_REF_UNIPOLAR_CELL_mV) {
-            /* AXIVION Next Codeline Style FaultDetection-UnusedAssignments: return value collects all negative results. */
+            /* AXIVION Next Codeline Style FaultDetection-UnusedAssignments: return value collects all negative results.
+             */
             retval = STD_NOT_OK;
         }
     }
@@ -776,13 +784,14 @@ static STD_RETURN_TYPE_e GEN_MUST_CHECK_RETURN MXM_ParseVoltageReadallTest(MXM_M
     testBuffer[4]    = 0x42u; /* DATACHECKBYTE, irrelevant for function, filled with dummy bytes */
     testBuffer[5]    = 0x44u; /* CRCBYTE, irrelevant for function, filled with dummy bytes */
     testBufferLength = 6;
-    if (MXM_ParseVoltageReadall(testBuffer, testBufferLength, &pInstance->localVoltages, MXM_CONVERSION_UNIPOLAR) !=
+    if (MXM_ParseVoltageReadAll(testBuffer, testBufferLength, &pInstance->localVoltages, MXM_CONVERSION_UNIPOLAR) !=
         STD_OK) {
         /* AXIVION Next Codeline Style FaultDetection-UnusedAssignments: return value collects all negative results. */
         retval = STD_NOT_OK;
     } else {
         if (pInstance->localVoltages.cellVoltages_mV[9] != MXM_REF_UNIPOLAR_CELL_mV) {
-            /* AXIVION Next Codeline Style FaultDetection-UnusedAssignments: return value collects all negative results. */
+            /* AXIVION Next Codeline Style FaultDetection-UnusedAssignments: return value collects all negative results.
+             */
             retval = STD_NOT_OK;
         }
     }
@@ -800,13 +809,14 @@ static STD_RETURN_TYPE_e GEN_MUST_CHECK_RETURN MXM_ParseVoltageReadallTest(MXM_M
     testBuffer[4]    = 0x42u; /* DATACHECKBYTE, irrelevant for function, filled with dummy bytes */
     testBuffer[5]    = 0x44u; /* CRCBYTE, irrelevant for function, filled with dummy bytes */
     testBufferLength = 6;
-    if (MXM_ParseVoltageReadall(testBuffer, testBufferLength, &pInstance->localVoltages, MXM_CONVERSION_UNIPOLAR) !=
+    if (MXM_ParseVoltageReadAll(testBuffer, testBufferLength, &pInstance->localVoltages, MXM_CONVERSION_UNIPOLAR) !=
         STD_OK) {
         /* AXIVION Next Codeline Style FaultDetection-UnusedAssignments: return value collects all negative results. */
         retval = STD_NOT_OK;
     } else {
         if (pInstance->localVoltages.cellVoltages_mV[10] != MXM_REF_UNIPOLAR_CELL_mV) {
-            /* AXIVION Next Codeline Style FaultDetection-UnusedAssignments: return value collects all negative results. */
+            /* AXIVION Next Codeline Style FaultDetection-UnusedAssignments: return value collects all negative results.
+             */
             retval = STD_NOT_OK;
         }
     }
@@ -824,13 +834,14 @@ static STD_RETURN_TYPE_e GEN_MUST_CHECK_RETURN MXM_ParseVoltageReadallTest(MXM_M
     testBuffer[4]    = 0x42u; /* DATACHECKBYTE, irrelevant for function, filled with dummy bytes */
     testBuffer[5]    = 0x44u; /* CRCBYTE, irrelevant for function, filled with dummy bytes */
     testBufferLength = 6;
-    if (MXM_ParseVoltageReadall(testBuffer, testBufferLength, &pInstance->localVoltages, MXM_CONVERSION_UNIPOLAR) !=
+    if (MXM_ParseVoltageReadAll(testBuffer, testBufferLength, &pInstance->localVoltages, MXM_CONVERSION_UNIPOLAR) !=
         STD_OK) {
         /* AXIVION Next Codeline Style FaultDetection-UnusedAssignments: return value collects all negative results. */
         retval = STD_NOT_OK;
     } else {
         if (pInstance->localVoltages.cellVoltages_mV[11] != MXM_REF_UNIPOLAR_CELL_mV) {
-            /* AXIVION Next Codeline Style FaultDetection-UnusedAssignments: return value collects all negative results. */
+            /* AXIVION Next Codeline Style FaultDetection-UnusedAssignments: return value collects all negative results.
+             */
             retval = STD_NOT_OK;
         }
     }
@@ -848,13 +859,14 @@ static STD_RETURN_TYPE_e GEN_MUST_CHECK_RETURN MXM_ParseVoltageReadallTest(MXM_M
     testBuffer[4]    = 0x42u; /* DATACHECKBYTE, irrelevant for function, filled with dummy bytes */
     testBuffer[5]    = 0x44u; /* CRCBYTE, irrelevant for function, filled with dummy bytes */
     testBufferLength = 6;
-    if (MXM_ParseVoltageReadall(testBuffer, testBufferLength, &pInstance->localVoltages, MXM_CONVERSION_UNIPOLAR) !=
+    if (MXM_ParseVoltageReadAll(testBuffer, testBufferLength, &pInstance->localVoltages, MXM_CONVERSION_UNIPOLAR) !=
         STD_OK) {
         /* AXIVION Next Codeline Style FaultDetection-UnusedAssignments: return value collects all negative results. */
         retval = STD_NOT_OK;
     } else {
         if (pInstance->localVoltages.cellVoltages_mV[12] != MXM_REF_UNIPOLAR_CELL_mV) {
-            /* AXIVION Next Codeline Style FaultDetection-UnusedAssignments: return value collects all negative results. */
+            /* AXIVION Next Codeline Style FaultDetection-UnusedAssignments: return value collects all negative results.
+             */
             retval = STD_NOT_OK;
         }
     }
@@ -872,7 +884,7 @@ static STD_RETURN_TYPE_e GEN_MUST_CHECK_RETURN MXM_ParseVoltageReadallTest(MXM_M
     testBuffer[4]    = 0x42u; /* DATACHECKBYTE, irrelevant for function, filled with dummy bytes */
     testBuffer[5]    = 0x44u; /* CRCBYTE, irrelevant for function, filled with dummy bytes */
     testBufferLength = 6;
-    if (MXM_ParseVoltageReadall(testBuffer, testBufferLength, &pInstance->localVoltages, MXM_CONVERSION_UNIPOLAR) !=
+    if (MXM_ParseVoltageReadAll(testBuffer, testBufferLength, &pInstance->localVoltages, MXM_CONVERSION_UNIPOLAR) !=
         STD_OK) {
         /* AXIVION Next Codeline Style FaultDetection-UnusedAssignments: return value collects all negative results. */
         retval = STD_NOT_OK;
@@ -1040,35 +1052,35 @@ extern STD_RETURN_TYPE_e MXM_ConstructBalancingBuffer(MXM_BALANCING_STATE_s *pBa
 
     /* Iterate over all the cells of the module 'moduleBalancingIndex' in a daisy-chain */
     if (pBalancingInstance->moduleBalancingIndex < MXM_MAXIMUM_NR_OF_MODULES) {
-        for (uint8_t c = 0; c < BS_NR_OF_CELL_BLOCKS_PER_MODULE; c++) {
+        for (uint8_t cb = 0u; cb < BS_NR_OF_CELL_BLOCKS_PER_MODULE; cb++) {
             /* Determine the position of the cell 'c' of module 'moduleBalancingIndex' in the DB */
             uint8_t stringNumber  = 0u;
             uint16_t moduleNumber = 0u;
             MXM_ConvertModuleToString(pBalancingInstance->moduleBalancingIndex, &stringNumber, &moduleNumber);
-            const uint16_t dBIndex = (moduleNumber * BS_NR_OF_CELL_BLOCKS_PER_MODULE) + c;
-            if (pBalancingInstance->pBalancingControl_table->balancingState[stringNumber][dBIndex] == 1u) {
+            if (pBalancingInstance->pBalancingControl_table->activateBalancing[stringNumber][moduleNumber][cb] ==
+                true) {
                 /* Cell 'c' of module '::moduleBalancingIndex' needs to be balanced.
                        Need to determine the balancing order --> even or odd cells?
                        If the balancing order has not been determined before, need to do it. */
                 if ((pBalancingInstance->evenCellsNeedBalancing == false) &&
                     (pBalancingInstance->oddCellsNeedBalancing == false)) {
-                    if (((c % 2u) != 0u) && (pBalancingInstance->evenCellsBalancingProcessed == false)) {
+                    if (((cb % 2u) != 0u) && (pBalancingInstance->evenCellsBalancingProcessed == false)) {
                         pBalancingInstance->evenCellsNeedBalancing = true;
-                    } else if (((c % 2u) == 0u) && (pBalancingInstance->oddCellsBalancingProcessed == false)) {
+                    } else if (((cb % 2u) == 0u) && (pBalancingInstance->oddCellsBalancingProcessed == false)) {
                         pBalancingInstance->oddCellsNeedBalancing = true;
                     } else {
                         /* nothing to do */
                     }
                 }
-                if ((pBalancingInstance->evenCellsNeedBalancing == true) && ((c % 2u) != 0u) &&
+                if ((pBalancingInstance->evenCellsNeedBalancing == true) && ((cb % 2u) != 0u) &&
                     /* If the even cells need to be balanced */
                     (pBalancingInstance->evenCellsBalancingProcessed == false)) {
-                    pBalancingInstance->cellsToBalance |= ((uint16_t)0x01u << c);
+                    pBalancingInstance->cellsToBalance |= ((uint16_t)0x01u << cb);
                 } else if (
                     /* If the odd cells need to be balanced */
-                    (pBalancingInstance->oddCellsNeedBalancing == true) && ((c % 2u) == 0u) &&
+                    (pBalancingInstance->oddCellsNeedBalancing == true) && ((cb % 2u) == 0u) &&
                     (pBalancingInstance->oddCellsBalancingProcessed == false)) {
-                    pBalancingInstance->cellsToBalance |= ((uint16_t)0x01u << c);
+                    pBalancingInstance->cellsToBalance |= ((uint16_t)0x01u << cb);
                 } else {
                     /* nothing to do */
                 }
@@ -1097,7 +1109,7 @@ extern STD_RETURN_TYPE_e MXM_ParseVoltagesIntoDB(const MXM_MONITORING_INSTANCE_s
         FAS_ASSERT(moduleNumber < BS_NR_OF_MODULES_PER_STRING);
         kpkInstance->pCellVoltages_table->moduleVoltage_mV[stringNumber][moduleNumber] =
             kpkInstance->localVoltages.blockVoltages[i_mod];
-        /* every iteration that we hit a string first (module 0), we reset the packvoltage counter */
+        /* every iteration that we hit a string first (module 0), we reset the packVoltage counter */
         if (moduleNumber == 0u) {
             kpkInstance->pCellVoltages_table->stringVoltage_mV[stringNumber] = 0;
         }
@@ -1120,8 +1132,7 @@ extern STD_RETURN_TYPE_e MXM_ParseVoltagesIntoDB(const MXM_MONITORING_INSTANCE_s
                 numberValidVoltageMeasurements[stringNumber]++;
             } else {
                 /* Invalidate cell voltage measurement */
-                kpkInstance->pCellVoltages_table->invalidCellVoltage[stringNumber][moduleNumber] |=
-                    ((uint64_t)1u << cb);
+                kpkInstance->pCellVoltages_table->invalidCellVoltage[stringNumber][moduleNumber][cb] = true;
             }
         }
     }
@@ -1150,8 +1161,8 @@ extern STD_RETURN_TYPE_e MXM_ParseVoltagesIntoDB(const MXM_MONITORING_INSTANCE_s
                 numberValidTemperatureMeasurements[stringNumber]++;
             } else {
                 /* Invalidate temperature measurement */
-                kpkInstance->pCellTemperatures_table->invalidCellTemperature[stringNumber][moduleNumber] |=
-                    ((uint16_t)1u << kpkInstance->muxCounter);
+                kpkInstance->pCellTemperatures_table
+                    ->invalidCellTemperature[stringNumber][moduleNumber][kpkInstance->muxCounter] = true;
             }
         }
     }
@@ -1202,11 +1213,12 @@ extern void MXM_InitializeStateStruct(
     pMonitoringInstance->batteryCmdBuffer.regAddress    = MXM_REG_VERSION;
     pMonitoringInstance->batteryCmdBuffer.lsb           = 0u;
     pMonitoringInstance->batteryCmdBuffer.msb           = 0u;
-    pMonitoringInstance->batteryCmdBuffer.blocksize     = 0u;
+    pMonitoringInstance->batteryCmdBuffer.blockSize     = 0u;
     pMonitoringInstance->batteryCmdBuffer.deviceAddress = 0u;
     pMonitoringInstance->batteryCmdBuffer.model         = MXM_GetModelIdOfDaisyChain();
     pMonitoringInstance->resultSelfCheck                = STD_NOT_OK;
-    /* for the "static" pre-init self-checks: do not reset if the result has passed; it will not change; FMEA can change */
+    /* for the "static" pre-init self-checks: do not reset if the result has passed; it will not change; FMEA can change
+     */
     pMonitoringInstance->selfCheck.fmeaStatusASCI = STD_NOT_OK;
 
     for (uint32_t i = 0u; i < (MXM_MAXIMUM_NR_OF_MODULES * MXM_MAXIMUM_NR_OF_CELLS_PER_MODULE); i++) {
@@ -1247,8 +1259,8 @@ extern STD_RETURN_TYPE_e MXM_PreInitSelfCheck(MXM_MONITORING_INSTANCE_s *pState)
     if (selfCheck->crc == STD_NOT_OK) {
         selfCheck->crc = MXM_CRC8SelfTest();
     }
-    if (selfCheck->conv == STD_NOT_OK) {
-        selfCheck->conv = MXM_ConvertTest();
+    if (selfCheck->conversion == STD_NOT_OK) {
+        selfCheck->conversion = MXM_ConvertTest();
     }
     if (selfCheck->firstSetBit == STD_NOT_OK) {
         selfCheck->firstSetBit = MXM_FirstSetBitTest();
@@ -1257,13 +1269,13 @@ extern STD_RETURN_TYPE_e MXM_PreInitSelfCheck(MXM_MONITORING_INSTANCE_s *pState)
         selfCheck->extractValueFromRegister = MXM_ExtractValueFromRegisterTest();
     }
     if (selfCheck->parseVoltageReadall == STD_NOT_OK) {
-        selfCheck->parseVoltageReadall = MXM_ParseVoltageReadallTest(pState);
+        selfCheck->parseVoltageReadall = MXM_ParseVoltageReadAllTest(pState);
     }
     if (selfCheck->addressSpaceChecker == STD_NOT_OK) {
         selfCheck->addressSpaceChecker = MXM_5XUserAccessibleAddressSpaceCheckerSelfCheck();
     }
 
-    if ((selfCheck->crc == STD_OK) && (selfCheck->addressSpaceChecker == STD_OK) && (selfCheck->conv == STD_OK) &&
+    if ((selfCheck->crc == STD_OK) && (selfCheck->addressSpaceChecker == STD_OK) && (selfCheck->conversion == STD_OK) &&
         (selfCheck->firstSetBit == STD_OK) && (selfCheck->extractValueFromRegister == STD_OK) &&
         (selfCheck->parseVoltageReadall == STD_OK)) {
         /* check has passed, return value already set */
@@ -1277,7 +1289,7 @@ extern STD_RETURN_TYPE_e MXM_PreInitSelfCheck(MXM_MONITORING_INSTANCE_s *pState)
 }
 
 extern MXM_MONITORING_STATE_e GEN_MUST_CHECK_RETURN
-    MXM_MonGetVoltages(MXM_MONITORING_INSTANCE_s *pState, MXM_REG_NAME_e regAddress) {
+MXM_MonGetVoltages(MXM_MONITORING_INSTANCE_s *pState, MXM_REG_NAME_e regAddress) {
     FAS_ASSERT(pState != NULL_PTR);
     MXM_MONITORING_STATE_e retval = MXM_MONITORING_STATE_PENDING;
     if (pState->requestStatus5x == MXM_5X_STATE_UNSENT) {
@@ -1292,11 +1304,11 @@ extern MXM_MONITORING_STATE_e GEN_MUST_CHECK_RETURN
         /* AXIVION Next Codeline Style FaultDetection-UnusedAssignments: default value is set as a safety measure */
         STD_RETURN_TYPE_e readallReturn = STD_NOT_OK;
         if (regAddress == MXM_REG_BLOCK) {
-            readallReturn = MXM_ParseVoltageReadall(
+            readallReturn = MXM_ParseVoltageReadAll(
                 pState->rxBuffer, temp_len, &pState->localVoltages, MXM_CONVERSION_BLOCK_VOLTAGE);
         } else {
             readallReturn =
-                MXM_ParseVoltageReadall(pState->rxBuffer, temp_len, &pState->localVoltages, MXM_CONVERSION_UNIPOLAR);
+                MXM_ParseVoltageReadAll(pState->rxBuffer, temp_len, &pState->localVoltages, MXM_CONVERSION_UNIPOLAR);
         }
         if (readallReturn == STD_NOT_OK) {
             MXM_ErrorHandlerReset(pState, false);
@@ -1386,7 +1398,8 @@ extern void MXM_StateMachine(MXM_MONITORING_INSTANCE_s *pInstance) {
                 pInstance->selfCheck.fmeaStatusASCI = STD_OK;
                 const STD_RETURN_TYPE_e resultNumberOfSatellitesGood =
                     MXM_5XGetNumberOfSatellitesGood(pInstance->pInstance5X);
-                /* report to diag module, Maxim driver reports always to string 0 (current implementation just has one interface) */
+                /* report to diag module, Maxim driver reports always to string 0 (current implementation just has one
+                 * interface) */
                 (void)DIAG_CheckEvent(resultNumberOfSatellitesGood, DIAG_ID_AFE_CONFIG, DIAG_STRING, 0u);
                 if ((pInstance->resultSelfCheck == STD_OK) && (pInstance->selfCheck.fmeaStatusASCI == STD_OK) &&
                     (resultNumberOfSatellitesGood == STD_OK)) {
@@ -1425,17 +1438,17 @@ extern void MXM_StateMachine(MXM_MONITORING_INSTANCE_s *pInstance) {
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
 #ifdef UNITY_UNIT_TEST
-extern STD_RETURN_TYPE_e TEST_MXM_ParseVoltageReadallTest(MXM_MONITORING_INSTANCE_s *pInstance) {
-    return MXM_ParseVoltageReadallTest(pInstance);
+extern STD_RETURN_TYPE_e TEST_MXM_ParseVoltageReadAllTest(MXM_MONITORING_INSTANCE_s *pInstance) {
+    return MXM_ParseVoltageReadAllTest(pInstance);
 }
 extern STD_RETURN_TYPE_e TEST_MXM_ParseVoltagesIntoDB(MXM_MONITORING_INSTANCE_s *pInstance) {
     return MXM_ParseVoltagesIntoDB(pInstance);
 }
-extern STD_RETURN_TYPE_e TEST_MXM_ParseVoltageReadall(
+extern STD_RETURN_TYPE_e TEST_MXM_ParseVoltageReadAll(
     uint8_t *voltRxBuffer,
     uint16_t voltRxBufferLength,
-    MXM_DATA_STORAGE_s *datastorage,
+    MXM_DATA_STORAGE_s *dataStorage,
     MXM_CONVERSION_TYPE_e conversionType) {
-    return MXM_ParseVoltageReadall(voltRxBuffer, voltRxBufferLength, datastorage, conversionType);
+    return MXM_ParseVoltageReadAll(voltRxBuffer, voltRxBufferLength, dataStorage, conversionType);
 }
 #endif

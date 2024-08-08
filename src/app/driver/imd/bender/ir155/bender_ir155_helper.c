@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,12 +43,13 @@
  * @file    bender_ir155_helper.c
  * @author  foxBMS Team
  * @date    2021-09-17 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup DRIVERS
  * @prefix  IR155
  *
  * @brief   Driver for the insulation monitoring
+ * @details TODO
  */
 
 /*========== Includes =======================================================*/
@@ -218,7 +219,7 @@ void IR155_Initialize(uint8_t triggerTime_ms) {
     ir155_state.ir155Initialized     = true;
 }
 
-void IR155_Deinitialize(void) {
+void IR155_Uninitialize(void) {
     /* Reset cycle time */
     ir155_state.periodTriggerTime_ms = 0u;
 

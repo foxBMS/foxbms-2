@@ -27,5 +27,5 @@ system or similar that would allow us to integrate input from GitHub Pull
 Requests, therefore GitHub Pull Requests are currently not accepted.
 
 We would be very pleased if you intend to contribute to this project. Please
-contact us first at info@foxbms.org in order to discuss your contribution and
+contact us first at <info@foxbms.org> in order to discuss your contribution and
 how it can be applied to the project.

@@ -1,3 +1,10 @@
+# =========================================================================
+#   Ceedling - Test-Centered Build System for C
+#   ThrowTheSwitch.org
+#   Copyright (c) 2010-24 Mike Karlesky, Mark VanderVoord, & Greg Williams
+#   SPDX-License-Identifier: MIT
+# =========================================================================
+
 require 'cmock'
 
 class GeneratorMocks
@@ -13,16 +20,19 @@ class GeneratorMocks
     config[:mock_path] = output_path
 
     # Verbosity management for logging messages
-    case @configurator.project_verbosity
-    when Verbosity::SILENT
-      config[:verbosity] = 0 # CMock is silent
-    when Verbosity::ERRORS
-    when Verbosity::COMPLAIN
-    when Verbosity::NORMAL
-    when Verbosity::OBNOXIOUS
-      config[:verbosity] = 1 # Errors and warnings only so we can customize generation message ourselves
-    else # DEBUG
-      config[:verbosity] = 3 # Max verbosity
+    verbosity = @configurator.project_verbosity
+
+    # Default to errors and warnings only so we can customize messages inside Ceedling
+    config[:verbosity] = 1
+
+    # Extreme ends of verbosity scale case handling
+    if    (verbosity == Verbosity::SILENT)
+      # CMock is silent
+      config[:verbosity] = 0
+      
+    elsif (verbosity == Verbosity::DEBUG)
+      # CMock max verbosity
+      config[:verbosity] = 3
     end
 
     return config

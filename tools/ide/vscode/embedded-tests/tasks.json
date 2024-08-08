@@ -1,0 +1,25 @@
+{
+  "tasks": [
+    {
+      "label": "Unit Test: Build active file",
+      "detail": "Task to build the test binary.",
+      "type": "cppbuild",
+      "group": {
+        "isDefault": true,
+        "kind": "build"
+      },
+      "command": "fox-wrapper-place-holder",
+      "args": [
+        "ceedling",
+        "test:${fileBasename}"
+      ],
+      "problemMatcher": [
+        "$gcc"
+      ],
+      "options": {
+        "cwd": "place-holder"
+      }
+    }
+  ],
+  "version": "2.0.0"
+}

@@ -1,0 +1,30 @@
+Minor release of foxBMS 2 (v1.7.0)
+
+The installation process and the overall tooling has been simplified.
+foxBMS 2 now ships with a new 'venv' environment named '2024-08-pale-fox'.
+See INSTALLATION.md for information on updating the toolchain.
+
+**The CAN message IDs and some internal definitions have been changed.**
+
+* The defintion and layout of the CAN messages has been improved and required
+  some changes.
+  This is a incompatible change, i.e., control software needs to be adapted in
+  order to correctly communicate with the BMS.
+  See the changelog and documentation for details.
+* Fixed several bugs in NXP MC33775A driver:
+  - which was caused by a wrong stop condition when iterating over cell
+    voltages in function 'N775_InitializeDatabase'.
+  - which caused an out-of-bounce access when reading out the unique device ID
+    in function 'N775_Enumerate'.
+  - which caused the daisy-chain to be not initialized correctly in some cases.
+    No measurement data could be read from the daisy-chain in these cases.
+* Unit tests of the ADI ADES1830 AFE driver have been improved.
+* Toolchain updates (see INSTALLATION.md on how to update):
+  - The Python dependencies have been updated.
+  - Ceedling has been updated to 1.0.0-ba45d2c.
+  - The Ruby Gems required for ceedling have been updated.
+  - The VS Code workspaces have been improved for a better developed
+    experience.
+
+For a detailed list of changes, please refer to the documentation at
+https://iisb-foxbms.iisb.fraunhofer.de/foxbms/gen2/docs/html/v1.7.0/general/changelog.html.

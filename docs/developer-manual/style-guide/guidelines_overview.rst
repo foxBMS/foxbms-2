@@ -40,11 +40,4 @@ Batch and Shell-Rules
 
 .. csv-table::
    :delim: ;
-   :file: ./guidelines_overview_sh.csv
-
-YAML-Rules
-----------
-
-.. csv-table::
-   :delim: ;
-   :file: ./guidelines_overview_yaml.csv
+   :file: ./guidelines_overview_shell_scripts.csv

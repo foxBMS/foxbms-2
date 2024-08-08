@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,16 +43,14 @@
  * @file    can_cfg.h
  * @author  foxBMS Team
  * @date    2019-12-04 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup DRIVERS
  * @prefix  CAN
  *
  * @brief   Headers for the configuration for the CAN module
- *
  * @details The activation and the length of the message buffers as well as the
  *          number of the messages that are received are to be configured here.
- *
  */
 
 #ifndef FOXBMS__CAN_CFG_H_
@@ -80,19 +78,21 @@ typedef struct {
 #define CAN_NODE_1 ((CAN_NODE_s *)&can_node1)
 #define CAN_NODE_2 ((CAN_NODE_s *)&can_node2Isolated)
 
-#define CAN_NODE_DEBUG_MESSAGE  (CAN_NODE_1)
-#define CAN_NODE_IMD            (CAN_NODE_1)
-#define CAN_NODE_CURRENT_SENSOR (CAN_NODE_1)
+#define CAN_NODE_DEBUG_MESSAGE        (CAN_NODE_1)
+#define CAN_NODE_IMD                  (CAN_NODE_1)
+#define CAN_NODE_CURRENT_SENSOR       (CAN_NODE_1)
+#define CAN_NODE_RX_CELL_VOLTAGES     (CAN_NODE_1)
+#define CAN_NODE_RX_CELL_TEMPERATURES (CAN_NODE_1)
 /**@}*/
 
 /**
  * Configuration of CAN transceiver pins to the respective port expander pins.
  * @{
  */
-#define CAN1_ENABLE_PIN  (PEX_PIN00)
-#define CAN1_STANDBY_PIN (PEX_PIN01)
-#define CAN2_ENABLE_PIN  (PEX_PIN02)
-#define CAN2_STANDBY_PIN (PEX_PIN03)
+#define CAN1_ENABLE_PIN  (PEX_PORT_0_PIN_0)
+#define CAN1_STANDBY_PIN (PEX_PORT_0_PIN_1)
+#define CAN2_ENABLE_PIN  (PEX_PORT_0_PIN_2)
+#define CAN2_STANDBY_PIN (PEX_PORT_0_PIN_3)
 /**@}*/
 
 /** Maximum ID if 11 bits are used */
@@ -104,6 +104,14 @@ typedef struct {
 /** Default DLC for messages that are defined by the foxBMS project, i.e., not
  * defined by third party software and/or hardware. */
 #define CAN_FOXBMS_MESSAGES_DEFAULT_DLC (8u)
+/** One bit length for configuration of can message layout */
+#define CAN_BIT (1u)
+/** The number of cell voltages received per can message */
+#define CAN_NUM_OF_VOLTAGES_IN_CAN_CELL_VOLTAGES_MSG (4u)
+/** The number of cell temperatures received per can message */
+#define CAN_NUM_OF_TEMPERATURES_IN_CAN_CELL_TEMPERATURES_MSG (6u)
+/** An offset of zero for can signal preparation */
+#define CAN_SIGNAL_OFFSET_0 (0.0f)
 
 /* **************************************************************************************
  *  CAN BUFFER OPTIONS
@@ -172,6 +180,20 @@ typedef struct {
     CAN_IDENTIFIER_TYPE_e idType; /*!< Standard or Extended identifier */
     uint8_t data[CAN_MAX_DLC];    /*!< payload of the CAN message */
 } CAN_BUFFER_ELEMENT_s;
+
+/** data unit to be transferred in ftsk_canToAfeCellTemperaturesQueue */
+typedef struct {
+    uint8_t muxValue;
+    bool invalidFlag[CAN_NUM_OF_TEMPERATURES_IN_CAN_CELL_TEMPERATURES_MSG];
+    int16_t cellTemperature[CAN_NUM_OF_TEMPERATURES_IN_CAN_CELL_TEMPERATURES_MSG];
+} CAN_CAN2AFE_CELL_TEMPERATURES_QUEUE_s;
+
+/** data unit to be transferred in ftsk_canToAfeCellVoltagesQueue */
+typedef struct {
+    uint8_t muxValue;
+    bool invalidFlag[CAN_NUM_OF_VOLTAGES_IN_CAN_CELL_VOLTAGES_MSG];
+    uint16_t cellVoltage[CAN_NUM_OF_VOLTAGES_IN_CAN_CELL_VOLTAGES_MSG];
+} CAN_CAN2AFE_CELL_VOLTAGES_QUEUE_s;
 
 /** composite type for storing and passing on the local database table handles */
 typedef struct {

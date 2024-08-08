@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 #
-# Copyright (c) 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -40,31 +39,10 @@
 
 """Template for Python scripts"""
 
-import argparse
-import logging
-
 
 def main():
     """This script does this and that"""
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "-v",
-        "--verbosity",
-        dest="verbosity",
-        action="count",
-        default=0,
-        help="set verbosity level",
-    )
-    args = parser.parse_args()
-
-    if args.verbosity == 1:
-        logging.basicConfig(level=logging.INFO)
-    elif args.verbosity > 1:
-        logging.basicConfig(level=logging.DEBUG)
-    else:
-        logging.basicConfig(level=logging.ERROR)
-
-    # code goes here
+    print("Hello foxBMS!")
 
 
 if __name__ == "__main__":

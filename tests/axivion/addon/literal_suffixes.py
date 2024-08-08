@@ -114,14 +114,12 @@ class IisbLiteralSuffixesRule(iisb_base.IISBRule, analysis.AnalysisRule):
                 )
 
     _hex_literal_pattern: typing.Pattern[str] = re.compile(
-        (
             r"("
             r"(0[xX](?P<hex_significand>['0-9A-Fa-f]+(\.['0-9A-Fa-f]+)?)(?P<hex_exponent>[pP][-+]?['0-9]+))"
             r"|"
             r"((?P<decimal_significand>['0-9]+(\.['0-9]+)?)(?P<decimal_exponent>[eE][-+]?['0-9]+)?)"
             r")"
             r"(?P<suffix>[fFlL])?"
-        )
     )
 
     def get_floating_point_suffix(self, text: str):

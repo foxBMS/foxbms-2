@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,8 +43,8 @@
  * @file    dma.c
  * @author  foxBMS Team
  * @date    2019-12-12 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup DRIVERS
  * @prefix  DMA
  *
@@ -275,9 +275,9 @@ void UNIT_TEST_WEAK_IMPL dmaGroupANotification(dmaInterrupt_t inttype, uint32 ch
                     }
                 }
                 /**
-                  * TX SPI DMA interrupt: last but one word transmitted,
-                  * last word is transmitted manually (in order to write CSHOLD field)
-                  */
+                 * TX SPI DMA interrupt: last but one word transmitted,
+                 * last word is transmitted manually (in order to write CSHOLD field)
+                 */
                 timeoutIterations = SPI_TX_EMPTY_TIMEOUT_ITERATIONS;
                 /* Wait until TX buffer is free for the last word */
                 while (((dma_spiInterfaces[spiIndex]->FLG &
@@ -304,9 +304,9 @@ void UNIT_TEST_WEAK_IMPL dmaGroupANotification(dmaInterrupt_t inttype, uint32 ch
                 /* RX SPI DMA interrupt: last word received, means SPI transmission is finished */
                 if (spiIndex == SPI_GetSpiIndex(spiREG4)) { /** SPI configured as slave */
                     /* RX DMA interrupt, transmission finished, disable DMA */
-                    dma_spiInterfaces[spiIndex]->INT0 &= ~DMAREQEN_BIT;
+                    dma_spiInterfaces[spiIndex]->INT0 &= ~DMA_REQUEST_ENABLE_BIT;
                     /* Disable SPI to prevent unwanted reception */
-                    dma_spiInterfaces[spiIndex]->GCR1 &= ~SPIEN_BIT;
+                    dma_spiInterfaces[spiIndex]->GCR1 &= ~DMA_SPI_ENABLE_BIT;
                     /* Set slave SPI Chip Select pins as GIO to deactivate slave SPI Chip Select pins */
                     dma_spiInterfaces[spiIndex]->PC0 &= SPI_PC0_CLEAR_HW_CS_MASK;
 
@@ -314,7 +314,7 @@ void UNIT_TEST_WEAK_IMPL dmaGroupANotification(dmaInterrupt_t inttype, uint32 ch
                     AFE_DmaCallback(spiIndex);
                 } else { /* SPI configured as master */
                     /* RX DMA interrupt, transmission finished, disable DMA */
-                    dma_spiInterfaces[spiIndex]->INT0 &= ~DMAREQEN_BIT;
+                    dma_spiInterfaces[spiIndex]->INT0 &= ~DMA_REQUEST_ENABLE_BIT;
 
                     /* Specific call for AFEs */
                     if (spiIndex == SPI_GetSpiIndex(spiREG1)) {
@@ -326,7 +326,7 @@ void UNIT_TEST_WEAK_IMPL dmaGroupANotification(dmaInterrupt_t inttype, uint32 ch
 
             /* DMA for I2C Tx */
             case DMA_CHANNEL_I2C1_TX:
-                i2cREG1->DMACR &= ~((uint32_t)I2C_TXDMAEN);
+                i2cREG1->DMACR &= ~((uint32_t)I2C_TX_DMA_ENABLE);
                 (void)xTaskNotifyIndexedFromISR(
                     I2C_TASK_HANDLE,
                     I2C_NOTIFICATION_TX_INDEX,
@@ -336,7 +336,7 @@ void UNIT_TEST_WEAK_IMPL dmaGroupANotification(dmaInterrupt_t inttype, uint32 ch
                 portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
                 break;
             case DMA_CHANNEL_I2C2_TX:
-                i2cREG2->DMACR &= ~((uint32_t)I2C_TXDMAEN);
+                i2cREG2->DMACR &= ~((uint32_t)I2C_TX_DMA_ENABLE);
                 (void)xTaskNotifyIndexedFromISR(
                     I2C_TASK_HANDLE,
                     I2C_NOTIFICATION_TX_INDEX,
@@ -348,8 +348,9 @@ void UNIT_TEST_WEAK_IMPL dmaGroupANotification(dmaInterrupt_t inttype, uint32 ch
 
             /* DMA for I2C Rx */
             case DMA_CHANNEL_I2C1_RX:
-                i2cREG1->DMACR &= ~((uint32_t)I2C_RXDMAEN);
-                /* Received all but the last byte, now wait until receive buffer is filled with the last byte to receive */
+                i2cREG1->DMACR &= ~((uint32_t)I2C_RX_DMA_ENABLE);
+                /* Received all but the last byte, now wait until receive buffer is filled with the last byte to receive
+                 */
                 success = I2C_WaitReceive(i2cREG1, I2C_TIMEOUT_us);
                 if (success == false) {
                     /* Set Stop condition */
@@ -374,8 +375,9 @@ void UNIT_TEST_WEAK_IMPL dmaGroupANotification(dmaInterrupt_t inttype, uint32 ch
                 }
                 break;
             case DMA_CHANNEL_I2C2_RX:
-                i2cREG2->DMACR &= ~((uint32_t)I2C_RXDMAEN);
-                /* Received all but the last byte, now wait until receive buffer is filled with the last byte to receive */
+                i2cREG2->DMACR &= ~((uint32_t)I2C_RX_DMA_ENABLE);
+                /* Received all but the last byte, now wait until receive buffer is filled with the last byte to receive
+                 */
                 success = I2C_WaitReceive(i2cREG2, I2C_TIMEOUT_us);
                 if (success == false) {
                     /* Set Stop condition */

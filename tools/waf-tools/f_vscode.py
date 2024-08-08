@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 #
-# Copyright (c) 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -44,237 +43,580 @@ needs.
 For information on VS Code see https://code.visualstudio.com/.
 """
 
+# pylint: disable=too-many-locals,too-many-statements
+
 import os
-from pathlib import Path
+import copy
 import re
+import json
+import shutil
+from pathlib import Path
 
-import jinja2
-from waflib import Context, Utils
+from waflib import Context, Utils, Logs
+from waflib.Node import Node
+from waflib.Configure import ConfigurationContext, conf
 
-# This tool uses slash as path separator for the sake of simplicity as it
-# - works on both, Windows and unix-like systems (see
-#   https://docs.microsoft.com/en-us/archive/blogs/larryosterman/why-is-the-dos-path-character)
-# - it make the json configuration file more readable
+if Utils.is_win32:
+    BAUHAUS_DIR = (
+        Path(os.environ.get("ProgramFiles(x86)", "C:\\Program Files(x86)")) / "Bauhaus"
+    )
+    FOX_WRAPPER_EXT = "bat"
+else:
+    BAUHAUS_DIR = Path(os.environ.get("HOME", "/")) / "bauhaus-suite"
+    FOX_WRAPPER_EXT = "sh"
 
 
-def fix_jinja(txt):
-    """appends empty line to file, if missing"""
-    return (
-        os.linesep.join([s for s in txt.splitlines() if not s.strip() == ""])
-        + os.linesep
+def dump_json_to_node(node: Node, cfg: dict):
+    """Dump dictionary to node"""
+    Path(node.abspath()).write_text(
+        json.dumps(cfg, indent=2, sort_keys=False), encoding="utf-8"
     )
 
 
-def configure(conf):  # pylint: disable=too-many-statements,too-many-branches
-    """configuration step of the VS Code waf tool:
+def get_axivion_modules(ax_modules_rel: Path, cafecc: str = "") -> list[str]:
+    """Prepares the Axivion Modules path"""
+    axivion_modules = []
+    if BAUHAUS_DIR.is_dir():
+        axivion_modules.append((BAUHAUS_DIR / ax_modules_rel).as_posix())
+    if cafecc:
+        axivion_modules.append((Path(cafecc).parent.parent / ax_modules_rel).as_posix())
+    return axivion_modules
 
-    - Find code
-    - configure a project if code was found"""
-    # create a VS Code workspace if code is installed on this platform
-    is_remote_session = False
-    conf.start_msg("Checking for program 'code'")
+
+def default_includes(
+    ctx: ConfigurationContext, base_dir: Node, inc_file: str
+) -> list[str]:
+    """Get include lines from a file"""
+    inc_node = base_dir.find_node(inc_file)
+
+    if not inc_node:
+        ctx.fatal(f"Could not find '{os.path.join(base_dir.abspath(), inc_file)}'.")
+    txt: str = inc_node.read(encoding="utf-8")
+    return txt.splitlines()
+
+
+def get_vscode_relevant_defines(compiler_builtin_defines: list[str]) -> list[str]:
+    """Get all compiler builtin defines formatted for VS Code"""
+    reg = re.compile(r"(#define)([ ])([a-zA-Z0-9_]{1,})([ ])([a-zA-Z0-9_\":. ]{1,})")
+    vscode_defines = []
+    for d in compiler_builtin_defines:
+        define = d.split("/*")[0]
+        _def = reg.search(define)
+        if _def:
+            def_name, val = _def.group(3), _def.group(5)
+            if def_name in (
+                "__DATE__",
+                "__TIME__",
+                "__EDG_VERSION__",
+                "__edg_front_end__",
+                "__EDG_SIZE_TYPE__",
+                "__EDG_PTRDIFF_TYPE__",
+            ):
+                continue
+            vscode_defines.append(f"{def_name}={val}")
+    return vscode_defines
+
+
+def get_hcg_includes(halcogen: list) -> list[str]:
+    """get HALCoGen includes"""
+    try:
+        return [
+            Path(
+                os.path.join(
+                    Path(halcogen[0]).parent.parent.parent,
+                    "F021 Flash API",
+                    "02.01.01",
+                    "include",
+                )
+            ).as_posix()
+        ]
+    except IndexError:
+        return []
+
+
+@conf
+def get_fox_py_wrapper_executable(ctx: ConfigurationContext) -> bool:
+    """check which fox.py-wrapper to use (.bat, .ps1 or .sh)"""
+    ctx.start_msg("Checking for 'fox.py' wrapper:")
     if Utils.is_win32:
-        conf.find_program("code", mandatory=False)
-        if not conf.env.CODE:
+        for i in ("bat", "ps1", "sh"):
+            ctx.find_program("fox", var="FOX_WRAPPER", mandatory=False, exts=f".{i}")
+            if ctx.env.FOX_WRAPPER:
+                ctx.env.FOX_WRAPPER = [str(ctx.path.find_node(ctx.env.FOX_WRAPPER[0]))]
+                cmd = [ctx.env.FOX_WRAPPER[0], "-h"]
+                with Utils.subprocess.Popen(
+                    cmd,
+                    cwd=ctx.path.abspath(),
+                    stderr=Utils.subprocess.PIPE,
+                    stdout=Utils.subprocess.PIPE,
+                ) as p:
+                    p.communicate()
+                if not p.returncode:
+                    break  # we have successfully set 'ctx.env.FOX_WRAPPER'
+        # fallback to 'find_node'
+        ctx.env.append_unique("FOX_WRAPPER", str(ctx.path.find_node("fox.bat")))
+    else:
+        ctx.find_program("fox.sh", var="FOX_WRAPPER")
+        if ctx.env.FOX_WRAPPER:
+            ctx.env.FOX_WRAPPER = [str(ctx.path.find_node(ctx.env.FOX_WRAPPER[0]))]
+            cmd = [ctx.env.FOX_WRAPPER[0], "-h"]
+            with Utils.subprocess.Popen(cmd, cwd=ctx.path.abspath()) as p:
+                p.communicate()
+            if p.returncode:  # we could **NOT** find a working fox wrapper
+                ctx.env.FOX_WRAPPER = ""
+
+        # fallback to 'find_node'
+        if not ctx.env.FOX_WRAPPER:
+            ctx.env.append_unique("FOX_WRAPPER", str(ctx.path.find_node("fox.sh")))
+
+    ctx.end_msg(ctx.env.get_flat("FOX_WRAPPER"))
+
+
+@conf
+def find_vscode(ctx: ConfigurationContext) -> bool:
+    """Find VS Code"""
+    is_remote_session = False
+    ctx.start_msg("Checking for program 'code'")
+    if Utils.is_win32:
+        ctx.find_program("code", mandatory=False)
+        if not ctx.env.CODE:
             code_dir = "Microsoft VS Code"
             path_list = [
                 os.path.join(os.environ["LOCALAPPDATA"], "Programs", code_dir),
                 os.path.join(os.environ["PROGRAMFILES"], code_dir),
             ]
-            conf.find_program(
+            ctx.find_program(
                 "code",
                 path_list=path_list,
                 mandatory=False,
             )
     else:
-        conf.find_program("code", mandatory=False)
-        if not conf.env.CODE:
+        ctx.find_program("code", mandatory=False)
+        if not ctx.env.CODE:
             # we might be in a remote environment, scan for this
             code_server_dir = os.path.join(os.path.expanduser("~"), ".vscode-server")
             is_remote_session = os.path.isdir(code_server_dir)
-            conf.msg("Found 'vscode-server' (remote session)", code_server_dir)
-    if not (conf.env.CODE or is_remote_session):
-        conf.end_msg(False)
-        return
-    conf.end_msg(conf.env.get_flat("CODE") or "remote")
-    conf.start_msg("Creating workspace")
-    vscode_dir = conf.path.make_node(".vscode")
-    vscode_dir.mkdir()
-    vscode_config_dir = conf.path.find_dir(os.path.join("tools", "ide", "vscode"))
-    template_loader = jinja2.FileSystemLoader(searchpath=vscode_config_dir.relpath())
-    template_env = jinja2.Environment(loader=template_loader)
+            ctx.msg("Found 'vscode-server' (remote session)", code_server_dir)
 
-    if Utils.is_win32:
-        waf_wrapper_script = Path(conf.path.abspath()).as_posix() + "/waf.bat"
-    else:
-        waf_wrapper_script = Path(conf.path.abspath()) / "waf.sh"
-    axivion_base_path = Path(
-        os.path.join(conf.path.abspath(), "tests", "axivion")
-    ).as_posix()
-    axivion_start_analysis = None
-    axivion_start_dashboard = None
-    axivion_config_exe = None
-    if Utils.is_win32:
-        axivion_start_analysis = axivion_base_path + "/scripts/start_local_analysis.bat"
-        axivion_start_dashboard = (
-            axivion_base_path + "/scripts/start_local_dashserver.bat"
-        )
-        if conf.env.AXIVION_CONFIG:
-            axivion_config_exe = Path(conf.env.AXIVION_CONFIG[0]).as_posix()
+    if not (ctx.env.CODE or is_remote_session):
+        ctx.end_msg(False)
+        return False
 
-    template = template_env.get_template("tasks.json.jinja2")
-    tasks = template.render(
-        WAF_WRAPPER_SCRIPT=waf_wrapper_script,
-        AXIVION_CONFIG_EXE=axivion_config_exe,
-        AXIVION_START_ANALYSIS=axivion_start_analysis,
-        AXIVION_START_DASHBOARD=axivion_start_dashboard,
-        JFLASH=conf.env.JFLASH,
-    )
-    vsc_tasks_file = os.path.join(vscode_dir.relpath(), "tasks.json")
-    conf.path.make_node(vsc_tasks_file).write(fix_jinja(tasks))
+    ctx.end_msg(ctx.env.get_flat("CODE") or "remote")
+    return True
 
-    template = template_env.get_template("extensions.json.jinja2")
-    extensions = template.render()
-    vsc_extensions_file = os.path.join(vscode_dir.relpath(), "extensions.json")
-    conf.path.make_node(vsc_extensions_file).write(fix_jinja(extensions))
 
-    template = template_env.get_template("cspell.json.jinja2")
-    cspell = template.render()
-    vsc_cspell_file = os.path.join(vscode_dir.relpath(), "cspell.json")
-    conf.path.make_node(vsc_cspell_file).write(fix_jinja(cspell))
-
-    template = template_env.get_template("settings.json.jinja2")
-    # Python and friends: Python, conda, pylint, black
-    py_exe = "python"
-    if conf.env.PYTHON:
-        py_exe = Path(conf.env.PYTHON[0]).as_posix()
-    pylint_exe = "pylint"
-    if conf.env.PYLINT:
-        pylint_exe = Path(conf.env.PYLINT[0]).as_posix()
-    pylint_cfg = ""
-    if conf.env.PYLINT_CONFIG:
-        pylint_cfg = Path(conf.env.PYLINT_CONFIG[0]).as_posix()
-    black_exe = "black"
-    if conf.env.BLACK:
-        black_exe = Path(conf.env.BLACK[0]).as_posix()
-    black_cfg = ""
-    if conf.env.BLACK_CONFIG:
-        black_cfg = Path(conf.env.BLACK_CONFIG[0]).as_posix()
-    # directory of waf and waf-tools
-    waf_dir = Path(Context.waf_dir).as_posix()
-    waf_tools_dir = Path(
-        os.path.join(conf.path.abspath(), "tools", "waf-tools")
-    ).as_posix()
-    # Clang-format
-    clang_format_executable = ""
-    if conf.env.CLANG_FORMAT:
-        clang_format_executable = Path(conf.env.CLANG_FORMAT[0]).as_posix()
-
-    ax_modules_rel = Path(os.path.join("lib", "scripts"))
-
-    if Utils.is_win32:
-        axivion_modules = (
-            Path(os.environ.get("ProgramFiles(x86)", "C:\\Program Files(x86)"))
-            / "Bauhaus"
-            / ax_modules_rel
-        ).as_posix()
-        userprofile = os.environ.get(
-            "USERPROFILE", os.environ.get("HOMEDRIVE", "C:") + os.sep
-        )
-    else:
-        axivion_modules = (
-            Path(os.environ.get("HOME", "/")) / "bauhaus-suite" / ax_modules_rel
-        )
-        userprofile = os.environ.get("HOME", "~")
-
-    axivion_vs_config = {
-        "analysisProject": "foxbms-2",
-        "localPath": Path(conf.path.abspath()).as_posix(),
-        "analysisPath": Path(userprofile).as_posix(),
-    }
-    if conf.env.AXIVION_CC:
-        projects_path = os.path.join(userprofile, ".bauhaus", "localbuild", "projects")
-        axivion_vs_config["analysisPath"] = Path(projects_path).as_posix()
-
+@conf
+def valid_configuration_files(ctx: ConfigurationContext, base_cfg_dir: Node):
+    """Validate, that all VS configuration files are valid json files"""
+    err = 0
+    for i in base_cfg_dir.ant_glob("**/*.json"):
         try:
-            axivion_modules = (
-                Path(conf.env.AXIVION_CC[0]).parent.parent / ax_modules_rel
-            ).as_posix()
-        except IndexError:
-            pass
-    settings = template.render(
-        PYTHONPATH=py_exe,
-        PYTHON_ANALYSIS_EXTRA_PATHS=[waf_dir, waf_tools_dir, axivion_modules],
-        PYLINT_PATH=pylint_exe,
-        PYLINT_CONFIG=pylint_cfg,
-        BLACK_PATH=black_exe,
-        BLACK_CONFIG=black_cfg,
-        CLANG_FORMAT_EXECUTABLE=clang_format_executable,
-        AXIVION_VS_CONFIG=axivion_vs_config,
-    )
+            i.read_json()
+        except json.decoder.JSONDecodeError:
+            err += 1
+            Logs.error(f"'{i}' is not a valid json file.")
 
-    vsc_settings_file = os.path.join(vscode_dir.relpath(), "settings.json")
-    conf.path.make_node(vsc_settings_file).write(fix_jinja(settings))
+    if err:
+        ctx.fatal("Invalid configuration files provided.")
 
-    template = template_env.get_template("c_cpp_properties.json.jinja2")
-    defines_read = (
-        conf.root.find_node(conf.env.COMPILER_BUILTIN_DEFINES_FILE[0])
-        .read()
+
+@conf
+def setup_generic(ctx: ConfigurationContext, base_cfg_dir: Node):
+    """Setup the generic VS Code configuration"""
+    # Setup requires:
+    # - copy cspell.json verbatim
+    # - copy c_cpp_properties.json and adapt paths
+    # - copy settings.json and adapt paths
+    # - copy tasks.json and adapt paths
+
+    # First copy everything from the configuration directory to the actual
+    # required location, so that in later steps the setup can be adapted and
+    # then write the configuration to the specific configuration file.
+
+    ctx.start_msg("Creating generic workspace")
+    vscode_dir = ctx.path.make_node(".vscode")
+    vscode_dir.mkdir()
+
+    shutil.copy2(base_cfg_dir.find_node("cspell.json").abspath(), vscode_dir.abspath())
+    for i in base_cfg_dir.ant_glob("generic/*.json"):
+        shutil.copy2(i.abspath(), vscode_dir.abspath())
+
+    ### c_cpp_properties.json
+    c_cpp_properties_node = vscode_dir.find_node("c_cpp_properties.json")
+    if not c_cpp_properties_node:
+        ctx.fatal(f"Could not find 'c_cpp_properties.json' in {vscode_dir}")
+    c_cpp_properties = c_cpp_properties_node.read_json()
+
+    compiler_builtin_defines: list[str] = (
+        ctx.root.find_node(ctx.env.COMPILER_BUILTIN_DEFINES_FILE[0])
+        .read(encoding="utf-8")
         .splitlines()
     )
-    vscode_defines = [i.split("=") for i in conf.env.DEFINES]
-    reg = re.compile(r"(#define)([ ])([a-zA-Z0-9_]{1,})([ ])([a-zA-Z0-9_\":. ]{1,})")
-    for d in defines_read:
-        define = d.split("/*")[0]
-        _def = reg.search(define)
-        if _def:
-            def_name, val = _def.group(3), _def.group(5)
-            if def_name in ("__DATE__", "__TIME__"):
-                continue
-            if '"' in val:
-                val = val.replace('"', '\\"')
-            vscode_defines.append((def_name, val))
-    rtos_includes = [
-        Path(str(conf.root.find_node(i).path_from(conf.path))).as_posix()
-        for i in conf.env.INCLUDES_RTOS
-    ]
-    afe_includes = [
-        Path(str(conf.root.find_node(i).path_from(conf.path))).as_posix()
-        for i in conf.env.INCLUDES_AFE
-    ]
-    c_cpp_properties = template.render(
-        ARMCL=Path(conf.env.CC[0]).as_posix(),
-        RTOS=conf.env.RTOS_NAME[0],
-        RTOS_INCLUDES=rtos_includes,
-        BALANCING_STRATEGY=conf.env.balancing_strategy,
-        AFE_INCLUDES=afe_includes,
-        TEMPERATURE_SENSOR_MANUFACTURER=conf.env.temperature_sensor_manuf,
-        TEMPERATURE_SENSOR_MODEL=conf.env.temperature_sensor_model,
-        TEMPERATURE_SENSOR_METHOD=conf.env.temperature_sensor_meth,
-        STATE_ESTIMATOR_SOC=conf.env.state_estimator_soc,
-        STATE_ESTIMATOR_SOE=conf.env.state_estimator_soe,
-        STATE_ESTIMATOR_SOF=conf.env.state_estimator_sof,
-        STATE_ESTIMATOR_SOH=conf.env.state_estimator_soh,
-        IMD_MANUFACTURER=conf.env.imd_manufacturer,
-        IMD_MODEL=conf.env.imd_model,
-        INCLUDES=[Path(x).as_posix() for x in conf.env.INCLUDES],
-        C_STANDARD="c11",
-        DEFINES=vscode_defines,
+
+    # ctx.env.DEFINES: we need a deepcopy of these defines otherwise it alters
+    # the defines passed to the compiler at build-time!
+    vscode_defines = get_vscode_relevant_defines(
+        compiler_builtin_defines
+    ) + copy.deepcopy(ctx.env.DEFINES)
+
+    win32_config_index = 0
+    inc_path_halcogen = get_hcg_includes(ctx.env.HALCOGEN)
+    c_cpp_properties["configurations"][win32_config_index]["includePath"].extend(
+        [(Path(ctx.env.CC[0]).parent.parent / "include").as_posix()] + inc_path_halcogen
     )
-    vsc_c_cpp_properties_file = os.path.join(
-        vscode_dir.relpath(), "c_cpp_properties.json"
+    c_cpp_properties["configurations"][win32_config_index]["browse"]["path"].extend(
+        [(Path(ctx.env.CC[0]).parent.parent / "include").as_posix()] + inc_path_halcogen
     )
-    for i in conf.env.VSCODE_MK_DIRS:
-        conf.path.make_node(i).mkdir()
-    conf.path.make_node(vsc_c_cpp_properties_file).write(fix_jinja(c_cpp_properties))
+    c_cpp_properties["configurations"][win32_config_index]["defines"] = vscode_defines
 
-    template = template_env.get_template("launch.json.jinja2")
-    gdb_exe = "gdb"
-    if conf.env.GDB:
-        gdb_exe = Path(conf.env.GDB[0]).as_posix()
-    launch = template.render(GDB=gdb_exe)
+    include_path = default_includes(
+        ctx, base_cfg_dir, "generic/g-project-include-path.txt"
+    )
+    inc_base = "@@ROOT@@/src"
+    inc_app = f"{inc_base}/app"
+    inc_state = f"{inc_app}/application/algorithm/state_estimation"
+    include_path.extend(
+        [
+            f"{inc_state}/soc/{ctx.env.state_estimator_soc}",
+            f"{inc_state}/soe/{ctx.env.state_estimator_soe}",
+            f"{inc_state}/sof/{ctx.env.state_estimator_sof}",
+            f"{inc_state}/soh/{ctx.env.state_estimator_soh}",
+            f"{inc_app}/driver/imd/{ctx.env.imd_manufacturer}",
+            f"{inc_app}/task/ftask/{ctx.env.RTOS_NAME[0]}",
+            f"{inc_app}/task/os/{ctx.env.RTOS_NAME[0]}",
+            f"{inc_base}/os/{ctx.env.RTOS_NAME[0]}",
+            f"{inc_app}/application/bal/{ctx.env.balancing_strategy}",
+            (
+                f"{inc_app}/driver/ts/{ctx.env.temperature_sensor_manuf}/"
+                f"{ctx.env.temperature_sensor_model}/{ctx.env.temperature_sensor_meth}"
+            ),
+        ]
+    )
+    p = []
+    for i in ctx.env.INCLUDES_RTOS + ctx.env.INCLUDES_AFE:
+        k = Path(ctx.root.find_node(i).path_from(ctx.path)).as_posix()
+        p.append(k)
+    p = [f"@@ROOT@@/{i}" for i in p]
+    include_path.extend(p)
+    c_cpp_properties["env"]["ProjectIncludePath"] = [
+        Path(i.replace("@@ROOT@@", ctx.path.abspath())).as_posix()
+        for i in sorted(include_path)
+    ]
 
-    vsc_launch_file = os.path.join(vscode_dir.relpath(), "launch.json")
-    conf.path.make_node(vsc_launch_file).write(fix_jinja(launch))
+    for i in c_cpp_properties["configurations"]:
+        if i["name"] == "Win32":
+            # use GCC as dummy compiler
+            i["compilerPath"] = Path(str(ctx.env.GCC[0])).as_posix()
+    dump_json_to_node(c_cpp_properties_node, c_cpp_properties)
 
-    conf.end_msg("ok")
+    ### settings.json
+    settings_node = vscode_dir.find_node("settings.json")
+    if not settings_node:
+        ctx.fatal(f"Could not find 'settings.json' in {vscode_dir}")
+    settings = settings_node.read_json()
+
+    ### settings.json: python.*
+    waf_dir = Path(Context.waf_dir).as_posix()
+    waf_tools_dir = Path(
+        os.path.join(ctx.path.abspath(), "tools", "waf-tools")
+    ).as_posix()
+
+    # now clean up the remaining configuration options in the template
+    settings["python.analysis.extraPaths"] = [waf_dir, waf_tools_dir]
+    settings["pylint.args"] = [
+        f"--rcfile={Path(ctx.path.abspath()).as_posix()}/pyproject.toml"
+    ]
+
+    ### settings.json: files.*
+    settings["files.exclude"] = {
+        **settings["files.exclude"],
+        **{
+            ".vscode/**": True,
+            "hal/**": True,
+            "opt/**": True,
+        },
+    }
+
+    dump_json_to_node(settings_node, settings)
+
+    ### tasks.json
+    tasks_node = vscode_dir.find_node("tasks.json")
+    if not tasks_node:
+        ctx.fatal(f"Could not find 'tasks.json' in {vscode_dir}")
+    tasks = tasks_node.read_json()
+    for i in tasks["tasks"]:
+        i["command"] = Path(ctx.env.FOX_WRAPPER[0]).as_posix()
+        i["options"]["cwd"] = Path(ctx.path.abspath()).as_posix()
+        for p in i["problemMatcher"]:
+            if isinstance(p, dict):
+                p["fileLocation"] = ["autoDetect", Path(ctx.path.abspath()).as_posix()]
+    dump_json_to_node(tasks_node, tasks)
+
+    ctx.end_msg(vscode_dir)
+
+
+@conf
+def setup_src(ctx: ConfigurationContext, base_cfg_dir: Node):
+    """Setup the src VS Code configuration"""
+    # Setup requires:
+    # - copy cspell.json verbatim
+    # - copy c_cpp_properties.json and adapt paths
+    # - copy settings.json and adapt paths
+    # - copy tasks.json and adapt paths
+
+    # First copy everything from the configuration directory to the actual
+    # required location, so that in later steps the setup can be adapted and
+    # then write the configuration to the specific configuration file.
+
+    ctx.start_msg("Creating target workspace")
+    vscode_dir = ctx.path.make_node("src/.vscode")
+    vscode_dir.mkdir()
+
+    shutil.copy2(base_cfg_dir.find_node("cspell.json").abspath(), vscode_dir.abspath())
+    for i in base_cfg_dir.ant_glob("src/*.json"):
+        shutil.copy2(i.abspath(), vscode_dir.abspath())
+
+    ### c_cpp_properties.json
+    c_cpp_properties_node = vscode_dir.find_node("c_cpp_properties.json")
+    if not c_cpp_properties_node:
+        ctx.fatal(f"Could not find 'c_cpp_properties.json' in {vscode_dir}")
+    c_cpp_properties = c_cpp_properties_node.read_json()
+
+    compiler_builtin_defines: list[str] = (
+        ctx.root.find_node(ctx.env.COMPILER_BUILTIN_DEFINES_FILE[0])
+        .read(encoding="utf-8")
+        .splitlines()
+    )
+
+    # ctx.env.DEFINES: we need a deepcopy of these defines otherwise it alters
+    # the defines passed to the compiler at build-time!
+    vscode_defines = get_vscode_relevant_defines(
+        compiler_builtin_defines
+    ) + copy.deepcopy(ctx.env.DEFINES)
+
+    win32_config_index = 0
+    inc_path_halcogen = get_hcg_includes(ctx.env.HALCOGEN)
+    c_cpp_properties["configurations"][win32_config_index]["includePath"].extend(
+        [(Path(ctx.env.CC[0]).parent.parent / "include").as_posix()] + inc_path_halcogen
+    )
+    c_cpp_properties["configurations"][win32_config_index]["browse"]["path"].extend(
+        [(Path(ctx.env.CC[0]).parent.parent / "include").as_posix()] + inc_path_halcogen
+    )
+    c_cpp_properties["configurations"][win32_config_index]["defines"] = vscode_defines
+
+    include_path = default_includes(ctx, base_cfg_dir, "src/s-project-include-path.txt")
+
+    inc_base = "@@ROOT@@/src"
+    inc_app = f"{inc_base}/app"
+    inc_state = f"{inc_app}/application/algorithm/state_estimation"
+    include_path.extend(
+        [
+            f"{inc_state}/soc/{ctx.env.state_estimator_soc}",
+            f"{inc_state}/soe/{ctx.env.state_estimator_soe}",
+            f"{inc_state}/sof/{ctx.env.state_estimator_sof}",
+            f"{inc_state}/soh/{ctx.env.state_estimator_soh}",
+            f"{inc_app}/driver/imd/{ctx.env.imd_manufacturer}",
+            f"{inc_app}/task/ftask/{ctx.env.RTOS_NAME[0]}",
+            f"{inc_app}/task/os/{ctx.env.RTOS_NAME[0]}",
+            f"{inc_base}/os/{ctx.env.RTOS_NAME[0]}",
+            f"{inc_app}/application/bal/{ctx.env.balancing_strategy}",
+            (
+                f"{inc_app}/driver/ts/{ctx.env.temperature_sensor_manuf}/"
+                f"{ctx.env.temperature_sensor_model}/{ctx.env.temperature_sensor_meth}"
+            ),
+        ]
+    )
+    p = []
+    for i in ctx.env.INCLUDES_RTOS + ctx.env.INCLUDES_AFE:
+        k = Path(ctx.root.find_node(i).path_from(ctx.path)).as_posix()
+        p.append(k)
+    p = [f"@@ROOT@@/{i}" for i in p]
+    include_path.extend(p)
+    c_cpp_properties["env"]["ProjectIncludePath"] = [
+        Path(i.replace("@@ROOT@@", ctx.path.abspath())).as_posix()
+        for i in sorted(include_path)
+    ]
+
+    for i in c_cpp_properties["configurations"]:
+        if i["name"] == "Win32":
+            # use GCC as dummy compiler
+            i["compilerPath"] = Path(str(ctx.env.GCC[0])).as_posix()
+    dump_json_to_node(c_cpp_properties_node, c_cpp_properties)
+
+    ### settings.json
+    settings_node = vscode_dir.find_node("settings.json")
+    if not settings_node:
+        ctx.fatal(f"Could not find 'settings.json' in {vscode_dir}")
+    settings = settings_node.read_json()
+
+    ### settings.json: python.*
+    waf_dir = Path(Context.waf_dir).as_posix()
+    waf_tools_dir = Path(
+        os.path.join(ctx.path.abspath(), "tools", "waf-tools")
+    ).as_posix()
+
+    # now clean up the remaining configuration options in the template
+    settings["python.analysis.extraPaths"] = [waf_dir, waf_tools_dir]
+    settings["pylint.args"] = [
+        f"--rcfile={Path(ctx.path.abspath()).as_posix()}/pyproject.toml"
+    ]
+
+    ### settings.json: files.*
+    settings["files.exclude"] = {
+        **settings["files.exclude"],
+        **{
+            ".vscode/**": True,
+            "hal/**": True,
+            "opt/**": True,
+        },
+    }
+
+    dump_json_to_node(settings_node, settings)
+
+    ### tasks.json
+    tasks_node = vscode_dir.find_node("tasks.json")
+    if not tasks_node:
+        ctx.fatal(f"Could not find 'tasks.json' in {vscode_dir}")
+    tasks = tasks_node.read_json()
+    for i in tasks["tasks"]:
+        i["command"] = Path(ctx.env.FOX_WRAPPER[0]).as_posix()
+        i["options"]["cwd"] = Path(ctx.path.abspath()).as_posix()
+        for p in i["problemMatcher"]:
+            p["fileLocation"] = ["autoDetect", Path(ctx.path.abspath()).as_posix()]
+    dump_json_to_node(tasks_node, tasks)
+
+    ctx.end_msg(vscode_dir)
+
+
+@conf
+def setup_embedded_unit_tests(ctx: ConfigurationContext, base_cfg_dir: Node):
+    """Setup the embedded unit test VS Code configuration"""
+    # Setup requires:
+    # - copy cspell.json verbatim
+    # - copy c_cpp_properties.json and adapt paths
+    # - copy launch.json and adapt paths
+    # - copy settings.json and adapt paths
+    # - copy tasks.json and adapt paths
+
+    # First copy everything from the configuration directory to the actual
+    # required location, so that in later steps the setup can be adapted and
+    # then write the configuration to the specific configuration file.
+
+    ctx.start_msg("Creating embedded unit tests workspace")
+    vscode_dir = ctx.path.make_node("tests/unit/.vscode")
+    vscode_dir.mkdir()
+
+    shutil.copy2(base_cfg_dir.find_node("cspell.json").abspath(), vscode_dir.abspath())
+    for i in base_cfg_dir.ant_glob("embedded-tests/*.json"):
+        shutil.copy2(i.abspath(), vscode_dir.abspath())
+
+    ### c_cpp_properties.json
+    c_cpp_properties_node = vscode_dir.find_node("c_cpp_properties.json")
+    if not c_cpp_properties_node:
+        ctx.fatal(f"Could not find 'c_cpp_properties.json' in {vscode_dir}")
+    c_cpp_properties = c_cpp_properties_node.read_json()
+
+    # all directories in <root>/src
+    include_dirs = ctx.path.ant_glob("src/**", src=False, dir=True, excl=["**/.vscode"])
+    c_cpp_properties["env"]["ProjectIncludePath"] = [
+        Path(i.abspath()).as_posix() for i in include_dirs
+    ]
+
+    # add some testing specific paths
+    for i in default_includes(
+        ctx, base_cfg_dir, "embedded-tests/e-project-include-path.txt"
+    ):
+        c_cpp_properties["env"]["ProjectIncludePath"].append(
+            Path(i.replace("@@ROOT@@", ctx.path.abspath())).as_posix()
+        )
+    c_cpp_properties["env"]["ProjectIncludePath"] = sorted(
+        c_cpp_properties["env"]["ProjectIncludePath"]
+    )
+    for i in c_cpp_properties["configurations"]:
+        if i["name"] == "Win32":
+            i["compilerPath"] = Path(str(ctx.env.GCC[0])).as_posix()
+    dump_json_to_node(c_cpp_properties_node, c_cpp_properties)
+
+    ### launch.json
+    launch_node = vscode_dir.find_node("launch.json")
+    if not launch_node:
+        ctx.fatal(f"Could not find 'launch.json' in {vscode_dir}")
+    launch = launch_node.read_json()
+    if ctx.env.GDB:
+        for i in launch["configurations"]:
+            i["miDebuggerPath"] = Path(str(ctx.env.GDB[0])).as_posix()
+            i["cwd"] = Path(ctx.path.abspath()).as_posix()
+            i["program"] = (
+                Path(ctx.path.abspath())
+                / "build/unit_test/test/out/${fileBasenameNoExtension}/"
+                "${fileBasenameNoExtension}.out"
+            ).as_posix()
+
+    dump_json_to_node(launch_node, launch)
+
+    ### settings.json
+    settings_node = vscode_dir.find_node("settings.json")
+    if not settings_node:
+        ctx.fatal(f"Could not find 'settings.json' in {vscode_dir}")
+    settings = settings_node.read_json()
+
+    ### settings.json: python.*
+    waf_dir = Path(Context.waf_dir).as_posix()
+    waf_tools_dir = Path(
+        os.path.join(ctx.path.abspath(), "tools", "waf-tools")
+    ).as_posix()
+
+    # now clean up the remaining configuration options in the template
+    settings["python.analysis.extraPaths"] = [waf_dir, waf_tools_dir]
+    settings["pylint.args"] = [
+        f"--rcfile={Path(ctx.path.abspath()).as_posix()}/pyproject.toml"
+    ]
+
+    ### settings.json: files.*
+    settings["files.exclude"] = {
+        **settings["files.exclude"],
+        **{
+            "**/build/**": True,
+            "**/.lock-waf_*_build": True,
+            ".vscode/**": True,
+            "axivion/**": True,
+            "gen_hcg/**": True,
+        },
+    }
+
+    dump_json_to_node(settings_node, settings)
+
+    ### tasks.json
+    tasks_node = vscode_dir.find_node("tasks.json")
+    if not tasks_node:
+        ctx.fatal(f"Could not find 'tasks.json' in {vscode_dir}")
+    tasks = tasks_node.read_json()
+    for i in tasks["tasks"]:
+        i["command"] = Path(ctx.env.FOX_WRAPPER[0]).as_posix()
+        i["options"]["cwd"] = Path(ctx.path.abspath()).as_posix()
+
+    dump_json_to_node(tasks_node, tasks)
+
+    ctx.end_msg(vscode_dir)
+
+
+def configure(ctx: ConfigurationContext):  # pylint: disable=too-many-branches
+    """configuration step of the VS Code waf tool:
+
+    - Find code
+    - configure a project if code was found"""
+    # create a VS Code workspace if code is installed on this platform
+    if not ctx.find_vscode():
+        return
+
+    ctx.get_fox_py_wrapper_executable()
+
+    # We have found 'code', check that the configuration files are valid
+    base_cfg_dir = ctx.path.find_dir(os.path.join("tools", "ide", "vscode"))
+    ctx.valid_configuration_files(base_cfg_dir)
+
+    # # configure the workspaces
+    ctx.setup_generic(base_cfg_dir)
+    ctx.setup_src(base_cfg_dir)
+    ctx.setup_embedded_unit_tests(base_cfg_dir)

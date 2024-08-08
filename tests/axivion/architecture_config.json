@@ -1,34 +1,34 @@
 {
-    "Analysis": {
-        "Architecture": {
-            "child_order": [
-                "Architecture-ImportGXLArchitecture",
-                "Architecture-ImportGXLMapping",
-                "Architecture-ArchitectureCheck"
-            ]
-        },
-        "Architecture-ArchitectureCheck": {
-            "_active": true
-        },
-        "Architecture-ImportGXLArchitecture": {
-            "_active": true,
-            "_copy_from": "Architecture-GXLImport",
-            "gxl_file": "architecture.gxl",
-            "view_name": "Architecture"
-        },
-        "Architecture-ImportGXLMapping": {
-            "_active": true,
-            "_copy_from": "Architecture-GXLImport",
-            "gxl_file": "mapping.gxl",
-            "view_name": "Mapping"
-        }
+  "Analysis": {
+    "Architecture": {
+      "child_order": [
+        "Architecture-ImportGXLArchitecture",
+        "Architecture-ImportGXLMapping",
+        "Architecture-ArchitectureCheck"
+      ]
     },
-    "_Format": "1.0",
-    "_Version": "7.5.2",
-    "_VersionNum": [
-        7,
-        5,
-        2,
-        11578
-    ]
+    "Architecture-ArchitectureCheck": {
+      "_active": true
+    },
+    "Architecture-ImportGXLArchitecture": {
+      "_active": true,
+      "_copy_from": "Architecture-GXLImport",
+      "gxl_file": "architecture.gxl",
+      "view_name": "Architecture"
+    },
+    "Architecture-ImportGXLMapping": {
+      "_active": true,
+      "_copy_from": "Architecture-GXLImport",
+      "gxl_file": "mapping.gxl",
+      "view_name": "Mapping"
+    }
+  },
+  "_Format": "1.0",
+  "_Version": "7.5.2",
+  "_VersionNum": [
+    7,
+    5,
+    2,
+    11578
+  ]
 }

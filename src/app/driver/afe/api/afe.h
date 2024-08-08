@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,13 +43,12 @@
  * @file    afe.h
  * @author  foxBMS Team
  * @date    2020-05-08 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
- * @ingroup DRIVER
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
+ * @ingroup DRIVERS
  * @prefix  AFE
  *
  * @brief   AFE driver header
- *
  * @details TODO
  */
 
@@ -99,11 +98,15 @@ typedef struct {
 /** period for open wire measurement */
 #define AFE_ERROR_OPEN_WIRE_PERIOD_ms (30000u)
 
+/** default cell voltage value if no valid measurement result can be read from AFE */
+#define AFE_DEFAULT_CELL_VOLTAGE_INVALID_VALUE (INT16_MAX)
+
 /*========== Extern Constant and Variable Declarations ======================*/
 
 /*========== Extern Function Prototypes =====================================*/
 /** tick function, this function is called to advance the state machine */
 extern STD_RETURN_TYPE_e AFE_TriggerIc(void);
+
 /** initializer, this function is called in order to initialize the AFE */
 extern STD_RETURN_TYPE_e AFE_Initialize(void);
 

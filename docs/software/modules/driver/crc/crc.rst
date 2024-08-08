@@ -12,13 +12,13 @@ Module Files
 Driver
 ^^^^^^
 
-- ``src/app/driver/crc/crc.c`` (`API <../../../../_static/doxygen/src/html/crc_8c.html>`__, `source <../../../../_static/doxygen/src/html/crc_8c_source.html>`__)
-- ``src/app/driver/crc/crc.h`` (`API <../../../../_static/doxygen/src/html/crc_8h.html>`__, `source <../../../../_static/doxygen/src/html/crc_8h_source.html>`__)
+- ``src/app/driver/crc/crc.c``
+- ``src/app/driver/crc/crc.h``
 
 Unit Test
 ^^^^^^^^^
 
-- ``tests/unit/app/driver/crc/test_crc.c`` (`API <../../../../_static/doxygen/tests/html/test__crc_8c.html>`__, `source <../../../../_static/doxygen/tests/html/test__crc_8c_source.html>`__)
+- ``tests/unit/app/driver/crc/test_crc.c``
 
 Description
 -----------

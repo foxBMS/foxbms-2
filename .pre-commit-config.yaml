@@ -1,0 +1,411 @@
+# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# All rights reserved.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#
+# 1. Redistributions of source code must retain the above copyright notice, this
+#    list of conditions and the following disclaimer.
+#
+# 2. Redistributions in binary form must reproduce the above copyright notice,
+#    this list of conditions and the following disclaimer in the documentation
+#    and/or other materials provided with the distribution.
+#
+# 3. Neither the name of the copyright holder nor the names of its
+#    contributors may be used to endorse or promote products derived from
+#    this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+# OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#
+# We kindly request you to use one or more of the following phrases to refer to
+# foxBMS in your hardware, software, documentation or advertising materials:
+#
+# - "This product uses parts of foxBMS®"
+# - "This product includes parts of foxBMS®"
+# - "This product is derived from foxBMS®"
+
+exclude: |
+  (?x)^(
+      src/os/freertos/.*\.[c|h]|
+      src/os/freertos/.*\.url|
+      src/os/freertos/\.github/.*|
+      src/os/freertos/History\.txt|
+      src/os/freertos/include/.*|
+      src/os/freertos/LICENSE\.md|
+      src/os/freertos/portable/.*|
+      src/os/freertos/README\.md|
+      tests/axivion/addon/.*\.py|
+      tests/axivion/addon-test/.*\.(c|h|cpp)|
+      tests/axivion/compiler-errata/ti-cgt-arm.*|
+      tests/axivion/qualification-test/qualification-kit.*|
+      tests/hil/server/pi_pico/fault_injector/mcp23017\.py|
+      tools/dbc/third-party/.*|
+      tools/vendor/ceedling/.*|
+      tools/waf
+  )$
+repos:
+  - repo: meta
+    hooks:
+      # - id: check-useless-excludes
+      - id: check-hooks-apply
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: check-added-large-files
+      - id: check-ast
+        files: |
+          (?x)^(
+            .*\.py|
+            .*wscript
+          )$
+      - id: check-builtin-literals
+        files: |
+          (?x)^(
+            .*\.py|
+            .*wscript
+          )$
+      - id: check-case-conflict
+      - id: check-docstring-first
+        files: |
+          (?x)^(
+            .*\.py|
+            .*wscript
+          )$
+      - id: check-executables-have-shebangs
+      #- id: check-illegal-windows-names
+      - id: check-json
+      - id: check-merge-conflict
+      - id: check-shebang-scripts-are-executable
+      - id: check-toml
+      - id: check-vcs-permalinks
+      - id: check-yaml
+        exclude: \.gitlab-ci\.yml
+        args: [--allow-multiple-documents]
+      - id: debug-statements
+        files: |
+          (?x)^(
+            .*(\.py)|
+            .*wscript
+          )$
+      - id: destroyed-symlinks
+      - id: detect-private-key
+      - id: end-of-file-fixer
+      - id: fix-byte-order-marker
+      - id: forbid-submodules
+      - id: mixed-line-ending
+        args: [--fix=no]
+      - id: name-tests-test
+        args: [--unittest]
+        exclude: |
+          (?x)^(
+            tests/axivion/.*\.py|
+            tests/can/check_ids\.py|
+            tests/can/check_implemented\.py|
+            tests/ccs/ccs_build_helper\.py|
+            tests/c-std/c-std-test\.py|
+            tests/dbc/check_parseable\.py|
+            tests/dbc/overlapping-signals\.py|
+            tests/hil/.*\.py|
+            tests/unit/axivion/call_irlink\.py
+          )$
+      - id: no-commit-to-branch
+        args: [--branch, master]
+      - id: pretty-format-json
+        args: [--indent, "2", --no-sort-keys, --autofix]
+        exclude: |
+          (?x)^(
+            .*\.(ipynb)|
+            tests/axivion/ci_config\.json|
+            tests/unit/axivion/compiler_config\.json
+          )$
+      - id: requirements-txt-fixer
+      - id: trailing-whitespace
+        exclude: (?x)^(
+          .*\.(dil)|
+          docs/software/architecture/img/axivion_architecture.svg|
+          src/app/driver/afe/nxp/mc33775a/vendor/.*\.[c|h]
+          )$
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.5.1
+    hooks:
+      - id: ruff
+        args: [--fix]
+      - id: ruff-format
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v3.16.0
+    hooks:
+      - id: pyupgrade
+        files: |
+          (?x)^(
+            .*(\.py)|
+            .*wscript
+          )$
+  - repo: local
+    hooks:
+      - id: check-file-name
+        name: file name check
+        entry: file names must be alphanumeric and lower-case
+        language: fail
+        files: "[^a-z0-9._/-]"
+        exclude: |
+          (?x)^(
+            .*README\.md|
+            \.github/PULL_REQUEST_TEMPLATE\.md|
+            \.gitlab/CODEOWNERS|
+            BSD-3-Clause\.txt|
+            CC-BY-4\.0\.txt|
+            CHANGELOG\.md|
+            CITATION\.cff|
+            INSTALL\.md|
+            LICENSE\.md|
+            src/app/driver/afe/nxp/mc33775a/vendor/MC33775A\.h|
+            src/os/freertos/README\.ti-halcogen\.md
+          )$
+  - repo: local
+    hooks:
+      - id: pylint
+        name: pylint
+        entry: pylint
+        language: system
+        types: [python]
+        files: |
+          (?x)^(
+            .*(\.py)|
+            .*wscript
+          )$
+        require_serial: true
+  - repo: https://github.com/pre-commit/mirrors-clang-format
+    rev: "v18.1.8"
+    hooks:
+      - id: clang-format
+        args: [--style=file]
+        types_or: [c]
+  - repo: local
+    hooks:
+      - id: check-license-header
+        name: check Python-files for the correct license header
+        files: |
+          (?x)^(
+            .*(\.py)|
+            .*wscript
+          )$
+        exclude: |
+          (?x)^(
+             tests/hil/.*\.py
+          )$
+        language: system
+        entry: python cli/pre_commit_scripts/check_license_info.py --file-type=py
+      - id: check-license-header
+        name: check C-files for the correct license header
+        types: [c]
+        language: system
+        entry: python cli/pre_commit_scripts/check_license_info.py --file-type=c
+        exclude: |
+          (?x)^(
+            src/app/driver/afe/nxp/mc33775a/nxp_mc33775a-ll\.[c|h]|
+            src/app/driver/afe/nxp/mc33775a/vendor/.*|
+            src/app/driver/sbc/fs8x_driver/.*|
+            tests/axivion/config-test/test_macro-names\.[c|h]||
+            tests/axivion/config-test/test_parameter-names-\d\.[c|h]
+          )$
+      - id: check-license-header
+        name: check YAML-files for the correct license header
+        types: [yaml]
+        language: system
+        entry: python cli/pre_commit_scripts/check_license_info.py --file-type=yaml
+        exclude: |
+          (?x)^(
+             .*\.clang-format|
+             conf/unit/project_posix\.yml|
+             conf/unit/project_win32\.yml|
+             tests/hil/.*
+          )$
+      - id: check-license-header
+        name: check toml-files for the correct license header
+        types: [toml]
+        language: system
+        entry: python cli/pre_commit_scripts/check_license_info.py --file-type=toml
+      - id: check-license-header
+        name: check pwsh-files for the correct license header
+        types: [powershell]
+        language: system
+        entry: python cli/pre_commit_scripts/check_license_info.py --file-type=pwsh
+      - id: check-license-header
+        name: check bat-files for the correct license header
+        types: [batch]
+        exclude: tests/hil/.*
+        language: system
+        entry: python cli/pre_commit_scripts/check_license_info.py --file-type=batch
+      - id: check-license-header
+        name: check shell-files for the correct license header
+        types: [shell]
+        language: system
+        entry: python cli/pre_commit_scripts/check_license_info.py --file-type=shell
+      - id: check-license-header
+        name: check dot-files for the correct license header
+        language: system
+        entry: python cli/pre_commit_scripts/check_license_info.py --file-type=dot
+        files: .*(\.dot)
+      - id: check-file-encoding
+        name: check C-files use the ASCII encoding
+        language: system
+        entry: python cli/pre_commit_scripts/check_encoding.py --encoding=ascii
+        types: [c]
+        exclude: src/app/driver/afe/nxp/mc33775a/vendor/.*
+      - id: check-file-encoding
+        name: check sym/dbc-files use the ASCII encoding
+        language: system
+        entry: python cli/pre_commit_scripts/check_encoding.py --encoding=ascii
+        files: |
+          (?x)^(
+            .*\.(dbc)|
+            .*\.(sym)
+          )$
+      - id: check-file-encoding
+        name: check all other files use UTF-8 encoding
+        language: system
+        entry: python cli/pre_commit_scripts/check_encoding.py --encoding=utf-8
+        exclude_types: [c, png, jpeg, icon]
+        exclude: |
+          (?x)^(
+            .*\.(pptx)|
+            .*\.(vsdx)
+          )$
+      - id: unique-file-names
+        name: check that file names are unique in the repository
+        language: system
+        entry: python cli/pre_commit_scripts/check_file_names.py
+        exclude: |
+          (?x)^(
+            .*\.clang-format|
+            .*\.dummy|
+            .*\.gitignore|
+            .*__init__.py|
+            .*__main__.py|
+            .*main.py|
+            .*misc.py|
+            .*README\.md|
+            .*wscript|
+            tests/axivion/axivion_config\.json|
+            tests/axivion/ci_config\.json|
+            tests/axivion/compiler_config\.json|
+            tests/unit/axivion/axivion_config\.json|
+            tests/unit/axivion/ci_config\.json|
+            tests/unit/axivion/compiler_config\.json|
+            tools/ide/vscode/.*/c_cpp_properties\.json|
+            tools/ide/vscode/.*/settings\.json|
+            tools/ide/vscode/.*/tasks\.json|
+            tools/vendor/ceedling/plugins/dependencies/example/boss/src/main\.c
+          )$
+      - id: check-include-guard
+        name: check C-header use the correct include guard
+        language: system
+        entry: python cli/pre_commit_scripts/check_include_guard.py
+        types: [c]
+        exclude: |
+          (?x)^(
+            src/app/driver/afe/nxp/mc33775a/vendor/.*|
+            src/app/driver/sbc/fs8x_driver/.*
+          )$
+      - id: check-c-section-markers
+        name: check C-files in 'src' use the correct section markers
+        language: system
+        entry: python cli/pre_commit_scripts/check_sections.py --file-type=src
+        types: [c]
+        exclude: |
+          (?x)^(
+            conf/tpl/test_c\.c|
+            conf/tpl/test_c\.h|
+            docs/developer-manual/style-guide/examples/c-006-test\.[c|h]|
+            docs/software/unit-tests/test_abc\.c|
+            src/app/driver/afe/nxp/mc33775a/vendor/.*|
+            src/app/driver/sbc/fs8x_driver/.*|
+            tests/axivion/axivion_preinc\.h|
+            tests/axivion/config-test/test_macro-names\.[c|h]|
+            tests/axivion/config-test/test_parameter-names-\d\.c|
+            tests/unit.*
+          )$
+      - id: check-c-section-markers
+        name: check C-files in 'tests' use the correct section markers
+        language: system
+        entry: python cli/pre_commit_scripts/check_sections.py --file-type=test
+        types: [c]
+        exclude: |
+          (?x)^(
+            conf/tpl/c\.[h|c]|
+            docs/developer-manual/style-guide/examples/c-004\.c|
+            docs/developer-manual/style-guide/examples/c-005\.[c|h]|
+            docs/developer-manual/style-guide/examples/c-006-source\.[c|h]|
+            docs/developer-manual/style-guide/examples/c-007_abc\.[c|h]|
+            docs/developer-manual/style-guide/examples/c-007_abc_cfg\.c|
+            docs/developer-manual/style-guide/examples/c-007_abc_cfg\.h|
+            docs/developer-manual/style-guide/examples/c-008\.[c|h]|
+            docs/developer-manual/style-guide/examples/c-009\.c|
+            docs/developer-manual/style-guide/examples/c-011\.[c|h]|
+            docs/developer-manual/style-guide/examples/c-012\.c|
+            docs/developer-manual/style-guide/examples/c-013\.[c|h]|
+            docs/developer-manual/style-guide/examples/c-015\.[c|h]|
+            docs/developer-manual/style-guide/examples/c-016\.c|
+            docs/developer-manual/style-guide/examples/c-017\.c|
+            docs/developer-manual/style-guide/examples/c-018\.c|
+            docs/developer-manual/style-guide/examples/c-019\.c|
+            docs/developer-manual/style-guide/examples/c-020\.c|
+            docs/developer-manual/style-guide/examples/c-021\.c|
+            docs/developer-manual/style-guide/examples/c-022\.c|
+            docs/developer-manual/style-guide/examples/c-023\.c|
+            docs/developer-manual/style-guide/examples/c-024\.c|
+            docs/developer-manual/style-guide/examples/c-025\.c|
+            docs/developer-manual/style-guide/examples/c-026\.c|
+            docs/developer-manual/style-guide/examples/c-027\.c|
+            docs/developer-manual/style-guide/examples/c-028\.c|
+            docs/developer-manual/style-guide/examples/c-028-battery-defines\.c|
+            docs/developer-manual/style-guide/state-machine-example/state-machine\.[c|h]|
+            docs/software/build-process/misc/libproject-example\.[c|h]|
+            docs/software/modules/driver/can/can_how-to_tx_async\.[c|h]|
+            docs/software/modules/driver/can/can_how-to_tx_cyclic\.c|
+            docs/software/modules/engine/database/database_how-to\.c|
+            docs/software/modules/task/ftask/ftask_how-to\.c|
+            docs/software/unit-tests/abc\.c|
+            docs/software/unit-tests/abc\.c|
+            docs/software/unit-tests/abc\.h|
+            docs/software/unit-tests/run_abc\.c|
+            src/.*|
+            tests/axivion/axivion_preinc\.h|
+            tests/axivion/config-test/test_macro-names\.[c|h]|
+            tests/axivion/config-test/test_parameter-names-\d\.c|
+            tests/c-std/c-std-test\.c|
+            tests/unit/app/driver/afe/adi/common/ades183x.*|
+            tests/variants/lib-build/lib-build_main\.c|
+            tools/crc/crc-10_0x48f\.c|
+            tools/crc/crc-15_0xc599\.c
+          )$
+      - id: check-doxygen-comments
+        name: check C-files have a well defined doxygen comment
+        language: system
+        entry: python cli/pre_commit_scripts/check_doxygen.py
+        types: [c]
+        exclude: |
+          (?x)^(
+            src/app/driver/afe/nxp/mc33775a/nxp_mc33775a-ll\.h|
+            src/app/driver/afe/nxp/mc33775a/vendor/.*|
+            src/app/driver/sbc/fs8x_driver/.*|
+            tests/axivion/axivion_preinc\.h |
+            tests/axivion/config-test/test_macro-names\.[c|h]|
+            tests/axivion/config-test/test_parameter-names-\d\.c
+          )$
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: v0.10.0.1
+    hooks:
+      - id: shellcheck

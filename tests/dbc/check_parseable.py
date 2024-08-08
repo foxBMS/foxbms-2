@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 #
-# Copyright (c) 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -40,15 +39,15 @@
 
 """Ensure that the CAN definition files (symbol and dbc) are parsable."""
 
-import sys
 import logging
+import sys
 from pathlib import Path
-import git
-from git.exc import InvalidGitRepositoryError
+
+import cantools
 import click
 import colorama
-import cantools
-
+import git
+from git.exc import InvalidGitRepositoryError
 
 SCRIPT_DIR = Path(__file__).parent.resolve()
 
@@ -71,7 +70,10 @@ def set_logging_level(verbose: int = 0) -> None:
         logging.basicConfig(level=logging.ERROR)
 
 
-@click.command(context_settings=dict(help_option_names=["-h", "--help"]))
+context_settings = {"help_option_names": ["-h", "--help"]}
+
+
+@click.command(context_settings=context_settings)
 @click.option("-v", "--verbose", default=0, count=True, help="Verbose information.")
 @click.option(
     "-s",
@@ -96,13 +98,17 @@ def main(ctx: click.Context, verbose: int, symbol_file: Path, dbc_file: Path) ->
     """Convert symbol file to dbc file"""
     colorama.init()
     set_logging_level(verbose)
-    logging.debug("Parsing symbol file...")
-    cantools.database.load_file(str(symbol_file))
-    logging.debug("done")
+    logging.warning(
+        "Symbol file checking disabled, due to a 'cantools' bug "
+        "(https://github.com/cantools/cantools/issues/458)"
+    )
+    # logging.debug("Parsing symbol file...")
+    # cantools.database.load_file(str(symbol_file))
+    # logging.debug("done")
     logging.debug("Parsing dbc file...")
     cantools.database.load_file(str(dbc_file))
     logging.debug("done")
-    logging.info(f"{symbol_file} and {dbc_file} files are parsable.")
+    logging.info("%s and %s files are parsable.", symbol_file, dbc_file)
     ctx.exit(0)
 
 

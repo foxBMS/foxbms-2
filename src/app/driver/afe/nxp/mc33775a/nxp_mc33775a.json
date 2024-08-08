@@ -1,11 +1,11 @@
 {
-    "include": [
-        ".",
-        "api",
-        "config",
-        "vendor",
-        "../api",
-        "../common",
-        "../../api"
-    ]
+  "include": [
+    ".",
+    "api",
+    "config",
+    "vendor",
+    "../api",
+    "../common",
+    "../../api"
+  ]
 }

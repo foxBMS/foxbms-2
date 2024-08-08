@@ -76,7 +76,8 @@ Measurements Inside the Battery Pack
 
 The strings are depicted in ascending order from right to left starting with
 string 1 (``S1``) until left-most string m (``Sm``).
-Each string consists of ``n`` modules, where every module has its own |slave|.
+Each string consists of ``n`` modules, where every module has its own
+|bms-slave|.
 Each string features a current sensor, a string fuse and one or two string
 contactors.
 Thus, the following voltages need to be measured in each string:

@@ -1,0 +1,90 @@
+Name;Version;SPDX short identifier;License
+alabaster;0.7.16;BSD-3-Clause;BSD License
+argparse-addons;0.12.0;MIT;MIT License
+astroid;3.2.2;LGPL-2.1;GNU Lesser General Public License v2 (LGPLv2)
+attrs;23.2.0;MIT;MIT License
+Babel;2.15.0;BSD-3-Clause;BSD License
+bitstruct;8.19.0;MIT;MIT License
+cantools;39.4.5;MIT;MIT License
+certifi;2024.6.2;MPL-2.0;Mozilla Public License 2.0 (MPL 2.0)
+cffconvert;2.0.0;Apache-2.0;Apache Software License
+cfgv;3.4.0;MIT;MIT License
+charset-normalizer;3.3.2;MIT;MIT License
+click;8.1.7;BSD-3-Clause;BSD License
+colorama;0.4.6;BSD 3-Clause;BSD License
+colorlog;6.8.2;MIT;MIT License
+contourpy;1.2.1;BSD 3-Clause;BSD License
+coverage;7.5.4;Apache-2.0;Apache Software License
+crccheck;1.3.0;MIT;MIT License
+cycler;0.12.1;BSD 3-Clause;BSD License
+dill;0.3.8;BSD-3-Clause;BSD License
+diskcache;5.6.3;Apache 2.0;Apache Software License
+distlib;0.3.8;PSF-2.0;Python Software Foundation License
+docopt;0.6.2;MIT;MIT License
+docutils;0.20.1;BSD-2-Clause,GPL-3.0-or-later,ZPL - 2.1;BSD License, GNU General Public License (GPL), Public Domain, Python Software Foundation License
+filelock;3.15.4;Unlicense;The Unlicense (Unlicense)
+fonttools;4.53.1;MIT;MIT License
+gcovr;7.2;BSD 3-Clause;BSD License
+gitdb;4.0.11;BSD 3-Clause;BSD License
+GitPython;3.1.43;BSD-3-Clause;BSD License
+identify;2.5.36;MIT;MIT License
+idna;3.7;BSD-3-Clause;BSD License
+imagesize;1.4.1;MIT;MIT License
+isort;5.13.2;MIT;MIT License
+Jinja2;3.1.4;BSD-3-Clause;BSD License
+jsonschema;3.2.0;MIT;MIT License
+jsonschema-specifications;2023.12.1;MIT;MIT License
+kiwisolver;1.4.5;BSD-3-Clause;BSD License
+latexcodec;3.0.0;MIT;MIT License
+lxml;5.2.2;BSD-3-Clause;BSD License
+MarkupSafe;2.1.5;BSD-3-Clause;BSD License
+matplotlib;3.9.1.post1;\-;Python Software Foundation License
+mccabe;0.7.0;MIT;MIT License
+nodeenv;1.9.1;BSD-3-Clause;BSD License
+numpy;2.0.0;BSD-3-Clause;BSD License
+packaging;24.1;Apache-2.0, BSD-2-Clause;Apache Software License, BSD License
+pillow;10.4.0;HPND;Historical Permission Notice and Disclaimer (HPND)
+pip-licenses;4.4.0;MIT;MIT License
+platformdirs;4.4.2;MIT;MIT License
+pre-commit;3.71;MIT;MIT License
+prettytable;3.10;BSD-3-Clause;BSD License
+pybtex;0.24.0;MIT;MIT License
+pybtex-docutils;1.0.3;MIT;MIT License
+Pygments;2.18.0;BSD-2-Clause;BSD License
+pykwalify;1.8.0;MIT;MIT License
+pylint;3.2.5;GPL-2.0;GNU General Public License v2 (GPLv2)
+pyparsing;3.1.2;MIT;MIT License
+pyserial;3.5;BSD-3-Clause;BSD License
+pyrsistent;0.20.0;MIT;MIT License
+python-can;4.4.2;LGPL-3.0-only;GNU Lesser General Public License v3 (LGPLv3)
+python-dateutil;2.9.0.post0;Apache-2.0, BSD-3-Clause;Apache Software License, BSD License
+pywin32;306;\-;Python Software Foundation License
+PyYAML;6.0.1;MIT;MIT License
+referencing;0.35.1;MIT;MIT License
+requests;2.32.3;Apache-2.0;Apache Software License
+rpds-py;0.18.1;MIT;MIT License
+ruamel.yaml;0.18.6;MIT;MIT License
+ruamel.yaml.clib;0.2.8;MIT;MIT License
+ruff;0.5.0;MIT;MIT License
+setuptools;70.2.0;MIT;MIT License
+six;1.16.0;MIT;MIT License
+smmap;5.0.1;BSD-3-Clause;BSD License
+snowballstemmer;2.2.0;BSD-3-Clause;BSD License
+Sphinx;7.3.7;BSD-2-Clause;BSD License
+sphinx-rtd-theme;2.0.0;MIT;MIT License
+sphinxcontrib-applehelp;1.0.8;BSD-2-Clause;BSD License
+sphinxcontrib-bibtex;2.6.2;BSD-2-Clause;BSD License
+sphinxcontrib-devhelp;1.0.6;BSD-2-Clause;BSD License
+sphinxcontrib-htmlhelp;2.0.5;BSD-2-Clause;BSD License
+sphinxcontrib-jquery;4.1;0BSD;BSD License
+sphinxcontrib-jsmath;1.0.1;BSD-2-Clause;BSD License
+sphinxcontrib-qthelp;1.0.7;BSD-2-Clause;BSD License
+sphinxcontrib-serializinghtml;1.1.10;BSD-2-Clause;BSD License
+tabulate;0.9.0;MIT;MIT License
+textparser;0.24.0;MIT;MIT License
+tomlkit;0.12.5;MIT;MIT License
+typing_extensions;4.12.2;\-;Python Software Foundation License
+urllib3;2.2.2;MIT;MIT License
+virtualenv;20.26.3;MIT;MIT License
+wcwidth;0.2.13;MIT;MIT License
+wrapt;1.16.0;BSD-2-Clause;BSD License

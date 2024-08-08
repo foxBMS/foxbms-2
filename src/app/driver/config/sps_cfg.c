@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,13 +43,13 @@
  * @file    sps_cfg.c
  * @author  foxBMS Team
  * @date    2020-10-14 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
- * @ingroup DRIVERS_CONF
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
+ * @ingroup DRIVERS_CONFIGURATION
  * @prefix  SPS
  *
- * @brief   Configuration for the driver for the smart power switches
- *
+ * @brief   Configuration for the driver for the smart power switches (SPS)
+ * @details TODO
  */
 
 /*========== Includes =======================================================*/
@@ -81,16 +81,16 @@ SPS_CHANNEL_STATE_s sps_channelStatus[SPS_NR_OF_AVAILABLE_SPS_CHANNELS] = {
  * * IDs are the same as in #sps_channelStatus (#SPS_CHANNEL_INDEX)
  * * The mapping is intended to be constant; if a feedback channel shall be
  *   used, this should also be configured in #sps_channelStatus
-*/
+ */
 const SPS_CHANNEL_FEEDBACK_MAPPING_s sps_kChannelFeedbackMapping[SPS_NR_OF_AVAILABLE_SPS_CHANNELS] = {
-    {PEX_PORT_EXPANDER1, PEX_PIN00},
-    {PEX_PORT_EXPANDER1, PEX_PIN01},
-    {PEX_PORT_EXPANDER1, PEX_PIN02},
-    {PEX_PORT_EXPANDER1, PEX_PIN03},
-    {PEX_PORT_EXPANDER1, PEX_PIN04},
-    {PEX_PORT_EXPANDER1, PEX_PIN05},
-    {PEX_PORT_EXPANDER1, PEX_PIN06},
-    {PEX_PORT_EXPANDER1, PEX_PIN07},
+    {PEX_PORT_EXPANDER1, PEX_PORT_0_PIN_0},
+    {PEX_PORT_EXPANDER1, PEX_PORT_0_PIN_1},
+    {PEX_PORT_EXPANDER1, PEX_PORT_0_PIN_2},
+    {PEX_PORT_EXPANDER1, PEX_PORT_0_PIN_3},
+    {PEX_PORT_EXPANDER1, PEX_PORT_0_PIN_4},
+    {PEX_PORT_EXPANDER1, PEX_PORT_0_PIN_5},
+    {PEX_PORT_EXPANDER1, PEX_PORT_0_PIN_6},
+    {PEX_PORT_EXPANDER1, PEX_PORT_0_PIN_7},
 };
 
 /*========== Static Function Prototypes =====================================*/

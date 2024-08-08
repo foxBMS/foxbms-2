@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Copyright (c) 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -33,22 +33,34 @@
 # We kindly request you to use one or more of the following phrases to refer to
 # foxBMS in your hardware, software, documentation or advertising materials:
 #
-# - "This product uses parts of foxBMS&reg;"
-# - "This product includes parts of foxBMS&reg;"
-# - "This product is derived from foxBMS&reg;"
+# - "This product uses parts of foxBMS®"
+# - "This product includes parts of foxBMS®"
+# - "This product is derived from foxBMS®"
+
+# cSpell:ignore webserver
+# the variables shall be expanded on the client side
+# shellcheck disable=SC2029
 
 # exit immediately on failure
 set -e
+
 # NAMES AND PATHS
-NAME_DOC_DEPLOY_JOB='doc_deployment'
+NAME_DOC_DEPLOY_JOB='id_deploy_docs'
 DIR_DOC_DEPLOY='doc'
 DOC_ARTIFACT='build/docs/.'
-NAME_COV_DEPLOY_JOB='cov_report_deployment'
+
+NAME_COV_DEPLOY_JOB='id_deploy_embedded_cov_report'
 DIR_COV_DEPLOY='cov'
 COV_ARTIFACT='build/unit_test/artifacts/gcov/.'
-NAME_COV_SCRIPT_DEPLOY_JOB='cov_script_report_deployment'
+
+NAME_COV_SCRIPT_DEPLOY_JOB='id_deploy_scripts_cov_report'
 DIR_COV_SCRIPT_DEPLOY='cov_script'
-COV_SCRIPT_ARTIFACT='build/unit_test_scripts/.'
+COV_SCRIPT_ARTIFACT='build/cli-selftest/.'
+
+NAME_SPA_AXIVION_DEPLOY_JOB='id_deploy_custom_axivion_report'
+DIR_SPA_AXIVION_DEPLOY='axivion'
+SPA_AXIVION_ARTIFACT='custom-reports'
+
 REMOTE="$REMOTE_USER@$REMOTE_HOSTNAME"
 echo "Value of variable REMOTE_HOSTNAME: $REMOTE_HOSTNAME"
 echo "Value of variable REMOTE_USER: $REMOTE_USER"
@@ -56,7 +68,10 @@ echo "Value of variable REMOTE_USER: $REMOTE_USER"
 echo 'This is the deployment-script for local reports and documentation.'
 echo 'I will try to detect the current CI-job:'
 # check for CI and if we are in the right job
-if [ "$CI_JOB_NAME" != "$NAME_DOC_DEPLOY_JOB" ] && [ "$CI_JOB_NAME" != "$NAME_COV_DEPLOY_JOB" ] && [ "$CI_JOB_NAME" != "$NAME_COV_SCRIPT_DEPLOY_JOB" ]; then
+if [ "$CI_JOB_NAME" != "$NAME_DOC_DEPLOY_JOB" ] && \
+   [ "$CI_JOB_NAME" != "$NAME_COV_DEPLOY_JOB" ] && \
+   [ "$CI_JOB_NAME" != "$NAME_COV_SCRIPT_DEPLOY_JOB" ] && \
+   [ "$CI_JOB_NAME" != "$NAME_SPA_AXIVION_DEPLOY_JOB" ]; then
     echo 'Expected environment variables not matched.'
     echo "Value of CI_JOB_NAME is $CI_JOB_NAME."
     echo 'Make sure you are running this script in CI in the right job.'
@@ -80,7 +95,7 @@ echo "scp:          $(which scp)"
 
 # make sure the ssh-agent is running
 echo 'Making sure the ssh-agent is running:'
-eval $(ssh-agent -s)
+eval "$(ssh-agent -s)"
 
 # give ssh-agent the private key
 # If setting this up, paste the ssh private key (that you have generated for this purpose!)
@@ -100,7 +115,7 @@ touch ~/.ssh/known_hosts
 # create a variable INTERNAL_WEBSERVER_SSH_HOST_KEY in Gitlab and add the output
 # of ssh-keyscan. The remote hostname should match the one in this script.
 echo 'Removing old ssh host key.'
-ssh-keygen -R $REMOTE_HOSTNAME
+ssh-keygen -R "$REMOTE_HOSTNAME"
 echo 'Loading ssh host key.'
 echo 'If this fails, make sure the variable INTERNAL_WEBSERVER_SSH_HOST_KEY is configured in Gitlab CI.'
 echo "$INTERNAL_WEBSERVER_SSH_HOST_KEY" >> ~/.ssh/known_hosts
@@ -115,6 +130,9 @@ elif [ "$CI_JOB_NAME" == "$NAME_COV_DEPLOY_JOB" ]; then
 elif [ "$CI_JOB_NAME" == "$NAME_COV_SCRIPT_DEPLOY_JOB" ]; then
     BASE_DIR=$DIR_COV_SCRIPT_DEPLOY
     ARTIFACT=$COV_SCRIPT_ARTIFACT
+elif [ "$CI_JOB_NAME" == "$NAME_SPA_AXIVION_DEPLOY_JOB" ]; then
+    BASE_DIR=$DIR_SPA_AXIVION_DEPLOY
+    ARTIFACT=$SPA_AXIVION_ARTIFACT
 fi
 
 REMOTE_BASE_DIR="$REMOTE_WEB_DIR/$BASE_DIR"
@@ -123,25 +141,25 @@ echo "I will store the files in $REMOTE_TARGET_DIR."
 
 # mkdir -p base directory (based on JOB_NAME doc/ or cov/)
 echo "Creating directory $REMOTE_BASE_DIR on remote."
-ssh $REMOTE "mkdir -p $REMOTE_BASE_DIR"
+ssh "$REMOTE" "mkdir -p $REMOTE_BASE_DIR"
 
 # rm -rf $REMOTE_TARGET_DIR
 echo "Removing directory $REMOTE_TARGET_DIR (in order to make sure that it is empty)."
-ssh $REMOTE "rm -rf $REMOTE_TARGET_DIR"
+ssh "$REMOTE" "rm -rf $REMOTE_TARGET_DIR"
 
 # mkdir -p $REMOTE_TARGET_DIR
 echo "Creating directory $REMOTE_TARGET_DIR on remote."
-ssh $REMOTE "mkdir -p $REMOTE_TARGET_DIR"
+ssh "$REMOTE" "mkdir -p $REMOTE_TARGET_DIR"
 
 # tar and copy local artifacts to $REMOTE_TARGET_DIR
 echo 'This is the local artifact:'
-ls -al $ARTIFACT
+ls -la "$ARTIFACT"
 echo "Copying artifact from $ARTIFACT to $REMOTE_TARGET_DIR on remote."
 echo "pushing into $ARTIFACT"
 echo "pushd $ARTIFACT"
-pushd $ARTIFACT
+pushd "$ARTIFACT"
 echo "tar czf - . | ssh $REMOTE \"cd $REMOTE_TARGET_DIR && tar xzf -\""
-tar czf - . | ssh $REMOTE "cd $REMOTE_TARGET_DIR && tar xzf -"
+tar czf - . | ssh "$REMOTE" "cd $REMOTE_TARGET_DIR && tar xzf -"
 echo "popd"
 popd
 
@@ -153,16 +171,16 @@ if [ "$CI_COMMIT_BRANCH" == "$CI_DEFAULT_BRANCH" ]; then
     # copy contents to dir with commit ID, if we are on master
     echo "Commit SHA is $CI_COMMIT_SHA."
     echo "Removing $REMOTE_COMMIT_DIR."
-    ssh $REMOTE "rm -rf $REMOTE_COMMIT_DIR"
+    ssh "$REMOTE" "rm -rf $REMOTE_COMMIT_DIR"
     echo "Creating $REMOTE_COMMIT_DIR."
-    ssh $REMOTE "mkdir -p $REMOTE_COMMIT_DIR"
+    ssh "$REMOTE" "mkdir -p $REMOTE_COMMIT_DIR"
     echo "Copying files from $REMOTE_TARGET_DIR. to $REMOTE_COMMIT_DIR"
-    ssh $REMOTE "cp -r $REMOTE_TARGET_DIR. $REMOTE_COMMIT_DIR"
+    ssh "$REMOTE" "cp -r $REMOTE_TARGET_DIR. $REMOTE_COMMIT_DIR"
 
 fi
 
 # housekeeping: kill the current agent
 echo 'Cleaning up and killing current ssh-agent:'
-eval $(ssh-agent -k)
+eval "$(ssh-agent -k)"
 
 echo 'Live long and prosper. 🖖'

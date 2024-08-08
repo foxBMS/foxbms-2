@@ -12,8 +12,8 @@ Module Files
 Driver
 ^^^^^^
 
-- ``src/app/driver/imd/none/no-imd.c`` (`API <../../../../_static/doxygen/src/html/no__imd_8c.html>`__, `source <../../../../_static/doxygen/src/html/no__imd_8c_source.html>`__)
-- ``src/app/driver/imd/none/no-imd.h`` (`API <../../../../_static/doxygen/src/html/no__imd_8h.html>`__, `source <../../../../_static/doxygen/src/html/no__imd_8h_source.html>`__)
+- ``src/app/driver/imd/none/no-imd.c``
+- ``src/app/driver/imd/none/no-imd.h``
 
 Configuration
 ^^^^^^^^^^^^^
@@ -23,7 +23,7 @@ Configuration
 Unit Test
 ^^^^^^^^^
 
-- ``tests/unit/app/driver/imd/none/test_no-imd.c`` (`API <../../../../_static/doxygen/tests/html/test__no__imd_8c.html>`__, `source <../../../../_static/doxygen/tests/html/test__no__imd_8c_source.html>`__)
+- ``tests/unit/app/driver/imd/none/test_no-imd.c``
 
 Description
 -----------

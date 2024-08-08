@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,13 +43,13 @@
  * @file    fram_cfg.c
  * @author  foxBMS Team
  * @date    2020-03-05 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  FRAM
  *
  * @brief   Configuration for the FRAM module
- *
+ * @details TODO
  */
 
 /*========== Includes =======================================================*/
@@ -74,8 +74,8 @@ FRAM_SBC_INIT_s fram_sbcInit = {
     .phase    = 0u,
     .finState = STD_NOT_OK,
 };
-FRAM_DEEP_DISCHARGE_FLAG_s fram_deepDischargeFlags = {0};
-FRAM_SYS_MON_RECORD_s fram_sys_mon_record          = {0};
+FRAM_DEEP_DISCHARGE_FLAG_s fram_deepDischargeFlags = {false};
+FRAM_SYS_MON_RECORD_s fram_sysMonViolationRecord   = {0};
 FRAM_INSULATION_FLAG_s fram_insulationFlags        = {.groundErrorDetected = false};
 /**@}*/
 
@@ -83,13 +83,13 @@ FRAM_INSULATION_FLAG_s fram_insulationFlags        = {.groundErrorDetected = fal
  * The zeros are the uninitialized addresses of the variables
  * in the FRAM. They are initialized by the call of FRAM_Initialize()
  */
-FRAM_BASE_HEADER_s fram_base_header[] = {
+FRAM_BASE_HEADER_s fram_databaseHeader[] = {
     {(void *)(&fram_version), sizeof(fram_version), 0},
     {(void *)(&fram_soc), sizeof(fram_soc), 0},
     {(void *)(&fram_sbcInit), sizeof(fram_sbcInit), 0},
     {(void *)(&fram_deepDischargeFlags), sizeof(fram_deepDischargeFlags), 0},
     {(void *)(&fram_soe), sizeof(fram_soe), 0},
-    {(void *)(&fram_sys_mon_record), sizeof(fram_sys_mon_record), 0},
+    {(void *)(&fram_sysMonViolationRecord), sizeof(fram_sysMonViolationRecord), 0},
     {(void *)(&fram_insulationFlags), sizeof(fram_insulationFlags), 0},
 };
 

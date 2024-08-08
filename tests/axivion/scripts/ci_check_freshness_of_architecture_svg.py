@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 #
-# Copyright (c) 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -47,22 +46,28 @@ SVG is not newer (or at least equally) old as the other files.
 In order to fix a failure, check the documentation on how to update the
 architecture SVG.
 """
+
 import argparse
 import datetime
 import logging
 import os
 import sys
+import shutil
 from pathlib import Path
+from subprocess import Popen, PIPE
 
-from git import Repo
+SCRIPT_DIR = Path(__file__).parent
 
 
 def get_git_change_date(filename):
     """extract the commit date of a file as datetime from git"""
-    repo = Repo(filename, search_parent_directories=True)
-    extracted_date = repo.git.log("-1", "--date=short", "--pretty=%at", filename)
+    git = shutil.which("git")
+    cmd = [git, "log", "-1", "--date=short", "--pretty=%at", filename]
+    with Popen(cmd, cwd=SCRIPT_DIR, stdout=PIPE) as p:
+        std_out = p.communicate()[0]
+    extracted_date = std_out.decode("utf-8").strip()
     timestamp = datetime.datetime.fromtimestamp(int(extracted_date))
-    logging.debug(f"extracted timestamp from file {filename}: {timestamp}")
+    logging.debug("extracted timestamp from file %s: %s", filename, timestamp)
     return timestamp
 
 
@@ -86,27 +91,25 @@ def main():
     else:
         logging.basicConfig(level=logging.ERROR)
 
-    print("Searching for the file change dates.")
-
-    script_dir = Path(__file__).parent
+    logging.debug("Searching for the file change dates.")
 
     file_architecture = os.path.abspath(
         os.path.join(
-            script_dir,
+            SCRIPT_DIR,
             "..",
             "architecture.gxl",
         )
     )
     file_layout = os.path.abspath(
         os.path.join(
-            script_dir,
+            SCRIPT_DIR,
             "..",
             "architecture_hierarchy_belongs_to_layout.gvl",
         )
     )
     file_output = os.path.abspath(
         os.path.join(
-            script_dir,
+            SCRIPT_DIR,
             "..",
             "..",
             "..",
@@ -120,7 +123,7 @@ def main():
 
     def get_date_helper(filename):
         date = get_git_change_date(filename)
-        logging.debug(f"timestamp for {filename}: {date}")
+        logging.debug("timestamp for %s: %s", filename, date)
         return date
 
     date_architecture = get_date_helper(file_architecture)
@@ -128,9 +131,9 @@ def main():
     date_output = get_date_helper(file_output)
 
     date_oldest_educt = max(date_architecture, date_layout)
-    logging.info(f"oldest educt is from {date_oldest_educt}.")
+    logging.info("oldest educt is from %s.", date_oldest_educt)
 
-    logging.info(f"youngest product is from {date_output}.")
+    logging.info("youngest product is from %s.", date_output)
 
     if date_oldest_educt > date_output:
         logging.error(
@@ -139,7 +142,7 @@ def main():
         )
         sys.exit(1)
 
-    print("Architecture SVG is up to date.")
+    logging.debug("Architecture SVG is up to date.")
 
 
 if __name__ == "__main__":

@@ -70,8 +70,6 @@ State estimation API
 The state estimation API is defined in ``state_estimation.h`` and shown
 below in :ref:`se-state-estimation-api`.
 The summary of all state-estimation-functions has to implement this API.
-For more details refer to the
-`API documentation <./../../../../../_static/doxygen/src/html/group__state-estimation-api.html>`__.
 
 .. literalinclude:: ./../../../../../../src/app/application/algorithm/state_estimation/state_estimation.h
    :language: C

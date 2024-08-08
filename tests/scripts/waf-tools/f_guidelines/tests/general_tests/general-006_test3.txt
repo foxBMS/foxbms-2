@@ -1,3 +1,0 @@
-This file raises no general-006 error since no tabs are used
-some word in a line
-    no Tabs

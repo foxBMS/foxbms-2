@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,17 +43,14 @@
  * @file    can_cfg_rx.c
  * @author  foxBMS Team
  * @date    2019-12-04 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  CANRX
  *
  * @brief   Configuration for the CAN module
- *
  * @details The CAN bus settings and the received messages and their reception
  *          handling are to be specified here.
- *
- *
  */
 
 /*========== Includes =======================================================*/
@@ -77,16 +74,18 @@ const CAN_RX_MESSAGE_TYPE_s can_rxMessages[] = {
     {CAN_NODE_IMD, CANRX_IMD_INFO_MESSAGE, &CANRX_ImdInfo},
     {CAN_NODE_IMD, CANRX_IMD_RESPONSE_MESSAGE, &CANRX_ImdResponse},
     {CAN_NODE_1, CANRX_BMS_STATE_REQUEST_MESSAGE, &CANRX_BmsStateRequest},
-    {CAN_NODE_CURRENT_SENSOR, CANRX_STRING0_CURRENT_MESSAGE, &CANRX_CurrentSensor},
-    {CAN_NODE_CURRENT_SENSOR, CANRX_STRING0_VOLTAGE1_MESSAGE, &CANRX_CurrentSensor},
-    {CAN_NODE_CURRENT_SENSOR, CANRX_STRING0_VOLTAGE2_MESSAGE, &CANRX_CurrentSensor},
-    {CAN_NODE_CURRENT_SENSOR, CANRX_STRING0_VOLTAGE3_MESSAGE, &CANRX_CurrentSensor},
-    {CAN_NODE_CURRENT_SENSOR, CANRX_STRING0_TEMPERATURE_MESSAGE, &CANRX_CurrentSensor},
-    {CAN_NODE_CURRENT_SENSOR, CANRX_STRING0_POWER_MESSAGE, &CANRX_CurrentSensor},
-    {CAN_NODE_CURRENT_SENSOR, CANRX_STRING0_CURRENT_COUNTER_MESSAGE, &CANRX_CurrentSensor},
-    {CAN_NODE_CURRENT_SENSOR, CANRX_STRING0_ENERGY_COUNTER_MESSAGE, &CANRX_CurrentSensor},
+    {CAN_NODE_CURRENT_SENSOR, CANRX_IVT_STRING0_CURRENT_MESSAGE, &CANRX_CurrentSensor},
+    {CAN_NODE_CURRENT_SENSOR, CANRX_IVT_STRING0_VOLTAGE1_MESSAGE, &CANRX_CurrentSensor},
+    {CAN_NODE_CURRENT_SENSOR, CANRX_IVT_STRING0_VOLTAGE2_MESSAGE, &CANRX_CurrentSensor},
+    {CAN_NODE_CURRENT_SENSOR, CANRX_IVT_STRING0_VOLTAGE3_MESSAGE, &CANRX_CurrentSensor},
+    {CAN_NODE_CURRENT_SENSOR, CANRX_IVT_STRING0_TEMPERATURE_MESSAGE, &CANRX_CurrentSensor},
+    {CAN_NODE_CURRENT_SENSOR, CANRX_IVT_STRING0_POWER_MESSAGE, &CANRX_CurrentSensor},
+    {CAN_NODE_CURRENT_SENSOR, CANRX_IVT_STRING0_CURRENT_COUNTER_MESSAGE, &CANRX_CurrentSensor},
+    {CAN_NODE_CURRENT_SENSOR, CANRX_IVT_STRING0_ENERGY_COUNTER_MESSAGE, &CANRX_CurrentSensor},
     {CAN_NODE_DEBUG_MESSAGE, CANRX_DEBUG_MESSAGE, &CANRX_Debug},
-    {CAN_NODE_1, CANRX_AEROSOL_SENSOR_MESSAGE, &CANRX_AerosolSensor},
+    {CAN_NODE_1, CANRX_BAS_AEROSOL_SENSOR_MESSAGE, &CANRX_AerosolSensor},
+    {CAN_NODE_RX_CELL_VOLTAGES, CANRX_AFE_CELL_VOLTAGES_MESSAGE, &CANRX_CellVoltages},
+    {CAN_NODE_RX_CELL_TEMPERATURES, CANRX_AFE_CELL_TEMPERATURES_MESSAGE, &CANRX_CellTemperatures},
 };
 
 /** length of CAN message arrays */

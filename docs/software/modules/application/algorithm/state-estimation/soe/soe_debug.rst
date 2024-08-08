@@ -12,17 +12,17 @@ Module Files
 Driver
 ^^^^^^
 
-- ``src/app/application/algorithm/state_estimation/soe/debug/soe_debug.c`` (`API <./../../../../../../_static/doxygen/src/html/soe__debug_8c.html>`__, `source <./../../../../../../_static/doxygen/src/html/soe__debug_8c_source.html>`__)
+- ``src/app/application/algorithm/state_estimation/soe/debug/soe_debug.c``
 
 Configuration
 ^^^^^^^^^^^^^
 
-- ``src/app/application/algorithm/state_estimation/soe/debug/soe_debug_cfg.h`` (`API <./../../../../../../_static/doxygen/src/html/soe__debug__cfg_8h.html>`__, `source <./../../../../../../_static/doxygen/src/html/soe__debug__cfg_8h_source.html>`__)
+- ``src/app/application/algorithm/state_estimation/soe/debug/soe_debug_cfg.h``
 
 Unit Test
 ^^^^^^^^^
 
-- ``tests/unit/app/application/algorithm/state_estimation/soe/debug/test_soe_debug.c`` (`API <./../../../../../../_static/doxygen/tests/html/test__soe__debug_8c.html>`__, `source <./../../../../../../_static/doxygen/tests/html/test__soe__debug_8c_source.html>`__)
+- ``tests/unit/app/application/algorithm/state_estimation/soe/debug/test_soe_debug.c``
 
 Detailed Description
 --------------------

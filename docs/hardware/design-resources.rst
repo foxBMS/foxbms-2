@@ -7,27 +7,25 @@
 Design Resources
 ################
 
-The hardware design packages for the |bms-master|, the |bms-extension|, the
-|bms-interface| and the |bms-slaves| are available from the
+The hardware design packages for the
+- |foxbms-bms-master|,
+- |bms-interface| and the
+- |bms-slaves| are available from the
 |foxbms_repository|.
+
 The packages include:
 
-* Altium Designer Source Files
-
-    * schematics
-    * layout
-    * active bill of materials
-
-* Assembly files
-
-    * BOM in Excel format
-    * 3D model of PCB in step format
-    * schematics in PDF format
-
-* Fabrication files
-
-    * PCB manufacturing data in ODB++ format
-    * PCB layer stack in PDF format
+- Altium Designer Source Files
+  - schematics
+  - layout
+  - active bill of materials
+- Assembly files
+  - BOM in Excel format
+  - 3D model of PCB in step format
+  - schematics in PDF format
+- Fabrication files
+  - PCB manufacturing data in ODB++ format
+  - PCB layer stack in PDF format
 
 .. note::
 

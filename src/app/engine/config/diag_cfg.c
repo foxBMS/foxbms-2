@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,13 +43,12 @@
  * @file    diag_cfg.c
  * @author  foxBMS Team
  * @date    2019-11-28 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup ENGINE_CONFIGURATION
  * @prefix  DIAG
  *
  * @brief   Diagnostic module configuration
- *
  * @details The configuration of the different diagnosis events defined in
  *          diag_cfg.h is set in the array diag_diagnosisIdConfiguration[],
  *          e.g., initialization errors or runtime errors.
@@ -116,8 +115,6 @@ const DIAG_DATABASE_SHIM_s diag_kDatabaseShim = {
     .pTableRsl   = &diag_tableRslFlags,
     .pTableMsl   = &diag_tableMslFlags,
 };
-
-/*========== Static Function Prototypes =====================================*/
 
 /*========== Extern Constant and Variable Definitions =======================*/
 /** variable tracking the state of the diag channels */
@@ -243,6 +240,8 @@ DIAG_DEV_s diag_device = {
     .numberOfFatalErrors              = 0u,
     .pFatalErrorLinkTable             = {GEN_REPEAT_U(NULL_PTR, GEN_STRIP(DIAG_ID_MAX_FOR_INIT))},
 };
+
+/*========== Static Function Prototypes =====================================*/
 
 /*========== Static Function Implementations ================================*/
 

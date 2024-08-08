@@ -16,16 +16,22 @@ might use ``FreeRTOS`` specific includes, types etc.
 ### Functions
 
 The following regular expression can be used to check for ``FreeRTOS`` specific
+
 - macros:
-  ```
+
+  ```text
   (taskENTER_CRITICAL|taskEXIT_CRITICAL)
   ```
+
 - functions:
-  ```
+
+  ```text
   (uxQueueMessagesWaiting|vTaskDelayUntil|xQueueReceive|xQueueSendToBack|xQueueSendToBackFromISR|xTaskGetTickCount)
   ```
+
 - types:
-  ```
+
+  ```text
   (QueueHandle_t|TaskHandle_t)
   ```
 
@@ -49,7 +55,7 @@ The corresponding OS agnostic macros, functions and types are listed below:
 The following regular expression can be used to check for ``FreeRTOS`` specific
 includes:
 
-```
+```text
 #include.*"(atomic.h|croutine.h|deprecated_definitions.h|event_groups.h|FreeRTOS.h|FreeRTOSConfig.h|list.h|message_buffer.h|mpu_prototypes.h|mpu_wrappers.h|portable.h|projdefs.h|queue.h|semphr.h|StackMacros.h|stack_macros.h|stream_buffer.h|task.h|timers.h)
 ```
 
@@ -58,6 +64,6 @@ includes:
 The following regular expression can be used to check for ``FreeRTOS`` specific
 types and defines:
 
-```
+```text
 (pdFALSE|pdTRUE|pdPASS|pdFAIL)
 ```

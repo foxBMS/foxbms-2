@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,8 +43,8 @@
  * @file    can_helper.c
  * @author  foxBMS Team
  * @date    2021-04-22 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup DRIVERS
  * @prefix  CAN
  *
@@ -57,7 +57,6 @@
 #include "can_helper.h"
 
 #include "database.h"
-#include "foxmath.h"
 
 #include <math.h>
 #include <stdint.h>
@@ -74,7 +73,7 @@
 
 /*========== Static Constant and Variable Definitions =======================*/
 
-/** To convert big endian startbit to usual little endian representation (from 0 as LSB to 63 as MSB) */
+/** To convert big endian start bit to usual little endian representation (from 0 as LSB to 63 as MSB) */
 static const uint8_t can_bigEndianTable[CAN_SIGNAL_MAX_SIZE] = {
     56u, 57u, 58u, 59u, 60u, 61u, 62u, 63u, 48u, 49u, 50u, 51u, 52u, 53u, 54u, 55u, 40u, 41u, 42u, 43u, 44u, 45u,
     46u, 47u, 32u, 33u, 34u, 35u, 36u, 37u, 38u, 39u, 24u, 25u, 26u, 27u, 28u, 29u, 30u, 31u, 16u, 17u, 18u, 19u,
@@ -176,12 +175,15 @@ extern void CAN_TxSetMessageDataWithSignalData(
     uint8_t bitLength,
     uint64_t canSignal,
     CAN_ENDIANNESS_e endianness) {
+    /* AXIVION Routine Generic-MissingParameterAssert: canSignal: parameter accepts whole range */
     FAS_ASSERT(pMessage != NULL_PTR);
     FAS_ASSERT((endianness == CAN_BIG_ENDIAN) || (endianness == CAN_LITTLE_ENDIAN));
     /* The longest message may be CAN_SIGNAL_MAX_SIZE long */
     FAS_ASSERT(bitLength <= CAN_SIGNAL_MAX_SIZE);
     /* A signal must contain at least one bit */
     FAS_ASSERT(bitLength > 0u);
+    /* Signal start can not be outside of message data */
+    FAS_ASSERT(bitStart < CAN_SIGNAL_MAX_SIZE);
 
     uint64_t position = bitStart;
 
@@ -210,7 +212,9 @@ extern void CAN_TxSetMessageDataWithSignalData(
 }
 
 extern void CAN_TxSetCanDataWithMessageData(uint64_t message, uint8_t *pCanData, CAN_ENDIANNESS_e endianness) {
+    /* AXIVION Routine Generic-MissingParameterAssert: message: parameter accepts whole range */
     FAS_ASSERT(pCanData != NULL_PTR);
+
     /* Swap byte order if necessary */
     if (endianness == CAN_BIG_ENDIAN) {
         pCanData[CAN_BYTE_0_POSITION] =
@@ -258,6 +262,7 @@ extern void CAN_RxGetSignalDataFromMessageData(
     uint8_t bitLength,
     uint64_t *pCanSignal,
     CAN_ENDIANNESS_e endianness) {
+    /* AXIVION Routine Generic-MissingParameterAssert: message: parameter accepts whole range */
     FAS_ASSERT(pCanSignal != NULL_PTR);
     FAS_ASSERT((endianness == CAN_BIG_ENDIAN) || (endianness == CAN_LITTLE_ENDIAN));
     /* The longest message may be CAN_SIGNAL_MAX_SIZE long */

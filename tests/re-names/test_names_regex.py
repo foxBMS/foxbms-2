@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 #
-# Copyright (c) 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -38,8 +37,12 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""Test regular expressions that are used to validate function, variable etc.
-names in the Axivion analysis."""
+"""The Axivion analysis is also used to test that functions, variables etc.
+adhere to a certain naming schema. A basic check is that names match a regular
+expression regular. These regular expressions are defined in the Axivion
+configuration files.
+The tests as well as the expected results are in the *.json files in this
+directory."""
 
 import json
 import os

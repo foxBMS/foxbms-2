@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,15 +43,13 @@
  * @file    database_cfg.h
  * @author  foxBMS Team
  * @date    2015-08-18 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup ENGINE_CONFIGURATION
  * @prefix  DATA
  *
  * @brief   Database configuration header
- *
  * @details Provides interfaces to database configuration
- *
  */
 
 #ifndef FOXBMS__DATABASE_CFG_H_
@@ -111,12 +109,11 @@ typedef enum {
     DATA_BLOCK_ID_SOH,
     DATA_BLOCK_ID_STATE_REQUEST,
     DATA_BLOCK_ID_SYSTEM_STATE,
-    DATA_BLOCK_ID_USER_MUX,
     DATA_BLOCK_ID_MAX, /**< DO NOT CHANGE, MUST BE THE LAST ENTRY */
 } DATA_BLOCK_ID_e;
 
 FAS_STATIC_ASSERT(
-    (int16_t)DATA_BLOCK_ID_MAX < UINT8_MAX,
+    (int32_t)DATA_BLOCK_ID_MAX < (int32_t)UINT8_MAX,
     "Maximum number of database entries exceeds UINT8_MAX; adapted length "
     "checking in DATA_Initialize and DATA_IterateOverDatabaseEntries");
 
@@ -134,15 +131,14 @@ typedef struct {
      * respective database entry representation in enum DATA_BLOCK_ID_e. */
     DATA_BLOCK_HEADER_s header;                 /*!< Data block header */
     uint8_t state;                              /*!< for future use */
-    int32_t stringVoltage_mV[BS_NR_OF_STRINGS]; /*!< uint: mV */
+    int32_t stringVoltage_mV[BS_NR_OF_STRINGS]; /*!< cumulated cell voltage per string */
     int16_t cellVoltage_mV[BS_NR_OF_STRINGS][BS_NR_OF_MODULES_PER_STRING]
-                          [BS_NR_OF_CELL_BLOCKS_PER_MODULE]; /*!< unit: mV */
-    uint64_t
-        invalidCellVoltage[BS_NR_OF_STRINGS]
-                          [BS_NR_OF_MODULES_PER_STRING]; /*!< bitmask if voltages are valid. 0->valid, 1->invalid */
-    uint16_t nrValidCellVoltages[BS_NR_OF_STRINGS];      /*!< number of valid voltages */
-    uint32_t moduleVoltage_mV[BS_NR_OF_STRINGS][BS_NR_OF_MODULES_PER_STRING]; /*!< unit: mV */
-    bool validModuleVoltage[BS_NR_OF_STRINGS][BS_NR_OF_MODULES_PER_STRING];   /*!< 0 -> if PEC okay; 1 -> PEC error */
+                          [BS_NR_OF_CELL_BLOCKS_PER_MODULE]; /*!< cell voltage */
+    bool invalidCellVoltage[BS_NR_OF_STRINGS][BS_NR_OF_MODULES_PER_STRING]
+                           [BS_NR_OF_CELL_BLOCKS_PER_MODULE];                 /*!< false -> valid, true -> invalid */
+    uint16_t nrValidCellVoltages[BS_NR_OF_STRINGS];                           /*!< number of valid voltages */
+    uint32_t moduleVoltage_mV[BS_NR_OF_STRINGS][BS_NR_OF_MODULES_PER_STRING]; /*!< cumulated cell voltage per module */
+    bool validModuleVoltage[BS_NR_OF_STRINGS][BS_NR_OF_MODULES_PER_STRING];   /*!<  */
 } DATA_BLOCK_CELL_VOLTAGE_s;
 
 /** data block struct of cell temperatures */
@@ -154,9 +150,9 @@ typedef struct {
     uint8_t state;              /*!< for future use */
     int16_t cellTemperature_ddegC[BS_NR_OF_STRINGS][BS_NR_OF_MODULES_PER_STRING]
                                  [BS_NR_OF_TEMP_SENSORS_PER_MODULE]; /*!< unit: deci &deg;C */
-    uint16_t invalidCellTemperature
-        [BS_NR_OF_STRINGS][BS_NR_OF_MODULES_PER_STRING]; /*!< bitmask if temperatures are valid. 0->valid, 1->invalid */
-    uint16_t nrValidTemperatures[BS_NR_OF_STRINGS];      /*!< number of valid temperatures in each string */
+    bool invalidCellTemperature[BS_NR_OF_STRINGS][BS_NR_OF_MODULES_PER_STRING]
+                               [BS_NR_OF_TEMP_SENSORS_PER_MODULE]; /*!< false -> valid, true -> invalid */
+    uint16_t nrValidTemperatures[BS_NR_OF_STRINGS];                /*!< number of valid temperatures in each string */
 } DATA_BLOCK_CELL_TEMPERATURE_s;
 
 /** data block struct of minimum and maximum values */
@@ -164,8 +160,7 @@ typedef struct {
     /* This struct needs to be at the beginning of every database entry. During
      * the initialization of a database struct, uniqueId must be set to the
      * respective database entry representation in enum DATA_BLOCK_ID_e. */
-    DATA_BLOCK_HEADER_s header; /*!< Data block header */
-
+    DATA_BLOCK_HEADER_s header;                               /*!< Data block header */
     int16_t averageCellVoltage_mV[BS_NR_OF_STRINGS];          /*!< average cell voltages, unit: mV */
     int16_t minimumCellVoltage_mV[BS_NR_OF_STRINGS];          /*!< minimum cell voltages, unit: mV */
     int16_t previousMinimumCellVoltage_mV[BS_NR_OF_STRINGS];  /*!< previous minimum cell voltages, unit: mV */
@@ -184,7 +179,6 @@ typedef struct {
     uint16_t nrModuleMaximumTemperature[BS_NR_OF_STRINGS];    /*!< number of the module with maximum temperature */
     uint16_t nrSensorMaximumTemperature[BS_NR_OF_STRINGS];    /*!< number of the sensor with maximum temperature */
     uint16_t validMeasuredCellTemperatures[BS_NR_OF_STRINGS]; /*!< number of valid measured cell temperatures */
-    uint8_t state;                                            /*!< state of the min max module */
 } DATA_BLOCK_MIN_MAX_s;
 
 /** data block struct of pack measurement values */
@@ -192,17 +186,16 @@ typedef struct {
     /* This struct needs to be at the beginning of every database entry. During
      * the initialization of a database struct, uniqueId must be set to the
      * respective database entry representation in enum DATA_BLOCK_ID_e. */
-    DATA_BLOCK_HEADER_s header; /*!< Data block header */
-
-    int32_t packCurrent_mA;        /*!< current in the whole battery pack, unit: mA */
-    uint8_t invalidPackCurrent;    /*!< bitmask if current is valid. 0->valid, 1->invalid */
-    int32_t batteryVoltage_mV;     /*!< voltage between negative and positive battery pole, unit: mV */
-    uint8_t invalidBatteryVoltage; /*!< bitmask if voltage is valid. 0->valid, 1->invalid */
-    int32_t
-        highVoltageBusVoltage_mV; /*!< voltage between negative battery pole and after positive main contactor, unit: mV */
-    uint8_t invalidHvBusVoltage; /*!< bitmask if voltage is valid. 0->valid, 1->invalid */
-    int32_t packPower_W;         /*!< power provided by respectively supplied to the battery pack, unit: W */
-    uint8_t invalidPackPower;    /*!< bitmask if power is valid. 0->valid, 1->invalid */
+    DATA_BLOCK_HEADER_s header;       /*!< Data block header */
+    int32_t packCurrent_mA;           /*!< current in the whole battery pack, unit: mA */
+    uint8_t invalidPackCurrent;       /*!< bitmask if current is valid. 0->valid, 1->invalid */
+    int32_t batteryVoltage_mV;        /*!< voltage between negative and positive battery pole, unit: mV */
+    uint8_t invalidBatteryVoltage;    /*!< bitmask if voltage is valid. 0->valid, 1->invalid */
+    int32_t highVoltageBusVoltage_mV; /*!< voltage between negative battery pole and after positive main contactor,
+                                         unit: mV */
+    uint8_t invalidHvBusVoltage;      /*!< bitmask if voltage is valid. 0->valid, 1->invalid */
+    int32_t packPower_W;              /*!< power provided by respectively supplied to the battery pack, unit: W */
+    uint8_t invalidPackPower;         /*!< bitmask if power is valid. 0->valid, 1->invalid */
     int32_t stringVoltage_mV[BS_NR_OF_STRINGS];     /*!< voltage of each string, unit: mV */
     uint8_t invalidStringVoltage[BS_NR_OF_STRINGS]; /*!< bitmask if voltages are valid. 0->valid, 1->invalid */
     int32_t stringCurrent_mA[BS_NR_OF_STRINGS];     /*!< current in each string, unit: mA */
@@ -237,12 +230,13 @@ typedef struct {
     uint8_t invalidEnergyCountingMeasurement[BS_NR_OF_STRINGS];  /*!< 0: measurement valid, 1: measurement invalid */
     uint32_t previousTimestampEnergyCounting[BS_NR_OF_STRINGS];  /*!< previous timestamp of EC measurement */
     uint32_t timestampEnergyCounting[BS_NR_OF_STRINGS];          /*!< timestamp of EC measurement */
-    uint8_t invalidHighVoltageMeasurement
-        [BS_NR_OF_STRINGS][BS_NR_OF_VOLTAGES_FROM_CURRENT_SENSOR]; /*!< 0: measurement valid, 1: measurement invalid */
+    uint8_t invalidHighVoltageMeasurement[BS_NR_OF_STRINGS]
+                                         [BS_NR_OF_VOLTAGES_FROM_CURRENT_SENSOR];    /*!< 0: measurement valid, 1:
+                                                                                        measurement invalid */
     int32_t highVoltage_mV[BS_NR_OF_STRINGS][BS_NR_OF_VOLTAGES_FROM_CURRENT_SENSOR]; /*!< unit: mV */
-    uint32_t previousTimestampHighVoltage
-        [BS_NR_OF_STRINGS]
-        [BS_NR_OF_VOLTAGES_FROM_CURRENT_SENSOR]; /*!< previous timestamp of high voltage measurement */
+    uint32_t previousTimestampHighVoltage[BS_NR_OF_STRINGS]
+                                         [BS_NR_OF_VOLTAGES_FROM_CURRENT_SENSOR]; /*!< previous timestamp of high
+                                                                                     voltage measurement */
     uint32_t timestampHighVoltage[BS_NR_OF_STRINGS]
                                  [BS_NR_OF_VOLTAGES_FROM_CURRENT_SENSOR]; /*!< timestamp of high voltage measurement */
 } DATA_BLOCK_CURRENT_SENSOR_s;
@@ -253,13 +247,13 @@ typedef struct {
      * the initialization of a database struct, uniqueId must be set to the
      * respective database entry representation in enum DATA_BLOCK_ID_e. */
     DATA_BLOCK_HEADER_s header; /*!< Data block header */
-    uint8_t enableBalancing;    /*!< Switch for enabling/disabling balancing  */
+    bool enableBalancing;       /*!< Switch for enabling/disabling balancing  */
     uint8_t threshold_mV;       /*!< balancing threshold in mV                */
     uint8_t request;            /*!< balancing request per CAN                */
-    uint8_t balancingState[BS_NR_OF_STRINGS]
-                          [BS_NR_OF_CELL_BLOCKS_PER_STRING]; /*!< 0: no balancing, 1: balancing active     */
-    uint32_t deltaCharge_mAs[BS_NR_OF_STRINGS]
-                            [BS_NR_OF_CELL_BLOCKS_PER_STRING]; /*!< Difference in Depth-of-Discharge in mAs  */
+    bool activateBalancing[BS_NR_OF_STRINGS][BS_NR_OF_MODULES_PER_STRING]
+                          [BS_NR_OF_CELL_BLOCKS_PER_MODULE]; /*!< 0: no balancing, 1: balancing active     */
+    uint32_t deltaCharge_mAs[BS_NR_OF_STRINGS][BS_NR_OF_MODULES_PER_STRING]
+                            [BS_NR_OF_CELL_BLOCKS_PER_MODULE]; /*!< Difference in Depth-of-Discharge in mAs  */
     uint16_t nrBalancedCells[BS_NR_OF_STRINGS];
 } DATA_BLOCK_BALANCING_CONTROL_s;
 
@@ -292,16 +286,6 @@ typedef struct {
     uint16_t value[BS_NR_OF_STRINGS][BS_NR_OF_MODULES_PER_STRING]; /*!< unit: mV (optocoupler output) */
 } DATA_BLOCK_BALANCING_FEEDBACK_s;
 
-/** data block struct of user multiplexer values */
-typedef struct {
-    /* This struct needs to be at the beginning of every database entry. During
-     * the initialization of a database struct, uniqueId must be set to the
-     * respective database entry representation in enum DATA_BLOCK_ID_e. */
-    DATA_BLOCK_HEADER_s header;                                              /*!< Data block header */
-    uint8_t state;                                                           /*!< for future use */
-    uint16_t value[BS_NR_OF_STRINGS][8u * 2u * BS_NR_OF_MODULES_PER_STRING]; /*!< unit: mV (mux voltage input) */
-} DATA_BLOCK_USER_MUX_s;
-
 /** data block struct of cell open wire */
 typedef struct {
     /* This struct needs to be at the beginning of every database entry. During
@@ -324,9 +308,8 @@ typedef struct {
     uint8_t state;              /*!< for future use */
     int16_t gpioVoltages_mV[BS_NR_OF_STRINGS][BS_NR_OF_MODULES_PER_STRING * BS_NR_OF_GPIOS_PER_MODULE]; /*!< unit: mV */
     int16_t gpaVoltages_mV[BS_NR_OF_STRINGS][BS_NR_OF_MODULES_PER_STRING * BS_NR_OF_GPAS_PER_MODULE];   /*!< unit: mV */
-    uint16_t
-        invalidGpioVoltages[BS_NR_OF_STRINGS]
-                           [BS_NR_OF_MODULES_PER_STRING]; /*!< bitmask if voltages are valid. 0->valid, 1->invalid */
+    uint16_t invalidGpioVoltages[BS_NR_OF_STRINGS][BS_NR_OF_MODULES_PER_STRING]; /*!< bitmask if voltages are valid.
+                                                                                    0->valid, 1->invalid */
 } DATA_BLOCK_ALL_GPIO_VOLTAGES_s;
 
 /** data block struct of error flags */
@@ -374,8 +357,8 @@ typedef struct {
     bool insulationMeasurementInvalidError;                              /*!< false -> no error, true -> error */
     bool criticalLowInsulationResistanceError; /*!< false -> no critical resistance , true -> critical low resistance */
     bool warnableLowInsulationResistanceError; /*!< false -> no warnable resistance, true -> warnable low resistance */
-    bool
-        insulationGroundFaultDetectedError; /*!< false -> no insulation fault between HV and chassis detected, true -> insulation fault detected */
+    bool insulationGroundFaultDetectedError; /*!< false -> no insulation fault between HV and chassis detected, true ->
+                                                insulation fault detected */
     bool prechargeAbortedDueToVoltage[BS_NR_OF_STRINGS];     /*!< false -> no error, true -> error */
     bool prechargeAbortedDueToCurrent[BS_NR_OF_STRINGS];     /*!< false -> no error, true -> error */
     bool deepDischargeDetectedError[BS_NR_OF_STRINGS];       /*!< false -> no error, true -> error */
@@ -430,10 +413,10 @@ typedef struct {
         recommendedContinuousPackDischargeCurrent_mA; /*!< recommended continuous operating pack discharge current */
     float_t recommendedPeakPackChargeCurrent_mA;      /*!< recommended peak operating pack charge current */
     float_t recommendedPeakPackDischargeCurrent_mA;   /*!< recommended peak operating pack discharge current */
-    float_t recommendedContinuousChargeCurrent_mA
-        [BS_NR_OF_STRINGS]; /*!< recommended continuous operating charge current    */
-    float_t recommendedContinuousDischargeCurrent_mA
-        [BS_NR_OF_STRINGS]; /*!< recommended continuous operating discharge current */
+    float_t
+        recommendedContinuousChargeCurrent_mA[BS_NR_OF_STRINGS]; /*!< recommended continuous operating charge current */
+    float_t recommendedContinuousDischargeCurrent_mA[BS_NR_OF_STRINGS]; /*!< recommended continuous operating discharge
+                                                                           current */
     float_t recommendedPeakChargeCurrent_mA[BS_NR_OF_STRINGS];    /*!< recommended peak operating charge current */
     float_t recommendedPeakDischargeCurrent_mA[BS_NR_OF_STRINGS]; /*!< recommended peak operating discharge current */
 } DATA_BLOCK_SOF_s;
@@ -514,10 +497,12 @@ typedef struct {
     /* This struct needs to be at the beginning of every database entry. During
      * the initialization of a database struct, uniqueId must be set to the
      * respective database entry representation in enum DATA_BLOCK_ID_e. */
-    DATA_BLOCK_HEADER_s header;                /*!< Data block header */
-    float_t averageSoc_perc[BS_NR_OF_STRINGS]; /*!< 0.0 <= averageSoc <= 100.0 */
-    float_t minimumSoc_perc[BS_NR_OF_STRINGS]; /*!< 0.0 <= minSoc <= 100.0 */
-    float_t maximumSoc_perc[BS_NR_OF_STRINGS]; /*!< 0.0 <= maxSoc <= 100.0 */
+    DATA_BLOCK_HEADER_s header;                       /*!< Data block header */
+    float_t averageSoc_perc[BS_NR_OF_STRINGS];        /*!< 0.0 <= averageSoc <= 100.0 */
+    float_t minimumSoc_perc[BS_NR_OF_STRINGS];        /*!< 0.0 <= minSoc <= 100.0 */
+    float_t maximumSoc_perc[BS_NR_OF_STRINGS];        /*!< 0.0 <= maxSoc <= 100.0 */
+    float_t chargeThroughput_As[BS_NR_OF_STRINGS];    /*Summation of all charges */
+    float_t dischargeThroughput_As[BS_NR_OF_STRINGS]; /*Summation of all discharges */
 } DATA_BLOCK_SOC_s;
 
 /** data block struct of SOH */
@@ -536,13 +521,15 @@ typedef struct {
     /* This struct needs to be at the beginning of every database entry. During
      * the initialization of a database struct, uniqueId must be set to the
      * respective database entry representation in enum DATA_BLOCK_ID_e. */
-    DATA_BLOCK_HEADER_s header;                /*!< Data block header */
-    float_t averageSoe_perc[BS_NR_OF_STRINGS]; /*!< 0.0 <= averageSoe <= 100.0 */
-    float_t minimumSoe_perc[BS_NR_OF_STRINGS]; /*!< 0.0 <= minimumSoe <= 100.0  */
-    float_t maximumSoe_perc[BS_NR_OF_STRINGS]; /*!< 0.0 <= maximumSoe <= 100.0  */
-    uint32_t maximumSoe_Wh[BS_NR_OF_STRINGS];  /*!< maximum string energy in Wh */
-    uint32_t averageSoe_Wh[BS_NR_OF_STRINGS];  /*!< average string energy in Wh */
-    uint32_t minimumSoe_Wh[BS_NR_OF_STRINGS];  /*!< minimum string energy in Wh */
+    DATA_BLOCK_HEADER_s header;                             /*!< Data block header */
+    float_t averageSoe_perc[BS_NR_OF_STRINGS];              /*!< 0.0 <= averageSoe <= 100.0 */
+    float_t minimumSoe_perc[BS_NR_OF_STRINGS];              /*!< 0.0 <= minimumSoe <= 100.0  */
+    float_t maximumSoe_perc[BS_NR_OF_STRINGS];              /*!< 0.0 <= maximumSoe <= 100.0  */
+    uint32_t maximumSoe_Wh[BS_NR_OF_STRINGS];               /*!< maximum string energy in Wh */
+    uint32_t averageSoe_Wh[BS_NR_OF_STRINGS];               /*!< average string energy in Wh */
+    uint32_t minimumSoe_Wh[BS_NR_OF_STRINGS];               /*!< minimum string energy in Wh */
+    float_t chargeEnergyThroughput_Wh[BS_NR_OF_STRINGS];    /*!< inflow of energy */
+    float_t dischargeEnergyThroughput_Wh[BS_NR_OF_STRINGS]; /*!< outflow of energy */
 } DATA_BLOCK_SOE_s;
 
 /** data block struct of can state request */
@@ -586,10 +573,10 @@ typedef struct {
     bool isImdRunning;                  /*!< true -> Insulation resistance measurement active, false -> not active */
     bool isInsulationMeasurementValid;  /*!< true -> resistance value valid, false -> resistance unreliable */
     uint32_t insulationResistance_kOhm; /*!< insulation resistance measured in kOhm */
-    bool
-        areDeviceFlagsValid; /*!< true -> flags below this database entry valid, false -> flags unreliable e.g. if device error detected */
-    bool
-        dfIsCriticalResistanceDetected; /*!< device status flag: false -> resistance value okay, true -> resistance value too low/error */
+    bool areDeviceFlagsValid; /*!< true -> flags below this database entry valid, false -> flags unreliable e.g. if
+                                 device error detected */
+    bool dfIsCriticalResistanceDetected; /*!< device status flag: false -> resistance value okay, true -> resistance
+                                            value too low/error */
     bool dfIsWarnableResistanceDetected; /*!< true: warning threshold violated, false: no warning active */
     bool dfIsChassisFaultDetected;       /*!< true: short between HV potential and chassis detected, false: no error */
     bool dfIsChassisShortToHvPlus;       /*!< true: bias/tendency to the location of the insulation fault to HV plus */

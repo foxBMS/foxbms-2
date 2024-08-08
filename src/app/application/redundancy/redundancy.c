@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,14 +43,14 @@
  * @file    redundancy.c
  * @author  foxBMS Team
  * @date    2020-07-31 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup APPLICATION
  * @prefix  MRC
  *
  * @brief   Source file for handling redundancy between redundant cell voltage
  *          and cell temperature measurements
- *
+ * @details TODO
  */
 
 /*========== Includes =======================================================*/
@@ -82,8 +82,8 @@ static DATA_BLOCK_PACK_VALUES_s mrc_tablePackValues            = {.header.unique
 static MRC_STATE_s mrc_state = {
     .lastBaseCellVoltageTimestamp            = 0u,
     .lastRedundancy0CellVoltageTimestamp     = 0u,
-    .lastBaseCelltemperatureTimestamp        = 0u,
-    .lastRedundancy0CelltemperatureTimestamp = 0u,
+    .lastBaseCellTemperatureTimestamp        = 0u,
+    .lastRedundancy0CellTemperatureTimestamp = 0u,
     .lastStringCurrentTimestamp              = {0u},
 };
 
@@ -102,7 +102,7 @@ static bool MRC_MeasurementUpdatedAtLeastOnce(uint32_t timestamp, uint32_t previ
  * @brief   Check timestamp if measurement has been updated recently.
  * @param[in]  timestamp          timestamp of last measurement update
  * @param[in]  previousTimestamp  timestamp of previously updated measurement
- * @param[in]  timeInterval       in systicks (type: uint32_t)
+ * @param[in]  timeInterval       in sys ticks (type: uint32_t)
  * @return true if measurement has recently been updated, otherwise false
  */
 static STD_RETURN_TYPE_e MRC_MeasurementUpdatedRecently(
@@ -218,15 +218,15 @@ static STD_RETURN_TYPE_e MRC_UpdateCellVoltageValidation(
 /**
  * @brief Function compares cell temperature measurements from base measurement
  *        with one redundant measurement and writes result in pValidatedTemperatures.
- * @param[in] pCelltemperatureBase         base cell temperature measurement
- * @param[in] pCelltemperatureRedundancy0  redundant cell temperature measurement
+ * @param[in] pCellTemperatureBase         base cell temperature measurement
+ * @param[in] pCellTemperatureRedundancy0  redundant cell temperature measurement
  * @param[out] pValidatedTemperatures      validated temperatures from redundant measurement values
  * @return #STD_NOT_OK if not all cell voltages could be validated, otherwise
  *         #STD_OK
  */
 static STD_RETURN_TYPE_e MRC_ValidateCellTemperature(
-    DATA_BLOCK_CELL_TEMPERATURE_s *pCelltemperatureBase,
-    DATA_BLOCK_CELL_TEMPERATURE_s *pCelltemperatureRedundancy0,
+    DATA_BLOCK_CELL_TEMPERATURE_s *pCellTemperatureBase,
+    DATA_BLOCK_CELL_TEMPERATURE_s *pCellTemperatureRedundancy0,
     DATA_BLOCK_CELL_TEMPERATURE_s *pValidatedTemperatures);
 
 /**
@@ -279,7 +279,7 @@ static bool MRC_ValidateCellVoltageMeasurement(
     FAS_ASSERT(pCellVoltageBase != NULL_PTR);
     FAS_ASSERT(pCellVoltageRedundancy0 != NULL_PTR);
 
-    bool updatedValidatedVoltageDatbaseEntry = false;
+    bool updatedValidatedVoltageDatabaseEntry = false;
 
     bool baseCellVoltageUpdated = false;
 
@@ -291,9 +291,11 @@ static bool MRC_ValidateCellVoltageMeasurement(
      *
      * - Use redundancy only if timestamp of redundant database entry != 0
      * - Perform redundant check if both timestamps have been updated
-     * - Add timeout and trigger error if timestamps have not been updated in the last XXXXms
-     * - If timeout reached and only one of the two redundant measurements has been updated use this measurement value
-     *   but throw an error that one measurement has not been updated recently.
+     * - Add timeout and trigger error if timestamps have not been updated in
+         the last x milliseconds
+     * - If timeout reached and only one of the two redundant measurements has
+         been updated use this measurement value but throw an error that one
+         measurement has not been updated recently.
      */
 
     /* -------------- Check if cell voltage redundant measurement is used -- */
@@ -331,15 +333,15 @@ static bool MRC_ValidateCellVoltageMeasurement(
 
     /* ----------------- Validate cell voltages ---------------------------- */
     if (useCellVoltageRedundancy == true) {
-        bool redundany0CellVoltageUpdated = false;
+        bool redundancy0CellVoltageUpdated = false;
         /* Check if redundant measurement values have been updated since last MRC */
         if (mrc_state.lastRedundancy0CellVoltageTimestamp != pCellVoltageRedundancy0->header.timestamp) {
-            redundany0CellVoltageUpdated = true;
+            redundancy0CellVoltageUpdated = true;
         } else {
-            redundany0CellVoltageUpdated = false;
+            redundancy0CellVoltageUpdated = false;
         }
         /* Make sure cell voltage timestamps have been updated since last call */
-        if ((baseCellVoltageUpdated == true) && (redundany0CellVoltageUpdated == true)) {
+        if ((baseCellVoltageUpdated == true) && (redundancy0CellVoltageUpdated == true)) {
             /* Update timestamp */
             mrc_state.lastBaseCellVoltageTimestamp        = pCellVoltageBase->header.timestamp;
             mrc_state.lastRedundancy0CellVoltageTimestamp = pCellVoltageRedundancy0->header.timestamp;
@@ -347,8 +349,8 @@ static bool MRC_ValidateCellVoltageMeasurement(
             /* Validate cell voltages */
             MRC_ValidateCellVoltage(pCellVoltageBase, pCellVoltageRedundancy0, &mrc_tableCellVoltages);
             /* Set to true for following minimum, maximum and average calculation */
-            updatedValidatedVoltageDatbaseEntry = true;
-        } else if ((baseCellVoltageUpdated == true) || (redundany0CellVoltageUpdated == true)) {
+            updatedValidatedVoltageDatabaseEntry = true;
+        } else if ((baseCellVoltageUpdated == true) || (redundancy0CellVoltageUpdated == true)) {
             /* At least one measurement has been updated */
             if (baseCellVoltageUpdated == true) {
                 /* Has redundant measurement timeout been reached? If yes, update. */
@@ -356,15 +358,15 @@ static bool MRC_ValidateCellVoltageMeasurement(
                     /* Copy cell voltage base measurement values into validated database struct */
                     MRC_UpdateCellVoltageValidation(pCellVoltageBase, &mrc_tableCellVoltages);
                     /* Set to true for following minimum, maximum and average calculation */
-                    updatedValidatedVoltageDatbaseEntry = true;
+                    updatedValidatedVoltageDatabaseEntry = true;
                 }
-            } else if (redundany0CellVoltageUpdated == true) {
+            } else if (redundancy0CellVoltageUpdated == true) {
                 /* Has base measurement timeout been reached? If yes, update.  */
                 if (baseCellVoltageMeasurementTimeoutReached == true) {
                     /* Copy cell voltage base measurement values into validated database struct */
                     MRC_UpdateCellVoltageValidation(pCellVoltageRedundancy0, &mrc_tableCellVoltages);
                     /* Set to true for following minimum, maximum and average calculation */
-                    updatedValidatedVoltageDatbaseEntry = true;
+                    updatedValidatedVoltageDatabaseEntry = true;
                 }
             } else {
                 FAS_ASSERT(FAS_TRAP);
@@ -382,11 +384,11 @@ static bool MRC_ValidateCellVoltageMeasurement(
             MRC_UpdateCellVoltageValidation(pCellVoltageBase, &mrc_tableCellVoltages);
 
             /* Set to true for following minimum, maximum and average calculation */
-            updatedValidatedVoltageDatbaseEntry = true;
+            updatedValidatedVoltageDatabaseEntry = true;
         }
     }
 
-    if (updatedValidatedVoltageDatbaseEntry == true) {
+    if (updatedValidatedVoltageDatabaseEntry == true) {
         /* Calculate min/max/average cell voltages */
         MRC_CalculateCellVoltageMinMaxAverage(&mrc_tableCellVoltages, &mrc_tableMinimumMaximumValues);
 
@@ -397,7 +399,7 @@ static bool MRC_ValidateCellVoltageMeasurement(
         }
     }
 
-    return updatedValidatedVoltageDatbaseEntry;
+    return updatedValidatedVoltageDatabaseEntry;
 }
 
 static bool MRC_ValidateCellTemperatureMeasurement(
@@ -406,9 +408,9 @@ static bool MRC_ValidateCellTemperatureMeasurement(
     FAS_ASSERT(pCellTemperatureBase != NULL_PTR);
     FAS_ASSERT(pCellTemperatureRedundancy0 != NULL_PTR);
 
-    bool baseCelltemperatureUpdated              = false;
-    bool useCelltemperatureRedundancy            = false;
-    bool updatedValidatedTemperatureDatbaseEntry = false;
+    bool baseCellTemperatureUpdated               = false;
+    bool useCellTemperatureRedundancy             = false;
+    bool updatedValidatedTemperatureDatabaseEntry = false;
 
     bool baseCellTemperatureMeasurementTimeoutReached        = true;
     bool redundancy0CellTemperatureMeasurementTimeoutReached = true;
@@ -417,14 +419,16 @@ static bool MRC_ValidateCellTemperatureMeasurement(
      *
      * - Use redundancy only if timestamp of redundant database entry != 0
      * - Perform redundant check if both timestamps have been updated
-     * - Add timeout and trigger error if timestamps have not been updated in the last XXXXms
-     * - If timeout reached and only one of the two redundant measurements has been updated use this measurement value
-     *   but throw an error that one measurement has not been updated recently.
+     * - Add timeout and trigger error if timestamps have not been updated in
+         the last x milliseconds
+     * - If timeout reached and only one of the two redundant measurements has
+         been updated use this measurement value but throw an error that one
+         measurement has not been updated recently.
      */
 
     /* -------------- Check if cell cell temperature redundant measurement is used ---------- */
     /* Use redundant cell voltage measurements if measurement values have been acquired once */
-    useCelltemperatureRedundancy = DATA_DatabaseEntryUpdatedAtLeastOnce(pCellTemperatureRedundancy0->header);
+    useCellTemperatureRedundancy = DATA_DatabaseEntryUpdatedAtLeastOnce(pCellTemperatureRedundancy0->header);
 
     /* ----------------- Check timestamp of base measurements--------------- */
     if (DATA_EntryUpdatedWithinInterval(pCellTemperatureBase->header, MRC_AFE_MEASUREMENT_PERIOD_TIMEOUT_ms) == true) {
@@ -436,16 +440,16 @@ static bool MRC_ValidateCellTemperatureMeasurement(
         (void)DIAG_Handler(DIAG_ID_BASE_CELL_TEMPERATURE_MEASUREMENT_TIMEOUT, DIAG_EVENT_NOT_OK, DIAG_SYSTEM, 0u);
     }
     /* Check if base measurement values have been updated since last MRC */
-    if (mrc_state.lastBaseCelltemperatureTimestamp != pCellTemperatureBase->header.timestamp) {
-        baseCelltemperatureUpdated = true;
+    if (mrc_state.lastBaseCellTemperatureTimestamp != pCellTemperatureBase->header.timestamp) {
+        baseCellTemperatureUpdated = true;
     } else {
-        baseCelltemperatureUpdated = false;
+        baseCellTemperatureUpdated = false;
     }
 
     /* ----------------- Check timestamp of redundant measurements --------- */
     if ((DATA_EntryUpdatedWithinInterval(pCellTemperatureRedundancy0->header, MRC_AFE_MEASUREMENT_PERIOD_TIMEOUT_ms) ==
          false) &&
-        (useCelltemperatureRedundancy == true)) {
+        (useCellTemperatureRedundancy == true)) {
         redundancy0CellTemperatureMeasurementTimeoutReached = true;
         /* Set error flag */
         (void)DIAG_Handler(
@@ -456,41 +460,41 @@ static bool MRC_ValidateCellTemperatureMeasurement(
     }
 
     /* ----------------- Validate cell temperatures ------------------------ */
-    if (useCelltemperatureRedundancy == true) {
-        bool redundancy0CelltemperatureUpdated = false;
+    if (useCellTemperatureRedundancy == true) {
+        bool redundancy0CellTemperatureUpdated = false;
         /* Check if redundant measurement values have been updated since last MRC */
-        if (mrc_state.lastRedundancy0CelltemperatureTimestamp != pCellTemperatureRedundancy0->header.timestamp) {
-            redundancy0CelltemperatureUpdated = true;
+        if (mrc_state.lastRedundancy0CellTemperatureTimestamp != pCellTemperatureRedundancy0->header.timestamp) {
+            redundancy0CellTemperatureUpdated = true;
         } else {
-            redundancy0CelltemperatureUpdated = false;
+            redundancy0CellTemperatureUpdated = false;
         }
         /* Make sure cell voltage timestamps have been updated since last call */
-        if ((baseCelltemperatureUpdated == true) && (redundancy0CelltemperatureUpdated == true)) {
+        if ((baseCellTemperatureUpdated == true) && (redundancy0CellTemperatureUpdated == true)) {
             /* Update timestamp */
-            mrc_state.lastBaseCelltemperatureTimestamp        = pCellTemperatureBase->header.timestamp;
-            mrc_state.lastRedundancy0CelltemperatureTimestamp = pCellTemperatureRedundancy0->header.timestamp;
+            mrc_state.lastBaseCellTemperatureTimestamp        = pCellTemperatureBase->header.timestamp;
+            mrc_state.lastRedundancy0CellTemperatureTimestamp = pCellTemperatureRedundancy0->header.timestamp;
 
             /* Validate cell temperatures */
             MRC_ValidateCellTemperature(pCellTemperatureBase, pCellTemperatureRedundancy0, &mrc_tableCellTemperatures);
             /* Set to true for following minimum, maximum and average calculation */
-            updatedValidatedTemperatureDatbaseEntry = true;
-        } else if ((baseCelltemperatureUpdated == true) || (redundancy0CelltemperatureUpdated == true)) {
+            updatedValidatedTemperatureDatabaseEntry = true;
+        } else if ((baseCellTemperatureUpdated == true) || (redundancy0CellTemperatureUpdated == true)) {
             /* At least one measurement has been updated */
-            if (baseCelltemperatureUpdated == true) {
+            if (baseCellTemperatureUpdated == true) {
                 /* Has redundant measurement timeout been reached? If yes, update. */
                 if (redundancy0CellTemperatureMeasurementTimeoutReached == true) {
                     /* Copy cell temperature base measurement values into validated database struct */
                     MRC_UpdateCellTemperatureValidation(pCellTemperatureBase, &mrc_tableCellTemperatures);
                     /* Set to true for following minimum, maximum and average calculation */
-                    updatedValidatedTemperatureDatbaseEntry = true;
+                    updatedValidatedTemperatureDatabaseEntry = true;
                 }
-            } else if (redundancy0CelltemperatureUpdated == true) {
+            } else if (redundancy0CellTemperatureUpdated == true) {
                 /* Has base measurement timeout been reached? If yes, update.  */
                 if (baseCellTemperatureMeasurementTimeoutReached == true) {
                     /* Copy cell temperature redundant measurement values into validated database struct */
                     MRC_UpdateCellTemperatureValidation(pCellTemperatureRedundancy0, &mrc_tableCellTemperatures);
                     /* Set to true for following minimum, maximum and average calculation */
-                    updatedValidatedTemperatureDatbaseEntry = true;
+                    updatedValidatedTemperatureDatabaseEntry = true;
                 }
             } else {
                 FAS_ASSERT(FAS_TRAP);
@@ -498,21 +502,21 @@ static bool MRC_ValidateCellTemperatureMeasurement(
         } else {
             /* No cell temperature measurement has been updated -> do nothing */
         }
-    } else { /* useCelltemperatureRedundancy == true */
-        if (baseCelltemperatureUpdated == true) {
+    } else { /* useCellTemperatureRedundancy == true */
+        if (baseCellTemperatureUpdated == true) {
             /* Only update database entries if new raw data has been acquired */
             /* Update timestamp */
-            mrc_state.lastBaseCelltemperatureTimestamp = pCellTemperatureBase->header.timestamp;
+            mrc_state.lastBaseCellTemperatureTimestamp = pCellTemperatureBase->header.timestamp;
 
             /* Copy cell temperature base measurement values into validated database struct */
             MRC_UpdateCellTemperatureValidation(pCellTemperatureBase, &mrc_tableCellTemperatures);
 
             /* Set to true for following minimum, maximum and average calculation */
-            updatedValidatedTemperatureDatbaseEntry = true;
+            updatedValidatedTemperatureDatabaseEntry = true;
         }
     }
 
-    if (updatedValidatedTemperatureDatbaseEntry == true) {
+    if (updatedValidatedTemperatureDatabaseEntry == true) {
         /* Calculate min/max/average cell temperatures */
         MRC_CalculateCellTemperatureMinMaxAverage(&mrc_tableCellTemperatures, &mrc_tableMinimumMaximumValues);
 
@@ -523,7 +527,7 @@ static bool MRC_ValidateCellTemperatureMeasurement(
         }
     }
 
-    return updatedValidatedTemperatureDatbaseEntry;
+    return updatedValidatedTemperatureDatabaseEntry;
 }
 
 static void MRC_ValidateCurrentMeasurement(DATA_BLOCK_CURRENT_SENSOR_s *pTableCurrentSensor) {
@@ -597,7 +601,8 @@ static void MRC_ValidateStringVoltageMeasurement(
                 pTableCellVoltage->stringVoltage_mV[s], pTableCurrentSensor->highVoltage_mV[s][0u]);
             (void)DIAG_CheckEvent(voltagePlausible, DIAG_ID_PLAUSIBILITY_PACK_VOLTAGE, DIAG_STRING, s);
 
-            /* Use current sensor measurement */ /* TODO: use really current sensor? Average of both? AFE measurement? */
+            /* Use current sensor measurement */ /* TODO: use really current sensor? Average of both? AFE measurement?
+                                                  */
             mrc_tablePackValues.stringVoltage_mV[s] = pTableCurrentSensor->highVoltage_mV[s][0u];
 
             if (voltagePlausible == STD_OK) {
@@ -650,7 +655,8 @@ static void MRC_ValidateBatteryVoltageMeasurement(void) {
         for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
             bool isStringConnected = BMS_IsStringClosed(s);
             if ((mrc_tablePackValues.invalidStringVoltage[s] == 0u) && (isStringConnected == true)) {
-                /* AXIVION Disable Style MisraC2012Directive-4.1: Values start with 0, iteration is less than UINT8_MAX; overflow impossible */
+                /* AXIVION Disable Style MisraC2012Directive-4.1: Values start with 0, iteration is less than UINT8_MAX;
+                 * overflow impossible */
                 sumOfStringValues_mV += mrc_tablePackValues.stringVoltage_mV[s];
                 numberOfValidStringVoltages++;
                 /* AXIVION Enable Style MisraC2012Directive-4.1: */
@@ -660,7 +666,8 @@ static void MRC_ValidateBatteryVoltageMeasurement(void) {
         /* Take average of all strings if no strings are connected */
         for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
             if (mrc_tablePackValues.invalidStringVoltage[s] == 0u) {
-                /* AXIVION Disable Style MisraC2012Directive-4.1: Values start with 0, iteration is less than UINT8_MAX; overflow impossible */
+                /* AXIVION Disable Style MisraC2012Directive-4.1: Values start with 0, iteration is less than UINT8_MAX;
+                 * overflow impossible */
                 sumOfStringValues_mV += mrc_tablePackValues.stringVoltage_mV[s];
                 numberOfValidStringVoltages++;
                 /* AXIVION Enable Style MisraC2012Directive-4.1: */
@@ -795,7 +802,7 @@ static STD_RETURN_TYPE_e MRC_CalculateCellVoltageMinMaxAverage(
         /* Iterate over all cells in each string */
         for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
             for (uint8_t cb = 0u; cb < BS_NR_OF_CELL_BLOCKS_PER_MODULE; cb++) {
-                if ((pValidatedVoltages->invalidCellVoltage[s][m] & (0x01u << cb)) == 0u) {
+                if (pValidatedVoltages->invalidCellVoltage[s][m][cb] == false) {
                     /* Cell voltage is valid -> use this voltage for subsequent calculations */
                     nrValidCellVoltages++;
                     sum += pValidatedVoltages->cellVoltage_mV[s][m][cb];
@@ -846,16 +853,16 @@ static STD_RETURN_TYPE_e MRC_CalculateCellTemperatureMinMaxAverage(
         uint16_t sensorNumberMinimum     = 0u;
         uint16_t moduleNumberMaximum     = 0u;
         uint16_t sensorNumberMaximum     = 0u;
-        uint16_t nrValidCelltemperatures = 0u;
+        uint16_t nrValidCellTemperatures = 0u;
         int16_t min                      = INT16_MAX;
         int16_t max                      = INT16_MIN;
         float_t sum_ddegC                = 0.0f;
 
         for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
             for (uint8_t ts = 0u; ts < BS_NR_OF_TEMP_SENSORS_PER_MODULE; ts++) {
-                if ((pValidatedTemperatures->invalidCellTemperature[s][m] & (0x01u << ts)) == 0u) {
+                if (pValidatedTemperatures->invalidCellTemperature[s][m][ts] == false) {
                     /* Cell temperature is valid -> use this voltage for subsequent calculations */
-                    nrValidCelltemperatures++;
+                    nrValidCellTemperatures++;
                     sum_ddegC += (float_t)pValidatedTemperatures->cellTemperature_ddegC[s][m][ts];
 
                     if (pValidatedTemperatures->cellTemperature_ddegC[s][m][ts] < min) {
@@ -877,11 +884,11 @@ static STD_RETURN_TYPE_e MRC_CalculateCellTemperatureMinMaxAverage(
         pMinMaxAverageValues->maximumTemperature_ddegC[s]      = max;
         pMinMaxAverageValues->nrSensorMaximumTemperature[s]    = sensorNumberMaximum;
         pMinMaxAverageValues->nrModuleMaximumTemperature[s]    = moduleNumberMaximum;
-        pMinMaxAverageValues->validMeasuredCellTemperatures[s] = nrValidCelltemperatures;
+        pMinMaxAverageValues->validMeasuredCellTemperatures[s] = nrValidCellTemperatures;
 
         /* Prevent division by 0, if all cell temperatures are invalid */
-        if (nrValidCelltemperatures > 0u) {
-            pMinMaxAverageValues->averageTemperature_ddegC[s] = (sum_ddegC / (float_t)nrValidCelltemperatures);
+        if (nrValidCellTemperatures > 0u) {
+            pMinMaxAverageValues->averageTemperature_ddegC[s] = (sum_ddegC / (float_t)nrValidCellTemperatures);
         } else {
             pMinMaxAverageValues->averageTemperature_ddegC[s] = 0.0f;
             retval                                            = STD_NOT_OK;
@@ -908,39 +915,37 @@ static STD_RETURN_TYPE_e MRC_ValidateCellVoltage(
         int32_t sum = 0;
         for (uint8_t m = 0; m < BS_NR_OF_MODULES_PER_STRING; m++) {
             for (uint8_t cb = 0; cb < BS_NR_OF_CELL_BLOCKS_PER_MODULE; cb++) {
-                if (((pCellVoltageBase->invalidCellVoltage[s][m] & (1u << cb)) == 0u) &&
-                    ((pCellVoltageRedundancy0->invalidCellVoltage[s][m] & (1u << cb)) == 0u)) {
+                if ((pCellVoltageBase->invalidCellVoltage[s][m][cb] == false) &&
+                    (pCellVoltageRedundancy0->invalidCellVoltage[s][m][cb] == false)) {
                     /* Check if cell voltage of base AND redundant measurement is valid -> do plausibility check */
                     if (STD_OK == PL_CheckCellVoltage(
                                       pCellVoltageBase->cellVoltage_mV[s][m][cb],
                                       pCellVoltageRedundancy0->cellVoltage_mV[s][m][cb],
                                       &pValidatedVoltages->cellVoltage_mV[s][m][cb])) {
                         /* Clear valid flag */
-                        pValidatedVoltages->invalidCellVoltage[s][m] = pValidatedVoltages->invalidCellVoltage[s][m] &
-                                                                       (~(1u << cb));
+                        pValidatedVoltages->invalidCellVoltage[s][m][cb] = false;
                         numberValidMeasurements++;
                         sum += pValidatedVoltages->cellVoltage_mV[s][m][cb];
                     } else {
                         /* Set invalid flag */
-                        noPlausibilityIssueDetected = STD_NOT_OK;
-                        pValidatedVoltages->invalidCellVoltage[s][m] |= (1u << cb);
+                        noPlausibilityIssueDetected                      = STD_NOT_OK;
+                        pValidatedVoltages->invalidCellVoltage[s][m][cb] = true;
                         /* Set return value to #STD_NOT_OK as not all cell voltages have a valid measurement value */
                         retval = STD_NOT_OK;
                     }
-                } else if ((pCellVoltageBase->invalidCellVoltage[s][m] & (1u << cb)) == 0u) {
+                } else if (pCellVoltageBase->invalidCellVoltage[s][m][cb] == false) {
                     /* Only base measurement value is valid -> use this voltage without further plausibility checks */
                     pValidatedVoltages->cellVoltage_mV[s][m][cb] = pCellVoltageBase->cellVoltage_mV[s][m][cb];
                     /* Reset valid flag */
-                    pValidatedVoltages->invalidCellVoltage[s][m] = pValidatedVoltages->invalidCellVoltage[s][m] &
-                                                                   (~(1u << cb));
+                    pValidatedVoltages->invalidCellVoltage[s][m][cb] = false;
                     numberValidMeasurements++;
                     sum += pValidatedVoltages->cellVoltage_mV[s][m][cb];
-                } else if ((pCellVoltageRedundancy0->invalidCellVoltage[s][m] & (1u << cb)) == 0u) {
-                    /* Only redundant measurement value is valid -> use this voltage without further plausibility checks */
+                } else if (pCellVoltageRedundancy0->invalidCellVoltage[s][m][cb] == false) {
+                    /* Only redundant measurement value is valid -> use this voltage without further plausibility checks
+                     */
                     pValidatedVoltages->cellVoltage_mV[s][m][cb] = pCellVoltageRedundancy0->cellVoltage_mV[s][m][cb];
                     /* Reset valid flag */
-                    pValidatedVoltages->invalidCellVoltage[s][m] = pValidatedVoltages->invalidCellVoltage[s][m] &
-                                                                   (~(1u << cb));
+                    pValidatedVoltages->invalidCellVoltage[s][m][cb] = false;
                     numberValidMeasurements++;
                     sum += pValidatedVoltages->cellVoltage_mV[s][m][cb];
                 } else {
@@ -950,7 +955,7 @@ static STD_RETURN_TYPE_e MRC_ValidateCellVoltage(
                                                                     pCellVoltageRedundancy0->cellVoltage_mV[s][m][cb]) /
                                                                    2;
                     /* Set invalid flag */
-                    pValidatedVoltages->invalidCellVoltage[s][m] |= (1u << cb);
+                    pValidatedVoltages->invalidCellVoltage[s][m][cb] = true;
                     /* Set return value to #STD_NOT_OK as not all cell voltages have a valid measurement value */
                     retval = STD_NOT_OK;
                 }
@@ -984,12 +989,12 @@ static STD_RETURN_TYPE_e MRC_UpdateCellVoltageValidation(
 }
 
 static STD_RETURN_TYPE_e MRC_ValidateCellTemperature(
-    DATA_BLOCK_CELL_TEMPERATURE_s *pCelltemperatureBase,
-    DATA_BLOCK_CELL_TEMPERATURE_s *pCelltemperatureRedundancy0,
+    DATA_BLOCK_CELL_TEMPERATURE_s *pCellTemperatureBase,
+    DATA_BLOCK_CELL_TEMPERATURE_s *pCellTemperatureRedundancy0,
     DATA_BLOCK_CELL_TEMPERATURE_s *pValidatedTemperatures) {
     /* Pointer validity check */
-    FAS_ASSERT(pCelltemperatureBase != NULL_PTR);
-    FAS_ASSERT(pCelltemperatureRedundancy0 != NULL_PTR);
+    FAS_ASSERT(pCellTemperatureBase != NULL_PTR);
+    FAS_ASSERT(pCellTemperatureRedundancy0 != NULL_PTR);
     FAS_ASSERT(pValidatedTemperatures != NULL_PTR);
 
     uint16_t numberValidMeasurements              = 0u;
@@ -1000,49 +1005,49 @@ static STD_RETURN_TYPE_e MRC_ValidateCellTemperature(
     for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
         for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
             for (uint8_t ts = 0u; ts < BS_NR_OF_TEMP_SENSORS_PER_MODULE; ts++) {
-                if (((pCelltemperatureBase->invalidCellTemperature[s][m] & (1u << ts)) == 0u) &&
-                    ((pCelltemperatureRedundancy0->invalidCellTemperature[s][m] & (1u << ts)) == 0u)) {
+                if ((pCellTemperatureBase->invalidCellTemperature[s][m][ts] == false) &&
+                    (pCellTemperatureRedundancy0->invalidCellTemperature[s][m][ts] == false)) {
                     /* Check if cell voltage of base AND redundant measurement is valid -> do plausibility check */
-                    if (STD_OK == PL_CheckCelltemperature(
-                                      pCelltemperatureBase->cellTemperature_ddegC[s][m][ts],
-                                      pCelltemperatureRedundancy0->cellTemperature_ddegC[s][m][ts],
+                    if (STD_OK == PL_CheckCellTemperature(
+                                      pCellTemperatureBase->cellTemperature_ddegC[s][m][ts],
+                                      pCellTemperatureRedundancy0->cellTemperature_ddegC[s][m][ts],
                                       &pValidatedTemperatures->cellTemperature_ddegC[s][m][ts])) {
-                        /* Clear valid flag */
-                        pValidatedTemperatures->invalidCellTemperature[s][m] =
-                            pValidatedTemperatures->invalidCellTemperature[s][m] & (~(1u << ts));
+                        /* Reset invalid flag */
+                        pValidatedTemperatures->invalidCellTemperature[s][m][ts] = false;
                         numberValidMeasurements++;
                     } else {
                         /* Set invalid flag */
-                        noPlausibilityIssueDetected = STD_NOT_OK;
-                        pValidatedTemperatures->invalidCellTemperature[s][m] |= (1u << ts);
-                        /* Set return value to #STD_NOT_OK as not all cell temperatures have a valid measurement value */
+                        noPlausibilityIssueDetected                              = STD_NOT_OK;
+                        pValidatedTemperatures->invalidCellTemperature[s][m][ts] = true;
+                        /* Set return value to #STD_NOT_OK as not all cell temperatures have a valid measurement value
+                         */
                         retval = STD_NOT_OK;
                     }
-                } else if ((pCelltemperatureBase->invalidCellTemperature[s][m] & (1u << ts)) == 0u) {
-                    /* Only base measurement value is valid -> use this temperature without further plausibility checks */
+                } else if (pCellTemperatureBase->invalidCellTemperature[s][m][ts] == false) {
+                    /* Only base measurement value is valid -> use this temperature without further plausibility checks
+                     */
                     pValidatedTemperatures->cellTemperature_ddegC[s][m][ts] =
-                        pCelltemperatureBase->cellTemperature_ddegC[s][m][ts];
-                    /* Reset valid flag */
-                    pValidatedTemperatures->invalidCellTemperature[s][m] =
-                        pValidatedTemperatures->invalidCellTemperature[s][m] & (~(1u << ts));
+                        pCellTemperatureBase->cellTemperature_ddegC[s][m][ts];
+                    /* Reset invalid flag */
+                    pValidatedTemperatures->invalidCellTemperature[s][m][ts] = false;
                     numberValidMeasurements++;
-                } else if ((pCelltemperatureRedundancy0->invalidCellTemperature[s][m] & (1u << ts)) == 0u) {
-                    /* Only redundant measurement value is valid -> use this temperature without further plausibility checks */
+                } else if (pCellTemperatureRedundancy0->invalidCellTemperature[s][m][ts] == false) {
+                    /* Only redundant measurement value is valid -> use this temperature without further plausibility
+                     * checks */
                     pValidatedTemperatures->cellTemperature_ddegC[s][m][ts] =
-                        pCelltemperatureRedundancy0->cellTemperature_ddegC[s][m][ts];
-                    /* Reset valid flag */
-                    pValidatedTemperatures->invalidCellTemperature[s][m] =
-                        pValidatedTemperatures->invalidCellTemperature[s][m] & (~(1u << ts));
+                        pCellTemperatureRedundancy0->cellTemperature_ddegC[s][m][ts];
+                    /* Reset invalid flag */
+                    pValidatedTemperatures->invalidCellTemperature[s][m][ts] = false;
                     numberValidMeasurements++;
                 } else {
                     /* Both, base and redundant measurement value are invalid */
                     /* Save average cell voltage value of base and redundant */
                     pValidatedTemperatures->cellTemperature_ddegC[s][m][ts] =
-                        (pCelltemperatureBase->cellTemperature_ddegC[s][m][ts] +
-                         pCelltemperatureRedundancy0->cellTemperature_ddegC[s][m][ts]) /
+                        (pCellTemperatureBase->cellTemperature_ddegC[s][m][ts] +
+                         pCellTemperatureRedundancy0->cellTemperature_ddegC[s][m][ts]) /
                         2u;
                     /* Set invalid flag */
-                    pValidatedTemperatures->invalidCellTemperature[s][m] |= (1u << ts);
+                    pValidatedTemperatures->invalidCellTemperature[s][m][ts] = true;
                     /* Set return value to #STD_NOT_OK as not all cell temperatures have a valid measurement value */
                     retval = STD_NOT_OK;
                 }
@@ -1080,10 +1085,14 @@ extern STD_RETURN_TYPE_e MRC_Initialize(void) {
     for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
         for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
             /* Invalidate cell voltage values */
-            mrc_tableCellVoltages.invalidCellVoltage[s][m] = 0xFFFFFFFFFFFFFFFFuLL;
+            for (uint8_t cb = 0; cb < BS_NR_OF_CELL_BLOCKS_PER_MODULE; cb++) {
+                mrc_tableCellVoltages.invalidCellVoltage[s][m][cb] = true;
+            }
             mrc_tableCellVoltages.validModuleVoltage[s][m] = false;
             /* Invalidate cell temperature values */
-            mrc_tableCellTemperatures.invalidCellTemperature[s][m] = 0xFFFF;
+            for (uint8_t ts = 0; ts < BS_NR_OF_TEMP_SENSORS_PER_MODULE; ts++) {
+                mrc_tableCellTemperatures.invalidCellTemperature[s][m][ts] = true;
+            }
         }
         /* Invalidate string values */
         mrc_tablePackValues.invalidStringVoltage[s] = 0x01;
@@ -1108,17 +1117,17 @@ extern STD_RETURN_TYPE_e MRC_ValidateAfeMeasurement(void) {
     static DATA_BLOCK_CELL_VOLTAGE_s mrc_tableCellVoltageRedundancy0 = {
         .header.uniqueId = DATA_BLOCK_ID_CELL_VOLTAGE_REDUNDANCY0};
 
-    static DATA_BLOCK_CELL_TEMPERATURE_s mrc_tableCelltemperatureBase = {
+    static DATA_BLOCK_CELL_TEMPERATURE_s mrc_tableCellTemperatureBase = {
         .header.uniqueId = DATA_BLOCK_ID_CELL_TEMPERATURE_BASE};
-    static DATA_BLOCK_CELL_TEMPERATURE_s mrc_tableCelltemperatureRedundancy0 = {
+    static DATA_BLOCK_CELL_TEMPERATURE_s mrc_tableCellTemperatureRedundancy0 = {
         .header.uniqueId = DATA_BLOCK_ID_CELL_TEMPERATURE_REDUNDANCY0};
 
     /* Get measurement values */
     DATA_READ_DATA(
         &mrc_tableCellVoltageBase,
         &mrc_tableCellVoltageRedundancy0,
-        &mrc_tableCelltemperatureBase,
-        &mrc_tableCelltemperatureRedundancy0);
+        &mrc_tableCellTemperatureBase,
+        &mrc_tableCellTemperatureRedundancy0);
 
     /* Perform validation of cell voltage measurement */
     bool updateCellVoltages =
@@ -1126,7 +1135,7 @@ extern STD_RETURN_TYPE_e MRC_ValidateAfeMeasurement(void) {
 
     /* Perform validation of cell temperature measurement */
     bool updateCellTemperatures =
-        MRC_ValidateCellTemperatureMeasurement(&mrc_tableCelltemperatureBase, &mrc_tableCelltemperatureRedundancy0);
+        MRC_ValidateCellTemperatureMeasurement(&mrc_tableCellTemperatureBase, &mrc_tableCellTemperatureRedundancy0);
 
     /* Update database entries if necessary */
     if ((updateCellVoltages == true) && (updateCellTemperatures == true)) {
@@ -1220,10 +1229,10 @@ extern STD_RETURN_TYPE_e TEST_MRC_UpdateCellVoltageValidation(
     return MRC_UpdateCellVoltageValidation(pCellVoltage, pValidatedVoltages);
 }
 extern STD_RETURN_TYPE_e TEST_MRC_ValidateCellTemperature(
-    DATA_BLOCK_CELL_TEMPERATURE_s *pCelltemperatureBase,
-    DATA_BLOCK_CELL_TEMPERATURE_s *pCelltemperatureRedundancy0,
+    DATA_BLOCK_CELL_TEMPERATURE_s *pCellTemperatureBase,
+    DATA_BLOCK_CELL_TEMPERATURE_s *pCellTemperatureRedundancy0,
     DATA_BLOCK_CELL_TEMPERATURE_s *pValidatedTemperatures) {
-    return MRC_ValidateCellTemperature(pCelltemperatureBase, pCelltemperatureRedundancy0, pValidatedTemperatures);
+    return MRC_ValidateCellTemperature(pCellTemperatureBase, pCellTemperatureRedundancy0, pValidatedTemperatures);
 }
 extern STD_RETURN_TYPE_e TEST_MRC_UpdateCellTemperatureValidation(
     DATA_BLOCK_CELL_TEMPERATURE_s *pCellTemperature,

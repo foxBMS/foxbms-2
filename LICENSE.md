@@ -4,7 +4,7 @@
 
 - foxBMS 2 hardware and documentation is licensed under the
   Creative Commons Attribution 4.0 International License.
-  The license can be obtained from https://creativecommons.org/licenses/by/4.0/.
+  The license can be obtained from <https://creativecommons.org/licenses/by/4.0/>.
 - The license text is found in [CC-BY-4.0.txt](CC-BY-4.0.txt).
 - The SPDX short identifier is
   [CC-BY-4.0](https://spdx.org/licenses/CC-BY-4.0.html).
@@ -27,7 +27,7 @@ foxBMS in your hardware, software, documentation or advertising materials:
 
 If you use foxBMS in your products, we encourage you to contact us at:
 
-```
+```text
 CONTACT INFORMATION
 Fraunhofer IISB
 Schottkystrasse 10

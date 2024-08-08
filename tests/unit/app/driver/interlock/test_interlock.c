@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,8 +43,8 @@
  * @file    test_interlock.c
  * @author  foxBMS Team
  * @date    2020-04-01 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -82,8 +82,8 @@ void setUp(void) {
         .statereq          = ILCK_STATE_NO_REQUEST,
         .state             = ILCK_STATEMACHINE_UNINITIALIZED,
         .substate          = ILCK_ENTRY,
-        .laststate         = ILCK_STATEMACHINE_UNINITIALIZED,
-        .lastsubstate      = ILCK_ENTRY,
+        .lastState         = ILCK_STATEMACHINE_UNINITIALIZED,
+        .lastSubstate      = ILCK_ENTRY,
         .triggerentry      = 0,
         .ErrRequestCounter = 0,
         .counter           = 0,
@@ -165,7 +165,7 @@ void testILCK_SetStateRequestDoubleInitialization(void) {
     TEST_ASSERT_EQUAL(ILCK_ALREADY_INITIALIZED, ILCK_SetStateRequest(ILCK_STATE_INITIALIZATION_REQUEST));
 }
 
-void testRunStatemachineWithoutRequest(void) {
+void testRunStateMachineWithoutRequest(void) {
     /* This group is called by the reentrance check */
     OS_EnterTaskCritical_Expect();
     OS_ExitTaskCritical_Expect();
@@ -179,7 +179,7 @@ void testRunStatemachineWithoutRequest(void) {
     TEST_ASSERT_EQUAL(ILCK_STATEMACHINE_UNINITIALIZED, ILCK_GetState());
 }
 
-void testInitializeStatemachine(void) {
+void testInitializeStateMachine(void) {
     /* run initialization */
     /* since we are checking only for the state machine passing through these
     states, we ignore all unnecessary functions */
@@ -200,7 +200,7 @@ void testInitializeStatemachine(void) {
     DIAG_Handler_IgnoreAndReturn(DIAG_HANDLER_RETURN_OK);
 
     for (uint8_t i = 0u; i < 10; i++) {
-        /* iterate calling this state machine 10 times (one shorttime) */
+        /* iterate calling this state machine 10 times (one short time) */
         ILCK_Trigger();
     }
 
@@ -223,7 +223,7 @@ void testILCK_SetStateRequestIllegalValueAndThenRunStatemachine(void) {
 
     ILCK_Trigger();
 
-    /* Statemachine should stay uninitialized with illegal state request */
+    /* State machine should stay uninitialized with illegal state request */
     TEST_ASSERT_EQUAL(ILCK_STATEMACHINE_UNINITIALIZED, ILCK_GetState());
 }
 

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,13 +43,13 @@
  * @file    adi_ades183x_helpers.c
  * @author  foxBMS Team
  * @date    2022-12-06 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup DRIVERS
  * @prefix  ADI
  *
  * @brief   Helper functionalities specific to the driver for the ADI ades183x
- *
+ * @details TODO
  */
 
 /*========== Includes =======================================================*/
@@ -276,20 +276,20 @@ extern void ADI_ReadDataBits(uint8_t receivedData, uint8_t *pDataToRead, uint8_t
     *pDataToRead = (receivedData & mask) >> position;
 }
 
-/* RequirementId: D7.1 V0R4 FUN-0.0.01.01 */
-/* RequirementId: D7.1 V0R4 SIF-4.10.01.01 */
-/* RequirementId: D7.1 V0R4 SIF-4.10.02.01 */
-/* RequirementId: D7.1 V0R4 SIF-4.10.11.02 */
-/* RequirementId: D7.1 V0R4 SIF-4.10.12.01 */
+/* RequirementId: D7.1 V1R0 FUN-0.0.01.01 */
+/* RequirementId: D7.1 V1R0 SIF-4.10.02.02 */
+/* RequirementId: D7.1 V1R0 SIF-4.10.04.02 */
+/* RequirementId: D7.1 V1R0 SIF-4.10.04.03 */
+/* RequirementId: D7.1 V1R0 SIF-4.10.05.01 */
 extern void ADI_ReadRegister(uint16_t *registerToRead, uint8_t *data, ADI_STATE_s *adiState) {
     FAS_ASSERT(registerToRead != NULL_PTR);
     FAS_ASSERT(data != NULL_PTR);
     FAS_ASSERT(adiState != NULL_PTR);
 
-    uint8_t PEC_Check[ADI_SIZE_OF_DATA_FOR_PEC_COMPUTATION_WITH_COUNTER] = {0};
-    uint16_t PEC_result                                                  = 0u;
-    uint8_t PEC_RX[ADI_PEC_SIZE_IN_BYTES]                                = {0};
-    uint8_t afeCommandCounter                                            = 0u;
+    uint8_t receivedDataBytes[ADI_SIZE_OF_DATA_FOR_PEC_COMPUTATION_WITH_COUNTER] = {0};
+    uint16_t calculatedPec                                                       = 0u;
+    uint8_t pecAsByteArray[ADI_PEC_SIZE_IN_BYTES]                                = {0};
+    uint8_t afeCommandCounter                                                    = 0u;
     uint16_t registerLengthInBytes = registerToRead[ADI_COMMAND_DATA_LENGTH_POSITION];
     uint16_t byte                  = 0u; /* variable to parse data bytes */
 
@@ -307,15 +307,15 @@ extern void ADI_ReadRegister(uint16_t *registerToRead, uint8_t *data, ADI_STATE_
      *  Calculate PEC for command.
      */
     /* Compute PEC of the two command bytes */
-    PEC_Check[ADI_COMMAND_FIRST_BYTE_POSITION]  = (uint8_t)registerToRead[ADI_COMMAND_FIRST_BYTE_POSITION];
-    PEC_Check[ADI_COMMAND_SECOND_BYTE_POSITION] = (uint8_t)registerToRead[ADI_COMMAND_SECOND_BYTE_POSITION];
-    PEC_result                                  = ADI_Pec15(ADI_COMMAND_SIZE_IN_BYTES, PEC_Check);
+    receivedDataBytes[ADI_COMMAND_FIRST_BYTE_POSITION]  = (uint8_t)registerToRead[ADI_COMMAND_FIRST_BYTE_POSITION];
+    receivedDataBytes[ADI_COMMAND_SECOND_BYTE_POSITION] = (uint8_t)registerToRead[ADI_COMMAND_SECOND_BYTE_POSITION];
+    calculatedPec                                       = ADI_Pec15(ADI_COMMAND_SIZE_IN_BYTES, receivedDataBytes);
 
     adiState->data.txBuffer[ADI_COMMAND_FIRST_BYTE_POSITION]  = registerToRead[ADI_COMMAND_FIRST_BYTE_POSITION];
     adiState->data.txBuffer[ADI_COMMAND_SECOND_BYTE_POSITION] = registerToRead[ADI_COMMAND_SECOND_BYTE_POSITION];
     adiState->data.txBuffer[ADI_COMMAND_PEC_FIRST_BYTE_POSITION] =
-        (uint8_t)((PEC_result >> ADI_BYTE_SHIFT) & ADI_ONE_BYTE_MASK);
-    adiState->data.txBuffer[ADI_COMMAND_PEC_SECOND_BYTE_POSITION] = (uint8_t)(PEC_result & ADI_ONE_BYTE_MASK);
+        (uint8_t)((calculatedPec >> ADI_BYTE_SHIFT) & ADI_ONE_BYTE_MASK);
+    adiState->data.txBuffer[ADI_COMMAND_PEC_SECOND_BYTE_POSITION] = (uint8_t)(calculatedPec & ADI_ONE_BYTE_MASK);
 
     /* 4u: two bytes command + two bytes command PEC */
     /* Register length + 2u: The two additional bytes correspond to the PEC */
@@ -330,22 +330,23 @@ extern void ADI_ReadRegister(uint16_t *registerToRead, uint8_t *data, ADI_STATE_
                 (uint8_t)(adiState->data.rxBuffer
                               [(ADI_FIRST_DATA_BYTE_POSITION_IN_TRANSMISSION_FRAME + byte) + (i * spiFrameLength)]);
         }
-        /* PEC_Check is a local variable holding read data and used to compute the PEC */
+        /* receivedDataBytes is a local variable holding read data and used to compute the PEC */
         for (byte = 0u; byte < registerLengthInBytes; byte++) {
-            PEC_Check[byte] =
+            receivedDataBytes[byte] =
                 (uint8_t)(adiState->data.rxBuffer
                               [(ADI_FIRST_DATA_BYTE_POSITION_IN_TRANSMISSION_FRAME + byte) + (i * spiFrameLength)]);
         }
         /* Data PEC is also computed on command counter, so one byte with command counter is added */
-        PEC_Check[byte] =
+        receivedDataBytes[byte] =
             (uint8_t)(adiState->data.rxBuffer
                           [(ADI_FIRST_DATA_BYTE_POSITION_IN_TRANSMISSION_FRAME + byte) + (i * spiFrameLength)]) &
             ADI_COMMAND_COUNTER_MASK;
 
-        PEC_result =
-            ADI_Pec10((uint8_t)(registerToRead[ADI_COMMAND_DATA_LENGTH_POSITION] & ADI_ONE_BYTE_MASK), PEC_Check, true);
-        PEC_RX[ADI_DATA_PEC_FIRST_BYTE_POSITION]  = (uint8_t)((PEC_result >> ADI_BYTE_SHIFT) & ADI_ONE_BYTE_MASK);
-        PEC_RX[ADI_DATA_PEC_SECOND_BYTE_POSITION] = (uint8_t)(PEC_result & ADI_ONE_BYTE_MASK);
+        calculatedPec = ADI_Pec10(
+            (uint8_t)(registerToRead[ADI_COMMAND_DATA_LENGTH_POSITION] & ADI_ONE_BYTE_MASK), receivedDataBytes, true);
+        pecAsByteArray[ADI_DATA_PEC_FIRST_BYTE_POSITION] =
+            (uint8_t)((calculatedPec >> ADI_BYTE_SHIFT) & ADI_ONE_BYTE_MASK);
+        pecAsByteArray[ADI_DATA_PEC_SECOND_BYTE_POSITION] = (uint8_t)(calculatedPec & ADI_ONE_BYTE_MASK);
 
         /* Position of the PEC (two bytes) in the first read frame */
         /* 4u: two bytes command + two bytes command PEC, followed by number of bytes in register */
@@ -357,20 +358,18 @@ extern void ADI_ReadRegister(uint16_t *registerToRead, uint8_t *data, ADI_STATE_
          *  PEC check on read value.
          */
         /* if calculated PEC not equal to received PEC */
-        if ((PEC_RX[ADI_DATA_PEC_FIRST_BYTE_POSITION] !=
-             (adiState->data.rxBuffer[crcByte0Position + (i * spiFrameLength)] &
-              ADI_PEC10_MSB_EXCLUDE_COMMAND_COUNTER)) ||
-            (PEC_RX[ADI_DATA_PEC_SECOND_BYTE_POSITION] !=
-             (adiState->data.rxBuffer[crcByte1Position + (i * spiFrameLength)] & ADI_ONE_BYTE_MASK))) {
-/* update error table of the corresponding ades183x only if PEC check is activated */
-#if (ADI_DISCARD_PEC == false)
-            adiState->data.errorTable->crcIsOk[adiState->currentString][i] = false;
-#else
+        const uint8_t pecLowByte = adiState->data.rxBuffer[crcByte0Position + (i * spiFrameLength)] &
+                                   ADI_PEC10_MSB_EXCLUDE_COMMAND_COUNTER;
+        const uint8_t pecHighByte =
+            (adiState->data.rxBuffer[crcByte1Position + (i * spiFrameLength)] & ADI_ONE_BYTE_MASK);
+
+        const bool pecLowByteOk  = (bool)(pecAsByteArray[ADI_DATA_PEC_FIRST_BYTE_POSITION] == pecLowByte);
+        const bool pecHighByteOk = (bool)(pecAsByteArray[ADI_DATA_PEC_SECOND_BYTE_POSITION] == pecHighByte);
+        /* update error table of the corresponding ades183x */
+        if (pecLowByteOk && pecHighByteOk) {
             adiState->data.errorTable->crcIsOk[adiState->currentString][i] = true;
-#endif
         } else {
-            /* update error table of the corresponding ades183x */
-            adiState->data.errorTable->crcIsOk[adiState->currentString][i] = true;
+            adiState->data.errorTable->crcIsOk[adiState->currentString][i] = false;
         }
 
         /* CRC is placed after the data bytes */
@@ -394,7 +393,7 @@ extern void ADI_ReadRegister(uint16_t *registerToRead, uint8_t *data, ADI_STATE_
     }
 }
 
-/* RequirementId: D7.1 V0R4 FUN-0.0.01.04 */
+/* RequirementId: D7.1 V1R0 FUN-0.0.01.04 */
 extern void ADI_SpiTransmitReceiveData(
     ADI_STATE_s *adiState,
     uint16_t *pTxBuff,
@@ -474,9 +473,9 @@ extern void ADI_StoredConfigurationFillRegisterDataGlobal(
     }
 }
 
-/* RequirementId: D7.1 V0R4 FUN-0.0.01.03 */
-/* RequirementId: D7.1 V0R4 SIF-4.10.01.01 */
-/* RequirementId: D7.1 V0R4 SIF-4.10.11.01 */
+/* RequirementId: D7.1 V1R0 FUN-0.0.01.03 */
+/* RequirementId: D7.1 V1R0 SIF-4.10.02.02 */
+/* RequirementId: D7.1 V1R0 SIF-4.10.04.01 */
 extern void ADI_TransmitCommand(uint16_t *command, ADI_STATE_s *adiState) {
     FAS_ASSERT(command != NULL_PTR);
     FAS_ASSERT(adiState != NULL_PTR);
@@ -501,9 +500,9 @@ extern void ADI_TransmitCommand(uint16_t *command, ADI_STATE_s *adiState) {
     ADI_SpiTransmitReceiveData(adiState, adiState->data.txBuffer, NULL_PTR, ADI_COMMAND_AND_PEC_SIZE_IN_BYTES);
 
     /**
-         *  SM_SPI_CNT: SPI Frame Counter
-         *  Increment driver stored value of command counter if command causes increase.
-         */
+     *  SM_SPI_CNT: SPI Frame Counter
+     *  Increment driver stored value of command counter if command causes increase.
+     */
     /** If command increments AFE command counter, increment driver command counter */
     if (command[ADI_COMMAND_INC_POSITION] == 1u) {
         ADI_IncrementCommandCounter(adiState);
@@ -527,7 +526,7 @@ extern void ADI_WriteRegisterGlobal(
     ADI_WriteRegister(registerToWrite, adi_dataTransmit, pecFaultInjection, adiState);
 }
 
-/* RequirementId: D7.1 V0R4 SIF-4.20.01.03 */
+/* RequirementId: D7.1 V1R0 SIF-4.20.01.03 */
 extern void ADI_StoredConfigurationWriteToAfeGlobal(ADI_STATE_s *adiState) {
     FAS_ASSERT(adiState != NULL_PTR);
     STD_RETURN_TYPE_e returnValue = STD_OK;
@@ -582,9 +581,10 @@ extern void ADI_WriteDataBits(uint8_t *pSentData, uint8_t dataToWrite, uint8_t p
     *pSentData |= tempData & mask;
 }
 
-/* RequirementId: D7.1 V0R4 FUN-0.0.01.02 */
-/* RequirementId: D7.1 V0R4 SIF-4.10.01.01 */
-/* RequirementId: D7.1 V0R4 SIF-4.10.11.01 */
+/* RequirementId: D7.1 V1R0 FUN-0.0.01.02 */
+/* RequirementId: D7.1 V1R0 SIF-4.10.02.02 */
+/* RequirementId: D7.1 V0R11 SIF-4.10.03.03 */
+/* RequirementId: D7.1 V1R0 SIF-4.10.04.01 */
 extern void ADI_WriteRegister(
     const uint16_t *registerToWrite,
     uint8_t *data,

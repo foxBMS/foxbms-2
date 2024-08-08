@@ -17,12 +17,12 @@ The sensor is a NTC thermistor with a resistance value of 10k at room
 temperature.
 The steps of adding the sensor contain:
 
-  * explanation of the directory structure,
-  * adding the sensor to the documentation,
-  * adding the sensor to the codebase (with lookup table and polynomial),
-  * adding the sensor to the unit tests,
-  * making known the relevant paths to |code| and
-  * using the sensor through ``bms.json``.
+- explanation of the directory structure,
+- adding the sensor to the documentation,
+- adding the sensor to the codebase (with lookup table and polynomial),
+- adding the sensor to the unit tests,
+- making known the relevant paths to |code| and
+- using the sensor through ``bms.json``.
 
 Basic Directory Structure
 -------------------------
@@ -127,11 +127,11 @@ Updating the IDE configuration
 ------------------------------
 
 In order to be able to discover the new files in |code|, it is necessary to
-add the path to new sensor to the ``env`` node in
-``tools/ide/vscode/c_cpp_properties.json.jinja2`` and rerun the ``configure``
+add the path to new sensor to the
+``tools/ide/vscode/src/project-include-path.txt`` and rerun the ``configure``
 step of the build system.
 For the aforementioned example the following line would have to be added:
-``"${workspaceFolder}/src/app/driver/ts/good-sensor/temp123",``.
+``@@ROOT@@/src/app/driver/ts/good-sensor/temp123``.
 
 Using the sensor
 ----------------

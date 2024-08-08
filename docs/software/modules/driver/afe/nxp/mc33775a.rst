@@ -6,19 +6,6 @@
 NXP MC33775A
 ============
 
-..
-    Comments:
-    IC is used in this document for AFEs
-    xC is a prefix in some numbers
-    FFF is part of a number
-    Tx is an abbreviation for transmit
-
-.. spelling::
-    IC
-    xC
-    FFF
-    Tx
-
 Description
 -----------
 
@@ -428,22 +415,22 @@ First, the measurement units must be activated:
 - Enable cell measurement channels by writing ones to the VCBCxEN fields in
   the ``ALLM_VCVB_CFG`` register (address 0x1408).
 
-  * ``ALLM_VCVB_CFG`` |larr| ``0x3FFF``
+  - ``ALLM_VCVB_CFG`` |larr| ``0x3FFF``
 
 - Enable AIN0 to AIN 3 and module voltage channels by writing ones to the AINx
   fields in the ``PRMM_AIN_CFG`` register (address 0x1809).
 
-  * ``PRMM_AIN_CFG`` |larr| ``0x1F``
+  - ``PRMM_AIN_CFG`` |larr| ``0x1F``
 
 - Enable AIN4 to AIN 7 channels by writing ones to the AINx fields in the
   ``SECM_AIN_CFG`` register (address 0x1C09).
 
-  * ``PRMM_AIN_CFG`` |larr| ``0x0F``
+  - ``PRMM_AIN_CFG`` |larr| ``0x0F``
 
 - Enable the measurements units simultaneously by setting bit 0 to 1 in the
   ``ALLM_CFG`` register (address 0x1400).
 
-  * ``ALLM_CFG`` register |larr| ``0x01``
+  - ``ALLM_CFG`` register |larr| ``0x01``
 
 Once the measurement units have been activated, measurement captures can be
 started.
@@ -458,25 +445,25 @@ Application-driven measurements
   Writing a number between 0 to 13 would activate open load detection for the
   corresponding cell measurement input.
 
-  * ``ALLM_APP_CTRL`` |larr| (``0x1F`` << ``10``) | ``0x3FF``
+  - ``ALLM_APP_CTRL`` |larr| (``0x1F`` << ``10``) | ``0x3FF``
 
 - In the ``PRMM_MEAS_STAT`` register (address 0x183E), the status of the
   primary measurements can be checked.
   If at least 16 measurements have been captured, the corresponding bit for
   each of the 6 measurement possibilities is set to 1:
 
-  * cell inputs VC0 to VC13 - bit 0
-  * analog inputs AIN0 to AIN3 - bit 1 to bit 4
-  * module voltage - bit 5
+  - cell inputs VC0 to VC13 - bit 0
+  - analog inputs AIN0 to AIN3 - bit 1 to bit 4
+  - module voltage - bit 5
 
 - In the ``PRMM_APP_VC_CNT register`` (address 0x183F), the number of captured
   values for the cell input measurements can be read.
   Starting from address 0x1840, the results of the measurements can be read,
   with one value per register, in the following order:
 
-  * cell inputs VC0 to VC13
-  * module voltage.
-  * analog inputs AIN0 to AIN3
+  - cell inputs VC0 to VC13
+  - module voltage.
+  - analog inputs AIN0 to AIN3
 
 - Starting from address 0x1C4F, the results of the secondary measurements can
   be read, with one value per register, in the order analog inputs AIN4 to AIN7.
@@ -489,7 +476,7 @@ Periodic measurements
   bits 0 to 8 (PERLEN).
   The number must lie between 16 and 511.
 
-  * ``ALLM_PER_CTRL`` |larr| ``0x10`` for 16 measurements
+  - ``ALLM_PER_CTRL`` |larr| ``0x10`` for 16 measurements
 
 - In the ``PRMM_MEAS_STAT`` register (address 0x183E), the status of the
   periodic measurements can be checked.
@@ -500,9 +487,9 @@ Periodic measurements
   Starting from address 0x1860, the results of the measurements can be read,
   with one value per register, in the following order:
 
-  * cell inputs VC0 to VC13
-  * module voltage.
-  * analog inputs AIN0 to AIN3
+  - cell inputs VC0 to VC13
+  - module voltage.
+  - analog inputs AIN0 to AIN3
 
 - Starting from address 0x1C6E, the results of the secondary measurements can
   be read, with one value per register, in the order analog inputs AIN4 to AIN7.
@@ -516,7 +503,7 @@ Synchronous measurements
   Writing a number between 0 to 13 would activate open load detection for the
   corresponding cell measurement input.
 
-  * ``ALLM_SYNC_CTRL`` |larr| (``0x1F`` << ``10``) | ``0x01``
+  - ``ALLM_SYNC_CTRL`` |larr| (``0x1F`` << ``10``) | ``0x01``
 
 - In the ``PRMM_MEAS_STAT`` register (address 0x183E), the status of the
   synchronous measurements can be checked.
@@ -563,10 +550,10 @@ There are three prerequisites for balancing to start:
 - In the BAL_GLOB_CFG register (address 0x1000), the global balancing enable
   flag BALEN must be set to 1.
 
-  * ``BAL_GLOB_TO_TMR`` |larr| ``0xYYYY`` with YYYY>0 and high enough
-  * Set all individual channels to values high enough
-  * ``BAL_PRE_TMR`` |larr| ``0x00``
-  * ``BAL_GLOB`` |larr| ``0x01``
+  - ``BAL_GLOB_TO_TMR`` |larr| ``0xYYYY`` with YYYY>0 and high enough
+  - Set all individual channels to values high enough
+  - ``BAL_PRE_TMR`` |larr| ``0x00``
+  - ``BAL_GLOB`` |larr| ``0x01``
 
 Once this is done, setting bits CHEN0-CHEN13 to 1 in the BAL_CH_CFG register
 (address 0x1002) activates the corresponding balancing channel.

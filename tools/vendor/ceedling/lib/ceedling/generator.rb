@@ -1,5 +1,14 @@
+# =========================================================================
+#   Ceedling - Test-Centered Build System for C
+#   ThrowTheSwitch.org
+#   Copyright (c) 2010-24 Mike Karlesky, Mark VanderVoord, & Greg Williams
+#   SPDX-License-Identifier: MIT
+# =========================================================================
+
 require 'ceedling/constants'
+require 'ceedling/exceptions'
 require 'ceedling/file_path_utils'
+require 'rake'
 
 class Generator
 
@@ -7,19 +16,24 @@ class Generator
               :generator_helper,
               :preprocessinator,
               :generator_mocks,
-              :generator_test_runner,
               :generator_test_results,
+              :generator_test_results_backtrace,
               :test_context_extractor,
               :tool_executor,
               :file_finder,
               :file_path_utils,
               :reportinator,
-              :streaminator,
+              :loginator,
               :plugin_manager,
               :file_wrapper,
-              :debugger_utils,
-              :unity_utils
+              :test_runner_manager
 
+
+  def setup()
+    # Aliases
+    @helper = @generator_helper
+    @backtrace = @generator_test_results_backtrace
+  end
 
   def generate_mock(context:, mock:, test:, input_filepath:, output_path:)
     arg_hash = {
@@ -31,7 +45,7 @@ class Generator
     @plugin_manager.pre_mock_generate( arg_hash )
 
     begin
-      # Below is a workaround that nsantiates CMock anew:
+      # Below is a workaround that instantiates CMock anew:
       #  1. To allow dfferent output path per mock
       #  2. To avoid any thread safety complications
 
@@ -48,52 +62,53 @@ class Generator
         module_name: test,
         filename: File.basename(input_filepath)
       )
-      @streaminator.stdout_puts(msg, Verbosity::NORMAL)
+      @loginator.log( msg )
 
       cmock = @generator_mocks.manufacture( config )
       cmock.setup_mocks( arg_hash[:header_file] )
-    rescue
-      raise
+    rescue StandardError => ex
+      # Re-raise execption but decorate it with CMock to better identify it
+      raise( ex, "CMock >> #{ex.message}", ex.backtrace )
     ensure
       @plugin_manager.post_mock_generate( arg_hash )
     end
   end
 
-  # test_filepath may be either preprocessed test file or original test file
-  def generate_test_runner(context:, mock_list:, test_filepath:, input_filepath:, runner_filepath:)
+  def generate_test_runner(context:, mock_list:, includes_list:, test_filepath:, input_filepath:, runner_filepath:)
     arg_hash = {
       :context => context,
       :test_file => test_filepath,
       :input_file => input_filepath,
       :runner_file => runner_filepath}
 
-    @plugin_manager.pre_runner_generate(arg_hash)
+    @plugin_manager.pre_runner_generate( arg_hash )
 
-    # Instantiate the test runner generator each time needed for thread safety
-    # TODO: Make UnityTestRunnerGenerator thread-safe
-    generator = @generator_test_runner.manufacture()
-
-    # collect info we need
+    # Collect info we need
     module_name = File.basename( arg_hash[:test_file] )
-    test_cases  = @generator_test_runner.find_test_cases(
-      generator: generator,
-      test_filepath:  arg_hash[:test_file],
-      input_filepath: arg_hash[:input_file]
-      )
 
     msg = @reportinator.generate_progress("Generating runner for #{module_name}")
-    @streaminator.stdout_puts(msg, Verbosity::NORMAL)
+    @loginator.log( msg )
 
-    # build runner file
+    unity_test_runner_generator = 
+      @test_context_extractor.lookup_test_runner_generator( test_filepath )
+
+    if unity_test_runner_generator.nil?
+      msg = "Could not find test runner generator for #{test_filepath}"
+      raise CeedlingException.new( msg )
+    end
+
+    # Build runner file
     begin
-      @generator_test_runner.generate(
-        generator: generator,
+      unity_test_runner_generator.generate(
         module_name: module_name,
         runner_filepath: runner_filepath,
-        test_cases: test_cases,
-        mock_list: mock_list)
-    rescue
-      raise
+        mock_list: mock_list,
+        test_file_includes: includes_list,
+        header_extension: @configurator.extension_header
+      )
+    rescue StandardError => ex
+      # Re-raise execption but decorate it to better identify it in Ceedling output
+      raise( ex, "Unity Runner Generator >> #{ex.message}", ex.backtrace )
     ensure
       @plugin_manager.post_runner_generate(arg_hash)
     end
@@ -135,7 +150,7 @@ class Generator
       module_name: module_name,
       filename: File.basename(arg_hash[:source])
       ) if msg.empty?
-    @streaminator.stdout_puts(msg, Verbosity::NORMAL)
+    @loginator.log( msg )
 
     command =
       @tool_executor.build_command_line(
@@ -149,10 +164,8 @@ class Generator
         arg_hash[:defines]
       )
 
-    @streaminator.stdout_puts("Command: #{command}", Verbosity::DEBUG)
-
     begin
-      shell_result = @tool_executor.exec( command[:line], command[:options] )
+      shell_result = @tool_executor.exec( command )
     rescue ShellExecutionException => ex
       shell_result = ex.shell_result
       raise ex
@@ -200,7 +213,7 @@ class Generator
       module_name: module_name,
       filename: File.basename(arg_hash[:source])
       ) if msg.empty?
-    @streaminator.stdout_puts(msg, Verbosity::NORMAL)
+    @loginator.log( msg )
 
     command =
       @tool_executor.build_command_line( 
@@ -214,10 +227,8 @@ class Generator
         arg_hash[:dependencies]
       )
 
-    @streaminator.stdout_puts("Command: #{command}", Verbosity::DEBUG)
-
     begin
-      shell_result = @tool_executor.exec( command[:line], command[:options] )
+      shell_result = @tool_executor.exec( command )
     rescue ShellExecutionException => ex
       shell_result = ex.shell_result
       raise ex
@@ -243,7 +254,7 @@ class Generator
     @plugin_manager.pre_link_execute(arg_hash)
 
     msg = @reportinator.generate_progress("Linking #{File.basename(arg_hash[:executable])}")
-    @streaminator.stdout_puts(msg, Verbosity::NORMAL)
+    @loginator.log( msg )
 
     command =
       @tool_executor.build_command_line(
@@ -255,91 +266,95 @@ class Generator
         arg_hash[:libraries],
         arg_hash[:libpaths]
       )
-    @streaminator.stdout_puts("Command: #{command}", Verbosity::DEBUG)
 
     begin
-      shell_result = @tool_executor.exec( command[:line], command[:options] )
+      shell_result = @tool_executor.exec( command )
     rescue ShellExecutionException => ex
-      notice =    "\n" +
-                  "NOTICE: Ceedling assumes header files correspond to source files. A test file directs its build\n" +
-                  "with #include statemetns as to which source files to compile and link into the executable.\n\n" +
-                  "If the linker reports missing symbols, the following may be to blame:\n" +
-                  "  1. This test lacks #include header statements corresponding to needed source files.\n" +
-                  "  2. Project file paths omit source files corresponding to #include statements in this test.\n" +
-                  "  3. Complex macros, #ifdefs, etc. have obscured correct #include statements in this test.\n"
-
-      if (@configurator.project_use_mocks)
-        notice += "  4. This test does not #include needed mocks to be generated.\n\n"
-      else
-        notice += "\n"
-      end
-
-      notice +=   "OPTIONS:\n" +
-                  "  1. Doublecheck this test's #include statements.\n" +
-                  "  2. Simplify complex macros or fully specify defines for this test in project config.\n" +
-                  "  3. Use #{UNITY_TEST_SOURCE_FILE}() macro in this test to include a source file in the build.\n\n"
-
-      @streaminator.stderr_puts(notice, Verbosity::COMPLAIN)
       shell_result = ex.shell_result
-      raise ''
+      raise ex
     ensure
+      arg_hash[:shell_command] = command[:line]
       arg_hash[:shell_result] = shell_result
       @plugin_manager.post_link_execute(arg_hash)
     end
   end
 
-  def generate_test_results(tool:, context:, executable:, result:)
-    arg_hash = {:tool => tool, :context => context, :executable => executable, :result_file => result}
-    @plugin_manager.pre_test_fixture_execute(arg_hash)
+  def generate_test_results(tool:, context:, test_name:, test_filepath:, executable:, result:)
+    arg_hash = {
+      :tool => tool,
+      :context => context,
+      :test_name => test_name,
+      :test_filepath => test_filepath,
+      :executable => executable,
+      :result_file => result
+    }
 
-    msg = @reportinator.generate_progress("Running #{File.basename(arg_hash[:executable])}")
-    @streaminator.stdout_puts(msg, Verbosity::NORMAL)
+    @plugin_manager.pre_test_fixture_execute( arg_hash )
 
-    # Unity's exit code is equivalent to the number of failed tests, so we tell @tool_executor not to fail out if there are failures
-    # so that we can run all tests and collect all results
-    command = @tool_executor.build_command_line(arg_hash[:tool], [], arg_hash[:executable])
+    msg = @reportinator.generate_progress( "Running #{File.basename(arg_hash[:executable])}" )
+    @loginator.log( msg )
 
-    # Configure debugger
-    @debugger_utils.configure_debugger(command)
+    # Unity's exit code is equivalent to the number of failed tests.
+    # We tell @tool_executor not to fail out if there are failures
+    # so that we can run all tests and collect all results.
+    command = 
+      @tool_executor.build_command_line(
+        arg_hash[:tool],
+        # Apply additional test case filters 
+        @test_runner_manager.collect_cmdline_args(),
+        arg_hash[:executable]
+      )
 
-    # Apply additional test case filters 
-    command[:line] += @unity_utils.collect_test_runner_additional_args
-    @streaminator.stdout_puts("Command: #{command}", Verbosity::DEBUG)
-
-    # Enable collecting GCOV results even when segmenatation fault is appearing
-    # The gcda and gcno files will be generated for a test cases which doesn't
-    # cause segmentation fault
-    @debugger_utils.enable_gcov_with_gdb_and_cmdargs(command)
-
-    # Run the test itself (allow it to fail. we'll analyze it in a moment)
+    # Run the test executable itself
+    # We allow it to fail without an exception.
+    # We'll analyze its results apart from tool_executor
     command[:options][:boom] = false
-    shell_result = @tool_executor.exec( command[:line], command[:options] )
+    shell_result = @tool_executor.exec( command )
 
-    # Handle SegFaults
-    if shell_result[:output] =~ /\s*Segmentation\sfault.*/i
-      if @configurator.project_config_hash[:project_use_backtrace_gdb_reporter] && @configurator.project_config_hash[:test_runner_cmdline_args]
-        # If we have the options and tools to learn more, dig into the details
-        shell_result = @debugger_utils.gdb_output_collector(shell_result)
-      else
-        # Otherwise, call a segfault a single failure so it shows up in the report
-        shell_result[:output] = "#{File.basename(@file_finder.find_compilation_input_file(executable))}:1:test_Unknown:FAIL:Segmentation Fault" 
-        shell_result[:output] += "\n-----------------------\n1 Tests 1 Failures 0 Ignored\nFAIL\n"
-        shell_result[:exit_code] = 1
+    # Handle crashes
+    if @helper.test_crash?( shell_result )
+      @helper.log_test_results_crash( test_name, executable, shell_result )
+
+      filename = File.basename( test_filepath )
+
+      # Lookup test cases and filter based on any matchers specified for the build task
+      test_cases = @test_context_extractor.lookup_test_cases( test_filepath )
+      test_cases = @generator_test_results.filter_test_cases( test_cases )
+
+      case @configurator.project_config_hash[:project_use_backtrace]
+      # If we have the options and tools to learn more, dig into the details
+      when :gdb
+        shell_result = 
+          @backtrace.do_gdb( filename, executable, shell_result, test_cases )
+
+      # Simple test-case-by-test-case exercise
+      when :simple
+        shell_result = 
+          @backtrace.do_simple( filename, executable, shell_result, test_cases )
+
+      else # :none
+        # Otherwise, call a crash a single failure so it shows up in the report
+        shell_result = @generator_test_results.create_crash_failure(
+          filename,
+          shell_result,
+          test_cases
+        )
       end
-    else
-      # Don't Let The Failure Count Make Us Believe Things Aren't Working
-      @generator_helper.test_results_error_handler(executable, shell_result)
     end
 
-    processed = @generator_test_results.process_and_write_results( shell_result,
-                                                                   arg_hash[:result_file],
-                                                                   @file_finder.find_test_from_file_path(arg_hash[:executable]) )
+    processed = @generator_test_results.process_and_write_results( 
+      executable,
+      shell_result,
+      arg_hash[:result_file],
+      @file_finder.find_test_from_file_path( arg_hash[:executable] )
+    )
 
     arg_hash[:result_file]  = processed[:result_file]
     arg_hash[:results]      = processed[:results]
-    arg_hash[:shell_result] = shell_result # for raw output display if no plugins for formatted display
+    # For raw output display if no plugins enabled for nice display
+    arg_hash[:shell_result] = shell_result
 
-    @plugin_manager.post_test_fixture_execute(arg_hash)
+    @plugin_manager.post_test_fixture_execute( arg_hash )
   end
 
 end

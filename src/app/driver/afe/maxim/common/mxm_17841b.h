@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,16 +43,14 @@
  * @file    mxm_17841b.h
  * @author  foxBMS Team
  * @date    2018-12-14 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup DRIVERS
  * @prefix  MXM
  *
  * @brief   Headers for the driver for the MAX17841B ASCI and
  *          MAX1785x analog front-end
- *
- * @details def
- *
+ * @details TODO
  */
 
 #ifndef FOXBMS__MXM_17841B_H_
@@ -62,7 +60,7 @@
 #include "mxm_cfg.h"
 
 #include "fstd_types.h"
-#include "mxm_bitextract.h"
+#include "mxm_bit_extract.h"
 
 #include <stdint.h>
 
@@ -90,12 +88,13 @@ typedef enum {
     MXM_STATEMACH_41B_IDLE,          /*!< Idle state, transition into other states is available here */
     MXM_STATEMACH_41B_CHECK_FMEA,    /*!< Checks the FMEA register of MAX17841B. */
     MXM_STATEMACH_41B_GET_VERSION,   /*!< Retrieves the version of the connected ASCI. */
-    MXM_STATEMACH_41B_WRITE_CONF_AND_INT_REGISTER, /*!< Writes the copy of configuration and interrupt register to the MAX17841B. */
-    MXM_STATEMACH_41B_READ_STATUS_REGISTER,  /*!< Reads the status registers of MAX17841B. */
-    MXM_STATEMACH_41B_UART_TRANSACTION,      /*!< Sends a complete UART transaction. */
-    MXM_STATEMACH_41B_CLEAR_RECEIVE_BUFFER,  /*!< Clears the receive buffer. */
-    MXM_STATEMACH_41B_CLEAR_TRANSMIT_BUFFER, /*!< Clears the transmit buffer */
-    MXM_STATEMACH_41B_MAXSTATE,              /*!< Highest state */
+    MXM_STATEMACH_41B_WRITE_CONF_AND_INT_REGISTER, /*!< Writes the copy of configuration and interrupt register to the
+                                                      MAX17841B. */
+    MXM_STATEMACH_41B_READ_STATUS_REGISTER,        /*!< Reads the status registers of MAX17841B. */
+    MXM_STATEMACH_41B_UART_TRANSACTION,            /*!< Sends a complete UART transaction. */
+    MXM_STATEMACH_41B_CLEAR_RECEIVE_BUFFER,        /*!< Clears the receive buffer. */
+    MXM_STATEMACH_41B_CLEAR_TRANSMIT_BUFFER,       /*!< Clears the transmit buffer */
+    MXM_STATEMACH_41B_MAXSTATE,                    /*!< Highest state */
 } MXM_STATEMACH_41B_e;
 
 /**
@@ -167,7 +166,7 @@ typedef struct {
     uint16_t rxBufferLength;                   /*!< length of the RX-buffer-array */
     MXM_41B_STATE_REQUEST_STATUS_e *processed; /*!< status-indicator of the state-machine */
     uint8_t extendMessageBytes;                /*!< pass on number of bytes by which the TX-message shall be extended */
-    uint8_t waitCounter;                       /*!< general error counter, will be reset in funtions */
+    uint8_t waitCounter;                       /*!< general error counter, will be reset in functions */
     uint8_t regRxIntEnable;                    /*!< local storage for the RX Interrupt Enable register */
     uint8_t regTxIntEnable;                    /*!< local storage for the TX Interrupt Enable register */
     uint8_t regRxStatus;                       /*!< local storage for the RX Status register */

@@ -12,7 +12,7 @@ Module Files
 Driver
 ^^^^^^
 
-- ``src/app/application/algorithm/state_estimation/soc/debug/soc_debug.c`` (`API <./../../../../../../_static/doxygen/src/html/soc__debug_8c.html>`__, `source <./../../../../../../_static/doxygen/src/html/soc__debug_8c_source.html>`__)
+- ``src/app/application/algorithm/state_estimation/soc/debug/soc_debug.c``
 
 Configuration
 ^^^^^^^^^^^^^
@@ -20,7 +20,7 @@ Configuration
 Unit Test
 ^^^^^^^^^
 
-- ``tests/unit/app/application/algorithm/state_estimation/soc/debug/test_soc_debug.c`` (`API <./../../../../../../_static/doxygen/tests/html/test__soc__debug_8c.html>`__, `source <./../../../../../../_static/doxygen/tests/html/test__soc__debug_8c_source.html>`__)
+- ``tests/unit/app/application/algorithm/state_estimation/soc/debug/test_soc_debug.c``
 
 Detailed Description
 --------------------

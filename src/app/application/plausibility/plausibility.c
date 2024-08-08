@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,12 +43,13 @@
  * @file    plausibility.c
  * @author  foxBMS Team
  * @date    2020-02-24 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup APPLICATION
  * @prefix  PL
  *
- * @brief   plausibility checks for cell voltage and cell temperatures
+ * @brief   Plausibility checks for cell voltage and cell temperatures
+ * @details TODO
  *
  */
 
@@ -103,22 +104,22 @@ extern STD_RETURN_TYPE_e PL_CheckCellVoltage(
     return retval;
 }
 
-extern STD_RETURN_TYPE_e PL_CheckCelltemperature(
-    int16_t baseCelltemperature,
-    int16_t redundancy0Celltemperature,
-    int16_t *pCelltemperature) {
-    /* AXIVION Routine Generic-MissingParameterAssert: baseCelltemperature: parameter accepts whole range */
-    /* AXIVION Routine Generic-MissingParameterAssert: redundancy0Celltemperature: parameter accepts whole range */
+extern STD_RETURN_TYPE_e PL_CheckCellTemperature(
+    int16_t baseCellTemperature,
+    int16_t redundancy0CellTemperature,
+    int16_t *pCellTemperature) {
+    /* AXIVION Routine Generic-MissingParameterAssert: baseCellTemperature: parameter accepts whole range */
+    /* AXIVION Routine Generic-MissingParameterAssert: redundancy0CellTemperature: parameter accepts whole range */
     /* Pointer validity check */
-    FAS_ASSERT(pCelltemperature != NULL_PTR);
+    FAS_ASSERT(pCellTemperature != NULL_PTR);
 
     STD_RETURN_TYPE_e retval = STD_OK;
 
-    if (abs(baseCelltemperature - redundancy0Celltemperature) > PL_CELL_TEMPERATURE_TOLERANCE_dK) {
+    if (abs(baseCellTemperature - redundancy0CellTemperature) > PL_CELL_TEMPERATURE_TOLERANCE_dK) {
         retval = STD_NOT_OK;
     }
     /* Take the average value of base and redundant measurement value */
-    *pCelltemperature = (baseCelltemperature + redundancy0Celltemperature) / 2;
+    *pCellTemperature = (baseCellTemperature + redundancy0CellTemperature) / 2;
     return retval;
 }
 
@@ -137,14 +138,14 @@ extern STD_RETURN_TYPE_e PL_CheckVoltageSpread(
         for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
             for (uint8_t cb = 0u; cb < BS_NR_OF_CELL_BLOCKS_PER_MODULE; cb++) {
                 /* Only do check for valid voltages */
-                if ((pCellVoltages->invalidCellVoltage[s][m] & (0x01uLL << cb)) == 0uLL) {
+                if (pCellVoltages->invalidCellVoltage[s][m][cb] == false) {
                     if (abs(pCellVoltages->cellVoltage_mV[s][m][cb] - pMinMaxAverageValues->averageCellVoltage_mV[s]) >
                         PL_CELL_VOLTAGE_SPREAD_TOLERANCE_mV) {
                         /* Voltage difference too large */
                         plausibilityIssueDetected = STD_NOT_OK;
                         retval                    = STD_NOT_OK;
                         /* Set this cell voltage invalid */
-                        pCellVoltages->invalidCellVoltage[s][m] |= (0x01u << cb);
+                        pCellVoltages->invalidCellVoltage[s][m][cb] = true;
                     }
                 }
             }
@@ -169,7 +170,7 @@ extern STD_RETURN_TYPE_e PL_CheckTemperatureSpread(
         for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
             for (uint8_t ts = 0u; ts < BS_NR_OF_TEMP_SENSORS_PER_MODULE; ts++) {
                 /* Only do check for valid temperatures */
-                if ((pCellTemperatures->invalidCellTemperature[s][m] & (0x01u << ts)) == 0) {
+                if (pCellTemperatures->invalidCellTemperature[s][m][ts] == false) {
                     if (abs(pCellTemperatures->cellTemperature_ddegC[s][m][ts] -
                             (int16_t)pMinMaxAverageValues->averageTemperature_ddegC[s]) >
                         PL_CELL_TEMPERATURE_SPREAD_TOLERANCE_dK) {
@@ -177,7 +178,7 @@ extern STD_RETURN_TYPE_e PL_CheckTemperatureSpread(
                         plausibilityIssueDetected = STD_NOT_OK;
                         retval                    = STD_NOT_OK;
                         /* Set this cell temperature invalid */
-                        pCellTemperatures->invalidCellTemperature[s][m] |= (0x01u << ts);
+                        pCellTemperatures->invalidCellTemperature[s][m][ts] = true;
                     } else {
                         pCellTemperatures->nrValidTemperatures[s]++;
                     }

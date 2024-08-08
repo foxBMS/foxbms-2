@@ -15,181 +15,151 @@ How to add a new CAN Message
    #. Set the DLC
    #. Add a comment that follows the pattern
 
-      - ``optional comment text (in<file>:<function>, fv:tx) optional comment text``
-        for files that are transmitted and
-      - ``optional comment text (in<file>:<function>, fv:rx) optional comment text``
-        for files that are received as seen by the |foxbms| hardware.
+      +-------------------+------------------------------------------------------------------------------+
+      | Message direction | Comment                                                                      |
+      +===================+==============================================================================+
+      | transmit          | ``optional comment text (in<file>:<function>, fv:tx) optional comment text`` |
+      +-------------------+------------------------------------------------------------------------------+
+      | receive           | ``optional comment text (in<file>:<function>, fv:rx) optional comment text`` |
+      +-------------------+------------------------------------------------------------------------------+
 
-#. Export the symbol file as dbc file.
-#. Declare the callback function in
+      The message direction is specified as seen from the BMS view.
 
-   - in file ``src\app\driver\can\cbs\tx\can_cbs_tx.h`` for
-     the transmit callbacks
-   - in file ``src\app\driver\can\cbs\rx\can_cbs_rx.h`` for
-     the receive callbacks
+#. Export the symbol file as dbc file to ``tools/dbc/foxbms.dbc``.
+#. Declare the callback function for the message in the appropriate file:
 
-#. Implement a callback.
-   If the message handling suites in any of the existing callback
-   implementation files (``src/app/driver/can/cbs/tx/*`` or respectively
-   ``src/app/driver/can/cbs/rx/*``), implement the callback there, otherwise
-   create a new file (and accompanying test file) and implement the callback
-   there.
+   +---------------------------------+-----------------------------------------------------------------+
+   | Message type                    | File                                                            |
+   +=================================+=================================================================+
+   | cyclic transmit callbacks       | ``src/app/driver/can/cbs/tx-cyclic/can_cbs_tx_cyclic.h``        |
+   +---------------------------------+-----------------------------------------------------------------+
+   | asynchronous transmit callbacks | ``src/app/driver/can/cbs/tx-async/can_cbs_tx_<my-file-name>.h`` |
+   +---------------------------------+-----------------------------------------------------------------+
+   | receive callbacks               | ``src/app/driver/can/cbs/rx/can_cbs_rx.h``                      |
+   +---------------------------------+-----------------------------------------------------------------+
 
-#. Add the message ID and message details:
+   **Note 1**: every asynchronous transmit callback is implemented in an
+   separate file, that **only** consists of this one, specific callback.
 
-   - in file ``src/app/driver/config/can_cfg_tx-message-definitions.h`` for
-     transmit messages
-   - in file ``src/app/driver/config/can_cfg_rx-message-definitions.h`` for
-     receive messages
+   **Note 2**: the name *callback* is kept for the asynchronous transmit
+   callbacks for consistency reasons although they are not callbacks in the
+   classical meaning of the word.
 
-#. Add the message to the callback array in
+   **Note 3**: Only the transmitted messages are separated in cyclic and
+   asynchronous callbacks, therefore there is only one file for receive
+   callbacks.
+   This file includes the callbacks for the cyclic and asynchronously received
+   messages.
+   The same reason applies for splitting things between
+   *asynchronous transmit*, *cyclic transmit* and *receive* is consistently
+   through the document and code.
 
-   - in file ``src/app/driver/config/can_cfg_tx.c`` for transmit messages in
-     the array ``can_txMessages``
-   - in file ``src/app/driver/config/can_cfg_rx.c`` for receive messages in the
-     array ``can_rxMessages``
+#. Implement a callback in a new file and the accompanying test file/files in
+   the appropriate directories at:
 
-#. Verify that the CAN message is defined and implemented as expected by
-   |foxbms| guidelines:
+   +---------------------------------+------------------------------------------------------------------------------------------+
+   | Message type                    | New file                                                                                 |
+   +=================================+==========================================================================================+
+   | cyclic transmit callbacks       | ``src/app/driver/can/cbs/tx-cyclic/*`` and ``tests/unit/app/driver/can/cbs/tx-cyclic/*`` |
+   +---------------------------------+------------------------------------------------------------------------------------------+
+   | asynchronous transmit callbacks | ``src/app/driver/can/cbs/tx-async/*`` and ``tests/unit/app/driver/can/cbs/tx-async/*``   |
+   +---------------------------------+------------------------------------------------------------------------------------------+
+   | receive callbacks               | ``src/app/driver/can/cbs/rx/*`` and ``tests/unit/app/driver/can/cbs/rx/*``               |
+   +---------------------------------+------------------------------------------------------------------------------------------+
 
-   .. code-block:: console
+#. Add the message ID and message details
+
+   +---------------------------------+-------------------------------------------------------------------+
+   | Message type                    | Declaration file                                                  |
+   +=================================+===================================================================+
+   | cyclic transmit callbacks       | ``src/app/driver/config/can_cfg_tx-cyclic-message-definitions.h`` |
+   +---------------------------------+-------------------------------------------------------------------+
+   | asynchronous transmit callbacks | ``src/app/driver/config/can_cfg_tx-async-message-definitions.h``  |
+   +---------------------------------+-------------------------------------------------------------------+
+   | receive callbacks               | ``src/app/driver/config/can_cfg_rx-message-definitions.h``        |
+   +---------------------------------+-------------------------------------------------------------------+
+
+#. Add the message to the respective callback array:
+
++---------------------------------+-------------------------------------------------------------------------------------+
+| Message type                    |                                                                                     |
++=================================+=====================================================================================+
+| cyclic transmit callbacks       | array ``can_txMessages`` in the file ``src/app/driver/config/can_cfg_tx_cyclic.c``  |
++---------------------------------+-------------------------------------------------------------------------------------+
+| asynchronous transmit callbacks | The callbacks for asynchronous transmit messages are not stored in some array.      |
+|                                 | These callbacks are only called asynchronously in some specific code paths and      |
+|                                 | so there is no central "processing" function for these callbacks.                   |
++---------------------------------+-------------------------------------------------------------------------------------+
+| receive callbacks               | array ``can_rxMessages`` in the file ``src/app/driver/config/can_cfg_rx.c``         |
++---------------------------------+-------------------------------------------------------------------------------------+
+
+#. Verify that the CAN message is defined and implemented as expected:
+
+   .. code-block:: powershell
       :caption: Verify CAN message definition and callback implementation
       :name: can-message-implementation-verification
 
-      C:\Users\vulpes\Documents\foxbms-2>python tests/can/check_ids.py
-      C:\Users\vulpes\Documents\foxbms-2>python tests/can/check_implemented.py
+      PS C:\Users\vulpes\Documents\foxbms-2> .\fox.ps1 run-script tests/can/check_ids.py
+      PS C:\Users\vulpes\Documents\foxbms-2> .\fox.ps1 run-script tests/can/check_implemented.py
 
 .. warning::
 
    These script do no syntactical or similar checks of the implementation.
    These scripts do text based comparisons in order to help to get a consistent
    style for the CAN message implementations.
-   **The correct implementation etc. must be checked by compiling and debugging.**
+   **The correct implementation etc. must be checked by compiling and **
+   **debugging.**
 
-Example for a Transmit Message
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Example for a Cyclic Transmit Message
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Creating the Transmit Message
-"""""""""""""""""""""""""""""
+.. include:: ./can_how-to_tx_cyclic.rst
 
-In this example a message to transmit the |foxbms| system status is
-implemented.
-The name of the message is therefore ``BmsState`` (following PascalCase naming
-convention).
-In the symbol file the message is implemented as ``foxBMS_BmsState`` (prefix
-``foxBMS`` followed by the message name) with the ID ``0x220``.
-As the message is transmitted from the point of view of the BMS, the comment in
-the symbol file must be
-``Message containing the foxBMS system state (in:can_cbs_tx_bms-state.c:CANTX_BmsState, fv:tx)``.
-The new dbc file must be exported.
+Example for an Asynchronous Transmit Message
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Required Macros
-"""""""""""""""
-
-The name of the macro to be implemented in
-``src/app/driver/config/can_cfg_tx-message-definitions.h`` needs to be prefixed
-with ``CANTX_ID`` (``CANTX`` is the module prefix) followed by the message name
-in uppercase (``BMS_STATE``), i.e., the full macro name is
-``CANTX_BMS_STATE_ID``.
-The macro for the period of the transmitted message must be defined: Module
-prefix ``CANTX`` followed by the message name (``BMS_STATE``) and the period in
-milliseconds (``PERIOD_ms``), i.e., the full macro name is
-``CANTX_BMS_STATE_PERIOD_ms``.
-Last, the macro for the phase of the transmitted message must be defined:
-Module prefix ``CANTX`` followed by the message name (``BMS_STATE``) and the
-phase in milliseconds (``PHASE_ms``) i.e., the full macro name is
-``CANTX_BMS_STATE_PHASE_ms``.
-
-.. literalinclude:: ./can_how-to_tx.c
-   :language: C
-   :linenos:
-   :start-after: example-can-message-id-macro-start
-   :end-before: example-can-message-id-macro-end
-   :caption: Adding the new message ID to the transmit message definition file
-             ``src/app/driver/config/can_cfg_tx-message-definitions.h``
-   :name: adding-the-new-message-id
-
-Now the details of the ID need to be added in an additional macro, that is then
-used for the initialization of the transmitted messages macro.
-The macro must be named Module prefix (``CANTX``) followed by the message name
-(``BMS_STATE``) and suffixed with ``MESSAGE``.
-
-.. literalinclude:: ./can_how-to_tx.c
-   :language: C
-   :linenos:
-   :start-after: example-can-message-id-details-start
-   :end-before: example-can-message-id-details-end
-   :caption: Adding the details of the new message ID to the transmit message
-             definition file
-             ``src/app/driver/config/can_cfg_tx-message-definitions.h``
-   :name: adding-the-details-to-the-new-message
-
-Callback Function
-"""""""""""""""""
-
-The callback declaration must be done in file
-``src\app\driver\can\cbs\tx\can_cbs_tx.h``.
-
-.. literalinclude:: ./can_how-to_tx.c
-   :language: C
-   :linenos:
-   :start-after: example-can-tx-messages-callback-declaration-start
-   :end-before: example-can-tx-messages-callback-declaration-end
-   :caption: Declaration of the callback function in
-             ``src\app\driver\can\cbs\tx\can_cbs_tx.h``
-   :name: callback-declaration
-
-The callback definition must be done in the appropriate implementation file,
-i.e., for the BMS state message in
-``src\app\driver\can\cbs\tx\can_cbs_tx_bms-state.c``.
-
-.. literalinclude:: ./can_how-to_tx.c
-   :language: C
-   :linenos:
-   :start-after: example-can-tx-messages-callback-definition-start
-   :end-before: example-can-tx-messages-callback-definition-end
-   :caption: Definition of the callback function in
-             ``src\app\driver\can\cbs\tx\can_cbs_tx_bms-state.c``
-   :name: callback-definition
-
-Required Variables Adaptations
-""""""""""""""""""""""""""""""
-
-The message needs to be added the transmitted messages array as follows:
-
-.. literalinclude:: ./can_how-to_tx.c
-   :language: C
-   :linenos:
-   :start-after: example-can-tx-messages-configuration-start
-   :end-before: example-can-tx-messages-configuration-end
-   :caption: Adding the new message to the registry of transmitted messages
-             ``src/app/driver/config/can_cfg_tx.c``
-   :name: adding-the-the-new-message-to-the-tx-registry
-
-Verification
-""""""""""""
-
-Run the check scripts to verify that the messages are implemented as described
-in this how-to.
-
-.. code-block:: console
-   :caption: Verify CAN transmit message definition and callback implementation
-
-   C:\Users\vulpes\Documents\foxbms-2>python tests/can/check_ids.py
-   C:\Users\vulpes\Documents\foxbms-2>python tests/can/check_implemented.py
+.. include:: ./can_how-to_tx_async.rst
 
 Example for a Receive Message
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The implementation of a receive message is done analogous, by replacing ``tx``
-with ``rx`` in paths, prefixes, function names etc.
+.. include:: ./can_how-to_rx.rst
 
-Using the CAN4 interface
-------------------------
 
-If the CAN Module should be extended to the CAN4 interface, a workaround for a
-bug in |halcogen| has to be applied.
-For details, please refer to :ref:`HALCOGEN_TOOL_DOCUMENTATION`.
+Multi-string Support when using Isabellenhuette IVT Current Sensors
+-------------------------------------------------------------------
+
+In Multi-string systems multiple current sensors must be used in order to
+measure the current in each string.
+In case CAN-based Isabellenhuette IVT current sensors are used, the CAN message
+IDs indicate which current sensor is in which string.
+
+.. note::
+
+   This of course means, that the current sensors must be correctly configured,
+   i.e., that all current sensors in the system use unique CAN messages IDs.
+   Furthermore, the current sensors must be placed in the correct string
+   (accordingly to their CAN message IDs), as otherwise the current
+   measurements would be assigned to the wrong strings.
+
+The *string-selection* code in the function ``CANRX_CurrentSensor`` right at
+the beginning of the function must be adapted as shown in
+:numref:`current-sensor-string-selection`.
+
+.. code-block:: c
+   :linenos:
+   :caption: String selection for the current sensor measurement in
+             multi-string systems based on the CAN message ID
+   :name: current-sensor-string-selection
+
+    if (message.id <= CANRX_STRING0_ENERGY_COUNTER_ID) {
+        stringNumber = 0u;
+    } else if (message.id <= CANRX_STRING1_ENERGY_COUNTER_ID) {
+        stringNumber = 1u;
+    } else {
+        FAS_ASSERT(FAS_TRAP);
+    }
+
 
 Further Reading
 ---------------

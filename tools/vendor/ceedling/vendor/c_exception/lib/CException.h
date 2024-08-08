@@ -1,3 +1,10 @@
+/* =========================================================================
+    CException - Simple Exception Handling in C
+    ThrowTheSwitch.org
+    Copyright (c) 2007-24 Mark VanderVoord
+    SPDX-License-Identifier: MIT
+========================================================================= */
+
 #ifndef _CEXCEPTION_H
 #define _CEXCEPTION_H
 
@@ -11,7 +18,7 @@ extern "C"
 
 #define CEXCEPTION_VERSION_MAJOR    1
 #define CEXCEPTION_VERSION_MINOR    3
-#define CEXCEPTION_VERSION_BUILD    3
+#define CEXCEPTION_VERSION_BUILD    4
 #define CEXCEPTION_VERSION          ((CEXCEPTION_VERSION_MAJOR << 16) | (CEXCEPTION_VERSION_MINOR << 8) | CEXCEPTION_VERSION_BUILD)
 
 //To Use CException, you have a number of options:

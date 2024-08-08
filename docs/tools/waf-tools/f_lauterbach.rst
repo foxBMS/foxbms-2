@@ -6,13 +6,6 @@
 Lauterbach
 ==========
 
-..
-    Comments:
-    Lauterbach is the company that builds Lauterbach debugger
-
-.. spelling::
-    Lauterbach
-
 The tool is located in ``tools/waf-tools``.
 
 Tool Documentation

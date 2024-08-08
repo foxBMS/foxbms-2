@@ -17,7 +17,7 @@ The foxBMS 2 specific configuration of the ``TI TMS570LC43x`` is found in
 [conf/hcg](../../../conf/hcg).
 
 However, the generated FreeRTOS sources are not the up-to-date with the current
-FreeRTOS Kernel releases (see https://github.com/FreeRTOS/FreeRTOS-Kernel).
+FreeRTOS Kernel releases (see <https://github.com/FreeRTOS/FreeRTOS-Kernel>).
 
 The FreeRTOS sources downloaded from GitHub have been updated with the required
 changes that were included in the generated FreeRTOS sources from TI's

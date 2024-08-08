@@ -1,8 +1,9 @@
 /* =========================================================================
-    Unity Project - A Test Framework for C
-    Copyright (c) 2007-21 Mike Karlesky, Mark VanderVoord, Greg Williams
-    [Released under MIT License. Please refer to license.txt for details]
-============================================================================ */
+    Unity - A Test Framework for C
+    ThrowTheSwitch.org
+    Copyright (c) 2007-24 Mike Karlesky, Mark VanderVoord, & Greg Williams
+    SPDX-License-Identifier: MIT
+========================================================================= */
 
 #include "unity.h"
 
@@ -356,11 +357,11 @@ void UnityPrintFloat(const UNITY_DOUBLE input_number)
     {
         UnityPrint("0");
     }
-    else if (isnan(number))
+    else if (UNITY_IS_NAN(number))
     {
         UnityPrint("nan");
     }
-    else if (isinf(number))
+    else if (UNITY_IS_INF(number))
     {
         UnityPrint("inf");
     }
@@ -895,15 +896,15 @@ void UnityAssertEqualIntArray(UNITY_INTERNAL_PTR expected,
 #ifndef UNITY_EXCLUDE_FLOAT
 /* Wrap this define in a function with variable types as float or double */
 #define UNITY_FLOAT_OR_DOUBLE_WITHIN(delta, expected, actual, diff)                           \
-    if (isinf(expected) && isinf(actual) && (((expected) < 0) == ((actual) < 0))) return 1;   \
+    if (UNITY_IS_INF(expected) && UNITY_IS_INF(actual) && (((expected) < 0) == ((actual) < 0))) return 1;   \
     if (UNITY_NAN_CHECK) return 1;                                                            \
     (diff) = (actual) - (expected);                                                           \
     if ((diff) < 0) (diff) = -(diff);                                                         \
     if ((delta) < 0) (delta) = -(delta);                                                      \
-    return !(isnan(diff) || isinf(diff) || ((diff) > (delta)))
+    return !(UNITY_IS_NAN(diff) || UNITY_IS_INF(diff) || ((diff) > (delta)))
     /* This first part of this condition will catch any NaN or Infinite values */
 #ifndef UNITY_NAN_NOT_EQUAL_NAN
-  #define UNITY_NAN_CHECK isnan(expected) && isnan(actual)
+  #define UNITY_NAN_CHECK UNITY_IS_NAN(expected) && UNITY_IS_NAN(actual)
 #else
   #define UNITY_NAN_CHECK 0
 #endif
@@ -954,12 +955,12 @@ void UnityAssertWithinFloatArray(const UNITY_FLOAT delta,
 #endif
     }
 
-    if (isinf(in_delta))
+    if (UNITY_IS_INF(in_delta))
     {
         return; /* Arrays will be force equal with infinite delta */
     }
 
-    if (isnan(in_delta))
+    if (UNITY_IS_NAN(in_delta))
     {
         /* Delta must be correct number */
         UnityPrintPointlessAndBail();
@@ -1098,21 +1099,21 @@ void UnityAssertFloatSpecial(const UNITY_FLOAT actual,
     {
         case UNITY_FLOAT_IS_INF:
         case UNITY_FLOAT_IS_NOT_INF:
-            is_trait = isinf(actual) && (actual > 0);
+            is_trait = UNITY_IS_INF(actual) && (actual > 0);
             break;
         case UNITY_FLOAT_IS_NEG_INF:
         case UNITY_FLOAT_IS_NOT_NEG_INF:
-            is_trait = isinf(actual) && (actual < 0);
+            is_trait = UNITY_IS_INF(actual) && (actual < 0);
             break;
 
         case UNITY_FLOAT_IS_NAN:
         case UNITY_FLOAT_IS_NOT_NAN:
-            is_trait = isnan(actual) ? 1 : 0;
+            is_trait = UNITY_IS_NAN(actual) ? 1 : 0;
             break;
 
         case UNITY_FLOAT_IS_DET: /* A determinate number is non infinite and not NaN. */
         case UNITY_FLOAT_IS_NOT_DET:
-            is_trait = !isinf(actual) && !isnan(actual);
+            is_trait = !UNITY_IS_INF(actual) && !UNITY_IS_NAN(actual);
             break;
 
         case UNITY_FLOAT_INVALID_TRAIT:  /* Supress warning */
@@ -1182,12 +1183,12 @@ void UnityAssertWithinDoubleArray(const UNITY_DOUBLE delta,
 #endif
     }
 
-    if (isinf(in_delta))
+    if (UNITY_IS_INF(in_delta))
     {
         return; /* Arrays will be force equal with infinite delta */
     }
 
-    if (isnan(in_delta))
+    if (UNITY_IS_NAN(in_delta))
     {
         /* Delta must be correct number */
         UnityPrintPointlessAndBail();
@@ -1325,21 +1326,21 @@ void UnityAssertDoubleSpecial(const UNITY_DOUBLE actual,
     {
         case UNITY_FLOAT_IS_INF:
         case UNITY_FLOAT_IS_NOT_INF:
-            is_trait = isinf(actual) && (actual > 0);
+            is_trait = UNITY_IS_INF(actual) && (actual > 0);
             break;
         case UNITY_FLOAT_IS_NEG_INF:
         case UNITY_FLOAT_IS_NOT_NEG_INF:
-            is_trait = isinf(actual) && (actual < 0);
+            is_trait = UNITY_IS_INF(actual) && (actual < 0);
             break;
 
         case UNITY_FLOAT_IS_NAN:
         case UNITY_FLOAT_IS_NOT_NAN:
-            is_trait = isnan(actual) ? 1 : 0;
+            is_trait = UNITY_IS_NAN(actual) ? 1 : 0;
             break;
 
         case UNITY_FLOAT_IS_DET: /* A determinate number is non infinite and not NaN. */
         case UNITY_FLOAT_IS_NOT_DET:
-            is_trait = !isinf(actual) && !isnan(actual);
+            is_trait = !UNITY_IS_INF(actual) && !UNITY_IS_NAN(actual);
             break;
 
         case UNITY_FLOAT_INVALID_TRAIT:  /* Supress warning */
@@ -1609,8 +1610,8 @@ void UnityAssertEqualString(const char* expected,
         }
     }
     else
-    { /* handle case of one pointers being null (if both null, test should pass) */
-        if (expected != actual)
+    { /* fail if either null but not if both */
+        if (expected || actual)
         {
             Unity.CurrentTestFailed = 1;
         }
@@ -1649,8 +1650,8 @@ void UnityAssertEqualStringLen(const char* expected,
         }
     }
     else
-    { /* handle case of one pointers being null (if both null, test should pass) */
-        if (expected != actual)
+    { /* fail if either null but not if both */
+        if (expected || actual)
         {
             Unity.CurrentTestFailed = 1;
         }
@@ -2031,15 +2032,22 @@ static void UnityPrintFVA(const char* format, va_list va)
                                 UNITY_EXTRACT_ARG(UNITY_UINT, number, length_mod, va, unsigned int);
                                 UNITY_OUTPUT_CHAR('0');
                                 UNITY_OUTPUT_CHAR('x');
-                                UnityPrintNumberHex(number, 8);
+                                UnityPrintNumberHex(number, UNITY_MAX_NIBBLES);
                                 break;
                             }
                         case 'p':
                             {
-                                const unsigned int number = va_arg(va, unsigned int);
+                                UNITY_UINT number;
+                                char nibbles_to_print = 8;
+                                if (UNITY_POINTER_WIDTH == 64)
+                                {
+                                    length_mod = UNITY_LENGTH_MODIFIER_LONG_LONG;
+                                    nibbles_to_print = 16;
+                                }
+                                UNITY_EXTRACT_ARG(UNITY_UINT, number, length_mod, va, unsigned int);
                                 UNITY_OUTPUT_CHAR('0');
                                 UNITY_OUTPUT_CHAR('x');
-                                UnityPrintNumberHex((UNITY_UINT)number, 8);
+                                UnityPrintNumberHex((UNITY_UINT)number, nibbles_to_print);
                                 break;
                             }
                         case 'c':
@@ -2322,6 +2330,18 @@ int UnityParseOptions(int argc, char** argv)
                     UnityPrint("ERROR: Unknown Option ");
                     UNITY_OUTPUT_CHAR(argv[i][1]);
                     UNITY_PRINT_EOL();
+                    /* Now display help */
+                    /* FALLTHRU */
+                case 'h':
+                    UnityPrint("Options: "); UNITY_PRINT_EOL();
+                    UnityPrint("-l        List all tests and exit"); UNITY_PRINT_EOL();
+                    UnityPrint("-f NAME   Filter to run only tests whose name includes NAME"); UNITY_PRINT_EOL();
+                    UnityPrint("-n NAME   (deprecated) alias of -f"); UNITY_PRINT_EOL();
+                    UnityPrint("-h        show this Help menu"); UNITY_PRINT_EOL();
+                    UnityPrint("-q        Quiet/decrease verbosity"); UNITY_PRINT_EOL();
+                    UnityPrint("-v        increase Verbosity"); UNITY_PRINT_EOL();
+                    UnityPrint("-x NAME   eXclude tests whose name includes NAME"); UNITY_PRINT_EOL();
+                    UNITY_OUTPUT_FLUSH();
                     return 1;
             }
         }

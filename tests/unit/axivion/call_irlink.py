@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 #
-# Copyright (c) 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -44,7 +43,10 @@ import argparse
 import logging
 import shutil
 import subprocess
+import sys
 from pathlib import Path
+
+AXIVION_BUILD_DIR = Path("tests/unit/build/axivion")
 
 
 def main():
@@ -68,24 +70,43 @@ def main():
         logging.basicConfig(level=logging.ERROR)
 
     irlink = shutil.which("irlink")
+    if not irlink:
+        sys.exit("Could not find 'irlink'.")
 
-    tests_dir = Path("tests/unit/build/axivion")
+    tests_dir = AXIVION_BUILD_DIR / "build/unit_test/test/runners"
 
     tests = [str(i) for i in tests_dir.glob("test_*.exe")]
+    logging.debug("Number of tests %s", len(tests))
+
+    splitted_tests = []
+
+    tmp = []
+    for i in tests:
+        if len(" ".join(tmp + [i])) < 10000:
+            tmp.append(i)
+        else:
+            splitted_tests.append(tmp)
+            tmp = []
+
+    logging.debug("Number of splitted command lines: %s", len(splitted_tests))
+    out_files = [
+        f"{AXIVION_BUILD_DIR}/foxbms-unit-tests-{i}.ir"
+        for i in range(len(splitted_tests))
+    ]
+
+    for inputs, output in zip(splitted_tests, out_files):
+        cmd = [irlink, "--multi_binary", "-j"] + inputs + [output]
+        logging.debug(cmd)
+        with subprocess.Popen(cmd) as p:
+            p.communicate()
+
     cmd = (
-        [
-            irlink,
-            "--multi_binary",
-            "-j",
-        ]
-        + tests
-        + [
-            "tests/unit/build/axivion/foxbms-unit-tests.ir",
-        ]
+        [irlink, "--multi_binary", "-j"]
+        + out_files
+        + [f"{AXIVION_BUILD_DIR}/foxbms-unit-tests.ir"]
     )
 
     logging.debug(cmd)
-    logging.debug(f"Number of tests {len(tests)}")
     with subprocess.Popen(cmd) as p:
         p.communicate()
 

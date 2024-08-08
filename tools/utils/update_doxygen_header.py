@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 #
-# Copyright (c) 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -58,7 +57,7 @@ def get_git_root(path: str) -> str:
     """helper function to find the repository root
 
     Args:
-        path (string): path of test_f_guidelines
+        path (string): path of file in git repository
 
     Returns:
         root (string): root path of the git repository
@@ -104,7 +103,7 @@ def main():
     tmp = []
     with subprocess.Popen(cmd, stdout=subprocess.PIPE) as p:
         tmp = p.communicate()[0].decode("utf-8").strip().splitlines()
-    logging.debug(f"cmd: {cmd}, out:\n{tmp}")
+    logging.debug("cmd: %s, out:\n%s", cmd, tmp)
     if not tmp:
         logging.warning("Could not find merge base.")
         sys.exit(0)
@@ -114,7 +113,7 @@ def main():
     tmp = []
     with subprocess.Popen(cmd, stdout=subprocess.PIPE) as p:
         tmp = p.communicate()[0].decode("utf-8").strip().splitlines()
-    logging.debug(f"cmd: {cmd}, out:\n{tmp}")
+    logging.debug("cmd: %s, out:\n%s", cmd, tmp)
     if not tmp:
         logging.warning("Could not find any changed files.")
         sys.exit(0)
@@ -140,7 +139,7 @@ def main():
                 i.write_text(txt, encoding="ascii")
                 break
         if not m:
-            logging.error(f"Something went wrong, check file '{i.resolve()}'.")
+            logging.error("Something went wrong, check file '%s'.", i.resolve())
         m = False
         any_file = True
 
@@ -155,7 +154,7 @@ def main():
             cmds = []
             files_chunked = chunk_list(files_to_be_added, nr_of_cmds)
             for i in files_chunked:
-                cmds.append((["git", "add"] + i))
+                cmds.append(["git", "add"] + i)
         else:
             cmds = (["git", "add"] + files_to_be_added,)
         for cmd in cmds:

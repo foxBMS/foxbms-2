@@ -1,7 +1,13 @@
+# =========================================================================
+#   Ceedling - Test-Centered Build System for C
+#   ThrowTheSwitch.org
+#   Copyright (c) 2010-24 Mike Karlesky, Mark VanderVoord, & Greg Williams
+#   SPDX-License-Identifier: MIT
+# =========================================================================
 
 class BuildBatchinator
 
-  constructor :configurator, :streaminator, :reportinator
+  constructor :configurator, :loginator, :reportinator
 
   def setup
     @queue = Queue.new
@@ -10,12 +16,12 @@ class BuildBatchinator
   # Neaten up a build step with progress message and some scope encapsulation
   def build_step(msg, heading: true, &block)
     if heading
-      msg = @reportinator.generate_heading(msg)
+      msg = @reportinator.generate_heading( @loginator.decorate( msg, LogLabels::RUN ) )
     else # Progress message
-      msg = "\n" + @reportinator.generate_progress(msg)
+      msg = "\n" + @reportinator.generate_progress( @loginator.decorate( msg, LogLabels::RUN ) )
     end
 
-    @streaminator.stdout_puts(msg, Verbosity::NORMAL)
+    @loginator.log( msg )
 
     yield # Execute build step block
   end
@@ -34,7 +40,7 @@ class BuildBatchinator
     when :test
       workers = @configurator.project_test_threads
     else
-      raise NameError("Unrecognized batch workload type: #{workload}")
+      raise NameError.new("Unrecognized batch workload type: #{workload}")
     end
 
     # Enqueue all the items the block will execute against

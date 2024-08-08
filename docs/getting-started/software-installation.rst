@@ -13,30 +13,33 @@ Software Installation
    Otherwise, the configuration workload in later points of the setup or the
    development will be significantly higher.
 
-.. note::
-
-   For some installation tasks, batch scripts are provided to automate the
-   installation process as much as possible. However, if you do not want to use
-   these scripts, the manual installation process is also described.
-
 Getting started with |foxbms| requires getting the sources and installing
-all required software dependencies. These are the required steps:
+all required software dependencies.
+These are the required steps:
 
-#. getting the |foxbms| sources,
-#. installing the software dependencies:
+#. Install |git|
+#. Get the |foxbms| sources
+#. Install the software dependencies:
 
-   #. installing |git|
-   #. installing |ti| (TI)'s |code-composer-studio| (required for compiling)
-   #. installing |ti| (TI)'s |halcogen| (required for code generation)
-   #. installing Continuum's Miniconda (furnishes the Python environment used
-      by |foxbms|),
-   #. installing LLVM (required for code formatting)
-   #. installing Ruby and the Ceedling package (required for unit testing)
-   #. installing GCC (required for unit testing)
-   #. installing VS Code (required for developing)
-#. setting up a development environment
+   #. Install |ti| (TI)'s |code-composer-studio| (required for compiling)
+   #. Install |ti| (TI)'s |halcogen| (required for code generation)
+   #. Install Python and an virtual environment (furnishes the Python
+      environment used by |foxbms|)
+   #. Install Ruby and the Ceedling package (required for unit testing)
+   #. Install GCC (required for unit testing)
+   #. Install VS Code (required for developing)
+   #. Check the installation
+   #. (Optional) Install VS Code
 
 These steps are described below in detail.
+
+.. _git_install:
+
+*************
+Install |git|
+*************
+
+Download the latest version of `Git`_ and run the installer.
 
 *******************
 Getting the Sources
@@ -44,8 +47,8 @@ Getting the Sources
 
 The sources are available from a |git| repository at |github_foxbms| in
 |foxbms_repository|.
-The following example shows how to clone (see :numref:`clone-foxbms-2`) or
-download (see :numref:`download-foxbms-2`) the |foxbms| sources from GitHub .
+The following example shows how to clone (see :numref:`clone-foxbms-2`) the
+|foxbms| sources from GitHub .
 
 In the case that you have been supplied with a "library-project" by a partner,
 please use this archive equivalent to the "cloned |foxbms| repository" in the
@@ -54,24 +57,15 @@ later steps of this manual.
 .. warning::
 
    If your user name contains whitespace (e.g., ``vulpes vulpes``, you **MUST**
-   clone or download the repository to another path, that does not contain
-   whitespace, e.g., ``C:\foxbms-2``).
+   clone the repository to another path, that does not contain whitespace,
+   e.g., ``C:\foxbms-2``).
 
-.. code-block:: console
+.. code-block:: powershell
    :caption: Cloning the |foxbms| repository
    :name: clone-foxbms-2
 
-   C:\Users\vulpes\Documents>git clone https://github.com/foxBMS/foxbms-2
-   C:\Users\vulpes\Documents>cd foxbms-2
-
-.. code-block:: console
-   :caption: Downloading a release
-   :name: download-foxbms-2
-
-   C:\Users\vulpes\Documents>curl --silent --show-error -L -o foxbms-2-v1.6.0.zip https://github.com/foxBMS/foxbms-2/archive/v1.6.0.zip
-   C:\Users\vulpes\Documents>tar -x -f foxbms-2-v1.6.0.zip
-   C:\Users\vulpes\Documents>ren foxbms-2-1.6.0 foxbms-2
-   C:\Users\vulpes\Documents>cd foxbms-2
+   PS C:\Users\vulpes\Documents> git clone https://github.com/foxBMS/foxbms-2
+   PS C:\Users\vulpes\Documents> cd foxbms-2
 
 .. note::
 
@@ -103,22 +97,16 @@ Software Prerequisites
 .. admonition:: General Hint
 
    No software installation here should alter the ``PATH`` environment
-   variable. When an installer asks during the setup to add something to
-   ``PATH``, always remove that option, whether it is explicitly mentioned in
-   that step or not. The only exception to that rule **MAY** be |git| and
-   ``VS Code``.
-
-.. _git_install:
-
-Installing |git|
-================
-
-Download the latest version of `Git`_ and run the installer.
+   variable.
+   When an installer asks during the setup to add something to ``PATH``, always
+   remove that option, whether it is explicitly mentioned in
+   that step or not.
+   The only exception to that rule **MAY** be |git| and ``VS Code``.
 
 .. _css_install:
 
-Installing |code-composer-studio|
-=================================
+Install |code-composer-studio|
+==============================
 
 Download `Code Composer Studio`_ (CCS) version |version_ccs| and run the
 installer (chose ``Windows single file installer for CCS IDE``).
@@ -129,206 +117,215 @@ Select the ``Hercules™ Safety MCUs`` option during the installation.
 
 Installing Code Composer Studio may take a while.
 
-Installing |halcogen|
----------------------
+Install |halcogen|
+------------------
 
 Download `HALCoGen`_ version |version_hcg| and run the installer.
 Do **not** change the default installation directory chosen by the installer
 and let the installer proceed with the installation into the installation
-directory (i.e. ``C:\ti\...`` for |halcogen| ``04.07.01`` that means into
+directory (i.e., ``C:\ti\...`` for |halcogen| ``04.07.01`` that means into
 ``C:\ti\Hercules\HALCoGen\v04.07.01``).
 
 Installing |halcogen| may take a while.
 
-.. _miniconda_install_and_configuration:
+.. _python_installation_and_configuration:
 
-Installing Miniconda and Configuration
-======================================
+Install Python and Configuration
+===================================
 
-.. note::
+Install Python
+--------------
 
-   If you already have installed miniconda3 in one of the default miniconda3
-   installation directories (``%USERPROFILE%\miniconda3``,
-   ``%LOCALAPPDATA%\Continuum\miniconda3``) or ``C:\miniconda3`` you can skip
-   this installation of miniconda3 and go on to ``conda configuration``
+#. Install `Python <https://www.python.org>`_.
+   If you have already installed Python from https://www.python.org this step
+   can be skipped.
+#. Open a terminal and run `py --version`, this should print something like
+   `Python 3.12.4` or similar to the terminal:
 
-#. Installation of miniconda3
+   .. code-block:: powershell
 
-   +--------------------------------------------------------------------------------+-----------------------------------------+
-   | Automated Installation                                                         | Manual Installation                     |
-   +================================================================================+=========================================+
-   | For automated installation of miniconda3 according to |foxbms| requirements    | The manual installation                 |
-   | just run:                                                                      | of miniconda3 is                        |
-   |                                                                                | described in                            |
-   | .. code-block:: console                                                        | :ref:`MANUAL_MINICONDA_INSTALLATION`.   |
-   |   :caption: Running the automated ``miniconda3-install.bat`` installer script  |                                         |
-   |      for miniconda3                                                            |                                         |
-   |                                                                                |                                         |
-   |   C:\Users\vulpes\Documents\foxbms-2>tools\utils\miniconda3-install.bat        |                                         |
-   |                                                                                |                                         |
-   +--------------------------------------------------------------------------------+-----------------------------------------+
+      py --version
+      Python 3.12.4
 
-#. conda configuration
+Virtual Environment Creation
+----------------------------
 
-   +--------------------------------------------------------------------------------+-----------------------------------------+
-   | Automated Configuration                                                        | Manual Configuration                    |
-   +================================================================================+=========================================+
-   | For automated configuration of conda according to |foxbms| requirements just   | The manual configuration                |
-   | run:                                                                           | of conda is described in                |
-   |                                                                                | :ref:`MANUAL_CONDA_CONFIGURATION`.      |
-   | .. code-block:: console                                                        |                                         |
-   |   :caption: Running the automated ``conda-init.bat`` configuration script      |                                         |
-   |                                                                                |                                         |
-   |   C:\Users\vulpes\Documents\foxbms-2>tools\utils\conda-init.bat                |                                         |
-   |                                                                                |                                         |
-   | .. note::                                                                      |                                         |
-   |                                                                                |                                         |
-   |    If the script returns                                                       |                                         |
-   |    "Maybe you need to add "foxbms" to your channels list."                     |                                         |
-   |    please follow the instructions at :ref:`condarc_configuration`.             |                                         |
-   |                                                                                |                                         |
-   +--------------------------------------------------------------------------------+-----------------------------------------+
+#. Create a virtual environment **2024-08-pale-fox** by running in ``cmd.exe`` or
+   ``PowerShell``.
 
-.. _llvm_install:
+   - ``cmd.exe``:
 
-Installing LLVM
-===============
+     .. code-block:: bat
 
-+--------------------------------------------------------------------------------+-----------------------------------------+
-| Automated Installation                                                         | Manual Installation                     |
-+================================================================================+=========================================+
-| For a semi-automated installation of LLVM according to |foxbms|                | The manual installation                 |
-| requirements just run in an elevated command prompt (known as "Run as          | of LLVM is described in                 |
-| administrator"):                                                               | :ref:`MANUAL_LLVM_INSTALLATION`.        |
-|                                                                                |                                         |
-| .. code-block:: console                                                        |                                         |
-|   :caption: Running the automated ``llvm-install.bat`` installer script        |                                         |
-|      for LLVM                                                                  |                                         |
-|                                                                                |                                         |
-|   C:\Users\vulpes\Documents\foxbms-2>tools\utils\llvm-install.bat              |                                         |
-|                                                                                |                                         |
-+--------------------------------------------------------------------------------+-----------------------------------------+
+        py -m venv %USERPROFILE%\foxbms-envs\2024-08-pale-fox
+
+   - ``PowerShell``:
+
+     .. code-block:: powershell
+
+        py -m venv $env:USERPROFILE\foxbms-envs\2024-08-pale-fox
+
+#. Activate the virtual environment by running in ``cmd.exe`` or
+   ``PowerShell``.
+
+   - ``cmd.exe``:
+
+     .. code-block:: bat
+
+        %USERPROFILE%\foxbms-envs\2024-08-pale-fox\Scripts\activate.bat
+
+   - ``PowerShell``:
+
+     .. code-block:: powershell
+
+        &"$env:USERPROFILE\foxbms-envs\2024-08-pale-fox\Scripts\activate.ps1"
+
+#. Install the required packages by running:
+
+   .. code-block:: powershell
+
+      cd path\to\foxbms-2 # cd into the root of the repository
+      python -m pip install -r requirements.txt --no-deps
+
 
 .. _ruby_install_and_gem_install:
 
-Installing Ruby and Required Gems
-=================================
+Install Ruby and Add Required Gems
+==================================
 
-+--------------------------------------------------------------------------------+-----------------------------------------+
-| Automated Installation                                                         | Manual Installation                     |
-+================================================================================+=========================================+
-| For automated installation of Ruby according to |foxbms| requirements just     | The manual installation                 |
-| run:                                                                           | of Ruby is                              |
-|                                                                                | described in                            |
-| .. code-block:: console                                                        | :ref:`MANUAL_RUBY_INSTALLATION`.        |
-|   :caption: Running the automated ``ruby-install.bat`` installer script for    |                                         |
-|      Ruby                                                                      |                                         |
-|                                                                                |                                         |
-|   C:\Users\vulpes\Documents\foxbms-2>tools\utils\ruby-install.bat              |                                         |
-|                                                                                |                                         |
-| Add ``--http-proxy=http://user:password@server:port`` (adapted to your         |                                         |
-| settings) to the installer script if you are behind a proxy.                   |                                         |
-+--------------------------------------------------------------------------------+-----------------------------------------+
+#. Download the installer version for
+   `Ruby 3.1.3-x64 without Devkit <https://github.com/oneclick/rubyinstaller2/releases/download/RubyInstaller-3.1.3-1/rubyinstaller-3.1.3-1-x64.exe>`_.
 
-Installing GCC
-==============
+#. Use ``C:\Ruby\Ruby3.1.3-x64`` as installation directory
+#. Do **NOT** add Ruby to ``PATH``.
+#. Install the required packages, i.e., Gems by running:
+
+   .. code-block:: powershell
+
+      cd path\to\foxbms-2 # cd into the root of the repository
+      cd tools\vendor\ceedling
+      C:\Ruby\Ruby3.1.3-x64\bin\bundle install # install the Ruby Gems
+
+Install GCC
+===========
 
 .. note::
 
-   Installing MinWG64 requires 7-Zip to be installed. 7-Zip can be download
-   from https://7-zip.org/ and should be installed in the default directory.
+   Installing MinWG64 requires 7-Zip to be installed.
+   7-Zip can be download from https://7-zip.org.
 
-+--------------------------------------------------------------------------------+-----------------------------------------+
-| Automated Installation                                                         | Manual Installation                     |
-+================================================================================+=========================================+
-| For automated installation of MinGW64 according to |foxbms| requirements       | The manual installation                 |
-| just run:                                                                      | of MinGW64 is                           |
-|                                                                                | described in                            |
-| .. code-block:: console                                                        | :ref:`MANUAL_MINGW64_INSTALLATION`.     |
-|   :caption: Running the automated ``mingw64-install.bat`` installer script     |                                         |
-|      for MinGW64                                                               |                                         |
-|                                                                                |                                         |
-|   C:\Users\vulpes\Documents\foxbms-2>tools\utils\mingw64-install.bat           |                                         |
-|                                                                                |                                         |
-+--------------------------------------------------------------------------------+-----------------------------------------+
 
-Installing VS Code and Extensions
-=================================
+#. Download MinGW-W64 version x86_64-posix-seh from
+   `sourceforge.net <https://sourceforge.net/projects/mingw-w64/files/mingw-w64/>`_
+   (use this
+   `7z-archive <https://sourceforge.net/projects/mingw-w64/files/Toolchains%20targetting%20Win64/Personal%20Builds/mingw-builds/8.1.0/threads-posix/seh/x86_64-8.1.0-release-posix-seh-rt_v6-rev0.7z>`_).
+
+#. Extract the archive.
+#. Copy the extracted mingw64 directory to ``C:\mingw64\x86_64-8.1.0-release-posix-seh-rt_v6-rev0``.
+#. Verify that GCC is available at ``C:\MinGW64\x86_64-8.1.0-release-posix-seh-rt_v6-rev0\mingw64\bin\gcc.exe``.
+
+Install Doxygen
+===============
+
+#. Download Doxygen version 1.11.0 from
+   `GitHub <https://github.com/doxygen/doxygen/releases/tag/Release_1_11_0>`_.
+   (use this
+   `zip-archive <https://github.com/doxygen/doxygen/releases/download/Release_1_11_0/doxygen-1.11.0.windows.x64.bin.zip>`__).
+
+#. Extract the archive.
+#. Copy the extracted archive to ``C:\Users\<username>\doxygen\1.11.0``.
+#. Verify that ``doxygen.exe`` is available at ``C:\Users\<username>\doxygen\1.11.0\doxygen.exe``.
+
+Install Graphviz
+================
+
+#. Download GraphViz version 11.0.0 from
+   `https://graphviz.org/download <https://graphviz.org/download>`_.
+   (use this
+   `zip-archive <https://gitlab.com/api/v4/projects/4207231/packages/generic/graphviz-releases/11.0.0/windows_10_cmake_Release_Graphviz-11.0.0-win64.zip>`__).
+
+#. Extract the archive.
+#. Copy the extracted archive to ``C:\Users\<username>\graphviz\11.0.0``.
+#. Verify that ``dot.exe`` is available at ``C:\Users\<username>\graphviz\11.0.0\bin\dot.exe``.
+
+Check Installation
+==================
+
+Check that all required software is installed by running in ``cmd.exe`` or
+``PowerShell``.
+
+- ``cmd.exe``:
+
+  .. code-block:: bat
+
+     fox.bat install --check
+
+- ``PowerShell``:
+
+  .. code-block:: powershell
+
+     .\fox.ps1 install --check
+
+(Optional) Install VS Code
+==========================
 
 |foxbms| supports developing with `Visual Studio Code`_ (hereinafter |code|).
 
 #. Download |code| from the project website at `Visual Studio Code`_.
-#. Install code: |foxbms| recommends installing |code| with the
-   ``User Installer``, which does not require elevated rights.
-#. *Optional:* Let the installer add code to the PATH variable.
-#. Install extensions: To get the best development experience the following
-   extensions are recommended. |code| will list these among the recommended
-   extensions after you have run ``waf configure``.
+#. Install code: |foxbms| recommends installing |code| with the ``User Installer``, which does not require elevated rights.
+#. *Optional:* Let the installer add code to the ``PATH`` variable.
 
-   .. table:: VS Code extensions
-        :name: vs-code-extensions
-        :widths: grid
+.. _environment_updates:
 
-        +------------------------+-------------------------------------+
-        | Name                   | Marketplace Link                    |
-        +========================+=====================================+
-        | C/C++                  | `C/C++ extension`_                  |
-        +------------------------+-------------------------------------+
-        | Python                 | `Python extension`_                 |
-        +------------------------+-------------------------------------+
-        | Assembler              | `ASM extension`_                    |
-        +------------------------+-------------------------------------+
-        | Linker script          | `Linker script extension`_          |
-        +------------------------+-------------------------------------+
-        | Code Spell Checker     | `Code Spell Checker extension`_     |
-        +------------------------+-------------------------------------+
-        | YAML                   | `YAML extension`_                   |
-        +------------------------+-------------------------------------+
-        | TOML                   | `TOML extension`_                   |
-        +------------------------+-------------------------------------+
-        | Test Explorer          | `Test Explorer extension`_          |
-        +------------------------+-------------------------------------+
-        | Test Explorer Ceedling | `Test Explorer Ceedling extension`_ |
-        +------------------------+-------------------------------------+
+Environment Updates
+===================
 
-All required software is now installed.
+Sometimes it might be required to update the build environment.
+It that is the case, it is then mentioned in the :ref:`CHANGELOG`.
 
-.. _conda_env_update:
-
-*****************************
-Development Environment Setup
-*****************************
-
-Open a terminal and navigate into the cloned |foxbms| repository and install
-the development environment. The development environment is installed with the
-following command:
-
-.. code-block:: console
-   :caption: Updating the miniconda environment
-   :name: updating-the-miniconda-environment
-
-   C:\Users\vulpes\Documents\foxbms-2>tools\utils\conda-update-env.bat
-
-This scripts creates a development environment inside the miniconda
-installation.
+To update the build environment the following steps must be done:
 
 .. note::
 
-  An update of the |foxbms| development environment needs to be done
-   - the first time a |foxbms| project is setup on a computer.
-   - each time a new development environment is released. If that is the case
-     it is mentioned in the :ref:`CHANGELOG`.
+   The placeholder ``<name-of-the-new-env>`` must be replaced
+   with the actual name of the new build environment, which is
+   then documented in the :ref:`CHANGELOG`.
 
-**OPTIONAL**: Verify the miniconda environment by running the following script:
+1. Create a virtual environment **<name-of-the-new-env>** by running in ``cmd.exe`` or
+   ``PowerShell``.
+   - ``cmd.exe``:
 
-.. code-block:: console
-   :caption: Verifying the miniconda environment
-   :name: verifying-the-miniconda-environment
+     .. code-block:: bat
 
-   C:\Users\vulpes\Documents\foxbms-2>tools\utils\cmd\run-python-script.bat tests\env\packages_test.py -f tests\env\conda_env_win32.json
+        py -m venv %USERPROFILE%\foxbms-envs\<name-of-the-new-env>
 
-**If all the indicated steps have been followed, at this point all the
-required dependencies have been installed/updated.**
+   - ``PowerShell``:
+
+     .. code-block:: powershell
+
+        py -m venv $env:USERPROFILE\foxbms-envs\<name-of-the-new-env>
+
+1. Activate the virtual environment by running in ``cmd.exe`` or
+   ``PowerShell``.
+
+   - ``cmd.exe``:
+
+     .. code-block:: bat
+
+        %USERPROFILE%\foxbms-envs\<name-of-the-new-env>\Scripts\activate.bat
+
+   - ``PowerShell``:
+
+     .. code-block:: powershell
+
+        &"$env:USERPROFILE\foxbms-envs\<name-of-the-new-env>\Scripts\activate.ps1"
+
+1. Install the required packages by running:
+
+   .. code-block:: powershell
+
+      cd path\to\foxbms-2 # cd into the root of the repository
+      python -m pip install -r requirements.txt --no-deps
 
 ************************
 Debugger toolchain setup
@@ -336,23 +333,12 @@ Debugger toolchain setup
 
 For the development of an embedded system both a way of downloading the
 software into the target and debugging the running software in the target is
-necessary. Since the setup is highly dependent on the selected toolchain, this
+necessary.
+Since the setup is highly dependent on the selected toolchain, this
 manual does not give any details on the installation of such a debugger
-toolchain. The manuals of the tool vendors are exhaustive on the topic of
+toolchain.
+The manuals of the tool vendors are exhaustive on the topic of
 installation and setup.
 
 More details on the selection and usage of debugger toolchains can be
 found in :ref:`DEBUGGING_THE_APPLICATION`.
-
-*********************************
-Optional: CAN-Driver installation
-*********************************
-
-One way of communicating with the BMS is through the CAN protocol.
-The toolchain of |foxbms| is targeted on the usage of CAN interfaces of the
-PCAN series by PEAK System.
-In order to use these probes, the required driver has to be downloaded from the
-`website of the vendor <https://www.peak-system.com/>`_.
-
-When installing, please make sure that the option for "PCAN-Basic API" is
-selected, as this is required for the |foxbms| GUI application.

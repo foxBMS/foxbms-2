@@ -344,15 +344,6 @@
         <string>f src/app/driver/config/interlock_cfg.h</string>
       </attr>
     </node>
-    <node id="N7021">
-      <type xlink:href="File"/>
-      <attr name="Source.Name">
-        <string>nxpfs85xx_cfg.h</string>
-      </attr>
-      <attr name="Linkage.Name">
-        <string>f src/app/driver/config/nxpfs85xx_cfg.h</string>
-      </attr>
-    </node>
     <node id="N7022">
       <type xlink:href="File"/>
       <attr name="Source.Name">

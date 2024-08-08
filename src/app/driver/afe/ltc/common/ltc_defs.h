@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,13 +43,13 @@
  * @file    ltc_defs.h
  * @author  foxBMS Team
  * @date    2015-09-01 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup DRIVERS
  * @prefix  LTC
  *
  * @brief   Headers for the driver for the LTC analog front-end.
- *
+ * @details TODO
  */
 
 #ifndef FOXBMS__LTC_DEFS_H_
@@ -107,15 +107,15 @@ typedef enum {
 /** Number of measured channels */
 typedef enum {
     LTC_ADCMEAS_UNDEFINED,              /*!< not defined                            */
-    LTC_ADCMEAS_ALLCHANNEL_CELLS,       /*!< all cell voltages are measured          */
+    LTC_ADCMEAS_ALL_CHANNEL_CELLS,      /*!< all cell voltages are measured          */
     LTC_ADCMEAS_SINGLECHANNEL_TWOCELLS, /*!< only two cell voltages are measured */
-    LTC_ADCMEAS_ALLCHANNEL_GPIOS,       /*!< all GPIO voltages are measured          */
+    LTC_ADCMEAS_ALL_CHANNEL_GPIOS,      /*!< all GPIO voltages are measured          */
     LTC_ADCMEAS_SINGLECHANNEL_GPIO1,    /*!< only a single ADC channel (GPIO1) is measured  */
     LTC_ADCMEAS_SINGLECHANNEL_GPIO2,    /*!< only a single ADC channel (GPIO2) is measured  */
     LTC_ADCMEAS_SINGLECHANNEL_GPIO3,    /*!< only a single ADC channel (GPIO3) is measured  */
     LTC_ADCMEAS_SINGLECHANNEL_GPIO4,    /*!< only a single ADC channel (GPIO4) is measured  */
     LTC_ADCMEAS_SINGLECHANNEL_GPIO5,    /*!< only a single ADC channel (GPIO5) is measured  */
-    LTC_ADCMEAS_ALLCHANNEL_SC,          /*!< all ADC channels + sum of cells are measured   */
+    LTC_ADCMEAS_ALL_CHANNEL_SC,         /*!< all ADC channels + sum of cells are measured   */
 } LTC_ADCMEAS_CHAN_e;
 
 /** States of the LTC state machine */
@@ -131,8 +131,8 @@ typedef enum {
     LTC_STATEMACH_READVOLTAGE,             /*!<    */
     LTC_STATEMACH_MUXMEASUREMENT,          /*!< Mux (Temperature and Balancing) Measurement    */
     LTC_STATEMACH_MUXMEASUREMENT_FINISHED, /*!<    */
-    LTC_STATEMACH_BALANCECONTROL,          /*!<    */
-    LTC_STATEMACH_ALLGPIOMEASUREMENT,      /*!<    */
+    LTC_STATEMACH_BALANCE_CONTROL,         /*!<    */
+    LTC_STATEMACH_ALL_GPIO_MEASUREMENT,    /*!<    */
     LTC_STATEMACH_READALLGPIO,             /*!<    */
     LTC_STATEMACH_READVOLTAGE_2CELLS,
     LTC_STATEMACH_STARTMEAS_2CELLS,
@@ -141,23 +141,23 @@ typedef enum {
     LTC_STATEMACH_EEPROM_READ,      /*!< Control of the external EEPROM                 */
     LTC_STATEMACH_EEPROM_WRITE,     /*!< Control of the external EEPROM                 */
     LTC_STATEMACH_TEMP_SENS_READ,   /*!< Control of the external temperature sensor     */
-    LTC_STATEMACH_BALANCEFEEDBACK,
+    LTC_STATEMACH_BALANCE_FEEDBACK,
     LTC_STATEMACH_OPENWIRE_CHECK,
     LTC_STATEMACH_DEVICE_PARAMETER,
     LTC_STATEMACH_ADC_ACCURACY,
     LTC_STATEMACH_DIGITAL_FILTER,
-    LTC_STATEMACH_VOLTMEAS_SUMOFCELLS,
+    LTC_STATEMACH_VOLTAGE_MEASURE_SUM_OF_CELLS,
     LTC_STATEMACH_EEPROM_READ_UID,     /*!< Control of the external EEPROM                 */
     LTC_STATEMACH_USER_IO_CONTROL_TI,  /*!< Control of the user port expander              */
     LTC_STATEMACH_USER_IO_FEEDBACK_TI, /*!< Control of the user port expander              */
     LTC_STATEMACH_STARTMEAS_CONTINUE,
     LTC_STATEMACH_MEASCYCLE_FINISHED,
-    LTC_STATEMACH_UNDEFINED,            /*!< undefined state                                */
-    LTC_STATEMACH_RESERVED1,            /*!< reserved state                                 */
-    LTC_STATEMACH_ERROR_SPIFAILED,      /*!< Error-State: SPI error                         */
-    LTC_STATEMACH_ERROR_PECFAILED,      /*!< Error-State: PEC error                         */
-    LTC_STATEMACH_ERROR_MUXFAILED,      /*!< Error-State: multiplexer error                 */
-    LTC_STATEMACH_ERROR_INITIALIZATION, /*!< Error-State: initialization error              */
+    LTC_STATEMACH_UNDEFINED,                /*!< undefined state                                */
+    LTC_STATEMACH_RESERVED1,                /*!< reserved state                                 */
+    LTC_STATEMACH_ERROR_SPIFAILED,          /*!< Error-State: SPI error                         */
+    LTC_STATEMACH_ERROR_PEC_FAILED,         /*!< Error-State: PEC error                         */
+    LTC_STATEMACH_ERROR_MULTIPLEXER_FAILED, /*!< Error-State: multiplexer error                 */
+    LTC_STATEMACH_ERROR_INITIALIZATION,     /*!< Error-State: initialization error              */
 } LTC_STATEMACH_e;
 
 /** General substates */
@@ -206,32 +206,32 @@ typedef enum {
     LTC_READ_AUXILIARY_REGISTER_B_RDAUXB,          /*!<    */
     LTC_READ_AUXILIARY_REGISTER_C_RDAUXC,          /*!<    */
     LTC_READ_AUXILIARY_REGISTER_D_RDAUXD,          /*!<    */
-    LTC_EXIT_READAUXILIARY_ALLGPIOS,               /*!<    */
+    LTC_EXIT_READAUXILIARY_ALL_GPIOS,              /*!<    */
 } LTC_STATEMACH_READVOLTAGE_SUB_e;
 
 /** Substates for the cell voltage + SC measurement state */
 typedef enum {
-    LTC_VOLTMEAS_SC_TRIGGER_CONVERSION,
-    LTC_VOLTMEAS_SC_READ_SC,
-    LTC_EXIT_VOLTMEAS_SC,
+    LTC_VOLTAGE_MEASURE_SC_TRIGGER_CONVERSION,
+    LTC_VOLTAGE_MEASURE_SC_READ_SC,
+    LTC_EXIT_VOLTAGE_MEASURE_SC,
 } LTC_STATEMACH_READVOLTAGE_SC_SUB_e;
 
 /** Substates for the balance control state */
 typedef enum {
     /* Init-Sequence */
-    LTC_CONFIG_BALANCECONTROL,           /*!<    */
-    LTC_CONFIG2_BALANCECONTROL,          /*!<    */
-    LTC_CONFIG2_BALANCECONTROL_END,      /*!<    */
-    LTC_REQUEST_FEEDBACK_BALANCECONTROL, /*!<    */
-    LTC_READ_FEEDBACK_BALANCECONTROL,    /*!<    */
-    LTC_SAVE_FEEDBACK_BALANCECONTROL,    /*!<    */
-    LTC_EXIT_BALANCECONTROL,             /*!<    */
+    LTC_CONFIG_BALANCE_CONTROL,           /*!<    */
+    LTC_CONFIG2_BALANCE_CONTROL,          /*!<    */
+    LTC_CONFIG2_BALANCE_CONTROL_END,      /*!<    */
+    LTC_REQUEST_FEEDBACK_BALANCE_CONTROL, /*!<    */
+    LTC_READ_FEEDBACK_BALANCE_CONTROL,    /*!<    */
+    LTC_SAVE_FEEDBACK_BALANCE_CONTROL,    /*!<    */
+    LTC_EXIT_BALANCE_CONTROL,             /*!<    */
     LTC_STATEMACH_STARTMUXMEASUREMENT,
     LTC_STATEMACH_MUXCONFIGURATION_INIT, /*!<    */
     LTC_STATEMACH_MUXMEASUREMENT_CONFIG, /*!< Configuration of the multiplexers              */
     LTC_STATEMACH_READMUXMEASUREMENT,    /*!<    */
     LTC_STATEMACH_STOREMUXMEASUREMENT,   /*!<    */
-} LTC_STATEMACH_BALANCECONTROL_SUB_e;
+} LTC_STATEMACH_BALANCE_CONTROL_SUB_e;
 
 /** Substates for open-wire check */
 typedef enum {
@@ -240,7 +240,7 @@ typedef enum {
     LTC_REQUEST_PULLDOWN_CURRENT_OPENWIRE_CHECK, /*!<    */
     LTC_READ_VOLTAGES_PULLDOWN_OPENWIRE_CHECK,   /*!<    */
     LTC_PERFORM_OPENWIRE_CHECK,
-} LTC_STATEMACH_OPENWIRECHECK_SUB_e;
+} LTC_STATEMACH_OPENWIRE_CHECK_SUB_e;
 
 /** Substates for diagnosis state */
 typedef enum {
@@ -376,18 +376,18 @@ typedef enum {
     LTC_STATE_EEPROM_WRITE_REQUEST,     /*!<    */
     LTC_STATE_EEPROM_READ_UID_REQUEST,  /*!<    */
     LTC_STATE_TEMP_SENS_READ_REQUEST,   /*!<    */
-    LTC_STATE_BALANCEFEEDBACK_REQUEST,
-    LTC_STATE_REINIT_REQUEST,                    /*!<    */
-    LTC_STATE_IDLE_REQUEST,                      /*!<    */
-    LTC_STATE_VOLTAGEMEASUREMENT_REQUEST,        /*!<    */
-    LTC_STATE_VOLTAGEMEASUREMENT_2CELLS_REQUEST, /*!<    */
-    LTC_STATE_VOLTAGEMEASUREMENT_SC_REQUEST,     /*!<    */
-    LTC_STATE_READVOLTAGE_REQUEST,               /*!<    */
+    LTC_STATE_BALANCE_FEEDBACK_REQUEST,
+    LTC_STATE_REINIT_REQUEST,                     /*!<    */
+    LTC_STATE_IDLE_REQUEST,                       /*!<    */
+    LTC_STATE_VOLTAGE_MEASUREMENT_REQUEST,        /*!<    */
+    LTC_STATE_VOLTAGE_MEASUREMENT_2CELLS_REQUEST, /*!<    */
+    LTC_STATE_VOLTAGE_MEASUREMENT_SC_REQUEST,     /*!<    */
+    LTC_STATE_READVOLTAGE_REQUEST,                /*!<    */
     LTC_STATE_READVOLTAGE_2CELLS_REQUEST,
-    LTC_STATE_MUXMEASUREMENT_REQUEST, /*!<    */
-    LTC_STATE_BALANCECONTROL_REQUEST, /*!<    */
-    LTC_STATEMACH_BALANCEFEEDBACK_REQUEST,
-    LTC_STATE_ALLGPIOMEASUREMENT_REQUEST, /*!<    */
+    LTC_STATE_MUXMEASUREMENT_REQUEST,  /*!<    */
+    LTC_STATE_BALANCE_CONTROL_REQUEST, /*!<    */
+    LTC_STATEMACH_BALANCE_FEEDBACK_REQUEST,
+    LTC_STATE_ALL_GPIO_MEASUREMENT_REQUEST, /*!<    */
     LTC_STATE_OPENWIRE_CHECK_REQUEST,
     LTC_STATEMACH_DEVICE_PARAMETER_REQUEST,
     LTC_STATEMACH_ADC_ACCURACY_REQUEST,
@@ -450,42 +450,29 @@ typedef struct {
     uint16_t *usedCellIndex;
     LTC_OPENWIRE_DETECTION_s *openWireDetection;
     LTC_ERRORTABLE_s *errorTable;
-    DATA_BLOCK_USER_MUX_s *user_mux;
     uint16_t *GPIOVoltages;   /* LTC2_NUMBER_OF_GPIOS * NR_OF_LTCs */
     uint16_t *valid_GPIOPECs; /* NR_OF_LTCs */
-} LTC_DATAPTR_s;
-
-/** This struct contains error counter and pointer to used error buffers */
-typedef struct {
-    uint32_t *errPECCnt; /* array length: Number of used LTCs */
-    uint32_t *errSPICnt; /* array length: Number of used LTCs */
-    uint8_t *ltcStatus;  /* array length: Number of used LTCs */
-    uint8_t errPECRetryCnt;
-    uint8_t errSPIRetryCnt;
-    uint8_t errOccurred;
-    uint32_t nrOfConsecutiveErrors;
-} LTC_ERROR_s;
+} LTC_DATA_s;
 
 /**
  * This struct contains the measurement configuration for the LTC
  * Measurement is deactivated with value = LTC_STATE_NO_REQUEST
  */
 typedef struct {
-    LTC_STATE_REQUEST_e measVoltage;             /* activated = LTC_STATE_VOLTAGEMEASUREMENT_REQUEST */
-    LTC_STATE_REQUEST_e measVoltage2Cells;       /* activated = LTC_STATE_VOLTAGEMEASUREMENT_2CELLS_REQUEST */
-    LTC_STATE_REQUEST_e measVoltageSumofCells;   /* activated = LTC_STATE_VOLTAGEMEASUREMENT_SC_REQUEST */
+    LTC_STATE_REQUEST_e measVoltage;             /* activated = LTC_STATE_VOLTAGE_MEASUREMENT_REQUEST */
+    LTC_STATE_REQUEST_e measVoltage2Cells;       /* activated = LTC_STATE_VOLTAGE_MEASUREMENT_2CELLS_REQUEST */
+    LTC_STATE_REQUEST_e measVoltageSumOfCells;   /* activated = LTC_STATE_VOLTAGE_MEASUREMENT_SC_REQUEST */
     LTC_STATE_REQUEST_e measMux;                 /* activated = LTC_STATE_MUXMEASUREMENT_REQUEST */
-    LTC_STATE_REQUEST_e balancing;               /* activated = LTC_STATE_BALANCECONTROL_REQUEST */
-    LTC_STATE_REQUEST_e balancing_feedback;      /* activated = LTC_STATE_BALANCEFEEDBACK_REQUEST */
-    LTC_STATE_REQUEST_e measAllGPIO;             /* activated = LTC_STATE_ALLGPIOMEASUREMENT_REQUEST */
+    LTC_STATE_REQUEST_e balancing;               /* activated = LTC_STATE_BALANCE_CONTROL_REQUEST */
+    LTC_STATE_REQUEST_e balancing_feedback;      /* activated = LTC_STATE_BALANCE_FEEDBACK_REQUEST */
+    LTC_STATE_REQUEST_e measAllGPIO;             /* activated = LTC_STATE_ALL_GPIO_MEASUREMENT_REQUEST */
     LTC_STATE_REQUEST_e userIO;                  /* activated = LTC_STATE_USER_IO_REQUEST */
     LTC_STATE_REQUEST_e readEEPROM;              /* activated = LTC_STATE_EEPROM_READ_UID_REQUEST */
     LTC_STATE_REQUEST_e measTemperature;         /* activated = LTC_STATE_TEMP_SENS_READ_REQUEST */
     LTC_STATE_REQUEST_e openWireCheck;           /* activated = LTC_STATE_OPENWIRE_CHECK_REQUEST */
     LTC_STATE_REQUEST_e deviceParameterCheck;    /* activated = LTC_STATEMACH_DEVICE_PARAMETER_REQUEST */
-    LTC_STATE_REQUEST_e accuracyADCverification; /* activated = LTC_STATEMACH_ADC_ACCURACY_REQUEST */
+    LTC_STATE_REQUEST_e accuracyAdcVerification; /* activated = LTC_STATEMACH_ADC_ACCURACY_REQUEST */
     LTC_STATE_REQUEST_e digitalFilterCheck;      /* activated = LTC_STATEMACH_DIGITAL_FILTER_REQUEST */
-    uint8_t taskCycleCnt;                        /* holds the current state machine index */
     uint8_t numberActiveOfStates;                /* number of active states */
     uint8_t activeStates[12]; /* array holds the different substates that are executed one after another */
                               /* maximum number of states : 12 */
@@ -496,8 +483,8 @@ typedef struct {
  */
 typedef enum {
     LTC_NOT_REUSED,
-    LTC_REUSE_READVOLT_FOR_ADOW_PUP,
-    LTC_REUSE_READVOLT_FOR_ADOW_PDOWN,
+    LTC_REUSE_READVOLTAGE_FOR_ADOW_PUP,
+    LTC_REUSE_READVOLTAGE_FOR_ADOW_PDOWN,
 } LTC_REUSE_MODE_e;
 
 /**
@@ -522,52 +509,48 @@ typedef struct {
  */
 typedef struct {
     uint16_t timer; /*!< time in ms before the state machine processes the next state, e.g. in counts of 1ms */
-    LTC_TASK_TYPE_e taskMode;   /*!< current task of the state machine */
-    LTC_REQUEST_s statereq;     /*!< current state request made to the state machine */
-    LTC_STATEMACH_e state;      /*!< state of Driver State Machine */
-    uint8_t substate;           /*!< current substate of the state machine */
-    LTC_STATEMACH_e laststate;  /*!< previous state of the state machine */
-    uint8_t lastsubstate;       /*!< previous substate of the state machine */
-    LTC_ADCMODE_e adcMode;      /*!< current LTC ADCmeasurement mode (fast, normal or filtered) */
-    LTC_ADCMODE_e voltMeasMode; /*!< current LTC ADCmeasurement mode (fast, normal or filtered) */
-    LTC_ADCMODE_e gpioMeasMode; /*!< current LTC ADCmeasurement mode (fast, normal or filtered) */
-    LTC_ADCMODE_e adcModereq;   /*!< requested LTC ADCmeasurement mode (fast, normal or filtered) */
-    LTC_ADCMEAS_CHAN_e
-        adcMeasCh; /*!< current number of channels measured for GPIOS (one at a time for multiplexers or all five GPIOs) */
-    LTC_ADCMEAS_CHAN_e
-        adcMeasChreq; /*!< requested number of channels measured for GPIOS (one at a time for multiplexers or all five GPIOs) */
-    uint8_t
-        numberOfMeasuredMux; /*!< number of multiplexer channels measured by the LTC analog front-end before a voltage measurement is made */
+    LTC_TASK_TYPE_e taskMode;     /*!< current task of the state machine */
+    LTC_REQUEST_s statereq;       /*!< current state request made to the state machine */
+    LTC_STATEMACH_e state;        /*!< state of Driver State Machine */
+    uint8_t substate;             /*!< current substate of the state machine */
+    LTC_STATEMACH_e lastState;    /*!< previous state of the state machine */
+    uint8_t lastSubstate;         /*!< previous substate of the state machine */
+    LTC_ADCMODE_e adcMode;        /*!< current LTC ADCMeasurement mode (fast, normal or filtered) */
+    LTC_ADCMODE_e voltMeasMode;   /*!< current LTC ADCMeasurement mode (fast, normal or filtered) */
+    LTC_ADCMODE_e gpioMeasMode;   /*!< current LTC ADCMeasurement mode (fast, normal or filtered) */
+    LTC_ADCMODE_e adcModeRequest; /*!< requested LTC ADCMeasurement mode (fast, normal or filtered) */
+    LTC_ADCMEAS_CHAN_e adcMeasCh; /*!< current number of channels measured for GPIOS (one at a time for multiplexers or
+                                     all five GPIOs) */
+    LTC_ADCMEAS_CHAN_e adcMeasChannelRequest; /*!< requested number of channels measured for GPIOS (one at a time for
+                                                 multiplexers or all five GPIOs) */
+    uint8_t numberOfMeasuredMux; /*!< number of multiplexer channels measured by the LTC analog front-end before a
+                                    voltage measurement is made */
     uint32_t ErrPECCounter; /*!< counts the number of times there was A PEC (CRC) error during communication with LTC */
-    uint8_t
-        ErrRetryCounter; /*!< counts how many times the drivers retried to communicate with LTC in case of a communication error */
+    uint8_t ErrRetryCounter;    /*!< counts how many times the drivers retried to communicate with LTC in case of a
+                                   communication error */
     uint32_t ErrRequestCounter; /*!< counts the number of illegal requests to the LTC state machine */
     uint8_t triggerentry;       /*!< counter for re-entrance protection (function running flag) */
-    uint32_t
-        commandDataTransferTime; /*!< time needed for sending an instruction to the LTC, followed by data transfer from the LTC */
-    uint32_t commandTransferTime; /*!< time needed for sending an instruction to the LTC */
+    uint32_t commandDataTransferTime; /*!< time needed for sending an instruction to the LTC, followed by data transfer
+                                         from the LTC */
+    uint32_t commandTransferTime;     /*!< time needed for sending an instruction to the LTC */
     uint32_t
         gpioClocksTransferTime;  /*!< time needed for sending 72 clock signal to the LTC, used for I2C communication */
     uint32_t VoltageSampleTime;  /*!< time stamp at which the cell voltage were measured */
     uint32_t muxSampleTime;      /*!< time stamp at which a multiplexer input was measured */
     uint8_t instanceID;          /*!< number to distinguish between different ltc states, starting with 0,1,2,3....8 */
-    uint8_t nrBatcellsPerModule; /*!< number of cells per module */
+    uint8_t nrBatCellsPerModule; /*!< number of cells per module */
     uint8_t busSize;             /*!< number of connected LTCs to parallel bus network */
-    LTC_ERROR_s errStatus;       /*!< contains pointer to local error buffer and error indicators */
     uint8_t *ltcIDs;             /*!< array with LTC IDs */
-    uint8_t cntDeviceRD;         /*!< current Index of array ltcIDs to determine device ID */
-    uint32_t ctrlCallCnt;        /*!< counts the LTC2_CTRL calls */
-    uint8_t taskCycleCnt;        /*!< counts the current task cycle */
     LTC_REUSE_MODE_e
-        reusageMeasurementMode; /*!< flag that indicates if currently any state is reused i.e. cell voltage measurement */
-    LTC_CONFIG_s ltcConfig;     /*!< struct that holds the measurement configuration of the ltc network */
+        reusageMeasurementMode;  /*!< flag that indicates if currently any state is reused i.e. cell voltage
+                                                measurement */
     bool first_measurement_made; /*!< flag that indicates if the first measurement cycle was completed */
     STD_RETURN_TYPE_e
         ltc_muxcycle_finished; /*!< flag that indicates if the measurement sequence of the multiplexers is finished  */
     STD_RETURN_TYPE_e check_spi_flag;       /*!< indicates if interrupt flag or timer must be considered */
     STD_RETURN_TYPE_e balance_control_done; /*!< indicates if balance control was done */
-    uint8_t resendCommandCounter;           /*!< counter if commandy should be send multiple times e.g. ADOW command */
-    bool transmit_ongoing;                  /*!< SPI transmissioncurrently ongoing */
+    uint8_t resendCommandCounter;           /*!< counter if command should be send multiple times e.g. ADOW command */
+    bool transmit_ongoing;                  /*!< SPI transmission currently ongoing */
     STD_RETURN_TYPE_e dummyByte_ongoing;    /*!< SPI dummy byte is currently transmitted */
     SPI_INTERFACE_CONFIG_s *spiSeqPtr;      /*!< pointer to the SPI sequence to be measured */
     SPI_INTERFACE_CONFIG_s *spiSeqEndPtr;   /*!< pointer to the end of the SPI sequence */
@@ -579,14 +562,16 @@ typedef struct {
     DIAG_ID_e muxDiagErrorEntry;            /*!< diagnosis entry for multiplexer related events */
     DIAG_ID_e voltMeasDiagErrorEntry;       /*!< diagnosis entry for voltage measurement related events */
     DIAG_ID_e tempMeasDiagErrorEntry;       /*!< diagnosis entry for temperature measurement related events */
-    LTC_DATAPTR_s ltcData;                  /*!< contains pointers to the local data buffer */
-    LTC_MUX_CH_CFG_s *muxmeas_seqptr
-        [BS_NR_OF_STRINGS]; /*!< pointer to the multiplexer sequence to be measured (contains a list of elements [multiplexer id, multiplexer channels]) (1,-1)...(3,-1),(0,1),...(0,7) */
-    LTC_MUX_CH_CFG_s *muxmeas_seqendptr
-        [BS_NR_OF_STRINGS]; /*!< point to the end of the multiplexer sequence; pointer to ending point of sequence */
-    uint8_t muxmeas_nr_end
-        [BS_NR_OF_STRINGS]; /*!< number of multiplexer channels that have to be measured; end number of sequence, where measurement is finished*/
-    uint8_t configuration[6]; /*!< holds the configuration of the ltc (configuration register) */
+    LTC_DATA_s ltcData;                     /*!< contains pointers to the local data buffer */
+    LTC_MUX_CH_CFG_s *muxmeas_seqptr[BS_NR_OF_STRINGS]; /*!< pointer to the multiplexer sequence to be measured
+                                                              (contains    a list of elements [multiplexer id, multiplexer
+                                                              channels])    (1,-1)...(3,-1),(0,1),...(0,7) */
+    LTC_MUX_CH_CFG_s
+        *muxmeas_seqendptr[BS_NR_OF_STRINGS]; /*!< point to the end of the multiplexer sequence; pointer to
+                                                              ending point of sequence */
+    uint8_t muxmeas_nr_end[BS_NR_OF_STRINGS]; /*!< number of multiplexer channels that have to be measured; end number
+                                                 of sequence, where measurement is finished*/
+    uint8_t configuration[6];                 /*!< holds the configuration of the ltc (configuration register) */
 } LTC_STATE_s;
 
 /*========== Extern Function Prototypes =====================================*/

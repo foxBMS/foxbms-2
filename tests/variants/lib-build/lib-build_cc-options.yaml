@@ -1,4 +1,4 @@
-# Copyright (c) 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -44,12 +44,12 @@
 
 INCLUDE_PATHS:
   win32:
-    - REPO_ROOT\libbuild\src
+    - REPO_ROOT\lib-build\src
   linux:
 
 LIBRARY_PATHS:
   win32:
-    - REPO_ROOT\libbuild\build
+    - REPO_ROOT\lib-build\build
   linux:
 
 LIBRARIES:
@@ -75,7 +75,7 @@ CFLAGS:
     - --emit_warnings_as_errors
   # additional flags that are ONLY applied to foxBMS sources
   foxbms:
-    - -Ooff
+    - -O0
     - -DASSERT_LEVEL=0
     - --issue_remarks
     - --strict_ansi
@@ -102,6 +102,7 @@ LINKFLAGS:
   - --scan_libraries
 
 HEXGENFLAGS:
+  - --emit_warnings_as_errors
   - --memwidth=32
   - --tektronix
   - -image

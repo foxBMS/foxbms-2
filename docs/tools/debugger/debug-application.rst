@@ -104,7 +104,7 @@ these toolchains if you have to rely on our support for the setup of the
 debugger, as we cannot support debugger toolchains that we do not know or
 cannot recommend. Feel free to contact us, if you need more information.
 
-* The first one is the
+- The first one is the
   `Segger J-Link PLUS <https://www.segger.com/j-link-plus.html>`_.
   A cheaper debugger solution is the
   `Segger J-Link BASE <https://www.segger.com/jlink_base.html>`_.
@@ -112,7 +112,7 @@ cannot recommend. Feel free to contact us, if you need more information.
   `Ozone <https://www.segger.com/products/development-tools/ozone-j-link-debugger/#licensing>`_
   is not licensed with the base version of J-Link.
 
-* The second type of debugger are the debugger by
+- The second type of debugger are the debugger by
   `Lauterbach <http://www.lauterbach.com>`_.
   The Lauterbach debugger performs under certain conditions better, but is also
   more expensive than the J-Link.

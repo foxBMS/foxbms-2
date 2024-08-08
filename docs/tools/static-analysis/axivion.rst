@@ -6,17 +6,6 @@
 Axivion Bauhaus Suite
 =====================
 
-..
-    Comments:
-    Axivion is the company that builds the Axivion Bauhaus suite
-    cafeCC is the Axivion compiler
-    dashserver is the command to run the Axivion Bauhaus Suite dashserver
-
-.. spelling::
-    Axivion
-    cafeCC
-    dashserver
-
 Static Analysis tries to uncover potential errors in software by analyzing the
 source code.
 In this project one of the tools that are used is the Axivion Bauhaus Suite.
@@ -50,9 +39,9 @@ the following command has to be run once inside a terminal (please make sure
 that the terminal is freshly spawned so that it inherits the previously set
 environment variables):
 
-.. code-block:: console
+.. code-block:: powershell
 
-    C:\Users\vulpes\Documents\foxbms-2>tests\axivion\scripts\start_local_analysis.bat
+   PS C:\Users\vulpes\Documents\foxbms-2> .\fox.ps1 axivion local-analysis
 
 Local Builds And Results
 ------------------------
@@ -61,57 +50,16 @@ Local Builds And Results
   the terminal afterwards (follow the instructions printed on the terminal to
   see the results):
 
-  .. code-block:: console
+  .. code-block:: powershell
 
-     C:\Users\vulpes\Documents\foxbms-2>tests\axivion\scripts\start_local_dashserver.bat
+    PS C:\Users\vulpes\Documents\foxbms-2> .\fox.ps1 axivion local-dashserver
 
 - Run the following command to update the analysis result (the local dashboard
   will not be available during the execution of the local analysis):
 
-  .. code-block:: console
+  .. code-block:: powershell
 
-    C:\Users\vulpes\Documents\foxbms-2>tests\axivion\scripts\start_local_analysis.bat
-
-VS Code Setup
--------------
-
-Usage
-+++++
-
-Running the Tests
-^^^^^^^^^^^^^^^^^
-
-Press :kbd:`Ctrl + Shift + B` and run the task *axivion analysis*. This task
-runs the Axivion analysis script
-``tests/axivion/scripts/start_local_analysis.bat``.
-
-Issues
-^^^^^^
-
-Open command palette by pressing :kbd:`Ctrl + Shift + P` and search for
-*axivion*.
-
-Local Builds
-++++++++++++
-
-If VS Code is installed the VS Code's ``settings.json`` is automatically
-correctly configured for Axivion usage.
-
-CI Builds
-+++++++++
-
-To get CI build results in VS Code add the following configuration to the
-VS Code User settings:
-
-.. code-block:: json
-
-    "axivion.dashboards": [
-        {
-            "id": "user friendly Dashboard name",
-            "url": "<path-to-dashboard>",
-            "username": "<username>"
-        }
-    ]
+    PS C:\Users\vulpes\Documents\foxbms-2> .\fox.ps1 axivion local-analysis
 
 Advanced Usage
 --------------
@@ -141,9 +89,9 @@ This can be done through the export feature of `gravis`.
 For the developer's convenience a helper script has been created.
 Call
 
-.. code-block:: bash
+.. code-block:: powershell
 
-    gravis --script tests/axivion/gravis_export_architecture_svg.py
+   PS C:\Users\vulpes\Documents\foxbms-2> .\fox.ps1 run-program gravis --script tests\axivion\scripts\gravis_export_architecture_svg.py
 
 from a shell in the root of the project and the image will be
 automatically updated.

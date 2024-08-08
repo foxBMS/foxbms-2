@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 #
-# Copyright (c) 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -44,46 +43,32 @@
 
 import os
 
-from waflib import (
-    Build,
-    Configure,
-    Context,
-    Errors,
-    Logs,
-    Options,
-    Scripting,
-    Task,
-    TaskGen,
-    Utils,
-)
-from waflib.Build import BuildContext, CleanContext, ListContext, StepContext
+from waflib import Build, Context, Utils
 
 Context.Context.line_just = 50
-Configure.autoconfig = 1
 
 
 out = "build"  # pylint:disable=invalid-name
-"""output directory"""
 top = "."  # pylint:disable=invalid-name
-"""waf top directory"""
 
+# name of the application. This is used in various waf functions
 APPNAME = "MY_LIB"
-"""name of the application. This is used in various waf functions"""
 
+# version of the application. This is used in various waf functions. This
+# version must match the version number defined in ``macros.txt``. Otherwise a
+# configuration error is thrown.
 VERSION = "0.0.12"
-"""version of the application. This is used in various waf functions. This \
-version must match the version number defined in ``macros.txt``. Otherwise a \
-configuration error is thrown."""
+
 
 tooldir = os.path.join("tools", "waf-tools")  # pylint:disable=invalid-name
 
+# Files and directories that are excluded when running dist commands
 dist_exclude = (  # pylint:disable=invalid-name
     f"{out}/** **/.git **/.gitignore .gitlab/** **/.gitattributes "
     "**/*.tar.bz2 **/*.tar.gz **/*.pyc __pycache__ "
     "tools/waf*.*.**-* .lock-* "
     f".ws *eclipse* .vs* { APPNAME.lower()}/**"
 )
-"""Files and directories that are excluded when running dist commands"""
 
 
 def options(opt):
@@ -121,11 +106,6 @@ def options(opt):
         help="Use a configuration cache",
     )
 
-    opt.load("f_miniconda_env", tooldir=tooldir)
-    opt.add_option(
-        "--why", dest="WHY", action="store_true", help="Loads the 'why' tool."
-    )
-
 
 def configure(conf):
     """Configures the library project"""
@@ -152,9 +132,6 @@ def configure(conf):
         fragment=fragment,
         msg="Checking for code snippet (library)",
     )
-
-    if conf.options.WHY:
-        conf.load("why", tooldir=tooldir)
 
 
 def build(bld):

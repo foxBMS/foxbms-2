@@ -1,13 +1,6 @@
 .. include:: ./../../../../../macros.txt
 .. include:: ./../../../../../units.txt
 
-..
-    Comments:
-    Vishay is the name of the sensor manufacturer
-
-.. spelling::
-    Vishay
-
 .. _VISHAY_NTCLE317E4103SBA:
 
 Vishay NTCLE317E4103SBA

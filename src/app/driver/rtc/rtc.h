@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,8 +43,8 @@
  * @file    rtc.h
  * @author  foxBMS Team
  * @date    2021-02-22 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup DRIVERS
  * @prefix  RTC
  *
@@ -96,16 +96,16 @@ typedef struct {
 
 /* Defines for the RTC control_3 register */
 /**@{*/
-#define RTC_REG_CONTROL_3_ADDR                  (0x02u)
-#define RTC_CTRL3_BATTERY_PWRMNG_BITS_MASK      (0xE0u)
-#define RTC_CTRL3_BATTERY_PWRMNG_BITS_POSITION  (5u)
-#define RTC_CTRL3_BATTERY_LOW_FLAG_BIT_MASK     (0x04u)
-#define RTC_CTRL3_BATTERY_LOW_FLAG_BIT_POSITION (2u)
+#define RTC_REG_CONTROL_3_ADDR                       (0x02u)
+#define RTC_CTRL3_BATTERY_POWER_MANAGE_BITS_MASK     (0xE0u)
+#define RTC_CTRL3_BATTERY_POWER_MANAGE_BITS_POSITION (5u)
+#define RTC_CTRL3_BATTERY_LOW_FLAG_BIT_MASK          (0x04u)
+#define RTC_CTRL3_BATTERY_LOW_FLAG_BIT_POSITION      (2u)
 /**@}*/
 
 /* Power management configuration value to switch to battery voltage
    and monitor battery voltage */
-#define RTC_CTRL3_PWRMNG_DIRECTSWITCH_LOWDETECTIONENABLE_MODE (0x03u)
+#define RTC_CTRL3_POWER_MANAGE_DIRECT_SWITCH_LOW_DETECTION_ENABLE_MODE (0x03u)
 
 /* Defines for the RTC CLKOUT_ctl register */
 /**@{*/
@@ -142,7 +142,7 @@ typedef struct {
 /**@}*/
 
 /* Number of bytes needed to store all the RTC time data */
-#define RTC_NUMBER_OF_TIMEDATA_BYTES (8u)
+#define RTC_NUMBER_OF_TIME_DATA_BYTES (8u)
 
 /* Defines to access time data for ten's place */
 /**@{*/
@@ -168,7 +168,7 @@ typedef struct {
 
 /* Defines for the C library time */
 /**@{*/
-#define RTC_CTIME_YEAR_START  (1900)
+#define RTC_CTIME_YEAR_START  (1970)
 #define RTC_CTIME_MONTH_START (1)
 /**@}*/
 
@@ -179,12 +179,12 @@ typedef struct {
 /* Time interval between two comparisons between RTC timer and RTC IC */
 #define RTC_TIME_BETWEEN_RTC_TIMER_ADJUSTMENT_min (60u)
 /* Time interval between two check of the battery low flag */
-#define RTC_TIME_BETWEEN_BLF_FLAG_CHECK_min (10u)
+#define RTC_TIME_BETWEEN_BATTERY_LOW_FLAG_CHECK_min (10u)
 
 /** States for the OTPR procedure */
 typedef enum {
     RTC_SET_SYSTEM_TIMER,
-    RTC_SET_BLF,
+    RTC_SET_BATTERY_LOW_FLAG,
     RTC_CLEAR_OTPR,
     RTC_WAIT_CLEAR_OTPR,
     RTC_OTPR_CLEARED,

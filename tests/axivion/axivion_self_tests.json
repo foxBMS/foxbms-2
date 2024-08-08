@@ -1,0 +1,66 @@
+{
+  "addon-test": {
+    "cwd": "${HERE}/addon-test",
+    "env": {
+      "AXIVION_BUILD_DIR": "${HERE}/../../build/axivion",
+      "BAUHAUS_CONFIG": "${HERE}"
+    },
+    "runner-arguments": [
+      "test_*.c*",
+      "test_*/test_*.c*"
+    ]
+  },
+  "compiler_errata_ti-cgt-arm_20.2.6.lts": {
+    "cwd": "${HERE}/compiler-errata",
+    "env": {
+      "AXIVION_BUILD_DIR": "${HERE}/../../build/axivion",
+      "BAUHAUS_CONFIG": "${HERE}"
+    },
+    "pre-build": [
+      {
+        "action": "copy",
+        "dest": "${HERE}/compiler-errata/ti-cgt-arm_20.2.6.lts/test/ti_cgt_arm/cafeCC_config/compiler_config.json",
+        "source": "${HERE}/compiler_config.json"
+      },
+      {
+        "action": "copy",
+        "dest": "${HERE}/compiler-errata/ti-cgt-arm_20.2.6.lts/test/ti_cgt_arm/cafeCC_config/axivion_preinc.h",
+        "source": "${HERE}/axivion_preinc.h"
+      }
+    ],
+    "runner-arguments": [
+      "--language",
+      "C11",
+      "ti-cgt-arm_20.2.6.lts/test/ti_cgt_arm/**/*.c",
+      "ti-cgt-arm_20.2.6.lts/test/ti_cgt_arm/**/*.cpp"
+    ]
+  },
+  "config-test": {
+    "cwd": "${HERE}/config-test",
+    "env": {
+      "AXIVION_BUILD_DIR": "${HERE}/../../build/axivion",
+      "BAUHAUS_CONFIG": "${HERE}"
+    },
+    "runner-arguments": [
+      "test_*.c*"
+    ]
+  },
+  "qualification-test": {
+    "cwd": "${HERE}/qualification-test",
+    "env": {
+      "AXIVION_BUILD_DIR": "${HERE}/../../build/axivion",
+      "BAUHAUS_CONFIG": "${HERE}"
+    },
+    "only": {
+      "env": {
+        "CI_COMMIT_MESSAGE": "update axivion"
+      }
+    },
+    "runner-arguments": [
+      "--language",
+      "C11",
+      "**/*.c",
+      "**/*.cpp"
+    ]
+  }
+}

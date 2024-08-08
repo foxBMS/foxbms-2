@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,14 +43,13 @@
  * @file    bender_ir155_helper.h
  * @author  foxBMS Team
  * @date    2021-09-17 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup DRIVERS
  * @prefix  IR155
  *
  * @brief   Headers for the configuration for the insulation monitoring
- *
- *
+ * @details TODO
  */
 
 #ifndef FOXBMS__BENDER_IR155_HELPER_H_
@@ -104,7 +103,7 @@ typedef enum IR155_MEASUREMENT_STATE {
     IR155_GROUND_ERROR_STATE,               /*!< ground error detected */
     IR155_GROUND_ERROR_STATE_UNKNOWN,       /*!< ground error detected with undefined duty cycle */
     IR155_IMD_ERROR_MEASUREMENT,            /*!< device error detected */
-    IR155_IMD_ERROR_MEASUREMENT_UNKNOWN,    /*!< device error detected with unkown duty cycle*/
+    IR155_IMD_ERROR_MEASUREMENT_UNKNOWN,    /*!< device error detected with unknown duty cycle*/
     IR155_SIGNAL_SHORT,                     /*!< signal short detected */
     IR155_MEASUREMENT_NOT_VALID,            /*!< Invalid measurement detected */
     IR155_UNINITIALIZED,                    /*!< Uninitialized state */
@@ -142,10 +141,10 @@ extern void IR155_Initialize(uint8_t triggerTime_ms);
 /**
  * @brief Software deinitialization of Timer-module
  */
-extern void IR155_Deinitialize(void);
+extern void IR155_Uninitialize(void);
 
 /**
- * @brief Interface function which delivers the actual signal measurement (duty cyle) and evaluation.
+ * @brief Interface function which delivers the actual signal measurement (duty cycle) and evaluation.
  *        Use of intervals because of measuring and signal inaccuracy. The evaluated results are
  *        finally written in the database.
  * @return #IR155_MEASUREMENT_s measurement result of IR155 measurement

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,13 +43,15 @@
  * @file    adi_ades183x_gpio_voltages.h
  * @author  foxBMS Team
  * @date    2022-12-07 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup DRIVERS
  * @prefix  ADI
  *
- * @brief   Header file of some software
- *
+ * @brief   Declarations for reading the GPIO voltage part of the driver of the
+ *          ADI ADES18x family of analog front-ends.
+ * @details Declares a function for reading the GPIO voltage registers in ICs
+ *          of the ADI ADES18x family.
  */
 
 #ifndef FOXBMS__ADI_ADES183X_GPIO_VOLTAGES_H_
@@ -72,20 +74,20 @@
  * @details This function, reads the raw values from the registers, and
  *          calls ADI_SaveRxToGpioVoltageBuffer() which convert them into
  *          voltages and stores them.
- * @param   adiState       state of the ADI driver
+ * @param   pAdiState       state of the ADI driver
  * @param   registerType    type of auxiliary register to read
  * @param   storeLocation   location where read data has to be stored
  */
 extern void ADI_GetGpioVoltages(
-    ADI_STATE_s *adiState,
+    ADI_STATE_s *pAdiState,
     ADI_AUXILIARY_REGISTER_TYPE_e registerType,
     ADI_AUXILIARY_STORE_LOCATION_e storeLocation);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 #ifdef UNITY_UNIT_TEST
 extern void TEST_ADI_SaveRxToGpioVoltageBuffer(
-    ADI_STATE_s *adiState,
-    uint8_t *data,
+    ADI_STATE_s *pAdiState,
+    uint8_t *pData,
     uint8_t registerSet,
     ADI_AUXILIARY_STORE_LOCATION_e storeLocation);
 #endif

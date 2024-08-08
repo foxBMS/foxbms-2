@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,13 +43,13 @@
  * @file    sps.c
  * @author  foxBMS Team
  * @date    2020-10-14 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup DRIVERS
  * @prefix  SPS
  *
  * @brief   Driver for the smart power switches.
- *
+ * @details TODO
  */
 
 /*========== Includes =======================================================*/
@@ -68,6 +68,12 @@
 #include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
+/** Defines for specific channel of the SPS IC. @{ */
+#define SPS_IC_CHANNEL_1 (1u)
+#define SPS_IC_CHANNEL_2 (2u)
+#define SPS_IC_CHANNEL_3 (3u)
+#define SPS_IC_CHANNEL_4 (4u)
+/**@}*/
 
 /*========== Static Constant and Variable Definitions =======================*/
 /** state indicator of the state-machine */
@@ -170,14 +176,13 @@ static STD_RETURN_TYPE_e SPS_Transmit(void);
  *          for all SPS ICs of the daisy-chain.
  * @details A read command must be issued for all SPS ICs in the daisy chain
  *          first. There is one register to read for each output.
- *          This funcion i used to retrieve the answer on the MISO line
+ *          This function is used to retrieve the answer on the MISO line
  *          after the write command to the contactors output registers
  *          was made.
  *          The result is written to SPS_CoilCurrent[].
  * @param[in]   outputAllDevices    Output (1 to 4) to be read. Value between
  *                                  1-4 instead of 0-3 to match numbering
  *                                  in data sheet.
- * @return  TODO
  */
 static void SPS_GlobalReadCurrent(const uint8_t outputAllDevices);
 
@@ -313,9 +318,9 @@ static void SPS_SingleDeviceRegisterWrite(
     /* Clear write data which will be replaced */
     pSpiTxBuffer[(SPS_SPI_BUFFERSIZE - 1u - device)] &= 0xFF00u;
     /* Write R/W bit and address in the higher 8 bits */
-    pSpiTxBuffer[(SPS_SPI_BUFFERSIZE - 1u - device)] = (uint16_t)(
-        ((uint16_t)1u << SPS_RW_BIT_POSITION) | /* R/W bit = 1 to write */
-        (address << SPS_ADDRESS_BIT_START));    /* Register address */
+    pSpiTxBuffer[(SPS_SPI_BUFFERSIZE - 1u - device)] =
+        (uint16_t)(((uint16_t)1u << SPS_RW_BIT_POSITION) | /* R/W bit = 1 to write */
+                   (address << SPS_ADDRESS_BIT_START));    /* Register address */
 
     if (writeType == SPS_replaceCurrentValue) {
         pSpiTxBuffer[(SPS_SPI_BUFFERSIZE - 1u - device)] |= (uint16_t)writeData; /* Data to write */
@@ -550,7 +555,7 @@ extern void SPS_Ctrl(void) {
                 } else {
                     sps_state = SPS_START;
                 }
-                SPS_GlobalReadCurrent(1u);
+                SPS_GlobalReadCurrent(SPS_IC_CHANNEL_1);
                 break;
 
             case SPS_READ_MEASURED_CURRENT2:
@@ -562,7 +567,7 @@ extern void SPS_Ctrl(void) {
                 } else {
                     sps_state = SPS_START;
                 }
-                SPS_GlobalReadCurrent(2u);
+                SPS_GlobalReadCurrent(SPS_IC_CHANNEL_2);
                 break;
 
             case SPS_READ_MEASURED_CURRENT3:
@@ -574,7 +579,7 @@ extern void SPS_Ctrl(void) {
                 } else {
                     sps_state = SPS_START;
                 }
-                SPS_GlobalReadCurrent(3u);
+                SPS_GlobalReadCurrent(SPS_IC_CHANNEL_3);
                 break;
 
             case SPS_READ_MEASURED_CURRENT4:
@@ -586,7 +591,7 @@ extern void SPS_Ctrl(void) {
                 } else {
                     sps_state = SPS_START;
                 }
-                SPS_GlobalReadCurrent(4u);
+                SPS_GlobalReadCurrent(SPS_IC_CHANNEL_4);
                 break;
             default:
                 FAS_ASSERT(FAS_TRAP);

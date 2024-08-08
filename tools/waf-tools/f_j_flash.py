@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 #
-# Copyright (c) 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -38,8 +37,7 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""Implements a waf tool to flash binaries to the foxBMS MCU
-"""
+"""Implements a waf tool to flash binaries to the foxBMS MCU"""
 
 import os
 
@@ -123,7 +121,7 @@ def check_j_flash_version(ctx):
         Logs.debug(
             f"Removing (invalid) version of J-Flash ({JFLASH_ENV_VAR}) from env."
         )
-        ctx.env.__delitem__(JFLASH_ENV_VAR)
+        del ctx.env.JFLASH_ENV_VAR
 
 
 def configure(ctx):

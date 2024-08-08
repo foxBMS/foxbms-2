@@ -2,31 +2,32 @@
 
 ## Workspace
 
-The ``jinja2``-files in this directory contain *configuration* files for VS
+The `jinja2`-files in this directory contain *configuration* files for VS
 Code settings.
-These files get properly configured when running ``waf.bat configure`` or
-``waf.sh configure`` in the root of the repository.
-Please note that doing so, will overwrite the contents of `.vscode/` in
+These files get properly configured when running `fox.ps1 waf configure` ( or
+`fox.bat waf configure`or `./fox.sh waf configure`) in the root of the
+repository.
+Please note that doing so, will overwrite the contents of `.vscode` in
 the root of the repository with these templates.
 
 ## Snippets
 
-
 ### Installation
 
-> **_WARNING:_**
-> - This will overwrite your previous settings!
+Snippets are installed by copying the snippets files into the VS Code snippets
+directory.
+This directory is
 
-To install the snippets just run `install-snippets.bat`.
+- on Windows: `%APPDATA%\Code\User\snippets` and
+- on Linux: `$HOME/.config/Code/User/snippets`.
 
 ### C
 
-To simplify the creation of style guide conforming for loops regarding to
-number of strings, modules and cells per module, just copy the content from
-``snippets/c.json`` into the user snippet configuration directory:
-- Windows: ``%APPDATA%\Code\User\snippets\c.json``
-- Linux: ``$HOME/.config/Code/User/snippets/c.json``
+`C`-snippets are provided to simplify the creation of style guide conforming
+`for` loops regarding number of strings, modules and cells per module.
+The snippet file is `c.json`.
 
 ### Python
 
-There is also a snippet configuration for Python (``snippets/python.json``).
+Simple `main`-function snippet for `Python`
+The snippet file is `python.json`.

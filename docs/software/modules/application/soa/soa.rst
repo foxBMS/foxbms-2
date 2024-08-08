@@ -12,19 +12,19 @@ Module Files
 Driver
 ^^^^^^
 
-- ``src/app/application/soa/soa.c`` (`API <../../../../_static/doxygen/src/html/soa_8c.html>`__, `source <../../../../_static/doxygen/src/html/soa_8c_source.html>`__)
-- ``src/app/application/soa/soa.h`` (`API <../../../../_static/doxygen/src/html/soa_8h.html>`__, `source <../../../../_static/doxygen/src/html/soa_8h_source.html>`__)
+- ``src/app/application/soa/soa.c``
+- ``src/app/application/soa/soa.h``
 
 Configuration
 ^^^^^^^^^^^^^
 
-- ``src/app/application/config/soa_cfg.c`` (`API <../../../../_static/doxygen/src/html/soa__cfg_8c.html>`__, `source <../../../../_static/doxygen/src/html/soa__cfg_8c_source.html>`__)
-- ``src/app/application/config/soa_cfg.h`` (`API <../../../../_static/doxygen/src/html/soa__cfg_8h.html>`__, `source <../../../../_static/doxygen/src/html/soa__cfg_8h_source.html>`__)
+- ``src/app/application/config/soa_cfg.c``
+- ``src/app/application/config/soa_cfg.h``
 
 Unit Test
 ^^^^^^^^^
-- ``tests/unit/app/application/soa/test_soa_cfg.c``  (`API <../../../../_static/doxygen/tests/html/test__soa__cfg_8c.html>`__, `source <../../../../_static/doxygen/tests/html/test__soa__cfg_8c_source.html>`__)
-- ``tests/unit/app/application/soa/test_soa.c``  (`API <../../../../_static/doxygen/tests/html/test__soa_8c.html>`__, `source <../../../../_static/doxygen/tests/html/test__soa_8c_source.html>`__)
+- ``tests/unit/app/application/soa/test_soa_cfg.c``
+- ``tests/unit/app/application/soa/test_soa.c``
 
 Detailed Description
 --------------------

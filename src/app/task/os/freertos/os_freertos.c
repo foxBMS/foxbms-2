@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,13 +43,14 @@
  * @file    os_freertos.c
  * @author  foxBMS Team
  * @date    2021-11-18 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup OS
  * @prefix  OS
  *
  * @brief   FreeRTOS specific implementation of the tasks and resources used by
  *          the system
+ * @details TODO
  */
 
 /*========== Includes =======================================================*/
@@ -142,7 +143,7 @@ void vApplicationStackOverflowHook(TaskHandle_t xTask, char *pcTaskName) {
     /* After the FreeRTOS stack overflow detection has been triggered, try to
        instantly send a CAN message, that tells the higher level control unit,
        that a stack overflow appeared in one of the FreeRTOS tasks. */
-    CANTX_SendReasonsForFatalErrors(CANTX_FATAL_ERRORS_ACTIONS_STACK_OVERFLOW);
+    CANTX_CrashDump(CANTX_FATAL_ERRORS_ACTIONS_STACK_OVERFLOW);
     FAS_ASSERT(FAS_TRAP);
 }
 #endif /* configCHECK_FOR_STACK_OVERFLOW */

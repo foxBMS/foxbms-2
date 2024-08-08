@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,13 +43,13 @@
  * @file    adi_ades183x_voltages.c
  * @author  foxBMS Team
  * @date    2019-08-27 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
- * @ingroup SOME_GROUP
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
+ * @ingroup DRIVERS
  * @prefix  ADI
  *
  * @brief   Implementation of some software
- *
+ * @details TODO
  */
 
 /*========== Includes =======================================================*/
@@ -209,7 +209,7 @@ static void ADI_ReadAndStoreVoltages(
     ADI_SaveRxToCellVoltageBuffer(adiState, adi_dataReceive, ADI_RESULT_REGISTER_SET_F, storeLocation);
 }
 
-/* RequirementId: D7.1 V0R4 FUN-1.10.01.03 */
+/* RequirementId: D7.1 V1R0 FUN-1.10.01.03 */
 static void ADI_SaveRxToCellVoltageBuffer(
     ADI_STATE_s *adiState,
     uint8_t *data,
@@ -317,7 +317,7 @@ static void ADI_SaveRxToCellVoltageBuffer(
                         voltage = (int16_t)floatVoltage; /* Unit mV */
 
                         pVoltageTable->cellVoltage_mV[adiState->currentString][m][storedVoltageIndex] = voltage;
-                        /* RequirementId: D7.1 V0R4 SIF-4.40.01.01 */
+                        /* RequirementId: D7.1 V1R0 SIF-4.40.01.01 */
                         /* Check that register does not contain cleared value */
                         if (rawValue != ADI_REGISTER_CLEARED_VALUE) {
                             adiState->data.errorTable->voltageRegisterContentIsNotStuck[adiState->currentString][m] =
@@ -329,11 +329,11 @@ static void ADI_SaveRxToCellVoltageBuffer(
 
                         if (storeLocation == ADI_CELL_VOLTAGE) {
                             if (ADI_EvaluateDiagnosticCellVoltages(adiState, m) == false) {
-                                adiState->data.cellVoltage->invalidCellVoltage[adiState->currentString][m] |=
-                                    (0x01u << storedVoltageIndex);
+                                adiState->data.cellVoltage
+                                    ->invalidCellVoltage[adiState->currentString][m][storedVoltageIndex] = true;
                             } else {
-                                adiState->data.cellVoltage->invalidCellVoltage[adiState->currentString][m] &=
-                                    (~0x01u << storedVoltageIndex);
+                                adiState->data.cellVoltage
+                                    ->invalidCellVoltage[adiState->currentString][m][storedVoltageIndex] = false;
                                 numberValidMeasurements++;
                             }
                         }
@@ -348,7 +348,7 @@ static void ADI_SaveRxToCellVoltageBuffer(
 }
 
 /*========== Extern Function Implementations ================================*/
-/* RequirementId: D7.1 V0R4 FUN-1.10.01.01 */
+/* RequirementId: D7.1 V1R0 FUN-1.10.01.01 */
 extern void ADI_GetVoltages(
     ADI_STATE_s *adiState,
     ADI_VOLTAGE_REGISTER_TYPE_e registerType,

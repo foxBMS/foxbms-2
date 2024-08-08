@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,8 +43,8 @@
  * @file    rtc.c
  * @author  foxBMS Team
  * @date    2021-02-22 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup DRIVERS
  * @prefix  RTC
  *
@@ -64,7 +64,7 @@
 #include "i2c.h"
 
 #include <stdint.h>
-/* AXIVION Disable Style MisraC2012-21.10: Time implementation is suitable fpr the application */
+/* AXIVION Disable Style MisraC2012-21.10: Time implementation is suitable for the application */
 #include <time.h>
 
 /*========== Macros and Definitions =========================================*/
@@ -94,30 +94,78 @@ static RTC_SYSTEM_TIMER_EPOCH_s rtc_SystemTime = {0};
 /*========== Static Function Prototypes =====================================*/
 
 /**
- * @brief   Reads the time from the RTC IC.
+ * @brief   Reads the time from the RTC IC
  * @details This function reads the time from the RTC IC over I2C.
  * @return  RTC time read from the RTC IC
  */
 static RTC_TIME_DATA_s RTC_ReadTime(void);
 
-static void RTC_WriteTime(RTC_TIME_DATA_s rtcTime);
-static void RTC_SetOverCanMessage(void);
-static void RTC_AdjustTime(void);
-static void RTC_CheckBatteryLowVoltageAlert(void);
-
-static void RTC_SetSystemTimeEpochFormat(time_t timeEpochFormat, uint16_t milliseconds);
-static RTC_SYSTEM_TIMER_EPOCH_s RTC_GetSystemTimeEpochFormat(void);
-
-static struct tm RTC_rtcFormatToTmFormat(RTC_TIME_DATA_s timeRtcFormat);
-static RTC_TIME_DATA_s RTC_tmFormatToRtcFormat(struct tm timeTmFormat);
-
-/*========== Static Function Implementations ================================*/
-
 /**
- * @brief   Write the time to the RTC IC.
+ * @brief   Write the time to the RTC IC
  * @details This function writes the time to the RTC IC over I2C.
  * @param   rtcTime RTC time to write to the IC
  */
+static void RTC_WriteTime(RTC_TIME_DATA_s rtcTime);
+
+/**
+ * @brief   Check if a CAN message was received to set the RTC time
+ * @details When a CAN message to set the RTC time is received, it is written
+ *          in the dedicated queue. This function check if an element is
+ *          present in the queue. If yes, the time is first written to the RTC
+ *          IC over I2C, then to the RTC system timer.
+ *
+ */
+static void RTC_SetOverCanMessage(void);
+
+/**
+ * @brief   Adjust RTC system timer with time from RTC IC
+ * @details The time is read from the RTC IC and compared to the RTC system
+ *          timer. If the difference is greater than the limit, the RTC system
+ *          timer is adjusted.
+ */
+static void RTC_AdjustTime(void);
+
+/**
+ * @brief   Read bit for battery voltage low flag
+ */
+static void RTC_CheckBatteryLowVoltageAlert(void);
+
+/**
+ * @brief   Set the RTC system timer value
+ * @details This function sets the timer value directly. It is called by
+ *          RTC_SetSystemTimeRtcFormat() which takes a RTC_TIME_DATA_s
+ *          parameter as input.
+ * @param    timeEpochFormat RTC system timer value to set, main value in
+ *                           seconds
+ * @param    milliseconds    RTC system timer value to set, secondary value in
+ *                           milliseconds
+ */
+static void RTC_SetSystemTimeEpochFormat(time_t timeEpochFormat, uint16_t milliseconds);
+
+/**
+ * @brief   Get the RTC system timer value
+ * @details This function gets the timer value directly. It is called by
+ *          RTC_GetSystemTimeRtcFormat() which returns a RTC_TIME_DATA_s
+ *          parameter.
+ * @return  RTC system timer value in seconds since epoch format
+ */
+static RTC_SYSTEM_TIMER_EPOCH_s RTC_GetSystemTimeEpochFormat(void);
+
+/**
+ * @brief   Convert time from RTC_TIME_DATA_s to struct tm format
+ * @param   timeRtcFormat time in RTC_TIME_DATA_s format
+ * @return  time in struct tm format
+ */
+static struct tm RTC_rtcFormatToTmFormat(RTC_TIME_DATA_s timeRtcFormat);
+
+/**
+ * @brief   Convert time from struct tm to RTC_TIME_DATA_s format
+ * @param   timeTmFormat  time in struct tm format
+ * @return  time in RTC_TIME_DATA_s format
+ */
+static RTC_TIME_DATA_s RTC_tmFormatToRtcFormat(struct tm timeTmFormat);
+
+/*========== Static Function Implementations ================================*/
 static void RTC_WriteTime(RTC_TIME_DATA_s rtcTime) {
     /* AXIVION Routine Generic-MissingParameterAssert: rtcTime: parameter accepts whole range */
     STD_RETURN_TYPE_e retValI2c = STD_OK;
@@ -183,15 +231,6 @@ static void RTC_WriteTime(RTC_TIME_DATA_s rtcTime) {
     }
 }
 
-/**
- * @brief   Check if a CAN message was received to set the RTC time.
- *
- * When a CAN message to set the RTC time is received, it is written
- * in the dedicated queue. This function check if an element is present
- * in the queue. If yes, the time is first written to the RTC IC over
- * I2C, then to the RTC system timer.
- *
- */
 static void RTC_SetOverCanMessage(void) {
     RTC_TIME_DATA_s rtc_time = {0};
 
@@ -203,13 +242,6 @@ static void RTC_SetOverCanMessage(void) {
     }
 }
 
-/**
- * @brief   Adjust RTC system timer with time from RTC IC.
- *
- * The time is read from the RTC IC and compared to the
- * RTC system timer. If the difference is greater than the
- * limit, the RTC system timer is adjusted.
- */
 static void RTC_AdjustTime(void) {
     RTC_TIME_DATA_s rtcTimeFromTimerRtcFormat = {0};
     RTC_TIME_DATA_s rtcTimeFromIcRtcFormat    = {0};
@@ -236,13 +268,10 @@ static void RTC_AdjustTime(void) {
     }
 }
 
-/**
- * @brief   Read bit for battery voltage low flag.
- */
 static void RTC_CheckBatteryLowVoltageAlert(void) {
     STD_RETURN_TYPE_e retValI2c = STD_OK;
     STD_RETURN_TYPE_e retVal    = STD_OK;
-    uint8_t blfBit              = 0u; /* Battery Low Flag (BLF) */
+    uint8_t batteryLowFlag      = 0u; /* Battery Low Flag */
 
     /* Set address to read from */
     rtc_i2cWriteBuffer[0u] = RTC_REG_CONTROL_3_ADDR;
@@ -257,14 +286,15 @@ static void RTC_CheckBatteryLowVoltageAlert(void) {
     }
 
     /* OSF bit is stored at position 7 in seconds register */
-    blfBit = (rtc_i2cReadBuffer[0u] & RTC_CTRL3_BATTERY_LOW_FLAG_BIT_MASK) >> RTC_CTRL3_BATTERY_LOW_FLAG_BIT_POSITION;
+    batteryLowFlag = (rtc_i2cReadBuffer[0u] & RTC_CTRL3_BATTERY_LOW_FLAG_BIT_MASK) >>
+                     RTC_CTRL3_BATTERY_LOW_FLAG_BIT_POSITION;
 
     if (retVal == STD_NOT_OK) {
         DIAG_Handler(DIAG_ID_I2C_RTC_ERROR, DIAG_EVENT_NOT_OK, DIAG_SYSTEM, 0u);
     } else {
         DIAG_Handler(DIAG_ID_I2C_RTC_ERROR, DIAG_EVENT_OK, DIAG_SYSTEM, 0u);
-        /* If I2C communication successful, check BLF bit */
-        if (blfBit != 0u) {
+        /* If I2C communication successful, check Battery Low Flag bit */
+        if (batteryLowFlag != 0u) {
             DIAG_Handler(DIAG_ID_RTC_BATTERY_LOW_ERROR, DIAG_EVENT_NOT_OK, DIAG_SYSTEM, 0u);
         } else {
             DIAG_Handler(DIAG_ID_RTC_BATTERY_LOW_ERROR, DIAG_EVENT_OK, DIAG_SYSTEM, 0u);
@@ -272,16 +302,6 @@ static void RTC_CheckBatteryLowVoltageAlert(void) {
     }
 }
 
-/**
- * @brief   Set the RTC system timer value.
- *
- * This function sets the timer value directly.
- * It is called by RTC_SetSystemTimeRtcFormat() which
- * takes a RTC_TIME_DATA_s parameter as input.
- *
- * @param    timeEpochFormat   RTC system timer value to set, main value in seconds
- * @param    milliseconds      RTC system timer value to set, secondary value in milliseconds
- */
 static void RTC_SetSystemTimeEpochFormat(time_t timeEpochFormat, uint16_t milliseconds) {
     OS_EnterTaskCritical();
     rtc_SystemTime.secondsSinceEpoch = timeEpochFormat;
@@ -289,15 +309,6 @@ static void RTC_SetSystemTimeEpochFormat(time_t timeEpochFormat, uint16_t millis
     OS_ExitTaskCritical();
 }
 
-/**
- * @brief   Get the RTC system timer value.
- *
- * This function gets the timer value directly.
- * It is called by RTC_GetSystemTimeRtcFormat() which
- * returns a RTC_TIME_DATA_s parameter.
- *
- * @return      RTC system timer value in seconds since epoch format
- */
 static RTC_SYSTEM_TIMER_EPOCH_s RTC_GetSystemTimeEpochFormat(void) {
     RTC_SYSTEM_TIMER_EPOCH_s systemTimerValueEpoch = {0};
     OS_EnterTaskCritical();
@@ -306,12 +317,6 @@ static RTC_SYSTEM_TIMER_EPOCH_s RTC_GetSystemTimeEpochFormat(void) {
     return systemTimerValueEpoch;
 }
 
-/**
- * @brief   Convert time from RTC_TIME_DATA_s to struct tm format.
- *
- * @param   timeRtcFormat  time in RTC_TIME_DATA_s format
- * @return  time in struct tm format
- */
 static struct tm RTC_rtcFormatToTmFormat(RTC_TIME_DATA_s timeRtcFormat) {
     struct tm timeTmFormat = {0};
 
@@ -326,12 +331,6 @@ static struct tm RTC_rtcFormatToTmFormat(RTC_TIME_DATA_s timeRtcFormat) {
     return timeTmFormat;
 }
 
-/**
- * @brief   Convert time from struct tm to RTC_TIME_DATA_s format.
- *
- * @param   timeTmFormat  time in struct tm format
- * @return  time in RTC_TIME_DATA_s format
- */
 static RTC_TIME_DATA_s RTC_tmFormatToRtcFormat(struct tm timeTmFormat) {
     RTC_TIME_DATA_s timeRtcFormat = {0};
 
@@ -360,7 +359,7 @@ static RTC_TIME_DATA_s RTC_ReadTime(void) {
         retVal = STD_NOT_OK;
     }
     /* Address set, read time data */
-    retValI2c = I2C_ReadDma(RTC_I2C_INTERFACE, RTC_I2C_ADDRESS, RTC_NUMBER_OF_TIMEDATA_BYTES, rtc_i2cReadBuffer);
+    retValI2c = I2C_ReadDma(RTC_I2C_INTERFACE, RTC_I2C_ADDRESS, RTC_NUMBER_OF_TIME_DATA_BYTES, rtc_i2cReadBuffer);
     if (retValI2c == STD_NOT_OK) {
         retVal = STD_NOT_OK;
     }
@@ -425,7 +424,7 @@ extern void RTC_Trigger(void) {
         RTC_SetOverCanMessage();
         /* Check battery low */
         if ((currentTime - initialTimeBatteryLowCheck) >=
-            (RTC_TIME_BETWEEN_BLF_FLAG_CHECK_min * RTC_FACTOR_MIN_TO_MS)) {
+            (RTC_TIME_BETWEEN_BATTERY_LOW_FLAG_CHECK_min * RTC_FACTOR_MIN_TO_MS)) {
             RTC_CheckBatteryLowVoltageAlert();
             initialTimeBatteryLowCheck = OS_GetTickCount();
         }
@@ -451,17 +450,17 @@ extern STD_RETURN_TYPE_e RTC_Initialize(void) {
     switch (rtcInitState) {
         case RTC_SET_SYSTEM_TIMER:
             RTC_InitializeSystemTimeWithRtc();
-            rtcInitState = RTC_SET_BLF;
+            rtcInitState = RTC_SET_BATTERY_LOW_FLAG;
             OS_DelayTaskUntil(&currentTime, 2u);
             break;
-        case RTC_SET_BLF:
-            /* Write PWRMNG bits */
+        case RTC_SET_BATTERY_LOW_FLAG:
+            /* Write POWER_MANAGE bits */
             /* Set address to write to */
             rtc_i2cWriteBuffer[0u] = RTC_REG_CONTROL_3_ADDR;
             /* Set data to write, to activate direct switching mode and battery low detection */
             rtc_i2cWriteBuffer[1u] = 0u;
-            rtc_i2cWriteBuffer[1u] |= ((uint8_t)RTC_CTRL3_PWRMNG_DIRECTSWITCH_LOWDETECTIONENABLE_MODE)
-                                      << RTC_CTRL3_BATTERY_PWRMNG_BITS_POSITION;
+            rtc_i2cWriteBuffer[1u] |= ((uint8_t)RTC_CTRL3_POWER_MANAGE_DIRECT_SWITCH_LOW_DETECTION_ENABLE_MODE)
+                                      << RTC_CTRL3_BATTERY_POWER_MANAGE_BITS_POSITION;
             retValI2c = I2C_WriteDma(
                 RTC_I2C_INTERFACE,
                 RTC_I2C_ADDRESS,

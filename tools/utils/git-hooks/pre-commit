@@ -1,3 +1,0 @@
-#!/bin/sh
-./tools/utils/bash/run-python-script.sh tools/utils/update_doxygen_header.py
-./waf.sh check_guidelines

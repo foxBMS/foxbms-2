@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,14 +43,14 @@
  * @file    ltc_6813-1_cfg.h
  * @author  foxBMS Team
  * @date    2015-02-18 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  LTC
  *
  * @brief   Header for the configuration for the LTC 6804-1 6811-1, 6812-1,
  *          and 6813-1 monitoring IC.
- *
+ * @details TODO
  */
 
 #ifndef FOXBMS__LTC_6813_1_CFG_H_
@@ -126,11 +126,14 @@
 /** Number of LTC-ICs per battery module */
 #define LTC_NUMBER_OF_LTC_PER_MODULE (1u)
 
+/** Number of LTC cell voltages to be read per register */
+#define LTC_NUMBER_OF_CELL_VOLTAGES_PER_REGISTER (3u)
+
 /** Open-wire detection threshold */
 #define LTC_ADOW_THRESHOLD (-400)
 
 /**
- * Measurement modus for voltages, possible values:
+ * Measurement mode for voltages, possible values:
  * - LTC_ADCMODE_NORMAL_DCP0
  * - LTC_ADCMODE_FILTERED_DCP0
  * - LTC_ADCMODE_FAST_DCP0
@@ -138,7 +141,7 @@
 #define LTC_VOLTAGE_MEASUREMENT_MODE (LTC_ADCMODE_NORMAL_DCP0)
 
 /**
- * Measurement modus for GPIOs, possible values:
+ * Measurement mode for GPIOs, possible values:
  * - LTC_ADCMODE_NORMAL_DCP0
  * - LTC_ADCMODE_FILTERED_DCP0
  * - LTC_ADCMODE_FAST_DCP0
@@ -146,7 +149,7 @@
 #define LTC_GPIO_MEASUREMENT_MODE (LTC_ADCMODE_NORMAL_DCP0)
 
 /**
- * Measurement modus for Open-wire check, possible values:
+ * Measurement mode for Open-wire check, possible values:
  * - LTC_ADCMODE_NORMAL_DCP0
  * - LTC_ADCMODE_FILTERED_DCP0
  */
@@ -272,21 +275,15 @@
 #define LTC_STATEMACH_MEAS_SINGLE_GPIO_FILTERED_TCYCLE (68)
 
 /** LTC state machine sequence error timing in ms */
-#define LTC_STATEMACH_SEQERRTTIME (5)
+#define LTC_STATEMACH_SEQ_ERR_TIME (5)
 /** LTC state machine CRC-transmission error timing in ms */
-#define LTC_STATEMACH_PECERRTIME (1)
+#define LTC_STATEMACH_PEC_ERR_TIME (1)
 
 /**
  * Maximum number of re-tries in case of CRC error during the communication with daisy chain
  * before going into error state
  */
-#define LTC_TRANSMIT_PECERRLIMIT (10)
-
-/**
- * Maximum number of re-tries in case of SPI error during the communication with daisy chain
- * before going into error state
- */
-#define LTC_TRANSMIT_SPIERRLIMIT (3)
+#define LTC_TRANSMIT_PEC_ERR_LIMIT (10)
 
 /** If set to 1, check if multiplexers acknowledged transmission */
 #define LTC_READCOM (0)
@@ -305,7 +302,7 @@
  * |       C        | 1.5+(C/10nF) |        2      |          |          |
  * +----------------+--------------+---------------+----------+----------+
  */
-#define LTC_NMBR_REQ_ADOW_COMMANDS (2)
+#define LTC_NUMBER_REQ_ADOW_COMMANDS (2)
 
 /**
  * Transmit functions
@@ -335,7 +332,7 @@ extern LTC_MUX_SEQUENCE_s ltc_mux_seq;
  * sensors by default.
  * Lookup table between temperature sensors and battery cells
  */
-extern const uint8_t ltc_muxsensortemperatur_cfg[BS_NR_OF_TEMP_SENSORS_PER_MODULE];
+extern const uint8_t ltc_muxSensorTemperature_cfg[BS_NR_OF_TEMP_SENSORS_PER_MODULE];
 
 /** Lookup table to indicate which voltage inputs are used */
 extern const uint8_t ltc_voltage_input_used[LTC_6813_MAX_SUPPORTED_CELLS];
@@ -353,6 +350,15 @@ extern const uint8_t ltc_voltage_input_used[LTC_6813_MAX_SUPPORTED_CELLS];
  * @return  temperature value in deci &deg;C
  */
 extern int16_t LTC_ConvertMuxVoltagesToTemperatures(uint16_t adcVoltage_mV);
+
+/**
+ * @brief   Get connected cell voltage input from an cell block index.
+ * @details This function returns the AFE cell voltage input from cell block
+ *          index.
+ * @param   indexCellBlock   cell block index
+ * @return  AFE voltage input where this cell block is connected to
+ */
+extern uint8_t LTC_GetVoltageInputIndexFromCellBlockIndex(uint8_t indexCellBlock);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 #ifdef UNITY_UNIT_TEST

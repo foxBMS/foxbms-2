@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 #
-# Copyright (c) 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -52,7 +51,6 @@ import os
 
 def build(bld):
     """Build the database object"""
-    source = ["can_how-to_tx.c"]
     dummy_txt = "/* dummy file */\n"
     dummy_headers = ["mcu", "HL_can", "os"]
     for i in dummy_headers:
@@ -68,15 +66,10 @@ def build(bld):
         ),
     ]
     cflags = bld.env.CFLAGS_FOXBMS
-    bld.path.find_or_declare("needed-for-build.h").write(
-        "/* dummy file */\n"
-        "extern void OS_EnterTaskCritical();\n"
-        "extern void OS_ExitTaskCritical();\n"
-    )
-    bld.add_group()
+
     bld(
         features="c",
-        source=source,
+        source="can_how-to_tx_cyclic.c",
         defines=[
             "MCU_ADC1_MAX_NR_CHANNELS=1",
             "OS_QUEUE=void",
@@ -86,4 +79,33 @@ def build(bld):
         includes=includes,
         cflags=(cflags + ["--diag_suppress=179", "--diag_suppress=552"]),
         idx=1,
+    )
+
+    async_extra_includes = [
+        os.path.join(
+            "..",
+            "..",
+            "..",
+            "..",
+            "..",
+            "src",
+            "app",
+            "driver",
+            "can",
+            "cbs",
+            "tx-async",
+        )
+    ]
+    bld(
+        features="c",
+        source="can_how-to_tx_async.c",
+        defines=[
+            "MCU_ADC1_MAX_NR_CHANNELS=1",
+            "OS_QUEUE=void",
+            "canBASE_t=void",
+            'canREG1="((uint32_t *)0xFFF7DC00U)"',
+        ],
+        includes=includes + async_extra_includes,
+        cflags=(cflags + ["--diag_suppress=179", "--diag_suppress=552"]),
+        idx=2,
     )

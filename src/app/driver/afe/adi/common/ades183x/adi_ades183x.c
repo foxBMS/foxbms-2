@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,13 +43,13 @@
  * @file    adi_ades183x.c
  * @author  foxBMS Team
  * @date    2020-12-09 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup DRIVERS
  * @prefix  ADI
  *
  * @brief   Driver for the ADI analog front-end.
- *
+ * @details TODO
  */
 
 /*========== Includes =======================================================*/
@@ -83,10 +83,12 @@
  * PEC buffer for RX and TX
  * @{
  */
+/* AXIVION Disable Style MisraC2012-1.2: The Pec buffer must be put in the shared RAM section for performance reasons */
 #pragma SET_DATA_SECTION(".sharedRAM")
 static uint16_t adi_bufferRxPec[ADI_N_BYTES_FOR_DATA_TRANSMISSION] = {0};
 static uint16_t adi_bufferTxPec[ADI_N_BYTES_FOR_DATA_TRANSMISSION] = {0};
 #pragma SET_DATA_SECTION()
+/* AXIVION Enable Style MisraC2012-1.2 */
 /**@}*/
 
 /** local copies of database tables */
@@ -143,10 +145,10 @@ ADI_STATE_s adi_stateBase = {
 /**
  * @brief   Read local variables from database and write local variables to
  *          database.
- * @param   adiState state of the ADI driver
+ * @param   pAdiState state of the ADI driver
  */
 
-static void ADI_AccessToDatabase(ADI_STATE_s *adiState);
+static void ADI_AccessToDatabase(ADI_STATE_s *pAdiState);
 
 /**
  * @brief   Sets the balancing according to the control values read in the
@@ -155,9 +157,9 @@ static void ADI_AccessToDatabase(ADI_STATE_s *adiState);
  *          written in the configuration register.
  *          The ades183x driver only executes the balancing orders written by
  *          the BMS in the database.
- * @param   adiState state of the ADI driver
+ * @param   pAdiState state of the ADI driver
  */
-static void ADI_BalanceControl(ADI_STATE_s *adiState);
+static void ADI_BalanceControl(ADI_STATE_s *pAdiState);
 
 /**
  * @brief   Checks the requests made to the ades183x driver.
@@ -168,44 +170,45 @@ static STD_RETURN_TYPE_e ADI_GetRequest(AFE_REQUEST_e *request);
 
 /**
  * @brief   Runs the initialization sequence of the driver.
- * @param   adiState    state of the ADI driver
+ * @param   pAdiState   state of the ADI driver
  * @param   request     request to be made with string addressed
  * @return  true if measurement has been started, false otherwise
  *
  */
-static bool ADI_ProcessMeasurementNotStartedState(ADI_STATE_s *adiState, AFE_REQUEST_e *request);
+static bool ADI_ProcessMeasurementNotStartedState(ADI_STATE_s *pAdiState, AFE_REQUEST_e *request);
 
 /**
- * @brief   sets the measurement initialization status.
+ * @brief   Sets the measurement initialization status.
+ * @param   pAdiState state of the ADI driver
  */
-static void ADI_SetFirstMeasurementCycleFinished(ADI_STATE_s *adiState);
+static void ADI_SetFirstMeasurementCycleFinished(ADI_STATE_s *pAdiState);
 
 /*========== Static Function Implementations ================================*/
 
-static void ADI_AccessToDatabase(ADI_STATE_s *adiState) {
-    FAS_ASSERT(adiState != NULL_PTR);
+static void ADI_AccessToDatabase(ADI_STATE_s *pAdiState) {
+    FAS_ASSERT(pAdiState != NULL_PTR);
 
     /* Increment state variable each time new values are written into database */
     (void)DATA_WRITE_DATA(
-        adiState->data.cellVoltage,
-        adiState->data.cellVoltageFiltered,
-        adiState->data.allGpioVoltages,
-        adiState->data.cellTemperature);
+        pAdiState->data.cellVoltage,
+        pAdiState->data.cellVoltageFiltered,
+        pAdiState->data.allGpioVoltages,
+        pAdiState->data.cellTemperature);
     ADI_Wait(2u); /* Block task to leave CPU time for the other tasks */
 
-    (void)DATA_READ_DATA(adiState->data.balancingControl);
+    (void)DATA_READ_DATA(pAdiState->data.balancingControl);
 }
 
-/* RequirementId: D7.1 V0R4 FUN-6.10.01.01 */
-static void ADI_BalanceControl(ADI_STATE_s *adiState) {
-    FAS_ASSERT(adiState != NULL_PTR);
+/* RequirementId: D7.1 V1R0 FUN-6.10.01.02 */
+static void ADI_BalanceControl(ADI_STATE_s *pAdiState) {
+    FAS_ASSERT(pAdiState != NULL_PTR);
 
     /* Unmute balancing, cell voltage measurements must have been stopped before */
     ADI_CopyCommandBits(adi_cmdUnmute, adi_command);
-    ADI_TransmitCommand(adi_command, adiState);
+    ADI_TransmitCommand(adi_command, pAdiState);
 
     /* Write the balancing registers of the ades183x */
-    ADI_DetermineBalancingRegisterConfiguration(adiState);
+    ADI_DetermineBalancingRegisterConfiguration(pAdiState);
 
     /* Wait ADI_BALANCING_TIME_ms milliseconds in order to balance
        Measurements are stopped during this time */
@@ -213,7 +216,7 @@ static void ADI_BalanceControl(ADI_STATE_s *adiState) {
 
     /* Mute balancing, so that cell voltage measurements can be restarted */
     ADI_CopyCommandBits(adi_cmdMute, adi_command);
-    ADI_TransmitCommand(adi_command, adiState);
+    ADI_TransmitCommand(adi_command, pAdiState);
 }
 
 static STD_RETURN_TYPE_e ADI_GetRequest(AFE_REQUEST_e *request) {
@@ -228,15 +231,15 @@ static STD_RETURN_TYPE_e ADI_GetRequest(AFE_REQUEST_e *request) {
     return requestReceived;
 }
 
-static bool ADI_ProcessMeasurementNotStartedState(ADI_STATE_s *adiState, AFE_REQUEST_e *request) {
-    FAS_ASSERT(adiState != NULL_PTR);
+static bool ADI_ProcessMeasurementNotStartedState(ADI_STATE_s *pAdiState, AFE_REQUEST_e *request) {
+    FAS_ASSERT(pAdiState != NULL_PTR);
     FAS_ASSERT(request != NULL_PTR);
 
     bool measurementStarted           = false;
     STD_RETURN_TYPE_e requestReceived = ADI_GetRequest(request);
     if (requestReceived == STD_OK) { /* request queue was not empty */
         if (*request == AFE_START_REQUEST) {
-            ADI_InitializeMeasurement(adiState);
+            ADI_InitializeMeasurement(pAdiState);
             measurementStarted = true;
         } else { /* Until requested to start, block task to leave CPU time for the other tasks */
             ADI_Wait(1u);
@@ -247,8 +250,8 @@ static bool ADI_ProcessMeasurementNotStartedState(ADI_STATE_s *adiState, AFE_REQ
     return measurementStarted;
 }
 
-static void ADI_RunCurrentStringMeasurement(ADI_STATE_s *adiState) {
-    FAS_ASSERT(adiState != NULL_PTR);
+static void ADI_RunCurrentStringMeasurement(ADI_STATE_s *pAdiState) {
+    FAS_ASSERT(pAdiState != NULL_PTR);
 
     /* Start auxiliary voltage measurement, all channels */
     ADI_CopyCommandBits(adi_cmdAdax, adi_command);
@@ -256,62 +259,62 @@ static void ADI_RunCurrentStringMeasurement(ADI_STATE_s *adiState) {
     ADI_WriteCommandConfigurationBits(adi_command, ADI_ADAX_PUP_POS, ADI_ADAX_PUP_LEN, 0u);
     ADI_WriteCommandConfigurationBits(adi_command, ADI_ADAX_CH4_POS, ADI_ADAX_CH4_LEN, 0u);
     ADI_WriteCommandConfigurationBits(adi_command, ADI_ADAX_CH03_POS, ADI_ADAX_CH03_LEN, 0u);
-    ADI_TransmitCommand(adi_command, adiState);
+    ADI_TransmitCommand(adi_command, pAdiState);
     /* Start redundant auxiliary voltage measurement, one channel */
     ADI_CopyCommandBits(adi_cmdAdax2, adi_command);
     ADI_WriteCommandConfigurationBits(
         adi_command,
         ADI_ADAX2_CH03_POS,
         ADI_ADAX2_CH03_LEN,
-        adiState->redundantAuxiliaryChannel[adiState->currentString]);
-    ADI_TransmitCommand(adi_command, adiState);
+        pAdiState->redundantAuxiliaryChannel[pAdiState->currentString]);
+    ADI_TransmitCommand(adi_command, pAdiState);
 
     ADI_Wait(ADI_WAIT_TIME_1_FOR_ADAX_FULL_CYCLE);
 
     /* Snapshot to freeze cell voltage measurement result registers */
     ADI_CopyCommandBits(adi_cmdSnap, adi_command);
-    ADI_TransmitCommand(adi_command, adiState);
+    ADI_TransmitCommand(adi_command, pAdiState);
     /* Retrieve filtered cell voltages */
-    ADI_GetVoltages(adiState, ADI_CELL_VOLTAGE_REGISTER, ADI_CELL_VOLTAGE);
-    ADI_GetVoltages(adiState, ADI_FILTERED_CELL_VOLTAGE_REGISTER, ADI_FILTERED_CELL_VOLTAGE);
+    ADI_GetVoltages(pAdiState, ADI_CELL_VOLTAGE_REGISTER, ADI_CELL_VOLTAGE);
+    ADI_GetVoltages(pAdiState, ADI_FILTERED_CELL_VOLTAGE_REGISTER, ADI_FILTERED_CELL_VOLTAGE);
     /* Release snapshot to refresh cell voltage measurement result registers again */
     ADI_CopyCommandBits(adi_cmdUnsnap, adi_command);
-    ADI_TransmitCommand(adi_command, adiState);
+    ADI_TransmitCommand(adi_command, pAdiState);
 
     /* Wait until auxiliary measurement cycle is finished */
     ADI_Wait(ADI_WAIT_TIME_2_FOR_ADAX_FULL_CYCLE);
 
     /* Retrieve GPIO voltages (all channels) */
-    ADI_GetGpioVoltages(adiState, ADI_AUXILIARY_REGISTER, ADI_AUXILIARY_VOLTAGE);
+    ADI_GetGpioVoltages(pAdiState, ADI_AUXILIARY_REGISTER, ADI_AUXILIARY_VOLTAGE);
     /* Get temperatures via GPIO voltages */
-    ADI_GetTemperatures(adiState);
+    ADI_GetTemperatures(pAdiState);
 
-    ADI_AccessToDatabase(adiState);
+    ADI_AccessToDatabase(pAdiState);
 
     /* If at least one cell is balanced, measurements are stopped before activating balancing */
-    if (adiState->data.balancingControl->nrBalancedCells[adiState->currentString] > 0u) {
+    if (pAdiState->data.balancingControl->nrBalancedCells[pAdiState->currentString] > 0u) {
         /* Stop cell voltage measurements before activating balancing */
-        ADI_StopContinuousCellVoltageMeasurements(adiState);
+        ADI_StopContinuousCellVoltageMeasurements(pAdiState);
         /* Activate balancing (if necessary) */
-        ADI_BalanceControl(adiState);
+        ADI_BalanceControl(pAdiState);
         /* Wait ADI_BALANCING_TIME_ms milliseconds in order to balance
            Measurements are stopped during this time */
         ADI_Wait(ADI_BALANCING_TIME_ms);
         /* Restart cell voltage measurements before activating balancing */
-        ADI_RestartContinuousCellVoltageMeasurements(adiState);
+        ADI_RestartContinuousCellVoltageMeasurements(pAdiState);
     }
 
-    ADI_Diagnostic(adiState);
+    ADI_Diagnostic(pAdiState);
 
     /* Cycle finished for string, clear values to check that they are not stuck during next reading */
     ADI_CopyCommandBits(adi_cmdClrcell, adi_command);
-    ADI_TransmitCommand(adi_command, adiState);
+    ADI_TransmitCommand(adi_command, pAdiState);
 }
 
-static void ADI_SetFirstMeasurementCycleFinished(ADI_STATE_s *adiState) {
-    FAS_ASSERT(adiState != NULL_PTR);
+static void ADI_SetFirstMeasurementCycleFinished(ADI_STATE_s *pAdiState) {
+    FAS_ASSERT(pAdiState != NULL_PTR);
     OS_EnterTaskCritical();
-    adiState->firstMeasurementMade = true;
+    pAdiState->firstMeasurementMade = true;
     OS_ExitTaskCritical();
 }
 
@@ -321,22 +324,22 @@ static void ADI_SetFirstMeasurementCycleFinished(ADI_STATE_s *adiState) {
 
 extern void ADI_ActivateInterfaceBoard(void) {
     /* Set 3rd PE pins to enable daisy chains */
-    PEX_SetPinDirectionOutput(PEX_PORT_EXPANDER3, PEX_PIN10);
-    PEX_SetPinDirectionOutput(PEX_PORT_EXPANDER3, PEX_PIN11);
-    PEX_SetPinDirectionOutput(PEX_PORT_EXPANDER3, PEX_PIN12);
-    PEX_SetPinDirectionOutput(PEX_PORT_EXPANDER3, PEX_PIN13);
-    PEX_SetPinDirectionOutput(PEX_PORT_EXPANDER3, PEX_PIN14);
-    PEX_SetPinDirectionOutput(PEX_PORT_EXPANDER3, PEX_PIN15);
-    PEX_SetPinDirectionOutput(PEX_PORT_EXPANDER3, PEX_PIN16);
-    PEX_SetPinDirectionOutput(PEX_PORT_EXPANDER3, PEX_PIN17);
-    PEX_SetPin(PEX_PORT_EXPANDER3, PEX_PIN10);
-    PEX_SetPin(PEX_PORT_EXPANDER3, PEX_PIN11);
-    PEX_SetPin(PEX_PORT_EXPANDER3, PEX_PIN12);
-    PEX_SetPin(PEX_PORT_EXPANDER3, PEX_PIN13);
-    PEX_SetPin(PEX_PORT_EXPANDER3, PEX_PIN14);
-    PEX_SetPin(PEX_PORT_EXPANDER3, PEX_PIN15);
-    PEX_SetPin(PEX_PORT_EXPANDER3, PEX_PIN16);
-    PEX_SetPin(PEX_PORT_EXPANDER3, PEX_PIN17);
+    PEX_SetPinDirectionOutput(PEX_PORT_EXPANDER3, PEX_PORT_1_PIN_0);
+    PEX_SetPinDirectionOutput(PEX_PORT_EXPANDER3, PEX_PORT_1_PIN_1);
+    PEX_SetPinDirectionOutput(PEX_PORT_EXPANDER3, PEX_PORT_1_PIN_2);
+    PEX_SetPinDirectionOutput(PEX_PORT_EXPANDER3, PEX_PORT_1_PIN_3);
+    PEX_SetPinDirectionOutput(PEX_PORT_EXPANDER3, PEX_PORT_1_PIN_4);
+    PEX_SetPinDirectionOutput(PEX_PORT_EXPANDER3, PEX_PORT_1_PIN_5);
+    PEX_SetPinDirectionOutput(PEX_PORT_EXPANDER3, PEX_PORT_1_PIN_6);
+    PEX_SetPinDirectionOutput(PEX_PORT_EXPANDER3, PEX_PORT_1_PIN_7);
+    PEX_SetPin(PEX_PORT_EXPANDER3, PEX_PORT_1_PIN_0);
+    PEX_SetPin(PEX_PORT_EXPANDER3, PEX_PORT_1_PIN_1);
+    PEX_SetPin(PEX_PORT_EXPANDER3, PEX_PORT_1_PIN_2);
+    PEX_SetPin(PEX_PORT_EXPANDER3, PEX_PORT_1_PIN_3);
+    PEX_SetPin(PEX_PORT_EXPANDER3, PEX_PORT_1_PIN_4);
+    PEX_SetPin(PEX_PORT_EXPANDER3, PEX_PORT_1_PIN_5);
+    PEX_SetPin(PEX_PORT_EXPANDER3, PEX_PORT_1_PIN_6);
+    PEX_SetPin(PEX_PORT_EXPANDER3, PEX_PORT_1_PIN_7);
 }
 
 extern STD_RETURN_TYPE_e ADI_MakeRequest(AFE_REQUEST_e request) {
@@ -351,40 +354,40 @@ extern STD_RETURN_TYPE_e ADI_MakeRequest(AFE_REQUEST_e request) {
     return requestSubmitted;
 }
 
-extern bool ADI_IsFirstMeasurementCycleFinished(ADI_STATE_s *adiState) {
-    FAS_ASSERT(adiState != NULL_PTR);
-    return (adiState->firstMeasurementMade);
+extern bool ADI_IsFirstMeasurementCycleFinished(ADI_STATE_s *pAdiState) {
+    FAS_ASSERT(pAdiState != NULL_PTR);
+    return (pAdiState->firstMeasurementMade);
 }
 
 /* END extern functions to adapt if running in other environment (e.g., bare metal) */
 
-/* RequirementId: D7.1 V0R4 FUN-1.10.01.03 */
-/* RequirementId: D7.1 V0R4 FUN-2.10.01.03 */
-/* RequirementId: D7.1 V0R4 FUN-4.10.01.03 */
-extern void ADI_MeasurementCycle(ADI_STATE_s *adiState) {
-    FAS_ASSERT(adiState != NULL_PTR);
+/* RequirementId: D7.1 V1R0 FUN-1.10.01.03 */
+/* RequirementId: D7.1 V1R0 FUN-2.10.01.03 */
+/* RequirementId: D7.1 V1R0 FUN-4.10.01.03 */
+extern void ADI_MeasurementCycle(ADI_STATE_s *pAdiState) {
+    FAS_ASSERT(pAdiState != NULL_PTR);
     STD_RETURN_TYPE_e requestReceived = STD_OK;
     AFE_REQUEST_e request             = AFE_NO_REQUEST;
 
     /* AXIVION Next Line Style MisraC2012-2.2 FaultDetection-DeadBranches: non-blocking driver requires an infinite
-       * loop for the driver implementation */
+     * loop for the driver implementation */
     while (FOREVER()) {
-        if (adiState->measurementStarted == false) { /* Wait until requested to start */
-            adiState->measurementStarted = ADI_ProcessMeasurementNotStartedState(adiState, &request);
+        if (pAdiState->measurementStarted == false) { /* Wait until requested to start */
+            pAdiState->measurementStarted = ADI_ProcessMeasurementNotStartedState(pAdiState, &request);
         } else {
-            while (adiState->currentString < adiState->spiNumberInterfaces) {
-                ADI_RunCurrentStringMeasurement(adiState);
-                ++adiState->currentString;
+            while (pAdiState->currentString < pAdiState->spiNumberInterfaces) {
+                ADI_RunCurrentStringMeasurement(pAdiState);
+                ++pAdiState->currentString;
             }
-            adiState->currentString = 0u;
-            if (ADI_IsFirstMeasurementCycleFinished(adiState) == false) {
-                ADI_SetFirstMeasurementCycleFinished(adiState);
+            pAdiState->currentString = 0u;
+            if (ADI_IsFirstMeasurementCycleFinished(pAdiState) == false) {
+                ADI_SetFirstMeasurementCycleFinished(pAdiState);
             }
             requestReceived = ADI_GetRequest(&request);
             if (requestReceived == STD_OK) {
                 /* request queue was not empty */
                 if (request == AFE_STOP_REQUEST) {
-                    adiState->measurementStarted = false;
+                    pAdiState->measurementStarted = false;
                 }
             }
         }
@@ -397,22 +400,22 @@ extern void ADI_MeasurementCycle(ADI_STATE_s *adiState) {
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
 #ifdef UNITY_UNIT_TEST
-extern void TEST_ADI_AccessToDatabase(ADI_STATE_s *adiState) {
-    ADI_AccessToDatabase(adiState);
+extern void TEST_ADI_AccessToDatabase(ADI_STATE_s *pAdiState) {
+    ADI_AccessToDatabase(pAdiState);
 }
-extern void TEST_ADI_BalanceControl(ADI_STATE_s *adiState) {
-    ADI_BalanceControl(adiState);
+extern void TEST_ADI_BalanceControl(ADI_STATE_s *pAdiState) {
+    ADI_BalanceControl(pAdiState);
 }
 extern STD_RETURN_TYPE_e TEST_ADI_GetRequest(AFE_REQUEST_e *request) {
     return ADI_GetRequest(request);
 }
-extern bool TEST_ADI_ProcessMeasurementNotStartedState(ADI_STATE_s *adiState, AFE_REQUEST_e *request) {
-    return ADI_ProcessMeasurementNotStartedState(adiState, request);
+extern bool TEST_ADI_ProcessMeasurementNotStartedState(ADI_STATE_s *pAdiState, AFE_REQUEST_e *request) {
+    return ADI_ProcessMeasurementNotStartedState(pAdiState, request);
 }
-extern void TEST_ADI_RunCurrentStringMeasurement(ADI_STATE_s *adiState) {
-    ADI_RunCurrentStringMeasurement(adiState);
+extern void TEST_ADI_RunCurrentStringMeasurement(ADI_STATE_s *pAdiState) {
+    ADI_RunCurrentStringMeasurement(pAdiState);
 }
-extern void TEST_ADI_SetFirstMeasurementCycleFinished(ADI_STATE_s *adiState) {
-    ADI_SetFirstMeasurementCycleFinished(adiState);
+extern void TEST_ADI_SetFirstMeasurementCycleFinished(ADI_STATE_s *pAdiState) {
+    ADI_SetFirstMeasurementCycleFinished(pAdiState);
 }
 #endif

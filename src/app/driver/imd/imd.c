@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,13 +43,12 @@
  * @file    imd.c
  * @author  foxBMS Team
  * @date    2021-11-04 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup DRIVERS
  * @prefix  IMD
  *
  * @brief   Main driver state machine for insulation monitoring driver
- *
  * @details  This superimposed state machine initializes, enables and disables
  *           the selected Insulation Monitoring Device. Furthermore, the
  *           measurement results are evaluated and saved in the database.
@@ -94,7 +93,7 @@ typedef enum {
 
 /** some struct with some information */
 typedef struct {
-    bool isStatemachineInitialized; /*!< true if initialized, otherwise false */
+    bool isStateMachineInitialized; /*!< true if initialized, otherwise false */
     bool switchImdDeviceOn;         /*!< true if enabling process is ongoing */
 } IMD_INFORMATION_s;
 
@@ -129,7 +128,7 @@ static IMD_STATE_s imd_state = {
     .nextSubstate                          = IMD_FSM_SUBSTATE_DUMMY,
     .currentSubstate                       = IMD_FSM_SUBSTATE_DUMMY,
     .previousSubstate                      = IMD_FSM_SUBSTATE_DUMMY,
-    .information.isStatemachineInitialized = false,
+    .information.isStateMachineInitialized = false,
     .information.switchImdDeviceOn         = false,
     .pTableImd                             = &imd_tableInsulationMonitoring,
 };
@@ -379,7 +378,7 @@ static STD_RETURN_TYPE_e IMD_RunStateMachine(IMD_STATE_s *pImdState) {
             } else if (nextState == IMD_FSM_STATE_ERROR) {
                 IMD_SetState(pImdState, IMD_FSM_STATE_ERROR, IMD_FSM_SUBSTATE_ENTRY, IMD_FSM_SHORT_TIME);
             } else if (nextState == IMD_FSM_STATE_IMD_ENABLE) {
-                pImdState->information.isStatemachineInitialized = true;
+                pImdState->information.isStateMachineInitialized = true;
                 IMD_SetState(pImdState, IMD_FSM_STATE_IMD_ENABLE, IMD_FSM_SUBSTATE_ENTRY, IMD_FSM_SHORT_TIME);
             } else {
                 FAS_ASSERT(FAS_TRAP); /* Something went wrong */
@@ -522,7 +521,7 @@ extern IMD_RETURN_TYPE_e IMD_RequestMeasurementStop(void) {
 }
 
 extern bool IMD_GetInitializationState(void) {
-    return imd_state.information.isStatemachineInitialized;
+    return imd_state.information.isStateMachineInitialized;
 }
 
 extern STD_RETURN_TYPE_e IMD_Trigger(void) {

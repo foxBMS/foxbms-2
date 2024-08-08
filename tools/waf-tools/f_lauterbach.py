@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 #
-# Copyright (c) 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -77,6 +76,12 @@ def options(opt):
         dest="LAUTERBACH_BASE",
         help="Installation directory of Lauterbach tools",
     )
+    opt.add_option(
+        "--lauterbach-use-tcp",
+        action="store_true",
+        dest="lauterbach_use_tcp",
+        help="Use TCP as connection for the debugger.",
+    )
 
 
 def configure(conf):
@@ -135,9 +140,13 @@ def configure(conf):
     if t32marm_root.endswith(os.sep):
         t32marm_root = t32marm_root[:-1]
 
+    tcp = ""
+    if conf.options.lauterbach_use_tcp:
+        tcp = "RCL=NETTCP\nPORT=20000"
     config_t32 = config_t32.read()
     config_t32 = config_t32.replace("@TMP@", os.getenv("TMP"))
     config_t32 = config_t32.replace("@SYS@", t32_root)
+    config_t32 = config_t32.replace("@TCP@", tcp)
     config_t32_node = conf.path.get_bld().make_node("config.t32")
     config_t32_node.write(config_t32)
 
@@ -160,12 +169,13 @@ def configure(conf):
 
     path = os.path.join(conf.path.get_bld().abspath(), "run_t32marm.lnk")
 
-    shell = win32com.client.Dispatch("WScript.Shell")
-    shortcut = shell.CreateShortCut(path)
-    shortcut.Targetpath = conf.env.T32MARM[0]
-    shortcut.WorkingDirectory = t32marm_root
-    shortcut.Arguments = " ".join(
-        ["-c", config_t32_node.abspath(), "-s", t32_cmm_node.abspath()]
-    )
-    shortcut.WindowStyle = 3
-    shortcut.save()
+    if Utils.is_win32:
+        shell = win32com.client.Dispatch("WScript.Shell")
+        shortcut = shell.CreateShortCut(path)
+        shortcut.Targetpath = conf.env.T32MARM[0]
+        shortcut.WorkingDirectory = t32marm_root
+        shortcut.Arguments = " ".join(
+            ["-c", config_t32_node.abspath(), "-s", t32_cmm_node.abspath()]
+        )
+        shortcut.WindowStyle = 3
+        shortcut.save()

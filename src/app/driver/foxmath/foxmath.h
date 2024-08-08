@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,18 +43,16 @@
  * @file    foxmath.h
  * @author  foxBMS Team
  * @date    2018-01-18 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup DRIVERS
  * @prefix  MATH
  *
- * @brief   math library for often used math functions
- *
+ * @brief   Math library for often used math functions
  * @details This header file contains the different math function declarations.
  *          Currently the following functions are supported:
  *          - Slope
  *          - Linear interpolation
- *
  */
 
 #ifndef FOXBMS__FOXMATH_H_
@@ -64,7 +62,8 @@
 
 #include <math.h>
 #include <stdint.h>
-/* AXIVION Disable Style Generic-LocalInclude: foxmath is intended as a library and therefore includes all useful libraries */
+/* AXIVION Disable Style Generic-LocalInclude: foxmath is intended as a library and therefore includes all useful
+ * libraries */
 #include <float.h>
 #include <stdlib.h>
 /* AXIVION Enable Style Generic-LocalInclude: */
@@ -72,10 +71,13 @@
 /*========== Macros and Definitions =========================================*/
 
 /** Add defines for unit conversions */
-#define UNIT_CONVERSION_FACTOR_1000_INTEGER (1000)
-#define UNIT_CONVERSION_FACTOR_10_FLOAT     (10.0f)
-#define UNIT_CONVERSION_FACTOR_100_FLOAT    (100.0f)
-#define UNIT_CONVERSION_FACTOR_1000_FLOAT   (1000.0f)
+#define UNIT_CONVERSION_FACTOR_1000_INTEGER    (1000)
+#define UNIT_CONVERSION_FACTOR_1_1000_TH_FLOAT (0.001f)
+#define UNIT_CONVERSION_FACTOR_1_100_TH_FLOAT  (0.01f)
+#define UNIT_CONVERSION_FACTOR_1_10_TH_FLOAT   (0.1f)
+#define UNIT_CONVERSION_FACTOR_10_FLOAT        (10.0f)
+#define UNIT_CONVERSION_FACTOR_100_FLOAT       (100.0f)
+#define UNIT_CONVERSION_FACTOR_1000_FLOAT      (1000.0f)
 
 /*========== Extern Constant and Variable Declarations ======================*/
 

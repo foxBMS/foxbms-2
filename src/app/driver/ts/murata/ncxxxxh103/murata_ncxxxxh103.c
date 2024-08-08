@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,13 +43,13 @@
  * @file    murata_ncxxxxh103.c
  * @author  foxBMS Team
  * @date    2022-10-12 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
- * @ingroup TEMPERATURE_SENSORS
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
+ * @ingroup DRIVERS
  * @prefix  TS
  *
  * @brief   Resistive divider used for measuring temperature
- *
+ * @details TODO
  */
 
 /*========== Includes =======================================================*/
@@ -94,15 +94,23 @@ static const uint16_t ts_ncxxxxh103LutSize = sizeof(ts_ncxxxxh103Lut) / sizeof(T
  */
 #if defined(TS_MURATA_NCXXXXH103_POSITION_IN_RESISTOR_DIVIDER_IS_R_1) && \
     (TS_MURATA_NCXXXXH103_POSITION_IN_RESISTOR_DIVIDER_IS_R_1 == true)
-#define TS_MURATA_NCXXXXH103_ADC_VOLTAGE_V_MAX_V \
-    ((float_t)((TS_MURATA_NCXXXXH103_RESISTOR_DIVIDER_SUPPLY_VOLTAGE_V * ts_ncxxxxh103Lut[ts_ncxxxxh103LutSize-1u].resistance_Ohm) / (ts_ncxxxxh103Lut[ts_ncxxxxh103LutSize-1u].resistance_Ohm+TS_MURATA_NCXXXXH103_RESISTOR_DIVIDER_RESISTANCE_R_1_R_2_Ohm)))
-#define TS_MURATA_NCXXXXH103_ADC_VOLTAGE_V_MIN_V \
-    ((float_t)((TS_MURATA_NCXXXXH103_RESISTOR_DIVIDER_SUPPLY_VOLTAGE_V * ts_ncxxxxh103Lut[0u].resistance_Ohm) / (ts_ncxxxxh103Lut[0u].resistance_Ohm+TS_MURATA_NCXXXXH103_RESISTOR_DIVIDER_RESISTANCE_R_1_R_2_Ohm)))
+#define TS_MURATA_NCXXXXH103_ADC_VOLTAGE_V_MAX_V                              \
+    ((float_t)((TS_MURATA_NCXXXXH103_RESISTOR_DIVIDER_SUPPLY_VOLTAGE_V *      \
+                ts_ncxxxxh103Lut[ts_ncxxxxh103LutSize - 1u].resistance_Ohm) / \
+               (ts_ncxxxxh103Lut[ts_ncxxxxh103LutSize - 1u].resistance_Ohm +  \
+                TS_MURATA_NCXXXXH103_RESISTOR_DIVIDER_RESISTANCE_R_1_R_2_Ohm)))
+#define TS_MURATA_NCXXXXH103_ADC_VOLTAGE_V_MIN_V                                                                \
+    ((float_t)((TS_MURATA_NCXXXXH103_RESISTOR_DIVIDER_SUPPLY_VOLTAGE_V * ts_ncxxxxh103Lut[0u].resistance_Ohm) / \
+               (ts_ncxxxxh103Lut[0u].resistance_Ohm + TS_MURATA_NCXXXXH103_RESISTOR_DIVIDER_RESISTANCE_R_1_R_2_Ohm)))
 #else /* TS_MURATA_NCXXXXH103_POSITION_IN_RESISTOR_DIVIDER_IS_R_1 is false */
-#define TS_MURATA_NCXXXXH103_ADC_VOLTAGE_V_MIN_V \
-    ((float_t)((TS_MURATA_NCXXXXH103_RESISTOR_DIVIDER_SUPPLY_VOLTAGE_V * ts_ncxxxxh103Lut[ts_ncxxxxh103LutSize-1u].resistance_Ohm) / (ts_ncxxxxh103Lut[ts_ncxxxxh103LutSize-1u].resistance_Ohm+TS_MURATA_NCXXXXH103_RESISTOR_DIVIDER_RESISTANCE_R_1_R_2_Ohm)))
-#define TS_MURATA_NCXXXXH103_ADC_VOLTAGE_V_MAX_V \
-    ((float_t)((TS_MURATA_NCXXXXH103_RESISTOR_DIVIDER_SUPPLY_VOLTAGE_V * ts_ncxxxxh103Lut[0u].resistance_Ohm) / (ts_ncxxxxh103Lut[0u].resistance_Ohm+TS_MURATA_NCXXXXH103_RESISTOR_DIVIDER_RESISTANCE_R_1_R_2_Ohm)))
+#define TS_MURATA_NCXXXXH103_ADC_VOLTAGE_V_MIN_V                              \
+    ((float_t)((TS_MURATA_NCXXXXH103_RESISTOR_DIVIDER_SUPPLY_VOLTAGE_V *      \
+                ts_ncxxxxh103Lut[ts_ncxxxxh103LutSize - 1u].resistance_Ohm) / \
+               (ts_ncxxxxh103Lut[ts_ncxxxxh103LutSize - 1u].resistance_Ohm +  \
+                TS_MURATA_NCXXXXH103_RESISTOR_DIVIDER_RESISTANCE_R_1_R_2_Ohm)))
+#define TS_MURATA_NCXXXXH103_ADC_VOLTAGE_V_MAX_V                                                                \
+    ((float_t)((TS_MURATA_NCXXXXH103_RESISTOR_DIVIDER_SUPPLY_VOLTAGE_V * ts_ncxxxxh103Lut[0u].resistance_Ohm) / \
+               (ts_ncxxxxh103Lut[0u].resistance_Ohm + TS_MURATA_NCXXXXH103_RESISTOR_DIVIDER_RESISTANCE_R_1_R_2_Ohm)))
 #endif
 /**@}*/
 

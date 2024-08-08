@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,15 +43,13 @@
  * @file    database.h
  * @author  foxBMS Team
  * @date    2015-08-18 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup ENGINE
  * @prefix  DATA
  *
  * @brief   Database module header
- *
  * @details Provides interfaces to database module
- *
  */
 
 #ifndef FOXBMS__DATABASE_H_
@@ -275,6 +273,11 @@ extern void DATA_ExecuteDataBist(void);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 #ifdef UNITY_UNIT_TEST
+/* clang-format off */
+extern void TEST_DATA_IterateOverDatabaseEntries(const DATA_QUEUE_MESSAGE_s *kpReceiveMessage) ;
+extern STD_RETURN_TYPE_e TEST_DATA_AccessDatabaseEntries(DATA_BLOCK_ACCESS_TYPE_e accessType, void *pData0, void *pData1, void *pData2, void *pData3);
+extern void TEST_DATA_CopyData(DATA_BLOCK_ACCESS_TYPE_e accessType, uint32_t dataLength, void *pDatabaseStruct, void *pPassedDataStruct);
+/* clang-format on */
 #endif
 
 #endif /* FOXBMS__DATABASE_H_ */

@@ -122,6 +122,7 @@ All sections are listed here:
     ./getting-started/getting-started.rst
     ./getting-started/repository-structure.rst
     ./getting-started/software-installation.rst
+    ./getting-started/fox_py.rst
     ./getting-started/workspace.rst
     ./getting-started/first-steps-on-hardware.rst
 
@@ -143,7 +144,6 @@ All sections are listed here:
     ./software/how-to/how-to.rst
     ./software/linker-script/linker-script.rst
     ./software/architecture/architecture.rst
-    ./software/api/overview.rst
 
 .. _HARDWARE_DOCUMENTATION_OVERVIEW:
 
@@ -171,6 +171,7 @@ All sections are listed here:
     ./system/system-introduction.rst
     ./system/system-voltage-and-current-monitoring.rst
     ./system/precharging.rst
+    ./system/imd-testing.rst
 
 .. _TOOLS_DOCUMENTATION_OVERVIEW:
 
@@ -181,7 +182,6 @@ All sections are listed here:
     :caption: Tools Documentation
 
     ./tools/dbc.rst
-    ./tools/gui/gui.rst
     ./tools/waf-tools/waf-tools.rst
     ./tools/debugger/debug-application.rst
     ./tools/halcogen/halcogen.rst

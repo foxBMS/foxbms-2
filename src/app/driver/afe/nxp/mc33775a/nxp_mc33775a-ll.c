@@ -1,36 +1,36 @@
 /* Copyright 2019 NXP
-*
-* Redistribution and use in source and binary forms, with or without modification, are permitted
-* provided that the following terms are met:
-* 1. Redistributions of source code must retain the above copyright notice, this list of conditions
-* and the following disclaimer.
-* 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions,
-* and the following disclaimer in the documentation and/or other materials provided with the distribution.
-* 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse
-* or promote products derived from this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ?AS IS? AND ANY
-* EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
-* MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
-* THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-* EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
-* SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA; OR PROFITS; OR BUSINESS INTERRUPTION)
-* HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
-* TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-* SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ *
+ * Redistribution and use in source and binary forms, with or without modification, are permitted
+ * provided that the following terms are met:
+ * 1. Redistributions of source code must retain the above copyright notice, this list of conditions
+ * and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions,
+ * and the following disclaimer in the documentation and/or other materials provided with the distribution.
+ * 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse
+ * or promote products derived from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ?AS IS? AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
+ * THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA; OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+ * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 
 /**
  * @file    nxp_mc33775a-ll.c
  * @author  NXP
  * @date    2022-07-29 (date of creation)
- * @updated 2023-09-05 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup DRIVERS
  * @prefix  N775
  *
  * @brief   Low level driver for the MC33775A
- *
+ * @details TODO
  */
 
 /*========== Includes =======================================================*/
@@ -161,9 +161,9 @@ extern void N775_CommunicationWrite(
     uc_msg_t message = {0}; /* Message for read command */
 
     /** The function gets the device address
-      * The N775_CommunicationComposeMessage function adds the chain address.
-      * Chain address = 1 used so (deviceAddress | (1u << 6u)) is used
-      */
+     * The N775_CommunicationComposeMessage function adds the chain address.
+     * Chain address = 1 used so (deviceAddress | (1u << 6u)) is used
+     */
     N775_CommunicationComposeMessage(
         BMS1_CMD_WRITE, 0, (deviceAddress | (1u << 6u)), registerAddress, 0, &value, &message);
     N775_ConvertMessageToBuffer(n775ToTplTxBuffer, message);
@@ -227,9 +227,9 @@ extern N775_COMMUNICATION_STATUS_e N775_CommunicationReadMultiple(
      */
 
     /** The function gets the device address
-      * The pack_msg function adds the chain address.
-      * Chain address = 1 used so (deviceAddress | (1u << 6u)) is used in the following
-      * */
+     * The pack_msg function adds the chain address.
+     * Chain address = 1 used so (deviceAddress | (1u << 6u)) is used in the following
+     * */
     /* responseLength = 0 means one data word per answer frame so (responseLength - 1u) is used in the following */
 
     uc_msg_t txMessage = {0u}; /* Message for read command */
@@ -304,8 +304,8 @@ extern N775_COMMUNICATION_STATUS_e N775_CommunicationReadMultiple(
     }
 
     if (n775_rxCompleted == false) {
-        pState->pSpiRxSequence->pNode->INT0 &= ~DMAREQEN_BIT;
-        pState->pSpiRxSequence->pNode->GCR1 &= ~SPIEN_BIT;
+        pState->pSpiRxSequence->pNode->INT0 &= ~DMA_REQUEST_ENABLE_BIT;
+        pState->pSpiRxSequence->pNode->GCR1 &= ~DMA_SPI_ENABLE_BIT;
         communicationStatus = N775_COMMUNICATION_ERROR_TIMEOUT;
     } else {
         for (uint16_t i = 0; i < nrAnswerFrames; i++) {
@@ -471,11 +471,11 @@ extern N775_COMMUNICATION_STATUS_e N775_CommunicationDecomposeMessage(
     /* SM.e.29 : Communication - Message counter */
     if ((errorCodeMatch == false) && (messageCount != referenceMessageCounter[string][*pDeviceAddress])) {
         errorCodeMatch                                   = true;
-        referenceMessageCounter[string][*pDeviceAddress] = (messageCount + 1u) & 0xFu;
+        referenceMessageCounter[string][*pDeviceAddress] = (messageCount + 1u) & 0x0Fu;
         communicationStatus                              = N775_COMMUNICATION_ERROR_WRONG_MESSAGE_COUNT;
     }
     /* Increment message counter */
-    referenceMessageCounter[string][*pDeviceAddress] = (referenceMessageCounter[string][*pDeviceAddress] + 1u) & 0xFu;
+    referenceMessageCounter[string][*pDeviceAddress] = (referenceMessageCounter[string][*pDeviceAddress] + 1u) & 0x0Fu;
 
     /* Check error address */
     if ((errorCodeMatch == false) && (*pRegisterAddress == N775_ERROR_REGISTER_ADDRESS)) {

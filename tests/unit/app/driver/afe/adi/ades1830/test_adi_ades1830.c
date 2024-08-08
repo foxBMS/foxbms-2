@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,8 +43,8 @@
  * @file    test_adi_ades1830.c
  * @author  foxBMS Team
  * @date    2020-08-10 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -176,13 +176,13 @@ void testADI_MakeRequest(void) {
 }
 
 void testADI_ActivateInterfaceBoard(void) {
-    /* 8 pins are needed, and they are aligned after PEX_PIN10 so we make the test code short with some loop */
+    /* 8 pins are needed, and they are aligned after PEX_PORT_1_PIN_0 so we make the test code short with some loop */
     const uint8_t nrOfPins = 8u;
     for (uint8_t i = 0; i < nrOfPins; i++) {
-        PEX_SetPinDirectionOutput_Expect(PEX_PORT_EXPANDER3, PEX_PIN10 + i);
+        PEX_SetPinDirectionOutput_Expect(PEX_PORT_EXPANDER3, PEX_PORT_1_PIN_0 + i);
     }
     for (uint8_t i = 0; i < nrOfPins; i++) {
-        PEX_SetPin_Expect(PEX_PORT_EXPANDER3, PEX_PIN10 + i);
+        PEX_SetPin_Expect(PEX_PORT_EXPANDER3, PEX_PORT_1_PIN_0 + i);
     }
     ADI_ActivateInterfaceBoard();
 }

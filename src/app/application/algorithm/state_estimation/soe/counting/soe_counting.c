@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,13 +43,13 @@
  * @file    soe_counting.c
  * @author  foxBMS Team
  * @date    2020-10-07 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup APPLICATION
  * @prefix  SOE
  *
  * @brief   SOE module responsible for calculation of SOE
- *
+ * @details TODO
  */
 
 /*========== Includes =======================================================*/
@@ -77,8 +77,11 @@ typedef struct {
     float_t ecScalingAverage[BS_NR_OF_STRINGS]; /*!< current sensor offset scaling for average SOE */
     float_t ecScalingMinimum[BS_NR_OF_STRINGS]; /*!< current sensor offset scaling for minimum SOE */
     float_t ecScalingMaximum[BS_NR_OF_STRINGS]; /*!< current sensor offset scaling for maximum SOE */
-    uint32_t previousTimestamp
-        [BS_NR_OF_STRINGS]; /*!< last used timestamp of current or energy counting value for SOE estimation */
+    float_t chargeEnergyThroughput_Wh[BS_NR_OF_STRINGS];    /*!< inflow of energy */
+    float_t dischargeEnergyThroughput_Wh[BS_NR_OF_STRINGS]; /*!< outflow of energy */
+    float_t previousEnergyCount_Wh[BS_NR_OF_STRINGS];
+    uint32_t previousTimestamp[BS_NR_OF_STRINGS]; /*!< last used timestamp of current or energy counting value for SOE
+                                                     estimation */
 } SOE_STATE_s;
 
 /** defines for maximum and minimum SOE */
@@ -91,12 +94,15 @@ typedef struct {
  * contains the state of the SOE estimation
  */
 static SOE_STATE_s soe_state = {
-    .soeInitialized    = false,
-    .sensorEcUsed      = {GEN_REPEAT_U(false, GEN_STRIP(BS_NR_OF_STRINGS))},
-    .ecScalingAverage  = {GEN_REPEAT_U(0.0f, GEN_STRIP(BS_NR_OF_STRINGS))},
-    .ecScalingMinimum  = {GEN_REPEAT_U(0.0f, GEN_STRIP(BS_NR_OF_STRINGS))},
-    .ecScalingMaximum  = {GEN_REPEAT_U(0.0f, GEN_STRIP(BS_NR_OF_STRINGS))},
-    .previousTimestamp = {GEN_REPEAT_U(0u, GEN_STRIP(BS_NR_OF_STRINGS))},
+    .soeInitialized               = false,
+    .sensorEcUsed                 = {GEN_REPEAT_U(false, GEN_STRIP(BS_NR_OF_STRINGS))},
+    .ecScalingAverage             = {GEN_REPEAT_U(0.0f, GEN_STRIP(BS_NR_OF_STRINGS))},
+    .ecScalingMinimum             = {GEN_REPEAT_U(0.0f, GEN_STRIP(BS_NR_OF_STRINGS))},
+    .ecScalingMaximum             = {GEN_REPEAT_U(0.0f, GEN_STRIP(BS_NR_OF_STRINGS))},
+    .chargeEnergyThroughput_Wh    = {GEN_REPEAT_U(0.0f, GEN_STRIP(BS_NR_OF_STRINGS))},
+    .dischargeEnergyThroughput_Wh = {GEN_REPEAT_U(0.0f, GEN_STRIP(BS_NR_OF_STRINGS))},
+    .previousEnergyCount_Wh       = {GEN_REPEAT_U(0.0f, GEN_STRIP(BS_NR_OF_STRINGS))},
+    .previousTimestamp            = {GEN_REPEAT_U(0u, GEN_STRIP(BS_NR_OF_STRINGS))},
 };
 
 /** local copies of database tables */
@@ -317,9 +323,11 @@ extern void SE_InitializeStateOfEnergy(DATA_BLOCK_SOE_s *pSoeValues, bool ec_pre
     FAS_ASSERT(stringNumber < BS_NR_OF_STRINGS);
     FRAM_ReadData(FRAM_BLOCK_ID_SOE);
 
-    pSoeValues->averageSoe_perc[stringNumber] = fram_soe.averageSoe_perc[stringNumber];
-    pSoeValues->minimumSoe_perc[stringNumber] = fram_soe.minimumSoe_perc[stringNumber];
-    pSoeValues->maximumSoe_perc[stringNumber] = fram_soe.maximumSoe_perc[stringNumber];
+    pSoeValues->averageSoe_perc[stringNumber]              = fram_soe.averageSoe_perc[stringNumber];
+    pSoeValues->minimumSoe_perc[stringNumber]              = fram_soe.minimumSoe_perc[stringNumber];
+    pSoeValues->maximumSoe_perc[stringNumber]              = fram_soe.maximumSoe_perc[stringNumber];
+    pSoeValues->chargeEnergyThroughput_Wh[stringNumber]    = fram_soe.chargeEnergyThroughput_Wh[stringNumber];
+    pSoeValues->dischargeEnergyThroughput_Wh[stringNumber] = fram_soe.dischargeEnergyThroughput_Wh[stringNumber];
 
     /* Limit SOE values [0.0f, 100.0f] */
     SOE_CheckDatabaseSoePercentageLimits(pSoeValues, stringNumber);
@@ -380,13 +388,13 @@ void SE_CalculateStateOfEnergy(DATA_BLOCK_SOE_s *pSoeValues) {
 
                     /* check if current measurement has been updated */
                     if (soe_state.previousTimestamp[s] != timestamp) {
-                        float_t timestep_s = (((float_t)timestamp - (float_t)previous_timestamp)) / 1000.0f;
-                        if (timestep_s > 0.0f) {
+                        float_t time_step_s = (((float_t)timestamp - (float_t)previous_timestamp)) / 1000.0f;
+                        if (time_step_s > 0.0f) {
                             /* Current in charge direction negative means SOE increasing --> BAT naming, not ROB */
                             float_t deltaSOE_Wh =
                                 ((((float_t)soe_tableCurrentSensor.current_mA[s] / 1000.0f) *         /* convert to A */
                                   ((float_t)soe_tableCurrentSensor.highVoltage_mV[s][0] / 1000.0f)) / /* convert to V */
-                                 timestep_s) /                                                        /* unit: s */
+                                 time_step_s) /                                                       /* unit: s */
                                 3600.0f; /* convert Ws -> Wh */
 
 #if BS_POSITIVE_DISCHARGE_CURRENT == false
@@ -397,6 +405,15 @@ void SE_CalculateStateOfEnergy(DATA_BLOCK_SOE_s *pSoeValues) {
                             pSoeValues->averageSoe_Wh[s] -= (uint32_t)deltaSOE_Wh;
                             pSoeValues->minimumSoe_Wh[s] -= (uint32_t)deltaSOE_Wh;
                             pSoeValues->maximumSoe_Wh[s] -= (uint32_t)deltaSOE_Wh;
+
+                            if (BMS_GetCurrentFlowDirection(soe_tableCurrentSensor.current_mA[s]) == BMS_CHARGING) {
+                                pSoeValues->chargeEnergyThroughput_Wh[s] = pSoeValues->chargeEnergyThroughput_Wh[s] +
+                                                                           fabs(deltaSOE_Wh);
+                            } else {
+                                /* When BMS_DISCHARGING and BMS_AT_REST add charge to dischargeThroughput*/
+                                pSoeValues->dischargeEnergyThroughput_Wh[s] =
+                                    pSoeValues->dischargeEnergyThroughput_Wh[s] + fabs(deltaSOE_Wh);
+                            }
 
                             pSoeValues->averageSoe_perc[s] =
                                 SOE_GetStringSoePercentageFromEnergy(pSoeValues->averageSoe_Wh[s]);
@@ -417,6 +434,9 @@ void SE_CalculateStateOfEnergy(DATA_BLOCK_SOE_s *pSoeValues) {
                             (((float_t)soe_tableCurrentSensor.energyCounter_Wh[s] / SOE_STRING_ENERGY_Wh) *
                              UNIT_CONVERSION_FACTOR_100_FLOAT);
 
+                        float_t energyDifference_Wh = fabs(
+                            (float_t)soe_tableCurrentSensor.energyCounter_Wh[s] - soe_state.previousEnergyCount_Wh[s]);
+
 #if BS_POSITIVE_DISCHARGE_CURRENT == false
                         /* negate calculated delta SOE_perc */
                         deltaSoe_perc *= (-1.0f);
@@ -425,7 +445,14 @@ void SE_CalculateStateOfEnergy(DATA_BLOCK_SOE_s *pSoeValues) {
                         pSoeValues->averageSoe_perc[s] = soe_state.ecScalingAverage[s] - deltaSoe_perc;
                         pSoeValues->minimumSoe_perc[s] = soe_state.ecScalingMinimum[s] - deltaSoe_perc;
                         pSoeValues->maximumSoe_perc[s] = soe_state.ecScalingMaximum[s] - deltaSoe_perc;
-
+                        if (BMS_GetCurrentFlowDirection(soe_tableCurrentSensor.current_mA[s]) == BMS_CHARGING) {
+                            pSoeValues->chargeEnergyThroughput_Wh[s] = pSoeValues->chargeEnergyThroughput_Wh[s] +
+                                                                       energyDifference_Wh;
+                        } else {
+                            /* When BMS_DISCHARGING and BMS_AT_REST add charge to dischargeThroughput*/
+                            pSoeValues->dischargeEnergyThroughput_Wh[s] = pSoeValues->dischargeEnergyThroughput_Wh[s] +
+                                                                          energyDifference_Wh;
+                        }
                         /* Limit SOE values to [0.0, 100.0] */
                         SOE_CheckDatabaseSoePercentageLimits(pSoeValues, s);
 
@@ -438,13 +465,16 @@ void SE_CalculateStateOfEnergy(DATA_BLOCK_SOE_s *pSoeValues) {
                             SOE_GetStringEnergyFromSoePercentage(pSoeValues->minimumSoe_perc[s]);
 
                         /* Update timestamp for next iteration */
-                        soe_state.previousTimestamp[s] = soe_tableCurrentSensor.timestampEnergyCounting[s];
+                        soe_state.previousEnergyCount_Wh[s] = soe_tableCurrentSensor.energyCounter_Wh[s];
+                        soe_state.previousTimestamp[s]      = soe_tableCurrentSensor.timestampEnergyCounting[s];
                     }
                 }
 
-                fram_soe.averageSoe_perc[s] = pSoeValues->averageSoe_perc[s];
-                fram_soe.minimumSoe_perc[s] = pSoeValues->minimumSoe_perc[s];
-                fram_soe.maximumSoe_perc[s] = pSoeValues->maximumSoe_perc[s];
+                fram_soe.averageSoe_perc[s]              = pSoeValues->averageSoe_perc[s];
+                fram_soe.minimumSoe_perc[s]              = pSoeValues->minimumSoe_perc[s];
+                fram_soe.maximumSoe_perc[s]              = pSoeValues->maximumSoe_perc[s];
+                fram_soe.chargeEnergyThroughput_Wh[s]    = pSoeValues->chargeEnergyThroughput_Wh[s];
+                fram_soe.dischargeEnergyThroughput_Wh[s] = pSoeValues->dischargeEnergyThroughput_Wh[s];
             }
 
             /* Update database and FRAM value */

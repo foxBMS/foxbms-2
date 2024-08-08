@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 #
-# Copyright (c) 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -43,11 +42,13 @@
 from typing import Union
 from pathlib import Path
 
-import axivion.config  # pylint: disable=import-error
-from bauhaus import ir  # pylint: disable=import-error
-from bauhaus import scanner  # pylint: disable=import-error
+# pylint: disable=import-error
+import axivion.config  # pylint: disable=no-name-in-module
+from bauhaus import ir
+from bauhaus import scanner
 
-ANALYSIS = axivion.config.get_analysis()
+# pylint: enable=import-error
+ANALYSIS = axivion.config.get_analysis()  # pylint: disable=c-extension-no-member
 
 
 def create_include_guard(file_name: str) -> str:
@@ -74,4 +75,4 @@ def check_include_guard(
 
 
 RULE_NAME = "Generic-MissingIncludeGuard"
-ANALYSIS[RULE_NAME].macro_name_restrictions.append((check_include_guard))
+ANALYSIS[RULE_NAME].macro_name_restrictions.append(check_include_guard)

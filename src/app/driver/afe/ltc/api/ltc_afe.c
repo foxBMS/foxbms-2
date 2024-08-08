@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,12 +43,13 @@
  * @file    ltc_afe.c
  * @author  foxBMS Team
  * @date    2020-05-08 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
- * @ingroup DRIVER
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
+ * @ingroup DRIVERS
  * @prefix  AFE
  *
  * @brief   AFE driver implementation for LTC ICs
+ * @details TODO
  */
 
 /*========== Includes =======================================================*/
@@ -118,7 +119,7 @@ extern STD_RETURN_TYPE_e AFE_RequestTemperatureRead(uint8_t string) {
 extern STD_RETURN_TYPE_e AFE_RequestBalancingFeedbackRead(uint8_t string) {
     FAS_ASSERT(string < BS_NR_OF_STRINGS);
     STD_RETURN_TYPE_e retval = STD_NOT_OK;
-    LTC_REQUEST_s statereq   = {.request = LTC_STATE_BALANCEFEEDBACK_REQUEST, .string = string};
+    LTC_REQUEST_s statereq   = {.request = LTC_STATE_BALANCE_FEEDBACK_REQUEST, .string = string};
 
     if (LTC_SetStateRequest(&ltc_stateBase, statereq) == LTC_OK) {
         retval = STD_OK;

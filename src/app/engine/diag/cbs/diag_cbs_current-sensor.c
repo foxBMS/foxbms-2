@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,8 +43,8 @@
  * @file    diag_cbs_current-sensor.c
  * @author  foxBMS Team
  * @date    2021-02-17 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup ENGINE
  * @prefix  DIAG
  *
@@ -75,7 +75,9 @@ void DIAG_ErrorCurrentSensor(
     DIAG_EVENT_e event,
     const DIAG_DATABASE_SHIM_s *const kpkDiagShim,
     uint32_t stringNumber) {
-    FAS_ASSERT(diagId < DIAG_ID_MAX);
+    FAS_ASSERT(
+        (diagId == DIAG_ID_CURRENT_SENSOR_RESPONDING) || (diagId == DIAG_ID_CAN_CC_RESPONDING) ||
+        (diagId == DIAG_ID_CAN_EC_RESPONDING));
     FAS_ASSERT((event == DIAG_EVENT_OK) || (event == DIAG_EVENT_NOT_OK) || (event == DIAG_EVENT_RESET));
     FAS_ASSERT(kpkDiagShim != NULL_PTR);
     FAS_ASSERT(stringNumber < BS_NR_OF_STRINGS);
@@ -101,6 +103,8 @@ void DIAG_ErrorCurrentSensor(
         if (event == DIAG_EVENT_NOT_OK) {
             kpkDiagShim->pTableError->currentSensorEnergyCounterTimeoutError[stringNumber] = true;
         }
+    } else {                  /* LCOV_EXCL_LINE */
+        FAS_ASSERT(FAS_TRAP); /* LCOV_EXCL_LINE */
     }
 }
 

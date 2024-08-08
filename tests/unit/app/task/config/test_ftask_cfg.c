@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,8 +43,8 @@
  * @file    test_ftask_cfg.c
  * @author  foxBMS Team
  * @date    2020-04-02 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -91,6 +91,7 @@
 
 #include "fassert.h"
 #include "ftask.h"
+#include "test_assert_helper.h"
 
 /*========== Unit Testing Framework Directives ==============================*/
 TEST_INCLUDE_PATH("../../src/app/application/algorithm")
@@ -150,5 +151,101 @@ void tearDown(void) {
 }
 
 /*========== Test Cases =====================================================*/
-void testDummy(void) {
+void testFTSK_RunUserCodeIdle(void) {
+    TEST_ASSERT_PASS_ASSERT(FTSK_RunUserCodeIdle());
+}
+
+void testFTSK_InitializeUserCodeEngine(void) {
+    DATA_Initialize_ExpectAndReturn(STD_NOT_OK);
+    TEST_ASSERT_FAIL_ASSERT(FTSK_InitializeUserCodeEngine())
+
+    DATA_Initialize_ExpectAndReturn(STD_OK);
+    FRAM_Initialize_Expect();
+    SYSM_Initialize_ExpectAndReturn(STD_NOT_OK);
+    TEST_ASSERT_FAIL_ASSERT(FTSK_InitializeUserCodeEngine())
+
+    DATA_Initialize_ExpectAndReturn(STD_OK);
+    FRAM_Initialize_Expect();
+    SYSM_Initialize_ExpectAndReturn(STD_OK);
+    FTSK_InitializeUserCodeEngine();
+}
+
+void testFTSK_RunUserCodeEngine(void) {
+    DATA_Task_Expect();
+    SYSM_CheckNotifications_Expect();
+    FTSK_RunUserCodeEngine();
+}
+
+void testFTSK_InitializeUserCodePreCyclicTasks(void) {
+    SYS_SetStateRequest_ExpectAndReturn(SYS_STATE_INITIALIZATION_REQUEST, STD_NOT_OK);
+    PEX_Initialize_Expect();
+    PEX_SetPinDirectionOutput_Expect(PEX_PORT_EXPANDER3, PEX_PORT_0_PIN_0);
+    PEX_SetPin_Expect(PEX_PORT_EXPANDER3, PEX_PORT_0_PIN_0);
+
+    CONT_Initialize_Expect();
+    SPS_Initialize_Expect();
+    MEAS_Initialize_ExpectAndReturn(STD_OK);
+    MRC_Initialize_ExpectAndReturn(STD_OK);
+    TEST_ASSERT_FAIL_ASSERT(FTSK_InitializeUserCodePreCyclicTasks());
+
+    /* pass assert */
+    SYS_SetStateRequest_ExpectAndReturn(SYS_STATE_INITIALIZATION_REQUEST, STD_OK);
+    PEX_Initialize_Expect();
+    PEX_SetPinDirectionOutput_Expect(PEX_PORT_EXPANDER3, PEX_PORT_0_PIN_0);
+    PEX_SetPin_Expect(PEX_PORT_EXPANDER3, PEX_PORT_0_PIN_0);
+
+    CONT_Initialize_Expect();
+    SPS_Initialize_Expect();
+    MEAS_Initialize_ExpectAndReturn(STD_OK);
+    MRC_Initialize_ExpectAndReturn(STD_OK);
+    LED_SetToggleTime_Expect(LED_NORMAL_OPERATION_ON_OFF_TIME_ms);
+    FTSK_InitializeUserCodePreCyclicTasks();
+}
+
+void testFTSK_RunUserCodeCyclic1ms(void) {
+    OS_IncrementTimer_Expect();
+    DIAG_UpdateFlags_Expect();
+    CAN_ReadRxBuffer_Expect();
+    FTSK_RunUserCodeCyclic1ms();
+}
+
+void testFTSK_RunUserCodeCyclic10ms(void) {
+}
+
+void testFTSK_RunUserCodeCyclic100ms(void) {
+    BAL_Trigger_Expect();
+    IMD_Trigger_ExpectAndReturn(STD_OK);
+    LED_Trigger_Expect();
+    FTSK_RunUserCodeCyclic100ms();
+
+    for (uint8_t i = 0; i < 9u; i++) {
+        BAL_Trigger_Expect();
+        IMD_Trigger_ExpectAndReturn(STD_OK);
+        LED_Trigger_Expect();
+        FTSK_RunUserCodeCyclic100ms();
+    }
+    SE_RunStateEstimations_Expect();
+    BAL_Trigger_Expect();
+    IMD_Trigger_ExpectAndReturn(STD_OK);
+    LED_Trigger_Expect();
+    FTSK_RunUserCodeCyclic100ms();
+}
+
+void testFTSK_RunUserCodeCyclicAlgorithm100ms(void) {
+    ALGO_MainFunction_Expect();
+    FTSK_RunUserCodeCyclicAlgorithm100ms();
+}
+
+void testFTSK_RunUserCodeI2c(void) {
+    PEX_Trigger_Expect();
+    HTSEN_Trigger_Expect();
+    RTC_Trigger_Expect();
+    OS_GetTickCount_ExpectAndReturn(2u);
+    uint32_t currentTime = 2u;
+    OS_DelayTaskUntil_Expect(&currentTime, 2u);
+    FTSK_RunUserCodeI2c();
+}
+
+void testFTSK_RunUserCodeAfe(void) {
+    FTSK_RunUserCodeAfe();
 }

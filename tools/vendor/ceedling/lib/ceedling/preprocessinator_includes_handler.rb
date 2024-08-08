@@ -1,44 +1,52 @@
-
+# =========================================================================
+#   Ceedling - Test-Centered Build System for C
+#   ThrowTheSwitch.org
+#   Copyright (c) 2010-24 Mike Karlesky, Mark VanderVoord, & Greg Williams
+#   SPDX-License-Identifier: MIT
+# =========================================================================
 
 class PreprocessinatorIncludesHandler
 
-  constructor :configurator, :tool_executor, :test_context_extractor, :yaml_wrapper, :streaminator, :reportinator
+  constructor :configurator, :tool_executor, :test_context_extractor, :yaml_wrapper, :loginator, :reportinator
 
   ##
   ## Includes Extraction Overview
   ## ============================
   ##
   ## BACKGROUND
-  ## #include extraction is hard to do. In simple cases a regex approach suffices. Not all the uncommon nested 
-  ## header files, clever macros, and conditional preprocessing statements introduce high complexity.
+  ## --------
+  ## #include extraction is hard to do. In simple cases a regex approach suffices, but nested header files,
+  ## clever macros, and conditional preprocessing statements easily introduce high complexity.
   ##
-  ## Unfortunately, there's no easily available C parsing tool that provides a simple means to extract the 
-  ## #include statements directly embedded in a given file. Even the gcc preprocessor itself only comes close 
-  ## to providing this information.
+  ## Unfortunately, there's no readily available cross-platform C parsing tool that provides a simple means 
+  ## to extract the #include statements directly embedded in a given file. Even the gcc preprocessor itself 
+  ## only comes close to providing this information externally.
   ##
   ## APPROACH
   ## --------
   ## (Full details including fallback options are in the extensive code comments among the methods below.)
   ## 
   ## Sadly, we can't preprocess a file with full search paths and defines and ask for the #include statements
-  ## embedded in a file. We get far more #includes than we want with no was to discern which are at the depth
+  ## embedded in a file. We get far more #includes than we want with no way to discern which are at the depth
   ## of the file being processed.
   ##
   ## Instead, we try our best to use some educated guessing to get as close as possible to the desired list.
   ##
-  ##   I. Try to extract shallow defines with no crawling out into other header files. This gives us a 
-  ##      reference point on possible directly included files. The results may be incomplete, though. They 
-  ##      also may mistakenly list #includes that should not be in the list--because of #ifndef defaults or
+  ##   I. Try to extract shallow defines with no crawling out into other header files. This conservative approach
+  ##      gives us a reference point on possible directly included files. The results may be incomplete, though. 
+  ##      They also may mistakenly list #includes that should not be in the list--because of #ifndef defaults or
   ##      because of system headers or #include <...> statements and differences among gcc implementations.
   ##
   ##  II. Extract a full list of #includes by spidering out into nested headers and processing all macros, etc.
+  ##      This is the greedy approach.
   ##
-  ## III. Find #includes common to (I) and (II). THe results of (I) should limit the potentially lengthy
+  ## III. Find #includes common to (I) and (II). The results of (I) should limit the potentially lengthy
   ##      results of (II). The complete and accurate list of (II) should cut out any mistaken entries in (I).
   ##
-  ##  IV. I–III are not foolproof. This approach should come quite close to an accurate list of shallow
-  ##      includes. Edge cases and gaps will cause trouble. Other Ceedling features should provide the tools
-  ##      to intervene.
+  ##  IV. I–III are not foolproof. A purely greedy approach or a purely conservative approach will cause symbol 
+  ##      conflicts, missing symbols, etc. The blended and balanced approach should come quite close to an 
+  ##      accurate list of shallow includes. Edge cases and gaps will cause trouble. Other Ceedling features 
+  ##      should provide the tools to intervene. 
   ##
 
   def extract_includes(filepath:, test:, flags:, include_paths:, defines:)
@@ -47,7 +55,7 @@ class PreprocessinatorIncludesHandler
       module_name: test,
       filename: File.basename(filepath)
       )
-    @streaminator.stdout_puts(msg, Verbosity::NORMAL)
+    @loginator.log(msg, Verbosity::NORMAL)
 
     # Extract shallow includes with preprocessor and fallback regex
     shallow = extract_shallow_includes(
@@ -177,10 +185,10 @@ class PreprocessinatorIncludesHandler
         defines
         )
 
-    @streaminator.stdout_puts("Command: #{command}", Verbosity::DEBUG)
-
-    command[:options][:boom] = false # Assume errors and do not raise an exception
-    shell_result = @tool_executor.exec(command[:line], command[:options])
+    # Assume possible errors so we have best shot at extracting results from preprocessing.
+    # Full code compilation will catch any breaking code errors
+    command[:options][:boom] = false
+    shell_result = @tool_executor.exec( command )
 
     make_rules = shell_result[:output]
 
@@ -188,7 +196,7 @@ class PreprocessinatorIncludesHandler
     # Look for the first line of the make rule output.
     if not make_rules =~ make_rule_matcher
       msg = "Preprocessor #include extraction failed: #{shell_result[:output]}"
-      @streaminator.stdout_puts(msg, Verbosity::DEBUG)
+      @loginator.log(msg, Verbosity::DEBUG)
 
       return false, []
     end
@@ -208,10 +216,10 @@ class PreprocessinatorIncludesHandler
       module_name: test,
       filename: File.basename( filepath )
       )
-    @streaminator.stdout_puts(msg, Verbosity::NORMAL)
+    @loginator.log(msg, Verbosity::NORMAL)
 
     # Use abilities of @test_context_extractor to extract the #includes via regex on the file
-    return @test_context_extractor.scan_includes( filepath )
+    return @test_context_extractor.extract_includes( filepath )
   end
 
   def extract_nested_includes(filepath:, include_paths:, flags:, defines:, shallow:false)
@@ -232,15 +240,15 @@ class PreprocessinatorIncludesHandler
     ##  - Files directly #include'd in the file being preprocessed are at depth 1 ('.')
     ##
     ## Notes:
-    ##  - Because search paths and defines are provided, error-free executiion is assumed.
+    ##  - Because search paths and defines are provided, error-free execution is assumed.
     ##    If the preprocessor fails, issues exist that will cause full compilation to fail.
     ##  - Unfortuantely, because of ordering and nesting effects, a file directly #include'd may
     ##    not be listed at depth 1 ('.'). Instead, it may end up listed at greater depth beneath 
     ##    another #include'd file if both files reference it. That is, there is no way
     ##    to give the preprocessor full context and ask for only the files directly 
     ##    #include'd in the file being processed.
-    ##  - The preprocessor outputs the -H #include listing to STDERR. We must redirect to
-    ##    STDOOUT in order to access the full output.
+    ##  - The preprocessor outputs the -H #include listing to STDERR. ToolExecutor does this
+    ##    by default in creating the shell result output.
     ##  - Since we're using search paths, all #included files will include paths. Depending on
     ##    circumstances, this could yield a list with generated mocks with full build paths.
     ##
@@ -272,14 +280,14 @@ class PreprocessinatorIncludesHandler
         filepath,
         include_paths,
         defines
-        )
+      )
 
-    # Redirect -H output to STDERR to STDOUT so we can access it in the execution results
-    command[:options][:stderr_redirect] = StdErrRedirect::AUTO
+    # Let the preprocessor do as much as possible
+    # We'll extract nothing if a catastrophic error, but we'll see it in debug logging
+    # Any real problems will be flagged by actual compilation step
+    command[:options][:boom] = false
 
-    @streaminator.stdout_puts( "Command: #{command}", Verbosity::DEBUG )
-
-    shell_result = @tool_executor.exec( command[:line], command[:options] )
+    shell_result = @tool_executor.exec( command )
 
     list = shell_result[:output]
 

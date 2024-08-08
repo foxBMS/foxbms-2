@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,8 +43,8 @@
  * @file    test_bender_iso165c.c
  * @author  foxBMS Team
  * @date    2021-01-19 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -55,6 +55,9 @@
 /*========== Includes =======================================================*/
 #include "unity.h"
 #include "Mockcan.h"
+#include "Mockcan_cbs_rx_imd-info.h"
+#include "Mockcan_cbs_rx_imd-response.h"
+#include "Mockcan_cbs_tx_imd-request.h"
 #include "Mockcan_cfg.h"
 #include "Mockdatabase.h"
 #include "Mockdiag.h"
@@ -73,6 +76,8 @@
 /*========== Unit Testing Framework Directives ==============================*/
 TEST_INCLUDE_PATH("../../src/app/driver/can")
 TEST_INCLUDE_PATH("../../src/app/driver/can/cbs")
+TEST_INCLUDE_PATH("../../src/app/driver/can/cbs/rx")
+TEST_INCLUDE_PATH("../../src/app/driver/can/cbs/tx-async")
 TEST_INCLUDE_PATH("../../src/app/driver/config")
 TEST_INCLUDE_PATH("../../src/app/driver/imd")
 TEST_INCLUDE_PATH("../../src/app/driver/imd/bender/iso165c")
@@ -113,104 +118,13 @@ void tearDown(void) {
  */
 void testMessageComposition(void) {
     CAN_BUFFER_ELEMENT_s canMessage;
-    uint8_t dataWord;
-    uint8_t dataByte;
-    uint16_t data16;
-    uint8_t data8;
     uint8_t command;
-    uint8_t id;
     uint8_t tries;
 
     /* Do as if there is a message in the queue */
     OS_GetNumberOfStoredMessagesInQueue_IgnoreAndReturn(1u);
     MPU_xQueueReceive_IgnoreAndReturn(1u);
     OS_ReceiveFromQueue_IgnoreAndReturn(OS_SUCCESS);
-
-    canMessage.id = 0x22u;
-    for (uint8_t i = 1u; i <= 8u; i++) {
-        canMessage.data[i] = i;
-    }
-    TEST_ASSERT_FAIL_ASSERT(TEST_I165C_ResetCanData(NULL_PTR));
-    /* Reset must set all data to 0 */
-    TEST_I165C_ResetCanData(&canMessage);
-    for (uint8_t i = 0u; i < 8u; i++) {
-        TEST_ASSERT_EQUAL(0u, canMessage.data[i]);
-    }
-
-    data16   = 666u;
-    dataWord = I165C_DW1;
-    TEST_ASSERT_FAIL_ASSERT(TEST_I165C_WriteDataWord(dataWord, data16, NULL_PTR););
-    /* Test that data is written correctly to CAN frame */
-    TEST_I165C_WriteDataWord(dataWord, data16, &canMessage);
-    TEST_ASSERT_EQUAL(0x9Au, canMessage.data[1u]);
-    TEST_ASSERT_EQUAL(0x02u, canMessage.data[2u]);
-    dataWord = I165C_DW2;
-    TEST_I165C_WriteDataWord(dataWord, data16, &canMessage);
-    TEST_ASSERT_EQUAL(0x9Au, canMessage.data[3u]);
-    TEST_ASSERT_EQUAL(0x02u, canMessage.data[4u]);
-
-    for (uint8_t i = 1u; i <= 4u; i++) {
-        canMessage.data[i] = i;
-    }
-    data16   = 0u;
-    dataWord = I165C_DW1;
-    TEST_ASSERT_FAIL_ASSERT(TEST_I165C_ReadDataWord(dataWord, NULL_PTR, canMessage));
-    /* Test that dataword data is read correctly from usual CAN frame */
-    TEST_I165C_ReadDataWord(dataWord, &data16, canMessage);
-    TEST_ASSERT_EQUAL(0x201u, data16);
-    data16   = 0u;
-    dataWord = I165C_DW2;
-    TEST_I165C_ReadDataWord(dataWord, &data16, canMessage);
-    TEST_ASSERT_EQUAL(0x403u, data16);
-
-    for (uint8_t i = 0u; i <= 5u; i++) {
-        canMessage.data[i] = i + 1u;
-    }
-    data16   = 0u;
-    dataWord = I165C_DW1;
-    TEST_ASSERT_FAIL_ASSERT(TEST_I165C_ReadDataWordImdInfo(dataWord, NULL_PTR, canMessage));
-    /* Test that dataword data is read correctly from special IMD_Info CAN frame */
-    TEST_I165C_ReadDataWordImdInfo(dataWord, &data16, canMessage);
-    TEST_ASSERT_EQUAL(0x201u, data16);
-    data16   = 0u;
-    dataWord = I165C_DW2;
-    TEST_I165C_ReadDataWordImdInfo(dataWord, &data16, canMessage);
-    TEST_ASSERT_EQUAL(0x403u, data16);
-    data16   = 0u;
-    dataWord = I165C_DW3;
-    TEST_I165C_ReadDataWordImdInfo(dataWord, &data16, canMessage);
-    TEST_ASSERT_EQUAL(0x605u, data16);
-
-    for (uint8_t i = 1u; i <= 4u; i++) {
-        canMessage.data[i] = i;
-    }
-    data8    = 0u;
-    dataByte = I165C_DB1;
-    TEST_ASSERT_FAIL_ASSERT(TEST_I165C_ReadDataByte(dataByte, NULL_PTR, canMessage));
-    /* Test that databyte data is read correctly from usual CAN frame */
-    TEST_I165C_ReadDataByte(dataByte, &data8, canMessage);
-    TEST_ASSERT_EQUAL(0x1u, data8);
-    data8    = 0u;
-    dataByte = I165C_DB2;
-    TEST_I165C_ReadDataByte(dataByte, &data8, canMessage);
-    TEST_ASSERT_EQUAL(0x2u, data8);
-    data8    = 0u;
-    dataByte = I165C_DB3;
-    TEST_I165C_ReadDataByte(dataByte, &data8, canMessage);
-    TEST_ASSERT_EQUAL(0x3u, data8);
-    data8    = 0u;
-    dataByte = I165C_DB4;
-    TEST_I165C_ReadDataByte(dataByte, &data8, canMessage);
-    TEST_ASSERT_EQUAL(0x4u, data8);
-
-    id      = 0xA;
-    command = 0xB;
-    TEST_ASSERT_FAIL_ASSERT(TEST_I165C_WriteCmd(id, command, NULL_PTR));
-    /* Test that cmd is written correctly to CAN frame */
-    TEST_I165C_WriteCmd(id, command, &canMessage);
-    TEST_ASSERT_EQUAL(0xAu, canMessage.id);
-    TEST_ASSERT_EQUAL(I165C_RX_MESSAGE_IDENTIFIER_TYPE, canMessage.idType);
-    TEST_ASSERT_EQUAL(0xBu, canMessage.data[0u]);
 
     /* Check assertion of invalid parameter */
     canMessage.data[0u] = 0xA;
@@ -221,59 +135,32 @@ void testMessageComposition(void) {
     canMessage.id       = CANRX_IMD_RESPONSE_ID;
     canMessage.data[0u] = 0xA;
     command             = 0xA;
-    TEST_ASSERT_EQUAL(true, TEST_I165C_CheckResponse(command, &canMessage));
+    TEST_ASSERT_EQUAL(1u, TEST_I165C_CheckResponse(command, &canMessage));
 
     /* Check that response ID does not correspond to awaited acknowledge */
     canMessage.id       = CANRX_IMD_RESPONSE_ID;
     canMessage.data[0u] = 0xA;
     command             = 0xB;
-    TEST_ASSERT_EQUAL(false, TEST_I165C_CheckResponse(command, &canMessage));
+    TEST_ASSERT_EQUAL(0u, TEST_I165C_CheckResponse(command, &canMessage));
 
     /* Check that response failed if ID is not CANRX_IMD_RESPONSE_ID, even if response matches command */
     canMessage.id       = CANRX_IMD_INFO_ID;
     canMessage.data[0u] = 0xA;
     command             = 0xA;
-    TEST_ASSERT_EQUAL(false, TEST_I165C_CheckResponse(command, &canMessage));
+    TEST_ASSERT_EQUAL(0u, TEST_I165C_CheckResponse(command, &canMessage));
 
-    /* Check that response failed if ID is not CANRX_IMD_RESPONSE_ID, if respose does not match command */
+    /* Check that response failed if ID is not CANRX_IMD_RESPONSE_ID, if response does not match command */
     canMessage.id       = CANRX_IMD_INFO_ID;
     canMessage.data[0u] = 0xA;
     command             = 0xB;
-    TEST_ASSERT_EQUAL(false, TEST_I165C_CheckResponse(command, &canMessage));
+    TEST_ASSERT_EQUAL(0u, TEST_I165C_CheckResponse(command, &canMessage));
 
-    canMessage.id = I165C_MESSAGETYPE_IMD_INFO;
+    canMessage.id = I165C_MESSAGE_TYPE_IMD_INFO;
     TEST_ASSERT_FAIL_ASSERT(TEST_I165C_GetImdInfo(NULL_PTR));
     /* Test that an IMD_info frame was received on CAN */
     TEST_ASSERT_EQUAL(true, TEST_I165C_GetImdInfo(&canMessage));
-    canMessage.id = I165C_MESSAGETYPE_IMD_INFO + 1u;
+    canMessage.id = I165C_MESSAGE_TYPE_IMD_INFO + 1u;
     TEST_ASSERT_EQUAL(false, TEST_I165C_GetImdInfo(&canMessage));
-
-    /* Test if CAN data indicated that iso165c is not initialized */
-    for (uint8_t i = 0u; i < 8u; i++) {
-        canMessage.data[i] = 0u;
-    }
-    TEST_ASSERT_EQUAL(false, TEST_I165C_IsSelfTestFinished(canMessage));
-
-    /* Test if CAN data indicated that iso165c is not initialized */
-    for (uint8_t i = 0u; i < 8u; i++) {
-        canMessage.data[i] = 0x00u;
-    }
-    /*
-     * D_IMC_STATUS is located in byte 2 and byte 3 of CAN message:
-     * Bit 4: Self test running -> set to 1 */
-    canMessage.data[2u] |= (1u << I165C_SELFTEST_RUNNING_SHIFT);
-    /* D_VIFC_STATUS is located in byte 4 and byte 5 of CAN message
-     * Bit 0: Insulation measurement active -> set to 0
-     * Bit 12: Self-test long executed  -> set to 0
-     * Bit 13: Self-test short executed -> set to 0
-     */
-    canMessage.data[4u] |= (0u << I165C_INSULATION_MEASUREMENT_STATUS_SHIFT);
-    canMessage.data[5u] |=
-        (0u << (I165C_IMC_SELFTEST_OVERALL_SCENARIO_SHIFT - 8u)); /* Subtract 8 because upper byte is used */
-    canMessage.data[5u] |=
-        (0u << (I165C_IMC_SELFTEST_PARAMETERCONFIG_SCENARIO_SHIFT - 8u)); /* Subtract 8 because upper byte is used */
-
-    TEST_ASSERT_EQUAL(true, TEST_I165C_IsSelfTestFinished(canMessage));
 
     /* ----------- Test function that waits for acknowledge -----------------*/
 
@@ -283,14 +170,14 @@ void testMessageComposition(void) {
     TEST_ASSERT_FAIL_ASSERT(TEST_I165C_CheckAcknowledgeArrived(command, &tries, NULL_PTR));
 
     /* Acknowledge arrived */
-    canMessage.id      = CANRX_IMD_RESPONSE_ID;
-    tries              = 0u;
-    command            = 0xA;
-    canMessage.data[0] = 0xA;
-    bool ackReceived   = false;
+    canMessage.id       = CANRX_IMD_RESPONSE_ID;
+    tries               = 0u;
+    command             = 0xA;
+    canMessage.data[0]  = 0xA;
+    uint8_t ackReceived = 0u;
 
     ackReceived = TEST_I165C_CheckAcknowledgeArrived(command, &tries, &canMessage);
-    TEST_ASSERT_EQUAL(true, ackReceived);
+    TEST_ASSERT_EQUAL(1u, ackReceived);
     TEST_ASSERT_EQUAL(0u, tries);
 
     /* Acknowledge not arrived, increment try counter */
@@ -301,7 +188,7 @@ void testMessageComposition(void) {
 
     ackReceived = TEST_I165C_CheckAcknowledgeArrived(command, &tries, &canMessage);
     TEST_ASSERT_EQUAL(1u, tries);
-    TEST_ASSERT_EQUAL(false, ackReceived);
+    TEST_ASSERT_EQUAL(0u, ackReceived);
 
     /* Acknowledge not arrived, and allowed number of tries made, restart
      * Initialization (go to self test) */
@@ -311,5 +198,5 @@ void testMessageComposition(void) {
 
     ackReceived = TEST_I165C_CheckAcknowledgeArrived(command, &tries, &canMessage);
     TEST_ASSERT_EQUAL(I165C_TRANSMISSION_ATTEMPTS, tries);
-    TEST_ASSERT_EQUAL(false, ackReceived);
+    TEST_ASSERT_EQUAL(0u, ackReceived);
 }

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,13 +43,13 @@
  * @file    adc.h
  * @author  foxBMS Team
  * @date    2019-01-07 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup DRIVERS
  * @prefix  ADC
  *
  * @brief   Headers for the driver for the ADC module.
- *
+ * @details TODO
  */
 
 #ifndef FOXBMS__ADC_H_
@@ -63,6 +63,10 @@
 
 #include <stdint.h>
 
+#ifdef UNITY_UNIT_TEST
+#include <math.h>
+#endif
+
 /*========== Macros and Definitions =========================================*/
 
 /** ADC voltage reference, high */
@@ -70,11 +74,11 @@
 /** ADC voltage reference, low */
 #define ADC_VREFLOW_mV (0.0f)
 /** ADC conversion factor, 12 bit conversion */
-#define ADC_CONV_FACTOR_12BIT (4096.0f)
+#define ADC_CONVERSION_FACTOR_12BIT (4096.0f)
 /** ADC conversion factor, 10 bit conversion */
-#define ADC_CONV_FACTOR_10BIT (1024.0f)
+#define ADC_CONVERSION_FACTOR_10BIT (1024.0f)
 /** ADC conversion offset */
-#define ADC_CONV_OFFSET (0.5f)
+#define ADC_CONVERSION_OFFSET (0.5f)
 
 /** End bit position in ADC Groupx Interrupt Flag Register */
 #define ADC_CONVERSION_ENDDBIT (8u)
@@ -100,6 +104,9 @@ extern void ADC_Control(void);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 #ifdef UNITY_UNIT_TEST
+extern float_t TEST_ADC_ConvertVoltage(uint16_t adcCounts);
+extern void TEST_ADC_SetAdcConversionState(ADC_STATE_e state);
+extern ADC_STATE_e TEST_ADC_GetAdcConversionState(void);
 #endif
 
 #endif /* FOXBMS__ADC_H_ */

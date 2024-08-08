@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,11 +33,14 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
+
+#ifndef FOXBMS__AXIVION_PREINC_H_
+#define FOXBMS__AXIVION_PREINC_H_
 
 /* Required by Axivion */
 
@@ -93,7 +96,7 @@ extern void _nassert(int src);
 #pragma immutable_macro __atomic_compare_exchange
 
 /* cafe has a different __atomic_is_lock_free() built-in, so redefine the
- * name in TI headers to avoid ambiguitiy. */
+ * name in TI headers to avoid ambiguity. */
 #define __atomic_is_lock_free __atomic_is_lock_free_no_builtin
 
 #define __va_parmadr(P) (&(P))
@@ -385,3 +388,5 @@ extern unsigned long _lo(long double);
 
 /* foxBMS 2 specific adaptions                                              */
 extern unsigned _ftoi (float src);
+
+#endif /* FOXBMS__AXIVION_PREINC_H_ */

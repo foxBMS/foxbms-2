@@ -27,3 +27,10 @@ tests/axivion/qualification-test/qualification-kit/**/*.cpp -diff -merge -text
 tests/axivion/qualification-test/qualification-kit/**/*.h -diff -merge -text
 tests/axivion/qualification-test/qualification-kit/**/*.json -diff -merge -text
 tests/axivion/qualification-test/qualification-kit/**/*.py -diff -merge -text
+
+*.sln text eol=crlf
+
+*.png binary
+*.jpg binary
+
+*.sh text eol=lf

@@ -6,22 +6,19 @@
 I2C Module
 ==========
 
-.. spelling::
-    cacheable
-
 Module Files
 ------------
 
 Driver
 ^^^^^^
 
-- ``src/app/driver/i2c/i2c.c`` (`API <../../../../_static/doxygen/src/html/i2c_8c.html>`__, `source <../../../../_static/doxygen/src/html/i2c_8c_source.html>`__)
-- ``src/app/driver/i2c/i2c.h`` (`API <../../../../_static/doxygen/src/html/i2c_8h.html>`__, `source <../../../../_static/doxygen/src/html/i2c_8h_source.html>`__)
+- ``src/app/driver/i2c/i2c.c``
+- ``src/app/driver/i2c/i2c.h``
 
 Unit Test
 ^^^^^^^^^
 
-- ``tests/unit/app/driver/can/test_i2c.c`` (`API <../../../../_static/doxygen/tests/html/test__i2c_8c.html>`__, `source <../../../../_static/doxygen/tests/html/test__i2c_8c_source.html>`__)
+- ``tests/unit/app/driver/can/test_i2c.c``
 
 Detailed Description
 --------------------

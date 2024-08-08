@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 #
-# Copyright (c) 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -51,40 +50,43 @@ def build(bld):
     ts_man = bld.env.temperature_sensor_manuf
     ts_mod = bld.env.temperature_sensor_model
     ts_met = bld.env.temperature_sensor_meth
+    # fmt: off
+    # pylint: disable=line-too-long
     source = [
         os.path.join("adc", "adc.c"),
         os.path.join("can", "can.c"),
         os.path.join("can", "cbs", "can_helper.c"),
+        os.path.join("can", "cbs", "tx-async", "can_cbs_tx_crash-dump.c"),
+        os.path.join("can", "cbs", "tx-async", "can_cbs_tx_debug-build-configuration.c"),
+        os.path.join("can", "cbs", "tx-async", "can_cbs_tx_debug-response.c"),
+        os.path.join("can", "cbs", "tx-async", "can_cbs_tx_debug-unsupported-multiplexer-values.c",),
+        os.path.join("can", "cbs", "tx-async", "can_cbs_tx_imd-request.c"),
         os.path.join("can", "cbs", "rx", "can_cbs_rx_aerosol-sensor.c"),
+        os.path.join("can", "cbs", "rx", "can_cbs_rx_cell-temperatures.c"),
+        os.path.join("can", "cbs", "rx", "can_cbs_rx_cell-voltages.c"),
         os.path.join("can", "cbs", "rx", "can_cbs_rx_current-sensor.c"),
         os.path.join("can", "cbs", "rx", "can_cbs_rx_imd-response.c"),
         os.path.join("can", "cbs", "rx", "can_cbs_rx_imd-info.c"),
         os.path.join("can", "cbs", "rx", "can_cbs_rx_debug.c"),
         os.path.join("can", "cbs", "rx", "can_cbs_rx_bms-state-request.c"),
-        os.path.join("can", "cbs", "tx", "can_cbs_tx_cell-temperatures.c"),
-        os.path.join("can", "cbs", "tx", "can_cbs_tx_cell-voltages.c"),
-        os.path.join("can", "cbs", "tx", "can_cbs_tx_debug-response.c"),
-        os.path.join("can", "cbs", "tx", "can_cbs_tx_crash-dump.c"),
-        os.path.join("can", "cbs", "tx", "can_cbs_tx_pack-limits.c"),
-        os.path.join("can", "cbs", "tx", "can_cbs_tx_pack-minimum-maximum-values.c"),
-        os.path.join("can", "cbs", "tx", "can_cbs_tx_string-minimum-maximum-values.c"),
-        os.path.join("can", "cbs", "tx", "can_cbs_tx_pack-state-estimation.c"),
-        os.path.join("can", "cbs", "tx", "can_cbs_tx_bms-state.c"),
-        os.path.join("can", "cbs", "tx", "can_cbs_tx_bms-state-details.c"),
-        os.path.join("can", "cbs", "tx", "can_cbs_tx_string-state.c"),
-        os.path.join("can", "cbs", "tx", "can_cbs_tx_string-state-estimation.c"),
-        os.path.join("can", "cbs", "tx", "can_cbs_tx_pack-values-p0.c"),
-        os.path.join("can", "cbs", "tx", "can_cbs_tx_pack-values-p1.c"),
-        os.path.join("can", "cbs", "tx", "can_cbs_tx_string-values-p0.c"),
-        os.path.join("can", "cbs", "tx", "can_cbs_tx_string-values-p1.c"),
-        os.path.join("can", "cbs", "tx", "can_cbs_tx_imd-request.c"),
-        os.path.join(
-            "can", "cbs", "tx", "can_cbs_tx_debug-unsupported-multiplexer-values.c"
-        ),
+        os.path.join("can", "cbs", "tx-cyclic", "can_cbs_tx_cell-temperatures.c"),
+        os.path.join("can", "cbs", "tx-cyclic", "can_cbs_tx_cell-voltages.c"),
+        os.path.join("can", "cbs", "tx-cyclic", "can_cbs_tx_pack-limits.c"),
+        os.path.join("can", "cbs", "tx-cyclic", "can_cbs_tx_pack-minimum-maximum-values.c"),
+        os.path.join("can", "cbs", "tx-cyclic", "can_cbs_tx_string-minimum-maximum-values.c"),
+        os.path.join("can", "cbs", "tx-cyclic", "can_cbs_tx_pack-state-estimation.c"),
+        os.path.join("can", "cbs", "tx-cyclic", "can_cbs_tx_bms-state.c"),
+        os.path.join("can", "cbs", "tx-cyclic", "can_cbs_tx_bms-state-details.c"),
+        os.path.join("can", "cbs", "tx-cyclic", "can_cbs_tx_string-state.c"),
+        os.path.join("can", "cbs", "tx-cyclic", "can_cbs_tx_string-state-estimation.c"),
+        os.path.join("can", "cbs", "tx-cyclic", "can_cbs_tx_pack-values-p0.c"),
+        os.path.join("can", "cbs", "tx-cyclic", "can_cbs_tx_pack-values-p1.c"),
+        os.path.join("can", "cbs", "tx-cyclic", "can_cbs_tx_string-values-p0.c"),
+        os.path.join("can", "cbs", "tx-cyclic", "can_cbs_tx_string-values-p1.c"),
         os.path.join("checksum", "checksum.c"),
         os.path.join("crc", "crc.c"),
         os.path.join("config", "contactor_cfg.c"),
-        os.path.join("config", "can_cfg_tx.c"),
+        os.path.join("config", "can_cfg_tx_cyclic.c"),
         os.path.join("config", "can_cfg_rx.c"),
         os.path.join("config", "can_cfg.c"),
         os.path.join("config", "dma_cfg.c"),
@@ -118,13 +120,14 @@ def build(bld):
         os.path.join("ts", "epcos", "b57861s0103f045", "epcos_b57861s0103f045.c"),
         os.path.join("ts", "fake", "none", "fake_none.c"),
         os.path.join("ts", "murata", "ncxxxxh103", "murata_ncxxxxh103.c"),
+        os.path.join("ts", "semitec", "103jt", "semitec_103jt.c"),
         os.path.join("ts", "vishay", "ntcalug01a103g", "vishay_ntcalug01a103g.c"),
         os.path.join("ts", "vishay", "ntcle317e4103sba", "vishay_ntcle317e4103sba.c"),
-        os.path.join(
-            "ts", "vishay", "ntcle413e2103f102l", "vishay_ntcle413e2103f102l.c"
-        ),
+        os.path.join("ts", "vishay", "ntcle413e2103f102l", "vishay_ntcle413e2103f102l.c"),
         os.path.join("ts", "beta.c"),
     ]
+    # pylint: enable=line-too-long
+    # fmt: on
     includes = [
         "adc",
         "can",
@@ -151,7 +154,8 @@ def build(bld):
         "ts",
         os.path.join("can", "cbs"),
         os.path.join("can", "cbs", "rx"),
-        os.path.join("can", "cbs", "tx"),
+        os.path.join("can", "cbs", "tx-async"),
+        os.path.join("can", "cbs", "tx-cyclic"),
         os.path.join("imd"),
         os.path.join("imd", "bender", "iso165c"),
         os.path.join("imd", "bender", "iso165c", "config"),
@@ -160,6 +164,7 @@ def build(bld):
         os.path.join("ts", "epcos", "b57861s0103f045"),
         os.path.join("ts", "fake", "none"),
         os.path.join("ts", "murata", "ncxxxxh103"),
+        os.path.join("ts", "semitec", "103jt"),
         os.path.join("ts", "vishay", "ntcalug01a103g"),
         os.path.join("ts", "vishay", "ntcle317e4103sba"),
         os.path.join("ts", "vishay", "ntcle413e2103f102l"),

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,8 +43,8 @@
  * @file    test_diag_cbs_voltage.c
  * @author  foxBMS Team
  * @date    2021-02-17 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -92,32 +92,344 @@ void tearDown(void) {
 }
 
 /*========== Test Cases =====================================================*/
-/** tests invalid input values */
+/**
+ * @brief   Testing DIAG_ErrorOvervoltageInvalidInput
+ * @details The following cases need to be tested:
+ *          - Argument validation:
+ *            - AT1/4: invalid diagnosis event ID for diagId -> assert
+ *            - AT2/4: invalid event for event  -> assert
+ *            - AT3/4: NULL_PTR for kpkDiagShim -> assert
+ *            - AT4/4: Invalid String number BS_NR_OF_STRINGS -> assert
+ *          - Routine validation:
+ *            - RT1/5: Checks whether the overVoltage bit is set correctly when the max. safety limit of
+ *                     overvoltage in the cell is reached.
+ *                     Tests whether the underVoltage bit is set correctly in the event of "reset" and "not ok".
+ *            - RT2/5: Checks whether the overVoltage bit is set correctly when the recommended safety limit of
+ *                     overvoltage in the cell is reached.
+ *                     Tests whether the underVoltage bit is set correctly in the event of "reset" and "not ok".
+ *            - RT3/5: Checks whether the overVoltage bit is set correctly when the max. operating limit of
+ *                     overvoltage in the cell is reached.
+ *                     Tests whether the underVoltage bit is set correctly in the event of "reset" and "not ok".
+ *            - RT4/5: Checks whether the underVoltage bit (0) doesn't change in the event of "ok".
+ *            - RT5/5: Checks whether the underVoltage bit (1) doesn't change in the event of "ok".
+ */
 void testDIAG_ErrorOvervoltageInvalidInput(void) {
+    /* ======= Assertion tests ============================================= */
+    /* ======= AT1/4 ======= */
     TEST_ASSERT_FAIL_ASSERT(DIAG_ErrorOvervoltage(DIAG_ID_MAX, DIAG_EVENT_OK, &diag_kpkDatabaseShim, 0u));
+    /* ======= AT2/4 ======= */
     TEST_ASSERT_FAIL_ASSERT(DIAG_ErrorOvervoltage(DIAG_ID_CELL_VOLTAGE_OVERVOLTAGE_MSL, 42, &diag_kpkDatabaseShim, 0u));
+    /* ======= AT3/4 ======= */
     TEST_ASSERT_FAIL_ASSERT(DIAG_ErrorOvervoltage(DIAG_ID_CELL_VOLTAGE_OVERVOLTAGE_MSL, DIAG_EVENT_OK, NULL_PTR, 0u));
+    /* ======= AT4/4 ======= */
     TEST_ASSERT_FAIL_ASSERT(DIAG_ErrorOvervoltage(
         DIAG_ID_CELL_VOLTAGE_OVERVOLTAGE_MSL, DIAG_EVENT_OK, &diag_kpkDatabaseShim, BS_NR_OF_STRINGS));
+
+    /* ======= Routine tests =============================================== */
+    /* ======= RT1/5: Test implementation */
+    diag_kpkDatabaseShim.pTableMsl->overVoltage[0u] = 0;
+    /* ======= RT1/5: call function under test */
+    DIAG_ErrorOvervoltage(DIAG_ID_CELL_VOLTAGE_OVERVOLTAGE_MSL, DIAG_EVENT_NOT_OK, &diag_kpkDatabaseShim, 0u);
+    /* ======= RT1/5: test output verification */
+    TEST_ASSERT_EQUAL_INT(1u, diag_kpkDatabaseShim.pTableMsl->overVoltage[0u]);
+    /* ======= RT1/5: Test implementation */
+    diag_kpkDatabaseShim.pTableMsl->overVoltage[0u] = 1;
+    /* ======= RT1/5: call function under test */
+    DIAG_ErrorOvervoltage(DIAG_ID_CELL_VOLTAGE_OVERVOLTAGE_MSL, DIAG_EVENT_RESET, &diag_kpkDatabaseShim, 0u);
+    /* ======= RT1/5: test output verification */
+    TEST_ASSERT_EQUAL_INT(0u, diag_kpkDatabaseShim.pTableMsl->overVoltage[0u]);
+
+    /* ======= RT2/5: Test implementation */
+    diag_kpkDatabaseShim.pTableRsl->overVoltage[0u] = 0;
+    /* ======= RT2/5: call function under test */
+    DIAG_ErrorOvervoltage(DIAG_ID_CELL_VOLTAGE_OVERVOLTAGE_RSL, DIAG_EVENT_NOT_OK, &diag_kpkDatabaseShim, 0u);
+    /* ======= RT2/5: test output verification */
+    TEST_ASSERT_EQUAL_INT(1u, diag_kpkDatabaseShim.pTableRsl->overVoltage[0u]);
+    /* ======= RT2/5: Test implementation */
+    diag_kpkDatabaseShim.pTableRsl->overVoltage[0u] = 1;
+    /* ======= RT2/5: call function under test */
+    DIAG_ErrorOvervoltage(DIAG_ID_CELL_VOLTAGE_OVERVOLTAGE_RSL, DIAG_EVENT_RESET, &diag_kpkDatabaseShim, 0u);
+    /* ======= RT2/5: test output verification */
+    TEST_ASSERT_EQUAL_INT(0u, diag_kpkDatabaseShim.pTableRsl->overVoltage[0u]);
+
+    /* ======= RT3/5: Test implementation */
+    diag_kpkDatabaseShim.pTableMol->overVoltage[0u] = 0;
+    /* ======= RT3/5: call function under test */
+    DIAG_ErrorOvervoltage(DIAG_ID_CELL_VOLTAGE_OVERVOLTAGE_MOL, DIAG_EVENT_NOT_OK, &diag_kpkDatabaseShim, 0u);
+    /* ======= RT3/5: test output verification */
+    TEST_ASSERT_EQUAL_INT(1u, diag_kpkDatabaseShim.pTableMol->overVoltage[0u]);
+    /* ======= RT3/5: Test implementation */
+    diag_kpkDatabaseShim.pTableMol->overVoltage[0u] = 1;
+    /* ======= RT3/5: call function under test */
+    DIAG_ErrorOvervoltage(DIAG_ID_CELL_VOLTAGE_OVERVOLTAGE_MOL, DIAG_EVENT_RESET, &diag_kpkDatabaseShim, 0u);
+    /* ======= RT3/5: test output verification */
+    TEST_ASSERT_EQUAL_INT(0u, diag_kpkDatabaseShim.pTableMol->overVoltage[0u]);
+
+    /* ======= RT4/5: Test implementation */
+    diag_kpkDatabaseShim.pTableMsl->overVoltage[0u] = 0;
+    /* ======= RT4/5: call function under test */
+    DIAG_ErrorOvervoltage(DIAG_ID_CELL_VOLTAGE_OVERVOLTAGE_MSL, DIAG_EVENT_OK, &diag_kpkDatabaseShim, 0u);
+    /* ======= RT4/5: test output verification */
+    TEST_ASSERT_EQUAL_INT(0u, diag_kpkDatabaseShim.pTableMsl->overVoltage[0u]);
+    /* ======= RT4/5: Test implementation */
+    diag_kpkDatabaseShim.pTableRsl->overVoltage[0u] = 0;
+    /* ======= RT4/5: call function under test */
+    DIAG_ErrorOvervoltage(DIAG_ID_CELL_VOLTAGE_OVERVOLTAGE_RSL, DIAG_EVENT_OK, &diag_kpkDatabaseShim, 0u);
+    /* ======= RT4/5: test output verification */
+    TEST_ASSERT_EQUAL_INT(0u, diag_kpkDatabaseShim.pTableRsl->overVoltage[0u]);
+    /* ======= RT4/5: Test implementation */
+    diag_kpkDatabaseShim.pTableMol->overVoltage[0u] = 0;
+    /* ======= RT4/5: call function under test */
+    DIAG_ErrorOvervoltage(DIAG_ID_CELL_VOLTAGE_OVERVOLTAGE_MOL, DIAG_EVENT_OK, &diag_kpkDatabaseShim, 0u);
+    /* ======= RT4/5: test output verification */
+    TEST_ASSERT_EQUAL_INT(0u, diag_kpkDatabaseShim.pTableMol->overVoltage[0u]);
+
+    /* ======= RT5/5: Test implementation */
+    diag_kpkDatabaseShim.pTableMsl->overVoltage[0u] = 1;
+    /* ======= RT5/5: call function under test */
+    DIAG_ErrorOvervoltage(DIAG_ID_CELL_VOLTAGE_OVERVOLTAGE_MSL, DIAG_EVENT_OK, &diag_kpkDatabaseShim, 0u);
+    /* ======= RT5/5: test output verification */
+    TEST_ASSERT_EQUAL_INT(1u, diag_kpkDatabaseShim.pTableMsl->overVoltage[0u]);
+    /* ======= RT5/5: Test implementation */
+    diag_kpkDatabaseShim.pTableRsl->overVoltage[0u] = 1;
+    /* ======= RT5/5: call function under test */
+    DIAG_ErrorOvervoltage(DIAG_ID_CELL_VOLTAGE_OVERVOLTAGE_RSL, DIAG_EVENT_OK, &diag_kpkDatabaseShim, 0u);
+    /* ======= RT5/5: test output verification */
+    TEST_ASSERT_EQUAL_INT(1u, diag_kpkDatabaseShim.pTableRsl->overVoltage[0u]);
+    /* ======= RT5/5: Test implementation */
+    diag_kpkDatabaseShim.pTableMol->overVoltage[0u] = 1;
+    /* ======= RT5/5: call function under test */
+    DIAG_ErrorOvervoltage(DIAG_ID_CELL_VOLTAGE_OVERVOLTAGE_MOL, DIAG_EVENT_OK, &diag_kpkDatabaseShim, 0u);
+    /* ======= RT5/5: test output verification */
+    TEST_ASSERT_EQUAL_INT(1u, diag_kpkDatabaseShim.pTableMol->overVoltage[0u]);
 }
 
-/** tests invalid input values */
+/**
+ * @brief   Testing DIAG_ErrorUndervoltageInvalidInput
+ * @details The following cases need to be tested:
+ *          - Argument validation:
+ *            - AT1/4: invalid diagnosis event ID for diagId -> assert
+ *            - AT2/4: invalid event for event  -> assert
+ *            - AT3/4: NULL_PTR for kpkDiagShim -> assert
+ *            - AT4/4: Invalid String number BS_NR_OF_STRINGS -> assert
+ *          - Routine validation:
+ *            - RT1/5: Checks whether the underVoltage bit is set correctly when the max. safety limit of
+ *                     underVoltage in the cell is reached.
+ *                     Tests whether the underVoltage bit is set correctly in the event of "reset" and "not ok".
+ *            - RT2/5: Checks whether the underVoltage bit is set correctly when the recommended safety limit of
+ *                     underVoltage in the cell is reached.
+ *                     Tests whether the underVoltage bit is set correctly in the event of "reset" and "not ok".
+ *            - RT3/5: Checks whether the underVoltage bit is set correctly when the max. operating limit of
+ *                     underVoltage in the cell is reached.
+ *                     Tests whether the underVoltage bit is set correctly in the event of "reset" and "not ok".
+ *            - RT4/5: Checks whether the underVoltage bit (0) doesn't change in the event of "ok".
+ *            - RT5/5: Checks whether the underVoltage bit (1) doesn't change in the event of "ok".
+ */
 void testDIAG_ErrorUndervoltageInvalidInput(void) {
+    /* ======= Assertion tests ============================================= */
+    /* ======= AT1/4 ======= */
     TEST_ASSERT_FAIL_ASSERT(DIAG_ErrorUndervoltage(DIAG_ID_MAX, DIAG_EVENT_OK, &diag_kpkDatabaseShim, 0u));
+    /* ======= AT2/4 ======= */
     TEST_ASSERT_FAIL_ASSERT(
         DIAG_ErrorUndervoltage(DIAG_ID_CELL_VOLTAGE_UNDERVOLTAGE_MSL, 42, &diag_kpkDatabaseShim, 0u));
+    /* ======= AT3/4 ======= */
     TEST_ASSERT_FAIL_ASSERT(DIAG_ErrorUndervoltage(DIAG_ID_CELL_VOLTAGE_UNDERVOLTAGE_MSL, DIAG_EVENT_OK, NULL_PTR, 0u));
+    /* ======= AT4/4 ======= */
     TEST_ASSERT_FAIL_ASSERT(DIAG_ErrorUndervoltage(
         DIAG_ID_CELL_VOLTAGE_UNDERVOLTAGE_MSL, DIAG_EVENT_OK, &diag_kpkDatabaseShim, BS_NR_OF_STRINGS));
+
+    /* ======= Routine tests =============================================== */
+    /* ======= RT1/5: Test implementation */
+    diag_kpkDatabaseShim.pTableMsl->underVoltage[0u] = 0;
+    /* ======= RT1/5: call function under test */
+    DIAG_ErrorUndervoltage(DIAG_ID_CELL_VOLTAGE_UNDERVOLTAGE_MSL, DIAG_EVENT_NOT_OK, &diag_kpkDatabaseShim, 0u);
+    /* ======= RT1/5: test output verification */
+    TEST_ASSERT_EQUAL_INT(1u, diag_kpkDatabaseShim.pTableMsl->underVoltage[0u]);
+    /* ======= RT1/5: Test implementation */
+    diag_kpkDatabaseShim.pTableMsl->underVoltage[0u] = 1;
+    /* ======= RT1/5: call function under test */
+    DIAG_ErrorUndervoltage(DIAG_ID_CELL_VOLTAGE_UNDERVOLTAGE_MSL, DIAG_EVENT_RESET, &diag_kpkDatabaseShim, 0u);
+    /* ======= RT1/5: test output verification */
+    TEST_ASSERT_EQUAL_INT(0u, diag_kpkDatabaseShim.pTableMsl->underVoltage[0u]);
+
+    /* ======= RT2/5: Test implementation */
+    diag_kpkDatabaseShim.pTableRsl->underVoltage[0u] = 0;
+    /* ======= RT2/5: call function under test */
+    DIAG_ErrorUndervoltage(DIAG_ID_CELL_VOLTAGE_UNDERVOLTAGE_RSL, DIAG_EVENT_NOT_OK, &diag_kpkDatabaseShim, 0u);
+    /* ======= RT2/5: test output verification */
+    TEST_ASSERT_EQUAL_INT(1u, diag_kpkDatabaseShim.pTableRsl->underVoltage[0u]);
+    /* ======= RT2/5: Test implementation */
+    diag_kpkDatabaseShim.pTableRsl->underVoltage[0u] = 1;
+    /* ======= RT2/5: call function under test */
+    DIAG_ErrorUndervoltage(DIAG_ID_CELL_VOLTAGE_UNDERVOLTAGE_RSL, DIAG_EVENT_RESET, &diag_kpkDatabaseShim, 0u);
+    /* ======= RT2/5: test output verification */
+    TEST_ASSERT_EQUAL_INT(0u, diag_kpkDatabaseShim.pTableRsl->underVoltage[0u]);
+
+    /* ======= RT3/5: Test implementation */
+    diag_kpkDatabaseShim.pTableMol->underVoltage[0u] = 0;
+    /* ======= RT3/5: call function under test */
+    DIAG_ErrorUndervoltage(DIAG_ID_CELL_VOLTAGE_UNDERVOLTAGE_MOL, DIAG_EVENT_NOT_OK, &diag_kpkDatabaseShim, 0u);
+    /* ======= RT3/5: test output verification */
+    TEST_ASSERT_EQUAL_INT(1u, diag_kpkDatabaseShim.pTableMol->underVoltage[0u]);
+    /* ======= RT3/5: Test implementation */
+    diag_kpkDatabaseShim.pTableMol->underVoltage[0u] = 1;
+    /* ======= RT3/5: call function under test */
+    DIAG_ErrorUndervoltage(DIAG_ID_CELL_VOLTAGE_UNDERVOLTAGE_MOL, DIAG_EVENT_RESET, &diag_kpkDatabaseShim, 0u);
+    /* ======= RT3/5: test output verification */
+    TEST_ASSERT_EQUAL_INT(0u, diag_kpkDatabaseShim.pTableMol->underVoltage[0u]);
+
+    /* ======= RT4/5: Test implementation */
+    diag_kpkDatabaseShim.pTableMsl->underVoltage[0u] = 0;
+    /* ======= RT4/5: call function under test */
+    DIAG_ErrorUndervoltage(DIAG_ID_CELL_VOLTAGE_UNDERVOLTAGE_MSL, DIAG_EVENT_OK, &diag_kpkDatabaseShim, 0u);
+    /* ======= RT4/5: test output verification */
+    TEST_ASSERT_EQUAL_INT(0u, diag_kpkDatabaseShim.pTableMsl->underVoltage[0u]);
+    /* ======= RT4/5: Test implementation */
+    diag_kpkDatabaseShim.pTableRsl->underVoltage[0u] = 0;
+    /* ======= RT4/5: call function under test */
+    DIAG_ErrorUndervoltage(DIAG_ID_CELL_VOLTAGE_UNDERVOLTAGE_RSL, DIAG_EVENT_OK, &diag_kpkDatabaseShim, 0u);
+    /* ======= RT4/5: test output verification */
+    TEST_ASSERT_EQUAL_INT(0u, diag_kpkDatabaseShim.pTableRsl->underVoltage[0u]);
+    /* ======= RT4/5: Test implementation */
+    diag_kpkDatabaseShim.pTableMol->underVoltage[0u] = 0;
+    /* ======= RT4/5: call function under test */
+    DIAG_ErrorUndervoltage(DIAG_ID_CELL_VOLTAGE_UNDERVOLTAGE_MOL, DIAG_EVENT_OK, &diag_kpkDatabaseShim, 0u);
+    /* ======= RT4/5: test output verification */
+    TEST_ASSERT_EQUAL_INT(0u, diag_kpkDatabaseShim.pTableMol->underVoltage[0u]);
+
+    /* ======= RT5/5: Test implementation */
+    diag_kpkDatabaseShim.pTableMsl->underVoltage[0u] = 1;
+    /* ======= RT5/5: call function under test */
+    DIAG_ErrorUndervoltage(DIAG_ID_CELL_VOLTAGE_UNDERVOLTAGE_MSL, DIAG_EVENT_OK, &diag_kpkDatabaseShim, 0u);
+    /* ======= RT5/5: test output verification */
+    TEST_ASSERT_EQUAL_INT(1u, diag_kpkDatabaseShim.pTableMsl->underVoltage[0u]);
+    /* ======= RT5/5: Test implementation */
+    diag_kpkDatabaseShim.pTableRsl->underVoltage[0u] = 1;
+    /* ======= RT5/5: call function under test */
+    DIAG_ErrorUndervoltage(DIAG_ID_CELL_VOLTAGE_UNDERVOLTAGE_RSL, DIAG_EVENT_OK, &diag_kpkDatabaseShim, 0u);
+    /* ======= RT5/5: test output verification */
+    TEST_ASSERT_EQUAL_INT(1u, diag_kpkDatabaseShim.pTableRsl->underVoltage[0u]);
+    /* ======= RT5/5: Test implementation */
+    diag_kpkDatabaseShim.pTableMol->underVoltage[0u] = 1;
+    /* ======= RT5/5: call function under test */
+    DIAG_ErrorUndervoltage(DIAG_ID_CELL_VOLTAGE_UNDERVOLTAGE_MOL, DIAG_EVENT_OK, &diag_kpkDatabaseShim, 0u);
+    /* ======= RT5/5: test output verification */
+    TEST_ASSERT_EQUAL_INT(1u, diag_kpkDatabaseShim.pTableMol->underVoltage[0u]);
 }
 
-/** tests invalid input values */
+/**
+ * @brief   Testing DIAG_ErrorHighVoltageMeasurementInvalidInput
+ * @details The following cases need to be tested:
+ *          - Argument validation:
+ *            - AT1/4: invalid diagnosis event ID for diagId -> assert
+ *            - AT2/4: invalid event for event  -> assert
+ *            - AT3/4: NULL_PTR for kpkDiagShim -> assert
+ *            - AT4/4: Invalid String number BS_NR_OF_STRINGS -> assert
+ *          - Routine validation:
+ *            - RT1/5: Checks whether the error bit is set correctly when Voltage 1 Measurement Timeout Error occurs.
+ *                     Tests whether the error bit is set correctly in the event of "reset" and "not ok".
+ *            - RT2/5: Checks whether the error bit is set correctly when Voltage 2 Measurement Timeout Error occurs.
+ *                     Tests whether the error bit is set correctly in the event of "reset" and "not ok".
+ *            - RT3/5: Checks whether the error bit is set correctly when Voltage 3 Measurement Timeout Error occurs.
+ *                     Tests whether the error bit is set correctly in the event of "reset" and "not ok".
+ *            - RT4/5: Checks whether the error bit (0) doesn't change in the event of "ok".
+ *            - RT5/5: Checks whether the error bit (1) doesn't change in the event of "ok".
+ */
 void testDIAG_ErrorHighVoltageMeasurementInvalidInput(void) {
+    /* ======= Assertion tests ============================================= */
+    /* ======= AT1/4 ======= */
     TEST_ASSERT_FAIL_ASSERT(DIAG_ErrorHighVoltageMeasurement(DIAG_ID_MAX, DIAG_EVENT_OK, &diag_kpkDatabaseShim, 0u));
+    /* ======= AT2/4 ======= */
     TEST_ASSERT_FAIL_ASSERT(
         DIAG_ErrorHighVoltageMeasurement(DIAG_ID_CURRENT_SENSOR_V1_MEASUREMENT_TIMEOUT, 42, &diag_kpkDatabaseShim, 0u));
+    /* ======= AT3/4 ======= */
     TEST_ASSERT_FAIL_ASSERT(
         DIAG_ErrorHighVoltageMeasurement(DIAG_ID_CURRENT_SENSOR_V1_MEASUREMENT_TIMEOUT, DIAG_EVENT_OK, NULL_PTR, 0u));
+    /* ======= AT4/4 ======= */
     TEST_ASSERT_FAIL_ASSERT(DIAG_ErrorHighVoltageMeasurement(
         DIAG_ID_CURRENT_SENSOR_V1_MEASUREMENT_TIMEOUT, DIAG_EVENT_OK, &diag_kpkDatabaseShim, BS_NR_OF_STRINGS));
+
+    /* ======= Routine tests =============================================== */
+    /* ======= RT1/5: Test implementation */
+    diag_kpkDatabaseShim.pTableError->currentSensorVoltage1TimeoutError[0u] = true;
+    /* ======= RT1/5: call function under test */
+    DIAG_ErrorHighVoltageMeasurement(
+        DIAG_ID_CURRENT_SENSOR_V1_MEASUREMENT_TIMEOUT, DIAG_EVENT_RESET, &diag_kpkDatabaseShim, 0u);
+    /* ======= RT1/5: test output verification */
+    TEST_ASSERT_FALSE(diag_kpkDatabaseShim.pTableError->currentSensorVoltage1TimeoutError[0u]);
+    /* ======= RT1/5: Test implementation */
+    diag_kpkDatabaseShim.pTableError->currentSensorVoltage1TimeoutError[0u] = false;
+    /* ======= RT1/5: call function under test */
+    DIAG_ErrorHighVoltageMeasurement(
+        DIAG_ID_CURRENT_SENSOR_V1_MEASUREMENT_TIMEOUT, DIAG_EVENT_NOT_OK, &diag_kpkDatabaseShim, 0u);
+    /* ======= RT1/5: test output verification */
+    TEST_ASSERT_TRUE(diag_kpkDatabaseShim.pTableError->currentSensorVoltage1TimeoutError[0u]);
+
+    /* ======= RT2/5: Test implementation */
+    diag_kpkDatabaseShim.pTableError->currentSensorVoltage2TimeoutError[0u] = true;
+    /* ======= RT2/5: call function under test */
+    DIAG_ErrorHighVoltageMeasurement(
+        DIAG_ID_CURRENT_SENSOR_V2_MEASUREMENT_TIMEOUT, DIAG_EVENT_RESET, &diag_kpkDatabaseShim, 0u);
+    /* ======= RT2/5: test output verification */
+    TEST_ASSERT_FALSE(diag_kpkDatabaseShim.pTableError->currentSensorVoltage2TimeoutError[0u]);
+    /* ======= RT2/5: Test implementation */
+    diag_kpkDatabaseShim.pTableError->currentSensorVoltage2TimeoutError[0u] = false;
+    /* ======= RT2/5: call function under test */
+    DIAG_ErrorHighVoltageMeasurement(
+        DIAG_ID_CURRENT_SENSOR_V2_MEASUREMENT_TIMEOUT, DIAG_EVENT_NOT_OK, &diag_kpkDatabaseShim, 0u);
+    /* ======= RT2/5: test output verification */
+    TEST_ASSERT_TRUE(diag_kpkDatabaseShim.pTableError->currentSensorVoltage2TimeoutError[0u]);
+
+    /* ======= RT3/5: Test implementation */
+    diag_kpkDatabaseShim.pTableError->currentSensorVoltage3TimeoutError[0u] = true;
+    /* ======= RT3/5: call function under test */
+    DIAG_ErrorHighVoltageMeasurement(
+        DIAG_ID_CURRENT_SENSOR_V3_MEASUREMENT_TIMEOUT, DIAG_EVENT_RESET, &diag_kpkDatabaseShim, 0u);
+    /* ======= RT3/5: test output verification */
+    TEST_ASSERT_FALSE(diag_kpkDatabaseShim.pTableError->currentSensorVoltage3TimeoutError[0u]);
+    /* ======= RT3/5: Test implementation */
+    diag_kpkDatabaseShim.pTableError->currentSensorVoltage3TimeoutError[0u] = false;
+    /* ======= RT3/5: call function under test */
+    DIAG_ErrorHighVoltageMeasurement(
+        DIAG_ID_CURRENT_SENSOR_V3_MEASUREMENT_TIMEOUT, DIAG_EVENT_NOT_OK, &diag_kpkDatabaseShim, 0u);
+    /* ======= RT3/5: test output verification */
+    TEST_ASSERT_TRUE(diag_kpkDatabaseShim.pTableError->currentSensorVoltage3TimeoutError[0u]);
+
+    /* ======= RT4/5: Test implementation */
+    diag_kpkDatabaseShim.pTableError->currentSensorVoltage1TimeoutError[0u] = true;
+    /* ======= RT4/5: call function under test */
+    DIAG_ErrorUndervoltage(DIAG_ID_CURRENT_SENSOR_V1_MEASUREMENT_TIMEOUT, DIAG_EVENT_OK, &diag_kpkDatabaseShim, 0u);
+    /* ======= RT4/5: test output verification */
+    TEST_ASSERT_TRUE(diag_kpkDatabaseShim.pTableError->currentSensorVoltage1TimeoutError[0u]);
+    /* ======= RT4/5: Test implementation */
+    diag_kpkDatabaseShim.pTableError->currentSensorVoltage2TimeoutError[0u] = true;
+    /* ======= RT4/5: call function under test */
+    DIAG_ErrorUndervoltage(DIAG_ID_CURRENT_SENSOR_V2_MEASUREMENT_TIMEOUT, DIAG_EVENT_OK, &diag_kpkDatabaseShim, 0u);
+    /* ======= RT4/5: test output verification */
+    TEST_ASSERT_TRUE(diag_kpkDatabaseShim.pTableError->currentSensorVoltage2TimeoutError[0u]);
+    /* ======= RT4/5: Test implementation */
+    diag_kpkDatabaseShim.pTableError->currentSensorVoltage3TimeoutError[0u] = true;
+    /* ======= RT4/5: call function under test */
+    DIAG_ErrorUndervoltage(DIAG_ID_CURRENT_SENSOR_V3_MEASUREMENT_TIMEOUT, DIAG_EVENT_OK, &diag_kpkDatabaseShim, 0u);
+    /* ======= RT4/5: test output verification */
+    TEST_ASSERT_TRUE(diag_kpkDatabaseShim.pTableError->currentSensorVoltage3TimeoutError[0u]);
+
+    /* ======= RT5/5: Test implementation */
+    diag_kpkDatabaseShim.pTableError->currentSensorVoltage1TimeoutError[0u] = false;
+    /* ======= RT5/5: call function under test */
+    DIAG_ErrorUndervoltage(DIAG_ID_CURRENT_SENSOR_V1_MEASUREMENT_TIMEOUT, DIAG_EVENT_OK, &diag_kpkDatabaseShim, 0u);
+    /* ======= RT5/5: test output verification */
+    TEST_ASSERT_FALSE(diag_kpkDatabaseShim.pTableError->currentSensorVoltage1TimeoutError[0u]);
+    /* ======= RT5/5: Test implementation */
+    diag_kpkDatabaseShim.pTableError->currentSensorVoltage2TimeoutError[0u] = false;
+    /* ======= RT5/5: call function under test */
+    DIAG_ErrorUndervoltage(DIAG_ID_CURRENT_SENSOR_V2_MEASUREMENT_TIMEOUT, DIAG_EVENT_OK, &diag_kpkDatabaseShim, 0u);
+    /* ======= RT5/5: test output verification */
+    TEST_ASSERT_FALSE(diag_kpkDatabaseShim.pTableError->currentSensorVoltage2TimeoutError[0u]);
+    /* ======= RT5/5: Test implementation */
+    diag_kpkDatabaseShim.pTableError->currentSensorVoltage3TimeoutError[0u] = false;
+    /* ======= RT5/5: call function under test */
+    DIAG_ErrorUndervoltage(DIAG_ID_CURRENT_SENSOR_V3_MEASUREMENT_TIMEOUT, DIAG_EVENT_OK, &diag_kpkDatabaseShim, 0u);
+    /* ======= RT5/5: test output verification */
+    TEST_ASSERT_FALSE(diag_kpkDatabaseShim.pTableError->currentSensorVoltage3TimeoutError[0u]);
 }

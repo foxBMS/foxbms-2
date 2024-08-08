@@ -6,13 +6,6 @@
 Segger Ozone Debugger
 =====================
 
-..
-    Comments:
-    Mictor is a connector
-
-.. spelling::
-    Mictor
-
 Required Hardware
 ^^^^^^^^^^^^^^^^^
 
@@ -61,13 +54,13 @@ be written to ``fas_assertLocation.pc`` as mentioned in
 With Ozone, the location of this assertion in the program code can be looked up
 as follows:
 
-* The variable ``fas_assertLocation`` has to be viewable in ``Global Data`` or
+- The variable ``fas_assertLocation`` has to be viewable in ``Global Data`` or
   in ``Watched Data``.
-* It has to be updated (ideally by pausing program execution).
-* Unfold ``fas_assertLocation`` so that the members are shown.
+- It has to be updated (ideally by pausing program execution).
+- Unfold ``fas_assertLocation`` so that the members are shown.
   Do not unfold ``pc``.
-* Right-click on the ``Value`` of ``pc`` and select "Show Value in Source".
-* Ozone will show the code location from where the failing assertion originated.
+- Right-click on the ``Value`` of ``pc`` and select "Show Value in Source".
+- Ozone will show the code location from where the failing assertion originated.
 
 Break on an assertion
 ^^^^^^^^^^^^^^^^^^^^^
@@ -114,5 +107,3 @@ This allows the user to call waf with the ``install_bin`` command in order to
 build and directly download in the connected target.
 This feature can be used for integrated tests that have to download the
 compiled software into a target.
-For the user's convenience, the |code| workspace contains a ``Flash:Binary``
-build target that allows to call this action directly from the IDE.

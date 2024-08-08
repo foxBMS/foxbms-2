@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,13 +43,13 @@
  * @file    ftask_cfg.c
  * @author  foxBMS Team
  * @date    2019-08-26 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup TASK_CONFIGURATION
  * @prefix  FTSK
  *
  * @brief   Task configuration
- * @details
+ * @details TODO
  */
 
 /*========== Includes =======================================================*/
@@ -171,7 +171,7 @@ extern void FTSK_InitializeUserCodeEngine(void) {
     /* Init FRAM */
     FRAM_Initialize();
 
-    retval = SYSM_Init();
+    retval = SYSM_Initialize();
 
     if (retval == STD_NOT_OK) {
         FAS_ASSERT(FAS_TRAP);
@@ -186,23 +186,20 @@ extern void FTSK_RunUserCodeEngine(void) {
     /* See function definition doxygen comment for details */
     DATA_Task();               /* Call database manager */
     SYSM_CheckNotifications(); /* Check notifications from tasks */
-    /* Warning: Do not change the content of this function */
-    /* See function definition doxygen comment for details */
+                               /* Warning: Do not change the content of this function */
+                               /* See function definition doxygen comment for details */
 }
 
 extern void FTSK_InitializeUserCodePreCyclicTasks(void) {
-    /* user code */
-    SYS_RETURN_TYPE_e sys_retVal = SYS_ILLEGAL_REQUEST;
-
     /*  Init Sys */
-    sys_retVal = SYS_SetStateRequest(SYS_STATE_INITIALIZATION_REQUEST);
+    SYS_RETURN_TYPE_e sys_retVal = SYS_SetStateRequest(SYS_STATE_INITIALIZATION_REQUEST);
 
     /* Init port expander */
     PEX_Initialize();
 
-    /* Set 3rd PE pin to activate temperature/humidity sensor */
-    PEX_SetPinDirectionOutput(PEX_PORT_EXPANDER3, PEX_PIN00);
-    PEX_SetPin(PEX_PORT_EXPANDER3, PEX_PIN00);
+    /* Set 3rd PE pin 0 to activate temperature/humidity sensor */
+    PEX_SetPinDirectionOutput(PEX_PORT_EXPANDER3, PEX_PORT_0_PIN_0);
+    PEX_SetPin(PEX_PORT_EXPANDER3, PEX_PORT_0_PIN_0);
 
     CONT_Initialize();
     SPS_Initialize();
@@ -305,8 +302,7 @@ void FTSK_RunUserCodeAfe(void) {
 #endif
 }
 
-extern void FTSK_RunUserCodeIdle(void) {
-    /* user code */
+extern void FTSK_RunUserCodeIdle(void) { /* user code */
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,9 +43,9 @@
  * @file    can_cbs_rx_aerosol-sensor.c
  * @author  foxBMS Team
  * @date    2023-08-29 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
- * @ingroup DRIVER
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
+ * @ingroup DRIVERS
  * @prefix  CANRX
  *
  * @brief   CAN driver Rx callback implementation
@@ -53,6 +53,8 @@
  */
 
 /*========== Includes =======================================================*/
+/* AXIVION Next Codeline Generic-LocalInclude: 'can_cbs_rx.h' declares the
+ * prototype for the callback 'CANRX_AerosolSensor' */
 #include "can_cbs_rx.h"
 #include "can_cfg_rx-message-definitions.h"
 #include "can_helper.h"
@@ -88,28 +90,28 @@
 /*========== Static Function Prototypes =====================================*/
 /**
  * @brief   Sets error flags in database as received from can message
- * @param   kpkCanShim const pointer to can shim
+ * @param   kpkCanShim const pointer to CAN shim
  * @param   signalData data from can message that covers errors
  */
 static void CANRX_HandleAerosolSensorErrors(const CAN_SHIM_s *const kpkCanShim, uint16_t signalData);
 
 /**
  * @brief   Sets sensor status in database
- * @param   kpkCanShim const pointer to can shim
+ * @param   kpkCanShim const pointer to CAN shim
  * @param   signalData data from can message that covers status
  */
 static void CANRX_HandleAerosolSensorStatus(const CAN_SHIM_s *const kpkCanShim, uint16_t signalData);
 
 /**
  * @brief   Sets current particulate matter measurement value in database
- * @param   kpkCanShim const pointer to can shim
+ * @param   kpkCanShim const pointer to CAN shim
  * @param   signalData data from can message that covers particulate matter measurement
  */
 static void CANRX_SetParticulateMatterConcentration(const CAN_SHIM_s *const kpkCanShim, uint16_t signalData);
 
 /**
  * @brief   Sets CRC check code from sensor in database
- * @param   kpkCanShim const pointer to can shim
+ * @param   kpkCanShim const pointer to CAN shim
  * @param   signalData data from can message that covers crc check code
  */
 static void CANRX_SetAerosolSensorCrcCheckCode(const CAN_SHIM_s *const kpkCanShim, uint16_t signalData);
@@ -162,14 +164,14 @@ static void CANRX_HandleAerosolSensorStatus(const CAN_SHIM_s *const kpkCanShim, 
 
 static void CANRX_SetParticulateMatterConcentration(const CAN_SHIM_s *const kpkCanShim, uint16_t signalData) {
     FAS_ASSERT(kpkCanShim != NULL_PTR);
-    /* AXIVION Routine Generic-MissingParameterAssert: signalData: parameter accept whole range */
+    /* AXIVION Routine Generic-MissingParameterAssert: signalData: parameter accepts whole range */
     /* set particulate matter concentration in database */
     kpkCanShim->pTableAerosolSensor->particulateMatterConcentration = signalData;
 }
 
 static void CANRX_SetAerosolSensorCrcCheckCode(const CAN_SHIM_s *const kpkCanShim, uint16_t signalData) {
     FAS_ASSERT(kpkCanShim != NULL_PTR);
-    /* AXIVION Routine Generic-MissingParameterAssert: signalData: parameter accept whole range */
+    /* AXIVION Routine Generic-MissingParameterAssert: signalData: parameter accepts whole range */
     /* set CRC check code in database */
     uint8_t data                                  = (uint8_t)signalData;
     kpkCanShim->pTableAerosolSensor->crcCheckCode = data;
@@ -180,8 +182,8 @@ extern uint32_t CANRX_AerosolSensor(
     CAN_MESSAGE_PROPERTIES_s message,
     const uint8_t *const kpkCanData,
     const CAN_SHIM_s *const kpkCanShim) {
-    FAS_ASSERT(message.id == CANRX_AEROSOL_SENSOR_ID);
-    FAS_ASSERT(message.idType == CANRX_AEROSOL_SENSOR_ID_TYPE);
+    FAS_ASSERT(message.id == CANRX_BAS_AEROSOL_SENSOR_ID);
+    FAS_ASSERT(message.idType == CANRX_BAS_AEROSOL_SENSOR_ID_TYPE);
     FAS_ASSERT(message.dlc == CAN_DEFAULT_DLC);
     FAS_ASSERT(kpkCanData != NULL_PTR);
     FAS_ASSERT(kpkCanShim != NULL_PTR);
@@ -232,7 +234,7 @@ extern uint32_t CANRX_AerosolSensor(
     CANRX_SetAerosolSensorCrcCheckCode(kpkCanShim, signalData);
 
     DATA_WRITE_DATA(kpkCanShim->pTableAerosolSensor);
-    return 0;
+    return 0u;
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/

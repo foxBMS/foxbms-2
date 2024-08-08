@@ -12,14 +12,14 @@ Module Files
 Driver
 ^^^^^^
 
-- ``src/app/engine/database/database.c`` (`API <../../../../_static/doxygen/src/html/database_8c.html>`__, `source <../../../../_static/doxygen/src/html/database_8c_source.html>`__)
-- ``src/app/engine/database/database.h`` (`API <../../../../_static/doxygen/src/html/database_8h.html>`__, `source <../../../../_static/doxygen/src/html/database_8h_source.html>`__)
+- ``src/app/engine/database/database.c``
+- ``src/app/engine/database/database.h``
 
 Configuration
 ^^^^^^^^^^^^^
 
-- ``src/app/engine/config/database_cfg.c`` (`API <../../../../_static/doxygen/src/html/database__cfg_8c.html>`__, `source <../../../../_static/doxygen/src/html/database__cfg_8c_source.html>`__)
-- ``src/app/engine/config/database_cfg.h`` (`API <../../../../_static/doxygen/src/html/database__cfg_8h.html>`__, `source <../../../../_static/doxygen/src/html/database__cfg_8h_source.html>`__)
+- ``src/app/engine/config/database_cfg.c``
+- ``src/app/engine/config/database_cfg.h``
 
 Unit Test
 ^^^^^^^^^

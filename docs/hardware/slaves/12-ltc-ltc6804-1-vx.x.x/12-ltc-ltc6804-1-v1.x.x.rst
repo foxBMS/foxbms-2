@@ -84,9 +84,9 @@ In case a second |BMS-Slave| must be connected to the daisy chain, the |OUT+|
 and |OUT-| pins of the first |BMS-Slave| must be connected to the |IN+| and
 |IN-| pins of the second |BMS-Slave|.
 
---------------------------------------
-Cell Voltage Connector on the |slaves|
---------------------------------------
+------------------------------------------
+Cell Voltage Connector on the |bms-slaves|
+------------------------------------------
 
 The connector indicated as ``Battery cell connector (16 pin)`` in
 :numref:`Fig. %s <block_diagram_6804-1_slave_12cell_v1.x.x>` has two purposes:
@@ -136,9 +136,9 @@ The voltage of 30V  is chosen so that every simulated cell voltage lies around
 2.5V, which lies in the center of the safe operating area defined by default in
 the |foxbms| software.
 
-------------------------------------------
-Cell Temperature Connector on the |slaves|
-------------------------------------------
+----------------------------------------------
+Cell Temperature Connector on the |bms-slaves|
+----------------------------------------------
 
 The connector indicated as ``Temperature sensor connector (24 pin)`` in
 :numref:`Fig. %s <block_diagram_6804-1_slave_12cell_v1.x.x>` is used to connect
@@ -185,5 +185,5 @@ If sensors are added, they must be connected between the connector pins
 corresponding to the sensors 0 to 5, as shown in
 :numref:`Table %s <cell_temperature_connector>`.
 
-.. [ltc_data_sheet_6804] LTC6804 data sheet http://cds.linear.com/docs/en/datasheet/680412fb.pdf
-.. [ltc_data_sheet_6811] LTC6811 data sheet http://cds.linear.com/docs/en/datasheet/68111f.pdf
+.. [ltc_data_sheet_6804] LTC6804 data sheet https://www.analog.com/media/en/technical-documentation/data-sheets/680412fc.pdf
+.. [ltc_data_sheet_6811] LTC6811 data sheet https://www.analog.com/media/en/technical-documentation/data-sheets/ltc6811-1-6811-2.pdf

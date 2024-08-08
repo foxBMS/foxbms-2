@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,8 +43,8 @@
  * @file    test_adc.c
  * @author  foxBMS Team
  * @date    2020-04-01 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -58,7 +58,12 @@
 #include "Mockdatabase.h"
 #include "Mockfassert.h"
 
+#include "HL_reg_adc.h"
+
 #include "adc.h"
+#include "test_assert_helper.h"
+
+#include <stdint.h>
 
 /*========== Unit Testing Framework Directives ==============================*/
 TEST_INCLUDE_PATH("../../src/app/driver/adc")
@@ -74,5 +79,44 @@ void tearDown(void) {
 
 /*========== Test Cases =====================================================*/
 
-void testDummy(void) {
+void testADC_ConvertVoltage(void) {
+    TEST_ASSERT_EQUAL_FLOAT(15.25879f, TEST_ADC_ConvertVoltage(12u));
+    TEST_ASSERT_EQUAL_FLOAT(0.6103516f, TEST_ADC_ConvertVoltage(0u));
+    TEST_ASSERT_EQUAL_FLOAT(79999.39f, TEST_ADC_ConvertVoltage(UINT16_MAX));
+}
+
+void testADC_Control(void) {
+    TEST_ADC_SetAdcConversionState(ADC_START_CONVERSION);
+    adcStartConversion_Expect(adcREG1, adcGROUP1);
+    ADC_Control();
+    TEST_ASSERT_EQUAL(ADC_WAIT_CONVERSION_FINISHED, TEST_ADC_GetAdcConversionState());
+
+    /* stay in ADC_WAIT_CONVERSION_FINISHED 2-times */
+    adcIsConversionComplete_ExpectAndReturn(adcREG1, adcGROUP1, 0u);
+    ADC_Control();
+    TEST_ASSERT_EQUAL(ADC_WAIT_CONVERSION_FINISHED, TEST_ADC_GetAdcConversionState());
+
+    adcIsConversionComplete_ExpectAndReturn(adcREG1, adcGROUP1, 0u);
+    ADC_Control();
+    TEST_ASSERT_EQUAL(ADC_WAIT_CONVERSION_FINISHED, TEST_ADC_GetAdcConversionState());
+
+    /* reached endbit */
+    adcIsConversionComplete_ExpectAndReturn(adcREG1, adcGROUP1, ADC_CONVERSION_ENDDBIT);
+    ADC_Control();
+    TEST_ASSERT_EQUAL(ADC_CONVERSION_FINISHED, TEST_ADC_GetAdcConversionState());
+
+    /* convert */
+    /*
+    [../../tests/unit/app/driver/adc/test_adc.c]
+  Test: testADC_Control
+  At line (88): "Function DATA_Write1DataBlock.  Called more times than expected."
+    */
+    /* static adcData_t adc_adc1RawVoltages[MCU_ADC1_MAX_NR_CHANNELS] = {0};
+
+    adcGetData_ExpectAndReturn(adcREG1, adcGROUP1, &adc_adc1RawVoltages[0], 0u);
+    adcGetData_IgnoreArg_data();
+    adcGetData_ReturnArrayThruPtr_data(&adc_adc1RawVoltages[0], MCU_ADC1_MAX_NR_CHANNELS);
+    ADC_Control();
+    TEST_ASSERT_EQUAL(ADC_START_CONVERSION, TEST_ADC_GetAdcConversionState());
+    */
 }

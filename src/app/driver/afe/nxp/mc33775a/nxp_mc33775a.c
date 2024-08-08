@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,13 +43,13 @@
  * @file    nxp_mc33775a.c
  * @author  foxBMS Team
  * @date    2020-05-08 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup DRIVERS
  * @prefix  N775
  *
  * @brief   Driver for the MC33775A analog front-end.
- *
+ * @details TODO
  */
 
 /*========== Includes =======================================================*/
@@ -67,6 +67,7 @@
 #include "afe_dma.h"
 #include "database.h"
 #include "fassert.h"
+#include "foxmath.h"
 #include "fstd_types.h"
 #include "ftask.h"
 #include "mcu.h"
@@ -258,10 +259,9 @@ static void N775_BalanceControl(N775_STATE_s *pState) {
     for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
         uint8_t deviceAddress   = m + 1u;
         uint16_t balancingState = 0u;
-        for (uint16_t c = 0u; c < BS_NR_OF_CELL_BLOCKS_PER_MODULE; c++) {
-            if (pState->n775Data.balancingControl
-                    ->balancingState[pState->currentString][c + (m * BS_NR_OF_CELL_BLOCKS_PER_MODULE)] != 0u) {
-                balancingState |= 1u << c;
+        for (uint16_t cb = 0u; cb < BS_NR_OF_CELL_BLOCKS_PER_MODULE; cb++) {
+            if (pState->n775Data.balancingControl->activateBalancing[pState->currentString][m][cb] == true) {
+                balancingState |= 1u << cb;
             }
         }
         /* All channels active --> 14 bits set to 1 --> 0x3FFF */
@@ -334,6 +334,11 @@ static void N775_CaptureMeasurement(N775_STATE_s *pState) {
     /* Wait for measurements to be ready */
     N775_Wait(N775_MEASUREMENT_READY_TIME_MS);
 
+    /* Reset number previous measurement results on string-level */
+    pState->n775Data.cellVoltage->stringVoltage_mV[pState->currentString]        = 0u;
+    pState->n775Data.cellVoltage->nrValidCellVoltages[pState->currentString]     = 0u;
+    pState->n775Data.cellTemperature->nrValidTemperatures[pState->currentString] = 0u;
+
     for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
         uint8_t deviceAddress = m + 1u;
         retValPrimary         = N775_CommunicationReadMultiple(
@@ -352,9 +357,17 @@ static void N775_CaptureMeasurement(N775_STATE_s *pState) {
                 if (N775_INVALID_REGISTER_VALUE != primaryRawValues[cb + 1u]) {
                     primaryValues[cb + 1u] = (int16_t)primaryRawValues[cb + 1u];
                     pState->n775Data.cellVoltage->cellVoltage_mV[pState->currentString][m][cb] =
-                        (((float_t)primaryValues[cb + 1u]) * 154.0e-6f * 1000.0f);
+                        (((float_t)primaryValues[cb + 1u]) * 154.0e-6f * UNIT_CONVERSION_FACTOR_1000_FLOAT);
+                    /* String voltage measurement is calculated as sum of individual cell voltage measurement */
+                    pState->n775Data.cellVoltage->stringVoltage_mV[pState->currentString] +=
+                        pState->n775Data.cellVoltage->cellVoltage_mV[pState->currentString][m][cb];
+                    pState->n775Data.cellVoltage->invalidCellVoltage[pState->currentString][m][cb] = false;
+                    pState->n775Data.cellVoltage->nrValidCellVoltages[pState->currentString]++;
                 } else {
                     error++;
+                    pState->n775Data.cellVoltage->cellVoltage_mV[pState->currentString][m][cb] =
+                        AFE_DEFAULT_CELL_VOLTAGE_INVALID_VALUE;
+                    pState->n775Data.cellVoltage->invalidCellVoltage[pState->currentString][m][cb] = true;
                 }
             }
             for (uint8_t g = 0u; g < 4u; g++) {
@@ -377,6 +390,12 @@ static void N775_CaptureMeasurement(N775_STATE_s *pState) {
             } else {
                 error++;
             }
+        } else {
+            /* Reset voltage values and the relevant invalid flag if the communication is not ok */
+            for (uint8_t cb = 0u; cb < BS_NR_OF_CELL_BLOCKS_PER_MODULE; cb++) {
+                pState->n775Data.cellVoltage->cellVoltage_mV[pState->currentString][m][cb]     = 0;
+                pState->n775Data.cellVoltage->invalidCellVoltage[pState->currentString][m][cb] = true;
+            }
         }
 
         N775_ErrorHandling(pState, retValSecondary, m);
@@ -394,30 +413,55 @@ static void N775_CaptureMeasurement(N775_STATE_s *pState) {
             }
         }
 
-        /* Set temperature values */
-        if (N775_USE_MUX_FOR_TEMP == true) {
-            /* Mux case */
-            if (gpio03Error == false) {
-                pState->n775Data.cellTemperature
-                    ->cellTemperature_ddegC[pState->currentString][m][pState->currentMux[pState->currentString]] =
-                    N775_ConvertVoltagesToTemperatures(
-                        pState->n775Data.allGpioVoltage
-                            ->gpioVoltages_mV[pState->currentString]
-                                             [N775_MUXED_TEMP_GPIO_POSITION + (m * BS_NR_OF_GPIOS_PER_MODULE)]);
-            }
-        } else if (N775_USE_MUX_FOR_TEMP == false) {
-            /* No  mux case */
-            if ((gpio03Error == false) && (gpio47Error == false)) {
-                for (uint8_t ts = 0u; ts < BS_NR_OF_TEMP_SENSORS_PER_MODULE; ts++) {
-                    pState->n775Data.cellTemperature->cellTemperature_ddegC[pState->currentString][m][ts] =
+        N775_ErrorHandling(pState, retValPrimary, m);
+        if (retValPrimary == N775_COMMUNICATION_OK) {
+            /* Set temperature values */
+            if (N775_USE_MUX_FOR_TEMP == true) {
+                /* Mux case */
+                if (gpio03Error == false) {
+                    pState->n775Data.cellTemperature
+                        ->cellTemperature_ddegC[pState->currentString][m][pState->currentMux[pState->currentString]] =
                         N775_ConvertVoltagesToTemperatures(
-                            pState->n775Data.allGpioVoltage
-                                ->gpioVoltages_mV[pState->currentString][ts + (m * BS_NR_OF_GPIOS_PER_MODULE)]);
+                            pState->n775Data.allGpioVoltage->gpioVoltages_mV[pState->currentString]
+                                                                            [N775_MULTIPLEXER_TEMP_GPIO_POSITION +
+                                                                             (m * BS_NR_OF_GPIOS_PER_MODULE)]);
+                    pState->n775Data.cellTemperature
+                        ->invalidCellTemperature[pState->currentString][m][pState->currentMux[pState->currentString]] =
+                        false;
+                } else {
+                    pState->n775Data.cellTemperature
+                        ->cellTemperature_ddegC[pState->currentString][m][pState->currentMux[pState->currentString]] =
+                        0;
+                    pState->n775Data.cellTemperature
+                        ->invalidCellTemperature[pState->currentString][m][pState->currentMux[pState->currentString]] =
+                        true;
                 }
+            } else if (N775_USE_MUX_FOR_TEMP == false) {
+                /* No  mux case */
+                if ((gpio03Error == false) && (gpio47Error == false)) {
+                    for (uint8_t ts = 0u; ts < BS_NR_OF_TEMP_SENSORS_PER_MODULE; ts++) {
+                        pState->n775Data.cellTemperature->cellTemperature_ddegC[pState->currentString][m][ts] =
+                            N775_ConvertVoltagesToTemperatures(
+                                pState->n775Data.allGpioVoltage
+                                    ->gpioVoltages_mV[pState->currentString][ts + (m * BS_NR_OF_GPIOS_PER_MODULE)]);
+                        pState->n775Data.cellTemperature->invalidCellTemperature[pState->currentString][m][ts] = false;
+                    }
+                } else {
+                    for (uint8_t ts = 0u; ts < BS_NR_OF_TEMP_SENSORS_PER_MODULE; ts++) {
+                        pState->n775Data.cellTemperature->cellTemperature_ddegC[pState->currentString][m][ts]  = 0;
+                        pState->n775Data.cellTemperature->invalidCellTemperature[pState->currentString][m][ts] = true;
+                    }
+                }
+            } else {
+                /* Invalid value for switch case */
+                FAS_ASSERT(FAS_TRAP);
             }
         } else {
-            /* Invalid value for switch case */
-            FAS_ASSERT(FAS_TRAP);
+            /* Reset temperature values the relevant invalid flag if the communication is not ok */
+            for (uint8_t ts = 0u; ts < BS_NR_OF_TEMP_SENSORS_PER_MODULE; ts++) {
+                pState->n775Data.cellTemperature->cellTemperature_ddegC[pState->currentString][m][ts]  = 0;
+                pState->n775Data.cellTemperature->invalidCellTemperature[pState->currentString][m][ts] = true;
+            }
         }
 
         if (N775_CHECK_SUPPLY_CURRENT == true) {
@@ -452,14 +496,14 @@ static STD_RETURN_TYPE_e N775_Enumerate(N775_STATE_s *pState) {
             MC33775_SYS_MODE_OFFSET,
             (MC33775_SYS_MODE_TARGETMODE_DEEPSLEEP_ENUM_VAL << MC33775_SYS_MODE_TARGETMODE_POS),
             pState->pSpiTxSequence);
-        N775_Wait(1u);
+        N775_Wait(N775_T_SW_ACT_DEEP_SLEEP_MS);
 
         /* Wake up slave */
         returnedValue = N775_CommunicationRead(i, MC33775_SYS_COM_CFG_OFFSET, &readValue, pState);
         /* If slave is not enumerated */
         if (returnedValue != N775_COMMUNICATION_OK) {
             /* Wait until the slave has woken up */
-            N775_Wait(N775_WAKEUP_TIME_MS);
+            N775_Wait(N775_T_WAKE_COM_MS);
 
             returnedValue = N775_CommunicationRead(i, MC33775_SYS_COM_CFG_OFFSET, &readValue, pState);
             /* If slave is not enumerated */
@@ -497,7 +541,7 @@ static STD_RETURN_TYPE_e N775_Enumerate(N775_STATE_s *pState) {
         returnedValue = N775_CommunicationReadMultiple(i, 3u, 3u, MC33775_SYS_UID_LOW_OFFSET, uid, pState);
         if (returnedValue == N775_COMMUNICATION_OK) {
             pState->n775Data.uid[pState->currentString][i - 1u] = 0u;
-            for (uint8_t j = 0u; j <= 3u; j++) {
+            for (uint8_t j = 0u; j < 3u; j++) {
                 pState->n775Data.uid[pState->currentString][i - 1u] |= ((uint64_t)uid[j]) << (16u * j);
             }
         }
@@ -564,57 +608,61 @@ static void N775_Initialize(N775_STATE_s *pState) {
 
 static void N775_InitializeDatabase(N775_STATE_s *pState) {
     FAS_ASSERT(pState != NULL_PTR);
-    uint16_t iterator = 0;
 
-    for (uint8_t stringNumber = 0u; stringNumber < BS_NR_OF_STRINGS; stringNumber++) {
-        pState->n775Data.cellVoltage->state                               = 0;
-        pState->n775Data.minMax->minimumCellVoltage_mV[stringNumber]      = 0;
-        pState->n775Data.minMax->maximumCellVoltage_mV[stringNumber]      = 0;
-        pState->n775Data.minMax->nrModuleMinimumCellVoltage[stringNumber] = 0;
-        pState->n775Data.minMax->nrModuleMaximumCellVoltage[stringNumber] = 0;
-        pState->n775Data.minMax->nrCellMinimumCellVoltage[stringNumber]   = 0;
-        pState->n775Data.minMax->nrCellMaximumCellVoltage[stringNumber]   = 0;
+    for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
+        pState->n775Data.cellVoltage->state                    = 0u;
+        pState->n775Data.minMax->minimumCellVoltage_mV[s]      = 0;
+        pState->n775Data.minMax->maximumCellVoltage_mV[s]      = 0;
+        pState->n775Data.minMax->nrModuleMinimumCellVoltage[s] = 0u;
+        pState->n775Data.minMax->nrModuleMaximumCellVoltage[s] = 0u;
+        pState->n775Data.minMax->nrCellMinimumCellVoltage[s]   = 0u;
+        pState->n775Data.minMax->nrCellMaximumCellVoltage[s]   = 0u;
         for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
-            for (uint8_t cb = 0u; cb < BS_NR_OF_CELL_BLOCKS_PER_STRING; cb++) {
-                pState->n775Data.cellVoltage->cellVoltage_mV[stringNumber][m][cb] = 0;
+            for (uint8_t cb = 0u; cb < BS_NR_OF_CELL_BLOCKS_PER_MODULE; cb++) {
+                pState->n775Data.cellVoltage->cellVoltage_mV[s][m][cb]     = 0;
+                pState->n775Data.cellVoltage->invalidCellVoltage[s][m][cb] = true;
             }
         }
 
-        pState->n775Data.cellTemperature->state                           = 0;
-        pState->n775Data.minMax->minimumTemperature_ddegC[stringNumber]   = 0;
-        pState->n775Data.minMax->maximumTemperature_ddegC[stringNumber]   = 0;
-        pState->n775Data.minMax->nrModuleMinimumTemperature[stringNumber] = 0;
-        pState->n775Data.minMax->nrModuleMaximumTemperature[stringNumber] = 0;
-        pState->n775Data.minMax->nrSensorMinimumTemperature[stringNumber] = 0;
-        pState->n775Data.minMax->nrSensorMaximumTemperature[stringNumber] = 0;
+        pState->n775Data.cellTemperature->state                = 0u;
+        pState->n775Data.minMax->minimumTemperature_ddegC[s]   = 0;
+        pState->n775Data.minMax->maximumTemperature_ddegC[s]   = 0;
+        pState->n775Data.minMax->nrModuleMinimumTemperature[s] = 0u;
+        pState->n775Data.minMax->nrModuleMaximumTemperature[s] = 0u;
+        pState->n775Data.minMax->nrSensorMinimumTemperature[s] = 0u;
+        pState->n775Data.minMax->nrSensorMaximumTemperature[s] = 0u;
 
         for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
             for (uint8_t ts = 0u; ts < BS_NR_OF_TEMP_SENSORS_PER_MODULE; ts++) {
-                pState->n775Data.cellTemperature->cellTemperature_ddegC[stringNumber][m][ts] = 0;
+                pState->n775Data.cellTemperature->cellTemperature_ddegC[s][m][ts]  = 0;
+                pState->n775Data.cellTemperature->invalidCellTemperature[s][m][ts] = true;
             }
         }
 
-        for (iterator = 0u; iterator < BS_NR_OF_CELL_BLOCKS_PER_STRING; iterator++) {
-            pState->n775Data.balancingControl->balancingState[stringNumber][iterator] = 0;
+        for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
+            for (uint8_t cb = 0u; cb < BS_NR_OF_CELL_BLOCKS_PER_MODULE; cb++) {
+                pState->n775Data.balancingControl->activateBalancing[s][m][cb] = false;
+            }
         }
-        for (iterator = 0u; iterator < BS_NR_OF_MODULES_PER_STRING; iterator++) {
-            pState->n775Data.errorTable->communicationOk[stringNumber][iterator]        = false;
-            pState->n775Data.errorTable->noCommunicationTimeout[stringNumber][iterator] = false;
-            pState->n775Data.errorTable->crcIsValid[stringNumber][iterator]             = false;
-            pState->n775Data.errorTable->mux0IsOk[stringNumber][iterator]               = false;
-            pState->n775Data.errorTable->mux1IsOK[stringNumber][iterator]               = false;
-            pState->n775Data.errorTable->mux2IsOK[stringNumber][iterator]               = false;
-            pState->n775Data.errorTable->mux3IsOK[stringNumber][iterator]               = false;
+        for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
+            pState->n775Data.errorTable->communicationOk[s][m]        = false;
+            pState->n775Data.errorTable->noCommunicationTimeout[s][m] = false;
+            pState->n775Data.errorTable->crcIsValid[s][m]             = false;
+            pState->n775Data.errorTable->mux0IsOk[s][m]               = false;
+            pState->n775Data.errorTable->mux1IsOK[s][m]               = false;
+            pState->n775Data.errorTable->mux2IsOK[s][m]               = false;
+            pState->n775Data.errorTable->mux3IsOK[s][m]               = false;
         }
-        for (iterator = 0u; iterator < BS_NR_OF_MODULES_PER_STRING; iterator++) {
-            pState->n775Data.uid[stringNumber][iterator] = 0;
+        for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
+            pState->n775Data.uid[s][m] = 0u;
         }
     }
 
-    DATA_WRITE_DATA(pState->n775Data.cellVoltage);
-    DATA_WRITE_DATA(pState->n775Data.cellTemperature);
-    DATA_WRITE_DATA(pState->n775Data.minMax);
-    DATA_WRITE_DATA(pState->n775Data.balancingControl);
+    DATA_WRITE_DATA(
+        pState->n775Data.cellVoltage,
+        pState->n775Data.cellTemperature,
+        pState->n775Data.minMax,
+        pState->n775Data.balancingControl);
 }
 
 static void N775_InitializeI2c(N775_STATE_s *pState) {
@@ -659,10 +707,10 @@ static STD_RETURN_TYPE_e N775_SetMuxChannel(N775_STATE_s *pState) {
 
     uint16_t readValue                        = 0u;
     uint8_t dataI2c                           = 0u;
-    uint8_t addressI2c_write                  = N775_ADG728_ADDRESS_UPPERBITS;
-    uint8_t addressI2c_read                   = N775_ADG728_ADDRESS_UPPERBITS;
+    uint8_t addressI2c_write                  = N775_ADG728_ADDRESS_UPPER_BITS;
+    uint8_t addressI2c_read                   = N775_ADG728_ADDRESS_UPPER_BITS;
     uint16_t tries                            = 0u;
-    STD_RETURN_TYPE_e retVAL                  = STD_OK;
+    STD_RETURN_TYPE_e retVal                  = STD_OK;
     N775_COMMUNICATION_STATUS_e returnedValue = N775_COMMUNICATION_OK;
 
     /* First set channel */
@@ -742,14 +790,14 @@ static STD_RETURN_TYPE_e N775_SetMuxChannel(N775_STATE_s *pState) {
                     }
                 }
             } else {
-                retVAL = STD_NOT_OK;
+                retVal = STD_NOT_OK;
             }
         }
     } else {
-        retVAL = STD_NOT_OK;
+        retVal = STD_NOT_OK;
     }
 
-    return retVAL;
+    return retVal;
 }
 
 static void N775_StartMeasurement(N775_STATE_s *pState) {
@@ -757,18 +805,20 @@ static void N775_StartMeasurement(N775_STATE_s *pState) {
 
     /* Enable cell voltage measurements */
     N775_CommunicationWrite(N775_BROADCAST_ADDRESS, MC33775_ALLM_VCVB_CFG_OFFSET, 0x3FFF, pState->pSpiTxSequence);
+    N775_Wait(N775_T_WAIT_CYC_SOC_MS);
     /* Enable analog inputs 0-3 and module voltage measurement */
     N775_CommunicationWrite(N775_BROADCAST_ADDRESS, MC33775_PRMM_AIN_CFG_OFFSET, 0x1F, pState->pSpiTxSequence);
+    N775_Wait(N775_T_WAIT_CYC_SOC_MS);
     /* Enable analog inputs 4-7 measurement */
     N775_CommunicationWrite(N775_BROADCAST_ADDRESS, MC33775_SECM_AIN_CFG_OFFSET, 0x0F, pState->pSpiTxSequence);
+    N775_Wait(N775_T_WAIT_CYC_SOC_MS);
     /* Set pause of balancing before measurement start, enable the measurement units simultaneously */
     N775_CommunicationWrite(
         N775_BROADCAST_ADDRESS,
         MC33775_ALLM_CFG_OFFSET,
         (N775_BALPAUSELEN_10US << MC33775_ALLM_CFG_BALPAUSELEN_POS) | (1 << MC33775_ALLM_CFG_MEASEN_POS),
         pState->pSpiTxSequence);
-
-    N775_Wait(N775_TIME_AFTER_MEASUREMENT_START_MS);
+    N775_Wait(N775_T_WAIT_CYC_SOC_MS);
 }
 
 static STD_RETURN_TYPE_e N775_TransmitI2c(N775_STATE_s *pState) {

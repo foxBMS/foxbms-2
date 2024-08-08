@@ -7,32 +7,6 @@
 License
 #######
 
-..
-    Comments:
-    ccs is the abbreviation for "Code Composer Studio"
-    gcc is the abbreviation for "GNU Compiler Collection"
-    GPL is the abbreviation for "GNU General Public License"
-    SPDX is the abbreviation for "Software Package Data Exchange"
-    TSPA is the abbreviation for "TECHNOLOGY AND SOFTWARE PUBLICLY AVAILABLE"
-
-.. spelling::
-    ccs
-    gcc
-    GPL
-    GPLv
-    halcogen
-    SPDX
-    TSPA
-    pdf
-    txt
-    Tcl
-    tk
-    GCCRLE
-    LGPL
-
-.. include:: ./license-tables/license-packages-conda-env-spelling.txt
-.. include:: ./license-tables/license-packages-conda-env-spelling-build-strings.txt
-
 *****************
 |foxbms| Licenses
 *****************
@@ -158,15 +132,6 @@ Binary
    :delim: ;
    :file: ./license-tables/license-info_waf-binary.csv
 
-Unit Tests
-^^^^^^^^^^
-
-.. csv-table::
-   :name: license-info_waf-unit-tests
-   :widths: 10 50
-   :delim: ;
-   :file: ./license-tables/license-info_waf-unit-tests.csv
-
 Third Party Software
 ====================
 
@@ -188,55 +153,23 @@ Third Party Software
    :delim: ;
    :file: ./license-tables/license-info_ti-hcg.csv
 
-Miniconda
----------
+Python
+------
 
 .. csv-table::
-   :name: license-info_miniconda
+   :name: license-info_python
    :widths: 10 50
    :delim: ;
-   :file: ./license-tables/license-info_miniconda.csv
+   :file: ./license-tables/license-info_python.csv
 
-Miniconda ships a `Python <https://www.python.org>`_ interpreter.
-The Python interpreter license is found in
-``<miniconda-install-dir>/LICENSE_PYTHON.txt``.
-
-The conda environments shipped within the |foxbms| repository
-(``conf/enc/conda_env_win32.yaml``) specifies a couple of conda and pip
-packages.
-These packages and their licenses are listed in
-:numref:`license-info_packages-conda-env-win32` and
-:numref:`license-info_packages-conda-env-linux`.
-This list is generated based on ``conda list --show-channel-urls``.
-
-- For ``pypi`` packages the license information is taken from
-  https://pypi.org/.
-- For conda packages the  license information is obtained by running
-  ``conda info package_name --info`` or directly looked up in the conda build
-  recipe.
-- As a help for updating the list you can call
-  ``./tools/utils/bash/run-python-script.sh ./tools/utils/generate_license_list.py -f ./docs/general/license-tables/license-info_packages-conda-env-win32.csv > ./docs/general/license-tables/license-info_packages-conda-env-new.csv``.
-
-.. csv-table:: Conda and pip packages and licenses in the Windows environment
-   :name: license-info_packages-conda-env-win32
-   :header-rows: 1
-   :delim: ;
-   :file: ./license-tables/license-info_packages-conda-env-win32.csv
-
-.. csv-table:: Conda and pip packages and licenses in the Linux environment
-   :name: license-info_packages-conda-env-linux
-   :header-rows: 1
-   :delim: ;
-   :file: ./license-tables/license-info_packages-conda-env-linux.csv
-
-LLVM
-----
+Python Packages from PyPI
+-------------------------
 
 .. csv-table::
-   :name: license-info_llvm
-   :widths: 10 50
+   :name: license-info_python_packages
+   :widths: 30 10 10 50
    :delim: ;
-   :file: ./license-tables/license-info_llvm.csv
+   :file: ./license-tables/license-info_python_packages.csv
 
 RubyInstaller
 -------------
@@ -255,15 +188,6 @@ Visual Studio Code
    :widths: 10 50
    :delim: ;
    :file: ./license-tables/license-info_vs-code.csv
-
-Visual Studio Code Extensions
------------------------------
-
-.. csv-table::
-   :name: license-info_vs-code_extensions
-   :header-rows: 1
-   :delim: ;
-   :file: ./license-tables/license-info_vs-code_extensions.csv
 
 MinGW-w64 - for 32 and 64 bit Windows
 -------------------------------------

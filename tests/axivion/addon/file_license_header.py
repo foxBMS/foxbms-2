@@ -62,7 +62,7 @@ class IisbFileLicenseRule(iisb_base.IISBRule, analysis.AnalysisRule):
         re.compile(re.escape(s))
         for s in """/**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -95,13 +95,11 @@ class IisbFileLicenseRule(iisb_base.IISBRule, analysis.AnalysisRule):
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
- */""".splitlines(
-            keepends=False
-        )
+ */""".splitlines(keepends=False)
     )
 
     _rule_description = """
@@ -133,10 +131,10 @@ class IisbFileLicenseRule(iisb_base.IISBRule, analysis.AnalysisRule):
     ]:
         selected_files = set()
         if lang:
-            selected_files = set(
+            selected_files = {
                 node.Parent
                 for node in files_by_language.files_by_language(ir_graph, lang)
-            )
+            }
 
         def is_of_language(filenode):
             return not lang or filenode in selected_files

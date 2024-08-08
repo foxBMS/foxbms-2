@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,12 +43,13 @@
  * @file    bms_cfg.h
  * @author  foxBMS Team
  * @date    2020-02-24 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup ENGINE_CONFIGURATION
  * @prefix  BMS
  *
- * @brief   bms driver configuration header
+ * @brief   BMS driver configuration header
+ * @details TODO
  */
 
 #ifndef FOXBMS__BMS_CFG_H_
@@ -87,7 +88,7 @@
  *          This sets the minimum time between two subsequent executed
  *          states/substates.
  *          Define is only used for compile-time assertion, it has no
- *          programatic influence on the actual code.
+ *          programmatic influence on the actual code.
  */
 #define BMS_STATEMACHINE_TASK_CYCLE_CONTEXT_MS (10u)
 
@@ -105,7 +106,7 @@
  * @brief   BMS state machine medium time definition in #BMS_Trigger() calls
  *          until next state/substate is processed
  */
-#define BMS_STATEMACH_MEDIUMTIME (5u)
+#define BMS_STATEMACH_MEDIUM_TIME (5u)
 
 /**
  * @brief   BMS state machine long time definition in #BMS_Trigger() calls until
@@ -144,7 +145,7 @@
 #define BMS_AVERAGE_STRING_CURRENT_LIMIT_MA (20000)
 
 /** Delay after closing precharge in #BMS_Trigger() calls */
-#define BMS_TIME_WAIT_AFTER_CLOSING_PRECHARGE (100u)
+#define BMS_TIME_WAIT_AFTER_CLOSING_PRECHARGE (200u)
 
 /** Delay after opening precharge in #BMS_Trigger() calls */
 #define BMS_TIME_WAIT_AFTER_OPENING_PRECHARGE (50u)
@@ -153,7 +154,7 @@
  * @brief   Time to wait in #BMS_Trigger() calls after precharge opened because
  *          precharge failed
  */
-#define BMS_TIME_WAIT_AFTERPRECHARGEFAIL (300u)
+#define BMS_TIME_WAIT_AFTER_PRECHARGE_FAIL (300u)
 
 /**
  * @brief   Timeout in 1*10ms to wait before re-entering to precharge
@@ -175,7 +176,7 @@
  * @details Time to wait after contactors opened because precharge failed in
  *          #BMS_Trigger() calls
  */
-#define BMS_STATEMACH_TIMEAFTERPRECHARGEFAIL (100u)
+#define BMS_STATEMACH_TIME_UNTIL_PRECHARGE_FAIL (100u)
 
 /**
  * @details Timeout in #BMS_Trigger() calls when closing precharge after which

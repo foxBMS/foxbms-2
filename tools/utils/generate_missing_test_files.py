@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 #
-# Copyright (c) 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -38,7 +37,8 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""Helper script for updating dates in a merge request"""
+"""Automatically create the accompanying test files for the source tree if
+they are missing."""
 
 import argparse
 import logging
@@ -58,7 +58,7 @@ def get_git_root(path: str) -> str:
     """helper function to find the repository root
 
     Args:
-        path (string): path of test_f_guidelines
+        path (string): path of file in git repository
 
     Returns:
         root (string): root path of the git repository
@@ -78,7 +78,7 @@ UPDATED_RE_COMPILED = re.compile(
 
 
 def main():
-    """Automatically create the test file."""
+    """Automatically create the accompanying test files for the source tree."""
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "-v",
@@ -116,14 +116,14 @@ def main():
     today_iso = date.today().strftime("%Y-%m-%d")
 
     for i in err:
-        if not "should be in" in i:
+        if "should be in" not in i:
             continue
         out_txt = test_template
         source_file = Path(i.split("Missing test file for:")[-1].split()[0]).name
         missing_file = i.split("should be in: ")[-1]
         if missing_file.endswith(")"):
             missing_file = missing_file[:-1]
-        logging.debug(f"Need to create test file: '{missing_file}'.")
+        logging.debug("Need to create test file: '%s'.", missing_file)
         missing_file = Path(missing_file)
         out_txt[42] = f" * @file    {missing_file.name}"
         out_txt[44] = f" * @date    {today_iso} (date of creation)"

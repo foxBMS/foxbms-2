@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,8 +43,8 @@
  * @file    test_foxmath.c
  * @author  foxBMS Team
  * @date    2020-04-01 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -86,6 +86,11 @@ void tearDown(void) {
 }
 
 /*========== Test Cases =====================================================*/
+
+void testMATH_StartupSelfTest(void) {
+    MATH_StartupSelfTest();
+}
+
 void test_linearInterpolation_X1EqualsX2(void) {
     coord_x1 = coord_x2;
     TEST_ASSERT_EQUAL(coord_y1, MATH_LinearInterpolation(coord_x1, coord_y1, coord_x2, coord_y2, coord_x_interpolate));
@@ -186,4 +191,16 @@ void test_MATH_MinimumOfTwoUint16_t(void) {
     TEST_ASSERT_EQUAL_UINT16(0u, MATH_MinimumOfTwoUint16_t(value1, 0u));
     TEST_ASSERT_EQUAL_UINT16(0u, MATH_MinimumOfTwoUint16_t(UINT16_MAX, 0u));
     TEST_ASSERT_EQUAL_UINT16(0u, MATH_MinimumOfTwoUint16_t(0u, UINT16_MAX));
+}
+
+void testMATH_AbsInt32_t(void) {
+    TEST_ASSERT_EQUAL_INT32(5, MATH_AbsInt32_t(5));
+    TEST_ASSERT_EQUAL_INT32(5, MATH_AbsInt32_t(-5));
+    TEST_ASSERT_EQUAL_INT32(INT32_MAX, MATH_AbsInt32_t(INT32_MIN));
+}
+
+void testMATH_AbsInt64_t(void) {
+    TEST_ASSERT_EQUAL_INT32(5, MATH_AbsInt64_t(5));
+    TEST_ASSERT_EQUAL_INT32(5, MATH_AbsInt64_t(-5));
+    TEST_ASSERT_EQUAL_INT32(INT64_MAX, MATH_AbsInt64_t(INT64_MIN));
 }

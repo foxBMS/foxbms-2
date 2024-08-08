@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 #
-# Copyright (c) 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -68,14 +67,6 @@ def run_build_for_defines(self, *k, **kw):  # pylint: disable-msg=unused-argumen
     Returns:
         tuple: A tuple containing the success of the build and the path to the output directory
     """
-    buf = []
-    for key in sorted(kw.keys()):
-        v = kw[key]  # pylint: disable-msg=invalid-name
-        if hasattr(v, "__call__"):
-            buf.append(Utils.h_fun(v))
-        else:
-            buf.append(str(v))
-    h = Utils.h_list(buf)  # pylint: disable-msg=invalid-name,W0612
     _dir = (
         self.bldnode.abspath()
         + os.sep

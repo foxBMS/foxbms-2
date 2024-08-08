@@ -1,108 +1,108 @@
 {
-    "Analysis": {
-        "Analysis-GlobalOptions": {
-            "_additional_rules": [
-                "addon"
-            ]
-        },
-        "IISB-DoxygenCommentAtDeclaration": {
-            "_active": true
-        },
-        "IISB-DoxygenFileComment": {
-            "_active": true
-        },
-        "IISB-FileEncodingCheck": {
-            "_active": true
-        },
-        "IISB-FileLicenseComment": {
-            "_active": true
-        },
-        "IISB-LiteralSuffixesCheck": {
-            "_active": true,
-            "exclude_in_macros": [
-                "adcGROUP1",
-                "adcREG1",
-                "AVCLK1_FREQ",
-                "canREG1",
-                "canREG2",
-                "crcREG1",
-                "dmaRAMREG",
-                "ecapREG1",
-                "esmREG",
-                "etpwmREG1",
-                "FLT_EPSILON",
-                "FLT_MAX",
-                "FLT_MIN",
-                "FS8x_C*",
-                "FS8X_FS_A*",
-                "FS8X_FS_BAD_*",
-                "FS8X_FS_C*",
-                "FS8X_FS_D*",
-                "FS8X_FS_E*",
-                "FS8X_FS_FC*",
-                "FS8X_FS_FS*",
-                "FS8X_FS_G*",
-                "FS8X_FS_I*",
-                "FS8X_FS_LBIST_OK_*",
-                "FS8X_FS_O*",
-                "FS8X_FS_R*",
-                "FS8X_FS_S*",
-                "FS8X_FS_V*",
-                "FS8X_FS_WD_*",
-                "FS8X_FS_WDW_*",
-                "FS8X_M_*",
-                "FS8x_WD_SEED_DEFAULT",
-                "HCLK_FREQ",
-                "hetREG1",
-                "hetREG2",
-                "I2C_REPEATMODE",
-                "i2cREG1",
-                "MC33775_ALLM_APP_CTRL_*",
-                "MC33775_ALLM_CFG_*",
-                "MC33775_ALLM_VCVB_*",
-                "MC33775_BAL_CH_CFG_*",
-                "MC33775_BAL_GLOB_CFG_*",
-                "MC33775_I2C_CFG_*",
-                "MC33775_I2C_CTRL_*",
-                "MC33775_I2C_DATA*",
-                "MC33775_I2C_STAT_*",
-                "MC33775_I2C_STAT_*",
-                "MC33775_PRMM_AIN_CFG_*",
-                "MC33775_PRMM_APP_*",
-                "MC33775_SECM_AIN_CFG_*",
-                "MC33775_SECM_APP_AIN4_*",
-                "MC33775_SECM_PER_NPNISENSE_*",
-                "MC33775_SYS_COM_CFG_BUSFW_*",
-                "MC33775_SYS_COM_CFG_OFFSET",
-                "MC33775_SYS_COM_TO_CFG_*",
-                "MC33775_SYS_MODE_OFFSET",
-                "MC33775_SYS_MODE_TARGETMODE_*",
-                "MC33775_SYS_UID_LOW_OFFSET",
-                "MC33775_SYS_VERSION_OFFSET",
-                "NULL_PTR",
-                "RTI_FREQ",
-                "spiREG1",
-                "spiREG2",
-                "spiREG3",
-                "spiREG4",
-                "spiREG5",
-                "SYS_EXCEPTION",
-                "systemREG1",
-                "UINT32_MAX",
-                "UINT64_MAX"
-            ],
-            "excludes": []
-        },
-        "IISB-UniqueFileNameCheck": {
-            "_active": true
-        }
+  "Analysis": {
+    "Analysis-GlobalOptions": {
+      "_additional_rules": [
+        "addon"
+      ]
     },
-    "_Format": "1.0",
-    "_Version": "7.5.2",
-    "_VersionNum": [
-        7,
-        5,
-        2,
-        11578
-    ]
+    "IISB-DoxygenCommentAtDeclaration": {
+      "_active": true
+    },
+    "IISB-DoxygenFileComment": {
+      "_active": true
+    },
+    "IISB-FileEncodingCheck": {
+      "_active": true
+    },
+    "IISB-FileLicenseComment": {
+      "_active": true
+    },
+    "IISB-LiteralSuffixesCheck": {
+      "_active": true,
+      "exclude_in_macros": [
+        "adcGROUP1",
+        "adcREG1",
+        "AVCLK1_FREQ",
+        "canREG1",
+        "canREG2",
+        "crcREG1",
+        "dmaRAMREG",
+        "ecapREG1",
+        "esmREG",
+        "etpwmREG1",
+        "FLT_EPSILON",
+        "FLT_MAX",
+        "FLT_MIN",
+        "FS8x_C*",
+        "FS8X_FS_A*",
+        "FS8X_FS_BAD_*",
+        "FS8X_FS_C*",
+        "FS8X_FS_D*",
+        "FS8X_FS_E*",
+        "FS8X_FS_FC*",
+        "FS8X_FS_FS*",
+        "FS8X_FS_G*",
+        "FS8X_FS_I*",
+        "FS8X_FS_LBIST_OK_*",
+        "FS8X_FS_O*",
+        "FS8X_FS_R*",
+        "FS8X_FS_S*",
+        "FS8X_FS_V*",
+        "FS8X_FS_WD_*",
+        "FS8X_FS_WDW_*",
+        "FS8X_M_*",
+        "FS8x_WD_SEED_DEFAULT",
+        "HCLK_FREQ",
+        "hetREG1",
+        "hetREG2",
+        "I2C_REPEATMODE",
+        "i2cREG1",
+        "MC33775_ALLM_APP_CTRL_*",
+        "MC33775_ALLM_CFG_*",
+        "MC33775_ALLM_VCVB_*",
+        "MC33775_BAL_CH_CFG_*",
+        "MC33775_BAL_GLOB_CFG_*",
+        "MC33775_I2C_CFG_*",
+        "MC33775_I2C_CTRL_*",
+        "MC33775_I2C_DATA*",
+        "MC33775_I2C_STAT_*",
+        "MC33775_I2C_STAT_*",
+        "MC33775_PRMM_AIN_CFG_*",
+        "MC33775_PRMM_APP_*",
+        "MC33775_SECM_AIN_CFG_*",
+        "MC33775_SECM_APP_AIN4_*",
+        "MC33775_SECM_PER_NPNISENSE_*",
+        "MC33775_SYS_COM_CFG_BUSFW_*",
+        "MC33775_SYS_COM_CFG_OFFSET",
+        "MC33775_SYS_COM_TO_CFG_*",
+        "MC33775_SYS_MODE_OFFSET",
+        "MC33775_SYS_MODE_TARGETMODE_*",
+        "MC33775_SYS_UID_LOW_OFFSET",
+        "MC33775_SYS_VERSION_OFFSET",
+        "NULL_PTR",
+        "RTI_FREQ",
+        "spiREG1",
+        "spiREG2",
+        "spiREG3",
+        "spiREG4",
+        "spiREG5",
+        "SYS_EXCEPTION",
+        "systemREG1",
+        "UINT32_MAX",
+        "UINT64_MAX"
+      ],
+      "excludes": []
+    },
+    "IISB-UniqueFileNameCheck": {
+      "_active": true
+    }
+  },
+  "_Format": "1.0",
+  "_Version": "7.5.2",
+  "_VersionNum": [
+    7,
+    5,
+    2,
+    11578
+  ]
 }

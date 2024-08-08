@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,14 +43,13 @@
  * @file    mxm_basic_defines.h
  * @author  foxBMS Team
  * @date    2020-02-11 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup DRIVERS
  * @prefix  MXM
  *
  * @brief   Basic defines for the complete Maxim driver
- *
- * @details def
+ * @details TODO
  *
  */
 
@@ -105,7 +104,7 @@ typedef enum {
     MXM_MODEL_ID_invalid  = 0x1000u, /*!< invalid version ID (cannot be encoded in register or unknown value) */
 } MXM_MODEL_ID_e;
 
-/** values that the datacheck byte can assume */
+/** values that the data-check byte can assume */
 typedef enum {
     MXM_DC_PEC_ERROR  = (1u << 7u), /*!< PEC Error */
     MXM_DC_ALRTFMEA   = (1u << 6u), /*!< FMEA alert */
@@ -120,22 +119,22 @@ typedef enum {
 
 /** valid values for the silicon version of connected monitoring ICs */
 typedef enum {
-    MXM_SILICON_VERSION_0       = 0x0u,  /*!< initialization value */
-    MXM_SILICON_VERSION_1       = 0x1u,  /*!< silicon version 1 (known from data-sheet) */
-    MXM_SILICON_VERSION_2       = 0x2u,  /*!< silicon version 2 */
-    MXM_SILICON_VERSION_3       = 0x3u,  /*!< silicon version 3 */
-    MXM_SILICON_VERSION_4       = 0x4u,  /*!< silicon version 4 (located on old EV kit 2018) */
-    MXM_SILICON_VERSION_5       = 0x5u,  /*!< silicon version 5 (located on new EV kit 04.2019) */
-    MXM_SILICON_VERSION_6       = 0x6u,  /*!< silicon version 6 */
-    MXM_SILICON_VERSION_7       = 0x7u,  /*!< silicon version 7 (most recent as of 2021-11-21) */
-    MXM_SILICON_VERSION_8       = 0x8u,  /*!< unknown silicon version */
-    MXM_SILICON_VERSION_9       = 0x9u,  /*!< unknown silicon version */
-    MXM_SILICON_VERSION_10      = 0xAu,  /*!< unknown silicon version */
-    MXM_SILICON_VERSION_11      = 0xBu,  /*!< unknown silicon version */
-    MXM_SILICON_VERSION_12      = 0xCu,  /*!< unknown silicon version */
-    MXM_SILICON_VERSION_13      = 0xDu,  /*!< unknown silicon version */
-    MXM_SILICON_VERSION_14      = 0xEu,  /*!< unknown silicon version */
-    MXM_SILICON_VERSION_15      = 0xFu,  /*!< unknown silicon version */
+    MXM_SILICON_VERSION_0       = 0x00u, /*!< initialization value */
+    MXM_SILICON_VERSION_1       = 0x01u, /*!< silicon version 1 (known from data-sheet) */
+    MXM_SILICON_VERSION_2       = 0x02u, /*!< silicon version 2 */
+    MXM_SILICON_VERSION_3       = 0x03u, /*!< silicon version 3 */
+    MXM_SILICON_VERSION_4       = 0x04u, /*!< silicon version 4 (located on old evaluation kit 2018) */
+    MXM_SILICON_VERSION_5       = 0x05u, /*!< silicon version 5 (located on new evaluation kit 04.2019) */
+    MXM_SILICON_VERSION_6       = 0x06u, /*!< silicon version 6 */
+    MXM_SILICON_VERSION_7       = 0x07u, /*!< silicon version 7 (most recent as of 2021-11-21) */
+    MXM_SILICON_VERSION_8       = 0x08u, /*!< unknown silicon version */
+    MXM_SILICON_VERSION_9       = 0x09u, /*!< unknown silicon version */
+    MXM_SILICON_VERSION_10      = 0x0Au, /*!< unknown silicon version */
+    MXM_SILICON_VERSION_11      = 0x0Bu, /*!< unknown silicon version */
+    MXM_SILICON_VERSION_12      = 0x0Cu, /*!< unknown silicon version */
+    MXM_SILICON_VERSION_13      = 0x0Du, /*!< unknown silicon version */
+    MXM_SILICON_VERSION_14      = 0x0Eu, /*!< unknown silicon version */
+    MXM_SILICON_VERSION_15      = 0x0Fu, /*!< unknown silicon version */
     MXM_SILICON_VERSION_INVALID = 0x10u, /*!< due to the register size, no version number can take this value */
 } MXM_SILICON_VERSION_e;
 

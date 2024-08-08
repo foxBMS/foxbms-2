@@ -12,24 +12,24 @@ Module Files
 Driver
 ^^^^^^
 
-- ``src/app/application/bms/history/bal_strategy_history.c`` (`API <../../../../_static/doxygen/src/html/bal__strategy__history_8c.html>`__, `source <../../../../_static/doxygen/src/html/bal__strategy__history_8c_source.html>`__)
-- ``src/app/application/bms/none/bal_strategy_none.c`` (`API <../../../../_static/doxygen/src/html/bal__strategy__none_8c.html>`__, `source <../../../../_static/doxygen/src/html/bal__strategy__none_8c_source.html>`__)
-- ``src/app/application/bms/voltage/bal_strategy_voltage.c`` (`API <../../../../_static/doxygen/src/html/bal__strategy__voltage_8c.html>`__, `source <../../../../_static/doxygen/src/html/bal__strategy__voltage_8c_source.html>`__)
-- ``src/app/application/bms/voltage/bal_strategy_voltage.h`` (`API <../../../../_static/doxygen/src/html/bal__strategy__voltage_8h.html>`__, `source <../../../../_static/doxygen/src/html/bal__strategy__voltage_8h_source.html>`__)
-- ``src/app/application/bms/bal.c`` (`API <../../../../_static/doxygen/src/html/bal_8c.html>`__, `source <../../../../_static/doxygen/src/html/bal_8c_source.html>`__)
-- ``src/app/application/bms/bal.h`` (`API <../../../../_static/doxygen/src/html/bal_8h.html>`__, `source <../../../../_static/doxygen/src/html/bal_8h_source.html>`__)
+- ``src/app/application/bms/history/bal_strategy_history.c``
+- ``src/app/application/bms/none/bal_strategy_none.c``
+- ``src/app/application/bms/voltage/bal_strategy_voltage.c``
+- ``src/app/application/bms/voltage/bal_strategy_voltage.h``
+- ``src/app/application/bms/bal.c``
+- ``src/app/application/bms/bal.h``
 
 Configuration
 ^^^^^^^^^^^^^
 
-- ``src/app/application/config/bal_cfg.h`` (`API <../../../../_static/doxygen/src/html/bal__cfg_8h.html>`__, `source <../../../../_static/doxygen/src/html/bal__cfg_8h_source.html>`__)
+- ``src/app/application/config/bal_cfg.h``
 
 Unit Test
 ^^^^^^^^^
-- ``tests/unit/app/application/bal/history/test_bal_strategy_history.c`` (`API <../../../../_static/doxygen/tests/html/test__bal__strategy__history_8c.html>`__, `source <../../../../_static/doxygen/tests/html/test__bal__strategy__history_8c_source.html>`__)
-- ``tests/unit/app/application/bal/none/test_bal_strategy_none.c`` (`API <../../../../_static/doxygen/tests/html/test__bal__strategy__none_8c.html>`__, `source <../../../../_static/doxygen/tests/html/test__bal__strategy__none_8c_source.html>`__)
-- ``tests/unit/app/application/bal/voltage/test_bal_strategy_voltage.c`` (`API <../../../../_static/doxygen/tests/html/test__bal__strategy__voltage_8c.html>`__, `source <../../../../_static/doxygen/tests/html/test__bal__strategy__voltage_8c_source.html>`__)
-- ``tests/unit/app/application/bal/test_bal.c`` (`API <../../../../_static/doxygen/tests/html/test__bal_8c.html>`__, `source <../../../../_static/doxygen/tests/html/test__bal_8c_source.html>`__)
+- ``tests/unit/app/application/bal/history/test_bal_strategy_history.c``
+- ``tests/unit/app/application/bal/none/test_bal_strategy_none.c``
+- ``tests/unit/app/application/bal/voltage/test_bal_strategy_voltage.c``
+- ``tests/unit/app/application/bal/test_bal.c``
 
 Detailed Description
 --------------------

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,8 +43,8 @@
  * @file    i2c.c
  * @author  foxBMS Team
  * @date    2021-07-22 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup DRIVERS
  * @prefix  I2C
  *
@@ -136,7 +136,7 @@ static void I2C_ClearNotifications(void);
 /*========== Static Function Implementations ================================*/
 static uint32_t I2C_GetWordTransmitTime(i2cBASE_t *pI2cInterface) {
     FAS_ASSERT(pI2cInterface != NULL_PTR);
-    uint32_t i2cClock_khz        = 0;
+    uint32_t i2cClock_kHz        = 0;
     uint32_t prescaler           = 0;
     uint32_t wordTransmitTime_us = 0u;
     uint8_t dFactor              = 0u;
@@ -151,10 +151,10 @@ static uint32_t I2C_GetWordTransmitTime(i2cBASE_t *pI2cInterface) {
         dFactor = I2C_DFACTOR_VALUE_PRESCALER_OTHER;
     }
     /* This is the equation used in the HAL; seems to differ from Technical Reference Manual
-        (p.1769 eq.65, SPNU563A - March 2018) */
-    i2cClock_khz = (uint32_t)(AVCLK1_FREQ * I2C_FACTOR_MHZ_TO_HZ) /
+        (docref: p.1769 eq.65, SPNU563A - March 2018) */
+    i2cClock_kHz = (uint32_t)(AVCLK1_FREQ * I2C_FACTOR_MHZ_TO_HZ) /
                    (2u * (prescaler + 1u) * (pI2cInterface->CKH + dFactor));
-    wordTransmitTime_us = (I2C_FACTOR_WORD_TO_BITS * I2C_FACTOR_S_TO_US) / i2cClock_khz;
+    wordTransmitTime_us = (I2C_FACTOR_WORD_TO_BITS * I2C_FACTOR_S_TO_US) / i2cClock_kHz;
     return wordTransmitTime_us;
 }
 
@@ -286,9 +286,9 @@ extern STD_RETURN_TYPE_e I2C_Write(
     uint32_t nrBytes,
     uint8_t *writeData) {
     FAS_ASSERT(pI2cInterface != NULL_PTR);
-    FAS_ASSERT(writeData != NULL_PTR);
-    FAS_ASSERT(nrBytes > 0u);
     FAS_ASSERT(slaveAddress < 128u);
+    FAS_ASSERT(nrBytes > 0u);
+    FAS_ASSERT(writeData != NULL_PTR);
     STD_RETURN_TYPE_e retVal = STD_OK;
 
     if ((pI2cInterface->STR & (uint32_t)I2C_BUSBUSY) == 0u) {
@@ -463,7 +463,7 @@ extern STD_RETURN_TYPE_e I2C_ReadDma(
         OS_ExitTaskCritical();
         /* End DMA config */
 
-        pI2cInterface->DMACR |= (uint32_t)I2C_RXDMAEN; /* Activate I2C DMA RX */
+        pI2cInterface->DMACR |= (uint32_t)I2C_RX_DMA_ENABLE; /* Activate I2C DMA RX */
 
         pI2cInterface->MDR &= ~((uint32_t)I2C_STOP_COND);
         pI2cInterface->MDR &= ~((uint32_t)I2C_START_COND);
@@ -477,7 +477,7 @@ extern STD_RETURN_TYPE_e I2C_ReadDma(
         uint32_t notificationRx = I2C_WaitForRxCompletedNotification();
         if (notificationRx != I2C_RX_NOTIFIED_VALUE) {
             /* Rx not happened, deactivate DMA */
-            pI2cInterface->DMACR &= ~((uint32_t)I2C_RXDMAEN);
+            pI2cInterface->DMACR &= ~((uint32_t)I2C_RX_DMA_ENABLE);
             /* Set Stop condition */
             pI2cInterface->MDR |= (uint32_t)I2C_REPEATMODE;
             i2cSetStop(pI2cInterface);
@@ -569,13 +569,13 @@ extern STD_RETURN_TYPE_e I2C_WriteDma(
         i2cSetSlaveAdd(pI2cInterface, slaveAddress);               /* Set slave address */
         i2cSetStop(pI2cInterface);                                 /* Stop condition after sending nrBytes bytes */
         i2cSetCount(pI2cInterface, nrBytes);                       /* Send nrBytes bytes before STOP condition */
-        pI2cInterface->DMACR |= (uint32_t)I2C_TXDMAEN;             /* Activate I2C DMA TX */
+        pI2cInterface->DMACR |= (uint32_t)I2C_TX_DMA_ENABLE;       /* Activate I2C DMA TX */
         i2cSetStart(pI2cInterface);                                /* Start transmit */
 
         uint32_t notificationTx = I2C_WaitForTxCompletedNotification();
         if (notificationTx != I2C_TX_NOTIFIED_VALUE) {
             /* Tx not happened, deactivate DMA */
-            pI2cInterface->DMACR &= ~((uint32_t)I2C_TXDMAEN);
+            pI2cInterface->DMACR &= ~((uint32_t)I2C_TX_DMA_ENABLE);
             /* Set Stop condition */
             pI2cInterface->MDR |= (uint32_t)I2C_REPEATMODE;
             i2cSetStop(pI2cInterface);
@@ -604,11 +604,11 @@ extern STD_RETURN_TYPE_e I2C_WriteReadDma(
     uint32_t nrBytesRead,
     uint8_t *readData) {
     FAS_ASSERT(pI2cInterface != NULL_PTR);
-    FAS_ASSERT(writeData != NULL_PTR);
-    FAS_ASSERT(nrBytesWrite > 0u);
-    FAS_ASSERT(readData != NULL_PTR);
-    FAS_ASSERT(nrBytesRead > 1u);
     FAS_ASSERT(slaveAddress < 128u);
+    FAS_ASSERT(nrBytesWrite > 0u);
+    FAS_ASSERT(writeData != NULL_PTR);
+    FAS_ASSERT(nrBytesRead > 1u);
+    FAS_ASSERT(readData != NULL_PTR);
     STD_RETURN_TYPE_e retVal = STD_OK;
     dmaChannel_t channelRx   = DMA_CH0;
     dmaChannel_t channelTx   = DMA_CH0;
@@ -616,7 +616,7 @@ extern STD_RETURN_TYPE_e I2C_WriteReadDma(
     I2C_ClearNotifications();
 
     if ((pI2cInterface->STR & (uint32_t)I2C_BUSBUSY) == 0u) {
-        /* Firt write bytes */
+        /* First write bytes */
 
         /* Clear bits */
         pI2cInterface->MDR &= ~((uint32_t)I2C_STOP_COND);
@@ -664,13 +664,13 @@ extern STD_RETURN_TYPE_e I2C_WriteReadDma(
         i2cSetMode(pI2cInterface, (uint32_t)I2C_MASTER);           /* Set as master */
         i2cSetDirection(pI2cInterface, (uint32_t)I2C_TRANSMITTER); /* Set as transmitter */
         i2cSetSlaveAdd(pI2cInterface, slaveAddress);               /* Set slave address */
-        pI2cInterface->DMACR |= (uint32_t)I2C_TXDMAEN;             /* Activate I2C DMA TX */
+        pI2cInterface->DMACR |= (uint32_t)I2C_TX_DMA_ENABLE;       /* Activate I2C DMA TX */
         i2cSetStart(pI2cInterface);                                /* Start transmit */
 
         uint32_t notificationTx = I2C_WaitForTxCompletedNotification();
         if (notificationTx != I2C_TX_NOTIFIED_VALUE) {
             /* Tx not happened, deactivate DMA */
-            pI2cInterface->DMACR &= ~((uint32_t)I2C_TXDMAEN);
+            pI2cInterface->DMACR &= ~((uint32_t)I2C_TX_DMA_ENABLE);
             /* Set Stop condition */
             pI2cInterface->MDR |= (uint32_t)I2C_REPEATMODE;
             i2cSetStop(pI2cInterface);
@@ -721,7 +721,7 @@ extern STD_RETURN_TYPE_e I2C_WriteReadDma(
             pI2cInterface->STR |= (uint32_t)I2C_TX_INT;
             pI2cInterface->STR |= (uint32_t)I2C_RX_INT;
 
-            pI2cInterface->DMACR |= (uint32_t)I2C_RXDMAEN; /* Activate I2C DMA RX */
+            pI2cInterface->DMACR |= (uint32_t)I2C_RX_DMA_ENABLE; /* Activate I2C DMA RX */
 
             pI2cInterface->MDR |= (uint32_t)I2C_REPEATMODE;
             i2cSetMode(pI2cInterface, (uint32_t)I2C_MASTER);        /* Set as master */
@@ -732,7 +732,7 @@ extern STD_RETURN_TYPE_e I2C_WriteReadDma(
             uint32_t notificationRx = I2C_WaitForRxCompletedNotification();
             if (notificationRx != I2C_RX_NOTIFIED_VALUE) {
                 /* Rx not happened, deactivate DMA */
-                pI2cInterface->DMACR &= ~((uint32_t)I2C_RXDMAEN);
+                pI2cInterface->DMACR &= ~((uint32_t)I2C_RX_DMA_ENABLE);
                 /* Set Stop condition */
                 pI2cInterface->MDR |= (uint32_t)I2C_REPEATMODE;
                 i2cSetStop(pI2cInterface);

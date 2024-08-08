@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,8 +43,8 @@
  * @file    can.c
  * @author  foxBMS Team
  * @date    2019-12-04 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup DRIVERS
  * @prefix  CAN
  *
@@ -99,7 +99,7 @@
  *      message object.
  *    1 Direction = Transmit: On TxRequest, the respective message object is transmitted as a Data
  *      Frame. On receiving a Remote Frame with a matching identifier, the TxRequest bit of this message
- *      object is set (if RmtEn = 1).
+ *      object is set (if RemoteEntry = 1).
  */
 /** IF2ARB set TX direction */
 #define CAN_IF2ARB_SET_TX_DIRECTION ((uint32)1u << 29u)
@@ -178,7 +178,7 @@ static STD_RETURN_TYPE_e CAN_PeriodicTransmit(void);
  * @param   ticksSinceStart internal counter of a periodically called function
  * @param   messageIndex    index of the message to check in the tx message array
  * @return  true if phase matches and message should be transmitted, false otherwise
-*/
+ */
 
 static bool CAN_IsMessagePeriodElapsed(uint32_t ticksSinceStart, uint16_t messageIndex);
 
@@ -281,22 +281,22 @@ static void CAN_ConfigureRxMailboxesForExtendedIdentifiers(void) {
     /* Reconfigure CAN1 mailboxes 42, 61, 62, 63 and 64 */
 
     /** - Setup control register
-    *     - Disable automatic wakeup on bus activity
-    *     - Local power down mode disabled
-    *     - Disable DMA request lines
-    *     - Enable global Interrupt Line 0 and 1
-    *     - Disable debug mode
-    *     - Release from software reset
-    *     - Enable/Disable parity or ECC
-    *     - Enable/Disable auto bus on timer
-    *     - Setup message completion before entering debug state
-    *     - Setup normal operation mode
-    *     - Request write access to the configuration registers
-    *     - Setup automatic retransmission of messages
-    *     - Disable error interrupts
-    *     - Disable status interrupts
-    *     - Enter initialization mode
-    */
+     *     - Disable automatic wakeup on bus activity
+     *     - Local power down mode disabled
+     *     - Disable DMA request lines
+     *     - Enable global Interrupt Line 0 and 1
+     *     - Disable debug mode
+     *     - Release from software reset
+     *     - Enable/Disable parity or ECC
+     *     - Enable/Disable auto bus on timer
+     *     - Setup message completion before entering debug state
+     *     - Setup normal operation mode
+     *     - Request write access to the configuration registers
+     *     - Setup automatic retransmission of messages
+     *     - Disable error interrupts
+     *     - Disable status interrupts
+     *     - Enter initialization mode
+     */
     canREG1->CTL = (uint32)0x00000000U | (uint32)0x00000000U | (uint32)((uint32)0x0000000AU << 10U) |
                    (uint32)0x00020043U;
 
@@ -307,13 +307,13 @@ static void CAN_ConfigureRxMailboxesForExtendedIdentifiers(void) {
     canREG1->ABOTR = (uint32)0U;
 
     /** - Initialize message 42
-    *     - Wait until IF1 is ready for use
-    *     - Set message mask
-    *     - Set message control word
-    *     - Set message arbitration
-    *     - Set IF1 control byte
-    *     - Set IF1 message number
-    */
+     *     - Wait until IF1 is ready for use
+     *     - Set message mask
+     *     - Set message control word
+     *     - Set message arbitration
+     *     - Set IF1 control byte
+     *     - Set IF1 message number
+     */
     /* SAFETYMCUSW 28 D MR:NA <APPROVED> "Potentially infinite loop found -
      * Hardware Status check for execution sequence" */
     while ((canREG1->IF1STAT & 0x80U) == 0x80U) {
@@ -327,13 +327,13 @@ static void CAN_ConfigureRxMailboxesForExtendedIdentifiers(void) {
     canREG1->IF1NO   = 42U;
 
     /** - Initialize message 61
-    *     - Wait until IF1 is ready for use
-    *     - Set message mask
-    *     - Set message control word
-    *     - Set message arbitration
-    *     - Set IF1 control byte
-    *     - Set IF1 message number
-    */
+     *     - Wait until IF1 is ready for use
+     *     - Set message mask
+     *     - Set message control word
+     *     - Set message arbitration
+     *     - Set IF1 control byte
+     *     - Set IF1 message number
+     */
     /* SAFETYMCUSW 28 D MR:NA <APPROVED> "Potentially infinite loop found -
      * Hardware Status check for execution sequence" */
     while ((canREG1->IF1STAT & 0x80U) == 0x80U) {
@@ -347,13 +347,13 @@ static void CAN_ConfigureRxMailboxesForExtendedIdentifiers(void) {
     canREG1->IF1NO   = 61U;
 
     /** - Initialize message 62
-    *     - Wait until IF2 is ready for use
-    *     - Set message mask
-    *     - Set message control word
-    *     - Set message arbitration
-    *     - Set IF2 control byte
-    *     - Set IF2 message number
-    */
+     *     - Wait until IF2 is ready for use
+     *     - Set message mask
+     *     - Set message control word
+     *     - Set message arbitration
+     *     - Set IF2 control byte
+     *     - Set IF2 message number
+     */
     /* SAFETYMCUSW 28 D MR:NA <APPROVED> "Potentially infinite loop found -
      * Hardware Status check for execution sequence" */
     while ((canREG1->IF2STAT & 0x80U) == 0x80U) {
@@ -367,13 +367,13 @@ static void CAN_ConfigureRxMailboxesForExtendedIdentifiers(void) {
     canREG1->IF2NO   = 62U;
 
     /** - Initialize message 63
-    *     - Wait until IF1 is ready for use
-    *     - Set message mask
-    *     - Set message control word
-    *     - Set message arbitration
-    *     - Set IF1 control byte
-    *     - Set IF1 message number
-    */
+     *     - Wait until IF1 is ready for use
+     *     - Set message mask
+     *     - Set message control word
+     *     - Set message arbitration
+     *     - Set IF1 control byte
+     *     - Set IF1 message number
+     */
     /* SAFETYMCUSW 28 D MR:NA <APPROVED> "Potentially infinite loop found -
      * Hardware Status check for execution sequence" */
     while ((canREG1->IF1STAT & 0x80U) == 0x80U) {
@@ -387,13 +387,13 @@ static void CAN_ConfigureRxMailboxesForExtendedIdentifiers(void) {
     canREG1->IF1NO   = 63U;
 
     /** - Initialize message 64
-    *     - Wait until IF2 is ready for use
-    *     - Set message mask
-    *     - Set message control word
-    *     - Set message arbitration
-    *     - Set IF2 control byte
-    *     - Set IF2 message number
-    */
+     *     - Wait until IF2 is ready for use
+     *     - Set message mask
+     *     - Set message control word
+     *     - Set message arbitration
+     *     - Set IF2 control byte
+     *     - Set IF2 message number
+     */
     /* SAFETYMCUSW 28 D MR:NA <APPROVED> "Potentially infinite loop found -
      * Hardware Status check for execution sequence" */
     while ((canREG1->IF2STAT & 0x80U) == 0x80U) {
@@ -407,9 +407,9 @@ static void CAN_ConfigureRxMailboxesForExtendedIdentifiers(void) {
     canREG1->IF2NO   = 64U;
 
     /** - Setup IF1 for data transmission
-    *     - Wait until IF1 is ready for use
-    *     - Set IF1 control byte
-    */
+     *     - Wait until IF1 is ready for use
+     *     - Set IF1 control byte
+     */
     /* SAFETYMCUSW 28 D MR:NA <APPROVED> "Potentially infinite loop found -
      * Hardware Status check for execution sequence" */
     while ((canREG1->IF1STAT & 0x80U) == 0x80U) {
@@ -417,9 +417,9 @@ static void CAN_ConfigureRxMailboxesForExtendedIdentifiers(void) {
     canREG1->IF1CMD = 0x87U;
 
     /** - Setup IF2 for reading data
-    *     - Wait until IF1 is ready for use
-    *     - Set IF1 control byte
-    */
+     *     - Wait until IF1 is ready for use
+     *     - Set IF1 control byte
+     */
     /* SAFETYMCUSW 28 D MR:NA <APPROVED> "Potentially infinite loop found -
      * Hardware Status check for execution sequence" */
     while ((canREG1->IF2STAT & 0x80U) == 0x80U) {
@@ -432,35 +432,35 @@ static void CAN_ConfigureRxMailboxesForExtendedIdentifiers(void) {
     /** Reconfigure CAN2 mailboxes 61 - 64 */
 
     /** - Setup control register
-    *     - Disable automatic wakeup on bus activity
-    *     - Local power down mode disabled
-    *     - Disable DMA request lines
-    *     - Enable global Interrupt Line 0 and 1
-    *     - Disable debug mode
-    *     - Release from software reset
-    *     - Enable/Disable parity or ECC
-    *     - Enable/Disable auto bus on timer
-    *     - Setup message completion before entering debug state
-    *     - Setup normal operation mode
-    *     - Request write access to the configuration registers
-    *     - Setup automatic retransmission of messages
-    *     - Disable error interrupts
-    *     - Disable status interrupts
-    *     - Enter initialization mode
-    */
+     *     - Disable automatic wakeup on bus activity
+     *     - Local power down mode disabled
+     *     - Disable DMA request lines
+     *     - Enable global Interrupt Line 0 and 1
+     *     - Disable debug mode
+     *     - Release from software reset
+     *     - Enable/Disable parity or ECC
+     *     - Enable/Disable auto bus on timer
+     *     - Setup message completion before entering debug state
+     *     - Setup normal operation mode
+     *     - Request write access to the configuration registers
+     *     - Setup automatic retransmission of messages
+     *     - Disable error interrupts
+     *     - Disable status interrupts
+     *     - Enter initialization mode
+     */
     canREG2->CTL = (uint32)0x00000000U | (uint32)0x00000000U | (uint32)((uint32)0x0000000AU << 10U) | 0x00020043U;
 
     /** - Clear all pending error flags and reset current status */
     canREG2->ES |= 0xFFFFFFFFU;
 
     /** - Initialize message 61
-    *     - Wait until IF1 is ready for use
-    *     - Set message mask
-    *     - Set message control word
-    *     - Set message arbitration
-    *     - Set IF1 control byte
-    *     - Set IF1 message number
-    */
+     *     - Wait until IF1 is ready for use
+     *     - Set message mask
+     *     - Set message control word
+     *     - Set message arbitration
+     *     - Set IF1 control byte
+     *     - Set IF1 message number
+     */
     /* SAFETYMCUSW 28 D MR:NA <APPROVED> "Potentially infinite loop found -
      * Hardware Status check for execution sequence" */
     while ((canREG2->IF1STAT & 0x80U) == 0x80U) {
@@ -474,13 +474,13 @@ static void CAN_ConfigureRxMailboxesForExtendedIdentifiers(void) {
     canREG2->IF1NO   = 61U;
 
     /** - Initialize message 62
-    *     - Wait until IF2 is ready for use
-    *     - Set message mask
-    *     - Set message control word
-    *     - Set message arbitration
-    *     - Set IF2 control byte
-    *     - Set IF2 message number
-    */
+     *     - Wait until IF2 is ready for use
+     *     - Set message mask
+     *     - Set message control word
+     *     - Set message arbitration
+     *     - Set IF2 control byte
+     *     - Set IF2 message number
+     */
     /* SAFETYMCUSW 28 D MR:NA <APPROVED> "Potentially infinite loop found -
      * Hardware Status check for execution sequence" */
     while ((canREG2->IF2STAT & 0x80U) == 0x80U) {
@@ -494,13 +494,13 @@ static void CAN_ConfigureRxMailboxesForExtendedIdentifiers(void) {
     canREG2->IF2NO   = 62U;
 
     /** - Initialize message 63
-    *     - Wait until IF1 is ready for use
-    *     - Set message mask
-    *     - Set message control word
-    *     - Set message arbitration
-    *     - Set IF1 control byte
-    *     - Set IF1 message number
-    */
+     *     - Wait until IF1 is ready for use
+     *     - Set message mask
+     *     - Set message control word
+     *     - Set message arbitration
+     *     - Set IF1 control byte
+     *     - Set IF1 message number
+     */
     /* SAFETYMCUSW 28 D MR:NA <APPROVED> "Potentially infinite loop found -
      * Hardware Status check for execution sequence" */
     while ((canREG2->IF1STAT & 0x80U) == 0x80U) {
@@ -514,13 +514,13 @@ static void CAN_ConfigureRxMailboxesForExtendedIdentifiers(void) {
     canREG2->IF1NO   = 63U;
 
     /** - Initialize message 64
-    *     - Wait until IF2 is ready for use
-    *     - Set message mask
-    *     - Set message control word
-    *     - Set message arbitration
-    *     - Set IF2 control byte
-    *     - Set IF2 message number
-    */
+     *     - Wait until IF2 is ready for use
+     *     - Set message mask
+     *     - Set message control word
+     *     - Set message arbitration
+     *     - Set IF2 control byte
+     *     - Set IF2 message number
+     */
     /* SAFETYMCUSW 28 D MR:NA <APPROVED> "Potentially infinite loop found -
      * Hardware Status check for execution sequence" */
     while ((canREG2->IF2STAT & 0x80U) == 0x80U) {
@@ -534,9 +534,9 @@ static void CAN_ConfigureRxMailboxesForExtendedIdentifiers(void) {
     canREG2->IF2NO   = 64U;
 
     /** - Setup IF1 for data transmission
-    *     - Wait until IF1 is ready for use
-    *     - Set IF1 control byte
-    */
+     *     - Wait until IF1 is ready for use
+     *     - Set IF1 control byte
+     */
     /* SAFETYMCUSW 28 D MR:NA <APPROVED> "Potentially infinite loop found -
      * Hardware Status check for execution sequence" */
     while ((canREG2->IF1STAT & 0x80U) == 0x80U) {
@@ -544,9 +544,9 @@ static void CAN_ConfigureRxMailboxesForExtendedIdentifiers(void) {
     canREG2->IF1CMD = 0x87U;
 
     /** - Setup IF2 for reading data
-    *     - Wait until IF1 is ready for use
-    *     - Set IF1 control byte
-    */
+     *     - Wait until IF1 is ready for use
+     *     - Set IF1 control byte
+     */
     /* SAFETYMCUSW 28 D MR:NA <APPROVED> "Potentially infinite loop found -
      * Hardware Status check for execution sequence" */
     while ((canREG2->IF2STAT & 0x80U) == 0x80U) {
@@ -784,11 +784,10 @@ static bool CAN_IsMessagePeriodElapsed(uint32_t ticksSinceStart, uint16_t messag
 }
 
 static void CAN_CheckCanTiming(void) {
-    uint32_t currentTime;
+    uint32_t currentTime                       = OS_GetTickCount();
     DATA_BLOCK_ERROR_STATE_s errorFlagsTab     = {.header.uniqueId = DATA_BLOCK_ID_ERROR_STATE};
     DATA_BLOCK_STATE_REQUEST_s stateRequestTab = {.header.uniqueId = DATA_BLOCK_ID_STATE_REQUEST};
 
-    currentTime = OS_GetTickCount();
     DATA_READ_DATA(&stateRequestTab, &errorFlagsTab);
 
     /* Is the BMS still getting CAN messages? */
@@ -1030,7 +1029,8 @@ extern bool CAN_IsCurrentSensorEcPresent(uint8_t stringNumber) {
 /* 'extern'  is omitted here (as opposed to how the foxBMS project declares
    and defines functions) as the TI HAL convention does omit the keyword here
    and we want to stay consistent with TI's declaration.) */
-/* AXIVION Next Codeline Style Linker-Multiple_Definition: TI HAL only provides a weak implementation */
+/* AXIVION Next Codeline Style Linker-Multiple_Definition Linker-General_ODR_Violation: TI HAL only provides a weak
+ * implementation */
 void UNIT_TEST_WEAK_IMPL canMessageNotification(canBASE_t *node, uint32 messageBox) {
     /* AXIVION Routine Generic-MissingParameterAssert: node: unchecked in interrupt */
     /* AXIVION Routine Generic-MissingParameterAssert: messageBox: unchecked in interrupt */

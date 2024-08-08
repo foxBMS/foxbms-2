@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,8 +43,8 @@
  * @file    pex.c
  * @author  foxBMS Team
  * @date    2021-08-02 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup DRIVERS
  * @prefix  PEX
  *
@@ -78,7 +78,7 @@
 /** Address of Output Port 0 register (port 1 is one higher, 0x3u) */
 #define PEX_OUTPUT_PORT0_REGISTER_ADDRESS (0x2u)
 /** Address of Polarity Inversion Port 0 register (port 1 is one higher, 0x5u) */
-#define PEX_POL_INV_PORT0_REGISTER_ADDRESS (0x4u)
+#define PEX_POL_INVERSION_PORT0_REGISTER_ADDRESS (0x4u)
 /** Address of Configuration Port 0 register (port 1 is one higher, 0x7u) */
 #define PEX_DIRECTION_PORT0_REGISTER_ADDRESS (0x6u)
 
@@ -202,7 +202,7 @@ static STD_RETURN_TYPE_e PEX_WriteOutputs(void) {
     STD_RETURN_TYPE_e retVal = STD_OK;
     for (uint8_t i = 0u; i < PEX_NR_OF_PORT_EXPANDERS; i++) {
         /**
-         * Outport Port 0 as address, next read register will be Output Port 1
+         * Out-port Port 0 as address, next read register will be Output Port 1
          * data sheet: Rev. 9 - 8 November 2017
          * Figure 10: one register pair can be written in one transaction
          */
@@ -225,7 +225,7 @@ static STD_RETURN_TYPE_e PEX_WriteConfigPolarity(void) {
          * data sheet: Rev. 9 - 8 November 2017
          * Figure 10: one register pair can be written in one transaction
          */
-        pex_i2cDataWrite[0u]             = PEX_POL_INV_PORT0_REGISTER_ADDRESS;
+        pex_i2cDataWrite[0u]             = PEX_POL_INVERSION_PORT0_REGISTER_ADDRESS;
         pex_i2cDataWrite[1u]             = pex_configPolarityPort0Local[i];
         pex_i2cDataWrite[2u]             = pex_configPolarityPort1Local[i];
         STD_RETURN_TYPE_e i2cWriteReturn = I2C_WriteDma(PEX_I2C_INTERFACE, pex_addressList[i], 3u, pex_i2cDataWrite);
@@ -240,8 +240,8 @@ static STD_RETURN_TYPE_e PEX_WriteConfigDirection(void) {
     STD_RETURN_TYPE_e retVal = STD_OK;
     for (uint8_t i = 0u; i < PEX_NR_OF_PORT_EXPANDERS; i++) {
         /**
-         * Direction Port 0 as address, next read register will be Direction Port 1
-         * data sheet: Rev. 9 - 8 November 2017
+         * Direction Port 0 as address, next read register will be Direction
+         * Port 1 data sheet: Rev. 9 - 8 November 2017
          * Figure 10: one register pair can be written in one transaction
          */
         pex_i2cDataWrite[0u]             = PEX_DIRECTION_PORT0_REGISTER_ADDRESS;
@@ -335,13 +335,13 @@ extern void PEX_Trigger(void) {
 
 extern void PEX_SetPin(uint8_t portExpander, uint8_t pin) {
     FAS_ASSERT(portExpander < PEX_NR_OF_PORT_EXPANDERS);
-    FAS_ASSERT(pin <= PEX_PIN17);
+    FAS_ASSERT(pin <= PEX_PORT_1_PIN_7);
 
-    if (pin <= PEX_PIN07) {
+    if (pin <= PEX_PORT_0_PIN_7) {
         OS_EnterTaskCritical();
         pex_outputPort0[portExpander] |= PEX_PIN_HIGH << pin;
         OS_ExitTaskCritical();
-    } else { /* pin is in range PEX_PIN10 to PEX_PIN17 */
+    } else { /* pin is in range PEX_PORT_1_PIN_0 to PEX_PORT_1_PIN_7 */
         OS_EnterTaskCritical();
         pex_outputPort1[portExpander] |= PEX_PIN_HIGH << (pin % PEX_NR_OF_PORTS_PER_REGISTER);
         OS_ExitTaskCritical();
@@ -350,13 +350,13 @@ extern void PEX_SetPin(uint8_t portExpander, uint8_t pin) {
 
 extern void PEX_ResetPin(uint8_t portExpander, uint8_t pin) {
     FAS_ASSERT(portExpander < PEX_NR_OF_PORT_EXPANDERS);
-    FAS_ASSERT(pin <= PEX_PIN17);
+    FAS_ASSERT(pin <= PEX_PORT_1_PIN_7);
 
-    if (pin <= PEX_PIN07) {
+    if (pin <= PEX_PORT_0_PIN_7) {
         OS_EnterTaskCritical();
         pex_outputPort0[portExpander] &= ~(PEX_PIN_HIGH << pin);
         OS_ExitTaskCritical();
-    } else { /* pin is in range PEX_PIN10 to PEX_PIN17 */
+    } else { /* pin is in range PEX_PORT_1_PIN_0 to PEX_PORT_1_PIN_7 */
         OS_EnterTaskCritical();
         pex_outputPort1[portExpander] &= ~(PEX_PIN_HIGH << (pin % PEX_NR_OF_PORTS_PER_REGISTER));
         OS_ExitTaskCritical();
@@ -365,15 +365,15 @@ extern void PEX_ResetPin(uint8_t portExpander, uint8_t pin) {
 
 extern uint8_t PEX_GetPin(uint8_t portExpander, uint8_t pin) {
     FAS_ASSERT(portExpander < PEX_NR_OF_PORT_EXPANDERS);
-    FAS_ASSERT(pin <= PEX_PIN17);
+    FAS_ASSERT(pin <= PEX_PORT_1_PIN_7);
 
     uint8_t pinState = UINT8_MAX;
 
-    if (pin <= PEX_PIN07) {
+    if (pin <= PEX_PORT_0_PIN_7) {
         OS_EnterTaskCritical();
         pinState = (pex_inputPort0[portExpander] >> pin) & 0x1u;
         OS_ExitTaskCritical();
-    } else { /* pin is in range PEX_PIN10 to PEX_PIN17 */
+    } else { /* pin is in range PEX_PORT_1_PIN_0 to PEX_PORT_1_PIN_7 */
         OS_EnterTaskCritical();
         pinState = (pex_inputPort1[portExpander] >> (pin % PEX_NR_OF_PORTS_PER_REGISTER)) & 0x1u;
         OS_ExitTaskCritical();
@@ -393,13 +393,13 @@ extern uint8_t PEX_GetPin(uint8_t portExpander, uint8_t pin) {
 
 extern void PEX_SetPinDirectionInput(uint8_t portExpander, uint8_t pin) {
     FAS_ASSERT(portExpander < PEX_NR_OF_PORT_EXPANDERS);
-    FAS_ASSERT(pin <= PEX_PIN17);
+    FAS_ASSERT(pin <= PEX_PORT_1_PIN_7);
 
-    if (pin <= PEX_PIN07) {
+    if (pin <= PEX_PORT_0_PIN_7) {
         OS_EnterTaskCritical();
         pex_configDirectionPort0[portExpander] |= PEX_PIN_DIRECTION_INPUT << pin;
         OS_ExitTaskCritical();
-    } else { /* pin is in range PEX_PIN10 to PEX_PIN17 */
+    } else { /* pin is in range PEX_PORT_1_PIN_0 to PEX_PORT_1_PIN_7 */
         OS_EnterTaskCritical();
         pex_configDirectionPort1[portExpander] |= PEX_PIN_DIRECTION_INPUT << (pin % PEX_NR_OF_PORTS_PER_REGISTER);
         OS_ExitTaskCritical();
@@ -408,13 +408,13 @@ extern void PEX_SetPinDirectionInput(uint8_t portExpander, uint8_t pin) {
 
 extern void PEX_SetPinDirectionOutput(uint8_t portExpander, uint8_t pin) {
     FAS_ASSERT(portExpander < PEX_NR_OF_PORT_EXPANDERS);
-    FAS_ASSERT(pin <= PEX_PIN17);
+    FAS_ASSERT(pin <= PEX_PORT_1_PIN_7);
 
-    if (pin <= PEX_PIN07) {
+    if (pin <= PEX_PORT_0_PIN_7) {
         OS_EnterTaskCritical();
         pex_configDirectionPort0[portExpander] &= ~(((~PEX_PIN_DIRECTION_OUTPUT) & 0x1u) << pin);
         OS_ExitTaskCritical();
-    } else { /* pin is in range PEX_PIN10 to PEX_PIN17 */
+    } else { /* pin is in range PEX_PORT_1_PIN_0 to PEX_PORT_1_PIN_7 */
         OS_EnterTaskCritical();
         pex_configDirectionPort1[portExpander] &=
             ~(((~PEX_PIN_DIRECTION_OUTPUT) & 0x1u) << (pin % PEX_NR_OF_PORTS_PER_REGISTER));
@@ -424,13 +424,13 @@ extern void PEX_SetPinDirectionOutput(uint8_t portExpander, uint8_t pin) {
 
 extern void PEX_SetPinPolarityInverted(uint8_t portExpander, uint8_t pin) {
     FAS_ASSERT(portExpander < PEX_NR_OF_PORT_EXPANDERS);
-    FAS_ASSERT(pin <= PEX_PIN17);
+    FAS_ASSERT(pin <= PEX_PORT_1_PIN_7);
 
-    if (pin <= PEX_PIN07) {
+    if (pin <= PEX_PORT_0_PIN_7) {
         OS_EnterTaskCritical();
         pex_configPolarityPort0[portExpander] |= PEX_PIN_POLARITY_INVERTED << pin;
         OS_ExitTaskCritical();
-    } else { /* pin is in range PEX_PIN10 to PEX_PIN17 */
+    } else { /* pin is in range PEX_PORT_1_PIN_0 to PEX_PORT_1_PIN_7 */
         OS_EnterTaskCritical();
         pex_configPolarityPort1[portExpander] |= PEX_PIN_POLARITY_INVERTED << (pin % PEX_NR_OF_PORTS_PER_REGISTER);
         OS_ExitTaskCritical();
@@ -439,13 +439,13 @@ extern void PEX_SetPinPolarityInverted(uint8_t portExpander, uint8_t pin) {
 
 extern void PEX_SetPinPolarityRetained(uint8_t portExpander, uint8_t pin) {
     FAS_ASSERT(portExpander < PEX_NR_OF_PORT_EXPANDERS);
-    FAS_ASSERT(pin <= PEX_PIN17);
+    FAS_ASSERT(pin <= PEX_PORT_1_PIN_7);
 
-    if (pin <= PEX_PIN07) {
+    if (pin <= PEX_PORT_0_PIN_7) {
         OS_EnterTaskCritical();
         pex_configPolarityPort0[portExpander] &= ~(((~PEX_PIN_POLARITY_RETAINED) & 0x1u) << pin);
         OS_ExitTaskCritical();
-    } else { /* pin is in range PEX_PIN10 to PEX_PIN17 */
+    } else { /* pin is in range PEX_PORT_1_PIN_0 to PEX_PORT_1_PIN_7 */
         OS_EnterTaskCritical();
         pex_configPolarityPort1[portExpander] &=
             ~(((~PEX_PIN_POLARITY_RETAINED) & 0x1u) << (pin % PEX_NR_OF_PORTS_PER_REGISTER));
@@ -455,4 +455,11 @@ extern void PEX_SetPinPolarityRetained(uint8_t portExpander, uint8_t pin) {
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
 #ifdef UNITY_UNIT_TEST
+extern STD_RETURN_TYPE_e TEST_PEX_WriteConfigPolarity(void) {
+    return PEX_WriteConfigPolarity();
+}
+extern STD_RETURN_TYPE_e TEST_PEX_WriteConfigDirection(void) {
+    return PEX_WriteConfigDirection();
+}
+
 #endif

@@ -4,7 +4,9 @@ C:\ti\ccs1200\ccs\utils\bin
 C:\ti\ccs1200\ccs\utils\cygwin
 C:\ti\ccs1200\ccs\utils\tiobj2bin
 C:\ti\Hercules\HALCoGen\v04.07.01
-C:\Program Files\LLVM\13.0.0\bin
-C:\Ruby\Ruby272-x64\bin
+C:\Ruby\Ruby3.1.3-x64\bin
 C:\MinGW64\x86_64-8.1.0-release-posix-seh-rt_v6-rev0\mingw64\bin
-C:\Bauhaus\7.2.0\bin
+C:\Bauhaus\7.5.2\bin
+$DOT_DIR$\11.0.0\bin
+$DOXYGEN_DIR$\1.11.0
+$GIT_DIR$\bin

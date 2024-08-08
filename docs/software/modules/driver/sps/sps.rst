@@ -12,20 +12,20 @@ Module Files
 Driver
 ^^^^^^
 
-- ``src/app/driver/sps/sps.c`` (`API <../../../../_static/doxygen/src/html/sps_8c.html>`__, `source <../../../../_static/doxygen/src/html/sps_8c_source.html>`__)
-- ``src/app/driver/sps/sps.h`` (`API <../../../../_static/doxygen/src/html/sps_8h.html>`__, `source <../../../../_static/doxygen/src/html/sps_8h_source.html>`__)
+- ``src/app/driver/sps/sps.c``
+- ``src/app/driver/sps/sps.h``
 
 Configuration
 ^^^^^^^^^^^^^
 
-- ``src/app/driver/config/sps_cfg.c`` (`API <../../../../_static/doxygen/src/html/sps__cfg_8c.html>`__, `source <../../../../_static/doxygen/src/html/sps__cfg_8c_source.html>`__)
-- ``src/app/driver/config/sps_cfg.h`` (`API <../../../../_static/doxygen/src/html/sps__cfg_8h.html>`__, `source <../../../../_static/doxygen/src/html/sps__cfg_8h_source.html>`__)
+- ``src/app/driver/config/sps_cfg.c``
+- ``src/app/driver/config/sps_cfg.h``
 
 Unit Test
 ^^^^^^^^^
 
-- ``tests/unit/app/driver/sps/sps.c`` (`API <../../../../_static/doxygen/tests/html/test__sps_8c.html>`__, `source <../../../../_static/doxygen/tests/html/test__sps_8c_source.html>`__)
-- ``tests/unit/app/driver/config/sps_cfg.c`` (`API <../../../../_static/doxygen/tests/html/test__sps__cfg_8c.html>`__, `source <../../../../_static/doxygen/tests/html/test__sps__cfg_8c_source.html>`__)
+- ``tests/unit/app/driver/sps/sps.c``
+- ``tests/unit/app/driver/config/sps_cfg.c``
 
 Description
 -----------

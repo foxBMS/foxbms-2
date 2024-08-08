@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 #
-# Copyright (c) 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -150,8 +149,8 @@ def main():
         logging.basicConfig(level=logging.ERROR)
     polynomial = int(args.polynomial, 16)
     width = int(args.width)
-    logging.debug(f"polynomial: {polynomial:#0x}")
-    logging.debug(f"width:      {width}")
+    logging.debug("polynomial: %s", f"{polynomial:#0x}")
+    logging.debug("width:      %s", width)
     table = precalculate_crc_table(polynomial, width)
     logging.debug("C code:")
     generate_c_table(table, width)

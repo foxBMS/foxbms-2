@@ -6,13 +6,6 @@
 Lauterbach Trace32 Debugger
 ===========================
 
-..
-    Comments:
-    Mictor is a connector
-
-.. spelling::
-    Mictor
-
 Required Hardware
 ^^^^^^^^^^^^^^^^^
 

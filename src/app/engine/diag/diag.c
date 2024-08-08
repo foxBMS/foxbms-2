@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,13 +43,12 @@
  * @file    diag.c
  * @author  foxBMS Team
  * @date    2019-11-28 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup ENGINE
  * @prefix  DIAG
  *
  * @brief   Diagnosis driver implementation
- *
  * @details This diagnose module is responsible for error handling and
  *          reporting.
  *          Reported errors are logged into the global database and can be
@@ -225,7 +224,8 @@ static uint8_t DIAG_EntryWrite(uint8_t eventID, DIAG_EVENT_e event, uint32_t dat
     }
 
     if (++diag.entry_cnt[eventID] > DIAG_MAX_ENTRIES_OF_ERROR) {
-        /* this type of error has been recorded too many times -> ignore to avoid filling buffer with same failure codes */
+        /* this type of error has been recorded too many times -> ignore to avoid filling buffer with same failure codes
+         */
         diag.entry_cnt[eventID] = DIAG_MAX_ENTRIES_OF_ERROR;
         return ret_val;
     }
@@ -299,7 +299,8 @@ DIAG_RETURNTYPE_e DIAG_Handler(DIAG_ID_e diagId, DIAG_EVENT_e event, DIAG_IMPACT
                 (*u16ptr_threshcounter)--; /* Error did not occur, decrement Error-Counter */
             } else if ((*u16ptr_threshcounter) == 1) {
                 /* else if ((*u16ptr_threshcounter) <= 1) */
-                /* Error did not occur, now decrement to zero and clear Error- or Warning-Flag and make recording if enabled */
+                /* Error did not occur, now decrement to zero and clear Error- or Warning-Flag and make recording if
+                 * enabled */
                 *u32ptr_errCodemsk &= ~err_enable_bitmask;  /* ERROR:   clear corresponding bit in errflag[idx] */
                 *u32ptr_warnCodemsk &= ~err_enable_bitmask; /* WARNING: clear corresponding bit in warnflag[idx] */
                 (*u16ptr_threshcounter) = 0;
@@ -322,7 +323,7 @@ DIAG_RETURNTYPE_e DIAG_Handler(DIAG_ID_e diagId, DIAG_EVENT_e event, DIAG_IMPACT
                 (*u16ptr_threshcounter)++;        /* error-threshold not exceeded yet, increment Error-Counter */
                 ret_val = DIAG_HANDLER_RETURN_OK; /* Function does not return an error-message! */
             } else if ((*u16ptr_threshcounter) == cfg_threshold) {
-                /* Error occured AND error-threshold exceeded */
+                /* Error occurred AND error-threshold exceeded */
                 (*u16ptr_threshcounter)++;
                 *u32ptr_errCodemsk |= err_enable_bitmask;   /* ERROR:   set corresponding bit in errflag[idx] */
                 *u32ptr_warnCodemsk &= ~err_enable_bitmask; /* WARNING: clear corresponding bit in warnflag[idx] */
@@ -402,4 +403,13 @@ bool DIAG_IsAnyFatalErrorSet(void) {
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
 #ifdef UNITY_UNIT_TEST
+extern void TEST_DIAG_SetDiagerrcnttotal(uint16_t errors) {
+    diag.errcnttotal = errors;
+}
+extern DIAG_DIAGNOSIS_STATE_s *TEST_DIAG_GetDiag(void) {
+    return &diag;
+}
+extern void TEST_DIAG_Reset(void) {
+    DIAG_Reset();
+}
 #endif

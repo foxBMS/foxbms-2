@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,18 +43,16 @@
  * @file    battery_system_cfg.h
  * @author  foxBMS Team
  * @date    2019-12-10 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup BATTERY_SYSTEM_CONFIGURATION
  * @prefix  BS
  *
  * @brief   Configuration of the battery system (e.g., number of battery
  *          modules, battery cells, temperature sensors)
- *
  * @details This files contains basic macros of the battery system in order to
- *          derive needed inputs in other parts of the software. These macros
- *          are all depended on the hardware.
- *
+ *          derive needed inputs in other parts of the software.
+ *          These macros are all depended on the hardware.
  */
 
 #ifndef FOXBMS__BATTERY_SYSTEM_CFG_H_
@@ -67,6 +65,10 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+
+/* if the application is *not* build for unit testing, i.e., the target build
+   is built use these settings */
+#ifndef UNITY_UNIT_TEST
 
 /*========== Macros and Definitions =========================================*/
 
@@ -154,11 +156,13 @@ typedef enum {
 #error "Number of temperature inputs cannot be higher than number of GPIOs"
 #endif
 
-/** number of battery cells in the system */
+/** number of battery cells in a string */
 #define BS_NR_OF_CELL_BLOCKS_PER_STRING (BS_NR_OF_MODULES_PER_STRING * BS_NR_OF_CELL_BLOCKS_PER_MODULE)
+/** number of battery cells in the battery system*/
+#define BS_NR_OF_CELL_BLOCKS (BS_NR_OF_CELL_BLOCKS_PER_STRING * BS_NR_OF_STRINGS)
 /** number of temperature sensors in a string */
 #define BS_NR_OF_TEMP_SENSORS_PER_STRING (BS_NR_OF_MODULES_PER_STRING * BS_NR_OF_TEMP_SENSORS_PER_MODULE)
-/** number of temperature sensors in the battery system */
+/** total number of temperature sensors in the battery system */
 #define BS_NR_OF_TEMP_SENSORS (BS_NR_OF_TEMP_SENSORS_PER_STRING * BS_NR_OF_STRINGS)
 
 /**
@@ -168,7 +172,7 @@ typedef enum {
  *            sensor. If sensor stops responding during runtime, an error is
  *            raised.
  */
-#define BS_CURRENT_SENSOR_PRESENT (false)
+#define BS_CURRENT_SENSOR_PRESENT (true)
 
 #if BS_CURRENT_SENSOR_PRESENT == true
 /**
@@ -208,15 +212,15 @@ typedef enum {
  *          contactors. After this time, the BMS will nevertheless try to open
  *          the contactors.
  */
-#define BS_MAIN_FUSE_MAXIMUM_TRIGGER_DURATION_ms (30000u)
+#define BS_MAIN_FUSE_MAXIMUM_TRIGGER_DURATION_ms (3000u)
 
 /**
  * @brief   Maximum string current limit in mA that is used in the SOA module
  *          to check for string overcurrent
-* @details  When maximum safety limit (MSL) is violated, error state is
+ * @details  When maximum safety limit (MSL) is violated, error state is
  *          requested and contactors will open.
  */
-#define BS_MAXIMUM_STRING_CURRENT_mA (10000u)
+#define BS_MAXIMUM_STRING_CURRENT_mA (2400u)
 
 /**
  * @brief   Maximum pack current limit in mA that is used in the SOA module
@@ -224,7 +228,7 @@ typedef enum {
  * @details When maximum safety limit (MSL) is violated, error state is
  *          requested and contactors will open.
  */
-#define BS_MAXIMUM_PACK_CURRENT_mA (10000u * BS_NR_OF_STRINGS)
+#define BS_MAXIMUM_PACK_CURRENT_mA (2400u * BS_NR_OF_STRINGS)
 
 /**
  * @brief   Define if interlock feedback should be discarded or not
@@ -237,7 +241,7 @@ typedef enum {
  * @brief   Defines whether CAN timing shall be evaluated or not
  * @details - If set to false, foxBMS does not check CAN timing.
  *          - If set to true, foxBMS checks CAN timing. A valid request must
- *            come every 100ms, within the 95-150ms window.
+ *            come every 100ms, within the 95-105ms window.
  */
 #define BS_CHECK_CAN_TIMING (true)
 
@@ -362,6 +366,13 @@ extern BS_STRING_PRECHARGE_PRESENT_e bs_stringsWithPrecharge[BS_NR_OF_STRINGS];
 /*========== Extern Function Prototypes =====================================*/
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
+#else
+/* in case of running the unit test suite, the configuration shall be entirely
+   be read  from the unit test specific configuration files.
+   How the unit test configuration file is then actually used, is described
+   in the unit test configuration directory at */
+#include "battery_system_cfg_unit_test.h"
+#endif
 #ifdef UNITY_UNIT_TEST
 #endif
 

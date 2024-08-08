@@ -7,11 +7,4 @@
 Some Heading
 ############
 
-..
-    Comments:
-    abc is the abbreviation for "xyz"
-
-.. spelling::
-    abc
-
 Put documentation here

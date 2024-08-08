@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,16 +43,14 @@
  * @file    mxm_battery_management.h
  * @author  foxBMS Team
  * @date    2019-01-14 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup DRIVERS
  * @prefix  MXM
  *
  * @brief   Headers for the driver for the MAX17841B ASCI and
  *          MAX1785x analog front-end
- *
- * @details def
- *
+ * @details TODO
  */
 
 #ifndef FOXBMS__MXM_BATTERY_MANAGEMENT_H_
@@ -79,8 +77,8 @@
 /** length of the rx buffer */
 #define MXM_5X_RX_BUFFER_LEN 100u
 
-/** seed for helloall, should be 0x00u except for special edge cases */
-#define HELLOALL_START_SEED 0x00u
+/** seed for helloAll, should be 0x00u except for special edge cases */
+#define HELLO_ALL_START_SEED 0x00u
 /** seed for data check, should be 0x00u */
 #define DATA_CHECK_BYTE_SEED 0x00u
 
@@ -93,14 +91,14 @@
 typedef uint8_t MXM_BATTERY_MANAGEMENT_COMMAND_t;
 
 /**
- * @brief HELLOALL message
+ * @brief HELLO ALL message
  */
-#define BATTERY_MANAGEMENT_HELLOALL ((MXM_BATTERY_MANAGEMENT_COMMAND_t)0x57u)
+#define BATTERY_MANAGEMENT_HELLO_ALL ((MXM_BATTERY_MANAGEMENT_COMMAND_t)0x57u)
 
 /**
- * @brief ALERTPACKET message
+ * @brief ALERT PACKET message
  */
-#define BATTERY_MANAGEMENT_ALERTPACKET ((MXM_BATTERY_MANAGEMENT_COMMAND_t)0x21u)
+#define BATTERY_MANAGEMENT_ALERT_PACKET ((MXM_BATTERY_MANAGEMENT_COMMAND_t)0x21u)
 
 /**
  * @brief WRITEDEVICE message (write single register of a single device)
@@ -129,12 +127,12 @@ typedef uint8_t MXM_BATTERY_MANAGEMENT_COMMAND_t;
 
 /**
  * @brief   DOWNHOST message (make the downhost writing)
- * @details This feature is only useable on downhost line.
+ * @details This feature is only usable on downhost line.
  */
 #define BATTERY_MANAGEMENT_DOWNHOST ((MXM_BATTERY_MANAGEMENT_COMMAND_t)0x09u)
 
 /**
- * @brief UPHOST message (make the uphost writing, only useable on uphost line)
+ * @brief UPHOST message (make the uphost writing, only usable on uphost line)
  */
 #define BATTERY_MANAGEMENT_UPHOST ((MXM_BATTERY_MANAGEMENT_COMMAND_t)0x08u)
 
@@ -192,10 +190,10 @@ typedef enum {
     MXM_5X_INIT_WAKE_UP_SATELLITE_DEVICES_CLEAR_TRANSMIT_BUFFER,
     /** substate for the wake-up routine, clear the receive buffer */
     MXM_5X_INIT_WAKE_UP_SATELLITE_DEVICES_CLEAR_RECEIVE_BUFFER_2,
-    /** substate for the wake-up routine, sending helloall to the daisy-chain */
-    MXM_5X_INIT_WAKE_UP_SATELLITE_DEVICES_HELLOALL,
-    /** substate for the wake-up routine, verifying the result of helloall */
-    MXM_5X_INIT_WAKE_UP_SATELLITE_DEVICES_HELLOALL_VERIFY_MSG_AND_COUNT,
+    /** substate for the wake-up routine, sending helloAll to the daisy-chain */
+    MXM_5X_INIT_WAKE_UP_SATELLITE_DEVICES_HELLO_ALL,
+    /** substate for the wake-up routine, verifying the result of helloAll */
+    MXM_5X_INIT_WAKE_UP_SATELLITE_DEVICES_HELLO_ALL_VERIFY_MSG_AND_COUNT,
     /** substate for requesting an FMEA check on the bridge IC */
     MXM_5X_41B_FMEA_REQUEST,
     /** substate for the verification of the FMEA check done in
@@ -240,7 +238,7 @@ typedef struct {
     MXM_REG_NAME_e regAddress; /*!< register address that shall be written */
     uint8_t lsb;               /*!< least significant bit */
     uint8_t msb;               /*!< most significant bit */
-    uint8_t blocksize;         /*!< blocksize for the READBLOCK command */
+    uint8_t blockSize;         /*!< blockSize for the READBLOCK command */
     uint8_t deviceAddress;     /*!< device address for commands that address specific devices */
     MXM_MODEL_ID_e model;      /*!< model of device that shall be addressed */
 } MXM_5X_COMMAND_PAYLOAD_s;
@@ -270,7 +268,7 @@ typedef struct {
      *          matches with the configured number of monitoring ICs in
      *          #BS_NR_OF_MODULES_PER_STRING. This variable is updated during execution of
      *          the substate
-     *          #MXM_5X_INIT_WAKE_UP_SATELLITE_DEVICES_HELLOALL_VERIFY_MSG_AND_COUNT
+     *          #MXM_5X_INIT_WAKE_UP_SATELLITE_DEVICES_HELLO_ALL_VERIFY_MSG_AND_COUNT
      *          in the state #MXM_STATEMACH_5X_INIT in #MXM_5XStateMachine().
      *
      *          In case the numbers are the same, the variable will read #STD_OK,
@@ -292,7 +290,7 @@ typedef struct {
      * @brief   Command Buffer
      * @details This variable contains a buffer for Battery Management Protocol
      *          commands. The content is constructed by calling functions like
-     *          #MXM_5XConstructCommandBufferHelloall() and similar.
+     *          #MXM_5XConstructCommandBufferHelloAll() and similar.
      *
      *          Afterwards this buffer can be passed on to the lower state-machine
      *          as payload. The length of this buffer is described in
@@ -358,7 +356,7 @@ extern STD_RETURN_TYPE_e MXM_5XGetRXBuffer(
 extern uint8_t MXM_5XGetNumberOfSatellites(const MXM_5X_INSTANCE_s *const kpkInstance);
 
 /**
- * @brief   Set state request for the Battery Management Statemachine
+ * @brief   Set state request for the Battery Management State machine
  * @details This function sets the state requests for the #MXM_5XStateMachine().
  * @param[in,out]   pInstance5x      pointer to the 5x state
  * @param[in]       state       State that is requested

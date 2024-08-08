@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,13 +43,13 @@
  * @file    bal.c
  * @author  foxBMS Team
  * @date    2020-02-24 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup APPLICATION
  * @prefix  BAL
  *
  * @brief   Driver for the Balancing module
- *
+ * @details TODO
  */
 
 /*========== Includes =======================================================*/
@@ -126,7 +126,7 @@ extern BAL_RETURN_TYPE_e BAL_CheckStateRequest(BAL_STATE_s *pCurrentState, BAL_S
         pCurrentState->balancingGlobalAllowed = false;
         return BAL_OK;
     }
-    if ((stateRequest == BAL_STATE_NO_BALANCING_REQUEST) || (stateRequest == BAL_STATE_ALLOWBALANCING_REQUEST)) {
+    if ((stateRequest == BAL_STATE_NO_BALANCING_REQUEST) || (stateRequest == BAL_STATE_ALLOW_BALANCING_REQUEST)) {
         return BAL_OK;
     }
 
@@ -151,13 +151,13 @@ extern BAL_RETURN_TYPE_e BAL_CheckStateRequest(BAL_STATE_s *pCurrentState, BAL_S
 extern STD_RETURN_TYPE_e BAL_Init(DATA_BLOCK_BALANCING_CONTROL_s *pControl) {
     FAS_ASSERT(pControl != NULL_PTR);
     DATA_READ_DATA(pControl);
-    pControl->enableBalancing = 0;
+    pControl->enableBalancing = false;
     DATA_WRITE_DATA(pControl);
     return STD_OK;
 }
 
-#pragma WEAK(BAL_ProcessStateUninitalized)
-extern void BAL_ProcessStateUninitalized(BAL_STATE_s *pCurrentState, BAL_STATE_REQUEST_e stateRequest) {
+#pragma WEAK(BAL_ProcessStateUninitialized)
+extern void BAL_ProcessStateUninitialized(BAL_STATE_s *pCurrentState, BAL_STATE_REQUEST_e stateRequest) {
     FAS_ASSERT(pCurrentState != NULL_PTR);
     if (stateRequest == BAL_STATE_INIT_REQUEST) {
         pCurrentState->timer    = BAL_STATEMACH_SHORTTIME_100ms;
@@ -188,7 +188,5 @@ extern void BAL_ProcessStateInitialized(BAL_STATE_s *currentState) {
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
-
-/*========== Getter for static Variables (Unit Test) ========================*/
 #ifdef UNITY_UNIT_TEST
 #endif

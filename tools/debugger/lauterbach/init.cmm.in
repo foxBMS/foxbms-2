@@ -39,7 +39,7 @@ cd &working_path
   Var.Frame /Locals /Caller
   WinPOS 50% 50% 50% 50%
   Var.Watch %E
-  Var.AddWatch os_timer ilck_state sys_state bms_state data_blockCellVoltage data_blockCellTemperature data_blockCurrentSensor data_blockErrors data_blockMsl data_blockRsl data_blockMol
+  Var.AddWatch data_blockInsulationMonitoring os_timer bms_tablePackValues ilck_state data_blockInterlockFeedback imd_state cont_contactorStates sps_channelStatus data_blockStaterequest sys_state bms_state fram_version data_blockCellVoltage data_blockCellTemperature data_blockCurrentSensor data_blockErrors data_blockMsl data_blockRsl data_blockMol
 
 ;choose hex mode for input
 radix hex

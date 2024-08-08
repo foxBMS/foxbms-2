@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 #
-# Copyright (c) 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -40,17 +39,18 @@
 
 """Python script to check if all callbacks defined in the .dbc file are
 implemented in callback functions."""
+
 import argparse
+import dataclasses
+import json
 import logging
 import os
 import re
 import sys
-from pathlib import Path
-from dataclasses import dataclass
 from enum import Enum, auto
+from pathlib import Path
 
 import cantools
-import tabulate
 
 HAVE_GIT = False
 try:
@@ -69,7 +69,7 @@ def get_git_root(path: str) -> str:
     """helper function to find the repository root
 
     Args:
-        path (string): path of test_f_guidelines
+        path (string): path of file in git repository
 
     Returns:
         root (string): root path of the git repository
@@ -94,11 +94,18 @@ RX_MESSAGES = (
     / DRIVER_CONFIGURATION_FILES
     / Path("can_cfg_rx-message-definitions.h")
 )
-TX_MESSAGES = (
+TX_CYCLIC_MESSAGES = (
     ROOT
     / SRC_DIR_REL
     / DRIVER_CONFIGURATION_FILES
-    / Path("can_cfg_tx-message-definitions.h")
+    / Path("can_cfg_tx-cyclic-message-definitions.h")
+)
+
+TX_ASYNC_MESSAGES = (
+    ROOT
+    / SRC_DIR_REL
+    / DRIVER_CONFIGURATION_FILES
+    / Path("can_cfg_tx-async-message-definitions.h")
 )
 
 
@@ -109,111 +116,137 @@ class RxTx(Enum):
     Rx = auto()  # pylint: disable=invalid-name
 
 
-@dataclass
-class ExpectedCanMessageDefines:
+@dataclasses.dataclass
+class ExpectedCanMessageDefines:  # pylint: disable=too-many-instance-attributes
     """container for defines"""
 
-    msg_name: str
-    exp_message_id_macro: str
-    exp_period_macro: str
-    exp_phase_macro: str
-    exp_full_message_macro: str
-    msg_id: str
-    direction: RxTx
+    dbc_name: str
+    dbc_id: str
+    dbc_direction: RxTx
+    dbc_cyclic: bool
+    exp_id_macro: list[str, str]
+    exp_id_type_macro: list[str, str]
+    exp_period_macro: list[str, str]
+    exp_phase_macro: list[str, str]
+    exp_endianness_macro: list[str, str]
+    exp_dlc_macro: list[str, str]
+    exp_full_msg_macro: list[str, str]
 
 
-@dataclass
+@dataclasses.dataclass
 class FoundCanMessageDefine:
     """container for defines"""
 
     define_name: str
     msg_id: str
     where: str
-    not_periodic: bool = False
+    cyclic: bool = True
 
 
 def construct_msg_define(msg) -> ExpectedCanMessageDefines:
     """Create the base expected define name for the message"""
     define_name: str = msg.name
-    if define_name.lower().startswith("foxbms_"):
-        define_name = define_name[7:]
+    if define_name.lower().startswith("f_"):
+        define_name = define_name[2:]
     basic_define_name = define_name[0].upper()
     message_macro = basic_define_name
+    # Split define name
     for i, char in enumerate(define_name[1:]):
         if define_name[i].islower() and char.isupper():  # i!!!
             message_macro = message_macro + "_"
         elif define_name[i].isnumeric() and char.isupper():  # i!!!
             message_macro = message_macro + "_"
         message_macro = message_macro + char.upper()
-    message_id_macro = message_macro + "_ID"
-    period_macro = message_macro + "_PERIOD_ms"
-    phase_macro = message_macro + "_PHASE_ms"
-    full_message_macro = message_macro + "_MESSAGE"
+    # fmt: off
+    exp_id_macro         = message_macro + "_ID"
+    exp_id_type_macro    = message_macro + "_ID_TYPE"
+    exp_period_macro     = message_macro + "_PERIOD_ms"
+    exp_phase_macro      = message_macro + "_PHASE_ms"
+    exp_endianness_macro = message_macro + "_ENDIANNESS"
+    exp_dlc_macro        = message_macro + "_DLC"
+    exp_full_msg_macro   = message_macro + "_MESSAGE"
+    # fmt: on
 
     # once we are here, we know that this regex will match
     m = FILE_RE_COMPILED.search(msg.comment)  # pylint: disable=invalid-name
     if m.group(3).lower() == "rx":
         direction = RxTx.Rx
         pref = "CANRX_"
-        phase_macro = "Rx has no phase"  # receive messages have no phase
-        message_id_macro = pref + message_id_macro
-        period_macro = pref + period_macro
-        full_message_macro = pref + full_message_macro
+        exp_phase_macro = "Rx - ND"
+        exp_period_macro = pref + exp_period_macro
+        exp_full_msg_macro = pref + exp_full_msg_macro
     elif m.group(3).lower() == "tx":
         direction = RxTx.Tx
         pref = "CANTX_"
+
         if msg.cycle_time:
-            phase_macro = pref + phase_macro
-            period_macro = pref + period_macro
-            message_id_macro = pref + message_id_macro
-            full_message_macro = pref + full_message_macro
+            exp_phase_macro = pref + exp_phase_macro
+            exp_period_macro = pref + exp_period_macro
+            exp_full_msg_macro = pref + exp_full_msg_macro
         else:
-            # there will be at least one whitespace in the file, and therefore
-            # we just search for that and treat that as 'macro'
-            phase_macro = " "
-            period_macro = " "
-            message_id_macro = pref + message_id_macro
-            full_message_macro = " "
+            exp_phase_macro = "Tx - async - ND"
+            exp_period_macro = "Tx - async - ND"
+            exp_full_msg_macro = "Tx - async - ND"
     else:
         sys.exit("Something went wrong.")
 
-    logging.debug(f"created define '{message_id_macro}' for '{msg.name}'.")
-    logging.debug(f"created define '{period_macro}' for '{msg.name}'.")
-    if phase_macro != "Rx has no phase":
-        logging.debug(f"created define '{phase_macro}' for '{msg.name}'.")
-    logging.debug(f"created define '{full_message_macro}' for '{msg.name}'.")
+    exp_id_macro = pref + exp_id_macro
+    exp_id_type_macro = pref + exp_id_type_macro
+    exp_endianness_macro = pref + exp_endianness_macro
+    exp_dlc_macro = pref + exp_dlc_macro
+    # now we have all defines we need to search for
+
+    logging.debug("%s:\n", msg.name)
+    logging.debug("  created define '%s' for '%s'.", exp_id_macro, msg.name)
+    logging.debug("  created define '%s' for '%s'.", exp_id_type_macro, msg.name)
+    if not exp_period_macro.endswith("- ND"):
+        logging.debug("  created define '%s' for '%s'.", exp_period_macro, msg.name)
+    if not exp_phase_macro.endswith("- ND"):
+        logging.debug("  created define '%s' for '%s'.", exp_phase_macro, msg.name)
+    logging.debug("  created define '%s' for '%s'.", exp_endianness_macro, msg.name)
+    logging.debug("  created define '%s' for '%s'.", exp_dlc_macro, msg.name)
+    if not exp_full_msg_macro.endswith("- ND"):
+        logging.debug("  created define '%s' for '%s'.\n", exp_full_msg_macro, msg.name)
+    cyclic = False
+    if msg.cycle_time:
+        cyclic = True
     return ExpectedCanMessageDefines(
         msg.name,
-        message_id_macro,
-        period_macro,
-        phase_macro,
-        full_message_macro,
-        hex(msg.frame_id),
-        direction,
+        hex(msg.frame_id).upper().replace("X", "x"),
+        direction.name.lower(),
+        cyclic,
+        (exp_id_macro, ""),
+        (exp_id_type_macro, ""),
+        (exp_period_macro, ""),
+        (exp_phase_macro, ""),
+        (exp_endianness_macro, ""),
+        (exp_dlc_macro, ""),
+        (exp_full_msg_macro, ""),
     )
 
 
 def get_defines_from_file(
-    file_to_check: Path, selector: str
+    file_to_check: Path,
+    selector: str,
+    cyclic: bool = False,
 ) -> list[FoundCanMessageDefine]:
     """Generate a list of specific CAN defines found in a provided file."""
     defines = []
-    with open(file_to_check, "r", encoding="utf-8") as f:
+    with open(file_to_check, encoding="utf-8") as f:
         txt = f.read()
     for i, line in enumerate(txt.splitlines()):
         line: str = line.strip()
         if not line.startswith("#define"):
             continue
-        if not selector in line:
+        if selector not in line:
             continue
         line = line.split()
         found_define = FoundCanMessageDefine(
-            line[1], line[2][1:-1], f"{file_to_check}:{i-1}"
+            line[1], line[2][1:-1], f"{file_to_check}:{i+1}"
         )
         if found_define.msg_id.endswith("u"):
             found_define.msg_id = found_define.msg_id[:-1]
-        if "check_ids:not-periodic" in line:
-            found_define.not_periodic = True
+        found_define.cyclic = cyclic
         defines.append(found_define)
         logging.debug(found_define)
     return defines
@@ -223,28 +256,30 @@ def log_found_msgs(
     selector: str, implemented_defines: list[FoundCanMessageDefine]
 ) -> None:
     """Logging helper for found messages"""
-    header = ["Name", "Define name", "ID"]
-    table = []
+    out_str = ""
     for i in implemented_defines:
-        table.append([i.where, i.define_name, i.msg_id])
-    table = tabulate.tabulate(table, header, tablefmt="pipe")
-    logging.info(f"Implemented {selector} defines are:\n{table}\n")
+        out_str += f"{i.where}: {i.define_name} : {i.msg_id} [{i.cyclic}]\n"
+    logging.info("Implemented %s defines are:\n%s\n", selector, out_str)
 
 
 def log_found(expected_define_name, where) -> None:
     """Logging helper for found messages"""
-    logging.debug(f"-> Found expected: {expected_define_name} @ {where}")
+    logging.debug("-> Found expected: %s @ %s", expected_define_name, where)
 
 
 def log_not_found(exp: ExpectedCanMessageDefines, i: str, expected_file: str) -> None:
     """Logging helper for NOT found messages"""
     logging.error(
-        f"Did not find {exp.direction.name} implementation of expected macro '{i}' for"
-        f"'{exp.exp_message_id_macro} ({exp.msg_id})' in '{expected_file}'."
+        "Did not find expected macro implementation '%s' for '%s' (%s) for in '%s'.",
+        i,
+        exp.dbc_name,
+        exp.dbc_id,
+        expected_file,
     )
 
 
-def main():  # pylint: disable=too-many-branches
+# pylint: disable-next=too-many-branches,too-many-locals,too-many-statements
+def main():
     """This script checks that the CAN message IDs that are defined in the dbc
     file are correctly implemented."""
     parser = argparse.ArgumentParser()
@@ -265,15 +300,20 @@ def main():  # pylint: disable=too-many-branches
         help="DBC file to be verified.",
     )
     parser.add_argument(
-        "-t",
-        "--tx-message-definition-file",
-        dest="tx_message_definition_file",
+        "--tx-cyclic-message-definition-file",
+        dest="tx_cyclic_message_definition_file",
         action="store",
-        default=TX_MESSAGES,
+        default=TX_CYCLIC_MESSAGES,
         help="Path to file containing the implementation TX CAN message IDs",
     )
     parser.add_argument(
-        "-r",
+        "--tx-async-message-definition-file",
+        dest="tx_async_message_definition_file",
+        action="store",
+        default=TX_ASYNC_MESSAGES,
+        help="Path to file containing the implementation TX CAN message IDs",
+    )
+    parser.add_argument(
         "--rx-message-definition-file",
         dest="rx_message_definition_file",
         action="store",
@@ -301,142 +341,254 @@ def main():  # pylint: disable=too-many-branches
         if not i.comment:
             errors += 1
             logging.error(
-                f"Could not find any comment for message '{i.name}' ({hex(i.frame_id)})."
+                "Could not find any comment for message '%s' (%s).",
+                i.name,
+                hex(i.frame_id),
             )
             continue
         logging.info(
-            f"Found comment for message '{i.name}' ({hex(i.frame_id)}): '{i.comment}'."
+            "Found comment for message '%s' (%s): '%s'.",
+            i.name,
+            hex(i.frame_id),
+            i.comment,
         )
         m = FILE_RE_COMPILED.search(i.comment)  # pylint: disable=invalid-name
         if not m:
             errors += 1
             logging.error(
-                "Could not find comment for message "
-                f"'{i.name}' ({hex(i.frame_id)}) that matches '{FILE_RE}'."
+                "Could not find comment for message '%s' (%s) that matches '%s'.",
+                i.name,
+                hex(i.frame_id),
+                FILE_RE,
             )
             continue
     if errors:
-        return errors
-
-    if not isinstance(args.tx_message_definition_file, Path):
-        args.tx_message_definition_file = Path(args.tx_message_definition_file)
-    if not args.tx_message_definition_file.is_file():
-        sys.exit(f"'{args.tx_message_definition_file}' is not a valid file path.")
+        sys.exit(errors)
 
     if not isinstance(args.rx_message_definition_file, Path):
         args.rx_message_definition_file = Path(args.rx_message_definition_file)
-    if not args.rx_message_definition_file.is_file():
-        sys.exit(f"'{args.rx_message_definition_file}' is not a valid file path.")
+    if not isinstance(args.tx_async_message_definition_file, Path):
+        args.tx_async_message_definition_file = Path(
+            args.tx_async_message_definition_file
+        )
+    if not isinstance(args.tx_cyclic_message_definition_file, Path):
+        args.tx_cyclic_message_definition_file = Path(
+            args.tx_cyclic_message_definition_file
+        )
+
+    for i in (
+        args.rx_message_definition_file,
+        args.tx_async_message_definition_file,
+        args.tx_cyclic_message_definition_file,
+    ):
+        if not i.is_file():
+            errors += 1
+            sys.exit(f"'{i}' is not a valid file path.")
+    if errors:
+        sys.exit(errors)
 
     expected_defines = [construct_msg_define(msg) for msg in sorted_messages]
-    header = [
-        "Name",
-        "Expected message macro",
-        "Expected period macro",
-        "Expected phase macro",
-        "Full message macro",
-        "ID",
-        "Direction",
-    ]
-    table = []
+    dump = {}
     for i in expected_defines:
-        table.append(
-            [
-                i.msg_name,
-                i.exp_message_id_macro,
-                i.exp_period_macro,
-                i.exp_phase_macro,
-                i.exp_full_message_macro,
-                i.msg_id,
-                i.direction.name,
-            ]
-        )
-    table = tabulate.tabulate(table, header, tablefmt="pipe")
-    logging.info(f"Expected defines are:\n{table}\n")
+        dump[i.dbc_name] = dataclasses.asdict(i)
+    with open("expected-defines.json.log", "w", encoding="utf-8") as f:
+        f.write(json.dumps(dump, indent=4))
 
-    all_tx_defines = get_defines_from_file(args.tx_message_definition_file, "CANTX")
+    all_tx_defines = get_defines_from_file(
+        args.tx_cyclic_message_definition_file,
+        selector="CANTX",
+        cyclic=True,
+    )
     implemented_tx_defines = [
         i
         for i in all_tx_defines
         if (i.define_name.startswith("CANTX_") and i.define_name.endswith("_ID"))
     ]
+    all_tx_defines.extend(
+        get_defines_from_file(
+            args.tx_async_message_definition_file,
+            selector="CANTX",
+            cyclic=False,
+        )
+    )
+    implemented_tx_defines.extend(
+        [
+            i
+            for i in all_tx_defines
+            if (i.define_name.startswith("CANTX_") and i.define_name.endswith("_ID"))
+        ]
+    )
     log_found_msgs("TX", implemented_tx_defines)
 
-    all_rx_defines = get_defines_from_file(args.rx_message_definition_file, "CANRX")
+    all_rx_defines = get_defines_from_file(
+        args.rx_message_definition_file, "CANRX", cyclic=True
+    )
     implemented_rx_defines = [
         i
         for i in all_rx_defines
         if (i.define_name.startswith("CANRX_") and i.define_name.endswith("_ID"))
     ]
     log_found_msgs("RX", implemented_rx_defines)
-    errors = len(expected_defines) * 4
+    # check that the ID is assigned to the correct macro
+    all_implemented_defines = implemented_tx_defines + implemented_rx_defines
+    for message, values in dump.items():
+        for i in all_implemented_defines:
+            if not values["exp_id_macro"][0] == i.define_name:
+                continue
+            expected_id = int(values["dbc_id"], 16)
+            implemented_id = int(i.msg_id, 16)
+            if implemented_id != expected_id:
+                sys.exit(
+                    f"The message '{message}' expects the macro "
+                    f"'{values['exp_id_macro'][0]}' to implement the ID "
+                    f"'{hex(expected_id)}', but it implements ID "
+                    f"'{hex(implemented_id)}'."
+                )
+
+    # We expect 7 defines in the 'best' case:
+    # - *_ID
+    # - *_ID_TYPE
+    # - *_PERIOD_ms     - only if cyclic (tx and rx)
+    # - *_PHASE_ms      - only if cyclic tx
+    # - *_ENDIANNESS
+    # - *_DLC
+    # - *_MESSAGE       - only if cyclic /tx and rx)
+    errors = len(expected_defines) * 7
     for exp in expected_defines:
-        for i in [
-            exp.exp_message_id_macro,
+        for i, _ in [
+            exp.exp_id_macro,
+            exp.exp_id_type_macro,
             exp.exp_period_macro,
             exp.exp_phase_macro,
-            exp.exp_full_message_macro,
+            exp.exp_endianness_macro,
+            exp.exp_dlc_macro,
+            exp.exp_full_msg_macro,
         ]:
-            if i == " ":
+            # all macros that do not need to be defined end marked like that.
+            if i.endswith("- ND"):
                 errors -= 1
                 continue
+
             found = False
-            if exp.direction == RxTx.Rx:
+            if exp.dbc_direction == "rx":
                 implemented_macros = all_rx_defines
                 expected_file = args.rx_message_definition_file
-                if i == "Rx has no phase":  # rx messages do not have a phase
-                    found = True
-                    errors -= 1
-                    continue
-            elif exp.direction == RxTx.Tx:
+            elif exp.dbc_direction == "tx":
                 implemented_macros = all_tx_defines
-                expected_file = args.tx_message_definition_file
+                if exp.dbc_cyclic:
+                    expected_file = args.tx_cyclic_message_definition_file
+                else:
+                    expected_file = args.tx_async_message_definition_file
             else:
-                sys.exit("Something went really wrong...")
-            logging.debug(f"Searching {i} ({exp.msg_id}) in {expected_file}")
+                sys.exit("Something went really wrong when searching for macros...")
+
+            logging.debug("Searching %s (%s) in %s", i, exp.dbc_id, expected_file)
             for macro in implemented_macros:
-                logging.debug(f"  Comparing against {macro.define_name}")
+                logging.debug("  Comparing against %s", macro.define_name)
                 if macro.define_name == i:
-                    log_found(i, macro.where)
+                    posix_where = Path(macro.where).as_posix()
+                    if i == exp.exp_id_macro[0]:
+                        exp.exp_id_macro = (exp.exp_id_macro[0], posix_where)
+                    elif i == exp.exp_id_type_macro[0]:
+                        exp.exp_id_type_macro = (exp.exp_id_type_macro[0], posix_where)
+                    elif i == exp.exp_period_macro[0]:
+                        exp.exp_period_macro = (exp.exp_period_macro[0], posix_where)
+                    elif i == exp.exp_phase_macro[0]:
+                        exp.exp_phase_macro = (exp.exp_phase_macro[0], posix_where)
+                    elif i == exp.exp_endianness_macro[0]:
+                        exp.exp_endianness_macro = (
+                            exp.exp_endianness_macro[0],
+                            posix_where,
+                        )
+                    elif i == exp.exp_dlc_macro[0]:
+                        exp.exp_dlc_macro = (exp.exp_dlc_macro[0], posix_where)
+                    elif i == exp.exp_full_msg_macro[0]:
+                        exp.exp_full_msg_macro = (
+                            exp.exp_full_msg_macro[0],
+                            posix_where,
+                        )
+                    log_found(i, posix_where)
                     errors -= 1
                     found = True
                     break
             if not found:
                 log_not_found(exp, i, expected_file)
+    if errors:
+        sys.exit(errors)
 
-        # check if the id, period and phase macro appear twice in the message
-        # definition file. If so, we can assume that it has been defined once
-        # and used a second time.
-        not_periodic_signals = [
-            i.define_name for i in all_tx_defines + all_rx_defines if i.not_periodic
-        ]
-        for i in [
-            exp.exp_message_id_macro,
-            exp.exp_period_macro,
-            exp.exp_phase_macro,
-        ]:
-            if i in not_periodic_signals:
+    dump = {}
+    for i in expected_defines:
+        dump[i.dbc_name] = dataclasses.asdict(i)
+    with open("found-defines.json.log", "w", encoding="utf-8") as f:
+        f.write(json.dumps(dump, indent=4))
+
+    for i in expected_defines:
+        last_match = 0
+        nr_ = 1
+        for j in dataclasses.asdict(i):
+            attr = getattr(i, j)
+            if not isinstance(attr, tuple):
                 continue
-            if exp.direction == RxTx.Rx:
-                expected_file = args.rx_message_definition_file
-                if i == "Rx has no phase":  # rx messages do not have a phase
-                    continue
-            elif exp.direction == RxTx.Tx:
-                expected_file = args.tx_message_definition_file
+            if not attr[0].startswith(("CANTX_", "CANRX_")):
+                continue
+            if attr[0].endswith("_MESSAGE"):
+                continue
+            if last_match > 0:
+                if last_match + nr_ != int(attr[1].rsplit(":", maxsplit=1)[-1]):
+                    logging.error("wrong line for %s", attr)
+                nr_ += 1
             else:
-                sys.exit("Something went really wrong...")
+                last_match = attr[1].rsplit(":", maxsplit=1)
+                last_match = last_match[-1]
+                last_match = int(last_match)
+    # check if the id, period and phase macro appear twice in the message
+    # definition file. If so, we can assume that it has been defined once
+    # and used a second time.
 
-            with open(expected_file, "r", encoding="utf-8") as f:
-                txt = f.read()
-            # some message might start with the same name, therefore checking
-            # if it occurs two times is not good, but modulo 2 and no remainder
-            # is!
-            if not txt.count(i) % 2 == 0 and i != " ":
-                errors += 1
-                logging.error(
-                    f"Expected to find {i} twice: definition and in *_MESSAGE usage.\n"
-                    f"Found it {txt.count(i)} times."
-                )
+    expected_tx_txt = args.tx_cyclic_message_definition_file.read_text(encoding="utf-8")
+    expected_rx_txt = args.rx_message_definition_file.read_text(encoding="utf-8")
+
+    end_re = r"\s+}\n"
+    for i in expected_defines:
+        if not i.dbc_cyclic and i.dbc_direction == "tx":
+            continue
+        start_re = (
+            rf"#define\s+{i.exp_full_msg_macro[0]}\s+\\\n"
+            rf"\s+{{\s+\\\n"
+            rf"\s+\.id\s+=\s+{i.exp_id_macro[0]},\s+\\\n"
+            rf"\s+\.idType\s+=\s+{i.exp_id_type_macro[0]},\s+\\\n"
+            rf"\s+\.dlc\s+=\s+{i.exp_dlc_macro[0]},\s+\\\n"
+            rf"\s+\.endianness\s+=\s+{i.exp_endianness_macro[0]},\s+\\\n"
+            rf"\s+}},\s+\\\n"
+            r"\s+{\s+\\\n"
+        )
+        if i.dbc_direction == "tx":
+            message_re = (
+                start_re
+                + rf"\s+\.period\s+=\s+{i.exp_period_macro[0]},"
+                + rf"\s+\.phase\s+=\s+{i.exp_phase_macro[0]}\s+\\\n"
+                + end_re
+            )
+            expected_txt = expected_tx_txt
+        elif i.dbc_direction == "rx":
+            message_re = (
+                start_re + rf"\s+\.period\s+=\s+{i.exp_period_macro[0]}\s+\\\n" + end_re
+            )
+            expected_txt = expected_rx_txt
+        else:
+            logging.error(
+                "variable 'message_re' did not get defined for %s. Something went wrong",
+                i,
+            )
+            errors += 1
+            continue
+        m = re.search(message_re, expected_txt, flags=re.MULTILINE)
+        if not m:
+            errors += 1
+            logging.error(
+                "Could not find expected message definition for %s.",
+                i.exp_full_msg_macro[0],
+            )
 
     return errors
 
@@ -444,5 +596,5 @@ def main():  # pylint: disable=too-many-branches
 if __name__ == "__main__":
     nr_of_errors = main()
     if nr_of_errors:
-        logging.error(f"{nr_of_errors} errors found.")
+        logging.error("%s errors found.", nr_of_errors)
     sys.exit(nr_of_errors)

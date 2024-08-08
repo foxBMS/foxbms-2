@@ -12,8 +12,8 @@ Module Files
 Driver
 ^^^^^^
 
-- ``src/app/driver/rtc/rtc.c`` (`API <../../../../_static/doxygen/src/html/rtc_8c.html>`__, `source <../../../../_static/doxygen/src/html/rtc_8c_source.html>`__)
-- ``src/app/driver/rtc/rtc.h`` (`API <../../../../_static/doxygen/src/html/rtc_8h.html>`__, `source <../../../../_static/doxygen/src/html/rtc_8h_source.html>`__)
+- ``src/app/driver/rtc/rtc.c``
+- ``src/app/driver/rtc/rtc.h``
 
 Configuration
 ^^^^^^^^^^^^^
@@ -23,7 +23,7 @@ Configuration
 Unit Test
 ^^^^^^^^^
 
-- ``tests/unit/app/driver/rtc/test_rtc.c`` (`API <../../../../_static/doxygen/tests/html/test__rtc_8c.html>`__, `source <../../../../_static/doxygen/tests/html/test__rtc_8c_source.html>`__)
+- ``tests/unit/app/driver/rtc/test_rtc.c``
 
 Description
 -----------

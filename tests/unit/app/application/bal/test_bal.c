@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,8 +43,8 @@
  * @file    test_bal.c
  * @author  foxBMS Team
  * @date    2020-08-05 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -119,7 +119,7 @@ void testSubstateChanged(void) {
     TEST_ASSERT_EQUAL(initState.substate, BAL_CHECK_IMBALANCES);
 }
 
-void testFiniteStateMachineCheckReEntranceFunction(void) {
+void testFiniteStateMachineCheckReentranceFunction(void) {
     OS_EnterTaskCritical_Expect();
     OS_ExitTaskCritical_Expect();
     uint8_t returnValue = 0;
@@ -168,7 +168,7 @@ void testFiniteStateMachineCheckStateRequestFunction3(void) {
 }
 void testFiniteStateMachineCheckStateRequestFunction4(void) {
     BAL_RETURN_TYPE_e returnValue = BAL_OK;
-    returnValue                   = BAL_CheckStateRequest(&initState, BAL_STATE_ALLOWBALANCING_REQUEST);
+    returnValue                   = BAL_CheckStateRequest(&initState, BAL_STATE_ALLOW_BALANCING_REQUEST);
     TEST_ASSERT_EQUAL(returnValue, BAL_OK);
 }
 void testFiniteStateMachineCheckStateRequestFunction5(void) {
@@ -193,20 +193,20 @@ void testFiniteStateMachineCheckStateRequestFunction7(void) {
     TEST_ASSERT_EQUAL(returnValue, BAL_ILLEGAL_REQUEST);
 }
 
-void testProcessStateUninitalized0(void) {
-    BAL_ProcessStateUninitalized(&initState, BAL_STATE_INIT_REQUEST);
+void testProcessStateUninitialized0(void) {
+    BAL_ProcessStateUninitialized(&initState, BAL_STATE_INIT_REQUEST);
     TEST_ASSERT_EQUAL(initState.timer, BAL_STATEMACH_SHORTTIME_100ms);
     TEST_ASSERT_EQUAL(initState.state, BAL_STATEMACH_INITIALIZATION);
     TEST_ASSERT_EQUAL(initState.substate, BAL_ENTRY);
 }
 
-void testProcessStateUninitalized1(void) {
-    BAL_ProcessStateUninitalized(&initState, BAL_STATE_NO_REQUEST);
+void testProcessStateUninitialized1(void) {
+    BAL_ProcessStateUninitialized(&initState, BAL_STATE_NO_REQUEST);
 }
 
-void testProcessStateUninitalized2(void) {
+void testProcessStateUninitialized2(void) {
     initState.errorRequestCounter = 0xFE;
-    BAL_ProcessStateUninitalized(&initState, BAL_STATE_ERROR_REQUEST);
+    BAL_ProcessStateUninitialized(&initState, BAL_STATE_ERROR_REQUEST);
     TEST_ASSERT_EQUAL(initState.errorRequestCounter, 0xFF);
 }
 

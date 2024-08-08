@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,8 +43,8 @@
  * @file    ftask_freertos.c
  * @author  foxBMS Team
  * @date    2019-08-27 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup TASK
  * @prefix  FTSK
  *
@@ -102,6 +102,12 @@
 /** size of storage area for the I2C over AFE slave queue*/
 #define FTSK_AFEI2C_QUEUE_STORAGE_AREA (FTSK_AFEI2C_QUEUE_LENGTH * FTSK_AFEI2C_QUEUE_ITEM_SIZE_IN_BYTES)
 
+/** size of storage area for the CAN to AFE slave queue*/
+#define FTSK_CAN2AFE_CELL_TEMPERATURES_QUEUE_STORAGE_AREA \
+    (FTSK_CAN2AFE_CELL_TEMPERATURES_QUEUE_LENGTH * FTSK_CAN2AFE_CELL_TEMPERATURES_QUEUE_ITEM_SIZE_IN_BYTES)
+#define FTSK_CAN2AFE_CELL_VOLTAGES_QUEUE_STORAGE_AREA \
+    (FTSK_CAN2AFE_CELL_VOLTAGES_QUEUE_LENGTH * FTSK_CAN2AFE_CELL_VOLTAGES_QUEUE_ITEM_SIZE_IN_BYTES)
+
 /*========== Static Constant and Variable Definitions =======================*/
 
 /*========== Extern Constant and Variable Definitions =======================*/
@@ -126,6 +132,9 @@ OS_QUEUE ftsk_rtcSetTimeQueue = NULL_PTR;
 
 OS_QUEUE ftsk_afeToI2cQueue   = NULL_PTR;
 OS_QUEUE ftsk_afeFromI2cQueue = NULL_PTR;
+
+OS_QUEUE ftsk_canToAfeCellTemperaturesQueue = NULL_PTR;
+OS_QUEUE ftsk_canToAfeCellVoltagesQueue     = NULL_PTR;
 
 /*========== Static Function Prototypes =====================================*/
 
@@ -240,6 +249,29 @@ extern void FTSK_CreateQueues(void) {
         &ftsk_afeFromI2cQueueStructure);
     vQueueAddToRegistry(ftsk_afeFromI2cQueue, "I2C over AFE slave");
     FAS_ASSERT(ftsk_afeFromI2cQueue != NULL);
+
+    /* structure and array for static CAN to AFE slave queue (cell temperatures and cell voltages) */
+    static uint8_t ftsk_canToAfeCellTemperaturesQueueStorageArea[FTSK_CAN2AFE_CELL_TEMPERATURES_QUEUE_STORAGE_AREA] = {
+        0};
+    static StaticQueue_t ftsk_canToAfeCellTemperaturesQueueStructure = {0};
+
+    ftsk_canToAfeCellTemperaturesQueue = xQueueCreateStatic(
+        FTSK_CAN2AFE_CELL_TEMPERATURES_QUEUE_LENGTH,
+        FTSK_CAN2AFE_CELL_TEMPERATURES_QUEUE_ITEM_SIZE_IN_BYTES,
+        ftsk_canToAfeCellTemperaturesQueueStorageArea,
+        &ftsk_canToAfeCellTemperaturesQueueStructure);
+    vQueueAddToRegistry(ftsk_canToAfeCellTemperaturesQueue, "CAN to AFE slave (cell temperatures)");
+    FAS_ASSERT(ftsk_canToAfeCellTemperaturesQueue != NULL);
+
+    static uint8_t ftsk_canToAfeCellVoltagesQueueStorageArea[FTSK_CAN2AFE_CELL_VOLTAGES_QUEUE_STORAGE_AREA] = {0};
+    static StaticQueue_t ftsk_canToAfeCellVoltagesQueueStructure                                            = {0};
+    ftsk_canToAfeCellVoltagesQueue = xQueueCreateStatic(
+        FTSK_CAN2AFE_CELL_VOLTAGES_QUEUE_LENGTH,
+        FTSK_CAN2AFE_CELL_VOLTAGES_QUEUE_ITEM_SIZE_IN_BYTES,
+        ftsk_canToAfeCellVoltagesQueueStorageArea,
+        &ftsk_canToAfeCellVoltagesQueueStructure);
+    vQueueAddToRegistry(ftsk_canToAfeCellVoltagesQueue, "CAN to AFE slave (cell voltages)");
+    FAS_ASSERT(ftsk_canToAfeCellVoltagesQueue != NULL);
 
     OS_EnterTaskCritical();
     ftsk_allQueuesCreated = true;

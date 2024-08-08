@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,12 +43,13 @@
  * @file    mxm_afe.c
  * @author  foxBMS Team
  * @date    2020-06-16 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
- * @ingroup DRIVER
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
+ * @ingroup DRIVERS
  * @prefix  AFE
  *
  * @brief   AFE driver implementation
+ *  @details TODO
  */
 
 /*========== Includes =======================================================*/
@@ -116,7 +117,7 @@ static MXM_MONITORING_INSTANCE_s mxm_state = {
     .pCellTemperatures_table            = &mxm_tableCellTemperatures,
     .pOpenWire_table                    = &mxm_tableOpenWire,
     .selfCheck.crc                      = STD_NOT_OK,
-    .selfCheck.conv                     = STD_NOT_OK,
+    .selfCheck.conversion               = STD_NOT_OK,
     .selfCheck.firstSetBit              = STD_NOT_OK,
     .selfCheck.extractValueFromRegister = STD_NOT_OK,
     .selfCheck.parseVoltageReadall      = STD_NOT_OK,
@@ -202,7 +203,8 @@ extern STD_RETURN_TYPE_e AFE_TriggerIc(void) {
 extern STD_RETURN_TYPE_e AFE_Initialize(void) {
     MXM_SetStateStructDefaultValues();
     MXM_InitializeMonitoringPins();
-    /* call pre init self check so that we can do these costly tests before the main cycle begins (results are stored) */
+    /* call pre init self check so that we can do these costly tests before the main cycle begins (results are stored)
+     */
     (void)MXM_PreInitSelfCheck(&mxm_state);
     return STD_OK;
 }

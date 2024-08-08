@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 #
-# Copyright (c) 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -56,6 +55,8 @@ def build(bld):
         os.path.join("config"),
         os.path.join("..", "..", "..", "can"),
         os.path.join("..", "..", "..", "can", "cbs"),
+        os.path.join("..", "..", "..", "can", "cbs", "tx-async"),
+        os.path.join("..", "..", "..", "can", "cbs", "rx"),
         os.path.join("..", "..", "..", "config"),
         os.path.join("..", "..", "..", "..", "application", "config"),
         os.path.join("..", "..", "..", "..", "driver", "mcu"),

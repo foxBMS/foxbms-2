@@ -1,9 +1,22 @@
+/* =========================================================================
+    CException - Simple Exception Handling in C
+    ThrowTheSwitch.org
+    Copyright (c) 2007-24 Mark VanderVoord
+    SPDX-License-Identifier: MIT
+========================================================================= */
+
 #include "CException.h"
 
+#ifdef __GNUC__
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wmissing-field-initializers"
+#endif
+
 volatile CEXCEPTION_FRAME_T CExceptionFrames[CEXCEPTION_NUM_ID] = {{ 0 }};
+
+#ifdef __GNUC__
 #pragma GCC diagnostic pop
+#endif
 
 //------------------------------------------------------------------------------------------
 //  Throw

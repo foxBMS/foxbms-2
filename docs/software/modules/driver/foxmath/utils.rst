@@ -12,7 +12,7 @@ Module Files
 Driver
 ^^^^^^
 
-- ``src/app/driver/foxmath/utils.h`` (`API <../../../../_static/doxygen/src/html/utils_8h.html>`__, `source <../../../../_static/doxygen/src/html/utils_8h_source.html>`__)
+- ``src/app/driver/foxmath/utils.h``
 
 Configuration
 ^^^^^^^^^^^^^

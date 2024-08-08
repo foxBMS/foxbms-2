@@ -3,33 +3,26 @@
 
 .. _DMA:
 
-DMA
-===
-
-.. spelling::
-    cacheable
-    kB
-
 Module Files
 ------------
 
 Driver
 ^^^^^^
 
-- ``src/app/driver/dma/dma.c`` (`API <../../../../_static/doxygen/src/html/dma_8c.html>`__, `source <../../../../_static/doxygen/src/html/dma_8c_source.html>`__)
-- ``src/app/driver/dma/dma.h`` (`API <../../../../_static/doxygen/src/html/dma_8h.html>`__, `source <../../../../_static/doxygen/src/html/dma_8h_source.html>`__)
+- ``src/app/driver/dma/dma.c``
+- ``src/app/driver/dma/dma.h``
 
 Configuration
 ^^^^^^^^^^^^^
 
-- ``src/app/driver/config/dma_cfg.c`` (`API <../../../../_static/doxygen/src/html/dma__cfg_8c.html>`__, `source <../../../../_static/doxygen/src/html/dma__cfg_8c_source.html>`__)
-- ``src/app/driver/config/dma_cfg.h`` (`API <../../../../_static/doxygen/src/html/dma__cfg_8h.html>`__, `source <../../../../_static/doxygen/src/html/dma__cfg_8h_source.html>`__)
+- ``src/app/driver/config/dma_cfg.c``
+- ``src/app/driver/config/dma_cfg.h``
 
 Unit Test
 ^^^^^^^^^
 
-- ``tests/unit/app/driver/dma/dma.c`` (`API <../../../../_static/doxygen/tests/html/test__dma_8c.html>`__, `source <../../../../_static/doxygen/tests/html/test__dma_8c_source.html>`__)
-- ``tests/unit/app/driver/config/dma_cfg.c`` (`API <../../../../_static/doxygen/tests/html/test__dma__cfg_8c.html>`__, `source <../../../../_static/doxygen/tests/html/test__dma__cfg_8c_source.html>`__)
+- ``tests/unit/app/driver/dma/dma.c``
+- ``tests/unit/app/driver/config/dma_cfg.c``
 
 Description
 -----------

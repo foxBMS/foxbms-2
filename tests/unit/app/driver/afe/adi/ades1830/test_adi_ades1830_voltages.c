@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,8 +43,8 @@
  * @file    test_adi_ades1830_voltages.c
  * @author  foxBMS Team
  * @date    2022-12-07 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -55,6 +55,7 @@
 /*========== Includes =======================================================*/
 #include "unity.h"
 #include "Mockadi_ades183x_cfg.h"
+#include "Mockadi_ades183x_diagnostic.h"
 #include "Mockos.h"
 #include "Mockspi.h"
 
@@ -246,88 +247,6 @@ void testADI_ReadAndStoreVoltages(void) {
     /* Invalid store location */
     TEST_ASSERT_FAIL_ASSERT(
         TEST_ADI_ReadAndStoreVoltages(&adi_stateBase, &commandBytes, ADI_VOLTAGE_STORE_LOCATION_E_MAX));
-
-    /* Test storing of  data */
-    /* Command parameter changes the register read so this has no effet due to the mocking,
-       as the values in the read data register are simulated */
-    DATA_BLOCK_CELL_VOLTAGE_s *pVoltageTable = NULL_PTR;
-
-    for (ADI_VOLTAGE_STORE_LOCATION_e storeLocation = ADI_CELL_VOLTAGE;
-         storeLocation < ADI_VOLTAGE_STORE_LOCATION_E_MAX;
-         storeLocation++) {
-        for (uint8_t registerOffset = ADI_RESULT_REGISTER_SET_A; registerOffset <= ADI_RESULT_REGISTER_SET_F;
-             registerOffset++) {
-            SPI_TransmitDummyByte_IgnoreAndReturn(STD_OK);
-            SPI_TransmitReceiveDataDma_IgnoreAndReturn(STD_OK);
-            OS_WaitForNotification_IgnoreAndReturn(OS_SUCCESS);
-        }
-
-        /* Set store buffer with store location */
-        switch (storeLocation) {
-            case ADI_CELL_VOLTAGE:
-                pVoltageTable = adi_stateBase.data.cellVoltage;
-                break;
-            case ADI_AVERAGE_CELL_VOLTAGE:
-                pVoltageTable = adi_stateBase.data.cellVoltageAverage;
-                break;
-            case ADI_FILTERED_CELL_VOLTAGE:
-                pVoltageTable = adi_stateBase.data.cellVoltageFiltered;
-                break;
-            case ADI_REDUNDANT_CELL_VOLTAGE:
-                pVoltageTable = adi_stateBase.data.cellVoltageRedundant;
-                break;
-            case ADI_CELL_VOLTAGE_OPEN_WIRE_EVEN:
-                pVoltageTable = adi_stateBase.data.cellVoltageOpenWireEven;
-                break;
-            case ADI_CELL_VOLTAGE_OPEN_WIRE_ODD:
-                pVoltageTable = adi_stateBase.data.cellVoltageOpenWireOdd;
-                break;
-            case ADI_CELL_VOLTAGE_AVERAGE_OPEN_WIRE:
-                pVoltageTable = adi_stateBase.data.cellVoltageAverageOpenWire;
-                break;
-            case ADI_CELL_VOLTAGE_REDUNDANT_OPEN_WIRE:
-                pVoltageTable = adi_stateBase.data.cellVoltageRedundantOpenWire;
-                break;
-            default:
-                break;
-        }
-        for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
-            adi_stateBase.currentString = s;
-            /* Prepare voltage data to simulate data read from AFE registers */
-            for (uint16_t i = 4u; i < ADI_N_BYTES_FOR_DATA_TRANSMISSION; i += 8) {
-                /* Set raw data, corresponds to a cell voltage of 1884mV */
-                uint8_t bufferMSB = 0x0Au;
-                uint8_t bufferLSB = 0x01u;
-                /* Set receive buffer with raw data */
-                adi_bufferRxPecTest[i]      = bufferLSB;
-                adi_bufferRxPecTest[i + 1u] = bufferMSB;
-                adi_bufferRxPecTest[i + 2u] = bufferLSB;
-                adi_bufferRxPecTest[i + 3u] = bufferMSB;
-                adi_bufferRxPecTest[i + 4u] = bufferLSB;
-                adi_bufferRxPecTest[i + 5u] = bufferMSB;
-                /* Two PEC bytes */
-                adi_bufferRxPecTest[i + 6u] = 0x00u;
-                adi_bufferRxPecTest[i + 7u] = 0x2Bu;
-            }
-            /* Reset cell voltage values */
-            for (uint16_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
-                for (uint8_t cb = 0u; cb < BS_NR_OF_CELL_BLOCKS_PER_MODULE; cb++) {
-                    pVoltageTable->cellVoltage_mV[s][m][cb] = 0;
-                }
-            }
-            /* Reset PEC error flags */
-            for (uint16_t m = 0; m < BS_NR_OF_MODULES_PER_STRING; m++) {
-                adi_stateBase.data.errorTable->crcIsOk[s][m] = true;
-            }
-            TEST_ADI_ReadAndStoreVoltages(&adi_stateBase, &commandBytes, storeLocation);
-            for (uint16_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
-                for (uint8_t cb = 0u; cb < BS_NR_OF_CELL_BLOCKS_PER_MODULE; cb++) {
-                    /* Check that stored values corresponds to raw values */
-                    TEST_ASSERT_EQUAL(1884, pVoltageTable->cellVoltage_mV[s][m][cb]);
-                }
-            }
-        }
-    }
 }
 
 void testADI_SaveRxToCellVoltageBuffer(void) {
@@ -343,183 +262,6 @@ void testADI_SaveRxToCellVoltageBuffer(void) {
     /* Test invalid store location */
     TEST_ASSERT_FAIL_ASSERT(TEST_ADI_SaveRxToCellVoltageBuffer(
         &adi_stateBase, adi_dataReceive, ADI_RESULT_REGISTER_SET_A, ADI_VOLTAGE_STORE_LOCATION_E_MAX));
-
-    DATA_BLOCK_CELL_VOLTAGE_s *pVoltageTable = NULL_PTR;
-
-    /* Test three cases for each store location:
-       -raw buffer contains cleared values, values must not be stored
-       -PEC error set, values must not be stored
-       -everything OK, values must be stored */
-    for (ADI_VOLTAGE_STORE_LOCATION_e storeLocation = ADI_CELL_VOLTAGE;
-         storeLocation < ADI_VOLTAGE_STORE_LOCATION_E_MAX;
-         storeLocation++) {
-        /* Set store buffer with store location */
-        switch (storeLocation) {
-            case ADI_CELL_VOLTAGE:
-                pVoltageTable = adi_stateBase.data.cellVoltage;
-                break;
-            case ADI_AVERAGE_CELL_VOLTAGE:
-                pVoltageTable = adi_stateBase.data.cellVoltageAverage;
-                break;
-            case ADI_FILTERED_CELL_VOLTAGE:
-                pVoltageTable = adi_stateBase.data.cellVoltageFiltered;
-                break;
-            case ADI_REDUNDANT_CELL_VOLTAGE:
-                pVoltageTable = adi_stateBase.data.cellVoltageRedundant;
-                break;
-            case ADI_CELL_VOLTAGE_OPEN_WIRE_EVEN:
-                pVoltageTable = adi_stateBase.data.cellVoltageOpenWireEven;
-                break;
-            case ADI_CELL_VOLTAGE_OPEN_WIRE_ODD:
-                pVoltageTable = adi_stateBase.data.cellVoltageOpenWireOdd;
-                break;
-            case ADI_CELL_VOLTAGE_AVERAGE_OPEN_WIRE:
-                pVoltageTable = adi_stateBase.data.cellVoltageAverageOpenWire;
-                break;
-            case ADI_CELL_VOLTAGE_REDUNDANT_OPEN_WIRE:
-                pVoltageTable = adi_stateBase.data.cellVoltageRedundantOpenWire;
-                break;
-            default:
-                break;
-        }
-        for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
-            adi_stateBase.currentString = s;
-            /* First test: buffer contains cleared values */
-            /* Prepare voltage data */
-            for (uint16_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
-                /* Parse all voltages contained in one register */
-                for (uint16_t c = 0u; c < ADI_MAX_NUMBER_OF_VOLTAGES_IN_REGISTER; c++) {
-                    /* Set raw data, corresponds to cleared values */
-                    uint8_t bufferMSB = (ADI_REGISTER_CLEARED_VALUE & 0xFF00u) >> 8u;
-                    uint8_t bufferLSB = ADI_REGISTER_CLEARED_VALUE & 0xFFu;
-                    /* Set receive buffer with raw data */
-                    adi_dataReceive[(ADI_RAW_VOLTAGE_SIZE_IN_BYTES * c) + (m * ADI_MAX_REGISTER_SIZE_IN_BYTES) + 1u] =
-                        bufferMSB;
-                    adi_dataReceive[(ADI_RAW_VOLTAGE_SIZE_IN_BYTES * c) + (m * ADI_MAX_REGISTER_SIZE_IN_BYTES)] =
-                        bufferLSB;
-                }
-            }
-            /* Reset cell voltage values */
-            for (uint16_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
-                for (uint8_t cb = 0u; cb < BS_NR_OF_CELL_BLOCKS_PER_STRING; cb++) {
-                    pVoltageTable->cellVoltage_mV[s][m][cb] = 0;
-                }
-            }
-            /* Reset PEC error flags */
-            for (uint16_t m = 0; m < BS_NR_OF_MODULES_PER_STRING; m++) {
-                adi_stateBase.data.errorTable->crcIsOk[s][m] = true;
-            }
-            /* Save buffer to store location */
-            TEST_ADI_SaveRxToCellVoltageBuffer(
-                &adi_stateBase, adi_dataReceive, ADI_RESULT_REGISTER_SET_A, storeLocation);
-            TEST_ADI_SaveRxToCellVoltageBuffer(
-                &adi_stateBase, adi_dataReceive, ADI_RESULT_REGISTER_SET_B, storeLocation);
-            TEST_ADI_SaveRxToCellVoltageBuffer(
-                &adi_stateBase, adi_dataReceive, ADI_RESULT_REGISTER_SET_C, storeLocation);
-            TEST_ADI_SaveRxToCellVoltageBuffer(
-                &adi_stateBase, adi_dataReceive, ADI_RESULT_REGISTER_SET_D, storeLocation);
-            TEST_ADI_SaveRxToCellVoltageBuffer(
-                &adi_stateBase, adi_dataReceive, ADI_RESULT_REGISTER_SET_E, storeLocation);
-            TEST_ADI_SaveRxToCellVoltageBuffer(
-                &adi_stateBase, adi_dataReceive, ADI_RESULT_REGISTER_SET_F, storeLocation);
-            for (uint16_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
-                for (uint8_t cb = 0u; cb < BS_NR_OF_CELL_BLOCKS_PER_STRING; cb++) {
-                    /* As cleared value are stored in buffer, they must not be stored in the voltage table */
-                    TEST_ASSERT_EQUAL(0, pVoltageTable->cellVoltage_mV[s][m][cb]);
-                }
-            }
-            /* Second test: wrong PEC */
-            /* Prepare voltage data */
-            for (uint16_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
-                /* Parse all voltages contained in one register */
-                for (uint16_t c = 0u; c < ADI_MAX_NUMBER_OF_VOLTAGES_IN_REGISTER; c++) {
-                    /* Set raw data, corresponds to a cell voltage of 1884mV */
-                    uint8_t bufferMSB = 0x0Au;
-                    uint8_t bufferLSB = 0x01u;
-                    /* Set receive buffer with raw data */
-                    adi_dataReceive[(ADI_RAW_VOLTAGE_SIZE_IN_BYTES * c) + (m * ADI_MAX_REGISTER_SIZE_IN_BYTES) + 1u] =
-                        bufferMSB;
-                    adi_dataReceive[(ADI_RAW_VOLTAGE_SIZE_IN_BYTES * c) + (m * ADI_MAX_REGISTER_SIZE_IN_BYTES)] =
-                        bufferLSB;
-                }
-            }
-            /* Reset cell voltage values */
-            for (uint16_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
-                for (uint8_t cb = 0u; cb < BS_NR_OF_CELL_BLOCKS_PER_MODULE; cb++) {
-                    pVoltageTable->cellVoltage_mV[s][m][cb] = 0;
-                }
-            }
-            /* Set PEC error flags */
-            for (uint16_t m = 0; m < BS_NR_OF_MODULES_PER_STRING; m++) {
-                adi_stateBase.data.errorTable->crcIsOk[s][m] = false;
-            }
-            /* Save buffer to store location */
-            TEST_ADI_SaveRxToCellVoltageBuffer(
-                &adi_stateBase, adi_dataReceive, ADI_RESULT_REGISTER_SET_A, storeLocation);
-            TEST_ADI_SaveRxToCellVoltageBuffer(
-                &adi_stateBase, adi_dataReceive, ADI_RESULT_REGISTER_SET_B, storeLocation);
-            TEST_ADI_SaveRxToCellVoltageBuffer(
-                &adi_stateBase, adi_dataReceive, ADI_RESULT_REGISTER_SET_C, storeLocation);
-            TEST_ADI_SaveRxToCellVoltageBuffer(
-                &adi_stateBase, adi_dataReceive, ADI_RESULT_REGISTER_SET_D, storeLocation);
-            TEST_ADI_SaveRxToCellVoltageBuffer(
-                &adi_stateBase, adi_dataReceive, ADI_RESULT_REGISTER_SET_E, storeLocation);
-            TEST_ADI_SaveRxToCellVoltageBuffer(
-                &adi_stateBase, adi_dataReceive, ADI_RESULT_REGISTER_SET_F, storeLocation);
-            for (uint16_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
-                for (uint8_t cb = 0u; cb < BS_NR_OF_CELL_BLOCKS_PER_STRING; cb++) {
-                    /* As PEC error is detected, the values must not be stored */
-                    TEST_ASSERT_EQUAL(0, pVoltageTable->cellVoltage_mV[s][m][cb]);
-                }
-            }
-            /* Third test: store values */
-            /* Prepare voltage data */
-            for (uint16_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
-                /* Parse all voltages contained in one register */
-                for (uint16_t c = 0u; c < ADI_MAX_NUMBER_OF_VOLTAGES_IN_REGISTER; c++) {
-                    /* Set raw data, corresponds to a cell voltage of 1884mV */
-                    uint8_t bufferMSB = 0x0Au;
-                    uint8_t bufferLSB = 0x01u;
-                    /* Set receive buffer with raw data */
-                    adi_dataReceive
-                        [ADI_COMMAND_AND_PEC_SIZE_IN_BYTES + (ADI_RAW_VOLTAGE_SIZE_IN_BYTES * c) +
-                         (m * (ADI_MAX_REGISTER_SIZE_IN_BYTES + ADI_PEC_SIZE_IN_BYTES)) + 1u] = bufferMSB;
-                    adi_dataReceive
-                        [ADI_COMMAND_AND_PEC_SIZE_IN_BYTES + (ADI_RAW_VOLTAGE_SIZE_IN_BYTES * c) +
-                         (m * (ADI_MAX_REGISTER_SIZE_IN_BYTES + ADI_PEC_SIZE_IN_BYTES))] = bufferLSB;
-                }
-            }
-            /* Reset cell voltage values */
-            for (uint16_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
-                for (uint8_t cb = 0u; cb < BS_NR_OF_CELL_BLOCKS_PER_MODULE; cb++) {
-                    pVoltageTable->cellVoltage_mV[s][m][cb] = 0;
-                }
-            }
-            /* Reset PEC error flags */
-            for (uint16_t m = 0; m < BS_NR_OF_MODULES_PER_STRING; m++) {
-                adi_stateBase.data.errorTable->crcIsOk[s][m] = true;
-            }
-            /* Save buffer to store location */
-            TEST_ADI_SaveRxToCellVoltageBuffer(
-                &adi_stateBase, adi_dataReceive, ADI_RESULT_REGISTER_SET_A, storeLocation);
-            TEST_ADI_SaveRxToCellVoltageBuffer(
-                &adi_stateBase, adi_dataReceive, ADI_RESULT_REGISTER_SET_B, storeLocation);
-            TEST_ADI_SaveRxToCellVoltageBuffer(
-                &adi_stateBase, adi_dataReceive, ADI_RESULT_REGISTER_SET_C, storeLocation);
-            TEST_ADI_SaveRxToCellVoltageBuffer(
-                &adi_stateBase, adi_dataReceive, ADI_RESULT_REGISTER_SET_D, storeLocation);
-            TEST_ADI_SaveRxToCellVoltageBuffer(
-                &adi_stateBase, adi_dataReceive, ADI_RESULT_REGISTER_SET_E, storeLocation);
-            TEST_ADI_SaveRxToCellVoltageBuffer(
-                &adi_stateBase, adi_dataReceive, ADI_RESULT_REGISTER_SET_F, storeLocation);
-            for (uint16_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
-                for (uint8_t cb = 0u; cb < BS_NR_OF_CELL_BLOCKS_PER_MODULE; cb++) {
-                    /* Everything OK, the values must be stored */
-                    TEST_ASSERT_EQUAL(1884, pVoltageTable->cellVoltage_mV[s][m][cb]);
-                }
-            }
-        }
-    }
 }
 
 /*========== Extern Function Test Cases =====================================*/
@@ -541,89 +283,4 @@ void testADI_GetVoltages(void) {
     /* Invalid store location */
     TEST_ASSERT_FAIL_ASSERT(
         ADI_GetVoltages(&adi_stateBase, ADI_CELL_VOLTAGE_REGISTER, ADI_VOLTAGE_STORE_LOCATION_E_MAX));
-
-    /* Test reading of voltages */
-
-    /* SPI and OS functions are ignored */
-    SPI_TransmitDummyByte_IgnoreAndReturn(STD_OK);
-    SPI_TransmitReceiveDataDma_IgnoreAndReturn(STD_OK);
-    OS_WaitForNotification_IgnoreAndReturn(OS_SUCCESS);
-    DATA_BLOCK_CELL_VOLTAGE_s *pVoltageTable = NULL_PTR;
-
-    /* Prepare voltage data to simulate data read from AFE registers */
-    for (uint16_t i = 4u; i < ADI_N_BYTES_FOR_DATA_TRANSMISSION; i += 8) {
-        /* Set raw data, corresponds to a cell voltage of 1884mV */
-        uint8_t bufferMSB = 0x0Au;
-        uint8_t bufferLSB = 0x01u;
-        /* Set receive buffer with raw data */
-        adi_bufferRxPecTest[i]      = bufferLSB;
-        adi_bufferRxPecTest[i + 1u] = bufferMSB;
-        adi_bufferRxPecTest[i + 2u] = bufferLSB;
-        adi_bufferRxPecTest[i + 3u] = bufferMSB;
-        adi_bufferRxPecTest[i + 4u] = bufferLSB;
-        adi_bufferRxPecTest[i + 5u] = bufferMSB;
-        /* Two PEC bytes */
-        adi_bufferRxPecTest[i + 6u] = 0x00u;
-        adi_bufferRxPecTest[i + 7u] = 0x2Bu;
-    }
-
-    for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
-        adi_stateBase.currentString = s;
-
-        for (ADI_VOLTAGE_STORE_LOCATION_e storeLocation = ADI_CELL_VOLTAGE;
-             storeLocation < ADI_VOLTAGE_STORE_LOCATION_E_MAX;
-             storeLocation++) {
-            for (ADI_VOLTAGE_REGISTER_TYPE_e registerType = ADI_CELL_VOLTAGE_REGISTER;
-                 registerType < ADI_VOLTAGE_REGISTER_TYPE_E_MAX;
-                 registerType++) {
-                switch (storeLocation) {
-                    case ADI_CELL_VOLTAGE:
-                        pVoltageTable = adi_stateBase.data.cellVoltage;
-                        break;
-                    case ADI_AVERAGE_CELL_VOLTAGE:
-                        pVoltageTable = adi_stateBase.data.cellVoltageAverage;
-                        break;
-                    case ADI_FILTERED_CELL_VOLTAGE:
-                        pVoltageTable = adi_stateBase.data.cellVoltageFiltered;
-                        break;
-                    case ADI_REDUNDANT_CELL_VOLTAGE:
-                        pVoltageTable = adi_stateBase.data.cellVoltageRedundant;
-                        break;
-                    case ADI_CELL_VOLTAGE_OPEN_WIRE_EVEN:
-                        pVoltageTable = adi_stateBase.data.cellVoltageOpenWireEven;
-                        break;
-                    case ADI_CELL_VOLTAGE_OPEN_WIRE_ODD:
-                        pVoltageTable = adi_stateBase.data.cellVoltageOpenWireOdd;
-                        break;
-                    case ADI_CELL_VOLTAGE_AVERAGE_OPEN_WIRE:
-                        pVoltageTable = adi_stateBase.data.cellVoltageAverageOpenWire;
-                        break;
-                    case ADI_CELL_VOLTAGE_REDUNDANT_OPEN_WIRE:
-                        pVoltageTable = adi_stateBase.data.cellVoltageRedundantOpenWire;
-                        break;
-                    default:
-                        break;
-                }
-                /* Reset cell voltage values */
-                for (uint16_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
-                    for (uint8_t cb = 0u; cb < BS_NR_OF_CELL_BLOCKS_PER_MODULE; cb++) {
-                        pVoltageTable->cellVoltage_mV[s][m][cb] = 0;
-                    }
-                }
-                /* Reset PEC error flags */
-                for (uint16_t m = 0; m < BS_NR_OF_MODULES_PER_STRING; m++) {
-                    adi_stateBase.data.errorTable->crcIsOk[s][m] = true;
-                }
-
-                /* Now get voltages by reading data (mocked) and storing it to the voltage table */
-                ADI_GetVoltages(&adi_stateBase, registerType, storeLocation);
-                for (uint16_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
-                    for (uint8_t cb = 0u; cb < BS_NR_OF_CELL_BLOCKS_PER_MODULE; cb++) {
-                        /* As cleared values are stored in buffer, they must not be stored in the voltage table */
-                        TEST_ASSERT_EQUAL(1884, pVoltageTable->cellVoltage_mV[s][m][cb]);
-                    }
-                }
-            }
-        }
-    }
 }

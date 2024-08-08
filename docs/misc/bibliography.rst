@@ -6,28 +6,6 @@
 Bibliography
 ============
 
-..
-    Comments:
-    Bradner is the author of RFC2119
-    Leiba is the author of RFC8174
-    Michael Medoff and Rainer Faller are authors of a book published by exida in Sellersville
-    MIRA is the publisher of MISRA, published in Nuneaton
-
-.. spelling::
-    Bradner
-    Leiba
-    Michael
-    Medoff
-    Rainer
-    Faller
-    exida
-    Sellersville
-    MISRA
-    MIRA
-    MIRALimited13
-    Nuneaton
-    Limited
-
 .. bibliography::
    :cited:
 

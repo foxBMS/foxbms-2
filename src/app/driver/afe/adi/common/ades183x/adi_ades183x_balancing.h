@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,13 +43,13 @@
  * @file    adi_ades183x_balancing.h
  * @author  foxBMS Team
  * @date    2015-09-01 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup DRIVERS
  * @prefix  ADI
  *
  * @brief   Headers for the driver for the ADI analog front-end.
- *
+ * @details TODO
  */
 
 #ifndef FOXBMS__ADI_ADES183X_BALANCING_H_
@@ -65,17 +65,17 @@
 /*========== Extern Function Prototypes =====================================*/
 /**
  * @brief   Disable balancing
- * @param   adiState state of the driver
+ * @param   pAdiState state of the driver
  */
-extern void ADI_DeactivateBalancing(ADI_STATE_s *adiState);
+extern void ADI_DeactivateBalancing(ADI_STATE_s *pAdiState);
 
 /**
  * @brief   Determines how the balancing registers need to be set
  * @details Dependent on the actually used cell inputs this functions sets the
  *          registers accordingly.
- * @param   adiState state of the driver
+ * @param   pAdiState state of the driver
  */
-extern void ADI_DetermineBalancingRegisterConfiguration(ADI_STATE_s *adiState);
+extern void ADI_DetermineBalancingRegisterConfiguration(ADI_STATE_s *pAdiState);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 #ifdef UNITY_UNIT_TEST

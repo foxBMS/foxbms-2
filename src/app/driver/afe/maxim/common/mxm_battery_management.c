@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,15 +43,13 @@
  * @file    mxm_battery_management.c
  * @author  foxBMS Team
  * @date    2019-01-14 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup DRIVERS
  * @prefix  MXM
  *
  * @brief   Driver for the MAX17841B ASCI and MAX1785x analog front-end
- *
- * @details def
- *
+ * @details TODO
  */
 
 /*========== Includes =======================================================*/
@@ -69,9 +67,9 @@
 
 /*========== Macros and Definitions =========================================*/
 
-/** length of the helloall command @{*/
-#define HELLOALL_TX_LENGTH (3u)
-#define HELLOALL_RX_LENGTH HELLOALL_TX_LENGTH
+/** length of the helloAll command @{*/
+#define HELLO_ALL_TX_LENGTH (3u)
+#define HELLO_ALL_RX_LENGTH HELLO_ALL_TX_LENGTH
 /**@}*/
 
 /** threshold above which an error handling procedure is triggered */
@@ -98,7 +96,6 @@
  * @brief   Clear the command-buffer.
  * @details Clears #MXM_5X_INSTANCE_s::commandBuffer by writing 0x00 to every entry.
  * @param[in,out]   pInstance   pointer to the state-struct
- * @return  always return #STD_OK
  */
 static void MXM_5XClearCommandBuffer(MXM_5X_INSTANCE_s *pInstance);
 
@@ -145,12 +142,12 @@ static STD_RETURN_TYPE_e MXM_52IsUserAccessibleRegister(uint8_t regAddress);
 static STD_RETURN_TYPE_e MXM_53IsUserAccessibleRegister(uint8_t regAddress);
 
 /**
- * @brief   clears the command buffer and writes HELLOALL into the buffer
- * @details Fills the command buffer with a HELLOALL message after having it
+ * @brief   clears the command buffer and writes HELLO ALL into the buffer
+ * @details Fills the command buffer with a HELLO ALL message after having it
  *          cleaned.
  * @param[in,out]   pInstance   pointer to the state-struct
  */
-static void MXM_5XConstructCommandBufferHelloall(MXM_5X_INSTANCE_s *pInstance);
+static void MXM_5XConstructCommandBufferHelloAll(MXM_5X_INSTANCE_s *pInstance);
 
 /**
  * @brief   clears the command buffer and writes WRITEALL into the buffer
@@ -290,7 +287,8 @@ static STD_RETURN_TYPE_e MXM_52IsUserAccessibleRegister(uint8_t regAddress) {
 
     STD_RETURN_TYPE_e retval = STD_NOT_OK;
     /* check if regAddress is outside user-accessible area */
-    /* AXIVION Disable Style Generic-NoMagicNumbers: memory limits of ICs are specific and unchangeable, therefore hardcoded */
+    /* AXIVION Disable Style Generic-NoMagicNumbers: memory limits of ICs are specific and unchangeable, therefore hard
+     * coded */
     bool registerAddressIsInvalid = (regAddress == 0x5Du);
     registerAddressIsInvalid      = registerAddressIsInvalid || (regAddress == 0x5Eu);
     registerAddressIsInvalid      = registerAddressIsInvalid || (regAddress > 0x98u);
@@ -306,7 +304,8 @@ static STD_RETURN_TYPE_e MXM_52IsUserAccessibleRegister(uint8_t regAddress) {
 static STD_RETURN_TYPE_e MXM_53IsUserAccessibleRegister(uint8_t regAddress) {
     STD_RETURN_TYPE_e retval = STD_NOT_OK;
     /* check if regAddress is outside user-accessible area */
-    /* AXIVION Disable Style Generic-NoMagicNumbers: memory limits of ICs are specific and unchangeable, therefore hardcoded */
+    /* AXIVION Disable Style Generic-NoMagicNumbers: memory limits of ICs are specific and unchangeable, therefore hard
+     * coded */
     bool registerAddressIsInvalid = (regAddress == 0x46u);
     registerAddressIsInvalid      = registerAddressIsInvalid || ((0x2Cu <= regAddress) && (regAddress <= 0x2Fu));
     registerAddressIsInvalid      = registerAddressIsInvalid || ((0x84u <= regAddress) && (regAddress <= 0x8Bu));
@@ -320,12 +319,12 @@ static STD_RETURN_TYPE_e MXM_53IsUserAccessibleRegister(uint8_t regAddress) {
     return retval;
 }
 
-static void MXM_5XConstructCommandBufferHelloall(MXM_5X_INSTANCE_s *pInstance) {
+static void MXM_5XConstructCommandBufferHelloAll(MXM_5X_INSTANCE_s *pInstance) {
     FAS_ASSERT(pInstance != NULL_PTR);
     MXM_5XClearCommandBuffer(pInstance);
-    pInstance->commandBuffer[0]           = BATTERY_MANAGEMENT_HELLOALL;
+    pInstance->commandBuffer[0]           = BATTERY_MANAGEMENT_HELLO_ALL;
     pInstance->commandBuffer[1]           = 0x00;
-    pInstance->commandBuffer[2]           = HELLOALL_START_SEED;
+    pInstance->commandBuffer[2]           = HELLO_ALL_START_SEED;
     pInstance->commandBufferCurrentLength = 3;
 }
 
@@ -760,13 +759,13 @@ static void MXM_5XStateHandlerInit(MXM_5X_INSTANCE_s *pInstance5x, MXM_41B_INSTA
         } else if (pInstance5x->status41b == MXM_41B_STATE_ERROR) {
             MXM_5XHandle41BErrorState(pInstance5x);
         } else if (pInstance5x->status41b == MXM_41B_STATE_PROCESSED) {
-            MXM_5XTransitionToSubstate(pInstance5x, MXM_5X_INIT_WAKE_UP_SATELLITE_DEVICES_HELLOALL);
+            MXM_5XTransitionToSubstate(pInstance5x, MXM_5X_INIT_WAKE_UP_SATELLITE_DEVICES_HELLO_ALL);
         } else {
             FAS_ASSERT(FAS_TRAP);
         }
-    } else if (pInstance5x->substate == MXM_5X_INIT_WAKE_UP_SATELLITE_DEVICES_HELLOALL) {
+    } else if (pInstance5x->substate == MXM_5X_INIT_WAKE_UP_SATELLITE_DEVICES_HELLO_ALL) {
         if (pInstance5x->status41b == MXM_41B_STATE_UNSENT) {
-            MXM_5XConstructCommandBufferHelloall(pInstance5x);
+            MXM_5XConstructCommandBufferHelloAll(pInstance5x);
             const STD_RETURN_TYPE_e stateRequestReturn = MXM_41BSetStateRequest(
                 pInstance41b,
                 MXM_STATEMACH_41B_UART_TRANSACTION,
@@ -774,7 +773,7 @@ static void MXM_5XStateHandlerInit(MXM_5X_INSTANCE_s *pInstance5x, MXM_41B_INSTA
                 pInstance5x->commandBufferCurrentLength,
                 0,
                 pInstance5x->rxBuffer,
-                HELLOALL_RX_LENGTH,
+                HELLO_ALL_RX_LENGTH,
                 &pInstance5x->status41b);
             FAS_ASSERT(stateRequestReturn == STD_OK);
         } else if (pInstance5x->status41b == MXM_41B_STATE_UNPROCESSED) {
@@ -782,12 +781,12 @@ static void MXM_5XStateHandlerInit(MXM_5X_INSTANCE_s *pInstance5x, MXM_41B_INSTA
         } else if (pInstance5x->status41b == MXM_41B_STATE_ERROR) {
             MXM_5XHandle41BErrorState(pInstance5x);
         } else if (pInstance5x->status41b == MXM_41B_STATE_PROCESSED) {
-            pInstance5x->substate = MXM_5X_INIT_WAKE_UP_SATELLITE_DEVICES_HELLOALL_VERIFY_MSG_AND_COUNT;
+            pInstance5x->substate = MXM_5X_INIT_WAKE_UP_SATELLITE_DEVICES_HELLO_ALL_VERIFY_MSG_AND_COUNT;
         } else {
             FAS_ASSERT(FAS_TRAP);
         }
         /* TODO check for receive buffer errors and handle */
-    } else if (pInstance5x->substate == MXM_5X_INIT_WAKE_UP_SATELLITE_DEVICES_HELLOALL_VERIFY_MSG_AND_COUNT) {
+    } else if (pInstance5x->substate == MXM_5X_INIT_WAKE_UP_SATELLITE_DEVICES_HELLO_ALL_VERIFY_MSG_AND_COUNT) {
         /* check if the commandBuffer matches with the receive buffer */
         STD_RETURN_TYPE_e commandBufferMatchesReceiveBuffer = STD_OK;
         for (uint8_t i = 0u; i < (pInstance5x->commandBufferCurrentLength - 1u); i++) {
@@ -797,7 +796,8 @@ static void MXM_5XStateHandlerInit(MXM_5X_INSTANCE_s *pInstance5x, MXM_41B_INSTA
         }
         /* update number of satellites */
         pInstance5x->numberOfSatellites =
-            (uint8_t)((pInstance5x->rxBuffer[HELLOALL_RX_LENGTH - 1u] - HELLOALL_START_SEED) & MXM_5X_BIT_MASK_ONE_BYTE);
+            (uint8_t)((pInstance5x->rxBuffer[HELLO_ALL_RX_LENGTH - 1u] - HELLO_ALL_START_SEED) &
+                      MXM_5X_BIT_MASK_ONE_BYTE);
 
         /* Plausibility check, compare with preset number of satellites */
         if (pInstance5x->numberOfSatellites == (BS_NR_OF_MODULES_PER_STRING * BS_NR_OF_STRINGS)) {
@@ -931,7 +931,7 @@ extern void MXM_5X_InitializeStateStruct(MXM_5X_INSTANCE_s *pInstance) {
     pInstance->commandPayload.regAddress    = MXM_REG_VERSION;
     pInstance->commandPayload.lsb           = 0u;
     pInstance->commandPayload.msb           = 0u;
-    pInstance->commandPayload.blocksize     = 0u;
+    pInstance->commandPayload.blockSize     = 0u;
     pInstance->commandPayload.deviceAddress = 0u;
     pInstance->processed                    = NULL_PTR;
     pInstance->status41b                    = MXM_41B_STATE_UNSENT;
@@ -1072,9 +1072,9 @@ void MXM_5XStateMachine(MXM_41B_INSTANCE_s *pInstance41b, MXM_5X_INSTANCE_s *pIn
 
 extern STD_RETURN_TYPE_e GEN_MUST_CHECK_RETURN MXM_5XUserAccessibleAddressSpaceCheckerSelfCheck(void) {
     /* check:
-    * - user memory is contained in range 0x00 to 0x98
-    * - reserved addresses in user address space:
-    *   0x2C, 0x2D, 0x2E, 0x2F, 0x46 and 0x84 through 0x8B */
+     * - user memory is contained in range 0x00 to 0x98
+     * - reserved addresses in user address space:
+     *   0x2C, 0x2D, 0x2E, 0x2F, 0x46 and 0x84 through 0x8B */
 
     /* AXIVION Disable Style Generic-NoMagicNumbers: This test function uses magic numbers to test predefined values. */
     /* expected #STD_OK */

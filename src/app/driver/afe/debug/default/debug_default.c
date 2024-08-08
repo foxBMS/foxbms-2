@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,13 +43,13 @@
  * @file    debug_default.c
  * @author  foxBMS Team
  * @date    2020-09-17 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
- * @ingroup DRIVER
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
+ * @ingroup DRIVERS
  * @prefix  FAKE
  *
  * @brief   Driver implementation for the fake AFE
- *
+ * @details TODO
  */
 
 /*========== Includes =======================================================*/
@@ -175,7 +175,6 @@ static void FAKE_SetSubstate(FAKE_STATE_s *pFakeState, FAKE_FSM_SUBSTATES_e next
 /**
  * @brief   Sets the indicator that one full measurement cycles was successful
  * @param   pFakeState   state of the fake state machine
- * @return  true if it is a reentrance, false otherwise
  */
 static void FAKE_SetFirstMeasurementCycleFinished(FAKE_STATE_s *pFakeState);
 
@@ -297,8 +296,10 @@ static void FAKE_SetFirstMeasurementCycleFinished(FAKE_STATE_s *pFakeState) {
         }
 
         pFakeState->data.balancingFeedback->state = 0;
-        for (uint16_t cb = 0u; cb < BS_NR_OF_CELL_BLOCKS_PER_STRING; cb++) {
-            pFakeState->data.balancingControl->balancingState[s][cb] = 0u;
+        for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
+            for (uint16_t cb = 0u; cb < BS_NR_OF_CELL_BLOCKS_PER_MODULE; cb++) {
+                pFakeState->data.balancingControl->activateBalancing[s][m][cb] = false;
+            }
         }
         pFakeState->data.balancingControl->nrBalancedCells[s] = 0u;
         for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {

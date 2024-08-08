@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 #
-# Copyright (c) 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -41,6 +40,7 @@
 # pylint: disable=invalid-name
 
 """Template for Python scripts"""
+
 import argparse
 import json
 import logging
@@ -62,7 +62,7 @@ except InvalidGitRepositoryError:
     sys.exit("Test can only be run in a git repository.")
 
 
-def main():
+def main():  # pylint: disable=too-many-locals
     """This script compiles the c standard test suite and runs the tests"""
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -93,7 +93,7 @@ def main():
     standard_specifier = "--std="
     standards = ["c89", "c90", "iso9899:199409", "c99", "c11", "c17"]
     out_specifier = "-o"
-
+    longest_standard_name = max(len(i) for i in standards)
     outs = {}
     for i in standards:
         cmd = [
@@ -117,19 +117,32 @@ def main():
         ]
         outs[i] = err
 
-    with open(Path(SCRIPT_DIR / "c-std-test.json"), "r", encoding="utf-8") as f:
+    logging_msg = ""
+    for k, v in outs.items():
+        ws = " " * (longest_standard_name - len(k) + 1)
+        if v:
+            logging_msg += f"{k}{ws}:: {os.linesep.join(v)}\n"
+        else:
+            logging_msg += f"{k}{ws}:: None\n"
+    logging.debug(
+        "The following warnings occurred during compiling:\n%s", logging_msg.strip()
+    )
+    with open(Path(SCRIPT_DIR / "c-std-test.json"), encoding="utf-8") as f:
         expected_output = json.load(f)
 
     test_errors = 0
     for std, warning in outs.items():
         expected_warning = expected_output[std]
         if not warning == expected_warning:
-            logging.error(f"Warning did not match for {std}.")
-            logging.error(f"Expected: {warning}")
-            logging.error(f"Got:      {expected_warning}")
+            logging.error("Warning did not match for %s.", std)
+            logging.error("Expected: %s", warning)
+            logging.error("Got:      %s", expected_warning)
             test_errors += 1
         else:
-            logging.debug(f"Got expected warning for {std}.")
+            if warning:
+                logging.debug("Got expected result (compiler warning) for %s.", std)
+            else:
+                logging.debug("Got expected result (no warning) for %s.", std)
     sys.exit(test_errors)
 
 

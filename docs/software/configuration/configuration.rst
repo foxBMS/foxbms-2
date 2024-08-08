@@ -153,9 +153,7 @@ battery system that is built up need to be defined:
 However, the actual behavior of the battery system in the target application is
 highly dependent on the target application and can therefore not simply be
 configured through some switches.
-This needs to be implemented in e.g., the
-`BMS_Trigger() <./../../_static/doxygen/src/html/bms_8c.html#a954a05b20669dc00663c4f0f2a729fcd>`__
-function.
+This needs to be implemented in e.g., the ``BMS_Trigger()`` function.
 It is up to the developer to familiarize with the hardware, code and
 documentation and adapt the source code to the application specific
 requirements.
@@ -229,8 +227,8 @@ Battery Cell Configuration
 The basic parameters of the used battery cell of the battery system are defined
 in:
 
-- ``src/app/application/config/battery_cell_cfg.c`` `🔗 <./../../_static/doxygen/src/html/battery__cell__cfg_8c.html>`__
-- ``src/app/application/config/battery_cell_cfg.h`` `🔗 <./../../_static/doxygen/src/html/battery__cell__cfg_8h.html>`__
+- ``src/app/application/config/battery_cell_cfg.c``
+- ``src/app/application/config/battery_cell_cfg.h``
 
 The following parameters need to be defined (the links lead to the doxygen
 documentation for the explanation of the specific parameter) in
@@ -251,8 +249,8 @@ Battery System Configuration
 
 The basic, top level view on the battery system configuration is defined at:
 
-- ``src/app/application/config/battery_system_cfg.c`` `🔗 <./../../_static/doxygen/src/html/battery__system__cfg_8c.html>`__
-- ``src/app/application/config/battery_system_cfg.h`` `🔗 <./../../_static/doxygen/src/html/battery__system__cfg_8h.html>`__
+- ``src/app/application/config/battery_system_cfg.c``
+- ``src/app/application/config/battery_system_cfg.h``
 
 .. csv-table::
    :name: battery-system-configuration

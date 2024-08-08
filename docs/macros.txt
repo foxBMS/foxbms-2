@@ -3,7 +3,7 @@
 .. |timestamp| date:: %Y-%m-%d %H:%M:%S
 
 .. |foxbms| replace:: foxBMS 2
-.. |version_foxbms| replace:: ``1.6.0``
+.. |version_foxbms| replace:: ``1.7.0``
 .. |foxbms.org| replace:: https://foxbms.org
 .. |docs.foxbms.org| replace:: https://docs.foxbms.org
 .. |github_foxbms| replace:: https://github.com/foxBMS/
@@ -20,7 +20,6 @@
 .. |doxygen| replace:: Doxygen
 
 .. |version_python| replace:: ``3.7.x``
-.. _Miniconda: https://docs.conda.io/en/latest/miniconda.html
 .. |conda| replace:: ``conda``
 .. |condarc| replace:: ``C:\Users\<username>\.condarc``
 .. |conda_env_config_win32| replace:: ``conf\env\conda_env_win32.yaml``
@@ -39,11 +38,6 @@
 .. _HALCoGen: https://www.ti.com/tool/HALCOGEN
 .. |version_hcg| replace:: ``04.07.01``
 
-.. _LLVM: https://releases.llvm.org
-.. _github.com/llvm: https://github.com/llvm/llvm-project/releases/tag/llvmorg-13.0.0
-.. |version_llvm| replace:: ``13.0.0``
-.. |path_llvm| replace:: ``C:\Program Files\LLVM\13.0.0``
-
 .. |version_pcan_symbol_editor| replace:: ``Version 6.5.2``
 .. |version_sym_file| replace:: ``Version 6.0``
 
@@ -57,42 +51,6 @@
 
 .. _Visual Studio Code: https://code.visualstudio.com/
 .. |code| replace:: ``code``
-
-.. _C/C++ extension: https://marketplace.visualstudio.com/items?itemName=ms-vscode.cpptools
-
-.. _C/C++ extension license: https://marketplace.visualstudio.com/items/ms-vscode.cpptools/license
-
-.. _Python extension: https://marketplace.visualstudio.com/items?itemName=ms-python.python
-
-.. _Python extension license: https://marketplace.visualstudio.com/items/ms-python.python/license
-
-.. _ASM extension: https://marketplace.visualstudio.com/items?itemName=maziac.asm-code-lens
-
-.. _ASM extension license: https://marketplace.visualstudio.com/items/maziac.asm-code-lens/license
-
-.. _Linker script extension: https://marketplace.visualstudio.com/items?itemName=ZixuanWang.linkerscript
-
-.. _Linker script extension license: https://marketplace.visualstudio.com/items/ZixuanWang.linkerscript/license
-
-.. _Code Spell Checker extension: https://marketplace.visualstudio.com/items?itemName=streetsidesoftware.code-spell-checker
-
-.. _Code Spell Checker extension license: https://marketplace.visualstudio.com/items/streetsidesoftware.code-spell-checker/license
-
-.. _YAML extension: https://marketplace.visualstudio.com/items?itemName=redhat.vscode-yaml
-
-.. _YAML extension license: https://marketplace.visualstudio.com/items/redhat.vscode-yaml/license
-
-.. _TOML extension: https://marketplace.visualstudio.com/items?itemName=bungcip.better-toml
-
-.. _TOML extension license: https://marketplace.visualstudio.com/items/bungcip.better-toml/license
-
-.. _Test Explorer extension: https://marketplace.visualstudio.com/items?itemName=hbenl.vscode-test-explorer
-
-.. _Test Explorer extension license: https://marketplace.visualstudio.com/items/hbenl.vscode-test-explorer/license
-
-.. _Test Explorer Ceedling extension: https://marketplace.visualstudio.com/items?itemName=numaru.vscode-ceedling-test-adapter
-
-.. _Test Explorer Ceedling extension license: https://marketplace.visualstudio.com/items/numaru.vscode-ceedling-test-adapter/license
 
 .. _MISRA C: https://www.misra.org.uk/
 
@@ -123,17 +81,14 @@
 .. |nxp-mc33775a| replace:: NXP MC33775A
 .. |adi-ades1830| replace:: ADI ADES1830
 
-.. |master| replace:: foxBMS Master Unit
-.. |masters| replace:: foxBMS Master Units
-.. |slave| replace:: foxBMS Slave Unit
-.. |slaves| replace:: foxBMS Slave Units
-.. |bms-master| replace:: BMS-Master Board
-.. |bms-extension| replace:: BMS-Extension Board
-.. |bms-interface| replace:: BMS-Interface Board
-.. |bms-slave| replace:: BMS-Slave Board
-.. |bms-slaves| replace:: BMS-Slave Boards
-.. |bms-12-slave| replace:: Slave 12-cell board
-.. |bms-18-slave| replace:: Slave 18-cell board
+.. |bms-master|     replace:: BMS-Master
+.. |bms-interface|  replace:: BMS-Interface
+.. |bms-slave|      replace:: BMS-Slave
+.. |bms-slaves|     replace:: BMS-Slaves
+.. |bms-extension|  replace:: BMS-Extension
+
+.. |foxbms-bms-master|  replace:: foxBMS BMS-Master
+.. |foxbms-bms-masters| replace:: foxBMS BMS-Masters
 
 .. |I2C| replace:: I\ :sup:`2`\ C
 .. |SPI| replace:: SPI

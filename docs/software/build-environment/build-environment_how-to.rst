@@ -8,62 +8,37 @@ Changing and Extending the Build Environment
 
 If packages are needed that are not included in development environment they
 can simply be added.
-This how-to explains it for Windows.
-If there is a reference to |conda_env_config_win32| and you are on Linux
-replace it by |conda_env_config_linux|.
 
-The basic required packages are listed in
-``conf/env/conda_env_win32-pkgs.yaml``.
-If a package should be added or removed, it needs to be done here.
-This file only defines the major Python version that should be used.
-
-The steps are basically:
-
-- Add new packages and/or remove no longer needed packages and update the
-  environment name, for this example ``example-env``.
-- Create a new pseudo-base environment that includes all needed Python packages
-  for the project.
-- Export the exact environment definition.
-- Update the test suite.
-- Commit the new environment to the repository.
-- Add a changelog entry that tells the user to run the environment update
-  script.
-
-These steps in details:
-
-#. Add packages/remove packages and update environment name.
-#. Create a new pseudo-base environment and wait for the solver to succeeded.
-
-   .. code-block:: console
-
-      C:\Users\vulpes>%USERPROFILE%\miniconda3\Scripts\activate base
-      (base) C:\Users\vulpes>conda env create -f conf\env\conda_env_win32-pkgs.yaml
-
-#. Export the new development environment:
-
-   .. code-block:: console
-
-      (base) C:\Users\vulpes>conda env export -n example-env > conf\env\conda_env_win32.yaml
-
-#. Remove the ``Prefix`` entry from |conda_env_config_win32|.
-#. Adapt the test suite as needed and run it afterwards.
-#. Commit the new environment file to the repository.
-#. Add changelog entry.
+- Chose a new name for the environment
+- Create the new virtual environment
+  ``py -m venv %USERPROFILE%\foxbms-envs\<name-of-the-new-env>``
+- Activate the new environment.
+- Install the rewquried packages in the environment using ``python -m pip install ...``
+- Run ``python -m pip freeze > requirements.txt``
+- Update the license list in ``docs/general/license-tables/license-info_python_packages.csv``
+- Commit all changes.
+- Add a changelog entry that tells the user to update the environment.
 
 Existing Environments
 =====================
 
-+---------------------+-------+-------+
-| Environment Name    | From  | To    |
-+=====================+=======+=======+
-| 2023-02-fennec-fox  | 1.5.1 | \-    |
-+---------------------+-------+-------+
-| 2021-11-fennec-fox  | 1.2.1 | 1.5.0 |
-+---------------------+-------+-------+
-| 2021-08-arctic-fox  | 1.1.0 | 1.2.0 |
-+---------------------+-------+-------+
-| 2021-04-red-fox     | 1.0.0 | 1.0.2 |
-+---------------------+-------+-------+
+Until version 1.6.0 |foxbms| used `conda` environments.
+Starting with version 1.7.0 |foxbms| uses now `venv` to create virtual
+environments.
+
++---------------------+-------+-------+-------+
+| Environment Name    | From  | To    | Type  |
++=====================+=======+=======+=======+
+| 2024-08-pale-fox    | 1.7.0 | \-    | venv  |
++---------------------+-------+-------+-------+
+| 2023-02-fennec-fox  | 1.5.1 | 1.6.0 | conda |
++---------------------+-------+-------+-------+
+| 2021-11-fennec-fox  | 1.2.1 | 1.5.0 | conda |
++---------------------+-------+-------+-------+
+| 2021-08-arctic-fox  | 1.1.0 | 1.2.0 | conda |
++---------------------+-------+-------+-------+
+| 2021-04-red-fox     | 1.0.0 | 1.0.2 | conda |
++---------------------+-------+-------+-------+
 
 Further Reading
 ---------------

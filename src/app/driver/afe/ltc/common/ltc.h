@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,13 +43,13 @@
  * @file    ltc.h
  * @author  foxBMS Team
  * @date    2015-09-01 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup DRIVERS
  * @prefix  LTC
  *
  * @brief   Headers for the driver for the LTC analog front-end.
- *
+ * @details TODO
  */
 
 #ifndef FOXBMS__LTC_H_
@@ -123,12 +123,12 @@ extern bool LTC_IsFirstMeasurementCycleFinished(LTC_STATE_s *ltc_state);
 extern void LTC_SaveVoltages(LTC_STATE_s *ltc_state, uint8_t stringNumber);
 
 /**
- * @brief   stores the measured temperatures and the measured multiplexer feedbacks in the database.
+ * @brief   stores the measured temperatures and the measured multiplexer feedback in the database.
  *
  * This function loops through the temperature and multiplexer feedback data of all modules
  * in the LTC daisy-chain that are stored in the LTC_MultiplexerVoltages buffer and writes
  * them in the database.
- * At each write iteration, the variables named "state" and related to temperatures and multiplexer feedbacks
+ * At each write iteration, the variables named "state" and related to temperatures and multiplexer feedback
  * in the database are incremented.
  *
  * @param   ltc_state                    state of the ltc state machine
@@ -141,7 +141,7 @@ extern void LTC_SaveTemperatures(LTC_STATE_s *ltc_state, uint8_t stringNumber);
  * @brief   stores the measured GPIOs in the database.
  *
  * This function loops through the data of all modules in the LTC daisy-chain that are
- * stored in the ltc_allgpiovoltage buffer and writes them in the database.
+ * stored in the ltc_AllGpioVoltage buffer and writes them in the database.
  * At each write iteration, the variable named "state" and related to voltages in the
  * database is incremented.
  *
@@ -219,9 +219,9 @@ TEST_LTC_DECLARE_GET(ltc_cmdADAX_fast_GPIO2);
 TEST_LTC_DECLARE_GET(ltc_cmdADAX_normal_GPIO3);
 TEST_LTC_DECLARE_GET(ltc_cmdADAX_filtered_GPIO3);
 TEST_LTC_DECLARE_GET(ltc_cmdADAX_fast_GPIO3);
-TEST_LTC_DECLARE_GET(ltc_cmdADAX_normal_ALLGPIOS);
-TEST_LTC_DECLARE_GET(ltc_cmdADAX_filtered_ALLGPIOS);
-TEST_LTC_DECLARE_GET(ltc_cmdADAX_fast_ALLGPIOS);
+TEST_LTC_DECLARE_GET(ltc_cmdADAX_normal_ALL_GPIOS);
+TEST_LTC_DECLARE_GET(ltc_cmdADAX_filtered_ALL_GPIOS);
+TEST_LTC_DECLARE_GET(ltc_cmdADAX_fast_ALL_GPIOS);
 TEST_LTC_DECLARE_GET(ltc_BC_cmdADOW_PUP_normal_DCP0);
 TEST_LTC_DECLARE_GET(ltc_BC_cmdADOW_PDOWN_normal_DCP0);
 TEST_LTC_DECLARE_GET(ltc_BC_cmdADOW_PUP_filtered_DCP0);

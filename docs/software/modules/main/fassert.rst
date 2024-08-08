@@ -12,7 +12,7 @@ Module Files
 Driver
 ^^^^^^
 
-- ``src/app/main/include/fassert.h`` (`API <./../../../_static/doxygen/src/html/fassert_8h.html>`__, `source <./../../../_static/doxygen/src/html/fassert_8h_source.html>`__)
+- ``src/app/main/include/fassert.h``
 
 Configuration
 ^^^^^^^^^^^^^

@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 #
-# Copyright (c) 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -54,7 +53,7 @@ def get_git_root(path: str = os.path.realpath(__file__)) -> Path:
     """helper function to find the repository root
 
     Args:
-        path (string): path of test_f_guidelines
+        path (string): path of file in git repository
 
     Returns:
         root (string): root path of the git repository
@@ -64,7 +63,7 @@ def get_git_root(path: str = os.path.realpath(__file__)) -> Path:
     return root
 
 
-def main():  # pylint: disable=too-many-statements
+def main():
     """Update the version information in all relevant files."""
     parser = argparse.ArgumentParser()
     parser.add_argument(

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,14 +43,13 @@
  * @file    pex_cfg.h
  * @author  foxBMS Team
  * @date    2021-08-02 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  PEX
  *
  * @brief   Headers for the configuration for the NXP PCA9539 port expander module
- *
- *
+ * @details TODO
  */
 
 #ifndef FOXBMS__PEX_CFG_H_
@@ -79,22 +78,22 @@
 
 /** Port expander pin positions in registers */
 /**@{*/
-#define PEX_PIN00 (0u)
-#define PEX_PIN01 (1u)
-#define PEX_PIN02 (2u)
-#define PEX_PIN03 (3u)
-#define PEX_PIN04 (4u)
-#define PEX_PIN05 (5u)
-#define PEX_PIN06 (6u)
-#define PEX_PIN07 (7u)
-#define PEX_PIN10 (8u)
-#define PEX_PIN11 (9u)
-#define PEX_PIN12 (10u)
-#define PEX_PIN13 (11u)
-#define PEX_PIN14 (12u)
-#define PEX_PIN15 (13u)
-#define PEX_PIN16 (14u)
-#define PEX_PIN17 (15u)
+#define PEX_PORT_0_PIN_0 (0u)
+#define PEX_PORT_0_PIN_1 (1u)
+#define PEX_PORT_0_PIN_2 (2u)
+#define PEX_PORT_0_PIN_3 (3u)
+#define PEX_PORT_0_PIN_4 (4u)
+#define PEX_PORT_0_PIN_5 (5u)
+#define PEX_PORT_0_PIN_6 (6u)
+#define PEX_PORT_0_PIN_7 (7u)
+#define PEX_PORT_1_PIN_0 (8u)
+#define PEX_PORT_1_PIN_1 (9u)
+#define PEX_PORT_1_PIN_2 (10u)
+#define PEX_PORT_1_PIN_3 (11u)
+#define PEX_PORT_1_PIN_4 (12u)
+#define PEX_PORT_1_PIN_5 (13u)
+#define PEX_PORT_1_PIN_6 (14u)
+#define PEX_PORT_1_PIN_7 (15u)
 /* AXIVION Enable Style MisraC2012-2.5: */
 /**@}*/
 

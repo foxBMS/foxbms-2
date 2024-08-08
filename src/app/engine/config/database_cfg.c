@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,15 +43,13 @@
  * @file    database_cfg.c
  * @author  foxBMS Team
  * @date    2015-08-18 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup ENGINE_CONFIGURATION
  * @prefix  DATA
  *
  * @brief   Database configuration
- *
  * @details Configuration of database module
- *
  */
 
 /*========== Includes =======================================================*/
@@ -102,9 +100,6 @@ static DATA_BLOCK_BALANCING_FEEDBACK_s data_blockFeedbackBalancingRedundancy0 = 
     .header.uniqueId = DATA_BLOCK_ID_BALANCING_FEEDBACK_REDUNDANCY0};
 /**@}*/
 
-/** data block: user mux */
-static DATA_BLOCK_USER_MUX_s data_blockUserMux = {.header.uniqueId = DATA_BLOCK_ID_USER_MUX};
-
 /** data block: open wire check */
 /**@{*/
 static DATA_BLOCK_OPEN_WIRE_s data_blockOpenWireBase        = {.header.uniqueId = DATA_BLOCK_ID_OPEN_WIRE_BASE};
@@ -134,7 +129,7 @@ static DATA_BLOCK_INTERLOCK_FEEDBACK_s data_blockInterlockFeedback = {
 static DATA_BLOCK_SOF_s data_blockSof = {.header.uniqueId = DATA_BLOCK_ID_SOF};
 
 /** data block: system state */
-static DATA_BLOCK_SYSTEM_STATE_s data_blockSystemstate = {.header.uniqueId = DATA_BLOCK_ID_SYSTEM_STATE};
+static DATA_BLOCK_SYSTEM_STATE_s data_blockSystemState = {.header.uniqueId = DATA_BLOCK_ID_SYSTEM_STATE};
 
 /** data block: maximum safety limit violations */
 static DATA_BLOCK_MSL_FLAG_s data_blockMsl = {.header.uniqueId = DATA_BLOCK_ID_MSL_FLAG};
@@ -155,7 +150,7 @@ static DATA_BLOCK_SOH_s data_blockSoh = {.header.uniqueId = DATA_BLOCK_ID_SOH};
 static DATA_BLOCK_SOE_s data_blockSoe = {.header.uniqueId = DATA_BLOCK_ID_SOE};
 
 /** data block: can state request */
-static DATA_BLOCK_STATE_REQUEST_s data_blockStaterequest = {.header.uniqueId = DATA_BLOCK_ID_STATE_REQUEST};
+static DATA_BLOCK_STATE_REQUEST_s data_blockStateRequest = {.header.uniqueId = DATA_BLOCK_ID_STATE_REQUEST};
 
 /** data block: moving average */
 static DATA_BLOCK_MOVING_AVERAGE_s data_blockMovingAverage = {.header.uniqueId = DATA_BLOCK_ID_MOVING_AVERAGE};
@@ -193,21 +188,20 @@ DATA_BASE_s data_database[] = {
     {(void *)(&data_blockControlBalancing), sizeof(DATA_BLOCK_BALANCING_CONTROL_s)},
     {(void *)(&data_blockSlaveControl), sizeof(DATA_BLOCK_SLAVE_CONTROL_s)},
     {(void *)(&data_blockFeedbackBalancingBase), sizeof(DATA_BLOCK_BALANCING_FEEDBACK_s)},
-    {(void *)(&data_blockUserMux), sizeof(DATA_BLOCK_USER_MUX_s)},
     {(void *)(&data_blockOpenWireBase), sizeof(DATA_BLOCK_OPEN_WIRE_s)},
     {(void *)(&data_blockLtcAllGpioVoltagesBase), sizeof(DATA_BLOCK_ALL_GPIO_VOLTAGES_s)},
     {(void *)(&data_blockErrors), sizeof(DATA_BLOCK_ERROR_STATE_s)},
     {(void *)(&data_blockContactorFeedback), sizeof(DATA_BLOCK_CONTACTOR_FEEDBACK_s)},
     {(void *)(&data_blockInterlockFeedback), sizeof(DATA_BLOCK_INTERLOCK_FEEDBACK_s)},
     {(void *)(&data_blockSof), sizeof(DATA_BLOCK_SOF_s)},
-    {(void *)(&data_blockSystemstate), sizeof(DATA_BLOCK_SYSTEM_STATE_s)},
+    {(void *)(&data_blockSystemState), sizeof(DATA_BLOCK_SYSTEM_STATE_s)},
     {(void *)(&data_blockMsl), sizeof(DATA_BLOCK_MSL_FLAG_s)},
     {(void *)(&data_blockRsl), sizeof(DATA_BLOCK_RSL_FLAG_s)},
     {(void *)(&data_blockMol), sizeof(DATA_BLOCK_MOL_FLAG_s)},
     {(void *)(&data_blockSoc), sizeof(DATA_BLOCK_SOC_s)},
     {(void *)(&data_blockSoh), sizeof(DATA_BLOCK_SOH_s)},
     {(void *)(&data_blockSoe), sizeof(DATA_BLOCK_SOE_s)},
-    {(void *)(&data_blockStaterequest), sizeof(DATA_BLOCK_STATE_REQUEST_s)},
+    {(void *)(&data_blockStateRequest), sizeof(DATA_BLOCK_STATE_REQUEST_s)},
     {(void *)(&data_blockMovingAverage), sizeof(DATA_BLOCK_MOVING_AVERAGE_s)},
     {(void *)(&data_blockCellVoltageBase), sizeof(DATA_BLOCK_CELL_VOLTAGE_s)},
     {(void *)(&data_blockCellTemperatureBase), sizeof(DATA_BLOCK_CELL_TEMPERATURE_s)},

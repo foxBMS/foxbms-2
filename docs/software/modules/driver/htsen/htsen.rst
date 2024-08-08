@@ -12,13 +12,13 @@ Module Files
 Driver
 ^^^^^^
 
-- ``src/app/driver/htsen/htsen.c`` (`API <../../../../_static/doxygen/src/html/htsen_8c.html>`__, `source <../../../../_static/doxygen/src/html/htsen_8c_source.html>`__)
-- ``src/app/driver/htsen/htsen.h`` (`API <../../../../_static/doxygen/src/html/htsen_8h.html>`__, `source <../../../../_static/doxygen/src/html/htsen_8h_source.html>`__)
+- ``src/app/driver/htsen/htsen.c``
+- ``src/app/driver/htsen/htsen.h``
 
 Unit Test
 ^^^^^^^^^
 
-- ``tests/unit/app/driver/htsen/test_htsen.c`` (`API <../../../../_static/doxygen/tests/html/test__htsen_8c.html>`__, `source <../../../../_static/doxygen/tests/html/test__pex_8c_source.html>`__)
+- ``tests/unit/app/driver/htsen/test_htsen.c``
 
 Detailed Description
 --------------------

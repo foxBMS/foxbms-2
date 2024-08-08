@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2023, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,9 +33,9 @@
  * We kindly request you to use one or more of the following phrases to refer to
  * foxBMS in your hardware, software, documentation or advertising materials:
  *
- * - &Prime;This product uses parts of foxBMS&reg;&Prime;
- * - &Prime;This product includes parts of foxBMS&reg;&Prime;
- * - &Prime;This product is derived from foxBMS&reg;&Prime;
+ * - "This product uses parts of foxBMS&reg;"
+ * - "This product includes parts of foxBMS&reg;"
+ * - "This product is derived from foxBMS&reg;"
  *
  */
 
@@ -43,12 +43,13 @@
  * @file    bender_ir155.c
  * @author  foxBMS Team
  * @date    2014-02-11 (date of creation)
- * @updated 2023-10-12 (date of last update)
- * @version v1.6.0
+ * @updated 2024-08-08 (date of last update)
+ * @version v1.7.0
  * @ingroup DRIVERS
  * @prefix  IR155
  *
  * @brief   Driver for the insulation monitoring
+ * @details TODO
  */
 
 /*========== Includes =======================================================*/
@@ -79,9 +80,9 @@
  *  90 | 70,59            |  very low resistance   |
  *  80 | 240,00           |  low resistance        |
  *  70 | 461,54           |  low resistance        |
- *  60 | 763,64           |  lowmid resistance     |
- *  50 | 1200,00          |  highmid resistance    |
- *  40 | 1885,71          |  highmid resistance    |
+ *  60 | 763,64           |  low mid resistance    |
+ *  50 | 1200,00          |  high mid resistance   |
+ *  40 | 1885,71          |  high mid resistance   |
  *  30 | 3120,00          |  high resistance       |
  *  20 | 6000,00          |  high resistance       |
  *  10 | 20400,00         |  very high resistance  |

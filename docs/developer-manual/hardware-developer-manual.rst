@@ -70,18 +70,18 @@ This checklist should be used for reviewing a release.
 Basics:
 ^^^^^^^
 
-* Is a layer marker on the PCB?
-* Is a white field for marking the assembled board on the PCB?
-* Is the name of the component on the PCB?
-* Is a release version on the board? Is the version corresponding to the
+- Is a layer marker on the PCB?
+- Is a white field for marking the assembled board on the PCB?
+- Is the name of the component on the PCB?
+- Is a release version on the board? Is the version corresponding to the
   parameter in the Altium project?
-* Are fiducial markers on the board?
-* Are mounting points specified in the board?
+- Are fiducial markers on the board?
+- Are mounting points specified in the board?
 
 BOM:
 ^^^^
 
-* Is everything on the BOM available?
-* Is the correct distributor selected for each component?
-* Are similar components grouped into one (e.g., reduce amount of different
+- Is everything on the BOM available?
+- Is the correct distributor selected for each component?
+- Are similar components grouped into one (e.g., reduce amount of different
   footprints for capacitors with same value)?

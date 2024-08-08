@@ -1,25 +1,27 @@
+# =========================================================================
+#   Ceedling - Test-Centered Build System for C
+#   ThrowTheSwitch.org
+#   Copyright (c) 2010-24 Mike Karlesky, Mark VanderVoord, & Greg Williams
+#   SPDX-License-Identifier: MIT
+# =========================================================================
 
 class PreprocessinatorFileHandler
 
-  constructor :preprocessinator_extractor, :configurator, :flaginator, :tool_executor, :file_path_utils, :file_wrapper, :streaminator
+  constructor :preprocessinator_extractor, :configurator, :flaginator, :tool_executor, :file_path_utils, :file_wrapper, :loginator
 
-  def preprocess_header_file(filepath:, subdir:, includes:, flags:, include_paths:, defines:)
-    preprocessed_filepath = @file_path_utils.form_preprocessed_file_filepath( filepath, subdir )
-
-    filename = File.basename(filepath)
+  def preprocess_header_file(source_filepath:, preprocessed_filepath:, includes:, flags:, include_paths:, defines:)
+    filename = File.basename(source_filepath)
 
     command = @tool_executor.build_command_line(
       @configurator.tools_test_file_preprocessor,
       flags,
-      filepath,
+      source_filepath,
       preprocessed_filepath,
       defines,
       include_paths
-      )
+    )
     
-    @tool_executor.exec( command[:line], command[:options] )
-
-    @streaminator.stdout_puts("Command: #{command}", Verbosity::DEBUG)
+    shell_result = @tool_executor.exec( command )
 
     contents = @preprocessinator_extractor.extract_base_file_from_preprocessed_expansion( preprocessed_filepath )
 
@@ -38,7 +40,7 @@ class PreprocessinatorFileHandler
     guardname = '_' + filename.gsub(/\W/, '_').upcase + '_'
 
     forward_guards = [
-      "#ifndef #{guardname} // Ceedling-generated guard",
+      "#ifndef #{guardname} // Ceedling-generated include guard",
       "#define #{guardname}",
       ''
     ]
@@ -56,27 +58,29 @@ class PreprocessinatorFileHandler
     # ----------------------------------------------------    
     contents = contents.join("\n")
     contents.gsub!( /(\h*\n){3,}/, "\n\n" )
+
+    # Remove paths from expanded #include directives
+    # ----------------------------------------------------
+    #  - We rely on search paths at compilation rather than explicit #include paths
+    #  - Match (#include ")((path/)+)(file") and reassemble string using first and last matching groups
+    contents.gsub!( /(#include\s+")(([^\/]+\/)+)(.+")/, '\1\4' )
     
     @file_wrapper.write( preprocessed_filepath, contents )
 
-    return preprocessed_filepath
+    return shell_result
   end
 
-  def preprocess_test_file(filepath:, subdir:, includes:, flags:, include_paths:, defines:)
-    preprocessed_filepath = @file_path_utils.form_preprocessed_file_filepath( filepath, subdir )
-
+  def preprocess_test_file(source_filepath:, preprocessed_filepath:, includes:, flags:, include_paths:, defines:)
     command = @tool_executor.build_command_line(
       @configurator.tools_test_file_preprocessor,
       flags,
-      filepath,
+      source_filepath,
       preprocessed_filepath,
       defines,
       include_paths
-      )
+    )
     
-    @tool_executor.exec( command[:line], command[:options] )
-
-    @streaminator.stdout_puts("Command: #{command}", Verbosity::DEBUG)
+    shell_result = @tool_executor.exec( command )
 
     contents = @preprocessinator_extractor.extract_base_file_from_preprocessed_expansion( preprocessed_filepath )
 
@@ -103,26 +107,7 @@ class PreprocessinatorFileHandler
 
     @file_wrapper.write( preprocessed_filepath, contents )
 
-    return preprocessed_filepath
-  end
-
-
-  def preprocess_file_directives(filepath, includes)
-    preprocessed_filepath = @file_path_utils.form_preprocessed_file_filepath(filepath)
-
-    command = 
-      @tool_executor.build_command_line( @configurator.tools_test_file_preprocessor_directives,
-                                         @flaginator.flag_down( OPERATION_COMPILE_SYM, TEST_SYM, filepath ),
-                                         filepath,
-                                         preprocessed_filepath)
-
-    @tool_executor.exec(command[:line], command[:options])
-
-    contents = @preprocessinator_extractor.extract_base_file_from_preprocessed_directives(preprocessed_filepath)
-
-    includes.each{|include| contents.unshift("#include \"#{include}\"")}
-
-    @file_wrapper.write(preprocessed_filepath, contents.join("\n"))
+    return shell_result
   end
 
 end
