@@ -86,50 +86,24 @@
  */
 
 /** SPI data configuration struct for ADI communication */
-static spiDAT1_t spi_kAdiDataConfig[BS_NR_OF_STRINGS] = {
-    {                      /* struct is implemented in the TI HAL and uses uppercase true and false */
-     .CS_HOLD = TRUE,      /* If true, HW chip select kept active between words */
-     .WDEL    = FALSE,     /* Activation of delay between words */
-     .DFSEL   = SPI_FMT_0, /* Data word format selection */
-     /* Hardware chip select is configured automatically depending on configuration in #SPI_INTERFACE_CONFIG_s */
-     .CSNR = SPI_HARDWARE_CHIP_SELECT_DISABLE_ALL},
-};
+spiDAT1_t spi_kAdiDataConfig[BS_NR_OF_STRINGS];
 
 /** SPI data configuration struct for LTC communication */
-static spiDAT1_t spi_kLtcDataConfig[BS_NR_OF_STRINGS] = {
-    {                      /* struct is implemented in the TI HAL and uses uppercase true and false */
-     .CS_HOLD = TRUE,      /* If true, HW chip select kept active between words */
-     .WDEL    = FALSE,     /* Activation of delay between words */
-     .DFSEL   = SPI_FMT_0, /* Data word format selection */
-     /* Hardware chip select is configured automatically depending on configuration in #SPI_INTERFACE_CONFIG_s */
-     .CSNR = SPI_HARDWARE_CHIP_SELECT_DISABLE_ALL},
-};
+spiDAT1_t spi_kLtcDataConfig[BS_NR_OF_STRINGS];
+
+/** SPI data configuration struct for NXP MC33775A communication, Tx part */
+spiDAT1_t spi_kNxp775DataConfigTx[BS_NR_OF_STRINGS];
+
+/** SPI data configuration struct for NXP MC33775A communication, Rx part */
+spiDAT1_t spi_kNxp775DataConfigRx[BS_NR_OF_STRINGS];
 
 /** SPI data configuration struct for MXM communication */
-static spiDAT1_t spi_kMxmDataConfig = {
+spiDAT1_t spi_kMxmDataConfig = {
     .CS_HOLD = TRUE,      /* If true, HW chip select kept active */
     .WDEL    = TRUE,      /* Activation of delay between words */
     .DFSEL   = SPI_FMT_1, /* Data word format selection */
     /* Hardware chip select is configured automatically depending on configuration in #SPI_INTERFACE_CONFIG_s */
     .CSNR = SPI_HARDWARE_CHIP_SELECT_DISABLE_ALL,
-};
-
-/** SPI data configuration struct for NXP MC33775A communication, Tx part */
-static spiDAT1_t spi_kNxp775DataConfigTx[BS_NR_OF_STRINGS] = {
-    {.CS_HOLD = TRUE,      /* If true, HW chip select kept active */
-     .WDEL    = TRUE,      /* Activation of delay between words */
-     .DFSEL   = SPI_FMT_2, /* Data word format selection */
-     /* Hardware chip select is configured automatically depending on configuration in #SPI_INTERFACE_CONFIG_s */
-     .CSNR = SPI_HARDWARE_CHIP_SELECT_DISABLE_ALL},
-};
-
-/** SPI data configuration struct for NXP MC33775A communication, Rx part */
-static spiDAT1_t spi_kNxp775DataConfigRx[BS_NR_OF_STRINGS] = {
-    {.CS_HOLD = TRUE,      /* If true, HW chip select kept active */
-     .WDEL    = TRUE,      /* Activation of delay between words */
-     .DFSEL   = SPI_FMT_2, /* Data word format selection */
-     /* Hardware chip select is configured automatically depending on configuration in #SPI_INTERFACE_CONFIG_s */
-     .CSNR = SPI_HARDWARE_CHIP_SELECT_DISABLE_ALL},
 };
 
 /** SPI data configuration struct for FRAM communication */
@@ -178,28 +152,26 @@ static spiDAT1_t spi_kSbcDataConfig = {
  * SPI interface configuration for ADI communication
  * This is a list of structs because of multistring
  */
-SPI_INTERFACE_CONFIG_s spi_adiInterface[BS_NR_OF_STRINGS] = {
-    {
-        .pConfig  = &spi_kAdiDataConfig[0u],
-        .pNode    = spiREG1,
-        .pGioPort = &(spiREG1->PC3),
-        .csPin    = SPI_ADI_CHIP_SELECT_PIN,
-        .csType   = SPI_CHIP_SELECT_HARDWARE,
-    },
-};
-
+SPI_INTERFACE_CONFIG_s spi_adiInterface[BS_NR_OF_STRINGS];
 /**
  * SPI interface configuration for LTC communication
  * This is a list of structs because of multistring
  */
-SPI_INTERFACE_CONFIG_s spi_ltcInterface[BS_NR_OF_STRINGS] = {
-    {
-        .pConfig  = &spi_kLtcDataConfig[0u],
-        .pNode    = spiREG1,
-        .pGioPort = &(spiREG1->PC3),
-        .csPin    = SPI_LTC_CHIP_SELECT_PIN,
-        .csType   = SPI_CHIP_SELECT_HARDWARE,
-    },
+SPI_INTERFACE_CONFIG_s spi_ltcInterface[BS_NR_OF_STRINGS];
+
+/** SPI interface configuration for N775 communication Tx part */
+SPI_INTERFACE_CONFIG_s spi_nxp775InterfaceTx[BS_NR_OF_STRINGS];
+
+/** SPI interface configuration for N775 communication, Rx part */
+SPI_INTERFACE_CONFIG_s spi_nxp775InterfaceRx[BS_NR_OF_STRINGS];
+
+/** SPI interface configuration for FRAM communication */
+SPI_INTERFACE_CONFIG_s spi_framInterface = {
+    .pConfig  = &spi_kFramDataConfig,
+    .pNode    = spiREG3,
+    .pGioPort = &(spiREG3->PC3),
+    .csPin    = SPI_FRAM_CHIP_SELECT_PIN,
+    .csType   = SPI_CHIP_SELECT_SOFTWARE,
 };
 
 /** SPI interface configuration for MXM communication */
@@ -209,37 +181,6 @@ SPI_INTERFACE_CONFIG_s spi_mxmInterface = {
     .pGioPort = &(spiREG4->PC3),
     .csPin    = SPI_MAXIM_CHIP_SELECT_PIN,
     .csType   = SPI_CHIP_SELECT_HARDWARE,
-};
-
-/** SPI interface configuration for N775 communication Tx part */
-SPI_INTERFACE_CONFIG_s spi_nxp775InterfaceTx[BS_NR_OF_STRINGS] = {
-    {
-        .pConfig  = &spi_kNxp775DataConfigTx[0u],
-        .pNode    = spiREG1,
-        .pGioPort = &(spiREG1->PC3),
-        .csPin    = SPI_NXP_TX_CHIP_SELECT_PIN,
-        .csType   = SPI_CHIP_SELECT_HARDWARE,
-    },
-};
-
-/** SPI interface configuration for N775 communication, Rx part */
-SPI_INTERFACE_CONFIG_s spi_nxp775InterfaceRx[BS_NR_OF_STRINGS] = {
-    {
-        .pConfig  = &spi_kNxp775DataConfigRx[0u],
-        .pNode    = spiREG4,
-        .pGioPort = &(spiREG4->PC3),
-        .csPin    = SPI_NXP_RX_CHIP_SELECT_PIN,
-        .csType   = SPI_CHIP_SELECT_HARDWARE,
-    },
-};
-
-/** SPI interface configuration for FRAM communication */
-SPI_INTERFACE_CONFIG_s spi_framInterface = {
-    .pConfig  = &spi_kFramDataConfig,
-    .pNode    = spiREG3,
-    .pGioPort = &(spiREG3->PC3),
-    .csPin    = SPI_FRAM_CHIP_SELECT_PIN,
-    .csType   = SPI_CHIP_SELECT_SOFTWARE,
 };
 
 /** SPI interface configuration for SPS communication */

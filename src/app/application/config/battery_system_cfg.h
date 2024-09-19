@@ -96,7 +96,7 @@ typedef enum {
  *          repetition macro is adapted.
  * @ptype   uint
  */
-#define BS_NR_OF_STRINGS (1u)
+#define BS_NR_OF_STRINGS (2u)
 
 /* safety check: due to implementation BS_NR_OF_STRINGS may not be larger than GEN_REPEAT_MAXIMUM_REPETITIONS */
 #if (BS_NR_OF_STRINGS > GEN_REPEAT_MAXIMUM_REPETITIONS)

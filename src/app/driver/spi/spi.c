@@ -76,6 +76,11 @@
 /*========== Static Constant and Variable Definitions =======================*/
 static uint32_t spi_txLastWord[DMA_NUMBER_SPI_INTERFACES] = {0};
 
+extern spiDAT1_t spi_kLtcDataConfig[BS_NR_OF_STRINGS];
+extern spiDAT1_t spi_kAdiDataConfig[BS_NR_OF_STRINGS];
+extern spiDAT1_t spi_kNxp775DataConfigTx[BS_NR_OF_STRINGS];
+extern spiDAT1_t spi_kNxp775DataConfigRx[BS_NR_OF_STRINGS];
+
 /** Defines for hardware chip select pins @{ */
 #define SPI_HARDWARE_CHIP_SELECT_PIN_0 (0u)
 #define SPI_HARDWARE_CHIP_SELECT_PIN_1 (1u)
@@ -88,7 +93,8 @@ static uint32_t spi_txLastWord[DMA_NUMBER_SPI_INTERFACES] = {0};
 /*========== Extern Constant and Variable Definitions =======================*/
 
 /*========== Static Function Prototypes =====================================*/
-static void SPI_InitializeChipSelects(void);
+
+static void SPI_InitializeConfiguration(void);
 static uint8_t SPI_GetChipSelectPin(SPI_CHIP_SELECT_TYPE_e chipSelectType, uint32_t chipSelectPin);
 static uint8_t SPI_GetHardwareChipSelectPin(uint8_t chipSelectPin);
 
@@ -135,12 +141,60 @@ static uint8_t SPI_GetChipSelectPin(SPI_CHIP_SELECT_TYPE_e chipSelectType, uint3
 
     return mappedChipSelectPin;
 }
-static void SPI_InitializeChipSelects(void) {
+/*
+    * @brief   Initializes the configuration of SPI interfaces.
+    */
+static void SPI_InitializeConfiguration(void) {
     for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
-        spi_adiInterface[s].pConfig->CSNR = SPI_GetChipSelectPin(spi_adiInterface[s].csType, spi_adiInterface[s].csPin);
+        spi_ltcInterface[s].pConfig  = &spi_kLtcDataConfig[s];
+        spi_ltcInterface[s].pNode    = spiREG1;
+        spi_ltcInterface[s].pGioPort = &(spiREG1->PC3);
+        // Make sure to only use as many chip selects as available!
+        spi_ltcInterface[s].csPin  = SPI_LTC_CHIP_SELECT_PIN + s;
+        spi_ltcInterface[s].csType = SPI_CHIP_SELECT_HARDWARE;
+
+        spi_ltcInterface[s].pConfig->CS_HOLD = TRUE;
+        spi_ltcInterface[s].pConfig->WDEL    = FALSE;
+        spi_ltcInterface[s].pConfig->DFSEL   = SPI_FMT_0;
+        spi_ltcInterface[s].pConfig->CSNR    = SPI_HARDWARE_CHIP_SELECT_DISABLE_ALL;
         spi_ltcInterface[s].pConfig->CSNR = SPI_GetChipSelectPin(spi_ltcInterface[s].csType, spi_ltcInterface[s].csPin);
+
+        spi_adiInterface[s].pConfig  = &spi_kAdiDataConfig[s];
+        spi_adiInterface[s].pNode    = spiREG1;
+        spi_adiInterface[s].pGioPort = &(spiREG1->PC3);
+        // Make sure to only use as many chip selects as available!
+        spi_adiInterface[s].csPin  = SPI_ADI_CHIP_SELECT_PIN + s;
+        spi_adiInterface[s].csType = SPI_CHIP_SELECT_HARDWARE;
+
+        spi_adiInterface[s].pConfig->CS_HOLD = TRUE;
+        spi_adiInterface[s].pConfig->WDEL    = FALSE;
+        spi_adiInterface[s].pConfig->DFSEL   = SPI_FMT_0;
+        spi_adiInterface[s].pConfig->CSNR    = SPI_HARDWARE_CHIP_SELECT_DISABLE_ALL;
+        spi_adiInterface[s].pConfig->CSNR = SPI_GetChipSelectPin(spi_adiInterface[s].csType, spi_adiInterface[s].csPin);
+
+        spi_nxp775InterfaceTx[s].pConfig  = &spi_kNxp775DataConfigTx[s];
+        spi_nxp775InterfaceTx[s].pNode    = spiREG1;
+        spi_nxp775InterfaceTx[s].pGioPort = &(spiREG1->PC3);
+        // Make sure to only use as many chip selects as available!
+        spi_nxp775InterfaceTx[s].csPin            = SPI_NXP_TX_CHIP_SELECT_PIN + s;
+        spi_nxp775InterfaceTx[s].csType           = SPI_CHIP_SELECT_HARDWARE;
+        spi_nxp775InterfaceTx[s].pConfig->CS_HOLD = TRUE;
+        spi_nxp775InterfaceTx[s].pConfig->WDEL    = TRUE;
+        spi_nxp775InterfaceTx[s].pConfig->DFSEL   = SPI_FMT_2;
+        spi_nxp775InterfaceTx[s].pConfig->CSNR    = SPI_HARDWARE_CHIP_SELECT_DISABLE_ALL;
         spi_nxp775InterfaceTx[s].pConfig->CSNR =
             SPI_GetChipSelectPin(spi_nxp775InterfaceTx[s].csType, spi_nxp775InterfaceTx[s].csPin);
+
+        spi_nxp775InterfaceRx[s].pConfig  = &spi_kNxp775DataConfigRx[s];
+        spi_nxp775InterfaceRx[s].pNode    = spiREG1;
+        spi_nxp775InterfaceRx[s].pGioPort = &(spiREG1->PC3);
+        // Make sure to only use as many chip selects as available!
+        spi_nxp775InterfaceRx[s].csPin            = SPI_NXP_RX_CHIP_SELECT_PIN + s;
+        spi_nxp775InterfaceRx[s].csType           = SPI_CHIP_SELECT_HARDWARE;
+        spi_nxp775InterfaceRx[s].pConfig->CS_HOLD = TRUE;
+        spi_nxp775InterfaceRx[s].pConfig->WDEL    = TRUE;
+        spi_nxp775InterfaceRx[s].pConfig->DFSEL   = SPI_FMT_2;
+        spi_nxp775InterfaceRx[s].pConfig->CSNR    = SPI_HARDWARE_CHIP_SELECT_DISABLE_ALL;
         spi_nxp775InterfaceRx[s].pConfig->CSNR =
             SPI_GetChipSelectPin(spi_nxp775InterfaceRx[s].csType, spi_nxp775InterfaceRx[s].csPin);
     }
@@ -153,7 +207,7 @@ static void SPI_InitializeChipSelects(void) {
 /*========== Extern Function Implementations ================================*/
 extern void SPI_Initialize(void) {
     spiInit();
-    SPI_InitializeChipSelects();
+    SPI_InitializeConfiguration();
 }
 
 extern STD_RETURN_TYPE_e SPI_TransmitDummyByte(SPI_INTERFACE_CONFIG_s *pSpiInterface, uint32_t delay) {
