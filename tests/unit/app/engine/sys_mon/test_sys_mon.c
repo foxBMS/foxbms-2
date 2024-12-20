@@ -43,8 +43,8 @@
  * @file    test_sys_mon.c
  * @author  foxBMS Team
  * @date    2020-04-02 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -117,7 +117,7 @@ SYSM_MONITORING_CFG_s sysm_ch_cfg[3] = {
 };
 
 /** placeholder variable for the FRAM entry of sys mon */
-FRAM_SYS_MON_RECORD_s fram_sysMonViolationRecord = {0};
+FRAM_SYS_MON_RECORD_s fram_sysMonViolationRecord = {false, 0u, 0u, 0u, 0u, 0u, 0u, 0u, 0u, 0u, 0u};
 
 /*========== Setup and Teardown =============================================*/
 void setUp(void) {
@@ -149,6 +149,21 @@ void tearDown(void) {
 }
 
 /*========== Test Cases =====================================================*/
+void testSYSM_RecordTimingViolation(void) {
+    TEST_ASSERT_FAIL_ASSERT(TEST_SYSM_RecordTimingViolation(SYSM_TASK_ID_MAX, 0u, 0u));
+    TEST_SYSM_RecordTimingViolation(SYSM_TASK_ID_ENGINE, 0, 0);
+    TEST_SYSM_RecordTimingViolation(SYSM_TASK_ID_CYCLIC_1ms, 0, 0);
+    TEST_SYSM_RecordTimingViolation(SYSM_TASK_ID_CYCLIC_10ms, 0, 0);
+    TEST_SYSM_RecordTimingViolation(SYSM_TASK_ID_CYCLIC_100ms, 0, 0);
+    TEST_SYSM_RecordTimingViolation(SYSM_TASK_ID_CYCLIC_ALGORITHM_100ms, 0, 0);
+    TEST_SYSM_RecordTimingViolation(-1, 0, 0);
+}
+
+void testSYSM_Initialize(void) {
+    FRAM_ReadData_ExpectAndReturn(FRAM_BLOCK_ID_SYS_MON_RECORD, FRAM_ACCESS_OK);
+    SYSM_Initialize();
+}
+
 void testSYSM_CheckNotificationsEarlyExitOnTimestampEquality(void) {
     /* Internal timestamp should be 0, expect an early return
        (if not returning early, test would fail since other functions
@@ -172,9 +187,6 @@ void testSYSM_CheckNotificationsSYSMDisabled(void) {
 }
 
 void testSYSM_CheckNotificationsProvokeDurationViolation(void) {
-    OS_EnterTaskCritical_Ignore();
-    OS_ExitTaskCritical_Ignore();
-
     /* provoke the violation of the task duration */
     OS_GetTickCount_ExpectAndReturn(0u);
     SYSM_CheckNotifications();
@@ -192,9 +204,6 @@ void testSYSM_CheckNotificationsProvokeDurationViolation(void) {
 
 /** same test as #testSYSM_CheckNotificationsProvokeDurationViolation() but with recording enabled */
 void testSYSM_CheckNotificationsProvokeDurationViolationWithRecording(void) {
-    OS_EnterTaskCritical_Ignore();
-    OS_ExitTaskCritical_Ignore();
-
     /* provoke the violation of the task duration */
     OS_GetTickCount_ExpectAndReturn(0u);
     SYSM_CheckNotifications();
@@ -207,7 +216,11 @@ void testSYSM_CheckNotificationsProvokeDurationViolationWithRecording(void) {
     OS_GetTickCount_ExpectAndReturn(100u);
     DIAG_Handler_ExpectAndReturn(
         DIAG_ID_SYSTEM_MONITORING, DIAG_EVENT_NOT_OK, DIAG_SYSTEM, DUMMY_TASK_ID_0, DIAG_HANDLER_RETURN_OK);
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
     SYSM_CheckNotifications();
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
 
     /* check if violation has been recorded */
     FRAM_WriteData_ExpectAndReturn(FRAM_BLOCK_ID_SYS_MON_RECORD, STD_OK);
@@ -257,7 +270,6 @@ void testSYSM_NotifyExitTimestampProperlySetAndDurationCalculated(void) {
 
 void testSYSM_NotifyHitAssertWithIllegalNotifyType(void) {
     /* This test hits the assert with an illegal notify type */
-    OS_EnterTaskCritical_Ignore();
     /* use a notify type of INT8_MAX, as this is likely an illegal notify type */
     TEST_ASSERT_FAIL_ASSERT(SYSM_Notify(DUMMY_TASK_ID_0, INT8_MAX, UINT32_MAX));
     SYSM_NOTIFICATION_s *notifications = TEST_SYSM_GetNotifications();

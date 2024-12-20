@@ -43,12 +43,13 @@
  * @file    diag_cbs_rtc.c
  * @author  foxBMS Team
  * @date    2022-11-18 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup ENGINE
  * @prefix  DIAG
  *
  * @brief   Diagnosis callbacks for RTC errors
+ * @details TODO
  */
 
 /*========== Includes =======================================================*/

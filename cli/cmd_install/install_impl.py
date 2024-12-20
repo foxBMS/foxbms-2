@@ -44,9 +44,10 @@ import os
 import shutil
 from copy import deepcopy
 
-from ..helpers.ansi_colors import RED, GREEN
+from click import secho
+
 from ..helpers.host_platform import PLATFORM
-from ..helpers.misc import PROJECT_ROOT, eprint
+from ..helpers.misc import PROJECT_ROOT
 
 INSTALL_MESSAGE = f"""See {PROJECT_ROOT/ 'INSTALL.md'} for the installation\
 instructions for the foxBMS toolchain."""
@@ -63,7 +64,7 @@ REQUIRED_SOFTWARE = {
 
 
 def check_for_all_softwares():
-    """Checks whether all software is available or not"""
+    """Checks whether all software is available or not."""
     tmp = deepcopy(REQUIRED_SOFTWARE)
     paths_file = (PROJECT_ROOT / f"conf/env/paths_{PLATFORM}.txt").read_text(
         encoding="utf-8"
@@ -79,13 +80,13 @@ def check_for_all_softwares():
 
 
 def all_software_available() -> int:
-    """Simplified wrapper to check whether all software is available or not"""
+    """Simplified wrapper to check whether all software is available or not."""
     err = 0
     for k, v in check_for_all_softwares().items():
         logging.debug("%s: %s", k, v)
         if not v["path"]:
-            eprint(f"{k}: {v}", color=RED, err=True)
+            secho(f"{k}: {v}", fg="red", err=True)
             err += 1
     if not err:
-        eprint("All required software is installed.", color=GREEN)
+        secho("All required software is installed.", fg="green")
     return err

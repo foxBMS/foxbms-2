@@ -25,6 +25,7 @@ class TestInvoker
               :test_context_extractor,
               :file_path_utils,
               :file_wrapper,
+              :file_finder,
               :verbosinator
 
   def setup
@@ -113,13 +114,19 @@ class TestInvoker
 
       # Fill out testables data structure with build context
       @batchinator.build_step("Ingesting Test Configurations") do
+        framework_defines  = @helper.framework_defines()
+        runner_defines     = @helper.runner_defines()
+
         @batchinator.exec(workload: :compile, things: @testables) do |_, details|
           filepath = details[:filepath]
 
           search_paths       = @helper.search_paths( filepath, details[:name] )
+
           compile_flags      = @helper.flags( context:context, operation:OPERATION_COMPILE_SYM, filepath:filepath )
+          preprocess_flags   = @helper.preprocess_flags( context:context, compile_flags:compile_flags, filepath:filepath )
           assembler_flags    = @helper.flags( context:context, operation:OPERATION_ASSEMBLE_SYM, filepath:filepath )
           link_flags         = @helper.flags( context:context, operation:OPERATION_LINK_SYM, filepath:filepath )
+
           compile_defines    = @helper.compile_defines( context:context, filepath:filepath )
           preprocess_defines = @helper.preprocess_defines( test_defines: compile_defines, filepath:filepath )
 
@@ -132,11 +139,12 @@ class TestInvoker
 
           @lock.synchronize do
             details[:search_paths] = search_paths
+            details[:preprocess_flags] = preprocess_flags
             details[:compile_flags] = compile_flags
             details[:assembler_flags] = assembler_flags
             details[:link_flags] = link_flags
-            details[:compile_defines] = compile_defines
-            details[:preprocess_defines] = preprocess_defines
+            details[:compile_defines] = compile_defines + framework_defines + runner_defines
+            details[:preprocess_defines] = preprocess_defines + framework_defines
           end
         end
       end
@@ -147,7 +155,7 @@ class TestInvoker
           arg_hash = {
             filepath:      details[:filepath],
             test:          details[:name],
-            flags:         details[:compile_flags],
+            flags:         details[:preprocess_flags],
             include_paths: details[:search_paths],
             defines:       details[:preprocess_defines]
           }
@@ -171,7 +179,7 @@ class TestInvoker
           mocks = {}
           mocks_list = @configurator.project_use_mocks ? @context_extractor.lookup_raw_mock_list( details[:filepath] ) : []
           mocks_list.each do |name|
-            source = @helper.find_header_input_for_mock_file( name, details[:search_paths] )
+            source = @helper.find_header_input_for_mock( name, details[:search_paths] )
             preprocessed_input = @file_path_utils.form_preprocessed_file_filepath( source, details[:name] )
             mocks[name.to_sym] = {
               :name => name,
@@ -214,7 +222,7 @@ class TestInvoker
           arg_hash = {
             filepath:      details[:source],
             test:          testable[:name],
-            flags:         testable[:compile_flags],
+            flags:         testable[:preprocess_flags],
             include_paths: testable[:search_paths],
             defines:       testable[:preprocess_defines]
           }
@@ -230,7 +238,7 @@ class TestInvoker
           testable = mock[:testable]
 
           arg_hash = {
-            context:        TEST_SYM,
+            context:        context,
             mock:           mock[:name],
             test:           testable[:name],
             input_filepath: details[:input],
@@ -248,7 +256,7 @@ class TestInvoker
           arg_hash = {
             filepath:      details[:filepath],
             test:          details[:name],
-            flags:         details[:compile_flags],
+            flags:         details[:preprocess_flags],
             include_paths: details[:search_paths],
             defines:       details[:preprocess_defines]
           }
@@ -264,14 +272,14 @@ class TestInvoker
       @batchinator.build_step("Collecting Test Context") {
         @batchinator.exec(workload: :compile, things: @testables) do |_, details|
 
-        msg = @reportinator.generate_module_progress(
-          operation: 'Parsing test case names',
-          module_name: details[:name],
-          filename: File.basename( details[:filepath] )
-        ) 
-        @loginator.log( msg )
+          msg = @reportinator.generate_module_progress(
+            operation: 'Parsing test case names',
+            module_name: details[:name],
+            filename: File.basename( details[:filepath] )
+          ) 
+          @loginator.log( msg )
 
-        @context_extractor.collect_test_runner_details( details[:filepath], details[:runner][:input_filepath] )
+          @context_extractor.collect_test_runner_details( details[:filepath], details[:runner][:input_filepath] )
         end
       } if @configurator.project_use_test_preprocessor_tests
 
@@ -279,7 +287,7 @@ class TestInvoker
       @batchinator.build_step("Test Runners") do
         @batchinator.exec(workload: :compile, things: @testables) do |_, details|
           arg_hash = {
-            context:         TEST_SYM,
+            context:         context,
             mock_list:       details[:mock_list],
             includes_list:   @test_context_extractor.lookup_header_includes_list( details[:filepath] ),
             test_filepath:   details[:filepath],
@@ -295,17 +303,14 @@ class TestInvoker
       @batchinator.build_step("Determining Artifacts to Be Built", heading: false) do
         @batchinator.exec(workload: :compile, things: @testables) do |test, details|
           # Source files referenced by conventions or specified by build directives in a test file
-          test_sources       = @test_invoker_helper.extract_sources( details[:filepath] )
-          test_core          = test_sources + details[:mock_list]
+          test_sources       = @helper.extract_sources( details[:filepath] )
+          test_core          = test_sources + @helper.form_mock_filenames( details[:mock_list] )
 
           # When we have a mock and an include for the same file, the mock wins
-          test_core.delete_if do |v| 
-            mock_of_this_file = "#{@configurator.cmock_mock_prefix}#{File.basename(v,'.*')}"
-            details[:mock_list].include?(mock_of_this_file)
-          end
+          @helper.remove_mock_original_headers( test_core, details[:mock_list] )
           
           # CMock + Unity + CException
-          test_frameworks    = @helper.collect_test_framework_sources
+          test_frameworks    = @helper.collect_test_framework_sources( !details[:mock_list].empty? )
           
           # Extra suport source files (e.g. microcontroller startup code needed by simulator)
           test_support       = @configurator.collection_all_support
@@ -341,16 +346,18 @@ class TestInvoker
             details[:no_link_objects] = test_no_link_objects
             details[:results_pass]    = test_pass
             details[:results_fail]    = test_fail
+            details[:tool]            = TOOLS_TEST_COMPILER
           end
         end
       end
 
       # Build All Test objects
       @batchinator.build_step("Building Objects") do
-        # FYI: Temporarily removed direct object generation to allow rake invoke() to execute custom compilations (plugins, special cases)
-        # @test_invoker_helper.generate_objects_now(object_list, options)
         @testables.each do |_, details|
-          @task_invoker.invoke_test_objects(test: details[:name], objects:details[:objects])
+          details[:objects].each do |obj|
+            src = @file_finder.find_build_input_file(filepath: obj, context: context)
+            compile_test_component(tool: details[:tool], context: context, test: details[:name], source: src, object: obj, msg: details[:msg])
+          end
         end
       end
 
@@ -370,7 +377,7 @@ class TestInvoker
             options:    options            
           }
 
-          @test_invoker_helper.generate_executable_now(**arg_hash)
+          @helper.generate_executable_now(**arg_hash)
         end
       end
 
@@ -387,7 +394,7 @@ class TestInvoker
               options:        options              
             }
 
-            @test_invoker_helper.run_fixture_now(**arg_hash)
+            @helper.run_fixture_now(**arg_hash)
 
           # Handle exceptions so we can ensure post_test() is called.
           # A lone `ensure` includes an implicit rescuing of StandardError 
@@ -400,16 +407,14 @@ class TestInvoker
 
     # Handle application-level exceptions.
     # StandardError is the parent class of all application-level exceptions.
-    # Runtime errors (parent is Exception) continue on up to be caught by Ruby itself.
-    rescue StandardError => e
+    # Runtime errors (parent is Exception) continue on up to be handled by Ruby itself.
+    rescue StandardError => ex
       @application.register_build_failure
-      @loginator.log( "#{e.class} ==> #{e.message}", Verbosity::ERRORS, LogLabels::EXCEPTION )
 
-      # Debug backtrace
-      @loginator.log("Backtrace ==>", Verbosity::DEBUG)
-      if @verbosinator.should_output?(Verbosity::DEBUG)
-        @loginator.log(e.backtrace, Verbosity::DEBUG)
-      end
+      @loginator.log( ex.message, Verbosity::ERRORS, LogLabels::EXCEPTION )
+
+      # Debug backtrace (only if debug verbosity)
+      @loginator.log_debug_backtrace( ex )
     end
   end
 
@@ -425,7 +430,7 @@ class TestInvoker
   end
 
   def compile_test_component(tool:, context:TEST_SYM, test:, source:, object:, msg:nil)
-    testable = @testables[test]
+    testable = @testables[test.to_sym]
     filepath = testable[:filepath]
     defines = testable[:compile_defines]
 

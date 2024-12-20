@@ -43,17 +43,19 @@
  * @file    test_adi_ades1830_diagnostic_w.c
  * @author  foxBMS Team
  * @date    2023-10-09 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
  * @brief   Test of some module
+ * @details TODO
  *
  */
 
 /*========== Includes =======================================================*/
 #include "unity.h"
+#include "Mockdiag.h"
 
 /*========== Unit Testing Framework Directives ==============================*/
 TEST_SOURCE_FILE("adi_ades183x_diagnostic_w.c")
@@ -63,6 +65,8 @@ TEST_INCLUDE_PATH("../../src/app/driver/afe/adi/common/ades183x")
 TEST_INCLUDE_PATH("../../src/app/driver/afe/adi/common/ades183x/config")
 TEST_INCLUDE_PATH("../../src/app/driver/config")
 TEST_INCLUDE_PATH("../../src/app/driver/spi")
+TEST_INCLUDE_PATH("../../src/app/engine/config")
+TEST_INCLUDE_PATH("../../src/app/engine/diag")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 

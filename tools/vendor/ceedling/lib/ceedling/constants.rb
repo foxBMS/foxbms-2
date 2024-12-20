@@ -71,6 +71,7 @@ GIT_COMMIT_SHA_FILENAME = 'GIT_COMMIT_SHA'
 NEWLINE_TOKEN = '\\n'
 
 DEFAULT_PROJECT_FILENAME = 'project.yml'
+DEFAULT_BUILD_LOGS_PATH = 'logs'
 
 GENERATED_DIR_PATH = [['vendor', 'ceedling'], 'src', "test", ['test', 'support'], 'build'].each{|p| File.join(*p)}
 
@@ -110,8 +111,8 @@ DEFAULT_CEEDLING_LOGFILE = 'ceedling.log'
 
 BACKTRACE_GDB_SCRIPT_FILE = 'backtrace.gdb'
 
-INPUT_CONFIGURATION_CACHE_FILE     = 'input.yml'   unless defined?(INPUT_CONFIGURATION_CACHE_FILE)     # input configuration file dump
-DEFINES_DEPENDENCY_CACHE_FILE      = 'defines_dependency.yml' unless defined?(DEFINES_DEPENDENCY_CACHE_FILE) # preprocessor definitions for files
+INPUT_CONFIGURATION_CACHE_FILE = 'input.yml'   unless defined?(INPUT_CONFIGURATION_CACHE_FILE)     # input configuration file dump
+DEFINES_DEPENDENCY_CACHE_FILE  = 'defines_dependency.yml' unless defined?(DEFINES_DEPENDENCY_CACHE_FILE) # preprocessor definitions for files
 
 TEST_ROOT_NAME    = 'test'                unless defined?(TEST_ROOT_NAME)
 TEST_TASK_ROOT    = TEST_ROOT_NAME + ':'  unless defined?(TEST_TASK_ROOT)
@@ -125,15 +126,15 @@ UTILS_ROOT_NAME   = 'utils'                unless defined?(UTILS_ROOT_NAME)
 UTILS_TASK_ROOT   = UTILS_ROOT_NAME + ':'  unless defined?(UTILS_TASK_ROOT)
 UTILS_SYM         = UTILS_ROOT_NAME.to_sym unless defined?(UTILS_SYM)
 
-OPERATION_COMPILE_SYM  = :compile  unless defined?(OPERATION_COMPILE_SYM)
-OPERATION_ASSEMBLE_SYM = :assemble unless defined?(OPERATION_ASSEMBLE_SYM)
-OPERATION_LINK_SYM     = :link     unless defined?(OPERATION_LINK_SYM)
+OPERATION_PREPROCESS_SYM  = :preprocess unless defined?(OPERATION_PREPROCESS_SYM)
+OPERATION_COMPILE_SYM     = :compile    unless defined?(OPERATION_COMPILE_SYM)
+OPERATION_ASSEMBLE_SYM    = :assemble   unless defined?(OPERATION_ASSEMBLE_SYM)
+OPERATION_LINK_SYM        = :link       unless defined?(OPERATION_LINK_SYM)
 
 
 # Match presence of any glob pattern characters
 GLOB_PATTERN = /[\*\?\{\}\[\]]/
 RUBY_STRING_REPLACEMENT_PATTERN = /#\{.+\}/
-RUBY_EVAL_REPLACEMENT_PATTERN   = /^\{(.+)\}$/
 TOOL_EXECUTOR_ARGUMENT_REPLACEMENT_PATTERN = /(\$\{(\d+)\})/
 TEST_STDOUT_STATISTICS_PATTERN  = /\n-+\s*(\d+)\s+Tests\s+(\d+)\s+Failures\s+(\d+)\s+Ignored\s+(OK|FAIL)\s*/i
 

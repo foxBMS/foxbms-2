@@ -43,13 +43,15 @@
  * @file    sys_mon_cfg.c
  * @author  foxBMS Team
  * @date    2019-11-28 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup ENGINE_CONFIGURATION
  * @prefix  SYSM
  *
- * @brief   configuration of the system monitoring module
- * @details TODO
+ * @brief   Configuration of the system monitoring module
+ * @details Test functions:
+ *          - SYSM_DummyCallback
+ *
  */
 
 /*========== Includes =======================================================*/

@@ -39,26 +39,58 @@
 
 """Runs HALCoGen in the current directory."""
 
-# pylint: disable=missing-function-docstring
-
-from waflib.Build import BuildContext
+from waflib.Build import BuildContext, CleanContext
 from waflib.Configure import ConfigurationContext
 from waflib.Options import OptionsContext
 
 TOOLDIR = "../../../tools/waf-tools"
 
+BUILD_VARIANTS = ["app", "bootloader"]
+
+for var in ["app", "bootloader"]:
+    for cont in [BuildContext, CleanContext]:
+        # pylint: disable-next=invalid-name
+        name = cont.__name__.replace("Context", "").lower()
+
+        # pylint: disable-next=invalid-name
+        class tmp_1(cont):
+            """Helper class to create the build variant commands"""
+
+            if name == "build":
+                __doc__ = f"executes the {name} of {var}"
+            elif name == "install":
+                __doc__ = f"flash {var} to the target"
+            elif name == "clean":
+                __doc__ = f"cleans the project {var}"
+            cmd = str(name) + "_" + var
+            variant = var
+
 
 def options(opt: OptionsContext):
+    """defines options that can be passed to waf"""
     opt.top = "."
 
 
 def configure(cnf: ConfigurationContext):
+    """configures the project"""
     cnf.load("f_hcg", tooldir=TOOLDIR)
 
 
 def build(bld: BuildContext):
-    bld(
-        source="../../../conf/hcg/hcg.hcg",
-        unit_test=True,
-        startup_hash=bld.path.find_node("../../../src/hal/startup.hash"),
+    """Run HALCoGen"""
+    if not bld.variant:
+        bld.fatal(
+            f"A {bld.cmd} variant must be specified. The build variants are: "
+            f"{', '.join(BUILD_VARIANTS)}."
+        )
+    remove = [
+        "source/HL_sys_main.c",
+        "source/HL_sys_startup.c",
+        "source/HL_sys_link.cmd",
+    ]
+    source = f"../../../conf/hcg/{bld.variant}.hcg"
+    startup_hash = bld.path.find_node(
+        f"../../../src/{bld.variant}/hal/{bld.variant}-startup.hash"
     )
+
+    bld(source=source, unit_test=True, startup_hash=startup_hash, remove=remove)

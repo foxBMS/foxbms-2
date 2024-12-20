@@ -1,0 +1,15 @@
+{
+  "_Layers": [
+    "../../additional_compiler_config.json",
+    "../../compiler_config.json",
+    "ci_config.json",
+    "../../rule_config_c.py",
+    "../../rule_config_c.json",
+    "../../rule_config_names.py",
+    "../../rule_config_names.json",
+    "../../rule_config_include_guard.py",
+    "../../rule_config_bad_tokens.json",
+    "../../rule_config_metric_lines.json",
+    "../../rule_config_addon.json"
+  ]
+}

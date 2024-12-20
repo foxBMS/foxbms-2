@@ -47,12 +47,16 @@ Getting the Sources
 
 The sources are available from a |git| repository at |github_foxbms| in
 |foxbms_repository|.
-The following example shows how to clone (see :numref:`clone-foxbms-2`) the
-|foxbms| sources from GitHub .
+The following example shows how to clone the |foxbms| sources from GitHub.
 
 In the case that you have been supplied with a "library-project" by a partner,
 please use this archive equivalent to the "cloned |foxbms| repository" in the
 later steps of this manual.
+
+.. note::
+
+   The username in this installation manual is ``vulpes`` and needs to be
+   replaced with the actual username.
 
 .. warning::
 
@@ -60,18 +64,42 @@ later steps of this manual.
    clone the repository to another path, that does not contain whitespace,
    e.g., ``C:\foxbms-2``).
 
-.. code-block:: powershell
-   :caption: Cloning the |foxbms| repository
-   :name: clone-foxbms-2
 
-   PS C:\Users\vulpes\Documents> git clone https://github.com/foxBMS/foxbms-2
-   PS C:\Users\vulpes\Documents> cd foxbms-2
+   .. tabs::
+
+      .. group-tab:: Win32/PowerShell
+
+         .. code-block:: powershell
+
+            git clone https://github.com/foxBMS/foxbms-2
+            cd foxbms-2
+
+      .. group-tab:: Win32/cmd.exe
+
+         .. code-block:: bat
+
+            git clone https://github.com/foxBMS/foxbms-2
+            cd foxbms-2
+
+      .. group-tab:: Win32/Git bash
+
+         .. code-block:: shell
+
+            git clone https://github.com/foxBMS/foxbms-2
+            cd foxbms-2
+
+      .. group-tab:: Linux
+
+         .. code-block:: shell
+
+            git clone https://github.com/foxBMS/foxbms-2
+            cd foxbms-2
 
 .. note::
 
-   Both ``git`` and ``curl`` require a correct proxy setup. This means
-   that the environment variables ``http_proxy`` and ``https_proxy`` must
-   be set accordingly to your network configuration.
+   ``git`` requires a correct proxy setup.
+   This means that the environment variables ``http_proxy`` and ``https_proxy``
+   must be set accordingly to your network configuration.
 
 .. warning::
 
@@ -80,13 +108,15 @@ later steps of this manual.
 
    .. table::
 
-        +------+----------------------------------------------+
-        | Bad  | ``C:\bad directory name\Documents\foxbms-2`` |
-        +------+----------------------------------------------+
-        | Good | ``C:\Users\vulpes\Documents\foxbms-2``       |
-        +------+----------------------------------------------+
-        | Good | ``C:\foxbms-2``                              |
-        +------+----------------------------------------------+
+        +------+--------------------------------------+
+        | Bad  | ``C:\bad directory name\foxbms-2``   |
+        +------+--------------------------------------+
+        | Bad  | ``/opt/bad directory name/foxbms-2`` |
+        +------+--------------------------------------+
+        | Good | ``C:\Users\vulpes\foxbms-2``         |
+        +------+--------------------------------------+
+        | Good | ``C:\foxbms-2``                      |
+        +------+--------------------------------------+
 
 .. _software_prerequisites:
 
@@ -139,53 +169,135 @@ Install Python
 #. Install `Python <https://www.python.org>`_.
    If you have already installed Python from https://www.python.org this step
    can be skipped.
+
+   .. note::
+
+      The minimum required Python version is 3.10.
+
 #. Open a terminal and run `py --version`, this should print something like
    `Python 3.12.4` or similar to the terminal:
 
-   .. code-block:: powershell
+   .. tabs::
 
-      py --version
-      Python 3.12.4
+      .. group-tab:: Win32/PowerShell
+
+         .. code-block:: powershell
+
+            py --version
+            Python 3.12.4
+
+      .. group-tab:: Win32/cmd.exe
+
+         .. code-block:: bat
+
+            py --version
+            Python 3.12.4
+
+      .. group-tab:: Win32/Git bash
+
+         .. code-block:: shell
+
+            py --version
+            Python 3.12.4
+
+      .. group-tab:: Linux
+
+         .. code-block:: shell
+
+            python3
+            Python 3.12.8
 
 Virtual Environment Creation
 ----------------------------
 
-#. Create a virtual environment **2024-08-pale-fox** by running in ``cmd.exe`` or
-   ``PowerShell``.
+#. Create a virtual environment **2025-01-pale-fox** by running:
 
-   - ``cmd.exe``:
+   .. tabs::
 
-     .. code-block:: bat
+      .. group-tab:: Win32/PowerShell
 
-        py -m venv %USERPROFILE%\foxbms-envs\2024-08-pale-fox
+         .. code-block:: powershell
 
-   - ``PowerShell``:
+            py -m venv $env:USERPROFILE\foxbms-envs\2025-01-pale-fox
 
-     .. code-block:: powershell
+      .. group-tab:: Win32/cmd.exe
 
-        py -m venv $env:USERPROFILE\foxbms-envs\2024-08-pale-fox
+         .. code-block:: bat
 
-#. Activate the virtual environment by running in ``cmd.exe`` or
-   ``PowerShell``.
+            py -m venv %USERPROFILE%\foxbms-envs\2025-01-pale-fox
 
-   - ``cmd.exe``:
+      .. group-tab:: Win32/Git bash
 
-     .. code-block:: bat
+         .. code-block:: shell
 
-        %USERPROFILE%\foxbms-envs\2024-08-pale-fox\Scripts\activate.bat
+            py -m venv $USERPROFILE/foxbms-envs/2025-01-pale-fox
 
-   - ``PowerShell``:
+      .. group-tab:: Linux
 
-     .. code-block:: powershell
+         .. code-block:: shell
 
-        &"$env:USERPROFILE\foxbms-envs\2024-08-pale-fox\Scripts\activate.ps1"
+            python3 -m venv $HOME/foxbms-envs/2025-01-pale-fox
+
+#. Activate the virtual environment by running:
+
+   .. tabs::
+
+      .. group-tab:: Win32/PowerShell
+
+         .. code-block:: powershell
+
+            &"$env:USERPROFILE\foxbms-envs\2025-01-pale-fox\Scripts\activate.ps1"
+
+      .. group-tab:: Win32/cmd.exe
+
+         .. code-block:: bat
+
+            %USERPROFILE%\foxbms-envs\2025-01-pale-fox\Scripts\activate.bat
+
+      .. group-tab:: Win32/Git bash
+
+         .. code-block:: shell
+
+            source $USERPROFILE/foxbms-envs/2025-01-pale-fox/Scripts/activate
+
+      .. group-tab:: Linux
+
+         .. code-block:: shell
+
+            source $HOME/foxbms-envs/2025-01-pale-fox/bin/activate
 
 #. Install the required packages by running:
 
-   .. code-block:: powershell
+   .. tabs::
 
-      cd path\to\foxbms-2 # cd into the root of the repository
-      python -m pip install -r requirements.txt --no-deps
+      .. group-tab:: Win32/PowerShell
+
+         .. code-block:: powershell
+
+            cd path\to\foxbms-2 # cd into the root of the repository
+            python -m pip install -r requirements.txt --no-deps
+
+      .. group-tab:: Win32/cmd.exe
+
+         .. code-block:: bat
+
+            @REM cd into the root of the repository
+            cd path\to\foxbms-2
+            python -m pip install -r requirements.txt --no-deps
+
+      .. group-tab:: Win32/Git bash
+
+         .. code-block:: shell
+
+            cd path/to/foxbms-2 # cd into the root of the repository
+            python -m pip install -r requirements.txt --no-deps
+
+      .. group-tab:: Linux
+
+         .. code-block:: shell
+
+            cd path/to/foxbms-2 # cd into the root of the repository
+            python -m pip install -r requirements.txt --no-deps
 
 
 .. _ruby_install_and_gem_install:
@@ -200,24 +312,53 @@ Install Ruby and Add Required Gems
 #. Do **NOT** add Ruby to ``PATH``.
 #. Install the required packages, i.e., Gems by running:
 
-   .. code-block:: powershell
+   .. tabs::
 
-      cd path\to\foxbms-2 # cd into the root of the repository
-      cd tools\vendor\ceedling
-      C:\Ruby\Ruby3.1.3-x64\bin\bundle install # install the Ruby Gems
+      .. group-tab:: Win32/PowerShell
+
+         .. code-block:: powershell
+
+            cd path\to\foxbms-2 # cd into the root of the repository
+            cd tools\vendor\ceedling
+            C:\Ruby\Ruby3.1.3-x64\bin\bundle.bat install # install the Ruby Gems
+
+      .. group-tab:: Win32/cmd.exe
+
+         .. code-block:: bat
+
+            @REM cd into the root of the repository
+            cd path\to\foxbms-2
+            cd tools\vendor\ceedling
+            @REM install the Ruby Gems
+            C:\Ruby\Ruby3.1.3-x64\bin\bundle.bat install
+
+      .. group-tab:: Win32/Git bash
+
+         .. code-block:: shell
+
+            cd path/to/foxbms-2 # cd into the root of the repository
+            cd tools/vendor/ceedling
+            /c/Ruby/Ruby3.1.3-x64/bin/bundle.bat install
+
+      .. group-tab:: Linux
+
+         .. code-block:: shell
+
+            cd path/to/foxbms-2 # cd into the root of the repository
+            cd tools/vendor/ceedling
+            bundle install # install the Ruby Gems
 
 Install GCC
 ===========
 
 .. note::
 
-   Installing MinWG64 requires 7-Zip to be installed.
+   Installing MinGW64 requires 7-Zip to be installed.
    7-Zip can be download from https://7-zip.org.
-
 
 #. Download MinGW-W64 version x86_64-posix-seh from
    `sourceforge.net <https://sourceforge.net/projects/mingw-w64/files/mingw-w64/>`_
-   (use this
+   (**use exactly this**
    `7z-archive <https://sourceforge.net/projects/mingw-w64/files/Toolchains%20targetting%20Win64/Personal%20Builds/mingw-builds/8.1.0/threads-posix/seh/x86_64-8.1.0-release-posix-seh-rt_v6-rev0.7z>`_).
 
 #. Extract the archive.
@@ -254,17 +395,36 @@ Check Installation
 Check that all required software is installed by running in ``cmd.exe`` or
 ``PowerShell``.
 
-- ``cmd.exe``:
+   .. tabs::
 
-  .. code-block:: bat
+      .. group-tab:: Win32/PowerShell
 
-     fox.bat install --check
+         .. code-block:: powershell
 
-- ``PowerShell``:
+            cd path\to\foxbms-2 # cd into the root of the repository
+            .\fox.ps1 install --check
 
-  .. code-block:: powershell
+      .. group-tab:: Win32/cmd.exe
 
-     .\fox.ps1 install --check
+         .. code-block:: bat
+
+            @REM cd into the root of the repository
+            cd path\to\foxbms-2
+            fox.bat install --check
+
+      .. group-tab:: Win32/Git bash
+
+         .. code-block:: shell
+
+            cd path/to/foxbms-2 # cd into the root of the repository
+            ./fox.sh install --check
+
+      .. group-tab:: Linux
+
+         .. code-block:: shell
+
+            cd path/to/foxbms-2 # cd into the root of the repository
+            ./fox.sh install --check
 
 (Optional) Install VS Code
 ==========================
@@ -291,41 +451,94 @@ To update the build environment the following steps must be done:
    with the actual name of the new build environment, which is
    then documented in the :ref:`CHANGELOG`.
 
-1. Create a virtual environment **<name-of-the-new-env>** by running in ``cmd.exe`` or
-   ``PowerShell``.
-   - ``cmd.exe``:
+1. Create a virtual environment **<name-of-the-new-env>** by running:
 
-     .. code-block:: bat
+   .. tabs::
 
-        py -m venv %USERPROFILE%\foxbms-envs\<name-of-the-new-env>
+      .. group-tab:: Win32/PowerShell
 
-   - ``PowerShell``:
+         .. code-block:: powershell
 
-     .. code-block:: powershell
+            py -m venv $env:USERPROFILE\foxbms-envs\<name-of-the-new-env>
 
-        py -m venv $env:USERPROFILE\foxbms-envs\<name-of-the-new-env>
+      .. group-tab:: Win32/cmd.exe
 
-1. Activate the virtual environment by running in ``cmd.exe`` or
-   ``PowerShell``.
+         .. code-block:: bat
 
-   - ``cmd.exe``:
+            py -m venv %USERPROFILE%\foxbms-envs\<name-of-the-new-env>
 
-     .. code-block:: bat
+      .. group-tab:: Win32/Git bash
 
-        %USERPROFILE%\foxbms-envs\<name-of-the-new-env>\Scripts\activate.bat
+         .. code-block:: shell
 
-   - ``PowerShell``:
+            py -m venv $USERPROFILE/foxbms-envs/<name-of-the-new-env>
 
-     .. code-block:: powershell
+      .. group-tab:: Linux
 
-        &"$env:USERPROFILE\foxbms-envs\<name-of-the-new-env>\Scripts\activate.ps1"
+         .. code-block:: shell
+
+            python3 -m venv $HOME/foxbms-envs/<name-of-the-new-env>
+
+1. Activate the virtual environment by running:
+
+   .. tabs::
+
+      .. group-tab:: Win32/PowerShell
+
+         .. code-block:: powershell
+
+            &"$env:USERPROFILE\foxbms-envs\<name-of-the-new-env>\Scripts\activate.ps1"
+
+      .. group-tab:: Win32/cmd.exe
+
+         .. code-block:: bat
+
+            %USERPROFILE%\foxbms-envs\<name-of-the-new-env>\Scripts\activate.bat
+
+      .. group-tab:: Win32/Git bash
+
+         .. code-block:: shell
+
+            source $USERPROFILE/foxbms-envs/<name-of-the-new-env>/Scripts/activate
+
+      .. group-tab:: Linux
+
+         .. code-block:: shell
+
+            source $HOME/foxbms-envs/<name-of-the-new-env>/bin/activate
 
 1. Install the required packages by running:
 
-   .. code-block:: powershell
+   .. tabs::
 
-      cd path\to\foxbms-2 # cd into the root of the repository
-      python -m pip install -r requirements.txt --no-deps
+      .. group-tab:: Win32/PowerShell
+
+         .. code-block:: powershell
+
+            cd path\to\foxbms-2 # cd into the root of the repository
+            python -m pip install -r requirements.txt --no-deps
+
+      .. group-tab:: Win32/cmd.exe
+
+         .. code-block:: bat
+
+            @REM cd into the root of the repository
+            cd path\to\foxbms-2
+            python -m pip install -r requirements.txt --no-deps
+
+      .. group-tab:: Win32/Git bash
+
+         .. code-block:: shell
+
+            cd path/to/foxbms-2 # cd into the root of the repository
+            python -m pip install -r requirements.txt --no-deps
+
+      .. group-tab:: Linux
+
+         .. code-block:: shell
+
+            cd path/to/foxbms-2 # cd into the root of the repository
+            python -m pip install -r requirements.txt --no-deps
 
 ************************
 Debugger toolchain setup

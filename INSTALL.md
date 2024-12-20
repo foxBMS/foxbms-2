@@ -47,6 +47,11 @@ less user interaction during the installation) for the host machine see
 1. Install [Python](https://www.python.org/).\
    If you have already installed Python from <https://www.python.org> this step
    can be skipped.
+
+   > **_NOTE 3:_**
+   >
+   > The minimum required Python version is 3.10.
+
 1. Open a terminal and run `py --version`, this should print something like
    `Python 3.12.4` or similar to the terminal:
 
@@ -55,31 +60,31 @@ less user interaction during the installation) for the host machine see
    Python 3.12.4
    ```
 
-1. Create a virtual environment **2024-08-pale-fox** by running in `cmd.exe` or
+1. Create a virtual environment **2025-01-pale-fox** by running in `cmd.exe` or
    `PowerShell`.
    - `cmd.exe`:
 
       ```cmd
-      py -m venv %USERPROFILE%\foxbms-envs\2024-08-pale-fox
+      py -m venv %USERPROFILE%\foxbms-envs\2025-01-pale-fox
       ```
 
    - `PowerShell`:
 
      ```pwsh
-     py -m venv $env:USERPROFILE\foxbms-envs\2024-08-pale-fox
+     py -m venv $env:USERPROFILE\foxbms-envs\2025-01-pale-fox
      ```
 
 1. Activate the virtual environment by running in `cmd.exe` or ``PowerShell`.
    - `cmd.exe`:
 
       ```cmd
-      %USERPROFILE%\foxbms-envs\2024-08-pale-fox\Scripts\activate.bat
+      %USERPROFILE%\foxbms-envs\2025-01-pale-fox\Scripts\activate.bat
       ```
 
    - `PowerShell`:
 
      ```pwsh
-     &"$env:USERPROFILE\foxbms-envs\2024-08-pale-fox\Scripts\activate.ps1"
+     &"$env:USERPROFILE\foxbms-envs\2025-01-pale-fox\Scripts\activate.ps1"
      ```
 
 1. Install the required packages by running:
@@ -104,13 +109,13 @@ less user interaction during the installation) for the host machine see
 
 1. Install GCC
 
-   > **_NOTE:_** Installing MinWG64 requires 7-Zip to be installed.
-                 7-Zip can be download from https://7-zip.org.
+   > **_NOTE:_** Installing MinGW64 requires 7-Zip to be installed.
+                 7-Zip can be download from <https://7-zip.org>.
 
    1. Download MinGW-W64 version x86_64-posix-seh from
       [sourceforge.net](https://sourceforge.net/projects/mingw-w64/files/mingw-w64/)
-      (use this [7z-archive](
-      https://sourceforge.net/projects/mingw-w64/files/Toolchains%20targetting%20Win64/Personal%20Builds/mingw-builds/8.1.0/threads-posix/seh/x86_64-8.1.0-release-posix-seh-rt_v6-rev0.7z)).
+      (**use exactly this [7z-archive](
+      https://sourceforge.net/projects/mingw-w64/files/Toolchains%20targetting%20Win64/Personal%20Builds/mingw-builds/8.1.0/threads-posix/seh/x86_64-8.1.0-release-posix-seh-rt_v6-rev0.7z)**).
    1. Extract the archive.
    1. Copy the extracted mingw64 directory to
       `C:\mingw64\x86_64-8.1.0-release-posix-seh-rt_v6-rev0`.
@@ -160,10 +165,9 @@ less user interaction during the installation) for the host machine see
       [Visual Studio Code](https://code.visualstudio.com).
    1. Install code: |foxbms| recommends installing |code| with the
       `User Installer`, which does not require elevated rights.
-   1. *Optional:* Let the installer add code to the `PATH` variable.
+   1. _Optional:_ Let the installer add code to the `PATH` variable.
 
 All required software is now installed.
-
 
 ## Environment Updates
 
@@ -190,6 +194,7 @@ To update the build environment the following steps must be done:
      ```pwsh
      py -m venv $env:USERPROFILE\foxbms-envs\<name-of-the-new-env>
      ```
+
 1. Activate the virtual environment by running in `cmd.exe` or ``PowerShell`.
    - `cmd.exe`:
 

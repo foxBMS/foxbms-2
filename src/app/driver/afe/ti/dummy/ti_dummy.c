@@ -43,8 +43,8 @@
  * @file    ti_dummy.c
  * @author  foxBMS Team
  * @date    2023-09-11 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  TIDUM
  *
@@ -110,16 +110,6 @@ extern STD_RETURN_TYPE_e TIDUM_StartMeasurement(void) {
 
 extern bool TIDUM_IsFirstMeasurementCycleFinished(void) {
     return true;
-}
-
-extern STD_RETURN_TYPE_e TIDUM_RequestIoRead(uint8_t string) {
-    /* AXIVION Routine Generic-MissingParameterAssert: string: parameter accepts whole range */
-    return STD_OK;
-}
-
-extern STD_RETURN_TYPE_e TIDUM_RequestIoWrite(uint8_t string) {
-    /* AXIVION Routine Generic-MissingParameterAssert: string: parameter accepts whole range */
-    return STD_OK;
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/

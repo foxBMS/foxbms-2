@@ -8,3 +8,9 @@ This directory and its subdirectories contain the foxBMS 2 Configuration Tests (
   `<repository-root>/tests/axivion/axivion_self_tests.py`
 - The test files of the FCT are in the directory
   `<repository-root>/tests/axivion/config-test/`.
+
+## Valid Names
+
+This serves as additional material for the guidelines documentation that is
+found at
+[`docs/developer-manual/style-guide/guidelines_c.rst`](../../../docs/developer-manual/style-guide/guidelines_c.rst).

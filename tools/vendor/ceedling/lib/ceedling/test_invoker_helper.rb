@@ -91,12 +91,8 @@ class TestInvokerHelper
     return paths.uniq
   end
 
-  def compile_defines(context:, filepath:)
-    # If this context exists ([:defines][context]), use it. Otherwise, default to test context.
-    context = TEST_SYM unless @defineinator.defines_defined?( context:context )
-
-    defines = @defineinator.generate_test_definition( filepath:filepath )
-    defines += @defineinator.defines( subkey:context, filepath:filepath )
+  def framework_defines()
+    defines = []
 
     # Unity defines
     defines += @defineinator.defines( topkey:UNITY_SYM, subkey: :defines )
@@ -106,9 +102,6 @@ class TestInvokerHelper
 
     # CException defines
     defines += @defineinator.defines( topkey:CEXCEPTION_SYM, subkey: :defines )
-
-    # Injected defines (based on other settings)
-    defines += @test_runner_manager.collect_defines
 
     return defines.uniq
   end
@@ -152,33 +145,62 @@ class TestInvokerHelper
     return _search_paths.uniq
   end
 
-  def preprocess_defines(test_defines:, filepath:)
-    # Preprocessing defines for the test file
-    preprocessing_defines = @defineinator.defines( subkey:PREPROCESS_SYM, filepath:filepath )
-
-    # If no preprocessing defines are present, default to the test compilation defines
-    return (preprocessing_defines.empty? ? test_defines : preprocessing_defines)
+  def runner_defines()
+    return @test_runner_manager.collect_defines()
   end
 
-  def flags(context:, operation:, filepath:)
+  def compile_defines(context:, filepath:)
+    # If this context exists ([:defines][context]), use it. Otherwise, default to test context.
+    context = TEST_SYM unless @defineinator.defines_defined?( context:context )
+
+    defines = @defineinator.generate_test_definition( filepath:filepath )
+    defines += @defineinator.defines( subkey:context, filepath:filepath )
+
+    return defines.uniq
+  end
+
+  def preprocess_defines(test_defines:, filepath:)
+    # Preprocessing defines for the test file
+    preprocessing_defines = @defineinator.defines( subkey:PREPROCESS_SYM, filepath:filepath, default:nil )
+
+    # If no defines were set, default to using test_defines
+    return test_defines if preprocessing_defines.nil?
+      
+    # Otherwise, return the defines we looked up
+    # This includes an explicitly set empty list to override / clear test_defines
+    return preprocessing_defines
+  end
+
+  def flags(context:, operation:, filepath:, default:[])
     # If this context + operation exists ([:flags][context][operation]), use it. Otherwise, default to test context.
     context = TEST_SYM unless @flaginator.flags_defined?( context:context, operation:operation )
 
-    return @flaginator.flag_down( context:context, operation:operation, filepath:filepath )
+    return @flaginator.flag_down( context:context, operation:operation, filepath:filepath, default:default )
   end
 
-  def collect_test_framework_sources
+  def preprocess_flags(context:, compile_flags:, filepath:)
+    preprocessing_flags = flags( context:context, operation:OPERATION_PREPROCESS_SYM, filepath:filepath, default:nil )
+
+    # If no flags were set, default to using compile_flags
+    return compile_flags if preprocessing_flags.nil?
+
+    # Otherwise, return the flags we looked up
+    # This includes an explicitly set empty list to override / clear compile_flags
+    return preprocessing_flags
+  end
+
+  def collect_test_framework_sources(mocks)
     sources = []
 
     sources << File.join(PROJECT_BUILD_VENDOR_UNITY_PATH, UNITY_C_FILE)
-    sources << File.join(PROJECT_BUILD_VENDOR_CMOCK_PATH, CMOCK_C_FILE) if @configurator.project_use_mocks
+    sources << File.join(PROJECT_BUILD_VENDOR_CMOCK_PATH, CMOCK_C_FILE) if @configurator.project_use_mocks and mocks
     sources << File.join(PROJECT_BUILD_VENDOR_CEXCEPTION_PATH, CEXCEPTION_C_FILE) if @configurator.project_use_exceptions
 
     # If we're (a) using mocks (b) a Unity helper is defined and (c) that unity helper includes a source file component,
     # then link in the unity_helper object file too.
     if @configurator.project_use_mocks
       @configurator.cmock_unity_helper_path.each do |helper|
-        if @file_wrapper.exist?( helper.ext(EXTENSION_SOURCE) )
+        if @file_wrapper.exist?( helper.ext( EXTENSION_SOURCE ) )
           sources << helper
         end
       end
@@ -222,36 +244,28 @@ class TestInvokerHelper
   end
 
   # TODO: Use search_paths to find/match header file from which to generate mock
-  def find_header_input_for_mock_file(mock, search_paths)
-    return @file_finder.find_header_input_for_mock_file(mock)
+  # Today, this is just a pass-through wrapper
+  def find_header_input_for_mock(mock, search_paths)
+    return @file_finder.find_header_input_for_mock( mock )
+  end
+
+  # Transform list of mock names into filenames with source extension
+  def form_mock_filenames(mocklist)
+    return mocklist.map {|mock| mock + @configurator.extension_source}
+  end
+
+  def remove_mock_original_headers( filelist, mocklist )
+    filelist.delete_if do |filepath|
+      # Create a simple mock name from the filepath => mock prefix + filepath base name with no extension
+      mock_name = @configurator.cmock_mock_prefix + File.basename( filepath, '.*' )
+      # Tell `delete_if()` logic to remove inspected filepath if simple mocklist includes the name we just generated
+      mocklist.include?( mock_name )
+    end
   end
 
   def clean_test_results(path, tests)
     tests.each do |test|
       @file_wrapper.rm_f( Dir.glob( File.join( path, test + '.*' ) ) )
-    end
-  end
-
-  def generate_objects_now(object_list, context, options)
-    @batchinator.exec(workload: :compile, things: object_list) do |object|
-      src = @file_finder.find_build_input_file(filepath: object, context: TEST_SYM)
-      if (File.basename(src) =~ /#{EXTENSION_SOURCE}$/)
-        @generator.generate_object_file(
-          options[:test_compiler],
-          OPERATION_COMPILE_SYM,
-          context,
-          src,
-          object,
-          @file_path_utils.form_test_build_list_filepath( object ),
-          @file_path_utils.form_test_dependencies_filepath( object ))
-      elsif (defined?(TEST_BUILD_USE_ASSEMBLY) && TEST_BUILD_USE_ASSEMBLY)
-        @generator.generate_object_file(
-          options[:test_assembler],
-          OPERATION_ASSEMBLE_SYM,
-          context,
-          src,
-          object )
-      end
     end
   end
 
@@ -284,7 +298,7 @@ class TestInvokerHelper
         @file_path_utils.form_test_build_map_filepath( build_path, executable ),
         lib_args,
         lib_paths )
-    rescue ShellExecutionException => ex
+    rescue ShellException => ex
       if ex.shell_result[:output] =~ /symbol/i
         notice =    "If the linker reports missing symbols, the following may be to blame:\n" +
                     "  1. This test lacks #include statements corresponding to needed source files (see note below).\n" +

@@ -43,12 +43,12 @@
  * @file    bal_cfg.c
  * @author  foxBMS Team
  * @date    2022-02-26 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  BAL
  *
- * @brief   implementation for the configuration for the driver for balancing
+ * @brief   Implementation for the configuration for the driver for balancing
  * @details TODO
  */
 

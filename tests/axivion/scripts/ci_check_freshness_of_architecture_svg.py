@@ -97,6 +97,8 @@ def main():
         os.path.join(
             SCRIPT_DIR,
             "..",
+            "targets",
+            "app",
             "architecture.gxl",
         )
     )
@@ -104,6 +106,8 @@ def main():
         os.path.join(
             SCRIPT_DIR,
             "..",
+            "targets",
+            "app",
             "architecture_hierarchy_belongs_to_layout.gvl",
         )
     )

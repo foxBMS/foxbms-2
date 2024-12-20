@@ -43,12 +43,18 @@
  * @file    test_algorithm_cfg.c
  * @author  foxBMS Team
  * @date    2020-06-30 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
  * @brief   Test of the algorithm config module
+ * @details Test functions:
+ *          - testIllegalAccessInMarkAsDone
+ *          - testResetToReadyFromRunning
+ *          - testResetToReadyFromBlocked
+ *          - testIllegalAccessInMarkAsReinit
+ *          - testReinitFromRunning
  *
  */
 
@@ -77,36 +83,34 @@ void tearDown(void) {
 
 /*========== Test Cases =====================================================*/
 void testIllegalAccessInMarkAsDone(void) {
-    OS_EnterTaskCritical_Ignore();
-    OS_ExitTaskCritical_Ignore();
     TEST_ASSERT_FAIL_ASSERT(ALGO_MarkAsDone(UINT32_MAX));
 }
 
+void testPendingReinitRequest(void) {
+    algo_algorithms[0].state = ALGO_REINIT_REQUESTED;
+    ALGO_MarkAsDone(0);
+    TEST_ASSERT_EQUAL(ALGO_REINIT_REQUESTED, algo_algorithms[0].state);
+}
+
 void testResetToReadyFromRunning(void) {
-    OS_EnterTaskCritical_Ignore();
-    OS_ExitTaskCritical_Ignore();
     algo_algorithms[0].state = ALGO_RUNNING;
     ALGO_MarkAsDone(0);
     TEST_ASSERT_EQUAL(ALGO_READY, algo_algorithms[0].state);
 }
 
 void testResetToReadyFromBlocked(void) {
-    OS_EnterTaskCritical_Ignore();
-    OS_ExitTaskCritical_Ignore();
     algo_algorithms[0].state = ALGO_BLOCKED;
     ALGO_MarkAsDone(0);
     TEST_ASSERT_EQUAL(ALGO_BLOCKED, algo_algorithms[0].state);
 }
 
 void testIllegalAccessInMarkAsReinit(void) {
-    OS_EnterTaskCritical_Ignore();
-    OS_ExitTaskCritical_Ignore();
     TEST_ASSERT_FAIL_ASSERT(ALGO_MarkAsReinit(UINT32_MAX));
 }
 
 void testReinitFromRunning(void) {
-    OS_EnterTaskCritical_Ignore();
-    OS_ExitTaskCritical_Ignore();
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
     algo_algorithms[0].state = ALGO_RUNNING;
     ALGO_MarkAsReinit(0);
     TEST_ASSERT_EQUAL(ALGO_REINIT_REQUESTED, algo_algorithms[0].state);

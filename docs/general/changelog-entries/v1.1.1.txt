@@ -1,0 +1,24 @@
+Added
+=====
+
+- All measurement values are now invalidated after startup to prevent invalid
+  data on CAN.
+- Add a script for VS Code detection.
+- Added signal data for string related CAN messages.
+
+Changed
+=======
+
+Deprecated
+==========
+
+Removed
+=======
+
+Fixed
+=====
+
+- fixed bug, that multiplexed cell voltages 2+3 were transmitted incorrectly
+  via CAN (``foxBMS_CellVoltage``).
+- fixed bug, that current limits were transmitted incorrectly via CAN
+  (``foxBMS_LimitValues``).

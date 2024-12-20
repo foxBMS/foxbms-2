@@ -43,13 +43,14 @@
  * @file    main.c
  * @author  foxBMS Team
  * @date    2019-08-27 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup MAIN
  * @prefix  TODO
  *
  * @brief   Main function
- * @details TODO
+ * @details The main function implements the hardware initialization and
+ *          starts operating system (and the application runs in this context).
  */
 
 /*========== Includes =======================================================*/
@@ -68,6 +69,7 @@
 #include "diag.h"
 #include "dma.h"
 #include "foxmath.h"
+#include "fstd_types.h"
 #include "i2c.h"
 #include "led.h"
 #include "master_info.h"

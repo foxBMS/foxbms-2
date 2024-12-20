@@ -43,8 +43,8 @@
  * @file    sys_mon.h
  * @author  foxBMS Team
  * @date    2019-11-28 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup ENGINE
  * @prefix  SYSM
  *
@@ -155,6 +155,7 @@ extern SYSM_NOTIFICATION_s *TEST_SYSM_GetNotifications(void);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 #ifdef UNITY_UNIT_TEST
+extern void TEST_SYSM_RecordTimingViolation(SYSM_TASK_ID_e taskId, uint32_t taskDuration, uint32_t timestampEnter);
 /* Helper functions */
 extern bool TEST_SYSM_GetStaticVariableFlagFramCopyHasChanges(void);
 extern bool TEST_SYSM_SetStaticVariableFlagFramCopyHasChanges(bool value);

@@ -43,8 +43,8 @@
  * @file    test_spi.c
  * @author  foxBMS Team
  * @date    2020-04-01 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -314,15 +314,14 @@ void testSPI_GetHardwareChipSelectPin(void) {
 /** simple API test that function guards against null pointer */
 void testSPI_SetFunctionalNullPointer(void) {
     TEST_ASSERT_FAIL_ASSERT(SPI_SetFunctional(NULL_PTR, 0, false));
+    TEST_ASSERT_FAIL_ASSERT(SPI_SetFunctional(spiREG1, MCU_LARGEST_PIN_NUMBER + 1u, false));
 }
 
 /** test intended function of SPI_SetFunctional() for setting a bit */
 void testSPI_SetFunctionalTestIntendedFunctionSet(void) {
     /** fake a config register that is null and inject into function */
     spiMockConfigRegister.CONFIG_PC0 = 0;
-    spi1GetConfigValue_Expect(NULL_PTR, CurrentValue);
-    spi1GetConfigValue_IgnoreArg_config_reg();
-    spi1GetConfigValue_ReturnThruPtr_config_reg(&spiMockConfigRegister);
+    spi1GetConfigValue_Expect(&spiMockConfigRegister, CurrentValue);
 
     /* the function should call spiSetFunctional with a 1 at bit 10 */
     spiSetFunctional_Expect(spiREG1, ((uint32_t)1u << 10u));
@@ -332,61 +331,96 @@ void testSPI_SetFunctionalTestIntendedFunctionSet(void) {
 
 /** test intended function of SPI_SetFunctional() for clearing a bit */
 void testSPI_SetFunctionalTestIntendedFunctionClear(void) {
-    /** fake a config register that is UINT32_MAX and inject into function */
-    spiMockConfigRegister.CONFIG_PC0 = UINT32_MAX;
-    spi1GetConfigValue_Expect(NULL_PTR, CurrentValue);
-    spi1GetConfigValue_IgnoreArg_config_reg();
-    spi1GetConfigValue_ReturnThruPtr_config_reg(&spiMockConfigRegister);
+    spi1GetConfigValue_Expect(&spiMockConfigRegister, CurrentValue);
 
-    /* the function should call spiSetFunctional with a 0 at bit 10 */
-    spiSetFunctional_Expect(spiREG1, ~((uint32_t)1u << 10u));
+    /* the function should call spiSetFunctional with a 0 */
+    spiSetFunctional_Expect(spiREG1, 0u);
 
     SPI_SetFunctional(spiREG1, 10, false);
 }
 
 /** test usage of right API functions for SPI1 */
 void testSPI_SetFunctionalRightApiSpi1(void) {
+    spi_config_reg_t configRegisterBuffer = {0};
     /* this test will fail if another function than the intended function is
     called */
-    spi1GetConfigValue_Ignore();
-    spiSetFunctional_Ignore();
+    spi1GetConfigValue_Expect(&configRegisterBuffer, CurrentValue);
+
+    /* hardware controlled is set to false */
+    uint32_t newPc0 = configRegisterBuffer.CONFIG_PC0;
+    newPc0 &= ~(uint32_t)((uint32_t)1u << (uint8_t)(0));
+    spiSetFunctional_Expect(spiREG1, newPc0);
+
     SPI_SetFunctional(spiREG1, 0, false);
 }
 
 /** test usage of right API functions for SPI2 */
 void testSPI_SetFunctionalRightApiSpi2(void) {
+    spi_config_reg_t configRegisterBuffer = {0};
     /* this test will fail if another function than the intended function is
     called */
-    spi2GetConfigValue_Ignore();
-    spiSetFunctional_Ignore();
+    spi2GetConfigValue_Expect(&configRegisterBuffer, CurrentValue);
+
+    /* hardware controlled is set to false */
+    uint32_t newPc0 = configRegisterBuffer.CONFIG_PC0;
+    newPc0 &= ~(uint32_t)((uint32_t)1u << (uint8_t)(0));
+    spiSetFunctional_Expect(spiREG2, newPc0);
+
     SPI_SetFunctional(spiREG2, 0, false);
 }
 
 /** test usage of right API functions for SPI3 */
 void testSPI_SetFunctionalRightApiSpi3(void) {
+    spi_config_reg_t configRegisterBuffer = {0};
     /* this test will fail if another function than the intended function is
     called */
-    spi3GetConfigValue_Ignore();
-    spiSetFunctional_Ignore();
+    spi3GetConfigValue_Expect(&configRegisterBuffer, CurrentValue);
+
+    /* hardware controlled is set to false */
+    uint32_t newPc0 = configRegisterBuffer.CONFIG_PC0;
+    newPc0 &= ~(uint32_t)((uint32_t)1u << (uint8_t)(0));
+    spiSetFunctional_Expect(spiREG3, newPc0);
+
     SPI_SetFunctional(spiREG3, 0, false);
 }
 
 /** test usage of right API functions for SPI4 */
 void testSPI_SetFunctionalRightApiSpi4(void) {
+    spi_config_reg_t configRegisterBuffer = {0};
     /* this test will fail if another function than the intended function is
     called */
-    spi4GetConfigValue_Ignore();
-    spiSetFunctional_Ignore();
+    spi4GetConfigValue_Expect(&configRegisterBuffer, CurrentValue);
+
+    /* hardware controlled is set to false */
+    uint32_t newPc0 = configRegisterBuffer.CONFIG_PC0;
+    newPc0 &= ~(uint32_t)((uint32_t)1u << (uint8_t)(0));
+    spiSetFunctional_Expect(spiREG4, newPc0);
     SPI_SetFunctional(spiREG4, 0, false);
 }
 
 /** test usage of right API functions for SPI5 */
 void testSPI_SetFunctionalRightApiSpi5(void) {
+    spi_config_reg_t configRegisterBuffer = {0};
     /* this test will fail if another function than the intended function is
     called */
-    spi5GetConfigValue_Ignore();
-    spiSetFunctional_Ignore();
+    spi5GetConfigValue_Expect(&configRegisterBuffer, CurrentValue);
+
+    /* hardware controlled is set to false */
+    uint32_t newPc0 = configRegisterBuffer.CONFIG_PC0;
+    newPc0 &= ~(uint32_t)((uint32_t)1u << (uint8_t)(0));
+    spiSetFunctional_Expect(spiREG5, newPc0);
+
     SPI_SetFunctional(spiREG5, 0, false);
+}
+
+/** test usage of right API functions for invalid SPI */
+void testSPI_SetFunctionalRightApiSpiInvalid(void) {
+    spi_config_reg_t configRegisterBuffer = {0};
+    uint32_t newPc0                       = configRegisterBuffer.CONFIG_PC0;
+
+    spiSetFunctional_Expect(spiREG5 + 1u, newPc0);
+
+    SPI_SetFunctional(spiREG5 + 1u, 0, false);
 }
 
 /** test invalid input to SPI_CheckInterfaceAvailable */

@@ -43,12 +43,13 @@
  * @file    test_contactor.c
  * @author  foxBMS Team
  * @date    2020-03-31 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
  * @brief   Test of the contactor.c module
+ * @details Tests Initialization of Contactor registers
  *
  */
 
@@ -113,12 +114,106 @@ void tearDown(void) {
 /*========== Test Cases =====================================================*/
 void testCONT_InitializationCheckOfContactorRegistry(void) {
     /* for the test we assume every contactor channel is correctly affiliated */
-    SPS_GetChannelAffiliation_IgnoreAndReturn(SPS_AFF_CONTACTOR);
+    for (CONT_CONTACTOR_INDEX contactor = 0u; contactor < BS_NR_OF_CONTACTORS; contactor++) {
+        SPS_GetChannelAffiliation_ExpectAndReturn(cont_contactorStates[contactor].spsChannel, SPS_AFF_CONTACTOR);
+    }
     TEST_ASSERT_PASS_ASSERT(TEST_CONT_InitializationCheckOfContactorRegistry());
 }
 
 void testCONT_InitializationCheckOfContactorRegistryWrongAffiliation(void) {
     /* act as if a channel is wrongly affiliated */
-    SPS_GetChannelAffiliation_IgnoreAndReturn(SPS_AFF_GENERAL_IO);
+    SPS_GetChannelAffiliation_ExpectAndReturn(cont_contactorStates[0].spsChannel, SPS_AFF_GENERAL_IO);
     TEST_ASSERT_FAIL_ASSERT(TEST_CONT_InitializationCheckOfContactorRegistry());
+}
+
+/**
+ * @brief   Testing extern function #CONT_OpenContactor
+ * @details The following cases need to be tested:
+ *          - Argument validation:
+ *            - AT1/2: invalid string number &rarr; assert
+ *            - AT2/2: invalid contactor &rarr; assert
+ *          - Routine validation:
+ *            - TODO
+ */
+void testCONT_OpenContactor(void) {
+    /* ======= Assertion tests ============================================= */
+    /* ======= AT1/2 ======= */
+    uint8_t invalidStringNumber = BS_NR_OF_STRINGS + 1;
+    CONT_TYPE_e validContactor  = CONT_PLUS;
+    CONT_OpenContactor(invalidStringNumber, validContactor);
+    /* ======= AT1/2 ======= */
+    uint8_t validStringNumber    = BS_NR_OF_STRINGS;
+    CONT_TYPE_e invalidContactor = CONT_UNDEFINED;
+    CONT_OpenContactor(validStringNumber, invalidContactor);
+
+    /* ======= Routine tests =============================================== */
+}
+
+/**
+ * @brief   Testing extern function #CONT_CloseContactor
+ * @details The following cases need to be tested:
+ *          - Argument validation:
+ *            - AT1/2: invalid string number &rarr; assert
+ *            - AT2/2: invalid contactor &rarr; assert
+ *          - Routine validation:
+ *            - TODO
+ */
+void testCONT_CloseContactor(void) {
+    /* ======= Assertion tests ============================================= */
+    /* ======= AT1/2 ======= */
+    uint8_t invalidStringNumber = BS_NR_OF_STRINGS + 1;
+    CONT_TYPE_e validContactor  = CONT_PLUS;
+    CONT_CloseContactor(invalidStringNumber, validContactor);
+    /* ======= AT1/2 ======= */
+    uint8_t validStringNumber    = BS_NR_OF_STRINGS;
+    CONT_TYPE_e invalidContactor = CONT_UNDEFINED;
+    CONT_CloseContactor(validStringNumber, invalidContactor);
+
+    /* ======= Routine tests =============================================== */
+}
+
+/**
+ * @brief   Testing extern function #CONT_ClosePrecharge
+ * @details The following cases need to be tested:
+ *          - Argument validation:
+ *            - AT1/1: invalid string number &rarr; assert
+ *          - Routine validation:
+ *            - RT1/1: precharge contactor shall be closed
+ *            - RT1/2: TODO
+ */
+void testCONT_ClosePrecharge(void) {
+    /* ======= Assertion tests ============================================= */
+    /* ======= AT1/1 ======= */
+    uint8_t invalidStringNumber = BS_NR_OF_STRINGS + 1;
+    CONT_ClosePrecharge(invalidStringNumber);
+
+    /* ======= Routine tests =============================================== */
+    /* ======= RT1/2 ======= */
+    uint8_t stringWithPrechargeContactor = 0u;
+    uint8_t prechargeContactorIndex      = 2u;
+    SPS_RequestContactorState_Expect(cont_contactorStates[prechargeContactorIndex].spsChannel, SPS_CHANNEL_ON);
+    CONT_ClosePrecharge(stringWithPrechargeContactor);
+}
+
+/**
+ * @brief   Testing extern function #CONT_OpenPrecharge
+ * @details The following cases need to be tested:
+ *          - Argument validation:
+ *            - AT1/1: invalid string number &rarr; assert
+ *          - Routine validation:
+ *            - RT1/2: precharge contactor shall be closed
+ *            - RT1/2: TODO
+ */
+void testCONT_OpenPrecharge(void) {
+    /* ======= Assertion tests ============================================= */
+    /* ======= AT1/1 ======= */
+    uint8_t invalidStringNumber = BS_NR_OF_STRINGS + 1;
+    CONT_OpenPrecharge(invalidStringNumber);
+
+    /* ======= Routine tests =============================================== */
+    /* ======= RT1/2 ======= */
+    uint8_t stringWithPrechargeContactor = 0u;
+    uint8_t prechargeContactorIndex      = 2u;
+    SPS_RequestContactorState_Expect(cont_contactorStates[prechargeContactorIndex].spsChannel, SPS_CHANNEL_OFF);
+    CONT_OpenPrecharge(stringWithPrechargeContactor);
 }

@@ -43,8 +43,8 @@
  * @file    vishay_ntcle317e4103sba.h
  * @author  foxBMS Team
  * @date    2021-10-29 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup DRIVERS
  * @prefix  TS
  *

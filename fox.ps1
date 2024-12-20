@@ -42,7 +42,7 @@ $ErrorActionPreference = "STOP"
 
 Push-Location "$PSScriptRoot"
 
-$env:ENV_NAME = "2024-08-pale-fox"
+$env:ENV_NAME = "2025-01-pale-fox"
 $env:ENV_DIR = "foxbms-envs"
 
 if ($IsLinux) {

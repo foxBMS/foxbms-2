@@ -43,12 +43,19 @@
  * @file    test_os_freertos.c
  * @author  foxBMS Team
  * @date    2021-11-26 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
  * @brief   Test of the OS implementation for FreeRTOS
+ * @details Test functions:
+ *          - testOS_StartScheduler
+ *          - testvApplicationIdleHookCallsUserCodeIdle
+ *          - testOS_MarkTaskAsRequiringFpuContext
+ *          - testOS_GetNumberOfStoredMessagesInQueue
+ *          - testOS_SendToBackOfQueueFromIsr
+ *          - testOS_SendToBackOfQueue
  *
  */
 

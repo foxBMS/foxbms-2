@@ -43,12 +43,13 @@
  * @file    pex.h
  * @author  foxBMS Team
  * @date    2021-08-02 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup DRIVERS
  * @prefix  PEX
  *
  * @brief   Header for the driver for the NXP PCA9539 port expander module
+ * @details TODO
  *
  */
 

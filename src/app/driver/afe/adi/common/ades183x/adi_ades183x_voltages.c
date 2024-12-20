@@ -43,8 +43,8 @@
  * @file    adi_ades183x_voltages.c
  * @author  foxBMS Team
  * @date    2019-08-27 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup DRIVERS
  * @prefix  ADI
  *
@@ -388,6 +388,72 @@ extern void ADI_GetVoltages(
     ADI_ReadAndStoreVoltages(adiState, &commandBytesToReadVoltageRegisters, storeLocation);
 }
 
+extern void ADI_GetStringAndModuleVoltage(ADI_STATE_s *adiState) {
+    FAS_ASSERT(adiState != NULL_PTR);
+
+    uint8_t dataReceive[BS_NR_OF_MODULES_PER_STRING * ADI_MAX_REGISTER_SIZE_IN_BYTES] = {0};
+    uint16_t rawValue                                                                 = 0u;
+    int16_t signedValue                                                               = 0;
+    float_t floatVoltage                                                              = 0.0f;
+    int32_t vpvVoltage                                                                = 0u;
+    uint16_t bufferLSB                                                                = 0u;
+    uint16_t bufferMSB                                                                = 0u;
+    DATA_BLOCK_CELL_VOLTAGE_s *pVoltageTable                                          = adiState->data.cellVoltage;
+
+    /* Start auxiliary voltage measurement of VPV */
+    ADI_CopyCommandBits(adi_cmdAdax, adi_command);
+    ADI_WriteCommandConfigurationBits(adi_command, ADI_ADAX_OW_POS, ADI_ADAX_OW_LEN, 0u);
+    ADI_WriteCommandConfigurationBits(adi_command, ADI_ADAX_PUP_POS, ADI_ADAX_PUP_LEN, 0u);
+    ADI_WriteCommandConfigurationBits(adi_command, ADI_ADAX_CH4_POS, ADI_ADAX_CH4_LEN, 1u);
+    ADI_WriteCommandConfigurationBits(adi_command, ADI_ADAX_CH03_POS, ADI_ADAX_CH03_LEN, 0x0100u);
+    ADI_TransmitCommand(adi_command, adiState);
+
+    ADI_Wait(ADI_WAIT_TIME_1_FOR_ADAX_FULL_CYCLE);
+
+    ADI_CopyCommandBits(adi_cmdRdauxd, adi_command);
+    ADI_ReadRegister(adi_command, dataReceive, adiState);
+    for (uint16_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
+        pVoltageTable->stringVoltage_mV[s]     = 0;
+        pVoltageTable->invalidStringVoltage[s] = true;
+        uint8_t numberValidModuleMeasurements  = 0u;
+        for (uint16_t m = 0u; m < ADI_N_ADI; m++) {
+            /* Parse voltages contained in VPV */
+            bufferMSB =
+                (uint16_t)(dataReceive
+                               [(ADI_RAW_VOLTAGE_SIZE_IN_BYTES * 2u) + (m * ADI_MAX_REGISTER_SIZE_IN_BYTES) + 1u]);
+            bufferLSB =
+                (uint16_t)(dataReceive[(ADI_RAW_VOLTAGE_SIZE_IN_BYTES * 2u) + (m * ADI_MAX_REGISTER_SIZE_IN_BYTES)]);
+
+            rawValue     = bufferLSB | (bufferMSB << ADI_BYTE_SHIFT);
+            signedValue  = rawValue;
+            floatVoltage = (((float_t)signedValue * ADI_VOLTAGE_CONVERSION_FACTOR * ADI_VOLTAGE_CONVERSION_UNIT) +
+                            ADI_VOLTAGE_CONVERSION_OFFSET) *
+                           25.0f;
+            vpvVoltage                            = floatVoltage; /* Unit mV */
+            pVoltageTable->moduleVoltage_mV[s][m] = (int32_t)(vpvVoltage);
+
+            /* Check that register does not contain cleared value */
+            if (rawValue != ADI_REGISTER_CLEARED_VALUE) {
+                adiState->data.errorTable->auxiliaryRegisterContentIsNotStuck[adiState->currentString][m] = true;
+            } else {
+                adiState->data.errorTable->auxiliaryRegisterContentIsNotStuck[adiState->currentString][m] = false;
+            }
+            if (ADI_EvaluateDiagnosticStringAndModuleVoltages(adiState, m) == false) {
+                adiState->data.cellVoltage->invalidModuleVoltage[adiState->currentString][m] = true;
+            } else {
+                adiState->data.cellVoltage->invalidModuleVoltage[adiState->currentString][m] = false;
+                /* Add total voltage of module to string */
+                pVoltageTable->stringVoltage_mV[s] += pVoltageTable->moduleVoltage_mV[s][m];
+                numberValidModuleMeasurements++;
+            }
+        }
+        if (numberValidModuleMeasurements == ADI_N_ADI) {
+            /* Validate string voltage only if all module measurements are valid */
+            pVoltageTable->invalidStringVoltage[s] = false;
+        }
+    }
+}
+
 extern uint16_t ADI_GetStoredVoltageIndex(uint16_t registerVoltageIndex) {
     FAS_ASSERT(registerVoltageIndex < ADI_MAX_SUPPORTED_CELLS);
 
@@ -469,4 +535,12 @@ extern void TEST_ADI_SaveRxToCellVoltageBuffer(
     ADI_VOLTAGE_STORE_LOCATION_e storeLocation) {
     ADI_SaveRxToCellVoltageBuffer(adiState, data, registerSet, storeLocation);
 }
+
+extern void TEST_ADI_GetVoltages(
+    ADI_STATE_s *adiState,
+    ADI_VOLTAGE_REGISTER_TYPE_e registerType,
+    ADI_VOLTAGE_STORE_LOCATION_e storeLocation) {
+    ADI_GetVoltages(adiState, registerType, storeLocation);
+}
+
 #endif

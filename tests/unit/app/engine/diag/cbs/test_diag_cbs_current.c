@@ -43,12 +43,16 @@
  * @file    test_diag_cbs_current.c
  * @author  foxBMS Team
  * @date    2021-02-17 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
  * @brief   Test of the current diag handler implementation.
+ * @details Test functions:
+ *          - testDIAG_ErrorOvercurrentChargeInvalidInput
+ *          - testDIAG_ErrorOvercurrentDischargeInvalidInput
+ *          - testDIAG_ErrorCurrentMeasurementInvalidInput
  *
  */
 
@@ -123,4 +127,14 @@ void testDIAG_ErrorCurrentMeasurementInvalidInput(void) {
         DIAG_ErrorCurrentMeasurement(DIAG_ID_CURRENT_MEASUREMENT_TIMEOUT, DIAG_EVENT_OK, NULL_PTR, 0u));
     TEST_ASSERT_FAIL_ASSERT(DIAG_ErrorCurrentMeasurement(
         DIAG_ID_CURRENT_MEASUREMENT_TIMEOUT, DIAG_EVENT_OK, &diag_kpkDatabaseShim, BS_NR_OF_STRINGS));
+}
+
+/** tests invalid input values */
+void testDIAG_ErrorCurrentOnOpenStringInvalidInput(void) {
+    TEST_ASSERT_FAIL_ASSERT(DIAG_ErrorCurrentOnOpenString(DIAG_ID_MAX, DIAG_EVENT_OK, &diag_kpkDatabaseShim, 0u));
+    TEST_ASSERT_FAIL_ASSERT(
+        DIAG_ErrorCurrentOnOpenString(DIAG_ID_CURRENT_ON_OPEN_STRING, 42, &diag_kpkDatabaseShim, 0u));
+    TEST_ASSERT_FAIL_ASSERT(DIAG_ErrorCurrentOnOpenString(DIAG_ID_CURRENT_ON_OPEN_STRING, DIAG_EVENT_OK, NULL_PTR, 0u));
+    TEST_ASSERT_FAIL_ASSERT(DIAG_ErrorCurrentOnOpenString(
+        DIAG_ID_CURRENT_ON_OPEN_STRING, DIAG_EVENT_OK, &diag_kpkDatabaseShim, BS_NR_OF_STRINGS));
 }

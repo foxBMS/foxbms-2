@@ -43,12 +43,13 @@
  * @file    test_can_cfg_tx_cyclic.c
  * @author  foxBMS Team
  * @date    2020-07-28 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
  * @brief   Tests for the CAN driver
+ * @details TODO
  *
  */
 

@@ -6,7 +6,10 @@
 # =========================================================================
 
 require 'app_cfg'
-require 'ceedling/constants' # From Ceedling application
+
+# From Ceedling application
+require 'ceedling/constants'
+require 'ceedling/exceptions'
 
 class CliHelper
 
@@ -97,6 +100,7 @@ class CliHelper
 
     # If we're launching from the gem, return :gem and initial Rakefile path
     if which_ceedling == :gem
+      @loginator.log( " > Launching Ceedling from #{app_cfg[:ceedling_root_path]}/", Verbosity::OBNOXIOUS )
       return which_ceedling, app_cfg[:ceedling_rakefile_filepath]
     end
 
@@ -118,7 +122,7 @@ class CliHelper
     # Update variable to full application start path
     ceedling_path = app_cfg[:ceedling_rakefile_filepath]
     
-    @loginator.log( " > Launching Ceedling from #{ceedling_path}/", Verbosity::OBNOXIOUS )
+    @loginator.log( " > Launching Ceedling from #{app_cfg[:ceedling_root_path]}/", Verbosity::OBNOXIOUS )
 
     return :path, ceedling_path
   end
@@ -174,18 +178,39 @@ class CliHelper
   end
 
 
-  def process_logging(enabled, filepath)
-    # No log file if neither enabled nor a specific filename/filepath
-    return '' if !enabled && (filepath.nil? || filepath.empty?())
+  def process_logging_path(config)
+    build_root, _ = @config_walkinator.fetch_value( :project, :build_root, hash:config )
 
-    # Default logfile name (to be placed in default location) if enabled but no filename/filepath
-    return DEFAULT_CEEDLING_LOGFILE if enabled && filepath.empty?()
+    return '' if build_root.nil?
 
-    # Otherwise, a filename/filepath was provided that implicitly enables logging
+    return File.join( build_root, DEFAULT_BUILD_LOGS_PATH )
+  end
+
+
+  def process_log_filepath(logging_path, log, logfile)
+    filepath = nil
+
+    # --log => nil (default / not set), false (explicitly disabled), true (explicitly enabled)
+    if log == false
+      return ''
+    end
+
+    # --logfile => '' default or a path
+    if not logfile.empty?
+      filepath = logfile
+    # If logging is enabled without a filepath in --logfile, then set up the default path
+    elsif log
+      filepath = File.join( logging_path, DEFAULT_CEEDLING_LOGFILE )
+    elsif logfile.empty?
+      return ''
+    end
+
+    filepath = File.expand_path( filepath )
+
     dir = File.dirname( filepath )
 
     # Ensure logging directory path exists
-    if not dir.empty?
+    if !File.exist?( dir )
       @file_wrapper.mkdir( dir )
     end
 
@@ -194,10 +219,15 @@ class CliHelper
   end
 
 
-  def process_stopwatch(tasks:, default_tasks:)
+  # TODO: This is a hack until Rake is fully removed and plugin/build tasks incorporate a purpose classification
+  def build_or_plugin_task?(tasks:, default_tasks:)
     _tasks = tasks.empty?() ? default_tasks.dup() : tasks.dup()
 
-    # Namespace-less (clobber, clean, etc.), files:, and paths: tasks should not have stopwatch logging
+    # These namespace-less tasks are definitely build tasks
+    return true if _tasks.include?('test')
+    return true if _tasks.include?('release')
+
+    # Namespace-less (clobber, clean, etc.), files:, and paths: tasks are not build / plugin tasks
     #  1. Filter out tasks lacking a namespace
     #  2. Look for any tasks other than paths: or files:
     _tasks.select! {|t| t.include?( ':') }
@@ -219,12 +249,34 @@ class CliHelper
 
   def run_rake_tasks(tasks)
     Rake.application.collect_command_line_tasks( tasks )
-    Rake.application.top_level()
+    
+    # Replace Rake's exception message to reduce any confusion
+    begin
+      Rake.application.top_level()
+
+    rescue RuntimeError => ex
+      # Check if exception contains an unknown Rake task message
+      matches = ex.message.match( /how to build task '(.+)'/i )
+
+      # If it does, replacing the message with our own
+      if !matches.nil? and matches.size == 2
+        message = "Unrecognized build task '#{matches[1]}'. List available build tasks with `ceedling help`."
+        raise CeedlingException.new( message )
+      
+      # Otherwise, just re-raise
+      else
+        raise
+      end
+    end
+
   end
 
 
   # Set global consts for verbosity and debug
   def set_verbosity(verbosity=nil)
+    # If we have already set verbosity, there's nothing to do here
+    return PROJECT_VERBOSITY if @system_wrapper.constants_include?('PROJECT_VERBOSITY')
+
     verbosity = if verbosity.nil?
                   Verbosity::NORMAL
                 elsif verbosity.to_i.to_s == verbosity
@@ -234,9 +286,6 @@ class CliHelper
                 else
                   raise "Unkown Verbosity '#{verbosity}' specified"
                 end
-
-    # If we already set verbosity, there's nothing more to do here
-    return if Object.const_defined?('PROJECT_VERBOSITY')
 
     # Create global constant PROJECT_VERBOSITY
     Object.module_eval("PROJECT_VERBOSITY = verbosity")
@@ -392,7 +441,11 @@ class CliHelper
     components.each do |path|
       _src = path
       _dest = File.join( vendor_path, path )
-      @actions._directory( _src, _dest, :force => true )
+      # Copy entire directory, filter out any junk files
+      @actions._directory(
+        _src, _dest,
+        :force => true
+      )
     end
 
     # Add licenses from Ceedling and supporting projects

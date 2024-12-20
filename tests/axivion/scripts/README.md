@@ -7,6 +7,7 @@ in the foxBMS 2 project
 (The Axivion configuration is described in this [README.md](../README.md)).
 
 Files here might need to be updated to the local Axivion setup.
+
 - ``gravis_export_architecture_svg.py`` is a startup script for ``gravis`` to
   create a SVG of the architecture.
   The script needs to be invoked by as follows:

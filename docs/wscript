@@ -1,0 +1,170 @@
+#!/usr/bin/env python3
+#
+# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# All rights reserved.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#
+# 1. Redistributions of source code must retain the above copyright notice, this
+#    list of conditions and the following disclaimer.
+#
+# 2. Redistributions in binary form must reproduce the above copyright notice,
+#    this list of conditions and the following disclaimer in the documentation
+#    and/or other materials provided with the distribution.
+#
+# 3. Neither the name of the copyright holder nor the names of its
+#    contributors may be used to endorse or promote products derived from
+#    this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+# OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#
+# We kindly request you to use one or more of the following phrases to refer to
+# foxBMS in your hardware, software, documentation or advertising materials:
+#
+# - "This product uses parts of foxBMS®"
+# - "This product includes parts of foxBMS®"
+# - "This product is derived from foxBMS®"
+
+"""Documentation build definition"""
+
+import os
+
+from waflib.Build import BuildContext, POST_LAZY
+
+
+def build(bld: BuildContext):
+    """Build the sphinx and the doxygen documentation"""
+    this = f"'{bld.path.abspath() + os.sep}wscript'"
+    if bld.variant == "docs":
+        # C source code examples that should build
+        bld.recurse(
+            [
+                "developer-manual/style-guide/examples",
+                "developer-manual/style-guide/state-machine-example",
+                "software/modules/driver/can",
+                "software/modules/engine/database",
+                "software/modules/task/ftask",
+            ],
+        )
+        # build the sphinx documentation
+        config = bld.path.find_node("conf.py")
+        bld(
+            features="sphinx",
+            builders="html",
+            out_dir=".",
+            conf_py=config,
+            VERSION=bld.env.version,
+            RELEASE=bld.env.version,
+        )
+        bld.post_mode = POST_LAZY
+
+    elif bld.variant in (
+        "app_doxygen",
+        "app_doxygen_unit_test",
+        "bootloader_doxygen",
+        "bootloader_doxygen_unit_test",
+    ):
+        bld.add_group("generate_doc_files")
+        bld.add_group("doxygen")
+
+        bld.set_group("generate_doc_files")
+        # we use absolute paths for the doxygen configuration as it is written
+        # during configuration time, and therefore this is okay
+        config = {
+            "PROJECT_NAME": bld.env.APPNAME,
+            "PROJECT_NUMBER": bld.env.VERSION,
+            "PROJECT_BRIEF": "",  # filled in the next step
+            "DOT_PATH": bld.env.DOT[0],
+            "PROJECT_LOGO": bld.path.find_node("_static/foxbms250px.png"),
+            "OUTPUT_DIRECTORY": ".",
+            "INPUT": "",  # filled in the next step
+            "EXCLUDE": "",  # filled in the next step
+            "HTML_FOOTER": bld.path.find_node("doxygen_footer.html").abspath(),
+            "LAYOUT_FILE": bld.path.find_node("doxygen_layout.xml").abspath(),
+            "HTML_STYLESHEET": bld.path.find_node("style-sheet-file.css").abspath(),
+            "HTML_EXTRA_FILES": bld.path.find_node("_static/cc.large.png").abspath(),
+            "IMAGE_PATH": bld.path.find_node("_static/cc.large.png").abspath(),
+            "PREDEFINED": "",
+        }
+
+        base_name = '"%s Battery Management System %s API Documentation"'
+        brief, src, excl, pre = "", [], [], []
+        if bld.variant == "app_doxygen":
+            brief = base_name % (bld.env.APPNAME, "Application")
+            src = [
+                bld.path.find_dir("developer-manual/style-guide/state-machine-example"),
+                bld.path.find_dir("../src/app"),
+            ]
+            excl = [
+                bld.path.find_node("../src/app/driver/afe/ltc/common/ltc_pec.c"),
+                bld.path.find_node("../src/app/driver/afe/ltc/common/ltc_pec.h"),
+                bld.path.find_dir("../src/app/driver/afe/nxp/mc33775a/vendor"),
+            ]
+        elif bld.variant == "app_doxygen_unit_test":
+            brief = base_name % (bld.env.APPNAME, "Application Unit Test")
+            src = [
+                bld.path.find_dir("../src/app"),
+                bld.path.find_dir("../tests/unit/app"),
+            ]
+            excl = [
+                bld.path.find_node("../src/app/doxygen_app.h"),
+                bld.path.find_node("../src/app/driver/afe/ltc/common/ltc_pec.c"),
+                bld.path.find_node("../src/app/driver/afe/ltc/common/ltc_pec.h"),
+                bld.path.find_dir("../src/app/driver/afe/nxp/mc33775a/vendor"),
+                bld.path.find_dir("../tests/unit/app/build"),
+                bld.path.find_node(
+                    "../tests/unit/app/driver/afe/ltc/common/test_ltc_pec.c"
+                ),
+            ]
+            pre = ["UNITY_UNIT_TEST=1"]
+        elif bld.variant == "bootloader_doxygen":
+            brief = base_name % (bld.env.APPNAME, "Bootloader")
+            src = [bld.path.find_dir("../src/bootloader")]
+            excl = [
+                bld.path.find_node("../src/bootloader/main/fstartup.c"),
+                bld.path.find_dir("../src/bootloader/vendor"),
+            ]
+        elif bld.variant == "bootloader_doxygen_unit_test":
+            brief = base_name % (bld.env.APPNAME, "Bootloader Unit Test")
+            src = [
+                bld.path.find_dir("../src/bootloader"),
+                bld.path.find_dir("../tests/unit/bootloader"),
+            ]
+            excl = [
+                bld.path.find_node("../src/bootloader/doxygen_bootloader.h"),
+                bld.path.find_node("../src/bootloader/main/fstartup.c"),
+                bld.path.find_dir("../src/bootloader/vendor"),
+                bld.path.find_dir("../tests/unit/bootloader/build"),
+                bld.path.find_dir("../tests/unit/bootloader/vendor"),
+                bld.path.find_node("../tests/unit/bootloader/main/test_fstartup.c"),
+            ]
+            pre = ["UNITY_UNIT_TEST=1"]
+        else:
+            bld.fatal(f"Something went really wrong in '{this}'.")
+
+        config["PROJECT_BRIEF"] = brief
+        config["INPUT"] = " ".join([i.abspath() for i in src if i])
+        config["EXCLUDE"] = " ".join([i.abspath() for i in excl if i])
+        config["PREDEFINED"] = " ".join(pre)
+
+        # create the doxygen configuration file
+        source = bld.path.find_node("doxygen.conf.in")
+        target = bld.path.get_bld().find_or_declare(f"{bld.variant}.conf")
+        bld(features="subst", source=source, target=target, **config)
+        # build the doxygen documentation
+        bld.set_group("doxygen")
+        bld(features="doxygen", doxygen_conf=target)
+    else:
+        bld.fatal(f"Build variant '{bld.variant}' not valid for {this}")

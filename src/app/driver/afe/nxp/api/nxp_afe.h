@@ -43,8 +43,8 @@
  * @file    nxp_afe.h
  * @author  foxBMS Team
  * @date    2021-06-04 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup DRIVERS
  * @prefix  NXP
  *
@@ -90,10 +90,6 @@ extern STD_RETURN_TYPE_e NXP_RequestOpenWireCheck(uint8_t string);
 extern STD_RETURN_TYPE_e NXP_StartMeasurement(void);
 /** Function to check if at least one measurement cycle has been made */
 extern bool NXP_IsFirstMeasurementCycleFinished(void);
-/** Function to request a read of the I2C port expander on the slaves */
-extern STD_RETURN_TYPE_e NXP_RequestIoRead(uint8_t string);
-/** Function to request a write to the I2C port expander on the slaves */
-STD_RETURN_TYPE_e NXP_RequestIoWrite(uint8_t string);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 #ifdef UNITY_UNIT_TEST

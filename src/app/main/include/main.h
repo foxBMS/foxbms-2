@@ -43,10 +43,10 @@
  * @file    main.h
  * @author  foxBMS Team
  * @date    2018-10-23 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup MAIN
- * @prefix  TODO
+ * @prefix  NONE
  *
  * @brief   Main function header
  * @details Declares the main function
@@ -67,8 +67,8 @@
 
 /*========== Extern Function Prototypes =====================================*/
 /**
- * @brief   main function of foxBMS
- * @details TODO
+ * @brief   Main function of foxBMS
+ * @details Entry point to the application
  */
 #ifndef UNITY_UNIT_TEST
 int main(void);

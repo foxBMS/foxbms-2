@@ -61,7 +61,7 @@ except InvalidGitRepositoryError:
 
 def get_ppm_files() -> List[Path]:
     """creates a generator for all relevant macro files in the build directory"""
-    build_dir = REPO_ROOT / "build/bin"
+    build_dir = REPO_ROOT / "build/app_embedded"
     return build_dir.rglob("*.ppm")
 
 
@@ -140,7 +140,7 @@ def main():
     )
     macro_cmm_file_out = REPO_ROOT / "build/load_macro_values.cmm"
     REPO_ROOT.mkdir(exist_ok=True)
-    txt = txt.replace("@MACROS_AND_VALUES@", replacement)
+    txt = txt.replace("@{MACROS_AND_VALUES}", replacement)
     logging.info("Writing configuration file '%s'", macro_cmm_file_out)
     macro_cmm_file_out.write_text(txt, encoding="utf-8")
     logging.info("Done...")

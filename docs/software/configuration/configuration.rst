@@ -63,7 +63,7 @@ Otherwise the startup function used by |foxbms| would not reflect the
 |halcogen| configuration.
 The :ref:`WAF_TOOL_HALCOGEN` provides a mechanism to detected such changes.
 The hash of the current ``HL_sys_startup.c`` implementation is stored in
-``src/hal/startup.hash`` and compared to the actual hash of the generated
+``src/app/hal/app-startup.hash`` and compared to the actual hash of the generated
 ``HL_sys_startup.c`` file.
 If these are not the same, the build aborts with the following message:
 
@@ -79,8 +79,8 @@ Next, the function ``_c_int00`` in the two files (``fstartup.c``) and
 ``HL_sys_startup.c`` needs to be compared by the developer and the developer
 needs to update the ``_c_int00`` implementation in the file ``fstartup.c`` to
 reflect the |halcogen| startup routine.
-The concluding step is to update the hash value in ``src/hal/startup.hash``
-with ``1something-other``.
+The concluding step is to update the hash value in
+``src/app/hal/app-startup.hash`` with ``1something-other``.
 Now the build toolchain knows, that the changes applied in the |halcogen| are
 reflected in the dependencies and the build will not abort after the HAL
 sources are generated.
@@ -105,13 +105,13 @@ The |ti-tms570lc4357| can use cache to improve performance.
   **Therefore, the configuration setting in HALCoGen is ignored**.
   However, as the startup code generated in ``HL_sys_startup.c`` by HALCoGen
   does still change (the line to activate cache is added), consequently the
-  hash in ``src/hal/startup.hash`` still needs to be updated, but no further
-  changes need to be applied.
+  hash in ``src/app/hal/app-startup.hash`` still needs to be updated, but no
+  further changes need to be applied.
   The process to enable cache is then as follows:
 
   - Enable cache by setting ``OS_ENABLE_CACHE`` to ``true`` in
     ``src/app/task/os/os.h``.
-  - Update the file hash in ``src/hal/startup.hash``
+  - Update the file hash in ``src/app/hal/app-startup.hash``
 
 - Before |foxbms| v1.3.0, enabling cache relied on the HALCoGen configuration
   and that this setting altered the startup code in ``HL_sys_startup.c``.
@@ -123,7 +123,7 @@ The |ti-tms570lc4357| can use cache to improve performance.
   - Enable cache in HALCoGen
   - Update the startup code in ``fstartup.c`` with the changes from
     ``HL_sys_startup.c``.
-  - Update the file hash in ``src/hal/startup.hash``
+  - Update the file hash in ``src/app/hal/app-startup.hash``
 
 .. _BMS_APPLICATION:
 

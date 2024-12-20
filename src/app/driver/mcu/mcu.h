@@ -43,8 +43,8 @@
  * @file    mcu.h
  * @author  foxBMS Team
  * @date    2019-02-19 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup DRIVERS
  * @prefix  MCU
  *
@@ -125,6 +125,24 @@ extern uint32_t MCU_ConvertFrcDifferenceToTimespan_us(uint32_t count);
  * @returns     true if timeout has elapsed, false otherwise
  */
 extern bool MCU_IsTimeElapsed(uint32_t startCounter, uint32_t timeout_us);
+
+/**
+ * @brief   Read out device register with unique Device ID
+ * @returns TODO
+ */
+extern uint32_t MCU_GetDeviceRegister(void);
+
+/**
+ * @brief   Read out device register with die ID high
+ * @returns TODO
+ */
+extern uint32_t MCU_GetDieIdHigh(void);
+
+/**
+ * @brief   Read out device register with die ID low
+ * @returns TODO
+ */
+extern uint32_t MCU_GetDieIdLow(void);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 #ifdef UNITY_UNIT_TEST

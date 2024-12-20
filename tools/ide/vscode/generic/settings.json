@@ -52,18 +52,22 @@
   "editor.tabSize": 4,
   "extensions.ignoreRecommendations": true,
   "files.associations": {
+    "*.cmm": "practice",
     "*.h": "c",
     "*.pp": "c",
     "*.ppm": "c",
     "*.ppr": "c",
     "*.pprs": "c",
-    "*linker_script_*.cmd": "linkerscript",
-    "docs/macros.txt": "restructuredtext",
-    "docs/units.txt": "restructuredtext",
-    "tests/axivion/architecture.gxl": "xml",
-    "tests/axivion/cafeCC.config": "xml",
-    "tests/axivion/mapping.gxl": "xml",
-    "wscript": "python"
+    "**/docs/general/changelog-entries/v*.txt": "restructuredtext",
+    "**/docs/macros.txt": "restructuredtext",
+    "**/docs/units.txt": "restructuredtext",
+    "**/src/**/main/*.cmd": "linkerscript",
+    "**/tests/axivion/architecture.gxl": "xml",
+    "**/tests/axivion/cafeCC.config": "xml",
+    "**/tests/axivion/mapping.gxl": "xml",
+    "**/tools/debugger/lauterbach/*.cmm*": "practice",
+    "**/tools/debugger/lauterbach/*.t32*": "practice",
+    "**/wscript": "python"
   },
   "files.autoGuessEncoding": true,
   "files.encoding": "utf8",
@@ -79,17 +83,18 @@
     "**/.hg": true,
     "**/.lock-waf_*_build": true,
     "**/.svn": true,
+    "**/.vscode/**": true,
     "**/.wafpickle-*": true,
     "**/CVS": true,
+    "**/Thumbs.db": true,
     "**/__pycache__/**": true,
     "**/build/**/": true,
     "**/conf/hcg/include/**": true,
+    "**/tmp/**": true,
     ".github/**": true,
-    ".gitlab/**": true,
-    ".vscode/**": true,
     ".ruff_cache": true,
     ".mypy_cache": true,
-    "build/axivion/**": true,
+    "build/app_spa/**": true,
     "build/c4che/**": true,
     "build/conf_check_*/**": true,
     "build/predefined_defines/**": true,
@@ -101,6 +106,8 @@
   "files.watcherExclude": {
     "**/.git/objects/**": true,
     "**/.git/subtree-cache/**": true,
+    "**/.hg/store/**": true,
+    "**/node_modules/*/**": true,
     "**/__pycache__/**": true,
     "**/build/**/*.pp": true,
     "**/build/**/*.ppr": true,
@@ -109,31 +116,22 @@
     "**/waf-3-*/**": true,
     "tests/axivion/qualification-kit/**": true
   },
-  "json.schemas": [
-    {
-      "fileMatch": [
-        "conf/bms/bms.json",
-        "tests/variants/*.json"
-      ],
-      "url": "./conf/bms/schema/bms.schema.json"
-    }
-  ],
   "pylint.args": [
     "--rcfile=pyproject.toml"
   ],
-  "python.analysis.extraPaths": [],
   "python.terminal.activateEnvironment": false,
   "search.exclude": {
     "**/*.code-search": true,
+    "**/node_modules": true,
     "**/bower_components": true,
     "**/conf/hcg/include/**": true,
-    "**/node_modules": true,
     "**build/**/*.obj": true,
     "**build/**/*.pp": true,
     "**build/**/*.ppr": true,
     "**build/**/*.pprs": true,
     "tests/axivion/qualification-kit/**": true
   },
+  "task.autoDetect": "off",
   "terminal.integrated.persistentSessionReviveProcess": "never",
   "yaml.completion": true,
   "yaml.format.enable": true,

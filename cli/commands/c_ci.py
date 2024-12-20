@@ -37,15 +37,18 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""Command line interface definition for CI tools"""
+"""Command line interface definition for CI tools."""
 
 from pathlib import Path
+from typing import get_args
 
 import click
 
 from ..cmd_ci.check_ci_config import check_ci_config
 from ..cmd_ci.check_coverage import check_coverage
 from ..cmd_ci.create_readme import create_readme
+from ..cmd_cli_unittest.cli_unittest_constants import CliUnitTestVariants
+from ..cmd_embedded_ut.embedded_ut_constants import EmbeddedUnitTestVariants
 
 CONTEXT_SETTINGS = {
     "help_option_names": ["-h", "--help"],
@@ -65,7 +68,7 @@ def ci() -> None:
 def cmd_create_readme(
     ctx: click.Context,
 ) -> None:
-    """Create the CI readme"""
+    """Create the CI readme."""
     ctx.exit(create_readme())
 
 
@@ -74,17 +77,25 @@ def cmd_create_readme(
 def cmd_check_ci_config(
     ctx: click.Context,
 ) -> None:
-    """Validate the CI configuration file"""
+    """Validate the CI configuration file."""
     ctx.exit(check_ci_config())
 
 
 @ci.command("check-coverage")
+@click.option(
+    "--project",
+    type=click.Choice(
+        get_args(EmbeddedUnitTestVariants) + get_args(CliUnitTestVariants)
+    ),
+    default="app",
+)
 @click.pass_context
 def cmd_check_coverage(
     ctx: click.Context,
+    project: str,
 ) -> None:
-    """Check the unit test coverage"""
-    ctx.exit(check_coverage())
+    """Check the unit test coverage."""
+    ctx.exit(check_coverage(project))
 
 
 @ci.command("path-shall-not-exist")
@@ -94,7 +105,7 @@ def cmd_check_coverage(
 )
 @click.pass_context
 def cmd_path_shall_not_exist(ctx: click.Context, path: Path) -> None:
-    """Ensure that a directory or file does not exist"""
+    """Ensure that a directory or file does not exist."""
     if path.exists():
         click.echo(f"Path '{path}' exists.", err=True)
         ctx.exit(1)

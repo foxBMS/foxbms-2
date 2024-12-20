@@ -27,8 +27,8 @@ The steps of adding the sensor contain:
 Basic Directory Structure
 -------------------------
 
-#. Adapt ``conf/bms/schema/bms.schema.json`` to recognize the new manufacturer
-   and the temperature sensor.
+#. Adapt ``tools/waf-tools/bms_config_validator.py`` to recognize the new
+   manufacturer and the temperature sensor.
 #. Add the *Great-Sensor* manufacturer directory ``great-sensor``:
    ``src/app/driver/ts/great-sensor``.
 #. Add the temperature sensor ``temp123`` directory:

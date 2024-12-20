@@ -45,11 +45,12 @@ import shutil
 import sys
 from pathlib import Path
 
+from click import secho
+
 from ..cmd_script import script_impl
-from ..helpers.ansi_colors import RED
-from ..helpers.misc import PROJECT_ROOT, eprint
+from ..helpers.env_vars import PROGRAMFILES, PROGRAMFILESX86, USERPROFILE
+from ..helpers.misc import PROJECT_ROOT
 from ..helpers.spr import SubprocessResult, run_process
-from ..helpers.win32_vars import PROGRAMFILES, PROGRAMFILESX86, USERPROFILE
 
 GRAVIS_EXPORT_SCRIPT = (
     PROJECT_ROOT / "tests/axivion/scripts/gravis_export_architecture_svg.py"
@@ -82,7 +83,7 @@ AXIVION_DASHBOARD_URL = os.environ.get("AXIVION_DASHBOARD_URL", "")
 
 
 def export_architecture(verbosity: int = 0) -> SubprocessResult:
-    """Calls the architecture export script"""
+    """Calls the architecture export script."""
     gravis = shutil.which("gravis")
     if not gravis:
         path = (
@@ -93,7 +94,7 @@ def export_architecture(verbosity: int = 0) -> SubprocessResult:
         gravis = shutil.which("gravis", path=path)
     logging.debug("Gravis: %s", gravis)
     if not gravis:
-        eprint("Could not find gravis", color=RED, err=True)
+        secho("Could not find gravis!", fg="red", err=True)
         return SubprocessResult(1)
     cmd = [gravis, "--script", str(GRAVIS_EXPORT_SCRIPT)]
     if verbosity:
@@ -102,7 +103,7 @@ def export_architecture(verbosity: int = 0) -> SubprocessResult:
 
 
 def check_if_architecture_up_to_date(verbosity: int = 0) -> SubprocessResult:
-    """Calls the architecture up-to-date check script"""
+    """Calls the architecture up-to-date check script."""
     cmd = [sys.executable, str(ARCHITECTURE_UP_TO_DATE_SCRIPT)]
     if verbosity:
         cmd.append("-" + verbosity * "v")
@@ -110,7 +111,7 @@ def check_if_architecture_up_to_date(verbosity: int = 0) -> SubprocessResult:
 
 
 def check_versions(verbosity: int = 0) -> SubprocessResult:
-    """Calls the architecture up-to-date check script"""
+    """Calls the architecture up-to-date check script."""
     cmd = [sys.executable, str(VERSION_CHECK_SCRIPT)]
     if verbosity:
         cmd.append("-" + verbosity * "v")
@@ -118,7 +119,7 @@ def check_versions(verbosity: int = 0) -> SubprocessResult:
 
 
 def check_violations(check_violations_args: list[str]) -> int:
-    """Runs the violations check script on the provided analysis report file"""
+    """Runs the violations check script on the provided analysis report file."""
     err = 0
     cmd = [str(CHECK_VIOLATIONS_SCRIPT)] + check_violations_args
     script_impl.run_python_script(cmd, cwd=PROJECT_ROOT)
@@ -129,7 +130,7 @@ def combine_report_files(
     reports: list[Path],
     verbosity: int = 0,
 ):
-    """Combines several Axivion analysis reports to one"""
+    """Combines several Axivion analysis reports to one."""
     base_cmd = [sys.executable, str(COMBINE_REPORTS_SCRIPT)]
     cmd = base_cmd + [str(i) for i in reports]
     if verbosity:
@@ -139,7 +140,7 @@ def combine_report_files(
 
 
 def self_test(script_args: list[str]) -> SubprocessResult:
-    """Calls the architecture export script"""
+    """Calls the architecture export script."""
     gravis = shutil.which("gravis")
     if not gravis:
         path = (
@@ -150,16 +151,16 @@ def self_test(script_args: list[str]) -> SubprocessResult:
         gravis = shutil.which("gravis", path=path)
     logging.debug("Gravis: %s", gravis)
     if not gravis:
-        eprint("Could not find gravis", color=RED, err=True)
+        secho("Could not find gravis!", fg="red", err=True)
         return SubprocessResult(1)
     cmd = [sys.executable, str(SELF_TEST_SCRIPT)] + script_args
     return run_process(cmd=cmd, cwd=PROJECT_ROOT, stderr=None, stdout=None)
 
 
 def run_local_analysis(
-    dashboard_url: str, variant: str, branch: str
+    dashboard_url: str, variant: str, branch: str, project: str = "app"
 ) -> SubprocessResult:
-    """Runs a local Axivion analysis"""
+    """Runs a local Axivion analysis."""
     if not dashboard_url:
         if AXIVION_DASHBOARD_URL:
             dashboard_url = AXIVION_DASHBOARD_URL
@@ -171,7 +172,7 @@ def run_local_analysis(
     if not branch:
         branch = "master"
 
-    bauhaus_config = PROJECT_ROOT / "tests/axivion"
+    bauhaus_config = PROJECT_ROOT / f"tests/axivion/targets/{project}"
     requests_ca_bundle = Path(USERPROFILE) / ".bauhaus/auto.crt"
     project_name = "foxbms-2"
     project_shadow_repo = Path(USERPROFILE) / f".bauhaus/{project_name}"
@@ -189,9 +190,9 @@ def run_local_analysis(
     return run_analysis(env=env)
 
 
-def run_analysis(env=None) -> SubprocessResult:
-    """Runs Axivion analysis"""
-    axivion_build_dir = PROJECT_ROOT / "build/axivion"
+def run_analysis(env: dict = None) -> SubprocessResult:
+    """Runs Axivion analysis."""
+    axivion_build_dir = PROJECT_ROOT / "build/app_spa"
     axivion_build_dir.mkdir(parents=True, exist_ok=True)
     if env.get("AXIVION_LOCAL_BUILD", ""):
         env["SKIP_PREBUILD_CLEAN"] = env["AXIVION_LOCAL_BUILD"]
@@ -204,19 +205,19 @@ def run_analysis(env=None) -> SubprocessResult:
             1, out="", err="Could not find 'axivion_config' executable."
         )
     cmd = [axivion_ci]
-    return run_process(cmd, env=env)
+    return run_process(cmd, env=env, stdout=None, stderr=None)
 
 
 def start_local_dashserver(db_file: Path) -> SubprocessResult:
-    """Starts a local Axivion dashserver"""
+    """Starts a local Axivion dashserver."""
     cmd = ["dashserver", "start", "--local", "--noauth", f"--install_file={db_file}"]
     return run_process(cmd)
 
 
 def make_race_pdfs(
-    ir_file: Path = IR_FILE, rfg_file: Path = RFG_FILE
+    ir_file: Path = IR_FILE, rfg_file: Path = RFG_FILE, project: str = "app"
 ) -> SubprocessResult:
-    """Creates the race"""
+    """Creates the race."""
     if not MAKE_RACE_PDFS_SCRIPT.is_file():
         return SubprocessResult(
             1,
@@ -230,7 +231,7 @@ def make_race_pdfs(
             err=f"{ir_file} does not exist.",
         )
     env = os.environ.copy()
-    env["BAUHAUS_CONFIG"] = str(PROJECT_ROOT / "tests/axivion")
+    env["BAUHAUS_CONFIG"] = str(PROJECT_ROOT / f"tests/axivion/targets/{project}")
     cmd = [MAKE_RACE_PDFS_SCRIPT, ir_file]
     if rfg_file:
         cmd.append(rfg_file)

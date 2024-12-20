@@ -40,7 +40,6 @@
 """Script to check the encoding for a list of provided files"""
 
 import argparse
-import codecs
 from pathlib import Path
 from typing import Sequence
 
@@ -59,17 +58,14 @@ def main(argv: Sequence[str] | None = None) -> int:
     err = 0
     for i in args.files:
         try:
-            with codecs.open(i, encoding=args.encoding, errors="strict"):
-                pass
-        except ValueError:
-            print(f"Could not open '{i}' in mode '{args.encoding}'.")
-            err += 1
-        try:
             Path(i).read_text(encoding=args.encoding)
         except ValueError:
-            print(f"Could not open '{i}' in mode '{args.encoding}'.")
+            print(
+                f"{Path(i).as_posix()}: Could not open file in "
+                f"'{args.encoding}' mode."
+            )
             err += 1
-    return err
+    return min(err, 255)
 
 
 if __name__ == "__main__":

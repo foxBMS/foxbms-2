@@ -43,8 +43,8 @@
  * @file    test_can_cbs_rx_bms-state-request.c
  * @author  foxBMS Team
  * @date    2021-07-28 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -91,6 +91,8 @@ TEST_INCLUDE_PATH("../../src/app/engine/sys_mon")
 TEST_INCLUDE_PATH("../../src/app/task/config")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
+
+#define CANRX_CAN_REQUEST_UPDATE_TIME_ms (3000u)
 
 static DATA_BLOCK_CELL_VOLTAGE_s can_tableCellVoltages        = {.header.uniqueId = DATA_BLOCK_ID_CELL_VOLTAGE};
 static DATA_BLOCK_CELL_TEMPERATURE_s can_tableTemperatures    = {.header.uniqueId = DATA_BLOCK_ID_CELL_TEMPERATURE};
@@ -195,25 +197,27 @@ void testCANRX_BmsStateRequest(void) {
 
     /* ======= Routine tests =============================================== */
     /* ======= RT1/1: Test implementation */
-    DIAG_Handler_IgnoreAndReturn(DIAG_HANDLER_RETURN_OK);
-    SYSM_ClearAllTimingViolations_Ignore();
-    OS_CheckTimeHasPassed_IgnoreAndReturn(false);
-    BAL_GetInitializationState_IgnoreAndReturn(STD_OK);
-    BAL_SetStateRequest_IgnoreAndReturn(BAL_OK);
-    BAL_SetBalancingThreshold_Ignore();
-
+    CAN_RxGetSignalDataFromMessageData_Expect(
+        testMessageData, 1u, 2u, &testSignalData[0u], CANRX_BMS_STATE_REQUEST_ENDIANNESS);
     DATA_Read1DataBlock_ExpectAndReturn(can_kShim.pTableStateRequest, STD_OK);
     CAN_RxGetMessageDataFromCanData_Expect(&testMessageDataZero, testCanData, CANRX_BMS_STATE_REQUEST_ENDIANNESS);
     CAN_RxGetMessageDataFromCanData_ReturnThruPtr_pMessage(&testMessageData);
+    CAN_RxGetSignalDataFromMessageData(
+        testMessageData, 1u, 2u, &testSignalData[0u], CANRX_BMS_STATE_REQUEST_ENDIANNESS);
     CAN_RxGetSignalDataFromMessageData_Expect(
         testMessageData, 1u, 2u, &testSignalData[0u], CANRX_BMS_STATE_REQUEST_ENDIANNESS);
     CAN_RxGetSignalDataFromMessageData_Expect(
         testMessageData, 2u, 1u, &testSignalData[0u], CANRX_BMS_STATE_REQUEST_ENDIANNESS);
     CAN_RxGetSignalDataFromMessageData_Expect(
         testMessageData, 8u, 1u, &testSignalData[0u], CANRX_BMS_STATE_REQUEST_ENDIANNESS);
+
+    BAL_GetInitializationState_ExpectAndReturn(STD_OK);
+    BAL_SetStateRequest_ExpectAndReturn(BAL_STATE_GLOBAL_DISABLE_REQUEST, BAL_OK);
     CAN_RxGetSignalDataFromMessageData_Expect(
         testMessageData, 23u, 8u, &testSignalData[0u], CANRX_BMS_STATE_REQUEST_ENDIANNESS);
+    BAL_SetBalancingThreshold_Expect((uint32_t)testMessageDataZero);
     DATA_Write1DataBlock_ExpectAndReturn(can_kShim.pTableStateRequest, STD_OK);
+
     /* ======= RT1/1: Call function under test */
     uint32_t testResult = CANRX_BmsStateRequest(testMessage, testCanData, &can_kShim);
     /* ======= RT1/1: Test output verification */

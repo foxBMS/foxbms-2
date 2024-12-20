@@ -43,8 +43,8 @@
  * @file    sps.c
  * @author  foxBMS Team
  * @date    2020-10-14 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup DRIVERS
  * @prefix  SPS
  *
@@ -664,6 +664,16 @@ extern CONT_ELECTRICAL_STATE_TYPE_e SPS_GetChannelPexFeedback(const SPS_CHANNEL_
 extern SPS_CHANNEL_AFFILIATION_e SPS_GetChannelAffiliation(SPS_CHANNEL_INDEX channelIndex) {
     FAS_ASSERT(channelIndex < SPS_NR_OF_AVAILABLE_SPS_CHANNELS);
     return sps_channelStatus[channelIndex].affiliation;
+}
+
+extern void SPS_SwitchOffAllGeneralIoChannels(void) {
+    OS_EnterTaskCritical();
+    for (uint8_t channelIndex = 0u; channelIndex < SPS_NR_OF_AVAILABLE_SPS_CHANNELS; channelIndex++) {
+        if (sps_channelStatus[channelIndex].affiliation == SPS_AFF_GENERAL_IO) {
+            sps_channelStatus[channelIndex].channelRequested = SPS_CHANNEL_OFF;
+        }
+    }
+    OS_ExitTaskCritical();
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/

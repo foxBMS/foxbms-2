@@ -1,4 +1,4 @@
-   Linking build\bin\src\app\main\foxbms.elf
+   Linking build\app_embedded\src\app\main\foxbms.elf
    remark #10252-D: Symbol "_c_int00" (pulled from "src\app\main\fstartup.c.1.obj") defined in 3 places:
       src\app\main\fstartup.c.1.obj
       src\hal\libfoxbms-hal.a<HL_sys_startup.c.1.obj>

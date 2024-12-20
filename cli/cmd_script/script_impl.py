@@ -37,11 +37,13 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""Implements the functionalities behind the 'pre-commit' command"""
+"""Implements the functionalities behind the 'run-program' and 'run-script'
+command."""
 
 import sys
-
 from pathlib import Path
+
+from click import echo
 
 from ..helpers.misc import PROJECT_ROOT
 from ..helpers.spr import SubprocessResult, run_process
@@ -52,7 +54,7 @@ def run_python_script(
 ) -> SubprocessResult:
     """Run the waf binary with the provided arguments."""
     if not python_args:
-        print("No Arguments provided.")
+        echo("No Arguments provided.")
         return SubprocessResult()
     cmd = [sys.executable] + python_args
     err = run_program(cmd, cwd=cwd, stdout=stdout, stderr=stderr)

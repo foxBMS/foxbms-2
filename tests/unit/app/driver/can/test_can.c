@@ -43,8 +43,8 @@
  * @file    test_can.c
  * @author  foxBMS Team
  * @date    2020-04-01 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -58,6 +58,7 @@
 /*========== Includes =======================================================*/
 #include "unity.h"
 #include "MockHL_can.h"
+#include "MockHL_reg_het.h"
 #include "Mockcan_cfg.h"
 #include "Mockdatabase.h"
 #include "Mockdiag.h"
@@ -71,10 +72,11 @@
 #include "Mockqueue.h"
 #include "Mocktest_can_mpu_prototype_queue_create_stub.h"
 
-#include "version_cfg.h"
+#include "pex_cfg.h"
 
 #include "can.h"
 #include "test_assert_helper.h"
+#include "version.h"
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -91,6 +93,7 @@ TEST_INCLUDE_PATH("../../src/app/driver/rtc")
 TEST_INCLUDE_PATH("../../src/app/engine/diag")
 TEST_INCLUDE_PATH("../../src/app/task/config")
 TEST_INCLUDE_PATH("../../src/app/task/ftask")
+TEST_INCLUDE_PATH("../../src/version")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 
@@ -428,4 +431,17 @@ void testCAN_SendMessagesFromQueue(void) {
 
     /* test call */
     TEST_ASSERT_PASS_ASSERT(CAN_SendMessagesFromQueue());
+}
+
+void testCAN_InitializeTransceiver(void) {
+    IO_SetPinDirectionToOutput_Expect(&CAN_CAN1_IO_REG_DIR, CAN_CAN1_ENABLE_PIN);
+    IO_SetPinDirectionToOutput_Expect(&CAN_CAN1_IO_REG_DIR, CAN_CAN1_STANDBY_PIN);
+    IO_PinSet_Expect(&CAN_CAN1_IO_REG_DOUT, CAN_CAN1_ENABLE_PIN);
+    IO_PinSet_Expect(&CAN_CAN1_IO_REG_DOUT, CAN_CAN1_STANDBY_PIN);
+
+    PEX_SetPinDirectionOutput_Expect(PEX_PORT_EXPANDER2, CAN_CAN2_ENABLE_PIN);
+    PEX_SetPinDirectionOutput_Expect(PEX_PORT_EXPANDER2, CAN_CAN2_STANDBY_PIN);
+    PEX_SetPin_Expect(PEX_PORT_EXPANDER2, CAN_CAN2_ENABLE_PIN);
+    PEX_SetPin_Expect(PEX_PORT_EXPANDER2, CAN_CAN2_STANDBY_PIN);
+    TEST_CAN_InitializeTransceiver();
 }

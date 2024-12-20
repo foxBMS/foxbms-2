@@ -61,6 +61,7 @@ slaves can be found at:
     ./slaves/18-ltc-ltc6813-1-vx.x.x/18-ltc-ltc6813-1-v1.1.3
     ./slaves/18-ltc-ltc6813-1-vx.x.x/18-ltc-ltc6813-1-v1.1.4
     ./slaves/18-ltc-ltc6813-1-vx.x.x/18-ltc-ltc6813-1-v1.1.5
+    ./slaves/18-ltc-ltc6813-1-vx.x.x/18-ltc-ltc6813-1-v1.1.6
 
 NXP-based Slaves
 ----------------
@@ -82,6 +83,7 @@ slaves can be found at:
     :maxdepth: 1
 
     ./slaves/14-nxp-mc33775a-vx.x.x/14-nxp-mc33775a-v1.0.0
+    ./slaves/14-nxp-mc33775a-vx.x.x/14-nxp-mc33775a-v1.0.2
 
 ADI-based Slaves
 ----------------

@@ -1,0 +1,63 @@
+Added
+=====
+
+- Added stubs for the Bender IR155 insulation monitoring device driver (i.e.
+  **driver is non-functional**).
+- Extended the documentation with a render of the architecture against which
+  the |foxbms| implementation is checked.
+- Added driver for I2C communication for MCU.
+- Added driver for I2C port expander.
+- Added driver for I2C humidity/temperature sensor.
+- Implemented feedback through auxiliary contacts for the contactor driver.
+- Debug LED is now toggled depending on system state (slow: okay, fast: error)
+- Added an option to install a pre-commit hook in the repository.
+  The pre-commit hook runs the guidelines check.
+- Added a driver module that allows to use the enhanced PWM features of the
+  MCU.
+- Adapted CAN module to receive/transmit messages either via CAN1 or CAN2.
+- Annotate maximum stack size in |freertos| so that debugger can catch this
+  information.
+- Updated the hardware design files (e.g., schematics, layout, BOM and STEP
+  file etc.) of the |bms-master|  to ``v1.1.1``.
+- Added information on citing the project in ``CFF`` format.
+- Added driver for interlock.
+
+Changed
+=======
+
+- The measurement IC (``MIC``) module has been renamed to Analog Front-End
+  (``AFE``).
+- ``build_all`` and ``clean_all`` need to run the Axivion related commands as
+  last steps.
+- The file content of the linker script for the elf file is now hashed using
+  Unix-style line endings as this is more robust (e.g., downloaded zip files
+  from GitHub releases).
+- Sort the SPI formats so that there are no conflicts between the configuration
+  on SPI1 and SPI4 (Both are connected to the interface connector).
+- Control the pins of the interface for LTC AFEs with the port expander on the
+  |foxbms| master board.
+- The documentation build defaults now only to ``html`` and ``spelling``,
+  .i.e., ``linkcheck`` has been removed.
+- Increased stack size of 10ms task to 5120 bytes (from 4096).
+- Declared large database entries as static, so that they are placed in the
+  data segment to reduce the stack usage of the respective task.
+
+Deprecated
+==========
+
+Removed
+=======
+
+- Removed unused code in main build script.
+
+Fixed
+=====
+
+- Fixed variable name typos in ``moving_average.c``.
+- A specific order of build/clean commands related to Axivion build and clean
+  commands resulted in build errors.
+  Now the build is early aborted if a wrong order is supplied and a
+  descriptive error message is printed to stderr.
+- The documentation included a wrong statement about how to configure
+  |freertos|.
+- Battery voltage is now transmitted correctly via CAN (ID: 0x222).

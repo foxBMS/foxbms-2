@@ -320,7 +320,7 @@ Using coverage reports
 ----------------------
 
 When you build the unit tests with coverage enabled you will find a coverage
-report locally in ``build/unit_test/artifacts/gcov`` as HTML.
+report locally in ``build/app_host_unit_test/artifacts/gcov`` as HTML.
 
 This report knows two metrics: line-coverage and branch-coverage.
 Line-coverage is the percentage of lines of code that have been passed while

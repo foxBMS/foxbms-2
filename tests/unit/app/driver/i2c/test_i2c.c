@@ -43,8 +43,8 @@
  * @file    test_i2c.c
  * @author  foxBMS Team
  * @date    2021-07-23 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -158,4 +158,12 @@ void testI2C_Write(void) {
     TEST_ASSERT_FAIL_ASSERT(I2C_Write(&validI2cInterface, validSlaveAddress, 0u, &validWriteData));
     /* ======= AT4/4: Assertion test */
     TEST_ASSERT_FAIL_ASSERT(I2C_Write(&validI2cInterface, validSlaveAddress, validnrBytesWrite, NULL_PTR));
+}
+
+void testI2C_GetWordTransmitTime(void) {
+    TEST_ASSERT_FAIL_ASSERT(TEST_I2C_GetWordTransmitTime(NULL_PTR));
+}
+
+void testI2C_WaitStop(void) {
+    TEST_ASSERT_FAIL_ASSERT(TEST_I2C_WaitStop(NULL_PTR, 0u));
 }

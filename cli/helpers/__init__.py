@@ -37,6 +37,7 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""Defines the tool name"""
+"""Implements miscellaneous helper functions"""
 
+#: Tool name
 TOOL = "fox.py"

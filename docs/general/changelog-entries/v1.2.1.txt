@@ -1,0 +1,78 @@
+|foxbms| now ships with a new conda environment ``2021-11-fennec-fox`` and the
+local conda environment needs to be updated.
+
+Added
+=====
+
+- Added enum typedef for GPIO pin state.
+- Add driver for the temperature sensor *NTCLE317E4103SBA* from *Vishay*.
+- Added documentation for Coulomb-counting and extended the documentation of
+  the state-estimation-module.
+- Added a define for ``NULL``.
+- Make |git| a required software installation (see :ref:`git_install`).
+- If a system-wide installation of |git| is not found in the build process,
+  check for a user installation.
+- Added an API to check whether a certain amount of milliseconds has passed.
+- Added an API to the ``spi``-module that allows to check if the interface
+  is available.
+- Added a python script that can help with searching for regressions after
+  resolving a complete violation category in Axivion.
+- Automatically update the ``@updated`` doxygen comment before committing when
+  pre-commit hooks are activated.
+- Added documentation for the LTC based interface and slaves.
+- In the ``spi``-module, hardware Chip Select pins can now be used.
+  Until now only software Chip Select pins could be used.
+
+Changed
+=======
+
+- Rewrote the linker script: the sections lengths are no longer hard-coded.
+- The memory layout of ``OS_TASK_DEFINITION_s`` has been changed.
+- The ``os``-module wrapper for task definition now also contains the
+  ``pvParameters``.
+- Static analysis cleanup of the ``os``-module and ``ftask``-module wrappers.
+- Tasks are now marked as requiring FPU context, to prevent memory corruption
+  during task switching.
+- The Chip Select pin used to drive the external flash memory over SPI is now
+  set as output with initial level high, corresponding to a default inactive
+  state for the SPI line.
+- Removed a hotfix that has been introduced in v1.0.0: the CAN driver used a
+  critical section in order to avoid computation issues when scaling values.
+  This has been shown to be connected with the FPU context and can now be
+  removed as the root cause has been resolved.
+- Updated the Axivion configuration to use version ``7.2.6``.
+- Create the Axivion build directory before running the analysis.
+- The documentation build now treats warnings as errors.
+- Updated the doxygen configuration files to match the doxygen version that
+  is shipped in the conda environment.
+- Switched the used C standard to C11.
+- The |freertos| specific implementations for the task and queue creation were
+  moved into ``os_freertos.c`` and ``ftask_freertos.c``.
+- Greatly enhanced the robustness and code quality of the driver for Maxim
+  analog front ends.
+
+Deprecated
+==========
+
+Removed
+=======
+
+Fixed
+=====
+
+- The error message when ``bms.json`` had an invalid configuration always
+  indicated an invalid *analog front-end* configuration, independently of what
+  option was actually invalid configured.
+  The error message now correctly points to the setting, that sets an invalid
+  configuration.
+- Fixed several MISRA-C violations and style guide violations.
+- Fixed the conda environment shell update script.
+- The signature of the |freertos| tasks was not correct and has been fixed to
+  match ``void TaskName(void *pvParameters)``.
+- Explicitly cast the variables that are passed to the |freertos| task creation
+  function.
+- Make ``NULL_PTR`` explicitly *unsigned*.
+- Fixed product number for the used trace probe in our test setup.
+- Fixed incorrect values for GPIO measurement times in LTC module.
+- Cleaned up ``spi``-module and added documentation.
+  Removed unused enum (``SPI_INTERFACE_e``).

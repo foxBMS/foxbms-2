@@ -36,7 +36,23 @@
 # - "This product is derived from foxBMS®"
 
 [tool.pyright]
+include = ["cli"]
 reportMissingImports = false
+reportReturnType = false
+reportOptionalMemberAccess = false
+reportAttributeAccessIssue = false
+reportArgumentType = false
+reportOptionalCall = false
+reportUndefinedVariable = false
+reportRedeclaration = false
+extraPaths = [
+  "C:/Bauhaus/7.5.2/lib/scripts",
+  "tools/waf3-2.0.22-1241519b19b496207abef1f72bbf61c2",
+  "tools/.waf3-2.0.22-1241519b19b496207abef1f72bbf61c2",
+  "tools/waf-tools",
+  "tests/hil",
+]
+exclude = ["**/waflib/**"]
 
 [tool.ruff]
 # Exclude a variety of commonly ignored directories.
@@ -68,6 +84,14 @@ exclude = [
   "site-packages",
   "venv",
 ]
+extend-exclude = [
+  "tests/axivion/addon/*",
+  "tests/axivion/compiler-errata/*",
+  "tests/axivion/qualification-test/*",
+  "tools/waf3-2.0.22-1241519b19b496207abef1f72bbf61c2/**",
+  "tools/.waf3-2.0.22-1241519b19b496207abef1f72bbf61c2/**",
+  "tools/vendor/*",
+]
 
 # Same as Black.
 line-length = 88
@@ -75,17 +99,6 @@ indent-width = 4
 
 # Assume Python 3.8
 target-version = "py38"
-
-[tool.mypy]
-disable_error_code = "import-untyped" # TODO
-# strict = true # TODO
-
-[tool.coverage.run]
-branch = true
-
-[tool.coverage.report]
-fail_under = 48
-exclude_also = ["if __name__ == .__main__.:"]
 
 [tool.ruff.lint]
 # Enable Pyflakes (`F`) and a subset of the pycodestyle (`E`)  codes by default.
@@ -127,6 +140,31 @@ docstring-code-format = false
 # This only has an effect when the `docstring-code-format` setting is
 # enabled.
 docstring-code-line-length = "dynamic"
+
+[tool.mypy]
+disable_error_code = "import-untyped" # TODO
+# strict = true # TODO
+exclude = [
+  '^build/.*',
+  '.*c4che.*',
+  '^tests/axivion/compiler-errata/ti-cgt-arm_20.2.6.lts/.*\.py',
+  '^tests/cli/.*',                                               # TODO
+  '^tests/hil/server/pi_pico/fault_injector/.*\.py',
+  '^tests/hil/server/pi_pico/interface_switchboard/.*\.py',
+  '^tools/vendor/ceedling/vendor/.*',
+  '^tools/waf3.*/waflib/.*',
+]
+
+[[tool.mypy.overrides]]
+module = "waflib.*,axivion.*,bauhaus.*"
+ignore_missing_imports = true
+
+[tool.coverage.run]
+branch = true
+
+[tool.coverage.report]
+fail_under = 87
+exclude_also = ["if __name__ == .__main__.:"]
 
 [tool.pylint.main]
 # Analyse import fallback blocks. This can be used to support both Python 2 and 3
@@ -172,7 +210,7 @@ ignore = ["CVS", "waflib"]
 # ignore-list. The regex matches against paths and can be in Posix or Windows
 # format. Because '\\' represents the directory delimiter on Windows systems, it
 # can't be used as an escape character.
-# ignore-paths =
+ignore-paths = ".*/waflib/.*"
 
 # Files or directories matching the regular expression patterns are skipped. The
 # regex matches against base names, not paths. The default value ignores Emacs
@@ -188,7 +226,7 @@ ignore-patterns = ["^\\.#"]
 
 # Python code to execute, usually for sys.path manipulation such as
 # pygtk.require().
-init-hook = 'import sys; sys.path.extend(["cli", "tools/waf3-2.0.22-1241519b19b496207abef1f72bbf61c2", "tools/.waf3-2.0.22-1241519b19b496207abef1f72bbf61c2", "tests/hil"])'
+init-hook = 'import sys; sys.path.extend(["C:/Bauhaus/7.5.2/lib/scripts", "cli", "tools/waf3-2.0.22-1241519b19b496207abef1f72bbf61c2", "tools/.waf3-2.0.22-1241519b19b496207abef1f72bbf61c2", "tests/hil"])'
 
 # Use multiple processes to speed up Pylint. Specifying 0 will auto-detect the
 # number of processors available to use, and will cap the count on Windows to

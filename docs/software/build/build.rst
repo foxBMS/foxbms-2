@@ -24,16 +24,61 @@ Building the Application
 #. Open a terminal and change into a checkout of the foxbms repository
 #. Configuration of the project
 
-   .. code-block:: powershell
+   .. tabs::
 
-     PS C:\Users\vulpes\Documents\foxbms-2> .\fox.ps1 waf configure
+      .. group-tab:: Win32/PowerShell
+
+         .. code-block:: powershell
+
+            .\fox.ps1 waf configure
+
+      .. group-tab:: Win32/cmd.exe
+
+         .. code-block:: bat
+
+            fox.bat waf configure
+
+      .. group-tab:: Win32/Git bash
+
+         .. code-block:: shell
+
+            ./fox.ps1 waf configure
+
+      .. group-tab:: Linux
+
+         .. code-block:: shell
+
+            ./fox.ps1 waf configure
 
 #. Now all build variants are available, e.g., to build the binaries
-   (``build_bin``) and the documentation (``build_docs``):
+   (``build_app_embedded``) and the documentation (``build_docs``):
 
-   .. code-block:: powershell
+   .. tabs::
 
-     PS C:\Users\vulpes\Documents\foxbms-2> .\fox.ps1 waf build_bin build_docs
+      .. group-tab:: Win32/PowerShell
+
+         .. code-block:: powershell
+
+            .\fox.ps1 waf build_app_embedded build_docs
+
+      .. group-tab:: Win32/cmd.exe
+
+         .. code-block:: bat
+
+            fox.bat waf build_app_embedded build_docs
+
+      .. group-tab:: Win32/Git bash
+
+         .. code-block:: shell
+
+            ./fox.ps1 waf build_app_embedded build_docs
+
+      .. group-tab:: Linux
+
+         .. code-block:: shell
+
+            ./fox.ps1 waf build_app_embedded build_docs
+
 
    Waf commands can be concatenated and are executed in the order of their
    appearance.
@@ -50,6 +95,29 @@ Important available commands are listed in :numref:`waf-available-commands`.
 There are additional commands that are not typically needed when developing.
 This and other help on the build system is obtained by running
 
-.. code-block:: powershell
 
-   PS C:\Users\vulpes\Documents\foxbms-2> .\fox.ps1 waf --waf-help
+.. tabs::
+
+   .. group-tab:: Win32/PowerShell
+
+      .. code-block:: powershell
+
+         .\fox.ps1 waf build_app_embedded -h
+
+   .. group-tab:: Win32/cmd.exe
+
+      .. code-block:: bat
+
+         fox.bat waf build_app_embedded -h
+
+   .. group-tab:: Win32/Git bash
+
+      .. code-block:: shell
+
+         ./fox.ps1 waf build_app_embedded -h
+
+   .. group-tab:: Linux
+
+      .. code-block:: shell
+
+         ./fox.ps1 waf build_app_embedded -h

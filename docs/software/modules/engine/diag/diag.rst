@@ -66,12 +66,37 @@ A detailed description on how to use the diagnosis module can be found in
 The diagnosis module is implemented as a central table
 ``diag_diagnosisIdConfiguration`` that maps the entries of ``DIAG_ID_e`` to
 callbacks.
-Whenever the diagnosis handler is called in the application code the
-diagnosis module selects based on this table the appropriate callback.
-It is in the responsibility of the callback to handle the reported issue.
 
-In most implementations the callback sets according to the reported issue an
-entry in the database for convenient use of error conditions.
+A configurable debounce counter is implemented for the monitoring of all
+diagnosis entries, to avoid unintentional jitter of fault/good conditions.
+The individual configuration for each monitored parameter is responsible if and
+how the BMS reacts on a violation of the limit value.
+The following parameters have to be configured for the individual warnings and
+errors:
+
+- The **Response time/Threshold** for which the error condition needs to be
+  present permanently before the according flag is set.
+  The flag may be configured to raise on the first occurrence or after multiple
+  violations in order to avoid false alarms, e.g. resulting from short-term
+  current peaks.
+- The BMS decides depending on the configured **Severity** how a raised flag is
+  treated.
+  Flags can be either configured with a **Info**, **Warning** or a **Fatal
+  Error** severity.
+  An informative or warning flag will result in no direct action from the BMS,
+  whereas an error flag will lead to an opening of the contactors.
+- The configured **Delay time** defines the time between raising an error flag
+  and switching the BMS to **Error State**, i.e., that means an opening of the
+  contactors.
+
+Whenever the diagnosis handler is called in the application code, the
+diagnosis module selects based on its configuration table the appropriate
+callback if the threshold level is reached or reset again.
+It is in the responsibility of the callback to handle the reported issue, in
+addition to the raised/cleared flag in the diagnosis module.
+
+In most implementations the callback sets according to the reported issue a
+flag in the database for convenient use of error conditions.
 An example is the CAN module that reports set error conditions from the
 relevant tables in the database.
 These entries are set from the callbacks of the diagnosis module.
@@ -80,5 +105,5 @@ In addition to the callbacks, several parameters of the occurring issue can be
 set.
 As an example the table configures whether an diagnosis entry has a fatal
 severity.
-The diagnosis module makes convenience functions available that allow for
+The diagnosis module makes convenience functions available that allows
 scanning for fatal errors in order to react on any of these issues.

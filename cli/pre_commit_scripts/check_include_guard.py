@@ -68,7 +68,7 @@ def run_check(filename: Path) -> int:
             print(f"{filename.as_posix()}: {marker} occurs more than once.")
     idx = []
     for marker in MARKERS:
-        marker = i.format(define_guard)
+        marker = marker.format(define_guard)
         try:
             idx.append(txt_lines.index(marker))
         except ValueError:

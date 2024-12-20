@@ -40,11 +40,20 @@
 """Checks that the GitLab CI configuration adheres to some rules"""
 
 import logging
+import math
 import os
+import sys
 from pathlib import Path
+from tomllib import loads
+from typing import get_args
 from xml.etree import ElementTree
 
+from click import echo, secho
+
+from ..cmd_cli_unittest.cli_unittest_constants import CliUnitTestVariants
+from ..cmd_embedded_ut.embedded_ut_constants import EmbeddedUnitTestVariants
 from ..helpers.host_platform import PLATFORM
+from ..helpers.misc import PROJECT_ROOT
 
 CI_COMMIT_REF_NAME = os.getenv("CI_COMMIT_REF_NAME")
 TARGET_BRANCH = os.getenv("TARGET_BRANCH", "master")
@@ -56,13 +65,16 @@ else:
 
 
 class Coverage:
-    """Coverage information from Cobertura report"""
+    """Coverage information from Cobertura report."""
 
     def __init__(self, cobertura_report: Path) -> None:
+        if not cobertura_report.is_file():
+            secho(f"File '{cobertura_report}' does not exist.", fg="red", err=True)
+            sys.exit(1)
         root = ElementTree.parse(cobertura_report).getroot()
         for coverage in root.iter("coverage"):
-            self.line_rate = coverage.attrib["line-rate"]
-            self.branch_rate = coverage.attrib["branch-rate"]
+            self.line_rate = float(coverage.attrib["line-rate"])
+            self.branch_rate = float(coverage.attrib["branch-rate"])
 
     def compare(self, branch: "Coverage") -> int:
         """Compares two coverage reports"""
@@ -91,21 +103,65 @@ class Coverage:
         return f"line-rate: {self.line_rate}\nbranch-rate: {self.branch_rate}"
 
 
-def check_coverage() -> int:
-    """Compares two coverage reports"""
-    cobertura_archive_master = Path(
-        "master-artifacts/build/unit_test/artifacts/gcov/gcovr/GcovCoverageCobertura.xml"
-    )
+def check_coverage(
+    project: EmbeddedUnitTestVariants | CliUnitTestVariants = "app",
+) -> int:
+    """Compares two coverage reports."""
+    if project in get_args(EmbeddedUnitTestVariants):
+        infix = "_host_unit_test"
+        cobertura_xml = "artifacts/gcov/gcovr/GcovCoverageCobertura.xml"
+    elif project in get_args(CliUnitTestVariants):
+        infix = "-selftest"
+        cobertura_xml = "CoberturaCoverageCliSelfTest.xml"
+    else:
+        sys.exit(
+            "Something went wrong.\nExpect argument "
+            f"{get_args(EmbeddedUnitTestVariants) + get_args(CliUnitTestVariants)} "
+            f"but got '{project}'."
+        )
 
+    cobertura_archive_master = Path(
+        f"master-artifacts/build/{project}{infix}/{cobertura_xml}"
+    )
     coverage_master = Coverage(cobertura_archive_master)
     logging.info("'%s'-branch coverage:\n%s", TARGET_BRANCH, coverage_master)
 
-    cobertura_archive_branch = Path(
-        "build/unit_test/artifacts/gcov/gcovr/GcovCoverageCobertura.xml"
-    )
+    cobertura_archive_branch = Path(f"build/{project}{infix}/{cobertura_xml}")
 
     coverage_branch = Coverage(cobertura_archive_branch)
     logging.info("'%s'-branch coverage:\n%s", CI_COMMIT_REF_NAME, coverage_branch)
 
     comparison = coverage_master.compare(coverage_branch)
+
+    if project == "cli":
+        tmp = PROJECT_ROOT / "pyproject.toml"
+        if not tmp.is_file():
+            comparison += 1
+        cfg = loads(tmp.read_text(encoding="utf-8"))
+        try:
+            fail_under = float(cfg["tool"]["coverage"]["report"]["fail_under"])
+        except KeyError:
+            secho(
+                f"File '{tmp}' does not specify the key 'fail_under' in "
+                "section '[tool.coverage.report]'.",
+                fg="red",
+                err=True,
+            )
+            return comparison + 1
+        except ValueError:
+            secho("Could not convert key 'fail_under' to int.", fg="red", err=True)
+            return comparison + 1
+        # conversion necessary as coverage.py uses 0% to 100%, while Cobertura
+        # uses 0.0 to 1.0.
+        fail_under /= 100
+        if not math.isclose(fail_under, coverage_branch.line_rate, abs_tol=0.02):
+            secho(
+                "Key 'fail_under' in section '[tool.coverage.report]' in File "
+                f"'{tmp}' is not up-to-date ({fail_under} vs. "
+                f"{coverage_branch.line_rate} (line rate))",
+                fg="red",
+                err=True,
+            )
+            return comparison + 1
+    echo(f"Coverage rate is {coverage_branch.line_rate}.")
     return comparison

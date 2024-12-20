@@ -43,12 +43,13 @@
  * @file    abc.c
  * @author  foxBMS Team
  * @date    2022-12-13 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup SOME_GROUP
  * @prefix  ABC
  *
  * @brief   Implementation of some software
+ * @details Details of the software
  *
  */
 

@@ -43,8 +43,8 @@
  * @file    led.h
  * @author  foxBMS Team
  * @date    2021-09-28 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup DRIVERS
  * @prefix  LED
  *

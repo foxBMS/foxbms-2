@@ -43,12 +43,13 @@
  * @file    database_how-to.c
  * @author  foxBMS Team
  * @date    2021-04-12 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup SOME_GROUP
  * @prefix  DATA
  *
  * @brief   Implementation of some software
+ * @details Database Examples
  *
  */
 

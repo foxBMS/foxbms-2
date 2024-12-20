@@ -103,6 +103,7 @@ def main():
             "ccs1100",
             "ccs1100-c99",
             "ccs1200",
+            "expect-failure",
         ],
         help="set the CCS version",
     )

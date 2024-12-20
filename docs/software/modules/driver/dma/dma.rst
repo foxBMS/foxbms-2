@@ -3,6 +3,9 @@
 
 .. _DMA:
 
+DMA
+===
+
 Module Files
 ------------
 

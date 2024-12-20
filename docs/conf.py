@@ -42,18 +42,30 @@
 import os
 import sys
 import time
+import logging
+
+from pathlib import Path
 
 import sphinx_rtd_theme  # noqa: F401
 
+logging.getLogger("can.pcan").setLevel(logging.CRITICAL)
+
+
+ROOT = Path(__file__).resolve().parent.parent
+
+
 sys.path = [
     os.path.abspath("."),
+    os.path.abspath(str(ROOT)),
     os.path.abspath("./../tools/waf3-2.0.22-1241519b19b496207abef1f72bbf61c2/waflib"),
     os.path.abspath("./../tools/.waf3-2.0.22-1241519b19b496207abef1f72bbf61c2/waflib"),
     os.path.abspath("./../tools/waf-tools"),
-    os.path.abspath("./../tests/scripts/waf-tools/f_hcg"),
 ] + sys.path
 
-project = "foxBMS 2"
+from cli.foxbms_version import __version__  # noqa: E402
+
+
+project = f"foxBMS 2 - {__version__}"
 copyright = (
     "2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten "
     "Forschung e.V. All rights reserved. See license section for further "
@@ -68,10 +80,11 @@ extensions = [
     "sphinx.ext.intersphinx",
     "sphinx.ext.napoleon",
     "sphinxcontrib.bibtex",
+    "sphinx_tabs.tabs",
 ]
 
 
-source_suffix = ".rst"
+source_suffix = {".rst": "restructuredtext"}
 master_doc = "index"
 
 html_favicon = "_static/favicon.ico"
@@ -114,6 +127,18 @@ linkcheck_ignore = [
 
 html_theme_options = {
     "logo_only": False,
-    "display_version": True,
     "prev_next_buttons_location": "bottom",
 }
+autosummary_generate = True
+
+sphinx_tabs_valid_builders = ["linkcheck"]
+
+
+def create_doc_sources(app, config):
+    # documentation version must match foxBMS 2 version
+    with open("version_macro.txt", "w", encoding="utf-8") as f:
+        f.write(f".. |version_foxbms| replace:: ``{__version__}``")
+
+
+def setup(app):
+    app.connect("config-inited", create_doc_sources)

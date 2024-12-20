@@ -43,12 +43,13 @@
  * @file    test_diag_cbs_power-measurement.c
  * @author  foxBMS Team
  * @date    2021-02-17 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
  * @brief   Test of the power measurement diag handler implementation.
+ * @details Tests for invalid input
  *
  */
 

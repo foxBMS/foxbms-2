@@ -43,12 +43,13 @@
  * @file    test_lg_inr18650mj1.c
  * @author  foxBMS Team
  * @date    2020-07-31 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
  * @brief   Test for the configuration for LG INR18650 cells
+ * @details TODO
  *
  */
 

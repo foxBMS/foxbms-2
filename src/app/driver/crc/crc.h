@@ -43,8 +43,8 @@
  * @file    crc.h
  * @author  foxBMS Team
  * @date    2022-02-22 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup DRIVERS
  * @prefix  CRC
  *
@@ -93,6 +93,13 @@ typedef enum {
     CRC_REGISTER_HIGH, /* high part of register to be written */
 } CRC_REGISTER_SIDE_e;
 
+#ifdef UNITY_UNIT_TEST
+/* While in test environment we use a fake register. */
+#undef crcREG1
+crcBASE_t test_register;
+#define crcREG1 ((crcBASE_t *)&test_register)
+#endif
+
 /*========== Extern Constant and Variable Declarations ======================*/
 
 /*========== Extern Function Prototypes =====================================*/
@@ -110,6 +117,7 @@ extern STD_RETURN_TYPE_e CRC_CalculateCrc(uint64_t *pCrc, uint8_t *pData, uint32
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 #ifdef UNITY_UNIT_TEST
+void TEST_CRC_SetCrcCalls(uint16_t calls);
 #endif
 
 #endif /* FOXBMS__CRC_H_ */

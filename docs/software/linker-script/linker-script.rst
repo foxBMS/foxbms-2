@@ -46,8 +46,8 @@ Detail information for the Flash ECC::
 Linker Script
 -------------
 
-The main linker script is found at ``src\app\main\linker_script_elf.cmd``.
-A derived hex-linker script is found at ``src\app\main\linker_script_hex.cmd``.
+The main linker script is found at ``src\app\main\app.cmd``.
+A derived hex-linker script is found at ``src\app\main\app_hex.cmd``.
 
 The ``MEMORY`` and ``SECTIONS`` directives can be used to configure the
 allocation process.

@@ -43,8 +43,8 @@
  * @file    adi_ades183x_diagnostic.h
  * @author  foxBMS Team
  * @date    2022-12-06 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup DRIVERS
  * @prefix  ADI
  *
@@ -81,8 +81,25 @@ extern void ADI_Diagnostic(ADI_STATE_s *adiState);
  * @brief   Evaluate diagnostic for cell voltage measurement
  * @param   adiState        state of the adi driver
  * @param   moduleNumber    module number the diagnostics shall be checked for
+ * @return  true if everything okay, false if an error has been detected
  */
 extern bool ADI_EvaluateDiagnosticCellVoltages(ADI_STATE_s *adiState, uint16_t moduleNumber);
+
+/**
+ * @brief   Evaluate diagnostic for GPIO voltage measurement
+ * @param   adiState        state of the adi driver
+ * @param   moduleNumber    module number the diagnostics shall be checked for
+ * @return  true if everything okay, false if an error has been detected
+ */
+extern bool ADI_EvaluateDiagnosticGpioVoltages(ADI_STATE_s *adiState, uint16_t moduleNumber);
+
+/**
+ * @brief   Evaluate diagnostic for string and module voltage measurement
+ * @param   adiState        state of the adi driver
+ * @param   moduleNumber    module number the diagnostics shall be checked for
+ * @return  true if everything okay, false if an error has been detected
+ */
+extern bool ADI_EvaluateDiagnosticStringAndModuleVoltages(ADI_STATE_s *adiState, uint16_t moduleNumber);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 #ifdef UNITY_UNIT_TEST

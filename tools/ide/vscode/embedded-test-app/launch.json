@@ -1,0 +1,45 @@
+{
+  "configurations": [
+    {
+      "name": "Build and debug active Unit Test File",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "program-place-holder",
+      "MIMode": "gdb",
+      "miDebuggerPath": "miDebuggerPath-place-holder",
+      "args": [],
+      "cwd": "place-holder",
+      "environment": [],
+      "externalConsole": false,
+      "stopAtEntry": false,
+      "setupCommands": [
+        {
+          "description": "Enable pretty-printing for gdb",
+          "ignoreFailures": true,
+          "text": "-enable-pretty-printing"
+        }
+      ],
+      "preLaunchTask": "Unit Test: Build active file"
+    },
+    {
+      "name": "Debug active Unit Test File",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "program-place-holder",
+      "MIMode": "gdb",
+      "miDebuggerPath": "miDebuggerPath-place-holder",
+      "args": [],
+      "cwd": "place-holder",
+      "environment": [],
+      "externalConsole": false,
+      "stopAtEntry": false,
+      "setupCommands": [
+        {
+          "description": "Enable pretty-printing for gdb",
+          "ignoreFailures": true,
+          "text": "-enable-pretty-printing"
+        }
+      ]
+    }
+  ]
+}

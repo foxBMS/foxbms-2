@@ -43,12 +43,13 @@
  * @file    test_vishay_ntcle317e4103sba_lookup-table.c
  * @author  foxBMS Team
  * @date    2021-11-02 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
  * @brief   Test of vishay_ntcle317e4103sba temperature sensor
+ * @details Tests get temperature from Vishay
  *
  */
 

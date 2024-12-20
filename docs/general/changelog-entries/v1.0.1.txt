@@ -1,0 +1,52 @@
+Added
+=====
+
+- Added links to built versions of the documentation to the project README.
+- Added testing for different versions of TI CSS (versions 10.0.0 and 10.1.1).
+- Added a readme to the hardware directory.
+- Added support for LTC 6804-1 (basically an older version of the LTC 6811-1).
+- Added the updated design files of the |foxbms| master v1.0.1.
+
+Changed
+=======
+
+- Activated URL availability checking for https://github.com/foxBMS/foxbms-2
+  when building the documentation.
+- Moved code examples in developer manual to separate source files.
+- The shebang in Python files has been updated from ``python`` to ``python3``.
+- Updated Waf to version 2.0.22 (from 2.0.21).
+- Updated database documentation.
+- Updated information on tracing with Segger J-Trace probes.
+
+Deprecated
+==========
+
+Removed
+=======
+
+- Removed external quality check in CI. This functionality has been replaced
+  by the "guidelines" feature that is shipped with this repository.
+
+Fixed
+=====
+
+- Use code page 850 as default when using the ``waf.sh``/``waf.bat`` wrappers.
+- ``without-halcogen_diff-includes.diff`` was unintentionally excluded by
+  the regex in ``.gitignore``.
+- Fixed repository name in the documentation.
+- Fixed available Waf commands and put the table in a separate csv file.
+- Fixed comments in LTC driver build scripts
+- Includes directories were not correctly set for the drivers *LTC 6811-1* and
+  *LTC 6812-1*.
+- Clarification and correction of the license namings (no changes in the
+  licenses themselves).
+  The license of the |foxbms| software is the *BSD 3-Clause License*. This
+  license is also formally known as *BSD 3-Clause "New" or "Revised" License*.
+  As of this release |foxbms| added the SPDX short identifier to the software
+  sources (``SPDX-License-Identifier: BSD-3-Clause``) according to
+  `SPDX Specification Version 2.2 <https://spdx.dev/specifications/>`_.
+  The license text of the
+  `Creative Commons Attribution 4.0 International License <https://creativecommons.org/licenses/by/4.0/>`_
+  has been added to the repository. The SPDX short name of this license is
+  ``CC-BY-4.0``. For more information see :ref:`LICENSE`.
+- Fixed the names of variables in bash scripts on Windows.

@@ -43,8 +43,8 @@
  * @file    master_info.h
  * @author  foxBMS Team
  * @date    2020-07-08 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup ENGINE
  * @prefix  MINFO
  *
@@ -76,6 +76,7 @@ typedef enum {
 typedef struct {
     resetSource_t resetSource;                       /*!< source of the last system reset */
     MINFO_DEBUG_PROBE_CONNECTION_STATE_e debugProbe; /*!< connection state of debug probe */
+    uint32_t supplyVoltageClamp30c_mV;               /*!< measured supply voltage clamp 30C */
 } MINFO_MASTER_STATE_s;
 
 /*========== Extern Constant and Variable Declarations ======================*/
@@ -106,6 +107,9 @@ void MINFO_SetDebugProbeConnectionState(MINFO_DEBUG_PROBE_CONNECTION_STATE_e sta
  * @return #MINFO_DEBUG_PROBE_CONNECTION_STATE_e if debugger connected or not
  */
 MINFO_DEBUG_PROBE_CONNECTION_STATE_e MINFO_GetDebugProbeConnectionState(void);
+
+/** @brief Check if supply voltage clamp 30C is present */
+void MINFO_CheckSupplyVoltageClamp30c(void);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 #ifdef UNITY_UNIT_TEST

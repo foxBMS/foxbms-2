@@ -43,8 +43,8 @@
  * @file    ti_afe.h
  * @author  foxBMS Team
  * @date    2023-09-12 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup DRIVERS
  * @prefix  TI
  *
@@ -133,20 +133,6 @@ extern STD_RETURN_TYPE_e TI_StartMeasurement(void);
  * @details This function is used to wrap #AFE_IsFirstMeasurementCycleFinished
  */
 extern bool TI_IsFirstMeasurementCycleFinished(void);
-
-/**
- * @brief   This function is used to wrap the TI AFE measurement API to the
- *          generic AFE measurement API
- * @details This function is used to wrap #AFE_RequestIoRead
- */
-extern STD_RETURN_TYPE_e TI_RequestIoRead(uint8_t string);
-
-/**
- * @brief   This function is used to wrap the TI AFE measurement API to the
- *          generic AFE measurement API
- * @details This function is used to wrap #AFE_RequestIoWrite
- */
-STD_RETURN_TYPE_e TI_RequestIoWrite(uint8_t string);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 #ifdef UNITY_UNIT_TEST

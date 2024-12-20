@@ -1,6 +1,4 @@
-/.vscode/
-/src/.vscode/
-/tests/unit/.vscode/
+**/.vscode/
 /build/
 /build-tools-tests/
 /*build/
@@ -35,6 +33,8 @@ dictionary.dic
 file.log*
 lex.txt
 
+*.egg-info
+dist/
 __pycache__
 .mypy_cache/
 /qa-chain/*

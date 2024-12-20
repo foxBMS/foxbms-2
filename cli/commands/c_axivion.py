@@ -49,12 +49,12 @@ CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"]}
 
 
 @click.group(context_settings=CONTEXT_SETTINGS, invoke_without_command=True)
-@click.option("-v", "--verbose", default=0, count=True, help="Verbose information")
+@click.option("-v", "--verbose", default=0, count=True, help="Verbose information.")
 @click.option(
     "--check-versions",
     default=False,
     is_flag=True,
-    help="Check that all Axivion configuration files have the same version",
+    help="Check that all Axivion configuration files have the same version.",
 )
 @click.pass_context
 def axivion(
@@ -75,31 +75,31 @@ def axivion(
 @click.argument("script_args", nargs=-1, type=click.UNPROCESSED)
 @click.pass_context
 def cmd_self_test(ctx: click.Context, script_args: tuple[str]) -> None:
-    """Axivion self-and configuration tests"""
+    """Axivion self-and configuration tests."""
     ret = axivion_impl.self_test(list(script_args))
     ctx.exit(ret.returncode)
 
 
 @axivion.command("export-architecture")
-@click.option("-v", "--verbose", default=0, count=True, help="Verbose information")
+@click.option("-v", "--verbose", default=0, count=True, help="Verbose information.")
 @click.pass_context
 def cmd_export_architecture(
     ctx: click.Context,
     verbose: int,
 ) -> None:
-    """Exports the architecture file"""
+    """Exports the architecture file."""
     ret = axivion_impl.export_architecture(verbose)
     ctx.exit(ret.returncode)
 
 
 @axivion.command("check-architecture-up-to-date")
-@click.option("-v", "--verbose", default=0, count=True, help="Verbose information")
+@click.option("-v", "--verbose", default=0, count=True, help="Verbose information.")
 @click.pass_context
 def cmd_check_architecture_uptodate(
     ctx: click.Context,
     verbose: int,
 ) -> None:
-    """Checks whether the architecture file is up-to-date"""
+    """Checks whether the architecture file is up-to-date."""
     ret = axivion_impl.check_if_architecture_up_to_date(verbose)
     ctx.exit(ret.returncode)
 
@@ -114,13 +114,13 @@ def cmd_check_architecture_uptodate(
 @click.argument("check_violations_args", nargs=-1, type=click.UNPROCESSED)
 @click.pass_context
 def cmd_check_violations(ctx: click.Context, check_violations_args: tuple[str]) -> None:
-    """Checks for Axivion violations (uses the 'check_violations.py' script)"""
+    """Checks for Axivion violations (uses the 'check_violations.py' script)."""
     ret = axivion_impl.check_violations(list(check_violations_args))
     ctx.exit(ret)
 
 
 @axivion.command("combine-reports")
-@click.option("-v", "--verbose", default=0, count=True, help="Verbose information")
+@click.option("-v", "--verbose", default=0, count=True, help="Verbose information.")
 @click.argument(
     "reports",
     nargs=-1,
@@ -133,7 +133,7 @@ def cmd_combine_reports(
     verbose: int,
     reports: list[Path],
 ) -> None:
-    """Combines several reports into one"""
+    """Combines several reports into one."""
     if not reports:
         click.echo("No reports provided.", err=True)
         ctx.exit(1)
@@ -142,9 +142,9 @@ def cmd_combine_reports(
 
 
 @axivion.command("local-analysis")
-@click.option("-u", "--dashboard-url", help="Axivion Dashboard URL")
-@click.option("-v", "--variant", help="Build variant")
-@click.option("-b", "--branch", help="git branch")
+@click.option("-u", "--dashboard-url", help="Axivion Dashboard URL.")
+@click.option("-v", "--variant", help="Build variant.")
+@click.option("-b", "--branch", help="git branch.")
 @click.pass_context
 def cmd_local_analysis(
     ctx: click.Context,
@@ -152,7 +152,7 @@ def cmd_local_analysis(
     variant: str,
     branch: str,
 ) -> None:
-    """Runs a local analysis"""
+    """Runs a local analysis."""
     ret = axivion_impl.run_local_analysis(dashboard_url, variant, branch)
     ctx.exit(ret.returncode)
 
@@ -163,11 +163,11 @@ def cmd_local_analysis(
     "--db-file",
     is_eager=True,
     type=click.Path(exists=True, dir_okay=False, path_type=Path),
-    help="Database file to be installed",
+    help="Database file to be installed.",
 )
 @click.pass_context
 def cmd_local_dashserver(ctx: click.Context, db_file: Path) -> None:
-    """Starts a local dashserver"""
+    """Starts a local dashserver."""
     ret = axivion_impl.start_local_dashserver(db_file)
     ctx.exit(ret.returncode)
 
@@ -175,6 +175,6 @@ def cmd_local_dashserver(ctx: click.Context, db_file: Path) -> None:
 @axivion.command("make-race-pdfs")
 @click.pass_context
 def cmd_make_race_pdfs(ctx: click.Context) -> None:
-    """Creates the race pdfs"""
+    """Creates the race pdfs."""
     ret = axivion_impl.make_race_pdfs()
     ctx.exit(ret.returncode)

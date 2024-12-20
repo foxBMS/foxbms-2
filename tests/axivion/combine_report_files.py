@@ -145,7 +145,7 @@ def combine_analysis_reports(reports: List[Analysis]) -> int:
 def main():
     """TODO"""
     parser = argparse.ArgumentParser(
-        description="""This script combinee several analysis reports to a single report.""",
+        description="""This script combines several analysis reports to a single report.""",
         formatter_class=argparse.RawTextHelpFormatter,
     )
     parser.add_argument(

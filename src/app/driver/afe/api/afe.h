@@ -43,8 +43,8 @@
  * @file    afe.h
  * @author  foxBMS Team
  * @date    2020-05-08 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup DRIVERS
  * @prefix  AFE
  *
@@ -125,20 +125,6 @@ extern bool AFE_IsFirstMeasurementCycleFinished(void);
  * @return  true or false
  */
 extern STD_RETURN_TYPE_e AFE_StartMeasurement(void);
-
-/**
- * @brief           Makes the request to the AFE state machine to write to the
- *                  IO port-expander
- * @param   string  string addressed by the request
- */
-extern STD_RETURN_TYPE_e AFE_RequestIoWrite(uint8_t string);
-
-/**
- * @brief           Makes the request to the AFE state machine to read from the
- *                  IO port-expander
- * @param   string  string addressed by the request
- */
-extern STD_RETURN_TYPE_e AFE_RequestIoRead(uint8_t string);
 
 /**
  * @brief           Makes the request to the AFE state machine to read from the

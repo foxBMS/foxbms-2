@@ -43,8 +43,8 @@
  * @file    database_cfg.c
  * @author  foxBMS Team
  * @date    2015-08-18 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup ENGINE_CONFIGURATION
  * @prefix  DATA
  *
@@ -106,11 +106,11 @@ static DATA_BLOCK_OPEN_WIRE_s data_blockOpenWireBase        = {.header.uniqueId 
 static DATA_BLOCK_OPEN_WIRE_s data_blockOpenWireRedundancy0 = {.header.uniqueId = DATA_BLOCK_ID_OPEN_WIRE_REDUNDANCY0};
 /**@}*/
 
-/** data block: LTC GPIO voltage */
+/** data block: AFE GPIO voltages */
 /**@{*/
-static DATA_BLOCK_ALL_GPIO_VOLTAGES_s data_blockLtcAllGpioVoltagesBase = {
+static DATA_BLOCK_ALL_GPIO_VOLTAGES_s data_blockAllGpioVoltagesBase = {
     .header.uniqueId = DATA_BLOCK_ID_ALL_GPIO_VOLTAGES_BASE};
-static DATA_BLOCK_ALL_GPIO_VOLTAGES_s data_blockLtcAllGpioVoltagesRedundancy0 = {
+static DATA_BLOCK_ALL_GPIO_VOLTAGES_s data_blockAllGpioVoltagesRedundancy0 = {
     .header.uniqueId = DATA_BLOCK_ID_ALL_GPIO_VOLTAGES_REDUNDANCY0};
 /**@}*/
 
@@ -159,7 +159,13 @@ static DATA_BLOCK_MOVING_AVERAGE_s data_blockMovingAverage = {.header.uniqueId =
 static DATA_BLOCK_INSULATION_MONITORING_s data_blockInsulationMonitoring = {
     .header.uniqueId = DATA_BLOCK_ID_INSULATION_MONITORING};
 
-/** data block: pack values */
+/** data block: BJB values */
+static DATA_BLOCK_BJB_IC_s data_blockBjbIc = {.header.uniqueId = DATA_BLOCK_ID_BJB_IC};
+
+/** data block: BJB flags */
+static DATA_BLOCK_BJB_FLAG_s data_blockBjbFlag = {.header.uniqueId = DATA_BLOCK_ID_BJB_FLAG};
+
+/** data b  lock: pack values */
 static DATA_BLOCK_PACK_VALUES_s data_blockPackValues = {.header.uniqueId = DATA_BLOCK_ID_PACK_VALUES};
 
 /** data block: adc temperature */
@@ -189,7 +195,7 @@ DATA_BASE_s data_database[] = {
     {(void *)(&data_blockSlaveControl), sizeof(DATA_BLOCK_SLAVE_CONTROL_s)},
     {(void *)(&data_blockFeedbackBalancingBase), sizeof(DATA_BLOCK_BALANCING_FEEDBACK_s)},
     {(void *)(&data_blockOpenWireBase), sizeof(DATA_BLOCK_OPEN_WIRE_s)},
-    {(void *)(&data_blockLtcAllGpioVoltagesBase), sizeof(DATA_BLOCK_ALL_GPIO_VOLTAGES_s)},
+    {(void *)(&data_blockAllGpioVoltagesBase), sizeof(DATA_BLOCK_ALL_GPIO_VOLTAGES_s)},
     {(void *)(&data_blockErrors), sizeof(DATA_BLOCK_ERROR_STATE_s)},
     {(void *)(&data_blockContactorFeedback), sizeof(DATA_BLOCK_CONTACTOR_FEEDBACK_s)},
     {(void *)(&data_blockInterlockFeedback), sizeof(DATA_BLOCK_INTERLOCK_FEEDBACK_s)},
@@ -208,9 +214,11 @@ DATA_BASE_s data_database[] = {
     {(void *)(&data_blockCellVoltageRedundancy0), sizeof(DATA_BLOCK_CELL_VOLTAGE_s)},
     {(void *)(&data_blockCellTemperatureRedundancy0), sizeof(DATA_BLOCK_CELL_TEMPERATURE_s)},
     {(void *)(&data_blockFeedbackBalancingRedundancy0), sizeof(DATA_BLOCK_BALANCING_FEEDBACK_s)},
-    {(void *)(&data_blockLtcAllGpioVoltagesRedundancy0), sizeof(DATA_BLOCK_ALL_GPIO_VOLTAGES_s)},
+    {(void *)(&data_blockAllGpioVoltagesRedundancy0), sizeof(DATA_BLOCK_ALL_GPIO_VOLTAGES_s)},
     {(void *)(&data_blockOpenWireRedundancy0), sizeof(DATA_BLOCK_OPEN_WIRE_s)},
     {(void *)(&data_blockInsulationMonitoring), sizeof(DATA_BLOCK_INSULATION_MONITORING_s)},
+    {(void *)(&data_blockBjbIc), sizeof(DATA_BLOCK_BJB_IC_s)},
+    {(void *)(&data_blockBjbFlag), sizeof(DATA_BLOCK_BJB_FLAG_s)},
     {(void *)(&data_blockPackValues), sizeof(DATA_BLOCK_PACK_VALUES_s)},
     {(void *)(&data_blockAdcVoltage), sizeof(DATA_BLOCK_ADC_VOLTAGE_s)},
     {(void *)(&data_blockHumidityTemperatureSensor), sizeof(DATA_BLOCK_HTSEN_s)},

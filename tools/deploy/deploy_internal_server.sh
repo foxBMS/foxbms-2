@@ -45,18 +45,28 @@
 set -e
 
 # NAMES AND PATHS
+
+# Documentation
 NAME_DOC_DEPLOY_JOB='id_deploy_docs'
 DIR_DOC_DEPLOY='doc'
 DOC_ARTIFACT='build/docs/.'
 
-NAME_COV_DEPLOY_JOB='id_deploy_embedded_cov_report'
-DIR_COV_DEPLOY='cov'
-COV_ARTIFACT='build/unit_test/artifacts/gcov/.'
 
+# Unit tests
+NAME_APP_HOST_UNIT_TEST_COVERAGE_REPORT='id_deploy_app_host_unit_test_coverage_report'
+DIR_APP_HOST_UNIT_TEST_DEPLOY='cov_app'
+COV_APP_HOST_UNIT_TEST_ARTIFACT='build/app_host_unit_test/artifacts/gcov/.'
+
+NAME_BOOTLOADER_HOST_UNIT_TEST_COVERAGE_REPORT='id_deploy_bootloader_host_unit_test_coverage_report'
+DIR_BOOTLOADER_HOST_UNIT_TEST_DEPLOY='cov_bootloader'
+COV_BOOTLOADER_HOST_UNIT_TEST_ARTIFACT='build/bootloader_host_unit_test/artifacts/gcov/.'
+
+# Script unit tests
 NAME_COV_SCRIPT_DEPLOY_JOB='id_deploy_scripts_cov_report'
 DIR_COV_SCRIPT_DEPLOY='cov_script'
 COV_SCRIPT_ARTIFACT='build/cli-selftest/.'
 
+# Static program analysis
 NAME_SPA_AXIVION_DEPLOY_JOB='id_deploy_custom_axivion_report'
 DIR_SPA_AXIVION_DEPLOY='axivion'
 SPA_AXIVION_ARTIFACT='custom-reports'
@@ -69,7 +79,8 @@ echo 'This is the deployment-script for local reports and documentation.'
 echo 'I will try to detect the current CI-job:'
 # check for CI and if we are in the right job
 if [ "$CI_JOB_NAME" != "$NAME_DOC_DEPLOY_JOB" ] && \
-   [ "$CI_JOB_NAME" != "$NAME_COV_DEPLOY_JOB" ] && \
+   [ "$CI_JOB_NAME" != "$NAME_APP_HOST_UNIT_TEST_COVERAGE_REPORT" ] && \
+   [ "$CI_JOB_NAME" != "$NAME_BOOTLOADER_HOST_UNIT_TEST_COVERAGE_REPORT" ] && \
    [ "$CI_JOB_NAME" != "$NAME_COV_SCRIPT_DEPLOY_JOB" ] && \
    [ "$CI_JOB_NAME" != "$NAME_SPA_AXIVION_DEPLOY_JOB" ]; then
     echo 'Expected environment variables not matched.'
@@ -124,9 +135,12 @@ echo "$INTERNAL_WEBSERVER_SSH_HOST_KEY" >> ~/.ssh/known_hosts
 if [ "$CI_JOB_NAME" == "$NAME_DOC_DEPLOY_JOB" ]; then
     BASE_DIR=$DIR_DOC_DEPLOY
     ARTIFACT=$DOC_ARTIFACT
-elif [ "$CI_JOB_NAME" == "$NAME_COV_DEPLOY_JOB" ]; then
-    BASE_DIR=$DIR_COV_DEPLOY
-    ARTIFACT=$COV_ARTIFACT
+elif [ "$CI_JOB_NAME" == "$NAME_APP_HOST_UNIT_TEST_COVERAGE_REPORT" ]; then
+    BASE_DIR=$DIR_APP_HOST_UNIT_TEST_DEPLOY
+    ARTIFACT=$COV_APP_HOST_UNIT_TEST_ARTIFACT
+elif [ "$CI_JOB_NAME" == "$NAME_BOOTLOADER_HOST_UNIT_TEST_COVERAGE_REPORT" ]; then
+    BASE_DIR=$DIR_BOOTLOADER_HOST_UNIT_TEST_DEPLOY
+    ARTIFACT=$COV_BOOTLOADER_HOST_UNIT_TEST_ARTIFACT
 elif [ "$CI_JOB_NAME" == "$NAME_COV_SCRIPT_DEPLOY_JOB" ]; then
     BASE_DIR=$DIR_COV_SCRIPT_DEPLOY
     ARTIFACT=$COV_SCRIPT_ARTIFACT

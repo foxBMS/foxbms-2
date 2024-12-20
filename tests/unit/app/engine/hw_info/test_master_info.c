@@ -43,8 +43,8 @@
  * @file    test_master_info.c
  * @author  foxBMS Team
  * @date    2020-07-09 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -54,13 +54,20 @@
 
 /*========== Includes =======================================================*/
 #include "unity.h"
+#include "Mockdatabase.h"
+#include "Mockdiag.h"
 
 #include "master_info.h"
 
 /*========== Unit Testing Framework Directives ==============================*/
+TEST_INCLUDE_PATH("../../src/app/engine/config")
+TEST_INCLUDE_PATH("../../src/app/engine/database")
+TEST_INCLUDE_PATH("../../src/app/engine/diag")
 TEST_INCLUDE_PATH("../../src/app/engine/hw_info")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
+#define NUM_DATA_READ_SUB_CALLS                        (1)
+#define SUPPLY_VOLTAGE_CLAMP_30C_SENSE_INPUT_ADC_INDEX (6u)
 
 /*========== Setup and Teardown =============================================*/
 void setUp(void) {
@@ -120,4 +127,51 @@ void testMINFO_SetResetSource(void) {
     MINFO_SetResetSource(NO_RESET);
     /* Check if reset reason is NO_RESET */
     TEST_ASSERT_EQUAL(NO_RESET, MINFO_GetResetSource());
+}
+
+/**
+ * @brief   Iterate over a callback that supplies various scenarios and check if they work as expected
+ * @details This function uses the callback #MockDATA_ReadBlock_Callback() in order to inject
+ *          adc voltages into the returned database tables.
+ */
+STD_RETURN_TYPE_e MockDATA_ReadBlock_Callback(void *pDataToReceiver, int num_calls) {
+    int32_t adcVoltage_mV = 0;
+
+    /* determine a value depending on num_calls (has to be synchronized with test) */
+    switch (num_calls) {
+        case 0:
+            /* Set ADC voltage to 2000mV */
+            adcVoltage_mV = 2000;
+            break;
+        default:
+            TEST_FAIL_MESSAGE("DATA_ReadBlock_Callback was called too often");
+    }
+    /* ENTER HIGHEST CASE NUMBER IN EXPECT; checks whether all cases are used */
+    TEST_ASSERT_EQUAL_MESSAGE(0, (NUM_DATA_READ_SUB_CALLS - 1), "Check code of stub. Something does not fit.");
+
+    if (num_calls >= NUM_DATA_READ_SUB_CALLS) {
+        TEST_FAIL_MESSAGE("This stub is fishy");
+    }
+
+    /* cast to correct struct */
+    ((DATA_BLOCK_ADC_VOLTAGE_s *)pDataToReceiver)
+        ->adc1ConvertedVoltages_mV[SUPPLY_VOLTAGE_CLAMP_30C_SENSE_INPUT_ADC_INDEX] = adcVoltage_mV;
+
+    return STD_OK;
+}
+
+void testMINFO_CheckSupplyVoltageClamp30c(void) {
+    /* ======= Assertion tests ============================================= */
+    /* ======= AT1/1: Just see if function can be called successfully */
+
+    /* tell CMock to use our callback */
+    DATA_Read1DataBlock_Stub(MockDATA_ReadBlock_Callback);
+
+    DIAG_Handler_ExpectAndReturn(
+        DIAG_ID_SUPPLY_VOLTAGE_CLAMP_30C_LOST, DIAG_EVENT_OK, DIAG_SYSTEM, 0u, DIAG_HANDLER_RETURN_OK);
+
+    MINFO_CheckSupplyVoltageClamp30c();
+
+    /* ======= Routine tests =============================================== */
+    /* ======= RT1/1: OK event -> database entry must not change */
 }

@@ -43,8 +43,8 @@
  * @file    nxpfs85xx.c
  * @author  foxBMS Team
  * @date    2020-03-18 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup DRIVERS
  * @prefix  FS85
  *
@@ -1194,7 +1194,7 @@ static STD_RETURN_TYPE_e FS85_PerformPathCheckRstb(FS85_STATE_s *pInstance) {
             FSYS_SwitchToUserMode();
 
             /** FIN state okay, no short circuit. Update also in nvram struct */
-            DIAG_Handler(DIAG_ID_SBC_FIN_STATE, DIAG_EVENT_OK, DIAG_SYSTEM, 0);
+            DIAG_Handler(DIAG_ID_SBC_FIN_ERROR, DIAG_EVENT_OK, DIAG_SYSTEM, 0);
             pInstance->fin.finState          = STD_OK;
             pInstance->nvram.pData->finState = STD_OK;
 
@@ -1238,11 +1238,11 @@ static STD_RETURN_TYPE_e FS85_PerformPathCheckRstb(FS85_STATE_s *pInstance) {
                 /** Reset RSTB_EVENT flag */
                 FS85_WriteBackRegisterFsInit(pInstance, FS8X_FS_SAFE_IOS_ADDR, FS8X_FS_RSTB_EVENT_RESET_OCCURRED);
                 /** Update diag flag */
-                DIAG_Handler(DIAG_ID_SBC_RSTB_STATE, DIAG_EVENT_OK, DIAG_SYSTEM, 0);
+                DIAG_Handler(DIAG_ID_SBC_RSTB_ERROR, DIAG_EVENT_OK, DIAG_SYSTEM, 0);
             } else {
                 /** RSTB has not been activated but this should have been the case */
                 retval = STD_NOT_OK;
-                DIAG_Handler(DIAG_ID_SBC_RSTB_STATE, DIAG_EVENT_NOT_OK, DIAG_SYSTEM, 0);
+                DIAG_Handler(DIAG_ID_SBC_RSTB_ERROR, DIAG_EVENT_NOT_OK, DIAG_SYSTEM, 0);
             }
         } else {
             /** Reset was not caused by SBC initialization or power-cycle.
@@ -1254,9 +1254,9 @@ static STD_RETURN_TYPE_e FS85_PerformPathCheckRstb(FS85_STATE_s *pInstance) {
            updates local FIN state if short-circuit between FIN and RSTB has been detected */
         pInstance->fin.finState = pInstance->nvram.pData->finState;
         if (pInstance->fin.finState == STD_OK) {
-            DIAG_Handler(DIAG_ID_SBC_FIN_STATE, DIAG_EVENT_OK, DIAG_SYSTEM, 0);
+            DIAG_Handler(DIAG_ID_SBC_FIN_ERROR, DIAG_EVENT_OK, DIAG_SYSTEM, 0);
         } else {
-            DIAG_Handler(DIAG_ID_SBC_FIN_STATE, DIAG_EVENT_NOT_OK, DIAG_SYSTEM, 0);
+            DIAG_Handler(DIAG_ID_SBC_FIN_ERROR, DIAG_EVENT_NOT_OK, DIAG_SYSTEM, 0);
         }
     } else {
         /** Reset was not caused by power-cycle or SBC. SBC has already been initialized successfully after detected
@@ -1265,9 +1265,9 @@ static STD_RETURN_TYPE_e FS85_PerformPathCheckRstb(FS85_STATE_s *pInstance) {
         test_assertionRSTB      = false;
         pInstance->fin.finState = pInstance->nvram.pData->finState;
         if (pInstance->fin.finState == STD_OK) {
-            DIAG_Handler(DIAG_ID_SBC_FIN_STATE, DIAG_EVENT_OK, DIAG_SYSTEM, 0);
+            DIAG_Handler(DIAG_ID_SBC_FIN_ERROR, DIAG_EVENT_OK, DIAG_SYSTEM, 0);
         } else {
-            DIAG_Handler(DIAG_ID_SBC_FIN_STATE, DIAG_EVENT_NOT_OK, DIAG_SYSTEM, 0);
+            DIAG_Handler(DIAG_ID_SBC_FIN_ERROR, DIAG_EVENT_NOT_OK, DIAG_SYSTEM, 0);
         }
     }
 

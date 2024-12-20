@@ -37,7 +37,7 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""Template for Python scripts"""
+"""Update version script"""
 
 import sys
 import csv
@@ -53,15 +53,32 @@ from git import Repo
 
 MAGIC_DATE = "xxxx-xx-xx"
 
+RELEASE_ENTRY_TEMPLATE = """\
+Added
+=====
+
+Changed
+=======
+
+Deprecated
+==========
+
+Removed
+=======
+
+Fixed
+=====
+"""
+
 
 def get_git_root(path: str = os.path.realpath(__file__)) -> Path:
     """helper function to find the repository root
 
     Args:
-        path (string): path of file in git repository
+        path: path of file in git repository
 
     Returns:
-        root (string): root path of the git repository
+        root: root path of the git repository
     """
     repo = Repo(path, search_parent_directories=True)
     root = Path(repo.git.rev_parse("--show-toplevel"))
@@ -74,9 +91,9 @@ def date_get_today() -> str:
     return today.strftime("%Y-%m-%d")
 
 
-def get_previous_release(repo: Path) -> str:
+def get_previous_release(root: Path) -> str:
     """Return the previous version number"""
-    path = str(repo / "docs" / "general" / "releases.csv")
+    path = str(root / "docs/general/releases.csv")
     with open(path, encoding="utf-8") as f:
         reader = csv.DictReader(f, delimiter=";")
         for row in reader:
@@ -85,7 +102,7 @@ def get_previous_release(repo: Path) -> str:
     return ""
 
 
-def update_c_h_files(root, iso_date_today, _from, _to):
+def update_c_h_files(root: Path, iso_date_today: str, _from: str, _to: str):
     """update .c,  and .h files"""
     all_c_h_files = (
         list((root / "conf").rglob("**/*.[c|h]"))
@@ -93,6 +110,11 @@ def update_c_h_files(root, iso_date_today, _from, _to):
         + list((root / "src").rglob("**/*.[c|h]"))
         + list((root / "tests").rglob("**/*.[c|h]"))
         + list((root / "tools/crc").rglob("**/*.[c|h]"))
+        + [
+            Path(
+                "tests/cli/pre_commit_scripts/test_check_sections/unknown-file-extension.abc"
+            )
+        ]
     )
     updated = re.compile(r" \* @updated (\d{4}-\d{2}-\d{2}) \(date of last update\)")
     updated_new = f" * @updated {iso_date_today} (date of last update)"
@@ -109,6 +131,10 @@ def update_c_h_files(root, iso_date_today, _from, _to):
             continue
         if " * @author  foxBMS Team" in txt:
             do_replace = True
+        elif "ignore-author-comment" in i.name:
+            do_replace = True
+        elif "no-author-comment" in i.name:
+            do_replace = True
         elif "nxp_mc33775a-ll" in i.name:
             do_replace = True
         if not do_replace:
@@ -124,7 +150,7 @@ def update_c_h_files(root, iso_date_today, _from, _to):
             i.write_text(txt, encoding="ascii")
 
 
-def update_wscript(root, _from, _to):
+def update_wscript(root: Path, _from: str, _to: str):
     """update wscript"""
     wscript = root / "wscript"
     txt = wscript.read_text(encoding="utf-8")
@@ -132,7 +158,7 @@ def update_wscript(root, _from, _to):
     wscript.write_text(txt, encoding="utf-8")
 
 
-def update_citation(root, iso_date_today, _from, _to):
+def update_citation(root: Path, iso_date_today: str, _from: str, _to: str):
     """Update citation file"""
     citation = root / "CITATION.cff"
     txt = citation.read_text(encoding="utf-8")
@@ -146,47 +172,35 @@ def update_citation(root, iso_date_today, _from, _to):
     citation.write_text(txt, encoding="utf-8")
 
 
-def update_changelog(root, iso_date_today, _from, _to):
+def update_changelog(root: Path, iso_date_today: str, _from: str, _to: str):
     """Update changelog"""
-    changelog = root / "docs" / "general" / "changelog.rst"
+    changelog = root / "docs/general/changelog.rst"
     logging.debug("Patching %s", changelog)
     txt = changelog.read_text(encoding="utf-8")
     if _to == "x.y.z":
-        txt = txt.splitlines()
-        if txt[47].startswith(f"[{_to}"):
-            sys.exit(f"Something went wrong. {changelog} already sets 'v{_to}'.")
-        txt = (
-            txt[:49]
-            + f"""
-********************
-[{_to}] - {MAGIC_DATE}
-********************
-
-Added
-=====
-
-Changed
-=======
-
-Deprecated
-==========
-
-Removed
-=======
-
-Fixed
-=====
-
-""".splitlines()
-            + txt[50:]
+        tmp = txt.splitlines()
+        tmp.insert(
+            24,
+            "********************\n[x.y.z] - xxxx-xx-xx\n********************\n\n"
+            ".. include:: ./changelog-entries/vx.y.z.txt\n",
         )
-        txt = "\n".join(txt) + "\n"
+        txt = "\n".join(tmp) + "\n"
     else:
         txt = txt.replace(f"[{_from}] - {MAGIC_DATE}", f"[{_to}] - {iso_date_today}")
+        txt = txt.replace(
+            ".. include:: ./changelog-entries/vx.y.z.txt",
+            f".. include:: ./changelog-entries/v{_to}.txt",
+        )
+        # rename the devel changelog-entry file to the desired one
+        changelog_entry = root / "docs/general/changelog-entries/vx.y.z.txt"
+        changelog_entry.rename(root / f"docs/general/changelog-entries/v{_to}.txt")
+        # create a new devel changelog-entry file with default text
+        changelog_entry = root / "docs/general/changelog-entries/vx.y.z.txt"
+        changelog_entry.write_text(RELEASE_ENTRY_TEMPLATE, encoding="utf-8")
     changelog.write_text(txt, encoding="utf-8")
 
 
-def update_commit_fragments(root, previous_release, _from, _to):
+def update_commit_fragments(root: Path, previous_release: str, _from: str, _to: str):
     """Update the next-release commit fragment and create the one for the release"""
     if _to == "x.y.z":
         change_type = "<Major/Minor/Bugfix>"
@@ -201,7 +215,7 @@ def update_commit_fragments(root, previous_release, _from, _to):
                 change_type = "Major"
         except ValueError:
             sys.exit("unexpected version identifier")
-    commit_msg_file = root / "docs" / "general" / "commit-msgs" / "next-release.txt"
+    commit_msg_file = root / "docs/general/commit-msgs/next-release.txt"
     logging.debug("Patching %s", commit_msg_file)
     txt = commit_msg_file.read_text(encoding="utf-8")
     txt = txt.replace("<Major/Minor/Bugfix>", change_type)
@@ -224,9 +238,9 @@ https://iisb-foxbms.iisb.fraunhofer.de/foxbms/gen2/docs/html/vx.y.z/general/chan
     commit_msg_file.write_text(txt, encoding="utf-8")
 
 
-def update_release_csv(root, iso_date_today, _from, _to):
+def update_release_csv(root: Path, iso_date_today: str, _from: str, _to: str):
     """Update release.csv"""
-    releases = root / "docs" / "general" / "releases.csv"
+    releases = root / "docs/general/releases.csv"
     txt = releases.read_text(encoding="utf-8")
     if _to == "x.y.z":
         txt = txt.splitlines()
@@ -247,29 +261,7 @@ def update_release_csv(root, iso_date_today, _from, _to):
     releases.write_text(txt, encoding="utf-8")
 
 
-def update_installation_instructions(root, _from, _to):
-    """Update software-installation instructions"""
-    software_installation = (
-        root / "docs" / "getting-started" / "software-installation.rst"
-    )
-    txt = software_installation.read_text(encoding="utf-8")
-    txt = txt.replace(_from, _to, 4)
-    software_installation.write_text(txt, encoding="utf-8")
-
-
-def update_doc_macros(root, _from, _to):
-    """Update the sphinx macro file"""
-    macros = root / "docs" / "macros.txt"
-    txt = macros.read_text(encoding="utf-8")
-    txt = txt.replace(
-        f".. |version_foxbms| replace:: ``{_from}``",
-        f".. |version_foxbms| replace:: ``{_to}``",
-        1,
-    )
-    macros.write_text(txt, encoding="utf-8")
-
-
-def main():
+def main() -> int:
     """Update the version information in all relevant files."""
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -321,8 +313,6 @@ def main():
     update_changelog(root, iso_date_today, _from, _to)
     update_commit_fragments(root, previous_release, _from, _to)
     update_release_csv(root, iso_date_today, _from, _to)
-    update_installation_instructions(root, _from, _to)
-    update_doc_macros(root, _from, _to)
 
 
 if __name__ == "__main__":

@@ -55,13 +55,13 @@ CONTEXT_SETTINGS = {
     "--self-test",
     default=False,
     is_flag=True,
-    help="Run foxBMS CLI self test",
+    help="Run foxBMS CLI self test.",
 )
 @click.option(
     "--coverage-report",
     default=False,
     is_flag=True,
-    help="Run foxBMS CLI self test",
+    help="Create a coverage report (requires '--self-test').",
 )
 @click.argument("unittest_args", nargs=-1, type=click.UNPROCESSED)
 @click.pass_context
@@ -71,8 +71,11 @@ def cli_unittest(
     coverage_report: bool,
     unittest_args: tuple[str],
 ) -> None:
-    """Run unit-tests on the CLI tool itself"""
+    """Run unit-tests on the CLI tool itself."""
     err = 0
+    if coverage_report and not self_test:
+        click.echo("'--coverage-report' requires '--self-test'.", err=True)
+        err = 1
     if self_test:
         err = cli_unittest_impl.run_script_tests(coverage_report).returncode
     elif unittest_args:

@@ -43,8 +43,8 @@
  * @file    sps.h
  * @author  foxBMS Team
  * @date    2020-10-14 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup DRIVERS
  * @prefix  SPS
  *
@@ -61,7 +61,9 @@
 
 #include "sps_types.h"
 
+#ifdef UNITY_UNIT_TEST
 #include <stdint.h>
+#endif
 
 /*========== Macros and Definitions =========================================*/
 
@@ -131,6 +133,9 @@ extern CONT_ELECTRICAL_STATE_TYPE_e SPS_GetChannelPexFeedback(const SPS_CHANNEL_
  * @returns     affiliation of the channel
  */
 extern SPS_CHANNEL_AFFILIATION_e SPS_GetChannelAffiliation(SPS_CHANNEL_INDEX channelIndex);
+
+/** Reset/Switch off all SPS channels that are configured as #SPS_AFF_GENERAL_IO */
+extern void SPS_SwitchOffAllGeneralIoChannels(void);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 #ifdef UNITY_UNIT_TEST

@@ -37,47 +37,45 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""Build Script: ``./src/app/main/wscript``
-====================================
-
-Builds the main binary"""
-
-import os
+"""Builds the application main binary"""
 
 
 def build(bld):
     """runs the main build by linking the previously built libraries
     and the objects built within this wscript"""
-    source = ["main.c", "fassert.c", "fstartup.c"]
-    linker_script_elf = bld.path.find_node("linker_script_elf.cmd")
-    linker_script_hex = bld.path.find_node("linker_script_hex.cmd")
-    linker_pulls = bld.path.find_node(
-        os.path.join("..", "..", "..", "conf", "cc", "linker_pulls.json")
-    )
+    target = bld.env.APPNAME.lower()
+    source = [
+        "fassert.c",
+        "fstartup.c",
+        "main.c",
+    ]
+    linker_script_elf = bld.path.find_node("app.cmd")
+    linker_script_hex = bld.path.find_node("app_hex.cmd")
+    linker_pulls = bld.path.find_node("../../../conf/cc/linker_pulls.json")
     includes = [
         "include",
-        os.path.join("include", "config"),
-        os.path.join("..", "application", "config"),
-        os.path.join("..", "driver", "adc"),
-        os.path.join("..", "driver", "checksum"),
-        os.path.join("..", "driver", "config"),
-        os.path.join("..", "driver", "contactor"),
-        os.path.join("..", "driver", "dma"),
-        os.path.join("..", "driver", "foxmath"),
-        os.path.join("..", "driver", "i2c"),
-        os.path.join("..", "driver", "io"),
-        os.path.join("..", "driver", "led"),
-        os.path.join("..", "driver", "meas"),
-        os.path.join("..", "driver", "pwm"),
-        os.path.join("..", "driver", "spi"),
-        os.path.join("..", "driver", "sps"),
-        os.path.join("..", "driver", "mcu"),
-        os.path.join("..", "engine", "config"),
-        os.path.join("..", "engine", "database"),
-        os.path.join("..", "engine", "diag"),
-        os.path.join("..", "engine", "hw_info"),
-        os.path.join("..", "task", "os"),
-        os.path.join("..", "task", "config"),
+        "../application/config",
+        "../driver/adc",
+        "../driver/checksum",
+        "../driver/config",
+        "../driver/contactor",
+        "../driver/dma",
+        "../driver/foxmath",
+        "../driver/i2c",
+        "../driver/io",
+        "../driver/led",
+        "../driver/meas",
+        "../driver/pwm",
+        "../driver/spi",
+        "../driver/sps",
+        "../driver/mcu",
+        "../engine/config",
+        "../engine/database",
+        "../engine/diag",
+        "../engine/hw_info",
+        "../task/os",
+        "../task/config",
+        "../../version",
     ]
     includes.extend(bld.env.INCLUDES_RTOS + bld.env.INCLUDES_AFE)
     cflags = bld.env.CFLAGS_FOXBMS
@@ -98,5 +96,6 @@ def build(bld):
         includes=includes,
         cflags=cflags,
         use=use,
-        target=bld.env.APPNAME.lower(),
+        target=target,
+        app_build_cfg=True,
     )

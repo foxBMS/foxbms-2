@@ -36,3 +36,5 @@
 # - "This product uses parts of foxBMS®"
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
+
+"""foxBMS 2 command line interface"""

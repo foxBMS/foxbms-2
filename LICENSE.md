@@ -21,9 +21,9 @@
 We kindly request you to use one or more of the following phrases to refer to
 foxBMS in your hardware, software, documentation or advertising materials:
 
-- &Prime;This product uses parts of foxBMS&reg;&Prime;
-- &Prime;This product includes parts of foxBMS&reg;&Prime;
-- &Prime;This product is derived from foxBMS&reg;&Prime;
+- "This product uses parts of foxBMS&reg;"
+- "This product includes parts of foxBMS&reg;"
+- "This product is derived from foxBMS&reg;"
 
 If you use foxBMS in your products, we encourage you to contact us at:
 

@@ -42,6 +42,7 @@
 # pylint: disable=too-many-statements,too-many-lines,too-many-locals
 
 import binascii
+from dataclasses import dataclass
 import json
 import os
 import pathlib
@@ -52,11 +53,13 @@ from hashlib import md5
 from datetime import date
 
 import waflib.Tools.asm
+from waflib.Build import BuildContext
 from waflib import Context, Logs, Task, TaskGen, Utils, Errors
 from waflib.Configure import conf
 from waflib.TaskGen import taskgen_method
 from waflib.Tools import c_preproc
 from waflib.Tools.ccroot import link_task
+from waflib.Node import Node
 
 # pylint: disable=unused-import
 import f_ti_arm_cgt_cc_options  # noqa: F401
@@ -69,7 +72,7 @@ import f_ti_color_arm_cgt
 HAVE_GIT = False
 try:
     from git import Repo
-    from git.exc import InvalidGitRepositoryError
+    from git.exc import InvalidGitRepositoryError, GitCommandError
 
     HAVE_GIT = True
 except ImportError:
@@ -723,7 +726,7 @@ def add_copy_elf_task(self):
 
 
 @conf
-def tiprogram(bld, *k, **kw):
+def tiprogram(bld: BuildContext, *k, **kw):
     """wrapper for bld.program for simpler target configuration.
     The linker script is added as env input/output dependency for the
     target.
@@ -738,6 +741,8 @@ def tiprogram(bld, *k, **kw):
         kw["target"] = "out"
     if "linker_script" not in kw:
         bld.fatal("linker script missing")
+    if not isinstance(kw["linker_script"], Node):
+        kw["linker_script"] = bld.path.find_node(kw["linker_script"])
     bld.env.LINKER_SCRIPT = kw["linker_script"].abspath()
 
     kw["features"] = "c cprogram"
@@ -1064,6 +1069,20 @@ class clean_pp_file(Task.Task):  # pylint: disable-msg=invalid-name,too-few-publ
         return "Postprocessing"
 
 
+@dataclass
+class GitInformation:  # pylint: disable=too-many-instance-attributes
+    """git version information object"""
+
+    version: str
+    dirty: str
+    tag: str
+    major: int
+    minor: int
+    patch: int
+    distance: int
+    commit: str
+
+
 class create_version_source(Task.Task):  # pylint: disable=invalid-name
     """creates the version information file"""
 
@@ -1082,41 +1101,89 @@ class create_version_source(Task.Task):  # pylint: disable=invalid-name
     always_run = True
 
     def get_remote(self):
-        """returns the git remote"""
+        """returns the git 'origin' remote"""
         # pylint: disable=no-member
         remote = "No remote"
         if self.repo:
-            remote = self.repo.git.remote("get-url", "--push", "origin")
-        return remote
+            try:
+                remote = self.repo.git.ls_remote("--get-url")
+            except GitCommandError:
+                Logs.warn("Remote repository could not be determined.")
+                Logs.warn("'git ls-remote --get-url' failed.")
+                remote = "no-remote-set"
+                Logs.warn(f"Setting remote to '{remote}'.")
+        # pylint: enable=no-member
+        # see src/version/version.h: VER_VERSION_STRUCT_MAXIMUM_REMOTE_STRING_LENGTH
+        git_remote_maximum_string_length = 128
+        return remote[:git_remote_maximum_string_length]
 
-    def get_version_from_git(self):
-        """returns a version string that is extracted directly
-        from the underlying git repository
+    def get_version_from_git(self) -> GitInformation:
+        """returns a version information object that is extracted directly
+        from the underlying git repository, if available.
+        if the project is not within a git repository, the version defined
+        in the top level wscript is used.
         """
         # pylint: disable=no-member
-        describe_output = f"no-vcs-{self.env.VERSION}-dirty"
-        if self.repo:
-            cmd = [
-                self.generator.env.GIT[0],
-                "describe",
-                "--dirty",
-                "--tags",
-                "--long",
-                "--always",
-                "--match",
-                "*.*",
-            ]
-            describe_output, _ = self.generator.bld.cmd_and_log(
+
+        # see src/version/version.h: VER_VERSION_STRUCT_MAXIMUM_COMMIT_HASH_LENGTH
+        maximum_commit_hash_length = 14
+        if not self.repo:
+            version_str = f"no-vcs-{self.env.VERSION}-dirty"
+            if "conf_check" not in self.generator.bld.path.get_bld().abspath():
+                Logs.warn(f"{self.env.APPNAME} is not developed in a git repository.")
+                Logs.warn(f"Setting version to '{version_str}'.")
+            return GitInformation(
+                version=version_str,
+                dirty=True,
+                tag=self.env.VERSION,
+                major=self.env.VERSION.split(".")[0],
+                minor=self.env.VERSION.split(".")[1],
+                patch=self.env.VERSION.split(".")[2],
+                distance=65535,
+                commit="f" * maximum_commit_hash_length,
+            )
+
+        # get commit
+        cmd = [self.generator.env.GIT[0], "rev-parse", "HEAD"]
+        commit_long, _ = self.generator.bld.cmd_and_log(
+            cmd,
+            quiet=Context.BOTH,
+            output=Context.BOTH,
+            cwd=self.env.PROJECT_ROOT[0],
+        )
+        commit_long = commit_long.strip()
+        commit_short = commit_long[0:14]
+        # distance to master
+        distance = 0
+        cmd = [self.generator.env.GIT[0], "rev-list", "--count", commit_long, "^master"]
+        try:
+            tmp, _ = self.generator.bld.cmd_and_log(
                 cmd,
                 quiet=Context.BOTH,
                 output=Context.BOTH,
                 cwd=self.env.PROJECT_ROOT[0],
             )
-            describe_output = describe_output.strip()
+            distance = int(tmp.strip())
+        except Errors.WafError:
+            pass
+        # version and dirty information
+        cmd = [
+            self.generator.env.GIT[0],
+            "describe",
+            "--dirty",
+            "--tags",
+        ]
+        describe_output, _ = self.generator.bld.cmd_and_log(
+            cmd,
+            quiet=Context.BOTH,
+            output=Context.BOTH,
+            cwd=self.env.PROJECT_ROOT[0],
+        )
+        describe_output = describe_output.strip()
 
+        # pylint: disable-next=simplifiable-if-statement
         if describe_output.endswith("-dirty"):
             dirty = True
-            describe_output = describe_output[:-6]
         else:
             dirty = False
 
@@ -1124,26 +1191,23 @@ class create_version_source(Task.Task):  # pylint: disable=invalid-name
         major = 0
         minor = 0
         patch = 0
-        distance = 0
-        commit = "no-vcs"
         if describe_output.startswith(("v", "gh-")):
+            # internal releases are tagged by        'v<version>'
+            # while GitHub releases are tagged with  'gh-<version>'
+            # This is not a typo, at some point we chose it that way and we
+            # keep it like that.
             if describe_output.startswith("v"):
                 describe_output = describe_output[1:]  # remove v from start
             elif describe_output.startswith("gh-"):
                 describe_output = describe_output[3:]  # remove gh- from start
             # we are on a branch with a tagged version
-            tag, distance, commit = describe_output.rsplit("-", 2)
-            # try to split of any additions like -rc or -alpha as we don't care
-            # for them in the tag
-            tag = tag.rsplit("-")[0]
+            try:
+                tag, _ = describe_output.split("-", 1)
+            except ValueError:
+                tag = describe_output
             # try to extract major minor patch
             major, minor, patch = tag.split(".")
-            # remove the g from commit ID
-            commit = commit[1:]
-            version = f"{tag}-{distance}-{commit}"
-        elif describe_output.startswith("no-vcs"):
-            version = describe_output
-            tag = self.env.VERSION
+            version = f"{tag}-{distance}-{commit_short}"
         else:
             # no recognizable version has been tagged
             # expecting the output to be commit-id
@@ -1152,17 +1216,31 @@ class create_version_source(Task.Task):  # pylint: disable=invalid-name
         if dirty:
             version = f"{version}-dirty"
 
-        # assemble information into a dict for later usage
-        version_output = {
-            "version": version,
-            "dirty": dirty,
-            "tag": tag,
-            "major": int(major),
-            "minor": int(minor),
-            "patch": int(patch),
-            "distance": int(distance),
-            "commit": commit,
-        }
+        if not len(commit_short) == maximum_commit_hash_length:
+            self.generator.bld.fatal(
+                "The expected short SHA needs to be 14 characters long.\n"
+                f"Length of SHA '{commit_short}' is {len(commit_short)}."
+            )
+        # see src/version/version.h: VER_VERSION_s
+        maximum_version_size = 255
+        maximum_distance_size = 65535
+
+        major = min(maximum_version_size, int(major))
+        minor = min(maximum_version_size, int(minor))
+        patch = min(maximum_version_size, int(patch))
+        distance = min(maximum_distance_size, int(distance))
+
+        # assemble information
+        version_output = GitInformation(
+            version=version,
+            dirty=dirty,
+            tag=tag,
+            major=major,
+            minor=minor,
+            patch=patch,
+            distance=distance,
+            commit=commit_short,
+        )
         return version_output
 
     def get_repo_dirty_from_git(self):
@@ -1176,53 +1254,34 @@ class create_version_source(Task.Task):  # pylint: disable=invalid-name
         return dirty
 
     def run(self):
-        """Created the version information files"""
+        """Created the version information file"""
         waf_version = self.env.VERSION
 
-        is_git_repo = "false"
+        is_git_repo = "false"  # C bool
         if self.repo:  # pylint: disable=no-member
-            is_git_repo = "true"
-        is_dirty = "false"
+            is_git_repo = "true"  # C bool
+        is_dirty = "false"  # C bool
         if self.get_repo_dirty_from_git():
-            is_dirty = "true"
+            is_dirty = "true"  # C bool
         git_remote = self.get_remote()
 
-        version_output = self.get_version_from_git()
-        if waf_version == "x.y.z":
-            version_output["version"] = "x.y.z"
-            version_output["tag"] = "0.0.0"
-            version_output["major"] = 120  # ascii representation for "x"
-            version_output["minor"] = 121  # ascii representation for "y"
-            version_output["patch"] = 122  # ascii representation for "z"
+        version = self.get_version_from_git()
 
-        if (not version_output.get("tag") == waf_version) and (
-            not waf_version == "x.y.z"
-        ):
+        if waf_version == "x.y.z":
+            version.version = "x.y.z"
+            version.tag = "0.0.0"
+            version.major = 120  # ascii representation for "x"
+            version.minor = 121  # ascii representation for "y"
+            version.patch = 122  # ascii representation for "z"
+
+        if not version.tag == waf_version and (not waf_version == "x.y.z"):
             self.generator.bld.fatal(
-                f"Extracted version from git repo ({version_output['tag']}) does not match "
-                f"version defined in waf ({waf_version})."
+                f"Extracted version from git repo ({version.tag}) "
+                f"does not match version defined in waf ({waf_version})."
             )
 
-        # get information for the build configuration struct
-        build_configuration = self.get_build_configuration()
-
-        # note: these values have to be in line with the corresponding defines
-        # in version_cfg.h
-        commit_hash_maximum_string_length = 9
-        git_remote_maximum_string_length = 128
-        maximum_version_size = 255
-        maximum_distance_size = 65535
-        distance_int = min(maximum_distance_size, version_output["distance"])
-
-        major = min(maximum_version_size, version_output["major"])
-        minor = min(maximum_version_size, version_output["minor"])
-        patch = min(maximum_version_size, version_output["patch"])
-
-        commit_hash = version_output.get("commit", "noHash")[
-            :commit_hash_maximum_string_length
-        ]
         txt = self.inputs[0].read(encoding="utf-8")
-        txt = txt.replace('#include "c.h"', '#include "version_cfg.h"')
+        txt = txt.replace('#include "c.h"', '#include "version.h"')
         doxygen_comment_tpl = [
             " * @file    c.c",
             " * @author  foxBMS Team",
@@ -1235,11 +1294,11 @@ class create_version_source(Task.Task):  # pylint: disable=invalid-name
         ]
         tmp = date.today().strftime("%Y-%m-%d")
         doxygen_comment = [
-            " * @file    version_cfg.c",
+            " * @file    version.c",
             " * @author  foxBMS Team",
             f" * @date    {tmp} (date of creation)",
             f" * @updated {tmp} (date of last update)",
-            f" * @version v{major}.{minor}.{patch}",
+            f" * @version v{version.major}.{version.minor}.{version.patch}",
             " * @ingroup GENERAL",
             " * @prefix  VER",
             (
@@ -1256,16 +1315,80 @@ class create_version_source(Task.Task):  # pylint: disable=invalid-name
             os.linesep.join(
                 [
                     marker,
-                    "const VER_VERSION_s ver_foxbmsVersionInformation VER_VERSION_INFORMATION = {",
+                    "const VER_VERSION_s ver_versionInformation VER_VERSION_INFORMATION = {",
                     f"    .underVersionControl = {is_git_repo},",
                     f"    .isDirty = {is_dirty},",
-                    f"    .major = {major},",
-                    f"    .minor = {minor},",
-                    f"    .patch = {patch},",
-                    f"    .distanceFromLastRelease = {distance_int},",
-                    f'    .commitHash = "{commit_hash}",',
-                    f'    .gitRemote = "{git_remote[:git_remote_maximum_string_length]}",',
+                    f"    .major = {version.major},",
+                    f"    .minor = {version.minor},",
+                    f"    .patch = {version.patch},",
+                    f"    .distanceFromLastRelease = {version.distance},",
+                    f'    .commitHash = "{version.commit}",',
+                    f'    .gitRemote = "{git_remote}",',
                     "};\n",
+                ]
+            ),
+        )
+        # pylint: enable=line-too-long
+
+        self.outputs[0].write(txt, encoding="utf-8")
+
+
+class create_app_build_cfg_source(Task.Task):  # pylint: disable=invalid-name
+    """creates the app build configuration information file"""
+
+    #: int: priority of the task
+    weight = 1
+
+    #: str: color in which the command line is displayed in the terminal
+    color = "BLUE"
+
+    #: list of str: specifies task, that this task needs to run before
+    before = ["c"]
+
+    #: list of str: extensions that trigger a re-build
+    ext_out = [".h"]
+
+    always_run = True
+
+    def run(self):
+        """Created the application build information file"""
+        # get information for the build configuration struct
+        build_configuration = self.get_build_configuration()
+        txt = self.inputs[0].read(encoding="utf-8")
+        txt = txt.replace('#include "c.h"', '#include "app_build_cfg.h"')
+        doxygen_comment_tpl = [
+            " * @file    c.c",
+            " * @author  foxBMS Team",
+            " * @date    2019-08-27 (date of creation)",
+            " * @updated 2024-01-09 (date of last update)",
+            " * @version vx.y.z",
+            " * @ingroup SOME_GROUP",
+            " * @prefix  ABC",
+            " * @brief   Implementation of some software",
+        ]
+        tmp = date.today().strftime("%Y-%m-%d")
+        doxygen_comment = [
+            " * @file    app_build_cfg.c",
+            " * @author  foxBMS Team",
+            f" * @date    {tmp} (date of creation)",
+            f" * @updated {tmp} (date of last update)",
+            f" * @version v{self.env.VERSION}",
+            " * @ingroup GENERAL",
+            " * @prefix  VER",
+            (
+                " * @brief   Header file for the version information that is "
+                "generated by the\n *          toolchain."
+            ),
+        ]
+        for finding, _replacement in zip(doxygen_comment_tpl, doxygen_comment):
+            txt = txt.replace(finding, _replacement)
+        # pylint: disable=line-too-long
+        marker = "/*========== Static Constant and Variable Definitions =======================*/"
+        txt = txt.replace(
+            marker,
+            os.linesep.join(
+                [
+                    marker,
                     "const VER_BUILD_CONFIGURATION_s ver_foxbmsBuildConfiguration = {",
                     f"    .socAlgorithm = SOC_ALGORITHM_{build_configuration['soc_state_estimator']},",
                     f"    .soeAlgorithm = SOE_ALGORITHM_{build_configuration['soe_state_estimator']},",
@@ -1384,6 +1507,9 @@ class create_version_source(Task.Task):  # pylint: disable=invalid-name
         elif temp_sensor_man == "semitec":
             if temp_sensor_model == "103jt":
                 temp_sensor = "SEM00"
+        elif temp_sensor_man == "tdk":
+            if temp_sensor_model == "ntcgs103jf103ft8":
+                temp_sensor = "TDK00"
         elif temp_sensor_man == "vishay":
             if temp_sensor_model == "ntcalug01a103g":
                 temp_sensor = "VIS00"
@@ -1401,11 +1527,6 @@ class create_version_source(Task.Task):  # pylint: disable=invalid-name
         build_configuration["temp_sensor_method"] = temp_sensor_method
 
         return build_configuration
-
-    def sig_explicit_deps(self):
-        """Defines how to get signature of this task (and thus when to rerun it)"""
-        version_output = self.get_version_from_git()
-        self.m.update(version_output["version"].encode("utf-8"))
 
 
 @TaskGen.feature("cprogram")
@@ -1430,24 +1551,27 @@ def create_version_file(self):
     else:
         Logs.warn("Git not available. Proceeding without version information.")
         repo = None
+
+    generated_sources = []
+
     src = self.path.ctx.root.find_node(f"{self.env.PROJECT_ROOT[0]}/conf/tpl/c.c")
-    tsk = self.create_task(
-        "create_version_source",
-        src=src,
-        tgt=[
-            self.path.find_or_declare("version_cfg.c"),
-        ],
-        repo=repo,
+    version_c = self.path.find_or_declare("version.c")
+    version_src_tsk = self.create_task(
+        "create_version_source", src=src, tgt=[version_c], repo=repo
     )
+    generated_sources.append(version_src_tsk.outputs[0])
+
+    if getattr(self, "app_build_cfg", False):
+        app_build_cfg_c = self.path.find_or_declare("app_build_cfg.c")
+        app_cfg_tsk = self.create_task(
+            "create_app_build_cfg_source", src=src, tgt=[app_build_cfg_c], repo=repo
+        )
+        generated_sources.append(app_cfg_tsk.outputs[0])
 
     try:
-        self.includes.append(self.path.get_bld())
+        self.source.extend(generated_sources)
     except AttributeError:
-        self.includes = [self.path.get_bld()]
-    try:
-        self.source.append(tsk.outputs[0])
-    except AttributeError:
-        self.source = [self.source, tsk.outputs[0]]
+        self.source = [self.source] + generated_sources
 
 
 @TaskGen.feature("c")
@@ -1510,6 +1634,8 @@ class search_swi(Task.Task):  # pylint: disable=invalid-name
 @TaskGen.after_method("process_source")
 def get_swi_aliases(self):
     """Find all swi aliases"""
+    if self.env.CC == self.env.AXIVION_CC or "python" in self.env.CC:
+        return
     self.swi_tasks = []
     for i in self.files:
         self.swi_tasks.append(
@@ -1569,6 +1695,8 @@ class print_swi(Task.Task):  # pylint: disable=invalid-name
 @TaskGen.after_method("process_source")
 def print_swi_aliases(self):
     """Find all swi aliases"""
+    if self.env.CC == self.env.AXIVION_CC or "python" in self.env.CC:
+        return
     if not self.jump_table_file:
         self.bld.fatal("Could not find jump table file.")
     src = [self.jump_table_file] + [x.outputs[0] for x in self.swi_tasks]
@@ -1639,47 +1767,79 @@ def test_exec_fun(self):
 def find_armcl(conf):  # pylint: disable-msg=redefined-outer-name
     """configures the compiler, determines the compiler version, and sets the
     default include paths."""
-    cc = conf.find_program(["armcl"], var="CC")  # pylint: disable-msg=invalid-name
-    conf.env.CC_NAME = "cgt"
-    cc_path = pathlib.Path(cc[0])
-    conf.env.append_unique(
-        "INCLUDES", os.path.join(cc_path.parent.parent.absolute(), "include")
-    )
-    conf.env.append_unique(
-        "STLIBPATH", os.path.join(cc_path.parent.parent.absolute(), "lib")
-    )
-    conf.find_program(["armcl"], var="LINK_CC")
-    cmd = Utils.subst_vars("${CC} --compiler_revision", conf.env).split(" ")
-    std_out, std_err = conf.cmd_and_log(cmd, output=Context.BOTH)
-    if std_err:
-        conf.fatal(f"Could not successfully run '--compiler_revision' on {cc}")
-    conf.env.CC_VERSION = std_out.strip()
-    cmd = Utils.subst_vars("${CC} -version", conf.env).split(" ")
-    std_out, std_err = conf.cmd_and_log(cmd, output=Context.BOTH)
-    if std_err:
-        conf.fatal(f"Could not successfully run '-version' on {cc}")
-    version_pattern = re.compile(r"(v\d{1,}\.\d{1,}\.\d{1,}\.(LTS|STS))")
-    for line in std_out.splitlines():
-        full_ver = version_pattern.search(line)
-        if full_ver:
-            conf.env.append_unique("CC_VERSION_FULL", full_ver.group(1))
+    found_versions = []
+    err = 0
+    for i, path_list in enumerate(conf.env.CCS_SEARCH_PATH_GROUP):
+        conf.env.stash()
+        err = 0
+        cc = conf.find_program(["armcl"], var="CC", path_list=path_list)
+        conf.env.CC_NAME = "cgt"
+        cc_path = pathlib.Path(cc[0])
+        conf.env.append_unique(
+            "INCLUDES", os.path.join(cc_path.parent.parent.absolute(), "include")
+        )
+        conf.env.append_unique(
+            "STLIBPATH", os.path.join(cc_path.parent.parent.absolute(), "lib")
+        )
+        conf.find_program(["armcl"], var="LINK_CC", path_list=path_list)
+        cmd = Utils.subst_vars("${CC} --compiler_revision", conf.env).split(" ")
+        std_out, std_err = conf.cmd_and_log(cmd, output=Context.BOTH)
+        if std_err:
+            Logs.warn(f"Could not successfully run '--compiler_revision' on {cc}")
+            err += 1
+            conf.env.revert()
+            continue
+        conf.env.CC_VERSION = std_out.strip()
+        cmd = Utils.subst_vars("${CC} -version", conf.env).split(" ")
+        std_out, std_err = conf.cmd_and_log(cmd, output=Context.BOTH)
+        if std_err:
+            Logs.warn(f"Could not successfully run '-version' on {cc}")
+            err += 1
+        version_pattern = re.compile(r"(v\d{1,}\.\d{1,}\.\d{1,}\.(LTS|STS))")
+        for line in std_out.splitlines():
+            full_ver = version_pattern.search(line)
+            if full_ver:
+                conf.env.append_unique("CC_VERSION_FULL", full_ver.group(1))
+        if not conf.env.CC_VERSION or not conf.env.CC_VERSION_FULL:
+            Logs.warn(f"Could not determine compiler version for '{cc}'")
+            err += 1
+            conf.env.revert()
+            continue
+
+        # we are searching for the newest compiler first, if we find a working
+        # one and strict version checking is not active, then just use this one
+        # If we enforce a strict version just go on until the correct version
+        # is found
+        if not err and not conf.env.FOXBMS_2_CCS_VERSION_STRICT:
+            conf.env.CCS_SEARCH_PATH_GROUP_ID = i
             break
-    if not conf.env.CC_VERSION or not conf.env.CC_VERSION_FULL:
-        conf.fatal("Could not determine compiler version")
-    force_ccs_version = os.environ.get("FOXBMS_2_CCS_VERSION_STRICT", False)
-    if force_ccs_version:
-        if not conf.env.FOXBMS_2_CCS_VERSION_STRICT == conf.env.CC_VERSION_FULL:
-            conf.fatal(
-                "Strict CCS version checking was set, and compiler version does not match.\n"
-                f"(searched for {conf.env.FOXBMS_2_CCS_VERSION_STRICT[0]}, but "
-                f"found {conf.env.CC_VERSION_FULL[0]})."
-            )
+
+        found_versions.append((conf.env.CC_VERSION_FULL[0], cc))
+
+        # we found a compiler, check if it reported the expected, i.e., pinned
+        # version. If it does not match, continue the search.
+        if conf.env.FOXBMS_2_CCS_VERSION_STRICT:
+            if conf.env.FOXBMS_2_CCS_VERSION_STRICT[0] != conf.env.CC_VERSION_FULL[0]:
+                err += 1
+                conf.env.revert()
+                continue
+            conf.env.CCS_SEARCH_PATH_GROUP_ID = i
+            break
+
+    if err:
+        conf.fatal(
+            "Strict CCS version checking was set, and compiler version does not "
+            "match.\n"
+            f"(searched for {conf.env.FOXBMS_2_CCS_VERSION_STRICT[0]}, but only "
+            f"found {found_versions})."
+        )
 
 
 @conf
 def find_armar(conf):  # pylint: disable-msg=redefined-outer-name
     """configures the archive tool"""
-    conf.find_program(["armar"], var="AR")
+    path_list = conf.env.CCS_SEARCH_PATH_GROUP[conf.env.CCS_SEARCH_PATH_GROUP_ID]
+    conf.find_program(["armar"], var="AR", path_list=path_list)
 
 
 @conf

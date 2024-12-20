@@ -15,7 +15,11 @@
       "_active": true
     },
     "IISB-FileLicenseComment": {
-      "_active": true
+      "_active": true,
+      "excludes": [
+        "src/app/main/fstartup.c",
+        "src/bootloader/main/fstartup.c"
+      ]
     },
     "IISB-LiteralSuffixesCheck": {
       "_active": true,
@@ -23,9 +27,16 @@
         "adcGROUP1",
         "adcREG1",
         "AVCLK1_FREQ",
+        "BMS_NO_ACTIVE_DELAY_TIME_ms",
         "canREG1",
         "canREG2",
+        "CRC_CH1_CC",
+        "CRC_CH1_FAIL",
+        "CRC_CH1_OR",
+        "CRC_CH1_TO",
+        "CRC_CH1_UR",
         "crcREG1",
+        "DIAG_DELAY_DISCARDED",
         "dmaRAMREG",
         "ecapREG1",
         "esmREG",
@@ -57,6 +68,7 @@
         "hetREG2",
         "I2C_REPEATMODE",
         "i2cREG1",
+        "i2cREG2",
         "MC33775_ALLM_APP_CTRL_*",
         "MC33775_ALLM_CFG_*",
         "MC33775_ALLM_VCVB_*",
@@ -79,8 +91,12 @@
         "MC33775_SYS_MODE_TARGETMODE_*",
         "MC33775_SYS_UID_LOW_OFFSET",
         "MC33775_SYS_VERSION_OFFSET",
+        "NULL",
         "NULL_PTR",
+        "pdMS_TO_TICKS",
         "RTI_FREQ",
+        "rtiCOUNTER_BLOCK1",
+        "rtiREG1",
         "spiREG1",
         "spiREG2",
         "spiREG3",

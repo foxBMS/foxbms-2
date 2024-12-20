@@ -43,9 +43,9 @@ import re
 import sys
 
 import yaml
+from click import secho
 
-from ..helpers.ansi_colors import RED
-from ..helpers.misc import PROJECT_ROOT, eprint
+from ..helpers.misc import PROJECT_ROOT
 
 CI_CONFIG = PROJECT_ROOT / ".gitlab-ci.yml"
 CI_README = PROJECT_ROOT / ".gitlab/README.md"
@@ -60,10 +60,10 @@ def create_readme() -> int:  # pylint:disable=too-many-branches
     """Reads the '.gitlab-ci.yml' file and creates the 'README.md'."""
     err = 0
     if not CI_CONFIG.is_file():
-        eprint(f"File '{CI_CONFIG}' does not exist.", err=True, color=RED)
+        secho(f"File '{CI_CONFIG}' does not exist.", fg="red", err=True)
         err += 1
     if not CI_README.is_file():
-        eprint(f"File '{CI_README}' does not exist.", err=True, color=RED)
+        secho(f"File '{CI_README}' does not exist.", fg="red", err=True)
         err += 1
     if err:
         return err
@@ -73,6 +73,15 @@ def create_readme() -> int:  # pylint:disable=too-many-branches
             ci_config: dict = yaml.load(ci_config_txt, Loader=yaml.Loader)
         except yaml.YAMLError as exc:
             sys.exit(f"{CI_CONFIG} is not a valid yaml file {exc}).")
+    if "include" in list(ci_config.keys()):
+        for included_yml in ci_config["include"]:
+            with open(included_yml["local"], encoding="utf-8") as f:
+                included_ci_config_txt = f.read()
+                start_position_of_block = included_ci_config_txt.find(MARKER)
+                included_ci_config_txt = included_ci_config_txt[
+                    start_position_of_block - 1 :
+                ]
+                ci_config_txt = ci_config_txt + included_ci_config_txt
 
     if not ci_config.get("stages", []):
         sys.exit("Could not determine stages.")
@@ -84,6 +93,7 @@ def create_readme() -> int:  # pylint:disable=too-many-branches
     markdown: list[str] = []
     lines = ci_config_txt.splitlines()
     for i, line in enumerate(lines):
+        # start of a block is defined as 78 # symbols in a row
         if not in_block:
             if line == MARKER:
                 in_block = True

@@ -40,11 +40,11 @@
 """Script to check the file level doxygen comment"""
 
 import argparse
+import re
+import sys
 from pathlib import Path
 from subprocess import PIPE, Popen
-import sys
 from typing import Sequence
-import re
 
 RE_DATE_FIELD = re.compile(r" \* @date    \d{4}-\d{2}-\d{2} \(date of creation\)")
 RE_UPDATED_FIELD = re.compile(r" \* @updated \d{4}-\d{2}-\d{2} \(date of last update\)")
@@ -53,67 +53,90 @@ RE_PREFIX_FIELD = re.compile(r" \* @prefix  [A-Z]{1,5}")
 RE_BRIEF_FIELD = re.compile(r" \* @brief   [A-Z]{1,}")
 RE_DETAILS_FIELD = re.compile(r" \* @details [A-Z]{1,}")
 
+IDX_MAP = {
+    "src/app/driver/afe/nxp/mc33775a/nxp_mc33775a-ll.c": 22,
+    "tests/cli/pre_commit_scripts/test_check_license_info/invalid-license.c": 43,
+    "tests/cli/pre_commit_scripts/test_check_license_info/no-license.c": 0,
+}
 
+IGNORE_ERROR = {
+    "author": [
+        "src/app/driver/afe/nxp/mc33775a/nxp_mc33775a-ll.c",
+    ],
+}
+
+
+# pylint: disable=too-many-branches, too-many-statements
 def run_check(filename: Path, version: str) -> int:
     """Runs the check"""
     fp = filename.as_posix()
+    offset = IDX_MAP.get(fp, 41)
     try:
         txt = filename.read_text(encoding="ascii")
     except UnicodeDecodeError:
-        print(f"{fp}: Could not ASCII-decode file.")
+        print(f"{fp}: Could not ASCII-decode this file.")
         return 1
     txt_lines = txt.splitlines()
     err = 0
     try:
-        txt_lines[41] == "/**"
+        if not txt_lines[offset] == "/**":
+            err += 1
+            print(f"{fp}: Doxygen comment start marker is missing.")
     except IndexError:
         err += 1
         print(f"{fp}: Doxygen comment start marker is missing.")
     try:
-        txt_lines[42] == f" * @file    {filename.name}"
+        if not txt_lines[offset + 1] == f" * @file    {filename.name}":
+            err += 1
+            print(f"{fp}: Doxygen @file field is wrong/missing.")
     except IndexError:
         err += 1
-        print(f"{fp}: Doxygen comment start marker is missing.")
+        print(f"{fp}: Doxygen @file field is wrong/missing.")
     try:
-        txt_lines[43] == " * @author foxBMS Team"
+        if not txt_lines[offset + 2] == " * @author  foxBMS Team":
+            if fp not in IGNORE_ERROR["author"]:
+                err += 1
+                print(f"{fp}: Doxygen @author field is wrong/missing.")
     except IndexError:
         err += 1
         print(f"{fp}: Doxygen @author field is wrong/missing.")
     try:
-        if not RE_DATE_FIELD.match(txt_lines[44]):
+        if not RE_DATE_FIELD.match(txt_lines[offset + 3]):
             err += 1
             print(f"{fp}: Doxygen @date field is wrong/missing.")
     except IndexError:
         err += 1
         print(f"{fp}: Doxygen @date field is wrong/missing.")
     try:
-        if not RE_UPDATED_FIELD.match(txt_lines[45]):
+        if not RE_UPDATED_FIELD.match(txt_lines[offset + 4]):
             err += 1
             print(f"{fp}: Doxygen @updated field is wrong/missing.")
     except IndexError:
         err += 1
         print(f"{fp}: Doxygen @updated field is wrong/missing.")
     try:
-        txt_lines[46] == f" * @version v{version}"
+        if not txt_lines[offset + 5] == f" * @version v{version}":
+            err += 1
+            print(f"{fp}: Doxygen @version field is wrong/missing.")
     except IndexError:
         err += 1
         print(f"{fp}: Doxygen @version field is wrong/missing.")
     try:
-        if not RE_INGROUP_FIELD.match(txt_lines[47]):
+        if not RE_INGROUP_FIELD.match(txt_lines[offset + 6]):
             err += 1
             print(f"{fp}: Doxygen @ingroup field is wrong/missing.")
     except IndexError:
         err += 1
         print(f"{fp}: Doxygen @ingroup field is wrong/missing.")
     try:
-        if not RE_PREFIX_FIELD.match(txt_lines[48]):
+        if not RE_PREFIX_FIELD.match(txt_lines[offset + 7]):
             err += 1
             print(f"{fp}: Doxygen @prefix field is wrong/missing.")
     except IndexError:
         err += 1
         print(f"{fp}: Doxygen @prefix field is wrong/missing.")
     try:
-        if not RE_BRIEF_FIELD.match(txt_lines[50]):
+        if not RE_BRIEF_FIELD.match(txt_lines[offset + 9]):
             err += 1
             print(f"{fp}: Doxygen @brief field is wrong/missing.")
     except IndexError:
@@ -121,14 +144,14 @@ def run_check(filename: Path, version: str) -> int:
         print(f"{fp}: Doxygen @brief field is wrong/missing.")
 
     # now read until we find the @details comment:
-    idx_details = -1
-    for ln, line in enumerate(txt_lines[51:]):
-        if line.startswith(" * @details "):
-            idx_details = ln + 51
-            break
-    if txt_lines[idx_details - 1] == " *":
-        err += 1
-        print(f"{fp}: There shall be no empty line between @brief and @details.")
+    idx_details = offset + 10
+    try:
+        for ln, line in enumerate(txt_lines[offset + 10 :]):
+            if line.startswith(" * @details "):
+                idx_details = ln + offset + 10
+                break
+    except IndexError:
+        pass
 
     try:
         if not RE_DETAILS_FIELD.match(txt_lines[idx_details]):
@@ -138,16 +161,17 @@ def run_check(filename: Path, version: str) -> int:
         err += 1
         print(f"{fp}: Doxygen @details field is wrong/missing.")
 
-    # we not check for comment closing was the compiler will do that.
+    # we do not check for comment closing was the compiler will do that.
     return err
+
+
+# pylint: enable=too-many-branches, too-many-statements
 
 
 def check_doxygen(files: Sequence[Path], version: str) -> int:
     """Check test files"""
     err = 0
     for i in files:
-        if i.suffix == ".c":
-            continue
         err += run_check(i, version)
     return err
 
@@ -162,7 +186,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     with Popen(cmd, stdout=PIPE) as p:
         ver_str = p.communicate()[0].decode("utf-8")
     try:
-        version = ver_str.split(":")[1]
+        version = ver_str.split(":")[1].strip()
     except IndexError:
         print("Could not determine foxBMS version.")
         return 1

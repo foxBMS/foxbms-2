@@ -43,12 +43,20 @@
  * @file    test_nxpfs85xx.c
  * @author  foxBMS Team
  * @date    2020-04-06 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  SBC
  *
  * @brief   Tests for the sbc module
+ * @details Test functions:
+ *          - testDoSomething
+ *          - testFS85_CheckRegisterValues
+ *          - testFS85_UpdateRegister
+ *          - testFS85_UpdateFailSafeRegister
+ *          - testFS85_UpdateMainRegister
+ *          - testFS85_CheckIgnitionSignal
+ *          - testFS85_GoToStandby
  *
  */
 
@@ -107,6 +115,22 @@ SPI_INTERFACE_CONFIG_s spi_sbcMcuInterface = {
 FRAM_SBC_INIT_s fram_sbcInit = {
     .phase    = 0u,
     .finState = STD_NOT_OK,
+};
+
+FS85_STATE_s pInstance = {
+    .pSpiInterface                  = &spi_sbcMcuInterface,
+    .configValues.watchdogSeed      = FS8x_WD_SEED_DEFAULT,
+    .configValues.communicationMode = fs8xSPI,
+    .configValues.i2cAddressOtp     = 0, /* Not used as SPI is selected */
+    .fin.finUsed                    = false,
+    .fin.finState                   = STD_NOT_OK,
+    .fin.pGIOport = &(systemREG1->SYSPC4), /* FIN connected to ECLK1 (ball A12): PRIVILEGE MODE REQUIRED! */
+    .fin.pin      = 0,
+    .mainRegister = {0},
+    .fsRegister   = {0},
+    .nvram.entry  = FRAM_BLOCK_ID_SBC_INIT_STATE,
+    .nvram.pData  = &fram_sbcInit,
+    .mode         = FS85_NORMAL_MODE, /* default value */
 };
 
 long FSYS_RaisePrivilege(void) {
@@ -226,13 +250,21 @@ void testFS85_UpdateMainRegister(void) {
 }
 
 void testFS85_CheckIgnitionSignal(void) {
-    FS8x_ReadRegister_IgnoreAndReturn(fs8xStatusOk);
+    fs8x_rx_frame_t testRxTemp = {0};
+    uint16_t registerAddress   = FS8X_M_FLAG2_ADDR;
+
+    FS8x_ReadRegister_ExpectAndReturn(
+        pInstance.pSpiInterface, &(pInstance.configValues), false, registerAddress, &testRxTemp, fs8xStatusOk);
     TEST_ASSERT_PASS_ASSERT(FS85_CheckIgnitionSignal(&fs85xx_mcuSupervisor));
     TEST_ASSERT_FAIL_ASSERT(FS85_CheckIgnitionSignal(NULL_PTR));
 }
 
 void testFS85_GoToStandby(void) {
-    FS8x_WriteRegister_IgnoreAndReturn(fs8xStatusOk);
+    uint16_t registerAddress = FS8X_M_MODE_ADDR;
+    uint16_t registerValue   = 1;
+
+    FS8x_WriteRegister_ExpectAndReturn(
+        pInstance.pSpiInterface, &(pInstance.configValues), false, registerAddress, registerValue, fs8xStatusOk);
     TEST_ASSERT_PASS_ASSERT(TEST_FS85_GoToStandby(&fs85xx_mcuSupervisor));
     TEST_ASSERT_FAIL_ASSERT(TEST_FS85_GoToStandby(NULL_PTR));
 }

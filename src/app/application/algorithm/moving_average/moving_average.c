@@ -43,12 +43,12 @@
  * @file    moving_average.c
  * @author  foxBMS Team
  * @date    2017-12-18 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup ALGORITHMS
  * @prefix  ALGO
  *
- * @brief   moving average algorithm
+ * @brief   Moving average algorithm
  * @details TODO
  */
 

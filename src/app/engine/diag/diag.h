@@ -43,8 +43,8 @@
  * @file    diag.h
  * @author  foxBMS Team
  * @date    2019-11-28 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup ENGINE
  * @prefix  DIAG
  *
@@ -181,6 +181,14 @@ extern bool DIAG_IsAnyFatalErrorSet(void);
 extern void TEST_DIAG_SetDiagerrcnttotal(uint16_t errors);
 extern DIAG_DIAGNOSIS_STATE_s *TEST_DIAG_GetDiag(void);
 extern void TEST_DIAG_Reset(void);
+extern uint8_t TEST_DIAG_GetFatalErrorCount(void);
+extern void TEST_DIAG_SetDiagOccurrenceCounter(uint16_t errors);
+extern void TEST_DIAG_ClearFatalErrorById(DIAG_ID_e xEventID);
+extern void TEST_DIAG_SetFatalErrorById(DIAG_ID_e xEventID);
+extern uint8_t TEST_DIAG_GetFatalErrorArrayCount(DIAG_ID_e xEventID);
+extern void TEST_DIAG_ResendFatalErrors(void);
+extern void TEST_DIAG_SetActiveFatalErrorCounter(uint16_t errors);
+extern void TEST_DIAG_SetActiveFatalErrorArray(uint16_t errors);
 #endif
 
 #endif /* FOXBMS__DIAG_H_ */

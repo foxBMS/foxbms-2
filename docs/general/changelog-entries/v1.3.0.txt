@@ -1,0 +1,140 @@
+|foxbms| updated to TI ARM CGT 20.2.5.LTS.
+Installation instructions are found at :numref:`css_install`.
+
+|foxbms| updated to LLVM 13.0.0.
+Installation instructions are found in the LLVM section.
+
+Added
+=====
+
+- The new default compiler set in ``conf/env/paths_win32.txt`` and
+  ``conf/env/paths_linux.txt`` is now TI ARM CGT v20.2.5.LTS (shipped with CCS
+  ``11.0.0``).
+- Add support for the environment variable ``FOXBMS_2_CCS_VERSION_STRICT`` to
+  check for the exact CCS version.
+- Added hardware specifications for the LTC based slaves to the documentation.
+- Added a superimposed state machine for all insulation monitoring device
+  drivers to control the subordinate, device specific driver implementations.
+- Added driver implementation for Bender IR155 insulation monitoring device.
+- Transmit the unique ID of the MCU on which |foxbms| is running on startup
+  via CAN.
+- Added a mechanism to the ``algorithm`` module that allows to reinitialize an
+  algorithm.
+- Added an API to the ``MCU`` module that allows to measure microseconds with
+  the ``RTI`` module.
+- Added a can helper that transforms a boolean to an integer value (fitting to
+  the CAN messages).
+- The Axivion configuration has been updated to ``7.2.3`` in the release
+  ``1.1.2``, however the version setting in the configuration file has not.
+  The versions of the Axivion Suite and the configuration files have been
+  aligned to ``7.2.3``.
+- Added the version information to the header section of all ``C`` source and
+  header files.
+- Added a function to compute CRCs with the MCU hardware.
+- The ``FRAM`` module now writes a CRC of the data written to the FRAM. It
+  also reads the stored CRC and compares it with the CRC calculated on the
+  read data. This makes FRAM entries existing prior to this version invalid.
+- A ``DIAG`` entry was added for FRAM errors.
+- Added documentation for the ``FRAM`` and the ``CRC`` modules.
+- Integrated interaction with the diagnostic module into the Maxim ``AFE``
+  driver.
+- Added information on debug adapters to the documentation.
+- Documented the rule that pointer parameters to functions must indicate in
+  their Doxygen documentation whether they are used as input, output or both.
+- Added a continuously running task with same priority as the 1ms task.
+  It is suspended by default if unused.
+- Added documentation on the Maxim driver.
+
+Changed
+=======
+
+- The linker step now uses ``--start-group`` and ``--end-group`` to re-read
+  libraries until all symbols are resolved instead of ``--reread_libs``.
+  This change simplifies the integration of the build into Axivion.
+- |freertos| configuration is now validated in
+  ``os_freertos_config-validation.h``.
+- Updated the documentation of the of the LTC-based interface |ltc-ltc6820|
+  version 1.0.3 (see :ref:`INTERFACE_LTC_6820___V1_0_3__`).
+- Updated LLVM to version 13.0.0.
+- Updated the pinout documentation for the |bms-master| version 1.1.1
+  (see :ref:`MASTER_TMS570___V1_1_1__`).
+- Update the static code analysis to Axivion 7.4.0.
+- Increased the size of the variable that describes stack sizes for |freertos|,
+  allowing for the fully supported stack size of the port.
+- The diagnosis entries for the ``LTC`` module have been renamed in order to
+  reflect that they are relevant for all ``AFE`` implementations.
+- The schema file for the ``bms.json`` configuration file has been split into
+  several files for readability and |code| has been made aware of the schema.
+- Added a style check that constant values should be on the right hand side of
+  a comparison.
+- Updated |freertos| to version 10.4.5 (from 10.4.3).
+- Cleaned up the CAN callback for receiving commands.
+- Extended the script for updating the doxygen headers in source files so that
+  it fetches first and then compares to the tracking branch.
+- Updated the documentation of the system monitoring module and implemented
+  the recording of violations to the persistent memory.
+- Split the definition of CAN callback functions into separate definitions for
+  received and transmitted messages in order to better reflect the actual
+  implementation and prevent wrong usage.
+- Number of strings now configured to one by default.
+- Renamed the ``FRAM`` functions to adhere to *verb-noun* style.
+- Extended the Axivion configuration so that parameters without an assertion
+  can be suppressed.
+- The threshold above which balancing is started for a single cell has been
+  made configurable by the |foxbms| CAN messages that are already defined.
+- MCU specific defines have been moved from ``general.h`` to ``mcu.h``.
+- The static assert macro ``static_assert`` has been renamed to
+  ``f_static_assert`` to work around compiler limitations.
+- The following defines have been renamed to be aligned with
+  :ref:`NAMING_CONVENTIONS`:
+
+  - ``BS_NR_OF_MODULES`` to ``BS_NR_OF_MODULES_PER_STRING``,
+  - ``BS_NR_OF_CELLS_PER_MODULE`` to ``BS_NR_OF_CELL_BLOCKS_PER_MODULE`` and
+  - ``BS_NR_OF_BAT_CELLS`` to ``BS_NR_OF_CELL_BLOCKS_PER_STRING``.
+- Loop correctly over ``BS_NR_OF_MODULES_PER_STRING``,
+  ``BS_NR_OF_CELL_BLOCKS_PER_MODULE`` and ``BS_NR_OF_CELL_BLOCKS_PER_STRING``.
+
+- Function names are now checked by Axivion to conform to the guidelines.
+- Improved the MISRA-C conformance of of the database module
+  (:ref:`DATABASE_MODULE`).
+- Fixed the pack current check in ``SOA_CheckCurrent``.
+- Fixed LLVM install script to check for permissions before running the script.
+
+Deprecated
+==========
+
+Removed
+=======
+
+- Removed unused function ``OS_SystemTickHandler()``.
+- The Cppcheck support and its configuration files as well as the respective
+  build and clean commands have been removed.
+  The static program analysis of the embedded software is done by Axivion
+  Bauhaus Suite (see :ref:`AXIVION_BAUHAUS_SUITE`).
+
+Fixed
+=====
+
+- Fixed a bug where the ``update_doxygen_header.py`` script tried to
+  ``git add`` files that did not exist.
+- The HALCoGen SPI interface chip select configuration is overwritten and all
+  hardware chip selects are disabled when using a software chip select.
+  This causes all SPI communication using hardware chip selects to fail for
+  this SPI interface.
+  Now the SPI chip select register are correctly configured before starting a
+  SPI transaction.
+- Suppress a superfluous warning during unit test builds concerning the number
+  of bytes per word (as this information is used for task sizing).
+- Fixed "unsafe" macros that had not parentheses and added this violation to
+  violations that fail the CI.
+- Fixed undesired attempt of installation of git hooks even when the project
+  was not stored in a git repository.
+- Fixed import order in Python files.
+- Fixed a static assertion in the Maxim driver (that prevented in some
+  constellations compilation due to a logic error).
+- Fixed a timing violation in the Maxim driver (a computationally costly
+  operation has been moved out of the 1ms-task).
+- Some defines where invisible to the preprocessor due to missing includes.
+  This has been resolved and measures taken that this situation cannot return.
+- The HALCoGen generated startup file ``HL_sys_startup.c`` does not need to be
+  compiled as |foxbms| implements the startup in ``fstartup.c``.

@@ -171,7 +171,7 @@ class UnityTestRunnerGenerator
             arg_elements_regex = /\s*(#{single_arg_regex_string})\s*,\s*/m
 
             args += type_and_args[i + 1].scan(args_regex).flatten.map do |arg_values_str|
-              ("#{arg_values_str},").scan(arg_elements_regex)
+              "#{arg_values_str},".scan(arg_elements_regex)
             end.reduce do |result, arg_range_expanded|
               result.product(arg_range_expanded)
             end.map do |arg_combinations|
@@ -240,8 +240,8 @@ class UnityTestRunnerGenerator
     output.puts('#include "cmock.h"') unless mocks.empty?
     output.puts('}') if @options[:externcincludes]
     if @options[:defines] && !@options[:defines].empty?
-      output.puts("/* injected defines for unity settings, etc */")
-      @options[:defines].each do |d| 
+      output.puts('/* injected defines for unity settings, etc */')
+      @options[:defines].each do |d|
         def_only = d.match(/(\w+).*/)[1]
         output.puts("#ifndef #{def_only}\n#define #{d}\n#endif /* #{def_only} */")
       end
@@ -402,6 +402,7 @@ class UnityTestRunnerGenerator
       end
       output.puts("#{@options[:main_export_decl]} int #{main_name}(int argc, char** argv)")
       output.puts('{')
+      output.puts('#ifdef UNITY_USE_COMMAND_LINE_ARGS')
       output.puts('  int parse_status = UnityParseOptions(argc, argv);')
       output.puts('  if (parse_status != 0)')
       output.puts('  {')
@@ -424,6 +425,7 @@ class UnityTestRunnerGenerator
       output.puts('    }')
       output.puts('    return parse_status;')
       output.puts('  }')
+      output.puts('#endif')
     else
       main_return = @options[:omit_begin_end] ? 'void' : 'int'
       if main_name != 'main'
@@ -455,10 +457,10 @@ class UnityTestRunnerGenerator
       if @options[:omit_begin_end]
         output.puts('  (void) suite_teardown(0);')
       else
-        output.puts('  return suiteTearDown(UnityEnd());')
+        output.puts('  return suiteTearDown(UNITY_END());')
       end
     else
-      output.puts('  return UnityEnd();') unless @options[:omit_begin_end]
+      output.puts('  return UNITY_END();') unless @options[:omit_begin_end]
     end
     output.puts('}')
   end
@@ -534,7 +536,7 @@ if $0 == __FILE__
           '    --suite_setup=""      - code to execute for setup of entire suite',
           '    --suite_teardown=""   - code to execute for teardown of entire suite',
           '    --use_param_tests=1   - enable parameterized tests (disabled by default)',
-          '    --omit_begin_end=1    - omit calls to UnityBegin and UnityEnd (disabled by default)',
+          '    --omit_begin_end=1    - omit calls to UnityBegin and UNITY_END (disabled by default)',
           '    --header_file=""      - path/name of test header file to generate too'].join("\n")
     exit 1
   end

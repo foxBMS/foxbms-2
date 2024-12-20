@@ -43,12 +43,13 @@
  * @file    test_afe_plausibility.c
  * @author  foxBMS Team
  * @date    2020-07-13 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
  * @brief   Tests for the afe_plausibility.c module
+ * @details TODO
  *
  */
 
@@ -216,14 +217,31 @@ void testAFE_PlausibilityCheckTempMinMaxBadInputFromAPI(void) {
 void testAFE_PlausibilityCheckTempMinMaxVerify(void) {
     const int16_t upperLimit_ddegC = 100;
     const int16_t lowerLimit_ddegC = -10;
-    TSI_GetMaximumPlausibleTemperature_IgnoreAndReturn(upperLimit_ddegC);
-    TSI_GetMinimumPlausibleTemperature_IgnoreAndReturn(lowerLimit_ddegC);
-
+    TSI_GetMaximumPlausibleTemperature_ExpectAndReturn(upperLimit_ddegC);
+    TSI_GetMinimumPlausibleTemperature_ExpectAndReturn(lowerLimit_ddegC);
     TEST_ASSERT_EQUAL(STD_NOT_OK, AFE_PlausibilityCheckTempMinMax(INT16_MIN));
+
+    TSI_GetMaximumPlausibleTemperature_ExpectAndReturn(upperLimit_ddegC);
+    TSI_GetMinimumPlausibleTemperature_ExpectAndReturn(lowerLimit_ddegC);
     TEST_ASSERT_EQUAL(STD_NOT_OK, AFE_PlausibilityCheckTempMinMax(lowerLimit_ddegC - 1));
+
+    TSI_GetMaximumPlausibleTemperature_ExpectAndReturn(upperLimit_ddegC);
+    TSI_GetMinimumPlausibleTemperature_ExpectAndReturn(lowerLimit_ddegC);
     TEST_ASSERT_EQUAL(STD_OK, AFE_PlausibilityCheckTempMinMax(lowerLimit_ddegC));
+
+    TSI_GetMaximumPlausibleTemperature_ExpectAndReturn(upperLimit_ddegC);
+    TSI_GetMinimumPlausibleTemperature_ExpectAndReturn(lowerLimit_ddegC);
     TEST_ASSERT_EQUAL(STD_OK, AFE_PlausibilityCheckTempMinMax((lowerLimit_ddegC + upperLimit_ddegC) / 2));
+
+    TSI_GetMaximumPlausibleTemperature_ExpectAndReturn(upperLimit_ddegC);
+    TSI_GetMinimumPlausibleTemperature_ExpectAndReturn(lowerLimit_ddegC);
     TEST_ASSERT_EQUAL(STD_OK, AFE_PlausibilityCheckTempMinMax(upperLimit_ddegC));
+
+    TSI_GetMaximumPlausibleTemperature_ExpectAndReturn(upperLimit_ddegC);
+    TSI_GetMinimumPlausibleTemperature_ExpectAndReturn(lowerLimit_ddegC);
     TEST_ASSERT_EQUAL(STD_NOT_OK, AFE_PlausibilityCheckTempMinMax(upperLimit_ddegC + 1));
+
+    TSI_GetMaximumPlausibleTemperature_ExpectAndReturn(upperLimit_ddegC);
+    TSI_GetMinimumPlausibleTemperature_ExpectAndReturn(lowerLimit_ddegC);
     TEST_ASSERT_EQUAL(STD_NOT_OK, AFE_PlausibilityCheckTempMinMax(INT16_MAX));
 }

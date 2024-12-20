@@ -43,8 +43,8 @@
  * @file    can_cbs_rx_cell-voltages.c
  * @author  foxBMS Team
  * @date    2024-04-08 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup DRIVERS
  * @prefix  CANRX
  *
@@ -64,6 +64,19 @@
 #include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
+/** CAN message parameters for can cell voltage  */
+#define CANRX_CAN_CELL_VOLTAGE_MUX_BIT_START           (7u)
+#define CANRX_CAN_CELL_VOLTAGE_MUX_LENGTH              (8u)
+#define CANRX_CAN_CELL_VOLTAGE0_INVALID_FLAG_BIT_START (12u)
+#define CANRX_CAN_CELL_VOLTAGE1_INVALID_FLAG_BIT_START (13u)
+#define CANRX_CAN_CELL_VOLTAGE2_INVALID_FLAG_BIT_START (14u)
+#define CANRX_CAN_CELL_VOLTAGE3_INVALID_FLAG_BIT_START (15u)
+#define CANRX_CAN_CELL_VOLTAGE_INVALID_FLAG_LENGTH     (1u)
+#define CANRX_CAN_CELL_VOLTAGE0_BIT_START              (11u)
+#define CANRX_CAN_CELL_VOLTAGE1_BIT_START              (30u)
+#define CANRX_CAN_CELL_VOLTAGE2_BIT_START              (33u)
+#define CANRX_CAN_CELL_VOLTAGE3_BIT_START              (52u)
+#define CANRX_CAN_CELL_VOLTAGE_LENGTH                  (13u)
 
 /*========== Static Constant and Variable Definitions =======================*/
 

@@ -113,23 +113,23 @@ The |max-max17841b| transceivers are controlled by the SPI signals from the
 |bms-master|.
 The UART RX signals are available on the connectors J102 and J104.
 The pinout of the connectors is described in
-:numref:`Table %s <interface-max17841b_v1.0.0_uartrx_connectors>`.
+:numref:`Table %s <interface-max17841b_v1.0.0_uart_rx_connectors>`.
 
 .. csv-table:: UART RX Input Connectors
-   :name: interface-max17841b_v1.0.0_uartrx_connectors
+   :name: interface-max17841b_v1.0.0_uart_rx_connectors
    :header-rows: 1
    :delim: ;
-   :file: ./maxim-max17841b-v1.0.0/maxim-max17841b-v1.0.0_uartrx_connectors.csv
+   :file: ./maxim-max17841b-v1.0.0/maxim-max17841b-v1.0.0_uart_rx_connectors.csv
 
 The UART TX signals are available on the connectors J103 and J105.
 The pinout of the connectors is described in
-:numref:`Table %s <interface-max17841b_v1.0.0_uarttx_connectors>`.
+:numref:`Table %s <interface-max17841b_v1.0.0_uart_tx_connectors>`.
 
 .. csv-table:: UART TX Output Connectors
-   :name: interface-max17841b_v1.0.0_uarttx_connectors
+   :name: interface-max17841b_v1.0.0_uart_tx_connectors
    :header-rows: 1
    :delim: ;
-   :file: ./maxim-max17841b-v1.0.0/maxim-max17841b-v1.0.0_uarttx_connectors.csv
+   :file: ./maxim-max17841b-v1.0.0/maxim-max17841b-v1.0.0_uart_tx_connectors.csv
 
 For the connection to the |bms-master|, a 40-pole mezzanine connector (J100)
 is used. The pinout and pin usage is described in

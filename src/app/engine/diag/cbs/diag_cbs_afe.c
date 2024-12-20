@@ -43,8 +43,8 @@
  * @file    diag_cbs_afe.c
  * @author  foxBMS Team
  * @date    2021-02-17 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup ENGINE
  * @prefix  DIAG
  *
@@ -74,17 +74,22 @@ extern void DIAG_ErrorAfe(
     DIAG_EVENT_e event,
     const DIAG_DATABASE_SHIM_s *const kpkDiagShim,
     uint32_t stringNumber) {
-    FAS_ASSERT(diagId < DIAG_ID_MAX);
+    FAS_ASSERT(
+        (diagId == DIAG_ID_AFE_CELL_VOLTAGE_MEAS_ERROR) || (diagId == DIAG_ID_AFE_CELL_TEMPERATURE_MEAS_ERROR) ||
+        (diagId == DIAG_ID_BASE_CELL_VOLTAGE_MEASUREMENT_TIMEOUT) ||
+        (diagId == DIAG_ID_REDUNDANCY0_CELL_VOLTAGE_MEASUREMENT_TIMEOUT) ||
+        (diagId == DIAG_ID_BASE_CELL_TEMPERATURE_MEASUREMENT_TIMEOUT) ||
+        (diagId == DIAG_ID_REDUNDANCY0_CELL_TEMPERATURE_MEASUREMENT_TIMEOUT));
     FAS_ASSERT((event == DIAG_EVENT_OK) || (event == DIAG_EVENT_NOT_OK) || (event == DIAG_EVENT_RESET));
     FAS_ASSERT(kpkDiagShim != NULL_PTR);
     FAS_ASSERT(stringNumber < BS_NR_OF_STRINGS);
 
     if (diagId == DIAG_ID_AFE_CELL_VOLTAGE_MEAS_ERROR) {
         if (event == DIAG_EVENT_RESET) {
-            kpkDiagShim->pTableError->afeCellVoltageInvalidError[stringNumber] = 0;
+            kpkDiagShim->pTableError->afeCellVoltageInvalidError[stringNumber] = false;
         }
         if (event == DIAG_EVENT_NOT_OK) {
-            kpkDiagShim->pTableError->afeCellVoltageInvalidError[stringNumber] = 1;
+            kpkDiagShim->pTableError->afeCellVoltageInvalidError[stringNumber] = true;
         }
     } else if (diagId == DIAG_ID_AFE_CELL_TEMPERATURE_MEAS_ERROR) {
         if (event == DIAG_EVENT_RESET) {
@@ -129,7 +134,9 @@ extern void DIAG_ErrorAfeDriver(
     DIAG_EVENT_e event,
     const DIAG_DATABASE_SHIM_s *const kpkDiagShim,
     uint32_t stringNumber) {
-    FAS_ASSERT(diagId < DIAG_ID_MAX);
+    FAS_ASSERT(
+        (diagId == DIAG_ID_AFE_SPI) || (diagId == DIAG_ID_AFE_COMMUNICATION_INTEGRITY) || (diagId == DIAG_ID_AFE_MUX) ||
+        (diagId == DIAG_ID_AFE_CONFIG) || (diagId == DIAG_ID_AFE_OPEN_WIRE));
     FAS_ASSERT((event == DIAG_EVENT_OK) || (event == DIAG_EVENT_NOT_OK) || (event == DIAG_EVENT_RESET));
     FAS_ASSERT(kpkDiagShim != NULL_PTR);
     FAS_ASSERT(stringNumber < BS_NR_OF_STRINGS);
@@ -141,7 +148,7 @@ extern void DIAG_ErrorAfeDriver(
         if (event == DIAG_EVENT_NOT_OK) {
             kpkDiagShim->pTableError->afeCommunicationSpiError[stringNumber] = true;
         }
-    } else if (diagId == DIAG_ID_AFE_COM_INTEGRITY) {
+    } else if (diagId == DIAG_ID_AFE_COMMUNICATION_INTEGRITY) {
         if (event == DIAG_EVENT_RESET) {
             kpkDiagShim->pTableError->afeCommunicationCrcError[stringNumber] = false;
         }

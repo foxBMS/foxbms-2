@@ -43,17 +43,17 @@
  * @file    imd.c
  * @author  foxBMS Team
  * @date    2021-11-04 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup DRIVERS
  * @prefix  IMD
  *
  * @brief   Main driver state machine for insulation monitoring driver
- * @details  This superimposed state machine initializes, enables and disables
- *           the selected Insulation Monitoring Device. Furthermore, the
- *           measurement results are evaluated and saved in the database.
- *           Requests are used to control the IMD state machine and with that
- *           the behavior of the IMDs.
+ * @details This superimposed state machine initializes, enables and disables
+ *          the selected Insulation Monitoring Device. Furthermore, the
+ *          measurement results are evaluated and saved in the database.
+ *          Requests are used to control the IMD state machine and with that
+ *          the behavior of the IMDs.
  */
 
 /*========== Includes =======================================================*/
@@ -72,46 +72,6 @@
  * processed
  */
 #define IMD_FSM_SHORT_TIME (1u)
-
-/** Substates of the state machine */
-typedef enum {
-    IMD_FSM_SUBSTATE_DUMMY,               /*!< dummy state - always the first substate */
-    IMD_FSM_SUBSTATE_ENTRY,               /*!< entry state - always the second substate */
-    IMD_FSM_SUBSTATE_INITIALIZATION_0,    /*!< fist initialization substate */
-    IMD_FSM_SUBSTATE_INITIALIZATION_1,    /*!< second initialization substate */
-    IMD_FSM_SUBSTATE_INITIALIZATION_EXIT, /*!< last initialization substate */
-    IMD_FSM_SUBSTATE_RUNNING_0,           /*!< fist running substate */
-    IMD_FSM_SUBSTATE_RUNNING_1,           /*!< second running substate */
-    IMD_FSM_SUBSTATE_RUNNING_2,           /*!< third running substate */
-} IMD_FSM_SUBSTATES_e;
-
-/** Symbolic names to check for multiple calls of #IMD_Trigger */
-typedef enum {
-    IMD_MULTIPLE_CALLS_NO,  /*!< no multiple calls, OK */
-    IMD_MULTIPLE_CALLS_YES, /*!< multiple calls, not OK */
-} IMD_CHECK_MULTIPLE_CALLS_e;
-
-/** some struct with some information */
-typedef struct {
-    bool isStateMachineInitialized; /*!< true if initialized, otherwise false */
-    bool switchImdDeviceOn;         /*!< true if enabling process is ongoing */
-} IMD_INFORMATION_s;
-
-/** This struct describes the state of the monitoring instance */
-typedef struct {
-    uint8_t counter;                               /*!< general purpose counter */
-    uint16_t timer;                                /*!< timer of the state */
-    uint8_t triggerEntry;                          /*!< trigger entry of the state */
-    IMD_STATE_REQUEST_e stateRequest;              /*!< current state request made to the state machine */
-    IMD_FSM_STATES_e nextState;                    /*!< next state of the FSM */
-    IMD_FSM_STATES_e currentState;                 /*!< current state of the FSM */
-    IMD_FSM_STATES_e previousState;                /*!< previous state of the FSM */
-    IMD_FSM_SUBSTATES_e nextSubstate;              /*!< next substate of the FSM */
-    IMD_FSM_SUBSTATES_e currentSubstate;           /*!< current substate of the FSM */
-    IMD_FSM_SUBSTATES_e previousSubstate;          /*!< previous substate of the FSM */
-    IMD_INFORMATION_s information;                 /*!< Some information to be stored */
-    DATA_BLOCK_INSULATION_MONITORING_s *pTableImd; /*!< Pointer to IMD database entry */
-} IMD_STATE_s;
 
 /*========== Static Constant and Variable Definitions =======================*/
 static DATA_BLOCK_INSULATION_MONITORING_s imd_tableInsulationMonitoring = {
@@ -553,4 +513,27 @@ extern STD_RETURN_TYPE_e IMD_Trigger(void) {
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
 #ifdef UNITY_UNIT_TEST
+IMD_RETURN_TYPE_e TEST_IMD_SetStateRequest(IMD_STATE_s *pImdState, IMD_STATE_REQUEST_e stateRequest) {
+    return IMD_SetStateRequest(pImdState, stateRequest);
+}
+
+IMD_RETURN_TYPE_e TEST_IMD_CheckStateRequest(IMD_STATE_s *pImdState, IMD_STATE_REQUEST_e stateRequest) {
+    return IMD_CheckStateRequest(pImdState, stateRequest);
+}
+
+IMD_STATE_REQUEST_e TEST_IMD_TransferStateRequest(IMD_STATE_s *pImdState) {
+    return IMD_TransferStateRequest(pImdState);
+}
+
+IMD_CHECK_MULTIPLE_CALLS_e TEST_IMD_CheckMultipleCalls(IMD_STATE_s *pImdState) {
+    return IMD_CheckMultipleCalls(pImdState);
+}
+
+void TEST_IMD_SetState(
+    IMD_STATE_s *pImdState,
+    IMD_FSM_STATES_e nextState,
+    IMD_FSM_SUBSTATES_e nextSubstate,
+    uint16_t idleTime) {
+    IMD_SetState(pImdState, nextState, nextSubstate, idleTime);
+}
 #endif

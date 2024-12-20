@@ -43,12 +43,13 @@
  * @file    test_debug_can_afe.c
  * @author  foxBMS Team
  * @date    2020-05-25 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
  * @brief   Test of the debug_can_afe.c module
+ * @details TODO
  *
  */
 
@@ -93,13 +94,6 @@ void testAFE_StartMeasurement(void) {
 
 void testAFE_IsFirstMeasurementCycleFinished(void) {
     TEST_ASSERT_EQUAL(true, AFE_IsFirstMeasurementCycleFinished());
-}
-
-void testAFE_RequestIoWrite(void) {
-    TEST_ASSERT_EQUAL(STD_OK, AFE_RequestIoWrite(0));
-}
-void testAFE_RequestIoRead(void) {
-    TEST_ASSERT_EQUAL(STD_OK, AFE_RequestIoRead(0));
 }
 
 void testAFE_RequestTemperatureRead(void) {

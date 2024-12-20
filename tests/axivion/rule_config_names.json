@@ -1,5 +1,9 @@
 {
   "Analysis": {
+    "CodingStyle-Naming.Enumerator": {
+      "_active": true,
+      "naming_convention": ".*"
+    },
     "CodingStyle-Naming.Function": {
       "_active": true,
       "exceptions": [
@@ -27,7 +31,7 @@
           "text": "Function names shall use the naming convention (prefix.upper())_PascalCase."
         }
       },
-      "naming_convention": "^[A-Z][A-Z0-9]{1,4}_([A-Z]([a-z]|[0-9]{1,}[A-Za-z]))[A-Za-z0-9_]{0,}"
+      "naming_convention": ".*"
     },
     "CodingStyle-Naming.GlobalVariable": {
       "_active": true,
@@ -40,7 +44,7 @@
           "text": "Names of global variables shall use the naming convention (prefix.lower())_camelCase (and optional unit suffix preceded by _)."
         }
       },
-      "naming_convention": "^[a-z][a-z0-9]{1,4}_(([a-z]|[0-9]{1,}[A-Za-z]))[A-Za-z0-9_]{0,}"
+      "naming_convention": ".*"
     },
     "CodingStyle-Naming.LocalVariable": {
       "_active": true,
@@ -53,29 +57,18 @@
           "text": "Names of local variables shall use the naming convention (prefix.lower())_camelCase (and optional unit suffix preceded by _)."
         }
       },
-      "naming_convention": "^(([a-z]|[0-9]{1,}[A-Za-z]))[A-Za-z0-9_]{0,}"
+      "naming_convention": ".*"
     },
     "CodingStyle-Naming.Macro": {
       "_active": true,
-      "exclude_in_macros": [
-        "GEN_REPEAT_U*u"
-      ],
-      "languages": [
-        "C",
-        "Assembler"
-      ],
-      "msg": {
-        "non_compliant_name": {
-          "text": "Macro names shall use the naming convention '(prefix.upper())_ALL_CAPS' (and optional unit suffix preceded by _) or for include guards 'FOXBMS__FILENAME_H_'."
-        }
-      },
-      "naming_convention": "(([A-Z][A-Z0-9]{1,4})_([A-Z0-9]([A-Z0-9_]*)).*)(?<!_)$|(FOXBMS__[A-Z0-9_]{1,}_H_)"
+      "naming_convention": ".*"
     },
     "CodingStyle-Naming.Parameter": {
       "_active": true,
       "excludes": [
         "*src/app/driver/sbc/fs8x_driver/*",
         "*src/hal/*",
+        "*src/bootloader/hal/*",
         "*src/os/*",
         "C:/ti/*"
       ],
@@ -88,7 +81,7 @@
           "text": "Names of parameters shall use the naming convention camelCase (and optional unit suffix preceded by _)."
         }
       },
-      "naming_convention": "([a-z0-9]+)[A-Za-z0-9]*(_.*)?"
+      "naming_convention": ".*"
     },
     "CodingStyle-Naming.StructField": {
       "_active": true,
@@ -97,7 +90,7 @@
           "text": "Names of struct members shall use camelCase (and optional unit suffix preceded by _)."
         }
       },
-      "naming_convention": "([a-z0-9]+)[A-Za-z0-9]*(_.*)?"
+      "naming_convention": ".*"
     },
     "CodingStyle-Naming.TypedefedEnum": {
       "_active": true,
@@ -116,7 +109,7 @@
           "text": "Names of user-defined enum types shall use the naming convention (prefix.upper())_ALL_CAPS_e."
         }
       },
-      "naming_convention": "^[A-Z][A-Z0-9]{1,4}_([A-Z0-9_]*)_e"
+      "naming_convention": ".*"
     },
     "CodingStyle-Naming.TypedefedFuncPtr": {
       "_active": true,
@@ -135,7 +128,7 @@
           "text": "Names of user-defined function ptr types shall use the naming convention (prefix.upper())_ALL_CAPS_f."
         }
       },
-      "naming_convention": "^[A-Z][A-Z0-9]{1,4}_([A-Za-z0-9_]*)_f"
+      "naming_convention": ".*"
     },
     "CodingStyle-Naming.TypedefedStruct": {
       "_active": true,
@@ -154,7 +147,7 @@
           "text": "Names of user-defined struct types shall use the naming convention (prefix.upper())_ALL_CAPS_s."
         }
       },
-      "naming_convention": "^[A-Z][A-Z0-9]{1,4}_([A-Z0-9_]*)_s"
+      "naming_convention": ".*"
     }
   },
   "_Format": "1.0",

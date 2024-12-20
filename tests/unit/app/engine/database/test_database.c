@@ -43,8 +43,8 @@
  * @file    test_database.c
  * @author  foxBMS Team
  * @date    2020-04-01 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -75,6 +75,11 @@ TEST_INCLUDE_PATH("../../src/app/task/config")
 TEST_INCLUDE_PATH("../../src/app/task/ftask")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
+
+/** Maximum queue timeout time in milliseconds */
+#define DATA_MAX_QUEUE_TIMEOUT_MS (10u)
+#define DATA_QUEUE_TIMEOUT_MS     (DATA_MAX_QUEUE_TIMEOUT_MS / OS_TICK_RATE_MS)
+
 /**
  * struct for message injection in database queue in #testDATA_ExecuteDataBist()
  */
@@ -87,6 +92,15 @@ OS_QUEUE ftsk_databaseQueue         = NULL_PTR;
 OS_QUEUE ftsk_imdCanDataQueue       = NULL_PTR;
 OS_QUEUE ftsk_canRxQueue            = NULL_PTR;
 volatile bool ftsk_allQueuesCreated = true;
+
+/* prepare send message with attributes of data block */
+DATA_QUEUE_MESSAGE_s data_sendMessage = {
+    .pDatabaseEntry[DATA_ENTRY_0] = 0u,
+    .pDatabaseEntry[DATA_ENTRY_1] = 0u,
+    .pDatabaseEntry[DATA_ENTRY_2] = 0u,
+    .pDatabaseEntry[DATA_ENTRY_3] = 0u,
+    .accessType                   = DATA_WRITE_ACCESS,
+};
 
 /** data block struct for the database built-in self-test */
 typedef struct {
@@ -123,6 +137,14 @@ void testDATA_AccessDatabaseEntries(void) {
     void *pValidDummy1                               = &dummyValue; /* not used for interface test, see function */
     void *pValidDummy2                               = &dummyValue; /* not used for interface test, see function */
     void *pValidDummy3                               = &dummyValue; /* not used for interface test, see function */
+
+    /* prepare send message with attributes of data block */
+    data_sendMessage.pDatabaseEntry[DATA_ENTRY_0] = pValidDummy0;
+    data_sendMessage.pDatabaseEntry[DATA_ENTRY_1] = pValidDummy1;
+    data_sendMessage.pDatabaseEntry[DATA_ENTRY_2] = pValidDummy2;
+    data_sendMessage.pDatabaseEntry[DATA_ENTRY_3] = pValidDummy3;
+    data_sendMessage.accessType                   = validAccessType;
+
     /* ======= AT1/2: Assertion test */
     TEST_ASSERT_FAIL_ASSERT(
         TEST_DATA_AccessDatabaseEntries(invalidAccessType, pValidDummy0, pValidDummy1, pValidDummy2, pValidDummy3));
@@ -134,15 +156,17 @@ void testDATA_AccessDatabaseEntries(void) {
     const DATA_BLOCK_ACCESS_TYPE_e readAccess  = DATA_WRITE_ACCESS;
     const DATA_BLOCK_ACCESS_TYPE_e writeAccess = DATA_READ_ACCESS;
     /* ======= RT1/2: Test implementation */
-    OS_SendToBackOfQueue_IgnoreAndReturn(STD_OK);
+    OS_SendToBackOfQueue_ExpectAndReturn(
+        ftsk_databaseQueue, (void *)&data_sendMessage, DATA_QUEUE_TIMEOUT_MS, OS_SUCCESS);
     /* ======= RT1/2: call function under test */
     const STD_RETURN_TYPE_e readSuccessfully =
         TEST_DATA_AccessDatabaseEntries(readAccess, pValidDummy0, pValidDummy1, pValidDummy2, pValidDummy3);
     /* ======= RT1/2: test output verification */
     TEST_ASSERT_EQUAL(STD_OK, readSuccessfully);
 
+    data_sendMessage.accessType = DATA_READ_ACCESS;
     /* ======= RT2/2: Test implementation */
-    OS_SendToBackOfQueue_IgnoreAndReturn(STD_NOT_OK);
+    OS_SendToBackOfQueue_ExpectAndReturn(ftsk_databaseQueue, (void *)&data_sendMessage, DATA_QUEUE_TIMEOUT_MS, OS_FAIL);
     /* ======= RT2/2: call function under test */
     const STD_RETURN_TYPE_e writeUnsuccessfully =
         TEST_DATA_AccessDatabaseEntries(writeAccess, pValidDummy0, pValidDummy1, pValidDummy2, pValidDummy3);
@@ -173,7 +197,7 @@ void testDATA_CopyData(void) {
     TEST_ASSERT_FAIL_ASSERT(TEST_DATA_CopyData(DATA_READ_ACCESS, dataLength, pValidDummy0, NULL_PTR));
 
     /* ======= Routine tests =============================================== */
-    /* ======= RT1/2: Test implementation */
+    /* ======= RT1/3: Test implementation */
     /* Note: uniqueId is not used in this function so we can set it anything,
      * that is not 0, so that we have something to compare against */
     DATA_BLOCK_TEST_s fromEntry = {
@@ -191,12 +215,12 @@ void testDATA_CopyData(void) {
         .member2                  = 0u,
     };
     dataLength = sizeof(DATA_BLOCK_TEST_s);
-    /* ======= RT1/2: call function under test */
+    /* ======= RT1/3: call function under test */
     TEST_DATA_CopyData(DATA_READ_ACCESS, dataLength, &toEntry, &fromEntry);
-    /* ======= RT1/2: test output verification */
+    /* ======= RT1/3: test output verification */
     TEST_ASSERT_EQUAL_MEMORY(&fromEntry, &toEntry, dataLength);
 
-    /* ======= RT2/2: Test implementation */
+    /* ======= RT2/3: Test implementation */
     /* Note: uniqueId is not used in this function so we can set it anything,
      * that is not 0, so that we have something to compare against */
     fromEntry.header.uniqueId          = (DATA_BLOCK_ID_e)2u;
@@ -221,10 +245,17 @@ void testDATA_CopyData(void) {
     };
 
     OS_GetTickCount_ExpectAndReturn(newTimestamp);
-    /* ======= RT2/2: call function under test */
+    /* ======= RT2/3: call function under test */
     TEST_DATA_CopyData(DATA_WRITE_ACCESS, dataLength, &toEntry, &fromEntry);
-    /* ======= RT2/2: test output verification */
+    /* ======= RT2/3: test output verification */
     TEST_ASSERT_EQUAL_MEMORY(&expectedEntry, &toEntry, dataLength);
+
+    /* ======= RT3/3: Test implementation */
+    /* invalid access type */
+    /* ======= RT2/2: call function under test */
+    TEST_DATA_CopyData(2u, dataLength, &toEntry, &fromEntry);
+    /* ======= RT2/2: test output verification */
+    TEST_ASSERT_EQUAL_MEMORY(&fromEntry, &toEntry, dataLength);
 }
 
 /**
@@ -295,6 +326,11 @@ void testDATA_IterateOverDatabaseEntries(void) {
  *            - TODO
  */
 void testDATA_Initialize(void) {
+    ftsk_allQueuesCreated = 0;
+    TEST_ASSERT_FAIL_ASSERT(DATA_Initialize());
+
+    ftsk_allQueuesCreated = 1;
+    DATA_Initialize();
 }
 
 /**
@@ -324,15 +360,24 @@ void testDATA_Read1DataBlock(void) {
     /* ======= Routine tests =============================================== */
     uint8_t dummyValue = 0u;
     void *pValidDummy0 = &dummyValue;
+
+    /* prepare send message */
+    data_sendMessage.pDatabaseEntry[DATA_ENTRY_0] = pValidDummy0;
+    data_sendMessage.pDatabaseEntry[DATA_ENTRY_1] = NULL_PTR;
+    data_sendMessage.pDatabaseEntry[DATA_ENTRY_2] = NULL_PTR;
+    data_sendMessage.pDatabaseEntry[DATA_ENTRY_3] = NULL_PTR;
+    data_sendMessage.accessType                   = DATA_READ_ACCESS;
+
     /* ======= RT1/2: Test implementation */
-    OS_SendToBackOfQueue_IgnoreAndReturn(STD_OK);
+    OS_SendToBackOfQueue_ExpectAndReturn(
+        ftsk_databaseQueue, (void *)&data_sendMessage, DATA_QUEUE_TIMEOUT_MS, OS_SUCCESS);
     /* ======= RT1/2: call function under test */
     const STD_RETURN_TYPE_e readSuccessfully = DATA_Read1DataBlock(pValidDummy0);
     /* ======= RT1/2: test output verification */
     TEST_ASSERT_EQUAL(STD_OK, readSuccessfully);
 
     /* ======= RT2/2: Test implementation */
-    OS_SendToBackOfQueue_IgnoreAndReturn(STD_NOT_OK);
+    OS_SendToBackOfQueue_ExpectAndReturn(ftsk_databaseQueue, (void *)&data_sendMessage, DATA_QUEUE_TIMEOUT_MS, OS_FAIL);
     /* ======= RT2/2: call function under test */
     const STD_RETURN_TYPE_e readUnsuccessfully = DATA_Read1DataBlock(pValidDummy0);
     /* ======= RT2/2: test output verification */
@@ -353,6 +398,14 @@ void testDATA_Read2DataBlocks(void) {
     uint8_t dummyValue = 0u;
     void *pValidDummy0 = &dummyValue;
     void *pValidDummy1 = &dummyValue;
+
+    /* prepare send message */
+    data_sendMessage.pDatabaseEntry[DATA_ENTRY_0] = pValidDummy0;
+    data_sendMessage.pDatabaseEntry[DATA_ENTRY_1] = pValidDummy1;
+    data_sendMessage.pDatabaseEntry[DATA_ENTRY_2] = NULL_PTR;
+    data_sendMessage.pDatabaseEntry[DATA_ENTRY_3] = NULL_PTR;
+    data_sendMessage.accessType                   = DATA_READ_ACCESS;
+
     /* ======= AT1/2: Assertion test */
     TEST_ASSERT_FAIL_ASSERT(DATA_Read2DataBlocks(NULL_PTR, pValidDummy1));
     /* ======= AT2/2: Assertion test */
@@ -360,14 +413,15 @@ void testDATA_Read2DataBlocks(void) {
 
     /* ======= Routine tests =============================================== */
     /* ======= RT1/2: Test implementation */
-    OS_SendToBackOfQueue_IgnoreAndReturn(STD_OK);
+    OS_SendToBackOfQueue_ExpectAndReturn(
+        ftsk_databaseQueue, (void *)&data_sendMessage, DATA_QUEUE_TIMEOUT_MS, OS_SUCCESS);
     /* ======= RT1/2: call function under test */
     const STD_RETURN_TYPE_e readSuccessfully = DATA_Read2DataBlocks(pValidDummy0, pValidDummy1);
     /* ======= RT1/2: test output verification */
     TEST_ASSERT_EQUAL(STD_OK, readSuccessfully);
 
     /* ======= RT2/2: Test implementation */
-    OS_SendToBackOfQueue_IgnoreAndReturn(STD_NOT_OK);
+    OS_SendToBackOfQueue_ExpectAndReturn(ftsk_databaseQueue, (void *)&data_sendMessage, DATA_QUEUE_TIMEOUT_MS, OS_FAIL);
     /* ======= RT2/2: call function under test */
     const STD_RETURN_TYPE_e readUnsuccessfully = DATA_Read2DataBlocks(pValidDummy0, pValidDummy1);
     /* ======= RT2/2: test output verification */
@@ -390,6 +444,14 @@ void testDATA_Read3DataBlocks(void) {
     void *pValidDummy0 = &dummyValue;
     void *pValidDummy1 = &dummyValue;
     void *pValidDummy2 = &dummyValue;
+
+    /* prepare send message */
+    data_sendMessage.pDatabaseEntry[DATA_ENTRY_0] = pValidDummy0;
+    data_sendMessage.pDatabaseEntry[DATA_ENTRY_1] = pValidDummy1;
+    data_sendMessage.pDatabaseEntry[DATA_ENTRY_2] = pValidDummy2;
+    data_sendMessage.pDatabaseEntry[DATA_ENTRY_3] = NULL_PTR;
+    data_sendMessage.accessType                   = DATA_READ_ACCESS;
+
     /* ======= AT1/3: Assertion test */
     TEST_ASSERT_FAIL_ASSERT(DATA_Read3DataBlocks(NULL_PTR, pValidDummy1, pValidDummy2));
     /* ======= AT2/3: Assertion test */
@@ -399,14 +461,15 @@ void testDATA_Read3DataBlocks(void) {
 
     /* ======= Routine tests =============================================== */
     /* ======= RT1/2: Test implementation */
-    OS_SendToBackOfQueue_IgnoreAndReturn(STD_OK);
+    OS_SendToBackOfQueue_ExpectAndReturn(
+        ftsk_databaseQueue, (void *)&data_sendMessage, DATA_QUEUE_TIMEOUT_MS, OS_SUCCESS);
     /* ======= RT1/2: call function under test */
     const STD_RETURN_TYPE_e readSuccessfully = DATA_Read3DataBlocks(pValidDummy0, pValidDummy1, pValidDummy2);
     /* ======= RT1/2: test output verification */
     TEST_ASSERT_EQUAL(STD_OK, readSuccessfully);
 
     /* ======= RT2/2: Test implementation */
-    OS_SendToBackOfQueue_IgnoreAndReturn(STD_NOT_OK);
+    OS_SendToBackOfQueue_ExpectAndReturn(ftsk_databaseQueue, (void *)&data_sendMessage, DATA_QUEUE_TIMEOUT_MS, OS_FAIL);
     /* ======= RT2/2: call function under test */
     const STD_RETURN_TYPE_e readUnsuccessfully = DATA_Read3DataBlocks(pValidDummy0, pValidDummy1, pValidDummy2);
     /* ======= RT2/2: test output verification */
@@ -431,6 +494,14 @@ void testDATA_Read4DataBlocks(void) {
     void *pValidDummy1 = &dummyValue;
     void *pValidDummy2 = &dummyValue;
     void *pValidDummy3 = &dummyValue;
+
+    /* prepare send message */
+    data_sendMessage.pDatabaseEntry[DATA_ENTRY_0] = pValidDummy0;
+    data_sendMessage.pDatabaseEntry[DATA_ENTRY_1] = pValidDummy1;
+    data_sendMessage.pDatabaseEntry[DATA_ENTRY_2] = pValidDummy2;
+    data_sendMessage.pDatabaseEntry[DATA_ENTRY_3] = pValidDummy3;
+    data_sendMessage.accessType                   = DATA_READ_ACCESS;
+
     /* ======= AT1/4: Assertion test */
     TEST_ASSERT_FAIL_ASSERT(DATA_Read4DataBlocks(NULL_PTR, pValidDummy1, pValidDummy2, pValidDummy3));
     /* ======= AT2/4: Assertion test */
@@ -442,7 +513,8 @@ void testDATA_Read4DataBlocks(void) {
 
     /* ======= Routine tests =============================================== */
     /* ======= RT1/2: Test implementation */
-    OS_SendToBackOfQueue_IgnoreAndReturn(STD_OK);
+    OS_SendToBackOfQueue_ExpectAndReturn(
+        ftsk_databaseQueue, (void *)&data_sendMessage, DATA_QUEUE_TIMEOUT_MS, OS_SUCCESS);
     /* ======= RT1/2: call function under test */
     const STD_RETURN_TYPE_e readSuccessfully =
         DATA_Read4DataBlocks(pValidDummy0, pValidDummy1, pValidDummy2, pValidDummy3);
@@ -450,7 +522,7 @@ void testDATA_Read4DataBlocks(void) {
     TEST_ASSERT_EQUAL(STD_OK, readSuccessfully);
 
     /* ======= RT2/2: Test implementation */
-    OS_SendToBackOfQueue_IgnoreAndReturn(STD_NOT_OK);
+    OS_SendToBackOfQueue_ExpectAndReturn(ftsk_databaseQueue, (void *)&data_sendMessage, DATA_QUEUE_TIMEOUT_MS, OS_FAIL);
     /* ======= RT2/2: call function under test */
     const STD_RETURN_TYPE_e readUnsuccessfully =
         DATA_Read4DataBlocks(pValidDummy0, pValidDummy1, pValidDummy2, pValidDummy3);
@@ -474,15 +546,24 @@ void testDATA_Write1DataBlock(void) {
     /* ======= Routine tests =============================================== */
     uint8_t dummyValue = 0u;
     void *pValidDummy0 = &dummyValue;
+
+    /* prepare send message */
+    data_sendMessage.pDatabaseEntry[DATA_ENTRY_0] = pValidDummy0;
+    data_sendMessage.pDatabaseEntry[DATA_ENTRY_1] = NULL_PTR;
+    data_sendMessage.pDatabaseEntry[DATA_ENTRY_2] = NULL_PTR;
+    data_sendMessage.pDatabaseEntry[DATA_ENTRY_3] = NULL_PTR;
+    data_sendMessage.accessType                   = DATA_WRITE_ACCESS;
+
     /* ======= RT1/2: Test implementation */
-    OS_SendToBackOfQueue_IgnoreAndReturn(STD_OK);
+    OS_SendToBackOfQueue_ExpectAndReturn(
+        ftsk_databaseQueue, (void *)&data_sendMessage, DATA_QUEUE_TIMEOUT_MS, OS_SUCCESS);
     /* ======= RT1/2: call function under test */
     const STD_RETURN_TYPE_e writeSuccessfully = DATA_Write1DataBlock(pValidDummy0);
     /* ======= RT1/2: test output verification */
     TEST_ASSERT_EQUAL(STD_OK, writeSuccessfully);
 
     /* ======= RT2/2: Test implementation */
-    OS_SendToBackOfQueue_IgnoreAndReturn(STD_NOT_OK);
+    OS_SendToBackOfQueue_ExpectAndReturn(ftsk_databaseQueue, (void *)&data_sendMessage, DATA_QUEUE_TIMEOUT_MS, OS_FAIL);
     /* ======= RT2/2: call function under test */
     const STD_RETURN_TYPE_e writeUnsuccessfully = DATA_Write1DataBlock(pValidDummy0);
     /* ======= RT2/2: test output verification */
@@ -503,6 +584,14 @@ void testDATA_Write2DataBlocks(void) {
     uint8_t dummyValue = 0u;
     void *pValidDummy0 = &dummyValue;
     void *pValidDummy1 = &dummyValue;
+
+    /* prepare send message */
+    data_sendMessage.pDatabaseEntry[DATA_ENTRY_0] = pValidDummy0;
+    data_sendMessage.pDatabaseEntry[DATA_ENTRY_1] = pValidDummy1;
+    data_sendMessage.pDatabaseEntry[DATA_ENTRY_2] = NULL_PTR;
+    data_sendMessage.pDatabaseEntry[DATA_ENTRY_3] = NULL_PTR;
+    data_sendMessage.accessType                   = DATA_WRITE_ACCESS;
+
     /* ======= AT1/2: Assertion test */
     TEST_ASSERT_FAIL_ASSERT(DATA_Write2DataBlocks(NULL_PTR, pValidDummy1));
     /* ======= AT2/2: Assertion test */
@@ -510,14 +599,15 @@ void testDATA_Write2DataBlocks(void) {
 
     /* ======= Routine tests =============================================== */
     /* ======= RT1/2: Test implementation */
-    OS_SendToBackOfQueue_IgnoreAndReturn(STD_OK);
+    OS_SendToBackOfQueue_ExpectAndReturn(
+        ftsk_databaseQueue, (void *)&data_sendMessage, DATA_QUEUE_TIMEOUT_MS, OS_SUCCESS);
     /* ======= RT1/2: call function under test */
     const STD_RETURN_TYPE_e writeSuccessfully = DATA_Write2DataBlocks(pValidDummy0, pValidDummy1);
     /* ======= RT1/2: test output verification */
     TEST_ASSERT_EQUAL(STD_OK, writeSuccessfully);
 
     /* ======= RT2/2: Test implementation */
-    OS_SendToBackOfQueue_IgnoreAndReturn(STD_NOT_OK);
+    OS_SendToBackOfQueue_ExpectAndReturn(ftsk_databaseQueue, (void *)&data_sendMessage, DATA_QUEUE_TIMEOUT_MS, OS_FAIL);
     /* ======= RT2/2: call function under test */
     const STD_RETURN_TYPE_e writeUnsuccessfully = DATA_Write2DataBlocks(pValidDummy0, pValidDummy1);
     /* ======= RT2/2: test output verification */
@@ -540,6 +630,14 @@ void testDATA_Write3DataBlocks(void) {
     void *pValidDummy0 = &dummyValue;
     void *pValidDummy1 = &dummyValue;
     void *pValidDummy2 = &dummyValue;
+
+    /* prepare send message */
+    data_sendMessage.pDatabaseEntry[DATA_ENTRY_0] = pValidDummy0;
+    data_sendMessage.pDatabaseEntry[DATA_ENTRY_1] = pValidDummy1;
+    data_sendMessage.pDatabaseEntry[DATA_ENTRY_2] = pValidDummy2;
+    data_sendMessage.pDatabaseEntry[DATA_ENTRY_3] = NULL_PTR;
+    data_sendMessage.accessType                   = DATA_WRITE_ACCESS;
+
     /* ======= AT1/3: Assertion test */
     TEST_ASSERT_FAIL_ASSERT(DATA_Write3DataBlocks(NULL_PTR, pValidDummy1, pValidDummy2));
     /* ======= AT2/3: Assertion test */
@@ -549,14 +647,15 @@ void testDATA_Write3DataBlocks(void) {
 
     /* ======= Routine tests =============================================== */
     /* ======= RT1/2: Test implementation */
-    OS_SendToBackOfQueue_IgnoreAndReturn(STD_OK);
+    OS_SendToBackOfQueue_ExpectAndReturn(
+        ftsk_databaseQueue, (void *)&data_sendMessage, DATA_QUEUE_TIMEOUT_MS, OS_SUCCESS);
     /* ======= RT1/2: call function under test */
     const STD_RETURN_TYPE_e writeSuccessfully = DATA_Write3DataBlocks(pValidDummy0, pValidDummy1, pValidDummy2);
     /* ======= RT1/2: test output verification */
     TEST_ASSERT_EQUAL(STD_OK, writeSuccessfully);
 
     /* ======= RT2/2: Test implementation */
-    OS_SendToBackOfQueue_IgnoreAndReturn(STD_NOT_OK);
+    OS_SendToBackOfQueue_ExpectAndReturn(ftsk_databaseQueue, (void *)&data_sendMessage, DATA_QUEUE_TIMEOUT_MS, OS_FAIL);
     /* ======= RT2/2: call function under test */
     const STD_RETURN_TYPE_e writeUnsuccessfully = DATA_Write3DataBlocks(pValidDummy0, pValidDummy1, pValidDummy2);
     /* ======= RT2/2: test output verification */
@@ -581,6 +680,14 @@ void testDATA_Write4DataBlocks(void) {
     void *pValidDummy1 = &dummyValue;
     void *pValidDummy2 = &dummyValue;
     void *pValidDummy3 = &dummyValue;
+
+    /* prepare send message */
+    data_sendMessage.pDatabaseEntry[DATA_ENTRY_0] = pValidDummy0;
+    data_sendMessage.pDatabaseEntry[DATA_ENTRY_1] = pValidDummy1;
+    data_sendMessage.pDatabaseEntry[DATA_ENTRY_2] = pValidDummy2;
+    data_sendMessage.pDatabaseEntry[DATA_ENTRY_3] = pValidDummy3;
+    data_sendMessage.accessType                   = DATA_WRITE_ACCESS;
+
     /* ======= AT1/4: Assertion test */
     TEST_ASSERT_FAIL_ASSERT(DATA_Write4DataBlocks(NULL_PTR, pValidDummy1, pValidDummy2, pValidDummy3));
     /* ======= AT2/4: Assertion test */
@@ -592,7 +699,8 @@ void testDATA_Write4DataBlocks(void) {
 
     /* ======= Routine tests =============================================== */
     /* ======= RT1/2: Test implementation */
-    OS_SendToBackOfQueue_IgnoreAndReturn(STD_OK);
+    OS_SendToBackOfQueue_ExpectAndReturn(
+        ftsk_databaseQueue, (void *)&data_sendMessage, DATA_QUEUE_TIMEOUT_MS, OS_SUCCESS);
     /* ======= RT1/2: call function under test */
     const STD_RETURN_TYPE_e writeSuccessfully =
         DATA_Write4DataBlocks(pValidDummy0, pValidDummy1, pValidDummy2, pValidDummy3);
@@ -600,7 +708,7 @@ void testDATA_Write4DataBlocks(void) {
     TEST_ASSERT_EQUAL(STD_OK, writeSuccessfully);
 
     /* ======= RT2/2: Test implementation */
-    OS_SendToBackOfQueue_IgnoreAndReturn(STD_NOT_OK);
+    OS_SendToBackOfQueue_ExpectAndReturn(ftsk_databaseQueue, (void *)&data_sendMessage, DATA_QUEUE_TIMEOUT_MS, OS_FAIL);
     /* ======= RT2/2: call function under test */
     const STD_RETURN_TYPE_e writeUnsuccessfully =
         DATA_Write4DataBlocks(pValidDummy0, pValidDummy1, pValidDummy2, pValidDummy3);

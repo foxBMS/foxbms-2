@@ -43,8 +43,8 @@
  * @file    test_bms.c
  * @author  foxBMS Team
  * @date    2020-04-01 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -56,6 +56,7 @@
 #include "Mockafe.h"
 #include "Mockbal.h"
 #include "Mockbattery_system_cfg.h"
+#include "Mockcan_cbs_tx_cyclic.h"
 #include "Mockcontactor.h"
 #include "Mockdatabase.h"
 #include "Mockdiag.h"
@@ -67,10 +68,13 @@
 #include "Mockos.h"
 #include "Mockplausibility.h"
 #include "Mocksoa.h"
+#include "Mocksps.h"
 
+#include "database_cfg.h"
 #include "sps_cfg.h"
 
 #include "bms.h"
+#include "diag.h"
 #include "foxmath.h"
 #include "test_assert_helper.h"
 
@@ -82,15 +86,20 @@ TEST_INCLUDE_PATH("../../src/app/application/bms")
 TEST_INCLUDE_PATH("../../src/app/application/plausibility")
 TEST_INCLUDE_PATH("../../src/app/application/soa")
 TEST_INCLUDE_PATH("../../src/app/driver/afe/api")
+TEST_INCLUDE_PATH("../../src/app/driver/can")
+TEST_INCLUDE_PATH("../../src/app/driver/can/cbs")
+TEST_INCLUDE_PATH("../../src/app/driver/can/cbs/tx-cyclic")
 TEST_INCLUDE_PATH("../../src/app/driver/config")
 TEST_INCLUDE_PATH("../../src/app/driver/contactor")
 TEST_INCLUDE_PATH("../../src/app/driver/foxmath")
+TEST_INCLUDE_PATH("../../src/app/driver/fram")
 TEST_INCLUDE_PATH("../../src/app/driver/imd")
 TEST_INCLUDE_PATH("../../src/app/driver/interlock")
 TEST_INCLUDE_PATH("../../src/app/driver/led")
 TEST_INCLUDE_PATH("../../src/app/driver/meas")
 TEST_INCLUDE_PATH("../../src/app/driver/sps")
 TEST_INCLUDE_PATH("../../src/app/engine/diag")
+TEST_INCLUDE_PATH("../../src/app/engine/sys_mon")
 TEST_INCLUDE_PATH("../../src/app/task/config")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
@@ -105,10 +114,11 @@ DIAG_DEV_s diag_device = {
 
 BS_STRING_PRECHARGE_PRESENT_e bs_stringsWithPrecharge[BS_NR_OF_STRINGS] = {
     BS_STRING_WITH_PRECHARGE,
+    BS_STRING_WITHOUT_PRECHARGE,
 };
 
 CONT_CONTACTOR_STATE_s cont_contactorStates[] = {
-    /* String contactors configuration */
+    /* String 0 contactors configuration */
     {CONT_SWITCH_OFF,
      CONT_SWITCH_OFF,
      CONT_FEEDBACK_NORMALLY_OPEN,
@@ -131,13 +141,76 @@ CONT_CONTACTOR_STATE_s cont_contactorStates[] = {
      CONT_PRECHARGE,
      SPS_CHANNEL_2,
      CONT_BIDIRECTIONAL},
+    /* String 1 contactors configuration */
+    {CONT_SWITCH_OFF,
+     CONT_SWITCH_OFF,
+     CONT_FEEDBACK_NORMALLY_OPEN,
+     BS_STRING1,
+     CONT_PLUS,
+     SPS_CHANNEL_3,
+     CONT_CHARGING_DIRECTION},
+    {CONT_SWITCH_OFF,
+     CONT_SWITCH_OFF,
+     CONT_FEEDBACK_NORMALLY_OPEN,
+     BS_STRING1,
+     CONT_MINUS,
+     SPS_CHANNEL_4,
+     CONT_DISCHARGING_DIRECTION},
 };
+
+static BMS_STATE_s bms_state = {
+    .closedStrings         = {0u, 0u},
+    .numberOfClosedStrings = 0u,
+    .deactivatedStrings    = {0, 0},
+};
+
+static DATA_BLOCK_MIN_MAX_s bms_tableMinMax         = {.header.uniqueId = DATA_BLOCK_ID_MIN_MAX};
+static DATA_BLOCK_PACK_VALUES_s bms_tablePackValues = {.header.uniqueId = DATA_BLOCK_ID_PACK_VALUES};
+static DATA_BLOCK_OPEN_WIRE_s bms_tableOpenWire     = {.header.uniqueId = DATA_BLOCK_ID_OPEN_WIRE_BASE};
 
 /*========== Setup and Teardown =============================================*/
 void setUp(void) {
 }
 
 void tearDown(void) {
+}
+
+/* This function SHALL be called at the end of a test function if alterations
+ * to any of the global variables has been made. */
+void resetStaticVariablesToDefault(void) {
+    diag_device.nrOfConfiguredDiagnosisEntries   = sizeof(diag_diagnosisIdConfiguration) / sizeof(DIAG_ID_CFG_s);
+    diag_device.pConfigurationOfDiagnosisEntries = &diag_diagnosisIdConfiguration[0];
+    diag_device.numberOfFatalErrors              = 0u;
+
+    bs_stringsWithPrecharge[0] = BS_STRING_WITH_PRECHARGE;
+    bs_stringsWithPrecharge[1] = BS_STRING_WITHOUT_PRECHARGE;
+
+    /* String 0 - Main plus contactor configuration */
+    cont_contactorStates[0].currentSet = CONT_SWITCH_OFF;
+    cont_contactorStates[0].feedback   = CONT_SWITCH_OFF;
+
+    /* String 0 - Main minus contactor configuration */
+    cont_contactorStates[1].currentSet = CONT_SWITCH_OFF;
+    cont_contactorStates[1].feedback   = CONT_SWITCH_OFF;
+
+    /* String 0 - Precharge contactor configuration */
+    cont_contactorStates[2].currentSet = CONT_SWITCH_OFF;
+    cont_contactorStates[2].feedback   = CONT_SWITCH_OFF;
+
+    /* String 1 - Main plus contactor configuration */
+    cont_contactorStates[3].currentSet = CONT_SWITCH_OFF;
+    cont_contactorStates[3].feedback   = CONT_SWITCH_OFF;
+
+    /* String 1 - Main minus contactor configuration */
+    cont_contactorStates[4].currentSet = CONT_SWITCH_OFF;
+    cont_contactorStates[4].feedback   = CONT_SWITCH_OFF;
+
+    /* All contactors opened - No errors */
+    bms_state.closedStrings[0]      = 0u;
+    bms_state.closedStrings[1]      = 0u;
+    bms_state.numberOfClosedStrings = 0u;
+    bms_state.deactivatedStrings[0] = 0u;
+    bms_state.deactivatedStrings[1] = 0u;
 }
 
 /*========== Test Cases =====================================================*/
@@ -254,14 +327,15 @@ STD_RETURN_TYPE_e MockDATA_ReadBlock_Callback(void *pDataToReceiver, int num_cal
         TEST_FAIL_MESSAGE("This stub is fishy, prechargeExpectedResults is too short for the number of calls");
     }
 
-    /* cast to correct struct in order to properly write current and other values */
+    /* Cast to correct struct in order to properly write current and other values,
+     * additionally, copy test values for all strings */
     for (uint8_t s = 0; s < BS_NR_OF_STRINGS; s++) {
         for (uint8_t testNumber = 0; testNumber < NUM_PRECHARGE_TESTS; testNumber++) {
             prechargeExpectedResults[s][testNumber] = prechargeExpectedResults[0][testNumber];
         }
 
-        ((DATA_BLOCK_PACK_VALUES_s *)pDataToReceiver)->stringCurrent_mA[0] = current;
-        ((DATA_BLOCK_PACK_VALUES_s *)pDataToReceiver)->stringVoltage_mV[0] = voltage_1;
+        ((DATA_BLOCK_PACK_VALUES_s *)pDataToReceiver)->stringCurrent_mA[s] = current;
+        ((DATA_BLOCK_PACK_VALUES_s *)pDataToReceiver)->stringVoltage_mV[s] = voltage_1;
     }
     ((DATA_BLOCK_PACK_VALUES_s *)pDataToReceiver)->highVoltageBusVoltage_mV = voltage_2;
 
@@ -286,8 +360,10 @@ void testCheckPrechargeIterateStub(void) {
         char buffer[30];
         snprintf(buffer, 30, "Loop iteration %d.", i);
         for (uint8_t s = 0; s < BS_NR_OF_STRINGS; s++) {
-            DIAG_Handler_IgnoreAndReturn(DIAG_HANDLER_RETURN_OK);
-            DIAG_Handler_IgnoreAndReturn(DIAG_HANDLER_RETURN_OK);
+            DIAG_Handler_ExpectAndReturn(
+                DIAG_ID_PRECHARGE_ABORT_REASON_VOLTAGE, DIAG_EVENT_OK, DIAG_STRING, s, DIAG_HANDLER_RETURN_OK);
+            DIAG_Handler_ExpectAndReturn(
+                DIAG_ID_PRECHARGE_ABORT_REASON_CURRENT, DIAG_EVENT_OK, DIAG_STRING, s, DIAG_HANDLER_RETURN_OK);
             TEST_ASSERT_EQUAL_MESSAGE(
                 prechargeExpectedResults[s][i], TEST_BMS_CheckPrecharge(s, &tablePackValues), buffer);
         }
@@ -365,22 +441,139 @@ void testBMS_CheckPrechargeInvalidStringNumber(void) {
     DATA_BLOCK_PACK_VALUES_s tablePackValues = {.header.uniqueId = DATA_BLOCK_ID_PACK_VALUES};
 
     /* Invalid string number */
-    DIAG_Handler_IgnoreAndReturn(DIAG_HANDLER_RETURN_OK);
-    DIAG_Handler_IgnoreAndReturn(DIAG_HANDLER_RETURN_OK);
     TEST_ASSERT_FAIL_ASSERT(TEST_BMS_CheckPrecharge(BS_NR_OF_STRINGS, &tablePackValues));
 
     /* Invalid string number */
-    DIAG_Handler_IgnoreAndReturn(DIAG_HANDLER_RETURN_OK);
-    DIAG_Handler_IgnoreAndReturn(DIAG_HANDLER_RETURN_OK);
     TEST_ASSERT_FAIL_ASSERT(TEST_BMS_CheckPrecharge(BS_NR_OF_STRINGS + 1u, &tablePackValues));
 
     /* Invalid string number */
-    DIAG_Handler_IgnoreAndReturn(DIAG_HANDLER_RETURN_OK);
-    DIAG_Handler_IgnoreAndReturn(DIAG_HANDLER_RETURN_OK);
     TEST_ASSERT_FAIL_ASSERT(TEST_BMS_CheckPrecharge(UINT8_MAX, &tablePackValues));
 
     /* Valid string number */
-    DIAG_Handler_IgnoreAndReturn(DIAG_HANDLER_RETURN_OK);
-    DIAG_Handler_IgnoreAndReturn(DIAG_HANDLER_RETURN_OK);
+    DIAG_Handler_ExpectAndReturn(
+        DIAG_ID_PRECHARGE_ABORT_REASON_VOLTAGE, DIAG_EVENT_OK, DIAG_STRING, 0u, DIAG_HANDLER_RETURN_OK);
+    DIAG_Handler_ExpectAndReturn(
+        DIAG_ID_PRECHARGE_ABORT_REASON_CURRENT, DIAG_EVENT_OK, DIAG_STRING, 0u, DIAG_HANDLER_RETURN_OK);
     TEST_ASSERT_PASS_ASSERT(TEST_BMS_CheckPrecharge(0u, &tablePackValues));
+}
+
+void testBMS_GetClosestString(void) {
+    DATA_BLOCK_PACK_VALUES_s tablePackValues = {.header.uniqueId = DATA_BLOCK_ID_PACK_VALUES};
+    /* ======= Assertion tests ============================================= */
+    /* ======= AT1/2: Test implementation ======= */
+    TEST_ASSERT_FAIL_ASSERT(TEST_BMS_GetClosestString(BMS_TAKE_PRECHARGE_INTO_ACCOUNT, NULL_PTR));
+    /* ======= AT2/2: Test implementation ======= */
+    TEST_ASSERT_PASS_ASSERT(TEST_BMS_GetClosestString(BMS_TAKE_PRECHARGE_INTO_ACCOUNT, &tablePackValues));
+
+    /* ======= Routine tests =============================================== */
+    /* ======= RT1/3: Test implementation */
+    /* All voltages valid
+     * String voltage 0: 98V
+     * String 0: Precharge available
+     * String voltage 1: 103V
+     * String 1: No precharge available
+     * HV Bus voltage:   100V
+     * All strings open -> take precharge into account
+     * -> String 0 should be selected */
+    tablePackValues.invalidStringVoltage[0]  = 0u;
+    tablePackValues.stringVoltage_mV[0u]     = 98000;
+    tablePackValues.invalidStringVoltage[1]  = 0u;
+    tablePackValues.stringVoltage_mV[1u]     = 102000;
+    tablePackValues.invalidHvBusVoltage      = 0u;
+    tablePackValues.highVoltageBusVoltage_mV = 100000;
+    bms_state.closedStrings[0]               = 0u;
+    bms_state.closedStrings[1]               = 0u;
+    TEST_ASSERT_EQUAL(0u, TEST_BMS_GetClosestString(BMS_TAKE_PRECHARGE_INTO_ACCOUNT, &tablePackValues));
+
+    /* ======= RT2/3: Test implementation */
+    /* All voltages valid
+     * String voltage 0: 98V
+     * String 0: Precharge available
+     * String voltage 1: 101V
+     * String 1: No precharge available
+     * HV Bus voltage 100V
+     * All strings open -> take precharge into account
+     * -> String 0 should be selected */
+    tablePackValues.invalidStringVoltage[0]  = 0u;
+    tablePackValues.stringVoltage_mV[0u]     = 98000;
+    tablePackValues.invalidStringVoltage[1]  = 0u;
+    tablePackValues.stringVoltage_mV[1u]     = 101000;
+    tablePackValues.invalidHvBusVoltage      = 0u;
+    tablePackValues.highVoltageBusVoltage_mV = 100000;
+    bms_state.closedStrings[0]               = 0u;
+    bms_state.closedStrings[1]               = 0u;
+    TEST_ASSERT_EQUAL(0u, TEST_BMS_GetClosestString(BMS_TAKE_PRECHARGE_INTO_ACCOUNT, &tablePackValues));
+
+    /* ======= RT3/3: Test implementation */
+    /* All voltages valid
+     * String voltage 0: 98V
+     * String 0: Precharge available
+     * String voltage 1: 101V
+     * String 1: No precharge available
+     * HV Bus voltage 100V
+     * String 0 closed -> do not take precharge into account
+     * -> String 0 should be selected */
+    tablePackValues.invalidStringVoltage[0]  = 0u;
+    tablePackValues.stringVoltage_mV[0u]     = 98000;
+    tablePackValues.invalidStringVoltage[1]  = 0u;
+    tablePackValues.stringVoltage_mV[1u]     = 101000;
+    tablePackValues.invalidHvBusVoltage      = 0u;
+    tablePackValues.highVoltageBusVoltage_mV = 100000;
+    bms_state.closedStrings[0]               = 1u;
+    bms_state.numberOfClosedStrings          = 1u;
+    bms_state.closedStrings[1]               = 0u;
+    TEST_ASSERT_EQUAL(1u, TEST_BMS_GetClosestString(BMS_DO_NOT_TAKE_PRECHARGE_INTO_ACCOUNT, &tablePackValues));
+
+    resetStaticVariablesToDefault();
+}
+
+/** check that the asynchronous BmsState message is sent when state or substate change */
+void testBmsStateMessageIsRequested(void) {
+    OS_GetTickCount_ExpectAndReturn(0u);
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
+    BMS_Trigger();
+
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
+    /* change state request to init */
+    BMS_SetStateRequest(BMS_STATE_INIT_REQUEST);
+    /* State changes to Initialisation state -> message transmitted */
+    OS_GetTickCount_ExpectAndReturn(0u);
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
+    CANTX_TransmitBmsState_ExpectAndReturn(STD_OK);
+    BMS_Trigger();
+
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
+    /* change state request to error */
+    BMS_SetStateRequest(BMS_STATE_ERROR_REQUEST);
+    OS_GetTickCount_ExpectAndReturn(0u);
+    /* State changes to Error state -> message transmitted */
+    DATA_Read3DataBlocks_ExpectAndReturn(&bms_tablePackValues, &bms_tableOpenWire, &bms_tableMinMax, STD_OK);
+    SOA_CheckVoltages_Expect(&bms_tableMinMax);
+    SOA_CheckTemperatures_Expect(&bms_tableMinMax, &bms_tablePackValues);
+    SOA_CheckCurrent_Expect(&bms_tablePackValues);
+    SOA_CheckSlaveTemperatures_Expect();
+    for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
+        DIAG_Handler_ExpectAndReturn(DIAG_ID_AFE_OPEN_WIRE, DIAG_EVENT_OK, DIAG_STRING, s, STD_OK);
+    }
+    CONT_CheckFeedback_Expect();
+
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
+    DIAG_Handler_ExpectAndReturn(DIAG_ID_ALERT_MODE, DIAG_EVENT_OK, 0, 0, STD_OK);
+
+    CANTX_TransmitBmsState_ExpectAndReturn(STD_OK);
+    BMS_Trigger();
+}
+
+/** check that the BMS_GetSubstate function works correctly */
+void testBMS_GetSubstate(void) {
+    TEST_ASSERT_EQUAL(0, BMS_GetSubstate());
 }

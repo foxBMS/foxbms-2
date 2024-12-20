@@ -43,12 +43,13 @@
  * @file    test_bal_cfg.c
  * @author  foxBMS Team
  * @date    2022-02-26 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
  * @brief   Test for the balancing configuration
+ * @details Tests Set and Balancing
  *
  */
 
@@ -59,13 +60,14 @@
 #include "bal_cfg.h"
 
 /*========== Unit Testing Framework Directives ==============================*/
+TEST_SOURCE_FILE("bal_cfg.c")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 
 /*========== Setup and Teardown =============================================*/
 void setUp(void) {
-    OS_EnterTaskCritical_Ignore();
-    OS_ExitTaskCritical_Ignore();
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
     BAL_SetBalancingThreshold(BAL_DEFAULT_THRESHOLD_mV);
 }
 
@@ -76,21 +78,23 @@ void tearDown(void) {
 
 /** test #BAL_SetBalancingThreshold() and #BAL_GetBalancingThreshold_mV() */
 void testSetAndGetBalancingThreshold(void) {
-    OS_EnterTaskCritical_Ignore();
-    OS_ExitTaskCritical_Ignore();
     int32_t expectedThreshold_mV = 50;
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
     BAL_SetBalancingThreshold(expectedThreshold_mV);
     TEST_ASSERT_EQUAL(expectedThreshold_mV, BAL_GetBalancingThreshold_mV());
 
     expectedThreshold_mV = 150;
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
     BAL_SetBalancingThreshold(expectedThreshold_mV);
     TEST_ASSERT_EQUAL(expectedThreshold_mV, BAL_GetBalancingThreshold_mV());
 }
 
 /** test #BAL_SetBalancingThreshold() with maximum values */
 void testSetBalancingThresholdMaxValue(void) {
-    OS_EnterTaskCritical_Ignore();
-    OS_ExitTaskCritical_Ignore();
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
     int32_t expectedThreshold_mV = BAL_MAXIMUM_THRESHOLD_mV + 1;
     BAL_SetBalancingThreshold(expectedThreshold_mV);
     TEST_ASSERT_EQUAL(expectedThreshold_mV - 1, BAL_GetBalancingThreshold_mV());
@@ -98,8 +102,8 @@ void testSetBalancingThresholdMaxValue(void) {
 
 /** test #BAL_SetBalancingThreshold() with minimum values */
 void testSetBalancingThresholdMinValue(void) {
-    OS_EnterTaskCritical_Ignore();
-    OS_ExitTaskCritical_Ignore();
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
     int32_t expectedThreshold_mV = BAL_MINIMUM_THRESHOLD_mV - 1;
     BAL_SetBalancingThreshold(expectedThreshold_mV);
     TEST_ASSERT_EQUAL(expectedThreshold_mV + 1, BAL_GetBalancingThreshold_mV());

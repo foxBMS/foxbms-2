@@ -88,17 +88,6 @@ class ConfigMatchinator
     return nil
   end
 
-  def validate_matchers(hash:, section:, context:, operation:nil)
-    # Look for matcher keys with missing values
-    hash.each do |k, v|
-      if v == nil
-        path = generate_matcher_path( section, context, operation )
-        error = "Missing list of values for #{path} ↳ '#{k}' matcher in project configuration."
-        raise CeedlingException.new( error )
-      end
-    end
-  end
-
   # Note: This method only relevant if hash includes test filepath matching keys
   def matches?(hash:, filepath:, section:, context:, operation:nil)
     _values = []
@@ -157,7 +146,8 @@ class ConfigMatchinator
       end
     end
 
-    return _values.flatten # Flatten to handle YAML aliases
+    # Flatten to handle list-nested YAML aliasing (should have already been flattened during validation)
+    return _values.flatten
   end
 
   ### Private ###

@@ -43,8 +43,8 @@
  * @file    fstd_types.h
  * @author  foxBMS Team
  * @date    2015-12-20 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup MAIN_CONFIGURATION
  * @prefix  STD
  *
@@ -56,7 +56,6 @@
 #define FOXBMS__FSTD_TYPES_H_
 
 /*========== Includes =======================================================*/
-#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 

@@ -1,20 +1,22 @@
 ; Debugger Startup Program for TRACE32
 ; This startup program can be modified according to your needs.
 
-GLOBAL &elf_searchpath &elf_start &elf_end
+GLOBAL &bootloader_elf_searchpath &bootloader_elf_start &bootloader_elf_end
+GLOBAL &app_elf_searchpath &app_elf_start &app_elf_end
 GLOBAL &source_path &working_path &working_path_all
 
+GLOBAL &bootloader_elf_file &app_elf_file
 
-GLOBAL &elf_file
+; set default .elf files for bootloader and app relativ to this cmm-file
+&bootloader_elf_file=OS.PPD()+"\@{BOOTLOADER_ELF_FILE}"
+&app_elf_file=OS.PPD()+"\@{APP_ELF_FILE}"
 
-; set default elf file relativ to this cmm-file
-&elf_file=OS.PPD()+"\@ELF_FILE@"
+;set default search path to this cmm-file
+&bootloader_elf_searchpath=OS.PPD()+"\@{BOOTLOADER_ELF_SEARCHPATH}"
+&app_elf_searchpath=OS.PPD()+"\@{APP_ELF_SEARCHPATH}"
 
 ; list of macros
 &macro_values = OS.PPD()+"\load_macro_values.cmm"
-
-;set default search path to this cmm-file
-&elf_searchpath=OS.PPD()+"\@ELF_SEARCHPATH@"
 
 GLOBAL &folder_workingpath &folder_temppath &folder_systempath &folder_homepath
 GLOBAL &file_currentpractice
@@ -25,9 +27,13 @@ GLOBAL &file_currentpractice
 
 &file_currentpractice=OS.PPF()
 
+; bootloader start address range
+&bootloader_elf_start="0x00000000"
+&bootloader_elf_end="0x00020000"
+
 ; foxbms start address range
-&elf_start="0x08000000"   ; TBD: currently feature not supported
-&elf_end="0x081FFFFF"     ; TBD: currently feature not supported
+&app_elf_start="0x00000000"
+&app_elf_end="0x003FFFFF"
 
 cd &working_path
 
@@ -59,56 +65,88 @@ sYmbol.Browse
     toolbar
     (
         ;
-        toolitem "Select Elf File"   ":load"
+        toolitem "Select Application .elf File"   ":load"
         (
-            ;  LOCAL &elf_folder
-            IF ("&elf_file"=="")
+            IF ("&app_elf_file"=="")
             (
-                &elf_file=OS.PSD()+"\dummy.elf"
+                &app_elf_file=OS.PSD()+"\dummy.elf"
             )
-            &elf_searchpath=OS.FILE.PATH(&elf_file)
-            IF ("&elf_searchpath"=="")
+            &app_elf_searchpath=OS.FILE.PATH(&app_elf_file)
+            IF ("&app_elf_searchpath"=="")
             (
-                &elf_searchpath=OS.PPD()
-                PRINT "elf folder not found, use default"
+                &app_elf_searchpath=OS.PPD()
+                PRINT "elf directory not found, use default"
             )
-            ;&elf_searchpath="&elf_folder\*"
-            DIALOG.File "&elf_searchpath\*"
-            ENTRY %line &elf_file
-            IF ("&elf_file"=="")
+
+            DIALOG.File "&app_elf_searchpath\*"
+            ENTRY %line &app_elf_file
+            IF ("&app_elf_file"=="")
             (
                 PRINT "elf file not found"
                 ENDDO
             )
-            IF (STRING.FIND("&elf_file"," "))
+            IF (STRING.FIND("&app_elf_file"," "))
             (
-                PRINT %ERROR "Sorry: do not use filenames which contain spaces: '&elf_file'!"
+                PRINT %ERROR "Sorry: do not use filenames which contain spaces: '&app_elf_file'!"
                 ENDDO
             )
-            PRINT "selected file: &elf_file"
+            PRINT "selected file: &app_elf_file"
             ENDDO
         )
-        toolitem "Program foxBMS Elf File"   ":flash"
+        toolitem "Program foxBMS Application Elf File"   ":flash"
         (
-                        PRINT "Erasing Program Code: ALL"
-                        wait 0.1s
-                        FLASH.ReProgram ALL /Erase /FILL
-                        Data.LOAD.Elf &elf_file
-                        FLASH.ReProgram OFF
-                        PRINT ".ELF file has been flashed"
+            PRINT "Erasing Program Code: (&app_elf_start)--(&app_elf_end)"
+            wait 0.1s
+            FLASH.ReProgram (&app_elf_start)--(&app_elf_end)
+            Data.LOAD.Elf &app_elf_file (&app_elf_start)--(&app_elf_end)
+            FLASH.ReProgram OFF
+            PRINT "foxBMS 2 application .ELF file has been flashed"
 
-                        ; --------------------------------------------------------------------------------
-                        ; Reset the target again
-                        SYStem.Up
-                        ENDDO
-        )
-        toolitem "Add symbols SW"   "+P,R"
+            ; Reset the target again
+            SYStem.Up
+            ENDDO
+)
+        toolitem "Add symbols Application SW"   "+P,g"
         (
-            Data.LOAD.Elf &elf_file /NOCODE
+            Data.LOAD.Elf &app_elf_file /NOCODE
         )
-        toolitem "Reset all symbols"               "-P,R"          "SYMBOL.RESET"
         separator
-        toolitem "Up and Go"                          ":goc"
+        toolitem "Select Bootloader Elf File"   ":load"
+        (
+            IF ("&bootloader_elf_file"=="")
+            (
+                &bootloader_elf_file=OS.PSD()+"\dummy.elf"
+            )
+            &bootloader_elf_searchpath=OS.FILE.PATH(&bootloader_elf_file)
+            IF ("&bootloader_elf_searchpath"=="")
+            (
+                &bootloader_elf_searchpath=OS.PPD()
+                PRINT "Bootloader .elf directory not found, use default"
+            )
+            DIALOG.File "&bootloader_elf_searchpath\*"
+            ENTRY %line &bootloader_elf_file
+            IF ("&bootloader_elf_file"=="")
+            (
+                PRINT "Bootloader .elf file not found"
+                ENDDO
+            )
+            IF (STRING.FIND("&bootloader_elf_file"," "))
+            (
+                PRINT %ERROR "Sorry: do not use filenames which contain spaces: '&bootloader_elf_file'!"
+                ENDDO
+            )
+            PRINT "selected file: &bootloader_elf_file"
+            ENDDO
+        )
+        toolitem "Program foxBMS Bootloader Elf File"   ":flash"
+        (
+        )
+        toolitem "Add symbols Bootloader SW"   "+P,r"
+        (
+        )
+        separator
+        toolitem "Reset all symbols"    "-P,i"      "SYMBOL.RESET"
+        toolitem "Up and Go"            ":apugo"
         (
             ON ERROR GOSUB
             RETURN
@@ -116,8 +154,8 @@ sYmbol.Browse
             Screen
             GO
         )
-        toolitem "SYSTEM.UP"                          "up,Y"          "SYStem.UP"
-        toolitem "SYSTEM.DOWN"                        "dn,Y"          "SYStem.DOWN"
+        toolitem "SYSTEM.UP"    "up,i"  "SYStem.UP"
+        toolitem "SYSTEM.DOWN"  "dn,i"  "SYStem.DOWN"
     )
 
 
@@ -127,11 +165,11 @@ sYmbol.Browse
     add
     menu
     (
-        popup "&FhG-IISB"
+        popup "&foxBMS"
         (
 
             menuitem "[:down]SYStem Down"   "SYStem.DOWN"
-            menuitem "[:up]SYStem UP"   "SYStem.UP"
+            menuitem "[:up]SYStem UP"       "SYStem.UP"
             menuitem "[:goc]Up and &Go"
             (
                 ON ERROR GOSUB
@@ -141,128 +179,123 @@ sYmbol.Browse
                 GO
             )
             separator
-            menuitem "ReInit Debugger Skript"
-                (
-                        LOCAL &myfile
-                    &myfile=OS.FILE.PATH(&init_file)+"\t32.cmm"
-                    do &myfile
-                    ;do D:\foxbms\tools\t32\t32.cmm
-                    ENDDO
-                )
+            menuitem "Reinitialize Debugger Script"
+            (
+                do &init_file
+                ENDDO
+            )
             separator
             menuitem "Show Flash List"
-                (
-                    Flash.List
-                    ENDDO
-                )
+            (
+                Flash.List
+                ENDDO
+            )
             menuitem "Show Source-Path"
-                (
-                    symbol.sourcepath.list
-                    ENDDO
-                )
+            (
+                symbol.sourcepath.list
+                ENDDO
+            )
             menuitem "Add Source-Path"
-                (
-                    symbol.sourcepath &source_path
-                    ENDDO
-                )
+            (
+                symbol.sourcepath &source_path
+                ENDDO
+            )
             menuitem "Load Source-Path"
-                (
-                    do &working_path_all
-                    ENDDO
-                )
+            (
+                do &working_path_all
+                ENDDO
+            )
             menuitem "Save Source-Path"
-                (
-                    store &working_path_all spathcache
-                    ENDDO
-                )
+            (
+                store &working_path_all spathcache
+                ENDDO
+            )
             separator
             menuitem "[:view]Show PRACTICE macros"
-                (
-                    pmacro.list
-                    ENDDO
-                )
+            (
+                pmacro.list
+                ENDDO
+            )
             menuitem "[:view]Debug Scripts"
-                (
-                        ;cd.pedit D:\foxbms\tools\t32\t32.cmm
-                    cd.pedit &init_file
-                    ENDDO
-                )
+            (
+                cd.pedit &init_file
+                ENDDO
+            )
             separator
             menuitem "Fill Memory"
+            (
+                AREA.Create FILL-AREA
+                AREA.Select FILL-AREA
+                WinPOS ,,,,,, FILL1
+                AREA.view FILL-AREA
+                ;Print "Please enter the Filename including the path (do not use spaces!)"
+                ;Print "File name="
+                ;ENTER &file_dump
+                PRINT "Please enter the address area to be filled (e.g., 0x40000000--0x40000100)"
+                PRINT "Address area="
+                ENTER &area_dump
+                PRINT " "
+                PRINT "Please enter the data to be written(e.g., 0x12345678)"
+                PRINT "value="
+                ENTER &value_data
+                PRINT " "
+                ;PRINTER.OPEN &file_dump
+                ;WINPRINT.DATA.DUMP &area_dump
                 (
-                        AREA.Create FILL-AREA
-                        AREA.Select FILL-AREA
-                        WinPOS ,,,,,, FILL1
-                        AREA.view FILL-AREA
-                        ;Print "Please enter the Filename including the path (do not use spaces!)"
-                        ;Print "File name="
-                        ;ENTER &file_dump
-                        PRINT "Please enter the address area to be filled (e.g 0x40000000--0x40000100)"
-                        PRINT "Address area="
-                        ENTER &area_dump
-                        PRINT " "
-                        PRINT "Please enter the data to be written(e.g 0x12345678)"
-                        PRINT "value="
-                        ENTER &value_data
-                        PRINT " "
-                        ;PRINTER.OPEN &file_dump
-                        ;WINPRINT.DATA.DUMP &area_dump
-                        (
-                        D.S &area_dump %BE %LONG &value_data
-                        )
-                        ;PRINTER.CLOSE
-                        AREA.RESet
-                        WinCLEAR FILL1
-                        ENDDO
+                D.S &area_dump %BE %LONG &value_data
                 )
+                ;PRINTER.CLOSE
+                AREA.RESet
+                WinCLEAR FILL1
+                ENDDO
+            )
             POPUP "&Save Dump/List"
             (
-                    menuitem "Save Data.Dump"
-                    (
-                        AREA.Create DUMP-AREA
-                        AREA.Select DUMP-AREA
-                        WinPOS ,,,,,, DUMP1
-                        AREA.view DUMP-AREA
-                        Print "Please enter the Filename including the path (do not use spaces!)"
-                        Print "File name="
-                        ENTER &file_dump
-                        PRINT "Please enter the address area (e.g 0x20000000--0x20000100)"
-                        PRINT "Address area="
-                        ENTER &area_dump
-                        PRINT " "
-                        PRINTER.OPEN &file_dump
-                        WINPRINT.DATA.DUMP &area_dump
-                        PRINTER.CLOSE
-                        AREA.RESet
-                        WinCLEAR DUMP1
-                        ENDDO
-                    )
-                    menuitem "Save DATA.LIST"
-                    (
-                        AREA.Create TRACE
-                        AREA.Select TRACE
-                        WinPOS ,,,,,, TRACE1
-                        AREA.view TRACE
-                        Print "Creating C-Source and Assembler-List. Please enter the Filename including the path (does not contain spaces!)"
-                        Print "File name="
-                        ENTER &file_trace
-                        PRINT "Please enter the area of the Source List (e.g 0x20000--0x20100)"
-                        ;PRINT "Address area="
-                        PRINT "Record numbers="
-                        ENTER &area_dump
-                        PRINT " "
-                        PRINTER.OPEN &file_trace
-                        ;WINPRINT.A.LIST %LEN 60 &area_dump
-                        WINPRINT.DATA.LIST &area_dump
-                        PRINTER.CLOSE
-                        AREA.RESet
-                        WinCLEAR TRACE1
-                        ENDDO
-                    )
+                menuitem "Save Data.Dump"
+                (
+                    AREA.Create DUMP-AREA
+                    AREA.Select DUMP-AREA
+                    WinPOS ,,,,,, DUMP1
+                    AREA.view DUMP-AREA
+                    Print "Please enter the Filename including the path (do not use spaces!)"
+                    Print "File name="
+                    ENTER &file_dump
+                    PRINT "Please enter the address area (e.g., 0x20000000--0x20000100)"
+                    PRINT "Address area="
+                    ENTER &area_dump
+                    PRINT " "
+                    PRINTER.OPEN &file_dump
+                    WINPRINT.DATA.DUMP &area_dump
+                    PRINTER.CLOSE
+                    AREA.RESet
+                    WinCLEAR DUMP1
+                    ENDDO
+                )
+                menuitem "Save DATA.LIST"
+                (
+                    AREA.Create TRACE
+                    AREA.Select TRACE
+                    WinPOS ,,,,,, TRACE1
+                    AREA.view TRACE
+                    Print "Creating C-Source and Assembler-List. Please enter the Filename including the path (does not contain spaces!)"
+                    Print "File name="
+                    ENTER &file_trace
+                    PRINT "Please enter the area of the Source List (e.g., 0x20000--0x20100)"
+                    ;PRINT "Address area="
+                    PRINT "Record numbers="
+                    ENTER &area_dump
+                    PRINT " "
+                    PRINTER.OPEN &file_trace
+                    ;WINPRINT.A.LIST %LEN 60 &area_dump
+                    WINPRINT.DATA.LIST &area_dump
+                    PRINTER.CLOSE
+                    AREA.RESet
+                    WinCLEAR TRACE1
+                    ENDDO
+                )
             )
         )
     )
-
 )
 
 ; Add FreeRTOS awareness
@@ -270,7 +303,7 @@ SYStem.Up
 TASK.CONFIG ~~/demo/arm/kernel/freertos/freertos.t32
 MENU.ReProgram ~~/demo/arm/kernel/freertos/freertos.men
 HELP.FILTER.Add rtosfreertos
-Data.LOAD.Elf &elf_file /NOCODE
+Data.LOAD.Elf &app_elf_file /NOCODE
 IF OS.FILE(&macro_values)
     do &macro_values
 

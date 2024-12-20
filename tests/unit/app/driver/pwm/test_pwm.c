@@ -43,12 +43,13 @@
  * @file    test_pwm.c
  * @author  foxBMS Team
  * @date    2021-10-08 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
  * @brief   Tests for the PWM driver
+ * @details TODO
  *
  */
 
@@ -98,14 +99,9 @@ uint32_t ecapGetCAP3(ecapBASE_t *ecap) {
  */
 void PWM_SetDutyCycle_Test(uint16_t timeBasePeriod, uint16_t dutyCycleIn, uint16_t dutyCycleOut) {
     etpwm_config_reg_t etPwmConfig = {0};
-    etPwmConfig.CONFIG_TBPRD       = timeBasePeriod;
+    etpwm1GetConfigValue_Expect(&etPwmConfig, CurrentValue);
 
-    etpwm1GetConfigValue_Expect(NULL_PTR, CurrentValue);
-    etpwm1GetConfigValue_IgnoreArg_config_reg();
-    etpwm1GetConfigValue_ReturnThruPtr_config_reg(&etPwmConfig);
-
-    etpwmSetCmpA_Expect(NULL_PTR, dutyCycleOut);
-    etpwmSetCmpA_IgnoreArg_etpwm();
+    etpwmSetCmpA_Expect(etpwmREG1, 0);
     PWM_SetDutyCycle(dutyCycleIn);
 }
 

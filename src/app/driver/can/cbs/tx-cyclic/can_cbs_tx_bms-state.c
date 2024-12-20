@@ -43,8 +43,8 @@
  * @file    can_cbs_tx_bms-state.c
  * @author  foxBMS Team
  * @date    2021-07-21 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup DRIVERS
  * @prefix  CANTX
  *
@@ -54,6 +54,7 @@
 
 /*========== Includes =======================================================*/
 #include "bms.h"
+#include "can.h"
 /* AXIVION Next Codeline Generic-LocalInclude: 'can_cbs_tx_cyclic.h' declares
  * the prototype for the callback 'CANTX_BmsState' */
 #include "can_cbs_tx_cyclic.h"
@@ -74,6 +75,8 @@
 #define CANTX_SIGNAL_BMS_NUMBER_OF_CONNECTED_STRINGS_LENGTH              (4u)
 #define CANTX_SIGNAL_BMS_BMS_STATE_START_BIT                             (3u)
 #define CANTX_SIGNAL_BMS_BMS_STATE_LENGTH                                (4u)
+#define CANTX_SIGNAL_BMS_BMS_SUBSTATE_START_BIT                          (37u)
+#define CANTX_SIGNAL_BMS_BMS_SUBSTATE_LENGTH                             (6u)
 #define CANTX_SIGNAL_BMS_COOLING_STATE_START_BIT                         (15u)
 #define CANTX_SIGNAL_BMS_COOLING_STATE_LENGTH                            (CAN_BIT)
 #define CANTX_SIGNAL_BMS_HEATER_STATE_START_BIT                          (14u)
@@ -106,6 +109,10 @@
 #define CANTX_SIGNAL_BMS_PRECHARGE_CURRENT_ERROR_LENGTH                  (CAN_BIT)
 #define CANTX_SIGNAL_BMS_PRECHARGE_VOLTAGE_ERROR_START_BIT               (16u)
 #define CANTX_SIGNAL_BMS_PRECHARGE_VOLTAGE_ERROR_LENGTH                  (CAN_BIT)
+#define CANTX_SIGNAL_BMS_BALANCING_ALGORITHM_STATE_START_BIT             (31u)
+#define CANTX_SIGNAL_BMS_BALANCING_ALGORITHM_STATE_LENGTH                (CAN_BIT)
+#define CANTX_SIGNAL_BMS_CLAMP_30C_ERROR_START_BIT                       (30u)
+#define CANTX_SIGNAL_BMS_CLAMP_30C_ERROR_LENGTH                          (CAN_BIT)
 #define CANTX_SIGNAL_BMS_NVRAM_CRC_ERROR_START_BIT                       (28u)
 #define CANTX_SIGNAL_BMS_NVRAM_CRC_ERROR_LENGTH                          (CAN_BIT)
 #define CANTX_SIGNAL_BMS_ALERT_FLAG_START_BIT                            (27u)
@@ -149,10 +156,17 @@ static const CAN_SIGNAL_TYPE_s cantx_signalInsulationResistance = {
  */
 static bool CANTX_AnySysMonTimingIssueDetected(const CAN_SHIM_s *const kpkCanShim);
 
+/**
+ * @brief   Set the message data with the signal data
+ * @param   pMessageData  pointer to message data
+ * @param   kpkCanShim  const pointer to CAN shim
+*/
+static void CANTX_BuildBmsStateMessage(uint64_t *pMessageData, const CAN_SHIM_s *const kpkCanShim);
+
 /*========== Static Function Implementations ================================*/
 static bool CANTX_AnySysMonTimingIssueDetected(const CAN_SHIM_s *const kpkCanShim) {
     FAS_ASSERT(kpkCanShim != NULL_PTR);
-    SYSM_TIMING_VIOLATION_RESPONSE_s recordedTimingViolations = {0};
+    SYSM_TIMING_VIOLATION_RESPONSE_s recordedTimingViolations = {false, false, false, false, false, false};
     SYSM_GetRecordedTimingViolations(&recordedTimingViolations);
 
     const bool anyTimingViolation =
@@ -166,102 +180,99 @@ static bool CANTX_AnySysMonTimingIssueDetected(const CAN_SHIM_s *const kpkCanShi
     return anyTimingViolation;
 }
 
-/*========== Extern Function Implementations ================================*/
-extern uint32_t CANTX_BmsState(
-    CAN_MESSAGE_PROPERTIES_s message,
-    uint8_t *pCanData,
-    uint8_t *pMuxId,
-    const CAN_SHIM_s *const kpkCanShim) {
-    FAS_ASSERT(message.id == CANTX_BMS_STATE_ID);
-    FAS_ASSERT(message.idType == CANTX_BMS_STATE_ID_TYPE);
-    FAS_ASSERT(message.dlc == CANTX_BMS_STATE_DLC);
-    FAS_ASSERT(message.endianness == CANTX_BMS_STATE_ENDIANNESS);
-    FAS_ASSERT(pCanData != NULL_PTR);
-    FAS_ASSERT(pMuxId == NULL_PTR); /* pMuxId is not used here, therefore has to be NULL_PTR */
+static void CANTX_BuildBmsStateMessage(uint64_t *pMessageData, const CAN_SHIM_s *const kpkCanShim) {
+    FAS_ASSERT(pMessageData != NULL_PTR);
     FAS_ASSERT(kpkCanShim != NULL_PTR);
-    uint64_t messageData = 0u;
-
-    DATA_READ_DATA(kpkCanShim->pTableErrorState, kpkCanShim->pTableInsulation, kpkCanShim->pTableMsl);
 
     /* State */
     uint64_t data = (uint64_t)BMS_GetState();
     /* set data in CAN frame */
     CAN_TxSetMessageDataWithSignalData(
-        &messageData,
+        pMessageData,
         CANTX_SIGNAL_BMS_BMS_STATE_START_BIT,
         CANTX_SIGNAL_BMS_BMS_STATE_LENGTH,
         data,
-        message.endianness);
+        CANTX_BMS_STATE_ENDIANNESS);
+
+    /* Substate */
+    data = (uint64_t)BMS_GetSubstate();
+    /* set data in CAN frame */
+    CAN_TxSetMessageDataWithSignalData(
+        pMessageData,
+        CANTX_SIGNAL_BMS_BMS_SUBSTATE_START_BIT,
+        CANTX_SIGNAL_BMS_BMS_SUBSTATE_LENGTH,
+        data,
+        CANTX_BMS_STATE_ENDIANNESS);
 
     /* Connected strings */
     data = (uint64_t)BMS_GetNumberOfConnectedStrings();
     /* set data in CAN frame */
     CAN_TxSetMessageDataWithSignalData(
-        &messageData,
+        pMessageData,
         CANTX_SIGNAL_BMS_NUMBER_OF_CONNECTED_STRINGS_START_BIT,
         CANTX_SIGNAL_BMS_NUMBER_OF_CONNECTED_STRINGS_LENGTH,
         data,
-        message.endianness);
+        CANTX_BMS_STATE_ENDIANNESS);
 
     /* General warning: TODO */
 
-    /* General error - implement now */
+    /* General/Fatal error  */
     data = CAN_ConvertBooleanToInteger(DIAG_IsAnyFatalErrorSet());
     CAN_TxSetMessageDataWithSignalData(
-        &messageData,
+        pMessageData,
         CANTX_SIGNAL_BMS_GENERAL_ERROR_START_BIT,
         CANTX_SIGNAL_BMS_GENERAL_ERROR_LENGTH,
         data,
-        message.endianness);
+        CANTX_BMS_STATE_ENDIANNESS);
 
     /* Emergency shutoff */
     data = CAN_ConvertBooleanToInteger(BMS_IsTransitionToErrorStateActive());
     CAN_TxSetMessageDataWithSignalData(
-        &messageData,
+        pMessageData,
         CANTX_SIGNAL_BMS_EMERGENCY_SHUTOFF_START_BIT,
         CANTX_SIGNAL_BMS_EMERGENCY_SHUTOFF_LENGTH,
         data,
-        message.endianness);
+        CANTX_BMS_STATE_ENDIANNESS);
 
     /* Number of deactivated strings: TODO */
 
     /* sys mon error */
     data = CAN_ConvertBooleanToInteger(CANTX_AnySysMonTimingIssueDetected(kpkCanShim));
     CAN_TxSetMessageDataWithSignalData(
-        &messageData,
+        pMessageData,
         CANTX_SIGNAL_BMS_SYSTEM_MONITORING_ERROR_START_BIT,
         CANTX_SIGNAL_BMS_SYSTEM_MONITORING_ERROR_LENGTH,
         data,
-        message.endianness);
+        CANTX_BMS_STATE_ENDIANNESS);
 
     /* Insulation monitoring active */
     data = CAN_ConvertBooleanToInteger(kpkCanShim->pTableInsulation->isImdRunning);
     CAN_TxSetMessageDataWithSignalData(
-        &messageData,
+        pMessageData,
         CANTX_SIGNAL_BMS_INSULATION_MONITORING_START_BIT,
         CANTX_SIGNAL_BMS_INSULATION_MONITORING_LENGTH,
         data,
-        message.endianness);
+        CANTX_BMS_STATE_ENDIANNESS);
 
     /* Error: insulation */
     data = CAN_ConvertBooleanToInteger(kpkCanShim->pTableErrorState->criticalLowInsulationResistanceError);
     CAN_TxSetMessageDataWithSignalData(
-        &messageData,
+        pMessageData,
         CANTX_SIGNAL_BMS_INSULATION_ERROR_START_BIT,
         CANTX_SIGNAL_BMS_INSULATION_ERROR_LENGTH,
         data,
-        message.endianness);
+        CANTX_BMS_STATE_ENDIANNESS);
 
     /* Insulation resistance */
     float_t signalData = (float_t)kpkCanShim->pTableInsulation->insulationResistance_kOhm;
     CAN_TxPrepareSignalData(&signalData, cantx_signalInsulationResistance);
     data = (uint64_t)signalData;
     CAN_TxSetMessageDataWithSignalData(
-        &messageData,
+        pMessageData,
         cantx_signalInsulationResistance.bitStart,
         cantx_signalInsulationResistance.bitLength,
         data,
-        message.endianness);
+        CANTX_BMS_STATE_ENDIANNESS);
 
     /* Charging complete: TODO */
 
@@ -276,11 +287,11 @@ extern uint32_t CANTX_BmsState(
         }
     }
     CAN_TxSetMessageDataWithSignalData(
-        &messageData,
+        pMessageData,
         CANTX_SIGNAL_BMS_PRECHARGE_VOLTAGE_ERROR_START_BIT,
         CANTX_SIGNAL_BMS_PRECHARGE_VOLTAGE_ERROR_LENGTH,
         data,
-        message.endianness);
+        CANTX_BMS_STATE_ENDIANNESS);
 
     /* Error: Precharge current */
     data = 0u; /* No precharge error detected */
@@ -290,20 +301,20 @@ extern uint32_t CANTX_BmsState(
         }
     }
     CAN_TxSetMessageDataWithSignalData(
-        &messageData,
+        pMessageData,
         CANTX_SIGNAL_BMS_PRECHARGE_CURRENT_ERROR_START_BIT,
         CANTX_SIGNAL_BMS_PRECHARGE_CURRENT_ERROR_LENGTH,
         data,
-        message.endianness);
+        CANTX_BMS_STATE_ENDIANNESS);
 
     /* Error: MCU die temperature */
     data = CAN_ConvertBooleanToInteger(kpkCanShim->pTableErrorState->mcuDieTemperatureViolationError);
     CAN_TxSetMessageDataWithSignalData(
-        &messageData,
+        pMessageData,
         CANTX_SIGNAL_BMS_MCU_DIE_TEMPERATURE_ERROR_START_BIT,
         CANTX_SIGNAL_BMS_MCU_DIE_TEMPERATURE_ERROR_LENGTH,
         data,
-        message.endianness);
+        CANTX_BMS_STATE_ENDIANNESS);
 
     /* Error: master overtemperature: TODO */
     /* Error: master undertemperature: TODO */
@@ -311,76 +322,136 @@ extern uint32_t CANTX_BmsState(
     /* Main fuse state */
     data = CAN_ConvertBooleanToInteger(kpkCanShim->pTableErrorState->mainFuseError);
     CAN_TxSetMessageDataWithSignalData(
-        &messageData,
+        pMessageData,
         CANTX_SIGNAL_BMS_MAIN_FUSE_BLOWN_START_BIT,
         CANTX_SIGNAL_BMS_MAIN_FUSE_BLOWN_LENGTH,
         data,
-        message.endianness);
+        CANTX_BMS_STATE_ENDIANNESS);
 
     /* Error: interlock */
     data = CAN_ConvertBooleanToInteger(kpkCanShim->pTableErrorState->interlockOpenedError);
     CAN_TxSetMessageDataWithSignalData(
-        &messageData,
+        pMessageData,
         CANTX_SIGNAL_BMS_INTERLOCK_STATE_START_BIT,
         CANTX_SIGNAL_BMS_INTERLOCK_STATE_LENGTH,
         data,
-        message.endianness);
+        CANTX_BMS_STATE_ENDIANNESS);
 
     /* Error: Can timing */
     data = kpkCanShim->pTableErrorState->stateRequestTimingViolationError;
     CAN_TxSetMessageDataWithSignalData(
-        &messageData,
+        pMessageData,
         CANTX_SIGNAL_BMS_CAN_TIMING_ERROR_START_BIT,
         CANTX_SIGNAL_BMS_CAN_TIMING_ERROR_LENGTH,
         data,
-        message.endianness);
+        CANTX_BMS_STATE_ENDIANNESS);
 
     /* Error: Overcurrent pack charge */
     data = kpkCanShim->pTableMsl->packChargeOvercurrent;
     CAN_TxSetMessageDataWithSignalData(
-        &messageData,
+        pMessageData,
         CANTX_SIGNAL_BMS_PACK_OVERCURRENT_CHARGE_ERROR_START_BIT,
         CANTX_SIGNAL_BMS_PACK_OVERCURRENT_CHARGE_ERROR_LENGTH,
         data,
-        message.endianness);
+        CANTX_BMS_STATE_ENDIANNESS);
 
     /* Error: Overcurrent pack discharge */
     data = kpkCanShim->pTableMsl->packDischargeOvercurrent;
     CAN_TxSetMessageDataWithSignalData(
-        &messageData,
+        pMessageData,
         CANTX_SIGNAL_BMS_PACK_OVERCURRENT_DISCHARGE_ERROR_START_BIT,
         CANTX_SIGNAL_BMS_PACK_OVERCURRENT_DISCHARGE_ERROR_LENGTH,
         data,
-        message.endianness);
+        CANTX_BMS_STATE_ENDIANNESS);
 
     /* Error: Alert flag */
     data = CAN_ConvertBooleanToInteger(kpkCanShim->pTableErrorState->alertFlagSetError);
     CAN_TxSetMessageDataWithSignalData(
-        &messageData,
+        pMessageData,
         CANTX_SIGNAL_BMS_ALERT_FLAG_START_BIT,
         CANTX_SIGNAL_BMS_ALERT_FLAG_LENGTH,
         data,
-        message.endianness);
+        CANTX_BMS_STATE_ENDIANNESS);
 
     /* Error: NVRAM CRC */
     data = CAN_ConvertBooleanToInteger(kpkCanShim->pTableErrorState->framReadCrcError);
     CAN_TxSetMessageDataWithSignalData(
-        &messageData,
+        pMessageData,
         CANTX_SIGNAL_BMS_NVRAM_CRC_ERROR_START_BIT,
         CANTX_SIGNAL_BMS_NVRAM_CRC_ERROR_LENGTH,
         data,
-        message.endianness);
+        CANTX_BMS_STATE_ENDIANNESS);
+
+    /* Error: Clamp 30C */
+    data = CAN_ConvertBooleanToInteger(kpkCanShim->pTableErrorState->supplyVoltageClamp30cError);
+    CAN_TxSetMessageDataWithSignalData(
+        pMessageData,
+        CANTX_SIGNAL_BMS_CLAMP_30C_ERROR_START_BIT,
+        CANTX_SIGNAL_BMS_CLAMP_30C_ERROR_LENGTH,
+        data,
+        CANTX_BMS_STATE_ENDIANNESS);
+
+    /* Balancing Algorithm State */
+    data = CAN_ConvertBooleanToInteger(kpkCanShim->pTableBalancingControl->enableBalancing);
+    CAN_TxSetMessageDataWithSignalData(
+        pMessageData,
+        CANTX_SIGNAL_BMS_BALANCING_ALGORITHM_STATE_START_BIT,
+        CANTX_SIGNAL_BMS_BALANCING_ALGORITHM_STATE_LENGTH,
+        data,
+        CANTX_BMS_STATE_ENDIANNESS);
+}
+
+/*========== Extern Function Implementations ================================*/
+extern uint32_t CANTX_BmsState(
+    CAN_MESSAGE_PROPERTIES_s message,
+    uint8_t *pCanData,
+    uint8_t *pMuxId,
+    const CAN_SHIM_s *const kpkCanShim) {
+    FAS_ASSERT(message.id == CANTX_BMS_STATE_ID);
+    FAS_ASSERT(message.dlc == CANTX_BMS_STATE_DLC);
+    FAS_ASSERT(message.idType == CANTX_BMS_STATE_ID_TYPE);
+    FAS_ASSERT(message.endianness == CANTX_BMS_STATE_ENDIANNESS);
+    FAS_ASSERT(pCanData != NULL_PTR);
+    FAS_ASSERT(pMuxId == NULL_PTR); /* pMuxId is not used here, therefore has to be NULL_PTR */
+    FAS_ASSERT(kpkCanShim != NULL_PTR);
+    uint64_t messageData = 0u;
+
+    DATA_READ_DATA(
+        kpkCanShim->pTableErrorState,
+        kpkCanShim->pTableInsulation,
+        kpkCanShim->pTableMsl,
+        kpkCanShim->pTableBalancingControl);
+
+    CANTX_BuildBmsStateMessage(&messageData, kpkCanShim);
 
     /* now copy data in the buffer that will be use to send data */
-    CAN_TxSetCanDataWithMessageData(messageData, pCanData, message.endianness);
+    CAN_TxSetCanDataWithMessageData(messageData, pCanData, CANTX_BMS_STATE_ENDIANNESS);
 
     return 0u;
+}
+
+extern STD_RETURN_TYPE_e CANTX_TransmitBmsState(void) {
+    CAN_MESSAGE_PROPERTIES_s message = {
+        .id         = CANTX_BMS_STATE_ID,
+        .idType     = CANTX_BMS_STATE_ID_TYPE,
+        .dlc        = CANTX_BMS_STATE_DLC,
+        .endianness = CANTX_BMS_STATE_ENDIANNESS,
+    };
+
+    uint8_t canData[CANTX_BMS_STATE_DLC] = {0u, 0u, 0u, 0u, 0u, 0u, 0u, 0u};
+
+    CANTX_BmsState(message, canData, NULL_PTR, &can_kShim);
+
+    return CAN_DataSend(CAN_NODE_1, message.id, message.idType, canData);
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
 #ifdef UNITY_UNIT_TEST
 extern bool TEST_CANTX_AnySysMonTimingIssueDetected(const CAN_SHIM_s *const kpkCanShim) {
     return CANTX_AnySysMonTimingIssueDetected(kpkCanShim);
+}
+extern void TEST_CANTX_BuildBmsStateMessage(uint64_t *pMessageData, const CAN_SHIM_s *const kpkCanShim) {
+    CANTX_BuildBmsStateMessage(pMessageData, kpkCanShim);
 }
 
 #endif

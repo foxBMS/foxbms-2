@@ -42,7 +42,10 @@ class CeedlingAppConfig
       # Blank initial value for completeness
       :project_config => {},
 
-      # Default, blank value
+      # Default path (in build directory) to hold logs
+      :logging_path => '',
+
+      # If logging enabled, the filepath for Ceedling's log (may be explicitly set to be outside :logging_path)
       :log_filepath => '',
 
       # Only specified in project config (no command line or environment variable)
@@ -52,11 +55,11 @@ class CeedlingAppConfig
       :include_test_case => '',
       :exclude_test_case => '',
 
-      # Default to no duration logging for setup & build ops in Rake context
-      :stopwatch => false,
+      # Default to task categry other than build/plugin tasks
+      :build_tasks? => false,
 
       # Default to `exit(1)` upon failing test cases
-      :tests_graceful_fail => false,
+      :tests_graceful_fail? => false,
 
       # Set terminal width (in columns) to a default
       :terminal_width => 120,
@@ -76,6 +79,10 @@ class CeedlingAppConfig
     @app_cfg[:project_config] = config
   end
 
+  def set_logging_path(path)
+    @app_cfg[:logging_path] = path
+  end
+
   def set_log_filepath(filepath)
     @app_cfg[:log_filepath] = filepath
   end
@@ -88,12 +95,12 @@ class CeedlingAppConfig
     @app_cfg[:exclude_test_case] = matcher
   end
 
-  def set_stopwatch(enable)
-    @app_cfg[:stopwatch] = enable
+  def set_build_tasks(enable)
+    @app_cfg[:build_tasks?] = enable
   end
 
   def set_tests_graceful_fail(enable)
-    @app_cfg[:tests_graceful_fail] = enable
+    @app_cfg[:tests_graceful_fail?] = enable
   end
 
   def set_paths(root_path)
@@ -109,6 +116,14 @@ class CeedlingAppConfig
     @app_cfg[:ceedling_examples_path] = File.join( _root_path, 'examples' )
 
     @app_cfg[:ceedling_rakefile_filepath] = File.join( lib_path, 'rakefile.rb' )
+  end
+
+  def build_tasks?()
+    return @app_cfg[:build_tasks?]
+  end
+
+  def tests_graceful_fail?()
+    return @app_cfg[:tests_graceful_fail?]
   end
 
   # External accessor to preserve hash-like read accesses

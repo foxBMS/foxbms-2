@@ -141,10 +141,16 @@ def main():  # pylint: disable=too-many-locals
     perform_tests_exe_name = "perform_tests"
     perform_tests = shutil.which(perform_tests_exe_name)
     if not perform_tests:
+        logging.debug(
+            "%s is not on PATH, starting advanced search...", perform_tests_exe_name
+        )
         search_path = ""
-        paths = (ROOT / "conf/env/paths_win32.txt").read_text(encoding="utf-8")
+        paths = (
+            (ROOT / "conf/env/paths_win32.txt").read_text(encoding="utf-8").splitlines()
+        )
         for path in paths:
             if "bauhaus" in path.lower():
+                logging.debug("Found 'Bauhaus' installation at %s", path)
                 search_path = path
                 break
         if not search_path:

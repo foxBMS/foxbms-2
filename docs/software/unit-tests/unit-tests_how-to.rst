@@ -8,10 +8,35 @@ How to use Unit Tests
 
 Verify that the unit testing framework is working as expected:
 
-.. code-block:: powershell
+.. tabs::
 
-    PS C:\Users\vulpes\Documents\foxbms-2> .\fox.ps1 waf build_unit_test
-    PS C:\Users\vulpes\Documents\foxbms-2> .\fox.ps1 waf build_unit_test --coverage
+   .. group-tab:: Win32/PowerShell
+
+      .. code-block:: powershell
+
+         .\fox.ps1 waf build_app_host_unit_test
+         .\fox.ps1 waf build_app_host_unit_test --coverage
+
+   .. group-tab:: Win32/cmd.exe
+
+      .. code-block:: bat
+
+         fox.bat waf build_app_host_unit_test
+         fox.bat waf build_app_host_unit_test --coverage
+
+   .. group-tab:: Win32/Git bash
+
+      .. code-block:: shell
+
+         ./fox.sh waf build_app_host_unit_test
+         ./fox.sh waf build_app_host_unit_test --coverage
+
+   .. group-tab:: Linux
+
+      .. code-block:: shell
+
+         ./fox.sh waf build_app_host_unit_test
+         ./fox.sh waf build_app_host_unit_test --coverage
 
 Typical usage and more information on the unit tests can be found in
 :ref:`Unit tests <UNIT_TESTS>`.
@@ -19,8 +44,8 @@ Typical usage and more information on the unit tests can be found in
 Default Includes
 ----------------
 
-The default include paths are defined in `project_win32.yml` and
-`project_posix.yml` in the key ``:paths:`` |rarr| ``:include:``.
+The default include paths are defined in `app_project_win32.yml` and
+`app_project_posix.yml` in the key ``:paths:`` |rarr| ``:include:``.
 
 When a tests requires specific include-paths to be added the macro
 ``TEST_INCLUDE_PATH("../../path/to/directory")`` can be used.
@@ -160,25 +185,34 @@ When developing or debugging a unit test, it might be beneficial to have finer
 control over which test is executed.
 
 For this and especially for debugging the unit test integration it is possible
-to directly access ceedling.
-It is therefore necessary for the shell from which ceedling is run that all
-dependencies are available.
-Especially, it is necessary that it is possible to find ceedling from the
-current ``PATH`` of the shell in which this is attempted.
-This will not be covered in this manual.
+to directly access ceedling as follows:
 
-Once such a shell is available it also has to be made sure that all files that
-are generated or adapted on-the-fly are available in the ``build``-directory.
-This can be ensured by executing the Waf task ``build_unit_test`` just until
-ceedling is run by it.
-After this step (it does not matter whether the task completes or is imported
-after it has generated the dependencies) the following example can be executed.
+.. tabs::
 
-.. code-block:: powershell
+   .. group-tab:: Win32/PowerShell
 
-   # should the current shell not be able to directly follow the ceedling.cmd
-   # file, it might be necessary to access the vendored ceedling directly:
-   PS C:\Users\vulpes\Documents\foxbms-2> .\fox.ps1 ceedling gcov:test_plausibility.c
+      .. code-block:: powershell
+
+         .\fox.ps1 ceedling gcov:test_plausibility.c
+
+   .. group-tab:: Win32/cmd.exe
+
+      .. code-block:: bat
+
+         fox.bat ceedling gcov:test_plausibility.c
+
+   .. group-tab:: Win32/Git bash
+
+      .. code-block:: shell
+
+         ./fox.sh ceedling gcov:test_plausibility.c
+
+
+   .. group-tab:: Linux
+
+      .. code-block:: shell
+
+         ./fox.sh ceedling gcov:test_plausibility.c
 
 .. _linux_specific_usage:
 

@@ -55,11 +55,20 @@ a new instance of Trace32.
 """
 
 import os
+from string import Template
+
 
 from waflib import Utils
+from waflib.Configure import ConfigurationContext
 
 if Utils.is_win32:
     import win32com.client  # pylint: disable=import-error
+
+
+class AtTemplate(Template):
+    """Custom 'Template'-string to support the '@{abc}' syntax"""
+
+    delimiter = "@"
 
 
 def options(opt):
@@ -84,7 +93,7 @@ def options(opt):
     )
 
 
-def configure(conf):
+def configure(conf: ConfigurationContext):
     """configuration step of the Lauterbach waf tool"""
     if not Utils.is_win32:
         return
@@ -117,21 +126,6 @@ def configure(conf):
     tmp_dir = conf.path.get_bld().make_node("tmp")
     tmp_dir.mkdir()
 
-    config_t32 = conf.path.find_node(
-        os.path.join(os.path.join("tools", "debugger", "lauterbach", "config.t32.in"))
-    )
-    init_cmm = conf.path.find_node(
-        os.path.join(os.path.join("tools", "debugger", "lauterbach", "init.cmm.in"))
-    )
-    t32_cmm = conf.path.find_node(
-        os.path.join(os.path.join("tools", "debugger", "lauterbach", "t32.cmm.in"))
-    )
-    load_macro_values = conf.path.find_node(
-        os.path.join(
-            os.path.join("tools", "debugger", "lauterbach", "load_macro_values.cmm.in")
-        )
-    )
-
     t32_root = conf.root.find_node(conf.env.FILECVT[0]).parent.abspath()
     if t32_root.endswith(os.sep):
         t32_root = t32_root[:-1]
@@ -143,33 +137,72 @@ def configure(conf):
     tcp = ""
     if conf.options.lauterbach_use_tcp:
         tcp = "RCL=NETTCP\nPORT=20000"
-    config_t32 = config_t32.read()
-    config_t32 = config_t32.replace("@TMP@", os.getenv("TMP"))
-    config_t32 = config_t32.replace("@SYS@", t32_root)
-    config_t32 = config_t32.replace("@TCP@", tcp)
+
+    # configuration input files
+    base = "tools/debugger/lauterbach"
+    config_t32_in = conf.path.find_node(f"{base}/config.t32.in")
+    init_cmm_in = conf.path.find_node(f"{base}/init.cmm.in")
+    t32_cmm_in = conf.path.find_node(f"{base}/t32.cmm.in")
+    load_macro_values_in = conf.path.find_node(f"{base}/load_macro_values.cmm.in")
+
+    # actual configuration as text
+    init_cmm = AtTemplate(init_cmm_in.read())
+    config_t32 = AtTemplate(config_t32_in.read())
+    t32_cmm = AtTemplate(t32_cmm_in.read())
+    load_macro_values = AtTemplate(load_macro_values_in.read())
+
+    # define configuration files
     config_t32_node = conf.path.get_bld().make_node("config.t32")
-    config_t32_node.write(config_t32)
-
-    init_cmm = init_cmm.read()
-    init_cmm = init_cmm.replace("@ELF_FILE@", os.path.join("bin", "foxbms.elf"))
-    init_cmm = init_cmm.replace("@ELF_SEARCHPATH@", os.path.join("bin", "*.elf"))
     init_cmm_node = conf.path.get_bld().make_node("init.cmm")
-    init_cmm_node.write(init_cmm)
-
-    t32_cmm = t32_cmm.read()
-    t32_cmm = t32_cmm.replace("@INIT_FILE@", init_cmm_node.name)
     t32_cmm_node = conf.path.get_bld().make_node("t32.cmm")
-    t32_cmm_node.write(t32_cmm)
-
-    load_macro_values = load_macro_values.read()
-    replacements = ""
-    load_macro_values = load_macro_values.replace("@MACROS_AND_VALUES@", replacements)
     load_macro_values_node = conf.path.get_bld().make_node("load_macro_values.cmm")
+
+    # config.t32
+    config_t32 = config_t32.substitute(
+        {
+            "TMP": os.getenv("TMP"),
+            "SYS": t32_root,
+            "TCP": tcp,
+        }
+    )
+
+    # init.cmm
+    init_cmm = init_cmm.substitute(
+        {
+            "BOOTLOADER_ELF_FILE": os.path.join(
+                "bootloader_embedded", "foxbms-bootloader.elf"
+            ),
+            "BOOTLOADER_ELF_SEARCHPATH": os.path.join("bootloader_embedded", "*.elf"),
+            "APP_ELF_FILE": os.path.join("app_embedded", "foxbms.elf"),
+            "APP_ELF_SEARCHPATH": os.path.join("app_embedded", "*.elf"),
+            "T32_CMM_FILE": t32_cmm_node.abspath(),
+        }
+    )
+
+    # t32.cmm
+    t32_cmm = t32_cmm.substitute(
+        {
+            "INIT_FILE": init_cmm_node.abspath(),
+        }
+    )
+
+    # load_macro_values.cmm
+    replacements = ""
+    load_macro_values = load_macro_values.substitute(
+        {
+            "MACROS_AND_VALUES": replacements,
+        }
+    )
+
+    # write all configurations
+    config_t32_node.write(config_t32)
+    init_cmm_node.write(init_cmm)
+    t32_cmm_node.write(t32_cmm)
     load_macro_values_node.write(load_macro_values)
 
-    path = os.path.join(conf.path.get_bld().abspath(), "run_t32marm.lnk")
-
     if Utils.is_win32:
+        # create a shortcut
+        path = os.path.join(conf.path.get_bld().abspath(), "run_t32marm.lnk")
         shell = win32com.client.Dispatch("WScript.Shell")
         shortcut = shell.CreateShortCut(path)
         shortcut.Targetpath = conf.env.T32MARM[0]

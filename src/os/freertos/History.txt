@@ -1,5 +1,15 @@
 Documentation and download available at https://www.FreeRTOS.org/
 
+Changes between FreeRTOS V10.4.5 and FreeRTOS V10.4.6 released November 12 2021
+
+	+ ARMv7-M and ARMv8-M MPU ports – prevent non-kernel code from calling the
+	  internal functions xPortRaisePrivilege and vPortResetPrivilege by changing
+	  them to macros.
+	+ Introduce a new config configALLOW_UNPRIVILEGED_CRITICAL_SECTIONS which
+	  enables developers to prevent critical sections from unprivileged tasks.
+	  It defaults to 1 for backward compatibility. Application should set it to
+	  0 to disable critical sections from unprivileged tasks.
+
 Changes between FreeRTOS V10.4.4 and FreeRTOS V10.4.5 released September 10 2021
 
 	See https://www.FreeRTOS.org/FreeRTOS-V10.4.5.html
@@ -27,7 +37,6 @@ Changes between FreeRTOS V10.4.4 and FreeRTOS V10.4.5 released September 10 2021
 	  Applications that only use FreeRTOS code on the non-secure side, such as
 	  those running third-party code on the secure side, are not affected by
 	  this change.
-
 
 Changes between FreeRTOS V10.4.3 and FreeRTOS V10.4.4 released May 28 2021
     + Minor performance improvements to xTaskIncrementTick() achieved by providing

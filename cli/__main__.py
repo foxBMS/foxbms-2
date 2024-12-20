@@ -39,10 +39,10 @@
 
 """Mark this module as not callable."""
 
-import sys
-from pathlib import Path
+import sys  # pragma: no cover
+from pathlib import Path  # pragma: no cover
 
-from .cli import main
+from .cli import main  # pragma: no cover
 
 if __name__ == "__main__":
     cwd = Path.cwd()

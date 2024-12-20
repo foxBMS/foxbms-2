@@ -204,3 +204,11 @@ CodingStyle-NoWhitespaceMemberSelection
 CodingStyle-TooManyIncludes
 
 Linker-Multiple_Definition
+
+# IISB specific rules
+#IISB-DoxygenCommentAtDeclaration
+IISB-FileEncodingCheck
+IISB-FileLicenseComment
+#IISB-DoxygenFileComment
+#IISB-LiteralSuffixesCheck
+IISB-UniqueFileNameCheck

@@ -43,12 +43,18 @@
  * @file    test_io.c
  * @author  foxBMS Team
  * @date    2020-06-10 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
  * @brief   Tests for the io module
+ * @details Test functions:
+ *          - testIO_SetPinDirectionToOutput
+ *          - testIO_SetPinDirectionToInput
+ *          - testIO_PinSet
+ *          - testIO_PinReset
+ *          - testIO_PinGet
  *
  */
 

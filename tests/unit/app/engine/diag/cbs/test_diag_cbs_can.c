@@ -43,13 +43,13 @@
  * @file    test_diag_cbs_can.c
  * @author  foxBMS Team
  * @date    2021-02-17 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
  * @brief   Test of the CAN diag handler implementation.
- *
+ * @details TODO
  */
 
 /*========== Includes =======================================================*/
@@ -121,4 +121,22 @@ void testDIAG_ErrorCanTimingInvalidInput(void) {
     TEST_ASSERT_FAIL_ASSERT(DIAG_ErrorCanTiming(DIAG_ID_CAN_TIMING, DIAG_EVENT_OK, NULL_PTR, 0u));
     TEST_ASSERT_FAIL_ASSERT(
         DIAG_ErrorCanTiming(DIAG_ID_CELL_VOLTAGE_OVERVOLTAGE_RSL, DIAG_EVENT_RESET, &diag_kpkDatabaseShim, 0u));
+}
+
+/** test against invalid input */
+void testDIAG_ErrorCanRxQueueFullInvalidInput(void) {
+    TEST_ASSERT_FAIL_ASSERT(DIAG_ErrorCanRxQueueFull(DIAG_ID_MAX, DIAG_EVENT_OK, &diag_kpkDatabaseShim, 0u));
+    TEST_ASSERT_FAIL_ASSERT(DIAG_ErrorCanRxQueueFull(DIAG_ID_CAN_RX_QUEUE_FULL, 42, &diag_kpkDatabaseShim, 0u));
+    TEST_ASSERT_FAIL_ASSERT(DIAG_ErrorCanRxQueueFull(DIAG_ID_CAN_RX_QUEUE_FULL, DIAG_EVENT_OK, NULL_PTR, 0u));
+    TEST_ASSERT_FAIL_ASSERT(
+        DIAG_ErrorCanRxQueueFull(DIAG_ID_CELL_VOLTAGE_OVERVOLTAGE_RSL, DIAG_EVENT_RESET, &diag_kpkDatabaseShim, 0u));
+}
+
+/** test against invalid input */
+void testDIAG_ErrorCanTxQueueFullInvalidInput(void) {
+    TEST_ASSERT_FAIL_ASSERT(DIAG_ErrorCanTxQueueFull(DIAG_ID_MAX, DIAG_EVENT_OK, &diag_kpkDatabaseShim, 0u));
+    TEST_ASSERT_FAIL_ASSERT(DIAG_ErrorCanTxQueueFull(DIAG_ID_CAN_TX_QUEUE_FULL, 42, &diag_kpkDatabaseShim, 0u));
+    TEST_ASSERT_FAIL_ASSERT(DIAG_ErrorCanTxQueueFull(DIAG_ID_CAN_TX_QUEUE_FULL, DIAG_EVENT_OK, NULL_PTR, 0u));
+    TEST_ASSERT_FAIL_ASSERT(
+        DIAG_ErrorCanTxQueueFull(DIAG_ID_CELL_VOLTAGE_OVERVOLTAGE_RSL, DIAG_EVENT_RESET, &diag_kpkDatabaseShim, 0u));
 }

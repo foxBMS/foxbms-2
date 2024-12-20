@@ -1,0 +1,15 @@
+Pin,Signal,Description
+1,``TX1_P``,\-
+2,``TX1_N``,\-
+3,``RX1_P``,\-
+4,``TX2_P``,\-
+5,``TX2_N``,\-
+6,``RX1_N``,\-
+7,``RX2_P``,\-
+8,``RX2_N``,\-
+9,``LED_YE_C``,\-
+10,``LED_YE_A``,\-
+11,``LED_GN_C``,\-
+12,``LED_GN_A``,\-
+S1,``SHIELD``,\-
+S2,``SHIELD``,\-

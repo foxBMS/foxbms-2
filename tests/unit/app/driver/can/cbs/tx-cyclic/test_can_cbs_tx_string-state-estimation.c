@@ -43,8 +43,8 @@
  * @file    test_can_cbs_tx_string-state-estimation.c
  * @author  foxBMS Team
  * @date    2021-07-27 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -529,14 +529,31 @@ void testCANTX_StringStateEstimation(void) {
 
     /* ======= Routine tests =============================================== */
     /* ======= RT1/2: Test implementation */
-    CAN_TxPrepareSignalData_Ignore();
+    /*float_t testMinimumSoc0       = 15;
+    float_t testMaximumSoc0       = 95;
+    float_t testMinimumSoe0       = 10;
+    float_t testMaximumSoe0       = 90;
+    float_t testMinimumSoeEnergy0 = 12300.0f;
+
+    float_t testMinimumSoc1       = 10;
+    float_t testMaximumSoc1       = 90;
+    float_t testMinimumSoe1       = 15;
+    float_t testMaximumSoe1       = 95;
+    float_t testMinimumSoeEnergy1 = 45600.0f;*/
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 7u, 4u, 0u, CAN_BIG_ENDIAN);
+    CAN_TxPrepareSignalData_Expect(&testMinimumSoc0, cantx_testSignalMinimumSoc);
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 3u, 9u, testMinimumSoc0, CAN_BIG_ENDIAN);
+    CAN_TxPrepareSignalData_Expect(&testMaximumSoc0, cantx_testSignalMaximumSoc);
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 10u, 9u, testMaximumSoc0, CAN_BIG_ENDIAN);
+    CAN_TxPrepareSignalData_Expect(&testMinimumSoe0, cantx_testSignalMinimumSoe);
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 17u, 9u, testMinimumSoe0, CAN_BIG_ENDIAN);
+    CAN_TxPrepareSignalData_Expect(&testMaximumSoe0, cantx_testSignalMaximumSoe);
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 24u, 9u, testMaximumSoe0, CAN_BIG_ENDIAN);
+    CAN_TxPrepareSignalData_Expect(&testSoh, cantx_testSignalSoh);
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 47, 9u, testSoh, CAN_BIG_ENDIAN);
+    CAN_TxPrepareSignalData_Expect(&testMinimumSoeEnergy0, cantx_testSignalMinimumSoeEnergy);
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 54, 15u, testMinimumSoeEnergy0, CAN_BIG_ENDIAN);
+
     CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[1u]);
     CAN_TxSetCanDataWithMessageData_Expect(testMessageData[1u], testCanData, CAN_BIG_ENDIAN);
     /* ======= RT1/2: Call function under test */
@@ -547,11 +564,17 @@ void testCANTX_StringStateEstimation(void) {
     /* ======= RT2/2: Test implementation */
     testMuxId = 1u;
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 7u, 4u, 1u, CAN_BIG_ENDIAN);
+    CAN_TxPrepareSignalData_Expect(&testMinimumSoc1, cantx_testSignalMinimumSoc);
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 3u, 9u, testMinimumSoc1, CAN_BIG_ENDIAN);
+    CAN_TxPrepareSignalData_Expect(&testMaximumSoc1, cantx_testSignalMaximumSoc);
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 10u, 9u, testMaximumSoc1, CAN_BIG_ENDIAN);
+    CAN_TxPrepareSignalData_Expect(&testMinimumSoe1, cantx_testSignalMinimumSoe);
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 17u, 9u, testMinimumSoe1, CAN_BIG_ENDIAN);
+    CAN_TxPrepareSignalData_Expect(&testMaximumSoe1, cantx_testSignalMaximumSoe);
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 24u, 9u, testMaximumSoe1, CAN_BIG_ENDIAN);
+    CAN_TxPrepareSignalData_Expect(&testSoh, cantx_testSignalSoh);
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 47, 9u, testSoh, CAN_BIG_ENDIAN);
+    CAN_TxPrepareSignalData_Expect(&testMinimumSoeEnergy1, cantx_testSignalMinimumSoeEnergy);
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 54, 15u, testMinimumSoeEnergy1, CAN_BIG_ENDIAN);
     CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[1u]);
     CAN_TxSetCanDataWithMessageData_Expect(testMessageData[1u], testCanData, CAN_BIG_ENDIAN);

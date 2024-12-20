@@ -43,12 +43,13 @@
  * @file    test_nxp_mc33775a.c
  * @author  foxBMS Team
  * @date    2021-10-20 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
  * @brief   Test of some module
+ * @details TODO
  *
  */
 
@@ -205,8 +206,30 @@ void testN775_BalanceControl(void) {
 
     /* ======= RT1/1 ======= */
     /* Only test function N775_BalanceControl */
-    N775_CommunicationWrite_Ignore();
-    DATA_Read1DataBlock_IgnoreAndReturn(STD_OK);
+    N775_CommunicationWrite_Expect(
+        N775_BROADCAST_ADDRESS,
+        MC33775_BAL_GLOB_TO_TMR_OFFSET,
+        N775_GLOBAL_BALANCING_TIMER,
+        n775_testState.pSpiTxSequence);
+
+    N775_CommunicationWrite_Expect(
+        N775_BROADCAST_ADDRESS, MC33775_BAL_PRE_TMR_OFFSET, N775_PRE_BALANCING_TIMER, n775_testState.pSpiTxSequence);
+
+    N775_CommunicationWrite_Expect(
+        N775_BROADCAST_ADDRESS,
+        MC33775_BAL_TMR_CH_ALL_OFFSET,
+        (MC33775_BAL_TMR_CH_ALL_PWM_PWM100_ENUM_VAL << MC33775_BAL_TMR_CH_ALL_PWM_POS) |
+            (N775_ALL_CHANNEL_BALANCING_TIMER << MC33775_BAL_TMR_CH_ALL_BALTIME_POS),
+        n775_testState.pSpiTxSequence);
+
+    N775_CommunicationWrite_Expect(
+        N775_BROADCAST_ADDRESS,
+        MC33775_BAL_GLOB_CFG_OFFSET,
+        (MC33775_BAL_GLOB_CFG_BALEN_ENABLED_ENUM_VAL << MC33775_BAL_GLOB_CFG_BALEN_POS) |
+            (MC33775_BAL_GLOB_CFG_TMRBALEN_STOP_ENUM_VAL << MC33775_BAL_GLOB_CFG_TMRBALEN_POS),
+        n775_testState.pSpiTxSequence);
+
+    DATA_Read1DataBlock_ExpectAndReturn(n775_testState.n775Data.balancingControl, STD_OK);
 
     /* Activate balancing for all cells */
     for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
@@ -218,7 +241,16 @@ void testN775_BalanceControl(void) {
     }
 
     for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
-        N775_CommunicationWrite_Ignore();
+        uint8_t deviceAddress   = m + 1u;
+        uint16_t balancingState = 0u;
+        for (uint16_t cb = 0u; cb < BS_NR_OF_CELL_BLOCKS_PER_MODULE; cb++) {
+            if (n775_testState.n775Data.balancingControl->activateBalancing[n775_testState.currentString][m][cb] ==
+                true) {
+                balancingState |= 1u << cb;
+            }
+        }
+        N775_CommunicationWrite_Expect(
+            deviceAddress, MC33775_BAL_CH_CFG_OFFSET, balancingState, n775_testState.pSpiTxSequence);
     }
     TEST_ASSERT_PASS_ASSERT(TEST_N775_BalanceControl(&n775_testState));
 }

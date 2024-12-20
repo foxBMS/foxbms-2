@@ -11,7 +11,7 @@ The hardware design files belonging to this release are:
 
 | Item                          | Version | File                                                                                                                                            |
 |-------------------------------|---------|-------------------------------------------------------------------------------------------------------------------------------------------------|
-| TI BMS-Master                 | 1.1.5   | [TI TMS570LC4357 Master v1.1.5](https://iisb-foxbms.iisb.fraunhofer.de/foxbms/gen2/hardware/release/master-v1.1.5.zip)                          |
+| TI BMS-Master                 | 1.2.2   | [TI TMS570LC4357 Master v1.2.2](https://iisb-foxbms.iisb.fraunhofer.de/foxbms/gen2/hardware/release/master-v1.2.2.zip)                          |
 
 ## BMS-Interfaces
 
@@ -49,7 +49,7 @@ The hardware design files belonging to this release are:
 | Item                          | Version   | File                                                                                                                                          |
 |-------------------------------|-----------|-----------------------------------------------------------------------------------------------------------------------------------------------|
 | LTC 18 Cell Slave (LTC6813-1) | 1.1.3     | [LTC LTC6813-1 18 Cell Slave v1.1.3](https://iisb-foxbms.iisb.fraunhofer.de/foxbms/gen2/hardware/release/slave-18-ltc-ltc6813-1-v1.1.3.zip)   |
-| LTC 18 Cell Slave (LTC6813-1) | 1.1.5     | [LTC LTC6813-1 18 Cell Slave v1.1.5](https://iisb-foxbms.iisb.fraunhofer.de/foxbms/gen2/hardware/release/slave-18-ltc-ltc6813-1-v1.1.5.zip)   |
+| LTC 18 Cell Slave (LTC6813-1) | 1.1.6     | [LTC LTC6813-1 18 Cell Slave v1.1.6](https://iisb-foxbms.iisb.fraunhofer.de/foxbms/gen2/hardware/release/slave-18-ltc-ltc6813-1-v1.1.6.zip)   |
 
 ### NXP-based BMS-Slaves
 
@@ -57,7 +57,7 @@ The hardware design files belonging to this release are:
 
 | Item                          | Version   | File                                                                                                                                          |
 |-------------------------------|-----------|-----------------------------------------------------------------------------------------------------------------------------------------------|
-| NXP 14 Cell Slave (MC33775A)  | 1.0.0     | [NXP MC33664 14 Cell Slave v1.0.0](https://iisb-foxbms.iisb.fraunhofer.de/foxbms/gen2/hardware/release/slave-14-nxp-mc33775a-v1.0.0.zip)      |
+| NXP 14 Cell Slave (MC33775A)  | 1.0.2     | [NXP MC33664 14 Cell Slave v1.0.2](https://iisb-foxbms.iisb.fraunhofer.de/foxbms/gen2/hardware/release/slave-14-nxp-mc33775a-v1.0.2.zip)      |
 
 ### MAXIM-based BMS-Slaves
 

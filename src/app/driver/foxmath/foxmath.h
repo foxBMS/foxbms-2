@@ -43,8 +43,8 @@
  * @file    foxmath.h
  * @author  foxBMS Team
  * @date    2018-01-18 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup DRIVERS
  * @prefix  MATH
  *
@@ -71,10 +71,14 @@
 /*========== Macros and Definitions =========================================*/
 
 /** Add defines for unit conversions */
+#define UNIT_CONVERSION_FACTOR_1000000_INTEGER (1000000)
 #define UNIT_CONVERSION_FACTOR_1000_INTEGER    (1000)
+#define UNIT_CONVERSION_FACTOR_100_INTEGER     (100)
+#define UNIT_CONVERSION_FACTOR_85_INTEGER      (85)
 #define UNIT_CONVERSION_FACTOR_1_1000_TH_FLOAT (0.001f)
 #define UNIT_CONVERSION_FACTOR_1_100_TH_FLOAT  (0.01f)
 #define UNIT_CONVERSION_FACTOR_1_10_TH_FLOAT   (0.1f)
+#define UNIT_CONVERSION_FACTOR_1_FLOAT         (1.0f)
 #define UNIT_CONVERSION_FACTOR_10_FLOAT        (10.0f)
 #define UNIT_CONVERSION_FACTOR_100_FLOAT       (100.0f)
 #define UNIT_CONVERSION_FACTOR_1000_FLOAT      (1000.0f)

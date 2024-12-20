@@ -92,18 +92,43 @@ class Configurator
     msg = @reportinator.generate_progress( 'Collecting default tool configurations' )
     @loginator.log( msg, Verbosity::OBNOXIOUS )
 
-    # config[:project] is guaranteed to exist / validated to exist
+    # config[:project] is guaranteed to exist / validated to exist but may not include elements referenced below
     # config[:test_build] and config[:release_build] are optional in a user project configuration
-    release_assembly, _ = @config_walkinator.fetch_value( :release_build, :use_assembly, hash:config, default:false )
-    test_assembly, _ = @config_walkinator.fetch_value( :test_build, :use_assembly, hash:config, default:false)
+
+
+    release_build, _      = @config_walkinator.fetch_value( :project, :release_build, 
+                              hash:config,
+                              default: DEFAULT_CEEDLING_PROJECT_CONFIG[:project][:release_build]
+                            )
+
+    test_preprocessing, _ = @config_walkinator.fetch_value( :project, :use_test_preprocessor,
+                              hash:config,
+                              default: DEFAULT_CEEDLING_PROJECT_CONFIG[:project][:use_test_preprocessor]
+                            )
+
+    backtrace, _          = @config_walkinator.fetch_value( :project, :use_backtrace,
+                              hash:config,
+                              default: DEFAULT_CEEDLING_PROJECT_CONFIG[:project][:use_backtrace]
+                            )
+
+    release_assembly, _   = @config_walkinator.fetch_value( :release_build, :use_assembly,
+                              hash:config,
+                              default: DEFAULT_CEEDLING_PROJECT_CONFIG[:release_build][:use_assembly]
+                            )
+
+    test_assembly, _      = @config_walkinator.fetch_value( :test_build, :use_assembly,
+                              hash:config,
+                              default: DEFAULT_CEEDLING_PROJECT_CONFIG[:test_build][:use_assembly]
+                            )
 
     default_config.deep_merge( DEFAULT_TOOLS_TEST.deep_clone() )
 
-    default_config.deep_merge( DEFAULT_TOOLS_TEST_PREPROCESSORS.deep_clone() ) if (config[:project][:use_test_preprocessor] != :none)
+    default_config.deep_merge( DEFAULT_TOOLS_TEST_PREPROCESSORS.deep_clone() ) if (test_preprocessing != :none)
     default_config.deep_merge( DEFAULT_TOOLS_TEST_ASSEMBLER.deep_clone() )     if test_assembly
+    default_config.deep_merge( DEFAULT_TOOLS_TEST_GDB_BACKTRACE.deep_clone() ) if (backtrace == :gdb)
 
-    default_config.deep_merge( DEFAULT_TOOLS_RELEASE.deep_clone() )            if (config[:project][:release_build])
-    default_config.deep_merge( DEFAULT_TOOLS_RELEASE_ASSEMBLER.deep_clone() )  if (config[:project][:release_build] and release_assembly)
+    default_config.deep_merge( DEFAULT_TOOLS_RELEASE.deep_clone() )            if release_build
+    default_config.deep_merge( DEFAULT_TOOLS_RELEASE_ASSEMBLER.deep_clone() )  if (release_build and release_assembly)
   end
 
 
@@ -146,28 +171,32 @@ class Configurator
     # Config Ruby-based hash defaults plugins
     plugin_hash_defaults = @configurator_plugins.find_plugin_hash_defaults( config, paths_hash )
 
-    if (!plugin_yml_defaults.empty? or !plugin_hash_defaults.empty?)
-      msg = @reportinator.generate_progress( 'Collecting plugin defaults' )
+
+    if !plugin_hash_defaults.empty?
+      msg = @reportinator.generate_progress( 'Collecting Plugin YAML defaults' )
       @loginator.log( msg, Verbosity::OBNOXIOUS )
     end
 
-    if !@configurator_plugins.plugin_yml_defaults.empty?
-      msg = " > Plugin YAML defaults: " + @configurator_plugins.plugin_yml_defaults.join( ', ' )
-      @loginator.log( msg, Verbosity::DEBUG )
-    end
-
     # Load base configuration values (defaults) from YAML
-    plugin_yml_defaults.each do |defaults|
-      default_config.deep_merge( @yaml_wrapper.load( defaults ) )
+    plugin_yml_defaults.each do |plugin, defaults|
+      _defaults = @yaml_wrapper.load( defaults )
+
+      msg = " - #{plugin} >> " + _defaults.to_s()
+      @loginator.log( msg, Verbosity::DEBUG )
+
+      default_config.deep_merge( _defaults )
     end
 
-    if !@configurator_plugins.plugin_hash_defaults.empty?
-      msg = " > Plugin Ruby hash defaults: " + @configurator_plugins.plugin_hash_defaults.join( ', ' )
-      @loginator.log( msg, Verbosity::DEBUG )
+    if !plugin_hash_defaults.empty?
+      msg = @reportinator.generate_progress( 'Collecting Plugin Ruby hash defaults' )
+      @loginator.log( msg, Verbosity::OBNOXIOUS )
     end
 
     # Load base configuration values (defaults) as hash from Ruby
-    plugin_hash_defaults.each do |defaults|
+    plugin_hash_defaults.each do |plugin, defaults|
+      msg = " - #{plugin} >> " + defaults.to_s()
+      @loginator.log( msg, Verbosity::DEBUG )
+
       default_config.deep_merge( defaults )
     end
   end
@@ -221,11 +250,11 @@ class Configurator
   end
 
 
-  def populate_defaults( config_hash, defaults_hash )
+  def populate_with_defaults( config_hash, defaults_hash )
     msg = @reportinator.generate_progress( 'Populating project configuration with collected default values' )
     @loginator.log( msg, Verbosity::OBNOXIOUS )    
 
-    @configurator_builder.populate_defaults( config_hash, defaults_hash )
+    @configurator_builder.populate_with_defaults( config_hash, defaults_hash )
   end
 
 
@@ -281,7 +310,6 @@ class Configurator
   # Process our tools
   #  - :tools entries
   #    - Insert missing names for
-  #    - Handle inline Ruby string substitution
   #    - Handle needed defaults
   #  - Configure test runner from backtrace configuration
   def populate_tools_config(config)
@@ -298,11 +326,6 @@ class Configurator
       # Populate name if not given
       tool[:name] = name.to_s if (tool[:name].nil?)
 
-      # Handle inline Ruby string substitution in executable
-      if (tool[:executable] =~ RUBY_STRING_REPLACEMENT_PATTERN)
-        tool[:executable].replace(@system_wrapper.module_eval(tool[:executable]))
-      end
-
       # Populate $stderr redirect option
       tool[:stderr_redirect] = StdErrRedirect::NONE if (tool[:stderr_redirect].nil?)
 
@@ -312,29 +335,55 @@ class Configurator
   end
 
 
-  # Smoosh in extra arguments specified at top-level of config.
-  # This is useful for tweaking arguments for tools (where argument order does not matter).
-  # Arguments are squirted in at *end* of list.
-  def populate_tools_supplemental_arguments(config)
-    msg = @reportinator.generate_progress( 'Processing tool definition supplemental arguments' )
+  # Process any tool definition shortcuts
+  #  - Append extra arguments
+  #  - Redefine executable  
+  #
+  # :tools_<name>
+  #   :arguments: [...]
+  #   :executable: '...'
+  def populate_tools_shortcuts(config)
+    msg = @reportinator.generate_progress( 'Processing tool definition shortcuts' )
     @loginator.log( msg, Verbosity::OBNOXIOUS )
 
     prefix = 'tools_'
-    config[:tools].each do |key, tool|
-      name = key.to_s()
+    config[:tools].each do |name, tool|
+      # Lookup shortcut tool definition (:tools_<name>)
+      shortcut = (prefix + name.to_s).to_sym
 
-      # Supplemental tool definition 
-      supplemental = config[(prefix + name).to_sym]
+      # Logging message to be built up
+      msg = ''
 
-      if (not supplemental.nil?)
-        args_to_add = supplemental[:arguments]
+      # Try to lookup the executable from user config
+      executable, _  = @config_walkinator.fetch_value(shortcut, :executable, 
+                         hash:config
+                       )
 
-        msg = " > #{name}: Arguments " + args_to_add.map{|arg| "\"#{arg}\""}.join( ', ' )
-        @loginator.log( msg, Verbosity::DEBUG )
+      # Try to lookup arguments from user config
+      args_to_add, _ = @config_walkinator.fetch_value(shortcut, :arguments, 
+                         hash:config,
+                         default: []
+                       )
 
-        # Adding and flattening is not a good idea -- might over-flatten if array nesting in tool args
+      # If either tool definition modification is happening, start building the logging message
+      if !args_to_add.empty? or !executable.nil?
+        msg += " > #{name}\n" 
+      end
+
+      # Log the executable and redefine the tool config
+      if !executable.nil?
+        msg += "   executable: \"#{executable}\"\n"
+        tool[:executable] = executable
+      end
+
+      # Log the arguments and add to the tool config
+      if !args_to_add.empty?
+        msg += "   arguments: " + args_to_add.map{|arg| "\"#{arg}\""}.join( ', ' ) + "\n"
         tool[:arguments].concat( args_to_add )
       end
+
+      # Log
+      @loginator.log( msg, Verbosity::DEBUG ) if !msg.empty?
     end
   end
 
@@ -363,8 +412,6 @@ class Configurator
       msg = " > Config plugins: " + @configurator_plugins.config_plugins.map{|p| p[:plugin]}.join( ', ' )
       @loginator.log( msg, Verbosity::DEBUG )
     end
-
-    return config_plugins
   end
 
 
@@ -386,6 +433,7 @@ class Configurator
 
       msg = @reportinator.generate_progress( "Merging configuration from plugin #{hash[:plugin]}" )
       @loginator.log( msg, Verbosity::OBNOXIOUS )
+      @loginator.log( _config.to_s, Verbosity::DEBUG )
 
       # Special handling for plugin paths
       if (_config.include?( :paths ))
@@ -415,7 +463,7 @@ class Configurator
 
       # Special case handling for :path environment variable entry
       # File::PATH_SEPARATOR => ':' (Unix-ish) or ';' (Windows)
-      interstitial = ((key == :path) ? File::PATH_SEPARATOR : '')
+      interstitial = ((key == :path) ? File::PATH_SEPARATOR : ' ')
 
       # Create an array container for the value of this entry
       #  - If the value is an array, get it
@@ -432,11 +480,12 @@ class Configurator
 
       # Join any value items (become a flattened string)
       #  - With path separator if the key was :path
-      #  - With nothing otherwise
+      #  - With space otherwise
       hash[key] = items.join( interstitial )
 
       # Set the environment variable for our session
       @system_wrapper.env_set( key.to_s.upcase, hash[key] )
+      @loginator.log( " - #{key.to_s.upcase}: \"#{hash[key]}\"", Verbosity::DEBUG )
     end
   end
 
@@ -526,6 +575,10 @@ class Configurator
     blotter &= @configurator_setup.validate_required_sections( config )
     blotter &= @configurator_setup.validate_required_section_values( config )
 
+    # Configuration sections can reference environment variables that are evaluated early on.
+    # So, we validate :environment early as an essential section.
+    blotter &= @configurator_setup.validate_environment_vars( config )
+
     if !blotter
       raise CeedlingException.new("Ceedling configuration failed validation")
     end
@@ -542,6 +595,8 @@ class Configurator
                  app_cfg[:include_test_case],
                  app_cfg[:exclude_test_case]
                )
+    blotter &= @configurator_setup.validate_defines( config )
+    blotter &= @configurator_setup.validate_flags( config )
     blotter &= @configurator_setup.validate_test_preprocessor( config )
     blotter &= @configurator_setup.validate_backtrace( config )
     blotter &= @configurator_setup.validate_threads( config )
@@ -554,10 +609,10 @@ class Configurator
 
 
   # Create constants and accessors (attached to this object) from given hash
-  def build(ceedling_lib_path, config, *keys)
+  def build(ceedling_lib_path, logging_path, config, *keys)
     flattened_config = @configurator_builder.flattenify( config )
 
-    @configurator_setup.build_project_config( ceedling_lib_path, flattened_config )
+    @configurator_setup.build_project_config( ceedling_lib_path, logging_path, flattened_config )
 
     @configurator_setup.build_directory_structure( flattened_config )
 

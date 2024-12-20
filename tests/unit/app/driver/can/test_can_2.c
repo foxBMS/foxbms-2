@@ -43,8 +43,8 @@
  * @file    test_can_2.c
  * @author  foxBMS Team
  * @date    2023-03-13 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -71,10 +71,9 @@
 #include "Mockqueue.h"
 #include "Mocktest_can_mpu_prototype_queue_create_stub.h"
 
-#include "version_cfg.h"
-
 #include "can.h"
 #include "test_assert_helper.h"
+#include "version.h"
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -93,6 +92,7 @@ TEST_INCLUDE_PATH("../../src/app/driver/rtc")
 TEST_INCLUDE_PATH("../../src/app/engine/diag")
 TEST_INCLUDE_PATH("../../src/app/task/config")
 TEST_INCLUDE_PATH("../../src/app/task/ftask")
+TEST_INCLUDE_PATH("../../src/version")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 

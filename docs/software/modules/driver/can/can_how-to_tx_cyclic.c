@@ -43,13 +43,14 @@
  * @file    can_how-to_tx_cyclic.c
  * @author  foxBMS Team
  * @date    2022-09-12 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup SOME_GROUP
  * @prefix  CAN
  *
  * @brief   Documentation file to show how a new cyclic transmitted CAN
  *          message is added to the project.
+ * @details TODO
  *
  */
 

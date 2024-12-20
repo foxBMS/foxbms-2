@@ -79,6 +79,7 @@ def build(bld):
         os.path.join("..", "driver", "contactor"),
         os.path.join("..", "driver", "dma"),
         os.path.join("..", "driver", "foxmath"),
+        os.path.join("..", "driver", "can", "cbs", "tx-cyclic"),
         os.path.join("..", "driver", "fram"),
         os.path.join("..", "driver", "imd"),
         os.path.join("..", "driver", "led"),

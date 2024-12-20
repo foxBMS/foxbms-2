@@ -1,5 +1,5 @@
 /*
- * FreeRTOS Kernel V10.4.5
+ * FreeRTOS Kernel V10.4.6
  * Copyright (C) 2021 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * SPDX-License-Identifier: MIT
@@ -2140,7 +2140,7 @@ void vTaskSuspendAll( void )
      * post in the FreeRTOS support forum before reporting this as a bug! -
      * https://goo.gl/wu4acr */
 
-    /* portSOFRWARE_BARRIER() is only implemented for emulated/simulated ports that
+    /* portSOFTWARE_BARRIER() is only implemented for emulated/simulated ports that
      * do not otherwise exhibit real time behaviour. */
     portSOFTWARE_BARRIER();
 

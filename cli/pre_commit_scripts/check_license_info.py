@@ -40,10 +40,14 @@
 """Script to check the license information for a list of provided files"""
 
 import argparse
+import sys
 from pathlib import Path
-from typing import Sequence
+from typing import Literal, Sequence, get_args
 
-LICENSE_BASE_TEXT = [
+LicenseTypes = Literal["BSD-3-Clause", "confidential"]
+
+
+LICENSE_BASE_TEXT_BSD_3_CLAUSE = [
     "SPDX-License-Identifier: BSD-3-Clause",
     "",
     "Redistribution and use in source and binary forms, with or without",
@@ -79,28 +83,70 @@ LICENSE_BASE_TEXT = [
     '- "This product is derived from foxBMS®"',
 ]
 
+LICENSE_BASE_TEXT_CONFIDENTIAL = [
+    "Confidential or no approval for publication",
+]
+
+LICENSE_TYPE_TO_LICENSE_BASE_TEXT = {
+    "BSD-3-Clause": LICENSE_BASE_TEXT_BSD_3_CLAUSE,
+    "confidential": LICENSE_BASE_TEXT_CONFIDENTIAL,
+}
+
 
 def compare_header(
     file_name: Path, expected: list[str], actual: list[str], start: int, end: int
 ) -> int:
     """compares to lists of strings"""
     err = 0
-    if not len(actual) >= end + 1:
-        print(f"License header '{file_name}' is not correct.")
+    if not len(actual) >= end:
+        print(
+            f"{file_name.as_posix()}: License header is not correct.", file=sys.stderr
+        )
         err += 1
 
-    if not actual[start : end + 1] == expected:
-        print(f"License header '{file_name}' is not correct.")
-        print("The following lines differ")
+    if not actual[start:end] == expected:
+        print(
+            f"{file_name.as_posix()}: License header is not correct.", file=sys.stderr
+        )
+        print("The following lines differ", file=sys.stderr)
         for i, (e, a) in enumerate(zip(expected, actual)):
             if not e == a:
-                print(f"Line {i+1}: Expected: {e}")
-                print(f"Line {i+1}: Actual:   {a}")
+                print(f"Line {i+1}: Expected: '{e}'", file=sys.stderr)
+                print(f"Line {i+1}: Actual:   '{a}'", file=sys.stderr)
         err += 1
     return err
 
 
-def check_c(files: Sequence[str]) -> int:
+def check_asm(files: Sequence[str], license_type: LicenseTypes = "confidential") -> int:
+    """Check assembler sources"""
+    err = 0
+    prolog = [
+        # pylint: disable-next=line-too-long
+        "; @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.",
+        "; All rights reserved.",
+        ";",
+    ]
+    epilog = []
+    char = "; "
+    txt = []
+    for i in LICENSE_TYPE_TO_LICENSE_BASE_TEXT.get(license_type, "confidential"):
+        txt.append((char + i.replace("®", "&reg;")).rstrip())
+    license_text = prolog + txt + epilog
+    start = 0
+    end = start + len(license_text)
+    for i in files:
+        tmp = Path(i).read_text(encoding="utf-8").splitlines()
+        err += compare_header(
+            file_name=Path(i),
+            expected=license_text,
+            actual=tmp,
+            start=start,
+            end=end,
+        )
+    return err
+
+
+def check_c(files: Sequence[str], license_type: LicenseTypes = "confidential") -> int:
     """Check C sources"""
     err = 0
     prolog = [
@@ -114,11 +160,11 @@ def check_c(files: Sequence[str]) -> int:
     epilog = [" *", " */"]
     char = " * "
     txt = []
-    for i in LICENSE_BASE_TEXT:
+    for i in LICENSE_TYPE_TO_LICENSE_BASE_TEXT.get(license_type, "confidential"):
         txt.append((char + i.replace("®", "&reg;")).rstrip())
     license_text = prolog + txt + epilog
     start = 0
-    end = 39
+    end = start + len(license_text)
     for i in files:
         tmp = Path(i).read_text(encoding="utf-8").splitlines()
         err += compare_header(
@@ -131,7 +177,7 @@ def check_c(files: Sequence[str]) -> int:
     return err
 
 
-def check_py(files: Sequence[str]) -> int:
+def check_py(files: Sequence[str], license_type: LicenseTypes = "confidential") -> int:
     """Check Python scripts"""
     err = 0
     prolog = [
@@ -143,11 +189,11 @@ def check_py(files: Sequence[str]) -> int:
     ]
     char = "# "
     txt = []
-    for i in LICENSE_BASE_TEXT:
+    for i in LICENSE_TYPE_TO_LICENSE_BASE_TEXT.get(license_type, "confidential"):
         txt.append((char + i).rstrip())
     license_text = prolog + txt
     start = 1
-    end = 37
+    end = start + len(license_text)
     for i in files:
         tmp = Path(i).read_text(encoding="utf-8").splitlines()
         err += compare_header(
@@ -160,7 +206,9 @@ def check_py(files: Sequence[str]) -> int:
     return err
 
 
-def check_yaml(files: Sequence[str]) -> int:
+def check_yaml(
+    files: Sequence[str], license_type: LicenseTypes = "confidential"
+) -> int:
     """Check YAML files"""
     err = 0
     prolog = [
@@ -171,11 +219,11 @@ def check_yaml(files: Sequence[str]) -> int:
     ]
     char = "# "
     txt = []
-    for i in LICENSE_BASE_TEXT:
+    for i in LICENSE_TYPE_TO_LICENSE_BASE_TEXT.get(license_type, "confidential"):
         txt.append((char + i).rstrip())
     license_text = prolog + txt
     start = 0
-    end = 35
+    end = start + len(license_text)
     for i in files:
         tmp = Path(i).read_text(encoding="utf-8").splitlines()
         err += compare_header(
@@ -188,20 +236,25 @@ def check_yaml(files: Sequence[str]) -> int:
     return err
 
 
-def check_toml(files: Sequence[str]) -> int:
+def check_toml(
+    files: Sequence[str], license_type: LicenseTypes = "confidential"
+) -> int:
     """Check toml files"""
     # same header
-    print(11)
-    return check_yaml(files)
+    return check_yaml(files, license_type)
 
 
-def check_pwsh(files: Sequence[str]) -> int:
+def check_pwsh(
+    files: Sequence[str], license_type: LicenseTypes = "confidential"
+) -> int:
     """Check pwsh scripts"""
     # same header
-    return check_py(files)
+    return check_py(files, license_type)
 
 
-def check_batch(files: Sequence[str]) -> int:
+def check_batch(
+    files: Sequence[str], license_type: LicenseTypes = "confidential"
+) -> int:
     """Check batch scripts"""
     err = 0
     prolog = [
@@ -212,11 +265,11 @@ def check_batch(files: Sequence[str]) -> int:
     ]
     char = "@REM "
     txt = []
-    for i in LICENSE_BASE_TEXT:
+    for i in LICENSE_TYPE_TO_LICENSE_BASE_TEXT.get(license_type, "confidential"):
         txt.append((char + i.replace("®", "&reg;")).rstrip())
     license_text = prolog + txt
     start = 0
-    end = 35
+    end = start + len(license_text)
     for i in files:
         tmp = Path(i).read_text(encoding="utf-8").splitlines()
         err += compare_header(
@@ -229,16 +282,18 @@ def check_batch(files: Sequence[str]) -> int:
     return err
 
 
-def check_shell(files: Sequence[str]) -> int:
+def check_shell(
+    files: Sequence[str], license_type: LicenseTypes = "confidential"
+) -> int:
     """Check shell scripts"""
     # same header
-    return check_py(files)
+    return check_py(files, license_type)
 
 
-def check_dot(files: Sequence[str]) -> int:
+def check_dot(files: Sequence[str], license_type: LicenseTypes = "confidential") -> int:
     """Check dot files"""
     # same header
-    return check_yaml(files)
+    return check_yaml(files, license_type)
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -247,13 +302,21 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument(
         "--file-type",
         default="c",
-        choices=["c", "py", "yaml", "toml", "pwsh", "batch", "shell", "dot"],
+        choices=["asm", "batch", "c", "dot", "pwsh", "py", "shell", "toml", "yaml"],
         help="File type",
     )
     parser.add_argument("files", nargs="*", help="Files to check")
+    parser.add_argument(
+        "--license-type",
+        default="confidential",
+        choices=get_args(LicenseTypes),
+        help="License type",
+    )
     args = parser.parse_args(argv)
     err = 0
-    err = globals()[f"check_{args.file_type}"](files=args.files)
+    err = globals()[f"check_{args.file_type}"](
+        files=args.files, license_type=args.license_type
+    )
     return err
 
 

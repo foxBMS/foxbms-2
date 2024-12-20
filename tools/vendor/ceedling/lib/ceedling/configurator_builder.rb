@@ -87,18 +87,17 @@ class ConfiguratorBuilder
   end
 
 
-  # If config lacks an entry that defaults posseses, add a config entry with the default value
-  def populate_defaults(config, defaults)
-    defaults.keys.sort.each do |section|
-      case defaults[section]
-      when Hash
-        defaults[section].keys.sort.each do |entry|
-          config[section] = {} if config[section].nil?
-          config[section][entry] = defaults[section][entry].deep_clone if (config[section][entry].nil?)
-        end
+  # If config lacks an entry present in defaults posseses, add the default entry
+  # Processes recursively
+  def populate_with_defaults(config, defaults)
+    defaults.each do |key, value|
+      # If config is missing the same key, copy in the default entry
+      if config[key].nil?
+        config[key] = value.is_a?(Hash) ? value.deep_clone : value
 
-      when Array
-        config[section] = defaults[section] 
+      # Continue recursively for hash entries
+      elsif config[key].is_a?(Hash) && value.is_a?(Hash)
+        populate_with_defaults(config[key], value)
       end
     end
   end
@@ -110,7 +109,7 @@ class ConfiguratorBuilder
   end
 
 
-  def set_build_paths(in_hash)
+  def set_build_paths(in_hash, logging_path)
     out_hash = {}
 
     project_build_artifacts_root = File.join(in_hash[:project_build_root], 'artifacts')
@@ -140,7 +139,7 @@ class ConfiguratorBuilder
       [:project_release_build_output_path,      File.join(project_build_release_root, 'out'),               in_hash[:project_release_build] ],
       [:project_release_dependencies_path,      File.join(project_build_release_root, 'dependencies'),      in_hash[:project_release_build] ],
 
-      [:project_log_path,                       File.join(in_hash[:project_build_root], 'logs'), true ],
+      [:project_log_path,                       logging_path, true ],
 
       [:project_test_preprocess_includes_path,  File.join(project_build_tests_root, 'preprocess/includes'), (in_hash[:project_use_test_preprocessor] != :none) ],
       [:project_test_preprocess_files_path,     File.join(project_build_tests_root, 'preprocess/files'),    (in_hash[:project_use_test_preprocessor] != :none) ],

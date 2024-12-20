@@ -43,8 +43,8 @@
  * @file    i2c.c
  * @author  foxBMS Team
  * @date    2021-07-22 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup DRIVERS
  * @prefix  I2C
  *
@@ -788,4 +788,11 @@ extern bool I2C_WaitReceive(i2cBASE_t *pI2cInterface, uint32_t timeout_us) {
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
 #ifdef UNITY_UNIT_TEST
+extern bool TEST_I2C_WaitStop(i2cBASE_t *pI2cInterface, uint32_t timeout_us) {
+    return I2C_WaitStop(pI2cInterface, timeout_us);
+}
+
+extern uint32_t TEST_I2C_GetWordTransmitTime(i2cBASE_t *pI2cInterface) {
+    return I2C_GetWordTransmitTime(pI2cInterface);
+}
 #endif

@@ -11,8 +11,40 @@ Master TMS570 ``v1.1.1``
    The changelog for this release is found at
    :ref:`CHANGELOG_FOR_MASTER_TMS570_V1_1_1`.
 
+.. important::
+
+   BMS-Master release :ref:`MASTER_TMS570___V1_2_2__` is designed and prepared
+   for a CAN based bootloader for remote firmware update.
+   Follow the instructions to establish bootload compatibility on older
+   hardware.
+
 The following specifications must be met to ensure a safe and optimal work with
 the |bms-master| hardware.
+
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Bootloader Compatibility on |bms-master| prior to v1.2.2
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In |bms-master| release :ref:`MASTER_TMS570___V1_2_2__`, the CAN1 Enable and
+Standby signals have been wired directly to the MCU, instead of using I2C based
+port expander.
+Therefore, on |bms-master| prior to v1.2.2 the CAN1 transceiver would not be
+enabled during bootloader operation, lacking the feature of firmware update
+capability.
+
+By desoldering populated 10kOhm pull-down resistors R6320_2 and R6321_2, the
+CAN1 transceiver will be enabled by default and is available during
+bootloader operation.
+
+Details are shown in figure
+:numref:`resistors-for-foxbms_v1.1.1._bootloader_compatibility`.
+
+.. figure:: ti-tms570lc4357-v1.1.1/img/foxbms_v1.1.1._bootloader_compatibility.png
+   :alt: Resistors R6320_2 and R6321_2 to be removed for compatibility with bootloader
+   :name: resistors-for-foxbms_v1.1.1._bootloader_compatibility
+   :width: 100 %
+
+   Resistors R6320_2 and R6321_2 to be removed for compatibility with bootloader
 
 ^^^^^^^^^^^^^^^^^^
 Electrical Ratings

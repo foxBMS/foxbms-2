@@ -43,12 +43,13 @@
  * @file    test_epcos_b57251v5103j060.c
  * @author  foxBMS Team
  * @date    2020-04-01 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
  * @brief   Tests for the epcos_b57251v5103j060 module
+ * @details Tests get temperature from lut and polynomial
  *
  */
 

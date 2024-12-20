@@ -37,7 +37,7 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""Command line interface definition for pre-commit"""
+"""Command line interface definition for pre-commit."""
 
 import click
 
@@ -56,7 +56,7 @@ def pre_commit(
     ctx: click.Context,
     pre_commit_args: tuple[str],
 ) -> None:
-    """Run the 'pre-commit' tool"""
+    """Run the 'pre-commit' tool."""
     ret = pre_commit_impl.run_pre_commit(
         list(pre_commit_args), stdout=None, stderr=None
     )

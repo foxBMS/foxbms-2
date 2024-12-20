@@ -43,8 +43,8 @@
  * @file    utils.h
  * @author  foxBMS Team
  * @date    2022-11-17 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup DRIVERS
  * @prefix  UTIL
  *
@@ -82,6 +82,25 @@
 /*========== Extern Constant and Variable Declarations ======================*/
 
 /*========== Extern Function Prototypes =====================================*/
+/**
+ * @brief Extract characters from a string
+ * @details - Extracts up to 8 characters of a String
+ *          - Characters are extracted consecutively
+ *          - If the end of the string is reached the function ends,
+ *            this is even if the number of requested number of chars
+ *            wasn't reached
+ * @param pExtractedCharacters 64-bit variable where characters are written
+ * @param pString String that chars will be extracted from
+ * @param stringLength Length of the string
+ * @param startChar First char that will be extracted
+ * @param numberOfChars Number of Chars that will be extracted
+ */
+extern void UTIL_ExtractCharactersFromString(
+    uint64_t *pExtractedCharacters,
+    const char *pString,
+    uint8_t stringLength,
+    uint8_t startChar,
+    uint8_t numberOfChars);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 #ifdef UNITY_UNIT_TEST

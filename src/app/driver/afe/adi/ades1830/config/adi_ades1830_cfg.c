@@ -43,8 +43,8 @@
  * @file    adi_ades1830_cfg.c
  * @author  foxBMS Team
  * @date    2020-12-09 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  ADI
  *
@@ -63,35 +63,35 @@
 
 /*========== Extern Constant and Variable Definitions =======================*/
 const uint8_t adi_voltageInputsUsed[ADI_MAX_SUPPORTED_CELLS] = {
-    1,
-    1,
-    1,
-    1,
-    1,
-    1,
-    1,
-    1,
-    1,
-    1,
-    1,
-    1,
-    1,
-    1,
-    1,
-    1,
+    1u,
+    1u,
+    1u,
+    1u,
+    1u,
+    1u,
+    1u,
+    1u,
+    1u,
+    1u,
+    1u,
+    1u,
+    1u,
+    1u,
+    1u,
+    1u,
 };
 
 const uint8_t adi_temperatureInputsUsed[BS_NR_OF_GPIOS_PER_MODULE] = {
-    1,
-    1,
-    1,
-    1,
-    1,
-    1,
-    1,
-    1,
-    1,
-    1,
+    1u,
+    1u,
+    1u,
+    1u,
+    1u,
+    1u,
+    1u,
+    1u,
+    0u,
+    0u,
 };
 
 /*========== Static Function Prototypes =====================================*/

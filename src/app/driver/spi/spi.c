@@ -43,8 +43,8 @@
  * @file    spi.c
  * @author  foxBMS Team
  * @date    2019-12-12 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup DRIVERS
  * @prefix  SPI
  *
@@ -215,6 +215,13 @@ static void SPI_InitializeChipSelectsAfe(uint8_t string) {
 }
 #endif
 
+#if defined(FOXBMS_AFE_DRIVER_ST) && (FOXBMS_AFE_DRIVER_ST == 1)
+static void SPI_InitializeChipSelectsAfe(uint8_t string) {
+    FAS_ASSERT(string < BS_NR_OF_STRINGS);
+    (void)string;
+}
+#endif
+
 #if defined(FOXBMS_AFE_DRIVER_TI) && (FOXBMS_AFE_DRIVER_TI == 1)
 static void SPI_InitializeChipSelectsAfe(uint8_t string) {
     FAS_ASSERT(string < BS_NR_OF_STRINGS);
@@ -229,7 +236,8 @@ static void SPI_InitializeChipSelectsAfe(uint8_t string) {
 /* AXIVION Disable Style Generic-MaxConditions: This way it is ensured, that all other cases need to be implemented */
 #if defined(UNITY_UNIT_TEST) &&                                                                                 \
     (!defined(FOXBMS_AFE_DRIVER_ADI) && !defined(FOXBMS_AFE_DRIVER_DEBUG) && !defined(FOXBMS_AFE_DRIVER_LTC) && \
-     !defined(FOXBMS_AFE_DRIVER_MAXIM) && !defined(FOXBMS_AFE_DRIVER_NXP) && !defined(FOXBMS_AFE_DRIVER_TI))
+     !defined(FOXBMS_AFE_DRIVER_MAXIM) && !defined(FOXBMS_AFE_DRIVER_NXP) && !defined(FOXBMS_AFE_DRIVER_ST) &&  \
+     !defined(FOXBMS_AFE_DRIVER_TI))
 /* AXIVION Enable Style Generic-MaxConditions */
 
 static void SPI_InitializeChipSelectsAfe(uint8_t string) {

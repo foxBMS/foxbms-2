@@ -43,8 +43,8 @@
  * @file    adi_ades183x_temperatures.c
  * @author  foxBMS Team
  * @date    2019-08-27 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup DRIVERS
  * @prefix  ADI
  *
@@ -71,28 +71,33 @@
 
 /*========== Static Function Prototypes =====================================*/
 /**
- * @brief   Converts index of read GPIO voltages for temperatures.
+ * @brief   Extracts GPIO index of for requested temperature index
  * @details This function translates the indexes of read GPIO voltages so that
  *          if some inputs are unused, they do not appear in the final cell
  *          temperature table.
- * @param   registerGpioIndex   index of the read voltage ion the ades183x
- *                              register
- * @return  index where the voltage must be stored if it is used
+ * @param   temperatureSensorIndex   requested sensor index
+ * @return  index where the voltage must is stored
  */
-static uint16_t ADI_GetStoredTemperatureIndex(uint16_t registerGpioIndex);
+static uint16_t ADI_GetMappedGpioIndex(uint16_t temperatureSensorIndex);
 
 /*========== Static Function Implementations ================================*/
-static uint16_t ADI_GetStoredTemperatureIndex(uint16_t registerGpioIndex) {
-    FAS_ASSERT(registerGpioIndex < BS_NR_OF_GPIOS_PER_MODULE);
+static uint16_t ADI_GetMappedGpioIndex(uint16_t temperatureSensorIndex) {
+    FAS_ASSERT(temperatureSensorIndex < BS_NR_OF_TEMP_SENSORS_PER_MODULE);
 
-    uint16_t storedTemperatureIndex = 0u;
-    for (uint8_t c = 0; c < registerGpioIndex; c++) {
-        if (adi_temperatureInputsUsed[c] == 1u) {
-            storedTemperatureIndex++;
+    uint16_t storedGpioIndex = 0u;
+    uint16_t mappedIndex     = 0u;
+    for (uint8_t gpioIndex = 0u; gpioIndex < BS_NR_OF_GPIOS_PER_MODULE; gpioIndex++) {
+        if (adi_temperatureInputsUsed[gpioIndex] == 1u) {
+            if (storedGpioIndex == temperatureSensorIndex) {
+                mappedIndex = gpioIndex;
+                break;
+            } else {
+                storedGpioIndex++;
+            }
         }
     }
 
-    return storedTemperatureIndex;
+    return mappedIndex;
 }
 
 /*========== Extern Function Implementations ================================*/
@@ -101,15 +106,23 @@ extern void ADI_GetTemperatures(ADI_STATE_s *pAdiState) {
     FAS_ASSERT(pAdiState != NULL_PTR);
 
     for (uint16_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
-        for (uint16_t registerGpioIndex = 0u; registerGpioIndex < BS_NR_OF_GPIOS_PER_MODULE; registerGpioIndex++) {
-            if (adi_temperatureInputsUsed[registerGpioIndex] == 1u) {
-                uint16_t gpioIndex              = (m * BS_NR_OF_GPIOS_PER_MODULE) + registerGpioIndex;
-                uint16_t storedTemperatureIndex = ADI_GetStoredTemperatureIndex(registerGpioIndex);
+        for (uint8_t ts = 0u; ts < BS_NR_OF_TEMP_SENSORS_PER_MODULE; ts++) {
+            uint16_t gpioIndex = ADI_GetMappedGpioIndex(ts);
+            /* Check GPIO voltage valid flag */
+            uint16_t invalidFlag =
+                (pAdiState->data.allGpioVoltages->invalidGpioVoltages[pAdiState->currentString][m] & (1u << gpioIndex));
+            gpioIndex += (m * BS_NR_OF_GPIOS_PER_MODULE); /* Add module offset */
+            if (invalidFlag == 0u) {
                 /* temperature: unit is in deci-degree C */
-                int16_t temperature = ADI_ConvertGpioVoltageToTemperature(
+                int16_t temperature_ddegC = ADI_ConvertGpioVoltageToTemperature(
                     pAdiState->data.allGpioVoltages->gpioVoltages_mV[pAdiState->currentString][gpioIndex]);
-                pAdiState->data.cellTemperature
-                    ->cellTemperature_ddegC[pAdiState->currentString][m][storedTemperatureIndex] = temperature;
+                pAdiState->data.cellTemperature->cellTemperature_ddegC[pAdiState->currentString][m][ts] =
+                    temperature_ddegC;
+                pAdiState->data.cellTemperature->invalidCellTemperature[pAdiState->currentString][m][ts] = false;
+            } else {
+                /* Invalidate cell temperature */
+                pAdiState->data.cellTemperature->cellTemperature_ddegC[pAdiState->currentString][m][ts]  = 0;
+                pAdiState->data.cellTemperature->invalidCellTemperature[pAdiState->currentString][m][ts] = true;
             }
         }
     }
@@ -117,8 +130,8 @@ extern void ADI_GetTemperatures(ADI_STATE_s *pAdiState) {
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
 #ifdef UNITY_UNIT_TEST
-extern uint16_t TEST_ADI_GetStoredTemperatureIndex(uint16_t registerGpioIndex) {
-    return ADI_GetStoredTemperatureIndex(registerGpioIndex);
+extern uint16_t TEST_ADI_GetMappedGpioIndex(uint16_t registerGpioIndex) {
+    return ADI_GetMappedGpioIndex(registerGpioIndex);
 }
 
 #endif

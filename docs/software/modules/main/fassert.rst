@@ -1,10 +1,10 @@
 .. include:: ../../../macros.txt
 .. include:: ../../../units.txt
 
-.. _FASSERT_MODULE:
+.. _ASSERTION_MODULE:
 
-FASSERT Module
-==============
+Assertion Module
+================
 
 Module Files
 ------------

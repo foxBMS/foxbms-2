@@ -54,6 +54,8 @@ try:
 except ImportError:
     gravis = None
 
+# gravis members can not be checked
+# pylint: disable=no-member
 
 if __name__ == "__main__":
     if not gravis:
@@ -76,11 +78,15 @@ if __name__ == "__main__":
     file_architecture = os.path.join(
         script_dir,
         "..",
+        "targets",
+        "app",
         "architecture.gxl",
     )
     file_layout = os.path.join(
         script_dir,
         "..",
+        "targets",
+        "app",
         "architecture_hierarchy_belongs_to_layout.gvl",
     )
     file_output_architecture = os.path.join(

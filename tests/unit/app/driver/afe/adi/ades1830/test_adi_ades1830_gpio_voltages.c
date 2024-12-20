@@ -43,12 +43,13 @@
  * @file    test_adi_ades1830_gpio_voltages.c
  * @author  foxBMS Team
  * @date    2022-12-08 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
  * @brief   Test of some module
+ * @details TODO
  *
  */
 
@@ -64,6 +65,7 @@
 #include "adi_ades183x_commands.h" /* use the real buffer configuration */
 #include "adi_ades183x_commands_voltages.h"
 #include "adi_ades183x_defs.h"
+#include "adi_ades183x_diagnostic.h"
 #include "adi_ades183x_gpio_voltages.h"
 #include "adi_ades183x_helpers.h"
 #include "adi_ades183x_pec.h"
@@ -179,12 +181,11 @@ void testADI_GetGpioVoltages(void) {
     TEST_ASSERT_FAIL_ASSERT(
         ADI_GetGpioVoltages(&adi_stateBase, ADI_AUXILIARY_REGISTER, ADI_AUXILIARY_STORE_LOCATION_E_MAX));
 
-    /* Test reading of GPIO voltages */
+    uint8_t frameLength = ADI_COMMAND_AND_PEC_SIZE_IN_BYTES + ((ADI_RDCFGA_LEN + ADI_PEC_SIZE_IN_BYTES) * ADI_N_ADI);
+    uint32_t timeout    = ADI_TRANSMISSION_TIMEOUT;
+    uint32_t ulNotifiedValue = 0u;
 
-    /* SPI and OS functions are ignored */
-    SPI_TransmitDummyByte_IgnoreAndReturn(STD_OK);
-    SPI_TransmitReceiveDataDma_IgnoreAndReturn(STD_OK);
-    OS_WaitForNotification_IgnoreAndReturn(OS_SUCCESS);
+    /* Test reading of GPIO voltages */
     DATA_BLOCK_ALL_GPIO_VOLTAGES_s *pGpioVoltageTable = NULL_PTR;
 
     for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
@@ -227,7 +228,7 @@ void testADI_GetGpioVoltages(void) {
                     default:
                         break;
                 }
-                /* Reset cell voltage values */
+                /* Reset gpio voltage values */
                 for (uint16_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
                     for (uint8_t c = 0u; c < BS_NR_OF_GPIOS_PER_MODULE; c++) {
                         pGpioVoltageTable->gpioVoltages_mV[s][c + (m * BS_NR_OF_GPIOS_PER_MODULE)] = 0;
@@ -236,6 +237,36 @@ void testADI_GetGpioVoltages(void) {
                 /* Reset PEC error flags */
                 for (uint16_t m = 0; m < BS_NR_OF_MODULES_PER_STRING; m++) {
                     adi_stateBase.data.errorTable->crcIsOk[s][m] = true;
+                }
+
+                /* Registers A, B and C */
+                for (uint8_t i = 0u; i < 3u; i++) {
+                    SPI_TransmitDummyByte_ExpectAndReturn(spi_adiInterface, ADI_SPI_WAKEUP_WAIT_TIME_US, STD_OK);
+                    SPI_TransmitReceiveDataDma_ExpectAndReturn(
+                        spi_adiInterface,
+                        adi_stateBase.data.txBuffer,
+                        adi_stateBase.data.rxBuffer,
+                        frameLength,
+                        STD_OK);
+                    OS_WaitForNotification_ExpectAndReturn(&ulNotifiedValue, timeout, OS_SUCCESS);
+                    /* Save buffer to store location Register A */
+                    for (uint8_t m = 0u; m < ADI_N_ADI; m++) {
+                        for (uint8_t regNumber = 0u; regNumber < ADI_MAX_NUMBER_OF_GPIO_VOLTAGES_IN_REGISTER;
+                             regNumber++) {
+                            ADI_EvaluateDiagnosticGpioVoltages_ExpectAndReturn(&adi_stateBase, m, true);
+                        }
+                    }
+                }
+                /* Register D */
+                SPI_TransmitDummyByte_ExpectAndReturn(spi_adiInterface, ADI_SPI_WAKEUP_WAIT_TIME_US, STD_OK);
+                SPI_TransmitReceiveDataDma_ExpectAndReturn(
+                    spi_adiInterface, adi_stateBase.data.txBuffer, adi_stateBase.data.rxBuffer, frameLength, STD_OK);
+                OS_WaitForNotification_ExpectAndReturn(&ulNotifiedValue, timeout, OS_SUCCESS);
+                /* Save buffer to store location Register D */
+                for (uint8_t m = 0u; m < ADI_N_ADI; m++) {
+                    for (uint8_t regNumber = 0u; regNumber < ADI_NUMBER_OF_GPIO_VOLTAGES_IN_REGISTER_D; regNumber++) {
+                        ADI_EvaluateDiagnosticGpioVoltages_ExpectAndReturn(&adi_stateBase, m, true);
+                    }
                 }
 
                 /* Now get voltages by reading data (mocked) and storing it to the voltage table */
@@ -253,7 +284,7 @@ void testADI_GetGpioVoltages(void) {
 }
 
 /* externalized static functions tests */
-void testADI_SaveRxToGpioVoltageBuffer(void) {
+void testADI_SaveRxToGpioVoltageBufferAssertionTest(void) {
     /* Test invalid state */
     TEST_ASSERT_FAIL_ASSERT(TEST_ADI_SaveRxToGpioVoltageBuffer(
         NULL_PTR, adi_dataReceive, ADI_RESULT_REGISTER_SET_A, ADI_AUXILIARY_VOLTAGE));
@@ -266,13 +297,15 @@ void testADI_SaveRxToGpioVoltageBuffer(void) {
     /* Test invalid store location */
     TEST_ASSERT_FAIL_ASSERT(TEST_ADI_SaveRxToGpioVoltageBuffer(
         &adi_stateBase, adi_dataReceive, ADI_RESULT_REGISTER_SET_A, ADI_AUXILIARY_STORE_LOCATION_E_MAX));
+}
 
+void testADI_SaveRxToGpioVoltageBufferRawBufferTest(void) {
     DATA_BLOCK_ALL_GPIO_VOLTAGES_s *pGpioVoltageTable = NULL_PTR;
 
     /* Test three cases for each store location:
-       -raw buffer contains cleared values, values must not be stored
-       -PEC error set, values must not be stored
-       -everything OK, values must be stored */
+       - raw buffer contains cleared values, values must not be stored
+       - PEC error set, values must not be stored
+       - everything OK, values must be stored */
     for (ADI_AUXILIARY_STORE_LOCATION_e storeLocation = ADI_AUXILIARY_VOLTAGE;
          storeLocation < ADI_AUXILIARY_STORE_LOCATION_E_MAX;
          storeLocation++) {
@@ -317,13 +350,16 @@ void testADI_SaveRxToGpioVoltageBuffer(void) {
             for (uint16_t m = 0; m < BS_NR_OF_MODULES_PER_STRING; m++) {
                 adi_stateBase.data.errorTable->crcIsOk[s][m] = true;
             }
-            /* Save buffer to store location */
+            /* Save buffer to store location Register A */
             TEST_ADI_SaveRxToGpioVoltageBuffer(
                 &adi_stateBase, adi_dataReceive, ADI_RESULT_REGISTER_SET_A, storeLocation);
+            /* Save buffer to store location Register B */
             TEST_ADI_SaveRxToGpioVoltageBuffer(
                 &adi_stateBase, adi_dataReceive, ADI_RESULT_REGISTER_SET_B, storeLocation);
+            /* Save buffer to store location Register C */
             TEST_ADI_SaveRxToGpioVoltageBuffer(
                 &adi_stateBase, adi_dataReceive, ADI_RESULT_REGISTER_SET_C, storeLocation);
+            /* Save buffer to store location Register D */
             TEST_ADI_SaveRxToGpioVoltageBuffer(
                 &adi_stateBase, adi_dataReceive, ADI_RESULT_REGISTER_SET_D, storeLocation);
             for (uint16_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
@@ -332,7 +368,33 @@ void testADI_SaveRxToGpioVoltageBuffer(void) {
                     TEST_ASSERT_EQUAL(0, pGpioVoltageTable->gpioVoltages_mV[s][c + (m * BS_NR_OF_GPIOS_PER_MODULE)]);
                 }
             }
-            /* Second test: wrong PEC */
+        }
+    }
+}
+
+void testADI_SaveRxToGpioVoltageBufferPecErrorTest(void) {
+    DATA_BLOCK_ALL_GPIO_VOLTAGES_s *pGpioVoltageTable = NULL_PTR;
+
+    /* Second test: wrong PEC */
+    for (ADI_AUXILIARY_STORE_LOCATION_e storeLocation = ADI_AUXILIARY_VOLTAGE;
+         storeLocation < ADI_AUXILIARY_STORE_LOCATION_E_MAX;
+         storeLocation++) {
+        /* Set store buffer with store location */
+        switch (storeLocation) {
+            case ADI_AUXILIARY_VOLTAGE:
+                pGpioVoltageTable = adi_stateBase.data.allGpioVoltages;
+                break;
+            case ADI_REDUNDANT_AUXILIARY_VOLTAGE:
+                pGpioVoltageTable = adi_stateBase.data.allGpioVoltagesRedundant;
+                break;
+            case ADI_AUXILIARY_VOLTAGE_OPEN_WIRE:
+                pGpioVoltageTable = adi_stateBase.data.allGpioVoltageOpenWire;
+                break;
+            default:
+                break;
+        }
+        for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
+            adi_stateBase.currentString = s;
             /* Prepare voltage data */
             for (uint16_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
                 /* Parse all voltages contained in one register */
@@ -357,13 +419,37 @@ void testADI_SaveRxToGpioVoltageBuffer(void) {
             for (uint16_t m = 0; m < BS_NR_OF_MODULES_PER_STRING; m++) {
                 adi_stateBase.data.errorTable->crcIsOk[s][m] = false;
             }
-            /* Save buffer to store location */
+
+            /* Save buffer to store location Register A */
+            for (uint8_t m = 0u; m < ADI_N_ADI; m++) {
+                for (uint8_t regNumber = 0u; regNumber < ADI_MAX_NUMBER_OF_GPIO_VOLTAGES_IN_REGISTER; regNumber++) {
+                    ADI_EvaluateDiagnosticGpioVoltages_ExpectAndReturn(&adi_stateBase, m, false);
+                }
+            }
             TEST_ADI_SaveRxToGpioVoltageBuffer(
                 &adi_stateBase, adi_dataReceive, ADI_RESULT_REGISTER_SET_A, storeLocation);
+            /* Save buffer to store location Register B */
+            for (uint8_t m = 0u; m < ADI_N_ADI; m++) {
+                for (uint8_t regNumber = 0u; regNumber < ADI_MAX_NUMBER_OF_GPIO_VOLTAGES_IN_REGISTER; regNumber++) {
+                    ADI_EvaluateDiagnosticGpioVoltages_ExpectAndReturn(&adi_stateBase, m, false);
+                }
+            }
             TEST_ADI_SaveRxToGpioVoltageBuffer(
                 &adi_stateBase, adi_dataReceive, ADI_RESULT_REGISTER_SET_B, storeLocation);
+            /* Save buffer to store location Register C */
+            for (uint8_t m = 0u; m < ADI_N_ADI; m++) {
+                for (uint8_t regNumber = 0u; regNumber < ADI_MAX_NUMBER_OF_GPIO_VOLTAGES_IN_REGISTER; regNumber++) {
+                    ADI_EvaluateDiagnosticGpioVoltages_ExpectAndReturn(&adi_stateBase, m, false);
+                }
+            }
             TEST_ADI_SaveRxToGpioVoltageBuffer(
                 &adi_stateBase, adi_dataReceive, ADI_RESULT_REGISTER_SET_C, storeLocation);
+            /* Save buffer to store location Register A */
+            for (uint8_t m = 0u; m < ADI_N_ADI; m++) {
+                for (uint8_t regNumber = 0u; regNumber < ADI_NUMBER_OF_GPIO_VOLTAGES_IN_REGISTER_D; regNumber++) {
+                    ADI_EvaluateDiagnosticGpioVoltages_ExpectAndReturn(&adi_stateBase, m, false);
+                }
+            }
             TEST_ADI_SaveRxToGpioVoltageBuffer(
                 &adi_stateBase, adi_dataReceive, ADI_RESULT_REGISTER_SET_D, storeLocation);
             for (uint16_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
@@ -372,7 +458,32 @@ void testADI_SaveRxToGpioVoltageBuffer(void) {
                     TEST_ASSERT_EQUAL(0, pGpioVoltageTable->gpioVoltages_mV[s][c + (m * BS_NR_OF_GPIOS_PER_MODULE)]);
                 }
             }
-            /* Third test: store values */
+        }
+    }
+}
+
+void testADI_SaveRxToGpioVoltageBufferValidValuesTest(void) {
+    DATA_BLOCK_ALL_GPIO_VOLTAGES_s *pGpioVoltageTable = NULL_PTR;
+    /* Third test: store values */
+    for (ADI_AUXILIARY_STORE_LOCATION_e storeLocation = ADI_AUXILIARY_VOLTAGE;
+         storeLocation < ADI_AUXILIARY_STORE_LOCATION_E_MAX;
+         storeLocation++) {
+        /* Set store buffer with store location */
+        switch (storeLocation) {
+            case ADI_AUXILIARY_VOLTAGE:
+                pGpioVoltageTable = adi_stateBase.data.allGpioVoltages;
+                break;
+            case ADI_REDUNDANT_AUXILIARY_VOLTAGE:
+                pGpioVoltageTable = adi_stateBase.data.allGpioVoltagesRedundant;
+                break;
+            case ADI_AUXILIARY_VOLTAGE_OPEN_WIRE:
+                pGpioVoltageTable = adi_stateBase.data.allGpioVoltageOpenWire;
+                break;
+            default:
+                break;
+        }
+        for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
+            adi_stateBase.currentString = s;
             /* Prepare voltage data */
             for (uint16_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
                 /* Parse all voltages contained in one register */
@@ -399,13 +510,36 @@ void testADI_SaveRxToGpioVoltageBuffer(void) {
             for (uint16_t m = 0; m < BS_NR_OF_MODULES_PER_STRING; m++) {
                 adi_stateBase.data.errorTable->crcIsOk[s][m] = true;
             }
-            /* Save buffer to store location */
+            /* Save buffer to store location Register A */
+            for (uint8_t m = 0u; m < ADI_N_ADI; m++) {
+                for (uint8_t regNumber = 0u; regNumber < ADI_MAX_NUMBER_OF_GPIO_VOLTAGES_IN_REGISTER; regNumber++) {
+                    ADI_EvaluateDiagnosticGpioVoltages_ExpectAndReturn(&adi_stateBase, m, true);
+                }
+            }
             TEST_ADI_SaveRxToGpioVoltageBuffer(
                 &adi_stateBase, adi_dataReceive, ADI_RESULT_REGISTER_SET_A, storeLocation);
+            /* Save buffer to store location Register B */
+            for (uint8_t m = 0u; m < ADI_N_ADI; m++) {
+                for (uint8_t regNumber = 0u; regNumber < ADI_MAX_NUMBER_OF_GPIO_VOLTAGES_IN_REGISTER; regNumber++) {
+                    ADI_EvaluateDiagnosticGpioVoltages_ExpectAndReturn(&adi_stateBase, m, true);
+                }
+            }
             TEST_ADI_SaveRxToGpioVoltageBuffer(
                 &adi_stateBase, adi_dataReceive, ADI_RESULT_REGISTER_SET_B, storeLocation);
+            /* Save buffer to store location Register C */
+            for (uint8_t m = 0u; m < ADI_N_ADI; m++) {
+                for (uint8_t regNumber = 0u; regNumber < ADI_MAX_NUMBER_OF_GPIO_VOLTAGES_IN_REGISTER; regNumber++) {
+                    ADI_EvaluateDiagnosticGpioVoltages_ExpectAndReturn(&adi_stateBase, m, true);
+                }
+            }
             TEST_ADI_SaveRxToGpioVoltageBuffer(
                 &adi_stateBase, adi_dataReceive, ADI_RESULT_REGISTER_SET_C, storeLocation);
+            /* Save buffer to store location Register D */
+            for (uint8_t m = 0u; m < ADI_N_ADI; m++) {
+                for (uint8_t regNumber = 0u; regNumber < ADI_NUMBER_OF_GPIO_VOLTAGES_IN_REGISTER_D; regNumber++) {
+                    ADI_EvaluateDiagnosticGpioVoltages_ExpectAndReturn(&adi_stateBase, m, true);
+                }
+            }
             TEST_ADI_SaveRxToGpioVoltageBuffer(
                 &adi_stateBase, adi_dataReceive, ADI_RESULT_REGISTER_SET_D, storeLocation);
             for (uint16_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {

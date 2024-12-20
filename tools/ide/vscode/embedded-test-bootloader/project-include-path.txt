@@ -1,0 +1,9 @@
+@@ROOT@@/build/app_embedded/src/app/main
+@@ROOT@@/build/app_embedded/src/app/hal/include
+@@ROOT@@/build/app_embedded/src/app/hal/source
+@@ROOT@@/build/app_host_unit_test/mocks/test_*/**
+@@ROOT@@/build/app_host_unit_test/vendor/c_exception/lib
+@@ROOT@@/build/app_host_unit_test/vendor/cmock/src
+@@ROOT@@/build/app_host_unit_test/vendor/unity/src
+@@ROOT@@/tests/unit/opt/**
+@@ROOT@@/tests/unit/support/*

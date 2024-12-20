@@ -8,7 +8,7 @@ Version Module
 
 The ``wscript`` of this project retrieves the current version (if available)
 from version control and generates during compilation of the project a
-``version_cfg.c/h`` file containing information about the current version.
+``version.c/h`` file containing information about the current version.
 
 In order to be able to find the version easily in any foxBMS binary, the linker script
 places this information always at the same location in memory.

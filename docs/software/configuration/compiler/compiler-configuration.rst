@@ -47,7 +47,7 @@ System and the Hardware Abstraction Layer.
 - ``foxbms``: ``CFLAGS`` that should only be applied to the BMS application
   sources (``src/app/*``).
 - ``hal``: ``CFLAGS`` that should only be applied to the generated hardware
-  abstraction layer sources (``src/hal/*``).
+  abstraction layer sources (``src/app/hal/*``).
 - ``operating_system``: ``CFLAGS`` that should only be applied to the
   operating system sources (``src/os/*``).
 

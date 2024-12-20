@@ -57,6 +57,7 @@ def build(bld):
         os.path.join("diag", "cbs", "diag_cbs_aerosol-sensor.c"),
         os.path.join("diag", "cbs", "diag_cbs_bms.c"),
         os.path.join("diag", "cbs", "diag_cbs_can.c"),
+        os.path.join("diag", "cbs", "diag_cbs_clamp30c.c"),
         os.path.join("diag", "cbs", "diag_cbs_contactor.c"),
         os.path.join("diag", "cbs", "diag_cbs_current.c"),
         os.path.join("diag", "cbs", "diag_cbs_current-sensor.c"),
@@ -118,6 +119,7 @@ def build(bld):
         os.path.join("..", "task", "os"),
         os.path.join("..", "task", "config"),
         os.path.join("..", "task", "ftask"),
+        os.path.join("..", "task", "timer"),
     ]
     includes.extend(bld.env.INCLUDES_RTOS + bld.env.INCLUDES_AFE)
     target = f"{bld.env.APPNAME.lower()}-engine"

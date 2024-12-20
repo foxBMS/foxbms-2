@@ -39,7 +39,7 @@
 
 @PUSHD %~dp0
 
-@SET "ENV_NAME=2024-08-pale-fox"
+@SET "ENV_NAME=2025-01-pale-fox"
 
 @SET "FOXBMS_PYTHON_ENV_DIRECTORY_USER=%USERPROFILE%\foxbms-envs\%ENV_NAME%"
 @SET "FOXBMS_PYTHON_ENV_DIRECTORY_ROOT=C:\foxbms-envs\%ENV_NAME%"
@@ -48,11 +48,11 @@
 
 @REM Prefer the user installation
 
-@IF NOT EXIST %FOXBMS_PYTHON_ENV_DIRECTORY_USER% (
+@IF NOT EXIST "%FOXBMS_PYTHON_ENV_DIRECTORY_USER%" (
     @SET "FOXBMS_PYTHON_ENV_DIRECTORY=%FOXBMS_PYTHON_ENV_DIRECTORY_ROOT%"
 )
 
-@IF NOT EXIST %FOXBMS_PYTHON_ENV_DIRECTORY% (
+@IF NOT EXIST "%FOXBMS_PYTHON_ENV_DIRECTORY%" (
     @ECHO '%FOXBMS_PYTHON_ENV_DIRECTORY_USER%' and
     @ECHO '%FOXBMS_PYTHON_ENV_DIRECTORY_ROOT%' do not exist.
     @ECHO One of both must be available. See Installation instructions in
@@ -60,7 +60,7 @@
     @EXIT /b 1
 )
 
-@CALL %FOXBMS_PYTHON_ENV_DIRECTORY%\Scripts\activate.bat
+@CALL "%FOXBMS_PYTHON_ENV_DIRECTORY%\Scripts\activate.bat"
 
 @REM If the activation script failed, exit with error
 @IF %ERRORLEVEL% NEQ 0 (

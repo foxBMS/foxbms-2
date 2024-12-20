@@ -6,6 +6,16 @@
 Changelog for Slave LTC LTC6813-1
 =================================
 
+.. _CHANGELOG_FOR_SLAVE_LTC_LTC6813_1_V1_1_6:
+
+v1.1.6
+------
+
+- added new design variant "automotive_single-AFE" with only primary AFE
+  populated
+- updated schematic design with new template
+- adding PNP data to release
+
 .. _CHANGELOG_FOR_SLAVE_LTC_LTC6813_1_V1_1_5:
 
 v1.1.5
@@ -62,7 +72,7 @@ v1.1.0
 - added 8-24 V isolated external power supply
 - replaced I2C EEPROM 24AA02UID with M24M02-DR (ECC)
 - replaced isoSPI transformers HX1188NL with HM2102NL
-- reduced balancing resistors from 2x 68 Ohm to 2x 130 Ohm due to shrinked
+- reduced balancing resistors from 2x 68 Ohm to 2x 130 Ohm due to shrunk
   cooling areas
 - added layermarker on PCB
 - Primary discharge timer is now switched on by default

@@ -43,12 +43,13 @@
  * @file    test_imd.c
  * @author  foxBMS Team
  * @date    2021-11-15 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
  * @brief   Tests for the Insulation Monitoring Device (IMD) driver
+ * @details TODO
  *
  */
 
@@ -60,8 +61,11 @@
 
 #include "imd.h"
 #include "no-imd.h"
+#include "test_assert_helper.h"
 
 /*========== Unit Testing Framework Directives ==============================*/
+TEST_SOURCE_FILE("imd.c")
+
 TEST_INCLUDE_PATH("../../src/app/driver/config")
 TEST_INCLUDE_PATH("../../src/app/driver/imd")
 TEST_INCLUDE_PATH("../../src/app/driver/imd/none")
@@ -70,14 +74,92 @@ TEST_INCLUDE_PATH("../../src/app/task/config")
 TEST_INCLUDE_PATH("../../src/app/task/ftask")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
+IMD_STATE_s test_imd_state;
 
 /*========== Setup and Teardown =============================================*/
 void setUp(void) {
+    test_imd_state = (IMD_STATE_s){
+        .timer                                 = 0u,
+        .triggerEntry                          = 0u,
+        .nextState                             = IMD_FSM_STATE_DUMMY,
+        .stateRequest                          = IMD_STATE_NO_REQUEST,
+        .currentState                          = IMD_FSM_STATE_HAS_NEVER_RUN,
+        .previousState                         = IMD_FSM_STATE_DUMMY,
+        .nextSubstate                          = IMD_FSM_SUBSTATE_DUMMY,
+        .currentSubstate                       = IMD_FSM_SUBSTATE_DUMMY,
+        .previousSubstate                      = IMD_FSM_SUBSTATE_DUMMY,
+        .information.isStateMachineInitialized = false,
+        .information.switchImdDeviceOn         = false,
+        .pTableImd                             = NULL_PTR,
+    };
 }
 
 void tearDown(void) {
 }
 
 /*========== Test Cases =====================================================*/
-void testNoTestsAvailable(void) {
+void testIMD_CheckStateRequest(void) {
+    TEST_ASSERT_FAIL_ASSERT(TEST_IMD_CheckStateRequest(NULL_PTR, IMD_STATE_INITIALIZE_REQUEST));
+
+    test_imd_state.currentState = IMD_FSM_STATE_UNINITIALIZED;
+    TEST_ASSERT_EQUAL(IMD_REQUEST_OK, TEST_IMD_CheckStateRequest(&test_imd_state, IMD_STATE_INITIALIZE_REQUEST));
+
+    test_imd_state.currentState = IMD_FSM_STATE_HAS_NEVER_RUN;
+    TEST_ASSERT_EQUAL(
+        IMD_ALREADY_INITIALIZED, TEST_IMD_CheckStateRequest(&test_imd_state, IMD_STATE_INITIALIZE_REQUEST));
+
+    test_imd_state.currentState = IMD_FSM_STATE_SHUTDOWN;
+    TEST_ASSERT_EQUAL(IMD_REQUEST_OK, TEST_IMD_CheckStateRequest(&test_imd_state, IMD_STATE_SWITCH_ON_REQUEST));
+
+    test_imd_state.currentState = IMD_FSM_STATE_IMD_ENABLE;
+    TEST_ASSERT_EQUAL(IMD_REQUEST_OK, TEST_IMD_CheckStateRequest(&test_imd_state, IMD_STATE_SWITCH_ON_REQUEST));
+
+    test_imd_state.currentState = IMD_FSM_STATE_HAS_NEVER_RUN;
+    TEST_ASSERT_EQUAL(IMD_ILLEGAL_REQUEST, TEST_IMD_CheckStateRequest(&test_imd_state, IMD_STATE_SWITCH_ON_REQUEST));
+
+    test_imd_state.stateRequest = IMD_STATE_SWITCH_ON_REQUEST;
+    TEST_ASSERT_EQUAL(IMD_REQUEST_PENDING, TEST_IMD_CheckStateRequest(&test_imd_state, IMD_STATE_INITIALIZE_REQUEST));
+}
+
+void testIMD_SetStateRequest(void) {
+    TEST_ASSERT_FAIL_ASSERT(TEST_IMD_SetStateRequest(NULL_PTR, IMD_STATE_INITIALIZE_REQUEST));
+
+    test_imd_state.currentState = IMD_FSM_STATE_UNINITIALIZED;
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
+    TEST_ASSERT_EQUAL(IMD_REQUEST_OK, TEST_IMD_SetStateRequest(&test_imd_state, IMD_STATE_INITIALIZE_REQUEST));
+}
+
+void testIMD_TransferStateRequest(void) {
+    TEST_ASSERT_FAIL_ASSERT(TEST_IMD_TransferStateRequest(NULL_PTR));
+
+    test_imd_state.stateRequest = IMD_STATE_INITIALIZE_REQUEST;
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
+    TEST_ASSERT_EQUAL(IMD_STATE_INITIALIZE_REQUEST, TEST_IMD_TransferStateRequest(&test_imd_state));
+}
+
+void test_IMD_CheckMultipleCalls(void) {
+    TEST_ASSERT_FAIL_ASSERT(TEST_IMD_CheckMultipleCalls(NULL_PTR));
+
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
+    TEST_ASSERT_EQUAL(IMD_MULTIPLE_CALLS_NO, TEST_IMD_CheckMultipleCalls(&test_imd_state));
+
+    test_imd_state.triggerEntry = 10u;
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
+    TEST_ASSERT_EQUAL(IMD_MULTIPLE_CALLS_YES, TEST_IMD_CheckMultipleCalls(&test_imd_state));
+}
+
+void test_IMD_SetState(void) {
+    TEST_ASSERT_FAIL_ASSERT(TEST_IMD_SetState(NULL_PTR, IMD_FSM_STATE_DUMMY, IMD_FSM_SUBSTATE_DUMMY, 100u));
+
+    test_imd_state.currentState    = IMD_FSM_STATE_IMD_ENABLE;
+    test_imd_state.currentSubstate = IMD_FSM_SUBSTATE_RUNNING_0;
+    TEST_IMD_SetState(&test_imd_state, IMD_FSM_STATE_IMD_ENABLE, IMD_FSM_SUBSTATE_RUNNING_0, 100u);
+
+    TEST_ASSERT_EQUAL(IMD_FSM_STATE_DUMMY, test_imd_state.nextState);
+    TEST_ASSERT_EQUAL(IMD_FSM_SUBSTATE_DUMMY, test_imd_state.nextSubstate);
+    TEST_ASSERT_EQUAL(100u, test_imd_state.timer);
 }

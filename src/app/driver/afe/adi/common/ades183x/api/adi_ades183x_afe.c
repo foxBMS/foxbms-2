@@ -43,8 +43,8 @@
  * @file    adi_ades183x_afe.c
  * @author  foxBMS Team
  * @date    2020-05-08 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup DRIVERS
  * @prefix  AFE
  *
@@ -124,20 +124,6 @@ extern STD_RETURN_TYPE_e AFE_StartMeasurement(void) {
 
 extern bool AFE_IsFirstMeasurementCycleFinished(void) {
     return ADI_IsFirstMeasurementCycleFinished(&adi_stateBase);
-}
-
-extern STD_RETURN_TYPE_e AFE_RequestIoRead(uint8_t string) {
-    /* AXIVION Routine Generic-MissingParameterAssert: string: parameter accepts whole range */
-    STD_RETURN_TYPE_e retval = STD_NOT_OK;
-
-    return retval;
-}
-
-extern STD_RETURN_TYPE_e AFE_RequestIoWrite(uint8_t string) {
-    /* AXIVION Routine Generic-MissingParameterAssert: string: parameter accepts whole range */
-    STD_RETURN_TYPE_e retval = STD_NOT_OK;
-
-    return retval;
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/

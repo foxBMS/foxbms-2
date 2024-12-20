@@ -40,20 +40,10 @@
 """Script to check the list of provided files for uniqueness"""
 
 import argparse
+import sys
 from pathlib import Path
 from subprocess import PIPE, Popen
 from typing import Sequence
-
-KNOWN = [
-    "tests/axivion/addon-test/test_file_comments/interlock.c",
-    "tools/vendor/ceedling/plugins/dependencies/example/boss/src/main.c",
-    "tests/axivion/addon-test/test_file_comments/ltc_defs.h",
-    "src/os/freertos/LICENSE.md",
-    "docs/developer-manual/hardware/.dummy",
-    "docs/hardware/slaves/14-maxim-max17852-vx.x.x/.dummy",
-    "src/os/safertos/.dummy",
-    "src/os/safertos/include/.dummy",
-]
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -65,17 +55,21 @@ def main(argv: Sequence[str] | None = None) -> int:
     with Popen(["git", "ls-files"], stdout=PIPE) as p:
         out = p.communicate()[0]
     tmp = out.decode("utf-8").splitlines()
-    repo_files = []
+    repo_files: list[Path] = []
+    repo_file_names = []
     for i in tmp:
-        file_to_add = Path(i)
-        if file_to_add.as_posix() not in KNOWN:
-            repo_files.append(file_to_add.name)
+        repo_files.append(Path(i))
+        repo_file_names.append(Path(i).name)
     for i in args.files:
-        if repo_files.count(Path(i).name) > 1:
-            print(f"{Path(i)}: File name '{Path(i).name}' exists multiple times.")
-            for j in repo_files:
-                if Path(i).name == Path(j).name:
-                    print(i, j)
+        if repo_file_names.count(Path(i).name) > 1:
+            print(
+                f"{Path(i).as_posix()}: File name '{Path(i).name}' exists "
+                "multiple times.",
+                file=sys.stderr,
+            )
+            for j, name in enumerate(repo_file_names):
+                if Path(i).name == Path(name).name:
+                    print(f"  {repo_files[j].as_posix()}", file=sys.stderr)
             err += 1
     return err
 

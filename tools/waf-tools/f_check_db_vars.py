@@ -164,7 +164,7 @@ class check_db_vars(Task.Task):  # pylint: disable=invalid-name
 @TaskGen.after_method("process_source")
 def check_data_base_init(self):
     """Task creator for check_db_vars"""
-    if self.bld.variant == "unit_test":
+    if self.bld.variant == "app_host_unit_test":
         for c_source in self.files:
             self.create_task("check_db_vars", c_source)
     else:

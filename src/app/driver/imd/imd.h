@@ -43,8 +43,8 @@
  * @file    imd.h
  * @author  foxBMS Team
  * @date    2020-11-20 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup DRIVERS
  * @prefix  IMD
  *
@@ -100,6 +100,46 @@ typedef enum {
     IMD_FSM_STATE_RUNNING,        /*!< operational mode of the state machine */
     IMD_FSM_STATE_ERROR,          /*!< state for error processing  */
 } IMD_FSM_STATES_e;
+
+/** Substates of the state machine */
+typedef enum {
+    IMD_FSM_SUBSTATE_DUMMY,               /*!< dummy state - always the first substate */
+    IMD_FSM_SUBSTATE_ENTRY,               /*!< entry state - always the second substate */
+    IMD_FSM_SUBSTATE_INITIALIZATION_0,    /*!< fist initialization substate */
+    IMD_FSM_SUBSTATE_INITIALIZATION_1,    /*!< second initialization substate */
+    IMD_FSM_SUBSTATE_INITIALIZATION_EXIT, /*!< last initialization substate */
+    IMD_FSM_SUBSTATE_RUNNING_0,           /*!< fist running substate */
+    IMD_FSM_SUBSTATE_RUNNING_1,           /*!< second running substate */
+    IMD_FSM_SUBSTATE_RUNNING_2,           /*!< third running substate */
+} IMD_FSM_SUBSTATES_e;
+
+/** Symbolic names to check for multiple calls of #IMD_Trigger */
+typedef enum {
+    IMD_MULTIPLE_CALLS_NO,  /*!< no multiple calls, OK */
+    IMD_MULTIPLE_CALLS_YES, /*!< multiple calls, not OK */
+} IMD_CHECK_MULTIPLE_CALLS_e;
+
+/** some struct with some information */
+typedef struct {
+    bool isStateMachineInitialized; /*!< true if initialized, otherwise false */
+    bool switchImdDeviceOn;         /*!< true if enabling process is ongoing */
+} IMD_INFORMATION_s;
+
+/** This struct describes the state of the monitoring instance */
+typedef struct {
+    uint8_t counter;                               /*!< general purpose counter */
+    uint16_t timer;                                /*!< timer of the state */
+    uint8_t triggerEntry;                          /*!< trigger entry of the state */
+    IMD_STATE_REQUEST_e stateRequest;              /*!< current state request made to the state machine */
+    IMD_FSM_STATES_e nextState;                    /*!< next state of the FSM */
+    IMD_FSM_STATES_e currentState;                 /*!< current state of the FSM */
+    IMD_FSM_STATES_e previousState;                /*!< previous state of the FSM */
+    IMD_FSM_SUBSTATES_e nextSubstate;              /*!< next substate of the FSM */
+    IMD_FSM_SUBSTATES_e currentSubstate;           /*!< current substate of the FSM */
+    IMD_FSM_SUBSTATES_e previousSubstate;          /*!< previous substate of the FSM */
+    IMD_INFORMATION_s information;                 /*!< Some information to be stored */
+    DATA_BLOCK_INSULATION_MONITORING_s *pTableImd; /*!< Pointer to IMD database entry */
+} IMD_STATE_s;
 
 /*========== Extern Constant and Variable Declarations ======================*/
 
@@ -189,6 +229,19 @@ extern IMD_FSM_STATES_e IMD_ProcessShutdownState(void);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 #ifdef UNITY_UNIT_TEST
+IMD_RETURN_TYPE_e TEST_IMD_SetStateRequest(IMD_STATE_s *pImdState, IMD_STATE_REQUEST_e stateRequest);
+
+IMD_RETURN_TYPE_e TEST_IMD_CheckStateRequest(IMD_STATE_s *pImdState, IMD_STATE_REQUEST_e stateRequest);
+
+IMD_STATE_REQUEST_e TEST_IMD_TransferStateRequest(IMD_STATE_s *pImdState);
+
+IMD_CHECK_MULTIPLE_CALLS_e TEST_IMD_CheckMultipleCalls(IMD_STATE_s *pImdState);
+
+void TEST_IMD_SetState(
+    IMD_STATE_s *pImdState,
+    IMD_FSM_STATES_e nextState,
+    IMD_FSM_SUBSTATES_e nextSubstate,
+    uint16_t idleTime);
 #endif
 
 #endif /* FOXBMS__IMD_H_ */

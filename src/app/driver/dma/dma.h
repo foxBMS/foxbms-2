@@ -43,12 +43,13 @@
  * @file    dma.h
  * @author  foxBMS Team
  * @date    2019-12-12 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup DRIVERS
  * @prefix  DMA
  *
  * @brief   Headers for the driver for the DMA module.
+ * @details TODO
  *
  */
 
@@ -82,28 +83,6 @@ extern bool DMA_IsTransmitOngoing(void);
  * @brief   sets the SPI transmit status.
  */
 extern void DMA_SetTransmitOngoing(void);
-
-/**
- * @brief   gets the SPI transmit status.
- * @return  retval  true if transmission still ongoing, false otherwise
- */
-extern bool DMA_IsTxTransmitOngoingN775(void);
-
-/**
- * @brief   gets the SPI transmit status.
- * @return  retval  true if transmission still ongoing, false otherwise
- */
-extern bool DMA_IsRxTransmitOngoingN775(void);
-
-/**
- * @brief   sets the SPI transmit status.
- */
-extern void DMA_SetTxTransmitOngoingN775(void);
-
-/**
- * @brief   sets the SPI transmit status.
- */
-extern void DMA_SetRxTransmitOngoingN775(void);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 #ifdef UNITY_UNIT_TEST

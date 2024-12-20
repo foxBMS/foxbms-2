@@ -52,7 +52,7 @@ import json
 import shutil
 from pathlib import Path
 
-from waflib import Context, Utils, Logs
+from waflib import Utils, Logs
 from waflib.Node import Node
 from waflib.Configure import ConfigurationContext, conf
 
@@ -60,10 +60,8 @@ if Utils.is_win32:
     BAUHAUS_DIR = (
         Path(os.environ.get("ProgramFiles(x86)", "C:\\Program Files(x86)")) / "Bauhaus"
     )
-    FOX_WRAPPER_EXT = "bat"
 else:
     BAUHAUS_DIR = Path(os.environ.get("HOME", "/")) / "bauhaus-suite"
-    FOX_WRAPPER_EXT = "sh"
 
 
 def dump_json_to_node(node: Node, cfg: dict):
@@ -139,10 +137,17 @@ def get_fox_py_wrapper_executable(ctx: ConfigurationContext) -> bool:
     """check which fox.py-wrapper to use (.bat, .ps1 or .sh)"""
     ctx.start_msg("Checking for 'fox.py' wrapper:")
     if Utils.is_win32:
-        for i in ("bat", "ps1", "sh"):
-            ctx.find_program("fox", var="FOX_WRAPPER", mandatory=False, exts=f".{i}")
-            if ctx.env.FOX_WRAPPER:
-                ctx.env.FOX_WRAPPER = [str(ctx.path.find_node(ctx.env.FOX_WRAPPER[0]))]
+        for ext in ("bat", "ps1", "sh"):
+            ctx.env.FOX_WRAPPER_NODE = [str(ctx.path.find_node(f"fox.{ext}"))]
+            if ctx.env.FOX_WRAPPER_NODE:
+                try:
+                    ctx.find_program(
+                        "fox", var="FOX_WRAPPER", mandatory=True, exts=f".{ext}"
+                    )
+                except ctx.errors.ConfigurationError:
+                    # found wrapper is not executable, try the next extension
+                    continue
+
                 cmd = [ctx.env.FOX_WRAPPER[0], "-h"]
                 with Utils.subprocess.Popen(
                     cmd,
@@ -156,14 +161,16 @@ def get_fox_py_wrapper_executable(ctx: ConfigurationContext) -> bool:
         # fallback to 'find_node'
         ctx.env.append_unique("FOX_WRAPPER", str(ctx.path.find_node("fox.bat")))
     else:
-        ctx.find_program("fox.sh", var="FOX_WRAPPER")
+        try:
+            ctx.find_program("fox.sh", var="FOX_WRAPPER", mandatory=False)
+        except ctx.errors.ConfigurationError:
+            pass  # found wrapper is not executable, ignore it
         if ctx.env.FOX_WRAPPER:
-            ctx.env.FOX_WRAPPER = [str(ctx.path.find_node(ctx.env.FOX_WRAPPER[0]))]
             cmd = [ctx.env.FOX_WRAPPER[0], "-h"]
             with Utils.subprocess.Popen(cmd, cwd=ctx.path.abspath()) as p:
                 p.communicate()
             if p.returncode:  # we could **NOT** find a working fox wrapper
-                ctx.env.FOX_WRAPPER = ""
+                ctx.env.FOX_WRAPPER = []
 
         # fallback to 'find_node'
         if not ctx.env.FOX_WRAPPER:
@@ -271,7 +278,7 @@ def setup_generic(ctx: ConfigurationContext, base_cfg_dir: Node):
     c_cpp_properties["configurations"][win32_config_index]["defines"] = vscode_defines
 
     include_path = default_includes(
-        ctx, base_cfg_dir, "generic/g-project-include-path.txt"
+        ctx, base_cfg_dir, "generic/project-include-path.txt"
     )
     inc_base = "@@ROOT@@/src"
     inc_app = f"{inc_base}/app"
@@ -307,7 +314,7 @@ def setup_generic(ctx: ConfigurationContext, base_cfg_dir: Node):
     for i in c_cpp_properties["configurations"]:
         if i["name"] == "Win32":
             # use GCC as dummy compiler
-            i["compilerPath"] = Path(str(ctx.env.GCC[0])).as_posix()
+            i["compilerPath"] = Path(str(ctx.env.VS_CODE_GCC[0])).as_posix()
     dump_json_to_node(c_cpp_properties_node, c_cpp_properties)
 
     ### settings.json
@@ -317,13 +324,6 @@ def setup_generic(ctx: ConfigurationContext, base_cfg_dir: Node):
     settings = settings_node.read_json()
 
     ### settings.json: python.*
-    waf_dir = Path(Context.waf_dir).as_posix()
-    waf_tools_dir = Path(
-        os.path.join(ctx.path.abspath(), "tools", "waf-tools")
-    ).as_posix()
-
-    # now clean up the remaining configuration options in the template
-    settings["python.analysis.extraPaths"] = [waf_dir, waf_tools_dir]
     settings["pylint.args"] = [
         f"--rcfile={Path(ctx.path.abspath()).as_posix()}/pyproject.toml"
     ]
@@ -357,8 +357,8 @@ def setup_generic(ctx: ConfigurationContext, base_cfg_dir: Node):
 
 
 @conf
-def setup_src(ctx: ConfigurationContext, base_cfg_dir: Node):
-    """Setup the src VS Code configuration"""
+def setup_src_app(ctx: ConfigurationContext, base_cfg_dir: Node):
+    """Setup the src/app VS Code configuration"""
     # Setup requires:
     # - copy cspell.json verbatim
     # - copy c_cpp_properties.json and adapt paths
@@ -370,11 +370,11 @@ def setup_src(ctx: ConfigurationContext, base_cfg_dir: Node):
     # then write the configuration to the specific configuration file.
 
     ctx.start_msg("Creating target workspace")
-    vscode_dir = ctx.path.make_node("src/.vscode")
+    vscode_dir = ctx.path.make_node("src/app/.vscode")
     vscode_dir.mkdir()
 
     shutil.copy2(base_cfg_dir.find_node("cspell.json").abspath(), vscode_dir.abspath())
-    for i in base_cfg_dir.ant_glob("src/*.json"):
+    for i in base_cfg_dir.ant_glob("app/*.json"):
         shutil.copy2(i.abspath(), vscode_dir.abspath())
 
     ### c_cpp_properties.json
@@ -405,9 +405,9 @@ def setup_src(ctx: ConfigurationContext, base_cfg_dir: Node):
     )
     c_cpp_properties["configurations"][win32_config_index]["defines"] = vscode_defines
 
-    include_path = default_includes(ctx, base_cfg_dir, "src/s-project-include-path.txt")
+    include_path = default_includes(ctx, base_cfg_dir, "app/project-include-path.txt")
 
-    inc_base = "@@ROOT@@/src"
+    inc_base = "@@ROOT@@/app"
     inc_app = f"{inc_base}/app"
     inc_state = f"{inc_app}/application/algorithm/state_estimation"
     include_path.extend(
@@ -441,7 +441,7 @@ def setup_src(ctx: ConfigurationContext, base_cfg_dir: Node):
     for i in c_cpp_properties["configurations"]:
         if i["name"] == "Win32":
             # use GCC as dummy compiler
-            i["compilerPath"] = Path(str(ctx.env.GCC[0])).as_posix()
+            i["compilerPath"] = Path(str(ctx.env.VS_CODE_GCC[0])).as_posix()
     dump_json_to_node(c_cpp_properties_node, c_cpp_properties)
 
     ### settings.json
@@ -451,13 +451,6 @@ def setup_src(ctx: ConfigurationContext, base_cfg_dir: Node):
     settings = settings_node.read_json()
 
     ### settings.json: python.*
-    waf_dir = Path(Context.waf_dir).as_posix()
-    waf_tools_dir = Path(
-        os.path.join(ctx.path.abspath(), "tools", "waf-tools")
-    ).as_posix()
-
-    # now clean up the remaining configuration options in the template
-    settings["python.analysis.extraPaths"] = [waf_dir, waf_tools_dir]
     settings["pylint.args"] = [
         f"--rcfile={Path(ctx.path.abspath()).as_posix()}/pyproject.toml"
     ]
@@ -490,7 +483,110 @@ def setup_src(ctx: ConfigurationContext, base_cfg_dir: Node):
 
 
 @conf
-def setup_embedded_unit_tests(ctx: ConfigurationContext, base_cfg_dir: Node):
+def setup_src_bootloader(ctx: ConfigurationContext, base_cfg_dir: Node):
+    """Setup the src/app VS Code configuration"""
+    # Setup requires:
+    # - copy cspell.json verbatim
+    # - copy c_cpp_properties.json and adapt paths
+    # - copy settings.json and adapt paths
+    # - copy tasks.json and adapt paths
+
+    # First copy everything from the configuration directory to the actual
+    # required location, so that in later steps the setup can be adapted and
+    # then write the configuration to the specific configuration file.
+
+    ctx.start_msg("Creating target workspace")
+    vscode_dir = ctx.path.make_node("src/bootloader/.vscode")
+    vscode_dir.mkdir()
+
+    shutil.copy2(base_cfg_dir.find_node("cspell.json").abspath(), vscode_dir.abspath())
+    for i in base_cfg_dir.ant_glob("bootloader/*.json"):
+        shutil.copy2(i.abspath(), vscode_dir.abspath())
+
+    ### c_cpp_properties.json
+    c_cpp_properties_node = vscode_dir.find_node("c_cpp_properties.json")
+    if not c_cpp_properties_node:
+        ctx.fatal(f"Could not find 'c_cpp_properties.json' in {vscode_dir}")
+    c_cpp_properties = c_cpp_properties_node.read_json()
+
+    compiler_builtin_defines: list[str] = (
+        ctx.root.find_node(ctx.env.COMPILER_BUILTIN_DEFINES_FILE[0])
+        .read(encoding="utf-8")
+        .splitlines()
+    )
+
+    # ctx.env.DEFINES: we need a deepcopy of these defines otherwise it alters
+    # the defines passed to the compiler at build-time!
+    vscode_defines = (
+        get_vscode_relevant_defines(compiler_builtin_defines)
+        + ["_L2FMC"]
+        + copy.deepcopy(ctx.env.DEFINES)
+    )
+
+    win32_config_index = 0
+    inc_path_halcogen = get_hcg_includes(ctx.env.HALCOGEN)
+    c_cpp_properties["configurations"][win32_config_index]["includePath"].extend(
+        [(Path(ctx.env.CC[0]).parent.parent / "include").as_posix()] + inc_path_halcogen
+    )
+    c_cpp_properties["configurations"][win32_config_index]["browse"]["path"].extend(
+        [(Path(ctx.env.CC[0]).parent.parent / "include").as_posix()] + inc_path_halcogen
+    )
+    c_cpp_properties["configurations"][win32_config_index]["defines"] = vscode_defines
+
+    include_path = default_includes(
+        ctx, base_cfg_dir, "bootloader/project-include-path.txt"
+    )
+    c_cpp_properties["env"]["ProjectIncludePath"] = [
+        Path(i.replace("@@ROOT@@", ctx.path.abspath())).as_posix()
+        for i in sorted(include_path)
+    ]
+
+    for i in c_cpp_properties["configurations"]:
+        if i["name"] == "Win32":
+            # use GCC as dummy compiler
+            i["compilerPath"] = Path(str(ctx.env.VS_CODE_GCC[0])).as_posix()
+    dump_json_to_node(c_cpp_properties_node, c_cpp_properties)
+
+    ### settings.json
+    settings_node = vscode_dir.find_node("settings.json")
+    if not settings_node:
+        ctx.fatal(f"Could not find 'settings.json' in {vscode_dir}")
+    settings = settings_node.read_json()
+
+    ### settings.json: python.*
+    settings["pylint.args"] = [
+        f"--rcfile={Path(ctx.path.abspath()).as_posix()}/pyproject.toml"
+    ]
+
+    ### settings.json: files.*
+    settings["files.exclude"] = {
+        **settings["files.exclude"],
+        **{
+            ".vscode/**": True,
+            "hal/**": True,
+            "opt/**": True,
+        },
+    }
+
+    dump_json_to_node(settings_node, settings)
+
+    ### tasks.json
+    tasks_node = vscode_dir.find_node("tasks.json")
+    if not tasks_node:
+        ctx.fatal(f"Could not find 'tasks.json' in {vscode_dir}")
+    tasks = tasks_node.read_json()
+    for i in tasks["tasks"]:
+        i["command"] = Path(ctx.env.FOX_WRAPPER[0]).as_posix()
+        i["options"]["cwd"] = Path(ctx.path.abspath()).as_posix()
+        for p in i["problemMatcher"]:
+            p["fileLocation"] = ["autoDetect", Path(ctx.path.abspath()).as_posix()]
+    dump_json_to_node(tasks_node, tasks)
+
+    ctx.end_msg(vscode_dir)
+
+
+@conf
+def setup_embedded_unit_test_app(ctx: ConfigurationContext, base_cfg_dir: Node):
     """Setup the embedded unit test VS Code configuration"""
     # Setup requires:
     # - copy cspell.json verbatim
@@ -504,11 +600,11 @@ def setup_embedded_unit_tests(ctx: ConfigurationContext, base_cfg_dir: Node):
     # then write the configuration to the specific configuration file.
 
     ctx.start_msg("Creating embedded unit tests workspace")
-    vscode_dir = ctx.path.make_node("tests/unit/.vscode")
+    vscode_dir = ctx.path.make_node("tests/unit/app/.vscode")
     vscode_dir.mkdir()
 
     shutil.copy2(base_cfg_dir.find_node("cspell.json").abspath(), vscode_dir.abspath())
-    for i in base_cfg_dir.ant_glob("embedded-tests/*.json"):
+    for i in base_cfg_dir.ant_glob("embedded-test-app/*.json"):
         shutil.copy2(i.abspath(), vscode_dir.abspath())
 
     ### c_cpp_properties.json
@@ -517,15 +613,17 @@ def setup_embedded_unit_tests(ctx: ConfigurationContext, base_cfg_dir: Node):
         ctx.fatal(f"Could not find 'c_cpp_properties.json' in {vscode_dir}")
     c_cpp_properties = c_cpp_properties_node.read_json()
 
-    # all directories in <root>/src
-    include_dirs = ctx.path.ant_glob("src/**", src=False, dir=True, excl=["**/.vscode"])
+    # all directories in <root>/src/app
+    include_dirs = ctx.path.ant_glob(
+        "src/app/**", src=False, dir=True, excl=["**/.vscode"]
+    )
     c_cpp_properties["env"]["ProjectIncludePath"] = [
         Path(i.abspath()).as_posix() for i in include_dirs
     ]
 
     # add some testing specific paths
     for i in default_includes(
-        ctx, base_cfg_dir, "embedded-tests/e-project-include-path.txt"
+        ctx, base_cfg_dir, "embedded-test-app/project-include-path.txt"
     ):
         c_cpp_properties["env"]["ProjectIncludePath"].append(
             Path(i.replace("@@ROOT@@", ctx.path.abspath())).as_posix()
@@ -535,7 +633,7 @@ def setup_embedded_unit_tests(ctx: ConfigurationContext, base_cfg_dir: Node):
     )
     for i in c_cpp_properties["configurations"]:
         if i["name"] == "Win32":
-            i["compilerPath"] = Path(str(ctx.env.GCC[0])).as_posix()
+            i["compilerPath"] = Path(str(ctx.env.VS_CODE_GCC[0])).as_posix()
     dump_json_to_node(c_cpp_properties_node, c_cpp_properties)
 
     ### launch.json
@@ -543,15 +641,15 @@ def setup_embedded_unit_tests(ctx: ConfigurationContext, base_cfg_dir: Node):
     if not launch_node:
         ctx.fatal(f"Could not find 'launch.json' in {vscode_dir}")
     launch = launch_node.read_json()
-    if ctx.env.GDB:
-        for i in launch["configurations"]:
-            i["miDebuggerPath"] = Path(str(ctx.env.GDB[0])).as_posix()
-            i["cwd"] = Path(ctx.path.abspath()).as_posix()
-            i["program"] = (
-                Path(ctx.path.abspath())
-                / "build/unit_test/test/out/${fileBasenameNoExtension}/"
-                "${fileBasenameNoExtension}.out"
-            ).as_posix()
+
+    for i in launch["configurations"]:
+        i["miDebuggerPath"] = Path(str(ctx.env.VS_CODE_GDB[0])).as_posix()
+        i["cwd"] = Path(ctx.path.abspath()).as_posix()
+        i["program"] = (
+            Path(ctx.path.abspath())
+            / "build/app_host_unit_test/test/out/${fileBasenameNoExtension}/"
+            "${fileBasenameNoExtension}.out"
+        ).as_posix()
 
     dump_json_to_node(launch_node, launch)
 
@@ -562,13 +660,113 @@ def setup_embedded_unit_tests(ctx: ConfigurationContext, base_cfg_dir: Node):
     settings = settings_node.read_json()
 
     ### settings.json: python.*
-    waf_dir = Path(Context.waf_dir).as_posix()
-    waf_tools_dir = Path(
-        os.path.join(ctx.path.abspath(), "tools", "waf-tools")
-    ).as_posix()
+    settings["pylint.args"] = [
+        f"--rcfile={Path(ctx.path.abspath()).as_posix()}/pyproject.toml"
+    ]
 
-    # now clean up the remaining configuration options in the template
-    settings["python.analysis.extraPaths"] = [waf_dir, waf_tools_dir]
+    ### settings.json: files.*
+    settings["files.exclude"] = {
+        **settings["files.exclude"],
+        **{
+            "**/build/**": True,
+            "**/.lock-waf_*_build": True,
+            ".vscode/**": True,
+            "axivion/**": True,
+            "gen_hcg/**": True,
+        },
+    }
+
+    dump_json_to_node(settings_node, settings)
+
+    ### tasks.json
+    tasks_node = vscode_dir.find_node("tasks.json")
+    if not tasks_node:
+        ctx.fatal(f"Could not find 'tasks.json' in {vscode_dir}")
+    tasks = tasks_node.read_json()
+    for i in tasks["tasks"]:
+        i["command"] = Path(ctx.env.FOX_WRAPPER[0]).as_posix()
+        i["options"]["cwd"] = Path(ctx.path.abspath()).as_posix()
+
+    dump_json_to_node(tasks_node, tasks)
+
+    ctx.end_msg(vscode_dir)
+
+
+@conf
+def setup_embedded_unit_test_bootloader(ctx: ConfigurationContext, base_cfg_dir: Node):
+    """Setup the embedded unit test VS Code configuration"""
+    # Setup requires:
+    # - copy cspell.json verbatim
+    # - copy c_cpp_properties.json and adapt paths
+    # - copy launch.json and adapt paths
+    # - copy settings.json and adapt paths
+    # - copy tasks.json and adapt paths
+
+    # First copy everything from the configuration directory to the actual
+    # required location, so that in later steps the setup can be adapted and
+    # then write the configuration to the specific configuration file.
+
+    ctx.start_msg("Creating bootloader embedded unit tests workspace")
+    vscode_dir = ctx.path.make_node("tests/unit/bootloader/.vscode")
+    vscode_dir.mkdir()
+
+    shutil.copy2(base_cfg_dir.find_node("cspell.json").abspath(), vscode_dir.abspath())
+    for i in base_cfg_dir.ant_glob("embedded-test-bootloader/*.json"):
+        shutil.copy2(i.abspath(), vscode_dir.abspath())
+
+    ### c_cpp_properties.json
+    c_cpp_properties_node = vscode_dir.find_node("c_cpp_properties.json")
+    if not c_cpp_properties_node:
+        ctx.fatal(f"Could not find 'c_cpp_properties.json' in {vscode_dir}")
+    c_cpp_properties = c_cpp_properties_node.read_json()
+
+    # all directories in <root>/src/bootloader
+    include_dirs = ctx.path.ant_glob(
+        "src/bootloader/**", src=False, dir=True, excl=["**/.vscode"]
+    )
+    c_cpp_properties["env"]["ProjectIncludePath"] = [
+        Path(i.abspath()).as_posix() for i in include_dirs
+    ]
+
+    # add some testing specific paths
+    for i in default_includes(
+        ctx, base_cfg_dir, "embedded-test-bootloader/project-include-path.txt"
+    ):
+        c_cpp_properties["env"]["ProjectIncludePath"].append(
+            Path(i.replace("@@ROOT@@", ctx.path.abspath())).as_posix()
+        )
+    c_cpp_properties["env"]["ProjectIncludePath"] = sorted(
+        c_cpp_properties["env"]["ProjectIncludePath"]
+    )
+    for i in c_cpp_properties["configurations"]:
+        if i["name"] == "Win32":
+            i["compilerPath"] = Path(str(ctx.env.VS_CODE_GCC[0])).as_posix()
+    dump_json_to_node(c_cpp_properties_node, c_cpp_properties)
+
+    ### launch.json
+    launch_node = vscode_dir.find_node("launch.json")
+    if not launch_node:
+        ctx.fatal(f"Could not find 'launch.json' in {vscode_dir}")
+    launch = launch_node.read_json()
+
+    for i in launch["configurations"]:
+        i["miDebuggerPath"] = Path(str(ctx.env.VS_CODE_GDB[0])).as_posix()
+        i["cwd"] = Path(ctx.path.abspath()).as_posix()
+        i["program"] = (
+            Path(ctx.path.abspath())
+            / "build/bootloader_host_unit_test/test/out/${fileBasenameNoExtension}/"
+            "${fileBasenameNoExtension}.out"
+        ).as_posix()
+
+    dump_json_to_node(launch_node, launch)
+
+    ### settings.json
+    settings_node = vscode_dir.find_node("settings.json")
+    if not settings_node:
+        ctx.fatal(f"Could not find 'settings.json' in {vscode_dir}")
+    settings = settings_node.read_json()
+
+    ### settings.json: python.*
     settings["pylint.args"] = [
         f"--rcfile={Path(ctx.path.abspath()).as_posix()}/pyproject.toml"
     ]
@@ -616,7 +814,19 @@ def configure(ctx: ConfigurationContext):  # pylint: disable=too-many-branches
     base_cfg_dir = ctx.path.find_dir(os.path.join("tools", "ide", "vscode"))
     ctx.valid_configuration_files(base_cfg_dir)
 
-    # # configure the workspaces
+    try:
+        ctx.env.append_unique("VS_CODE_GCC", ctx.env.GCC)
+    except IndexError:
+        ctx.env.append_unique("VS_CODE_GCC", ["gcc"])
+
+    try:
+        ctx.env.append_unique("VS_CODE_GDB", ctx.env.GDB)
+    except IndexError:
+        ctx.env.append_unique("VS_CODE_GDB", ["gdb"])
+
+    # configure the workspaces
     ctx.setup_generic(base_cfg_dir)
-    ctx.setup_src(base_cfg_dir)
-    ctx.setup_embedded_unit_tests(base_cfg_dir)
+    ctx.setup_src_app(base_cfg_dir)
+    ctx.setup_src_bootloader(base_cfg_dir)
+    ctx.setup_embedded_unit_test_app(base_cfg_dir)
+    ctx.setup_embedded_unit_test_bootloader(base_cfg_dir)

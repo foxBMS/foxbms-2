@@ -43,8 +43,8 @@
  * @file    database_cfg.h
  * @author  foxBMS Team
  * @date    2015-08-18 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup ENGINE_CONFIGURATION
  * @prefix  DATA
  *
@@ -88,6 +88,8 @@ typedef enum {
     DATA_BLOCK_ID_CELL_VOLTAGE_BASE,
     DATA_BLOCK_ID_CELL_VOLTAGE_REDUNDANCY0,
     DATA_BLOCK_ID_CONTACTOR_FEEDBACK,
+    DATA_BLOCK_ID_BJB_IC,
+    DATA_BLOCK_ID_BJB_FLAG,
     DATA_BLOCK_ID_CURRENT_SENSOR,
     DATA_BLOCK_ID_DUMMY_FOR_SELF_TEST,
     DATA_BLOCK_ID_ERROR_STATE,
@@ -129,16 +131,17 @@ typedef struct {
     /* This struct needs to be at the beginning of every database entry. During
      * the initialization of a database struct, uniqueId must be set to the
      * respective database entry representation in enum DATA_BLOCK_ID_e. */
-    DATA_BLOCK_HEADER_s header;                 /*!< Data block header */
-    uint8_t state;                              /*!< for future use */
-    int32_t stringVoltage_mV[BS_NR_OF_STRINGS]; /*!< cumulated cell voltage per string */
+    DATA_BLOCK_HEADER_s header;                  /*!< Data block header */
+    uint8_t state;                               /*!< for future use */
+    int32_t stringVoltage_mV[BS_NR_OF_STRINGS];  /*!< cumulated cell voltage per string */
+    bool invalidStringVoltage[BS_NR_OF_STRINGS]; /*!< false -> valid, true -> invalid */
     int16_t cellVoltage_mV[BS_NR_OF_STRINGS][BS_NR_OF_MODULES_PER_STRING]
                           [BS_NR_OF_CELL_BLOCKS_PER_MODULE]; /*!< cell voltage */
     bool invalidCellVoltage[BS_NR_OF_STRINGS][BS_NR_OF_MODULES_PER_STRING]
                            [BS_NR_OF_CELL_BLOCKS_PER_MODULE];                 /*!< false -> valid, true -> invalid */
     uint16_t nrValidCellVoltages[BS_NR_OF_STRINGS];                           /*!< number of valid voltages */
     uint32_t moduleVoltage_mV[BS_NR_OF_STRINGS][BS_NR_OF_MODULES_PER_STRING]; /*!< cumulated cell voltage per module */
-    bool validModuleVoltage[BS_NR_OF_STRINGS][BS_NR_OF_MODULES_PER_STRING];   /*!<  */
+    bool invalidModuleVoltage[BS_NR_OF_STRINGS][BS_NR_OF_MODULES_PER_STRING]; /*!< false -> valid, true -> invalid */
 } DATA_BLOCK_CELL_VOLTAGE_s;
 
 /** data block struct of cell temperatures */
@@ -180,6 +183,22 @@ typedef struct {
     uint16_t nrSensorMaximumTemperature[BS_NR_OF_STRINGS];    /*!< number of the sensor with maximum temperature */
     uint16_t validMeasuredCellTemperatures[BS_NR_OF_STRINGS]; /*!< number of valid measured cell temperatures */
 } DATA_BLOCK_MIN_MAX_s;
+
+/** data block struct of BJB IC */
+typedef struct {
+    /* This struct needs to be at the beginning of every database entry. During
+     * the initialization of a database struct, uniqueId must be set to the
+     * respective database entry representation in enum DATA_BLOCK_ID_e. */
+    DATA_BLOCK_HEADER_s header; /*!< Data block header */
+} DATA_BLOCK_BJB_IC_s;
+
+/** data block struct of the maximum safe limits */
+typedef struct {
+    /* This struct needs to be at the beginning of every database entry. During
+     * the initialization of a database struct, uniqueId must be set to the
+     * respective database entry representation in enum DATA_BLOCK_ID_e. */
+    DATA_BLOCK_HEADER_s header; /*!< Data block header */
+} DATA_BLOCK_BJB_FLAG_s;
 
 /** data block struct of pack measurement values */
 typedef struct {
@@ -378,6 +397,7 @@ typedef struct {
     bool task100msAlgoTimingViolationError; /*!< timing violation in 100ms algorithm task */
     bool alertFlagSetError;                 /*!< true: ALERT situation detected, false: everything okay */
     bool aerosolAlert;                      /*!< true: high aerosol concentration detected */
+    bool supplyVoltageClamp30cError;        /*!< false -> Supply voltage clamp 30C detected, true: no voltage on 30C */
 } DATA_BLOCK_ERROR_STATE_s;
 
 /** data block struct of contactor feedback */

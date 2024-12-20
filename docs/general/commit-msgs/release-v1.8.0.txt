@@ -1,0 +1,45 @@
+Minor release of foxBMS 2 (v1.8.0)
+
+* This version of foxBMS bundles with new hardware releases, most importantly
+  a new BMS-Master. The BMS-Master version is bumped to ``v1.2.2``.
+  For details on the BMS-Master see the changelog and the documentation.
+* The BMS-Master now comes with a streamlined supply concept, which only
+  requires a single SBC and therefby making the hard- and software simpler.
+  Detail on the SBC configuration, which must be flashed on the SBC prior to
+  PCB assembly, are also found in the documentation.
+  Now the CAN1 Enable and Standby signals have been wired directly to the MCU,
+  instead of using I2C based port expander.
+  To achieve software compatibility with older BMS-Master releases see
+  the documentation.
+Further, new releases for all |bms-slaves| have been added.
+* Updated the Python environment (``2025-01-pale-fox``).
+  See the documentation on how to install the update locally.
+* This commit introduces changes that are required for the bootloader.
+  **The actual bootloader is not included in this commit.**
+* Changed the behavior of the ``BMS`` state machine.
+  After startup, the reception of ``STANDBY`` request (CAN message
+  ``f_BmsStateRequest``) is now necessary to enter BMS ``STANDBY``.
+* Improved the consistency of the CAN driver implementation.
+* Invalid flags in the CAN messages ``f_CellVoltages`` and
+  ``f_CellTemperatures`` were transmitted inverted.
+* Balancing information is now transmitted via CAN.
+* The CAN1 enable and standby pins where moved from port expander 2 to discrete
+  GPIOs.
+* A dedicated CAN message for the transmission of fatal errors was added.
+  Diagnosis  entries with a severity of ``DIAG_FATAL_ERROR`` lead to an opening
+  of the contactors. This CAN message will be transmitted with a period of
+  100ms as soon as an active fatal error has been detected, until the error is
+  cleared again.
+* The build commands have been streamlined.
+  Consult the documentation for details.
+* Upgraded FreeRTOS to V10.4.6.
+* Improved unit test coverage.
+* Improved various sections of the documentation.
+* Fixed various bugs in ADES1830 AFE driver:
+  * Invalid flags for cell temperatures were not set correctly.
+  * Invalid flags for GPIO measurement values were not set correctly.
+  * Diagnosis entry for ``DIAG_ID_AFE_COMMUNICATION_INTEGRITY`` was not called.
+  * String and module voltage was previously not measured/calculated.
+
+For a detailed list of changes, please refer to the documentation at
+https://iisb-foxbms.iisb.fraunhofer.de/foxbms/gen2/docs/html/v1.8.0/general/changelog.html.

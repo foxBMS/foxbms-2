@@ -121,8 +121,8 @@ This driver uses the following diagnostic messages of the ``diag``-module:
 - ``DIAG_ID_AFE_CONFIG``: This signal is issued when the self check of the
   driver that is executed before the initialization fails.
   If this happens, it is very likely due to an implementation error.
-- ``DIAG_ID_AFE_COM_INTEGRITY``: This signal is issued when the CRC of a
-  received message is not correct.
+- ``DIAG_ID_AFE_COMMUNICATION_INTEGRITY``: This signal is issued when the CRC
+  of a received message is not correct.
 - ``DIAG_ID_AFE_SPI``: This signal is issued when the SPI API returns an
   unsuccessful transmission.
   If this happens, it is very likely due to implementation issues with the

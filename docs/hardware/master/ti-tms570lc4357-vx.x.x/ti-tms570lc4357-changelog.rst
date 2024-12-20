@@ -5,6 +5,38 @@
 
 Changelog for Master TMS570
 ===========================
+.. _CHANGELOG_FOR_MASTER_TMS570_V1_2_2:
+
+v1.2.2
+------
+
+- RTC INTA output circuitry updated to work independent of backup battery
+  presence
+- adding design variant "production" as primary configuration for board
+  production
+- adding SBC config to release file (check NOTICE)
+
+.. _CHANGELOG_FOR_MASTER_TMS570_V1_2_1:
+
+v1.2.1
+------
+
+- RTC INTA output circuitry updated for compatibility with higher supply
+  voltages
+- wiring of SBC wake signals rearranged: only ignition signal on WAKE1, RTC and
+  CAN1 on WAKE2
+
+.. _CHANGELOG_FOR_MASTER_TMS570_V1_2_0:
+
+v1.2.0
+------
+
+- design optimization by removing the second SBC (peripheral SPC), now
+  featuring only a single SBC
+- fixed wiring of Ethernet PHY in schematic and layout
+- control of CAN1 enable and !standby signals directly from MCU instead of port
+  expander to increase compatibility with upcoming CAN bootloader
+- updated schematic comment related to SBC debug pulse length
 
 .. _CHANGELOG_FOR_MASTER_TMS570_V1_1_5:
 
@@ -19,7 +51,8 @@ v1.1.5
 v1.1.4
 ------
 
-- Improved SBC wake-up pulse generation circuit by changing value of R7233 to 470kOhm
+- Improved SBC wake-up pulse generation circuit by changing value of R7233 to
+  470kOhm
 
 .. _CHANGELOG_FOR_MASTER_TMS570_V1_1_3:
 

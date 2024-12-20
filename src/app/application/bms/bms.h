@@ -43,8 +43,8 @@
  * @file    bms.h
  * @author  foxBMS Team
  * @date    2020-02-24 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup ENGINE
  * @prefix  BMS
  *
@@ -88,7 +88,7 @@ typedef enum {
     BMS_TAKE_PRECHARGE_INTO_ACCOUNT,        /*!< do take precharge into account */
 } BMS_CONSIDER_PRECHARGE_e;
 
-/** States of the SYS state machine */
+/** States of the BMS state machine */
 typedef enum {
     /* Init-Sequence */
     BMS_STATEMACH_UNINITIALIZED,
@@ -121,7 +121,7 @@ typedef enum {
     BMS_CAN_STATE_ERROR,
 } BMS_CAN_STATE_e;
 
-/** Substates of the SYS state machine */
+/** Substates of the BMS state machine */
 typedef enum {
     BMS_ENTRY,                        /*!< Substate entry state */
     BMS_CHECK_ERROR_FLAGS_INTERLOCK,  /*!< Substate check measurements after interlock closed */
@@ -155,6 +155,7 @@ typedef enum {
     BMS_OPEN_FIRST_STRING_CONTACTOR,
     BMS_OPEN_SECOND_STRING_CONTACTOR,
     BMS_CHECK_SECOND_STRING_CONTACTOR,
+    BMS_HANDLE_SUPPLY_VOLTAGE_30C_LOSS,
     BMS_OPEN_STRINGS_EXIT,
 } BMS_STATEMACH_SUB_e;
 
@@ -243,6 +244,13 @@ extern BMS_RETURN_TYPE_e BMS_SetStateRequest(BMS_STATE_REQUEST_e statereq);
  * @return  current state, taken from BMS_STATEMACH_e
  */
 extern BMS_STATEMACH_e BMS_GetState(void);
+
+/**
+ * @brief   Returns the current substate.
+ * @details This function is used in the functioning of the SYS state machine.
+ * @return  current substate, taken from BMS_STATEMACH_SUB_e
+ */
+extern BMS_STATEMACH_SUB_e BMS_GetSubstate(void);
 
 /**
  * @brief   Gets the initialization state.

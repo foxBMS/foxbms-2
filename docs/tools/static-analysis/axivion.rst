@@ -21,9 +21,7 @@ Setup
 -----
 
 - Install OpenJDK and make it available in PATH.
-- Install Python 3.8 from https://www.python.org/downloads/windows/.
-  Use the user installer and make sure to install the Python launcher.
-  Leave all other options as they are selected.
+- Install Python 3.11 from https://www.python.org/downloads/windows/.
 - Extract Axivion Bauhaus Suite from the zip-file and copy it in a versioned
   directory e.g., ``C:\Bauhaus\x.y.z`` and add ``C:\Bauhaus\x.y.z\bin`` to the
   user PATH environment variable.
@@ -39,9 +37,31 @@ the following command has to be run once inside a terminal (please make sure
 that the terminal is freshly spawned so that it inherits the previously set
 environment variables):
 
-.. code-block:: powershell
+.. tabs::
 
-   PS C:\Users\vulpes\Documents\foxbms-2> .\fox.ps1 axivion local-analysis
+   .. group-tab:: Win32/PowerShell
+
+      .. code-block:: powershell
+
+         .\fox.ps1 axivion local-analysis
+
+   .. group-tab:: Win32/cmd.exe
+
+      .. code-block:: bat
+
+         fox.bat axivion local-analysis
+
+   .. group-tab:: Win32/Git bash
+
+      .. code-block:: shell
+
+         ./fox.sh axivion local-analysis
+
+   .. group-tab:: Linux
+
+      .. code-block:: shell
+
+         ./fox.sh axivion local-analysis
 
 Local Builds And Results
 ------------------------
@@ -50,16 +70,60 @@ Local Builds And Results
   the terminal afterwards (follow the instructions printed on the terminal to
   see the results):
 
-  .. code-block:: powershell
+  .. tabs::
 
-    PS C:\Users\vulpes\Documents\foxbms-2> .\fox.ps1 axivion local-dashserver
+    .. group-tab:: Win32/PowerShell
+
+        .. code-block:: powershell
+
+          .\fox.ps1 axivion local-dashserver
+
+    .. group-tab:: Win32/cmd.exe
+
+        .. code-block:: bat
+
+          fox.bat axivion local-dashserver
+
+    .. group-tab:: Win32/Git bash
+
+        .. code-block:: shell
+
+          ./fox.sh axivion local-dashserver
+
+    .. group-tab:: Linux
+
+        .. code-block:: shell
+
+          ./fox.sh axivion local-dashserver
 
 - Run the following command to update the analysis result (the local dashboard
   will not be available during the execution of the local analysis):
 
-  .. code-block:: powershell
+  .. tabs::
 
-    PS C:\Users\vulpes\Documents\foxbms-2> .\fox.ps1 axivion local-analysis
+    .. group-tab:: Win32/PowerShell
+
+        .. code-block:: powershell
+
+          .\fox.ps1 axivion local-analysis
+
+    .. group-tab:: Win32/cmd.exe
+
+        .. code-block:: bat
+
+          fox.bat axivion local-analysis
+
+    .. group-tab:: Win32/Git bash
+
+        .. code-block:: shell
+
+          ./fox.sh axivion local-analysis
+
+    .. group-tab:: Linux
+
+        .. code-block:: shell
+
+          ./fox.sh axivion local-analysis
 
 Advanced Usage
 --------------
@@ -89,9 +153,31 @@ This can be done through the export feature of `gravis`.
 For the developer's convenience a helper script has been created.
 Call
 
-.. code-block:: powershell
+.. tabs::
 
-   PS C:\Users\vulpes\Documents\foxbms-2> .\fox.ps1 run-program gravis --script tests\axivion\scripts\gravis_export_architecture_svg.py
+   .. group-tab:: Win32/PowerShell
+
+      .. code-block:: powershell
+
+         .\fox.ps1 run-program gravis --script tests\axivion\scripts\gravis_export_architecture_svg.py
+
+   .. group-tab:: Win32/cmd.exe
+
+      .. code-block:: bat
+
+         fox.bat run-program gravis --script tests\axivion\scripts\gravis_export_architecture_svg.py
+
+   .. group-tab:: Win32/Git bash
+
+      .. code-block:: shell
+
+         ./fox.sh run-program gravis --script tests/axivion/scripts/gravis_export_architecture_svg.py
+
+   .. group-tab:: Linux
+
+      .. code-block:: shell
+
+         ./fox.sh run-program gravis --script tests/axivion/scripts/gravis_export_architecture_svg.py
 
 from a shell in the root of the project and the image will be
 automatically updated.

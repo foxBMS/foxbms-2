@@ -6,7 +6,7 @@ index c4d837c4..2d1580fa 100644
          os.path.join("..", "..", "main", "include"),
          os.path.join("..", "..", "task", "config"),
          os.path.join("..", "..", "task", "os"),
-+        os.path.join("..", "..", "..", "hal", "include"),
++        os.path.join("..", "..", "hal", "include"),
      ]
      includes.extend(bld.env.INCLUDES_RTOS)
      cflags = bld.env.CFLAGS_FOXBMS
@@ -18,7 +18,7 @@ index a9462e21..1fdb5850 100644
          os.path.join("..", "main", "include"),
          os.path.join("..", "task", "config"),
          os.path.join("..", "task", "os"),
-+        os.path.join("..", "..", "hal", "include"),
++        os.path.join("..", "hal", "include"),
      ]
      includes.extend(bld.env.INCLUDES_RTOS + bld.env.INCLUDES_AFE)
      cflags = bld.env.CFLAGS_FOXBMS
@@ -30,7 +30,7 @@ index d7ca3af9..0cc6c777 100644
          os.path.join("..", "..", "..", "..", "engine", "diag"),
          os.path.join("..", "..", "..", "..", "main", "include"),
          os.path.join("..", "..", "..", "..", "task", "os"),
-+        os.path.join("..", "..", "..", "..", "..", "hal", "include"),
++        os.path.join("..", "..", "..", "..", "hal", "include"),
      ]
      includes.extend(bld.env.INCLUDES_RTOS)
      cflags = bld.env.CFLAGS_FOXBMS
@@ -42,7 +42,7 @@ index c6b42f89..26369502 100644
          os.path.join("..", "main", "include"),
          os.path.join("..", "task", "config"),
          os.path.join("..", "task", "os"),
-+        os.path.join("..", "..", "hal", "include"),
++        os.path.join("..", "hal", "include"),
      ]
      includes.extend(bld.env.INCLUDES_RTOS + bld.env.INCLUDES_AFE)
      cflags = bld.env.CFLAGS_FOXBMS
@@ -54,7 +54,7 @@ index 03873567..118c66b6 100644
          os.path.join("..", "main", "include"),
          os.path.join("..", "task", "os"),
          os.path.join("..", "task", "config"),
-+        os.path.join("..", "..", "hal", "include"),
++        os.path.join("..", "hal", "include"),
      ]
      includes.extend(bld.env.INCLUDES_RTOS + bld.env.INCLUDES_AFE)
      target = f"{bld.env.APPNAME.lower()}-engine"
@@ -66,7 +66,7 @@ index 1945b079..a47c3e20 100644
          os.path.join("..", "engine", "hw_info"),
          os.path.join("..", "task", "os"),
          os.path.join("..", "task", "config"),
-+        os.path.join("..", "..", "hal", "include"),
++        os.path.join("..", "hal", "include"),
      ]
      includes.extend(bld.env.INCLUDES_RTOS + bld.env.INCLUDES_AFE)
      cflags = bld.env.CFLAGS_FOXBMS
@@ -78,7 +78,7 @@ index d2479891..1b584c01 100644
          os.path.join("..", "engine", "sys_mon"),
          os.path.join("..", "engine", "sys"),
          os.path.join("..", "main", "include"),
-+        os.path.join("..", "..", "hal", "include"),
++        os.path.join("..", "hal", "include"),
      ]
      includes.extend(bld.env.INCLUDES_RTOS + bld.env.INCLUDES_AFE)
      cflags = bld.env.CFLAGS_FOXBMS
@@ -90,7 +90,7 @@ index 2d91582e..c32227aa 100644
          os.path.join("..", "..", "app", "main", "include"),
          os.path.join("..", "..", "app", "task"),
          os.path.join("..", "..", "app", "task", "config"),
-+        os.path.join("..", "..", "hal", "include"),
++        os.path.join("..", "hal", "include"),
      ]
      target = f"{bld.env.APPNAME.lower()}-os"
      cflags = bld.env.CFLAGS_OS

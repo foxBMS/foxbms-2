@@ -43,15 +43,13 @@
  * @file    test_mxm_1785x_tools.c
  * @author  foxBMS Team
  * @date    2020-07-15 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  MXM
  *
  * @brief   Test for the Maxim 1785x driver tools.
- *
- * @details def
- *
+ * @details TODO
  */
 
 /*========== Includes =======================================================*/
@@ -194,7 +192,6 @@ void testMXM_ConvertHalfScale(void) {
 }
 
 void testMXM_ConvertSelfCheck(void) {
-    FAS_StoreAssertLocation_Ignore();
     TEST_ASSERT_PASS_ASSERT(TEST_ASSERT_EQUAL(STD_OK, MXM_ConvertTest()));
 }
 

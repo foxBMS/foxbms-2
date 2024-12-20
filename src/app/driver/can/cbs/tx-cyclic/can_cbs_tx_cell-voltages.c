@@ -43,8 +43,8 @@
  * @file    can_cbs_tx_cell-voltages.c
  * @author  foxBMS Team
  * @date    2021-04-20 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup DRIVERS
  * @prefix  CANTX
  *
@@ -58,11 +58,32 @@
 #include "can_cbs_tx_cyclic.h"
 #include "can_cfg_tx-cyclic-message-definitions.h"
 #include "can_helper.h"
+#include "foxmath.h"
 
 #include <math.h>
 #include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
+/** CAN message parameters for can cell voltage  */
+#define CANRX_CAN_CELL_VOLTAGE_MUX_START_BIT           (7u)
+#define CANRX_CAN_CELL_VOLTAGE_MUX_LENGTH              (8u)
+#define CANRX_CAN_CELL_VOLTAGE0_INVALID_FLAG_START_BIT (12u)
+#define CANRX_CAN_CELL_VOLTAGE1_INVALID_FLAG_START_BIT (13u)
+#define CANRX_CAN_CELL_VOLTAGE2_INVALID_FLAG_START_BIT (14u)
+#define CANRX_CAN_CELL_VOLTAGE3_INVALID_FLAG_START_BIT (15u)
+#define CANRX_CAN_CELL_VOLTAGE_INVALID_FLAG_LENGTH     (1u)
+#define CANRX_CAN_CELL_VOLTAGE0_START_BIT              (11u)
+#define CANRX_CAN_CELL_VOLTAGE1_START_BIT              (30u)
+#define CANRX_CAN_CELL_VOLTAGE2_START_BIT              (33u)
+#define CANRX_CAN_CELL_VOLTAGE3_START_BIT              (52u)
+#define CANRX_CAN_CELL_VOLTAGE_LENGTH                  (13u)
+
+#define CANRX_MINIMUM_VALUE_MUX          (0.0f)
+#define CANRX_MAXIMUM_VALUE_MUX          (255.0f)
+#define CANRX_MINIMUM_VALUE_INVALID_FLAG (0.0f)
+#define CANRX_MAXIMUM_VALUE_INVALID_FLAG (1.0f)
+#define CANRX_MINIMUM_VALUE_VOLTAGE      (0.0f)
+#define CANRX_MAXIMUM_VALUE_VOLTAGE      (8191.0f)
 
 /*========== Static Constant and Variable Definitions =======================*/
 /** the number of voltages per message-frame */
@@ -81,15 +102,69 @@
  * Parameters:
  * bit start, bit length, factor, offset, minimum value, maximum value
  */
-static const CAN_SIGNAL_TYPE_s cantx_cellVoltageMultiplexer  = {7u, 8u, 1.0f, 0.0f, 0.0f, 1.0f};
-static const CAN_SIGNAL_TYPE_s cantx_cellVoltage0InvalidFlag = {12u, 1u, 1.0f, 0.0f, 0.0f, 1.0f};
-static const CAN_SIGNAL_TYPE_s cantx_cellVoltage1InvalidFlag = {13u, 1u, 1.0f, 0.0f, 0.0f, 1.0f};
-static const CAN_SIGNAL_TYPE_s cantx_cellVoltage2InvalidFlag = {14u, 1u, 1.0f, 0.0f, 0.0f, 1.0f};
-static const CAN_SIGNAL_TYPE_s cantx_cellVoltage3InvalidFlag = {15u, 1u, 1.0f, 0.0f, 0.0f, 1.0f};
-static const CAN_SIGNAL_TYPE_s cantx_cellVoltage0_mV         = {11u, 13u, 1.0f, 0.0f, 0.0f, 8192.0f};
-static const CAN_SIGNAL_TYPE_s cantx_cellVoltage1_mV         = {30u, 13u, 1.0f, 0.0f, 0.0f, 8192.0f};
-static const CAN_SIGNAL_TYPE_s cantx_cellVoltage2_mV         = {33u, 13u, 1.0f, 0.0f, 0.0f, 8192.0f};
-static const CAN_SIGNAL_TYPE_s cantx_cellVoltage3_mV         = {52u, 13u, 1.0f, 0.0f, 0.0f, 8192.0f};
+static const CAN_SIGNAL_TYPE_s cantx_cellVoltageMultiplexer = {
+    CANRX_CAN_CELL_VOLTAGE_MUX_START_BIT,
+    CANRX_CAN_CELL_VOLTAGE_MUX_LENGTH,
+    UNIT_CONVERSION_FACTOR_1_FLOAT,
+    CAN_SIGNAL_OFFSET_0,
+    CANRX_MINIMUM_VALUE_MUX,
+    CANRX_MAXIMUM_VALUE_MUX};
+static const CAN_SIGNAL_TYPE_s cantx_cellVoltage0InvalidFlag = {
+    CANRX_CAN_CELL_VOLTAGE0_INVALID_FLAG_START_BIT,
+    CANRX_CAN_CELL_VOLTAGE_INVALID_FLAG_LENGTH,
+    UNIT_CONVERSION_FACTOR_1_FLOAT,
+    CAN_SIGNAL_OFFSET_0,
+    CANRX_MINIMUM_VALUE_INVALID_FLAG,
+    CANRX_MAXIMUM_VALUE_INVALID_FLAG};
+static const CAN_SIGNAL_TYPE_s cantx_cellVoltage1InvalidFlag = {
+    CANRX_CAN_CELL_VOLTAGE1_INVALID_FLAG_START_BIT,
+    CANRX_CAN_CELL_VOLTAGE_INVALID_FLAG_LENGTH,
+    UNIT_CONVERSION_FACTOR_1_FLOAT,
+    CAN_SIGNAL_OFFSET_0,
+    CANRX_MINIMUM_VALUE_INVALID_FLAG,
+    CANRX_MAXIMUM_VALUE_INVALID_FLAG};
+static const CAN_SIGNAL_TYPE_s cantx_cellVoltage2InvalidFlag = {
+    CANRX_CAN_CELL_VOLTAGE2_INVALID_FLAG_START_BIT,
+    CANRX_CAN_CELL_VOLTAGE_INVALID_FLAG_LENGTH,
+    UNIT_CONVERSION_FACTOR_1_FLOAT,
+    CAN_SIGNAL_OFFSET_0,
+    CANRX_MINIMUM_VALUE_INVALID_FLAG,
+    CANRX_MAXIMUM_VALUE_INVALID_FLAG};
+static const CAN_SIGNAL_TYPE_s cantx_cellVoltage3InvalidFlag = {
+    CANRX_CAN_CELL_VOLTAGE3_INVALID_FLAG_START_BIT,
+    CANRX_CAN_CELL_VOLTAGE_INVALID_FLAG_LENGTH,
+    UNIT_CONVERSION_FACTOR_1_FLOAT,
+    CAN_SIGNAL_OFFSET_0,
+    CANRX_MINIMUM_VALUE_INVALID_FLAG,
+    CANRX_MAXIMUM_VALUE_INVALID_FLAG};
+static const CAN_SIGNAL_TYPE_s cantx_cellVoltage0_mV = {
+    CANRX_CAN_CELL_VOLTAGE0_START_BIT,
+    CANRX_CAN_CELL_VOLTAGE_LENGTH,
+    UNIT_CONVERSION_FACTOR_1_FLOAT,
+    CAN_SIGNAL_OFFSET_0,
+    CANRX_MINIMUM_VALUE_VOLTAGE,
+    CANRX_MAXIMUM_VALUE_VOLTAGE};
+static const CAN_SIGNAL_TYPE_s cantx_cellVoltage1_mV = {
+    CANRX_CAN_CELL_VOLTAGE1_START_BIT,
+    CANRX_CAN_CELL_VOLTAGE_LENGTH,
+    UNIT_CONVERSION_FACTOR_1_FLOAT,
+    CAN_SIGNAL_OFFSET_0,
+    CANRX_MINIMUM_VALUE_VOLTAGE,
+    CANRX_MAXIMUM_VALUE_VOLTAGE};
+static const CAN_SIGNAL_TYPE_s cantx_cellVoltage2_mV = {
+    CANRX_CAN_CELL_VOLTAGE2_START_BIT,
+    CANRX_CAN_CELL_VOLTAGE_LENGTH,
+    UNIT_CONVERSION_FACTOR_1_FLOAT,
+    CAN_SIGNAL_OFFSET_0,
+    CANRX_MINIMUM_VALUE_VOLTAGE,
+    CANRX_MAXIMUM_VALUE_VOLTAGE};
+static const CAN_SIGNAL_TYPE_s cantx_cellVoltage3_mV = {
+    CANRX_CAN_CELL_VOLTAGE3_START_BIT,
+    CANRX_CAN_CELL_VOLTAGE_LENGTH,
+    UNIT_CONVERSION_FACTOR_1_FLOAT,
+    CAN_SIGNAL_OFFSET_0,
+    CANRX_MINIMUM_VALUE_VOLTAGE,
+    CANRX_MAXIMUM_VALUE_VOLTAGE};
 
 /*========== Extern Constant and Variable Definitions =======================*/
 
@@ -116,7 +191,6 @@ static void CANTX_VoltageSetData(
     const CAN_SHIM_s *const kpkCanShim);
 
 /*========== Static Function Implementations ================================*/
-
 static void CANTX_VoltageSetData(
     uint16_t cellId,
     uint64_t *pMessage,
@@ -125,6 +199,11 @@ static void CANTX_VoltageSetData(
     CAN_ENDIANNESS_e endianness,
     const CAN_SHIM_s *const kpkCanShim) {
     FAS_ASSERT(cellId < BS_NR_OF_CELL_BLOCKS);
+    FAS_ASSERT(pMessage != NULL_PTR);
+    /* AXIVION Routine Generic-MissingParameterAssert: cellVoltageSignal: parameter accepts whole range */
+    /* AXIVION Routine Generic-MissingParameterAssert: cellVoltageInvalidFlagSignal: parameter accepts whole range */
+    FAS_ASSERT(endianness == CAN_BIG_ENDIAN);
+    FAS_ASSERT(kpkCanShim != NULL_PTR);
     /* Get string, module and cell number */
     const uint8_t stringNumber    = DATA_GetStringNumberFromVoltageIndex(cellId);
     const uint8_t moduleNumber    = DATA_GetModuleNumberFromVoltageIndex(cellId);
@@ -133,9 +212,9 @@ static void CANTX_VoltageSetData(
     uint32_t signalDataIsValid = 0u;
     /* Valid bits data */
     if (kpkCanShim->pTableCellVoltage->invalidCellVoltage[stringNumber][moduleNumber][cellBlockNumber] == false) {
-        signalDataIsValid = 0u;
-    } else {
         signalDataIsValid = 1u;
+    } else {
+        signalDataIsValid = 0u;
     }
     /* Set valid bit data in CAN frame */
     CAN_TxSetMessageDataWithSignalData(
@@ -164,7 +243,7 @@ extern uint32_t CANTX_CellVoltages(
     FAS_ASSERT(message.id == CANTX_CELL_VOLTAGES_ID);
     FAS_ASSERT(message.idType == CANTX_CELL_VOLTAGES_ID_TYPE);
     FAS_ASSERT(message.dlc == CAN_FOXBMS_MESSAGES_DEFAULT_DLC);
-    FAS_ASSERT((message.endianness == CAN_LITTLE_ENDIAN) || (message.endianness == CAN_BIG_ENDIAN));
+    FAS_ASSERT(message.endianness == CAN_BIG_ENDIAN);
     FAS_ASSERT(pCanData != NULL_PTR);
     FAS_ASSERT(pMuxId != NULL_PTR);
     FAS_ASSERT(kpkCanShim != NULL_PTR);
@@ -190,7 +269,6 @@ extern uint32_t CANTX_CellVoltages(
     uint16_t cellId = (*pMuxId * CANTX_NUMBER_OF_MUX_VOLTAGES_PER_MESSAGE);
     CANTX_VoltageSetData(
         cellId, &messageData, cantx_cellVoltage0_mV, cantx_cellVoltage0InvalidFlag, message.endianness, kpkCanShim);
-
     cellId++; /* Increment global cell ID */
     if (cellId < BS_NR_OF_CELL_BLOCKS) {
         CANTX_VoltageSetData(

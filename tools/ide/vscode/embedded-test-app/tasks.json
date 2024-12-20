@@ -1,0 +1,41 @@
+{
+  "tasks": [
+    {
+      "label": "Project: Configure",
+      "type": "process",
+      "group": "build",
+      "command": "fox-wrapper-place-holder",
+      "args": [
+        "waf",
+        "configure",
+        "-c",
+        "yes"
+      ],
+      "problemMatcher": [],
+      "options": {
+        "cwd": "place-holder"
+      }
+    },
+    {
+      "label": "Unit Test: Build active file",
+      "type": "cppbuild",
+      "group": {
+        "kind": "build"
+      },
+      "command": "fox-wrapper-place-holder",
+      "args": [
+        "ceedling",
+        "--project",
+        "app",
+        "test:${fileBasename}"
+      ],
+      "problemMatcher": [
+        "$gcc"
+      ],
+      "options": {
+        "cwd": "place-holder"
+      }
+    }
+  ],
+  "version": "2.0.0"
+}

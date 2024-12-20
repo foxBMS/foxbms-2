@@ -43,12 +43,13 @@
  * @file    test_diag_cbs_sbc.c
  * @author  foxBMS Team
  * @date    2021-02-17 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
  * @brief   Test of the SBC diag handler implementation.
+ * @details Tests for invalid input
  *
  */
 
@@ -95,6 +96,6 @@ void tearDown(void) {
 /** test against invalid input */
 void testDIAG_SbcInvalidInput(void) {
     TEST_ASSERT_FAIL_ASSERT(DIAG_Sbc(DIAG_ID_MAX, DIAG_EVENT_OK, &diag_kpkDatabaseShim, 0u));
-    TEST_ASSERT_FAIL_ASSERT(DIAG_Sbc(DIAG_ID_SBC_FIN_STATE, 42, &diag_kpkDatabaseShim, 0u));
-    TEST_ASSERT_FAIL_ASSERT(DIAG_Sbc(DIAG_ID_SBC_FIN_STATE, DIAG_EVENT_OK, NULL_PTR, 0u));
+    TEST_ASSERT_FAIL_ASSERT(DIAG_Sbc(DIAG_ID_SBC_FIN_ERROR, 42, &diag_kpkDatabaseShim, 0u));
+    TEST_ASSERT_FAIL_ASSERT(DIAG_Sbc(DIAG_ID_SBC_FIN_ERROR, DIAG_EVENT_OK, NULL_PTR, 0u));
 }

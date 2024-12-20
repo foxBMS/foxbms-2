@@ -54,7 +54,7 @@ CONTEXT_SETTINGS = {
     "--cwd",
     type=click.Path(exists=True, file_okay=False, dir_okay=True),
     is_eager=True,
-    help="Directory where the script is run from",
+    help="Directory where the script is run from.",
 )
 @click.argument("script_args", nargs=-1, type=click.UNPROCESSED)
 @click.pass_context
@@ -63,7 +63,7 @@ def run_script(
     cwd: str,
     script_args: tuple[str],
 ) -> None:
-    """Run the provided script"""
+    """Run the provided script."""
     ret = script_impl.run_python_script(
         list(script_args), cwd=cwd, stdout=None, stderr=None
     )
@@ -75,7 +75,7 @@ def run_script(
     "--cwd",
     type=click.Path(exists=True, file_okay=False, dir_okay=True),
     is_eager=True,
-    help="Directory where the script is run from",
+    help="Directory where the script is run from.",
 )
 @click.argument("program_args", nargs=-1, type=click.UNPROCESSED)
 @click.pass_context
@@ -84,6 +84,6 @@ def run_program(
     cwd: str,
     program_args: tuple[str],
 ) -> None:
-    """Run the provided program"""
+    """Run the provided program."""
     ret = script_impl.run_program(list(program_args), cwd=cwd, stdout=None, stderr=None)
     ctx.exit(ret.returncode)

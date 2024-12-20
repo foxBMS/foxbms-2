@@ -43,8 +43,8 @@
  * @file    test_can_cbs_rx_cell-temperatures.c
  * @author  foxBMS Team
  * @date    2023-08-31 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -155,7 +155,7 @@ void testCANRX_GetCanAfeCellTemperaturesFromMessage(void) {
     uint64_t testMessage          = (uint64_t)TEST_FULL_64_BITS;
     uint64_t pCanSignal           = 0;
     uint64_t pCanSignal_full8bits = (uint64_t)TEST_FULL_8_BITS;
-    uint64_t pCanSignal_true      = (uint64_t) true;
+    uint64_t pCanSignal_true      = (uint64_t)true;
 
     CAN_RxGetSignalDataFromMessageData_Expect(
         testMessage,
@@ -256,23 +256,64 @@ void testCANRX_CellTemperatures(void) {
     TEST_ASSERT_FAIL_ASSERT(CANRX_CellTemperatures(validTestMessage, canData, NULL_PTR));
 
     /* ======= Routine tests =============================================== */
+    uint64_t messageData    = 0u;
+    uint64_t pCanSignalData = 0u;
+
     /* ======= RT1/2 =======*/
-    uint64_t messageData           = 0u;
     CAN_ENDIANNESS_e canEndianness = CAN_BIG_ENDIAN;
     CAN_RxGetMessageDataFromCanData_Expect(&messageData, canData, canEndianness);
-    for (uint8_t i = 0; i < 2 * CAN_NUM_OF_TEMPERATURES_IN_CAN_CELL_TEMPERATURES_MSG + 1; i++) {
-        CAN_RxGetSignalDataFromMessageData_Ignore();
+    CAN_RxGetSignalDataFromMessageData_Expect(
+        messageData,
+        canrx_kCanCellTemperatureMuxBitStart,
+        canrx_kCanCellTemperatureMuxLength,
+        &pCanSignalData,
+        canEndianness);
+    for (uint8_t i = 0; i < CAN_NUM_OF_TEMPERATURES_IN_CAN_CELL_TEMPERATURES_MSG; i++) {
+        CAN_RxGetSignalDataFromMessageData_Expect(
+            messageData,
+            canrx_kCanCellTemperatureInvalidFlagBitStart[i],
+            canrx_kCanCellTemperatureInvalidFlagLength,
+            &pCanSignalData,
+            canEndianness);
     }
+    for (uint8_t i = 0; i < CAN_NUM_OF_TEMPERATURES_IN_CAN_CELL_TEMPERATURES_MSG; i++) {
+        CAN_RxGetSignalDataFromMessageData_Expect(
+            messageData,
+            canrx_kCanCellTemperatureBitStart[i],
+            canrx_kCanCellTemperatureLength,
+            &pCanSignalData,
+            canEndianness);
+    }
+
     OS_SendToBackOfQueue_ExpectAndReturn(ftsk_canToAfeCellTemperaturesQueue, (void *)&messageData, 0, OS_SUCCESS);
     DIAG_Handler_ExpectAndReturn(DIAG_ID_CAN_RX_QUEUE_FULL, DIAG_EVENT_OK, DIAG_SYSTEM, 0u, DIAG_HANDLER_RETURN_OK);
     TEST_ASSERT_EQUAL_INT16(0, CANRX_CellTemperatures(validTestMessage, canData, &can_kShim));
 
     /* ======= RT2/2 =======*/
-    CAN_RxGetMessageDataFromCanData_Ignore();
-    for (uint8_t i = 0; i < 2 * CAN_NUM_OF_TEMPERATURES_IN_CAN_CELL_TEMPERATURES_MSG + 1; i++) {
-        CAN_RxGetSignalDataFromMessageData_Ignore();
+    CAN_RxGetMessageDataFromCanData_Expect(&messageData, canData, canEndianness);
+    CAN_RxGetSignalDataFromMessageData_Expect(
+        messageData,
+        canrx_kCanCellTemperatureMuxBitStart,
+        canrx_kCanCellTemperatureMuxLength,
+        &pCanSignalData,
+        canEndianness);
+    for (uint8_t i = 0; i < CAN_NUM_OF_TEMPERATURES_IN_CAN_CELL_TEMPERATURES_MSG; i++) {
+        CAN_RxGetSignalDataFromMessageData_Expect(
+            messageData,
+            canrx_kCanCellTemperatureInvalidFlagBitStart[i],
+            canrx_kCanCellTemperatureInvalidFlagLength,
+            &pCanSignalData,
+            canEndianness);
     }
-    OS_SendToBackOfQueue_IgnoreAndReturn(OS_FAIL);
+    for (uint8_t i = 0; i < CAN_NUM_OF_TEMPERATURES_IN_CAN_CELL_TEMPERATURES_MSG; i++) {
+        CAN_RxGetSignalDataFromMessageData_Expect(
+            messageData,
+            canrx_kCanCellTemperatureBitStart[i],
+            canrx_kCanCellTemperatureLength,
+            &pCanSignalData,
+            canEndianness);
+    }
+    OS_SendToBackOfQueue_ExpectAndReturn(ftsk_canToAfeCellTemperaturesQueue, (void *)&messageData, 0u, OS_FAIL);
     DIAG_Handler_ExpectAndReturn(DIAG_ID_CAN_RX_QUEUE_FULL, DIAG_EVENT_NOT_OK, DIAG_SYSTEM, 0u, DIAG_HANDLER_RETURN_OK);
     TEST_ASSERT_EQUAL_INT16(0, CANRX_CellTemperatures(validTestMessage, canData, &can_kShim));
 }

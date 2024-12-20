@@ -43,8 +43,8 @@
  * @file    adi_ades183x_diagnostic_w.c
  * @author  foxBMS Team
  * @date    2023-10-09 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup DRIVERS
  * @prefix  ADI
  *
@@ -55,6 +55,7 @@
 /*========== Includes =======================================================*/
 #include "adi_ades183x_defs.h"
 #include "adi_ades183x_diagnostic.h"
+#include "diag.h"
 #include "fassert.h"
 
 #include <stdbool.h>
@@ -82,6 +83,34 @@ extern bool ADI_EvaluateDiagnosticCellVoltages(ADI_STATE_s *adiState, uint16_t m
     bool retVal = false;
     if ((adiState->data.errorTable->crcIsOk[adiState->currentString][moduleNumber] == true) &&
         (adiState->data.errorTable->voltageRegisterContentIsNotStuck[adiState->currentString][moduleNumber] == true)) {
+        retVal = true;
+        DIAG_Handler(DIAG_ID_AFE_COMMUNICATION_INTEGRITY, DIAG_EVENT_OK, DIAG_STRING, adiState->currentString);
+    } else {
+        DIAG_Handler(DIAG_ID_AFE_COMMUNICATION_INTEGRITY, DIAG_EVENT_NOT_OK, DIAG_STRING, adiState->currentString);
+    }
+    return retVal;
+}
+
+extern bool ADI_EvaluateDiagnosticGpioVoltages(ADI_STATE_s *adiState, uint16_t moduleNumber) {
+    FAS_ASSERT(adiState != NULL_PTR);
+    FAS_ASSERT(moduleNumber < BS_NR_OF_MODULES_PER_STRING);
+    bool retVal = false;
+    if (adiState->data.errorTable->crcIsOk[adiState->currentString][moduleNumber] == true) {
+        retVal = true;
+        DIAG_Handler(DIAG_ID_AFE_COMMUNICATION_INTEGRITY, DIAG_EVENT_OK, DIAG_STRING, adiState->currentString);
+    } else {
+        DIAG_Handler(DIAG_ID_AFE_COMMUNICATION_INTEGRITY, DIAG_EVENT_NOT_OK, DIAG_STRING, adiState->currentString);
+    }
+    return retVal;
+}
+
+extern bool ADI_EvaluateDiagnosticStringAndModuleVoltages(ADI_STATE_s *adiState, uint16_t moduleNumber) {
+    FAS_ASSERT(adiState != NULL_PTR);
+    FAS_ASSERT(moduleNumber < BS_NR_OF_MODULES_PER_STRING);
+    bool retVal = false;
+    if ((adiState->data.errorTable->crcIsOk[adiState->currentString][moduleNumber] == true) &&
+        (adiState->data.errorTable->auxiliaryRegisterContentIsNotStuck[adiState->currentString][moduleNumber] ==
+         true)) {
         retVal = true;
     }
     return retVal;

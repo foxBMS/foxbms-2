@@ -43,12 +43,13 @@
  * @file    test_adi_ades1830_afe.c
  * @author  foxBMS Team
  * @date    2020-08-10 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
  * @brief   Test of some module
+ * @details TODO
  *
  */
 
@@ -136,12 +137,4 @@ void testAFE_StartMeasurement(void) {
 void testAFE_IsFirstMeasurementCycleFinished(void) {
     ADI_IsFirstMeasurementCycleFinished_ExpectAndReturn(&adi_stateBase, true);
     TEST_ASSERT_TRUE(AFE_IsFirstMeasurementCycleFinished());
-}
-
-void testAFE_RequestIoRead(void) {
-    TEST_ASSERT_EQUAL(STD_NOT_OK, AFE_RequestIoRead(testStringId));
-}
-
-void testAFE_RequestIoWrite(void) {
-    TEST_ASSERT_EQUAL(STD_NOT_OK, AFE_RequestIoWrite(testStringId));
 }

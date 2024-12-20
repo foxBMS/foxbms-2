@@ -43,8 +43,8 @@
  * @file    test_can_cbs_tx_cell-voltages.c
  * @author  foxBMS Team
  * @date    2021-04-22 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -55,18 +55,18 @@
 /*========== Includes =======================================================*/
 #include "unity.h"
 #include "Mockcan.h"
+#include "Mockcan_helper.h"
 #include "Mockdatabase.h"
+#include "Mockdatabase_cfg.h"
+#include "Mockdatabase_helper.h"
 #include "Mockdiag.h"
 #include "Mockfoxmath.h"
 #include "Mockimd.h"
 #include "Mockos.h"
 
-#include "database_cfg.h"
-
 #include "can_cbs_tx_cyclic.h"
 #include "can_cfg_tx-cyclic-message-definitions.h"
-#include "can_helper.h"
-#include "database_helper.h"
+#include "test_assert_helper.h"
 
 /*========== Unit Testing Framework Directives ==============================*/
 TEST_SOURCE_FILE("can_cbs_tx_cell-voltages.c")
@@ -78,11 +78,29 @@ TEST_INCLUDE_PATH("../../src/app/driver/config")
 TEST_INCLUDE_PATH("../../src/app/driver/foxmath")
 TEST_INCLUDE_PATH("../../src/app/driver/fram")
 TEST_INCLUDE_PATH("../../src/app/driver/imd")
+TEST_INCLUDE_PATH("../../src/app/engine/database")
 TEST_INCLUDE_PATH("../../src/app/engine/diag")
 TEST_INCLUDE_PATH("../../src/app/engine/sys_mon")
 TEST_INCLUDE_PATH("../../src/app/task/config")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
+uint64_t testMessageData[10u] = {0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u};
+
+float_t testSignalData[4u] = {0.0f, 1.0f, 2.0f, 3.0f};
+
+float_t testCellVoltage0             = 4200.0f;
+float_t testCellVoltage1             = 3500.0f;
+float_t testCellVoltage17            = 1000.0f;
+float_t testCellVoltage0InvalidFlag  = 0.0f;
+float_t testCellVoltage1InvalidFlag  = 1.0f;
+float_t testCellVoltage17InvalidFlag = 0.0f;
+
+static const CAN_SIGNAL_TYPE_s cantx_testCellVoltage0InvalidFlag = {12u, 1u, 1.0f, 0.0f, 0.0f, 1.0f};
+static const CAN_SIGNAL_TYPE_s cantx_testCellVoltage1InvalidFlag = {13u, 1u, 1.0f, 0.0f, 0.0f, 1.0f};
+static const CAN_SIGNAL_TYPE_s cantx_testCellVoltage0_mV         = {11u, 13u, 1.0f, 0.0f, 0.0f, 8191.0f};
+static const CAN_SIGNAL_TYPE_s cantx_testCellVoltage1_mV         = {30u, 13u, 1.0f, 0.0f, 0.0f, 8191.0f};
+static const CAN_SIGNAL_TYPE_s cantx_testCellVoltage2_mV         = {33u, 13u, 1.0f, 0.0f, 0.0f, 8191.0f};
+static const CAN_SIGNAL_TYPE_s cantx_testCellVoltage3_mV         = {52u, 13u, 1.0f, 0.0f, 0.0f, 8191.0f};
 
 static DATA_BLOCK_CELL_VOLTAGE_s can_tableCellVoltages        = {.header.uniqueId = DATA_BLOCK_ID_CELL_VOLTAGE};
 static DATA_BLOCK_CELL_TEMPERATURE_s can_tableTemperatures    = {.header.uniqueId = DATA_BLOCK_ID_CELL_TEMPERATURE};
@@ -124,48 +142,212 @@ const CAN_SHIM_s can_kShim = {
     .pTableAerosolSensor   = &can_tableAerosolSensor,
 };
 
-static uint8_t muxId = 0u;
-
 /*========== Setup and Teardown =============================================*/
 void setUp(void) {
+    can_tableCellVoltages.cellVoltage_mV[0u][0u][0u]  = (int16_t)testCellVoltage0;
+    can_tableCellVoltages.cellVoltage_mV[0u][0u][1u]  = (int16_t)testCellVoltage1;
+    can_tableCellVoltages.cellVoltage_mV[0u][0u][17u] = (int16_t)testCellVoltage17;
+
+    can_tableCellVoltages.invalidCellVoltage[0u][0u][0u]  = (bool)testCellVoltage0InvalidFlag;
+    can_tableCellVoltages.invalidCellVoltage[0u][0u][1u]  = (bool)testCellVoltage1InvalidFlag;
+    can_tableCellVoltages.invalidCellVoltage[0u][0u][17u] = (bool)testCellVoltage17InvalidFlag;
 }
 
 void tearDown(void) {
 }
 
 /*========== Test Cases =====================================================*/
-void testCAN_TxVoltage(void) {
+/**
+ * @brief   Testing CANTX_VoltageSetData
+ * @details The following cases need to be tested:
+ *          - Argument validation:
+ *            - AT1/4: BS_NR_OF_CELL_BLOCKS for cellId -> assert
+ *            - AT2/4: NULL_PTR for pMessage -> assert
+ *            - AT3/4: CAN_LITTLE_ENDIAN for endianness -> assert
+ *            - AT4/4: NULL_PTR for kpkCanShim -> assert
+ *          - Routine validation:
+ *            - RT1/2: Signal data is valid
+ *            - RT2/2: Signal data is invalid
+ */
+void testCANTX_VoltageSetData(void) {
+    /* ======= Assertion tests ============================================= */
+    uint16_t cellId = 0u;
+    /* ======= AT1/4 ======= */
+    TEST_ASSERT_FAIL_ASSERT(TEST_CANTX_VoltageSetData(
+        BS_NR_OF_CELL_BLOCKS,
+        &testMessageData[0u],
+        cantx_testCellVoltage0_mV,
+        cantx_testCellVoltage0InvalidFlag,
+        CAN_BIG_ENDIAN,
+        &can_kShim));
+    /* ======= AT2/4 ======= */
+    TEST_ASSERT_FAIL_ASSERT(TEST_CANTX_VoltageSetData(
+        cellId, NULL_PTR, cantx_testCellVoltage0_mV, cantx_testCellVoltage0InvalidFlag, CAN_BIG_ENDIAN, &can_kShim));
+    /* ======= AT3/4 ======= */
+    TEST_ASSERT_FAIL_ASSERT(TEST_CANTX_VoltageSetData(
+        cellId,
+        &testMessageData[0u],
+        cantx_testCellVoltage0_mV,
+        cantx_testCellVoltage0InvalidFlag,
+        CAN_LITTLE_ENDIAN,
+        &can_kShim));
+    /* ======= AT4/4 ======= */
+    TEST_ASSERT_FAIL_ASSERT(TEST_CANTX_VoltageSetData(
+        cellId,
+        &testMessageData[0u],
+        cantx_testCellVoltage0_mV,
+        cantx_testCellVoltage0InvalidFlag,
+        CAN_BIG_ENDIAN,
+        NULL_PTR));
+
+    /* ======= Routine tests =============================================== */
+    uint64_t messageData = 0u;
+    /* ======= RT1/2: Test implementation */
+    DATA_GetStringNumberFromVoltageIndex_ExpectAndReturn(cellId, 0u);
+    DATA_GetModuleNumberFromVoltageIndex_ExpectAndReturn(cellId, 0u);
+    DATA_GetCellNumberFromVoltageIndex_ExpectAndReturn(cellId, 0u);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 12u, 1u, 1u, CAN_BIG_ENDIAN);
+    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[1u]);
+    CAN_TxPrepareSignalData_Expect(&testCellVoltage0, cantx_testCellVoltage0_mV);
+    CAN_TxPrepareSignalData_ReturnThruPtr_pSignal(&testSignalData[1u]);
+    CAN_TxSetMessageDataWithSignalData_Expect(
+        &testMessageData[1u], 11u, 13u, (uint64_t)testSignalData[1u], CAN_BIG_ENDIAN);
+    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[2u]);
+    /* ======= RT1/2: Call function under test */
+    TEST_CANTX_VoltageSetData(
+        cellId, &messageData, cantx_testCellVoltage0_mV, cantx_testCellVoltage0InvalidFlag, CAN_BIG_ENDIAN, &can_kShim);
+    /* ======= RT1/2: Test output verification */
+    TEST_ASSERT_EQUAL(testMessageData[2u], messageData);
+
+    messageData = 0u;
+    /* ======= RT2/2: Test implementation */
+    DATA_GetStringNumberFromVoltageIndex_ExpectAndReturn(cellId, 0u);
+    DATA_GetModuleNumberFromVoltageIndex_ExpectAndReturn(cellId, 0u);
+    DATA_GetCellNumberFromVoltageIndex_ExpectAndReturn(cellId, 1u);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 13u, 1u, 0u, CAN_BIG_ENDIAN);
+    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[1u]);
+    CAN_TxPrepareSignalData_Expect(&testCellVoltage1, cantx_testCellVoltage1_mV);
+    CAN_TxPrepareSignalData_ReturnThruPtr_pSignal(&testSignalData[1u]);
+    CAN_TxSetMessageDataWithSignalData_Expect(
+        &testMessageData[1u], 30u, 13u, (uint64_t)testSignalData[1u], CAN_BIG_ENDIAN);
+    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[2u]);
+    /* ======= RT2/2: Call function under test */
+    TEST_CANTX_VoltageSetData(
+        cellId, &messageData, cantx_testCellVoltage1_mV, cantx_testCellVoltage1InvalidFlag, CAN_BIG_ENDIAN, &can_kShim);
+    /* ======= RT2/2: Test output verification */
+    TEST_ASSERT_EQUAL(testMessageData[2u], messageData);
+}
+
+/**
+ * @brief   Testing CANTX_VoltageSetData
+ * @details The following cases need to be tested:
+ *          - Argument validation:
+ *            - AT1/7: invalid message.id -> assert
+ *            - AT2/7: invalid message.idType -> assert
+ *            - AT3/7: invalid message.dlc -> assert
+ *            - AT4/7: invalid message.endianness -> assert
+ *            - AT5/7: NULL_PTR for pCanData -> assert
+ *            - AT6/7: NULL_PTR for pMuxId -> assert
+ *            - AT7/7: NULL_PTR for kpkCanShim -> assert
+ *          - Routine validation:
+ *            - RT1/2: Setting two voltages
+ *            - RT2/2: Setting four voltages
+ *
+ */
+void testCANTX_CellVoltages(void) {
+    /* ======= Assertion tests ============================================= */
     CAN_MESSAGE_PROPERTIES_s testMessage = {
-        .id         = CANTX_CELL_VOLTAGES_ID,
-        .idType     = CANTX_CELL_VOLTAGES_ID_TYPE,
+        .id         = 0x250,
+        .idType     = CAN_STANDARD_IDENTIFIER_11_BIT,
         .dlc        = 8u,
-        .endianness = CANTX_CELL_VOLTAGES_ENDIANNESS,
+        .endianness = CAN_BIG_ENDIAN,
     };
-    uint8_t data[8] = {0};
+    uint8_t testCanData[CAN_MAX_DLC] = {0u};
+    uint8_t testMuxId                = 0u;
+    /* ======= AT1/7 ======= */
+    testMessage.id = CAN_MAX_11BIT_ID;
+    TEST_ASSERT_FAIL_ASSERT(CANTX_CellVoltages(testMessage, testCanData, &testMuxId, &can_kShim));
+    testMessage.id = 0x250;
+    /* ======= AT2/7 ======= */
+    testMessage.idType = CAN_EXTENDED_IDENTIFIER_29_BIT;
+    TEST_ASSERT_FAIL_ASSERT(CANTX_CellVoltages(testMessage, testCanData, &testMuxId, &can_kShim));
+    testMessage.idType = CAN_STANDARD_IDENTIFIER_11_BIT;
+    /* ======= AT3/7 ======= */
+    testMessage.dlc = 9u;
+    TEST_ASSERT_FAIL_ASSERT(CANTX_CellVoltages(testMessage, testCanData, &testMuxId, &can_kShim));
+    testMessage.dlc = 8u;
+    /* ======= AT4/7 ======= */
+    testMessage.endianness = CAN_LITTLE_ENDIAN;
+    TEST_ASSERT_FAIL_ASSERT(CANTX_CellVoltages(testMessage, testCanData, &testMuxId, &can_kShim));
+    testMessage.endianness = CAN_BIG_ENDIAN;
+    /* ======= AT5/7 ======= */
+    TEST_ASSERT_FAIL_ASSERT(CANTX_CellVoltages(testMessage, NULL_PTR, &testMuxId, &can_kShim));
+    /* ======= AT6/7 ======= */
+    TEST_ASSERT_FAIL_ASSERT(CANTX_CellVoltages(testMessage, testCanData, NULL_PTR, &can_kShim));
+    /* ======= AT7/7 ======= */
+    TEST_ASSERT_FAIL_ASSERT(CANTX_CellVoltages(testMessage, testCanData, &testMuxId, NULL_PTR));
 
-    DATA_Read1DataBlock_IgnoreAndReturn(0u);
+    /* ======= Routine tests =============================================== */
+    testMuxId = 4u;
+    /* ======= RT1/2: Test implementation */
+    CAN_TxPrepareSignalData_Ignore();
+    DATA_GetStringNumberFromVoltageIndex_IgnoreAndReturn(0u);
+    DATA_GetModuleNumberFromVoltageIndex_IgnoreAndReturn(0u);
+    DATA_GetCellNumberFromVoltageIndex_IgnoreAndReturn(17u);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 7u, 8u, 4u, CAN_BIG_ENDIAN);
+    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[1u]);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[1u], 12u, 1u, 1u, CAN_BIG_ENDIAN);
+    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[2u]);
+    CAN_TxSetMessageDataWithSignalData_Expect(
+        &testMessageData[2u], 11u, 13u, (uint64_t)testCellVoltage17, CAN_BIG_ENDIAN);
+    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[3u]);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[3u], 13u, 1u, 1u, CAN_BIG_ENDIAN);
+    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[4u]);
+    CAN_TxSetMessageDataWithSignalData_Expect(
+        &testMessageData[4u], 30u, 13u, (uint64_t)testCellVoltage17, CAN_BIG_ENDIAN);
+    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[5u]);
+    CAN_TxSetCanDataWithMessageData_Expect(testMessageData[5u], testCanData, CAN_BIG_ENDIAN);
+    /* ======= RT1/2: Call function under test */
+    uint32_t testResult = CANTX_CellVoltages(testMessage, testCanData, &testMuxId, &can_kShim);
+    /* ======= RT1/2: Test output verification */
+    TEST_ASSERT_EQUAL(0u, testResult);
+    TEST_ASSERT_EQUAL(5u, testMuxId);
 
-    for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
-        can_kShim.pTableCellVoltage->cellVoltage_mV[s][0u][0u] = 2000;
-        can_kShim.pTableCellVoltage->cellVoltage_mV[s][0u][1u] = 2100;
-        can_kShim.pTableCellVoltage->cellVoltage_mV[s][0u][2u] = 3000;
-        can_kShim.pTableCellVoltage->cellVoltage_mV[s][0u][3u] = 3700;
-    }
-
-    CANTX_CellVoltages(testMessage, data, &muxId, &can_kShim);
-
-    /* MuxID: 0
-     * Cell voltage 0: 2000mV
-     * Cell voltage 1: 2100mV
-     * Cell voltage 2: 3000mV
-     * Cell voltage 3: 3700mV
-     */
-    TEST_ASSERT_EQUAL(0x00u, data[CAN_BYTE_0_POSITION]);
-    TEST_ASSERT_EQUAL(0x03u, data[CAN_BYTE_1_POSITION]);
-    TEST_ASSERT_EQUAL(0xE8u, data[CAN_BYTE_2_POSITION]);
-    TEST_ASSERT_EQUAL(0x20u, data[CAN_BYTE_3_POSITION]);
-    TEST_ASSERT_EQUAL(0xD1u, data[CAN_BYTE_4_POSITION]);
-    TEST_ASSERT_EQUAL(0x77u, data[CAN_BYTE_5_POSITION]);
-    TEST_ASSERT_EQUAL(0x0Eu, data[CAN_BYTE_6_POSITION]);
-    TEST_ASSERT_EQUAL(0x74u, data[CAN_BYTE_7_POSITION]);
+    /* ======= RT2/2: Test implementation */
+    DATA_Read1DataBlock_ExpectAndReturn(can_kShim.pTableCellVoltage, STD_OK);
+    DATA_GetStringNumberFromVoltageIndex_IgnoreAndReturn(0u);
+    DATA_GetModuleNumberFromVoltageIndex_IgnoreAndReturn(0u);
+    DATA_GetCellNumberFromVoltageIndex_IgnoreAndReturn(17u);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 7u, 8u, 0u, CAN_BIG_ENDIAN);
+    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[1u]);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[1u], 12u, 1u, 1u, CAN_BIG_ENDIAN);
+    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[2u]);
+    CAN_TxPrepareSignalData_Expect(&testCellVoltage17, cantx_testCellVoltage0_mV);
+    CAN_TxSetMessageDataWithSignalData_Expect(
+        &testMessageData[2u], 11u, 13u, (uint64_t)testCellVoltage17, CAN_BIG_ENDIAN);
+    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[3u]);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[3u], 13u, 1u, 1u, CAN_BIG_ENDIAN);
+    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[4u]);
+    CAN_TxPrepareSignalData_Expect(&testCellVoltage17, cantx_testCellVoltage1_mV);
+    CAN_TxSetMessageDataWithSignalData_Expect(
+        &testMessageData[4u], 30u, 13u, (uint64_t)testCellVoltage17, CAN_BIG_ENDIAN);
+    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[5u]);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[5u], 14u, 1u, 1u, CAN_BIG_ENDIAN);
+    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[6u]);
+    CAN_TxPrepareSignalData_Expect(&testCellVoltage17, cantx_testCellVoltage2_mV);
+    CAN_TxSetMessageDataWithSignalData_Expect(
+        &testMessageData[6u], 33u, 13u, (uint64_t)testCellVoltage17, CAN_BIG_ENDIAN);
+    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[7u]);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[7u], 15u, 1u, 1u, CAN_BIG_ENDIAN);
+    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[8u]);
+    CAN_TxPrepareSignalData_Expect(&testCellVoltage17, cantx_testCellVoltage3_mV);
+    CAN_TxSetMessageDataWithSignalData_Expect(
+        &testMessageData[8u], 52u, 13u, (uint64_t)testCellVoltage17, CAN_BIG_ENDIAN);
+    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[9u]);
+    CAN_TxSetCanDataWithMessageData_Expect(testMessageData[9u], testCanData, CAN_BIG_ENDIAN);
+    /* ======= RT2/2: Call function under test */
+    testResult = CANTX_CellVoltages(testMessage, testCanData, &testMuxId, &can_kShim);
+    /* ======= RT2/2: Test output verification */
+    TEST_ASSERT_EQUAL(0u, testResult);
+    TEST_ASSERT_EQUAL(1u, testMuxId);
 }

@@ -43,8 +43,8 @@
  * @file    test_can_mpu_prototype_queue_create_stub.h
  * @author  foxBMS Team
  * @date    2021-06-09 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *

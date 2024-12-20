@@ -1,0 +1,5 @@
+Pin,Signal,Description
+1,``VSUP-``,\-
+2,``VSUP+``,\-
+3,``OK/NOK Signal``,\-
+4,``PWM``,\-

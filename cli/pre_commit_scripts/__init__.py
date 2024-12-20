@@ -37,6 +37,4 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""Defines the tool name"""
-
-TOOL = "fox.py"
+"""Various scripts that are run through the pre-commit framework"""

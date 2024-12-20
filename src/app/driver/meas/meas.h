@@ -43,8 +43,8 @@
  * @file    meas.h
  * @author  foxBMS Team
  * @date    2020-02-24 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup DRIVERS
  * @prefix  MEAS
  *
@@ -92,20 +92,6 @@ extern bool MEAS_IsFirstMeasurementCycleFinished(void);
  * @brief   Makes the initialization request to the AFE state machine
  */
 extern STD_RETURN_TYPE_e MEAS_StartMeasurement(void);
-
-/**
- * @brief   Makes the request to the AFE state machine to write to the IO
- *          port-expander
- * @param   string      string addressed by the request
- */
-extern STD_RETURN_TYPE_e MEAS_RequestIoWrite(uint8_t string);
-
-/**
- * @brief   Makes the request to the AFE state machine to read from the IO
- *          port-expander
- * @param   string      string addressed by the request
- */
-extern STD_RETURN_TYPE_e MEAS_RequestIoRead(uint8_t string);
 
 /**
  * @brief   Makes the request to the AFE state machine to read from the

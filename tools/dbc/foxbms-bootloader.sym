@@ -1,0 +1,93 @@
+FormatVersion=6.0 // Do not edit this line!
+Title="bootloader"
+
+{ENUMS}
+Enum=VtSig_AcknowledgeFlag(0="NotReceived", 1="Received")
+Enum=VtSig_AcknowledgeMessage(1="ReceivedCmdToTransferProgram", 2="ReceivedProgramInfo", 3="ReceivedLoopNumber",
+  4="ReceivedSubSectorData", 5="Received8BytesCrc", 6="ReceivedFinal8BytesCrcSignature", 7="ReceivedVectorTable",
+  8="ReceivedCrcOfVectorTable", 9="ReceivedCmdToRunProgram", 10="ReceivedCmdToResetBootProcess")
+Enum=VtSig_StatusCode(0="ReceivedButNotProcessed", 1="ReceivedAndInProcessing", 2="ReceivedAndProcessed", 3="Error")
+Enum=VtSig_YesNoAnswer(0="No", 1="Yes")
+Enum=VtSig_RequestCode8Bits(1="CmdToTransferProgram", 2="CmdToResetBootProcess", 3="CmdToRunProgram",
+  4="CmdToGetBootloaderInfo", 5="CmdToGetDataTransferInfo", 6="CmdToGetVersionInfo")
+Enum=VtSig_CanFsmState(1="CanFsmStateNoCommunication", 2="CanFsmStateWaitForInfo", 3="CanFsmStateWaitForDataLoops",
+  4="CanFsmStateReceivedLoopNumber", 5="CanFsmStateReceived8BytesData", 6="CanFsmStateReceived8BytesCrc",
+  7="CanFsmStateFinishedFinalValidation", 8="CanFsmFinishedTransferVectorTable", 9="CanFsmStateValidatedVectorTable",
+  10="CanFsmStateError", 11="CanFsmStateResetBoot", 12="CanFsmStateRunProgram")
+Enum=VtSig_BootFsmState(1="BootFsmStateWait", 2="BootFsmStateReset", 3="BootFsmStateRun", 4="BootFsmStateLoad",
+  5="BootFsmStateError")
+Enum=VtSig_YesNoFlag(0="No", 1="Yes")
+
+{SENDRECEIVE}
+
+[f_AcknowledgeMessage]
+ID=480h // This message is to inform the can message sender that the message is received and give back the relevant information.
+Len=8
+Var=AcknowledgeFlag bit 0,1 /e:VtSig_AcknowledgeFlag // Indicate a message has been received.
+Var=AcknowledgeMessage unsigned 1,4 /e:VtSig_AcknowledgeMessage // Indicate what message has been received.
+Var=StatusCode unsigned 5,2 /e:VtSig_StatusCode // Indicate the status of the processing of the received message.
+Var=YesNoAnswer bit 7,1 /e:VtSig_YesNoAnswer // Indicate a yes/no answer to the received message.
+
+[f_BootloaderActionRequest]
+ID=400h // This message contains the request code in 8 bits to request bootloader to take some corresponding action.
+Len=8
+Var=RequestCode8Bits unsigned 0,8 /e:VtSig_RequestCode8Bits // The request code in 8 bits, which indicate different request from the message sender.
+
+[f_TransferProcessInfo]
+ID=420h // This message contains variables that provide the information of this program transfer process.
+Len=8
+Var=ProgramLength unsigned 0,32 // Length of this to be transferred program in bytes.
+Var=RequiredTransferLoops unsigned 32,32 // Number of loops to transfer this program.
+
+[f_Data8Bytes]
+ID=440h // This message contains 8 bytes of data.
+Len=8
+Var=Data unsigned 0,64 // This variable contains 8 bytes of the data that will be written into the flash.
+
+[f_Crc8Bytes]
+ID=460h // This message contains 64-bits of CRC signature.
+Len=8
+Var=Crc unsigned 0,64 // This variable contains 8 bytes of the CRC signature that will be used to verify the flashed data.
+
+[f_LoopInfo]
+ID=430h // This message contains the current loop number.
+Len=8
+Var=LoopNumber unsigned 0,32
+
+[f_BootloaderFsmStates]
+ID=495h
+Len=8
+Var=CanFsmState unsigned 0,8 /e:VtSig_CanFsmState
+Var=BootFsmState unsigned 8,8 /max:1 /e:VtSig_BootFsmState
+
+[f_DataTransferInfo]
+ID=490h
+Len=8
+Var=CurrentLoopNumber unsigned 0,32
+
+[f_BootloaderVersionInfo]
+ID=410h // Responses to the 'Debug' message (in:can_cbs_tx_debug-response.c:CANTX_DebugResponse, fv:tx)
+Len=8
+Mux=BootloaderVersionInfo 0,8 0 -m
+Var=DirtyFlag bit 38,1 -m /e:VtSig_YesNoFlag
+Var=MajorVersionNumber unsigned 8,8 -m
+Var=MinorVersionNumber unsigned 16,8 -m
+Var=PatchVersionNumber unsigned 24,8 -m
+Var=ReleaseDistance unsigned 32,5 -m
+Var=ReleaseDistanceOverflow bit 37,1 -m /e:VtSig_YesNoFlag
+Var=UnderVersionControl bit 39,1 -m /e:VtSig_YesNoFlag
+
+[f_BootloaderVersionInfo]
+Len=8
+Mux=BootInformation 0,8 0Fh -m
+Var=MagicBootData unsigned 8,56 -m /max:1
+
+[f_BootloaderVersionInfo]
+Len=8
+Mux=CommitHashHigh 0,8 5 -m
+Var=shortHash unsigned 8,56 -m
+
+[f_BootloaderVersionInfo]
+Len=8
+Mux=CommitHashLow 0,8 6 -m
+Var=shortHash unsigned 8,56 -m

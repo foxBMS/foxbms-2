@@ -40,6 +40,7 @@
 """Script to check the section markers in C files"""
 
 import argparse
+import sys
 from pathlib import Path
 from typing import Sequence
 
@@ -82,40 +83,43 @@ def run_check(filename: Path, file_type) -> int:
     txt_lines = txt.splitlines()
     markers = TYPES[file_type]
     err = 0
-    for marker in markers:
-        if not txt_lines.count(marker):
-            err += 1
-            print(f"{filename.as_posix()}: {marker} is missing.")
-        if txt_lines.count(marker) > 1:
-            err += 1
-            print(f"{filename.as_posix()}: {marker} occurs more than once.")
-    for marker in markers:
-        if f"\n\n{marker}\n" not in txt:
-            err += 1
-            print(
-                f"{filename.as_posix()}: {marker} requires a blank line "
-                "before the marker."
-            )
     idx = []
     for marker in markers:
         try:
             idx.append(txt_lines.index(marker))
         except ValueError:
             err += 1
-            print(f"{filename.as_posix()}: Could not find {marker}.")
+            print(f"{filename.as_posix()}: {marker} is missing.", file=sys.stderr)
             idx.append(-1)
+        if txt_lines.count(marker) > 1:
+            err += 1
+            print(
+                f"{filename.as_posix()}: {marker} occurs more than once.",
+                file=sys.stderr,
+            )
+        if f"\n\n{marker}\n" not in txt:
+            err += 1
+            print(
+                f"{filename.as_posix()}: {marker} requires a blank line "
+                "before the marker.",
+                file=sys.stderr,
+            )
     if idx != sorted(idx):
         err += 1
-        print(f"{filename.as_posix()}: markers are not in the correct order.")
+        print(
+            f"{filename.as_posix()}: markers are not in the correct order.",
+            file=sys.stderr,
+        )
 
     if file_type in ["src.c", "src.h"]:
+        # check the file, then this exception is obvious
         if filename == Path("src/app/application/config/battery_system_cfg.h"):
             return err
         try:
+            # laster marker is for unit tests
             unit_test_define = txt_lines.index(TYPES[file_type][-1]) + 1
         except ValueError:
             err += 1
-            print(f"{filename.as_posix()}: Could not find {marker}.")
             idx.append(-1)
             return err
         try:
@@ -123,13 +127,15 @@ def run_check(filename: Path, file_type) -> int:
                 err += 1
                 print(
                     f"{filename.as_posix()}: '#ifdef UNITY_UNIT_TEST' is "
-                    f"missing after {TYPES[file_type][-1]}."
+                    f"missing after {TYPES[file_type][-1]}.",
+                    file=sys.stderr,
                 )
         except IndexError:
             err += 1
             print(
                 f"{filename.as_posix()}: '#ifdef UNITY_UNIT_TEST' is "
-                f"missing after {TYPES[file_type][-1]}."
+                f"missing after {TYPES[file_type][-1]}.",
+                file=sys.stderr,
             )
     return err
 
@@ -142,6 +148,11 @@ def check_src(files: Sequence[Path]) -> int:
             err += run_check(i, "src.c")
         elif i.suffix == ".h":
             err += run_check(i, "src.h")
+        else:
+            print(
+                f"{i.as_posix()}: Unkown file extension '{i.suffix}'.", file=sys.stderr
+            )
+            err += 1
     return err
 
 
@@ -153,6 +164,11 @@ def check_test(files: Sequence[Path]) -> int:
             err += run_check(i, "test.c")
         elif i.suffix == ".h":
             err += run_check(i, "test.h")
+        else:
+            print(
+                f"{i.as_posix()}: Unkown file extension '{i.suffix}'.", file=sys.stderr
+            )
+            err += 1
     return err
 
 

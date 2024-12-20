@@ -43,8 +43,8 @@
  * @file    can_cfg.c
  * @author  foxBMS Team
  * @date    2019-12-04 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  CAN
  *
@@ -82,39 +82,41 @@ static DATA_BLOCK_CURRENT_SENSOR_s can_tableCurrentSensor     = {.header.uniqueI
 static DATA_BLOCK_ERROR_STATE_s can_tableErrorState           = {.header.uniqueId = DATA_BLOCK_ID_ERROR_STATE};
 static DATA_BLOCK_INSULATION_MONITORING_s can_tableInsulation = {
     .header.uniqueId = DATA_BLOCK_ID_INSULATION_MONITORING};
-static DATA_BLOCK_MIN_MAX_s can_tableMinimumMaximumValues = {.header.uniqueId = DATA_BLOCK_ID_MIN_MAX};
-static DATA_BLOCK_MOL_FLAG_s can_tableMolFlags            = {.header.uniqueId = DATA_BLOCK_ID_MOL_FLAG};
-static DATA_BLOCK_MSL_FLAG_s can_tableMslFlags            = {.header.uniqueId = DATA_BLOCK_ID_MSL_FLAG};
-static DATA_BLOCK_OPEN_WIRE_s can_tableOpenWire           = {.header.uniqueId = DATA_BLOCK_ID_OPEN_WIRE_BASE};
-static DATA_BLOCK_PACK_VALUES_s can_tablePackValues       = {.header.uniqueId = DATA_BLOCK_ID_PACK_VALUES};
-static DATA_BLOCK_RSL_FLAG_s can_tableRslFlags            = {.header.uniqueId = DATA_BLOCK_ID_RSL_FLAG};
-static DATA_BLOCK_SOC_s can_tableSoc                      = {.header.uniqueId = DATA_BLOCK_ID_SOC};
-static DATA_BLOCK_SOE_s can_tableSoe                      = {.header.uniqueId = DATA_BLOCK_ID_SOE};
-static DATA_BLOCK_SOF_s can_tableSof                      = {.header.uniqueId = DATA_BLOCK_ID_SOF};
-static DATA_BLOCK_SOH_s can_tableSoh                      = {.header.uniqueId = DATA_BLOCK_ID_SOH};
-static DATA_BLOCK_STATE_REQUEST_s can_tableStateRequest   = {.header.uniqueId = DATA_BLOCK_ID_STATE_REQUEST};
-static DATA_BLOCK_AEROSOL_SENSOR_s can_tableAerosolSensor = {.header.uniqueId = DATA_BLOCK_ID_AEROSOL_SENSOR};
+static DATA_BLOCK_MIN_MAX_s can_tableMinimumMaximumValues       = {.header.uniqueId = DATA_BLOCK_ID_MIN_MAX};
+static DATA_BLOCK_MOL_FLAG_s can_tableMolFlags                  = {.header.uniqueId = DATA_BLOCK_ID_MOL_FLAG};
+static DATA_BLOCK_MSL_FLAG_s can_tableMslFlags                  = {.header.uniqueId = DATA_BLOCK_ID_MSL_FLAG};
+static DATA_BLOCK_OPEN_WIRE_s can_tableOpenWire                 = {.header.uniqueId = DATA_BLOCK_ID_OPEN_WIRE_BASE};
+static DATA_BLOCK_PACK_VALUES_s can_tablePackValues             = {.header.uniqueId = DATA_BLOCK_ID_PACK_VALUES};
+static DATA_BLOCK_RSL_FLAG_s can_tableRslFlags                  = {.header.uniqueId = DATA_BLOCK_ID_RSL_FLAG};
+static DATA_BLOCK_SOC_s can_tableSoc                            = {.header.uniqueId = DATA_BLOCK_ID_SOC};
+static DATA_BLOCK_SOE_s can_tableSoe                            = {.header.uniqueId = DATA_BLOCK_ID_SOE};
+static DATA_BLOCK_SOF_s can_tableSof                            = {.header.uniqueId = DATA_BLOCK_ID_SOF};
+static DATA_BLOCK_SOH_s can_tableSoh                            = {.header.uniqueId = DATA_BLOCK_ID_SOH};
+static DATA_BLOCK_STATE_REQUEST_s can_tableStateRequest         = {.header.uniqueId = DATA_BLOCK_ID_STATE_REQUEST};
+static DATA_BLOCK_AEROSOL_SENSOR_s can_tableAerosolSensor       = {.header.uniqueId = DATA_BLOCK_ID_AEROSOL_SENSOR};
+static DATA_BLOCK_BALANCING_CONTROL_s can_tableBalancingControl = {.header.uniqueId = DATA_BLOCK_ID_BALANCING_CONTROL};
 /**@}*/
 
 const CAN_SHIM_s can_kShim = {
-    .pQueueImd             = &ftsk_imdCanDataQueue,
-    .pTableCellTemperature = &can_tableTemperatures,
-    .pTableCellVoltage     = &can_tableCellVoltages,
-    .pTableCurrentSensor   = &can_tableCurrentSensor,
-    .pTableErrorState      = &can_tableErrorState,
-    .pTableInsulation      = &can_tableInsulation,
-    .pTableMinMax          = &can_tableMinimumMaximumValues,
-    .pTableMol             = &can_tableMolFlags,
-    .pTableMsl             = &can_tableMslFlags,
-    .pTableOpenWire        = &can_tableOpenWire,
-    .pTablePackValues      = &can_tablePackValues,
-    .pTableRsl             = &can_tableRslFlags,
-    .pTableSoc             = &can_tableSoc,
-    .pTableSoe             = &can_tableSoe,
-    .pTableSof             = &can_tableSof,
-    .pTableSoh             = &can_tableSoh,
-    .pTableStateRequest    = &can_tableStateRequest,
-    .pTableAerosolSensor   = &can_tableAerosolSensor,
+    .pQueueImd              = &ftsk_imdCanDataQueue,
+    .pTableCellTemperature  = &can_tableTemperatures,
+    .pTableCellVoltage      = &can_tableCellVoltages,
+    .pTableCurrentSensor    = &can_tableCurrentSensor,
+    .pTableErrorState       = &can_tableErrorState,
+    .pTableInsulation       = &can_tableInsulation,
+    .pTableMinMax           = &can_tableMinimumMaximumValues,
+    .pTableMol              = &can_tableMolFlags,
+    .pTableMsl              = &can_tableMslFlags,
+    .pTableOpenWire         = &can_tableOpenWire,
+    .pTablePackValues       = &can_tablePackValues,
+    .pTableRsl              = &can_tableRslFlags,
+    .pTableSoc              = &can_tableSoc,
+    .pTableSoe              = &can_tableSoe,
+    .pTableSof              = &can_tableSof,
+    .pTableSoh              = &can_tableSoh,
+    .pTableStateRequest     = &can_tableStateRequest,
+    .pTableAerosolSensor    = &can_tableAerosolSensor,
+    .pTableBalancingControl = &can_tableBalancingControl,
 };
 
 /*========== Static Function Prototypes =====================================*/

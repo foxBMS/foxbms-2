@@ -43,12 +43,13 @@
  * @file    test_mxm_cfg.c
  * @author  foxBMS Team
  * @date    2020-06-24 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
  * @brief   Test of the mxm_cfg.c module
+ * @details TODO
  *
  */
 
@@ -95,9 +96,7 @@ void testMXM_InitializeMonitoringPins(void) {
     IO_SetPinDirectionToOutput_Expect((uint32_t *)&MXM_17841B_GIOPORT->DIR, MXM_17841B_SHTNDL_PIN);
     IO_PinReset_Expect((uint32_t *)&MXM_17841B_GIOPORT->DOUT, MXM_17841B_SHTNDL_PIN);
     SPI_SetFunctional_Expect(NULL_PTR, SPI_PIN_SIMO, true);
-    SPI_SetFunctional_IgnoreArg_pNode();
     SPI_SetFunctional_Expect(NULL_PTR, SPI_PIN_SOMI, true);
-    SPI_SetFunctional_IgnoreArg_pNode();
     MXM_InitializeMonitoringPins();
 }
 

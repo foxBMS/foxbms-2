@@ -17,8 +17,8 @@ the the IC is named *Vulpes G 2000 (VG2000)* from the IC family *VG*.
 Basic Directory Structure
 -------------------------
 
-#. Adapt ``conf/bms/schema/bms.schema.json`` to recognize the new manufacturer
-   and the IC.
+#. Adapt ``tools/waf-tools/bms_config_validator.py`` to recognize the new
+   manufacturer and the IC.
 #. Add the *SB-IC* manufacturer directory ``sb-ic``:
    ``src/app/driver/afe/sb-ic``.
 #. Add the API directory ``api`` for *SB-IC* manufacturer:

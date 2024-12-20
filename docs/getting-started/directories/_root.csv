@@ -1,9 +1,9 @@
 Directory Name  ; Long Name                   ; Content Description
 ``.``           ; Repository root             ; The repository root contains the license information, installation instructions, a link to the changelog, the main build script
-``cli``         ; Command line interface      ; Program to interact with the repository
+``cli``         ; Command line interface      ; CLI tool to interact with the repository
 ``conf``        ; Configuration               ; Contains all high level configurations
 ``docs``        ; Documentation               ; Documentation source files
 ``hardware``    ; Hardware                    ; Hardware schematics and layouts
 ``src``         ; Source                      ; Parent directory for all source files for the BMS embedded software
-``tests``       ; Tests                       ; Tests for embedded sources, the tool chain, the conda environment and scripts
+``tests``       ; Tests                       ; Tests for embedded sources, the tool chain, and scripts
 ``tools``       ; Tools                       ; Tools needed to build |foxbms| binaries and additional tools to work with |foxbms|

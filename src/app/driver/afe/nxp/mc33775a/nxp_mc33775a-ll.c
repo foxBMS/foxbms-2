@@ -24,13 +24,15 @@
  * @file    nxp_mc33775a-ll.c
  * @author  NXP
  * @date    2022-07-29 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup DRIVERS
  * @prefix  N775
  *
- * @brief   Low level driver for the MC33775A
- * @details TODO
+ * @brief   Low level driver for the NXP MC33775A
+ * @details Implements the low level interface for the NXP MC33775A IC.
+ *          These functions are consumed be the abstracted, high level driver
+ *          implemented nxp_mc33775a.c.
  */
 
 /*========== Includes =======================================================*/

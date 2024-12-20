@@ -43,8 +43,8 @@
  * @file    adi_ades1830_gpio_voltages.c
  * @author  foxBMS Team
  * @date    2019-08-27 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup DRIVERS
  * @prefix  ADI
  *
@@ -67,6 +67,7 @@
 #include "adi_ades183x_commands.h"
 #include "adi_ades183x_commands_voltages.h"
 #include "adi_ades183x_defs.h"
+#include "adi_ades183x_diagnostic.h"
 #include "adi_ades183x_helpers.h"
 #include "adi_ades183x_voltages.h"
 #include "fassert.h"
@@ -126,7 +127,6 @@ static void ADI_SaveRxToGpioVoltageBuffer(
     uint16_t bufferLSB                                = 0u;
     uint16_t bufferMSB                                = 0u;
     uint8_t numberOfVoltagesInRegister                = 0u;
-    uint8_t voltageStartNumber                        = 0u;
     DATA_BLOCK_ALL_GPIO_VOLTAGES_s *pGpioVoltageTable = NULL_PTR;
 
     switch (storeLocation) {
@@ -172,7 +172,7 @@ static void ADI_SaveRxToGpioVoltageBuffer(
 
     for (uint16_t m = 0u; m < ADI_N_ADI; m++) {
         /* parse voltages contained in one register */
-        for (uint16_t gpio = voltageStartNumber; gpio < numberOfVoltagesInRegister; gpio++) {
+        for (uint16_t gpio = 0u; gpio < numberOfVoltagesInRegister; gpio++) {
             voltageIndex = gpio + cellOffset;
             if (voltageIndex < BS_NR_OF_GPIOS_PER_MODULE) {
                 bufferMSB = (uint16_t)(pData
@@ -191,9 +191,12 @@ static void ADI_SaveRxToGpioVoltageBuffer(
                 if (rawValue != ADI_REGISTER_CLEARED_VALUE) {
                     pAdiState->data.errorTable->auxiliaryRegisterContentIsNotStuck[pAdiState->currentString][m] = true;
                     /* Check PEC for every IC in the daisy-chain */
-                    if (pAdiState->data.errorTable->crcIsOk[pAdiState->currentString][m] == true) {
+                    if (ADI_EvaluateDiagnosticGpioVoltages(pAdiState, m) == true) {
                         pGpioVoltageTable->gpioVoltages_mV[pAdiState->currentString]
                                                           [voltageIndex + (m * BS_NR_OF_GPIOS_PER_MODULE)] = voltage;
+                        pGpioVoltageTable->invalidGpioVoltages[pAdiState->currentString][m] &= (~(1u << voltageIndex));
+                    } else {
+                        pGpioVoltageTable->invalidGpioVoltages[pAdiState->currentString][m] |= (1u << voltageIndex);
                     }
                 } else {
                     pAdiState->data.errorTable->auxiliaryRegisterContentIsNotStuck[pAdiState->currentString][m] = false;

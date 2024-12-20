@@ -1,0 +1,70 @@
+Added
+=====
+
+- Added coverage reports for the unit tests of the waf-tools.
+- Added general safety information.
+- Added a rudimentary hardware change process to the hardware developer manual.
+- Added information on the criticality of used tools.
+- Added the calculation of pack values (current, power, high voltage) to the
+  redundancy module.
+- Added a manual on using debugger by Segger or Lauterbach in conjunction with
+  the platform.
+- Added a problem matcher to the ``build_docs`` task in Visual Studio Code
+  so that the IDE can parse warnings printed from Doxygen
+- Added documentation stubs for all embedded software modules
+- Added interface description for CAN communication (.dbc and .sym)
+
+Changed
+=======
+
+- SBC no longer monitors input on FCCU pins as usage of these pins is currently
+  not supported
+- The MIC modules are now able to define their own threshold values for
+  plausible cell voltage measurements. In order to implement this, the MIC
+  has to declare a struct of type ``MIC_PLAUSIBILITY_VALUES_s`` and pass it to
+  the plausibility-functions of the MIC.
+- Improves deployment speed with the internal deployment script.
+- Simplifies the macro that records the program counter in ``fassert.h`` with
+  input from static analysis.
+- Disables the static analysis finding for dead branches in the expansion of
+  the ``FAS_ASSERT`` assertion macro as the assertion should not be hit by
+  normal operating code.
+- Clarified the internal merge request template.
+- Asserts that the SPI function ``SPI_TransmitReceiveDataDma()`` does not
+  receive null pointer as parameter.
+- Improved minor code quality issues in the ``DIAG_Initialize()`` function.
+- Improved the documentation on installing dependencies.
+- Removed function ``DIAG_configAssert()`` as it is replaced by ``FAS_ASSERT``.
+- The diagnosis module has been restructured. The callbacks for each type of
+  diagnosis event are now implemented in type specific files, e.g., for the
+  current sensor in ``diag_cbs_current-sensor.c``. These files are in
+  ``src/app/engine/diag/cbs/``. Unit tests have been added.
+- Fixed typos related to battery cell and battery system.
+- Enhanced the documentation section on the build process.
+- Improved the documentation of the temperature sensor interface (TSI).
+- Some structs in the database did not conform to the naming conventions.
+- Renamed the hardware directory from ``hw`` to ``hardware``.
+- ``clang-format``, ``black`` and ``pylint`` tools have been moved into the
+  guidelines tool. Configuration is now done via ``rules.json`` as all other
+  guidelines.
+
+Deprecated
+==========
+
+Removed
+=======
+
+Fixed
+=====
+
+- Corrected the function ``LTC_I2CCheckACK()`` that did not check the
+  acknowledge signal of multiplexer over I2C communication.
+- Corrected the function ``LTC_SetMUXChCommand()`` because message content for
+  I2C communication with multiplexers was wrong.
+- Corrected several instances in the ``LTC6813-1``-driver where the
+  loop-counter variable has been declared outside of the loop.
+- Renamed function names in ``redundancy`` module to adhere to style guide
+  rules.
+- Fixed wording and replaced *isolation* by *insulation*.
+- Replaced references to LG INR18650MJ1 by generic battery cell configuration.
+- Tasks were not initialized correctly. The IDLE task never run.

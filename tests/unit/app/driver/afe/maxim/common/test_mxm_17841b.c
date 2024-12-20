@@ -43,15 +43,13 @@
  * @file    test_mxm_17841b.c
  * @author  foxBMS Team
  * @date    2020-06-22 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  MXM
  *
  * @brief   Test for the Maxim MAX17841B driver.
- *
- * @details def
- *
+ * @details TODO
  */
 
 /*========== Includes =======================================================*/
@@ -78,6 +76,8 @@ TEST_INCLUDE_PATH("../../src/app/driver/spi")
 /*========== Definitions and Implementations for Unit Test ==================*/
 /** replicating the config register length in the driver */
 #define MXM_41B_CONFIG_REGISTER_LENGTH (7u)
+
+#define MXM_41B_BRIDGE_RESET_TIME_MS (100u)
 
 static MXM_41B_INSTANCE_s mxm_41bState = {
     .state                = MXM_STATEMACH_41B_UNINITIALIZED,
@@ -531,7 +531,8 @@ void testStateUARTWaitForRXStatusChangeSuccess(void) {
     mxm_41bState.spiRxBuffer[1] |= (0x01u << 1u);
 
     /* transition */
-    MXM_ReceiveData_IgnoreAndReturn(STD_OK);
+    MXM_ReceiveData_ExpectAndReturn(
+        mxm_41bState.spiTxBuffer, mxm_41bState.spiRxBuffer, (uint16_t)(0x01u << 1u), STD_OK);
     MXM_41BStateMachine(&mxm_41bState);
 
     TEST_ASSERT_EQUAL(MXM_41B_UART_READ_BACK_RECEIVE_BUFFER_SAVE, mxm_41bState.substate);
@@ -542,8 +543,6 @@ void testStateDefault(void) {
     mxm_41bState.state    = MXM_STATEMACH_41B_MAXSTATE;
     mxm_41bState.substate = MXM_41B_ENTRY_SUBSTATE;
 
-    /* transition */
-    MXM_ReceiveData_IgnoreAndReturn(STD_OK);
     TEST_ASSERT_FAIL_ASSERT(MXM_41BStateMachine(&mxm_41bState));
 }
 
@@ -563,13 +562,11 @@ void testStateInitNormalFlow(void) {
     MXM_41BStateMachine(&mxm_41bState);
 
     /* next call the timestamp will be checked, simulate time is not up yet */
-    OS_CheckTimeHasPassed_ExpectAndReturn(shutdownTimestamp, 0u, false);
-    OS_CheckTimeHasPassed_IgnoreArg_timeToPass_ms();
+    OS_CheckTimeHasPassed_ExpectAndReturn(shutdownTimestamp, MXM_41B_BRIDGE_RESET_TIME_MS, false);
     MXM_41BStateMachine(&mxm_41bState);
 
     /* next call the timestamp will be checked again, simulate time is up */
-    OS_CheckTimeHasPassed_ExpectAndReturn(shutdownTimestamp, 0u, true);
-    OS_CheckTimeHasPassed_IgnoreArg_timeToPass_ms();
+    OS_CheckTimeHasPassed_ExpectAndReturn(shutdownTimestamp, MXM_41B_BRIDGE_RESET_TIME_MS, true);
     /* now the bridge IC should be re-enabled */
     MXM_EnableBridgeIc_Expect();
     MXM_41BStateMachine(&mxm_41bState);

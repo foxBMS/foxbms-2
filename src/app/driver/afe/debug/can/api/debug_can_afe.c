@@ -43,8 +43,8 @@
  * @file    debug_can_afe.c
  * @author  foxBMS Team
  * @date    2020-09-17 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup DRIVERS
  * @prefix  DECAN
  *
@@ -84,18 +84,6 @@ extern STD_RETURN_TYPE_e AFE_StartMeasurement(void) {
 
 extern bool AFE_IsFirstMeasurementCycleFinished(void) {
     return true;
-}
-
-extern STD_RETURN_TYPE_e AFE_RequestIoWrite(uint8_t string) {
-    /* this is a dummy implementation and not using the argument here is fine */
-    (void)string;
-    return STD_OK;
-}
-
-extern STD_RETURN_TYPE_e AFE_RequestIoRead(uint8_t string) {
-    /* this is a dummy implementation and not using the argument here is fine */
-    (void)string;
-    return STD_OK;
 }
 
 extern STD_RETURN_TYPE_e AFE_RequestTemperatureRead(uint8_t string) {

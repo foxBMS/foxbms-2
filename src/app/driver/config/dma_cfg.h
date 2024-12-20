@@ -43,8 +43,8 @@
  * @file    dma_cfg.h
  * @author  foxBMS Team
  * @date    2020-03-05 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  DMA
  *
@@ -61,8 +61,6 @@
 
 #include "HL_spi.h"
 #include "HL_sys_dma.h"
-
-#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 

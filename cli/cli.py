@@ -37,7 +37,7 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""Implements the command line interface to the Battery System Designer tool."""
+"""Implements the command line interface to the 'cli' tool.'"""
 
 import sys
 import warnings
@@ -58,15 +58,18 @@ except ImportError:
     sys.exit(1)
 
 from .commands.c_axivion import axivion
+from .commands.c_bootloader import bootloader
 from .commands.c_build import waf
 from .commands.c_ci import ci
 from .commands.c_cli_unittest import cli_unittest
 from .commands.c_embedded_ut import ceedling
+from .commands.c_etl import etl
 from .commands.c_ide import ide
 from .commands.c_install import install
 from .commands.c_misc import misc
 from .commands.c_pre_commit import pre_commit
 from .commands.c_program import run_program, run_script
+from .commands.c_release import release
 from .foxbms_version import __version__
 
 warnings.simplefilter(action="ignore", category=FutureWarning)
@@ -110,13 +113,16 @@ def main(
 
 
 main.add_command(axivion)
+main.add_command(bootloader)
+main.add_command(ceedling)
 main.add_command(ci)
 main.add_command(cli_unittest)
-main.add_command(waf)
-main.add_command(ceedling)
+main.add_command(etl)
 main.add_command(ide)
 main.add_command(install)
 main.add_command(misc)
 main.add_command(pre_commit)
-main.add_command(run_script)
+main.add_command(release)
 main.add_command(run_program)
+main.add_command(run_script)
+main.add_command(waf)

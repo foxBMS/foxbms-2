@@ -43,13 +43,12 @@
  * @file    crc.c
  * @author  foxBMS Team
  * @date    2022-02-22 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup DRIVERS
  * @prefix  CRC
  *
- * @brief   crc module implementation
- *
+ * @brief   CRC module implementation
  * @details Uses the system CRC hardware for data integrity calculation
  */
 
@@ -66,6 +65,7 @@
 /*========== Static Constant and Variable Definitions =======================*/
 
 /*========== Extern Constant and Variable Definitions =======================*/
+extern uint16_t crcCalls;
 
 /*========== Static Function Prototypes =====================================*/
 
@@ -76,7 +76,11 @@
 extern STD_RETURN_TYPE_e CRC_CalculateCrc(uint64_t *pCrc, uint8_t *pData, uint32_t lengthInBytes) {
     FAS_ASSERT(pCrc != NULL_PTR);
     FAS_ASSERT(pData != NULL_PTR);
-    static uint16_t crcCalls         = 0u;
+
+#ifndef UNITY_UNIT_TEST
+    static uint16_t crcCalls = 0u;
+#endif
+
     CRC_REGISTER_SIDE_e registerSide = CRC_REGISTER_LOW;
     uint32_t dataBufferLow           = 0u;
     uint32_t dataBufferHigh          = 0u;
@@ -85,7 +89,6 @@ extern STD_RETURN_TYPE_e CRC_CalculateCrc(uint64_t *pCrc, uint8_t *pData, uint32
     STD_RETURN_TYPE_e retVal         = STD_OK;
 
     uint8_t *pRead = pData;
-
     if (crcCalls == 0u) {
         crcCalls++;
 
@@ -168,4 +171,5 @@ extern STD_RETURN_TYPE_e CRC_CalculateCrc(uint64_t *pCrc, uint8_t *pData, uint32
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
 #ifdef UNITY_UNIT_TEST
+
 #endif

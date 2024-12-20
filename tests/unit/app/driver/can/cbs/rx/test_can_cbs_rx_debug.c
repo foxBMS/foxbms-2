@@ -43,12 +43,13 @@
  * @file    test_can_cbs_rx_debug.c
  * @author  foxBMS Team
  * @date    2021-04-22 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
  * @brief   Tests for the CAN driver callbacks
+ * @details Tests for the rx-debug CAN driver and helper functions
  *
  */
 

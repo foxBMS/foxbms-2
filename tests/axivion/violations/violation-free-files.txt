@@ -48,6 +48,7 @@
 #src/app/application/redundancy/redundancy.h
 #src/app/application/soa/soa.c
 #src/app/application/soa/soa.h
+#src/app/doxygen_app.h
 #src/app/driver/adc/adc.c
 #src/app/driver/adc/adc.h
 #src/app/driver/afe/adi/ades1830/adi_ades1830_balancing.c
@@ -135,7 +136,6 @@
 #src/app/driver/afe/nxp/mc33775a/config/nxp_mc33775a_cfg.c
 #src/app/driver/afe/nxp/mc33775a/config/nxp_mc33775a_cfg.h
 #src/app/driver/afe/nxp/mc33775a/nxp_afe_dma.c
-#src/app/driver/afe/nxp/mc33775a/nxp_afe_dma.h
 #src/app/driver/afe/nxp/mc33775a/nxp_mc33775a-ll.c
 #src/app/driver/afe/nxp/mc33775a/nxp_mc33775a-ll.h
 #src/app/driver/afe/nxp/mc33775a/nxp_mc33775a.c
@@ -162,9 +162,7 @@
 #src/app/driver/can/cbs/rx/can_cbs_rx_current-sensor.c
 #src/app/driver/can/cbs/rx/can_cbs_rx_debug.c
 #src/app/driver/can/cbs/rx/can_cbs_rx_imd-info.c
-#src/app/driver/can/cbs/rx/can_cbs_rx_imd-info.h
 #src/app/driver/can/cbs/rx/can_cbs_rx_imd-response.c
-#src/app/driver/can/cbs/rx/can_cbs_rx_imd-response.h
 #src/app/driver/can/cbs/tx-async/can_cbs_tx_crash-dump.c
 #src/app/driver/can/cbs/tx-async/can_cbs_tx_crash-dump.h
 #src/app/driver/can/cbs/tx-async/can_cbs_tx_debug-build-configuration.c
@@ -173,6 +171,8 @@
 #src/app/driver/can/cbs/tx-async/can_cbs_tx_debug-response.h
 #src/app/driver/can/cbs/tx-async/can_cbs_tx_debug-unsupported-multiplexer-values.c
 #src/app/driver/can/cbs/tx-async/can_cbs_tx_debug-unsupported-multiplexer-values.h
+#src/app/driver/can/cbs/tx-async/can_cbs_tx_fatal-error.c
+#src/app/driver/can/cbs/tx-async/can_cbs_tx_fatal-error.h
 #src/app/driver/can/cbs/tx-async/can_cbs_tx_imd-request.c
 #src/app/driver/can/cbs/tx-async/can_cbs_tx_imd-request.h
 #src/app/driver/can/cbs/tx-cyclic/can_cbs_tx_bms-state-details.c
@@ -221,6 +221,7 @@
 #src/app/driver/dma/dma.h
 #src/app/driver/foxmath/foxmath.c
 #src/app/driver/foxmath/foxmath.h
+#src/app/driver/foxmath/utils.c
 #src/app/driver/foxmath/utils.h
 #src/app/driver/fram/fram.c
 #src/app/driver/fram/fram.h
@@ -296,6 +297,9 @@
 #src/app/driver/ts/semitec/103jt/lookup-table/semitec_103jt_lookup-table.c
 #src/app/driver/ts/semitec/103jt/semitec_103jt.c
 #src/app/driver/ts/semitec/103jt/semitec_103jt.h
+#src/app/driver/ts/tdk/ntcgs103jf103ft8/lookup-table/tdk_ntcgs103jf103ft8_lookup-table.c
+#src/app/driver/ts/tdk/ntcgs103jf103ft8/tdk_ntcgs103jf103ft8.c
+#src/app/driver/ts/tdk/ntcgs103jf103ft8/tdk_ntcgs103jf103ft8.h
 #src/app/driver/ts/temperature_sensor_defs.h
 #src/app/driver/ts/vishay/ntcalug01a103g/lookup-table/vishay_ntcalug01a103g_lookup-table.c
 #src/app/driver/ts/vishay/ntcalug01a103g/polynomial/vishay_ntcalug01a103g_polynomial.c
@@ -324,6 +328,7 @@
 #src/app/engine/diag/cbs/diag_cbs_afe.c
 #src/app/engine/diag/cbs/diag_cbs_bms.c
 #src/app/engine/diag/cbs/diag_cbs_can.c
+#src/app/engine/diag/cbs/diag_cbs_clamp30c.c
 #src/app/engine/diag/cbs/diag_cbs_contactor.c
 #src/app/engine/diag/cbs/diag_cbs_current-sensor.c
 #src/app/engine/diag/cbs/diag_cbs_current.c
@@ -352,7 +357,7 @@
 #src/app/engine/sys_mon/sys_mon.h
 #src/app/main/fassert.c
 #src/app/main/fstartup.c
-#src/app/main/include/config/version_cfg.h
+#src/app/main/include/app_build_cfg.h
 #src/app/main/include/fassert.h
 #src/app/main/include/fstartup.h
 #src/app/main/include/fstd_types.h
@@ -370,3 +375,6 @@ src/app/main/include/main.h
 #src/app/task/os/freertos/os_freertos_config-validation.h
 #src/app/task/os/os.c
 #src/app/task/os/os.h
+#src/app/task/timer/timer.c
+#src/app/task/timer/timer.h
+#src/version/version.h

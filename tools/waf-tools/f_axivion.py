@@ -44,10 +44,12 @@ For information on Axivion see https://www.axivion.com/.
 
 import os
 from waflib import Context, Errors, Utils, Logs
+from waflib.Build import BuildContext
 from waflib.Tools.ccroot import link_task
 from waflib import TaskGen
 from waflib.TaskGen import taskgen_method
 from waflib.Configure import conf
+from waflib.Node import Node
 
 # pylint: disable=unused-import
 import f_ti_arm_helper  # noqa: F401
@@ -71,14 +73,17 @@ def configure(configure_context):
 
 @conf
 def patch_for_axivion_build(self, bld):  # pylint: disable=unused-argument
-    """Patches the Axivion build (i.e. remove tasks that do not apply)."""
+    """Patches the Axivion build (i.e., remove tasks that do not apply)."""
     if not bld.env.AXIVION_CC:
         Logs.warn("Axivion tools not available.")
         return
+    project_type = bld.variant.split("_", 1)[0]
+    if not os.environ.get("BAUHAUS_CONFIG", ""):
+        os.environ["BAUHAUS_CONFIG"] = os.path.join(
+            bld.top_dir, "tests", "axivion", "targets", project_type
+        )
 
-    os.environ["BAUHAUS_CONFIG"] = os.path.join(bld.path.abspath(), "tests", "axivion")
-
-    # wrap python script as compiler front end, i.e. python path/to/logging_cc.py
+    # wrap python script as compiler front end, i.e., python path/to/logging_cc.py
     logging_cc = bld.path.find_node(
         os.path.join(
             "tests",
@@ -97,7 +102,6 @@ def patch_for_axivion_build(self, bld):  # pylint: disable=unused-argument
         bld.env.LINK_CC = bld.env.AXIVION_CC
     bld.env.append_unique("LINKFLAGS", ["-echo"])  # show real linker call
     bld.env.LINKFLAGS.extend(["-larg", "--show_plan"])
-    bld.env.append_unique("CFLAGS", ["-B", self.path.abspath()])
 
     @TaskGen.extension(".c")
     def c_hook(self, node):
@@ -161,35 +165,39 @@ def patch_for_axivion_build(self, bld):  # pylint: disable=unused-argument
             return "Linking"
 
     @conf
-    def tiprogram(bld, *k, **kw):  # pylint: disable=unused-variable
+    def tiprogram(bld: BuildContext, *k, **kw):
         if "linker_script" not in kw:
             bld.fatal("linker script missing")
+        if not isinstance(kw["linker_script"], Node):
+            kw["linker_script"] = bld.path.find_node(kw["linker_script"])
         bld.env.LINKER_SCRIPT = kw["linker_script"].abspath()
         kw["features"] = "c cprogram"
         tgt_elf = bld.path.find_or_declare(f"{kw['target']}.{bld.env.DEST_BIN_FMT}")
         irdump_out = bld.path.find_or_declare(f"{kw['target']}.irdump")
         kw["target"] = [tgt_elf, irdump_out]
+        if not isinstance(kw["linker_script"], Node):
+            kw["linker_script"] = bld.path.find_node(kw["linker_script"])
         bld.add_manual_dependency(tgt_elf, kw["linker_script"])
         return bld(*k, **kw)
 
     @TaskGen.feature("cprogram")
-    def add_bingen_task(self):  # pylint: disable=unused-argument,unused-variable
+    def add_bingen_task(self):  # pylint: disable=unused-argument
         return
 
     @TaskGen.feature("c", "cprogram")
-    def process_sizes(self):  # pylint: disable=unused-argument,unused-variable
+    def process_sizes(self):  # pylint: disable=unused-argument
         return
 
     @TaskGen.feature("c", "cprogram")
-    def process_nm(self):  # pylint: disable=unused-argument,unused-variable
+    def process_nm(self):  # pylint: disable=unused-argument
         return
 
     @TaskGen.feature("c")
     @TaskGen.after("c_pp")
-    def remove_stuff_from_pp(self):  # pylint: disable=unused-argument,unused-variable
+    def remove_stuff_from_pp(self):  # pylint: disable=unused-argument
         return
 
     @TaskGen.feature("c", "db_check")
     @TaskGen.after_method("process_source")
-    def check_data_base_init(self):  # pylint: disable=unused-argument,unused-variable
+    def check_data_base_init(self):  # pylint: disable=unused-argument
         return

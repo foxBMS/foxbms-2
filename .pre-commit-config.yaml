@@ -55,10 +55,6 @@ exclude: |
       tools/waf
   )$
 repos:
-  - repo: meta
-    hooks:
-      # - id: check-useless-excludes
-      - id: check-hooks-apply
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.6.0
     hooks:
@@ -90,7 +86,14 @@ repos:
       - id: check-toml
       - id: check-vcs-permalinks
       - id: check-yaml
-        exclude: \.gitlab-ci\.yml
+        # .gitlab/ci_pipeline/build_app_embedded.yml --> duplicate key - but its not
+        exclude: |
+          (?x)^(
+            \.gitlab/ci_pipeline/build_app_embedded\.yml|
+            \.gitlab/ci_pipeline/build\.ccs\.yml|
+            \.gitlab/ci_pipeline/build_embedded\.yml|
+            \.gitlab/ci_pipeline/static_program_analysis\.yml
+          )$
         args: [--allow-multiple-documents]
       - id: debug-statements
         files: |
@@ -105,6 +108,12 @@ repos:
       - id: forbid-submodules
       - id: mixed-line-ending
         args: [--fix=no]
+        exclude: |
+          (?x)^(
+            tests/cli/pre_commit_scripts/test_check_doxygen/invalid-encoding_utf-16.c|
+            tests/cli/pre_commit_scripts/test_check_encoding/utf-16.txt|
+            tests/cli/pre_commit_scripts/test_check_for_tabs/tabs_2.txt
+          )$
       - id: name-tests-test
         args: [--unittest]
         exclude: |
@@ -113,6 +122,7 @@ repos:
             tests/can/check_ids\.py|
             tests/can/check_implemented\.py|
             tests/ccs/ccs_build_helper\.py|
+            tests/cli/pre_commit_scripts/test_check_license_info/valid-license.py|
             tests/c-std/c-std-test\.py|
             tests/dbc/check_parseable\.py|
             tests/dbc/overlapping-signals\.py|
@@ -138,13 +148,21 @@ repos:
           )$
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.5.1
+    rev: v0.7.0
     hooks:
       - id: ruff
         args: [--fix]
+        exclude: |
+          (?x)^(
+            .*(\.ipynb)
+          )$
       - id: ruff-format
+        exclude: |
+          (?x)^(
+            .*(\.ipynb)
+          )$
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.16.0
+    rev: v3.18.0
     hooks:
       - id: pyupgrade
         files: |
@@ -155,7 +173,7 @@ repos:
   - repo: local
     hooks:
       - id: check-file-name
-        name: file name check
+        name: check file names
         entry: file names must be alphanumeric and lower-case
         language: fail
         files: "[^a-z0-9._/-]"
@@ -187,15 +205,19 @@ repos:
           )$
         require_serial: true
   - repo: https://github.com/pre-commit/mirrors-clang-format
-    rev: "v18.1.8"
+    rev: "v19.1.2"
     hooks:
       - id: clang-format
         args: [--style=file]
         types_or: [c]
+        exclude: |
+          (?x)^(
+            tests/cli/pre_commit_scripts/test_check_doxygen/invalid-encoding_utf-16.c
+          )$
   - repo: local
     hooks:
       - id: check-license-header
-        name: check Python-files for the correct license header
+        name: check license header [python]
         files: |
           (?x)^(
             .*(\.py)|
@@ -203,69 +225,129 @@ repos:
           )$
         exclude: |
           (?x)^(
-             tests/hil/.*\.py
+            tests/hil/.*\.py|
+            cli/cmd_bootloader/crc64_ti_impl.py
           )$
         language: system
-        entry: python cli/pre_commit_scripts/check_license_info.py --file-type=py
+        entry: python cli/pre_commit_scripts/check_license_info.py --file-type=py --license-type=BSD-3-Clause
+      - id: check-license-header-confidential
+        name: check license header confidential [python]
+        types: [python]
+        files: tests/hil/.*\.py
+        language: system
+        entry: python cli/pre_commit_scripts/check_license_info.py --file-type=py --license-type=confidential
       - id: check-license-header
-        name: check C-files for the correct license header
+        name: check license header [c]
         types: [c]
         language: system
-        entry: python cli/pre_commit_scripts/check_license_info.py --file-type=c
+        entry: python cli/pre_commit_scripts/check_license_info.py --file-type=c --license-type=BSD-3-Clause
         exclude: |
           (?x)^(
+            src/(app|bootloader)/main/fstartup\.c|
             src/app/driver/afe/nxp/mc33775a/nxp_mc33775a-ll\.[c|h]|
             src/app/driver/afe/nxp/mc33775a/vendor/.*|
             src/app/driver/sbc/fs8x_driver/.*|
-            tests/axivion/config-test/test_macro-names\.[c|h]||
-            tests/axivion/config-test/test_parameter-names-\d\.[c|h]
+            src/bootloader/driver/crc/vendor/crc64_calc\.[c|h]|
+            tests/axivion/config-test/(test_)?coding-style-naming\..*\.[c|h]|
+            tests/cli/pre_commit_scripts/test_check_license_info/invalid-license\.c|
+            tests/cli/pre_commit_scripts/test_check_license_info/no-license\.c|
+            tests/cli/pre_commit_scripts/test_check_cpp_style_comment/cpp-style-comment_[0|1|2].c|
+            tests/cli/pre_commit_scripts/test_check_cpp_style_comment/no-cpp-style-comment.c|
+            tests/cli/pre_commit_scripts/test_check_doxygen/no-doxygen-comments.c|
+            tests/cli/pre_commit_scripts/test_check_doxygen/invalid-encoding_utf-16.c|
+            tests/cli/pre_commit_scripts/test_check_include_guard/test_file_empty.h|
+            tests/cli/pre_commit_scripts/test_check_include_guard/test_file_invalid_content.h|
+            tests/cli/pre_commit_scripts/test_check_include_guard/test_file.c|
+            tests/cli/pre_commit_scripts/test_check_include_guard/test_file_multiple.h|
+            tests/cli/pre_commit_scripts/test_check_include_guard/test_file_valid.h
           )$
       - id: check-license-header
-        name: check YAML-files for the correct license header
+        name: check license header [asm]
+        files: .*(\.asm)
+        language: system
+        entry: python cli/pre_commit_scripts/check_license_info.py --file-type=asm --license-type=BSD-3-Clause
+      - id: check-license-header
+        name: check license header [yaml]
         types: [yaml]
         language: system
-        entry: python cli/pre_commit_scripts/check_license_info.py --file-type=yaml
+        entry: python cli/pre_commit_scripts/check_license_info.py --file-type=yaml --license-type=BSD-3-Clause
         exclude: |
           (?x)^(
-             .*\.clang-format|
-             conf/unit/project_posix\.yml|
-             conf/unit/project_win32\.yml|
-             tests/hil/.*
+            \.gitlab-ci\.yml|
+            \.gitlab/ci_pipeline/.*\.yml|
+            .*\.clang-format|
+            conf/unit/.*_project_(posix|win32)\.yml|
+            tests/hil/.*
+          )$
+      - id: check-license-header-confidential
+        name: check license header confidential [yaml]
+        types: [yaml]
+        language: system
+        entry: python cli/pre_commit_scripts/check_license_info.py --file-type=yaml --license-type=confidential
+        exclude: |
+          (?x)^(
+            .*\.clang-format|
+            \.pre-commit-config\.yaml|
+            conf/cc/cc-options\.yaml|
+            conf/unit/.*_project_(posix|win32)\.yml|
+            conf/unit/vsc-settings\.yml|
+            docs/software/build-process/misc/libcc-options\.yaml|
+            tests/ccs/expect-failure/expect-failure_cc-options\.yaml|
+            tests/ccs/ccs.*/ccs.*_cc-options\.yaml|
+            tests/cli/pre_commit_scripts/test_check_license_info/valid-license.yml|
+            tests/variants/lib-build/lib-build_cc-options\.yaml
           )$
       - id: check-license-header
-        name: check toml-files for the correct license header
+        name: check license header [toml]
         types: [toml]
         language: system
-        entry: python cli/pre_commit_scripts/check_license_info.py --file-type=toml
+        entry: python cli/pre_commit_scripts/check_license_info.py --file-type=toml --license-type=BSD-3-Clause
       - id: check-license-header
-        name: check pwsh-files for the correct license header
+        name: check license header [pwsh]
         types: [powershell]
         language: system
-        entry: python cli/pre_commit_scripts/check_license_info.py --file-type=pwsh
-      - id: check-license-header
-        name: check bat-files for the correct license header
-        types: [batch]
-        exclude: tests/hil/.*
+        entry: python cli/pre_commit_scripts/check_license_info.py --file-type=pwsh --license-type=BSD-3-Clause
+        exclude: tests/hil/exec_hil.ps1
+      - id: check-license-header-confidential
+        name: check license header confidential [pwsh]
+        types: [powershell]
         language: system
-        entry: python cli/pre_commit_scripts/check_license_info.py --file-type=batch
+        entry: python cli/pre_commit_scripts/check_license_info.py --file-type=pwsh --license-type=confidential
+        exclude: |
+          (?x)^(
+            fox\.ps1|
+            conf/tpl/pwsh_script\.ps1|
+            tests/cli/pre_commit_scripts/test_check_license_info/valid-license\.ps1|
+            tests/variants/lib-build/lib-build\.ps1
+            )$
       - id: check-license-header
-        name: check shell-files for the correct license header
+        name: check license header [batch]
+        types: [batch]
+        language: system
+        entry: python cli/pre_commit_scripts/check_license_info.py --file-type=batch --license-type=BSD-3-Clause
+      - id: check-license-header
+        name: check license header [shell]
         types: [shell]
         language: system
-        entry: python cli/pre_commit_scripts/check_license_info.py --file-type=shell
+        entry: python cli/pre_commit_scripts/check_license_info.py --file-type=shell --license-type=BSD-3-Clause
       - id: check-license-header
-        name: check dot-files for the correct license header
+        name: check license header [dot]
         language: system
-        entry: python cli/pre_commit_scripts/check_license_info.py --file-type=dot
+        entry: python cli/pre_commit_scripts/check_license_info.py --file-type=dot --license-type=BSD-3-Clause
         files: .*(\.dot)
       - id: check-file-encoding
-        name: check C-files use the ASCII encoding
+        name: check encoding [c]
         language: system
         entry: python cli/pre_commit_scripts/check_encoding.py --encoding=ascii
         types: [c]
-        exclude: src/app/driver/afe/nxp/mc33775a/vendor/.*
+        exclude: |
+          (?x)^(
+            src/app/driver/afe/nxp/mc33775a/vendor/.*|
+            tests/cli/pre_commit_scripts/test_check_doxygen/invalid-encoding_utf-16.c
+          )$
+
       - id: check-file-encoding
-        name: check sym/dbc-files use the ASCII encoding
+        name: check encoding [dbc, sym]
         language: system
         entry: python cli/pre_commit_scripts/check_encoding.py --encoding=ascii
         files: |
@@ -274,17 +356,18 @@ repos:
             .*\.(sym)
           )$
       - id: check-file-encoding
-        name: check all other files use UTF-8 encoding
+        name: check encoding [default]
         language: system
         entry: python cli/pre_commit_scripts/check_encoding.py --encoding=utf-8
-        exclude_types: [c, png, jpeg, icon]
+        types: [text]
+        exclude_types: [c]
         exclude: |
           (?x)^(
-            .*\.(pptx)|
-            .*\.(vsdx)
+            tests/cli/pre_commit_scripts/test_check_encoding/utf-16.txt|
+            tests/cli/pre_commit_scripts/test_check_for_tabs/tabs_2.txt
           )$
       - id: unique-file-names
-        name: check that file names are unique in the repository
+        name: check file name uniqueness
         language: system
         entry: python cli/pre_commit_scripts/check_file_names.py
         exclude: |
@@ -292,35 +375,91 @@ repos:
             .*\.clang-format|
             .*\.dummy|
             .*\.gitignore|
-            .*__init__.py|
-            .*__main__.py|
-            .*main.py|
-            .*misc.py|
+            .*__init__\.py|
+            .*__main__\.py|
+            .*main\.py|
+            .*misc\.py|
             .*README\.md|
             .*wscript|
-            tests/axivion/axivion_config\.json|
-            tests/axivion/ci_config\.json|
+            pyproject\.toml|
+            LICENSE\.md|
+            cli/cmd_etl/pyproject\.toml|
+            src/(app|bootloader)/driver/(can|config)/can_cfg\.[c|h]|
+            src/(app|bootloader)/driver/can(/cbs)?/can_helper\.[c|h]|
+            src/(app|bootloader)/driver/can/can\.[c|h]|
+            src/(app|bootloader)/driver/crc/crc\.[c|h]|
+            src/(app|bootloader)/driver/io/io\.[c|h]|
+            src/(app|bootloader)/driver/mcu/mcu\.h|
+            src/(app|bootloader)/main/fassert\.c|
+            src/(app|bootloader)/main/fstartup\.c|
+            src/(app|bootloader)/main/include/fassert\.h|
+            src/(app|bootloader)/main/include/fstartup\.h|
+            src/(app|bootloader)/main/include/fstd_types\.h|
+            src/(app|bootloader)/main/include/fsystem\.h|
+            src/(app|bootloader)/main/include/general\.h|
+            src/(app|bootloader)/main/include/infinite-loop-helper\.h|
+            src/(app|bootloader)/main/include/main\.h|
+            src/(app|bootloader)/main/main\.c|
+            src/app/driver/afe/ltc/common/ltc_defs\.h|
+            src/app/driver/config/can_cfg\.[c|h]|
+            src/app/driver/interlock/interlock\.c|
+            src/os/freertos/LICENSE\.md|
+            tests/axivion/addon-test/test_file_comments/interlock\.c|
+            tests/axivion/addon-test/test_file_comments/ltc_defs\.h|
             tests/axivion/compiler_config\.json|
+            tests/axivion/errata_config\.json|
+            tests/axivion/targets/.*/axivion_config\.json|
+            tests/axivion/targets/.*/ci_config\.json|
+            tests/axivion/targets/.*/errata_config\.json|
+            tests/unit/(app|bootloader)/driver/(can|config)/test_can_cfg\.c|
+            tests/unit/(app|bootloader)/driver/can(/cbs)?/test_can_helper\.c|
+            tests/unit/(app|bootloader)/driver/can/test_can\.c|
+            tests/unit/(app|bootloader)/driver/crc/test_crc\.c|
+            tests/unit/(app|bootloader)/driver/io/test_io\.c|
+            tests/unit/(app|bootloader)/main/test_fassert\.c|
+            tests/unit/(app|bootloader)/main/test_fstartup\.c|
+            tests/unit/(app|bootloader)/main/helper/mock_esm.h|
+            tests/unit/(app|bootloader)/main/test_main\.c|
             tests/unit/axivion/axivion_config\.json|
             tests/unit/axivion/ci_config\.json|
             tests/unit/axivion/compiler_config\.json|
             tools/ide/vscode/.*/c_cpp_properties\.json|
+            tools/ide/vscode/.*/launch\.json|
+            tools/ide/vscode/.*/project-include-path\.txt|
             tools/ide/vscode/.*/settings\.json|
             tools/ide/vscode/.*/tasks\.json|
             tools/vendor/ceedling/plugins/dependencies/example/boss/src/main\.c
           )$
+      - id: check-for-tabs
+        name: check for tabs
+        language: system
+        entry: python cli/pre_commit_scripts/check_for_tabs.py
+        types: [text]
+        exclude: |
+          (?x)^(
+            src/app/driver/afe/nxp/mc33775a/vendor/uc_msg_t\.[c|h]|
+            tests/cli/pre_commit_scripts/test_check_for_tabs/tabs_0.txt|
+            tests/cli/pre_commit_scripts/test_check_for_tabs/tabs_1.txt|
+            tests/cli/pre_commit_scripts/test_check_for_tabs/tabs_2.txt
+          )$
       - id: check-include-guard
-        name: check C-header use the correct include guard
+        name: check include guard
         language: system
         entry: python cli/pre_commit_scripts/check_include_guard.py
         types: [c]
         exclude: |
           (?x)^(
             src/app/driver/afe/nxp/mc33775a/vendor/.*|
-            src/app/driver/sbc/fs8x_driver/.*
+            src/app/driver/sbc/fs8x_driver/.*|
+            tests/axivion/config-test/coding-style-naming\.macro_1\.h|
+            tests/cli/pre_commit_scripts/test_check_include_guard/test_file_empty.h|
+            tests/cli/pre_commit_scripts/test_check_include_guard/test_file_invalid_content.h|
+            tests/cli/pre_commit_scripts/test_check_include_guard/test_file.c|
+            tests/cli/pre_commit_scripts/test_check_include_guard/test_file_multiple.h|
+            tests/cli/pre_commit_scripts/test_check_include_guard/test_file_valid.h
           )$
       - id: check-c-section-markers
-        name: check C-files in 'src' use the correct section markers
+        name: check section marker [src]
         language: system
         entry: python cli/pre_commit_scripts/check_sections.py --file-type=src
         types: [c]
@@ -332,13 +471,26 @@ repos:
             docs/software/unit-tests/test_abc\.c|
             src/app/driver/afe/nxp/mc33775a/vendor/.*|
             src/app/driver/sbc/fs8x_driver/.*|
+            src/bootloader/driver/crc/vendor/.*\.[c|h]|
             tests/axivion/axivion_preinc\.h|
-            tests/axivion/config-test/test_macro-names\.[c|h]|
-            tests/axivion/config-test/test_parameter-names-\d\.c|
-            tests/unit.*
+            tests/axivion/config-test/(test_)?coding-style-naming\..*\.[c|h]|
+            tests/cli/pre_commit_scripts/test_check_license_info/invalid-license\.c|
+            tests/cli/pre_commit_scripts/test_check_license_info/no-license\.c|
+            tests/cli/pre_commit_scripts/test_check_cpp_style_comment/no-cpp-style-comment.c|
+            tests/cli/pre_commit_scripts/test_check_cpp_style_comment/cpp-style-comment_[0|1|2].c|
+            tests/cli/pre_commit_scripts/test_check_doxygen/.*|
+            tests/cli/pre_commit_scripts/test_check_include_guard/test_file_empty.h|
+            tests/cli/pre_commit_scripts/test_check_include_guard/test_file_invalid_content.h|
+            tests/cli/pre_commit_scripts/test_check_include_guard/test_file.c|
+            tests/cli/pre_commit_scripts/test_check_include_guard/test_file_multiple.h|
+            tests/cli/pre_commit_scripts/test_check_include_guard/test_file_valid.h|
+            tests/cli/pre_commit_scripts/test_check_sections/valid-sections-test.[c|h]|
+            tests/cli/pre_commit_scripts/test_check_sections/invalid-sections-test-\d\.[c|h]|
+            tests/cli/pre_commit_scripts/test_check_license_info/valid-license.c|
+            tests/unit/.*
           )$
       - id: check-c-section-markers
-        name: check C-files in 'tests' use the correct section markers
+        name: check section marker [test]
         language: system
         entry: python cli/pre_commit_scripts/check_sections.py --file-type=test
         types: [c]
@@ -383,27 +535,67 @@ repos:
             docs/software/unit-tests/run_abc\.c|
             src/.*|
             tests/axivion/axivion_preinc\.h|
-            tests/axivion/config-test/test_macro-names\.[c|h]|
-            tests/axivion/config-test/test_parameter-names-\d\.c|
+            tests/axivion/config-test/(test_)?coding-style-naming\..*\.[c|h]|
             tests/c-std/c-std-test\.c|
+            tests/cli/pre_commit_scripts/test_check_license_info/invalid-license\.c|
+            tests/cli/pre_commit_scripts/test_check_license_info/no-license\.c|
+            tests/cli/pre_commit_scripts/test_check_cpp_style_comment/cpp-style-comment_[0|1|2].c|
+            tests/cli/pre_commit_scripts/test_check_cpp_style_comment/no-cpp-style-comment.c|
+            tests/cli/pre_commit_scripts/test_check_doxygen/.*|
+            tests/cli/pre_commit_scripts/test_check_include_guard/test_file_empty.h|
+            tests/cli/pre_commit_scripts/test_check_include_guard/test_file_invalid_content.h|
+            tests/cli/pre_commit_scripts/test_check_include_guard/test_file.c|
+            tests/cli/pre_commit_scripts/test_check_include_guard/test_file_multiple.h|
+            tests/cli/pre_commit_scripts/test_check_include_guard/test_file_valid.h|
             tests/unit/app/driver/afe/adi/common/ades183x.*|
+            tests/unit-hw/.*|
             tests/variants/lib-build/lib-build_main\.c|
+            tests/cli/pre_commit_scripts/test_check_sections/valid-sections-src.[c|h]|
+            tests/cli/pre_commit_scripts/test_file_empty.h|
+            tests/cli/pre_commit_scripts/test_file_invalid_content.h|
+            tests/cli/pre_commit_scripts/test_file.c|
+            tests/cli/pre_commit_scripts/test_file_multiple.h|
+            tests/cli/pre_commit_scripts/test_file_valid.h|
+            tests/cli/pre_commit_scripts/test_check_license_info/valid-license.c|
+            tests/cli/pre_commit_scripts/test_check_sections/invalid-sections-test-\d\.[c|h]|
             tools/crc/crc-10_0x48f\.c|
             tools/crc/crc-15_0xc599\.c
           )$
       - id: check-doxygen-comments
-        name: check C-files have a well defined doxygen comment
+        name: check doxygen comment
         language: system
         entry: python cli/pre_commit_scripts/check_doxygen.py
         types: [c]
         exclude: |
           (?x)^(
+            src/(app|bootloader)/main/fstartup\.c|
             src/app/driver/afe/nxp/mc33775a/nxp_mc33775a-ll\.h|
             src/app/driver/afe/nxp/mc33775a/vendor/.*|
             src/app/driver/sbc/fs8x_driver/.*|
-            tests/axivion/axivion_preinc\.h |
-            tests/axivion/config-test/test_macro-names\.[c|h]|
-            tests/axivion/config-test/test_parameter-names-\d\.c
+            src/bootloader/driver/crc/vendor/crc64_calc\.[c|h]|
+            tests/axivion/axivion_preinc\.h|
+            tests/axivion/config-test/(test_)?coding-style-naming\..*\.[c|h]|
+            tests/cli/pre_commit_scripts/test_check_cpp_style_comment/cpp-style-comment_[0|1|2].c|
+            tests/cli/pre_commit_scripts/test_check_cpp_style_comment/no-cpp-style-comment.c|
+            tests/cli/pre_commit_scripts/test_check_doxygen.*|
+            tests/cli/pre_commit_scripts/test_check_include_guard/test_file_empty.h|
+            tests/cli/pre_commit_scripts/test_check_include_guard/test_file_invalid_content.h|
+            tests/cli/pre_commit_scripts/test_check_include_guard/test_file.c|
+            tests/cli/pre_commit_scripts/test_check_include_guard/test_file_multiple.h|
+            tests/cli/pre_commit_scripts/test_check_include_guard/test_file_valid.h
+          )$
+      - id: check-comment-style
+        name: check C comment style
+        language: system
+        entry: python cli/pre_commit_scripts/check_cpp_style_comment.py
+        types: [c]
+        exclude: |
+          (?x)^(
+
+            tests/axivion/axivion_preinc\.h^|
+            tests/axivion/config-test/.*\.[c|h]|
+            tests/cli/pre_commit_scripts/test_check_cpp_style_comment/cpp-style-comment_[0|1|2].c|
+            tests/cli/pre_commit_scripts/test_check_doxygen/invalid-encoding_utf-16.c
           )$
   - repo: https://github.com/shellcheck-py/shellcheck-py
     rev: v0.10.0.1

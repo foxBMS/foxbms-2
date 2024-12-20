@@ -40,15 +40,18 @@
 """Command line interface definition for miscellaneous fox tools"""
 
 from pathlib import Path
+from typing import get_args
 
 import click
+from click import secho
 
-from ..cmd_misc import verify_checksums
+from ..cmd_misc.check_test_files import check_for_test_files
 from ..cmd_misc.crc_example import run_crc_build
 from ..cmd_misc.doc_example import run_doc_build
+from ..cmd_misc.eol_converter import convert
 from ..cmd_misc.run_uncrustify import lint_freertos
-from ..helpers.ansi_colors import RED
-from ..helpers.misc import eprint
+from ..cmd_misc.verify_checksums import verify
+from ..helpers.misc import EOL, set_logging_level_cb
 
 CONTEXT_SETTINGS = {
     "help_option_names": ["-h", "--help"],
@@ -58,7 +61,21 @@ CONTEXT_SETTINGS = {
 
 @click.group(context_settings=CONTEXT_SETTINGS)
 def misc() -> None:
-    """Miscellaneous tools or scripts that did not fit in any other category"""
+    """Miscellaneous tools or scripts that did not fit in any other category."""
+
+
+@misc.command("check-for-test-files")
+@click.option(
+    "-v",
+    "--verbose",
+    default=0,
+    count=True,
+    help="Verbose information.",
+)
+@click.pass_context
+def cmd_check_for_test_files(ctx: click.Context, verbose: int) -> None:
+    """Check whether all 'cli' files have dedicated test file."""
+    ctx.exit(check_for_test_files(verbose).returncode)
 
 
 @misc.command("verify-checksum")
@@ -72,14 +89,26 @@ def misc() -> None:
     "known-hash",
     type=click.STRING,
 )
+@click.option(
+    "-v",
+    "--verbose",
+    default=0,
+    count=True,
+    help="Verbose information",
+    callback=set_logging_level_cb,
+)
 @click.pass_context
-def cmd_verify_checksum(ctx: click.Context, files: list[Path], known_hash: str) -> None:
-    """Verify checksum of a list of given paths"""
-    print(files, known_hash)
+def cmd_verify_checksum(
+    ctx: click.Context,
+    files: list[Path],
+    known_hash: str,
+    verbose: int,  # pylint: disable=unused-argument
+) -> None:
+    """Verify checksum of a list of given paths."""
     if not files:
-        eprint("No files provided", color=RED, err=True)
+        secho("No files provided.", fg="red", err=True)
         ctx.exit(1)
-    ctx.exit(verify_checksums.verify(list(files), known_hash))
+    ctx.exit(verify(list(files), known_hash))
 
 
 @misc.command("uncrustify-freertos")
@@ -87,11 +116,11 @@ def cmd_verify_checksum(ctx: click.Context, files: list[Path], known_hash: str) 
     "--check/--no-check",
     default=True,
     is_flag=True,
-    help="Run uncrustify in check or edit mode",
+    help="Run uncrustify in check or edit mode.",
 )
 @click.pass_context
 def cmd_uncrustify_freertos(ctx: click.Context, check: bool) -> None:
-    """Run uncrustify on the FreeRTOS sources in the source tree"""
+    """Run uncrustify on the FreeRTOS sources in the source tree."""
     ctx.exit(lint_freertos(check))
 
 
@@ -100,7 +129,7 @@ def cmd_uncrustify_freertos(ctx: click.Context, check: bool) -> None:
 def cmd_build_crc_code(
     ctx: click.Context,
 ) -> None:
-    """Build the CRC example code"""
+    """Build the CRC example code."""
     ctx.exit(run_crc_build().returncode)
 
 
@@ -109,5 +138,36 @@ def cmd_build_crc_code(
 def cmd_build_doc_code(
     ctx: click.Context,
 ) -> None:
-    """Build the documentation example code"""
+    """Build the documentation example code."""
     ctx.exit(run_doc_build().returncode)
+
+
+@misc.command("convert")
+@click.option("--to", type=click.Choice(get_args(EOL), case_sensitive=True))
+@click.argument(
+    "files",
+    nargs=-1,
+    is_eager=True,
+    type=click.Path(exists=True, dir_okay=True, file_okay=True, path_type=Path),
+)
+@click.option(
+    "-v",
+    "--verbose",
+    default=0,
+    count=True,
+    help="Verbose information.",
+    callback=set_logging_level_cb,
+)
+@click.pass_context
+def cmd_convert(
+    ctx: click.Context,
+    to: EOL,
+    files: str,
+    verbose: int,  # pylint: disable=unused-argument
+) -> None:
+    """Convert files from dos to unix or unix to dos."""
+    if not files:
+        secho("No files provided.", fg="yellow")
+        ctx.exit(0)
+
+    ctx.exit(convert(to, files))

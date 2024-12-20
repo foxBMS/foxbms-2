@@ -43,6 +43,7 @@ import sys
 
 if sys.platform.lower() == "linux":
     PLATFORM = "linux"
+    """String to identify the host platform"""
 elif sys.platform.lower() == "win32":
     PLATFORM = "win32"
 else:

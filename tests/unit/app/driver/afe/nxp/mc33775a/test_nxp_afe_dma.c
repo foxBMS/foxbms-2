@@ -43,12 +43,13 @@
  * @file    test_nxp_afe_dma.c
  * @author  foxBMS Team
  * @date    2020-06-10 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
  * @brief   Test of some module
+ * @details TODO
  *
  */
 
@@ -63,7 +64,7 @@
 #include "Mockspi.h"
 #include "Mocktask.h"
 
-#include "nxp_afe_dma.h"
+#include "afe_dma.h"
 #include "test_assert_helper.h"
 
 /*========== Unit Testing Framework Directives ==============================*/
@@ -165,7 +166,7 @@ void tearDown(void) {
  *            - RT1/2: Function calls expected subroutines based on provided
  *                     index
  */
-void test_AFE_DmaCallback(void) {
+void testAFE_DmaCallback(void) {
     /* ======= Assertion tests ============================================= */
     /* ======= AT1/1 ======= */
     TEST_ASSERT_FAIL_ASSERT(AFE_DmaCallback(10u));

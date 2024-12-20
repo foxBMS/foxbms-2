@@ -43,8 +43,8 @@
  * @file    can_cbs_tx_bms-state-details.c
  * @author  foxBMS Team
  * @date    2021-07-21 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup DRIVERS
  * @prefix  CANTX
  *
@@ -340,7 +340,7 @@ extern uint32_t CANTX_BmsStateDetails(
     uint64_t messageData = 0u;
 
     DATA_READ_DATA(kpkCanShim->pTableErrorState);
-    SYSM_TIMING_VIOLATION_RESPONSE_s recordedTimingViolations = {0};
+    SYSM_TIMING_VIOLATION_RESPONSE_s recordedTimingViolations = {false, false, false, false, false, false};
     SYSM_GetRecordedTimingViolations(&recordedTimingViolations);
 
     /* set message with current violation data */

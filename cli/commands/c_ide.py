@@ -41,7 +41,6 @@
 
 import click
 
-
 from ..cmd_ide import ide_impl
 
 CONTEXT_SETTINGS = {
@@ -57,45 +56,47 @@ CONTEXT_SETTINGS = {
     help="Open a generic VS Code workspace in the repository root.",
 )
 @click.option(
-    "--embedded-unit-tests/--no-embedded-unit-tests",
+    "--embedded-unit-test-app/--no-embedded-unit-test-app",
     default=False,
     is_flag=True,
-    help="Open a VS Code workspace for embedded unit test development",
+    help="Open a VS Code workspace for app embedded unit test development.",
 )
 @click.option(
-    "-e",
-    "embedded_unit_tests_short",
+    "--embedded-unit-test-bootloader/--no-embedded-unit-test-bootloader",
     default=False,
     is_flag=True,
-    help="Short for '--embedded-unit-tests'",
+    help="Open a VS Code workspace for bootloader embedded unit test development.",
 )
 @click.option(
-    "--src/--no-src",
+    "--app/--no-app",
     default=False,
     is_flag=True,
-    help="Open a VS Code workspace for target development",
+    help="Open a VS Code workspace for embedded app development.",
 )
 @click.option(
-    "-s",
-    "src_short",
+    "--bootloader/--no-bootloader",
     default=False,
     is_flag=True,
-    help="Short for '--src'",
+    help="Open a VS Code workspace for embedded bootloader development.",
 )
 @click.pass_context
-def ide(  # pylint:disable=too-many-arguments
+def ide(  # pylint:disable=too-many-arguments,too-many-positional-arguments
     ctx: click.Context,
-    generic: bool,
-    embedded_unit_tests: bool,
-    embedded_unit_tests_short: bool,
-    src: bool,
-    src_short: bool,
+    generic: bool = True,
+    embedded_unit_test_app: bool = False,
+    embedded_unit_test_bootloader: bool = False,
+    app: bool = False,
+    bootloader: bool = False,
 ) -> None:
-    """Open pre-configured VS Code workspaces"""
+    """Open pre-configured VS Code workspaces."""
     if generic:
         ide_impl.open_ide_generic()
-    if embedded_unit_tests or embedded_unit_tests_short:
-        ide_impl.open_ide_embedded_unit_tests()
-    if src or src_short:
-        ide_impl.open_ide_src()
+    if embedded_unit_test_app:
+        ide_impl.open_ide_embedded_unit_test_app()
+    if embedded_unit_test_bootloader:
+        ide_impl.open_ide_embedded_unit_test_bootloader()
+    if app:
+        ide_impl.open_ide_app()
+    if bootloader:
+        ide_impl.open_ide_bootloader()
     ctx.exit(0)

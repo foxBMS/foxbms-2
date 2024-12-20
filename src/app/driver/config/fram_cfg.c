@@ -43,8 +43,8 @@
  * @file    fram_cfg.c
  * @author  foxBMS Team
  * @date    2020-03-05 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  FRAM
  *
@@ -75,7 +75,7 @@ FRAM_SBC_INIT_s fram_sbcInit = {
     .finState = STD_NOT_OK,
 };
 FRAM_DEEP_DISCHARGE_FLAG_s fram_deepDischargeFlags = {false};
-FRAM_SYS_MON_RECORD_s fram_sysMonViolationRecord   = {0};
+FRAM_SYS_MON_RECORD_s fram_sysMonViolationRecord   = {false, 0u, 0u, 0u, 0u, 0u, 0u, 0u, 0u, 0u, 0u};
 FRAM_INSULATION_FLAG_s fram_insulationFlags        = {.groundErrorDetected = false};
 /**@}*/
 

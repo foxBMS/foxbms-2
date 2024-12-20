@@ -43,8 +43,8 @@
  * @file    adi_ades183x_voltages.h
  * @author  foxBMS Team
  * @date    2022-12-07 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup DRIVERS
  * @prefix  ADI
  *
@@ -102,6 +102,13 @@ extern void ADI_GetVoltages(
     ADI_VOLTAGE_STORE_LOCATION_e storeLocation);
 
 /**
+ * @brief   Reads and stores string and module voltages.
+ * @details This function, reads the raw values from the VPV register
+ * @param   adiState        state of the ADI driver
+ */
+extern void ADI_GetStringAndModuleVoltage(ADI_STATE_s *adiState);
+
+/**
  * @brief   Stop cell voltage measurement.
  * @details This function should be called before activation of balancing
  * @param   adiState state of the driver
@@ -133,6 +140,10 @@ extern void TEST_ADI_SaveRxToCellVoltageBuffer(
     ADI_STATE_s *adiState,
     uint8_t *data,
     uint8_t registerSet,
+    ADI_VOLTAGE_STORE_LOCATION_e storeLocation);
+extern void TEST_ADI_GetVoltages(
+    ADI_STATE_s *adiState,
+    ADI_VOLTAGE_REGISTER_TYPE_e registerType,
     ADI_VOLTAGE_STORE_LOCATION_e storeLocation);
 #endif
 

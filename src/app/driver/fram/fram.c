@@ -43,20 +43,19 @@
  * @file    fram.c
  * @author  foxBMS Team
  * @date    2020-03-05 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup DRIVERS
  * @prefix  FRAM
  *
  * @brief   Driver for the FRAM module
+ * @details TODO
  *
  *
  */
 
 /*========== Includes =======================================================*/
 #include "fram.h"
-
-#include "version_cfg.h"
 
 #include "crc.h"
 #include "diag.h"
@@ -66,6 +65,7 @@
 #include "mcu.h"
 #include "spi.h"
 #include "utils.h"
+#include "version.h"
 
 #include <stdint.h>
 
@@ -121,9 +121,9 @@ extern STD_RETURN_TYPE_e FRAM_ReinitializeAllEntries(void) {
 
     /* Reset FRAM version struct information */
     fram_version.project = FRAM_PROJECT_ID_FOXBMS_BASELINE;
-    fram_version.major   = ver_foxbmsVersionInformation.major;
-    fram_version.minor   = ver_foxbmsVersionInformation.minor;
-    fram_version.patch   = ver_foxbmsVersionInformation.patch;
+    fram_version.major   = ver_versionInformation.major;
+    fram_version.minor   = ver_versionInformation.minor;
+    fram_version.patch   = ver_versionInformation.patch;
 
     for (uint8_t i = 0u; i < (uint8_t)FRAM_BLOCK_MAX; i++) {
         if (FRAM_WriteData((FRAM_BLOCK_ID_e)i) != FRAM_ACCESS_OK) {

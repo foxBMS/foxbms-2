@@ -37,7 +37,11 @@ class ToolExecutor
       build_arguments(tool_config[:name], tool_config[:arguments], *args),
       ].reject{|s| s.nil? || s.empty?}.join(' ').strip
 
+    # Log command as is
     @loginator.log( "Command: #{command}", Verbosity::DEBUG )
+
+    # Update executable after any expansion
+    command[:executable] = executable
 
     return command
   end
@@ -59,27 +63,32 @@ class ToolExecutor
 
     shell_result = {}
 
-    time = Benchmark.realtime do
-      shell_result = @system_wrapper.shell_capture3( command:command_line, boom:options[:boom] )
-    end
-    shell_result[:time] = time
+    # Wrap system level tool execution in exception handling
+    begin
+      time = Benchmark.realtime do
+        shell_result = @system_wrapper.shell_capture3( command:command_line, boom:options[:boom] )
+      end
+      shell_result[:time] = time
 
-    # Scrub the string for illegal output
-    unless shell_result[:output].nil?
-      shell_result[:output] = shell_result[:output].scrub if "".respond_to?(:scrub)
-      shell_result[:output].gsub!(/\033\[\d\dm/,'')
-    end
+    # Ultimately, re-raise the exception as ShellException populated with the exception message
+    rescue => error
+      raise ShellException.new( name:pretty_tool_name( command ), message: error.message )
 
-    @tool_executor_helper.log_results( command_line, shell_result )
+    # Be sure to log what we can
+    ensure
+      # Scrub the string for illegal output
+      unless shell_result[:output].nil?
+        shell_result[:output] = shell_result[:output].scrub if "".respond_to?(:scrub)
+        shell_result[:output].gsub!(/\033\[\d\dm/,'')
+      end
+
+      @tool_executor_helper.log_results( command_line, shell_result )
+    end
 
     # Go boom if exit code is not 0 and that code means a fatal error
     # (Sometimes we don't want a non-0 exit code to cause an exception as the exit code may not mean a build-ending failure)
     if ((shell_result[:exit_code] != 0) and options[:boom])
-      raise ShellExecutionException.new(
-        shell_result: shell_result,
-        # Titleize the command's name -- each word is capitalized and any underscores replaced with spaces
-        name: "'#{command[:name].split(/ |\_/).map(&:capitalize).join(" ")}' " + "(#{command[:executable]})"
-      )
+      raise ShellException.new( shell_result:shell_result, name:pretty_tool_name( command ) )
     end
 
     return shell_result
@@ -95,16 +104,16 @@ class ToolExecutor
 
     # Iterate through each argument
 
-    # The yaml blob array needs to be flattened so that yaml substitution is handled
+    # The yaml blob array needs to be flattened so that yaml alias substitution is handled
     # correctly as it creates a nested array when an anchor is dereferenced
     config.flatten.each do |element|
       argument = ''
 
       case(element)
-        # if we find a simple string then look for string replacement operators
+        # If we find a simple string then look for string replacement operators
         #  and expand with the parameters in this method's argument list
         when String then argument = expandify_element(tool_name, element, *args)
-        # if we find a hash, then we grab the key as a substitution string and expand the
+        # If we find a hash, then we grab the key as a substitution string and expand the
         #  hash's value(s) within that substitution string
         when Hash   then argument = dehashify_argument_elements(tool_name, element)
       end
@@ -140,11 +149,6 @@ class ToolExecutor
     # simple string argument: replace escaped '\$' and strip
     element.sub!(/\\\$/, '$')
     element.strip!
-
-    # handle inline ruby execution
-    if (element =~ RUBY_EVAL_REPLACEMENT_PATTERN)
-      element.replace(eval($1))
-    end
 
     build_string = ''
 
@@ -182,13 +186,10 @@ class ToolExecutor
     expansion = ((expand.class == String) ? [expand] : expand)
 
     expansion.each do |item|
-      # code eval substitution
-      if (item =~ RUBY_EVAL_REPLACEMENT_PATTERN)
-        elements << eval($1)
-      # string eval substitution
-      elsif (item =~ RUBY_STRING_REPLACEMENT_PATTERN)
+      # String eval substitution
+      if (item =~ RUBY_STRING_REPLACEMENT_PATTERN)
         elements << @system_wrapper.module_eval(item)
-      # global constants
+      # Global constants
       elsif (@system_wrapper.constants_include?(item))
         const = Object.const_get(item)
         if (const.nil?)
@@ -217,6 +218,16 @@ class ToolExecutor
     end
 
     return build_string.strip
+  end
+
+  def pretty_tool_name(command)
+    # Titleize command's name -- each word capitalized plus underscores replaced with spaces
+    name = "#{command[:name].split(/ |\_/).map(&:capitalize).join(" ")}"
+
+    executable = command[:executable].empty? ? '<no executable>' : command[:executable]
+
+    # 'Name' (executable) 
+    return "'#{name}' " + "(#{executable})"
   end
 
 end

@@ -3,7 +3,6 @@
 .. |timestamp| date:: %Y-%m-%d %H:%M:%S
 
 .. |foxbms| replace:: foxBMS 2
-.. |version_foxbms| replace:: ``1.7.0``
 .. |foxbms.org| replace:: https://foxbms.org
 .. |docs.foxbms.org| replace:: https://docs.foxbms.org
 .. |github_foxbms| replace:: https://github.com/foxBMS/
@@ -16,15 +15,7 @@
 
 .. |freertos| replace:: FreeRTOS
 
-
 .. |doxygen| replace:: Doxygen
-
-.. |version_python| replace:: ``3.7.x``
-.. |conda| replace:: ``conda``
-.. |condarc| replace:: ``C:\Users\<username>\.condarc``
-.. |conda_env_config_win32| replace:: ``conf\env\conda_env_win32.yaml``
-.. |conda_env_config_linux| replace:: ``conf/env/conda_env_linux.yaml``
-.. _proxy configuration: https://docs.conda.io/projects/conda/en/latest/user-guide/configuration/use-condarc.html#configure-conda-for-use-behind-a-proxy-server-proxy-servers
 
 .. |git| replace:: Git
 .. |git-website| replace:: https://git-scm.com/

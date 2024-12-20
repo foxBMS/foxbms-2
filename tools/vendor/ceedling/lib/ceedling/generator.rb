@@ -139,12 +139,13 @@ class Generator
                  :flags => flags,
                  :defines => defines,
                  :list => list,
-                 :dependencies => dependencies
+                 :dependencies => dependencies,
+                 :msg => String(msg)
                }
 
     @plugin_manager.pre_compile_execute(arg_hash)
 
-    msg = String(msg)
+    msg = arg_hash[:msg]
     msg = @reportinator.generate_module_progress(
       operation: "Compiling",
       module_name: module_name,
@@ -166,7 +167,7 @@ class Generator
 
     begin
       shell_result = @tool_executor.exec( command )
-    rescue ShellExecutionException => ex
+    rescue ShellException => ex
       shell_result = ex.shell_result
       raise ex
     ensure
@@ -229,7 +230,7 @@ class Generator
 
     begin
       shell_result = @tool_executor.exec( command )
-    rescue ShellExecutionException => ex
+    rescue ShellException => ex
       shell_result = ex.shell_result
       raise ex
     ensure
@@ -269,7 +270,7 @@ class Generator
 
     begin
       shell_result = @tool_executor.exec( command )
-    rescue ShellExecutionException => ex
+    rescue ShellException => ex
       shell_result = ex.shell_result
       raise ex
     ensure
@@ -346,7 +347,7 @@ class Generator
       executable,
       shell_result,
       arg_hash[:result_file],
-      @file_finder.find_test_from_file_path( arg_hash[:executable] )
+      @file_finder.find_test_file_from_filepath( arg_hash[:executable] )
     )
 
     arg_hash[:result_file]  = processed[:result_file]

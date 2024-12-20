@@ -55,23 +55,22 @@ CONTEXT_SETTINGS = {
     "--verbose",
     default=0,
     count=True,
-    help="Verbose information",
+    help="Verbose information.",
     callback=set_logging_level_cb,
 )
 @click.option(
     "--check/--no-check",
     default=False,
     is_flag=True,
-    help="Check if the required software is installed",
+    help="Check if the required software is installed.",
 )
 @click.pass_context
 def install(
     ctx: click.Context,
-    # verbose is used in the callback 'set_logging_level_cb'
     verbose: int,  # pylint: disable=unused-argument
     check: bool,
 ) -> None:
-    """Show installation instructions or check for required software"""
+    """Show installation instructions or check for required software."""
     err = 0
     if check:
         err += install_impl.all_software_available()

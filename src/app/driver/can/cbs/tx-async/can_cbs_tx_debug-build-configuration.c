@@ -43,8 +43,8 @@
  * @file    can_cbs_tx_debug-build-configuration.c
  * @author  foxBMS Team
  * @date    2023-05-31 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup DRIVERS
  * @prefix  CANTX
  *
@@ -55,9 +55,9 @@
 /*========== Includes =======================================================*/
 #include "can_cbs_tx_debug-build-configuration.h"
 
+#include "app_build_cfg.h"
 #include "battery_cell_cfg.h"
 #include "battery_system_cfg.h"
-#include "version_cfg.h"
 
 #include "can.h"
 #include "can_cfg_tx-async-message-definitions.h"

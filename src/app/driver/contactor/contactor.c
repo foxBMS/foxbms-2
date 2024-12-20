@@ -43,8 +43,8 @@
  * @file    contactor.c
  * @author  foxBMS Team
  * @date    2020-02-11 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup DRIVERS
  * @prefix  CONT
  *
@@ -230,6 +230,16 @@ extern void CONT_OpenAllPrechargeContactors(void) {
             SPS_RequestContactorState(cont_contactorStates[contactorIndex].spsChannel, SPS_CHANNEL_OFF);
             cont_contactorStates[contactorIndex].currentSet = CONT_SWITCH_OFF;
         }
+    }
+}
+
+extern void CONT_OpenAllContactors(void) {
+    /* Iterate over all contactors and open all of them */
+    for (uint8_t contactorIndex = 0u; contactorIndex < BS_NR_OF_CONTACTORS; contactorIndex++) {
+        /* Set off a request to open all precharge contactors regardless of
+         * their current state as we want to reach a safe state */
+        SPS_RequestContactorState(cont_contactorStates[contactorIndex].spsChannel, SPS_CHANNEL_OFF);
+        cont_contactorStates[contactorIndex].currentSet = CONT_SWITCH_OFF;
     }
 }
 

@@ -43,12 +43,16 @@
  * @file    test_diag_cbs_i2c.c
  * @author  foxBMS Team
  * @date    2021-09-29 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
  * @brief   Test of the I2C diag handler implementation.
+ * @details Test functions:
+ *          - testDiagI2cPex
+ *          - testDiagI2cRtc
+ *          - testDIAG_I2cPexInvalidInput
  *
  */
 

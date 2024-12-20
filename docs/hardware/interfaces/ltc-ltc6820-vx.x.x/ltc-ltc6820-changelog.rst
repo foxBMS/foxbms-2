@@ -30,7 +30,7 @@ v1.0.1
   be relevant for creepage distances
 - changed project name to "foxBMS 2 Interface LTC6820"
 - added silkscreen designators to components that are part of a variant
-- added hole with lightpipe for visibility of debug LED on master board
+- added hole with light pipe for visibility of debug LED on master board
 
 .. _CHANGELOG_FOR_INTERFACE_LTC6820_V1_0_0:
 

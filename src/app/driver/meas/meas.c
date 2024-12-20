@@ -43,12 +43,13 @@
  * @file    meas.c
  * @author  foxBMS Team
  * @date    2020-02-24 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup DRIVERS
  * @prefix  MEAS
  *
  * @brief   Driver for the measurements needed by the BMS (e.g., I,V,T).
+ * @details TODO
  *
  */
 
@@ -78,16 +79,6 @@
 
 void MEAS_Control(void) {
     AFE_TriggerIc();
-}
-
-extern STD_RETURN_TYPE_e MEAS_RequestIoWrite(uint8_t string) {
-    FAS_ASSERT(string < BS_NR_OF_STRINGS);
-    return AFE_RequestIoWrite(string);
-}
-
-extern STD_RETURN_TYPE_e MEAS_RequestIoRead(uint8_t string) {
-    FAS_ASSERT(string < BS_NR_OF_STRINGS);
-    return AFE_RequestIoRead(string);
 }
 
 extern STD_RETURN_TYPE_e MEAS_RequestTemperatureRead(uint8_t string) {

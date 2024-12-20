@@ -43,12 +43,13 @@
  * @file    test_diag_cbs_current-sensor.c
  * @author  foxBMS Team
  * @date    2021-02-17 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
  * @brief   Test of the current sensor diag handler implementation.
+ * @details Tests for invalid input
  *
  */
 
@@ -141,28 +142,28 @@ void testDIAG_ErrorCurrentSensorInvalidInput(void) {
     /* ======= RT2/5: Test implementation */
     diag_kpkDatabaseShim.pTableError->currentSensorCoulombCounterTimeoutError[0u] = false;
     /* ======= RT2/5: call function under test */
-    DIAG_ErrorCurrentSensor(DIAG_ID_CAN_CC_RESPONDING, DIAG_EVENT_NOT_OK, &diag_kpkDatabaseShim, 0u);
+    DIAG_ErrorCurrentSensor(DIAG_ID_CURRENT_SENSOR_CC_RESPONDING, DIAG_EVENT_NOT_OK, &diag_kpkDatabaseShim, 0u);
     /* ======= RT2/5: test output verification */
     TEST_ASSERT_TRUE(diag_kpkDatabaseShim.pTableError->currentSensorCoulombCounterTimeoutError[0u]);
 
     /* ======= RT2/5: Test implementation */
     diag_kpkDatabaseShim.pTableError->currentSensorCoulombCounterTimeoutError[0u] = true;
     /* ======= RT2/5: call function under test */
-    DIAG_ErrorCurrentSensor(DIAG_ID_CAN_CC_RESPONDING, DIAG_EVENT_RESET, &diag_kpkDatabaseShim, 0u);
+    DIAG_ErrorCurrentSensor(DIAG_ID_CURRENT_SENSOR_CC_RESPONDING, DIAG_EVENT_RESET, &diag_kpkDatabaseShim, 0u);
     /* ======= RT2/5: test output verification */
     TEST_ASSERT_FALSE(diag_kpkDatabaseShim.pTableError->currentSensorCoulombCounterTimeoutError[0u]);
 
     /* ======= RT3/5: Test implementation */
     diag_kpkDatabaseShim.pTableError->currentSensorEnergyCounterTimeoutError[0u] = false;
     /* ======= RT3/5: call function under test */
-    DIAG_ErrorCurrentSensor(DIAG_ID_CAN_EC_RESPONDING, DIAG_EVENT_NOT_OK, &diag_kpkDatabaseShim, 0u);
+    DIAG_ErrorCurrentSensor(DIAG_ID_CURRENT_SENSOR_EC_RESPONDING, DIAG_EVENT_NOT_OK, &diag_kpkDatabaseShim, 0u);
     /* ======= RT3/5: test output verification */
     TEST_ASSERT_TRUE(diag_kpkDatabaseShim.pTableError->currentSensorEnergyCounterTimeoutError[0u]);
 
     /* ======= RT3/5: Test implementation */
     diag_kpkDatabaseShim.pTableError->currentSensorEnergyCounterTimeoutError[0u] = true;
     /* ======= RT3/5: call function under test */
-    DIAG_ErrorCurrentSensor(DIAG_ID_CAN_EC_RESPONDING, DIAG_EVENT_RESET, &diag_kpkDatabaseShim, 0u);
+    DIAG_ErrorCurrentSensor(DIAG_ID_CURRENT_SENSOR_EC_RESPONDING, DIAG_EVENT_RESET, &diag_kpkDatabaseShim, 0u);
     /* ======= RT3/5: test output verification */
     TEST_ASSERT_FALSE(diag_kpkDatabaseShim.pTableError->currentSensorEnergyCounterTimeoutError[0u]);
 
@@ -176,14 +177,14 @@ void testDIAG_ErrorCurrentSensorInvalidInput(void) {
     /* ======= RT4/5: Test implementation */
     diag_kpkDatabaseShim.pTableError->currentSensorCoulombCounterTimeoutError[0u] = true;
     /* ======= RT4/5: call function under test */
-    DIAG_ErrorCurrentSensor(DIAG_ID_CAN_CC_RESPONDING, DIAG_EVENT_OK, &diag_kpkDatabaseShim, 0u);
+    DIAG_ErrorCurrentSensor(DIAG_ID_CURRENT_SENSOR_CC_RESPONDING, DIAG_EVENT_OK, &diag_kpkDatabaseShim, 0u);
     /* ======= RT4/5: test output verification */
     TEST_ASSERT_TRUE(diag_kpkDatabaseShim.pTableError->currentSensorCoulombCounterTimeoutError[0u]);
 
     /* ======= RT4/5: Test implementation */
     diag_kpkDatabaseShim.pTableError->currentSensorEnergyCounterTimeoutError[0u] = true;
     /* ======= RT4/5: call function under test */
-    DIAG_ErrorCurrentSensor(DIAG_ID_CAN_EC_RESPONDING, DIAG_EVENT_OK, &diag_kpkDatabaseShim, 0u);
+    DIAG_ErrorCurrentSensor(DIAG_ID_CURRENT_SENSOR_EC_RESPONDING, DIAG_EVENT_OK, &diag_kpkDatabaseShim, 0u);
     /* ======= RT4/5: test output verification */
     TEST_ASSERT_TRUE(diag_kpkDatabaseShim.pTableError->currentSensorEnergyCounterTimeoutError[0u]);
 
@@ -197,14 +198,14 @@ void testDIAG_ErrorCurrentSensorInvalidInput(void) {
     /* ======= RT5/5: Test implementation */
     diag_kpkDatabaseShim.pTableError->currentSensorCoulombCounterTimeoutError[0u] = false;
     /* ======= RT5/5: call function under test */
-    DIAG_ErrorCurrentSensor(DIAG_ID_CAN_CC_RESPONDING, DIAG_EVENT_OK, &diag_kpkDatabaseShim, 0u);
+    DIAG_ErrorCurrentSensor(DIAG_ID_CURRENT_SENSOR_CC_RESPONDING, DIAG_EVENT_OK, &diag_kpkDatabaseShim, 0u);
     /* ======= RT5/5: test output verification */
     TEST_ASSERT_FALSE(diag_kpkDatabaseShim.pTableError->currentSensorCoulombCounterTimeoutError[0u]);
 
     /* ======= RT5/5: Test implementation */
     diag_kpkDatabaseShim.pTableError->currentSensorEnergyCounterTimeoutError[0u] = false;
     /* ======= RT5/5: call function under test */
-    DIAG_ErrorCurrentSensor(DIAG_ID_CAN_EC_RESPONDING, DIAG_EVENT_OK, &diag_kpkDatabaseShim, 0u);
+    DIAG_ErrorCurrentSensor(DIAG_ID_CURRENT_SENSOR_EC_RESPONDING, DIAG_EVENT_OK, &diag_kpkDatabaseShim, 0u);
     /* ======= RT5/5: Test implementation */
     TEST_ASSERT_FALSE(diag_kpkDatabaseShim.pTableError->currentSensorEnergyCounterTimeoutError[0u]);
 }

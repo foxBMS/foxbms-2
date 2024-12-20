@@ -43,20 +43,20 @@
  * @file    test_bender_iso165c.c
  * @author  foxBMS Team
  * @date    2021-01-19 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
  * @brief   Test of the Bender iso165c driver
+ * @details Tests message composition
  *
  */
 
 /*========== Includes =======================================================*/
 #include "unity.h"
 #include "Mockcan.h"
-#include "Mockcan_cbs_rx_imd-info.h"
-#include "Mockcan_cbs_rx_imd-response.h"
+#include "Mockcan_cbs_rx.h"
 #include "Mockcan_cbs_tx_imd-request.h"
 #include "Mockcan_cfg.h"
 #include "Mockdatabase.h"
@@ -121,11 +121,6 @@ void testMessageComposition(void) {
     uint8_t command;
     uint8_t tries;
 
-    /* Do as if there is a message in the queue */
-    OS_GetNumberOfStoredMessagesInQueue_IgnoreAndReturn(1u);
-    MPU_xQueueReceive_IgnoreAndReturn(1u);
-    OS_ReceiveFromQueue_IgnoreAndReturn(OS_SUCCESS);
-
     /* Check assertion of invalid parameter */
     canMessage.data[0u] = 0xA;
     command             = 0xA;
@@ -135,31 +130,53 @@ void testMessageComposition(void) {
     canMessage.id       = CANRX_IMD_RESPONSE_ID;
     canMessage.data[0u] = 0xA;
     command             = 0xA;
+    OS_GetNumberOfStoredMessagesInQueue_ExpectAndReturn(ftsk_imdCanDataQueue, 1u);
+    OS_ReceiveFromQueue_ExpectAndReturn(ftsk_imdCanDataQueue, (void *)&canMessage, 0u, OS_SUCCESS);
     TEST_ASSERT_EQUAL(1u, TEST_I165C_CheckResponse(command, &canMessage));
 
     /* Check that response ID does not correspond to awaited acknowledge */
     canMessage.id       = CANRX_IMD_RESPONSE_ID;
     canMessage.data[0u] = 0xA;
     command             = 0xB;
+    for (uint8_t i = 0; i < 5; i++) {
+        OS_GetNumberOfStoredMessagesInQueue_ExpectAndReturn(ftsk_imdCanDataQueue, 1u);
+        OS_ReceiveFromQueue_ExpectAndReturn(ftsk_imdCanDataQueue, (void *)&canMessage, 0u, OS_SUCCESS);
+    }
     TEST_ASSERT_EQUAL(0u, TEST_I165C_CheckResponse(command, &canMessage));
 
     /* Check that response failed if ID is not CANRX_IMD_RESPONSE_ID, even if response matches command */
     canMessage.id       = CANRX_IMD_INFO_ID;
     canMessage.data[0u] = 0xA;
     command             = 0xA;
+    for (uint8_t i = 0; i < 5; i++) {
+        OS_GetNumberOfStoredMessagesInQueue_ExpectAndReturn(ftsk_imdCanDataQueue, 1u);
+        OS_ReceiveFromQueue_ExpectAndReturn(ftsk_imdCanDataQueue, (void *)&canMessage, 0u, OS_SUCCESS);
+    }
     TEST_ASSERT_EQUAL(0u, TEST_I165C_CheckResponse(command, &canMessage));
 
     /* Check that response failed if ID is not CANRX_IMD_RESPONSE_ID, if response does not match command */
     canMessage.id       = CANRX_IMD_INFO_ID;
     canMessage.data[0u] = 0xA;
     command             = 0xB;
+    for (uint8_t i = 0; i < 5; i++) {
+        OS_GetNumberOfStoredMessagesInQueue_ExpectAndReturn(ftsk_imdCanDataQueue, 1u);
+        OS_ReceiveFromQueue_ExpectAndReturn(ftsk_imdCanDataQueue, (void *)&canMessage, 0u, OS_SUCCESS);
+    }
     TEST_ASSERT_EQUAL(0u, TEST_I165C_CheckResponse(command, &canMessage));
 
     canMessage.id = I165C_MESSAGE_TYPE_IMD_INFO;
+    OS_GetNumberOfStoredMessagesInQueue_ExpectAndReturn(ftsk_imdCanDataQueue, 1u);
+    OS_ReceiveFromQueue_ExpectAndReturn(ftsk_imdCanDataQueue, (void *)&canMessage, 0u, OS_SUCCESS);
     TEST_ASSERT_FAIL_ASSERT(TEST_I165C_GetImdInfo(NULL_PTR));
+
     /* Test that an IMD_info frame was received on CAN */
     TEST_ASSERT_EQUAL(true, TEST_I165C_GetImdInfo(&canMessage));
+
     canMessage.id = I165C_MESSAGE_TYPE_IMD_INFO + 1u;
+    for (uint8_t i = 0; i < 5; i++) {
+        OS_GetNumberOfStoredMessagesInQueue_ExpectAndReturn(ftsk_imdCanDataQueue, 1u);
+        OS_ReceiveFromQueue_ExpectAndReturn(ftsk_imdCanDataQueue, (void *)&canMessage, 0u, OS_SUCCESS);
+    }
     TEST_ASSERT_EQUAL(false, TEST_I165C_GetImdInfo(&canMessage));
 
     /* ----------- Test function that waits for acknowledge -----------------*/
@@ -176,6 +193,8 @@ void testMessageComposition(void) {
     canMessage.data[0]  = 0xA;
     uint8_t ackReceived = 0u;
 
+    OS_GetNumberOfStoredMessagesInQueue_ExpectAndReturn(ftsk_imdCanDataQueue, 1u);
+    OS_ReceiveFromQueue_ExpectAndReturn(ftsk_imdCanDataQueue, (void *)&canMessage, 0u, OS_SUCCESS);
     ackReceived = TEST_I165C_CheckAcknowledgeArrived(command, &tries, &canMessage);
     TEST_ASSERT_EQUAL(1u, ackReceived);
     TEST_ASSERT_EQUAL(0u, tries);
@@ -186,6 +205,10 @@ void testMessageComposition(void) {
     command            = 0xA;
     canMessage.data[0] = 0xB;
 
+    for (uint8_t i = 0; i < 5; i++) {
+        OS_GetNumberOfStoredMessagesInQueue_ExpectAndReturn(ftsk_imdCanDataQueue, 1u);
+        OS_ReceiveFromQueue_ExpectAndReturn(ftsk_imdCanDataQueue, (void *)&canMessage, 0u, OS_SUCCESS);
+    }
     ackReceived = TEST_I165C_CheckAcknowledgeArrived(command, &tries, &canMessage);
     TEST_ASSERT_EQUAL(1u, tries);
     TEST_ASSERT_EQUAL(0u, ackReceived);
@@ -196,6 +219,10 @@ void testMessageComposition(void) {
     command            = 0xA;
     canMessage.data[0] = 0xB;
 
+    for (uint8_t i = 0; i < 5; i++) {
+        OS_GetNumberOfStoredMessagesInQueue_ExpectAndReturn(ftsk_imdCanDataQueue, 1u);
+        OS_ReceiveFromQueue_ExpectAndReturn(ftsk_imdCanDataQueue, (void *)&canMessage, 0u, OS_SUCCESS);
+    }
     ackReceived = TEST_I165C_CheckAcknowledgeArrived(command, &tries, &canMessage);
     TEST_ASSERT_EQUAL(I165C_TRANSMISSION_ATTEMPTS, tries);
     TEST_ASSERT_EQUAL(0u, ackReceived);

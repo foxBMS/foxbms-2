@@ -53,7 +53,7 @@ CONTEXT_SETTINGS = {
     "--cwd",
     type=click.Path(exists=True, file_okay=False, dir_okay=True),
     is_eager=True,
-    help="Directory where 'waf' is run",
+    help="Directory where 'waf' is run.",
 )
 @click.argument("waf_args", nargs=-1, type=click.UNPROCESSED)
 @click.pass_context
@@ -62,7 +62,7 @@ def waf(
     cwd: str,
     waf_args: tuple[str],
 ) -> None:
-    """Run the 'waf' tool"""
+    """Run the 'waf' tool."""
     if cwd:
         ret = build_impl.run_waf(list(waf_args), cwd=cwd, stdout=None, stderr=None)
     else:

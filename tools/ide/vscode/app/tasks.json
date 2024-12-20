@@ -1,0 +1,87 @@
+{
+  "tasks": [
+    {
+      "label": "Configure",
+      "type": "process",
+      "group": "build",
+      "command": "fox-wrapper-place-holder",
+      "args": [
+        "waf",
+        "configure",
+        "-c",
+        "yes"
+      ],
+      "problemMatcher": [],
+      "options": {
+        "cwd": "place-holder"
+      }
+    },
+    {
+      "label": "Build: App Embedded",
+      "type": "process",
+      "group": {
+        "isDefault": false,
+        "kind": "build"
+      },
+      "command": "fox-wrapper-place-holder",
+      "args": [
+        "waf",
+        "build_app_embedded",
+        "-c",
+        "yes"
+      ],
+      "problemMatcher": [
+        {
+          "applyTo": "allDocuments",
+          "owner": "cpp",
+          "severity": "warning",
+          "fileLocation": [
+            "place-holder"
+          ],
+          "pattern": {
+            "regexp": "^\"(.*)\",.line (\\d+):\\s+(remark)\\s+(.*):\\s+(.*)$",
+            "file": 1,
+            "line": 2,
+            "code": 4,
+            "message": 5
+          }
+        },
+        {
+          "applyTo": "allDocuments",
+          "owner": "cpp",
+          "fileLocation": [
+            "place-holder"
+          ],
+          "pattern": {
+            "regexp": "^\"(.*)\",.line (\\d+):\\s+(warning|error)\\s+(.*):\\s+(.*)$",
+            "file": 1,
+            "line": 2,
+            "severity": 3,
+            "code": 4,
+            "message": 5
+          }
+        }
+      ],
+      "options": {
+        "cwd": "place-holder"
+      }
+    },
+    {
+      "label": "Clean: App Embedded",
+      "type": "process",
+      "group": "build",
+      "command": "fox-wrapper-place-holder",
+      "args": [
+        "waf",
+        "clean_app_embedded",
+        "-c",
+        "yes"
+      ],
+      "problemMatcher": [],
+      "options": {
+        "cwd": "place-holder"
+      }
+    }
+  ],
+  "version": "2.0.0"
+}

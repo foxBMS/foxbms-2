@@ -43,8 +43,8 @@
  * @file    test_adi_ades1830_temperatures.c
  * @author  foxBMS Team
  * @date    2022-12-07 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -56,8 +56,8 @@
  *          wrappers.
  *
  *          The internal functions
- *          - #ADI_GetStoredTemperatureIndex (external wrapper
- *            #TEST_ADI_GetStoredTemperatureIndex)
+ *          - #ADI_GetMappedGpioIndex (external wrapper
+ *            #TEST_ADI_GetMappedGpioIndex)
  *
  *          are validated to call the expected routines with the expected
  *          arguments.
@@ -144,10 +144,10 @@ void tearDown(void) {
 
 /*========== Externalized Static Function Test Cases ========================*/
 /**
- * @brief   Testing static function ADI_GetStoredTemperatureIndex
+ * @brief   Testing static function ADI_GetMappedGpioIndex
  * @details The following cases need to be tested:
  *          - Argument validation:
- *            - AT1/1: invalid GPIO number &rarr; assert
+ *            - AT1/1: invalid TEMP sensor number &rarr; assert
  *          - Routine validation:
  *            - RT1/2: all inputs are used as inputs, therefore the index array
  *                     shall be fully set.
@@ -155,26 +155,26 @@ void tearDown(void) {
  *                     in
  *                     tests/unit/app/driver/afe/adi/ades1830/test_adi_ades1830_temperatures_2.c
  */
-void testADI_GetStoredTemperatureIndex(void) {
+void testADI_GetMappedGpioIndex(void) {
     /* ======= Assertion tests ============================================= */
     /* ======= AT1/1: Assertion test */
-    TEST_ASSERT_FAIL_ASSERT(TEST_ADI_GetStoredTemperatureIndex(BS_NR_OF_GPIOS_PER_MODULE));
+    TEST_ASSERT_FAIL_ASSERT(TEST_ADI_GetMappedGpioIndex(BS_NR_OF_TEMP_SENSORS_PER_MODULE));
 
     /* ======= Routine tests =============================================== */
 
     /* ======= RT1/1: Test implementation */
-    uint16_t calculatedTemperatureIndex[BS_NR_OF_GPIOS_PER_MODULE] = {
-        GEN_REPEAT_U(0u, GEN_STRIP(BS_NR_OF_GPIOS_PER_MODULE))};
-    uint16_t expectedTemperatureIndex[BS_NR_OF_GPIOS_PER_MODULE] = {0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u};
+    uint16_t calculatedTemperatureIndex[BS_NR_OF_TEMP_SENSORS_PER_MODULE] = {
+        GEN_REPEAT_U(0u, GEN_STRIP(BS_NR_OF_TEMP_SENSORS_PER_MODULE))};
+    uint16_t expectedTemperatureIndex[BS_NR_OF_TEMP_SENSORS_PER_MODULE] = {0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u};
 
     /* ======= RT1/1: call function under test */
-    for (uint8_t c = 0; c < BS_NR_OF_GPIOS_PER_MODULE; c++) {
-        calculatedTemperatureIndex[c] = TEST_ADI_GetStoredTemperatureIndex(c);
+    for (uint8_t ts = 0u; ts < BS_NR_OF_TEMP_SENSORS_PER_MODULE; ts++) {
+        calculatedTemperatureIndex[ts] = TEST_ADI_GetMappedGpioIndex(ts);
     }
 
     /* ======= RT1/1: test output verification */
-    for (uint8_t c = 0; c < BS_NR_OF_GPIOS_PER_MODULE; c++) {
-        TEST_ASSERT_EQUAL_UINT16(expectedTemperatureIndex[c], calculatedTemperatureIndex[c]);
+    for (uint8_t ts = 0u; ts < BS_NR_OF_TEMP_SENSORS_PER_MODULE; ts++) {
+        TEST_ASSERT_EQUAL_UINT16(expectedTemperatureIndex[ts], calculatedTemperatureIndex[ts]);
     }
 }
 
@@ -200,15 +200,13 @@ void testADI_GetTemperatures(void) {
     /* ======= RT1/2: Test implementation */
     const int16_t testTemperature_ddegC = 250;
     /* all temperatures are set to 25.0 C*/
-    int16_t expectedTemperatures[BS_NR_OF_STRINGS][BS_NR_OF_MODULES_PER_STRING][BS_NR_OF_GPIOS_PER_MODULE];
+    int16_t expectedTemperatures[BS_NR_OF_STRINGS][BS_NR_OF_MODULES_PER_STRING][BS_NR_OF_TEMP_SENSORS_PER_MODULE];
 
     for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
         adi_stateBase.currentString = s;
         for (uint16_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
-            for (uint16_t registerGpioIndex = 0u; registerGpioIndex < BS_NR_OF_GPIOS_PER_MODULE; registerGpioIndex++) {
-                for (uint8_t ts = 0; ts < registerGpioIndex; ts++) {
-                    expectedTemperatures[adi_stateBase.currentString][m][ts] = testTemperature_ddegC;
-                }
+            for (uint8_t ts = 0; ts < BS_NR_OF_TEMP_SENSORS_PER_MODULE; ts++) {
+                expectedTemperatures[adi_stateBase.currentString][m][ts] = testTemperature_ddegC;
             }
         }
     }
@@ -217,7 +215,7 @@ void testADI_GetTemperatures(void) {
     for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
         adi_stateBase.currentString = s;
         for (uint16_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
-            for (uint16_t registerGpioIndex = 0u; registerGpioIndex < BS_NR_OF_GPIOS_PER_MODULE; registerGpioIndex++) {
+            for (uint16_t ts = 0u; ts < BS_NR_OF_TEMP_SENSORS_PER_MODULE; ts++) {
                 ADI_ConvertGpioVoltageToTemperature_ExpectAndReturn(testGpioVoltage_mV, testTemperature_ddegC);
             }
         }
@@ -228,12 +226,10 @@ void testADI_GetTemperatures(void) {
     for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
         adi_stateBase.currentString = s;
         for (uint16_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
-            for (uint16_t registerGpioIndex = 0u; registerGpioIndex < BS_NR_OF_GPIOS_PER_MODULE; registerGpioIndex++) {
-                for (uint8_t ts = 0; ts < registerGpioIndex; ts++) {
-                    TEST_ASSERT_EQUAL_INT16(
-                        expectedTemperatures[adi_stateBase.currentString][m][ts],
-                        adi_stateBase.data.cellTemperature->cellTemperature_ddegC[adi_stateBase.currentString][m][ts]);
-                }
+            for (uint8_t ts = 0; ts < BS_NR_OF_TEMP_SENSORS_PER_MODULE; ts++) {
+                TEST_ASSERT_EQUAL_INT16(
+                    expectedTemperatures[adi_stateBase.currentString][m][ts],
+                    adi_stateBase.data.cellTemperature->cellTemperature_ddegC[adi_stateBase.currentString][m][ts]);
             }
         }
     }

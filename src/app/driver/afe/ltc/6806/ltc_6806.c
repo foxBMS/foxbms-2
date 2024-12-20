@@ -43,8 +43,8 @@
  * @file    ltc_6806.c
  * @author  foxBMS Team
  * @date    2019-09-01 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup DRIVERS
  * @prefix  LTC
  *
@@ -840,7 +840,7 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                     break;
                 } else if (ltc_state->substate == LTC_READ_VOLTAGE_REGISTER_B_RDCVB_READVOLTAGE) {
                     retVal = LTC_CheckPec(ltc_state, ltc_state->ltcData.rxBuffer, ltc_state->currentString);
-                    DIAG_CheckEvent(retVal, DIAG_ID_AFE_COM_INTEGRITY, DIAG_STRING, ltc_state->currentString);
+                    DIAG_CheckEvent(retVal, DIAG_ID_AFE_COMMUNICATION_INTEGRITY, DIAG_STRING, ltc_state->currentString);
                     LTC_SaveRXToVoltageBuffer_Fuelcell(
                         ltc_state, ltc_state->ltcData.rxBuffer, 0u, ltc_state->currentString);
 
@@ -864,7 +864,7 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                     break;
                 } else if (ltc_state->substate == LTC_READ_VOLTAGE_REGISTER_C_RDCVC_READVOLTAGE) {
                     retVal = LTC_CheckPec(ltc_state, ltc_state->ltcData.rxBuffer, ltc_state->currentString);
-                    DIAG_CheckEvent(retVal, DIAG_ID_AFE_COM_INTEGRITY, DIAG_STRING, ltc_state->currentString);
+                    DIAG_CheckEvent(retVal, DIAG_ID_AFE_COMMUNICATION_INTEGRITY, DIAG_STRING, ltc_state->currentString);
                     LTC_SaveRXToVoltageBuffer_Fuelcell(
                         ltc_state, ltc_state->ltcData.rxBuffer, 1u, ltc_state->currentString);
 
@@ -888,7 +888,7 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                     break;
                 } else if (ltc_state->substate == LTC_READ_VOLTAGE_REGISTER_D_RDCVD_READVOLTAGE) {
                     retVal = LTC_CheckPec(ltc_state, ltc_state->ltcData.rxBuffer, ltc_state->currentString);
-                    DIAG_CheckEvent(retVal, DIAG_ID_AFE_COM_INTEGRITY, DIAG_STRING, ltc_state->currentString);
+                    DIAG_CheckEvent(retVal, DIAG_ID_AFE_COMMUNICATION_INTEGRITY, DIAG_STRING, ltc_state->currentString);
                     LTC_SaveRXToVoltageBuffer_Fuelcell(
                         ltc_state, ltc_state->ltcData.rxBuffer, 2u, ltc_state->currentString);
 
@@ -912,7 +912,7 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                     break;
                 } else if (ltc_state->substate == LTC_READ_VOLTAGE_REGISTER_E_RDCVE_READVOLTAGE) {
                     retVal = LTC_CheckPec(ltc_state, ltc_state->ltcData.rxBuffer, ltc_state->currentString);
-                    DIAG_CheckEvent(retVal, DIAG_ID_AFE_COM_INTEGRITY, DIAG_STRING, ltc_state->currentString);
+                    DIAG_CheckEvent(retVal, DIAG_ID_AFE_COMMUNICATION_INTEGRITY, DIAG_STRING, ltc_state->currentString);
                     LTC_SaveRXToVoltageBuffer_Fuelcell(
                         ltc_state, ltc_state->ltcData.rxBuffer, 3u, ltc_state->currentString);
 
@@ -936,7 +936,7 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                     break;
                 } else if (ltc_state->substate == LTC_READ_VOLTAGE_REGISTER_F_RDCVF_READVOLTAGE) {
                     retVal = LTC_CheckPec(ltc_state, ltc_state->ltcData.rxBuffer, ltc_state->currentString);
-                    DIAG_CheckEvent(retVal, DIAG_ID_AFE_COM_INTEGRITY, DIAG_STRING, ltc_state->currentString);
+                    DIAG_CheckEvent(retVal, DIAG_ID_AFE_COMMUNICATION_INTEGRITY, DIAG_STRING, ltc_state->currentString);
                     LTC_SaveRXToVoltageBuffer_Fuelcell(
                         ltc_state, ltc_state->ltcData.rxBuffer, 4u, ltc_state->currentString);
 
@@ -960,7 +960,7 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                     break;
                 } else if (ltc_state->substate == LTC_READ_VOLTAGE_REGISTER_G_RDCVG_READVOLTAGE) {
                     retVal = LTC_CheckPec(ltc_state, ltc_state->ltcData.rxBuffer, ltc_state->currentString);
-                    DIAG_CheckEvent(retVal, DIAG_ID_AFE_COM_INTEGRITY, DIAG_STRING, ltc_state->currentString);
+                    DIAG_CheckEvent(retVal, DIAG_ID_AFE_COMMUNICATION_INTEGRITY, DIAG_STRING, ltc_state->currentString);
                     LTC_SaveRXToVoltageBuffer_Fuelcell(
                         ltc_state, ltc_state->ltcData.rxBuffer, 5u, ltc_state->currentString);
 
@@ -984,7 +984,7 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                     break;
                 } else if (ltc_state->substate == LTC_READ_VOLTAGE_REGISTER_H_RDCVH_READVOLTAGE) {
                     retVal = LTC_CheckPec(ltc_state, ltc_state->ltcData.rxBuffer, ltc_state->currentString);
-                    DIAG_CheckEvent(retVal, DIAG_ID_AFE_COM_INTEGRITY, DIAG_STRING, ltc_state->currentString);
+                    DIAG_CheckEvent(retVal, DIAG_ID_AFE_COMMUNICATION_INTEGRITY, DIAG_STRING, ltc_state->currentString);
                     LTC_SaveRXToVoltageBuffer_Fuelcell(
                         ltc_state, ltc_state->ltcData.rxBuffer, 6u, ltc_state->currentString);
 
@@ -1008,7 +1008,7 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                     break;
                 } else if (ltc_state->substate == LTC_READ_VOLTAGE_REGISTER_I_RDCVI_READVOLTAGE) {
                     retVal = LTC_CheckPec(ltc_state, ltc_state->ltcData.rxBuffer, ltc_state->currentString);
-                    DIAG_CheckEvent(retVal, DIAG_ID_AFE_COM_INTEGRITY, DIAG_STRING, ltc_state->currentString);
+                    DIAG_CheckEvent(retVal, DIAG_ID_AFE_COMMUNICATION_INTEGRITY, DIAG_STRING, ltc_state->currentString);
                     LTC_SaveRXToVoltageBuffer_Fuelcell(
                         ltc_state, ltc_state->ltcData.rxBuffer, 7u, ltc_state->currentString);
 
@@ -1032,7 +1032,7 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                     break;
                 } else if (ltc_state->substate == LTC_EXIT_READVOLTAGE) {
                     retVal = LTC_CheckPec(ltc_state, ltc_state->ltcData.rxBuffer, ltc_state->currentString);
-                    DIAG_CheckEvent(retVal, DIAG_ID_AFE_COM_INTEGRITY, DIAG_STRING, ltc_state->currentString);
+                    DIAG_CheckEvent(retVal, DIAG_ID_AFE_COMMUNICATION_INTEGRITY, DIAG_STRING, ltc_state->currentString);
                     LTC_SaveRXToVoltageBuffer_Fuelcell(
                         ltc_state, ltc_state->ltcData.rxBuffer, 8u, ltc_state->currentString);
 

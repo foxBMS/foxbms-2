@@ -43,12 +43,14 @@
  * @file    test_can_cbs_tx_string-state.c
  * @author  foxBMS Team
  * @date    2023-05-31 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
  * @brief   Tests for the CAN driver callbacks
+ * @details Test functions:
+ *          - test_CANTX_StringState
  *
  */
 
@@ -101,29 +103,31 @@ static DATA_BLOCK_SOE_s can_tableSoe                          = {.header.uniqueI
 static DATA_BLOCK_ERROR_STATE_s can_tableErrorState           = {.header.uniqueId = DATA_BLOCK_ID_ERROR_STATE};
 static DATA_BLOCK_INSULATION_MONITORING_s can_tableInsulation = {
     .header.uniqueId = DATA_BLOCK_ID_INSULATION_MONITORING};
-static DATA_BLOCK_MSL_FLAG_s can_tableMslFlags = {.header.uniqueId = DATA_BLOCK_ID_MSL_FLAG};
-static DATA_BLOCK_RSL_FLAG_s can_tableRslFlags = {.header.uniqueId = DATA_BLOCK_ID_RSL_FLAG};
-static DATA_BLOCK_MOL_FLAG_s can_tableMolFlags = {.header.uniqueId = DATA_BLOCK_ID_MOL_FLAG};
+static DATA_BLOCK_MSL_FLAG_s can_tableMslFlags                  = {.header.uniqueId = DATA_BLOCK_ID_MSL_FLAG};
+static DATA_BLOCK_RSL_FLAG_s can_tableRslFlags                  = {.header.uniqueId = DATA_BLOCK_ID_RSL_FLAG};
+static DATA_BLOCK_MOL_FLAG_s can_tableMolFlags                  = {.header.uniqueId = DATA_BLOCK_ID_MOL_FLAG};
+static DATA_BLOCK_BALANCING_CONTROL_s can_tableBalancingControl = {.header.uniqueId = DATA_BLOCK_ID_BALANCING_CONTROL};
 
 OS_QUEUE imd_canDataQueue = NULL_PTR;
 
 const CAN_SHIM_s can_kShim = {
-    .pQueueImd             = &imd_canDataQueue,
-    .pTableCellVoltage     = &can_tableCellVoltages,
-    .pTableCellTemperature = &can_tableTemperatures,
-    .pTableMinMax          = &can_tableMinimumMaximumValues,
-    .pTableCurrentSensor   = &can_tableCurrentSensor,
-    .pTableOpenWire        = &can_tableOpenWire,
-    .pTableStateRequest    = &can_tableStateRequest,
-    .pTablePackValues      = &can_tablePackValues,
-    .pTableSof             = &can_tableSof,
-    .pTableSoc             = &can_tableSoc,
-    .pTableSoe             = &can_tableSoe,
-    .pTableErrorState      = &can_tableErrorState,
-    .pTableInsulation      = &can_tableInsulation,
-    .pTableMsl             = &can_tableMslFlags,
-    .pTableRsl             = &can_tableRslFlags,
-    .pTableMol             = &can_tableMolFlags,
+    .pQueueImd              = &imd_canDataQueue,
+    .pTableCellVoltage      = &can_tableCellVoltages,
+    .pTableCellTemperature  = &can_tableTemperatures,
+    .pTableMinMax           = &can_tableMinimumMaximumValues,
+    .pTableCurrentSensor    = &can_tableCurrentSensor,
+    .pTableOpenWire         = &can_tableOpenWire,
+    .pTableStateRequest     = &can_tableStateRequest,
+    .pTablePackValues       = &can_tablePackValues,
+    .pTableSof              = &can_tableSof,
+    .pTableSoc              = &can_tableSoc,
+    .pTableSoe              = &can_tableSoe,
+    .pTableErrorState       = &can_tableErrorState,
+    .pTableInsulation       = &can_tableInsulation,
+    .pTableMsl              = &can_tableMslFlags,
+    .pTableRsl              = &can_tableRslFlags,
+    .pTableMol              = &can_tableMolFlags,
+    .pTableBalancingControl = &can_tableBalancingControl,
 };
 
 /*========== Setup and Teardown =============================================*/

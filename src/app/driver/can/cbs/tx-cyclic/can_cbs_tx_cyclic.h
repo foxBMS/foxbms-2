@@ -43,8 +43,8 @@
  * @file    can_cbs_tx_cyclic.h
  * @author  foxBMS Team
  * @date    2021-04-20 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup DRIVERS
  * @prefix  CANTX
  *
@@ -84,6 +84,13 @@ extern uint32_t CANTX_BmsState(
     uint8_t *pCanData,
     uint8_t *pMuxId,
     const CAN_SHIM_s *const kpkCanShim);
+/**
+ * @brief   CAN Tx callback function for state, used to send asynchronous
+ *          bms state messages, for example when changing the state
+ * @return  STD_OK if message has been sent successfully
+ */
+extern STD_RETURN_TYPE_e CANTX_TransmitBmsState(void);
+
 /**
  * @brief   CAN Tx callback function for detail state
  * @param[in] message     contains the message ID, DLC and endianness
@@ -269,6 +276,7 @@ extern void TEST_CANTX_SetTimingViolation100MsAlgoRec(
 
 /* externalized functions from src/app/driver/can/cbs/tx-cyclic/can_cbs_tx_bms-state.c */
 extern bool TEST_CANTX_AnySysMonTimingIssueDetected(const CAN_SHIM_s *const kpkCanShim);
+extern void TEST_CANTX_BuildBmsStateMessage(uint64_t *pMessageData, const CAN_SHIM_s *const kpkCanShim);
 
 /* externalized functions from src/app/driver/can/cbs/tx-cyclic/can_cbs_tx_cell-temperatures.c */
 extern void TEST_CANTX_TemperatureSetData(

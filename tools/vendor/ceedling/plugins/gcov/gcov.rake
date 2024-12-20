@@ -20,17 +20,6 @@ CLEAN.include(File.join(GCOV_DEPENDENCIES_PATH, '*'))
 
 CLOBBER.include(File.join(GCOV_BUILD_PATH, '**/*'))
 
-rule(/#{GCOV_BUILD_OUTPUT_PATH}\/#{'.+\\' + EXTENSION_OBJECT}$/ => [
-    proc do |task_name|
-      _, object = (task_name.split('+'))
-      @ceedling[:file_finder].find_build_input_file(filepath: object, context: GCOV_SYM)
-    end
-  ]) do |target|
-    test, object = (target.name.split('+'))
-
-    @ceedling[GCOV_SYM].generate_coverage_object_file(test.to_sym, target.source, object)
-  end
-
 task directories: [GCOV_BUILD_OUTPUT_PATH, GCOV_RESULTS_PATH, GCOV_DEPENDENCIES_PATH, GCOV_ARTIFACTS_PATH]
 
 namespace GCOV_SYM do
@@ -79,14 +68,19 @@ namespace GCOV_SYM do
     end
   end
 
-  # Use a rule to increase efficiency for large projects -- gcov test tasks by regex
-  rule(/^#{GCOV_TASK_ROOT}\S+$/ => [
-         proc do |task_name|
-           test = task_name.sub(/#{GCOV_TASK_ROOT}/, '')
-           test = "#{PROJECT_TEST_FILE_PREFIX}#{test}" unless test.start_with?(PROJECT_TEST_FILE_PREFIX)
-           @ceedling[:file_finder].find_test_from_file_path(test)
-         end
-       ]) do |test|
+  # Use a rule to increase efficiency for large projects
+  rule(/^#{GCOV_TASK_ROOT}\S+$/ => [ # gcov test tasks by regex
+     proc do |task_name|
+        # Yield clean test name => Strip the task string, remove Rake test task prefix, and remove any code file extension
+        test = task_name.strip().sub(/^#{GCOV_TASK_ROOT}/, '').chomp( EXTENSION_SOURCE )
+
+        # Ensure the test name begins with a test name prefix
+        test = PROJECT_TEST_FILE_PREFIX + test if not (test.start_with?( PROJECT_TEST_FILE_PREFIX ))
+
+        # Provide the filepath for the target test task back to the Rake task
+        @ceedling[:file_finder].find_test_file_from_name( test )
+     end
+   ]) do |test|
     @ceedling[:rake_wrapper][:prepare].invoke
     @ceedling[:test_invoker].setup_and_invoke( tests:[test.source], context:GCOV_SYM, options:TOOL_COLLECTION_GCOV_TASKS )
   end
@@ -95,10 +89,12 @@ end
 # If gcov config enables dedicated report generation task, create the task
 if not @ceedling[GCOV_SYM].automatic_reporting_enabled?
 namespace GCOV_REPORT_NAMESPACE_SYM do
+
   desc "Generate reports from coverage results (Note: a #{GCOV_SYM}: task must be executed first)"
   task GCOV_SYM do
     @ceedling[:gcov].generate_coverage_reports()
   end
+
 end
 end
 

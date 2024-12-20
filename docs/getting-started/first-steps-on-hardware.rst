@@ -29,7 +29,7 @@ Details on the software installation can be found in
 :ref:`SOFTWARE_INSTALLATION`.
 Most notable parts of the toolchain are:
 
-- the conda environment,
+- the Python `venv` environment,
 - the compiler toolchain,
 - and a debugger.
 
@@ -39,9 +39,31 @@ Compilation
 Details on this step are described in :ref:`BUILDING_THE_APPLICATION`.
 The following steps should pass and result in the application being built.
 
-.. code-block:: powershell
+.. tabs::
 
-     PS C:\Users\vulpes\Documents\foxbms-2> .\fox.ps1 waf configure build_bin
+  .. group-tab:: Win32/PowerShell
+
+      .. code-block:: powershell
+
+        .\fox.ps1 waf configure build_app_embedded
+
+  .. group-tab:: Win32/cmd.exe
+
+      .. code-block:: bat
+
+        fox.bat waf configure build_app_embedded
+
+  .. group-tab:: Win32/Git bash
+
+      .. code-block:: shell
+
+        ./fox.ps1 waf configure build_app_embedded
+
+  .. group-tab:: Linux
+
+      .. code-block:: shell
+
+        ./fox.ps1 waf configure build_app_embedded
 
 If any error messages occur, they have to be investigated before continuing.
 

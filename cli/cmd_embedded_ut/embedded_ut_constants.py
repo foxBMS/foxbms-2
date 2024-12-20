@@ -39,8 +39,13 @@
 
 """Constants that are related to the embedded unit tests (paths etc.)"""
 
-from ..helpers.misc import PROJECT_ROOT
+from typing import Literal
 
-# needs to be aligned with build tool defintion
-UNIT_TEST_BUILD_DIR = PROJECT_ROOT / "build/unit_test"
+from ..helpers.misc import PROJECT_BUILD_ROOT, PROJECT_ROOT
+
+# needs to be aligned with build tool definition
+EmbeddedUnitTestVariants = Literal["app", "bootloader"]
+UNIT_TEST_BUILD_DIR_APP = PROJECT_BUILD_ROOT / "app_host_unit_test"
+UNIT_TEST_BUILD_DIR_BL = PROJECT_BUILD_ROOT / "bootloader_host_unit_test"
+
 CEEDLING_BINARY = PROJECT_ROOT / "tools/vendor/ceedling/bin/ceedling"

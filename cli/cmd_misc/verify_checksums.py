@@ -46,8 +46,8 @@ from pathlib import Path
 from ..helpers.misc import get_multiple_files_hash_str
 
 
-def verify(files: Path | list[Path], known_hash: str) -> int:
-    """Verifies the checksum of directory"""
+def verify(files: str | Path | list[Path | str], known_hash: str) -> int:
+    """Verifies the checksum of directory."""
     # ensure we have a list
     if isinstance(files, list):
         pass

@@ -43,12 +43,13 @@
  * @file    test_bal_strategy_none.c
  * @author  foxBMS Team
  * @date    2020-08-03 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
  * @brief   Test of the history based balancing module
+ * @details Tests Balancing Strategy None
  *
  */
 

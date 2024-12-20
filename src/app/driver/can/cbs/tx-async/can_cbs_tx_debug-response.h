@@ -43,8 +43,8 @@
  * @file    can_cbs_tx_debug-response.h
  * @author  foxBMS Team
  * @date    2022-07-01 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup DRIVERS
  * @prefix  CANTX
  *
@@ -95,7 +95,10 @@ extern uint64_t TEST_CANTX_TransmitBootMagic(uint64_t messageData);
 extern uint64_t TEST_CANTX_TransmitBootMagicStart(void);
 extern uint64_t TEST_CANTX_TransmitBootMagicEnd(void);
 extern uint64_t TEST_CANTX_TransmitRtcTime(void);
-extern uint64_t TEST_CANTX_TransmitCommitHash(void);
+extern STD_RETURN_TYPE_e TEST_CANTX_TransmitCommitHash(void);
+extern uint64_t TEST_CANTX_TransmitCommitHashLow(void);
+extern uint64_t TEST_CANTX_TransmitCommitHashHigh(void);
+extern uint64_t TEST_CANTX_GetSevenChars(char *string, uint8_t stringLength, uint8_t startChar);
 extern STD_RETURN_TYPE_e TEST_CANTX_DebugResponseSendMessage(uint64_t messageData);
 #endif
 

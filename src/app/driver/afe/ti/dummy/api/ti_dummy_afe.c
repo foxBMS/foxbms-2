@@ -43,8 +43,8 @@
  * @file    ti_dummy_afe.c
  * @author  foxBMS Team
  * @date    2023-09-11 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  TI
  *
@@ -111,16 +111,6 @@ extern STD_RETURN_TYPE_e TI_StartMeasurement(void) {
 
 extern bool TI_IsFirstMeasurementCycleFinished(void) {
     return TIDUM_IsFirstMeasurementCycleFinished();
-}
-
-extern STD_RETURN_TYPE_e TI_RequestIoRead(uint8_t string) {
-    FAS_ASSERT(string < BS_NR_OF_STRINGS);
-    return TIDUM_RequestIoRead(string);
-}
-
-STD_RETURN_TYPE_e TI_RequestIoWrite(uint8_t string) {
-    FAS_ASSERT(string < BS_NR_OF_STRINGS);
-    return TIDUM_RequestIoWrite(string);
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/

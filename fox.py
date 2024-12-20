@@ -41,7 +41,16 @@
 """TODO"""
 
 import sys
-from pathlib import Path
+
+# we are depending on
+# - pathlib (requires >=3.4)
+# - f-strings (requires >3.6)
+# - Union Type (requires >=10)
+
+if not (sys.version_info.major >= 3 and sys.version_info.minor >= 10):
+    sys.exit("Running 'fox.py' requires Python3.10 or later.")
+
+from pathlib import Path  # pylint: disable=wrong-import-position
 
 expected_cwd = Path(__file__).parent
 if Path.cwd() != expected_cwd:
@@ -51,9 +60,6 @@ if Path.cwd() != expected_cwd:
 
 # pylint: disable-next=wrong-import-position
 from cli.cli import main  # noqa: E402
-
-if sys.version_info[0] != 3:
-    sys.exit(f"Running '{__file__}' requires Python3.")
 
 
 def wrapper():

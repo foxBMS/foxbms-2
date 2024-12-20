@@ -43,13 +43,12 @@
  * @file    can.c
  * @author  foxBMS Team
  * @date    2019-12-04 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup DRIVERS
  * @prefix  CAN
  *
  * @brief   Driver for the CAN module
- *
  * @details Implementation of the CAN Interrupts, initialization, buffers,
  *          receive and transmit interfaces.
  */
@@ -66,6 +65,7 @@
 #include "database.h"
 #include "diag.h"
 #include "ftask.h"
+#include "io.h"
 #include "pex.h"
 
 #include <stdbool.h>
@@ -564,16 +564,16 @@ static void CAN_ConfigureRxMailboxesForExtendedIdentifiers(void) {
 
 static void CAN_InitializeTransceiver(void) {
     /** Initialize transceiver for CAN1 */
-    PEX_SetPinDirectionOutput(PEX_PORT_EXPANDER2, CAN1_ENABLE_PIN);
-    PEX_SetPinDirectionOutput(PEX_PORT_EXPANDER2, CAN1_STANDBY_PIN);
-    PEX_SetPin(PEX_PORT_EXPANDER2, CAN1_ENABLE_PIN);
-    PEX_SetPin(PEX_PORT_EXPANDER2, CAN1_STANDBY_PIN);
+    IO_SetPinDirectionToOutput(&CAN_CAN1_IO_REG_DIR, CAN_CAN1_ENABLE_PIN);
+    IO_SetPinDirectionToOutput(&CAN_CAN1_IO_REG_DIR, CAN_CAN1_STANDBY_PIN);
+    IO_PinSet(&CAN_CAN1_IO_REG_DOUT, CAN_CAN1_ENABLE_PIN);
+    IO_PinSet(&CAN_CAN1_IO_REG_DOUT, CAN_CAN1_STANDBY_PIN);
 
     /** Initialize transceiver for CAN2 */
-    PEX_SetPinDirectionOutput(PEX_PORT_EXPANDER2, CAN2_ENABLE_PIN);
-    PEX_SetPinDirectionOutput(PEX_PORT_EXPANDER2, CAN2_STANDBY_PIN);
-    PEX_SetPin(PEX_PORT_EXPANDER2, CAN2_ENABLE_PIN);
-    PEX_SetPin(PEX_PORT_EXPANDER2, CAN2_STANDBY_PIN);
+    PEX_SetPinDirectionOutput(PEX_PORT_EXPANDER2, CAN_CAN2_ENABLE_PIN);
+    PEX_SetPinDirectionOutput(PEX_PORT_EXPANDER2, CAN_CAN2_STANDBY_PIN);
+    PEX_SetPin(PEX_PORT_EXPANDER2, CAN_CAN2_ENABLE_PIN);
+    PEX_SetPin(PEX_PORT_EXPANDER2, CAN_CAN2_STANDBY_PIN);
 }
 
 static void CAN_ValidateConfiguredTxMessagePeriod(void) {
@@ -835,9 +835,9 @@ static void CAN_CheckCanTimingOfCurrentSensor(void) {
         if (currentTab.timestampCurrentCounting[s] != 0) {
             if ((currentTime - currentTab.timestampCurrentCounting[s]) >
                 BS_COULOMB_COUNTING_MEASUREMENT_RESPONSE_TIMEOUT_ms) {
-                DIAG_Handler(DIAG_ID_CAN_CC_RESPONDING, DIAG_EVENT_NOT_OK, DIAG_STRING, s);
+                DIAG_Handler(DIAG_ID_CURRENT_SENSOR_CC_RESPONDING, DIAG_EVENT_NOT_OK, DIAG_STRING, s);
             } else {
-                DIAG_Handler(DIAG_ID_CAN_CC_RESPONDING, DIAG_EVENT_OK, DIAG_STRING, s);
+                DIAG_Handler(DIAG_ID_CURRENT_SENSOR_CC_RESPONDING, DIAG_EVENT_OK, DIAG_STRING, s);
                 if (can_state.currentSensorCCPresent[s] == false) {
                     CAN_SetCurrentSensorCcPresent(true, s);
                 }
@@ -849,9 +849,9 @@ static void CAN_CheckCanTimingOfCurrentSensor(void) {
         if (currentTab.timestampEnergyCounting[s] != 0) {
             if ((currentTime - currentTab.timestampEnergyCounting[s]) >
                 BS_ENERGY_COUNTING_MEASUREMENT_RESPONSE_TIMEOUT_ms) {
-                DIAG_Handler(DIAG_ID_CAN_EC_RESPONDING, DIAG_EVENT_NOT_OK, DIAG_STRING, s);
+                DIAG_Handler(DIAG_ID_CURRENT_SENSOR_EC_RESPONDING, DIAG_EVENT_NOT_OK, DIAG_STRING, s);
             } else {
-                DIAG_Handler(DIAG_ID_CAN_EC_RESPONDING, DIAG_EVENT_OK, DIAG_STRING, s);
+                DIAG_Handler(DIAG_ID_CURRENT_SENSOR_EC_RESPONDING, DIAG_EVENT_OK, DIAG_STRING, s);
                 if (can_state.currentSensorECPresent[s] == false) {
                     CAN_SetCurrentSensorEcPresent(true, s);
                 }

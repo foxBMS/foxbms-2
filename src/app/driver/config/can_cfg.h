@@ -43,8 +43,8 @@
  * @file    can_cfg.h
  * @author  foxBMS Team
  * @date    2019-12-04 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup DRIVERS
  * @prefix  CAN
  *
@@ -80,6 +80,7 @@ typedef struct {
 
 #define CAN_NODE_DEBUG_MESSAGE        (CAN_NODE_1)
 #define CAN_NODE_IMD                  (CAN_NODE_1)
+#define CAN_NODE_FATAL_ERROR_MESSAGE  (CAN_NODE_1)
 #define CAN_NODE_CURRENT_SENSOR       (CAN_NODE_1)
 #define CAN_NODE_RX_CELL_VOLTAGES     (CAN_NODE_1)
 #define CAN_NODE_RX_CELL_TEMPERATURES (CAN_NODE_1)
@@ -89,10 +90,13 @@ typedef struct {
  * Configuration of CAN transceiver pins to the respective port expander pins.
  * @{
  */
-#define CAN1_ENABLE_PIN  (PEX_PORT_0_PIN_0)
-#define CAN1_STANDBY_PIN (PEX_PORT_0_PIN_1)
-#define CAN2_ENABLE_PIN  (PEX_PORT_0_PIN_2)
-#define CAN2_STANDBY_PIN (PEX_PORT_0_PIN_3)
+/** IO register to which the CAN1 is connected */
+#define CAN_CAN1_IO_REG_DIR  (hetREG2->DIR)
+#define CAN_CAN1_IO_REG_DOUT (hetREG2->DOUT)
+#define CAN_CAN1_ENABLE_PIN  (18u)
+#define CAN_CAN1_STANDBY_PIN (23u)
+#define CAN_CAN2_ENABLE_PIN  (PEX_PORT_0_PIN_2)
+#define CAN_CAN2_STANDBY_PIN (PEX_PORT_0_PIN_3)
 /**@}*/
 
 /** Maximum ID if 11 bits are used */
@@ -197,24 +201,25 @@ typedef struct {
 
 /** composite type for storing and passing on the local database table handles */
 typedef struct {
-    OS_QUEUE *pQueueImd;                                  /*!< handle of the message queue */
-    DATA_BLOCK_CELL_VOLTAGE_s *pTableCellVoltage;         /*!< database table with cell voltages */
-    DATA_BLOCK_CELL_TEMPERATURE_s *pTableCellTemperature; /*!< database table with cell temperatures */
-    DATA_BLOCK_CURRENT_SENSOR_s *pTableCurrentSensor;     /*!< database table with current sensor measurements */
-    DATA_BLOCK_ERROR_STATE_s *pTableErrorState;           /*!< database table with error state variables */
-    DATA_BLOCK_INSULATION_MONITORING_s *pTableInsulation; /*!< database table with insulation monitoring info */
-    DATA_BLOCK_MIN_MAX_s *pTableMinMax;                   /*!< database table with min/max values */
-    DATA_BLOCK_MOL_FLAG_s *pTableMol;                     /*!< database table with MOL flags */
-    DATA_BLOCK_MSL_FLAG_s *pTableMsl;                     /*!< database table with MSL flags */
-    DATA_BLOCK_OPEN_WIRE_s *pTableOpenWire;               /*!< database table with open wire status */
-    DATA_BLOCK_PACK_VALUES_s *pTablePackValues;           /*!< database table with pack values */
-    DATA_BLOCK_RSL_FLAG_s *pTableRsl;                     /*!< database table with RSL flags */
-    DATA_BLOCK_SOC_s *pTableSoc;                          /*!< database table with SOC values */
-    DATA_BLOCK_SOE_s *pTableSoe;                          /*!< database table with SOE values */
-    DATA_BLOCK_SOF_s *pTableSof;                          /*!< database table with SOF values */
-    DATA_BLOCK_SOH_s *pTableSoh;                          /*!< database table with SOH values */
-    DATA_BLOCK_STATE_REQUEST_s *pTableStateRequest;       /*!< database table with state requests */
-    DATA_BLOCK_AEROSOL_SENSOR_s *pTableAerosolSensor;     /*!< database table with aerosol sensor measurements */
+    OS_QUEUE *pQueueImd;                                    /*!< handle of the message queue */
+    DATA_BLOCK_CELL_VOLTAGE_s *pTableCellVoltage;           /*!< database table with cell voltages */
+    DATA_BLOCK_CELL_TEMPERATURE_s *pTableCellTemperature;   /*!< database table with cell temperatures */
+    DATA_BLOCK_CURRENT_SENSOR_s *pTableCurrentSensor;       /*!< database table with current sensor measurements */
+    DATA_BLOCK_ERROR_STATE_s *pTableErrorState;             /*!< database table with error state variables */
+    DATA_BLOCK_INSULATION_MONITORING_s *pTableInsulation;   /*!< database table with insulation monitoring info */
+    DATA_BLOCK_MIN_MAX_s *pTableMinMax;                     /*!< database table with min/max values */
+    DATA_BLOCK_MOL_FLAG_s *pTableMol;                       /*!< database table with MOL flags */
+    DATA_BLOCK_MSL_FLAG_s *pTableMsl;                       /*!< database table with MSL flags */
+    DATA_BLOCK_OPEN_WIRE_s *pTableOpenWire;                 /*!< database table with open wire status */
+    DATA_BLOCK_PACK_VALUES_s *pTablePackValues;             /*!< database table with pack values */
+    DATA_BLOCK_RSL_FLAG_s *pTableRsl;                       /*!< database table with RSL flags */
+    DATA_BLOCK_SOC_s *pTableSoc;                            /*!< database table with SOC values */
+    DATA_BLOCK_SOE_s *pTableSoe;                            /*!< database table with SOE values */
+    DATA_BLOCK_SOF_s *pTableSof;                            /*!< database table with SOF values */
+    DATA_BLOCK_SOH_s *pTableSoh;                            /*!< database table with SOH values */
+    DATA_BLOCK_STATE_REQUEST_s *pTableStateRequest;         /*!< database table with state requests */
+    DATA_BLOCK_AEROSOL_SENSOR_s *pTableAerosolSensor;       /*!< database table with aerosol sensor measurements */
+    DATA_BLOCK_BALANCING_CONTROL_s *pTableBalancingControl; /*!< database table with balancing information */
 } CAN_SHIM_s;
 
 /** definition of a CAN message (without data) */

@@ -43,12 +43,23 @@
  * @file    test_algorithm.c
  * @author  foxBMS Team
  * @date    2020-06-30 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
  * @brief   Test of the algorithm module
+ * @details Test functions:
+ *          - testUninitializedCallsNothing
+ *          - testUnlockInitialization
+ *          - testUnlockInitializationInvalidAlgorithmConfiguration
+ *          - testUnsuccessfulInitialization
+ *          - testTwoTimesInitialization
+ *          - testWrongInitializationImplementation
+ *          - testCycleTimeZero
+ *          - testMonitorFunctionPassBecauseNotRunning
+ *          - testMonitorFunctionPassBecauseInTime
+ *          - testMonitorFunctionStopBecauseOutOfTime
  *
  */
 
@@ -93,8 +104,8 @@ void tearDown(void) {
 
 void testUninitializedCallsNothing(void) {
     /* when no algorithm is initialized and init is not unlocked then nothing should be called */
-    OS_EnterTaskCritical_Ignore();
-    OS_ExitTaskCritical_Ignore();
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
     ALGO_MainFunction();
     TEST_ASSERT_EQUAL(ALGO_UNINITIALIZED, algo_algorithms[0].state);
     TEST_ASSERT_EQUAL(ALGO_UNINITIALIZED, algo_algorithms[1].state);
@@ -102,21 +113,27 @@ void testUninitializedCallsNothing(void) {
 
 void testUnlockInitialization(void) {
     /* when no algorithm is initialized and init is not unlocked then nothing should be called */
-    OS_EnterTaskCritical_Ignore();
-    OS_ExitTaskCritical_Ignore();
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
     ALGO_MainFunction();
     TEST_ASSERT_EQUAL(ALGO_UNINITIALIZED, algo_algorithms[0].state);
     TEST_ASSERT_EQUAL(ALGO_UNINITIALIZED, algo_algorithms[1].state);
 
     /* after that if we unlock, then the init process will be handled and the
      first calculation computed */
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
     ALGO_UnlockInitialization();
 
     /* call to the init function of the second entry (first one has no init) */
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
     TEST_AlgorithmInitializationFunction_ExpectAndReturn(STD_OK);
 
     /* this is the retrieval of the start time for both algorithms and
        after that both algorithms should be called */
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
     OS_GetTickCount_ExpectAndReturn(0u);
     TEST_AlgorithmComputeFunction_Expect();
     ALGO_MarkAsDone_Expect(0u);
@@ -136,14 +153,16 @@ void testUnlockInitialization(void) {
 void testUnlockInitializationInvalidAlgorithmConfiguration(void) {
     /* after that if we unlock, then the init process will be handled and the
      first calculation computed */
-    OS_EnterTaskCritical_Ignore();
-    OS_ExitTaskCritical_Ignore();
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
     ALGO_UnlockInitialization();
 
     const uint32_t storeCycleTime = algo_algorithms[0].cycleTime_ms;
     /* set to an invalid cycle time */
     algo_algorithms[0].cycleTime_ms = ALGO_TICK_ms + 1u;
 
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
     TEST_ASSERT_FAIL_ASSERT(ALGO_MainFunction());
 
     TEST_ASSERT_EQUAL(ALGO_UNINITIALIZED, algo_algorithms[0].state);
@@ -155,20 +174,26 @@ void testUnlockInitializationInvalidAlgorithmConfiguration(void) {
 
 void testUnsuccessfulInitialization(void) {
     /* unlock so that we can continue */
-    OS_EnterTaskCritical_Ignore();
-    OS_ExitTaskCritical_Ignore();
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
     ALGO_UnlockInitialization();
 
     /* call to the init function of the second entry (first one has no init)
        this time we indicate a failure */
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
     TEST_AlgorithmInitializationFunction_ExpectAndReturn(STD_NOT_OK);
 
     /* now the algorithm without init should be running and the other one in
        error state */
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
     OS_GetTickCount_ExpectAndReturn(0u);
     TEST_AlgorithmComputeFunction_Expect();
     ALGO_MarkAsDone_Expect(0u);
 
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
     ALGO_MainFunction();
 
     /* afterwards the algorithms should have switched to running and failure state */
@@ -183,19 +208,28 @@ void testUnsuccessfulInitialization(void) {
 }
 
 void testTwoTimesInitialization(void) {
-    OS_EnterTaskCritical_Ignore();
-    OS_ExitTaskCritical_Ignore();
-    OS_GetTickCount_IgnoreAndReturn(0u);
-    TEST_AlgorithmComputeFunction_Ignore();
-    ALGO_MarkAsDone_Ignore();
-
     /* unlock so that we can continue */
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
     ALGO_UnlockInitialization();
 
     /* call to the init function of the second entry (first one has no init)
        this time we indicate a failure */
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
     TEST_AlgorithmInitializationFunction_ExpectAndReturn(STD_OK);
 
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
+    OS_GetTickCount_ExpectAndReturn(0u);
+    TEST_AlgorithmComputeFunction_Expect();
+    ALGO_MarkAsDone_Expect(0u);
+
+    OS_GetTickCount_ExpectAndReturn(0u);
+    TEST_AlgorithmComputeFunction_Expect();
+    ALGO_MarkAsDone_Expect(1u);
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
     ALGO_MainFunction();
 
     /* afterwards the algorithms should have switched to running and failure state */
@@ -203,9 +237,13 @@ void testTwoTimesInitialization(void) {
     TEST_ASSERT_EQUAL(ALGO_RUNNING, algo_algorithms[1].state);
 
     /* unlock so that we can continue */
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
     ALGO_UnlockInitialization();
 
     /* subsequent calls after that should not change anything */
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
     ALGO_MainFunction();
 
     TEST_ASSERT_EQUAL(ALGO_RUNNING, algo_algorithms[0].state);
@@ -214,12 +252,14 @@ void testTwoTimesInitialization(void) {
 
 void testWrongInitializationImplementation(void) {
     /* unlock so that we can continue */
-    OS_EnterTaskCritical_Ignore();
-    OS_ExitTaskCritical_Ignore();
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
     ALGO_UnlockInitialization();
 
     /* call to the init function of the second entry (first one has no init)
        this time we send something that cannot be returned normally */
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
     TEST_AlgorithmInitializationFunction_ExpectAndReturn(42u);
 
     /* as a result the system will fail on init and assert */
@@ -230,8 +270,8 @@ void testCycleTimeZero(void) {
     /* this test aims to test what a cycle time of zero does */
 
     /* unlock so that we can continue */
-    OS_EnterTaskCritical_Ignore();
-    OS_ExitTaskCritical_Ignore();
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
     ALGO_UnlockInitialization();
 
     /* inject a cycle time of zero */
@@ -239,7 +279,11 @@ void testCycleTimeZero(void) {
 
     /* call the main function;
        if this crashes we ran probably into a division by zero;*/
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
     TEST_AlgorithmInitializationFunction_ExpectAndReturn(STD_OK);
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
     OS_GetTickCount_ExpectAndReturn(0u);
     TEST_AlgorithmComputeFunction_Expect();
     ALGO_MarkAsDone_Expect(0u);

@@ -1,11 +1,26 @@
-Command/Option;             Description
-``build_all``;              Shortcut to run all available build commands
-``build_bin``;              Builds the binaries
-``build_docs``;             Builds the documentation
-``build_doxygen_src``;      Builds the doxygen documentation for the sources
-``build_doxygen_tests``;    Builds the doxygen documentation for the tests
-``build_unit_test``;        Builds and runs all unit tests for the embedded sources
-``clean_all``;              Shortcut to run all available clean commands
-``clean_bin``;              Cleans all binaries
-``clean_docs``;             Cleans the rendered documentation
-``clean_unit_test``;        Cleans all output files written during ``build_unit_test``
+Command/Option;                         Description
+``build_all``;                          Shortcut to run all available build commands
+``build_app_embedded``;                 Builds the application binary
+``build_app_doxygen``;                  Builds the doxygen documentation of the application
+``build_app_doxygen_unit_test``;        Builds the doxygen documentation of the application's unit tests
+``build_app_host_unit_test``;           Builds and runs all unit tests of the application
+``build_app_spa``;                      Builds the static program analysis build of the application
+``build_bootloader_embedded``;          Builds the bootloader binary
+``build_bootloader_doxygen``;           Builds the doxygen documentation of the bootloader
+``build_bootloader_doxygen_unit_test``; Builds the doxygen documentation of the bootloader's unit tests
+``build_bootloader_host_unit_test``;    Builds and runs all unit tests of the bootloader
+``build_bootloader_spa``;               Builds the static program analysis build of the bootloader
+``build_docs``;                         Builds the general, high-level documentation
+``build_doxygen_tests``;                Builds the doxygen documentation for the tests
+``clean_all``;                          Shortcut to run all available clean commands
+``clean_app_embedded``                  Cleans the application build output
+``clean_app_doxygen``                   Cleans the application's rendered doxygen documentation
+``clean_app_doxygen_unit_test``         Cleans the application's unit tests rendered doxygen documentation
+``clean_app_host_unit_test``            Cleans the application unit test build output
+``clean_app_spa``                       Cleans the application's static program analysis build output
+``clean_bootloader_embedded``           Cleans the bootloader build output
+``clean_bootloader_doxygen``            Cleans the bootloader's rendered doxygen documentation
+``clean_bootloader_doxygen_unit_test``  Cleans the bootloader's unit tests rendered doxygen documentation
+``clean_bootloader_host_unit_test``     Cleans the bootloader unit test build output
+``clean_bootloader_spa``                Cleans the bootloader's static program analysis build output
+``clean_docs``;                         Cleans the rendered documentation

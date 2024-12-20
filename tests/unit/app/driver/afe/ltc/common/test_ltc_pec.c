@@ -43,12 +43,13 @@
  * @file    test_ltc_pec.c
  * @author  foxBMS Team
  * @date    2022-11-04 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
  * @brief   Test of the ltc_pec.c module in ltc
+ * @details Tests ltc pec 15 and invalid input
  *
  */
 

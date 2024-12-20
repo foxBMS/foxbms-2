@@ -1,0 +1,35 @@
+.. include:: ./../../../../macros.txt
+.. include:: ./../../../../units.txt
+
+.. _MASTER_TMS570___V1_2_2___FUNCTIONAL_DESCRIPTION:
+
+Master TMS570 ``v1.2.2`` Functional description
+===============================================
+
+.. important::
+
+   The MC33FS830A0ES needs to be programmed before the PCB is assembled.
+   For more information, see below.
+
+Supply concept
+##############
+
+A MC33FS8530A0ES programmable automotive, functionally safe multi-output
+power supply IC from NXP is used to ensure a safe operation of the hardware.
+This chip needs to be OTP-programmed with the specific correct setting, so that
+it can supply the MCU and the peripherals etc. with the correct voltage as
+designed (see the Altium files for that).
+The details on **how to program** these voltages in the MC33FS830A0ES cannot be
+shared due to NDAs. Please get in contact with the manufacturer to get this
+information.
+However, the **OTP file for programming** can be provided.
+
+You can find the OTP file
+`here <https://iisb-foxbms.iisb.fraunhofer.de/foxbms/gen2/hardware/release/>`__.
+The OTP file is provided in the |bms-master| hardware release.
+Additionally, it can be downloaded directly.
+
+.. note::
+
+   Please ensure to read and understand the information in NOTICE.txt which is
+   included in the .zip file.

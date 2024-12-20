@@ -7,6 +7,5 @@ Directory Name     ; Long Name                   ; Content Description
 ``dbc``            ; CAN Database                ; Check the validity of the DBC/SYM files
 ``hil``            ; Hardware-in-the-Loop        ; Tests and setup of the Hardware-in-the-Loop test (**not published**)
 ``os-information`` ; OS information              ; Information to search the sources for OS relevant includes, names etc.
-``re-names``       ; Regex names                 ; Scripts to verify the regular expressions that are used in Axivion setup
 ``unit``           ; Embedded code unit tests    ; Unit test code for the embedded code
 ``variants``       ; Variants                    ; foxBMS build configurations (for testing in e.g., CI)

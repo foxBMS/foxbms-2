@@ -43,8 +43,8 @@
  * @file    mxm_bit_extract.h
  * @author  foxBMS Team
  * @date    2019-01-15 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup DRIVERS
  * @prefix  MXM
  *

@@ -43,8 +43,8 @@
  * @file    nxp_mc33775a_afe.c
  * @author  foxBMS Team
  * @date    2020-05-08 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  N775
  *
@@ -96,16 +96,6 @@ extern STD_RETURN_TYPE_e NXP_StartMeasurement(void) {
 
 extern bool NXP_IsFirstMeasurementCycleFinished(void) {
     return N775_IsFirstMeasurementCycleFinished(&n775_stateBase);
-}
-
-extern STD_RETURN_TYPE_e NXP_RequestIoWrite(uint8_t string) {
-    STD_RETURN_TYPE_e retval = STD_NOT_OK;
-    return retval;
-}
-
-extern STD_RETURN_TYPE_e NXP_RequestIoRead(uint8_t string) {
-    STD_RETURN_TYPE_e retval = STD_NOT_OK;
-    return retval;
 }
 
 extern STD_RETURN_TYPE_e NXP_RequestTemperatureRead(uint8_t string) {

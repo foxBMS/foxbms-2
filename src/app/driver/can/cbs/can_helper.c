@@ -43,12 +43,13 @@
  * @file    can_helper.c
  * @author  foxBMS Team
  * @date    2021-04-22 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup DRIVERS
  * @prefix  CAN
  *
  * @brief   Helper functions for the CAN module
+ * @details TODO
  *
  *
  */

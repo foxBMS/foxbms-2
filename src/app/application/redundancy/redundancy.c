@@ -43,8 +43,8 @@
  * @file    redundancy.c
  * @author  foxBMS Team
  * @date    2020-07-31 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup APPLICATION
  * @prefix  MRC
  *
@@ -1083,12 +1083,13 @@ static STD_RETURN_TYPE_e MRC_UpdateCellTemperatureValidation(
 extern STD_RETURN_TYPE_e MRC_Initialize(void) {
     STD_RETURN_TYPE_e retval = STD_NOT_OK;
     for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
+        mrc_tableCellVoltages.invalidStringVoltage[s] = true;
         for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
             /* Invalidate cell voltage values */
             for (uint8_t cb = 0; cb < BS_NR_OF_CELL_BLOCKS_PER_MODULE; cb++) {
                 mrc_tableCellVoltages.invalidCellVoltage[s][m][cb] = true;
             }
-            mrc_tableCellVoltages.validModuleVoltage[s][m] = false;
+            mrc_tableCellVoltages.invalidModuleVoltage[s][m] = true;
             /* Invalidate cell temperature values */
             for (uint8_t ts = 0; ts < BS_NR_OF_TEMP_SENSORS_PER_MODULE; ts++) {
                 mrc_tableCellTemperatures.invalidCellTemperature[s][m][ts] = true;

@@ -43,8 +43,8 @@
  * @file    can_cfg_rx-message-definitions.h
  * @author  foxBMS Team
  * @date    2022-07-01 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup DRIVERS
  * @prefix  CANRX
  *
@@ -62,38 +62,6 @@
 
 /*========== Macros and Definitions =========================================*/
 #define CANRX_NOT_PERIODIC (0u)
-
-/** CAN message parameters for can cell temperature  */
-#define CANRX_CAN_CELL_TEMPERATURE_MUX_BIT_START           (7u)
-#define CANRX_CAN_CELL_TEMPERATURE_MUX_LENGTH              (8u)
-#define CANRX_CAN_CELL_TEMPERATURE0_INVALID_FLAG_BIT_START (8u)
-#define CANRX_CAN_CELL_TEMPERATURE1_INVALID_FLAG_BIT_START (9u)
-#define CANRX_CAN_CELL_TEMPERATURE2_INVALID_FLAG_BIT_START (10u)
-#define CANRX_CAN_CELL_TEMPERATURE3_INVALID_FLAG_BIT_START (11u)
-#define CANRX_CAN_CELL_TEMPERATURE4_INVALID_FLAG_BIT_START (12u)
-#define CANRX_CAN_CELL_TEMPERATURE5_INVALID_FLAG_BIT_START (13u)
-#define CANRX_CAN_CELL_TEMPERATURE_INVALID_FLAG_LENGTH     (1u)
-#define CANRX_CAN_CELL_TEMPERATURE0_BIT_START              (23u)
-#define CANRX_CAN_CELL_TEMPERATURE1_BIT_START              (31u)
-#define CANRX_CAN_CELL_TEMPERATURE2_BIT_START              (39u)
-#define CANRX_CAN_CELL_TEMPERATURE3_BIT_START              (47u)
-#define CANRX_CAN_CELL_TEMPERATURE4_BIT_START              (55u)
-#define CANRX_CAN_CELL_TEMPERATURE5_BIT_START              (63u)
-#define CANRX_CAN_CELL_TEMPERATURE_LENGTH                  (8u)
-
-/** CAN message parameters for can cell voltage  */
-#define CANRX_CAN_CELL_VOLTAGE_MUX_BIT_START           (7u)
-#define CANRX_CAN_CELL_VOLTAGE_MUX_LENGTH              (8u)
-#define CANRX_CAN_CELL_VOLTAGE0_INVALID_FLAG_BIT_START (12u)
-#define CANRX_CAN_CELL_VOLTAGE1_INVALID_FLAG_BIT_START (13u)
-#define CANRX_CAN_CELL_VOLTAGE2_INVALID_FLAG_BIT_START (14u)
-#define CANRX_CAN_CELL_VOLTAGE3_INVALID_FLAG_BIT_START (15u)
-#define CANRX_CAN_CELL_VOLTAGE_INVALID_FLAG_LENGTH     (1u)
-#define CANRX_CAN_CELL_VOLTAGE0_BIT_START              (11u)
-#define CANRX_CAN_CELL_VOLTAGE1_BIT_START              (30u)
-#define CANRX_CAN_CELL_VOLTAGE2_BIT_START              (33u)
-#define CANRX_CAN_CELL_VOLTAGE3_BIT_START              (52u)
-#define CANRX_CAN_CELL_VOLTAGE_LENGTH                  (13u)
 
 /** CAN message properties for state request message. Required properties are:
  *  - ID

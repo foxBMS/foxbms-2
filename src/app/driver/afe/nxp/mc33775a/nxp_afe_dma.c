@@ -43,8 +43,8 @@
  * @file    nxp_afe_dma.c
  * @author  foxBMS Team
  * @date    2020-05-27 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup DRIVERS
  * @prefix  AFE
  *
@@ -53,8 +53,6 @@
  */
 
 /*========== Includes =======================================================*/
-#include "nxp_afe_dma.h"
-
 #include "dma.h"
 #include "ftask.h"
 #include "io.h"

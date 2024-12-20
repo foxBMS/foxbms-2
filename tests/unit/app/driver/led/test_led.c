@@ -43,17 +43,19 @@
  * @file    test_led.c
  * @author  foxBMS Team
  * @date    2020-10-05 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
  * @brief   Tests for the led module
+ * @details Tests SetDebugLed, Trigger and SetToggleTime
  *
  */
 
 /*========== Includes =======================================================*/
 #include "unity.h"
+#include "MockHL_reg_het.h"
 #include "Mockio.h"
 #include "Mockos.h"
 
@@ -69,6 +71,11 @@ TEST_INCLUDE_PATH("../../src/app/task/config")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 
+/** HET1 GIO register that the Debug LED is connected to. */
+#define LED_PORT (hetREG1)
+/** Pin of HET1 that the Debug LED is connected to. */
+#define LED_PIN (1u)
+
 /*========== Setup and Teardown =============================================*/
 void setUp(void) {
 }
@@ -79,7 +86,7 @@ void tearDown(void) {
 /*========== Test Cases =====================================================*/
 
 void testLED_SetDebugLed(void) {
-    IO_PinSet_Ignore();
+    IO_PinSet_Expect(&LED_PORT->DOUT, LED_PIN);
     LED_SetDebugLed();
 }
 
@@ -92,20 +99,22 @@ void testLED_Trigger(void) {
     TEST_LED_SetOnOffTime(100u);
     OS_EnterTaskCritical_Expect();
     OS_ExitTaskCritical_Expect();
-    IO_PinGet_IgnoreAndReturn(STD_PIN_HIGH);
-    IO_PinReset_Ignore();
+    IO_PinGet_ExpectAndReturn(&LED_PORT->DIN, LED_PIN, STD_PIN_HIGH);
+    IO_PinReset_Expect(&LED_PORT->DOUT, LED_PIN);
     LED_Trigger();
 
     for (uint8_t i = 0; i < 9u; i++) {
         OS_EnterTaskCritical_Expect();
         OS_ExitTaskCritical_Expect();
+        IO_PinGet_ExpectAndReturn(&LED_PORT->DIN, LED_PIN, STD_PIN_HIGH);
+        IO_PinReset_Expect(&LED_PORT->DOUT, LED_PIN);
         LED_Trigger();
     }
 
     OS_EnterTaskCritical_Expect();
     OS_ExitTaskCritical_Expect();
-    IO_PinGet_IgnoreAndReturn(STD_PIN_LOW);
-    IO_PinSet_Ignore();
+    IO_PinGet_ExpectAndReturn(&LED_PORT->DIN, LED_PIN, STD_PIN_LOW);
+    IO_PinSet_Expect(&LED_PORT->DOUT, LED_PIN);
     LED_Trigger();
 }
 

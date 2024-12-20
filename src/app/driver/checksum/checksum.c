@@ -43,13 +43,12 @@
  * @file    checksum.c
  * @author  foxBMS Team
  * @date    2019-12-03 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup DRIVERS
  * @prefix  CHK
  *
- * @brief   checksum module implementation
- *
+ * @brief   Checksum module implementation
  * @details TODO
  */
 

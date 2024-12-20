@@ -43,8 +43,8 @@
  * @file    ftask_cfg.c
  * @author  foxBMS Team
  * @date    2019-08-26 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup TASK_CONFIGURATION
  * @prefix  FTSK
  *
@@ -73,6 +73,7 @@
 #include "imd.h"
 #include "interlock.h"
 #include "led.h"
+#include "master_info.h"
 #include "meas.h"
 #include "pex.h"
 #include "redundancy.h"
@@ -273,6 +274,7 @@ extern void FTSK_RunUserCodeCyclic100ms(void) {
     BAL_Trigger();
     IMD_Trigger();
     LED_Trigger();
+    MINFO_CheckSupplyVoltageClamp30c();
 
     ftsk_cyclic100msCounter++;
 }

@@ -43,8 +43,8 @@
  * @file    can_cbs_rx.h
  * @author  foxBMS Team
  * @date    2021-04-20 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup DRIVERS
  * @prefix  CANRX
  *
@@ -157,6 +157,64 @@ extern uint32_t CANRX_CellVoltages(
     const CAN_SHIM_s *const kpkCanShim);
 /**@}*/
 
+/**
+ * @brief   Gets data from IMD Info message and stores it in data table
+ * @param   kpkCanData Can data from the IMD Info message
+ * @param   pTableInsulationMonitoring Pointer to the data table where data will be written
+ */
+void CANRX_ImdInfoGetDataFromMessage(
+    const uint8_t *const kpkCanData,
+    DATA_BLOCK_INSULATION_MONITORING_s *pTableInsulationMonitoring);
+
+/**
+ * @brief   Checks the current measurement mode
+ * @param   kpkCanData Can data from the IMD Info message
+ * @param   mode Mode that the actual value is compared to
+ * @return  True if mode from can data and mode are equal
+ */
+bool CANRX_ImdInfoCheckMeasurementMode(const uint8_t *const kpkCanData, uint8_t mode);
+
+/**
+ * @brief   Checks if self test has been executed
+ * @param   kpkCanData Can data from the IMD Info message
+ * @return  true if self test has been executed
+ */
+bool CANRX_ImdInfoHasSelfTestBeenExecuted(const uint8_t *const kpkCanData);
+
+/**
+ * @brief   Checks if self test has finished
+ * @param   kpkCanData Can data from the IMD Info message
+ * @return  true if self test has finished
+ */
+bool CANRX_ImdInfoIsSelfTestFinished(const uint8_t *const kpkCanData);
+
+/**
+ * @brief   Gets insulation resistance from IMD response message and stores it in the data table
+ * @param   kpkCanData Can data from the IMD Info message
+ * @param   pTableInsulationMonitoring Pointer to the data table where data will be written
+ */
+void CANRX_ImdResponseReadInsulationResistance(
+    const uint8_t *const kpkCanData,
+    DATA_BLOCK_INSULATION_MONITORING_s *pTableInsulationMonitoring);
+
+/**
+ * @brief   Gets tendency of the insulation fault from IMD response message and stores it in the data table
+ * @param   kpkCanData Can data from the IMD Info message
+ * @param   pTableInsulationMonitoring Pointer to the data table where data will be written
+ */
+void CANRX_ImdResponseCheckInsulationFaultTendency(
+    const uint8_t *const kpkCanData,
+    DATA_BLOCK_INSULATION_MONITORING_s *pTableInsulationMonitoring);
+
+/**
+ * @brief   Checks the current relay state of one relay
+ * @param   kpkCanData Can data from the IMD Info message
+ * @param   relay Relay that the actual value is compared to
+ * @param   relayState Relay state that the actual value is compared to
+ * @return  True if relay state from can data and relay are equal
+ */
+bool CANRX_ImdResponseCheckRelayState(const uint8_t *const kpkCanData, uint8_t relay, uint8_t relayState);
+
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 #ifdef UNITY_UNIT_TEST
 /* externalized functions from src/app/driver/can/cbs/rx/can_cbs_rx_current-sensor.c */
@@ -232,6 +290,18 @@ extern void TEST_CANRX_GetCanAfeCellTemperaturesFromMessage(
 extern void TEST_CANRX_GetCanAfeCellVoltagesFromMessage(
     CAN_CAN2AFE_CELL_VOLTAGES_QUEUE_s *pCellVoltages,
     uint64_t messageData);
+
+/* externalized functions from src/app/driver/can/cbs/rx/can_cbs_rx_imd-info.c*/
+extern void TEST_CANRX_TransferImdInfoMessageToCanBuffer(
+    uint8_t messageDlc,
+    const uint8_t *const kpkCanData,
+    CAN_BUFFER_ELEMENT_s *canBuffer);
+
+/* externalized functions from src/app/driver/can/cbs/rx/can_cbs_rx_imd-response.c*/
+extern void TEST_CANRX_TransferImdResponseMessageToCanBuffer(
+    uint8_t messageDlc,
+    const uint8_t *const kpkCanData,
+    CAN_BUFFER_ELEMENT_s *canBuffer);
 #endif
 
 #endif /* FOXBMS__CAN_CBS_RX_H_ */

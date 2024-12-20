@@ -34,7 +34,8 @@ Using VS Code files are automatically saved correctly (see
 .. warning::
 
     The style of third party sources (generated HAL sources in
-    ``build/bin/src/hal/**`` and ``src/os``) should not be changed.
+    ``build/app_embedded/src/app/hal/**`` and ``src/os``) should not be
+    changed.
     To save without reformatting use :kbd:`Ctrl-K + Ctrl-Shift-S`.
 
 The following list shows more detailed rules for |foxbms|.
@@ -958,8 +959,8 @@ General note and common mistakes (``C:030``)
 
 For both, *camel Case* and *Pascal Case*, the general rules of the English
 language apply.
-This means that the correct version for a variable about the cell voltage is
-``abc_cellVoltage`` (**not** ``abc_cellvoltage``).
+This means that the correct version for a variable about the cell voltage
+is ``abc_cellVoltage`` (**not** ``abc_cellvoltage``).
 
 .. _rule_c_formatting:
 

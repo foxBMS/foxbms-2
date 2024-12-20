@@ -43,8 +43,8 @@
  * @file    moving_average.h
  * @author  foxBMS Team
  * @date    2017-12-18 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup ALGORITHMS
  * @prefix  ALGO
  *
@@ -56,8 +56,6 @@
 #define FOXBMS__MOVING_AVERAGE_H_
 
 /*========== Includes =======================================================*/
-
-#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
 

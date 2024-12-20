@@ -43,8 +43,8 @@
  * @file    mxm_battery_management.c
  * @author  foxBMS Team
  * @date    2019-01-14 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup DRIVERS
  * @prefix  MXM
  *
@@ -900,11 +900,11 @@ static void MXM_5XStateHandlerReadAll(MXM_5X_INSTANCE_s *pInstance5x, MXM_41B_IN
                 ((int32_t)pInstance5x->commandBufferCurrentLength + (2 * (int32_t)pInstance5x->numberOfSatellites))) ==
             0x00u) {
             /* currently only one physical string is supported, therefore reporting always to string 0 */
-            (void)DIAG_CheckEvent(STD_OK, DIAG_ID_AFE_COM_INTEGRITY, DIAG_STRING, 0u);
+            (void)DIAG_CheckEvent(STD_OK, DIAG_ID_AFE_COMMUNICATION_INTEGRITY, DIAG_STRING, 0u);
             MXM_5XTransitionToSubstate(pInstance5x, MXM_5X_READALL_GET_DC);
         } else {
             /* currently only one physical string is supported, therefore reporting always to string 0 */
-            (void)DIAG_CheckEvent(STD_NOT_OK, DIAG_ID_AFE_COM_INTEGRITY, DIAG_STRING, 0u);
+            (void)DIAG_CheckEvent(STD_NOT_OK, DIAG_ID_AFE_COMMUNICATION_INTEGRITY, DIAG_STRING, 0u);
             MXM_5XSignalError(pInstance5x);
         }
     } else if (pInstance5x->substate == MXM_5X_READALL_GET_DC) {

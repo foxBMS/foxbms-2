@@ -43,8 +43,8 @@
  * @file    test_can_cbs_tx_string-minimum-maximum-values.c
  * @author  foxBMS Team
  * @date    2021-04-22 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -352,11 +352,12 @@ void testCANTX_StringMinimumMaximumValues(void) {
 
     /* ======= Routine tests =============================================== */
     /* ======= RT1/2: Test implementation */
-    CAN_TxPrepareSignalData_Ignore();
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 3u, 4u, 0u, CAN_BIG_ENDIAN);
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 15u, 14u, testMaximumCellVoltage0, CAN_BIG_ENDIAN);
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 17u, 14u, testMinimumCellVoltage0, CAN_BIG_ENDIAN);
+    CAN_TxPrepareSignalData_Expect(&testMaximumTemperature0, cantx_testSignalMaximumTemperature);
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 35u, 9u, testMaximumTemperature0, CAN_BIG_ENDIAN);
+    CAN_TxPrepareSignalData_Expect(&testMinimumTemperature0, cantx_testSignalMinimumTemperature);
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 42u, 9u, testMinimumTemperature0, CAN_BIG_ENDIAN);
     CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[1u]);
     CAN_TxSetCanDataWithMessageData_Expect(testMessageData[1u], testCanData, CAN_BIG_ENDIAN);
@@ -367,11 +368,12 @@ void testCANTX_StringMinimumMaximumValues(void) {
 
     /* ======= RT2/2: Test implementation */
     testMuxId = 1u;
-    CAN_TxPrepareSignalData_Ignore();
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 3u, 4u, 1u, CAN_BIG_ENDIAN);
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 15u, 14u, testMaximumCellVoltage1, CAN_BIG_ENDIAN);
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 17u, 14u, testMinimumCellVoltage1, CAN_BIG_ENDIAN);
+    CAN_TxPrepareSignalData_Expect(&testMaximumTemperature1, cantx_testSignalMaximumTemperature);
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 35u, 9u, testMaximumTemperature1, CAN_BIG_ENDIAN);
+    CAN_TxPrepareSignalData_Expect(&testMinimumTemperature1, cantx_testSignalMinimumTemperature);
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 42u, 9u, testMinimumTemperature1, CAN_BIG_ENDIAN);
     CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[1u]);
     CAN_TxSetCanDataWithMessageData_Expect(testMessageData[1u], testCanData, CAN_BIG_ENDIAN);

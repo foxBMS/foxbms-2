@@ -43,12 +43,13 @@
  * @file    test_debug_default.c
  * @author  foxBMS Team
  * @date    2020-09-17 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
  * @brief   Test of the afe.c module
+ * @details TODO
  *
  */
 
@@ -140,11 +141,6 @@ void testTEST_FAKE_CheckMultipleCalls(void) {
 }
 
 void testFAKE_SetFirstMeasurementCycleFinished(void) {
-    OS_EnterTaskCritical_Expect();
-    OS_ExitTaskCritical_Expect();
-    DATA_Write2DataBlocks_IgnoreAndReturn(STD_OK);
-    DATA_Write4DataBlocks_IgnoreAndReturn(STD_OK);
-
     static DATA_BLOCK_CELL_VOLTAGE_s test_fake_cellVoltage = {.header.uniqueId = DATA_BLOCK_ID_CELL_VOLTAGE_BASE};
     static DATA_BLOCK_CELL_TEMPERATURE_s test_fake_cellTemperature = {
         .header.uniqueId = DATA_BLOCK_ID_CELL_TEMPERATURE_BASE};
@@ -206,6 +202,17 @@ void testFAKE_SetFirstMeasurementCycleFinished(void) {
         .data.openWire            = &test_fake_openWireCompare,
         .data.slaveControl        = &test_fake_slaveControlCompare,
     };
+
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
+    DATA_Write4DataBlocks_ExpectAndReturn(
+        test_fake_stateCompare.data.cellVoltage,
+        test_fake_stateCompare.data.cellTemperature,
+        test_fake_stateCompare.data.balancingFeedback,
+        test_fake_stateCompare.data.balancingControl,
+        STD_OK);
+    DATA_Write2DataBlocks_ExpectAndReturn(
+        test_fake_stateCompare.data.slaveControl, test_fake_stateCompare.data.openWire, STD_OK);
 
     for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
         for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {

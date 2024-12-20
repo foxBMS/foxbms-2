@@ -43,14 +43,13 @@
  * @file    bender_iso165c.c
  * @author  foxBMS Team
  * @date    2019-04-07 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup DRIVERS
  * @prefix  I165C
  *
  * @brief   Driver for the insulation monitoring
- *
- * @details main file of bender iso165C and iso165C-1 driver
+ * @details Main file of bender iso165C and iso165C-1 driver
  *
  */
 
@@ -60,8 +59,7 @@
 #include "database_cfg.h"
 
 #include "can.h"
-#include "can_cbs_rx_imd-info.h"
-#include "can_cbs_rx_imd-response.h"
+#include "can_cbs_rx.h"
 #include "can_cbs_tx_imd-request.h"
 #include "can_cfg_rx-message-definitions.h"
 #include "can_cfg_tx-async-message-definitions.h"

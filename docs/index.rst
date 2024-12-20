@@ -1,4 +1,5 @@
 .. include:: ./macros.txt
+.. include:: ./../build/docs/version_macro.txt
 .. include:: ./units.txt
 
 .. _THE_FOXBMS_2_DOCUMENTATION:
@@ -122,7 +123,7 @@ All sections are listed here:
     ./getting-started/getting-started.rst
     ./getting-started/repository-structure.rst
     ./getting-started/software-installation.rst
-    ./getting-started/fox_py.rst
+    ./getting-started/fox_cli.rst
     ./getting-started/workspace.rst
     ./getting-started/first-steps-on-hardware.rst
 
@@ -144,6 +145,7 @@ All sections are listed here:
     ./software/how-to/how-to.rst
     ./software/linker-script/linker-script.rst
     ./software/architecture/architecture.rst
+    ./software/bootloader/bootloader.rst
 
 .. _HARDWARE_DOCUMENTATION_OVERVIEW:
 
@@ -181,6 +183,7 @@ All sections are listed here:
     :maxdepth: 1
     :caption: Tools Documentation
 
+    ./tools/fox_py.rst
     ./tools/dbc.rst
     ./tools/waf-tools/waf-tools.rst
     ./tools/debugger/debug-application.rst

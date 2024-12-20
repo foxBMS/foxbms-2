@@ -43,8 +43,8 @@
  * @file    general.h
  * @author  foxBMS Team
  * @date    2019-09-24 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup MAIN_CONFIGURATION
  * @prefix  GEN
  *
@@ -69,13 +69,13 @@
  * @param[in,out]   register    register on which to set the bit
  * @param[in]       bit         number of the bit that should be set to 1u
  */
-#define GEN_SET_BIT(register, bit) ((register) |= (uint32)((uint32)1U << (bit)))
+#define GEN_SET_BIT(register, bit) ((register) |= (uint32)((uint32)1u << (bit)))
 /**
  * @brief   clears a bit to 0u
  * @param[in,out]   register    register on which to clear the bit
  * @param[in]       bit         number of the bit that should be cleared to 0u
  */
-#define GEN_CLEAR_BIT(register, bit) ((register) &= ~(uint32)((uint32)1U << (bit)))
+#define GEN_CLEAR_BIT(register, bit) ((register) &= ~(uint32)((uint32)1u << (bit)))
 
 /**
  * @brief Allows functions to generate warnings in GCC for unused returns.

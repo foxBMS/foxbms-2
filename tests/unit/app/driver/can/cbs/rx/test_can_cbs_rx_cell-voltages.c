@@ -43,8 +43,8 @@
  * @file    test_can_cbs_rx_cell-voltages.c
  * @author  foxBMS Team
  * @date    2023-08-31 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -156,7 +156,7 @@ void testCANRX_GetCanAfeCellVoltagesFromMessage(void) {
     uint64_t testMessage          = (uint64_t)TEST_FULL_64_BITS;
     uint64_t pCanSignal           = 0;
     uint64_t pCanSignal_full8bits = (uint64_t)TEST_FULL_8_BITS;
-    uint64_t pCanSignal_true      = (uint64_t) true;
+    uint64_t pCanSignal_true      = (uint64_t)true;
 
     CAN_RxGetSignalDataFromMessageData_Expect(
         testMessage,

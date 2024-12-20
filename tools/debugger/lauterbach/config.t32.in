@@ -1,10 +1,10 @@
 ; Environment variables
 OS=
 ID=T32
-TMP=@TMP@
-SYS=@SYS@
+TMP=@{TMP}
+SYS=@{SYS}
 
-@TCP@
+@{TCP}
 
 ;SCREEN=
 ;MWI

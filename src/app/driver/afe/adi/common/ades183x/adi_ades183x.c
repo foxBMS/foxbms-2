@@ -43,8 +43,8 @@
  * @file    adi_ades183x.c
  * @author  foxBMS Team
  * @date    2020-12-09 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup DRIVERS
  * @prefix  ADI
  *
@@ -183,6 +183,11 @@ static bool ADI_ProcessMeasurementNotStartedState(ADI_STATE_s *pAdiState, AFE_RE
  */
 static void ADI_SetFirstMeasurementCycleFinished(ADI_STATE_s *pAdiState);
 
+/**
+ * @brief Sanity checking for software configurations
+ */
+static void ADI_SanityConfigurationCheck(ADI_STATE_s *pAdiState);
+
 /*========== Static Function Implementations ================================*/
 
 static void ADI_AccessToDatabase(ADI_STATE_s *pAdiState) {
@@ -190,10 +195,7 @@ static void ADI_AccessToDatabase(ADI_STATE_s *pAdiState) {
 
     /* Increment state variable each time new values are written into database */
     (void)DATA_WRITE_DATA(
-        pAdiState->data.cellVoltage,
-        pAdiState->data.cellVoltageFiltered,
-        pAdiState->data.allGpioVoltages,
-        pAdiState->data.cellTemperature);
+        pAdiState->data.cellVoltage, pAdiState->data.allGpioVoltages, pAdiState->data.cellTemperature);
     ADI_Wait(2u); /* Block task to leave CPU time for the other tasks */
 
     (void)DATA_READ_DATA(pAdiState->data.balancingControl);
@@ -239,6 +241,7 @@ static bool ADI_ProcessMeasurementNotStartedState(ADI_STATE_s *pAdiState, AFE_RE
     STD_RETURN_TYPE_e requestReceived = ADI_GetRequest(request);
     if (requestReceived == STD_OK) { /* request queue was not empty */
         if (*request == AFE_START_REQUEST) {
+            ADI_SanityConfigurationCheck(pAdiState);
             ADI_InitializeMeasurement(pAdiState);
             measurementStarted = true;
         } else { /* Until requested to start, block task to leave CPU time for the other tasks */
@@ -284,6 +287,8 @@ static void ADI_RunCurrentStringMeasurement(ADI_STATE_s *pAdiState) {
     /* Wait until auxiliary measurement cycle is finished */
     ADI_Wait(ADI_WAIT_TIME_2_FOR_ADAX_FULL_CYCLE);
 
+    /* Retrieve string and module voltages */
+    ADI_GetStringAndModuleVoltage(pAdiState);
     /* Retrieve GPIO voltages (all channels) */
     ADI_GetGpioVoltages(pAdiState, ADI_AUXILIARY_REGISTER, ADI_AUXILIARY_VOLTAGE);
     /* Get temperatures via GPIO voltages */
@@ -316,6 +321,23 @@ static void ADI_SetFirstMeasurementCycleFinished(ADI_STATE_s *pAdiState) {
     OS_EnterTaskCritical();
     pAdiState->firstMeasurementMade = true;
     OS_ExitTaskCritical();
+}
+
+static void ADI_SanityConfigurationCheck(ADI_STATE_s *pAdiState) {
+    FAS_ASSERT(pAdiState != NULL_PTR);
+
+    /* Check configuration for temperature sensors */
+    uint8_t configuredTemperatureSensorInputs = 0u;
+    for (uint16_t gpioIndex = 0u; gpioIndex < BS_NR_OF_GPIOS_PER_MODULE; gpioIndex++) {
+        if (adi_temperatureInputsUsed[gpioIndex] != 0u) {
+            configuredTemperatureSensorInputs++;
+        }
+    }
+    if (configuredTemperatureSensorInputs != BS_NR_OF_TEMP_SENSORS_PER_MODULE) {
+        /* According to SW configuration number of configured temperature sensors
+         * configured in AFE driver then in overall battery system configuration */
+        FAS_ASSERT(FAS_TRAP);
+    }
 }
 
 /*========== Extern Function Implementations ================================*/

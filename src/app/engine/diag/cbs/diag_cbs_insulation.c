@@ -43,8 +43,8 @@
  * @file    diag_cbs_insulation.c
  * @author  foxBMS Team
  * @date    2021-02-22 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup ENGINE
  * @prefix  DIAG
  *
@@ -74,7 +74,9 @@ extern void DIAG_Insulation(
     DIAG_EVENT_e event,
     const DIAG_DATABASE_SHIM_s *const kpkDiagShim,
     uint32_t stringNumber) {
-    FAS_ASSERT(diagId < DIAG_ID_MAX);
+    FAS_ASSERT(
+        (diagId == DIAG_ID_INSULATION_MEASUREMENT_VALID) || (diagId == DIAG_ID_LOW_INSULATION_RESISTANCE_ERROR) ||
+        (diagId == DIAG_ID_LOW_INSULATION_RESISTANCE_WARNING) || (diagId == DIAG_ID_INSULATION_GROUND_ERROR));
     FAS_ASSERT((event == DIAG_EVENT_OK) || (event == DIAG_EVENT_NOT_OK) || (event == DIAG_EVENT_RESET));
     FAS_ASSERT(kpkDiagShim != NULL_PTR);
     FAS_ASSERT(stringNumber < BS_NR_OF_STRINGS);

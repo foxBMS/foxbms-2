@@ -43,12 +43,13 @@
  * @file    test_bal_strategy_voltage.c
  * @author  foxBMS Team
  * @date    2020-06-05 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
  * @brief   Test of the voltage based balancing module
+ * @details Tests Balancing init, get state and finished
  *
  */
 
@@ -84,6 +85,8 @@ TEST_INCLUDE_PATH("../../src/app/task/config")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 
+static DATA_BLOCK_BALANCING_CONTROL_s bms_tableControl = {.header.uniqueId = DATA_BLOCK_ID_BALANCING_CONTROL};
+
 /*========== Setup and Teardown =============================================*/
 void setUp(void) {
 }
@@ -95,8 +98,8 @@ void tearDown(void) {
 void testCheckBalancingInitByDisablingBalancing(void) {
     DATA_BLOCK_BALANCING_CONTROL_s *pBalancing = TEST_BAL_GetBalancingControl();
     pBalancing->enableBalancing                = true;
-    DATA_Read1DataBlock_IgnoreAndReturn(STD_OK);
-    DATA_Write1DataBlock_IgnoreAndReturn(STD_OK);
+    DATA_Read1DataBlock_ExpectAndReturn(&bms_tableControl, STD_OK);
+    DATA_Write1DataBlock_ExpectAndReturn(&bms_tableControl, STD_OK);
     BAL_Init(pBalancing);
     TEST_ASSERT_EQUAL(false, pBalancing->enableBalancing);
 }

@@ -95,12 +95,35 @@ How to add a new CAN Message
 
 #. Verify that the CAN message is defined and implemented as expected:
 
-   .. code-block:: powershell
-      :caption: Verify CAN message definition and callback implementation
-      :name: can-message-implementation-verification
+   .. tabs::
 
-      PS C:\Users\vulpes\Documents\foxbms-2> .\fox.ps1 run-script tests/can/check_ids.py
-      PS C:\Users\vulpes\Documents\foxbms-2> .\fox.ps1 run-script tests/can/check_implemented.py
+      .. group-tab:: Win32/PowerShell
+
+         .. code-block:: powershell
+
+            .\fox.ps1 run-script tests\can\check_ids.py
+            .\fox.ps1 run-script tests\can\check_implemented.py
+
+      .. group-tab:: Win32/cmd.exe
+
+         .. code-block:: bat
+
+            fox.bat run-script tests\can\check_ids.py
+            fox.bat run-script tests\can\check_implemented.py
+
+      .. group-tab:: Win32/Git bash
+
+         .. code-block:: shell
+
+            ./fox.sh run-script tests/can/check_ids.py
+            ./fox.sh run-script tests/can/check_implemented.py
+
+      .. group-tab:: Linux
+
+         .. code-block:: shell
+
+            ./fox.sh run-script tests/can/check_ids.py
+            ./fox.sh run-script tests/can/check_implemented.py
 
 .. warning::
 

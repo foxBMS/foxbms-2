@@ -48,22 +48,32 @@ from ..helpers.spr import run_process
 
 
 def open_ide_generic() -> int:
-    """Open VS Code in the repository root"""
+    """Open VS Code in the repository root."""
     return open_ide(PROJECT_ROOT)
 
 
-def open_ide_src() -> int:
-    """Open VS Code in the 'src' directory"""
-    return open_ide(PROJECT_ROOT / "src")
+def open_ide_app() -> int:
+    """Open VS Code in the 'src/app' directory."""
+    return open_ide(PROJECT_ROOT / "src/app")
 
 
-def open_ide_embedded_unit_tests() -> int:
-    """Open VS Code in the 'tests/unit' directory"""
-    return open_ide(PROJECT_ROOT / "tests/unit")
+def open_ide_bootloader() -> int:
+    """Open VS Code in the 'src/bootloader' directory."""
+    return open_ide(PROJECT_ROOT / "src/bootloader")
+
+
+def open_ide_embedded_unit_test_app() -> int:
+    """Open VS Code in the 'tests/unit/app' directory."""
+    return open_ide(PROJECT_ROOT / "tests/unit/app")
+
+
+def open_ide_embedded_unit_test_bootloader() -> int:
+    """Open VS Code in the 'tests/unit/bootloader' directory."""
+    return open_ide(PROJECT_ROOT / "tests/unit/bootloader")
 
 
 def open_ide(wd: Path = PROJECT_ROOT) -> int:
-    """Open VS Code for the provided path"""
+    """Open VS Code for the provided path."""
     vs_code = shutil.which("code")
     if not vs_code:
         logging.error("Could not find 'code' binary.")

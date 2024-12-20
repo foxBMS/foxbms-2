@@ -43,8 +43,8 @@
  * @file    test_can_cbs_tx_string-values-p0.c
  * @author  foxBMS Team
  * @date    2023-05-31 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -380,11 +380,13 @@ void testCANTX_StringValuesP0(void) {
 
     /* ======= Routine tests =============================================== */
     /* ======= RT1/2: Test implementation */
-    CAN_TxPrepareSignalData_Ignore();
     DATA_Read1DataBlock_ExpectAndReturn(can_kShim.pTablePackValues, STD_OK);
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 7u, 3u, 0u, CAN_BIG_ENDIAN);
+    CAN_TxPrepareSignalData_Expect(&testStringVoltage0, cantx_testSignalStringVoltage);
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 4u, 18u, testStringVoltage0, CAN_BIG_ENDIAN);
+    CAN_TxPrepareSignalData_Expect(&testStringCurrent0, cantx_testSignalStringCurrent);
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 18u, 18u, testStringCurrent0, CAN_BIG_ENDIAN);
+    CAN_TxPrepareSignalData_Expect(&testStringPower0, cantx_testSignalStringPower);
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 32u, 18u, testStringPower0, CAN_BIG_ENDIAN);
     CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[1u]);
     CAN_TxSetCanDataWithMessageData_Expect(testMessageData[1u], testCanData, CAN_BIG_ENDIAN);
@@ -395,10 +397,12 @@ void testCANTX_StringValuesP0(void) {
 
     /* ======= RT2/2: Test implementation */
     testMuxId = 1u;
-    CAN_TxPrepareSignalData_Ignore();
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 7u, 3u, 1u, CAN_BIG_ENDIAN);
+    CAN_TxPrepareSignalData_Expect(&testStringVoltage1, cantx_testSignalStringVoltage);
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 4u, 18u, testStringVoltage1, CAN_BIG_ENDIAN);
+    CAN_TxPrepareSignalData_Expect(&testStringCurrent1, cantx_testSignalStringCurrent);
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 18u, 18u, testStringCurrent1, CAN_BIG_ENDIAN);
+    CAN_TxPrepareSignalData_Expect(&testStringPower1, cantx_testSignalStringPower);
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 32u, 18u, testStringPower1, CAN_BIG_ENDIAN);
     CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[1u]);
     CAN_TxSetCanDataWithMessageData_Expect(testMessageData[1u], testCanData, CAN_BIG_ENDIAN);

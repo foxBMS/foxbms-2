@@ -1,0 +1,57 @@
+Added
+=====
+
+- Added automated installer script for miniconda3.
+- Added automated installer script for MinGW64.
+- Added automated installer script for LLVM.
+
+Changed
+=======
+
+- Finalize red-fox conda environment ``2021-04-red-fox`` based on
+  ``red-fox-devel-020``. No packages are updated, just finalized the name.
+- Removed dependency of configured power lines from overcurrent check in SOA
+  module. The overcurrent is now checked against allowed cell, string and pack
+  current limits.
+- C source files, that are not vendored, are now ``ASCII`` encoded.
+- Improved the code quality by adding assertions in various locations and
+  removing unused code.
+- Base decisions in ``bms`` on pack value database entry as this entry contains
+  only validated values. Do not directly use current sensor measurements
+  anymore.
+- Fixed function names in the system monitoring module.
+- Replace remaining ``TRUE`` and ``FALSE`` in embedded sources with ``true``
+  and ``false`` respectively from ``stdbool.h``.
+- Updated LLVM to version 11.0.1
+- Only compile |foxbms| source and operating system sources in ``strict_ansi``
+  mode
+
+Deprecated
+==========
+
+Removed
+=======
+
+- Removed several unused defines.
+
+Fixed
+=====
+
+- Style guide check did not properly exclude files when checking ``*.rst``
+  files.
+- Fix ``@prefix`` check in Doxygen comments.
+- Fix ``@prefix`` for modules ``epcos_b57251v5103j060``,
+  ``epcos_b57861s0103f045`` and ``vishay_ntcalug01a103g``.
+- Do not add ``__TIME__`` and ``__DATE__`` macros to list of predefined defines
+  in VS Code.
+- Create all build-time created include directories VS Code knows about in
+  ``c_cpp_properties.json`` to remove workspace warnings.
+- Add back ``Previous`` and ``Next`` buttons back in rendered documentation.
+- Updated getting started information.
+- Fixed function names and variable names of database structs in the ``bms``
+  module.
+- Fixed function names and variable names of database structs in the ``adc``
+  module.
+- Fixed CAN driver problem when cache is enabled.
+- ``conda-init.bat`` used a wrong path to write the ``.condarc`` file if the
+  user name contained whitespace.

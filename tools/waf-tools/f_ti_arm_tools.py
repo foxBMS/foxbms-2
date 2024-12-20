@@ -43,6 +43,7 @@ have a separate tool where they get configured.
 This tool is loaded in the configure step of the main compiler tool
 :py:meth:`f_ti_arm_cgt.configure`. and is not meant to be used standalone."""
 
+from waflib import Utils
 from waflib.Configure import conf
 
 TI_CCS_ARM_CGT_TOOLS = [
@@ -75,14 +76,20 @@ TI_CCS_ARM_CGT_TOOLS = [
     "armofd",
     # these tools are needed to build the runtime support libraries
     "mklib",
-    "sh",
-    "unzip",
     "gmake",
 ]
+if Utils.is_win32:
+    TI_CCS_ARM_CGT_TOOLS.extend(
+        [
+            "sh",
+            "unzip",
+        ]
+    )
 
 
 @conf
 def find_arm_tools(conf):  # pylint: disable-msg=redefined-outer-name
     """Configures additional tools related to the compiler."""
+    path_list = conf.env.CCS_SEARCH_PATH_GROUP[conf.env.CCS_SEARCH_PATH_GROUP_ID]
     for i in TI_CCS_ARM_CGT_TOOLS:
-        conf.find_program(i)
+        conf.find_program(i, path_list=path_list)

@@ -73,7 +73,7 @@ def main():
     if not irlink:
         sys.exit("Could not find 'irlink'.")
 
-    tests_dir = AXIVION_BUILD_DIR / "build/unit_test/test/runners"
+    tests_dir = AXIVION_BUILD_DIR / "build/app_host_unit_test/test/runners"
 
     tests = [str(i) for i in tests_dir.glob("test_*.exe")]
     logging.debug("Number of tests %s", len(tests))

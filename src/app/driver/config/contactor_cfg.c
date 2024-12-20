@@ -43,8 +43,8 @@
  * @file    contactor_cfg.c
  * @author  foxBMS Team
  * @date    2020-02-11 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  CONT
  *

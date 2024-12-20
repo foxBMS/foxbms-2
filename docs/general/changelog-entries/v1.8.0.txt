@@ -1,0 +1,181 @@
+This version of |foxbms| bundles with new hardware releases, most importantly
+a new |foxbms| |bms-master|.
+
+The |bms-master| version is bumped to ``v1.2.2``.
+For details on the |bms-master| see :ref:`MASTER_TMS570___V1_2_2__`.
+
+The |bms-master| now comes with a streamlined supply concept, which only
+requires a single SBC and therefby making the hard- and software simpler.
+Details on the SBC configuration, which must be flashed on the SBC prior to PCB
+assembly, are found at :ref:`MASTER_TMS570___V1_2_2___FUNCTIONAL_DESCRIPTION`.
+
+Now the CAN1 Enable and Standby signals have been wired directly to the MCU,
+instead of using I2C based port expander.
+To achieve software compatibility with older |bms-master| releases, see
+:ref:`MASTER_TMS570___V1_1_1__` for details.
+
+Further, new releases for all |bms-slaves| have been added.
+
+This version of |foxbms| also begins to introduced changes that are required
+for the bootloader.
+
+.. note::
+
+   All changes with respect to the bootloader do not really implement any
+   bootloader functionality, they are made to prepare for the bootloader.
+   **This version does not include any bootloader functionality**.
+
+There is a new Python environment ``2025-01-pale-fox``.
+This environment contains updates for all packages and adds some new packages,
+that are needed for :ref:`FOX_PY`.
+
+.. note::
+
+   In order to update the environment follow the steps documented at
+   :ref:`environment_updates`.
+
+Added
+=====
+
+- The ``f_BmsState`` message now also transmits the current BMS-substate.
+- When the BMS-state or BMS-substate changes a single asynchronous
+  ``f_BmsState`` message will be sent.
+- Added assertion for correct diagnosis IDs and corresponding unit test cases.
+- Added TDK NTCGS103JF103FT8 temperature sensor.
+- Bootloader related changes:
+
+  - Add dummy files for the bootloader
+
+    - embedded sources (``src/bootloader/*``),
+    - unit test sources (``tests/unit/bootloader/*``),
+    - HAL configuration (``conf/hcg/bootloader.*``), and
+    - unit test configuration (``conf/unit/bootloader_project_*.yml``).
+
+  - Add bootloader related build commands:
+
+    - ``build_bootloader_embedded``: build the bootloader for the embedded
+      target.
+    - ``build_bootloader_host_unit_test``: build and run the bootloader unit
+      tests.
+    - ``build_bootloader_spa``: build the bootloader for the static program
+      analysis.
+    - ``build_bootloader_doxygen``: build the bootloader's doxygen
+      documentation.
+    - ``build_bootloader_doxygen_unit_test``: build the bootloader's unit test
+      doxygen documentation.
+
+  - ``fox.py``: Added the following commands
+
+    - ``check``
+    - ``load-app``
+    - ``reset``
+    - ``run-app``
+
+  - Debugger: Prepared the Lauterbach configuration for the bootloader
+    (``tools/debugger/lauterbach/*`` and ``tools/waf-tools/f_lauterbach.py``).
+    This is currently a dummy implementation and does not flash an elf file to
+    the target.
+
+Changed
+=======
+
+- The HAL configuration for the application has been moved from
+  ``src/hal`` to ``src/app/hal``.
+- Renamed build command for the embedded application build from ``build_bin``
+  to ``build_app_embedded``.
+- Renamed build command for the static program analysis application build from
+  ``build_axivion`` to ``build_app_spa``.
+- Renamed build command for the host unit test application build from
+  ``build_unit_test`` to ``build_app_host_unit_test``.
+- Simplify the changelog file itself (``docs/general/changelog.rst``) and
+  changelog processing.
+- Replaced ``_Ignore*`` calls by ``_Expect*`` calls inside unit tests.
+- Updated the unit test framework ``Ceedling`` to version ``1.0.0-f899db8``.
+- Write the version information dynamically when building the documentation
+  (version source is the main build script ``wscript`` in the repository root).
+- Read the version information dynamically when running the ``fox CLI`` tool
+  (version source is the main build script ``wscript`` in the repository root).
+- Make external function declarations of CAN callbacks consistent.
+- Move the signal definition CAN messages for the cell temperatures and
+  voltages in the respective source files.
+- Pinning a specific compiler version does no longer rely on an environment
+  variable.
+  The pinned compiler version is only defined via ``conf/cc/cc-options.yaml``
+  by setting ``FOXBMS_2_CCS_VERSION_STRICT`` to the specific version.
+- Files that shall be removed by the Waf-HALCoGen-tool after code was generated
+  need to manually specify non-OS files that shall be removed.
+- Upgraded FreeRTOS to V10.4.6.
+- Improved software architecture description in documentation.
+- Improved documentation section for database module.
+- Simplified top level build script ``./wscript``.
+- The application doxygen build command has been changed to
+  ``build_app_doxygen`` (from ``build_doxygen_src``).
+- The application's unit test doxygen build command has been changed to
+  ``build_app_doxygen_unit_test`` (from ``build_doxygen_tests``).
+- The documentation build instructions were moved from the top level build
+  script ``./wscript`` to ``docs/wscript``.
+- Emphasize the exact version of MinGW64 (and therefore GCC) that needs to be
+  installed to successfully run the unit test suite.
+- The version information is now separated from the application build
+  information.
+- A dedicated CAN message for the transmission of fatal errors was added.
+  Diagnosis  entries with a severity of ``DIAG_FATAL_ERROR`` lead to an opening
+  of the contactors.
+  This CAN message will be transmitted with a period of 100ms as soon as an
+  active fatal error has been detected, until the error is cleared again.
+- Added a wrapper for the FreeRTOS software timer.
+- Improved cli unit test coverage.
+
+  - the app, i.e., the BMS application, with version and build configuration
+    version
+  - the bootloader with just the version information.
+- Changed CAN1 enable and standby pins from port expander to discrete GPIOs.
+
+  - CAN1 Enable:              PEX2 PIN0 -> N2HET2[18]
+  - CAN1 Standby (inverted):  PEX2 PIN1 -> N2HET2[23]
+
+Deprecated
+==========
+
+Removed
+=======
+
+- Support for the Segger J-Link debug probe and the Segger Ozone debugger
+  software have been removed.
+  |foxbms| only includes Lauterbach Trace configuration support for debugging.
+  However still any JTAG-capable debugger can be used for debugging foxBMS,
+  just the automatic configuration is no longer supported.
+- The AFE APIs ``AFE_RequestIoWrite`` and ``AFE_RequestIoRead`` have been
+  removed as they have not been used.
+
+Fixed
+=====
+
+- Invalid flags in the CAN messages ``f_CellVoltages`` and
+  ``f_CellTemperatures`` were transmitted inverted (Valid instead of Invalid
+  and vice versa).
+- Fixed import-order in ``fox CLI`` tool.
+- Fixed typos.
+- Fixed unintentional behavior of the ``BMS`` state machine that the contactors
+  could be closed after power-cycle without receiving a ``STANDBY`` request.
+- Balancing relevant flags are now transmitted correctly via CAN.
+  A flag indicating if balancing is currently allowed or not is transmitted in
+  message ``f_BmsState``.
+  A second flag transmitted in message ``f_StringState`` shows if at least one
+  cell is currently being balancing in this string or not.
+- Fixed a Python dependency bug when using Python version below v3.11.
+- Fixed flags passed to the test compilation step in unit test configuration
+  files (``:flags:↳:test:↳:compile:``).
+- Fixed unit tests include paths.
+- Fixed various READMEs.
+- Fixed various documentation rendering issues.
+- Fixed most of the Axivion naming check implementation.
+- The ``fox.bat``-wrapper did not work when the user name contained whitespace.
+- Fixed a bug in ``f_vscode.py`` when searching the platform appropriate
+  ``fox``-wrapper.
+- Fixed various bugs in ``ADES1830`` AFE driver:
+
+  - Invalid flags for cell temperatures were not set correctly.
+  - Invalid flags for GPIO measurement values were not set correctly.
+  - Diagnosis entry for ``DIAG_ID_AFE_COMMUNICATION_INTEGRITY`` was not called.
+  - String and module voltage was previously not measured/calculated.

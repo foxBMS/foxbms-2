@@ -43,8 +43,8 @@
  * @file    test_can_cbs_tx_pack-values-p0.c
  * @author  foxBMS Team
  * @date    2021-07-27 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -337,14 +337,17 @@ void testCANTX_PackValuesP0(void) {
 
     /* ======= Routine tests =============================================== */
     /* ======= RT1/1: Test implementation */
-    CAN_TxPrepareSignalData_Ignore();
     DATA_Read1DataBlock_ExpectAndReturn(can_kShim.pTablePackValues, STD_OK);
+    CAN_TxPrepareSignalData_Expect(&testBatteryVoltage, cantx_testSignalBatteryVoltage);
     CAN_TxSetMessageDataWithSignalData_Expect(
         &testMessageData[0u], 7u, 15u, can_tablePackValues.batteryVoltage_mV, CANTX_PACK_VALUES_P0_ENDIANNESS);
+    CAN_TxPrepareSignalData_Expect(&testBusVoltage, cantx_testSignalBusVoltage);
     CAN_TxSetMessageDataWithSignalData_Expect(
         &testMessageData[0u], 8u, 15u, can_tablePackValues.highVoltageBusVoltage_mV, CANTX_PACK_VALUES_P0_ENDIANNESS);
+    CAN_TxPrepareSignalData_Expect(&testPower, cantx_testSignalPower);
     CAN_TxSetMessageDataWithSignalData_Expect(
         &testMessageData[0u], 25u, 17u, can_tablePackValues.packPower_W, CANTX_PACK_VALUES_P0_ENDIANNESS);
+    CAN_TxPrepareSignalData_Expect(&testCurrent, cantx_testSignalCurrent);
     CAN_TxSetMessageDataWithSignalData_Expect(
         &testMessageData[0u], 40u, 17u, can_tablePackValues.packCurrent_mA, CANTX_PACK_VALUES_P0_ENDIANNESS);
     CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[1u]);

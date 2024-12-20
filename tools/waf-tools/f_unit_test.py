@@ -43,9 +43,7 @@ needs and builds and runs the tests.
 For information on Ceedling see https://github.com/ThrowTheSwitch/Ceedling.
 """
 
-import os
-
-from waflib import Task, TaskGen, Utils
+from waflib import Task, TaskGen
 
 
 class ceedling(Task.Task):  # pylint: disable=invalid-name,too-few-public-methods
@@ -111,17 +109,11 @@ def configure(conf):
         conf.path.find_node("tools/vendor/ceedling/bin/ceedling").abspath()
     ]
 
+    # maybe the list contains [None], therefore the second check
+    if conf.env.CEEDLING and not conf.env.CEEDLING[0]:
+        return
+
     # get build directory
     conf.env.append_unique("CEEDLING_OPTIONS", ["--verbosity=normal"])
     conf.env.append_unique("CEEDLING_TEST_OPTIONS", ["test:all"])
     conf.env.append_unique("CEEDLING_COVERAGE_OPTIONS", ["gcov:all"])
-
-    ceedling_project_file_dir = conf.path.find_dir(os.path.join("conf", "unit"))
-    if Utils.is_win32:
-        ceedling_project_file = ceedling_project_file_dir.find_node("project_win32.yml")
-    else:
-        ceedling_project_file = ceedling_project_file_dir.find_node("project_posix.yml")
-    conf.env.CEEDLING_MAIN_PROJECT_FILE = ceedling_project_file.relpath()
-    conf.env.CEEDLING_BUILD_PATH = os.path.join(
-        ".", conf.path.get_bld().path_from(conf.path), "unit_test"
-    )

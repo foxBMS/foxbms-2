@@ -23,7 +23,7 @@ SG_ foxBMS_MainFuseBlown : 21|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ foxBMS_insulationResistance : 63|8@0+ (100,0) [0|25500] "kOhm" Vector__XXX
 SG_ foxBMS_Error_Interlock : 22|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ foxBMS_Error_Insulation : 23|1@0+ (1,0) [0|1] "" Vector__XXX
-SG_ foxBMS_Error_Cantiming : 24|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ foxBMS_Error_CanTiming : 24|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ foxBMS_SysMonError : 12|1@1+ (1,0) [0|1] "" Vector__XXX
 SG_ foxBMS_alertFlag : 27|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ foxBMS_NegativeContState : 5|1@1+ (1,0) [0|1] "" Vector__XXX
@@ -47,7 +47,7 @@ CM_ SG_ 544 foxBMS_EmergencyShutoff "The BMS is preparing to open the contactors
 CM_ SG_ 544 foxBMS_MainFuseBlown "0x00: fuse okay, 0x01: fuse blown";
 CM_ SG_ 544 foxBMS_Error_Interlock "0x00: interlock okay, 0x01: interlock open";
 CM_ SG_ 544 foxBMS_Error_Insulation "0x00: No error, 0x01: Error detected";
-CM_ SG_ 544 foxBMS_Error_Cantiming "0x00: No error, 0x01: Error detected";
+CM_ SG_ 544 foxBMS_Error_CanTiming "0x00: No error, 0x01: Error detected";
 CM_ SG_ 544 foxBMS_SysMonError "If this bit is set, it indicates that a task has violated its timing requirements.";
 CM_ SG_ 544 foxBMS_alertFlag "foxBMS Alter flag: 0x00: No error, 0x01: Alert flag set";
 CM_ SG_ 544 foxBMS_NegativeContState "0x00: contactor switched OFF, 0x01: contactor switched ON";
@@ -79,7 +79,7 @@ BA_ "GenSigStartValue" SG_ 544 foxBMS_MainFuseBlown 0;
 BA_ "GenSigStartValue" SG_ 544 foxBMS_insulationResistance 0;
 BA_ "GenSigStartValue" SG_ 544 foxBMS_Error_Interlock 0;
 BA_ "GenSigStartValue" SG_ 544 foxBMS_Error_Insulation 0;
-BA_ "GenSigStartValue" SG_ 544 foxBMS_Error_Cantiming 0;
+BA_ "GenSigStartValue" SG_ 544 foxBMS_Error_CanTiming 0;
 BA_ "GenSigStartValue" SG_ 544 foxBMS_SysMonError 0;
 BA_ "GenSigStartValue" SG_ 544 foxBMS_alertFlag 0;
 BA_ "GenSigStartValue" SG_ 544 foxBMS_NegativeContState 0;

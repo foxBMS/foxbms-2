@@ -48,33 +48,56 @@ import subprocess
 import sys
 from dataclasses import dataclass
 from pathlib import Path
+from typing import get_args
 
-from ..helpers.ansi_colors import RED, YELLOW
-from ..helpers.misc import PROJECT_ROOT, eprint, get_multiple_files_hash_str
+from click import secho
+
+from ..helpers.host_platform import PLATFORM
+from ..helpers.misc import (
+    PROJECT_ROOT,
+    get_multiple_files_hash_str,
+    terminal_link_print,
+)
 from ..helpers.spr import SubprocessResult, run_process
-from .embedded_ut_constants import CEEDLING_BINARY, UNIT_TEST_BUILD_DIR
+from .embedded_ut_constants import (
+    CEEDLING_BINARY,
+    UNIT_TEST_BUILD_DIR_APP,
+    UNIT_TEST_BUILD_DIR_BL,
+    EmbeddedUnitTestVariants,
+)
 
-_CEEDLING_PROJECT_FILE_SRC = PROJECT_ROOT / "conf/unit/project_<platform>.yml"
-CEEDLING_PROJECT_FILE_TGT = UNIT_TEST_BUILD_DIR / "project.yml"
-HALCOGEN_HCG_SRC = PROJECT_ROOT / "conf/hcg/hcg.hcg"
-HALCOGEN_HCG_TGT = UNIT_TEST_BUILD_DIR / "hcg.hcg"
-HALCOGEN_DIL_SRC = PROJECT_ROOT / "conf/hcg/hcg.dil"
-HALCOGEN_DIL_TGT = UNIT_TEST_BUILD_DIR / "hcg.dil"
+_CEEDLING_PROJECT_FILE_SRC_APP = PROJECT_ROOT / "conf/unit/app_project_<platform>.yml"
+_CEEDLING_PROJECT_FILE_SRC_BL = (
+    PROJECT_ROOT / "conf/unit/bootloader_project_<platform>.yml"
+)
+CEEDLING_PROJECT_FILE_TGT_APP = UNIT_TEST_BUILD_DIR_APP / "project.yml"
+CEEDLING_PROJECT_FILE_TGT_BL = UNIT_TEST_BUILD_DIR_BL / "project.yml"
+HALCOGEN_HCG_SRC_APP = PROJECT_ROOT / "conf/hcg/app.hcg"
+HALCOGEN_HCG_SRC_BL = PROJECT_ROOT / "conf/hcg/bootloader.hcg"
+HALCOGEN_HCG_TGT_APP = UNIT_TEST_BUILD_DIR_APP / "app.hcg"
+HALCOGEN_HCG_TGT_BL = UNIT_TEST_BUILD_DIR_BL / "bootloader.hcg"
+HALCOGEN_DIL_SRC_APP = PROJECT_ROOT / "conf/hcg/app.dil"
+HALCOGEN_DIL_SRC_BL = PROJECT_ROOT / "conf/hcg/bootloader.dil"
+HALCOGEN_DIL_TGT_APP = UNIT_TEST_BUILD_DIR_APP / "app.dil"
+HALCOGEN_DIL_TGT_BL = UNIT_TEST_BUILD_DIR_BL / "bootloader.dil"
 
-if sys.platform.lower() == "linux":
-    CEEDLING_PROJECT_FILE_SRC = Path(
-        str(_CEEDLING_PROJECT_FILE_SRC).replace("<platform>", "posix")
+if PLATFORM == "linux":
+    CEEDLING_PROJECT_FILE_SRC_APP = Path(
+        str(_CEEDLING_PROJECT_FILE_SRC_APP).replace("<platform>", "posix")
+    )
+    CEEDLING_PROJECT_FILE_SRC_BL = Path(
+        str(_CEEDLING_PROJECT_FILE_SRC_BL).replace("<platform>", "posix")
     )
 
-elif sys.platform.lower() == "win32":
-    CEEDLING_PROJECT_FILE_SRC = Path(
-        str(_CEEDLING_PROJECT_FILE_SRC).replace("<platform>", "win32")
+elif PLATFORM == "win32":
+    CEEDLING_PROJECT_FILE_SRC_APP = Path(
+        str(_CEEDLING_PROJECT_FILE_SRC_APP).replace("<platform>", "win32")
     )
-else:
-    CEEDLING_PROJECT_FILE_SRC = Path(
-        str(_CEEDLING_PROJECT_FILE_SRC).replace("<platform>", "posix")
+    CEEDLING_PROJECT_FILE_SRC_BL = Path(
+        str(_CEEDLING_PROJECT_FILE_SRC_BL).replace("<platform>", "win32")
     )
-    sys.exit(f"Something went wrong at '{Path(__file__).stem}'")
+else:  # pragma: no cover
+    sys.exit(f"Something went wrong in '{Path(__file__).stem}'")
 
 
 @dataclass
@@ -85,79 +108,130 @@ class SourceTargetPair:
     tgt: Path
 
 
-SOURCE_TARGET_PAIRS = [
-    SourceTargetPair(CEEDLING_PROJECT_FILE_SRC, CEEDLING_PROJECT_FILE_TGT),
-    SourceTargetPair(HALCOGEN_HCG_SRC, HALCOGEN_HCG_TGT),
-    SourceTargetPair(HALCOGEN_DIL_SRC, HALCOGEN_DIL_TGT),
-]
+SOURCE_TARGET_PAIRS = {
+    "app": [
+        SourceTargetPair(CEEDLING_PROJECT_FILE_SRC_APP, CEEDLING_PROJECT_FILE_TGT_APP),
+        SourceTargetPair(HALCOGEN_HCG_SRC_APP, HALCOGEN_HCG_TGT_APP),
+        SourceTargetPair(HALCOGEN_DIL_SRC_APP, HALCOGEN_DIL_TGT_APP),
+    ],
+    "bootloader": [
+        SourceTargetPair(CEEDLING_PROJECT_FILE_SRC_BL, CEEDLING_PROJECT_FILE_TGT_BL),
+        SourceTargetPair(HALCOGEN_HCG_SRC_BL, HALCOGEN_HCG_TGT_BL),
+        SourceTargetPair(HALCOGEN_DIL_SRC_BL, HALCOGEN_DIL_TGT_BL),
+    ],
+}
 
 
-def _cleanup_hcg_sources() -> None:
-    freertos_config_file = UNIT_TEST_BUILD_DIR / "include/FreeRTOSConfig.h"
+def _cleanup_hcg_sources(base_dir: Path) -> None:
+    # this list shall be in sync with
+    # - ./wscript for all unit test build variants
+    # - ./src/app/hal/wscript for the target build
+    # - ./src/bootloader/hal/wscript for the target build
+    remove = [
+        "source/HL_sys_startup.c",
+        "source/HL_sys_main.c",
+        "source/HL_sys_link.cmd",
+    ]
 
-    if not freertos_config_file.is_file():
-        eprint("Could not find 'FreeRTOSConfig.h'.", err=True, color=RED)
+    freertos_config_file = base_dir / "include/FreeRTOSConfig.h"
+    if freertos_config_file.is_file():
+        for line in freertos_config_file.read_text(encoding="utf-8").splitlines():
+            mach = re.search(
+                r"#define configCPU_CLOCK_HZ.*\( \( unsigned portLONG \) ([0-9]+) \)",
+                line,
+            )
+            if mach:
+                frequency = mach.group(1)
+                break
+        if not frequency:
+            secho("Could not determine clock frequency.", color="red", err=True)
 
-    for line in freertos_config_file.read_text(encoding="utf-8").splitlines():
-        mach = re.search(
-            r"#define configCPU_CLOCK_HZ.*\( \( unsigned portLONG \) ([0-9]+) \)",
-            line,
+        # needs to be aligned with build tool defintion and the unit tests
+        tmp = base_dir / "include/config_cpu_clock_hz.h"
+        define_guard = tmp.name.upper().replace(".H", "_H_")
+        tmp.write_text(
+            f"#ifndef {define_guard}\n"
+            f"#define {define_guard}\n"
+            f"#define HALCOGEN_CPU_CLOCK_HZ ({frequency})\n"
+            f"#endif /* {define_guard} */\n",
+            encoding="utf-8",
         )
-        if mach:
-            frequency = mach.group(1)
-            break
-    if not frequency:
-        eprint("Could not determine clock frequency.", err=True, color=RED)
 
-    tmp = UNIT_TEST_BUILD_DIR / "include/config_cpu_clock_hz.h"
-    define_guard = tmp.name.upper().replace(".H", "_H_")
-    tmp.write_text(
-        f"#ifndef {define_guard}\n"
-        f"#define {define_guard}\n"
-        f"#define HALCOGEN_CPU_CLOCK_HZ ({frequency})\n"
-        f"#endif /* {define_guard} */\n",
-        encoding="utf-8",
-    )
+        # remove generated files we do not need (FreeRTOS (we ship our own copy))
+        remove.extend(
+            [
+                freertos_config_file,
+                base_dir / "include/FreeRTOS.h",
+            ]
+            + list(base_dir.glob("source/os_*.asm"))
+            + list(base_dir.glob("source/os_*.c"))
+            + list(base_dir.glob("include/os_*.h"))
+        )
 
-    # remove generated files we do not need (FreeRTOS (we ship our own copy))
-    (UNIT_TEST_BUILD_DIR / "source/HL_sys_link.cmd").unlink()
-    (UNIT_TEST_BUILD_DIR / "include/FreeRTOS.h").unlink()
-    (UNIT_TEST_BUILD_DIR / "include/FreeRTOSConfig.h").unlink()
-    for i in UNIT_TEST_BUILD_DIR.glob("source/os_*.asm"):
-        i.unlink()
-    for i in UNIT_TEST_BUILD_DIR.glob("source/os_*.c"):
-        i.unlink()
-    for i in UNIT_TEST_BUILD_DIR.glob("include/os_*.h"):
-        i.unlink()
+    for i in remove:
+        (base_dir / i).unlink()
 
 
-def make_unit_test_dir() -> None:
-    """Create the unit test directory,if it does not exist"""
-    UNIT_TEST_BUILD_DIR.mkdir(parents=True, exist_ok=True)
-    return (UNIT_TEST_BUILD_DIR / "include").mkdir(parents=True, exist_ok=True)
+def make_unit_test_dir(project: EmbeddedUnitTestVariants = "app") -> None:
+    """Create the unit test directory, if it does not exist"""
+    if project == "app":
+        base = UNIT_TEST_BUILD_DIR_APP
+    elif project == "bootloader":
+        base = UNIT_TEST_BUILD_DIR_BL
+    else:
+        sys.exit(
+            "Something went wrong.\nExpect argument from list "
+            f"{get_args(EmbeddedUnitTestVariants)}, but got '{project}'."
+        )
+    base.mkdir(parents=True, exist_ok=True)
+    (base / "include").mkdir(parents=True, exist_ok=True)
 
 
-def run_embedded_tests(args: list[str], stderr=None, stdout=None) -> SubprocessResult:
+def run_embedded_tests(
+    args: None | list[str] = None,
+    project: EmbeddedUnitTestVariants = "app",
+    stderr=None,
+    stdout=None,
+) -> SubprocessResult:
     """Run the embedded sources tests"""
-    eprint("Running 'ceedling' directly: all arguments are passed to ceedling verbatim")
+
+    secho(f"Testing project: '{project}'")
+    secho("Running 'ceedling' directly: all arguments are passed to ceedling verbatim")
+
+    if project == "app":
+        base_dir = UNIT_TEST_BUILD_DIR_APP
+        input_hcg = HALCOGEN_HCG_TGT_APP
+        input_dil = HALCOGEN_DIL_SRC_APP
+        output_dil = HALCOGEN_DIL_TGT_APP
+    elif project == "bootloader":
+        base_dir = UNIT_TEST_BUILD_DIR_BL
+        input_hcg = HALCOGEN_HCG_TGT_BL
+        input_dil = HALCOGEN_DIL_SRC_BL
+        output_dil = HALCOGEN_DIL_TGT_BL
+    else:
+        sys.exit(
+            "Something went wrong.\nExpect argument from list "
+            f"{get_args(EmbeddedUnitTestVariants)}, but got '{project}'."
+        )
+
     if not args:
         args = ["help"]
     logging.debug("arguments to ceedling are: %s", args)
 
-    make_unit_test_dir()
+    make_unit_test_dir(project)
     hcg_needs_to_run = False
 
     # update input files if needed
-    for i in SOURCE_TARGET_PAIRS:
+    for i in SOURCE_TARGET_PAIRS[project]:
         if not Path(i.tgt).is_file() or not filecmp.cmp(i.src, i.tgt):
             shutil.copyfile(i.src, i.tgt)
             hcg_needs_to_run = True
     # if only help is requested, no need to run HALCoGen:
     if args == ["help"]:
-        return _run_ceedling(args, stderr=stderr, stdout=stdout)
+        return _run_ceedling(args, cwd=base_dir, stderr=stderr, stdout=stdout)
 
     # check if HALCoGen has run and the files are uptodate
-    hcg_files_hash_pickle = UNIT_TEST_BUILD_DIR / "manual_runner.pickle"
+    hcg_files_hash_pickle = base_dir / "manual_runner.pickle"
     if hcg_files_hash_pickle.is_file():
         with open(hcg_files_hash_pickle, "rb") as f:
             try:
@@ -170,8 +244,7 @@ def run_embedded_tests(args: list[str], stderr=None, stdout=None) -> SubprocessR
         hcg_needs_to_run = True
 
     current_hcg_files_hash = get_multiple_files_hash_str(
-        list(UNIT_TEST_BUILD_DIR.glob("source/*.c"))
-        + list(UNIT_TEST_BUILD_DIR.glob("include/*.h"))
+        list(base_dir.glob("source/*.c")) + list(base_dir.glob("include/*.h"))
     )
 
     if old_hcg_files_hash != current_hcg_files_hash:
@@ -179,14 +252,14 @@ def run_embedded_tests(args: list[str], stderr=None, stdout=None) -> SubprocessR
 
     halcogen = shutil.which("halcogen")
     if not halcogen:
-        eprint("Could not find program 'HALCogen'.", err=True, color=RED)
-        eprint("Assuming HALCoGen sources are available...", err=True, color=YELLOW)
+        secho("Could not find program 'HALCogen'.", color="red", err=True)
+        secho("Assuming HALCoGen sources are available...", color="yellow", err=True)
 
     # check if need to re-run HALCoGen
     # if any([stored_file_hashes.hcg.changed, stored_file_hashes.dil.changed]):
     if halcogen and hcg_needs_to_run:
-        cmd = [halcogen, "-i", str(HALCOGEN_HCG_TGT)]
-        cwd = UNIT_TEST_BUILD_DIR
+        cmd = [halcogen, "-i", str(input_hcg)]
+        cwd = base_dir
         logging.debug("running subprocess '%s' in '%s'.", cmd, cwd)
         with subprocess.Popen(cmd, cwd=cwd) as p:
             p.communicate()
@@ -196,10 +269,9 @@ def run_embedded_tests(args: list[str], stderr=None, stdout=None) -> SubprocessR
                 out="",
                 err="Could not successfully run HALCoGen, exiting...",
             )
-        _cleanup_hcg_sources()
+        _cleanup_hcg_sources(base_dir)
         current_hcg_files_hash = get_multiple_files_hash_str(
-            list(UNIT_TEST_BUILD_DIR.glob("source/*.c"))
-            + list(UNIT_TEST_BUILD_DIR.glob("include/*.h"))
+            list(base_dir.glob("source/*.c")) + list(base_dir.glob("include/*.h"))
         )
 
         with open(hcg_files_hash_pickle, "wb") as f:
@@ -207,18 +279,35 @@ def run_embedded_tests(args: list[str], stderr=None, stdout=None) -> SubprocessR
 
         # HALCoGen alters the dil file when generating the code, therefore we
         # need copy it again...
-        shutil.copyfile(HALCOGEN_DIL_SRC, HALCOGEN_DIL_TGT)
+        shutil.copyfile(input_dil, output_dil)
 
     # copy sources and generating files worked fine, let's run ceedling
-    err = _run_ceedling(args, stderr=stderr, stdout=stdout)
+    err = _run_ceedling(args, cwd=base_dir, stderr=stderr, stdout=stdout)
+
+    report_link = base_dir / "artifacts/gcov/gcovr/GcovCoverageResults.html"
+    if not err.returncode:
+        secho(f"\nThe {project} unit tests were successful.", fg="green")
+    else:
+        secho(f"The {project} unit tests were not successful.", fg="red")
+    if (
+        report_link.is_file()
+        and not err.returncode
+        and any(True for i in args if i.startswith("gcov"))
+    ):
+        secho(f"\ncoverage report: {terminal_link_print(report_link)}", fg="green")
     return err
 
 
-def _run_ceedling(args: list[str], stderr=None, stdout=None) -> SubprocessResult:
+def _run_ceedling(
+    args: list[str], cwd: Path = UNIT_TEST_BUILD_DIR_APP, stderr=None, stdout=None
+) -> SubprocessResult:
     """Runs ceedling with the provided arguments"""
     ruby = shutil.which("ruby")
     if not ruby:
-        eprint("Could not find program 'ceedling'.", err=True, color=RED)
+        secho("Could not find program 'ruby'.", fg="red", err=True)
         return SubprocessResult(1)
     cmd = [ruby, str(CEEDLING_BINARY)] + args
-    return run_process(cmd, cwd=UNIT_TEST_BUILD_DIR, stderr=stderr, stdout=stdout)
+    if not CEEDLING_BINARY.is_file():
+        secho("Could not find program 'ceedling'.", fg="red", err=True)
+        return SubprocessResult(1)
+    return run_process(cmd, cwd=cwd, stderr=stderr, stdout=stdout)

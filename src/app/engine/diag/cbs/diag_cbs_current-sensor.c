@@ -43,8 +43,8 @@
  * @file    diag_cbs_current-sensor.c
  * @author  foxBMS Team
  * @date    2021-02-17 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup ENGINE
  * @prefix  DIAG
  *
@@ -76,8 +76,8 @@ void DIAG_ErrorCurrentSensor(
     const DIAG_DATABASE_SHIM_s *const kpkDiagShim,
     uint32_t stringNumber) {
     FAS_ASSERT(
-        (diagId == DIAG_ID_CURRENT_SENSOR_RESPONDING) || (diagId == DIAG_ID_CAN_CC_RESPONDING) ||
-        (diagId == DIAG_ID_CAN_EC_RESPONDING));
+        (diagId == DIAG_ID_CURRENT_SENSOR_RESPONDING) || (diagId == DIAG_ID_CURRENT_SENSOR_CC_RESPONDING) ||
+        (diagId == DIAG_ID_CURRENT_SENSOR_EC_RESPONDING));
     FAS_ASSERT((event == DIAG_EVENT_OK) || (event == DIAG_EVENT_NOT_OK) || (event == DIAG_EVENT_RESET));
     FAS_ASSERT(kpkDiagShim != NULL_PTR);
     FAS_ASSERT(stringNumber < BS_NR_OF_STRINGS);
@@ -89,14 +89,14 @@ void DIAG_ErrorCurrentSensor(
         if (event == DIAG_EVENT_NOT_OK) {
             kpkDiagShim->pTableError->currentSensorNotRespondingError[stringNumber] = true;
         }
-    } else if (diagId == DIAG_ID_CAN_CC_RESPONDING) {
+    } else if (diagId == DIAG_ID_CURRENT_SENSOR_CC_RESPONDING) {
         if (event == DIAG_EVENT_RESET) {
             kpkDiagShim->pTableError->currentSensorCoulombCounterTimeoutError[stringNumber] = false;
         }
         if (event == DIAG_EVENT_NOT_OK) {
             kpkDiagShim->pTableError->currentSensorCoulombCounterTimeoutError[stringNumber] = true;
         }
-    } else if (diagId == DIAG_ID_CAN_EC_RESPONDING) {
+    } else if (diagId == DIAG_ID_CURRENT_SENSOR_EC_RESPONDING) {
         if (event == DIAG_EVENT_RESET) {
             kpkDiagShim->pTableError->currentSensorEnergyCounterTimeoutError[stringNumber] = false;
         }

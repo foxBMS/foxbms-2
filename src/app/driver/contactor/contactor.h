@@ -43,8 +43,8 @@
  * @file    contactor.h
  * @author  foxBMS Team
  * @date    2020-02-11 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup DRIVERS
  * @prefix  CONT
  *
@@ -110,11 +110,15 @@ extern STD_RETURN_TYPE_e CONT_ClosePrecharge(uint8_t stringNumber);
 extern STD_RETURN_TYPE_e CONT_OpenPrecharge(uint8_t stringNumber);
 
 /**
- * @brief   Open all currently closed precharge contactors
- * @details This function iterates over all contactors and opens all currently
+ * @brief   This function iterates over all contactors and opens all currently
  *          closed precharge contactors
  */
 extern void CONT_OpenAllPrechargeContactors(void);
+
+/**
+ * @brief   Open all contactors
+ */
+extern void CONT_OpenAllContactors(void);
 
 /**
  * @brief   checks the feedback of all contactors

@@ -846,6 +846,9 @@ SG_ SystemMonitoringError : 12|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ AlertFlag : 27|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ NvramCrcError : 28|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ InsulationResistance : 63|8@0+ (200,0) [0|51000] "kOhm" Vector__XXX
+SG_ BmsSubstate : 37|6@0+ (1,0) [0|63] "" Vector__XXX
+SG_ Clamp30cError : 30|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ BalancingAlgorithmState : 31|1@1+ (1,0) [0|1] "" Vector__XXX
 
 BO_ 545 f_BmsStateDetails: 8 Vector__XXX
 SG_ TimingViolationEngineTask : 0|1@0+ (1,0) [0|1] "" Vector__XXX
@@ -1794,7 +1797,8 @@ SG_ GetMonth m4 : 47|4@0+ (1,0) [0|15] "" Vector__XXX
 SG_ GetSeconds m4 : 8|6@0+ (1,0) [0|63] "" Vector__XXX
 SG_ GetWeekday m4 : 39|3@0+ (1,0) [0|7] "" Vector__XXX
 SG_ GetYear m4 : 43|7@0+ (1,0) [0|127] "" Vector__XXX
-SG_ shortHash m5 : 15|56@0+ (1,0) [0|0] "" Vector__XXX
+SG_ shortHashLow7 m6 : 15|56@0+ (1,0) [0|0] "" Vector__XXX
+SG_ shortHashHigh7 m5 : 15|56@0+ (1,0) [0|0] "" Vector__XXX
 
 BO_ 770 f_DebugUnsupportedMultiplexerVal: 8 Vector__XXX
 SG_ MessageId : 7|32@0+ (1,0) [0|1] "" Vector__XXX
@@ -2093,6 +2097,9 @@ SG_ IVT_Result_U3_Channel_Error : 13|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ IVT_ID_Result_U3 : 7|8@0+ (1,0) [3|3] "" Vector__XXX
 SG_ IVT_Result_U3 : 23|32@0- (1,0) [-2147483648|2147483647] "mV" Vector__XXX
 SG_ IVT_MsgCount_Result_U3 : 11|4@0+ (1,0) [0|15] "" Vector__XXX
+
+BO_ 546 f_BmsFatalError: 2 Vector__XXX
+SG_ FatalErrorCode : 0|8@0+ (1,0) [0|255] "" Vector__XXX
 
 CM_ BO_ 640 "Cell temperature measurement data (in:can_cbs_rx_cell-temperatures.c:CANRX_CellTemperatures, fv:rx)";
 CM_ SG_ 640 CellTemperature_000 "Temperature of cell 0";
@@ -2518,6 +2525,8 @@ CM_ SG_ 544 PackOvercurrentDischargeError "Indicates whether a too high pack cur
 CM_ SG_ 544 SystemMonitoringError "Indicates whether a task has violated its timing requirements";
 CM_ SG_ 544 AlertFlag "Indicates whether any alter flag is set or not";
 CM_ SG_ 544 NvramCrcError "Indicates whether a CRC error has been detected in the NVRAM or not";
+CM_ SG_ 544 Clamp30cError "Indicates a possible error with Clamp 30C supply";
+CM_ SG_ 544 BalancingAlgorithmState "Indicates if the selected balancing algorithm allows balancing. This indicates not if a cell is actually balanced or not. This is indicated in IsBalancingActive flag in f_StringState message";
 CM_ BO_ 545 "Details on flags transmitted by the 'BmsState' message (in:can_cbs_tx_bms-state-details.c:CANTX_BmsStateDetails, fv:tx)";
 CM_ SG_ 545 TimingViolationEngineTask "Indicates whether the timing of the engine task has been violated.";
 CM_ SG_ 545 TimingViolation1msTask "Indicates whether the timing of the 1ms task has been violated.";
@@ -2996,7 +3005,7 @@ CM_ SG_ 577 MaximumCellTemperature "Maximum cell temperature in string 0";
 CM_ SG_ 577 MinimumCellTemperature "Minium cell temperature in string 0";
 CM_ BO_ 576 "Message contains string related error and warning flags (in:can_cbs_tx_string-state.c:CANTX_StringState, fv:tx)";
 CM_ SG_ 576 IsStringConnected "0x00: String not connected, 0x01: String connected to HV bus";
-CM_ SG_ 576 IsBalancingActive "0x00: No balancing active, 0x01: Balancing in this string active";
+CM_ SG_ 576 IsBalancingActive "0x00: No cell in this string is current balanced, 0x01: At least one cell in this string is currently balanced";
 CM_ SG_ 576 OvertemperatureChargeMslError "0x00: No error, 0x01: Error: Flag will be set if maximum cell temperature is above 45 degree celsius.";
 CM_ SG_ 576 UndertemperatureChargeMslError "0x00: No error, 0x01: Error: Flag will be set if minimum cell temperature is below 0 degree celsius.";
 CM_ SG_ 576 OvertemperatureDischargeMslError "0x00: No error, 0x01: Error: Flag will be set if maximum cell temperature is above 60 degree celsius.";
@@ -3048,6 +3057,7 @@ CM_ BO_ 1317 "Current sensor string 0: temperature (in:can_cbs_rx_current-sensor
 CM_ BO_ 1314 "Current sensor string 0: voltage 1 (in:can_cbs_rx_current-sensor.c:CANRX_CurrentSensor, fv:rx)";
 CM_ BO_ 1315 "Current sensor string 0: voltage 2 (in:can_cbs_rx_current-sensor.c:CANRX_CurrentSensor, fv:rx)";
 CM_ BO_ 1316 "Current sensor string 0: voltage 3 (in:can_cbs_rx_current-sensor.c:CANRX_CurrentSensor, fv:rx)";
+CM_ BO_ 546 "Message contains the fatal error code (in:can_cbs_tx_fatal-error.c:CANTX_SendFatalErrorId, fv:tx)";
 
 BA_DEF_  "BusType" STRING ;
 BA_DEF_ BO_  "GenMsgCycleTime" INT 0 65535;
@@ -3092,7 +3102,8 @@ BA_ "GenSigStartValue" SG_ 1314 IVT_ID_Result_U1 1;
 BA_ "GenSigStartValue" SG_ 1315 IVT_ID_Result_U2 2;
 BA_ "GenSigStartValue" SG_ 1316 IVT_ID_Result_U3 3;
 
-BA_ "SigType" SG_ 769 shortHash 3;
+BA_ "SigType" SG_ 769 shortHashLow7 3;
+BA_ "SigType" SG_ 769 shortHashHigh7 3;
 
 VAL_ 640 AFE_CellTemperatures_Mux 0 "CellTemperatures_000_005" 1 "CellTemperatures_006_011" 2 "CellTemperatures_012_017" 3 "CellTemperatures_018_023" 4 "CellTemperatures_024_029" 5 "CellTemperatures_030_035" 6 "CellTemperatures_036_041" 7 "CellTemperatures_042_047" 8 "CellTemperatures_048_053" 9 "CellTemperatures_054_059" 10 "CellTemperatures_060_065" 11 "CellTemperatures_066_071" 12 "CellTemperatures_072_077" 13 "CellTemperatures_078_083" 14 "CellTemperatures_084_089" 15 "CellTemperatures_090_095" 16 "CellTemperatures_096_101" 17 "CellTemperatures_102_107" 18 "CellTemperatures_108_113" 19 "CellTemperatures_114_119" 20 "CellTemperatures_120_125" 21 "CellTemperatures_126_131" 22 "CellTemperatures_132_137" 23 "CellTemperatures_138_143" 24 "CellTemperatures_144_149" 25 "CellTemperatures_150_155" 26 "CellTemperatures_156_161" 27 "CellTemperatures_162_167" 28 "CellTemperatures_168_173" 29 "CellTemperatures_174_179";
 VAL_ 624 AFE_CellVoltages_Mux 0 "CellVoltages_000_003" 1 "CellVoltages_004_007" 2 "CellVoltages_008_011" 3 "CellVoltages_012_015" 4 "CellVoltages_016_019" 5 "CellVoltages_020_023" 6 "CellVoltages_024_027" 7 "CellVoltages_028_031" 8 "CellVoltages_032_035" 9 "CellVoltages_036_039" 10 "CellVoltages_040_043" 11 "CellVoltages_044_047" 12 "CellVoltages_048_051" 13 "CellVoltages_052_055" 14 "CellVoltages_056_059" 15 "CellVoltages_060_063" 16 "CellVoltages_064_067" 17 "CellVoltages_068_071" 18 "CellVoltages_072_075" 19 "CellVoltages_076_079" 20 "CellVoltages_080_083" 21 "CellVoltages_084_087" 22 "CellVoltages_088_091" 23 "CellVoltages_092_095" 24 "CellVoltages_096_099" 25 "CellVoltages_100_103" 26 "CellVoltages_104_107" 27 "CellVoltages_108_111" 28 "CellVoltages_112_115" 29 "CellVoltages_116_119" 30 "CellVoltages_120_123" 31 "CellVoltages_124_127" 32 "CellVoltages_128_131" 33 "CellVoltages_132_135" 34 "CellVoltages_136_139" 35 "CellVoltages_140_143" 36 "CellVoltages_144_147" 37 "CellVoltages_148_151" 38 "CellVoltages_152_155" 39 "CellVoltages_156_159"
@@ -3103,7 +3114,7 @@ VAL_ 592 f_CellVoltages_Mux 0 "CellVoltages_000_003" 1 "CellVoltages_004_007" 2 
 VAL_ 255 f_CrashDump_Mux 0 "StackOverflow";
 VAL_ 768 f_Debug_Mux 1 "Rtc" 0 "VersionInfo" 2 "SoftwareReset" 3 "FramInitialization" 4 "TimeInfo";
 VAL_ 771 f_DebugBuildConfiguration_Mux 36 "BatteryCell_MaxDischargeTemp" 39 "BatteryCell_MinDischargeTemp" 34 "BatteryCell_MaxChargeTemp" 38 "BatteryCell_MinChargeTemp" 37 "BatteryCell_MaxVolt" 40 "BatteryCell_MinVolt" 32 "BatteryCell" 33 "BatteryCell_MaxChargeCur" 35 "BatteryCell_MaxDischargeCur" 48 "BatterySystem_General1" 55 "BatterySystem_TotalNumbers" 51 "BatterySystem_CurrentSensor" 50 "BatterySystem_Contactors" 54 "BatterySystem_OpenWireCheck" 52 "BatterySystem_Fuse" 49 "BatterySystem_General2" 53 "BatterySystem_MaxCurrent" 16 "Application" 0 "Slave";
-VAL_ 769 f_DebugResponse_Mux 3 "McuWaferInformation" 2 "McuLotNumber" 1 "McuUniqueDieId" 0 "BmsSoftwareVersionInfo" 15 "BootInformation" 4 "RtcTime" 5 "CommitHash";
+VAL_ 769 f_DebugResponse_Mux 3 "McuWaferInformation" 2 "McuLotNumber" 1 "McuUniqueDieId" 0 "BmsSoftwareVersionInfo" 15 "BootInformation" 4 "RtcTime" 6 "CommitHashLow7" 5 "CommitHashHigh7";
 VAL_ 577 f_StringMinimumMaximumValues_Mux 0 "String0";
 VAL_ 576 f_StringState_Mux 0 "String0";
 VAL_ 581 f_StringStateEstimation_Mux 0 "String0";
@@ -3529,6 +3540,10 @@ VAL_ 544 PackOvercurrentDischargeError 0 "No Error" 1 "Error";
 VAL_ 544 SystemMonitoringError 0 "No Error" 1 "Error";
 VAL_ 544 AlertFlag 0 "No Alert" 1 "Alert";
 VAL_ 544 NvramCrcError 0 "No Error" 1 "Error";
+VAL_ 544 BmsSubstate 0 "ENTRY" 1 "CHECK_ERROR_FLAGS_INTERLOCK" 2 "INTERLOCK_CHECKED" 3 "CHECK_STATE_REQUESTS" 4 "CHECK_BALANCING_REQUESTS" 5 "CHECK_ERROR_FLAGS" 6 "CHECK_CONTACTOR_NORMAL_STATE" 7 "CHECK_CONTACTOR_CHARGE_STATE" 8 "PRECHARGE_CLOSE_MINUS" 9 "PRECHARGE_CLOSE_PRECHARGE" 10 "PRECHARGE_CHECK_VOLTAGES" 11 "PRECHARGE_OPEN_PRECHARGE" 12 "PRECHARGE_CHECK_OPEN_PRECHARGE" 13 "OPEN_FIRST_CONTACTOR" 14 "OPEN_SECOND_CONTACTOR_MINUS" 15 "OPEN_SECOND_CONTACTOR_PLUS" 16 "CHECK_CLOSE_SECOND_STRING_CONTACOTR_PRECHARGE_STATE" 17 "CHECK_ERROR_FLAGS_PRECHARGE" 18 "CHECK_ERROR_FLAGS_PRECHARGE_FIRST_STRING" 19 "PRECHARGE_CLOSE_NEXT_STRING" 20 "CLOSE_SECOND_CONTACOR_PLUS" 21 "CHECK_STRING_CLOSED" 22 "CHECK_ERROR_FLAGS_PRECHARGE_CLOSING_STRINGS" 23 "CHECK_ERROR_FLAGS_CLOSING_PRECHARGE" 24 "NORMAL_CLOSE_NEXT_STRING" 25 "NORMAL_CLOSE_SECOND_STRING_CONTACTOR" 26 "OPEN_ALL_PRECHARGE_CONTACTORS" 27 "CHECK_ALL_PRECHARGE_CONTACTORS_OPEN" 28 "OPEN_STRINGS_ENTRY" 29 "OPEN_FIRST_STRING_CONTACTOR" 30 "OPEN_SECOND_STRING_CONTACTOR" 31 "CHECK_SECOND_STRING_CONTACTOR"
+32 "OPEN_STRINGS_EXIT";
+VAL_ 544 Clamp30cError 0 "No Error" 1 "Error";
+VAL_ 544 BalancingAlgorithmState 0 "BALANCING_NOT_ALLOWED" 1 "BALANCING_ALLOWED";
 VAL_ 545 TimingViolationEngineTask 0 "No Error" 1 "Error";
 VAL_ 545 TimingViolation1msTask 0 "No Error" 1 "Error";
 VAL_ 545 TimingViolation10msTask 0 "No Error" 1 "Error";
@@ -3950,8 +3965,8 @@ VAL_ 771 SOH_algorithm 0 "None" 1 "Debug";
 VAL_ 771 Balancing_strategy 0 "none" 1 "voltage" 2 "history";
 VAL_ 771 IMD 0 "none" 1 "Bender_iso165c" 2 "Bender_ir155";
 VAL_ 771 Rtos 0 "freertos" 1 "safertos";
-VAL_ 771 AFE 0 "LTC 6804-1" 1 "LTC 6806" 2 "LTC 6811-1" 3 "LTC 6812-1" 4 "LTC 6813-1" 5 "NXP MC33775A" 6 "MAXIM MAX17852" 7 "Debug default" 8 "ADI ADES1830" 9 "TI Dummy";
-VAL_ 771 TemperatureSensor 0 "Fak00" 1 "Epc00" 2 "Epc01" 3 "Mur00" 4 "Sem00" 5 "Vis00" 6 "Vis01" 7 "Vis02";
+VAL_ 771 AFE 0 "LTC 6804-1" 1 "LTC 6806" 2 "LTC 6811-1" 3 "LTC 6812-1" 4 "LTC 6813-1" 5 "NXP MC33775A" 6 "MAXIM MAX17852" 7 "Debug default" 8 "ADI ADES1830" 9 "ADI ADBMS6832" 10 "TI BQ79718" 11 "TI Dummy";
+VAL_ 771 TemperatureSensor 0 "Fak00" 1 "Epc00" 2 "Epc01" 3 "Mur00" 4 "Sem00" 5 "Vis00" 6 "Vis01" 7 "Vis02" 8 "Tdk00";
 VAL_ 771 TemperatureSensorMethod 0 "polynomial" 1 "lookup-table";
 VAL_ 769 DirtyFlag 0 "No" 1 "Yes";
 VAL_ 769 ReleaseDistanceOverflow 0 "No" 1 "Yes";
@@ -4080,3 +4095,5 @@ VAL_ 1317 IVT_ID_Result_T 4 "Vt_Result_T";
 VAL_ 1314 IVT_ID_Result_U1 1 "Vt_Result_U1";
 VAL_ 1315 IVT_ID_Result_U2 2 "Vt_Result_U2";
 VAL_ 1316 IVT_ID_Result_U3 3 "Vt_Result_U3";
+VAL_ 546 FatalErrorCode 0 "DIAG_ID_FLASHCHECKSUM" 1 "DIAG_ID_SYSTEM_MONITORING" 2 "DIAG_ID_CONFIGASSERT" 3 "DIAG_ID_AFE_SPI" 4 "DIAG_ID_AFE_COMMUNICATION_INTEGRITY" 5 "DIAG_ID_AFE_MUX" 6 "DIAG_ID_AFE_CONFIG" 7 "DIAG_ID_CAN_TIMING" 10 "DIAG_ID_CAN_CC_RESPONDING" 11 "DIAG_ID_CAN_EC_RESPONDING" 12 "DIAG_ID_CURRENT_SENSOR_RESPONDING" 19 "DIAG_ID_CELL_VOLTAGE_OVERVOLTAGE_MSL" 22 "DIAG_ID_CELL_VOLTAGE_UNDERVOLTAGE_MSL" 25 "DIAG_ID_TEMP_OVERTEMPERATURE_CHARGE_MSL" 28 "DIAG_ID_TEMP_OVERTEMPERATURE_DISCHARGE_MSL" 31 "DIAG_ID_TEMP_UNDERTEMPERATURE_CHARGE_MSL" 34 "DIAG_ID_TEMP_UNDERTEMPERATURE_DISCHARGE_MSL" 37 "DIAG_ID_OVERCURRENT_CHARGE_CELL_MSL" 40 "DIAG_ID_OVERCURRENT_DISCHARGE_CELL_MSL" 43 "DIAG_ID_STRING_OVERCURRENT_CHARGE_MSL" 46 "DIAG_ID_STRING_OVERCURRENT_DISCHARGE_MSL" 49 "DIAG_ID_PACK_OVERCURRENT_CHARGE_MSL" 50 "DIAG_ID_PACK_OVERCURRENT_DISCHARGE_MSL" 51 "DIAG_ID_CURRENT_ON_OPEN_STRING" 52 "DIAG_ID_DEEP_DISCHARGE_DETECTED" 55 "DIAG_ID_INTERLOCK_FEEDBACK" 56 "DIAG_ID_STRING_MINUS_CONTACTOR_FEEDBACK" 57 "DIAG_ID_STRING_PLUS_CONTACTOR_FEEDBACK"
+58 "DIAG_ID_PRECHARGE_CONTACTOR_FEEDBACK" 60 "DIAG_ID_SBC_RSTB_STATE" 67 "DIAG_ID_CURRENT_MEASUREMENT_TIMEOUT" 68 "DIAG_ID_CURRENT_MEASUREMENT_ERROR" 69 "DIAG_ID_CURRENT_SENSOR_V1_MEASUREMENT_TIMEOUT" 70 "DIAG_ID_CURRENT_SENSOR_V2_MEASUREMENT_TIMEOUT" 71 "DIAG_ID_CURRENT_SENSOR_V3_MEASUREMENT_TIMEOUT" 72 "DIAG_ID_CURRENT_SENSOR_POWER_MEASUREMENT_TIMEOUT" 73 "DIAG_ID_POWER_MEASUREMENT_ERROR" 83 "DIAG_ID_ALERT_MODE" 85 "DIAG_ID_SUPPLY_VOLTAGE_CLAMP_30C_LOST" 86 "NO_ERROR";

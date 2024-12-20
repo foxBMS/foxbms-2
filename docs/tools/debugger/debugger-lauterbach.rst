@@ -11,6 +11,7 @@ Required Hardware
 
 For debugging the |foxbms| application with the Lauterbach tools the
 following hardware is required:
+
 - Lauterbach LA-3505 debugger
 - Lauterbach LA-3253 Adapter for Cortex-A/R cores (successor of the LA-7843)
 - Lauterbach Mictor-38 adapter LA-3722

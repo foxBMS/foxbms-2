@@ -7,11 +7,11 @@ Master TMS570 ``v1.1.1`` Block diagram
 ======================================
 
 A block diagram of the |bms-master| is shown in figure
-:numref:`foxbms-2-master-hardware-block-diagram`.
+:numref:`foxbms-2-master-hardware-block-diagram-v1.1.1`.
 
 .. figure:: img/ti-tms570lc4357-v1.1.1._block-diagram.png
    :alt: Block diagram of the |bms-master| hardware
-   :name: foxbms-2-master-hardware-block-diagram
+   :name: foxbms-2-master-hardware-block-diagram-v1.1.1
    :width: 100 %
 
    Block diagram of the |bms-master| hardware

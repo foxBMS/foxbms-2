@@ -47,6 +47,6 @@ CRC_DIR = PROJECT_ROOT / "tools/crc"
 
 
 def run_crc_build() -> SubprocessResult:
-    """builds the CRC example source code in tools/crc"""
+    """builds the CRC example source code in tools/crc."""
     ret = run_waf(args=["configure", "build"], cwd=CRC_DIR, stdout=None, stderr=None)
     return ret

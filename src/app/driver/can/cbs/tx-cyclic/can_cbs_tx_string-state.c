@@ -43,8 +43,8 @@
  * @file    can_cbs_tx_string-state.c
  * @author  foxBMS Team
  * @date    2023-05-31 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup DRIVERS
  * @prefix  CANTX
  *
@@ -626,14 +626,26 @@ static void CANTX_SetOtherErrorFlags(const CAN_SHIM_s *const kpkCanShim, uint64_
     FAS_ASSERT(pMessageData != NULL_PTR);
     FAS_ASSERT(stringNumber <= BS_NR_OF_STRINGS);
 
-    /* Balancing active: TODO */
-
     /* String fuse blown */
     uint64_t data = CAN_ConvertBooleanToInteger(kpkCanShim->pTableErrorState->stringFuseError[stringNumber]);
     CAN_TxSetMessageDataWithSignalData(
         pMessageData,
         CANTX_SIGNAL_STRING_IS_STRING_FUSE_BLOWN_START_BIT,
         CANTX_SIGNAL_STRING_IS_STRING_FUSE_BLOWN_LENGTH,
+        data,
+        CANTX_STRING_STATE_ENDIANNESS);
+
+    /* Balancing active - database entry read for f_BmsState message */
+    if (kpkCanShim->pTableBalancingControl->nrBalancedCells[stringNumber] == 0u) {
+        data = 0u;
+    } else {
+        /* At least one cell is currently being balanced */
+        data = 1u;
+    }
+    CAN_TxSetMessageDataWithSignalData(
+        pMessageData,
+        CANTX_SIGNAL_STRING_IS_BALANCING_ACTIVE_START_BIT,
+        CANTX_SIGNAL_STRING_IS_BALANCING_ACTIVE_LENGTH,
         data,
         CANTX_STRING_STATE_ENDIANNESS);
 

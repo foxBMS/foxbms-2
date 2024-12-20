@@ -76,8 +76,32 @@ Verification
 Run the check scripts to verify that the messages are implemented as described
 in this how-to.
 
-.. code-block:: powershell
-   :caption: Verify CAN transmit message definition and callback implementation
+.. tabs::
 
-   PS C:\Users\vulpes\Documents\foxbms-2> .\fox.ps1 run-script tests/can/check_ids.py
-   PS C:\Users\vulpes\Documents\foxbms-2> .\fox.ps1 run-script tests/can/check_implemented.py
+   .. group-tab:: Win32/PowerShell
+
+      .. code-block:: powershell
+
+         .\fox.ps1 run-script tests\can\check_ids.py
+         .\fox.ps1 run-script tests\can\check_implemented.py
+
+   .. group-tab:: Win32/cmd.exe
+
+      .. code-block:: bat
+
+         fox.bat run-script tests\can\check_ids.py
+         fox.bat run-script tests\can\check_implemented.py
+
+   .. group-tab:: Win32/Git bash
+
+      .. code-block:: shell
+
+         ./fox.sh run-script tests/can/check_ids.py
+         ./fox.sh run-script tests/can/check_implemented.py
+
+   .. group-tab:: Linux
+
+      .. code-block:: shell
+
+         ./fox.sh run-script tests/can/check_ids.py
+         ./fox.sh run-script tests/can/check_implemented.py

@@ -43,8 +43,8 @@
  * @file    test_can_cbs_tx_debug-response.c
  * @author  foxBMS Team
  * @date    2022-08-17 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -57,13 +57,16 @@
 #include "Mockcan.h"
 #include "Mockcan_helper.h"
 #include "Mockfoxmath.h"
+#include "Mockmcu.h"
 #include "Mockrtc.h"
+#include "Mockutils.h"
 
 #include "database_cfg.h"
-#include "version_cfg.h"
 
 #include "can_cbs_tx_debug-response.h"
 #include "can_cfg_tx-async-message-definitions.h"
+#include "test_assert_helper.h"
+#include "version.h"
 
 #include <stdbool.h>
 
@@ -76,8 +79,17 @@ TEST_INCLUDE_PATH("../../src/app/driver/can/cbs/tx-async")
 TEST_INCLUDE_PATH("../../src/app/driver/config")
 TEST_INCLUDE_PATH("../../src/app/driver/foxmath")
 TEST_INCLUDE_PATH("../../src/app/driver/rtc")
+TEST_INCLUDE_PATH("../../src/version")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
+uint64_t testMessageData[10] = {0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u};
+
+uint64_t testSignalData[3u] = {0u, 1u, 2u};
+
+uint8_t testCanDataZeroArray[8u] = {0u};
+
+uint8_t testCanDataFilled[8u] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
+
 const CAN_NODE_s can_node1 = {
     .canNodeRegister = canREG1,
 };
@@ -87,14 +99,14 @@ const CAN_NODE_s can_node2Isolated = {
 };
 
 /* Dummy for version file implementation */
-const VER_VERSION_s ver_foxbmsVersionInformation = {
+VER_VERSION_s ver_versionInformation = {
     .underVersionControl     = true,
     .isDirty                 = true,
     .major                   = 13,
     .minor                   = 54,
     .patch                   = 7,
-    .distanceFromLastRelease = 42,
-    .commitHash              = "deadbeef",
+    .distanceFromLastRelease = 17,
+    .commitHash              = "Test12deadbeef",
     .gitRemote               = "onTheDarkSideOfTheMoon.git",
 };
 
@@ -106,98 +118,562 @@ void tearDown(void) {
 }
 
 /*========== Test Cases =====================================================*/
-void testTransmitBmsVersionInfo(void) {
-    uint8_t testCanDataZeroArray[CANTX_DEBUG_RESPONSE_DLC] = {0u};
-    uint64_t testMessageData                               = 0u;
 
-    MATH_MinimumOfTwoUint16_t_ExpectAndReturn(42, 31u, 31u);
-    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData, 7u, 8u, 0x00u, CANTX_DEBUG_RESPONSE_ENDIANNESS);
-    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData, 15u, 8u, 0x0Du, CANTX_DEBUG_RESPONSE_ENDIANNESS);
-    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData, 23u, 8u, 0x36u, CANTX_DEBUG_RESPONSE_ENDIANNESS);
-    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData, 31u, 8u, 0x07u, CANTX_DEBUG_RESPONSE_ENDIANNESS);
-    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData, 39u, 5u, 0x1Fu, CANTX_DEBUG_RESPONSE_ENDIANNESS);
-    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData, 34u, 1u, 0x01u, CANTX_DEBUG_RESPONSE_ENDIANNESS);
-    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData, 33u, 1u, 0x01u, CANTX_DEBUG_RESPONSE_ENDIANNESS);
-    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData, 32u, 1u, 0x01u, CANTX_DEBUG_RESPONSE_ENDIANNESS);
-    CAN_TxSetCanDataWithMessageData_Expect(testMessageData, testCanDataZeroArray, CANTX_DEBUG_RESPONSE_ENDIANNESS);
-    CAN_DataSend_ExpectAndReturn(
-        CAN_NODE_1, CANTX_DEBUG_RESPONSE_ID, CAN_STANDARD_IDENTIFIER_11_BIT, testCanDataZeroArray, STD_OK);
-
-    CANTX_DebugResponse(CANTX_DEBUG_RESPONSE_TRANSMIT_BMS_VERSION_INFO);
-}
-
-void testTransmitBootMagicStart(void) {
-    uint8_t testCanDataZeroArray[CANTX_DEBUG_RESPONSE_DLC] = {0u};
-    uint64_t testMessageData                               = 0u;
-
-    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData, 7u, 8u, 0x0Fu, CANTX_DEBUG_RESPONSE_ENDIANNESS);
+/**
+ * @brief   Testing CANTX_TransmitBmsVersionInfo
+ * @details The following cases need to be tested:
+ *          - Argument validation:
+ *            - None
+ *          - Routine validation:
+ *            - RT1/2: distance not capped, is dirty, is under version control
+ *            - RT2/2: distance capped, isn't dirty, isn't under version control
+ */
+void testCANTX_TransmitBmsVersionInfo(void) {
+    /* ======= Routine tests =============================================== */
+    /* ======= RT1/2: Test implementation */
+    MATH_MinimumOfTwoUint16_t_ExpectAndReturn(
+        ver_versionInformation.distanceFromLastRelease, 31u, ver_versionInformation.distanceFromLastRelease);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 7u, 8u, 0x00, CANTX_DEBUG_RESPONSE_ENDIANNESS);
+    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[1u]);
     CAN_TxSetMessageDataWithSignalData_Expect(
-        &testMessageData, 15u, 56u, 0xFEFEFEFEFEFEFEuLL, CANTX_DEBUG_RESPONSE_ENDIANNESS);
-    CAN_TxSetCanDataWithMessageData_Expect(testMessageData, testCanDataZeroArray, CANTX_DEBUG_RESPONSE_ENDIANNESS);
-    CAN_DataSend_ExpectAndReturn(
-        CAN_NODE_1, CANTX_DEBUG_RESPONSE_ID, CAN_STANDARD_IDENTIFIER_11_BIT, testCanDataZeroArray, STD_OK);
-
-    CANTX_DebugResponse(CANTX_DEBUG_RESPONSE_TRANSMIT_BOOT_MAGIC_START);
-}
-
-void testTransmitBootMagicEnd(void) {
-    uint8_t testCanDataZeroArray[CANTX_DEBUG_RESPONSE_DLC] = {0u};
-    uint64_t testMessageData                               = 0u;
-
-    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData, 7u, 8u, 0x0Fu, CANTX_DEBUG_RESPONSE_ENDIANNESS);
+        &testMessageData[1u], 15u, 8u, ver_versionInformation.major, CANTX_DEBUG_RESPONSE_ENDIANNESS);
+    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[2u]);
     CAN_TxSetMessageDataWithSignalData_Expect(
-        &testMessageData, 15u, 56u, 0x01010101010101uLL, CANTX_DEBUG_RESPONSE_ENDIANNESS);
-    CAN_TxSetCanDataWithMessageData_Expect(testMessageData, testCanDataZeroArray, CANTX_DEBUG_RESPONSE_ENDIANNESS);
-    CAN_DataSend_ExpectAndReturn(
-        CAN_NODE_1, CANTX_DEBUG_RESPONSE_ID, CAN_STANDARD_IDENTIFIER_11_BIT, testCanDataZeroArray, STD_OK);
+        &testMessageData[2u], 23u, 8u, ver_versionInformation.minor, CANTX_DEBUG_RESPONSE_ENDIANNESS);
+    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[3u]);
+    CAN_TxSetMessageDataWithSignalData_Expect(
+        &testMessageData[3u], 31u, 8u, ver_versionInformation.patch, CANTX_DEBUG_RESPONSE_ENDIANNESS);
+    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[4u]);
+    CAN_TxSetMessageDataWithSignalData_Expect(
+        &testMessageData[4u], 39u, 5u, ver_versionInformation.distanceFromLastRelease, CANTX_DEBUG_RESPONSE_ENDIANNESS);
+    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[5u]);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[5u], 34u, 1u, 0u, CANTX_DEBUG_RESPONSE_ENDIANNESS);
+    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[6u]);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[6u], 33u, 1u, 1u, CANTX_DEBUG_RESPONSE_ENDIANNESS);
+    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[7u]);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[7u], 32u, 1u, 1u, CANTX_DEBUG_RESPONSE_ENDIANNESS);
+    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[8u]);
+    /* ======= RT1/2: Call function under test */
+    uint64_t testResult = TEST_CANTX_TransmitBmsVersionInfo();
 
-    CANTX_DebugResponse(CANTX_DEBUG_RESPONSE_TRANSMIT_BOOT_MAGIC_END);
+    /* ======= RT1/2: Test output verification */
+    TEST_ASSERT_EQUAL(testMessageData[8u], testResult);
+
+    /* ======= RT2/2: Test implementation */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdiscarded-qualifiers"
+    uint16_t *tmpDistanceFromLastRelease = &ver_versionInformation.distanceFromLastRelease;
+    *tmpDistanceFromLastRelease          = 42u;
+    bool *tmpIsDirty                     = &ver_versionInformation.isDirty;
+    *tmpIsDirty                          = false;
+    bool *tmpUnderVersionControl         = &ver_versionInformation.underVersionControl;
+    *tmpUnderVersionControl              = false;
+#pragma GCC diagnostic pop
+
+    MATH_MinimumOfTwoUint16_t_ExpectAndReturn(42u, 31u, 31u);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 7u, 8u, 0x00, CANTX_DEBUG_RESPONSE_ENDIANNESS);
+    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[1u]);
+    CAN_TxSetMessageDataWithSignalData_Expect(
+        &testMessageData[1u], 15u, 8u, ver_versionInformation.major, CANTX_DEBUG_RESPONSE_ENDIANNESS);
+    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[2u]);
+    CAN_TxSetMessageDataWithSignalData_Expect(
+        &testMessageData[2u], 23u, 8u, ver_versionInformation.minor, CANTX_DEBUG_RESPONSE_ENDIANNESS);
+    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[3u]);
+    CAN_TxSetMessageDataWithSignalData_Expect(
+        &testMessageData[3u], 31u, 8u, ver_versionInformation.patch, CANTX_DEBUG_RESPONSE_ENDIANNESS);
+    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[4u]);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[4u], 39u, 5u, 31u, CANTX_DEBUG_RESPONSE_ENDIANNESS);
+    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[5u]);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[5u], 34u, 1u, 1u, CANTX_DEBUG_RESPONSE_ENDIANNESS);
+    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[6u]);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[6u], 33u, 1u, 0u, CANTX_DEBUG_RESPONSE_ENDIANNESS);
+    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[7u]);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[7u], 32u, 1u, 0u, CANTX_DEBUG_RESPONSE_ENDIANNESS);
+    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[8u]);
+
+    /* ======= RT2/2: Call function under test */
+    testResult = TEST_CANTX_TransmitBmsVersionInfo();
+
+    /* ======= RT2/2: Test output verification */
+    TEST_ASSERT_EQUAL(testMessageData[8u], testResult);
+
+    *tmpIsDirty             = true;
+    *tmpUnderVersionControl = true;
 }
 
-void testTransmitRtcTime(void) {
-    uint8_t testCanDataZeroArray[CANTX_DEBUG_RESPONSE_DLC] = {0u};
-    uint64_t testMessageData                               = 0u;
-    RTC_TIME_DATA_s testRtcTime                            = {
-                                   .hundredthOfSeconds = 69u,
-                                   .seconds            = 07u,
-                                   .minutes            = 14u,
-                                   .hours              = 3u,
-                                   .weekday            = 2u,
-                                   .day                = 19u,
-                                   .month              = 1u,
-                                   .year               = 38u,
+/**
+ * @brief   Testing CANTX_TransmitMcuUniqueDieId
+ * @details The following cases need to be tested:
+ *          - Argument validation:
+ *            - None
+ *          - Routine validation:
+ *            - RT1/1: Message data set as expected
+ */
+void testCANTX_TransmitMcuUniqueDieId(void) {
+    /* ======= Routine tests =============================================== */
+    /* ======= RT1/1: Test implementation */
+    MCU_GetDeviceRegister_ExpectAndReturn(0x12345u);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 7u, 8u, 0x01, CANTX_DEBUG_RESPONSE_ENDIANNESS);
+    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[1u]);
+    CAN_TxSetMessageDataWithSignalData_Expect(
+        &testMessageData[1u], 15u, 32u, 0x12345u, CANTX_DEBUG_RESPONSE_ENDIANNESS);
+    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[2u]);
+
+    /* ======= RT1/1: Call function under test */
+    uint64_t testResult = TEST_CANTX_TransmitMcuUniqueDieId();
+    /* ======= RT1/1: Test output verification */
+    TEST_ASSERT_EQUAL(testMessageData[2u], testResult);
+}
+
+/**
+ * @brief   Testing CANTX_TransmitMcuLotNumber
+ * @details The following cases need to be tested:
+ *          - Argument validation:
+ *            - None
+ *          - Routine validation:
+ *            - RT1/1: Message data set as expected
+ */
+void testCANTX_TransmitMcuLotNumber(void) {
+    /* ======= Routine tests =============================================== */
+    /* ======= RT1/1: Test implementation */
+    MCU_GetDieIdHigh_ExpectAndReturn(0x23456u);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 7u, 8u, 0x02, CANTX_DEBUG_RESPONSE_ENDIANNESS);
+    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[1u]);
+    CAN_TxSetMessageDataWithSignalData_Expect(
+        &testMessageData[1u], 15u, 32u, 0x23456u, CANTX_DEBUG_RESPONSE_ENDIANNESS);
+    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[2u]);
+
+    /* ======= RT1/1: Call function under test */
+    uint64_t testResult = TEST_CANTX_TransmitMcuLotNumber();
+    /* ======= RT1/1: Test output verification */
+    TEST_ASSERT_EQUAL(testMessageData[2u], testResult);
+}
+
+/**
+ * @brief   Testing CANTX_TransmitMcuWaferInformation
+ * @details The following cases need to be tested:
+ *          - Argument validation:
+ *            - None
+ *          - Routine validation:
+ *            - RT1/1: Message data set as expected
+ */
+void testCANTX_TransmitMcuWaferInformation(void) {
+    /* ======= Routine tests =============================================== */
+    /* ======= RT1/1: Test implementation */
+    MCU_GetDieIdLow_ExpectAndReturn(0x11AAABBBu);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 7u, 8u, 0x03, CANTX_DEBUG_RESPONSE_ENDIANNESS);
+    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[1u]);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[1u], 15u, 8u, 0x11u, CANTX_DEBUG_RESPONSE_ENDIANNESS);
+    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[2u]);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[2u], 27u, 12u, 0xBBBu, CANTX_DEBUG_RESPONSE_ENDIANNESS);
+    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[3u]);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[3u], 23u, 12u, 0xAAAu, CANTX_DEBUG_RESPONSE_ENDIANNESS);
+    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[4u]);
+
+    /* ======= RT1/1: Call function under test */
+    uint64_t testResult = TEST_CANTX_TransmitMcuWaferInformation();
+    /* ======= RT1/1: Test output verification */
+    TEST_ASSERT_EQUAL(testMessageData[4u], testResult);
+}
+
+/**
+ * @brief   Testing CANTX_TransmitBootMagic
+ * @details The following cases need to be tested:
+ *          - Argument validation:
+ *            - AT1/1: invalid data
+ *          - Routine validation:
+ *            - RT1/2: set bit mask start
+ *            - RT2/2: set bit mask end
+ */
+void testCANTX_TransmitBootMagic(void) {
+    /* ======= Assertion tests ============================================= */
+    /* ======= AT1/1 ======= */
+    TEST_ASSERT_FAIL_ASSERT(TEST_CANTX_TransmitBootMagic(0u));
+    /* ======= Routine tests =============================================== */
+    /* ======= RT1/2: Test implementation */
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 7u, 8u, 0x0F, CAN_BIG_ENDIAN);
+    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[1u]);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[1u], 15u, 56u, 0xFEFEFEFEFEFEFEuLL, CAN_BIG_ENDIAN);
+    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[2u]);
+    /* ======= RT1/2: Call function under test */
+    uint64_t testResult = TEST_CANTX_TransmitBootMagic(0xFEFEFEFEFEFEFEuLL);
+    /* ======= RT1/2: Test output verification */
+    TEST_ASSERT_EQUAL(testMessageData[2u], testResult);
+    /* ======= RT2/2: Test implementation */
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 7u, 8u, 0x0F, CAN_BIG_ENDIAN);
+    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[1u]);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[1u], 15u, 56u, 0x01010101010101uLL, CAN_BIG_ENDIAN);
+    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[2u]);
+    /* ======= RT2/2: Call function under test */
+    testResult = TEST_CANTX_TransmitBootMagic(0x01010101010101uLL);
+    /* ======= RT2/2: Test output verification */
+    TEST_ASSERT_EQUAL(testMessageData[2u], testResult);
+}
+
+/**
+ * @brief   Testing CANTX_TransmitBootMagicStart
+ * @details The following cases need to be tested:
+ *          - Argument validation:
+ *            - None
+ *          - Routine validation:
+ *            - RT1/1: set bit mask start
+ */
+void testCANTX_TransmitBootMagicStart(void) {
+    /* ======= Routine tests =============================================== */
+    /* ======= RT1/1: Test implementation */
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 7u, 8u, 0x0F, CAN_BIG_ENDIAN);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 15u, 56u, 0xFEFEFEFEFEFEFEuLL, CAN_BIG_ENDIAN);
+    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[1u]);
+    /* ======= RT1/1: Call function under test */
+    uint64_t testResult = TEST_CANTX_TransmitBootMagicStart();
+    /* ======= RT1/1: Test output verification */
+    TEST_ASSERT_EQUAL(testMessageData[1u], testResult);
+}
+
+/**
+ * @brief   Testing CANTX_TransmitBootMagicEnd
+ * @details The following cases need to be tested:
+ *          - Argument validation:
+ *            - None
+ *          - Routine validation:
+ *            - RT1/1: set bit mask end
+ */
+void testCANTX_TransmitBootMagicEnd(void) {
+    /* ======= Routine tests =============================================== */
+    /* ======= RT1/1: Test implementation */
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 7u, 8u, 0x0F, CAN_BIG_ENDIAN);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 15u, 56u, 0x01010101010101uLL, CAN_BIG_ENDIAN);
+    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[1u]);
+    /* ======= RT1/1: Call function under test */
+    uint64_t testResult = TEST_CANTX_TransmitBootMagicEnd();
+    /* ======= RT1/1: Test output verification */
+    TEST_ASSERT_EQUAL(testMessageData[1u], testResult);
+}
+
+/**
+ * @brief   Testing CANTX_TransmitRtcTime
+ * @details The following cases need to be tested:
+ *          - Argument validation:
+ *            - None
+ *          - Routine validation:
+ *            - RT1/1: Sets message data as expected
+ */
+void testCANTX_TransmitRtcTime(void) {
+    /* ======= Routine tests =============================================== */
+    RTC_TIME_DATA_s testRtcTime = {
+        .hundredthOfSeconds = 69u,
+        .seconds            = 07u,
+        .minutes            = 14u,
+        .hours              = 3u,
+        .weekday            = 2u,
+        .day                = 19u,
+        .month              = 1u,
+        .year               = 38u,
     };
 
+    /* ======= RT1/1: Test implementation */
     RTC_GetSystemTimeRtcFormat_ExpectAndReturn(testRtcTime);
-    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData, 7u, 8u, 0x04u, CANTX_DEBUG_RESPONSE_ENDIANNESS);
-    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData, 15u, 7u, 0x45u, CANTX_DEBUG_RESPONSE_ENDIANNESS);
-    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData, 8u, 6u, 0x07u, CANTX_DEBUG_RESPONSE_ENDIANNESS);
-    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData, 18u, 6u, 0x0Eu, CANTX_DEBUG_RESPONSE_ENDIANNESS);
-    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData, 28u, 5u, 0x03u, CANTX_DEBUG_RESPONSE_ENDIANNESS);
-    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData, 39u, 3u, 0x02u, CANTX_DEBUG_RESPONSE_ENDIANNESS);
-    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData, 36u, 5u, 0x13u, CANTX_DEBUG_RESPONSE_ENDIANNESS);
-    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData, 47u, 4u, 0x01u, CANTX_DEBUG_RESPONSE_ENDIANNESS);
-    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData, 43u, 7u, 0x26u, CANTX_DEBUG_RESPONSE_ENDIANNESS);
-    CAN_TxSetCanDataWithMessageData_Expect(testMessageData, testCanDataZeroArray, CANTX_DEBUG_RESPONSE_ENDIANNESS);
-    CAN_DataSend_ExpectAndReturn(
-        CAN_NODE_1, CANTX_DEBUG_RESPONSE_ID, CAN_STANDARD_IDENTIFIER_11_BIT, testCanDataZeroArray, STD_OK);
-    CANTX_DebugResponse(CANTX_DEBUG_RESPONSE_TRANSMIT_RTC_TIME);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 7u, 8u, 0x04u, CANTX_DEBUG_RESPONSE_ENDIANNESS);
+    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[1u]);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[1u], 15u, 7u, 0x45u, CANTX_DEBUG_RESPONSE_ENDIANNESS);
+    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[2u]);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[2u], 8u, 6u, 0x07u, CANTX_DEBUG_RESPONSE_ENDIANNESS);
+    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[3u]);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[3u], 18u, 6u, 0x0Eu, CANTX_DEBUG_RESPONSE_ENDIANNESS);
+    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[4u]);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[4u], 28u, 5u, 0x03u, CANTX_DEBUG_RESPONSE_ENDIANNESS);
+    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[5u]);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[5u], 39u, 3u, 0x02u, CANTX_DEBUG_RESPONSE_ENDIANNESS);
+    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[6u]);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[6u], 36u, 5u, 0x13u, CANTX_DEBUG_RESPONSE_ENDIANNESS);
+    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[7u]);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[7u], 47u, 4u, 0x01u, CANTX_DEBUG_RESPONSE_ENDIANNESS);
+    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[8u]);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[8u], 43u, 7u, 0x26u, CANTX_DEBUG_RESPONSE_ENDIANNESS);
+    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[9u]);
+    /* ======= RT1/1: Call function under test */
+    uint64_t testResult = TEST_CANTX_TransmitRtcTime();
+    /* ======= RT1/1: Test output verification */
+    TEST_ASSERT_EQUAL(testMessageData[9u], testResult);
 }
 
-void testTransmitCommitHash(void) {
-    uint8_t testCanDataZeroArray[CANTX_DEBUG_RESPONSE_DLC] = {0u};
-    uint64_t testMessageData                               = 0u;
+/**
+ * @brief   Testing CANTX_TransmitCommitHash
+ * @details The following cases need to be tested:
+ *          - Argument validation:
+ *            - None
+ *          - Routine validation:
+ *            - RT1/2: commit hash high NOT queued successfully
+ *            - RT2/2: messages sent successfully
+ */
+void testCANTX_TransmitCommitHash(void) {
+    /* ======= Routine tests =============================================== */
+    /* ======= RT1/2: Test implementation */
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 7u, 8u, 0x05u, CANTX_DEBUG_RESPONSE_ENDIANNESS);
+    UTIL_ExtractCharactersFromString_Expect(&testSignalData[0u], ver_versionInformation.commitHash, 14u, 0u, 7u);
+    CAN_TxSetMessageDataWithSignalData_Expect(
+        &testMessageData[0u], 15u, 56u, testSignalData[0u], CANTX_DEBUG_RESPONSE_ENDIANNESS);
+    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[1u]);
+    CAN_TxSetCanDataWithMessageData_Expect(testMessageData[1], testCanDataZeroArray, CANTX_DEBUG_RESPONSE_ENDIANNESS);
+    CAN_DataSend_ExpectAndReturn(
+        CAN_NODE_1, CANTX_DEBUG_RESPONSE_ID, CAN_STANDARD_IDENTIFIER_11_BIT, testCanDataZeroArray, STD_NOT_OK);
+    /* ======= RT1/2: Call function under test */
+    uint64_t testResult = TEST_CANTX_TransmitCommitHash();
+    /* ======= RT1/2: Test output verification */
+    TEST_ASSERT_EQUAL(STD_NOT_OK, testResult);
 
-    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData, 7u, 8u, 0x05u, CANTX_DEBUG_RESPONSE_ENDIANNESS);
-    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData, 15u, 8u, 0x64u, CANTX_DEBUG_RESPONSE_ENDIANNESS);
-    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData, 23u, 8u, 0x65u, CANTX_DEBUG_RESPONSE_ENDIANNESS);
-    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData, 31u, 8u, 0x61u, CANTX_DEBUG_RESPONSE_ENDIANNESS);
-    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData, 39u, 8u, 0x64u, CANTX_DEBUG_RESPONSE_ENDIANNESS);
-    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData, 47u, 8u, 0x62u, CANTX_DEBUG_RESPONSE_ENDIANNESS);
-    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData, 55u, 8u, 0x65u, CANTX_DEBUG_RESPONSE_ENDIANNESS);
-    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData, 63u, 8u, 0x65u, CANTX_DEBUG_RESPONSE_ENDIANNESS);
-    CAN_TxSetCanDataWithMessageData_Expect(testMessageData, testCanDataZeroArray, CANTX_DEBUG_RESPONSE_ENDIANNESS);
+    /* ======= RT2/2: Test implementation */
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 7u, 8u, 0x05u, CANTX_DEBUG_RESPONSE_ENDIANNESS);
+    UTIL_ExtractCharactersFromString_Expect(&testSignalData[0u], ver_versionInformation.commitHash, 14u, 0u, 7u);
+    CAN_TxSetMessageDataWithSignalData_Expect(
+        &testMessageData[0u], 15u, 56u, testSignalData[0u], CANTX_DEBUG_RESPONSE_ENDIANNESS);
+    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[1u]);
+    CAN_TxSetCanDataWithMessageData_Expect(testMessageData[1u], testCanDataZeroArray, CANTX_DEBUG_RESPONSE_ENDIANNESS);
     CAN_DataSend_ExpectAndReturn(
         CAN_NODE_1, CANTX_DEBUG_RESPONSE_ID, CAN_STANDARD_IDENTIFIER_11_BIT, testCanDataZeroArray, STD_OK);
-    CANTX_DebugResponse(CANTX_DEBUG_RESPONSE_TRANSMIT_COMMIT_HASH);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 7u, 8u, 0x06u, CANTX_DEBUG_RESPONSE_ENDIANNESS);
+    UTIL_ExtractCharactersFromString_Expect(&testSignalData[0u], ver_versionInformation.commitHash, 14u, 7u, 7u);
+    CAN_TxSetMessageDataWithSignalData_Expect(
+        &testMessageData[0u], 15u, 56u, testSignalData[0u], CANTX_DEBUG_RESPONSE_ENDIANNESS);
+    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[1u]);
+    CAN_TxSetCanDataWithMessageData_Expect(testMessageData[1u], testCanDataZeroArray, CANTX_DEBUG_RESPONSE_ENDIANNESS);
+    CAN_DataSend_ExpectAndReturn(
+        CAN_NODE_1, CANTX_DEBUG_RESPONSE_ID, CAN_STANDARD_IDENTIFIER_11_BIT, testCanDataZeroArray, STD_OK);
+    /* ======= RT2/2: Call function under test */
+    testResult = TEST_CANTX_TransmitCommitHash();
+    /* ======= RT2/2: Test output verification */
+    TEST_ASSERT_EQUAL(STD_OK, testResult);
+}
+
+/**
+ * @brief   Testing CANTX_TransmitCommitHashHigh
+ * @details The following cases need to be tested:
+ *          - Argument validation:
+ *            - None
+ *          - Routine validation:
+ *            - RT1/1: sets message data as expected
+ */
+void testCANTX_TransmitCommitHashHigh(void) {
+    /* ======= Routine tests =============================================== */
+    /* ======= RT1/1: Test implementation */
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 7u, 8u, 0x05u, CANTX_DEBUG_RESPONSE_ENDIANNESS);
+    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[1u]);
+    UTIL_ExtractCharactersFromString_Expect(&testSignalData[0u], ver_versionInformation.commitHash, 14u, 0u, 7u);
+    UTIL_ExtractCharactersFromString_ReturnThruPtr_pExtractedCharacters(&testSignalData[1u]);
+    CAN_TxSetMessageDataWithSignalData_Expect(
+        &testMessageData[1u], 15u, 56u, testSignalData[1u], CANTX_DEBUG_RESPONSE_ENDIANNESS);
+    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[2u]);
+    /* ======= RT1/1: Call function under test */
+    uint64_t testResult = TEST_CANTX_TransmitCommitHashHigh();
+    /* ======= RT1/1: Test output verification */
+    TEST_ASSERT_EQUAL(testMessageData[2u], testResult);
+}
+
+/**
+ * @brief   Testing CANTX_TransmitCommitHashLow
+ * @details The following cases need to be tested:
+ *          - Argument validation:
+ *            - None
+ *          - Routine validation:
+ *            - RT1/1: sets message data as expected
+ */
+void testCANTX_TransmitCommitHashLow(void) {
+    /* ======= Routine tests =============================================== */
+    /* ======= RT1/1: Test implementation */
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 7u, 8u, 0x06u, CANTX_DEBUG_RESPONSE_ENDIANNESS);
+    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[1u]);
+    UTIL_ExtractCharactersFromString_Expect(&testSignalData[0u], ver_versionInformation.commitHash, 14u, 7u, 7u);
+    UTIL_ExtractCharactersFromString_ReturnThruPtr_pExtractedCharacters(&testSignalData[1u]);
+    CAN_TxSetMessageDataWithSignalData_Expect(
+        &testMessageData[1u], 15u, 56u, testSignalData[1u], CANTX_DEBUG_RESPONSE_ENDIANNESS);
+    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[2u]);
+    /* ======= RT1/1: Call function under test */
+    uint64_t testResult = TEST_CANTX_TransmitCommitHashLow();
+    /* ======= RT1/1: Test output verification */
+    TEST_ASSERT_EQUAL(testMessageData[2u], testResult);
+}
+
+/**
+ * @brief   Testing CANTX_DebugResponseSendMessage
+ * @details The following cases need to be tested:
+ *          - Argument validation:
+ *            - None
+ *          - Routine validation:
+ *            - RT1/1: sends message as expected
+ */
+void testCANTX_DebugResponseSendMessage(void) {
+    /* ======= Routine tests =============================================== */
+    /* ======= RT1/1: Test implementation */
+    CAN_TxSetCanDataWithMessageData_Expect(0x0123456789ABCDEF, testCanDataZeroArray, CANTX_DEBUG_RESPONSE_ENDIANNESS);
+    CAN_TxSetCanDataWithMessageData_ReturnThruPtr_pCanData(testCanDataFilled);
+    CAN_DataSend_ExpectAndReturn(
+        CAN_NODE_1, CANTX_DEBUG_RESPONSE_ID, CAN_STANDARD_IDENTIFIER_11_BIT, testCanDataFilled, STD_OK);
+    /* ======= RT1/1: Call function under test */
+    STD_RETURN_TYPE_e testResult = TEST_CANTX_DebugResponseSendMessage(0x0123456789ABCDEF);
+    /* ======= RT1/1: Test output verification */
+    TEST_ASSERT_EQUAL(STD_OK, testResult);
+}
+
+/**
+ * @brief   Testing CANTX_DebugResponse
+ * @details The following cases need to be tested:
+ *          - Argument validation:
+ *            - AT1/1: action undefined
+ *          - Routine validation:
+ *            - RT1/8: BMS_VERSION_INFO
+ *            - RT2/8: MCU_UNIQUE_DIE_ID
+ *            - RT3/8: MCU_LOT_NUMBER
+ *            - RT4/8: MCU_WAFER_INFORMATION
+ *            - RT5/8: BOOT_MAGIC_START
+ *            - RT6/8: BOOT_MAGIC_END
+ *            - RT7/8: RTC_TIME
+ *            - RT8/8: COMMIT_HASH
+ */
+void testCANTX_DebugResponse(void) {
+    /* ======= Assertion tests ============================================= */
+    /* ======= AT1/1 ======= */
+    TEST_ASSERT_FAIL_ASSERT(CANTX_DebugResponse(UINT16_MAX));
+    /* ======= Routine tests =============================================== */
+    /* ======= RT1/8: Test implementation */
+    MATH_MinimumOfTwoUint16_t_ExpectAndReturn(
+        ver_versionInformation.distanceFromLastRelease, 31u, ver_versionInformation.distanceFromLastRelease);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 7u, 8u, 0x00, CANTX_DEBUG_RESPONSE_ENDIANNESS);
+    CAN_TxSetMessageDataWithSignalData_Expect(
+        &testMessageData[0u], 15u, 8u, ver_versionInformation.major, CANTX_DEBUG_RESPONSE_ENDIANNESS);
+    CAN_TxSetMessageDataWithSignalData_Expect(
+        &testMessageData[0u], 23u, 8u, ver_versionInformation.minor, CANTX_DEBUG_RESPONSE_ENDIANNESS);
+    CAN_TxSetMessageDataWithSignalData_Expect(
+        &testMessageData[0u], 31u, 8u, ver_versionInformation.patch, CANTX_DEBUG_RESPONSE_ENDIANNESS);
+    CAN_TxSetMessageDataWithSignalData_Expect(
+        &testMessageData[0u], 39u, 5u, ver_versionInformation.distanceFromLastRelease, CANTX_DEBUG_RESPONSE_ENDIANNESS);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 34u, 1u, 1u, CANTX_DEBUG_RESPONSE_ENDIANNESS);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 33u, 1u, 1u, CANTX_DEBUG_RESPONSE_ENDIANNESS);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 32u, 1u, 1u, CANTX_DEBUG_RESPONSE_ENDIANNESS);
+    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[1u]);
+    CAN_TxSetCanDataWithMessageData_Expect(testMessageData[1u], testCanDataZeroArray, CANTX_DEBUG_RESPONSE_ENDIANNESS);
+    CAN_DataSend_ExpectAndReturn(
+        CAN_NODE_1, CANTX_DEBUG_RESPONSE_ID, CAN_STANDARD_IDENTIFIER_11_BIT, testCanDataZeroArray, STD_OK);
+    /* ======= RT1/8: Call function under test */
+    STD_RETURN_TYPE_e testResult = CANTX_DebugResponse(CANTX_DEBUG_RESPONSE_TRANSMIT_BMS_VERSION_INFO);
+    /* ======= RT1/8: Test output verification */
+    TEST_ASSERT_EQUAL(STD_OK, testResult);
+
+    /* ======= RT2/8: Test implementation */
+    MCU_GetDeviceRegister_ExpectAndReturn(0x12345u);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 7u, 8u, 0x01, CANTX_DEBUG_RESPONSE_ENDIANNESS);
+    CAN_TxSetMessageDataWithSignalData_Expect(
+        &testMessageData[0u], 15u, 32u, 0x12345u, CANTX_DEBUG_RESPONSE_ENDIANNESS);
+    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[1u]);
+    CAN_TxSetCanDataWithMessageData_Expect(testMessageData[1u], testCanDataZeroArray, CANTX_DEBUG_RESPONSE_ENDIANNESS);
+    CAN_DataSend_ExpectAndReturn(
+        CAN_NODE_1, CANTX_DEBUG_RESPONSE_ID, CAN_STANDARD_IDENTIFIER_11_BIT, testCanDataZeroArray, STD_OK);
+    /* ======= RT2/8: Call function under test */
+    testResult = CANTX_DebugResponse(CANTX_DEBUG_RESPONSE_TRANSMIT_MCU_UNIQUE_DIE_ID);
+    /* ======= RT2/8: Test output verification */
+    TEST_ASSERT_EQUAL(STD_OK, testResult);
+
+    /* ======= RT3/8: Test implementation */
+    MCU_GetDieIdHigh_ExpectAndReturn(0x23456u);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 7u, 8u, 0x02, CANTX_DEBUG_RESPONSE_ENDIANNESS);
+    CAN_TxSetMessageDataWithSignalData_Expect(
+        &testMessageData[0u], 15u, 32u, 0x23456u, CANTX_DEBUG_RESPONSE_ENDIANNESS);
+    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[1u]);
+    CAN_TxSetCanDataWithMessageData_Expect(testMessageData[1u], testCanDataZeroArray, CANTX_DEBUG_RESPONSE_ENDIANNESS);
+    CAN_DataSend_ExpectAndReturn(
+        CAN_NODE_1, CANTX_DEBUG_RESPONSE_ID, CAN_STANDARD_IDENTIFIER_11_BIT, testCanDataZeroArray, STD_OK);
+    /* ======= RT3/8: Call function under test */
+    testResult = CANTX_DebugResponse(CANTX_DEBUG_RESPONSE_TRANSMIT_MCU_LOT_NUMBER);
+    /* ======= RT3/8: Test output verification */
+    TEST_ASSERT_EQUAL(STD_OK, testResult);
+
+    /* ======= RT4/8: Test implementation */
+    MCU_GetDieIdLow_ExpectAndReturn(0x11AAABBBu);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 7u, 8u, 0x03, CANTX_DEBUG_RESPONSE_ENDIANNESS);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 15u, 8u, 0x11u, CANTX_DEBUG_RESPONSE_ENDIANNESS);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 27u, 12u, 0xBBBu, CANTX_DEBUG_RESPONSE_ENDIANNESS);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 23u, 12u, 0xAAAu, CANTX_DEBUG_RESPONSE_ENDIANNESS);
+    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[1u]);
+    CAN_TxSetCanDataWithMessageData_Expect(testMessageData[1u], testCanDataZeroArray, CANTX_DEBUG_RESPONSE_ENDIANNESS);
+    CAN_DataSend_ExpectAndReturn(
+        CAN_NODE_1, CANTX_DEBUG_RESPONSE_ID, CAN_STANDARD_IDENTIFIER_11_BIT, testCanDataZeroArray, STD_OK);
+    /* ======= RT4/8: Call function under test */
+    testResult = CANTX_DebugResponse(CANTX_DEBUG_RESPONSE_TRANSMIT_MCU_WAFER_INFORMATION);
+    /* ======= RT4/8: Test output verification */
+    TEST_ASSERT_EQUAL(STD_OK, testResult);
+
+    /* ======= RT5/8: Test implementation */
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 7u, 8u, 0x0F, CAN_BIG_ENDIAN);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 15u, 56u, 0xFEFEFEFEFEFEFEuLL, CAN_BIG_ENDIAN);
+    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[1u]);
+    CAN_TxSetCanDataWithMessageData_Expect(testMessageData[1u], testCanDataZeroArray, CANTX_DEBUG_RESPONSE_ENDIANNESS);
+    CAN_DataSend_ExpectAndReturn(
+        CAN_NODE_1, CANTX_DEBUG_RESPONSE_ID, CAN_STANDARD_IDENTIFIER_11_BIT, testCanDataZeroArray, STD_OK);
+    /* ======= RT5/8: Call function under test */
+    testResult = CANTX_DebugResponse(CANTX_DEBUG_RESPONSE_TRANSMIT_BOOT_MAGIC_START);
+    /* ======= RT5/8: Test output verification */
+    TEST_ASSERT_EQUAL(STD_OK, testResult);
+
+    /* ======= RT6/8: Test implementation */
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 7u, 8u, 0x0F, CAN_BIG_ENDIAN);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 15u, 56u, 0x01010101010101uLL, CAN_BIG_ENDIAN);
+    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[1u]);
+    CAN_TxSetCanDataWithMessageData_Expect(testMessageData[1u], testCanDataZeroArray, CANTX_DEBUG_RESPONSE_ENDIANNESS);
+    CAN_DataSend_ExpectAndReturn(
+        CAN_NODE_1, CANTX_DEBUG_RESPONSE_ID, CAN_STANDARD_IDENTIFIER_11_BIT, testCanDataZeroArray, STD_OK);
+    /* ======= RT6/8: Call function under test */
+    testResult = CANTX_DebugResponse(CANTX_DEBUG_RESPONSE_TRANSMIT_BOOT_MAGIC_END);
+    /* ======= RT6/8: Test output verification */
+    TEST_ASSERT_EQUAL(STD_OK, testResult);
+
+    /* ======= RT7/8: Test implementation */
+    RTC_TIME_DATA_s testRtcTime = {
+        .hundredthOfSeconds = 69u,
+        .seconds            = 07u,
+        .minutes            = 14u,
+        .hours              = 3u,
+        .weekday            = 2u,
+        .day                = 19u,
+        .month              = 1u,
+        .year               = 38u,
+    };
+    RTC_GetSystemTimeRtcFormat_ExpectAndReturn(testRtcTime);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 7u, 8u, 0x04u, CANTX_DEBUG_RESPONSE_ENDIANNESS);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 15u, 7u, 0x45u, CANTX_DEBUG_RESPONSE_ENDIANNESS);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 8u, 6u, 0x07u, CANTX_DEBUG_RESPONSE_ENDIANNESS);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 18u, 6u, 0x0Eu, CANTX_DEBUG_RESPONSE_ENDIANNESS);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 28u, 5u, 0x03u, CANTX_DEBUG_RESPONSE_ENDIANNESS);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 39u, 3u, 0x02u, CANTX_DEBUG_RESPONSE_ENDIANNESS);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 36u, 5u, 0x13u, CANTX_DEBUG_RESPONSE_ENDIANNESS);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 47u, 4u, 0x01u, CANTX_DEBUG_RESPONSE_ENDIANNESS);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 43u, 7u, 0x26u, CANTX_DEBUG_RESPONSE_ENDIANNESS);
+    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[1u]);
+    CAN_TxSetCanDataWithMessageData_Expect(testMessageData[1u], testCanDataZeroArray, CANTX_DEBUG_RESPONSE_ENDIANNESS);
+    CAN_DataSend_ExpectAndReturn(
+        CAN_NODE_1, CANTX_DEBUG_RESPONSE_ID, CAN_STANDARD_IDENTIFIER_11_BIT, testCanDataZeroArray, STD_OK);
+    /* ======= RT7/8: Call function under test */
+    testResult = CANTX_DebugResponse(CANTX_DEBUG_RESPONSE_TRANSMIT_RTC_TIME);
+    /* ======= RT7/8: Test output verification */
+    TEST_ASSERT_EQUAL(STD_OK, testResult);
+
+    /* ======= RT8/8: Test implementation */
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 7u, 8u, 0x05u, CANTX_DEBUG_RESPONSE_ENDIANNESS);
+    UTIL_ExtractCharactersFromString_Expect(&testSignalData[0u], ver_versionInformation.commitHash, 14u, 0u, 7u);
+    CAN_TxSetMessageDataWithSignalData_Expect(
+        &testMessageData[0u], 15u, 56u, testSignalData[0u], CANTX_DEBUG_RESPONSE_ENDIANNESS);
+    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[1u]);
+    CAN_TxSetCanDataWithMessageData_Expect(testMessageData[1u], testCanDataZeroArray, CANTX_DEBUG_RESPONSE_ENDIANNESS);
+    CAN_DataSend_ExpectAndReturn(
+        CAN_NODE_1, CANTX_DEBUG_RESPONSE_ID, CAN_STANDARD_IDENTIFIER_11_BIT, testCanDataZeroArray, STD_OK);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 7u, 8u, 0x06u, CANTX_DEBUG_RESPONSE_ENDIANNESS);
+    UTIL_ExtractCharactersFromString_Expect(&testSignalData[0u], ver_versionInformation.commitHash, 14u, 7u, 7u);
+    CAN_TxSetMessageDataWithSignalData_Expect(
+        &testMessageData[0u], 15u, 56u, testSignalData[0u], CANTX_DEBUG_RESPONSE_ENDIANNESS);
+    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[1u]);
+    CAN_TxSetCanDataWithMessageData_Expect(testMessageData[1u], testCanDataZeroArray, CANTX_DEBUG_RESPONSE_ENDIANNESS);
+    CAN_DataSend_ExpectAndReturn(
+        CAN_NODE_1, CANTX_DEBUG_RESPONSE_ID, CAN_STANDARD_IDENTIFIER_11_BIT, testCanDataZeroArray, STD_NOT_OK);
+    /* ======= RT8/8: Call function under test */
+    testResult = CANTX_DebugResponse(CANTX_DEBUG_RESPONSE_TRANSMIT_COMMIT_HASH);
+    /* ======= RT8/8: Test output verification */
+    TEST_ASSERT_EQUAL(STD_NOT_OK, testResult);
 }

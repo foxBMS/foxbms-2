@@ -43,8 +43,8 @@
  * @file    ltc_6813-1.c
  * @author  foxBMS Team
  * @date    2019-09-01 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup DRIVERS
  * @prefix  LTC
  *
@@ -172,7 +172,7 @@ LTC_STATE_s ltc_stateBase = {
     .transmit_ongoing          = false,
     .dummyByte_ongoing         = STD_NOT_OK,
     .spiDiagErrorEntry         = DIAG_ID_AFE_SPI,
-    .pecDiagErrorEntry         = DIAG_ID_AFE_COM_INTEGRITY,
+    .pecDiagErrorEntry         = DIAG_ID_AFE_COMMUNICATION_INTEGRITY,
     .muxDiagErrorEntry         = DIAG_ID_AFE_MUX,
     .voltMeasDiagErrorEntry    = DIAG_ID_AFE_CELL_VOLTAGE_MEAS_ERROR,
     .tempMeasDiagErrorEntry    = DIAG_ID_AFE_CELL_TEMPERATURE_MEAS_ERROR,

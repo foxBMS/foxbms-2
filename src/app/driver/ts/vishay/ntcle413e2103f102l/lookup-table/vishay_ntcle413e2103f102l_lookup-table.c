@@ -43,12 +43,13 @@
  * @file    vishay_ntcle413e2103f102l_lookup-table.c
  * @author  foxBMS Team
  * @date    2021-11-03 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup DRIVERS
  * @prefix  TS
  *
  * @brief   Resistive divider used for measuring temperature
+ * @details TODO
  *
  */
 

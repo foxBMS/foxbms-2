@@ -1,8 +1,23 @@
 {
   "tasks": [
     {
-      "label": "Embedded: Build binary",
-      "detail": "Task to build the embedded binary",
+      "label": "Configure",
+      "type": "process",
+      "group": "build",
+      "command": "fox-wrapper-place-holder",
+      "args": [
+        "waf",
+        "configure",
+        "-c",
+        "yes"
+      ],
+      "problemMatcher": [],
+      "options": {
+        "cwd": "place-holder"
+      }
+    },
+    {
+      "label": "Build: App Embedded",
       "type": "process",
       "group": {
         "isDefault": false,
@@ -11,7 +26,7 @@
       "command": "fox-wrapper-place-holder",
       "args": [
         "waf",
-        "build_bin",
+        "build_app_embedded",
         "-c",
         "yes"
       ],
@@ -52,57 +67,7 @@
       }
     },
     {
-      "label": "Embedded: Build binary verbose",
-      "detail": "Task to build the embedded binary in verbose mode",
-      "type": "process",
-      "group": "build",
-      "command": "fox-wrapper-place-holder",
-      "args": [
-        "waf",
-        "build_bin",
-        "-v",
-        "-c",
-        "yes"
-      ],
-      "problemMatcher": [
-        {
-          "applyTo": "allDocuments",
-          "owner": "cpp",
-          "severity": "warning",
-          "fileLocation": [
-            "place-holder"
-          ],
-          "pattern": {
-            "regexp": "^\"(.*)\",.line (\\d+):\\s+(remark)\\s+(.*):\\s+(.*)$",
-            "file": 1,
-            "line": 2,
-            "code": 4,
-            "message": 5
-          }
-        },
-        {
-          "applyTo": "allDocuments",
-          "owner": "cpp",
-          "fileLocation": [
-            "place-holder"
-          ],
-          "pattern": {
-            "regexp": "^\"(.*)\",.line (\\d+):\\s+(warning|error)\\s+(.*):\\s+(.*)$",
-            "file": 1,
-            "line": 2,
-            "severity": 3,
-            "code": 4,
-            "message": 5
-          }
-        }
-      ],
-      "options": {
-        "cwd": "place-holder"
-      }
-    },
-    {
-      "label": "Documentation: Build documentation",
-      "detail": "Task to build the generic documentation",
+      "label": "Build: Documentation",
       "type": "process",
       "group": "build",
       "command": "fox-wrapper-place-holder",
@@ -147,14 +112,13 @@
       }
     },
     {
-      "label": "Unit Test: Build all unit tests",
-      "detail": "Task to build all unit tests",
+      "label": "Unit Test: Run App Unit Test",
       "type": "process",
       "group": "build",
       "command": "fox-wrapper-place-holder",
       "args": [
         "waf",
-        "build_unit_test",
+        "build_app_host_unit_test",
         "-c",
         "yes"
       ],
@@ -166,14 +130,13 @@
       }
     },
     {
-      "label": "Unit Test: Build all unit tests in coverage mode",
-      "detail": "Task to build all unit tests in coverage mode",
+      "label": "Unit Test: Run App Unit Test (coverage mode)",
       "type": "process",
       "group": "build",
       "command": "fox-wrapper-place-holder",
       "args": [
         "waf",
-        "build_unit_test",
+        "build_app_host_unit_test",
         "--coverage",
         "-c",
         "yes"
@@ -186,25 +149,7 @@
       }
     },
     {
-      "label": "Project: Configure",
-      "detail": "Task to configure the project",
-      "type": "process",
-      "group": "build",
-      "command": "fox-wrapper-place-holder",
-      "args": [
-        "waf",
-        "configure",
-        "-c",
-        "yes"
-      ],
-      "problemMatcher": [],
-      "options": {
-        "cwd": "place-holder"
-      }
-    },
-    {
-      "label": "Clean: Clean all build artifacts",
-      "detail": "Task to clean all build artifacts",
+      "label": "Clean: All build artifacts",
       "type": "process",
       "group": "build",
       "command": "fox-wrapper-place-holder",
@@ -220,14 +165,13 @@
       }
     },
     {
-      "label": "Clean: Clean target binary",
-      "detail": "Task to clean the target build artifacts",
+      "label": "Clean: App Embedded",
       "type": "process",
       "group": "build",
       "command": "fox-wrapper-place-holder",
       "args": [
         "waf",
-        "clean_bin",
+        "clean_app_embedded",
         "-c",
         "yes"
       ],
@@ -237,14 +181,13 @@
       }
     },
     {
-      "label": "Clean: Clean unit test artifacts",
-      "detail": "Task to clean unit test build artifacts",
+      "label": "Clean: Clean App Unit Test",
       "type": "process",
       "group": "build",
       "command": "fox-wrapper-place-holder",
       "args": [
         "waf",
-        "clean_unit_test",
+        "build_app_host_unit_test",
         "-c",
         "yes"
       ],
@@ -254,8 +197,7 @@
       }
     },
     {
-      "label": "Clean: Clean documentation build artifacts",
-      "detail": "Task to clean the documentation build artifacts",
+      "label": "Clean: Documentation",
       "type": "process",
       "group": "build",
       "command": "fox-wrapper-place-holder",

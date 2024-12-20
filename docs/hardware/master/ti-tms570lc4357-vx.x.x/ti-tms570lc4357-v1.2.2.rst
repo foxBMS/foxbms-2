@@ -1,0 +1,51 @@
+.. include:: ./../../../macros.txt
+.. include:: ./../../../units.txt
+
+.. _MASTER_TMS570___V1_2_2__:
+
+Master TMS570 ``v1.2.2``
+========================
+
+.. note::
+
+   The changelog for this release is found at
+   :ref:`CHANGELOG_FOR_MASTER_TMS570_V1_2_2`.
+
+The following specifications must be met to ensure a safe and optimal work with
+the |bms-master| hardware.
+
+^^^^^^^^^^^^^^^^^^
+Electrical Ratings
+^^^^^^^^^^^^^^^^^^
+
+==================================================  =======     =======     =======     ====
+Description                                         Minimum     Typical     Maximum     Unit
+==================================================  =======     =======     =======     ====
+Supply Voltage Clamp 30 (VSUP_30)                   9           12          55          V DC
+Supply Voltage Clamp 30C (VSUP_30C)                 9           12          55          V DC
+Contactor Continuous Current                        --          --          1.8         A
+Contactor Feedback Supply Voltage                   --          VSUP_30     --          V
+Interlock Circuit Sink Current                      --          10          --          mA
+Idle Supply Current at 12V DC for VSUP_30           --          215         --          mA
+Idle Supply Current at 24V DC for VSUP_30           --          160         --          mA
+==================================================  =======     =======     =======     ====
+
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Mechanical Dimensions (BMS-Master PCB only)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+==================================================  =======     =======
+Description                                         Value       Unit
+==================================================  =======     =======
+Width                                               120         mm
+Length                                              200         mm
+Height                                              13          mm
+Weight                                              129         g
+==================================================  =======     =======
+
+.. toctree::
+    :maxdepth: 1
+
+    ./ti-tms570lc4357-v1.2.2/ti-tms570lc4357-v1.2.2_block_diagram.rst
+    ./ti-tms570lc4357-v1.2.2/ti-tms570lc4357-v1.2.2_functional_description.rst
+    ./ti-tms570lc4357-v1.2.2/ti-tms570lc4357-v1.2.2_pinout.rst

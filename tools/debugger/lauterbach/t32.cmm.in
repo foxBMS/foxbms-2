@@ -4,27 +4,6 @@ GLOBAL &init_file
 
 RADIX Hex
 
-MENU.ReProgram
-(
- ADD
- TOOLBAR
- (
-    SEPARATOR
-    TOOLITEM  "Source/List"      ":list"     "List.auto"
-    TOOLITEM  "Memory Dump"      ":dump"     "Data.dump"
-    TOOLITEM  "Register"         ":reg"      "Register.view"
-    SEPARATOR
-    TOOLITEM  "Watch"            ":varwatch" "Var.Watch"
-    TOOLITEM  "Stack"            ":varframe" "Frame.view /Locals /Caller"
-    TOOLITEM  "Automatic Watch"  ":varref"   "Var.Ref"
-    SEPARATOR
-    TOOLITEM  "List Breakpoints" ":break"    "Break.List"
-    TOOLITEM  "List Symbols"     ":symbols"  "sYmbol.Browse"
-    TOOLITEM  "System Settings"  ":config"   "SYStem.state"
-    SEPARATOR
- )
-)
-
 AUTOSTORE , HISTORY BOOKMARK
 
 ; --------------------------------------------------------------------------------
@@ -53,7 +32,7 @@ GOSUB SramInit
 DO ~~/demo/arm/flash/tms570lc435x.cmm PREPAREONLY
 
 ; select init file for Trace32
-&init_file=OS.PPD()+"\@INIT_FILE@"
+&init_file="@{INIT_FILE}"
 do &init_file
 
 enddo
@@ -98,7 +77,6 @@ CtiSetup:
 
   RETURN
 )
-
 
 SramInit:
 (

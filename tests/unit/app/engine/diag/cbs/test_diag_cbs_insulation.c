@@ -43,12 +43,13 @@
  * @file    test_diag_cbs_insulation.c
  * @author  foxBMS Team
  * @date    2021-02-22 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
  * @brief   Test of the Insulation diagnosis handler implementation
+ * @details Tests for invalid inputs
  *
  */
 
@@ -104,4 +105,6 @@ void testDIAG_ErrorInsulationInvalidInput(void) {
     TEST_ASSERT_FAIL_ASSERT(DIAG_Insulation(DIAG_ID_MAX, DIAG_EVENT_OK, &diag_kpkDatabaseShim, 0u));
     TEST_ASSERT_FAIL_ASSERT(DIAG_Insulation(DIAG_ID_LOW_INSULATION_RESISTANCE_ERROR, 42, &diag_kpkDatabaseShim, 0u));
     TEST_ASSERT_FAIL_ASSERT(DIAG_Insulation(DIAG_ID_LOW_INSULATION_RESISTANCE_ERROR, DIAG_EVENT_OK, NULL_PTR, 0u));
+    TEST_ASSERT_FAIL_ASSERT(DIAG_Insulation(
+        DIAG_ID_LOW_INSULATION_RESISTANCE_ERROR, DIAG_EVENT_OK, &diag_kpkDatabaseShim, BS_NR_OF_STRINGS));
 }

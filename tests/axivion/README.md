@@ -5,16 +5,21 @@
 
 ## Directory Description
 
-- This directory contains the Axivion setup for the TI ARM CGT compiler for TI
-  TMS570LC4357 and the project architecture.
+- Shared configurations are in this directory.
+- The actual configuration base for each project are subdirectories in the
+  `targets` directory.
+  The projects are (details of each directory are described below):
+  - `app` and
+  - `bootloader`.
+- This directory contains the common Axivion setup for the `TI ARM CGT`
+  compiler for TI TMS570LC4357.
   The Axivion setup is done in the following files:
   - `axivion_preinc.h` and `compiler_config.json`
     describe compiler built-ins for the TI ARM CGT compiler for TMS570LC4357.
-  - `architecture.gxl`, `architecture_config.json` and `mapping.gxl`
-    describe the software architecture of foxBMS 2.
-  - `axivion_config.json`, `ci_config.json`, `compiler_config.json`,
-    `rule_config_c.json`, `rule_config_c.py`
-    provide project specific settings.
+  - `compiler_config.json`, `rule_config_c.json`,
+    `rule_config_c.py`, `rule_config_include_guard.py`,
+    `rule_config_metric_lines.json`, `rule_config_names.json`, and
+    `rule_config_names.py` provide project specific settings.
 - The script `axivion_self_tests.py` and its accompanying configuration script
   `axivion_self_tests.json` implement self tests of Axivion and the project
   specific configuration.
@@ -26,6 +31,30 @@
 - The subdirectory `scripts` contains a set of helper scripts to
   interact with Axivion or the output of an Axivion build.
   See [scripts/README.md](scripts/README.md) for a detailed description.
+
+### `app`-Project
+
+The `app`-project configuration files are in [targets/app](targets/app).
+
+- Project configuration:
+  - `axivion_config.json` (default configuration name when the environment
+    variable `BAUHAUS_CONFIG` is used)
+  - `ci_config.json`
+- Software architecture description of foxBMS 2:
+  - `architecture.gxl`,
+  - `architecture_config.json`,
+  - `mapping.gxl`, and
+  - `architecture_hierarchy_belongs_to_layout.gvl`.
+
+### `bootloader`-Project
+
+The `app`-project configuration files are in
+[targets/bootloader](targets/bootloader).
+
+- Project configuration:
+  - `axivion_config.json` (default configuration name when the environment
+    variable `BAUHAUS_CONFIG` is used)
+  - `ci_config.json`
 
 ## Self Tests
 

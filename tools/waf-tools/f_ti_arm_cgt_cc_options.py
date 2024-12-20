@@ -42,6 +42,8 @@
 """
 
 import os
+import re
+from pathlib import Path
 
 import yaml
 from waflib import Utils
@@ -131,5 +133,47 @@ def load_cc_options(conf):  # pylint: disable-msg=redefined-outer-name
 
     conf.env.append_unique(
         "FOXBMS_2_CCS_VERSION_STRICT",
-        conf.env.cc_options.get("FOXBMS_2_CCS_VERSION_STRICT", "NOT SET"),
+        conf.env.cc_options.get("FOXBMS_2_CCS_VERSION_STRICT", []),
     )
+    ccs_versions = []
+    if Utils.is_win32:
+        prefix = "C:"
+    else:
+        prefix = "/opt"
+    for i in list(Path(f"{prefix}/ti/").glob("ccs*")):
+        m = re.search(r".*ccs(\d{1,})", i.as_posix())
+        if m:
+            ccs_versions.append(int(m.group(1)))
+    sorted_ccs_versions = reversed(sorted(ccs_versions))
+    search_path_group = []
+    for i in sorted_ccs_versions:
+        tmp = []
+        tmp.append(
+            str(
+                list(
+                    Path(f"{prefix}/ti/ccs{i}/ccs/tools/compiler").glob(
+                        "ti-cgt-arm_*/bin"
+                    )
+                )[0]
+            )
+        )
+        tmp.append(
+            str(
+                list(
+                    Path(f"{prefix}/ti/ccs{i}/ccs/tools/compiler").glob(
+                        "ti-cgt-arm_*/lib"
+                    )
+                )[0]
+            )
+        )
+        tmp.extend(
+            [
+                str(Path(f"{prefix}/ti/ccs{i}/ccs/utils/bin")),
+                str(Path(f"{prefix}/ti/ccs{i}/ccs/utils/tiobj2bin")),
+            ]
+        )
+        if Utils.is_win32:
+            tmp.append(str(Path(f"{prefix}/ti/ccs{i}/ccs/utils/cygwin")))
+        search_path_group.append(tmp)
+
+    conf.env.append_unique("CCS_SEARCH_PATH_GROUP", list(search_path_group))

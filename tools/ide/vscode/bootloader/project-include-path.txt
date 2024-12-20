@@ -1,0 +1,3 @@
+@@ROOT@@/src/bootloader/main/include
+@@ROOT@@/src/bootloader/main
+@@ROOT@@/src/version

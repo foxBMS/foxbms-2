@@ -1,0 +1,92 @@
+VERSION ""
+
+
+NS_ :
+  CM_
+  BA_DEF_
+  BA_
+  VAL_
+  BA_DEF_DEF_
+  SIG_VALTYPE_
+
+BS_:
+
+BU_: Vector__XXX
+
+
+BO_ 1152 f_AcknowledgeMessage: 8 Vector__XXX
+SG_ AcknowledgeFlag : 0|1@1+ (1,0) [0|1] "" Vector__XXX
+SG_ AcknowledgeMessage : 1|4@1+ (1,0) [0|15] "" Vector__XXX
+SG_ StatusCode : 5|2@1+ (1,0) [0|3] "" Vector__XXX
+SG_ YesNoAnswer : 7|1@1+ (1,0) [0|1] "" Vector__XXX
+
+BO_ 1024 f_BootloaderActionRequest: 8 Vector__XXX
+SG_ RequestCode8Bits : 0|8@1+ (1,0) [0|255] "" Vector__XXX
+
+BO_ 1056 f_TransferProcessInfo: 8 Vector__XXX
+SG_ ProgramLength : 0|32@1+ (1,0) [0|4294967295] "" Vector__XXX
+SG_ RequiredTransferLoops : 32|32@1+ (1,0) [0|4294967295] "" Vector__XXX
+
+BO_ 1088 f_Data8Bytes: 8 Vector__XXX
+SG_ Data : 0|64@1+ (1,0) [0|1.84467440737096E019] "" Vector__XXX
+
+BO_ 1120 f_Crc8Bytes: 8 Vector__XXX
+SG_ Crc : 0|64@1+ (1,0) [0|1.84467440737096E019] "" Vector__XXX
+
+BO_ 1072 f_LoopInfo: 8 Vector__XXX
+SG_ LoopNumber : 0|32@1+ (1,0) [0|4294967295] "" Vector__XXX
+
+BO_ 1173 f_BootloaderFsmStates: 8 Vector__XXX
+SG_ CanFsmState : 0|8@1+ (1,0) [0|255] "" Vector__XXX
+SG_ BootFsmState : 8|8@1+ (1,0) [0|1] "" Vector__XXX
+
+BO_ 1168 f_DataTransferInfo: 8 Vector__XXX
+SG_ CurrentLoopNumber : 0|32@1+ (1,0) [0|4294967295] "" Vector__XXX
+
+BO_ 1040 f_BootloaderVersionInfo: 8 Vector__XXX
+SG_ f_BootloaderVersionInfo_Mux M : 7|8@0+ (1,0) [0|0] "" Vector__XXX
+SG_ DirtyFlag m0 : 33|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ MajorVersionNumber m0 : 15|8@0+ (1,0) [0|255] "" Vector__XXX
+SG_ MinorVersionNumber m0 : 23|8@0+ (1,0) [0|255] "" Vector__XXX
+SG_ PatchVersionNumber m0 : 31|8@0+ (1,0) [0|255] "" Vector__XXX
+SG_ ReleaseDistance m0 : 39|5@0+ (1,0) [0|31] "" Vector__XXX
+SG_ ReleaseDistanceOverflow m0 : 34|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ UnderVersionControl m0 : 32|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ MagicBootData m15 : 15|56@0+ (1,0) [0|1] "" Vector__XXX
+SG_ shortHash5 m5 : 15|56@0+ (1,0) [0|7.20575940379279E016] "" Vector__XXX
+SG_ shortHash6 m6 : 15|56@0+ (1,0) [0|7.20575940379279E016] "" Vector__XXX
+
+CM_ BO_ 1152 "This message is to inform the can message sender that the message is received and give back the relevant information.";
+CM_ SG_ 1152 AcknowledgeFlag "Indicate a message has been received.";
+CM_ SG_ 1152 AcknowledgeMessage "Indicate what message has been received.";
+CM_ SG_ 1152 StatusCode "Indicate the status of the processing of the received message.";
+CM_ SG_ 1152 YesNoAnswer "Indicate a yes/no answer to the received message.";
+CM_ BO_ 1024 "This message contains the request code in 8 bits to request bootloader to take some corresponding action.";
+CM_ SG_ 1024 RequestCode8Bits "The request code in 8 bits, which indicate different request from the message sender.";
+CM_ BO_ 1056 "This message contains variables that provide the information of this program transfer process.";
+CM_ SG_ 1056 ProgramLength "Length of this to be transferred program in bytes.";
+CM_ SG_ 1056 RequiredTransferLoops "Number of loops to transfer this program.";
+CM_ BO_ 1088 "This message contains 8 bytes of data.";
+CM_ SG_ 1088 Data "This variable contains 8 bytes of the data that will be written into the flash.";
+CM_ BO_ 1120 "This message contains 64-bits of CRC signature.";
+CM_ SG_ 1120 Crc "This variable contains 8 bytes of the CRC signature that will be used to verify the flashed data.";
+CM_ BO_ 1072 "This message contains the current loop number.";
+CM_ BO_ 1040 "Responses to the 'Debug' message (in:can_cbs_tx_debug-response.c:CANTX_DebugResponse, fv:tx)";
+
+BA_DEF_  "BusType" STRING ;
+
+BA_DEF_DEF_  "BusType" "CAN";
+
+BA_ "BusType" "CAN";
+
+VAL_ 1040 f_BootloaderVersionInfo_Mux 0 "BootloaderVersionInfo" 15 "BootInformation" 5 "CommitHashHigh" 6 "CommitHashLow";
+VAL_ 1152 AcknowledgeFlag 0 "NotReceived" 1 "Received";
+VAL_ 1152 AcknowledgeMessage 1 "ReceivedCmdToTransferProgram" 2 "ReceivedProgramInfo" 3 "ReceivedLoopNumber" 4 "ReceivedSubSectorData" 5 "Received8BytesCrc" 6 "ReceivedFinal8BytesCrcSignature" 7 "ReceivedVectorTable" 8 "ReceivedCrcOfVectorTable" 9 "ReceivedCmdToRunProgram" 10 "ReceivedCmdToResetBootProcess";
+VAL_ 1152 StatusCode 0 "ReceivedButNotProcessed" 1 "ReceivedAndInProcessing" 2 "ReceivedAndProcessed" 3 "Error";
+VAL_ 1152 YesNoAnswer 0 "No" 1 "Yes";
+VAL_ 1024 RequestCode8Bits 1 "CmdToTransferProgram" 2 "CmdToResetBootProcess" 3 "CmdToRunProgram" 4 "CmdToGetBootloaderInfo" 5 "CmdToGetDataTransferInfo" 6 "CmdToGetVersionInfo";
+VAL_ 1173 CanFsmState 1 "CanFsmStateNoCommunication" 2 "CanFsmStateWaitForInfo" 3 "CanFsmStateWaitForDataLoops" 4 "CanFsmStateReceivedLoopNumber" 5 "CanFsmStateReceived8BytesData" 6 "CanFsmStateReceived8BytesCrc" 7 "CanFsmStateFinishedFinalValidation" 8 "CanFsmFinishedTransferVectorTable" 9 "CanFsmStateValidatedVectorTable" 10 "CanFsmStateError" 11 "CanFsmStateResetBoot" 12 "CanFsmStateRunProgram";
+VAL_ 1173 BootFsmState 1 "BootFsmStateWait" 2 "BootFsmStateReset" 3 "BootFsmStateRun" 4 "BootFsmStateLoad" 5 "BootFsmStateError";
+VAL_ 1040 DirtyFlag 0 "No" 1 "Yes";
+VAL_ 1040 ReleaseDistanceOverflow 0 "No" 1 "Yes";
+VAL_ 1040 UnderVersionControl 0 "No" 1 "Yes";

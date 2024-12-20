@@ -39,27 +39,46 @@
 
 """Command line interface definition for Ceedling"""
 
+from typing import get_args
+
 import click
 
 from ..cmd_embedded_ut import embedded_ut_impl
+from ..cmd_embedded_ut.embedded_ut_constants import EmbeddedUnitTestVariants
+from ..helpers.misc import set_logging_level_cb
 
 CONTEXT_SETTINGS = {
     "help_option_names": ["-h", "--help"],
     "ignore_unknown_options": True,
 }
 
+TESTS = ["app"]
+
 
 @click.command(context_settings=CONTEXT_SETTINGS)
+@click.option(
+    "--project", type=click.Choice(get_args(EmbeddedUnitTestVariants)), default="app"
+)
+@click.option(
+    "-v",
+    "--verbose",
+    default=0,
+    count=True,
+    help="Verbose information.",
+    callback=set_logging_level_cb,
+)
 @click.argument("ceedling_args", nargs=-1, type=click.UNPROCESSED)
 @click.pass_context
 def ceedling(
     ctx: click.Context,
+    project: str,
+    verbose: int,  # pylint: disable=unused-argument
     ceedling_args: tuple[str],
 ) -> None:
     """ceedling command"""
     if not ceedling_args:
         ceedling_args = ("help",)
     ret = embedded_ut_impl.run_embedded_tests(
-        list(ceedling_args), stdout=None, stderr=None
+        list(ceedling_args), project, stdout=None, stderr=None
     )
     ctx.exit(ret.returncode)

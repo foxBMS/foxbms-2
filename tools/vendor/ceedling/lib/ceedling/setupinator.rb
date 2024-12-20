@@ -54,7 +54,7 @@ class Setupinator
     @configurator.set_verbosity( config_hash )
 
     # Logging configuration
-    @loginator.set_logfile( form_log_filepath( app_cfg[:log_filepath] ) )
+    @loginator.set_logfile( app_cfg[:log_filepath] )
     @configurator.project_logging = @loginator.project_logging
 
     log_step( 'Validating configuration contains minimum required sections', heading:false )
@@ -106,8 +106,8 @@ class Setupinator
     @configurator.populate_cmock_defaults( config_hash, defaults_hash )
     @configurator.merge_plugins_defaults( plugins_paths_hash, config_hash, defaults_hash )
 
-    # Set any essential missing or plugin values in configuration with assembled default values
-    @configurator.populate_defaults( config_hash, defaults_hash )
+    # Set any missing essential or plugin values in configuration with assembled default values
+    @configurator.populate_with_defaults( config_hash, defaults_hash )
 
     ##
     ## 5. Fill out / modify remaining configuration from user configuration + defaults
@@ -135,9 +135,13 @@ class Setupinator
     @configurator.eval_defines( config_hash )
     @configurator.standardize_paths( config_hash )
 
-    # Fill out any missing tool config value / supplement arguments
+    # Fill out any missing tool config value
     @configurator.populate_tools_config( config_hash )
-    @configurator.populate_tools_supplemental_arguments( config_hash )
+
+    # From any tool definition shortcuts:
+    #  - Redefine executable if set
+    #  - Add arguments from tool definition shortcuts if set
+    @configurator.populate_tools_shortcuts( config_hash )
 
     # Configure test runner build & runtime options
     @test_runner_manager.configure_build_options( config_hash )
@@ -158,7 +162,7 @@ class Setupinator
     # Skip logging this step as the end user doesn't care about this internal preparation
 
     # Partially flatten config + build Configurator accessors and globals
-    @configurator.build( app_cfg[:ceedling_lib_path], config_hash, :environment )
+    @configurator.build( app_cfg[:ceedling_lib_path], app_cfg[:logging_path], config_hash, :environment )
 
     ##
     ## 8. Final plugins handling
@@ -187,19 +191,6 @@ class Setupinator
 ### Private
 
 private
-
-  def form_log_filepath( log_filepath )
-    # Bail out early if logging is disabled
-    return log_filepath if log_filepath.empty?()
-
-    # If there's no directory path, put named log file in default location
-    if File.dirname( log_filepath ).empty?()
-      return File.join( @configurator.project_log_path, log_filepath )
-    end
-
-    # Otherwise, log filepath includes a directory (that's already been created)
-    return log_filepath
-  end
 
   # Neaten up a build step with progress message and some scope encapsulation
   def log_step(msg, heading:true)

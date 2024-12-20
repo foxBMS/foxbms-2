@@ -1,0 +1,5 @@
+Pin,Signal,Description
+1,``SPS_FEEDBACK_X``,\-
+2,``FEEDBACK_SUPPLY``,\-
+3,``SPS_OUT_X``,\-
+4,``GND``,\-

@@ -46,7 +46,12 @@ import re
 import shutil
 from xml.etree import ElementTree
 
-from waflib import Errors, Task, TaskGen, Utils
+from waflib import Errors, Task, TaskGen, Utils, Logs
+from waflib.Node import Node
+
+
+class ToolNotSupportedException(Exception):
+    """Tool not supported by our toolchain"""
 
 
 class NodeStructure:  # pylint: disable=too-few-public-methods
@@ -57,49 +62,44 @@ class NodeStructure:  # pylint: disable=too-few-public-methods
         self.root = ElementTree.parse(xml_file_path).getroot()
         self.dil_file_name = self.root.find("DEVICE").find("dilfile").text
 
+        self.uses_freertos = False
         self.headers = []
         self.sources = []
-        self.removes = []
 
     def parse_xml(self):
         """Parses information on generated files from the HALCoGen
         configuration file."""
         for element in self.root:  # pylint: disable=too-many-nested-blocks
-            if element.tag == "VERSION":
-                continue
             if element.tag == "DEVICE":
-                for device_settings in self.root.iter(element.tag):
-                    for device_setting in device_settings:
-                        if (
-                            device_setting.tag == "tools"
-                            and device_setting.text != "ti"
-                        ):
-                            # pylint: disable-next=broad-exception-raised
-                            raise BaseException("tool not supported")
-            if element.tag == "OS":
-                for os_setting in self.root.iter(element.tag):
-                    for os_config in list(os_setting[0]):
-                        if "_GCC" in os_config.tag:
-                            continue
-                        for value_os in list(os_config):
-                            self.removes.append(value_os.text)
-                continue
-            for hcg_setting in self.root.iter(element.tag):
-                for hardware_type in list(hcg_setting[0]):
-                    if "_GCC" in hardware_type.tag:
-                        # we are not interested in GCC specific files as we are
-                        # using TI ARM CGT
-                        continue
-                    for value_hal in list(hardware_type):
-                        if value_hal.tag == "PATH":
-                            if value_hal.text is not None:
-                                if value_hal.text.endswith("HL_sys_main.c"):
-                                    self.removes.append(value_hal.text)
-                                    continue
-                                if value_hal.text.endswith(".h"):
-                                    self.headers.append(value_hal.text)
-                                elif value_hal.text.endswith((".c", ".asm")):
-                                    self.sources.append(value_hal.text)
+                self._parse_device(element.tag)
+            else:
+                self._parse_system(element.tag)
+
+    def _parse_device(self, tag):
+        for device_settings in self.root.iter(tag):
+            for device_setting in device_settings:
+                if device_setting.tag == "tools" and device_setting.text != "ti":
+                    raise ToolNotSupportedException("tool not supported")
+                if (
+                    device_setting.tag == "device"
+                    and device_setting.text.lower().endswith("_freertos")
+                ):
+                    self.uses_freertos = True
+
+    def _parse_system(self, tag):
+        # xml is otherwise not good parseable
+        # pylint: disable-next=too-many-nested-blocks
+        for hcg_setting in self.root.iter(tag):
+            for hardware_type in list(hcg_setting[0]):
+                for value_hal in list(hardware_type):
+                    if value_hal.tag == "PATH":
+                        if value_hal.text is not None:
+                            if value_hal.text.endswith(".h"):
+                                self.headers.append(value_hal.text)
+                            elif value_hal.text.endswith((".c", ".asm")):
+                                self.sources.append(value_hal.text)
+        self.headers = sorted(list(set(self.headers)))
+        self.sources = sorted(list(set(self.sources)))
 
 
 @TaskGen.extension(".hcg")
@@ -156,31 +156,70 @@ def process_hcg(self, node):
     hcg = NodeStructure(node.abspath())
     try:
         hcg.parse_xml()
-    except BaseException:  # pylint: disable=broad-except
+    except ToolNotSupportedException:
         self.bld.fatal("Unsupported tools selected in HALCoGen configuration file")
     dil_path = os.path.join(
         os.path.dirname(node.path_from(self.path)), hcg.dil_file_name
     )
-    dil_file = self.path.find_node(dil_path)
-    if not dil_file:
+    dil_node = self.path.find_node(dil_path)
+    if not dil_node:
         self.bld.fatal(
             f"No dil file '{hcg.dil_file_name}' to hcg file '{node.abspath()}'."
         )
+    hcg_node = node
+    hcg_sources = [hcg_node, dil_node]
+
+    # we need a copy of the input sources
     copy_hcg_files = [
         self.path.find_or_declare(node.name),
-        self.path.find_or_declare(dil_file.name),
+        self.path.find_or_declare(dil_node.name),
     ]
     log_file = [self.path.find_or_declare(node.name.replace(node.suffix(), ".log"))]
-    cpu_clock_config_header = [
-        self.path.find_or_declare("include/config_cpu_clock_hz.h")
-    ]
+    if hcg.uses_freertos:
+        cpu_clock_config_header = [
+            self.path.find_or_declare("include/config_cpu_clock_hz.h")
+        ]
     gen_headers = [self.path.find_or_declare(i) for i in hcg.headers]
     gen_sources = [self.path.find_or_declare(i) for i in hcg.sources]
-    tgt = (
-        copy_hcg_files + log_file + cpu_clock_config_header + gen_headers + gen_sources
-    )
+    preliminary_tgt = copy_hcg_files + log_file
+    if hcg.uses_freertos:
+        preliminary_tgt.extend(cpu_clock_config_header)
+    preliminary_tgt.extend(gen_headers + gen_sources)
+
+    # OS files and some additionally provided files need to be removed
+    remove = [self.path.find_or_declare(i) for i in getattr(self, "remove", [])]
+    if hcg.uses_freertos:
+        remove.extend(
+            [
+                self.path.find_or_declare("include/FreeRTOSConfig.h"),
+                self.path.find_or_declare("include/FreeRTOS.h"),
+            ]
+        )
+
+    if hcg.uses_freertos:
+        for i in gen_headers + gen_sources:
+            if i.name.startswith("os_"):
+                remove.append(i)
+    err = 0
+    for i in remove:
+        if not isinstance(i, Node):
+            Logs.error(f"{i} is not a 'waflib.Node.Node'.")
+            err += 1
+    if err:
+        self.bld.fatal("An instance provided in 'remove' is not a 'waflib.Node.Node'.")
+
+    # create the actual target list
+    tgt = []
+    for i in preliminary_tgt:
+        if i not in remove:
+            tgt.append(i)
+
     self.create_task(
-        "hcg_compiler", src=[node, dil_file], tgt=tgt, remove_files=hcg.removes
+        "hcg_compiler",
+        src=hcg_sources,
+        tgt=tgt,
+        remove_files=remove,
+        uses_freertos=hcg.uses_freertos,
     )
     no_clang_node = self.path.find_or_declare(".clang-format")
     if not no_clang_node.exists():
@@ -189,9 +228,12 @@ def process_hcg(self, node):
         )
 
     if not hasattr(self, "unit_test"):
-        for i in gen_sources:
-            if not i.name == "HL_sys_startup.c":
-                self.source.append(i)
+        for i in tgt:
+            if i.suffix() == ".c" or i.suffix() == ".asm":
+                if i not in self.source:
+                    self.source.append(i)
+                else:
+                    pass
         try:
             self.includes.append("include")
         except AttributeError:
@@ -239,75 +281,87 @@ class hcg_compiler(Task.Task):  # pylint: disable=invalid-name
         except Errors.WafError:
             self.generator.bld.fatal("Could not generate HAL sources.")
 
-        output_dir = self.outputs[0].parent
-        generated_os_sources = [
-            output_dir.find_node(i)
-            for i in self.remove_files  # pylint: disable=no-member
-        ]
         # get clock info from generated source 'FreeRTOSConfig.h'
-        freertos_config_file = self.remove_files.index(  # pylint: disable=no-member
-            os.path.join("include", "FreeRTOSConfig.h")
-        )
-        if not freertos_config_file:
-            self.generator.bld.fatal("Could not find 'FreeRTOSConfig.h'.")
-        freertos_config = generated_os_sources[freertos_config_file].read()
-        frequency = None
-        for line in freertos_config.splitlines():
-            mach = re.search(
-                r"#define configCPU_CLOCK_HZ.*\( \( unsigned portLONG \) ([0-9]+) \)",
-                line,
+        if self.uses_freertos:  # pylint: disable=no-member
+            try:
+                # pylint: disable-next=no-member
+                freertos_file_id = self.remove_files.index(
+                    self.generator.path.find_resource("include/FreeRTOSConfig.h")
+                )
+            except ValueError:
+                self.generator.bld.fatal("Could not find 'FreeRTOSConfig.h'.")
+            # pylint: disable-next=no-member
+            freertos_config = self.remove_files[freertos_file_id].read()
+            frequency = None
+            for line in freertos_config.splitlines():
+                mach = re.search(
+                    r"#define configCPU_CLOCK_HZ.*\( \( unsigned portLONG \) ([0-9]+) \)",
+                    line,
+                )
+                if mach:
+                    frequency = mach.group(1)
+                    break
+            if not frequency:
+                self.generator.bld.fatal("Could not determine clock frequency.")
+            define_guard = (
+                self.outputs[3].name.replace(self.outputs[3].suffix(), "").upper()
+                + "_H_"
             )
-            if mach:
-                frequency = mach.group(1)
-                break
-        if not frequency:
-            self.generator.bld.fatal("Could not determine clock frequency.")
-        define_guard = (
-            self.outputs[3].name.replace(self.outputs[3].suffix(), "").upper() + "_H_"
-        )
-        self.outputs[3].write(
-            f"#ifndef {define_guard}\n"
-            f"#define {define_guard}\n"
-            f"#define HALCOGEN_CPU_CLOCK_HZ ({frequency})\n"
-            f"#endif /* {define_guard} */\n"
-        )
-
-        # remove un-wanted generated sources
-        for src in generated_os_sources:
-            src.delete()
-
-        startup_node = self.generator.bld.root.find_node(
-            os.path.join(
-                self.generator.path.get_bld().abspath(), "source", "HL_sys_startup.c"
+            self.outputs[3].write(
+                f"#ifndef {define_guard}\n"
+                f"#define {define_guard}\n"
+                f"#define HALCOGEN_CPU_CLOCK_HZ ({frequency})\n"
+                f"#endif /* {define_guard} */\n"
             )
-        )
+
+        startup_node = self.generator.path.find_resource("source/HL_sys_startup.c")
         if not startup_node:
             self.generator.bld.fatal("Could not find startup source.")
-        hl_sys_startup_file = self.outputs.index(startup_node)  # pylint: disable=no-member
+
+        try:
+            hl_sys_startup_file = self.outputs.index(startup_node)
+            tmp = self.outputs
+        except ValueError:
+            # pylint: disable=no-member
+            try:
+                hl_sys_startup_file = self.remove_files.index(startup_node)
+            except ValueError:
+                # if the startup node is not in 'outputs' or 'remove_files'
+                # then something went wrong.
+                self.generator.bld.fatal("Could not find 'FreeRTOSConfig.h'.")
+            tmp = self.remove_files
+            # pylint: enable=no-member
         if not hl_sys_startup_file:
             self.generator.bld.fatal("Could not find 'HL_sys_startup.c'.")
+
         generated_file_hash = binascii.hexlify(
-            Utils.h_file(self.outputs[hl_sys_startup_file].abspath())
+            Utils.h_file(tmp[hl_sys_startup_file].abspath())
         )
         known_hash = bytes(self.generator.startup_hash.read().strip(), encoding="utf-8")
         if not generated_file_hash == known_hash:
-            self.generator.bld.fatal(
+            Logs.error(
                 "The auto-generated file 'HL_sys_startup.c' has changed due to "
                 "a configuration change in the HALCoGen project.\nThe "
                 f"expected hash is {known_hash} but the generated hash is "
                 f"{generated_file_hash}.\nCompare '{startup_node}' with "
                 "'fstartup.c' and see if changes need to be applied to to "
-                "'fstartup.c'. If everything is changed as needed, updated "
+                "'fstartup.c'.\nIf everything is changed as needed, updated "
                 f"the hash in '{self.generator.startup_hash}' and build "
                 "again.\nFor more information see the documentation "
                 " (Configuration/HALCoGen)."
             )
+            return 1
+
+        # remove un-wanted generated sources
+        for src in self.remove_files:  # pylint: disable=no-member
+            src.delete()
 
         # HALCoGen alters the timestamp hardcoded in the copied file after it
         # generated the sources, we do not want that, therefore overwrite the
         # altered HALCoGen files with the "original" ones
         for src, tgt in zip(self.inputs[:2], self.outputs[:2]):
             shutil.copy2(src.abspath(), tgt.abspath())
+        return 0
 
 
 @TaskGen.feature("c")
@@ -348,5 +402,13 @@ def configure(conf):
     )
     if os.path.exists(incpath_halcogen):
         conf.env.append_unique("INCLUDES", incpath_halcogen)
+
+    libpath_halcogen = os.path.join(
+        pathlib.Path(conf.env.HALCOGEN[0]).parent.parent.parent,
+        "F021 Flash API",
+        "02.01.01",
+    )
+    if os.path.exists(libpath_halcogen):
+        conf.env.append_unique("STLIBPATH", libpath_halcogen)
     conf.env["HALCOGEN_SRC_INPUT"] = ["-i"]
     conf.end_msg(conf.env.get_flat("HALCOGEN"))

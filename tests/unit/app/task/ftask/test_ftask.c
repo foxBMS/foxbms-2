@@ -43,12 +43,13 @@
  * @file    test_ftask.c
  * @author  foxBMS Team
  * @date    2020-04-02 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
  * @brief   Test of the ftask module
+ * @details TODO
  *
  */
 
@@ -72,6 +73,7 @@
 #include "Mockimd.h"
 #include "Mockinterlock.h"
 #include "Mockled.h"
+#include "Mockmaster_info.h"
 #include "Mockmeas.h"
 #include "Mockmpu_prototypes.h"
 #include "Mockos.h"
@@ -119,6 +121,7 @@ TEST_INCLUDE_PATH("../../src/app/driver/sbc/fs8x_driver")
 TEST_INCLUDE_PATH("../../src/app/driver/spi")
 TEST_INCLUDE_PATH("../../src/app/driver/sps")
 TEST_INCLUDE_PATH("../../src/app/engine/diag")
+TEST_INCLUDE_PATH("../../src/app/engine/hw_info")
 TEST_INCLUDE_PATH("../../src/app/engine/sys")
 TEST_INCLUDE_PATH("../../src/app/engine/sys_mon")
 TEST_INCLUDE_PATH("../../src/app/task/config")

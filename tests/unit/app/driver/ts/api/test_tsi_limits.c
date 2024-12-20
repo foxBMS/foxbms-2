@@ -43,12 +43,15 @@
  * @file    test_tsi_limits.c
  * @author  foxBMS Team
  * @date    2021-01-15 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TSI
  *
  * @brief   Test of the tsi_limits.c module
+ * @details Test functions:
+ *          - testTSI_GetMaximumPlausibleTemperature
+ *          - testTSI_GetMinimumPlausibleTemperature
  *
  */
 

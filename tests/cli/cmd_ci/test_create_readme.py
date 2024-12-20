@@ -37,16 +37,20 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""Testing the SubprocessResult implementation"""
+"""Testing file 'cli/cmd_ci/create_readme.py'."""
 
+import io
 import sys
 import unittest
+from contextlib import redirect_stderr
 from pathlib import Path
 from unittest import mock
 
-sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
-# pylint: disable-next=wrong-import-position
-from cli.cmd_ci import create_readme
+try:
+    from cli.cmd_ci import create_readme
+except ModuleNotFoundError:
+    sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
+    from cli.cmd_ci import create_readme
 
 
 class TestSpR(unittest.TestCase):
@@ -55,14 +59,26 @@ class TestSpR(unittest.TestCase):
     @mock.patch("cli.cmd_ci.create_readme.CI_CONFIG", Path("does/not/exist"))
     def test_create_readme_no_ci_config(self):
         """test for not existing '.gitlab-ci.yml'-file"""
-        ret = create_readme.create_readme()
+        buf = io.StringIO()
+        with redirect_stderr(buf):
+            ret = create_readme.create_readme()
         self.assertEqual(1, ret)
+        out = "does/not/exist"
+        if sys.platform.lower() == "win32":
+            out = "does\\not\\exist"
+        self.assertIn(f"File '{out}' does not exist.", buf.getvalue())
 
     @mock.patch("cli.cmd_ci.create_readme.CI_README", Path("does/not/exist"))
     def test_create_readme_no_ci_readme(self):
         """test for not existing '.gitlab/README.md'-file"""
-        ret = create_readme.create_readme()
+        buf = io.StringIO()
+        with redirect_stderr(buf):
+            ret = create_readme.create_readme()
         self.assertEqual(1, ret)
+        out = "does/not/exist"
+        if sys.platform.lower() == "win32":
+            out = "does\\not\\exist"
+        self.assertIn(f"File '{out}' does not exist.", buf.getvalue())
 
     @mock.patch("cli.cmd_ci.create_readme.CI_CONFIG", Path("fox.bat"))
     def test_invalid_ci_config(self):
@@ -77,3 +93,7 @@ class TestSpR(unittest.TestCase):
         with self.assertRaises(SystemExit) as cm:
             create_readme.create_readme()
         self.assertEqual(cm.exception.code, "Could not determine stages.")
+
+
+if __name__ == "__main__":
+    unittest.main()

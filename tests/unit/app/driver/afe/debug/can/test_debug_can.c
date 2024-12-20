@@ -43,8 +43,8 @@
  * @file    test_debug_can.c
  * @author  foxBMS Team
  * @date    2020-09-17 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -86,6 +86,12 @@ TEST_INCLUDE_PATH("../../src/app/task/ftask")
 /*========== Definitions and Implementations for Unit Test ==================*/
 OS_QUEUE ftsk_canToAfeCellVoltagesQueue;
 OS_QUEUE ftsk_canToAfeCellTemperaturesQueue;
+
+static DATA_BLOCK_CELL_VOLTAGE_s decan_cellVoltage         = {.header.uniqueId = DATA_BLOCK_ID_CELL_VOLTAGE_BASE};
+static DATA_BLOCK_CELL_VOLTAGE_s decan_cellVoltageFromRead = {.header.uniqueId = DATA_BLOCK_ID_CELL_VOLTAGE_BASE};
+static DATA_BLOCK_CELL_TEMPERATURE_s decan_cellTemperature = {.header.uniqueId = DATA_BLOCK_ID_CELL_TEMPERATURE_BASE};
+static DATA_BLOCK_CELL_TEMPERATURE_s decan_cellTemperatureFromRead = {
+    .header.uniqueId = DATA_BLOCK_ID_CELL_TEMPERATURE_BASE};
 
 /*========== Setup and Teardown =============================================*/
 void setUp(void) {
@@ -292,12 +298,10 @@ void testDECAN_ReceiveCanCellVoltages(void) {
     uint64_t messageData = 0u;
     OS_ReceiveFromQueue_ExpectAndReturn(
         ftsk_canToAfeCellVoltagesQueue, &messageData, DECAN_CAN2AFE_QUEUE_TIMEOUT_MS, OS_SUCCESS);
-    for (uint8_t i = 0; i < CAN_NUM_OF_VOLTAGES_IN_CAN_CELL_VOLTAGES_MSG * 2 + 1; i++) {
-        CAN_RxGetSignalDataFromMessageData_Ignore();
-    }
-    DATA_Write1DataBlock_IgnoreAndReturn(STD_OK);
-    DATA_Read1DataBlock_IgnoreAndReturn(STD_OK);
-    DATA_Write1DataBlock_IgnoreAndReturn(STD_OK);
+
+    DATA_Write1DataBlock_ExpectAndReturn(&decan_cellVoltage, STD_OK);
+    DATA_Read1DataBlock_ExpectAndReturn(&decan_cellVoltageFromRead, STD_OK);
+    DATA_Write1DataBlock_ExpectAndReturn(&decan_cellVoltageFromRead, STD_OK);
     TEST_ASSERT_EQUAL(STD_OK, TEST_DECAN_ReceiveCanCellVoltages());
 }
 
@@ -313,11 +317,9 @@ void testDECAN_ReceiveCanCellTemperatures(void) {
     uint64_t messageData = 0u;
     OS_ReceiveFromQueue_ExpectAndReturn(
         ftsk_canToAfeCellTemperaturesQueue, &messageData, DECAN_CAN2AFE_QUEUE_TIMEOUT_MS, OS_SUCCESS);
-    for (uint8_t i = 0; i < CAN_NUM_OF_VOLTAGES_IN_CAN_CELL_VOLTAGES_MSG * 2 + 1; i++) {
-        CAN_RxGetSignalDataFromMessageData_Ignore();
-    }
-    DATA_Write1DataBlock_IgnoreAndReturn(STD_OK);
-    DATA_Read1DataBlock_IgnoreAndReturn(STD_OK);
-    DATA_Write1DataBlock_IgnoreAndReturn(STD_OK);
-    TEST_ASSERT_EQUAL(STD_OK, TEST_DECAN_ReceiveCanCellVoltages());
+
+    DATA_Write1DataBlock_ExpectAndReturn(&decan_cellTemperature, STD_OK);
+    DATA_Read1DataBlock_ExpectAndReturn(&decan_cellTemperatureFromRead, STD_OK);
+    DATA_Write1DataBlock_ExpectAndReturn(&decan_cellTemperatureFromRead, STD_OK);
+    TEST_ASSERT_EQUAL(STD_OK, TEST_DECAN_ReceiveCanCellTemperatures());
 }

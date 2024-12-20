@@ -43,8 +43,8 @@
  * @file    mcu.c
  * @author  foxBMS Team
  * @date    2019-02-19 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup DRIVERS
  * @prefix  MCU
  *
@@ -55,6 +55,7 @@
 /*========== Includes =======================================================*/
 #include "mcu.h"
 
+#include "HL_reg_system.h"
 #include "HL_system.h"
 
 #include <math.h>
@@ -70,6 +71,15 @@
 
 /** threshold in order to limit the time spent in wait to avoid live lock in wait */
 #define MCU_US_WAIT_TIMEOUT (10000u)
+
+/* docref: SPNU563A-March 2018: 2.5.1.49 Device Identification Register (DEVID) */
+#define MCU_DEVICE_REGISTER ((uint32_t)(systemREG1->DEVID))
+
+/* docref: SPNU563A-March 2018: 2.5.1.29 Die Identification Register Upper Word (DIEIDH) */
+#define MCU_DIE_ID_HIGH ((uint32_t)(systemREG1->DIEIDH))
+
+/* docref: SPNU563A-March 2018: 2.5.1.28 Die Identification Register Lower Word (DIEIDL) */
+#define MCU_DIE_ID_LOW ((uint32_t)(systemREG1->DIEIDL))
 
 /*========== Static Constant and Variable Definitions =======================*/
 /**
@@ -140,6 +150,18 @@ extern bool MCU_IsTimeElapsed(uint32_t startCounter, uint32_t timeout_us) {
         retVal = true;
     }
     return retVal;
+}
+
+extern uint32_t MCU_GetDeviceRegister(void) {
+    return MCU_DEVICE_REGISTER;
+}
+
+extern uint32_t MCU_GetDieIdHigh(void) {
+    return MCU_DIE_ID_HIGH;
+}
+
+extern uint32_t MCU_GetDieIdLow(void) {
+    return MCU_DIE_ID_LOW;
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/

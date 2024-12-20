@@ -46,8 +46,9 @@ from pathlib import Path
 from subprocess import PIPE, Popen
 from typing import Sequence
 
-from .ansi_colors import RED
-from .misc import PROJECT_ROOT, eprint
+from click import secho
+
+from .misc import PROJECT_ROOT
 
 
 @dataclass
@@ -55,15 +56,23 @@ class SubprocessResult:
     """Subprocess result"""
 
     returncode: int = 1
+    """returncode of the process"""
     out: str = ""
+    """standard out of the process"""
     err: str = ""
+    """standard error of the process"""
 
     def __add__(self, other: "SubprocessResult") -> "SubprocessResult":
-        return SubprocessResult(
-            abs(self.returncode) + (other.returncode),
-            self.out + "\nnew:\n" + other.out,
-            self.err + "\nnew:\n" + other.err,
-        )
+        returncode = abs(self.returncode)
+        if other.returncode:
+            returncode += other.returncode
+        out = self.out
+        if other.out:
+            out += "\n\n" + other.out
+        err = self.err
+        if other.err:
+            err += "\n\n" + other.err
+        return SubprocessResult(returncode, out, err)
 
     def __str__(self) -> str:
         return f"return code: {self.returncode}\n\nout:{self.out}\n\n{self.err}\n"
@@ -94,13 +103,13 @@ def run_process(
     """Run the provided command"""
     logging.debug("Original cmd: %s", cmd)
     if len(cmd) == 0:
-        eprint("No program provided.", err=True, color=RED)
+        secho("No program provided.", fg="red", err=True)
         return prepare_subprocess_output(
             1, out=b"", err="No program provided.".encode(encoding="utf-8")
         )
     executable = cmd[0]
     if not shutil.which(executable):
-        eprint(f"Program '{cmd[0]}' does not exist.", err=True, color=RED)
+        secho(f"Program '{cmd[0]}' does not exist.", fg="red", err=True)
         return prepare_subprocess_output(
             1,
             out=b"",

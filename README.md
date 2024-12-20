@@ -43,21 +43,19 @@ See [INSTALL.md](./INSTALL.md) for installation instructions.
 
 The repository is structured as follows:
 
-| Directory Name   |  Content Description                                                                                                            |
-| ---------------- | ------------------------------------------------------------------------------------------------------------------------------- |
-| `.`              | The repository root contains the license information, installation instructions, a link to the changelog, the main build script |
-| `conf`           | Contains all high level configurations                                                                                          |
-| `docs`           | Documentation source files                                                                                                      |
-| `hardware`       | Hardware schematic and layout information                                                                                       |
-| `src`            | Parent directory for all source files for the BMS embedded software                                                             |
-| `tests`          | Tests for embedded sources, the tool chain, the conda environment and scripts                                                   |
-| `tools`          | Tools needed to build foxBMS binaries and additional tools to work with foxBMS                                                  |
+| Directory Name            |  Content Description                                                                                                            |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| `.`                       | The repository root contains the license information, installation instructions, a link to the changelog, the main build script |
+| [`cli`](./cli)            | CLI tool to interact with the repository                                                                                        |
+| [`conf`](./conf)          | Contains all high level configurations                                                                                          |
+| [`docs`](./docs)          | Documentation source files                                                                                                      |
+| [`hardware`](./hardware)  | Hardware schematic and layout information                                                                                       |
+| [`src`](./src)            | Parent directory for all source files for the BMS embedded software                                                             |
+| [`tests`](./tests)        | Tests for embedded sources, the tool chain, and scripts                                                                         |
+| [`tools`](./tools)        | Tools needed to build foxBMS binaries and additional tools to work with foxBMS                                                  |
 
-The toplevel directories ([`conf`](./conf), [`docs`](./docs), [`src`](./src),
-[`tests`](./tests), and [`tools`](./tools)) each have a `README.md` that
-explain the content of the directory ([`conf/README.md`](conf/README.md),
-[`docs/README.md`](docs/README.md), [`src/README.md`](src/README.md),
-[`tests/README.md`](tests/README.md), [`tools/README.md`](tools/README.md)).
+These directories each have a `README.md` that explain the content of the
+directory.
 
 ## License
 

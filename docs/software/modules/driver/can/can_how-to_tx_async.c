@@ -43,14 +43,17 @@
  * @file    can_how-to_tx_async.c
  * @author  foxBMS Team
  * @date    2023-09-28 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup SOME_GROUP
  * @prefix  CAN
  *
  * @brief   Documentation file to show how a new asynchronous transmitted CAN
  *          message is added to the project.
- *
+ * @details This example code demonstrates how asynchronously transmitted CAN
+ *          must be added.
+ *          Actual and more complex implementations are found at
+ *          ./src/app/driver/can/cbs/tx-async.
  */
 
 /*========== Includes =======================================================*/

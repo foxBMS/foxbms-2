@@ -43,8 +43,8 @@
  * @file    lg_inr18650mj1.c
  * @author  foxBMS Team
  * @date    2017-11-07 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup BATTERY_CELL_CONFIGURATION
  * @prefix  BC
  *

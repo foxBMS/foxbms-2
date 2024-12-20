@@ -24,9 +24,7 @@ Waf Tools Implementation Documentation
     ./f_bootstrap_library_project.rst
     ./f_check_db_vars.rst
     ./f_hcg.rst
-    ./f_ozone.rst
     ./f_lauterbach.rst
-    ./f_j_flash.rst
     ./f_sphinx_build.rst
     ./f_unit_test.rst
     ./f_vscode.rst

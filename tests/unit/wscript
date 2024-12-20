@@ -104,6 +104,9 @@ COMMON_CFLAGS = [
     "test_ignore_list.h",
 ]
 
+if unversioned_sys_platform() != "win32":
+    COMMON_CFLAGS.append("-D_POSIX_C_SOURCE=200809L")  # see project.yml
+
 VARIANTS = ["host", "axivion"]
 
 
@@ -185,8 +188,9 @@ def configure(cnf: ConfigurationContext):
     cnf.options.check_c_compiler = "gcc"
     cnf.load("compiler_c")
 
-    if cnf.env.CC_NAME.lower() == "gcc":  # test are only executable for gcc-builds
-        cnf.load("waf_unit_test")
+    if cnf.env.CC_NAME.lower() == "gcc":
+        cnf.load("waf_unit_test")  # test are only executable for gcc-builds
+        cnf.check_cc(lib="m", uselib_store="M")  # see project.yml
 
     fragment = "#include <stdint.h>\n\nint sum(int a, int b){\n    return (a + b);}\n"
     cnf.check(features="c cstlib", fragment=fragment)
@@ -247,7 +251,9 @@ def build(bld: BuildContext):
         return
 
     root = bld.root.find_dir(os.path.join(bld.path.abspath(), "..", ".."))
-    utr = bld.root.find_dir(os.path.join(str(root.abspath()), "build", "unit_test"))
+    utr = bld.root.find_dir(
+        os.path.join(str(root.abspath()), "build", "app_host_unit_test")
+    )
 
     inc_unity = utr.find_dir("vendor/unity/src")
     unity = "unity"
@@ -281,6 +287,7 @@ def build(bld: BuildContext):
     for k, v in units_under_test.items():
         # maybe the unit test cannot be performed on the platform the tests
         # are built, so just exclude the test and print a warning
+
         if skip_platforms := units_under_test.get("skip", ""):
             if unversioned_sys_platform() in skip_platforms:
                 Logs.warn(f"Test '{k}' is not available on this platform.")
@@ -290,6 +297,7 @@ def build(bld: BuildContext):
             Logs.error(f"Could not find source file '{k}'.")
         else:
             listed_files.append(k)
+
     if err:
         bld.fatal("Missing source files.")
     # check that everything is well sorted
@@ -323,7 +331,8 @@ def build(bld: BuildContext):
     relevant_test_files = []
 
     for i in root.ant_glob(
-        "tests/unit/**/test_*.c",
+        "tests/unit/app/**/test_*.c",
+        "tests/unit/opt/**/test_*.c",
         excl=[
             # these are the dummy files, see
             # tests/unit/app/driver/afe/adi/common/ades183x/README.md
@@ -349,7 +358,8 @@ def build(bld: BuildContext):
     test_implementation_files = []
     for i, (k, v) in enumerate(units_under_test.items()):
         for test in v:
-            # check if the test file shall be ignored
+            # check if the test file shall be ignored or is not available on
+            # the used platform
             if test.get("ignore", False):
                 if not test.get("_comment", ""):
                     bld.fatal(
@@ -357,6 +367,10 @@ def build(bld: BuildContext):
                         f"comment (test file {k})."
                     )
                 continue
+            if skip_platforms := test.get("skip", ""):
+                if unversioned_sys_platform() in skip_platforms:
+                    Logs.warn(f"Test '{k}' is not available on this platform.")
+                    continue
 
             test_base_name = k.rsplit("/", maxsplit=1)
             test_name = ""
@@ -416,7 +430,7 @@ def build(bld: BuildContext):
                 features += " test"
             bld(
                 features=features,
-                use=[f"objects-{run_id}", unity, cmock, c_exception],
+                use=[f"objects-{run_id}", unity, cmock, c_exception] + ["M"],
                 includes=[inc_c_exception, inc_cmock, inc_unity]
                 + [root.find_dir(i) for i in test["include"]],
                 target=bld.path.find_or_declare(test_runner_out),

@@ -2,8 +2,8 @@
   "addon-test": {
     "cwd": "${HERE}/addon-test",
     "env": {
-      "AXIVION_BUILD_DIR": "${HERE}/../../build/axivion",
-      "BAUHAUS_CONFIG": "${HERE}"
+      "AXIVION_BUILD_DIR": "${HERE}/../../build/app_spa",
+      "BAUHAUS_CONFIG": "${HERE}/targets/app"
     },
     "runner-arguments": [
       "test_*.c*",
@@ -13,8 +13,8 @@
   "compiler_errata_ti-cgt-arm_20.2.6.lts": {
     "cwd": "${HERE}/compiler-errata",
     "env": {
-      "AXIVION_BUILD_DIR": "${HERE}/../../build/axivion",
-      "BAUHAUS_CONFIG": "${HERE}"
+      "AXIVION_BUILD_DIR": "${HERE}/../../build/app_spa",
+      "BAUHAUS_CONFIG": "${HERE}/targets/app"
     },
     "pre-build": [
       {
@@ -38,18 +38,18 @@
   "config-test": {
     "cwd": "${HERE}/config-test",
     "env": {
-      "AXIVION_BUILD_DIR": "${HERE}/../../build/axivion",
-      "BAUHAUS_CONFIG": "${HERE}"
+      "AXIVION_BUILD_DIR": "${HERE}/../../build/app_spa",
+      "BAUHAUS_CONFIG": "${HERE}/targets/app"
     },
     "runner-arguments": [
-      "test_*.c*"
+      "*coding-style-naming.*.c"
     ]
   },
   "qualification-test": {
     "cwd": "${HERE}/qualification-test",
     "env": {
-      "AXIVION_BUILD_DIR": "${HERE}/../../build/axivion",
-      "BAUHAUS_CONFIG": "${HERE}"
+      "AXIVION_BUILD_DIR": "${HERE}/../../build/app_spa",
+      "BAUHAUS_CONFIG": "${HERE}/targets/app"
     },
     "only": {
       "env": {

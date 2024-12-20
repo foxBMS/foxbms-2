@@ -43,12 +43,13 @@
  * @file    test_redundancy.c
  * @author  foxBMS Team
  * @date    2020-07-31 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
  * @brief   Test of the redundancy module
+ * @details TODO
  *
  */
 
@@ -98,14 +99,6 @@ static inline void injectDatabaseEntries(void) {
         &testCellTemperatureBase,
         &testCellTemperatureRedundancy0,
         STD_OK);
-    DATA_Read4DataBlocks_IgnoreArg_pDataToReceiver0();
-    DATA_Read4DataBlocks_IgnoreArg_pDataToReceiver1();
-    DATA_Read4DataBlocks_IgnoreArg_pDataToReceiver2();
-    DATA_Read4DataBlocks_IgnoreArg_pDataToReceiver3();
-    DATA_Read4DataBlocks_ReturnThruPtr_pDataToReceiver0(&testCellVoltageBase);
-    DATA_Read4DataBlocks_ReturnThruPtr_pDataToReceiver1(&testCellVoltageRedundancy0);
-    DATA_Read4DataBlocks_ReturnThruPtr_pDataToReceiver2(&testCellTemperatureBase);
-    DATA_Read4DataBlocks_ReturnThruPtr_pDataToReceiver3(&testCellTemperatureRedundancy0);
 }
 
 /*========== Setup and Teardown =============================================*/
@@ -236,13 +229,30 @@ void testMRC_AfeMeasurementValidationTickZeroNothingToDo(void) {
     injectDatabaseEntries();
 
     /* database entries never written - */
-    DATA_EntryUpdatedWithinInterval_IgnoreAndReturn(false);
-    DATA_DatabaseEntryUpdatedAtLeastOnce_IgnoreAndReturn(false);
+    DATA_DatabaseEntryUpdatedAtLeastOnce_ExpectAndReturn(testCellVoltageRedundancy0.header, false);
+    DATA_EntryUpdatedWithinInterval_ExpectAndReturn(
+        testCellVoltageBase.header, MRC_AFE_MEASUREMENT_PERIOD_TIMEOUT_ms, false);
+    DIAG_Handler_ExpectAndReturn(
+        DIAG_ID_BASE_CELL_VOLTAGE_MEASUREMENT_TIMEOUT, DIAG_EVENT_NOT_OK, DIAG_SYSTEM, 0u, STD_OK);
+    DATA_EntryUpdatedWithinInterval_ExpectAndReturn(
+        testCellVoltageRedundancy0.header, MRC_AFE_MEASUREMENT_PERIOD_TIMEOUT_ms, false);
+    DIAG_Handler_ExpectAndReturn(
+        DIAG_ID_REDUNDANCY0_CELL_VOLTAGE_MEASUREMENT_TIMEOUT, DIAG_EVENT_OK, DIAG_SYSTEM, 0u, STD_OK);
 
-    /* tick zero, database starts also with zero --> nothing to do */
-    OS_GetTickCount_IgnoreAndReturn(0);
-
-    DIAG_Handler_IgnoreAndReturn(STD_OK);
+    DATA_DatabaseEntryUpdatedAtLeastOnce_ExpectAndReturn(testCellTemperatureRedundancy0.header, false);
+    DATA_EntryUpdatedWithinInterval_ExpectAndReturn(
+        testCellTemperatureBase.header, MRC_AFE_MEASUREMENT_PERIOD_TIMEOUT_ms, false);
+    DIAG_Handler_ExpectAndReturn(
+        DIAG_ID_BASE_CELL_TEMPERATURE_MEASUREMENT_TIMEOUT, DIAG_EVENT_NOT_OK, DIAG_SYSTEM, 0u, STD_OK);
+    DATA_EntryUpdatedWithinInterval_ExpectAndReturn(
+        testCellTemperatureRedundancy0.header, MRC_AFE_MEASUREMENT_PERIOD_TIMEOUT_ms, false);
+    DIAG_Handler_ExpectAndReturn(
+        DIAG_ID_REDUNDANCY0_CELL_TEMPERATURE_MEASUREMENT_TIMEOUT, DIAG_EVENT_OK, DIAG_SYSTEM, 0u, STD_OK);
 
     TEST_ASSERT_PASS_ASSERT(TEST_ASSERT_EQUAL(STD_NOT_OK, MRC_ValidateAfeMeasurement()));
+}
+
+void testMRC_ValidateCellVoltageMeasurement(void) {
+    TEST_ASSERT_FAIL_ASSERT(TEST_MRC_ValidateCellVoltageMeasurement(NULL_PTR, &testCellVoltageRedundancy0));
+    TEST_ASSERT_FAIL_ASSERT(TEST_MRC_ValidateCellVoltageMeasurement(&testCellVoltageBase, NULL_PTR));
 }

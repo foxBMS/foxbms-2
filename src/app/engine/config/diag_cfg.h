@@ -43,8 +43,8 @@
  * @file    diag_cfg.h
  * @author  foxBMS Team
  * @date    2019-11-28 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup ENGINE_CONFIGURATION
  * @prefix  DIAG
  *
@@ -66,52 +66,18 @@
 #include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
-#define DIAG_ERROR_SENSITIVITY_FIRST_EVENT (0) /*!< logging at first event */
-#define DIAG_ERROR_SENSITIVITY_THIRD_EVENT (2) /*!< logging at third event */
-#define DIAG_ERROR_SENSITIVITY_FIFTH_EVENT (4) /*!< logging at fifth event */
-#define DIAG_ERROR_SENSITIVITY_TENTH_EVENT (9) /*!< logging at tenth event */
+/* 'sensitivity' is abbreviated to 'sen', only and only for these defines to
+ * keep the diagnosis array short and comprehensive. The general rule to not
+ * abbreviate is omitted here once to increase the readability of the code */
 
-#define DIAG_ERROR_SENSITIVITY_HIGH (0)  /*!< logging at first event */
-#define DIAG_ERROR_SENSITIVITY_MID  (5)  /*!< logging at fifth event */
-#define DIAG_ERROR_SENSITIVITY_LOW  (10) /*!< logging at tenth event */
-
-#define DIAG_ERROR_INTERLOCK_SENSITIVITY (10) /*!< logging level of interlock */
-
-#define DIAG_ERROR_VOLTAGE_SENSITIVITY_MSL (500) /*!< MSL level for event occurrence if over/under voltage event */
-#define DIAG_ERROR_VOLTAGE_SENSITIVITY_RSL (500) /*!< RSL level for event occurrence if over/under voltage event */
-#define DIAG_ERROR_VOLTAGE_SENSITIVITY_MOL (500) /*!< MOL level for event occurrence if over/under voltage event */
-
-/** MSL level for event occurrence if over/under temperature event */
-#define DIAG_ERROR_TEMPERATURE_SENSITIVITY_MSL (500)
-/** RSL level for event occurrence if over/under temperature event */
-#define DIAG_ERROR_TEMPERATURE_SENSITIVITY_RSL (500)
-/** MOL level for event occurrence if over/under temperature event */
-#define DIAG_ERROR_TEMPERATURE_SENSITIVITY_MOL (500)
-
-/** MSL level for event occurrence if over/under current event */
-#define DIAG_ERROR_CURRENT_SENSITIVITY_MSL (500)
-/** RSL level for event occurrence if over/under current event */
-#define DIAG_ERROR_CURRENT_SENSITIVITY_RSL (500)
-/** MOL level for event occurrence if over/under current event */
-#define DIAG_ERROR_CURRENT_SENSITIVITY_MOL (500)
-
-#define DIAG_ERROR_LTC_PEC_SENSITIVITY (5) /*!< logging level of LTC PEC errors */
-#define DIAG_ERROR_LTC_MUX_SENSITIVITY (5) /*!< logging level of LTC MUX errors */
-#define DIAG_ERROR_LTC_SPI_SENSITIVITY (5) /*!< logging level of LTC SPI errors */
-
-#define DIAG_ERROR_CAN_TIMING_SENSITIVITY    (100) /*!< logging level of CAN timing errors */
-#define DIAG_ERROR_CAN_TIMING_CC_SENSITIVITY (100) /*!< logging level of CAN timing errors on the current sensor */
-#define DIAG_ERROR_CAN_SENSOR_SENSITIVITY    (100) /*!< logging level of CAN errors on the current sensor */
-
-/**
- * Logging after 20th event for errors connected related to the contactor
- * feedback. This value is chosen to be so large because of the time delay
- * between the request for a state and the actual physical response. It is
- * caused by the SPI transaction to the SPS module, the rise time of the
- * control signal and the actual opening/closing of the contactor. Only then
- * can the feedback be read correctly, which also take some additional delay
- * depending on the feedback source. */
-#define DIAG_ERROR_CONTACTOR_FEEDBACK_SENSITIVITY (20)
+#define DIAG_SEN_EVENT_1   (0u)   /*!< logging at 1st event */
+#define DIAG_SEN_EVENT_3   (2u)   /*!< logging at 2nd event */
+#define DIAG_SEN_EVENT_5   (4u)   /*!< logging at 5th event */
+#define DIAG_SEN_EVENT_10  (9u)   /*!< logging at 10th event */
+#define DIAG_SEN_EVENT_20  (19u)  /*!< logging at 20th event */
+#define DIAG_SEN_EVENT_50  (49u)  /*!< logging at 50th event */
+#define DIAG_SEN_EVENT_100 (99u)  /*!< logging at 100th event */
+#define DIAG_SEN_EVENT_500 (499u) /*!< logging at 500th event */
 
 /** ---------------- DEFINES FOR ERROR STATE TRANSITION DELAY----------------
  * These defines configure the delay before the transition to the error state
@@ -122,41 +88,17 @@
  *
  * The delay is not taken into account if severity level #DIAG_FATAL_ERROR of
  * type #DIAG_SEVERITY_LEVEL_e is configured in config array #diag_diagnosisIdConfiguration.
- * For any other severity, #DIAG_DELAY_DISCARDED can be used as a dummy value.
+ * For any other severity, #DIAG_DELAY_DISCARD can be used as a dummy value.
  */
-#define DIAG_DELAY_DISCARDED (UINT32_MAX)
+#define DIAG_DELAY_DISCARD (UINT32_MAX)
 /** no delay after error is detected, open contactors instantaneous */
 #define DIAG_NO_DELAY (0u)
-/** delay for interlock error */
-#define DIAG_DELAY_INTERLOCK_ms (100u)
-/** delay for overvoltage errors */
-#define DIAG_DELAY_OVERVOLTAGE_ms (200u)
-/** delay for undervoltage errors */
-#define DIAG_DELAY_UNDERVOLTAGE_ms (200u)
-/** delay for temperature errors */
-#define DIAG_DELAY_TEMPERATURE_ms (1000u)
-/** delay for overcurrent errors */
-#define DIAG_DELAY_OVERCURRENT_ms (100u)
-/** delay for AFE related errors */
-#define DIAG_DELAY_AFE_ms (100u)
-/** delay for can timing error */
-#define DIAG_DELAY_CAN_TIMING_ms (200u)
-/** delay for energy counting/coulomb counting timing error */
-#define DIAG_DELAY_EC_CC_TIMING_ms (2000u)
-/** delay for current sensor response error */
-#define DIAG_DELAY_CURRENT_SENSOR_ms (200u)
-/** delay for SBC related errors */
-#define DIAG_DELAY_SBC_ms (100u)
-/** delay for pack voltage plausibility error */
-#define DIAG_DELAY_PL_PACK_VOLTAGE_ms (100u)
-/** delay for contactor feedback errors */
-#define DIAG_DELAY_CONTACTOR_FEEDBACK_ms (100u)
-/** delay for deep-discharge error */
-#define DIAG_DELAY_DEEP_DISCHARGE_ms (100u)
-/** delay redundancy measurement timeout errors */
-#define DIAG_DELAY_REDUNDANCY_MEAS_TIMEOUT_ms (100u)
-/** delay redundancy measurement errors */
-#define DIAG_DELAY_REDUNDANCY_MEAS_ERROR_ms (100u)
+
+/** Defines for various delay times */
+#define DIAG_DELAY_100ms  (100u)
+#define DIAG_DELAY_200ms  (200u)
+#define DIAG_DELAY_1000ms (1000u)
+#define DIAG_DELAY_2000ms (1000u)
 
 /** Maximum number of the same errors that are logged */
 #define DIAG_MAX_ENTRIES_OF_ERROR (5)
@@ -176,19 +118,16 @@ extern const DIAG_DATABASE_SHIM_s diag_kDatabaseShim;
 typedef enum {
     DIAG_ID_FLASHCHECKSUM,     /*!< the checksum of the flashed software could not be validated */
     DIAG_ID_SYSTEM_MONITORING, /*!< the system monitoring module has detected a deviation from task timing limits */
-    DIAG_ID_CONFIGASSERT,      /*!< TODO */
     DIAG_ID_AFE_SPI,           /*!< issues with the SPI communication of the AFE */
-    DIAG_ID_AFE_COM_INTEGRITY, /*!< error on the communication integrity of the AFE, e.g. PEC error for LTC */
-    DIAG_ID_AFE_MUX,           /*!< the multiplexer that is connected to the AFE does not react in an expected way */
-    DIAG_ID_AFE_CONFIG,        /*!< the AFE driver has recognized a configuration error */
-    DIAG_ID_CAN_TIMING,        /*!< the BMS does not receive CAN messages or they are not inside the expected timing
-                                * constraints
-                                */
+    DIAG_ID_AFE_COMMUNICATION_INTEGRITY, /*!< error on the communication integrity of the AFE, e.g. PEC error for LTC */
+    DIAG_ID_AFE_MUX,    /*!< the multiplexer that is connected to the AFE does not react in an expected way */
+    DIAG_ID_AFE_CONFIG, /*!< the AFE driver has recognized a configuration error */
+    DIAG_ID_CAN_TIMING, /*!< the BMS does not receive CAN messages at all or not within the expected time frame */
     DIAG_ID_CAN_RX_QUEUE_FULL, /*!< the reception queue of the driver is full; no new messages can be received */
     DIAG_ID_CAN_TX_QUEUE_FULL, /*!< the transmission queue of the driver is full; all new messages will be lost */
-    DIAG_ID_CAN_CC_RESPONDING, /*!< current counter measurements on the CAN bus are missing or not inside expected
-                                  timing constraints */
-    DIAG_ID_CAN_EC_RESPONDING, /*!< energy counter measurements on the CAN bus are missing or not inside expected timing
+    DIAG_ID_CURRENT_SENSOR_CC_RESPONDING, /*!< current counter measurements on the CAN bus are missing or not inside
+     expected timing constraints */
+    DIAG_ID_CURRENT_SENSOR_EC_RESPONDING, /*!< energy counter measurements on the CAN bus are missing or not inside expected timing
                                   constraints */
     DIAG_ID_CURRENT_SENSOR_RESPONDING, /*!< current sensor measurements on the CAN bus are missing or not inside
                                             expected   timing constraints */
@@ -201,7 +140,7 @@ typedef enum {
     DIAG_ID_PLAUSIBILITY_CELL_TEMP, /*!< redundant measurement of the cell temperatures has returned implausible values
                                      */
     DIAG_ID_PLAUSIBILITY_CELL_VOLTAGE_SPREAD,     /*!< the spread (difference between min and max values) of the cell
-                                                     voltages     is implausibly high */
+                                                     voltages is implausibly high */
     DIAG_ID_PLAUSIBILITY_CELL_TEMPERATURE_SPREAD, /*!< the spread (difference between min and max values) of the cell
                                                      temperatures is implausibly high */
     DIAG_ID_CELL_VOLTAGE_OVERVOLTAGE_MSL,         /*!< Cell voltage limits violated */
@@ -248,8 +187,8 @@ typedef enum {
                                               */
     DIAG_ID_PRECHARGE_CONTACTOR_FEEDBACK, /*!< the feedback on a precharge contactor does not match the expected value
                                            */
-    DIAG_ID_SBC_FIN_STATE,                /*!< the state of the FIN signal in the SBC is not ok */
-    DIAG_ID_SBC_RSTB_STATE,               /*!< an activation of the RSTB pin of the SBC has been detected */
+    DIAG_ID_SBC_FIN_ERROR,                /*!< the state of the FIN signal in the SBC is not ok */
+    DIAG_ID_SBC_RSTB_ERROR,               /*!< an activation of the RSTB pin of the SBC has been detected */
     DIAG_ID_BASE_CELL_VOLTAGE_MEASUREMENT_TIMEOUT, /*!< the redundancy module has detected that the base cell voltage
                                                       measurements are missing */
     DIAG_ID_REDUNDANCY0_CELL_VOLTAGE_MEASUREMENT_TIMEOUT, /*!< the redundancy module has detected that the redundancy0
@@ -281,9 +220,10 @@ typedef enum {
     DIAG_ID_RTC_CLOCK_INTEGRITY_ERROR,         /*!< clock integrity not garanteed error in RTC IC */
     DIAG_ID_RTC_BATTERY_LOW_ERROR,             /*!< RTC IC battery low flag set */
     DIAG_ID_FRAM_READ_CRC_ERROR,               /*!< CRC does not match when reading from the FRAM */
-    DIAG_ID_ALERT_MODE,    /*!< Critical error while opening the contactors. Fuse has not triggered */
-    DIAG_ID_AEROSOL_ALERT, /*!< high aerosol concentration detected */
-    DIAG_ID_MAX,           /*!< MAX indicator - do not change */
+    DIAG_ID_ALERT_MODE,                    /*!< Critical error while opening the contactors. Fuse has not triggered */
+    DIAG_ID_AEROSOL_ALERT,                 /*!< high aerosol concentration detected */
+    DIAG_ID_SUPPLY_VOLTAGE_CLAMP_30C_LOST, /*!< Supply voltage of clamp 30C lost */
+    DIAG_ID_MAX,                           /*!< MAX indicator - do not change */
 } DIAG_ID_e;
 
 /** diagnosis check result (event) */
@@ -334,12 +274,6 @@ typedef enum {
     DIAG_INFO,        /*!< severity level info */
 } DIAG_SEVERITY_LEVEL_e;
 
-/** diagnosis recording activation */
-typedef enum {
-    DIAG_RECORDING_ENABLED,  /**< enable diagnosis event recording   */
-    DIAG_RECORDING_DISABLED, /**< disable diagnosis event recording  */
-} DIAG_RECORDING_e;
-
 /**
  * @brief   function type for diag callbacks
  * @param[in] diagId        ID of diag entry
@@ -364,7 +298,6 @@ typedef struct {
         severity;      /**< severity of diag entry, #DIAG_FATAL_ERROR will lead to an opening of the contactors */
     uint32_t delay_ms; /**< delay in ms after error detection if severity is #DIAG_FATAL_ERROR until an opening the
                           contactors */
-    DIAG_RECORDING_e enable_recording;    /**< if enabled recording in diag_memory * will be activated */
     DIAG_EVALUATE_e enable_evaluate;      /**< if enabled diagnosis event will be evaluated */
     DIAG_CALLBACK_FUNCTION_f *fpCallback; /**< will be called if
                                            * number of events exceeds threshold in both

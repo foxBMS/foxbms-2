@@ -43,8 +43,8 @@
  * @file    test_can_cbs_rx_aerosol-sensor.c
  * @author  foxBMS Team
  * @date    2023-08-31 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -335,9 +335,7 @@ void testCANRX_AerosolSensor(void) {
 
     /* ======= Routine tests =============================================== */
     /* ======= RT1/1: Test implementation */
-    /* ignore reads that are not used in this test */
-    DATA_Read1DataBlock_IgnoreAndReturn(STD_OK);
-    DATA_Write1DataBlock_IgnoreAndReturn(STD_OK);
+    DATA_Write1DataBlock_ExpectAndReturn(can_kShim.pTableAerosolSensor, STD_OK);
     /* ======= RT1/1: call function under test */
     CANRX_AerosolSensor(validTestMessage, canData, &can_kShim);
 }

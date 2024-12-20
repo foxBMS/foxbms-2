@@ -114,10 +114,9 @@ class sphinx_task(Task.Task):  # pylint: disable=invalid-name
         env = self.env.env or None
         cwd = self.generator.bld.path.get_bld().abspath()
         proc = Utils.subprocess.Popen(cmd.split(), env=env, cwd=cwd)
-
         proc.communicate()
         if not proc.returncode:
-            print(f"Index file: {cwd+ os.sep}index.html.")
+            print(f"Index file: {os.path.join(self.env.OUTDIR,'index.html')}.")
         return proc.returncode
 
     def __str__(self):

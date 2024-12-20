@@ -55,11 +55,13 @@ def build(bld):
         os.path.join("ftask", os_name, f"ftask_{os_name}.c"),
         os.path.join("os", "os.c"),
         os.path.join("os", os_name, f"os_{os_name}.c"),
+        os.path.join("timer", "timer.c"),
     ]
     includes = [
         "config",
         "ftask",
         "os",
+        "timer",
         os.path.join("..", "application", "algorithm"),
         os.path.join("..", "application", "algorithm", "config"),
         os.path.join("..", "application", "algorithm", "state_estimation"),
@@ -102,6 +104,7 @@ def build(bld):
         os.path.join("..", "engine", "config"),
         os.path.join("..", "engine", "database"),
         os.path.join("..", "engine", "diag"),
+        os.path.join("..", "engine", "hw_info"),
         os.path.join("..", "engine", "sys_mon"),
         os.path.join("..", "engine", "sys"),
         os.path.join("..", "main", "include"),

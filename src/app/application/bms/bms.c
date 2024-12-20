@@ -43,13 +43,14 @@
  * @file    bms.c
  * @author  foxBMS Team
  * @date    2020-02-24 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup ENGINE
  * @prefix  BMS
  *
- * @brief   bms driver implementation
- * @details TODO
+ * @brief   Bms driver implementation
+ * @details Implements the state machine that controls the BMS
+ *
  */
 
 /*========== Includes =======================================================*/
@@ -59,6 +60,7 @@
 
 #include "afe.h"
 #include "bal.h"
+#include "can_cbs_tx_cyclic.h"
 #include "database.h"
 #include "diag.h"
 #include "foxmath.h"
@@ -67,6 +69,7 @@
 #include "meas.h"
 #include "os.h"
 #include "soa.h"
+#include "sps.h"
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -809,6 +812,10 @@ extern BMS_STATEMACH_e BMS_GetState(void) {
     return bms_state.state;
 }
 
+extern BMS_STATEMACH_SUB_e BMS_GetSubstate(void) {
+    return bms_state.substate;
+}
+
 BMS_RETURN_TYPE_e BMS_SetStateRequest(BMS_STATE_REQUEST_e statereq) {
     BMS_RETURN_TYPE_e retVal = BMS_OK;
 
@@ -938,10 +945,16 @@ void BMS_Trigger(void) {
                     break;
                 }
             } else if (bms_state.substate == BMS_CHECK_STATE_REQUESTS) {
-                bms_state.timer     = BMS_STATEMACH_SHORTTIME;
-                bms_state.state     = BMS_STATEMACH_OPEN_CONTACTORS;
-                bms_state.nextState = BMS_STATEMACH_STANDBY;
-                bms_state.substate  = BMS_ENTRY;
+                if (BMS_CheckCanRequests() == BMS_REQ_ID_STANDBY) {
+                    bms_state.timer     = BMS_STATEMACH_SHORTTIME;
+                    bms_state.state     = BMS_STATEMACH_OPEN_CONTACTORS;
+                    bms_state.nextState = BMS_STATEMACH_STANDBY;
+                    bms_state.substate  = BMS_ENTRY;
+                    break;
+                } else {
+                    bms_state.timer    = BMS_STATEMACH_SHORTTIME;
+                    bms_state.substate = BMS_CHECK_ERROR_FLAGS;
+                }
                 break;
             }
             break;
@@ -952,22 +965,29 @@ void BMS_Trigger(void) {
 
             if (bms_state.substate == BMS_ENTRY) {
                 BAL_SetStateRequest(BAL_STATE_NO_BALANCING_REQUEST);
-                bms_state.timer    = BMS_STATEMACH_SHORTTIME;
-                bms_state.substate = BMS_OPEN_ALL_PRECHARGE_CONTACTORS;
+                /* Check if the error reason is the loss of supply voltage clamp 30C */
+                if (DIAG_GetDiagnosisEntryState(DIAG_ID_SUPPLY_VOLTAGE_CLAMP_30C_LOST) == STD_NOT_OK) {
+                    bms_state.timer    = BMS_STATEMACH_SHORTTIME;
+                    bms_state.substate = BMS_HANDLE_SUPPLY_VOLTAGE_30C_LOSS;
+                } else {
+                    bms_state.timer    = BMS_STATEMACH_SHORTTIME;
+                    bms_state.substate = BMS_OPEN_ALL_PRECHARGE_CONTACTORS;
+                }
                 break;
             } else if (bms_state.substate == BMS_OPEN_ALL_PRECHARGE_CONTACTORS) {
                 /* Precharge contactors can always be opened as the precharge
                  * resistor limits the maximum current */
                 CONT_OpenAllPrechargeContactors();
 
-                /* Now go to string opening - open one string after another */
-                stringNumber       = BS_NR_OF_STRINGS - 1u; /* Select last string */
+                /* Regular string opening - Open one string after another,
+                      * starting with highest string index */
+                stringNumber       = BS_NR_OF_STRINGS - 1u;
                 bms_state.substate = BMS_OPEN_FIRST_STRING_CONTACTOR;
                 bms_state.timer    = BMS_TIME_WAIT_AFTER_OPENING_PRECHARGE;
+
             } else if (bms_state.substate == BMS_OPEN_FIRST_STRING_CONTACTOR) {
                 /* Precharge contactors have been opened -> start opening first string contactor */
                 /* TODO: Check if precharge contactors have been opened? */
-
                 if ((bms_tablePackValues.invalidStringCurrent[stringNumber] == 0u) &&
                     (MATH_AbsInt32_t(bms_tablePackValues.stringCurrent_mA[stringNumber]) <
                      BS_MAIN_CONTACTORS_MAXIMUM_BREAK_CURRENT_mA)) {
@@ -1071,6 +1091,12 @@ void BMS_Trigger(void) {
                     bms_state.timer = BMS_STATEMACH_SHORTTIME;
                     break;
                 }
+            } else if (bms_state.substate == BMS_HANDLE_SUPPLY_VOLTAGE_30C_LOSS) {
+                CONT_OpenAllContactors();
+                SPS_SwitchOffAllGeneralIoChannels();
+                bms_state.substate = BMS_OPEN_STRINGS_EXIT;
+                bms_state.timer    = BMS_STATEMACH_SHORTTIME;
+                break;
             } else if (bms_state.substate == BMS_OPEN_STRINGS_EXIT) {
                 if (bms_state.nextState == BMS_STATEMACH_STANDBY) {
                     /* Opening due to STANDBY request -> switch to BMS_STATEMACH_STANDBY */
@@ -1580,6 +1606,11 @@ void BMS_Trigger(void) {
             FAS_ASSERT(FAS_TRAP);
             break;
     } /* end switch (bms_state.state) */
+
+    /* Send an asynchronous bms state message if the state or substate changed*/
+    if ((bms_state.state != bms_state.lastState) || (bms_state.substate != bms_state.lastSubstate)) {
+        CANTX_TransmitBmsState();
+    }
 
     bms_state.triggerentry--;
     bms_state.counter++;

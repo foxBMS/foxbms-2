@@ -1,0 +1,5 @@
+Pin,Signal,Description
+1,``GND``,\-
+2,\-,\-
+3,``CAN_LOW``,\-
+4,``CAN_HIGH``,\-

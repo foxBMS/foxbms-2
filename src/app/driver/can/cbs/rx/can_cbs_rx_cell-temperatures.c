@@ -43,8 +43,8 @@
  * @file    can_cbs_rx_cell-temperatures.c
  * @author  foxBMS Team
  * @date    2024-04-08 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup DRIVERS
  * @prefix  CANRX
  *
@@ -64,6 +64,23 @@
 #include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
+/** CAN message parameters for can cell temperature  */
+#define CANRX_CAN_CELL_TEMPERATURE_MUX_BIT_START           (7u)
+#define CANRX_CAN_CELL_TEMPERATURE_MUX_LENGTH              (8u)
+#define CANRX_CAN_CELL_TEMPERATURE0_INVALID_FLAG_BIT_START (8u)
+#define CANRX_CAN_CELL_TEMPERATURE1_INVALID_FLAG_BIT_START (9u)
+#define CANRX_CAN_CELL_TEMPERATURE2_INVALID_FLAG_BIT_START (10u)
+#define CANRX_CAN_CELL_TEMPERATURE3_INVALID_FLAG_BIT_START (11u)
+#define CANRX_CAN_CELL_TEMPERATURE4_INVALID_FLAG_BIT_START (12u)
+#define CANRX_CAN_CELL_TEMPERATURE5_INVALID_FLAG_BIT_START (13u)
+#define CANRX_CAN_CELL_TEMPERATURE_INVALID_FLAG_LENGTH     (1u)
+#define CANRX_CAN_CELL_TEMPERATURE0_BIT_START              (23u)
+#define CANRX_CAN_CELL_TEMPERATURE1_BIT_START              (31u)
+#define CANRX_CAN_CELL_TEMPERATURE2_BIT_START              (39u)
+#define CANRX_CAN_CELL_TEMPERATURE3_BIT_START              (47u)
+#define CANRX_CAN_CELL_TEMPERATURE4_BIT_START              (55u)
+#define CANRX_CAN_CELL_TEMPERATURE5_BIT_START              (63u)
+#define CANRX_CAN_CELL_TEMPERATURE_LENGTH                  (8u)
 
 /*========== Static Constant and Variable Definitions =======================*/
 

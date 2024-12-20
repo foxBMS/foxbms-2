@@ -43,13 +43,14 @@
  * @file    test_main.c
  * @author  foxBMS Team
  * @date    2020-04-01 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
- * @brief   Tests for the CAN driver
- *
+ * @brief   Tests of the basic initialization of the hardware done in main
+ * @details This is a test of the basic initialization. However, this basic
+ *          initialization is performed **after** the low-level initialization
  */
 
 /*========== Includes =======================================================*/
@@ -119,7 +120,7 @@ extern void TEST_DummyCallback(
 
 DIAG_ID_CFG_s diag_diagnosisIdConfiguration[] = {
     /* clang-format off */
-    {DIAG_ID_SYSTEM_MONITORING, DIAG_ERROR_SENSITIVITY_FIRST_EVENT, DIAG_FATAL_ERROR, DIAG_NO_DELAY, DIAG_RECORDING_ENABLED, DIAG_EVALUATION_ENABLED, TEST_DummyCallback},
+    {DIAG_ID_SYSTEM_MONITORING, DIAG_SEN_EVENT_1, DIAG_FATAL_ERROR, DIAG_NO_DELAY, DIAG_EVALUATION_ENABLED, TEST_DummyCallback},
     /* clang-format on */
 };
 

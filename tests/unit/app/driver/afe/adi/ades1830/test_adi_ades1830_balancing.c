@@ -43,12 +43,13 @@
  * @file    test_adi_ades1830_balancing.c
  * @author  foxBMS Team
  * @date    2019-08-27 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup DRIVERS
  * @prefix  ADI
  *
  * @brief   Implementation of some software
+ * @details TODO
  *
  */
 
@@ -181,10 +182,11 @@ void testADI_DetermineBalancingRegisterConfiguration(void) {
         for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
             adi_stateBase.currentString = s;
             for (uint16_t m = 0; m < BS_NR_OF_MODULES_PER_STRING; m++) {
+                const uint16_t reverseModuleNumber = BS_NR_OF_MODULES_PER_STRING - m - 1u;
                 for (uint8_t c = 0u; c < ADI_MAX_SUPPORTED_CELLS; c++) {
                     if (adi_voltageInputsUsed[c] == 1u) {
                         /* All inputs used: function returns the cell index given as parameter */
-                        ADI_GetStoredVoltageIndex_IgnoreAndReturn(c);
+                        ADI_GetStoredVoltageIndex_ExpectAndReturn(c, c);
                     }
                     /* Reset balancing control table */
                     adi_stateBase.data.balancingControl->activateBalancing[s][m][c] = false;
@@ -201,14 +203,22 @@ void testADI_DetermineBalancingRegisterConfiguration(void) {
                     }
                 }
                 /* cell 1 to 8 bits must be set to the tested value */
-                ADI_WriteDataBits_Expect(NULL_PTR, data, ADI_CFGRB4_DCC_1_8_POS, ADI_CFGRB4_DCC_1_8_MASK);
-                ADI_WriteDataBits_IgnoreArg_pSentData();
+                ADI_WriteDataBits_Expect(
+                    &adi_configurationRegisterBgroup[adi_stateBase.currentString]
+                                                    [(reverseModuleNumber * ADI_WRCFGB_LEN) + ADI_REGISTER_OFFSET4],
+                    data,
+                    ADI_CFGRB4_DCC_1_8_POS,
+                    ADI_CFGRB4_DCC_1_8_MASK);
                 /* cell 9 to 16 bits must be set to the tested value */
-                ADI_WriteDataBits_Expect(NULL_PTR, data, ADI_CFGRB5_DCC_9_16_POS, ADI_CFGRB5_DCC_9_16_MASK);
-                ADI_WriteDataBits_IgnoreArg_pSentData();
+                ADI_WriteDataBits_Expect(
+                    &adi_configurationRegisterBgroup[adi_stateBase.currentString]
+                                                    [(reverseModuleNumber * ADI_WRCFGB_LEN) + ADI_REGISTER_OFFSET5],
+                    data,
+                    ADI_CFGRB5_DCC_9_16_POS,
+                    ADI_CFGRB5_DCC_9_16_MASK);
             }
 
-            ADI_StoredConfigurationWriteToAfeGlobal_Ignore();
+            ADI_StoredConfigurationWriteToAfeGlobal_Expect(&adi_stateBase);
 
             /* ======= RT1/1: call function under test */
             ADI_DetermineBalancingRegisterConfiguration(&adi_stateBase);

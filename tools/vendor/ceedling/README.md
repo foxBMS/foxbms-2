@@ -12,14 +12,15 @@ steps:
 
 - Make the correct Ruby version available in PATH (see
   `<root>/conf/env/paths_win32.txt`)
-- Copy `<root>/conf/unit/project_win32.yml` or
-  `<root>/conf/unit/project_posix.yml` to `<root>/build/unit_test/project.yml`
+- Copy `<root>/conf/unit/app_project_win32.yml` or
+  `<root>/conf/unit/app_project_posix.yml` to
+  `<root>/build/app_host_unit_test/project.yml`
 - Generate the HAL sources from the HALCoGen files for the project
-  (`conf/hcg/hcg.hcg`)
+  (`conf/hcg/app.hcg`)
 - Copy the HALCoGen generated directories (`source` and `include`) to
-  `<root>/build/unit_test/`.
-- `cd` into `<root>/build/unit_test/` and run Ceedling commands (e.g.,
-  `ceedling test:test_adc.c`)
+  `<root>/build/app_host_unit_test/`.
+- `cd` into `<root>/build/app_host_unit_test/` and run Ceedling commands
+  (e.g., `ceedling test:test_adc.c`)
 
 ## How to Update the Vendored Ceedling
 
@@ -69,3 +70,4 @@ steps:
   ```
 
 - Add and commit the changes.
+- Add a changelog entry.

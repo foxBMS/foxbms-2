@@ -43,12 +43,15 @@
  * @file    test_sbc.c
  * @author  foxBMS Team
  * @date    2020-07-15 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  SBC
  *
  * @brief   Tests for the sbc module
+ * @details Test functions:
+ *          - testSBC_Trigger
+ *          - testSBC_TriggerWatchdogIfRequired
  *
  */
 
@@ -101,12 +104,12 @@ void testSBC_TriggerWatchdogIfRequired(void) {
         TEST_ASSERT_FALSE(TEST_SBC_TriggerWatchdogIfRequired(&sbc_stateMcuSupervisor));
     }
     /* timer has elapsed now, we should see a trigger event */
-    FS85_TriggerWatchdog_IgnoreAndReturn(STD_OK);
+    FS85_TriggerWatchdog_ExpectAndReturn(sbc_stateMcuSupervisor.pFs85xxInstance, STD_OK);
     TEST_ASSERT_TRUE(TEST_SBC_TriggerWatchdogIfRequired(&sbc_stateMcuSupervisor));
     TEST_ASSERT_EQUAL(sbc_stateMcuSupervisor.watchdogTrigger, sbc_stateMcuSupervisor.watchdogPeriod_10ms);
 
     /* elapse timer and fail to run watchdog trigger */
     sbc_stateMcuSupervisor.watchdogTrigger = 1u;
-    FS85_TriggerWatchdog_IgnoreAndReturn(STD_NOT_OK);
+    FS85_TriggerWatchdog_ExpectAndReturn(sbc_stateMcuSupervisor.pFs85xxInstance, STD_NOT_OK);
     TEST_ASSERT_FALSE(TEST_SBC_TriggerWatchdogIfRequired(&sbc_stateMcuSupervisor));
 }

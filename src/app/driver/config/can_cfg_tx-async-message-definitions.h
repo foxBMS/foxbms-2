@@ -43,8 +43,8 @@
  * @file    can_cfg_tx-async-message-definitions.h
  * @author  foxBMS Team
  * @date    2022-07-01 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup DRIVERS
  * @prefix  CANTX
  *
@@ -106,6 +106,17 @@
 #define CANTX_CRASH_DUMP_ID_TYPE    (CAN_STANDARD_IDENTIFIER_11_BIT)
 #define CANTX_CRASH_DUMP_ENDIANNESS (CAN_BIG_ENDIAN)
 #define CANTX_CRASH_DUMP_DLC        (CAN_DEFAULT_DLC)
+/**@}*/
+
+/** CAN message properties for fatal error transmission. Required properties are:
+ *  - ID
+ *  - Identifier type (standard or extended)
+ *  - data length
+ *  - Endianness @{*/
+#define CANTX_BMS_FATAL_ERROR_ID         (0x222u)
+#define CANTX_BMS_FATAL_ERROR_ID_TYPE    (CAN_STANDARD_IDENTIFIER_11_BIT)
+#define CANTX_BMS_FATAL_ERROR_ENDIANNESS (CAN_BIG_ENDIAN)
+#define CANTX_BMS_FATAL_ERROR_DLC        (CAN_DEFAULT_DLC)
 /**@}*/
 
 /**

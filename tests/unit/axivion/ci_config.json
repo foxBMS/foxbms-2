@@ -4,7 +4,7 @@
       "global_excludes": [
         "C:/ti/*",
         "*build/*",
-        "*src/hal/*",
+        "*src/app/hal/*",
         "*src/os/*",
         "*tools/vendor/ceedling/*"
       ]
@@ -50,7 +50,7 @@
       "include_globbings": [
         "*.[ch]"
       ],
-      "rootpath": "build/unit_test",
+      "rootpath": "build/app_host_unit_test",
       "shadow_directory": "$(env:projectShadowRepo)"
     }
   },

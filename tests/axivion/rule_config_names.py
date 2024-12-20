@@ -39,10 +39,17 @@
 
 """foxBMS specific rules settings for Axivion analysis."""
 
+# TODOs:
+# - variables can be pointers/const etc.
+# - struct fields can be pointers/const etc.
+# - parameter check needs to be refactored
+
 import logging
 import re
 import sys
 from pathlib import Path
+from typing import Optional, Literal
+
 
 # disable import checking for Python modules that come with Axivion
 # pylint: disable=import-error
@@ -54,6 +61,8 @@ from bauhaus.ir.common.output.unparse import unparse_type
 
 # pylint: enable=import-error
 
+DatabaseVariable = Literal["database", "other"]
+
 if "perform_tests" in sys.argv[0]:
     logging.basicConfig(format="%(levelname)s:%(message)s", level=logging.DEBUG)
     logging.getLogger().setLevel(logging.DEBUG)
@@ -61,53 +70,9 @@ if "perform_tests" in sys.argv[0]:
 
 ANALYSIS = axivion.config.get_analysis()  # pylint: disable=c-extension-no-member
 
-UNKNOWN_PREFIX_ERROR_MESSAGE = "Unknown which module prefix to check."
-
-VALID_SUFFIXES = (
-    "degC",  # degree Celsius
-    "ddegC",  # deci degree Celsius
-    "dK",  # deci Kelvin
-    "ohm",  # ohm
-    "kOhm",  # kilo ohm
-    "kHz",  # kilo Hertz
-    "ms",  # milliseconds
-    "us",  # microseconds
-    "perc",  # percentage
-    "perm",  # per mill
-    "mV",  # millivolt
-    "V",  # volt
-    "mA",  # milliampere
-    "A",  # ampere
-    "mAs",  # milliampere seconds
-    "mAh",  # milliampere hours
-    "As",  # ampere seconds
-    "W",  # watt
-    "Wh",  # watt hours
-    "t",  # "typedef"
-    "Hz",  # Hertz
-)
-
-
-def validate_suffix(used_suffix: str = ""):
-    """Validate used suffix against list of permitted suffixes"""
-    valid_suffix = True
-    if used_suffix:
-        valid_suffix = False
-        if used_suffix in VALID_SUFFIXES:
-            valid_suffix = True
-    return valid_suffix
-
-
-def get_rule_type_from_name(rule_name: str) -> str:
-    """returns the rule in a nicer human readable format."""
-    cs_type_name = re.sub(
-        r"([A-Z])", r" \1", rule_name.rsplit(".", maxsplit=1)[-1]
-    ).split()
-    return " ".join([i.lower() for i in cs_type_name])
-
 
 @style.workitem(inputs=(ir.Graph, comments.scan_and_cache_comments), repeat=True)
-class ModulePrefixLookup(style.WorkItem):
+class ModulePrefixLookup(style.WorkItem):  # pylint: disable=abstract-method
     """Fetches the module prefix based on a regex from the provided source file"""
 
     prefix_re = re.compile(r"@prefix\s+(\S+)(?:\s|\n|$)", flags=re.MULTILINE)
@@ -171,33 +136,325 @@ def containing_modules(node):
             yield file
 
 
-def check_lowercase_prefix(node: ir.Node, module_prefixes: ModulePrefixLookup) -> bool:
-    """check that node starts with the lower-case module prefixed followed by
-    an underscore."""
+# foxBMS specific check implementations
+
+
+def check_prefix_known(node: ir.Node, module_prefixes: ModulePrefixLookup) -> bool:
+    """Check that a module prefix exists for the current node."""
     if node.Name:
         for file in containing_modules(node):
             if file in module_prefixes:
-                if not node.Name.startswith(module_prefixes[file].lower() + "_"):
-                    return False
+                return True
+        return False
     return True
 
 
-def check_uppercase_prefix(node: ir.Node, module_prefixes: ModulePrefixLookup) -> bool:
-    """check that node starts with the upper-case module prefixed followed by
-    an underscore."""
-    if node.Name:
-        for file in containing_modules(node):
-            if file in module_prefixes:
-                if not node.Name.startswith(module_prefixes[file].upper() + "_"):
-                    return False
-    return True
+VALID_SUFFIXES = (
+    "degC",  # degree Celsius
+    "ddegC",  # deci degree Celsius
+    "dK",  # deci Kelvin
+    "ohm",  # ohm
+    "kOhm",  # kilo ohm
+    "kHz",  # kilo Hertz
+    "ms",  # milliseconds
+    "us",  # microseconds
+    "perc",  # percentage
+    "perm",  # per mill
+    "mV",  # millivolt
+    "V",  # volt
+    "mA",  # milliampere
+    "A",  # ampere
+    "mAs",  # milliampere seconds
+    "mAh",  # milliampere hours
+    "As",  # ampere seconds
+    "W",  # watt
+    "Wh",  # watt hours
+    "t",  # "typedef"
+    "Hz",  # Hertz
+)
 
 
-def check_macro_name(node: ir.Node, module_prefixes: ModulePrefixLookup) -> bool:
-    """check that the macro starts with the upper-case module prefixed followed by
-    an underscore (exception: include guard macro 'FOXBMS__{FILENAME}_H_')."""
-    if not node.Name:
+def validate_suffix(suffix: str = ""):
+    """Validate used suffix against list of permitted suffixes"""
+    if not suffix:
         return True
+    if suffix in VALID_SUFFIXES:
+        return True
+    return False
+
+
+def remove_prefix(name: str, prefix: str | tuple[str,]) -> str:
+    """Removes a prefix from a given name."""
+    if isinstance(prefix, str):
+        return name[len(prefix) :]
+    if isinstance(prefix, tuple):
+        for i in prefix:
+            if name.startswith(i):
+                return name[len(i) :]
+    raise RuntimeError(
+        f"Could not remove prefix '{prefix}', as it does not exist for '{name}'."
+    )
+
+
+def get_prefix_for_node(
+    node: ir.Node, module_prefixes: ModulePrefixLookup
+) -> Optional[tuple[str,]]:
+    """gets"""
+    prefix: tuple[str] = ()
+    for file in containing_modules(node):
+        if file in module_prefixes:
+            prefix = (module_prefixes[file].upper() + "_",)
+    return prefix
+
+
+def split_name_and_unit(name: str) -> tuple[str, str]:
+    """Splits a name at the underscore to determine name and unit (if existing)"""
+    # foxBMS coding conventions do not use underscores (except for the prefix),
+    # therefore its safe to split on underscore and then assume that the first
+    # element is the name and the second part if the unit.
+    if name.endswith(tuple("_" + i for i in VALID_SUFFIXES)):
+        for i in VALID_SUFFIXES:
+            tmp = name.rsplit("_" + i, maxsplit=1)
+            if len(tmp) == 2:
+                base_name = tmp[0]
+                # replace the base_name from the name, then we only have left
+                # _<suffix>; remove the leading underscore, then we have just
+                # the suffix
+                suffix = name.replace(tmp[0], "", 1)[1:]
+                return (base_name, suffix)
+    return (name, "")
+
+
+def is_camel_case(name: str) -> bool:
+    """Checks whether a string is camelCase or not"""
+    # any valid camelCase word needs to start with an lowercase letter
+    if not name[0].lower() == name[0]:
+        return False
+
+    idx = []
+    for i, val in enumerate(name):
+        if val.isupper():
+            idx.append(i)
+
+    for i in range(1, len(idx)):
+        # if the difference between two indexes is 1, we are not seeing camelCase
+        if idx[i] - idx[i - 1] == 1:
+            return False
+
+    # if we come here, the name is camelCase
+    return True
+
+
+def is_pascal_case(name: str) -> bool:
+    """Checks whether a string is PascalCase or not"""
+    # any valid PascalCase word needs to start with an uppercase letter
+    if not name[0].upper() == name[0]:
+        return False
+
+    idx = []
+    for i, val in enumerate(name):
+        if val.isupper():
+            idx.append(i)
+    for i in range(1, len(idx)):
+        # if the difference between two indexes is 1, we are not seeing PascalCase
+        if idx[i] - idx[i - 1] == 1:
+            return False
+
+    # if we come here, the name is PascalCase
+    return True
+
+
+def valid_database_variable(name: str, db_type: DatabaseVariable) -> bool:
+    """Database variables shall always start with 'table'."""
+    if db_type == "database":
+        start = "block"
+    elif db_type == "other":
+        start = "table"
+    else:
+        raise RuntimeError("Something went really wrong.")
+    if not name.startswith(start):
+        return False
+    return True
+
+
+# pylint: disable-next=unused-argument
+def check_enumerator_name(node: ir.Node, module_prefixes: ModulePrefixLookup) -> bool:
+    """Check that all enumerators inside an enum use the module prefix and are
+    all uppercase"""
+    name: str = node.Name
+    if not name:  # we only need to do something, when we have any name
+        return True
+
+    prefix = get_prefix_for_node(node, module_prefixes)
+    if not prefix:  # something went really wrong; prefix must be defined
+        return False
+
+    # Enumerator prefixes need to be uppercase
+    prefix = tuple(i.upper() for i in prefix)
+    if not name.startswith(prefix):
+        return False
+
+    # we have a name, that starts with a valid prefix, remove the prefix and
+    # check rest of the name
+    name = remove_prefix(name, prefix)
+
+    name, unit = split_name_and_unit(name)
+
+    if not validate_suffix(unit):  # Enumerator uses an invalid unit as suffix
+        return False
+
+    # at this point, 'name' must only consist of alphanumerics and underscores
+    if not name.replace("_", "").isalnum():
+        return False
+
+    # Finally, enumerator names need to be entirely uppercase and this is the
+    # last check to be performed and we can exit with this checks return value
+    return name.isupper()
+
+
+def check_function_name(node: ir.Node, module_prefixes: ModulePrefixLookup) -> bool:
+    """Checks that a function name is PascalCase and uses a valid prefix."""
+    name: str = node.Name
+    if not name:  # we only need to do something, when we have any name
+        return True
+
+    prefix = get_prefix_for_node(node, module_prefixes)
+    if not prefix:  # something went really wrong; prefix must be defined
+        return False
+
+    # Now we have the default prefix
+    # If its a test file, the prefix 'test_' is also fine, as Ceedling requires
+    # a 'test' prefix.
+    # If its not a test file, than it's a source file; source files may
+    # externalize static functions for  unit testing, then the prefix is
+    # 'TEST_<PREFIX>_'
+    if node.Physical.SLoc.Full_Name.startswith("test_"):
+        prefixes = prefix + ("test",)
+    else:
+        prefixes = prefix + (f"TEST_{prefix[0]}",)
+    if not name.startswith(prefixes):
+        return False
+
+    # we have a name, that starts with a valid prefix, remove the prefix and
+    # check rest of the name
+    name = remove_prefix(name, prefixes)
+
+    # at this point, 'name' must only consist of alphanumerics as we have
+    # removed the prefix (that includes an underscore)
+    if not name.isalnum():
+        return False
+
+    # Finally, function names need to be PascalCase and this is the last check
+    # to be performed and we can exit with this checks return value
+    return is_pascal_case(name)
+
+
+# pylint: disable-next=too-many-return-statements
+def check_global_variable_name(
+    node: ir.Node, module_prefixes: ModulePrefixLookup
+) -> bool:
+    """Checks that a variable name is a camelName base name and an
+    optional suffix that indicates the unit."""
+    name: str = node.Name
+    if not name:  # we only need to do something, when we have any name
+        return True
+
+    prefix = get_prefix_for_node(node, module_prefixes)
+    if not prefix:  # something went really wrong; prefix must be defined
+        return False
+
+    # global variable prefixes need to be lowercase
+    prefix = tuple(i.lower() for i in prefix)
+    if not name.startswith(prefix):
+        return False
+
+    # we have a name, that starts with a valid prefix, remove the prefix and
+    # check rest of the name
+    name = remove_prefix(name, prefix)
+
+    name, unit = split_name_and_unit(name)
+
+    if not validate_suffix(unit):  # Variable uses an invalid unit as suffix
+        return False
+
+    # at this point, 'name' must only consist of alphanumerics as we have
+    # removed the prefix (that includes an underscore) and the suffix (which
+    # could tool include a suffix)
+    if not name.isalnum():
+        return False
+
+    # data blocks follow a specific pattern
+    if unparse_type(node.Its_Type).startswith("DATA_BLOCK_"):
+        if "data_" in prefix:  # prefixes are here already lowercase
+            start = "database"
+        else:
+            start = "other"
+        if not valid_database_variable(name, start):
+            return False
+
+    # Finally, global variable names need to be camelCase and this is the last
+    # check to be performed and we can exit with this checks return value
+    return is_camel_case(name)
+
+
+# pylint: disable-next=too-many-return-statements
+def check_local_variable_name(
+    node: ir.Node, module_prefixes: ModulePrefixLookup
+) -> bool:
+    """Checks that a variable name is a camelName base name and an
+    optional suffix that indicates the unit."""
+    name: str = node.Name
+    if not name:  # we only need to do something, when we have any name
+        return True
+
+    prefix = get_prefix_for_node(node, module_prefixes)
+    if not prefix:  # something went really wrong; prefix must be defined
+        return False
+    # we need to distinguish between static and normal variables within the
+    # function
+    require_prefix = False
+    if node.type() == "Local_Static_Regular_Variable":
+        require_prefix = True
+
+    if require_prefix:
+        # local static variable prefixes need to be lowercase
+        prefix = tuple(i.lower() for i in prefix)
+        if not name.startswith(prefix):
+            return False
+
+        # we have a name, that starts with a valid prefix, remove the prefix
+        # and check rest of the name
+        name = remove_prefix(name, prefix)
+
+    name, unit = split_name_and_unit(name)
+
+    if not validate_suffix(unit):  # Variable uses an invalid unit as suffix
+        return False
+
+    # at this point, 'name' must only consist of alphanumerics as we have
+    # removed the prefix (that includes an underscore) and the suffix (which
+    # could tool include a suffix)
+    if not name.isalnum():
+        return False
+
+    # data blocks follow a specific pattern
+    if unparse_type(node.Its_Type).startswith("DATA_BLOCK_"):
+        if "data_" in prefix:  # prefixes are here already lowercase
+            start = "database"
+        else:
+            start = "other"
+        if not valid_database_variable(name, start):
+            return False
+
+    # Finally, all local variable names need to be camelCase and this is the
+    # last check to be performed and we can exit with this checks return value
+    return is_camel_case(name)
+
+
+# pylint: disable-next=too-many-return-statements
+def check_macro_name(node: ir.Node, module_prefixes: ModulePrefixLookup) -> bool:
+    """Check that the macro starts with the upper-case module prefixed followed by
+    an underscore (exception: include guard macro 'FOXBMS__{FILENAME}_H_')."""
     # ignore compiler builtins
     if (
         not node.type() == "Predefined_Object_Macro_Definition"
@@ -205,110 +462,53 @@ def check_macro_name(node: ir.Node, module_prefixes: ModulePrefixLookup) -> bool
     ):
         logging.debug("node.Name: %s", node.Name)
     else:
-        logging.getLogger().setLevel(logging.FATAL)  # ignore output
+        return True
 
-    for file in containing_modules(node):
-        if file in module_prefixes:
-            logging.debug("found prefix: %s", module_prefixes[file])
-            if not node.Name.startswith(module_prefixes[file].upper() + "_"):
-                logging.debug("Check if '%s' is a include guard.", node.Name)
-                # check that we are not hitting an include guard, as
-                # include guards use the pattern 'FOXBMS__{FILENAME}_H_'
-                file_name_to_guard = "".join(
-                    ch.upper() if ch.isalnum() else "_" for ch in Path(file.Name).stem
-                )
-                define_guard = f"FOXBMS__{file_name_to_guard}_H_"
-                if node.Name == define_guard:
-                    logging.debug("found include guard ('%s').", node.Name)
-                    logging.debug("Done for '%s'.\n", node.Name)
-                    return True
-                logging.debug("'%s' is not an include guard.", node.Name)
-            # we have not hit an include guard, now check that the macro starts
-            # with the prefix is all uppercase and optionally ends with one of
-            # the valid suffixes
-            if not node.Name.startswith(module_prefixes[file].upper() + "_"):
-                # macro does not use the module prefix
-                logging.error("'%s' is missing the prefix.", node.Name)
-                logging.debug("Done for '%s'.\n", node.Name)
-                return False
-            if node.Name == node.Name.upper():
-                logging.debug("'%s' uses a valid name.", node.Name)
-                logging.debug("Done for '%s'.\n", node.Name)
-                return True
-            # we start with the prefix, but the macro is not all uppercase,
-            # so maybe we appended a valid suffix
-            for suffix in VALID_SUFFIXES:
-                if node.Name.endswith(f"_{suffix}"):
-                    # remove the suffix, then we need to be all uppercase
-                    # we need to subtract additionally -1 because of the underscore
-                    without_suffix = node.Name[: len(node.Name) - len(suffix) - 1]
-                    if without_suffix == without_suffix.upper():
-                        logging.debug("Done for '%s'.\n", node.Name)
-                        return True
-    logging.error("'%s' uses an invalid macro name.", node.Name)
-    logging.debug("Done for '%s'.\n", node.Name)
-    logging.getLogger().setLevel(logging.DEBUG)  # reset logging level
-    return False
+    name: str = node.Name
+    if not name:  # we only need to do something, when we have any name
+        return True
 
+    temp = str(node.Original_Position).rsplit(":", maxsplit=2)[0]
+    # Check if we found a define guard
+    guard = "".join(ch.upper() if ch.isalnum() else "_" for ch in Path(temp).stem)
+    if node.Name == f"FOXBMS__{guard}_H_":
+        return True
 
-def check_prefix_known(node: ir.Node, module_prefixes: ModulePrefixLookup) -> bool:
-    """check that a module prefix exists for the current node."""
-    if node.Name:
-        for file in containing_modules(node):
-            if file in module_prefixes:
-                return True
-        return False
-    return True
+    # it's not a define guard, so we need to check the details
 
-
-def check_function_name(node: ir.Node, module_prefixes: ModulePrefixLookup) -> bool:
-    """Checks that a function name consists of PascalName base name and an
-    optional suffix that indicates the unit."""
-    prefix = None
-    if node.Name:
-        for file in containing_modules(node):
-            if file in module_prefixes:
-                prefix = module_prefixes[file].upper() + "_"
-    if not prefix:  # something went wrong
+    prefix = get_prefix_for_node(node, module_prefixes)
+    if not prefix:  # something went really wrong; prefix must be defined
         return False
 
-    base_name = ""
-    if node.Name.startswith(prefix):
-        base_name = node.Name[len(prefix) :]
-    else:
+    # macro prefixes need to be uppercase
+    prefix = tuple(i.upper() for i in prefix)
+    if not name.startswith(prefix):
         return False
 
-    base_name_splitted = base_name.split("_", maxsplit=1)
-    function_name = base_name_splitted[0]
-    try:  # TODO: will not work if suffix contains underscore
-        function_name_suffix = base_name_splitted[1]
-    except IndexError:
-        function_name_suffix = None
+    # we have a name, that starts with a valid prefix, remove the prefix and
+    # check rest of the name
+    name = remove_prefix(name, prefix)
 
-    idx = []
-    for i, val in enumerate(function_name):
-        if val.isupper():
-            idx.append(i)
+    name, unit = split_name_and_unit(name)
 
-    valid_pascal_case = True
-    # any valid PascalCase word needs to start with an uppercase letter
-    if not function_name[0].upper() == function_name[0]:
-        valid_pascal_case = False
-    for i in range(1, len(idx)):
-        # if the difference between two indexes is 1, we are not seeing PascalCase
-        if idx[i] - idx[i - 1] == 1:
-            valid_pascal_case = False
-            break
+    if not validate_suffix(unit):  # Macro uses an invalid unit as suffix
+        return False
 
-    valid_suffix = validate_suffix(function_name_suffix)
-    return valid_pascal_case and valid_suffix
+    # at this point, 'name' must only consist of alphanumerics and underscores
+    if not name.replace("_", "").isalnum():
+        return False
+
+    # Finally, macro names need to be entirely uppercase and this is the
+    # last check to be performed and we can exit with this checks return value
+    return name.isupper()
 
 
-# pylint: disable=unused-argument
+# pylint: disable-next=unused-argument
 def check_parameter_name(node: ir.Node, module_prefixes: ModulePrefixLookup) -> bool:
     """Checks that a parameter name is a camelName base name and an
     optional suffix that indicates the unit."""
-    if not node.Name:
+    name: str = node.Name
+    if not name:  # we only need to do something, when we have any name
         return True
 
     # check for const and pointer prefixes
@@ -362,97 +562,164 @@ def check_parameter_name(node: ir.Node, module_prefixes: ModulePrefixLookup) -> 
     return all([valid_indicator, valid_camel_case, valid_suffix])
 
 
-def check_global_variable_name(
+# pylint: disable-next=unused-argument
+def check_struct_field_name(node: ir.Node, module_prefixes: ModulePrefixLookup) -> bool:
+    """Checks that..."""
+    name: str = node.Name
+    if not name:  # we only need to do something, when we have any name
+        return True
+
+    name, unit = split_name_and_unit(name)
+
+    if not validate_suffix(unit):  # Variable uses an invalid unit as suffix
+        return False
+
+    # at this point, 'name' must only consist of alphanumerics as we have
+    # removed the prefix (that includes an underscore) and the suffix (which
+    # could tool include a suffix)
+    if not name.isalnum():
+        return False
+
+    # Finally, all local variable names need to be camelCase and this is the
+    # last check to be performed and we can exit with this checks return value
+    return is_camel_case(name)
+
+
+def check_typedefed_enum_name(
     node: ir.Node, module_prefixes: ModulePrefixLookup
 ) -> bool:
-    """Checks that a variable name is a camelName base name and an
-    optional suffix that indicates the unit."""
-    if not node.Name:
+    """Check that all typedefed enums use the module prefix, are
+    all uppercase, and end with '_e'."""
+    name: str = node.Name
+    if not name:  # we only need to do something, when we have any name
         return True
-    prefix = None
-    if node.Name:
-        for file in containing_modules(node):
-            if file in module_prefixes:
-                prefix = module_prefixes[file].lower() + "_"
-    if not prefix:  # something went wrong
+
+    prefix = get_prefix_for_node(node, module_prefixes)
+    if not prefix:  # something went really wrong; prefix must be defined
         return False
 
-    base_name = ""
-    if node.Name.startswith(prefix):
-        base_name = node.Name[len(prefix) :]
-    else:
+    if not name.startswith(prefix):
         return False
 
-    base_name_splitted = base_name.split("_", maxsplit=1)
-    variable_name = base_name_splitted[0]
-    try:
-        variable_name_suffix = base_name_splitted[1]
-    except IndexError:
-        variable_name_suffix = None
+    if not name.endswith("_e"):
+        return False
 
-    idx = []
-    for i, val in enumerate(variable_name):
-        if val.isupper():
-            idx.append(i)
+    if not name[:-2].isupper():
+        return False
 
-    valid_camel_case = True
-    # any valid camelCase word needs to start with an lowercase letter
-    if not variable_name[0].lower() == variable_name[0]:
-        valid_camel_case = False
-    for i in range(1, len(idx)):
-        # if the difference between two indexes is 1, we are not seeing camelCase
-        if idx[i] - idx[i - 1] == 1:
-            valid_camel_case = False
-            break
+    return True
 
-    valid_suffix = validate_suffix(variable_name_suffix)
-    return valid_camel_case and valid_suffix
+
+def check_typedefed_struct_name(
+    node: ir.Node, module_prefixes: ModulePrefixLookup
+) -> bool:
+    """Check that all typedefed strucs use the module prefix, are
+    all uppercase, and end with '_s'."""
+    name: str = node.Name
+    if not name:  # we only need to do something, when we have any name
+        return True
+
+    prefix = get_prefix_for_node(node, module_prefixes)
+    if not prefix:  # something went really wrong; prefix must be defined
+        return False
+
+    if not name.startswith(prefix):
+        return False
+
+    if not name.endswith("_s"):
+        return False
+
+    if not name[:-2].isupper():
+        return False
+
+    return True
+
+
+UNKOWN_PREFIX = "Unknown which module prefix to check."
+ERROR_MESSAGES = {
+    "Enumerator": (
+        "Enumerator names shall (1) use the uppercase module prefix followed "
+        "by an underscore, (2) be all uppercase, (3) separate words by "
+        "underscores, and optional (4) use a phyiscal unit as suffix."
+    ),
+    "Function": (
+        "Function names shall (1) use the uppercase module prefix followed by "
+        "an underscore and then (2) use PascalCase."
+    ),
+    "GlobalVariable": (
+        "Global variables names shall (1) use the lowercase module prefix "
+        "followed by an underscore and then (2) use camelCase, and optional "
+        "(3) use a phyiscal unit as suffix."
+    ),
+    "LocalVariable": (
+        "Local variables names shall (1) use the lowercase module prefix "
+        "followed by an underscore if they are static otherwise omit the "
+        "prefix and then (2) use camelCase, and optional (3) use a phyiscal "
+        "unit as suffix."
+    ),
+    "Macro": (
+        "Macro names shall (1) use the uppercase module prefix followed by an "
+        "underscore, (2) be all uppercase, (3) separate words by underscores, "
+        "and optional (4) use a phyiscal unit as suffix."
+    ),
+    "Parameter": (
+        "Paramater names shall (1) use camelCase, and optional (2) use a "
+        "phyiscal unit as suffix."
+    ),
+    "StructField": (
+        "Struct field names shall (1) use camelCase, and optional (2) use a "
+        "phyiscal unit as suffix."
+    ),
+    "TypedefedEnum": (
+        "Typedefed enum names shall (1) use the uppercase module prefix "
+        "followed by an underscore, (2) be all uppercase, (3) separate words "
+        "by underscores, and (3) end with '_e'."
+    ),
+    "TypedefedStruct": (
+        "Typedefed struct names shall (1) use the uppercase module prefix "
+        "followed by an underscore, (2) be all uppercase, (3) separate words "
+        "by underscores, and (3) end with '_s'."
+    ),
+}
+
+
+naming_errors = {
+    "Enumerator": [
+        (check_prefix_known, UNKOWN_PREFIX),
+        (check_enumerator_name, ERROR_MESSAGES["Enumerator"]),
+    ],
+    "Function": [
+        (check_prefix_known, UNKOWN_PREFIX),
+        (check_function_name, ERROR_MESSAGES["Function"]),
+    ],
+    "GlobalVariable": [
+        (check_prefix_known, UNKOWN_PREFIX),
+        (check_global_variable_name, ERROR_MESSAGES["GlobalVariable"]),
+    ],
+    "LocalVariable": [
+        (check_prefix_known, UNKOWN_PREFIX),
+        (check_local_variable_name, ERROR_MESSAGES["LocalVariable"]),
+    ],
+    "Macro": [
+        (check_prefix_known, UNKOWN_PREFIX),
+        (check_macro_name, ERROR_MESSAGES["Macro"]),
+    ],
+    "Parameter": [(check_parameter_name, ERROR_MESSAGES["Parameter"])],
+    "StructField": [(check_struct_field_name, ERROR_MESSAGES["StructField"])],
+    "TypedefedEnum": [
+        (check_prefix_known, UNKOWN_PREFIX),
+        (check_typedefed_enum_name, ERROR_MESSAGES["TypedefedEnum"]),
+    ],
+    "TypedefedStruct": [
+        (check_prefix_known, UNKOWN_PREFIX),
+        (check_typedefed_struct_name, ERROR_MESSAGES["TypedefedStruct"]),
+    ],
+}
 
 
 NAMING = "CodingStyle-Naming"
-prefix_check = {
-    "lower": (
-        f"{NAMING}.GlobalVariable",
-        f"{NAMING}.LocalVariable",
-    ),
-    "upper": (
-        f"{NAMING}.Function",
-        f"{NAMING}.TypedefedFuncPtr",
-        f"{NAMING}.TypedefedEnum",
-        f"{NAMING}.TypedefedStruct",
-    ),
-}
-
-for casing, applicable_rules in prefix_check.items():
-    for rule in applicable_rules:
-        RULE_TYPE = get_rule_type_from_name(rule)
-        error_message = f"Please use {casing}case module prefix for {RULE_TYPE}."
-        ANALYSIS[rule].additional_checks.extend(
-            [
-                (check_prefix_known, UNKNOWN_PREFIX_ERROR_MESSAGE),
-                (globals()[f"check_{casing}case_prefix"], error_message),
-            ]
-        )
-
-FUNCTION_NAME_ERROR_MESSAGE = "The function name is not 'PascalCase'."
-GLOBAL_VARIABLE_ERROR_MESSAGE = "The global variable name is not 'camelCase'."
-MACRO_ERROR_MESSAGE = "The macro name is not 'ALL_CAPS'."
-PARAMETER_ERROR_MESSAGE = (
-    "The parameter name is not 'camelCase' or does not "
-    "pre- or suffix the parameter correctly."
-)
-STRUCT_MEMBER_NAME_ERROR_MESSAGE = "The struct member name is not 'camelCase'."
-naming_errors = {
-    "Function": (check_function_name, FUNCTION_NAME_ERROR_MESSAGE),
-    "GlobalVariable": (check_global_variable_name, GLOBAL_VARIABLE_ERROR_MESSAGE),
-    "Macro": (check_macro_name, MACRO_ERROR_MESSAGE),
-    "Parameter": (check_parameter_name, PARAMETER_ERROR_MESSAGE),
-    # struct member and parameter follow the same convention
-    "StructField": (check_parameter_name, STRUCT_MEMBER_NAME_ERROR_MESSAGE),
-}
-
 for applicable_rule, handling in naming_errors.items():
-    ANALYSIS[f"{NAMING}.{applicable_rule}"].additional_checks.append(handling)
+    ANALYSIS[f"{NAMING}.{applicable_rule}"].additional_checks.extend(handling)
 
 
 # Only check function pointers with rule CodingStyle-Naming.TypedefedFuncPtr

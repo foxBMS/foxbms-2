@@ -43,8 +43,8 @@
  * @file    test_fram.c
  * @author  foxBMS Team
  * @date    2020-04-01 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -63,11 +63,11 @@
 
 #include "fram_cfg.h"
 #include "spi_cfg.h"
-#include "version_cfg.h"
 
 #include "fassert.h"
 #include "fram.h"
 #include "test_assert_helper.h"
+#include "version.h"
 
 #include <stdbool.h>
 
@@ -79,9 +79,10 @@ TEST_INCLUDE_PATH("../../src/app/driver/fram")
 TEST_INCLUDE_PATH("../../src/app/driver/io")
 TEST_INCLUDE_PATH("../../src/app/driver/spi")
 TEST_INCLUDE_PATH("../../src/app/engine/diag")
+TEST_INCLUDE_PATH("../../src/version")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
-const VER_VERSION_s ver_foxbmsVersionInformation VER_VERSION_INFORMATION = {
+VER_VERSION_s ver_versionInformation VER_VERSION_INFORMATION = {
     .underVersionControl     = true,
     .isDirty                 = true,
     .major                   = 120,
@@ -127,11 +128,8 @@ void testFRAM_WriteData(void) {
     /* ======= RT1/x: Test implementation */
     uint64_t crc           = 0u;
     uint8_t pWrite         = 0u;
-    uint32_t lengthInBytes = 0u;
+    uint32_t lengthInBytes = 6u;
     CRC_CalculateCrc_ExpectAndReturn(&crc, &pWrite, lengthInBytes, STD_NOT_OK);
-    CRC_CalculateCrc_IgnoreArg_pCrc();
-    CRC_CalculateCrc_IgnoreArg_pData();
-    CRC_CalculateCrc_IgnoreArg_lengthInBytes();
     FRAM_RETURN_TYPE_e ret = FRAM_WriteData(FRAM_BLOCK_ID_VERSION);
     TEST_ASSERT_EQUAL(FRAM_ACCESS_CRC_BUSY, ret);
 }

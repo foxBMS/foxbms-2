@@ -40,23 +40,30 @@
 """Checks that the GitLab CI configuration adheres to some rules"""
 
 import logging
+import os
 import sys
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from pathlib import Path
 
 import yaml
+from click import secho
 
-from ..helpers.ansi_colors import RED
-from ..helpers.misc import PROJECT_ROOT, eprint
+from ..helpers.misc import PROJECT_ROOT
 
-CI_CONFIG = PROJECT_ROOT / ".gitlab-ci.yml"
+CI_MAIN_CONFIG = PROJECT_ROOT / ".gitlab-ci.yml"
+CI_PIPELINE_DIR = PROJECT_ROOT / ".gitlab/ci_pipeline"
 
 
-@dataclass
+@dataclass(order=True)
 class Stage:
     """container for stage"""
 
+    sort_index: int = field(init=False)
     name: str
     prefix: str
+
+    def __post_init__(self):
+        self.sort_index = self.name
 
 
 class VerificationError:  # pylint:disable=too-few-public-methods
@@ -72,30 +79,104 @@ class VerificationError:  # pylint:disable=too-few-public-methods
         return self.error_level
 
 
-def check_ci_config() -> int:
-    """Reads the '.gitlab-ci.yml' file and validates it"""
-    err = 0
-    if not CI_CONFIG.is_file():
-        eprint(f"File '{CI_CONFIG}' does not exist.", err=True, color=RED)
-        err += 1
-    if err:
-        return err
-    with open(CI_CONFIG, encoding="utf-8") as f:
+def read_config() -> dict:
+    """Reads the '.gitlab-ci.yml' file"""
+    with open(CI_MAIN_CONFIG, encoding="utf-8") as f:
         ci_config_txt = f.read()
         try:
             ci_config: dict = yaml.load(ci_config_txt, Loader=yaml.Loader)
         except yaml.YAMLError as exc:
-            sys.exit(f"{CI_CONFIG} is not a valid yaml file {exc}).")
+            sys.exit(f"{CI_MAIN_CONFIG} is not a valid yaml file {exc}).")
+    err = 0
+    if "include" not in ci_config.keys():
+        sys.exit(f"Expected 'include' key to be defined in '{CI_MAIN_CONFIG}'.")
 
+    for included_yml in ci_config["include"]:
+        tmp = Path(included_yml["local"])
+        if not tmp.is_file():
+            err += 1
+            logging.error("Could not find file '%s'.", tmp)
+            continue
+
+        included_ci_config_txt = tmp.read_text(encoding="utf-8")
+        try:
+            included_ci_config: dict = yaml.load(
+                included_ci_config_txt, Loader=yaml.Loader
+            )
+        except yaml.YAMLError as exc:
+            err += 1
+            logging.error(
+                "'%s' is not a valid yaml file '%s'.",
+                included_yml["local"],
+                exc,
+            )
+            continue
+        ci_config = {**ci_config, **included_ci_config}
+    # del ci_config["include"]
+
+    if err:
+        sys.exit("Could not find some included file(s).")
+    return ci_config
+
+
+def get_stages(ci_config: dict) -> list[Stage]:
+    """Returns a list of stage objects"""
     stages = [
         Stage(i, "".join([j[0] for j in i.split("_")]))
         for i in ci_config.get("stages", [])
     ]
     if not stages:
         sys.exit("Could not determine stages.")
+    return stages
+
+
+def check_ci_config() -> int:  # pylint:disable=too-many-branches
+    """Reads the '.gitlab-ci.yml' file and validates it."""
+    if not CI_MAIN_CONFIG.is_file():
+        secho(f"File '{CI_MAIN_CONFIG}' does not exist.", fg="reg", err=True)
+        return 1
+
+    ci_config = read_config()
+
+    stages = get_stages(ci_config)
+
+    tmp = []
+    for i in stages:  # configure is not an own file
+        if i.name != "configure":
+            tmp.append(i)
+
+    stage_files = list(CI_PIPELINE_DIR.glob("*.yml"))
+
+    if len(tmp) != len(stage_files):
+        secho(
+            f"Number of stages ({len(tmp)}) does not match the number "
+            f"stage files ({len(stage_files)}).",
+            fg="red",
+            err=True,
+        )
+        return 1
+
+    if len(ci_config["include"]) != len(stage_files):
+        secho(
+            f"Number of included stages ({len(ci_config['include'])} does "
+            f"not match the number stage files {len(stage_files)}.",
+            fg="red",
+            err=True,
+        )
+        secho(
+            f"included files: {os.linesep.join(sorted(i['local'] for i in ci_config['include']))}",
+            fg="red",
+            err=True,
+        )
+        secho(
+            f"stage files: {os.linesep.join(sorted(i for i in stage_files))}",
+            fg="red",
+            err=True,
+        )
+        return 1
 
     # check that all job use the correct prefix
-    special_keys = ["variables", "workflow", "stages", "before_script"]
+    special_keys = ["variables", "workflow", "stages", "before_script", "include"]
     prefixes = tuple(f"{i.prefix}_" for i in stages)
     error = VerificationError()
     for k in ci_config.keys():
@@ -104,23 +185,37 @@ def check_ci_config() -> int:
         if not k.startswith(prefixes):
             error.log(f"Job '{k}' uses the wrong prefix.")
 
-    # all files that are listed in '.parallel-build-bin-and-spa' shall be
-    # gathered along with the respective binaries
-    parallel_build_bin_and_spa_artifact_strings = []
-    for i in ci_config[".parallel-build-bin-and-spa-template"]["parallel"]["matrix"]:
+    if not (
+        ci_config[".parallel-build_app_embedded-template"]
+        == ci_config[".parallel-build_app_spa-template"]
+    ):
+        err_msg = (
+            "Error:The build matrix defined in\n"
+            f"  {CI_PIPELINE_DIR / 'build_app_embedded.yml'}: "
+            "key '.parallel-build_app_embedded-template'\nand\n"
+            f"  {CI_PIPELINE_DIR / 'static_program_analysis.yml'}: "
+            "key '.parallel-build_app_spa-template'\n"
+            "need to be equal."
+        )
+        secho(err_msg, fg="red", err=True)
+
+    # all files that are listed in '.parallel-build_app_embedded-and-spa' shall
+    # be gathered along with the respective binaries
+    parallel_build_app_embedded_and_spa_artifact_strings = []
+    for i in ci_config[".parallel-build_app_embedded-template"]["parallel"]["matrix"]:
         artifact_parts = []
         for _, v in i.items():
             artifact_parts.append(str(v))
         artifact_string = ", ".join(artifact_parts)
-        parallel_build_bin_and_spa_artifact_strings.append(artifact_string)
+        parallel_build_app_embedded_and_spa_artifact_strings.append(artifact_string)
 
     # construct expected binaries so that none is missed.
     # creating jobs are 'bb_all_config_variants' and 'spa_build'
     expected = []
-    for i in parallel_build_bin_and_spa_artifact_strings:
+    for i in parallel_build_app_embedded_and_spa_artifact_strings:
         expected.extend(
             [
-                f"bb_all_config_variants_0: [{i}]",
+                f"bae_all_config_variants: [{i}]",
                 f"spa_build: [{i}]",
             ]
         )
@@ -131,7 +226,7 @@ def check_ci_config() -> int:
         )
 
     # all testes that are run on the HIL shall be defined via the
-    # ".parallel-build-bin-and-spa" key.
+    # ".parallel-build_app_embedded-and-spa" key.
     # all HIL tests shall start with 'th_test', expect for the known helpers
     for k, v in ci_config.items():
         if not k.startswith("th_"):
@@ -147,18 +242,35 @@ def check_ci_config() -> int:
             error.log(
                 f"The first entry for '{k}:needs:' shall be 'th_ensure_power_supply_is_off'.",
             )
-        if len(needs) > 2:
+
+        if k == "th_bootload_on_hardware_unit_tests":
+            if not needs[-1] == "bbe_tms570_on_hardware_unit_test":
+                error.log(
+                    f"The last entry for '{k}:needs:' shall be 'bbe_tms570_on_hardware_unit_test'.",
+                )
+            continue
+        if k == "th_flash_and_test_bootloader":
+            if not needs[-1] == "bbe_tms570":
+                error.log(
+                    f"The last entry for '{k}:needs:' shall be 'bbe_tms570'.",
+                )
+            continue
+        if not needs[-1] == "th_flash_and_test_bootloader":
+            # ensure that the bootloader has been flashed
+            error.log(
+                f"The last entry for '{k}:needs:' shall be 'th_flash_and_test_bootloader'.",
+            )
+        if len(needs) > 3:
             error.log(f"Too many artifacts specified in '{k}:needs:'.")
-        if len(needs) < 2:
+        if len(needs) < 3:
             error.log(f"Too few artifacts specified in '{k}:needs:'.")
             continue
         # second element now guaranteed
         if needs[1] not in [
-            x for x in expected if x.startswith("bb_all_config_variants_0: [")
+            x for x in expected if x.startswith("bae_all_config_variants: [")
         ]:
             error.log(
                 f"The test '{k}' specifies an artifact that is is not "
-                "specified in '.parallel-build-bin-and-spa'",
+                "specified in '.parallel-build_app_embedded-and-spa'",
             )
-
     return min(error.error_level, 255)

@@ -43,8 +43,8 @@
  * @file    test_can_cbs_tx_debug-build-configuration.c
  * @author  foxBMS Team
  * @date    2023-02-09 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -57,10 +57,10 @@
 #include "Mockcan.h"
 #include "Mockcan_helper.h"
 
+#include "app_build_cfg.h"
 #include "battery_cell_cfg.h"
 #include "battery_system_cfg.h"
 #include "can_cfg.h"
-#include "version_cfg.h"
 
 #include "can_cbs_tx_debug-build-configuration.h"
 #include "can_cfg_tx-async-message-definitions.h"
@@ -76,9 +76,9 @@ TEST_INCLUDE_PATH("../../src/app/driver/can/cbs/tx-async")
 TEST_INCLUDE_PATH("../../src/app/driver/config")
 TEST_INCLUDE_PATH("../../src/app/driver/foxmath")
 TEST_INCLUDE_PATH("../../src/app/driver/rtc")
-TEST_INCLUDE_PATH("../../src/app/main/include/config")
 TEST_INCLUDE_PATH("../../src/app/task/config")
 TEST_INCLUDE_PATH("../../src/app/task/ftask")
+TEST_INCLUDE_PATH("../../src/version")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 uint64_t testMessageData[9u] = {0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u};

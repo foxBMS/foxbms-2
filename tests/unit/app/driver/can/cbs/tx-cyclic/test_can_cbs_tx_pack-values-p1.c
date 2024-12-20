@@ -43,8 +43,8 @@
  * @file    test_can_cbs_tx_pack-values-p1.c
  * @author  foxBMS Team
  * @date    2023-05-31 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -241,8 +241,8 @@ void testCANTX_PackValuesP1(void) {
 
     /* ======= Routine tests =============================================== */
     /* ======= RT1/1: Test implementation */
-    CAN_TxPrepareSignalData_Ignore();
     DATA_Read1DataBlock_ExpectAndReturn(can_kShim.pTableInsulation, STD_OK);
+    CAN_TxPrepareSignalData_Expect(&testInsulationResistance_kOhm, cantx_testSignalInsulationResistance);
     CAN_TxSetMessageDataWithSignalData_Expect(
         &testMessageData[0u], 7u, 13u, testInsulationResistance_kOhm, CAN_BIG_ENDIAN);
     CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[1u]);

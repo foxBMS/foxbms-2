@@ -4,8 +4,8 @@ Creating the Cyclic Transmit Message
 In this example a message to transmit the system status is implemented.
 The name of the message is therefore ``BmsState`` (following PascalCase naming
 convention).
-In the symbol file the message is implemented as ``foxBMS_BmsState`` (prefix
-``foxBMS`` followed by the message name) and the message ID ``0x220``.
+In the symbol file the message is implemented as ``f_BmsState`` (prefix
+``f`` followed by the message name) and the message ID ``0x220``.
 As the message is transmitted (``tx``) from the point of view of the BMS, the
 comment in the symbol file must be
 ``Message containing the foxBMS system state (in:can_cbs_tx_bms-state.c:CANTX_BmsState, fv:tx)``.
@@ -99,8 +99,32 @@ Verification
 Run the check scripts to verify that the messages are implemented as described
 in this how-to.
 
-.. code-block:: powershell
-   :caption: Verify CAN transmit message definition and callback implementation
+.. tabs::
 
-   PS C:\Users\vulpes\Documents\foxbms-2> .\fox.ps1 run-script tests/can/check_ids.py
-   PS C:\Users\vulpes\Documents\foxbms-2> .\fox.ps1 run-script tests/can/check_implemented.py
+   .. group-tab:: Win32/PowerShell
+
+      .. code-block:: powershell
+
+         .\fox.ps1 run-script tests\can\check_ids.py
+         .\fox.ps1 run-script tests\can\check_implemented.py
+
+   .. group-tab:: Win32/cmd.exe
+
+      .. code-block:: bat
+
+         fox.bat run-script tests\can\check_ids.py
+         fox.bat run-script tests\can\check_implemented.py
+
+   .. group-tab:: Win32/Git bash
+
+      .. code-block:: shell
+
+         ./fox.sh run-script tests/can/check_ids.py
+         ./fox.sh run-script tests/can/check_implemented.py
+
+   .. group-tab:: Linux
+
+      .. code-block:: shell
+
+         ./fox.sh run-script tests/can/check_ids.py
+         ./fox.sh run-script tests/can/check_implemented.py

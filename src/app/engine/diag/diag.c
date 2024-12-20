@@ -43,8 +43,8 @@
  * @file    diag.c
  * @author  foxBMS Team
  * @date    2019-11-28 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup ENGINE
  * @prefix  DIAG
  *
@@ -58,8 +58,10 @@
 /*========== Includes =======================================================*/
 #include "diag.h"
 
+#include "can_cbs_tx_fatal-error.h"
 #include "fstd_types.h"
 #include "os.h"
+#include "timer.h"
 
 #include <stdint.h>
 
@@ -74,6 +76,24 @@ static DIAG_DEV_s *diag_devptr;
 
 /** superb implementation of a mutex for the diag module */
 static uint8_t diag_locked = 0;
+
+/** array to store active errors*/
+static uint8_t diag_activeFatalErrors[DIAG_ID_MAX] = {0};
+
+/** counter to keep track of how many fatal errors are active*/
+static uint8_t diag_activeFatalErrorCount = 0;
+
+/** timer to periodically resend the fatal errors*/
+static TimerHandle_t diag_fatalErrorResendTimer;
+
+/** fatal error resend period*/
+static uint32_t diag_fatalErrorResendTimerID = DIAG_FatalErrorResendTimerID;
+
+/** fatal error resend period*/
+static uint32_t diag_fatalErrorResendPeriod = 100;
+
+/** buffer for our timer since we created a static one*/
+static StaticTimer_t diag_timerBuffer;
 
 /*========== Extern Constant and Variable Definitions =======================*/
 
@@ -95,7 +115,7 @@ static uint8_t DIAG_EntryWrite(uint8_t eventID, DIAG_EVENT_e event, uint32_t dat
 
 /*========== Static Function Implementations ================================*/
 /**
- * @brief   DIAG_Reset resetsall needed structures
+ * @brief   DIAG_Reset resets all needed structures
  * @details This function gets called during initialization of the diagnose
  *          module. It clears memory and counters used by diag later on.
  */
@@ -108,7 +128,73 @@ static void DIAG_Reset(void) {
         diag.entry_cnt[i] = 0;
     }
     diag.errcnttotal = 0;
-    diag_locked      = 0;
+
+    /* Reset occurrence counter */
+    for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
+        for (uint32_t i = 0u; i < DIAG_ID_MAX; i++) {
+            diag.occurrenceCounter[s][i] = 0;
+        }
+    }
+
+    diag_locked = 0;
+}
+
+/**
+ * @brief   DIAG_SetFatalErrorById checks whether the error has been send before and if not
+ *          send it per CAN. DO NOT use DIAG_ID_MAX!
+ * @details Checks if a certain event ID has already been marked as error and send via CAN.
+ *          If not we send it and note is in the diag_activeFatalErrors array.
+ */
+
+static void DIAG_SetFatalErrorById(DIAG_ID_e xEventID) {
+    FAS_ASSERT(xEventID < DIAG_ID_MAX);
+    if (diag_activeFatalErrors[xEventID] == 0u) {
+        CANTX_SendFatalErrorId(xEventID);
+        diag_activeFatalErrors[xEventID] = 1u;
+        if (diag_activeFatalErrorCount == 0u) {
+            TIMER_Start(diag_fatalErrorResendTimer, 0u);
+        }
+        diag_activeFatalErrorCount++;
+    }
+}
+
+/**
+ * @brief   DIAG_ClearFatalErrorById checks whether the error has been cleared before
+ *          and if not sends a clear message per CAN
+ *          DO NOT use DIAG_ID_MAX!
+ * @details Checks if a certain event ID has already been marked as error and send via CAN.
+ *          If it is we send it a cleared error message via CAN and mark it
+ *          in the diag_activeFatalErrors array.
+ */
+
+static void DIAG_ClearFatalErrorById(DIAG_ID_e xEventID) {
+    FAS_ASSERT(xEventID < DIAG_ID_MAX);
+    if (diag_activeFatalErrors[xEventID] != 0u) {
+        CANTX_SendFatalErrorId(DIAG_ID_MAX);
+        diag_activeFatalErrors[xEventID] = 0u;
+        diag_activeFatalErrorCount--;
+        if (diag_activeFatalErrorCount == 0u) {
+            TIMER_Stop(diag_fatalErrorResendTimer, 0u);
+        }
+    }
+}
+
+/**
+ * @brief   Callback to check all active errors and resend them via CAN
+ * @details Checks which errors are marked as active and resends them via CAN.
+ *          For better performance we first check the active fatal error count
+ *          to se if iterating is even necessary.
+ */
+static void DIAG_ResendFatalErrors(TimerHandle_t xTimer) {
+    /* AXIVION Routine Generic-MissingParameterAssert: xTimer: parameter accept whole range */
+    (void)xTimer;
+    if (diag_activeFatalErrorCount > 0u) {
+        for (uint32_t i = 0u; i < DIAG_ID_MAX; i++) {
+            if (diag_activeFatalErrors[i] == 1u) {
+                CANTX_SendFatalErrorId(i);
+            }
+        }
+    }
 }
 
 /*========== Extern Function Implementations ================================*/
@@ -178,12 +264,22 @@ STD_RETURN_TYPE_e DIAG_Initialize(DIAG_DEV_s *diag_dev_pointer) {
     for (uint16_t diagnosisEntry = 0u; diagnosisEntry < diag_dev_pointer->nrOfConfiguredDiagnosisEntries;
          diagnosisEntry++) {
         bool fatalErrorDetected = (bool)(diag_diagnosisIdConfiguration[diagnosisEntry].severity == DIAG_FATAL_ERROR);
-        bool discardDelay = (bool)(diag_diagnosisIdConfiguration[diagnosisEntry].delay_ms == DIAG_DELAY_DISCARDED);
+        bool discardDelay       = (bool)(diag_diagnosisIdConfiguration[diagnosisEntry].delay_ms == DIAG_DELAY_DISCARD);
         if (fatalErrorDetected && discardDelay) {
             /* Configuration error. Fatal error configured but delay is discared.*/
             FAS_ASSERT(FAS_TRAP);
         }
     }
+
+    /** Initialize and start timer to periodically resend the fatal errors */
+    diag_fatalErrorResendTimer = TIMER_Create(
+        "fatal_error_resend",
+        diag_fatalErrorResendPeriod,
+        true,
+        (void *)&diag_fatalErrorResendTimerID,
+        DIAG_ResendFatalErrors,
+        &diag_timerBuffer);
+
     diag.state = DIAG_STATE_INITIALIZED;
     return retval;
 }
@@ -224,8 +320,7 @@ static uint8_t DIAG_EntryWrite(uint8_t eventID, DIAG_EVENT_e event, uint32_t dat
     }
 
     if (++diag.entry_cnt[eventID] > DIAG_MAX_ENTRIES_OF_ERROR) {
-        /* this type of error has been recorded too many times -> ignore to avoid filling buffer with same failure codes
-         */
+        /* this type of error has been recorded too many times -> ignore to avoid filling buffer with same failure codes */
         diag.entry_cnt[eventID] = DIAG_MAX_ENTRIES_OF_ERROR;
         return ret_val;
     }
@@ -252,8 +347,11 @@ DIAG_RETURNTYPE_e DIAG_Handler(DIAG_ID_e diagId, DIAG_EVENT_e event, DIAG_IMPACT
     uint16_t err_enable_idx        = 0;
     uint32_t err_enable_bitmask    = 0;
 
-    DIAG_RECORDING_e recording_enabled;
     DIAG_EVALUATE_e evaluate_enabled;
+
+    if (diag_devptr == NULL_PTR) {
+        FAS_ASSERT(FAS_TRAP);
+    }
 
     if (diag.state == DIAG_STATE_UNINITIALIZED) {
         return DIAG_HANDLER_RETURN_NOT_READY;
@@ -287,7 +385,6 @@ DIAG_RETURNTYPE_e DIAG_Handler(DIAG_ID_e diagId, DIAG_EVENT_e event, DIAG_IMPACT
     u32ptr_warnCodemsk   = &diag.warnflag[err_enable_idx];
     u16ptr_threshcounter = &diag.occurrenceCounter[stringID][diagId];
     cfg_threshold        = diag_devptr->pConfigurationOfDiagnosisEntries[diag.id2ch[diagId]].threshold;
-    recording_enabled    = diag_devptr->pConfigurationOfDiagnosisEntries[diag.id2ch[diagId]].enable_recording;
     evaluate_enabled     = diag_devptr->pConfigurationOfDiagnosisEntries[diag.id2ch[diagId]].enable_evaluate;
 
     if (event == DIAG_EVENT_OK) {
@@ -299,14 +396,16 @@ DIAG_RETURNTYPE_e DIAG_Handler(DIAG_ID_e diagId, DIAG_EVENT_e event, DIAG_IMPACT
                 (*u16ptr_threshcounter)--; /* Error did not occur, decrement Error-Counter */
             } else if ((*u16ptr_threshcounter) == 1) {
                 /* else if ((*u16ptr_threshcounter) <= 1) */
-                /* Error did not occur, now decrement to zero and clear Error- or Warning-Flag and make recording if
-                 * enabled */
+                /* Error did not occur, now decrement to zero and clear Error- or Warning-Flag and make recording if enabled */
                 *u32ptr_errCodemsk &= ~err_enable_bitmask;  /* ERROR:   clear corresponding bit in errflag[idx] */
                 *u32ptr_warnCodemsk &= ~err_enable_bitmask; /* WARNING: clear corresponding bit in warnflag[idx] */
                 (*u16ptr_threshcounter) = 0;
                 /* Make entry in error-memory (error disappeared) */
-                if (recording_enabled == DIAG_RECORDING_ENABLED) {
-                    DIAG_EntryWrite(diagId, event, data);
+                DIAG_EntryWrite(diagId, event, data);
+                /* Check if error would have been fatal and send clear CAN message*/
+                if (diag_devptr->pConfigurationOfDiagnosisEntries[diag.id2ch[(uint16_t)diagId]].severity ==
+                    DIAG_FATAL_ERROR) {
+                    DIAG_ClearFatalErrorById(diagId);
                 }
 
                 if (evaluate_enabled == DIAG_EVALUATION_ENABLED) {
@@ -329,8 +428,12 @@ DIAG_RETURNTYPE_e DIAG_Handler(DIAG_ID_e diagId, DIAG_EVENT_e event, DIAG_IMPACT
                 *u32ptr_warnCodemsk &= ~err_enable_bitmask; /* WARNING: clear corresponding bit in warnflag[idx] */
 
                 /* Make entry in error-memory (error occurred) */
-                if (recording_enabled == DIAG_RECORDING_ENABLED) {
-                    DIAG_EntryWrite(diagId, event, data);
+                DIAG_EntryWrite(diagId, event, data);
+
+                /* Check if error is fatal*/
+                if (diag_devptr->pConfigurationOfDiagnosisEntries[diag.id2ch[(uint16_t)diagId]].severity ==
+                    DIAG_FATAL_ERROR) {
+                    DIAG_SetFatalErrorById(diagId);
                 }
 
                 if (evaluate_enabled == DIAG_EVALUATION_ENABLED) {
@@ -356,10 +459,9 @@ DIAG_RETURNTYPE_e DIAG_Handler(DIAG_ID_e diagId, DIAG_EVENT_e event, DIAG_IMPACT
             *u32ptr_errCodemsk &= ~err_enable_bitmask;  /* ERROR:   clear corresponding bit in errflag[idx] */
             *u32ptr_warnCodemsk &= ~err_enable_bitmask; /* WARNING: clear corresponding bit in warnflag[idx] */
             (*u16ptr_threshcounter) = 0;
-            if (recording_enabled == DIAG_RECORDING_ENABLED) {
-                /* Make entry in error-memory (error disappeared) if error was recorded before */
-                DIAG_EntryWrite(diagId, event, data);
-            }
+            /* Make entry in error-memory (error disappeared) if error was recorded before */
+            DIAG_EntryWrite(diagId, event, data);
+
             if (evaluate_enabled == DIAG_EVALUATION_ENABLED) {
                 /* Call callback function and reset error */
                 diag_diagnosisIdConfiguration[diag.id2ch[diagId]].fpCallback(
@@ -398,6 +500,7 @@ bool DIAG_IsAnyFatalErrorSet(void) {
             fatalErrorActive = true;
         }
     }
+
     return fatalErrorActive;
 }
 
@@ -406,10 +509,49 @@ bool DIAG_IsAnyFatalErrorSet(void) {
 extern void TEST_DIAG_SetDiagerrcnttotal(uint16_t errors) {
     diag.errcnttotal = errors;
 }
+
+extern void TEST_DIAG_SetDiagOccurrenceCounter(uint16_t errors) {
+    for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
+        for (uint32_t i = 0u; i < DIAG_ID_MAX; i++) {
+            diag.occurrenceCounter[s][i] = errors;
+        }
+    }
+}
+
+extern void TEST_DIAG_SetActiveFatalErrorCounter(uint16_t errors) {
+    diag_activeFatalErrorCount = 0;
+}
+
+extern void TEST_DIAG_SetActiveFatalErrorArray(uint16_t errors) {
+    for (uint32_t i = 0u; i < DIAG_ID_MAX; i++) {
+        diag_activeFatalErrors[i] = errors;
+    }
+}
+
 extern DIAG_DIAGNOSIS_STATE_s *TEST_DIAG_GetDiag(void) {
     return &diag;
 }
 extern void TEST_DIAG_Reset(void) {
     DIAG_Reset();
+}
+
+extern uint8_t TEST_DIAG_GetFatalErrorCount(void) {
+    return diag_activeFatalErrorCount;
+}
+
+extern uint8_t TEST_DIAG_GetFatalErrorArrayCount(DIAG_ID_e xEventID) {
+    return diag_activeFatalErrors[xEventID];
+}
+
+extern void TEST_DIAG_SetFatalErrorById(DIAG_ID_e xEventID) {
+    DIAG_SetFatalErrorById(xEventID);
+}
+
+extern void TEST_DIAG_ClearFatalErrorById(DIAG_ID_e xEventID) {
+    DIAG_ClearFatalErrorById(xEventID);
+}
+
+extern void TEST_DIAG_ResendFatalErrors(void) {
+    DIAG_ResendFatalErrors(diag_fatalErrorResendTimer);
 }
 #endif

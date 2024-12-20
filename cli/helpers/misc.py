@@ -43,15 +43,14 @@
 import hashlib
 import logging
 import os
-import sys
 from pathlib import Path
-from typing import Union
+from typing import Literal, Union
 
 from click import Context
 from click.core import Parameter
 
+from .env_vars import HOMEDRIVE, LOCALAPPDATA, PROGRAMFILES, USERPROFILE
 from .host_platform import PLATFORM
-from .win32_vars import HOMEDRIVE, LOCALAPPDATA, PROGRAMFILES, USERPROFILE
 
 try:
     from git import Repo
@@ -61,6 +60,19 @@ try:
 except ImportError:
     HAVE_GIT = False
 
+
+DOS_LINE_ENDING = b"\r\n"
+UNIX_LINE_ENDING = b"\n"
+
+EOL = Literal["dos", "unix"]
+
+EOL_MAP = {
+    "dos": DOS_LINE_ENDING,
+    "unix": UNIX_LINE_ENDING,
+}
+
+
+#: Modules where logging should be disabled
 DISABLE_LOGGING_FOR_MODULES = ["git"]
 
 
@@ -86,7 +98,15 @@ def get_project_root(path: str = ".") -> Path:
 
 PROJECT_ROOT = get_project_root()
 
+PROJECT_BUILD_ROOT = PROJECT_ROOT / "build"
+
 PATH_FILE = PROJECT_ROOT / f"conf/env/paths_{PLATFORM}.txt"
+
+FOXBMS_ELF_FILE = PROJECT_BUILD_ROOT / "app_embedded/src/app/main/foxbms.elf"
+FOXBMS_BIN_FILE = PROJECT_BUILD_ROOT / "app_embedded/src/app/main/foxbms.bin"
+
+APP_DBC_FILE = PROJECT_ROOT / "tools/dbc/foxbms.dbc"
+BOOTLOADER_DBC_FILE = PROJECT_ROOT / "tools/dbc/foxbms-bootloader.dbc"
 
 PATH_REPLACEMENTS = {
     "$DOT_DIR$": [
@@ -117,8 +137,9 @@ def replace_var(rep: str) -> list[str]:
 
 def init_path_var_for_foxbms() -> None:
     """Add paths that foxBMS expects to exist to the PATH environment variable.
+
     - If a path do not exist, it is not added to PATH
-    - If a path is already on PATH, it is not added to PATH
+    - If a path is already on PATH, it is not added to PATH again
     """
     prepare_config = []
     for i in PATH_FILE.read_text(encoding="utf-8").splitlines():
@@ -182,24 +203,28 @@ def set_logging_level(
 
 
 def set_logging_level_cb(ctx: Context, param: Parameter | None, value: int) -> None:
-    """sets the module logging level through a click option callback"""
+    """sets the module logging level through a click option callback.
+    Args:
+        ctx: context the callback shall be applied too (unused)
+        param: arguments of the callback (unused)
+        value: arbitrary value passed to the callback (unused)
+    """
     set_logging_level(verbosity=value)
 
 
-def eprint(msg: str, color=False, err: bool = False) -> None:
-    """Enhanced printing function"""
-    if color:
-        msg = f"{color}{msg}\033[0m"
-    if err:
-        print(msg, file=sys.stderr)
-    else:
-        print(msg)
+def terminal_link_print(link) -> str:
+    """Prints a clickable link to the terminal
+    Args:
+        link: hyperlink that should be clickable"""
+    return f"\033]8;;{link}\033\\{link}\033]8;;\033\\"
 
 
 def get_sha256_file_hash(
-    file_path: Path, buffer_size: int = 65536, file_hash=hashlib.sha256()
+    file_path: Path, buffer_size: int = 65536, file_hash=None
 ) -> "hashlib._Hash":
     """Calculate the SHA256 hash of a file"""
+    if not file_hash:
+        file_hash = hashlib.sha256()
     with open(file_path, "rb") as f:
         while True:
             data = f.read(buffer_size)
@@ -224,3 +249,10 @@ def get_multiple_files_hash_str(files: list[Path], buffer_size: int = 65536) -> 
             i, buffer_size=buffer_size, file_hash=file_hash
         )
     return file_hash.hexdigest()
+
+
+def convert_eol(file: Path, eol_from: EOL, eol_to: EOL):
+    """Convert EOL of a file"""
+
+    out = file.read_bytes().replace(EOL_MAP[eol_from], EOL_MAP[eol_to])
+    file.write_bytes(out)

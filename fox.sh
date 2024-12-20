@@ -41,7 +41,7 @@ set -e
 
 SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
-ENV_NAME="2024-08-pale-fox"
+ENV_NAME="2025-01-pale-fox"
 # MacOS
 if [ "$(uname)" == "Darwin" ]; then
     echo "MacOS is currently not supported."

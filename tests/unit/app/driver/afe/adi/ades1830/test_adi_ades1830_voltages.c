@@ -43,12 +43,20 @@
  * @file    test_adi_ades1830_voltages.c
  * @author  foxBMS Team
  * @date    2022-12-07 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
  * @brief   Test of some module
+ * @details Test functions:
+ *          - testADI_CopyCommandBytesCellVoltageRegister
+ *          - testADI_CopyCommandBytesAverageCellVoltageRegisters
+ *          - testADI_CopyCommandBytesFilteredCellVoltageRegisters
+ *          - testADI_ReadAndStoreVoltages
+ *          - testADI_SaveRxToCellVoltageBuffer
+ *          - testADI_GetStoredVoltageIndex
+ *          - testADI_GetVoltages
  *
  */
 
@@ -95,6 +103,17 @@ TEST_INCLUDE_PATH("../../src/app/task/config")
 TEST_INCLUDE_PATH("../../src/app/task/ftask")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
+
+/** MSB: 0x80, LSB: 0x00 -->  0x80000 (equal to #ADI_REGISTER_CLEARED_VALUE) */
+/**@{*/
+#define VALID_ADI_REGISTER_CLEARED_VALUE_MSB (0x80u)
+#define VALID_ADI_REGISTER_CLEARED_VALUE_LSB (0x00u)
+/**@}*/
+/** MSB: 0xFF, LSB: 0xFF -->  0xFFFF (**not** equal to #ADI_REGISTER_CLEARED_VALUE) */
+/**@{*/
+#define INVALID_ADI_REGISTER_CLEARED_VALUE_MSB (0xFFu)
+#define INVALID_ADI_REGISTER_CLEARED_VALUE_LSB (0xFFu)
+/**@}*/
 
 static DATA_BLOCK_CELL_VOLTAGE_s adi_cellVoltageTable          = {.header.uniqueId = DATA_BLOCK_ID_CELL_VOLTAGE_BASE};
 static DATA_BLOCK_CELL_VOLTAGE_s adi_cellVoltageAverageTable   = {.header.uniqueId = DATA_BLOCK_ID_CELL_VOLTAGE_BASE};
@@ -176,6 +195,17 @@ SPI_INTERFACE_CONFIG_s spi_adiInterface[BS_NR_OF_STRINGS] = {
         .csType   = SPI_CHIP_SELECT_HARDWARE,
     },
 };
+
+static void ADI_SetReceivedDataForTest(uint8_t *dataBuffer, uint8_t msbValue, uint8_t lsbValue) {
+    for (uint16_t m = 0u; m < ADI_N_ADI; m++) {
+        for (uint16_t c = 0u; c < ADI_MAX_NUMBER_OF_VOLTAGES_IN_REGISTER; c++) {
+            const uint8_t cellIndex                  = c * ADI_RAW_VOLTAGE_SIZE_IN_BYTES;
+            const uint8_t moduleIndex                = m * ADI_MAX_REGISTER_SIZE_IN_BYTES;
+            dataBuffer[cellIndex + moduleIndex + 1u] = msbValue;
+            dataBuffer[cellIndex + moduleIndex]      = lsbValue;
+        }
+    }
+}
 
 /*========== Setup and Teardown =============================================*/
 void setUp(void) {
@@ -262,6 +292,85 @@ void testADI_SaveRxToCellVoltageBuffer(void) {
     /* Test invalid store location */
     TEST_ASSERT_FAIL_ASSERT(TEST_ADI_SaveRxToCellVoltageBuffer(
         &adi_stateBase, adi_dataReceive, ADI_RESULT_REGISTER_SET_A, ADI_VOLTAGE_STORE_LOCATION_E_MAX));
+
+    ADI_EvaluateDiagnosticCellVoltages_IgnoreAndReturn(FALSE);
+
+    /* ======= RT1/4: Test implementation */
+    /* Test should not alter this value to 0 */
+    uint16_t numberValidMeasurements = 1;
+    /* variable must be used */
+    numberValidMeasurements += 1;
+
+    DATA_BLOCK_CELL_VOLTAGE_s *pVoltageTable = NULL_PTR;
+    pVoltageTable += 1;
+
+    /* storeLocation and registerSet need to have specific values to trigger the if-statement */
+    TEST_ADI_SaveRxToCellVoltageBuffer(&adi_stateBase, adi_dataReceive, ADI_RESULT_REGISTER_SET_A, ADI_CELL_VOLTAGE);
+    /* Check numberValidMeasurements must be 0 */
+    TEST_ASSERT_FALSE(numberValidMeasurements == 0u);
+    TEST_ASSERT_TRUE(pVoltageTable != adi_stateBase.data.cellVoltage);
+
+    /* ======= RT2/4: Test implementation */
+
+    /* Voltage values are expected to be different after saving */
+    TEST_ADI_SaveRxToCellVoltageBuffer(
+        &adi_stateBase, adi_dataReceive, ADI_RESULT_REGISTER_SET_B, ADI_AVERAGE_CELL_VOLTAGE);
+    TEST_ASSERT_TRUE(pVoltageTable != adi_stateBase.data.cellVoltageAverage);
+
+    TEST_ADI_SaveRxToCellVoltageBuffer(
+        &adi_stateBase, adi_dataReceive, ADI_RESULT_REGISTER_SET_C, ADI_FILTERED_CELL_VOLTAGE);
+    TEST_ASSERT_TRUE(pVoltageTable != adi_stateBase.data.cellVoltageFiltered);
+
+    TEST_ADI_SaveRxToCellVoltageBuffer(
+        &adi_stateBase, adi_dataReceive, ADI_RESULT_REGISTER_SET_D, ADI_REDUNDANT_CELL_VOLTAGE);
+    TEST_ASSERT_TRUE(pVoltageTable != adi_stateBase.data.cellVoltageRedundant);
+
+    TEST_ADI_SaveRxToCellVoltageBuffer(
+        &adi_stateBase, adi_dataReceive, ADI_RESULT_REGISTER_SET_A, ADI_CELL_VOLTAGE_OPEN_WIRE_EVEN);
+    TEST_ASSERT_TRUE(pVoltageTable != adi_stateBase.data.cellVoltageOpenWireEven);
+
+    TEST_ADI_SaveRxToCellVoltageBuffer(
+        &adi_stateBase, adi_dataReceive, ADI_RESULT_REGISTER_SET_A, ADI_CELL_VOLTAGE_OPEN_WIRE_ODD);
+    TEST_ASSERT_TRUE(pVoltageTable != adi_stateBase.data.cellVoltageOpenWireOdd);
+
+    TEST_ADI_SaveRxToCellVoltageBuffer(
+        &adi_stateBase, adi_dataReceive, ADI_RESULT_REGISTER_SET_E, ADI_CELL_VOLTAGE_AVERAGE_OPEN_WIRE);
+    TEST_ASSERT_TRUE(pVoltageTable != adi_stateBase.data.cellVoltageAverageOpenWire);
+
+    TEST_ADI_SaveRxToCellVoltageBuffer(
+        &adi_stateBase, adi_dataReceive, ADI_RESULT_REGISTER_SET_F, ADI_CELL_VOLTAGE_REDUNDANT_OPEN_WIRE);
+    TEST_ASSERT_TRUE(pVoltageTable != adi_stateBase.data.cellVoltageRedundantOpenWire);
+
+    /* ======= RT3/4: Test implementation */
+    uint8_t dataReceive[BS_NR_OF_MODULES_PER_STRING * ADI_MAX_REGISTER_SIZE_IN_BYTES] = {0u};
+
+    /* Test is expected to alter the array to false */
+    for (uint16_t m = 0u; m < ADI_N_ADI; m++) {
+        adi_stateBase.data.errorTable->voltageRegisterContentIsNotStuck[adi_stateBase.currentString][m] = true;
+    }
+
+    ADI_SetReceivedDataForTest(dataReceive, VALID_ADI_REGISTER_CLEARED_VALUE_MSB, VALID_ADI_REGISTER_CLEARED_VALUE_LSB);
+
+    TEST_ADI_SaveRxToCellVoltageBuffer(&adi_stateBase, dataReceive, ADI_RESULT_REGISTER_SET_A, ADI_CELL_VOLTAGE);
+
+    for (uint16_t m = 0u; m < ADI_N_ADI; m++) {
+        TEST_ASSERT_FALSE(
+            adi_stateBase.data.errorTable->voltageRegisterContentIsNotStuck[adi_stateBase.currentString][m]);
+    }
+
+    /* ======= RT4/4: Test implementation */
+
+    /* Test is expected to not change the array to true */
+    for (uint16_t m = 0u; m < ADI_N_ADI; m++) {
+        adi_stateBase.data.cellVoltage->invalidCellVoltage[adi_stateBase.currentString][m][0] = false;
+    }
+    ADI_EvaluateDiagnosticCellVoltages_IgnoreAndReturn(TRUE);
+    /* storeLocation has to be ADI_CELL_VOLTAGE */
+    TEST_ADI_SaveRxToCellVoltageBuffer(&adi_stateBase, adi_dataReceive, ADI_RESULT_REGISTER_SET_A, ADI_CELL_VOLTAGE);
+
+    for (uint16_t m = 0u; m < ADI_N_ADI; m++) {
+        TEST_ASSERT_FALSE(adi_stateBase.data.cellVoltage->invalidCellVoltage[adi_stateBase.currentString][m][0]);
+    }
 }
 
 /*========== Extern Function Test Cases =====================================*/
@@ -283,4 +392,89 @@ void testADI_GetVoltages(void) {
     /* Invalid store location */
     TEST_ASSERT_FAIL_ASSERT(
         ADI_GetVoltages(&adi_stateBase, ADI_CELL_VOLTAGE_REGISTER, ADI_VOLTAGE_STORE_LOCATION_E_MAX));
+
+    ADI_COMMAND_READ_REGISTERS_s commandBytesToReadVoltageRegisters = {
+        .registerA = {0},
+        .registerB = {0},
+        .registerC = {0},
+        .registerD = {0},
+        .registerE = {0},
+        .registerF = {0},
+    };
+
+    /* Required Mocks */
+    SPI_TransmitDummyByte_IgnoreAndReturn(0u);
+    SPI_TransmitReceiveDataDma_IgnoreAndReturn(0u);
+    OS_WaitForNotification_IgnoreAndReturn(0u);
+    ADI_EvaluateDiagnosticCellVoltages_IgnoreAndReturn(0u);
+
+    TEST_ADI_GetVoltages(&adi_stateBase, ADI_CELL_VOLTAGE_REGISTER, ADI_CELL_VOLTAGE);
+    TEST_ASSERT_TRUE(
+        commandBytesToReadVoltageRegisters.registerA != 0 && commandBytesToReadVoltageRegisters.registerB != 0 &&
+        commandBytesToReadVoltageRegisters.registerC != 0 && commandBytesToReadVoltageRegisters.registerD != 0 &&
+        commandBytesToReadVoltageRegisters.registerE != 0 && commandBytesToReadVoltageRegisters.registerF != 0);
+
+    TEST_ADI_GetVoltages(&adi_stateBase, ADI_AVERAGE_CELL_VOLTAGE_REGISTER, ADI_AVERAGE_CELL_VOLTAGE);
+    TEST_ASSERT_TRUE(
+        commandBytesToReadVoltageRegisters.registerA != 0 && commandBytesToReadVoltageRegisters.registerB != 0 &&
+        commandBytesToReadVoltageRegisters.registerC != 0 && commandBytesToReadVoltageRegisters.registerD != 0 &&
+        commandBytesToReadVoltageRegisters.registerE != 0 && commandBytesToReadVoltageRegisters.registerF != 0);
+
+    TEST_ADI_GetVoltages(&adi_stateBase, ADI_FILTERED_CELL_VOLTAGE_REGISTER, ADI_FILTERED_CELL_VOLTAGE);
+    TEST_ASSERT_TRUE(
+        commandBytesToReadVoltageRegisters.registerA != 0 && commandBytesToReadVoltageRegisters.registerB != 0 &&
+        commandBytesToReadVoltageRegisters.registerC != 0 && commandBytesToReadVoltageRegisters.registerD != 0 &&
+        commandBytesToReadVoltageRegisters.registerE != 0 && commandBytesToReadVoltageRegisters.registerF != 0);
+
+    TEST_ADI_GetVoltages(&adi_stateBase, ADI_REDUNDANT_CELL_VOLTAGE_REGISTER, ADI_REDUNDANT_CELL_VOLTAGE);
+    TEST_ASSERT_TRUE(
+        commandBytesToReadVoltageRegisters.registerA != 0 && commandBytesToReadVoltageRegisters.registerB != 0 &&
+        commandBytesToReadVoltageRegisters.registerC != 0 && commandBytesToReadVoltageRegisters.registerD != 0 &&
+        commandBytesToReadVoltageRegisters.registerE != 0 && commandBytesToReadVoltageRegisters.registerF != 0);
+}
+
+void testADI_RestartContinuousCellVoltageMeasurements(void) {
+    TEST_ASSERT_FAIL_ASSERT(ADI_RestartContinuousCellVoltageMeasurements(NULL_PTR));
+
+    /* Required Mocks */
+    SPI_TransmitDummyByte_IgnoreAndReturn(0u);
+    SPI_TransmitData_IgnoreAndReturn(0u);
+    OS_GetTickCount_IgnoreAndReturn(0u);
+    OS_DelayTaskUntil_Ignore();
+
+    ADI_RestartContinuousCellVoltageMeasurements(&adi_stateBase);
+}
+
+void testADI_StopContinuousCellVoltageMeasurements(void) {
+    TEST_ASSERT_FAIL_ASSERT(ADI_StopContinuousCellVoltageMeasurements(NULL_PTR));
+
+    /* Required Mocks */
+    SPI_TransmitDummyByte_IgnoreAndReturn(0u);
+    SPI_TransmitData_IgnoreAndReturn(0u);
+    OS_GetTickCount_IgnoreAndReturn(0u);
+    OS_DelayTaskUntil_Ignore();
+
+    ADI_StopContinuousCellVoltageMeasurements(&adi_stateBase);
+    for (uint8_t i = 0u; i < ADI_COMMAND_DEFINITION_LENGTH; i++) {
+        TEST_ASSERT_EQUAL(adi_cmdAdcv[i], adi_command[i]);
+    }
+}
+
+void testADI_GetStringAndModuleVoltage(void) {
+    /* Invalid state */
+    TEST_ASSERT_FAIL_ASSERT(ADI_GetStringAndModuleVoltage(NULL_PTR));
+
+    SPI_TransmitDummyByte_IgnoreAndReturn(0u);
+    SPI_TransmitData_IgnoreAndReturn(0u);
+    OS_GetTickCount_IgnoreAndReturn(0u);
+    OS_DelayTaskUntil_Ignore();
+
+    SPI_TransmitReceiveDataDma_IgnoreAndReturn(0u);
+    OS_WaitForNotification_IgnoreAndReturn(OS_SUCCESS);
+    for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
+        for (uint8_t m = 0u; m < ADI_N_ADI; m++) {
+            ADI_EvaluateDiagnosticStringAndModuleVoltages_IgnoreAndReturn(true);
+        }
+    }
+    ADI_GetStringAndModuleVoltage(&adi_stateBase);
 }

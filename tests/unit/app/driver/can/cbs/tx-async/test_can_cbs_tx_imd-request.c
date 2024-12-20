@@ -43,12 +43,28 @@
  * @file    test_can_cbs_tx_imd-request.c
  * @author  foxBMS Team
  * @date    2023-06-14 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
  * @brief   Tests for the CAN driver callbacks
+ * @details Test functions:
+ *          - testCANTX_ImdRequestInput
+ *          - testCANTX_RequestRelayOpenInput
+ *          - testCANTX_RequestRelayCloseInput
+ *          - testCANTX_RequestRelayStateInput
+ *          - testCANTX_RequestRelayOpen
+ *          - testCANTX_RequestRelayClose
+ *          - testCANTX_RequestRelayState
+ *          - testCANTX_RequestEnableMeasurement
+ *          - testCANTXRequestDisableMeasurement
+ *          - testCANTXRequestSetAveragingFactor
+ *          - testCANTX_RequestReadResistance
+ *          - testCANTX_RequestUnlock
+ *          - testCANTX_RequestSelfTest
+ *          - testCANTX_SetErrorThreshold
+ *          - testCANTX_SetWarningThreshold
  *
  */
 

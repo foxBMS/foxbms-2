@@ -43,12 +43,13 @@
  * @file    test_diag_cfg.c
  * @author  foxBMS Team
  * @date    2020-04-01 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
  * @brief   Tests for the diag_cfg driver
+ * @details Tests update Flags in Database
  *
  */
 
@@ -64,6 +65,18 @@ TEST_INCLUDE_PATH("../../src/app/engine/diag/cbs")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 
+/** local copy of the #DATA_BLOCK_ERROR_STATE_s table */
+static DATA_BLOCK_ERROR_STATE_s diag_tableErrorFlags = {.header.uniqueId = DATA_BLOCK_ID_ERROR_STATE};
+
+/** local copy of the #DATA_BLOCK_MOL_FLAG_s table */
+static DATA_BLOCK_MOL_FLAG_s diag_tableMolFlags = {.header.uniqueId = DATA_BLOCK_ID_MOL_FLAG};
+
+/** local copy of the #DATA_BLOCK_RSL_FLAG_s table */
+static DATA_BLOCK_RSL_FLAG_s diag_tableRslFlags = {.header.uniqueId = DATA_BLOCK_ID_RSL_FLAG};
+
+/** local copy of the #DATA_BLOCK_MSL_FLAG_s table */
+static DATA_BLOCK_MSL_FLAG_s diag_tableMslFlags = {.header.uniqueId = DATA_BLOCK_ID_MSL_FLAG};
+
 /*========== Setup and Teardown =============================================*/
 void setUp(void) {
 }
@@ -73,10 +86,7 @@ void tearDown(void) {
 
 /*========== Test Cases =====================================================*/
 void testDIAG_UpdateFlagsInDatabase(void) {
-    DATA_Write4DataBlocks_ExpectAndReturn(NULL_PTR, NULL_PTR, NULL_PTR, NULL_PTR, STD_OK);
-    DATA_Write4DataBlocks_IgnoreArg_pDataFromSender0();
-    DATA_Write4DataBlocks_IgnoreArg_pDataFromSender1();
-    DATA_Write4DataBlocks_IgnoreArg_pDataFromSender2();
-    DATA_Write4DataBlocks_IgnoreArg_pDataFromSender3();
+    DATA_Write4DataBlocks_ExpectAndReturn(
+        &diag_tableErrorFlags, &diag_tableMolFlags, &diag_tableRslFlags, &diag_tableMslFlags, STD_OK);
     DIAG_UpdateFlags();
 }

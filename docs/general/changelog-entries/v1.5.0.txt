@@ -1,0 +1,108 @@
+Added
+=====
+
+- Added hardware design files (e.g., schematics, layout, BOM and STEP file
+  etc.) for the NXP MC33775A monitoring IC.
+- Added driver for the PCF2131 RTC.
+  The driver uses I2C to communicate with the IC.
+- A basic GUI to interact with the |foxbms| via CAN from a PC.
+- The software version and the die ID can be requested via CAN.
+- The FRAM can now be initialized/reinitialized via CAN.
+- Stub code for the software reset via CAN has been implemented.
+- The precharge abort reason (voltage or current) is now evaluated and the
+  result is transmitted via CAN.
+- Now CAN messages with extended identifier can be transmitted and received.
+  Four CAN mailboxes (61-63) are reserved for the reception of messages with
+  extended identifiers on each CAN.
+  The HALCoGen configuration for these mailboxes is overwritten during the
+  initialization phase.
+- The I2C driver API was reworked.
+  There are now three types of communication:
+  read, write and write followed by repeated start followed by read.
+- The I2C communication now uses DMA and is made in a separate task.
+- Basic documentation of defines that can be used to define the application
+  behavior.
+
+Changed
+=======
+
+- The default interface configuration for BMS-Slaves is the interface 1 on the
+  |bms-interface|\ s:
+
+  - for LTC-based interfaces: hardware chip select 1 on SPI 1
+  - for NXP-based interfaces: hardware chip select 1 on SPI 1
+
+- The chip select configuration has been unified.
+  The previous implementation worked like this:
+
+  - for software chip select the SPI configuration has been
+    configured directly in the configuration struct by setting the member
+    ``csPin`` to a certain pin and the member ``csType`` to
+    ``SPI_CHIP_SELECT_SOFTWARE``in a variable of type
+    ``SPI_INTERFACE_CONFIG_s``.
+  - For hardware chip select, i.e., ``csType`` set to
+    ``SPI_CHIP_SELECT_HARDWARE``, the configuration in ``csPin`` was ignored,
+    and the pin configuration in the member ``pConfig`` was evaluated.
+
+  Now, the SPI configuration is done by setting the chip select type via the
+  member ``csType`` and the pin to be used via the member ``csPin`` in a
+  variable of type ``SPI_INTERFACE_CONFIG_s``.
+  Therefore there is no need anymore the adapt the ``spiDAT1_t`` configuration,
+  when another chip select should be used.
+- The members in `DATA_BLOCK_ERROR_STATE_s` have been renamed to better reflect
+  what each entry actually indicates.
+- The type of all members in `DATA_BLOCK_ERROR_STATE_s` have been changed to
+  `bool`.
+- The order of members in `DATA_BLOCK_ERROR_STATE_s` has been changed, so that
+  the entries are logically grouped.
+  This change is transparent, as long as the application does **not** relay on
+  the memory layout.
+- Changed data type for error flags in database entries to boolean.
+- Applied the *include-what-you-use* paradigm to the |foxbms| sources.
+  The :ref:`C_CODING_GUIDELINES` have been adapted accordingly and generally
+  been improved.
+- Added dedicated enum for error flags to .dbc respectively .sym file.
+- Rewrote the CRC implementation for the LTC ICs from scratch and added
+  unit tests for the new implementation.
+- Update the static code analysis to Axivion 7.5.0 (from 7.4.6).
+- Software version is now also saved in FRAM version struct. As this is The
+  the first FRAM entry, this changes the memory layout and makes FRAM entries
+  existing prior to this version invalid.
+- A successful boot is now indicated via CAN by sending
+
+  - the magic start sequence,
+  - the software version information,
+  - the MCU die ID,
+  - the MCU lot number,
+  - the MCU wafer number and
+  - the magic end sequence.
+
+  See ``src/app/engine/config/sys_cfg.c`` for implementation details.
+
+- Updated the documentation section about Lauterbach debug probes.
+- Removed define ``BS_MAX_SUPPORTED_CELLS`` from file ``battery_system_cfg.h``
+  and moved the definition to the individual AFE implementations.
+- Use ``float_t`` instead of ``float``.
+- Aligned the hardware documentation for BMS-Master, BMS-Interface and
+  BMS-Slave (see :ref:`MASTER_OVERVIEW`, :ref:`INTERFACES_OVERVIEW`, and
+  :ref:`SLAVES_OVERVIEW`)
+- Updated the documentation section about the |foxbms| platform
+- The functionality to switch to user mode is now implemented as an inline
+  function instead of a macro.
+- The default optimization level is set to -O0 (see
+  ``conf/cc/cc-options.yaml``).
+
+Deprecated
+==========
+
+Removed
+=======
+
+Fixed
+=====
+
+- Fixed the hardware readme as it referenced the wrong |foxbms-bms-master|
+  version.
+- Fixed the regular expression for checking the validity of macro names.
+- Fixed wrong configured chip select pin for MCU SBC. Chip select 1 instead of
+  chip select 0 was configured.

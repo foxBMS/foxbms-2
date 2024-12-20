@@ -13,9 +13,11 @@ can simply be added.
 - Create the new virtual environment
   ``py -m venv %USERPROFILE%\foxbms-envs\<name-of-the-new-env>``
 - Activate the new environment.
-- Install the rewquried packages in the environment using ``python -m pip install ...``
+- Install the required packages in the environment using
+  ``python -m pip install ...``
 - Run ``python -m pip freeze > requirements.txt``
-- Update the license list in ``docs/general/license-tables/license-info_python_packages.csv``
+- Update the license list in
+  ``docs/general/license-tables/license-info_python_packages.csv``
 - Commit all changes.
 - Add a changelog entry that tells the user to update the environment.
 
@@ -29,7 +31,9 @@ environments.
 +---------------------+-------+-------+-------+
 | Environment Name    | From  | To    | Type  |
 +=====================+=======+=======+=======+
-| 2024-08-pale-fox    | 1.7.0 | \-    | venv  |
+| 2025-01-pale-fox    | x.y.z | \-    | venv  |
++---------------------+-------+-------+-------+
+| 2024-08-pale-fox    | 1.7.0 | 1.7.0 | venv  |
 +---------------------+-------+-------+-------+
 | 2023-02-fennec-fox  | 1.5.1 | 1.6.0 | conda |
 +---------------------+-------+-------+-------+

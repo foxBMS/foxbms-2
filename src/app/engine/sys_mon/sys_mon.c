@@ -43,12 +43,12 @@
  * @file    sys_mon.c
  * @author  foxBMS Team
  * @date    2019-11-28 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup ENGINE
  * @prefix  SYSM
  *
- * @brief   system monitoring module
+ * @brief   System monitoring module
  * @details TODO
  */
 
@@ -65,10 +65,16 @@
 
 /*========== Static Constant and Variable Definitions =======================*/
 /** tracking variable for System monitoring notifications */
-static SYSM_NOTIFICATION_s sysm_notifications[SYSM_TASK_ID_MAX];
+static SYSM_NOTIFICATION_s sysm_notifications[SYSM_TASK_ID_MAX] = {
+    {.state = SYSM_NOTIFY_ENTER, .timestampEnter = 0u, .timestampExit = 0u, .duration = 0u},
+    {.state = SYSM_NOTIFY_ENTER, .timestampEnter = 0u, .timestampExit = 0u, .duration = 0u},
+    {.state = SYSM_NOTIFY_ENTER, .timestampEnter = 0u, .timestampExit = 0u, .duration = 0u},
+    {.state = SYSM_NOTIFY_ENTER, .timestampEnter = 0u, .timestampExit = 0u, .duration = 0u},
+    {.state = SYSM_NOTIFY_ENTER, .timestampEnter = 0u, .timestampExit = 0u, .duration = 0u},
+};
 
 /** local shadow copy of the FRAM entry */
-static FRAM_SYS_MON_RECORD_s sysm_localFramCopy = {0};
+static FRAM_SYS_MON_RECORD_s sysm_localFramCopy = {false, 0u, 0u, 0u, 0u, 0u, 0u, 0u, 0u, 0u, 0u};
 
 /** flag, indicating that the FRAM entry has been changed and should be written */
 static volatile bool sysm_flagFramCopyHasChanges = false;
@@ -204,7 +210,7 @@ extern void SYSM_GetRecordedTimingViolations(SYSM_TIMING_VIOLATION_RESPONSE_s *p
     FAS_ASSERT(pAnswer != NULL_PTR);
 
     OS_EnterTaskCritical();
-    FRAM_SYS_MON_RECORD_s localSysMonRecord = {0};
+    FRAM_SYS_MON_RECORD_s localSysMonRecord = {false, 0u, 0u, 0u, 0u, 0u, 0u, 0u, 0u, 0u, 0u};
     SYSM_CopyFramStruct(&fram_sysMonViolationRecord, &localSysMonRecord);
     OS_ExitTaskCritical();
 
@@ -297,6 +303,9 @@ extern SYSM_NOTIFICATION_s *TEST_SYSM_GetNotifications(void) {
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
 #ifdef UNITY_UNIT_TEST
+extern void TEST_SYSM_RecordTimingViolation(SYSM_TASK_ID_e taskId, uint32_t taskDuration, uint32_t timestampEnter) {
+    SYSM_RecordTimingViolation(taskId, taskDuration, timestampEnter);
+}
 /* Helper functions */
 extern bool TEST_SYSM_GetStaticVariableFlagFramCopyHasChanges(void) {
     return sysm_flagFramCopyHasChanges;

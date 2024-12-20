@@ -43,12 +43,30 @@
  * @file    test_adi_ades1830_helpers.c
  * @author  foxBMS Team
  * @date    2022-12-07 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
  * @brief   Test of some module
+ * @details Test functions:
+ *          - testADI_TransmitCommand
+ *          - testADI_CopyCommandBits
+ *          - testADI_IncrementCommandCounter
+ *          - testADI_WriteCommandConfigurationBits
+ *          - testADI_ReadDataBits
+ *          - testADI_ReadRegister
+ *          - testADI_StoredConfigurationWriteToAfe
+ *          - testADI_StoredConfigurationWriteToAfeGlobal
+ *          - testADI_CheckConfigurationRegister
+ *          - testADI_WriteRegisterGlobal
+ *          - testADI_ClearCommandCounter
+ *          - testADI_SpiTransmitReceiveData
+ *          - testADI_StoredConfigurationFillRegisterData
+ *          - testADI_StoredConfigurationFillRegisterDataGlobal
+ *          - testADI_Wait
+ *          - testADI_WriteDataBits
+ *          - testADI_WriteRegister
  *
  */
 
@@ -97,6 +115,7 @@ TEST_INCLUDE_PATH("../../src/app/engine/database")
 TEST_INCLUDE_PATH("../../src/app/engine/diag")
 TEST_INCLUDE_PATH("../../src/app/task/config")
 TEST_INCLUDE_PATH("../../src/app/task/ftask")
+TEST_INCLUDE_PATH("../../tests/unit/app/driver/afe/adi/ades1830/include")
 
 /* contains the expected output matrix for ADI_WriteDataBits */
 
@@ -135,6 +154,10 @@ static ADI_STATE_s adi_stateBaseTest = {
     .data.errorTable = &adi_errorTableTest,
 };
 
+static uint8_t frameLength = ADI_COMMAND_AND_PEC_SIZE_IN_BYTES + ((ADI_RDCFGA_LEN + ADI_PEC_SIZE_IN_BYTES) * ADI_N_ADI);
+static uint32_t timeout    = ADI_TRANSMISSION_TIMEOUT;
+static uint32_t ulNotifiedValue = 0u;
+
 /*========== Setup and Teardown =============================================*/
 void setUp(void) {
 }
@@ -153,8 +176,10 @@ void testADI_TransmitCommand(void) {
         }
     }
 
-    SPI_TransmitDummyByte_IgnoreAndReturn(STD_OK);
-    SPI_TransmitData_IgnoreAndReturn(STD_OK);
+    SPI_TransmitDummyByte_ExpectAndReturn(spi_adiInterface, ADI_SPI_WAKEUP_WAIT_TIME_US, STD_OK);
+    frameLength = ADI_COMMAND_AND_PEC_SIZE_IN_BYTES;
+    SPI_TransmitData_ExpectAndReturn(
+        &spi_adiInterface[adi_stateBaseTest.currentString], adi_stateBaseTest.data.txBuffer, frameLength, STD_OK);
 
     /* TransmitCommand(): used for commands without data */
     /* SNAP: command without data , must increase command counter */
@@ -224,9 +249,9 @@ void testADI_WriteCommandConfigurationBits(void) {
     /* Modify configuration bits */
     modifiedCommand |= (uint16_t)((1u & ADI_ADCV_RD_LEN) << ADI_ADCV_RD_POS);
     modifiedCommand |= (uint16_t)((1u & ADI_ADCV_CONT_LEN) << ADI_ADCV_CONT_POS);
-    modifiedCommand &= (uint16_t) ~((1u & ADI_ADCV_DCP_LEN) << ADI_ADCV_DCP_POS);
+    modifiedCommand &= (uint16_t)~((1u & ADI_ADCV_DCP_LEN) << ADI_ADCV_DCP_POS);
     modifiedCommand |= (uint16_t)((1u & ADI_ADCV_RSTF_LEN) << ADI_ADCV_RSTF_POS);
-    modifiedCommand &= (uint16_t) ~((1u & ADI_ADCV_OW01_LEN) << ADI_ADCV_OW01_POS);
+    modifiedCommand &= (uint16_t)~((1u & ADI_ADCV_OW01_LEN) << ADI_ADCV_OW01_POS);
 
     /* Now modify same configuration bits with ADI_WriteCommandConfigurationBits() */
     ADI_CopyCommandBits(adi_cmdAdcv, adi_command);
@@ -273,11 +298,9 @@ void testADI_ReadDataBits(void) {
 }
 
 void testADI_ReadRegister(void) {
-    SPI_TransmitDummyByte_IgnoreAndReturn(STD_OK);
-    SPI_TransmitReceiveDataDma_IgnoreAndReturn(STD_OK);
-    OS_WaitForNotification_IgnoreAndReturn(OS_SUCCESS);
-
     /* Test when PEC corresponds to data: all flags in error table must indicate that PEC is OK */
+
+    frameLength = ADI_COMMAND_AND_PEC_SIZE_IN_BYTES + ((ADI_RDCFGA_LEN + ADI_PEC_SIZE_IN_BYTES) * ADI_N_ADI);
     /* Prepare read data */
     for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
         /* Six bytes of data */
@@ -312,6 +335,10 @@ void testADI_ReadRegister(void) {
     ADI_CopyCommandBits(adi_cmdRdcva, adi_command);
     for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
         adi_stateBaseTest.currentString = s;
+        SPI_TransmitDummyByte_ExpectAndReturn(spi_adiInterface, ADI_SPI_WAKEUP_WAIT_TIME_US, STD_OK);
+        SPI_TransmitReceiveDataDma_ExpectAndReturn(
+            spi_adiInterface, adi_stateBaseTest.data.txBuffer, adi_stateBaseTest.data.rxBuffer, frameLength, STD_OK);
+        OS_WaitForNotification_ExpectAndReturn(&ulNotifiedValue, timeout, OS_SUCCESS);
         ADI_ReadRegister(adi_command, adi_dataReceive, &adi_stateBaseTest);
         for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
             /* All PEC values must be OK */
@@ -328,6 +355,10 @@ void testADI_ReadRegister(void) {
     ADI_CopyCommandBits(adi_cmdRdcva, adi_command);
     for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
         adi_stateBaseTest.currentString = s;
+        SPI_TransmitDummyByte_ExpectAndReturn(spi_adiInterface, ADI_SPI_WAKEUP_WAIT_TIME_US, STD_OK);
+        SPI_TransmitReceiveDataDma_ExpectAndReturn(
+            spi_adiInterface, adi_stateBaseTest.data.txBuffer, adi_stateBaseTest.data.rxBuffer, frameLength, STD_OK);
+        OS_WaitForNotification_ExpectAndReturn(&ulNotifiedValue, timeout, OS_SUCCESS);
         ADI_ReadRegister(adi_command, adi_dataReceive, &adi_stateBaseTest);
         for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
             /* All PEC values must be OK */
@@ -358,6 +389,10 @@ void testADI_ReadRegister(void) {
     ADI_CopyCommandBits(adi_cmdRdcva, adi_command);
     for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
         adi_stateBaseTest.currentString = s;
+        SPI_TransmitDummyByte_ExpectAndReturn(spi_adiInterface, ADI_SPI_WAKEUP_WAIT_TIME_US, STD_OK);
+        SPI_TransmitReceiveDataDma_ExpectAndReturn(
+            spi_adiInterface, adi_stateBaseTest.data.txBuffer, adi_stateBaseTest.data.rxBuffer, frameLength, STD_OK);
+        OS_WaitForNotification_ExpectAndReturn(&ulNotifiedValue, timeout, OS_SUCCESS);
         ADI_ReadRegister(adi_command, adi_dataReceive, &adi_stateBaseTest);
         for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
             /* All command counter values must be OK */
@@ -386,6 +421,10 @@ void testADI_ReadRegister(void) {
     ADI_CopyCommandBits(adi_cmdRdcva, adi_command);
     for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
         adi_stateBaseTest.currentString = s;
+        SPI_TransmitDummyByte_ExpectAndReturn(spi_adiInterface, ADI_SPI_WAKEUP_WAIT_TIME_US, STD_OK);
+        SPI_TransmitReceiveDataDma_ExpectAndReturn(
+            spi_adiInterface, adi_stateBaseTest.data.txBuffer, adi_stateBaseTest.data.rxBuffer, frameLength, STD_OK);
+        OS_WaitForNotification_ExpectAndReturn(&ulNotifiedValue, timeout, OS_SUCCESS);
         ADI_ReadRegister(adi_command, adi_dataReceive, &adi_stateBaseTest);
         for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
             /* Test command counter values */
@@ -406,7 +445,8 @@ void testADI_StoredConfigurationWriteToAfe(void) {
     /* Test invalid state */
     TEST_ASSERT_FAIL_ASSERT(ADI_StoredConfigurationWriteToAfe(ADI_CFG_REGISTER_SET_A, NULL_PTR));
 
-    uint8_t frameLength = ADI_COMMAND_AND_PEC_SIZE_IN_BYTES + ((ADI_RDCFGA_LEN + ADI_PEC_SIZE_IN_BYTES) * ADI_N_ADI);
+    frameLength = ADI_COMMAND_AND_PEC_SIZE_IN_BYTES + ((ADI_RDCFGA_LEN + ADI_PEC_SIZE_IN_BYTES) * ADI_N_ADI);
+
     /* SPI functions called by write register */
     for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
         adi_stateBaseTest.currentString = s;
@@ -445,7 +485,7 @@ void testADI_StoredConfigurationWriteToAfe(void) {
             adi_stateBaseTest.data.rxBuffer,
             frameLength,
             STD_OK);
-        OS_WaitForNotification_IgnoreAndReturn(OS_SUCCESS);
+        OS_WaitForNotification_ExpectAndReturn(&ulNotifiedValue, timeout, OS_SUCCESS);
         /* SPI functions called by read register */
         SPI_TransmitDummyByte_ExpectAndReturn(
             &spi_adiInterface[adi_stateBaseTest.currentString], ADI_SPI_WAKEUP_WAIT_TIME_US, STD_OK);
@@ -455,7 +495,7 @@ void testADI_StoredConfigurationWriteToAfe(void) {
             adi_stateBaseTest.data.rxBuffer,
             frameLength,
             STD_OK);
-        OS_WaitForNotification_IgnoreAndReturn(OS_SUCCESS);
+        OS_WaitForNotification_ExpectAndReturn(&ulNotifiedValue, timeout, OS_SUCCESS);
         /* Matching written and read data: function must return STD_OK */
         TEST_ASSERT_EQUAL(STD_OK, ADI_StoredConfigurationWriteToAfe(ADI_CFG_REGISTER_SET_A, &adi_stateBaseTest));
         /* SPI functions called by write register */
@@ -467,7 +507,7 @@ void testADI_StoredConfigurationWriteToAfe(void) {
             adi_stateBaseTest.data.rxBuffer,
             frameLength,
             STD_OK);
-        OS_WaitForNotification_IgnoreAndReturn(OS_SUCCESS);
+        OS_WaitForNotification_ExpectAndReturn(&ulNotifiedValue, timeout, OS_SUCCESS);
         /* SPI functions called by read register */
         SPI_TransmitDummyByte_ExpectAndReturn(
             &spi_adiInterface[adi_stateBaseTest.currentString], ADI_SPI_WAKEUP_WAIT_TIME_US, STD_OK);
@@ -477,6 +517,7 @@ void testADI_StoredConfigurationWriteToAfe(void) {
             adi_stateBaseTest.data.rxBuffer,
             frameLength,
             STD_OK);
+        OS_WaitForNotification_ExpectAndReturn(&ulNotifiedValue, timeout, OS_SUCCESS);
         /* Matching written and read data: function must return STD_OK */
         TEST_ASSERT_EQUAL(STD_OK, ADI_StoredConfigurationWriteToAfe(ADI_CFG_REGISTER_SET_B, &adi_stateBaseTest));
 
@@ -514,7 +555,7 @@ void testADI_StoredConfigurationWriteToAfe(void) {
             adi_stateBaseTest.data.rxBuffer,
             frameLength,
             STD_OK);
-        OS_WaitForNotification_IgnoreAndReturn(OS_SUCCESS);
+        OS_WaitForNotification_ExpectAndReturn(&ulNotifiedValue, timeout, OS_SUCCESS);
         /* SPI functions called by read register */
         SPI_TransmitDummyByte_ExpectAndReturn(
             &spi_adiInterface[adi_stateBaseTest.currentString], ADI_SPI_WAKEUP_WAIT_TIME_US, STD_OK);
@@ -524,7 +565,7 @@ void testADI_StoredConfigurationWriteToAfe(void) {
             adi_stateBaseTest.data.rxBuffer,
             frameLength,
             STD_OK);
-        OS_WaitForNotification_IgnoreAndReturn(OS_SUCCESS);
+        OS_WaitForNotification_ExpectAndReturn(&ulNotifiedValue, timeout, OS_SUCCESS);
         /* Mismatching written and read data: function must return STD_NOT_OK */
         TEST_ASSERT_EQUAL(STD_NOT_OK, ADI_StoredConfigurationWriteToAfe(ADI_CFG_REGISTER_SET_A, &adi_stateBaseTest));
         /* SPI functions called by write register */
@@ -536,7 +577,7 @@ void testADI_StoredConfigurationWriteToAfe(void) {
             adi_stateBaseTest.data.rxBuffer,
             frameLength,
             STD_OK);
-        OS_WaitForNotification_IgnoreAndReturn(OS_SUCCESS);
+        OS_WaitForNotification_ExpectAndReturn(&ulNotifiedValue, timeout, OS_SUCCESS);
         /* SPI functions called by read register */
         SPI_TransmitDummyByte_ExpectAndReturn(
             &spi_adiInterface[adi_stateBaseTest.currentString], ADI_SPI_WAKEUP_WAIT_TIME_US, STD_OK);
@@ -546,6 +587,7 @@ void testADI_StoredConfigurationWriteToAfe(void) {
             adi_stateBaseTest.data.rxBuffer,
             frameLength,
             STD_OK);
+        OS_WaitForNotification_ExpectAndReturn(&ulNotifiedValue, timeout, OS_SUCCESS);
         /* Mismatching written and read data: function must return STD_NOT_OK */
         TEST_ASSERT_EQUAL(STD_NOT_OK, ADI_StoredConfigurationWriteToAfe(ADI_CFG_REGISTER_SET_B, &adi_stateBaseTest));
     }
@@ -555,7 +597,7 @@ void testADI_StoredConfigurationWriteToAfeGlobal(void) {
     /* Test invalid state */
     TEST_ASSERT_FAIL_ASSERT(ADI_StoredConfigurationWriteToAfeGlobal(NULL_PTR));
 
-    uint8_t frameLength = ADI_COMMAND_AND_PEC_SIZE_IN_BYTES + ((ADI_RDCFGA_LEN + ADI_PEC_SIZE_IN_BYTES) * ADI_N_ADI);
+    frameLength = ADI_COMMAND_AND_PEC_SIZE_IN_BYTES + ((ADI_RDCFGA_LEN + ADI_PEC_SIZE_IN_BYTES) * ADI_N_ADI);
     /* SPI functions called by write register */
     for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
         adi_stateBaseTest.currentString = s;
@@ -597,7 +639,7 @@ void testADI_StoredConfigurationWriteToAfeGlobal(void) {
             adi_stateBaseTest.data.rxBuffer,
             frameLength,
             STD_OK);
-        OS_WaitForNotification_IgnoreAndReturn(OS_SUCCESS);
+        OS_WaitForNotification_ExpectAndReturn(&ulNotifiedValue, timeout, OS_SUCCESS);
         /* SPI functions called by read register */
         SPI_TransmitDummyByte_ExpectAndReturn(
             &spi_adiInterface[adi_stateBaseTest.currentString], ADI_SPI_WAKEUP_WAIT_TIME_US, STD_OK);
@@ -607,7 +649,7 @@ void testADI_StoredConfigurationWriteToAfeGlobal(void) {
             adi_stateBaseTest.data.rxBuffer,
             frameLength,
             STD_OK);
-        OS_WaitForNotification_IgnoreAndReturn(OS_SUCCESS);
+        OS_WaitForNotification_ExpectAndReturn(&ulNotifiedValue, timeout, OS_SUCCESS);
         /* SPI functions called by write register */
         SPI_TransmitDummyByte_ExpectAndReturn(
             &spi_adiInterface[adi_stateBaseTest.currentString], ADI_SPI_WAKEUP_WAIT_TIME_US, STD_OK);
@@ -617,7 +659,7 @@ void testADI_StoredConfigurationWriteToAfeGlobal(void) {
             adi_stateBaseTest.data.rxBuffer,
             frameLength,
             STD_OK);
-        OS_WaitForNotification_IgnoreAndReturn(OS_SUCCESS);
+        OS_WaitForNotification_ExpectAndReturn(&ulNotifiedValue, timeout, OS_SUCCESS);
         /* SPI functions called by read register */
         SPI_TransmitDummyByte_ExpectAndReturn(
             &spi_adiInterface[adi_stateBaseTest.currentString], ADI_SPI_WAKEUP_WAIT_TIME_US, STD_OK);
@@ -627,6 +669,7 @@ void testADI_StoredConfigurationWriteToAfeGlobal(void) {
             adi_stateBaseTest.data.rxBuffer,
             frameLength,
             STD_OK);
+        OS_WaitForNotification_ExpectAndReturn(&ulNotifiedValue, timeout, OS_SUCCESS);
         ADI_StoredConfigurationWriteToAfeGlobal(&adi_stateBaseTest);
         /* Matching written and read data: error flags must not be set */
         for (uint16_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
@@ -675,7 +718,7 @@ void testADI_StoredConfigurationWriteToAfeGlobal(void) {
                 adi_stateBaseTest.data.rxBuffer,
                 frameLength,
                 STD_OK);
-            OS_WaitForNotification_IgnoreAndReturn(OS_SUCCESS);
+            OS_WaitForNotification_ExpectAndReturn(&ulNotifiedValue, timeout, OS_SUCCESS);
             /* SPI functions called by read register */
             SPI_TransmitDummyByte_ExpectAndReturn(
                 &spi_adiInterface[adi_stateBaseTest.currentString], ADI_SPI_WAKEUP_WAIT_TIME_US, STD_OK);
@@ -685,7 +728,7 @@ void testADI_StoredConfigurationWriteToAfeGlobal(void) {
                 adi_stateBaseTest.data.rxBuffer,
                 frameLength,
                 STD_OK);
-            OS_WaitForNotification_IgnoreAndReturn(OS_SUCCESS);
+            OS_WaitForNotification_ExpectAndReturn(&ulNotifiedValue, timeout, OS_SUCCESS);
             /* SPI functions called by write register */
             SPI_TransmitDummyByte_ExpectAndReturn(
                 &spi_adiInterface[adi_stateBaseTest.currentString], ADI_SPI_WAKEUP_WAIT_TIME_US, STD_OK);
@@ -695,7 +738,7 @@ void testADI_StoredConfigurationWriteToAfeGlobal(void) {
                 adi_stateBaseTest.data.rxBuffer,
                 frameLength,
                 STD_OK);
-            OS_WaitForNotification_IgnoreAndReturn(OS_SUCCESS);
+            OS_WaitForNotification_ExpectAndReturn(&ulNotifiedValue, timeout, OS_SUCCESS);
             /* SPI functions called by read register */
             SPI_TransmitDummyByte_ExpectAndReturn(
                 &spi_adiInterface[adi_stateBaseTest.currentString], ADI_SPI_WAKEUP_WAIT_TIME_US, STD_OK);
@@ -705,6 +748,7 @@ void testADI_StoredConfigurationWriteToAfeGlobal(void) {
                 adi_stateBaseTest.data.rxBuffer,
                 frameLength,
                 STD_OK);
+            OS_WaitForNotification_ExpectAndReturn(&ulNotifiedValue, timeout, OS_SUCCESS);
         }
         ADI_StoredConfigurationWriteToAfeGlobal(&adi_stateBaseTest);
         /* Mismatching written and read data: error flags must be set */
@@ -808,13 +852,15 @@ void testADI_WriteRegisterGlobal(void) {
     TEST_ASSERT_FAIL_ASSERT(
         ADI_WriteRegisterGlobal(NULL_PTR, adi_writeGlobal, ADI_PEC_NO_FAULT_INJECTION, &adi_stateBaseTest));
 
+    frameLength = ADI_COMMAND_AND_PEC_SIZE_IN_BYTES + ((ADI_RDCFGA_LEN + ADI_PEC_SIZE_IN_BYTES) * ADI_N_ADI);
     /* Write register global calls write register for all module
        Before calling, the byte in the passed data buffer (adi_writeGlobal, size = max_register_size) are copied
        to the buffer for all modules (adi_dataTransmit, size = max_register_size * number_of_modules) */
     /* Test that the copy is made correctly */
-    SPI_TransmitDummyByte_IgnoreAndReturn(STD_OK);
-    SPI_TransmitReceiveDataDma_IgnoreAndReturn(STD_OK);
-    OS_WaitForNotification_IgnoreAndReturn(OS_SUCCESS);
+    SPI_TransmitDummyByte_ExpectAndReturn(spi_adiInterface, ADI_SPI_WAKEUP_WAIT_TIME_US, STD_OK);
+    SPI_TransmitReceiveDataDma_ExpectAndReturn(
+        spi_adiInterface, adi_stateBaseTest.data.txBuffer, adi_stateBaseTest.data.rxBuffer, frameLength, STD_OK);
+    OS_WaitForNotification_ExpectAndReturn(&ulNotifiedValue, timeout, OS_SUCCESS);
     /* Prepare global data */
     for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
         adi_stateBaseTest.currentString = s;
@@ -837,8 +883,10 @@ void testADI_ClearCommandCounter(void) {
     /* Test invalid state */
     TEST_ASSERT_FAIL_ASSERT(ADI_ClearCommandCounter(NULL_PTR));
 
-    SPI_TransmitDummyByte_IgnoreAndReturn(STD_OK);
-    SPI_TransmitData_IgnoreAndReturn(STD_OK);
+    SPI_TransmitDummyByte_ExpectAndReturn(spi_adiInterface, ADI_SPI_WAKEUP_WAIT_TIME_US, STD_OK);
+    frameLength = ADI_COMMAND_AND_PEC_SIZE_IN_BYTES;
+    SPI_TransmitData_ExpectAndReturn(
+        &spi_adiInterface[adi_stateBaseTest.currentString], adi_stateBaseTest.data.txBuffer, frameLength, STD_OK);
 
     /* Test command counter clear */
     for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
@@ -908,7 +956,7 @@ void testADI_SpiTransmitReceiveData(void) {
             4u + 6u + 2u,
             STD_OK);
         /* When using SPI with DMA, block task and wait for notification in DMA Rx complete interrupt */
-        OS_WaitForNotification_IgnoreAndReturn(OS_SUCCESS);
+        OS_WaitForNotification_ExpectAndReturn(&ulNotifiedValue, timeout, OS_SUCCESS);
         ADI_SpiTransmitReceiveData(
             &adi_stateBaseTest, adi_stateBaseTest.data.txBuffer, adi_stateBaseTest.data.rxBuffer, 4u + 6u + 2u);
     }
@@ -1090,10 +1138,6 @@ void testADI_WriteDataBits(void) {
 }
 
 void testADI_WriteRegister(void) {
-    SPI_TransmitDummyByte_IgnoreAndReturn(STD_OK);
-    SPI_TransmitReceiveDataDma_IgnoreAndReturn(STD_OK);
-    OS_WaitForNotification_IgnoreAndReturn(OS_SUCCESS);
-
     /* Test command counter increase */
     for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
         adi_stateBaseTest.currentString = s;
@@ -1107,6 +1151,11 @@ void testADI_WriteRegister(void) {
     for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
         adi_stateBaseTest.currentString = s;
         /* No fault injection: command counter must increase */
+        SPI_TransmitDummyByte_ExpectAndReturn(spi_adiInterface, ADI_SPI_WAKEUP_WAIT_TIME_US, STD_OK);
+        frameLength = ADI_COMMAND_AND_PEC_SIZE_IN_BYTES + ((ADI_RDCFGA_LEN + ADI_PEC_SIZE_IN_BYTES) * ADI_N_ADI);
+        SPI_TransmitReceiveDataDma_ExpectAndReturn(
+            spi_adiInterface, adi_stateBaseTest.data.txBuffer, adi_stateBaseTest.data.rxBuffer, frameLength, STD_OK);
+        OS_WaitForNotification_ExpectAndReturn(&ulNotifiedValue, timeout, OS_SUCCESS);
         ADI_WriteRegister(adi_command, adi_dataTransmit, ADI_PEC_NO_FAULT_INJECTION, &adi_stateBaseTest);
         for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
             /* Check that command counter was increased */
@@ -1119,6 +1168,10 @@ void testADI_WriteRegister(void) {
     ADI_CopyCommandBits(adi_cmdWrcfga, adi_command);
     for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
         adi_stateBaseTest.currentString = s;
+        SPI_TransmitDummyByte_ExpectAndReturn(spi_adiInterface, ADI_SPI_WAKEUP_WAIT_TIME_US, STD_OK);
+        SPI_TransmitReceiveDataDma_ExpectAndReturn(
+            spi_adiInterface, adi_stateBaseTest.data.txBuffer, adi_stateBaseTest.data.rxBuffer, frameLength, STD_OK);
+        OS_WaitForNotification_ExpectAndReturn(&ulNotifiedValue, timeout, OS_SUCCESS);
         ADI_WriteRegister(adi_command, adi_dataTransmit, ADI_COMMAND_PEC_FAULT_INJECTION, &adi_stateBaseTest);
         for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
             /* Check that command counter was increased */
@@ -1131,6 +1184,10 @@ void testADI_WriteRegister(void) {
     ADI_CopyCommandBits(adi_cmdWrcfga, adi_command);
     for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
         adi_stateBaseTest.currentString = s;
+        SPI_TransmitDummyByte_ExpectAndReturn(spi_adiInterface, ADI_SPI_WAKEUP_WAIT_TIME_US, STD_OK);
+        SPI_TransmitReceiveDataDma_ExpectAndReturn(
+            spi_adiInterface, adi_stateBaseTest.data.txBuffer, adi_stateBaseTest.data.rxBuffer, frameLength, STD_OK);
+        OS_WaitForNotification_ExpectAndReturn(&ulNotifiedValue, timeout, OS_SUCCESS);
         ADI_WriteRegister(adi_command, adi_dataTransmit, ADI_DATA_PEC_FAULT_INJECTION, &adi_stateBaseTest);
         for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
             /* Check that command counter was increased */

@@ -22,8 +22,9 @@ The following steps need to be applied:
 
 #. Adding the sources:
 
-   - The generated HAL files need to be copied into the ``src/hal`` directory
-   - The ``wscript`` in ``src/hal`` needs to be modified:
+   - The generated HAL files need to be copied into the ``src/app/hal``
+     directory.
+   - The ``wscript`` in ``src/app/hal`` needs to be modified:
 
      .. literalinclude:: without-halcogen/wscript
         :language: python

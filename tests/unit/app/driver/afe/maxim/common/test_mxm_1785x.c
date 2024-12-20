@@ -43,14 +43,13 @@
  * @file    test_mxm_1785x.c
  * @author  foxBMS Team
  * @date    2020-07-02 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  MXM
  *
  * @brief   Test for the Maxim 1785x driver.
- *
- * @details def
+ * @details TODO
  *
  */
 
@@ -306,7 +305,7 @@ void testMXM_ProcessOpenWire1SatelliteAlternatingPattern(void) {
     /* simulate 1 satellite */
     MXM_5XGetNumberOfSatellites_ExpectAndReturn(mxm_instance.pInstance5X, 1);
     /* don't care about the database call */
-    DATA_Write1DataBlock_IgnoreAndReturn(STD_OK);
+    DATA_Write1DataBlock_ExpectAndReturn(mxm_instance.pOpenWire_table, STD_OK);
     TEST_ASSERT_PASS_ASSERT(MXM_ProcessOpenWire(&mxm_instance));
 
     /* check for the injected pattern */

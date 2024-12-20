@@ -43,12 +43,13 @@
  * @file    test_sys_cfg.c
  * @author  foxBMS Team
  * @date    2020-04-02 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
  * @brief   Tests for the sys_cfg
+ * @details Tests sending a sys boot message
  *
  */
 
@@ -74,6 +75,23 @@ void tearDown(void) {
 
 /*========== Test Cases =====================================================*/
 void testSysSendBootMessage(void) {
-    CANTX_DebugResponse_IgnoreAndReturn(STD_OK);
+    /* all debug responses are ok */
+    CANTX_DebugResponse_ExpectAndReturn(CANTX_DEBUG_RESPONSE_TRANSMIT_BOOT_MAGIC_START, STD_OK);
+    CANTX_DebugResponse_ExpectAndReturn(CANTX_DEBUG_RESPONSE_TRANSMIT_BMS_VERSION_INFO, STD_OK);
+    CANTX_DebugResponse_ExpectAndReturn(CANTX_DEBUG_RESPONSE_TRANSMIT_COMMIT_HASH, STD_OK);
+    CANTX_DebugResponse_ExpectAndReturn(CANTX_DEBUG_RESPONSE_TRANSMIT_MCU_UNIQUE_DIE_ID, STD_OK);
+    CANTX_DebugResponse_ExpectAndReturn(CANTX_DEBUG_RESPONSE_TRANSMIT_MCU_LOT_NUMBER, STD_OK);
+    CANTX_DebugResponse_ExpectAndReturn(CANTX_DEBUG_RESPONSE_TRANSMIT_MCU_WAFER_INFORMATION, STD_OK);
+    CANTX_DebugResponse_ExpectAndReturn(CANTX_DEBUG_RESPONSE_TRANSMIT_BOOT_MAGIC_END, STD_OK);
+    SYS_SendBootMessage();
+
+    /* all debug responses are not ok and trigger trap */
+    CANTX_DebugResponse_ExpectAndReturn(CANTX_DEBUG_RESPONSE_TRANSMIT_BOOT_MAGIC_START, STD_NOT_OK);
+    CANTX_DebugResponse_ExpectAndReturn(CANTX_DEBUG_RESPONSE_TRANSMIT_BMS_VERSION_INFO, STD_NOT_OK);
+    CANTX_DebugResponse_ExpectAndReturn(CANTX_DEBUG_RESPONSE_TRANSMIT_COMMIT_HASH, STD_NOT_OK);
+    CANTX_DebugResponse_ExpectAndReturn(CANTX_DEBUG_RESPONSE_TRANSMIT_MCU_UNIQUE_DIE_ID, STD_NOT_OK);
+    CANTX_DebugResponse_ExpectAndReturn(CANTX_DEBUG_RESPONSE_TRANSMIT_MCU_LOT_NUMBER, STD_NOT_OK);
+    CANTX_DebugResponse_ExpectAndReturn(CANTX_DEBUG_RESPONSE_TRANSMIT_MCU_WAFER_INFORMATION, STD_NOT_OK);
+    CANTX_DebugResponse_ExpectAndReturn(CANTX_DEBUG_RESPONSE_TRANSMIT_BOOT_MAGIC_END, STD_NOT_OK);
     SYS_SendBootMessage();
 }

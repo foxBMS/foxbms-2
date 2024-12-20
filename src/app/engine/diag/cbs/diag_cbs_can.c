@@ -43,8 +43,8 @@
  * @file    diag_cbs_can.c
  * @author  foxBMS Team
  * @date    2021-02-17 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup ENGINE
  * @prefix  DIAG
  *
@@ -92,7 +92,7 @@ extern void DIAG_ErrorCanRxQueueFull(
     DIAG_EVENT_e event,
     const DIAG_DATABASE_SHIM_s *const kpkDiagShim,
     uint32_t data) {
-    FAS_ASSERT(diagId < DIAG_ID_MAX);
+    FAS_ASSERT(diagId == DIAG_ID_CAN_RX_QUEUE_FULL);
     FAS_ASSERT((event == DIAG_EVENT_OK) || (event == DIAG_EVENT_NOT_OK) || (event == DIAG_EVENT_RESET));
     FAS_ASSERT(kpkDiagShim != NULL_PTR);
 

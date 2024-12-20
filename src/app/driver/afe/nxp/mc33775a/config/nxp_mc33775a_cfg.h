@@ -43,8 +43,8 @@
  * @file    nxp_mc33775a_cfg.h
  * @author  foxBMS Team
  * @date    2020-05-08 (date of creation)
- * @updated 2024-08-08 (date of last update)
- * @version v1.7.0
+ * @updated 2024-12-20 (date of last update)
+ * @version v1.8.0
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  N775
  *
@@ -58,7 +58,6 @@
 /*========== Includes =======================================================*/
 #include "battery_system_cfg.h"
 
-#include "nxp_afe_dma.h"
 #include "nxp_mc33775a_defs.h"
 #include "spi.h"
 

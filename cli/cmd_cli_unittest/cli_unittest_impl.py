@@ -42,11 +42,12 @@
 import logging
 import os
 import sys
+from pathlib import Path
 from typing import Sequence
 
-from pathlib import Path
+from click import secho
 
-from ..helpers.misc import PROJECT_ROOT
+from ..helpers.misc import PROJECT_BUILD_ROOT, PROJECT_ROOT, terminal_link_print
 from ..helpers.spr import SubprocessResult, run_process
 
 UNIT_TEST_MODULE_BASE_COMMAND = [sys.executable, "-m", "unittest"]
@@ -61,9 +62,10 @@ def run_unittest_module(args: list[str]) -> SubprocessResult:
 
 
 def run_script_tests(coverage_report: bool = False) -> SubprocessResult:
-    """Run unit tests on Python modules and files in the repository"""
+    """Run unit tests on Python modules and files in the repository."""
     if coverage_report:
         out_dir = PROJECT_ROOT / "build/cli-selftest"
+        _ = [i.unlink() for i in out_dir.rglob("**") if i.is_file()]
         out_dir.mkdir(exist_ok=True, parents=True)
         cmd: Sequence[str | Path] = COVERAGE_MODULE_BASE_COMMAND + [
             "run",
@@ -92,4 +94,13 @@ def run_script_tests(coverage_report: bool = False) -> SubprocessResult:
             f"tests{os.sep}cli",
         ]
         ret = run_process(cmd, cwd=PROJECT_ROOT, stdout=None, stderr=None)
+
+    report_link = PROJECT_BUILD_ROOT / "cli-selftest/index.html"
+    if not ret.returncode:
+        secho("\nThe cli unit tests were successful.", fg="green")
+    else:
+        secho("The cli unit tests were not successful.", fg="red", err=True)
+    if report_link.is_file() and not ret.returncode:
+        secho(f"\ncoverage report: {terminal_link_print(report_link)}")
+
     return ret
