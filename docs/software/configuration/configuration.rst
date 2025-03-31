@@ -14,7 +14,7 @@ the underlying hardware.
 The HAL must be configured to fit the application and the hardware the software
 is running on (e.g., configure IO pins for communication with the outside
 world).
-This configuration is done through a software called |halcogen|.
+This configuration is done through a software called |ti-halcogen|.
 This is described in :ref:`HAL_CONFIGURATION`.
 
 Another point is that |foxbms| is a development platform.
@@ -24,15 +24,15 @@ This is explained in :ref:`BMS_APPLICATION`.
 
 .. _HAL_CONFIGURATION:
 
-|halcogen|
-----------
+|ti-halcogen|
+-------------
 
-|halcogen| is a graphic user interface used to configure the HAL sources.
+|ti-halcogen| is a graphic user interface used to configure the HAL sources.
 It generates sources in form of ``.h`` and ``.c`` and ``.asm`` files.
-These HAL sources are generated based on the |halcogen| configuration files
+These HAL sources are generated based on the |ti-halcogen| configuration files
 (``*.hcg`` and ``*.dil``).
 |foxbms| uses the Waf tool :ref:`WAF_TOOL_HALCOGEN` to automatically run
-|halcogen| and create the required sources.
+|ti-halcogen| and create the required sources.
 Additional information on the tool can be found in
 :ref:`HALCOGEN_TOOL_DOCUMENTATION`.
 
@@ -42,29 +42,29 @@ Additional information on the tool can be found in
    build step and instead use a generated version of the HAL.
    For this use case see :ref:`HOW_TO_USE_GENERATED_SOURCES_FROM_HALCOGEN`.
 
-|halcogen| ships with its own version of |freertos| and generates the
+|ti-halcogen| ships with its own version of |freertos| and generates the
 corresponding sources when running the code generator.
 As |foxbms| uses its different own copy of |freertos|, the generated |freertos|
-files from |halcogen| are removed after the code generator has run.
+files from |ti-halcogen| are removed after the code generator has run.
 
-|halcogen| creates the source file ``HL_sys_startup.c`` which implements
+|ti-halcogen| creates the source file ``HL_sys_startup.c`` which implements
 (a weak implementation of) the function ``_c_int00`` (the system's startup
 routine). |foxbms| provides its own **non**-weak implementation of ``_c_int00``
 in ``fstartup.c``.
 The |foxbms| implementation of ``_c_int00`` must be coupled to the the current
-|halcogen| configuration.
-Most changes in the |halcogen| project do not alter the startup behavior and
+|ti-halcogen| configuration.
+Most changes in the |ti-halcogen| project do not alter the startup behavior and
 no further action needs to be taken into account.
 However there are settings that alter the startup behavior.
 Such settings need to be ported to ``fstartup.c`` as this non-weak
 implementation of ``_c_int00`` outweighs the generated, new version of
 ``_c_int00`` in ``HL_sys_startup.c``.
 Otherwise the startup function used by |foxbms| would not reflect the
-|halcogen| configuration.
+|ti-halcogen| configuration.
 The :ref:`WAF_TOOL_HALCOGEN` provides a mechanism to detected such changes.
 The hash of the current ``HL_sys_startup.c`` implementation is stored in
-``src/app/hal/app-startup.hash`` and compared to the actual hash of the generated
-``HL_sys_startup.c`` file.
+``src/app/hal/app-startup.hash`` and compared to the actual hash of the
+generated ``HL_sys_startup.c`` file.
 If these are not the same, the build aborts with the following message:
 
 .. literalinclude:: fstartup.c-check.txt
@@ -78,11 +78,11 @@ The build aborts as the expected hash is
 Next, the function ``_c_int00`` in the two files (``fstartup.c``) and
 ``HL_sys_startup.c`` needs to be compared by the developer and the developer
 needs to update the ``_c_int00`` implementation in the file ``fstartup.c`` to
-reflect the |halcogen| startup routine.
+reflect the |ti-halcogen| startup routine.
 The concluding step is to update the hash value in
 ``src/app/hal/app-startup.hash`` with ``1something-other``.
-Now the build toolchain knows, that the changes applied in the |halcogen| are
-reflected in the dependencies and the build will not abort after the HAL
+Now the build toolchain knows, that the changes applied in the |ti-halcogen|
+are reflected in the dependencies and the build will not abort after the HAL
 sources are generated.
 
 The process is illustrated in :numref:`halcogen-configuration`.
@@ -197,21 +197,21 @@ Balancing Strategy
 |foxbms| supports three different balancing strategies:
 
 - Voltage-based balancing: Cell balancing based on voltage differences
-  (key-value: ``voltage``). Details are found in
-  :ref:`BALANCING_MODULE_VOLTAGE_BASED_BALANCING`
+  (key-value: ``voltage``).
+  Details are found in :ref:`BALANCING_MODULE_VOLTAGE_BASED_BALANCING`
 - History-based balancing: Cell balancing based on voltage history
-  (key-value: ``history``). Details are found in
-  :ref:`BALANCING_MODULE_HISTORY_BASED_BALANCING`
-- No balancing: No balancing of any cell (key-value: ``none``). Details are
-  found in   :ref:`BALANCING_MODULE_NO_BALANCING`
+  (key-value: ``history``).
+  Details are found in :ref:`BALANCING_MODULE_HISTORY_BASED_BALANCING`
+- No balancing: No balancing of any cell (key-value: ``none``).
+  Details are found in :ref:`BALANCING_MODULE_NO_BALANCING`
 
 Compiler and Linker Options and Remarks
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 All options from ``conf/cc/cc-options.yaml`` are passed verbatim into the
-build process. Compiler options are set during configuration time, that means
-changing values in ``conf/cc/cc-options.yaml`` needs to be followed by
-``waf configure``.
+build process.
+Compiler options are set during configuration time, that means changing values
+in ``conf/cc/cc-options.yaml`` needs to be followed by ``waf configure``.
 
 See the TI compiler manual before changing the flags in
 ``conf/cc/cc-options.yaml``.
@@ -251,6 +251,7 @@ The basic, top level view on the battery system configuration is defined at:
 
 - ``src/app/application/config/battery_system_cfg.c``
 - ``src/app/application/config/battery_system_cfg.h``
+- ``src/app/application/config/bms-slave_cfg.h``
 
 .. csv-table::
    :name: battery-system-configuration

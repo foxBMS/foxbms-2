@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    sys_cfg.c
  * @author  foxBMS Team
  * @date    2020-02-24 (date of creation)
- * @updated 2024-12-20 (date of last update)
- * @version v1.8.0
+ * @updated 2025-03-31 (date of last update)
+ * @version v1.9.0
  * @ingroup ENGINE_CONFIGURATION
  * @prefix  SYS
  *
@@ -80,6 +80,7 @@ void SYS_SendBootMessage(void) {
        - <MCU die ID>:            <what ever the die ID is>
        - <MCU lot number>:        <what ever the lot number is>
        - <MCU wafer information>: <what ever the wafer information is>
+       - <boot timestamp>         <what ever the boot timestamp of our rtc is>
        - <magic boot ID>:         0x01 0x01 0x01 0x01 0x01 0x01 0x01 0x0F
     */
     if (CANTX_DebugResponse(CANTX_DEBUG_RESPONSE_TRANSMIT_BOOT_MAGIC_START) != STD_OK) {
@@ -98,6 +99,9 @@ void SYS_SendBootMessage(void) {
         FAS_ASSERT(FAS_TRAP);
     }
     if (CANTX_DebugResponse(CANTX_DEBUG_RESPONSE_TRANSMIT_MCU_WAFER_INFORMATION) != STD_OK) {
+        FAS_ASSERT(FAS_TRAP);
+    }
+    if (CANTX_DebugResponse(CANTX_DEBUG_RESPONSE_TRANSMIT_BOOT_TIMESTAMP) != STD_OK) {
         FAS_ASSERT(FAS_TRAP);
     }
     if (CANTX_DebugResponse(CANTX_DEBUG_RESPONSE_TRANSMIT_BOOT_MAGIC_END) != STD_OK) {

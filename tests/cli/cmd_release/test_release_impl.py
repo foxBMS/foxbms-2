@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -51,7 +51,7 @@ except ModuleNotFoundError:
 
 
 class TestSpR(unittest.TestCase):
-    """Test of the main entry point"""
+    """Test of 'release_impl.py'."""
 
     def test_prepare_subprocess_output(self):
         """basic prepare_subprocess_output test"""

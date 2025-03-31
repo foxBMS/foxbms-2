@@ -121,7 +121,6 @@ The continuous running tasks are shown in
 
    |foxbms| Task Model - Continuous Running Tasks
 
-
 The **Engine** task is used to implement a data-exchange layer between the
 different tasks and processes.
 This data-exchange layer runs with the highest priority of all tasks and is

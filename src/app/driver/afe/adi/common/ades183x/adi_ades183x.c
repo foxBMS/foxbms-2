@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    adi_ades183x.c
  * @author  foxBMS Team
  * @date    2020-12-09 (date of creation)
- * @updated 2024-12-20 (date of last update)
- * @version v1.8.0
+ * @updated 2025-03-31 (date of last update)
+ * @version v1.9.0
  * @ingroup DRIVERS
  * @prefix  ADI
  *
@@ -328,7 +328,7 @@ static void ADI_SanityConfigurationCheck(ADI_STATE_s *pAdiState) {
 
     /* Check configuration for temperature sensors */
     uint8_t configuredTemperatureSensorInputs = 0u;
-    for (uint16_t gpioIndex = 0u; gpioIndex < BS_NR_OF_GPIOS_PER_MODULE; gpioIndex++) {
+    for (uint16_t gpioIndex = 0u; gpioIndex < SLV_NR_OF_GPIOS_PER_MODULE; gpioIndex++) {
         if (adi_temperatureInputsUsed[gpioIndex] != 0u) {
             configuredTemperatureSensorInputs++;
         }

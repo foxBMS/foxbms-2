@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -39,40 +39,47 @@
 
 """Testing file 'cli/cmd_bootloader/bootloader_can_basics.py'."""
 
-import io
+import logging
 import sys
 import unittest
 from pathlib import Path
+from unittest.mock import MagicMock, patch
 
 import can
 
-# Redirect message or not
-MSG_REDIRECT = True
+try:
+    from cli.cmd_bootloader.bootloader_can import BootloaderCanBasics
+    from cli.cmd_bootloader.bootloader_can_messages import (
+        AcknowledgeFlag,
+        AcknowledgeMessage,
+        BootFsmState,
+        CanFsmState,
+        RequestCode8Bits,
+        StatusCode,
+        YesNoAnswer,
+    )
+except ModuleNotFoundError:
+    sys.path.insert(0, str(Path(__file__).parents[3]))
+    from cli.cmd_bootloader.bootloader_can import BootloaderCanBasics
+    from cli.cmd_bootloader.bootloader_can_messages import (
+        AcknowledgeFlag,
+        AcknowledgeMessage,
+        BootFsmState,
+        CanFsmState,
+        RequestCode8Bits,
+        StatusCode,
+        YesNoAnswer,
+    )
 
-sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
 
-# pylint: disable=protected-access
-# pylint: disable=wrong-import-position
-from cli.cmd_bootloader.bootloader_can import BootloaderCanBasics  # noqa: E402
-from cli.cmd_bootloader.bootloader_can_messages import (  # noqa: E402
-    AcknowledgeFlag,
-    AcknowledgeMessage,
-    BootFsmState,
-    CanFsmState,
-    RequestCode,
-    StatusCode,
-    YesNoAnswer,
-)
-
-
+@patch.object(logging, "info", return_value=None)
+@patch.object(logging, "warning", return_value=None)
+@patch.object(logging, "error", return_value=None)
+# pylint: disable-next=protected-access,unused-argument
 class TestBootloaderCanBasics(unittest.TestCase):
     """Class to test the class BootloaderCanBasics."""
 
     def setUp(self):
-        # Redirect the sys.stdout to the StringIO object
-        if MSG_REDIRECT:
-            sys.stdout = io.StringIO()
-
         # Initialize virtual CAN bus instance
         self.can_bus = can.interface.Bus(
             "test", interface="virtual", preserve_timestamps=True
@@ -88,10 +95,7 @@ class TestBootloaderCanBasics(unittest.TestCase):
         self.can_bus.shutdown()
         self.can_bus_test.shutdown()
 
-        # Reset sys.stdout to its original value
-        sys.stdout = sys.__stdout__
-
-    def test_init(self):
+    def test_init(self, *_):
         """Function to test the init function."""
         # Test if the system exception will be raised if dbc_file is not a file
         dbc_file = Path("./fake")
@@ -99,9 +103,15 @@ class TestBootloaderCanBasics(unittest.TestCase):
             BootloaderCanBasics(can_bus=self.can_bus_test, dbc_file=dbc_file)
         self.assertEqual(cm.exception.code, f"File '{dbc_file}' does not exist.")
 
-    def test_wait_can_message(self):
+    def test_wait_can_message(self, *_):
         """Function to test function test_wait_can_message()."""
-        # Case 1: return not none
+        # Case 1: invalid dbc_file
+        dbc_file = Path("./fake")
+        with self.assertRaises(SystemExit) as cm:
+            self.bl.wait_can_message(0x110, dbc_file=dbc_file)
+        self.assertEqual(cm.exception.code, f"File '{dbc_file}' does not exist.")
+
+        # Case 2: return not none
         msg = {
             "AcknowledgeFlag": AcknowledgeFlag.Received.value,
             "AcknowledgeMessage": AcknowledgeMessage.ReceivedCmdToTransferProgram.value,
@@ -126,7 +136,50 @@ class TestBootloaderCanBasics(unittest.TestCase):
             },
         )
 
-        # Case 2: return none
+        # Case 3: Try to get mux value from a message that does not contain mux
+        # value.
+        msg = {
+            "AcknowledgeFlag": AcknowledgeFlag.Received.value,
+            "AcknowledgeMessage": AcknowledgeMessage.ReceivedCmdToTransferProgram.value,
+            "StatusCode": StatusCode.ReceivedAndProcessed.value,
+            "YesNoAnswer": YesNoAnswer.No.value,
+        }
+        db_message = self.bl.db.get_message_by_name("f_AcknowledgeMessage")
+        data = db_message.encode(msg)
+        test_message = can.Message(arbitration_id=db_message.frame_id, data=data)
+        self.can_bus.send(test_message)
+        msg_waited = self.bl.wait_can_message(
+            arbitration_id=db_message.frame_id,
+            mux_value="1",
+        )
+        self.assertIsNone(msg_waited)
+
+        # Case 4: Wait a mux message that contains mux value that is expected
+        msg = {"f_BootloaderVersionInfo_Mux": 0x0F, "MagicBootData": 1}
+        db_message = self.bl.db.get_message_by_name("f_BootloaderVersionInfo")
+        data = db_message.encode(msg)
+        test_message = can.Message(arbitration_id=db_message.frame_id, data=data)
+        self.can_bus.send(test_message)
+        msg_waited = self.bl.wait_can_message(
+            arbitration_id=db_message.frame_id,
+            params=None,
+            mux_value="BootInformation",
+        )
+        self.assertEqual(msg_waited, {"MagicBootData": 1})
+
+        # Case 5: Wait a mux message that contains mux value that is not expected
+        test_message = can.Message(
+            arbitration_id=db_message.frame_id, data=b"\x00\x00\x00\x00\x00\x00\x00\x01"
+        )
+        self.can_bus.send(test_message)
+        msg_waited = self.bl.wait_can_message(
+            arbitration_id=db_message.frame_id,
+            params=None,
+            mux_value="BootInformation",
+        )
+        self.assertIsNone(msg_waited)
+
+        # Case 6: return none if terms in param does not match
         msg = {
             "AcknowledgeFlag": AcknowledgeFlag.Received.value,
             "AcknowledgeMessage": AcknowledgeMessage.ReceivedCmdToTransferProgram.value,
@@ -145,7 +198,7 @@ class TestBootloaderCanBasics(unittest.TestCase):
         )
         self.assertIsNone(msg_waited)
 
-        # Case 3: not valid key in input param
+        # Case 7: not valid key in input param
         msg = {
             "AcknowledgeFlag": AcknowledgeFlag.Received.value,
             "AcknowledgeMessage": AcknowledgeMessage.ReceivedCmdToTransferProgram.value,
@@ -167,42 +220,42 @@ class TestBootloaderCanBasics(unittest.TestCase):
         )
         self.assertIsNone(msg_waited)
 
-    def test_send_request_to_bootloader(self):
+    def test_send_request_to_bootloader(self, *_):
         """Function to test function send_request_to_bootloader()."""
-        self.bl.send_request_to_bootloader(RequestCode.CmdToRunProgram)
+        self.bl.send_request_to_bootloader(RequestCode8Bits.CmdToRunProgram)
         message = self.can_bus.recv()
         msg = self.bl.db.decode_message(message.arbitration_id, message.data)
         self.assertEqual(msg, {"RequestCode8Bits": "CmdToRunProgram"})
 
-    def test_send_data_to_bootloader(self):
+    def test_send_data_to_bootloader(self, *_):
         """Function to test function send_data_to_bootloader()."""
         self.bl.send_data_to_bootloader(0x1FFFFFFFFFFFFFFF)
         message = self.can_bus.recv()
         msg = self.bl.db.decode_message(message.arbitration_id, message.data)
         self.assertEqual(msg, {"Data": 0x1FFFFFFFFFFFFFFF})
 
-    def test_send_crc_to_bootloader(self):
+    def test_send_crc_to_bootloader(self, *_):
         """Function to test function send_crc_to_bootloader()."""
         self.bl.send_crc_to_bootloader(0x1FFFFFFFFFFFFFF0)
         message = self.can_bus.recv()
         msg = self.bl.db.decode_message(message.arbitration_id, message.data)
         self.assertEqual(msg, {"Crc": 0x1FFFFFFFFFFFFFF0})
 
-    def test_send_transfer_program_info_to_bootloader(self):
+    def test_send_transfer_program_info_to_bootloader(self, *_):
         """Function to test function send_transfer_program_info_to_bootloader()."""
         self.bl.send_transfer_program_info_to_bootloader(16, 2)
         message = self.can_bus.recv()
         msg = self.bl.db.decode_message(message.arbitration_id, message.data)
         self.assertEqual(msg, {"ProgramLength": 16, "RequiredTransferLoops": 2})
 
-    def test_send_loop_number_to_bootloader(self):
+    def test_send_loop_number_to_bootloader(self, *_):
         """Function to test function send_loop_number_to_bootloader()."""
         self.bl.send_loop_number_to_bootloader(3)
         message = self.can_bus.recv()
         msg = self.bl.db.decode_message(message.arbitration_id, message.data)
         self.assertEqual(msg, {"LoopNumber": 3})
 
-    def test_wait_bootloader_state_msg(self):
+    def test_wait_bootloader_state_msg(self, *_):
         """Function to test function wait_bootloader_state_msg()."""
         msg = {
             "BootFsmState": BootFsmState.BootFsmStateWait.value,
@@ -222,7 +275,7 @@ class TestBootloaderCanBasics(unittest.TestCase):
             },
         )
 
-    def test_wait_data_transfer_info_msg(self):
+    def test_wait_data_transfer_info_msg(self, *_):
         """Function to test function wait_data_transfer_info_msg()."""
         msg = {"CurrentLoopNumber": 100}
         db_message = self.bl.db.get_message_by_name("f_DataTransferInfo")
@@ -233,7 +286,33 @@ class TestBootloaderCanBasics(unittest.TestCase):
         msg_waited = self.bl.wait_data_transfer_info_msg()
         self.assertEqual(msg_waited, msg)
 
-    def test_wait_can_ack_msg(self):
+    def test_wait_bootloader_version_info_msg(self, *_):
+        """Function to test function wait_bootloader_version_info_msg()."""
+        msg = {
+            "f_BootloaderVersionInfo_Mux": 0x00,
+            "DirtyFlag": 1,
+            "MajorVersionNumber": 6,
+            "MinorVersionNumber": 2,
+            "PatchVersionNumber": 4,
+            "ReleaseDistance": 1,
+            "ReleaseDistanceOverflow": 0,
+            "UnderVersionControl": 1,
+        }
+        db_message = self.bl.db.get_message_by_name("f_BootloaderVersionInfo")
+        data = db_message.encode(msg)
+        test_message = can.Message(arbitration_id=db_message.frame_id, data=data)
+        self.can_bus.send(test_message)
+        msg_waited = self.bl.wait_bootloader_version_info_msg()
+
+        self.assertEqual(msg_waited.get("MajorVersionNumber"), 6)
+        self.assertEqual(msg_waited.get("MinorVersionNumber"), 2)
+        self.assertEqual(msg_waited.get("PatchVersionNumber"), 4)
+        self.assertEqual(msg_waited.get("ReleaseDistance"), 1)
+        self.assertEqual(msg_waited.get("ReleaseDistanceOverflow"), "No")
+        self.assertEqual(msg_waited.get("DirtyFlag"), "Yes")
+        self.assertEqual(msg_waited.get("UnderVersionControl"), "Yes")
+
+    def test_wait_can_ack_msg(self, *_):
         """Function to test function wait_can_ack_msg()."""
         # Case 1: received the ACK message with the StatusCode ReceivedAndProcessed
         msg = {
@@ -280,6 +359,14 @@ class TestBootloaderCanBasics(unittest.TestCase):
             processed_level=StatusCode.ReceivedAndProcessed,
         )
         self.assertIsNone(msg_waited)
+
+    def test_send_can_message_to_bootloader(self, *_):
+        """Function to test function send_can_message_to_bootloader()."""
+        can_bus = MagicMock()
+        bl = BootloaderCanBasics(can_bus=can_bus)
+        can_bus.send.side_effect = can.CanError
+        msg = bl.messages.get_message_request_msg(RequestCode8Bits.CmdToRunProgram)
+        bl.send_can_message_to_bootloader(msg)
 
 
 if __name__ == "__main__":

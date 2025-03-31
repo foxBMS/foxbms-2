@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    sys_mon.c
  * @author  foxBMS Team
  * @date    2019-11-28 (date of creation)
- * @updated 2024-12-20 (date of last update)
- * @version v1.8.0
+ * @updated 2025-03-31 (date of last update)
+ * @version v1.9.0
  * @ingroup ENGINE
  * @prefix  SYSM
  *
@@ -84,19 +84,21 @@ static volatile bool sysm_flagFramCopyHasChanges = false;
 /*========== Static Function Prototypes =====================================*/
 /**
  * @brief Records the violation of a timing in non volatile memory
- *
  * @param[in]   taskId          id of the violating task
- * @param[in]   taskDuration    duration of the task when recording the violation
+ * @param[in]   taskDuration    duration of the task when recording the
+ *                              violation
  * @param[in]   timestampEnter  timestamp that the task has entered
  */
 static void SYSM_RecordTimingViolation(SYSM_TASK_ID_e taskId, uint32_t taskDuration, uint32_t timestampEnter);
 
 /**
- * @brief   Convert recorded timings into a decision (bool) whether the timing has been violated or not
- * @details Timing has been violated if both duration or timestamp are not equal to zero
+ * @brief   Convert recorded timings into a decision (bool) whether the timing
+ *          has been violated or not
+ * @details Timing has been violated if both duration or timestamp are not
+ *          equal to zero
  * @param[in]   duration        duration in ticks
  * @param[in]   timestampEnter  entry timestamp in ticks
- * @returns     bool describing whether this is a violation (true) or not (false)
+ * @return  bool describing whether this is a violation (true) or not (false)
  */
 static bool SYSM_ConvertRecordedTimingsToViolation(uint32_t duration, uint32_t timestampEnter);
 

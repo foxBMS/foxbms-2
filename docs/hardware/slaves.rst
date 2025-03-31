@@ -84,6 +84,7 @@ slaves can be found at:
 
     ./slaves/14-nxp-mc33775a-vx.x.x/14-nxp-mc33775a-v1.0.0
     ./slaves/14-nxp-mc33775a-vx.x.x/14-nxp-mc33775a-v1.0.2
+    ./slaves/14-nxp-mc33775a-vx.x.x/14-nxp-mc33775a-v1.0.3
 
 ADI-based Slaves
 ----------------

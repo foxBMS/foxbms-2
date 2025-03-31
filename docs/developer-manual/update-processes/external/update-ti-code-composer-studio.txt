@@ -1,0 +1,12 @@
+- |snippet_verify_license|.
+- |snippet_download| |url_ti-code-composer-studio_releases|.
+- |snippet_install| |ti-code-composer-studio|.
+- |update-installation-instructions| for |ti-code-composer-studio|.
+- Update the |ti-code-composer-studio| entry in
+  ``conf/env/paths_win32.txt`` and
+  ``conf/env/paths_linux.txt``
+- |snippet_update_license| in
+  ``docs/general/license-tables/license-info_ti-code-composer-studio.csv``.
+- |snippet_changelog_entry|
+- |snippet_commit|
+  ``Dependency update: <XXXX>/Q<Y>: Texas Instruments Code Composer Studio <version number>``.

@@ -231,32 +231,32 @@ received data to the queue.
 The ``CAN_ReadRxBuffer()`` function retrieves the messages from the queue and
 calls the callbacks outside of the interrupt routine.
 
-Configuration in |halcogen|
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Configuration in |ti-halcogen|
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 64 messages boxes are available for each CAN interface. 32 of them are
 configured as transmit message boxes, the other half as receive message boxes
-(with |halcogen|), so the macro ``CAN_NR_OF_TX_MESSAGE_BOX`` is set to 32.
+(with |ti-halcogen|), so the macro ``CAN_NR_OF_TX_MESSAGE_BOX`` is set to 32.
 It must be adapted if the number of transmit message boxes is changed.
 
-Unfortunately, using |halcogen|, only the complete CAN interface and not the
+Unfortunately, using |ti-halcogen|, only the complete CAN interface and not the
 individual message boxes can be configured if standard or extended identifiers
 shall be used.
 
 For this reason, four receive mailboxes (mailboxes 61-64) are hard-coded during
-the initialization and overwrite the respective |halcogen| configuration for
+the initialization and overwrite the respective |ti-halcogen| configuration for
 these mailboxes.
 The mailboxes are configured to receive all CAN messages
 with an extended 29-bit identifier. This configuration is done in function
 ``CAN_ConfigureRxMailboxesForExtendedIdentifiers()``
 
-Configuration errors in |halcogen|
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Configuration errors in |ti-halcogen|
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Using the CAN1 mailbox 42
 -------------------------
 
-Additionally, there is a bug in |halcogen| regarding the CAN1 mailbox 42 as
+Additionally, there is a bug in |ti-halcogen| regarding the CAN1 mailbox 42 as
 described in :ref:`HALCOGEN_TOOL_DOCUMENTATION`.
 The missing configuration for this mailbox is also done in function
 ``CAN_ConfigureRxMailboxesForExtendedIdentifiers()``.
@@ -267,7 +267,7 @@ Using the CAN4 interface
 ------------------------
 
 If the CAN Module should be extended to the CAN4 interface, a workaround for a
-bug in |halcogen| has to be applied.
+bug in |ti-halcogen| has to be applied.
 For details, please refer to :ref:`HALCOGEN_TOOL_DOCUMENTATION`.
 
 Callback definition

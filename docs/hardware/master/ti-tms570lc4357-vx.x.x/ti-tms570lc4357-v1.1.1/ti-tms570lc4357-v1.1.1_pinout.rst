@@ -24,6 +24,8 @@ Master TMS570 ``v1.1.1`` Pinout
 This section describes the pinout of all connectors on the |bms-master|
 |local_master_version|.
 
+.. _pinout_supply:
+
 Supply
 ######
 
@@ -36,6 +38,8 @@ Micro-Fit 3.0 connector (J2009) with the pinout depicted in table
    :header-rows: 1
    :delim: ,
    :file: ./pinout/ti-tms570lc4357-v1.1.1_supply_ext.csv
+
+.. _pinout_can1:
 
 CAN1
 ####
@@ -50,6 +54,8 @@ with the pinout depicted in table
    :delim: ,
    :file: ./pinout/ti-tms570lc4357-v1.1.1_can1.csv
 
+.. _pinout_can2:
+
 CAN2 (isolated)
 ###############
 
@@ -63,7 +69,9 @@ An isolated CAN interface is provided on a 4 pin Molex Micro-Fit 3.0 connector
    :delim: ,
    :file: ./pinout/ti-tms570lc4357-v1.1.1_can2.csv
 
-Insulation monitoring
+.. _pinout_insulation_monitoring:
+
+Insulation Monitoring
 #####################
 
 A Bender IR155-3204 insulation monitoring device can be connected to the
@@ -77,6 +85,8 @@ following pinout described in
    :delim: ,
    :file: ./pinout/ti-tms570lc4357-v1.1.1_isomon.csv
 
+.. _pinout_interlock:
+
 Interlock
 #########
 
@@ -89,6 +99,8 @@ The pinout is depicted in :numref:`Table %s <ti-tms570lc4357-v1.1.1_interlock>`.
    :header-rows: 1
    :delim: ,
    :file: ./pinout/ti-tms570lc4357-v1.1.1_interlock.csv
+
+.. _pinout_smart_power_switches:
 
 Smart Power Switches
 ####################
@@ -106,7 +118,9 @@ The pinout for each output smart power switch output ``X`` is depicted in
    :delim: ,
    :file: ./pinout/ti-tms570lc4357-v1.1.1_sps.csv
 
-Interface connector
+.. _pinout_interface_connector:
+
+Interface Connector
 ###################
 
 For the connection to the |bms-interface|, a 40-pole Samtec Edge Rate mezzanine
@@ -119,6 +133,8 @@ The pinout and pin usage is described in
    :header-rows: 1
    :delim: ,
    :file: ./pinout/ti-tms570lc4357-v1.1.1_interface.csv
+
+.. _pinout_extension_connector:
 
 Extension connector
 ###################
@@ -134,7 +150,9 @@ The pinout and pin usage is described in
    :delim: ,
    :file: ./pinout/ti-tms570lc4357-v1.1.1_extension.csv
 
-Debug connector
+.. _pinout_debug_connector:
+
+Debug Connector
 ###############
 
 For the connection of a debugger to the |bms-master|, a 38-pole Mictor
@@ -148,6 +166,8 @@ The pinout and pin usage is described in
    :delim: ,
    :file: ./pinout/ti-tms570lc4357-v1.1.1_debug.csv
 
+.. _pinout_rs485:
+
 RS485
 #####
 
@@ -160,6 +180,8 @@ The pinout is depicted in :numref:`Table %s <ti-tms570lc4357-v1.1.1_rs485>`.
    :header-rows: 1
    :delim: ,
    :file: ./pinout/ti-tms570lc4357-v1.1.1_rs485.csv
+
+.. _pinout_ethernet:
 
 Ethernet
 ########

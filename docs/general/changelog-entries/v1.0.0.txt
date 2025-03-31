@@ -2,7 +2,7 @@ Added
 =====
 
 - Added automated installer script for miniconda3.
-- Added automated installer script for MinGW64.
+- Added automated installer script for |mingw-w64|.
 - Added automated installer script for LLVM.
 
 Changed
@@ -54,4 +54,4 @@ Fixed
   module.
 - Fixed CAN driver problem when cache is enabled.
 - ``conda-init.bat`` used a wrong path to write the ``.condarc`` file if the
-  user name contained whitespace.
+  username contained whitespace.

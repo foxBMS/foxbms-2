@@ -1,0 +1,10 @@
+- |snippet_verify_license|.
+- |snippet_download| |url_freertos_releases|.
+- Replace ``src/os/freertos/freertos`` with the new version.
+- Verify the changes in ``src/os/freertos/freertos/portable`` against the
+  |foxbms| specific changes.
+- |snippet_update_license| in
+  ``docs/general/license-tables/internal/license-info_freertos-kernel.csv``.
+- |snippet_changelog_entry|.
+- |snippet_commit|
+  ``Dependency update: <XXXX>/Q<Y>: FreeRTOS kernel <version number>``.

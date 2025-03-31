@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -42,13 +42,13 @@
 import io
 import sys
 import unittest
-from contextlib import redirect_stdout
+from contextlib import redirect_stderr
 from pathlib import Path
 
 try:
     from cli.pre_commit_scripts import check_for_tabs
 except ModuleNotFoundError:
-    sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
+    sys.path.insert(0, str(Path(__file__).parents[3]))
     from cli.pre_commit_scripts import check_for_tabs
 
 
@@ -69,8 +69,8 @@ class TestForTabs(unittest.TestCase):
         """No tabs"""
 
         test = "tabs_0.txt"
-        buf = io.StringIO()
-        with redirect_stdout(buf):
+        err = io.StringIO()
+        with redirect_stderr(err):
             result = check_for_tabs.main([str(self.tests_dir / test)])
 
         self.assertEqual(result, 1)
@@ -78,14 +78,14 @@ class TestForTabs(unittest.TestCase):
             f"{(self.tests_dir / test).as_posix()}:1 contains tabs.\n"
             f"{(self.tests_dir / test).as_posix()} contains tabs.\n"
         )
-        self.assertEqual(std_out, buf.getvalue())
+        self.assertEqual(std_out, err.getvalue())
 
     def test_not_ok_1(self):
         """ASCII file with tabs"""
 
         test = "tabs_1.txt"
-        buf = io.StringIO()
-        with redirect_stdout(buf):
+        err = io.StringIO()
+        with redirect_stderr(err):
             result = check_for_tabs.main([str(self.tests_dir / test)])
 
         self.assertEqual(result, 4)
@@ -95,19 +95,19 @@ class TestForTabs(unittest.TestCase):
             f"{(self.tests_dir / test).as_posix()}:6 contains tabs.\n"
             f"{(self.tests_dir / test).as_posix()} contains tabs.\n"
         )
-        self.assertEqual(std_out, buf.getvalue())
+        self.assertEqual(std_out, err.getvalue())
 
     def test_not_ok_2(self):
         """UTF-16-LE file with tabs"""
 
         test = "tabs_2.txt"
-        buf = io.StringIO()
-        with redirect_stdout(buf):
+        err = io.StringIO()
+        with redirect_stderr(err):
             result = check_for_tabs.main([str(self.tests_dir / test)])
 
         self.assertEqual(result, 5)
         std_out = f"{(self.tests_dir / test).as_posix()} contains tabs.\n"
-        self.assertEqual(std_out, buf.getvalue())
+        self.assertEqual(std_out, err.getvalue())
 
 
 if __name__ == "__main__":

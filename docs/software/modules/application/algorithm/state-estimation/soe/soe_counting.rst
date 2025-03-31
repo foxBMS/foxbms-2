@@ -39,13 +39,11 @@ If external energy counting value is available:
 1. Save time step
 1. Save energy counting value
 
-
 If external energy counting value is *NOT* available:
 
 1. Manually calculate energy throughput since last call.
 1. Check current flow direction to evaluate if charge/discharge is ongoing.
 1. Accumulate energy throughput value in either charge or discharge direction in |soe| database entry.
 1. Save time step
-
 
 |tbc|

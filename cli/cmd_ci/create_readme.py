@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@ import re
 import sys
 
 import yaml
-from click import secho
 
+from ..helpers.click_helpers import recho
 from ..helpers.misc import PROJECT_ROOT
 
 CI_CONFIG = PROJECT_ROOT / ".gitlab-ci.yml"
@@ -60,10 +60,10 @@ def create_readme() -> int:  # pylint:disable=too-many-branches
     """Reads the '.gitlab-ci.yml' file and creates the 'README.md'."""
     err = 0
     if not CI_CONFIG.is_file():
-        secho(f"File '{CI_CONFIG}' does not exist.", fg="red", err=True)
+        recho(f"File '{CI_CONFIG}' does not exist.")
         err += 1
     if not CI_README.is_file():
-        secho(f"File '{CI_README}' does not exist.", fg="red", err=True)
+        recho(f"File '{CI_README}' does not exist.")
         err += 1
     if err:
         return err
@@ -129,7 +129,7 @@ def create_readme() -> int:  # pylint:disable=too-many-branches
                 markdown.append(line[2:].rstrip() + "\n")
             elif line.startswith("  #"):
                 if line.startswith("  # ###"):
-                    markdown.append(f"### `{lines[i-1][:-1]}`" + "\n")
+                    markdown.append(f"### `{lines[i - 1][:-1]}`" + "\n")
                 if markdown[-1].startswith("### "):
                     line = line[5:]
                 markdown.append(line[3:].strip() + "\n")

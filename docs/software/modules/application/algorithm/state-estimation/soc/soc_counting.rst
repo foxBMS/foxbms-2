@@ -57,7 +57,6 @@ If analog current counting value is available:
 1. Save time step
 1. Save current counting value
 
-
 If analog current counting value is *NOT* available:
 
 1. Manually integrate current to calculate amount of charge since last call.

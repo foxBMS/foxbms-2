@@ -19,8 +19,8 @@
 ###############################################################################
 :project:
   # how to use ceedling. If you're not sure, leave this as `gem` and `?`
-  :which_ceedling: ../../tools/vendor/ceedling
-  :ceedling_version: 1.0.0
+  :which_ceedling: gem
+  :ceedling_version: "?"
 
   # optional features. If you don't need them, keep them turned off for performance
   :use_mocks: TRUE
@@ -65,7 +65,6 @@
 # details on how to use it.
 :plugins:
   :load_paths:
-    - ../../tools/vendor/ceedling/plugins
   :enabled:
     #- beep                           # beeps when finished, so you don't waste time waiting for ceedling
     - module_generator # handy for quickly creating source, header, and test templates
@@ -127,8 +126,8 @@
     - +:./../../src/opt/**
   :include:
     - +:./include/** # HALCoGen
-    - +:./../../src/os/freertos/include
-    - +:./../../src/os/freertos/portable/ccs/arm_cortex-r5
+    - +:./../../src/os/freertos/freertos/include
+    - +:./../../src/os/freertos/freertos/portable/ccs/arm_cortex-r5
     - +:./../../src/app/main/include
     - +:./../../src/app/application/config # see marker 'CONFIG'
     - +:./../../src/app/engine/config
@@ -236,6 +235,27 @@
         - -include
         - test_ignore_list.h
         - -Werror
+      :/test_timer.c:
+        - -I
+        - "../../src/os/freertos/freertos/include"
+        - -include
+        - FreeRTOSConfig.h
+      :/os/*:
+        # This is needed since FreeRTOS V11.1.0. We need the definition of
+        # configNUMBER_OF_CORES in FreeRTOSConfig.h in os related modules.
+        # See tests/unit/app/task/os/freertos/freertos/test_os_freertos.c
+        - -I
+        - "../../src/os/freertos/freertos/include"
+        - -include
+        - FreeRTOSConfig.h
+      :/test_dma.c:
+        # This is needed since FreeRTOS V11.1.0. We need the definition of
+        # configNUMBER_OF_CORES in FreeRTOSConfig.h in os related modules.
+        # See tests/unit/app/task/os/freertos/freertos/test_os_freertos.c
+        - -I
+        - "../../src/os/freertos/freertos/include"
+        - -include
+        - FreeRTOSConfig.h
 
 # Configuration Options specific to CMock. See CMock docs for details
 :cmock:
@@ -252,9 +272,7 @@
     - "stream_buffer.h"
     - "event_groups.h"
   :plugins: # What plugins should be used by CMock?
-    - :ignore
     - :callback
-    - :ignore_arg
     - :return_thru_ptr
   :verbosity: 2 # the options being 0 errors only, 1 warnings and errors, 2 normal info, 3 verbose
   :when_no_prototypes: :warn # the options being :ignore, :warn, or :erro
@@ -288,7 +306,8 @@
   :treat_inlines: :exclude # the options being :include or :exclude
 
   # Type handling configuration
-  #:unity_helper_path: ''          # specify a string of where to find a unity_helper.h file to discover custom type assertions
+  # specify a string of where to find a unity_helper.h file to discover custom type assertions
+  :unity_helper_path: "../../tests/unit/support/struct_helper.h"
   :treat_as: # optionally add additional types to map custom types
     uint8: HEX8
     uint16: HEX16

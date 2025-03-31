@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -42,8 +42,9 @@
 import argparse
 import sys
 from pathlib import Path
-from typing import Sequence
+from typing import Literal, Sequence
 
+FileTypes = Literal["src.c", "src.h", "test.c", "test.h"]
 TYPES = {
     "src.c": [
         "/*========== Includes =======================================================*/",
@@ -77,7 +78,7 @@ TYPES = {
 }
 
 
-def run_check(filename: Path, file_type) -> int:
+def run_check(filename: Path, file_type: FileTypes) -> int:
     """Runs the check"""
     txt = filename.read_text(encoding="ascii")
     txt_lines = txt.splitlines()
@@ -93,23 +94,16 @@ def run_check(filename: Path, file_type) -> int:
             idx.append(-1)
         if txt_lines.count(marker) > 1:
             err += 1
-            print(
-                f"{filename.as_posix()}: {marker} occurs more than once.",
-                file=sys.stderr,
-            )
+            msg = f"{filename.as_posix()}: {marker} occurs more than once."
+            print(msg, file=sys.stderr)
         if f"\n\n{marker}\n" not in txt:
             err += 1
-            print(
-                f"{filename.as_posix()}: {marker} requires a blank line "
-                "before the marker.",
-                file=sys.stderr,
-            )
+            msg = f"{filename.as_posix()}: {marker} requires a blank line before the marker."
+            print(msg, file=sys.stderr)
     if idx != sorted(idx):
         err += 1
-        print(
-            f"{filename.as_posix()}: markers are not in the correct order.",
-            file=sys.stderr,
-        )
+        msg = f"{filename.as_posix()}: markers are not in the correct order."
+        print(msg, file=sys.stderr)
 
     if file_type in ["src.c", "src.h"]:
         # check the file, then this exception is obvious
@@ -125,18 +119,18 @@ def run_check(filename: Path, file_type) -> int:
         try:
             if not txt_lines[unit_test_define] == "#ifdef UNITY_UNIT_TEST":
                 err += 1
-                print(
+                msg = (
                     f"{filename.as_posix()}: '#ifdef UNITY_UNIT_TEST' is "
-                    f"missing after {TYPES[file_type][-1]}.",
-                    file=sys.stderr,
+                    f"missing after {TYPES[file_type][-1]}."
                 )
+                print(msg, file=sys.stderr)
         except IndexError:
             err += 1
-            print(
+            msg = (
                 f"{filename.as_posix()}: '#ifdef UNITY_UNIT_TEST' is "
-                f"missing after {TYPES[file_type][-1]}.",
-                file=sys.stderr,
+                f"missing after {TYPES[file_type][-1]}."
             )
+            print(msg, file=sys.stderr)
     return err
 
 
@@ -149,9 +143,8 @@ def check_src(files: Sequence[Path]) -> int:
         elif i.suffix == ".h":
             err += run_check(i, "src.h")
         else:
-            print(
-                f"{i.as_posix()}: Unkown file extension '{i.suffix}'.", file=sys.stderr
-            )
+            msg = f"{i.as_posix()}: Unknown file extension '{i.suffix}'."
+            print(msg, file=sys.stderr)
             err += 1
     return err
 
@@ -165,9 +158,8 @@ def check_test(files: Sequence[Path]) -> int:
         elif i.suffix == ".h":
             err += run_check(i, "test.h")
         else:
-            print(
-                f"{i.as_posix()}: Unkown file extension '{i.suffix}'.", file=sys.stderr
-            )
+            msg = f"{i.as_posix()}: Unknown file extension '{i.suffix}'."
+            print(msg, file=sys.stderr)
             err += 1
     return err
 

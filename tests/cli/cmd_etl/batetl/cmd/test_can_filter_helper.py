@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -39,9 +39,10 @@
 
 """Testing file 'cli/cmd_etl/batetl/cmd/can_filter_helper.py'."""
 
-import logging
+import io
 import sys
 import unittest
+from contextlib import redirect_stderr
 from io import StringIO
 from pathlib import Path
 from unittest.mock import Mock, patch
@@ -68,7 +69,7 @@ class TestCANFilterHelper(unittest.TestCase):
     @patch("cli.cmd_etl.batetl.cmd.can_filter_helper.validate_filter_config")
     @patch("cli.cmd_etl.batetl.cmd.can_filter_helper.read_config")
     def test_can_filter_setup(
-        self, read_config_mock: Mock, validate_mock: Mock, canfilter_mock: Mock
+        self, read_config_mock: Mock, validate_mock: Mock, can_filter_mock: Mock
     ) -> None:
         """test_can_filter_setup mocks all function calls in
         the can_filter_setup function to ensure the correctness
@@ -76,7 +77,7 @@ class TestCANFilterHelper(unittest.TestCase):
 
         :param read_config_mock: Mock for the read_config function.
         :param validate_mock: Mock for validate_filter_config function.
-        :param CANFilter_mock: Mock for the CANFilter class.
+        :param can_filter_mock: Mock for the CANFilter class.
         """
         # Case 1: check whether all functions are called
         # once as intended
@@ -87,11 +88,11 @@ class TestCANFilterHelper(unittest.TestCase):
         can_filter_setup(test_config)
         read_config_mock.assert_called_once_with(test_config)
         validate_mock.assert_called_once_with(test_config_dict)
-        canfilter_mock.assert_called_once_with(**test_config_dict)
+        can_filter_mock.assert_called_once_with(**test_config_dict)
 
     def test_validate_filter_config(self) -> None:
         """test_validate_filter_config checks that the validate_filter_config
-        validates the configuration correclty, especially wrong
+        validates the configuration correctly, especially wrong
         configuration.
         """
         # Case 1: config_dict as it should be
@@ -104,7 +105,7 @@ class TestCANFilterHelper(unittest.TestCase):
         list_of_test_cases = [
             {
                 "config_dict": {"ids": ["130", "140"], "sampling": {"130": 2}},
-                "logging": "Configuration file is missing 'id_pos' parameter.",
+                "echo": "Configuration file is missing 'id_pos' parameter.",
             },
             {
                 "config_dict": {
@@ -112,15 +113,15 @@ class TestCANFilterHelper(unittest.TestCase):
                     "ids": ["130", "140"],
                     "sampling": {"130": 2},
                 },
-                "logging": "'id_pos' in the configuration file is not an integer.",
+                "echo": "'id_pos' in the configuration file is not an integer.",
             },
             {
                 "config_dict": {"id_pos": 2, "sampling": {"130": 2}},
-                "logging": "'Configuration file is missing 'ids' parameter'.",
+                "echo": "'Configuration file is missing 'ids' parameter'.",
             },
             {
                 "config_dict": {"id_pos": 2, "ids": 130, "sampling": {"130": 2}},
-                "logging": "'ids' is not a list.",
+                "echo": "'ids' is not a list.",
             },
             {
                 "config_dict": {
@@ -128,7 +129,7 @@ class TestCANFilterHelper(unittest.TestCase):
                     "ids": ["130", 140],
                     "sampling": {"130": 2},
                 },
-                "logging": "Not all ids are defined as string. Missing quotes ?",
+                "echo": "Not all ids are defined as string. Missing quotes ?",
             },
             {
                 "config_dict": {
@@ -136,7 +137,7 @@ class TestCANFilterHelper(unittest.TestCase):
                     "ids": ["130", "14G"],
                     "sampling": {"130": 2},
                 },
-                "logging": "'ids' are not defined as hexadecimal values!",
+                "echo": "'ids' are not defined as hexadecimal values!",
             },
             {
                 "config_dict": {
@@ -144,11 +145,11 @@ class TestCANFilterHelper(unittest.TestCase):
                     "ids": ["130", "140-14G"],
                     "sampling": {"130": 2},
                 },
-                "logging": "'ids' are not defined as hexadecimal values!",
+                "echo": "'ids' are not defined as hexadecimal values!",
             },
             {
                 "config_dict": {"id_pos": 2, "ids": ["130", "140"], "sampling": 2},
-                "logging": "'sampling' is not a dictionary.",
+                "echo": "'sampling' is not a dictionary.",
             },
             {
                 "config_dict": {
@@ -156,7 +157,7 @@ class TestCANFilterHelper(unittest.TestCase):
                     "ids": ["130", "140"],
                     "sampling": {130: 2},
                 },
-                "logging": "Not all ids in sampling are defined as string. Missing quotes ?",
+                "echo": "Not all ids in sampling are defined as string. Missing quotes ?",
             },
             {
                 "config_dict": {
@@ -164,18 +165,19 @@ class TestCANFilterHelper(unittest.TestCase):
                     "ids": ["130", "140"],
                     "sampling": {"150": 2},
                 },
-                "logging": "Defined sampling is not a subset of the ids.",
+                "echo": "Defined sampling is not a subset of the ids.",
             },
         ]
         for i in list_of_test_cases:
-            with self.subTest(f"Case: {i['logging']}"):
+            with self.subTest(f"Case: {i['echo']}"):
+                buf = io.StringIO()
                 with (
+                    redirect_stderr(buf),
                     self.assertRaises(SystemExit) as cm,
-                    self.assertLogs(level=logging.ERROR) as al,
                 ):
                     validate_filter_config(i["config_dict"])
                 # check if key word id_pos is part of the error message
-                self.assertTrue(i["logging"] in al.output[0])
+                self.assertTrue(i["echo"] in buf.getvalue())
                 self.assertEqual(cm.exception.code, 1)
 
     @patch("sys.stdout", new_callable=StringIO)
@@ -197,6 +199,20 @@ class TestCANFilterHelper(unittest.TestCase):
         run_filter(filter_obj)
         stdout.seek(0)
         self.assertListEqual(["line1\n", "line3\n"], stdout.readlines())
+        # Case 2: Can not write to stdout
+        stdin.write("line1\nline2\nline3\n")
+        stdin.seek(0)
+        filter_obj = Mock()
+        filter_obj.filter_msg.side_effect = lambda x: x if "2" not in x else None
+        stdout.write = Mock(side_effect=OSError())
+        buf = io.StringIO()
+        with (
+            redirect_stderr(buf),
+            self.assertRaises(SystemExit) as cm,
+        ):
+            run_filter(filter_obj)
+        self.assertTrue("Could not write to stdout" in buf.getvalue())
+        self.assertEqual(cm.exception.code, 1)
 
 
 if __name__ == "__main__":

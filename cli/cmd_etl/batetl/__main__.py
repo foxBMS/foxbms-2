@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -39,24 +39,10 @@
 
 """Defines the direct execution of the ETL package entry points"""
 
-import click
-
-from . import cmd_decode, cmd_filter
-
-CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"]}
-
-
-@click.group(context_settings=CONTEXT_SETTINGS, hidden=False)
-def entry_point() -> None:
-    """Extract Transform Load functionalities via command line.
-
-    These scripts and tools will simplifiy the collection of
-    foxBMS 2 data and their analysis.
-    """
-
-
-entry_point.add_command(cmd_filter)
-entry_point.add_command(cmd_decode)
+from . import cmd_decode, cmd_filter, cmd_table, entry_point
 
 if __name__ == "__main__":
+    entry_point.add_command(cmd_filter)
+    entry_point.add_command(cmd_decode)
+    entry_point.add_command(cmd_table)
     entry_point()

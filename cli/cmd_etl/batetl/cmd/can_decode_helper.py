@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -39,9 +39,14 @@
 
 """CAN decode subcommand implementation"""
 
-import logging
 import sys
+from io import TextIOWrapper
 from pathlib import Path
+from typing import cast
+
+import click
+from cantools import database
+from cantools.database.can.database import Database
 
 from ..etl.can_decode import CANDecode
 from . import read_config
@@ -55,7 +60,27 @@ def can_decode_setup(config: Path) -> CANDecode:
     """
     config_dict = read_config(config)
     validate_decode_config(config_dict)
+    config_dict["dbc"] = get_cantools_database(config_dict["dbc"])
     return CANDecode(**config_dict)
+
+
+def get_cantools_database(dbc_path: Path) -> Database:
+    """Loads cantools database and returns it
+
+    :param dbc_path: Path to the dbc file
+    :return: Cantools database
+    """
+    try:
+        return cast(
+            database.can.database.Database,
+            database.load_file(dbc_path, database_format="dbc", encoding="utf-8"),
+        )
+    except database.UnsupportedDatabaseFormatError:
+        click.secho("Invalid DBC file", fg="red", err=True)
+        raise SystemExit(1) from None
+    except FileNotFoundError:
+        click.secho("DBC file not found", fg="red", err=True)
+        raise SystemExit(1) from None
 
 
 def validate_decode_config(config_dict: dict) -> None:
@@ -64,28 +89,40 @@ def validate_decode_config(config_dict: dict) -> None:
     :param config_dict: Dictionary with configurations
     """
     if "dbc" not in config_dict:
-        logging.error("Configuration file is missing 'dbc' parameter.")
+        click.secho(
+            "Configuration file is missing 'dbc' parameter.", fg="red", err=True
+        )
         sys.exit(1)
     if not isinstance(config_dict["dbc"], str):
-        logging.error("'dbc' in the configuration file is not a string.")
+        click.secho(
+            "'dbc' in the configuration file is not a string.", fg="red", err=True
+        )
         sys.exit(1)
     if "timestamp_pos" not in config_dict:
-        logging.error("'Configuration file is missing 'timestamp_pos' parameter'.")
+        click.secho(
+            "'Configuration file is missing 'timestamp_pos' parameter'.",
+            fg="red",
+            err=True,
+        )
         sys.exit(1)
     if not isinstance(config_dict["timestamp_pos"], int):
-        logging.error("'timestamp_pos' is not an integer.")
+        click.secho("'timestamp_pos' is not an integer.", fg="red", err=True)
         sys.exit(1)
     if "id_pos" not in config_dict:
-        logging.error("'Configuration file is missing 'id_pos' parameter'.")
+        click.secho(
+            "'Configuration file is missing 'id_pos' parameter'.", fg="red", err=True
+        )
         sys.exit(1)
     if not isinstance(config_dict["id_pos"], int):
-        logging.error("'id_pos' is not an integer.")
+        click.secho("'id_pos' is not an integer.", fg="red", err=True)
         sys.exit(1)
     if "data_pos" not in config_dict:
-        logging.error("'Configuration file is missing 'data_pos' parameter'.")
+        click.secho(
+            "'Configuration file is missing 'data_pos' parameter'.", fg="red", err=True
+        )
         sys.exit(1)
     if not isinstance(config_dict["data_pos"], int):
-        logging.error("'data_pos' is not an integer.")
+        click.secho("'data_pos' is not an integer.", fg="red", err=True)
         sys.exit(1)
 
 
@@ -96,25 +133,26 @@ def run_decode2stdout(decode_obj: CANDecode) -> None:
     """
     for msg in sys.stdin:
         msg_name, msg_decoded = decode_obj.decode_msg(msg)
-        if msg_name:
+        if msg_name and msg_decoded:
             sys.stdout.write(msg_decoded)
 
 
-def run_decode2file(decode_obj: CANDecode, output_folder: Path) -> None:
+def run_decode2file(decode_obj: CANDecode, output_directory: Path) -> None:
     """Executes the can decode step
 
     :param decode_obj: Object which handles the decoding
-    :param output_folder: Folder in which the decoded data should be saved
+    :param output_directory: Directory in which the decoded data should be
+        saved
     """
-    output_files = {}
+    output_files: dict[str, TextIOWrapper] = {}
     try:
         for msg in sys.stdin:
             msg_name, msg_decoded = decode_obj.decode_msg(msg)
-            if msg_name:
+            if msg_name and msg_decoded:
                 if msg_name in output_files:
                     output_files[msg_name].write(msg_decoded)
                 else:
-                    file_name = output_folder / f"{msg_name}.json"
+                    file_name = output_directory / f"{msg_name}.json"
                     f = open(file_name, mode="w", encoding="utf-8")  # pylint: disable=consider-using-with
                     output_files[msg_name] = f
                     f.write(msg_decoded)

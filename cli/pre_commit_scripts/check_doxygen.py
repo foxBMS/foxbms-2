@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -53,6 +53,10 @@ RE_PREFIX_FIELD = re.compile(r" \* @prefix  [A-Z]{1,5}")
 RE_BRIEF_FIELD = re.compile(r" \* @brief   [A-Z]{1,}")
 RE_DETAILS_FIELD = re.compile(r" \* @details [A-Z]{1,}")
 
+IDX_DEFAULTS = {
+    "confidential": 9,
+    "BSD-3-Clause": 41,
+}
 IDX_MAP = {
     "src/app/driver/afe/nxp/mc33775a/nxp_mc33775a-ll.c": 22,
     "tests/cli/pre_commit_scripts/test_check_license_info/invalid-license.c": 43,
@@ -66,106 +70,105 @@ IGNORE_ERROR = {
 }
 
 
-# pylint: disable=too-many-branches, too-many-statements
+# pylint: disable-next=too-many-branches, too-many-statements
 def run_check(filename: Path, version: str) -> int:
     """Runs the check"""
     fp = filename.as_posix()
-    offset = IDX_MAP.get(fp, 41)
     try:
         txt = filename.read_text(encoding="ascii")
     except UnicodeDecodeError:
-        print(f"{fp}: Could not ASCII-decode this file.")
+        print(f"{fp}: Could not ASCII-decode this file.", file=sys.stderr)
         return 1
     txt_lines = txt.splitlines()
+    offset = IDX_DEFAULTS["confidential"]
+    if fp in IDX_MAP:
+        offset = IDX_MAP[fp]
+    elif " * SPDX-License-Identifier: BSD-3-Clause" in txt_lines:
+        offset = IDX_DEFAULTS["BSD-3-Clause"]
     err = 0
     try:
         if not txt_lines[offset] == "/**":
             err += 1
-            print(f"{fp}: Doxygen comment start marker is missing.")
+            print(f"{fp}: Doxygen comment start marker is missing.", file=sys.stderr)
     except IndexError:
         err += 1
-        print(f"{fp}: Doxygen comment start marker is missing.")
+        print(f"{fp}: Doxygen comment start marker is missing.", file=sys.stderr)
     try:
         if not txt_lines[offset + 1] == f" * @file    {filename.name}":
             err += 1
-            print(f"{fp}: Doxygen @file field is wrong/missing.")
+            print(f"{fp}: Doxygen @file field is wrong/missing.", file=sys.stderr)
     except IndexError:
         err += 1
-        print(f"{fp}: Doxygen @file field is wrong/missing.")
+        print(f"{fp}: Doxygen @file field is wrong/missing.", file=sys.stderr)
     try:
         if not txt_lines[offset + 2] == " * @author  foxBMS Team":
             if fp not in IGNORE_ERROR["author"]:
                 err += 1
-                print(f"{fp}: Doxygen @author field is wrong/missing.")
+                print(f"{fp}: Doxygen @author field is wrong/missing.", file=sys.stderr)
     except IndexError:
         err += 1
-        print(f"{fp}: Doxygen @author field is wrong/missing.")
+        print(f"{fp}: Doxygen @author field is wrong/missing.", file=sys.stderr)
     try:
         if not RE_DATE_FIELD.match(txt_lines[offset + 3]):
             err += 1
-            print(f"{fp}: Doxygen @date field is wrong/missing.")
+            print(f"{fp}: Doxygen @date field is wrong/missing.", file=sys.stderr)
     except IndexError:
         err += 1
-        print(f"{fp}: Doxygen @date field is wrong/missing.")
+        print(f"{fp}: Doxygen @date field is wrong/missing.", file=sys.stderr)
     try:
         if not RE_UPDATED_FIELD.match(txt_lines[offset + 4]):
             err += 1
-            print(f"{fp}: Doxygen @updated field is wrong/missing.")
+            print(f"{fp}: Doxygen @updated field is wrong/missing.", file=sys.stderr)
     except IndexError:
         err += 1
-        print(f"{fp}: Doxygen @updated field is wrong/missing.")
+        print(f"{fp}: Doxygen @updated field is wrong/missing.", file=sys.stderr)
     try:
         if not txt_lines[offset + 5] == f" * @version v{version}":
             err += 1
-            print(f"{fp}: Doxygen @version field is wrong/missing.")
+            print(f"{fp}: Doxygen @version field is wrong/missing.", file=sys.stderr)
     except IndexError:
         err += 1
-        print(f"{fp}: Doxygen @version field is wrong/missing.")
+        print(f"{fp}: Doxygen @version field is wrong/missing.", file=sys.stderr)
     try:
         if not RE_INGROUP_FIELD.match(txt_lines[offset + 6]):
             err += 1
-            print(f"{fp}: Doxygen @ingroup field is wrong/missing.")
+            print(f"{fp}: Doxygen @ingroup field is wrong/missing.", file=sys.stderr)
     except IndexError:
         err += 1
-        print(f"{fp}: Doxygen @ingroup field is wrong/missing.")
+        print(f"{fp}: Doxygen @ingroup field is wrong/missing.", file=sys.stderr)
     try:
         if not RE_PREFIX_FIELD.match(txt_lines[offset + 7]):
             err += 1
-            print(f"{fp}: Doxygen @prefix field is wrong/missing.")
+            print(f"{fp}: Doxygen @prefix field is wrong/missing.", file=sys.stderr)
     except IndexError:
         err += 1
-        print(f"{fp}: Doxygen @prefix field is wrong/missing.")
+        print(f"{fp}: Doxygen @prefix field is wrong/missing.", file=sys.stderr)
     try:
         if not RE_BRIEF_FIELD.match(txt_lines[offset + 9]):
             err += 1
-            print(f"{fp}: Doxygen @brief field is wrong/missing.")
+            print(f"{fp}: Doxygen @brief field is wrong/missing.", file=sys.stderr)
     except IndexError:
         err += 1
-        print(f"{fp}: Doxygen @brief field is wrong/missing.")
+        print(f"{fp}: Doxygen @brief field is wrong/missing.", file=sys.stderr)
 
     # now read until we find the @details comment:
     idx_details = offset + 10
-    try:
-        for ln, line in enumerate(txt_lines[offset + 10 :]):
-            if line.startswith(" * @details "):
-                idx_details = ln + offset + 10
-                break
-    except IndexError:
-        pass
-
+    # enumerate catches IndexError so there is no need to try/except here
+    for ln, line in enumerate(txt_lines[offset + 10 :]):
+        print(ln + offset + 10, line)
+        if line.startswith(" * @details "):
+            idx_details = ln + offset + 10
+            break
     try:
         if not RE_DETAILS_FIELD.match(txt_lines[idx_details]):
             err += 1
-            print(f"{fp}: Doxygen @details field is wrong/missing.")
+            print(f"{fp}: Doxygen @details field is wrong/missing.", file=sys.stderr)
     except IndexError:
         err += 1
-        print(f"{fp}: Doxygen @details field is wrong/missing.")
+        print(f"{fp}: Doxygen @details field is wrong/missing.", file=sys.stderr)
 
     # we do not check for comment closing was the compiler will do that.
     return err
-
-
-# pylint: enable=too-many-branches, too-many-statements
 
 
 def check_doxygen(files: Sequence[Path], version: str) -> int:
@@ -188,7 +191,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     try:
         version = ver_str.split(":")[1].strip()
     except IndexError:
-        print("Could not determine foxBMS version.")
+        print("Could not determine foxBMS version.", file=sys.stderr)
         return 1
     files = [Path(i) for i in args.files]
     err = check_doxygen(files=files, version=version)

@@ -26,8 +26,8 @@ Several different voltages inside a battery system need to be measured.
 The exact number of voltages is dependent on the system topology and the
 configuration of the battery system.
 
-:numref:`start-high-level` shows the voltages that need to measured in a
-multi-string system, here for example for a 3-string system.
+:numref:`voltages-in-multi-string-system` shows the voltages that need to
+measured in a multi-string system, here for example for a 3-string system.
 The symbols are explained in :numref:`symbols-in-system-block-diagram`.
 The colors are explained in :numref:`colors-in-system-block-diagram`.
 

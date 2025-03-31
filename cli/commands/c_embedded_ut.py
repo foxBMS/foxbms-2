@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -45,12 +45,9 @@ import click
 
 from ..cmd_embedded_ut import embedded_ut_impl
 from ..cmd_embedded_ut.embedded_ut_constants import EmbeddedUnitTestVariants
-from ..helpers.misc import set_logging_level_cb
+from ..helpers.click_helpers import HELP_NAMES, verbosity_option
 
-CONTEXT_SETTINGS = {
-    "help_option_names": ["-h", "--help"],
-    "ignore_unknown_options": True,
-}
+CONTEXT_SETTINGS = HELP_NAMES | {"ignore_unknown_options": True}
 
 TESTS = ["app"]
 
@@ -59,23 +56,16 @@ TESTS = ["app"]
 @click.option(
     "--project", type=click.Choice(get_args(EmbeddedUnitTestVariants)), default="app"
 )
-@click.option(
-    "-v",
-    "--verbose",
-    default=0,
-    count=True,
-    help="Verbose information.",
-    callback=set_logging_level_cb,
-)
 @click.argument("ceedling_args", nargs=-1, type=click.UNPROCESSED)
+@verbosity_option
 @click.pass_context
 def ceedling(
     ctx: click.Context,
-    project: str,
-    verbose: int,  # pylint: disable=unused-argument
+    project: EmbeddedUnitTestVariants,
     ceedling_args: tuple[str],
+    verbose: int = 0,
 ) -> None:
-    """ceedling command"""
+    """Run the 'ceedling' unit testing tool."""
     if not ceedling_args:
         ceedling_args = ("help",)
     ret = embedded_ut_impl.run_embedded_tests(

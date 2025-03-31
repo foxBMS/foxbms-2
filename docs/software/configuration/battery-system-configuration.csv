@@ -4,8 +4,8 @@ Number of parallel strings in the battery pack;                             ``BS
 Number of modules in a string;                                              ``BS_NR_OF_MODULES_PER_STRING``
 Number of cells per module;                                                 ``BS_NR_OF_CELL_BLOCKS_PER_MODULE``
 Number of battery cells in a parallel cell connection per battery module;   ``BS_NR_OF_PARALLEL_CELLS_PER_CELL_BLOCK``
-Value of the balancing resistors on the slave-board;                        ``BS_BALANCING_RESISTANCE_ohm``
-Number of used GPIOs on the slave-board;                                    ``BS_NR_OF_GPIOS_PER_MODULE``
+Value of the balancing resistors on the slave-board;                        ``SLV_BALANCING_RESISTANCE_ohm``
+Number of used GPIOs on the slave-board;                                    ``SLV_NR_OF_GPIOS_PER_MODULE``
 Number of temperature sensors per battery module;                           ``BS_NR_OF_TEMP_SENSORS_PER_MODULE``
 Defines whether CAN based current sensor is present or not;                 ``BS_CURRENT_SENSOR_PRESENT``
 Maximum break current of main contactors;                                   ``BS_MAIN_CONTACTORS_MAXIMUM_BREAK_CURRENT_mA``

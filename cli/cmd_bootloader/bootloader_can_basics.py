@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -87,7 +87,7 @@ class BootloaderCanBasics:
         self.can_bus = can_bus
         self.messages = Messages()
 
-    # pylint: disable=too-many-arguments,too-many-positional-arguments
+    # pylint: disable-next=too-many-arguments,too-many-positional-arguments
     def wait_can_message(
         self,
         arbitration_id: int,
@@ -119,7 +119,7 @@ class BootloaderCanBasics:
             if not dbc_file.is_file():
                 sys.exit(f"File '{dbc_file}' does not exist.")
             else:
-                db = database.load_file(dbc_file)
+                db = cast(database.can.database.Database, database.load_file(dbc_file))
 
         if not params:
             params = {}
@@ -176,7 +176,7 @@ class BootloaderCanBasics:
         """The function is to send a request CAN message to bootloader.
 
         Args:
-            request_code: a member of the enum RequestCode.
+            request_code: a member of the enum RequestCode8Bits.
         """
         self.send_can_message_to_bootloader(
             self.messages.get_message_request_msg(request_code)

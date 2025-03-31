@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    fstd_types.h
  * @author  foxBMS Team
  * @date    2015-12-20 (date of creation)
- * @updated 2024-12-20 (date of last update)
- * @version v1.8.0
+ * @updated 2025-03-31 (date of last update)
+ * @version v1.9.0
  * @ingroup MAIN_CONFIGURATION
  * @prefix  STD
  *

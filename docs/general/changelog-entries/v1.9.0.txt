@@ -1,0 +1,104 @@
+The toolchain installation has been centralized into a prefix.
+On Windows the prefix is ``C:\foxbms`` and on Linux it is ``/opt/foxbms``.
+This shall help to simplify the toolchain handling and updates in the future.
+This means the following tools need to be installed again:
+- Ceedling
+- Doxygen
+- drawio-desktop
+- Graphviz
+- mingw-w64
+- Python environment
+- Ruby
+
+Further, TI Code Composer Studio has been updated to ``12.8.1`` and therefore
+also needs to be installed.
+
+See :ref:`SOFTWARE_INSTALLATION` on how to install the individual tools.
+While this update may cause some inconvenience as tools need to be installed
+again, it will make updates and adding new tools much simpler in the future.
+
+foxBMS 2 requires exactly Python3.12.x.
+If the development environment has been created with an early version of
+Python, the environment needs to be removed an recreated with Python3.12.
+
+Building the documentation now requires drawio.desktop.
+See the installation instructions in :ref:`SOFTWARE_INSTALLATION`.
+
+On Windows, foxBMS 2 requires PowerShell (``pwsh.exe``) or bash (``Git Bash``)
+as the ``fox.bat`` wrapper has been removed, i.e., use the ``fox.ps1`` or
+``fox.sh`` wrapper respectively.
+
+Added
+=====
+
+- Support building on Linux.
+- Document how to build libraries.
+- Add Tdk NTCG163JX103DT1 temperature sensor.
+- Add dedicated BMS-Slave configuration file that contains all relevant
+  information (``src/app/application/config/bms-slave_cfg.h``).
+
+- Add the following features to ``fox.py``:
+
+  - ``etl``
+  - ``plot``
+  - ``log``
+  - ``bms``
+
+  Run ``-h`` on each command to see detailed options.
+
+- Add a CAN 'DebugResponse' message for the current uptime of the
+  foxBMS system.
+- Add boot timestamp to the debug message.
+- Add a flag to indicate if a request was made to set the RTC time
+  and return whether it was a valid or invalid request.
+- Add a ``pre-commit`` script to ``.git/hooks`` specific to foxBMS needs when
+  a project is developed within a git repository.
+  This script is generated automatically.
+- Add typechecking through mypy for ``fox CLI`` .
+- Check whether ``MATLAB®`` is available or not when configuring the project.
+- Add ``FreeRTOS-Plus-TCP`` Library to the os path.
+- Add verbosity option to ``cli-unittest`` subcommand.
+
+Changed
+=======
+
+- Update installation instructions.
+- Building the documentation now requires drawio-desktop.
+  (see :numref:`SOFTWARE_INSTALLATION`).
+- Update the the naming convention documentation file
+  (see :numref:`NAMING_CONVENTIONS`).
+- Improve the ``fox CLI`` unit test coverage.
+- Update the unit test framework ``Ceedling`` to version ``1.0.1-fb1ce6c``.
+- Improve and simplify the implementation for library builds (i.e., the
+  implementation of the Waf command ``bootstrap_library_project``).
+- Upgrade ``FreeRTOS`` to version ``V11.1.0``.
+- Update CAN messages documentation with messages sorted by hex CAN ID.
+- Transmit CAN debug message only after the CAN driver is initialized.
+- Fix typing errors in the ``fox CLI`` implementation.
+- Improve app unit tests coverage.
+- Improve Getting Started section of the documentation.
+- Move balancing, I2C, multiplexer and database initialization implementation
+  of the NXP AFE MC33775A driver into separate files.
+- Move ``FreeRTOS`` kernel one subfolder deeper to
+  ``src/os/freertos/freertos``.
+
+Deprecated
+==========
+
+Removed
+=======
+
+- Remove the ``fox.bat`` wrapper.
+- Remove the ``ignore`` and ``ignore_arg`` plugins from the CMock settings.
+
+Fixed
+=====
+
+- Fix returncode of ``cli-unittest`` subcommand.
+- Fix the unit test build definition for file
+  ``src/app/driver/afe/adi/common/ades183x/adi_ades183x_diagnostic_w.c``.
+- Fix library build example (``tests/variants/lib-build/lib-build.ps1``)
+  - The example used invalid build commands.
+  - The example did not exit on build errors.
+- Fix return value of function ``run_script_tests``
+  (``cli/cmd_cli_unittest/cli_unittest_impl.py``).

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -38,3 +38,81 @@
 # - "This product is derived from foxBMS®"
 
 """Testing file 'cli/commands/c_ide.py'."""
+
+import sys
+import unittest
+from pathlib import Path
+from unittest.mock import MagicMock, patch
+
+from click.testing import CliRunner
+
+try:
+    from cli.cli import main
+except ModuleNotFoundError:
+    sys.path.insert(0, str(Path(__file__).parents[3]))
+    from cli.cli import main
+
+
+class TestFoxCliMainCommandIde(unittest.TestCase):
+    """Test of the 'ide' commands and options."""
+
+    @patch("cli.commands.c_ide.ide_impl")
+    def test_ide_0(self, mock_ide_impl: MagicMock):
+        """Test 'fox.py ide' command."""
+        mock_ide_impl.open_ide_generic.return_value = 0
+        runner = CliRunner(mix_stderr=False)
+        result = runner.invoke(main, ["ide"])
+        self.assertEqual(0, result.exit_code)
+        mock_ide_impl.open_ide_generic.assert_called_once()
+
+    @patch("cli.commands.c_ide.ide_impl")
+    def test_ide_1(self, mock_ide_impl: MagicMock):
+        """Test 'fox.py ide --no-generic' command."""
+        mock_ide_impl.mock_ide_impl.return_value = 0
+        runner = CliRunner(mix_stderr=False)
+        result = runner.invoke(main, ["ide", "--no-generic"])
+        self.assertEqual(0, result.exit_code)
+
+    @patch("cli.commands.c_ide.ide_impl")
+    def test_ide_2(self, mock_ide_impl: MagicMock):
+        """Test 'fox.py ide --app --no-generic' command."""
+        mock_ide_impl.open_ide_app.return_value = 0
+        runner = CliRunner(mix_stderr=False)
+        result = runner.invoke(main, ["ide", "--app", "--no-generic"])
+        self.assertEqual(0, result.exit_code)
+        mock_ide_impl.open_ide_app.assert_called_once()
+
+    @patch("cli.commands.c_ide.ide_impl")
+    def test_ide_3(self, mock_ide_impl: MagicMock):
+        """Test 'fox.py ide --bootloader --no-generic' command."""
+        mock_ide_impl.open_ide_bootloader.return_value = 0
+        runner = CliRunner(mix_stderr=False)
+        result = runner.invoke(main, ["ide", "--bootloader", "--no-generic"])
+        self.assertEqual(0, result.exit_code)
+        mock_ide_impl.open_ide_bootloader.assert_called_once()
+
+    @patch("cli.commands.c_ide.ide_impl")
+    def test_ide_4(self, mock_ide_impl: MagicMock):
+        """Test 'fox.py ide --embedded-unit-test-app --no-generic' command."""
+        mock_ide_impl.open_ide_embedded_unit_test_app.return_value = 0
+        runner = CliRunner(mix_stderr=False)
+        result = runner.invoke(
+            main, ["ide", "--embedded-unit-test-app", "--no-generic"]
+        )
+        self.assertEqual(0, result.exit_code)
+        mock_ide_impl.open_ide_embedded_unit_test_app.assert_called_once()
+
+    @patch("cli.commands.c_ide.ide_impl")
+    def test_ide_5(self, mock_ide_impl: MagicMock):
+        """Test 'fox.py ide --embedded-unit-test-bootloader --no-generic' command."""
+        mock_ide_impl.open_ide_embedded_unit_test_bootloader.return_value = 0
+        runner = CliRunner(mix_stderr=False)
+        result = runner.invoke(
+            main, ["ide", "--embedded-unit-test-bootloader", "--no-generic"]
+        )
+        self.assertEqual(0, result.exit_code)
+        mock_ide_impl.open_ide_embedded_unit_test_bootloader.assert_called_once()
+
+
+if __name__ == "__main__":
+    unittest.main()

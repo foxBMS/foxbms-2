@@ -94,9 +94,9 @@ On-board EEPROM
 
 |tbc|
 
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-isoSPI Daisy Chain Connection
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^
+Daisy Chain Connection
+^^^^^^^^^^^^^^^^^^^^^^
 
 The data transmission between the slaves and between the slaves and the basic
 board takes place using the TPL interface.

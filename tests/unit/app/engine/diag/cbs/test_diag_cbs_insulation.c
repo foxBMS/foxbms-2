@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_diag_cbs_insulation.c
  * @author  foxBMS Team
  * @date    2021-02-22 (date of creation)
- * @updated 2024-12-20 (date of last update)
- * @version v1.8.0
+ * @updated 2025-03-31 (date of last update)
+ * @version v1.9.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -107,4 +107,37 @@ void testDIAG_ErrorInsulationInvalidInput(void) {
     TEST_ASSERT_FAIL_ASSERT(DIAG_Insulation(DIAG_ID_LOW_INSULATION_RESISTANCE_ERROR, DIAG_EVENT_OK, NULL_PTR, 0u));
     TEST_ASSERT_FAIL_ASSERT(DIAG_Insulation(
         DIAG_ID_LOW_INSULATION_RESISTANCE_ERROR, DIAG_EVENT_OK, &diag_kpkDatabaseShim, BS_NR_OF_STRINGS));
+}
+
+void testDIAG_Insulation(void) {
+    DIAG_ID_e diagId   = DIAG_ID_INSULATION_MEASUREMENT_VALID;
+    DIAG_EVENT_e event = DIAG_EVENT_RESET;
+    DIAG_Insulation(diagId, event, &diag_kpkDatabaseShim, 0u);
+
+    diagId = DIAG_ID_LOW_INSULATION_RESISTANCE_ERROR;
+    DIAG_Insulation(diagId, event, &diag_kpkDatabaseShim, 0u);
+
+    diagId = DIAG_ID_LOW_INSULATION_RESISTANCE_WARNING;
+    DIAG_Insulation(diagId, event, &diag_kpkDatabaseShim, 0u);
+
+    diagId = DIAG_ID_INSULATION_GROUND_ERROR;
+    DIAG_Insulation(diagId, event, &diag_kpkDatabaseShim, 0u);
+
+    /* --- */
+    event = DIAG_EVENT_NOT_OK;
+
+    DIAG_Insulation(diagId, event, &diag_kpkDatabaseShim, 0u);
+
+    diagId = DIAG_ID_LOW_INSULATION_RESISTANCE_WARNING;
+    DIAG_Insulation(diagId, event, &diag_kpkDatabaseShim, 0u);
+
+    diagId = DIAG_ID_LOW_INSULATION_RESISTANCE_ERROR;
+    DIAG_Insulation(diagId, event, &diag_kpkDatabaseShim, 0u);
+
+    diagId = DIAG_ID_INSULATION_MEASUREMENT_VALID;
+    DIAG_Insulation(diagId, event, &diag_kpkDatabaseShim, 0u);
+
+    /* else branch */
+    diagId = 10u;
+    DIAG_Insulation(diagId, event, &diag_kpkDatabaseShim, 0u);
 }

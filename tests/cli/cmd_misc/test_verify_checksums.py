@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -49,7 +49,7 @@ from unittest.mock import patch
 try:
     from cli.cmd_misc import verify_checksums
 except ModuleNotFoundError:
-    sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
+    sys.path.insert(0, str(Path(__file__).parents[3]))
     from cli.cmd_misc import verify_checksums
 
 

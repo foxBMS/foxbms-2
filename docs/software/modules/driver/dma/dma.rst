@@ -53,15 +53,15 @@ Declaring a non-cacheable area
 Region 3 defines the RAM used by the MCU. For DMA, the last region, region 15,
 will be used.
 
-The corresponding configuration in |halcogen| is shown in
+The corresponding configuration in |ti-halcogen| is shown in
 :numref:`hcg-non-cacheable`.
 
    .. figure:: img/dma_uncached_region.png
-      :alt: Non cacheable area in |halcogen|
+      :alt: Non cacheable area in |ti-halcogen|
       :name: hcg-non-cacheable
       :align: center
 
-      Non cacheable area in |halcogen|
+      Non cacheable area in |ti-halcogen|
 
 The "type" option declares the area as non-cacheable.
 
@@ -95,8 +95,8 @@ In the ``SECTIONS`` part of the linker file, the following has to be added:
 Working with |freertos|
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-Care must be taken if working with |freertos|: the OS will override the
-properties of the area defined in |halcogen|.
+Care must be taken if working with |freertos|:
+the OS will override the properties of the area defined in |ti-halcogen|.
 
 To avoid this, the function ``vPortStoreTaskMPUSettings()`` has to be modified.
 The code
@@ -108,7 +108,7 @@ The code
     xMPUSettings->xRegion[ portNUM_CONFIGURABLE_REGIONS - 1 ].ulRegionAttribute   = portMPU_PRIV_RW_USER_RW_NOEXEC | portMPU_NORMAL_OINC_SHARED;
 
 has to be added. ``portNUM_CONFIGURABLE_REGIONS-1`` means that the last user
-region is used, as wished in the |halcogen| configuration.
+region is used, as wished in the |ti-halcogen| configuration.
 
 Using the defined area in code
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

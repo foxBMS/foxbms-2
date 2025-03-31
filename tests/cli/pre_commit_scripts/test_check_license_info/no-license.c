@@ -2,8 +2,8 @@
  * @file    no-license.c
  * @author  foxBMS Team
  * @date    2024-12-18 (date of creation)
- * @updated 2024-12-20 (date of last update)
- * @version v1.8.0
+ * @updated 2025-03-31 (date of last update)
+ * @version v1.9.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *

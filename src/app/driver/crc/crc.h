@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    crc.h
  * @author  foxBMS Team
  * @date    2022-02-22 (date of creation)
- * @updated 2024-12-20 (date of last update)
- * @version v1.8.0
+ * @updated 2025-03-31 (date of last update)
+ * @version v1.9.0
  * @ingroup DRIVERS
  * @prefix  CRC
  *
@@ -111,7 +111,7 @@ crcBASE_t test_register;
  * @param[in]   pCrc            uint64_t pointer to the calculated CRC
  * @param[in]   pData           uint8_t pointer to the start of the data flow
  * @param[in]   lengthInBytes   length in bytes of the data flow
- * @returns     #STD_OK if CRC hardware available, #STD_NOT_OK otherwise
+ * @return  STD_OK if CRC hardware available, #STD_NOT_OK otherwise
  */
 extern STD_RETURN_TYPE_e CRC_CalculateCrc(uint64_t *pCrc, uint8_t *pData, uint32_t lengthInBytes);
 

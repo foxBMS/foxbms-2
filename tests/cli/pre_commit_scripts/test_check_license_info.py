@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -48,12 +48,11 @@ from pathlib import Path
 try:
     from cli.pre_commit_scripts import check_license_info
 except ModuleNotFoundError:
-    sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
+    sys.path.insert(0, str(Path(__file__).parents[3]))
     from cli.pre_commit_scripts import check_license_info
 
 TYPE_TO_EXT = {
     "asm": "asm",
-    "batch": "bat",
     "c": "c",
     "dot": "dot",
     "pwsh": "ps1",
@@ -73,7 +72,7 @@ class TestCheckLicenseInfo(unittest.TestCase):
 
     def test_valid_files(self):
         """Test with valid files"""
-        for i in ["asm", "batch", "c", "dot", "pwsh", "py", "shell", "toml", "yaml"]:
+        for i in ["asm", "c", "dot", "pwsh", "py", "shell", "toml", "yaml"]:
             argv = [
                 str(self.tests_dir / f"valid-license.{TYPE_TO_EXT[i]}"),
                 "--file-type",

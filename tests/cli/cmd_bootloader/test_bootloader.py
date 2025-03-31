@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -40,16 +40,32 @@
 """Testing file 'cli/cmd_bootloader/bootloader.py'."""
 
 import io
-import shutil
+import json
+import logging
 import sys
 import time
 import unittest
 from pathlib import Path
 from typing import cast
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 import can
+import numpy as np
 from cantools import database
+
+try:
+    from cli.cmd_bootloader.bootloader import Bootloader
+    from cli.cmd_bootloader.bootloader_binary_file import BootloaderBinaryFile
+    from cli.cmd_bootloader.bootloader_can import BootloaderInterfaceCan
+    from cli.cmd_bootloader.bootloader_can_messages import BootFsmState, CanFsmState
+    from cli.helpers.misc import BOOTLOADER_DBC_FILE, FOXBMS_BIN_FILE
+except ModuleNotFoundError:
+    sys.path.insert(0, str(Path(__file__).parents[3]))
+    from cli.cmd_bootloader.bootloader import Bootloader
+    from cli.cmd_bootloader.bootloader_binary_file import BootloaderBinaryFile
+    from cli.cmd_bootloader.bootloader_can import BootloaderInterfaceCan
+    from cli.cmd_bootloader.bootloader_can_messages import BootFsmState, CanFsmState
+    from cli.helpers.misc import BOOTLOADER_DBC_FILE, FOXBMS_BIN_FILE
 
 # Redirect message or not
 MSG_REDIRECT = True
@@ -57,24 +73,22 @@ MSG_REDIRECT = True
 # Other paths
 PATH_TEMP = Path(__file__).parent / "temp"
 
-sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
 
 # pylint: disable=protected-access
-# pylint: disable=wrong-import-position
-from cli.cmd_bootloader.bootloader import Bootloader  # noqa: E402
-from cli.cmd_bootloader.bootloader_binary_file import BootloaderBinaryFile  # noqa: E402
-from cli.cmd_bootloader.bootloader_can import BootloaderInterfaceCan  # noqa: E402
-from cli.cmd_bootloader.bootloader_can_messages import (  # noqa: E402
-    BootFsmState,
-    CanFsmState,
-)
-from cli.helpers.misc import BOOTLOADER_DBC_FILE  # noqa: E402
-
-
+@patch.object(logging, "info", return_value=None)
+@patch.object(logging, "warning", return_value=None)
+@patch.object(logging, "error", return_value=None)
 class TestBootloader(unittest.TestCase):
     """Class to test Bootloader class."""
 
-    def setUp(self):
+    # pylint: disable=arguments-differ
+    @patch("cli.cmd_bootloader.bootloader_binary_file.get_sha256_file_hash_str")
+    @patch.object(np, "genfromtxt")
+    @patch.object(json, "loads")
+    @patch.object(Path, "read_text")
+    def setUp(
+        self, mock_read_text, mock_loads, mock_genfromtxt, mock_get_sha256_file_hash_str
+    ):
         # Redirect the sys.stdout to the StringIO object
         if MSG_REDIRECT:
             sys.stdout = io.StringIO()
@@ -84,47 +98,66 @@ class TestBootloader(unittest.TestCase):
             "test", interface="virtual", preserve_timestamps=True
         )
 
-        with patch.object(
-            BootloaderBinaryFile, "_check_app_size"
-        ) as mock_check_app_size:
-            mock_check_app_size.return_value = True
-            # Generate a fake binary
-            PATH_TEMP.mkdir(parents=True, exist_ok=True)
-            self.path_binary_data = PATH_TEMP / "test.bin"
-            self.path_binary_data.write_bytes(bytes(100))
-            self.path_crc_64_table = PATH_TEMP / "test_crc_64.csv"
+        # Prepare the fake information for bootloader BootloaderBinaryFile
+        self.program = {
+            "len_of_program_in_bytes": 16,
+            "len_of_program_in_8_bytes": 2,
+            "app_size": 262144,
+            "bin_file": FOXBMS_BIN_FILE,
+            "vector_table_crc": 10755722470602090755,
+            "vector_table": [
+                16861741595983085566,
+                16861496787142180862,
+                16933534594249061028,
+                16510180501024141744,
+            ],
+            "hash_app": "1691115346d2814fcf79829becdc0fa096dac126695b7901907fec2e1b11c389",
+            "hash_csv": "716ef6584531e57dd90e1bf8df14f261f36a234803e2dd8f9c4d1d374dd2e60a",
+        }
+        self.array_csv = np.array(
+            [
+                [
+                    "",
+                    "data_64_bits_hex",
+                    "crc_64_bits_hex",
+                    "data_64_bits",
+                    "crc_64_bits",
+                ],
+                [
+                    "0",
+                    "0x10178797a00021f",
+                    "0x1b1fccbffe003729",
+                    "72471532147835423",
+                    "1954505888274331433",
+                ],
+                [
+                    "1",
+                    "0x3733626331303166",
+                    "0xd7da68b1dbd05c5a",
+                    "3977631074064806246",
+                    "15553859376183794778",
+                ],
+            ]
+        )
 
-            # Initialize a Bootloader instance
-            interface = BootloaderInterfaceCan(can_bus=self.can_bus)
-            self.bd = Bootloader(
-                interface=interface,
-                path_app_binary=self.path_binary_data,
-                app_size=0x100,
-                path_crc_64_table=self.path_crc_64_table,
-            )
+        # Initialize a Bootloader instance
+        mock_read_text.return_value = None
+        mock_loads.return_value = self.program
+        mock_genfromtxt.return_value = self.array_csv
+        mock_get_sha256_file_hash_str.side_effect = [
+            "1691115346d2814fcf79829becdc0fa096dac126695b7901907fec2e1b11c389",
+            "716ef6584531e57dd90e1bf8df14f261f36a234803e2dd8f9c4d1d374dd2e60a",
+        ]
+        interface = BootloaderInterfaceCan(can_bus=self.can_bus)
+        self.bd = Bootloader(interface=interface)
 
-            # Load dbc file
-            self.db = database.load_file(BOOTLOADER_DBC_FILE)
+        # Load dbc file
+        self.db = database.load_file(BOOTLOADER_DBC_FILE)
 
     def tearDown(self):
-        # Delete the temporal directory
-        shutil.rmtree(PATH_TEMP)
         self.can_bus.shutdown()
 
-    @patch.object(BootloaderBinaryFile, "_check_app_size")
-    def test_init(self, mock_check_app_size):
-        """Function to test function __init__()."""
-        mock_check_app_size.return_value = True
-        interface = BootloaderInterfaceCan(can_bus=self.can_bus)
-        bd = Bootloader(
-            interface=interface,
-            path_app_binary=None,
-            app_size=0x100,
-            path_crc_64_table=self.path_crc_64_table,
-        )
-        self.assertIsNone(bd.binary_file)
-
-    def test_get_sub_sector_loops(self):
+    def test_get_sub_sector_loops(self, *_):
         """Function to test function _get_sub_sector_loops()."""
         with self.assertRaises(SystemExit) as cm:
             self.bd._get_sub_sector_loops(idx=0, max_idx=1024)
@@ -176,7 +209,7 @@ class TestBootloader(unittest.TestCase):
         self.assertEqual(i_loop_sub_sector_start, 2050)
         self.assertEqual(i_loop_sub_sector_end, 2050)
 
-    def test_get_sector_size_using_num_of_data_loops(self):
+    def test_get_sector_size_using_num_of_data_loops(self, *_):
         """Function to test function _get_sector_size_using_num_of_data_loops()."""
         i_loops_start = 1
         for i_sector in range(7, 32):
@@ -201,21 +234,30 @@ class TestBootloader(unittest.TestCase):
         self.assertIsNone(self.bd._get_sector_size_using_num_of_data_loops(0x3E0001))
 
     @patch.object(BootloaderInterfaceCan, "get_bootloader_version_num")
+    @patch.object(BootloaderInterfaceCan, "get_foxbms_state")
     @patch.object(BootloaderInterfaceCan, "get_current_num_of_loops")
     @patch.object(BootloaderInterfaceCan, "get_bootloader_state")
     def test_check_target(
         self,
         mock_get_bootloader_state,
         mock_get_current_num_of_loops,
+        mock_get_foxbms_state,
         mock_get_bootloader_version_num,
+        *_,
     ):
         """Function to test function check_target()."""
-        # False Case
+        # Case 1-1: return 3, the information of bootloader can not be reached.
         mock_get_bootloader_state.return_value = (None, None)
         mock_get_current_num_of_loops.return_value = None
-        mock_get_bootloader_version_num.return_value = (None, None, None)
-        self.assertFalse(self.bd.check_target())
-        # True Case 1
+        mock_get_foxbms_state.return_value = None
+        mock_get_bootloader_version_num.return_value = (
+            None,
+            None,
+            None,
+        )
+        self.assertEqual(3, self.bd.check_target())
+
+        # Case 2-1: return 1, partial information of bootloader can not be reached.
         mock_get_bootloader_state.return_value = (None, "BootFsmStateWait")
         mock_get_current_num_of_loops.return_value = 2
         mock_get_bootloader_version_num.return_value = (
@@ -223,8 +265,9 @@ class TestBootloader(unittest.TestCase):
             1,
             2,
         )
-        self.assertTrue(self.bd.check_target())
-        # True Case 2
+        self.assertEqual(1, self.bd.check_target())
+
+        # Case 2-2: return 1, partial information of bootloader can not be reached.
         mock_get_bootloader_state.return_value = (
             "CanFsmStateNoCommunication",
             None,
@@ -235,8 +278,9 @@ class TestBootloader(unittest.TestCase):
             1,
             2,
         )
-        self.assertTrue(self.bd.check_target())
-        # True Case 3
+        self.assertEqual(1, self.bd.check_target())
+
+        # Case 2-3: return 1, partial information of bootloader can not be reached.
         mock_get_bootloader_state.return_value = (
             "CanFsmStateNoCommunication",
             "BootFsmStateWait",
@@ -247,8 +291,72 @@ class TestBootloader(unittest.TestCase):
             1,
             2,
         )
-        self.assertTrue(self.bd.check_target())
-        # True Case 4
+        self.assertEqual(1, self.bd.check_target())
+
+        # Case 2-4: return 1, partial information of bootloader can not be reached.
+        mock_get_bootloader_state.return_value = (
+            "CanFsmStateNoCommunication",
+            "BootFsmStateWait",
+        )
+        mock_get_current_num_of_loops.return_value = 2
+        mock_get_bootloader_version_num.return_value = (
+            None,
+            1,
+            2,
+        )
+        self.assertEqual(1, self.bd.check_target())
+
+        # Case 2-5: return 1, partial information of bootloader can not be reached.
+        mock_get_bootloader_state.return_value = (
+            "CanFsmStateNoCommunication",
+            "BootFsmStateWait",
+        )
+        mock_get_current_num_of_loops.return_value = 2
+        mock_get_bootloader_version_num.return_value = (
+            6,
+            None,
+            2,
+        )
+        self.assertEqual(1, self.bd.check_target())
+
+        # Case 2-6: return 1, partial information of bootloader can not be reached.
+        mock_get_bootloader_state.return_value = (
+            "CanFsmStateNoCommunication",
+            "BootFsmStateWait",
+        )
+        mock_get_current_num_of_loops.return_value = 2
+        mock_get_bootloader_version_num.return_value = (
+            6,
+            1,
+            None,
+        )
+        self.assertEqual(1, self.bd.check_target())
+
+        # Case 2-6: return 1, partial information of bootloader can not be reached.
+        mock_get_bootloader_state.return_value = (
+            None,
+            None,
+        )
+        mock_get_current_num_of_loops.return_value = None
+        mock_get_foxbms_state.return_value = None
+        mock_get_bootloader_version_num.return_value = (
+            6,
+            1,
+            None,
+        )
+        self.assertEqual(1, self.bd.check_target())
+
+        # Case 3-1: return 2, foxBMS is running.
+        mock_get_bootloader_state.return_value = (
+            None,
+            None,
+        )
+        mock_get_current_num_of_loops.return_value = None
+        mock_get_foxbms_state.return_value = "test_bms_state"
+        self.assertEqual(2, self.bd.check_target())
+
+        # Case 4-1: return 0, bootloader is runnning, and all information can
+        # be received.
         mock_get_bootloader_state.return_value = (
             "CanFsmStateNoCommunication",
             "BootFsmStateWait",
@@ -259,16 +367,13 @@ class TestBootloader(unittest.TestCase):
             1,
             2,
         )
-        self.assertTrue(self.bd.check_target())
+        self.assertEqual(0, self.bd.check_target())
 
     @patch.object(BootloaderInterfaceCan, "send_crc")
     @patch.object(BootloaderInterfaceCan, "wait_can_ack_msg")
     @patch.object(BootloaderInterfaceCan, "send_data_to_bootloader")
     def test_send_and_validate_vector_table(
-        self,
-        mock_send_data_to_bootloader,
-        mock_wait_can_ack_msg,
-        mock_send_crc,
+        self, mock_send_data_to_bootloader, mock_wait_can_ack_msg, mock_send_crc, *_
     ):
         """Function to test function send_and_validate_vector_table()."""
         mock_send_data_to_bootloader.return_value = None
@@ -303,6 +408,7 @@ class TestBootloader(unittest.TestCase):
         mock_send_loop_number_to_bootloader,
         mock_send_data_to_bootloader,
         mock_wait_can_ack_msg,
+        *_,
     ):
         """Function to test function send_data_as_a_sub_sector()."""
         mock_send_loop_number_to_bootloader.return_value = None
@@ -324,6 +430,7 @@ class TestBootloader(unittest.TestCase):
         mock_send_data_to_bootloader.reset_mock()
         self.bd.send_data_as_a_sub_sector(1, 1024)
         self.assertEqual(mock_send_data_to_bootloader.call_count, 1024)
+
         # Check if the data has been sent 1 times
         mock_send_data_to_bootloader.reset_mock()
         self.bd.send_data_as_a_sub_sector(1024, 1024)
@@ -337,6 +444,7 @@ class TestBootloader(unittest.TestCase):
         mock_send_data_as_a_sub_sector,
         mock_get_crc_and_data_by_index,
         mock_send_crc,
+        *_,
     ):
         """Function to test function send_data_as_a_sector()."""
         # Case 1: each subsector has been successfully sent.
@@ -437,10 +545,34 @@ class TestBootloader(unittest.TestCase):
             )
         )
 
+        # Case 7: true case, show progressbar.
+        mock_send_data_as_a_sub_sector.reset_mock()
+        mock_send_data_as_a_sub_sector.return_value = True
+        mock_get_crc_and_data_by_index.return_value = (
+            0xFFFFFFFFFFFFFFFF,
+            0xFFFFFFFFFFFFFFFF,
+        )
+        mock_send_crc.return_value = (True, True)
+        with patch("click.progressbar") as mock_progressbar:
+            mock_progressbar.return_value.__enter__.return_value = MagicMock()
+            self.assertTrue(
+                self.bd.send_data_as_a_sector(
+                    i_loop=1,
+                    total_num_of_loops=16384,
+                    size_of_sector_in_loops=16384,
+                    times_of_repeat=1,
+                    progressbar=mock_progressbar,
+                    progressbar_sector_steps=20,
+                )
+            )
+
     @patch.object(Bootloader, "_get_sector_size_using_num_of_data_loops")
     @patch.object(Bootloader, "send_data_as_a_sector")
     def test_send_app_data(
-        self, mock_send_data_as_a_sector, mock_get_sector_size_using_num_of_data_loops
+        self,
+        mock_send_data_as_a_sector,
+        mock_get_sector_size_using_num_of_data_loops,
+        *_,
     ):
         """Function to test function send_app_data()."""
         with self.assertRaises(SystemExit) as cm:
@@ -468,7 +600,7 @@ class TestBootloader(unittest.TestCase):
         self.assertTrue(self.bd.send_app_data(1))
 
     @patch.object(BootloaderInterfaceCan, "reset_bootloader")
-    def test_reset_bootloader(self, mock_reset_bootloader):
+    def test_reset_bootloader(self, mock_reset_bootloader, *_):
         """Function to test function reset_bootloader()."""
         # Case 1: return True.
         mock_reset_bootloader.return_value = True
@@ -478,7 +610,7 @@ class TestBootloader(unittest.TestCase):
         self.assertFalse(self.bd.reset_bootloader())
 
     @patch.object(BootloaderInterfaceCan, "run_app_on_bootloader")
-    def test_run_app(self, mock_run_app_on_bootloader):
+    def test_run_app(self, mock_run_app_on_bootloader, *_):
         """Function to test function run_app()."""
         # Case 1: False case.
         mock_run_app_on_bootloader.return_value = False
@@ -489,7 +621,7 @@ class TestBootloader(unittest.TestCase):
 
     @patch.object(BootloaderInterfaceCan, "send_program_info")
     @patch.object(BootloaderInterfaceCan, "start_transfer")
-    def test_send_pre_info(self, mock_start_transfer, mock_send_program_info):
+    def test_send_pre_info(self, mock_start_transfer, mock_send_program_info, *_):
         """Function to test function send_pre_info()."""
         # Case 1: start_transfer fails.
         mock_start_transfer.return_value = False
@@ -504,7 +636,7 @@ class TestBootloader(unittest.TestCase):
         mock_send_program_info.return_value = True
         self.assertTrue(self.bd.send_pre_info())
 
-    def test_check_if_data_transfer_resumable(self):
+    def test_check_if_data_transfer_resumable(self, *_):
         """Function to test function _check_if_data_transfer_resumable()."""
         self.assertFalse(
             self.bd._check_if_data_transfer_resumable(
@@ -542,7 +674,7 @@ class TestBootloader(unittest.TestCase):
             )
         )
 
-    def test_check_if_bootloader_at_the_beginning(self):
+    def test_check_if_bootloader_at_the_beginning(self, *_):
         """Function to test function _check_if_bootloader_at_the_beginning()."""
         self.assertFalse(
             self.bd._check_if_bootloader_at_the_beginning(
@@ -580,7 +712,7 @@ class TestBootloader(unittest.TestCase):
             )
         )
 
-    def test_check_if_only_send_vector_table(self):
+    def test_check_if_only_send_vector_table(self, *_):
         """Function to test function _check_if_only_send_vector_table()."""
         self.assertFalse(
             self.bd._check_if_only_send_vector_table(
@@ -613,51 +745,79 @@ class TestBootloader(unittest.TestCase):
     @patch.object(Bootloader, "reset_bootloader")
     @patch.object(Bootloader, "send_pre_info")
     @patch.object(Bootloader, "_check_if_only_send_vector_table")
-    @patch.object(Bootloader, "_check_if_data_transfer_resumable")
     @patch.object(Bootloader, "_check_if_bootloader_at_the_beginning")
     @patch.object(BootloaderInterfaceCan, "get_current_num_of_loops")
     @patch.object(BootloaderInterfaceCan, "get_bootloader_state")
-    @patch.object(BootloaderBinaryFile, "_check_app_size")
+    @patch("cli.cmd_bootloader.bootloader_binary_file.get_sha256_file_hash_str")
+    @patch.object(np, "genfromtxt")
+    @patch.object(json, "loads")
+    @patch.object(Path, "read_text")
     # pylint: disable-next=too-many-statements,too-many-arguments,too-many-positional-arguments
     def test_send_app_binary(
         self,
-        mock_check_app_size,
+        mock_read_text,
+        mock_loads,
+        mock_genfromtxt,
+        mock_get_sha256_file_hash_str,
         mock_get_bootloader_state,
         mock_get_current_num_of_loops,
         mock_check_if_bootloader_at_the_beginning,
-        mock_check_if_data_transfer_resumable,
         mock_check_if_only_send_vector_table,
         mock_send_pre_info,
         mock_reset_bootloader,
         mock_send_app_data,
         mock_send_and_validate_vector_table,
         mock_sleep,
+        *_,
     ):
         """Function to test function send_app_binary()."""
         mock_sleep.return_value = None
-        # Case 1-1: bootloader is at the initial status, every thing runs well.
-        mock_check_app_size.return_value = True
+        mock_read_text.return_value = None
+        mock_loads.return_value = self.program
+        mock_genfromtxt.return_value = self.array_csv
+
+        # Case 1-8: bootloader is at the initial status, every thing runs well,
+        # the progress progressbar will be shown.
         mock_get_bootloader_state.return_value = (
             "CanFsmStateNoCommunication",
             "BootFsmStateWait",
         )
         mock_get_current_num_of_loops.return_value = 0
         mock_check_if_bootloader_at_the_beginning.return_value = True
-        mock_check_if_data_transfer_resumable.return_value = False
         mock_check_if_only_send_vector_table.return_value = False
         mock_send_pre_info.return_value = True
         mock_send_app_data.return_value = True
         mock_send_and_validate_vector_table.return_value = True
+        mock_get_sha256_file_hash_str.side_effect = [
+            "1691115346d2814fcf79829becdc0fa096dac126695b7901907fec2e1b11c389",
+            "716ef6584531e57dd90e1bf8df14f261f36a234803e2dd8f9c4d1d374dd2e60a",
+        ]
         interface = BootloaderInterfaceCan(can_bus=self.can_bus)
-        bd = Bootloader(
-            interface=interface,
-            path_app_binary=self.path_binary_data,
-            app_size=0x100,
-            path_crc_64_table=self.path_crc_64_table,
-        )
-        self.assertTrue(bd.send_app_binary())
+        bd = Bootloader(interface=interface)
+        with patch("click.progressbar") as mock_progressbar:
+            mock_progressbar.return_value.__enter__.return_value = MagicMock()
+            self.assertTrue(bd.send_app_binary(show_progressbar=True))
 
-        # Case 1-2: bootloader is at the initial status, but PC cannot get
+        # Case 2-8: bootloader is at the initial status, every thing runs well.
+        mock_get_bootloader_state.return_value = (
+            "CanFsmStateNoCommunication",
+            "BootFsmStateWait",
+        )
+        mock_get_current_num_of_loops.return_value = 0
+        mock_check_if_bootloader_at_the_beginning.return_value = True
+        mock_check_if_only_send_vector_table.return_value = False
+        mock_send_pre_info.return_value = True
+        mock_send_app_data.return_value = True
+        mock_send_and_validate_vector_table.return_value = True
+        mock_get_sha256_file_hash_str.side_effect = [
+            "1691115346d2814fcf79829becdc0fa096dac126695b7901907fec2e1b11c389",
+            "716ef6584531e57dd90e1bf8df14f261f36a234803e2dd8f9c4d1d374dd2e60a",
+        ]
+        interface = BootloaderInterfaceCan(can_bus=self.can_bus)
+        bd = Bootloader(interface=interface)
+        self.assertTrue(bd.send_app_binary(show_progressbar=False))
+
+        # Case 3-8: bootloader is at the initial status, but PC cannot get
         # the current loop number from bootloader.
         mock_get_bootloader_state.return_value = (
             "CanFsmStateNoCommunication",
@@ -665,94 +825,57 @@ class TestBootloader(unittest.TestCase):
         )
         mock_get_current_num_of_loops.return_value = None
         mock_check_if_bootloader_at_the_beginning.return_value = True
-        mock_check_if_data_transfer_resumable.return_value = False
         mock_check_if_only_send_vector_table.return_value = False
         mock_send_pre_info.return_value = True
         mock_send_app_data.return_value = True
         mock_send_and_validate_vector_table.return_value = True
-        bd = Bootloader(
-            interface=interface,
-            path_app_binary=self.path_binary_data,
-            app_size=0x100,
-            path_crc_64_table=self.path_crc_64_table,
-        )
+        mock_get_sha256_file_hash_str.side_effect = [
+            "1691115346d2814fcf79829becdc0fa096dac126695b7901907fec2e1b11c389",
+            "716ef6584531e57dd90e1bf8df14f261f36a234803e2dd8f9c4d1d374dd2e60a",
+        ]
+        bd = Bootloader(interface=interface)
         with self.assertRaises(SystemExit) as cm:
-            bd.send_app_binary()
+            bd.send_app_binary(show_progressbar=False)
         self.assertEqual(cm.exception.code, "Cannot get all states of the bootloader.")
 
-        # Case 2-1: bootloader is not at the initial status, data transfer is
-        # resumable, the data has been not transferred totally.
-        mock_get_bootloader_state.return_value = (
-            "CanFsmStateReceived8BytesCrc",
-            "BootFsmStateLoad",
-        )
-        mock_get_current_num_of_loops.return_value = 16384
-        mock_check_if_bootloader_at_the_beginning.return_value = False
-        mock_check_if_data_transfer_resumable.return_value = True
-        mock_check_if_only_send_vector_table.return_value = False
-        mock_send_pre_info.return_value = True
-        mock_send_app_data.return_value = True
-        mock_send_and_validate_vector_table.return_value = True
-        self.assertTrue(bd.send_app_binary())
-
-        # Case 2-2: bootloader is not at the initial status, data transfer is
-        # resumable, the data has been transferred totally.
-        mock_get_bootloader_state.return_value = (
-            "CanFsmFinishedTransferVectorTable",
-            "BootFsmStateLoad",
-        )
-        mock_get_current_num_of_loops.return_value = 16384
-        mock_check_if_bootloader_at_the_beginning.return_value = False
-        mock_check_if_data_transfer_resumable.return_value = True
-        mock_check_if_only_send_vector_table.return_value = True
-        mock_send_pre_info.return_value = True
-        mock_send_app_data.return_value = True
-        mock_send_and_validate_vector_table.return_value = True
-        self.assertTrue(bd.send_app_binary())
-
-        # Case 3-1: bootloader is not at the initial status,
-        # data transfer is not resumable, reset bootloader fails
+        # Case 4-8: bootloader is not at the initial status, reset bootloader
+        # fails.
         mock_get_bootloader_state.return_value = (
             "CanFsmStateError",
             "BootFsmStateWait",
         )
         mock_get_current_num_of_loops.return_value = 100
         mock_check_if_bootloader_at_the_beginning.return_value = False
-        mock_check_if_data_transfer_resumable.return_value = False
         mock_check_if_only_send_vector_table.return_value = False
         mock_reset_bootloader.return_value = False
         mock_send_pre_info.return_value = True
         mock_send_app_data.return_value = True
         mock_send_and_validate_vector_table.return_value = True
-        self.assertFalse(bd.send_app_binary())
+        self.assertFalse(bd.send_app_binary(show_progressbar=False))
 
-        # Case 3-2: bootloader is not at the initial status,
-        # data transfer is not resumable, reset bootloader successfully,
-        # send pre-info fails,
+        # Case 5-8: bootloader is not at the initial status, reset bootloader
+        # successfully, send pre-info fails.
         mock_get_bootloader_state.return_value = (
             "CanFsmStateError",
             "BootFsmStateWait",
         )
         mock_get_current_num_of_loops.return_value = 100
         mock_check_if_bootloader_at_the_beginning.return_value = False
-        mock_check_if_data_transfer_resumable.return_value = False
         mock_check_if_only_send_vector_table.return_value = False
         mock_reset_bootloader.return_value = True
         mock_send_pre_info.return_value = False
         mock_send_app_data.return_value = True
         mock_send_and_validate_vector_table.return_value = True
-        self.assertFalse(bd.send_app_binary())
+        self.assertFalse(bd.send_app_binary(show_progressbar=False))
 
-        # Case 3-3: bootloader is not at the initial status,
-        # data transfer is not resumable, reset bootloader successfully,
-        # send pre-info successfully, send app data fails.
+        # Case 6-8: bootloader is not at the initial status, reset bootloader
+        # successfully, send pre-info successfully, send app data fails, show progressbar.
         mock_get_bootloader_state.return_value = (
             "CanFsmStateError",
             "BootFsmStateWait",
         )
         mock_get_current_num_of_loops.return_value = 100
         mock_check_if_bootloader_at_the_beginning.return_value = False
-        mock_check_if_data_transfer_resumable.return_value = False
         mock_check_if_only_send_vector_table.return_value = False
         mock_reset_bootloader.return_value = True
         mock_send_pre_info.return_value = True
@@ -760,21 +883,40 @@ class TestBootloader(unittest.TestCase):
         mock_send_app_data.return_value = False
         mock_send_and_validate_vector_table.reset_mock()
         mock_send_and_validate_vector_table.return_value = True
-        self.assertFalse(bd.send_app_binary())
-        self.assertEqual(mock_send_app_data.call_count, 4)
+        with patch("click.progressbar") as mock_progressbar:
+            mock_progressbar.return_value.__enter__.return_value = MagicMock()
+            self.assertFalse(bd.send_app_binary(show_progressbar=True))
+        self.assertEqual(mock_send_app_data.call_count, 3)
         self.assertEqual(mock_send_and_validate_vector_table.call_count, 0)
 
-        # Case 3-4: bootloader is not at the initial status,
-        # data transfer is not resumable, reset bootloader successfully,
-        # send pre-info successfully, send app data successfully, send and
-        # validate vector table fails.
+        # Case 6-8: bootloader is not at the initial status, reset bootloader
+        # successfully, send pre-info successfully, send app data fails.
         mock_get_bootloader_state.return_value = (
             "CanFsmStateError",
             "BootFsmStateWait",
         )
         mock_get_current_num_of_loops.return_value = 100
         mock_check_if_bootloader_at_the_beginning.return_value = False
-        mock_check_if_data_transfer_resumable.return_value = False
+        mock_check_if_only_send_vector_table.return_value = False
+        mock_reset_bootloader.return_value = True
+        mock_send_pre_info.return_value = True
+        mock_send_app_data.reset_mock()
+        mock_send_app_data.return_value = False
+        mock_send_and_validate_vector_table.reset_mock()
+        mock_send_and_validate_vector_table.return_value = True
+        self.assertFalse(bd.send_app_binary(show_progressbar=False))
+        self.assertEqual(mock_send_app_data.call_count, 3)
+        self.assertEqual(mock_send_and_validate_vector_table.call_count, 0)
+
+        # Case 7-8: bootloader is not at the initial status, reset bootloader
+        # successfully, send pre-info successfully, send app data successfully,
+        # send and validate vector table fails, show progressbar.
+        mock_get_bootloader_state.return_value = (
+            "CanFsmStateError",
+            "BootFsmStateWait",
+        )
+        mock_get_current_num_of_loops.return_value = 100
+        mock_check_if_bootloader_at_the_beginning.return_value = False
         mock_check_if_only_send_vector_table.return_value = False
         mock_reset_bootloader.return_value = True
         mock_send_pre_info.return_value = True
@@ -782,27 +924,74 @@ class TestBootloader(unittest.TestCase):
         mock_send_app_data.return_value = True
         mock_send_and_validate_vector_table.reset_mock()
         mock_send_and_validate_vector_table.return_value = False
-        self.assertFalse(bd.send_app_binary())
+        with patch("click.progressbar") as mock_progressbar:
+            mock_progressbar.return_value.__enter__.return_value = MagicMock()
+            self.assertFalse(bd.send_app_binary(show_progressbar=True))
         self.assertEqual(mock_send_app_data.call_count, 1)
-        self.assertEqual(mock_send_and_validate_vector_table.call_count, 4)
+        self.assertEqual(mock_send_and_validate_vector_table.call_count, 3)
 
-        # Case 3-5: bootloader is not at the initial status,
-        # data transfer is not resumable, reset bootloader successfully,
-        # send pre-info successfully, send app data successfully, send and
-        # validate vector table successfully.
+        # Case 7-8: bootloader is not at the initial status, reset bootloader
+        # successfully, send pre-info successfully, send app data successfully,
+        # send and validate vector table fails.
         mock_get_bootloader_state.return_value = (
             "CanFsmStateError",
             "BootFsmStateWait",
         )
         mock_get_current_num_of_loops.return_value = 100
         mock_check_if_bootloader_at_the_beginning.return_value = False
-        mock_check_if_data_transfer_resumable.return_value = False
+        mock_check_if_only_send_vector_table.return_value = False
+        mock_reset_bootloader.return_value = True
+        mock_send_pre_info.return_value = True
+        mock_send_app_data.reset_mock()
+        mock_send_app_data.return_value = True
+        mock_send_and_validate_vector_table.reset_mock()
+        mock_send_and_validate_vector_table.return_value = False
+        self.assertFalse(bd.send_app_binary(show_progressbar=False))
+        self.assertEqual(mock_send_app_data.call_count, 1)
+        self.assertEqual(mock_send_and_validate_vector_table.call_count, 3)
+
+        # Case 8-8: bootloader is not at the initial status, reset bootloader
+        # successfully, send pre-info successfully, send app data successfully,
+        # send and validate vector table successfully.
+        mock_get_bootloader_state.return_value = (
+            "CanFsmStateError",
+            "BootFsmStateWait",
+        )
+        mock_get_current_num_of_loops.return_value = 100
+        mock_check_if_bootloader_at_the_beginning.return_value = False
         mock_check_if_only_send_vector_table.return_value = False
         mock_reset_bootloader.return_value = True
         mock_send_pre_info.return_value = True
         mock_send_app_data.return_value = True
         mock_send_and_validate_vector_table.return_value = True
-        self.assertTrue(bd.send_app_binary())
+        self.assertTrue(bd.send_app_binary(show_progressbar=False))
+
+    # def test_can_bus_config(self, *_):
+    #     """Test bootloader configuration helper."""
+    #     with self.assertRaises(SystemExit) as cm:
+    #         CanBusConfig(interface="pcan", channel=0)
+    #     self.assertEqual(
+    #         cm.exception.code,
+    #         "Invalid channel choice for interface 'pcan'.",
+    #     )
+    #     with self.assertRaises(SystemExit) as cm:
+    #         CanBusConfig(interface="pcan", channel="foo")
+    #     self.assertEqual(
+    #         cm.exception.code,
+    #         "Invalid channel choice for interface 'pcan'.",
+    #     )
+    #     with self.assertRaises(SystemExit) as cm:
+    #         CanBusConfig(interface="kvaser", channel="foo")
+    #     self.assertEqual(
+    #         cm.exception.code,
+    #         "Invalid channel choice for interface 'kvaser'.",
+    #     )
+    #     with self.assertRaises(SystemExit) as cm:
+    #         CanBusConfig(interface="bla", channel="foo")
+    #     self.assertEqual(
+    #         cm.exception.code,
+    #         "Unsupported interface 'bla'.",
+    #     )
 
 
 if __name__ == "__main__":

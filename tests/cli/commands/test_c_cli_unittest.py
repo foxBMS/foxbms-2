@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -38,3 +38,65 @@
 # - "This product is derived from foxBMS®"
 
 """Testing file 'cli/commands/c_cli_unittest.py'."""
+
+import sys
+import unittest
+from pathlib import Path
+from unittest.mock import MagicMock, patch
+
+from click.testing import CliRunner
+
+try:
+    from cli.cli import main
+    from cli.helpers.spr import SubprocessResult
+except ModuleNotFoundError:
+    sys.path.insert(0, str(Path(__file__).parents[3]))
+    from cli.cli import main
+    from cli.helpers.spr import SubprocessResult
+
+
+class TestFoxCliMainCommandCliUnittest(unittest.TestCase):
+    """Test of the 'cli-unittest' commands and options."""
+
+    def test_cli_unittest_0(self):
+        """Test 'fox.py cli-unittest --coverage-report' command."""
+        runner = CliRunner()
+        result = runner.invoke(main, ["cli-unittest", "--coverage-report"])
+        self.assertEqual(result.exit_code, 1)
+
+    @patch("cli.cmd_cli_unittest.cli_unittest_impl.run_script_tests")
+    def test_cli_unittest_1(self, mock_run_script_tests: MagicMock):
+        """Test 'fox.py cli-unittest -s --coverage-report' command."""
+        runner = CliRunner()
+        mock_run_script_tests.return_value = SubprocessResult(0)
+        result = runner.invoke(main, ["cli-unittest", "-s", "--coverage-report"])
+        self.assertEqual(result.exit_code, 0)
+
+    def test_cli_unittest_2(self):
+        """Test 'fox.py cli-unittest' command."""
+        runner = CliRunner()
+        result = runner.invoke(main, ["cli-unittest"])
+        self.assertEqual(result.exit_code, 0)
+        self.assertIn("Run unit-tests on the CLI tool itself.", result.stdout)
+
+    @patch("cli.cmd_cli_unittest.cli_unittest_impl.run_unittest_module")
+    def test_cli_unittest_3(self, mock_run_unittest_module: MagicMock):
+        """Test 'fox.py cli-unittest discover -s tests/cli' command, i.e.
+        arbitrary unittest command."""
+        mock_run_unittest_module.return_value = SubprocessResult(0)
+        runner = CliRunner()
+        result = runner.invoke(main, ["cli-unittest", "discover", "-s", "tests/cli"])
+        self.assertEqual(result.exit_code, 0)
+        mock_run_unittest_module.assert_called_once_with(
+            ["discover", "-s", "tests/cli"]
+        )
+
+    def test_cli_unittest_4(self):
+        """Test 'fox.py cli-unittest' command."""
+        runner = CliRunner()
+        result = runner.invoke(main, ["cli-unittest"])
+        self.assertEqual(result.exit_code, 0)
+
+
+if __name__ == "__main__":
+    unittest.main()

@@ -8,7 +8,7 @@
         "soh": "none"
       }
     },
-    "balancing-strategy": "none",
+    "balancing-strategy": "voltage",
     "insulation-monitoring-device": {
       "manufacturer": "none",
       "model": ""

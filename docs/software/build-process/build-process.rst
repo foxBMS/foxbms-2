@@ -67,29 +67,3 @@ External Libraries
 
 A How-to is found in
 :ref:`HOW_TO_BUILD_A_LIBRARY_AND_LINK_IT_IN_A_FOXBMS_2_PROJECT`.
-
-.. _swi_info:
-
-SWI Aliases
------------
-
-The build process automatically generates a list of the SWI-alias and function
-name mapping. It is found in variant
-build directory.
-
-It is used as follows:
-
-.. code-block:: python
-   :caption: Searching for SWI-alias
-   :name: swi-checking-example
-
-        bld(
-            features="swi-check",
-            files=bld.path.ant_glob("src/**/*.c src/**/*.h"),
-            jump_table_file=bld.path.find_node(
-                "src/os/freertos/portable/ccs/arm_cortex-r5/portasm.asm"
-            ),
-        )
-
-For implementation details see :py:meth:`f_ti_arm_cgt.get_swi_aliases` and
-:py:meth:`f_ti_arm_cgt.print_swi_aliases`.

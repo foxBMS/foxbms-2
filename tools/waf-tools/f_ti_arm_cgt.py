@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -42,43 +42,40 @@
 # pylint: disable=too-many-statements,too-many-lines,too-many-locals
 
 import binascii
-from dataclasses import dataclass
 import json
 import os
 import pathlib
 import re
 import shutil
 import sys
-from hashlib import md5
+from dataclasses import dataclass
 from datetime import date
+from hashlib import md5
+from string import Template
 
+import crc_bootloader
+import f_ti_arm_cgt_cc_options  # noqa: F401 pylint: disable=unused-import
+import f_ti_arm_helper  # noqa: F401 pylint: disable=unused-import
+import f_ti_arm_tools  # noqa: F401 pylint: disable=unused-import
 import waflib.Tools.asm
+from waflib import Context, Errors, Logs, Task, TaskGen, Utils
 from waflib.Build import BuildContext
-from waflib import Context, Logs, Task, TaskGen, Utils, Errors
 from waflib.Configure import conf
+from waflib.Node import Node
 from waflib.TaskGen import taskgen_method
 from waflib.Tools import c_preproc
 from waflib.Tools.ccroot import link_task
-from waflib.Node import Node
 
-# pylint: disable=unused-import
-import f_ti_arm_cgt_cc_options  # noqa: F401
-import f_ti_arm_helper  # noqa: F401
-import f_ti_arm_tools  # noqa: F401
-
-# pylint: enable=unused-import
-import f_ti_color_arm_cgt
-
-HAVE_GIT = False
-try:
-    from git import Repo
-    from git.exc import InvalidGitRepositoryError, GitCommandError
-
-    HAVE_GIT = True
-except ImportError:
-    pass
+from git import Repo
+from git.exc import GitCommandError, InvalidGitRepositoryError
 
 TOOL_DIR = os.path.dirname(os.path.realpath(__file__))
+
+
+class AtTemplate(Template):
+    """Custom 'Template'-string to support the '@{abc}' syntax"""
+
+    delimiter = "@"
 
 
 def remove_targets(task):
@@ -95,7 +92,6 @@ def options(opt):
     :py:class:`f_ti_arm_cgt.armclFormatter`.
     """
     opt.load("f_ti_arm_cgt_cc_options", tooldir=TOOL_DIR)
-    opt.load("f_ti_color_arm_cgt", tooldir=TOOL_DIR)
     opt.load("f_hcg", tooldir=TOOL_DIR)
 
 
@@ -122,7 +118,7 @@ def create_compiled_task_asm(self, name, node):
     return task
 
 
-class asm(Task.Task):  # pylint: disable-msg=invalid-name,too-few-public-methods
+class asm(Task.Task):  # pylint: disable=invalid-name,too-few-public-methods
     """class to run the TI ARM CGT compiler in compiler mode to create object
     files from assembler sources.
 
@@ -269,7 +265,7 @@ def create_compiled_task_c_ppm(self, name, node):
     return task
 
 
-class c(Task.Task):  # pylint: disable-msg=invalid-name,too-few-public-methods
+class c(Task.Task):  # pylint: disable=invalid-name,too-few-public-methods
     """This class implements the TI ARM CGT compiler in compiler mode to create
     object files from c sources. Additionally an aux file (user information
     file), a crl files (cross-reference listing file) and a rl file (output
@@ -325,7 +321,7 @@ class c(Task.Task):  # pylint: disable-msg=invalid-name,too-few-public-methods
         return "Compiling"
 
 
-class c_pp(Task.Task):  # pylint: disable-msg=invalid-name,too-few-public-methods
+class c_pp(Task.Task):  # pylint: disable=invalid-name,too-few-public-methods
     """class to run the TI ARM CGT compiler in "preproc_only" mode, to
     have a pp file that includes the preprocess information
 
@@ -371,10 +367,14 @@ class c_pp(Task.Task):  # pylint: disable-msg=invalid-name,too-few-public-method
 
     def keyword(self):
         """displayed keyword when source files are parsed for pp information"""
-        return "Preprocessing"
+        return "Processing"
+
+    def __str__(self):
+        """additional information appended to the keyword"""
+        return f"{self.inputs} -> {self.outputs}"
 
 
-class c_ppi(Task.Task):  # pylint: disable-msg=invalid-name,too-few-public-methods
+class c_ppi(Task.Task):  # pylint: disable=invalid-name,too-few-public-methods
     """class to run the TI ARM CGT compiler in "preproc_includes" mode, to
     have a ppi file that includes the include information
 
@@ -420,10 +420,14 @@ class c_ppi(Task.Task):  # pylint: disable-msg=invalid-name,too-few-public-metho
 
     def keyword(self):
         """displayed keyword when source files are parsed for ppi information"""
-        return "Parsing"
+        return "Processing"
+
+    def __str__(self):
+        """additional information appended to the keyword"""
+        return f"{self.inputs} -> {self.outputs}"
 
 
-class c_ppd(Task.Task):  # pylint: disable-msg=invalid-name,too-few-public-methods
+class c_ppd(Task.Task):  # pylint: disable=invalid-name,too-few-public-methods
     """class to run the TI ARM CGT compiler in "preproc_dependency" mode, to
     have a ppd file that includes dependency information
 
@@ -469,10 +473,14 @@ class c_ppd(Task.Task):  # pylint: disable-msg=invalid-name,too-few-public-metho
 
     def keyword(self):
         """displayed keyword when source files are parsed for ppd information"""
-        return "Parsing"
+        return "Processing"
+
+    def __str__(self):
+        """additional information appended to the keyword"""
+        return f"{self.inputs} -> {self.outputs}"
 
 
-class c_ppm(Task.Task):  # pylint: disable-msg=invalid-name,too-few-public-methods
+class c_ppm(Task.Task):  # pylint: disable=invalid-name,too-few-public-methods
     """class to run the TI ARM CGT compiler in "preproc_macros" mode, to have
     a ppm file that includes all compile time macros
 
@@ -518,10 +526,14 @@ class c_ppm(Task.Task):  # pylint: disable-msg=invalid-name,too-few-public-metho
 
     def keyword(self):
         """displayed keyword when source files are parsed for ppm information"""
-        return "Parsing"
+        return "Processing"
+
+    def __str__(self):
+        """additional information appended to the keyword"""
+        return f"{self.inputs} -> {self.outputs}"
 
 
-class cprogram(link_task):  # pylint: disable-msg=invalid-name,too-few-public-methods
+class cprogram(link_task):  # pylint: disable=invalid-name,too-few-public-methods
     """class to run the TI ARM CGT compiler in linker mode to create the target"""
 
     run_str = (
@@ -561,15 +573,6 @@ class cprogram(link_task):  # pylint: disable-msg=invalid-name,too-few-public-me
             if hasattr(err, "returncode"):
                 ret = err.returncode
             return ret
-        if std[0]:
-            self.generator.bld.to_log(
-                f_ti_color_arm_cgt.armclFormatter.colorize(std[0])
-            )
-        if std[1]:
-            self.generator.bld.to_log(
-                f_ti_color_arm_cgt.armclFormatter.colorize(std[1])
-            )
-
         if not hasattr(self.generator, "linker_pulls"):
             Logs.warn("No pull file specified. Check linker output!")
             return 0
@@ -579,11 +582,11 @@ class cprogram(link_task):  # pylint: disable-msg=invalid-name,too-few-public-me
             std[0],
         )
         if Logs.verbose:
-            Logs.info(os.linesep.join(hits))
+            Logs.info("\n".join(hits))
         if errors:
             Logs.error(
-                "Removing binary as the following errors occurred after linkage:\n"
-                + os.linesep.join(errors)
+                "Removing binary as the following errors occurred after "
+                f"linkage:\n{'\n'.join(errors)}"
             )
             # remove output since the binary was not linked as desired
             for i in self.outputs:
@@ -655,7 +658,7 @@ class cprogram(link_task):  # pylint: disable-msg=invalid-name,too-few-public-me
         return "Linking"
 
 
-class stlink_task(link_task):  # pylint: disable-msg=invalid-name,too-few-public-methods
+class stlink_task(link_task):  # pylint: disable=invalid-name,too-few-public-methods
     """static link task"""
 
     run_str = [
@@ -668,14 +671,14 @@ class stlink_task(link_task):  # pylint: disable-msg=invalid-name,too-few-public
         return "Linking"
 
 
-class cstlib(stlink_task):  # pylint: disable-msg=invalid-name,too-few-public-methods
+class cstlib(stlink_task):  # pylint: disable=invalid-name,too-few-public-methods
     """c static library"""
 
-    pass  # pylint: disable-msg=unnecessary-pass
+    pass  # pylint: disable=unnecessary-pass
 
 
-class copy_elf(Task.Task):  # pylint: disable-msg=invalid-name
-    """This class implements the copying of the elf file to another location
+class copy_to_out_dir(Task.Task):  # pylint: disable=invalid-name
+    """This class implements the copying of a node to another location
     in the build tree"""
 
     #: int: priority of the task
@@ -694,7 +697,7 @@ class copy_elf(Task.Task):  # pylint: disable-msg=invalid-name
 
     def keyword(self):
         """displayed keyword when copying the elf file"""
-        return "Copy"
+        return "Processing"
 
     def __str__(self):
         """additional information appended to the keyword"""
@@ -705,7 +708,7 @@ class copy_elf(Task.Task):  # pylint: disable-msg=invalid-name
 @TaskGen.after("apply_link")
 def add_copy_elf_task(self):
     """creates a task to copy the elf file into the output root
-    (task :py:class:`f_ti_arm_cgt.copy_elf`)"""
+    (task :py:class:`f_ti_arm_cgt.copy_to_out_dir`)"""
 
     if self.bld.variant_dir == self.link_task.outputs[0].parent.abspath():
         return
@@ -716,7 +719,7 @@ def add_copy_elf_task(self):
     else:
         out_dir = self.bld.path.get_bld()
     self.copy_elf_task = self.create_task(
-        "copy_elf",
+        "copy_to_out_dir",
         src=self.link_task.outputs,
         tgt=[
             self.bld.path.find_or_declare(os.path.join(out_dir, i.name))
@@ -857,7 +860,7 @@ def check_duplicate_and_not_existing_includes(self):
         self.bld.fatal(err)
 
 
-class hexgen(Task.Task):  # pylint: disable-msg=invalid-name
+class hexgen(Task.Task):  # pylint: disable=invalid-name
     """Task create hex file from elf files"""
 
     #: str: color in which the command line is displayed in the terminal
@@ -899,8 +902,10 @@ def add_hexgen_task(self):
     )
 
 
-class bingen(Task.Task):  # pylint: disable-msg=invalid-name
+class bingen(Task.Task):  # pylint: disable=invalid-name
     """Task create bin file from elf files"""
+
+    weight = 3
 
     #: str: color in which the command line is displayed in the terminal
     color = "CYAN"
@@ -939,6 +944,130 @@ def add_bingen_task(self):
     )
 
 
+class app_crc_gen(Task.Task):  # pylint: disable=invalid-name
+    """Task create the CRC file from the .bin file"""
+
+    color = "CYAN"
+
+    after = ["link_task"]
+
+    def run(self):
+        """implements the CRC file generation."""
+        try:
+            crc_bootloader.BootloaderBinaryFile(
+                app_file=pathlib.Path(self.inputs[0].abspath()),
+                crc64_table=pathlib.Path(self.outputs[0].abspath()),
+                info_file=pathlib.Path(self.outputs[1].abspath()),
+            )
+        except SystemExit as exc:
+            Logs.error(exc.code)
+            return 1
+        return 0
+
+    def keyword(self):
+        """displayed keyword when generating the CRC table file"""
+        return "Processing"
+
+    def __str__(self):
+        return f"{self.inputs[0]} -> {self.outputs[0]}"
+
+
+class update_lauterbach_script(Task.Task):  # pylint: disable=invalid-name
+    """Task create the CRC file from the .bin file"""
+
+    color = "CYAN"
+
+    after = ["link_task"]
+
+    def run(self):
+        """implements the CRC file generation."""
+        app_info = self.inputs[1].read_json()
+        with open(self.inputs[0].abspath(), "rb") as f:
+            try:  # catch OSError in case of a one line file
+                f.seek(-2, os.SEEK_END)
+                while f.read(1) != b"\n":
+                    f.seek(-2, os.SEEK_CUR)
+            except OSError:
+                f.seek(0)
+            last_line = f.readline().decode("utf-8")
+        crc_8bytes = int(last_line.split(",")[-1])
+        cmm = AtTemplate(self.inputs[2].read(encoding="utf-8"))
+        cmm_txt = cmm.substitute(
+            {
+                "BOOT_PROGRAM_INFO_ADDRESS_BASE": "0x00018000",
+                "BOOT_PROGRAM_INFO_MAGIC_NUM": "0xAAAAAAAA",
+                "BOOT_PROGRAM_INFO_ADDRESS_PROGRAM_LEN": "0x00018004",
+                "BOOT_PROGRAM_INFO_PROGRAM_LEN": f"0x{app_info['app_size']:X}",
+                "BOOT_PROGRAM_INFO_ADDRESS_CRC_8_BYTES": "0x0001800C",
+                "BOOT_PROGRAM_INFO_CRC_8_BYTES": f"0x{crc_8bytes:X}",
+                "BOOT_PROGRAM_INFO_ADDRESS_VECTOR_CRC_8_BYTES": "0x00018014",
+                "BOOT_PROGRAM_INFO_VECTOR_CRC_8_BYTES": f"0x{app_info['vector_table_crc']:X}",
+                "BOOT_PROGRAM_INFO_ADDRESS_IS_PROGRAM_AVAILABLE": "0x0001801C",
+                "BOOT_PROGRAM_IS_AVAILABLE": "0xCCCCCCCC",
+                "BOOT_VECTOR_TABLE_BACKUP_ADDRESS_1": "0x00018064",
+                "BOOT_VECTOR_TABLE_BACKUP_ADDRESS_2": "0x0001806C",
+                "BOOT_VECTOR_TABLE_BACKUP_ADDRESS_3": "0x00018074",
+                "BOOT_VECTOR_TABLE_BACKUP_ADDRESS_4": "0x0001807C",
+            }
+        )
+        self.outputs[0].write(cmm_txt)
+
+    def keyword(self):
+        """displayed keyword when generating the CRC table file"""
+        return "Processing"
+
+    def __str__(self):
+        return f"{self.inputs} -> {self.outputs[0]}"
+
+
+@TaskGen.feature("cprogram")
+@TaskGen.after("apply_link")
+def add_crc_task(self):
+    """TODO"""
+    if not hasattr(self, "link_task"):
+        return
+    if self.bld.variant_dir == self.link_task.outputs[0].parent.abspath():
+        return
+    if not getattr(self, "app_build_cfg", False):
+        return
+    # create the CRC table
+    self.crc_task = self.create_task(
+        "app_crc_gen",
+        src=self.bingen.outputs[0],
+        tgt=[
+            self.bingen.outputs[0].change_ext(".crc64.csv"),
+            self.bingen.outputs[0].change_ext(".crc64.json"),
+        ],
+    )
+
+    # update the Lauterbach script
+    lauterbach_in = self.bld.path.find_node(
+        "tools/debugger/lauterbach/update_program_information.cmm.in"
+    )
+    lauterbach_out = self.bld.path.find_or_declare(
+        self.bld.out_dir + "/update_program_information.cmm"
+    )
+    self.create_task(
+        "update_lauterbach_script",
+        src=[self.crc_task.outputs[0], self.crc_task.outputs[1], lauterbach_in],
+        tgt=[lauterbach_out],
+    )
+
+    if self.bld.variant_dir:
+        out_dir = self.bld.variant_dir
+    else:
+        out_dir = self.bld.path.get_bld()
+    self.create_task(
+        "copy_to_out_dir",
+        src=self.crc_task.outputs,
+        tgt=[
+            self.bld.path.find_or_declare(
+                os.path.join(out_dir, self.crc_task.outputs[0].name)
+            )
+        ],
+    )
+
+
 @taskgen_method
 def accept_node_to_link(self, node):  # pylint: disable=unused-argument
     """filters which output files are not meant to be linked"""
@@ -960,7 +1089,7 @@ def process_sizes(self):
             self.create_task("size", node, out)
 
 
-class size(Task.Task):  # pylint: disable-msg=invalid-name
+class size(Task.Task):  # pylint: disable=invalid-name
     """Task to run size on all input files"""
 
     vars = ["ARMSIZE", "ARMSIZE_OPTS"]
@@ -993,7 +1122,11 @@ class size(Task.Task):  # pylint: disable-msg=invalid-name
 
     def keyword(self):
         """displayed keyword when size is run on object files"""
-        return "Processing size"
+        return "Processing"
+
+    def __str__(self):
+        """additional information appended to the keyword"""
+        return f"{self.inputs} -> {self.outputs}"
 
 
 @TaskGen.feature("c", "cprogram")
@@ -1011,7 +1144,7 @@ def process_nm(self):
             self.create_task("nm", node, out)
 
 
-class nm(Task.Task):  # pylint: disable-msg=invalid-name,too-few-public-methods
+class nm(Task.Task):  # pylint: disable=invalid-name,too-few-public-methods
     """Task to run armnm on all input files"""
 
     #: str: color in which the command line is displayed in the terminal
@@ -1023,19 +1156,24 @@ class nm(Task.Task):  # pylint: disable-msg=invalid-name,too-few-public-methods
 
     def keyword(self):
         """displayed keyword when armnm is run on object files"""
-        return "Processing nm"
+        return "Processing"
+
+    def __str__(self):
+        """additional information appended to the keyword"""
+        return f"{self.inputs} -> {self.outputs}"
 
 
 @TaskGen.feature("c")
 @TaskGen.after("c_pp")
 def remove_stuff_from_pp(self):
     """creates pp tasks for generated object files"""
-    for node in self.c_pp_tasks:
+    for node in getattr(self, "c_pp_tasks", []):
         outs = [node.outputs[0].change_ext(".ppr"), node.outputs[0].change_ext(".pprs")]
         self.create_task("clean_pp_file", node.outputs[0], outs)
 
 
-class clean_pp_file(Task.Task):  # pylint: disable-msg=invalid-name,too-few-public-methods
+# pylint: disable-next=invalid-name,too-few-public-methods
+class clean_pp_file(Task.Task):
     """Task to remove some information from the preprocessed files"""
 
     #: str: color in which the command line is displayed in the terminal
@@ -1066,7 +1204,11 @@ class clean_pp_file(Task.Task):  # pylint: disable-msg=invalid-name,too-few-publ
 
     def keyword(self):
         """displayed keyword when post-processing the pre-processed files"""
-        return "Postprocessing"
+        return "Processing"
+
+    def __str__(self):
+        """additional information appended to the keyword"""
+        return f"{self.inputs} -> {self.outputs}"
 
 
 @dataclass
@@ -1087,7 +1229,7 @@ class create_version_source(Task.Task):  # pylint: disable=invalid-name
     """creates the version information file"""
 
     #: int: priority of the task
-    weight = 1
+    weight = 2
 
     #: str: color in which the command line is displayed in the terminal
     color = "BLUE"
@@ -1337,7 +1479,7 @@ class create_app_build_cfg_source(Task.Task):  # pylint: disable=invalid-name
     """creates the app build configuration information file"""
 
     #: int: priority of the task
-    weight = 1
+    weight = 2
 
     #: str: color in which the command line is displayed in the terminal
     color = "BLUE"
@@ -1534,22 +1676,15 @@ class create_app_build_cfg_source(Task.Task):  # pylint: disable=invalid-name
 def create_version_file(self):
     """Task generator for version information file"""
     no_version = getattr(self, "no_version", False)
-    if HAVE_GIT:
-        try:
-            repo = Repo(self.bld.top_dir)
-        except InvalidGitRepositoryError:
-            if not no_version:
-                Logs.warn(
-                    "Not a git repository. Proceeding without version information."
-                )
-            repo = None
-        # pylint: disable=bare-except
-        except:  # noqa: E722
-            Logs.error(f"An unexpected error occurred:\n{sys.exc_info()[0]}")
-            Logs.warn("Proceeding without version information.")
-            repo = None
-    else:
-        Logs.warn("Git not available. Proceeding without version information.")
+    try:
+        repo = Repo(self.bld.top_dir)
+    except InvalidGitRepositoryError:
+        if not no_version:
+            Logs.warn("Not a git repository. Proceeding without version information.")
+        repo = None
+    except:  # noqa: E722 pylint: disable=bare-except
+        Logs.error(f"An unexpected error occurred:\n{sys.exc_info()[0]}")
+        Logs.warn("Proceeding without version information.")
         repo = None
 
     generated_sources = []
@@ -1599,114 +1734,8 @@ def hash_cmd_files(self):
     )
 
 
-class search_swi(Task.Task):  # pylint: disable=invalid-name
-    """Searches for swi aliases based on a regular expression"""
-
-    color = "BLUE"
-
-    after = ["hcg_compiler", "create_version_source"]
-
-    swi_regex = re.compile(
-        r"#\s{0,}pragma\s{0,}SWI_ALIAS\s{0,}\(\s{0,}([a-zA-Z0-9_]*)\s{0,},\s{0,}(\d)\s{0,}\)[;]?"
-    )
-
-    def run(self):
-        """does the search check"""
-        txt = self.inputs[0].read()
-        swi_functions = [
-            {"c-name": x.group(1), "entry": x.group(2)}
-            for x in search_swi.swi_regex.finditer(txt)
-        ]
-        if not swi_functions:
-            swi_functions = []
-        info = json.dumps(
-            {"file:": self.inputs[0].relpath(), "functions": swi_functions},
-            indent=4,
-        )
-        self.outputs[0].write(info + os.linesep)
-
-    def keyword(self):
-        """displayed keyword when this check is run"""
-        return "Searching for swi aliases"
-
-
-@TaskGen.feature("swi-check")
-@TaskGen.after_method("process_source")
-def get_swi_aliases(self):
-    """Find all swi aliases"""
-    if self.env.CC == self.env.AXIVION_CC or "python" in self.env.CC:
-        return
-    self.swi_tasks = []
-    for i in self.files:
-        self.swi_tasks.append(
-            self.create_task(
-                "search_swi",
-                src=i,
-                tgt=i.change_ext(f"{i.suffix()}.{self.idx}.swi.json"),
-            )
-        )
-
-
-class print_swi(Task.Task):  # pylint: disable=invalid-name
-    """gathers all swi information in one file"""
-
-    after = ["search_swi"]
-
-    asm_regex = re.compile(r"(\.word)\s{1,}([a-zA-Z0-9_]*)(.*)")
-
-    def run(self):
-        """combines all swi information in one file"""
-        # get jump-table information from asm file
-        txt = self.inputs[0].read().splitlines()
-        found = False
-        table_entry = 0
-        asm_table = []
-        for i, val in enumerate(txt):
-            if val.strip() == "jumpTable":
-                found = True
-                continue
-            if found:
-                if val.strip() == ".endasmfunc":
-                    break
-                match = print_swi.asm_regex.match(val.strip())
-                if match:
-                    asm_table.append((table_entry, match.group(2)))
-                    table_entry += 1
-        all_swi_functions = []
-        for i in self.inputs[1:]:
-            info = json.loads(i.read())
-            if info.get("functions", None):
-                all_swi_functions.append(info)
-        for i in all_swi_functions:
-            for j in i["functions"]:
-                j["asm-function"] = asm_table[int(j["entry"])][1]
-        all_info = json.dumps(
-            all_swi_functions,
-            indent=4,
-        )
-        self.outputs[0].write(all_info + os.linesep)
-
-    def keyword(self):
-        """displayed keyword when this check is run"""
-        return "Dump swi information"
-
-
-@TaskGen.feature("swi-check")
-@TaskGen.after_method("process_source")
-def print_swi_aliases(self):
-    """Find all swi aliases"""
-    if self.env.CC == self.env.AXIVION_CC or "python" in self.env.CC:
-        return
-    if not self.jump_table_file:
-        self.bld.fatal("Could not find jump table file.")
-    src = [self.jump_table_file] + [x.outputs[0] for x in self.swi_tasks]
-    self.create_task(
-        "print_swi", src=src, tgt=self.path.find_or_declare(f"{self.idx}.swi.json")
-    )
-
-
 class get_stack(Task.Task):  # pylint: disable=invalid-name
-    """gathers all swi information in one file"""
+    """gathers all stack information in one file"""
 
     after = ["link_task"]
 
@@ -1764,34 +1793,34 @@ def test_exec_fun(self):
 
 
 @conf
-def find_armcl(conf):  # pylint: disable-msg=redefined-outer-name
+def find_armcl(ctx):
     """configures the compiler, determines the compiler version, and sets the
     default include paths."""
     found_versions = []
     err = 0
-    for i, path_list in enumerate(conf.env.CCS_SEARCH_PATH_GROUP):
-        conf.env.stash()
+    for i, path_list in enumerate(ctx.env.CCS_SEARCH_PATH_GROUP):
+        ctx.env.stash()
         err = 0
-        cc = conf.find_program(["armcl"], var="CC", path_list=path_list)
-        conf.env.CC_NAME = "cgt"
+        cc = ctx.find_program(["armcl"], var="CC", path_list=path_list)
+        ctx.env.CC_NAME = "cgt"
         cc_path = pathlib.Path(cc[0])
-        conf.env.append_unique(
+        ctx.env.append_unique(
             "INCLUDES", os.path.join(cc_path.parent.parent.absolute(), "include")
         )
-        conf.env.append_unique(
+        ctx.env.append_unique(
             "STLIBPATH", os.path.join(cc_path.parent.parent.absolute(), "lib")
         )
-        conf.find_program(["armcl"], var="LINK_CC", path_list=path_list)
-        cmd = Utils.subst_vars("${CC} --compiler_revision", conf.env).split(" ")
-        std_out, std_err = conf.cmd_and_log(cmd, output=Context.BOTH)
+        ctx.find_program(["armcl"], var="LINK_CC", path_list=path_list)
+        cmd = Utils.subst_vars("${CC} --compiler_revision", ctx.env).split(" ")
+        std_out, std_err = ctx.cmd_and_log(cmd, output=Context.BOTH)
         if std_err:
             Logs.warn(f"Could not successfully run '--compiler_revision' on {cc}")
             err += 1
-            conf.env.revert()
+            ctx.env.revert()
             continue
-        conf.env.CC_VERSION = std_out.strip()
-        cmd = Utils.subst_vars("${CC} -version", conf.env).split(" ")
-        std_out, std_err = conf.cmd_and_log(cmd, output=Context.BOTH)
+        ctx.env.CC_VERSION = std_out.strip()
+        cmd = Utils.subst_vars("${CC} -version", ctx.env).split(" ")
+        std_out, std_err = ctx.cmd_and_log(cmd, output=Context.BOTH)
         if std_err:
             Logs.warn(f"Could not successfully run '-version' on {cc}")
             err += 1
@@ -1799,53 +1828,53 @@ def find_armcl(conf):  # pylint: disable-msg=redefined-outer-name
         for line in std_out.splitlines():
             full_ver = version_pattern.search(line)
             if full_ver:
-                conf.env.append_unique("CC_VERSION_FULL", full_ver.group(1))
-        if not conf.env.CC_VERSION or not conf.env.CC_VERSION_FULL:
+                ctx.env.append_unique("CC_VERSION_FULL", full_ver.group(1))
+        if not ctx.env.CC_VERSION or not ctx.env.CC_VERSION_FULL:
             Logs.warn(f"Could not determine compiler version for '{cc}'")
             err += 1
-            conf.env.revert()
+            ctx.env.revert()
             continue
 
         # we are searching for the newest compiler first, if we find a working
         # one and strict version checking is not active, then just use this one
         # If we enforce a strict version just go on until the correct version
         # is found
-        if not err and not conf.env.FOXBMS_2_CCS_VERSION_STRICT:
-            conf.env.CCS_SEARCH_PATH_GROUP_ID = i
+        if not err and not ctx.env.FOXBMS_2_CCS_VERSION_STRICT:
+            ctx.env.CCS_SEARCH_PATH_GROUP_ID = i
             break
 
-        found_versions.append((conf.env.CC_VERSION_FULL[0], cc))
+        found_versions.append((ctx.env.CC_VERSION_FULL[0], cc))
 
         # we found a compiler, check if it reported the expected, i.e., pinned
         # version. If it does not match, continue the search.
-        if conf.env.FOXBMS_2_CCS_VERSION_STRICT:
-            if conf.env.FOXBMS_2_CCS_VERSION_STRICT[0] != conf.env.CC_VERSION_FULL[0]:
+        if ctx.env.FOXBMS_2_CCS_VERSION_STRICT:
+            if ctx.env.FOXBMS_2_CCS_VERSION_STRICT[0] != ctx.env.CC_VERSION_FULL[0]:
                 err += 1
-                conf.env.revert()
+                ctx.env.revert()
                 continue
-            conf.env.CCS_SEARCH_PATH_GROUP_ID = i
+            ctx.env.CCS_SEARCH_PATH_GROUP_ID = i
             break
 
     if err:
-        conf.fatal(
+        ctx.fatal(
             "Strict CCS version checking was set, and compiler version does not "
             "match.\n"
-            f"(searched for {conf.env.FOXBMS_2_CCS_VERSION_STRICT[0]}, but only "
+            f"(searched for {ctx.env.FOXBMS_2_CCS_VERSION_STRICT[0]}, but only "
             f"found {found_versions})."
         )
 
 
 @conf
-def find_armar(conf):  # pylint: disable-msg=redefined-outer-name
+def find_armar(ctx):
     """configures the archive tool"""
-    path_list = conf.env.CCS_SEARCH_PATH_GROUP[conf.env.CCS_SEARCH_PATH_GROUP_ID]
-    conf.find_program(["armar"], var="AR", path_list=path_list)
+    path_list = ctx.env.CCS_SEARCH_PATH_GROUP[ctx.env.CCS_SEARCH_PATH_GROUP_ID]
+    ctx.find_program(["armar"], var="AR", path_list=path_list)
 
 
 @conf
-def cgt_flags(conf):  # pylint: disable-msg=redefined-outer-name
+def cgt_flags(ctx):
     """sets flags and related configuration options of the compiler."""
-    env = conf.env
+    env = ctx.env
     env.DEST_BIN_FMT = "elf"
     env.AR_TGT_F = ["rq"]
     env.CC_COMPILE_ONLY = ["--compile_only"]
@@ -1881,20 +1910,20 @@ def cgt_flags(conf):  # pylint: disable-msg=redefined-outer-name
     env.TI_ARM_CGT_LINKER_START_GROUP = "--start-group"
 
 
-def configure(conf):  # pylint: disable-msg=redefined-outer-name
+def configure(ctx):
     """configuration step of the TI ARM CGT compiler tool"""
-    conf.load_special_tools("c_*.py")
-    conf.start_msg("Checking for TI ARM CGT compiler and tools")
-    conf.load_cc_options()
-    conf.find_armcl()
-    conf.find_armar()
-    conf.find_arm_tools()
-    conf.cgt_flags()
-    conf.link_add_flags()
-    conf.env.COMPILER_BUILTIN_DEFINES_FILE = [
-        conf.root.find_node(conf.get_defines()).abspath()
+    ctx.load_special_tools("c_*.py")
+    ctx.start_msg("Checking for TI ARM CGT compiler and tools")
+    ctx.load_cc_options()
+    ctx.find_armcl()
+    ctx.find_armar()
+    ctx.find_arm_tools()
+    ctx.cgt_flags()
+    ctx.link_add_flags()
+    ctx.env.COMPILER_BUILTIN_DEFINES_FILE = [
+        ctx.root.find_node(ctx.get_defines()).abspath()
     ]
-    conf.env.DEST_OS = ["EMBEDDED"]
-    conf.env.COMPILER_CC = "ti_arm_cgt"
-    conf.end_msg(conf.env.get_flat("CC"))
-    conf.load("f_hcg", tooldir=TOOL_DIR)
+    ctx.env.DEST_OS = ["EMBEDDED"]
+    ctx.env.COMPILER_CC = "ti_arm_cgt"
+    ctx.end_msg(ctx.env.get_flat("CC"))
+    ctx.load("f_hcg", tooldir=TOOL_DIR)

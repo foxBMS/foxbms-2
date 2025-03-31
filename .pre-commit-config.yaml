@@ -1,4 +1,4 @@
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -37,26 +37,26 @@
 
 exclude: |
   (?x)^(
-      src/os/freertos/.*\.[c|h]|
-      src/os/freertos/.*\.url|
-      src/os/freertos/\.github/.*|
-      src/os/freertos/History\.txt|
-      src/os/freertos/include/.*|
-      src/os/freertos/LICENSE\.md|
-      src/os/freertos/portable/.*|
-      src/os/freertos/README\.md|
+      src/os/freertos/freertos/.*\.[c|h]|
+      src/os/freertos/freertos/.*\.url|
+      src/os/freertos/freertos/\.github/.*|
+      src/os/freertos/freertos/History\.txt|
+      src/os/freertos/freertos/include/.*|
+      src/os/freertos/freertos/LICENSE\.md|
+      src/os/freertos/freertos/portable/.*|
+      src/os/freertos/freertos/README\.md|
+      src/os/freertos/freertos-plus/freertos-plus-tcp/(.*[/])*.*|
       tests/axivion/addon/.*\.py|
       tests/axivion/addon-test/.*\.(c|h|cpp)|
       tests/axivion/compiler-errata/ti-cgt-arm.*|
       tests/axivion/qualification-test/qualification-kit.*|
       tests/hil/server/pi_pico/fault_injector/mcp23017\.py|
       tools/dbc/third-party/.*|
-      tools/vendor/ceedling/.*|
       tools/waf
   )$
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.6.0
+    rev: v5.0.0
     hooks:
       - id: check-added-large-files
       - id: check-ast
@@ -79,7 +79,7 @@ repos:
             .*wscript
           )$
       - id: check-executables-have-shebangs
-      #- id: check-illegal-windows-names
+      - id: check-illegal-windows-names
       - id: check-json
       - id: check-merge-conflict
       - id: check-shebang-scripts-are-executable
@@ -92,7 +92,8 @@ repos:
             \.gitlab/ci_pipeline/build_app_embedded\.yml|
             \.gitlab/ci_pipeline/build\.ccs\.yml|
             \.gitlab/ci_pipeline/build_embedded\.yml|
-            \.gitlab/ci_pipeline/static_program_analysis\.yml
+            \.gitlab/ci_pipeline/static_program_analysis\.yml|
+            tests/cli/cmd_plot/test_execution/test_yaml_error.yaml
           )$
         args: [--allow-multiple-documents]
       - id: debug-statements
@@ -110,9 +111,9 @@ repos:
         args: [--fix=no]
         exclude: |
           (?x)^(
-            tests/cli/pre_commit_scripts/test_check_doxygen/invalid-encoding_utf-16.c|
-            tests/cli/pre_commit_scripts/test_check_encoding/utf-16.txt|
-            tests/cli/pre_commit_scripts/test_check_for_tabs/tabs_2.txt
+            tests/cli/pre_commit_scripts/test_check_doxygen/invalid-encoding_utf-16\.c|
+            tests/cli/pre_commit_scripts/test_check_encoding/utf-16\.txt|
+            tests/cli/pre_commit_scripts/test_check_for_tabs/tabs_2\.txt
           )$
       - id: name-tests-test
         args: [--unittest]
@@ -122,7 +123,7 @@ repos:
             tests/can/check_ids\.py|
             tests/can/check_implemented\.py|
             tests/ccs/ccs_build_helper\.py|
-            tests/cli/pre_commit_scripts/test_check_license_info/valid-license.py|
+            tests/cli/pre_commit_scripts/test_check_license_info/valid-license\.py|
             tests/c-std/c-std-test\.py|
             tests/dbc/check_parseable\.py|
             tests/dbc/overlapping-signals\.py|
@@ -143,12 +144,12 @@ repos:
       - id: trailing-whitespace
         exclude: (?x)^(
           .*\.(dil)|
-          docs/software/architecture/img/axivion_architecture.svg|
+          docs/software/architecture/img/axivion_architecture\.svg|
           src/app/driver/afe/nxp/mc33775a/vendor/.*\.[c|h]
           )$
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.7.0
+    rev: v0.9.6
     hooks:
       - id: ruff
         args: [--fix]
@@ -156,13 +157,23 @@ repos:
           (?x)^(
             .*(\.ipynb)
           )$
+      - id: ruff
+        name: ruff-import-order
+        args: [check, --select, I]
+        exclude: |
+          (?x)^(
+            .*(\.ipynb)|
+            tests/cli/fallback/test_fallback\.py|
+            tools/waf-tools/.*|
+            tools/waf
+          )$
       - id: ruff-format
         exclude: |
           (?x)^(
             .*(\.ipynb)
           )$
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.18.0
+    rev: v3.19.1
     hooks:
       - id: pyupgrade
         files: |
@@ -179,7 +190,7 @@ repos:
         files: "[^a-z0-9._/-]"
         exclude: |
           (?x)^(
-            .*README\.md|
+            .*README(\.foxbms)?\.md|
             \.github/PULL_REQUEST_TEMPLATE\.md|
             \.gitlab/CODEOWNERS|
             BSD-3-Clause\.txt|
@@ -188,8 +199,7 @@ repos:
             CITATION\.cff|
             INSTALL\.md|
             LICENSE\.md|
-            src/app/driver/afe/nxp/mc33775a/vendor/MC33775A\.h|
-            src/os/freertos/README\.ti-halcogen\.md
+            src/app/driver/afe/nxp/mc33775a/vendor/MC33775A\.h
           )$
   - repo: local
     hooks:
@@ -204,36 +214,152 @@ repos:
             .*wscript
           )$
         require_serial: true
+  - repo: local
+    hooks:
+      - id: mypy
+        name: mypy
+        entry: mypy
+        language: system
+        args:
+          - .\cli\
+        pass_filenames: false
   - repo: https://github.com/pre-commit/mirrors-clang-format
-    rev: "v19.1.2"
+    rev: "v19.1.7"
     hooks:
       - id: clang-format
         args: [--style=file]
         types_or: [c]
         exclude: |
           (?x)^(
-            tests/cli/pre_commit_scripts/test_check_doxygen/invalid-encoding_utf-16.c
+            tests/cli/pre_commit_scripts/test_check_doxygen/invalid-encoding_utf-16\.c
           )$
   - repo: local
     hooks:
       - id: check-license-header
         name: check license header [python]
+        types: [python]
         files: |
           (?x)^(
-            .*(\.py)|
-            .*wscript
+            fox\.py|
+            wscript|
+            conf/tpl/.*|
+            docs/.*|
+            src/bootloader/.*wscript|
+            src/portable/.*wscript|
+            src/os/(freertos/)?.*wscript|
+            src/app/application/algorithm/wscript|
+            src/app/application/wscript|
+            src/app/driver/afe/adi/ades1830/wscript|
+            src/app/driver/afe/adi/common/ades183x/api/wscript|
+            src/app/driver/afe/adi/common/ades183x/pec/wscript|
+            src/app/driver/afe/adi/common/ades183x/wscript|
+            src/app/driver/afe/adi/wscript|
+            src/app/driver/afe/debug/can/wscript|
+            src/app/driver/afe/debug/default/wscript|
+            src/app/driver/afe/debug/wscript|
+            src/app/driver/afe/ltc.*wscript|
+            src/app/driver/afe/maxim.*wscript|
+            src/app/driver/afe/nxp.*wscript|
+            src/app/driver/afe/ti/api/wscript|
+            src/app/driver/afe/ti/common/wscript|
+            src/app/driver/afe/ti/dummy/wscript|
+            src/app/driver/afe/ti/wscript|
+            src/app/driver/afe/wscript|
+            src/app/driver/imd/.*wscript|
+            src/app/driver/wscript|
+            src/app/engine/wscript|
+            src/app/hal/wscript|
+            src/app/main/wscript|
+            src/app/task/wscript|
+            src/app/wscript|
+            src/wscript|
+            (tests/)?cli/.*|
+            tests/axivion/axivion_self_tests\.py|
+            tests/axivion/combine_report_files\.py|
+            tests/axivion/rule_config_c\.py|
+            tests/axivion/rule_config_include_guard\.py|
+            tests/axivion/rule_config_names\.py|
+            tests/axivion/scripts/check_axivion_versions\.py|
+            tests/axivion/scripts/ci_check_freshness_of_architecture_svg\.py|
+            tests/axivion/scripts/dependency_analysis\.py|
+            tests/axivion/scripts/gravis_export_architecture_svg\.py|
+            tests/axivion/violations/check_violations\.py|
+            tests/can/.*|
+            tests/ccs/.*|
+            tests/c-std/c-std-test\.py|
+            tests/dbc/.*|
+            tests/unit/axivion/call_irlink\.py|
+            tests/unit/gen_hcg/wscript|
+            tests/unit/wscript|
+            tests/waf-tools/test_crc64_ti_impl\.py|
+            tools/.*
           )$
         exclude: |
           (?x)^(
-            tests/hil/.*\.py|
-            cli/cmd_bootloader/crc64_ti_impl.py
+            tools/waf-tools/crc64_ti_impl\.py
           )$
         language: system
         entry: python cli/pre_commit_scripts/check_license_info.py --file-type=py --license-type=BSD-3-Clause
-      - id: check-license-header-confidential
+      - id: check-license-header
         name: check license header confidential [python]
         types: [python]
-        files: tests/hil/.*\.py
+        exclude: |
+          (?x)^(
+            fox\.py|
+            wscript|
+            conf/tpl/.*|
+            docs/.*|
+            src/bootloader/.*wscript|
+            src/portable/.*wscript|
+            src/os/(freertos/)?.*wscript|
+            src/app/application/algorithm/wscript|
+            src/app/application/wscript|
+            src/app/driver/afe/adi/ades1830/wscript|
+            src/app/driver/afe/adi/common/ades183x/api/wscript|
+            src/app/driver/afe/adi/common/ades183x/pec/wscript|
+            src/app/driver/afe/adi/common/ades183x/wscript|
+            src/app/driver/afe/adi/wscript|
+            src/app/driver/afe/debug/can/wscript|
+            src/app/driver/afe/debug/default/wscript|
+            src/app/driver/afe/debug/wscript|
+            src/app/driver/afe/ltc.*wscript|
+            src/app/driver/afe/maxim.*wscript|
+            src/app/driver/afe/nxp.*wscript|
+            src/app/driver/afe/ti/api/wscript|
+            src/app/driver/afe/ti/common/wscript|
+            src/app/driver/afe/ti/dummy/wscript|
+            src/app/driver/afe/ti/wscript|
+            src/app/driver/afe/wscript|
+            src/app/driver/imd/.*wscript|
+            src/app/driver/wscript|
+            src/app/engine/wscript|
+            src/app/hal/wscript|
+            src/app/main/wscript|
+            src/app/task/wscript|
+            src/app/wscript|
+            src/wscript|
+            (tests/)?cli/.*|
+            tests/axivion/axivion_self_tests\.py|
+            tests/axivion/combine_report_files\.py|
+            tests/axivion/rule_config_c\.py|
+            tests/axivion/rule_config_include_guard\.py|
+            tests/axivion/rule_config_names\.py|
+            tests/axivion/scripts/check_axivion_versions\.py|
+            tests/axivion/scripts/ci_check_freshness_of_architecture_svg\.py|
+            tests/axivion/scripts/dependency_analysis\.py|
+            tests/axivion/scripts/gravis_export_architecture_svg\.py|
+            tests/axivion/violations/check_violations\.py|
+            tests/can/.*|
+            tests/ccs/.*|
+            tests/c-std/c-std-test\.py|
+            tests/dbc/.*|
+            tests/unit/axivion/call_irlink\.py|
+            tests/unit/gen_hcg/wscript|
+            tests/unit/wscript|
+            tests/unit-hw/wscript|
+            tests/waf-tools/test_crc64_ti_impl\.py|
+            tools/.*
+          )$
         language: system
         entry: python cli/pre_commit_scripts/check_license_info.py --file-type=py --license-type=confidential
       - id: check-license-header
@@ -241,31 +367,255 @@ repos:
         types: [c]
         language: system
         entry: python cli/pre_commit_scripts/check_license_info.py --file-type=c --license-type=BSD-3-Clause
+        files: |
+          (?x)^(
+            conf/tpl/.*|
+            docs/.*|
+            src/app/doxygen_.*\.h|
+            src/app/driver/afe/adi/ades1830/adi_ades1830_balancing\.c|
+            src/app/driver/afe/adi/ades1830/adi_ades1830_defs\.h|
+            src/app/driver/afe/adi/ades1830/adi_ades1830_gpio_voltages\.c|
+            src/app/driver/afe/adi/ades1830/config/adi_ades1830_cfg\.c|
+            src/app/driver/afe/adi/common/ades183x/adi_ades183x_balancing\.h|
+            src/app/driver/afe/adi/common/ades183x/adi_ades183x_defs\.h|
+            src/app/driver/afe/adi/common/ades183x/adi_ades183x_diagnostic\.h|
+            src/app/driver/afe/adi/common/ades183x/adi_ades183x_gpio_voltages\.h|
+            src/os/freertos/.*|
+            src/version/version\.h|
+            (tests/unit|src)/app/application/.*|
+            (tests/unit|src)/app/driver/adc/.*|
+            (tests/unit|src)/app/driver/afe/adi/common/ades183x/(test_)?adi_ades183x\.[c|h]|
+            (tests/unit|src)/app/driver/afe/adi/common/ades183x/(test_)?adi_ades183x_buffers\.[c|h]|
+            (tests/unit|src)/app/driver/afe/adi/common/ades183x/(test_)?adi_ades183x_commands\.[c|h]|
+            (tests/unit|src)/app/driver/afe/adi/common/ades183x/(test_)?adi_ades183x_commands_voltages\.[c|h]|
+            (tests/unit|src)/app/driver/afe/adi/common/ades183x/(test_)?adi_ades183x_diagnostic_w\.[c|h]|
+            (tests/unit|src)/app/driver/afe/adi/common/ades183x/(test_)?adi_ades183x_helpers\.[c|h]|
+            (tests/unit|src)/app/driver/afe/adi/common/ades183x/(test_)?adi_ades183x_initialization\.[c|h]|
+            (tests/unit|src)/app/driver/afe/adi/common/ades183x/(test_)?adi_ades183x_temperatures\.[c|h]|
+            (tests/unit|src)/app/driver/afe/adi/common/ades183x/(test_)?adi_ades183x_voltages\.[c|h]|
+            (tests/unit|src)/app/driver/afe/adi/common/ades183x/api/(test_)?adi_ades183x_afe\.[c|h]|
+            (tests/unit|src)/app/driver/afe/adi/common/ades183x/api/(test_)?adi_ades183x_afe_dma\.[c|h]|
+            (tests/unit|src)/app/driver/afe/adi/common/ades183x/config/(test_)?adi_ades183x_cfg\.[c|h]|
+            (tests/unit|src)/app/driver/afe/adi/common/ades183x/pec/(test_)?adi_ades183x_pec\.[c|h]|
+            (tests/unit|src)/app/driver/afe/api/.*|
+            (tests/unit|src)/app/driver/afe/debug/.*|
+            (tests/unit|src)/app/driver/afe/ltc/.*|
+            (tests/unit|src)/app/driver/afe/maxim/.*|
+            (tests/unit|src)/app/driver/afe/nxp/api/.*|
+            (tests/unit|src)/app/driver/afe/nxp/mc33775a.*|
+            (tests/unit|src)/app/driver/afe/ti/api/.*|
+            (tests/unit|src)/app/driver/afe/ti/common/api/.*|
+            (tests/unit|src)/app/driver/afe/ti/dummy/.*|
+            (tests/unit|src)/app/driver/can/.*|
+            (tests/unit|src)/app/driver/checksum/.*|
+            (tests/unit|src)/app/driver/config/.*|
+            (tests/unit|src)/app/driver/contactor/.*|
+            (tests/unit|src)/app/driver/crc/.*|
+            (tests/unit|src)/app/driver/dma/.*|
+            (tests/unit|src)/app/driver/foxmath/.*|
+            (tests/unit|src)/app/driver/foxmath/.*|
+            (tests/unit|src)/app/driver/fram/.*|
+            (tests/unit|src)/app/driver/htsensor/.*|
+            (tests/unit|src)/app/driver/i2c/.*|
+            (tests/unit|src)/app/driver/imd/bender/ir155/.*|
+            (tests/unit|src)/app/driver/imd/bender/ir155/.*|
+            (tests/unit|src)/app/driver/imd/bender/iso165c/.*|
+            (tests/unit|src)/app/driver/imd/.*|
+            (tests/unit|src)/app/driver/interlock/.*|
+            (tests/unit|src)/app/driver/io/.*|
+            (tests/unit|src)/app/driver/led/.*|
+            (tests/unit|src)/app/driver/mcu/.*|
+            (tests/unit|src)/app/driver/meas/.*|
+            (tests/unit|src)/app/driver/pex/.*|
+            (tests/unit|src)/app/driver/pwm/.*|
+            (tests/unit|src)/app/driver/rtc/.*|
+            (tests/unit|src)/app/driver/sbc/.*|
+            (tests/unit|src)/app/driver/sbc/.*|
+            (tests/unit|src)/app/driver/spi/.*|
+            (tests/unit|src)/app/driver/sps/.*|
+            (tests/unit|src)/app/driver/ts/.*|
+            (tests/unit|src)/app/engine/.*|
+            (tests/unit|src)/app/main/.*|
+            (tests/unit|src)/app/task/.*|
+            (tests/unit|src)/bootloader/.*|
+            (tests/unit|src)/opt/cells/config/(test_)?lg_inr18650mj1.*|
+            (tests/unit|src)/opt/cells/config/(test_)?panasonic_ncr18650bd.*|
+            tests/axivion/addon-test/.*|
+            tests/axivion/axivion_preinc\.h|
+            tests/axivion/compiler-errata/.*|
+            tests/axivion/config-test/.*|
+            tests/axivion/qualification-test/.*|
+            tests/c-std/c-std-test\.c|
+            tests/c-std/c-std-test-inline-helper\.h|
+            tests/unit/app/doxygen_app_unit_test\.h|
+            tests/unit/app/driver/afe/adi/ades1830/adi_ades1830_helpers_test-data-rdb\.c|
+            tests/unit/app/driver/afe/adi/ades1830/adi_ades1830_helpers_test-data-wdb\.c|
+            tests/unit/app/driver/afe/adi/ades1830/api/.*|
+            tests/unit/app/driver/afe/adi/ades1830/config/test_adi_ades1830_cfg\.c|
+            tests/unit/app/driver/afe/adi/ades1830/include/adi_ades1830_helpers_test-data-rdb\.h|
+            tests/unit/app/driver/afe/adi/ades1830/include/adi_ades1830_helpers_test-data-wdb\.h|
+            tests/unit/app/driver/afe/adi/ades1830/pec/test_adi_ades1830_pec\.c|
+            tests/unit/app/driver/afe/adi/ades1830/test_adi_ades1830\.c|
+            tests/unit/app/driver/afe/adi/ades1830/test_adi_ades1830_balancing\.c|
+            tests/unit/app/driver/afe/adi/ades1830/test_adi_ades1830_buffers\.c|
+            tests/unit/app/driver/afe/adi/ades1830/test_adi_ades1830_commands\.c|
+            tests/unit/app/driver/afe/adi/ades1830/test_adi_ades1830_commands_voltages\.c|
+            tests/unit/app/driver/afe/adi/ades1830/test_adi_ades1830_diagnostic_w\.c|
+            tests/unit/app/driver/afe/adi/ades1830/test_adi_ades1830_gpio_voltages\.c|
+            tests/unit/app/driver/afe/adi/ades1830/test_adi_ades1830_helpers\.c|
+            tests/unit/app/driver/afe/adi/ades1830/test_adi_ades1830_initialization\.c|
+            tests/unit/app/driver/afe/adi/ades1830/test_adi_ades1830_temperatures\.c|
+            tests/unit/app/driver/afe/adi/ades1830/test_adi_ades1830_temperatures_2\.c|
+            tests/unit/app/driver/afe/adi/ades1830/test_adi_ades1830_voltages\.c|
+            tests/unit/app/driver/afe/adi/common/ades183x/test_adi_ades183x_diagnostic_w\.c|
+            tests/unit/doxygen_tests\.h|
+            tests/unit/support/struct_helper\.[c|h]|
+            tests/unit/support/test_algorithm_stubs\.h|
+            tests/unit/support/test_assert_helper\.h|
+            tests/unit/support/test_can_mpu_prototype_queue_create_stub\.h|
+            tests/unit/support/test_ignore_list\.h|
+            tests/unit/support/test_pec_helper\.h|
+            tests/variants/lib-build/lib-build_main\.c|
+            tools/crc/crc-10_0x48f\.c|
+            tools/crc/crc-15_0xc599\.c|
+          )$
+        exclude: (?x)^(
+          src/app/driver/afe/nxp/mc33775a/nxp_mc33775a-ll\.[c|h]|
+          src/app/driver/afe/nxp/mc33775a/vendor/.*|
+          src/app/driver/sbc/fs8x_driver/.*|
+          src/(app|bootloader)/main/fstartup\.c|
+          src/bootloader/driver/crc/vendor/crc64_calc\.[c|h]
+          )$
+      - id: check-license-header
+        name: check license header confidential [c]
+        types: [c]
+        language: system
+        entry: python cli/pre_commit_scripts/check_license_info.py --file-type=c --license-type=confidential
         exclude: |
           (?x)^(
-            src/(app|bootloader)/main/fstartup\.c|
-            src/app/driver/afe/nxp/mc33775a/nxp_mc33775a-ll\.[c|h]|
-            src/app/driver/afe/nxp/mc33775a/vendor/.*|
-            src/app/driver/sbc/fs8x_driver/.*|
-            src/bootloader/driver/crc/vendor/crc64_calc\.[c|h]|
-            tests/axivion/config-test/(test_)?coding-style-naming\..*\.[c|h]|
-            tests/cli/pre_commit_scripts/test_check_license_info/invalid-license\.c|
-            tests/cli/pre_commit_scripts/test_check_license_info/no-license\.c|
-            tests/cli/pre_commit_scripts/test_check_cpp_style_comment/cpp-style-comment_[0|1|2].c|
-            tests/cli/pre_commit_scripts/test_check_cpp_style_comment/no-cpp-style-comment.c|
-            tests/cli/pre_commit_scripts/test_check_doxygen/no-doxygen-comments.c|
-            tests/cli/pre_commit_scripts/test_check_doxygen/invalid-encoding_utf-16.c|
-            tests/cli/pre_commit_scripts/test_check_include_guard/test_file_empty.h|
-            tests/cli/pre_commit_scripts/test_check_include_guard/test_file_invalid_content.h|
-            tests/cli/pre_commit_scripts/test_check_include_guard/test_file.c|
-            tests/cli/pre_commit_scripts/test_check_include_guard/test_file_multiple.h|
-            tests/cli/pre_commit_scripts/test_check_include_guard/test_file_valid.h
+            conf/tpl/.*|
+            docs/.*|
+            src/app/doxygen_.*\.h|
+            src/app/driver/afe/adi/ades1830/adi_ades1830_balancing\.c|
+            src/app/driver/afe/adi/ades1830/adi_ades1830_defs\.h|
+            src/app/driver/afe/adi/ades1830/adi_ades1830_gpio_voltages\.c|
+            src/app/driver/afe/adi/ades1830/config/adi_ades1830_cfg\.c|
+            src/app/driver/afe/adi/common/ades183x/adi_ades183x_balancing\.h|
+            src/app/driver/afe/adi/common/ades183x/adi_ades183x_defs\.h|
+            src/app/driver/afe/adi/common/ades183x/adi_ades183x_diagnostic\.h|
+            src/app/driver/afe/adi/common/ades183x/adi_ades183x_gpio_voltages\.h|
+            src/os/freertos/.*|
+            src/version/version\.h|
+            (tests/unit|src)/app/application/.*|
+            (tests/unit|src)/app/driver/adc/.*|
+            (tests/unit|src)/app/driver/afe/adi/common/ades183x/(test_)?adi_ades183x\.[c|h]|
+            (tests/unit|src)/app/driver/afe/adi/common/ades183x/(test_)?adi_ades183x_buffers\.[c|h]|
+            (tests/unit|src)/app/driver/afe/adi/common/ades183x/(test_)?adi_ades183x_commands\.[c|h]|
+            (tests/unit|src)/app/driver/afe/adi/common/ades183x/(test_)?adi_ades183x_commands_voltages\.[c|h]|
+            (tests/unit|src)/app/driver/afe/adi/common/ades183x/(test_)?adi_ades183x_diagnostic_w\.[c|h]|
+            (tests/unit|src)/app/driver/afe/adi/common/ades183x/(test_)?adi_ades183x_helpers\.[c|h]|
+            (tests/unit|src)/app/driver/afe/adi/common/ades183x/(test_)?adi_ades183x_initialization\.[c|h]|
+            (tests/unit|src)/app/driver/afe/adi/common/ades183x/(test_)?adi_ades183x_temperatures\.[c|h]|
+            (tests/unit|src)/app/driver/afe/adi/common/ades183x/(test_)?adi_ades183x_voltages\.[c|h]|
+            (tests/unit|src)/app/driver/afe/adi/common/ades183x/api/(test_)?adi_ades183x_afe\.[c|h]|
+            (tests/unit|src)/app/driver/afe/adi/common/ades183x/api/(test_)?adi_ades183x_afe_dma\.[c|h]|
+            (tests/unit|src)/app/driver/afe/adi/common/ades183x/config/(test_)?adi_ades183x_cfg\.[c|h]|
+            (tests/unit|src)/app/driver/afe/adi/common/ades183x/pec/(test_)?adi_ades183x_pec\.[c|h]|
+            (tests/unit|src)/app/driver/afe/api/.*|
+            (tests/unit|src)/app/driver/afe/debug/.*|
+            (tests/unit|src)/app/driver/afe/ltc/.*|
+            (tests/unit|src)/app/driver/afe/maxim/.*|
+            (tests/unit|src)/app/driver/afe/nxp/api/.*|
+            (tests/unit|src)/app/driver/afe/nxp/mc33775a.*|
+            (tests/unit|src)/app/driver/afe/ti/api/.*|
+            (tests/unit|src)/app/driver/afe/ti/common/api/.*|
+            (tests/unit|src)/app/driver/afe/ti/dummy/.*|
+            (tests/unit|src)/app/driver/can/.*|
+            (tests/unit|src)/app/driver/checksum/.*|
+            (tests/unit|src)/app/driver/config/.*|
+            (tests/unit|src)/app/driver/contactor/.*|
+            (tests/unit|src)/app/driver/crc/.*|
+            (tests/unit|src)/app/driver/dma/.*|
+            (tests/unit|src)/app/driver/foxmath/.*|
+            (tests/unit|src)/app/driver/foxmath/.*|
+            (tests/unit|src)/app/driver/fram/.*|
+            (tests/unit|src)/app/driver/htsensor/.*|
+            (tests/unit|src)/app/driver/i2c/.*|
+            (tests/unit|src)/app/driver/imd/bender/ir155/.*|
+            (tests/unit|src)/app/driver/imd/bender/ir155/.*|
+            (tests/unit|src)/app/driver/imd/bender/iso165c/.*|
+            (tests/unit|src)/app/driver/imd/.*|
+            (tests/unit|src)/app/driver/interlock/.*|
+            (tests/unit|src)/app/driver/io/.*|
+            (tests/unit|src)/app/driver/led/.*|
+            (tests/unit|src)/app/driver/mcu/.*|
+            (tests/unit|src)/app/driver/meas/.*|
+            (tests/unit|src)/app/driver/pex/.*|
+            (tests/unit|src)/app/driver/pwm/.*|
+            (tests/unit|src)/app/driver/rtc/.*|
+            (tests/unit|src)/app/driver/sbc/.*|
+            (tests/unit|src)/app/driver/sbc/.*|
+            (tests/unit|src)/app/driver/spi/.*|
+            (tests/unit|src)/app/driver/sps/.*|
+            (tests/unit|src)/app/driver/ts/.*|
+            (tests/unit|src)/app/engine/.*|
+            (tests/unit|src)/app/main/.*|
+            (tests/unit|src)/app/task/.*|
+            (tests/unit|src)/bootloader/.*|
+            (tests/unit|src)/opt/cells/config/(test_)?lg_inr18650mj1.*|
+            (tests/unit|src)/opt/cells/config/(test_)?panasonic_ncr18650bd.*|
+            tests/axivion/addon-test/.*|
+            tests/axivion/axivion_preinc\.h|
+            tests/axivion/compiler-errata/.*|
+            tests/axivion/config-test/.*|
+            tests/axivion/qualification-test/.*|
+            tests/cli/pre_commit_scripts/.*|
+            tests/c-std/c-std-test\.c|
+            tests/c-std/c-std-test-inline-helper\.h|
+            tests/unit/app/doxygen_app_unit_test\.h|
+            tests/unit/app/driver/afe/adi/ades1830/adi_ades1830_helpers_test-data-rdb\.c|
+            tests/unit/app/driver/afe/adi/ades1830/adi_ades1830_helpers_test-data-wdb\.c|
+            tests/unit/app/driver/afe/adi/ades1830/api/.*|
+            tests/unit/app/driver/afe/adi/ades1830/config/test_adi_ades1830_cfg\.c|
+            tests/unit/app/driver/afe/adi/ades1830/include/adi_ades1830_helpers_test-data-rdb\.h|
+            tests/unit/app/driver/afe/adi/ades1830/include/adi_ades1830_helpers_test-data-wdb\.h|
+            tests/unit/app/driver/afe/adi/ades1830/pec/test_adi_ades1830_pec\.c|
+            tests/unit/app/driver/afe/adi/ades1830/test_adi_ades1830\.c|
+            tests/unit/app/driver/afe/adi/ades1830/test_adi_ades1830_balancing\.c|
+            tests/unit/app/driver/afe/adi/ades1830/test_adi_ades1830_buffers\.c|
+            tests/unit/app/driver/afe/adi/ades1830/test_adi_ades1830_commands\.c|
+            tests/unit/app/driver/afe/adi/ades1830/test_adi_ades1830_commands_voltages\.c|
+            tests/unit/app/driver/afe/adi/ades1830/test_adi_ades1830_diagnostic_w\.c|
+            tests/unit/app/driver/afe/adi/ades1830/test_adi_ades1830_gpio_voltages\.c|
+            tests/unit/app/driver/afe/adi/ades1830/test_adi_ades1830_helpers\.c|
+            tests/unit/app/driver/afe/adi/ades1830/test_adi_ades1830_initialization\.c|
+            tests/unit/app/driver/afe/adi/ades1830/test_adi_ades1830_temperatures\.c|
+            tests/unit/app/driver/afe/adi/ades1830/test_adi_ades1830_temperatures_2\.c|
+            tests/unit/app/driver/afe/adi/ades1830/test_adi_ades1830_voltages\.c|
+            tests/unit/app/driver/afe/adi/common/ades183x/test_adi_ades183x_diagnostic_w\.c|
+            tests/unit/doxygen_tests\.h|
+            tests/unit/support/struct_helper\.[c|h]|
+            tests/unit/support/test_algorithm_stubs\.h|
+            tests/unit/support/test_assert_helper\.h|
+            tests/unit/support/test_can_mpu_prototype_queue_create_stub\.h|
+            tests/unit/support/test_fake_functions\.[c|h]|
+            tests/unit/support/test_ignore_list\.h|
+            tests/unit/support/test_pec_helper\.h|
+            tests/unit-hw/test_tms570_.*\.[c|h]|
+            tests/variants/lib-build/lib-build_main\.c|
+            tools/crc/crc-10_0x48f\.c|
+            tools/crc/crc-15_0xc599\.c
           )$
       - id: check-license-header
         name: check license header [asm]
         files: .*(\.asm)
         language: system
         entry: python cli/pre_commit_scripts/check_license_info.py --file-type=asm --license-type=BSD-3-Clause
+        exclude: |
+          (?x)^(
+            src/bootloader/main/intvecs_init\.asm|
+            src/bootloader/main/intvecs\.asm
+          )$
       - id: check-license-header
         name: check license header [yaml]
         types: [yaml]
@@ -277,9 +627,20 @@ repos:
             \.gitlab/ci_pipeline/.*\.yml|
             .*\.clang-format|
             conf/unit/.*_project_(posix|win32)\.yml|
-            tests/hil/.*
+            docs/tools/fox/plot/img/csv_config\.yaml|
+            docs/tools/fox/plot/img/plot_config\.yaml|
+            docs/tools/fox/etl/yml/filter\.yml|
+            docs/tools/fox/etl/yml/decode\.yml|
+            docs/tools/fox/etl/yml/table_one_one\.yml|
+            docs/tools/fox/etl/yml/table_many_one\.yml|
+            docs/tools/fox/etl/yml/table_many_many\.yml|
+            tests/cli/cmd_plot/test_execution/test_data_source_config\.yaml|
+            tests/cli/cmd_plot/test_execution/test_plot_config\.yaml|
+            tests/cli/cmd_plot/test_execution/test_yaml_error\.yaml|
+            tests/hil/.*|
+            tests/cli/cmd_ci/test_create_readme/.*\.yaml
           )$
-      - id: check-license-header-confidential
+      - id: check-license-header
         name: check license header confidential [yaml]
         types: [yaml]
         language: system
@@ -292,9 +653,20 @@ repos:
             conf/unit/.*_project_(posix|win32)\.yml|
             conf/unit/vsc-settings\.yml|
             docs/software/build-process/misc/libcc-options\.yaml|
+            docs/tools/fox/plot/img/csv_config.yaml|
+            docs/tools/fox/plot/img/plot_config.yaml|
+            docs/tools/fox/etl/yml/filter\.yml|
+            docs/tools/fox/etl/yml/decode\.yml|
+            docs/tools/fox/etl/yml/table_one_one\.yml|
+            docs/tools/fox/etl/yml/table_many_one\.yml|
+            docs/tools/fox/etl/yml/table_many_many\.yml|
             tests/ccs/expect-failure/expect-failure_cc-options\.yaml|
             tests/ccs/ccs.*/ccs.*_cc-options\.yaml|
+            tests/cli/cmd_plot/test_execution/test_data_source_config.yaml|
+            tests/cli/cmd_plot/test_execution/test_plot_config.yaml|
+            tests/cli/cmd_plot/test_execution/test_yaml_error.yaml|
             tests/cli/pre_commit_scripts/test_check_license_info/valid-license.yml|
+            tests/cli/cmd_ci/test_check_ci_config/.*\.yml|
             tests/variants/lib-build/lib-build_cc-options\.yaml
           )$
       - id: check-license-header
@@ -307,8 +679,8 @@ repos:
         types: [powershell]
         language: system
         entry: python cli/pre_commit_scripts/check_license_info.py --file-type=pwsh --license-type=BSD-3-Clause
-        exclude: tests/hil/exec_hil.ps1
-      - id: check-license-header-confidential
+        exclude: tests/hil/exec_hil\.ps1
+      - id: check-license-header
         name: check license header confidential [pwsh]
         types: [powershell]
         language: system
@@ -320,11 +692,6 @@ repos:
             tests/cli/pre_commit_scripts/test_check_license_info/valid-license\.ps1|
             tests/variants/lib-build/lib-build\.ps1
             )$
-      - id: check-license-header
-        name: check license header [batch]
-        types: [batch]
-        language: system
-        entry: python cli/pre_commit_scripts/check_license_info.py --file-type=batch --license-type=BSD-3-Clause
       - id: check-license-header
         name: check license header [shell]
         types: [shell]
@@ -343,9 +710,8 @@ repos:
         exclude: |
           (?x)^(
             src/app/driver/afe/nxp/mc33775a/vendor/.*|
-            tests/cli/pre_commit_scripts/test_check_doxygen/invalid-encoding_utf-16.c
+            tests/cli/pre_commit_scripts/test_check_doxygen/invalid-encoding_utf-16\.c
           )$
-
       - id: check-file-encoding
         name: check encoding [dbc, sym]
         language: system
@@ -363,8 +729,8 @@ repos:
         exclude_types: [c]
         exclude: |
           (?x)^(
-            tests/cli/pre_commit_scripts/test_check_encoding/utf-16.txt|
-            tests/cli/pre_commit_scripts/test_check_for_tabs/tabs_2.txt
+            tests/cli/pre_commit_scripts/test_check_encoding/utf-16\.txt|
+            tests/cli/pre_commit_scripts/test_check_for_tabs/tabs_2\.txt
           )$
       - id: unique-file-names
         name: check file name uniqueness
@@ -379,11 +745,14 @@ repos:
             .*__main__\.py|
             .*main\.py|
             .*misc\.py|
-            .*README\.md|
+            .*README(\.foxbms)?\.md|
             .*wscript|
-            pyproject\.toml|
-            LICENSE\.md|
+            \.gitlab/ci_pipeline/build_app_embedded\.yml|
+            \.gitlab/ci_pipeline/static_program_analysis_evaluation\.yml|
+            \.gitlab/ci_pipeline/test_hil\.yml|
             cli/cmd_etl/pyproject\.toml|
+            LICENSE\.md|
+            pyproject\.toml|
             src/(app|bootloader)/driver/(can|config)/can_cfg\.[c|h]|
             src/(app|bootloader)/driver/can(/cbs)?/can_helper\.[c|h]|
             src/(app|bootloader)/driver/can/can\.[c|h]|
@@ -411,14 +780,15 @@ repos:
             tests/axivion/targets/.*/axivion_config\.json|
             tests/axivion/targets/.*/ci_config\.json|
             tests/axivion/targets/.*/errata_config\.json|
+            tests/cli/cmd_ci/test_check_ci_config/good/.*\.yml|
             tests/unit/(app|bootloader)/driver/(can|config)/test_can_cfg\.c|
             tests/unit/(app|bootloader)/driver/can(/cbs)?/test_can_helper\.c|
             tests/unit/(app|bootloader)/driver/can/test_can\.c|
             tests/unit/(app|bootloader)/driver/crc/test_crc\.c|
             tests/unit/(app|bootloader)/driver/io/test_io\.c|
+            tests/unit/(app|bootloader)/main/helper/mock_esm.h|
             tests/unit/(app|bootloader)/main/test_fassert\.c|
             tests/unit/(app|bootloader)/main/test_fstartup\.c|
-            tests/unit/(app|bootloader)/main/helper/mock_esm.h|
             tests/unit/(app|bootloader)/main/test_main\.c|
             tests/unit/axivion/axivion_config\.json|
             tests/unit/axivion/ci_config\.json|
@@ -427,8 +797,7 @@ repos:
             tools/ide/vscode/.*/launch\.json|
             tools/ide/vscode/.*/project-include-path\.txt|
             tools/ide/vscode/.*/settings\.json|
-            tools/ide/vscode/.*/tasks\.json|
-            tools/vendor/ceedling/plugins/dependencies/example/boss/src/main\.c
+            tools/ide/vscode/.*/tasks\.json
           )$
       - id: check-for-tabs
         name: check for tabs
@@ -438,9 +807,9 @@ repos:
         exclude: |
           (?x)^(
             src/app/driver/afe/nxp/mc33775a/vendor/uc_msg_t\.[c|h]|
-            tests/cli/pre_commit_scripts/test_check_for_tabs/tabs_0.txt|
-            tests/cli/pre_commit_scripts/test_check_for_tabs/tabs_1.txt|
-            tests/cli/pre_commit_scripts/test_check_for_tabs/tabs_2.txt
+            tests/cli/pre_commit_scripts/test_check_for_tabs/tabs_0\.txt|
+            tests/cli/pre_commit_scripts/test_check_for_tabs/tabs_1\.txt|
+            tests/cli/pre_commit_scripts/test_check_for_tabs/tabs_2\.txt
           )$
       - id: check-include-guard
         name: check include guard
@@ -452,11 +821,11 @@ repos:
             src/app/driver/afe/nxp/mc33775a/vendor/.*|
             src/app/driver/sbc/fs8x_driver/.*|
             tests/axivion/config-test/coding-style-naming\.macro_1\.h|
-            tests/cli/pre_commit_scripts/test_check_include_guard/test_file_empty.h|
-            tests/cli/pre_commit_scripts/test_check_include_guard/test_file_invalid_content.h|
-            tests/cli/pre_commit_scripts/test_check_include_guard/test_file.c|
-            tests/cli/pre_commit_scripts/test_check_include_guard/test_file_multiple.h|
-            tests/cli/pre_commit_scripts/test_check_include_guard/test_file_valid.h
+            tests/cli/pre_commit_scripts/test_check_include_guard/test_file_empty\.h|
+            tests/cli/pre_commit_scripts/test_check_include_guard/test_file_invalid_content\.h|
+            tests/cli/pre_commit_scripts/test_check_include_guard/test_file\.c|
+            tests/cli/pre_commit_scripts/test_check_include_guard/test_file_multiple\.h|
+            tests/cli/pre_commit_scripts/test_check_include_guard/test_file_valid\.h
           )$
       - id: check-c-section-markers
         name: check section marker [src]
@@ -476,17 +845,17 @@ repos:
             tests/axivion/config-test/(test_)?coding-style-naming\..*\.[c|h]|
             tests/cli/pre_commit_scripts/test_check_license_info/invalid-license\.c|
             tests/cli/pre_commit_scripts/test_check_license_info/no-license\.c|
-            tests/cli/pre_commit_scripts/test_check_cpp_style_comment/no-cpp-style-comment.c|
-            tests/cli/pre_commit_scripts/test_check_cpp_style_comment/cpp-style-comment_[0|1|2].c|
+            tests/cli/pre_commit_scripts/test_check_cpp_style_comment/no-cpp-style-comment\.c|
+            tests/cli/pre_commit_scripts/test_check_cpp_style_comment/cpp-style-comment_[0|1|2]\.c|
             tests/cli/pre_commit_scripts/test_check_doxygen/.*|
-            tests/cli/pre_commit_scripts/test_check_include_guard/test_file_empty.h|
-            tests/cli/pre_commit_scripts/test_check_include_guard/test_file_invalid_content.h|
-            tests/cli/pre_commit_scripts/test_check_include_guard/test_file.c|
-            tests/cli/pre_commit_scripts/test_check_include_guard/test_file_multiple.h|
-            tests/cli/pre_commit_scripts/test_check_include_guard/test_file_valid.h|
-            tests/cli/pre_commit_scripts/test_check_sections/valid-sections-test.[c|h]|
+            tests/cli/pre_commit_scripts/test_check_include_guard/test_file_empty\.h|
+            tests/cli/pre_commit_scripts/test_check_include_guard/test_file_invalid_content\.h|
+            tests/cli/pre_commit_scripts/test_check_include_guard/test_file\.c|
+            tests/cli/pre_commit_scripts/test_check_include_guard/test_file_multiple\.h|
+            tests/cli/pre_commit_scripts/test_check_include_guard/test_file_valid\.h|
+            tests/cli/pre_commit_scripts/test_check_sections/valid-sections-test\.[c|h]|
             tests/cli/pre_commit_scripts/test_check_sections/invalid-sections-test-\d\.[c|h]|
-            tests/cli/pre_commit_scripts/test_check_license_info/valid-license.c|
+            tests/cli/pre_commit_scripts/test_check_license_info/valid-license\.c|
             tests/unit/.*
           )$
       - id: check-c-section-markers
@@ -539,24 +908,24 @@ repos:
             tests/c-std/c-std-test\.c|
             tests/cli/pre_commit_scripts/test_check_license_info/invalid-license\.c|
             tests/cli/pre_commit_scripts/test_check_license_info/no-license\.c|
-            tests/cli/pre_commit_scripts/test_check_cpp_style_comment/cpp-style-comment_[0|1|2].c|
-            tests/cli/pre_commit_scripts/test_check_cpp_style_comment/no-cpp-style-comment.c|
+            tests/cli/pre_commit_scripts/test_check_cpp_style_comment/cpp-style-comment_[0|1|2]\.c|
+            tests/cli/pre_commit_scripts/test_check_cpp_style_comment/no-cpp-style-comment\.c|
             tests/cli/pre_commit_scripts/test_check_doxygen/.*|
-            tests/cli/pre_commit_scripts/test_check_include_guard/test_file_empty.h|
-            tests/cli/pre_commit_scripts/test_check_include_guard/test_file_invalid_content.h|
-            tests/cli/pre_commit_scripts/test_check_include_guard/test_file.c|
-            tests/cli/pre_commit_scripts/test_check_include_guard/test_file_multiple.h|
-            tests/cli/pre_commit_scripts/test_check_include_guard/test_file_valid.h|
+            tests/cli/pre_commit_scripts/test_check_include_guard/test_file_empty\.h|
+            tests/cli/pre_commit_scripts/test_check_include_guard/test_file_invalid_content\.h|
+            tests/cli/pre_commit_scripts/test_check_include_guard/test_file\.c|
+            tests/cli/pre_commit_scripts/test_check_include_guard/test_file_multiple\.h|
+            tests/cli/pre_commit_scripts/test_check_include_guard/test_file_valid\.h|
             tests/unit/app/driver/afe/adi/common/ades183x.*|
             tests/unit-hw/.*|
             tests/variants/lib-build/lib-build_main\.c|
-            tests/cli/pre_commit_scripts/test_check_sections/valid-sections-src.[c|h]|
-            tests/cli/pre_commit_scripts/test_file_empty.h|
-            tests/cli/pre_commit_scripts/test_file_invalid_content.h|
-            tests/cli/pre_commit_scripts/test_file.c|
-            tests/cli/pre_commit_scripts/test_file_multiple.h|
-            tests/cli/pre_commit_scripts/test_file_valid.h|
-            tests/cli/pre_commit_scripts/test_check_license_info/valid-license.c|
+            tests/cli/pre_commit_scripts/test_check_sections/valid-sections-src\.[c|h]|
+            tests/cli/pre_commit_scripts/test_file_empty\.h|
+            tests/cli/pre_commit_scripts/test_file_invalid_content\.h|
+            tests/cli/pre_commit_scripts/test_file\.c|
+            tests/cli/pre_commit_scripts/test_file_multiple\.h|
+            tests/cli/pre_commit_scripts/test_file_valid\.h|
+            tests/cli/pre_commit_scripts/test_check_license_info/valid-license\.c|
             tests/cli/pre_commit_scripts/test_check_sections/invalid-sections-test-\d\.[c|h]|
             tools/crc/crc-10_0x48f\.c|
             tools/crc/crc-15_0xc599\.c
@@ -575,14 +944,14 @@ repos:
             src/bootloader/driver/crc/vendor/crc64_calc\.[c|h]|
             tests/axivion/axivion_preinc\.h|
             tests/axivion/config-test/(test_)?coding-style-naming\..*\.[c|h]|
-            tests/cli/pre_commit_scripts/test_check_cpp_style_comment/cpp-style-comment_[0|1|2].c|
-            tests/cli/pre_commit_scripts/test_check_cpp_style_comment/no-cpp-style-comment.c|
+            tests/cli/pre_commit_scripts/test_check_cpp_style_comment/cpp-style-comment_[0|1|2]\.c|
+            tests/cli/pre_commit_scripts/test_check_cpp_style_comment/no-cpp-style-comment\.c|
             tests/cli/pre_commit_scripts/test_check_doxygen.*|
-            tests/cli/pre_commit_scripts/test_check_include_guard/test_file_empty.h|
-            tests/cli/pre_commit_scripts/test_check_include_guard/test_file_invalid_content.h|
-            tests/cli/pre_commit_scripts/test_check_include_guard/test_file.c|
-            tests/cli/pre_commit_scripts/test_check_include_guard/test_file_multiple.h|
-            tests/cli/pre_commit_scripts/test_check_include_guard/test_file_valid.h
+            tests/cli/pre_commit_scripts/test_check_include_guard/test_file_empty\.h|
+            tests/cli/pre_commit_scripts/test_check_include_guard/test_file_invalid_content\.h|
+            tests/cli/pre_commit_scripts/test_check_include_guard/test_file\.c|
+            tests/cli/pre_commit_scripts/test_check_include_guard/test_file_multiple\.h|
+            tests/cli/pre_commit_scripts/test_check_include_guard/test_file_valid\.h
           )$
       - id: check-comment-style
         name: check C comment style
@@ -594,8 +963,8 @@ repos:
 
             tests/axivion/axivion_preinc\.h^|
             tests/axivion/config-test/.*\.[c|h]|
-            tests/cli/pre_commit_scripts/test_check_cpp_style_comment/cpp-style-comment_[0|1|2].c|
-            tests/cli/pre_commit_scripts/test_check_doxygen/invalid-encoding_utf-16.c
+            tests/cli/pre_commit_scripts/test_check_cpp_style_comment/cpp-style-comment_[0|1|2]\.c|
+            tests/cli/pre_commit_scripts/test_check_doxygen/invalid-encoding_utf-16\.c
           )$
   - repo: https://github.com/shellcheck-py/shellcheck-py
     rev: v0.10.0.1

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -52,6 +52,10 @@ def build(bld):
         os.path.join("api", "nxp_mc33775a_afe.c"),
         os.path.join("nxp_afe_dma.c"),
         os.path.join("nxp_mc33775a.c"),
+        os.path.join("nxp_mc33775a_balancing.c"),
+        os.path.join("nxp_mc33775a_database.c"),
+        os.path.join("nxp_mc33775a_i2c.c"),
+        os.path.join("nxp_mc33775a_mux.c"),
         os.path.join("nxp_mc33775a-ll.c"),
         os.path.join("config", "nxp_mc33775a_cfg.c"),
         os.path.join("vendor", "uc_msg_t.c"),

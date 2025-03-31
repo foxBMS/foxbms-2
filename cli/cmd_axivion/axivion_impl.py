@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -44,11 +44,10 @@ import os
 import shutil
 import sys
 from pathlib import Path
+from typing import Optional
 
-from click import secho
-
-from ..cmd_script import script_impl
-from ..helpers.env_vars import PROGRAMFILES, PROGRAMFILESX86, USERPROFILE
+from ..cmd_run_script import run_script_impl
+from ..helpers.click_helpers import recho
 from ..helpers.misc import PROJECT_ROOT
 from ..helpers.spr import SubprocessResult, run_process
 
@@ -76,25 +75,34 @@ SELF_TEST_SCRIPT = PROJECT_ROOT / "tests/axivion/axivion_self_tests.py"
 MAKE_RACE_PDFS_SCRIPT = Path(
     "C:/Bauhaus/7.5.2/doc/html/_downloads/87991abe35fa881bf14ce6d55f075d2d/make_race_pdfs.bat"
 )
-IR_FILE = Path(USERPROFILE) / ".bauhaus/localbuild/projects/foxbms-2.ir"
-RFG_FILE = Path(USERPROFILE) / ".bauhaus/localbuild/projects/foxbms-2.rfg"
+USERPROFILE = Path(os.environ.get("USERPROFILE", os.environ.get("HOME", "~")))
+
+IR_FILE = USERPROFILE / ".bauhaus/localbuild/projects/foxbms-2.ir"
+RFG_FILE = USERPROFILE / ".bauhaus/localbuild/projects/foxbms-2.rfg"
 
 AXIVION_DASHBOARD_URL = os.environ.get("AXIVION_DASHBOARD_URL", "")
+
+HOMEDRIVE = os.environ.get("HOMEDRIVE", "C:") + os.sep
+PROGRAMFILESX86 = os.environ.get(
+    "ProgramFiles(x86)",
+    os.path.join(HOMEDRIVE, "Program Files (x86)"),
+)
+PROGRAMFILES = os.environ.get("ProgramFiles", os.path.join(HOMEDRIVE, "Program Files"))
+BAUHAUS_PATH = (
+    os.path.join(PROGRAMFILES, "Bauhaus", "bin")
+    + os.pathsep
+    + os.path.join(PROGRAMFILESX86, "Bauhaus", "bin")
+)
 
 
 def export_architecture(verbosity: int = 0) -> SubprocessResult:
     """Calls the architecture export script."""
     gravis = shutil.which("gravis")
     if not gravis:
-        path = (
-            os.path.join(PROGRAMFILES, "Bauhaus", "bin")
-            + os.pathsep
-            + os.path.join(PROGRAMFILESX86, "Bauhaus", "bin")
-        )
-        gravis = shutil.which("gravis", path=path)
+        gravis = shutil.which("gravis", path=BAUHAUS_PATH)
     logging.debug("Gravis: %s", gravis)
     if not gravis:
-        secho("Could not find gravis!", fg="red", err=True)
+        recho("Could not find gravis!")
         return SubprocessResult(1)
     cmd = [gravis, "--script", str(GRAVIS_EXPORT_SCRIPT)]
     if verbosity:
@@ -122,7 +130,7 @@ def check_violations(check_violations_args: list[str]) -> int:
     """Runs the violations check script on the provided analysis report file."""
     err = 0
     cmd = [str(CHECK_VIOLATIONS_SCRIPT)] + check_violations_args
-    script_impl.run_python_script(cmd, cwd=PROJECT_ROOT)
+    run_script_impl.run_python_script(cmd, cwd=PROJECT_ROOT)
     return err
 
 
@@ -143,15 +151,10 @@ def self_test(script_args: list[str]) -> SubprocessResult:
     """Calls the architecture export script."""
     gravis = shutil.which("gravis")
     if not gravis:
-        path = (
-            os.path.join(PROGRAMFILES, "Bauhaus", "bin")
-            + os.pathsep
-            + os.path.join(PROGRAMFILESX86, "Bauhaus", "bin")
-        )
-        gravis = shutil.which("gravis", path=path)
+        gravis = shutil.which("gravis", path=BAUHAUS_PATH)
     logging.debug("Gravis: %s", gravis)
     if not gravis:
-        secho("Could not find gravis!", fg="red", err=True)
+        recho("Could not find gravis!")
         return SubprocessResult(1)
     cmd = [sys.executable, str(SELF_TEST_SCRIPT)] + script_args
     return run_process(cmd=cmd, cwd=PROJECT_ROOT, stderr=None, stdout=None)
@@ -173,9 +176,9 @@ def run_local_analysis(
         branch = "master"
 
     bauhaus_config = PROJECT_ROOT / f"tests/axivion/targets/{project}"
-    requests_ca_bundle = Path(USERPROFILE) / ".bauhaus/auto.crt"
+    requests_ca_bundle = USERPROFILE / ".bauhaus/auto.crt"
     project_name = "foxbms-2"
-    project_shadow_repo = Path(USERPROFILE) / f".bauhaus/{project_name}"
+    project_shadow_repo = USERPROFILE / f".bauhaus/{project_name}"
     project_shadow_repo.mkdir(parents=True, exist_ok=True)
     env = os.environ.copy()
     env["AXIVION"] = "TRUE"
@@ -190,8 +193,10 @@ def run_local_analysis(
     return run_analysis(env=env)
 
 
-def run_analysis(env: dict = None) -> SubprocessResult:
+def run_analysis(env: Optional[dict] = None) -> SubprocessResult:
     """Runs Axivion analysis."""
+    if not env:
+        env = {}
     axivion_build_dir = PROJECT_ROOT / "build/app_spa"
     axivion_build_dir.mkdir(parents=True, exist_ok=True)
     if env.get("AXIVION_LOCAL_BUILD", ""):
@@ -220,16 +225,10 @@ def make_race_pdfs(
     """Creates the race."""
     if not MAKE_RACE_PDFS_SCRIPT.is_file():
         return SubprocessResult(
-            1,
-            out="",
-            err=f"{MAKE_RACE_PDFS_SCRIPT} does not exist.",
+            1, out="", err=f"{MAKE_RACE_PDFS_SCRIPT} does not exist."
         )
     if not ir_file.is_file():
-        return SubprocessResult(
-            1,
-            out="",
-            err=f"{ir_file} does not exist.",
-        )
+        return SubprocessResult(1, out="", err=f"{ir_file} does not exist.")
     env = os.environ.copy()
     env["BAUHAUS_CONFIG"] = str(PROJECT_ROOT / f"tests/axivion/targets/{project}")
     cmd = [MAKE_RACE_PDFS_SCRIPT, ir_file]

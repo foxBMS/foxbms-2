@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_debug_default.c
  * @author  foxBMS Team
  * @date    2020-09-17 (date of creation)
- * @updated 2024-12-20 (date of last update)
- * @version v1.8.0
+ * @updated 2025-03-31 (date of last update)
+ * @version v1.9.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -63,6 +63,7 @@
 
 #include "afe.h"
 #include "debug_default.h"
+#include "test_assert_helper.h"
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -138,6 +139,37 @@ void testTEST_FAKE_CheckMultipleCalls(void) {
     state.triggerEntry = 1;
     reentrance         = TEST_FAKE_CheckMultipleCalls(&state);
     TEST_ASSERT_EQUAL_UINT8(true, reentrance);
+}
+
+/**
+ * @brief   Testing extern function #FAKE_SetState
+ * @details The following cases need to be tested:
+ *          - Argument validation:
+ *            - AT1/1: invalid pFakeState; assert
+ *          - Routine validation:
+ *            - RT1/x: TODO
+ */
+void testFAKE_SetState(void) {
+    /* ======= Assertion tests ============================================= */
+    FAKE_FSM_STATES_e nextState       = FAKE_FSM_STATE_HAS_NEVER_RUN;
+    FAKE_FSM_SUBSTATES_e nextSubstate = FAKE_FSM_SUBSTATE_DUMMY;
+    uint8_t idleTime                  = 2u;
+    TEST_ASSERT_FAIL_ASSERT(TEST_FAKE_SetState(NULL_PTR, nextState, nextSubstate, idleTime));
+
+    /* ======= Routine tests =============================================== */
+    /* ======= RT1/3: Test implementation */
+    FAKE_STATE_s state = {0};
+    TEST_FAKE_SetState(&state, nextState, nextSubstate, idleTime);
+
+    /* ======= RT2/3: Test implementation */
+    state.currentState    = FAKE_FSM_STATE_HAS_NEVER_RUN;
+    state.currentSubstate = FAKE_FSM_SUBSTATE_DUMMY;
+    TEST_FAKE_SetState(&state, nextState, nextSubstate, idleTime);
+
+    /* ======= RT3/3: Test implementation */
+    state.currentState    = FAKE_FSM_STATE_HAS_NEVER_RUN;
+    state.currentSubstate = FAKE_FSM_SUBSTATE_ENTRY;
+    TEST_FAKE_SetState(&state, nextState, nextSubstate, idleTime);
 }
 
 void testFAKE_SetFirstMeasurementCycleFinished(void) {
@@ -244,12 +276,166 @@ void testFAKE_SetFirstMeasurementCycleFinished(void) {
     TEST_assertEqualFakeState(&test_fake_stateCompare, &test_fake_state);
 }
 
+void testFAKE_SaveFakeVoltageMeasurementData(void) {
+    /* ======= Assertion tests ============================================= */
+    TEST_ASSERT_FAIL_ASSERT(TEST_FAKE_SaveFakeVoltageMeasurementData(NULL_PTR));
+
+    /* ======= Routine tests =============================================== */
+    static DATA_BLOCK_CELL_VOLTAGE_s test_fake_cellVoltage = {.header.uniqueId = DATA_BLOCK_ID_CELL_VOLTAGE_BASE};
+    FAKE_STATE_s test_fake_state                           = {
+                                  .data.cellVoltage = &test_fake_cellVoltage,
+    };
+    /* ======= RT1/1: Test implementation */
+    DATA_Write1DataBlock_ExpectAndReturn(test_fake_state.data.cellVoltage, STD_OK);
+    TEST_FAKE_SaveFakeVoltageMeasurementData(&test_fake_state);
+}
+
+void testFAKE_SaveFakeTemperatureMeasurementData(void) {
+    /* ======= Assertion tests ============================================= */
+    TEST_ASSERT_FAIL_ASSERT(TEST_FAKE_SaveFakeTemperatureMeasurementData(NULL_PTR));
+
+    /* ======= Routine tests =============================================== */
+    static DATA_BLOCK_CELL_TEMPERATURE_s test_fake_cellTemperature = {
+        .header.uniqueId = DATA_BLOCK_ID_CELL_TEMPERATURE_BASE};
+    FAKE_STATE_s test_fake_state = {
+        .data.cellTemperature = &test_fake_cellTemperature,
+    };
+    /* ======= RT1/1: Test implementation */
+    DATA_Write1DataBlock_ExpectAndReturn(test_fake_state.data.cellTemperature, STD_OK);
+    TEST_FAKE_SaveFakeTemperatureMeasurementData(&test_fake_state);
+}
+
+/**
+ * @brief   Testing extern function #FAKE_ProcessInitializationState
+ * @details The following cases need to be tested:
+ *          - Argument validation:
+ *            - AT1/1: invalid pFakeState; assert
+ *          - Routine validation:
+ *            - RT1/5: default case
+ *            - RT2/5: case FAKE_FSM_SUBSTATE_INITIALIZATION_EXIT
+ *            - RT3/5: case FAKE_FSM_SUBSTATE_INITIALIZATION_FIRST_MEASUREMENT_FINISHED
+ *            - RT4/5: case FAKE_FSM_SUBSTATE_INITIALIZATION_FINISH_FIRST_MEASUREMENT
+ *            - RT5/5: case FAKE_FSM_SUBSTATE_ENTRY
+ */
+void testFAKE_ProcessInitializationState(void) {
+    /* ======= Assertion tests ============================================= */
+    /* ======= Routine tests =============================================== */
+    FAKE_STATE_s state = {0};
+    /* ======= RT1/5: Test implementation */
+    TEST_FAKE_ProcessInitializationState(&state);
+
+    /* ======= RT2/5: Test implementation */
+    state.firstMeasurementFinished = true;
+    state.currentSubstate          = FAKE_FSM_SUBSTATE_INITIALIZATION_EXIT;
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
+    TEST_FAKE_ProcessInitializationState(&state);
+
+    /* ======= RT3/5: Test implementation */
+    state.currentSubstate = FAKE_FSM_SUBSTATE_INITIALIZATION_FIRST_MEASUREMENT_FINISHED;
+    TEST_FAKE_ProcessInitializationState(&state);
+
+    /* ======= RT4/5: Test implementation */
+    state.currentSubstate = FAKE_FSM_SUBSTATE_INITIALIZATION_FINISH_FIRST_MEASUREMENT;
+    TEST_FAKE_ProcessInitializationState(&state);
+
+    /* ======= RT5/5: Test implementation */
+    state.currentSubstate = FAKE_FSM_SUBSTATE_ENTRY;
+    TEST_FAKE_ProcessInitializationState(&state);
+}
+
+/**
+ * @brief   Testing extern function #FAKE_ProcessRunningState
+ * @details The following cases need to be tested:
+ *          - Argument validation:
+ *            - AT1/1: invalid pFakeState; assert
+ *          - Routine validation:
+ *            - RT1/4: default case
+ *            - RT2/4: case FAKE_FSM_SUBSTATE_ENTRY
+ */
+void testFAKE_ProcessRunningState(void) {
+    /* ======= Assertion tests ============================================= */
+    /* ======= Routine tests =============================================== */
+    FAKE_STATE_s state = {0};
+    /* ======= RT1/2: Test implementation */
+    TEST_FAKE_ProcessRunningState(&state);
+    /* ======= RT2/2: Test implementation */
+    state.currentSubstate = FAKE_FSM_SUBSTATE_ENTRY;
+    TEST_FAKE_ProcessRunningState(&state);
+}
+
+/**
+ * @brief   Testing extern function #FAKE_RunStateMachine
+ * @details The following cases need to be tested:
+ *          - Argument validation:
+ *            - AT1/1: invalid pFakeState; assert
+ *          - Routine validation:
+ *            - RT1/4: default case
+ *            - RT2/4: case FAKE_FSM_SUBSTATE_ENTRY
+ */
+void testFAKE_RunStateMachine(void) {
+    /* ======= Assertion tests ============================================= */
+    /* ======= Routine tests =============================================== */
+    FAKE_STATE_s state = {0};
+    /* ======= RT1/6: Test implementation */
+    TEST_FAKE_RunStateMachine(&state);
+    /* ======= RT2/6: Test implementation */
+    state.currentState = FAKE_FSM_STATE_HAS_NEVER_RUN;
+    TEST_FAKE_RunStateMachine(&state);
+    /* ======= RT3/6: Test implementation */
+    state.currentState = FAKE_FSM_STATE_UNINITIALIZED;
+    TEST_FAKE_RunStateMachine(&state);
+    /* ======= RT4/6: Test implementation */
+    state.currentState = FAKE_FSM_STATE_INITIALIZATION;
+    TEST_FAKE_RunStateMachine(&state);
+    /* ======= RT5/6: Test implementation */
+    state.currentState = FAKE_FSM_STATE_RUNNING;
+    TEST_FAKE_RunStateMachine(&state);
+    /* ======= RT6/6: Test implementation */
+    state.currentState = FAKE_FSM_STATE_ERROR;
+    TEST_FAKE_RunStateMachine(&state);
+}
+
 void testFAKE_Initialize(void) {
     TEST_ASSERT_EQUAL(STD_OK, FAKE_Initialize());
 }
 
 void testFAKE_IsFirstMeasurementCycleFinished(void) {
+    /* ======= Assertion tests ============================================= */
+    TEST_ASSERT_FAIL_ASSERT(FAKE_IsFirstMeasurementCycleFinished(NULL_PTR));
+
+    /* ======= Routine tests =============================================== */
+    FAKE_STATE_s state = {0};
+    /* ======= RT1/1: Test implementation */
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
+    FAKE_IsFirstMeasurementCycleFinished(&state);
 }
 
 void testFAKE_TriggerAfe(void) {
+    /* ======= Assertion tests ============================================= */
+    TEST_ASSERT_FAIL_ASSERT(FAKE_TriggerAfe(NULL_PTR));
+
+    /* ======= Routine tests =============================================== */
+    FAKE_STATE_s state = {0};
+    /* ======= RT1/4: Test implementation */
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
+    state.triggerEntry = 1u;
+    FAKE_TriggerAfe(&state);
+    state.triggerEntry = 0u;
+    /* ======= RT2/4: Test implementation */
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
+    FAKE_TriggerAfe(&state);
+    /* ======= RT3/4: Test implementation */
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
+    state.timer = 1u;
+    FAKE_TriggerAfe(&state);
+    /* ======= RT4/4: Test implementation */
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
+    state.timer = 2u;
+    FAKE_TriggerAfe(&state);
 }

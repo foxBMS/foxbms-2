@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_rtc.c
  * @author  foxBMS Team
  * @date    2020-04-01 (date of creation)
- * @updated 2024-12-20 (date of last update)
- * @version v1.8.0
+ * @updated 2025-03-31 (date of last update)
+ * @version v1.9.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -61,6 +61,9 @@
 #include "Mockdiag.h"
 #include "Mocki2c.h"
 #include "Mockos.h"
+
+#include "rtc.h"
+#include "test_assert_helper.h"
 
 /*========== Unit Testing Framework Directives ==============================*/
 TEST_SOURCE_FILE("rtc.c")
@@ -86,5 +89,115 @@ void tearDown(void) {
 
 /*========== Test Cases =====================================================*/
 
-void testDummyFunction(void) {
+void testRTC_Trigger(void) {
+    uint8_t expectedI2cWriteBuffer[RTC_MAX_I2C_TRANSACTION_SIZE_IN_BYTES] = {0u};
+    uint8_t expectedI2cReadBuffer[RTC_MAX_I2C_TRANSACTION_SIZE_IN_BYTES]  = {0u};
+    uint32_t currentTime                                                  = 0u;
+
+    OS_GetTickCount_ExpectAndReturn(0u);
+    OS_GetTickCount_ExpectAndReturn(0u);
+
+    expectedI2cWriteBuffer[0u] = 6u;
+    I2C_Write_ExpectAndReturn(RTC_I2C_INTERFACE, RTC_I2C_ADDRESS, 1u, expectedI2cWriteBuffer, STD_OK);
+    I2C_ReadDma_ExpectAndReturn(
+        RTC_I2C_INTERFACE, RTC_I2C_ADDRESS, RTC_NUMBER_OF_TIME_DATA_BYTES, expectedI2cReadBuffer, STD_OK);
+    DIAG_Handler_ExpectAndReturn(DIAG_ID_I2C_RTC_ERROR, DIAG_EVENT_OK, DIAG_SYSTEM, 0u, STD_OK);
+    DIAG_Handler_ExpectAndReturn(DIAG_ID_RTC_CLOCK_INTEGRITY_ERROR, DIAG_EVENT_OK, DIAG_SYSTEM, 0u, STD_OK);
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
+    OS_DelayTaskUntil_Expect(&currentTime, 2u);
+    DIAG_Handler_ExpectAndReturn(DIAG_ID_I2C_RTC_ERROR, DIAG_EVENT_OK, DIAG_SYSTEM, 0u, STD_OK);
+
+    RTC_Trigger();
+}
+
+void testRTC_Initialize(void) {
+    uint8_t expectedI2cWriteBuffer[RTC_MAX_I2C_TRANSACTION_SIZE_IN_BYTES] = {0};
+    uint8_t expectedI2cReadBuffer[RTC_MAX_I2C_TRANSACTION_SIZE_IN_BYTES]  = {0};
+    uint32_t currentTime                                                  = 0u;
+
+    OS_GetTickCount_ExpectAndReturn(0u);
+    expectedI2cWriteBuffer[0u] = 2u;
+    I2C_WriteDma_ExpectAndReturn(
+        RTC_I2C_INTERFACE,
+        RTC_I2C_ADDRESS,
+        RTC_WRITE_REGISTER_I2C_TRANSACTION_SIZE_IN_BYTES,
+        expectedI2cWriteBuffer,
+        STD_OK);
+    OS_DelayTaskUntil_Expect(&currentTime, 2u);
+    DIAG_Handler_ExpectAndReturn(DIAG_ID_I2C_RTC_ERROR, DIAG_EVENT_OK, DIAG_SYSTEM, 0u, STD_OK);
+    RTC_Initialize();
+
+    OS_GetTickCount_ExpectAndReturn(0u);
+    expectedI2cWriteBuffer[0u] = 19u;
+    I2C_WriteDma_ExpectAndReturn(
+        RTC_I2C_INTERFACE,
+        RTC_I2C_ADDRESS,
+        RTC_WRITE_REGISTER_I2C_TRANSACTION_SIZE_IN_BYTES,
+        expectedI2cWriteBuffer,
+        STD_OK);
+    OS_GetTickCount_ExpectAndReturn(0u);
+    OS_DelayTaskUntil_Expect(&currentTime, 2u);
+    DIAG_Handler_ExpectAndReturn(DIAG_ID_I2C_RTC_ERROR, DIAG_EVENT_OK, DIAG_SYSTEM, 0u, STD_OK);
+    RTC_Initialize();
+
+    OS_GetTickCount_ExpectAndReturn(0u);
+    expectedI2cWriteBuffer[0u] = 19u;
+    I2C_WriteDma_ExpectAndReturn(RTC_I2C_INTERFACE, RTC_I2C_ADDRESS, 1u, expectedI2cWriteBuffer, STD_OK);
+    I2C_Read_ExpectAndReturn(RTC_I2C_INTERFACE, RTC_I2C_ADDRESS, 1u, expectedI2cReadBuffer, STD_OK);
+    OS_DelayTaskUntil_Expect(&currentTime, 2u);
+    DIAG_Handler_ExpectAndReturn(DIAG_ID_I2C_RTC_ERROR, DIAG_EVENT_OK, DIAG_SYSTEM, 0u, STD_OK);
+    RTC_Initialize();
+}
+
+void testRTC_InitializeSystemTimeWithRtc(void) {
+    uint8_t expectedI2cWriteBuffer[RTC_MAX_I2C_TRANSACTION_SIZE_IN_BYTES] = {0u};
+    uint8_t expectedI2cReadBuffer[RTC_MAX_I2C_TRANSACTION_SIZE_IN_BYTES]  = {0u};
+
+    expectedI2cWriteBuffer[0u] = 6u;
+    I2C_Write_ExpectAndReturn(RTC_I2C_INTERFACE, RTC_I2C_ADDRESS, 1u, expectedI2cWriteBuffer, STD_OK);
+    I2C_ReadDma_ExpectAndReturn(
+        RTC_I2C_INTERFACE, RTC_I2C_ADDRESS, RTC_NUMBER_OF_TIME_DATA_BYTES, expectedI2cReadBuffer, STD_OK);
+    DIAG_Handler_ExpectAndReturn(DIAG_ID_I2C_RTC_ERROR, DIAG_EVENT_OK, DIAG_SYSTEM, 0u, STD_OK);
+    DIAG_Handler_ExpectAndReturn(DIAG_ID_RTC_CLOCK_INTEGRITY_ERROR, DIAG_EVENT_OK, DIAG_SYSTEM, 0u, STD_OK);
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
+
+    RTC_InitializeSystemTimeWithRtc();
+}
+
+void testRTC_IncrementSystemTime(void) {
+    RTC_IncrementSystemTime();
+}
+
+void testRTC_SetSystemTimeRtcFormat(void) {
+    RTC_TIME_DATA_s rtcTime = {
+        .hundredthOfSeconds = 9u,
+        .seconds            = 22u,
+        .minutes            = 11u,
+        .hours              = 12u,
+        .day                = 13u,
+        .weekday            = 1u,
+        .year               = 55u,
+    };
+
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
+
+    RTC_SetSystemTimeRtcFormat(rtcTime);
+}
+
+void testRTC_SetRtcRequestFlag(void) {
+    RTC_SetRtcRequestFlag(1u);
+}
+
+void testRTC_GetSystemTimeRtcFormat(void) {
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
+
+    RTC_GetSystemTimeRtcFormat();
+}
+
+void testRTC_GetSystemStartUpTime(void) {
+    RTC_GetSystemStartUpTime();
 }

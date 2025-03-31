@@ -23,6 +23,12 @@ Versioning follows then these rules:
   straight forward work to update a project to this version.
 
 ********************
+[1.9.0] - 2025-03-31
+********************
+
+.. include:: ./changelog-entries/v1.9.0.txt
+
+********************
 [1.8.0] - 2024-12-20
 ********************
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -41,11 +41,9 @@
 
 from typing import Literal
 
-from ..helpers.misc import PROJECT_BUILD_ROOT, PROJECT_ROOT
+from ..helpers.misc import PROJECT_BUILD_ROOT
 
 # needs to be aligned with build tool definition
 EmbeddedUnitTestVariants = Literal["app", "bootloader"]
 UNIT_TEST_BUILD_DIR_APP = PROJECT_BUILD_ROOT / "app_host_unit_test"
 UNIT_TEST_BUILD_DIR_BL = PROJECT_BUILD_ROOT / "bootloader_host_unit_test"
-
-CEEDLING_BINARY = PROJECT_ROOT / "tools/vendor/ceedling/bin/ceedling"

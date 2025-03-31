@@ -8,7 +8,6 @@ Python Coding Guidelines
 
 These coding guidelines **MUST** be applied to all ``Python`` files.
 
-
 The source files **MUST** be successfully checked by running the ``pre-commit``
 check before files can be merged into the master branch of the repository.
 
@@ -30,7 +29,7 @@ The following rules apply for filenames of Python scripts.
     - Python scripts **MUST** use ``.py`` as file extension, except for Waf
       build scripts which use ``wscript`` as file name.
 
-For example the valid file names for batch scripts are
+For example the valid file names for Python scripts are
 
 - ``hello.py``
 - ``my-script.py`` (**not recommended**, as the script is **not** importable)
@@ -63,7 +62,7 @@ The following rules apply for syntax of Python scripts
 
     - Python 2 only syntax **MUST NOT** be used.
     - Python 3 only syntax **MAY** be used.
-    - Code **MUST** work in Python 3.6 or greater.
+    - Code **MUST** work in Python 3.12 or greater.
 
 .. _rule_python_formatting:
 
@@ -82,13 +81,13 @@ Uniform formatting makes code easier to read to all developers.
 Static program analysis (``PYTHON:005``)
 ----------------------------------------
 
-Static program Analysis helps to detected code smells and errors in an early
+Static program analysis helps to detected code smells and errors in an early
 stage of development.
 
 .. admonition:: Python static program analysis rules
 
-    Python sources files are statically checked by ``pylint``. The ``pylint``
-    configuration can be found in ``conf/spa/.pylintrc``.
+    Python sources files are statically checked by ``pylint``.
+    The ``pylint`` configuration can be found in ``pyproject.toml``.
 
 .. _rule_no_platform_specific_code:
 
@@ -133,3 +132,14 @@ readability:
 - ``# fmt: on`` re-activates on formatting starting from that line and
   ``# pylint: enable=line-too-long`` re-activates the pylint error message
   starting from that line.
+
+.. _rule_python_typing:
+
+Typing (``PYTHON:008``)
+-----------------------
+
+Typing information helps to detected errors in an early stage of development.
+
+.. admonition:: Typing information
+
+    Python scripts **SHALL** typing information where ever possible.

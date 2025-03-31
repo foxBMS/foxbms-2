@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_diag_cbs_deep-discharge.c
  * @author  foxBMS Team
  * @date    2021-02-17 (date of creation)
- * @updated 2024-12-20 (date of last update)
- * @version v1.8.0
+ * @updated 2025-03-31 (date of last update)
+ * @version v1.9.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -105,4 +105,24 @@ void testDIAG_ErrorDeepDischargeInvalidInput(void) {
     TEST_ASSERT_FAIL_ASSERT(DIAG_ErrorDeepDischarge(DIAG_ID_DEEP_DISCHARGE_DETECTED, DIAG_EVENT_OK, NULL_PTR, 0u));
     TEST_ASSERT_FAIL_ASSERT(DIAG_ErrorDeepDischarge(
         DIAG_ID_DEEP_DISCHARGE_DETECTED, DIAG_EVENT_OK, &diag_kpkDatabaseShim, BS_NR_OF_STRINGS));
+}
+
+void testDIAG_ErrorDeepDischarge(void) {
+    DIAG_ID_e diagId   = DIAG_ID_DEEP_DISCHARGE_DETECTED;
+    DIAG_EVENT_e event = DIAG_EVENT_RESET;
+
+    FRAM_WriteData_ExpectAndReturn(FRAM_BLOCK_ID_DEEP_DISCHARGE_FLAG, STD_OK);
+    DIAG_ErrorDeepDischarge(diagId, event, &diag_kpkDatabaseShim, 0u);
+    /* Tests with event reset */
+    event = DIAG_EVENT_NOT_OK;
+    FRAM_WriteData_ExpectAndReturn(FRAM_BLOCK_ID_DEEP_DISCHARGE_FLAG, STD_OK);
+    DIAG_ErrorDeepDischarge(diagId, event, &diag_kpkDatabaseShim, 0u);
+
+    event = UINT8_MAX;
+    FRAM_WriteData_ExpectAndReturn(FRAM_BLOCK_ID_DEEP_DISCHARGE_FLAG, STD_OK);
+    DIAG_ErrorDeepDischarge(diagId, event, &diag_kpkDatabaseShim, 0u);
+
+    /* else branch */
+    diagId = 10u;
+    DIAG_ErrorDeepDischarge(diagId, event, &diag_kpkDatabaseShim, 0u);
 }

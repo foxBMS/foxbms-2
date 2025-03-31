@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_contactor.c
  * @author  foxBMS Team
  * @date    2020-03-31 (date of creation)
- * @updated 2024-12-20 (date of last update)
- * @version v1.8.0
+ * @updated 2025-03-31 (date of last update)
+ * @version v1.9.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -57,6 +57,7 @@
 #include "unity.h"
 #include "Mockcontactor_cfg.h"
 #include "Mockdiag.h"
+#include "Mockdiag_cfg.h"
 #include "Mockfassert.h"
 #include "Mockio.h"
 #include "Mockmcu.h"
@@ -124,6 +125,51 @@ void testCONT_InitializationCheckOfContactorRegistryWrongAffiliation(void) {
     /* act as if a channel is wrongly affiliated */
     SPS_GetChannelAffiliation_ExpectAndReturn(cont_contactorStates[0].spsChannel, SPS_AFF_GENERAL_IO);
     TEST_ASSERT_FAIL_ASSERT(TEST_CONT_InitializationCheckOfContactorRegistry());
+}
+
+/**
+ * @brief   Testing extern function #CONT_CheckFeedback
+ * @details The following cases need to be tested:
+ *          - Argument validation:
+ *            - none
+ *          - Routine validation:
+ *            - TODO
+ */
+void testCONT_CheckFeedback(void) {
+    /* ======= Assertion tests ============================================= */
+
+    /* ======= Routine tests =============================================== */
+    DIAG_EVENT_e feedbackStatus = DIAG_EVENT_OK;
+
+    /* ======= RT1/2 ======= */
+    for (CONT_CONTACTOR_INDEX contactor = 0; contactor < BS_NR_OF_CONTACTORS - 1; contactor++) {
+        SPS_GetChannelPexFeedback_ExpectAndReturn(cont_contactorStates[contactor].spsChannel, true, STD_OK);
+    }
+    /* Different DIAG_Handlers for all three test contactorStates */
+    DIAG_Handler_ExpectAndReturn(
+        DIAG_ID_STRING_PLUS_CONTACTOR_FEEDBACK,
+        feedbackStatus,
+        DIAG_STRING,
+        (uint8_t)cont_contactorStates[0].stringIndex,
+        STD_OK);
+    DIAG_Handler_ExpectAndReturn(
+        DIAG_ID_STRING_MINUS_CONTACTOR_FEEDBACK,
+        feedbackStatus,
+        DIAG_STRING,
+        (uint8_t)cont_contactorStates[1].stringIndex,
+        STD_OK);
+    DIAG_Handler_ExpectAndReturn(
+        DIAG_ID_PRECHARGE_CONTACTOR_FEEDBACK,
+        feedbackStatus,
+        DIAG_STRING,
+        (uint8_t)cont_contactorStates[2].stringIndex,
+        STD_OK);
+
+    CONT_CheckFeedback();
+    /* ======= RT2/2 ======= */
+    /*for (CONT_CONTACTOR_INDEX contactor = 0u; contactor < BS_NR_OF_CONTACTORS; contactor++) {
+    }
+    CONT_CheckFeedback();*/
 }
 
 /**

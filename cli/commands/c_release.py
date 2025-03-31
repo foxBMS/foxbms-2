@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -42,15 +42,12 @@
 import click
 
 from ..cmd_release import release_impl
+from ..helpers.click_helpers import HELP_NAMES
 
-CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"]}
 
-
-@click.command("release", context_settings=CONTEXT_SETTINGS, hidden=True)
+@click.command("release", context_settings=HELP_NAMES, hidden=True)
 @click.pass_context
-def release(
-    ctx: click.Context,
-) -> None:
+def release(ctx: click.Context) -> None:
     """Create a foxBMS release"""
     ret = release_impl.dummy()
     ctx.exit(ret.returncode)

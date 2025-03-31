@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -41,8 +41,10 @@
 
 import os
 
+from waflib.Build import BuildContext
 
-def build(bld):
+
+def build(bld: BuildContext):
     """builds the AFE driver library for ADI ADES183x"""
     source = [
         "adi_ades183x.c",
@@ -59,9 +61,7 @@ def build(bld):
         os.path.join("pec", "adi_ades183x_pec.c"),
     ]
     # only build the diagnostics objects when these are available
-    diagnostics = "adi_ades183x_diagnostic.c"
-    if bld.path.find_node(diagnostics):
-        source.append(diagnostics)
+    if bld.path.find_node("diag/adi_ades183x_diagnostic.c"):
         bld.recurse("diag")
     else:
         source.append("adi_ades183x_diagnostic_w.c")

@@ -17,13 +17,6 @@ Verify that the unit testing framework is working as expected:
          .\fox.ps1 waf build_app_host_unit_test
          .\fox.ps1 waf build_app_host_unit_test --coverage
 
-   .. group-tab:: Win32/cmd.exe
-
-      .. code-block:: bat
-
-         fox.bat waf build_app_host_unit_test
-         fox.bat waf build_app_host_unit_test --coverage
-
    .. group-tab:: Win32/Git bash
 
       .. code-block:: shell
@@ -195,18 +188,11 @@ to directly access ceedling as follows:
 
          .\fox.ps1 ceedling gcov:test_plausibility.c
 
-   .. group-tab:: Win32/cmd.exe
-
-      .. code-block:: bat
-
-         fox.bat ceedling gcov:test_plausibility.c
-
    .. group-tab:: Win32/Git bash
 
       .. code-block:: shell
 
          ./fox.sh ceedling gcov:test_plausibility.c
-
 
    .. group-tab:: Linux
 

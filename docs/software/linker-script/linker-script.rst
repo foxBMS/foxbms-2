@@ -48,6 +48,7 @@ Linker Script
 
 The main linker script is found at ``src\app\main\app.cmd``.
 A derived hex-linker script is found at ``src\app\main\app_hex.cmd``.
+The linker script for the bootloader is found at ``src\bootloader\main\bootloader.cmd``.
 
 The ``MEMORY`` and ``SECTIONS`` directives can be used to configure the
 allocation process.
@@ -60,8 +61,8 @@ The task of the ``SECTIONS`` directive is to tell the linker how to map input
 sections into output sections, and how to place the output sections in memory,
 i.e., specific sections can be placed in particular memory regions.
 
-Memory Layout Configuration
-+++++++++++++++++++++++++++
+Memory Layout Configuration For App
++++++++++++++++++++++++++++++++++++
 
 Flash::
 

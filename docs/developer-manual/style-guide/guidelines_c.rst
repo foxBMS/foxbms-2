@@ -28,15 +28,8 @@ Directories that should not be automatically formatted must include a
 The ``C`` source and header files can be checked by running
 ``pre-commit``.
 Using VS Code files are automatically saved correctly (see
-:ref:`CREATING_A_WORKSPACE`) when ``clang-format`` is installed (see
-:ref:`software_prerequisites`) using :kbd:`Ctrl-S`.
-
-.. warning::
-
-    The style of third party sources (generated HAL sources in
-    ``build/app_embedded/src/app/hal/**`` and ``src/os``) should not be
-    changed.
-    To save without reformatting use :kbd:`Ctrl-K + Ctrl-Shift-S`.
+:ref:`CREATING_A_WORKSPACE`) when ``clang-format`` is installed using
+:kbd:`Ctrl-S`.
 
 The following list shows more detailed rules for |foxbms|.
 Every rule has some context and/or rationale and notes that clearly state the
@@ -287,7 +280,7 @@ They distinguish if the software module provides configuration files or not.
         #. HAL-headers starting with ``HL_``-header files and ending with
            ``ti_``-header files
         #. A blank line
-        #. |freertos| headers starting with ``FreeRTOS.h``
+        #. |freertos-kernel| headers starting with ``FreeRTOS.h``
         #. A blank line
         #. All other required headers except Mocks
 

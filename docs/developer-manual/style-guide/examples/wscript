@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -48,8 +48,10 @@ This build script is not meant to be reused!
 
 import collections
 
+from waflib.Build import BuildContext
 
-def build(bld):
+
+def build(bld: BuildContext):
     """Build the guideline example objects"""
     dummy_headers = [
         "config_cpu_clock_hz",
@@ -74,14 +76,16 @@ def build(bld):
         "../../../../src/app/main/include",
     ]
     includes_freertos = [
-        "../../../../src/os/freertos/include",
-        "../../../../src/os/freertos/portable/ccs/arm_cortex-r5",
+        "../../../../src/os/freertos/freertos/include",
+        "../../../../src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
     ]
     includes_c_028 = includes + [
         bld.path.find_node("../../../../src/app/application/config")
     ]
     includes_c_006 = includes + [
-        bld.path.find_node("../../../../tools/vendor/ceedling/vendor/unity/src")
+        bld.root.find_node(
+            "C:/foxbms/Ceedling/1.0.1/gems/ceedling-1.0.1/vendor/unity/src"
+        )
     ]
     cflags = ["--c11"]
     Example = collections.namedtuple("Example", ["source", "includes", "cflags"])

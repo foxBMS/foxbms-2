@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -44,16 +44,18 @@ import sys
 import unittest
 from contextlib import redirect_stderr
 from pathlib import Path
+from subprocess import PIPE
+from unittest.mock import MagicMock, patch
 
 try:
     from cli.helpers.spr import SubprocessResult, prepare_subprocess_output, run_process
 except ModuleNotFoundError:
-    sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
+    sys.path.insert(0, str(Path(__file__).parents[3]))
     from cli.helpers.spr import SubprocessResult, prepare_subprocess_output, run_process
 
 
 class TestSpR(unittest.TestCase):
-    """Test of the main entry point"""
+    """Test of 'spr.py'."""
 
     def test_prepare_subprocess_output(self):
         """basic prepare_subprocess_output test"""
@@ -68,7 +70,7 @@ class TestSpR(unittest.TestCase):
         self.assertEqual("", ret.err)
 
     def test_add_sprs(self):
-        """test adding of two 'SubprocessResult's"""
+        """test adding of two 'SubprocessResults'"""
         ret = prepare_subprocess_output(
             -1, b"foxBMS", b"dummy"
         ) + prepare_subprocess_output(1, b"1", b"2")
@@ -101,6 +103,32 @@ class TestSpR(unittest.TestCase):
         """Test string-representation of the SubprocessResult class"""
         dummy = SubprocessResult(1, "abc", "def")
         self.assertEqual("return code: 1\n\nout:abc\n\ndef\n", str(dummy))
+
+    @patch("shutil.which")
+    @patch("cli.helpers.spr.Popen")
+    def test_run_process(self, mock_popen, mock_which):
+        """Test the 'run_process' function."""
+        mock_which.return_value = "some-program"
+        mock_process = MagicMock()
+        mock_process.communicate.return_value = (b"stdout", b"stderr")
+        mock_process.returncode = 0
+        mock_popen.return_value.__enter__.return_value = mock_process
+
+        result = run_process(["some-program", "some-arguments"])
+
+        mock_popen.assert_called_once_with(
+            ["some-program", "some-arguments"],
+            cwd=Path(__file__).parents[3],
+            stdout=PIPE,
+            stderr=PIPE,
+            env=None,
+        )
+        self.assertEqual(
+            result.out, mock_process.communicate.return_value[0].decode("utf-8")
+        )
+        self.assertEqual(
+            result.err, mock_process.communicate.return_value[1].decode("utf-8")
+        )
 
 
 if __name__ == "__main__":

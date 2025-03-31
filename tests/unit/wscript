@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -162,12 +162,8 @@ def options(opt: OptionsContext):
 
 def configure(cnf: ConfigurationContext):
     """configures gcc for the host build (gcc) and cafeCC for the SPA build."""
-    bauhaus_config = os.getenv("BAUHAUS_CONFIG", "")
-    if not bauhaus_config:
-        cnf.fatal("Environment variable 'BAUHAUS_CONFIG' must be set.")
-
     expected = (Path(cnf.path.abspath()) / "axivion").as_posix()
-    actual = Path(bauhaus_config).as_posix()
+    actual = Path(os.getenv("BAUHAUS_CONFIG", "")).as_posix()
 
     if expected != actual:
         cnf.fatal(f"Environment variable 'BAUHAUS_CONFIG' must be set to {expected}.")
@@ -187,6 +183,7 @@ def configure(cnf: ConfigurationContext):
 
     cnf.options.check_c_compiler = "gcc"
     cnf.load("compiler_c")
+    cnf.find_program("ceedling", mandatory=False)
 
     if cnf.env.CC_NAME.lower() == "gcc":
         cnf.load("waf_unit_test")  # test are only executable for gcc-builds
@@ -208,6 +205,7 @@ def configure(cnf: ConfigurationContext):
 
     cnf.options.check_c_compiler = "gcc"
     cnf.load("compiler_c")
+    cnf.find_program("ceedling", mandatory=False)
 
     try:
         cnf.find_program("axivion_config", var="AXIVION_CONFIG")
@@ -250,35 +248,46 @@ def build(bld: BuildContext):
     if not bld.cmd.startswith("build"):
         return
 
-    root = bld.root.find_dir(os.path.join(bld.path.abspath(), "..", ".."))
-    utr = bld.root.find_dir(
-        os.path.join(str(root.abspath()), "build", "app_host_unit_test")
-    )
-
-    inc_unity = utr.find_dir("vendor/unity/src")
+    str_root = os.path.join(bld.path.abspath(), "..", "..")
+    root = bld.root.find_dir(str_root)
+    ceedling_dir: Node = bld.root.find_node(bld.env.CEEDLING[0]).parent.parent
+    ceedling_vendor_dir = ceedling_dir.find_dir("gems/ceedling-1.0.1/vendor")
+    # dirs
+    inc_unity = ceedling_vendor_dir.find_dir("unity/src")
+    inc_cmock = ceedling_vendor_dir.find_dir("cmock/src")
+    inc_c_exception = ceedling_vendor_dir.find_dir("c_exception/lib")
+    # to-be-compiled-sources
+    unity_c = bld.path.find_or_declare("unity.c")
+    cmock_c = bld.path.find_or_declare("cmock.c")
+    cexception_c = bld.path.find_or_declare("CException.c")
+    # target names
     unity = "unity"
-    bld(
-        features="c",
-        source=[inc_unity.find_node("unity.c").relpath()],
-        includes=[inc_unity],
-        target="unity",
-    )
-
-    inc_cmock = utr.find_dir("vendor/cmock/src")
     cmock = "cmock"
-    bld.objects(
-        source=[inc_cmock.find_node("cmock.c")],
-        includes=[inc_cmock, inc_unity],
-        target=cmock,
-    )
-
-    inc_c_exception = utr.find_dir("vendor/c_exception/lib")
     c_exception = "CException"
-    bld.objects(
-        source=[inc_c_exception.find_node("CException.c")],
-        includes=[inc_c_exception],
-        target=c_exception,
+
+    bld(
+        features="subst",
+        source=inc_unity.find_node("unity.c"),
+        target=unity_c,
+        is_copy=True,
     )
+    bld(
+        features="subst",
+        source=inc_cmock.find_node("cmock.c"),
+        target=cmock_c,
+        is_copy=True,
+    )
+    bld(
+        features="subst",
+        source=inc_c_exception.find_node("CException.c"),
+        target=cexception_c,
+        is_copy=True,
+    )
+    bld.add_group()
+
+    bld.objects(source=[unity_c], includes=[inc_unity], target=unity)
+    bld.objects(source=[cmock_c], includes=[inc_cmock, inc_unity], target=cmock)
+    bld.objects(source=[cexception_c], includes=[inc_c_exception], target=c_exception)
 
     units_under_test_file: Node = bld.path.find_node("build.json")
     units_under_test: dict = units_under_test_file.read_json()

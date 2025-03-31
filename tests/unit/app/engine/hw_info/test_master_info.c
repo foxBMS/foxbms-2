@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_master_info.c
  * @author  foxBMS Team
  * @date    2020-07-09 (date of creation)
- * @updated 2024-12-20 (date of last update)
- * @version v1.8.0
+ * @updated 2025-03-31 (date of last update)
+ * @version v1.9.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -66,7 +66,7 @@ TEST_INCLUDE_PATH("../../src/app/engine/diag")
 TEST_INCLUDE_PATH("../../src/app/engine/hw_info")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
-#define NUM_DATA_READ_SUB_CALLS                        (1)
+#define NUM_DATA_READ_SUB_CALLS                        (3)
 #define SUPPLY_VOLTAGE_CLAMP_30C_SENSE_INPUT_ADC_INDEX (6u)
 
 /*========== Setup and Teardown =============================================*/
@@ -129,6 +129,14 @@ void testMINFO_SetResetSource(void) {
     TEST_ASSERT_EQUAL(NO_RESET, MINFO_GetResetSource());
 }
 
+void testMINFO_SetDebugProbeConnectionState(void) {
+    MINFO_SetDebugProbeConnectionState(MINFO_DEBUG_PROBE_NOT_CONNECTED);
+}
+
+void testMINFO_GetDebugProbeConnectionState(void) {
+    MINFO_GetDebugProbeConnectionState();
+}
+
 /**
  * @brief   Iterate over a callback that supplies various scenarios and check if they work as expected
  * @details This function uses the callback #MockDATA_ReadBlock_Callback() in order to inject
@@ -140,14 +148,19 @@ STD_RETURN_TYPE_e MockDATA_ReadBlock_Callback(void *pDataToReceiver, int num_cal
     /* determine a value depending on num_calls (has to be synchronized with test) */
     switch (num_calls) {
         case 0:
+        case 1:
             /* Set ADC voltage to 2000mV */
             adcVoltage_mV = 2000;
+            break;
+        case 2:
+            /* Set ADC voltage to 0mV */
+            adcVoltage_mV = 0;
             break;
         default:
             TEST_FAIL_MESSAGE("DATA_ReadBlock_Callback was called too often");
     }
     /* ENTER HIGHEST CASE NUMBER IN EXPECT; checks whether all cases are used */
-    TEST_ASSERT_EQUAL_MESSAGE(0, (NUM_DATA_READ_SUB_CALLS - 1), "Check code of stub. Something does not fit.");
+    TEST_ASSERT_EQUAL_MESSAGE(2, (NUM_DATA_READ_SUB_CALLS - 1), "Check code of stub. Something does not fit.");
 
     if (num_calls >= NUM_DATA_READ_SUB_CALLS) {
         TEST_FAIL_MESSAGE("This stub is fishy");
@@ -173,5 +186,14 @@ void testMINFO_CheckSupplyVoltageClamp30c(void) {
     MINFO_CheckSupplyVoltageClamp30c();
 
     /* ======= Routine tests =============================================== */
-    /* ======= RT1/1: OK event -> database entry must not change */
+    /* ======= RT1/2: OK event -> database entry must not change */
+    DIAG_Handler_ExpectAndReturn(
+        DIAG_ID_SUPPLY_VOLTAGE_CLAMP_30C_LOST, DIAG_EVENT_OK, DIAG_SYSTEM, 0u, DIAG_HANDLER_RETURN_OK);
+    MINFO_CheckSupplyVoltageClamp30c();
+
+    /* ======= RT2/2: NOT_OK event -> database entry must change */
+
+    DIAG_Handler_ExpectAndReturn(
+        DIAG_ID_SUPPLY_VOLTAGE_CLAMP_30C_LOST, DIAG_EVENT_NOT_OK, DIAG_SYSTEM, 0u, DIAG_HANDLER_RETURN_OK);
+    MINFO_CheckSupplyVoltageClamp30c();
 }

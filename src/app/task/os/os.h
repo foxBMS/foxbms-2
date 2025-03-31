@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    os.h
  * @author  foxBMS Team
  * @date    2019-08-27 (date of creation)
- * @updated 2024-12-20 (date of last update)
- * @version v1.8.0
+ * @updated 2025-03-31 (date of last update)
+ * @version v1.9.0
  * @ingroup OS
  * @prefix  OS
  *
@@ -180,7 +180,7 @@ extern void OS_InitializeOperatingSystem(void);
 extern void vApplicationGetTimerTaskMemory(
     StaticTask_t **ppxTimerTaskTCBBuffer,
     StackType_t **ppxTimerTaskStackBuffer,
-    uint32_t *pulTimerTaskStackSize);
+    configSTACK_DEPTH_TYPE *pulTimerTaskStackSize);
 #endif /* configUSE_TIMERS */
 
 /**
@@ -396,30 +396,38 @@ extern OS_STD_RETURN_e OS_SendToBackOfQueueFromIsr(
  * @details This function needs to implement the wrapper to OS specific queue
  *          posting.
  * @param   xQueue                   queue handle that should be posted to.
- * @return number of message currently stored in xQueue
+ * @return  number of message currently stored in xQueue
  */
 extern uint32_t OS_GetNumberOfStoredMessagesInQueue(OS_QUEUE xQueue);
 
 /**
- * @brief   This function checks if timeToPass has passed since the last timestamp to now
- * @details This function retrieves the current time stamp with #OS_GetTickCount(),
- *          compares it to the oldTimestamp_ms and checks if more or equal of
- *          timeToPass_ms timer increments have passed.
- * @param[in]   oldTimeStamp_ms timestamp that shall be compared to the current time in ms
- * @param[in]   timeToPass_ms   timer increments (in ms) that shall pass between oldTimeStamp_ms and now
- * @returns     true in the case that more than timeToPass_ms timer increments have passed, otherwise false
+ * @brief   This function checks if timeToPass has passed since the last
+ *          timestamp to now
+ * @details This function retrieves the current time stamp with
+ *          #OS_GetTickCount(), compares it to the oldTimestamp_ms and checks
+ *          if more or equal of timeToPass_ms timer increments have passed.
+ * @param[in]   oldTimeStamp_ms timestamp that shall be compared to the current
+ *                              time in ms
+ * @param[in]   timeToPass_ms   timer increments (in ms) that shall pass
+ *                              between oldTimeStamp_ms and now
+ * @return  true in the case that more than timeToPass_ms timer increments
+ *          have passed, otherwise false
  */
 extern bool OS_CheckTimeHasPassed(uint32_t oldTimeStamp_ms, uint32_t timeToPass_ms);
 
 /**
- * @brief   This function checks if timeToPass has passed since the last timestamp to now
- * @details This function is passed the current time stamp as argument currentTimeStamp_ms,
- *          compares it to the oldTimestamp_ms and checks if more or equal of
- *          timeToPass_ms timer increments have passed.
- * @param[in]   oldTimeStamp_ms     timestamp that shall be compared to the current time in ms
+ * @brief   This function checks if timeToPass has passed since the last
+ *          timestamp to now
+ * @details This function is passed the current time stamp as argument
+ *          currentTimeStamp_ms, compares it to the oldTimestamp_ms and checks
+ *          if more or equal of timeToPass_ms timer increments have passed.
+ * @param[in]   oldTimeStamp_ms     timestamp that shall be compared to the
+ *                                  current time in ms
  * @param[in]   currentTimeStamp_ms timestamp of the current time in ms
- * @param[in]   timeToPass_ms       timer increments (in ms) that shall pass between oldTimeStamp_ms and now
- * @returns     true in the case that more than timeToPass_ms timer increments have passed, otherwise false
+ * @param[in]   timeToPass_ms       timer increments (in ms) that shall pass
+ *                                  between oldTimeStamp_ms and now
+ * @return  true in the case that more than timeToPass_ms timer increments have
+ *          passed, otherwise false
  */
 extern bool OS_CheckTimeHasPassedWithTimestamp(
     uint32_t oldTimeStamp_ms,
@@ -427,14 +435,23 @@ extern bool OS_CheckTimeHasPassedWithTimestamp(
     uint32_t timeToPass_ms);
 
 /**
- * @brief   Does a self check if the #OS_CheckTimeHasPassedWithTimestamp works as expected
- * @details This functions tests some values with #OS_CheckTimeHasPassedWithTimestamp().
- *          It is intended to be side-effect free and to be callable any time to verify
- *          from the running program if this portion of the software is working as
- *          expected.
- * returns  STD_OK if the self check passes successfully, STD_NOT_OK otherwise
+ * @brief   Does a self check if the #OS_CheckTimeHasPassedWithTimestamp works
+ *          as expected
+ * @details This functions tests some values with
+ *          #OS_CheckTimeHasPassedWithTimestamp().
+ *          It is intended to be side-effect free and to be callable any time
+ *          to verify from the running program if this portion of the software
+ *          is working as expected.
+ * @return  STD_OK if the self check passes successfully, STD_NOT_OK otherwise
  */
 extern STD_RETURN_TYPE_e OS_CheckTimeHasPassedSelfTest(void);
+
+/**
+ * @brief   Function to get the current OS Time
+ * @details Returns the current OS Time
+ * @return  Current OS time
+ */
+extern OS_TIMER_s OS_GetOsTimer(void);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 #ifdef UNITY_UNIT_TEST

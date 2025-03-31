@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    can_cbs_tx_debug-response.c
  * @author  foxBMS Team
  * @date    2019-12-04 (date of creation)
- * @updated 2024-12-20 (date of last update)
- * @version v1.8.0
+ * @updated 2025-03-31 (date of last update)
+ * @version v1.9.0
  * @ingroup DRIVERS
  * @prefix  CANTX
  *
@@ -90,6 +90,8 @@
 #define CANTX_DEBUG_RESPONSE_MESSAGE_MUX_VALUE_RTC_TIME                  (0x04u)
 #define CANTX_DEBUG_RESPONSE_MESSAGE_MUX_VALUE_COMMIT_HASH_HIGH_7        (0x05u)
 #define CANTX_DEBUG_RESPONSE_MESSAGE_MUX_VALUE_COMMIT_HASH_LOW_7         (0x06u)
+#define CANTX_DEBUG_RESPONSE_MESSAGE_MUX_VALUE_UPTIME                    (0x07u)
+#define CANTX_DEBUG_RESPONSE_MESSAGE_MUX_VALUE_BOOT_TIMESTAMP            (0x0Eu)
 #define CANTX_DEBUG_RESPONSE_MESSAGE_MUX_VALUE_BOOT_INFORMATION          (0x0Fu)
 
 /** @{
@@ -132,6 +134,28 @@
 #define CANTX_MUX_RTC_SIGNAL_MONTH_LENGTH                   (4u)
 #define CANTX_MUX_RTC_SIGNAL_YEAR_START_BIT                 (43u)
 #define CANTX_MUX_RTC_SIGNAL_YEAR_LENGTH                    (7u)
+#define CANTX_MUX_RTC_SIGNAL_REQUEST_FLAG_START_BIT         (52u)
+#define CANTX_MUX_RTC_SIGNAL_REQUEST_FLAG_LENGTH            (2u)
+/** @} */
+
+/** @{
+ * configuration of the OS signals for multiplexer 'Uptime' in the
+ * 'DebugResponse' message
+ */
+#define CANTX_MUX_OS_SIGNAL_THOUSANDTH_OF_SECONDS_START_BIT (15u)
+#define CANTX_MUX_OS_SIGNAL_THOUSANDTH_OF_SECONDS_LENGTH    (10u)
+#define CANTX_MUX_OS_SIGNAL_HUNDREDTH_OF_SECONDS_START_BIT  (21u)
+#define CANTX_MUX_OS_SIGNAL_HUNDREDTH_OF_SECONDS_LENGTH     (7u)
+#define CANTX_MUX_OS_SIGNAL_TENTH_OF_SECONDS_START_BIT      (30u)
+#define CANTX_MUX_OS_SIGNAL_TENTH_OF_SECONDS_LENGTH         (4u)
+#define CANTX_MUX_OS_SIGNAL_SECONDS_START_BIT               (26u)
+#define CANTX_MUX_OS_SIGNAL_SECONDS_LENGTH                  (6u)
+#define CANTX_MUX_OS_SIGNAL_MINUTES_START_BIT               (36u)
+#define CANTX_MUX_OS_SIGNAL_MINUTES_LENGTH                  (6u)
+#define CANTX_MUX_OS_SIGNAL_HOURS_START_BIT                 (46u)
+#define CANTX_MUX_OS_SIGNAL_HOURS_LENGTH                    (5u)
+#define CANTX_MUX_OS_SIGNAL_DAY_START_BIT                   (41u)
+#define CANTX_MUX_OS_SIGNAL_DAY_LENGTH                      (5u)
 /** @} */
 
 /** maximum distance from release that can be encoded in the boot message */
@@ -245,11 +269,18 @@ static uint64_t CANTX_TransmitMcuWaferInformation(void);
  * @return  message data for the can message
  */
 static uint64_t CANTX_TransmitBootMagic(uint64_t messageData);
+
 /**
  * @brief   Transmit the boot message and its magic start data
  * @return  message data for the can message
  */
 static uint64_t CANTX_TransmitBootMagicStart(void);
+
+/**
+ * @brief   Transmit the boot timestamp message
+ * @return  message data for the can message
+ */
+static uint64_t CANTX_TransmitBootMagicTimeStamp(void);
 
 /**
  * @brief   Transmit the boot message and its magic end data
@@ -262,6 +293,12 @@ static uint64_t CANTX_TransmitBootMagicEnd(void);
  * @return  message data for the can message
  */
 static uint64_t CANTX_TransmitRtcTime(void);
+
+/**
+ * @brief   Transmit the uptime message
+ * @return  message data for the can message
+ */
+static uint64_t CANTX_TransmitUptime(void);
 
 /**
  * @brief Transmit the complete short commit hash in two messages
@@ -453,6 +490,64 @@ static uint64_t CANTX_TransmitBootMagic(uint64_t messageData) {
     return message;
 }
 
+static uint64_t CANTX_TransmitBootMagicTimeStamp(void) {
+    RTC_TIME_DATA_s timestamp = RTC_GetSystemStartUpTime();
+
+    uint64_t message = 0u;
+    CAN_TxSetMessageDataWithSignalData(
+        &message,
+        CANTX_DEBUG_RESPONSE_MESSAGE_MUX_START_BIT,
+        CANTX_DEBUG_RESPONSE_MESSAGE_MUX_LENGTH,
+        CANTX_DEBUG_RESPONSE_MESSAGE_MUX_VALUE_BOOT_TIMESTAMP,
+        CAN_BIG_ENDIAN);
+    CAN_TxSetMessageDataWithSignalData(
+        &message,
+        CANTX_MUX_RTC_SIGNAL_HUNDREDTH_OF_SECONDS_START_BIT,
+        CANTX_MUX_RTC_SIGNAL_HUNDREDTH_OF_SECONDS_LENGTH,
+        timestamp.hundredthOfSeconds,
+        CAN_BIG_ENDIAN);
+    CAN_TxSetMessageDataWithSignalData(
+        &message,
+        CANTX_MUX_RTC_SIGNAL_SECONDS_START_BIT,
+        CANTX_MUX_RTC_SIGNAL_SECONDS_LENGTH,
+        timestamp.seconds,
+        CAN_BIG_ENDIAN);
+    CAN_TxSetMessageDataWithSignalData(
+        &message,
+        CANTX_MUX_RTC_SIGNAL_MINUTES_START_BIT,
+        CANTX_MUX_RTC_SIGNAL_MINUTES_LENGTH,
+        timestamp.minutes,
+        CAN_BIG_ENDIAN);
+    CAN_TxSetMessageDataWithSignalData(
+        &message,
+        CANTX_MUX_RTC_SIGNAL_HOURS_START_BIT,
+        CANTX_MUX_RTC_SIGNAL_HOURS_LENGTH,
+        timestamp.hours,
+        CAN_BIG_ENDIAN);
+    CAN_TxSetMessageDataWithSignalData(
+        &message,
+        CANTX_MUX_RTC_SIGNAL_WEEKDAY_START_BIT,
+        CANTX_MUX_RTC_SIGNAL_WEEKDAY_LENGTH,
+        timestamp.weekday,
+        CAN_BIG_ENDIAN);
+    CAN_TxSetMessageDataWithSignalData(
+        &message, CANTX_MUX_RTC_SIGNAL_DAY_START_BIT, CANTX_MUX_RTC_SIGNAL_DAY_LENGTH, timestamp.day, CAN_BIG_ENDIAN);
+    CAN_TxSetMessageDataWithSignalData(
+        &message,
+        CANTX_MUX_RTC_SIGNAL_MONTH_START_BIT,
+        CANTX_MUX_RTC_SIGNAL_MONTH_LENGTH,
+        timestamp.month,
+        CAN_BIG_ENDIAN);
+    CAN_TxSetMessageDataWithSignalData(
+        &message,
+        CANTX_MUX_RTC_SIGNAL_YEAR_START_BIT,
+        CANTX_MUX_RTC_SIGNAL_YEAR_LENGTH,
+        timestamp.year,
+        CAN_BIG_ENDIAN);
+
+    return message;
+}
+
 static uint64_t CANTX_TransmitBootMagicStart(void) {
     return CANTX_TransmitBootMagic(CANTX_BOOT_MAGIC_DATA_START);
 }
@@ -518,6 +613,68 @@ static uint64_t CANTX_TransmitRtcTime(void) {
         CANTX_MUX_RTC_SIGNAL_YEAR_START_BIT,
         CANTX_MUX_RTC_SIGNAL_YEAR_LENGTH,
         currentRtcTime.year,
+        CAN_BIG_ENDIAN);
+    CAN_TxSetMessageDataWithSignalData(
+        &message,
+        CANTX_MUX_RTC_SIGNAL_REQUEST_FLAG_START_BIT,
+        CANTX_MUX_RTC_SIGNAL_REQUEST_FLAG_LENGTH,
+        currentRtcTime.requestFlag,
+        CAN_BIG_ENDIAN);
+
+    return message;
+}
+
+static uint64_t CANTX_TransmitUptime(void) {
+    OS_TIMER_s currentOsTimer = OS_GetOsTimer();
+
+    uint64_t message = 0u;
+    CAN_TxSetMessageDataWithSignalData(
+        &message,
+        CANTX_DEBUG_RESPONSE_MESSAGE_MUX_START_BIT,
+        CANTX_DEBUG_RESPONSE_MESSAGE_MUX_LENGTH,
+        CANTX_DEBUG_RESPONSE_MESSAGE_MUX_VALUE_UPTIME,
+        CAN_BIG_ENDIAN);
+    CAN_TxSetMessageDataWithSignalData(
+        &message,
+        CANTX_MUX_OS_SIGNAL_THOUSANDTH_OF_SECONDS_START_BIT,
+        CANTX_MUX_OS_SIGNAL_THOUSANDTH_OF_SECONDS_LENGTH,
+        currentOsTimer.timer_1ms,
+        CAN_BIG_ENDIAN);
+    CAN_TxSetMessageDataWithSignalData(
+        &message,
+        CANTX_MUX_OS_SIGNAL_HUNDREDTH_OF_SECONDS_START_BIT,
+        CANTX_MUX_OS_SIGNAL_HUNDREDTH_OF_SECONDS_LENGTH,
+        currentOsTimer.timer_10ms,
+        CAN_BIG_ENDIAN);
+    CAN_TxSetMessageDataWithSignalData(
+        &message,
+        CANTX_MUX_OS_SIGNAL_TENTH_OF_SECONDS_START_BIT,
+        CANTX_MUX_OS_SIGNAL_TENTH_OF_SECONDS_LENGTH,
+        currentOsTimer.timer_100ms,
+        CAN_BIG_ENDIAN);
+    CAN_TxSetMessageDataWithSignalData(
+        &message,
+        CANTX_MUX_OS_SIGNAL_SECONDS_START_BIT,
+        CANTX_MUX_OS_SIGNAL_SECONDS_LENGTH,
+        currentOsTimer.timer_sec,
+        CAN_BIG_ENDIAN);
+    CAN_TxSetMessageDataWithSignalData(
+        &message,
+        CANTX_MUX_OS_SIGNAL_MINUTES_START_BIT,
+        CANTX_MUX_OS_SIGNAL_MINUTES_LENGTH,
+        currentOsTimer.timer_min,
+        CAN_BIG_ENDIAN);
+    CAN_TxSetMessageDataWithSignalData(
+        &message,
+        CANTX_MUX_OS_SIGNAL_HOURS_START_BIT,
+        CANTX_MUX_OS_SIGNAL_HOURS_LENGTH,
+        currentOsTimer.timer_h,
+        CAN_BIG_ENDIAN);
+    CAN_TxSetMessageDataWithSignalData(
+        &message,
+        CANTX_MUX_OS_SIGNAL_DAY_START_BIT,
+        CANTX_MUX_OS_SIGNAL_DAY_LENGTH,
+        currentOsTimer.timer_d,
         CAN_BIG_ENDIAN);
 
     return message;
@@ -627,8 +784,14 @@ extern STD_RETURN_TYPE_e CANTX_DebugResponse(CANTX_DEBUG_RESPONSE_ACTIONS_e acti
         case CANTX_DEBUG_RESPONSE_TRANSMIT_BOOT_MAGIC_END:
             messageData = CANTX_TransmitBootMagicEnd();
             break;
+        case CANTX_DEBUG_RESPONSE_TRANSMIT_BOOT_TIMESTAMP:
+            messageData = CANTX_TransmitBootMagicTimeStamp();
+            break;
         case CANTX_DEBUG_RESPONSE_TRANSMIT_RTC_TIME:
             messageData = CANTX_TransmitRtcTime();
+            break;
+        case CANTX_DEBUG_RESPONSE_TRANSMIT_UPTIME:
+            messageData = CANTX_TransmitUptime();
             break;
         case CANTX_DEBUG_RESPONSE_TRANSMIT_COMMIT_HASH:
             successfullyQueued = CANTX_TransmitCommitHash();
@@ -666,8 +829,14 @@ extern uint64_t TEST_CANTX_TransmitBootMagicStart(void) {
 extern uint64_t TEST_CANTX_TransmitBootMagicEnd(void) {
     return CANTX_TransmitBootMagicEnd();
 }
+extern uint64_t TEST_CANTX_TransmitBootMagicTimeStamp(void) {
+    return CANTX_TransmitBootMagicTimeStamp();
+}
 extern uint64_t TEST_CANTX_TransmitRtcTime(void) {
     return CANTX_TransmitRtcTime();
+}
+extern uint64_t TEST_CANTX_TransmitUptime(void) {
+    return CANTX_TransmitUptime();
 }
 extern STD_RETURN_TYPE_e TEST_CANTX_TransmitCommitHash(void) {
     return CANTX_TransmitCommitHash();

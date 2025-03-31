@@ -1,0 +1,25 @@
+Minor release of foxBMS 2 (v1.9.0)
+
+foxBMS 2 now ships with a new 'venv' environment named '2025-03-pale-fox' and
+other dependency updates.
+See INSTALLATION.md for information on updating the toolchain.
+
+* This version of foxBMS bundles with new hardware releases, most importantly
+  a new BMS-Master.
+  The BMS-Master version is bumped to ``v1.2.3``.
+  For details on the BMS-Master see the changelog and the documentation.
+* Add tooling and documentation on how to build with FreeRTOS-Plus-TCP Library
+  support.
+* Support building on Linux.
+* Add new commands to the fox CLI ('etl', 'plot', 'log', and 'bms').
+* Publish a new version of the NXP MC33775A-based BMS-Slave.
+* Improve NXP AFE MC33775A implementation.
+* Improve unit test coverage.
+* Improve documentation.
+* Updated dependencies:
+  * `venv`: 2025-03-pale-fox
+  * FreeRTOS: V11.1.0
+  * Ceedling: 1.0.1-fb1ce6c
+
+For a detailed list of changes, please refer to the documentation at
+https://iisb-foxbms.iisb.fraunhofer.de/foxbms/gen2/docs/html/v1.9.0/general/changelog.html.

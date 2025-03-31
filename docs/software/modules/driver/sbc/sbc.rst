@@ -64,7 +64,6 @@ This sequence is shown in :numref:`sbc_state_machine_wakeup`.
     :caption: SBC wakeup state chart
     :name: sbc_state_machine_wakeup
 
-
 FAQs
 ----
 

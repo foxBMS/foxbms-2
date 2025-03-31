@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    database_cfg.c
  * @author  foxBMS Team
  * @date    2015-08-18 (date of creation)
- * @updated 2024-12-20 (date of last update)
- * @version v1.8.0
+ * @updated 2025-03-31 (date of last update)
+ * @version v1.9.0
  * @ingroup ENGINE_CONFIGURATION
  * @prefix  DATA
  *
@@ -159,12 +159,6 @@ static DATA_BLOCK_MOVING_AVERAGE_s data_blockMovingAverage = {.header.uniqueId =
 static DATA_BLOCK_INSULATION_MONITORING_s data_blockInsulationMonitoring = {
     .header.uniqueId = DATA_BLOCK_ID_INSULATION_MONITORING};
 
-/** data block: BJB values */
-static DATA_BLOCK_BJB_IC_s data_blockBjbIc = {.header.uniqueId = DATA_BLOCK_ID_BJB_IC};
-
-/** data block: BJB flags */
-static DATA_BLOCK_BJB_FLAG_s data_blockBjbFlag = {.header.uniqueId = DATA_BLOCK_ID_BJB_FLAG};
-
 /** data b  lock: pack values */
 static DATA_BLOCK_PACK_VALUES_s data_blockPackValues = {.header.uniqueId = DATA_BLOCK_ID_PACK_VALUES};
 
@@ -217,8 +211,6 @@ DATA_BASE_s data_database[] = {
     {(void *)(&data_blockAllGpioVoltagesRedundancy0), sizeof(DATA_BLOCK_ALL_GPIO_VOLTAGES_s)},
     {(void *)(&data_blockOpenWireRedundancy0), sizeof(DATA_BLOCK_OPEN_WIRE_s)},
     {(void *)(&data_blockInsulationMonitoring), sizeof(DATA_BLOCK_INSULATION_MONITORING_s)},
-    {(void *)(&data_blockBjbIc), sizeof(DATA_BLOCK_BJB_IC_s)},
-    {(void *)(&data_blockBjbFlag), sizeof(DATA_BLOCK_BJB_FLAG_s)},
     {(void *)(&data_blockPackValues), sizeof(DATA_BLOCK_PACK_VALUES_s)},
     {(void *)(&data_blockAdcVoltage), sizeof(DATA_BLOCK_ADC_VOLTAGE_s)},
     {(void *)(&data_blockHumidityTemperatureSensor), sizeof(DATA_BLOCK_HTSEN_s)},

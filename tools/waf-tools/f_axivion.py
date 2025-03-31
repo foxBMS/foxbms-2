@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -43,19 +43,15 @@ For information on Axivion see https://www.axivion.com/.
 """
 
 import os
-from waflib import Context, Errors, Utils, Logs
+
+import f_ti_arm_helper  # noqa: F401 pylint: disable=unused-import
+import f_ti_arm_tools  # noqa: F401 pylint: disable=unused-import
+from waflib import Context, Errors, Logs, TaskGen, Utils
 from waflib.Build import BuildContext
-from waflib.Tools.ccroot import link_task
-from waflib import TaskGen
-from waflib.TaskGen import taskgen_method
 from waflib.Configure import conf
 from waflib.Node import Node
-
-# pylint: disable=unused-import
-import f_ti_arm_helper  # noqa: F401
-import f_ti_arm_tools  # noqa: F401
-import f_ti_color_arm_cgt  # noqa: F401
-# pylint: enable=unused-import
+from waflib.TaskGen import taskgen_method
+from waflib.Tools.ccroot import link_task
 
 
 def configure(configure_context):
@@ -197,7 +193,7 @@ def patch_for_axivion_build(self, bld):  # pylint: disable=unused-argument
     def remove_stuff_from_pp(self):  # pylint: disable=unused-argument
         return
 
-    @TaskGen.feature("c", "db_check")
-    @TaskGen.after_method("process_source")
-    def check_data_base_init(self):  # pylint: disable=unused-argument
+    @TaskGen.feature("cprogram")
+    @TaskGen.after("apply_link")
+    def add_crc_task(self):  # pylint: disable=unused-argument
         return

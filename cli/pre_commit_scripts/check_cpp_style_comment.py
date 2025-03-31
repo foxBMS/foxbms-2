@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -40,6 +40,7 @@
 """Script to check whether a file contains C++-style comments"""
 
 import argparse
+import sys
 from pathlib import Path
 from typing import Sequence
 
@@ -51,8 +52,8 @@ def check_file(files: list[Path]) -> int:
         for j, line in enumerate(i.read_text(encoding="utf-8").splitlines()):
             if line.strip().startswith("//"):
                 err += 1
-                print(f"{i.as_posix()}:{j+1}: C++-style comments are not allowed.")
-
+                msg = f"{i.as_posix()}:{j + 1}: C++-style comments are not allowed."
+                print(msg, file=sys.stderr)
     return err
 
 

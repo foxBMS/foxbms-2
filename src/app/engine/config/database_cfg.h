@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    database_cfg.h
  * @author  foxBMS Team
  * @date    2015-08-18 (date of creation)
- * @updated 2024-12-20 (date of last update)
- * @version v1.8.0
+ * @updated 2025-03-31 (date of last update)
+ * @version v1.9.0
  * @ingroup ENGINE_CONFIGURATION
  * @prefix  DATA
  *
@@ -58,6 +58,7 @@
 /*========== Includes =======================================================*/
 
 #include "battery_system_cfg.h"
+#include "bms-slave_cfg.h"
 
 #include "mcu.h"
 
@@ -88,8 +89,6 @@ typedef enum {
     DATA_BLOCK_ID_CELL_VOLTAGE_BASE,
     DATA_BLOCK_ID_CELL_VOLTAGE_REDUNDANCY0,
     DATA_BLOCK_ID_CONTACTOR_FEEDBACK,
-    DATA_BLOCK_ID_BJB_IC,
-    DATA_BLOCK_ID_BJB_FLAG,
     DATA_BLOCK_ID_CURRENT_SENSOR,
     DATA_BLOCK_ID_DUMMY_FOR_SELF_TEST,
     DATA_BLOCK_ID_ERROR_STATE,
@@ -183,22 +182,6 @@ typedef struct {
     uint16_t nrSensorMaximumTemperature[BS_NR_OF_STRINGS];    /*!< number of the sensor with maximum temperature */
     uint16_t validMeasuredCellTemperatures[BS_NR_OF_STRINGS]; /*!< number of valid measured cell temperatures */
 } DATA_BLOCK_MIN_MAX_s;
-
-/** data block struct of BJB IC */
-typedef struct {
-    /* This struct needs to be at the beginning of every database entry. During
-     * the initialization of a database struct, uniqueId must be set to the
-     * respective database entry representation in enum DATA_BLOCK_ID_e. */
-    DATA_BLOCK_HEADER_s header; /*!< Data block header */
-} DATA_BLOCK_BJB_IC_s;
-
-/** data block struct of the maximum safe limits */
-typedef struct {
-    /* This struct needs to be at the beginning of every database entry. During
-     * the initialization of a database struct, uniqueId must be set to the
-     * respective database entry representation in enum DATA_BLOCK_ID_e. */
-    DATA_BLOCK_HEADER_s header; /*!< Data block header */
-} DATA_BLOCK_BJB_FLAG_s;
 
 /** data block struct of pack measurement values */
 typedef struct {
@@ -325,8 +308,9 @@ typedef struct {
      * respective database entry representation in enum DATA_BLOCK_ID_e. */
     DATA_BLOCK_HEADER_s header; /*!< Data block header */
     uint8_t state;              /*!< for future use */
-    int16_t gpioVoltages_mV[BS_NR_OF_STRINGS][BS_NR_OF_MODULES_PER_STRING * BS_NR_OF_GPIOS_PER_MODULE]; /*!< unit: mV */
-    int16_t gpaVoltages_mV[BS_NR_OF_STRINGS][BS_NR_OF_MODULES_PER_STRING * BS_NR_OF_GPAS_PER_MODULE];   /*!< unit: mV */
+    int16_t gpioVoltages_mV[BS_NR_OF_STRINGS]
+                           [BS_NR_OF_MODULES_PER_STRING * SLV_NR_OF_GPIOS_PER_MODULE];                 /*!< unit: mV */
+    int16_t gpaVoltages_mV[BS_NR_OF_STRINGS][BS_NR_OF_MODULES_PER_STRING * SLV_NR_OF_GPAS_PER_MODULE]; /*!< unit: mV */
     uint16_t invalidGpioVoltages[BS_NR_OF_STRINGS][BS_NR_OF_MODULES_PER_STRING]; /*!< bitmask if voltages are valid.
                                                                                     0->valid, 1->invalid */
 } DATA_BLOCK_ALL_GPIO_VOLTAGES_s;

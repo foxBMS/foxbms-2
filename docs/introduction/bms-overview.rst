@@ -56,15 +56,6 @@ has been opened such as the transition to an application-specific safe-state.
 In the default implementation, all contactors will be opened and the BMS will
 switch to an error state.
 
-See :numref:`start-high-level`.
-
-.. figure:: img/high-level-overview.png
-   :name: start-high-level
-   :align: center
-   :alt: High level overview of |foxbms|
-
-   High level overview of |foxbms|
-
 In case that an application requires more inputs, outputs or specific hardware
 functions, these can be implemented through a |bms-extension|.
 This is a specialized board that connects through a set of connectors to

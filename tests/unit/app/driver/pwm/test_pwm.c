@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_pwm.c
  * @author  foxBMS Team
  * @date    2021-10-08 (date of creation)
- * @updated 2024-12-20 (date of last update)
- * @version v1.8.0
+ * @updated 2025-03-31 (date of last update)
+ * @version v1.9.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -141,6 +141,14 @@ void tearDown(void) {
 }
 
 /*========== Test Cases =====================================================*/
+
+/** test pwm initialize */
+void testPWM_Initialize(void) {
+    etpwmInit_Expect();
+
+    /* Call function under test*/
+    PWM_Initialize();
+}
 
 /** test that the start function calls etPWM API */
 void testPWM_StartPwm(void) {

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -39,27 +39,31 @@
 
 """Testing file 'cli/cmd_cli_unittest/cli_unittest_impl.py'."""
 
+import io
 import os
 import sys
 import unittest
+from contextlib import redirect_stderr, redirect_stdout
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 try:
     from cli.cmd_cli_unittest.cli_unittest_impl import (
         COVERAGE_MODULE_BASE_COMMAND,
         PROJECT_ROOT,
         UNIT_TEST_MODULE_BASE_COMMAND,
+        _add_verbosity_to_cmd_list,
         run_script_tests,
         run_unittest_module,
     )
     from cli.helpers.spr import SubprocessResult
 except ModuleNotFoundError:
-    sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
+    sys.path.insert(0, str(Path(__file__).parents[3]))
     from cli.cmd_cli_unittest.cli_unittest_impl import (
         COVERAGE_MODULE_BASE_COMMAND,
         PROJECT_ROOT,
         UNIT_TEST_MODULE_BASE_COMMAND,
+        _add_verbosity_to_cmd_list,
         run_script_tests,
         run_unittest_module,
     )
@@ -70,33 +74,29 @@ class TestUnittestImpl(unittest.TestCase):
     """Test Unittest implementation script"""
 
     @patch("cli.cmd_cli_unittest.cli_unittest_impl.run_process")
-    def test_unittest_module_called_with_args(self, mock_run_process):
+    def test_unittest_module_called_with_args(self, mock_run_process: MagicMock):
         """Check unittest module runs with args"""
-        # Test inputs
         args = ["something", "some-other-thing"]
         mock_run_process.return_value = SubprocessResult(0)
-        # Result
         result = run_unittest_module(args)
-        # Expected commands
         expected_cmd = UNIT_TEST_MODULE_BASE_COMMAND + args
-        # Assertions
         mock_run_process.assert_called_once_with(
             expected_cmd, cwd=PROJECT_ROOT, stdout=None, stderr=None
         )
         self.assertEqual(result, mock_run_process.return_value)
 
     @patch("cli.cmd_cli_unittest.cli_unittest_impl.run_process")
-    def test_run_script_tests_with_coverage(self, mock_run_process):
+    def test_run_script_tests_with_coverage(self, mock_run_process: MagicMock):
         """test commands with coverage"""
-        # Test input
         mock_run_process.return_value = SubprocessResult(0)
-        # Result
-        result = run_script_tests(coverage_report=True)
-        # Expected commands
+        buf = io.StringIO()
+        with redirect_stdout(buf):
+            result = run_script_tests(coverage_report=True)
         expected_cmd = [
             COVERAGE_MODULE_BASE_COMMAND
             + [
                 "run",
+                "--parallel-mode",
                 "--source=cli",
                 "-m",
                 "unittest",
@@ -104,6 +104,19 @@ class TestUnittestImpl(unittest.TestCase):
                 "-s",
                 f"tests{os.sep}cli",
             ],
+            COVERAGE_MODULE_BASE_COMMAND
+            + [
+                "run",
+                "--parallel-mode",
+                PROJECT_ROOT / "tests/cli/fallback/test_fallback.py",
+            ],
+            COVERAGE_MODULE_BASE_COMMAND
+            + [
+                "run",
+                "--parallel-mode",
+                PROJECT_ROOT / "tests/waf-tools/test_crc64_ti_impl.py",
+            ],
+            COVERAGE_MODULE_BASE_COMMAND + ["combine"],
             COVERAGE_MODULE_BASE_COMMAND + ["report"],
             COVERAGE_MODULE_BASE_COMMAND
             + ["html", "-d", PROJECT_ROOT / "build/cli-selftest"],
@@ -116,7 +129,6 @@ class TestUnittestImpl(unittest.TestCase):
                 / "CoberturaCoverageCliSelfTest.xml",
             ],
         ]
-        # Assertions
         mock_run_process.assert_has_calls(
             [
                 unittest.mock.call(
@@ -135,25 +147,88 @@ class TestUnittestImpl(unittest.TestCase):
             any_order=False,
         )
         self.assertEqual(result.returncode, 0)
+        self.assertEqual(buf.getvalue(), "The cli unit tests were successful.\n")
 
     @patch("cli.cmd_cli_unittest.cli_unittest_impl.run_process")
-    def test_run_script_tests_without_coverage(self, mock_run_process):
+    def test_run_script_tests_with_coverage_several_errors(
+        self, mock_run_process: MagicMock
+    ):
+        """test commands with coverage"""
+        mock_run_process.return_value = SubprocessResult(1)
+        err = io.StringIO()
+        with redirect_stderr(err):
+            result = run_script_tests(coverage_report=True)
+        self.assertEqual(result.returncode, mock_run_process.call_count)
+        self.assertEqual(err.getvalue(), "The cli unit tests were not successful.\n")
+
+    @patch("cli.cmd_cli_unittest.cli_unittest_impl.run_process")
+    def test_run_script_tests_without_coverage(self, mock_run_process: MagicMock):
         """test command without coverage"""
-        # Test input
         mock_run_process.return_value = SubprocessResult(0)
-        # Result
-        result = run_script_tests(coverage_report=False)
-        # Expected commands
+        buf = io.StringIO()
+        with redirect_stdout(buf):
+            result = run_script_tests(coverage_report=False)
         expected_cmd = UNIT_TEST_MODULE_BASE_COMMAND + [
             "discover",
             "-s",
             f"tests{os.sep}cli",
         ]
-        # Assertions
         mock_run_process.assert_called_once_with(
             expected_cmd, cwd=PROJECT_ROOT, stdout=None, stderr=None
         )
         self.assertEqual(result, mock_run_process.return_value)
+        # self.assertEqual(buf.getvalue(), "The cli unit tests were successful.\n")
+
+    @patch("cli.cmd_cli_unittest.cli_unittest_impl.run_process")
+    def test_run_script_tests_script_failure(self, mock_run_process: MagicMock):
+        """test command without coverage"""
+        mock_run_process.return_value = SubprocessResult(1)
+        buf = io.StringIO()
+        with redirect_stderr(buf):
+            result = run_script_tests(coverage_report=False)
+        expected_cmd = UNIT_TEST_MODULE_BASE_COMMAND + [
+            "discover",
+            "-s",
+            f"tests{os.sep}cli",
+        ]
+        mock_run_process.assert_called_once_with(
+            expected_cmd, cwd=PROJECT_ROOT, stdout=None, stderr=None
+        )
+        self.assertEqual(result, mock_run_process.return_value)
+        self.assertEqual(buf.getvalue(), "The cli unit tests were not successful.\n")
+
+    @patch("cli.cmd_cli_unittest.cli_unittest_impl.Path.is_file", return_value=True)
+    @patch("cli.cmd_cli_unittest.cli_unittest_impl.Path.unlink", return_value=None)
+    @patch("cli.cmd_cli_unittest.cli_unittest_impl.run_process")
+    @patch("cli.cmd_cli_unittest.cli_unittest_impl.terminal_link_print")
+    def test_run_script_tests_cov_file_exists_and_tests_succeed(
+        self, mock_tlp: MagicMock, mock_run_process: MagicMock, *_
+    ):
+        """test commands with coverage"""
+        mock_tlp.return_value = "foo"
+        mock_run_process.return_value = SubprocessResult(0)
+        out = io.StringIO()
+        with redirect_stdout(out):
+            result = run_script_tests(coverage_report=True)
+        self.assertEqual(result.returncode, 0)
+        self.assertEqual(
+            out.getvalue(),
+            "The cli unit tests were successful.\n\ncoverage report: foo\n",
+        )
+
+
+class TestUnittestImplAddVerbosityToCmdList(unittest.TestCase):
+    """Test Unittest implementation script"""
+
+    def test__add_verbosity_to_cmd_list_verbosity_0(self):
+        """Do not add verbosity flag in case of verbosity 0"""
+        ret = _add_verbosity_to_cmd_list(["foo"])
+        self.assertEqual(["foo"], ret)
+
+    def test__add_verbosity_to_cmd_list_verbosity_2(self):
+        """Add verbosity flag '-vv' in case of verbosity 2"""
+        ret = _add_verbosity_to_cmd_list(["foo"], verbosity=2)
+        self.assertEqual(["foo", "-vv"], ret)
 
 
 if __name__ == "__main__":

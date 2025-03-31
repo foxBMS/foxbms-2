@@ -9,7 +9,8 @@ Added
 - Added documentation for Coulomb-counting and extended the documentation of
   the state-estimation-module.
 - Added a define for ``NULL``.
-- Make |git| a required software installation (see :ref:`git_install`).
+- Make |git| a required software installation (see
+  :ref:`SOFTWARE_INSTALLATION`).
 - If a system-wide installation of |git| is not found in the build process,
   check for a user installation.
 - Added an API to check whether a certain amount of milliseconds has passed.
@@ -46,7 +47,7 @@ Changed
 - Updated the doxygen configuration files to match the doxygen version that
   is shipped in the conda environment.
 - Switched the used C standard to C11.
-- The |freertos| specific implementations for the task and queue creation were
+- The FreeRTOS specific implementations for the task and queue creation were
   moved into ``os_freertos.c`` and ``ftask_freertos.c``.
 - Greatly enhanced the robustness and code quality of the driver for Maxim
   analog front ends.
@@ -67,9 +68,9 @@ Fixed
   configuration.
 - Fixed several MISRA-C violations and style guide violations.
 - Fixed the conda environment shell update script.
-- The signature of the |freertos| tasks was not correct and has been fixed to
+- The signature of the FreeRTOS tasks was not correct and has been fixed to
   match ``void TaskName(void *pvParameters)``.
-- Explicitly cast the variables that are passed to the |freertos| task creation
+- Explicitly cast the variables that are passed to the FreeRTOS task creation
   function.
 - Make ``NULL_PTR`` explicitly *unsigned*.
 - Fixed product number for the used trace probe in our test setup.

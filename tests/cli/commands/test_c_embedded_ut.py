@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -38,3 +38,61 @@
 # - "This product is derived from foxBMS®"
 
 """Testing file 'cli/commands/c_embedded_ut.py'."""
+
+import sys
+import unittest
+from pathlib import Path
+from unittest.mock import MagicMock, patch
+
+from click.testing import CliRunner
+
+try:
+    from cli.cli import main
+    from cli.helpers.spr import SubprocessResult
+except ModuleNotFoundError:
+    sys.path.insert(0, str(Path(__file__).parents[3]))
+    from cli.cli import main
+    from cli.helpers.spr import SubprocessResult
+
+
+class TestFoxCliMainCommandCeedling(unittest.TestCase):
+    """Test of the 'ceedling' commands and options."""
+
+    @patch("cli.commands.c_embedded_ut.embedded_ut_impl")
+    def test_ceedling_no_args(self, mock_embedded_ut_impl: MagicMock):
+        """Test 'fox.py ceedling' command"""
+        mock_embedded_ut_impl.run_embedded_tests.return_value = SubprocessResult(
+            0, "", ""
+        )
+        runner = CliRunner()
+        result = runner.invoke(main, ["ceedling"])
+        self.assertEqual(0, result.exit_code)
+        _, args, kwargs = mock_embedded_ut_impl.mock_calls[0]
+        self.assertEqual(args, (["help"], "app"))
+        self.assertEqual(kwargs, {"stdout": None, "stderr": None})
+
+    @patch("cli.commands.c_embedded_ut.embedded_ut_impl")
+    def test_ceedling_dummy_test(self, mock_embedded_ut_impl: MagicMock):
+        """Test 'fox.py ceedling test:test_adc' command"""
+        mock_embedded_ut_impl.run_embedded_tests.return_value = SubprocessResult(
+            0, "", ""
+        )
+        runner = CliRunner()
+        result = runner.invoke(main, ["ceedling", "test:test_adc"])
+        self.assertEqual(0, result.exit_code)
+        _, args, kwargs = mock_embedded_ut_impl.mock_calls[0]
+        self.assertEqual(args, (["test:test_adc"], "app"))
+        self.assertEqual(kwargs, {"stdout": None, "stderr": None})
+
+        runner = CliRunner()
+        result = runner.invoke(
+            main, ["ceedling", "--project", "bootloader", "test:test_adc"]
+        )
+        self.assertEqual(0, result.exit_code)
+        _, args, kwargs = mock_embedded_ut_impl.mock_calls[1]
+        self.assertEqual(args, (["test:test_adc"], "bootloader"))
+        self.assertEqual(kwargs, {"stdout": None, "stderr": None})
+
+
+if __name__ == "__main__":
+    unittest.main()

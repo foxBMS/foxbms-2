@@ -1,0 +1,11 @@
+{
+  "include": [
+    "source",
+    "source/include",
+    "source/portable/BufferManagement",
+    "source/portable/Compiler/CCS",
+    "source/portable/NetworkInterface/Common",
+    "source/portable/NetworkInterface/include",
+    "source/portable/NetworkInterface/loopback"
+  ]
+}

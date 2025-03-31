@@ -6,7 +6,6 @@
 Bootloader
 ##########
 
-
 Description
 -----------
 
@@ -17,88 +16,282 @@ the flash of the microcontroller (|ti-tms570lc4357|), and its primary purpose
 is to update the |foxbms| application via interfaces like CAN on the fly
 without the use of a debugger.
 
-This bootloader provides four basic functions:
+With the help of the bootloader, the compiled binary file of the |foxbms|
+application can be easily uploaded to the |bms-master| by using the bootloader
+PC application that is integrated into the :ref:`FOX_CLI` tool.
+This tool not only provides the function to upload the binary of |foxbms| into
+the hardware but can also be used to check the current status of the bootloader
+and start the uploaded |foxbms| application manually.
+In addition, the user can also use it to reset the boot process if any
+unexpected issues appear.
 
-- transferring the application
-- running the application
+In summary, this bootloader PC application provides the following
+functionalities:
+
+- checking the status of the bootloader
+- updating/flashing the |foxbms| application
 - resetting the boot process
-- checking the status of the onboard bootloader
+- starting the |foxbms| application
 
-Transferring the Application
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+To enable an automatic start of the |foxbms| application,  a timeout check has
+been implemented in the initial phase of the bootloader, as shown in
+:numref:`description_of_timeout_at_the_beginning`.
+If there is no valid application onboard, the bootloader will return to its
+original routine, and the timeout will no longer be activated.
+Since the timeout duration is very short, the commands to load application and
+reset the bootloader should be executed before powering on the |bms-master|.
 
-To transfer the application binary to |bms-master|, the binary file first needs
-to be parsed into small sections, and a CRC signature will be calculated for
-each section.
-('section' in this context refers to a data block that can be stored in a
-single flash sector of the physical flash memory.)
-During transferring, the data sections will be sent one by one.
-Once a section transfer is completed, the program section will be written into
-its relevant flash space, and an onboard CRC signature will be calculated.
+.. drawio-figure:: img/description_of_timeout_at_the_beginning.drawio
+   :format: svg
+   :alt: Description of timeout at the beginning
+   :name: description_of_timeout_at_the_beginning
+   :width: 55 %
+   :align: center
 
-Next, the CRC signature for this program section will be sent and compared with
-the onboard calculated CRC signature to ensure the flashed section data is
-correct.
-If the result is true, the next section will be transferred.
-Otherwise, the onboard bootloader will wait for the same section data again.
+   Initial timeout check for bootloader
 
-Once all section data has been sent successfully, the CRC signature of the last
-section, which is also the CRC signature of the entire application binary, will
-be saved into the flash memory where the program information is stored.
-After that, the vector table will be sent, and a CRC signature for this vector
-table will also be sent to verify its validity.
-The availability flag of the program will be set only if the CRC signatures of
-the vector table from both the PC side and the |bms-master| side match.
+Before using this PC application, the bootloader should be compiled and flashed
+into the hardware if there is no bootloader pre-installed in the |bms-master|.
+Similar to building the |foxbms| application in
+:ref:`BUILDING_THE_APPLICATION`, the fox CLI tool can be used to build the
+bootloader application by using the following command:
 
-Running the Application
-^^^^^^^^^^^^^^^^^^^^^^^
+   .. tabs::
 
-Once the bootloader receives the run command via a communication interface like
-CAN, it will load the program information from the last loading session into a
-global structure variable and check its availability flag to see if a program
-exists.
+      .. group-tab:: Win32/PowerShell
 
-If a program exists, an onboard CRC calculation will be performed based on the
-start address and length of the program contained in the variable that carries
-the program information.
-The obtained CRC signature will then be compared with the one saved during the
-previous loading session to verify the program's validity.
+         .. code-block:: powershell
 
-If the onboard program is valid, the bootloader will jump to the application's
-init function.
-Otherwise, it will inform the PC that there is no valid
-program available onboard.
+            .\fox.ps1 waf build_bootloader_embedded
 
-Resetting the Boot Process
-^^^^^^^^^^^^^^^^^^^^^^^^^^
+      .. group-tab:: Win32/Git bash
 
-If a reset boot process command is received by the bootloader via CAN, the
-global structure variable that carries the program information will first be
-reset and updated to flash.
-After that, the CAN communication-related variables will be reset, and the RAM
-will be cleaned up.
-Additionally, the flash banks where the application data is supposed to be
-written will be erased, and a software reset will be performed to reset the
-MCU.
+         .. code-block:: shell
 
-Checking the Status of the Onboard Bootloader
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            ./fox.sh waf build_bootloader_embedded
 
-The command to check the status of the bootloader will trigger the bootloader's
-callback functions to retrieve its status, including the boot FSM status and
-the CAN FSM status, which represent the status of the boot process and the
-CAN module, respectively.
-This can be used to verify if the connection (e.g., CAN) between the PC
-and the bootloader is error-free and to check if the bootloader program is
-successfully running on the |bms-master|.
+      .. group-tab:: Linux
 
+         .. code-block:: shell
+
+            ./fox.sh waf build_bootloader_embedded
+
+After flashing the binary of the bootloader into the |bms-master|, it is
+possible to use the bootloader PC application to communicate with it.
+
+.. _how_to_use_it:
+
+How to Use It?
+--------------
+
+To build the bootloader binary, use the command variant
+``build_bootloader_embedded``.
+After the binary is successfully built, user can flash it into the |bms-master|
+board using a debugger.
+Once the binary is flashed, you can control it using commands available in the
+fox CLI tool.
+This bootloader PC application provides the following commands to interact
+with the bootloader:
+
+#. Check the status of the bootloader:
+
+   .. tabs::
+
+      .. group-tab:: Win32/PowerShell
+
+         .. code-block:: powershell
+
+            .\fox.ps1 bootloader check
+
+      .. group-tab:: Win32/Git bash
+
+         .. code-block:: shell
+
+            ./fox.sh bootloader check
+
+      .. group-tab:: Linux
+
+         .. code-block:: shell
+
+            ./fox.sh bootloader check
+
+#. Upload a new |foxbms| application into the flash memory of |bms-master|:
+
+   .. tabs::
+
+      .. group-tab:: Win32/PowerShell
+
+         .. code-block:: powershell
+
+            .\fox.ps1 bootloader load-app
+
+      .. group-tab:: Win32/Git bash
+
+         .. code-block:: shell
+
+            ./fox.sh bootloader load-app
+
+      .. group-tab:: Linux
+
+         .. code-block:: shell
+
+            ./fox.sh bootloader load-app
+
+   (To use this function, a |foxbms| binary should be built in advance
+   following the instructions described in :ref:`BUILDING_THE_APPLICATION`.
+   In addition, the command should be executed before powering on the
+   |bms-master|, and the board should be powered on first if the instruction
+   `"Waiting bootloader to be powered on ..."` is displaying in the terminal.)
+
+#. Reset the boot process:
+
+   .. tabs::
+
+      .. group-tab:: Win32/PowerShell
+
+         .. code-block:: powershell
+
+            .\fox.ps1 bootloader reset
+
+      .. group-tab:: Win32/Git bash
+
+         .. code-block:: shell
+
+            ./fox.sh bootloader reset
+
+      .. group-tab:: Linux
+
+         .. code-block:: shell
+
+            ./fox.sh bootloader reset
+
+   (Like the command to load a new |foxbms| application, the reset command
+   should also be executed before powering on the |bms-master|.
+   The board should then be powered on after the instruction
+   `"Waiting bootloader to be powered on..."` is displaying in the terminal.)
+
+   (In the case of an error status, a reset command or a power-on restart
+   should resolve the problem. If not, the user could contact foxBMS team for
+   further support.)
+
+#. Start the |foxbms| application on |bms-master| manually:
+
+   .. tabs::
+
+      .. group-tab:: Win32/PowerShell
+
+         .. code-block:: powershell
+
+            .\fox.ps1 bootloader run-app
+
+      .. group-tab:: Win32/Git bash
+
+         .. code-block:: shell
+
+            ./fox.sh bootloader run-app
+
+      .. group-tab:: Linux
+
+         .. code-block:: shell
+
+            ./fox.sh bootloader run-app
+
+#. To get more information, add `-vv` after command, for example:
+
+   .. tabs::
+
+      .. group-tab:: Win32/PowerShell
+
+         .. code-block:: powershell
+
+            .\fox.ps1 bootloader check -vv
+
+      .. group-tab:: Win32/Git bash
+
+         .. code-block:: shell
+
+            ./fox.sh bootloader check -vv
+
+      .. group-tab:: Linux
+
+         .. code-block:: shell
+
+            ./fox.sh bootloader check -vv
+
+.. _communication_between_pc_and_bootloader_while_uploading_the_binary_of_foxbms:
+
+Description of the |foxbms| Application Update Process Using the Bootloader
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+To transfer the application binary to the |bms-master|, the binary file needs
+to be parsed into small sectors first, and a CRC signature is calculated for
+each sector.
+The 'sector' used in this context has been defined based on the data block that
+can be stored in the corresponding flash sector of the physical flash memory.
+To enable data transfer via CAN messages, which have the maximum size of 8
+bytes, each sector is further divided into subsectors that contain 1024 * 8
+bytes of data, as shown in :numref:`from_bin_file_to_8_bytes_data`:
+
+.. drawio-figure:: img/from_bin_file_to_8_bytes_data.drawio
+   :format: svg
+   :alt: From bin file to 8 bytes data
+   :name: from_bin_file_to_8_bytes_data
+   :width: 60 %
+   :align: center
+
+   The division of the |foxbms| application binary file during data transfer
+
+The communication between the PC application and the bootloader has been
+implemented via pre-defined CAN messages.
+As shown in :numref:`communication_between_pc_and_bootloader`, to
+transfer a program, the PC application will send a CAN request
+"command to transfer program" to inform the bootloader that a program is going
+to be transferred.
+Once the bootloader receives the command, it will reply with an "ACK message"
+to inform the PC application that it has received this command and is prepared
+for the next step.
+The PC application will then start sending the information relevant to the
+current data transfer process.
+After that, the PC application must receive an ACK message from the bootloader
+to ensure it has processed the program information and is ready for the binary
+data.
+
+Next, the PC application starts transferring the binary data.
+It iteratively sends one data sector after another as depicted in
+:numref:`from_bin_file_to_8_bytes_data`.
+As shown, each subsector is transferred by sending the loop number and 8 bytes
+of data in every iteration.
+Once the bootloader has successfully received 1024 * 8 bytes of data, it
+responds with an "ACK message" to signal the PC application to send the next
+subsector.
+
+.. drawio-figure:: img/communication_between_pc_and_bootloader.drawio
+   :format: svg
+   :alt: Communication between PC and bootloader
+   :name: communication_between_pc_and_bootloader
+   :width: 50 %
+   :align: center
+
+   Communication between the PC-side application and the bootloader
+
+Once a sector transfer is completed, the program sector will be written into
+its relevant flash space, and a CRC signature will be calculated.
+Next, the CRC signature for this program sector will be sent to the host
+computer and compared with the calculated CRC signature to ensure that the
+flashed section data is correct.
+If both CRC signatures are equal, the next sector will be transferred.
+Otherwise, the bootloader will wait for the same sector data again.
+
+After all sectors are successfully sent, the vector table will be sent in four
+parts together with a CRC signature to the bootloader to ensure the validity of
+the vector table.
 
 Project Structure
 -----------------
 
 This bootloader project contains two parts: the bootloader itself and the PC
-program, which communicates with the bootloader (e.g., send the newest binary
-file of |foxbms| to |bms-master|).
+application, which communicates with the bootloader.
+The file structures of these two parts is as following:
 
 .. table:: C Part (On-board code)
    :name: c-part-on-board-code
@@ -158,135 +351,6 @@ file of |foxbms| to |bms-master|).
    |                             | a dictionary.                              |
    +-----------------------------+--------------------------------------------+
 
-
-How to use it
--------------
-
-To build the bootloader binary, use the command variant
-``build_bootloader_embedded``.
-After the binary is successfully built, you can flash it onto the |bms-master|
-board using a debugger.
-Once the binary is flashed, you can control it using commands available in the
-fox tool's CLI.
-There are four commands can be used to communicate the bootloader:
-
-#. Check the status of the bootloader:
-
-   .. tabs::
-
-      .. group-tab:: Win32/PowerShell
-
-         .. code-block:: powershell
-
-            .\fox.ps1 bootloader check -vv
-
-      .. group-tab:: Win32/cmd.exe
-
-         .. code-block:: bat
-
-            fox.bat bootloader check -vv
-
-      .. group-tab:: Win32/Git bash
-
-         .. code-block:: shell
-
-            ./fox.ps1 bootloader check -vv
-
-      .. group-tab:: Linux
-
-         .. code-block:: shell
-
-            ./fox.ps1 bootloader check -vv
-
-
-
-#. Load the |foxbms| binary into the flash memory of |bms-master|:
-
-   .. tabs::
-
-      .. group-tab:: Win32/PowerShell
-
-         .. code-block:: powershell
-
-            .\fox.ps1 bootloader load-app -vv
-
-      .. group-tab:: Win32/cmd.exe
-
-         .. code-block:: bat
-
-            fox.bat bootloader load-app -vv
-
-      .. group-tab:: Win32/Git bash
-
-         .. code-block:: shell
-
-            ./fox.ps1 bootloader load-app -vv
-
-      .. group-tab:: Linux
-
-         .. code-block:: shell
-
-            ./fox.ps1 bootloader load-app -vv
-
-#. Run the |foxbms| application on |bms-master|:
-
-   .. tabs::
-
-      .. group-tab:: Win32/PowerShell
-
-         .. code-block:: powershell
-
-            .\fox.ps1 bootloader run-app -vv
-
-      .. group-tab:: Win32/cmd.exe
-
-         .. code-block:: bat
-
-            fox.bat bootloader run-app -vv
-
-      .. group-tab:: Win32/Git bash
-
-         .. code-block:: shell
-
-            ./fox.ps1 bootloader run-app -vv
-
-      .. group-tab:: Linux
-
-         .. code-block:: shell
-
-            ./fox.ps1 bootloader run-app -vv
-
-#. Reset the boot process:
-
-   .. tabs::
-
-      .. group-tab:: Win32/PowerShell
-
-         .. code-block:: powershell
-
-            .\fox.ps1 bootloader reset -vv
-
-      .. group-tab:: Win32/cmd.exe
-
-         .. code-block:: bat
-
-            fox.bat bootloader reset -vv
-
-      .. group-tab:: Win32/Git bash
-
-         .. code-block:: shell
-
-            ./fox.ps1 bootloader reset -vv
-
-      .. group-tab:: Linux
-
-         .. code-block:: shell
-
-            ./fox.ps1 bootloader reset -vv
-
-In the case of an error status, a reset command or a power-on restart
-should resolve the problem.
-
 Memory Configuration
 --------------------
 
@@ -301,14 +365,16 @@ More details can be found in
 In this project, the flash memory (from ``0x0x00000000`` to ``0x00400000``)
 has been divided into 5 regions, as shown in :numref:`memory-configuration`.
 The initial vector table is saved in the memory labeled
-``VECTORS_DIRECT``, and the second vector table, where the actual exception
+``VECTORS_TABLE_INIT``, and the second vector table, where the actual exception
 entries are implemented, is saved in the memory labeled
-``VECTORS_INDIRECT``.
-More details about the vector tables can be found in :ref:`about_vector_table`.
+``VECTORS_TABLE``.
+More details about the vector tables can be found in
+:numref:`about_vector_table`.
 
 The program of bootloader (except for its vector table) has been saved in the
 memory labeled ``BOOTLOADER``.
-The binary of |foxbms| is supposed to be put in the memory labeled ``APP``.
+The binary of |foxbms| is supposed to be put in the memory labeled
+``PROGRAM_PLACE_HOLDER``.
 The information of the program will be saved to memory labeled
 ``PROGRAM_INFO_AREA``.
 
@@ -322,9 +388,9 @@ The memory labeled ``RAM_FLASH`` serves as the section buffer to temporarily
 store transferred data before it is written to flash sector.
 The flash-related functions and libraries will run from the memory labeled
 ``RAM_FLASH_API``.
-More details can be found in :ref:`how_to_load_flash_api_to_sram`.
+More details can be found in :numref:`how_to_load_flash_api_to_sram`.
 
-The memory labeled with the 'ECC' prefix is where the calculated error
+The memory labeled with the ``ECC`` prefix is where the calculated error
 correction codes (ECC) are saved.
 More details about the ECC can be found in
 `Technical Reference Manual of TMS570LC43 <https://www.ti.com/lit/ug/spnu563a/spnu563a.pdf?ts=1725549128780&ref_url=https%253A%252F%252Fwww.ti.com%252Fproduct%252FTMS570LC4357%253FHQS%253Dti-null-null-verifimanuf_manuf-manu-pf-octopart-wwe>`__
@@ -335,191 +401,202 @@ More details about the ECC can be found in
    :widths: grid
    :align: center
 
+   +------------------------------+----------------+-------------------+--------+----------------+
+   | NAME                         | ORIGIN         | LENGTH            | ATTR   | FILL           |
+   +==============================+================+===================+========+================+
+   | ``VECTORS_TABLE_INIT``       | ``0x00000000`` | ``0x00000020``    | ``X``  | ``0xFFFFFFFF`` |
+   +------------------------------+----------------+-------------------+--------+----------------+
+   | ``BOOTLOADER``               | ``0x00000020`` | ``0x00017FE0``    | ``RX`` | ``0xFFFFFFFF`` |
+   +------------------------------+----------------+-------------------+--------+----------------+
+   | ``PROGRAM_INFO_AREA``        | ``0x00018000`` | ``0x00007FE0``    | ``RX`` | ``0xFFFFFFFF`` |
+   +------------------------------+----------------+-------------------+--------+----------------+
+   | ``VECTORS_TABLE``            | ``0x0001FFE0`` | ``0x00000020``    | ``X``  | ``0xFFFFFFFF`` |
+   +------------------------------+----------------+-------------------+--------+----------------+
+   | ``PROGRAM_PLACE_HOLDER``     | ``0x00020000`` | ``0x003E0000``    | ``RX`` | ``0xFFFFFFFF`` |
+   +------------------------------+----------------+-------------------+--------+----------------+
+   | ``STACK``                    | ``0x08000000`` | ``0x00010000``    | ``RW`` |                |
+   +------------------------------+----------------+-------------------+--------+----------------+
+   | ``RAM``                      | ``0x08010000`` | ``0x00020000``    | ``RWX``|                |
+   +------------------------------+----------------+-------------------+--------+----------------+
+   | ``RAM_FLASH``                | ``0x08030000`` | ``0x00040000``    | ``RWX``|                |
+   +------------------------------+----------------+-------------------+--------+----------------+
+   | ``RAM_FLASH_API``            | ``0x08070000`` | ``0x00010000``    | ``RWX``|                |
+   +------------------------------+----------------+-------------------+--------+----------------+
+   | ``ECC_VECTORS_TABLE_INIT``   | ``0xF0400000`` | ``0x00000004``    | ``R``  |                |
+   +------------------------------+----------------+-------------------+--------+----------------+
+   | ``ECC_BOOTLOADER``           | ``0xF0400004`` | ``0x00002FFC``    | ``R``  |                |
+   +------------------------------+----------------+-------------------+--------+----------------+
+   | ``ECC_PROGRAM_INFO_AREA``    | ``0xF0403000`` | ``0x00000FFC``    | ``R``  |                |
+   +------------------------------+----------------+-------------------+--------+----------------+
+   | ``ECC_VECTORS_TABLE``        | ``0xF0403FFC`` | ``0x00000004``    | ``R``  |                |
+   +------------------------------+----------------+-------------------+--------+----------------+
+   | ``ECC_PROGRAM_PLACE_HOLDER`` | ``0xF0404000`` | ``0x0007C000``    | ``R``  |                |
+   +------------------------------+----------------+-------------------+--------+----------------+
 
-   +--------------------------+----------------+-------------------+--------+----------------+
-   | NAME                     | ORIGIN         | LENGTH            | ATTR   | FILL           |
-   +==========================+================+===================+========+================+
-   | ``VECTORS_DIRECT``       | ``0x00000000`` | ``0x00000020``    | ``X``  | ``0xFFFFFFFF`` |
-   +--------------------------+----------------+-------------------+--------+----------------+
-   | ``BOOTLOADER``           | ``0x00000020`` | ``0x00017FE0``    | ``RX`` | ``0xFFFFFFFF`` |
-   +--------------------------+----------------+-------------------+--------+----------------+
-   | ``PROGRAM_INFO_AREA``    | ``0x00018000`` | ``0x00007FE0``    | ``RX`` | ``0xFFFFFFFF`` |
-   +--------------------------+----------------+-------------------+--------+----------------+
-   | ``VECTORS_INDIRECT``     | ``0x0001FFE0`` | ``0x00000020``    | ``X``  | ``0xFFFFFFFF`` |
-   +--------------------------+----------------+-------------------+--------+----------------+
-   | ``APP``                  | ``0x00020000`` | ``0x003E0000``    | ``RX`` | ``0xFFFFFFFF`` |
-   +--------------------------+----------------+-------------------+--------+----------------+
-   | ``STACK``                | ``0x08000000`` | ``0x00010000``    | ``RW`` |                |
-   +--------------------------+----------------+-------------------+--------+----------------+
-   | ``RAM``                  | ``0x08010000`` | ``0x00020000``    | ``RWX``|                |
-   +--------------------------+----------------+-------------------+--------+----------------+
-   | ``RAM_FLASH``            | ``0x08030000`` | ``0x00040000``    | ``RWX``|                |
-   +--------------------------+----------------+-------------------+--------+----------------+
-   | ``RAM_FLASH_API``        | ``0x08070000`` | ``0x00010000``    | ``RWX``|                |
-   +--------------------------+----------------+-------------------+--------+----------------+
-   | ``ECC_VECTORS_DIRECT``   | ``0xF0400000`` | ``0x00000004``    | ``R``  |                |
-   +--------------------------+----------------+-------------------+--------+----------------+
-   | ``ECC_BOOTLOADER``       | ``0xF0400004`` | ``0x00002FFC``    | ``R``  |                |
-   +--------------------------+----------------+-------------------+--------+----------------+
-   | ``ECC_PROGRAM_INFO_AREA``| ``0xF0403000`` | ``0x00000FFC``    | ``R``  |                |
-   +--------------------------+----------------+-------------------+--------+----------------+
-   | ``ECC_VECTORS_INDIRECT`` | ``0xF0403FFC`` | ``0x00000004``    | ``R``  |                |
-   +--------------------------+----------------+-------------------+--------+----------------+
-   | ``ECC_APP``              | ``0xF0404000`` | ``0x0007C000``    | ``R``  |                |
-   +--------------------------+----------------+-------------------+--------+----------------+
+Functional Mechanisms
+---------------------
 
-Communication Between PC and Bootloader
----------------------------------------
+The functions of the bootloader are implemented through the cooperation of two
+independent final state machines (FSMs).
+One FSM is called the boot FSM, as it directly controls the boot process of the
+bootloader.
+The other is called the CAN FSM because it helps control the CAN communication
+and ensures the correct sequence of the data transfer process.
 
-The communication between the PC and CAN has been realized via pre-defined CAN
-messages.
-The complete data transfer process is as shown in
-:numref:`communication_between_pc_and_bootloader`:
+This section will first present the CAN FSM and the boot FSM separately, using
+their corresponding state diagrams.
+After that, the functional mechanism of the bootloader will be demonstrated by
+explaining the principles of starting the |foxbms| application, resetting the
+boot process, and uploading the |foxbms| application into the flash
+memory of the |bms-master|.
 
-   .. figure:: img/communication_between_pc_and_bootloader.png
-      :alt: Communication between PC and bootloader
-      :name: communication_between_pc_and_bootloader
-      :width: 80 %
-      :align: center
+CAN FSM
+^^^^^^^
+The entire state diagram of the CAN FSM state machine is shown in :numref:`can_fsm_state`.
 
-      Communication between PC and bootloader
-
-
-Workflow
---------
-
-The workflow of the bootloader is achieved through the implementation of a boot
-state machine and a CAN state machine.
-While the CAN state machine controls the CAN communication and the correct
-sequence of the data transfer process, the boot state machine controls the main
-workflow of the bootloader.
-
-Boot FSM State Machine
-^^^^^^^^^^^^^^^^^^^^^^
-
-As shown in the following figure, at the start of the program, the boot FSM
-state will be initialized to ``BOOT_FSM_STATE_WAIT``.
-From this state, the boot FSM state can change to ``BOOT_FSM_STATE_LOAD``,
-``BOOT_FSM_STATE_RUN``, or ``BOOT_FSM_STATE_RESET``, in response to changes in
-the CAN FSM state.
-
-.. figure:: img/boot_fsm_state.png
-   :name: boot_fsm_state
-   :align: center
-   :alt: Boot FSM state
-
-   Boot FSM state
-
-The following state diagram represents the change of states in the CAN module.
-At the beginning, the CAN FSM state will be loaded with
-``CAN_FSM_STATE_NO_COMMUNICATION``.
-To run the program, a corresponding request will be sent to the bootloader via
-the CAN bus.
-Once the CAN module has received this CAN message, it will change its state to
-``CAN_FSM_STATE_RUN_PROGRAM``.
-If the boot state machine is in the expected state (``BOOT_FSM_STATE_WAIT``) at
-this moment, a validation process will be started to check if the onboard
-program is available and validated.
-The program will start if everything is correct.
-
-.. figure:: img/can_boot_run.png
-   :name: can_boot_run
-   :align: center
-   :alt: Interaction between boot and CAN FSM in the case of a run command
-
-   Interaction between boot and CAN FSM in the case of a run command
-
-If a reset request has been sent via CAN bus, the CAN FSM state will change to
-``CAN_FSM_STATE_RESET_BOOT`` from any state.
-
-.. figure:: img/can_boot_reset.png
-   :name: can_boot_reset
-   :align: center
-   :alt: Interaction between boot and CAN FSM in the case of a reset command
-
-   Interaction between boot and CAN FSM in the case of a reset command
-
-If the incoming CAN message is to start a data transfer process, the CAN FSM
-state will then change to ``CAN_FSM_STATE_WAIT_FOR_INFO``, and the boot FSM
-state will change to ``BOOT_FSM_STATE_LOAD``.
-
-.. figure:: img/can_boot_load.png
-   :name: can_boot_load
-   :align: center
-   :alt: Interaction between boot and CAN FSM during program loading
-
-   Interaction between boot and CAN FSM during program loading
-
-Once the information of the program has been successfully transferred, the
-state will change to ``CAN_FSM_STATE_WAIT_FOR_DATA_LOOPS``.
-From this state, the data will be transferred.
-To ensure the transferring data (8 bytes every time) is correct, a
-corresponding loop number needs to be sent before the 8 data bytes in each
-loop.
-Only if the loop number is the one the CAN module expects, the data bytes will
-be considered correct and will be written into the sector buffer.
-
-To transmit the data efficiently and precisely, the whole program will be
-divided into sectors.
-Each sector contains the data that can be filled into the sector buffer.
-One sector contains 16 sub-sectors.
-Each sub-sector contains 1024 * 8 bytes and can be transferred by 1024 data
-loops.
-
-Every time a sub-sector has been transferred, an acknowledgment (ACK) message
-will be sent to inform the data sender that the whole sub-sector has been
-successfully received.
-If a whole sector has been transferred and written into the sector buffer, the
-corresponding flash sector will be written using the data that is temporarily
-saved in the sector buffer.
-Immediately, the written flash sector will be validated by comparing the
-received CRC signature (8 bytes) with the onboard calculated CRC signature
-(8 bytes).
-If the result is invalid, the variables involved with data transfer and the
-sector buffer will be reset to the original state at the start of the data
-transfer for this sector.
-The CAN FSM state will reset to either ``CAN_FSM_STATE_WAIT_FOR_DATA_LOOPS`` or
-``CAN_FSM_STATE_RECEIVED_8_BYTES_CRC``.
-Once all data has been received, written, and validated, the CAN FSM state will
-be set to ``CAN_FSM_STATE_FINISHED_FINAL_VALIDATION``.
-
-.. figure:: img/can_fsm_state_partial_1.png
-   :name: can_fsm_state_partial_1
-   :align: center
-   :alt: Partial CAN FSM state changes
-
-   Partial CAN FSM state changes
-
-After the whole program has been received and validated, the vector table for
-this program will be transferred and validated as well, as shown in the
-following diagram:
-
-.. figure:: img/can_fsm_state_partial_2.png
-   :name: can_fsm_state_partial_2
-   :align: center
-   :alt: Partial CAN FSM state changes
-
-   Partial CAN FSM state changes
-
-The entire state diagram of the CAN FSM state machine is shown as follows:
-
-.. figure:: img/can_fsm_state.png
+.. drawio-figure:: img/can_fsm_state.drawio
+   :format: svg
    :name: can_fsm_state
    :align: center
    :alt: CAN FSM state
+   :width: 90 %
 
-   CAN FSM state changes
+   State diagram of the CAN FSM
 
-The functionality of this state machine has been achieved through the calling
-of functions inside the boot module, which basically checks the state of the
-CAN module.
+Boot FSM
+^^^^^^^^
 
+As shown in :numref:`boot_fsm_state`, at the start of the program, the state of
+the boot FSM is initialized to ``BOOT_FSM_STATE_WAIT``.
+From this state, the state of the boot FSM can change to
+``BOOT_FSM_STATE_LOAD``, ``BOOT_FSM_STATE_RUN``, or ``BOOT_FSM_STATE_RESET`` in
+response to changes in the CAN FSM.
+If any error happens during the state ``BOOT_FSM_STATE_LOAD``,
+``BOOT_FSM_STATE_RUN`` or ``BOOT_FSM_STATE_RESET``, the state of the boot FSM
+will change to  ``BOOT_FSM_STATE_ERROR``.
 
-Developer Note
---------------
+.. drawio-figure:: img/boot_fsm_state.drawio
+   :format: svg
+   :name: boot_fsm_state
+   :align: center
+   :width: 65 %
+   :alt: Boot FSM state
 
-What should be considered/modified while configuring the memory?
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   State diagram of the boot FSM
+
+Start the |foxbms| Application
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The |foxbms| application starts automatically, if no CAN request to the
+``CAN_FSM_STATE_MACHINE`` has been received within the defined timeout.
+The application will start earlier if the corresponding request is sent to the
+bootloader via the CAN bus.
+Once the CAN module has received this CAN message, it will change its state
+from the initial state ``CAN_FSM_STATE_NO_COMMUNICATION`` to
+``CAN_FSM_STATE_RUN_PROGRAM`` as shown in :numref:`can_boot_run`.
+If the boot FSM is in the expected state (``BOOT_FSM_STATE_WAIT``), at this
+moment, a validation process will be initiated to check if the flashed |foxbms|
+application is valid.
+The bootloader will only jump into the application if the validation process
+was successful.
+Otherwise, it will inform the host PC that there is no valid program available.
+
+.. drawio-figure:: img/can_boot_run.drawio
+   :format: svg
+   :name: can_boot_run
+   :align: center
+   :width: 60 %
+   :alt: Interaction between the boot FSM and the CAN FSM after a "run-app" command is issued
+
+   Interaction between the boot FSM and the CAN FSM after a "run-app" command is issued
+
+Reset the Boot Process
+^^^^^^^^^^^^^^^^^^^^^^
+
+If a reset request (see :numref:`how_to_use_it`) has been sent via the CAN bus,
+the CAN FSM state will change to ``CAN_FSM_STATE_RESET_BOOT`` from any state
+as shown in :numref:`can_boot_reset`.
+After that, the bootloader will reset its boot-relevant configurations,
+including global variables that contain the boot- and CAN-relevant program
+information.
+Additionally, the sector buffer RAM area where the sector data is temporarily
+stored will be cleared, and the flash sectors where the application data is
+supposed to be written will be erased.
+Finally, a software reset will be performed to reset the MCU.
+
+.. drawio-figure:: img/can_boot_reset.drawio
+   :format: svg
+   :name: can_boot_reset
+   :align: center
+   :width: 60 %
+   :alt: Interaction between the boot FSM and the CAN FSM after a "reset" command is issued
+
+   Interaction between the boot FSM and the CAN FSM after a "reset" command is issued
+
+Transfer the |foxbms| Application
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+If the incoming CAN message indicates a start of the data transfer process, the
+CAN FSM state will change to ``CAN_FSM_STATE_WAIT_FOR_INFO``, and the boot FSM
+state will change to ``BOOT_FSM_STATE_LOAD``, as shown in
+:numref:`can_boot_load`.
+
+.. drawio-figure:: img/can_boot_load.drawio
+   :format: svg
+   :name: can_boot_load
+   :align: center
+   :width: 60 %
+   :alt: Interaction between the boot FSM and the CAN FSM after a "load-app" command is issued
+
+   Interaction between the boot FSM and the CAN FSM after a "load-app" command is issued
+
+Once the information of the program has been successfully transferred, the
+state of the CAN FSM will change from ``CAN_FSM_STATE_WAIT_FOR_INFO``
+to ``CAN_FSM_STATE_WAIT_FOR_DATA_LOOPS``.
+To ensure that the transferred data (8 bytes each time) is correct, in the
+innermost loop, a corresponding loop number needs to be sent before the
+transmission of the corresponding data in 8 bytes, as shown in
+:numref:`communication_between_pc_and_bootloader`.
+Only if the loop number is the one the CAN module expects, the data bytes will
+be considered correct and will be written into the sector buffer.
+Essentially, the loop number can also be understood as the key to enabling the
+reception of the corresponding 8-byte program data.
+
+To transmit the data efficiently and precisely, the entire program will be
+divided into sectors, as mentioned in
+:numref:`communication_between_pc_and_bootloader_while_uploading_the_binary_of_foxbms`.
+The program sector size is identical to the size of corresponding physical
+flash sector section.
+If a whole sector has been transferred and written into the sector buffer, the
+corresponding flash sector will be written using the data that is temporarily
+saved in the sector buffer.
+Immediately afterwards, the written flash sector will be validated by comparing
+the received CRC signature (8 bytes) with the calculated CRC signature
+(8 bytes).
+If the result is invalid, the variables involved in data transfer and the
+sector buffer will be reset to their original state at the start of the data
+transfer for this sector.
+Additionally, the CAN FSM state will reset to either
+``CAN_FSM_STATE_WAIT_FOR_DATA_LOOPS`` or
+``CAN_FSM_STATE_RECEIVED_8_BYTES_CRC``.
+
+Once all data has been received, written, and validated, the CAN FSM state will
+be set to ``CAN_FSM_STATE_FINISHED_FINAL_VALIDATION``, as shown in
+:numref:`can_fsm_state`.
+Meanwhile, the CRC signature of the last sector, which is also the CRC
+signature of the entire application binary, will be saved in the flash memory
+where the program information is stored.
+
+After the entire program has been received and validated, the vector table for
+this program will also be transferred and validated.
+Meanwhile, its state will be updated accordingly, as shown in
+:numref:`can_fsm_state`.
+
+Developer Notes
+---------------
+
+What Should Be Considered/Modified While Configuring the Flash Memory?
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 To configure the memory of the microcontroller (|ti-tms570lc4357|), several
 parts need to be considered/configured:
@@ -528,11 +605,9 @@ parts need to be considered/configured:
    and ``app_hex.cmd``.
 #. The linker script of the bootloader ``bootloader.cmd``.
 #. The address jump between the first vector table and the second vector table,
-   which is defined in ``boot_intvecs.asm``.
-#. The corresponding macros defined in one bootloader header file
+   which is defined in ``intvecs.asm``.
+#. The corresponding macros defined in the bootloader header file
    : ``boot_cfg.h``.
-#. The app size defined in ``cli/cmd_bootloader/app_constants.py`` inside the
-   pc-side code of bootloader.
 
 .. _about_vector_table:
 
@@ -543,39 +618,40 @@ The
 `vector table <https://www.ti.com/lit/an/spna236/spna236.pdf?ts=1724301653744>`__
 is usually placed at the start address (``0x00``) of the flash and has a length
 of ``0x20``.
-It contains 8 8 32-bit ARM instructions in our case.
+It contains eight 32-bit ARM instructions in our case.
 
-In the bootloader, there are two vector tables (``VECTORS_DIRECT`` and
-``VECTORS_INDIRECT``)
+In the bootloader, there are two vector tables (``VECTORS_TABLE_INIT`` and
+``VECTORS_TABLE``)
 located at ``0x00`` and ``0x0001FFE0`` of the flash memory.
-While the first vector table only reroutes to the undefined entry, the SVC
+The first vector table only reroutes the undefined entry, the SVC
 (supervisor call) entry, the prefetch entry, the data abort entry, and the
 phantom interrupt entry, to these inside the second vector table
-(``VECTORS_INDIRECT``), the real function entries to handle these entries are
-implemented in the second vector table using
+(``VECTORS_TABLE``).
+The second vector table hosts the real functions entries to handle these
+exception entries using
 `b xxx <https://developer.arm.com/documentation/den0042/a/Exceptions-and-Interrupts/Exception-priorities/The-Vector-table>`__.
 
-Different from these entries, the reset entry points always to the ``_c_int00``
+Different from handlers listed above, the reset entry points always to the ``_c_int00``
 function which will also be called first before any other functions.
 The IRQ and FIQ interrupt table will be loaded by
-`ldr pc,[pc,#-0x1b0] <https://developer.arm.com/documentation/den0042/a/Exceptions-and-Interrupts/Exception-priorities/The-Vector-table>`__
+`ldr pc, [pc, #-0x1b0] <https://developer.arm.com/documentation/den0042/a/Exceptions-and-Interrupts/Exception-priorities/The-Vector-table>`__
 inside the first vector table.
 The configuration and initialization of the vectored interrupt manager is done
 in ``_c_int00`` by ``vimInit()``.
 
 During booting, the ``_c_int00`` function is first called, but the actual
-working exception entries (except for IRQ and FIQ) will be these inside the
+working exception entries (except for IRQ and FIQ) will be the ones defined the
 second vector table.
-After the application is loaded, the vector table of the application will
-replace the second vector table.
+After the |foxbms| application is flashed, the |foxbms| application vector
+table will overwrite the second vector table ``VECTORS_TABLE``.
 This means that by jumping into the second vector table, the ``_c_int00``
 function of the application will be called, where the configuration for, e.g.,
 VIM will be reset for the application.
 Meanwhile, the real entries for the exceptions will be replaced by the entries
 shipped with the application.
 
-Changing operation mode
-^^^^^^^^^^^^^^^^^^^^^^^
+Change Operation Mode
+^^^^^^^^^^^^^^^^^^^^^
 Since some functions inside flash and CRC modules change values in the
 protected flash area, such as register values, certain privileges need to be
 claimed before calling these functions.
@@ -585,17 +661,17 @@ To raise the privilege, SVC handlers are implemented to change the value of
 
 .. _how_to_load_flash_api_to_sram:
 
-How to load the "Flash API" into the SRAM?
+How to Load the "Flash API" into the SRAM?
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 To erase and write the flash bank where the bootloader is located, the relevant
-flash API and the functions that use the flash API need to be run from SRAM
-rather than flash.
+flash API and all functions that use the flash API need to be executed from
+SRAM rather than flash.
 More details can be found in
 `here <https://www.ti.com/lit/ug/spnu501h/spnu501h.pdf?ts=1725300688204>`__,
 which is also called
 `run-time relocation <https://software-dl.ti.com/codegen/docs/tiarmclang/compiler_tools_user_guide/compiler_manual/program_loading_and_running/run-time-relocation-stdz0694629.html#stdz0694629>`__.
-To run program from SRAM, the following steps must be done:
+To execute program code from SRAM, the following steps must be done:
 
 #. Change the MPU configuration for the region from ``0x08000000`` to
    ``0x0807FFFF`` to ``PRIV_RW_USER_RW_EXEC`` to enable calling the functions
@@ -607,20 +683,28 @@ To run program from SRAM, the following steps must be done:
    More details can be found in
    `here <https://software-dl.ti.com/codegen/docs/tiarmclang/compiler_tools_user_guide/compiler_manual/linker_description/08_using_linker_generated_copy_tables/using-built-in-link-operators-in-copy-tables-stdz0757585.html>`__.
 
-How to use the onboard CRC module in Semi-AUTO mode?
+How to Use the Onboard CRC Module in Semi-AUTO Mode?
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The detailed information regarding CRC onboard module and the CRC algorithm
-used in the CRC onboard module can be found in
+There is an onboard CRC controller available on the TMS570LC43.
+It offers three modes of operation: Auto, Semi-CPU, and Full-CPU.
+In our case, the Semi-CPU mode is used to calculate the CRC.
+Unlike Auto mode, where the CRC calculation and evaluation are performed
+without CPU intervention, in Semi-CPU mode, the generated CRC signature must be
+compared with a pre-determined CRC value with the assistance of the CPU.
+
+More detailed information regarding CRC onboard module and the CRC algorithm
+used within the CRC onboard module can be found in
 `here <https://www.ti.com/lit/an/spna235/spna235.pdf>`__.
 
-How to jump to a certain address?
+How to Jump to a Certain Address?
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-When you run the code, the bootloader will start first because this is the
-bootloader's reset vector that is on the first address ``0x0``.
+When you power-up the BMS, the bootloader will start first because the
+bootloader's reset vector that is located at the first flash address ``0x00``.
 
-The bootloader's main will jump into the application like this :
+From the address area where the bootloader program is located, it is possible
+to jump to another address using the following code example:
 
 .. code:: c
 
@@ -655,27 +739,3 @@ is a function pointer cast and call operation. Here's what it does :
 
 In summary, this code converts an address (``boot_jumpAddress``) into
 a function pointer and then calls the function at that address.
-
-
-Some Tips for debugging
------------------------
-
-How to flash the bootloader and the application together using trace32?
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Open Trace32* and flash the bootloader as usual.
-Access the command bar in Trace32 and type the following commands one after the
-other:
-
-.. code:: text
-
-   flash.erase 0x00020000--0x00400000
-   flash.program 0x00020000--0x00400000
-   Data.LOAD.Binary  <path_of_the_binary_file>  0x00020000--0x00400000
-   flash.program off
-
-Save the loaded binary via debugger to local:
-
-.. code:: text
-
-   FLASHFILE.SAVE <path_of_the_binary_file> <start_address>--<end_address>

@@ -7,14 +7,14 @@ How to Use Generated Sources from HALCoGen
 ==========================================
 
 .. note::
-   A documentation of the tool |halcogen| can be found in
+   A documentation of the tool |ti-halcogen| can be found in
    :ref:`HALCOGEN_TOOL_DOCUMENTATION`, the Waf tool wrapper for this project in
-   :ref:`WAF_TOOL_HALCOGEN` and information on configuring |halcogen| in the
+   :ref:`WAF_TOOL_HALCOGEN` and information on configuring |ti-halcogen| in the
    context of the toolchain of this project in :ref:`HAL_CONFIGURATION`.
 
 The following steps need to be applied:
 
-#. Removing the |halcogen| dependency in the compiler tool:
+#. Removing the |ti-halcogen| dependency in the compiler tool:
 
    - remove loading the the ``f_hcg`` tool in the ``configure`` step.
    - in the ``class search_swi(Task.Task)`` the class attribute ``after`` needs
@@ -30,7 +30,8 @@ The following steps need to be applied:
         :language: python
         :linenos:
         :lines: 43-
-        :caption: Building the HAL library without using |halcogen| on the fly
+        :caption: Building the HAL library without using |ti-halcogen| on the
+          fly
         :name: building-without-halcogen
 
    - Add the ``include`` directory in all ``wscript``-files where needed. This

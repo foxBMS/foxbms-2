@@ -38,7 +38,7 @@ how to install and configure the toolchain that is used for working on the
 embedded software.
 
 The :ref:`CREATING_A_WORKSPACE` guide explains how to
-setup a |code| workspace to browse the |foxbms| sources conveniently.
+setup a |vs-code| workspace to browse the |foxbms| sources conveniently.
 
 Information about the software and how to build it is found in
 :ref:`SOFTWARE_DOCUMENTATION_OVERVIEW`.

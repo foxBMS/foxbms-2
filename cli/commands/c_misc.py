@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -40,23 +40,17 @@
 """Command line interface definition for miscellaneous fox tools"""
 
 from pathlib import Path
-from typing import get_args
 
 import click
-from click import secho
 
 from ..cmd_misc.check_test_files import check_for_test_files
 from ..cmd_misc.crc_example import run_crc_build
 from ..cmd_misc.doc_example import run_doc_build
-from ..cmd_misc.eol_converter import convert
 from ..cmd_misc.run_uncrustify import lint_freertos
 from ..cmd_misc.verify_checksums import verify
-from ..helpers.misc import EOL, set_logging_level_cb
+from ..helpers.click_helpers import HELP_NAMES, recho, verbosity_option
 
-CONTEXT_SETTINGS = {
-    "help_option_names": ["-h", "--help"],
-    "ignore_unknown_options": True,
-}
+CONTEXT_SETTINGS = HELP_NAMES | {"ignore_unknown_options": True}
 
 
 @click.group(context_settings=CONTEXT_SETTINGS)
@@ -65,15 +59,9 @@ def misc() -> None:
 
 
 @misc.command("check-for-test-files")
-@click.option(
-    "-v",
-    "--verbose",
-    default=0,
-    count=True,
-    help="Verbose information.",
-)
+@verbosity_option
 @click.pass_context
-def cmd_check_for_test_files(ctx: click.Context, verbose: int) -> None:
+def cmd_check_for_test_files(ctx: click.Context, verbose: int = 0) -> None:
     """Check whether all 'cli' files have dedicated test file."""
     ctx.exit(check_for_test_files(verbose).returncode)
 
@@ -85,28 +73,15 @@ def cmd_check_for_test_files(ctx: click.Context, verbose: int) -> None:
     is_eager=True,
     type=click.Path(exists=True, dir_okay=True, path_type=Path),
 )
-@click.argument(
-    "known-hash",
-    type=click.STRING,
-)
-@click.option(
-    "-v",
-    "--verbose",
-    default=0,
-    count=True,
-    help="Verbose information",
-    callback=set_logging_level_cb,
-)
+@click.argument("known-hash", type=click.STRING)
+@verbosity_option
 @click.pass_context
 def cmd_verify_checksum(
-    ctx: click.Context,
-    files: list[Path],
-    known_hash: str,
-    verbose: int,  # pylint: disable=unused-argument
+    ctx: click.Context, files: list[Path], known_hash: str, verbose: int = 0
 ) -> None:
     """Verify checksum of a list of given paths."""
     if not files:
-        secho("No files provided.", fg="red", err=True)
+        recho("No files provided.")
         ctx.exit(1)
     ctx.exit(verify(list(files), known_hash))
 
@@ -126,48 +101,13 @@ def cmd_uncrustify_freertos(ctx: click.Context, check: bool) -> None:
 
 @misc.command("build-crc-code")
 @click.pass_context
-def cmd_build_crc_code(
-    ctx: click.Context,
-) -> None:
+def cmd_build_crc_code(ctx: click.Context) -> None:
     """Build the CRC example code."""
     ctx.exit(run_crc_build().returncode)
 
 
 @misc.command("build-doc-code")
 @click.pass_context
-def cmd_build_doc_code(
-    ctx: click.Context,
-) -> None:
+def cmd_build_doc_code(ctx: click.Context) -> None:
     """Build the documentation example code."""
     ctx.exit(run_doc_build().returncode)
-
-
-@misc.command("convert")
-@click.option("--to", type=click.Choice(get_args(EOL), case_sensitive=True))
-@click.argument(
-    "files",
-    nargs=-1,
-    is_eager=True,
-    type=click.Path(exists=True, dir_okay=True, file_okay=True, path_type=Path),
-)
-@click.option(
-    "-v",
-    "--verbose",
-    default=0,
-    count=True,
-    help="Verbose information.",
-    callback=set_logging_level_cb,
-)
-@click.pass_context
-def cmd_convert(
-    ctx: click.Context,
-    to: EOL,
-    files: str,
-    verbose: int,  # pylint: disable=unused-argument
-) -> None:
-    """Convert files from dos to unix or unix to dos."""
-    if not files:
-        secho("No files provided.", fg="yellow")
-        ctx.exit(0)
-
-    ctx.exit(convert(to, files))

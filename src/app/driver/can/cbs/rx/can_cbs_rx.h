@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    can_cbs_rx.h
  * @author  foxBMS Team
  * @date    2021-04-20 (date of creation)
- * @updated 2024-12-20 (date of last update)
- * @version v1.8.0
+ * @updated 2025-03-31 (date of last update)
+ * @version v1.9.0
  * @ingroup DRIVERS
  * @prefix  CANRX
  *
@@ -252,6 +252,8 @@ extern void TEST_CANRX_TriggerMcuUniqueDieIdMessage(void);
 extern void TEST_CANRX_TriggerMcuLotNumberMessage(void);
 extern void TEST_CANRX_TriggerMcuWaferInformationMessage(void);
 extern void TEST_CANRX_TriggerTimeInfoMessage(void);
+extern void TEST_CANRX_TriggerUptimeInfoMessage(void);
+extern void TEST_CANRX_TriggerBootTimestampMessage(void);
 extern void TEST_CANRX_TriggerCommitHashMessage(void);
 extern void TEST_CANRX_TriggerBuildConfigurationMessage(void);
 
@@ -262,6 +264,8 @@ extern bool TEST_CANRX_CheckIfMcuWaferInformationIsRequested(uint64_t messageDat
 extern bool TEST_CANRX_CheckIfSoftwareResetIsRequested(uint64_t messageData, CAN_ENDIANNESS_e endianness);
 extern bool TEST_CANRX_CheckIfFramInitializationIsRequested(uint64_t messageData, CAN_ENDIANNESS_e endianness);
 extern bool TEST_CANRX_CheckIfTimeInfoIsRequested(uint64_t messageData, CAN_ENDIANNESS_e endianness);
+extern bool TEST_CANRX_CheckIfUptimeInfoIsRequested(uint64_t messageData, CAN_ENDIANNESS_e endianness);
+extern bool TEST_CANRX_CheckIfBootTimestampIsRequested(uint64_t messageData, CAN_ENDIANNESS_e endianness);
 extern bool TEST_CANRX_CheckIfCommitHashIsRequested(uint64_t messageData, CAN_ENDIANNESS_e endianness);
 extern bool TEST_CANRX_CheckIfBuildConfigurationIsRequested(uint64_t messageData, CAN_ENDIANNESS_e endianness);
 
@@ -270,6 +274,7 @@ extern void TEST_CANRX_ProcessRtcMux(uint64_t messageData, CAN_ENDIANNESS_e endi
 extern void TEST_CANRX_ProcessSoftwareResetMux(uint64_t messageData, CAN_ENDIANNESS_e endianness);
 extern void TEST_CANRX_ProcessFramInitializationMux(uint64_t messageData, CAN_ENDIANNESS_e endianness);
 extern void TEST_CANRX_ProcessTimeInfoMux(uint64_t messageData, CAN_ENDIANNESS_e endianness);
+extern void TEST_CANRX_ProcessUptimeInfoMux(uint64_t messageData, CAN_ENDIANNESS_e endianness);
 
 extern void TEST_CANRX_HandleAerosolSensorErrors(const CAN_SHIM_s *const kpkCanShim, uint16_t signalData);
 extern void TEST_CANRX_HandleAerosolSensorStatus(const CAN_SHIM_s *const kpkCanShim, uint16_t signalData);

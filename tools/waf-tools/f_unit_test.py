@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,8 @@ needs and builds and runs the tests.
 For information on Ceedling see https://github.com/ThrowTheSwitch/Ceedling.
 """
 
-from waflib import Task, TaskGen
+from waflib import Logs, Task, TaskGen, Utils
+from waflib.Configure import ConfigurationContext
 
 
 class ceedling(Task.Task):  # pylint: disable=invalid-name,too-few-public-methods
@@ -55,9 +56,9 @@ class ceedling(Task.Task):  # pylint: disable=invalid-name,too-few-public-method
     #: str: Ceedling handles the need for a re-run, so always run this task
     always_run = True
 
-    run_str = "${RUBY} ${CEEDLING} ${CEEDLING_OPTIONS} ${CEEDLING_TEST_OPTIONS}"
+    run_str = "${CEEDLING} ${CEEDLING_OPTIONS} ${CEEDLING_TEST_OPTIONS}"
     """str: string to be interpolated to create the command line to run
-    ceedling (conf.env.CEEDLING_TEST_OPTIONS are applied)."""
+    ceedling (ctx.env.CEEDLING_TEST_OPTIONS are applied)."""
 
 
 # pylint: disable=invalid-name,too-few-public-methods
@@ -70,9 +71,9 @@ class ceedling_coverage(Task.Task):
     #: str: Ceedling handles the need for a re-run, so always run this task
     always_run = True
 
-    run_str = "${RUBY} ${CEEDLING} ${CEEDLING_OPTIONS} ${CEEDLING_COVERAGE_OPTIONS}"
+    run_str = "${CEEDLING} ${CEEDLING_OPTIONS} ${CEEDLING_COVERAGE_OPTIONS}"
     """str: string to be interpolated to create the command line to run
-    ceedling (conf.env.CEEDLING_COVERAGE_OPTIONS are applied)."""
+    ceedling (ctx.env.CEEDLING_COVERAGE_OPTIONS are applied)."""
 
 
 @TaskGen.feature("ceedling")
@@ -85,35 +86,53 @@ def add_ceedling_task(self):
         self.create_task("ceedling")
 
 
-def configure(conf):
+def configure(ctx: ConfigurationContext):
     """configuration step of the Ceedling waf tool:
 
     - Find required software (ruby, gcc, gcov, gcovr and ceedling)
     - configure a ceedling project"""
-    conf.find_program("ruby", mandatory=False)
-    conf.find_program("gcc", mandatory=False)
-    conf.find_program("gdb", mandatory=False)
-    conf.find_program("gcov", mandatory=False)
-    conf.find_program("gcovr", mandatory=False)
+    ctx.find_program("ruby", mandatory=False)
+    if not ctx.env.RUBY:
+        Logs.warn("Ruby is missing.")
+    ctx.find_program("gcc", mandatory=False)
+    if not ctx.env.GCC:
+        Logs.warn("GCC is missing.")
+    ctx.find_program("gdb", mandatory=False)
+    if not ctx.env.GDB:
+        Logs.warn("GDB is missing.")
+    ctx.find_program("gcov", mandatory=False)
+    if not ctx.env.GCOV:
+        Logs.warn("gcov is missing.")
+    ctx.find_program("gcovr", mandatory=False)
+    if not ctx.env.GCOVR:
+        Logs.warn("gcovr is missing.")
+    ctx.find_program("ceedling", mandatory=False)
+    if not ctx.env.CEEDLING:
+        Logs.warn("Ceedling is missing.")
     if not all(
         (
-            conf.env.RUBY,
-            conf.env.GCC,
-            conf.env.GDB,
-            conf.env.GCOV,
-            conf.env.GCOVR,
+            ctx.env.RUBY,
+            ctx.env.GCC,
+            ctx.env.GDB,
+            ctx.env.GCOV,
+            ctx.env.GCOVR,
+            ctx.env.CEEDLING,
         )
     ):
         return
-    conf.env.CEEDLING = [
-        conf.path.find_node("tools/vendor/ceedling/bin/ceedling").abspath()
-    ]
 
-    # maybe the list contains [None], therefore the second check
-    if conf.env.CEEDLING and not conf.env.CEEDLING[0]:
+    if Utils.is_win32:
+        prefix = "C:"
+    else:
+        prefix = "/opt"
+    expected_gem_path = f"{prefix}/foxbms/Ceedling/1.0.1"
+    ctx.start_msg("Ceedling Gem directory")
+    gem = ctx.root.find_dir(expected_gem_path)
+    if not gem:
+        ctx.end_msg(False)
         return
-
-    # get build directory
-    conf.env.append_unique("CEEDLING_OPTIONS", ["--verbosity=normal"])
-    conf.env.append_unique("CEEDLING_TEST_OPTIONS", ["test:all"])
-    conf.env.append_unique("CEEDLING_COVERAGE_OPTIONS", ["gcov:all"])
+    ctx.env.append_unique("GEM_HOME", gem.abspath())
+    ctx.end_msg(ctx.env.get_flat("GEM_HOME"))
+    ctx.env.append_unique("CEEDLING_OPTIONS", ["--verbosity=normal"])
+    ctx.env.append_unique("CEEDLING_TEST_OPTIONS", ["test:all"])
+    ctx.env.append_unique("CEEDLING_COVERAGE_OPTIONS", ["gcov:all"])

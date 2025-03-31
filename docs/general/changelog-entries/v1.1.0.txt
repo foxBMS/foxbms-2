@@ -1,4 +1,4 @@
-|foxbms| now defaults to |code-composer-studio| 10.3.1 in order to build
+|foxbms| now defaults to |ti-code-composer-studio| 10.3.1 in order to build
 the binaries. If an older version of the compiler should be used, it can be
 configured in ``conf/env/paths_win32.txt``. For installation instructions
 see :numref:`css_install`.
@@ -38,7 +38,7 @@ Added
 - Added handling of I2C multiplexers to the Maxim monitoring IC driver.
 - Added a flash tool to the Waf toolchain. It is based on SEGGER J-Flash and
   can be invoked by calling ``waf install_bin`` or running the ``Flash:Binary``
-  task in |code|.
+  task in Visual Studio Code.
 - Added a short note on the installation of PEAK-Drivers (for CAN
   communication) to the installation manual.
 - Added a section on testing the setup of the toolchain.
@@ -64,7 +64,7 @@ Changed
   environment.
 - CAN callback functions are now defined in separate files to increase
   readability.
-- Ring buffer for CAN RX was replaced by a |freertos| queue. A DIAG entry was
+- Ring buffer for CAN RX was replaced by a FreeRTOS queue. A DIAG entry was
   added that detects if the queue is full when trying to add an element.
 - Updated the black configuration to match the new python version
   (``Python 3.9.5``).
@@ -97,7 +97,7 @@ Deprecated
 Removed
 =======
 
-- Completely removed dynamic allocation from |freertos| and reduced the (unused)
+- Completely removed dynamic allocation from FreeRTOS and reduced the (unused)
   heap size to 0.
 - Removed deprecated option ``COLS_IN_ALPHA_INDEX`` from the doxygen
   configurations.

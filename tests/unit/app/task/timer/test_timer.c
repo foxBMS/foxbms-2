@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_timer.c
  * @author  foxBMS Team
  * @date    2024-10-31 (date of creation)
- * @updated 2024-12-20 (date of last update)
- * @version v1.8.0
+ * @updated 2025-03-31 (date of last update)
+ * @version v1.9.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -56,11 +56,13 @@
 /*========== Includes =======================================================*/
 #include "unity.h"
 #include "Mockftask.h"
-#include "Mockmpu_prototypes.h"
+#include "Mocktask.h"
+#include "Mocktimers.h"
 
+/* To have the configuration in all files available, FreeRTOSConfig.h was
+   added as include in conf/unit/app_project_<platform>.yml */
 #include "FreeRTOS.h"
 #include "FreeRTOSConfig.h"
-#include "timers.h"
 
 #include "test_assert_helper.h"
 #include "timer.h"
@@ -69,7 +71,7 @@
 TEST_SOURCE_FILE("timer.c")
 
 TEST_INCLUDE_PATH("../../src/app/task/timer")
-TEST_INCLUDE_PATH("../../src/os/freertos/include")
+TEST_INCLUDE_PATH("../../src/os/freertos/freertos/include")
 TEST_INCLUDE_PATH("../../src/app/driver/config")
 TEST_INCLUDE_PATH("../../src/app/driver/rtc")
 TEST_INCLUDE_PATH("../../src/app/task/config")
@@ -80,8 +82,8 @@ StaticTimer_t buffer;
 /* Since we are in an testing environment we have no OS to create a real timer.*/
 TimerHandle_t timer;
 
-uint32_t test_timer_id = 123;
-void *id_pointer       = &test_timer_id;
+uint32_t test_timerID = 123;
+void *test_idPointer  = &test_timerID;
 
 /* Empty Callback for the tests*/
 void EmptyTestCallBack(TimerHandle_t xTimer) {
@@ -98,19 +100,17 @@ void tearDown(void) {
 /*========== Test Cases =====================================================*/
 /* start-include-in-doc */
 void testTIMER_CreateWithNullPointers(void) {
-    MPU_xTimerCreateStatic_IgnoreAndReturn(NULL);
-    TEST_ASSERT_FAIL_ASSERT(TIMER_Create("test_timer", 100, false, id_pointer, &EmptyTestCallBack, NULL));
+    TEST_ASSERT_FAIL_ASSERT(TIMER_Create("test_timer", 100, false, test_idPointer, &EmptyTestCallBack, NULL));
 
-    MPU_xTimerCreateStatic_IgnoreAndReturn(NULL);
-    TEST_ASSERT_FAIL_ASSERT(TIMER_Create(NULL, 100, false, id_pointer, &EmptyTestCallBack, &buffer));
+    TEST_ASSERT_FAIL_ASSERT(TIMER_Create(NULL, 100, false, test_idPointer, &EmptyTestCallBack, &buffer));
 
-    MPU_xTimerCreateStatic_IgnoreAndReturn(NULL);
-    TEST_ASSERT_FAIL_ASSERT(TIMER_Create("test_timer", 100, false, id_pointer, NULL, &buffer));
+    TEST_ASSERT_FAIL_ASSERT(TIMER_Create("test_timer", 100, false, test_idPointer, NULL, &buffer));
 }
 
 void testTIMER_CreateOk(void) {
-    MPU_xTimerCreateStatic_IgnoreAndReturn(timer);
-    TEST_ASSERT_EQUAL(TIMER_Create("test_timer", 100, false, id_pointer, &EmptyTestCallBack, NULL), timer);
+    xTimerCreateStatic_ExpectAndReturn(
+        "test_timer", pdMS_TO_TICKS(100), false, test_idPointer, &EmptyTestCallBack, NULL, timer);
+    TEST_ASSERT_EQUAL(TIMER_Create("test_timer", 100, false, test_idPointer, &EmptyTestCallBack, NULL), timer);
 }
 
 void testTIMER_DeleteWithNullPointer(void) {
@@ -118,12 +118,12 @@ void testTIMER_DeleteWithNullPointer(void) {
 }
 
 void testTIMER_DeleteOk(void) {
-    MPU_xTimerGenericCommand_IgnoreAndReturn(pdPASS);
+    xTimerGenericCommandFromTask_ExpectAndReturn(timer, tmrCOMMAND_DELETE, 0, 0, 100, pdPASS);
     TEST_ASSERT_EQUAL(TIMER_Delete(timer, 100), STD_OK);
 }
 
 void testTIMER_DeleteNotOk(void) {
-    MPU_xTimerGenericCommand_IgnoreAndReturn(pdFAIL);
+    xTimerGenericCommandFromTask_ExpectAndReturn(timer, tmrCOMMAND_DELETE, 0, 0, 100, pdFAIL);
     TEST_ASSERT_EQUAL(TIMER_Delete(timer, 100), STD_NOT_OK);
 }
 
@@ -132,14 +132,14 @@ void testTIMER_StartWithNullPointer(void) {
 }
 
 void testTIMER_StartOk(void) {
-    MPU_xTaskGetTickCount_IgnoreAndReturn(10);
-    MPU_xTimerGenericCommand_IgnoreAndReturn(pdPASS);
+    xTaskGetTickCount_ExpectAndReturn(10);
+    xTimerGenericCommandFromTask_ExpectAndReturn(timer, tmrCOMMAND_START, 10, 0, 100, pdPASS);
     TEST_ASSERT_EQUAL(TIMER_Start(timer, 100), STD_OK);
 }
 
 void testTIMER_StartNotOk(void) {
-    MPU_xTaskGetTickCount_IgnoreAndReturn(10);
-    MPU_xTimerGenericCommand_IgnoreAndReturn(pdFAIL);
+    xTaskGetTickCount_ExpectAndReturn(10);
+    xTimerGenericCommandFromTask_ExpectAndReturn(timer, tmrCOMMAND_START, 10, 0, 100, pdFAIL);
     TEST_ASSERT_EQUAL(TIMER_Start(timer, 100), STD_NOT_OK);
 }
 
@@ -148,12 +148,12 @@ void testTIMER_StopWithNullPointer(void) {
 }
 
 void testTIMER_StopOk(void) {
-    MPU_xTimerGenericCommand_IgnoreAndReturn(pdPASS);
+    xTimerGenericCommandFromTask_ExpectAndReturn(timer, tmrCOMMAND_STOP, 0, 0, 100, pdPASS);
     TEST_ASSERT_EQUAL(TIMER_Stop(timer, 100), STD_OK);
 }
 
 void testTIMER_StopNotOk(void) {
-    MPU_xTimerGenericCommand_IgnoreAndReturn(pdFAIL);
+    xTimerGenericCommandFromTask_ExpectAndReturn(timer, tmrCOMMAND_STOP, 0, 0, 100, pdFAIL);
     TEST_ASSERT_EQUAL(TIMER_Stop(timer, 100), STD_NOT_OK);
 }
 
@@ -162,14 +162,14 @@ void testTIMER_ResetWithNullPointer(void) {
 }
 
 void testTIMER_ResetOk(void) {
-    MPU_xTaskGetTickCount_IgnoreAndReturn(10);
-    MPU_xTimerGenericCommand_IgnoreAndReturn(pdPASS);
+    xTaskGetTickCount_ExpectAndReturn(10);
+    xTimerGenericCommandFromTask_ExpectAndReturn(timer, tmrCOMMAND_RESET, 10, 0, 100, pdPASS);
     TEST_ASSERT_EQUAL(TIMER_Reset(timer, 100), STD_OK);
 }
 
 void testTIMER_ResetNotOk(void) {
-    MPU_xTaskGetTickCount_IgnoreAndReturn(10);
-    MPU_xTimerGenericCommand_IgnoreAndReturn(pdFAIL);
+    xTaskGetTickCount_ExpectAndReturn(10);
+    xTimerGenericCommandFromTask_ExpectAndReturn(timer, tmrCOMMAND_RESET, 10, 0, 100, pdFAIL);
     TEST_ASSERT_EQUAL(TIMER_Reset(timer, 100), STD_NOT_OK);
 }
 /* stop-include-in-doc */

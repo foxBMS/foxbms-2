@@ -1,4 +1,4 @@
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -45,15 +45,16 @@ include = ["batetl*"]
 namespaces = false
 
 [project]
-name = "batetl"
+name = "foxbms-etl"
 version = "1.0.0"
-dependencies = ["click>=8.1.7"]
-requires-python = ">=3.10"
-authors = [
-  {name = "foxBMS Team", email = "info@foxbms.org"},
-]
+dependencies = ["click>=8.1.7", "cantools>=40.2.1", "pyarrow>=19.0.0"]
+requires-python = ">=3.12"
+authors = [{ name = "foxBMS Team", email = "info@foxbms.org" }]
 description = "ETL tools for foxBMS 2"
 keywords = ["ETL", "battery", "foxBMS"]
+
+[project.scripts]
+foxetl = "batetl:main"
 
 [project.urls]
 Homepage = "https://foxbms.org/"

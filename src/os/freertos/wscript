@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -37,47 +37,12 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""Helper Build Script: ``./src/app/os/freertos/wscript``
-=============================================
+"""Helper Build Script: ``./src/os/freertos/wscript``
+======================================
 
 Helper script to recursively build the embedded sources"""
 
-import os
-from pathlib import Path
-
 
 def build(bld):
-    """Build the FreeRTOS library"""
-
-    source = [
-        "croutine.c",
-        "event_groups.c",
-        "list.c",
-        "queue.c",
-        "stream_buffer.c",
-        "tasks.c",
-        "timers.c",
-        os.path.join("portable", "ccs", "arm_cortex-r5", "port.c"),
-        os.path.join("portable", "ccs", "arm_cortex-r5", "portasm.asm"),
-        os.path.join("portable", "common", "mpu_wrappers.c"),
-    ]
-    includes = ["include", os.path.join("portable", "ccs", "arm_cortex-r5")]
-    target = f"{bld.env.APPNAME.lower()}-os"
-    cflags = bld.env.CFLAGS_OS
-
-    bld.stlib(
-        source=source,
-        includes=includes,
-        cflags=cflags,
-        target=target,
-    )
-
-    root = Path(bld.top_dir).as_posix()
-    bld(
-        features="swi-check",
-        files=bld.root.ant_glob(f"{root}/src/**/*.c {root}/src/**/*.h"),
-        jump_table_file=bld.path.find_node(
-            os.path.join("portable", "ccs", "arm_cortex-r5", "portasm.asm")
-        ),
-        idx=1,
-    )
+    """Propagates the build process details to the lower level wscript."""
+    bld.recurse(["freertos", "freertos-plus"])

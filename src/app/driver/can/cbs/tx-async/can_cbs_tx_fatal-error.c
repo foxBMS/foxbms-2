@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    can_cbs_tx_fatal-error.c
  * @author  foxBMS Team
  * @date    2024-10-17 (date of creation)
- * @updated 2024-12-20 (date of last update)
- * @version v1.8.0
+ * @updated 2025-03-31 (date of last update)
+ * @version v1.9.0
  * @ingroup DRIVERS
  * @prefix  CANTX
  *
@@ -72,7 +72,7 @@
  * @brief   Helper function to send the actual error Code
  * @details This function takes a already created Message with signal data and
  *          adds the message data before sending it.
- * @returns #STD_OK if the message was successfully queued, #STD_NOT_OK otherwise
+ * @return  #STD_OK if the message was successfully queued, #STD_NOT_OK otherwise
  */
 static STD_RETURN_TYPE_e CANTX_SendMessageFatalErrorCode(uint64_t messageData);
 

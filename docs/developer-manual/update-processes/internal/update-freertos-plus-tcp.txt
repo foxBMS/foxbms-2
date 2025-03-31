@@ -1,0 +1,9 @@
+- |snippet_verify_license|.
+- |snippet_download| |url_freertos-plus-tcp-library_releases|.
+- Replace ``src/os/freertos/freertos-plus/freertos-plus-tcp`` with the new
+  version.
+- |snippet_update_license| in
+  ``docs/general/license-tables/internal/license-info_freertos-plus-tcp.csv``.
+- |snippet_changelog_entry|.
+- |snippet_commit|
+  ``Dependency update: <XXXX>/Q<Y>: FreeRTOS-Plus-TCP Library <version number>``.

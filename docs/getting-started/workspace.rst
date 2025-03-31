@@ -6,22 +6,22 @@
 Creating a Workspace
 ====================
 
-If |code| is available, a ``.vscode`` directory with all needed
+If |vs-code| is available, a ``.vscode`` directory with all needed
 configurations is generated when running ``.\fox.ps1 waf configure``.
 The generated workspace is properly configured.
 
-Launching |code|
-----------------
+Launching |vs-code|
+-------------------
 
 It is best to use the provided launcher script ``.\fox.ps1 ide`` to open
-|code| as then all environment variables are automatically correctly set.
+|vs-code| as then all environment variables are automatically correctly set.
 
-If using ``fox.py`` is not desired the following steps need to be taken into
+If using |fox-py| is not desired the following steps need to be taken into
 account:
 
 #. All required build tools etc. need to be in path and environment variables
    need to be correctly set.
-#. Open |code|.
+#. Open |vs-code|.
 #. Goto ``File->Open Folder`` and select the cloned |foxbms| repository.
 
 Build Tasks
@@ -38,8 +38,8 @@ by clicking with the cursor or navigating with the arrow keys and pressing
 Hints
 -----
 
-These are the default shortcuts in |code|. They can be adapted to fit the
-user's needs.
+These are the default shortcuts in |vs-code|.
+They can be adapted to fit the user's needs.
 
 #. Jumping to definition: :kbd:`F12`
 #. Show all references: :kbd:`Shift + F12`

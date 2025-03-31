@@ -1,0 +1,6 @@
+Repository; Version; SPDX short identifier; License
+https://github.com/pre-commit/pre-commit-hooks; v4.6.0; MIT; The MIT License
+https://github.com/astral-sh/ruff-pre-commit; v0.7.0;Apache-2.0, MIT;Apache License, Version 2.0, The MIT License
+https://github.com/asottile/pyupgrade; v3.18.0;MIT;The MIT License
+https://github.com/pre-commit/mirrors-clang-format; v19.1.2; MIT; The MIT License
+https://github.com/shellcheck-py/shellcheck-py; v0.10.0.1; MIT; The MIT License

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -39,15 +39,14 @@
 
 """Update version script"""
 
-import sys
-import csv
 import argparse
+import csv
+import logging
 import os
 import re
-import logging
-from pathlib import Path
+import sys
 from datetime import date
-
+from pathlib import Path
 
 from git import Repo
 
@@ -126,8 +125,7 @@ def update_c_h_files(root: Path, iso_date_today: str, _from: str, _to: str):
         do_replace = False
         try:
             txt = i.read_text(encoding="utf-8")
-        # pylint: disable=bare-except
-        except:  # noqa: E722
+        except:  # noqa: E722 pylint: disable=bare-except
             continue
         if " * @author  foxBMS Team" in txt:
             do_replace = True

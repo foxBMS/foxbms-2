@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -44,7 +44,7 @@ the string type of value."""
 import sys
 from enum import Enum
 from pathlib import Path
-from typing import Optional, TypedDict, cast
+from typing import TypedDict, cast
 
 import cantools
 import cantools.database
@@ -52,47 +52,84 @@ import cantools.database
 from ..helpers.misc import BOOTLOADER_DBC_FILE
 
 
-def extract_enum_from_dbc_file(
-    enum_name: str, dbc_file: Path = BOOTLOADER_DBC_FILE
-) -> Optional[Enum]:
-    """Extract enum from the dbc file.
+# pylint:disable=C0103
+class YesNoAnswer(Enum):
+    """Enum from dbc file"""
 
-    Args:
-        dbc_file: .dbc file where the definition of CAN messages are saved.
-        enum_name: the name of the enum.
-
-    Returns:
-        enum with the name of the enum.
-    """
-
-    # Load the DBC file
-    if not dbc_file.is_file():
-        sys.exit(f"The input '{dbc_file}' is not a file.")
-
-    db = cantools.database.load_file(dbc_file)
-    db = cast(cantools.database.can.database.Database, db)
-    # Loop through all messages to find the right one with right signal name
-    for message in db.messages:
-        for signal in message.signals:
-            if signal.name == enum_name:
-                if not signal.choices:
-                    sys.exit(f"There is no enum for signal '{enum_name}'.")
-                choices = {str(value): key for key, value in signal.choices.items()}
-                dynamic_enum = Enum(enum_name, choices)
-                return dynamic_enum
-
-    # If no such message available
-    sys.exit(f"Cannot find signal '{enum_name}' in the dbc file.")
+    No = 0
+    Yes = 1
 
 
-# Extracted enums from dbc file
-YesNoAnswer = extract_enum_from_dbc_file("YesNoAnswer")
-AcknowledgeFlag = extract_enum_from_dbc_file("AcknowledgeFlag")
-AcknowledgeMessage = extract_enum_from_dbc_file("AcknowledgeMessage")
-StatusCode = extract_enum_from_dbc_file("StatusCode")
-RequestCode = extract_enum_from_dbc_file("RequestCode8Bits")
-CanFsmState = extract_enum_from_dbc_file("CanFsmState")
-BootFsmState = extract_enum_from_dbc_file("BootFsmState")
+class AcknowledgeFlag(Enum):
+    """Enum from dbc file"""
+
+    NotReceived = 0
+    Received = 1
+
+
+class AcknowledgeMessage(Enum):
+    """Enum from dbc file"""
+
+    ReceivedCmdToTransferProgram = 1
+    ReceivedProgramInfo = 2
+    ReceivedLoopNumber = 3
+    ReceivedSubSectorData = 4
+    Received8BytesCrc = 5
+    ReceivedFinal8BytesCrcSignature = 6
+    ReceivedVectorTable = 7
+    ReceivedCrcOfVectorTable = 8
+    ReceivedCmdToRunProgram = 9
+    ReceivedCmdToResetBootProcess = 10
+
+
+class StatusCode(Enum):
+    """Enum from dbc file"""
+
+    ReceivedButNotProcessed = 0
+    ReceivedAndInProcessing = 1
+    ReceivedAndProcessed = 2
+    Error = 3
+
+
+class RequestCode8Bits(Enum):
+    """Enum from dbc file"""
+
+    CmdToTransferProgram = 1
+    CmdToResetBootProcess = 2
+    CmdToRunProgram = 3
+    CmdToGetBootloaderInfo = 4
+    CmdToGetDataTransferInfo = 5
+    CmdToGetVersionInfo = 6
+
+
+class CanFsmState(Enum):
+    """Enum from dbc file"""
+
+    CanFsmStateNoCommunication = 1
+    CanFsmStateWaitForInfo = 2
+    CanFsmStateWaitForDataLoops = 3
+    CanFsmStateReceivedLoopNumber = 4
+    CanFsmStateReceived8BytesData = 5
+    CanFsmStateReceived8BytesCrc = 6
+    CanFsmStateFinishedFinalValidation = 7
+    CanFsmFinishedTransferVectorTable = 8
+    CanFsmStateValidatedVectorTable = 9
+    CanFsmStateError = 10
+    CanFsmStateResetBoot = 11
+    CanFsmStateRunProgram = 12
+
+
+class BootFsmState(Enum):
+    """Enum from dbc file"""
+
+    BootFsmStateWait = 1
+    BootFsmStateReset = 2
+    BootFsmStateRun = 3
+    BootFsmStateLoad = 4
+    BootFsmStateError = 5
+
+
+# pylint:enable=C0103
 
 
 class AcknowledgeMessageType(TypedDict):

@@ -1,0 +1,12 @@
+- |snippet_verify_license|.
+- |snippet_download| |url_graphviz|.
+- |snippet_install| |graphviz|.
+- |update-installation-instructions| for |graphviz|.
+- Update the |graphviz| entry in
+  ``conf/env/paths_win32.txt`` and
+  ``conf/env/paths_linux.txt``
+- |snippet_update_license| in
+  ``docs/general/license-tables/license-info_graphviz.csv``.
+- |snippet_changelog_entry|.
+- |snippet_commit|
+  ``Dependency update: <XXXX>/Q<Y>: Graphviz <version number>``.

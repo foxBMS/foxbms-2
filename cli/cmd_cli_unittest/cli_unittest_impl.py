@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -43,15 +43,16 @@ import logging
 import os
 import sys
 from pathlib import Path
-from typing import Sequence
 
 from click import secho
 
+from ..helpers.click_helpers import recho
 from ..helpers.misc import PROJECT_BUILD_ROOT, PROJECT_ROOT, terminal_link_print
 from ..helpers.spr import SubprocessResult, run_process
+from .cli_unittest_constants import UNIT_TEST_BUILD_DIR_CLI
 
-UNIT_TEST_MODULE_BASE_COMMAND = [sys.executable, "-m", "unittest"]
-COVERAGE_MODULE_BASE_COMMAND = [sys.executable, "-m", "coverage"]
+UNIT_TEST_MODULE_BASE_COMMAND: list[Path | str] = [sys.executable, "-m", "unittest"]
+COVERAGE_MODULE_BASE_COMMAND: list[Path | str] = [sys.executable, "-m", "coverage"]
 
 
 def run_unittest_module(args: list[str]) -> SubprocessResult:
@@ -61,14 +62,31 @@ def run_unittest_module(args: list[str]) -> SubprocessResult:
     return run_process(cmd, cwd=PROJECT_ROOT, stdout=None, stderr=None)
 
 
-def run_script_tests(coverage_report: bool = False) -> SubprocessResult:
+def _add_verbosity_to_cmd_list(
+    cmd: list[str | Path], verbosity: int = 0
+) -> list[str | Path]:
+    """Add verbosity flags to the unittest command list"""
+    if not verbosity:
+        return cmd
+    return cmd + ["-" + "v" * verbosity]
+
+
+def run_script_tests(
+    coverage_report: bool = False,
+    verbosity: int = 0,
+    out_dir=UNIT_TEST_BUILD_DIR_CLI,
+) -> SubprocessResult:
     """Run unit tests on Python modules and files in the repository."""
     if coverage_report:
-        out_dir = PROJECT_ROOT / "build/cli-selftest"
-        _ = [i.unlink() for i in out_dir.rglob("**") if i.is_file()]
+        # just delete the files
+        cov_file = PROJECT_ROOT / ".coverage"
+        if cov_file.is_file():
+            cov_file.unlink()
+        _ = [i.unlink() for i in out_dir.rglob("*") if i.is_file()]  # type: ignore
         out_dir.mkdir(exist_ok=True, parents=True)
-        cmd: Sequence[str | Path] = COVERAGE_MODULE_BASE_COMMAND + [
+        cmd = COVERAGE_MODULE_BASE_COMMAND + [
             "run",
+            "--parallel-mode",
             "--source=cli",
             "-m",
             "unittest",
@@ -76,7 +94,24 @@ def run_script_tests(coverage_report: bool = False) -> SubprocessResult:
             "-s",
             f"tests{os.sep}cli",
         ]
+        cmd = _add_verbosity_to_cmd_list(cmd, verbosity)
         ret = run_process(cmd, cwd=PROJECT_ROOT, stdout=None, stderr=None)
+        cmd = COVERAGE_MODULE_BASE_COMMAND + [
+            "run",
+            "--parallel-mode",
+            PROJECT_ROOT / "tests/cli/fallback/test_fallback.py",
+        ]
+        cmd = _add_verbosity_to_cmd_list(cmd, verbosity)
+        ret += run_process(cmd, cwd=PROJECT_ROOT, stdout=None, stderr=None)
+        cmd = COVERAGE_MODULE_BASE_COMMAND + [
+            "run",
+            "--parallel-mode",
+            PROJECT_ROOT / "tests/waf-tools/test_crc64_ti_impl.py",
+        ]
+        cmd = _add_verbosity_to_cmd_list(cmd, verbosity)
+        ret += run_process(cmd, cwd=PROJECT_ROOT, stdout=None, stderr=None)
+        cmd = COVERAGE_MODULE_BASE_COMMAND + ["combine"]
+        ret += run_process(cmd, cwd=PROJECT_ROOT, stdout=None, stderr=None)
         cmd = COVERAGE_MODULE_BASE_COMMAND + ["report"]
         ret += run_process(cmd, cwd=PROJECT_ROOT, stdout=None, stderr=None)
         cmd = COVERAGE_MODULE_BASE_COMMAND + ["html", "-d", out_dir]
@@ -97,9 +132,9 @@ def run_script_tests(coverage_report: bool = False) -> SubprocessResult:
 
     report_link = PROJECT_BUILD_ROOT / "cli-selftest/index.html"
     if not ret.returncode:
-        secho("\nThe cli unit tests were successful.", fg="green")
+        secho("The cli unit tests were successful.", fg="green")
     else:
-        secho("The cli unit tests were not successful.", fg="red", err=True)
+        recho("The cli unit tests were not successful.")
     if report_link.is_file() and not ret.returncode:
         secho(f"\ncoverage report: {terminal_link_print(report_link)}")
 

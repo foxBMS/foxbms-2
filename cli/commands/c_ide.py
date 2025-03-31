@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -42,13 +42,10 @@
 import click
 
 from ..cmd_ide import ide_impl
-
-CONTEXT_SETTINGS = {
-    "help_option_names": ["-h", "--help"],
-}
+from ..helpers.click_helpers import HELP_NAMES
 
 
-@click.command(context_settings=CONTEXT_SETTINGS)
+@click.command(context_settings=HELP_NAMES)
 @click.option(
     "--generic/--no-generic",
     default=True,

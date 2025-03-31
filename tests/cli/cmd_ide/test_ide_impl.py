@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -48,7 +48,7 @@ try:
     from cli.cmd_ide import ide_impl
     from cli.helpers.spr import SubprocessResult
 except ModuleNotFoundError:
-    sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
+    sys.path.insert(0, str(Path(__file__).parents[3]))
     from cli.cmd_ide import ide_impl
     from cli.helpers.spr import SubprocessResult
 
@@ -87,8 +87,8 @@ class TestIdeImpl(unittest.TestCase):
         result = ide_impl.open_ide_generic()
         mock_which.assert_called_once_with("code")
         mock_run_process.assert_called_once_with(
-            cmd=["/path/to/code", str(Path(__file__).parent.parent.parent.parent)],
-            cwd=Path(__file__).parent.parent.parent.parent,
+            cmd=["/path/to/code", str(Path(__file__).parents[3])],
+            cwd=Path(__file__).parents[3],
         )
         self.assertEqual(result, mock_run_process.return_value.returncode)
 
@@ -103,9 +103,9 @@ class TestIdeImpl(unittest.TestCase):
         mock_run_process.assert_called_once_with(
             cmd=[
                 "/path/to/code",
-                str(Path(__file__).parent.parent.parent.parent / "src/app"),
+                str(Path(__file__).parents[3] / "src/app"),
             ],
-            cwd=Path(__file__).parent.parent.parent.parent / "src/app",
+            cwd=Path(__file__).parents[3] / "src/app",
         )
         self.assertEqual(result, mock_run_process.return_value.returncode)
 
@@ -120,9 +120,9 @@ class TestIdeImpl(unittest.TestCase):
         mock_run_process.assert_called_once_with(
             cmd=[
                 "/path/to/code",
-                str(Path(__file__).parent.parent.parent.parent / "src/bootloader"),
+                str(Path(__file__).parents[3] / "src/bootloader"),
             ],
-            cwd=Path(__file__).parent.parent.parent.parent / "src/bootloader",
+            cwd=Path(__file__).parents[3] / "src/bootloader",
         )
         self.assertEqual(result, mock_run_process.return_value.returncode)
 
@@ -137,9 +137,9 @@ class TestIdeImpl(unittest.TestCase):
         mock_run_process.assert_called_once_with(
             cmd=[
                 "/path/to/code",
-                str(Path(__file__).parent.parent.parent.parent / "tests/unit/app"),
+                str(Path(__file__).parents[3] / "tests/unit/app"),
             ],
-            cwd=Path(__file__).parent.parent.parent.parent / "tests/unit/app",
+            cwd=Path(__file__).parents[3] / "tests/unit/app",
         )
         self.assertEqual(result, mock_run_process.return_value.returncode)
 
@@ -154,11 +154,9 @@ class TestIdeImpl(unittest.TestCase):
         mock_run_process.assert_called_once_with(
             cmd=[
                 "/path/to/code",
-                str(
-                    Path(__file__).parent.parent.parent.parent / "tests/unit/bootloader"
-                ),
+                str(Path(__file__).parents[3] / "tests/unit/bootloader"),
             ],
-            cwd=Path(__file__).parent.parent.parent.parent / "tests/unit/bootloader",
+            cwd=Path(__file__).parents[3] / "tests/unit/bootloader",
         )
         self.assertEqual(result, mock_run_process.return_value.returncode)
 

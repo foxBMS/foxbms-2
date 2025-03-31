@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    spi.h
  * @author  foxBMS Team
  * @date    2019-12-12 (date of creation)
- * @updated 2024-12-20 (date of last update)
- * @version v1.8.0
+ * @updated 2025-03-31 (date of last update)
+ * @version v1.9.0
  * @ingroup DRIVERS
  * @prefix  SPI
  *
@@ -219,14 +219,14 @@ extern void SPI_DmaSendLastByte(uint8_t spiIndex);
  * @details This function just checks for SPI_PENDING and groups SPI_READY and
  *          SPI_...
  * @param[in]   pNode   handle of the SPI node that should be checked
- * @returns     #STD_RETURN_TYPE_e indicating whether the interface is ok to be used.
+ * @return  #STD_RETURN_TYPE_e indicating whether the interface is ok to be used.
  */
 extern STD_RETURN_TYPE_e SPI_CheckInterfaceAvailable(spiBASE_t *pNode);
 
 /**
  * @brief   Returns index of SPI node
  * @param[in]   pNode   handle of the SPI node that should be checked
- * @returns     index of SPI node
+ * @return  index of SPI node
  */
 extern uint8_t SPI_GetSpiIndex(spiBASE_t *pNode);
 

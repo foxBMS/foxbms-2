@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    sbc.c
  * @author  foxBMS Team
  * @date    2020-07-14 (date of creation)
- * @updated 2024-12-20 (date of last update)
- * @version v1.8.0
+ * @updated 2025-03-31 (date of last update)
+ * @version v1.9.0
  * @ingroup DRIVERS
  * @prefix  SBC
  *
@@ -62,12 +62,6 @@
 #include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
-
-/** Symbolic names to check re-entrance in #SBC_Trigger */
-typedef enum {
-    SBC_REENTRANCE_NO,  /*!< no re-entrance */
-    SBC_REENTRANCE_YES, /*!< re-entrance*/
-} SBC_CHECK_REENTRANCE_e;
 
 /*========== Static Constant and Variable Definitions =======================*/
 
@@ -424,7 +418,10 @@ extern SBC_RETURN_TYPE_e TEST_SBC_CheckStateRequest(SBC_STATE_s *pInstance, SBC_
 }
 
 extern SBC_CHECK_REENTRANCE_e TEST_SBC_CheckReEntrance(SBC_STATE_s *pInstance) {
-    return TEST_SBC_CheckReEntrance(pInstance);
+    return SBC_CheckReEntrance(pInstance);
+}
+extern SBC_STATE_REQUEST_e TEST_SBC_TransferStateRequest(SBC_STATE_s *pInstance) {
+    return SBC_TransferStateRequest(pInstance);
 }
 extern bool TEST_SBC_TriggerWatchdogIfRequired(SBC_STATE_s *pInstance) {
     return SBC_TriggerWatchdogIfRequired(pInstance);

@@ -1,0 +1,14 @@
+- |snippet_verify_license|.
+- |snippet_download| |url_ruby-installer|.
+- Use the default installation directory.
+- |update-installation-instructions| for |ruby|.
+- Update the |ruby| entry in
+  ``conf/env/paths_win32.txt`` and
+  ``conf/env/paths_linux.txt``.
+- |snippet_update_license| in
+  ``docs/general/license-tables/license-info_ruby.csv``.
+- |snippet_update_license| in
+  ``docs/general/license-tables/license-info_ruby-installer.csv``.
+- |snippet_changelog_entry|
+- |snippet_commit|
+  ``Dependency update: <XXXX>/Q<Y>: Ruby <version number>``.

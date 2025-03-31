@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -55,4 +55,4 @@ def build(bld: BuildContext):
     #       December 2012–Revised October 2014
     bld.define("_L2FMC", 1)
 
-    bld.recurse(["hal", "main"])
+    bld.recurse(["driver", "engine", "hal", "main"])

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -40,6 +40,7 @@
 """Script to check whether a file contains tabs"""
 
 import argparse
+import sys
 from pathlib import Path
 from typing import Sequence
 
@@ -61,11 +62,12 @@ def main(argv: Sequence[str] | None = None) -> int:
                         i.read_text(encoding=encoding).splitlines()
                     ):
                         if "\t" in line:
-                            print(f"{i.absolute().as_posix()}:{n+1} contains tabs.")
+                            msg = f"{i.absolute().as_posix()}:{n + 1} contains tabs."
+                            print(msg, file=sys.stderr)
                     break
                 except ValueError:
                     pass
-            print(f"{i.absolute().as_posix()} contains tabs.")
+            print(f"{i.absolute().as_posix()} contains tabs.", file=sys.stderr)
         err += tabs
     return min(err, 255)
 

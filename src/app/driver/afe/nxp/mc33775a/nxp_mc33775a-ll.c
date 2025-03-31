@@ -24,8 +24,8 @@
  * @file    nxp_mc33775a-ll.c
  * @author  NXP
  * @date    2022-07-29 (date of creation)
- * @updated 2024-12-20 (date of last update)
- * @version v1.8.0
+ * @updated 2025-03-31 (date of last update)
+ * @version v1.9.0
  * @ingroup DRIVERS
  * @prefix  N775
  *

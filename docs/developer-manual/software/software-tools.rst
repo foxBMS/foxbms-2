@@ -96,5 +96,5 @@ Programming and scripting languages that support the projects objective
 external dependencies:
 
 - Python 3
-- Ruby 2.7
-- shell scripts (for ``cmd.exe`` or ``bash``)
+- Ruby 3
+- shell scripts (for ``pwsh`` or ``bash``)

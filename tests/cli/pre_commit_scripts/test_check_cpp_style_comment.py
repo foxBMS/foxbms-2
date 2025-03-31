@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -42,13 +42,13 @@
 import io
 import sys
 import unittest
-from contextlib import redirect_stdout
+from contextlib import redirect_stderr
 from pathlib import Path
 
 try:
     from cli.pre_commit_scripts import check_cpp_style_comment
 except ModuleNotFoundError:
-    sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
+    sys.path.insert(0, str(Path(__file__).parents[3]))
     from cli.pre_commit_scripts import check_cpp_style_comment
 
 
@@ -69,40 +69,40 @@ class TestCppComments(unittest.TestCase):
     def test_not_ok_0(self):
         """line starts with comment"""
         test = "cpp-style-comment_0.c"
-        buf = io.StringIO()
-        with redirect_stdout(buf):
+        err = io.StringIO()
+        with redirect_stderr(err):
             result = check_cpp_style_comment.main([str(self.tests_dir / test)])
 
         self.assertEqual(result, 1)
         self.assertEqual(
-            f"{(self.tests_dir/test).as_posix()}:1: C++-style comments are not allowed.\n",
-            buf.getvalue(),
+            f"{(self.tests_dir / test).as_posix()}:1: C++-style comments are not allowed.\n",
+            err.getvalue(),
         )
 
     def test_not_ok_1(self):
         """line starts with comment"""
         test = "cpp-style-comment_1.c"
-        buf = io.StringIO()
-        with redirect_stdout(buf):
+        err = io.StringIO()
+        with redirect_stderr(err):
             result = check_cpp_style_comment.main([str(self.tests_dir / test)])
 
         self.assertEqual(result, 1)
         self.assertEqual(
-            f"{(self.tests_dir/test).as_posix()}:3: C++-style comments are not allowed.\n",
-            buf.getvalue(),
+            f"{(self.tests_dir / test).as_posix()}:3: C++-style comments are not allowed.\n",
+            err.getvalue(),
         )
 
     def test_not_ok_2(self):
         """line starts with comment"""
         test = "cpp-style-comment_2.c"
-        buf = io.StringIO()
-        with redirect_stdout(buf):
+        err = io.StringIO()
+        with redirect_stderr(err):
             result = check_cpp_style_comment.main([str(self.tests_dir / test)])
 
         self.assertEqual(result, 1)
         self.assertEqual(
-            f"{(self.tests_dir/test).as_posix()}:3: C++-style comments are not allowed.\n",
-            buf.getvalue(),
+            f"{(self.tests_dir / test).as_posix()}:3: C++-style comments are not allowed.\n",
+            err.getvalue(),
         )
 
 

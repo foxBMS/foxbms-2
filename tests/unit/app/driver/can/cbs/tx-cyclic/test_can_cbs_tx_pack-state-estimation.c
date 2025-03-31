@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_can_cbs_tx_pack-state-estimation.c
  * @author  foxBMS Team
  * @date    2021-07-27 (date of creation)
- * @updated 2024-12-20 (date of last update)
- * @version v1.8.0
+ * @updated 2025-03-31 (date of last update)
+ * @version v1.9.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -89,6 +89,8 @@ TEST_INCLUDE_PATH("../../src/app/engine/sys_mon")
 TEST_INCLUDE_PATH("../../src/app/task/config")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
+#define CANTX_100_PERCENT_FLOAT (100.0f)
+
 uint64_t testMessageData[7u] = {0u, 1u, 2u, 3u, 4u, 5u, 6u};
 
 float_t testSignalData[4u] = {0.0f, 1.0f, 2.0f, 3.0f};
@@ -191,7 +193,9 @@ void testCANTX_CalculateMaximumPackSoc(void) {
     float_t maximumPackSocOneStringClosed = can_tableSoc.maximumSoc_perc[0u] / BS_NR_OF_STRINGS;
     BMS_GetNumberOfConnectedStrings_ExpectAndReturn(1u);
     BMS_GetNumberOfConnectedStrings_ExpectAndReturn(1u);
-    BMS_IsStringClosed_IgnoreAndReturn(true);
+    for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
+        BMS_IsStringClosed_ExpectAndReturn(s, true);
+    }
     CAN_TxPrepareSignalData_Expect(&maximumPackSocOneStringClosed, cantx_testSignalMaximumSoc);
     CAN_TxPrepareSignalData_ReturnThruPtr_pSignal(&testSignalData[1u]);
     /* ======= RT2/3: Call function under test */
@@ -203,7 +207,9 @@ void testCANTX_CalculateMaximumPackSoc(void) {
     float_t maximumPackSocTwoStringsClosed = (2 * can_tableSoc.maximumSoc_perc[0u]) / BS_NR_OF_STRINGS;
     BMS_GetNumberOfConnectedStrings_ExpectAndReturn(2u);
     BMS_GetNumberOfConnectedStrings_ExpectAndReturn(2u);
-    BMS_IsStringClosed_IgnoreAndReturn(true);
+    for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
+        BMS_IsStringClosed_ExpectAndReturn(s, true);
+    }
     CAN_TxPrepareSignalData_Expect(&maximumPackSocTwoStringsClosed, cantx_testSignalMaximumSoc);
     CAN_TxPrepareSignalData_ReturnThruPtr_pSignal(&testSignalData[1u]);
     /* ======= RT3/3: Call function under test */
@@ -291,7 +297,9 @@ void testCANTX_CalculateMinimumPackSoc(void) {
     float_t minimumPackSocOneStringClosed = can_tableSoc.minimumSoc_perc[0u] / BS_NR_OF_STRINGS;
     BMS_GetNumberOfConnectedStrings_ExpectAndReturn(1u);
     BMS_GetNumberOfConnectedStrings_ExpectAndReturn(1u);
-    BMS_IsStringClosed_IgnoreAndReturn(true);
+    for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
+        BMS_IsStringClosed_ExpectAndReturn(s, true);
+    }
     CAN_TxPrepareSignalData_Expect(&minimumPackSocOneStringClosed, cantx_testSignalMinimumSoc);
     CAN_TxPrepareSignalData_ReturnThruPtr_pSignal(&testSignalData[1u]);
     /* ======= RT2/3: Call function under test */
@@ -303,7 +311,9 @@ void testCANTX_CalculateMinimumPackSoc(void) {
     float_t minimumPackSocTwoStringsClosed = (2 * can_tableSoc.minimumSoc_perc[0u]) / BS_NR_OF_STRINGS;
     BMS_GetNumberOfConnectedStrings_ExpectAndReturn(2u);
     BMS_GetNumberOfConnectedStrings_ExpectAndReturn(2u);
-    BMS_IsStringClosed_IgnoreAndReturn(true);
+    for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
+        BMS_IsStringClosed_ExpectAndReturn(s, true);
+    }
     CAN_TxPrepareSignalData_Expect(&minimumPackSocTwoStringsClosed, cantx_testSignalMinimumSoc);
     CAN_TxPrepareSignalData_ReturnThruPtr_pSignal(&testSignalData[1u]);
     /* ======= RT3/3: Call function under test */
@@ -391,7 +401,9 @@ void testCANTX_CalculateMaximumPackSoe(void) {
     float_t maximumPackSoeOneStringClosed = can_tableSoe.maximumSoe_perc[0u] / BS_NR_OF_STRINGS;
     BMS_GetNumberOfConnectedStrings_ExpectAndReturn(1u);
     BMS_GetNumberOfConnectedStrings_ExpectAndReturn(1u);
-    BMS_IsStringClosed_IgnoreAndReturn(true);
+    for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
+        BMS_IsStringClosed_ExpectAndReturn(s, true);
+    }
     CAN_TxPrepareSignalData_Expect(&maximumPackSoeOneStringClosed, cantx_testSignalMaximumSoe);
     CAN_TxPrepareSignalData_ReturnThruPtr_pSignal(&testSignalData[1u]);
     /* ======= RT2/3: Call function under test */
@@ -403,7 +415,9 @@ void testCANTX_CalculateMaximumPackSoe(void) {
     float_t maximumPackSoeTwoStringsClosed = (2 * can_tableSoe.maximumSoe_perc[0u]) / BS_NR_OF_STRINGS;
     BMS_GetNumberOfConnectedStrings_ExpectAndReturn(2u);
     BMS_GetNumberOfConnectedStrings_ExpectAndReturn(2u);
-    BMS_IsStringClosed_IgnoreAndReturn(true);
+    for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
+        BMS_IsStringClosed_ExpectAndReturn(s, true);
+    }
     CAN_TxPrepareSignalData_Expect(&maximumPackSoeTwoStringsClosed, cantx_testSignalMaximumSoe);
     CAN_TxPrepareSignalData_ReturnThruPtr_pSignal(&testSignalData[1u]);
     /* ======= RT3/3: Call function under test */
@@ -491,7 +505,9 @@ void testCANTX_CalculateMinimumPackSoe(void) {
     float_t minimumPackSoeOneStringClosed = can_tableSoe.minimumSoe_perc[0u] / BS_NR_OF_STRINGS;
     BMS_GetNumberOfConnectedStrings_ExpectAndReturn(1u);
     BMS_GetNumberOfConnectedStrings_ExpectAndReturn(1u);
-    BMS_IsStringClosed_IgnoreAndReturn(true);
+    for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
+        BMS_IsStringClosed_ExpectAndReturn(s, true);
+    }
     CAN_TxPrepareSignalData_Expect(&minimumPackSoeOneStringClosed, cantx_testSignalMinimumSoe);
     CAN_TxPrepareSignalData_ReturnThruPtr_pSignal(&testSignalData[1u]);
     /* ======= RT2/3: Call function under test */
@@ -503,7 +519,9 @@ void testCANTX_CalculateMinimumPackSoe(void) {
     float_t minimumPackSoeTwoStringsClosed = (2 * can_tableSoe.minimumSoe_perc[0u]) / BS_NR_OF_STRINGS;
     BMS_GetNumberOfConnectedStrings_ExpectAndReturn(2u);
     BMS_GetNumberOfConnectedStrings_ExpectAndReturn(2u);
-    BMS_IsStringClosed_IgnoreAndReturn(true);
+    for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
+        BMS_IsStringClosed_ExpectAndReturn(s, true);
+    }
     CAN_TxPrepareSignalData_Expect(&minimumPackSoeTwoStringsClosed, cantx_testSignalMinimumSoe);
     CAN_TxPrepareSignalData_ReturnThruPtr_pSignal(&testSignalData[1u]);
     /* ======= RT3/3: Call function under test */
@@ -679,30 +697,38 @@ void testCANTX_BuildPackStateEstimationMessage(void) {
     /* ======= Routine tests =============================================== */
     uint64_t testResult = 0u;
     /* ======= RT1/1: Test implementation */
-    BMS_GetNumberOfConnectedStrings_IgnoreAndReturn(0u);
-    BMS_IsStringClosed_IgnoreAndReturn(false);
-    CAN_TxPrepareSignalData_Expect(NULL_PTR, cantx_testSignalMinimumSoc);
-    CAN_TxPrepareSignalData_IgnoreArg_pSignal();
+    float_t signalDataMinSoc = 0;
+    BMS_GetNumberOfConnectedStrings_ExpectAndReturn(0u);
+    CAN_TxPrepareSignalData_Expect(&signalDataMinSoc, cantx_testSignalMinimumSoc);
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 7u, 10u, testSignalData[0u], CAN_BIG_ENDIAN);
     CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[1u]);
-    CAN_TxPrepareSignalData_Expect(NULL_PTR, cantx_testSignalMaximumSoc);
-    CAN_TxPrepareSignalData_IgnoreArg_pSignal();
+
+    float_t signalDataMaxSoc = 0;
+    BMS_GetNumberOfConnectedStrings_ExpectAndReturn(0u);
+    CAN_TxPrepareSignalData_Expect(&signalDataMaxSoc, cantx_testSignalMaximumSoc);
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[1u], 13u, 10u, testSignalData[0u], CAN_BIG_ENDIAN);
     CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[2u]);
-    CAN_TxPrepareSignalData_Expect(NULL_PTR, cantx_testSignalMinimumSoe);
-    CAN_TxPrepareSignalData_IgnoreArg_pSignal();
+
+    float_t signalDataMinSoe = 0;
+    BMS_GetNumberOfConnectedStrings_ExpectAndReturn(0u);
+    CAN_TxPrepareSignalData_Expect(&signalDataMinSoe, cantx_testSignalMinimumSoe);
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[2u], 19u, 10u, testSignalData[0u], CAN_BIG_ENDIAN);
     CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[3u]);
-    CAN_TxPrepareSignalData_Expect(NULL_PTR, cantx_testSignalMaximumSoe);
-    CAN_TxPrepareSignalData_IgnoreArg_pSignal();
+
+    float_t signalDataMaxSoe = 0;
+    BMS_GetNumberOfConnectedStrings_ExpectAndReturn(0u);
+    CAN_TxPrepareSignalData_Expect(&signalDataMaxSoe, cantx_testSignalMaximumSoe);
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[3u], 25u, 10u, testSignalData[0u], CAN_BIG_ENDIAN);
     CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[4u]);
-    CAN_TxPrepareSignalData_Expect(NULL_PTR, cantx_testSignalSoh);
-    CAN_TxPrepareSignalData_IgnoreArg_pSignal();
+
+    float_t signalDataSoh = CANTX_100_PERCENT_FLOAT;
+    CAN_TxPrepareSignalData_Expect(&signalDataSoh, cantx_testSignalSoh);
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[4u], 47u, 8u, 100.0f, CAN_BIG_ENDIAN);
     CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[5u]);
-    CAN_TxPrepareSignalData_Expect(NULL_PTR, cantx_testSignalEnergy);
-    CAN_TxPrepareSignalData_IgnoreArg_pSignal();
+
+    float_t signalDataEnergy = 0.0f;
+    BMS_GetNumberOfConnectedStrings_ExpectAndReturn(0u);
+    CAN_TxPrepareSignalData_Expect(&signalDataEnergy, cantx_testSignalEnergy);
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[5u], 55u, 16u, testSignalData[0u], CAN_BIG_ENDIAN);
     CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[6u]);
     /* ======= RT1/1: Call function under test */
@@ -760,15 +786,29 @@ void testCANTX_PackStateEstimation(void) {
 
     /* ======= Routine tests =============================================== */
     /* ======= RT1/1: Test implementation */
-    BMS_GetNumberOfConnectedStrings_IgnoreAndReturn(0u);
-    BMS_IsStringClosed_IgnoreAndReturn(false);
-    CAN_TxPrepareSignalData_Ignore();
     DATA_Read2DataBlocks_ExpectAndReturn(can_kShim.pTableSoc, can_kShim.pTableSoe, STD_OK);
+    float_t signalDataMinSoc = 0;
+    BMS_GetNumberOfConnectedStrings_ExpectAndReturn(0u);
+    CAN_TxPrepareSignalData_Expect(&signalDataMinSoc, cantx_testSignalMinimumSoc);
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 7u, 10u, testSignalData[0u], CAN_BIG_ENDIAN);
+    float_t signalDataMaxSoc = 0;
+    BMS_GetNumberOfConnectedStrings_ExpectAndReturn(0u);
+    CAN_TxPrepareSignalData_Expect(&signalDataMaxSoc, cantx_testSignalMaximumSoc);
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 13u, 10u, testSignalData[0u], CAN_BIG_ENDIAN);
+    float_t signalDataMinSoe = 0;
+    BMS_GetNumberOfConnectedStrings_ExpectAndReturn(0u);
+    CAN_TxPrepareSignalData_Expect(&signalDataMinSoe, cantx_testSignalMinimumSoe);
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 19u, 10u, testSignalData[0u], CAN_BIG_ENDIAN);
+    float_t signalDataMaxSoe = 0;
+    BMS_GetNumberOfConnectedStrings_ExpectAndReturn(0u);
+    CAN_TxPrepareSignalData_Expect(&signalDataMaxSoe, cantx_testSignalMaximumSoe);
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 25u, 10u, testSignalData[0u], CAN_BIG_ENDIAN);
+    float_t signalDataSoh = CANTX_100_PERCENT_FLOAT;
+    CAN_TxPrepareSignalData_Expect(&signalDataSoh, cantx_testSignalSoh);
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 47u, 8u, 100.0f, CAN_BIG_ENDIAN);
+    float_t signalDataEnergy = 0;
+    BMS_GetNumberOfConnectedStrings_ExpectAndReturn(0u);
+    CAN_TxPrepareSignalData_Expect(&signalDataEnergy, cantx_testSignalEnergy);
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 55u, 16u, testSignalData[0u], CAN_BIG_ENDIAN);
     CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[1u]);
     CAN_TxSetCanDataWithMessageData_Expect(testMessageData[1u], canData, testMessage.endianness);

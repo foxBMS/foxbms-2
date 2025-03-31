@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_sps.c
  * @author  foxBMS Team
  * @date    2020-10-28 (date of creation)
- * @updated 2024-12-20 (date of last update)
- * @version v1.8.0
+ * @updated 2025-03-31 (date of last update)
+ * @version v1.9.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -82,6 +82,12 @@ TEST_INCLUDE_PATH("../../src/app/driver/spi")
 TEST_INCLUDE_PATH("../../src/app/driver/sps")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
+/** GIO defines for pin to drive reset line of SPS @{ */
+#define SPS_RESET_GIO_PORT     (hetREG2->DOUT)
+#define SPS_RESET_GIO_PORT_DIR (hetREG2->DIR)
+#define SPS_RESET_PIN          (16u)
+/**@}*/
+
 /** SPI data configuration struct for SPS communication */
 static spiDAT1_t spi_kSpsDataConfig = {
     /* struct is implemented in the TI HAL and uses uppercase true and false */
@@ -122,6 +128,12 @@ const SPS_CHANNEL_FEEDBACK_MAPPING_s sps_kChannelFeedbackMapping[SPS_NR_OF_AVAIL
     {PEX_PORT_EXPANDER1, PEX_PORT_0_PIN_7},
 };
 
+static uint16_t sps_spiTxRegisterBuffer[SPS_SPI_BUFFERSIZE] = {0};
+static uint16_t sps_spiRxRegisterBuffer[SPS_SPI_BUFFERSIZE] = {0};
+
+static uint16_t sps_spiTxWriteToChannelChannelControlRegister[SPS_SPI_BUFFERSIZE];
+static uint16_t sps_spiRxReadAnswerDuringChannelControl[SPS_SPI_BUFFERSIZE];
+
 /*========== Setup and Teardown =============================================*/
 void setUp(void) {
     /* make sure variables are in a known state */
@@ -146,11 +158,13 @@ void testSPS_RequestChannelStateInvalidFunction(void) {
 }
 
 void testSPS_RequestChannelStateSwitchOn(void) {
-    OS_EnterTaskCritical_Ignore();
-    OS_ExitTaskCritical_Ignore();
-
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
     TEST_ASSERT_EQUAL(SPS_CHANNEL_OFF, sps_channelStatus[0u].channelRequested);
     TEST_ASSERT_PASS_ASSERT(TEST_SPS_RequestChannelState(0u, SPS_CHANNEL_ON));
+
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
     TEST_ASSERT_EQUAL(SPS_CHANNEL_ON, sps_channelStatus[0u].channelRequested);
     TEST_ASSERT_PASS_ASSERT(TEST_SPS_RequestChannelState(0u, SPS_CHANNEL_OFF));
     TEST_ASSERT_EQUAL(SPS_CHANNEL_OFF, sps_channelStatus[0u].channelRequested);
@@ -161,8 +175,8 @@ void testSPS_GetChannelFeedbackInvalidChannelIndex(void) {
 }
 
 void testSPS_GetChannelFeedbackChannelLow(void) {
-    OS_EnterTaskCritical_Ignore();
-    OS_ExitTaskCritical_Ignore();
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
 
     sps_channelStatus[0].current_mA = 0;
 
@@ -170,8 +184,8 @@ void testSPS_GetChannelFeedbackChannelLow(void) {
 }
 
 void testSPS_GetChannelFeedbackChannelHigh(void) {
-    OS_EnterTaskCritical_Ignore();
-    OS_ExitTaskCritical_Ignore();
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
 
     sps_channelStatus[0].current_mA = 600.f;
 
@@ -199,8 +213,8 @@ void testSPS_RequestContactorStateWrongIndex(void) {
 }
 
 void testSPS_RequestContactorStateCorrectAffiliation(void) {
-    OS_EnterTaskCritical_Ignore();
-    OS_ExitTaskCritical_Ignore();
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
     /* watch out, the channel here has to have an affiliation that is SPS_AFF_CONTACTOR */
     TEST_ASSERT_PASS_ASSERT(SPS_RequestContactorState(0u, SPS_CHANNEL_ON));
     TEST_ASSERT_EQUAL(SPS_CHANNEL_ON, sps_channelStatus[0u].channelRequested);
@@ -217,8 +231,8 @@ void testSPS_RequestGeneralIOStateWrongIndex(void) {
 }
 
 void testSPS_RequestGIOStateCorrectAffiliation(void) {
-    OS_EnterTaskCritical_Ignore();
-    OS_ExitTaskCritical_Ignore();
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
     /* watch out, the channel here has to have an affiliation that is SPS_AFF_GENERAL_IO */
     TEST_ASSERT_PASS_ASSERT(SPS_RequestGeneralIoState(7u, SPS_CHANNEL_ON));
     TEST_ASSERT_EQUAL(SPS_CHANNEL_ON, sps_channelStatus[7u].channelRequested);
@@ -239,10 +253,8 @@ void testSPS_CtrlStartupProcedure(void) {
     TEST_ASSERT_EQUAL(SPS_RESET_LOW, TEST_SPS_GetSpsState());
 
     /* transition through state-machine: SPS_RESET_LOW */
-    /* check that reset pin is reset
-       (we don't care for the actual address as long as the pin is correct) */
-    IO_PinReset_Expect(0u, SPS_RESET_PIN);
-    IO_PinReset_IgnoreArg_pRegisterAddress();
+    /* check that reset pin is reset */
+    IO_PinReset_Expect(&SPS_RESET_GIO_PORT, SPS_RESET_PIN);
     SPS_Ctrl();
     /* timer should now be set to 5 */
     TEST_ASSERT_EQUAL(defaultTimer, TEST_SPS_GetSpsTimer());
@@ -259,8 +271,7 @@ void testSPS_CtrlStartupProcedure(void) {
     /* transition through state-machine: SPS_RESET_HIGH */
     /* check that reset pin is set
        (we don't care for the actual address as long as the pin is correct) */
-    IO_PinSet_Expect(0u, SPS_RESET_PIN);
-    IO_PinSet_IgnoreArg_pRegisterAddress();
+    IO_PinSet_Expect(&SPS_RESET_GIO_PORT, SPS_RESET_PIN);
     SPS_Ctrl();
     /* timer should now be set to 5 */
     TEST_ASSERT_EQUAL(defaultTimer, TEST_SPS_GetSpsTimer());
@@ -270,9 +281,30 @@ void testSPS_CtrlStartupProcedure(void) {
     TEST_SPS_SetSpsTimer(0u);
 
     /* transition through state-machine: SPS_CONFIGURE_CONTROL_REGISTER */
+    /* set txBuffer for spi register correctly */
+    TEST_SPS_GlobalRegisterWrite(
+        SPS_GLOBAL_CONTROL_REGISTER_ADDRESS,
+        (SPS_NORMAL_MODE << SPS_MODE_BIT_START) | (SPS_STRONG_DRIVE << SPS_DRIVE_STRENGTH_BIT_START),
+        sps_spiTxRegisterBuffer);
+    /* set txBuffer for channel control correctly */
+    for (SPS_CHANNEL_INDEX channel = 0u; channel < SPS_NR_OF_AVAILABLE_SPS_CHANNELS; channel++) {
+        TEST_SPS_SingleDeviceRegisterWrite(
+            channel / SPS_NR_CONTACTOR_PER_IC,
+            SPS_OUTPUT_CONTROL_REGISTER_ADDRESS,
+            (~(1u << (channel % SPS_NR_CONTACTOR_PER_IC)) & 0xFFu), /* data to write, output control */
+            SPS_andWithCurrentValue, /* AND because we want to set additional bits to 0 */
+            sps_spiTxWriteToChannelChannelControlRegister);
+    }
     /* check that we transmit the first set of commands */
-    SPI_TransmitReceiveData_IgnoreAndReturn(STD_OK);
-    MCU_Delay_us_Ignore();
+    SPI_TransmitReceiveData_ExpectAndReturn(
+        &spi_spsInterface, sps_spiTxRegisterBuffer, sps_spiRxRegisterBuffer, SPS_SPI_BUFFERSIZE, STD_OK);
+    MCU_Delay_us_Expect(1u);
+    SPI_TransmitReceiveData_ExpectAndReturn(
+        &spi_spsInterface,
+        sps_spiTxWriteToChannelChannelControlRegister,
+        sps_spiRxReadAnswerDuringChannelControl,
+        SPS_SPI_BUFFERSIZE,
+        STD_OK);
     /* Since the transaction is successful, we should switch to high-speed */
     SPI_SpsInterfaceSwitchToHighSpeed_Expect(&spi_spsInterface);
     SPS_Ctrl();
@@ -285,17 +317,19 @@ void testSPS_CtrlResetOnFailedFirstTransaction(void) {
     TEST_SPS_SetSpsState(SPS_TRIGGER_CURRENT_MEASUREMENT);
 
     /* run state and let first transaction "fail" */
-    MCU_Delay_us_Ignore();
-    SPI_TransmitReceiveData_ExpectAndReturn(NULL_PTR, NULL_PTR, NULL_PTR, 0u, STD_NOT_OK);
-    SPI_TransmitReceiveData_IgnoreArg_pSpiInterface();
-    SPI_TransmitReceiveData_IgnoreArg_pTxBuff();
-    SPI_TransmitReceiveData_IgnoreArg_pRxBuff();
-    SPI_TransmitReceiveData_IgnoreArg_frameLength();
-    SPI_TransmitReceiveData_ExpectAndReturn(NULL_PTR, NULL_PTR, NULL_PTR, 0u, STD_OK);
-    SPI_TransmitReceiveData_IgnoreArg_pSpiInterface();
-    SPI_TransmitReceiveData_IgnoreArg_pTxBuff();
-    SPI_TransmitReceiveData_IgnoreArg_pRxBuff();
-    SPI_TransmitReceiveData_IgnoreArg_frameLength();
+    TEST_SPS_GlobalRegisterWrite(
+        SPS_C_CONTROL_REGISTER_ADDRESS,
+        0x000F, /* Measure all four outputs for current and voltage on demand*/
+        sps_spiTxRegisterBuffer);
+    SPI_TransmitReceiveData_ExpectAndReturn(
+        &spi_spsInterface, sps_spiTxRegisterBuffer, sps_spiRxRegisterBuffer, SPS_SPI_BUFFERSIZE, STD_NOT_OK);
+    MCU_Delay_us_Expect(1u);
+    SPI_TransmitReceiveData_ExpectAndReturn(
+        &spi_spsInterface,
+        sps_spiTxWriteToChannelChannelControlRegister,
+        sps_spiRxReadAnswerDuringChannelControl,
+        SPS_SPI_BUFFERSIZE,
+        STD_OK);
     SPS_Ctrl();
 }
 
@@ -303,18 +337,23 @@ void testSPS_CtrlResetOnFailedSecondTransaction(void) {
     /* go to state SPS_TRIGGER_CURRENT_MEASUREMENT */
     TEST_SPS_SetSpsState(SPS_TRIGGER_CURRENT_MEASUREMENT);
 
+    /* write the txBuffer for this state */
+    TEST_SPS_GlobalRegisterWrite(
+        SPS_C_CONTROL_REGISTER_ADDRESS,
+        0x000F, /* Measure all four outputs for current and voltage on demand*/
+        sps_spiTxRegisterBuffer);
     /* run state and let second transaction "fail" */
-    MCU_Delay_us_Ignore();
-    SPI_TransmitReceiveData_ExpectAndReturn(NULL_PTR, NULL_PTR, NULL_PTR, 0u, STD_OK);
-    SPI_TransmitReceiveData_IgnoreArg_pSpiInterface();
-    SPI_TransmitReceiveData_IgnoreArg_pTxBuff();
-    SPI_TransmitReceiveData_IgnoreArg_pRxBuff();
-    SPI_TransmitReceiveData_IgnoreArg_frameLength();
-    SPI_TransmitReceiveData_ExpectAndReturn(NULL_PTR, NULL_PTR, NULL_PTR, 0u, STD_NOT_OK);
-    SPI_TransmitReceiveData_IgnoreArg_pSpiInterface();
-    SPI_TransmitReceiveData_IgnoreArg_pTxBuff();
-    SPI_TransmitReceiveData_IgnoreArg_pRxBuff();
-    SPI_TransmitReceiveData_IgnoreArg_frameLength();
+    SPI_TransmitReceiveData_ExpectAndReturn(
+        &spi_spsInterface, sps_spiTxRegisterBuffer, sps_spiRxRegisterBuffer, SPS_SPI_BUFFERSIZE, STD_OK);
+    MCU_Delay_us_Expect(1u);
+
+    /* write the txBuffer for this state */
+    SPI_TransmitReceiveData_ExpectAndReturn(
+        &spi_spsInterface,
+        sps_spiTxWriteToChannelChannelControlRegister,
+        sps_spiRxReadAnswerDuringChannelControl,
+        SPS_SPI_BUFFERSIZE,
+        STD_OK);
     SPS_Ctrl();
 }
 
@@ -323,8 +362,19 @@ void testSPS_CtrlResetOnFailedBothTransactions(void) {
     TEST_SPS_SetSpsState(SPS_TRIGGER_CURRENT_MEASUREMENT);
 
     /* run state and let both transaction "fail" */
-    MCU_Delay_us_Ignore();
-    SPI_TransmitReceiveData_IgnoreAndReturn(STD_NOT_OK);
+    TEST_SPS_GlobalRegisterWrite(
+        SPS_C_CONTROL_REGISTER_ADDRESS,
+        0x000F, /* Measure all four outputs for current and voltage on demand*/
+        sps_spiTxRegisterBuffer);
+    SPI_TransmitReceiveData_ExpectAndReturn(
+        &spi_spsInterface, sps_spiTxRegisterBuffer, sps_spiRxRegisterBuffer, SPS_SPI_BUFFERSIZE, STD_NOT_OK);
+    MCU_Delay_us_Expect(1u);
+    SPI_TransmitReceiveData_ExpectAndReturn(
+        &spi_spsInterface,
+        sps_spiTxWriteToChannelChannelControlRegister,
+        sps_spiRxReadAnswerDuringChannelControl,
+        SPS_SPI_BUFFERSIZE,
+        STD_NOT_OK);
     SPS_Ctrl();
 }
 
@@ -333,8 +383,20 @@ void testSPS_CtrlResetFromStateSPS_CONFIGURE_CONTROL_REGISTER(void) {
     TEST_SPS_SetSpsState(SPS_CONFIGURE_CONTROL_REGISTER);
 
     /* run state and let both transaction "fail" */
-    MCU_Delay_us_Ignore();
-    SPI_TransmitReceiveData_IgnoreAndReturn(STD_NOT_OK);
+    TEST_SPS_GlobalRegisterWrite(
+        SPS_GLOBAL_CONTROL_REGISTER_ADDRESS,
+        /* transition to Normal mode and set drive strength to strong (This is required for high speed!) */
+        (SPS_NORMAL_MODE << SPS_MODE_BIT_START) | (SPS_STRONG_DRIVE << SPS_DRIVE_STRENGTH_BIT_START),
+        sps_spiTxRegisterBuffer);
+    SPI_TransmitReceiveData_ExpectAndReturn(
+        &spi_spsInterface, sps_spiTxRegisterBuffer, sps_spiRxRegisterBuffer, SPS_SPI_BUFFERSIZE, STD_NOT_OK);
+    MCU_Delay_us_Expect(1u);
+    SPI_TransmitReceiveData_ExpectAndReturn(
+        &spi_spsInterface,
+        sps_spiTxWriteToChannelChannelControlRegister,
+        sps_spiRxReadAnswerDuringChannelControl,
+        SPS_SPI_BUFFERSIZE,
+        STD_NOT_OK);
     SPS_Ctrl();
     TEST_ASSERT_EQUAL(SPS_START, TEST_SPS_GetSpsState());
 }
@@ -344,8 +406,19 @@ void testSPS_CtrlResetFromStateSPS_TRIGGER_CURRENT_MEASUREMENT(void) {
     TEST_SPS_SetSpsState(SPS_TRIGGER_CURRENT_MEASUREMENT);
 
     /* run state and let both transaction "fail" */
-    MCU_Delay_us_Ignore();
-    SPI_TransmitReceiveData_IgnoreAndReturn(STD_NOT_OK);
+    TEST_SPS_GlobalRegisterWrite(
+        SPS_C_CONTROL_REGISTER_ADDRESS,
+        0x000F, /* Measure all four outputs for current and voltage on demand*/
+        sps_spiTxRegisterBuffer);
+    SPI_TransmitReceiveData_ExpectAndReturn(
+        &spi_spsInterface, sps_spiTxRegisterBuffer, sps_spiRxRegisterBuffer, SPS_SPI_BUFFERSIZE, STD_NOT_OK);
+    MCU_Delay_us_Expect(1u);
+    SPI_TransmitReceiveData_ExpectAndReturn(
+        &spi_spsInterface,
+        sps_spiTxWriteToChannelChannelControlRegister,
+        sps_spiRxReadAnswerDuringChannelControl,
+        SPS_SPI_BUFFERSIZE,
+        STD_NOT_OK);
     SPS_Ctrl();
     TEST_ASSERT_EQUAL(SPS_START, TEST_SPS_GetSpsState());
 }
@@ -355,8 +428,17 @@ void testSPS_CtrlResetFromStateSPS_READ_EN_IRQ_PIN(void) {
     TEST_SPS_SetSpsState(SPS_READ_EN_IRQ_PIN);
 
     /* run state and let both transaction "fail" */
-    MCU_Delay_us_Ignore();
-    SPI_TransmitReceiveData_IgnoreAndReturn(STD_NOT_OK);
+    TEST_SPS_GlobalRegisterRead(
+        SPS_ISR_IRQ_DIAG_REGISTER_ADDRESS, SPS_READ_DIAGNOSTIC_REGISTER, sps_spiTxRegisterBuffer);
+    SPI_TransmitReceiveData_ExpectAndReturn(
+        &spi_spsInterface, sps_spiTxRegisterBuffer, sps_spiRxRegisterBuffer, SPS_SPI_BUFFERSIZE, STD_NOT_OK);
+    MCU_Delay_us_Expect(1u);
+    SPI_TransmitReceiveData_ExpectAndReturn(
+        &spi_spsInterface,
+        sps_spiTxWriteToChannelChannelControlRegister,
+        sps_spiRxReadAnswerDuringChannelControl,
+        SPS_SPI_BUFFERSIZE,
+        STD_NOT_OK);
     SPS_Ctrl();
     TEST_ASSERT_EQUAL(SPS_START, TEST_SPS_GetSpsState());
 }
@@ -366,8 +448,17 @@ void testSPS_CtrlResetFromStateSPS_READ_MEASURED_CURRENT1(void) {
     TEST_SPS_SetSpsState(SPS_READ_MEASURED_CURRENT1);
 
     /* run state and let both transaction "fail" */
-    MCU_Delay_us_Ignore();
-    SPI_TransmitReceiveData_IgnoreAndReturn(STD_NOT_OK);
+    TEST_SPS_GlobalRegisterRead(
+        SPS_OD_IOUT1_DIAG_REGISTER_ADDRESS, SPS_READ_DIAGNOSTIC_REGISTER, sps_spiTxRegisterBuffer);
+    SPI_TransmitReceiveData_ExpectAndReturn(
+        &spi_spsInterface, sps_spiTxRegisterBuffer, sps_spiRxRegisterBuffer, SPS_SPI_BUFFERSIZE, STD_NOT_OK);
+    MCU_Delay_us_Expect(1u);
+    SPI_TransmitReceiveData_ExpectAndReturn(
+        &spi_spsInterface,
+        sps_spiTxWriteToChannelChannelControlRegister,
+        sps_spiRxReadAnswerDuringChannelControl,
+        SPS_SPI_BUFFERSIZE,
+        STD_NOT_OK);
     SPS_Ctrl();
     TEST_ASSERT_EQUAL(SPS_START, TEST_SPS_GetSpsState());
 }
@@ -377,8 +468,17 @@ void testSPS_CtrlResetFromStateSPS_READ_MEASURED_CURRENT2(void) {
     TEST_SPS_SetSpsState(SPS_READ_MEASURED_CURRENT2);
 
     /* run state and let both transaction "fail" */
-    MCU_Delay_us_Ignore();
-    SPI_TransmitReceiveData_IgnoreAndReturn(STD_NOT_OK);
+    TEST_SPS_GlobalRegisterRead(
+        SPS_OD_IOUT2_DIAG_REGISTER_ADDRESS, SPS_READ_DIAGNOSTIC_REGISTER, sps_spiTxRegisterBuffer);
+    SPI_TransmitReceiveData_ExpectAndReturn(
+        &spi_spsInterface, sps_spiTxRegisterBuffer, sps_spiRxRegisterBuffer, SPS_SPI_BUFFERSIZE, STD_NOT_OK);
+    MCU_Delay_us_Expect(1u);
+    SPI_TransmitReceiveData_ExpectAndReturn(
+        &spi_spsInterface,
+        sps_spiTxWriteToChannelChannelControlRegister,
+        sps_spiRxReadAnswerDuringChannelControl,
+        SPS_SPI_BUFFERSIZE,
+        STD_NOT_OK);
     SPS_Ctrl();
     TEST_ASSERT_EQUAL(SPS_START, TEST_SPS_GetSpsState());
 }
@@ -388,8 +488,17 @@ void testSPS_CtrlResetFromStateSPS_READ_MEASURED_CURRENT3(void) {
     TEST_SPS_SetSpsState(SPS_READ_MEASURED_CURRENT3);
 
     /* run state and let both transaction "fail" */
-    MCU_Delay_us_Ignore();
-    SPI_TransmitReceiveData_IgnoreAndReturn(STD_NOT_OK);
+    TEST_SPS_GlobalRegisterRead(
+        SPS_OD_IOUT3_DIAG_REGISTER_ADDRESS, SPS_READ_DIAGNOSTIC_REGISTER, sps_spiTxRegisterBuffer);
+    SPI_TransmitReceiveData_ExpectAndReturn(
+        &spi_spsInterface, sps_spiTxRegisterBuffer, sps_spiRxRegisterBuffer, SPS_SPI_BUFFERSIZE, STD_NOT_OK);
+    MCU_Delay_us_Expect(1u);
+    SPI_TransmitReceiveData_ExpectAndReturn(
+        &spi_spsInterface,
+        sps_spiTxWriteToChannelChannelControlRegister,
+        sps_spiRxReadAnswerDuringChannelControl,
+        SPS_SPI_BUFFERSIZE,
+        STD_NOT_OK);
     SPS_Ctrl();
     TEST_ASSERT_EQUAL(SPS_START, TEST_SPS_GetSpsState());
 }
@@ -399,8 +508,17 @@ void testSPS_CtrlResetFromStateSPS_READ_MEASURED_CURRENT4(void) {
     TEST_SPS_SetSpsState(SPS_READ_MEASURED_CURRENT4);
 
     /* run state and let both transaction "fail" */
-    MCU_Delay_us_Ignore();
-    SPI_TransmitReceiveData_IgnoreAndReturn(STD_NOT_OK);
+    TEST_SPS_GlobalRegisterRead(
+        SPS_OD_IOUT4_DIAG_REGISTER_ADDRESS, SPS_READ_DIAGNOSTIC_REGISTER, sps_spiTxRegisterBuffer);
+    SPI_TransmitReceiveData_ExpectAndReturn(
+        &spi_spsInterface, sps_spiTxRegisterBuffer, sps_spiRxRegisterBuffer, SPS_SPI_BUFFERSIZE, STD_NOT_OK);
+    MCU_Delay_us_Expect(1u);
+    SPI_TransmitReceiveData_ExpectAndReturn(
+        &spi_spsInterface,
+        sps_spiTxWriteToChannelChannelControlRegister,
+        sps_spiRxReadAnswerDuringChannelControl,
+        SPS_SPI_BUFFERSIZE,
+        STD_NOT_OK);
     SPS_Ctrl();
     TEST_ASSERT_EQUAL(SPS_START, TEST_SPS_GetSpsState());
 }
@@ -410,20 +528,90 @@ void testSPS_CtrlNormalOperationCycle(void) {
     TEST_SPS_SetSpsState(SPS_TRIGGER_CURRENT_MEASUREMENT);
 
     /* let transactions always succeed */
-    MCU_Delay_us_Ignore();
-    SPI_TransmitReceiveData_IgnoreAndReturn(STD_OK);
-
     /* run state chain */
+    TEST_SPS_GlobalRegisterWrite(
+        SPS_C_CONTROL_REGISTER_ADDRESS,
+        0x000F, /* Measure all four outputs for current and voltage on demand*/
+        sps_spiTxRegisterBuffer);
+    SPI_TransmitReceiveData_ExpectAndReturn(
+        &spi_spsInterface, sps_spiTxRegisterBuffer, sps_spiRxRegisterBuffer, SPS_SPI_BUFFERSIZE, STD_OK);
+    MCU_Delay_us_Expect(1u);
+    SPI_TransmitReceiveData_ExpectAndReturn(
+        &spi_spsInterface,
+        sps_spiTxWriteToChannelChannelControlRegister,
+        sps_spiRxReadAnswerDuringChannelControl,
+        SPS_SPI_BUFFERSIZE,
+        STD_OK);
     SPS_Ctrl();
     TEST_ASSERT_EQUAL(SPS_READ_EN_IRQ_PIN, TEST_SPS_GetSpsState());
+
+    TEST_SPS_GlobalRegisterRead(
+        SPS_ISR_IRQ_DIAG_REGISTER_ADDRESS, SPS_READ_DIAGNOSTIC_REGISTER, sps_spiTxRegisterBuffer);
+    SPI_TransmitReceiveData_ExpectAndReturn(
+        &spi_spsInterface, sps_spiTxRegisterBuffer, sps_spiRxRegisterBuffer, SPS_SPI_BUFFERSIZE, STD_OK);
+    MCU_Delay_us_Expect(1u);
+    SPI_TransmitReceiveData_ExpectAndReturn(
+        &spi_spsInterface,
+        sps_spiTxWriteToChannelChannelControlRegister,
+        sps_spiRxReadAnswerDuringChannelControl,
+        SPS_SPI_BUFFERSIZE,
+        STD_OK);
     SPS_Ctrl();
     TEST_ASSERT_EQUAL(SPS_READ_MEASURED_CURRENT1, TEST_SPS_GetSpsState());
+
+    TEST_SPS_GlobalRegisterRead(
+        SPS_OD_IOUT1_DIAG_REGISTER_ADDRESS, SPS_READ_DIAGNOSTIC_REGISTER, sps_spiTxRegisterBuffer);
+    SPI_TransmitReceiveData_ExpectAndReturn(
+        &spi_spsInterface, sps_spiTxRegisterBuffer, sps_spiRxRegisterBuffer, SPS_SPI_BUFFERSIZE, STD_OK);
+    MCU_Delay_us_Expect(1u);
+    SPI_TransmitReceiveData_ExpectAndReturn(
+        &spi_spsInterface,
+        sps_spiTxWriteToChannelChannelControlRegister,
+        sps_spiRxReadAnswerDuringChannelControl,
+        SPS_SPI_BUFFERSIZE,
+        STD_OK);
     SPS_Ctrl();
     TEST_ASSERT_EQUAL(SPS_READ_MEASURED_CURRENT2, TEST_SPS_GetSpsState());
+
+    TEST_SPS_GlobalRegisterRead(
+        SPS_OD_IOUT2_DIAG_REGISTER_ADDRESS, SPS_READ_DIAGNOSTIC_REGISTER, sps_spiTxRegisterBuffer);
+    SPI_TransmitReceiveData_ExpectAndReturn(
+        &spi_spsInterface, sps_spiTxRegisterBuffer, sps_spiRxRegisterBuffer, SPS_SPI_BUFFERSIZE, STD_OK);
+    MCU_Delay_us_Expect(1u);
+    SPI_TransmitReceiveData_ExpectAndReturn(
+        &spi_spsInterface,
+        sps_spiTxWriteToChannelChannelControlRegister,
+        sps_spiRxReadAnswerDuringChannelControl,
+        SPS_SPI_BUFFERSIZE,
+        STD_OK);
     SPS_Ctrl();
     TEST_ASSERT_EQUAL(SPS_READ_MEASURED_CURRENT3, TEST_SPS_GetSpsState());
+
+    TEST_SPS_GlobalRegisterRead(
+        SPS_OD_IOUT3_DIAG_REGISTER_ADDRESS, SPS_READ_DIAGNOSTIC_REGISTER, sps_spiTxRegisterBuffer);
+    SPI_TransmitReceiveData_ExpectAndReturn(
+        &spi_spsInterface, sps_spiTxRegisterBuffer, sps_spiRxRegisterBuffer, SPS_SPI_BUFFERSIZE, STD_OK);
+    MCU_Delay_us_Expect(1u);
+    SPI_TransmitReceiveData_ExpectAndReturn(
+        &spi_spsInterface,
+        sps_spiTxWriteToChannelChannelControlRegister,
+        sps_spiRxReadAnswerDuringChannelControl,
+        SPS_SPI_BUFFERSIZE,
+        STD_OK);
     SPS_Ctrl();
     TEST_ASSERT_EQUAL(SPS_READ_MEASURED_CURRENT4, TEST_SPS_GetSpsState());
+
+    TEST_SPS_GlobalRegisterRead(
+        SPS_OD_IOUT4_DIAG_REGISTER_ADDRESS, SPS_READ_DIAGNOSTIC_REGISTER, sps_spiTxRegisterBuffer);
+    SPI_TransmitReceiveData_ExpectAndReturn(
+        &spi_spsInterface, sps_spiTxRegisterBuffer, sps_spiRxRegisterBuffer, SPS_SPI_BUFFERSIZE, STD_OK);
+    MCU_Delay_us_Expect(1u);
+    SPI_TransmitReceiveData_ExpectAndReturn(
+        &spi_spsInterface,
+        sps_spiTxWriteToChannelChannelControlRegister,
+        sps_spiRxReadAnswerDuringChannelControl,
+        SPS_SPI_BUFFERSIZE,
+        STD_OK);
     SPS_Ctrl();
     TEST_ASSERT_EQUAL(SPS_TRIGGER_CURRENT_MEASUREMENT, TEST_SPS_GetSpsState());
 }
@@ -436,25 +624,30 @@ void testSPS_CtrlAssertOnIllegalState(void) {
 }
 
 void testContactorSwitchOnAndOff(void) {
-    OS_EnterTaskCritical_Ignore();
-    OS_ExitTaskCritical_Ignore();
-
     /* switch on a first, second, third and fourth channel */
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
     TEST_ASSERT_EQUAL(SPS_CHANNEL_OFF, sps_channelStatus[0u].channelRequested);
     TEST_ASSERT_PASS_ASSERT(TEST_SPS_RequestChannelState(0u, SPS_CHANNEL_ON));
     TEST_ASSERT_EQUAL(SPS_CHANNEL_ON, sps_channelStatus[0u].channelRequested);
     TEST_ASSERT_EQUAL(SPS_CHANNEL_OFF, sps_channelStatus[0u].channel);
 
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
     TEST_ASSERT_EQUAL(SPS_CHANNEL_OFF, sps_channelStatus[1u].channelRequested);
     TEST_ASSERT_PASS_ASSERT(TEST_SPS_RequestChannelState(1u, SPS_CHANNEL_ON));
     TEST_ASSERT_EQUAL(SPS_CHANNEL_ON, sps_channelStatus[1u].channelRequested);
     TEST_ASSERT_EQUAL(SPS_CHANNEL_OFF, sps_channelStatus[1u].channel);
 
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
     TEST_ASSERT_EQUAL(SPS_CHANNEL_OFF, sps_channelStatus[6u].channelRequested);
     TEST_ASSERT_PASS_ASSERT(TEST_SPS_RequestChannelState(6u, SPS_CHANNEL_ON));
     TEST_ASSERT_EQUAL(SPS_CHANNEL_ON, sps_channelStatus[6u].channelRequested);
     TEST_ASSERT_EQUAL(SPS_CHANNEL_OFF, sps_channelStatus[6u].channel);
 
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
     TEST_ASSERT_EQUAL(SPS_CHANNEL_OFF, sps_channelStatus[7u].channelRequested);
     TEST_ASSERT_PASS_ASSERT(TEST_SPS_RequestChannelState(7u, SPS_CHANNEL_ON));
     TEST_ASSERT_EQUAL(SPS_CHANNEL_ON, sps_channelStatus[7u].channelRequested);
@@ -462,8 +655,28 @@ void testContactorSwitchOnAndOff(void) {
 
     /* cycle over one state that handles channels */
     TEST_SPS_SetSpsState(SPS_TRIGGER_CURRENT_MEASUREMENT);
-    SPI_TransmitReceiveData_IgnoreAndReturn(STD_OK);
-    MCU_Delay_us_Ignore();
+    TEST_SPS_GlobalRegisterWrite(
+        SPS_C_CONTROL_REGISTER_ADDRESS,
+        0x000F, /* Measure all four outputs for current and voltage on demand*/
+        sps_spiTxRegisterBuffer);
+    SPI_TransmitReceiveData_ExpectAndReturn(
+        &spi_spsInterface, sps_spiTxRegisterBuffer, sps_spiRxRegisterBuffer, SPS_SPI_BUFFERSIZE, STD_OK);
+    MCU_Delay_us_Expect(1u);
+    for (SPS_CHANNEL_INDEX channel = 0u; channel < SPS_NR_OF_AVAILABLE_SPS_CHANNELS; channel++) {
+        uint8_t spsDevicePositionInDaisyChain = channel / SPS_NR_CONTACTOR_PER_IC;
+        TEST_SPS_SingleDeviceRegisterWrite(
+            spsDevicePositionInDaisyChain,
+            SPS_OUTPUT_CONTROL_REGISTER_ADDRESS,
+            (~(1u << (channel % SPS_NR_CONTACTOR_PER_IC)) & 0x0Cu), /* data to write, output control */
+            SPS_orWithCurrentValue,                                 /* OR because we want to set additional bits to 1 */
+            sps_spiTxWriteToChannelChannelControlRegister);
+    }
+    SPI_TransmitReceiveData_ExpectAndReturn(
+        &spi_spsInterface,
+        sps_spiTxWriteToChannelChannelControlRegister,
+        sps_spiRxReadAnswerDuringChannelControl,
+        SPS_SPI_BUFFERSIZE,
+        STD_OK);
     SPS_Ctrl();
 
     /* check that channels have been marked as on */
@@ -473,21 +686,29 @@ void testContactorSwitchOnAndOff(void) {
     TEST_ASSERT_EQUAL(SPS_CHANNEL_ON, sps_channelStatus[7u].channel);
 
     /* switch off a first, second, third and fourth channel */
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
     TEST_ASSERT_EQUAL(SPS_CHANNEL_ON, sps_channelStatus[0u].channelRequested);
     TEST_ASSERT_PASS_ASSERT(TEST_SPS_RequestChannelState(0u, SPS_CHANNEL_OFF));
     TEST_ASSERT_EQUAL(SPS_CHANNEL_OFF, sps_channelStatus[0u].channelRequested);
     TEST_ASSERT_EQUAL(SPS_CHANNEL_ON, sps_channelStatus[0u].channel);
 
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
     TEST_ASSERT_EQUAL(SPS_CHANNEL_ON, sps_channelStatus[1u].channelRequested);
     TEST_ASSERT_PASS_ASSERT(TEST_SPS_RequestChannelState(1u, SPS_CHANNEL_OFF));
     TEST_ASSERT_EQUAL(SPS_CHANNEL_OFF, sps_channelStatus[1u].channelRequested);
     TEST_ASSERT_EQUAL(SPS_CHANNEL_ON, sps_channelStatus[1u].channel);
 
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
     TEST_ASSERT_EQUAL(SPS_CHANNEL_ON, sps_channelStatus[6u].channelRequested);
     TEST_ASSERT_PASS_ASSERT(TEST_SPS_RequestChannelState(6u, SPS_CHANNEL_OFF));
     TEST_ASSERT_EQUAL(SPS_CHANNEL_OFF, sps_channelStatus[6u].channelRequested);
     TEST_ASSERT_EQUAL(SPS_CHANNEL_ON, sps_channelStatus[6u].channel);
 
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
     TEST_ASSERT_EQUAL(SPS_CHANNEL_ON, sps_channelStatus[7u].channelRequested);
     TEST_ASSERT_PASS_ASSERT(TEST_SPS_RequestChannelState(7u, SPS_CHANNEL_OFF));
     TEST_ASSERT_EQUAL(SPS_CHANNEL_OFF, sps_channelStatus[7u].channelRequested);
@@ -495,8 +716,29 @@ void testContactorSwitchOnAndOff(void) {
 
     /* cycle over one state that handles channels */
     TEST_SPS_SetSpsState(SPS_TRIGGER_CURRENT_MEASUREMENT);
-    SPI_TransmitReceiveData_IgnoreAndReturn(STD_OK);
-    MCU_Delay_us_Ignore();
+    TEST_SPS_GlobalRegisterWrite(
+        SPS_C_CONTROL_REGISTER_ADDRESS,
+        0x000F, /* Measure all four outputs for current and voltage on demand*/
+        sps_spiTxRegisterBuffer);
+    SPI_TransmitReceiveData_ExpectAndReturn(
+        &spi_spsInterface, sps_spiTxRegisterBuffer, sps_spiRxRegisterBuffer, SPS_SPI_BUFFERSIZE, STD_NOT_OK);
+    MCU_Delay_us_Expect(1u);
+    for (SPS_CHANNEL_INDEX channel = 0u; channel < SPS_NR_OF_AVAILABLE_SPS_CHANNELS; channel++) {
+        uint8_t spsDevicePositionInDaisyChain = channel / SPS_NR_CONTACTOR_PER_IC;
+        uint8_t writeData                     = (~(1u << (channel % SPS_NR_CONTACTOR_PER_IC)) & 0xFFu);
+        TEST_SPS_SingleDeviceRegisterWrite(
+            spsDevicePositionInDaisyChain,
+            SPS_OUTPUT_CONTROL_REGISTER_ADDRESS,
+            writeData,               /* data to write, output control */
+            SPS_andWithCurrentValue, /* AND because we want to set additional bits to 0 */
+            sps_spiTxWriteToChannelChannelControlRegister);
+    }
+    SPI_TransmitReceiveData_ExpectAndReturn(
+        &spi_spsInterface,
+        sps_spiTxWriteToChannelChannelControlRegister,
+        sps_spiRxReadAnswerDuringChannelControl,
+        SPS_SPI_BUFFERSIZE,
+        STD_OK);
     SPS_Ctrl();
 
     /* check that channels have been marked as off */
@@ -523,4 +765,12 @@ void testSPS_GetChannelPexFeedback(void) {
     /* report pin state 1 with normally closed --> should report switch off */
     PEX_GetPin_ExpectAndReturn(PEX_PORT_EXPANDER1, PEX_PORT_0_PIN_0, 1u);
     TEST_ASSERT_EQUAL(CONT_SWITCH_OFF, SPS_GetChannelPexFeedback(0u, false));
+}
+
+void testSPS_GlobalRegisterWrite(void) {
+    TEST_ASSERT_FAIL_ASSERT(TEST_SPS_GlobalRegisterWrite(0u, 0u, NULL_PTR));
+}
+
+void testSPS_SetCommandTxBuffer(void) {
+    TEST_SPS_SetCommandTxBuffer(SPS_ACTION_CONFIGURE_CONTROL_REGISTER);
 }

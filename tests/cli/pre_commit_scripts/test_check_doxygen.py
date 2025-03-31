@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -42,15 +42,15 @@
 import io
 import sys
 import unittest
-from contextlib import redirect_stdout
+from contextlib import redirect_stderr
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 try:
     from cli.helpers.misc import PROJECT_ROOT
     from cli.pre_commit_scripts import check_doxygen
 except ModuleNotFoundError:
-    sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
+    sys.path.insert(0, str(Path(__file__).parents[3]))
     from cli.helpers.misc import PROJECT_ROOT
     from cli.pre_commit_scripts import check_doxygen
 
@@ -73,87 +73,87 @@ class TestCheckDoxygenComment(unittest.TestCase):
         self.assertEqual(result, 0)
 
     @patch("cli.pre_commit_scripts.check_doxygen.Popen")
-    def test_invalid_version(self, mock_popen):
+    def test_invalid_version(self, mock_popen: MagicMock):
         """A invalid number"""
         process = mock_popen.return_value.__enter__.return_value
         process.returncode = 0
         process.communicate.return_value = (b"foxBMS 2: 0.0.0", b"")
         test_file = "invalid-version.c"
-        buf = io.StringIO()
-        with redirect_stdout(buf):
+        err = io.StringIO()
+        with redirect_stderr(err):
             result = check_doxygen.main([str(self.tests_dir / test_file)])
         self.assertEqual(result, 1)
-        self.assertIn(expected_error_msg(test_file, "version"), buf.getvalue())
+        self.assertIn(expected_error_msg(test_file, "version"), err.getvalue())
 
     @patch("cli.pre_commit_scripts.check_doxygen.Popen")
-    def test_version_not_determinable(self, mock_popen):
+    def test_version_not_determinable(self, mock_popen: MagicMock):
         """A invalid number"""
         process = mock_popen.return_value.__enter__.return_value
         process.returncode = 0
         process.communicate.return_value = (b"", b"")
-        buf = io.StringIO()
-        with redirect_stdout(buf):
+        err = io.StringIO()
+        with redirect_stderr(err):
             result = check_doxygen.main([str(self.tests_dir / "invalid-version.c")])
-        self.assertIn("Could not determine foxBMS version.", buf.getvalue())
+        self.assertIn("Could not determine foxBMS version.", err.getvalue())
         self.assertEqual(result, 1)
 
     def test_invalid_encoding(self):
         """Invalid file encoding"""
         test_file = "invalid-encoding_utf-16.c"
-        buf = io.StringIO()
-        with redirect_stdout(buf):
+        err = io.StringIO()
+        with redirect_stderr(err):
             result = check_doxygen.main([str(self.tests_dir / test_file)])
         self.assertEqual(result, 1)
-        self.assertIn(f"{test_file}: Could not ASCII-decode this file.", buf.getvalue())
+        self.assertIn(f"{test_file}: Could not ASCII-decode this file.", err.getvalue())
 
     def test_no_doxygen_comments(self):
         """All doxygen comments are missing"""
         test_file = "no-doxygen-comments.c"
-        buf = io.StringIO()
-        with redirect_stdout(buf):
+        err = io.StringIO()
+        with redirect_stderr(err):
             result = check_doxygen.main([str(self.tests_dir / test_file)])
         self.assertEqual(result, 10)
         self.assertIn(
-            f"{test_file}: Doxygen comment start marker is missing.", buf.getvalue()
+            f"{test_file}: Doxygen comment start marker is missing.", err.getvalue()
         )
-        self.assertIn(expected_error_msg(test_file, "file"), buf.getvalue())
-        self.assertIn(expected_error_msg(test_file, "author"), buf.getvalue())
-        self.assertIn(expected_error_msg(test_file, "date"), buf.getvalue())
-        self.assertIn(expected_error_msg(test_file, "updated"), buf.getvalue())
-        self.assertIn(expected_error_msg(test_file, "version"), buf.getvalue())
-        self.assertIn(expected_error_msg(test_file, "ingroup"), buf.getvalue())
-        self.assertIn(expected_error_msg(test_file, "prefix"), buf.getvalue())
-        self.assertIn(expected_error_msg(test_file, "brief"), buf.getvalue())
-        self.assertIn(expected_error_msg(test_file, "details"), buf.getvalue())
+        self.assertIn(expected_error_msg(test_file, "file"), err.getvalue())
+        self.assertIn(expected_error_msg(test_file, "author"), err.getvalue())
+        self.assertIn(expected_error_msg(test_file, "date"), err.getvalue())
+        self.assertIn(expected_error_msg(test_file, "updated"), err.getvalue())
+        self.assertIn(expected_error_msg(test_file, "version"), err.getvalue())
+        self.assertIn(expected_error_msg(test_file, "ingroup"), err.getvalue())
+        self.assertIn(expected_error_msg(test_file, "prefix"), err.getvalue())
+        self.assertIn(expected_error_msg(test_file, "brief"), err.getvalue())
+        self.assertIn(expected_error_msg(test_file, "details"), err.getvalue())
 
     def test_no_start_comment(self):
         """Doxygen block comment start label is missing"""
         test_file = "no-start-comment.c"
-        buf = io.StringIO()
-        with redirect_stdout(buf):
+        err = io.StringIO()
+        with redirect_stderr(err):
             result = check_doxygen.main([str(self.tests_dir / test_file)])
         self.assertEqual(result, 1)
         self.assertIn(
-            f"{test_file}: Doxygen comment start marker is missing.", buf.getvalue()
+            f"{test_file}: Doxygen comment start marker is missing.", err.getvalue()
         )
 
     def test_no_file_comment(self):
         """@file comment is missing"""
         test_file = "no-file-comment.c"
-        buf = io.StringIO()
-        with redirect_stdout(buf):
+        err = io.StringIO()
+        with redirect_stderr(err):
             result = check_doxygen.main([str(self.tests_dir / test_file)])
         self.assertEqual(result, 1)
-        self.assertIn(expected_error_msg(test_file, "file"), buf.getvalue())
+        self.assertIn(expected_error_msg(test_file, "file"), err.getvalue())
 
     def test_no_author_comment(self):
         """@author comment is missing"""
         test_file = "no-author-comment.c"
-        buf = io.StringIO()
-        with redirect_stdout(buf):
+        err = io.StringIO()
+        with redirect_stderr(err):
             result = check_doxygen.main([str(self.tests_dir / test_file)])
         self.assertEqual(result, 1)
-        self.assertIn(expected_error_msg(test_file, "author"), buf.getvalue())
+        self.assertIn(expected_error_msg(test_file, "author"), err.getvalue())
 
     def test_ignore_author_comment(self):
         """@author shall be ignored"""
@@ -163,81 +163,89 @@ class TestCheckDoxygenComment(unittest.TestCase):
             .as_posix()
         )
         check_doxygen.IGNORE_ERROR["author"].append(test_file)
-        buf = io.StringIO()
-        with redirect_stdout(buf):
+        err = io.StringIO()
+        with redirect_stderr(err):
             result = check_doxygen.main([test_file])
         self.assertEqual(result, 0)
 
     def test_no_date_comment(self):
         """@date comment is missing"""
         test_file = "no-date-comment.c"
-        buf = io.StringIO()
-        with redirect_stdout(buf):
+        err = io.StringIO()
+        with redirect_stderr(err):
             result = check_doxygen.main([str(self.tests_dir / test_file)])
         self.assertEqual(result, 1)
-        self.assertIn(expected_error_msg(test_file, "date"), buf.getvalue())
+        self.assertIn(expected_error_msg(test_file, "date"), err.getvalue())
 
     def test_no_updated_comment(self):
         """@updated comment is missing"""
         test_file = "no-updated-comment.c"
-        buf = io.StringIO()
-        with redirect_stdout(buf):
+        err = io.StringIO()
+        with redirect_stderr(err):
             result = check_doxygen.main([str(self.tests_dir / test_file)])
         self.assertEqual(result, 1)
-        self.assertIn(expected_error_msg(test_file, "updated"), buf.getvalue())
+        self.assertIn(expected_error_msg(test_file, "updated"), err.getvalue())
 
     def test_no_ingroup_comment(self):
         """@ingroup comment is missing"""
         test_file = "no-ingroup-comment.c"
-        buf = io.StringIO()
-        with redirect_stdout(buf):
+        err = io.StringIO()
+        with redirect_stderr(err):
             result = check_doxygen.main([str(self.tests_dir / test_file)])
         self.assertEqual(result, 1)
-        self.assertIn(expected_error_msg(test_file, "ingroup"), buf.getvalue())
+        self.assertIn(expected_error_msg(test_file, "ingroup"), err.getvalue())
 
     def test_no_prefix_comment(self):
         """@prefix comment is missing"""
         test_file = "no-prefix-comment.c"
-        buf = io.StringIO()
-        with redirect_stdout(buf):
+        err = io.StringIO()
+        with redirect_stderr(err):
             result = check_doxygen.main([str(self.tests_dir / test_file)])
         self.assertEqual(result, 1)
-        self.assertIn(expected_error_msg(test_file, "prefix"), buf.getvalue())
+        self.assertIn(expected_error_msg(test_file, "prefix"), err.getvalue())
 
     def test_no_brief_comment(self):
         """@brief comment is missing"""
         test_file = "no-brief-comment.c"
-        buf = io.StringIO()
-        with redirect_stdout(buf):
+        err = io.StringIO()
+        with redirect_stderr(err):
             result = check_doxygen.main([str(self.tests_dir / test_file)])
         self.assertEqual(result, 1)
-        self.assertIn(expected_error_msg(test_file, "brief"), buf.getvalue())
+        self.assertIn(expected_error_msg(test_file, "brief"), err.getvalue())
 
     def test_multiline_brief_comment(self):
         """@brief shall be supported"""
         test_file = "multiline-brief.c"
-        buf = io.StringIO()
-        with redirect_stdout(buf):
+        err = io.StringIO()
+        with redirect_stderr(err):
             result = check_doxygen.main([str(self.tests_dir / test_file)])
         self.assertEqual(result, 0)
 
     def test_no_details_comment(self):
         """@details comment is missing"""
         test_file = "no-details-comment.c"
-        buf = io.StringIO()
-        with redirect_stdout(buf):
+        err = io.StringIO()
+        with redirect_stderr(err):
             result = check_doxygen.main([str(self.tests_dir / test_file)])
         self.assertEqual(result, 1)
-        self.assertIn(expected_error_msg(test_file, "details"), buf.getvalue())
+        self.assertIn(expected_error_msg(test_file, "details"), err.getvalue())
 
     def test_empty_line_between_multiline_brief_and_details(self):
         """@details comment is missing"""
         test_file = "empty-line-between-brief-and-details.c"
-        buf = io.StringIO()
-        with redirect_stdout(buf):
+        err = io.StringIO()
+        with redirect_stderr(err):
             result = check_doxygen.main([str(self.tests_dir / test_file)])
         self.assertEqual(result, 1)
-        self.assertIn(expected_error_msg(test_file, "details"), buf.getvalue())
+        self.assertIn(expected_error_msg(test_file, "details"), err.getvalue())
+
+    def test_files_with_special_start_lines(self):
+        """Special file is tested"""
+        test_file = "tests/cli/pre_commit_scripts/test_check_license_info/no-license.c"
+        err = io.StringIO()
+        with redirect_stderr(err):
+            result = check_doxygen.main([str(test_file)])
+        self.assertEqual(result, 0)
 
 
 if __name__ == "__main__":

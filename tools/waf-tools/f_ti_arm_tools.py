@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -44,7 +44,7 @@ This tool is loaded in the configure step of the main compiler tool
 :py:meth:`f_ti_arm_cgt.configure`. and is not meant to be used standalone."""
 
 from waflib import Utils
-from waflib.Configure import conf
+from waflib.Configure import ConfigurationContext, conf
 
 TI_CCS_ARM_CGT_TOOLS = [
     "armabs",
@@ -88,8 +88,8 @@ if Utils.is_win32:
 
 
 @conf
-def find_arm_tools(conf):  # pylint: disable-msg=redefined-outer-name
+def find_arm_tools(ctx: ConfigurationContext):
     """Configures additional tools related to the compiler."""
-    path_list = conf.env.CCS_SEARCH_PATH_GROUP[conf.env.CCS_SEARCH_PATH_GROUP_ID]
+    path_list = ctx.env.CCS_SEARCH_PATH_GROUP[ctx.env.CCS_SEARCH_PATH_GROUP_ID]
     for i in TI_CCS_ARM_CGT_TOOLS:
-        conf.find_program(i, path_list=path_list)
+        ctx.find_program(i, path_list=path_list)

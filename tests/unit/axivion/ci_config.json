@@ -3,10 +3,10 @@
     "Analysis-GlobalOptions": {
       "global_excludes": [
         "C:/ti/*",
+        "C:/foxbms/Ceedling/*",
         "*build/*",
         "*src/app/hal/*",
-        "*src/os/*",
-        "*tools/vendor/ceedling/*"
+        "*src/os/*"
       ]
     },
     "SaveRFG": {
@@ -23,9 +23,9 @@
     },
     "Command": {
       "_active": true,
-      "build_command": "$(builtin:AXIVION_CONFDIR)/../../../fox.bat waf --cwd tests/unit configure build_axivion -v -c yes",
-      "clean_command": "$(builtin:AXIVION_CONFDIR)/../../../fox.bat waf --cwd tests/unit configure clean_axivion -v -c yes",
-      "cwd": null
+      "build_command": "pwsh -NoProfile -NoLogo -NonInteractive -File fox.ps1 waf --cwd tests/unit configure build_axivion -v -c yes",
+      "clean_command": "pwsh -NoProfile -NoLogo -NonInteractive -File fox.ps1 waf --cwd tests/unit configure clean_axivion -v -c yes",
+      "cwd": "$(builtin:AXIVION_CONFDIR)/../../.."
     },
     "Git": {
       "_active": true,

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -41,6 +41,7 @@
 """Simple doxygen runner"""
 
 from waflib import Task, TaskGen
+from waflib.Configure import ConfigurationContext
 
 
 class Doxygen(Task.Task):
@@ -60,7 +61,7 @@ def process_doxygen(self):
     )
 
 
-def configure(conf):
+def configure(ctx: ConfigurationContext):
     """Check if doxygen and dot are available."""
-    conf.find_program("doxygen", var="DOXYGEN")
-    conf.find_program("dot", var="DOT")
+    ctx.find_program("doxygen", var="DOXYGEN")
+    ctx.find_program("dot", var="DOT")

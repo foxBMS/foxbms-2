@@ -7,28 +7,30 @@
 The foxBMS 2 Documentation
 ==========================
 
-Welcome to the |foxbms| documentation. |foxbms| is the modular and open source
-Battery Management System (BMS) development platform from `Fraunhofer IISB`_.
-This is the second generation of foxBMS. Its is a free, open and flexible
-development environment to design beyond state-of-the-art complex battery
-management systems.
+Welcome to the |foxbms| documentation.
+|foxbms| is the modular and open source Battery Management System (BMS)
+development platform from `Fraunhofer IISB`_.
+This is the second generation of foxBMS.
+Its is a free, open and flexible development environment to design beyond
+state-of-the-art complex battery management systems.
 
 .. note::
 
-   The present version of the |foxbms| documentation is |version_foxbms|. It is
-   available in HTML. More detailed information on the version history can be
-   found in the :ref:`RELEASES` section. This documentation was generated on
-   |timestamp|.
+   The present version of the |foxbms| documentation is |version_foxbms|.
+   It is available in HTML.
+   More detailed information on the version history can be found in the
+   :ref:`RELEASES` section.
+   This documentation was generated on |timestamp|.
 
 .. warning::
 
-   The |foxbms| hardware and software is under permanent development. The free
-   and open research and development platform |foxbms| as presented in the
-   documentation hereafter is not provided to be used without any adaptions
+   The |foxbms| hardware and software is under permanent development.
+   The free and open research and development platform |foxbms| as presented in
+   the documentation hereafter is not provided to be used without any adaptions
    (e.g., to fulfill mandatory regulations) in consumer products, electric
-   vehicles, production environments or any similar usages: it is only
-   intended to be used by skilled professionals trained in designing battery
-   system prototypes.
+   vehicles, production environments or any similar usages:
+   it is only intended to be used by skilled professionals trained in designing
+   battery system prototypes.
 
 The documentation is divided in the following parts:
 
@@ -65,9 +67,10 @@ guide through the setup of the |foxbms| development environment:
 
 To work on the software, the :ref:`SOFTWARE_DOCUMENTATION_OVERVIEW` presents
 the structure of the software, how the basic tasks are running and how to call
-user-defined functions. Further, a how-to is provided in order to answer the
-most common questions. A detailed description of the embedded software is found
-in the |doxygen| documentation.
+user-defined functions.
+Further, a how-to is provided in order to answer the most common questions.
+A detailed description of the embedded software is found in the |doxygen|
+documentation.
 
 Next, the :ref:`HARDWARE_DOCUMENTATION_OVERVIEW` gives the details needed to
 understand the hardware platform developed for |foxbms|.
@@ -76,7 +79,8 @@ The :ref:`SYSTEM_DOCUMENTATION_OVERVIEW` provides information on the
 integration of |foxbms| in an application.
 
 Numerous tools have been developed or adapted to support developing with the
-|foxbms| platform. These tools and their usage are described in
+|foxbms| platform.
+These tools and their usage are described in
 :ref:`TOOLS_DOCUMENTATION_OVERVIEW`.
 
 Finally, the :ref:`DEVELOPER_MANUAL` explains which rules need to be applied
@@ -145,6 +149,7 @@ All sections are listed here:
     ./software/how-to/how-to.rst
     ./software/linker-script/linker-script.rst
     ./software/architecture/architecture.rst
+    ./software/operating-system/operating-system.rst
     ./software/bootloader/bootloader.rst
 
 .. _HARDWARE_DOCUMENTATION_OVERVIEW:
@@ -174,6 +179,7 @@ All sections are listed here:
     ./system/system-voltage-and-current-monitoring.rst
     ./system/precharging.rst
     ./system/imd-testing.rst
+    ./system/communication.rst
 
 .. _TOOLS_DOCUMENTATION_OVERVIEW:
 
@@ -184,7 +190,7 @@ All sections are listed here:
     :caption: Tools Documentation
 
     ./tools/fox_py.rst
-    ./tools/dbc.rst
+    ./tools/fox_py_api.rst
     ./tools/waf-tools/waf-tools.rst
     ./tools/debugger/debug-application.rst
     ./tools/halcogen/halcogen.rst
@@ -202,7 +208,10 @@ All sections are listed here:
     ./developer-manual/style-guide/style-guide.rst
     ./developer-manual/software-developer-manual.rst
     ./developer-manual/hardware-developer-manual.rst
-    ./developer-manual/public-release-process.rst
+    ./developer-manual/fox-cli-wrapper/fox-cli-wrapper.rst
+    ./developer-manual/add-cli-cmds/add-cli-cmds.rst
+    ./developer-manual/dependency-management.rst
+    ./developer-manual/release-management.rst
 
 .. _MISCELLANEOUS_INFORMATION:
 

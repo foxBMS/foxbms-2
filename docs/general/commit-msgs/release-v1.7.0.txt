@@ -22,7 +22,7 @@ See INSTALLATION.md for information on updating the toolchain.
 * Toolchain updates (see INSTALLATION.md on how to update):
   - The Python dependencies have been updated.
   - Ceedling has been updated to 1.0.0-ba45d2c.
-  - The Ruby Gems required for ceedling have been updated.
+  - The |ruby-gems| required for ceedling have been updated.
   - The VS Code workspaces have been improved for a better developed
     experience.
 

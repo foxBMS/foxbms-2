@@ -1,0 +1,12 @@
+- |snippet_verify_license|.
+- |tbc|
+- |snippet_install| |mingw-w64|.
+- |update-installation-instructions| for |mingw-w64|.
+- Update the |mingw-w64| entry in
+  ``conf/env/paths_win32.txt`` and
+  ``conf/env/paths_linux.txt``
+- |snippet_update_license| in
+  ``docs/general/license-tables/external/license-info_mingw-w64.csv``.
+- |snippet_changelog_entry|.
+- |snippet_commit|
+  ``Dependency update: <XXXX>/Q<Y>: mingw-w64 <version number>``.

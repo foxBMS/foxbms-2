@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -39,7 +39,6 @@
 
 """Testing file 'cli/helpers/host_platform.py'."""
 
-import importlib
 import sys
 import unittest
 from pathlib import Path
@@ -48,30 +47,28 @@ from unittest.mock import patch
 try:
     from cli.helpers import host_platform
 except ModuleNotFoundError:
-    sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
+    sys.path.insert(0, str(Path(__file__).parents[3]))
     from cli.helpers import host_platform
 
 
 class TestHostPlatform(unittest.TestCase):
     """Class to test the host platform script."""
 
-    @patch("sys.platform", "linux")
+    @patch("sys.platform", new="linux")
     def test_platform_linux(self):
-        """test 'PLATFORM' value on Linux."""
-        importlib.reload(host_platform)
-        self.assertEqual(host_platform.PLATFORM, "linux")
+        """test for Linux."""
+        self.assertEqual(host_platform.get_platform(), "linux")
 
-    @patch("sys.platform", "win32")
+    @patch("sys.platform", new="win32")
     def test_platform_win32(self):
-        """test 'PLATFORM' value in Windows."""
-        importlib.reload(host_platform)
-        self.assertEqual(host_platform.PLATFORM, "win32")
+        """test for Windows."""
+        self.assertEqual(host_platform.get_platform(), "win32")
 
-    @patch("sys.platform", " ")
+    @patch("sys.platform", new="foo")
     def test_platform_unsupported(self):
-        """test that importing 'host_platform' fails on unsupported platforms."""
+        """test for unsupported platform."""
         with self.assertRaises(SystemExit) as cm:
-            importlib.reload(host_platform)
+            host_platform.get_platform()
         self.assertEqual(cm.exception.code, "Running on an unsupported platform.")
 
 

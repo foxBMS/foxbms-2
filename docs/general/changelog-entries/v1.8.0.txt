@@ -5,7 +5,7 @@ The |bms-master| version is bumped to ``v1.2.2``.
 For details on the |bms-master| see :ref:`MASTER_TMS570___V1_2_2__`.
 
 The |bms-master| now comes with a streamlined supply concept, which only
-requires a single SBC and therefby making the hard- and software simpler.
+requires a single SBC and thereby making the hard- and software simpler.
 Details on the SBC configuration, which must be flashed on the SBC prior to PCB
 assembly, are found at :ref:`MASTER_TMS570___V1_2_2___FUNCTIONAL_DESCRIPTION`.
 
@@ -64,7 +64,7 @@ Added
     - ``build_bootloader_doxygen_unit_test``: build the bootloader's unit test
       doxygen documentation.
 
-  - ``fox.py``: Added the following commands
+  - |fox-py|: Added the following commands
 
     - ``check``
     - ``load-app``
@@ -93,7 +93,7 @@ Changed
 - Updated the unit test framework ``Ceedling`` to version ``1.0.0-f899db8``.
 - Write the version information dynamically when building the documentation
   (version source is the main build script ``wscript`` in the repository root).
-- Read the version information dynamically when running the ``fox CLI`` tool
+- Read the version information dynamically when running the |fox-cli| tool
   (version source is the main build script ``wscript`` in the repository root).
 - Make external function declarations of CAN callbacks consistent.
 - Move the signal definition CAN messages for the cell temperatures and
@@ -114,8 +114,8 @@ Changed
   ``build_app_doxygen_unit_test`` (from ``build_doxygen_tests``).
 - The documentation build instructions were moved from the top level build
   script ``./wscript`` to ``docs/wscript``.
-- Emphasize the exact version of MinGW64 (and therefore GCC) that needs to be
-  installed to successfully run the unit test suite.
+- Emphasize the exact version of |mingw-w64| (and therefore GCC) that needs to
+  be installed to successfully run the unit test suite.
 - The version information is now separated from the application build
   information.
 - A dedicated CAN message for the transmission of fatal errors was added.
@@ -154,7 +154,7 @@ Fixed
 - Invalid flags in the CAN messages ``f_CellVoltages`` and
   ``f_CellTemperatures`` were transmitted inverted (Valid instead of Invalid
   and vice versa).
-- Fixed import-order in ``fox CLI`` tool.
+- Fixed import-order in |fox-cli| tool.
 - Fixed typos.
 - Fixed unintentional behavior of the ``BMS`` state machine that the contactors
   could be closed after power-cycle without receiving a ``STANDBY`` request.
@@ -170,7 +170,7 @@ Fixed
 - Fixed various READMEs.
 - Fixed various documentation rendering issues.
 - Fixed most of the Axivion naming check implementation.
-- The ``fox.bat``-wrapper did not work when the user name contained whitespace.
+- The ``fox.bat``-wrapper did not work when the username contained whitespace.
 - Fixed a bug in ``f_vscode.py`` when searching the platform appropriate
   ``fox``-wrapper.
 - Fixed various bugs in ``ADES1830`` AFE driver:

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -44,24 +44,24 @@ from pathlib import Path
 import click
 
 from ..cmd_axivion import axivion_impl
+from ..helpers.click_helpers import (
+    DISABLE_DEFAULT_HELP,
+    HELP_NAMES,
+    IGNORE_UNKNOWN_OPTIONS,
+    verbosity_option,
+)
 
-CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"]}
 
-
-@click.group(context_settings=CONTEXT_SETTINGS, invoke_without_command=True)
-@click.option("-v", "--verbose", default=0, count=True, help="Verbose information.")
+@click.group(context_settings=HELP_NAMES, invoke_without_command=True)
 @click.option(
     "--check-versions",
     default=False,
     is_flag=True,
     help="Check that all Axivion configuration files have the same version.",
 )
+@verbosity_option
 @click.pass_context
-def axivion(
-    ctx: click.Context,
-    verbose: bool,
-    check_versions: bool,
-) -> None:
+def axivion(ctx: click.Context, check_versions: bool, verbose: int = 0) -> None:
     """Checks related to Axivion. This does not run the Axivion SPA build.
     To run the Axivion SPA build, use the 'waf' command."""
     if check_versions:
@@ -71,7 +71,7 @@ def axivion(
         click.echo(axivion.get_help(ctx))
 
 
-@axivion.command("self-test", context_settings={"ignore_unknown_options": True})
+@axivion.command("self-test", context_settings=IGNORE_UNKNOWN_OPTIONS)
 @click.argument("script_args", nargs=-1, type=click.UNPROCESSED)
 @click.pass_context
 def cmd_self_test(ctx: click.Context, script_args: tuple[str]) -> None:
@@ -81,35 +81,25 @@ def cmd_self_test(ctx: click.Context, script_args: tuple[str]) -> None:
 
 
 @axivion.command("export-architecture")
-@click.option("-v", "--verbose", default=0, count=True, help="Verbose information.")
+@verbosity_option
 @click.pass_context
-def cmd_export_architecture(
-    ctx: click.Context,
-    verbose: int,
-) -> None:
+def cmd_export_architecture(ctx: click.Context, verbose: int = 0) -> None:
     """Exports the architecture file."""
     ret = axivion_impl.export_architecture(verbose)
     ctx.exit(ret.returncode)
 
 
 @axivion.command("check-architecture-up-to-date")
-@click.option("-v", "--verbose", default=0, count=True, help="Verbose information.")
+@verbosity_option
 @click.pass_context
-def cmd_check_architecture_uptodate(
-    ctx: click.Context,
-    verbose: int,
-) -> None:
+def cmd_check_architecture_uptodate(ctx: click.Context, verbose: int = 0) -> None:
     """Checks whether the architecture file is up-to-date."""
     ret = axivion_impl.check_if_architecture_up_to_date(verbose)
     ctx.exit(ret.returncode)
 
 
 @axivion.command(
-    "check-violations",
-    context_settings={
-        "help_option_names": ["--dummy"],
-        "ignore_unknown_options": True,
-    },
+    "check-violations", context_settings=DISABLE_DEFAULT_HELP | IGNORE_UNKNOWN_OPTIONS
 )
 @click.argument("check_violations_args", nargs=-1, type=click.UNPROCESSED)
 @click.pass_context
@@ -120,18 +110,16 @@ def cmd_check_violations(ctx: click.Context, check_violations_args: tuple[str]) 
 
 
 @axivion.command("combine-reports")
-@click.option("-v", "--verbose", default=0, count=True, help="Verbose information.")
 @click.argument(
     "reports",
     nargs=-1,
     is_eager=True,
     type=click.Path(exists=True, dir_okay=False, path_type=Path),
 )
+@verbosity_option
 @click.pass_context
 def cmd_combine_reports(
-    ctx: click.Context,
-    verbose: int,
-    reports: list[Path],
+    ctx: click.Context, reports: list[Path], verbose: int = 0
 ) -> None:
     """Combines several reports into one."""
     if not reports:

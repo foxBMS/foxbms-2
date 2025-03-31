@@ -1,0 +1,8 @@
+general:
+  skip: 0
+  precision: 4
+columns:
+  Test Time: datetime
+  Step Time(ms): float
+  Voltage(V): float
+  Current(A): float

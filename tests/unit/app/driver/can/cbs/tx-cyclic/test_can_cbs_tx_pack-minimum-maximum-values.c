@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_can_cbs_tx_pack-minimum-maximum-values.c
  * @author  foxBMS Team
  * @date    2021-04-22 (date of creation)
- * @updated 2024-12-20 (date of last update)
- * @version v1.8.0
+ * @updated 2025-03-31 (date of last update)
+ * @version v1.9.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -385,7 +385,7 @@ void testCANTX_CalculatePackMaximumTemperature(void) {
 
     /* ======= Routine tests =============================================== */
     /* ======= RT1/1: Test implementation */
-    BMS_GetNumberOfConnectedStrings_IgnoreAndReturn(0u);
+    BMS_GetNumberOfConnectedStrings_ExpectAndReturn(0u);
     CAN_TxPrepareSignalData_Expect(&testMaximumTemperature0, cantx_testSignalMaximumTemperature);
     CAN_TxPrepareSignalData_ReturnThruPtr_pSignal(&testSignalData[1u]);
     /* ======= RT1/1: Call function under test */
@@ -409,7 +409,7 @@ void testCANTX_CalculatePackMinimumTemperature(void) {
 
     /* ======= Routine tests =============================================== */
     /* ======= RT1/1: Test implementation */
-    BMS_GetNumberOfConnectedStrings_IgnoreAndReturn(0u);
+    BMS_GetNumberOfConnectedStrings_ExpectAndReturn(0u);
     CAN_TxPrepareSignalData_Expect(&testMinimumTemperature0, cantx_testSignalMinimumTemperature);
     CAN_TxPrepareSignalData_ReturnThruPtr_pSignal(&testSignalData[1u]);
     /* ======= RT1/1: Call function under test */
@@ -437,14 +437,18 @@ void testCANTX_BuildPackMinimumMaximumValuesMessage(void) {
     /* ======= Routine tests =============================================== */
     uint64_t testResult = 0u;
     /* ======= RT1/1: Test implementation */
-    BMS_GetNumberOfConnectedStrings_IgnoreAndReturn(0u);
+    BMS_GetNumberOfConnectedStrings_ExpectAndReturn(0u);
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 7u, 14u, testMaximumCellVoltage0, CAN_BIG_ENDIAN);
     CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[1u]);
+    BMS_GetNumberOfConnectedStrings_ExpectAndReturn(0u);
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[1u], 9u, 14u, testMinimumCellVoltage0, CAN_BIG_ENDIAN);
     CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[2u]);
+
+    BMS_GetNumberOfConnectedStrings_ExpectAndReturn(0u);
     CAN_TxPrepareSignalData_Expect(&testMaximumTemperature0, cantx_testSignalMaximumTemperature);
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[2u], 55u, 8u, testMaximumTemperature0, CAN_BIG_ENDIAN);
     CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[3u]);
+    BMS_GetNumberOfConnectedStrings_ExpectAndReturn(0u);
     CAN_TxPrepareSignalData_Expect(&testMinimumTemperature0, cantx_testSignalMinimumTemperature);
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[3u], 63u, 8u, testMinimumTemperature0, CAN_BIG_ENDIAN);
     CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[4u]);
@@ -503,12 +507,18 @@ void testCANTX_PackMinimumMaximumValues(void) {
 
     /* ======= Routine tests =============================================== */
     /* ======= RT1/1: Test implementation */
-    BMS_GetNumberOfConnectedStrings_IgnoreAndReturn(0u);
-    CAN_TxPrepareSignalData_Ignore();
     DATA_Read1DataBlock_ExpectAndReturn(can_kShim.pTableMinMax, STD_OK);
+    BMS_GetNumberOfConnectedStrings_ExpectAndReturn(0u);
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 7u, 14u, testMaximumCellVoltage0, CAN_BIG_ENDIAN);
+    BMS_GetNumberOfConnectedStrings_ExpectAndReturn(0u);
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 9u, 14u, testMinimumCellVoltage0, CAN_BIG_ENDIAN);
+    float_t signalDataMaxTemp = testMaximumTemperature0;
+    BMS_GetNumberOfConnectedStrings_ExpectAndReturn(0u);
+    CAN_TxPrepareSignalData_Expect(&signalDataMaxTemp, cantx_testSignalMaximumTemperature);
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 55u, 8u, testMaximumTemperature0, CAN_BIG_ENDIAN);
+    float_t signalDataMinTemp = testMinimumTemperature0;
+    BMS_GetNumberOfConnectedStrings_ExpectAndReturn(0u);
+    CAN_TxPrepareSignalData_Expect(&signalDataMinTemp, cantx_testSignalMinimumTemperature);
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 63u, 8u, testMinimumTemperature0, CAN_BIG_ENDIAN);
     CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[1u]);
     CAN_TxSetCanDataWithMessageData_Expect(testMessageData[1u], canData, testMessage.endianness);

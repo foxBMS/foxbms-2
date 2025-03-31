@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -48,17 +48,10 @@ import sys
 from pathlib import Path
 
 import cantools
+from git import Repo
+from git.exc import InvalidGitRepositoryError
 
-HAVE_GIT = False
-try:
-    from git import Repo
-    from git.exc import InvalidGitRepositoryError
-
-    HAVE_GIT = True
-except ImportError:
-    pass
-
-FILE_RE = r"\(in:([a-z_\-0-9]{1,}\.c):([A-Z]{2,5}_.*), fv:((tx)|(rx))\)"
+FILE_RE = r"\(in:([a-z_\-0-9]{1,}\.c):([A-Z]{2,5}_.*), fv:((tx)|(rx)), type:(.*)\)"
 FILE_RE_COMPILED = re.compile(FILE_RE)
 
 
@@ -72,12 +65,11 @@ def get_git_root(path: str) -> str:
         root (string): root path of the git repository
     """
     root = os.path.join(os.path.dirname(path), "..", "..", "..")
-    if HAVE_GIT:
-        try:
-            repo = Repo(path, search_parent_directories=True)
-            root = repo.git.rev_parse("--show-toplevel")
-        except InvalidGitRepositoryError:
-            pass
+    try:
+        repo = Repo(path, search_parent_directories=True)
+        root = repo.git.rev_parse("--show-toplevel")
+    except InvalidGitRepositoryError:
+        pass
     return root
 
 

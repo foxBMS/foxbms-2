@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_can_cbs_rx_debug.c
  * @author  foxBMS Team
  * @date    2021-04-22 (date of creation)
- * @updated 2024-12-20 (date of last update)
- * @version v1.8.0
+ * @updated 2025-03-31 (date of last update)
+ * @version v1.9.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -55,23 +55,38 @@
 
 /*========== Includes =======================================================*/
 #include "unity.h"
+#include "Mockafe.h"
+#include "Mockalgorithm.h"
+#include "Mockbal.h"
+#include "Mockbms.h"
 #include "Mockcan.h"
 #include "Mockcan_cbs_tx_debug-build-configuration.h"
 #include "Mockcan_cbs_tx_debug-response.h"
 #include "Mockcan_cbs_tx_debug-unsupported-multiplexer-values.h"
+#include "Mockcontactor.h"
 #include "Mockdatabase.h"
 #include "Mockdiag.h"
 #include "Mockfoxmath.h"
 #include "Mockfram.h"
 #include "Mockimd.h"
+#include "Mockinterlock.h"
+#include "Mockmcu.h"
+#include "Mockmeas.h"
 #include "Mockos.h"
 #include "Mockreset.h"
+#include "Mockrtc.h"
+#include "Mocksbc.h"
+#include "Mocksof_trapezoid.h"
+#include "Mockstate_estimation.h"
+#include "Mocksys_cfg.h"
 
 #include "database_cfg.h"
+#include "fram_cfg.h"
 
 #include "can_cbs_rx.h"
 #include "can_cfg_rx-message-definitions.h"
 #include "can_helper.h"
+#include "sys.h"
 #include "test_assert_helper.h"
 
 #include <stdbool.h>
@@ -80,15 +95,32 @@
 /*========== Unit Testing Framework Directives ==============================*/
 TEST_SOURCE_FILE("can_cbs_rx_debug.c")
 
+TEST_INCLUDE_PATH("../../src/app/application/algorithm")
+TEST_INCLUDE_PATH("../../src/app/application/algorithm/config")
+TEST_INCLUDE_PATH("../../src/app/application/algorithm/state_estimation")
+TEST_INCLUDE_PATH("../../src/app/application/algorithm/state_estimation/sof/trapezoid")
+TEST_INCLUDE_PATH("../../src/app/application/bal")
+TEST_INCLUDE_PATH("../../src/app/application/bms")
+TEST_INCLUDE_PATH("../../src/app/driver/afe/api")
 TEST_INCLUDE_PATH("../../src/app/driver/can")
 TEST_INCLUDE_PATH("../../src/app/driver/can/cbs")
 TEST_INCLUDE_PATH("../../src/app/driver/can/cbs/rx")
 TEST_INCLUDE_PATH("../../src/app/driver/can/cbs/tx-async")
 TEST_INCLUDE_PATH("../../src/app/driver/config")
+TEST_INCLUDE_PATH("../../src/app/driver/contactor")
+TEST_INCLUDE_PATH("../../src/app/driver/dma")
 TEST_INCLUDE_PATH("../../src/app/driver/foxmath")
 TEST_INCLUDE_PATH("../../src/app/driver/fram")
+TEST_INCLUDE_PATH("../../src/app/driver/i2c")
 TEST_INCLUDE_PATH("../../src/app/driver/imd")
+TEST_INCLUDE_PATH("../../src/app/driver/interlock")
+TEST_INCLUDE_PATH("../../src/app/driver/mcu")
+TEST_INCLUDE_PATH("../../src/app/driver/meas")
 TEST_INCLUDE_PATH("../../src/app/driver/rtc")
+TEST_INCLUDE_PATH("../../src/app/driver/sbc")
+TEST_INCLUDE_PATH("../../src/app/driver/sbc/fs8x_driver")
+TEST_INCLUDE_PATH("../../src/app/driver/spi")
+TEST_INCLUDE_PATH("../../src/app/driver/sps")
 TEST_INCLUDE_PATH("../../src/app/engine/diag")
 TEST_INCLUDE_PATH("../../src/app/engine/sys")
 TEST_INCLUDE_PATH("../../src/app/task/config")
@@ -101,7 +133,29 @@ TEST_INCLUDE_PATH("../../src/app/task/ftask")
 #define MULTIPLEXER_VALUE_SOFTWARE_RESET      (2u)
 #define MULTIPLEXER_VALUE_FRAM_INITIALIZATION (3u)
 #define MULTIPLEXER_VALUE_TIME_INFO           (4u)
+#define MULTIPLEXER_VALUE_UPTIME_INFO         (5u)
 #define INVALID_MULTIPLEXER_VALUE             (99u)
+
+#define SYS_STATE_VALID_CANRX_RETURN_VALUE   (0u)
+#define SYS_STATE_INVALID_CANRX_RETURN_VALUE (1u)
+
+/* Needed so that the test can be compiled */
+SBC_STATE_s sbc_stateMcuSupervisor = {
+    .timer                   = 0u,
+    .stateRequest            = SBC_STATE_NO_REQUEST,
+    .state                   = SBC_STATEMACHINE_UNINITIALIZED,
+    .substate                = SBC_ENTRY,
+    .lastState               = SBC_STATEMACHINE_UNINITIALIZED,
+    .lastSubstate            = SBC_ENTRY,
+    .illegalRequestsCounter  = 0u,
+    .retryCounter            = 0u,
+    .requestWatchdogTrigger  = 0u,
+    .triggerEntry            = 0u,
+    .pFs85xxInstance         = NULL_PTR,
+    .watchdogState           = SBC_PERIODIC_WATCHDOG_DEACTIVATED,
+    .watchdogPeriod_10ms     = 10u,
+    .useIgnitionForPowerDown = true,
+};
 
 CAN_MESSAGE_PROPERTIES_s validRxDebugTestMessage = {
     .id         = CANRX_DEBUG_ID,
@@ -137,6 +191,8 @@ static DATA_BLOCK_AEROSOL_SENSOR_s can_tableAerosolSensor = {.header.uniqueId = 
 OS_QUEUE imd_canDataQueue     = NULL_PTR;
 OS_QUEUE ftsk_rtcSetTimeQueue = NULL_PTR;
 
+static SYS_STATEMACH_e stored_sys_state;
+
 const CAN_SHIM_s can_kShim = {
     .pQueueImd             = &imd_canDataQueue,
     .pTableCellVoltage     = &can_tableCellVoltages,
@@ -159,9 +215,12 @@ const CAN_SHIM_s can_kShim = {
 
 /*========== Setup and Teardown =============================================*/
 void setUp(void) {
+    stored_sys_state = sys_state.state;
+    sys_state.state  = SYS_STATEMACH_INITIALIZE_CAN + 1;
 }
 
 void tearDown(void) {
+    sys_state.state = stored_sys_state;
 }
 
 /*========== Test Cases =====================================================*/
@@ -173,7 +232,7 @@ void testCANRX_DebugAssertionsParamMessage(void) {
     /* test assert for wrong message ID */
     CAN_MESSAGE_PROPERTIES_s testMessage = {
         .id         = CAN_MAX_11BIT_ID,               /* invalid ID */
-        .idType     = CAN_EXTENDED_IDENTIFIER_29_BIT, /* invalid ID-type*/
+        .idType     = CAN_EXTENDED_IDENTIFIER_29_BIT, /* invalid ID-type */
         .dlc        = 0u,                             /* invalid data length */
         .endianness = CANRX_DEBUG_ENDIANNESS,         /* valid endianness */
     };
@@ -207,6 +266,21 @@ void testCANRX_DebugAssertionsParamDatabaseShim(void) {
 }
 
 /*********************************************************************************************************************/
+/* tests of the public interface of the module, i.e., 'CANRX_Debug' when valid input is provided but the sys state does not yet allow to send messages */
+void testCANRX_DebugWrongSysState(void) {
+    SYS_STATEMACH_e stored_state = sys_state.state;
+    sys_state.state              = SYS_STATEMACH_UNINITIALIZED;
+
+    uint8_t testCanData[CAN_MAX_DLC] = {0};
+
+    testCanData[0] = MULTIPLEXER_VALUE_VERSION_INFORMATION; /* version information multiplexer message */
+    uint16_t ret   = CANRX_Debug(validRxDebugTestMessage, testCanData, &can_kShim);
+    TEST_ASSERT_EQUAL(SYS_STATE_INVALID_CANRX_RETURN_VALUE, ret);
+
+    sys_state.state = stored_state;
+}
+
+/*********************************************************************************************************************/
 /* tests of the public interface of the module, i.e., 'CANRX_Debug' when valid input is provided */
 /* the provided parameters are valid, but the multiplexer value is not known to the BMS, therefore we need to answer
    that we do not know how to process this value */
@@ -215,7 +289,8 @@ void testCANRX_DebugInvalidMultiplexerValues(void) {
 
     testCanData[0] = INVALID_MULTIPLEXER_VALUE; /* invalid multiplexer value */
     CANTX_DebugUnsupportedMultiplexerVal_Expect(CANRX_DEBUG_ID, INVALID_MULTIPLEXER_VALUE);
-    CANRX_Debug(validRxDebugTestMessage, testCanData, &can_kShim);
+    uint16_t ret = CANRX_Debug(validRxDebugTestMessage, testCanData, &can_kShim);
+    TEST_ASSERT_EQUAL(SYS_STATE_VALID_CANRX_RETURN_VALUE, ret);
 }
 
 /* provide a valid multiplexer value (version information) */
@@ -223,15 +298,21 @@ void testCANRX_DebugVersionInformationMultiplexerValue(void) {
     uint8_t testCanData[CAN_MAX_DLC] = {0};
 
     testCanData[0] = MULTIPLEXER_VALUE_VERSION_INFORMATION; /* version information multiplexer message */
-    CANRX_Debug(validRxDebugTestMessage, testCanData, &can_kShim);
+    uint16_t ret   = CANRX_Debug(validRxDebugTestMessage, testCanData, &can_kShim);
+    TEST_ASSERT_EQUAL(SYS_STATE_VALID_CANRX_RETURN_VALUE, ret);
 }
 
 /* provide a valid multiplexer value (set the RTC time) */
 void testCANRX_DebugRtcMultiplexerValue(void) {
     uint8_t testCanData[CAN_MAX_DLC] = {0};
-    OS_SendToBackOfQueue_IgnoreAndReturn(STD_OK);
+    RTC_TIME_DATA_s timeData         = {0};
+
+    RTC_SetRtcRequestFlag_Expect(1u);
+    OS_SendToBackOfQueue_ExpectAndReturn(ftsk_rtcSetTimeQueue, (void *)&timeData, 0u, STD_OK);
+    CANTX_DebugResponse_ExpectAndReturn(CANTX_DEBUG_RESPONSE_TRANSMIT_RTC_TIME, STD_OK);
     testCanData[0] = MULTIPLEXER_VALUE_RTC; /* RTC multiplexer message */
-    CANRX_Debug(validRxDebugTestMessage, testCanData, &can_kShim);
+    uint16_t ret   = CANRX_Debug(validRxDebugTestMessage, testCanData, &can_kShim);
+    TEST_ASSERT_EQUAL(SYS_STATE_VALID_CANRX_RETURN_VALUE, ret);
 }
 
 /* provide a valid multiplexer value (request a software reset) */
@@ -239,7 +320,8 @@ void testCANRX_DebugSoftwareResetMultiplexerValue(void) {
     uint8_t testCanData[CAN_MAX_DLC] = {0};
 
     testCanData[0] = MULTIPLEXER_VALUE_SOFTWARE_RESET; /* Software reset multiplexer message */
-    CANRX_Debug(validRxDebugTestMessage, testCanData, &can_kShim);
+    uint16_t ret   = CANRX_Debug(validRxDebugTestMessage, testCanData, &can_kShim);
+    TEST_ASSERT_EQUAL(SYS_STATE_VALID_CANRX_RETURN_VALUE, ret);
 }
 
 /* provide a valid multiplexer value (request the initialization of the FRAM) */
@@ -247,7 +329,8 @@ void testCANRX_DebugFramInitializationMultiplexerValue(void) {
     uint8_t testCanData[CAN_MAX_DLC] = {0};
 
     testCanData[0] = MULTIPLEXER_VALUE_FRAM_INITIALIZATION; /* (re-)initialization of the FRAM multiplexer message */
-    CANRX_Debug(validRxDebugTestMessage, testCanData, &can_kShim);
+    uint16_t ret   = CANRX_Debug(validRxDebugTestMessage, testCanData, &can_kShim);
+    TEST_ASSERT_EQUAL(SYS_STATE_VALID_CANRX_RETURN_VALUE, ret);
 }
 
 /* provide a valid multiplexer value (time information) */
@@ -255,7 +338,17 @@ void testCANRX_DebugTimeInfoMultiplexerValue(void) {
     uint8_t testCanData[CAN_MAX_DLC] = {0};
 
     testCanData[0] = MULTIPLEXER_VALUE_TIME_INFO; /* BMS time information multiplexer message */
-    CANRX_Debug(validRxDebugTestMessage, testCanData, &can_kShim);
+    uint16_t ret   = CANRX_Debug(validRxDebugTestMessage, testCanData, &can_kShim);
+    TEST_ASSERT_EQUAL(SYS_STATE_VALID_CANRX_RETURN_VALUE, ret);
+}
+
+/* provide a valid multiplexer value (uptime information) */
+void testCANRX_DebugUptimeInfoMultiplexerValue(void) {
+    uint8_t testCanData[CAN_MAX_DLC] = {0};
+
+    testCanData[0] = MULTIPLEXER_VALUE_UPTIME_INFO; /* BMS time information multiplexer message */
+    uint16_t ret   = CANRX_Debug(validRxDebugTestMessage, testCanData, &can_kShim);
+    TEST_ASSERT_EQUAL(SYS_STATE_VALID_CANRX_RETURN_VALUE, ret);
 }
 
 /*********************************************************************************************************************/
@@ -311,71 +404,91 @@ void testCANRX_GetYear(void) {
 /*********************************************************************************************************************/
 void testCANRX_TriggerBmsSoftwareVersionMessage(void) {
     /* sending response message works as expected */
-    CANTX_DebugResponse_IgnoreAndReturn(STD_OK);
+    CANTX_DebugResponse_ExpectAndReturn(CANTX_DEBUG_RESPONSE_TRANSMIT_BMS_VERSION_INFO, STD_OK);
     TEST_CANRX_TriggerBmsSoftwareVersionMessage();
 
     /* sending response message does not work as expected */
-    CANTX_DebugResponse_IgnoreAndReturn(STD_NOT_OK);
+    CANTX_DebugResponse_ExpectAndReturn(CANTX_DEBUG_RESPONSE_TRANSMIT_BMS_VERSION_INFO, STD_NOT_OK);
     TEST_ASSERT_FAIL_ASSERT(TEST_CANRX_TriggerBmsSoftwareVersionMessage());
 }
 
 void testCANRX_TriggerMcuUniqueDieIdMessage(void) {
     /* sending response message works as expected */
-    CANTX_DebugResponse_IgnoreAndReturn(STD_OK);
+    CANTX_DebugResponse_ExpectAndReturn(CANTX_DEBUG_RESPONSE_TRANSMIT_MCU_UNIQUE_DIE_ID, STD_OK);
     TEST_CANRX_TriggerMcuUniqueDieIdMessage();
 
     /* sending response message does not work as expected */
-    CANTX_DebugResponse_IgnoreAndReturn(STD_NOT_OK);
+    CANTX_DebugResponse_ExpectAndReturn(CANTX_DEBUG_RESPONSE_TRANSMIT_MCU_UNIQUE_DIE_ID, STD_NOT_OK);
     TEST_ASSERT_FAIL_ASSERT(TEST_CANRX_TriggerMcuUniqueDieIdMessage());
 }
 
 void testCANRX_TriggerMcuLotNumberMessage(void) {
     /* sending response message works as expected */
-    CANTX_DebugResponse_IgnoreAndReturn(STD_OK);
+    CANTX_DebugResponse_ExpectAndReturn(CANTX_DEBUG_RESPONSE_TRANSMIT_MCU_LOT_NUMBER, STD_OK);
     TEST_CANRX_TriggerMcuLotNumberMessage();
 
     /* sending response message does not work as expected */
-    CANTX_DebugResponse_IgnoreAndReturn(STD_NOT_OK);
+    CANTX_DebugResponse_ExpectAndReturn(CANTX_DEBUG_RESPONSE_TRANSMIT_MCU_LOT_NUMBER, STD_NOT_OK);
     TEST_ASSERT_FAIL_ASSERT(TEST_CANRX_TriggerMcuLotNumberMessage());
 }
 
 void testCANRX_TriggerMcuWaferInformationMessage(void) {
     /* sending response message works as expected */
-    CANTX_DebugResponse_IgnoreAndReturn(STD_OK);
+    CANTX_DebugResponse_ExpectAndReturn(CANTX_DEBUG_RESPONSE_TRANSMIT_MCU_WAFER_INFORMATION, STD_OK);
     TEST_CANRX_TriggerMcuWaferInformationMessage();
 
     /* sending response message does not work as expected */
-    CANTX_DebugResponse_IgnoreAndReturn(STD_NOT_OK);
+    CANTX_DebugResponse_ExpectAndReturn(CANTX_DEBUG_RESPONSE_TRANSMIT_MCU_WAFER_INFORMATION, STD_NOT_OK);
     TEST_ASSERT_FAIL_ASSERT(TEST_CANRX_TriggerMcuWaferInformationMessage());
 }
 
 void testCANRX_TriggerCommitHashMessage(void) {
     /* sending response message works as expected */
-    CANTX_DebugResponse_IgnoreAndReturn(STD_OK);
+    CANTX_DebugResponse_ExpectAndReturn(CANTX_DEBUG_RESPONSE_TRANSMIT_COMMIT_HASH, STD_OK);
     TEST_CANRX_TriggerCommitHashMessage();
 
     /* sending response message does not work as expected */
-    CANTX_DebugResponse_IgnoreAndReturn(STD_NOT_OK);
+    CANTX_DebugResponse_ExpectAndReturn(CANTX_DEBUG_RESPONSE_TRANSMIT_COMMIT_HASH, STD_NOT_OK);
     TEST_ASSERT_FAIL_ASSERT(TEST_CANRX_TriggerCommitHashMessage());
 }
 
 void testCANRX_TriggerTimeInfoMessage(void) {
     /* sending response message works as expected */
-    CANTX_DebugResponse_IgnoreAndReturn(STD_OK);
+    CANTX_DebugResponse_ExpectAndReturn(CANTX_DEBUG_RESPONSE_TRANSMIT_RTC_TIME, STD_OK);
     TEST_CANRX_TriggerTimeInfoMessage();
 
     /* sending response message does not work as expected */
-    CANTX_DebugResponse_IgnoreAndReturn(STD_NOT_OK);
+    CANTX_DebugResponse_ExpectAndReturn(CANTX_DEBUG_RESPONSE_TRANSMIT_RTC_TIME, STD_NOT_OK);
     TEST_ASSERT_FAIL_ASSERT(TEST_CANRX_TriggerTimeInfoMessage());
+}
+
+void testCANRX_TriggerUptimeInfoMessage(void) {
+    /* sending response message works as expected */
+    CANTX_DebugResponse_ExpectAndReturn(CANTX_DEBUG_RESPONSE_TRANSMIT_UPTIME, STD_OK);
+    TEST_CANRX_TriggerUptimeInfoMessage();
+
+    /* sending response message does not work as expected */
+    CANTX_DebugResponse_ExpectAndReturn(CANTX_DEBUG_RESPONSE_TRANSMIT_UPTIME, STD_NOT_OK);
+    TEST_ASSERT_FAIL_ASSERT(TEST_CANRX_TriggerUptimeInfoMessage());
+}
+
+void testCANRX_TriggerBootTimestampMessage(void) {
+    /* sending response message works as expected */
+    CANTX_DebugResponse_ExpectAndReturn(CANTX_DEBUG_RESPONSE_TRANSMIT_BOOT_TIMESTAMP, STD_OK);
+    TEST_CANRX_TriggerBootTimestampMessage();
+
+    /* sending response message does not work as expected */
+    CANTX_DebugResponse_ExpectAndReturn(CANTX_DEBUG_RESPONSE_TRANSMIT_BOOT_TIMESTAMP, STD_NOT_OK);
+    TEST_ASSERT_FAIL_ASSERT(TEST_CANRX_TriggerBootTimestampMessage());
 }
 
 void testCANRX_TriggerBuildConfigurationMessage(void) {
     /* sending response message works as expected */
-    CANTX_DebugBuildConfiguration_IgnoreAndReturn(STD_OK);
+    CANTX_DebugBuildConfiguration_ExpectAndReturn(STD_OK);
     TEST_CANRX_TriggerBuildConfigurationMessage();
 
     /* sending response message does not work as expected */
-    CANTX_DebugBuildConfiguration_IgnoreAndReturn(STD_NOT_OK);
+    CANTX_DebugBuildConfiguration_ExpectAndReturn(STD_NOT_OK);
     TEST_ASSERT_FAIL_ASSERT(TEST_CANRX_TriggerBuildConfigurationMessage());
 }
 
@@ -464,6 +577,28 @@ void testCANRX_CheckIfTimeInfoIsRequested(void) {
     TEST_ASSERT_TRUE(isRequested);
 }
 
+void testCANRX_CheckIfUptimeInfoIsRequested(void) {
+    /* test endianness assertion */
+    TEST_ASSERT_FAIL_ASSERT(TEST_CANRX_CheckIfUptimeInfoIsRequested(testMessageDataZero, invalidEndianness));
+
+    /* test correct message -> return true */
+    /* set bit to indicate that the BMS time information is requested */
+    uint64_t testMessageData = ((uint64_t)1u) << 40u;
+    bool isRequested         = TEST_CANRX_CheckIfUptimeInfoIsRequested(testMessageData, validEndianness);
+    TEST_ASSERT_TRUE(isRequested);
+}
+
+void testCANRX_CheckIfBootTimestampIsRequested(void) {
+    /* test endianness assertion */
+    TEST_ASSERT_FAIL_ASSERT(TEST_CANRX_CheckIfBootTimestampIsRequested(testMessageDataZero, invalidEndianness));
+
+    /* test correct message -> return true */
+    /* set bit to indicate that the BMS time information is requested */
+    uint64_t testMessageData = ((uint64_t)1u) << 49u;
+    bool isRequested         = TEST_CANRX_CheckIfBootTimestampIsRequested(testMessageData, validEndianness);
+    TEST_ASSERT_TRUE(isRequested);
+}
+
 void testCANRX_CheckIfBuildConfigurationIsRequested(void) {
     /* test endianness assertion */
     TEST_ASSERT_FAIL_ASSERT(TEST_CANRX_CheckIfBuildConfigurationIsRequested(testMessageDataZero, invalidEndianness))
@@ -510,11 +645,18 @@ void testCANRX_ProcessRtcMux(void) {
     /* test endianness assertion */
     TEST_ASSERT_FAIL_ASSERT(TEST_CANRX_ProcessRtcMux(testMessageDataZero, invalidEndianness));
 
-    /* provide just zero data, as it does not matter (int that test) what
-       the RTC helper functions do. It is just important that we push into
-       the queue */
-    OS_SendToBackOfQueue_IgnoreAndReturn(STD_OK);
-    TEST_CANRX_ProcessSoftwareResetMux(testMessageDataZero, validEndianness);
+    /* Test setting a valid rtc time */
+    RTC_TIME_DATA_s timeData = {0};
+    RTC_SetRtcRequestFlag_Expect(1u);
+    OS_SendToBackOfQueue_ExpectAndReturn(ftsk_rtcSetTimeQueue, (void *)&timeData, 0u, STD_OK);
+    CANTX_DebugResponse_ExpectAndReturn(CANTX_DEBUG_RESPONSE_TRANSMIT_RTC_TIME, STD_OK);
+    TEST_CANRX_ProcessRtcMux(testMessageDataZero, validEndianness);
+
+    /* Test setting an invalid rtc time */
+    uint64_t testMessageData = UINT64_MAX;  // Initialize message data
+    RTC_SetRtcRequestFlag_Expect(2u);
+    CANTX_DebugResponse_ExpectAndReturn(CANTX_DEBUG_RESPONSE_TRANSMIT_RTC_TIME, STD_OK);
+    TEST_CANRX_ProcessRtcMux(testMessageData, validEndianness);
 }
 
 void testCANRX_ProcessSoftwareResetMux(void) {
@@ -540,7 +682,22 @@ void testCANRX_ProcessTimeInfoMux(void) {
     /* test endianness assertion */
     TEST_ASSERT_FAIL_ASSERT(TEST_CANRX_ProcessTimeInfoMux(testMessageDataZero, invalidEndianness));
 
+    /* first test for CANRX_CheckIfTimeInfoIsRequested */
     uint64_t testMessageData = ((uint64_t)1u) << 48u; /* set bit to indicate that the time information is requested */
-    CANTX_DebugResponse_IgnoreAndReturn(STD_OK);
+    CANTX_DebugResponse_ExpectAndReturn(CANTX_DEBUG_RESPONSE_TRANSMIT_RTC_TIME, STD_OK);
     TEST_CANRX_ProcessTimeInfoMux(testMessageData, validEndianness);
+
+    /* second test for CANRX_CheckIfBootTimestampIsRequested */
+    testMessageData = ((uint64_t)1u) << 49u; /* set bit to indicate that the time information is requested */
+    CANTX_DebugResponse_ExpectAndReturn(CANTX_DEBUG_RESPONSE_TRANSMIT_BOOT_TIMESTAMP, STD_OK);
+    TEST_CANRX_ProcessTimeInfoMux(testMessageData, validEndianness);
+}
+
+void testCANRX_ProcessUptimeInfoMux(void) {
+    /* test endianness assertion */
+    TEST_ASSERT_FAIL_ASSERT(TEST_CANRX_ProcessUptimeInfoMux(testMessageDataZero, invalidEndianness));
+
+    uint64_t testMessageData = ((uint64_t)1u) << 40u; /* set bit to indicate that the time information is requested */
+    CANTX_DebugResponse_ExpectAndReturn(CANTX_DEBUG_RESPONSE_TRANSMIT_UPTIME, STD_OK);
+    TEST_CANRX_ProcessUptimeInfoMux(testMessageData, validEndianness);
 }

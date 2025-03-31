@@ -47,6 +47,7 @@
 @@ROOT@@/src/app/driver/ts/murata/ncxxxxh103
 @@ROOT@@/src/app/driver/ts/vishay/ntcalug01a103g
 @@ROOT@@/src/app/driver/ts/vishay/ntcle317e4103sba
+@@ROOT@@/src/app/driver/ts/tdk/ntcg163jx103dt1s
 @@ROOT@@/src/app/engine/config
 @@ROOT@@/src/app/engine/database
 @@ROOT@@/src/app/engine/diag

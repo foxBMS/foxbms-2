@@ -22,9 +22,9 @@
     },
     "Command": {
       "_active": true,
-      "build_command": "$(builtin:AXIVION_CONFDIR)/../../../../fox.bat waf configure build_app_spa -v -c yes",
-      "clean_command": "$(builtin:AXIVION_CONFDIR)/../../../../fox.bat waf configure clean_app_spa -v -c yes",
-      "cwd": "."
+      "build_command": "pwsh -NoProfile -NoLogo -NonInteractive -File fox.ps1 waf configure build_app_spa -v -c yes",
+      "clean_command": "pwsh -NoProfile -NoLogo -NonInteractive -File fox.ps1 waf configure clean_app_spa -v -c yes",
+      "cwd": "$(builtin:AXIVION_CONFDIR)/../../../.."
     },
     "Git": {
       "_active": true,

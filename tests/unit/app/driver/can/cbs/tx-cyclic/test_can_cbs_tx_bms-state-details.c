@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_can_cbs_tx_bms-state-details.c
  * @author  foxBMS Team
  * @date    2021-07-27 (date of creation)
- * @updated 2024-12-20 (date of last update)
- * @version v1.8.0
+ * @updated 2025-03-31 (date of last update)
+ * @version v1.9.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -220,4 +220,76 @@ void test_BmsStateDetails(void) {
         testMessageData[10u], testCanDataZeroArray, CANTX_BMS_STATE_DETAILS_ENDIANNESS);
 
     CANTX_BmsStateDetails(testMessage, testCanDataZeroArray, NULL_PTR, &can_kShim);
+}
+
+void testSetTimingViolation(void) {
+    uint64_t testMessageData[10u] = {0u};
+    /* create timing violation response struct */
+    SYSM_TIMING_VIOLATION_RESPONSE_s testRecordedTimingViolations = {
+        .recordedViolationEngine    = true,
+        .recordedViolation1ms       = true,
+        .recordedViolation10ms      = true,
+        .recordedViolation100ms     = true,
+        .recordedViolation100msAlgo = true,
+    };
+
+    /* Test SetTimingViolationEngine */
+    CAN_ConvertBooleanToInteger_ExpectAndReturn(true, 1u);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 0u, 1u, 1u, CANTX_BMS_STATE_DETAILS_ENDIANNESS);
+    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[1u]);
+    TEST_CANTX_SetTimingViolationEngine(&testMessageData[0u], &can_kShim);
+
+    /* Test SetTimingViolation1ms */
+    CAN_ConvertBooleanToInteger_ExpectAndReturn(true, 1u);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[1u], 1u, 1u, 1u, CANTX_BMS_STATE_DETAILS_ENDIANNESS);
+    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[2u]);
+    TEST_CANTX_SetTimingViolation1ms(&testMessageData[1u], &can_kShim);
+
+    /* Test SetTimingViolation10Ms */
+    CAN_ConvertBooleanToInteger_ExpectAndReturn(true, 1u);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[2u], 2u, 1u, 1u, CANTX_BMS_STATE_DETAILS_ENDIANNESS);
+    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[3u]);
+    TEST_CANTX_SetTimingViolation10Ms(&testMessageData[2u], &can_kShim);
+
+    /* Test SetTimingViolation100Ms */
+    CAN_ConvertBooleanToInteger_ExpectAndReturn(true, 1u);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[3u], 3u, 1u, 1u, CANTX_BMS_STATE_DETAILS_ENDIANNESS);
+    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[4u]);
+    TEST_CANTX_SetTimingViolation100Ms(&testMessageData[3u], &can_kShim);
+
+    /* Test SetTimingViolation100MsAlgo */
+    CAN_ConvertBooleanToInteger_ExpectAndReturn(true, 1u);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[4u], 4u, 1u, 1u, CANTX_BMS_STATE_DETAILS_ENDIANNESS);
+    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[5u]);
+    TEST_CANTX_SetTimingViolation100MsAlgo(&testMessageData[4u], &can_kShim);
+
+    /* Test SetTimingViolationEngineRec */
+    CAN_ConvertBooleanToInteger_ExpectAndReturn(true, 1u);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[5u], 8u, 1u, 1u, CANTX_BMS_STATE_DETAILS_ENDIANNESS);
+    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[6u]);
+    TEST_CANTX_SetTimingViolationEngineRec(&testMessageData[5u], &testRecordedTimingViolations);
+
+    /* Test SetTimingViolation1MsRec */
+    CAN_ConvertBooleanToInteger_ExpectAndReturn(true, 1u);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[6u], 9u, 1u, 1u, CANTX_BMS_STATE_DETAILS_ENDIANNESS);
+    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[7u]);
+    TEST_CANTX_SetTimingViolation1MsRec(&testMessageData[6u], &testRecordedTimingViolations);
+
+    /* Test SetTimingViolation10MsRec */
+    CAN_ConvertBooleanToInteger_ExpectAndReturn(true, 1u);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[7u], 10u, 1u, 1u, CANTX_BMS_STATE_DETAILS_ENDIANNESS);
+    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[8u]);
+    TEST_CANTX_SetTimingViolation10MsRec(&testMessageData[7u], &testRecordedTimingViolations);
+
+    /* Test SetTimingViolation100MsRec */
+    CAN_ConvertBooleanToInteger_ExpectAndReturn(true, 1u);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[8u], 11u, 1u, 1u, CANTX_BMS_STATE_DETAILS_ENDIANNESS);
+    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[9u]);
+    TEST_CANTX_SetTimingViolation100MsRec(&testMessageData[8u], &testRecordedTimingViolations);
+
+    /* Test SetTimingViolation100MsAlgoRec */
+    CAN_ConvertBooleanToInteger_ExpectAndReturn(true, 1u);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[9u], 12u, 1u, 1u, CANTX_BMS_STATE_DETAILS_ENDIANNESS);
+    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[10u]);
+    TEST_CANTX_SetTimingViolation100MsAlgoRec(&testMessageData[9u], &testRecordedTimingViolations);
 }

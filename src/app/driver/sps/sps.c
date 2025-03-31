@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    sps.c
  * @author  foxBMS Team
  * @date    2020-10-14 (date of creation)
- * @updated 2024-12-20 (date of last update)
- * @version v1.8.0
+ * @updated 2025-03-31 (date of last update)
+ * @version v1.9.0
  * @ingroup DRIVERS
  * @prefix  SPS
  *
@@ -167,7 +167,7 @@ static void SPS_SetContactorsTxBuffer(void);
  *          state of the contactor channels. This update has been assembled
  *          before the call of this function with the function
  *          #SPS_SetContactorsTxBuffer().
- * @returns returns STD_OK if both transactions have been successful
+ * @return  returns STD_OK if both transactions have been successful
  */
 static STD_RETURN_TYPE_e SPS_Transmit(void);
 
@@ -678,6 +678,26 @@ extern void SPS_SwitchOffAllGeneralIoChannels(void) {
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
 #ifdef UNITY_UNIT_TEST
+extern void TEST_SPS_SingleDeviceRegisterWrite(
+    uint8_t device,
+    const uint16_t address,
+    uint8_t writeData,
+    SPS_WRITE_TYPE_e writeType,
+    uint16_t *pSpiTxBuffer) {
+    SPS_SingleDeviceRegisterWrite(device, address, writeData, writeType, pSpiTxBuffer);
+}
+extern void TEST_SPS_SetCommandTxBuffer(const SPS_ACTION_e action) {
+    SPS_SetCommandTxBuffer(action);
+}
+extern void TEST_SPS_GlobalRegisterWrite(const uint16_t address, uint8_t writeData, uint16_t *pSpiTxBuffer) {
+    SPS_GlobalRegisterWrite(address, writeData, pSpiTxBuffer);
+}
+extern void TEST_SPS_GlobalRegisterRead(
+    const uint16_t address,
+    const SPS_READ_TYPE_e controlOrDiagnostic,
+    uint16_t *pSpiTxBuffer) {
+    SPS_GlobalRegisterRead(address, controlOrDiagnostic, pSpiTxBuffer);
+}
 extern void TEST_SPS_RequestChannelState(SPS_CHANNEL_INDEX channelIndex, SPS_CHANNEL_FUNCTION_e channelFunction) {
     SPS_RequestChannelState(channelIndex, channelFunction);
 }

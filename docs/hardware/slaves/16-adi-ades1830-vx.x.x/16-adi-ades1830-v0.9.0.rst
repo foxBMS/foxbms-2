@@ -40,7 +40,6 @@ voltage, which is equivalent to a cell voltage of 3.6 |_| V per cell.
 No sense lines have been connected for this measurement (as the impact of cell
 voltage sensing is negligible on the current consumption).
 
-
 .. csv-table:: Electrical Ratings
    :name: adi_ades1830_slave_18cell_v0.9.0_electrical_ratings
    :header-rows: 1
@@ -97,7 +96,6 @@ The pinout is described in
    :header-rows: 1
    :delim: ;
    :file: ./16-adi-ades1830-v0.9.0/16-adi-ades1830-v0.9.0_cell_voltage-sense-connector.csv
-
 
 The |VBAT+| and |VBAT-| connection is used for the internal power supply of the
 slave board.
@@ -163,7 +161,6 @@ The isoSPI ports are bidirectional, that means they can be used in forward and
 reverse direction.
 The isoSPI connections are isolated galvanically using pulse transformers
 (T500/T501).
-
 
 The pinout of the isoSPI connectors is described in
 :numref:`Table %s <adi_ades1830_slave_16cell_v0.9.0_daisy_input_connectors>`

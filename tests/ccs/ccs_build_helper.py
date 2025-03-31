@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -46,14 +46,8 @@ import shutil
 import sys
 from pathlib import Path
 
-HAVE_GIT = False
-try:
-    from git import Repo
-    from git.exc import InvalidGitRepositoryError
-
-    HAVE_GIT = True
-except ImportError:
-    pass
+from git import Repo
+from git.exc import InvalidGitRepositoryError
 
 
 def get_git_root(path: str) -> str:
@@ -66,12 +60,11 @@ def get_git_root(path: str) -> str:
         root (string): root path of the git repository
     """
     root = os.path.join(os.path.dirname(path), "..", "..", "..")
-    if HAVE_GIT:
-        try:
-            repo = Repo(path, search_parent_directories=True)
-            root = repo.git.rev_parse("--show-toplevel")
-        except InvalidGitRepositoryError:
-            pass
+    try:
+        repo = Repo(path, search_parent_directories=True)
+        root = repo.git.rev_parse("--show-toplevel")
+    except InvalidGitRepositoryError:
+        pass
     return root
 
 
@@ -103,6 +96,7 @@ def main():
             "ccs1100",
             "ccs1100-c99",
             "ccs1200",
+            "ccs1281",
             "expect-failure",
         ],
         help="set the CCS version",

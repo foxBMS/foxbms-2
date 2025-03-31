@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    os_freertos.c
  * @author  foxBMS Team
  * @date    2021-11-18 (date of creation)
- * @updated 2024-12-20 (date of last update)
- * @version v1.8.0
+ * @updated 2025-03-31 (date of last update)
+ * @version v1.9.0
  * @ingroup OS
  * @prefix  OS
  *
@@ -86,10 +86,11 @@ void OS_StartScheduler(void) {
     FAS_ASSERT(FAS_TRAP);
 }
 
-void vApplicationGetIdleTaskMemory(
+/* TODO: Remove UNIT_TEST_WEAK_IMPL when fixing #1063*/
+void UNIT_TEST_WEAK_IMPL vApplicationGetIdleTaskMemory(
     StaticTask_t **ppxIdleTaskTCBBuffer,
     StackType_t **ppxIdleTaskStackBuffer,
-    uint32_t *pulIdleTaskStackSize) {
+    configSTACK_DEPTH_TYPE *pulIdleTaskStackSize) {
     /** Buffer for the Idle Task's structure */
     static StaticTask_t os_idleTask = {0};
     /** @brief Stack for the Idle task */
@@ -106,7 +107,7 @@ void vApplicationGetIdleTaskMemory(
 void vApplicationGetTimerTaskMemory(
     StaticTask_t **ppxTimerTaskTCBBuffer,
     StackType_t **ppxTimerTaskStackBuffer,
-    uint32_t *pulTimerTaskStackSize) {
+    configSTACK_DEPTH_TYPE *pulTimerTaskStackSize) {
 #if (configUSE_TIMERS > 0) && (configSUPPORT_STATIC_ALLOCATION == 1)
     /** Buffer for the Timer Task's structure */
     static StaticTask_t os_timerTask;
@@ -122,7 +123,8 @@ void vApplicationGetTimerTaskMemory(
 }
 #endif /* configUSE_TIMERS */
 
-void vApplicationIdleHook(void) {
+/* TODO: Remove UNIT_TEST_WEAK_IMPL when fixing #1063*/
+void UNIT_TEST_WEAK_IMPL vApplicationIdleHook(void) {
     FTSK_RunUserCodeIdle();
 }
 
@@ -139,7 +141,8 @@ void vApplicationIdleHook(void) {
 /* AXIVION Next Codeline Style Generic-MissingParameterAssert: As stated above,
    the parameters are not used, so there is no reason to assert their on their
    values.*/
-void vApplicationStackOverflowHook(TaskHandle_t xTask, char *pcTaskName) {
+/* TODO: Remove UNIT_TEST_WEAK_IMPL when fixing #1063*/
+void UNIT_TEST_WEAK_IMPL vApplicationStackOverflowHook(TaskHandle_t xTask, char *pcTaskName) {
     /* After the FreeRTOS stack overflow detection has been triggered, try to
        instantly send a CAN message, that tells the higher level control unit,
        that a stack overflow appeared in one of the FreeRTOS tasks. */

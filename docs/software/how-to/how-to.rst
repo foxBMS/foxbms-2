@@ -22,6 +22,7 @@ BMS Software Modules
     ./../modules/driver/afe/adding-a-new-ic_how-to
     ./../modules/driver/ts/adding-a-new-ts_how-to
     ./../modules/application/bms/bms_how-to
+    ./../bootloader/bootloader_how-to
 
 Other
 -----
@@ -32,5 +33,5 @@ Other
     ./../../developer-manual/style-guide/state-machines_how-to
     ./../configuration/without-halcogen_how-to
     ./../unit-tests/unit-tests_how-to
-    ./../build-environment/build-environment_how-to
     ./../build-process/library-project_how-to.rst
+    ./../operating-system/ping_foxbms-how_to.rst

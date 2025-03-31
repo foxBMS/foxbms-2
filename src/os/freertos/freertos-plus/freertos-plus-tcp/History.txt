@@ -1,0 +1,522 @@
+Documentation and download available at https://www.FreeRTOS.org/
+
+Changes between FreeRTOS-plus-TCP V4.2.1 and V4.2.0 released June 27, 2024
+    + Update version information in source files.
+
+Changes between FreeRTOS-plus-TCP V4.2.0 and V4.1.0 released June 24, 2024
+    + It was possible for a carefully crafted DNS response with domain name
+      length value greater than the actual domain name length, to cause a buffer
+      over-read within the DNS Response Parser. This issue affects applications
+      using DNS functionality of the FreeRTOS-Plus-TCP stack.
+      Applications that do not use DNS functionality are not affected,
+      even when the DNS functionality is enabled.
+      This issue has been fixed by modifying the code to ensure that the DNS
+      Response Parser never attempts to read beyond the DNS
+      response buffer boundary.
+      We would like to thank Paschal Amusuo, James C. Davis, and
+      Aravind Machiry of Purdue University, for reporting this issue.
+    + Fixed possible freed memory being reused while creating TCP sockets.
+      We thank @htibosch  for their contribution.
+    + Fixed possible NULL pointer dereference in TCP transmission.
+      We thank @anordal for their contribution.
+    + Added network interface port for ARM Corstone-315 (MPS4_CS315).
+      We thank @david-hazi-arm for their contribution.
+    + Fixed MISRA C 2012 issues in the code
+    + Replaced the usage strcpy with strncpy
+    + Improved memory allocation failure handling in `vDNSSetCallBack` by
+      propagating error signal back. We thank @hlef for reporting this issue.
+    + Improved memory allocation failure handling in `prvCreateSectors` by
+      propagating error signal back. We thank @hlef for reporting this issue.
+    + Enabled build on CI with sanitizers, fixed all AddressSanitizer
+      and UB-Sanitizer errors. We thank @anordal for their contribution.
+    + Fixed mDNS lookups while parsing the mDNS answers.
+      We thank @htibosch for their contribution.
+    + Fixed DNS name resolution responses when the device IP address
+      is `0.0.0.0`. We thank @evpopov  for their contribution.
+    + Avoided FreeRTOS-Plus-TCP forcing to use the compilation options
+      set in the library CMake project in user projects.
+      We thank @apcountryman  for their contribution.
+    + Enabled user control of compiler analysis for non ISO statements.
+      We thank @thirtytwobits for their contribution
+    + Fixed use of removed macro in ATSAME5x network interface.
+      We thank @apcountryman  for their contribution.
+    + Fixed inconsistent use of `ipconfigCOMPATIBLE_WITH_SINGLE`
+      & `ipconfigIPv4_BACKWARD_COMPATIBLE`
+    + Resolved Unit Test Build Warnings
+    + Added network interface functions for multicast MAC address filtering.
+      We thank @evpopov for their contribution.
+    + Fixed missing `ipconfigUSE_DNS_CACHE` check in FreeRTOS_DNS.c.
+    + Avoided compiler warnings about the printf formats in IPv6 modules.
+      We thank @htibosch for their contribution.
+    + Removed deprecated macro `ipconfigMULTI_INTERFACE`.
+      We thank @HTRamsey for their contribution.
+    + Removed unused function xProcessedTCPMessage.
+      We thank @HTRamsey for their contribution.
+    + Removed deprecated macros ipLOCAL_MAC_ADDRESS and
+      `ipLOCAL_IP_ADDRESS_POINTER`. We thank @HTRamsey  for their contribution.
+    + Fixed eARPGetCacheEntryGateWay to properly report when no valid gateway is found
+      for a packet that needs to be sent outside the local network.
+      We thank @evpopov  for their contribution.
+    + Combined duplicated IPv4/IPv6 TCP code.
+      We thank @HTRamsey for their contribution.
+    + Improved validation of configuration macros in the default
+      IP config using static compile time checks.
+      We thank @HTRamsey for their contribution.
+    + Repaired ARP unit tests which were accessing packet memory
+      outside of allocated bounds.
+    + Moved CMake compile options to test builds to avoid build issues in
+      user projects that might be not be supporting compiler options used
+      in the original Cmake. We thank @apcountryman  for their contribution.
+    + Cleaned up CMake by adding: additional unit tests, incorporating missing
+      network interface support, removing unused "config files" that are no longer
+      required, and fixing file name issues in the unit testing framework.
+      We thank @HTRamsey for their contribution.
+
+Changes between FreeRTOS-plus-TCP V4.1.0 and V4.0.0 released March 8, 2024
+	+ Add new Network Interface for Corstone-300 FVP (MPS3_AN552).
+	  We thank @urutva for their contribution.
+	+ Add new loopback Network Interface.
+	  We thank @htibosch for their contribution.
+	+ Add FreeRTOS_get_tx_base() API to return the TCP Tx stream buffer pointer.
+	  We thank @htibosch for their contribution.
+	+ Add FreeRTOS_InterfaceEPInSameSubnet_IPv6 API to find an IPv6 endpoint on
+	  the given interface that is in the same subnet as the given IP address.
+	+ Add checks to prevent potential integer overflow in the buffer
+	  allocation APIs.
+	+ Improve performance by removing redundant critical sections.
+	  We thank @htibosch for their contribution.
+	+ Improve performance on 64-bit targets by correctly setting
+	  ipBUFFER_PADDING to satisfy the architecture’s alignment requirements.
+	  We thank @htibosch for their contribution.
+	+ Improve FreeRTOS_send() API performance by not iterating more times than
+	  necessary when trying to send data.
+	  We thank @htibosch for their contribution.
+	+ Update the Neighbour Discovery cache behavior to overwrite the oldest
+	  entry when the cache is full. We thank @evpopov for their contribution.
+	+ Update the FreeRTOS_get_tx_head() API to create the TCP Tx stream buffer
+	  if it wasn't already created for the given socket.
+	+ FreeRTOS_GetIPType is now always available, regardless of the value of
+	  ipconfigUSE_TCP. We thank @HTRamsey for their contribution.
+	+ Improve tracing support by adding more trace macros.
+	  We thank @HTRamsey for their contribution.
+	+ Add support for multiple endpoints in STM32Hxx Network Interface.
+	  Earlier it was capable of handling upto 3 endpoints only.
+	+ Fix potential NULL pointer dereference when a packet from a subnet other
+	  than the endpoint's subnet is received on an endpoint that has no gateway
+	  configured. We thank @htibosch for their contribution.
+	+ Fix TCP zero-copy functionality by removing incorrect NULL check for
+	  pvBuffer parameter in the FreeRTOS_Send API.
+	  We thank @evpopov for their contribution.
+	+ Fix the network buffer leak in the Neighbour Discovery (ND) code.
+	  We thank @htibosch for their contribution.
+	+ ARP requests are now sent only on the endpoint with IP address in the same
+	  subnet as the ARP request’s target address. Earlier ARP requests were sent
+	  over all the available endpoints.
+	  We thank @evpopov for their contribution.
+	+ Neighbor Solicitation (NS) responses are now correctly sent on the same
+	  endpoint on which the Neighbor Solicitation request is received.
+	  Earlier, it could be sent out on a wrong interface when multiple IPv6
+	  Link Local endpoints were present on different interfaces.
+	  We thank @evpopov for their contribution.
+	+ Responses to mDNS/LLMNR/NBNS requests are now sent on the the same
+	  endpoint on which the request was received. Earlier, it could be sent out
+	  on a wrong endpoint. We thank @evpopov for their contribution.
+	+ Fix size calculation in the neighbor solicitation handling code to avoid a
+	  buffer reallocation always. We thank @evpopov for their contribution.
+	+ Fix FreeRTOS_getaddrinfo_a API to use the address family supplied in
+	  xHints parameter instead of always using IPv6.
+	  We thank @evpopov for their contribution.
+	+ Fix IPv4 incoming packet filtering logic to correctly filter out unicast
+	  packets not destined to the device, when
+	  ipconfigETHERNET_DRIVER_FILTERS_FRAME_TYPES is enabled.
+	  We thank @evpopov for their contribution.
+	+ Improve error handling in STM32H7xx Network Interface.
+	  We thank @htibosch for their contribution.
+	+ Update the IPv4 packet filtering logic to correctly discard bad loopback
+	  packets originating outside of the network.
+	+ Ensure that the hostname string in DNS resolution code is NULL terminated,
+	  even when the destination buffer is not large enough to hold the complete
+	  string. We thank @bjsowa for their contribution.
+	+ Fix the network down and up process to correctly restart DHCP/RA timers.
+	  We thank @bjsowa for their contribution.
+	+ Fix SAME70 Network Interface to correctly release Tx semaphore when the
+	  network interface fails to transmit.
+	  We thank @evpopov for their contribution.
+	+ Update NXP1060 Network Interface to handle network cable disconnection.
+	  We thank @microcris for their contribution.
+	+ Update the alignment specifier in TM4C Network Interface to make it
+	  compatible with both CCS and GCC compilers.
+	  We thank @jonathangjertsen for their contribution.
+	+ Fix minimum length check for ICMP/ping packets.
+	  We thank @htibosch for their contribution.
+	+ Fix received packet length calculation in the SAM Network Interface.
+	  We thank @htibosch for their contribution.
+	+ Remove obsolete structs xNetworkAddressing and xDefaultAddressing.
+	  We thank @evpopov for their contribution.
+	+ Fix compilation with Clang 17 and updated log output.
+	  We thank @Mixaill for their contribution.
+	+ Fix compiler warnings with the -Wpedantic option.
+	  We thank @Mixaill for their contribution.
+	+ Fix compiler warnings in the SAM Network Interface.
+	  We thank @Peter-Herrmann for their contribution.
+	+ Streamline the usage of const in stream buffer APIs.
+	  We thank @HTRamsey for their contribution.
+	+ Debug logs, printed using FreeRTOS_debug_printf, are now correctly
+	  guarded using the macro ipconfigHAS_DEBUG_PRINTF.
+	  We thank @microcris for their contribution.
+	+ Add the LIBSLIRP Network Interface to be available in the CMakelists
+	  Network Interface selection. We thank @bjsowa for their contribution.
+	+ Move static assert definition to a common header file to make it available
+	  to all the source files. Also, remove redundant macro check definitions.
+	  We thank @HTRamsey for their contribution.
+	+ Remove the xCheckLoopback function. It is no longer needed as we now
+	  have a loopback interface. We thank @htiboschfor their contribution.
+
+Changes between FreeRTOS-plus-TCP V4.0.0 and V3.1.0 released August 10, 2023
+	+ Unified code for both IPv4 and IPv6 protocols.
+        + Multiple Interface and Multiple Endpoint support
+		1. The stack supports multiple Physical Interfaces.
+		2. The stack also supports multiple endpoints (or Virtual interfaces) on the same physical interface.
+        + New WinSim demo to support IPv4, IPv6 and multi-interface together.
+	(Reference: https://github.com/FreeRTOS/FreeRTOS/tree/main/FreeRTOS-Plus/Demo/FreeRTOS_Plus_TCP_IPv6_Demo/IPv6_Multi_WinSim_demo)
+	+ Build separation feature introduced to achieve low memory footprint. Supported build combinations:
+		    1. IPv4 + UDP
+		    2. IPv4 + UDP + TCP
+		    3. IPv6 + UDP
+		    4. IPv6 + UDP + TCP
+		    5. IPv4 + IPv6 + UDP
+		    6. IPv4 + IPv6 + UDP + TCP
+	+ Support added in FreeRTOS-plus-TCP git repository CI tool to validate various build configurations before PR merge.
+	+ Achieved 100% unit test coverage for both IPv4 and IPv6.
+	+ MISRA c-2012 compliance for both IPv4 and IPv6.
+	+ Addressed several issues observed by Maxwell Protocol tester.
+	+ Memory safety proofs for IPv6 code using[ CBMC automated reasoning tool ] (https://www.cprover.org/cbmc/).
+	+ Stack is Penetration tested and a memory leak issue has been identified and fixed in the process.
+	(Reference: https://github.com/FreeRTOS/FreeRTOS-Plus-TCP/pull/973)
+	+ Improved Documentation:
+		1. Multi-interface and Multi-endpoint documentation.
+		2. Updated stack initialization documentation to support multi-interface and endpoint.
+		(Reference: https://freertos-wordpress.corp.amazon.com/FreeRTOS-Plus/FreeRTOS_Plus_TCP/TCP_Networking_Tutorial_Initialising_TCP.updated.html)
+		3. Code size details for various build configurations
+		(Reference: https://www.freertos.org/FreeRTOS-Plus/FreeRTOS_Plus_TCP/index.html).
+		4. Documentation added for IPv6 protocol support.
+		5. Documentation added for various IPv6 functionalities like DHCPv6, ND (Neighbour Discovery), RA (Router Advertisement).
+		6. README added for the network ports.
+
+We thank the following people for their inputs in these enhancements:
+	+ Add mDNS fixes for IPv6. Contributed by @evpopov.
+	+ IP offset calculation improvement. Contributed by @evpopov.
+	+ CCS compiler fix for packed structs. Contributed by @rahul-arasikere.
+	+ Add tasking compiler support. Contributed by @go2sh.
+	+ Add NetworkDown notification support to STM32FXX. Contributed by @zipperowiec.
+	+ CMake changes. Contributed by @phelter.
+	+ STM32Hxx porting fixes. Contributed by @miguelfreitas.
+	+ Allow use of loopback addresses. Contributed by @adam-stamand.
+	+ CBMC proof-running GitHub Action. Contributed by @karkhaz.
+	+ CBMC XML output to enable VSCode debugger. Contributed by @karkhaz.
+	+ vTaskDelay for sleep in the network-interface of xilinx_ultrascale.Contributed by @ChristosZosi.
+	+ Read mac address using FreeRTOS_GetMACAddress(). Contributed by @sayyadumar.
+	+ Minor warning fixes. Contributed by @ChristosZosi.
+	+ Network-interface fix for Xilinx UltraScale port. Contributed by @ChristosZosi.
+
+Changes between 4.0.0-RC3 and 4.0.0-RC2 releases:
+		+ Added memory safety proofs for IPv6 using[ CBMC automated reasoning tool ] ( https:/*www.cprover.org/cbmc/)
+		+ Introduced build separation feature to achieve low memory footprint. Supported build combinations:
+		    1. IPv4 + UDP
+		    2. IPv4 + UDP + TCP
+		    3. IPv6 + UDP
+		    4. IPv6 + UDP + TCP
+		    5. IPv4 + IPv6 + UDP
+		    6. IPv4 + IPv6 + UDP + TCP
+
+Changes between 4.0.0-RC2 and 4.0.0-RC1 releases:
+        + Added changes to fix IPv6 issues observed by Maxwell protocol tester.
+
+Changes between RC1 and V3.0.0 releases:
+        + Unified code for IPv4 and IPv6
+        + Multiple Interface/Endpoint support
+	(Reference: https://www.freertos.org/FreeRTOS-Plus/FreeRTOS_Plus_TCP/freertostcp-multiple-interfaces.html).
+        + New WinSim demo to support both IPv4 and IPv6.
+**Note**- This release does not support ESP32/ M487/ mw300_rd ports yet. This will be released soon.
+
+Changes between V3.0.0 and V3.1.0 releases:
+        + Fixed a bug in the Connect function where multiple SYN and RST packet combinations can
+          lead to orphaned sockets.
+        + Added network interface support for NetifSlirp.
+
+Changes between V3.0.0 and V2.4.0 releases:
+        + Split the source files according to the function the code performs.
+          This makes the code modular making test coverage easier.
+        + Achieved 100% unit-test coverage.
+        + Improved RFC compliance.
+        + Improved MISRA c-2012 compliance.
+
+        Helpful links to help you upgrade to V3
+        + https://github.com/FreeRTOS/FreeRTOS-plus-tcp#generating-pre-v300-folder-structure-for-backward-compatibility
+        + https://www.freertos.org/2022/08/the-freertos-plus-tcp-library-is-now-more-robust-and-secure.html
+
+Changes between V2.3.3 and V2.3.4 releases:
+        + Added a check in BufferAllocation_2.c to ensure adding (2 +
+          ipBUFFER_PADDING) bytes to the requested allocation size does
+          not cause an integer overflow. Thanks to Bernard Lebel
+          (RMDS Innovation) reporting this potential issue.
+        + Updated FreeRTOS_inet_pton4() so it rejects IP addresses that
+          have leading zeros. Previously, if the IP address had leading
+          zeros, perhaps because it was entered in octal format, the
+          address was interpreted as decimal (the leading zeros were
+          stripped). That could result in the function returning an
+          unexpected IP address.
+        + Added logic to clear flags of a stored TCP packet to avoid
+          sending incorrect flags when receiving incorrect packets from
+          the peer.
+        + Fixed the IP header checksum calculation of ICMP response.
+
+Changes between V2.3.2 and V2.3.3 releases:
+        + When a listening socket is closed, all child sockets not yet owned by the
+          application will be closed too. (Thanks Bernd Edlinger).
+        + Updated buffer allocation to return a zero length buffer when
+          requested. (Thanks Thomas Pedersen).
+        + When there is insufficient space in the network event queue, closing of a
+          socket will be deferred for a later time. (Thanks Bernd Edlinger).
+        + Allow IP-task to clean up while deleting socket-sets to avoid race
+          conditions. (Thanks Bernd Edlinger).
+        + Added FreeRTOS+TCP version number macros.
+	+ Repaired buffer leak in NBNS reply logic.
+	+ Added a hook function which can be used to process unsupported ethernet
+	  frames.
+	+ Added a check for ICMP packets with incorrect checksum.
+
+Changes between V2.3.1 and V2.3.2 releases:
+	+ When a protocol error occurs during the SYN-phase of a TCP connection, a
+	  child socket will now be closed ( calling FreeRTOS_closesocket() ),
+	  instead of being given the eCLOSE_WAIT status. A client socket, which calls
+	  connect() to establish a connection, will receive the eCLOSE_WAIT status,
+	  just like before.
+	+ Fixed a race condition in DHCP state machine which occurred when the macro
+	  dhcpINITIAL_TIMER_PERIOD was set to a very low value.
+
+Changes between V2.3.0 and V2.3.1 releases:
+	+ Fixed UDP only compilation.
+	+ Added description for functions and variables in Doxygen compatible format.
+	+ Fixed asynchronous DNS lookup which was broken due to changed function
+	  signature of prvParseDNSReply.
+
+Changes between V2.2.2 and V2.3.0 releases:
+	+ Moved FreeRTOS+TCP source code to an independent repository
+	  FreeRTOS/FreeRTOS-Plus-TCP.
+
+Changes between V2.2.1 and V2.2.2 releases:
+	+ Updated the source code to adhere to stricter MISRA compliance.
+
+Changes between V2.0.0 and V2.2.1 releases:
+	+ Improved security by giving users the option to reject UDP packets with a
+	  checksum of zero even though the UDP spec allows it.
+	+ Improved robustness by checking packet lengths in software even if the check
+	  has already been performed in the hardware.
+	+ Added ipconfigIP_PASS_PACKETS_WITH_IP_OPTIONS macro to enable users to
+	  drop/accept IP Packets containing IP options (IP options are not supported).
+	+ Modified xDataLength to always mean "total number of bytes" to impart more
+	  clarity.
+	+ Replaced the ipconfigRAND32 macro with a function
+	  xApplicationGetRandomNumber(). The return value indicates if the randomiser
+	  is broken or working properly. Before this, a random value of 0 was treated
+	  as invalid, whereas 0 can be a proper random value.
+	+ Made changes in DNS to make asynchronous lookup work.
+	+ Made FreeRTOS_OutputARPRequest() available for application code. Now the
+	  application can start an ARP request directly by sending a UDP packet.
+	+ Made Socket_t and SocketSet_t point to a struct in stead of void.
+	+ Corrected the DNSs protocol-checksum calculation length.
+	+ Corrected length-check in usGenerateProtocolChecksum().
+	+ Modified pxGetNetworkBufferWithDescriptor() function to check if a counting
+	  semaphore has been created. Earlier when a user tried to get a Network
+	  Buffer before the IP-task started, the function could crash.
+	+ Made TCP low-water/high-water limits configurable with a socket option.
+	+ The 'ucFirstOptionByte' was counted twice in earlier releases, subtract 1
+	  byte to send the correct amount of bytes.
+	+ Corrected the WIN size reporting to the TCP peer. The WIN size as reported
+	  to the TCP peer was sometimes running slightly behind.
+	+ Added a function FreeRTOS_dnsclear() which invalidates the entire DNS cache.
+	+ Added DNS response transaction ID check. The DNS cache shall only be updated
+	  when the ID in the reply comes from the device.
+
+Changes between 180821 and V2.0.0 releases:
+	+ Move the TCP source code from FreeRTOS/FreeRTOS-Labs to FreeRTOS/FreeRTOS
+	  repository.
+
+Changes between 160919 and 180821 releases:
+
+	+ Multiple security improvements and fixes in packet parsing routines, DNS
+	  caching, and TCP sequence number and ID generation.
+	+ Disable NBNS and LLMNR by default.
+	+ Add TCP hang protection by default.
+
+We thank Ori Karliner of Zimperium zLabs Team for reporting these issues.
+
+Changes between 160908 and 160919 releases:
+
+	+ Add a NULL check before attempting to close the DHCP socket.  [Prior to
+	  160823 the IP task closed the DHCP socket by calling a public API function
+	  - which checked for the socket being NULL.  This was changed to call a
+	  local private function, which did not have a NULL check, in place of the
+	  public API function.]
+	+ Various [internal only] naming changes to better comply with the FreeRTOS
+	  naming conventions.
+	+ Improvements to the Zynq network driver.  DMA transmission buffers now use
+	  a counting semaphore. When all TX-buffers are in-use, the IP-task will
+	  block momentarily until a TX-buffer becomes available.
+	+ Experimental implementation of the TCP window scaling protocol.  The
+	  scaling option will always be offered, at least with a factor 1. If the
+	  TCP sliding window size becomes more than 64KB, the factor will increase
+	  automatically.
+	+ ipconfigETHERNET_MINIMUM_PACKET_BYTES is now applied for every protocol:
+	  TCP, UDP, and ARP.
+	+ Updated the Zynq project to use BufferAllocation_1.c rather than
+	  BufferAllocation_2.c - which is a requirement with its current
+	  configuration (due to the alignment requirements on the combined cache and
+	  DMA configuration).
+
+Changes between 160823 and 160908 releases:
+
+	+ Use ipconfigZERO_COPY_TX_DRIVER as the xReleaseAfterSend() parameter where
+	  prvTCPReturnPacket() is called in prvSendData() to prevent unnecessary
+	  copying of data.
+	+ Remove the use of the uxGetRxEventCount variable, which was used to give
+	  priority to incoming messages, but could result in the IP task starving
+	  application tasks of processing time.
+
+Changes between 160112 and 160823 releases
+
+	NOTE:  The 160908 release is a maintenance release for the 160112 single
+	interface labs release - not a release of the current development branch.
+
+	+ Various minor stability enhancements, including the ability to work with
+	  configTICK_RATE_HZ set to less than 1KHz, closing DHCP sockets directly
+	  rather than via FreeRTOS_closesocket(), and better handling of unknown
+	  TCP packets before an IP address has been assigned.
+	+ ipBUFFER_PADDING is now configurable through the ipconfigBUFFER_PADDING
+	  constant to improve network buffer alignment handling capabilities (expert
+	  users/driver writers only).
+	+ Multiple improvements to the FTP server, including to how read only and
+	  zero length files are handled.
+	+ ipconfigFTP_HAS_USER_PROPERTIES_HOOK (to allow each user to have a
+	  different root directory and access rights) and
+	  ipconfigHTTP_HAS_HANDLE_REQUEST_HOOK (to handle AJAX style data)
+	  introduced, although these are not yet fully tested and the constant names
+	  are likely to change.
+	+ Introduce ipconfigHAS_TX_CRC_OFFLOADING.
+	+ ipconfigUSE_DHCP_HOOK is now called ipconfigUSE_DHCP_HOOK, and the name
+	  of the callback function has also changed.  See the web documentation for
+	  details.
+	+ ipconfigTCP_RX_BUF_LEN is now ipconfigTCP_RX_BUFFER_LENGTH, and
+	  ipconfigTCP_TX_BUF_LEN is now ipconfigTCP_TX_BUFFER_LENGTH, which is
+	  actually how they have always been documented.
+	+ Added example TFTP server capable of receiving (not sending) files.
+	  Intended for bootloader type functionality.
+	+ Various variable name changes for consistency (mainly ensuring UDP, TCP,
+	  DNS, etc. always use the same case letters, and type prefixes are correct).
+	+ Various minor edits to improve types used by internal variables.
+	+ Simplified mapping of standard library functions to their Visual Studio
+	  equivalents.
+	+ Improve robustness of network drivers.
+	+ Introduce pxResizeNetworkBufferWithDescriptor().
+	+ Removed obsolete FreeRTOSIPConfig.h constants from
+	  FreeRTOSIPConfigDefaults.h.
+	+ Added additional asserts() - predominantly to catch incorrect structure
+	  packing.
+
+Changes between 160112 and 160111 releases
+
+	+ Updated the STM32 network driver so checksums are calculated by the
+	  hardware.
+	+ Implemented a simple "quit" command in the TCP command console.
+
+Changes between 150825 and 160111 releases
+
+	+ New device support:  Demo applications and example drivers are provided
+	  for Atmel SAM4E and ST STM32F4 microcontrollers.
+	+ Various updates to improve compliance with the FreeRTOS coding standard.
+	+ Added a command console example that uses TCP/IP for input and output (the
+	  pre-existing command console example uses UDP/IP).
+	+ Updated the UDP logging example so it will send log messages to the local
+	  UDP broadcast address if a specific IP address is not provided.  This
+	  simplifies configuration, but note not all switches and routers will pass
+	  broadcast messages.
+	+ Add TCP echo client and TCP echo server examples to the Zynq demo.
+	+ Minor updates to the Zynq network driver.
+	+ Update the Zynq project to use version 2015.4 of the Xilinx SDK.
+	+ Introduce FreeRTOS_SignalSocket(), which can be used to interrupt a task
+	  that is blocked while reading from a socket ( FreeRTOS_recv[from] ).
+	+ Make use of FreeRTOS_SignalSocket() in the FTP and HTTP servers.
+	+ Major updates to the NTP client, although this is not included in any of
+	  the pre-configured demo applications yet.
+	+ Added support for DHCP zero pad option.
+	+ Added uxGetMinimumIPQueueSpace(), a function to monitor the minimum amount
+	  of space on the message queue.
+	+ Better handling of zero length files in the FTP server.
+	+ Fixed a bug reported by Andrey Ivanov from swissEmbedded that affects
+	  users of 'ipconfigZERO_COPY_TX_DRIVER'.
+
+
+Changes between 150825 150825 (?)
+
+	+ Added xApplicationDHCPUserHook() so a user defined hook will be
+	  called at certain points in the DHCP process if
+	  ipconfigDHCP_USES_USER_HOOK is set to 1.
+	+ Added FreeRTOS_get_tx_head() to improve TCP zero copy behaviour - for
+	  expert use only.
+	+ RST is no longer sent if only the ACK flag is set.
+	+ Previously, an immediate ACK was only sent when buffer space was
+	  exhausted.  Now, to improve performance, it is possible to send an
+	  immediate ACK earlier - dependent on the ipconfigTCP_ACK_EARLIER_PACKET
+	  setting.
+	+ LLMNR and NBNS requests can now be sent to locate other devices -
+	  previously these protocols would only be replied to, not generated.
+	+ Added Auto-IP functionality (still in test) in case DHCP fails.  Dependent
+	  on the ipconfigDHCP_FALL_BACK_LINK_LAYER_ADDRESS and
+	  ipconfigARP_USE_CLASH_DETECTION settings.
+	+ Added NTP code and demo.
+	+ FTP can now STOR and RETR zero-length files.
+	+ Added LLMNR demo to Win32 demo - so now the Win32 responds to
+	  "ping RTOSDemo".
+
+Changes between 141019 and 150825
+
+	+ Added FTP server, which uses the new FreeRTOS+FAT component.
+	+ Added basic HTTP server, which uses the new FreeRTOS+FAT component.
+	+ Multiple definitions that are now common with FreeRTOS+FAT have been moved
+	  into FreeRTOS's ProjDefs.h header file, and so prefixed with 'pd'.
+	+ Introduced ipconfigZERO_COPY_TX_DRIVER, which defines who is responsible
+	  for freeing a buffer sent to to the MAC driver for transmission, and
+	  facilitates the development of zero copy drivers.
+	+ Introduced the FREERTOS_MSG_DONTWAIT flag.  The flag can be used as a
+	  simpler and faster alternative to using FreeRTOS_setsockopt() to set the
+	  send or receive timeout to 0.
+	+ A few functions that were previously all lower case are now mixed case, as
+	  lower case function names are only used when they are equivalent to a
+	  a Berkeley sockets API function of the same name.
+	+ Introduced uxGetMinimumFreeNetworkBuffers() to return the minimum number
+	  of network buffers that have ever existed since the application started
+	  executing.
+	+ Introduce ipconfigETHERNET_MINIMUM_PACKET_BYTES to allow the application
+	  writer to set their own minimum buffer size should the hardware not be
+	  capable of padding under-sized Ethernet frames.
+	+ vNetworkBufferRelease() renamed vReleaseNetworkBuffer() - just for
+	  consistency with the names of other functions in the same file.
+	+ Grouped DHCP status data into a structure.
+	+ DHCP is now tried both with and without the broadcast flag.
+	+ Replaced occurrences of configASSERT_VOID() with configASSERT().
+	+ ipconfigDNS_USE_CALLBACKS introduced to allow FreeRTOS_gethostbyname() to
+	  be used without blocking.
+	+ Fix: LLMNR and NBNS behaviour when the reply is in a larger buffer than the
+	  request, and BufferAllocation_2 was used.
+	+ Introduced ipMAX_IP_TASK_SLEEP_TIME to allow the application writer to
+	  override the default value of 10 seconds.
+	+ Fix:  Correct error in *pxUDPPayloadBuffer_to_NetworkBuffer().
+	+ FreeRTOS_recv() now recognizes the FREERTOS_ZERO_COPY flag, which, when
+	  set, the void *pvBuffer parameter is interpreted as void **pvBuffer.
+	+ FreeRTOS_listen() now returns an error code.  Previously it always
+	  returned 0.
+	+ Fix:  Previously if a listening socket was reused, and a connection
+	  failed, the TCP/IP stack closed the socket, now the socket is correctly
+	  left unclosed as it is owned by the application.
+	+ Various other formatting and minor fix alterations.

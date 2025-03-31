@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_can_cbs_tx_pack-limits.c
  * @author  foxBMS Team
  * @date    2021-07-27 (date of creation)
- * @updated 2024-12-20 (date of last update)
- * @version v1.8.0
+ * @updated 2025-03-31 (date of last update)
+ * @version v1.9.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -410,21 +410,27 @@ void testCANTX_PackLimits(void) {
     float_t minimumBatteryVoltage = (float_t)(BS_NR_OF_CELL_BLOCKS_PER_STRING * BC_VOLTAGE_MIN_MSL_mV);
     float_t maximumBatteryVoltage = (float_t)(BS_NR_OF_CELL_BLOCKS_PER_STRING * BC_VOLTAGE_MAX_MSL_mV);
     /* ======= RT1/1: Test implementation */
-    CAN_TxPrepareSignalData_Ignore();
     DATA_Read2DataBlocks_ExpectAndReturn(can_kShim.pTableSof, can_kShim.pTablePackValues, STD_OK);
+    CAN_TxPrepareSignalData_Expect(&maximumDischargeCurrent, cantx_testSignalMaximumDischargeCurrent);
     CAN_TxSetMessageDataWithSignalData_Expect(
         &testMessageData[0u], 7u, 12u, (uint64_t)maximumDischargeCurrent, CANTX_PACK_LIMITS_ENDIANNESS);
+    CAN_TxPrepareSignalData_Expect(&maximumChargeCurrent, cantx_testSignalMaximumChargeCurrent);
     CAN_TxSetMessageDataWithSignalData_Expect(
         &testMessageData[0u], 11u, 12u, (uint64_t)maximumChargeCurrent, CANTX_PACK_LIMITS_ENDIANNESS);
+    CAN_TxPrepareSignalData_Expect(&maximumDischargePower, cantx_testSignalMaximumDischargePower);
     CAN_TxSetMessageDataWithSignalData_Expect(
         &testMessageData[0u], 31u, 12u, (uint64_t)maximumDischargePower, CAN_BIG_ENDIAN);
+    CAN_TxPrepareSignalData_Expect(&maximumChargePower, cantx_testSignalMaximumChargePower);
     CAN_TxSetMessageDataWithSignalData_Expect(
         &testMessageData[0u], 35u, 12u, (uint64_t)maximumChargePower, CAN_BIG_ENDIAN);
+    CAN_TxPrepareSignalData_Expect(&minimumBatteryVoltage, cantx_testSignalMinimumBatteryVoltage);
     CAN_TxSetMessageDataWithSignalData_Expect(
         &testMessageData[0u], 63u, 8u, (uint64_t)minimumBatteryVoltage, CANTX_PACK_LIMITS_ENDIANNESS);
+    CAN_TxPrepareSignalData_Expect(&maximumBatteryVoltage, cantx_testSignalMaximumBatteryVoltage);
     CAN_TxSetMessageDataWithSignalData_Expect(
         &testMessageData[0u], 55u, 8u, (uint64_t)maximumBatteryVoltage, CANTX_PACK_LIMITS_ENDIANNESS);
     CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[1u]);
+
     CAN_TxSetCanDataWithMessageData_Expect(testMessageData[1u], testCanData, CAN_BIG_ENDIAN);
     /* ======= RT1/1: Call function under test */
     uint32_t testResult = CANTX_PackLimits(testMessage, testCanData, NULL_PTR, &can_kShim);

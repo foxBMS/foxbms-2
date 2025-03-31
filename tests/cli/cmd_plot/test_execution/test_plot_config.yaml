@@ -1,0 +1,86 @@
+LINE_1:
+  name: "test_1"
+  mapping:
+    x: Time
+    x_ticks_count: 2
+    y1:
+      input:
+        - Voltage(V)
+      min: 2.4
+      max: 4.3
+      factor: 1
+      labels:
+        - Cell Voltage
+    y2:
+      input:
+        - Current(A)
+      min: -17
+      max: 17
+      labels:
+        - Current
+  description:
+    title: Test Plot
+    x_axis: Date
+    y_axes:
+      - Cell Voltage (V)
+      - Current (A)
+  graph:
+    show: false
+    save: false
+    format: png
+LINE_2:
+  name: "test_2"
+  mapping:
+    x: Time
+    x_ticks_count: 4
+    y1:
+      input:
+        - Current(A)
+      min: -4.5
+      max: 4.5
+      factor: 1
+    y2:
+      input:
+        - Current (A)
+      min: -4.0
+      max: 4.0
+      labels:
+        - Current (A)
+    y3:
+      input:
+        - Index
+      min: 0.0
+      max: 100.0
+      factor: 1
+      labels:
+        - Index
+  description:
+    title: Test Plot 2
+    x_axis: Date
+    y_axes:
+      - Current (A)
+      - Capacity (Ah)
+      - Index
+  graph:
+    height_px: 600
+    width_px: 800
+    dpi: 100
+    show: false
+    save: true
+    format: png
+LINE_3:
+  name: "test_3"
+  mapping:
+    x: Time
+    x_ticks_count: 1
+    y1:
+      input:
+        - Voltage(V)
+  description:
+    title: Test Plot 3
+    x_axis: Date
+    y_axes:
+      - Voltage (V)
+  graph:
+    show: false
+    save: false

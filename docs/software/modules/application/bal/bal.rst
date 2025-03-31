@@ -79,7 +79,7 @@ where :math:`U_{\mathrm{C}}` is the cell voltage and :math:`R_{\mathrm{balancing
 The balancing quantity :math:`I_{\mathrm{balancing}} \times 1s` is subtracted from the charge difference. Balancing is
 stays turned on until the charge difference reaches 0.
 
-In SOC history-based balancing, ``BS_BALANCING_RESISTANCE_ohm`` must be defined identically to the balancing
+In SOC history-based balancing, ``SLV_BALANCING_RESISTANCE_ohm`` must be defined identically to the balancing
 resistances soldered on the Slave Board. When the imbalances are computed, they are set to a non-zero value to balance
 each specific cell only if its cell voltage is above the minimum cell voltage of the battery pack plus a threshold. The
 threshold is set in this case to ``BAL_GetBalancingThreshold_mV()`` + ``BAL_HYSTERESIS_mV``.

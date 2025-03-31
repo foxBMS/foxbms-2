@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -124,6 +124,7 @@ def build(bld):
         os.path.join("ts", "murata", "ncxxxxh103", "murata_ncxxxxh103.c"),
         os.path.join("ts", "semitec", "103jt", "semitec_103jt.c"),
         os.path.join("ts", "tdk", "ntcgs103jf103ft8", "tdk_ntcgs103jf103ft8.c"),
+        os.path.join("ts","tdk","ntcg163jx103dt1s","tdk_ntcg163jx103dt1s.c" ),
         os.path.join("ts", "vishay", "ntcalug01a103g", "vishay_ntcalug01a103g.c"),
         os.path.join("ts", "vishay", "ntcle317e4103sba", "vishay_ntcle317e4103sba.c"),
         os.path.join("ts", "vishay", "ntcle413e2103f102l", "vishay_ntcle413e2103f102l.c"),
@@ -169,6 +170,7 @@ def build(bld):
         os.path.join("ts", "murata", "ncxxxxh103"),
         os.path.join("ts", "semitec", "103jt"),
         os.path.join("ts", "tdk", "ntcgs103jf103ft8"),
+        os.path.join("ts", "tdk", "ntcg163jx103dt1s"),
         os.path.join("ts", "vishay", "ntcalug01a103g"),
         os.path.join("ts", "vishay", "ntcle317e4103sba"),
         os.path.join("ts", "vishay", "ntcle413e2103f102l"),

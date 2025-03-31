@@ -2,7 +2,7 @@ Starting with this release, |foxbms| now supports the ADI ADES1830 AFE.
 
 This release updates the unit testing framework ``Ceedling`` to
 ``0.32.0-52ba9d2`` and requires an update of Ruby.
-To update Ruby and the required Gems see :ref:`ruby_install_and_gem_install`.
+To update Ruby and the required |ruby-gems| see :ref:`SOFTWARE_INSTALLATION`.
 For information on the unit testing framework see (:ref:`UNIT_TESTS`).
 
 Added

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    ltc_6813-1.c
  * @author  foxBMS Team
  * @date    2019-09-01 (date of creation)
- * @updated 2024-12-20 (date of last update)
- * @version v1.8.0
+ * @updated 2025-03-31 (date of last update)
+ * @version v1.9.0
  * @ingroup DRIVERS
  * @prefix  LTC
  *
@@ -507,7 +507,7 @@ static void LTC_InitializeDatabase(LTC_STATE_s *ltc_state) {
         ltc_state->ltcData.slaveControl->eepromWriteAddressToUse    = 0xFFFFFFFF;
 
         ltc_state->ltcData.allGpioVoltages->state = 0;
-        for (uint16_t i = 0; i < (BS_NR_OF_MODULES_PER_STRING * BS_NR_OF_GPIOS_PER_MODULE); i++) {
+        for (uint16_t i = 0; i < (BS_NR_OF_MODULES_PER_STRING * SLV_NR_OF_GPIOS_PER_MODULE); i++) {
             ltc_state->ltcData.allGpioVoltages->gpioVoltages_mV[s][i] = 0;
         }
 
@@ -3182,26 +3182,26 @@ static void LTC_SaveRxToGpioBuffer(
                 buffer_MSB = pRxBuff[4u + (i * 8u) + 1u];
                 buffer_LSB = pRxBuff[4u + (i * 8u)];
                 ltc_state->ltcData.allGpioVoltages
-                    ->gpioVoltages_mV[stringNumber][0u + i_offset + (BS_NR_OF_GPIOS_PER_MODULE * i)] =
+                    ->gpioVoltages_mV[stringNumber][0u + i_offset + (SLV_NR_OF_GPIOS_PER_MODULE * i)] =
                     ((buffer_LSB | (buffer_MSB << 8u))) / 10u;
                 /* ltc_state->ltcData.allGpioVoltages->gpioVoltage[stringNumber][0 + i_offset +
-                 * BS_NR_OF_GPIOS_PER_MODULE*i]=
+                 * SLV_NR_OF_GPIOS_PER_MODULE*i]=
                  * *((uint16_t *)(&pRxBuff[4+i*8]))/10; */
                 buffer_MSB = pRxBuff[6u + (i * 8u) + 1u];
                 buffer_LSB = pRxBuff[6u + (i * 8u)];
                 ltc_state->ltcData.allGpioVoltages
-                    ->gpioVoltages_mV[stringNumber][1u + i_offset + (BS_NR_OF_GPIOS_PER_MODULE * i)] =
+                    ->gpioVoltages_mV[stringNumber][1u + i_offset + (SLV_NR_OF_GPIOS_PER_MODULE * i)] =
                     ((buffer_LSB | (buffer_MSB << 8u))) / 10u;
                 /* ltc_state->ltcData.allGpioVoltages->gpioVoltage[stringNumber][1 + i_offset +
-                 * BS_NR_OF_GPIOS_PER_MODULE*i]=
+                 * SLV_NR_OF_GPIOS_PER_MODULE*i]=
                  * *((uint16_t *)(&pRxBuff[6+i*8]))/10; */
                 buffer_MSB = pRxBuff[8u + (i * 8u) + 1u];
                 buffer_LSB = pRxBuff[8u + (i * 8u)];
                 ltc_state->ltcData.allGpioVoltages
-                    ->gpioVoltages_mV[stringNumber][2u + i_offset + (BS_NR_OF_GPIOS_PER_MODULE * i)] =
+                    ->gpioVoltages_mV[stringNumber][2u + i_offset + (SLV_NR_OF_GPIOS_PER_MODULE * i)] =
                     ((buffer_LSB | (buffer_MSB << 8u))) / 10u;
                 /* ltc_state->ltcData.allGpioVoltages->gpioVoltage[stringNumber][2 + i_offset +
-                 * BS_NR_OF_GPIOS_PER_MODULE*i]=
+                 * SLV_NR_OF_GPIOS_PER_MODULE*i]=
                  * *((uint16_t *)(&pRxBuff[8+i*8]))/10; */
             } else {
                 ltc_state->ltcData.allGpioVoltages->invalidGpioVoltages[stringNumber][i] |= bitmask;
@@ -3221,18 +3221,18 @@ static void LTC_SaveRxToGpioBuffer(
                 buffer_MSB = pRxBuff[4u + (i * 8u) + 1u];
                 buffer_LSB = pRxBuff[4u + (i * 8u)];
                 ltc_state->ltcData.allGpioVoltages
-                    ->gpioVoltages_mV[stringNumber][0u + i_offset + (BS_NR_OF_GPIOS_PER_MODULE * i)] =
+                    ->gpioVoltages_mV[stringNumber][0u + i_offset + (SLV_NR_OF_GPIOS_PER_MODULE * i)] =
                     ((buffer_LSB | (buffer_MSB << 8u))) / 10u;
                 /* ltc_state->ltcData.allGpioVoltages->gpioVoltage[stringNumber][0 + i_offset +
-                 * BS_NR_OF_GPIOS_PER_MODULE*i]=
+                 * SLV_NR_OF_GPIOS_PER_MODULE*i]=
                  * *((uint16_t *)(&pRxBuff[4+i*8]))/10; */
                 buffer_MSB = pRxBuff[6u + (i * 8u) + 1u];
                 buffer_LSB = pRxBuff[6u + (i * 8u)];
                 ltc_state->ltcData.allGpioVoltages
-                    ->gpioVoltages_mV[stringNumber][1u + i_offset + (BS_NR_OF_GPIOS_PER_MODULE * i)] =
+                    ->gpioVoltages_mV[stringNumber][1u + i_offset + (SLV_NR_OF_GPIOS_PER_MODULE * i)] =
                     ((buffer_LSB | (buffer_MSB << 8u))) / 10u;
                 /* ltc_state->ltcData.allGpioVoltages->gpioVoltage[stringNumber][1 + i_offset +
-                 * BS_NR_OF_GPIOS_PER_MODULE*i]=
+                 * SLV_NR_OF_GPIOS_PER_MODULE*i]=
                  * *((uint16_t *)(&pRxBuff[6+i*8]))/10; */
             } else {
                 ltc_state->ltcData.allGpioVoltages->invalidGpioVoltages[stringNumber][i] |= bitmask;
@@ -3252,26 +3252,26 @@ static void LTC_SaveRxToGpioBuffer(
                 buffer_MSB = pRxBuff[4u + (i * 8u) + 1u];
                 buffer_LSB = pRxBuff[4u + (i * 8u)];
                 ltc_state->ltcData.allGpioVoltages
-                    ->gpioVoltages_mV[stringNumber][0u + i_offset + (BS_NR_OF_GPIOS_PER_MODULE * i)] =
+                    ->gpioVoltages_mV[stringNumber][0u + i_offset + (SLV_NR_OF_GPIOS_PER_MODULE * i)] =
                     ((buffer_LSB | (buffer_MSB << 8u))) / 10u;
                 /* ltc_state->ltcData.allGpioVoltages->gpioVoltage[stringNumber][0 + i_offset +
-                 * BS_NR_OF_GPIOS_PER_MODULE*i]=
+                 * SLV_NR_OF_GPIOS_PER_MODULE*i]=
                  * *((uint16_t *)(&pRxBuff[4+i*8]))/10; */
                 buffer_MSB = pRxBuff[6u + (i * 8u) + 1u];
                 buffer_LSB = pRxBuff[6u + (i * 8u)];
                 ltc_state->ltcData.allGpioVoltages
-                    ->gpioVoltages_mV[stringNumber][1u + i_offset + (BS_NR_OF_GPIOS_PER_MODULE * i)] =
+                    ->gpioVoltages_mV[stringNumber][1u + i_offset + (SLV_NR_OF_GPIOS_PER_MODULE * i)] =
                     ((buffer_LSB | (buffer_MSB << 8u))) / 10u;
                 /* ltc_state->ltcData.allGpioVoltages->gpioVoltage[stringNumber][1 + i_offset +
-                 * BS_NR_OF_GPIOS_PER_MODULE*i]=
+                 * SLV_NR_OF_GPIOS_PER_MODULE*i]=
                  * *((uint16_t *)(&pRxBuff[6+i*8]))/10; */
                 buffer_MSB = pRxBuff[8u + (i * 8u) + 1u];
                 buffer_LSB = pRxBuff[8u + (i * 8u)];
                 ltc_state->ltcData.allGpioVoltages
-                    ->gpioVoltages_mV[stringNumber][2u + i_offset + (BS_NR_OF_GPIOS_PER_MODULE * i)] =
+                    ->gpioVoltages_mV[stringNumber][2u + i_offset + (SLV_NR_OF_GPIOS_PER_MODULE * i)] =
                     ((buffer_LSB | (buffer_MSB << 8u))) / 10u;
                 /* ltc_state->ltcData.allGpioVoltages->gpioVoltage[stringNumber][2 + i_offset +
-                 * BS_NR_OF_GPIOS_PER_MODULE*i]=
+                 * SLV_NR_OF_GPIOS_PER_MODULE*i]=
                  * *((uint16_t *)(&pRxBuff[8+i*8]))/10; */
             } else {
                 ltc_state->ltcData.allGpioVoltages->invalidGpioVoltages[stringNumber][i] |= bitmask;
@@ -3289,7 +3289,7 @@ static void LTC_SaveRxToGpioBuffer(
                 ltc_state->ltcData.allGpioVoltages->invalidGpioVoltages[stringNumber][i] &= bitmask;
                 /* values received in 100uV -> divide by 10 to convert to mV */
                 ltc_state->ltcData.allGpioVoltages
-                    ->gpioVoltages_mV[stringNumber][0u + i_offset + (BS_NR_OF_GPIOS_PER_MODULE * i)] =
+                    ->gpioVoltages_mV[stringNumber][0u + i_offset + (SLV_NR_OF_GPIOS_PER_MODULE * i)] =
                     *((uint16_t *)(&pRxBuff[4u + (i * 8u)])) / 10u;
             } else {
                 ltc_state->ltcData.allGpioVoltages->invalidGpioVoltages[stringNumber][i] |= bitmask;

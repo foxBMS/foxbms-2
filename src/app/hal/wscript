@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -39,7 +39,7 @@
 
 """Defines the binary build"""
 
-import os
+from waflib import Logs, Utils
 
 
 def build(bld):
@@ -47,20 +47,34 @@ def build(bld):
 
     target = f"{bld.env.APPNAME.lower()}-hal"
     cflags = bld.env.CFLAGS_HAL
-    bld.env.append_unique("HCG_GEN_HAL_INC_PATHS", [bld.path.relpath()])
-
-    # check comment in function '_cleanup_hcg_sources'
-    remove = [
-        "source/HL_sys_main.c",
-        "source/HL_sys_startup.c",
-        "source/HL_sys_link.cmd",
-    ]
-
-    bld(
-        features="c cstlib",
-        source=os.path.join("..", "..", "..", "conf", "hcg", "app.hcg"),
-        cflags=cflags,
-        target=target,
-        startup_hash=bld.path.find_node("app-startup.hash"),
-        remove=remove,
-    )
+    bld.env.append_unique("HCG_GEN_HAL_INC_PATHS", [bld.path.get_bld().relpath()])
+    source = None
+    remove = None
+    startup_hash = None
+    if Utils.is_win32 or bld.env.HALCOGEN:
+        startup_hash = bld.path.find_node("app-startup.hash")
+        remove = [
+            "source/HL_sys_main.c",
+            "source/HL_sys_startup.c",
+            "source/HL_sys_link.cmd",
+        ]
+        source = ["../../../conf/hcg/app.hcg"]
+    else:
+        hal_src_dir = bld.path.get_bld().find_dir("source")
+        hal_inc_dir = bld.path.get_bld().find_dir("include")
+        Logs.warn(
+            "HALCogen is not available and therefore the code generator "
+            "can not run. Assuming HAL sources are available at "
+            f"{hal_src_dir} and {hal_inc_dir}."
+        )
+        if hal_src_dir:
+            source = hal_src_dir.ant_glob("*.c") + hal_src_dir.ant_glob("*.asm")
+    if source:
+        bld(
+            features="c cstlib",
+            source=source,
+            cflags=cflags,
+            target=target,
+            startup_hash=startup_hash,
+            remove=remove,
+        )

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    debug_default.h
  * @author  foxBMS Team
  * @date    2020-09-17 (date of creation)
- * @updated 2024-12-20 (date of last update)
- * @version v1.8.0
+ * @updated 2025-03-31 (date of last update)
+ * @version v1.9.0
  * @ingroup DRIVERS
  * @prefix  FAKE
  *
@@ -126,7 +126,7 @@ extern STD_RETURN_TYPE_e FAKE_Initialize(void);
 /**
  * @brief   return whether the first measurement cycle is finished
  * @param   pFakeState current state of the fake driver
- * @returns true if the first measurement cycle was successfully finished,
+ * @return  true if the first measurement cycle was successfully finished,
  *          false otherwise
  */
 extern bool FAKE_IsFirstMeasurementCycleFinished(FAKE_STATE_s *pFakeState);
@@ -135,7 +135,7 @@ extern bool FAKE_IsFirstMeasurementCycleFinished(FAKE_STATE_s *pFakeState);
  * @brief   Trigger function for the driver, called to advance the
  *          state machine
  * @param   pFakeState current state of the fake driver
- * @returns returns always #STD_OK
+ * @return  returns always #STD_OK
  */
 extern STD_RETURN_TYPE_e FAKE_TriggerAfe(FAKE_STATE_s *pFakeState);
 
@@ -154,6 +154,12 @@ extern void TEST_FAKE_SetState(
 extern STD_RETURN_TYPE_e TEST_FAKE_SaveFakeVoltageMeasurementData(FAKE_STATE_s *pFakeState);
 
 extern STD_RETURN_TYPE_e TEST_FAKE_SaveFakeTemperatureMeasurementData(FAKE_STATE_s *pFakeState);
+
+extern FAKE_FSM_STATES_e TEST_FAKE_ProcessInitializationState(FAKE_STATE_s *pFakeState);
+
+extern FAKE_FSM_STATES_e TEST_FAKE_ProcessRunningState(FAKE_STATE_s *pFakeState);
+
+extern STD_RETURN_TYPE_e TEST_FAKE_RunStateMachine(FAKE_STATE_s *pFakeState);
 
 #endif
 

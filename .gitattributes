@@ -35,3 +35,5 @@ tests/axivion/qualification-test/qualification-kit/**/*.py -diff -merge -text
 
 *.sh text eol=lf
 tests/cli/helpers/test_misc/checksum_test.txt eol=lf
+
+*.drawio text eol=lf

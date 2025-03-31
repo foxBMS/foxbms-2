@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -46,8 +46,7 @@ from pathlib import Path
 from subprocess import PIPE, Popen
 from typing import Sequence
 
-from click import secho
-
+from .click_helpers import recho
 from .misc import PROJECT_ROOT
 
 
@@ -103,13 +102,13 @@ def run_process(
     """Run the provided command"""
     logging.debug("Original cmd: %s", cmd)
     if len(cmd) == 0:
-        secho("No program provided.", fg="red", err=True)
+        recho("No program provided.")
         return prepare_subprocess_output(
             1, out=b"", err="No program provided.".encode(encoding="utf-8")
         )
     executable = cmd[0]
     if not shutil.which(executable):
-        secho(f"Program '{cmd[0]}' does not exist.", fg="red", err=True)
+        recho(f"Program '{cmd[0]}' does not exist.")
         return prepare_subprocess_output(
             1,
             out=b"",

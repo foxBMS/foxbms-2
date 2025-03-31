@@ -18,7 +18,6 @@ Master TMS570 ``v1.2.2`` Pinout
    Due to the removal of the peripheral SBC, the pinout of BMS-Extension
    connector (J9002) has changed compared to previous hardware releases.
 
-
 .. hint::
 
    All connector pinouts described below follow the

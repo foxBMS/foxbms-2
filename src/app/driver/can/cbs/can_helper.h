@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    can_helper.h
  * @author  foxBMS Team
  * @date    2021-04-22 (date of creation)
- * @updated 2024-12-20 (date of last update)
- * @version v1.8.0
+ * @updated 2025-03-31 (date of last update)
+ * @version v1.9.0
  * @ingroup DRIVERS
  * @prefix  CAN
  *
@@ -179,12 +179,13 @@ extern void CAN_RxGetMessageDataFromCanData(
 /**
  * @brief   Transform a bool to a bit (set if true)
  * @param[in]   input   input boolean (true will become 1u)
- * @returns     unsigned integer indicating the state of the input
+ * @return  unsigned integer indicating the state of the input
  */
 extern uint8_t CAN_ConvertBooleanToInteger(bool input);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 #ifdef UNITY_UNIT_TEST
+extern uint64_t TEST_CAN_ConvertBitStartBigEndian(uint64_t bitStart, uint64_t bitLength);
 #endif
 
 #endif /* FOXBMS__CAN_HELPER_H_ */

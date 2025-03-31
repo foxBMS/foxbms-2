@@ -6,6 +6,7 @@ GLOBAL &app_elf_searchpath &app_elf_start &app_elf_end
 GLOBAL &source_path &working_path &working_path_all
 
 GLOBAL &bootloader_elf_file &app_elf_file
+GLOBAL &update_program_information_script
 
 ; set default .elf files for bootloader and app relativ to this cmm-file
 &bootloader_elf_file=OS.PPD()+"\@{BOOTLOADER_ELF_FILE}"
@@ -26,6 +27,8 @@ GLOBAL &file_currentpractice
 &folder_homepath=OS.PHD()
 
 &file_currentpractice=OS.PPF()
+
+&update_program_information_script=OS.PPD()+"\@{UPDATE_PROGRAM_INFORMATION_SCRIPT}"
 
 ; bootloader start address range
 &bootloader_elf_start="0x00000000"

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -50,14 +50,6 @@ class FlashSector:
     idx: int  #: ID of the sector
     size_in_bytes: int  #: size of the sector in bytes
 
-
-#: program size of the embedded application
-# This value should be the sum of the sizes of the flash sectors that are going to be written.
-# The maximum value is 0x3E0000. For example, if the whole program size is 0x9EEEE,
-# a storage area of the foxbms hardware larger than this value must be specified
-# This means that flash sectors 7, 8, 9, and 10 will be chosen, resulting in a
-# total size of 0xA0000 (0x20000 + 0x20000 + 0x20000 + 0x40000).
-APP_SIZE = 0x3E0000
 
 #: Memory map of the application on the TMS570-based foxBMS BMS-Master
 APP_MEMORY_MAP = [

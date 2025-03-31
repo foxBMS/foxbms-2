@@ -3,6 +3,16 @@
 /build-tools-tests/
 /*build/
 */_build/*
+!cli/cmd_build/__init__.py
+!cli/cmd_build/build_impl.py
+!docs/software/build/build.rst
+!docs/tools/fox/build/fox_waf.rst
+!tests/cli/cmd_build/__init__.py
+!tests/cli/cmd_build/test_build_impl.py
+!tests/variants/lib-build/README.md
+!tests/variants/lib-build/lib-build.ps1
+!tests/variants/lib-build/lib-build_cc-options.yaml
+!tests/variants/lib-build/lib-build_main.c
 /conf/hcg/include/*
 /conf/hcg/source/*
 /conf/hcg/*_bak.dil
@@ -42,6 +52,7 @@ __pycache__
 *.log
 *log*.txt
 *log/*
+!docs/tools/fox/etl/txt/can_log.txt
 
 *.patch
 *.diff
@@ -91,3 +102,6 @@ htmlcov/
 *.tmw
 buildInfo.*
 codeInfo.*
+
+# drawio backup files
+*.drawio.bkp

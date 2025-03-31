@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -38,3 +38,29 @@
 # - "This product is derived from foxBMS®"
 
 """Testing file 'cli/commands/c_etl.py'."""
+
+import sys
+import unittest
+from pathlib import Path
+
+from click.testing import CliRunner
+
+try:
+    from cli.cli import main
+except ModuleNotFoundError:
+    sys.path.insert(0, str(Path(__file__).parents[3]))
+    from cli.cli import main
+
+
+class TestFoxCliMainCommandEtl(unittest.TestCase):
+    """Test of the 'etl' commands and options."""
+
+    def test_cli_unittest_0(self):
+        """Test 'fox.py etl --help' command."""
+        runner = CliRunner()
+        result = runner.invoke(main, ["etl", "--help"])
+        self.assertEqual(result.exit_code, 0)
+
+
+if __name__ == "__main__":
+    unittest.main()

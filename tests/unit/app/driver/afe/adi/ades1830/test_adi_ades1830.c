@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_adi_ades1830.c
  * @author  foxBMS Team
  * @date    2020-08-10 (date of creation)
- * @updated 2024-12-20 (date of last update)
- * @version v1.8.0
+ * @updated 2025-03-31 (date of last update)
+ * @version v1.9.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -78,7 +78,6 @@
 #include "Mockqueue.h"
 #include "Mockspi.h"
 #include "Mockspi_cfg.h"
-#include "Mocktask.h"
 #include "Mocktsi.h"
 
 #include "adi_ades183x_cfg.h"
@@ -142,10 +141,12 @@ SPI_INTERFACE_CONFIG_s spi_adiInterface[BS_NR_OF_STRINGS] = {
 OS_QUEUE ftsk_afeRequestQueue;
 
 static void ADI_AccesstoDatabase_Expects(void) {
+    /* Write measured data */
     DATA_Write3DataBlocks_ExpectAndReturn(
         adi_stateBase.data.cellVoltage, adi_stateBase.data.allGpioVoltages, adi_stateBase.data.cellTemperature, STD_OK);
-    DATA_Write1DataBlock_IgnoreAndReturn(STD_OK);
-    ADI_Wait_Ignore();
+    /* Leave some time for other tasks */
+    ADI_Wait_Expect(2u);
+    /* Read balancing orders */
     DATA_Read1DataBlock_ExpectAndReturn(adi_stateBase.data.balancingControl, STD_OK);
 }
 
@@ -160,13 +161,13 @@ static void ADI_BalanceControl_Expects(void) {
         for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
             adi_stateBase.currentString = s;
             /* Mocks for unmute commands */
-            ADI_CopyCommandBits_Ignore();
-            ADI_TransmitCommand_Ignore();
+            ADI_CopyCommandBits_Expect(adi_cmdUnmute, adi_command);
+            ADI_TransmitCommand_Expect(adi_command, &adi_stateBase);
 
             /* actual register configuration for the specific AFE */
             ADI_DetermineBalancingRegisterConfiguration_Expect(&adi_stateBase);
 
-            ADI_Wait_Ignore();
+            ADI_Wait_Expect(ADI_BALANCING_TIME_ms);
         }
     }
 }
@@ -229,22 +230,24 @@ void testADI_MeasurementCycleNoForever(void) {
 
 void testADI_MeasurementCycleMeasurementNotStartedCase0(void) {
     /* 1.   measurement not started */
+    AFE_REQUEST_e request = AFE_NO_REQUEST;
     /* 1.1. request could not be retrieved - just wait */
     adi_stateBase.measurementStarted = false;
     FOREVER_ExpectAndReturn(1);
-    ADI_Wait_Ignore();
-    OS_ReceiveFromQueue_IgnoreAndReturn(OS_FAIL);
+    OS_ReceiveFromQueue_ExpectAndReturn(ftsk_afeRequestQueue, &request, ADI_QUEUE_TIMEOUT_MS, OS_FAIL);
+    ADI_Wait_Expect(1u);
     ADI_MeasurementCycle(&adi_stateBase);
     TEST_ASSERT_FALSE(adi_stateBase.measurementStarted); /* start request has not been issued */
 }
 
 void testADI_MeasurementCycleMeasurementNotStartedCase1(void) {
     /* 1.   measurement not started */
+    AFE_REQUEST_e request = AFE_NO_REQUEST;
     /* 1.2. request retrieved, but not the start request - therefore wait */
     adi_stateBase.measurementStarted = false;
     FOREVER_ExpectAndReturn(1);
-    ADI_Wait_Ignore();
-    OS_ReceiveFromQueue_IgnoreAndReturn(OS_SUCCESS);
+    OS_ReceiveFromQueue_ExpectAndReturn(ftsk_afeRequestQueue, &request, ADI_QUEUE_TIMEOUT_MS, OS_SUCCESS);
+    ADI_Wait_Expect(1u);
     ADI_MeasurementCycle(&adi_stateBase);
     TEST_ASSERT_FALSE(adi_stateBase.measurementStarted); /* start request has not been issued */
 }
@@ -257,7 +260,7 @@ void testADI_AccessToDatabase(void) {
     DATA_Write3DataBlocks_ExpectAndReturn(
         adi_stateBase.data.cellVoltage, adi_stateBase.data.allGpioVoltages, adi_stateBase.data.cellTemperature, STD_OK);
     /* Leave some time for other tasks */
-    ADI_Wait_Ignore();
+    ADI_Wait_Expect(2u);
     /* Read balancing orders */
     DATA_Read1DataBlock_ExpectAndReturn(adi_stateBase.data.balancingControl, STD_OK);
     TEST_ADI_AccessToDatabase(&adi_stateBase);
@@ -272,14 +275,13 @@ void testADI_ProcessMeasurementNotStartedState(void) {
     TEST_ASSERT_FAIL_ASSERT(TEST_ADI_ProcessMeasurementNotStartedState(&adi_stateBase, NULL_PTR));
 
     /* No request received */
-    OS_ReceiveFromQueue_IgnoreAndReturn(OS_FAIL);
+    OS_ReceiveFromQueue_ExpectAndReturn(ftsk_afeRequestQueue, &request, ADI_QUEUE_TIMEOUT_MS, OS_FAIL);
     ADI_Wait_Expect(1u);
     TEST_ADI_ProcessMeasurementNotStartedState(&adi_stateBase, &request);
 
     /* Request received, but not start */
     requestValue = AFE_STOP_REQUEST;
     OS_ReceiveFromQueue_ExpectAndReturn(ftsk_afeRequestQueue, &request, ADI_QUEUE_TIMEOUT_MS, OS_SUCCESS);
-    OS_ReceiveFromQueue_IgnoreArg_pvBuffer();
     OS_ReceiveFromQueue_ReturnThruPtr_pvBuffer(&requestValue);
     ADI_Wait_Expect(1u);
     TEST_ADI_ProcessMeasurementNotStartedState(&adi_stateBase, &request);
@@ -288,7 +290,6 @@ void testADI_ProcessMeasurementNotStartedState(void) {
     /* Request received and is start request */
     requestValue = AFE_START_REQUEST;
     OS_ReceiveFromQueue_ExpectAndReturn(ftsk_afeRequestQueue, &request, ADI_QUEUE_TIMEOUT_MS, OS_SUCCESS);
-    OS_ReceiveFromQueue_IgnoreArg_pvBuffer();
     OS_ReceiveFromQueue_ReturnThruPtr_pvBuffer(&requestValue);
     ADI_InitializeMeasurement_Expect(&adi_stateBase);
     TEST_ADI_ProcessMeasurementNotStartedState(&adi_stateBase, &request);
@@ -315,7 +316,7 @@ void testADI_RunCurrentStringMeasurement(void) {
         adi_stateBase.redundantAuxiliaryChannel[adi_stateBase.currentString]);
     ADI_TransmitCommand_Expect(adi_command, &adi_stateBase);
 
-    ADI_Wait_Ignore();
+    ADI_Wait_Expect(ADI_WAIT_TIME_1_FOR_ADAX_FULL_CYCLE);
 
     ADI_CopyCommandBits_Expect(adi_cmdSnap, adi_command);
     ADI_TransmitCommand_Expect(adi_command, &adi_stateBase);
@@ -324,7 +325,9 @@ void testADI_RunCurrentStringMeasurement(void) {
     ADI_CopyCommandBits_Expect(adi_cmdUnsnap, adi_command);
     ADI_TransmitCommand_Expect(adi_command, &adi_stateBase);
 
-    ADI_GetStringAndModuleVoltage_Ignore();
+    ADI_Wait_Expect(ADI_WAIT_TIME_2_FOR_ADAX_FULL_CYCLE);
+
+    ADI_GetStringAndModuleVoltage_Expect(&adi_stateBase);
     ADI_GetGpioVoltages_Expect(&adi_stateBase, ADI_AUXILIARY_REGISTER, ADI_AUXILIARY_VOLTAGE);
     ADI_GetTemperatures_Expect(&adi_stateBase);
 
@@ -376,7 +379,7 @@ void testADI_BalanceControl(void) {
             /* actual register configuration for the specific AFE */
             ADI_DetermineBalancingRegisterConfiguration_Expect(&adi_stateBase);
 
-            ADI_Wait_Ignore();
+            ADI_Wait_Expect(ADI_BALANCING_TIME_ms);
 
             /* Mocks for mute commands */
             ADI_CopyCommandBits_Expect(adi_cmdMute, adi_command);
@@ -393,15 +396,14 @@ void testADI_GetRequest(void) {
     TEST_ASSERT_FAIL_ASSERT(TEST_ADI_GetRequest(NULL_PTR));
 
     /* Request received from queue: function must return STD_OK */
-    OS_ReceiveFromQueue_IgnoreAndReturn(OS_SUCCESS);
+    OS_ReceiveFromQueue_ExpectAndReturn(ftsk_afeRequestQueue, &request, ADI_QUEUE_TIMEOUT_MS, OS_SUCCESS);
     TEST_ASSERT_EQUAL(STD_OK, TEST_ADI_GetRequest(&request));
     /* No request received from queue: function must return STD_NOT_OK */
-    OS_ReceiveFromQueue_IgnoreAndReturn(OS_FAIL);
+    OS_ReceiveFromQueue_ExpectAndReturn(ftsk_afeRequestQueue, &request, ADI_QUEUE_TIMEOUT_MS, OS_FAIL);
     TEST_ASSERT_EQUAL(STD_NOT_OK, TEST_ADI_GetRequest(&request));
 
     /* Test setting value of request when a request is present in queue */
     OS_ReceiveFromQueue_ExpectAndReturn(ftsk_afeRequestQueue, &request, ADI_QUEUE_TIMEOUT_MS, OS_SUCCESS);
-    OS_ReceiveFromQueue_IgnoreArg_pvBuffer();
     OS_ReceiveFromQueue_ReturnThruPtr_pvBuffer(&requestValue);
     TEST_ASSERT_EQUAL(AFE_NO_REQUEST, request);
     TEST_ASSERT_EQUAL(STD_OK, TEST_ADI_GetRequest(&request));

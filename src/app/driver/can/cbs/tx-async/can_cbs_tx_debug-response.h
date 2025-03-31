@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    can_cbs_tx_debug-response.h
  * @author  foxBMS Team
  * @date    2022-07-01 (date of creation)
- * @updated 2024-12-20 (date of last update)
- * @version v1.8.0
+ * @updated 2025-03-31 (date of last update)
+ * @version v1.9.0
  * @ingroup DRIVERS
  * @prefix  CANTX
  *
@@ -71,7 +71,9 @@ typedef enum {
     CANTX_DEBUG_RESPONSE_TRANSMIT_BOOT_MAGIC_START,
     CANTX_DEBUG_RESPONSE_TRANSMIT_BOOT_MAGIC_END,
     CANTX_DEBUG_RESPONSE_TRANSMIT_RTC_TIME,
+    CANTX_DEBUG_RESPONSE_TRANSMIT_UPTIME,
     CANTX_DEBUG_RESPONSE_TRANSMIT_COMMIT_HASH,
+    CANTX_DEBUG_RESPONSE_TRANSMIT_BOOT_TIMESTAMP,
 } CANTX_DEBUG_RESPONSE_ACTIONS_e;
 
 /*========== Extern Constant and Variable Declarations ======================*/
@@ -94,7 +96,9 @@ extern uint64_t TEST_CANTX_TransmitMcuWaferInformation(void);
 extern uint64_t TEST_CANTX_TransmitBootMagic(uint64_t messageData);
 extern uint64_t TEST_CANTX_TransmitBootMagicStart(void);
 extern uint64_t TEST_CANTX_TransmitBootMagicEnd(void);
+extern uint64_t TEST_CANTX_TransmitBootMagicTimeStamp(void);
 extern uint64_t TEST_CANTX_TransmitRtcTime(void);
+extern uint64_t TEST_CANTX_TransmitUptime(void);
 extern STD_RETURN_TYPE_e TEST_CANTX_TransmitCommitHash(void);
 extern uint64_t TEST_CANTX_TransmitCommitHashLow(void);
 extern uint64_t TEST_CANTX_TransmitCommitHashHigh(void);

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -44,36 +44,40 @@ import os
 import shutil
 from copy import deepcopy
 
-from click import secho
+from click import echo, secho
 
-from ..helpers.host_platform import PLATFORM
+from ..helpers.click_helpers import recho
+from ..helpers.host_platform import get_platform
 from ..helpers.misc import PROJECT_ROOT
 
-INSTALL_MESSAGE = f"""See {PROJECT_ROOT/ 'INSTALL.md'} for the installation\
+INSTALL_MESSAGE = f"""See {PROJECT_ROOT / "INSTALL.md"} for the installation\
 instructions for the foxBMS toolchain."""
 
 REQUIRED_SOFTWARE = {
-    "gcc": {"executable": "gcc", "path": False},
-    "ti-compiler": {"executable": "armcl", "path": False},
-    "ti-halcogen": {"executable": "halcogen", "path": False},
-    "ruby": {"executable": "ruby", "path": False},
-    "python": {"executable": "python", "path": False},
-    "graphviz": {"executable": "dot", "path": False},
     "doxygen": {"executable": "doxygen", "path": False},
+    "drawio": {"executable": {"win32": "draw.io", "linux": "drawio"}, "path": False},
+    "gcc": {"executable": "gcc", "path": False},
+    "graphviz": {"executable": "dot", "path": False},
+    "python": {"executable": "python", "path": False},
+    "ruby": {"executable": "ruby", "path": False},
+    "ti-compiler": {"executable": "armcl", "path": False},
+    "ti-halcogen": {"executable": "halcogen", "path": False, "availability": ["win32"]},
 }
 
 
-def check_for_all_softwares():
+def check_for_all_softwares() -> dict:
     """Checks whether all software is available or not."""
     tmp = deepcopy(REQUIRED_SOFTWARE)
-    paths_file = (PROJECT_ROOT / f"conf/env/paths_{PLATFORM}.txt").read_text(
-        encoding="utf-8"
-    )
-    path = (
-        os.pathsep.join(paths_file.splitlines()) + os.pathsep + os.environ.get("PATH")
-    )
+    paths_file = PROJECT_ROOT / f"conf/env/paths_{get_platform()}.txt"
+    paths = paths_file.read_text(encoding="utf-8")
+    path = os.pathsep.join(paths.splitlines()) + os.pathsep + os.environ.get("PATH", "")
     for _, v in tmp.items():
-        available = shutil.which(v["executable"], path=path)
+        name = v["executable"]
+        if isinstance(name, dict):
+            name = name[get_platform()]
+        if not isinstance(name, str):
+            raise SystemExit(f"Invalid path file ({paths_file}).")
+        available = shutil.which(name, path=path)
         if available:
             v["path"] = available
     return tmp
@@ -85,8 +89,19 @@ def all_software_available() -> int:
     for k, v in check_for_all_softwares().items():
         logging.debug("%s: %s", k, v)
         if not v["path"]:
-            secho(f"{k}: {v}", fg="red", err=True)
+            availability = v.get("availability", ["linux", "win32"])
+            if get_platform() not in availability:
+                name = v["executable"]
+                recho(
+                    f"{k} ({name}) is not available on {get_platform()}.", fg="yellow"
+                )
+                # no need to to raise an error, as the program is simply not
+                # available on this platform
+                continue
+            recho(f"{k}: {v}")
             err += 1
+        else:
+            echo(f"{k}: {v['path']}")
     if not err:
         secho("All required software is installed.", fg="green")
     return err

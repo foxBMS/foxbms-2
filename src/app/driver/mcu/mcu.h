@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    mcu.h
  * @author  foxBMS Team
  * @date    2019-02-19 (date of creation)
- * @updated 2024-12-20 (date of last update)
- * @version v1.8.0
+ * @updated 2025-03-31 (date of last update)
+ * @version v1.9.0
  * @ingroup DRIVERS
  * @prefix  MCU
  *
@@ -99,7 +99,7 @@ extern void MCU_Delay_us(uint32_t delay_us);
  * @details This function returns the current value of the Free Running
  *          Counter 0 (FRC0). This counter is already used by FreeRTOS and this
  *          function does nothing more than accessing this value.
- * @returns the current counter value of FRC0
+ * @return  the current counter value of FRC0
  */
 extern uint32_t MCU_GetFreeRunningCount(void);
 
@@ -110,7 +110,7 @@ extern uint32_t MCU_GetFreeRunningCount(void);
  *          value represents microseconds. Typically this used with counter
  *          differences in order to get timing estimates on microsecond-level.
  * @param[in]   count   counter value of the FRC0
- * @returns     equivalent time in microseconds
+ * @return      equivalent time in microseconds
  */
 extern uint32_t MCU_ConvertFrcDifferenceToTimespan_us(uint32_t count);
 
@@ -122,25 +122,25 @@ extern uint32_t MCU_ConvertFrcDifferenceToTimespan_us(uint32_t count);
  *          since the counter was retrieved.
  * @param[in]   startCounter  counter value of the FRC0, used as starting point
  * @param[in]   timeout_us    time in microseconds to check against
- * @returns     true if timeout has elapsed, false otherwise
+ * @return      true if timeout has elapsed, false otherwise
  */
 extern bool MCU_IsTimeElapsed(uint32_t startCounter, uint32_t timeout_us);
 
 /**
  * @brief   Read out device register with unique Device ID
- * @returns TODO
+ * @return  TODO
  */
 extern uint32_t MCU_GetDeviceRegister(void);
 
 /**
  * @brief   Read out device register with die ID high
- * @returns TODO
+ * @return  TODO
  */
 extern uint32_t MCU_GetDieIdHigh(void);
 
 /**
  * @brief   Read out device register with die ID low
- * @returns TODO
+ * @return  TODO
  */
 extern uint32_t MCU_GetDieIdLow(void);
 

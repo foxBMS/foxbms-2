@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -54,7 +54,7 @@ class TestCANFilter(unittest.TestCase):
     """The test case definition for the CANFilter class"""
 
     def test_canfilter_init(self) -> None:
-        """Tests the creation of the class CANFilter"""
+        """Tests the creation of a CANFilter object"""
         # Case 1: Test that the CANFilter object is
         # created correctly with all parameters passed
         test_obj_dict = CANFilter(

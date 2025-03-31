@@ -2,6 +2,6 @@ Directory Name     ; Long Name                   ; Content Description
 ``bms``            ; Battery Management System   ; Configuration of the BMS (e.g., which AFE is used)
 ``cc``             ; C compiler                  ; Compiler configuration (e.g., compiler flags)
 ``env``            ; Environment                 ; Environment specifications configuration files (e.g., PATH setup)
-``hcg``            ; |halcogen|                  ; |halcogen| configuration files for the Hardware Abstraction Layer
+``hcg``            ; |ti-halcogen|               ; |ti-halcogen| configuration files for the Hardware Abstraction Layer
 ``tpl``            ; Templates                   ; Template files for source files
 ``unit``           ; Unit tests                  ; Unit test configuration files

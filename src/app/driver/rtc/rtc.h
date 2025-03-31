@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    rtc.h
  * @author  foxBMS Team
  * @date    2021-02-22 (date of creation)
- * @updated 2024-12-20 (date of last update)
- * @version v1.8.0
+ * @updated 2025-03-31 (date of last update)
+ * @version v1.9.0
  * @ingroup DRIVERS
  * @prefix  RTC
  *
@@ -79,6 +79,7 @@ typedef struct {
     uint8_t day;                /* [1-31] */
     uint8_t month;              /* [1-12] */
     uint8_t year;               /* [0-99] */
+    uint8_t requestFlag;        /* [0-2], 0 no request, 1 is valid, 2 is invalid */
 } RTC_TIME_DATA_s;
 
 /* Defines for the I2C communication */
@@ -238,6 +239,15 @@ extern void RTC_InitializeSystemTimeWithRtc(void);
 extern void RTC_SetSystemTimeRtcFormat(RTC_TIME_DATA_s timeRtcFormat);
 
 /**
+ * @brief   set the RTC request flag.
+ * @details This function is used to set the RTC request flag with
+ *          the value 0 when no request was made, 1 if the
+ *          last request was valid and 2 when invalid.
+ * @param   rtcRequest   flag to set the RTC request flag
+ */
+extern void RTC_SetRtcRequestFlag(uint8_t rtcRequest);
+
+/**
  * @brief   trigger function for the RTC driver.
  * @details This function uses RTC_SetOverCanMessage() to check in the RTC
  *          queue for requests to set the RTC time.
@@ -246,6 +256,13 @@ extern void RTC_SetSystemTimeRtcFormat(RTC_TIME_DATA_s timeRtcFormat);
  *
  */
 extern void RTC_Trigger(void);
+
+/**
+ * @brief   returns the initialization time stamp
+ * @details This function returns the timestamp collected in RTC_InitializeSystemTimeWithRtc()
+ *
+ */
+extern RTC_TIME_DATA_s RTC_GetSystemStartUpTime(void);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 #ifdef UNITY_UNIT_TEST

@@ -1,0 +1,69 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/25.0.2 Chrome/128.0.6613.186 Electron/32.2.5 Safari/537.36" version="25.0.2">
+  <diagram name="Page-1" id="jfQQNFTOmNUWHaJTRlYf">
+    <mxGraphModel dx="1434" dy="956" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="OYHTwaQImVs32HL3ib5i-1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" parent="1" source="OYHTwaQImVs32HL3ib5i-19" target="OYHTwaQImVs32HL3ib5i-5" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="87.5" y="70" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="OYHTwaQImVs32HL3ib5i-2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="OYHTwaQImVs32HL3ib5i-5" target="OYHTwaQImVs32HL3ib5i-6" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="-72.5" y="140" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="OYHTwaQImVs32HL3ib5i-3" value="&amp;lt;3.12" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="OYHTwaQImVs32HL3ib5i-2" vertex="1" connectable="0">
+          <mxGeometry x="-0.2341" y="2" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="OYHTwaQImVs32HL3ib5i-4" value="&amp;gt;=3.12" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="OYHTwaQImVs32HL3ib5i-5" target="OYHTwaQImVs32HL3ib5i-11" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+            <mxPoint x="87.5" y="200" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="OYHTwaQImVs32HL3ib5i-5" value="Python&lt;div&gt;version?&lt;/div&gt;" style="rhombus;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="47.5" y="90" width="80" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="OYHTwaQImVs32HL3ib5i-6" value="&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;exit 1&lt;/span&gt;&lt;br&gt;&lt;/div&gt;" style="ellipse;html=1;shape=endState;fillColor=#000000;strokeColor=#ff0000;" parent="1" vertex="1">
+          <mxGeometry x="222.5" y="115" width="30" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="OYHTwaQImVs32HL3ib5i-9" value="Yes" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="OYHTwaQImVs32HL3ib5i-11" target="OYHTwaQImVs32HL3ib5i-13" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="OYHTwaQImVs32HL3ib5i-10" value="No" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="OYHTwaQImVs32HL3ib5i-11" target="OYHTwaQImVs32HL3ib5i-32" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="231.5" y="385" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="OYHTwaQImVs32HL3ib5i-11" value="&lt;div&gt;fox.py.parent?&lt;/div&gt;&lt;div&gt;==&lt;/div&gt;&lt;div&gt;cwd&lt;/div&gt;" style="rhombus;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry y="230" width="175" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="OYHTwaQImVs32HL3ib5i-33" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="OYHTwaQImVs32HL3ib5i-13" target="OYHTwaQImVs32HL3ib5i-21" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="OYHTwaQImVs32HL3ib5i-13" value="Activate environment" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;" parent="1" vertex="1">
+          <mxGeometry x="12.5" y="350" width="150" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="OYHTwaQImVs32HL3ib5i-19" value="fox.py &amp;lt;args&amp;gt;" style="ellipse;shape=doubleEllipse;html=1;dashed=0;whiteSpace=wrap;aspect=fixed;" parent="1" vertex="1">
+          <mxGeometry x="52.5" width="70" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="OYHTwaQImVs32HL3ib5i-20" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="OYHTwaQImVs32HL3ib5i-21" target="OYHTwaQImVs32HL3ib5i-22" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="OYHTwaQImVs32HL3ib5i-21" value="Run&lt;div&gt;&#39;cli&#39; main&lt;/div&gt;" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;" parent="1" vertex="1">
+          <mxGeometry x="12.5" y="410" width="150" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="OYHTwaQImVs32HL3ib5i-22" value="&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;exit &amp;lt;error code&amp;gt;&lt;/span&gt;&lt;br&gt;&lt;/div&gt;" style="ellipse;html=1;shape=endState;fillColor=#000000;strokeColor=#ff0000;" parent="1" vertex="1">
+          <mxGeometry x="72.5" y="480" width="30" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="OYHTwaQImVs32HL3ib5i-32" value="&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;exit 1&lt;/span&gt;&lt;br&gt;&lt;/div&gt;" style="ellipse;html=1;shape=endState;fillColor=#000000;strokeColor=#ff0000;" parent="1" vertex="1">
+          <mxGeometry x="222.5" y="255" width="30" height="30" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_mcu.c
  * @author  foxBMS Team
  * @date    2020-04-01 (date of creation)
- * @updated 2024-12-20 (date of last update)
- * @version v1.8.0
+ * @updated 2025-03-31 (date of last update)
+ * @version v1.9.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -88,4 +88,14 @@ void testMCU_ConvertFrcDifferenceToTimespan_us(void) {
     TEST_ASSERT_EQUAL(0u, MCU_ConvertFrcDifferenceToTimespan_us(0u));
 
     TEST_ASSERT_EQUAL(977u, MCU_ConvertFrcDifferenceToTimespan_us(0xBEEFu));
+}
+
+void testMCU_IsTimeElapsed(void) {
+    uint32_t startCounter = MCU_GetFreeRunningCount();
+    uint32_t timeOut_us   = 1000;
+
+    MCU_IsTimeElapsed(startCounter, timeOut_us);
+
+    timeOut_us = 0;
+    MCU_IsTimeElapsed(startCounter, timeOut_us);
 }

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_can_cbs_tx_cell-voltages.c
  * @author  foxBMS Team
  * @date    2021-04-22 (date of creation)
- * @updated 2024-12-20 (date of last update)
- * @version v1.8.0
+ * @updated 2025-03-31 (date of last update)
+ * @version v1.9.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -84,6 +84,9 @@ TEST_INCLUDE_PATH("../../src/app/engine/sys_mon")
 TEST_INCLUDE_PATH("../../src/app/task/config")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
+/** the number of voltages per message-frame */
+#define CANTX_NUMBER_OF_MUX_VOLTAGES_PER_MESSAGE (4u)
+
 uint64_t testMessageData[10u] = {0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u, 9u};
 
 float_t testSignalData[4u] = {0.0f, 1.0f, 2.0f, 3.0f};
@@ -289,23 +292,35 @@ void testCANTX_CellVoltages(void) {
 
     /* ======= Routine tests =============================================== */
     testMuxId = 4u;
+    /* Calculate the global cell ID based on the multiplexer value for the first cell */
+    uint16_t cellId = (testMuxId * CANTX_NUMBER_OF_MUX_VOLTAGES_PER_MESSAGE);
     /* ======= RT1/2: Test implementation */
-    CAN_TxPrepareSignalData_Ignore();
-    DATA_GetStringNumberFromVoltageIndex_IgnoreAndReturn(0u);
-    DATA_GetModuleNumberFromVoltageIndex_IgnoreAndReturn(0u);
-    DATA_GetCellNumberFromVoltageIndex_IgnoreAndReturn(17u);
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 7u, 8u, 4u, CAN_BIG_ENDIAN);
     CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[1u]);
+
+    DATA_GetStringNumberFromVoltageIndex_ExpectAndReturn(cellId, 0u);
+    DATA_GetModuleNumberFromVoltageIndex_ExpectAndReturn(cellId, 0u);
+    DATA_GetCellNumberFromVoltageIndex_ExpectAndReturn(cellId, 17u);
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[1u], 12u, 1u, 1u, CAN_BIG_ENDIAN);
     CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[2u]);
+    CAN_TxPrepareSignalData_Expect(&testCellVoltage17, cantx_testCellVoltage0_mV);
+    CAN_TxPrepareSignalData_ReturnThruPtr_pSignal(&testSignalData[2u]);
     CAN_TxSetMessageDataWithSignalData_Expect(
-        &testMessageData[2u], 11u, 13u, (uint64_t)testCellVoltage17, CAN_BIG_ENDIAN);
+        &testMessageData[2u], 11u, 13u, (uint64_t)testSignalData[2u], CAN_BIG_ENDIAN);
     CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[3u]);
+    cellId++;
+
+    DATA_GetStringNumberFromVoltageIndex_ExpectAndReturn(cellId, 0u);
+    DATA_GetModuleNumberFromVoltageIndex_ExpectAndReturn(cellId, 0u);
+    DATA_GetCellNumberFromVoltageIndex_ExpectAndReturn(cellId, 17u);
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[3u], 13u, 1u, 1u, CAN_BIG_ENDIAN);
     CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[4u]);
+    CAN_TxPrepareSignalData_Expect(&testCellVoltage17, cantx_testCellVoltage1_mV);
+    CAN_TxPrepareSignalData_ReturnThruPtr_pSignal(&testSignalData[4u]);
     CAN_TxSetMessageDataWithSignalData_Expect(
-        &testMessageData[4u], 30u, 13u, (uint64_t)testCellVoltage17, CAN_BIG_ENDIAN);
+        &testMessageData[4u], 30u, 13u, (uint64_t)testSignalData[4u], CAN_BIG_ENDIAN);
     CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[5u]);
+
     CAN_TxSetCanDataWithMessageData_Expect(testMessageData[5u], testCanData, CAN_BIG_ENDIAN);
     /* ======= RT1/2: Call function under test */
     uint32_t testResult = CANTX_CellVoltages(testMessage, testCanData, &testMuxId, &can_kShim);
@@ -314,37 +329,61 @@ void testCANTX_CellVoltages(void) {
     TEST_ASSERT_EQUAL(5u, testMuxId);
 
     /* ======= RT2/2: Test implementation */
+    testMuxId = 8u;
+    cellId    = 0;
     DATA_Read1DataBlock_ExpectAndReturn(can_kShim.pTableCellVoltage, STD_OK);
-    DATA_GetStringNumberFromVoltageIndex_IgnoreAndReturn(0u);
-    DATA_GetModuleNumberFromVoltageIndex_IgnoreAndReturn(0u);
-    DATA_GetCellNumberFromVoltageIndex_IgnoreAndReturn(17u);
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 7u, 8u, 0u, CAN_BIG_ENDIAN);
     CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[1u]);
+
+    DATA_GetStringNumberFromVoltageIndex_ExpectAndReturn(cellId, 0u);
+    DATA_GetModuleNumberFromVoltageIndex_ExpectAndReturn(cellId, 0u);
+    DATA_GetCellNumberFromVoltageIndex_ExpectAndReturn(cellId, 17u);
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[1u], 12u, 1u, 1u, CAN_BIG_ENDIAN);
     CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[2u]);
     CAN_TxPrepareSignalData_Expect(&testCellVoltage17, cantx_testCellVoltage0_mV);
+    CAN_TxPrepareSignalData_ReturnThruPtr_pSignal(&testSignalData[2u]);
     CAN_TxSetMessageDataWithSignalData_Expect(
-        &testMessageData[2u], 11u, 13u, (uint64_t)testCellVoltage17, CAN_BIG_ENDIAN);
+        &testMessageData[2u], 11u, 13u, (uint64_t)testSignalData[2u], CAN_BIG_ENDIAN);
     CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[3u]);
+    cellId++;
+
+    DATA_GetStringNumberFromVoltageIndex_ExpectAndReturn(cellId, 0u);
+    DATA_GetModuleNumberFromVoltageIndex_ExpectAndReturn(cellId, 0u);
+    DATA_GetCellNumberFromVoltageIndex_ExpectAndReturn(cellId, 17u);
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[3u], 13u, 1u, 1u, CAN_BIG_ENDIAN);
     CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[4u]);
     CAN_TxPrepareSignalData_Expect(&testCellVoltage17, cantx_testCellVoltage1_mV);
+    CAN_TxPrepareSignalData_ReturnThruPtr_pSignal(&testSignalData[4u]);
     CAN_TxSetMessageDataWithSignalData_Expect(
-        &testMessageData[4u], 30u, 13u, (uint64_t)testCellVoltage17, CAN_BIG_ENDIAN);
+        &testMessageData[4u], 30u, 13u, (uint64_t)testSignalData[4u], CAN_BIG_ENDIAN);
     CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[5u]);
+    cellId++;
+
+    DATA_GetStringNumberFromVoltageIndex_ExpectAndReturn(cellId, 0u);
+    DATA_GetModuleNumberFromVoltageIndex_ExpectAndReturn(cellId, 0u);
+    DATA_GetCellNumberFromVoltageIndex_ExpectAndReturn(cellId, 17u);
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[5u], 14u, 1u, 1u, CAN_BIG_ENDIAN);
     CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[6u]);
     CAN_TxPrepareSignalData_Expect(&testCellVoltage17, cantx_testCellVoltage2_mV);
+    CAN_TxPrepareSignalData_ReturnThruPtr_pSignal(&testSignalData[6u]);
     CAN_TxSetMessageDataWithSignalData_Expect(
-        &testMessageData[6u], 33u, 13u, (uint64_t)testCellVoltage17, CAN_BIG_ENDIAN);
+        &testMessageData[6u], 33u, 13u, (uint64_t)testSignalData[6u], CAN_BIG_ENDIAN);
     CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[7u]);
+    cellId++;
+
+    DATA_GetStringNumberFromVoltageIndex_ExpectAndReturn(cellId, 0u);
+    DATA_GetModuleNumberFromVoltageIndex_ExpectAndReturn(cellId, 0u);
+    DATA_GetCellNumberFromVoltageIndex_ExpectAndReturn(cellId, 17u);
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[7u], 15u, 1u, 1u, CAN_BIG_ENDIAN);
     CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[8u]);
     CAN_TxPrepareSignalData_Expect(&testCellVoltage17, cantx_testCellVoltage3_mV);
+    CAN_TxPrepareSignalData_ReturnThruPtr_pSignal(&testSignalData[8u]);
     CAN_TxSetMessageDataWithSignalData_Expect(
-        &testMessageData[8u], 52u, 13u, (uint64_t)testCellVoltage17, CAN_BIG_ENDIAN);
+        &testMessageData[8u], 52u, 13u, (uint64_t)testSignalData[8u], CAN_BIG_ENDIAN);
     CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[9u]);
+
     CAN_TxSetCanDataWithMessageData_Expect(testMessageData[9u], testCanData, CAN_BIG_ENDIAN);
+
     /* ======= RT2/2: Call function under test */
     testResult = CANTX_CellVoltages(testMessage, testCanData, &testMuxId, &can_kShim);
     /* ======= RT2/2: Test output verification */

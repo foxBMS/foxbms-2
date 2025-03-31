@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -39,225 +39,91 @@
 
 """Command line interface definition for the 'bootloader' command"""
 
-import logging
-import sys
-from pathlib import Path
-
 import click
 
-from ..cmd_bootloader.bootloader import CanBusConfig
-
-# show can.pcan warnings only when it is relevant
-if "-h" in sys.argv or "--help" in sys.argv or "bootloader" not in sys.argv:
-    logging.getLogger("can.pcan").setLevel(logging.CRITICAL)
-
-
-# pylint:disable=wrong-import-position
 from ..cmd_bootloader import bootloader_impl
-from ..helpers.misc import PROJECT_ROOT, set_logging_level_cb
-
-# pylint:enable=wrong-import-position
-CONTEXT_SETTINGS = {
-    "help_option_names": ["-h", "--help"],
-}
+from ..helpers.click_helpers import HELP_NAMES, verbosity_option
+from ..helpers.fcan import CanBusConfig, common_can_options
 
 
-@click.group(context_settings=CONTEXT_SETTINGS)
+@click.group(context_settings=HELP_NAMES)
 def bootloader() -> None:
     """Command line tool to interact with the embedded bootloader."""
 
 
 @bootloader.command("run-app")
+@common_can_options
+@verbosity_option
 @click.pass_context
-@click.option(
-    "-v",
-    "--verbose",
-    default=0,
-    count=True,
-    help="Verbose information",
-    callback=set_logging_level_cb,
-)
-@click.option(
-    "-i",
-    "--interface",
-    default="pcan",
-    type=click.Choice(["pcan"]),
-    help="CAN interface",
-)
-@click.option(
-    "-c",
-    "--channel",
-    default="PCAN_USBBUS1",
-    type=click.Choice(["PCAN_USBBUS1", "PCAN_USBBUS2"]),
-    help="CAN channel",
-)
-@click.option(
-    "-b",
-    "--bitrate",
-    default="500000",
-    type=click.Choice(["500000"]),
-    help="CAN Baudrate",
-)
 def cmd_run_app(
-    ctx: click.Context,
-    verbose: int,  # pylint: disable=unused-argument
-    interface: str,
-    channel: str,
-    bitrate: str,
+    ctx: click.Context, interface: str, channel: str, bitrate: int, verbose: int
 ) -> None:
     """Run the BMS application."""
-    try:
-        bitrate_int = int(bitrate)
-    except ValueError:
-        ctx.exit("Could not convert provided bitrate to integer.")
+    bitrate_int = int(bitrate)  # this is guaranteed to work due to the choice list
     bus_cfg = CanBusConfig(interface=interface, channel=channel, bitrate=bitrate_int)
     ctx.exit(bootloader_impl.run_app(bus_cfg))
 
 
 @bootloader.command("load-app")
+@click.option(
+    "-t",
+    "--timeout",
+    default=20,
+    type=int,
+    help="Timeout in seconds",
+)
+@common_can_options
+@verbosity_option
 @click.pass_context
-@click.option(
-    "-v",
-    "--verbose",
-    default=0,
-    count=True,
-    help="Verbose information",
-    callback=set_logging_level_cb,
-)
-@click.argument(
-    "binary",
-    default=PROJECT_ROOT / "build/app_embedded/src/app/main/foxbms.bin",
-    is_eager=True,
-    type=click.Path(exists=True, readable=True, dir_okay=False, path_type=Path),
-)
-@click.option(
-    "-i",
-    "--interface",
-    default="pcan",
-    type=click.Choice(["pcan"]),
-    help="CAN interface",
-)
-@click.option(
-    "-c",
-    "--channel",
-    default="PCAN_USBBUS1",
-    type=click.Choice(["PCAN_USBBUS1", "PCAN_USBBUS2"]),
-    help="CAN channel",
-)
-@click.option(
-    "-b",
-    "--bitrate",
-    default="500000",
-    type=click.Choice(["500000"]),
-    help="CAN Baudrate",
-)
 # pylint: disable-next=too-many-arguments,too-many-positional-arguments
 def cmd_load_app(
     ctx: click.Context,
-    verbose: int,  # pylint: disable=unused-argument
-    binary: Path,
+    timeout: int,
     interface: str,
     channel: str,
-    bitrate: str,
+    bitrate: int,
+    verbose: int,
 ) -> None:
     """Load the application program on the BMS."""
-    try:
-        bitrate_int = int(bitrate)
-    except ValueError:
-        ctx.exit("Could not convert provided bitrate to integer.")
+    bitrate_int = int(bitrate)  # this is guaranteed to work due to the choice list
     bus_cfg = CanBusConfig(interface=interface, channel=channel, bitrate=bitrate_int)
-    ctx.exit(bootloader_impl.load_app(bus_cfg, binary))
+    ctx.exit(bootloader_impl.load_app(bus_cfg, timeout))
 
 
 @bootloader.command("reset")
+@click.option(
+    "-t",
+    "--timeout",
+    default=20,
+    type=int,
+    help="Timeout in seconds",
+)
+@common_can_options
+@verbosity_option
 @click.pass_context
-@click.option(
-    "-v",
-    "--verbose",
-    default=0,
-    count=True,
-    help="Verbose information",
-    callback=set_logging_level_cb,
-)
-@click.option(
-    "-i",
-    "--interface",
-    default="pcan",
-    type=click.Choice(["pcan"]),
-    help="CAN interface",
-)
-@click.option(
-    "-c",
-    "--channel",
-    default="PCAN_USBBUS1",
-    type=click.Choice(["PCAN_USBBUS1", "PCAN_USBBUS2"]),
-    help="CAN channel",
-)
-@click.option(
-    "-b",
-    "--bitrate",
-    default="500000",
-    type=click.Choice(["500000"]),
-    help="CAN Baudrate",
-)
-def cmd_reset(
+def cmd_reset(  # pylint: disable=too-many-arguments,too-many-positional-arguments
     ctx: click.Context,
-    verbose: int,  # pylint: disable=unused-argument
+    timeout: int,
     interface: str,
     channel: str,
-    bitrate: str,
+    bitrate: int,
+    verbose: int,
 ) -> None:
     """Reset the bootloader."""
-    try:
-        bitrate_int = int(bitrate)
-    except ValueError:
-        ctx.exit("Could not convert provided bitrate to integer.")
+    bitrate_int = int(bitrate)  # this is guaranteed to work due to the choice list
     bus_cfg = CanBusConfig(interface=interface, channel=channel, bitrate=bitrate_int)
-    ctx.exit(bootloader_impl.reset_bootloader(bus_cfg))
+    ctx.exit(bootloader_impl.reset_bootloader(bus_cfg, timeout))
 
 
 @bootloader.command("check")
+@common_can_options
+@verbosity_option
 @click.pass_context
-@click.option(
-    "-v",
-    "--verbose",
-    default=0,
-    count=True,
-    help="Verbose information",
-    callback=set_logging_level_cb,
-)
-@click.option(
-    "-i",
-    "--interface",
-    default="pcan",
-    type=click.Choice(["pcan"]),
-    help="CAN interface",
-)
-@click.option(
-    "-c",
-    "--channel",
-    default="PCAN_USBBUS1",
-    type=click.Choice(["PCAN_USBBUS1", "PCAN_USBBUS2"]),
-    help="CAN channel",
-)
-@click.option(
-    "-b",
-    "--bitrate",
-    default="500000",
-    type=click.Choice(["500000"]),
-    help="CAN Baudrate",
-)
 def cmd_check(
-    ctx: click.Context,
-    verbose: int,  # pylint: disable=unused-argument
-    interface: str,
-    channel: str,
-    bitrate: str,
+    ctx: click.Context, interface: str, channel: str, bitrate: int, verbose: int
 ) -> None:
     """Check the state of bootloader."""
-    try:
-        bitrate_int = int(bitrate)
-    except ValueError:
-        ctx.exit("Could not convert provided bitrate to integer.")
+
+    bitrate_int = int(bitrate)  # this is guaranteed to work due to the choice list
     bus_cfg = CanBusConfig(interface=interface, channel=channel, bitrate=bitrate_int)
     ctx.exit(bootloader_impl.check_bootloader(bus_cfg))

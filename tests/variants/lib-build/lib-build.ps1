@@ -1,6 +1,6 @@
 #!/usr/bin/env pwsh
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -40,6 +40,15 @@
 # Make all error terminating errors
 $ErrorActionPreference = "STOP"
 
+# Use '; ExitOnError' after EVERY non-PowerShell command to exit on errors!
+# The semicolon before ExitOnError is required!
+function ExitOnError {
+    if ($LastExitCode -ne 0) {
+        Pop-Location
+        exit 1
+    }
+}
+
 Push-Location "$PSScriptRoot"
 
 $env:REPO_ROOT = (git rev-parse --show-toplevel) -join "`n"
@@ -48,10 +57,10 @@ Pop-Location
 
 Push-Location "$env:REPO_ROOT"
 
-.\fox.ps1 waf configure -v -c yes
+.\fox.ps1 waf configure -v -c yes ; ExitOnError
 
 # Create the bootstrap project
-.\fox.ps1 waf bootstrap_library_project -v -c yes
+.\fox.ps1 waf bootstrap_library_project -v -c yes ; ExitOnError
 
 # Create a directory for extracted files
 $env:LIB_BUILD_DIR = Join-Path -Path "$env:REPO_ROOT" -ChildPath  "lib-build"
@@ -60,13 +69,13 @@ New-Item -Type Directory "$env:LIB_BUILD_DIR" -Force
 
 $tmp = Join-Path -Path "$env:REPO_ROOT" -ChildPath  "library-project.tar.gz"
 
-C:\Windows\System32\tar.exe -jxf $tmp --directory "$env:LIB_BUILD_DIR"
+C:\Windows\System32\tar.exe -jxf $tmp --directory "$env:LIB_BUILD_DIR" ; ExitOnError
 
 Pop-Location
 
 # Build the library
 Push-Location "$env:LIB_BUILD_DIR"
-&"$env:LIB_BUILD_DIR\fox.ps1" waf --cwd "$env:LIB_BUILD_DIR" configure build -v -c yes
+&"$env:LIB_BUILD_DIR\fox.ps1" waf --cwd "$env:LIB_BUILD_DIR" configure build -v -c yes ; ExitOnError
 Pop-Location
 
 Push-Location "$env:REPO_ROOT"
@@ -81,9 +90,9 @@ Copy-item "${env:REPO_ROOT}\tests\variants\lib-build\lib-build_main.c"          
 ((Get-Content -path ${env:REPO_ROOT}\conf\cc\cc-options.yaml -Raw) -replace 'REPO_ROOT', $env:REPO_ROOT) | Set-Content -NoNewline -Path ${env:REPO_ROOT}\conf\cc\cc-options.yaml
 
 # Configure the application with new options, that include the library paths etc.
-.\fox.ps1 waf configure -v -c yes
+.\fox.ps1 waf configure -v -c yes ; ExitOnError
 
 # Build the application including the library
-.\fox.ps1 waf  build_bin -v -c yes
+.\fox.ps1 waf build_app_embedded -v -c yes ; ExitOnError
 
 Pop-Location

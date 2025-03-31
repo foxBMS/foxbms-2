@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -38,3 +38,34 @@
 # - "This product is derived from foxBMS®"
 
 """Testing file 'cli/commands/c_release.py'."""
+
+import sys
+import unittest
+from pathlib import Path
+from unittest.mock import MagicMock, patch
+
+from click.testing import CliRunner
+
+try:
+    from cli.cli import main
+    from cli.helpers.spr import SubprocessResult
+except ModuleNotFoundError:
+    sys.path.insert(0, str(Path(__file__).parents[3]))
+    from cli.cli import main
+    from cli.helpers.spr import SubprocessResult
+
+
+class TestFoxCliMainCommandRelease(unittest.TestCase):
+    """Test of the 'release' commands and options."""
+
+    @patch("cli.commands.c_release.release_impl")
+    def test_release(self, mock_release_impl: MagicMock):
+        """Test 'fox.py release' command."""
+        mock_release_impl.dummy.return_value = SubprocessResult(0, "", "")
+        runner = CliRunner()
+        result = runner.invoke(main, ["release"])
+        self.assertEqual(0, result.exit_code)
+
+
+if __name__ == "__main__":
+    unittest.main()

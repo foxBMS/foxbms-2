@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -42,34 +42,19 @@
 import click
 
 from ..cmd_install import install_impl
-from ..helpers.misc import set_logging_level_cb
-
-CONTEXT_SETTINGS = {
-    "help_option_names": ["-h", "--help"],
-}
+from ..helpers.click_helpers import HELP_NAMES, verbosity_option
 
 
-@click.command(context_settings=CONTEXT_SETTINGS)
-@click.option(
-    "-v",
-    "--verbose",
-    default=0,
-    count=True,
-    help="Verbose information.",
-    callback=set_logging_level_cb,
-)
+@click.command(context_settings=HELP_NAMES)
 @click.option(
     "--check/--no-check",
     default=False,
     is_flag=True,
     help="Check if the required software is installed.",
 )
+@verbosity_option
 @click.pass_context
-def install(
-    ctx: click.Context,
-    verbose: int,  # pylint: disable=unused-argument
-    check: bool,
-) -> None:
+def install(ctx: click.Context, check: bool, verbose: int = 0) -> None:
     """Show installation instructions or check for required software."""
     err = 0
     if check:

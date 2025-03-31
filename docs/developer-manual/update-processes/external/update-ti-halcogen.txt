@@ -1,0 +1,11 @@
+- |snippet_verify_license|.
+- |snippet_download| |url_ti-halcogen_releases|.
+- |snippet_install| |ti-halcogen|.
+- |update-installation-instructions| for |ti-halcogen|.
+- Update the |ti-halcogen| entry in
+  ``conf/env/paths_win32.txt``.
+- |snippet_update_license| in
+  ``docs/general/license-tables/external/license-info_ti-halcogen.csv``.
+- |snippet_changelog_entry|.
+- |snippet_commit|
+  ``Dependency update: <XXXX>/Q<Y>: Texas Instruments HALCoGen <version number>``.

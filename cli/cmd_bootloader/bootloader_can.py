@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -57,7 +57,7 @@ from .bootloader_can_messages import (
     AcknowledgeMessageType,
     BootFsmState,
     CanFsmState,
-    RequestCode,
+    RequestCode8Bits,
     StatusCode,
     YesNoAnswer,
 )
@@ -170,6 +170,8 @@ class BootloaderInterfaceCan(BootloaderInterface):
         Args:
             data_8_bytes: data in 8 bytes.
         """
+        # Add waiting time to prevent the error that the tx buffer is full
+        time.sleep(0.0001)
         self.can.send_data_to_bootloader(data_8_bytes=data_8_bytes)
 
     def wait_can_ack_msg(
@@ -209,7 +211,7 @@ class BootloaderInterfaceCan(BootloaderInterface):
         logging.debug(
             "Send request to start CAN communication to transfer the program..."
         )
-        self.can.send_request_to_bootloader(RequestCode.CmdToTransferProgram)
+        self.can.send_request_to_bootloader(RequestCode8Bits.CmdToTransferProgram)
         if not self.can.wait_can_ack_msg(
             AcknowledgeMessage.ReceivedCmdToTransferProgram
         ):
@@ -240,7 +242,7 @@ class BootloaderInterfaceCan(BootloaderInterface):
             otherwise.
         """
         logging.debug("Sending request to bootloader to reset boot process ...")
-        self.can.send_request_to_bootloader(RequestCode.CmdToResetBootProcess)
+        self.can.send_request_to_bootloader(RequestCode8Bits.CmdToResetBootProcess)
         if not self.can.wait_can_ack_msg(
             AcknowledgeMessage.ReceivedCmdToResetBootProcess,
             processed_level=StatusCode.ReceivedAndInProcessing,
@@ -280,7 +282,7 @@ class BootloaderInterfaceCan(BootloaderInterface):
             False otherwise.
         """
         logging.info("Sending request to run application...")
-        self.can.send_request_to_bootloader(RequestCode.CmdToRunProgram)
+        self.can.send_request_to_bootloader(RequestCode8Bits.CmdToRunProgram)
         if not self.can.wait_can_ack_msg(
             AcknowledgeMessage.ReceivedCmdToRunProgram,
             processed_level=StatusCode.ReceivedAndInProcessing,
@@ -335,8 +337,8 @@ class BootloaderInterfaceCan(BootloaderInterface):
         msg = self.can.wait_can_message(
             arbitration_id=0x220,
             dbc_file=APP_DBC_FILE,
-            timeout_total=15,
-            timeout_bus_recv=0.1,
+            timeout_total=0.05,
+            timeout_bus_recv=0.001,
         )
         if msg:
             bms_state = cast(dict, msg)["BmsState"]
@@ -349,7 +351,7 @@ class BootloaderInterfaceCan(BootloaderInterface):
             CanFsmState, BootFsmState.
         """
         logging.debug("Sending request to bootloader to get bootloader states...")
-        self.can.send_request_to_bootloader(RequestCode.CmdToGetBootloaderInfo)
+        self.can.send_request_to_bootloader(RequestCode8Bits.CmdToGetBootloaderInfo)
         msg_bootloader_fsm_states = self.can.wait_bootloader_state_msg()
         if msg_bootloader_fsm_states:
             can_fsm_state = msg_bootloader_fsm_states["CanFsmState"]
@@ -358,7 +360,7 @@ class BootloaderInterfaceCan(BootloaderInterface):
                 "can_fsm_state: %s, boot_fsm_state: %s", can_fsm_state, boot_fsm_state
             )
             return can_fsm_state, boot_fsm_state
-        logging.error("Cannot get the state of bootloader.")
+        logging.error("Can not get the state of bootloader.")
         return None, None
 
     def get_current_num_of_loops(self) -> Optional[int]:
@@ -368,15 +370,16 @@ class BootloaderInterfaceCan(BootloaderInterface):
             The current number of data transfer loops on bootloader.
         """
         logging.debug("Sending request to bootloader to ask for number of loops...")
-        self.can.send_request_to_bootloader(RequestCode.CmdToGetDataTransferInfo)
+        self.can.send_request_to_bootloader(RequestCode8Bits.CmdToGetDataTransferInfo)
         msg_data_transfer_info = self.can.wait_data_transfer_info_msg()
         if msg_data_transfer_info:
             current_num_of_loops = msg_data_transfer_info["CurrentLoopNumber"]
             logging.debug("current_num_of_loops: %d", current_num_of_loops)
             return current_num_of_loops
         logging.error(
-            "Cannot get the current number of data transfer loops of bootloader."
+            "Can not get the current number of data transfer loops of bootloader."
         )
+
         return None
 
     def get_bootloader_version_num(
@@ -389,7 +392,7 @@ class BootloaderInterfaceCan(BootloaderInterface):
             PatchVersionNumber) of the bootloader.
         """
         logging.debug("Sending request to bootloader to ask for the version number...")
-        self.can.send_request_to_bootloader(RequestCode.CmdToGetVersionInfo)
+        self.can.send_request_to_bootloader(RequestCode8Bits.CmdToGetVersionInfo)
 
         msg_bootloader_version_info = self.can.wait_bootloader_version_info_msg()
 
@@ -407,6 +410,6 @@ class BootloaderInterfaceCan(BootloaderInterface):
             return major_version_number, minor_version_number, patch_version_number
 
         logging.error(
-            "Cannot get the current number of data transfer loops of bootloader."
+            "Can not get the current number of data transfer loops of bootloader."
         )
         return None, None, None

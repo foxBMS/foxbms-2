@@ -27,7 +27,6 @@ Python-Rules
    :delim: ;
    :file: ./guidelines_overview_python.csv
 
-
 reStructuredText-Rules
 ----------------------
 
@@ -35,8 +34,8 @@ reStructuredText-Rules
    :delim: ;
    :file: ./guidelines_overview_rst.csv
 
-Batch and Shell-Rules
----------------------
+Shell-Rules
+-----------
 
 .. csv-table::
    :delim: ;

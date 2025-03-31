@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    ltc_6806.c
  * @author  foxBMS Team
  * @date    2019-09-01 (date of creation)
- * @updated 2024-12-20 (date of last update)
- * @version v1.8.0
+ * @updated 2025-03-31 (date of last update)
+ * @version v1.9.0
  * @ingroup DRIVERS
  * @prefix  LTC
  *
@@ -324,7 +324,7 @@ static void LTC_InitializeDatabase(LTC_STATE_s *ltc_state) {
         }
 
         ltc_state->ltcData.allGpioVoltages->state = 0u;
-        for (uint16_t gpio = 0u; gpio < (BS_NR_OF_MODULES_PER_STRING * BS_NR_OF_GPIOS_PER_MODULE); gpio++) {
+        for (uint16_t gpio = 0u; gpio < (BS_NR_OF_MODULES_PER_STRING * SLV_NR_OF_GPIOS_PER_MODULE); gpio++) {
             ltc_state->ltcData.allGpioVoltages->gpioVoltages_mV[s][gpio] = 0;
         }
 

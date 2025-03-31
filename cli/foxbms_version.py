@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -44,18 +44,23 @@ import sys
 from pathlib import Path
 
 
-def get_version() -> str:
-    """read the foxBMS version from the build file."""
-    wscript = (Path(__file__).parent.parent / "wscript").read_text(encoding="utf-8")
-    pattern = re.compile(r"VERSION = \"((x\.y\.z)|(\d{1,}\.\d{1,}\.\d{1,}))\"")
+def extact_version(txt: str, pattern: re.Pattern[str]) -> str:
+    """Extracts the version information from a string"""
     version = ""
-    for line in wscript.splitlines():
+    for line in txt.splitlines():
         m = pattern.search(line)
         if m:
             version = m.group(1)
     if not version:
         sys.exit("Could not determine foxBMS 2 version.")
     return version
+
+
+def get_version() -> str:
+    """read the foxBMS version from the build file."""
+    wscript = (Path(__file__).parent.parent / "wscript").read_text(encoding="utf-8")
+    pattern = re.compile(r"VERSION = \"((x\.y\.z)|(\d{1,}\.\d{1,}\.\d{1,}))\"")
+    return extact_version(wscript, pattern)
 
 
 __version__ = get_version()

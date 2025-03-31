@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    bal_strategy_history.c
  * @author  foxBMS Team
  * @date    2020-05-29 (date of creation)
- * @updated 2024-12-20 (date of last update)
- * @version v1.8.0
+ * @updated 2025-03-31 (date of last update)
+ * @version v1.9.0
  * @ingroup APPLICATION
  * @prefix  BAL
  *
@@ -54,6 +54,7 @@
 
 /*========== Includes =======================================================*/
 #include "battery_cell_cfg.h"
+#include "bms-slave_cfg.h"
 
 #include "bal.h"
 #include "bms.h"
@@ -139,7 +140,7 @@ static void BAL_ActivateBalancing(void) {
                         bal_balancing.activateBalancing[s][m][cb] = true;
                         nrBalancedCells++;
                         cellBalancingCurrent = ((float_t)(bal_cellVoltage.cellVoltage_mV[s][m][cb])) /
-                                               BS_BALANCING_RESISTANCE_ohm;
+                                               SLV_BALANCING_RESISTANCE_ohm;
                         difference = (BAL_STATEMACH_BALANCING_TIME_100ms / 10u) * (uint32_t)(cellBalancingCurrent);
                         bal_state.active              = true;
                         bal_balancing.enableBalancing = true;

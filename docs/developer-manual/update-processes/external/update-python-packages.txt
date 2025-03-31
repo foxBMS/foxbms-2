@@ -1,0 +1,58 @@
+- Chose a name for the environment.
+- Retrieve the list of outdated packages
+
+   .. tabs::
+
+      .. group-tab:: Win32/PowerShell
+
+         .. code-block:: powershell
+
+            # Create the new environment
+            py -m venv C:\foxbms\envs\<name-of-the-new-env>
+            # Activate the new virtual environment by running
+            C:\foxbms\envs\<name-of-the-new-env>\Scripts\activate.ps1
+            # Determine outdated packages
+            .\fox.ps1 run-program python -m pip list --outdated
+
+      .. group-tab:: Win32/Git bash
+
+         .. code-block:: shell
+
+
+            # Create the new environment
+            py -m venv /C/foxbms/envs/<name-of-the-new-env>
+            # Activate the new virtual environment by running
+            source /C/foxbms/envs/<name-of-the-new-env>/Scripts/activate
+            # Determine outdated packages
+            ./fox.sh run-program python -m pip list --outdated
+
+      .. group-tab:: Linux
+
+         .. code-block:: shell
+
+            # Create the new environment
+            python3 -m venv /opt/foxbms/envs/<name-of-the-new-env>
+            # Activate the new virtual environment by running
+            source /opt/foxbms/envs/<name-of-the-new-env>/bin/activate
+            # Determine outdated packages
+            ./fox.sh run-program python -m pip list --outdated
+
+- Install the required packages in the environment using
+  ``python -m pip install ...``
+- Run ``python -m pip freeze > requirements.txt``
+- Verify that the license of the each latest release is aligned with our
+  licensing policy.
+
+  - If a package is not, open a ticket to discuss with the team members on how
+    to proceed with that dependency (finding a replacement etc.)
+  - If so, the update process of that hook can be started.
+- |update-installation-instructions| for the |virtual-python-environment|.
+- Add the new environment name in
+  `docs/software/build-environment/build-environment.rst`.
+- |snippet_update_license| in
+  ``docs/general/license-tables/external/license-info_python-packages.csv``.
+- |snippet_changelog_entry|.
+  The changelog entry **SHALL** inform the user that environment update is
+  mandatory.
+- |snippet_commit|
+  ``Dependency update: <XXXX>/Q<Y>: Python packages <newline><comma-separated-list-of-package-names-including-version-number>``.

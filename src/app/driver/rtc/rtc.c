@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    rtc.c
  * @author  foxBMS Team
  * @date    2021-02-22 (date of creation)
- * @updated 2024-12-20 (date of last update)
- * @version v1.8.0
+ * @updated 2025-03-31 (date of last update)
+ * @version v1.9.0
  * @ingroup DRIVERS
  * @prefix  RTC
  *
@@ -88,6 +88,12 @@ static uint8_t rtc_i2cReadBuffer[RTC_MAX_I2C_TRANSACTION_SIZE_IN_BYTES] = {0};
 
 /** Variable containing the RTC system time */
 static RTC_SYSTEM_TIMER_EPOCH_s rtc_SystemTime = {0};
+
+/** Variable containing the RTC start up system time */
+static RTC_TIME_DATA_s rtc_initTime = {0};
+
+/* Flag for invalid request made when setting the RTC time */
+static uint8_t rtc_requestFlag = 0u;
 
 /*========== Extern Constant and Variable Definitions =======================*/
 
@@ -574,8 +580,6 @@ extern STD_RETURN_TYPE_e RTC_Initialize(void) {
 }
 
 extern void RTC_InitializeSystemTimeWithRtc(void) {
-    RTC_TIME_DATA_s rtc_initTime = {0};
-
     /* Get time and date from RTC */
     rtc_initTime = RTC_ReadTime();
     /* Set system timer */
@@ -603,6 +607,10 @@ extern void RTC_SetSystemTimeRtcFormat(RTC_TIME_DATA_s timeRtcFormat) {
     RTC_SetSystemTimeEpochFormat(systemTimeEpochFormat, timeRtcFormat.hundredthOfSeconds * 10u);
 }
 
+extern void RTC_SetRtcRequestFlag(uint8_t rtcRequest) {
+    rtc_requestFlag = rtcRequest;
+}
+
 RTC_TIME_DATA_s RTC_GetSystemTimeRtcFormat(void) {
     RTC_SYSTEM_TIMER_EPOCH_s systemTimeEpochFormat = {0};
     struct tm systemTimeTmFormat                   = {0};
@@ -615,9 +623,15 @@ RTC_TIME_DATA_s RTC_GetSystemTimeRtcFormat(void) {
     /* Convert tm struct to RTC */
     systemTimeRtcFormat                    = RTC_tmFormatToRtcFormat(systemTimeTmFormat);
     systemTimeRtcFormat.hundredthOfSeconds = (systemTimeEpochFormat.milliseconds / 10u);
+    systemTimeRtcFormat.requestFlag        = rtc_requestFlag;
 
     return systemTimeRtcFormat;
 }
+
+extern RTC_TIME_DATA_s RTC_GetSystemStartUpTime(void) {
+    return rtc_initTime;
+}
+
 /* AXIVION Enable Style MisraC2012-21.10: Time library only used in this module */
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -45,21 +45,22 @@ from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
 from shutil import which
 
-from click import secho
-
-from ..helpers.env_vars import HOMEDRIVE
-from ..helpers.host_platform import PLATFORM
+from ..helpers.click_helpers import recho
+from ..helpers.host_platform import get_platform
 from ..helpers.misc import PROJECT_ROOT
 from ..helpers.spr import SubprocessResult, run_process
 
 ROOT = Path(__file__).parent.parent.parent
 
 
-FREERTOS_UNCRUSTIFY_CONFIG = str(ROOT / "src/os/freertos/.github/uncrustify.cfg")
+FREERTOS_UNCRUSTIFY_CONFIG = str(
+    ROOT / "src/os/freertos/freertos/.github/uncrustify.cfg"
+)
 FREERTOS_FILES = [
     str(i)
-    for i in list((ROOT / "src/os/freertos").rglob("*.c"))
-    + list((ROOT / "src/os/freertos").rglob("*.h"))
+    for i in list((ROOT / "src/os/freertos/freertos").rglob("*.c"))
+    + list((ROOT / "src/os/freertos/freertos").rglob("*.h"))
+    if i.is_file()
 ]
 
 
@@ -77,21 +78,25 @@ def lint_freertos(check=True) -> int:
     """Run uncrustify on the foxBMS FreeRTOS source tree"""
 
     uncrustify_install_path = os.environ.get("PATH", "")
-    if PLATFORM == "win32":
+    if get_platform() == "win32":
         uncrustify_install_path = (
-            os.path.join(HOMEDRIVE, "uncrustify", "uncrustify-0.69")
+            os.path.join(
+                os.environ.get("HOMEDRIVE", "C:") + os.sep,
+                "uncrustify",
+                "uncrustify-0.69",
+            )
             + os.pathsep
             + uncrustify_install_path
         )
     uncrustify = which("uncrustify", path=uncrustify_install_path)
 
     if not uncrustify:
-        secho("Could not find uncrustify.", fg="red", err=True)
+        recho("Could not find uncrustify.")
         return 1
 
     uncrustify_args = [
         "-c",
-        str(PROJECT_ROOT / "src/os/freertos/.github/uncrustify.cfg"),
+        str(PROJECT_ROOT / "src/os/freertos/freertos/.github/uncrustify.cfg"),
     ]
     if check:
         uncrustify_args.append("--check")
@@ -100,18 +105,9 @@ def lint_freertos(check=True) -> int:
     with ProcessPoolExecutor() as pool:
         futures = []
         for i in FREERTOS_FILES:
-            if not Path(i).is_file():
-                err += 1
-                secho(f"'{Path(i).absolute()}' is not a file.", fg="red", err=True)
-                continue
             logging.debug("Start worker for file '%s'", i)
             futures.append(
-                pool.submit(
-                    run_uncrustify_process,
-                    uncrustify,
-                    uncrustify_args,
-                    i,
-                )
+                pool.submit(run_uncrustify_process, uncrustify, uncrustify_args, i)
             )
 
         for f in futures:

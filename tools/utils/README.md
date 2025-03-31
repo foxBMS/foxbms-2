@@ -1,8 +1,6 @@
 # Utils
 
-This directory and its subdirectories contain batch and shell script helper
-scripts. The ``bash``
-directory contains bash scripts while ``cmd`` scripts contains batch scripts.
+This directory contains utility scripts.
 
 | Script                              | Purpose                                                                       |
 |:----------------------------------- |:------------------------------------------------------------------------------|

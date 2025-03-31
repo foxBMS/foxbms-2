@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_sbc.c
  * @author  foxBMS Team
  * @date    2020-07-15 (date of creation)
- * @updated 2024-12-20 (date of last update)
- * @version v1.8.0
+ * @updated 2025-03-31 (date of last update)
+ * @version v1.9.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  SBC
  *
@@ -68,6 +68,7 @@
 #include "Mockspi.h"
 
 #include "sbc.h"
+#include "test_assert_helper.h"
 
 /*========== Unit Testing Framework Directives ==============================*/
 TEST_SOURCE_FILE("sbc.c")
@@ -93,7 +94,262 @@ void tearDown(void) {
 
 /*========== Test Cases =====================================================*/
 
+void testSBC_SaveLastStates(void) {
+    /* ======= Routine tests ============================================= */
+    SBC_STATE_s sbcState = {0};
+    /* ======= RT1/3: Test implementation */
+    TEST_SBC_SaveLastStates(&sbcState);
+
+    /* ======= RT2/3: Test implementation */
+    sbcState.lastSubstate = SBC_INITIALIZE_SAFETY_PATH_CHECK;
+    TEST_SBC_SaveLastStates(&sbcState);
+
+    /* ======= RT3/3: Test implementation */
+    sbcState.lastState = SBC_STATEMACHINE_RUNNING;
+    TEST_SBC_SaveLastStates(&sbcState);
+}
+
+void testSBC_CheckStateRequest(void) {
+    /* ======= Assertion tests ============================================= */
+    /* ======= AT1/1: Assertion test */
+    TEST_ASSERT_FAIL_ASSERT(TEST_SBC_CheckStateRequest(NULL_PTR, SBC_STATE_INIT_REQUEST));
+
+    /* ======= Routine tests ============================================= */
+    SBC_STATE_s sbcState             = {0};
+    SBC_STATE_REQUEST_e stateRequest = SBC_STATE_ERROR_REQUEST;
+
+    /* ======= RT1/5: Test implementation */
+    TEST_SBC_CheckStateRequest(&sbcState, stateRequest);
+
+    /* ======= RT2/5: Test implementation */
+    stateRequest          = SBC_STATE_INIT_REQUEST;
+    sbcState.stateRequest = SBC_STATE_NO_REQUEST;
+    sbcState.state        = SBC_STATEMACHINE_UNINITIALIZED;
+    TEST_SBC_CheckStateRequest(&sbcState, stateRequest);
+
+    /* ======= RT3/5: Test implementation */
+    stateRequest          = SBC_STATE_INIT_REQUEST;
+    sbcState.stateRequest = SBC_STATE_NO_REQUEST;
+    sbcState.state        = SBC_STATEMACHINE_RUNNING;
+    TEST_SBC_CheckStateRequest(&sbcState, stateRequest);
+
+    /* ======= RT4/5: Test implementation */
+    stateRequest = SBC_STATE_NO_REQUEST;
+    TEST_SBC_CheckStateRequest(&sbcState, stateRequest);
+
+    /* ======= RT5/5: Test implementation */
+    sbcState.stateRequest = SBC_STATE_ERROR_REQUEST;
+    TEST_SBC_CheckStateRequest(&sbcState, stateRequest);
+}
+
+void testSBC_CheckReEntrance(void) {
+    /* ======= Assertion tests ============================================= */
+    /* ======= AT1/1: Assertion test */
+    TEST_ASSERT_FAIL_ASSERT(TEST_SBC_CheckReEntrance(NULL_PTR));
+
+    /* ======= Routine tests ============================================= */
+    SBC_STATE_s sbcState = {0};
+
+    /* ======= RT1/1: Test implementation */
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
+    TEST_SBC_CheckReEntrance(&sbcState);
+}
+
+void testSBC_TransferStateRequest(void) {
+    /* ======= Assertion tests ============================================= */
+    /* ======= AT1/1: Assertion test */
+    TEST_ASSERT_FAIL_ASSERT(TEST_SBC_TransferStateRequest(NULL_PTR));
+
+    /* ======= Routine tests ============================================= */
+    SBC_STATE_s sbcState = {0};
+
+    /* ======= RT1/1: Test implementation */
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
+    TEST_SBC_TransferStateRequest(&sbcState);
+}
+
 void testSBC_Trigger(void) {
+    /* ======= Assertion tests ============================================= */
+    /* ======= AT1/1: Assertion test */
+    TEST_ASSERT_FAIL_ASSERT(SBC_Trigger(NULL_PTR));
+
+    /* ======= Routine tests ============================================= */
+    SBC_STATE_s sbcState = {0};
+
+    /* ======= RT1/1: Test implementation */
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
+    SBC_Trigger(&sbcState);
+
+    /* case SBC_STATEMACHINE_INITIALIZATION, substate SBC_ENTRY */
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
+    FS85_InitializeFsPhase_ExpectAndReturn(sbcState.pFs85xxInstance, STD_OK);
+    SBC_Trigger(&sbcState);
+    /* substate SBC_INIT_RESET_FAULT_ERROR_COUNTER_PART1 */
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
+    uint8_t requiredWatchdogTrigger = 0;
+    FS85_InitializeNumberOfRequiredWatchdogRefreshes_ExpectAndReturn(
+        sbcState.pFs85xxInstance, &requiredWatchdogTrigger, STD_OK);
+    SBC_Trigger(&sbcState);
+    /* substate SBC_INIT_RESET_FAULT_ERROR_COUNTER_PART2 */
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
+    FS85_CheckFaultErrorCounter_ExpectAndReturn(sbcState.pFs85xxInstance, STD_OK);
+    SBC_Trigger(&sbcState);
+    /* substate SBC_INITIALIZE_SAFETY_PATH_CHECK */
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
+    FS85_SafetyPathChecks_ExpectAndReturn(sbcState.pFs85xxInstance, STD_OK);
+    SBC_Trigger(&sbcState);
+
+    /* case SBC_STATEMACHINE_RUNNING */
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
+    sbcState.useIgnitionForPowerDown = true;
+    FS85_CheckIgnitionSignal_ExpectAndReturn(sbcState.pFs85xxInstance, true);
+    SBC_Trigger(&sbcState);
+}
+
+void testSBC_TriggerInitFail(void) {
+    /* ======= Routine tests ============================================= */
+    SBC_STATE_s sbcState = {0};
+
+    /* ======= RT1/1: Test implementation */
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
+    SBC_Trigger(&sbcState);
+
+    /* case SBC_STATEMACHINE_INITIALIZATION, substate SBC_ENTRY */
+    for (uint8_t i = 0; i <= 3u; i++) {
+        OS_EnterTaskCritical_Expect();
+        OS_ExitTaskCritical_Expect();
+        FS85_InitializeFsPhase_ExpectAndReturn(sbcState.pFs85xxInstance, STD_NOT_OK);
+        SBC_Trigger(&sbcState);
+    }
+
+    /* case SBC_STATEMACHINE_ERROR */
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
+    SBC_Trigger(&sbcState);
+}
+
+void testSBC_TriggerFirstErrorCounter(void) {
+    /* ======= Routine tests ============================================= */
+    SBC_STATE_s sbcState = {0};
+
+    /* ======= RT1/1: Test implementation */
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
+    SBC_Trigger(&sbcState);
+
+    /* case SBC_STATEMACHINE_INITIALIZATION, substate SBC_ENTRY */
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
+    FS85_InitializeFsPhase_ExpectAndReturn(sbcState.pFs85xxInstance, STD_OK);
+    SBC_Trigger(&sbcState);
+    /* substate SBC_INIT_RESET_FAULT_ERROR_COUNTER_PART1 */
+    uint8_t requiredWatchdogTrigger = 0;
+    for (uint8_t i = 0; i <= 3u; i++) {
+        OS_EnterTaskCritical_Expect();
+        OS_ExitTaskCritical_Expect();
+        FS85_InitializeNumberOfRequiredWatchdogRefreshes_ExpectAndReturn(
+            sbcState.pFs85xxInstance, &requiredWatchdogTrigger, STD_NOT_OK);
+        SBC_Trigger(&sbcState);
+    }
+
+    /* case SBC_STATEMACHINE_ERROR */
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
+    SBC_Trigger(&sbcState);
+}
+
+void testSBC_TriggerSecondErrorCounter(void) {
+    /* ======= Routine tests ============================================= */
+    SBC_STATE_s sbcState = {0};
+
+    /* ======= RT3/1: Test implementation */
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
+    SBC_Trigger(&sbcState);
+
+    /* case SBC_STATEMACHINE_INITIALIZATION, substate SBC_ENTRY */
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
+    FS85_InitializeFsPhase_ExpectAndReturn(sbcState.pFs85xxInstance, STD_OK);
+    SBC_Trigger(&sbcState);
+    /* substate SBC_INIT_RESET_FAULT_ERROR_COUNTER_PART1 */
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
+    uint8_t requiredWatchdogTrigger = 0;
+    FS85_InitializeNumberOfRequiredWatchdogRefreshes_ExpectAndReturn(
+        sbcState.pFs85xxInstance, &requiredWatchdogTrigger, STD_OK);
+    SBC_Trigger(&sbcState);
+    /* substate SBC_INIT_RESET_FAULT_ERROR_COUNTER_PART2 */
+    for (uint8_t i = 0; i <= 3u; i++) {
+        OS_EnterTaskCritical_Expect();
+        OS_ExitTaskCritical_Expect();
+        FS85_CheckFaultErrorCounter_ExpectAndReturn(sbcState.pFs85xxInstance, STD_NOT_OK);
+        SBC_Trigger(&sbcState);
+    }
+
+    /* case SBC_STATEMACHINE_ERROR */
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
+    SBC_Trigger(&sbcState);
+}
+
+void testSBC_TriggerSafetyPathError(void) {
+    /* ======= Routine tests ============================================= */
+    SBC_STATE_s sbcState = {0};
+
+    /* ======= RT3/1: Test implementation */
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
+    SBC_Trigger(&sbcState);
+
+    /* case SBC_STATEMACHINE_INITIALIZATION, substate SBC_ENTRY */
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
+    FS85_InitializeFsPhase_ExpectAndReturn(sbcState.pFs85xxInstance, STD_OK);
+    SBC_Trigger(&sbcState);
+    /* substate SBC_INIT_RESET_FAULT_ERROR_COUNTER_PART1 */
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
+    uint8_t requiredWatchdogTrigger = 0;
+    FS85_InitializeNumberOfRequiredWatchdogRefreshes_ExpectAndReturn(
+        sbcState.pFs85xxInstance, &requiredWatchdogTrigger, STD_OK);
+    SBC_Trigger(&sbcState);
+    /* substate SBC_INIT_RESET_FAULT_ERROR_COUNTER_PART2 */
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
+    FS85_CheckFaultErrorCounter_ExpectAndReturn(sbcState.pFs85xxInstance, STD_OK);
+    SBC_Trigger(&sbcState);
+    /* substate SBC_INITIALIZE_SAFETY_PATH_CHECK */
+    for (uint8_t i = 0; i <= 3u; i++) {
+        OS_EnterTaskCritical_Expect();
+        OS_ExitTaskCritical_Expect();
+        FS85_SafetyPathChecks_ExpectAndReturn(sbcState.pFs85xxInstance, STD_NOT_OK);
+        SBC_Trigger(&sbcState);
+    }
+
+    /* case SBC_STATEMACHINE_ERROR */
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
+    SBC_Trigger(&sbcState);
 }
 
 void testSBC_TriggerWatchdogIfRequired(void) {
@@ -112,4 +368,38 @@ void testSBC_TriggerWatchdogIfRequired(void) {
     sbc_stateMcuSupervisor.watchdogTrigger = 1u;
     FS85_TriggerWatchdog_ExpectAndReturn(sbc_stateMcuSupervisor.pFs85xxInstance, STD_NOT_OK);
     TEST_ASSERT_FALSE(TEST_SBC_TriggerWatchdogIfRequired(&sbc_stateMcuSupervisor));
+}
+
+void testSBC_SetStateRequest(void) {
+    /* ======= Assertion tests ============================================= */
+    SBC_STATE_REQUEST_e stateRequestValid = SBC_STATE_INIT_REQUEST;
+    /* ======= AT1/1: Assertion test */
+    TEST_ASSERT_FAIL_ASSERT(SBC_SetStateRequest(NULL_PTR, stateRequestValid));
+
+    /* ======= Routine tests =============================================== */
+    SBC_STATE_s sbc_state            = {0};
+    SBC_STATE_REQUEST_e stateRequest = SBC_STATE_ERROR_REQUEST;
+
+    /* ======= RT1/2: Test implementation */
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
+    SBC_SetStateRequest(&sbc_state, stateRequest);
+
+    /* ======= RT2/2: Test implementation */
+    stateRequest = SBC_STATE_INIT_REQUEST;
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
+    SBC_SetStateRequest(&sbc_state, stateRequest);
+}
+
+void testSBC_GetState(void) {
+    /* ======= Assertion tests ============================================= */
+    /* ======= AT1/1: Assertion test */
+    TEST_ASSERT_FAIL_ASSERT(SBC_GetState(NULL_PTR));
+
+    /* ======= Routine tests =============================================== */
+    SBC_STATE_s sbc_state = {0};
+
+    /* ======= RT1/1: Test implementation */
+    SBC_GetState(&sbc_state);
 }

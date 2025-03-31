@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -46,11 +46,10 @@
 import argparse
 import json
 import logging
-import sys
-import os
-from pathlib import Path
-from dataclasses import dataclass
 import subprocess
+import sys
+from dataclasses import dataclass
+from pathlib import Path
 from typing import List, Tuple
 
 
@@ -90,7 +89,7 @@ def check_rule_violations(config_file: Path, report: Analysis) -> int:
     """Checks that certain violations are not present in the codebase."""
     err = 0
     forbidden_rules = parse_config_file(config_file)
-    logging.info("Rules that shall be followed:\n%s", os.linesep.join(forbidden_rules))
+    logging.info("Rules that shall be followed:\n%s", "\n".join(forbidden_rules))
     for violation in report.analysis:
         error_number = violation["errorNumber"]
         file_path, line, column = get_location(violation)
@@ -153,7 +152,7 @@ def check_file_violations(config_file: Path, report: Analysis) -> int:
     files_with_no_violations = parse_config_file(config_file)
     logging.info(
         "Files that are required to be violation free:\n%s",
-        os.linesep.join(files_with_no_violations),
+        "\n".join(files_with_no_violations),
     )
     for violation in report.analysis:
         # if a violation is suppressed and justified, we can skip this violation
@@ -258,7 +257,7 @@ def main():
     ]
     logging.info(
         "Successfully loaded JSON report files:\n%s",
-        os.linesep.join(str(i) for i in args.report),
+        "\n".join(str(i) for i in args.report),
     )
 
     err = 0

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -39,9 +39,6 @@
 
 """Constants that are related to the CLI unit tests (paths etc.)"""
 
-from typing import Literal
-
 from ..helpers.misc import PROJECT_BUILD_ROOT
 
-CliUnitTestVariants = Literal["cli"]
 UNIT_TEST_BUILD_DIR_CLI = PROJECT_BUILD_ROOT / "cli-selftest"

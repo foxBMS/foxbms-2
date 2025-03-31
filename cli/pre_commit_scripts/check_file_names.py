@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -62,11 +62,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         repo_file_names.append(Path(i).name)
     for i in args.files:
         if repo_file_names.count(Path(i).name) > 1:
-            print(
-                f"{Path(i).as_posix()}: File name '{Path(i).name}' exists "
-                "multiple times.",
-                file=sys.stderr,
-            )
+            msg = f"{Path(i).as_posix()}: File name '{Path(i).name}' exists multiple times."
+            print(msg, file=sys.stderr)
             for j, name in enumerate(repo_file_names):
                 if Path(i).name == Path(name).name:
                     print(f"  {repo_files[j].as_posix()}", file=sys.stderr)

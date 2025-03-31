@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -48,16 +48,14 @@ import logging
 import re
 import sys
 from pathlib import Path
-from typing import Optional, Literal
-
+from typing import Literal, Optional
 
 # disable import checking for Python modules that come with Axivion
 # pylint: disable=import-error
 import axivion.config  # pylint: disable=no-name-in-module
-from bauhaus import ir
-from bauhaus import style
-from bauhaus.ir.common.scanner import comments
+from bauhaus import ir, style
 from bauhaus.ir.common.output.unparse import unparse_type
+from bauhaus.ir.common.scanner import comments
 
 # pylint: enable=import-error
 
@@ -171,6 +169,7 @@ VALID_SUFFIXES = (
     "Wh",  # watt hours
     "t",  # "typedef"
     "Hz",  # Hertz
+    "nF",  # nanofarad
 )
 
 
@@ -635,7 +634,7 @@ def check_typedefed_struct_name(
     return True
 
 
-UNKOWN_PREFIX = "Unknown which module prefix to check."
+UNKNOWN_PREFIX = "Unknown which module prefix to check."
 ERROR_MESSAGES = {
     "Enumerator": (
         "Enumerator names shall (1) use the uppercase module prefix followed "
@@ -685,33 +684,33 @@ ERROR_MESSAGES = {
 
 naming_errors = {
     "Enumerator": [
-        (check_prefix_known, UNKOWN_PREFIX),
+        (check_prefix_known, UNKNOWN_PREFIX),
         (check_enumerator_name, ERROR_MESSAGES["Enumerator"]),
     ],
     "Function": [
-        (check_prefix_known, UNKOWN_PREFIX),
+        (check_prefix_known, UNKNOWN_PREFIX),
         (check_function_name, ERROR_MESSAGES["Function"]),
     ],
     "GlobalVariable": [
-        (check_prefix_known, UNKOWN_PREFIX),
+        (check_prefix_known, UNKNOWN_PREFIX),
         (check_global_variable_name, ERROR_MESSAGES["GlobalVariable"]),
     ],
     "LocalVariable": [
-        (check_prefix_known, UNKOWN_PREFIX),
+        (check_prefix_known, UNKNOWN_PREFIX),
         (check_local_variable_name, ERROR_MESSAGES["LocalVariable"]),
     ],
     "Macro": [
-        (check_prefix_known, UNKOWN_PREFIX),
+        (check_prefix_known, UNKNOWN_PREFIX),
         (check_macro_name, ERROR_MESSAGES["Macro"]),
     ],
     "Parameter": [(check_parameter_name, ERROR_MESSAGES["Parameter"])],
     "StructField": [(check_struct_field_name, ERROR_MESSAGES["StructField"])],
     "TypedefedEnum": [
-        (check_prefix_known, UNKOWN_PREFIX),
+        (check_prefix_known, UNKNOWN_PREFIX),
         (check_typedefed_enum_name, ERROR_MESSAGES["TypedefedEnum"]),
     ],
     "TypedefedStruct": [
-        (check_prefix_known, UNKOWN_PREFIX),
+        (check_prefix_known, UNKNOWN_PREFIX),
         (check_typedefed_struct_name, ERROR_MESSAGES["TypedefedStruct"]),
     ],
 }

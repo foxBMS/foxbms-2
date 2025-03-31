@@ -45,12 +45,6 @@ environment variables):
 
          .\fox.ps1 axivion local-analysis
 
-   .. group-tab:: Win32/cmd.exe
-
-      .. code-block:: bat
-
-         fox.bat axivion local-analysis
-
    .. group-tab:: Win32/Git bash
 
       .. code-block:: shell
@@ -78,12 +72,6 @@ Local Builds And Results
 
           .\fox.ps1 axivion local-dashserver
 
-    .. group-tab:: Win32/cmd.exe
-
-        .. code-block:: bat
-
-          fox.bat axivion local-dashserver
-
     .. group-tab:: Win32/Git bash
 
         .. code-block:: shell
@@ -106,12 +94,6 @@ Local Builds And Results
         .. code-block:: powershell
 
           .\fox.ps1 axivion local-analysis
-
-    .. group-tab:: Win32/cmd.exe
-
-        .. code-block:: bat
-
-          fox.bat axivion local-analysis
 
     .. group-tab:: Win32/Git bash
 
@@ -136,7 +118,6 @@ This should generate a directory with call graphs to variables that are
 accessed in a potential unsafe manner.
 These can be used for closer investigation.
 
-
 Updating the architecture
 -------------------------
 
@@ -160,12 +141,6 @@ Call
       .. code-block:: powershell
 
          .\fox.ps1 run-program gravis --script tests\axivion\scripts\gravis_export_architecture_svg.py
-
-   .. group-tab:: Win32/cmd.exe
-
-      .. code-block:: bat
-
-         fox.bat run-program gravis --script tests\axivion\scripts\gravis_export_architecture_svg.py
 
    .. group-tab:: Win32/Git bash
 

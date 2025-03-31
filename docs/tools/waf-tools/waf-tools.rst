@@ -22,7 +22,6 @@ Waf Tools Implementation Documentation
     ./ti-arm-compiler-tools
     ./f_axivion.rst
     ./f_bootstrap_library_project.rst
-    ./f_check_db_vars.rst
     ./f_hcg.rst
     ./f_lauterbach.rst
     ./f_sphinx_build.rst

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -40,6 +40,7 @@
 """Script to check the include guard in header-files"""
 
 import argparse
+import sys
 from pathlib import Path
 from typing import Sequence
 
@@ -62,10 +63,11 @@ def run_check(filename: Path) -> int:
         marker = i.format(define_guard)
         if not txt_lines.count(marker):
             err += 1
-            print(f"{filename.as_posix()}: {marker} is missing.")
+            print(f"{filename.as_posix()}: {marker} is missing.", file=sys.stderr)
         if txt_lines.count(marker) > 1:
             err += 1
-            print(f"{filename.as_posix()}: {marker} occurs more than once.")
+            msg = f"{filename.as_posix()}: {marker} occurs more than once."
+            print(msg, file=sys.stderr)
     idx = []
     for marker in MARKERS:
         marker = marker.format(define_guard)
@@ -75,15 +77,17 @@ def run_check(filename: Path) -> int:
             idx.append(-1)
     if idx != sorted(idx):
         err += 1
-        print(f"{filename.as_posix()}: markers are not in the correct order.")
+        msg = f"{filename.as_posix()}: markers are not in the correct order."
+        print(msg, file=sys.stderr)
     marker_0 = MARKERS[0].format(define_guard)
     marker_1 = MARKERS[1].format(define_guard)
     if f"\n\n{marker_0}\n{marker_1}\n\n" not in txt:
         err += 1
-        print(
+        msg = (
             f"{filename.as_posix()}: The pattern needs to be:"
             f"\n\n#ifndef {define_guard}\n#define {define_guard}\n\n"
         )
+        print(msg, file=sys.stderr)
     return err
 
 

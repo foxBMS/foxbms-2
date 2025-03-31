@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -59,7 +59,14 @@ CONF_OPTIONS = {
         },
     },
     "rtos": {
-        "name": ["freertos", "safertos"],
+        "freertos": {
+            "addons": [
+                "freertos-plus-tcp",
+            ],
+        },
+        "safertos": {
+            "addons": [],
+        },
     },
     "slave-unit": {
         "analog-front-end": {
@@ -84,7 +91,10 @@ CONF_OPTIONS = {
             "semitec": {
                 "103jt": ["polynomial", "lookup-table"],
             },
-            "tdk": {"ntcgs103jf103ft8": ["lookup-table"]},
+            "tdk": {
+                "ntcgs103jf103ft8": ["lookup-table"],
+                "ntcg163jx103dt1s": ["lookup-table"],
+            },
             "vishay": {
                 "ntcalug01a103g": ["polynomial", "lookup-table"],
                 "ntcle317e4103sba": ["polynomial", "lookup-table"],
@@ -94,19 +104,34 @@ CONF_OPTIONS = {
 }
 
 
-def validate_rtos(bms_config: dict) -> bool:
+def validate_rtos(rtos_config: dict | None) -> int:
     """Validate BMS RTOS configuration"""
+    if not rtos_config:
+        Logs.error("Key 'rtos' is missing.")
+        return 1
     err = 0
-    cfg = bms_config["rtos"]["name"]
-    opt = CONF_OPTIONS["rtos"]["name"]
-    if cfg not in opt:
+    os_name = rtos_config.get("name", "")
+    if not os_name:
+        Logs.error("Key 'rtos:↳name' is missing.")
+        return 1
+    opt = [i[0] for i in list(CONF_OPTIONS["rtos"].items())]
+    if os_name not in opt:
         err += 1
         err_cfg = "'rtos:↳name'"
         Logs.error(f"{err_cfg} needs to be one of {opt}.")
+    addons = rtos_config.get("addons", [])
+    if not addons:
+        return err
+    supported_addons = CONF_OPTIONS["rtos"][os_name]["addons"]
+    for addon in addons:
+        if addon not in supported_addons:
+            err += 1
+            err_cfg = f"'rtos:↳{os_name}:↳<addon-name>'"
+            Logs.error(f"{err_cfg} needs to be one of {supported_addons}.")
     return err
 
 
-def validate_application(bms_config: dict) -> bool:
+def validate_application(bms_config: dict) -> int:
     """Validate BMS application configuration"""
     err = 0
     for algo in ("soc", "soe", "sof", "soh"):
@@ -139,7 +164,7 @@ def validate_application(bms_config: dict) -> bool:
     return err
 
 
-def validate_bms_slave(bms_config: dict) -> bool:
+def validate_bms_slave(bms_config: dict) -> int:
     """Validate BMS RTOS configuration"""
     err = 0
     # AFE
@@ -153,7 +178,7 @@ def validate_bms_slave(bms_config: dict) -> bool:
     if cfg["ic"] not in opt[cfg["manufacturer"]]:
         err += 1
         err_cfg = "'slave-unit:↳analog-front-end:↳ic'"
-        Logs.error(f"{err_cfg} needs to be one of {opt[cfg["manufacturer"]]}.")
+        Logs.error(f"{err_cfg} needs to be one of {opt[cfg['manufacturer']]}.")
 
     # Temperature sensor
     cfg = bms_config["slave-unit"]["temperature-sensor"]
@@ -167,22 +192,22 @@ def validate_bms_slave(bms_config: dict) -> bool:
         err += 1
         err_cfg = "'slave-unit:↳temperature-sensor:↳model'"
         Logs.error(
-            f"{err_cfg} needs to be one of {list(opt[cfg["manufacturer"]].keys())}."
+            f"{err_cfg} needs to be one of {list(opt[cfg['manufacturer']].keys())}."
         )
 
     if cfg["method"] not in opt[cfg["manufacturer"]][cfg["model"]]:
         err += 1
         err_cfg = "'slave-unit:↳temperature-sensor:↳method'"
         Logs.error(
-            f"{err_cfg} needs to be one of {opt[cfg["manufacturer"]][cfg["model"]]}."
+            f"{err_cfg} needs to be one of {opt[cfg['manufacturer']][cfg['model']]}."
         )
     return err
 
 
 @conf
-def validate_bms_configuration(ctx: ConfigurationContext, bms_config: dict):
+def validate_bms_configuration(ctx: ConfigurationContext, bms_config: dict) -> None:
     """Validate BMS configuration files"""
-    err = validate_rtos(bms_config)
+    err = validate_rtos(bms_config.get("rtos"))
     err += validate_application(bms_config)
     err += validate_bms_slave(bms_config)
 

@@ -51,7 +51,7 @@ Changed
 - The linker step now uses ``--start-group`` and ``--end-group`` to re-read
   libraries until all symbols are resolved instead of ``--reread_libs``.
   This change simplifies the integration of the build into Axivion.
-- |freertos| configuration is now validated in
+- FreeRTOS configuration is now validated in
   ``os_freertos_config-validation.h``.
 - Updated the documentation of the of the LTC-based interface |ltc-ltc6820|
   version 1.0.3 (see :ref:`INTERFACE_LTC_6820___V1_0_3__`).
@@ -59,15 +59,16 @@ Changed
 - Updated the pinout documentation for the |bms-master| version 1.1.1
   (see :ref:`MASTER_TMS570___V1_1_1__`).
 - Update the static code analysis to Axivion 7.4.0.
-- Increased the size of the variable that describes stack sizes for |freertos|,
+- Increased the size of the variable that describes stack sizes for FreeRTOS,
   allowing for the fully supported stack size of the port.
 - The diagnosis entries for the ``LTC`` module have been renamed in order to
   reflect that they are relevant for all ``AFE`` implementations.
 - The schema file for the ``bms.json`` configuration file has been split into
-  several files for readability and |code| has been made aware of the schema.
+  several files for readability and Visual Studio Code has been made aware of
+  the schema.
 - Added a style check that constant values should be on the right hand side of
   a comparison.
-- Updated |freertos| to version 10.4.5 (from 10.4.3).
+- Updated FreeRTOS to version 10.4.5 (from 10.4.3).
 - Cleaned up the CAN callback for receiving commands.
 - Extended the script for updating the doxygen headers in source files so that
   it fetches first and then compares to the tracking branch.

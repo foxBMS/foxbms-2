@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_diag_cbs_bms.c
  * @author  foxBMS Team
  * @date    2022-07-27 (date of creation)
- * @updated 2024-12-20 (date of last update)
- * @version v1.8.0
+ * @updated 2025-03-31 (date of last update)
+ * @version v1.9.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -123,4 +123,33 @@ void testDIAG_AlertFlagInvalidInput(void) {
     TEST_ASSERT_FAIL_ASSERT(DIAG_AlertFlag(DIAG_ID_MAX, DIAG_EVENT_OK, &diag_kpkDatabaseShim, 0u));
     TEST_ASSERT_FAIL_ASSERT(DIAG_AlertFlag(DIAG_ID_ALERT_MODE, 42, &diag_kpkDatabaseShim, 0u));
     TEST_ASSERT_FAIL_ASSERT(DIAG_AlertFlag(DIAG_ID_ALERT_MODE, DIAG_EVENT_OK, NULL_PTR, 0u));
+}
+
+void testDIAG_PrechargeProcess(void) {
+    DIAG_ID_e diagId   = DIAG_ID_PRECHARGE_ABORT_REASON_VOLTAGE;
+    DIAG_EVENT_e event = DIAG_EVENT_OK;
+    /* Assert tests */
+    TEST_ASSERT_FAIL_ASSERT(DIAG_PrechargeProcess(diagId, UINT8_MAX, &diag_kpkDatabaseShim, 0u););
+    TEST_ASSERT_FAIL_ASSERT(DIAG_PrechargeProcess(diagId, event, NULL_PTR, 0u););
+    TEST_ASSERT_FAIL_ASSERT(DIAG_PrechargeProcess(diagId, event, &diag_kpkDatabaseShim, -1u););
+
+    DIAG_PrechargeProcess(diagId, event, &diag_kpkDatabaseShim, 0u);
+    /* Tests with event reset */
+    event = DIAG_EVENT_RESET;
+    DIAG_PrechargeProcess(diagId, event, &diag_kpkDatabaseShim, 0u);
+
+    diagId = DIAG_ID_PRECHARGE_ABORT_REASON_CURRENT;
+    DIAG_PrechargeProcess(diagId, event, &diag_kpkDatabaseShim, 0u);
+
+    /* Tests with event not ok */
+    event = DIAG_EVENT_NOT_OK;
+
+    DIAG_PrechargeProcess(diagId, event, &diag_kpkDatabaseShim, 0u);
+
+    diagId = DIAG_ID_PRECHARGE_ABORT_REASON_VOLTAGE;
+    DIAG_PrechargeProcess(diagId, event, &diag_kpkDatabaseShim, 0u);
+
+    /* else branch */
+    diagId = 10u;
+    DIAG_PrechargeProcess(diagId, event, &diag_kpkDatabaseShim, 0u);
 }

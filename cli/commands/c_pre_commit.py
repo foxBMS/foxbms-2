@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -42,11 +42,9 @@
 import click
 
 from ..cmd_pre_commit import pre_commit_impl
+from ..helpers.click_helpers import DISABLE_DEFAULT_HELP, IGNORE_UNKNOWN_OPTIONS
 
-CONTEXT_SETTINGS = {
-    "help_option_names": ["--dummy"],
-    "ignore_unknown_options": True,
-}
+CONTEXT_SETTINGS = DISABLE_DEFAULT_HELP | IGNORE_UNKNOWN_OPTIONS
 
 
 @click.command(context_settings=CONTEXT_SETTINGS)

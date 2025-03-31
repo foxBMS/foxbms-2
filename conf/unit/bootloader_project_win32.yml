@@ -19,8 +19,8 @@
 ###############################################################################
 :project:
   # how to use ceedling. If you're not sure, leave this as `gem` and `?`
-  :which_ceedling: ../../tools/vendor/ceedling
-  :ceedling_version: 1.0.0
+  :which_ceedling: gem
+  :ceedling_version: "?"
 
   # optional features. If you don't need them, keep them turned off for performance
   :use_mocks: TRUE
@@ -64,8 +64,6 @@
 # or may provide new command options. Refer to the readme in each plugin for
 # details on how to use it.
 :plugins:
-  :load_paths:
-    - ../../tools/vendor/ceedling/plugins
   :enabled:
     #- beep                           # beeps when finished, so you don't waste time waiting for ceedling
     - module_generator # handy for quickly creating source, header, and test templates
@@ -114,7 +112,6 @@
     # we do not need the main directory as there are no meaning full test
     # sources or headers in it.
     - -:./../../tests/unit/bootloader
-
     # helper headers that shall not be included
     - -:./../../tests/unit/bootloader/main/helper
     - -:./../../tests/unit/support
@@ -147,7 +144,7 @@
       - UNITY_INCLUDE_EXEC_TIME
     :/test_boot_helper.c/:
       - UNITY_UNIT_TEST_BOOT_HELPER
-    :fstartup.c:
+    :/test_fstartup.c:
       # See file-level doxygen comment in
       # 'tests/unit/bootloader/main/test_fstartup.c' for more details.
       # We need to NOT include the 'HL_reg_esm.h' file, in order to fake the
@@ -181,7 +178,7 @@
         - -include
         - test_ignore_list.h
         - -Werror
-      :fstartup.c:
+      :/test_fstartup.c:
         # See file-level doxygen comment in
         # 'tests/unit/bootloader/main/test_fstartup.c' for more details
         # HALCoGen creates an invalid header 'HL_errata_SSWF021_45.h', as it
@@ -209,9 +206,7 @@
   # Core conffiguration
   :includes: []
   :plugins: # What plugins should be used by CMock?
-    - :ignore
     - :callback
-    - :ignore_arg
     - :return_thru_ptr
   :verbosity: 2 # the options being 0 errors only, 1 warnings and errors, 2 normal info, 3 verbose
   :when_no_prototypes: :warn # the options being :ignore, :warn, or :erro

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_diag_cbs_afe.c
  * @author  foxBMS Team
  * @date    2021-02-17 (date of creation)
- * @updated 2024-12-20 (date of last update)
- * @version v1.8.0
+ * @updated 2025-03-31 (date of last update)
+ * @version v1.9.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -102,6 +102,46 @@ void testDIAG_ErrorAfeInvalidInput(void) {
         DIAG_ErrorAfe(DIAG_ID_AFE_CELL_VOLTAGE_MEAS_ERROR, DIAG_EVENT_OK, &diag_kpkDatabaseShim, BS_NR_OF_STRINGS));
 }
 
+void testDIAG_ErrorAfe(void) {
+    DIAG_ErrorAfe(DIAG_ID_AFE_CELL_VOLTAGE_MEAS_ERROR, DIAG_EVENT_RESET, &diag_kpkDatabaseShim, BS_NR_OF_STRINGS);
+    DIAG_ErrorAfe(DIAG_ID_AFE_CELL_VOLTAGE_MEAS_ERROR, DIAG_EVENT_NOT_OK, &diag_kpkDatabaseShim, BS_NR_OF_STRINGS);
+
+    DIAG_ErrorAfe(DIAG_ID_AFE_CELL_TEMPERATURE_MEAS_ERROR, DIAG_EVENT_RESET, &diag_kpkDatabaseShim, BS_NR_OF_STRINGS);
+    DIAG_ErrorAfe(DIAG_ID_AFE_CELL_TEMPERATURE_MEAS_ERROR, DIAG_EVENT_NOT_OK, &diag_kpkDatabaseShim, BS_NR_OF_STRINGS);
+
+    DIAG_ErrorAfe(
+        DIAG_ID_BASE_CELL_VOLTAGE_MEASUREMENT_TIMEOUT, DIAG_EVENT_RESET, &diag_kpkDatabaseShim, BS_NR_OF_STRINGS);
+    DIAG_ErrorAfe(
+        DIAG_ID_BASE_CELL_VOLTAGE_MEASUREMENT_TIMEOUT, DIAG_EVENT_NOT_OK, &diag_kpkDatabaseShim, BS_NR_OF_STRINGS);
+
+    DIAG_ErrorAfe(
+        DIAG_ID_REDUNDANCY0_CELL_VOLTAGE_MEASUREMENT_TIMEOUT,
+        DIAG_EVENT_RESET,
+        &diag_kpkDatabaseShim,
+        BS_NR_OF_STRINGS);
+    DIAG_ErrorAfe(
+        DIAG_ID_REDUNDANCY0_CELL_VOLTAGE_MEASUREMENT_TIMEOUT,
+        DIAG_EVENT_NOT_OK,
+        &diag_kpkDatabaseShim,
+        BS_NR_OF_STRINGS);
+
+    DIAG_ErrorAfe(
+        DIAG_ID_BASE_CELL_TEMPERATURE_MEASUREMENT_TIMEOUT, DIAG_EVENT_RESET, &diag_kpkDatabaseShim, BS_NR_OF_STRINGS);
+    DIAG_ErrorAfe(
+        DIAG_ID_BASE_CELL_TEMPERATURE_MEASUREMENT_TIMEOUT, DIAG_EVENT_NOT_OK, &diag_kpkDatabaseShim, BS_NR_OF_STRINGS);
+
+    DIAG_ErrorAfe(
+        DIAG_ID_REDUNDANCY0_CELL_TEMPERATURE_MEASUREMENT_TIMEOUT,
+        DIAG_EVENT_RESET,
+        &diag_kpkDatabaseShim,
+        BS_NR_OF_STRINGS);
+    DIAG_ErrorAfe(
+        DIAG_ID_REDUNDANCY0_CELL_TEMPERATURE_MEASUREMENT_TIMEOUT,
+        DIAG_EVENT_NOT_OK,
+        &diag_kpkDatabaseShim,
+        BS_NR_OF_STRINGS);
+}
+
 /** tests invalid input values */
 void testDIAG_ErrorAfeDriverInvalidInput(void) {
     TEST_ASSERT_FAIL_ASSERT(DIAG_ErrorAfeDriver(DIAG_ID_MAX, DIAG_EVENT_OK, &diag_kpkDatabaseShim, 0u));
@@ -109,6 +149,25 @@ void testDIAG_ErrorAfeDriverInvalidInput(void) {
     TEST_ASSERT_FAIL_ASSERT(DIAG_ErrorAfeDriver(DIAG_ID_AFE_SPI, DIAG_EVENT_OK, NULL_PTR, 0u));
     TEST_ASSERT_FAIL_ASSERT(
         DIAG_ErrorAfeDriver(DIAG_ID_AFE_SPI, DIAG_EVENT_OK, &diag_kpkDatabaseShim, BS_NR_OF_STRINGS));
-    TEST_ASSERT_FAIL_ASSERT(DIAG_ErrorAfeDriver(
-        DIAG_ID_AFE_CELL_VOLTAGE_MEAS_ERROR, DIAG_EVENT_OK, &diag_kpkDatabaseShim, BS_NR_OF_STRINGS));
+}
+
+void testDIAG_ErrorAfeDriver(void) {
+    DIAG_ErrorAfeDriver(DIAG_ID_AFE_SPI, DIAG_EVENT_RESET, &diag_kpkDatabaseShim, BS_NR_OF_STRINGS);
+    DIAG_ErrorAfeDriver(DIAG_ID_AFE_SPI, DIAG_EVENT_NOT_OK, &diag_kpkDatabaseShim, BS_NR_OF_STRINGS);
+
+    DIAG_ErrorAfeDriver(DIAG_ID_AFE_COMMUNICATION_INTEGRITY, DIAG_EVENT_RESET, &diag_kpkDatabaseShim, BS_NR_OF_STRINGS);
+    DIAG_ErrorAfeDriver(
+        DIAG_ID_AFE_COMMUNICATION_INTEGRITY, DIAG_EVENT_NOT_OK, &diag_kpkDatabaseShim, BS_NR_OF_STRINGS);
+
+    DIAG_ErrorAfeDriver(DIAG_ID_AFE_MUX, DIAG_EVENT_RESET, &diag_kpkDatabaseShim, BS_NR_OF_STRINGS);
+    DIAG_ErrorAfeDriver(DIAG_ID_AFE_MUX, DIAG_EVENT_NOT_OK, &diag_kpkDatabaseShim, BS_NR_OF_STRINGS);
+
+    DIAG_ErrorAfeDriver(DIAG_ID_AFE_CONFIG, DIAG_EVENT_RESET, &diag_kpkDatabaseShim, BS_NR_OF_STRINGS);
+    DIAG_ErrorAfeDriver(DIAG_ID_AFE_CONFIG, DIAG_EVENT_NOT_OK, &diag_kpkDatabaseShim, BS_NR_OF_STRINGS);
+
+    DIAG_ErrorAfeDriver(DIAG_ID_AFE_OPEN_WIRE, DIAG_EVENT_RESET, &diag_kpkDatabaseShim, BS_NR_OF_STRINGS);
+    DIAG_ErrorAfeDriver(DIAG_ID_AFE_OPEN_WIRE, DIAG_EVENT_NOT_OK, &diag_kpkDatabaseShim, BS_NR_OF_STRINGS);
+
+    /* unknown DIAG_ID */
+    DIAG_ErrorAfeDriver(DIAG_ID_AFE_CELL_VOLTAGE_MEAS_ERROR, DIAG_EVENT_OK, &diag_kpkDatabaseShim, BS_NR_OF_STRINGS);
 }

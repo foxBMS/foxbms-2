@@ -93,8 +93,8 @@ Enum=f_SoeAlgorithm(0="None", 1="Debug", 2="Counting")
 Enum=f_Rtos(0="freertos", 1="safertos")
 Enum=f_Afes(0="LTC 6804-1", 1="LTC 6806", 2="LTC 6811-1", 3="LTC 6812-1", 4="LTC 6813-1", 5="NXP MC33775A",
   6="MAXIM MAX17852", 7="Debug default", 8="ADI ADES1830", 9="ADI ADBMS6832", 10="TI BQ79718", 11="TI Dummy")
-Enum=f_TemperatureSensors(0="Fak00", 1="Epc00", 2="Epc01", 3="Mur00", 4="Sem00", 5="Vis00", 6="Vis01",
-  7="Vis02", 8="Tdk00")
+Enum=f_TemperatureSensors(0="Fak00", 1="Epc00", 2="Epc01", 3="Mur00", 4="Sem00", 5="Vis00", 6="Vis01", 7="Vis02",
+  8="Tdk00")
 Enum=f_TemperatureSensorMethod(0="polynomial", 1="lookup-table")
 Enum=f_CurrentSensorMode(0="Current sensor cyclic", 1="Current sensor triggered")
 Enum=f_SocAlgorithm(0="None", 1="Debug", 2="Counting")
@@ -135,11 +135,12 @@ Enum=f_FatalError(0="DIAG_ID_FLASHCHECKSUM", 1="DIAG_ID_SYSTEM_MONITORING", 2="D
   71="DIAG_ID_CURRENT_SENSOR_V3_MEASUREMENT_TIMEOUT", 72="DIAG_ID_CURRENT_SENSOR_POWER_MEASUREMENT_TIMEOUT",
   73="DIAG_ID_POWER_MEASUREMENT_ERROR", 83="DIAG_ID_ALERT_MODE", 85="DIAG_ID_SUPPLY_VOLTAGE_CLAMP_30C_LOST",
   86="NO_ERROR") // use maximum flag as no error sign
+Enum=f_RtcRequest(0="No Request", 1="Valid Request", 2="Invalid Request")
 
 {SENDRECEIVE}
 
 [AFE_CellTemperatures]
-ID=280h // Cell temperature measurement data (in:can_cbs_rx_cell-temperatures.c:CANRX_CellTemperatures, fv:rx)
+ID=280h // Cell temperature measurement data (in:can_cbs_rx_cell-temperatures.c:CANRX_CellTemperatures, fv:rx, type:Cell Information)
 Len=8
 CycleTime=4500
 Mux=CellTemperatures_000_005 0,8 0 -m
@@ -650,7 +651,7 @@ Var=CellTemperature_178 signed 48,8 -m /u:degC // Temperature of cell 178
 Var=CellTemperature_179 signed 56,8 -m /u:degC // Temperature of cell 179
 
 [AFE_CellVoltages]
-ID=270h // Cell voltage measurement data (in:can_cbs_rx_cell-voltages.c:CANRX_CellVoltages, fv:rx)
+ID=270h // Cell voltage measurement data (in:can_cbs_rx_cell-voltages.c:CANRX_CellVoltages, fv:rx, type:Cell Information)
 Len=8
 CycleTime=5400
 Mux=CellVoltages_000_003 0,8 0 -m
@@ -1353,7 +1354,7 @@ Var=CellVoltage_214 unsigned 38,13 -m /u:mV // Voltage of cell 214
 Var=CellVoltage_215 unsigned 51,13 -m /u:mV // Voltage of cell 215
 
 [BAS_AerosolSensor]
-ID=3C4h // (in:can_cbs_rx_aerosol-sensor.c:CANRX_AerosolSensor, fv:rx)
+ID=3C4h // (in:can_cbs_rx_aerosol-sensor.c:CANRX_AerosolSensor, fv:rx, type:Aerosol Sensor)
 Len=8
 CycleTime=1000
 Var=ParticulateMatterConcentration unsigned 0,16 -m
@@ -1364,7 +1365,7 @@ Var=RollingCounter unsigned 45,3 -m
 Var=CrcCheckCode unsigned 56,8 -m
 
 [f_BmsState]
-ID=220h // Message contains general BMS state information (in:can_cbs_tx_bms-state.c:CANTX_BmsState, fv:tx)
+ID=220h // Message contains general BMS state information (in:can_cbs_tx_bms-state.c:CANTX_BmsState, fv:tx, type:BMS Status)
 Len=8
 CycleTime=100 -p
 Var=BmsState unsigned 4,4 -m /e:f_BmsState /ln:"BmsState" // Shows the internal state of the BMS state machine
@@ -1397,7 +1398,7 @@ Var=Clamp30cError bit 25,1 -m /e:f_ErrorFlag // Indicates a possible error with 
 Var=BalancingAlgorithmState unsigned 31,1 /e:f_BalancingAlgorithmState // Indicates if the selected balancing algorithm allows balancing. This indicates not if a cell is actually balanced or not. This is indicated in IsBalancingActive flag in f_StringState message
 
 [f_BmsStateDetails]
-ID=221h // Details on flags transmitted by the 'BmsState' message (in:can_cbs_tx_bms-state-details.c:CANTX_BmsStateDetails, fv:tx)
+ID=221h // Details on flags transmitted by the 'BmsState' message (in:can_cbs_tx_bms-state-details.c:CANTX_BmsStateDetails, fv:tx, type:BMS Status)
 Len=8
 CycleTime=1000 -p
 Var=TimingViolationEngineTask bit 7,1 -m /e:f_ErrorFlag /ln:"TimingViolationEngineTask" // Indicates whether the timing of the engine task has been violated.
@@ -1412,7 +1413,7 @@ Var=TimingViolationEngineTaskRecorde bit 15,1 -m /e:f_ErrorFlag /ln:"TimingViola
 Var=TimingViolation1msTaskRecorded bit 14,1 -m /e:f_ErrorFlag /ln:"TimingViolation1msTaskRecorded" // Indicates whether a violation of the timing of the 1ms task has been recorded.
 
 [f_BmsStateRequest]
-ID=210h // Requests specific BMS behavior and gives the BMS required information from the higher-level control unit (in:can_cbs_rx_bms-state-request.c:CANRX_BmsStateRequest, fv:rx)
+ID=210h // Requests specific BMS behavior and gives the BMS required information from the higher-level control unit (in:can_cbs_rx_bms-state-request.c:CANRX_BmsStateRequest, fv:rx, type:BMS Status)
 Len=8
 Var=RequestBmsMode unsigned 6,2 -m /e:f_ModeRequest /ln:"RequestBmsMode" // Instructs the BMS the to try to switch to the requested mode
 Var=ActivateBalancing bit 15,1 -m /ln:"ActivateBalancing" // Instructs the BMS to activate/deactivate balancing
@@ -1423,7 +1424,7 @@ Var=ChargerConnected bit 3,1 -m /e:f_YesNoFlag /ln:"ChargerConnected" // Tells t
 Var=DisableInsulationMonitoring bit 2,1 -m /ln:"DisableInsulationMonitoring" // Instructs the BMS to check/not check the battery system insulation
 
 [f_CellTemperatures]
-ID=260h // Cell temperature measurement data (in:can_cbs_tx_cell-temperatures.c:CANTX_CellTemperatures, fv:tx)
+ID=260h // Cell temperature measurement data (in:can_cbs_tx_cell-temperatures.c:CANTX_CellTemperatures, fv:tx, type:Cell Information)
 Len=8
 CycleTime=4500 -p
 Mux=CellTemperatures_000_005 0,8 0 -m
@@ -1934,7 +1935,7 @@ Var=CellTemperature_178 signed 48,8 -m /u:degC // Temperature of cell 178
 Var=CellTemperature_179 signed 56,8 -m /u:degC // Temperature of cell 179
 
 [f_CellVoltages]
-ID=250h // Cell voltage measurement data (in:can_cbs_tx_cell-voltages.c:CANTX_CellVoltages, fv:tx)
+ID=250h // Cell voltage measurement data (in:can_cbs_tx_cell-voltages.c:CANTX_CellVoltages, fv:tx, type:Cell Information)
 Len=8
 CycleTime=5400 -p
 Mux=CellVoltages_000_003 0,8 0 -m
@@ -2637,12 +2638,12 @@ Var=CellVoltage_214 unsigned 38,13 -m /u:mV // Voltage of cell 214
 Var=CellVoltage_215 unsigned 51,13 -m /u:mV // Voltage of cell 215
 
 [f_CrashDump]
-ID=0FFh // Fatal error information (in:can_cbs_tx_crash-dump.c:CANTX_CrashDump, fv:tx)
+ID=0FFh // Fatal error information (in:can_cbs_tx_crash-dump.c:CANTX_CrashDump, fv:tx, type:Crash Dump)
 Len=8
 Mux=StackOverflow 0,8 0 -m
 
 [f_Debug]
-ID=300h // Reserved - for debug/development purpose only (in:can_cbs_rx_debug.c:CANRX_Debug, fv:rx)
+ID=300h // Reserved - for debug/development purpose only (in:can_cbs_rx_debug.c:CANRX_Debug, fv:rx, type:Debug)
 Len=8
 Mux=Rtc 0,8 1 -m // Contains signals to set the BMS's RTC driver to certain values
 Var=SetHundredthOfSeconds unsigned 8,7 -m /ln:"SetHundredthOfSeconds" // Instructs the BMS to set the hundredth of seconds in the RTC driver
@@ -2678,9 +2679,15 @@ Var=InitializeFram bit 28,1 -m /e:f_Initialization /ln:"InitializeFram" // Instr
 Len=8
 Mux=TimeInfo 0,8 4 -m // Contains signals to instruct the BMS regarding its own time
 Var=RequestRtcTime bit 15,1 -m /ln:"RequestRtcTime" // Instructs the BMS to communicate its current time
+Var=RequestBootTimestamp bit 9,1 /ln:"RequestBootTimestamp" // Instructs the BMS to communicate its current boot timestamp
+
+[f_Debug]
+Len=8
+Mux=UptimeInfo 0,8 5 -m // Instructs the BMS to communicate its uptime
+Var=RequestUptime bit 23,1 -m /ln:"RequestUptime" // Instructs the BMS to communicate its current uptime
 
 [f_DebugBuildConfiguration]
-ID=303h // Contains the build configuration (in:can_cbs_tx_debug-build-configuration.c:CANTX_DebugBuildConfiguration, fv:tx)
+ID=303h // Contains the build configuration (in:can_cbs_tx_debug-build-configuration.c:CANTX_DebugBuildConfiguration, fv:tx, type:Debug)
 Len=8
 Mux=BatteryCell_MaxDischargeTemp 0,8 24h
 Var=MaxDischargeTemperature_MSL signed 8,18 -m /u:degC /f:0.1
@@ -2836,7 +2843,7 @@ Var=TemperatureSensor unsigned 16,8 -m /max:1 /e:f_TemperatureSensors
 Var=TemperatureSensorMethod unsigned 24,8 -m /max:1 /e:f_TemperatureSensorMethod
 
 [f_DebugResponse]
-ID=301h // Responses to the 'Debug' message (in:can_cbs_tx_debug-response.c:CANTX_DebugResponse, fv:tx)
+ID=301h // Responses to the 'Debug' message (in:can_cbs_tx_debug-response.c:CANTX_DebugResponse, fv:tx, type:Debug)
 Len=8
 Mux=McuWaferInformation 0,8 3 -m
 Var=Number unsigned 8,8 -m /max:1 /ln:"Number" // wafer number of the MCU (read from DIEDL register)
@@ -2880,6 +2887,7 @@ Var=GetMonth unsigned 40,4 -m /e:f_RtcMonth
 Var=GetSeconds unsigned 15,6 -m
 Var=GetWeekday unsigned 32,3 -m /e:f_RtcWeekday
 Var=GetYear unsigned 44,7 -m
+Var=RtcRequestFlag unsigned 51,2 -m /max:2 /e:f_RtcRequest
 
 [f_DebugResponse]
 Len=8
@@ -2891,14 +2899,37 @@ Len=8
 Mux=CommitHashHigh7 0,8 5 -m // characters 0 to 7 of the commid SHA
 Var=shortHashHigh7 string 8,56 -m
 
+[f_DebugResponse]
+Len=8
+Mux=Uptime 0,8 7 -m
+Var=GetUptimeThousandthOfSeconds unsigned 8,10 -m
+Var=GetUptimeHundredthOfSeconds unsigned 18,7 -m
+Var=GetUptimeTenthOfSeconds unsigned 25,4 -m
+Var=GetUptimeSeconds unsigned 29,6 -m
+Var=GetUptimeMinutes unsigned 35,6 -m
+Var=GetUptimeHours unsigned 41,5 -m
+Var=GetUptimeDays unsigned 46,5 -m
+
+[f_DebugResponse]
+Len=8
+Mux=BootTimestamp 0,8 0Eh -m
+Var=GetBootDay unsigned 35,5 -m
+Var=GetBootHours unsigned 27,5 -m
+Var=GetBootHundredthOfSeconds unsigned 8,7 -m
+Var=GetBootMinutes unsigned 21,6 -m
+Var=GetBootMonth unsigned 40,4 -m /e:f_RtcMonth
+Var=GetBootSeconds unsigned 15,6 -m
+Var=GetbootWeekday unsigned 32,3 -m /e:f_RtcWeekday
+Var=GetBootYear unsigned 44,7 -m
+
 [f_DebugUnsupportedMultiplexerVal]
-ID=302h // (in:can_cbs_tx_debug-unsupported-multiplexer-values.c:CANTX_DebugUnsupportedMultiplexerVal, fv:tx)
+ID=302h // (in:can_cbs_tx_debug-unsupported-multiplexer-values.c:CANTX_DebugUnsupportedMultiplexerVal, fv:tx, type:Debug)
 Len=8
 Var=MessageId unsigned 0,32 -m /max:1 /ln:"MessageId"
 Var=MultiplexerValue unsigned 32,32 -m /max:1 /ln:"MultiplexerValue"
 
 [f_PackLimits]
-ID=232h // Electrical limit information (in:can_cbs_tx_pack-limits.c:CANTX_PackLimits, fv:tx)
+ID=232h // Electrical limit information (in:can_cbs_tx_pack-limits.c:CANTX_PackLimits, fv:tx, type:Pack Information)
 Len=8
 CycleTime=100 -p
 Var=MaximumChargeCurrent unsigned 12,12 -m /u:A /f:0.25 /ln:"MaximumChargeCurrent" // Maximum battery pack charge current
@@ -2909,7 +2940,7 @@ Var=MaximumBatteryVoltage unsigned 48,8 -m /u:V /f:4 /ln:"MaximumBatteryVoltage"
 Var=MinimumBatteryVoltage unsigned 56,8 -m /u:V /f:4 /ln:"MinimumBatteryVoltage" // Minimum allowed battery pack voltage (defined by the cell limits or application specification)
 
 [f_PackMinimumMaximumValues]
-ID=231h // (in:can_cbs_tx_pack-minimum-maximum-values.c:CANTX_PackMinimumMaximumValues, fv:tx)
+ID=231h // (in:can_cbs_tx_pack-minimum-maximum-values.c:CANTX_PackMinimumMaximumValues, fv:tx, type:Pack Information)
 Len=8
 CycleTime=100 -p
 Var=MinimumCellVoltage signed 14,14 -m /u:mV /ln:"MinimumCellVoltage" // Minimum cell voltage of all connected strings, if no string connected maximum value of whole system is transmitted
@@ -2920,7 +2951,7 @@ Var=CoolingInletTemperature signed 32,8 -m /u:degC /ln:"CoolingInletTemperature"
 Var=CoolingOutletTemperature signed 40,8 -m /u:degC /ln:"CoolingOutletTemperature" // Temperature of the coolant after it passes the cooling system
 
 [f_PackStateEstimation]
-ID=235h // (in:can_cbs_tx_pack-state-estimation.c:CANTX_PackStateEstimation, fv:tx)
+ID=235h // (in:can_cbs_tx_pack-state-estimation.c:CANTX_PackStateEstimation, fv:tx, type:Pack Information)
 Len=8
 CycleTime=1000 -p
 Var=MinimumSoc unsigned 0,10 -m /u:% /f:0.1 /ln:"MinimumSoc" // Minimum SOC currently connected to HV bus (100% if all strings connected and all strings at 100%)
@@ -2931,7 +2962,7 @@ Var=MaximumSoc unsigned 10,10 -m /u:% /f:0.1 /ln:"MaximumSoc" // Maximum SOC cur
 Var=MaximumSoe unsigned 30,10 -m /u:% /f:0.1 /ln:"MaximumSoe" // Maximum SOE currently connected to HV bus (100% if all strings connected and all strings at 100%)
 
 [f_PackValuesP0]
-ID=233h // (in:can_cbs_tx_pack-values-p0.c:CANTX_PackValuesP0, fv:tx)
+ID=233h // (in:can_cbs_tx_pack-values-p0.c:CANTX_PackValuesP0, fv:tx, type:Pack Information)
 Len=8
 CycleTime=100 -p
 Var=Current signed 47,17 -m /u:A /f:0.01 /ln:"Current" // Battery pack current
@@ -2940,13 +2971,13 @@ Var=BusVoltage signed 15,15 -m /u:V /f:0.1 /ln:"BusVoltage TODO" // Battery volt
 Var=Power signed 30,17 -m /u:kW /f:0.01 /ln:"Power" // Battery power
 
 [f_PackValuesP1]
-ID=234h // (in:can_cbs_tx_pack-values-p1.c:CANTX_PackValuesP1, fv:tx)
+ID=234h // (in:can_cbs_tx_pack-values-p1.c:CANTX_PackValuesP1, fv:tx, type:Pack Information)
 Len=8
 CycleTime=100 -p
 Var=InsulationResistance unsigned 0,13 -m /u:kOhm /f:7 /ln:"BatteryVoltage" // Shows the latest measured insulation resistance value
 
 [f_StringMinimumMaximumValues]
-ID=241h // Message contains minimum and maximum cell temperature and cell voltage values of respective string (in:can_cbs_tx_string-minimum-maximum-values.c:CANTX_StringMinimumMaximumValues, fv:tx)
+ID=241h // Message contains minimum and maximum cell temperature and cell voltage values of respective string (in:can_cbs_tx_string-minimum-maximum-values.c:CANTX_StringMinimumMaximumValues, fv:tx, type:String Information)
 Len=8
 CycleTime=100 -p
 Mux=String0 4,4 0 -m
@@ -2956,7 +2987,7 @@ Var=MaximumCellTemperature signed 36,9 -m /u:degC /f:0.5 /ln:"MaximumCellTempera
 Var=MinimumCellTemperature signed 45,9 -m /u:degC /f:0.5 /ln:"MinimumCellTemperature" // Minium cell temperature in string 0
 
 [f_StringState]
-ID=240h // Message contains string related error and warning flags (in:can_cbs_tx_string-state.c:CANTX_StringState, fv:tx)
+ID=240h // Message contains string related error and warning flags (in:can_cbs_tx_string-state.c:CANTX_StringState, fv:tx, type:String Information)
 Len=8
 CycleTime=100 -p
 Mux=String0 4,4 0 -m
@@ -3010,7 +3041,7 @@ Var=PackVoltageMeasurementError bit 55,1 -m /e:f_ErrorFlag // Dedicated pack vol
 Var=StringOvercurrentError bit 56,1 -m /e:f_ErrorFlag // Flag will be set if current capability of the string is violated (BS_MAXIMUM_STRING_CURRENT_mA)
 
 [f_StringStateEstimation]
-ID=245h // Message contains SOC, SOE and SOH state estimations (in:can_cbs_tx_string-state-estimation.c:CANTX_StringStateEstimation, fv:tx)
+ID=245h // Message contains SOC, SOE and SOH state estimations (in:can_cbs_tx_string-state-estimation.c:CANTX_StringStateEstimation, fv:tx, type:String Information)
 Len=8
 CycleTime=1000 -p
 Mux=String0 0,4 0 -m
@@ -3022,7 +3053,7 @@ Var=Soh unsigned 40,9 -m /u:% /f:0.2
 Var=MaximumSoe unsigned 31,9 -m /u:% /f:0.2 // SOE is depending on current direction, if battery system is charging: SOE_max is transmitted, else SOE_min
 
 [f_StringValuesP0]
-ID=243h // Message contains string voltage, current and power (in:can_cbs_tx_string-values-p0.c:CANTX_StringValuesP0, fv:tx)
+ID=243h // Message contains string voltage, current and power (in:can_cbs_tx_string-values-p0.c:CANTX_StringValuesP0, fv:tx, type:String Information)
 Len=8
 CycleTime=100 -p
 Mux=String0 0,3 0 -m
@@ -3031,14 +3062,14 @@ Var=Voltage signed 3,18 -m /u:V /f:0.01 /ln:"Voltage" // Voltage of string 0
 Var=Power signed 39,18 -m /u:kW /f:0.01 /ln:"Power" // Power of string 0
 
 [f_StringValuesP1]
-ID=244h // Message contains energy counting value (in:can_cbs_tx_string-values-p1.c:CANTX_StringValuesP1, fv:tx)
+ID=244h // Message contains energy counting value (in:can_cbs_tx_string-values-p1.c:CANTX_StringValuesP1, fv:tx, type:String Information)
 Len=8
 CycleTime=100 -p
 Mux=String0 0,4 0 -m
 Var=EnergyCounter signed 8,32 -m /u:Wh /ln:"EnergyCounter" // Energy counting value for string 0
 
 [IMD_Info]
-ID=037h // (in:can_cbs_rx_imd-info.c:CANRX_ImdInfo, fv:rx)
+ID=037h // (in:can_cbs_rx_imd-info.c:CANRX_ImdInfo, fv:rx, type:Insulation Measurement Device)
 Len=6
 CycleTime=1000
 Var=II_VIFC_STATUS_04_VIFC_CmdError bit 36,1 /e:VtSig_IG_VIFC_STATUS_04_VIFC_Cmd
@@ -3057,7 +3088,7 @@ Var=II_IMC_STATUS_01_Ground bit 17,1 /e:VtSig_IG_VIFC_STATUS_04_VIFC_Cmd
 Var=II_IMC_STATUS_00_IsoFailure bit 16,1 /e:VtSig_IG_VIFC_STATUS_04_VIFC_Cmd
 
 [IMD_Request]
-ID=022h // (in:can_cbs_tx_imd-request.c:CANTX_ImdRequest, fv:tx)
+ID=022h // (in:can_cbs_tx_imd-request.c:CANTX_ImdRequest, fv:tx, type:Insulation Measurement Device)
 Len=5
 Mux=S_IMC_GET_MANUFACTURER 0,8 3Dh
 Var=MG_IMC_MANUFACT_INDEX unsigned 8,16
@@ -3206,7 +3237,7 @@ Len=5
 Mux=S_IMC_CTL_SYS_UPDATE 0,8 23h
 
 [IMD_Response]
-ID=023h // (in:can_cbs_rx_imd-response.c:CANRX_ImdResponse, fv:rx)
+ID=023h // (in:can_cbs_rx_imd-response.c:CANRX_ImdResponse, fv:rx, type:Insulation Measurement Device)
 Len=5
 Mux=S_VIFC_GET_STATUS 0,8 DCh
 Var=IG_VIFC_STATUS_04_VIFC_CmdError bit 12,1 /e:VtSig_IG_VIFC_STATUS_04_VIFC_Cmd
@@ -3405,7 +3436,7 @@ Len=5
 Mux=S_IMC_CTL_SYS_UPDATE 0,8 23h
 
 [IVT_String0_Current]
-ID=521h // Current sensor string 0: current (in:can_cbs_rx_current-sensor.c:CANRX_CurrentSensor, fv:rx);
+ID=521h // Current sensor string 0: current (in:can_cbs_rx_current-sensor.c:CANRX_CurrentSensor, fv:rx, type:Current Sensor)
 Len=6
 Var=IVT_Result_I_System_Error bit 8,1 -m
 Var=IVT_Result_I_OCS bit 11,1 -m
@@ -3416,7 +3447,7 @@ Var=IVT_MsgCount_Result_I unsigned 12,4 -m
 Var=IVT_Result_I signed 16,32 -m /u:mA
 
 [IVT_String0_CurrentCounter]
-ID=527h // Current sensor string 0: coulomb counting (in:can_cbs_rx_current-sensor.c:CANRX_CurrentSensor, fv:rx)
+ID=527h // Current sensor string 0: coulomb counting (in:can_cbs_rx_current-sensor.c:CANRX_CurrentSensor, fv:rx, type:Current Sensor)
 Len=6
 Var=IVT_Result_As_System_Error bit 8,1 -m
 Var=IVT_Result_As_OCS bit 11,1 -m
@@ -3427,7 +3458,7 @@ Var=IVT_MsgCount_Result_As unsigned 12,4 -m
 Var=IVT_ID_Result_As unsigned 0,8 -m /min:6 /max:6 /e:VtSig_IVT_ID_Result_As /d:6
 
 [IVT_String0_EnergyCounter]
-ID=528h // Current sensor string 0: energy counting (in:can_cbs_rx_current-sensor.c:CANRX_CurrentSensor, fv:rx)
+ID=528h // Current sensor string 0: energy counting (in:can_cbs_rx_current-sensor.c:CANRX_CurrentSensor, fv:rx, type:Current Sensor)
 Len=6
 Var=IVT_Result_Wh_System_Error bit 8,1 -m
 Var=IVT_Result_Wh_OCS bit 11,1 -m
@@ -3438,7 +3469,7 @@ Var=IVT_MsgCount_Result_Wh unsigned 12,4 -m
 Var=IVT_ID_Result_Wh unsigned 0,8 -m /min:7 /max:7 /e:VtSig_IVT_ID_Result_Wh /d:7
 
 [IVT_String0_Power]
-ID=526h // Current sensor string 0: power (in:can_cbs_rx_current-sensor.c:CANRX_CurrentSensor, fv:rx)
+ID=526h // Current sensor string 0: power (in:can_cbs_rx_current-sensor.c:CANRX_CurrentSensor, fv:rx, type:Current Sensor)
 Len=6
 Var=IVT_Result_W_System_Error bit 8,1 -m
 Var=IVT_Result_W_OCS bit 11,1 -m
@@ -3449,7 +3480,7 @@ Var=IVT_MsgCount_Result_W unsigned 12,4 -m
 Var=IVT_ID_Result_W unsigned 0,8 -m /min:5 /max:5 /e:VtSig_IVT_ID_Result_W /d:5
 
 [IVT_String0_Temperature]
-ID=525h // Current sensor string 0: temperature (in:can_cbs_rx_current-sensor.c:CANRX_CurrentSensor, fv:rx)
+ID=525h // Current sensor string 0: temperature (in:can_cbs_rx_current-sensor.c:CANRX_CurrentSensor, fv:rx, type:Current Sensor)
 Len=6
 Var=IVT_Result_T_System_Error bit 8,1 -m
 Var=IVT_Result_T_OCS bit 11,1 -m
@@ -3460,7 +3491,7 @@ Var=IVT_Result_T signed 16,32 -m /u:degC /f:0.1 /d:0
 Var=IVT_MsgCount_Result_T unsigned 12,4 -m
 
 [IVT_String0_Voltage1]
-ID=522h // Current sensor string 0: voltage 1 (in:can_cbs_rx_current-sensor.c:CANRX_CurrentSensor, fv:rx)
+ID=522h // Current sensor string 0: voltage 1 (in:can_cbs_rx_current-sensor.c:CANRX_CurrentSensor, fv:rx, type:Current Sensor)
 Len=6
 Var=IVT_Result_U1_System_Error bit 8,1 -m
 Var=IVT_Result_U1_Measurement_Error bit 9,1 -m
@@ -3471,7 +3502,7 @@ Var=IVT_Result_U1 signed 16,32 -m /u:mV
 Var=IVT_MsgCount_Result_U1 unsigned 12,4 -m
 
 [IVT_String0_Voltage2]
-ID=523h // Current sensor string 0: voltage 2 (in:can_cbs_rx_current-sensor.c:CANRX_CurrentSensor, fv:rx)
+ID=523h // Current sensor string 0: voltage 2 (in:can_cbs_rx_current-sensor.c:CANRX_CurrentSensor, fv:rx, type:Current Sensor)
 Len=6
 Var=IVT_Result_U2_System_Error bit 8,1 -m
 Var=IVT_Result_U2_OCS bit 11,1 -m
@@ -3482,7 +3513,7 @@ Var=IVT_MsgCount_Result_U2 unsigned 12,4 -m
 Var=IVT_Result_U2 signed 16,32 -m /u:mV
 
 [IVT_String0_Voltage3]
-ID=524h // Current sensor string 0: voltage 3 (in:can_cbs_rx_current-sensor.c:CANRX_CurrentSensor, fv:rx)
+ID=524h // Current sensor string 0: voltage 3 (in:can_cbs_rx_current-sensor.c:CANRX_CurrentSensor, fv:rx, type:Current Sensor)
 Len=6
 Var=IVT_Result_U3_System_Error bit 8,1 -m
 Var=IVT_Result_U3_OCS bit 11,1 -m
@@ -3493,6 +3524,6 @@ Var=IVT_Result_U3 signed 16,32 -m /u:mV
 Var=IVT_MsgCount_Result_U3 unsigned 12,4 -m
 
 [f_BmsFatalError]
-ID=222h // Message contains the fatal error code (in:can_cbs_tx_fatal-error.c:CANTX_SendFatalErrorId, fv:tx)
+ID=222h // Message contains the fatal error code (in:can_cbs_tx_fatal-error.c:CANTX_SendFatalErrorId, fv:tx, type:BMS Status)
 Len=2
 Var=FatalErrorCode f_FatalError 7,8 -m /ln:"Fatal Error Code from BMS"

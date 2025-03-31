@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -37,29 +37,20 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-r"""Implements a waf tool to bootstrap a library project.
+"""Implements a waf tool to bootstrap a library project.
 
 This tool adds the command ``bootstrap_library_project`` to the wscript in
 which you are loading it.
-
 """
 
 import os
-import re
 import tarfile
 from tempfile import NamedTemporaryFile
+from git import Repo
+from git.exc import InvalidGitRepositoryError
 
 from waflib import Context
 from waflib.Build import BuildContext
-
-HAVE_GIT = False
-try:
-    from git import Repo
-    from git.exc import InvalidGitRepositoryError
-
-    HAVE_GIT = True
-except ImportError:
-    pass
 
 
 def bootstrap_library_project(ctx):
@@ -70,15 +61,20 @@ def bootstrap_library_project(ctx):
         ctx.path.find_node("CC-BY-4.0.txt"),
         ctx.path.find_node("LICENSE.md"),
     ]
-    tools = [
-        ctx.path.find_node("fox.bat"),
-        ctx.path.find_node("fox.ps1"),
-        ctx.path.find_node("fox.py"),
-        ctx.path.find_node("fox.sh"),
-        ctx.path.find_node("tools/waf"),
-    ]
-    tools.extend(ctx.path.ant_glob("conf/env/** conf/cc/remarks.txt tools/utils/**"))
-    tools.extend(ctx.path.ant_glob("cli/**/*.py"))
+    tools = (
+        [
+            ctx.path.find_node("fox.ps1"),
+            ctx.path.find_node("fox.py"),
+            ctx.path.find_node("fox.sh"),
+            ctx.path.find_node("tools/waf"),
+            ctx.path.find_node("tools/waf-tools/crc_bootloader.py"),
+            ctx.path.find_node("tools/waf-tools/crc64_ti_impl.py"),
+            ctx.path.find_node("tools/waf-tools/f_hcg.py"),
+        ]
+        + ctx.path.ant_glob("conf/env/** conf/cc/remarks.txt tools/utils/**")
+        + ctx.path.ant_glob("cli/**/*.py")
+        + ctx.path.ant_glob("tools/waf-tools/f_ti_*.py")
+    )
     lib_cc_options = ctx.path.find_node(
         "docs/software/build-process/misc/libcc-options.yaml"
     )
@@ -89,23 +85,6 @@ def bootstrap_library_project(ctx):
     example_header = ctx.path.find_node(
         "docs/software/build-process/misc/libproject-example.h"
     )
-    tools.extend(
-        ctx.path.ant_glob(
-            "tools/waf-tools/f_ti_*.py", excl=["tools/waf-tools/f_ti_arm_cgt.py"]
-        ),
-    )
-    compiler_tool_path = os.path.join("tools", "waf-tools", "f_ti_arm_cgt.py")
-    compiler_tool_node = ctx.path.find_node(compiler_tool_path)
-    # patch compiler tool
-    compiler_tool_txt = compiler_tool_node.read()
-    compiler_tool_txt_new = ""
-    hcg_tool_line = re.compile(r"load\(.*\"f_hcg\"")
-    for line in compiler_tool_txt.splitlines():
-        if not hcg_tool_line.search(line):
-            compiler_tool_txt_new += line + os.linesep
-    compiler_tool_txt_new = re.sub(
-        r'\s{0,}(,)?\s{0,}"hcg_compiler"\s{0,}(,)?\s{0,}', "", compiler_tool_txt_new
-    )
     commit_id = "unknown"
     try:
         repo = Repo(search_parent_directories=True)
@@ -114,8 +93,8 @@ def bootstrap_library_project(ctx):
         pass
     readme_txt = (
         "# Minimal Library Project for foxBMS\n\nThis is a minimal project to "
-        f"build a library for foxBMS (based on {commit_id}).\n\nFor details visit "
-        "https://foxbms.org.\n"
+        f"build a library for foxBMS (based on {commit_id}).\n\nFor details "
+        "visit https://foxbms.org.\n"
     )
     with tarfile.open("library-project.tar.gz", mode="w:gz") as tar:
         for i in tools + misc:
@@ -131,15 +110,6 @@ def bootstrap_library_project(ctx):
         tar.add(
             example_header.relpath(), arcname=os.path.join("src", example_header.name)
         )
-        with NamedTemporaryFile(mode="w", delete=False, encoding="utf-8") as tmp:
-            tmp.write(compiler_tool_txt_new)
-            tmp.flush()
-            tar.add(tmp.name, arcname=compiler_tool_path)
-        try:
-            os.remove(tmp.name)
-        except FileNotFoundError:
-            pass
-
         with NamedTemporaryFile(mode="w", delete=False, encoding="utf-8") as tmp:
             tmp.write(readme_txt)
             tmp.flush()

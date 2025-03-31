@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -121,7 +121,7 @@ def main():  # pylint: disable=too-many-locals
     for k, v in outs.items():
         ws = " " * (longest_standard_name - len(k) + 1)
         if v:
-            logging_msg += f"{k}{ws}:: {os.linesep.join(v)}\n"
+            logging_msg += f"{k}{ws}:: {'\n'.join(v)}\n"
         else:
             logging_msg += f"{k}{ws}:: None\n"
     logging.debug(

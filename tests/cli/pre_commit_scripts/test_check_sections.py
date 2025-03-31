@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -48,7 +48,7 @@ from pathlib import Path
 try:
     from cli.pre_commit_scripts import check_sections
 except ModuleNotFoundError:
-    sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
+    sys.path.insert(0, str(Path(__file__).parents[3]))
     from cli.pre_commit_scripts import check_sections
 
 # pylint: disable=line-too-long
@@ -113,7 +113,7 @@ class TestCheckSections(unittest.TestCase):
             result = check_sections.main(argv)
         self.assertEqual(result, 1)
         self.assertIn(
-            "unknown-file-extension.abc: Unkown file extension '.abc'.", buf.getvalue()
+            "unknown-file-extension.abc: Unknown file extension '.abc'.", buf.getvalue()
         )
 
         argv = [
@@ -126,7 +126,7 @@ class TestCheckSections(unittest.TestCase):
             result = check_sections.main(argv)
         self.assertEqual(result, 1)
         self.assertIn(
-            "unknown-file-extension.abc: Unkown file extension '.abc'.", buf.getvalue()
+            "unknown-file-extension.abc: Unknown file extension '.abc'.", buf.getvalue()
         )
 
     def test_invalid_0(self):

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -38,3 +38,44 @@
 # - "This product is derived from foxBMS®"
 
 """Testing file 'cli/commands/c_build.py'."""
+
+import sys
+import unittest
+from pathlib import Path
+from unittest.mock import MagicMock, patch
+
+from click.testing import CliRunner
+
+try:
+    from cli.cli import main
+    from cli.helpers.misc import PROJECT_ROOT
+    from cli.helpers.spr import SubprocessResult
+except ModuleNotFoundError:
+    sys.path.insert(0, str(Path(__file__).parents[3]))
+    from cli.cli import main
+    from cli.helpers.misc import PROJECT_ROOT
+    from cli.helpers.spr import SubprocessResult
+
+
+class TestFoxCliMainCommandWaf(unittest.TestCase):
+    """Test of the 'waf' commands and options."""
+
+    @patch("cli.cmd_build.build_impl.run_top_level_waf")
+    def test_waf_0(self, mock_run_top_level_waf: MagicMock):
+        """Test 'fox.py waf --help' options."""
+        mock_run_top_level_waf.return_value = SubprocessResult(0)
+        runner = CliRunner()
+        result = runner.invoke(main, ["waf", "--help"])
+        self.assertEqual(0, result.exit_code)
+
+    @patch("cli.cmd_build.build_impl.run_waf")
+    def test_waf_1(self, mock_run_waf: MagicMock):
+        """Test 'fox.py waf --cwd <option> --help' options."""
+        mock_run_waf.return_value = SubprocessResult(0)
+        runner = CliRunner()
+        result = runner.invoke(main, ["waf", "--cwd", str(PROJECT_ROOT), "--help"])
+        self.assertEqual(0, result.exit_code)
+
+
+if __name__ == "__main__":
+    unittest.main()

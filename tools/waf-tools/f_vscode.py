@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -45,16 +45,16 @@ For information on VS Code see https://code.visualstudio.com/.
 
 # pylint: disable=too-many-locals,too-many-statements
 
-import os
 import copy
-import re
 import json
+import os
+import re
 import shutil
 from pathlib import Path
 
-from waflib import Utils, Logs
-from waflib.Node import Node
+from waflib import Logs, Utils
 from waflib.Configure import ConfigurationContext, conf
+from waflib.Node import Node
 
 if Utils.is_win32:
     BAUHAUS_DIR = (
@@ -132,49 +132,46 @@ def get_hcg_includes(halcogen: list) -> list[str]:
         return []
 
 
+def write_tasks_json(ctx: ConfigurationContext, vscode_dir: Node):
+    """Write the specific task.json file"""
+    tasks_node = vscode_dir.find_node("tasks.json")
+    if not tasks_node:
+        ctx.fatal(f"Could not find 'tasks.json' in {vscode_dir}")
+    tasks = tasks_node.read_json()
+    for i in tasks["tasks"]:
+        i["options"]["cwd"] = Path(ctx.path.abspath()).as_posix()
+        i["command"] = ctx.env.VS_CODE_SHELL[0]
+        if "pwsh" in ctx.env.VS_CODE_SHELL[0]:
+            i["args"] = [
+                "-NoProfile",
+                "-NoLogo",
+                "-NonInteractive",
+                "-File",
+                ctx.env.FOX_WRAPPER[0],
+            ] + i["args"]
+        if "bash" in ctx.env.VS_CODE_SHELL[0]:
+            i["args"] = [
+                "--noprofile",
+                "--norc",
+                "-c",
+                ctx.env.FOX_WRAPPER[0],
+            ] + i["args"]
+        for p in i["problemMatcher"]:
+            if isinstance(p, dict):
+                p["fileLocation"] = ["autoDetect", Path(ctx.path.abspath()).as_posix()]
+    dump_json_to_node(tasks_node, tasks)
+
+
 @conf
-def get_fox_py_wrapper_executable(ctx: ConfigurationContext) -> bool:
-    """check which fox.py-wrapper to use (.bat, .ps1 or .sh)"""
+def get_fox_py_wrapper_executable(ctx: ConfigurationContext):
+    """check which fox.py-wrapper to use (.ps1 or .sh)"""
     ctx.start_msg("Checking for 'fox.py' wrapper:")
     if Utils.is_win32:
-        for ext in ("bat", "ps1", "sh"):
-            ctx.env.FOX_WRAPPER_NODE = [str(ctx.path.find_node(f"fox.{ext}"))]
-            if ctx.env.FOX_WRAPPER_NODE:
-                try:
-                    ctx.find_program(
-                        "fox", var="FOX_WRAPPER", mandatory=True, exts=f".{ext}"
-                    )
-                except ctx.errors.ConfigurationError:
-                    # found wrapper is not executable, try the next extension
-                    continue
-
-                cmd = [ctx.env.FOX_WRAPPER[0], "-h"]
-                with Utils.subprocess.Popen(
-                    cmd,
-                    cwd=ctx.path.abspath(),
-                    stderr=Utils.subprocess.PIPE,
-                    stdout=Utils.subprocess.PIPE,
-                ) as p:
-                    p.communicate()
-                if not p.returncode:
-                    break  # we have successfully set 'ctx.env.FOX_WRAPPER'
-        # fallback to 'find_node'
-        ctx.env.append_unique("FOX_WRAPPER", str(ctx.path.find_node("fox.bat")))
+        ctx.find_program("pwsh", var="VS_CODE_SHELL", mandatory=False)
+        ctx.env.FOX_WRAPPER = [str(ctx.path.find_node("fox.ps1"))]
     else:
-        try:
-            ctx.find_program("fox.sh", var="FOX_WRAPPER", mandatory=False)
-        except ctx.errors.ConfigurationError:
-            pass  # found wrapper is not executable, ignore it
-        if ctx.env.FOX_WRAPPER:
-            cmd = [ctx.env.FOX_WRAPPER[0], "-h"]
-            with Utils.subprocess.Popen(cmd, cwd=ctx.path.abspath()) as p:
-                p.communicate()
-            if p.returncode:  # we could **NOT** find a working fox wrapper
-                ctx.env.FOX_WRAPPER = []
-
-        # fallback to 'find_node'
-        if not ctx.env.FOX_WRAPPER:
-            ctx.env.append_unique("FOX_WRAPPER", str(ctx.path.find_node("fox.sh")))
+        ctx.find_program("bash", var="VS_CODE_SHELL", mandatory=False)
+        ctx.env.FOX_WRAPPER = [str(ctx.path.find_node("fox.sh"))]
 
     ctx.end_msg(ctx.env.get_flat("FOX_WRAPPER"))
 
@@ -192,11 +189,7 @@ def find_vscode(ctx: ConfigurationContext) -> bool:
                 os.path.join(os.environ["LOCALAPPDATA"], "Programs", code_dir),
                 os.path.join(os.environ["PROGRAMFILES"], code_dir),
             ]
-            ctx.find_program(
-                "code",
-                path_list=path_list,
-                mandatory=False,
-            )
+            ctx.find_program("code", path_list=path_list, mandatory=False)
     else:
         ctx.find_program("code", mandatory=False)
         if not ctx.env.CODE:
@@ -292,7 +285,6 @@ def setup_generic(ctx: ConfigurationContext, base_cfg_dir: Node):
             f"{inc_app}/driver/imd/{ctx.env.imd_manufacturer}",
             f"{inc_app}/task/ftask/{ctx.env.RTOS_NAME[0]}",
             f"{inc_app}/task/os/{ctx.env.RTOS_NAME[0]}",
-            f"{inc_base}/os/{ctx.env.RTOS_NAME[0]}",
             f"{inc_app}/application/bal/{ctx.env.balancing_strategy}",
             (
                 f"{inc_app}/driver/ts/{ctx.env.temperature_sensor_manuf}/"
@@ -301,7 +293,9 @@ def setup_generic(ctx: ConfigurationContext, base_cfg_dir: Node):
         ]
     )
     p = []
-    for i in ctx.env.INCLUDES_RTOS + ctx.env.INCLUDES_AFE:
+    for i in (
+        ctx.env.INCLUDES_RTOS + ctx.env.INCLUDES_RTOS_ADDONS + ctx.env.INCLUDES_AFE
+    ):
         k = Path(ctx.root.find_node(i).path_from(ctx.path)).as_posix()
         p.append(k)
     p = [f"@@ROOT@@/{i}" for i in p]
@@ -341,17 +335,7 @@ def setup_generic(ctx: ConfigurationContext, base_cfg_dir: Node):
     dump_json_to_node(settings_node, settings)
 
     ### tasks.json
-    tasks_node = vscode_dir.find_node("tasks.json")
-    if not tasks_node:
-        ctx.fatal(f"Could not find 'tasks.json' in {vscode_dir}")
-    tasks = tasks_node.read_json()
-    for i in tasks["tasks"]:
-        i["command"] = Path(ctx.env.FOX_WRAPPER[0]).as_posix()
-        i["options"]["cwd"] = Path(ctx.path.abspath()).as_posix()
-        for p in i["problemMatcher"]:
-            if isinstance(p, dict):
-                p["fileLocation"] = ["autoDetect", Path(ctx.path.abspath()).as_posix()]
-    dump_json_to_node(tasks_node, tasks)
+    write_tasks_json(ctx, vscode_dir)
 
     ctx.end_msg(vscode_dir)
 
@@ -419,7 +403,6 @@ def setup_src_app(ctx: ConfigurationContext, base_cfg_dir: Node):
             f"{inc_app}/driver/imd/{ctx.env.imd_manufacturer}",
             f"{inc_app}/task/ftask/{ctx.env.RTOS_NAME[0]}",
             f"{inc_app}/task/os/{ctx.env.RTOS_NAME[0]}",
-            f"{inc_base}/os/{ctx.env.RTOS_NAME[0]}",
             f"{inc_app}/application/bal/{ctx.env.balancing_strategy}",
             (
                 f"{inc_app}/driver/ts/{ctx.env.temperature_sensor_manuf}/"
@@ -427,8 +410,25 @@ def setup_src_app(ctx: ConfigurationContext, base_cfg_dir: Node):
             ),
         ]
     )
+    if ctx.env.RTOS_NAME[0] == "freertos":
+        include_path.extend(
+            [
+                f"{inc_base}/os/{ctx.env.RTOS_NAME[0]}/{ctx.env.RTOS_NAME[0]}",
+                f"{inc_base}/os/{ctx.env.RTOS_NAME[0]}/freertos-plus/freertos-plus-tcp",
+                f"{inc_base}/os/{ctx.env.RTOS_NAME[0]}/freertos-plus/ \
+                    freertos-plus-tcp/source/include",
+            ]
+        )
+    else:
+        include_path.extend(
+            [
+                f"{inc_base}/os/{ctx.env.RTOS_NAME[0]}/",
+            ]
+        )
     p = []
-    for i in ctx.env.INCLUDES_RTOS + ctx.env.INCLUDES_AFE:
+    for i in (
+        ctx.env.INCLUDES_RTOS + ctx.env.INCLUDES_RTOS_ADDONS + ctx.env.INCLUDES_AFE
+    ):
         k = Path(ctx.root.find_node(i).path_from(ctx.path)).as_posix()
         p.append(k)
     p = [f"@@ROOT@@/{i}" for i in p]
@@ -468,16 +468,7 @@ def setup_src_app(ctx: ConfigurationContext, base_cfg_dir: Node):
     dump_json_to_node(settings_node, settings)
 
     ### tasks.json
-    tasks_node = vscode_dir.find_node("tasks.json")
-    if not tasks_node:
-        ctx.fatal(f"Could not find 'tasks.json' in {vscode_dir}")
-    tasks = tasks_node.read_json()
-    for i in tasks["tasks"]:
-        i["command"] = Path(ctx.env.FOX_WRAPPER[0]).as_posix()
-        i["options"]["cwd"] = Path(ctx.path.abspath()).as_posix()
-        for p in i["problemMatcher"]:
-            p["fileLocation"] = ["autoDetect", Path(ctx.path.abspath()).as_posix()]
-    dump_json_to_node(tasks_node, tasks)
+    write_tasks_json(ctx, vscode_dir)
 
     ctx.end_msg(vscode_dir)
 
@@ -571,16 +562,7 @@ def setup_src_bootloader(ctx: ConfigurationContext, base_cfg_dir: Node):
     dump_json_to_node(settings_node, settings)
 
     ### tasks.json
-    tasks_node = vscode_dir.find_node("tasks.json")
-    if not tasks_node:
-        ctx.fatal(f"Could not find 'tasks.json' in {vscode_dir}")
-    tasks = tasks_node.read_json()
-    for i in tasks["tasks"]:
-        i["command"] = Path(ctx.env.FOX_WRAPPER[0]).as_posix()
-        i["options"]["cwd"] = Path(ctx.path.abspath()).as_posix()
-        for p in i["problemMatcher"]:
-            p["fileLocation"] = ["autoDetect", Path(ctx.path.abspath()).as_posix()]
-    dump_json_to_node(tasks_node, tasks)
+    write_tasks_json(ctx, vscode_dir)
 
     ctx.end_msg(vscode_dir)
 
@@ -679,15 +661,7 @@ def setup_embedded_unit_test_app(ctx: ConfigurationContext, base_cfg_dir: Node):
     dump_json_to_node(settings_node, settings)
 
     ### tasks.json
-    tasks_node = vscode_dir.find_node("tasks.json")
-    if not tasks_node:
-        ctx.fatal(f"Could not find 'tasks.json' in {vscode_dir}")
-    tasks = tasks_node.read_json()
-    for i in tasks["tasks"]:
-        i["command"] = Path(ctx.env.FOX_WRAPPER[0]).as_posix()
-        i["options"]["cwd"] = Path(ctx.path.abspath()).as_posix()
-
-    dump_json_to_node(tasks_node, tasks)
+    write_tasks_json(ctx, vscode_dir)
 
     ctx.end_msg(vscode_dir)
 
@@ -786,15 +760,7 @@ def setup_embedded_unit_test_bootloader(ctx: ConfigurationContext, base_cfg_dir:
     dump_json_to_node(settings_node, settings)
 
     ### tasks.json
-    tasks_node = vscode_dir.find_node("tasks.json")
-    if not tasks_node:
-        ctx.fatal(f"Could not find 'tasks.json' in {vscode_dir}")
-    tasks = tasks_node.read_json()
-    for i in tasks["tasks"]:
-        i["command"] = Path(ctx.env.FOX_WRAPPER[0]).as_posix()
-        i["options"]["cwd"] = Path(ctx.path.abspath()).as_posix()
-
-    dump_json_to_node(tasks_node, tasks)
+    write_tasks_json(ctx, vscode_dir)
 
     ctx.end_msg(vscode_dir)
 
@@ -809,20 +775,19 @@ def configure(ctx: ConfigurationContext):  # pylint: disable=too-many-branches
         return
 
     ctx.get_fox_py_wrapper_executable()
+    if not ctx.env.VS_CODE_SHELL:
+        Logs.warn(
+            "Could not find 'pwsh' or 'bash'.\n"
+            "VS Code build tasks will not be available."
+        )
+        return
 
     # We have found 'code', check that the configuration files are valid
     base_cfg_dir = ctx.path.find_dir(os.path.join("tools", "ide", "vscode"))
     ctx.valid_configuration_files(base_cfg_dir)
 
-    try:
-        ctx.env.append_unique("VS_CODE_GCC", ctx.env.GCC)
-    except IndexError:
-        ctx.env.append_unique("VS_CODE_GCC", ["gcc"])
-
-    try:
-        ctx.env.append_unique("VS_CODE_GDB", ctx.env.GDB)
-    except IndexError:
-        ctx.env.append_unique("VS_CODE_GDB", ["gdb"])
+    ctx.env.append_unique("VS_CODE_GCC", ctx.env.GCC or ["gcc"])
+    ctx.env.append_unique("VS_CODE_GDB", ctx.env.GDB or ["gdb"])
 
     # configure the workspaces
     ctx.setup_generic(base_cfg_dir)

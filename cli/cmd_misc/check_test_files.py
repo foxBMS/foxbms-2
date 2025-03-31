@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -45,8 +45,20 @@ from pathlib import Path
 
 from click import secho
 
+from ..helpers.click_helpers import recho
 from ..helpers.misc import PROJECT_ROOT
 from ..helpers.spr import SubprocessResult
+
+
+def _get_cli_files() -> list[Path]:
+    return list((PROJECT_ROOT / "cli").rglob("**/*.py"))
+
+
+def _get_test_files() -> list[Path]:
+    return [
+        i.relative_to(PROJECT_ROOT)
+        for i in (PROJECT_ROOT / "tests/cli").rglob("**/*.py")
+    ]
 
 
 def check_for_test_files(verbose: int = 0) -> SubprocessResult:
@@ -54,11 +66,8 @@ def check_for_test_files(verbose: int = 0) -> SubprocessResult:
     result = SubprocessResult(0)
 
     # 1. check that all test files exist
-    cli_files = (PROJECT_ROOT / "cli").rglob("**/*.py")
-    test_files = [
-        i.relative_to(PROJECT_ROOT)
-        for i in (PROJECT_ROOT / "tests/cli").rglob("**/*.py")
-    ]
+    cli_files = _get_cli_files()
+    test_files = _get_test_files()
 
     for i in cli_files:
         if i.name in ("__init__.py"):
@@ -68,13 +77,11 @@ def check_for_test_files(verbose: int = 0) -> SubprocessResult:
         )
         if expected_test_file not in test_files:
             result += SubprocessResult(1)
-            secho(
-                f"'{i}' expects a test file in '{PROJECT_ROOT/expected_test_file}'.",
-                fg="red",
-                err=True,
+            recho(
+                f"'{i}' expects a test file in '{PROJECT_ROOT / expected_test_file}'."
             )
     if result.returncode:
-        secho("Expected test files are missing.", fg="red", err=True)
+        recho("Expected test files are missing.")
     else:
         if verbose:
             secho("Found all expected test files.", fg="green")
@@ -87,10 +94,8 @@ def check_for_test_files(verbose: int = 0) -> SubprocessResult:
         ).as_posix()
         if not str(ast.get_docstring(mod)).startswith(f"Testing file '{cli_file}'."):
             result += SubprocessResult(1)
-            secho(
+            recho(
                 f"{i} is missing a docstring starting with "
-                f'"""Testing file \'{cli_file}\'."""',
-                fg="red",
-                err=True,
+                f'"""Testing file \'{cli_file}\'."""'
             )
     return result

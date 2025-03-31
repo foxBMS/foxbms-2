@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -40,38 +40,51 @@
 """Testing file 'cli/cmd_ci/check_coverage.py'."""
 
 import importlib
+import io
 import sys
 import unittest
+from contextlib import redirect_stderr
 from pathlib import Path
 from unittest.mock import patch
 
 try:
     from cli.cmd_ci import check_coverage
-    from cli.helpers import host_platform
 except ModuleNotFoundError:
-    sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
+    sys.path.insert(0, str(Path(__file__).parents[3]))
     from cli.cmd_ci import check_coverage
-    from cli.helpers import host_platform
 
 
 class TestCheckCoverage(unittest.TestCase):
-    """Test of the main entry point"""
+    """Test of 'check_coverage.py'"""
 
-    @patch("sys.platform", "linux")
+    def setUp(self):
+        importlib.reload(check_coverage)
+        return super().setUp()
+
     def test_platform_linux(self):
         """test setting of Certificate_File on Linux."""
-        importlib.reload(host_platform)
-        importlib.reload(check_coverage)
+        with patch("sys.platform", new="linux"):
+            importlib.reload(check_coverage)
+            self.assertEqual(
+                check_coverage.CERTIFICATE_FILE, "/etc/ssl/certs/ca-bundle.crt"
+            )
 
-        self.assertEqual(
-            check_coverage.CERTIFICATE_FILE, "/etc/ssl/certs/ca-bundle.crt"
-        )
+    def test_platform_win32(self):
+        """test setting of Certificate_File on Linux."""
+        with patch("sys.platform", new="win32"):
+            importlib.reload(check_coverage)
+            self.assertEqual(check_coverage.CERTIFICATE_FILE, "")
 
     def test_check_coverage_no_project(self):
         """test comparing reports, without providing a project"""
-        with self.assertRaises(SystemExit) as cm:
+        buf = io.StringIO()
+        with redirect_stderr(buf), self.assertRaises(SystemExit) as cm:
             check_coverage.check_coverage()
         self.assertEqual(cm.exception.code, 1)
+        self.assertRegex(
+            buf.getvalue(),
+            r"File '.*GcovCoverageCobertura\.xml' does not exist.",
+        )
 
     def test_check_coverage_invalid_project(self):
         """test comparing reports, without providing a valid project"""
@@ -80,8 +93,8 @@ class TestCheckCoverage(unittest.TestCase):
             check_coverage.check_coverage(project)
         self.assertEqual(
             cm.exception.code,
-            "Something went wrong.\nExpect argument ('app', "
-            "'bootloader', 'cli') but got 'asdf'.",
+            "Something went wrong.\n"
+            "Expect argument ('app', 'bootloader') but got 'asdf'.",
         )
 
 

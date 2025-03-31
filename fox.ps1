@@ -1,6 +1,6 @@
 #!/usr/bin/env pwsh
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -37,60 +37,75 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-# Make all error terminating errors
+# Make all errors terminating errors
 $ErrorActionPreference = "STOP"
 
-Push-Location "$PSScriptRoot"
-
-$env:ENV_NAME = "2025-01-pale-fox"
-$env:ENV_DIR = "foxbms-envs"
-
+# Unsupported operating systems
 if ($IsLinux) {
-    $env:FOXBMS_PYTHON_ENV_DIRECTORY_USER = "$env:HOME/$env:ENV_DIR/$env:ENV_NAME"
-    $env:FOXBMS_PYTHON_ENV_DIRECTORY_ROOT = "/opt/$env:ENV_DIR/$env:ENV_NAME"
-    $env:FOXBMS_PYTHON_ACTIVATION_SCRIPT_REL_PATH = "bin/activate"
+    Write-Error "Use the 'fox.sh' instead."
+    exit 1
 }
 elseif ($IsMacOS) {
     Write-Error "MacOS is currently not supported."
     exit 1
 }
-elseif ($IsWindows) {
-    $env:FOXBMS_PYTHON_ENV_DIRECTORY_USER = "$env:USERPROFILE\$env:ENV_DIR\$env:ENV_NAME"
-    $env:FOXBMS_PYTHON_ENV_DIRECTORY_ROOT = "C:\$env:ENV_DIR\$env:ENV_NAME"
-    $env:FOXBMS_PYTHON_ACTIVATION_SCRIPT_REL_PATH = "Scripts\activate.ps1"
-}
-else {
-    # assume Windows anyway
-    $env:FOXBMS_PYTHON_ENV_DIRECTORY_USER = "$env:USERPROFILE\$env:ENV_DIR\$env:ENV_NAME"
-    $env:FOXBMS_PYTHON_ENV_DIRECTORY_ROOT = "C:\$env:ENV_DIR\$env:ENV_NAME"
-    $env:FOXBMS_PYTHON_ACTIVATION_SCRIPT_REL_PATH = "Scripts\activate.ps1"
+
+# Error handling when Python environment is not found
+function InstallHelper($env_dir) {
+    $PYTHON = "py"
+    try {
+        get-command "$PYTHON" | out-null
+    }
+    catch {
+        # No python available at all
+        Write-Host "Could not find $PYTHON."  -ForegroundColor Red
+        Write-Host "Install Python from python.org and rerun the command." -ForegroundColor Red
+        Pop-Location
+        exit 1
+    }
+    $FALLBACK_SCRIPT = Join-Path "$PSScriptRoot" "cli" "fallback" "fallback.py"
+    &$PYTHON "$FALLBACK_SCRIPT" "$env_dir"
+    Pop-Location
+    exit 1
 }
 
-$env:FOXBMS_PYTHON_ENV_DIRECTORY = "$env:FOXBMS_PYTHON_ENV_DIRECTORY_USER"
+# Push into the repository root
+Push-Location "$PSScriptRoot"
 
-# if the user env directory does not exist, use root
-if (-not (Test-Path -Path "$env:FOXBMS_PYTHON_ENV_DIRECTORY_USER")) {
-    $env:FOXBMS_PYTHON_ENV_DIRECTORY = "$env:FOXBMS_PYTHON_ENV_DIRECTORY_ROOT"
-}
+$env:PREFIX = "C:\foxbms"
+
+# Name of the Python environment
+$env:ENV_NAME = "2025-03-pale-fox"
+
+$env:FOXBMS_PYTHON_ENV_DIRECTORY = Join-Path "$env:PREFIX" "envs" "$env:ENV_NAME"
+
+$env:FOXBMS_PYTHON_ACTIVATION_SCRIPT_REL_PATH = "Scripts\activate.ps1"
 
 $env:FOXBMS_PYTHON_ACTIVATION_SCRIPT = Join-Path "$env:FOXBMS_PYTHON_ENV_DIRECTORY" "$env:FOXBMS_PYTHON_ACTIVATION_SCRIPT_REL_PATH"
 # check if the activation script exists
 if (-not (Test-Path -Path "$env:FOXBMS_PYTHON_ACTIVATION_SCRIPT")) {
-    Write-Error "Could not find expected Python venv '$env:ENV_NAME'. Exiting..."
-    exit 1
+    Write-Host "Could not find expected Python venv '$env:ENV_NAME' (expected directory '$env:FOXBMS_PYTHON_ENV_DIRECTORY' to exist)."  -ForegroundColor Red
+    InstallHelper $env:FOXBMS_PYTHON_ENV_DIRECTORY # exists 1 in any case
 }
 
+# Activate Python environment
 &"$env:FOXBMS_PYTHON_ACTIVATION_SCRIPT"
 
+# Ensure that the Python executable is available
 try {
     get-command "python" | out-null
 }
 catch {
     deactivate
     Pop-Location
+    Write-Host "Could not find python executable."
     exit 1
 }
 
+# Environment is active and we have found a python executable,
+# therefore we can run fox.py
+
+# Special case if on Windows and the GUI shall open
 if ($args.Contains("gui")) {
     pythonw "$PSScriptRoot\fox.py" "gui"
     if ($LastExitCode -ne 0) {
@@ -98,14 +113,16 @@ if ($args.Contains("gui")) {
         Pop-Location
         exit 1
     }
+    exit 0 # if GUI is requested, early exit
 }
-else {
-    python "$PSScriptRoot\fox.py" $args
-    if ($LastExitCode -ne 0) {
-        deactivate
-        Pop-Location
-        exit 1
-    }
+
+# Run fox.py, after running the command, deactivate the environment and exit
+# with the fox.py exit code
+python "$PSScriptRoot\fox.py" $args
+if ($LastExitCode -ne 0) {
+    deactivate
+    Pop-Location
+    exit 1
 }
 deactivate
 Pop-Location

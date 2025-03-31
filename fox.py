@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -38,17 +38,22 @@
 # - "This product is derived from foxBMS®"
 
 
-"""TODO"""
+"""Wrapper to call into the cli module that is implemented in the repository
+root.
+The wrapper ensures that the fox.py wrapper is run as expected, i.e.,
+- correct Python version
+- from the expected cwd"""
 
 import sys
 
 # we are depending on
 # - pathlib (requires >=3.4)
-# - f-strings (requires >3.6)
+# - f-strings (requires >=3.6)
 # - Union Type (requires >=10)
+# - PEPs 701 f-strings (requires >=12)
 
-if not (sys.version_info.major >= 3 and sys.version_info.minor >= 10):
-    sys.exit("Running 'fox.py' requires Python3.10 or later.")
+if not (sys.version_info.major == 3 and sys.version_info.minor == 12):
+    sys.exit("Running 'fox.py' requires Python3.12.")
 
 from pathlib import Path  # pylint: disable=wrong-import-position
 
@@ -58,8 +63,7 @@ if Path.cwd() != expected_cwd:
         f"{__file__} needs to be run in the root of the repository ({expected_cwd})."
     )
 
-# pylint: disable-next=wrong-import-position
-from cli.cli import main  # noqa: E402
+from cli.cli import main  # noqa: E402 pylint: disable=wrong-import-position
 
 
 def wrapper():

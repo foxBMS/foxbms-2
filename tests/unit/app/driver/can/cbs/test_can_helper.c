@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_can_helper.c
  * @author  foxBMS Team
  * @date    2021-04-22 (date of creation)
- * @updated 2024-12-20 (date of last update)
- * @version v1.8.0
+ * @updated 2025-03-31 (date of last update)
+ * @version v1.9.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -90,6 +90,9 @@ TEST_INCLUDE_PATH("../../src/app/task/config")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 
+/** Plausibility checking can signals lengths */
+#define CAN_SIGNAL_MAX_SIZE (64u)
+
 /*========== Setup and Teardown =============================================*/
 void setUp(void) {
 }
@@ -98,6 +101,37 @@ void tearDown(void) {
 }
 
 /*========== Test Cases =====================================================*/
+
+void testCAN_ConvertBitStartBigEndianInvalidBits(void) {
+    TEST_ASSERT_FAIL_ASSERT(TEST_CAN_ConvertBitStartBigEndian(CAN_SIGNAL_MAX_SIZE, 1u));
+    TEST_ASSERT_FAIL_ASSERT(TEST_CAN_ConvertBitStartBigEndian(0u, CAN_SIGNAL_MAX_SIZE + 1u));
+    TEST_ASSERT_FAIL_ASSERT(TEST_CAN_ConvertBitStartBigEndian(0u, 0u));
+}
+
+void testCAN_TxPrepareSignalData(void) {
+    CAN_SIGNAL_TYPE_s signalProperties = {0};
+    float_t pSignal                    = 0.0f;
+    TEST_ASSERT_FAIL_ASSERT(CAN_TxPrepareSignalData(NULL_PTR, signalProperties));
+
+    signalProperties.max = 1.0f;
+    pSignal              = 2.0f;
+    CAN_TxPrepareSignalData(&pSignal, signalProperties);
+
+    signalProperties.min = 1.0f;
+    pSignal              = 0.0f;
+    CAN_TxPrepareSignalData(&pSignal, signalProperties);
+}
+
+void testCAN_RxConvertRawSignalData(void) {
+    float_t signalConverted            = 0.0f;
+    float_t signalRaw                  = 0.0f;
+    CAN_SIGNAL_TYPE_s signalProperties = {0};
+
+    signalProperties.factor = 2.0f;
+    signalProperties.offset = 1.0f;
+    CAN_RxConvertRawSignalData(&signalConverted, signalRaw, signalProperties);
+    TEST_ASSERT_EQUAL(signalConverted, (signalRaw * signalProperties.factor) - signalProperties.offset);
+}
 
 /** test the interface of CAN_TxSetMessageDataWithSignalData for null pointer and invalid parameters */
 void testCAN_TxSetMessageDataWithSignalDataInterfaceNullPointer(void) {
@@ -267,6 +301,18 @@ void testCAN_RxGetSignalDataFromMessageData64BitMessage(void) {
     CAN_RxGetSignalDataFromMessageData(message, bitStart, bitLength, &canSignal, endianness);
 
     TEST_ASSERT_EQUAL_UINT64(0x3u, canSignal);
+}
+
+void testCAN_TxSetCanDataWithMessageData(void) {
+    uint64_t message            = 0u;
+    uint8_t canData             = 0u;
+    CAN_ENDIANNESS_e endianness = CAN_LITTLE_ENDIAN;
+    TEST_ASSERT_FAIL_ASSERT(CAN_TxSetCanDataWithMessageData(message, NULL_PTR, endianness));
+
+    CAN_TxSetCanDataWithMessageData(message, &canData, endianness);
+
+    endianness = CAN_BIG_ENDIAN;
+    CAN_TxSetCanDataWithMessageData(message, &canData, endianness);
 }
 
 void testCAN_ConvertBooleanToInteger(void) {

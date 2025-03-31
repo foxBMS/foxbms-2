@@ -18,6 +18,8 @@
       "_active": true,
       "excludes": [
         "src/app/main/fstartup.c",
+        "src/bootloader/driver/crc/vendor/crc64_calc.c",
+        "src/bootloader/driver/crc/vendor/crc64_calc.h",
         "src/bootloader/main/fstartup.c"
       ]
     },
@@ -44,6 +46,8 @@
         "FLT_EPSILON",
         "FLT_MAX",
         "FLT_MIN",
+        "FAPI_CHECK_FSM_READY_BUSY",
+        "FAPI_GET_FSM_STATUS",
         "FS8x_C*",
         "FS8X_FS_A*",
         "FS8X_FS_BAD_*",

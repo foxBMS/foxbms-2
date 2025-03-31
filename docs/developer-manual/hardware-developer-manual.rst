@@ -13,8 +13,9 @@ control and have to go through change management.
 Project naming scheme
 ---------------------
 A design **MUST** have a name that clearly distinguishes it from other
-designs. The name **SHOULD** be constructed from the project acronym, the
-type or family of design and an identifier.
+designs.
+The name **SHOULD** be constructed from the project acronym, the type or family
+of design and an identifier.
 
 As an example the master board of a BMS in the project **EXAMPLE** could be
 named ``example-master``.
@@ -24,13 +25,14 @@ exist.
 Design and development process
 ------------------------------
 
-The designer has to adhere to best practice during the design. This entails
-using the pre-defined set of templates, design rules and release processes.
+The designer has to adhere to best practice during the design.
+This entails using the pre-defined set of templates, design rules and release
+processes.
 Releasing through the release process of Altium helps to make sure that all
 changes are committed and that no design rule violations remain.
 
-Violations should only be waived or suppressed in justified cases. This
-justification **MUST** be noted in the waived rule.
+Violations should only be waived or suppressed in justified cases.
+This justification **MUST** be noted in the waived rule.
 
 .. _RELEASE_PROCESS:
 
@@ -67,8 +69,8 @@ Checklist for releases
 
 This checklist should be used for reviewing a release.
 
-Basics:
-^^^^^^^
+Basics
+^^^^^^
 
 - Is a layer marker on the PCB?
 - Is a white field for marking the assembled board on the PCB?
@@ -78,8 +80,8 @@ Basics:
 - Are fiducial markers on the board?
 - Are mounting points specified in the board?
 
-BOM:
-^^^^
+BOM
+^^^
 
 - Is everything on the BOM available?
 - Is the correct distributor selected for each component?

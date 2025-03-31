@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -41,11 +41,9 @@
 import click
 
 from ..cmd_build import build_impl
+from ..helpers.click_helpers import DISABLE_DEFAULT_HELP, IGNORE_UNKNOWN_OPTIONS
 
-CONTEXT_SETTINGS = {
-    "help_option_names": ["--dummy"],
-    "ignore_unknown_options": True,
-}
+CONTEXT_SETTINGS = DISABLE_DEFAULT_HELP | IGNORE_UNKNOWN_OPTIONS
 
 
 @click.command(context_settings=CONTEXT_SETTINGS)
@@ -57,11 +55,7 @@ CONTEXT_SETTINGS = {
 )
 @click.argument("waf_args", nargs=-1, type=click.UNPROCESSED)
 @click.pass_context
-def waf(
-    ctx: click.Context,
-    cwd: str,
-    waf_args: tuple[str],
-) -> None:
+def waf(ctx: click.Context, cwd: str, waf_args: tuple[str]) -> None:
     """Run the 'waf' tool."""
     if cwd:
         ret = build_impl.run_waf(list(waf_args), cwd=cwd, stdout=None, stderr=None)

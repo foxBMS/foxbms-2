@@ -1,0 +1,10 @@
+general:
+  skip: 4
+  precision: 3
+columns:
+  Time: string
+  Index: float
+  Voltage(V): float
+  Current(A): float
+  Capacity(Ah): float
+  Power(W): float

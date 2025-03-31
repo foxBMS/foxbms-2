@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_spi.c
  * @author  foxBMS Team
  * @date    2020-04-01 (date of creation)
- * @updated 2024-12-20 (date of last update)
- * @version v1.8.0
+ * @updated 2025-03-31 (date of last update)
+ * @version v1.9.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -64,6 +64,7 @@
 
 #include "spi.h"
 #include "spi_cfg-helper.h"
+#include "struct_helper.h"
 #include "test_assert_helper.h"
 
 #include <stdbool.h>
@@ -321,6 +322,12 @@ void testSPI_SetFunctionalNullPointer(void) {
 void testSPI_SetFunctionalTestIntendedFunctionSet(void) {
     /** fake a config register that is null and inject into function */
     spiMockConfigRegister.CONFIG_PC0 = 0;
+    /* The spiMockConfigRegister didn't correctly work with expect because of padding
+    * In such cases we can create a custom assert helper for this struct type
+    * as was done here in 'struct_helper.h' or check out the documentation of CMOCK:
+    * https://github.com/ThrowTheSwitch/CMock/blob/master/docs/CMock_ArgumentValidation.md
+    * This here used Option 3 from the documentation.
+    */
     spi1GetConfigValue_Expect(&spiMockConfigRegister, CurrentValue);
 
     /* the function should call spiSetFunctional with a 1 at bit 10 */
@@ -331,6 +338,8 @@ void testSPI_SetFunctionalTestIntendedFunctionSet(void) {
 
 /** test intended function of SPI_SetFunctional() for clearing a bit */
 void testSPI_SetFunctionalTestIntendedFunctionClear(void) {
+    /** fake a config register that is UINT32_MAX and inject into function */
+    spiMockConfigRegister.CONFIG_PC0 = 0u;
     spi1GetConfigValue_Expect(&spiMockConfigRegister, CurrentValue);
 
     /* the function should call spiSetFunctional with a 0 */

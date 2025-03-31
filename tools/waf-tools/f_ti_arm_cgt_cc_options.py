@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -67,55 +67,55 @@ def options(opt):
 
 
 @conf
-def load_cc_options(conf):  # pylint: disable-msg=redefined-outer-name
+def load_cc_options(ctx):  # pylint: disable=too-many-locals,too-many-branches
     """configuration step of the TI ARM CGT compiler tool"""
-    cc_spec_file = conf.path.find_node(conf.options.CC_OPTIONS)
+    cc_spec_file = ctx.path.find_node(ctx.options.CC_OPTIONS)
     if not cc_spec_file:
-        conf.fatal(f"'{cc_spec_file}' does not exist.")
+        ctx.fatal(f"'{cc_spec_file}' does not exist.")
     cc_spec_txt = cc_spec_file.read(encoding="utf-8")
     try:
-        conf.env.cc_options = yaml.load(cc_spec_txt, Loader=yaml.Loader)
+        ctx.env.cc_options = yaml.load(cc_spec_txt, Loader=yaml.Loader)
     except yaml.YAMLError as exc:
-        conf.fatal(exc)
+        ctx.fatal(exc)
 
-    include_paths = conf.env.cc_options["INCLUDE_PATHS"][
+    include_paths = ctx.env.cc_options["INCLUDE_PATHS"][
         Utils.unversioned_sys_platform()
     ]
-    library_paths = conf.env.cc_options["LIBRARY_PATHS"][
+    library_paths = ctx.env.cc_options["LIBRARY_PATHS"][
         Utils.unversioned_sys_platform()
     ]
-    libraries_st = conf.env.cc_options["LIBRARIES"]["ST"]
-    libraries_target = conf.env.cc_options["LIBRARIES"]["TARGET"]
-    cflags_common = conf.env.cc_options["CFLAGS"]["common"]
-    cflags_common_compile_only = conf.env.cc_options["CFLAGS"]["common_compile_only"]
-    cflags_foxbms = conf.env.cc_options["CFLAGS"]["foxbms"]
-    cflags_hal = conf.env.cc_options["CFLAGS"]["hal"]
-    cflags_os = conf.env.cc_options["CFLAGS"]["operating_system"]
-    linkflags = conf.env.cc_options["LINKFLAGS"]
-    hexgenflags = conf.env.cc_options["HEXGENFLAGS"]
-    nmflags = conf.env.cc_options["NMFLAGS"]
+    libraries_st = ctx.env.cc_options["LIBRARIES"]["ST"]
+    libraries_target = ctx.env.cc_options["LIBRARIES"]["TARGET"]
+    cflags_common = ctx.env.cc_options["CFLAGS"]["common"]
+    cflags_common_compile_only = ctx.env.cc_options["CFLAGS"]["common_compile_only"]
+    cflags_foxbms = ctx.env.cc_options["CFLAGS"]["foxbms"]
+    cflags_hal = ctx.env.cc_options["CFLAGS"]["hal"]
+    cflags_os = ctx.env.cc_options["CFLAGS"]["operating_system"]
+    linkflags = ctx.env.cc_options["LINKFLAGS"]
+    hexgenflags = ctx.env.cc_options["HEXGENFLAGS"]
+    nmflags = ctx.env.cc_options["NMFLAGS"]
 
     if linkflags:
-        conf.env.append_unique("LINKFLAGS", linkflags)
+        ctx.env.append_unique("LINKFLAGS", linkflags)
     if hexgenflags:
-        conf.env.append_unique("HEXGENFLAGS", hexgenflags)
+        ctx.env.append_unique("HEXGENFLAGS", hexgenflags)
     if nmflags:
-        conf.env.append_unique("NMFLAGS", nmflags)
+        ctx.env.append_unique("NMFLAGS", nmflags)
 
     if include_paths:
-        conf.env.append_unique("INCLUDES", include_paths)
+        ctx.env.append_unique("INCLUDES", include_paths)
     if library_paths:
-        conf.env.append_unique("STLIBPATH", library_paths)
+        ctx.env.append_unique("STLIBPATH", library_paths)
     if libraries_st:
-        conf.env.append_unique("STLIB", libraries_st)
+        ctx.env.append_unique("STLIB", libraries_st)
     if libraries_target:
-        conf.env.append_unique("TARGETLIB", libraries_target)
+        ctx.env.append_unique("TARGETLIB", libraries_target)
     if cflags_common:
-        conf.env.append_unique("CFLAGS", cflags_common)
+        ctx.env.append_unique("CFLAGS", cflags_common)
 
     if cflags_common_compile_only:
-        conf.env.append_unique("CFLAGS_COMPILE_ONLY", cflags_common_compile_only)
-    conf.env.append_unique(
+        ctx.env.append_unique("CFLAGS_COMPILE_ONLY", cflags_common_compile_only)
+    ctx.env.append_unique(
         "CFLAGS_COMPILE_ONLY",
         [
             "--gen_cross_reference_listing",
@@ -125,15 +125,15 @@ def load_cc_options(conf):  # pylint: disable-msg=redefined-outer-name
     )
 
     if cflags_foxbms:
-        conf.env.append_unique("CFLAGS_FOXBMS", cflags_foxbms)
+        ctx.env.append_unique("CFLAGS_FOXBMS", cflags_foxbms)
     if cflags_hal:
-        conf.env.append_unique("CFLAGS_HAL", cflags_hal)
+        ctx.env.append_unique("CFLAGS_HAL", cflags_hal)
     if cflags_os:
-        conf.env.append_unique("CFLAGS_OS", cflags_os)
+        ctx.env.append_unique("CFLAGS_OS", cflags_os)
 
-    conf.env.append_unique(
+    ctx.env.append_unique(
         "FOXBMS_2_CCS_VERSION_STRICT",
-        conf.env.cc_options.get("FOXBMS_2_CCS_VERSION_STRICT", []),
+        ctx.env.cc_options.get("FOXBMS_2_CCS_VERSION_STRICT", []),
     )
     ccs_versions = []
     if Utils.is_win32:
@@ -144,28 +144,18 @@ def load_cc_options(conf):  # pylint: disable-msg=redefined-outer-name
         m = re.search(r".*ccs(\d{1,})", i.as_posix())
         if m:
             ccs_versions.append(int(m.group(1)))
-    sorted_ccs_versions = reversed(sorted(ccs_versions))
+    sorted_ccs_versions = list(reversed(sorted(ccs_versions)))
     search_path_group = []
     for i in sorted_ccs_versions:
+        comp_base = Path(f"{prefix}/ti/ccs{i}/ccs/tools/compiler")
+        comp_bins = list(comp_base.glob("ti-cgt-arm_*/bin"))
+        comp_libs = list(comp_base.glob("ti-cgt-arm_*/lib"))
+        if not all((comp_libs, comp_libs)):
+            continue
         tmp = []
-        tmp.append(
-            str(
-                list(
-                    Path(f"{prefix}/ti/ccs{i}/ccs/tools/compiler").glob(
-                        "ti-cgt-arm_*/bin"
-                    )
-                )[0]
-            )
-        )
-        tmp.append(
-            str(
-                list(
-                    Path(f"{prefix}/ti/ccs{i}/ccs/tools/compiler").glob(
-                        "ti-cgt-arm_*/lib"
-                    )
-                )[0]
-            )
-        )
+        tmp.append(str(comp_bins[0]))
+
+        tmp.append(str(comp_libs[0]))
         tmp.extend(
             [
                 str(Path(f"{prefix}/ti/ccs{i}/ccs/utils/bin")),
@@ -176,4 +166,4 @@ def load_cc_options(conf):  # pylint: disable-msg=redefined-outer-name
             tmp.append(str(Path(f"{prefix}/ti/ccs{i}/ccs/utils/cygwin")))
         search_path_group.append(tmp)
 
-    conf.env.append_unique("CCS_SEARCH_PATH_GROUP", list(search_path_group))
+    ctx.env.append_unique("CCS_SEARCH_PATH_GROUP", list(search_path_group))

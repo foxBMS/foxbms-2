@@ -1,0 +1,32 @@
+LINE_1:
+  name: "cell_voltage_current"
+  mapping:
+    x: Test Time
+    x_ticks_count: 7
+    date_format: "%H:%M:%S"
+    y1:
+      input:
+        - Voltage(V)
+      factor: 1
+      min: 3.85
+      max: 4.3
+      labels:
+        - Cell Voltage
+    y2:
+      input:
+        - Current(A)
+      labels:
+        - Current
+  description:
+    title: Cell Voltage, Current
+    x_axis: Date
+    y_axes:
+      - Cell Voltage (V)
+      - Current (A)
+  graph:
+    height_px: 550
+    width_px: 800
+    dpi: 100
+    show: false
+    save: true
+    format: png

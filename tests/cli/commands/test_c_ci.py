@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -38,3 +38,61 @@
 # - "This product is derived from foxBMS®"
 
 """Testing file 'cli/commands/c_ci.py'."""
+
+import sys
+import unittest
+from pathlib import Path
+from unittest.mock import MagicMock, patch
+
+from click.testing import CliRunner
+
+try:
+    from cli.cli import main
+except ModuleNotFoundError:
+    sys.path.insert(0, str(Path(__file__).parents[3]))
+    from cli.cli import main
+
+
+class TestFoxCliMainCommandCi(unittest.TestCase):
+    """Test of the 'ci' commands and options."""
+
+    @patch("cli.commands.c_ci.create_readme")
+    def test_ci_create_readme(self, mock_readme: MagicMock):
+        """Test 'fox.py ci create-readme' command."""
+        mock_readme.return_value = 0
+        runner = CliRunner()
+        result = runner.invoke(main, ["ci", "create-readme"])
+        self.assertEqual(0, result.exit_code)
+
+    @patch("cli.commands.c_ci.check_ci_config")
+    def test_ci_check_ci_config(self, mock_check_ci_config: MagicMock):
+        """Test 'fox.py ci check-ci-config' command."""
+        mock_check_ci_config.return_value = 0
+        runner = CliRunner()
+        result = runner.invoke(main, ["ci", "check-ci-config"])
+        self.assertEqual(0, result.exit_code)
+
+    @patch("cli.commands.c_ci.check_coverage")
+    def test_ci_check_coverage(self, mock_check_coverage: MagicMock):
+        """Test 'fox.py ci check-coverage' command."""
+        mock_check_coverage.return_value = 0
+        runner = CliRunner()
+        result = runner.invoke(main, ["ci", "check-coverage"])
+        self.assertEqual(0, result.exit_code)
+
+    def test_ci_path_shall_not_exist(self):
+        """Test 'fox.py ci path-shall-not-exist' command."""
+        # path exists
+        runner = CliRunner(mix_stderr=False)
+        result = runner.invoke(main, ["ci", "path-shall-not-exist", __file__])
+        self.assertEqual(1, result.exit_code)
+        self.assertRegex(result.stderr, r"Path '.*test_c_ci.py' exists.")
+
+        # path does not exist
+        runner = CliRunner()
+        result = runner.invoke(main, ["ci", "path-shall-not-exist", "abc/def"])
+        self.assertEqual(0, result.exit_code)
+
+
+if __name__ == "__main__":
+    unittest.main()

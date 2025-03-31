@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    adi_ades1830_gpio_voltages.c
  * @author  foxBMS Team
  * @date    2019-08-27 (date of creation)
- * @updated 2024-12-20 (date of last update)
- * @version v1.8.0
+ * @updated 2025-03-31 (date of last update)
+ * @version v1.9.0
  * @ingroup DRIVERS
  * @prefix  ADI
  *
@@ -174,7 +174,7 @@ static void ADI_SaveRxToGpioVoltageBuffer(
         /* parse voltages contained in one register */
         for (uint16_t gpio = 0u; gpio < numberOfVoltagesInRegister; gpio++) {
             voltageIndex = gpio + cellOffset;
-            if (voltageIndex < BS_NR_OF_GPIOS_PER_MODULE) {
+            if (voltageIndex < SLV_NR_OF_GPIOS_PER_MODULE) {
                 bufferMSB = (uint16_t)(pData
                                            [(ADI_RAW_VOLTAGE_SIZE_IN_BYTES * gpio) +
                                             (m * ADI_MAX_REGISTER_SIZE_IN_BYTES) + 1u]);
@@ -193,7 +193,7 @@ static void ADI_SaveRxToGpioVoltageBuffer(
                     /* Check PEC for every IC in the daisy-chain */
                     if (ADI_EvaluateDiagnosticGpioVoltages(pAdiState, m) == true) {
                         pGpioVoltageTable->gpioVoltages_mV[pAdiState->currentString]
-                                                          [voltageIndex + (m * BS_NR_OF_GPIOS_PER_MODULE)] = voltage;
+                                                          [voltageIndex + (m * SLV_NR_OF_GPIOS_PER_MODULE)] = voltage;
                         pGpioVoltageTable->invalidGpioVoltages[pAdiState->currentString][m] &= (~(1u << voltageIndex));
                     } else {
                         pGpioVoltageTable->invalidGpioVoltages[pAdiState->currentString][m] |= (1u << voltageIndex);

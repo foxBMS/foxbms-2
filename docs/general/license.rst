@@ -102,98 +102,158 @@ Software listed under `Third Party Software`_ are typically only used for
 Third Party Sources and Software
 ================================
 
-Ceedling
---------
+|freertos-kernel|
+-----------------
 
 .. csv-table::
-   :name: license-info_ceedling
+   :name: license-info_freertos-kernel
    :widths: 10 50
    :delim: ;
-   :file: ./license-tables/license-info_ceedling.csv
+   :file: ./license-tables/internal/license-info_freertos-kernel.csv
 
-|freertos|
-----------
+|freertos-plus-tcp|
+-------------------
 
 .. csv-table::
-   :name: license-info_freertos
+   :name: license-info_freertos-plus-tcp
    :widths: 10 50
    :delim: ;
-   :file: ./license-tables/license-info_freertos.csv
+   :file: ./license-tables/internal/license-info_freertos-plus-tcp.csv
 
-WAF
----
-
-Binary
-^^^^^^
+|waf|
+-----
 
 .. csv-table::
-   :name: license-info_waf-binary
+   :name: license-info_waf
    :widths: 10 50
    :delim: ;
-   :file: ./license-tables/license-info_waf-binary.csv
+   :file: ./license-tables/internal/license-info_waf.csv
 
 Third Party Software
 ====================
 
-|ti| |code-composer-studio|
----------------------------
+|git|
+-----
 
 .. csv-table::
-   :name: license-info_ti-ccs
+   :name: license-info_git
    :widths: 10 50
    :delim: ;
-   :file: ./license-tables/license-info_ti-ccs.csv
+   :file: ./license-tables/external/license-info_git.csv
 
-|ti| |halcogen|
----------------
+|doxygen|
+---------
 
 .. csv-table::
-   :name: license-info_ti-hcg
+   :name: license-info_doxygen
    :widths: 10 50
    :delim: ;
-   :file: ./license-tables/license-info_ti-hcg.csv
+   :file: ./license-tables/external/license-info_doxygen.csv
 
-Python
-------
+|drawio-desktop|
+----------------
+
+.. csv-table::
+   :name: license-info_drawio-desktop
+   :widths: 10 50
+   :delim: ;
+   :file: ./license-tables/external/license-info_drawio-desktop.csv
+
+|graphviz|
+----------
+
+.. csv-table::
+   :name: license-info_graphviz
+   :widths: 10 50
+   :delim: ;
+   :file: ./license-tables/external/license-info_graphviz.csv
+
+|ti-code-composer-studio|
+-------------------------
+
+.. csv-table::
+   :name: license-info_ti-code-composer-studio
+   :widths: 10 50
+   :delim: ;
+   :file: ./license-tables/external/license-info_ti-code-composer-studio.csv
+
+|ti-halcogen|
+-------------
+
+.. csv-table::
+   :name: license-info_ti-halcogen
+   :widths: 10 50
+   :delim: ;
+   :file: ./license-tables/external/license-info_ti-halcogen.csv
+
+|python|
+--------
 
 .. csv-table::
    :name: license-info_python
    :widths: 10 50
    :delim: ;
-   :file: ./license-tables/license-info_python.csv
+   :file: ./license-tables/external/license-info_python.csv
 
-Python Packages from PyPI
--------------------------
+|python| Packages
+-----------------
 
 .. csv-table::
-   :name: license-info_python_packages
+   :name: license-info_python-packages
    :widths: 30 10 10 50
    :delim: ;
-   :file: ./license-tables/license-info_python_packages.csv
+   :file: ./license-tables/external/license-info_python-packages.csv
 
-RubyInstaller
--------------
+|ruby|
+------
+
+.. csv-table::
+   :name: license-info_ruby
+   :widths: 10 50
+   :delim: ;
+   :file: ./license-tables/external/license-info_ruby.csv
+
+|ruby-installer|
+----------------
 
 .. csv-table::
    :name: license-info_ruby-installer
    :widths: 10 50
    :delim: ;
-   :file: ./license-tables/license-info_ruby-installer.csv
+   :file: ./license-tables/external/license-info_ruby-installer.csv
 
-Visual Studio Code
-------------------
+|ruby-gems|
+-----------
+
+.. csv-table::
+   :name: license-info_ruby-gems
+   :widths: 30 10 10 50
+   :delim: ;
+   :file: ./license-tables/external/license-info_ruby-gems.csv
+
+|vs-code|
+---------
 
 .. csv-table::
    :name: license-info_vs-code
    :widths: 10 50
    :delim: ;
-   :file: ./license-tables/license-info_vs-code.csv
+   :file: ./license-tables/external/license-info_vs-code.csv
 
-MinGW-w64 - for 32 and 64 bit Windows
--------------------------------------
+|mingw-w64|
+-----------
 
 .. csv-table::
-   :name: license-info_mingw64
+   :name: license-info_mingw-w64
    :header-rows: 1
    :delim: ;
-   :file: ./license-tables/license-info_mingw64.csv
+   :file: ./license-tables/external/license-info_mingw-w64.csv
+
+|pre-commit-hooks|
+------------------
+
+.. csv-table::
+   :name: license-info_pre-commit-hooks
+   :header-rows: 1
+   :delim: ;
+   :file: ./license-tables/external/license-info_pre-commit-hooks.csv

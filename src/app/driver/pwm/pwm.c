@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    pwm.c
  * @author  foxBMS Team
  * @date    2021-10-07 (date of creation)
- * @updated 2024-12-20 (date of last update)
- * @version v1.8.0
+ * @updated 2025-03-31 (date of last update)
+ * @version v1.9.0
  * @ingroup DRIVERS
  * @prefix  PWM
  *
@@ -97,13 +97,13 @@ static PWM_SIGNAL_s ecap_inputPwmSignal = {.dutyCycle_perc = 0.0f, .frequency_Hz
 
 /*========== Static Function Prototypes =====================================*/
 /** returns the ePWM time period (currently for ePWM1A)
- * @returns ePWM time period in counter ticks
+ * @return  ePWM time period in counter ticks
  */
 static uint16_t PWM_GetEtpwmTimePeriod(void);
 
 /** returns a ePWM counter value based on a duty cycle
  * @param[in]   dutyCycle_perm  duty cycle in permill
- * @returns     counter value
+ * @return counter value
  */
 static uint16_t PWM_ComputeCounterValueFromDutyCycle(uint16_t dutyCycle_perm);
 

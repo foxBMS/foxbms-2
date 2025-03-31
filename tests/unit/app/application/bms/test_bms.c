@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_bms.c
  * @author  foxBMS Team
  * @date    2020-04-01 (date of creation)
- * @updated 2024-12-20 (date of last update)
- * @version v1.8.0
+ * @updated 2025-03-31 (date of last update)
+ * @version v1.9.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -162,6 +162,7 @@ static BMS_STATE_s bms_state = {
     .closedStrings         = {0u, 0u},
     .numberOfClosedStrings = 0u,
     .deactivatedStrings    = {0, 0},
+    .minimumActiveDelay_ms = 0u,
 };
 
 static DATA_BLOCK_MIN_MAX_s bms_tableMinMax         = {.header.uniqueId = DATA_BLOCK_ID_MIN_MAX};
@@ -455,6 +456,63 @@ void testBMS_CheckPrechargeInvalidStringNumber(void) {
     DIAG_Handler_ExpectAndReturn(
         DIAG_ID_PRECHARGE_ABORT_REASON_CURRENT, DIAG_EVENT_OK, DIAG_STRING, 0u, DIAG_HANDLER_RETURN_OK);
     TEST_ASSERT_PASS_ASSERT(TEST_BMS_CheckPrecharge(0u, &tablePackValues));
+}
+
+void testBMS_CheckCanRequest(void) {
+    /* ======= Assertion tests ============================================= */
+    /* ======= Routine tests =============================================== */
+    DATA_BLOCK_STATE_REQUEST_s request = {.header.uniqueId = DATA_BLOCK_ID_STATE_REQUEST};
+    /* ======= RT1/1: Test implementation */
+    DATA_Read1DataBlock_ExpectAndReturn(&request, STD_OK);
+    TEST_BMS_CheckCanRequests();
+    /* TODO: Not Working Currently */
+    /* ======= RT1/2: Test implementation */
+    request.stateRequestViaCan = BMS_REQ_ID_CHARGE;
+    DATA_Read1DataBlock_ExpectAndReturn(&request, STD_NOT_OK);
+    TEST_BMS_CheckCanRequests();
+    /* ======= RT1/3: Test implementation */
+    request.stateRequestViaCan = BMS_REQ_ID_NORMAL;
+    DATA_Read1DataBlock_ExpectAndReturn(&request, STD_NOT_OK);
+    TEST_BMS_CheckCanRequests();
+    /* ======= RT1/4: Test implementation */
+    request.stateRequestViaCan = BMS_REQ_ID_STANDBY;
+    DATA_Read1DataBlock_ExpectAndReturn(&request, STD_NOT_OK);
+    TEST_BMS_CheckCanRequests();
+}
+
+void testBMS_IsAnyFatalErrorFlagSet(void) {
+    /* ======= Assertion tests ============================================= */
+    /* ======= Routine tests =============================================== */
+    /* ======= RT1/1: Test implementation */
+    for (uint16_t entry = 0u; entry < diag_device.numberOfFatalErrors; entry++) {
+        DIAG_GetDiagnosisEntryState_ExpectAndReturn(diag_device.pFatalErrorLinkTable[entry]->id, STD_NOT_OK);
+        bms_state.minimumActiveDelay_ms = 1u;
+        DIAG_GetDelay_ExpectAndReturn(diag_device.pFatalErrorLinkTable[entry]->id, 0u);
+    }
+    TEST_BMS_IsAnyFatalErrorFlagSet();
+
+    /* ======= RT2/2: Test implementation */
+    for (uint16_t entry = 0u; entry < diag_device.numberOfFatalErrors; entry++) {
+        DIAG_GetDiagnosisEntryState_ExpectAndReturn(diag_device.pFatalErrorLinkTable[entry]->id, STD_OK);
+    }
+    TEST_BMS_IsAnyFatalErrorFlagSet();
+}
+
+void testBMS_IsBatterySystemStateOkay(void) {
+    /* ======= Routine tests =============================================== */
+    /* ======= RT1/1: Test implementation */
+    OS_GetTickCount_ExpectAndReturn(1u);
+    TEST_BMS_IsBatterySystemStateOkay();
+}
+
+void testBMS_IsContactorFeedbackValid(void) {
+    DATA_BLOCK_ERROR_STATE_s tableErrorFlags = {.header.uniqueId = DATA_BLOCK_ID_ERROR_STATE};
+    /* ======= Routine tests =============================================== */
+    uint8_t stringNumber      = 0u;
+    CONT_TYPE_e contactorType = {0};
+    /* ======= RT1/1: Test implementation */
+    DATA_Read1DataBlock_ExpectAndReturn(&tableErrorFlags, STD_OK);
+    TEST_BMS_IsContactorFeedbackValid(stringNumber, contactorType);
 }
 
 void testBMS_GetClosestString(void) {

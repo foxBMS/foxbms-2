@@ -4,9 +4,8 @@
 
 The `jinja2`-files in this directory contain *configuration* files for VS
 Code settings.
-These files get properly configured when running `fox.ps1 waf configure` ( or
-`fox.bat waf configure`or `./fox.sh waf configure`) in the root of the
-repository.
+These files get properly configured when running `fox.ps1 waf configure` or
+`./fox.sh waf configure` in the root of the repository.
 Please note that doing so, will overwrite the contents of `.vscode` in
 the root of the repository with these templates.
 

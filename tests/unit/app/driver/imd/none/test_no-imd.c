@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_no-imd.c
  * @author  foxBMS Team
  * @date    2020-04-01 (date of creation)
- * @updated 2024-12-20 (date of last update)
- * @version v1.8.0
+ * @updated 2025-03-31 (date of last update)
+ * @version v1.9.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -61,6 +61,7 @@
 #include "database_cfg.h"
 
 #include "no-imd.h"
+#include "test_assert_helper.h"
 
 /*========== Unit Testing Framework Directives ==============================*/
 TEST_INCLUDE_PATH("../../src/app/driver/config")
@@ -86,6 +87,31 @@ void testImdDummyInitialize(void) {
     TEST_ASSERT_EQUAL(IMD_FSM_STATE_IMD_ENABLE, TEST_NOIMD_Initialize());
 }
 
+void testNOIMD_EnableIMD(void) {
+    TEST_ASSERT_EQUAL(IMD_FSM_STATE_RUNNING, TEST_NOIMD_EnableImd());
+}
+
 void testImdDummyFunctions(void) {
     TEST_ASSERT_EQUAL(IMD_FSM_STATE_RUNNING, TEST_NOIMD_MeasureInsulation(&noimd_tableInsulationValues));
+}
+
+void testNOIMD_DiableImd(void) {
+    TEST_ASSERT_EQUAL(IMD_FSM_STATE_IMD_ENABLE, TEST_NOIMD_DisableImd());
+}
+
+void testIMD_ProcessInitializationState(void) {
+    TEST_ASSERT_EQUAL(IMD_FSM_STATE_IMD_ENABLE, IMD_ProcessInitializationState());
+}
+
+void testIMD_ProcessEnableState(void) {
+    TEST_ASSERT_EQUAL(IMD_FSM_STATE_RUNNING, IMD_ProcessEnableState());
+}
+
+void testIMD_ProcessRunningState(void) {
+    TEST_ASSERT_FAIL_ASSERT(IMD_ProcessRunningState(NULL_PTR));
+    TEST_ASSERT_EQUAL(IMD_FSM_STATE_RUNNING, IMD_ProcessRunningState(&noimd_tableInsulationValues));
+}
+
+void testIMD_ProcessShutdownState(void) {
+    TEST_ASSERT_EQUAL(IMD_FSM_STATE_IMD_ENABLE, IMD_ProcessShutdownState());
 }

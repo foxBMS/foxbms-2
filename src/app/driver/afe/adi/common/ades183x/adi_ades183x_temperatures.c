@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    adi_ades183x_temperatures.c
  * @author  foxBMS Team
  * @date    2019-08-27 (date of creation)
- * @updated 2024-12-20 (date of last update)
- * @version v1.8.0
+ * @updated 2025-03-31 (date of last update)
+ * @version v1.9.0
  * @ingroup DRIVERS
  * @prefix  ADI
  *
@@ -86,7 +86,7 @@ static uint16_t ADI_GetMappedGpioIndex(uint16_t temperatureSensorIndex) {
 
     uint16_t storedGpioIndex = 0u;
     uint16_t mappedIndex     = 0u;
-    for (uint8_t gpioIndex = 0u; gpioIndex < BS_NR_OF_GPIOS_PER_MODULE; gpioIndex++) {
+    for (uint8_t gpioIndex = 0u; gpioIndex < SLV_NR_OF_GPIOS_PER_MODULE; gpioIndex++) {
         if (adi_temperatureInputsUsed[gpioIndex] == 1u) {
             if (storedGpioIndex == temperatureSensorIndex) {
                 mappedIndex = gpioIndex;
@@ -111,7 +111,7 @@ extern void ADI_GetTemperatures(ADI_STATE_s *pAdiState) {
             /* Check GPIO voltage valid flag */
             uint16_t invalidFlag =
                 (pAdiState->data.allGpioVoltages->invalidGpioVoltages[pAdiState->currentString][m] & (1u << gpioIndex));
-            gpioIndex += (m * BS_NR_OF_GPIOS_PER_MODULE); /* Add module offset */
+            gpioIndex += (m * SLV_NR_OF_GPIOS_PER_MODULE); /* Add module offset */
             if (invalidFlag == 0u) {
                 /* temperature: unit is in deci-degree C */
                 int16_t temperature_ddegC = ADI_ConvertGpioVoltageToTemperature(

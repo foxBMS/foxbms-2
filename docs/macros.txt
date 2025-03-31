@@ -11,37 +11,75 @@
 
 .. _BSD 3-Clause License: https://opensource.org/licenses/BSD-3-Clause
 .. |python| replace:: Python
-.. |ruby| replace:: Ruby
+.. |url_python| replace:: https://www.python.org
+.. |url_python_releases| replace:: https://www.python.org/downloads/
+.. |virtual-python-environment| replace:: virtual Python environment
 
 .. |freertos| replace:: FreeRTOS
+.. |freertos-kernel| replace:: FreeRTOS kernel
+.. |url_freertos_releases| replace:: https://github.com/FreeRTOS/FreeRTOS-Kernel/releases
+
+.. |freertos-plus-tcp| replace:: FreeRTOS-Plus-TCP
+.. |freertos-plus-tcp-library| replace:: FreeRTOS-Plus-TCP Library
+.. |url_freertos-plus-tcp-library_releases| replace:: https://github.com/FreeRTOS/FreeRTOS-Plus-TCP/releases/
 
 .. |doxygen| replace:: Doxygen
+.. |url_doxygen| replace:: https://doxygen.nl
+.. |url_doxygen_releases| replace:: https://doxygen.nl/download.html
+
+.. |fox-cli| replace:: ``fox CLI``
+.. |fox-py| replace:: ``fox.py``
+.. |fox-py-api| replace:: ``fox.py`` API
+
+.. |graphviz| replace:: Graphviz
+.. |url_graphviz| replace:: https://graphviz.org/
+.. |url_graphviz_releases| replace:: https://graphviz.org/download/
 
 .. |git| replace:: Git
-.. |git-website| replace:: https://git-scm.com/
-.. _Git: https://git-scm.com/
+.. |url_git| replace:: https://git-scm.com/
 
-.. |code-composer-studio| replace:: Code Composer Studio
-.. _Code Composer Studio: https://www.ti.com/tool/download/CCSTUDIO/12.0.0
-.. |version_ccs| replace:: ``12.0.0``
+.. |ti-code-composer-studio| replace:: TI Code Composer Studio
+.. |url_ti-code-composer-studio| replace:: https://www.ti.com/tool/CCSTUDIO
+.. |url_ti-code-composer-studio_releases| replace:: https://www.ti.com/tool/CCSTUDIO#downloads
+.. _Code Composer Studio: https://www.ti.com/tool/download/CCSTUDIO/12.8.1
+.. |version_ti-code-composer-studio| replace:: ``12.8.1``
 
-.. |halcogen| replace:: HALCoGen
-.. _HALCoGen: https://www.ti.com/tool/HALCOGEN
-.. |version_hcg| replace:: ``04.07.01``
+.. |ti-halcogen| replace:: TI HALCoGen
+.. |url_ti-halcogen| replace:: https://www.ti.com/tool/HALCOGEN
+.. |url_ti-halcogen_releases| replace:: https://www.ti.com/tool/HALCOGEN
+.. |version_ti-halcogen| replace:: ``04.07.01``
 
 .. |version_pcan_symbol_editor| replace:: ``Version 6.5.2``
 .. |version_sym_file| replace:: ``Version 6.0``
 
+.. |drawio-desktop| replace:: drawio-desktop
+.. |url_drawio-desktop| replace:: https://github.com/jgraph/drawio-desktop/releases
+
+.. |waf| replace:: Waf
+.. |url_waf| replace:: https://waf.io/
+
+.. |pre-commit| replace:: pre-commit
+.. |url_pre-commit| replace:: https://pre-commit.com/
+.. |pre-commit-hooks| replace:: pre-commit Hooks
+
+.. |ruby| replace:: Ruby
+.. |url_ruby| replace:: https://www.ruby-lang.org/en
+.. |url_ruby_license| replace:: https://www.ruby-lang.org/en/about/license.txt
+.. |ruby-installer| replace:: RubyInstaller
+.. |url_ruby-installer| replace:: https://rubyinstaller.org/downloads/
 .. _Ruby: https://www.ruby-lang.org/
+.. |ruby-gems| replace:: Ruby gems
 
-.. _Ceedling: https://github.com/ThrowTheSwitch/Ceedling
+.. |ceedling| replace:: Ceedling
+.. |url_Ceedling| replace:: https://github.com/ThrowTheSwitch/Ceedling
+.. |url_ceedling_releases| replace:: https://github.com/ThrowTheSwitch/Ceedling/releases
 
-.. _GCC: https://gcc.gnu.org/
+.. |mingw-w64| replace:: mingw-w64
 
 .. _GCOVR: https://gcovr.com/en/stable/index.html
 
 .. _Visual Studio Code: https://code.visualstudio.com/
-.. |code| replace:: ``code``
+.. |vs-code| replace:: VS Code
 
 .. _MISRA C: https://www.misra.org.uk/
 
@@ -143,3 +181,6 @@
 
 .. |isospi_p|  replace:: ``isoSPI_P``
 .. |isospi_n|  replace:: ``isoSPI_N``
+
+.. |tcp-ip-stack| replace:: TCP/IP stack
+.. |tcp-ip| replace:: TCP/IP

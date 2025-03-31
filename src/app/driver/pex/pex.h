@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    pex.h
  * @author  foxBMS Team
  * @date    2021-08-02 (date of creation)
- * @updated 2024-12-20 (date of last update)
- * @version v1.8.0
+ * @updated 2025-03-31 (date of last update)
+ * @version v1.9.0
  * @ingroup DRIVERS
  * @prefix  PEX
  *
@@ -140,6 +140,10 @@ extern void PEX_Trigger(void);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 #ifdef UNITY_UNIT_TEST
+extern STD_RETURN_TYPE_e TEST_PEX_ReadInputs(void);
+extern STD_RETURN_TYPE_e TEST_PEX_WriteOutputs(void);
+extern void TEST_PEX_CopyToLocalVariable(void);
+extern void TEST_PEX_GetFromLocalVariable(void);
 extern STD_RETURN_TYPE_e TEST_PEX_WriteConfigPolarity(void);
 extern STD_RETURN_TYPE_e TEST_PEX_WriteConfigDirection(void);
 #endif

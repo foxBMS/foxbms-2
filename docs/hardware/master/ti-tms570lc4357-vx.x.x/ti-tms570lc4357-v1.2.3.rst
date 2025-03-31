@@ -1,0 +1,15 @@
+.. include:: ./../../../macros.txt
+.. include:: ./../../../units.txt
+
+.. _MASTER_TMS570___V1_2_3__:
+
+Master TMS570 ``v1.2.3``
+========================
+
+.. note::
+
+   The changelog for this release is found at
+   :ref:`CHANGELOG_FOR_MASTER_TMS570_V1_2_3_0`.
+
+There are no changes that need a new documentation compared to v1.2.2,
+therefore see :ref:`MASTER_TMS570___V1_2_2__`.

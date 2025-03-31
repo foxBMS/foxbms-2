@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -48,10 +48,6 @@ DOC_UNIT_TEST_EXAMPLE_DIR = PROJECT_ROOT / "docs/software/unit-tests"
 
 def run_doc_build() -> SubprocessResult:
     """build the documentation example source code in docs/software/unit-tests."""
-    ret = run_waf(
-        args=["configure", "build"],
-        cwd=DOC_UNIT_TEST_EXAMPLE_DIR,
-        stdout=None,
-        stderr=None,
-    )
+    args = ["configure", "build"]
+    ret = run_waf(args=args, cwd=DOC_UNIT_TEST_EXAMPLE_DIR, stdout=None, stderr=None)
     return ret

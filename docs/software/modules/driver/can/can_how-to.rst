@@ -15,15 +15,18 @@ How to add a new CAN Message
    #. Set the DLC
    #. Add a comment that follows the pattern
 
-      +-------------------+------------------------------------------------------------------------------+
-      | Message direction | Comment                                                                      |
-      +===================+==============================================================================+
-      | transmit          | ``optional comment text (in<file>:<function>, fv:tx) optional comment text`` |
-      +-------------------+------------------------------------------------------------------------------+
-      | receive           | ``optional comment text (in<file>:<function>, fv:rx) optional comment text`` |
-      +-------------------+------------------------------------------------------------------------------+
+      +-------------------+---------------------------------------------------------------------------------------------------+
+      | Message direction | Comment                                                                                           |
+      +===================+===================================================================================================+
+      | transmit          | ``optional comment text (in<file>:<function>, fv:tx, type:<message type>) optional comment text`` |
+      +-------------------+---------------------------------------------------------------------------------------------------+
+      | receive           | ``optional comment text (in<file>:<function>, fv:rx, type:<message type>) optional comment text`` |
+      +-------------------+---------------------------------------------------------------------------------------------------+
 
       The message direction is specified as seen from the BMS view.
+      The can messages are sorted by their message type and the CAN ID is
+      selected accordingly.
+      This can be seen in :ref:`communication`
 
 #. Export the symbol file as dbc file to ``tools/dbc/foxbms.dbc``.
 #. Declare the callback function for the message in the appropriate file:
@@ -104,13 +107,6 @@ How to add a new CAN Message
             .\fox.ps1 run-script tests\can\check_ids.py
             .\fox.ps1 run-script tests\can\check_implemented.py
 
-      .. group-tab:: Win32/cmd.exe
-
-         .. code-block:: bat
-
-            fox.bat run-script tests\can\check_ids.py
-            fox.bat run-script tests\can\check_implemented.py
-
       .. group-tab:: Win32/Git bash
 
          .. code-block:: shell
@@ -148,7 +144,6 @@ Example for a Receive Message
 
 .. include:: ./can_how-to_rx.rst
 
-
 Multi-string Support when using Isabellenhuette IVT Current Sensors
 -------------------------------------------------------------------
 
@@ -182,7 +177,6 @@ the beginning of the function must be adapted as shown in
     } else {
         FAS_ASSERT(FAS_TRAP);
     }
-
 
 Further Reading
 ---------------

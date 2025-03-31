@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    can_cbs_tx_debug-build-configuration.c
  * @author  foxBMS Team
  * @date    2023-05-31 (date of creation)
- * @updated 2024-12-20 (date of last update)
- * @version v1.8.0
+ * @updated 2025-03-31 (date of last update)
+ * @version v1.9.0
  * @ingroup DRIVERS
  * @prefix  CANTX
  *
@@ -58,6 +58,7 @@
 #include "app_build_cfg.h"
 #include "battery_cell_cfg.h"
 #include "battery_system_cfg.h"
+#include "bms-slave_cfg.h"
 
 #include "can.h"
 #include "can_cfg_tx-async-message-definitions.h"
@@ -1123,7 +1124,7 @@ static void CANTX_SetBatterySystemMuxGeneral1MessageData(uint64_t *pMessageData)
         pMessageData,
         CANTX_MUX_BATTERY_SYSTEM_GENERAL_1_NR_OF_GPIOS_PER_MODULE_START_BIT,
         CANTX_MUX_BATTERY_SYSTEM_GENERAL_1_NR_OF_GPIOS_PER_MODULE_LENGTH,
-        BS_NR_OF_GPIOS_PER_MODULE,
+        SLV_NR_OF_GPIOS_PER_MODULE,
         CANTX_DEBUG_BUILD_CONFIGURATION_ENDIANNESS);
 
     /* Set number of gpas per module value */
@@ -1131,7 +1132,7 @@ static void CANTX_SetBatterySystemMuxGeneral1MessageData(uint64_t *pMessageData)
         pMessageData,
         CANTX_MUX_BATTERY_SYSTEM_GENERAL_1_NR_OF_GPAS_PER_MODULE_START_BIT,
         CANTX_MUX_BATTERY_SYSTEM_GENERAL_1_NR_OF_GPAS_PER_MODULE_LENGTH,
-        BS_NR_OF_GPAS_PER_MODULE,
+        SLV_NR_OF_GPAS_PER_MODULE,
         CANTX_DEBUG_BUILD_CONFIGURATION_ENDIANNESS);
 
     /* Set number of temperature sensors per module value */
@@ -1190,7 +1191,7 @@ static void CANTX_SetBatterySystemMuxGeneral2MessageData(uint64_t *pMessageData)
         pMessageData,
         CANTX_MUX_BATTERY_SYSTEM_GENERAL_2_BALANCING_RESISTANCE_START_BIT,
         CANTX_MUX_BATTERY_SYSTEM_GENERAL_2_BALANCING_RESISTANCE_LENGTH,
-        (uint64_t)BS_BALANCING_RESISTANCE_ohm,
+        (uint64_t)SLV_BALANCING_RESISTANCE_ohm,
         CANTX_DEBUG_BUILD_CONFIGURATION_ENDIANNESS);
 
     /* Set rest current value */

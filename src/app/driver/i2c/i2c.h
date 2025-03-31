@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    i2c.h
  * @author  foxBMS Team
  * @date    2021-07-22 (date of creation)
- * @updated 2024-12-20 (date of last update)
- * @version v1.8.0
+ * @updated 2025-03-31 (date of last update)
+ * @version v1.9.0
  * @ingroup DRIVERS
  * @prefix  I2C
  *
@@ -241,7 +241,11 @@ extern bool I2C_WaitReceive(i2cBASE_t *pI2cInterface, uint32_t timeout_us);
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 #ifdef UNITY_UNIT_TEST
 extern uint32_t TEST_I2C_GetWordTransmitTime(i2cBASE_t *pI2cInterface);
+extern bool TEST_I2C_WaitTransmit(i2cBASE_t *pI2cInterface, uint32_t timeout_us);
 extern bool TEST_I2C_WaitStop(i2cBASE_t *pI2cInterface, uint32_t timeout_us);
+extern uint32_t TEST_I2C_WaitForTxCompletedNotification(void);
+extern uint32_t TEST_I2C_WaitForRxCompletedNotification(void);
+extern void TEST_I2C_ClearNotifications(void);
 #endif
 
 #endif /* FOXBMS__I2C_H_ */

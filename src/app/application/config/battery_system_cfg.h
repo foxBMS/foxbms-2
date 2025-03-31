@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    battery_system_cfg.h
  * @author  foxBMS Team
  * @date    2019-12-10 (date of creation)
- * @updated 2024-12-20 (date of last update)
- * @version v1.8.0
+ * @updated 2025-03-31 (date of last update)
+ * @version v1.9.0
  * @ingroup BATTERY_SYSTEM_CONFIGURATION
  * @prefix  BS
  *
@@ -60,6 +60,8 @@
 
 /*========== Includes =======================================================*/
 #include "general.h"
+
+#include "bms-slave_cfg.h"
 
 #include "fassert.h"
 
@@ -131,28 +133,13 @@ typedef enum {
  */
 #define BS_NR_OF_PARALLEL_CELLS_PER_CELL_BLOCK (1u)
 
-/** Value of the balancing resistors on the slave-board */
-#define BS_BALANCING_RESISTANCE_ohm (100.0)
-
-/**
- * @def     BS_NR_OF_GPIOS_PER_MODULE
- * @brief   Defines the number of GPIOs
- */
-#define BS_NR_OF_GPIOS_PER_MODULE (10u)
-
-/**
- * @def     BS_NR_OF_GPAS_PER_MODULE
- * @brief   Defines the number of GPA inputs
- */
-#define BS_NR_OF_GPAS_PER_MODULE (2u)
-
 /**
  * @brief   number of temperature sensors per battery module
  * @ptype   int
  */
 #define BS_NR_OF_TEMP_SENSORS_PER_MODULE (8u)
 
-#if BS_NR_OF_TEMP_SENSORS_PER_MODULE > BS_NR_OF_GPIOS_PER_MODULE
+#if BS_NR_OF_TEMP_SENSORS_PER_MODULE > SLV_NR_OF_GPIOS_PER_MODULE
 #error "Number of temperature inputs cannot be higher than number of GPIOs"
 #endif
 

@@ -74,16 +74,8 @@ numbering described in :ref:`CONVENTION_FOR_MICTOR_CONNECTOR_PIN_NUMBERING`.
 
 The benefit of this connector is that it enables both a JTAG connection (for
 debugging purposes) and a trace connection (for detailed trace analysis).
-In order to interface this port to a normal debugger, an adapter as to be used.
-As an example part number
-`8.06.08 <https://www.segger.com/products/production/flasher/accessories/adapters/j-link-mictor-38-adapter/>`_
-from Segger can be used.
-This is just an example, other manufacturers such as Lauterbach have similar
-adapters.
-
-On more compact, derived designs of the |foxbms-bms-master| a connector
-according to the compact TI 20 pin connector is used.
-On this connector, only JTAG connections are supported.
-This connector can be interfaced for example with part number
-`8.06.06 <https://www.segger.com/products/production/flasher/accessories/adapters/ti-cti-20-adapter/>`_
-from Segger.
+An adapter is needed to interface this port to a debugger.
+Examples are
+- Converter IDC20A to Mictor-38 from Lauterbach (part number ``LA-3722``)
+- J-Link Mictor 38 Adapter from Segger (part number ``8.06.08``)
+- TI-CTI-20 Adapter from Segger (part number ``8.06.06``)

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -42,9 +42,8 @@
 found"""
 
 import sys
-
 from pathlib import Path
-from subprocess import Popen, PIPE
+from subprocess import PIPE, Popen
 
 ROOT = Path(__file__).parent.parent.parent.parent
 
@@ -56,24 +55,28 @@ EXPECTED_ERRORS = [
 
 def main():
     """Run the 'expect-failure' test case"""
-    if sys.platform.lower() == "linux":
-        fox_wrapper = ROOT / "fox.sh"
-    elif sys.platform.lower() == "win32":
-        fox_wrapper = ROOT / "fox.bat"
-    else:
-        fox_wrapper = ""
-        sys.exit("Running on an unsupported platform.")
+    ext = "ps1" if sys.platform.lower() == "win32" else "sh"
+    fox_wrapper = ROOT / f"fox.{ext}"
 
     if not fox_wrapper.is_file():
-        sys.exit("Could not find the 'fox'-wrapper.")
+        sys.exit(f"Could not find the 'fox.{ext}'-wrapper.")
 
-    cmd = [str(fox_wrapper), "waf", "configure"]
-
+    cmd = []
+    if sys.platform.lower() == "win32":
+        cmd.extend(
+            [
+                "pwsh.exe",
+                "-NoProfile",
+                "-NoLogo",
+                "-NonInteractive",
+                "-File",
+            ]
+        )
+    cmd.extend([fox_wrapper, "waf", "configure"])
     with Popen(cmd, stdout=PIPE, stderr=PIPE) as p:
         _, stderr_bytes = p.communicate()
 
     stderr = stderr_bytes.decode("utf-8")
-
     err = 0
     if p.returncode == 0:
         err += 1
@@ -86,7 +89,6 @@ def main():
                 f"Expected '{i}' in stderr, but it was not found on stderr",
                 file=sys.stderr,
             )
-    print(err)
     return err
 
 

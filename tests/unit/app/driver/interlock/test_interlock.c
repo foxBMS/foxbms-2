@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_interlock.c
  * @author  foxBMS Team
  * @date    2020-04-01 (date of creation)
- * @updated 2024-12-20 (date of last update)
- * @version v1.8.0
+ * @updated 2025-03-31 (date of last update)
+ * @version v1.9.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -131,6 +131,9 @@ void testILCK_SetStateRequestDoubleInitializationWithoutStatemachine(void) {
     /* run initialization twice, but state machine not in between */
     OS_EnterTaskCritical_Expect();
     OS_ExitTaskCritical_Expect();
+    /*IO_SetPinDirectionToOutput_Expect(&ILCK_IO_REG_DIR, ILCK_INTERLOCK_CONTROL_PIN_IL_HS_ENABLE);
+    IO_SetPinDirectionToInput_Expect(&ILCK_IO_REG_DIR, ILCK_INTERLOCK_FEEDBACK_PIN_IL_STATE);
+    IO_PinReset_Expect(&ILCK_IO_REG_PORT->DOUT, ILCK_INTERLOCK_CONTROL_PIN_IL_HS_ENABLE);*/
     TEST_ASSERT_EQUAL(ILCK_OK, ILCK_SetStateRequest(ILCK_STATE_INITIALIZATION_REQUEST));
     OS_EnterTaskCritical_Expect();
     OS_ExitTaskCritical_Expect();
@@ -222,6 +225,7 @@ void testInitializeStateMachine(void) {
 
     TEST_ASSERT_EQUAL(ILCK_REQUEST_PENDING, ILCK_SetStateRequest(ILCK_STATE_INITIALIZATION_REQUEST));
 
+    /* IO_PinGet_ExpectAndReturn(&ILCK_IO_REG_PORT->DIN, ILCK_INTERLOCK_FEEDBACK_PIN_IL_STATE, STD_PIN_LOW); */
     for (uint8_t i = 0u; i < 10; i++) {
         /* iterate calling this state machine 10 times (one short time) */
         ILCK_Trigger();

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -41,19 +41,19 @@
 
 import click
 
-from ..cmd_etl.batetl import cmd_decode, cmd_filter
+from ..cmd_etl.batetl import cmd_decode, cmd_filter, cmd_table
+from ..helpers.click_helpers import HELP_NAMES
 
-CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"]}
 
-
-@click.group(context_settings=CONTEXT_SETTINGS, hidden=True)
+@click.group(context_settings=HELP_NAMES)
 def etl() -> None:
     """Extract Transform Load functionalities via command line.
 
-    These scripts and tools will simplifiy the collection of
+    These scripts and tools will simplify the collection of
     foxBMS 2 data and their analysis.
     """
 
 
 etl.add_command(cmd_filter)
 etl.add_command(cmd_decode)
+etl.add_command(cmd_table)

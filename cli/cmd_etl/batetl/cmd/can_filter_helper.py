@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -39,10 +39,11 @@
 
 """CAN filter subcommand implementation"""
 
-import logging
 import re
 import sys
 from pathlib import Path
+
+import click
 
 from ..etl.can_filter import CANFilter
 from . import read_config
@@ -65,35 +66,49 @@ def validate_filter_config(config_dict: dict) -> None:
     :param config_dict: Dictionary with configurations
     """
     if "id_pos" not in config_dict:
-        logging.error("Configuration file is missing 'id_pos' parameter.")
+        click.secho(
+            "Configuration file is missing 'id_pos' parameter.", fg="red", err=True
+        )
         sys.exit(1)
     if not isinstance(config_dict["id_pos"], int):
-        logging.error("'id_pos' in the configuration file is not an integer.")
+        click.secho(
+            "'id_pos' in the configuration file is not an integer.", fg="red", err=True
+        )
         sys.exit(1)
     if "ids" not in config_dict:
-        logging.error("'Configuration file is missing 'ids' parameter'.")
+        click.secho(
+            "'Configuration file is missing 'ids' parameter'.", fg="red", err=True
+        )
         sys.exit(1)
     if not isinstance(config_dict["ids"], list):
-        logging.error("'ids' is not a list.")
+        click.secho("'ids' is not a list.", fg="red", err=True)
         sys.exit(1)
     if not all(isinstance(x, str) for x in config_dict["ids"]):
-        logging.error("Not all ids are defined as string. Missing quotes ?")
+        click.secho(
+            "Not all ids are defined as string. Missing quotes ?", fg="red", err=True
+        )
         sys.exit(1)
     for i in config_dict["ids"]:
         if not re.search("^[0-9A-F]+(-[0-9A-F]+){0,1}$", i):
-            logging.error("'ids' are not defined as hexadecimal values!")
+            click.secho(
+                "'ids' are not defined as hexadecimal values!", fg="red", err=True
+            )
             sys.exit(1)
     if "sampling" in config_dict:
         if not isinstance(config_dict["sampling"], dict):
-            logging.error("'sampling' is not a dictionary.")
+            click.secho("'sampling' is not a dictionary.", fg="red", err=True)
             sys.exit(1)
         if not all(isinstance(x, str) for x in config_dict["sampling"]):
-            logging.error(
-                "Not all ids in sampling are defined as string. Missing quotes ?"
+            click.secho(
+                "Not all ids in sampling are defined as string. Missing quotes ?",
+                fg="red",
+                err=True,
             )
             sys.exit(1)
         if not set(config_dict["sampling"]).issubset(set(config_dict["ids"])):
-            logging.error("Defined sampling is not a subset of the ids.")
+            click.secho(
+                "Defined sampling is not a subset of the ids.", fg="red", err=True
+            )
             sys.exit(1)
 
 
@@ -102,7 +117,13 @@ def run_filter(filter_obj: CANFilter) -> None:
 
     :param filter_obj: Object which handles the filtering
     """
-    for msg in sys.stdin:
-        filtered_msg = filter_obj.filter_msg(msg)
-        if filtered_msg:
-            sys.stdout.write(filtered_msg)
+    try:
+        for msg in sys.stdin:
+            filtered_msg = filter_obj.filter_msg(msg)
+            if filtered_msg:
+                sys.stdout.write(filtered_msg)
+    except OSError:
+        # If can_decoded receives an extra argument, can_filter is not
+        # able to write to the stdout
+        click.secho("Could not write to stdout.", fg="red", err=True)
+        sys.exit(1)

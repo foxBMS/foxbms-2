@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -42,7 +42,6 @@ flags) into a separate file"""
 
 import os
 import traceback
-
 from copy import deepcopy
 
 from waflib import Context, Errors, Logs, Utils
@@ -50,7 +49,7 @@ from waflib.Configure import conf
 
 
 @conf
-def run_build_for_defines(self, *k, **kw):  # pylint: disable-msg=unused-argument
+def run_build_for_defines(self, *_, **kw):
     """Runs a build during configuration time. The build is based on
     :func:`waflib.Configure.run_build`. In contrast to a test build during
     configuration the output is persistent.
@@ -165,7 +164,7 @@ def get_defines(self, *k, **kw):
         (ret, out_dir) = self.run_build_for_defines(*k, **kw)
     except self.errors.ConfigurationError:
         self.end_msg(kw["errmsg"], "YELLOW", **kw)
-        if Logs.verbose > 1:  # pylint: disable-msg=R1720
+        if Logs.verbose > 1:  # pylint: disable=no-else-raise
             raise
         else:
             self.fatal("The configuration failed")

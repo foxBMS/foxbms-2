@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -52,8 +52,7 @@ def build(bld):
     ]
 
     # only build the diagnostics objects when these are available
-    diagnostics = os.path.join("..", "common", "ades183x", "adi_ades183x_diagnostic.c")
-    if bld.path.find_node(diagnostics):
+    if bld.path.find_node("../common/ades183x/diag/adi_ades183x_diagnostic.c"):
         bld.recurse("diag")
     includes = [
         os.path.join("..", "..", "..", "config"),

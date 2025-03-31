@@ -15,7 +15,25 @@ the project specifies them.
 By that, we are sure that every commit in the repository can be built the same
 way on any machine that has all needed dependencies.
 
-Further Reading
----------------
+Until version 1.6.0 |foxbms| used `conda` environments.
+Starting with version 1.7.0 |foxbms| uses now `venv` to create virtual
+environments.
+The following environments are/were used by |foxbms|.
 
-A How-to is found in :ref:`CHANGING_AND_EXTENDING_THE_BUILD_ENVIRONMENT`.
++---------------------+-------+-------+-------+
+| Environment Name    | From  | To    | Type  |
++=====================+=======+=======+=======+
+| 2025-03-pale-fox    | 1.9.0 | \-    | venv  |
++---------------------+-------+-------+-------+
+| 2025-01-pale-fox    | 1.8.0 | 1.8.0 | venv  |
++---------------------+-------+-------+-------+
+| 2024-08-pale-fox    | 1.7.0 | 1.7.0 | venv  |
++---------------------+-------+-------+-------+
+| 2023-02-fennec-fox  | 1.5.1 | 1.6.0 | conda |
++---------------------+-------+-------+-------+
+| 2021-11-fennec-fox  | 1.2.1 | 1.5.0 | conda |
++---------------------+-------+-------+-------+
+| 2021-08-arctic-fox  | 1.1.0 | 1.2.0 | conda |
++---------------------+-------+-------+-------+
+| 2021-04-red-fox     | 1.0.0 | 1.0.2 | conda |
++---------------------+-------+-------+-------+

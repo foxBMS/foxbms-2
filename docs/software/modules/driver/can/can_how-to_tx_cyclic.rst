@@ -108,13 +108,6 @@ in this how-to.
          .\fox.ps1 run-script tests\can\check_ids.py
          .\fox.ps1 run-script tests\can\check_implemented.py
 
-   .. group-tab:: Win32/cmd.exe
-
-      .. code-block:: bat
-
-         fox.bat run-script tests\can\check_ids.py
-         fox.bat run-script tests\can\check_implemented.py
-
    .. group-tab:: Win32/Git bash
 
       .. code-block:: shell

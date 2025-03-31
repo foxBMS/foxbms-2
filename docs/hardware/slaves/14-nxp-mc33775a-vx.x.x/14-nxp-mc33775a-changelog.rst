@@ -6,6 +6,16 @@
 Changelog for Slave NXP MC33775A
 ================================
 
+.. _CHANGELOG_FOR_SLAVE_NXP_MC33775A_V1_0_3_0:
+
+v1.0.3-0
+--------
+
+- adjusted the current limit of the VDDC supply
+- added design note on modifying the current limit
+- included a suffix in the version declaration
+
+
 .. _CHANGELOG_FOR_SLAVE_NXP_MC33775A_V1_0_2:
 
 v1.0.2

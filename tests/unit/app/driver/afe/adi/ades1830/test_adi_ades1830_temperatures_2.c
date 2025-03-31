@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_adi_ades1830_temperatures_2.c
  * @author  foxBMS Team
  * @date    2024-01-30 (date of creation)
- * @updated 2024-12-20 (date of last update)
- * @version v1.8.0
+ * @updated 2025-03-31 (date of last update)
+ * @version v1.9.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -118,8 +118,8 @@ const uint16_t testGpioVoltage_mV    = 0u;
 
 /* this test checks, that the driver works as expected, when the temperature
    inputs are *not* used */
-const uint8_t adi_temperatureInputsUsed[BS_NR_OF_GPIOS_PER_MODULE] = {
-    GEN_REPEAT_U(0u, GEN_STRIP(BS_NR_OF_GPIOS_PER_MODULE))};
+const uint8_t adi_temperatureInputsUsed[SLV_NR_OF_GPIOS_PER_MODULE] = {
+    GEN_REPEAT_U(0u, GEN_STRIP(SLV_NR_OF_GPIOS_PER_MODULE))};
 
 /*========== Setup and Teardown =============================================*/
 void setUp(void) {
@@ -128,7 +128,7 @@ void setUp(void) {
     for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
         adi_stateBase.currentString = s;
         for (uint16_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
-            for (uint16_t registerGpioIndex = 0u; registerGpioIndex < BS_NR_OF_GPIOS_PER_MODULE; registerGpioIndex++) {
+            for (uint16_t registerGpioIndex = 0u; registerGpioIndex < SLV_NR_OF_GPIOS_PER_MODULE; registerGpioIndex++) {
                 for (uint8_t ts = 0; ts < registerGpioIndex; ts++) {
                     adi_stateBase.data.cellTemperature->cellTemperature_ddegC[adi_stateBase.currentString][m][ts] =
                         testTemperature_ddegC;

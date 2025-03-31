@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -56,7 +56,6 @@ a new instance of Trace32.
 
 import os
 from string import Template
-
 
 from waflib import Utils
 from waflib.Configure import ConfigurationContext
@@ -176,6 +175,7 @@ def configure(conf: ConfigurationContext):
             "APP_ELF_FILE": os.path.join("app_embedded", "foxbms.elf"),
             "APP_ELF_SEARCHPATH": os.path.join("app_embedded", "*.elf"),
             "T32_CMM_FILE": t32_cmm_node.abspath(),
+            "UPDATE_PROGRAM_INFORMATION_SCRIPT": "update_program_information.cmm",
         }
     )
 

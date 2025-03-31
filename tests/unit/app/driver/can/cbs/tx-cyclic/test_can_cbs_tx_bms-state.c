@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_can_cbs_tx_bms-state.c
  * @author  foxBMS Team
  * @date    2021-07-27 (date of creation)
- * @updated 2024-12-20 (date of last update)
- * @version v1.8.0
+ * @updated 2025-03-31 (date of last update)
+ * @version v1.9.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -89,6 +89,10 @@ TEST_INCLUDE_PATH("../../src/app/task/config")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 uint64_t testMessageData[22u] = {0u};
+
+float_t testInsulationResistance = 1250.0f;
+
+static const CAN_SIGNAL_TYPE_s cantx_testInsulationResistance_kOhm = {63u, 8u, 200.0f, 0.0f, 0.0f, 51000.0f};
 
 const CAN_NODE_s can_node1 = {
     .canNodeRegister = canREG1,
@@ -332,7 +336,6 @@ void testCANTX_BuildBmsStateMessage(void) {
 
     uint64_t testResult = 0u;
     /* ======= RT1/2: Test implementation - everything okay */
-    CAN_TxPrepareSignalData_Ignore();
 
     /* BMS State */
     BMS_GetState_ExpectAndReturn(bms_state.state);
@@ -379,6 +382,7 @@ void testCANTX_BuildBmsStateMessage(void) {
     CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[8u]);
 
     /* Insulation resistance */
+    CAN_TxPrepareSignalData_Expect(&testInsulationResistance, cantx_testInsulationResistance_kOhm);
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[8u], 63u, 8u, 1250u, CANTX_BMS_STATE_ENDIANNESS);
     CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[9u]);
 
@@ -456,8 +460,6 @@ void testCANTX_BuildBmsStateMessage(void) {
     can_tableErrorState.prechargeAbortedDueToVoltage[0u] = true;
     can_tableErrorState.prechargeAbortedDueToCurrent[0u] = true;
     /* ======= RT2/2: Test implementation - Precharge errors set */
-    CAN_TxPrepareSignalData_Ignore();
-
     /* BMS State */
     BMS_GetState_ExpectAndReturn(bms_state.state);
     CAN_TxSetMessageDataWithSignalData_Expect(
@@ -503,6 +505,7 @@ void testCANTX_BuildBmsStateMessage(void) {
     CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[8u]);
 
     /* Insulation resistance */
+    CAN_TxPrepareSignalData_Expect(&testInsulationResistance, cantx_testInsulationResistance_kOhm);
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[8u], 63u, 8u, 1250u, CANTX_BMS_STATE_ENDIANNESS);
     CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[9u]);
 
@@ -647,7 +650,6 @@ void testCANTX_BmsState(void) {
             .recordedViolation100msAlgo = true,
     };
     /* ======= RT1/1: Test implementation */
-    CAN_TxPrepareSignalData_Ignore();
     DATA_Read4DataBlocks_ExpectAndReturn(
         can_kShim.pTableErrorState,
         can_kShim.pTableInsulation,
@@ -676,6 +678,7 @@ void testCANTX_BmsState(void) {
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 13u, 1u, 1u, CANTX_BMS_STATE_ENDIANNESS);
     CAN_ConvertBooleanToInteger_ExpectAndReturn(true, 1u);
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 23u, 1u, 1u, CANTX_BMS_STATE_ENDIANNESS);
+    CAN_TxPrepareSignalData_Expect(&testInsulationResistance, cantx_testInsulationResistance_kOhm);
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 63u, 8u, 1250u, CANTX_BMS_STATE_ENDIANNESS);
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 16u, 1u, 0u, CANTX_BMS_STATE_ENDIANNESS);
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 17u, 1u, 0u, CANTX_BMS_STATE_ENDIANNESS);
@@ -741,7 +744,6 @@ void testCANTX_TransmitBmsState(void) {
             .recordedViolation100msAlgo = true,
     };
     /* ======= RT1/2: Test implementation */
-    CAN_TxPrepareSignalData_Ignore();
     DATA_Read4DataBlocks_ExpectAndReturn(
         can_kShim.pTableErrorState,
         can_kShim.pTableInsulation,
@@ -770,6 +772,7 @@ void testCANTX_TransmitBmsState(void) {
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 13u, 1u, 1u, CANTX_BMS_STATE_ENDIANNESS);
     CAN_ConvertBooleanToInteger_ExpectAndReturn(true, 1u);
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 23u, 1u, 1u, CANTX_BMS_STATE_ENDIANNESS);
+    CAN_TxPrepareSignalData_Expect(&testInsulationResistance, cantx_testInsulationResistance_kOhm);
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 63u, 8u, 1250u, CANTX_BMS_STATE_ENDIANNESS);
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 16u, 1u, 0u, CANTX_BMS_STATE_ENDIANNESS);
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 17u, 1u, 0u, CANTX_BMS_STATE_ENDIANNESS);
@@ -799,7 +802,6 @@ void testCANTX_TransmitBmsState(void) {
     TEST_ASSERT_EQUAL(STD_OK, testResult);
 
     /* ======= RT2/2: Test implementation */
-    CAN_TxPrepareSignalData_Ignore();
     DATA_Read4DataBlocks_ExpectAndReturn(
         can_kShim.pTableErrorState,
         can_kShim.pTableInsulation,
@@ -828,6 +830,7 @@ void testCANTX_TransmitBmsState(void) {
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 13u, 1u, 1u, CANTX_BMS_STATE_ENDIANNESS);
     CAN_ConvertBooleanToInteger_ExpectAndReturn(true, 1u);
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 23u, 1u, 1u, CANTX_BMS_STATE_ENDIANNESS);
+    CAN_TxPrepareSignalData_Expect(&testInsulationResistance, cantx_testInsulationResistance_kOhm);
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 63u, 8u, 1250u, CANTX_BMS_STATE_ENDIANNESS);
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 16u, 1u, 0u, CANTX_BMS_STATE_ENDIANNESS);
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 17u, 1u, 0u, CANTX_BMS_STATE_ENDIANNESS);

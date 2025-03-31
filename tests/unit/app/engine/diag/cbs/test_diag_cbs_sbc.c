@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_diag_cbs_sbc.c
  * @author  foxBMS Team
  * @date    2021-02-17 (date of creation)
- * @updated 2024-12-20 (date of last update)
- * @version v1.8.0
+ * @updated 2025-03-31 (date of last update)
+ * @version v1.9.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -98,4 +98,31 @@ void testDIAG_SbcInvalidInput(void) {
     TEST_ASSERT_FAIL_ASSERT(DIAG_Sbc(DIAG_ID_MAX, DIAG_EVENT_OK, &diag_kpkDatabaseShim, 0u));
     TEST_ASSERT_FAIL_ASSERT(DIAG_Sbc(DIAG_ID_SBC_FIN_ERROR, 42, &diag_kpkDatabaseShim, 0u));
     TEST_ASSERT_FAIL_ASSERT(DIAG_Sbc(DIAG_ID_SBC_FIN_ERROR, DIAG_EVENT_OK, NULL_PTR, 0u));
+}
+
+void testDIAG_Sbc(void) {
+    DIAG_ID_e diagId   = DIAG_ID_SBC_FIN_ERROR;
+    DIAG_EVENT_e event = DIAG_EVENT_RESET;
+    uint32_t data      = 0u;
+    /* Assert tests */
+    TEST_ASSERT_FAIL_ASSERT(DIAG_Sbc(diagId, UINT8_MAX, &diag_kpkDatabaseShim, data));
+    TEST_ASSERT_FAIL_ASSERT(DIAG_Sbc(UINT8_MAX, event, &diag_kpkDatabaseShim, data));
+    TEST_ASSERT_FAIL_ASSERT(DIAG_Sbc(diagId, event, NULL_PTR, data));
+
+    DIAG_Sbc(diagId, event, &diag_kpkDatabaseShim, data);
+    /* Tests with event reset */
+    event = DIAG_EVENT_NOT_OK;
+    DIAG_Sbc(diagId, event, &diag_kpkDatabaseShim, data);
+
+    diagId = DIAG_ID_SBC_RSTB_ERROR;
+    DIAG_Sbc(diagId, event, &diag_kpkDatabaseShim, data);
+
+    /* Tests with event not ok */
+    event = DIAG_EVENT_RESET;
+
+    DIAG_Sbc(diagId, event, &diag_kpkDatabaseShim, data);
+
+    /* else branch */
+    diagId = 10u;
+    DIAG_Sbc(diagId, event, &diag_kpkDatabaseShim, data);
 }

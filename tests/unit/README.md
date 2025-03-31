@@ -25,7 +25,7 @@ directly.
 **However, it is required to first run the ``Ceedling`` based unit test, as this
 creates the mocks and runners for the test files.**
 
-The workflow is therefore as follows (assuming the user name is ``vulpes`` and
+The workflow is therefore as follows (assuming the username is ``vulpes`` and
 the repository is cloned into ``C:\Users\vulpes\Documents\foxbms-2``) and
 the cwd is also ``C:\Users\vulpes\Documents\foxbms-2``.
 

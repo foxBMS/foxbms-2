@@ -5,6 +5,16 @@
 
 Changelog for Master TMS570
 ===========================
+
+.. _CHANGELOG_FOR_MASTER_TMS570_V1_2_3_0:
+
+v1.2.3-0
+--------
+
+- fixed wiring of U6601 in schematic and layout
+- fixed vendor number of Y6100 (SiT1618BA-32-33N-20.000000) in BOM
+- included a suffix in the version declaration
+
 .. _CHANGELOG_FOR_MASTER_TMS570_V1_2_2:
 
 v1.2.2

@@ -21,7 +21,7 @@ The steps of adding the sensor contain:
 - adding the sensor to the documentation,
 - adding the sensor to the codebase (with lookup table and polynomial),
 - adding the sensor to the unit tests,
-- making known the relevant paths to |code| and
+- making known the relevant paths to |vs-code| and
 - using the sensor through ``bms.json``.
 
 Basic Directory Structure
@@ -126,7 +126,7 @@ in order to hint the correct source file to the unit test build system.
 Updating the IDE configuration
 ------------------------------
 
-In order to be able to discover the new files in |code|, it is necessary to
+In order to be able to discover the new files in |vs-code|, it is necessary to
 add the path to new sensor to the
 ``tools/ide/vscode/src/project-include-path.txt`` and rerun the ``configure``
 step of the build system.

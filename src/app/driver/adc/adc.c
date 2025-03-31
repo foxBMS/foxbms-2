@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    adc.c
  * @author  foxBMS Team
  * @date    2019-01-07 (date of creation)
- * @updated 2024-12-20 (date of last update)
- * @version v1.8.0
+ * @updated 2025-03-31 (date of last update)
+ * @version v1.9.0
  * @ingroup DRIVERS
  * @prefix  ADC
  *
@@ -147,5 +147,8 @@ extern void TEST_ADC_SetAdcConversionState(ADC_STATE_e state) {
 }
 extern ADC_STATE_e TEST_ADC_GetAdcConversionState(void) {
     return adc_conversionState;
+}
+extern DATA_BLOCK_ADC_VOLTAGE_s *TEST_ADC_GetAdc1Voltages(void) {
+    return &adc_adc1Voltages;
 }
 #endif

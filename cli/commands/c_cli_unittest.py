@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -42,11 +42,9 @@
 import click
 
 from ..cmd_cli_unittest import cli_unittest_impl
+from ..helpers.click_helpers import HELP_NAMES, IGNORE_UNKNOWN_OPTIONS, verbosity_option
 
-CONTEXT_SETTINGS = {
-    "help_option_names": ["-h", "--help"],
-    "ignore_unknown_options": True,
-}
+CONTEXT_SETTINGS = HELP_NAMES | IGNORE_UNKNOWN_OPTIONS
 
 
 @click.group(context_settings=CONTEXT_SETTINGS, invoke_without_command=True)
@@ -64,23 +62,27 @@ CONTEXT_SETTINGS = {
     help="Create a coverage report (requires '--self-test').",
 )
 @click.argument("unittest_args", nargs=-1, type=click.UNPROCESSED)
+@verbosity_option
 @click.pass_context
 def cli_unittest(
     ctx: click.Context,
     self_test: bool,
     coverage_report: bool,
     unittest_args: tuple[str],
+    verbose: int = 0,
 ) -> None:
     """Run unit-tests on the CLI tool itself."""
     err = 0
     if coverage_report and not self_test:
         click.echo("'--coverage-report' requires '--self-test'.", err=True)
         err = 1
-    if self_test:
-        err = cli_unittest_impl.run_script_tests(coverage_report).returncode
+    if err:
+        pass
+    elif self_test:
+        err = cli_unittest_impl.run_script_tests(coverage_report, verbose).returncode
     elif unittest_args:
         args = list(unittest_args)
         err = cli_unittest_impl.run_unittest_module(args).returncode
-    elif not ctx.invoked_subcommand:
+    else:  # no subcommand
         click.echo(cli_unittest.get_help(ctx))
     ctx.exit(err)

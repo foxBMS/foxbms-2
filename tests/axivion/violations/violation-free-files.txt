@@ -1,5 +1,3 @@
-# Add file paths (relative to the repository root) that are violation free
-
 #src/app/application/algorithm/algorithm.c
 #src/app/application/algorithm/algorithm.h
 #src/app/application/algorithm/config/algorithm_cfg.c
@@ -38,6 +36,7 @@
 #src/app/application/config/battery_cell_cfg.h
 #src/app/application/config/battery_system_cfg.c
 #src/app/application/config/battery_system_cfg.h
+#src/app/application/config/bms-slave_cfg.h
 #src/app/application/config/bms_cfg.h
 #src/app/application/config/plausibility_cfg.h
 #src/app/application/config/soa_cfg.c
@@ -140,7 +139,15 @@
 #src/app/driver/afe/nxp/mc33775a/nxp_mc33775a-ll.h
 #src/app/driver/afe/nxp/mc33775a/nxp_mc33775a.c
 #src/app/driver/afe/nxp/mc33775a/nxp_mc33775a.h
+#src/app/driver/afe/nxp/mc33775a/nxp_mc33775a_balancing.c
+#src/app/driver/afe/nxp/mc33775a/nxp_mc33775a_balancing.h
+#src/app/driver/afe/nxp/mc33775a/nxp_mc33775a_database.c
+#src/app/driver/afe/nxp/mc33775a/nxp_mc33775a_database.h
 #src/app/driver/afe/nxp/mc33775a/nxp_mc33775a_defs.h
+#src/app/driver/afe/nxp/mc33775a/nxp_mc33775a_i2c.c
+#src/app/driver/afe/nxp/mc33775a/nxp_mc33775a_i2c.h
+#src/app/driver/afe/nxp/mc33775a/nxp_mc33775a_mux.c
+#src/app/driver/afe/nxp/mc33775a/nxp_mc33775a_mux.h
 #src/app/driver/afe/nxp/mc33775a/vendor/MC33775A.h
 #src/app/driver/afe/nxp/mc33775a/vendor/uc_msg_t.c
 #src/app/driver/afe/nxp/mc33775a/vendor/uc_msg_t.h
@@ -297,6 +304,9 @@
 #src/app/driver/ts/semitec/103jt/lookup-table/semitec_103jt_lookup-table.c
 #src/app/driver/ts/semitec/103jt/semitec_103jt.c
 #src/app/driver/ts/semitec/103jt/semitec_103jt.h
+#src/app/driver/ts/tdk/ntcg163jx103dt1s/lookup-table/tdk_ntcg163jx103dt1s_lookup-table.c
+#src/app/driver/ts/tdk/ntcg163jx103dt1s/tdk_ntcg163jx103dt1s.c
+#src/app/driver/ts/tdk/ntcg163jx103dt1s/tdk_ntcg163jx103dt1s.h
 #src/app/driver/ts/tdk/ntcgs103jf103ft8/lookup-table/tdk_ntcgs103jf103ft8_lookup-table.c
 #src/app/driver/ts/tdk/ntcgs103jf103ft8/tdk_ntcgs103jf103ft8.c
 #src/app/driver/ts/tdk/ntcgs103jf103ft8/tdk_ntcgs103jf103ft8.h
@@ -377,4 +387,3 @@ src/app/main/include/main.h
 #src/app/task/os/os.h
 #src/app/task/timer/timer.c
 #src/app/task/timer/timer.h
-#src/version/version.h

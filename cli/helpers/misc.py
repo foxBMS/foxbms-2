@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -41,36 +41,16 @@
 """Miscellaneous helper functions."""
 
 import hashlib
+import json
 import logging
 import os
+from datetime import datetime
 from pathlib import Path
-from typing import Literal, Union
 
-from click import Context
-from click.core import Parameter
+from git import Repo
+from git.exc import GitError
 
-from .env_vars import HOMEDRIVE, LOCALAPPDATA, PROGRAMFILES, USERPROFILE
-from .host_platform import PLATFORM
-
-try:
-    from git import Repo
-    from git.exc import InvalidGitRepositoryError
-
-    HAVE_GIT = True
-except ImportError:
-    HAVE_GIT = False
-
-
-DOS_LINE_ENDING = b"\r\n"
-UNIX_LINE_ENDING = b"\n"
-
-EOL = Literal["dos", "unix"]
-
-EOL_MAP = {
-    "dos": DOS_LINE_ENDING,
-    "unix": UNIX_LINE_ENDING,
-}
-
+from .host_platform import get_platform
 
 #: Modules where logging should be disabled
 DISABLE_LOGGING_FOR_MODULES = ["git"]
@@ -85,14 +65,12 @@ def get_project_root(path: str = ".") -> Path:
     Returns:
         root path of the git repository
     """
-    if HAVE_GIT:
-        try:
-            repo = Repo(path, search_parent_directories=True)
-            root = repo.git.rev_parse("--show-toplevel")
-        except InvalidGitRepositoryError:
-            root = Path(__file__).parent.parent.parent
-    else:
-        root = Path(__file__).parent.parent.parent
+    root = Path(__file__).parent.parent.parent
+    try:
+        repo = Repo(path, search_parent_directories=True)
+        root = repo.git.rev_parse("--show-toplevel")
+    except GitError:
+        pass
     return Path(root)
 
 
@@ -100,70 +78,53 @@ PROJECT_ROOT = get_project_root()
 
 PROJECT_BUILD_ROOT = PROJECT_ROOT / "build"
 
-PATH_FILE = PROJECT_ROOT / f"conf/env/paths_{PLATFORM}.txt"
+PATH_FILE = PROJECT_ROOT / f"conf/env/paths_{get_platform()}.txt"
 
 FOXBMS_ELF_FILE = PROJECT_BUILD_ROOT / "app_embedded/src/app/main/foxbms.elf"
 FOXBMS_BIN_FILE = PROJECT_BUILD_ROOT / "app_embedded/src/app/main/foxbms.bin"
+FOXBMS_APP_CRC_FILE = PROJECT_BUILD_ROOT / "app_embedded/src/app/main/foxbms.crc64.csv"
+FOXBMS_APP_INFO_FILE = (
+    PROJECT_BUILD_ROOT / "app_embedded/src/app/main/foxbms.crc64.json"
+)
 
 APP_DBC_FILE = PROJECT_ROOT / "tools/dbc/foxbms.dbc"
 BOOTLOADER_DBC_FILE = PROJECT_ROOT / "tools/dbc/foxbms-bootloader.dbc"
 
-PATH_REPLACEMENTS = {
-    "$DOT_DIR$": [
-        os.path.join(USERPROFILE, "graphviz"),
-        os.path.join(HOMEDRIVE, "graphviz"),
-    ],
-    "$DOXYGEN_DIR$": [
-        os.path.join(USERPROFILE, "doxygen"),
-        os.path.join(HOMEDRIVE, "doxygen"),
-    ],
-    "$GIT_DIR$": [
-        os.path.join(PROGRAMFILES, "Git"),
-        os.path.join(LOCALAPPDATA, "Programs", "Git"),
-    ],
-}
 
-
-def replace_var(rep: str) -> list[str]:
-    """replace the placeholder in the path with the actual values"""
-    if PLATFORM == "linux":
-        return []
-    for k, v in PATH_REPLACEMENTS.items():
-        if k in rep:
-            tmp = rep.split(k + os.sep)[1]
-            return [os.path.join(path, tmp) for path in v]
-    return []
-
-
-def init_path_var_for_foxbms() -> None:
+def initialize_path_variable_for_foxbms() -> None:
     """Add paths that foxBMS expects to exist to the PATH environment variable.
 
     - If a path do not exist, it is not added to PATH
     - If a path is already on PATH, it is not added to PATH again
     """
-    prepare_config = []
-    for i in PATH_FILE.read_text(encoding="utf-8").splitlines():
-        if any(k for k, _ in PATH_REPLACEMENTS.items() if k in i):
-            prepare_config.extend(replace_var(i))
-        else:
-            prepare_config.append(i)
+
     prepend_to_path = []
-    for i in prepare_config:
+    for i in PATH_FILE.read_text(encoding="utf-8").splitlines():
         if Path(i).is_dir():
             prepend_to_path.append(i)
-    # now we have all entries that should be added
-
     # crate the full path, that might have some duplicates
     full_path = prepend_to_path + os.environ.get("PATH", "").split(os.pathsep)
     # remove duplicates, but keep list order
     new_path_list = list(dict.fromkeys(full_path))
     new_path_list_clean: list[str] = []
     for i in new_path_list:
-        if os.sep + "WindowsApps" in i:
+        if "\\WindowsApps" in i:
             continue
         new_path_list_clean.append(i)
 
     os.environ["PATH"] = os.pathsep.join(new_path_list_clean)
+
+
+def set_other_environment_variables_for_foxbms() -> None:
+    """Sets environment variables accordingly to foxBMS specifications"""
+    tmp = (PROJECT_ROOT / "conf/env/env.json").read_text(encoding="utf-8")
+    env_vars: dict = json.loads(tmp)
+    for var, val in env_vars.items():
+        try:
+            val = val[get_platform()]
+        except (KeyError, TypeError):
+            pass
+        os.environ[var] = val
 
 
 def ignore_third_party_logging() -> None:
@@ -175,7 +136,7 @@ def ignore_third_party_logging() -> None:
 def set_logging_level(
     verbosity: int = 1,
     _format: str = "%(asctime)s File:%(filename)-9s line:%(lineno)-4s %(levelname)-8s %(message)s",
-    datefmt: Union[str, None] = None,
+    datefmt: str | None = None,
 ) -> None:
     """sets the module logging level
 
@@ -202,17 +163,7 @@ def set_logging_level(
     logging.debug("Setting logging level to %s", level)
 
 
-def set_logging_level_cb(ctx: Context, param: Parameter | None, value: int) -> None:
-    """sets the module logging level through a click option callback.
-    Args:
-        ctx: context the callback shall be applied too (unused)
-        param: arguments of the callback (unused)
-        value: arbitrary value passed to the callback (unused)
-    """
-    set_logging_level(verbosity=value)
-
-
-def terminal_link_print(link) -> str:
+def terminal_link_print(link: Path | str) -> str:
     """Prints a clickable link to the terminal
     Args:
         link: hyperlink that should be clickable"""
@@ -251,8 +202,26 @@ def get_multiple_files_hash_str(files: list[Path], buffer_size: int = 65536) -> 
     return file_hash.hexdigest()
 
 
-def convert_eol(file: Path, eol_from: EOL, eol_to: EOL):
-    """Convert EOL of a file"""
+def file_name_from_current_time() -> Path:
+    """Current ISO timestamp in a file system friendly format."""
+    return Path(str(datetime.now().isoformat()).replace(":", "_"))
 
-    out = file.read_bytes().replace(EOL_MAP[eol_from], EOL_MAP[eol_to])
-    file.write_bytes(out)
+
+def create_pre_commit_file() -> None:
+    """Adds a pre-commit file in the .git/hooks directory"""
+    path_dir = PROJECT_ROOT / ".git/hooks"
+    # check if we are in a git repo
+    if not path_dir.is_dir():
+        return
+    text = (
+        "#!/usr/bin/env bash\n"
+        "#\n"
+        'SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"\n'
+        '"$SCRIPTDIR/../../fox.sh" pre-commit run\n'
+    )
+    pre_commit = path_dir / "pre-commit"
+    if pre_commit.is_file():
+        pre_commit_txt = pre_commit.read_text(encoding="utf-8")
+        if pre_commit_txt == text:
+            return
+    pre_commit.write_text(text, encoding="utf-8", newline="\n")

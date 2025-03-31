@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -41,11 +41,11 @@
 
 import sys
 
-if sys.platform.lower() == "linux":
-    PLATFORM = "linux"
+
+def get_platform():
     """String to identify the host platform"""
-elif sys.platform.lower() == "win32":
-    PLATFORM = "win32"
-else:
-    PLATFORM = ""
+    if sys.platform.lower() == "linux":
+        return "linux"
+    if sys.platform.lower() == "win32":
+        return "win32"
     sys.exit("Running on an unsupported platform.")

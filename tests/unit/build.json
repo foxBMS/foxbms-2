@@ -12,8 +12,8 @@
         "src/app/engine/database",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config"
       ],
       "sources": [
@@ -39,8 +39,8 @@
         "src/app/engine/database",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config"
       ],
       "sources": [
@@ -66,8 +66,8 @@
         "src/app/engine/database",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config"
       ],
       "sources": [
@@ -99,8 +99,8 @@
         "src/app/main/include",
         "src/app/task/config",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config"
       ],
       "sources": [
@@ -128,8 +128,8 @@
         "src/app/engine/database",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "test/mocks/test_soc_debug",
         "tests/unit/app/application/config",
         "tests/unit/support"
@@ -154,8 +154,8 @@
         "src/app/engine/database",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config"
       ],
       "sources": [
@@ -185,8 +185,8 @@
         "src/app/main/include",
         "src/app/task/config",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config"
       ],
       "sources": [
@@ -213,8 +213,8 @@
         "src/app/engine/database",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config"
       ],
       "sources": [
@@ -237,8 +237,8 @@
         "src/app/engine/database",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -270,8 +270,8 @@
         "src/app/main/include",
         "src/app/task/config",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config"
       ],
       "sources": [
@@ -298,8 +298,8 @@
         "src/app/engine/database",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -322,8 +322,8 @@
         "src/app/engine/database",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -348,8 +348,8 @@
         "src/app/main/include",
         "src/app/task/config",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -373,8 +373,8 @@
         "src/app/engine/database",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -401,8 +401,8 @@
         "src/app/engine/database",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -436,8 +436,8 @@
         "src/app/main/include",
         "src/app/task/config",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -480,8 +480,8 @@
         "src/app/main/include",
         "src/app/task/config",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -522,8 +522,8 @@
         "src/app/main/include",
         "src/app/task/config",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -579,8 +579,8 @@
         "src/app/main/include",
         "src/app/task/config",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -619,8 +619,8 @@
         "src/app/engine/database",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -643,8 +643,8 @@
         "src/app/engine/database",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -666,8 +666,8 @@
         "src/app/engine/database",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -695,8 +695,8 @@
         "src/app/main/include",
         "src/app/task/config",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -724,8 +724,8 @@
         "src/app/main/include",
         "src/app/task/config",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -757,8 +757,8 @@
         "src/app/main/include",
         "src/app/task/config",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -794,8 +794,8 @@
         "src/app/main/include",
         "src/app/task/config",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -824,8 +824,8 @@
         "src/app/engine/database",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config"
       ],
       "sources": [
@@ -869,8 +869,8 @@
         "src/app/task/config",
         "src/app/task/ftask",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -887,7 +887,6 @@
         "build/app_host_unit_test/mocks/test_adi_ades1830_balancing/Mockpex.c",
         "build/app_host_unit_test/mocks/test_adi_ades1830_balancing/Mockspi.c",
         "build/app_host_unit_test/mocks/test_adi_ades1830_balancing/Mockspi_cfg.c",
-        "build/app_host_unit_test/mocks/test_adi_ades1830_balancing/Mocktask.c",
         "build/app_host_unit_test/mocks/test_adi_ades1830_balancing/Mocktsi.c",
         "build/app_host_unit_test/test/runners/test_adi_ades1830_balancing_runner.c",
         "src/app/driver/afe/adi/ades1830/adi_ades1830_balancing.c",
@@ -930,8 +929,8 @@
         "src/app/task/config",
         "src/app/task/ftask",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config"
       ],
       "sources": [
@@ -971,8 +970,8 @@
         "src/app/engine/database",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -1019,8 +1018,8 @@
         "src/app/task/config",
         "src/app/task/ftask",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "test/mocks/test_adi_ades1830",
         "tests/unit/app/application/config",
         "tests/unit/app/driver/afe/adi/ades1830",
@@ -1051,7 +1050,6 @@
         "build/app_host_unit_test/mocks/test_adi_ades1830/Mockqueue.c",
         "build/app_host_unit_test/mocks/test_adi_ades1830/Mockspi.c",
         "build/app_host_unit_test/mocks/test_adi_ades1830/Mockspi_cfg.c",
-        "build/app_host_unit_test/mocks/test_adi_ades1830/Mocktask.c",
         "build/app_host_unit_test/mocks/test_adi_ades1830/Mocktsi.c",
         "build/app_host_unit_test/test/runners/test_adi_ades1830_runner.c",
         "src/app/driver/afe/adi/ades1830/config/adi_ades1830_cfg.c",
@@ -1087,8 +1085,8 @@
         "src/app/task/config",
         "src/app/task/ftask",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/app/driver/afe/adi/ades1830",
         "tests/unit/support"
@@ -1125,8 +1123,8 @@
         "src/app/task/config",
         "src/app/task/ftask",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/app/driver/afe/adi/ades1830",
         "tests/unit/support"
@@ -1163,8 +1161,8 @@
         "src/app/task/config",
         "src/app/task/ftask",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/app/driver/afe/adi/ades1830",
         "tests/unit/support"
@@ -1202,12 +1200,11 @@
         "src/app/engine/database",
         "src/app/engine/diag",
         "src/app/main/include",
-        "src/app/main/include/config",
         "src/app/task/config",
         "src/app/task/ftask",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/app/driver/afe/adi/ades1830",
         "tests/unit/support"
@@ -1248,8 +1245,8 @@
         "src/app/task/config",
         "src/app/task/ftask",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/app/driver/afe/adi/ades1830",
         "tests/unit/app/driver/afe/adi/ades1830/include",
@@ -1297,8 +1294,8 @@
         "src/app/task/config",
         "src/app/task/ftask",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/app/driver/afe/adi/ades1830",
         "tests/unit/support"
@@ -1341,8 +1338,8 @@
         "src/app/task/config",
         "src/app/task/ftask",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/app/driver/afe/adi/ades1830",
         "tests/unit/support"
@@ -1382,8 +1379,8 @@
         "src/app/task/config",
         "src/app/task/ftask",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/app/driver/afe/adi/ades1830",
         "tests/unit/support"
@@ -1431,8 +1428,8 @@
         "src/app/task/config",
         "src/app/task/ftask",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "test/mocks/test_adi_ades1830_voltages",
         "tests/unit/app/application/config"
       ],
@@ -1440,13 +1437,13 @@
       "sources": [
         "build/app_host_unit_test/mocks/test_adi_ades1830_voltages/Mockadi_ades183x_cfg.c",
         "build/app_host_unit_test/mocks/test_adi_ades1830_voltages/Mockadi_ades183x_diagnostic.c",
+        "build/app_host_unit_test/mocks/test_adi_ades1830_voltages/Mockadi_ades183x_helpers.c",
         "build/app_host_unit_test/mocks/test_adi_ades1830_voltages/Mockos.c",
         "build/app_host_unit_test/mocks/test_adi_ades1830_voltages/Mockspi.c",
         "build/app_host_unit_test/test/runners/test_adi_ades1830_voltages_runner.c",
         "src/app/driver/afe/adi/common/ades183x/adi_ades183x_buffers.c",
         "src/app/driver/afe/adi/common/ades183x/adi_ades183x_commands.c",
         "src/app/driver/afe/adi/common/ades183x/adi_ades183x_commands_voltages.c",
-        "src/app/driver/afe/adi/common/ades183x/adi_ades183x_helpers.c",
         "src/app/driver/afe/adi/common/ades183x/adi_ades183x_voltages.c",
         "src/app/driver/afe/adi/common/ades183x/pec/adi_ades183x_pec.c",
         "tests/unit/app/driver/afe/adi/ades1830/test_adi_ades1830_voltages.c"
@@ -1475,8 +1472,8 @@
         "src/app/engine/database",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -1516,8 +1513,8 @@
         "src/app/task/config",
         "src/app/task/ftask",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -1566,8 +1563,8 @@
         "src/app/engine/database",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -1592,8 +1589,8 @@
         "src/app/engine/database",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -1618,8 +1615,8 @@
         "src/app/engine/database",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -1646,8 +1643,8 @@
         "src/app/engine/database",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -1683,8 +1680,8 @@
         "src/app/task/config",
         "src/app/task/ftask",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -1713,8 +1710,8 @@
         "src/app/engine/database",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -1741,8 +1738,8 @@
         "src/app/engine/database",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -1769,8 +1766,8 @@
         "src/app/engine/diag",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -1800,8 +1797,8 @@
         "src/app/engine/database",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -1836,8 +1833,8 @@
         "src/app/engine/diag",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -1882,8 +1879,8 @@
         "src/app/engine/diag",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -1928,8 +1925,8 @@
         "src/app/engine/database",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -1964,8 +1961,8 @@
         "src/app/engine/diag",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -2015,8 +2012,8 @@
         "src/app/engine/diag",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -2059,8 +2056,8 @@
         "src/app/engine/database",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -2093,8 +2090,8 @@
         "src/app/engine/database",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -2125,8 +2122,8 @@
         "src/app/engine/database",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -2157,8 +2154,8 @@
         "src/app/engine/database",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -2195,8 +2192,8 @@
         "src/app/engine/diag",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -2231,8 +2228,8 @@
         "src/app/engine/database",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -2269,8 +2266,8 @@
         "src/app/engine/diag",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -2314,8 +2311,8 @@
         "src/app/engine/diag",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -2344,8 +2341,8 @@
         "src/app/driver/config",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -2380,8 +2377,8 @@
         "src/app/engine/diag",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -2415,8 +2412,8 @@
         "src/app/engine/database",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -2443,8 +2440,8 @@
         "src/app/engine/database",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -2469,8 +2466,8 @@
         "src/app/engine/database",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -2500,8 +2497,8 @@
         "src/app/engine/database",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -2539,8 +2536,8 @@
         "src/app/engine/diag",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -2582,8 +2579,8 @@
         "src/app/engine/database",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -2620,8 +2617,8 @@
         "src/app/engine/database",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -2662,8 +2659,8 @@
         "src/app/engine/database",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -2701,8 +2698,8 @@
         "src/app/task/config",
         "src/app/task/ftask",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -2714,7 +2711,6 @@
         "build/app_host_unit_test/mocks/test_nxp_afe_dma/Mocknxp_mc33775a.c",
         "build/app_host_unit_test/mocks/test_nxp_afe_dma/Mockos.c",
         "build/app_host_unit_test/mocks/test_nxp_afe_dma/Mockspi.c",
-        "build/app_host_unit_test/mocks/test_nxp_afe_dma/Mocktask.c",
         "build/app_host_unit_test/test/runners/test_nxp_afe_dma_runner.c",
         "src/app/driver/afe/nxp/mc33775a/nxp_afe_dma.c",
         "tests/unit/app/driver/afe/nxp/mc33775a/test_nxp_afe_dma.c"
@@ -2744,8 +2740,8 @@
         "src/app/engine/database",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -2755,7 +2751,6 @@
         "build/app_host_unit_test/mocks/test_nxp_mc33775a-ll/Mockmcu.c",
         "build/app_host_unit_test/mocks/test_nxp_mc33775a-ll/Mockos.c",
         "build/app_host_unit_test/mocks/test_nxp_mc33775a-ll/Mockspi.c",
-        "build/app_host_unit_test/mocks/test_nxp_mc33775a-ll/Mocktask.c",
         "build/app_host_unit_test/test/runners/test_nxp_mc33775a-ll_runner.c",
         "src/app/driver/afe/nxp/mc33775a/nxp_mc33775a-ll.c",
         "src/app/driver/afe/nxp/mc33775a/vendor/uc_msg_t.c",
@@ -2791,8 +2786,8 @@
         "src/app/task/config",
         "src/app/task/ftask",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -2811,7 +2806,231 @@
         "build/app_host_unit_test/mocks/test_nxp_mc33775a/Mockspi.c",
         "build/app_host_unit_test/test/runners/test_nxp_mc33775a_runner.c",
         "src/app/driver/afe/nxp/mc33775a/nxp_mc33775a.c",
+        "src/app/driver/afe/nxp/mc33775a/nxp_mc33775a_balancing.c",
+        "src/app/driver/afe/nxp/mc33775a/nxp_mc33775a_database.c",
+        "src/app/driver/afe/nxp/mc33775a/nxp_mc33775a_i2c.c",
+        "src/app/driver/afe/nxp/mc33775a/nxp_mc33775a_mux.c",
         "tests/unit/app/driver/afe/nxp/mc33775a/test_nxp_mc33775a.c"
+      ]
+    }
+  ],
+  "src/app/driver/afe/nxp/mc33775a/nxp_mc33775a_balancing.c": [
+    {
+      "defines": [
+        "FOXBMS_AFE_DRIVER_NXP=1u",
+        "TEST_BS_NR_OF_CELL_BLOCKS_PER_MODULE=14u"
+      ],
+      "include": [
+        "build/app_host_unit_test/include",
+        "build/app_host_unit_test/mocks/test_nxp_mc33775a_balancing",
+        "src/app/application/config",
+        "src/app/driver/afe/api",
+        "src/app/driver/afe/nxp/mc33775a",
+        "src/app/driver/afe/nxp/mc33775a/config",
+        "src/app/driver/afe/nxp/mc33775a/vendor",
+        "src/app/driver/config",
+        "src/app/driver/dma",
+        "src/app/driver/foxmath",
+        "src/app/driver/io",
+        "src/app/driver/mcu",
+        "src/app/driver/rtc",
+        "src/app/driver/spi",
+        "src/app/engine/config",
+        "src/app/engine/database",
+        "src/app/engine/diag",
+        "src/app/main/include",
+        "src/app/task/config",
+        "src/app/task/ftask",
+        "src/app/task/os",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
+        "tests/unit/app/application/config",
+        "tests/unit/support"
+      ],
+      "sources": [
+        "build/app_host_unit_test/mocks/test_nxp_mc33775a/MockHL_gio.c",
+        "build/app_host_unit_test/mocks/test_nxp_mc33775a/MockHL_system.c",
+        "build/app_host_unit_test/mocks/test_nxp_mc33775a/Mockafe_dma.c",
+        "build/app_host_unit_test/mocks/test_nxp_mc33775a/Mockdatabase.c",
+        "build/app_host_unit_test/mocks/test_nxp_mc33775a/Mockdiag.c",
+        "build/app_host_unit_test/mocks/test_nxp_mc33775a/Mockftask.c",
+        "build/app_host_unit_test/mocks/test_nxp_mc33775a/Mockio.c",
+        "build/app_host_unit_test/mocks/test_nxp_mc33775a/Mockmcu.c",
+        "build/app_host_unit_test/mocks/test_nxp_mc33775a/Mocknxp_mc33775a-ll.c",
+        "build/app_host_unit_test/mocks/test_nxp_mc33775a/Mocknxp_mc33775a_cfg.c",
+        "build/app_host_unit_test/mocks/test_nxp_mc33775a/Mockos.c",
+        "build/app_host_unit_test/mocks/test_nxp_mc33775a/Mockspi.c",
+        "build/app_host_unit_test/test/runners/test_nxp_mc33775a_balancing_runner.c",
+        "src/app/driver/afe/nxp/mc33775a/nxp_mc33775a.c",
+        "src/app/driver/afe/nxp/mc33775a/nxp_mc33775a_balancing.c",
+        "src/app/driver/afe/nxp/mc33775a/nxp_mc33775a_database.c",
+        "src/app/driver/afe/nxp/mc33775a/nxp_mc33775a_i2c.c",
+        "src/app/driver/afe/nxp/mc33775a/nxp_mc33775a_mux.c",
+        "tests/unit/app/driver/afe/nxp/mc33775a/test_nxp_mc33775a_balancing.c"
+      ]
+    }
+  ],
+  "src/app/driver/afe/nxp/mc33775a/nxp_mc33775a_database.c": [
+    {
+      "defines": [
+        "FOXBMS_AFE_DRIVER_NXP=1u",
+        "TEST_BS_NR_OF_CELL_BLOCKS_PER_MODULE=14u"
+      ],
+      "include": [
+        "build/app_host_unit_test/include",
+        "build/app_host_unit_test/mocks/test_nxp_mc33775a_database",
+        "src/app/application/config",
+        "src/app/driver/afe/api",
+        "src/app/driver/afe/nxp/mc33775a",
+        "src/app/driver/afe/nxp/mc33775a/config",
+        "src/app/driver/afe/nxp/mc33775a/vendor",
+        "src/app/driver/config",
+        "src/app/driver/dma",
+        "src/app/driver/foxmath",
+        "src/app/driver/io",
+        "src/app/driver/mcu",
+        "src/app/driver/rtc",
+        "src/app/driver/spi",
+        "src/app/engine/config",
+        "src/app/engine/database",
+        "src/app/engine/diag",
+        "src/app/main/include",
+        "src/app/task/config",
+        "src/app/task/ftask",
+        "src/app/task/os",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
+        "tests/unit/app/application/config",
+        "tests/unit/support"
+      ],
+      "sources": [
+        "build/app_host_unit_test/mocks/test_nxp_mc33775a/MockHL_gio.c",
+        "build/app_host_unit_test/mocks/test_nxp_mc33775a/MockHL_system.c",
+        "build/app_host_unit_test/mocks/test_nxp_mc33775a/Mockafe_dma.c",
+        "build/app_host_unit_test/mocks/test_nxp_mc33775a/Mockdatabase.c",
+        "build/app_host_unit_test/mocks/test_nxp_mc33775a/Mockdiag.c",
+        "build/app_host_unit_test/mocks/test_nxp_mc33775a/Mockftask.c",
+        "build/app_host_unit_test/mocks/test_nxp_mc33775a/Mockio.c",
+        "build/app_host_unit_test/mocks/test_nxp_mc33775a/Mockmcu.c",
+        "build/app_host_unit_test/mocks/test_nxp_mc33775a/Mocknxp_mc33775a-ll.c",
+        "build/app_host_unit_test/mocks/test_nxp_mc33775a/Mocknxp_mc33775a_cfg.c",
+        "build/app_host_unit_test/mocks/test_nxp_mc33775a/Mockos.c",
+        "build/app_host_unit_test/mocks/test_nxp_mc33775a/Mockspi.c",
+        "build/app_host_unit_test/test/runners/test_nxp_mc33775a_database_runner.c",
+        "src/app/driver/afe/nxp/mc33775a/nxp_mc33775a_database.c",
+        "tests/unit/app/driver/afe/nxp/mc33775a/test_nxp_mc33775a_database.c"
+      ]
+    }
+  ],
+  "src/app/driver/afe/nxp/mc33775a/nxp_mc33775a_i2c.c": [
+    {
+      "defines": [
+        "FOXBMS_AFE_DRIVER_NXP=1u",
+        "TEST_BS_NR_OF_CELL_BLOCKS_PER_MODULE=14u"
+      ],
+      "include": [
+        "build/app_host_unit_test/include",
+        "build/app_host_unit_test/mocks/test_nxp_mc33775a_i2c",
+        "src/app/application/config",
+        "src/app/driver/afe/api",
+        "src/app/driver/afe/nxp/mc33775a",
+        "src/app/driver/afe/nxp/mc33775a/config",
+        "src/app/driver/afe/nxp/mc33775a/vendor",
+        "src/app/driver/config",
+        "src/app/driver/dma",
+        "src/app/driver/foxmath",
+        "src/app/driver/io",
+        "src/app/driver/mcu",
+        "src/app/driver/rtc",
+        "src/app/driver/spi",
+        "src/app/engine/config",
+        "src/app/engine/database",
+        "src/app/engine/diag",
+        "src/app/main/include",
+        "src/app/task/config",
+        "src/app/task/ftask",
+        "src/app/task/os",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
+        "tests/unit/app/application/config",
+        "tests/unit/support"
+      ],
+      "sources": [
+        "build/app_host_unit_test/mocks/test_nxp_mc33775a/MockHL_gio.c",
+        "build/app_host_unit_test/mocks/test_nxp_mc33775a/MockHL_system.c",
+        "build/app_host_unit_test/mocks/test_nxp_mc33775a/Mockafe_dma.c",
+        "build/app_host_unit_test/mocks/test_nxp_mc33775a/Mockdatabase.c",
+        "build/app_host_unit_test/mocks/test_nxp_mc33775a/Mockdiag.c",
+        "build/app_host_unit_test/mocks/test_nxp_mc33775a/Mockftask.c",
+        "build/app_host_unit_test/mocks/test_nxp_mc33775a/Mockio.c",
+        "build/app_host_unit_test/mocks/test_nxp_mc33775a/Mockmcu.c",
+        "build/app_host_unit_test/mocks/test_nxp_mc33775a/Mocknxp_mc33775a-ll.c",
+        "build/app_host_unit_test/mocks/test_nxp_mc33775a/Mocknxp_mc33775a_cfg.c",
+        "build/app_host_unit_test/mocks/test_nxp_mc33775a/Mockos.c",
+        "build/app_host_unit_test/mocks/test_nxp_mc33775a/Mockspi.c",
+        "build/app_host_unit_test/test/runners/test_nxp_mc33775a_i2c_runner.c",
+        "src/app/driver/afe/nxp/mc33775a/nxp_mc33775a.c",
+        "src/app/driver/afe/nxp/mc33775a/nxp_mc33775a_balancing.c",
+        "src/app/driver/afe/nxp/mc33775a/nxp_mc33775a_database.c",
+        "src/app/driver/afe/nxp/mc33775a/nxp_mc33775a_i2c.c",
+        "src/app/driver/afe/nxp/mc33775a/nxp_mc33775a_mux.c",
+        "tests/unit/app/driver/afe/nxp/mc33775a/test_nxp_mc33775a_i2c.c"
+      ]
+    }
+  ],
+  "src/app/driver/afe/nxp/mc33775a/nxp_mc33775a_mux.c": [
+    {
+      "defines": [
+        "FOXBMS_AFE_DRIVER_NXP=1u",
+        "TEST_BS_NR_OF_CELL_BLOCKS_PER_MODULE=14u"
+      ],
+      "include": [
+        "build/app_host_unit_test/include",
+        "build/app_host_unit_test/mocks/test_nxp_mc33775a_mux",
+        "src/app/application/config",
+        "src/app/driver/afe/api",
+        "src/app/driver/afe/nxp/mc33775a",
+        "src/app/driver/afe/nxp/mc33775a/config",
+        "src/app/driver/afe/nxp/mc33775a/vendor",
+        "src/app/driver/config",
+        "src/app/driver/dma",
+        "src/app/driver/foxmath",
+        "src/app/driver/io",
+        "src/app/driver/mcu",
+        "src/app/driver/rtc",
+        "src/app/driver/spi",
+        "src/app/engine/config",
+        "src/app/engine/database",
+        "src/app/engine/diag",
+        "src/app/main/include",
+        "src/app/task/config",
+        "src/app/task/ftask",
+        "src/app/task/os",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
+        "tests/unit/app/application/config",
+        "tests/unit/support"
+      ],
+      "sources": [
+        "build/app_host_unit_test/mocks/test_nxp_mc33775a/MockHL_gio.c",
+        "build/app_host_unit_test/mocks/test_nxp_mc33775a/MockHL_system.c",
+        "build/app_host_unit_test/mocks/test_nxp_mc33775a/Mockafe_dma.c",
+        "build/app_host_unit_test/mocks/test_nxp_mc33775a/Mockdatabase.c",
+        "build/app_host_unit_test/mocks/test_nxp_mc33775a/Mockdiag.c",
+        "build/app_host_unit_test/mocks/test_nxp_mc33775a/Mockftask.c",
+        "build/app_host_unit_test/mocks/test_nxp_mc33775a/Mockio.c",
+        "build/app_host_unit_test/mocks/test_nxp_mc33775a/Mockmcu.c",
+        "build/app_host_unit_test/mocks/test_nxp_mc33775a/Mocknxp_mc33775a-ll.c",
+        "build/app_host_unit_test/mocks/test_nxp_mc33775a/Mocknxp_mc33775a_cfg.c",
+        "build/app_host_unit_test/mocks/test_nxp_mc33775a/Mockos.c",
+        "build/app_host_unit_test/mocks/test_nxp_mc33775a/Mockspi.c",
+        "build/app_host_unit_test/test/runners/test_nxp_mc33775a_mux_runner.c",
+        "src/app/driver/afe/nxp/mc33775a/nxp_mc33775a.c",
+        "src/app/driver/afe/nxp/mc33775a/nxp_mc33775a_balancing.c",
+        "src/app/driver/afe/nxp/mc33775a/nxp_mc33775a_database.c",
+        "src/app/driver/afe/nxp/mc33775a/nxp_mc33775a_i2c.c",
+        "src/app/driver/afe/nxp/mc33775a/nxp_mc33775a_mux.c",
+        "tests/unit/app/driver/afe/nxp/mc33775a/test_nxp_mc33775a_mux.c"
       ]
     }
   ],
@@ -2830,8 +3049,8 @@
         "src/app/engine/database",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -2863,8 +3082,8 @@
         "src/app/task/config",
         "src/app/task/ftask",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -2874,7 +3093,6 @@
         "build/app_host_unit_test/mocks/test_ti_bq79xxx_afe_dma/Mockmcu.c",
         "build/app_host_unit_test/mocks/test_ti_bq79xxx_afe_dma/Mockos.c",
         "build/app_host_unit_test/mocks/test_ti_bq79xxx_afe_dma/Mockspi.c",
-        "build/app_host_unit_test/mocks/test_ti_bq79xxx_afe_dma/Mocktask.c",
         "build/app_host_unit_test/test/runners/test_ti_bq79xxx_afe_dma_runner.c",
         "src/app/driver/afe/ti/common/api/ti_bq79xxx_afe_dma.c",
         "tests/unit/app/driver/afe/ti/common/api/test_ti_bq79xxx_afe_dma.c"
@@ -2896,8 +3114,8 @@
         "src/app/engine/database",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -2922,8 +3140,8 @@
         "src/app/engine/database",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -2956,8 +3174,8 @@
         "src/app/task/config",
         "src/app/task/ftask",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "src/version",
         "tests/unit/app/application/config"
       ],
@@ -3002,8 +3220,8 @@
         "src/app/task/config",
         "src/app/task/ftask",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "src/version",
         "tests/unit/app/application/config"
       ],
@@ -3048,8 +3266,8 @@
         "src/app/task/config",
         "src/app/task/ftask",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "src/version",
         "tests/unit/app/application/config"
       ],
@@ -3095,8 +3313,8 @@
         "src/app/main/include",
         "src/app/task/config",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -3132,8 +3350,8 @@
         "src/app/main/include",
         "src/app/task/config",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -3173,8 +3391,8 @@
         "src/app/main/include",
         "src/app/task/config",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -3215,8 +3433,8 @@
         "src/app/task/config",
         "src/app/task/ftask",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -3251,8 +3469,8 @@
         "src/app/task/config",
         "src/app/task/ftask",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -3287,8 +3505,8 @@
         "src/app/main/include",
         "src/app/task/config",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -3311,17 +3529,33 @@
       "include": [
         "build/app_host_unit_test/include",
         "build/app_host_unit_test/mocks/test_can_cbs_rx_debug",
+        "src/app/application/algorithm",
+        "src/app/application/algorithm/config",
+        "src/app/application/algorithm/state_estimation",
+        "src/app/application/algorithm/state_estimation/sof/trapezoid",
+        "src/app/application/bal",
+        "src/app/application/bms",
         "src/app/application/config",
+        "src/app/driver/afe/api",
         "src/app/driver/can",
         "src/app/driver/can/cbs",
         "src/app/driver/can/cbs/rx",
         "src/app/driver/can/cbs/tx-async",
         "src/app/driver/config",
+        "src/app/driver/contactor",
+        "src/app/driver/dma",
         "src/app/driver/foxmath",
         "src/app/driver/fram",
+        "src/app/driver/i2c",
         "src/app/driver/imd",
+        "src/app/driver/interlock",
         "src/app/driver/mcu",
+        "src/app/driver/meas",
         "src/app/driver/rtc",
+        "src/app/driver/sbc",
+        "src/app/driver/sbc/fs8x_driver",
+        "src/app/driver/spi",
+        "src/app/driver/sps",
         "src/app/engine/config",
         "src/app/engine/database",
         "src/app/engine/diag",
@@ -3330,26 +3564,41 @@
         "src/app/task/config",
         "src/app/task/ftask",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
       "sources": [
+        "build/app_host_unit_test/mocks/test_can_cbs_rx_debug/Mockafe.c",
+        "build/app_host_unit_test/mocks/test_can_cbs_rx_debug/Mockalgorithm.c",
+        "build/app_host_unit_test/mocks/test_can_cbs_rx_debug/Mockbal.c",
+        "build/app_host_unit_test/mocks/test_can_cbs_rx_debug/Mockbms.c",
         "build/app_host_unit_test/mocks/test_can_cbs_rx_debug/Mockcan.c",
         "build/app_host_unit_test/mocks/test_can_cbs_rx_debug/Mockcan_cbs_tx_debug-build-configuration.c",
         "build/app_host_unit_test/mocks/test_can_cbs_rx_debug/Mockcan_cbs_tx_debug-response.c",
         "build/app_host_unit_test/mocks/test_can_cbs_rx_debug/Mockcan_cbs_tx_debug-unsupported-multiplexer-values.c",
+        "build/app_host_unit_test/mocks/test_can_cbs_rx_debug/Mockcontactor.c",
         "build/app_host_unit_test/mocks/test_can_cbs_rx_debug/Mockdatabase.c",
         "build/app_host_unit_test/mocks/test_can_cbs_rx_debug/Mockdiag.c",
         "build/app_host_unit_test/mocks/test_can_cbs_rx_debug/Mockfoxmath.c",
         "build/app_host_unit_test/mocks/test_can_cbs_rx_debug/Mockfram.c",
         "build/app_host_unit_test/mocks/test_can_cbs_rx_debug/Mockimd.c",
+        "build/app_host_unit_test/mocks/test_can_cbs_rx_debug/Mockinterlock.c",
+        "build/app_host_unit_test/mocks/test_can_cbs_rx_debug/Mockmcu.c",
+        "build/app_host_unit_test/mocks/test_can_cbs_rx_debug/Mockmeas.c",
         "build/app_host_unit_test/mocks/test_can_cbs_rx_debug/Mockos.c",
         "build/app_host_unit_test/mocks/test_can_cbs_rx_debug/Mockreset.c",
+        "build/app_host_unit_test/mocks/test_can_cbs_rx_debug/Mockrtc.c",
+        "build/app_host_unit_test/mocks/test_can_cbs_rx_debug/Mocksbc.c",
+        "build/app_host_unit_test/mocks/test_can_cbs_rx_debug/Mocksof_trapezoid.c",
+        "build/app_host_unit_test/mocks/test_can_cbs_rx_debug/Mockstate_estimation.c",
+        "build/app_host_unit_test/mocks/test_can_cbs_rx_debug/Mocksys_cfg.c",
         "build/app_host_unit_test/test/runners/test_can_cbs_rx_debug_runner.c",
         "src/app/driver/can/cbs/can_helper.c",
         "src/app/driver/can/cbs/rx/can_cbs_rx_debug.c",
+        "src/app/driver/config/fram_cfg.c",
+        "src/app/engine/sys/sys.c",
         "tests/unit/app/driver/can/cbs/rx/test_can_cbs_rx_debug.c"
       ]
     }
@@ -3374,8 +3623,8 @@
         "src/app/main/include",
         "src/app/task/config",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -3414,8 +3663,8 @@
         "src/app/main/include",
         "src/app/task/config",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -3453,8 +3702,8 @@
         "src/app/task/config",
         "src/app/task/ftask",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "src/version",
         "tests/unit/app/application/config",
         "tests/unit/support"
@@ -3488,8 +3737,8 @@
         "src/app/task/config",
         "src/app/task/ftask",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -3520,8 +3769,8 @@
         "src/app/engine/database",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "src/version",
         "tests/unit/app/application/config",
         "tests/unit/support"
@@ -3531,6 +3780,7 @@
         "build/app_host_unit_test/mocks/test_can_cbs_tx_debug-response/Mockcan_helper.c",
         "build/app_host_unit_test/mocks/test_can_cbs_tx_debug-response/Mockfoxmath.c",
         "build/app_host_unit_test/mocks/test_can_cbs_tx_debug-response/Mockmcu.c",
+        "build/app_host_unit_test/mocks/test_can_cbs_tx_debug-response/Mockos.c",
         "build/app_host_unit_test/mocks/test_can_cbs_tx_debug-response/Mockrtc.c",
         "build/app_host_unit_test/mocks/test_can_cbs_tx_debug-response/Mockutils.c",
         "build/app_host_unit_test/test/runners/test_can_cbs_tx_debug-response_runner.c",
@@ -3560,8 +3810,8 @@
         "src/app/main/include",
         "src/app/task/config",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -3599,8 +3849,8 @@
         "src/app/main/include",
         "src/app/task/config",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -3638,8 +3888,8 @@
         "src/app/main/include",
         "src/app/task/config",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -3681,8 +3931,8 @@
         "src/app/main/include",
         "src/app/task/config",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -3725,8 +3975,8 @@
         "src/app/main/include",
         "src/app/task/config",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -3767,8 +4017,8 @@
         "src/app/main/include",
         "src/app/task/config",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -3808,8 +4058,8 @@
         "src/app/main/include",
         "src/app/task/config",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config"
       ],
       "sources": [
@@ -3850,8 +4100,8 @@
         "src/app/task/config",
         "src/app/task/ftask",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -3897,8 +4147,8 @@
         "src/app/main/include",
         "src/app/task/config",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -3944,8 +4194,8 @@
         "src/app/main/include",
         "src/app/task/config",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -3986,8 +4236,8 @@
         "src/app/main/include",
         "src/app/task/config",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -4027,8 +4277,8 @@
         "src/app/main/include",
         "src/app/task/config",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -4073,8 +4323,8 @@
         "src/app/main/include",
         "src/app/task/config",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -4120,8 +4370,8 @@
         "src/app/main/include",
         "src/app/task/config",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -4167,8 +4417,8 @@
         "src/app/main/include",
         "src/app/task/config",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config"
       ],
       "sources": [
@@ -4212,8 +4462,8 @@
         "src/app/main/include",
         "src/app/task/config",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -4256,8 +4506,8 @@
         "src/app/main/include",
         "src/app/task/config",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -4287,8 +4537,8 @@
         "src/app/engine/database",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -4318,8 +4568,8 @@
         "src/app/task/config",
         "src/app/task/ftask",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -4358,8 +4608,8 @@
         "src/app/task/config",
         "src/app/task/ftask",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -4403,8 +4653,8 @@
         "src/app/task/config",
         "src/app/task/ftask",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -4438,8 +4688,8 @@
         "src/app/engine/database",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config"
       ],
       "sources": [
@@ -4462,8 +4712,8 @@
         "src/app/engine/database",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -4486,8 +4736,8 @@
         "src/app/engine/database",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config"
       ],
       "sources": [
@@ -4509,8 +4759,8 @@
         "src/app/engine/database",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config"
       ],
       "sources": [
@@ -4533,8 +4783,8 @@
         "src/app/engine/database",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config"
       ],
       "sources": [
@@ -4557,8 +4807,8 @@
         "src/app/engine/database",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -4585,13 +4835,14 @@
         "src/app/engine/diag",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config"
       ],
       "sources": [
         "build/app_host_unit_test/mocks/test_contactor/Mockcontactor_cfg.c",
         "build/app_host_unit_test/mocks/test_contactor/Mockdiag.c",
+        "build/app_host_unit_test/mocks/test_contactor/Mockdiag_cfg.c",
         "build/app_host_unit_test/mocks/test_contactor/Mockfassert.c",
         "build/app_host_unit_test/mocks/test_contactor/Mockio.c",
         "build/app_host_unit_test/mocks/test_contactor/Mockmcu.c",
@@ -4615,8 +4866,8 @@
         "src/app/engine/database",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config"
       ],
       "sources": [
@@ -4647,8 +4898,8 @@
         "src/app/task/config",
         "src/app/task/ftask",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -4663,7 +4914,8 @@
         "build/app_host_unit_test/mocks/test_dma/Mocktask.c",
         "build/app_host_unit_test/test/runners/test_dma_runner.c",
         "src/app/driver/dma/dma.c",
-        "tests/unit/app/driver/dma/test_dma.c"
+        "tests/unit/app/driver/dma/test_dma.c",
+        "tests/unit/support/struct_helper.c"
       ]
     }
   ],
@@ -4679,8 +4931,8 @@
         "src/app/engine/database",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config"
       ],
       "sources": [
@@ -4702,8 +4954,8 @@
         "src/app/engine/database",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config"
       ],
       "sources": [
@@ -4731,8 +4983,8 @@
         "src/app/engine/diag",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "src/version",
         "tests/unit/app/application/config",
         "tests/unit/support"
@@ -4741,6 +4993,7 @@
         "build/app_host_unit_test/mocks/test_fram/MockHL_spi.c",
         "build/app_host_unit_test/mocks/test_fram/Mockcrc.c",
         "build/app_host_unit_test/mocks/test_fram/Mockdiag.c",
+        "build/app_host_unit_test/mocks/test_fram/Mockdiag_cfg.c",
         "build/app_host_unit_test/mocks/test_fram/Mockio.c",
         "build/app_host_unit_test/mocks/test_fram/Mockmcu.c",
         "build/app_host_unit_test/mocks/test_fram/Mockspi.c",
@@ -4748,7 +5001,8 @@
         "src/app/driver/config/fram_cfg.c",
         "src/app/driver/config/spi_cfg.c",
         "src/app/driver/fram/fram.c",
-        "tests/unit/app/driver/fram/test_fram.c"
+        "tests/unit/app/driver/fram/test_fram.c",
+        "tests/unit/support/struct_helper.c"
       ]
     }
   ],
@@ -4765,8 +5019,8 @@
         "src/app/engine/database",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -4797,8 +5051,8 @@
         "src/app/engine/diag",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -4807,7 +5061,6 @@
         "build/app_host_unit_test/mocks/test_i2c/MockHL_sys_dma.c",
         "build/app_host_unit_test/mocks/test_i2c/Mockmcu.c",
         "build/app_host_unit_test/mocks/test_i2c/Mockos.c",
-        "build/app_host_unit_test/mocks/test_i2c/Mocktask.c",
         "build/app_host_unit_test/test/runners/test_i2c_runner.c",
         "src/app/driver/i2c/i2c.c",
         "tests/unit/app/driver/i2c/test_i2c.c"
@@ -4835,8 +5088,8 @@
         "src/app/task/config",
         "src/app/task/ftask",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -4873,8 +5126,8 @@
         "src/app/task/config",
         "src/app/task/ftask",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -4912,8 +5165,8 @@
         "src/app/task/config",
         "src/app/task/ftask",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -4952,8 +5205,8 @@
         "src/app/task/config",
         "src/app/task/ftask",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -4984,8 +5237,8 @@
         "src/app/task/config",
         "src/app/task/ftask",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -5012,8 +5265,8 @@
         "src/app/engine/diag",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -5042,8 +5295,8 @@
         "src/app/engine/database",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -5069,8 +5322,8 @@
         "src/app/main/include",
         "src/app/task/config",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -5095,8 +5348,8 @@
         "src/app/engine/database",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -5120,8 +5373,8 @@
         "src/app/engine/database",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -5149,14 +5402,15 @@
         "src/app/engine/hw_info",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config"
       ],
       "sources": [
         "build/app_host_unit_test/mocks/test_pex/MockHL_i2c.c",
         "build/app_host_unit_test/mocks/test_pex/Mockdatabase.c",
         "build/app_host_unit_test/mocks/test_pex/Mockdiag.c",
+        "build/app_host_unit_test/mocks/test_pex/Mockdiag_cfg.c",
         "build/app_host_unit_test/mocks/test_pex/Mocki2c.c",
         "build/app_host_unit_test/mocks/test_pex/Mockos.c",
         "build/app_host_unit_test/mocks/test_pex/Mockportmacro.c",
@@ -5180,8 +5434,8 @@
         "src/app/engine/database",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config"
       ],
       "sources": [
@@ -5210,8 +5464,8 @@
         "src/app/task/config",
         "src/app/task/ftask",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -5248,8 +5502,8 @@
         "src/app/engine/hw_info",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config"
       ],
       "sources": [
@@ -5287,8 +5541,8 @@
         "src/app/main/include",
         "src/app/task/config",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config"
       ],
       "sources": [
@@ -5322,9 +5576,10 @@
         "src/app/engine/database",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
-        "tests/unit/app/application/config"
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
+        "tests/unit/app/application/config",
+        "tests/unit/support"
       ],
       "sources": [
         "build/app_host_unit_test/mocks/test_spi/MockHL_spi.c",
@@ -5336,7 +5591,8 @@
         "build/app_host_unit_test/mocks/test_spi/Mockspi_cfg.c",
         "build/app_host_unit_test/test/runners/test_spi_runner.c",
         "src/app/driver/spi/spi.c",
-        "tests/unit/app/driver/spi/test_spi.c"
+        "tests/unit/app/driver/spi/test_spi.c",
+        "tests/unit/support/struct_helper.c"
       ]
     },
     {
@@ -5356,9 +5612,10 @@
         "src/app/engine/database",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
-        "tests/unit/app/application/config"
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
+        "tests/unit/app/application/config",
+        "tests/unit/support"
       ],
       "runner-alias": "spi_adi",
       "sources": [
@@ -5371,7 +5628,8 @@
         "build/app_host_unit_test/mocks/test_spi_adi/Mockspi_cfg.c",
         "build/app_host_unit_test/test/runners/test_spi_adi_runner.c",
         "src/app/driver/spi/spi.c",
-        "tests/unit/app/driver/spi/test_spi_adi.c"
+        "tests/unit/app/driver/spi/test_spi_adi.c",
+        "tests/unit/support/struct_helper.c"
       ]
     },
     {
@@ -5391,9 +5649,10 @@
         "src/app/engine/database",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
-        "tests/unit/app/application/config"
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
+        "tests/unit/app/application/config",
+        "tests/unit/support"
       ],
       "runner-alias": "spi_debug",
       "sources": [
@@ -5406,7 +5665,8 @@
         "build/app_host_unit_test/mocks/test_spi_debug/Mockspi_cfg.c",
         "build/app_host_unit_test/test/runners/test_spi_debug_runner.c",
         "src/app/driver/spi/spi.c",
-        "tests/unit/app/driver/spi/test_spi_debug.c"
+        "tests/unit/app/driver/spi/test_spi_debug.c",
+        "tests/unit/support/struct_helper.c"
       ]
     },
     {
@@ -5426,9 +5686,10 @@
         "src/app/engine/database",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
-        "tests/unit/app/application/config"
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
+        "tests/unit/app/application/config",
+        "tests/unit/support"
       ],
       "runner-alias": "spi_ltc",
       "sources": [
@@ -5441,7 +5702,8 @@
         "build/app_host_unit_test/mocks/test_spi_ltc/Mockspi_cfg.c",
         "build/app_host_unit_test/test/runners/test_spi_ltc_runner.c",
         "src/app/driver/spi/spi.c",
-        "tests/unit/app/driver/spi/test_spi_ltc.c"
+        "tests/unit/app/driver/spi/test_spi_ltc.c",
+        "tests/unit/support/struct_helper.c"
       ]
     },
     {
@@ -5462,9 +5724,10 @@
         "src/app/engine/database",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
-        "tests/unit/app/application/config"
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
+        "tests/unit/app/application/config",
+        "tests/unit/support"
       ],
       "runner-alias": "spi_mxm",
       "sources": [
@@ -5477,7 +5740,8 @@
         "build/app_host_unit_test/mocks/test_spi_mxm/Mockspi_cfg.c",
         "build/app_host_unit_test/test/runners/test_spi_mxm_runner.c",
         "src/app/driver/spi/spi.c",
-        "tests/unit/app/driver/spi/test_spi_mxm.c"
+        "tests/unit/app/driver/spi/test_spi_mxm.c",
+        "tests/unit/support/struct_helper.c"
       ]
     },
     {
@@ -5498,9 +5762,10 @@
         "src/app/engine/database",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
-        "tests/unit/app/application/config"
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
+        "tests/unit/app/application/config",
+        "tests/unit/support"
       ],
       "runner-alias": "spi_nxp",
       "sources": [
@@ -5513,7 +5778,8 @@
         "build/app_host_unit_test/mocks/test_spi_nxp/Mockspi_cfg.c",
         "build/app_host_unit_test/test/runners/test_spi_nxp_runner.c",
         "src/app/driver/spi/spi.c",
-        "tests/unit/app/driver/spi/test_spi_nxp.c"
+        "tests/unit/app/driver/spi/test_spi_nxp.c",
+        "tests/unit/support/struct_helper.c"
       ]
     },
     {
@@ -5534,9 +5800,10 @@
         "src/app/engine/database",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
-        "tests/unit/app/application/config"
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
+        "tests/unit/app/application/config",
+        "tests/unit/support"
       ],
       "runner-alias": "spi_st",
       "sources": [
@@ -5549,7 +5816,8 @@
         "build/app_host_unit_test/mocks/test_spi_ti/Mockspi_cfg.c",
         "build/app_host_unit_test/test/runners/test_spi_st_runner.c",
         "src/app/driver/spi/spi.c",
-        "tests/unit/app/driver/spi/test_spi_st.c"
+        "tests/unit/app/driver/spi/test_spi_st.c",
+        "tests/unit/support/struct_helper.c"
       ]
     },
     {
@@ -5570,9 +5838,10 @@
         "src/app/engine/database",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
-        "tests/unit/app/application/config"
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
+        "tests/unit/app/application/config",
+        "tests/unit/support"
       ],
       "runner-alias": "spi_ti",
       "sources": [
@@ -5585,7 +5854,8 @@
         "build/app_host_unit_test/mocks/test_spi_ti/Mockspi_cfg.c",
         "build/app_host_unit_test/test/runners/test_spi_ti_runner.c",
         "src/app/driver/spi/spi.c",
-        "tests/unit/app/driver/spi/test_spi_ti.c"
+        "tests/unit/app/driver/spi/test_spi_ti.c",
+        "tests/unit/support/struct_helper.c"
       ]
     }
   ],
@@ -5606,8 +5876,8 @@
         "src/app/engine/database",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config"
       ],
       "sources": [
@@ -5639,8 +5909,8 @@
         "src/app/driver/ts/api",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config"
       ],
       "sources": [
@@ -5664,8 +5934,8 @@
         "src/app/engine/database",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config"
       ],
       "sources": [
@@ -5689,8 +5959,8 @@
         "src/app/engine/database",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -5716,8 +5986,8 @@
         "src/app/engine/database",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -5743,8 +6013,8 @@
         "src/app/engine/database",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -5770,8 +6040,8 @@
         "src/app/engine/database",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -5797,8 +6067,8 @@
         "src/app/engine/database",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -5825,8 +6095,8 @@
         "src/app/engine/database",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -5851,8 +6121,8 @@
         "src/app/engine/database",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -5876,8 +6146,8 @@
         "src/app/engine/database",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -5902,8 +6172,8 @@
         "src/app/engine/database",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -5929,8 +6199,8 @@
         "src/app/engine/database",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -5956,8 +6226,8 @@
         "src/app/engine/database",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config"
       ],
       "sources": [
@@ -5982,8 +6252,8 @@
         "src/app/engine/database",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -6009,8 +6279,8 @@
         "src/app/engine/database",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -6036,8 +6306,8 @@
         "src/app/engine/database",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config"
       ],
       "sources": [
@@ -6062,8 +6332,8 @@
         "src/app/engine/database",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -6089,8 +6359,8 @@
         "src/app/engine/database",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config"
       ],
       "sources": [
@@ -6098,6 +6368,59 @@
         "src/app/driver/foxmath/foxmath.c",
         "src/app/driver/ts/tdk/ntcgs103jf103ft8/tdk_ntcgs103jf103ft8.c",
         "tests/unit/app/driver/ts/tdk/ntcgs103jf103ft8/test_tdk_ntcgs103jf103ft8.c"
+      ]
+    }
+  ],
+  "src/app/driver/ts/tdk/ntcg163jx103dt1s/lookup-table/tdk_ntcg163jx103dt1s_lookup-table.c": [
+    {
+      "include": [
+        "build/app_host_unit_test/include",
+        "build/app_host_unit_test/mocks/test_tdk_ntcg163jx103dt1s_lookup-table",
+        "src/app/application/config",
+        "src/app/driver/foxmath",
+        "src/app/driver/mcu",
+        "src/app/driver/ts/api",
+        "src/app/driver/ts/tdk/ntcg163jx103dt1s",
+        "src/app/engine/config",
+        "src/app/engine/database",
+        "src/app/main/include",
+        "src/app/task/os",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
+        "tests/unit/app/application/config",
+        "tests/unit/support"
+      ],
+      "sources": [
+        "build/app_host_unit_test/mocks/test_tdk_ntcg163jx103dt1s_lookup-table/Mocktdk_ntcg163jx103dt1s.c",
+        "build/app_host_unit_test/test/runners/test_tdk_ntcg163jx103dt1s_lookup-table_runner.c",
+        "src/app/driver/ts/tdk/ntcg163jx103dt1s/lookup-table/tdk_ntcg163jx103dt1s_lookup-table.c",
+        "tests/unit/app/driver/ts/tdk/ntcg163jx103dt1s/lookup-table/test_tdk_ntcg163jx103dt1s_lookup-table.c"
+      ]
+    }
+  ],
+  "src/app/driver/ts/tdk/ntcg163jx103dt1s/tdk_ntcg163jx103dt1s.c": [
+    {
+      "include": [
+        "build/app_host_unit_test/include",
+        "build/app_host_unit_test/mocks/test_tdk_ntcg163jx103dt1s",
+        "src/app/application/config",
+        "src/app/driver/foxmath",
+        "src/app/driver/mcu",
+        "src/app/driver/ts",
+        "src/app/driver/ts/tdk/ntcg163jx103dt1s",
+        "src/app/engine/config",
+        "src/app/engine/database",
+        "src/app/main/include",
+        "src/app/task/os",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
+        "tests/unit/app/application/config"
+      ],
+      "sources": [
+        "build/app_host_unit_test/test/runners/test_tdk_ntcg163jx103dt1s_runner.c",
+        "src/app/driver/foxmath/foxmath.c",
+        "src/app/driver/ts/tdk/ntcg163jx103dt1s/tdk_ntcg163jx103dt1s.c",
+        "tests/unit/app/driver/ts/tdk/ntcg163jx103dt1s/test_tdk_ntcg163jx103dt1s.c"
       ]
     }
   ],
@@ -6115,8 +6438,8 @@
         "src/app/engine/database",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -6142,8 +6465,8 @@
         "src/app/engine/database",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -6169,8 +6492,8 @@
         "src/app/engine/database",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -6196,8 +6519,8 @@
         "src/app/engine/database",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -6223,8 +6546,8 @@
         "src/app/engine/database",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -6250,8 +6573,8 @@
         "src/app/engine/database",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -6277,8 +6600,8 @@
         "src/app/engine/database",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -6301,8 +6624,8 @@
         "src/app/engine/database",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -6325,8 +6648,8 @@
         "src/app/engine/diag/cbs",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -6352,8 +6675,8 @@
         "src/app/engine/database",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -6380,8 +6703,8 @@
         "src/app/main/include",
         "src/app/task/config",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config"
       ],
       "sources": [
@@ -6406,8 +6729,8 @@
         "src/app/task/config",
         "src/app/task/ftask",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config"
       ],
       "sources": [
@@ -6433,8 +6756,8 @@
         "src/app/engine/database",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -6460,8 +6783,8 @@
         "src/app/engine/diag/cbs",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -6485,8 +6808,8 @@
         "src/app/engine/diag/cbs",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -6510,8 +6833,8 @@
         "src/app/engine/diag/cbs",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -6535,8 +6858,8 @@
         "src/app/engine/diag/cbs",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -6560,8 +6883,8 @@
         "src/app/engine/diag/cbs",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -6585,8 +6908,8 @@
         "src/app/engine/diag/cbs",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -6610,8 +6933,8 @@
         "src/app/engine/diag/cbs",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -6635,8 +6958,8 @@
         "src/app/engine/diag/cbs",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -6662,8 +6985,8 @@
         "src/app/engine/diag/cbs",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -6689,8 +7012,8 @@
         "src/app/engine/diag/cbs",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -6714,8 +7037,8 @@
         "src/app/engine/diag/cbs",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -6739,8 +7062,8 @@
         "src/app/engine/diag/cbs",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -6764,8 +7087,8 @@
         "src/app/engine/diag/cbs",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -6789,8 +7112,8 @@
         "src/app/engine/diag/cbs",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -6814,8 +7137,8 @@
         "src/app/engine/diag/cbs",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -6839,8 +7162,8 @@
         "src/app/engine/diag/cbs",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -6864,8 +7187,8 @@
         "src/app/engine/diag/cbs",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -6889,8 +7212,8 @@
         "src/app/engine/diag/cbs",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -6914,8 +7237,8 @@
         "src/app/engine/diag/cbs",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -6940,8 +7263,8 @@
         "src/app/engine/diag/cbs",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -6965,8 +7288,8 @@
         "src/app/engine/diag/cbs",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -6993,8 +7316,8 @@
         "src/app/main/include",
         "src/app/task/os",
         "src/app/task/timer",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -7023,8 +7346,8 @@
         "src/app/engine/hw_info",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -7049,8 +7372,8 @@
         "src/app/engine/sys",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -7093,8 +7416,8 @@
         "src/app/main/include",
         "src/app/task/config",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -7139,8 +7462,8 @@
         "src/app/engine/sys_mon",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -7167,8 +7490,8 @@
         "src/app/engine/database",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -7203,8 +7526,8 @@
         "src/app/engine/database",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/app/main/helper",
         "tests/unit/support"
@@ -7251,8 +7574,8 @@
         "src/app/engine/hw_info",
         "src/app/main/include",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -7326,8 +7649,8 @@
         "src/app/task/config",
         "src/app/task/ftask",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -7386,8 +7709,8 @@
         "src/app/task/config",
         "src/app/task/ftask",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -7446,8 +7769,8 @@
         "src/app/task/config",
         "src/app/task/ftask",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -7506,8 +7829,8 @@
         "src/app/task/config",
         "src/app/task/ftask",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],
@@ -7544,8 +7867,8 @@
         "src/app/task/config",
         "src/app/task/ftask",
         "src/app/task/os",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config"
       ],
       "sources": [
@@ -7583,13 +7906,14 @@
         "src/app/task/ftask",
         "src/app/task/os",
         "src/app/task/timer",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config"
       ],
       "sources": [
         "build/app_host_unit_test/mocks/test_timer/Mockftask.c",
-        "build/app_host_unit_test/mocks/test_timer/Mockmpu_prototypes.c",
+        "build/app_host_unit_test/mocks/test_timer/Mocktask.c",
+        "build/app_host_unit_test/mocks/test_timer/Mocktimers.c",
         "build/app_host_unit_test/test/runners/test_timer_runner.c",
         "src/app/task/timer/timer.c",
         "tests/unit/app/task/timer/test_timer.c"
@@ -7606,8 +7930,8 @@
         "src/app/main/include",
         "src/app/task/os",
         "src/opt/cells/config",
-        "src/os/freertos/include",
-        "src/os/freertos/portable/ccs/arm_cortex-r5",
+        "src/os/freertos/freertos/include",
+        "src/os/freertos/freertos/portable/ccs/arm_cortex-r5",
         "tests/unit/app/application/config",
         "tests/unit/support"
       ],

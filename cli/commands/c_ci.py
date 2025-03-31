@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -47,13 +47,10 @@ import click
 from ..cmd_ci.check_ci_config import check_ci_config
 from ..cmd_ci.check_coverage import check_coverage
 from ..cmd_ci.create_readme import create_readme
-from ..cmd_cli_unittest.cli_unittest_constants import CliUnitTestVariants
 from ..cmd_embedded_ut.embedded_ut_constants import EmbeddedUnitTestVariants
+from ..helpers.click_helpers import HELP_NAMES, IGNORE_UNKNOWN_OPTIONS, verbosity_option
 
-CONTEXT_SETTINGS = {
-    "help_option_names": ["-h", "--help"],
-    "ignore_unknown_options": True,
-}
+CONTEXT_SETTINGS = HELP_NAMES | IGNORE_UNKNOWN_OPTIONS
 
 
 @click.group(context_settings=CONTEXT_SETTINGS, hidden=True)
@@ -65,18 +62,15 @@ def ci() -> None:
 
 @ci.command("create-readme")
 @click.pass_context
-def cmd_create_readme(
-    ctx: click.Context,
-) -> None:
+def cmd_create_readme(ctx: click.Context) -> None:
     """Create the CI readme."""
     ctx.exit(create_readme())
 
 
 @ci.command("check-ci-config")
+@verbosity_option
 @click.pass_context
-def cmd_check_ci_config(
-    ctx: click.Context,
-) -> None:
+def cmd_check_ci_config(ctx: click.Context, verbose: int = 0) -> None:
     """Validate the CI configuration file."""
     ctx.exit(check_ci_config())
 
@@ -84,15 +78,15 @@ def cmd_check_ci_config(
 @ci.command("check-coverage")
 @click.option(
     "--project",
-    type=click.Choice(
-        get_args(EmbeddedUnitTestVariants) + get_args(CliUnitTestVariants)
-    ),
+    type=click.Choice(get_args(EmbeddedUnitTestVariants)),
     default="app",
 )
+@verbosity_option
 @click.pass_context
 def cmd_check_coverage(
     ctx: click.Context,
-    project: str,
+    project: EmbeddedUnitTestVariants,
+    verbose: int = 0,
 ) -> None:
     """Check the unit test coverage."""
     ctx.exit(check_coverage(project))

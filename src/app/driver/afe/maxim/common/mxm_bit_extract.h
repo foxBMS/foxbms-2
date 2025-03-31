@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    mxm_bit_extract.h
  * @author  foxBMS Team
  * @date    2019-01-15 (date of creation)
- * @updated 2024-12-20 (date of last update)
- * @version v1.8.0
+ * @updated 2025-03-31 (date of last update)
+ * @version v1.9.0
  * @ingroup DRIVERS
  * @prefix  MXM
  *
@@ -156,14 +156,14 @@ extern MXM_41B_REG_BIT_VALUE mxm_41bWriteValue(
     uint8_t reg);
 
 /**
- * @brief       read a value from a register supplied as variable
- * @details     This function takes a register (reg), and extracts the data
- *              described by its length in bits (numberOfBits) and position
- *              (pos). This value is then returned.
+ * @brief   read a value from a register supplied as variable
+ * @details This function takes a register (reg), and extracts the data
+ *          described by its length in bits (numberOfBits) and position
+ *          (pos). This value is then returned.
  * @param[in]   reg             value of the register to be read
  * @param[in]   numberOfBits    length of the bit sequence in bits
  * @param[in]   position        start position of the bit sequence
- * @returns     the isolated and shifted bit value
+ * @return  the isolated and shifted bit value
  */
 extern MXM_41B_REG_BIT_VALUE mxm_41bReadValue(uint8_t reg, uint8_t numberOfBits, MXM_41B_REG_BITS position);
 

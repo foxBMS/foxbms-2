@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -42,10 +42,10 @@ files"""
 
 import json
 import logging
-import sys
 import shutil
-from subprocess import Popen, PIPE
+import sys
 from pathlib import Path
+from subprocess import PIPE, Popen
 
 
 def get_repo_root():

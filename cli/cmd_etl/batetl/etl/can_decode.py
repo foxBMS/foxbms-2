@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -40,9 +40,10 @@
 """Filters CAN messages"""
 
 import logging
-from pathlib import Path
+from typing import Any
 
 from cantools import database
+from cantools.database.can.database import Database
 from cantools.database.can.signal import Signal
 
 
@@ -56,20 +57,14 @@ class CANDecode:  # pylint: disable=too-few-public-methods
     """
 
     def __init__(
-        self, dbc: str, timestamp_pos: int, id_pos: int, data_pos: int
+        self, dbc: Database, timestamp_pos: int, id_pos: int, data_pos: int
     ) -> None:
-        try:
-            self._database = database.load_file(
-                Path(dbc), database_format="dbc", encoding="utf-8"
-            )
-        except database.UnsupportedDatabaseFormatError:
-            logging.error("Invalid DBC file")
-            raise SystemExit(1) from None
+        self._database = dbc
         self._timestamp_pos = timestamp_pos
         self._id_pos = id_pos
         self._data_pos = data_pos
 
-    def decode_msg(self, msg: str) -> tuple[int, str] | tuple[None, None]:
+    def decode_msg(self, msg: str) -> tuple[str, str] | tuple[None, None]:
         """Method to the decoded passed CAN messages.
 
         :param msg: CAN message as string
@@ -109,7 +104,7 @@ class CANDecode:  # pylint: disable=too-few-public-methods
         data = bytes.fromhex(
             " ".join(msg_parts[self._data_pos : can_message.length + self._data_pos])
         )
-        decoded_data = self._database.decode_message(msg_id, data)
+        decoded_data: Any = self._database.decode_message(msg_id, data)
         timestamp_format = f'"Timestamp": {msg_parts[self._timestamp_pos]}'
         if can_message.is_multiplexed():
             decoded_signals = list(decoded_data.keys())
@@ -120,6 +115,7 @@ class CANDecode:  # pylint: disable=too-few-public-methods
                 if signal.name in decoded_signals and not signal.is_multiplexer
             ]
             data_format = CANDecode._data_format(msg_id, signal_list, decoded_data)
+            # Double quotes of json objects have to be escaped with multiple {}
             return can_message.name, "{{{},{}}}\n".format(  # pylint: disable=consider-using-f-string
                 timestamp_format,
                 data_format,
@@ -128,11 +124,12 @@ class CANDecode:  # pylint: disable=too-few-public-methods
         signal_list = can_message.signals
         # pass a list with can signal objects
         data_format = CANDecode._data_format(msg_id, signal_list, decoded_data)
+        # Double quotes of json objects have to be escaped with multiple {}
         return can_message.name, "{{{},{}}}\n".format(timestamp_format, data_format)  # pylint: disable=consider-using-f-string
 
     @staticmethod
     def _data_format(
-        msg_id: int, signals: list[Signal], decoded_data: dict[str, str]
+        msg_id: int, signals: list[Signal], decoded_data: dict[str, float]
     ) -> str:
         """returns the decoded CAN data as comma separated string compatible
         to json object notation

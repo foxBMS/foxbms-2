@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -99,20 +99,18 @@ def compare_header(
     """compares to lists of strings"""
     err = 0
     if not len(actual) >= end:
-        print(
-            f"{file_name.as_posix()}: License header is not correct.", file=sys.stderr
-        )
+        msg = f"{file_name.as_posix()}: License header is not correct."
+        print(msg, file=sys.stderr)
         err += 1
 
     if not actual[start:end] == expected:
-        print(
-            f"{file_name.as_posix()}: License header is not correct.", file=sys.stderr
-        )
+        msg = f"{file_name.as_posix()}: License header is not correct."
+        print(msg, file=sys.stderr)
         print("The following lines differ", file=sys.stderr)
         for i, (e, a) in enumerate(zip(expected, actual)):
             if not e == a:
-                print(f"Line {i+1}: Expected: '{e}'", file=sys.stderr)
-                print(f"Line {i+1}: Actual:   '{a}'", file=sys.stderr)
+                print(f"Line {i + 1}: Expected: '{e}'", file=sys.stderr)
+                print(f"Line {i + 1}: Actual:   '{a}'", file=sys.stderr)
         err += 1
     return err
 
@@ -122,11 +120,11 @@ def check_asm(files: Sequence[str], license_type: LicenseTypes = "confidential")
     err = 0
     prolog = [
         # pylint: disable-next=line-too-long
-        "; @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.",
+        "; @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.",
         "; All rights reserved.",
         ";",
     ]
-    epilog = []
+    epilog: list[str] = []
     char = "; "
     txt = []
     for i in LICENSE_TYPE_TO_LICENSE_BASE_TEXT.get(license_type, "confidential"):
@@ -153,7 +151,7 @@ def check_c(files: Sequence[str], license_type: LicenseTypes = "confidential") -
         "/**",
         " *",
         # pylint: disable-next=line-too-long
-        " * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.",
+        " * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.",
         " * All rights reserved.",
         " *",
     ]
@@ -183,7 +181,7 @@ def check_py(files: Sequence[str], license_type: LicenseTypes = "confidential") 
     prolog = [
         "#",
         # pylint: disable-next=line-too-long
-        "# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.",
+        "# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.",
         "# All rights reserved.",
         "#",
     ]
@@ -213,7 +211,7 @@ def check_yaml(
     err = 0
     prolog = [
         # pylint: disable-next=line-too-long
-        "# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.",
+        "# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.",
         "# All rights reserved.",
         "#",
     ]
@@ -252,36 +250,6 @@ def check_pwsh(
     return check_py(files, license_type)
 
 
-def check_batch(
-    files: Sequence[str], license_type: LicenseTypes = "confidential"
-) -> int:
-    """Check batch scripts"""
-    err = 0
-    prolog = [
-        # pylint: disable-next=line-too-long
-        "@REM Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.",
-        "@REM All rights reserved.",
-        "@REM",
-    ]
-    char = "@REM "
-    txt = []
-    for i in LICENSE_TYPE_TO_LICENSE_BASE_TEXT.get(license_type, "confidential"):
-        txt.append((char + i.replace("®", "&reg;")).rstrip())
-    license_text = prolog + txt
-    start = 0
-    end = start + len(license_text)
-    for i in files:
-        tmp = Path(i).read_text(encoding="utf-8").splitlines()
-        err += compare_header(
-            file_name=Path(i),
-            expected=license_text,
-            actual=tmp,
-            start=start,
-            end=end,
-        )
-    return err
-
-
 def check_shell(
     files: Sequence[str], license_type: LicenseTypes = "confidential"
 ) -> int:
@@ -302,7 +270,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument(
         "--file-type",
         default="c",
-        choices=["asm", "batch", "c", "dot", "pwsh", "py", "shell", "toml", "yaml"],
+        choices=["asm", "c", "dot", "pwsh", "py", "shell", "toml", "yaml"],
         help="File type",
     )
     parser.add_argument("files", nargs="*", help="Files to check")

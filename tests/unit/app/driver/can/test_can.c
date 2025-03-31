@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_can.c
  * @author  foxBMS Team
  * @date    2020-04-01 (date of creation)
- * @updated 2024-12-20 (date of last update)
- * @version v1.8.0
+ * @updated 2025-03-31 (date of last update)
+ * @version v1.9.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -96,6 +96,17 @@ TEST_INCLUDE_PATH("../../src/app/task/ftask")
 TEST_INCLUDE_PATH("../../src/version")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
+
+/* defines in can.c */
+/** ID shift for standard identifier */
+#define CAN_IF2ARB_STANDARD_IDENTIFIER_SHIFT (18u)
+/** ID shift for extended identifier */
+#define CAN_IF2ARB_EXTENDED_IDENTIFIER_SHIFT (0u)
+#define CAN_IF2ARB_SET_TX_DIRECTION          ((uint32)1u << 29u)
+/** IF2ARB use standard identifier */
+#define CAN_IF2ARB_USE_STANDARD_IDENTIFIER ((uint32)0u << 30u)
+/** IF2ARB use extended identifier */
+#define CAN_IF2ARB_USE_EXTENDED_IDENTIFIER ((uint32)1u << 30u)
 
 /* see src/app/driver/config/can_cfg_rx-message-definitions.h, but we omit
    this include here */
@@ -238,17 +249,11 @@ void tearDown(void) {
 /*========== Test Cases =====================================================*/
 void testDataSendNullPointerAsNode(void) {
     uint8_t data = 0;
-    canIsTxMessagePending_IgnoreAndReturn(0u);
-    canUpdateID_Ignore();
-    canTransmit_IgnoreAndReturn(0u);
     TEST_ASSERT_FAIL_ASSERT(CAN_DataSend(NULL_PTR, 0u, CAN_STANDARD_IDENTIFIER_11_BIT, &data));
 }
 
 void testDataSendNullPointerAsData(void) {
     CAN_NODE_s node = {0};
-    canIsTxMessagePending_IgnoreAndReturn(0u);
-    canUpdateID_Ignore();
-    canTransmit_IgnoreAndReturn(0u);
     TEST_ASSERT_FAIL_ASSERT(CAN_DataSend(&node, 0u, CAN_STANDARD_IDENTIFIER_11_BIT, NULL_PTR));
 }
 
@@ -256,9 +261,13 @@ void testDataSendNoMessagePending(void) {
     CAN_NODE_s *pNode = CAN_NODE_2;
     uint8_t data      = 0;
 
-    canIsTxMessagePending_IgnoreAndReturn(1u);
+    for (uint8_t messages = 0u; messages < 16u; messages++) {
+        for (uint8_t messageBox = 1u; messageBox <= CAN_NR_OF_TX_MESSAGE_BOX; messageBox++) {
+            canIsTxMessagePending_ExpectAndReturn(pNode->canNodeRegister, messageBox, 1u);
+        }
+    }
 
-    for (uint8_t i = 0u; i < 32; i++) {
+    for (uint8_t i = 0u; i < 32; i += 2) {
         TEST_ASSERT_EQUAL(STD_NOT_OK, CAN_DataSend(pNode, i, CAN_STANDARD_IDENTIFIER_11_BIT, &data));
     }
 }
@@ -268,7 +277,6 @@ void testDataSendInvalidIdentifierType(void) {
     uint8_t data                         = 0;
     CAN_IDENTIFIER_TYPE_e identifierType = CAN_INVALID_TYPE;
 
-    canIsTxMessagePending_IgnoreAndReturn(1u);
     TEST_ASSERT_FAIL_ASSERT(CAN_DataSend(pNode, TEST_CANTX_ID_DUMMY, identifierType, &data));
 }
 
@@ -367,17 +375,23 @@ void testCAN_CheckDatabaseNullPointer(void) {
 }
 
 void testCAN_PeriodicTransmitQueueFull(void) {
-    /* Assume no messages in queue */
-    OS_ReceiveFromQueue_IgnoreAndReturn(OS_FAIL);
+    CAN_BUFFER_ELEMENT_s message = {NULL_PTR, 0u, CAN_INVALID_TYPE, {0u, 0u, 0u, 0u, 0u, 0u, 0u, 0u}};
+
+    OS_ReceiveFromQueue_ExpectAndReturn(ftsk_canTxUnsentMessagesQueue, (void *)&message, 0u, OS_FAIL);
 
     /* assume all message boxes are full */
-    canIsTxMessagePending_IgnoreAndReturn(1u);
-    MATH_MinimumOfTwoUint8_t_IgnoreAndReturn(CAN_MAX_DLC);
+    for (uint8_t messageBox = 1u; messageBox <= CAN_NR_OF_TX_MESSAGE_BOX; messageBox++) {
+        canIsTxMessagePending_ExpectAndReturn(can_node1.canNodeRegister, messageBox, 1u);
+    }
 
     /* expect a message to be sent to queue */
     OS_SendToBackOfQueue_ExpectAndReturn(ftsk_canTxUnsentMessagesQueue, (void *)&dummyMessageBuffer, 0u, OS_FAIL);
     /* sending to queue failed, expect error sent to diag */
     DIAG_Handler_ExpectAndReturn(DIAG_ID_CAN_TX_QUEUE_FULL, DIAG_EVENT_NOT_OK, DIAG_SYSTEM, 0u, DIAG_HANDLER_RETURN_OK);
+    /* Assume no messages in queue */
+    for (uint16_t i = 0; i < numberOfRepetitionsToReset; i++) {
+        OS_ReceiveFromQueue_ExpectAndReturn(ftsk_canTxUnsentMessagesQueue, (void *)&message, 0u, OS_FAIL);
+    }
 
     /* test call */
     TEST_CAN_PeriodicTransmit();
@@ -390,11 +404,13 @@ void testCAN_PeriodicTransmitQueueFull(void) {
 
 void testCAN_PeriodicTransmitQueueHasSpace(void) {
     /* Assume no messages in queue */
-    OS_ReceiveFromQueue_IgnoreAndReturn(OS_FAIL);
+    CAN_BUFFER_ELEMENT_s message = {NULL_PTR, 0u, CAN_INVALID_TYPE, {0u, 0u, 0u, 0u, 0u, 0u, 0u, 0u}};
+    OS_ReceiveFromQueue_ExpectAndReturn(ftsk_canTxUnsentMessagesQueue, (void *)&message, 0u, OS_FAIL);
 
     /* assume all message boxes are full */
-    canIsTxMessagePending_IgnoreAndReturn(1u);
-    MATH_MinimumOfTwoUint8_t_IgnoreAndReturn(CAN_MAX_DLC);
+    for (uint8_t messageBox = 1u; messageBox <= CAN_NR_OF_TX_MESSAGE_BOX; messageBox++) {
+        canIsTxMessagePending_ExpectAndReturn(dummyMessageBuffer.canNode->canNodeRegister, messageBox, 1u);
+    }
 
     /* expect a message to be sent to queue */
     OS_SendToBackOfQueue_ExpectAndReturn(ftsk_canTxUnsentMessagesQueue, (void *)&dummyMessageBuffer, 0u, OS_SUCCESS);
@@ -406,6 +422,7 @@ void testCAN_PeriodicTransmitQueueHasSpace(void) {
 
     /* call repeatedly until phase is zero again */
     for (uint16_t i = 0; i < numberOfRepetitionsToReset; i++) {
+        OS_ReceiveFromQueue_ExpectAndReturn(ftsk_canTxUnsentMessagesQueue, (void *)&message, 0u, OS_FAIL);
         TEST_CAN_PeriodicTransmit();
     }
 }

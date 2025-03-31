@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    debug_default.c
  * @author  foxBMS Team
  * @date    2020-09-17 (date of creation)
- * @updated 2024-12-20 (date of last update)
- * @version v1.8.0
+ * @updated 2025-03-31 (date of last update)
+ * @version v1.9.0
  * @ingroup DRIVERS
  * @prefix  FAKE
  *
@@ -320,7 +320,7 @@ static void FAKE_SetFirstMeasurementCycleFinished(FAKE_STATE_s *pFakeState) {
         pFakeState->data.slaveControl->eepromWriteAddressToUse    = 0xFFFFFFFF;
 
         pFakeState->data.allGpioVoltages->state = 0;
-        for (uint16_t gpio = 0u; gpio < (BS_NR_OF_MODULES_PER_STRING * BS_NR_OF_GPIOS_PER_MODULE); gpio++) {
+        for (uint16_t gpio = 0u; gpio < (BS_NR_OF_MODULES_PER_STRING * SLV_NR_OF_GPIOS_PER_MODULE); gpio++) {
             pFakeState->data.allGpioVoltages->gpioVoltages_mV[s][gpio] = 0;
         }
 
@@ -589,6 +589,18 @@ extern STD_RETURN_TYPE_e TEST_FAKE_SaveFakeVoltageMeasurementData(FAKE_STATE_s *
 
 extern STD_RETURN_TYPE_e TEST_FAKE_SaveFakeTemperatureMeasurementData(FAKE_STATE_s *pFakeState) {
     return FAKE_SaveFakeTemperatureMeasurementData(pFakeState);
+}
+
+extern FAKE_FSM_STATES_e TEST_FAKE_ProcessInitializationState(FAKE_STATE_s *pFakeState) {
+    return FAKE_ProcessInitializationState(pFakeState);
+}
+
+extern FAKE_FSM_STATES_e TEST_FAKE_ProcessRunningState(FAKE_STATE_s *pFakeState) {
+    return FAKE_ProcessRunningState(pFakeState);
+}
+
+extern STD_RETURN_TYPE_e TEST_FAKE_RunStateMachine(FAKE_STATE_s *pFakeState) {
+    return FAKE_RunStateMachine(pFakeState);
 }
 
 #endif

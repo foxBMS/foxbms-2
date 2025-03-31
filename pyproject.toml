@@ -1,4 +1,4 @@
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -90,15 +90,13 @@ extend-exclude = [
   "tests/axivion/qualification-test/*",
   "tools/waf3-2.0.22-1241519b19b496207abef1f72bbf61c2/**",
   "tools/.waf3-2.0.22-1241519b19b496207abef1f72bbf61c2/**",
-  "tools/vendor/*",
 ]
 
 # Same as Black.
 line-length = 88
 indent-width = 4
 
-# Assume Python 3.8
-target-version = "py38"
+target-version = "py312" # minimal supported Python version
 
 [tool.ruff.lint]
 # Enable Pyflakes (`F`) and a subset of the pycodestyle (`E`)  codes by default.
@@ -151,7 +149,6 @@ exclude = [
   '^tests/cli/.*',                                               # TODO
   '^tests/hil/server/pi_pico/fault_injector/.*\.py',
   '^tests/hil/server/pi_pico/interface_switchboard/.*\.py',
-  '^tools/vendor/ceedling/vendor/.*',
   '^tools/waf3.*/waflib/.*',
 ]
 
@@ -161,9 +158,15 @@ ignore_missing_imports = true
 
 [tool.coverage.run]
 branch = true
-
+omit = [
+  "*/test_*",
+  "*/axivion_impl.py",
+  "*/check_ci_config.py",
+  "*/check_coverage.py",
+  "*/create_readme.py",
+]
 [tool.coverage.report]
-fail_under = 87
+fail_under = 100.0
 exclude_also = ["if __name__ == .__main__.:"]
 
 [tool.pylint.main]
@@ -557,19 +560,7 @@ confidence = [
 # --enable=similarities". If you want to run only the classes checker, but have
 # no Warning level messages displayed, use "--disable=all --enable=classes
 # --disable=W".
-disable = [
-  "raw-checker-failed",
-  "bad-inline-option",
-  "locally-disabled",
-  "file-ignored",
-  "suppressed-message",
-  "useless-suppression",
-  "deprecated-pragma",
-  "use-symbolic-message-instead",
-  "use-implicit-booleaness-not-comparison-to-string",
-  "use-implicit-booleaness-not-comparison-to-zero",
-  "similarities",
-]
+disable = ["similarities"]
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option
@@ -714,6 +705,7 @@ ignored-classes = [
   "thread._local",
   "_thread._local",
   "argparse.Namespace",
+  "pyarrow.compute",
 ]
 
 # Show a hint with possible names when a member name was not found. The aspect of
@@ -754,7 +746,7 @@ callbacks = ["cb_", "_cb"]
 dummy-variables-rgx = "_+$|(_[a-zA-Z0-9_]*[a-zA-Z0-9]+?$)|dummy|^ignored_|^unused_"
 
 # Argument names that match this expression will be ignored.
-ignored-argument-names = "_.*|^ignored_|^unused_"
+ignored-argument-names = "_.*|^ignored_|^unused_|verbose"
 
 # Tells whether we should check for unused import in __init__ files.
 # init-import =

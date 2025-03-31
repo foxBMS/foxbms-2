@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -45,7 +45,6 @@ import os
 import sys
 
 from waflib import Logs, Task, TaskGen, Utils
-
 from waflib.Configure import ConfigurationContext
 
 
@@ -116,16 +115,16 @@ class sphinx_task(Task.Task):  # pylint: disable=invalid-name
         proc = Utils.subprocess.Popen(cmd.split(), env=env, cwd=cwd)
         proc.communicate()
         if not proc.returncode:
-            print(f"Index file: {os.path.join(self.env.OUTDIR,'index.html')}.")
+            print(f"Index file: {os.path.join(self.env.OUTDIR, 'index.html')}.")
         return proc.returncode
 
     def __str__(self):
         """for printing"""
-        return " ".join([a.relpath() for a in self.inputs])
+        return self.env["BUILDERNAME"] + " ".join([a.relpath() for a in self.inputs])
 
     def keyword(self):
         """displayed keyword when the sphinx configuration file is compiled"""
-        return f"Compiling {self.env['BUILDERNAME']}"
+        return "Compiling"
 
 
 @TaskGen.feature("sphinx")
@@ -181,4 +180,8 @@ def apply_sphinx(self):
 def configure(conf: ConfigurationContext):
     """Check that sphinx-build and dot are available"""
     conf.find_program("sphinx-build", var="SPHINX_BUILD")
+    if Utils.is_win32:
+        conf.find_program("draw.io", var="DRAW_IO")
+    else:
+        conf.find_program("drawio", var="DRAW_IO")
     conf.find_program("dot", var="DOT")

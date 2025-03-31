@@ -1,0 +1,6 @@
+Directory Name; Long Name  ; Content Description
+``cmd_*``     ; Command_*  ; Actual implementation of the specific CLI command
+``commands``  ; Commands   ; Implementation of the command line interface of each tool
+``helpers``   ; Helpers    ; Helper functions that are used by several parts of the CLI tool
+``fallback``  ; Fallback   ; Fallback for the |fox-cli| wrappers when the environment is missing
+``pre-commit``; pre-commit ; Scripts that are run as part of the `pre-commit` framework

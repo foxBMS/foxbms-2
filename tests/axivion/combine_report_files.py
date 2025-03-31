@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -43,10 +43,10 @@ import argparse
 import json
 import logging
 import sys
-import os
-from pathlib import Path
 from dataclasses import dataclass
+from pathlib import Path
 from typing import List, Tuple
+
 import tabulate
 
 
@@ -165,7 +165,7 @@ def main():
         help="Axivion report file(s)",
     )
     args = parser.parse_args()
-
+    print(1)
     if args.verbosity == 1:
         logging.basicConfig(level=logging.INFO)
     elif args.verbosity > 1:
@@ -190,7 +190,7 @@ def main():
     ]
     logging.info(
         "Successfully loaded JSON report files:\n%s",
-        os.linesep.join(str(i) for i in args.report_files),
+        "\n".join(str(i) for i in args.report_files),
     )
 
     err = combine_analysis_reports(reports)

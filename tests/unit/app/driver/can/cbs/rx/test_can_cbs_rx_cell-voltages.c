@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_can_cbs_rx_cell-voltages.c
  * @author  foxBMS Team
  * @date    2023-08-31 (date of creation)
- * @updated 2024-12-20 (date of last update)
- * @version v1.8.0
+ * @updated 2025-03-31 (date of last update)
+ * @version v1.9.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -258,21 +258,73 @@ void testCANRX_CellVoltages(void) {
     /* ======= Routine tests =============================================== */
     /* ======= RT1/2 =======*/
     uint64_t messageData           = 0u;
+    uint64_t pCanSignalMuxValue    = 0u;
+    uint64_t pCanSignalInvalidFlag = 0u;
+    uint64_t pCanSignalVoltage     = 0u;
     CAN_ENDIANNESS_e canEndianness = CAN_BIG_ENDIAN;
+
     CAN_RxGetMessageDataFromCanData_Expect(&messageData, canData, canEndianness);
-    for (uint8_t i = 0; i < 2 * CAN_NUM_OF_VOLTAGES_IN_CAN_CELL_VOLTAGES_MSG + 1; i++) {
-        CAN_RxGetSignalDataFromMessageData_Ignore();
+    /* Get the mux value */
+    CAN_RxGetSignalDataFromMessageData_Expect(
+        messageData,
+        canrx_kCanCellVoltageMuxBitStart,
+        canrx_kCanCellVoltageMuxLength,
+        &pCanSignalMuxValue,
+        CANRX_AFE_CELL_VOLTAGES_ENDIANNESS);
+    /* Get the invalid flag */
+    for (uint8_t i = 0; i < CAN_NUM_OF_VOLTAGES_IN_CAN_CELL_VOLTAGES_MSG; i++) {
+        pCanSignalInvalidFlag = 0u;
+        CAN_RxGetSignalDataFromMessageData_Expect(
+            messageData,
+            canrx_kCanCellVoltageInvalidFlagBitStart[i],
+            canrx_kCanCellVoltageInvalidFlagLength,
+            &pCanSignalInvalidFlag,
+            CANRX_AFE_CELL_VOLTAGES_ENDIANNESS);
+    }
+    /* Get the voltages */
+    for (uint8_t i = 0; i < CAN_NUM_OF_VOLTAGES_IN_CAN_CELL_VOLTAGES_MSG; i++) {
+        pCanSignalInvalidFlag = 0u;
+        CAN_RxGetSignalDataFromMessageData_Expect(
+            messageData,
+            canrx_kCanCellVoltageBitStart[i],
+            canrx_kCanCellVoltageLength,
+            &pCanSignalVoltage,
+            CANRX_AFE_CELL_VOLTAGES_ENDIANNESS);
     }
     OS_SendToBackOfQueue_ExpectAndReturn(ftsk_canToAfeCellVoltagesQueue, (void *)&messageData, 0, OS_SUCCESS);
     DIAG_Handler_ExpectAndReturn(DIAG_ID_CAN_RX_QUEUE_FULL, DIAG_EVENT_OK, DIAG_SYSTEM, 0u, DIAG_HANDLER_RETURN_OK);
     TEST_ASSERT_EQUAL_INT16(0, CANRX_CellVoltages(validTestMessage, canData, &can_kShim));
 
     /* ======= RT2/2 =======*/
-    CAN_RxGetMessageDataFromCanData_Ignore();
-    for (uint8_t i = 0; i < 2 * CAN_NUM_OF_VOLTAGES_IN_CAN_CELL_VOLTAGES_MSG + 1; i++) {
-        CAN_RxGetSignalDataFromMessageData_Ignore();
+    CAN_RxGetMessageDataFromCanData_Expect(&messageData, canData, canEndianness);
+    /* Get the mux value */
+    CAN_RxGetSignalDataFromMessageData_Expect(
+        messageData,
+        canrx_kCanCellVoltageMuxBitStart,
+        canrx_kCanCellVoltageMuxLength,
+        &pCanSignalMuxValue,
+        CANRX_AFE_CELL_VOLTAGES_ENDIANNESS);
+    /* Get the invalid flag */
+    for (uint8_t i = 0; i < CAN_NUM_OF_VOLTAGES_IN_CAN_CELL_VOLTAGES_MSG; i++) {
+        pCanSignalInvalidFlag = 0u;
+        CAN_RxGetSignalDataFromMessageData_Expect(
+            messageData,
+            canrx_kCanCellVoltageInvalidFlagBitStart[i],
+            canrx_kCanCellVoltageInvalidFlagLength,
+            &pCanSignalInvalidFlag,
+            CANRX_AFE_CELL_VOLTAGES_ENDIANNESS);
     }
-    OS_SendToBackOfQueue_IgnoreAndReturn(OS_FAIL);
+    /* Get the voltages */
+    for (uint8_t i = 0; i < CAN_NUM_OF_VOLTAGES_IN_CAN_CELL_VOLTAGES_MSG; i++) {
+        pCanSignalInvalidFlag = 0u;
+        CAN_RxGetSignalDataFromMessageData_Expect(
+            messageData,
+            canrx_kCanCellVoltageBitStart[i],
+            canrx_kCanCellVoltageLength,
+            &pCanSignalVoltage,
+            CANRX_AFE_CELL_VOLTAGES_ENDIANNESS);
+    }
+    OS_SendToBackOfQueue_ExpectAndReturn(ftsk_canToAfeCellVoltagesQueue, (void *)&messageData, 0, OS_FAIL);
     DIAG_Handler_ExpectAndReturn(DIAG_ID_CAN_RX_QUEUE_FULL, DIAG_EVENT_NOT_OK, DIAG_SYSTEM, 0u, DIAG_HANDLER_RETURN_OK);
     TEST_ASSERT_EQUAL_INT16(0, CANRX_CellVoltages(validTestMessage, canData, &can_kShim));
 }

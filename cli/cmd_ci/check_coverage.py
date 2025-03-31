@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -40,25 +40,22 @@
 """Checks that the GitLab CI configuration adheres to some rules"""
 
 import logging
-import math
 import os
 import sys
 from pathlib import Path
-from tomllib import loads
 from typing import get_args
 from xml.etree import ElementTree
 
-from click import echo, secho
+from click import echo
 
-from ..cmd_cli_unittest.cli_unittest_constants import CliUnitTestVariants
 from ..cmd_embedded_ut.embedded_ut_constants import EmbeddedUnitTestVariants
-from ..helpers.host_platform import PLATFORM
-from ..helpers.misc import PROJECT_ROOT
+from ..helpers.click_helpers import recho
+from ..helpers.host_platform import get_platform
 
 CI_COMMIT_REF_NAME = os.getenv("CI_COMMIT_REF_NAME")
 TARGET_BRANCH = os.getenv("TARGET_BRANCH", "master")
 
-if PLATFORM == "linux":
+if get_platform() == "linux":
     CERTIFICATE_FILE = "/etc/ssl/certs/ca-bundle.crt"
 else:
     CERTIFICATE_FILE = ""
@@ -69,7 +66,7 @@ class Coverage:
 
     def __init__(self, cobertura_report: Path) -> None:
         if not cobertura_report.is_file():
-            secho(f"File '{cobertura_report}' does not exist.", fg="red", err=True)
+            recho(f"File '{cobertura_report}' does not exist.")
             sys.exit(1)
         root = ElementTree.parse(cobertura_report).getroot()
         for coverage in root.iter("coverage"):
@@ -103,20 +100,15 @@ class Coverage:
         return f"line-rate: {self.line_rate}\nbranch-rate: {self.branch_rate}"
 
 
-def check_coverage(
-    project: EmbeddedUnitTestVariants | CliUnitTestVariants = "app",
-) -> int:
+def check_coverage(project: EmbeddedUnitTestVariants = "app") -> int:
     """Compares two coverage reports."""
     if project in get_args(EmbeddedUnitTestVariants):
         infix = "_host_unit_test"
         cobertura_xml = "artifacts/gcov/gcovr/GcovCoverageCobertura.xml"
-    elif project in get_args(CliUnitTestVariants):
-        infix = "-selftest"
-        cobertura_xml = "CoberturaCoverageCliSelfTest.xml"
     else:
         sys.exit(
-            "Something went wrong.\nExpect argument "
-            f"{get_args(EmbeddedUnitTestVariants) + get_args(CliUnitTestVariants)} "
+            "Something went wrong.\n"
+            f"Expect argument {get_args(EmbeddedUnitTestVariants)} "
             f"but got '{project}'."
         )
 
@@ -133,35 +125,5 @@ def check_coverage(
 
     comparison = coverage_master.compare(coverage_branch)
 
-    if project == "cli":
-        tmp = PROJECT_ROOT / "pyproject.toml"
-        if not tmp.is_file():
-            comparison += 1
-        cfg = loads(tmp.read_text(encoding="utf-8"))
-        try:
-            fail_under = float(cfg["tool"]["coverage"]["report"]["fail_under"])
-        except KeyError:
-            secho(
-                f"File '{tmp}' does not specify the key 'fail_under' in "
-                "section '[tool.coverage.report]'.",
-                fg="red",
-                err=True,
-            )
-            return comparison + 1
-        except ValueError:
-            secho("Could not convert key 'fail_under' to int.", fg="red", err=True)
-            return comparison + 1
-        # conversion necessary as coverage.py uses 0% to 100%, while Cobertura
-        # uses 0.0 to 1.0.
-        fail_under /= 100
-        if not math.isclose(fail_under, coverage_branch.line_rate, abs_tol=0.02):
-            secho(
-                "Key 'fail_under' in section '[tool.coverage.report]' in File "
-                f"'{tmp}' is not up-to-date ({fail_under} vs. "
-                f"{coverage_branch.line_rate} (line rate))",
-                fg="red",
-                err=True,
-            )
-            return comparison + 1
     echo(f"Coverage rate is {coverage_branch.line_rate}.")
     return comparison

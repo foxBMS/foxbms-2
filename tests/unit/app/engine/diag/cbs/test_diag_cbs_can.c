@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_diag_cbs_can.c
  * @author  foxBMS Team
  * @date    2021-02-17 (date of creation)
- * @updated 2024-12-20 (date of last update)
- * @version v1.8.0
+ * @updated 2025-03-31 (date of last update)
+ * @version v1.9.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -132,6 +132,16 @@ void testDIAG_ErrorCanRxQueueFullInvalidInput(void) {
         DIAG_ErrorCanRxQueueFull(DIAG_ID_CELL_VOLTAGE_OVERVOLTAGE_RSL, DIAG_EVENT_RESET, &diag_kpkDatabaseShim, 0u));
 }
 
+void testDIAG_ErrorCanRxQueueFull(void) {
+    diag_kpkDatabaseShim.pTableError->canRxQueueFullError = true;
+    DIAG_ErrorCanRxQueueFull(DIAG_ID_CAN_RX_QUEUE_FULL, DIAG_EVENT_RESET, &diag_kpkDatabaseShim, BS_NR_OF_STRINGS);
+    /* Expected to be 0 */
+    TEST_ASSERT_EQUAL(0, diag_kpkDatabaseShim.pTableError->canRxQueueFullError);
+    DIAG_ErrorCanRxQueueFull(DIAG_ID_CAN_RX_QUEUE_FULL, DIAG_EVENT_NOT_OK, &diag_kpkDatabaseShim, BS_NR_OF_STRINGS);
+    /* Expected to be 1 */
+    TEST_ASSERT_EQUAL(1, diag_kpkDatabaseShim.pTableError->canRxQueueFullError);
+}
+
 /** test against invalid input */
 void testDIAG_ErrorCanTxQueueFullInvalidInput(void) {
     TEST_ASSERT_FAIL_ASSERT(DIAG_ErrorCanTxQueueFull(DIAG_ID_MAX, DIAG_EVENT_OK, &diag_kpkDatabaseShim, 0u));
@@ -139,4 +149,14 @@ void testDIAG_ErrorCanTxQueueFullInvalidInput(void) {
     TEST_ASSERT_FAIL_ASSERT(DIAG_ErrorCanTxQueueFull(DIAG_ID_CAN_TX_QUEUE_FULL, DIAG_EVENT_OK, NULL_PTR, 0u));
     TEST_ASSERT_FAIL_ASSERT(
         DIAG_ErrorCanTxQueueFull(DIAG_ID_CELL_VOLTAGE_OVERVOLTAGE_RSL, DIAG_EVENT_RESET, &diag_kpkDatabaseShim, 0u));
+}
+
+void testDIAG_ErrorCanTxQueueFull(void) {
+    diag_kpkDatabaseShim.pTableError->canTxQueueFullError = true;
+    DIAG_ErrorCanTxQueueFull(DIAG_ID_CAN_TX_QUEUE_FULL, DIAG_EVENT_RESET, &diag_kpkDatabaseShim, BS_NR_OF_STRINGS);
+    /* Expected to be 0 */
+    TEST_ASSERT_EQUAL(0, diag_kpkDatabaseShim.pTableError->canTxQueueFullError);
+    DIAG_ErrorCanTxQueueFull(DIAG_ID_CAN_TX_QUEUE_FULL, DIAG_EVENT_NOT_OK, &diag_kpkDatabaseShim, BS_NR_OF_STRINGS);
+    /* Expected to be 1 */
+    TEST_ASSERT_EQUAL(1, diag_kpkDatabaseShim.pTableError->canTxQueueFullError);
 }

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_adi_ades1830_voltages.c
  * @author  foxBMS Team
  * @date    2022-12-07 (date of creation)
- * @updated 2024-12-20 (date of last update)
- * @version v1.8.0
+ * @updated 2025-03-31 (date of last update)
+ * @version v1.9.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -64,6 +64,7 @@
 #include "unity.h"
 #include "Mockadi_ades183x_cfg.h"
 #include "Mockadi_ades183x_diagnostic.h"
+#include "Mockadi_ades183x_helpers.h"
 #include "Mockos.h"
 #include "Mockspi.h"
 
@@ -71,7 +72,6 @@
 #include "adi_ades183x_commands.h"
 #include "adi_ades183x_commands_voltages.h"
 #include "adi_ades183x_defs.h"
-#include "adi_ades183x_helpers.h"
 #include "adi_ades183x_pec.h"
 #include "adi_ades183x_voltages.h"
 #include "spi_cfg-helper.h"
@@ -220,54 +220,82 @@ void tearDown(void) {
 void testADI_CopyCommandBytesCellVoltageRegister(void) {
     TEST_ASSERT_FAIL_ASSERT(TEST_ADI_CopyCommandBytesCellVoltageRegister(NULL_PTR));
 
+    ADI_CopyCommandBits_Expect(adi_cmdRdcva, commandBytes.registerA);
+    ADI_CopyCommandBits_Expect(adi_cmdRdcvb, commandBytes.registerB);
+    ADI_CopyCommandBits_Expect(adi_cmdRdcvc, commandBytes.registerC);
+    ADI_CopyCommandBits_Expect(adi_cmdRdcvd, commandBytes.registerD);
+    ADI_CopyCommandBits_Expect(adi_cmdRdcve, commandBytes.registerE);
+    ADI_CopyCommandBits_Expect(adi_cmdRdcvf, commandBytes.registerF);
+
     TEST_ADI_CopyCommandBytesCellVoltageRegister(&commandBytes);
-    for (uint8_t i = 0u; i < ADI_COMMAND_DEFINITION_LENGTH; i++) {
+    /*for (uint8_t i = 0u; i < ADI_COMMAND_DEFINITION_LENGTH; i++) {
         TEST_ASSERT_EQUAL(adi_cmdRdcva[i], commandBytes.registerA[i]);
         TEST_ASSERT_EQUAL(adi_cmdRdcvb[i], commandBytes.registerB[i]);
         TEST_ASSERT_EQUAL(adi_cmdRdcvc[i], commandBytes.registerC[i]);
         TEST_ASSERT_EQUAL(adi_cmdRdcvd[i], commandBytes.registerD[i]);
         TEST_ASSERT_EQUAL(adi_cmdRdcve[i], commandBytes.registerE[i]);
         TEST_ASSERT_EQUAL(adi_cmdRdcvf[i], commandBytes.registerF[i]);
-    }
+    }*/
 }
 void testADI_CopyCommandBytesAverageCellVoltageRegisters(void) {
     TEST_ASSERT_FAIL_ASSERT(TEST_ADI_CopyCommandBytesAverageCellVoltageRegisters(NULL_PTR));
 
+    ADI_CopyCommandBits_Expect(adi_cmdRdaca, commandBytes.registerA);
+    ADI_CopyCommandBits_Expect(adi_cmdRdacb, commandBytes.registerB);
+    ADI_CopyCommandBits_Expect(adi_cmdRdacc, commandBytes.registerC);
+    ADI_CopyCommandBits_Expect(adi_cmdRdacd, commandBytes.registerD);
+    ADI_CopyCommandBits_Expect(adi_cmdRdace, commandBytes.registerE);
+    ADI_CopyCommandBits_Expect(adi_cmdRdacf, commandBytes.registerF);
+
     TEST_ADI_CopyCommandBytesAverageCellVoltageRegisters(&commandBytes);
-    for (uint8_t i = 0u; i < ADI_COMMAND_DEFINITION_LENGTH; i++) {
+    /*for (uint8_t i = 0u; i < ADI_COMMAND_DEFINITION_LENGTH; i++) {
         TEST_ASSERT_EQUAL(adi_cmdRdaca[i], commandBytes.registerA[i]);
         TEST_ASSERT_EQUAL(adi_cmdRdacb[i], commandBytes.registerB[i]);
         TEST_ASSERT_EQUAL(adi_cmdRdacc[i], commandBytes.registerC[i]);
         TEST_ASSERT_EQUAL(adi_cmdRdacd[i], commandBytes.registerD[i]);
         TEST_ASSERT_EQUAL(adi_cmdRdace[i], commandBytes.registerE[i]);
         TEST_ASSERT_EQUAL(adi_cmdRdacf[i], commandBytes.registerF[i]);
-    }
+    }*/
 }
 void testADI_CopyCommandBytesFilteredCellVoltageRegisters(void) {
     TEST_ASSERT_FAIL_ASSERT(TEST_ADI_CopyCommandBytesFilteredCellVoltageRegisters(NULL_PTR));
 
+    ADI_CopyCommandBits_Expect(adi_cmdRdfca, commandBytes.registerA);
+    ADI_CopyCommandBits_Expect(adi_cmdRdfcb, commandBytes.registerB);
+    ADI_CopyCommandBits_Expect(adi_cmdRdfcc, commandBytes.registerC);
+    ADI_CopyCommandBits_Expect(adi_cmdRdfcd, commandBytes.registerD);
+    ADI_CopyCommandBits_Expect(adi_cmdRdfce, commandBytes.registerE);
+    ADI_CopyCommandBits_Expect(adi_cmdRdfcf, commandBytes.registerF);
+
     TEST_ADI_CopyCommandBytesFilteredCellVoltageRegisters(&commandBytes);
-    for (uint8_t i = 0u; i < ADI_COMMAND_DEFINITION_LENGTH; i++) {
+    /*for (uint8_t i = 0u; i < ADI_COMMAND_DEFINITION_LENGTH; i++) {
         TEST_ASSERT_EQUAL(adi_cmdRdfca[i], commandBytes.registerA[i]);
         TEST_ASSERT_EQUAL(adi_cmdRdfcb[i], commandBytes.registerB[i]);
         TEST_ASSERT_EQUAL(adi_cmdRdfcc[i], commandBytes.registerC[i]);
         TEST_ASSERT_EQUAL(adi_cmdRdfcd[i], commandBytes.registerD[i]);
         TEST_ASSERT_EQUAL(adi_cmdRdfce[i], commandBytes.registerE[i]);
         TEST_ASSERT_EQUAL(adi_cmdRdfcf[i], commandBytes.registerF[i]);
-    }
+    }*/
 }
 void testADI_CopyCommandBytesRedundantCellVoltageRegisters(void) {
     TEST_ASSERT_FAIL_ASSERT(TEST_ADI_CopyCommandBytesRedundantCellVoltageRegisters(NULL_PTR));
 
+    ADI_CopyCommandBits_Expect(adi_cmdRdsva, commandBytes.registerA);
+    ADI_CopyCommandBits_Expect(adi_cmdRdsvb, commandBytes.registerB);
+    ADI_CopyCommandBits_Expect(adi_cmdRdsvc, commandBytes.registerC);
+    ADI_CopyCommandBits_Expect(adi_cmdRdsvd, commandBytes.registerD);
+    ADI_CopyCommandBits_Expect(adi_cmdRdsve, commandBytes.registerE);
+    ADI_CopyCommandBits_Expect(adi_cmdRdsvf, commandBytes.registerF);
+
     TEST_ADI_CopyCommandBytesRedundantCellVoltageRegisters(&commandBytes);
-    for (uint8_t i = 0u; i < ADI_COMMAND_DEFINITION_LENGTH; i++) {
+    /*for (uint8_t i = 0u; i < ADI_COMMAND_DEFINITION_LENGTH; i++) {
         TEST_ASSERT_EQUAL(adi_cmdRdsva[i], commandBytes.registerA[i]);
         TEST_ASSERT_EQUAL(adi_cmdRdsvb[i], commandBytes.registerB[i]);
         TEST_ASSERT_EQUAL(adi_cmdRdsvc[i], commandBytes.registerC[i]);
         TEST_ASSERT_EQUAL(adi_cmdRdsvd[i], commandBytes.registerD[i]);
         TEST_ASSERT_EQUAL(adi_cmdRdsve[i], commandBytes.registerE[i]);
         TEST_ASSERT_EQUAL(adi_cmdRdsvf[i], commandBytes.registerF[i]);
-    }
+    }*/
 }
 void testADI_ReadAndStoreVoltages(void) {
     /* Invalid state */
@@ -293,8 +321,6 @@ void testADI_SaveRxToCellVoltageBuffer(void) {
     TEST_ASSERT_FAIL_ASSERT(TEST_ADI_SaveRxToCellVoltageBuffer(
         &adi_stateBase, adi_dataReceive, ADI_RESULT_REGISTER_SET_A, ADI_VOLTAGE_STORE_LOCATION_E_MAX));
 
-    ADI_EvaluateDiagnosticCellVoltages_IgnoreAndReturn(FALSE);
-
     /* ======= RT1/4: Test implementation */
     /* Test should not alter this value to 0 */
     uint16_t numberValidMeasurements = 1;
@@ -303,6 +329,12 @@ void testADI_SaveRxToCellVoltageBuffer(void) {
 
     DATA_BLOCK_CELL_VOLTAGE_s *pVoltageTable = NULL_PTR;
     pVoltageTable += 1;
+
+    for (uint16_t m = 0u; m < ADI_N_ADI; m++) {
+        ADI_EvaluateDiagnosticCellVoltages_ExpectAndReturn(&adi_stateBase, m, FALSE);
+        ADI_EvaluateDiagnosticCellVoltages_ExpectAndReturn(&adi_stateBase, m, FALSE);
+        ADI_EvaluateDiagnosticCellVoltages_ExpectAndReturn(&adi_stateBase, m, FALSE);
+    }
 
     /* storeLocation and registerSet need to have specific values to trigger the if-statement */
     TEST_ADI_SaveRxToCellVoltageBuffer(&adi_stateBase, adi_dataReceive, ADI_RESULT_REGISTER_SET_A, ADI_CELL_VOLTAGE);
@@ -351,6 +383,12 @@ void testADI_SaveRxToCellVoltageBuffer(void) {
 
     ADI_SetReceivedDataForTest(dataReceive, VALID_ADI_REGISTER_CLEARED_VALUE_MSB, VALID_ADI_REGISTER_CLEARED_VALUE_LSB);
 
+    for (uint16_t m = 0u; m < ADI_N_ADI; m++) {
+        ADI_EvaluateDiagnosticCellVoltages_ExpectAndReturn(&adi_stateBase, m, FALSE);
+        ADI_EvaluateDiagnosticCellVoltages_ExpectAndReturn(&adi_stateBase, m, FALSE);
+        ADI_EvaluateDiagnosticCellVoltages_ExpectAndReturn(&adi_stateBase, m, FALSE);
+    }
+
     TEST_ADI_SaveRxToCellVoltageBuffer(&adi_stateBase, dataReceive, ADI_RESULT_REGISTER_SET_A, ADI_CELL_VOLTAGE);
 
     for (uint16_t m = 0u; m < ADI_N_ADI; m++) {
@@ -364,7 +402,11 @@ void testADI_SaveRxToCellVoltageBuffer(void) {
     for (uint16_t m = 0u; m < ADI_N_ADI; m++) {
         adi_stateBase.data.cellVoltage->invalidCellVoltage[adi_stateBase.currentString][m][0] = false;
     }
-    ADI_EvaluateDiagnosticCellVoltages_IgnoreAndReturn(TRUE);
+    for (uint16_t m = 0u; m < ADI_N_ADI; m++) {
+        ADI_EvaluateDiagnosticCellVoltages_ExpectAndReturn(&adi_stateBase, m, TRUE);
+        ADI_EvaluateDiagnosticCellVoltages_ExpectAndReturn(&adi_stateBase, m, TRUE);
+        ADI_EvaluateDiagnosticCellVoltages_ExpectAndReturn(&adi_stateBase, m, TRUE);
+    }
     /* storeLocation has to be ADI_CELL_VOLTAGE */
     TEST_ADI_SaveRxToCellVoltageBuffer(&adi_stateBase, adi_dataReceive, ADI_RESULT_REGISTER_SET_A, ADI_CELL_VOLTAGE);
 
@@ -402,11 +444,60 @@ void testADI_GetVoltages(void) {
         .registerF = {0},
     };
 
-    /* Required Mocks */
-    SPI_TransmitDummyByte_IgnoreAndReturn(0u);
-    SPI_TransmitReceiveDataDma_IgnoreAndReturn(0u);
-    OS_WaitForNotification_IgnoreAndReturn(0u);
-    ADI_EvaluateDiagnosticCellVoltages_IgnoreAndReturn(0u);
+    ADI_CopyCommandBits_Expect(adi_cmdRdcva, commandBytes.registerA);
+    ADI_CopyCommandBits_Expect(adi_cmdRdcvb, commandBytes.registerB);
+    ADI_CopyCommandBits_Expect(adi_cmdRdcvc, commandBytes.registerC);
+    ADI_CopyCommandBits_Expect(adi_cmdRdcvd, commandBytes.registerD);
+    ADI_CopyCommandBits_Expect(adi_cmdRdcve, commandBytes.registerE);
+    ADI_CopyCommandBits_Expect(adi_cmdRdcvf, commandBytes.registerF);
+
+    ADI_ReadRegister_Expect(commandBytesToReadVoltageRegisters.registerA, adi_dataReceive, &adi_stateBase);
+    for (uint16_t m = 0u; m < ADI_N_ADI; m++) {
+        ADI_EvaluateDiagnosticCellVoltages_ExpectAndReturn(&adi_stateBase, m, TRUE);
+        ADI_EvaluateDiagnosticCellVoltages_ExpectAndReturn(&adi_stateBase, m, TRUE);
+        ADI_EvaluateDiagnosticCellVoltages_ExpectAndReturn(&adi_stateBase, m, TRUE);
+    }
+    ADI_ReadRegister_Expect(commandBytesToReadVoltageRegisters.registerB, adi_dataReceive, &adi_stateBase);
+    for (uint16_t m = 0u; m < ADI_N_ADI; m++) {
+        ADI_EvaluateDiagnosticCellVoltages_ExpectAndReturn(&adi_stateBase, m, TRUE);
+        ADI_EvaluateDiagnosticCellVoltages_ExpectAndReturn(&adi_stateBase, m, TRUE);
+        ADI_EvaluateDiagnosticCellVoltages_ExpectAndReturn(&adi_stateBase, m, TRUE);
+    }
+    ADI_ReadRegister_Expect(commandBytesToReadVoltageRegisters.registerC, adi_dataReceive, &adi_stateBase);
+    for (uint16_t m = 0u; m < ADI_N_ADI; m++) {
+        ADI_EvaluateDiagnosticCellVoltages_ExpectAndReturn(&adi_stateBase, m, TRUE);
+        ADI_EvaluateDiagnosticCellVoltages_ExpectAndReturn(&adi_stateBase, m, TRUE);
+        ADI_EvaluateDiagnosticCellVoltages_ExpectAndReturn(&adi_stateBase, m, TRUE);
+    }
+    ADI_ReadRegister_Expect(commandBytesToReadVoltageRegisters.registerD, adi_dataReceive, &adi_stateBase);
+    for (uint16_t m = 0u; m < ADI_N_ADI; m++) {
+        ADI_EvaluateDiagnosticCellVoltages_ExpectAndReturn(&adi_stateBase, m, TRUE);
+        ADI_EvaluateDiagnosticCellVoltages_ExpectAndReturn(&adi_stateBase, m, TRUE);
+        ADI_EvaluateDiagnosticCellVoltages_ExpectAndReturn(&adi_stateBase, m, TRUE);
+    }
+    ADI_ReadRegister_Expect(commandBytesToReadVoltageRegisters.registerE, adi_dataReceive, &adi_stateBase);
+    for (uint16_t m = 0u; m < ADI_N_ADI; m++) {
+        ADI_EvaluateDiagnosticCellVoltages_ExpectAndReturn(&adi_stateBase, m, TRUE);
+        ADI_EvaluateDiagnosticCellVoltages_ExpectAndReturn(&adi_stateBase, m, TRUE);
+        ADI_EvaluateDiagnosticCellVoltages_ExpectAndReturn(&adi_stateBase, m, TRUE);
+    }
+    ADI_ReadRegister_Expect(commandBytesToReadVoltageRegisters.registerA, adi_dataReceive, &adi_stateBase);
+    for (uint16_t m = 0u; m < ADI_N_ADI; m++) {
+        ADI_EvaluateDiagnosticCellVoltages_ExpectAndReturn(&adi_stateBase, m, TRUE);
+    }
+
+    ADI_CopyCommandBits_Expect(adi_cmdRdaca, commandBytes.registerA);
+    ADI_CopyCommandBits_Expect(adi_cmdRdacb, commandBytes.registerB);
+    ADI_CopyCommandBits_Expect(adi_cmdRdacc, commandBytes.registerC);
+    ADI_CopyCommandBits_Expect(adi_cmdRdacd, commandBytes.registerD);
+    ADI_CopyCommandBits_Expect(adi_cmdRdace, commandBytes.registerE);
+    ADI_CopyCommandBits_Expect(adi_cmdRdacf, commandBytes.registerF);
+    ADI_ReadRegister_Expect(commandBytesToReadVoltageRegisters.registerA, adi_dataReceive, &adi_stateBase);
+    ADI_ReadRegister_Expect(commandBytesToReadVoltageRegisters.registerB, adi_dataReceive, &adi_stateBase);
+    ADI_ReadRegister_Expect(commandBytesToReadVoltageRegisters.registerC, adi_dataReceive, &adi_stateBase);
+    ADI_ReadRegister_Expect(commandBytesToReadVoltageRegisters.registerD, adi_dataReceive, &adi_stateBase);
+    ADI_ReadRegister_Expect(commandBytesToReadVoltageRegisters.registerE, adi_dataReceive, &adi_stateBase);
+    ADI_ReadRegister_Expect(commandBytesToReadVoltageRegisters.registerF, adi_dataReceive, &adi_stateBase);
 
     TEST_ADI_GetVoltages(&adi_stateBase, ADI_CELL_VOLTAGE_REGISTER, ADI_CELL_VOLTAGE);
     TEST_ASSERT_TRUE(
@@ -420,11 +511,37 @@ void testADI_GetVoltages(void) {
         commandBytesToReadVoltageRegisters.registerC != 0 && commandBytesToReadVoltageRegisters.registerD != 0 &&
         commandBytesToReadVoltageRegisters.registerE != 0 && commandBytesToReadVoltageRegisters.registerF != 0);
 
+    ADI_CopyCommandBits_Expect(adi_cmdRdfca, commandBytes.registerA);
+    ADI_CopyCommandBits_Expect(adi_cmdRdfcb, commandBytes.registerB);
+    ADI_CopyCommandBits_Expect(adi_cmdRdfcc, commandBytes.registerC);
+    ADI_CopyCommandBits_Expect(adi_cmdRdfcd, commandBytes.registerD);
+    ADI_CopyCommandBits_Expect(adi_cmdRdfce, commandBytes.registerE);
+    ADI_CopyCommandBits_Expect(adi_cmdRdfcf, commandBytes.registerF);
+    ADI_ReadRegister_Expect(commandBytesToReadVoltageRegisters.registerA, adi_dataReceive, &adi_stateBase);
+    ADI_ReadRegister_Expect(commandBytesToReadVoltageRegisters.registerB, adi_dataReceive, &adi_stateBase);
+    ADI_ReadRegister_Expect(commandBytesToReadVoltageRegisters.registerC, adi_dataReceive, &adi_stateBase);
+    ADI_ReadRegister_Expect(commandBytesToReadVoltageRegisters.registerD, adi_dataReceive, &adi_stateBase);
+    ADI_ReadRegister_Expect(commandBytesToReadVoltageRegisters.registerE, adi_dataReceive, &adi_stateBase);
+    ADI_ReadRegister_Expect(commandBytesToReadVoltageRegisters.registerF, adi_dataReceive, &adi_stateBase);
+
     TEST_ADI_GetVoltages(&adi_stateBase, ADI_FILTERED_CELL_VOLTAGE_REGISTER, ADI_FILTERED_CELL_VOLTAGE);
     TEST_ASSERT_TRUE(
         commandBytesToReadVoltageRegisters.registerA != 0 && commandBytesToReadVoltageRegisters.registerB != 0 &&
         commandBytesToReadVoltageRegisters.registerC != 0 && commandBytesToReadVoltageRegisters.registerD != 0 &&
         commandBytesToReadVoltageRegisters.registerE != 0 && commandBytesToReadVoltageRegisters.registerF != 0);
+
+    ADI_CopyCommandBits_Expect(adi_cmdRdsva, commandBytes.registerA);
+    ADI_CopyCommandBits_Expect(adi_cmdRdsvb, commandBytes.registerB);
+    ADI_CopyCommandBits_Expect(adi_cmdRdsvc, commandBytes.registerC);
+    ADI_CopyCommandBits_Expect(adi_cmdRdsvd, commandBytes.registerD);
+    ADI_CopyCommandBits_Expect(adi_cmdRdsve, commandBytes.registerE);
+    ADI_CopyCommandBits_Expect(adi_cmdRdsvf, commandBytes.registerF);
+    ADI_ReadRegister_Expect(commandBytesToReadVoltageRegisters.registerA, adi_dataReceive, &adi_stateBase);
+    ADI_ReadRegister_Expect(commandBytesToReadVoltageRegisters.registerB, adi_dataReceive, &adi_stateBase);
+    ADI_ReadRegister_Expect(commandBytesToReadVoltageRegisters.registerC, adi_dataReceive, &adi_stateBase);
+    ADI_ReadRegister_Expect(commandBytesToReadVoltageRegisters.registerD, adi_dataReceive, &adi_stateBase);
+    ADI_ReadRegister_Expect(commandBytesToReadVoltageRegisters.registerE, adi_dataReceive, &adi_stateBase);
+    ADI_ReadRegister_Expect(commandBytesToReadVoltageRegisters.registerF, adi_dataReceive, &adi_stateBase);
 
     TEST_ADI_GetVoltages(&adi_stateBase, ADI_REDUNDANT_CELL_VOLTAGE_REGISTER, ADI_REDUNDANT_CELL_VOLTAGE);
     TEST_ASSERT_TRUE(
@@ -437,10 +554,15 @@ void testADI_RestartContinuousCellVoltageMeasurements(void) {
     TEST_ASSERT_FAIL_ASSERT(ADI_RestartContinuousCellVoltageMeasurements(NULL_PTR));
 
     /* Required Mocks */
-    SPI_TransmitDummyByte_IgnoreAndReturn(0u);
-    SPI_TransmitData_IgnoreAndReturn(0u);
-    OS_GetTickCount_IgnoreAndReturn(0u);
-    OS_DelayTaskUntil_Ignore();
+    ADI_CopyCommandBits_Expect(adi_cmdAdcv, adi_command);
+    ADI_WriteCommandConfigurationBits_Expect(adi_command, ADI_ADCV_RD_POS, ADI_ADCV_RD_LEN, 1u);
+    ADI_WriteCommandConfigurationBits_Expect(adi_command, ADI_ADCV_CONT_POS, ADI_ADCV_CONT_LEN, 1u);
+    ADI_WriteCommandConfigurationBits_Expect(adi_command, ADI_ADCV_DCP_POS, ADI_ADCV_DCP_LEN, 0u);
+    ADI_WriteCommandConfigurationBits_Expect(adi_command, ADI_ADCV_RSTF_POS, ADI_ADCV_RSTF_LEN, 0u);
+    ADI_WriteCommandConfigurationBits_Expect(adi_command, ADI_ADCV_OW01_POS, ADI_ADCV_OW01_LEN, 0u);
+
+    ADI_TransmitCommand_Expect(adi_command, &adi_stateBase);
+    ADI_Wait_Expect(ADI_MEASUREMENT_RESTART_WAIT_TIME_ms);
 
     ADI_RestartContinuousCellVoltageMeasurements(&adi_stateBase);
 }
@@ -449,31 +571,43 @@ void testADI_StopContinuousCellVoltageMeasurements(void) {
     TEST_ASSERT_FAIL_ASSERT(ADI_StopContinuousCellVoltageMeasurements(NULL_PTR));
 
     /* Required Mocks */
-    SPI_TransmitDummyByte_IgnoreAndReturn(0u);
-    SPI_TransmitData_IgnoreAndReturn(0u);
-    OS_GetTickCount_IgnoreAndReturn(0u);
-    OS_DelayTaskUntil_Ignore();
+    ADI_CopyCommandBits_Expect(adi_cmdAdcv, adi_command);
+    ADI_WriteCommandConfigurationBits_Expect(adi_command, ADI_ADCV_RD_POS, ADI_ADCV_RD_LEN, 0u);
+    ADI_WriteCommandConfigurationBits_Expect(adi_command, ADI_ADCV_CONT_POS, ADI_ADCV_CONT_LEN, 0u);
+    ADI_WriteCommandConfigurationBits_Expect(adi_command, ADI_ADCV_DCP_POS, ADI_ADCV_DCP_LEN, 0u);
+    ADI_WriteCommandConfigurationBits_Expect(adi_command, ADI_ADCV_RSTF_POS, ADI_ADCV_RSTF_LEN, 0u);
+    ADI_WriteCommandConfigurationBits_Expect(adi_command, ADI_ADCV_OW01_POS, ADI_ADCV_OW01_LEN, 0u);
+
+    ADI_TransmitCommand_Expect(adi_command, &adi_stateBase);
+    ADI_Wait_Expect(ADI_MEASUREMENT_RESTART_WAIT_TIME_ms);
 
     ADI_StopContinuousCellVoltageMeasurements(&adi_stateBase);
-    for (uint8_t i = 0u; i < ADI_COMMAND_DEFINITION_LENGTH; i++) {
+    /*for (uint8_t i = 0u; i < ADI_COMMAND_DEFINITION_LENGTH; i++) {
         TEST_ASSERT_EQUAL(adi_cmdAdcv[i], adi_command[i]);
-    }
+    }*/
 }
 
 void testADI_GetStringAndModuleVoltage(void) {
     /* Invalid state */
     TEST_ASSERT_FAIL_ASSERT(ADI_GetStringAndModuleVoltage(NULL_PTR));
 
-    SPI_TransmitDummyByte_IgnoreAndReturn(0u);
-    SPI_TransmitData_IgnoreAndReturn(0u);
-    OS_GetTickCount_IgnoreAndReturn(0u);
-    OS_DelayTaskUntil_Ignore();
+    uint8_t dataReceive[BS_NR_OF_MODULES_PER_STRING * ADI_MAX_REGISTER_SIZE_IN_BYTES] = {0u};
 
-    SPI_TransmitReceiveDataDma_IgnoreAndReturn(0u);
-    OS_WaitForNotification_IgnoreAndReturn(OS_SUCCESS);
+    /* Start auxiliary voltage measurement of VPV */
+    ADI_CopyCommandBits_Expect(adi_cmdAdax, adi_command);
+    ADI_WriteCommandConfigurationBits_Expect(adi_command, ADI_ADAX_OW_POS, ADI_ADAX_OW_LEN, 0u);
+    ADI_WriteCommandConfigurationBits_Expect(adi_command, ADI_ADAX_PUP_POS, ADI_ADAX_PUP_LEN, 0u);
+    ADI_WriteCommandConfigurationBits_Expect(adi_command, ADI_ADAX_CH4_POS, ADI_ADAX_CH4_LEN, 1u);
+    ADI_WriteCommandConfigurationBits_Expect(adi_command, ADI_ADAX_CH03_POS, ADI_ADAX_CH03_LEN, 0x0100u);
+    ADI_TransmitCommand_Expect(adi_command, &adi_stateBase);
+
+    ADI_Wait_Expect(ADI_WAIT_TIME_1_FOR_ADAX_FULL_CYCLE);
+
+    ADI_CopyCommandBits_Expect(adi_cmdRdauxd, adi_command);
+    ADI_ReadRegister_Expect(adi_command, dataReceive, &adi_stateBase);
     for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
         for (uint8_t m = 0u; m < ADI_N_ADI; m++) {
-            ADI_EvaluateDiagnosticStringAndModuleVoltages_IgnoreAndReturn(true);
+            ADI_EvaluateDiagnosticStringAndModuleVoltages_ExpectAndReturn(&adi_stateBase, m, true);
         }
     }
     ADI_GetStringAndModuleVoltage(&adi_stateBase);

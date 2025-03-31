@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    test_can_cbs_tx_fatal-error.c
  * @author  foxBMS Team
  * @date    2024-10-17 (date of creation)
- * @updated 2024-12-20 (date of last update)
- * @version v1.8.0
+ * @updated 2025-03-31 (date of last update)
+ * @version v1.9.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -84,6 +84,9 @@ TEST_INCLUDE_PATH("../../src/app/engine/diag")
 TEST_INCLUDE_PATH("../../src/app/task/config")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
+#define CANTX_FATAL_ERROR_START_BIT (0u)
+#define CANTX_FATAL_ERROR_LENGTH    (8u)
+
 const CAN_NODE_s can_node1 = {
     .canNodeRegister = canREG1,
 };
@@ -97,27 +100,47 @@ void tearDown(void) {
 
 /*========== Test Cases =====================================================*/
 void testCANTX_SendFatalErrorIdOk(void) {
-    CAN_TxSetMessageDataWithSignalData_Ignore();
-    CAN_TxSetCanDataWithMessageData_Ignore();
-    CAN_DataSend_IgnoreAndReturn(STD_OK);
+    uint64_t messageData = 0u;
+    uint8_t data[]       = {GEN_REPEAT_U(0u, GEN_STRIP(CAN_MAX_DLC))};
+    uint32_t errorId     = 14;
+
+    CAN_TxSetMessageDataWithSignalData_Expect(
+        &messageData, CANTX_FATAL_ERROR_START_BIT, CANTX_FATAL_ERROR_LENGTH, errorId, CAN_BIG_ENDIAN);
+    CAN_TxSetCanDataWithMessageData_Expect(messageData, &data[0], CAN_BIG_ENDIAN);
+    CAN_DataSend_ExpectAndReturn(
+        CAN_NODE_FATAL_ERROR_MESSAGE, CANTX_BMS_FATAL_ERROR_ID, CANTX_BMS_FATAL_ERROR_ID_TYPE, &data[0], STD_OK);
     TEST_ASSERT_EQUAL(CANTX_SendFatalErrorId(14), STD_OK);
 }
 
 void testCANTX_SendFatalErrorIdNotOk(void) {
-    CAN_TxSetMessageDataWithSignalData_Ignore();
-    CAN_TxSetCanDataWithMessageData_Ignore();
-    CAN_DataSend_IgnoreAndReturn(STD_NOT_OK);
+    uint64_t messageData = 0u;
+    uint8_t data[]       = {GEN_REPEAT_U(0u, GEN_STRIP(CAN_MAX_DLC))};
+    uint32_t errorId     = 14;
+
+    CAN_TxSetMessageDataWithSignalData_Expect(
+        &messageData, CANTX_FATAL_ERROR_START_BIT, CANTX_FATAL_ERROR_LENGTH, errorId, CAN_BIG_ENDIAN);
+    CAN_TxSetCanDataWithMessageData_Expect(messageData, &data[0], CAN_BIG_ENDIAN);
+    CAN_DataSend_ExpectAndReturn(
+        CAN_NODE_FATAL_ERROR_MESSAGE, CANTX_BMS_FATAL_ERROR_ID, CANTX_BMS_FATAL_ERROR_ID_TYPE, &data[0], STD_NOT_OK);
     TEST_ASSERT_EQUAL(CANTX_SendFatalErrorId(14), STD_NOT_OK);
 }
 
 void testCANTX_CANTX_SendMessageFatalErrorCodeOk(void) {
-    CAN_TxSetCanDataWithMessageData_Ignore();
-    CAN_DataSend_IgnoreAndReturn(STD_OK);
+    uint64_t messageData = 1234u;
+    uint8_t data[]       = {GEN_REPEAT_U(0u, GEN_STRIP(CAN_MAX_DLC))};
+
+    CAN_TxSetCanDataWithMessageData_Expect(messageData, &data[0], CAN_BIG_ENDIAN);
+    CAN_DataSend_ExpectAndReturn(
+        CAN_NODE_FATAL_ERROR_MESSAGE, CANTX_BMS_FATAL_ERROR_ID, CANTX_BMS_FATAL_ERROR_ID_TYPE, &data[0], STD_OK);
     TEST_ASSERT_EQUAL(STD_OK, TEST_CANTX_SendMessageFatalErrorCode(1234));
 }
 
 void testCANTX_CANTX_SendMessageFatalErrorCodeNotOk(void) {
-    CAN_TxSetCanDataWithMessageData_Ignore();
-    CAN_DataSend_IgnoreAndReturn(STD_NOT_OK);
+    uint64_t messageData = 1234u;
+    uint8_t data[]       = {GEN_REPEAT_U(0u, GEN_STRIP(CAN_MAX_DLC))};
+
+    CAN_TxSetCanDataWithMessageData_Expect(messageData, &data[0], CAN_BIG_ENDIAN);
+    CAN_DataSend_ExpectAndReturn(
+        CAN_NODE_FATAL_ERROR_MESSAGE, CANTX_BMS_FATAL_ERROR_ID, CANTX_BMS_FATAL_ERROR_ID_TYPE, &data[0], STD_NOT_OK);
     TEST_ASSERT_EQUAL(STD_NOT_OK, TEST_CANTX_SendMessageFatalErrorCode(1234));
 }

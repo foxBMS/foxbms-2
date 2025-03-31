@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -46,7 +46,7 @@ import re
 import shutil
 from xml.etree import ElementTree
 
-from waflib import Errors, Task, TaskGen, Utils, Logs
+from waflib import Errors, Logs, Task, TaskGen, Utils
 from waflib.Node import Node
 
 
@@ -374,7 +374,7 @@ def fix_gen_hal_incs(self):
             self.env.append_unique("INCPATHS", inc_paths)
 
 
-def configure(conf):
+def configure(ctx):
     """configuration step of the TI HALCoGen Code Generator.
 
     #. checks whether the platform is Win32 or not, as HALCoGen is only
@@ -383,32 +383,28 @@ def configure(conf):
     #. Adds the include path of the F021 Flash API to ``INCLUDES``
 
     """
-    conf.start_msg("Checking for TI Code Generator (HALCoGen)")
-    if not Utils.is_win32:
-        conf.end_msg(False)
-        return
+    ctx.start_msg("Checking for TI Code Generator (HALCoGen)")
+    ctx.find_program("HALCOGEN", var="HALCOGEN", mandatory=False)
+    if ctx.env.HALCOGEN:
+        incpath_halcogen = os.path.join(
+            pathlib.Path(ctx.env.HALCOGEN[0]).parent.parent.parent,
+            "F021 Flash API",
+            "02.01.01",
+            "include",
+        )
+        if os.path.exists(incpath_halcogen):
+            ctx.env.append_unique("INCLUDES", incpath_halcogen)
 
-    conf.find_program("HALCOGEN", var="HALCOGEN", mandatory=False)
-
-    if not conf.env.HALCOGEN:
-        conf.end_msg(False)
-        return
-
-    incpath_halcogen = os.path.join(
-        pathlib.Path(conf.env.HALCOGEN[0]).parent.parent.parent,
-        "F021 Flash API",
-        "02.01.01",
-        "include",
-    )
-    if os.path.exists(incpath_halcogen):
-        conf.env.append_unique("INCLUDES", incpath_halcogen)
-
-    libpath_halcogen = os.path.join(
-        pathlib.Path(conf.env.HALCOGEN[0]).parent.parent.parent,
-        "F021 Flash API",
-        "02.01.01",
-    )
-    if os.path.exists(libpath_halcogen):
-        conf.env.append_unique("STLIBPATH", libpath_halcogen)
-    conf.env["HALCOGEN_SRC_INPUT"] = ["-i"]
-    conf.end_msg(conf.env.get_flat("HALCOGEN"))
+        libpath_halcogen = os.path.join(
+            pathlib.Path(ctx.env.HALCOGEN[0]).parent.parent.parent,
+            "F021 Flash API",
+            "02.01.01",
+        )
+        if os.path.exists(libpath_halcogen):
+            ctx.env.append_unique("STLIBPATH", libpath_halcogen)
+        ctx.env["HALCOGEN_SRC_INPUT"] = ["-i"]
+    else:
+        Logs.warn(
+            "HALCogen is not available  and therefore the code generator can not run."
+        )
+    ctx.end_msg(ctx.env.get_flat("HALCOGEN"))

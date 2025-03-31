@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -38,3 +38,40 @@
 # - "This product is derived from foxBMS®"
 
 """Testing file 'cli/commands/c_install.py'."""
+
+import sys
+import unittest
+from pathlib import Path
+from unittest.mock import MagicMock, patch
+
+from click.testing import CliRunner
+
+try:
+    from cli.cli import main
+
+except ModuleNotFoundError:
+    sys.path.insert(0, str(Path(__file__).parents[3]))
+    from cli.cli import main
+
+
+class TestFoxCliMainCommandInstall(unittest.TestCase):
+    """Test of the 'install' commands and options."""
+
+    def test_install(self):
+        """Test 'fox.py install' command."""
+
+        runner = CliRunner()
+        result = runner.invoke(main, ["install"])
+        self.assertEqual(0, result.exit_code)
+
+    @patch("cli.commands.c_install.install_impl")
+    def test_install_check(self, mock_install_impl: MagicMock):
+        """Test 'fox.py install --check' command."""
+        mock_install_impl.all_software_available.return_value = 0
+        runner = CliRunner()
+        result = runner.invoke(main, ["install", "--check"])
+        self.assertEqual(0, result.exit_code)
+
+
+if __name__ == "__main__":
+    unittest.main()

@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    tsi.h
  * @author  foxBMS Team
  * @date    2020-08-25 (date of creation)
- * @updated 2024-12-20 (date of last update)
- * @version v1.8.0
+ * @updated 2025-03-31 (date of last update)
+ * @version v1.9.0
  * @ingroup DRIVERS
  * @prefix  TSI
  *
@@ -71,7 +71,7 @@
  * @details Takes a voltage in mV as input and returns a temperature in int16_t
  *          according to the chosen temperature sensor implementation.
  * @param   adcVoltage_mV   ADC voltage value in mV
- * @returns temperature in int16_t in deci &deg;C
+ * @return  Temperature in int16_t in deci &deg;C
  */
 extern int16_t TSI_GetTemperature(uint16_t adcVoltage_mV);
 
@@ -79,7 +79,7 @@ extern int16_t TSI_GetTemperature(uint16_t adcVoltage_mV);
  * @brief   Return the maximum plausible temperature
  * @details Returns the maximum plausible temperature that can be returned
  *          from the TSI in deci &deg;C.
- * @returns temperature as deci &deg;C
+ * @return  Temperature as deci &deg;C
  */
 extern int16_t TSI_GetMaximumPlausibleTemperature(void);
 
@@ -87,7 +87,7 @@ extern int16_t TSI_GetMaximumPlausibleTemperature(void);
  * @brief   Return the minimum plausible temperature
  * @details Returns the minimum plausible temperature that can be returned
  *          from the TSI in deci &deg;C.
- * @returns temperature as deci &deg;C
+ * @return  Temperature as deci &deg;C
  */
 extern int16_t TSI_GetMinimumPlausibleTemperature(void);
 

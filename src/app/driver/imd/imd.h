@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    imd.h
  * @author  foxBMS Team
  * @date    2020-11-20 (date of creation)
- * @updated 2024-12-20 (date of last update)
- * @version v1.8.0
+ * @updated 2025-03-31 (date of last update)
+ * @version v1.9.0
  * @ingroup DRIVERS
  * @prefix  IMD
  *
@@ -173,7 +173,7 @@ extern bool IMD_GetInitializationState(void);
  * @brief   trigger function for the IMD driver state machine.
  * @details This function contains the sequence of events in the IMD state
  *          machine. It must be called time-triggered, every 100ms.
- * @returns returns #STD_OK if trigger called successfully
+ * @return  returns #STD_OK if trigger called successfully
  */
 extern STD_RETURN_TYPE_e IMD_Trigger(void);
 

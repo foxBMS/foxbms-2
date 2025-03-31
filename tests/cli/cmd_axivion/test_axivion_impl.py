@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -50,7 +50,7 @@ try:
     from cli.cmd_axivion import axivion_impl
     from cli.helpers.spr import SubprocessResult
 except ModuleNotFoundError:
-    sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
+    sys.path.insert(0, str(Path(__file__).parents[3]))
     from cli.cmd_axivion import axivion_impl
     from cli.helpers.spr import SubprocessResult
 
@@ -175,7 +175,7 @@ class TestArchitecture(unittest.TestCase):
 
         self.assertEqual(result, mock_run_process.return_value)
 
-    @patch("cli.cmd_axivion.axivion_impl.script_impl.run_python_script")
+    @patch("cli.cmd_axivion.axivion_impl.run_script_impl.run_python_script")
     def test_check_violations(self, mock_run_python_script):
         """test check violations"""
         # Prepare test arguments

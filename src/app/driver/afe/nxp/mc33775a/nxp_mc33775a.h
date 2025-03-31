@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    nxp_mc33775a.h
  * @author  foxBMS Team
  * @date    2020-05-08 (date of creation)
- * @updated 2024-12-20 (date of last update)
- * @version v1.8.0
+ * @updated 2025-03-31 (date of last update)
+ * @version v1.9.0
  * @ingroup DRIVERS
  * @prefix  N775
  *
@@ -60,6 +60,9 @@
 /*========== Includes =======================================================*/
 #include "nxp_mc33775a_cfg.h"
 
+#include "nxp_mc33775a_balancing.h"
+#include "nxp_mc33775a_i2c.h"
+
 #include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
@@ -72,40 +75,12 @@ extern N775_STATE_s n775_stateBase;
 /*========== Extern Function Prototypes =====================================*/
 
 /**
- * @brief   trigger a read on the I2C bus of the slave.
- * @param   module          module number to address in the daisy-chain
- * @param   deviceAddress   address of the I2C device addressed
- * @param   pData           data read on I2C bus
- * @param   dataLength      number of bytes to read
+ * @brief   waits for a definite amount of time in ms.
+ * @details This function uses FreeRTOS. It blocks the tasks for the given
+ *          amount of milliseconds.
+ * @param   milliseconds time to wait in ms
  */
-extern STD_RETURN_TYPE_e N775_I2cRead(uint8_t module, uint8_t deviceAddress, uint8_t *pData, uint8_t dataLength);
-
-/**
- * @brief  trigger a write on the I2C bus of the slave.
- * @param  module         module number to address in the daisy-chain
- * @param  deviceAddress  address of the I2C device addressed
- * @param  pData          data to write on I2C bus
- * @param  dataLength     number of bytes to write
- */
-extern STD_RETURN_TYPE_e N775_I2cWrite(uint8_t module, uint8_t deviceAddress, uint8_t *pData, uint8_t dataLength);
-
-/**
- * @brief   trigger a read on the I2C bus of the slave, first write address of
- *          register to read.
- * @param   module          module number to address in the daisy-chain
- * @param   deviceAddress   address of the I2C device addressed
- * @param   pDataWrite      data written on I2C bus
- * @param   writeDataLength number of bytes to write
- * @param   pDataRead       data read on I2C bus
- * @param   readDataLength  number of bytes to read
- */
-extern STD_RETURN_TYPE_e N775_I2cWriteRead(
-    uint8_t module,
-    uint8_t deviceAddress,
-    uint8_t *pDataWrite,
-    uint8_t writeDataLength,
-    uint8_t *pDataRead,
-    uint8_t readDataLength);
+extern void N775_Wait(uint32_t milliseconds);
 
 /**
  * @brief   gets the measurement initialization status.
@@ -126,22 +101,17 @@ extern void N775_Measure(N775_STATE_s *pState);
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 #ifdef UNITY_UNIT_TEST
 #include "nxp_mc33775a-ll.h"
-extern void TEST_N775_BalanceControl(N775_STATE_s *pState);
-extern void TEST_N775_BalanceSetup(N775_STATE_s *pState);
 extern void TEST_N775_CaptureMeasurement(N775_STATE_s *pState);
 extern STD_RETURN_TYPE_e TEST_N775_Enumerate(N775_STATE_s *pState);
 extern void TEST_N775_ErrorHandling(N775_STATE_s *pState, N775_COMMUNICATION_STATUS_e returnedValue, uint8_t module);
 extern void TEST_N775_IncrementMuxIndex(N775_STATE_s *pState);
 extern void TEST_N775_IncrementStringSequence(N775_STATE_s *pState);
 extern void TEST_N775_Initialize(N775_STATE_s *pState);
-extern void TEST_N775_InitializeDatabase(N775_STATE_s *pState);
-extern void TEST_N775_InitializeI2c(N775_STATE_s *pState);
 extern void TEST_N775_ResetStringSequence(N775_STATE_s *pState);
 extern void TEST_N775_ResetMuxIndex(N775_STATE_s *pState);
 extern void TEST_N775_SetFirstMeasurementCycleFinished(N775_STATE_s *pState);
 extern STD_RETURN_TYPE_e TEST_N775_SetMuxChannel(N775_STATE_s *pState);
 extern void TEST_N775_StartMeasurement(N775_STATE_s *pState);
-extern STD_RETURN_TYPE_e TEST_N775_TransmitI2c(N775_STATE_s *pState);
 extern void TEST_N775_Wait(uint32_t milliseconds);
 #endif
 

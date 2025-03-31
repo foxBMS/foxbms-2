@@ -1,11 +1,10 @@
 |foxbms| now ships with a new `venv` environment `2024-08-pale-fox`.
 See :ref:`SOFTWARE_INSTALLATION` for information on updating.
 
-In order to get the unit tests working the Ruby Gems need to the updated.
-See :ref:`SOFTWARE_INSTALLATION` for information on installing the Ruby Gems.
+In order to get the unit tests working the |ruby-gems| need to the updated.
 
-|foxbms| now ships with a set of |code| workspaces that are created at
-configuration time:
+|foxbms| now ships with a set of Visual Studio Code workspaces that are created
+at configuration time:
 
 - generic: at the root of the repository.
   Useful setup for working on the entire repository, but not perfectly setup

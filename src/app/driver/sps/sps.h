@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    sps.h
  * @author  foxBMS Team
  * @date    2020-10-14 (date of creation)
- * @updated 2024-12-20 (date of last update)
- * @version v1.8.0
+ * @updated 2025-03-31 (date of last update)
+ * @version v1.9.0
  * @ingroup DRIVERS
  * @prefix  SPS
  *
@@ -112,7 +112,7 @@ extern void SPS_RequestGeneralIoState(SPS_CHANNEL_INDEX channelIndex, SPS_CHANNE
  *          channel with a fixed threshold and assumes the contactor feedback
  *          to be closed when this threshold is passed on the channel.
  * @param[in]   channelIndex    index of the channel (contactor) that should be accessed
- * @returns     state of the channel's feedback
+ * @return  State of the channel's feedback
  */
 extern CONT_ELECTRICAL_STATE_TYPE_e SPS_GetChannelCurrentFeedback(const SPS_CHANNEL_INDEX channelIndex);
 
@@ -123,14 +123,14 @@ extern CONT_ELECTRICAL_STATE_TYPE_e SPS_GetChannelCurrentFeedback(const SPS_CHAN
  *          the value through the PEX API.
  * @param[in]   channelIndex    number of the SPS channel that shall be checked
  * @param[in]   normallyOpen    true if the feedback is normally open, false if not
- * @return  state of the channel as reported by PEX
+ * @return  State of the channel as reported by PEX
  */
 extern CONT_ELECTRICAL_STATE_TYPE_e SPS_GetChannelPexFeedback(const SPS_CHANNEL_INDEX channelIndex, bool normallyOpen);
 
 /**
  * @brief   Returns the channel affiliation
  * @param[in]   channelIndex    index of the channel in question
- * @returns     affiliation of the channel
+ * @return  Affiliation of the channel
  */
 extern SPS_CHANNEL_AFFILIATION_e SPS_GetChannelAffiliation(SPS_CHANNEL_INDEX channelIndex);
 
@@ -139,6 +139,18 @@ extern void SPS_SwitchOffAllGeneralIoChannels(void);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 #ifdef UNITY_UNIT_TEST
+extern void TEST_SPS_SingleDeviceRegisterWrite(
+    uint8_t device,
+    const uint16_t address,
+    uint8_t writeData,
+    SPS_WRITE_TYPE_e writeType,
+    uint16_t *pSpiTxBuffer);
+extern void TEST_SPS_SetCommandTxBuffer(const SPS_ACTION_e action);
+extern void TEST_SPS_GlobalRegisterWrite(const uint16_t address, uint8_t writeData, uint16_t *pSpiTxBuffer);
+extern void TEST_SPS_GlobalRegisterRead(
+    const uint16_t address,
+    const SPS_READ_TYPE_e controlOrDiagnostic,
+    uint16_t *pSpiTxBuffer);
 extern void TEST_SPS_RequestChannelState(SPS_CHANNEL_INDEX channelIndex, SPS_CHANNEL_FUNCTION_e channelFunction);
 extern SPS_STATE_e TEST_SPS_GetSpsState(void);
 extern void TEST_SPS_SetSpsState(const SPS_STATE_e newState);

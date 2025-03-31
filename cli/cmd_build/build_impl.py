@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -40,6 +40,7 @@
 """Implements the functionalities behind the 'waf' command"""
 
 import logging
+from pathlib import Path
 from subprocess import PIPE
 from sys import executable
 
@@ -52,7 +53,7 @@ WAF_BASE_CMD = [executable, str(WAF_BIN)]
 
 
 def run_waf(
-    args: list[str], cwd=WAF_DEFAULT_CWD, stdout=PIPE, stderr=PIPE
+    args: list[str], cwd: str | Path = WAF_DEFAULT_CWD, stdout=PIPE, stderr=PIPE
 ) -> SubprocessResult:
     """Run the waf binary with the provided arguments."""
     cmd = WAF_BASE_CMD + args
@@ -61,7 +62,7 @@ def run_waf(
 
 
 def run_top_level_waf(
-    args: list[str], cwd=WAF_DEFAULT_CWD, stdout=PIPE, stderr=PIPE
+    args: list[str], cwd: str | Path = WAF_DEFAULT_CWD, stdout=PIPE, stderr=PIPE
 ) -> SubprocessResult:
     """Run the waf binary with the provided arguments."""
     ret = run_waf(args, cwd=cwd, stdout=stdout, stderr=stderr)

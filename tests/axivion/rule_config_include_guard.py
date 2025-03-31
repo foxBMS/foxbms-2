@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -39,13 +39,11 @@
 
 """foxBMS specific rules setting for Axivion analysis of include guards."""
 
-from typing import Union
 from pathlib import Path
 
 # pylint: disable=import-error
 import axivion.config  # pylint: disable=no-name-in-module
-from bauhaus import ir
-from bauhaus import scanner
+from bauhaus import ir, scanner
 
 # pylint: enable=import-error
 ANALYSIS = axivion.config.get_analysis()  # pylint: disable=c-extension-no-member
@@ -64,7 +62,7 @@ def create_include_guard(file_name: str) -> str:
 def check_include_guard(
     node: ir.Node,
     define: scanner.Token,  # pylint: disable=unused-argument
-    macro: Union[str, None],
+    macro: str | None,
 ) -> bool:
     """check that header file uses the correct include guard."""
     if node:

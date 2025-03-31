@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -45,7 +45,6 @@ import unittest
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-
 try:
     from cli import foxbms_version
 except ModuleNotFoundError:
@@ -76,7 +75,7 @@ class TestFoxbmsVersion(unittest.TestCase):
     @patch("cli.foxbms_version.Path.read_text")
     def test_get_version_bad_text(self, mock_read_text):
         """Regex does match"""
-        mock_read_text.return_value = '''VERSION = "asdasd"'''
+        mock_read_text.return_value = '''VERSION = "foo"'''
         with self.assertRaises(SystemExit) as cm:
             foxbms_version.get_version()
         self.assertEqual(cm.exception.code, "Could not determine foxBMS 2 version.")

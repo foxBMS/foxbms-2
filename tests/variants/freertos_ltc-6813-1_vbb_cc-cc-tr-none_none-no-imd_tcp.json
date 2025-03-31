@@ -1,0 +1,34 @@
+{
+  "application": {
+    "algorithm": {
+      "state-estimation": {
+        "soc": "counting",
+        "soe": "counting",
+        "sof": "trapezoid",
+        "soh": "none"
+      }
+    },
+    "balancing-strategy": "voltage",
+    "insulation-monitoring-device": {
+      "manufacturer": "none",
+      "model": ""
+    }
+  },
+  "rtos": {
+    "name": "freertos",
+    "addons": [
+      "freertos-plus-tcp"
+    ]
+  },
+  "slave-unit": {
+    "analog-front-end": {
+      "ic": "6813-1",
+      "manufacturer": "ltc"
+    },
+    "temperature-sensor": {
+      "manufacturer": "epcos",
+      "method": "polynomial",
+      "model": "b57251v5103j060"
+    }
+  }
+}

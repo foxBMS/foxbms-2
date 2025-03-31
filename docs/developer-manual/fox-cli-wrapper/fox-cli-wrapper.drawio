@@ -1,0 +1,128 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/25.0.2 Chrome/128.0.6613.186 Electron/32.2.5 Safari/537.36" version="25.0.2">
+  <diagram name="Page-1" id="d_jy2efu28WGUQZo3gD0">
+    <mxGraphModel dx="1434" dy="956" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="BD1TUV4fcC1nCOwpNY_s-10" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" parent="1" source="BD1TUV4fcC1nCOwpNY_s-26" target="BD1TUV4fcC1nCOwpNY_s-2" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="75" y="70" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="BD1TUV4fcC1nCOwpNY_s-4" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="BD1TUV4fcC1nCOwpNY_s-2" target="BD1TUV4fcC1nCOwpNY_s-9" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="-85" y="140" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="BD1TUV4fcC1nCOwpNY_s-5" value="macOS" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="BD1TUV4fcC1nCOwpNY_s-4" vertex="1" connectable="0">
+          <mxGeometry x="-0.2341" y="2" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="BD1TUV4fcC1nCOwpNY_s-12" value="Windows/Linux" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="BD1TUV4fcC1nCOwpNY_s-2" target="BD1TUV4fcC1nCOwpNY_s-23" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="BD1TUV4fcC1nCOwpNY_s-2" value="OS?" style="rhombus;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="55" y="103" width="40" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="BD1TUV4fcC1nCOwpNY_s-9" value="&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;exit 1&lt;/span&gt;&lt;br&gt;&lt;/div&gt;" style="ellipse;html=1;shape=endState;fillColor=#000000;strokeColor=#ff0000;" parent="1" vertex="1">
+          <mxGeometry x="205" y="108" width="30" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="BD1TUV4fcC1nCOwpNY_s-14" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="BD1TUV4fcC1nCOwpNY_s-11" target="BD1TUV4fcC1nCOwpNY_s-13" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="BD1TUV4fcC1nCOwpNY_s-11" value="Calculate Installation Prefix" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;rotation=0;" parent="1" vertex="1">
+          <mxGeometry y="270" width="150" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="BD1TUV4fcC1nCOwpNY_s-16" value="Yes" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="BD1TUV4fcC1nCOwpNY_s-13" target="BD1TUV4fcC1nCOwpNY_s-15" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="BD1TUV4fcC1nCOwpNY_s-38" value="No" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="BD1TUV4fcC1nCOwpNY_s-13" target="BD1TUV4fcC1nCOwpNY_s-37" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="BD1TUV4fcC1nCOwpNY_s-13" value="Python&amp;nbsp;&lt;span style=&quot;background-color: initial;&quot;&gt;env&lt;/span&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;activate script&lt;/span&gt;&lt;div&gt;exists?&lt;/div&gt;&lt;/div&gt;" style="rhombus;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="25" y="335" width="100" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="BD1TUV4fcC1nCOwpNY_s-22" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="BD1TUV4fcC1nCOwpNY_s-15" target="BD1TUV4fcC1nCOwpNY_s-21" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="BD1TUV4fcC1nCOwpNY_s-15" value="Activate environment" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;" parent="1" vertex="1">
+          <mxGeometry y="490" width="150" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="BD1TUV4fcC1nCOwpNY_s-29" value="Yes" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="BD1TUV4fcC1nCOwpNY_s-21" target="BD1TUV4fcC1nCOwpNY_s-28" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="BD1TUV4fcC1nCOwpNY_s-33" value="No" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="BD1TUV4fcC1nCOwpNY_s-21" target="BD1TUV4fcC1nCOwpNY_s-32" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="BD1TUV4fcC1nCOwpNY_s-21" value="&lt;div&gt;&lt;span style=&quot;color: rgb(0, 0, 0); font-family: Helvetica; font-size: 12px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: center; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: normal; background-color: rgb(251, 251, 251); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial; display: inline !important; float: none;&quot;&gt;Python&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;color: rgb(0, 0, 0); font-family: Helvetica; font-size: 12px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: center; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: normal; background-color: rgb(251, 251, 251); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial; display: inline !important; float: none;&quot;&gt;executeable&lt;/span&gt;&lt;div&gt;&lt;span style=&quot;color: rgb(0, 0, 0); font-family: Helvetica; font-size: 12px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: center; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: normal; background-color: rgb(251, 251, 251); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial; display: inline !important; float: none;&quot;&gt;exists?&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;" style="rhombus;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="25" y="560" width="100" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="BD1TUV4fcC1nCOwpNY_s-25" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="BD1TUV4fcC1nCOwpNY_s-23" target="BD1TUV4fcC1nCOwpNY_s-11" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="75" y="257" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="BD1TUV4fcC1nCOwpNY_s-23" value="Push into repository root" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;rotation=0;" parent="1" vertex="1">
+          <mxGeometry y="200" width="150" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="BD1TUV4fcC1nCOwpNY_s-26" value="fox.ps1/sh" style="ellipse;shape=doubleEllipse;html=1;dashed=0;whiteSpace=wrap;aspect=fixed;" parent="1" vertex="1">
+          <mxGeometry x="40" width="70" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="BD1TUV4fcC1nCOwpNY_s-31" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="BD1TUV4fcC1nCOwpNY_s-28" target="BD1TUV4fcC1nCOwpNY_s-49" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="BD1TUV4fcC1nCOwpNY_s-28" value="Run&lt;div&gt;python fox.py &amp;lt;args&amp;gt;&lt;/div&gt;" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;" parent="1" vertex="1">
+          <mxGeometry y="700" width="150" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="BD1TUV4fcC1nCOwpNY_s-30" value="&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;exit with fox.py&#39;s error code&lt;/span&gt;&lt;br&gt;&lt;/div&gt;" style="ellipse;html=1;shape=endState;fillColor=#000000;strokeColor=#ff0000;" parent="1" vertex="1">
+          <mxGeometry x="60" y="890" width="30" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="BD1TUV4fcC1nCOwpNY_s-32" value="&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;exit 1&lt;/span&gt;&lt;br&gt;&lt;/div&gt;" style="ellipse;html=1;shape=endState;fillColor=#000000;strokeColor=#ff0000;" parent="1" vertex="1">
+          <mxGeometry x="190" y="595" width="30" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="BD1TUV4fcC1nCOwpNY_s-42" value="Yes" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" parent="1" source="BD1TUV4fcC1nCOwpNY_s-37" target="BD1TUV4fcC1nCOwpNY_s-41" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="BD1TUV4fcC1nCOwpNY_s-46" value="No" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" parent="1" source="BD1TUV4fcC1nCOwpNY_s-37" target="BD1TUV4fcC1nCOwpNY_s-45" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="BD1TUV4fcC1nCOwpNY_s-37" value="Base&lt;div&gt;python&lt;/div&gt;&lt;div&gt;installation&lt;div&gt;exists?&lt;/div&gt;&lt;/div&gt;" style="rhombus;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="219" y="335" width="100" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="BD1TUV4fcC1nCOwpNY_s-44" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" parent="1" source="BD1TUV4fcC1nCOwpNY_s-41" target="BD1TUV4fcC1nCOwpNY_s-47" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="609" y="475" as="sourcePoint" />
+            <mxPoint x="578.9999999999827" y="455" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="BD1TUV4fcC1nCOwpNY_s-41" value="Run fallback script ./cli/fallback/fallback.py" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;" parent="1" vertex="1">
+          <mxGeometry x="359" y="435" width="170" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="BD1TUV4fcC1nCOwpNY_s-48" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="BD1TUV4fcC1nCOwpNY_s-45" target="BD1TUV4fcC1nCOwpNY_s-47" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="BD1TUV4fcC1nCOwpNY_s-45" value="Inform user to&lt;div&gt;install Python&lt;/div&gt;" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;" parent="1" vertex="1">
+          <mxGeometry x="359" y="295" width="170" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="BD1TUV4fcC1nCOwpNY_s-47" value="&lt;div style=&quot;&quot;&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;&amp;nbsp; &amp;nbsp;exit 1&lt;/span&gt;&lt;br&gt;&lt;/div&gt;" style="ellipse;html=1;shape=endState;fillColor=#000000;strokeColor=#ff0000;" parent="1" vertex="1">
+          <mxGeometry x="579" y="370" width="30" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="BD1TUV4fcC1nCOwpNY_s-51" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="BD1TUV4fcC1nCOwpNY_s-49" target="BD1TUV4fcC1nCOwpNY_s-50" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="BD1TUV4fcC1nCOwpNY_s-49" value="Deactivate environment" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;" parent="1" vertex="1">
+          <mxGeometry y="770" width="150" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="BD1TUV4fcC1nCOwpNY_s-52" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="BD1TUV4fcC1nCOwpNY_s-50" target="BD1TUV4fcC1nCOwpNY_s-30" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="BD1TUV4fcC1nCOwpNY_s-50" value="Pop directory" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;" parent="1" vertex="1">
+          <mxGeometry y="830" width="150" height="40" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -44,13 +44,19 @@ import sys
 import unittest
 from contextlib import redirect_stderr, redirect_stdout
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 try:
-    from cli.cmd_install.install_impl import all_software_available
+    from cli.cmd_install.install_impl import (
+        all_software_available,
+        check_for_all_softwares,
+    )
 except ModuleNotFoundError:
-    sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
-    from cli.cmd_install.install_impl import all_software_available
+    sys.path.insert(0, str(Path(__file__).parents[3]))
+    from cli.cmd_install.install_impl import (
+        all_software_available,
+        check_for_all_softwares,
+    )
 
 
 class TestInstallImpl(unittest.TestCase):
@@ -70,15 +76,85 @@ class TestInstallImpl(unittest.TestCase):
 
     @patch(
         "cli.cmd_install.install_impl.REQUIRED_SOFTWARE",
-        {"python": {"executable": "python", "path": False}},
+        {"git": {"executable": "git", "path": False}},
     )
-    def test_all_software_available(self):
+    @patch("shutil.which")
+    def test_all_software_available(self, mock_which: MagicMock):
         """test function with only Python as required software"""
+        mock_which.return_value = "git"
         buf = io.StringIO()
         with redirect_stdout(buf):
             result = all_software_available()
         self.assertEqual(result, 0)
         self.assertIn("All required software is installed.", buf.getvalue())
+
+    @unittest.skipIf(not sys.platform.startswith("win32"), "Windows specific test")
+    @patch(
+        "cli.cmd_install.install_impl.REQUIRED_SOFTWARE",
+        {
+            "does-not-exist": {
+                "executable": "does-not-exist",
+                "path": False,
+                "availability": ["linux"],
+            }
+        },
+    )
+    @patch("shutil.which")
+    def test_all_software_available_1(self, mock_which: MagicMock):
+        """test function with only Python as required software"""
+        mock_which.return_value = None
+        err = io.StringIO()
+        out = io.StringIO()
+        with redirect_stderr(err), redirect_stdout(out):
+            result = all_software_available()
+        self.assertEqual(result, 0)
+        self.assertEqual(
+            err.getvalue(),
+            "does-not-exist (does-not-exist) is not available on win32.\n",
+        )
+        self.assertEqual("All required software is installed.\n", out.getvalue())
+
+    @unittest.skipIf(not sys.platform.startswith("linux"), "Linux specific test")
+    @patch(
+        "cli.cmd_install.install_impl.REQUIRED_SOFTWARE",
+        {
+            "does-not-exist": {
+                "executable": "does-not-exist",
+                "path": False,
+                "availability": ["win32"],
+            }
+        },
+    )
+    @patch("shutil.which")
+    def test_all_software_available_2(self, mock_which: MagicMock):
+        """test function with only Python as required software"""
+        mock_which.return_value = None
+        err = io.StringIO()
+        out = io.StringIO()
+        with redirect_stderr(err), redirect_stdout(out):
+            result = all_software_available()
+        self.assertEqual(result, 0)
+        self.assertEqual(
+            err.getvalue(),
+            "does-not-exist (does-not-exist) is not available on linux.\n",
+        )
+        self.assertEqual("All required software is installed.\n", out.getvalue())
+
+    @patch("cli.cmd_install.install_impl.deepcopy")
+    def test_check_for_all_softwares(self, mock_deepcopy: MagicMock):
+        """Test invalid expected required software defintion"""
+        mock_deepcopy.return_value = {
+            "drawio": {
+                "executable": {
+                    "win32": 1,
+                    "linux": 1,
+                },
+                "path": False,
+            },
+        }
+        with self.assertRaises(SystemExit) as cm:
+            check_for_all_softwares()
+        self.assertEqual((cm.exception.code).startswith("Invalid path file "), True)
 
 
 if __name__ == "__main__":

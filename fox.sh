@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -37,91 +37,105 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
+# Make all errors terminating errors
 set -e
 
-SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-
-ENV_NAME="2025-01-pale-fox"
-# MacOS
+# Unsupported operating systems
 if [ "$(uname)" == "Darwin" ]; then
     echo "MacOS is currently not supported."
     exit 1
-# Linux
-elif [ "$(printf "%s" "$(uname -s)" | cut -c 1-5)" == "Linux" ]; then
-    pushd "$SCRIPTDIR" > /dev/null
-    FOXBMS_PYTHON_ENV_DIRECTORY_USER="$HOME/foxbms-envs/${ENV_NAME}"
-    FOXBMS_PYTHON_ENV_DIRECTORY_ROOT="/opt/foxbms-envs/${ENV_NAME}"
-
-    FOXBMS_PYTHON_ENV_DIRECTORY="$FOXBMS_PYTHON_ENV_DIRECTORY_USER"
-
-    # Prefer the user installation
-    if [ ! -d "$FOXBMS_PYTHON_ENV_DIRECTORY_USER" ]; then
-        FOXBMS_PYTHON_ENV_DIRECTORY="$FOXBMS_PYTHON_ENV_DIRECTORY_ROOT"
-    fi
-
-    if [ ! -d "$FOXBMS_PYTHON_ENV_DIRECTORY" ]; then
-        echo "'$FOXBMS_PYTHON_ENV_DIRECTORY_USER' and"
-        echo "'$FOXBMS_PYTHON_ENV_DIRECTORY_ROOT' do not exist."
-        echo "One of both must be available. See Installation instructions in"
-        echo "'$SCRIPTDIR/INSTALL.md'"
-        exit 1
-    fi
-
-    # shellcheck source=/dev/null
-    source "$FOXBMS_PYTHON_ENV_DIRECTORY/bin/activate"
-
-    # Check if Python executable exists
-    if ! command -v python &> /dev/null
-    then
-        echo "Could not find python executable"
-        exit 1
-    fi
-
-    python "${SCRIPTDIR}/fox.py" "$@" || rc="$?"
-    deactivate
-    popd > /dev/null
-    exit $((rc))
-# Windows
 elif [ "$(printf "%s" "$(uname -s)" | cut -c 1-9)" == "CYGWIN_NT" ]; then
     echo "Cygwin is not supported."
     exit 1
 elif [ "$(printf "%s" "$(uname -s)" | cut -c 1-10)" == "MINGW32_NT" ]; then
     echo "32bit Windows is not supported."
     exit 1
+fi
+
+# Define prefix Linux
+if [ "$(printf "%s" "$(uname -s)" | cut -c 1-5)" == "Linux" ]; then
+    IsLinux="1"
+# Define prefix Windows
 elif [ "$(printf "%s" "$(uname -s)" | cut -c 1-10)" == "MINGW64_NT" ] || [ "$(printf "%s" "$(uname -s)" | cut -c 1-7)" == "MSYS_NT" ] ; then
-    pushd "$SCRIPTDIR" > /dev/null
-    UNIX_USERPROFILE="${USERPROFILE//\\//}" # replace backslashes with forward slashes
-    UNIX_USERPROFILE="${UNIX_USERPROFILE//\:/}" # remove drive colon
-    FOXBMS_PYTHON_ENV_DIRECTORY_USER="/${UNIX_USERPROFILE}/foxbms-envs/${ENV_NAME}"
-    FOXBMS_PYTHON_ENV_DIRECTORY_ROOT="/C/foxbms-envs/${ENV_NAME}"
+    IsWindows="1"
 
-    FOXBMS_PYTHON_ENV_DIRECTORY="$FOXBMS_PYTHON_ENV_DIRECTORY_USER"
+fi
 
-    # Prefer the user installation
-    if [ ! -d "$FOXBMS_PYTHON_ENV_DIRECTORY_USER" ]; then
-        FOXBMS_PYTHON_ENV_DIRECTORY="$FOXBMS_PYTHON_ENV_DIRECTORY_ROOT"
+# Error handling when Python environment is not found
+function InstallHelper() {
+    env_dir="$1"
+    if [ "$IsWindows" == "1" ]; then
+        PYTHON="py"
+    else
+        PYTHON="python3"
     fi
-
-    if [ ! -d "$FOXBMS_PYTHON_ENV_DIRECTORY" ]; then
-        echo "'$FOXBMS_PYTHON_ENV_DIRECTORY_USER' and"
-        echo "'$FOXBMS_PYTHON_ENV_DIRECTORY_ROOT' do not exist."
-        echo "One of both must be available. See Installation instructions in"
-        echo "'$SCRIPTDIR/INSTALL.md'"
+    if ! command -v "$PYTHON" &> /dev/null
+        then
+    # No python available at all
+        echo "Could not find $PYTHON."
+        if [ "$IsWindows" == "1" ]; then
+            echo "Install Python from python.org and rerun the command."
+        else
+            echo "Use your distributions package manager to install Python3."
+        fi
+        popd > /dev/null
         exit 1
     fi
+    FALLBACK_SCRIPT="$SCRIPTDIR/cli/fallback/fallback.py"
+    $PYTHON "$FALLBACK_SCRIPT" "$env_dir"
+    popd > /dev/null
+    exit 1
+}
 
-    # shellcheck source=/dev/null
-    source "$FOXBMS_PYTHON_ENV_DIRECTORY/Scripts/activate"
+# Push into the repository root
+SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+pushd "$SCRIPTDIR" > /dev/null
 
-    # Check if Python executable exists
-    if ! command -v python &> /dev/null
+# Define prefix Linux
+if [ "$IsLinux" == "1" ]; then
+    PREFIX="/opt/foxbms"
+# Define prefix Windows
+elif [ "$IsWindows" = "1" ] ; then
+    PREFIX="/C/foxbms"
+fi
+
+# Name of the Python environment
+ENV_NAME="2025-03-pale-fox"
+
+FOXBMS_PYTHON_ENV_DIRECTORY="${PREFIX}/envs/${ENV_NAME}"
+
+# Activation script path
+if [ "$IsLinux" == "1" ]; then
+    FOXBMS_PYTHON_ACTIVATION_SCRIPT_REL_PATH="bin/activate"
+elif [ "$IsWindows" = "1" ] ; then
+    FOXBMS_PYTHON_ACTIVATION_SCRIPT_REL_PATH="Scripts/activate"
+fi
+
+FOXBMS_PYTHON_ACTIVATION_SCRIPT="${FOXBMS_PYTHON_ENV_DIRECTORY}/${FOXBMS_PYTHON_ACTIVATION_SCRIPT_REL_PATH}"
+# check if the activation script exists
+if [ ! -f "${FOXBMS_PYTHON_ACTIVATION_SCRIPT}" ]; then
+    echo "Could not find expected Python venv '${ENV_NAME}' (expected directory '${FOXBMS_PYTHON_ENV_DIRECTORY}' to exist)."
+    InstallHelper "${FOXBMS_PYTHON_ENV_DIRECTORY}" # exists 1 in any case
+fi
+# Activate Python environment
+# shellcheck source=/dev/null
+source "$FOXBMS_PYTHON_ACTIVATION_SCRIPT"
+
+# Ensure that the Python executable is available
+if ! command -v python &> /dev/null
     then
-        echo "Could not find python executable"
-        exit 1
-    fi
-
-    python "${SCRIPTDIR}/fox.py" "$@" || rc="$?"
     deactivate
     popd > /dev/null
-    exit $((rc))
+    echo "Could not find python executable."
+    exit 1
 fi
+
+# Environment is active and we have found a python executable,
+# therefore we can run fox.py
+
+# Run fox.py, after running the command, deactivate the environment and exit
+# with the fox.py exit code
+python "${SCRIPTDIR}/fox.py" "$@" || rc="$?"
+deactivate
+popd > /dev/null
+exit $((rc))

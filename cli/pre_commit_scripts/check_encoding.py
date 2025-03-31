@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -40,6 +40,7 @@
 """Script to check the encoding for a list of provided files"""
 
 import argparse
+import sys
 from pathlib import Path
 from typing import Sequence
 
@@ -60,10 +61,10 @@ def main(argv: Sequence[str] | None = None) -> int:
         try:
             Path(i).read_text(encoding=args.encoding)
         except ValueError:
-            print(
-                f"{Path(i).as_posix()}: Could not open file in "
-                f"'{args.encoding}' mode."
+            msg = (
+                f"{Path(i).as_posix()}: Could not open file in '{args.encoding}' mode."
             )
+            print(msg, file=sys.stderr)
             err += 1
     return min(err, 255)
 

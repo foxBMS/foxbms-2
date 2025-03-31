@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    can_cbs_rx_debug.c
  * @author  foxBMS Team
  * @date    2021-04-20 (date of creation)
- * @updated 2024-12-20 (date of last update)
- * @version v1.8.0
+ * @updated 2025-03-31 (date of last update)
+ * @version v1.9.0
  * @ingroup DRIVERS
  * @prefix  CANRX
  *
@@ -65,6 +65,7 @@
 #include "ftask.h"
 #include "reset.h"
 #include "rtc.h"
+#include "sys.h"
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -85,6 +86,8 @@
 #define CANRX_DEBUG_MESSAGE_MUX_VALUE_SOFTWARE_RESET      (0x02u)
 #define CANRX_DEBUG_MESSAGE_MUX_VALUE_FRAM_INITIALIZATION (0x03u)
 #define CANRX_DEBUG_MESSAGE_MUX_VALUE_TIME_INFO           (0x04u)
+#define CANRX_DEBUG_MESSAGE_MUX_VALUE_UPTIME_INFO         (0x05u)
+#define CANRX_DEBUG_MESSAGE_MUX_VALUE_BOOT_TIMESTAMP      (0x06u)
 /** @} */
 
 /** @{
@@ -128,6 +131,27 @@
 /** @} */
 
 /** @{
+ * configuration of the OS signals for multiplexer 'Uptime' in the
+ * 'DebugResponse' message
+ */
+/* TODO correct values */
+#define CANTX_MUX_OS_SIGNAL_THOUSANDTH_OF_SECONDS_START_BIT (15u)
+#define CANTX_MUX_OS_SIGNAL_THOUSANDTH_OF_SECONDS_LENGTH    (10u)
+#define CANTX_MUX_OS_SIGNAL_HUNDREDTH_OF_SECONDS_START_BIT  (21u)
+#define CANTX_MUX_OS_SIGNAL_HUNDREDTH_OF_SECONDS_LENGTH     (7u)
+#define CANTX_MUX_OS_SIGNAL_TENTH_OF_SECONDS_START_BIT      (30u)
+#define CANTX_MUX_OS_SIGNAL_TENTH_OF_SECONDS_LENGTH         (4u)
+#define CANTX_MUX_OS_SIGNAL_SECONDS_START_BIT               (26u)
+#define CANTX_MUX_OS_SIGNAL_SECONDS_LENGTH                  (6u)
+#define CANTX_MUX_OS_SIGNAL_MINUTES_START_BIT               (36u)
+#define CANTX_MUX_OS_SIGNAL_MINUTES_LENGTH                  (6u)
+#define CANTX_MUX_OS_SIGNAL_HOURS_START_BIT                 (46u)
+#define CANTX_MUX_OS_SIGNAL_HOURS_LENGTH                    (5u)
+#define CANTX_MUX_OS_SIGNAL_DAY_START_BIT                   (41u)
+#define CANTX_MUX_OS_SIGNAL_DAY_LENGTH                      (5u)
+/** @} */
+
+/** @{
  * configuration of the software reset signals for multiplexer 'SoftwareReset'
  * in the 'Debug' message
  */
@@ -147,8 +171,18 @@
  * configuration of the time info signals for multiplexer 'TimeInfo'
  * in the 'Debug' message
  */
-#define CANRX_MUX_SOFTWARE_SIGNAL_TRIGGER_REQUEST_RTC_TIME_START_BIT (8u)
-#define CANRX_MUX_SOFTWARE_SIGNAL_TRIGGER_REQUEST_RTC_TIME_LENGTH    (CAN_BIT)
+#define CANRX_MUX_SOFTWARE_SIGNAL_TRIGGER_REQUEST_RTC_TIME_START_BIT       (8u)
+#define CANRX_MUX_SOFTWARE_SIGNAL_TRIGGER_REQUEST_RTC_TIME_LENGTH          (CAN_BIT)
+#define CANRX_MUX_SOFTWARE_SIGNAL_TRIGGER_REQUEST_BOOT_TIMESTAMP_START_BIT (9u)
+#define CANRX_MUX_SOFTWARE_SIGNAL_TRIGGER_REQUEST_BOOT_TIMESTAMP_LENGTH    (CAN_BIT)
+/** @} */
+
+/** @{
+ * configuration of the time info signals for multiplexer 'UptimeInfo'
+ * in the 'Debug' message
+ */
+#define CANRX_MUX_SOFTWARE_SIGNAL_TRIGGER_REQUEST_UPTIME_START_BIT (16u)
+#define CANRX_MUX_SOFTWARE_SIGNAL_TRIGGER_REQUEST_UPTIME_LENGTH    (CAN_BIT)
 /** @} */
 
 /*========== Static Constant and Variable Definitions =======================*/
@@ -194,11 +228,18 @@ static void CANRX_ProcessFramInitializationMux(uint64_t messageData, CAN_ENDIANN
 static void CANRX_ProcessTimeInfoMux(uint64_t messageData, CAN_ENDIANNESS_e endianness);
 
 /**
+ * @brief   Parses CAN message to handle OS time information requests
+ * @param   messageData message data of the CAN message
+ * @param   endianness  endianness of the message
+ */
+static void CANRX_ProcessUptimeInfoMux(uint64_t messageData, CAN_ENDIANNESS_e endianness);
+
+/**
  * @brief   Parses the CAN message to retrieve the hundredth of seconds
  *          information
  * @param   messageData message data of the CAN message
  * @param   endianness  endianness of the message
- * @returns Decoded hundredth of seconds information
+ * @return  Decoded hundredth of seconds information
  */
 static uint8_t CANRX_GetHundredthOfSeconds(uint64_t messageData, CAN_ENDIANNESS_e endianness);
 
@@ -206,7 +247,7 @@ static uint8_t CANRX_GetHundredthOfSeconds(uint64_t messageData, CAN_ENDIANNESS_
  * @brief   Parses the CAN message to retrieve the seconds information
  * @param   messageData message data of the CAN message
  * @param   endianness  endianness of the message
- * @returns Decoded seconds information
+ * @return  Decoded seconds information
  */
 static uint8_t CANRX_GetSeconds(uint64_t messageData, CAN_ENDIANNESS_e endianness);
 
@@ -214,7 +255,7 @@ static uint8_t CANRX_GetSeconds(uint64_t messageData, CAN_ENDIANNESS_e endiannes
  * @brief   Parses the CAN message to retrieve the minutes information
  * @param   messageData message data of the CAN message
  * @param   endianness  endianness of the message
- * @returns Decoded minutes information
+ * @return  Decoded minutes information
  */
 static uint8_t CANRX_GetMinutes(uint64_t messageData, CAN_ENDIANNESS_e endianness);
 
@@ -222,7 +263,7 @@ static uint8_t CANRX_GetMinutes(uint64_t messageData, CAN_ENDIANNESS_e endiannes
  * @brief   Parses the CAN message to retrieve the hours information
  * @param   messageData message data of the CAN message
  * @param   endianness  endianness of the message
- * @returns Decoded hours information
+ * @return  Decoded hours information
  */
 static uint8_t CANRX_GetHours(uint64_t messageData, CAN_ENDIANNESS_e endianness);
 
@@ -230,7 +271,7 @@ static uint8_t CANRX_GetHours(uint64_t messageData, CAN_ENDIANNESS_e endianness)
  * @brief   Parses the CAN message to retrieve the weekday information
  * @param   messageData message data of the CAN message
  * @param   endianness  endianness of the message
- * @returns Decoded weekday information
+ * @return  Decoded weekday information
  */
 static uint8_t CANRX_GetWeekday(uint64_t messageData, CAN_ENDIANNESS_e endianness);
 
@@ -238,7 +279,7 @@ static uint8_t CANRX_GetWeekday(uint64_t messageData, CAN_ENDIANNESS_e endiannes
  * @brief   Parses the CAN message to retrieve the day information
  * @param   messageData message data of the CAN message
  * @param   endianness  endianness of the message
- * @returns Decoded Day information
+ * @return  Decoded Day information
  */
 static uint8_t CANRX_GetDay(uint64_t messageData, CAN_ENDIANNESS_e endianness);
 
@@ -246,7 +287,7 @@ static uint8_t CANRX_GetDay(uint64_t messageData, CAN_ENDIANNESS_e endianness);
  * @brief   Parses the CAN message to retrieve the month information
  * @param   messageData message data of the CAN message
  * @param   endianness  endianness of the message
- * @returns  Decoded month information
+ * @return   Decoded month information
  */
 static uint8_t CANRX_GetMonth(uint64_t messageData, CAN_ENDIANNESS_e endianness);
 
@@ -254,7 +295,7 @@ static uint8_t CANRX_GetMonth(uint64_t messageData, CAN_ENDIANNESS_e endianness)
  * @brief   Parses the CAN message to retrieve the year information
  * @param   messageData message data of the CAN message
  * @param   endianness  endianness of the message
- * @returns  Decoded year information
+ * @return   Decoded year information
  */
 static uint8_t CANRX_GetYear(uint64_t messageData, CAN_ENDIANNESS_e endianness);
 
@@ -262,7 +303,7 @@ static uint8_t CANRX_GetYear(uint64_t messageData, CAN_ENDIANNESS_e endianness);
  * @brief   Check if the BMS software version information is requested
  * @param   messageData message data of the CAN message
  * @param   endianness  endianness of the message
- * @returns true if the information is requested, false otherwise
+ * @return  true if the information is requested, false otherwise
  */
 static bool CANRX_CheckIfBmsSoftwareVersionIsRequested(uint64_t messageData, CAN_ENDIANNESS_e endianness);
 
@@ -275,7 +316,7 @@ static void CANRX_TriggerBmsSoftwareVersionMessage(void);
  * @brief   Check if the MCU die ID information is requested
  * @param   messageData message data of the CAN message
  * @param   endianness  endianness of the message
- * @returns true if the information is requested, false otherwise
+ * @return  true if the information is requested, false otherwise
  */
 static bool CANRX_CheckIfMcuUniqueDieIdIsRequested(uint64_t messageData, CAN_ENDIANNESS_e endianness);
 
@@ -288,7 +329,7 @@ static void CANRX_TriggerMcuUniqueDieIdMessage(void);
  * @brief   Check if the MCU lot number information is requested
  * @param   messageData message data of the CAN message
  * @param   endianness  endianness of the message
- * @returns true if the information is requested, false otherwise
+ * @return  true if the information is requested, false otherwise
  */
 static bool CANRX_CheckIfMcuLotNumberIsRequested(uint64_t messageData, CAN_ENDIANNESS_e endianness);
 
@@ -301,7 +342,7 @@ static void CANRX_TriggerMcuLotNumberMessage(void);
  * @brief   Check if the MCU wafer information is requested
  * @param   messageData message data of the CAN message
  * @param   endianness  endianness of the message
- * @returns true if the information is requested, false otherwise
+ * @return  true if the information is requested, false otherwise
  */
 static bool CANRX_CheckIfMcuWaferInformationIsRequested(uint64_t messageData, CAN_ENDIANNESS_e endianness);
 
@@ -314,7 +355,7 @@ static void CANRX_TriggerMcuWaferInformationMessage(void);
  * @brief   Check if the commit hash is requested
  * @param   messageData message data of the CAN message
  * @param   endianness  endianness of the message
- * @returns true if the information is requested, false otherwise
+ * @return  true if the information is requested, false otherwise
  */
 static bool CANRX_CheckIfCommitHashIsRequested(uint64_t messageData, CAN_ENDIANNESS_e endianness);
 
@@ -327,7 +368,7 @@ static void CANRX_TriggerCommitHashMessage(void);
  * @brief   Check if the build configuration is requested
  * @param   messageData message data of the CAN message
  * @param   endianness  endianness of the message
- * @returns true if the information is requested, false otherwise
+ * @return  true if the information is requested, false otherwise
  */
 static bool CANRX_CheckIfBuildConfigurationIsRequested(uint64_t messageData, CAN_ENDIANNESS_e endianness);
 
@@ -340,7 +381,7 @@ static void CANRX_TriggerBuildConfigurationMessage(void);
  * @brief   Check if a software reset is requested
  * @param   messageData message data of the CAN message
  * @param   endianness  endianness of the message
- * @returns true if software reset is requested, false otherwise
+ * @return  true if software reset is requested, false otherwise
  */
 static bool CANRX_CheckIfSoftwareResetIsRequested(uint64_t messageData, CAN_ENDIANNESS_e endianness);
 
@@ -348,7 +389,7 @@ static bool CANRX_CheckIfSoftwareResetIsRequested(uint64_t messageData, CAN_ENDI
  * @brief   Check if a FRAM initialization is requested
  * @param   messageData message data of the CAN message
  * @param   endianness  endianness of the message
- * @returns true if software reset is requested, false otherwise
+ * @return  true if software reset is requested, false otherwise
  */
 static bool CANRX_CheckIfFramInitializationIsRequested(uint64_t messageData, CAN_ENDIANNESS_e endianness);
 
@@ -356,14 +397,40 @@ static bool CANRX_CheckIfFramInitializationIsRequested(uint64_t messageData, CAN
  * @brief   Check if the RTC time information is requested
  * @param   messageData message data of the CAN message
  * @param   endianness  endianness of the message
- * @returns true if the information is requested, false otherwise
+ * @return  true if the information is requested, false otherwise
  */
 static bool CANRX_CheckIfTimeInfoIsRequested(uint64_t messageData, CAN_ENDIANNESS_e endianness);
+
+/**
+ * @brief   Check if the boot timestamp is requested
+ * @param   messageData message data of the CAN message
+ * @param   endianness  endianness of the message
+ * @return  true if the information is requested, false otherwise
+ */
+static bool CANRX_CheckIfBootTimestampIsRequested(uint64_t messageData, CAN_ENDIANNESS_e endianness);
 
 /**
  * @brief   Triggers sending of the RTC time information message
  */
 static void CANRX_TriggerTimeInfoMessage(void);
+
+/**
+ * @brief   Triggers sending of the boot timestamp message
+ */
+static void CANRX_TriggerBootTimestampMessage(void);
+
+/**
+ * @brief   Check if the OS time information is requested
+ * @param   messageData message data of the CAN message
+ * @param   endianness  endianness of the message
+ * @return  true if the information is requested, false otherwise
+ */
+static bool CANRX_CheckIfUptimeInfoIsRequested(uint64_t messageData, CAN_ENDIANNESS_e endianness);
+
+/**
+ * @brief   Triggers sending of the OS time information message
+ */
+static void CANRX_TriggerUptimeInfoMessage(void);
 
 /*========== Static Function Implementations ================================*/
 
@@ -372,7 +439,7 @@ static uint8_t CANRX_GetHundredthOfSeconds(uint64_t messageData, CAN_ENDIANNESS_
     FAS_ASSERT(endianness == CAN_BIG_ENDIAN);
 
     uint64_t signalData = 0u;
-    /* Get hundredth of seconds information form the message and return that value */
+    /* Get hundredth of seconds information from the message and return that value */
     CAN_RxGetSignalDataFromMessageData(
         messageData,
         CANRX_MUX_RTC_SIGNAL_HUNDREDTH_OF_SECONDS_START_BIT,
@@ -388,7 +455,7 @@ static uint8_t CANRX_GetSeconds(uint64_t messageData, CAN_ENDIANNESS_e endiannes
     FAS_ASSERT(endianness == CAN_BIG_ENDIAN);
 
     uint64_t signalData = 0u;
-    /* Get seconds information form the message and return that value */
+    /* Get seconds information from the message and return that value */
     CAN_RxGetSignalDataFromMessageData(
         messageData,
         CANRX_MUX_RTC_SIGNAL_SECONDS_START_BIT,
@@ -405,7 +472,7 @@ static uint8_t CANRX_GetMinutes(uint64_t messageData, CAN_ENDIANNESS_e endiannes
     FAS_ASSERT(endianness == CAN_BIG_ENDIAN);
 
     uint64_t signalData = 0u;
-    /* Get minutes information form the message and return that value */
+    /* Get minutes information from the message and return that value */
     CAN_RxGetSignalDataFromMessageData(
         messageData,
         CANRX_MUX_RTC_SIGNAL_MINUTES_START_BIT,
@@ -422,7 +489,7 @@ static uint8_t CANRX_GetHours(uint64_t messageData, CAN_ENDIANNESS_e endianness)
     FAS_ASSERT(endianness == CAN_BIG_ENDIAN);
 
     uint64_t signalData = 0u;
-    /* Get hour information form the message and return that value */
+    /* Get hour information from the message and return that value */
     CAN_RxGetSignalDataFromMessageData(
         messageData, CANRX_MUX_RTC_SIGNAL_HOURS_START_BIT, CANRX_MUX_RTC_SIGNAL_HOURS_LENGTH, &signalData, endianness);
 
@@ -435,7 +502,7 @@ static uint8_t CANRX_GetWeekday(uint64_t messageData, CAN_ENDIANNESS_e endiannes
     FAS_ASSERT(endianness == CAN_BIG_ENDIAN);
 
     uint64_t signalData = 0u;
-    /* Get weekday information form the message and return that value */
+    /* Get weekday information from the message and return that value */
     CAN_RxGetSignalDataFromMessageData(
         messageData,
         CANRX_MUX_RTC_SIGNAL_WEEKDAY_START_BIT,
@@ -452,7 +519,7 @@ static uint8_t CANRX_GetDay(uint64_t messageData, CAN_ENDIANNESS_e endianness) {
     FAS_ASSERT(endianness == CAN_BIG_ENDIAN);
 
     uint64_t signalData = 0u;
-    /* Get day information form the message and return that value */
+    /* Get day information from the message and return that value */
     CAN_RxGetSignalDataFromMessageData(
         messageData, CANRX_MUX_RTC_SIGNAL_DAY_START_BIT, CANRX_MUX_RTC_SIGNAL_DAY_LENGTH, &signalData, endianness);
 
@@ -464,7 +531,7 @@ static uint8_t CANRX_GetMonth(uint64_t messageData, CAN_ENDIANNESS_e endianness)
     /* AXIVION Routine Generic-MissingParameterAssert: messageData: parameter accepts whole range */
     FAS_ASSERT(endianness == CAN_BIG_ENDIAN);
 
-    /* Get month information form the message and return that value */
+    /* Get month information from the message and return that value */
     uint64_t signalData = 0u;
     CAN_RxGetSignalDataFromMessageData(
         messageData, CANRX_MUX_RTC_SIGNAL_MONTH_START_BIT, CANRX_MUX_RTC_SIGNAL_MONTH_LENGTH, &signalData, endianness);
@@ -477,7 +544,7 @@ static uint8_t CANRX_GetYear(uint64_t messageData, CAN_ENDIANNESS_e endianness) 
     /* AXIVION Routine Generic-MissingParameterAssert: messageData: parameter accepts whole range */
     FAS_ASSERT(endianness == CAN_BIG_ENDIAN);
 
-    /* Get year information form the message and return that value */
+    /* Get year information from the message and return that value */
     uint64_t signalData = 0u;
     CAN_RxGetSignalDataFromMessageData(
         messageData, CANRX_MUX_RTC_SIGNAL_YEAR_START_BIT, CANRX_MUX_RTC_SIGNAL_YEAR_LENGTH, &signalData, endianness);
@@ -492,17 +559,30 @@ static void CANRX_ProcessRtcMux(uint64_t messageData, CAN_ENDIANNESS_e endiannes
 
     RTC_TIME_DATA_s timeData = {0};
 
-    timeData.hundredthOfSeconds = CANRX_GetHundredthOfSeconds(messageData, endianness);
-    timeData.seconds            = CANRX_GetSeconds(messageData, endianness);
-    timeData.minutes            = CANRX_GetMinutes(messageData, endianness);
-    timeData.hours              = CANRX_GetHours(messageData, endianness);
-    timeData.weekday            = CANRX_GetWeekday(messageData, endianness);
-    timeData.day                = CANRX_GetDay(messageData, endianness);
-    timeData.month              = CANRX_GetMonth(messageData, endianness);
-    timeData.year               = CANRX_GetYear(messageData, endianness);
-    if (OS_SendToBackOfQueue(ftsk_rtcSetTimeQueue, (void *)&timeData, 0u) == OS_SUCCESS) {
-        /* queue is not full */
+    if (CANRX_GetYear(messageData, endianness) > 99u) {
+        /* Reject to set the date */
+        /* Set Rtc Request flag to invalid request */
+        RTC_SetRtcRequestFlag(2u);
+    } else {
+        timeData.hundredthOfSeconds = CANRX_GetHundredthOfSeconds(messageData, endianness);
+        timeData.seconds            = CANRX_GetSeconds(messageData, endianness);
+        timeData.minutes            = CANRX_GetMinutes(messageData, endianness);
+        timeData.hours              = CANRX_GetHours(messageData, endianness);
+        timeData.weekday            = CANRX_GetWeekday(messageData, endianness);
+        timeData.day                = CANRX_GetDay(messageData, endianness);
+        timeData.month              = CANRX_GetMonth(messageData, endianness);
+        timeData.year               = CANRX_GetYear(messageData, endianness);
+
+        /* Set Rtc Request flag to valid request */
+        RTC_SetRtcRequestFlag(1u);
+
+        if (OS_SendToBackOfQueue(ftsk_rtcSetTimeQueue, (void *)&timeData, 0u) == OS_SUCCESS) {
+            /* queue is not full */
+        }
     }
+
+    /* trigger RTC time information message */
+    CANRX_TriggerTimeInfoMessage();
 }
 
 static bool CANRX_CheckIfBmsSoftwareVersionIsRequested(uint64_t messageData, CAN_ENDIANNESS_e endianness) {
@@ -758,6 +838,31 @@ static void CANRX_ProcessTimeInfoMux(uint64_t messageData, CAN_ENDIANNESS_e endi
     if (CANRX_CheckIfTimeInfoIsRequested(messageData, endianness) == true) {
         CANRX_TriggerTimeInfoMessage();
     }
+
+    /* trigger boot timestamp information message, if requested*/
+    if (CANRX_CheckIfBootTimestampIsRequested(messageData, endianness) == true) {
+        CANRX_TriggerBootTimestampMessage();
+    }
+}
+
+static bool CANRX_CheckIfBootTimestampIsRequested(uint64_t messageData, CAN_ENDIANNESS_e endianness) {
+    /* AXIVION Routine Generic-MissingParameterAssert: messageData: parameter accepts whole range */
+    FAS_ASSERT(endianness == CAN_BIG_ENDIAN);
+
+    bool isRequested    = false;
+    uint64_t signalData = 0u;
+
+    /* get RTC time information bit from the CAN message */
+    CAN_RxGetSignalDataFromMessageData(
+        messageData,
+        CANRX_MUX_SOFTWARE_SIGNAL_TRIGGER_REQUEST_BOOT_TIMESTAMP_START_BIT,
+        CANRX_MUX_SOFTWARE_SIGNAL_TRIGGER_REQUEST_BOOT_TIMESTAMP_LENGTH,
+        &signalData,
+        endianness);
+    if (signalData == 1u) {
+        isRequested = true;
+    }
+    return isRequested;
 }
 
 static bool CANRX_CheckIfTimeInfoIsRequested(uint64_t messageData, CAN_ENDIANNESS_e endianness) {
@@ -787,6 +892,50 @@ static void CANRX_TriggerTimeInfoMessage(void) {
     }
 }
 
+static void CANRX_TriggerBootTimestampMessage(void) {
+    /* send the debug message containing the RTC time information and trap if this does not work */
+    if (CANTX_DebugResponse(CANTX_DEBUG_RESPONSE_TRANSMIT_BOOT_TIMESTAMP) != STD_OK) {
+        FAS_ASSERT(FAS_TRAP);
+    }
+}
+
+static void CANRX_ProcessUptimeInfoMux(uint64_t messageData, CAN_ENDIANNESS_e endianness) {
+    /* AXIVION Routine Generic-MissingParameterAssert: messageData: parameter accepts whole range */
+    FAS_ASSERT(endianness == CAN_BIG_ENDIAN);
+
+    /* trigger OS time information message, if requested*/
+    if (CANRX_CheckIfUptimeInfoIsRequested(messageData, endianness) == true) {
+        CANRX_TriggerUptimeInfoMessage();
+    }
+}
+
+static bool CANRX_CheckIfUptimeInfoIsRequested(uint64_t messageData, CAN_ENDIANNESS_e endianness) {
+    /* AXIVION Routine Generic-MissingParameterAssert: messageData: parameter accepts whole range */
+    FAS_ASSERT(endianness == CAN_BIG_ENDIAN);
+
+    bool isRequested    = false;
+    uint64_t signalData = 0u;
+
+    /* get OS time information bit from the CAN message */
+    CAN_RxGetSignalDataFromMessageData(
+        messageData,
+        CANRX_MUX_SOFTWARE_SIGNAL_TRIGGER_REQUEST_UPTIME_START_BIT,
+        CANRX_MUX_SOFTWARE_SIGNAL_TRIGGER_REQUEST_UPTIME_LENGTH,
+        &signalData,
+        endianness);
+    if (signalData == 1u) {
+        isRequested = true;
+    }
+    return isRequested;
+}
+
+static void CANRX_TriggerUptimeInfoMessage(void) {
+    /* send the debug message containing the OS time information and trap if this does not work */
+    if (CANTX_DebugResponse(CANTX_DEBUG_RESPONSE_TRANSMIT_UPTIME) != STD_OK) {
+        FAS_ASSERT(FAS_TRAP);
+    }
+}
+
 /*========== Extern Function Implementations ================================*/
 extern uint32_t CANRX_Debug(
     CAN_MESSAGE_PROPERTIES_s message,
@@ -801,35 +950,47 @@ extern uint32_t CANRX_Debug(
     uint64_t messageData = 0u;
     uint64_t muxValue    = 0u;
 
-    /* Get the message data and retrieve the multiplexer value from it*/
-    CAN_RxGetMessageDataFromCanData(&messageData, kpkCanData, message.endianness);
-    CAN_RxGetSignalDataFromMessageData(
-        messageData, CANRX_DEBUG_MESSAGE_MUX_START_BIT, CANRX_DEBUG_MESSAGE_MUX_LENGTH, &muxValue, message.endianness);
+    uint32_t retVal = 1u;
+    /* Used to ensure that we can actually send our answer and not clog the TX message boxes. */
+    if (sys_state.state > SYS_STATEMACH_INITIALIZE_CAN) {
+        /* Get the message data and retrieve the multiplexer value from it */
+        CAN_RxGetMessageDataFromCanData(&messageData, kpkCanData, message.endianness);
+        CAN_RxGetSignalDataFromMessageData(
+            messageData,
+            CANRX_DEBUG_MESSAGE_MUX_START_BIT,
+            CANRX_DEBUG_MESSAGE_MUX_LENGTH,
+            &muxValue,
+            message.endianness);
 
-    /* process the respective handler function per supported multiplexer value;
-       in case of an unsupported multiplexer value, transmit that information
-       on the CAN bus. */
-    switch (muxValue) {
-        case CANRX_DEBUG_MESSAGE_MUX_VALUE_VERSION_INFORMATION:
-            CANRX_ProcessVersionInformationMux(messageData, message.endianness);
-            break;
-        case CANRX_DEBUG_MESSAGE_MUX_VALUE_RTC:
-            CANRX_ProcessRtcMux(messageData, message.endianness);
-            break;
-        case CANRX_DEBUG_MESSAGE_MUX_VALUE_SOFTWARE_RESET:
-            CANRX_ProcessSoftwareResetMux(messageData, message.endianness);
-            break;
-        case CANRX_DEBUG_MESSAGE_MUX_VALUE_FRAM_INITIALIZATION:
-            CANRX_ProcessFramInitializationMux(messageData, message.endianness);
-            break;
-        case CANRX_DEBUG_MESSAGE_MUX_VALUE_TIME_INFO:
-            CANRX_ProcessTimeInfoMux(messageData, message.endianness);
-            break;
-        default:
-            CANTX_DebugUnsupportedMultiplexerVal(message.id, (uint32_t)muxValue);
-            break;
+        /* process the respective handler function per supported multiplexer
+           value; in case of an unsupported multiplexer value, transmit that
+           information on the CAN bus. */
+        switch (muxValue) {
+            case CANRX_DEBUG_MESSAGE_MUX_VALUE_VERSION_INFORMATION:
+                CANRX_ProcessVersionInformationMux(messageData, message.endianness);
+                break;
+            case CANRX_DEBUG_MESSAGE_MUX_VALUE_RTC:
+                CANRX_ProcessRtcMux(messageData, message.endianness);
+                break;
+            case CANRX_DEBUG_MESSAGE_MUX_VALUE_SOFTWARE_RESET:
+                CANRX_ProcessSoftwareResetMux(messageData, message.endianness);
+                break;
+            case CANRX_DEBUG_MESSAGE_MUX_VALUE_FRAM_INITIALIZATION:
+                CANRX_ProcessFramInitializationMux(messageData, message.endianness);
+                break;
+            case CANRX_DEBUG_MESSAGE_MUX_VALUE_TIME_INFO:
+                CANRX_ProcessTimeInfoMux(messageData, message.endianness);
+                break;
+            case CANRX_DEBUG_MESSAGE_MUX_VALUE_UPTIME_INFO:
+                CANRX_ProcessUptimeInfoMux(messageData, message.endianness);
+                break;
+            default:
+                CANTX_DebugUnsupportedMultiplexerVal(message.id, (uint32_t)muxValue);
+                break;
+        }
+        retVal = 0u;
     }
-    return 0u;
+    return retVal;
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
@@ -877,6 +1038,12 @@ extern void TEST_CANRX_TriggerMcuWaferInformationMessage(void) {
 extern void TEST_CANRX_TriggerTimeInfoMessage(void) {
     CANRX_TriggerTimeInfoMessage();
 }
+extern void TEST_CANRX_TriggerUptimeInfoMessage(void) {
+    CANRX_TriggerUptimeInfoMessage();
+}
+extern void TEST_CANRX_TriggerBootTimestampMessage(void) {
+    CANRX_TriggerBootTimestampMessage();
+}
 extern void TEST_CANRX_TriggerCommitHashMessage(void) {
     CANRX_TriggerCommitHashMessage();
 }
@@ -906,6 +1073,12 @@ extern bool TEST_CANRX_CheckIfFramInitializationIsRequested(uint64_t messageData
 extern bool TEST_CANRX_CheckIfTimeInfoIsRequested(uint64_t messageData, CAN_ENDIANNESS_e endianness) {
     return CANRX_CheckIfTimeInfoIsRequested(messageData, endianness);
 }
+extern bool TEST_CANRX_CheckIfUptimeInfoIsRequested(uint64_t messageData, CAN_ENDIANNESS_e endianness) {
+    return CANRX_CheckIfUptimeInfoIsRequested(messageData, endianness);
+}
+extern bool TEST_CANRX_CheckIfBootTimestampIsRequested(uint64_t messageData, CAN_ENDIANNESS_e endianness) {
+    return CANRX_CheckIfBootTimestampIsRequested(messageData, endianness);
+}
 extern bool TEST_CANRX_CheckIfCommitHashIsRequested(uint64_t messageData, CAN_ENDIANNESS_e endianness) {
     return CANRX_CheckIfCommitHashIsRequested(messageData, endianness);
 }
@@ -928,6 +1101,9 @@ extern void TEST_CANRX_ProcessFramInitializationMux(uint64_t messageData, CAN_EN
 }
 extern void TEST_CANRX_ProcessTimeInfoMux(uint64_t messageData, CAN_ENDIANNESS_e endianness) {
     CANRX_ProcessTimeInfoMux(messageData, endianness);
+}
+extern void TEST_CANRX_ProcessUptimeInfoMux(uint64_t messageData, CAN_ENDIANNESS_e endianness) {
+    CANRX_ProcessUptimeInfoMux(messageData, endianness);
 }
 
 #endif

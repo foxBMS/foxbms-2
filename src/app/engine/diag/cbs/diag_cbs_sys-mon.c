@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    diag_cbs_sys-mon.c
  * @author  foxBMS Team
  * @date    2021-02-17 (date of creation)
- * @updated 2024-12-20 (date of last update)
- * @version v1.8.0
+ * @updated 2025-03-31 (date of last update)
+ * @version v1.9.0
  * @ingroup ENGINE
  * @prefix  DIAG
  *
@@ -68,9 +68,10 @@
 
 /*========== Static Function Prototypes =====================================*/
 /**
- * @brief   convert a #DIAG_EVENT_e to a boolean for the violation flags in the database
+ * @brief   convert a #DIAG_EVENT_e to a boolean for the violation flags in the
+ *          database
  * @param[in]   event   diag event
- * @returns     boolean indicating the error flag
+ * @return  boolean indicating the error flag
  */
 static bool DIAG_EventToBool(DIAG_EVENT_e event);
 

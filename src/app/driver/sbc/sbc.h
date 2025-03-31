@@ -1,6 +1,6 @@
 /**
  *
- * @copyright &copy; 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+ * @copyright &copy; 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,8 +43,8 @@
  * @file    sbc.h
  * @author  foxBMS Team
  * @date    2020-07-14 (date of creation)
- * @updated 2024-12-20 (date of last update)
- * @version v1.8.0
+ * @updated 2025-03-31 (date of last update)
+ * @version v1.9.0
  * @ingroup DRIVERS
  * @prefix  SBC
  *
@@ -103,6 +103,12 @@
  * trigger period of SBC watchdog
  */
 #define SBC_WINDOW_WATCHDOG_PERIOD_MS (100u)
+
+/** Symbolic names to check re-entrance in #SBC_Trigger */
+typedef enum {
+    SBC_REENTRANCE_NO,  /*!< no re-entrance */
+    SBC_REENTRANCE_YES, /*!< re-entrance*/
+} SBC_CHECK_REENTRANCE_e;
 
 /** State requests for the SYS state machine */
 typedef enum {
@@ -210,6 +216,10 @@ extern void SBC_Trigger(SBC_STATE_s *pInstance);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 #ifdef UNITY_UNIT_TEST
+extern void TEST_SBC_SaveLastStates(SBC_STATE_s *pInstance);
+extern SBC_RETURN_TYPE_e TEST_SBC_CheckStateRequest(SBC_STATE_s *pInstance, SBC_STATE_REQUEST_e stateRequest);
+extern SBC_CHECK_REENTRANCE_e TEST_SBC_CheckReEntrance(SBC_STATE_s *pInstance);
+extern SBC_STATE_REQUEST_e TEST_SBC_TransferStateRequest(SBC_STATE_s *pInstance);
 extern bool TEST_SBC_TriggerWatchdogIfRequired(SBC_STATE_s *pInstance);
 extern bool TEST_SBC_IsIgnitionSignalDetected(SBC_STATE_s *pInstance);
 #endif

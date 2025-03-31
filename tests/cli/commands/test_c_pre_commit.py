@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -38,3 +38,36 @@
 # - "This product is derived from foxBMS®"
 
 """Testing file 'cli/commands/c_pre_commit.py'."""
+
+import sys
+import unittest
+from pathlib import Path
+from unittest.mock import MagicMock, patch
+
+from click.testing import CliRunner
+
+try:
+    from cli.cli import main
+    from cli.helpers.spr import SubprocessResult
+except ModuleNotFoundError:
+    sys.path.insert(0, str(Path(__file__).parents[3]))
+    from cli.cli import main
+    from cli.helpers.spr import SubprocessResult
+
+
+class TestFoxCliMainCommandPreCommit(unittest.TestCase):
+    """Test of the 'pre-commit' commands and options."""
+
+    @patch("cli.commands.c_pre_commit.pre_commit_impl")
+    def test_pre_commit(self, mock_run_program: MagicMock):
+        """Test 'fox.py pre-commit' command."""
+        mock_run_program.run_pre_commit.return_value = SubprocessResult(0, "", "")
+        runner = CliRunner(mix_stderr=False)
+        result = runner.invoke(main, ["pre-commit"])
+        self.assertEqual("", result.stdout)
+        self.assertEqual("", result.stderr)
+        self.assertEqual(0, result.exit_code)
+
+
+if __name__ == "__main__":
+    unittest.main()

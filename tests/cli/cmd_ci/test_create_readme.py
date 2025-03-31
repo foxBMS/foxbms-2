@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2010 - 2024, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
+# Copyright (c) 2010 - 2025, Fraunhofer-Gesellschaft zur Foerderung der angewandten Forschung e.V.
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -41,6 +41,7 @@
 
 import io
 import sys
+import tempfile
 import unittest
 from contextlib import redirect_stderr
 from pathlib import Path
@@ -48,13 +49,15 @@ from unittest import mock
 
 try:
     from cli.cmd_ci import create_readme
+    from cli.helpers.misc import PROJECT_ROOT
 except ModuleNotFoundError:
-    sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
+    sys.path.insert(0, str(Path(__file__).parents[3]))
     from cli.cmd_ci import create_readme
+    from cli.helpers.misc import PROJECT_ROOT
 
 
 class TestSpR(unittest.TestCase):
-    """Test of the main entry point"""
+    """Test of 'create_readme.py'."""
 
     @mock.patch("cli.cmd_ci.create_readme.CI_CONFIG", Path("does/not/exist"))
     def test_create_readme_no_ci_config(self):
@@ -80,12 +83,12 @@ class TestSpR(unittest.TestCase):
             out = "does\\not\\exist"
         self.assertIn(f"File '{out}' does not exist.", buf.getvalue())
 
-    @mock.patch("cli.cmd_ci.create_readme.CI_CONFIG", Path("fox.bat"))
+    @mock.patch("cli.cmd_ci.create_readme.CI_CONFIG", Path("fox.ps1"))
     def test_invalid_ci_config(self):
         """'.gitlab-ci.yml'-file is invalid"""
         with self.assertRaises(SystemExit) as cm:
             create_readme.create_readme()
-        self.assertIn("fox.bat is not a valid yaml file while s", cm.exception.code)
+        self.assertIn("fox.ps1 is not a valid yaml file expected ", cm.exception.code)
 
     @mock.patch("cli.cmd_ci.create_readme.CI_CONFIG", Path(".pre-commit-config.yaml"))
     def test_valid_ci_config_but_key_is_missing(self):
@@ -93,6 +96,28 @@ class TestSpR(unittest.TestCase):
         with self.assertRaises(SystemExit) as cm:
             create_readme.create_readme()
         self.assertEqual(cm.exception.code, "Could not determine stages.")
+
+    def test_valid_ci(self):
+        """Tests create_readme with valid ci"""
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            tmp_read_me = Path(tmpdirname) / "test_read_me.yaml"
+            with open(tmp_read_me, mode="w", encoding="utf-8") as f:
+                pass
+            with mock.patch(
+                "cli.cmd_ci.create_readme.CI_CONFIG",
+                PROJECT_ROOT / "tests/cli/cmd_ci/test_create_readme/valid_ci.yaml",
+            ):
+                with mock.patch("cli.cmd_ci.create_readme.CI_README", tmp_read_me):
+                    create_readme.create_readme()
+            with open(tmp_read_me, encoding="utf-8") as f:
+                result = f.read()
+            expected_result_path = (
+                PROJECT_ROOT
+                / "tests/cli/cmd_ci/test_create_readme/resulting_read_me/valid_read_me.md"
+            )
+            with open(expected_result_path, encoding="utf-8") as f:
+                expected_result = f.read()
+            self.assertEqual(result, expected_result)
 
 
 if __name__ == "__main__":

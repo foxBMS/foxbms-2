@@ -1,173 +1,268 @@
-# Installation Instructions for the Host Machine
+# Software Installation
 
-This document serves as a short summary on how to setup the **host machine**
-for development of foxBMS 2.
+<!-- This file must manually be kept in sync with
+     ./docs/getting-started/software-installation.rst
+-->
 
-For more detailed installation instructions (that include more automation and
-less user interaction during the installation) for the host machine see
-[docs/getting-started/software-installation.rst](./docs/getting-started/software-installation.rst).
+This document describes how to setup the **host machine** for development of
+foxBMS 2.
 
-> **_NOTE 1:_**
+Use [docs/getting-started/software-installation.rst](./docs/getting-started/software-installation.rst):
+
+- if you need more detailed installation instructions.
+- for installation instructions on Linux.
+- if you want to use bash instead of PowerShell.
+
+> **_NOTE:_**
 >
-> Read the documentation carefully and follow every point exactly as described.\
+> Read the documentation carefully and follow every point exactly as
+> described.\
 > Otherwise, the configuration workload in later points of the setup or the
 > development will be significantly higher.
+
+> **_NOTE:_**
 >
-> **_NOTE 2:_**
+> Some programs are installed into a specific |foxbms| prefix.
+> This is mostly then done, when the installers do not support side-by-side or
+> versioned installations by themself.
+
+> **_WARNING:_**
+>
+> - All commands shall be run in PowerShell 7 or later.
+> - All commands shall be run in the root of the repository.
+
+> **_WARNING:_**
 >
 > These are the installation instructions for the host machine.\
-> These are **NOT** the instructions for installing (i.e., flashing) the created
-> binary on the target.\
+> These are **NOT** the instructions for installing (i.e., flashing) the
+> created binary on the target.\
 > Flashing the binary requires a hardware debugger/flashing tool.
 
-## Installation steps
+Getting started with foxBMS 2 requires getting the sources and installing
+all required software dependencies.
+These are the required steps:
 
-1. Install [git](https://git-scm.com).
-1. Clone the repository into a path, that does **NOT** contain whitespace
+1. Install git
+1. Get the foxBMS sources
+1. Install TI Code Composer Studio (required for compiling)
+1. Install TI HALCoGen (required for code generation)
+1. Install Python (required for tools)
+1. Install virtual Python environment (required for tools)
+1. Install Ruby (required for unit testing)
+1. Install Ruby Gems (required for unit testing)
+1. Install mingw-w64 (required for unit testing)
+1. Install Doxygen (required for building the documentation)
+1. Install Graphviz (required for building the documentation)
+1. Install drawio-desktop (required for building the documentation)
+1. Install VS Code (required developing)
+1. Check the installation
 
-   ```shell
-   git clone https://github.com/foxBMS/foxbms-2
-   ```
+> **_NOTE:_**
+>
+> No software installation here should change the ``PATH`` environment
+> variable.\
+> When an installer asks during the setup to add something to ``PATH``, always
+> remove that option, whether it is explicitly mentioned in
+> that step or not.\
+> The only exception to that rule **MAY** be git and ``VS Code``.
 
-1. Install Code Composer Studio (CCS)
-   [version 12.0.0](https://www.ti.com/tool/download/CCSTUDIO/12.0.0)
-   (chose `Windows single file (offline) installer for Code Composer Studio IDE (all features, devices)`).\
-   When running the installer:
-   1. Do **NOT** change the default installation directory chosen by the
-      installer
-      (e.g., `C:\ti\ccs1200` for CCS 12.0.0)
-      and let the installer proceed with the installation.
-   1. Select the Hercules™ Safety MCUs option during the installation.
-1. Install [HALCoGen](https://www.ti.com/tool/HALCOGEN) version 04.07.01.\
-   When running the installer:
-   1. Do **NOT** change the default installation directory chosen by the
-      installer
-      (e.g., `C:\ti\Hercules\HALCoGen\v04.07.01` for HALCoGen 04.07.01)
-      and let the installer proceed with the installation.
-1. Install [Python](https://www.python.org/).\
-   If you have already installed Python from <https://www.python.org> this step
-   can be skipped.
+The installation steps are described below in detail.
 
-   > **_NOTE 3:_**
+## Install git
+
+1. Download the latest version of [git](https://git-scm.com) and run the
+   installer.
+1. _Optional:_ Let the installer add git to the ``PATH`` variable.
+
+## Get the foxBMS 2 Sources
+
+The sources are available from a git repository at <https://github.com/foxBMS/>
+in <https://github.com/foxBMS/foxbms-2>.
+The following example shows how to clone the foxBMS 2 sources from GitHub.
+
+In the case that you have been supplied with a "library-project" by a partner,
+please use this archive equivalent to the cloned foxBMS 2 repository" in the
+later steps of this manual.
+
+> **_NOTE:_**
+>
+> ``git`` requires a correct proxy setup.
+> This means that the environment variables ``http_proxy`` and ``https_proxy``
+> must be set accordingly to your network configuration.
+
+> **_WARNING:_**
+>
+> Do not clone/download foxBMS 2 into a directory structure that includes
+> whitespace.
+>
+> | Good                         | Bad                                  |
+> |------------------------------|--------------------------------------|
+> | ``C:\Users\vulpes\foxbms-2`` | ``C:\Users\my user name\foxbms-2``   |
+> | ``/opt/devel/foxbms-2``      | ``/opt/bad directory name/foxbms-2`` |
+
+Clone the repository by running
+
+```pwsh
+git clone https://github.com/foxBMS/foxbms-2
+```
+
+## Install Code Composer Studio
+
+Download
+[Code Composer Studio](https://www.ti.com/tool/download/CCSTUDIO/12.8.1) (CCS)
+version 12.8.1 and run the installer (chose the
+`single file (offline) installer for Code Composer Studio IDE (all features, devices)`
+depending on your host platform).
+
+When running the installer:
+
+1. Do **NOT** change the default installation directory chosen by the
+   installer and let the installer proceed with the installation into the
+   installation directory (e.g., ``C:\ti\ccs1281`` for CCS ``12.8.1``).
+1. Select the `Hercules™ Safety MCUs` option during the installation.
+
+Installing TI Code Composer Studio may take a while.
+
+## Install HALCoGen
+
+Download [HALCoGen](https://www.ti.com/tool/HALCOGEN) version 04.07.01
+and run the installer.
+When running the installer:
+Do **not** change the default installation directory chosen by the
+installer and let the installer proceed with the installation into the
+installation directory (i.e., ``C:\ti\...`` for TI HALCoGen ``04.07.01``
+that means into ``C:\ti\Hercules\HALCoGen\v04.07.01``).
+
+Installing TI HALCoGen may take a while.
+
+## Install Python
+
+1. Install [Python 3.12](https://www.python.org/).\
+   If you have already installed Python 3.12 from <https://www.python.org> this
+   step can be skipped.
+
+   > **_NOTE:_**
    >
-   > The minimum required Python version is 3.10.
+   > The required Python version is exactly 3.12.x
 
-1. Open a terminal and run `py --version`, this should print something like
-   `Python 3.12.4` or similar to the terminal:
+1. Open a terminal and run `py -3.12 --version`, this should print
+   something like `Python 3.12.8` or similar:
 
    ```pwsh
-   py --version
-   Python 3.12.4
+   py -3.12 --version
+   Python 3.12.8
    ```
 
-1. Create a virtual environment **2025-01-pale-fox** by running in `cmd.exe` or
-   `PowerShell`.
-   - `cmd.exe`:
+## Install Virtual Python Environment
 
-      ```cmd
-      py -m venv %USERPROFILE%\foxbms-envs\2025-01-pale-fox
-      ```
+1. Create a virtual environment **2025-03-pale-fox** by running:
 
-   - `PowerShell`:
+   ```pwsh
+   py -3.12 -m venv C:\foxbms\envs\2025-03-pale-fox
+   ```
 
-     ```pwsh
-     py -m venv $env:USERPROFILE\foxbms-envs\2025-01-pale-fox
-     ```
+1. Activate the virtual environment by running:
 
-1. Activate the virtual environment by running in `cmd.exe` or ``PowerShell`.
-   - `cmd.exe`:
-
-      ```cmd
-      %USERPROFILE%\foxbms-envs\2025-01-pale-fox\Scripts\activate.bat
-      ```
-
-   - `PowerShell`:
-
-     ```pwsh
-     &"$env:USERPROFILE\foxbms-envs\2025-01-pale-fox\Scripts\activate.ps1"
-     ```
+   ```pwsh
+   C:\foxbms\envs\2025-03-pale-fox\Scripts\activate.ps1
+   ```
 
 1. Install the required packages by running:
 
+   > **_NOTE:_**
+   >
+   > ``pip`` requires a correct proxy setup.
+
    ```pwsh
-   cd path\to\foxbms-2 # cd into the root of the repository
-   python -m pip install -r requirements.txt --no-deps
+   python -m pip install -r requirements.txt
    ```
 
-1. Install [Ruby](https://www.ruby-lang.org)
-   1. Download the installer version for
-   [Ruby 3.1.3-x64 without Devkit](https://github.com/oneclick/rubyinstaller2/releases/download/RubyInstaller-3.1.3-1/rubyinstaller-3.1.3-1-x64.exe).
-   1. Use `C:\Ruby\Ruby3.1.3-x64` as installation directory
-   1. Do **NOT** add Ruby to `PATH`.
-   1. Install the required packages, i.e., Gems by running:
+## Install Ruby
 
-      ```pwsh
-      cd path\to\foxbms-2 # cd into the root of the repository
-      cd tools\vendor\ceedling
-      C:\Ruby\Ruby3.1.3-x64\bin\bundle install # install the Ruby Gems
-      ```
+> **_NOTE:_**
+>
+> Installing MinGW64 requires 7-Zip to be installed.
+> 7-Zip can be download from <https://7-zip.org>.
 
-1. Install GCC
+1. Download the zip-archive
+[Ruby 3.4.2-1 (x64)](https://github.com/oneclick/rubyinstaller2/releases/download/RubyInstaller-3.4.2-1/rubyinstaller-3.4.2-1-x64.7z).
+1. Extract the archive to ``C:\foxbms\Ruby\Ruby34-x64``.
 
-   > **_NOTE:_** Installing MinGW64 requires 7-Zip to be installed.
-                 7-Zip can be download from <https://7-zip.org>.
+## Install Ruby gems
 
-   1. Download MinGW-W64 version x86_64-posix-seh from
-      [sourceforge.net](https://sourceforge.net/projects/mingw-w64/files/mingw-w64/)
-      (**use exactly this [7z-archive](
-      https://sourceforge.net/projects/mingw-w64/files/Toolchains%20targetting%20Win64/Personal%20Builds/mingw-builds/8.1.0/threads-posix/seh/x86_64-8.1.0-release-posix-seh-rt_v6-rev0.7z)**).
-   1. Extract the archive.
-   1. Copy the extracted mingw64 directory to
-      `C:\mingw64\x86_64-8.1.0-release-posix-seh-rt_v6-rev0`.
-   1. Verify that `gcc.exe` is available at
-      `C:\MinGW64\x86_64-8.1.0-release-posix-seh-rt_v6-rev0\mingw64\bin\gcc.exe`.
+Install the required Ruby packages, i.e., Ruby gems by running:
 
-1. Install Doxygen
+```pwsh
+C:\foxbms\Ruby\Ruby34-x64\bin\gem.cmd install --install-dir C:\foxbms\Ceedling\1.0.1 ceedling
+```
 
-   1. Download Doxygen version 1.11.0 from
-      [GitHub](https://github.com/doxygen/doxygen/releases/tag/Release_1_11_0)
-      (use this [zip-archive](
-      https://github.com/doxygen/doxygen/releases/download/Release_1_11_0/doxygen-1.11.0.windows.x64.bin.zip)).
-   1. Extract the archive.
-   1. Copy the extracted archive to `C:\Users\<username>\doxygen\1.11.0`.
-   1. Verify that `doxygen.exe` is available at
-      `C:\Users\<username>\doxygen\1.11.0\doxygen.exe`.
+## Install mingw-w64
 
-1. Install Graphviz
+> **_NOTE:_**
+>
+> Installing mingw-w64 requires 7-Zip to be installed.
+> 7-Zip can be download from <https://7-zip.org>.
 
-   1. Download GraphViz version 11.0.0 from
-      [https://graphviz.org/download](https://graphviz.org/download)
-      (use this [zip-archive](
-      https://gitlab.com/api/v4/projects/4207231/packages/generic/graphviz-releases/11.0.0/windows_10_cmake_Release_Graphviz-11.0.0-win64.zip)).
-   1. Extract the archive.
-   1. Copy the extracted archive to `C:\Users\<username>\graphviz\11.0.0`.
-   1. Verify that `dot.exe` is available at
-      `C:\Users\<username>\graphviz\11.0.0\bin\dot.exe`.
+1. Download mingw-w64 version x86_64-posix-seh from
+  [sourceforge.net](https://sourceforge.net/projects/mingw-w64/files/mingw-w64/)
+  (**use this**
+  [7z-archive](https://sourceforge.net/projects/mingw-w64/files/Toolchains%20targetting%20Win64/Personal%20Builds/mingw-builds/8.1.0/threads-posix/seh/x86_64-8.1.0-release-posix-seh-rt_v6-rev0.7z)).
+1. Extract the archive.
+1. Copy the extracted `mingw64` directory to
+  `C:\foxbms\mingw-w64\x86_64-8.1.0-release-posix-seh-rt_v6-rev0`.
+1. Verify that `gcc.exe` is available at
+  `C:\foxbms\mingw-w64\x86_64-8.1.0-release-posix-seh-rt_v6-rev0\bin\gcc.exe`.
 
-1. Check that all required software is installed by running in `cmd.exe` or
-   `PowerShell`.
+## Install Doxygen
 
-   - `cmd.exe`:
+1. Download Doxygen version 1.13.2 from
+   [GitHub](https://github.com/doxygen/doxygen/releases/tag/Release_1_13_2)
+   (use this
+   [zip-archive](https://github.com/doxygen/doxygen/releases/download/Release_1_13_2/doxygen-1.13.2.windows.x64.bin.zip)).
+1. Extract the archive.
+1. Copy the extracted archive to `C:\foxbms\Doxygen\1.13.2`.
+1. Verify that `doxygen.exe` is available at
+  `C:\foxbms\Doxygen\1.13.2\doxygen.exe`.
 
-      ```cmd
-      fox.bat install --check
-      ```
+## Install Graphviz
 
-   - `PowerShell`:
+1. Download Graphviz version 12.2.1 from
+  [https://graphviz.org/download](https://graphviz.org/download)
+  (use this
+  [zip-archive](https://gitlab.com/api/v4/projects/4207231/packages/generic/graphviz-releases/12.2.1/windows_10_cmake_Release_Graphviz-12.2.1-win64.zip)).
+1. Extract the archive.
+1. Copy the extracted archive to `C:\foxbms\Graphviz\12.2.1`.
+1. Verify that `dot.exe` is available at
+   `C:\foxbms\Graphviz\12.2.1\bin\dot.exe`.
 
-     ```pwsh
-     .\fox.ps1 install --check
-     ```
+## Install drawio-desktop
 
-1. (Optional): Install VS Code.
+1. Download drawio-desktop version 26.0.9 from
+   [https://github.com/jgraph/drawio-desktop/releases](https://github.com/jgraph/drawio-desktop/releases)
+   (use this
+   [zip-archive](https://github.com/jgraph/drawio-desktop/releases/download/v26.0.9/draw.io-26.0.9-windows-installer.exe)).
+1. Run the installer and use the default installation directory.
+1. Verify that `draw.io.exe` is available at
+    `C:\Program Files\draw.io\draw.io.exe`.
 
-   1. Download VS Code from the project website at
-      [Visual Studio Code](https://code.visualstudio.com).
-   1. Install code: |foxbms| recommends installing |code| with the
-      `User Installer`, which does not require elevated rights.
-   1. _Optional:_ Let the installer add code to the `PATH` variable.
+## Install VS Code
 
-All required software is now installed.
+foxBMS 2 supports development using Visual Studio Code.
+
+1. Download VS Code from the project website at <https://code.visualstudio.com>.
+1. Run the installer.
+1. _Optional:_ Let the installer add VS Code to the `PATH` variable.
+
+## Installation Check
+
+Check that all required software is installed by running:
+
+```pwsh
+.\fox.ps1 install --check
+```
+
+After following these steps, the check shall succeed and all required software
+has been successfully installed.
 
 ## Environment Updates
 
@@ -177,40 +272,27 @@ It that is the case, it is then mentioned in the
 
 To update the build environment the following steps must be done:
 
-   > **_NOTE:_** The placeholder ``<name-of-the-new-env>`` must be replaced
-                 with the actual name of the new build environment, which is
-                 then documented in the [CHANGELOG.md](./CHANGELOG.md).
+> **_NOTE:_**
+>
+> The placeholder ``<name-of-the-new-env>`` must be replaced
+> with the actual name of the new build environment, which is
+> then documented in the
+> [CHANGELOG.md](./CHANGELOG.md).
 
-1. Create a virtual environment ``<name-of-the-new-env>`` by running in `cmd.exe` or
-   `PowerShell`.
-   - `cmd.exe`:
+1. Create a virtual environment **\<name-of-the-new-env\>** by running:
 
-      ```cmd
-      py -m venv %USERPROFILE%\foxbms-envs\<name-of-the-new-env>
-      ```
+   ```pwsh
+   py -3.12-m venv C:\foxbms\envs\<name-of-the-new-env>
+   ```
 
-   - `PowerShell`:
+1. Activate the virtual environment by running:
 
-     ```pwsh
-     py -m venv $env:USERPROFILE\foxbms-envs\<name-of-the-new-env>
-     ```
-
-1. Activate the virtual environment by running in `cmd.exe` or ``PowerShell`.
-   - `cmd.exe`:
-
-      ```cmd
-      %USERPROFILE%\foxbms-envs\<name-of-the-new-env>\Scripts\activate.bat
-      ```
-
-   - `PowerShell`:
-
-     ```pwsh
-     &"$env:USERPROFILE\foxbms-envs\<name-of-the-new-env>\Scripts\activate.ps1"
-     ```
+   ```pwsh
+   C:\foxbms\envs\<name-of-the-new-env>\Scripts\activate.ps1
+   ```
 
 1. Install the required packages by running:
 
    ```pwsh
-   cd path\to\foxbms-2 # cd into the root of the repository
-   python -m pip install -r requirements.txt --no-deps
+   python -m pip install -r requirements.txt
    ```
