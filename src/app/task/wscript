@@ -93,6 +93,7 @@ def build(bld):
         os.path.join("..", "driver", "led"),
         os.path.join("..", "driver", "meas"),
         os.path.join("..", "driver", "pex"),
+        os.path.join("..", "driver", "phy"),
         os.path.join("..", "driver", "pwm"),
         os.path.join("..", "driver", "rtc"),
         os.path.join("..", "driver", "sbc"),

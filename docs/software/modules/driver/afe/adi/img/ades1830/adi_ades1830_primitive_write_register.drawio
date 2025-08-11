@@ -1,0 +1,57 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/25.0.2 Chrome/128.0.6613.186 Electron/32.2.5 Safari/537.36" version="25.0.2">
+  <diagram name="Seite-1" id="hPg8SPZopmh8AGZJrN-p">
+    <mxGraphModel dx="1098" dy="940" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="DEjZVQlh6ZJTVWUGv1k4-58" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;dashed=1;dashPattern=8 8;" parent="1" vertex="1">
+          <mxGeometry x="30" y="20" width="740" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="DEjZVQlh6ZJTVWUGv1k4-68" value="Helper function, only used in initialization" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;strokeColor=none;" parent="1" vertex="1">
+          <mxGeometry x="30" y="340" width="240" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="DEjZVQlh6ZJTVWUGv1k4-109" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;dashed=1;" parent="1" source="DEjZVQlh6ZJTVWUGv1k4-100" target="DEjZVQlh6ZJTVWUGv1k4-102" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="DEjZVQlh6ZJTVWUGv1k4-110" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;dashed=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" parent="1" source="DEjZVQlh6ZJTVWUGv1k4-100" target="DEjZVQlh6ZJTVWUGv1k4-104" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="DEjZVQlh6ZJTVWUGv1k4-111" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;dashed=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" parent="1" source="DEjZVQlh6ZJTVWUGv1k4-100" target="DEjZVQlh6ZJTVWUGv1k4-105" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="DEjZVQlh6ZJTVWUGv1k4-100" value="&lt;b&gt;ADI_WriteRegister()&lt;/b&gt;&lt;br&gt;Write a register for all ADES1830s in the daisy-chain&lt;br&gt;Each ADES1830&amp;nbsp;can have a different value written in the register" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#c6e5ed;strokeColor=none;" parent="1" vertex="1">
+          <mxGeometry x="40" y="30" width="320" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="DEjZVQlh6ZJTVWUGv1k4-107" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" parent="1" source="DEjZVQlh6ZJTVWUGv1k4-101" target="DEjZVQlh6ZJTVWUGv1k4-100" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="DEjZVQlh6ZJTVWUGv1k4-112" value="Uses" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="DEjZVQlh6ZJTVWUGv1k4-107" vertex="1" connectable="0">
+          <mxGeometry x="0.1725" y="-2" relative="1" as="geometry">
+            <mxPoint x="-2" y="10" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="DEjZVQlh6ZJTVWUGv1k4-108" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;dashed=1;" parent="1" source="DEjZVQlh6ZJTVWUGv1k4-101" target="DEjZVQlh6ZJTVWUGv1k4-106" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="DEjZVQlh6ZJTVWUGv1k4-101" value="&lt;b&gt;ADI_WriteRegisterGlobal()&lt;/b&gt;&lt;br&gt;Write a register, but each ADES1830&amp;nbsp;in the daisy-chain gets the same value written in the register" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#c6e5ed;strokeColor=none;" parent="1" vertex="1">
+          <mxGeometry x="40" y="280" width="320" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="DEjZVQlh6ZJTVWUGv1k4-102" value="&lt;b&gt;ADI_dataTransmit[ ]&lt;/b&gt;&lt;br&gt;Size: 6 bytes x number of ADES1830 in daisy-chain&lt;br&gt;Buffer used throughout driver" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#de7a7a;strokeColor=none;" parent="1" vertex="1">
+          <mxGeometry x="440" y="30" width="320" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="DEjZVQlh6ZJTVWUGv1k4-103" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;dashed=1;dashPattern=8 8;" parent="1" vertex="1">
+          <mxGeometry x="30" y="270" width="740" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="DEjZVQlh6ZJTVWUGv1k4-104" value="&lt;b&gt;pwmRegisterA[ ]&lt;/b&gt;&lt;br&gt;Size: 6 bytes x number of ADES1830&amp;nbsp;in daisy-chain&lt;br&gt;Used to write to balancing registers" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#de7a7a;strokeColor=none;" parent="1" vertex="1">
+          <mxGeometry x="440" y="120" width="320" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="DEjZVQlh6ZJTVWUGv1k4-105" value="&lt;b&gt;pwmRegisterB[ ]&lt;/b&gt;&lt;br&gt;Size: 6 bytes x number of ADES1830&amp;nbsp;in daisy-chain&lt;br&gt;Used to write to balancing registers" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#de7a7a;strokeColor=none;" parent="1" vertex="1">
+          <mxGeometry x="440" y="190" width="320" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="DEjZVQlh6ZJTVWUGv1k4-106" value="&lt;b&gt;ADI_writeGlobal[ ]&lt;/b&gt;&lt;br&gt;Size: 6 bytes&lt;br&gt;Buffer used throughout driver" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#de7a7a;strokeColor=none;" parent="1" vertex="1">
+          <mxGeometry x="440" y="280" width="320" height="60" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

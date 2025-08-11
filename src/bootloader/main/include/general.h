@@ -43,8 +43,8 @@
  * @file    general.h
  * @author  foxBMS Team
  * @date    2019-09-24 (date of creation)
- * @updated 2025-03-31 (date of last update)
- * @version v1.9.0
+ * @updated 2025-08-07 (date of last update)
+ * @version v1.10.0
  * @ingroup MAIN_CONFIGURATION
  * @prefix  GEN
  *
@@ -63,14 +63,6 @@
 #include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
-/** allow implementations to be weak for unit tests */
-#ifdef UNITY_UNIT_TEST
-#ifndef UNIT_TEST_WEAK_IMPL
-#define UNIT_TEST_WEAK_IMPL __attribute__((weak))
-#endif
-#else
-#define UNIT_TEST_WEAK_IMPL
-#endif
 
 /* assert that the basic datatypes in fstd_types.h are intact */
 /* AXIVION Disable Style MisraC2012-10.4: These assertions have to check the actual values of the enums and defines. */

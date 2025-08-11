@@ -1,5 +1,5 @@
 /*
- * FreeRTOS+TCP V2.3.1
+ * FreeRTOS+TCP V4.3.2
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -106,8 +106,6 @@ BaseType_t xIsIPv6Loopback( const IPv6_Address_t * pxAddress );
 /** @brief Handle the IPv6 extension headers. */
 eFrameProcessingResult_t eHandleIPv6ExtensionHeaders( NetworkBufferDescriptor_t * const pxNetworkBuffer,
                                                       BaseType_t xDoRemove );
-
-extern void FreeRTOS_ClearND( void );
 
 /* Check whether this IPv6 address is an allowed multicast address or not. */
 BaseType_t xIsIPv6AllowedMulticast( const IPv6_Address_t * pxIPAddress );

@@ -37,16 +37,33 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""Script to check the encoding for a list of provided files"""
+"""Check the text encoding of specified files.
+
+This script attempts to open one or more files with the specified encoding
+(default: UTF-8, other option: ASCII). It reports files that cannot be
+opened with the given encoding and returns an appropriate exit code.
+It is intended for use with pre-commit.
+"""
 
 import argparse
 import sys
+from collections.abc import Sequence
 from pathlib import Path
-from typing import Sequence
 
 
 def main(argv: Sequence[str] | None = None) -> int:
-    """Encoding header checker"""
+    """Command-line interface to check file encodings.
+
+    Parses arguments, attempts to open each file using the specified encoding,
+    and reports errors for files that cannot be opened.
+
+    Args:
+        argv: Optional sequence of command-line arguments.
+
+    Return:
+        Exit code (0 if all files match encoding, up to 255 if errors).
+
+    """
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--encoding",

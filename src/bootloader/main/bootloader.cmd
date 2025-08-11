@@ -95,6 +95,8 @@
     +----------------+-----------------------------------------------------+
     | 0x00018004     | the length of the program in bytes                  |
     +----------------+-----------------------------------------------------+
+    | 0x00018008     | the start address of the program                    |
+    +----------------+-----------------------------------------------------+
     | 0x0001800C     | the 8-byte CRC signature of the program             |
     +----------------+-----------------------------------------------------+
     | 0x00018014     | the 8-byte CRC signature of the vector table        |
@@ -102,6 +104,8 @@
     | 0x0001801C     | a 4 byte bit pattern to show if there is a program  |
     |                | available on board                                  |
     |                | (xCCCCCCCC means there is a program available)      |
+    +----------------+-----------------------------------------------------+
+    | 0x00018064     | the address of the backup vector table              |
     +----------------+-----------------------------------------------------+
  */
 #define PROGRAM_INFO_AREA_SIZE (0x00007FE0)
@@ -201,4 +205,20 @@ SECTIONS
     .bss                : {} > RAM
     .data               : {} > RAM
     .sysmem             : {} > RAM
+
+
+    /* https://software-dl.ti.com/ccs/esd/documents/sdto_cgt_Linker-Command-File-Primer.html */
+    /* Load 'flash.c' objects to RAM */
+    flashC:
+    {
+       flash.c.1.obj (.text)
+       --library= "C:\ti\Hercules\F021 Flash API\02.01.01\F021_API_CortexR4_BE_L2FMC_V3D16.lib" (.text)
+    } palign=8 load = BOOTLOADER, run = RAM_FLASH_API, LOAD_START(main_textLoadStartFlashC), RUN_START(main_textRunStartFlashC), SIZE(main_textSizeFlashC)
+
+    /* Load const objects in 'flash_cfg.c' to RAM */
+    flashCfg:
+    {
+        flash_cfg.c.1.obj (.const)
+     } palign=8 load = BOOTLOADER, run = RAM_FLASH_API, LOAD_START(main_constLoadStartFlashCfgC), RUN_START(main_constRunStartFlashCfgC), SIZE(main_constSizeFlashCfgC)
+
 }

@@ -43,15 +43,15 @@
  * @file    test_adi_ades1830_helpers.c
  * @author  foxBMS Team
  * @date    2022-12-07 (date of creation)
- * @updated 2025-03-31 (date of last update)
- * @version v1.9.0
+ * @updated 2025-08-07 (date of last update)
+ * @version v1.10.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
  * @brief   Test of some module
  * @details Test functions:
  *          - testADI_TransmitCommand
- *          - testADI_CopyCommandBits
+ *          - testADI_CopyCommandBytes
  *          - testADI_IncrementCommandCounter
  *          - testADI_WriteCommandConfigurationBits
  *          - testADI_ReadDataBits
@@ -185,7 +185,7 @@ void testADI_TransmitCommand(void) {
     /* SNAP: command without data , must increase command counter */
     for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
         adi_stateBaseTest.currentString = s;
-        ADI_CopyCommandBits(adi_cmdSnap, adi_command);
+        ADI_CopyCommandBytes(adi_cmdSnap, adi_command);
         ADI_TransmitCommand(adi_command, &adi_stateBaseTest);
         for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
             /* Check that command counter was increased */
@@ -194,18 +194,18 @@ void testADI_TransmitCommand(void) {
     }
 }
 
-void testADI_CopyCommandBits(void) {
+void testADI_CopyCommandBytes(void) {
     const uint16_t testSourceCommand[ADI_COMMAND_DEFINITION_LENGTH] = {1u, 2u, 3u, 4u};
     uint16_t testDestinationCommand[ADI_COMMAND_DEFINITION_LENGTH]  = {0u, 0u, 0u, 0u};
 
     /* invalid sourceCommand */
-    TEST_ASSERT_FAIL_ASSERT(ADI_CopyCommandBits(NULL_PTR, NULL_PTR));
+    TEST_ASSERT_FAIL_ASSERT(ADI_CopyCommandBytes(NULL_PTR, NULL_PTR));
     /* invalid destinationCommand */
-    TEST_ASSERT_FAIL_ASSERT(ADI_CopyCommandBits(testSourceCommand, NULL_PTR));
+    TEST_ASSERT_FAIL_ASSERT(ADI_CopyCommandBytes(testSourceCommand, NULL_PTR));
 
     /* copy command and test that after calling the function both arrays have
        the same values for each index */
-    ADI_CopyCommandBits(testSourceCommand, testDestinationCommand);
+    ADI_CopyCommandBytes(testSourceCommand, testDestinationCommand);
     for (uint8_t i = 0; i < ADI_COMMAND_DEFINITION_LENGTH; i++) {
         TEST_ASSERT_EQUAL(testSourceCommand[i], testDestinationCommand[i]);
     }
@@ -254,7 +254,7 @@ void testADI_WriteCommandConfigurationBits(void) {
     modifiedCommand &= (uint16_t)~((1u & ADI_ADCV_OW01_LEN) << ADI_ADCV_OW01_POS);
 
     /* Now modify same configuration bits with ADI_WriteCommandConfigurationBits() */
-    ADI_CopyCommandBits(adi_cmdAdcv, adi_command);
+    ADI_CopyCommandBytes(adi_cmdAdcv, adi_command);
     ADI_WriteCommandConfigurationBits(adi_command, ADI_ADCV_RD_POS, ADI_ADCV_RD_LEN, 1u);
     ADI_WriteCommandConfigurationBits(adi_command, ADI_ADCV_CONT_POS, ADI_ADCV_CONT_LEN, 1u);
     ADI_WriteCommandConfigurationBits(adi_command, ADI_ADCV_DCP_POS, ADI_ADCV_DCP_LEN, 0u);
@@ -332,7 +332,7 @@ void testADI_ReadRegister(void) {
                 0x53u;
     }
     /* Call read function */
-    ADI_CopyCommandBits(adi_cmdRdcva, adi_command);
+    ADI_CopyCommandBytes(adi_cmdRdcva, adi_command);
     for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
         adi_stateBaseTest.currentString = s;
         SPI_TransmitDummyByte_ExpectAndReturn(spi_adiInterface, ADI_SPI_WAKEUP_WAIT_TIME_US, STD_OK);
@@ -352,7 +352,7 @@ void testADI_ReadRegister(void) {
         [ADI_COMMAND_AND_PEC_SIZE_IN_BYTES + 3u + (0u * (ADI_MAX_REGISTER_SIZE_IN_BYTES + ADI_PEC_SIZE_IN_BYTES))] =
             0x78u + 1u;
     /* Call read function */
-    ADI_CopyCommandBits(adi_cmdRdcva, adi_command);
+    ADI_CopyCommandBytes(adi_cmdRdcva, adi_command);
     for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
         adi_stateBaseTest.currentString = s;
         SPI_TransmitDummyByte_ExpectAndReturn(spi_adiInterface, ADI_SPI_WAKEUP_WAIT_TIME_US, STD_OK);
@@ -386,7 +386,7 @@ void testADI_ReadRegister(void) {
         }
     }
     /* Call read function */
-    ADI_CopyCommandBits(adi_cmdRdcva, adi_command);
+    ADI_CopyCommandBytes(adi_cmdRdcva, adi_command);
     for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
         adi_stateBaseTest.currentString = s;
         SPI_TransmitDummyByte_ExpectAndReturn(spi_adiInterface, ADI_SPI_WAKEUP_WAIT_TIME_US, STD_OK);
@@ -418,7 +418,7 @@ void testADI_ReadRegister(void) {
         }
     }
     /* Call read function */
-    ADI_CopyCommandBits(adi_cmdRdcva, adi_command);
+    ADI_CopyCommandBytes(adi_cmdRdcva, adi_command);
     for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
         adi_stateBaseTest.currentString = s;
         SPI_TransmitDummyByte_ExpectAndReturn(spi_adiInterface, ADI_SPI_WAKEUP_WAIT_TIME_US, STD_OK);
@@ -1147,7 +1147,7 @@ void testADI_WriteRegister(void) {
         }
     }
     /* Call write configuration register group A function, increases command counter */
-    ADI_CopyCommandBits(adi_cmdWrcfga, adi_command);
+    ADI_CopyCommandBytes(adi_cmdWrcfga, adi_command);
     for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
         adi_stateBaseTest.currentString = s;
         /* No fault injection: command counter must increase */
@@ -1165,7 +1165,7 @@ void testADI_WriteRegister(void) {
 
     /* Test no command counter increase if command PEC fault injection */
     /* Call write configuration register group A function, increases command counter */
-    ADI_CopyCommandBits(adi_cmdWrcfga, adi_command);
+    ADI_CopyCommandBytes(adi_cmdWrcfga, adi_command);
     for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
         adi_stateBaseTest.currentString = s;
         SPI_TransmitDummyByte_ExpectAndReturn(spi_adiInterface, ADI_SPI_WAKEUP_WAIT_TIME_US, STD_OK);
@@ -1181,7 +1181,7 @@ void testADI_WriteRegister(void) {
 
     /* Test no command counter increase if data PEC fault injection */
     /* Call write configuration register group A function, increases command counter */
-    ADI_CopyCommandBits(adi_cmdWrcfga, adi_command);
+    ADI_CopyCommandBytes(adi_cmdWrcfga, adi_command);
     for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
         adi_stateBaseTest.currentString = s;
         SPI_TransmitDummyByte_ExpectAndReturn(spi_adiInterface, ADI_SPI_WAKEUP_WAIT_TIME_US, STD_OK);

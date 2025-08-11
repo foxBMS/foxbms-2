@@ -63,6 +63,8 @@ if Utils.is_win32:
 else:
     BAUHAUS_DIR = Path(os.environ.get("HOME", "/")) / "bauhaus-suite"
 
+COMMON_WAF_BASE_DIR = "waf3-2.1.5-7e89fb078ab3c46cf09c8f74bbcfd16d"
+
 
 def dump_json_to_node(node: Node, cfg: dict):
     """Dump dictionary to node"""
@@ -327,7 +329,6 @@ def setup_generic(ctx: ConfigurationContext, base_cfg_dir: Node):
         **settings["files.exclude"],
         **{
             ".vscode/**": True,
-            "hal/**": True,
             "opt/**": True,
         },
     }
@@ -336,6 +337,41 @@ def setup_generic(ctx: ConfigurationContext, base_cfg_dir: Node):
 
     ### tasks.json
     write_tasks_json(ctx, vscode_dir)
+
+    ctx.end_msg(vscode_dir)
+
+
+@conf
+def setup_cli(ctx: ConfigurationContext, base_cfg_dir: Node):
+    """Setup the 'CLI' VS Code configuration"""
+    # Setup requires:
+    # - copy cspell.json verbatim
+    # - copy settings.json and adapt paths
+
+    # First copy everything from the configuration directory to the actual
+    # required location, so that in later steps the setup can be adapted and
+    # then write the configuration to the specific configuration file.
+
+    ctx.start_msg("Creating cli workspace")
+    vscode_dir = ctx.path.make_node("cli/.vscode")
+    vscode_dir.mkdir()
+
+    shutil.copy2(base_cfg_dir.find_node("cspell.json").abspath(), vscode_dir.abspath())
+    for i in base_cfg_dir.ant_glob("cli/*.json"):
+        shutil.copy2(i.abspath(), vscode_dir.abspath())
+
+    ### settings.json
+    settings_node = vscode_dir.find_node("settings.json")
+    if not settings_node:
+        ctx.fatal(f"Could not find 'settings.json' in {vscode_dir}")
+    settings = settings_node.read_json()
+
+    ### settings.json: python.*
+    settings["pylint.args"] = [
+        f"--rcfile={Path(ctx.path.abspath()).as_posix()}/pyproject.toml"
+    ]
+
+    dump_json_to_node(settings_node, settings)
 
     ctx.end_msg(vscode_dir)
 
@@ -391,7 +427,7 @@ def setup_src_app(ctx: ConfigurationContext, base_cfg_dir: Node):
 
     include_path = default_includes(ctx, base_cfg_dir, "app/project-include-path.txt")
 
-    inc_base = "@@ROOT@@/app"
+    inc_base = "@@ROOT@@/src"
     inc_app = f"{inc_base}/app"
     inc_state = f"{inc_app}/application/algorithm/state_estimation"
     include_path.extend(
@@ -414,9 +450,6 @@ def setup_src_app(ctx: ConfigurationContext, base_cfg_dir: Node):
         include_path.extend(
             [
                 f"{inc_base}/os/{ctx.env.RTOS_NAME[0]}/{ctx.env.RTOS_NAME[0]}",
-                f"{inc_base}/os/{ctx.env.RTOS_NAME[0]}/freertos-plus/freertos-plus-tcp",
-                f"{inc_base}/os/{ctx.env.RTOS_NAME[0]}/freertos-plus/ \
-                    freertos-plus-tcp/source/include",
             ]
         )
     else:
@@ -454,14 +487,16 @@ def setup_src_app(ctx: ConfigurationContext, base_cfg_dir: Node):
     settings["pylint.args"] = [
         f"--rcfile={Path(ctx.path.abspath()).as_posix()}/pyproject.toml"
     ]
+    settings["python.analysis.extraPaths"] = [
+        (Path(ctx.path.abspath()) / f"tools/{COMMON_WAF_BASE_DIR}").as_posix(),
+        (Path(ctx.path.abspath()) / f"tools/.{COMMON_WAF_BASE_DIR}").as_posix(),
+    ]
 
     ### settings.json: files.*
     settings["files.exclude"] = {
         **settings["files.exclude"],
         **{
             ".vscode/**": True,
-            "hal/**": True,
-            "opt/**": True,
         },
     }
 
@@ -548,13 +583,16 @@ def setup_src_bootloader(ctx: ConfigurationContext, base_cfg_dir: Node):
     settings["pylint.args"] = [
         f"--rcfile={Path(ctx.path.abspath()).as_posix()}/pyproject.toml"
     ]
+    settings["python.analysis.extraPaths"] = [
+        (Path(ctx.path.abspath()) / f"tools/{COMMON_WAF_BASE_DIR}").as_posix(),
+        (Path(ctx.path.abspath()) / f"tools/.{COMMON_WAF_BASE_DIR}").as_posix(),
+    ]
 
     ### settings.json: files.*
     settings["files.exclude"] = {
         **settings["files.exclude"],
         **{
             ".vscode/**": True,
-            "hal/**": True,
             "opt/**": True,
         },
     }
@@ -791,6 +829,7 @@ def configure(ctx: ConfigurationContext):  # pylint: disable=too-many-branches
 
     # configure the workspaces
     ctx.setup_generic(base_cfg_dir)
+    ctx.setup_cli(base_cfg_dir)
     ctx.setup_src_app(base_cfg_dir)
     ctx.setup_src_bootloader(base_cfg_dir)
     ctx.setup_embedded_unit_test_app(base_cfg_dir)

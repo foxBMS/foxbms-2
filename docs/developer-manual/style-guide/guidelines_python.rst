@@ -114,17 +114,22 @@ platform specific code.
 ``wscript`` Specific rules (``PYTHON:007``)
 -------------------------------------------
 
-``includes`` and ``source`` or might be less readable if they are split over
-multiple lines (as ``ruff`` would format it like this on default). Therefore
-``includes`` and ``source`` might be written as follows, if it increases
-readability:
+.. admonition:: Paths in ``wscript``
+
+   - In a ``wscript`` paths that are meant to be used by task generators
+     **MUST NOT** be ``path.Path`` objects, but strings using ``/`` as path
+     separator.
+   - ``includes`` and ``source`` or *might* be less readable if they are split
+     over multiple lines (as ``ruff`` would format it like this on default).
+     Therefore ``includes`` and ``source`` **MAY** be written as shown below,
+     if it increases readability:
 
 .. literalinclude:: ./examples/python-007.py
-    :language: python
-    :linenos:
-    :lines: 44-
-    :caption: Format ``includes`` in ``wscript``
-    :name: format-includes-in-wscript
+   :language: python
+   :linenos:
+   :start-after: start-include-in-docs
+   :caption: Format ``includes`` in ``wscript``
+   :name: format-includes-in-wscript
 
 - ``# fmt: off`` disables formatting starting from that line and
   ``# pylint: disable=line-too-long`` disables the pylint error message

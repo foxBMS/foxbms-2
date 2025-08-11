@@ -43,8 +43,8 @@
  * @file    test_rtc.c
  * @author  foxBMS Team
  * @date    2020-04-01 (date of creation)
- * @updated 2025-03-31 (date of last update)
- * @version v1.9.0
+ * @updated 2025-08-07 (date of last update)
+ * @version v1.10.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -64,6 +64,9 @@
 
 #include "rtc.h"
 #include "test_assert_helper.h"
+
+#include <stdbool.h>
+#include <time.h>
 
 /*========== Unit Testing Framework Directives ==============================*/
 TEST_SOURCE_FILE("rtc.c")
@@ -167,7 +170,42 @@ void testRTC_InitializeSystemTimeWithRtc(void) {
 }
 
 void testRTC_IncrementSystemTime(void) {
+    /* save previous time to reset after test */
+    RTC_SYSTEM_TIMER_EPOCH_s previousValue = TEST_RTC_GetRtcSystemTime();
+
+    /* ======= Routine tests =============================================== */
+    RTC_SYSTEM_TIMER_EPOCH_s rtcTime = {
+        .secondsSinceEpoch = 0u,
+        .milliseconds      = 0u,
+    };
+    /* ======= RT1/2: Test implementation */
+    /* milliseconds are 0 */
+    TEST_RTC_SetRtcSystemTime(rtcTime);
+
+    /* ======= RT1/2: call function under test */
     RTC_IncrementSystemTime();
+
+    /* ======= RT1/2: test output verification */
+    rtcTime = TEST_RTC_GetRtcSystemTime();
+    TEST_ASSERT_EQUAL(rtcTime.milliseconds, 1u);
+    TEST_ASSERT_EQUAL(rtcTime.secondsSinceEpoch, 0u);
+
+    /* ======= RT2/2: Test implementation */
+    /* set to 999 milliseconds */
+    rtcTime.secondsSinceEpoch = 0u;
+    rtcTime.milliseconds      = 999u;
+    TEST_RTC_SetRtcSystemTime(rtcTime);
+
+    /* ======= RT2/2: call function under test */
+    RTC_IncrementSystemTime();
+
+    /* ======= RT2/2: test output verification */
+    rtcTime = TEST_RTC_GetRtcSystemTime();
+    TEST_ASSERT_EQUAL(rtcTime.milliseconds, 0u);
+    TEST_ASSERT_EQUAL(rtcTime.secondsSinceEpoch, 1u);
+
+    /* reset to old value */
+    TEST_RTC_SetRtcSystemTime(previousValue);
 }
 
 void testRTC_SetSystemTimeRtcFormat(void) {
@@ -184,7 +222,7 @@ void testRTC_SetSystemTimeRtcFormat(void) {
     OS_EnterTaskCritical_Expect();
     OS_ExitTaskCritical_Expect();
 
-    RTC_SetSystemTimeRtcFormat(rtcTime);
+    RTC_SetSystemTimeRtcFormat(&rtcTime);
 }
 
 void testRTC_SetRtcRequestFlag(void) {
@@ -200,4 +238,16 @@ void testRTC_GetSystemTimeRtcFormat(void) {
 
 void testRTC_GetSystemStartUpTime(void) {
     RTC_GetSystemStartUpTime();
+}
+
+void testRTC_IsRtcModuleInitialized(void) {
+    /* ======= Routine tests =============================================== */
+    /* ======= RT1/1: Test implementation */
+    bool previousRtcModuleInitializationStatus = RTC_IsRtcModuleInitialized();
+
+    TEST_RTC_SetRtcModuleInitializationStatus(true);
+    bool rtcInitializationStatus = RTC_IsRtcModuleInitialized();
+    TEST_ASSERT_TRUE(rtcInitializationStatus);
+
+    TEST_RTC_SetRtcModuleInitializationStatus(previousRtcModuleInitializationStatus);
 }

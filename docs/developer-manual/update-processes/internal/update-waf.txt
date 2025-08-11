@@ -3,6 +3,6 @@
 - Replace ``tools/waf`` with the new version.
 - |snippet_update_license|
   ``docs/general/license-tables/internal/license-info_waf.csv``.
-- |snippet_changelog_entry|.
+- |snippet_changelog_entry|
 - |snippet_commit|
   ``Dependency update: <XXXX>/Q<Y>: Waf <version number>``.

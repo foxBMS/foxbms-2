@@ -43,8 +43,8 @@
  * @file    test_adi_ades1830_balancing.c
  * @author  foxBMS Team
  * @date    2019-08-27 (date of creation)
- * @updated 2025-03-31 (date of last update)
- * @version v1.9.0
+ * @updated 2025-08-07 (date of last update)
+ * @version v1.10.0
  * @ingroup DRIVERS
  * @prefix  ADI
  *
@@ -146,7 +146,7 @@ void testADI_DeactivateBalancing(void) {
     }
     ADI_StoredConfigurationWriteToAfeGlobal_Expect(&adi_stateBase);
 
-    ADI_CopyCommandBits_Expect(adi_cmdUnmute, adi_command);
+    ADI_CopyCommandBytes_Expect(adi_cmdUnmute, adi_command);
     ADI_TransmitCommand_Expect(adi_command, &adi_stateBase);
 
     /* ======= RT1/1: call function under test */

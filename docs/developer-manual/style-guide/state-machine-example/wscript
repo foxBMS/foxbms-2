@@ -37,16 +37,9 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""Build Script: ``./docs/software/style-guide/state-machines-example/wscript``
-============================================================================
+"""Build the 'state machine' example
 
-Builds the state machine example
-
-This build script is not meant to be reused!
-
-"""
-
-import os
+This build script is not meant to be reused!"""
 
 
 def build(bld):
@@ -58,7 +51,7 @@ def build(bld):
         bld.path.find_or_declare(f"{i}.h").write(dummy_txt)
     includes = [
         ".",
-        os.path.join("..", "..", "..", "..", "src", "app", "main", "include"),
+        "../../../../src/app/main/include",
     ]
     cflags = bld.env.CFLAGS_FOXBMS
     bld.path.find_or_declare("os.h").write(

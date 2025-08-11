@@ -37,12 +37,19 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""Script to check the include guard in header-files"""
+"""Check the include guard pattern in C header files.
+
+This script verifies that each given C header file (.h) contains a correctly
+formatted and ordered include guard using the foxBMS naming convention.
+It reports missing, duplicate, or misordered guard markers and checks
+for the expected formatting pattern.
+It is intended for use with pre-commit.
+"""
 
 import argparse
 import sys
+from collections.abc import Sequence
 from pathlib import Path
-from typing import Sequence
 
 MARKERS = [
     "#ifndef {}",
@@ -52,7 +59,15 @@ MARKERS = [
 
 
 def run_check(filename: Path) -> int:
-    """Runs the check"""
+    """Check a single header file for correct foxBMS include guard usage.
+
+    Args:
+        filename (Path): Path to the C header file.
+
+    Return:
+        Number of detected include guard issues.
+
+    """
     txt = filename.read_text(encoding="ascii")
     txt_lines = txt.splitlines()
     err = 0
@@ -69,8 +84,8 @@ def run_check(filename: Path) -> int:
             msg = f"{filename.as_posix()}: {marker} occurs more than once."
             print(msg, file=sys.stderr)
     idx = []
-    for marker in MARKERS:
-        marker = marker.format(define_guard)
+    for _marker in MARKERS:
+        marker = _marker.format(define_guard)
         try:
             idx.append(txt_lines.index(marker))
         except ValueError:
@@ -92,7 +107,15 @@ def run_check(filename: Path) -> int:
 
 
 def check_include_guard(files: Sequence[Path]) -> int:
-    """Check test files"""
+    """Check a sequence of files for correct foxBMS include guard usage.
+
+    Args:
+        files: Iterable of files to check.
+
+    Return:
+        Total number of issues found.
+
+    """
     err = 0
     for i in files:
         if i.suffix == ".c":
@@ -102,14 +125,20 @@ def check_include_guard(files: Sequence[Path]) -> int:
 
 
 def main(argv: Sequence[str] | None = None) -> int:
-    """define guard checker"""
+    """Command-line interface for checking include guards.
+
+    Args:
+        argv: Optional sequence of command-line arguments.
+
+    Return:
+        Number of include guard violations found (exit code).
+
+    """
     parser = argparse.ArgumentParser()
     parser.add_argument("files", nargs="*", help="Files to check")
     args = parser.parse_args(argv)
-    err = 0
     files = [Path(i) for i in args.files]
-    err = check_include_guard(files=files)
-    return err
+    return check_include_guard(files=files)
 
 
 if __name__ == "__main__":

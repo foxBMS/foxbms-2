@@ -42,8 +42,7 @@
 import sys
 from pathlib import Path
 
-from click import echo
-
+from ..helpers.click_helpers import echo
 from ..helpers.misc import PROJECT_ROOT
 from ..helpers.spr import SubprocessResult, run_process
 

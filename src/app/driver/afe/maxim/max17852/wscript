@@ -37,13 +37,13 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""builds the AFE driver for MAX17852"""
+"""Build the MAX17852-1-based 'AFE'-driver."""
 
 import os
 
 
 def build(bld):
-    """builds the AFE driver library for Maxim"""
+    """Build the MAX17852-1-based 'AFE'-driver."""
     source = [
         os.path.join(".", "mxm_17852.c"),
         os.path.join("..", "api", "mxm_afe.c"),

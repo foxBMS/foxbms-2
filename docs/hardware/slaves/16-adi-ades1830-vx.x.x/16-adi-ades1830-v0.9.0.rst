@@ -1,17 +1,20 @@
 .. include:: ./../../../macros.txt
 .. include:: ./../../../units.txt
 
-.. _ADI_ADES1830_BASED_16_CELL_SLAVE___V0_9_0__:
 
-ADI ADES1830-based 16-Cell Slave ``v0.9.0``
-===========================================
+.. |local_bms_slave_version| replace:: ``0.9.0``
+.. |local_bms_slave_identifier_short| replace:: |adi-ades1830|\ -based 16-Cell |bms-slave|
+.. |local_bms_slave_identifier_full| replace:: |local_bms_slave_identifier_short| |local_bms_slave_version|
+
+.. _ADI_ADES1830___BASED_16_CELL_BMS_SLAVE___V0_9_0_:
+
+|local_bms_slave_identifier_full|
+=================================
 
 .. note::
 
    The changelog for this release is found at
-   :ref:`CHANGELOG_FOR_SLAVE_ADI_ADES1830_V0_9_0`.
-
-.. |local_slave_version|  replace:: ``0.9.0``
+   :numref:`CHANGELOG_FOR_THE_ADI_ADES1830_BASED_16_CELL_BMS_SLAVE_V0_9_0`.
 
 --------
 Overview
@@ -19,13 +22,37 @@ Overview
 
 .. important::
 
-   The following description only applies for the |adi-ades1830|\ -based 16
-   cell |BMS-Slave| hardware version |local_slave_version|.
+   The following description only applies for the
+   |local_bms_slave_identifier_short|
+   version |local_bms_slave_version|.
 
 .. hint::
 
    All connector pinouts described below follow the
    :ref:`CONVENTION_FOR_MOLEX_3_0_CONNECTOR_PIN_NUMBERING`.
+
+---------------
+Pinout Overview
+---------------
+
+The pinout of this |bms-slave| is shown in the
+:numref:`pinout-overview-for-16-adi-ades1830-v0.9.0_pinout-img` and
+:numref:`pinout-overview-for-16-adi-ades1830-v0.9.0_pinout-table`.
+
+.. drawio-figure:: 16-adi-ades1830-v0.9.0/16-adi-ades1830-v0.9.0_pinout.drawio
+   :format: svg
+   :alt: pinout-overview-for-16-adi-ades1830-v0.9.0_pinout-img
+   :name: pinout-overview-for-16-adi-ades1830-v0.9.0_pinout-img
+   :width: 800px
+
+   Connector placement of the |local_bms_slave_identifier_full|.
+
+.. csv-table:: |bms-master| connectors description
+   :file: 16-adi-ades1830-v0.9.0/16-adi-ades1830-v0.9.0_pinout.csv
+   :name: pinout-overview-for-16-adi-ades1830-v0.9.0_pinout-table
+   :header-rows: 1
+   :delim: ;
+   :widths: 20 40 40
 
 --------------
 Specifications
@@ -60,14 +87,16 @@ Mechanical Dimensions
 Block Diagram
 ^^^^^^^^^^^^^
 
-The block diagram of the |BMS-Slave| is shown in
-:numref:`Fig. %s <block_diagram_adi_ades1830_slave_18cell_v0.9.0>`.
+The block diagram of the |bms-slave| is shown in
+:numref:`block_diagram_adi_ades1830_slave_18cell_v0.9.0`.
 
 .. _block_diagram_adi_ades1830_slave_18cell_v0.9.0:
-.. figure:: ./16-adi-ades1830-v0.9.0/16-adi-ades1830-v0.9.0.png
-   :width: 100 %
+.. drawio-figure:: ./16-adi-ades1830-v0.9.0/16-adi-ades1830-v0.9.0.drawio
+   :width: 80 %
+   :format: svg
+   :align: center
 
-   |BMS-Slave| 16-Cell Block Diagram
+   |bms-slave| 16-Cell Block Diagram
 
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 Schematic and Board Layout
@@ -102,7 +131,7 @@ slave board.
 
 The cell input lines are filtered by differential capacitor
 filter:
-both possibilities are provided on the PCB of the |BMS-Slave|.
+both possibilities are provided on the PCB of the |bms-slave|.
 More information on the corner frequency of this filtering can be found in the
 schematic.
 The differential capacitor filter can be used when noise is less frequent or
@@ -154,7 +183,7 @@ Each 10 temperature sensors are connected to an GPIO pin of the |adi-ades1830|.
 isoSPI Daisy Chain Connection
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The data transmission between the slaves and between the slaves and BMS master
+The data transmission between the slaves and between the slaves and |bms-master|
 uses the isoSPI interface.
 The isoSPI signals are input/output on the connectors J501/J402.
 The isoSPI ports are bidirectional, that means they can be used in forward and

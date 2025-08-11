@@ -141,7 +141,7 @@ In the file ``adi_cfg.h``, the following defines must be adapted:
     #define ADI_NR_OF_STRINGS                 (BS_NR_OF_STRINGS)
     #define ADI_NR_OF_MODULES_PER_STRING      (BS_NR_OF_MODULES_PER_STRING)
     #define ADI_NR_OF_CELL_BLOCKS_PER_MODULE  (BS_NR_OF_CELL_BLOCKS_PER_MODULE)
-    #define ADI_NR_OF_GPIOS_PER_MODULE        (BS_NR_OF_GPIOS_PER_MODULE)
+    #define ADI_NR_OF_GPIOS_PER_MODULE        (SLV_NR_OF_GPIOS_PER_MODULE)
     #define ADI_NR_OF_TEMP_SENSORS_PER_MODULE (BS_NR_OF_TEMP_SENSORS_PER_MODULE)
     #define ADI_MAX_SUPPORTED_CELLS           (16u)
 
@@ -298,10 +298,11 @@ It has four parameters:
 The functions to send commands are illustrated in
 :numref:`send-command-ades1830`.
 
-   .. figure:: img/ades1830/adi_ades1830_primitive_send_command.png
+   .. drawio-figure:: img/ades1830/adi_ades1830_primitive_send_command.drawio
       :alt: Functions used to send commands
       :name: send-command-ades1830
       :align: center
+      :format: svg
       :width: 35 %
 
       Functions used to send commands
@@ -313,7 +314,7 @@ commands, the configurable bits are set to 0.
 The function ``ADI_TransmitCommand()`` takes the command
 as a non-constant variable, so the following procedure must be used:
 
-- Use ``ADI_CopyCommandBits()`` to copy the constant command definition
+- Use ``ADI_CopyCommandBytes()`` to copy the constant command definition
   to a non constant variable.
   This variable must be an ``uint16_t`` table of length 4.
 - If necessary, use ``ADI_WriteCommandConfigurationBits()`` to modify
@@ -347,11 +348,12 @@ It has three parameters:
 The functions and variables to read registers are illustrated in
 :numref:`read-register-ades1830`.
 
-   .. figure:: img/ades1830/adi_ades1830_primitive_read_register.png
+   .. drawio-figure:: img/ades1830/adi_ades1830_primitive_read_register.drawio
       :alt: Functions and variables used to read registers
       :name: read-register-ades1830
       :align: center
-      :width: 55 %
+      :format: svg
+      :width: 70 %
 
       Functions and variables used to read registers
 
@@ -403,11 +405,12 @@ It has three parameters:
 The functions and variables to write registers are illustrated in
 :numref:`write-register-ades1830`.
 
-   .. figure:: img/ades1830/adi_ades1830_primitive_write_register.png
+   .. drawio-figure:: img/ades1830/adi_ades1830_primitive_write_register.drawio
       :alt: Functions and variables used to write registers
       :name: write-register-ades1830
+      :format: svg
       :align: center
-      :width: 55 %
+      :width: 70 %
 
       Functions and variables used to write registers
 
@@ -523,9 +526,10 @@ In addition, this must be done for each string.
 In :numref:`configuration-tables-ades1830`, the tables are
 represented to ease the comprehension.
 
-   .. figure:: img/ades1830/adi_ades1830_configuration_tables.png
+   .. drawio-figure:: img/ades1830/adi_ades1830_configuration_tables.drawio
       :alt: Tables holding configuration
       :name: configuration-tables-ades1830
+      :format: svg
       :align: center
       :width: 55 %
 
@@ -555,9 +559,10 @@ The functions to change configuration and their interaction with the
 variables are illustrated in
 :numref:`configuration-procedure-ades1830`.
 
-   .. figure:: img/ades1830/adi_ades1830_configuration_procedure.png
+   .. drawio-figure:: img/ades1830/adi_ades1830_configuration_procedure.drawio
       :alt: Functions and variables used to write registers
       :name: configuration-procedure-ades1830
+      :format: svg
       :align: center
       :width: 100 %
 
@@ -599,9 +604,10 @@ In :numref:`configuration-tables-ades1830-modification`, the use of the helper
 functions to modify the configuration tables is represented to ease the
 comprehension.
 
-   .. figure:: img/ades1830/adi_ades1830_configuration_tables_modification.png
+   .. drawio-figure:: img/ades1830/adi_ades1830_configuration_tables_modification.drawio
       :alt: Modification of tables holding configuration
       :name: configuration-tables-ades1830-modification
+      :format: svg
       :align: center
       :width: 55 %
 
@@ -944,7 +950,7 @@ Code example to read Status Register Group C:
 
     uint16_t adi_command[ADI_COMMAND_DEFINITION_LENGTH] = {0};
 
-    ADI_CopyCommandBits(adi_cmdRdstatc, adi_command);
+    ADI_CopyCommandBytes(adi_cmdRdstatc, adi_command);
     ADI_ReadRegister(adi_command, adi_dataReceive, adi_state);
     for (uint16_t m = 0u; m < ADI_N_ADI; m++) {
         /* Get STR5 */
@@ -1015,7 +1021,7 @@ Code example to send a command without data:
 
     uint16_t adi_command[ADI_COMMAND_DEFINITION_LENGTH] = {0};
 
-    ADI_CopyCommandBits(adi_cmdAdcv, adi_command);
+    ADI_CopyCommandBytes(adi_cmdAdcv, adi_command);
     ADI_WriteCommandConfigurationBits(adi_command, ADI_ADCV_RD_POS, ADI_ADCV_RD_LEN, 1u);
     ADI_WriteCommandConfigurationBits(adi_command, ADI_ADCV_CONT_POS, ADI_ADCV_CONT_LEN, 1u);
     ADI_WriteCommandConfigurationBits(adi_command, ADI_ADCV_DCP_POS, ADI_ADCV_DCP_LEN, 0u);
@@ -1035,7 +1041,7 @@ Code example to send a command with data:
 
 .. code-block:: c
 
-    ADI_CopyCommandBits(adi_cmdClrflag, adi_command);
+    ADI_CopyCommandBytes(adi_cmdClrflag, adi_command);
     adi_clearFlagData[ADI_REGISTER_OFFSET0] = 0u;
     ADI_WriteDataBits(&adi_clearFlagData[ADI_REGISTER_OFFSET0], 1u, ADI_STCR0_CS1FLT_POS, ADI_STCR0_CS1FLT_MASK);
     ADI_WriteDataBits(&adi_clearFlagData[ADI_REGISTER_OFFSET0], 1u, ADI_STCR0_CS2FLT_POS, ADI_STCR0_CS2FLT_MASK);

@@ -1,0 +1,10 @@
+Connector ID    ; Functionality                         ; Pinout
+X200            ; Cell voltage measurement              ; :ref:`6811-1_slave_12cell_v2.1.6_cell_sense_connector`
+X201            ; Temperature sensors                   ; :ref:`6811-1_slave_12cell_v2.1.6_temp_sense_connector`
+X202            ; Temperature sensors                   ; :ref:`6811-1_slave_12cell_v2.1.6_temp_sense_connector`
+X500            ; isoSPI Daisy Chain input              ; :ref:`6811-1_slave_12cell_v2.1.6_daisy_input_connectors`
+X501            ; isoSPI Daisy Chain output             ; :ref:`6811-1_slave_12cell_v2.1.6_daisy_output_connectors`
+X502            ; isoSPI Daisy Chain input              ; :ref:`6811-1_slave_12cell_v2.1.6_daisy_input_connectors`
+X503            ; isoSPI Daisy Chain output             ; :ref:`6811-1_slave_12cell_v2.1.6_daisy_output_connectors`
+X1001           ; External DC supply                    ; :ref:`6811-1_slave_12cell_v2.1.6_external_dc_supply_connector`
+X1002           ; External DC supply                    ; :ref:`6811-1_slave_12cell_v2.1.6_external_dc_supply_connector`

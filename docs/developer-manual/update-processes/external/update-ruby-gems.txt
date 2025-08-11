@@ -30,6 +30,6 @@
 - Update the ``GEM_HOME`` entry in ``conf/env/env.json``.
 - |snippet_update_license| in
   ``docs/general/license-tables/external/license-info_ruby-gems.csv``.
-- |snippet_changelog_entry|.
+- |snippet_changelog_entry|
 - |snippet_commit|
   ``Dependency update: <XXXX>/Q<Y>: Ceedling <version number>``.

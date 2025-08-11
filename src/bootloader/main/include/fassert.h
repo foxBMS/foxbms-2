@@ -43,8 +43,8 @@
  * @file    fassert.h
  * @author  foxBMS Team
  * @date    2020-03-20 (date of creation)
- * @updated 2025-03-31 (date of last update)
- * @version v1.9.0
+ * @updated 2025-08-07 (date of last update)
+ * @version v1.10.0
  * @ingroup MAIN
  * @prefix  FAS
  *
@@ -176,7 +176,6 @@ extern void FAS_StoreAssertLocation(uint32_t *pc, uint32_t line);
 #define FAS_ASSERT_LEVEL FAS_ASSERT_LEVEL_INF_LOOP_AND_DISABLE_INTERRUPTS
 #endif
 
-/*============= define how the assert shall behave =============*/
 #if FAS_ASSERT_LEVEL == FAS_ASSERT_LEVEL_INF_LOOP_AND_DISABLE_INTERRUPTS
 /** Assert macro will trigger a watchdog reset */
 static inline void FAS_InfiniteLoop(void) {
@@ -201,7 +200,6 @@ static inline void FAS_InfiniteLoop(void) {
 #error "Invalid value for FAS_ASSERT_LEVEL"
 #endif
 
-/*============= define the recording macro =============*/
 #ifdef UNITY_UNIT_TEST
 /**
  * @def     __curpc(x)
@@ -227,7 +225,6 @@ static inline uint32_t __curpc(void) {
         FAS_StoreAssertLocation(pc, __LINE__); \
     } while (false)
 
-/*============= define the assertion-macro =============*/
 /**
  * @def     FAS_ASSERT(x)
  * @brief   Assertion macro that asserts that x is true

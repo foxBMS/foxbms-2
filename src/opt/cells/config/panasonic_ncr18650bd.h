@@ -43,8 +43,8 @@
  * @file    panasonic_ncr18650bd.h
  * @author  foxBMS Team
  * @date    2018-10-02 (date of creation)
- * @updated 2025-03-31 (date of last update)
- * @version v1.9.0
+ * @updated 2025-08-07 (date of last update)
+ * @version v1.10.0
  * @ingroup BATTERY_CELL_CONFIGURATION
  * @prefix  BC
  *

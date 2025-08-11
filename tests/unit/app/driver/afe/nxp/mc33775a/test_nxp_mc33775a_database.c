@@ -43,12 +43,12 @@
  * @file    test_nxp_mc33775a_database.c
  * @author  foxBMS Team
  * @date    2025-03-21 (date of creation)
- * @updated 2025-03-31 (date of last update)
- * @version v1.9.0
+ * @updated 2025-08-07 (date of last update)
+ * @version v1.10.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
- * @brief   Test of nxp_mc33775a_database.
+ * @brief   Test of nxp_mc3377x_database.
  * @details TODO
  *
  */
@@ -57,15 +57,16 @@
 #include "unity.h"
 #include "Mockdatabase.h"
 
-#include "nxp_mc33775a_database.h"
+#include "nxp_mc3377x_database.h"
 
 /* clang-format off */
 #include "test_assert_helper.h"
 /* clang-format on */
 
 /*========== Unit Testing Framework Directives ==============================*/
-TEST_SOURCE_FILE("nxp_mc33775a_database.c")
+TEST_SOURCE_FILE("nxp_mc3377x_database.c")
 
+TEST_INCLUDE_PATH("../../src/app/driver/afe/nxp/common/mc3377x")
 TEST_INCLUDE_PATH("../../src/app/driver/afe/nxp/mc33775a")
 TEST_INCLUDE_PATH("../../src/app/driver/afe/nxp/mc33775a/config")
 TEST_INCLUDE_PATH("../../src/app/driver/afe/nxp/mc33775a/vendor")
@@ -83,8 +84,66 @@ void tearDown(void) {
 
 /*========== Test Cases =====================================================*/
 
-void testN775_InitializeDatabase(void) {
+void testN77x_InitializeDatabase(void) {
     /* ======= Assertion tests ============================================= */
     /* ======= AT1/1 ======= */
-    TEST_ASSERT_FAIL_ASSERT(TEST_N775_InitializeDatabase(NULL_PTR));
+    TEST_ASSERT_FAIL_ASSERT(N77x_InitializeDatabase(NULL_PTR));
+
+    /* ======= Routine tests =============================================== */
+    static DATA_BLOCK_CELL_VOLTAGE_s n77x_cellVoltage         = {.header.uniqueId = DATA_BLOCK_ID_CELL_VOLTAGE_BASE};
+    static DATA_BLOCK_CELL_TEMPERATURE_s n77x_cellTemperature = {
+        .header.uniqueId = DATA_BLOCK_ID_CELL_TEMPERATURE_BASE};
+    static DATA_BLOCK_MIN_MAX_s n77x_minMax                     = {.header.uniqueId = DATA_BLOCK_ID_MIN_MAX};
+    static DATA_BLOCK_BALANCING_CONTROL_s n77x_balancingControl = {.header.uniqueId = DATA_BLOCK_ID_BALANCING_CONTROL};
+    static N77X_ERROR_TABLE_s n77x_errorTable                   = {0};
+
+    /*========== Extern Constant and Variable Definitions =======================*/
+
+    N77X_STATE_s n77xTestState = {
+        .n77xData.cellVoltage      = &n77x_cellVoltage,
+        .n77xData.cellTemperature  = &n77x_cellTemperature,
+        .n77xData.minMax           = &n77x_minMax,
+        .n77xData.balancingControl = &n77x_balancingControl,
+        .n77xData.errorTable       = &n77x_errorTable,
+    };
+
+    /* ======= RT1/1 ======= */
+    DATA_Write4DataBlocks_ExpectAndReturn(
+        n77xTestState.n77xData.cellVoltage,
+        n77xTestState.n77xData.cellTemperature,
+        n77xTestState.n77xData.minMax,
+        n77xTestState.n77xData.balancingControl,
+        STD_OK);
+    TEST_ASSERT_PASS_ASSERT(N77x_InitializeDatabase(&n77xTestState));
+
+    TEST_ASSERT_EQUAL(0, n77xTestState.n77xData.cellVoltage->state);
+    TEST_ASSERT_EQUAL(0, n77xTestState.n77xData.minMax->minimumCellVoltage_mV[0]);
+    TEST_ASSERT_EQUAL(0, n77xTestState.n77xData.minMax->maximumCellVoltage_mV[0]);
+    TEST_ASSERT_EQUAL(0, n77xTestState.n77xData.minMax->nrModuleMaximumCellVoltage[0]);
+    TEST_ASSERT_EQUAL(0, n77xTestState.n77xData.minMax->nrModuleMaximumCellVoltage[0]);
+    TEST_ASSERT_EQUAL(0, n77xTestState.n77xData.minMax->nrCellMinimumCellVoltage[0]);
+    TEST_ASSERT_EQUAL(0, n77xTestState.n77xData.minMax->nrCellMaximumCellVoltage[0]);
+    TEST_ASSERT_EQUAL(0, n77xTestState.n77xData.cellVoltage->cellVoltage_mV[0][0][0]);
+    TEST_ASSERT_TRUE(n77xTestState.n77xData.cellVoltage->invalidCellVoltage[0][0][0]);
+
+    TEST_ASSERT_EQUAL(0, n77xTestState.n77xData.cellTemperature->state);
+    TEST_ASSERT_EQUAL(0, n77xTestState.n77xData.minMax->minimumCellVoltage_mV[0]);
+    TEST_ASSERT_EQUAL(0, n77xTestState.n77xData.minMax->maximumCellVoltage_mV[0]);
+    TEST_ASSERT_EQUAL(0, n77xTestState.n77xData.minMax->nrModuleMinimumTemperature[0]);
+    TEST_ASSERT_EQUAL(0, n77xTestState.n77xData.minMax->nrModuleMaximumCellVoltage[0]);
+    TEST_ASSERT_EQUAL(0, n77xTestState.n77xData.minMax->nrSensorMinimumTemperature[0]);
+    TEST_ASSERT_EQUAL(0, n77xTestState.n77xData.minMax->nrSensorMaximumTemperature[0]);
+    TEST_ASSERT_EQUAL(0, n77xTestState.n77xData.cellTemperature->cellTemperature_ddegC[0][0][0]);
+    TEST_ASSERT_TRUE(n77xTestState.n77xData.cellTemperature->invalidCellTemperature[0][0][0]);
+
+    TEST_ASSERT_FALSE(n77xTestState.n77xData.balancingControl->activateBalancing[0][0][0]);
+
+    TEST_ASSERT_FALSE(n77xTestState.n77xData.errorTable->communicationOk[0][0]);
+    TEST_ASSERT_FALSE(n77xTestState.n77xData.errorTable->noCommunicationTimeout[0][0]);
+    TEST_ASSERT_FALSE(n77xTestState.n77xData.errorTable->crcIsValid[0][0]);
+    TEST_ASSERT_FALSE(n77xTestState.n77xData.errorTable->mux0IsOk[0][0]);
+    TEST_ASSERT_FALSE(n77xTestState.n77xData.errorTable->mux1IsOK[0][0]);
+    TEST_ASSERT_FALSE(n77xTestState.n77xData.errorTable->mux2IsOK[0][0]);
+    TEST_ASSERT_FALSE(n77xTestState.n77xData.errorTable->mux3IsOK[0][0]);
+    TEST_ASSERT_EQUAL(0, n77xTestState.serialId[0][0]);
 }

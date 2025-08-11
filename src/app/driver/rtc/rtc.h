@@ -43,8 +43,8 @@
  * @file    rtc.h
  * @author  foxBMS Team
  * @date    2021-02-22 (date of creation)
- * @updated 2025-03-31 (date of last update)
- * @version v1.9.0
+ * @updated 2025-08-07 (date of last update)
+ * @version v1.10.0
  * @ingroup DRIVERS
  * @prefix  RTC
  *
@@ -60,9 +60,17 @@
 
 #include "fstd_types.h"
 
+#include <stdbool.h>
 #include <stdint.h>
+#include <time.h>
 
 /*========== Macros and Definitions =========================================*/
+
+/** Time data of the RTC */
+typedef struct {
+    time_t secondsSinceEpoch;
+    uint16_t milliseconds;
+} RTC_SYSTEM_TIMER_EPOCH_s;
 
 /** RTC I2C interface */
 #define RTC_I2C_INTERFACE (i2cREG1)
@@ -169,7 +177,7 @@ typedef struct {
 
 /* Defines for the C library time */
 /**@{*/
-#define RTC_CTIME_YEAR_START  (1970)
+#define RTC_CTIME_YEAR_START  (1900)
 #define RTC_CTIME_MONTH_START (1)
 /**@}*/
 
@@ -236,7 +244,7 @@ extern void RTC_InitializeSystemTimeWithRtc(void);
  *          RTC_InitializeSystemTimeWithRtc().
  * @param   timeRtcFormat   time data to set the RTC system timer
  */
-extern void RTC_SetSystemTimeRtcFormat(RTC_TIME_DATA_s timeRtcFormat);
+extern void RTC_SetSystemTimeRtcFormat(RTC_TIME_DATA_s *timeRtcFormat);
 
 /**
  * @brief   set the RTC request flag.
@@ -264,8 +272,16 @@ extern void RTC_Trigger(void);
  */
 extern RTC_TIME_DATA_s RTC_GetSystemStartUpTime(void);
 
+/**
+ * @brief   Indicate whether the RTC is initialized or not
+ */
+extern bool RTC_IsRtcModuleInitialized(void);
+
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 #ifdef UNITY_UNIT_TEST
+void TEST_RTC_SetRtcModuleInitializationStatus(bool status);
+extern RTC_SYSTEM_TIMER_EPOCH_s TEST_RTC_GetRtcSystemTime(void);
+extern RTC_SYSTEM_TIMER_EPOCH_s TEST_RTC_SetRtcSystemTime(RTC_SYSTEM_TIMER_EPOCH_s systemTime);
 #endif
 
 #endif /* FOXBMS__RTC_H_ */

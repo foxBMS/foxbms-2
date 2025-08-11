@@ -44,13 +44,14 @@ import sys
 from enum import Enum
 from pathlib import Path
 
-import click
-import pyarrow as pa
-import pyarrow.compute as pc
-from pyarrow.csv import write_csv
-from pyarrow.json import read_json
-from pyarrow.lib import ArrowInvalid  # pylint: disable=no-name-in-module
-from pyarrow.parquet import write_table
+import pyarrow as pa  # type: ignore
+import pyarrow.compute as pc  # type: ignore
+from pyarrow.csv import write_csv  # type: ignore
+from pyarrow.json import read_json  # type: ignore
+from pyarrow.lib import ArrowInvalid  # type: ignore # pylint: disable=no-name-in-module
+from pyarrow.parquet import write_table  # type: ignore
+
+from cli.helpers.click_helpers import echo, recho
 
 
 class OutputFormats(Enum):
@@ -77,7 +78,7 @@ class Table:
         output_format: OutputFormats | None = None,
         join_on: str | None = None,
         **kwargs,
-    ):
+    ) -> None:
         self._start_date = start_date
         self._output_format = output_format
         self._join_on = join_on
@@ -104,11 +105,7 @@ class Table:
                     tolerance=self._tolerance,
                 )
             return left_table
-        click.secho(
-            "Combining several tables without 'join_on' parameter is not possible.",
-            fg="red",
-            err=True,
-        )
+        recho("Combining several tables without 'join_on' parameter is not possible.")
         sys.exit(1)
 
     def can_to_table(self, data: Path) -> pa.Table:
@@ -126,9 +123,7 @@ class Table:
             tb = tb.drop("Timestamp")
             return Table._cast_columns(tb)
         except ArrowInvalid as e:
-            click.secho(
-                f"Input data are not valid, because of '{e}'", fg="red", err=True
-            )
+            recho(f"Input data are not valid, because of '{e}'")
             sys.exit(1)
 
     def save_data(self, tables: dict[Path, pa.table]) -> None:
@@ -138,37 +133,42 @@ class Table:
         :param tables: A dictionary with the key as save path for the table
             with name but without suffix and the value as the table object.
         """
-        if self._output_format:
-            match self._output_format:
-                case OutputFormats.CSV:
-                    method = write_csv
-                    suffix = ".csv"
-                case _:  # parquet format as default
-                    method = write_table
-                    suffix = ".parquet"
-            for file_path, table in tables.items():
-                click.echo(
-                    f"Converted file {file_path} to table with output "
-                    f"format {self._output_format.name}.",
-                )
-                new_file_path = file_path.parent / Path(file_path.stem + suffix)
-                method(table, new_file_path)
-        else:
-            if len(tables) > 1:
-                click.secho(
-                    "Save more than one table in one file is not possible or "
-                    "is the output format missing ?",
-                    fg="red",
-                    err=True,
-                )
-                sys.exit(1)
-            first_file = list(tables.keys())[0]
-            match OutputFormats[first_file.suffix[1:].upper()]:
-                case OutputFormats.CSV:
-                    method = write_csv
-                case _:  # parquet format as default
-                    method = write_table
-            method(tables[first_file], first_file)
+        try:
+            if self._output_format:
+                match self._output_format:
+                    case OutputFormats.CSV:
+                        method = write_csv
+                        suffix = ".csv"
+                    case _:  # parquet format as default
+                        method = write_table
+                        suffix = ".parquet"
+                for file_path, table in tables.items():
+                    echo(
+                        f"Converted file {file_path} to table with output "
+                        f"format {self._output_format.name}.",
+                    )
+                    file_path.parent.mkdir(parents=True, exist_ok=True)
+                    new_file_path = file_path.parent / Path(file_path.stem + suffix)
+                    method(table, new_file_path)
+            else:
+                if len(tables) > 1:
+                    recho(
+                        "Save more than one table without an output format is not "
+                        "possible or did you forget to specify a file name for the "
+                        "output parameter."
+                    )
+                    sys.exit(1)
+                file_path = list(tables.keys())[0]
+                match OutputFormats[file_path.suffix[1:].upper()]:
+                    case OutputFormats.CSV:
+                        method = write_csv
+                    case _:  # parquet format as default
+                        method = write_table
+                file_path.parent.mkdir(parents=True, exist_ok=True)
+                method(tables[file_path], file_path)
+        except PermissionError:
+            recho("Could not write output file, because permission is denied.")
+            sys.exit(1)
 
     def _search_for_table(
         self, tables: list[pa.table]
@@ -183,9 +183,7 @@ class Table:
             if self._join_on in table.column_names:
                 tables.remove(table)
                 return table, tables
-        click.secho(
-            f"Column '{self._join_on}' not found in any table.", fg="red", err=True
-        )
+        recho(f"Column '{self._join_on}' not found in any table.")
         sys.exit(1)
 
     def _add_date(self, table: pa.Table) -> pa.Table:

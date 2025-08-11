@@ -43,8 +43,8 @@
  * @file    test_ftask.c
  * @author  foxBMS Team
  * @date    2020-04-02 (date of creation)
- * @updated 2025-03-31 (date of last update)
- * @version v1.9.0
+ * @updated 2025-08-07 (date of last update)
+ * @version v1.10.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -57,6 +57,7 @@
 
 #include "unity.h"
 #include "MockHL_gio.h"
+#include "MockHL_mdio.h"
 #include "Mockadc.h"
 #include "Mockafe.h"
 #include "Mockalgorithm.h"
@@ -67,6 +68,7 @@
 #include "Mockdatabase.h"
 #include "Mockdiag.h"
 #include "Mockdiag_cfg.h"
+#include "Mockdp83869.h"
 #include "Mockfram.h"
 #include "Mockhtsensor.h"
 #include "Mocki2c.h"
@@ -115,6 +117,7 @@ TEST_INCLUDE_PATH("../../src/app/driver/interlock")
 TEST_INCLUDE_PATH("../../src/app/driver/led")
 TEST_INCLUDE_PATH("../../src/app/driver/meas")
 TEST_INCLUDE_PATH("../../src/app/driver/pex")
+TEST_INCLUDE_PATH("../../src/app/driver/phy")
 TEST_INCLUDE_PATH("../../src/app/driver/rtc")
 TEST_INCLUDE_PATH("../../src/app/driver/sbc")
 TEST_INCLUDE_PATH("../../src/app/driver/sbc/fs8x_driver")

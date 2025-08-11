@@ -1,12 +1,15 @@
 .. include:: ./../../../macros.txt
 .. include:: ./../../../units.txt
 
-.. _LTC6804_1_BASED_12_CELL_SLAVE___V1_X_X__:
 
-LTC6804-1-based 12-Cell Slave ``v1.x.x``
-========================================
+.. |local_bms_slave_version|  replace:: ``1.x.x``
+.. |local_bms_slave_identifier_short| replace:: |ltc-ltc6804-1|\ -based 12-Cell |bms-slave|
+.. |local_bms_slave_identifier_full| replace:: |local_bms_slave_identifier_short| |local_bms_slave_version|
 
-.. |local_slave_version|  replace:: ``1.x.x``
+.. _LTC_LTC6804_1_BASED_12_CELL_BMS_SLAVE_V1_X_X:
+
+|local_bms_slave_identifier_full|
+=================================
 
 --------
 Overview
@@ -14,8 +17,9 @@ Overview
 
 .. important::
 
-   The following description only applies for the |ltc-ltc6804-1|\ -based 12
-   cell |BMS-Slave| hardware versions |local_slave_version|.
+   The following description only applies for the
+   |local_bms_slave_identifier_short|
+   versions |local_bms_slave_version|.
 
 .. hint::
 
@@ -26,14 +30,16 @@ Overview
 Block Diagram
 ^^^^^^^^^^^^^
 
-The block diagram of the |BMS-Slave| is shown in
-:numref:`Fig. %s <block_diagram_6804-1_slave_12cell_v1.x.x>`.
+The block diagram of the |bms-slave| is shown in
+:numref:`block_diagram_6804-1_slave_12cell_v1.x.x`.
 
 .. _block_diagram_6804-1_slave_12cell_v1.x.x:
-.. figure:: ./12-ltc-ltc6804-1-v1.x.x/12-ltc-ltc6804-1-v1.x.x.png
-   :width: 100 %
+.. drawio-figure:: ./12-ltc-ltc6804-1-v1.x.x/12-ltc-ltc6804-1-v1.x.x.drawio
+   :width: 80 %
+   :format: svg
+   :align: center
 
-   |BMS-Slave| 12-Cell Block Diagram
+   |bms-slave| 12-Cell Block Diagram
 
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 Schematic and Board Layout
@@ -51,7 +57,7 @@ The size of the PCB is 160x100mm.
 .. figure:: ./../../img/molex_connector-16pin.png
    :width: 30 %
 
-.. csv-table:: |BMS-Master| Daisy Chain Connector
+.. csv-table:: |bms-master| Daisy Chain Connector
    :name: master_daisy_connector
    :header-rows: 1
    :delim: ;
@@ -61,9 +67,9 @@ The size of the PCB is 160x100mm.
    This connector pin out is only valid for use of a foxBMS Master Interface
    board for the |ltc-ltc6804-1| monitoring IC.
 
-On the |BMS-Slave|, the connectors indicated as
+On the |bms-slave|, the connectors indicated as
 ``Primary Daisy Chain connector`` and ``Secondary Daisy Chain connector`` in
-:numref:`Fig. %s <block_diagram_6804-1_slave_12cell_v1.x.x>` must be used.
+:numref:`block_diagram_6804-1_slave_12cell_v1.x.x` must be used.
 Their layout is described in :numref:`Table %s <primary_daisy_connector>`.
 
 .. figure:: ./../../img/molex_connector-4pin.png
@@ -75,29 +81,29 @@ Their layout is described in :numref:`Table %s <primary_daisy_connector>`.
    :delim: ;
    :file: ./12-ltc-ltc6804-1-v1.x.x/12-ltc-ltc6804-1-v1.x.x_primary_daisy_connector.csv
 
-The |OUT+| and |OUT-| pins of the |BMS-Master| go to the |IN+| and |IN-| pins
-of the |BMS-Slave|.
+The |OUT+| and |OUT-| pins of the |bms-master| go to the |IN+| and |IN-| pins
+of the |bms-slave|.
 A cable with a receptable on both ends must be crimped correctly to make the
 connection.
 
-In case a second |BMS-Slave| must be connected to the daisy chain, the |OUT+|
-and |OUT-| pins of the first |BMS-Slave| must be connected to the |IN+| and
-|IN-| pins of the second |BMS-Slave|.
+In case a second |bms-slave| must be connected to the daisy chain, the |OUT+|
+and |OUT-| pins of the first |bms-slave| must be connected to the |IN+| and
+|IN-| pins of the second |bms-slave|.
 
 ------------------------------------------
 Cell Voltage Connector on the |bms-slaves|
 ------------------------------------------
 
 The connector indicated as ``Battery cell connector (16 pin)`` in
-:numref:`Fig. %s <block_diagram_6804-1_slave_12cell_v1.x.x>` has two purposes:
+:numref:`block_diagram_6804-1_slave_12cell_v1.x.x` has two purposes:
 
- * Supply of the |BMS-Slave|
+ * Supply of the |bms-slave|
  * Input of the cell voltages to the |ltc-ltc6804-1| analog front-end
 
 The layout of the connector is described in
 :numref:`Table %s <cell_voltage_connector>`.
 Up to 12 battery cells can be connected in series, between |VBAT+| and |VBAT-|.
-The |BMS-Slave| is supplied by |VBAT+| and |VBAT-|.
+The |bms-slave| is supplied by |VBAT+| and |VBAT-|.
 The total voltage of all cells in series must be between 11V and 55V
 (see [ltc_data_sheet_6804]_ and [ltc_data_sheet_6811]_).
 0- correspond to the negative pole of cell 0,
@@ -119,7 +125,7 @@ be found |ltc-ltc6804-1| data sheets ([ltc_data_sheet_6804]_ and
 .. figure:: ./../../img/molex_connector-16pin.png
    :width: 30 %
 
-.. csv-table:: |BMS-Slave|, battery cell voltage connector
+.. csv-table:: |bms-slave|, battery cell voltage connector
    :name: cell_voltage_connector
    :header-rows: 1
    :delim: ;
@@ -141,8 +147,8 @@ Cell Temperature Connector on the |bms-slaves|
 ----------------------------------------------
 
 The connector indicated as ``Temperature sensor connector (24 pin)`` in
-:numref:`Fig. %s <block_diagram_6804-1_slave_12cell_v1.x.x>` is used to connect
-temperature sensors to the |BMS-Slave|.
+:numref:`block_diagram_6804-1_slave_12cell_v1.x.x` is used to connect
+temperature sensors to the |bms-slave|.
 
 :numref:`Table %s <cell_temperature_connector>` describes the temperature
 connector.
@@ -157,17 +163,19 @@ connector.
    :delim: ;
    :file: ./12-ltc-ltc6804-1-v1.x.x/12-ltc-ltc6804-1-v1.x.x_cell_temperature_connector.csv
 
-:numref:`Fig. %s <temp_sensor>` shows the functioning of a temperature sensor.
+:numref:`temp_sensor` shows the functioning of a temperature sensor.
 
 .. _temp_sensor:
-.. figure:: ./12-ltc-ltc6804-1-v1.x.x/12-ltc-ltc6804-1-v1.x.x_temperature-sensor.png
+.. drawio-figure:: ./12-ltc-ltc6804-1-v1.x.x/12-ltc-ltc6804-1-v1.x.x_temperature-sensor.drawio
    :width: 30 %
+   :format: svg
+   :align: center
 
    Temperature sensor circuit.
 
 The voltage VREF (3V) is generated by the |ltc-ltc6804-1| chip.
 A temperature-dependent resistor must be added to build a voltage divider
-(drawn as a dashed line in :numref:`Fig. %s <temp_sensor>`, not delivered with
+(drawn as a dashed line in :numref:`temp_sensor`, not delivered with
 the |bms-slaves|).
 The resulting voltage is measured by the |ltc-ltc6804-1| chip.
 Knowing the temperature dependence of the resistor, the relation between

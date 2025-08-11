@@ -62,7 +62,7 @@ class TestFoxCliMainCommandPreCommit(unittest.TestCase):
     def test_pre_commit(self, mock_run_program: MagicMock):
         """Test 'fox.py pre-commit' command."""
         mock_run_program.run_pre_commit.return_value = SubprocessResult(0, "", "")
-        runner = CliRunner(mix_stderr=False)
+        runner = CliRunner()
         result = runner.invoke(main, ["pre-commit"])
         self.assertEqual("", result.stdout)
         self.assertEqual("", result.stderr)

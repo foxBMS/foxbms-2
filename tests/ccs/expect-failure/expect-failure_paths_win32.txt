@@ -1,4 +1,4 @@
-C:\ti\Hercules\HALCoGen\v04.07.01
-C:\Ruby\Ruby3.1.3-x64\bin
-C:\MinGW64\x86_64-8.1.0-release-posix-seh-rt_v6-rev0\mingw64\bin
 C:\Bauhaus\7.5.2\bin
+C:\foxbms\mingw-w64\x86_64-8.1.0-release-posix-seh-rt_v6-rev0\bin
+C:\foxbms\Ruby\Ruby34-x64\bin
+C:\ti\Hercules\HALCoGen\v04.07.01

@@ -35,7 +35,7 @@ GLOBAL &file_currentpractice
 &bootloader_elf_end="0x00020000"
 
 ; foxbms start address range
-&app_elf_start="0x00000000"
+&app_elf_start="0x0001FFE0"
 &app_elf_end="0x003FFFFF"
 
 cd &working_path
@@ -101,7 +101,11 @@ sYmbol.Browse
             PRINT "Erasing Program Code: (&app_elf_start)--(&app_elf_end)"
             wait 0.1s
             FLASH.ReProgram (&app_elf_start)--(&app_elf_end)
+            Data.Set (&app_elf_start)--(&app_elf_end) 0x0
             Data.LOAD.Elf &app_elf_file (&app_elf_start)--(&app_elf_end)
+            wait 0.1s
+            do &update_program_information_script
+            wait 0.1s
             FLASH.ReProgram OFF
             PRINT "foxBMS 2 application .ELF file has been flashed"
 
@@ -143,9 +147,21 @@ sYmbol.Browse
         )
         toolitem "Program foxBMS Bootloader Elf File"   ":flash"
         (
+            PRINT "Erasing Program Code: (&bootloader_elf_start)--(&bootloader_elf_end)"
+            wait 0.1s
+            FLASH.ReProgram (&bootloader_elf_start)--(&bootloader_elf_end)
+            Data.LOAD.Elf &bootloader_elf_file (&bootloader_elf_start)--(&bootloader_elf_end)
+            FLASH.ReProgram OFF
+            PRINT ".ELF file has been flashed"
+
+            ; Reset the target again
+            SYStem.Up
+            ENDDO
+
         )
         toolitem "Add symbols Bootloader SW"   "+P,r"
         (
+            Data.LOAD.Elf &bootloader_elf_file /NOCODE
         )
         separator
         toolitem "Reset all symbols"    "-P,i"      "SYMBOL.RESET"

@@ -47,8 +47,8 @@ reportUndefinedVariable = false
 reportRedeclaration = false
 extraPaths = [
   "C:/Bauhaus/7.5.2/lib/scripts",
-  "tools/waf3-2.0.22-1241519b19b496207abef1f72bbf61c2",
-  "tools/.waf3-2.0.22-1241519b19b496207abef1f72bbf61c2",
+  "tools/waf3-2.1.5-7e89fb078ab3c46cf09c8f74bbcfd16d",
+  "tools/.waf3-2.1.5-7e89fb078ab3c46cf09c8f74bbcfd16d",
   "tools/waf-tools",
   "tests/hil",
 ]
@@ -88,8 +88,8 @@ extend-exclude = [
   "tests/axivion/addon/*",
   "tests/axivion/compiler-errata/*",
   "tests/axivion/qualification-test/*",
-  "tools/waf3-2.0.22-1241519b19b496207abef1f72bbf61c2/**",
-  "tools/.waf3-2.0.22-1241519b19b496207abef1f72bbf61c2/**",
+  "tools/waf3-2.1.5-7e89fb078ab3c46cf09c8f74bbcfd16d/**",
+  "tools/.waf3-2.1.5-7e89fb078ab3c46cf09c8f74bbcfd16d/**",
 ]
 
 # Same as Black.
@@ -102,8 +102,22 @@ target-version = "py312" # minimal supported Python version
 # Enable Pyflakes (`F`) and a subset of the pycodestyle (`E`)  codes by default.
 # Unlike Flake8, Ruff doesn't enable pycodestyle warnings (`W`) or
 # McCabe complexity (`C901`) by default.
-select = ["E4", "E7", "E9", "F"]
-ignore = []
+select = ["A", "ASYNC", "AIR", "ERA", "E4", "E7", "E9", "F", "YTT", "TID"]
+ignore = [
+  "ANN001",  # annotate everything sometimes later
+  "COM812",  # do not always use a trailing comma
+  "C901",    # Reduce McCabe complexity at a later time
+  "ERA001",  # too many false positives
+  "S603",    # we do not run Popen on user input except it is actually requested in run-program
+  "TID251",  # for now
+  "TID252",  # we use relative imports in packages
+  "PLR0912", # too many branches; fix later
+  "PLR0915", # too many statements; fix later
+  "LOG015",  # add custom fox logger later
+  "ARG001",  # checked by pylint, maybe change later
+  "TC002",   # rather import even when only typechecking
+  #"TRY003",  # custom Exceptions
+]
 
 # Allow fix for all enabled rules (when `--fix`) is provided.
 fixable = ["ALL"]
@@ -111,6 +125,16 @@ unfixable = []
 
 # Allow unused variables when underscore-prefixed.
 dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[tool.ruff.lint.flake8-tidy-imports]
+[tool.ruff.lint.flake8-tidy-imports.banned-api]
+"click.echo".msg = "Use 'cli.helpers.click_helpers.echo' instead."
+"click.secho".msg = "Use 'cli.helpers.click_helpers.secho' instead."
+# "typing.cast".msg = "Do not use typing.cast."
+# "typing.Optional".msg = "Use '<Var> | None' instead."
+# "typing.List".msg = "Use 'list' instead."
+# "typing.Dict".msg = "Use 'dict' instead."
+# "typing.Tuple".msg = "Use 'tuple' instead."
 
 [tool.ruff.format]
 # Like Black, use double quotes for strings.
@@ -161,7 +185,6 @@ branch = true
 omit = [
   "*/test_*",
   "*/axivion_impl.py",
-  "*/check_ci_config.py",
   "*/check_coverage.py",
   "*/create_readme.py",
 ]
@@ -207,7 +230,7 @@ fail-under = 10
 # from-stdin =
 
 # Files or directories to be skipped. They should be base names, not paths.
-ignore = ["CVS", "waflib"]
+ignore = ["CVS", "waflib", "combine_report_files.py"]
 
 # Add files or directories matching the regular expressions patterns to the
 # ignore-list. The regex matches against paths and can be in Posix or Windows
@@ -229,7 +252,7 @@ ignore-patterns = ["^\\.#"]
 
 # Python code to execute, usually for sys.path manipulation such as
 # pygtk.require().
-init-hook = 'import sys; sys.path.extend(["C:/Bauhaus/7.5.2/lib/scripts", "cli", "tools/waf3-2.0.22-1241519b19b496207abef1f72bbf61c2", "tools/.waf3-2.0.22-1241519b19b496207abef1f72bbf61c2", "tests/hil"])'
+init-hook = 'import sys; sys.path.extend(["C:/Bauhaus/7.5.2/lib/scripts", "cli", "tools/waf3-2.1.5-7e89fb078ab3c46cf09c8f74bbcfd16d", "tools/.waf3-2.1.5-7e89fb078ab3c46cf09c8f74bbcfd16d", "tests/hil"])'
 
 # Use multiple processes to speed up Pylint. Specifying 0 will auto-detect the
 # number of processors available to use, and will cap the count on Windows to

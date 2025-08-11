@@ -41,6 +41,7 @@
 
 # pylint: disable=too-many-locals
 
+import argparse
 import collections
 import hashlib
 import os
@@ -132,7 +133,6 @@ def options(opt: OptionsContext):
     all_contexts.remove(Build.InstallContext)
     all_contexts.remove(Build.UninstallContext)
     for k in (
-        "--targets",
         "--distcheck-args",
         "--out",
         "--prefix",
@@ -150,14 +150,8 @@ def options(opt: OptionsContext):
         if option:
             opt.parser.remove_option(k)
 
-    remaining_options = []
-    for i in opt.parser.option_groups:
-        if i.title not in (
-            "Installation and uninstallation options",
-            "Configuration options",
-        ):
-            remaining_options.append(i)
-    opt.parser.option_groups = remaining_options
+    # just hiding the option because removing is not possible
+    opt.parser.get_option("--targets").help = argparse.SUPPRESS
 
 
 def configure(cnf: ConfigurationContext):

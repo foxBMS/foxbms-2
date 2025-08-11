@@ -1,36 +1,18 @@
 # `cli` Directory Description
 
+## Directories
+
 | Directory Name   | Long Name                   | Content Description                                                      |
 | ---------------- | --------------------------- | ------------------------------------------------------------------------ |
 | `cmd_*`          | Command_*                   | Actual implementation of the specific CLI command                        |
-| `commands`       | Commands                    | Defintion of all CLI commands                                            |
+| `commands`       | Commands                    | Definition of all CLI commands                                           |
+| `fallback`       | Fallback                    | Fallback for the fox CLI wrappers when the environment is missing        |
 | `helpers`        | Helpers                     | Helper functions that are used by several parts of the CLI tool          |
 | `pre-commit`     | pre-commit                  | Scripts that are run as part of the `pre-commit` framework               |
 
-## How to implement a new command?
+## Files
 
-The new command `my-command` would be implemented as follows:
-
-- Add a new file `cmd_my_command/my_command_impl.py`
-- Add a new file `commands/c_my_command.py`
-  Add
-
-  ```python
-  import click
-
-  from ..cmd_my_command import my_command_impl
-
-  # Add the new CLI commands afterwards using click, e.g., as follows:
-  @click.command("my-command")
-  @click.pass_context
-  def run_my_command(ctx: click.Context) -> None:
-      """Add help message here"""
-      # my_command_impl.do_something must return a `SubprocessResult` object
-      # pass the CLI arguments to `do_something` if additional arguments and/or
-      # options are needed
-      ret = my_command_impl.do_something()
-      ctx.exit(ret.returncode)
-  ```
-
-- Implement the required feature(s) in `cmd_my_command/my_command_impl.py` (add
-  as many files/submodules as needed in `cmd_my_command/`).
+- ``cli/cli.py``: registers all commands.
+- ``cli/foxbms_version.py``: Reads the |foxbms| version information from the
+  single source of truth for the version information, the ``wscript`` at the root
+  of the repository.

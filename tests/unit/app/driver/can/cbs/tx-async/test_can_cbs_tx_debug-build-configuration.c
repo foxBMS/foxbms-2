@@ -43,8 +43,8 @@
  * @file    test_can_cbs_tx_debug-build-configuration.c
  * @author  foxBMS Team
  * @date    2023-02-09 (date of creation)
- * @updated 2025-03-31 (date of last update)
- * @version v1.9.0
+ * @updated 2025-08-07 (date of last update)
+ * @version v1.10.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -448,13 +448,13 @@ void testCANTX_DebugBuildConfiguration(void) {
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 7u, 8u, 0x00u, CAN_BIG_ENDIAN);
     CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[1u]);
     CAN_TxSetMessageDataWithSignalData_Expect(
-        &testMessageData[1u], 15u, 8u, ver_foxbmsBuildConfiguration.afeName, CAN_BIG_ENDIAN);
+        &testMessageData[1u], 15u, 16u, ver_foxbmsBuildConfiguration.afeName, CAN_BIG_ENDIAN);
     CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[2u]);
     CAN_TxSetMessageDataWithSignalData_Expect(
-        &testMessageData[2u], 23u, 8u, ver_foxbmsBuildConfiguration.temperatureSensorName, CAN_BIG_ENDIAN);
+        &testMessageData[2u], 31u, 8u, ver_foxbmsBuildConfiguration.temperatureSensorName, CAN_BIG_ENDIAN);
     CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[3u]);
     CAN_TxSetMessageDataWithSignalData_Expect(
-        &testMessageData[3u], 31u, 8u, ver_foxbmsBuildConfiguration.temperatureSensorMethod, CAN_BIG_ENDIAN);
+        &testMessageData[3u], 39u, 8u, ver_foxbmsBuildConfiguration.temperatureSensorMethod, CAN_BIG_ENDIAN);
     CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[4u]);
     CAN_TxSetCanDataWithMessageData_Expect(testMessageData[4u], testCanDataZeroArray, CAN_BIG_ENDIAN);
     CAN_TxSetCanDataWithMessageData_ReturnThruPtr_pCanData(testCanDataFilled);
@@ -506,13 +506,13 @@ void testCANTX_DebugBuildConfiguration(void) {
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 7u, 8u, 0x00u, CAN_BIG_ENDIAN);
     CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[1u]);
     CAN_TxSetMessageDataWithSignalData_Expect(
-        &testMessageData[1u], 15u, 8u, ver_foxbmsBuildConfiguration.afeName, CAN_BIG_ENDIAN);
+        &testMessageData[1u], 15u, 16u, ver_foxbmsBuildConfiguration.afeName, CAN_BIG_ENDIAN);
     CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[2u]);
     CAN_TxSetMessageDataWithSignalData_Expect(
-        &testMessageData[2u], 23u, 8u, ver_foxbmsBuildConfiguration.temperatureSensorName, CAN_BIG_ENDIAN);
+        &testMessageData[2u], 31u, 8u, ver_foxbmsBuildConfiguration.temperatureSensorName, CAN_BIG_ENDIAN);
     CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[3u]);
     CAN_TxSetMessageDataWithSignalData_Expect(
-        &testMessageData[3u], 31u, 8u, ver_foxbmsBuildConfiguration.temperatureSensorMethod, CAN_BIG_ENDIAN);
+        &testMessageData[3u], 39u, 8u, ver_foxbmsBuildConfiguration.temperatureSensorMethod, CAN_BIG_ENDIAN);
     CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[4u]);
     CAN_TxSetCanDataWithMessageData_Expect(testMessageData[4u], testCanDataZeroArray, CAN_BIG_ENDIAN);
     CAN_TxSetCanDataWithMessageData_ReturnThruPtr_pCanData(testCanDataFilled);
@@ -580,13 +580,13 @@ void testCANTX_DebugBuildConfiguration(void) {
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 7u, 8u, 0x00u, CAN_BIG_ENDIAN);
     CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[1u]);
     CAN_TxSetMessageDataWithSignalData_Expect(
-        &testMessageData[1u], 15u, 8u, ver_foxbmsBuildConfiguration.afeName, CAN_BIG_ENDIAN);
+        &testMessageData[1u], 15u, 16u, ver_foxbmsBuildConfiguration.afeName, CAN_BIG_ENDIAN);
     CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[2u]);
     CAN_TxSetMessageDataWithSignalData_Expect(
-        &testMessageData[2u], 23u, 8u, ver_foxbmsBuildConfiguration.temperatureSensorName, CAN_BIG_ENDIAN);
+        &testMessageData[2u], 31u, 8u, ver_foxbmsBuildConfiguration.temperatureSensorName, CAN_BIG_ENDIAN);
     CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[3u]);
     CAN_TxSetMessageDataWithSignalData_Expect(
-        &testMessageData[3u], 31u, 8u, ver_foxbmsBuildConfiguration.temperatureSensorMethod, CAN_BIG_ENDIAN);
+        &testMessageData[3u], 39u, 8u, ver_foxbmsBuildConfiguration.temperatureSensorMethod, CAN_BIG_ENDIAN);
     CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[4u]);
     CAN_TxSetCanDataWithMessageData_Expect(testMessageData[4u], testCanDataZeroArray, CAN_BIG_ENDIAN);
     CAN_TxSetCanDataWithMessageData_ReturnThruPtr_pCanData(testCanDataFilled);
@@ -809,13 +809,13 @@ void testCANTX_DebugBuildConfiguration(void) {
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 7u, 8u, 0x00u, CAN_BIG_ENDIAN);
     CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[1u]);
     CAN_TxSetMessageDataWithSignalData_Expect(
-        &testMessageData[1u], 15u, 8u, ver_foxbmsBuildConfiguration.afeName, CAN_BIG_ENDIAN);
+        &testMessageData[1u], 15u, 16u, ver_foxbmsBuildConfiguration.afeName, CAN_BIG_ENDIAN);
     CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[2u]);
     CAN_TxSetMessageDataWithSignalData_Expect(
-        &testMessageData[2u], 23u, 8u, ver_foxbmsBuildConfiguration.temperatureSensorName, CAN_BIG_ENDIAN);
+        &testMessageData[2u], 31u, 8u, ver_foxbmsBuildConfiguration.temperatureSensorName, CAN_BIG_ENDIAN);
     CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[3u]);
     CAN_TxSetMessageDataWithSignalData_Expect(
-        &testMessageData[3u], 31u, 8u, ver_foxbmsBuildConfiguration.temperatureSensorMethod, CAN_BIG_ENDIAN);
+        &testMessageData[3u], 39u, 8u, ver_foxbmsBuildConfiguration.temperatureSensorMethod, CAN_BIG_ENDIAN);
     CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[4u]);
     CAN_TxSetCanDataWithMessageData_Expect(testMessageData[4u], testCanDataZeroArray, CAN_BIG_ENDIAN);
     CAN_TxSetCanDataWithMessageData_ReturnThruPtr_pCanData(testCanDataFilled);
@@ -1227,13 +1227,13 @@ void testCANTX_SendSlaveConfiguration(void) {
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 7u, 8u, 0x00u, CAN_BIG_ENDIAN);
     CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[1u]);
     CAN_TxSetMessageDataWithSignalData_Expect(
-        &testMessageData[1u], 15u, 8u, ver_foxbmsBuildConfiguration.afeName, CAN_BIG_ENDIAN);
+        &testMessageData[1u], 15u, 16u, ver_foxbmsBuildConfiguration.afeName, CAN_BIG_ENDIAN);
     CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[2u]);
     CAN_TxSetMessageDataWithSignalData_Expect(
-        &testMessageData[2u], 23u, 8u, ver_foxbmsBuildConfiguration.temperatureSensorName, CAN_BIG_ENDIAN);
+        &testMessageData[2u], 31u, 8u, ver_foxbmsBuildConfiguration.temperatureSensorName, CAN_BIG_ENDIAN);
     CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[3u]);
     CAN_TxSetMessageDataWithSignalData_Expect(
-        &testMessageData[3u], 31u, 8u, ver_foxbmsBuildConfiguration.temperatureSensorMethod, CAN_BIG_ENDIAN);
+        &testMessageData[3u], 39u, 8u, ver_foxbmsBuildConfiguration.temperatureSensorMethod, CAN_BIG_ENDIAN);
     CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[4u]);
     CAN_TxSetCanDataWithMessageData_Expect(testMessageData[4u], testCanDataZeroArray, CAN_BIG_ENDIAN);
     CAN_TxSetCanDataWithMessageData_ReturnThruPtr_pCanData(testCanDataFilled);

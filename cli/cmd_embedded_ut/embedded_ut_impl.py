@@ -48,9 +48,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import get_args
 
-from click import secho
-
-from ..helpers.click_helpers import recho
+from ..helpers.click_helpers import recho, secho
 from ..helpers.host_platform import get_platform
 from ..helpers.misc import (
     PROJECT_ROOT,
@@ -198,6 +196,7 @@ def _cleanup_hcg_sources(base_dir: Path) -> None:
     # - ./src/app/hal/wscript for the target build
     # - ./src/bootloader/hal/wscript for the target build
     remove: list[str | Path] = [
+        "source/HL_notification.c",
         "source/HL_sys_startup.c",
         "source/HL_sys_main.c",
         "source/HL_sys_link.cmd",
@@ -217,7 +216,7 @@ def _cleanup_hcg_sources(base_dir: Path) -> None:
         if not frequency:
             raise SystemExit("Could not determine clock frequency.")
 
-        # needs to be aligned with build tool defintion and the unit tests
+        # needs to be aligned with build tool definition and the unit tests
         tmp = base_dir / "include/config_cpu_clock_hz.h"
         define_guard = tmp.name.upper().replace(".H", "_H_")
         tmp.write_text(

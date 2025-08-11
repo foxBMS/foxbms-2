@@ -43,10 +43,9 @@ import logging
 import os
 import sys
 from pathlib import Path
+from time import time
 
-from click import secho
-
-from ..helpers.click_helpers import recho
+from ..helpers.click_helpers import recho, secho
 from ..helpers.misc import PROJECT_BUILD_ROOT, PROJECT_ROOT, terminal_link_print
 from ..helpers.spr import SubprocessResult, run_process
 from .cli_unittest_constants import UNIT_TEST_BUILD_DIR_CLI
@@ -74,9 +73,10 @@ def _add_verbosity_to_cmd_list(
 def run_script_tests(
     coverage_report: bool = False,
     verbosity: int = 0,
-    out_dir=UNIT_TEST_BUILD_DIR_CLI,
+    out_dir: Path = UNIT_TEST_BUILD_DIR_CLI,
 ) -> SubprocessResult:
     """Run unit tests on Python modules and files in the repository."""
+    test_start = time()
     if coverage_report:
         # just delete the files
         cov_file = PROJECT_ROOT / ".coverage"
@@ -137,5 +137,5 @@ def run_script_tests(
         recho("The cli unit tests were not successful.")
     if report_link.is_file() and not ret.returncode:
         secho(f"\ncoverage report: {terminal_link_print(report_link)}")
-
+    secho(f"Total testing time: {time() - test_start}s")
     return ret

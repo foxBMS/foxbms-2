@@ -1,0 +1,78 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/25.0.2 Chrome/128.0.6613.186 Electron/32.2.5 Safari/537.36" version="25.0.2">
+  <diagram name="Seite-1" id="hPg8SPZopmh8AGZJrN-p">
+    <mxGraphModel dx="1061" dy="1413" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="DEjZVQlh6ZJTVWUGv1k4-285" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="DEjZVQlh6ZJTVWUGv1k4-276" target="DEjZVQlh6ZJTVWUGv1k4-277">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="DEjZVQlh6ZJTVWUGv1k4-276" value="Global timer" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#c6e5ed;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="40" y="40" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="DEjZVQlh6ZJTVWUGv1k4-289" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="DEjZVQlh6ZJTVWUGv1k4-277" target="DEjZVQlh6ZJTVWUGv1k4-281">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="DEjZVQlh6ZJTVWUGv1k4-277" value="Global enable flag" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#c6e5ed;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="240" y="40" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="DEjZVQlh6ZJTVWUGv1k4-287" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="DEjZVQlh6ZJTVWUGv1k4-278" target="DEjZVQlh6ZJTVWUGv1k4-277">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="DEjZVQlh6ZJTVWUGv1k4-278" value="Global undervoltage threshold" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#c6e5ed;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="440" y="40" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="DEjZVQlh6ZJTVWUGv1k4-286" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;endFill=0;" edge="1" parent="1" source="DEjZVQlh6ZJTVWUGv1k4-279">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="240" y="70" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="180" y="150" />
+              <mxPoint x="180" y="70" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="DEjZVQlh6ZJTVWUGv1k4-279" value="Prebalancing timer" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#c6e5ed;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="40" y="120" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="DEjZVQlh6ZJTVWUGv1k4-288" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;endArrow=none;endFill=0;" edge="1" parent="1" source="DEjZVQlh6ZJTVWUGv1k4-280" target="DEjZVQlh6ZJTVWUGv1k4-277">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="420" y="150" />
+              <mxPoint x="420" y="70" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="DEjZVQlh6ZJTVWUGv1k4-280" value="Overtemperature threshold" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#c6e5ed;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="440" y="120" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="DEjZVQlh6ZJTVWUGv1k4-281" value="Individual channel enable" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#c6e5ed;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="250" y="220" width="100" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="DEjZVQlh6ZJTVWUGv1k4-290" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="DEjZVQlh6ZJTVWUGv1k4-282" target="DEjZVQlh6ZJTVWUGv1k4-281">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="DEjZVQlh6ZJTVWUGv1k4-282" value="Individual undervoltage threshold" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#c6e5ed;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="60" y="220" width="100" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="DEjZVQlh6ZJTVWUGv1k4-291" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="DEjZVQlh6ZJTVWUGv1k4-283" target="DEjZVQlh6ZJTVWUGv1k4-281">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="DEjZVQlh6ZJTVWUGv1k4-283" value="PWM" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#c6e5ed;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="440" y="220" width="100" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="DEjZVQlh6ZJTVWUGv1k4-292" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;endFill=0;" edge="1" parent="1" source="DEjZVQlh6ZJTVWUGv1k4-284">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="360" y="250" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="420" y="330" />
+              <mxPoint x="420" y="250" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="DEjZVQlh6ZJTVWUGv1k4-284" value="Individual timer" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#c6e5ed;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="440" y="300" width="100" height="60" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

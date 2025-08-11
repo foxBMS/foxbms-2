@@ -37,22 +37,36 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""Simple subprocess wrapper"""
+"""Standardized process execution and result handling utilities for Python's subprocess.
+
+This module defines a data class for subprocess results, provides helpers to
+decode outputs, and offers a function to run commands with consistent error
+handling and output formatting.
+"""
 
 import logging
 import shutil
+import subprocess
+import sys
+from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
-from subprocess import PIPE, Popen
-from typing import Sequence
 
 from .click_helpers import recho
+from .host_platform import get_platform
 from .misc import PROJECT_ROOT
 
 
 @dataclass
 class SubprocessResult:
-    """Subprocess result"""
+    """Represent the result of a subprocess execution.
+
+    Attributes:
+        returncode: The return code from the process.
+        out: The standard output captured from the process.
+        err: The standard error output captured from the process.
+
+    """
 
     returncode: int = 1
     """returncode of the process"""
@@ -62,6 +76,15 @@ class SubprocessResult:
     """standard error of the process"""
 
     def __add__(self, other: "SubprocessResult") -> "SubprocessResult":
+        """Combine two subprocess results.
+
+        Args:
+            other: Another subprocess result to add.
+
+        Return:
+            A new result combining return codes, outputs, and errors.
+
+        """
         returncode = abs(self.returncode)
         if other.returncode:
             returncode += other.returncode
@@ -74,50 +97,74 @@ class SubprocessResult:
         return SubprocessResult(returncode, out, err)
 
     def __str__(self) -> str:
+        """Return a string representation of the subprocess result.
+
+        Return:
+            Formatted string with return code, stdout, and stderr.
+
+        """
         return f"return code: {self.returncode}\n\nout:{self.out}\n\n{self.err}\n"
 
 
 def prepare_subprocess_output(
     returncode: int, out: bytes, err: bytes
 ) -> SubprocessResult:
-    """Decode the subprocess output"""
-    if out:
-        out_str = out.decode("utf-8").strip()
-    else:
-        out_str = ""
-    if err:
-        err_str = err.decode("utf-8").strip()
-    else:
-        err_str = ""
+    """Decode subprocess output from bytes to string and return a SubprocessResult.
+
+    Args:
+        returncode (int): Return code from the process.
+        out (bytes): Standard output in bytes.
+        err (bytes): Standard error in bytes.
+
+    Return:
+        The decoded result.
+
+    """
+    out_str = out.decode("utf-8").strip() if out else ""
+    err_str = err.decode("utf-8").strip() if err else ""
     return SubprocessResult(returncode=returncode, out=out_str, err=err_str)
 
 
 def run_process(
     cmd: Sequence[str | Path],
     cwd: str | Path = PROJECT_ROOT,
-    stdout=PIPE,
-    stderr=PIPE,
+    stdout=subprocess.PIPE,
+    stderr=subprocess.PIPE,
     env=None,
 ) -> SubprocessResult:
-    """Run the provided command"""
+    """Run a command as a subprocess and capture its output.
+
+    Args:
+        cmd: Command and arguments to execute.
+        cwd: Working directory.
+        stdout: Subprocess stdout redirection.
+        stderr: Subprocess stderr redirection.
+        env: Environment variables to use.
+
+    Return:
+        The result of the executed process.
+
+    """
     logging.debug("Original cmd: %s", cmd)
     if len(cmd) == 0:
         recho("No program provided.")
-        return prepare_subprocess_output(
-            1, out=b"", err="No program provided.".encode(encoding="utf-8")
-        )
+        return prepare_subprocess_output(1, out=b"", err=b"No program provided.")
     executable = cmd[0]
     if not shutil.which(executable):
         recho(f"Program '{cmd[0]}' does not exist.")
         return prepare_subprocess_output(
             1,
             out=b"",
-            err=f"Program '{cmd[0]}' does not exist.".encode(encoding="utf-8"),
+            err=f"Program '{cmd[0]}' does not exist.".encode(),
         )
-    logging.debug("Original cmd: %s", cmd)
     # fix executable name (required on Windows because of PATHEXT)
     cmd_str = [str(shutil.which(executable))] + [str(i) for i in cmd[1:]]
     logging.debug("Stringified cmd: %s", " ".join(cmd_str))
-    with Popen(cmd_str, cwd=cwd, stdout=stdout, stderr=stderr, env=env) as p:
+    platform_args = {"cwd": cwd, "stdout": stdout, "stderr": stderr, "env": env}
+    if get_platform() == "win32" and not hasattr(sys.stdin, "isatty"):
+        # on Windows, when the GUI starts a process this would create a
+        # poping up window without using 'CREATE_NO_WINDOW'
+        platform_args["creationflags"] = subprocess.CREATE_NO_WINDOW
+    with subprocess.Popen(cmd_str, **platform_args) as p:
         out, err = p.communicate()
     return prepare_subprocess_output(p.returncode, out, err)

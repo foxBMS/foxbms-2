@@ -43,8 +43,8 @@
  * @file    can_cbs_tx_debug-response.c
  * @author  foxBMS Team
  * @date    2019-12-04 (date of creation)
- * @updated 2025-03-31 (date of last update)
- * @version v1.9.0
+ * @updated 2025-08-07 (date of last update)
+ * @version v1.10.0
  * @ingroup DRIVERS
  * @prefix  CANTX
  *
@@ -280,7 +280,7 @@ static uint64_t CANTX_TransmitBootMagicStart(void);
  * @brief   Transmit the boot timestamp message
  * @return  message data for the can message
  */
-static uint64_t CANTX_TransmitBootMagicTimeStamp(void);
+static uint64_t CANTX_TransmitBootTimeStamp(void);
 
 /**
  * @brief   Transmit the boot message and its magic end data
@@ -490,7 +490,7 @@ static uint64_t CANTX_TransmitBootMagic(uint64_t messageData) {
     return message;
 }
 
-static uint64_t CANTX_TransmitBootMagicTimeStamp(void) {
+static uint64_t CANTX_TransmitBootTimeStamp(void) {
     RTC_TIME_DATA_s timestamp = RTC_GetSystemStartUpTime();
 
     uint64_t message = 0u;
@@ -785,7 +785,7 @@ extern STD_RETURN_TYPE_e CANTX_DebugResponse(CANTX_DEBUG_RESPONSE_ACTIONS_e acti
             messageData = CANTX_TransmitBootMagicEnd();
             break;
         case CANTX_DEBUG_RESPONSE_TRANSMIT_BOOT_TIMESTAMP:
-            messageData = CANTX_TransmitBootMagicTimeStamp();
+            messageData = CANTX_TransmitBootTimeStamp();
             break;
         case CANTX_DEBUG_RESPONSE_TRANSMIT_RTC_TIME:
             messageData = CANTX_TransmitRtcTime();
@@ -829,8 +829,8 @@ extern uint64_t TEST_CANTX_TransmitBootMagicStart(void) {
 extern uint64_t TEST_CANTX_TransmitBootMagicEnd(void) {
     return CANTX_TransmitBootMagicEnd();
 }
-extern uint64_t TEST_CANTX_TransmitBootMagicTimeStamp(void) {
-    return CANTX_TransmitBootMagicTimeStamp();
+extern uint64_t TEST_CANTX_TransmitBootTimeStamp(void) {
+    return CANTX_TransmitBootTimeStamp();
 }
 extern uint64_t TEST_CANTX_TransmitRtcTime(void) {
     return CANTX_TransmitRtcTime();

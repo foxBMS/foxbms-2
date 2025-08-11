@@ -49,5 +49,5 @@ class CSVHandlerInterface(ABC):  # pylint: disable=too-few-public-methods
     """Interface class to read a .csv file and return the data as pandas.DataFrame"""
 
     @abstractmethod
-    def get_data(self, file_path: Path) -> pandas.DataFrame:
+    def get_data(self, file_path: Path, no_tmp: bool = True) -> pandas.DataFrame:
         """Read the given file and returns the contained data."""

@@ -55,4 +55,4 @@ def build(bld: BuildContext):
     if bld.variant in ("app_embedded", "app_spa"):
         bld.recurse(["app", "os", "portable"])
     if bld.variant in ("bootloader_embedded", "bootloader_spa"):
-        bld.recurse(["bootloader"])
+        bld.recurse(["bootloader", "portable"])

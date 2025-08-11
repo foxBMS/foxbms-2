@@ -39,6 +39,7 @@
 
 """Sphinx configuration file for the documentation"""
 
+import csv
 import logging
 import os
 import re
@@ -65,8 +66,8 @@ FILE_RE_COMPILED = re.compile(FILE_RE)
 sys.path = [
     os.path.abspath("."),
     os.path.abspath(str(ROOT)),
-    os.path.abspath("./../tools/waf3-2.0.22-1241519b19b496207abef1f72bbf61c2/waflib"),
-    os.path.abspath("./../tools/.waf3-2.0.22-1241519b19b496207abef1f72bbf61c2/waflib"),
+    os.path.abspath("./../tools/waf3-2.1.5-7e89fb078ab3c46cf09c8f74bbcfd16d/waflib"),
+    os.path.abspath("./../tools/.waf3-2.1.5-7e89fb078ab3c46cf09c8f74bbcfd16d/waflib"),
     os.path.abspath("./../tools/waf-tools"),
 ] + sys.path
 
@@ -123,14 +124,8 @@ linkcheck_ignore = [
     "https://docs.foxbms.org",
     r"https:\/\/iisb-foxbms\.iisb\.fraunhofer\.de\/.*[\d|z]\/",
     # linkcheck can not handle the line highlighting
-    "https://gitlab.com/ita1024/waf/-/blob/3536dfecf8061c6d99bac338837997c4862ee89b/waflib/TaskGen.py#L495-527",  # pylint: disable=line-too-long
     "https://gitlab.com/ita1024/waf/-/blob/3f8bb163290eb8fbfc3b26d61dd04aa5a6a29d4a/waf-light#L6-30",  # pylint: disable=line-too-long
     "https://www.misra.org.uk/",
-    "../_images/battery-system-setup.png",
-    "../_images/battery-system-setup-pack.png",
-    "../_images/battery-system-setup-bjb.png",
-    "../_images/battery-system-setup-single-string.png",
-    "../_images/battery-system-precharging.png",
 ]
 
 html_theme_options = {
@@ -176,6 +171,8 @@ def document_can_messages(*_) -> int:
 
     # Parse messages
     for message in db.messages:
+        if message.name == "f_BootloaderVersionInfo":
+            continue
         comment = FILE_RE_COMPILED.sub("", message.comment)
         m = FILE_RE_COMPILED.search(message.comment)
 
@@ -242,6 +239,11 @@ def _runner(command: str) -> int:
 def gen_fox_axivion_help(*_) -> int:
     """Create axivion usage file."""
     return _runner("axivion")
+
+
+def gen_fox_bms_help(*_) -> int:
+    """Create bms usage file."""
+    return _runner("bms")
 
 
 def gen_fox_bootloader_help(*_) -> int:
@@ -358,13 +360,117 @@ def wrapper(func):
     return func()
 
 
+def validate_python_version_consistency(*_) -> int:
+    """Validate the documented Python version."""
+    # Linux reference: python3.12
+    # Windows reference: py -3.12
+    err = 0
+
+    install_summary = ROOT / "INSTALL.md"
+    install_summary_txt = install_summary.read_text(encoding="utf-8")
+    expected_references = 9
+    if install_summary_txt.count("3.12") != expected_references:
+        print(
+            f"File '{install_summary}' does not reference the expected "
+            "Python version 3.12.",
+            file=sys.stderr,
+        )
+        err += 1
+
+    fallback = ROOT / "cli/fallback/fallback.py"
+    fallback_txt = fallback.read_text(encoding="utf-8")
+    expected_references = 3
+    if fallback_txt.count("3.12") != expected_references:
+        print(
+            f"File '{fallback}' does not reference the expected Python version 3.12.",
+            file=sys.stderr,
+        )
+        err += 1
+
+    docs = [
+        (ROOT / "docs/getting-started/software-installation.rst", 10),
+        (
+            ROOT
+            / "docs/developer-manual/update-processes/external/update-python-packages.txt",
+            3,
+        ),
+    ]
+    for i, refs in docs:
+        txt = i.read_text(encoding="utf-8")
+        if len(re.findall(r"((py -)|(python))3\.12", txt)) != refs:
+            print(
+                f"File '{i}' does not reference the expected Python version 3.12.",
+                file=sys.stderr,
+            )
+            err += 1
+    return err
+
+
+def validate_environment_name(*_) -> int:
+    """Validate the documented Python environment name."""
+    err = 0
+    docs = [
+        (ROOT / "fox.ps1", 1),
+        (ROOT / "fox.sh", 1),
+        (ROOT / "INSTALL.md", 3),
+        (ROOT / "docs/getting-started/software-installation.rst", 7),
+        (ROOT / "docs/software/build-environment/build-environment.rst", 1),
+    ]
+    expected_env_name = "2025-06-pale-fox"
+    for i, refs in docs:
+        txt = i.read_text(encoding="utf-8")
+        if txt.count(expected_env_name) != refs:
+            print(
+                f"File '{i}' does not reference the expected environment name.",
+                file=sys.stderr,
+            )
+            err += 1
+    return err
+
+
+def validate_requirements_txt_versions(*_) -> int:
+    """Validate the versions specified in the requirements file match the
+    versions in the license information file."""
+    err = 0
+    requirements: list[tuple[str, str]] = []
+    for i in (ROOT / "requirements.txt").read_text(encoding="utf-8").splitlines():
+        txt = i.rsplit("#")[0]
+        txt = txt.rsplit(";")[0]
+        pkg, pkg_version = txt.split("==", maxsplit=2)
+        requirements.append((pkg.strip(), pkg_version.strip()))
+
+    _license: list[tuple[str, str]] = []
+    with open(
+        ROOT / "docs/general/license-tables/external/license-info_python-packages.csv",
+        encoding="utf-8",
+    ) as f:
+        reader = csv.reader(f, delimiter=";")
+        next(reader)  # skip heading
+        for line in reader:
+            pkg, pkg_version = line[0], line[1]
+            _license.append((pkg.strip(), pkg_version.strip()))
+
+    for req, lic in zip(requirements, _license):
+        if req != lic:
+            print(
+                f"Missmatch:\n Requirements file: {req}\n license file: {lic}",
+                file=sys.stderr,
+            )
+            err += 1
+    return err
+
+
 def create_doc_sources(*_):
-    """Run source generators"""
+    """Run source generators and consistency checkers."""
     functions = [
+        validate_python_version_consistency,
+        validate_environment_name,
+        validate_requirements_txt_versions,
         create_version_info,
         cleanup_autosummary,
         document_can_messages,
         gen_fox_axivion_help,
+        gen_fox_bms_help,
         gen_fox_bootloader_help,
         gen_fox_build_help,
         gen_fox_ci_help,

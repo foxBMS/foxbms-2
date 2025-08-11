@@ -1,0 +1,36 @@
+Minor release of foxBMS 2 (v1.10.0)
+
+This release introduces a CAN-based bootloader, marking a significant step
+forward in system flexibility.
+The inclusion of the bootloader changes the memory layout of the application,
+as the bootloader now precedes the main app.
+*Important*: All applications must be rebuilt for compatibility, and the
+bootloader must be flashed before deploying updated applications.
+
+A GUI has been added that allows to execute the build tool, loading the
+app via the bootloader, and configuring plots.
+
+A Python 'venv' environment is used ('2025-06-pale-fox').
+Additional dependencies were updated.
+See INSTALLATION.md for information on updating the toolchain.
+
+* Add driver for the TI DP83869HM PHY.
+* Improve NXP AFE MC33775A implementation.
+* Improve unit test coverage.
+* Improve documentation.
+* Updated dependencies:
+  * Internal:
+    * Waf: ``2.1.5``
+    * FreeRTOS-Plus-TCP: ``v4.3.2``
+  * External:
+    * Doxygen: ``1.14.0``
+    * drawio-desktop: ``27.0.29``
+    * Graphviz: ``13.0.0``
+    * pre-commit Hooks:
+      * ruff-pre-commit: ``0.11.11``
+      * pyupgrade: ``3.20.0``
+      * mirrors-clang-format: ``v20.1.5``
+    * Python environment: ``2025-06-pale-fox``
+
+For a detailed list of changes, please refer to the documentation at
+https://iisb-foxbms.iisb.fraunhofer.de/foxbms/gen2/docs/html/v1.10.0/general/changelog.html.

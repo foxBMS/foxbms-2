@@ -18,7 +18,7 @@
     },
     {
       "label": "Unit Test: Build active file",
-      "type": "cppbuild",
+      "type": "process",
       "group": {
         "kind": "build"
       },

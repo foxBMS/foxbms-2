@@ -22,8 +22,8 @@ The tools and versions that are used **MUST** be defined in the documentation.
 Third Party Tools
 -----------------
 
-Supporting tools for software analysis **SHOULD** be ISO 9001 qualified. The
-following supporting tool classes are required to be used:
+Supporting tools for software analysis **SHOULD** be ISO 9001 qualified.
+The following supporting tool classes are required to be used:
 
 - version control system
 - compiler
@@ -34,40 +34,13 @@ following supporting tool classes are required to be used:
 - documentation tools
 - test runner
 
-The following tools are shown in :numref:`mapping-of-third-party-tools`.
+The following tools are shown in
+:numref:`criticality-mapping-of-third-party-tools`.
 
-.. table:: Third Party Tools
-   :name: mapping-of-third-party-tools
-   :widths: grid
-
-   +-----------------+-------------------------+-------------+----------------------------------------+
-   | Tool            | Class                   | Criticality | Criticality comment                    |
-   +=================+=========================+=============+========================================+
-   | |git|           | version control system  | T3          |                                        |
-   +-----------------+-------------------------+-------------+----------------------------------------+
-   | TI ARM CGT      | compiler                | T3          | used to build code for the target      |
-   +-----------------+-------------------------+-------------+----------------------------------------+
-   | TI ARM CGT      | linker                  | T3          | used to link code for the target       |
-   +-----------------+-------------------------+-------------+----------------------------------------+
-   | GCC             | compiler                | T2          | used to build and link code            |
-   |                 |                         |             | for unit tests                         |
-   +-----------------+-------------------------+-------------+----------------------------------------+
-   | VS Code         | text editor             | T1          |                                        |
-   +-----------------+-------------------------+-------------+----------------------------------------+
-   | Waf             | build automation system | T3          | controls build process; generates      |
-   |                 |                         |             | version dependent code                 |
-   +-----------------+-------------------------+-------------+----------------------------------------+
-   | Axivion Suite   | static program          | T2          |                                        |
-   |                 | analysis tools          |             |                                        |
-   +-----------------+-------------------------+-------------+----------------------------------------+
-   | sphinx          | documentation tools     | T1          | just a rendering tool for              |
-   |                 |                         |             | the documentation text files           |
-   +-----------------+-------------------------+-------------+----------------------------------------+
-   | ceedling        | unit testing framework  | T2          |                                        |
-   +-----------------+-------------------------+-------------+----------------------------------------+
-   | *Custom HIL     | test runner             | T3          |                                        |
-   | implementation* |                         |             |                                        |
-   +-----------------+-------------------------+-------------+----------------------------------------+
+.. csv-table:: Criticality mapping of the third party tools
+   :name: criticality-mapping-of-third-party-tools
+   :delim: ;
+   :file: ./criticality-mapping-of-third-party-tools.csv
 
 Repository Inherent Tools
 -------------------------
@@ -91,10 +64,10 @@ Unit tests **MUST** be implemented for these tools.
 Supporting Programming and Scripting Languages
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Programming and scripting languages that support the projects objective
-**MUST** be chosen from the following list in order to limit the number of
-external dependencies:
+Supporting programming and scripting languages that support the projects
+objective **MUST** be chosen from the following list in order to limit the
+number of external dependencies:
 
-- Python 3
+- Python 3 (preferred)
 - Ruby 3
 - shell scripts (for ``pwsh`` or ``bash``)

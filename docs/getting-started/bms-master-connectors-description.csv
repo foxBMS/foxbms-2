@@ -1,16 +1,19 @@
 Connector ID ; Functionality                       ; Pinout
-J3008        ; Debugger                            ; :ref:`pinout_debug_connector`
-J2009        ; Supply                              ; :ref:`pinout_supply`
-J2000        ; Smart Power Switch 0 (Contactor 0)  ; :ref:`pinout_smart_power_switches`
-J2002        ; Smart Power Switch 1 (Contactor 1)  ; :ref:`pinout_smart_power_switches`
-J2003        ; Smart Power Switch 2 (Contactor 2)  ; :ref:`pinout_smart_power_switches`
-J2004        ; Smart Power Switch 3 (Contactor 3)  ; :ref:`pinout_smart_power_switches`
-J2006        ; Smart Power Switch 4 (Contactor 4)  ; :ref:`pinout_smart_power_switches`
-J2007        ; Smart Power Switch 5 (Contactor 5)  ; :ref:`pinout_smart_power_switches`
-J2008        ; Smart Power Switch 6 (Contactor 6)  ; :ref:`pinout_smart_power_switches`
-J2010        ; Smart Power Switch 7 (Contactor 7)  ; :ref:`pinout_smart_power_switches`
-J2033        ; Interlock                           ; :ref:`pinout_interlock`
-J2034        ; PWM (Insulation Monitoring)         ; :ref:`pinout_insulation_monitoring`
-J2013        ; RS485                               ; :ref:`pinout_rs485`
-J2021        ; CAN 1                               ; :ref:`pinout_can1`
-J2024        ; CAN 2 (isolated)                    ; :ref:`pinout_can2`
+J3008        ; Debugger                            ; :ref:`ti-tms570lc4357-v1.2.2_pinout_debug_connector`
+J2009        ; Supply                              ; :ref:`ti-tms570lc4357-v1.2.2_pinout_supply`
+J2000        ; Smart Power Switch 0 (Contactor 0)  ; :ref:`ti-tms570lc4357-v1.2.2_pinout_smart_power_switches`
+J2002        ; Smart Power Switch 1 (Contactor 1)  ; :ref:`ti-tms570lc4357-v1.2.2_pinout_smart_power_switches`
+J2003        ; Smart Power Switch 2 (Contactor 2)  ; :ref:`ti-tms570lc4357-v1.2.2_pinout_smart_power_switches`
+J2004        ; Smart Power Switch 3 (Contactor 3)  ; :ref:`ti-tms570lc4357-v1.2.2_pinout_smart_power_switches`
+J2006        ; Smart Power Switch 4 (Contactor 4)  ; :ref:`ti-tms570lc4357-v1.2.2_pinout_smart_power_switches`
+J2007        ; Smart Power Switch 5 (Contactor 5)  ; :ref:`ti-tms570lc4357-v1.2.2_pinout_smart_power_switches`
+J2008        ; Smart Power Switch 6 (Contactor 6)  ; :ref:`ti-tms570lc4357-v1.2.2_pinout_smart_power_switches`
+J2010        ; Smart Power Switch 7 (Contactor 7)  ; :ref:`ti-tms570lc4357-v1.2.2_pinout_smart_power_switches`
+J2033        ; Interlock                           ; :ref:`ti-tms570lc4357-v1.2.2_pinout_interlock`
+J2034        ; PWM (Insulation Monitoring)         ; :ref:`ti-tms570lc4357-v1.2.2_pinout_insulation_monitoring`
+J2001        ; Ethernet                            ; :ref:`ti-tms570lc4357-v1.2.2_ethernet`
+J2013        ; RS485                               ; :ref:`ti-tms570lc4357-v1.2.2_pinout_rs485`
+J2021        ; CAN 1                               ; :ref:`ti-tms570lc4357-v1.2.2_pinout_can1`
+J2024        ; CAN 2 (isolated)                    ; :ref:`ti-tms570lc4357-v1.2.2_pinout_can2`
+J9002        ; Extension board                     ; :ref:`ti-tms570lc4357-v1.2.2_extension`
+J9002        ; Interface board                     ; :ref:`ti-tms570lc4357-v1.2.2_interface`

@@ -43,8 +43,8 @@
  * @file    epcos_b57861s0103f045_polynomial.c
  * @author  foxBMS Team
  * @date    2020-08-25 (date of creation)
- * @updated 2025-03-31 (date of last update)
- * @version v1.9.0
+ * @updated 2025-08-07 (date of last update)
+ * @version v1.10.0
  * @ingroup DRIVERS
  * @prefix  TS
  *

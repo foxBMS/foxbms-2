@@ -178,7 +178,7 @@ def apply_sphinx(self):
 
 
 def configure(conf: ConfigurationContext):
-    """Check that sphinx-build and dot are available"""
+    """Check that sphinx-build, dot, and drawio are available"""
     conf.find_program("sphinx-build", var="SPHINX_BUILD")
     if Utils.is_win32:
         conf.find_program("draw.io", var="DRAW_IO")

@@ -43,8 +43,8 @@
  * @file    ftask_cfg.c
  * @author  foxBMS Team
  * @date    2019-08-26 (date of creation)
- * @updated 2025-03-31 (date of last update)
- * @version v1.9.0
+ * @updated 2025-08-07 (date of last update)
+ * @version v1.10.0
  * @ingroup TASK_CONFIGURATION
  * @prefix  FTSK
  *
@@ -57,6 +57,7 @@
 
 #include "HL_gio.h"
 #include "HL_het.h"
+#include "HL_mdio.h"
 
 #include "adc.h"
 #include "algorithm.h"
@@ -67,6 +68,7 @@
 #include "database.h"
 #include "diag.h"
 #include "dma.h"
+#include "dp83869.h"
 #include "fram.h"
 #include "htsensor.h"
 #include "i2c.h"
@@ -166,7 +168,7 @@ extern void FTSK_InitializeUserCodeEngine(void) {
 
     /* Suspend AFE task if unused, otherwise it will preempt all lower priority tasks */
 #if (FOXBMS_AFE_DRIVER_TYPE_FSM == 1)
-    vTaskSuspend(ftsk_taskHandleAfe);
+    OS_SuspendTask(ftsk_taskHandleAfe);
 #endif
 
     /* Init FRAM */
@@ -208,6 +210,10 @@ extern void FTSK_InitializeUserCodePreCyclicTasks(void) {
 
     /* Initialize redundancy module */
     (void)MRC_Initialize();
+
+    MDIOInit(PHY_MDIO_BASE, MDIO_FREQ_INPUT, MDIO_FREQ_OUTPUT);
+
+    (void)PHY_Initialize(PHY_MDIO_BASE);
 
     /* This function operates under the assumption that it is called when
      * the operating system is not yet running.

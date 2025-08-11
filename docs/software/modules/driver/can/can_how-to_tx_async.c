@@ -43,8 +43,8 @@
  * @file    can_how-to_tx_async.c
  * @author  foxBMS Team
  * @date    2023-09-28 (date of creation)
- * @updated 2025-03-31 (date of last update)
- * @version v1.9.0
+ * @updated 2025-08-07 (date of last update)
+ * @version v1.10.0
  * @ingroup SOME_GROUP
  * @prefix  CAN
  *

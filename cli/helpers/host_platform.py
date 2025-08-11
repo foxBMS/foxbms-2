@@ -37,13 +37,25 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""Determine host platform"""
+"""Platform detection utility.
+
+This module provides a function to detect the current operating system
+platform ('linux' or 'win32'). Exits if the platform is unsupported.
+"""
 
 import sys
 
 
-def get_platform():
-    """String to identify the host platform"""
+def get_platform() -> str:
+    """Identify the current operating system platform.
+
+    Return:
+        The name of the platform, either 'linux' or 'win32'.
+
+    Exits:
+        Exits the program with an error message if the platform is unsupported.
+
+    """
     if sys.platform.lower() == "linux":
         return "linux"
     if sys.platform.lower() == "win32":

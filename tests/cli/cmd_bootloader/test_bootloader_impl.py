@@ -39,23 +39,31 @@
 
 """Testing file 'cli/cmd_bootloader/bootloader_impl.py'."""
 
+# pylint: disable=too-many-lines
+
+import io
 import json
 import logging
 import sys
 import unittest
+from contextlib import redirect_stderr, redirect_stdout
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, create_autospec, patch
 
 import can
 import can.interfaces.pcan
 import click
 import numpy as np
-from can.interfaces.pcan import PcanError
+from can.exceptions import CanInitializationError
+from can.interfaces.pcan.pcan import PcanCanInitializationError
 
 try:
-    from cli.cmd_bootloader.bootloader import Bootloader
+    from cli.cmd_bootloader.bootloader import Bootloader, BootloaderStatus
     from cli.cmd_bootloader.bootloader_can import BootloaderInterfaceCan
     from cli.cmd_bootloader.bootloader_impl import (
+        _check_bootloader,
+        _check_bootloader_status,
+        _instantiate_bootloader,
         check_bootloader,
         load_app,
         reset_bootloader,
@@ -66,9 +74,12 @@ try:
 
 except ModuleNotFoundError:
     sys.path.insert(0, str(Path(__file__).parents[3]))
-    from cli.cmd_bootloader.bootloader import Bootloader
+    from cli.cmd_bootloader.bootloader import Bootloader, BootloaderStatus
     from cli.cmd_bootloader.bootloader_can import BootloaderInterfaceCan
     from cli.cmd_bootloader.bootloader_impl import (
+        _check_bootloader,
+        _check_bootloader_status,
+        _instantiate_bootloader,
         check_bootloader,
         load_app,
         reset_bootloader,
@@ -141,109 +152,216 @@ class TestBootloaderImpl(unittest.TestCase):
         pass
 
     @patch.object(json, "loads")
-    @patch.object(click, "echo")
     @patch.object(Bootloader, "check_target")
-    def test_check_bootloader(
-        self,
-        mock_check_target,
-        mock_echo,
-        mock_load,
-        *_,
-    ):
+    # pylint: disable=too-many-statements
+    def test_check_bootloader(self, mock_check_target, mock_load, *_):
         """Function to test function check_bootloader()."""
         mock_load.return_value = PROGRAM
-        mock_echo.return_value = None
 
         # Case 1: the input is neither Bootloader nor CanBusConfig
-        self.assertEqual(99, check_bootloader(None))
+        _err, _out = io.StringIO(), io.StringIO()
+        with redirect_stderr(_err), redirect_stdout(_out):
+            ret = check_bootloader(None)
+        err, out = _err.getvalue(), _out.getvalue()
+
+        self.assertEqual(99, ret)
+        self.assertEqual(err, "Invalid bootloader configuration.\n")
+        self.assertEqual(out, "")
 
         # Case 2: the input is Bootloader, the check_target returns 0
-        mock_check_target.return_value = 0
-        with can.interface.Bus(
-            "test", interface="virtual", preserve_timestamps=True
-        ) as can_bus:
-            interface = BootloaderInterfaceCan(can_bus=can_bus)
-            bd = Bootloader(interface=interface)
-            self.assertEqual(0, check_bootloader(bd))
+        mock_check_target.return_value = (
+            0,
+            ("CanFsmStateNoCommunication", "BootFsmStateWait", 0),
+        )
+
+        _err, _out = io.StringIO(), io.StringIO()
+        with redirect_stderr(_err), redirect_stdout(_out):
+            with can.interface.Bus("test", interface="virtual") as can_bus:
+                interface = BootloaderInterfaceCan(can_bus=can_bus)
+                bd = Bootloader(interface=interface)
+                ret = check_bootloader(bd)
+        err, out = _err.getvalue(), _out.getvalue()
+
+        self.assertEqual(0, ret)
+        self.assertEqual(err, "")
+        self.assertEqual(
+            out, "Checking if the bootloader is online...\nBootloader is running.\n"
+        )
 
         # Case 3: the input is Bootloader, the check_target returns 1
-        mock_check_target.return_value = 1
-        with can.interface.Bus(
-            "test", interface="virtual", preserve_timestamps=True
-        ) as can_bus:
-            interface = BootloaderInterfaceCan(can_bus=can_bus)
-            bd = Bootloader(interface=interface)
-            self.assertEqual(1, check_bootloader(bd))
+        mock_check_target.return_value = (
+            1,
+            ("CanFsmStateNoCommunication", "BootFsmStateWait", None),
+        )
+
+        _err, _out = io.StringIO(), io.StringIO()
+        with redirect_stderr(_err), redirect_stdout(_out):
+            with can.interface.Bus("test", interface="virtual") as can_bus:
+                interface = BootloaderInterfaceCan(can_bus=can_bus)
+                bd = Bootloader(interface=interface)
+                ret = check_bootloader(bd)
+        err, out = _err.getvalue(), _out.getvalue()
+
+        self.assertEqual(1, ret)
+        self.assertEqual(
+            err, "Bootloader is running, but some information is missing.\n"
+        )
+        self.assertEqual(out, "Checking if the bootloader is online...\n")
 
         # Case 4: the input is Bootloader, the check_target returns 2
-        mock_check_target.return_value = 2
-        with can.interface.Bus(
-            "test", interface="virtual", preserve_timestamps=True
-        ) as can_bus:
-            interface = BootloaderInterfaceCan(can_bus=can_bus)
-            bd = Bootloader(interface=interface)
-            self.assertEqual(2, check_bootloader(bd))
+        mock_check_target.return_value = (2, BootloaderStatus(None, None, None))
+
+        _err, _out = io.StringIO(), io.StringIO()
+        with redirect_stderr(_err), redirect_stdout(_out):
+            with can.interface.Bus("test", interface="virtual") as can_bus:
+                interface = BootloaderInterfaceCan(can_bus=can_bus)
+                bd = Bootloader(interface=interface)
+                ret = check_bootloader(bd)
+        err, out = _err.getvalue(), _out.getvalue()
+
+        self.assertEqual(2, ret)
+        self.assertEqual(err, "")
+        self.assertEqual(
+            out,
+            "Checking if the bootloader is online...\n"
+            "foxBMS 2 application is running.\n",
+        )
 
         # Case 5: the input is Bootloader, the check_target returns 3
-        mock_check_target.return_value = 3
-        with can.interface.Bus(
-            "test", interface="virtual", preserve_timestamps=True
-        ) as can_bus:
-            interface = BootloaderInterfaceCan(can_bus=can_bus)
-            bd = Bootloader(interface=interface)
-            self.assertEqual(3, check_bootloader(bd))
+        mock_check_target.return_value = (3, BootloaderStatus(None, None, None))
+
+        _err, _out = io.StringIO(), io.StringIO()
+        with redirect_stderr(_err), redirect_stdout(_out):
+            with can.interface.Bus("test", interface="virtual") as can_bus:
+                interface = BootloaderInterfaceCan(can_bus=can_bus)
+                bd = Bootloader(interface=interface)
+                ret = check_bootloader(bd)
+        err, out = _err.getvalue(), _out.getvalue()
+
+        self.assertEqual(3, ret)
+        self.assertEqual(err, "Bootloader is not reachable.\n")
+        self.assertEqual(out, "Checking if the bootloader is online...\n")
 
         # Case 6: the input is Bootloader, the check_target returns 4
-        mock_check_target.return_value = 4
-        with can.interface.Bus(
-            "test", interface="virtual", preserve_timestamps=True
-        ) as can_bus:
-            interface = BootloaderInterfaceCan(can_bus=can_bus)
-            bd = Bootloader(interface=interface)
-            self.assertEqual(4, check_bootloader(bd))
+        mock_check_target.return_value = (4, (None, None, None))
+
+        _err, _out = io.StringIO(), io.StringIO()
+        with redirect_stderr(_err), redirect_stdout(_out):
+            with can.interface.Bus("test", interface="virtual") as can_bus:
+                interface = BootloaderInterfaceCan(can_bus=can_bus)
+                bd = Bootloader(interface=interface)
+                ret = check_bootloader(bd)
+        err, out = _err.getvalue(), _out.getvalue()
+
+        self.assertEqual(4, ret)
+        self.assertEqual(err, "Unknown return value, something went wrong.\n")
+        self.assertEqual(out, "Checking if the bootloader is online...\n")
 
         # Case 7: the input is CanBusConfig, the check_target returns 0
-        mock_check_target.return_value = 0
-        can_bus_config = CanBusConfig(interface="virtual", channel=None, bitrate=None)
-        self.assertEqual(0, check_bootloader(can_bus_config))
+        mock_check_target.return_value = (
+            0,
+            ("CanFsmStateNoCommunication", "BootFsmStateWait", 0),
+        )
+
+        _err, _out = io.StringIO(), io.StringIO()
+        with redirect_stderr(_err), redirect_stdout(_out):
+            can_bus_config = CanBusConfig(
+                interface="virtual", channel=None, bitrate=None
+            )
+            ret = check_bootloader(can_bus_config)
+        err, out = _err.getvalue(), _out.getvalue()
+
+        self.assertEqual(0, ret)
+        self.assertEqual(err, "")
+        self.assertEqual(
+            out, "Checking if the bootloader is online...\nBootloader is running.\n"
+        )
 
         # Case 8: the input is CanBusConfig, the check_target returns 1
-        mock_check_target.return_value = 1
-        can_bus_config = CanBusConfig(interface="virtual", channel=None, bitrate=None)
-        self.assertEqual(1, check_bootloader(can_bus_config))
+        mock_check_target.return_value = (
+            1,
+            ("CanFsmStateNoCommunication", "BootFsmStateWait", None),
+        )
+
+        _err, _out = io.StringIO(), io.StringIO()
+        with redirect_stderr(_err), redirect_stdout(_out):
+            can_bus_config = CanBusConfig(
+                interface="virtual", channel=None, bitrate=None
+            )
+            ret = check_bootloader(can_bus_config)
+        err, out = _err.getvalue(), _out.getvalue()
+
+        self.assertEqual(1, ret)
+        self.assertEqual(
+            err, "Bootloader is running, but some information is missing.\n"
+        )
+        self.assertEqual(out, "Checking if the bootloader is online...\n")
 
         # Case 9: the input is CanBusConfig, the check_target returns 2
-        mock_check_target.return_value = 2
-        can_bus_config = CanBusConfig(interface="virtual", channel=None, bitrate=None)
-        self.assertEqual(2, check_bootloader(can_bus_config))
+        mock_check_target.return_value = (2, BootloaderStatus(None, None, None))
+
+        _err, _out = io.StringIO(), io.StringIO()
+        with redirect_stderr(_err), redirect_stdout(_out):
+            can_bus_config = CanBusConfig(
+                interface="virtual", channel=None, bitrate=None
+            )
+            ret = check_bootloader(can_bus_config)
+        err, out = _err.getvalue(), _out.getvalue()
+
+        self.assertEqual(2, ret)
+        self.assertEqual(err, "")
+        self.assertEqual(
+            out,
+            "Checking if the bootloader is online...\n"
+            "foxBMS 2 application is running.\n",
+        )
 
         # Case 10: the input is CanBusConfig, the check_target returns 3
-        mock_check_target.return_value = 3
-        can_bus_config = CanBusConfig(interface="virtual", channel=None, bitrate=None)
-        self.assertEqual(3, check_bootloader(can_bus_config))
+        mock_check_target.return_value = (3, BootloaderStatus(None, None, None))
+        _err, _out = io.StringIO(), io.StringIO()
+        with redirect_stderr(_err), redirect_stdout(_out):
+            can_bus_config = CanBusConfig(
+                interface="virtual", channel=None, bitrate=None
+            )
+            ret = check_bootloader(can_bus_config)
+        err, out = _err.getvalue(), _out.getvalue()
+
+        self.assertEqual(3, ret)
+        self.assertEqual(err, "Bootloader is not reachable.\n")
+        self.assertEqual(out, "Checking if the bootloader is online...\n")
 
         # Case 11: the input is CanBusConfig, the check_target returns 4
-        mock_check_target.return_value = 4
-        can_bus_config = CanBusConfig(interface="virtual", channel=None, bitrate=None)
-        self.assertEqual(4, check_bootloader(can_bus_config))
+        mock_check_target.return_value = (4, BootloaderStatus(None, None, None))
 
-        # Case 12: no binary file
-        mock_load.reset_mock()
-        mock_load.side_effect = FileNotFoundError
-        can_bus_config = CanBusConfig(interface="virtual", channel=None, bitrate=None)
-        self.assertEqual(5, check_bootloader(can_bus_config))
+        _err, _out = io.StringIO(), io.StringIO()
+        with redirect_stderr(_err), redirect_stdout(_out):
+            can_bus_config = CanBusConfig(
+                interface="virtual", channel=None, bitrate=None
+            )
+            ret = check_bootloader(can_bus_config)
+        err, out = _err.getvalue(), _out.getvalue()
 
-        # Case 13: can not initialize can
-        mock_load.reset_mock()
-        mock_load.side_effect = PcanError
-        can_bus_config = CanBusConfig(interface="virtual", channel=None, bitrate=None)
-        self.assertEqual(6, check_bootloader(can_bus_config))
+        self.assertEqual(4, ret)
+        self.assertEqual(err, "Unknown return value, something went wrong.\n")
+        self.assertEqual(out, "Checking if the bootloader is online...\n")
 
-        # Case 14: random other error
+        # Case 12: can not initialize can
         mock_load.reset_mock()
-        mock_load.side_effect = Exception
-        can_bus_config = CanBusConfig(interface="virtual", channel=None, bitrate=None)
-        self.assertEqual(7, check_bootloader(can_bus_config))
+        mock_load.side_effect = PcanCanInitializationError("Initialization error")
+
+        _err, _out = io.StringIO(), io.StringIO()
+        with redirect_stderr(_err), redirect_stdout(_out):
+            can_bus_config = CanBusConfig(
+                interface="virtual", channel=None, bitrate=None
+            )
+            ret = check_bootloader(can_bus_config)
+        err, out = _err.getvalue(), _out.getvalue()
+
+        self.assertEqual(5, ret)
+        self.assertEqual(
+            err, "Could not initialize CAN bus 'virtual:None':Initialization error\n"
+        )
+        self.assertEqual(out, "")
 
     @patch.object(json, "loads", return_value=PROGRAM)
     @patch.object(click, "echo")
@@ -265,116 +383,170 @@ class TestBootloaderImpl(unittest.TestCase):
         mock_check_bootloader.return_value = 1
         mock_run_app.return_value = True
         with patch("can.interfaces.pcan.PcanBus"):
-            self.assertEqual(1, run_app(can_bus_config))
+            _err, _out = io.StringIO(), io.StringIO()
+            with redirect_stderr(_err), redirect_stdout(_out):
+                ret = run_app(bus_cfg=can_bus_config)
+        err, out = _err.getvalue(), _out.getvalue()
+
+        self.assertEqual(1, ret)
+        self.assertEqual(err, "")
+        self.assertEqual(out, "")
 
         # Case 2: run app fails
         mock_check_bootloader.return_value = 0
         mock_run_app.return_value = False
         with patch("can.interfaces.pcan.PcanBus"):
-            self.assertEqual(2, run_app(can_bus_config))
+            _err, _out = io.StringIO(), io.StringIO()
+            with redirect_stderr(_err), redirect_stdout(_out):
+                ret = run_app(bus_cfg=can_bus_config)
+        err, out = _err.getvalue(), _out.getvalue()
+
+        self.assertEqual(2, ret)
+        self.assertEqual(err, "Starting the application not successfully.\n")
+        self.assertEqual(out, "Starting the application...\n")
 
         # Case 3: run app successfully
         mock_check_bootloader.return_value = 0
         mock_run_app.return_value = True
         with patch("can.interfaces.pcan.PcanBus"):
-            self.assertEqual(0, run_app(can_bus_config))
+            _err, _out = io.StringIO(), io.StringIO()
+            with redirect_stderr(_err), redirect_stdout(_out):
+                ret = run_app(bus_cfg=can_bus_config)
+        err, out = _err.getvalue(), _out.getvalue()
 
-        # Case 4: no binary file
+        self.assertEqual(0, ret)
+        self.assertEqual(err, "")
+        self.assertEqual(out, "Starting the application...\nApplication is running.\n")
+
+        # Case 4: can not initialize can
         mock_load.reset_mock()
-        mock_load.side_effect = FileNotFoundError
+        mock_load.side_effect = PcanCanInitializationError
         mock_check_bootloader.return_value = 0
         mock_run_app.return_value = True
         with patch("can.interfaces.pcan.PcanBus"):
-            self.assertEqual(3, run_app(can_bus_config))
+            _err, _out = io.StringIO(), io.StringIO()
+            with redirect_stderr(_err), redirect_stdout(_out):
+                ret = run_app(bus_cfg=can_bus_config)
+        err, out = _err.getvalue(), _out.getvalue()
 
-        # Case 5: can not initialize can
-        mock_load.reset_mock()
-        mock_load.side_effect = PcanError
-        mock_check_bootloader.return_value = 0
-        mock_run_app.return_value = True
-        with patch("can.interfaces.pcan.PcanBus"):
-            self.assertEqual(4, run_app(can_bus_config))
-
-        # Case 6: random other error
-        mock_load.reset_mock()
-        mock_load.side_effect = Exception
-        with patch("can.interfaces.pcan.PcanBus"):
-            self.assertEqual(5, run_app(can_bus_config))
+        self.assertEqual(5, ret)
+        self.assertEqual(err, "Could not initialize CAN bus 'virtual:None':\n")
+        self.assertEqual(out, "")
 
     @patch.object(json, "loads", return_value=PROGRAM)
-    @patch.object(click, "echo")
     @patch.object(Bootloader, "check_target")
     @patch.object(Bootloader, "reset_bootloader")
     def test_reset_bootloader(  # pylint: disable=too-many-arguments
         self,
         mock_reset_bootloader,
         mock_check_target,
-        mock_echo,
         mock_load,
         *_,
     ):
         """Function to test function run_app()."""
-        mock_echo.return_value = None
         can_bus_config = CanBusConfig(interface="virtual", channel=None, bitrate=None)
 
         # Case 1: bootloader is online, everything goes well
-        mock_check_target.return_value = 0
+        mock_check_target.return_value = (
+            0,
+            ("CanFsmStateNoCommunication", "BootFsmStateWait", 0),
+        )
         mock_reset_bootloader.return_value = True
         with patch("can.interfaces.pcan.PcanBus"):
-            self.assertEqual(0, reset_bootloader(can_bus_config, timeout=0.01))
+            _err, _out = io.StringIO(), io.StringIO()
+            with redirect_stderr(_err), redirect_stdout(_out):
+                ret = reset_bootloader(bus_cfg=can_bus_config, timeout=0.01)
+        err, out = _err.getvalue(), _out.getvalue()
+
+        self.assertEqual(0, ret)
+        self.assertEqual(err, "")
+        self.assertEqual(
+            out,
+            "Bootloader is online.\n"
+            "Resetting bootloader...\n"
+            "Successfully resetted bootloader.\n",
+        )
 
         # Case 2: the information of bootloader has not been fully received
-        mock_check_target.return_value = 1
+        mock_check_target.return_value = (
+            1,
+            ("CanFsmStateNoCommunication", "BootFsmStateWait", None),
+        )
         with patch("can.interfaces.pcan.PcanBus"):
-            self.assertEqual(5, reset_bootloader(can_bus_config, timeout=0.01))
+            _err, _out = io.StringIO(), io.StringIO()
+            with redirect_stderr(_err), redirect_stdout(_out):
+                ret = reset_bootloader(bus_cfg=can_bus_config, timeout=0.01)
+        err, out = _err.getvalue(), _out.getvalue()
+
+        self.assertEqual(5, ret)
+        self.assertEqual(err, "Timeout, abort.\n")
+        self.assertEqual(out, "")
 
         # Case 3: foxBMS application is running
-        mock_check_target.return_value = 2
+        mock_check_target.return_value = (2, BootloaderStatus(None, None, None))
         with patch("can.interfaces.pcan.PcanBus"):
-            self.assertEqual(2, reset_bootloader(can_bus_config, timeout=0.01))
+            _err, _out = io.StringIO(), io.StringIO()
+            with redirect_stderr(_err), redirect_stdout(_out):
+                ret = reset_bootloader(bus_cfg=can_bus_config, timeout=0.01)
+        err, out = _err.getvalue(), _out.getvalue()
+
+        self.assertEqual(2, ret)
+        self.assertEqual(err, "")
+        self.assertEqual(out, "The foxBMS 2 application is running, aborting.\n")
 
         # Case 4: not registered return value from check_target()
-        mock_check_target.return_value = 4
+        mock_check_target.return_value = (4, BootloaderStatus(None, None, None))
         with patch("can.interfaces.pcan.PcanBus"):
-            self.assertEqual(3, reset_bootloader(can_bus_config, timeout=0.01))
+            _err, _out = io.StringIO(), io.StringIO()
+            with redirect_stderr(_err), redirect_stdout(_out):
+                ret = reset_bootloader(bus_cfg=can_bus_config, timeout=0.01)
+        err, out = _err.getvalue(), _out.getvalue()
+
+        self.assertEqual(3, ret)
+        self.assertEqual(err, "Unknown check value, aborting.\n")
+        self.assertEqual(out, "")
 
         # Case 5: load app not successfully
-        mock_check_target.return_value = 0
+        mock_check_target.return_value = (
+            0,
+            ("CanFsmStateNoCommunication", "BootFsmStateWait", 0),
+        )
         mock_reset_bootloader.return_value = False
         with patch("can.interfaces.pcan.PcanBus"):
-            self.assertEqual(4, reset_bootloader(can_bus_config, timeout=0.01))
+            _err, _out = io.StringIO(), io.StringIO()
+            with redirect_stderr(_err), redirect_stdout(_out):
+                ret = reset_bootloader(bus_cfg=can_bus_config, timeout=0.01)
+        err, out = _err.getvalue(), _out.getvalue()
+
+        self.assertEqual(4, ret)
+        self.assertEqual(err, "Resetting bootloader was not successful.\n")
+        self.assertEqual(out, "Bootloader is online.\nResetting bootloader...\n")
 
         # Case 6: timeout
-        mock_check_target.return_value = 3
+        mock_check_target.return_value = (3, BootloaderStatus(None, None, None))
 
-        # Case 7: no binary file
+        # Case 7: can not initialize can
         mock_load.reset_mock()
-        mock_load.side_effect = FileNotFoundError
+        mock_load.side_effect = PcanCanInitializationError("foo")
         with patch("can.interfaces.pcan.PcanBus"):
-            self.assertEqual(6, reset_bootloader(can_bus_config, timeout=0.01))
+            _err, _out = io.StringIO(), io.StringIO()
+            with redirect_stderr(_err), redirect_stdout(_out):
+                ret = reset_bootloader(bus_cfg=can_bus_config, timeout=0.01)
+        err, out = _err.getvalue(), _out.getvalue()
 
-        # Case 8: can not initialize can
-        mock_load.reset_mock()
-        mock_load.side_effect = PcanError
-        with patch("can.interfaces.pcan.PcanBus"):
-            self.assertEqual(7, reset_bootloader(can_bus_config, timeout=0.01))
-
-        # Case 9: random other error
-        mock_load.reset_mock()
-        mock_load.side_effect = Exception
-        with patch("can.interfaces.pcan.PcanBus"):
-            self.assertEqual(8, reset_bootloader(can_bus_config, timeout=0.01))
+        self.assertEqual(5, ret)
+        self.assertEqual(err, "Could not initialize CAN bus 'virtual:None':foo\n")
+        self.assertEqual(out, "")
 
     @patch.object(json, "loads", return_value=PROGRAM)
     @patch.object(click, "progressbar")
-    @patch.object(click, "echo")
     @patch.object(Bootloader, "check_target")
     @patch.object(Bootloader, "send_app_binary")
-    def test_load_app(  # pylint: disable=too-many-positional-arguments,too-many-arguments
+    # pylint: disable-next=too-many-positional-arguments,too-many-arguments,too-many-statements
+    def test_load_app(
         self,
         mock_send_app_binary,
         mock_check_target,
-        mock_echo,
         mock_progressbar,
         mock_load,
         *_,
@@ -383,70 +555,762 @@ class TestBootloaderImpl(unittest.TestCase):
 
         mock_progressbar.return_value.__enter__.return_value = MagicMock()
 
-        mock_echo.return_value = None
         can_bus_config = CanBusConfig(interface="virtual", channel=None, bitrate=None)
 
         # Case 1: bootloader is online, everything goes well
-        mock_check_target.return_value = 0
+        mock_check_target.return_value = (
+            0,
+            ("CanFsmStateNoCommunication", "BootFsmStateWait", 0),
+        )
         mock_send_app_binary.return_value = True
         with patch("can.interfaces.pcan.PcanBus"):
-            self.assertEqual(0, load_app(can_bus_config, timeout=0.01))
+            _err, _out = io.StringIO(), io.StringIO()
+            with redirect_stderr(_err), redirect_stdout(_out):
+                ret = load_app(bus_cfg=can_bus_config, timeout=0.01)
+        err, out = _err.getvalue(), _out.getvalue()
+
+        self.assertEqual(0, ret)
+        self.assertEqual(err, "")
+        self.assertEqual(
+            out,
+            "Bootloader is online.\n"
+            "Uploading application to target...\n"
+            "Successfully uploaded the application binary to the target, "
+            "starting the foxBMS application!\n",
+        )
 
         # Case 2: bootloader is online, everything goes well, the input binary data is none
-        mock_check_target.return_value = 0
+        mock_check_target.return_value = (
+            0,
+            ("CanFsmStateNoCommunication", "BootFsmStateWait", 0),
+        )
         mock_send_app_binary.return_value = True
         with patch("can.interfaces.pcan.PcanBus"):
-            self.assertEqual(0, load_app(can_bus_config, timeout=0.01))
+            _err, _out = io.StringIO(), io.StringIO()
+            with redirect_stderr(_err), redirect_stdout(_out):
+                ret = load_app(bus_cfg=can_bus_config, timeout=0.01)
+        err, out = _err.getvalue(), _out.getvalue()
 
-        # Case 3: bootloader is online, everything goes well, using FOXBMS
-        mock_check_target.return_value = 0
+        self.assertEqual(0, ret)
+        self.assertEqual(err, "")
+        self.assertEqual(
+            out,
+            "Bootloader is online.\n"
+            "Uploading application to target...\n"
+            "Successfully uploaded the application binary to the target, "
+            "starting the foxBMS application!\n",
+        )
+
+        # Case 3: bootloader is online, everything goes well, using foxBMS
+        mock_check_target.return_value = (
+            0,
+            ("CanFsmStateNoCommunication", "BootFsmStateWait", 0),
+        )
         mock_send_app_binary.return_value = True
         with patch("can.interfaces.pcan.PcanBus"):
-            self.assertEqual(0, load_app(can_bus_config, timeout=0.01))
+            _err, _out = io.StringIO(), io.StringIO()
+            with redirect_stderr(_err), redirect_stdout(_out):
+                ret = load_app(bus_cfg=can_bus_config, timeout=0.01)
+        err, out = _err.getvalue(), _out.getvalue()
+
+        self.assertEqual(0, ret)
+        self.assertEqual(err, "")
+        self.assertEqual(
+            out,
+            "Bootloader is online.\n"
+            "Uploading application to target...\n"
+            "Successfully uploaded the application binary to the target, "
+            "starting the foxBMS application!\n",
+        )
 
         # Case 4: the information of bootloader has not been fully received
-        mock_check_target.return_value = 1
+        mock_check_target.return_value = (
+            1,
+            ("CanFsmStateNoCommunication", "BootFsmStateWait", None),
+        )
         with patch("can.interfaces.pcan.PcanBus"):
-            self.assertEqual(5, load_app(can_bus_config, timeout=0.01))
+            _err, _out = io.StringIO(), io.StringIO()
+            with redirect_stderr(_err), redirect_stdout(_out):
+                ret = load_app(bus_cfg=can_bus_config, timeout=0.01)
+        err, out = _err.getvalue(), _out.getvalue()
+
+        self.assertEqual(5, ret)
+        self.assertEqual(err, "Timeout, abort.\n")
+        self.assertEqual(out, "")
 
         # Case 5: foxBMS application is running
-        mock_check_target.return_value = 2
+        mock_check_target.return_value = (2, BootloaderStatus(None, None, None))
         with patch("can.interfaces.pcan.PcanBus"):
-            self.assertEqual(2, load_app(can_bus_config, timeout=0.01))
+            _err, _out = io.StringIO(), io.StringIO()
+            with redirect_stderr(_err), redirect_stdout(_out):
+                ret = load_app(bus_cfg=can_bus_config, timeout=0.01)
+        err, out = _err.getvalue(), _out.getvalue()
+
+        self.assertEqual(2, ret)
+        self.assertEqual(err, "")
+        self.assertEqual(out, "The foxBMS 2 application is running, aborting.\n")
 
         # Case 6: not registered return value from check_target()
-        mock_check_target.return_value = 4
+        mock_check_target.return_value = (4, BootloaderStatus(None, None, None))
         with patch("can.interfaces.pcan.PcanBus"):
-            self.assertEqual(3, load_app(can_bus_config, timeout=0.01))
+            _err, _out = io.StringIO(), io.StringIO()
+            with redirect_stderr(_err), redirect_stdout(_out):
+                ret = load_app(bus_cfg=can_bus_config, timeout=0.01)
+        err, out = _err.getvalue(), _out.getvalue()
+
+        self.assertEqual(3, ret)
+        self.assertEqual(err, "Unknown check value, aborting.\n")
+        self.assertEqual(out, "")
 
         # Case 7: reset_bootloader not successfully
-        mock_check_target.return_value = 0
+        mock_check_target.return_value = (
+            0,
+            ("CanFsmStateNoCommunication", "BootFsmStateWait", 0),
+        )
         mock_send_app_binary.return_value = False
         with patch("can.interfaces.pcan.PcanBus"):
-            self.assertEqual(4, load_app(can_bus_config, timeout=0.01))
+            _err, _out = io.StringIO(), io.StringIO()
+            with redirect_stderr(_err), redirect_stdout(_out):
+                ret = load_app(bus_cfg=can_bus_config, timeout=0.01)
+        err, out = _err.getvalue(), _out.getvalue()
+
+        self.assertEqual(4, ret)
+        self.assertEqual(
+            err,
+            "Sending the application binary to the bootloader was not successful.\n",
+        )
+        self.assertEqual(
+            out, "Bootloader is online.\nUploading application to target...\n"
+        )
 
         # Case 8: timeout
-        mock_check_target.return_value = 3
+        mock_check_target.return_value = (
+            1,
+            ("CanFsmStateNoCommunication", "BootFsmStateWait", None),
+        )
         with patch("can.interfaces.pcan.PcanBus"):
-            self.assertEqual(5, load_app(can_bus_config, timeout=0.01))
+            _err, _out = io.StringIO(), io.StringIO()
+            with redirect_stderr(_err), redirect_stdout(_out):
+                ret = load_app(bus_cfg=can_bus_config, timeout=0.01)
+        self.assertEqual(5, ret)
+        self.assertEqual(
+            err,
+            "Sending the application binary to the bootloader was not successful.\n",
+        )
+        self.assertEqual(
+            out, "Bootloader is online.\nUploading application to target...\n"
+        )
 
-        # Case 9: no binary file
+        # Case 9: can not initialize can
         mock_load.reset_mock()
-        mock_load.side_effect = FileNotFoundError
+        mock_load.side_effect = PcanCanInitializationError
         with patch("can.interfaces.pcan.PcanBus"):
-            self.assertEqual(6, load_app(can_bus_config, timeout=0.01))
+            _err, _out = io.StringIO(), io.StringIO()
+            with redirect_stderr(_err), redirect_stdout(_out):
+                ret = load_app(bus_cfg=can_bus_config, timeout=0.01)
+        err, out = _err.getvalue(), _out.getvalue()
 
-        # Case 10: can not initialize can
-        mock_load.reset_mock()
-        mock_load.side_effect = PcanError
-        with patch("can.interfaces.pcan.PcanBus"):
-            self.assertEqual(7, load_app(can_bus_config, timeout=0.01))
+        self.assertEqual(5, ret)
+        self.assertEqual(err, "Could not initialize CAN bus 'virtual:None':\n")
+        self.assertEqual(out, "")
 
-        # Case 11: random other error
-        mock_load.reset_mock()
-        mock_load.side_effect = Exception
-        with patch("can.interfaces.pcan.PcanBus"):
-            self.assertEqual(8, load_app(can_bus_config, timeout=0.01))
+
+@patch("cli.cmd_bootloader.bootloader_impl.BootloaderInterfaceCan")
+@patch("cli.cmd_bootloader.bootloader_impl.Bootloader")
+class TestBootloaderImpl_InstantiateBootloader(unittest.TestCase):  # pylint:disable=invalid-name
+    """Test '_instantiate_bootloader' function"""
+
+    def test(self, _: MagicMock, bic: MagicMock):
+        """Call function under test"""
+        bus = MagicMock()
+        ret = _instantiate_bootloader(bus)  # type:ignore
+        self.assertIn("Bootloader()", str(ret))
+        bic.assert_called_once_with(can_bus=bus)
+
+
+@patch("cli.cmd_bootloader.bootloader_impl.Bootloader")
+@patch("cli.cmd_bootloader.bootloader_impl.time")
+class TestBootloaderImpl_CheckBootloaderStatus(unittest.TestCase):  # pylint:disable=invalid-name
+    """Test '_check_bootloader_status' function"""
+
+    def test_timeout(self, t: MagicMock, *_: MagicMock):
+        """Timeout when checking the bootloader status"""
+        t.time.side_effect = [0.0, 21.0]
+
+        _err, _out = io.StringIO(), io.StringIO()
+        with redirect_stderr(_err), redirect_stdout(_out):
+            ret = _check_bootloader_status(None)  # type:ignore
+        err, out = _err.getvalue(), _out.getvalue()
+
+        self.assertEqual((5, BootloaderStatus(None, None, None)), ret)
+        self.assertEqual(err, "Timeout, abort.\n")
+        self.assertEqual(out, "")
+
+    def test_bootloader_online(self, t: MagicMock, bl: MagicMock):
+        """Bootloader is online"""
+        t.time.side_effect = [0.0, 1.0]
+        bl.check_target.return_value = (
+            0,
+            BootloaderStatus("CanFsmStateNoCommunication", "BootFsmStateWait", 0),
+        )
+        _err, _out = io.StringIO(), io.StringIO()
+        with redirect_stderr(_err), redirect_stdout(_out):
+            ret = _check_bootloader_status(bl)
+
+        err, out = _err.getvalue(), _out.getvalue()
+
+        self.assertEqual(
+            (0, BootloaderStatus("CanFsmStateNoCommunication", "BootFsmStateWait", 0)),
+            ret,
+        )
+        self.assertEqual(err, "")
+        self.assertEqual(out, "Bootloader is online.\n")
+
+    def test_bootloader_wait_for_power_on(self, t: MagicMock, bl: MagicMock):
+        """Bootloader is not attached, wait for it to be powered on."""
+        t.time.side_effect = [0.0, 1.0, 2.0, 21.0]
+        bl.check_target.return_value = (
+            3,
+            BootloaderStatus(None, None, None),
+        )
+        _err, _out = io.StringIO(), io.StringIO()
+        with redirect_stderr(_err), redirect_stdout(_out):
+            ret = _check_bootloader_status(bl)
+
+        err, out = _err.getvalue(), _out.getvalue()
+
+        self.assertEqual((5, BootloaderStatus(None, None, None)), ret)
+        self.assertEqual(err, "Timeout, abort.\n")
+        self.assertEqual(out, "Waiting for the bootloader to be powered on...\n")
+
+    def test_bootloader_app_running(self, t: MagicMock, bl: MagicMock):
+        """Bootloader is online"""
+        t.time.side_effect = [0.0, 1.0]
+        bl.check_target.return_value = (2, BootloaderStatus(None, None, None))
+        _err, _out = io.StringIO(), io.StringIO()
+        with redirect_stderr(_err), redirect_stdout(_out):
+            ret = _check_bootloader_status(bl)
+        err, out = _err.getvalue(), _out.getvalue()
+
+        self.assertEqual((2, BootloaderStatus(None, None, None)), ret)
+        self.assertEqual(err, "")
+        self.assertEqual(out, "The foxBMS 2 application is running, aborting.\n")
+
+    def test_bootloader_unknown_state(self, t: MagicMock, bl: MagicMock):
+        """Unknown bootloader state"""
+        t.time.side_effect = [0.0, 1.0]
+        bl.check_target.return_value = (99, BootloaderStatus(None, None, None))
+        _err, _out = io.StringIO(), io.StringIO()
+        with redirect_stderr(_err), redirect_stdout(_out):
+            ret = _check_bootloader_status(bl)
+        err, out = _err.getvalue(), _out.getvalue()
+
+        self.assertEqual((3, BootloaderStatus(None, None, None)), ret)
+        self.assertEqual(err, "Unknown check value, aborting.\n")
+        self.assertEqual(out, "")
+
+    def test_bootloader_multi_check(self, t: MagicMock, bl: MagicMock):
+        """Need a few tries"""
+        t.time.side_effect = [0.0, 1.0, 2.0, 3.0, 4.0, 21]
+        bl.check_target.return_value = (
+            1,
+            BootloaderStatus("CanFsmStateNoCommunication", "BootFsmStateWait", None),
+        )
+
+        _err, _out = io.StringIO(), io.StringIO()
+        with redirect_stderr(_err), redirect_stdout(_out):
+            ret = _check_bootloader_status(bl)
+        err, out = _err.getvalue(), _out.getvalue()
+
+        self.assertEqual(
+            (
+                5,
+                BootloaderStatus(
+                    "CanFsmStateNoCommunication", "BootFsmStateWait", None
+                ),
+            ),
+            ret,
+        )
+        self.assertEqual(err, "Timeout, abort.\n")
+        self.assertEqual(out, "")
+
+
+@patch("cli.cmd_bootloader.bootloader_impl.Bootloader")
+class TestBootloaderImpl_CheckBootloader(unittest.TestCase):  # pylint:disable=invalid-name
+    """Testing '_check_bootloader' function."""
+
+    def test__check_bootloader_ok(self, mock_bl: MagicMock):
+        """Bootloader is running"""
+        mock_bl.check_target.return_value = (
+            0,
+            BootloaderStatus("CanFsmStateNoCommunication", "BootFsmStateWait", 0),
+        )
+
+        _err, _out = io.StringIO(), io.StringIO()
+        with redirect_stderr(_err), redirect_stdout(_out):
+            ret = _check_bootloader(mock_bl)
+        err, out = _err.getvalue(), _out.getvalue()
+
+        self.assertEqual(0, ret)
+        self.assertEqual(err, "")
+        self.assertEqual(
+            out,
+            "Checking if the bootloader is online...\nBootloader is running.\n",
+        )
+
+    def test__check_bootloader_bl_runs_but_undefined_error(self, mock_bl: MagicMock):
+        """Bootloader is running, but something undefined is wrong."""
+        mock_bl.check_target.return_value = (
+            1,
+            ("CanFsmStateNoCommunication", "BootFsmStateWait", None),
+        )
+
+        _err, _out = io.StringIO(), io.StringIO()
+        with redirect_stderr(_err), redirect_stdout(_out):
+            ret = _check_bootloader(mock_bl)
+        err, out = _err.getvalue(), _out.getvalue()
+
+        self.assertEqual(1, ret)
+        self.assertEqual(
+            err, "Bootloader is running, but some information is missing.\n"
+        )
+        self.assertEqual(out, "Checking if the bootloader is online...\n")
+
+    def test__check_bootloader_app_running(self, mock_bl: MagicMock):
+        """Application is running"""
+        mock_bl.check_target.return_value = (2, BootloaderStatus(None, None, None))
+
+        _err, _out = io.StringIO(), io.StringIO()
+        with redirect_stderr(_err), redirect_stdout(_out):
+            ret = _check_bootloader(mock_bl)
+        err, out = _err.getvalue(), _out.getvalue()
+
+        self.assertEqual(2, ret)
+        self.assertEqual(err, "")
+        self.assertEqual(
+            out,
+            "Checking if the bootloader is online...\n"
+            "foxBMS 2 application is running.\n",
+        )
+
+    def test__check_bootloader_not_reachable(self, mock_bl: MagicMock):
+        """Bootloader is not reachable"""
+        mock_bl.check_target.return_value = (3, BootloaderStatus(None, None, None))
+
+        _err, _out = io.StringIO(), io.StringIO()
+        with redirect_stderr(_err), redirect_stdout(_out):
+            ret = _check_bootloader(mock_bl)
+        err, out = _err.getvalue(), _out.getvalue()
+
+        self.assertEqual(3, ret)
+        self.assertEqual(err, "Bootloader is not reachable.\n")
+        self.assertEqual(out, "Checking if the bootloader is online...\n")
+
+    def test__check_bootloader_undefined_error(self, mock_bl: MagicMock):
+        """Check unknown return value behavior"""
+        mock_bl.check_target.return_value = (12, BootloaderStatus(None, None, None))
+
+        _err, _out = io.StringIO(), io.StringIO()
+
+        with redirect_stderr(_err), redirect_stdout(_out):
+            ret = _check_bootloader(mock_bl)
+        err, out = _err.getvalue(), _out.getvalue()
+
+        self.assertEqual(12, ret)
+        self.assertEqual(err, "Unknown return value, something went wrong.\n")
+        self.assertEqual(out, "Checking if the bootloader is online...\n")
+
+
+@patch("cli.cmd_bootloader.bootloader_impl._check_bootloader")
+class TestBootloaderImplCheckBootloader(unittest.TestCase):
+    """Testing 'check_bootloader' function."""
+
+    def test_check_bootloader_bootloader_object(self, mock_cb: MagicMock):
+        """Check case a Bootloader object is passed as argument."""
+        mock_cb.return_value = 1
+        mock_bl = create_autospec(Bootloader)
+        ret = check_bootloader(mock_bl)
+        self.assertEqual(1, ret)
+
+    @patch("cli.cmd_bootloader.bootloader_impl.asdict", return_value={})
+    @patch("cli.cmd_bootloader.bootloader_impl.can.Bus")
+    @patch("cli.cmd_bootloader.bootloader_impl._instantiate_bootloader")
+    def test_check_bootloader_can_bus_config_object(
+        self,
+        _instantiate_bootloader: MagicMock,
+        bus: MagicMock,
+        _: MagicMock,
+        _check_bootloader: MagicMock,
+    ):
+        """Check case a CanBusConfig object is passed as argument."""
+        _check_bootloader.return_value = 1
+        bus.return_value.__enter__.return_value = MagicMock()
+        _instantiate_bootloader.return_value = MagicMock()
+        tmp = create_autospec(CanBusConfig)
+        ret = check_bootloader(tmp)
+        self.assertEqual(1, ret)
+
+    def test_check_bootloader_invalid_object(self, *_: tuple[MagicMock]):
+        """Invalid bootloader configuration."""
+        _err, _out = io.StringIO(), io.StringIO()
+        with redirect_stderr(_err), redirect_stdout(_out):
+            ret = check_bootloader(None)  # type: ignore
+        err, out = _err.getvalue(), _out.getvalue()
+        self.assertEqual(99, ret)
+        self.assertEqual(err, "Invalid bootloader configuration.\n")
+        self.assertEqual(out, "")
+
+
+@patch("cli.cmd_bootloader.bootloader_impl.asdict", return_value={})
+@patch("cli.cmd_bootloader.bootloader_impl.can.Bus")
+@patch("cli.cmd_bootloader.bootloader_impl._instantiate_bootloader")
+@patch("cli.cmd_bootloader.bootloader_impl.check_bootloader")
+class TestBootloaderImplRunApp(unittest.TestCase):
+    """Testing 'run_app' function."""
+
+    def test__check_bootloader_check_fails(
+        self,
+        m_check_bootloader: MagicMock,
+        _instantiate_bootloader: MagicMock,
+        bus: MagicMock,
+        _: MagicMock,
+    ):
+        """Run of the app fails."""
+        bus.return_value.__enter__.return_value = MagicMock()
+        mock_bl = MagicMock()
+        mock_bl.run_app.return_value = False
+        _instantiate_bootloader.return_value = mock_bl
+
+        m_check_bootloader.return_value = 1
+
+        _err, _out = io.StringIO(), io.StringIO()
+        with redirect_stderr(_err), redirect_stdout(_out):
+            ret = run_app(bus_cfg=MagicMock())
+        err, out = _err.getvalue(), _out.getvalue()
+
+        self.assertEqual(1, ret)
+        self.assertEqual(err, "")
+        self.assertEqual(out, "")
+        bus.assert_called_once_with()
+        _instantiate_bootloader.assert_called_once()
+        m_check_bootloader.assert_called_once()
+        mock_bl.run_app.assert_not_called()  # pylint: disable=no-member
+
+    def test__check_bootloader_app_successfully_started(
+        self,
+        m_check_bootloader: MagicMock,
+        _instantiate_bootloader: MagicMock,
+        bus: MagicMock,
+        _: MagicMock,
+    ):
+        """Start of the application is successful."""
+        bus.return_value.__enter__.return_value = MagicMock()
+        mock_bl = MagicMock()
+        mock_bl.run_app.return_value = True
+        _instantiate_bootloader.return_value = mock_bl
+
+        m_check_bootloader.return_value = 0
+
+        _err, _out = io.StringIO(), io.StringIO()
+        with redirect_stderr(_err), redirect_stdout(_out):
+            ret = run_app(bus_cfg=MagicMock())
+        err, out = _err.getvalue(), _out.getvalue()
+
+        self.assertEqual(0, ret)
+        self.assertEqual(err, "")
+        self.assertEqual(out, "Starting the application...\nApplication is running.\n")
+        bus.assert_called_once_with()
+        _instantiate_bootloader.assert_called_once()
+        m_check_bootloader.assert_called_once()
+        mock_bl.run_app.assert_called_once()  # pylint: disable=no-member
+
+    def test__check_bootloader_app_not_started(
+        self,
+        m_check_bootloader: MagicMock,
+        _instantiate_bootloader: MagicMock,
+        bus: MagicMock,
+        _: MagicMock,
+    ):
+        """Start of the application is successful."""
+        bus.return_value.__enter__.return_value = MagicMock()
+        mock_bl = MagicMock()
+        mock_bl.run_app.return_value = False
+        _instantiate_bootloader.return_value = mock_bl
+
+        m_check_bootloader.return_value = 0
+
+        _err, _out = io.StringIO(), io.StringIO()
+        with redirect_stderr(_err), redirect_stdout(_out):
+            ret = run_app(bus_cfg=MagicMock())
+        err, out = _err.getvalue(), _out.getvalue()
+
+        self.assertEqual(2, ret)
+        self.assertEqual(err, "Starting the application not successfully.\n")
+        self.assertEqual(out, "Starting the application...\n")
+        bus.assert_called_once_with()
+        _instantiate_bootloader.assert_called_once()
+        m_check_bootloader.assert_called_once()
+        mock_bl.run_app.assert_called_once()  # pylint: disable=no-member
+
+
+@patch("cli.cmd_bootloader.bootloader_impl.asdict", return_value={})
+@patch("cli.cmd_bootloader.bootloader_impl.can.Bus")
+@patch("cli.cmd_bootloader.bootloader_impl._instantiate_bootloader")
+@patch("cli.cmd_bootloader.bootloader_impl._check_bootloader_status")
+class TestBootloaderImplResetBootloader(unittest.TestCase):
+    """Testing 'reset_bootloader' function."""
+
+    def test_reset_bootloader_check_unsuccessful(
+        self,
+        _check_bootloader_status: MagicMock,
+        _instantiate_bootloader: MagicMock,
+        bus: MagicMock,
+        _: MagicMock,
+    ):
+        """Status check of the bootloader fails"""
+        bus.return_value.__enter__.return_value = MagicMock()
+        _instantiate_bootloader.return_value = MagicMock()
+        _check_bootloader_status.return_value = (-1, BootloaderStatus(None, None, None))
+
+        _err, _out = io.StringIO(), io.StringIO()
+        with redirect_stderr(_err), redirect_stdout(_out):
+            ret = reset_bootloader(bus_cfg=MagicMock(), timeout=MagicMock())
+        err, out = _err.getvalue(), _out.getvalue()
+
+        self.assertEqual(-1, ret)
+        self.assertEqual(err, "")
+        self.assertEqual(out, "")
+        bus.assert_called_once_with()
+        _instantiate_bootloader.assert_called_once()
+        _check_bootloader_status.assert_called_once()
+
+    def test_reset_bootloader_reset_successful(
+        self,
+        _check_bootloader_status: MagicMock,
+        _instantiate_bootloader: MagicMock,
+        bus: MagicMock,
+        _: MagicMock,
+    ):
+        """Rest of the bootloader is successful."""
+        bus.return_value.__enter__.return_value = MagicMock()
+        mock_bl = MagicMock()
+        mock_bl.reset_bootloader.return_value = True
+        _instantiate_bootloader.return_value = mock_bl
+
+        _check_bootloader_status.return_value = (
+            0,
+            ("CanFsmStateNoCommunication", "BootFsmStateWait", 0),
+        )
+
+        _err, _out = io.StringIO(), io.StringIO()
+        with redirect_stderr(_err), redirect_stdout(_out):
+            ret = reset_bootloader(bus_cfg=MagicMock(), timeout=-1)
+        err, out = _err.getvalue(), _out.getvalue()
+
+        self.assertEqual(0, ret)
+        self.assertEqual(err, "")
+        self.assertEqual(
+            out, "Resetting bootloader...\nSuccessfully resetted bootloader.\n"
+        )
+        bus.assert_called_once_with()
+        _instantiate_bootloader.assert_called_once()
+        _check_bootloader_status.assert_called_once()
+        mock_bl.reset_bootloader.assert_called_once()  # pylint: disable=no-member
+
+    def test_reset_bootloader_reset_unsuccessful(
+        self,
+        _check_bootloader_status: MagicMock,
+        _instantiate_bootloader: MagicMock,
+        bus: MagicMock,
+        _: MagicMock,
+    ):
+        """Rest of the bootloader is successful."""
+        bus.return_value.__enter__.return_value = MagicMock()
+        mock_bl = MagicMock()
+        mock_bl.reset_bootloader.return_value = False
+        _instantiate_bootloader.return_value = mock_bl
+        _check_bootloader_status.return_value = (
+            0,
+            ("CanFsmStateNoCommunication", "BootFsmStateWait", 0),
+        )
+
+        _err, _out = io.StringIO(), io.StringIO()
+        with redirect_stderr(_err), redirect_stdout(_out):
+            ret = reset_bootloader(bus_cfg=MagicMock(), timeout=MagicMock())
+        err, out = _err.getvalue(), _out.getvalue()
+
+        self.assertEqual(4, ret)
+        self.assertEqual(err, "Resetting bootloader was not successful.\n")
+        self.assertEqual(out, "Resetting bootloader...\n")
+        bus.assert_called_once_with()
+        _instantiate_bootloader.assert_called_once()
+        _check_bootloader_status.assert_called_once()
+        mock_bl.reset_bootloader.assert_called_once()  # pylint: disable=no-member
+
+
+@patch("cli.cmd_bootloader.bootloader_impl.asdict", return_value={})
+@patch("cli.cmd_bootloader.bootloader_impl.can.Bus")
+@patch("cli.cmd_bootloader.bootloader_impl._instantiate_bootloader")
+@patch("cli.cmd_bootloader.bootloader_impl._check_bootloader_status")
+class TestBootloaderImplLoadApp(unittest.TestCase):
+    """Testing 'load_app' function."""
+
+    def test_bus_initialization_error_base_init_exception(
+        self, _1: MagicMock, _2: MagicMock, mock_can_bus: MagicMock, _3: MagicMock
+    ):
+        """Initialization of the provided CAN bus is not successful."""
+        mock_can_bus.return_value.__enter__.side_effect = CanInitializationError("foo")
+
+        mock_can_bus.interface = "foo"
+        mock_can_bus.channel = "bar"
+
+        _err, _out = io.StringIO(), io.StringIO()
+        with redirect_stderr(_err), redirect_stdout(_out):
+            ret = load_app(bus_cfg=MagicMock(), timeout=MagicMock())
+        err, out = _err.getvalue(), _out.getvalue()
+
+        self.assertEqual(ret, 5)
+        self.assertRegex(
+            err,
+            r"Could not initialize CAN bus '.*mock.interface.*:.*mock.channel'.*':foo",
+        )
+        self.assertEqual(out, "")
+
+    def test_bus_initialization_error_base_init_exception_library_missing(
+        self, _1: MagicMock, _2: MagicMock, mock_can_bus: MagicMock, _3: MagicMock
+    ):
+        """Initialization of the provided CAN bus is not successful."""
+        mock_can_bus.return_value.__enter__.side_effect = NameError("foo")
+
+        mock_can_bus.interface = "foo"
+        mock_can_bus.channel = "bar"
+
+        _err, _out = io.StringIO(), io.StringIO()
+        with redirect_stderr(_err), redirect_stdout(_out):
+            ret = load_app(bus_cfg=MagicMock(), timeout=MagicMock())
+        err, out = _err.getvalue(), _out.getvalue()
+
+        self.assertEqual(ret, 5)
+        self.assertRegex(
+            err,
+            r"Could not initialize CAN bus '.*mock.interface.*:.*mock.channel'.*':foo"
+            r"\nIs the Kvaser canlib is installed\?\n",
+        )
+        self.assertEqual(out, "")
+
+    def test_bus_initialization_error_vendor_specific_init_exception(
+        self, _1: MagicMock, _2: MagicMock, mock_can_bus: MagicMock, _3: MagicMock
+    ):
+        """Initialization of the provided CAN bus is not successful."""
+        mock_can_bus.return_value.__enter__.side_effect = PcanCanInitializationError(
+            "foo"
+        )
+        mock_can_bus.interface = "foo"
+        mock_can_bus.channel = "bar"
+
+        _err, _out = io.StringIO(), io.StringIO()
+        with redirect_stderr(_err), redirect_stdout(_out):
+            ret = load_app(bus_cfg=MagicMock(), timeout=MagicMock())
+        err, out = _err.getvalue(), _out.getvalue()
+
+        self.assertEqual(ret, 5)
+        self.assertRegex(
+            err,
+            r"Could not initialize CAN bus '.*mock.interface.*:.*mock.channel'.*':foo",
+        )
+        self.assertEqual(out, "")
+
+    def test_invalid_bootloader_status(
+        self,
+        _check_bootloader_status: MagicMock,
+        _instantiate_bootloader: MagicMock,
+        mock_can_bus: MagicMock,
+        _: MagicMock,
+    ):
+        """Catch invalid bootloader status."""
+        _instantiate_bootloader.return_value = MagicMock()
+        _check_bootloader_status.return_value = (-1, BootloaderStatus(None, None, None))
+        mock_can_bus.return_value.__enter__.return_value = MagicMock()
+
+        _err, _out = io.StringIO(), io.StringIO()
+        with redirect_stderr(_err), redirect_stdout(_out):
+            ret = load_app(bus_cfg=MagicMock(), timeout=MagicMock())
+        err, out = _err.getvalue(), _out.getvalue()
+        self.assertEqual(-1, ret)
+        self.assertEqual(err, "")
+        self.assertEqual(out, "")
+        mock_can_bus.assert_called_once_with()
+        _instantiate_bootloader.assert_called_once()
+        _check_bootloader_status.assert_called_once()
+
+    def test_upload_working(
+        self,
+        _check_bootloader_status: MagicMock,
+        _instantiate_bootloader: MagicMock,
+        mock_can_bus: MagicMock,
+        _: MagicMock,
+    ):
+        """Upload of the binary to the target works."""
+        _check_bootloader_status.return_value = (
+            0,
+            ("CanFsmStateNoCommunication", "BootFsmStateWait", 0),
+        )
+
+        mock_bl = MagicMock()
+        mock_bl.send_app_binary.return_value = True
+        _instantiate_bootloader.return_value = mock_bl
+        mock_can_bus.return_value.__enter__.return_value = MagicMock()
+
+        _err, _out = io.StringIO(), io.StringIO()
+        with redirect_stderr(_err), redirect_stdout(_out):
+            result = load_app(bus_cfg=MagicMock(), timeout=MagicMock())
+        err, out = _err.getvalue(), _out.getvalue()
+
+        self.assertEqual(result, 0)
+        self.assertEqual(err, "")
+        self.assertEqual(
+            out,
+            "Uploading application to target...\n"
+            "Successfully uploaded the application binary to the target, "
+            "starting the foxBMS application!\n",
+        )
+        mock_can_bus.assert_called_once_with()
+        _instantiate_bootloader.assert_called_once()
+        _check_bootloader_status.assert_called_once()
+        mock_bl.send_app_binary.assert_called_once()
+
+    def test_upload_not_working(
+        self,
+        _check_bootloader_status: MagicMock,
+        _instantiate_bootloader: MagicMock,
+        mock_can_bus: MagicMock,
+        _: MagicMock,
+    ):
+        """Upload of the binary to the target does not work."""
+        _check_bootloader_status.return_value = (
+            0,
+            ("CanFsmStateNoCommunication", "BootFsmStateWait", 0),
+        )
+        mock_bl = MagicMock()
+        mock_bl.send_app_binary.return_value = False
+        _instantiate_bootloader.return_value = mock_bl
+        mock_can_bus.return_value.__enter__.return_value = MagicMock()
+
+        _err, _out = io.StringIO(), io.StringIO()
+        with redirect_stderr(_err), redirect_stdout(_out):
+            result = load_app(bus_cfg=MagicMock(), timeout=MagicMock())
+        err, out = _err.getvalue(), _out.getvalue()
+
+        self.assertEqual(result, 4)
+        self.assertEqual(
+            err,
+            "Sending the application binary to the bootloader was not successful.\n",
+        )
+        self.assertEqual(out, "Uploading application to target...\n")
+        mock_can_bus.assert_called_once_with()
+        _instantiate_bootloader.assert_called_once()
+        _check_bootloader_status.assert_called_once()
+        mock_bl.send_app_binary.assert_called_once()
 
 
 if __name__ == "__main__":

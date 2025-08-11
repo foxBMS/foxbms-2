@@ -142,6 +142,8 @@
       - UNITY_UNIT_TEST
       - FAS_ASSERT_LEVEL=2
       - UNITY_INCLUDE_EXEC_TIME
+    :/test_can_can_message_notification.c:
+      - COMPILE_FOR_UNIT_TEST=1
     :/test_boot_helper.c/:
       - UNITY_UNIT_TEST_BOOT_HELPER
     :/test_fstartup.c:
@@ -281,7 +283,7 @@
   :placement: :end
   :flag: "-l${1}"
   :path_flag: "-L ${1}"
-  :system: [] # for example, you might list 'm' to grab the math library
+  :system: [m] # for example, you might list 'm' to grab the math library
   :test: []
   :release: []
 
@@ -320,7 +322,7 @@
     # - XmlSummary
   :gcovr:
     :report_root: "../../"
-    :report_exclude: ".*vendor.*|.*/build.*|.*test.*|.*tests.*|.*lib.*|.*Test.*|.*src.hal.*"
+    :report_exclude: ".*vendor.*|.*/build.*|.*test.*|.*tests.*|.*lib.*|.*Test.*|.*src.hal.*|.*src.app.*"
     :exclude_directories: ".*tests.*|.*/build.*"
     :sort_percentage: TRUE
     :sort_uncovered: FALSE

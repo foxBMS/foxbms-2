@@ -1,0 +1,7 @@
+...
+{"Timestamp": 1212239.057110,...,"0x35C_IVT0_Result_I_mA":-2309}
+{"Timestamp": 1212239.077085,...,"0x35C_IVT0_Result_I_mA":-2301}
+{"Timestamp": 1212239.097439,...,"0x35C_IVT0_Result_I_mA":-2327}
+{"Timestamp": 1212239.117353,...,"0x35C_IVT0_Result_I_mA":-2328}
+{"Timestamp": 1212239.137263,...,"0x35C_IVT0_Result_I_mA":-2352}
+...

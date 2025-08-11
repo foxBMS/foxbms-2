@@ -43,8 +43,8 @@
  * @file    adi_ades183x_helpers.c
  * @author  foxBMS Team
  * @date    2022-12-06 (date of creation)
- * @updated 2025-03-31 (date of last update)
- * @version v1.9.0
+ * @updated 2025-08-07 (date of last update)
+ * @version v1.10.0
  * @ingroup DRIVERS
  * @prefix  ADI
  *
@@ -236,7 +236,7 @@ extern STD_RETURN_TYPE_e ADI_StoredConfigurationWriteToAfe(ADI_CFG_REGISTER_SET_
             adi_configurationRegisterAgroup[adiState->currentString],
             ADI_PEC_NO_FAULT_INJECTION,
             adiState);
-        ADI_CopyCommandBits(adi_cmdRdcfga, adi_command);
+        ADI_CopyCommandBytes(adi_cmdRdcfga, adi_command);
         ADI_ReadRegister(adi_command, adi_readConfigurationRegisterAgroup[adiState->currentString], adiState);
         returnValueA = ADI_CheckConfigurationRegister(ADI_CFG_REGISTER_SET_A, adiState);
     } else if (registerSet == ADI_CFG_REGISTER_SET_B) {
@@ -245,7 +245,7 @@ extern STD_RETURN_TYPE_e ADI_StoredConfigurationWriteToAfe(ADI_CFG_REGISTER_SET_
             adi_configurationRegisterBgroup[adiState->currentString],
             ADI_PEC_NO_FAULT_INJECTION,
             adiState);
-        ADI_CopyCommandBits(adi_cmdRdcfgb, adi_command);
+        ADI_CopyCommandBytes(adi_cmdRdcfgb, adi_command);
         ADI_ReadRegister(adi_command, adi_readConfigurationRegisterBgroup[adiState->currentString], adiState);
         returnValueB = ADI_CheckConfigurationRegister(ADI_CFG_REGISTER_SET_B, adiState);
     } else {                  /* invalid register set */
@@ -257,7 +257,7 @@ extern STD_RETURN_TYPE_e ADI_StoredConfigurationWriteToAfe(ADI_CFG_REGISTER_SET_
     return returnValue;
 }
 
-extern void ADI_CopyCommandBits(const uint16_t *sourceCommand, uint16_t *destinationCommand) {
+extern void ADI_CopyCommandBytes(const uint16_t *sourceCommand, uint16_t *destinationCommand) {
     FAS_ASSERT(sourceCommand != NULL_PTR);
     FAS_ASSERT(destinationCommand != NULL_PTR);
     for (uint8_t i = 0u; i < ADI_COMMAND_DEFINITION_LENGTH; i++) {
@@ -551,7 +551,7 @@ extern void ADI_ClearCommandCounter(ADI_STATE_s *adiState) {
      *  Reset driver stored value of command counter by sending RSTCC command.
      */
     /* Clear command counter */
-    ADI_CopyCommandBits(adi_cmdRstcc, adi_command);
+    ADI_CopyCommandBytes(adi_cmdRstcc, adi_command);
     ADI_TransmitCommand(adi_command, adiState);
     for (uint16_t i = 0u; i < ADI_N_ADI; i++) {
         adiState->data.errorTable->commandCounterIsOk[adiState->currentString][i] = true;

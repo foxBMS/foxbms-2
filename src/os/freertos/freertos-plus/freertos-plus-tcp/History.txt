@@ -1,7 +1,67 @@
 Documentation and download available at https://www.FreeRTOS.org/
 
-Changes between FreeRTOS-plus-TCP V4.2.1 and V4.2.0 released June 27, 2024
-    + Update version information in source files.
+Changes between FreeRTOS-plus-TCP V4.3.2 and V4.3.1 released June 03, 2025:
+	+ It was possible to cause an out-of-bounds write when processing LLMNR
+	  or mDNS queries with very long DNS names. This issue only affects systems
+	  using Buffer Allocation Scheme 1 with LLMNR or mDNS enabled.
+	  This issue has been fixed by adding checks to prevent out of bounds write.
+	  We would like to thank Paschal Amusuo (@AmPaschal),
+	  James C Davis (@davisjam), Taylor Le Lievre (@tlelievre26), and
+	  Aravind Kumar Machiry (@machiry) of Purdue University for collaborating
+	  on this issue through the coordinated vulnerability disclosure process.
+
+Changes between FreeRTOS-plus-TCP V4.3.1 and V4.3.0 released December 16, 2024:
+	+ Update README.md with information related to migrating to V4.3.0 and above
+	  for users utilising the STM32 network interface.
+
+Changes between FreeRTOS-plus-TCP V4.3.0 and V4.2.2 released December 10, 2024:
+	+ Fix TCP RX sequence number when handling refusal of FIN packets.
+	+ Fix unicast packets being sent over inactive endpoints. We thank
+	  @AlfaSegato for their contribution.
+	+ Fix the initialization of the DNS callback list every time there is a
+	  Network-UP event. We thank @evpopov for their contribution.
+	+ Full ARP/ND build level separation.
+	  We thank @HTRamsey for their contribution.
+	+ Update the `eARPGetCacheEntry` to handle loopback addresses correctly
+	  and assign the loopback endpoint's MAC address as the lookup MAC address.
+	  We thank @htibosch for their contribution.
+	+ Replace the costly `vTaskSuspendAll`/`xTaskResumeAll` locking
+	  mechanism with the more efficient `taskENTER_CRITICAL`/`taskEXIT_CRITICAL`
+	  pair in frequenly used `uxStreamBufferAdd()`.
+	  We thank @lzungri for their contribution.
+	+ Improve frame filtering by expanding the checks in
+	  eConsiderFrameForProcessing to drop invalid frames earlier.
+	  We thank @HTRamsey for their contribution.
+	+ Fix reception of multicast custom Ethernet frames, where custom multicast
+	  frames were filtered out. We thank @evpopov for their contribution.
+	+ Update the Zynq Ultrascale port to support the V4.x.x version of
+	  FreeRTOS+TCP. We thank @StefanBalt and @pete-pjb for their contribution.
+	+ New unified STM32 network interface for STM32 F4/F7/H5/H7.
+	  We thank @HTRamsey for their contribution.
+	+ Fix ATSAME5x network interface related to incorrect detection of ICMP.
+	  We thank @cruxic for their contribution.
+	+ Update Renesas portable layer for backward compatibility.
+	  We thank @xuan97z1 for their contribution.
+	+ Replace any missing functions by assert-false in all CBMC proofs to
+	  improve tests. We thank @tautschnig for their contribution.
+	+ Add ipconfigEMAC_TASK_HOOK macro to allow for a configurable
+	  watchdog timer for STMH7xx MCUs. We thank @kzorer for their contribution.
+	+ Improve CMake to allow usage of `FetchContent` in external projects.
+	  We thank @nicovanduijn for their contribution.
+	+ Add warning logs if the TCP stream buffer or window properties
+	  are changed. We thank @evpopov for their contribution.
+	+ Remove unused `ipconfigHAS_ROUTING_STATISTICS` macro.
+	  We thank @HTRamsey for their contribution.
+	+ Fix MISRA 2012 violations with the latest version of
+	  MISRA evalution tools.
+	+ Adjust CBMC proof tooling to support CBMC v6.
+	  We thank @tautschnig for their contribution.
+
+Changes between FreeRTOS-plus-TCP V4.2.2 and V4.2.1 released July 12, 2024:
+	+ Update version information in public header file which were not present earlier.
+
+Changes between FreeRTOS-plus-TCP V4.2.1 and V4.2.0 released June 27, 2024:
+	+ Update version information in source files which were not present earlier.
 
 Changes between FreeRTOS-plus-TCP V4.2.0 and V4.1.0 released June 24, 2024
     + It was possible for a carefully crafted DNS response with domain name

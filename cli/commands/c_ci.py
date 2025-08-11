@@ -48,7 +48,12 @@ from ..cmd_ci.check_ci_config import check_ci_config
 from ..cmd_ci.check_coverage import check_coverage
 from ..cmd_ci.create_readme import create_readme
 from ..cmd_embedded_ut.embedded_ut_constants import EmbeddedUnitTestVariants
-from ..helpers.click_helpers import HELP_NAMES, IGNORE_UNKNOWN_OPTIONS, verbosity_option
+from ..helpers.click_helpers import (
+    HELP_NAMES,
+    IGNORE_UNKNOWN_OPTIONS,
+    recho,
+    verbosity_option,
+)
 
 CONTEXT_SETTINGS = HELP_NAMES | IGNORE_UNKNOWN_OPTIONS
 
@@ -101,6 +106,6 @@ def cmd_check_coverage(
 def cmd_path_shall_not_exist(ctx: click.Context, path: Path) -> None:
     """Ensure that a directory or file does not exist."""
     if path.exists():
-        click.echo(f"Path '{path}' exists.", err=True)
+        recho(f"Path '{path}' exists.")
         ctx.exit(1)
     ctx.exit(0)

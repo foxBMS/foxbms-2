@@ -35,9 +35,13 @@ the approval of the reviewer. If one of both is missing merging the
 This development process is shown in
 :numref:`software-development-process-diagram`.
 
-.. graphviz:: software-development-process.dot
-    :caption: |foxbms| software development process
-    :name: software-development-process-diagram
+.. drawio-figure:: software-development-process.drawio
+   :format: svg
+   :alt: |foxbms| software development process
+   :name: software-development-process-diagram
+   :width: 720px
+
+   |foxbms| software development process
 
 .. |issue| replace:: ``issue``
 .. |change_request| replace:: ``Change Request``

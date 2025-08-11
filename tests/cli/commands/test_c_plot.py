@@ -82,19 +82,24 @@ class TestFoxCliMainCommandPlot(unittest.TestCase):
         # Delete the temporary directory
         shutil.rmtree(PATH_TEMP)
         if (PROJECT_BUILD_ROOT / "plots").is_dir():
-            if (
-                datetime.fromtimestamp(
+            try:
+                # st_birthtime is not always available see docs
+                # https://docs.python.org/3/library/os.html#os.stat_result.st_birthtime
+                birthtime = datetime.fromtimestamp(
                     (PROJECT_BUILD_ROOT / "plots").stat().st_birthtime
                 )
-                > self.start_time
-            ):
+            except AttributeError:
+                birthtime = datetime.fromtimestamp(
+                    (PROJECT_BUILD_ROOT / "plots").stat().st_atime
+                )
+            if birthtime > self.start_time:
                 shutil.rmtree(PROJECT_BUILD_ROOT / "plots")
 
     @patch("cli.cmd_plot.execution.Executor.create_plots")
     def test_plot(self, mock_create_plots):  # pylint: disable=unused-argument
         """Test 'fox.py plot --data-config --plot-config --output [INPUT_DATA]'
         command with a valid file."""
-        runner = CliRunner(mix_stderr=False)
+        runner = CliRunner()
         result = runner.invoke(
             main,
             [
@@ -116,7 +121,7 @@ class TestFoxCliMainCommandPlot(unittest.TestCase):
         """Test 'fox.py plot --data-type --data-config --plot-config --output [INPUT_DATA]'
         command with a valid file."""
         # Case 1: invalid type
-        runner = CliRunner(mix_stderr=False)
+        runner = CliRunner()
         result = runner.invoke(
             main,
             [
@@ -132,11 +137,14 @@ class TestFoxCliMainCommandPlot(unittest.TestCase):
                 self.test_csv_file,
             ],
         )
-        self.assertIn("Data Type PNG is not valid for input data.", result.stderr)
-        self.assertEqual(1, result.exit_code)
+        self.assertIn(
+            "Invalid value for '-t' / '--data-type': 'PNG' is not 'CSV'.", result.stderr
+        )
+        # Click usage error exists with error code 2
+        self.assertEqual(2, result.exit_code)
 
         # Case 2: valid type
-        runner = CliRunner(mix_stderr=False)
+        runner = CliRunner()
         result = runner.invoke(
             main,
             [
@@ -160,7 +168,7 @@ class TestFoxCliMainCommandPlot(unittest.TestCase):
         """Test 'fox.py plot --data-config --plot-config --output [INPUT_DATA]'
         command with a directory as input_data."""
         # Case 1: without data type given
-        runner = CliRunner(mix_stderr=False)
+        runner = CliRunner()
         result = runner.invoke(
             main,
             [
@@ -181,7 +189,7 @@ class TestFoxCliMainCommandPlot(unittest.TestCase):
         self.assertEqual(1, result.exit_code)
 
         # Case 2: data type given
-        runner = CliRunner(mix_stderr=False)
+        runner = CliRunner()
         result = runner.invoke(
             main,
             [
@@ -205,7 +213,7 @@ class TestFoxCliMainCommandPlot(unittest.TestCase):
         """Test 'fox.py plot --data-config --plot-config [INPUT_DATA]'
         command with a valid file."""
         # Case 1: no output
-        runner = CliRunner(mix_stderr=False)
+        runner = CliRunner()
         result = runner.invoke(
             main,
             [
@@ -221,7 +229,7 @@ class TestFoxCliMainCommandPlot(unittest.TestCase):
         self.assertEqual(0, result.exit_code)
 
         # Case 2: output is file
-        runner = CliRunner(mix_stderr=False)
+        runner = CliRunner()
         result = runner.invoke(
             main,
             [

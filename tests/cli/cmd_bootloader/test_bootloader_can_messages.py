@@ -43,16 +43,18 @@ import logging
 import sys
 import unittest
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import MagicMock, create_autospec, patch
+
+from cantools import database
 
 try:
     from cli.cmd_bootloader.bootloader_can_messages import (
+        BootloaderAction,
         Messages,
-        RequestCode8Bits,
     )
 except ModuleNotFoundError:
     sys.path.insert(0, str(Path(__file__).parents[3]))
-    from cli.cmd_bootloader.bootloader_can_messages import Messages, RequestCode8Bits
+    from cli.cmd_bootloader.bootloader_can_messages import BootloaderAction, Messages
 
 
 @patch.object(logging, "info", return_value=None)
@@ -64,19 +66,32 @@ class TestBootloaderCanMessages(unittest.TestCase):
     def setUp(self):
         self.messages = Messages()
 
-    def test_init(self, *_):
-        """Function to test function __init__()."""
+    def test_init_files_does_not_exist(self, *_):
+        """Test invalid initialization due to a non existing file."""
         # Case 1: the input dbc file is not valid
         with self.assertRaises(SystemExit) as cm:
             Messages(dbc_file=Path("fake"))
-        self.assertEqual(
-            cm.exception.code, "The provided dbc file 'fake' does not exist."
-        )
+        self.assertEqual(cm.exception.code, "File 'fake' does not exist.")
 
+    def test_init_files_database_is_empty(self, *_):
+        """Test invalid initialization due to invalid database file."""
         with self.assertRaises(SystemExit) as cm:
             Messages(dbc_file=Path(Path(__file__).parent / "invalid.dbc"))
         self.assertEqual(
             cm.exception.code, "There are no messages in the database file."
+        )
+
+    @patch("cli.cmd_bootloader.bootloader_can_messages.Path.is_file", return_value=True)
+    @patch("cli.cmd_bootloader.bootloader_can_messages.database.load_file")
+    def test_init_files_wrong_database_type(self, blu: MagicMock, *_):
+        """Test invalid initialization due to wrong type of database file."""
+
+        blu.return_value = create_autospec(database.diagnostics.database.Database)
+        with self.assertRaises(SystemExit) as cm:
+            Messages(dbc_file=Path("."))
+        self.assertRegex(
+            cm.exception.code,
+            r"Expected '.*' to contain a CAN database, but type is '.*'\.",
         )
 
     def test_get_message(self, *_):
@@ -102,7 +117,9 @@ class TestBootloaderCanMessages(unittest.TestCase):
         # Case 2: the range has surpassed the range limit
         with self.assertRaises(SystemExit) as cm:
             # pylint: disable-next=protected-access
-            self.messages._get_message(name="f_Crc8Bytes", Crc=0xFFFFFFFFFFFFFFFFF)
+            self.messages._get_message(
+                name="f_BootloaderCrc8Bytes", Crc=0xFFFFFFFFFFFFFFFFF
+            )
         self.assertEqual(
             cm.exception.code,
             "The value of the signal 'Crc' is out of range.",
@@ -111,16 +128,16 @@ class TestBootloaderCanMessages(unittest.TestCase):
         # Case 3: the value of one signal is not in the corresponding enum
         with self.assertRaises(SystemExit) as cm:
             self.messages._get_message(  # pylint: disable=protected-access
-                name="f_BootloaderActionRequest", RequestCode8Bits=100
+                name="f_BootloaderActionRequest", BootloaderAction=100
             )
         self.assertEqual(
             cm.exception.code,
-            "The value of the signal 'RequestCode8Bits' is not in the corresponding enum.",
+            "The value of the signal 'BootloaderAction' is not in the corresponding enum.",
         )
 
     def test_check_range(self, *_):
         """Function to test function _check_range()."""
-        msg = self.messages.db.get_message_by_name("f_Data8Bytes")
+        msg = self.messages.db.get_message_by_name("f_BootloaderData8Bytes")
         signal = msg.get_signal_by_name("Data")
         # pylint: disable=protected-access
         # Input signal_value is in range
@@ -128,10 +145,12 @@ class TestBootloaderCanMessages(unittest.TestCase):
             self.messages._check_range(signal=signal, signal_value=0xFFFFFFFFFFFFFFFF),
         )
         # Input signal_value is larger than the maximum
+        self.assertFalse(self.messages._check_range(signal=signal, signal_value=-1))
         self.assertFalse(
-            self.messages._check_range(signal=signal, signal_value=-1),
+            self.messages._check_range(signal=signal, signal_value=0xFFFFFFFFFFFFFFFFF),
         )
         # Input signal_value is smaller than the minimum
+        self.assertFalse(self.messages._check_range(signal=signal, signal_value=-0x1))
         self.assertFalse(
             self.messages._check_range(signal=signal, signal_value=0x5FFFFFFFFFFFFFFFF),
         )
@@ -140,7 +159,7 @@ class TestBootloaderCanMessages(unittest.TestCase):
     def test_check_enum(self, *_):
         """Function to test function _check_enum()."""
         msg = self.messages.db.get_message_by_name("f_BootloaderActionRequest")
-        signal = msg.get_signal_by_name("RequestCode8Bits")
+        signal = msg.get_signal_by_name("BootloaderAction")
         # pylint: disable=protected-access
         # Input signal_value is one of the enum value
         self.assertTrue(
@@ -154,10 +173,10 @@ class TestBootloaderCanMessages(unittest.TestCase):
 
     def test_get_message_request_msg(self, *_):
         """Function to test function get_message_request_msg()."""
-        request_code = RequestCode8Bits.CmdToTransferProgram
+        request_code = BootloaderAction.CmdToTransferProgram
         msg = self.messages.get_message_request_msg(request_code)
         self.assertTrue(
-            msg == {"Name": "f_BootloaderActionRequest", "RequestCode8Bits": 1}
+            msg == {"Name": "f_BootloaderActionRequest", "BootloaderAction": 1}
         )
 
     def test_get_message_transfer_program_info(self, *_):
@@ -170,7 +189,7 @@ class TestBootloaderCanMessages(unittest.TestCase):
         self.assertEqual(
             msg,
             {
-                "Name": "f_TransferProcessInfo",
+                "Name": "f_BootloaderTransferProcessInfo",
                 "ProgramLength": 100,
                 "RequiredTransferLoops": 200,
             },
@@ -180,19 +199,23 @@ class TestBootloaderCanMessages(unittest.TestCase):
         """Function to test function test_get_message_data_8_bytes()."""
         data_8_bytes = 0xFFFFFFFFFFFFFFFF
         msg = self.messages.get_message_data_8_bytes(data_8_bytes)
-        self.assertEqual(msg, {"Name": "f_Data8Bytes", "Data": 0xFFFFFFFFFFFFFFFF})
+        self.assertEqual(
+            msg, {"Name": "f_BootloaderData8Bytes", "Data": 0xFFFFFFFFFFFFFFFF}
+        )
 
     def test_get_message_crc_8_bytes(self, *_):
         """Function to test function test_get_message_crc_8_bytes()."""
         crc_8_bytes = 0xFFFFFFFFFFFFFFFF
         msg = self.messages.get_message_crc_8_bytes(crc_8_bytes)
-        self.assertEqual(msg, {"Name": "f_Crc8Bytes", "Crc": 0xFFFFFFFFFFFFFFFF})
+        self.assertEqual(
+            msg, {"Name": "f_BootloaderCrc8Bytes", "Crc": 0xFFFFFFFFFFFFFFFF}
+        )
 
     def test_get_message_loop_info(self, *_):
         """Function to test function test_get_message_loop_info()."""
         num_of_loop = 100
         msg = self.messages.get_message_loop_info(num_of_loop)
-        self.assertEqual(msg, {"Name": "f_LoopInfo", "LoopNumber": 100})
+        self.assertEqual(msg, {"Name": "f_BootloaderLoopInfo", "LoopNumber": 100})
 
 
 if __name__ == "__main__":

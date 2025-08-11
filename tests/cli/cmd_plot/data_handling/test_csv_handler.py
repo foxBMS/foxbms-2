@@ -40,15 +40,13 @@
 """Testing file 'cli/cmd_plot/data_handling/csv_handler.py'."""
 
 import io
-import shutil
 import sys
 import unittest
 from contextlib import redirect_stderr
 from pathlib import Path
-from unittest.mock import Mock, patch
+from unittest.mock import MagicMock, Mock, patch
 
-import numpy as np
-import pandas
+from pyarrow import ArrowInvalid
 
 try:
     from cli.cmd_plot.data_handling.csv_handler import CSVHandler
@@ -60,255 +58,151 @@ PATH_EXECUTION = Path(__file__).parent.parent / "test_execution"
 PATH_DATA = Path(__file__).parent.parent / "test_data"
 
 
-@patch("cli.cmd_plot.data_handling.csv_handler.Path.glob")
-@patch("cli.cmd_plot.data_handling.csv_handler.CSVHandler._check_for_tmp_directory")
-class TestCheckForTmpData(unittest.TestCase):
-    """Class to test the check_for_tmp_data method from the CSVHandlers"""
-
-    def test_if_tmp_true(self, _: Mock, mock_glob: Mock) -> None:
-        """Tests the check_for_tmp_data if tmp_dir is true"""
-        mock_glob.return_value = [Path("test.parquet")]
-        result = CSVHandler._check_for_tmp_data(Path("test.csv"))  # pylint: disable=protected-access
-        self.assertEqual(result, Path("test.parquet"))
-
-    def test_if_tmp_false(self, mock_check: Mock, _: Mock) -> None:
-        """Tests the check_for_tmp_data if tmp_dir is false"""
-        mock_check.return_value = False
-        result = CSVHandler._check_for_tmp_data(Path("test.csv"))  # pylint: disable=protected-access
-        self.assertEqual(result, None)
-
-    def test_if_not_the_same_name(self, _: Mock, mock_glob: Mock) -> None:
-        """Tests the check_for_tmp_data with input file and parquet not
-        having the same name"""
-        mock_glob.return_value = [Path("test2.parquet")]
-        result = CSVHandler._check_for_tmp_data(Path("test.csv"))  # pylint: disable=protected-access
-        self.assertEqual(result, None)
-
-
-class TestCheckTmpDirectory(unittest.TestCase):
-    """Class to test the check_for_tmp_directory method of the
-    CSVHandler class"""
-
-    def setUp(self) -> None:
-        """Setups file_path and file mock"""
-        self.mock_file_path = Mock()
-        self.mock_file = Mock(name="mock_file")
-        self.mock_file_path.parent.iterdir.return_value = [self.mock_file]
-        self.mock_file.is_dir.return_value = True
-
-    def test_with_temp_dir(self) -> None:
-        """Tests check_for_tmp_directory with available tmp folder"""
-        self.mock_file.name = "temp_data_foxplot_test"
-        result = CSVHandler._check_for_tmp_directory(self.mock_file_path)  # pylint: disable=protected-access
-        self.assertEqual(result, self.mock_file)
-
-    def test_with_without_temp_dir(self) -> None:
-        """Tests check_for_tmp_directory without available tmp folder"""
-        self.mock_file.name = "temp_data_test"
-        result = CSVHandler._check_for_tmp_directory(self.mock_file_path)  # pylint: disable=protected-access
-        self.assertEqual(result, None)
-
-
-class TestCreateTmpDirectory(unittest.TestCase):
-    """Class to test the create_tmp_directory method of the CSVHandler class"""
-
-    @patch("cli.cmd_plot.data_handling.csv_handler.tempfile.mkdtemp")
-    def test_create(self, mock_mkdtemp: Mock) -> None:
-        """Teste the creation of a temporary directory"""
-        test_path = Path(__file__)
-        CSVHandler._create_tmp_directory(test_path)  # pylint: disable=protected-access
-        mock_mkdtemp.assert_called_once_with(
-            prefix="temp_data_foxplot_", dir=test_path.parent
-        )
-
-
+@patch("cli.cmd_plot.data_handling.csv_handler.pandas.read_csv")
+@patch("cli.cmd_plot.data_handling.csv_handler.pandas.read_parquet")
+@patch("cli.cmd_plot.data_handling.csv_handler.FileTracker")
+@patch("cli.cmd_plot.data_handling.csv_handler.TmpHandler")
 class TestGetData(unittest.TestCase):
     """Class to test the get_data method of the CSVHandler class"""
 
-    def tearDown(self) -> None:
-        """Delets the temporary folder"""
-        tmp_folder = CSVHandler._check_for_tmp_directory(PATH_DATA / "input_data.csv")  # pylint: disable=protected-access
-        if tmp_folder:
-            shutil.rmtree(tmp_folder)
-
-    def test_get_data_with_tmp(self) -> None:
-        """Tests the get_data with valid file."""
-        expected_time = np.array(
-            [
-                "53",
-                "54",
-                "55",
-                "56",
-                "57",
-                "58",
-                "59",
-                "00",
-                "01",
-                "02",
-                "03",
-                "04",
-                "05",
-                "06",
-                "07",
-                "08",
-                "09",
-                "10",
-                "11",
-                "12",
-                "13",
-                "14",
-                "15",
-                "16",
-                "17",
-                "18",
-                "19",
-                "20",
-                "21",
-                "22",
-                "23",
-                "24",
-                "25",
-                "26",
-                "27",
-                "28",
-                "29",
-                "30",
-                "31",
-                "32",
-            ],
-            dtype=str,
+    def setUp(self) -> None:
+        """Creates the needed CSVHandler object for the later tests"""
+        self.csv_handler_obj = CSVHandler(
+            {"current": "float", "date": "datetime"}, 0, 3
         )
-        expected_current = np.array(
-            [
-                3.0,
-                5.0,
-                7.0,
-                9.0,
-                11.0,
-                13.0,
-                15.0,
-                17.0,
-                19.0,
-                21.0,
-                23.0,
-                25.0,
-                27.0,
-                29.0,
-                31.0,
-                33.0,
-                35.0,
-                37.0,
-                39.0,
-                41.0,
-                43.0,
-                45.0,
-                47.0,
-                49.0,
-                51.0,
-                53.0,
-                55.0,
-                57.0,
-                59.0,
-                61.0,
-                63.0,
-                67.0,
-                69.0,
-                71.0,
-                73.0,
-                75.0,
-                77.0,
-                79.0,
-                81.0,
-                83.0,
-            ]
+
+    def test_get_data_no_tmp(
+        self,
+        mock_tmp_handler: Mock,
+        mock_file_tracker: Mock,
+        mock_read_parquet: Mock,
+        mock_read_csv: Mock,
+    ) -> None:
+        """Tests the get_data with valid file"""
+        file_path = Path("test_file")
+        no_tmp = True
+        mock_tmp_handler.return_value.check_for_tmp_file.return_value = Path(
+            "test.parquet"
         )
-        index = np.arange(40)
-        data_dict = {"Time": expected_time, "Current(A)": expected_current}
-        expected_data = pandas.DataFrame(data=data_dict, index=index)
-        # Get DataFrame from CSVHandler
-        columns = {
-            "Time": "str",
-            "Current(A)": "float",
-        }
-        csv_handler = CSVHandler(columns=columns, skip=4, precision=3)
-        actual_data = csv_handler.get_data(PATH_DATA / "input_data.csv")
-        pandas.testing.assert_frame_equal(actual_data, expected_data)
+        mock_file_tracker.return_value.check_file_changed.return_value = False
+        mock_tmp_handler.return_value.tmp_dir.__truediv__.return_value = Path("new_tmp")  # pylint: disable=W0106
+        self.csv_handler_obj.get_data(file_path, no_tmp)
+        mock_read_parquet.assert_not_called()
+        mock_read_csv.assert_called_once_with(
+            file_path,
+            usecols=["current", "date"],
+            dtype=self.csv_handler_obj.columns,
+            skiprows=self.csv_handler_obj.skip,
+            parse_dates=["date"],
+        )
+        mock_read_csv.return_value.round.assert_called_once_with(
+            self.csv_handler_obj.precision
+        )
+        mock_read_csv.return_value.round.return_value.to_parquet.assert_called_once_with(
+            Path("new_tmp"), engine="pyarrow"
+        )
+        mock_tmp_handler.return_value.get_hash_name.assert_called_once_with(
+            file_path, "parquet"
+        )
 
-    def test_get_data_tmp_available(self) -> None:
-        """Tests the get_data method with tmp_dir true"""
-        creat_tmp_directory = CSVHandler._create_tmp_directory  # pylint: disable=protected-access
-        check_for_tmp_directory = CSVHandler._check_for_tmp_directory  # pylint: disable=protected-access
-        columns = {
-            "Time": "str",
-            "Current(A)": "float",
-        }
-        csv_handler = CSVHandler(columns=columns, skip=4, precision=3)
-        file_path = PATH_DATA / "input_data.csv"
-        tmp_dir = CSVHandler._create_tmp_directory(file_path)  # pylint: disable=protected-access
-        CSVHandler._create_tmp_directory = Mock()  # pylint: disable=protected-access
-        CSVHandler._check_for_tmp_directory = Mock(return_value=tmp_dir)  # pylint: disable=protected-access
-        csv_handler.get_data(file_path)  # pylint: disable=protected-access
-        CSVHandler._create_tmp_directory.assert_not_called()  # pylint: disable=protected-access
-        # Reset of class methods is needed otherwise other unittests are affected
-        CSVHandler._create_tmp_directory = creat_tmp_directory  # pylint: disable=protected-access
-        CSVHandler._check_for_tmp_directory = check_for_tmp_directory  # pylint: disable=protected-access
+    def test_get_data_with_tmp(
+        self,
+        mock_tmp_handler: Mock,
+        mock_file_tracker: Mock,
+        mock_read_parquet: Mock,
+        mock_read_csv: Mock,
+    ) -> None:
+        """Tests the get_data with valid file"""
+        file_path = Path("test_file")
+        no_tmp = False
+        mock_tmp_handler.return_value.check_for_tmp_file.return_value = Path(
+            "test.parquet"
+        )
+        mock_file_tracker.return_value.check_file_changed.return_value = False
+        self.csv_handler_obj.get_data(file_path, no_tmp)
+        mock_read_parquet.assert_called_once_with(
+            Path("test.parquet"), engine="pyarrow"
+        )
+        mock_read_csv.assert_not_called()
+        mock_tmp_handler.get_hash_name.assert_not_called()
 
-    @patch("cli.cmd_plot.data_handling.csv_handler.pandas.read_parquet")
-    def test_get_data_available_parquet(self, mock_read: Mock) -> None:
-        """Tests the get_data with available parquet"""
-        columns = {
-            "Time": "str",
-            "Current(A)": "float",
-        }
-        csv_handler = CSVHandler(columns=columns, skip=4, precision=3)
-        csv_handler._check_for_tmp_data = Mock(return_value="test")  # pylint: disable=protected-access
-        csv_handler.get_data(Path("test.csv"))
-        mock_read.assert_called_once_with("test", engine="pyarrow")
+    def test_get_data_string_column(
+        self,
+        *mocks: list[Mock],
+    ) -> None:
+        """Tests the get_data with valid file"""
+        file_path = Path("test_file")
+        no_tmp = True
+        mock_read_csv = mocks[3]
+        data_mock = MagicMock()
+        mock_read_csv.return_value = data_mock
+        self.csv_handler_obj.columns = {"string_column": "string"}
+        self.csv_handler_obj.get_data(file_path, no_tmp)
+        # pylint: disable=C2801
+        data_mock.__getitem__().fillna.assert_called_with("NULL")
 
-    @patch("cli.cmd_plot.data_handling.csv_handler.CSVHandler._check_for_tmp_data")
-    def test_get_data_invalid_parquet(self, mock_tmp: Mock) -> None:
+    def test_get_data_invalid_parquet(
+        self,
+        mock_tmp_handler: Mock,
+        mock_file_tracker: Mock,
+        mock_read_parquet: Mock,
+        _: Mock,
+    ) -> None:
         """Tests the get_data with invalid parquet file."""
-        columns = {
-            "Time": "str",
-            "Current(A)": "float",
-        }
-        csv_handler = CSVHandler(columns=columns, skip=4, precision=3)
-        mock_tmp.return_value = PATH_DATA / "input_data.csv"
+        file_path = Path("test_file")
+        no_tmp = False
+        mock_tmp_handler.return_value.check_for_tmp_file.return_value = Path(
+            "test.parquet"
+        )
+        mock_file_tracker.return_value.check_file_changed.return_value = False
+        mock_read_parquet.side_effect = ArrowInvalid()
         buf = io.StringIO()
         with redirect_stderr(buf), self.assertRaises(SystemExit) as cm:
-            csv_handler.get_data(PATH_DATA / "input_data.csv")
+            self.csv_handler_obj.get_data(file_path, no_tmp)
         self.assertEqual(cm.exception.code, 1)
-        self.assertTrue("Parquet Error" in buf.getvalue())
+        self.assertIn("Parquet Error", buf.getvalue())
 
-    @patch("cli.cmd_plot.data_handling.csv_handler.CSVHandler._check_for_tmp_data")
-    def test_get_data_column_not_matched(self, mock_tmp: Mock) -> None:
+    def test_get_data_column_not_matched(
+        self,
+        mock_tmp_handler: Mock,
+        mock_file_tracker: Mock,
+        _: Mock,
+        mock_read_csv: Mock,
+    ) -> None:
         """Tests the get_data column not matched"""
-        columns = {
-            "Time2": "str",
-            "Current(A)": "float",
-        }
-        csv_handler = CSVHandler(columns=columns, skip=4, precision=3)
+        file_path = Path("test_file")
+        no_tmp = True
+        mock_tmp_handler.return_value.check_for_tmp_file.return_value = Path(
+            "test.parquet"
+        )
+        mock_file_tracker.return_value.check_file_changed.return_value = False
+        mock_read_csv.side_effect = ValueError("do not match columns: test")
         buf = io.StringIO()
-        mock_tmp.return_value = None
         with redirect_stderr(buf), self.assertRaises(SystemExit) as cm:
-            csv_handler.get_data(PATH_DATA / "input_data.csv")
+            self.csv_handler_obj.get_data(file_path, no_tmp)
         self.assertEqual(cm.exception.code, 1)
-        self.assertTrue("Skip value removed header or" in buf.getvalue())
+        self.assertIn("desired columns test not found", buf.getvalue())
 
-    @patch("cli.cmd_plot.data_handling.csv_handler.CSVHandler._check_for_tmp_data")
-    def test_get_data_bad_column_type(self, mock_tmp: Mock) -> None:
+    def test_get_data_bad_column_type(
+        self,
+        mock_tmp_handler: Mock,
+        mock_file_tracker: Mock,
+        _: Mock,
+        mock_read_csv: Mock,
+    ) -> None:
         """Tests the get_data with bad column type"""
-        columns = {
-            "Time": "test",
-            "Current(A)": "float",
-        }
-        csv_handler = CSVHandler(columns=columns, skip=4, precision=3)
+        file_path = Path("test_file")
+        no_tmp = True
+        mock_tmp_handler.return_value.check_for_tmp_file.return_value = Path(
+            "test.parquet"
+        )
+        mock_file_tracker.return_value.check_file_changed.return_value = False
+        mock_read_csv.side_effect = ValueError()
         buf = io.StringIO()
-        mock_tmp.return_value = None
         with redirect_stderr(buf), self.assertRaises(SystemExit) as cm:
-            csv_handler.get_data(PATH_DATA / "input_data.csv")
+            self.csv_handler_obj.get_data(file_path, no_tmp)
         self.assertEqual(cm.exception.code, 1)
-        self.assertTrue("data type" in buf.getvalue())
+        self.assertIn("Error in data config file", buf.getvalue())
 
 
 class TestValidateConfig(unittest.TestCase):

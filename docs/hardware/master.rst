@@ -1,15 +1,15 @@
 .. include:: ./../macros.txt
 .. include:: ./../units.txt
 
-.. _MASTER_OVERVIEW:
+.. _BMS_MASTERS_OVERVIEW:
 
-Master Overview
-===============
+|bms-masters| Overview
+======================
 
-TI-based Masters
-----------------
+TI-based |bms-masters|
+----------------------
 
-The changelog for the |ti-tms570lc4357|\ -based masters can be found at:
+The changelog for the |ti-tms570lc4357|\ -based |bms-masters| can be found at:
 
 .. toctree::
     :maxdepth: 1
@@ -17,7 +17,7 @@ The changelog for the |ti-tms570lc4357|\ -based masters can be found at:
     ./master/ti-tms570lc4357-vx.x.x/ti-tms570lc4357-changelog.rst
 
 The documentation for the different versions of the |ti-tms570lc4357|\ -based
-masters can be found at:
+|bms-masters| can be found at:
 
 .. toctree::
     :maxdepth: 1

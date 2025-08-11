@@ -1,5 +1,5 @@
-LINE_1:
-  name: "cell_voltage_current"
+- name: "cell_voltage_current"
+  type: "LINE"
   mapping:
     x: Test Time
     x_ticks_count: 7

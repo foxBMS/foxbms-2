@@ -8,6 +8,7 @@
 @@ROOT@@/src/app/application/bal
 @@ROOT@@/src/app/application/bms
 @@ROOT@@/src/app/application/config
+@@ROOT@@/src/app/application/ethernet
 @@ROOT@@/src/app/application/plausibility
 @@ROOT@@/src/app/application/redundancy
 @@ROOT@@/src/app/application/soa
@@ -33,6 +34,7 @@
 @@ROOT@@/src/app/driver/mcu
 @@ROOT@@/src/app/driver/meas
 @@ROOT@@/src/app/driver/pex
+@@ROOT@@/src/app/driver/phy
 @@ROOT@@/src/app/driver/pwm
 @@ROOT@@/src/app/driver/rtc
 @@ROOT@@/src/app/driver/sbc

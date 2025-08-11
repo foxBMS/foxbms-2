@@ -7,6 +7,6 @@
   ``conf/env/paths_linux.txt``
 - |snippet_update_license| in
   ``docs/general/license-tables/external/license-info_drawio-desktop.csv``.
-- |snippet_changelog_entry|.
+- |snippet_changelog_entry|
 - |snippet_commit|
   ``Dependency update: <XXXX>/Q<Y>: drawio-desktop <version number>``.

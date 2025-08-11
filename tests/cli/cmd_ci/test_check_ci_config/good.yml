@@ -36,6 +36,7 @@
 # - "This product is derived from foxBMS®"
 
 stages:
+  - configure
   - build_app_embedded
   - stage_good1
   - static_program_analysis_evaluation

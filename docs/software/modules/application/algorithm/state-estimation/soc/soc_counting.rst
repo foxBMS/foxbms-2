@@ -51,15 +51,16 @@ implemented as follows:
 
 If analog current counting value is available:
 
-1. Calculate the charge difference between the latest and the previous current counting value.
-1. Check current flow direction to evaluate if charge/discharge is ongoing.
-1. Accumulate either charge or discharge throughput in |soc| database entry.
-1. Save time step
-1. Save current counting value
+#. Calculate the charge difference between the latest and the previous current
+   counting value.
+#. Check current flow direction to evaluate if charge/discharge is ongoing.
+#. Accumulate either charge or discharge throughput in |soc| database entry.
+#. Save time step
+#. Save current counting value
 
 If analog current counting value is *NOT* available:
 
-1. Manually integrate current to calculate amount of charge since last call.
-1. Check current flow direction to evaluate if charge/discharge is ongoing.
-1. Accumulate either charge or discharge throughput in |soc| database entry.
-1. Save time step
+#. Manually integrate current to calculate amount of charge since last call.
+#. Check current flow direction to evaluate if charge/discharge is ongoing.
+#. Accumulate either charge or discharge throughput in |soc| database entry.
+#. Save time step

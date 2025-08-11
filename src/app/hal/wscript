@@ -37,13 +37,14 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""Defines the binary build"""
+
+"""Build the HAL library for the app."""
 
 from waflib import Logs, Utils
 
 
 def build(bld):
-    """builds the HAL library"""
+    """Build the HAL library for the app."""
 
     target = f"{bld.env.APPNAME.lower()}-hal"
     cflags = bld.env.CFLAGS_HAL
@@ -54,9 +55,11 @@ def build(bld):
     if Utils.is_win32 or bld.env.HALCOGEN:
         startup_hash = bld.path.find_node("app-startup.hash")
         remove = [
+            "source/HL_notification.c",
             "source/HL_sys_main.c",
             "source/HL_sys_startup.c",
             "source/HL_sys_link.cmd",
+            "source/HL_emac.c",
         ]
         source = ["../../../conf/hcg/app.hcg"]
     else:
@@ -70,11 +73,19 @@ def build(bld):
         if hal_src_dir:
             source = hal_src_dir.ant_glob("*.c") + hal_src_dir.ant_glob("*.asm")
     if source:
+        bld.objects(
+            source="app-hl_notification.c",
+            target="app-hl_notification-object",
+            includes="../main/include",
+            idx=1,
+        )
         bld(
             features="c cstlib",
             source=source,
             cflags=cflags,
             target=target,
+            use="app-hl_notification-object",
             startup_hash=startup_hash,
             remove=remove,
+            idx=1,
         )

@@ -38,3 +38,17 @@
 # - "This product is derived from foxBMS®"
 
 """Testing file 'cli/cmd_embedded_ut/embedded_ut_constants.py'."""
+
+import unittest
+
+
+class TestEmbeddedUtConstants(unittest.TestCase):
+    """Test of 'embedded_ut_constants.py'"""
+
+    def test_dummy(self):
+        """dummy test"""
+        # this test is necessary because otherwise the exit code is non-zero
+
+
+if __name__ == "__main__":
+    unittest.main()

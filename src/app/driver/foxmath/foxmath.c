@@ -43,8 +43,8 @@
  * @file    foxmath.c
  * @author  foxBMS Team
  * @date    2018-01-18 (date of creation)
- * @updated 2025-03-31 (date of last update)
- * @version v1.9.0
+ * @updated 2025-08-07 (date of last update)
+ * @version v1.10.0
  * @ingroup DRIVERS
  * @prefix  MATH
  *
@@ -77,8 +77,17 @@
    designed to take full range input. No assert needed. */
 
 extern void MATH_StartupSelfTest(void) {
-    FAS_ASSERT(MATH_AbsInt64_t(INT64_MIN) == INT64_MAX);
-    FAS_ASSERT(MATH_AbsInt32_t(INT32_MIN) == INT32_MAX);
+    /* The non-asserting branch of this function is not meaningful testable in
+     * unit tests, therefore this branch is excluded in coverage analysis to
+     * still reach full test coverage.
+     * The passing test is still part of the unit test suite.
+     * If something is changed in this function, this needs to be reevaluated.
+     * See function
+     * tests/unit/app/driver/foxmath/test_foxmath.c:testMATH_StartupSelfTest
+     * for the actual unit test.
+     */
+    FAS_ASSERT(MATH_AbsInt64_t(INT64_MIN) == INT64_MAX); /* LCOV_EXCL_LINE */
+    FAS_ASSERT(MATH_AbsInt32_t(INT32_MIN) == INT32_MAX); /* LCOV_EXCL_LINE */
 }
 
 extern float_t MATH_LinearInterpolation(

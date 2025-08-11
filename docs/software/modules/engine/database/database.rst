@@ -40,10 +40,11 @@ Afterwards, it can be used by multiple consumers while the data integrity is
 always ensured.
 The concept is shown in :numref:`sw-database-concept`.
 
-.. figure:: img/sw-database-concept.png
+.. drawio-figure:: img/sw-database-concept.drawio
+   :format: svg
    :alt: Database Concept
    :name: sw-database-concept
-   :width: 80 %
+   :width: 800px
    :align: center
 
    |foxbms| Data-Exchange Module Concept

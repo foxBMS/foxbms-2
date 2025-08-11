@@ -22,9 +22,14 @@ Use [docs/getting-started/software-installation.rst](./docs/getting-started/soft
 
 > **_NOTE:_**
 >
-> Some programs are installed into a specific |foxbms| prefix.
+> Some programs are installed into a specific foxBMS 2 prefix.
 > This is mostly then done, when the installers do not support side-by-side or
-> versioned installations by themself.
+> versioned installations by themself.\
+> The installation prefixes are as follows
+>
+> | Operating system   | Installation prefix   |
+> |--------------------|-----------------------|
+> | Windows            | ``C:\\foxbms``        |
 
 > **_WARNING:_**
 >
@@ -155,16 +160,16 @@ Installing TI HALCoGen may take a while.
 
 ## Install Virtual Python Environment
 
-1. Create a virtual environment **2025-03-pale-fox** by running:
+1. Create a virtual environment **2025-06-pale-fox** by running:
 
    ```pwsh
-   py -3.12 -m venv C:\foxbms\envs\2025-03-pale-fox
+   py -3.12 -m venv C:\foxbms\envs\2025-06-pale-fox
    ```
 
 1. Activate the virtual environment by running:
 
    ```pwsh
-   C:\foxbms\envs\2025-03-pale-fox\Scripts\activate.ps1
+   C:\foxbms\envs\2025-06-pale-fox\Scripts\activate.ps1
    ```
 
 1. Install the required packages by running:
@@ -177,6 +182,17 @@ Installing TI HALCoGen may take a while.
    python -m pip install -r requirements.txt
    ```
 
+1. Deactivate the virtual environment by running:
+
+   ```pwsh
+   deactivate
+   ```
+
+The virtual environment includes the pre-commit framework (<https://pre-commit.com/>).
+The pre-commit framework installs its dependencies defined in
+``.pre-commit-config.yaml`` by itself when it is run and dependencies are
+missing.
+
 ## Install Ruby
 
 > **_NOTE:_**
@@ -187,6 +203,8 @@ Installing TI HALCoGen may take a while.
 1. Download the zip-archive
 [Ruby 3.4.2-1 (x64)](https://github.com/oneclick/rubyinstaller2/releases/download/RubyInstaller-3.4.2-1/rubyinstaller-3.4.2-1-x64.7z).
 1. Extract the archive to ``C:\foxbms\Ruby\Ruby34-x64``.
+1. Verify that ``ruby.exe`` is available at
+   ``C:\foxbms\Ruby\Ruby34-x64\bin\ruby.exe``.
 
 ## Install Ruby gems
 
@@ -215,35 +233,36 @@ C:\foxbms\Ruby\Ruby34-x64\bin\gem.cmd install --install-dir C:\foxbms\Ceedling\1
 
 ## Install Doxygen
 
-1. Download Doxygen version 1.13.2 from
-   [GitHub](https://github.com/doxygen/doxygen/releases/tag/Release_1_13_2)
+1. Download Doxygen version 1.14.0 from
+   [GitHub](https://github.com/doxygen/doxygen/releases/tag/Release_1_14_0)
    (use this
-   [zip-archive](https://github.com/doxygen/doxygen/releases/download/Release_1_13_2/doxygen-1.13.2.windows.x64.bin.zip)).
+   [zip-archive](https://github.com/doxygen/doxygen/releases/download/Release_1_14_0/doxygen-1.14.0.windows.x64.bin.zip)).
 1. Extract the archive.
-1. Copy the extracted archive to `C:\foxbms\Doxygen\1.13.2`.
+1. Copy the extracted archive to `C:\foxbms\Doxygen\1.14.0`.
 1. Verify that `doxygen.exe` is available at
-  `C:\foxbms\Doxygen\1.13.2\doxygen.exe`.
+  `C:\foxbms\Doxygen\1.14.0\doxygen.exe`.
 
 ## Install Graphviz
 
-1. Download Graphviz version 12.2.1 from
+1. Download Graphviz version 13.0.0 from
   [https://graphviz.org/download](https://graphviz.org/download)
   (use this
-  [zip-archive](https://gitlab.com/api/v4/projects/4207231/packages/generic/graphviz-releases/12.2.1/windows_10_cmake_Release_Graphviz-12.2.1-win64.zip)).
+  [zip-archive](https://gitlab.com/api/v4/projects/4207231/packages/generic/graphviz-releases/13.0.0/windows_10_cmake_Release_Graphviz-13.0.0-win64.zip)).
 1. Extract the archive.
-1. Copy the extracted archive to `C:\foxbms\Graphviz\12.2.1`.
+1. Copy the extracted archive to `C:\foxbms\Graphviz\13.0.0`.
 1. Verify that `dot.exe` is available at
-   `C:\foxbms\Graphviz\12.2.1\bin\dot.exe`.
+   `C:\foxbms\Graphviz\13.0.0\bin\dot.exe`.
 
 ## Install drawio-desktop
 
-1. Download drawio-desktop version 26.0.9 from
+1. Download drawio-desktop version 27.0.9 from
    [https://github.com/jgraph/drawio-desktop/releases](https://github.com/jgraph/drawio-desktop/releases)
    (use this
-   [zip-archive](https://github.com/jgraph/drawio-desktop/releases/download/v26.0.9/draw.io-26.0.9-windows-installer.exe)).
-1. Run the installer and use the default installation directory.
+   [zip-archive](https://github.com/jgraph/drawio-desktop/releases/download/v27.0.9/draw.io-27.0.9-windows.zip)).
+1. Extract the archive.
+1. Copy the extracted archive to `C:\foxbms\draw.io\27.0.9`.
 1. Verify that `draw.io.exe` is available at
-    `C:\Program Files\draw.io\draw.io.exe`.
+    `C:\foxbms\draw.io\27.0.9\draw.io.exe`.
 
 ## Install VS Code
 

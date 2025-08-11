@@ -66,6 +66,13 @@ class TestCppComments(unittest.TestCase):
         )
         self.assertEqual(0, ret)
 
+    def test_ok_link(self):
+        """line starts with comment"""
+        ret = check_cpp_style_comment.main(
+            [str(self.tests_dir / "no-cpp-style-comment-link.c")]
+        )
+        self.assertEqual(0, ret)
+
     def test_not_ok_0(self):
         """line starts with comment"""
         test = "cpp-style-comment_0.c"
@@ -102,6 +109,19 @@ class TestCppComments(unittest.TestCase):
         self.assertEqual(result, 1)
         self.assertEqual(
             f"{(self.tests_dir / test).as_posix()}:3: C++-style comments are not allowed.\n",
+            err.getvalue(),
+        )
+
+    def test_not_ok_3(self):
+        """line starts with comment"""
+        test = "cpp-style-comment_3.c"
+        err = io.StringIO()
+        with redirect_stderr(err):
+            result = check_cpp_style_comment.main([str(self.tests_dir / test)])
+
+        self.assertEqual(result, 1)
+        self.assertEqual(
+            f"{(self.tests_dir / test).as_posix()}:2: C++-style comments are not allowed.\n",
             err.getvalue(),
         )
 

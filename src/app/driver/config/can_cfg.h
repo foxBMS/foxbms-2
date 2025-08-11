@@ -43,8 +43,8 @@
  * @file    can_cfg.h
  * @author  foxBMS Team
  * @date    2019-12-04 (date of creation)
- * @updated 2025-03-31 (date of last update)
- * @version v1.9.0
+ * @updated 2025-08-07 (date of last update)
+ * @version v1.10.0
  * @ingroup DRIVERS
  * @prefix  CAN
  *
@@ -220,6 +220,7 @@ typedef struct {
     DATA_BLOCK_STATE_REQUEST_s *pTableStateRequest;         /*!< database table with state requests */
     DATA_BLOCK_AEROSOL_SENSOR_s *pTableAerosolSensor;       /*!< database table with aerosol sensor measurements */
     DATA_BLOCK_BALANCING_CONTROL_s *pTableBalancingControl; /*!< database table with balancing information */
+    DATA_BLOCK_PHY_s *pTablePhy;                            /*!< database table with phy information */
 } CAN_SHIM_s;
 
 /** definition of a CAN message (without data) */

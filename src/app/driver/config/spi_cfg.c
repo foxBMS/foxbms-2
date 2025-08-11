@@ -43,8 +43,8 @@
  * @file    spi_cfg.c
  * @author  foxBMS Team
  * @date    2020-03-05 (date of creation)
- * @updated 2025-03-31 (date of last update)
- * @version v1.9.0
+ * @updated 2025-08-07 (date of last update)
+ * @version v1.10.0
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  SPI
  *
@@ -125,8 +125,8 @@ static spiDAT1_t spi_kMxmDataConfig = {
 #endif
 
 #if defined(FOXBMS_AFE_DRIVER_NXP) && (FOXBMS_AFE_DRIVER_NXP == 1)
-/** SPI data configuration struct for NXP MC33775A communication, Tx part */
-static spiDAT1_t spi_kNxp775DataConfigTx[BS_NR_OF_STRINGS] = {
+/** SPI data configuration struct for NXP MC3377X communication, Tx part */
+static spiDAT1_t spi_kNxp77xDataConfigTx[BS_NR_OF_STRINGS] = {
     {.CS_HOLD = TRUE,      /* If true, HW chip select kept active */
      .WDEL    = TRUE,      /* Activation of delay between words */
      .DFSEL   = SPI_FMT_2, /* Data word format selection */
@@ -134,11 +134,23 @@ static spiDAT1_t spi_kNxp775DataConfigTx[BS_NR_OF_STRINGS] = {
      .CSNR = SPI_HARDWARE_CHIP_SELECT_DISABLE_ALL},
 };
 
-/** SPI data configuration struct for NXP MC33775A communication, Rx part */
-static spiDAT1_t spi_kNxp775DataConfigRx[BS_NR_OF_STRINGS] = {
+/** SPI data configuration struct for NXP MC3377X communication, Rx part */
+static spiDAT1_t spi_kNxp77xDataConfigRx[BS_NR_OF_STRINGS] = {
     {.CS_HOLD = TRUE,      /* If true, HW chip select kept active */
      .WDEL    = TRUE,      /* Activation of delay between words */
      .DFSEL   = SPI_FMT_2, /* Data word format selection */
+     /* Hardware chip select is configured automatically depending on configuration in #SPI_INTERFACE_CONFIG_s */
+     .CSNR = SPI_HARDWARE_CHIP_SELECT_DISABLE_ALL},
+};
+#endif
+
+#if defined(FOXBMS_AFE_DRIVER_ST) && (FOXBMS_AFE_DRIVER_ST == 1)
+/** SPI data configuration struct for ST communication */
+static spiDAT1_t spi_kStDataConfig[BS_NR_OF_STRINGS] = {
+    {                      /* struct is implemented in the TI HAL and uses uppercase true and false */
+     .CS_HOLD = TRUE,      /* If true, HW chip select kept active between words */
+     .WDEL    = FALSE,     /* Activation of delay between words */
+     .DFSEL   = SPI_FMT_0, /* Data word format selection */
      /* Hardware chip select is configured automatically depending on configuration in #SPI_INTERFACE_CONFIG_s */
      .CSNR = SPI_HARDWARE_CHIP_SELECT_DISABLE_ALL},
 };
@@ -238,10 +250,10 @@ SPI_INTERFACE_CONFIG_s spi_mxmInterface = {
 #endif
 
 #if defined(FOXBMS_AFE_DRIVER_NXP) && (FOXBMS_AFE_DRIVER_NXP == 1)
-/** SPI interface configuration for N775 communication Tx part */
-SPI_INTERFACE_CONFIG_s spi_nxp775InterfaceTx[BS_NR_OF_STRINGS] = {
+/** SPI interface configuration for N77X communication Tx part */
+SPI_INTERFACE_CONFIG_s spi_nxp77xInterfaceTx[BS_NR_OF_STRINGS] = {
     {
-        .pConfig  = &spi_kNxp775DataConfigTx[0u],
+        .pConfig  = &spi_kNxp77xDataConfigTx[0u],
         .pNode    = spiREG1,
         .pGioPort = &(spiREG1->PC3),
         .csPin    = SPI_NXP_TX_CHIP_SELECT_PIN,
@@ -249,13 +261,29 @@ SPI_INTERFACE_CONFIG_s spi_nxp775InterfaceTx[BS_NR_OF_STRINGS] = {
     },
 };
 
-/** SPI interface configuration for N775 communication, Rx part */
-SPI_INTERFACE_CONFIG_s spi_nxp775InterfaceRx[BS_NR_OF_STRINGS] = {
+/** SPI interface configuration for N77X communication, Rx part */
+SPI_INTERFACE_CONFIG_s spi_nxp77xInterfaceRx[BS_NR_OF_STRINGS] = {
     {
-        .pConfig  = &spi_kNxp775DataConfigRx[0u],
+        .pConfig  = &spi_kNxp77xDataConfigRx[0u],
         .pNode    = spiREG4,
         .pGioPort = &(spiREG4->PC3),
         .csPin    = SPI_NXP_RX_CHIP_SELECT_PIN,
+        .csType   = SPI_CHIP_SELECT_HARDWARE,
+    },
+};
+#endif
+
+#if defined(FOXBMS_AFE_DRIVER_ST) && (FOXBMS_AFE_DRIVER_ST == 1)
+/**
+ * SPI interface configuration for ST communication
+ * This is a list of structs because of multi-string
+ */
+SPI_INTERFACE_CONFIG_s spi_stInterface[BS_NR_OF_STRINGS] = {
+    {
+        .pConfig  = &spi_kStDataConfig[0u],
+        .pNode    = spiREG1,
+        .pGioPort = &(spiREG1->PC3),
+        .csPin    = SPI_ST_CHIP_SELECT_PIN,
         .csType   = SPI_CHIP_SELECT_HARDWARE,
     },
 };

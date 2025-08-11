@@ -43,8 +43,8 @@
  * @file    can_cbs_tx_debug-build-configuration.c
  * @author  foxBMS Team
  * @date    2023-05-31 (date of creation)
- * @updated 2025-03-31 (date of last update)
- * @version v1.9.0
+ * @updated 2025-08-07 (date of last update)
+ * @version v1.10.0
  * @ingroup DRIVERS
  * @prefix  CANTX
  *
@@ -108,10 +108,10 @@ typedef enum {
  * configuration of the slave multiplexer message
  */
 #define CANTX_MUX_SLAVE_AFE_START_BIT                       (15u)
-#define CANTX_MUX_SLAVE_AFE_LENGTH                          (8u)
-#define CANTX_MUX_SLAVE_TEMPERATURE_SENSOR_START_BIT        (23u)
+#define CANTX_MUX_SLAVE_AFE_LENGTH                          (16u)
+#define CANTX_MUX_SLAVE_TEMPERATURE_SENSOR_START_BIT        (31u)
 #define CANTX_MUX_SLAVE_TEMPERATURE_SENSOR_LENGTH           (8u)
-#define CANTX_MUX_SLAVE_TEMPERATURE_SENSOR_METHOD_START_BIT (31u)
+#define CANTX_MUX_SLAVE_TEMPERATURE_SENSOR_METHOD_START_BIT (39u)
 #define CANTX_MUX_SLAVE_TEMPERATURE_SENSOR_METHOD_LENGTH    (8u)
 /** @} */
 

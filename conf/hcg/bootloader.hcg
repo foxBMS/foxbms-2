@@ -341,8 +341,7 @@
         <NAME>HL_i2c.h</NAME>
       </HDRI2C>
       <SRCI2C>
-        <NAME>HL_i2c.c</NAME>
-      </SRCI2C>
+        </SRCI2C>
       <HDR1EMAC>
         <NAME>HL_emac.h</NAME>
       </HDR1EMAC>
@@ -642,7 +641,7 @@
         <PATH>include\HL_i2c.h</PATH>
       </HDRI2C>
       <SRCI2C>
-        <PATH>source\HL_i2c.c</PATH>
+        <PATH></PATH>
       </SRCI2C>
     </FILENAMES>
   </I2C>

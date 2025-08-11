@@ -71,16 +71,19 @@ function InstallHelper() {
     fi
     if ! command -v "$PYTHON" &> /dev/null
         then
-    # No python available at all
-        echo "Could not find $PYTHON."
+        # No python available at all
+        echo "Could not find '$PYTHON' executable."
         if [ "$IsWindows" == "1" ]; then
-            echo "Install Python from python.org and rerun the command."
+            echo "Install Python3 from python.org and rerun the command."
         else
             echo "Use your distributions package manager to install Python3."
         fi
         popd > /dev/null
+        # exit as we miss the most basic dependency
         exit 1
     fi
+
+    # we have at least some 'py' executable.
     FALLBACK_SCRIPT="$SCRIPTDIR/cli/fallback/fallback.py"
     $PYTHON "$FALLBACK_SCRIPT" "$env_dir"
     popd > /dev/null
@@ -91,6 +94,7 @@ function InstallHelper() {
 SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 pushd "$SCRIPTDIR" > /dev/null
 
+# foxBMS-prefix for installed tools
 # Define prefix Linux
 if [ "$IsLinux" == "1" ]; then
     PREFIX="/opt/foxbms"
@@ -100,7 +104,7 @@ elif [ "$IsWindows" = "1" ] ; then
 fi
 
 # Name of the Python environment
-ENV_NAME="2025-03-pale-fox"
+ENV_NAME="2025-06-pale-fox"
 
 FOXBMS_PYTHON_ENV_DIRECTORY="${PREFIX}/envs/${ENV_NAME}"
 
@@ -132,6 +136,46 @@ fi
 
 # Environment is active and we have found a python executable,
 # therefore we can run fox.py
+
+# Special case if on Windows and the GUI shall open
+if [ "$IsWindows" = "1" ] ; then
+    for arg in "$@"; do
+        if [[ "$arg" == "gui" ]]; then
+            # by default use 'pythonw.exe' so that we can early exit after GUI
+            # start in case we need to debug the gui and provide the debug
+            # option, we need stdout and stderr, so we start the GUI 'blocking'
+            # using 'python.exe'
+            USE_PYTHON="pythonw"
+
+            # arguments that require 'python.exe' to be used
+            opts=("-h" "--help" "--debug-gui")
+            for search in "${opts[@]}"; do
+                for st in "$@"; do
+                    if [[ "$st" == "$search" ]]; then
+                        USE_PYTHON="python"
+                        break
+                    fi
+                done
+            done
+
+           # desired python executable is now defined
+
+            if [ "${USE_PYTHON}" = "pythonw" ] ; then
+                # There is a bug since at least Python3.12.10 that 'pythonw'
+                # cannot be used in the Git Bash on Windows.
+                # To omit creating weird error messages we just tell the user
+                # to use PowerShell.
+                echo "Use PowerShell and the PowerShell wrapper script 'fox.ps1' to start the GUI. "
+            else
+                ${USE_PYTHON} "${SCRIPTDIR}/fox.py" "$@"
+            fi
+            deactivate
+            popd > /dev/null
+            # if GUI is requested, early exit
+            exit $((rc))
+        fi
+    done
+fi
 
 # Run fox.py, after running the command, deactivate the environment and exit
 # with the fox.py exit code

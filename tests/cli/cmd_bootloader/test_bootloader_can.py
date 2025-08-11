@@ -59,7 +59,7 @@ try:
         BootFsmState,
         CanFsmState,
         StatusCode,
-        YesNoAnswer,
+        YesNoFlag,
     )
 except ModuleNotFoundError:
     sys.path.insert(0, str(Path(__file__).parents[3]))
@@ -73,7 +73,7 @@ except ModuleNotFoundError:
         BootFsmState,
         CanFsmState,
         StatusCode,
-        YesNoAnswer,
+        YesNoFlag,
     )
 
 
@@ -87,12 +87,8 @@ class TestBootloaderInterfaceCan(unittest.TestCase):
 
     def setUp(self):
         # Initialize virtual CAN bus instance
-        self.can_bus = can.interface.Bus(
-            "test", interface="virtual", preserve_timestamps=True
-        )
-        self.can_bus_test = can.interface.Bus(
-            "test", interface="virtual", preserve_timestamps=True
-        )
+        self.can_bus = can.interface.Bus("test", interface="virtual")
+        self.can_bus_test = can.interface.Bus("test", interface="virtual")
 
         # Initialize BootloaderCanBasics instance with virtual CAN bus instance
         self.bl = BootloaderInterfaceCan(can_bus=self.can_bus_test)
@@ -108,7 +104,7 @@ class TestBootloaderInterfaceCan(unittest.TestCase):
             "AcknowledgeFlag": AcknowledgeFlag.Received.value,
             "AcknowledgeMessage": AcknowledgeMessage.ReceivedCrcOfVectorTable.value,
             "StatusCode": StatusCode.ReceivedAndProcessed.value,
-            "YesNoAnswer": YesNoAnswer.Yes.value,
+            "Response": YesNoFlag.Yes.value,
         }
         self.send_test_ack_message(msg)
         ret_val_1_1, ret_val_2_1 = self.bl.send_crc(
@@ -122,7 +118,7 @@ class TestBootloaderInterfaceCan(unittest.TestCase):
             "AcknowledgeFlag": AcknowledgeFlag.Received.value,
             "AcknowledgeMessage": AcknowledgeMessage.Received8BytesCrc.value,
             "StatusCode": StatusCode.ReceivedAndProcessed.value,
-            "YesNoAnswer": YesNoAnswer.Yes.value,
+            "Response": YesNoFlag.Yes.value,
         }
         self.send_test_ack_message(msg)
         ret_val_1_1, ret_val_2_1 = self.bl.send_crc(0x2FFFFFFFFFFFFFFF)
@@ -134,7 +130,7 @@ class TestBootloaderInterfaceCan(unittest.TestCase):
             "AcknowledgeFlag": AcknowledgeFlag.Received.value,
             "AcknowledgeMessage": AcknowledgeMessage.Received8BytesCrc.value,
             "StatusCode": StatusCode.ReceivedAndProcessed.value,
-            "YesNoAnswer": YesNoAnswer.No.value,
+            "Response": YesNoFlag.No.value,
         }
         self.send_test_ack_message(msg)
         ret_val_1_2, ret_val_2_2 = self.bl.send_crc(0x2FFFFFFFFFFFFFFF)
@@ -157,7 +153,7 @@ class TestBootloaderInterfaceCan(unittest.TestCase):
             "AcknowledgeFlag": AcknowledgeFlag.Received.value,
             "AcknowledgeMessage": AcknowledgeMessage.ReceivedProgramInfo.value,
             "StatusCode": StatusCode.ReceivedAndProcessed.value,
-            "YesNoAnswer": YesNoAnswer.Yes.value,
+            "Response": YesNoFlag.Yes.value,
         }
         self.send_test_ack_message(msg)
 
@@ -177,7 +173,7 @@ class TestBootloaderInterfaceCan(unittest.TestCase):
             "AcknowledgeFlag": AcknowledgeFlag.Received.value,
             "AcknowledgeMessage": AcknowledgeMessage.ReceivedProgramInfo.value,
             "StatusCode": StatusCode.ReceivedAndProcessed.value,
-            "YesNoAnswer": YesNoAnswer.No.value,
+            "Response": YesNoFlag.No.value,
         }
         self.send_test_ack_message(msg)
 
@@ -196,7 +192,7 @@ class TestBootloaderInterfaceCan(unittest.TestCase):
             "AcknowledgeFlag": AcknowledgeFlag.Received.value,
             "AcknowledgeMessage": AcknowledgeMessage.ReceivedProgramInfo.value,
             "StatusCode": StatusCode.ReceivedAndProcessed.value,
-            "YesNoAnswer": YesNoAnswer.Yes.value,
+            "Response": YesNoFlag.Yes.value,
         }
         self.send_test_ack_message(msg)
         self.bl.get_bootloader_state = MagicMock()
@@ -243,7 +239,7 @@ class TestBootloaderInterfaceCan(unittest.TestCase):
             "AcknowledgeFlag": AcknowledgeFlag.Received.value,
             "AcknowledgeMessage": AcknowledgeMessage.ReceivedCmdToTransferProgram.value,
             "StatusCode": StatusCode.ReceivedAndProcessed.value,
-            "YesNoAnswer": YesNoAnswer.No.value,
+            "Response": YesNoFlag.No.value,
         }
         self.send_test_ack_message(msg)
         # Send beforehand the valid state message of bootloader
@@ -262,7 +258,7 @@ class TestBootloaderInterfaceCan(unittest.TestCase):
             "AcknowledgeFlag": AcknowledgeFlag.Received.value,
             "AcknowledgeMessage": AcknowledgeMessage.ReceivedCmdToTransferProgram.value,
             "StatusCode": StatusCode.ReceivedAndProcessed.value,
-            "YesNoAnswer": YesNoAnswer.No.value,
+            "Response": YesNoFlag.No.value,
         }
         self.send_test_ack_message(msg)
 
@@ -290,7 +286,7 @@ class TestBootloaderInterfaceCan(unittest.TestCase):
             "AcknowledgeFlag": AcknowledgeFlag.Received.value,
             "AcknowledgeMessage": AcknowledgeMessage.ReceivedCmdToResetBootProcess.value,
             "StatusCode": StatusCode.ReceivedAndInProcessing.value,
-            "YesNoAnswer": YesNoAnswer.No.value,
+            "Response": YesNoFlag.No.value,
         }
         self.send_test_ack_message(msg)
 
@@ -303,7 +299,7 @@ class TestBootloaderInterfaceCan(unittest.TestCase):
 
         # Send beforehand the current loop number
         msg = {"CurrentLoopNumber": 0}
-        db_message = self.bl.can.db.get_message_by_name("f_DataTransferInfo")
+        db_message = self.bl.can.db.get_message_by_name("f_BootloaderDataTransferInfo")
         data = db_message.encode(msg)
         test_message = can.Message(arbitration_id=db_message.frame_id, data=data)
         self.can_bus.send(test_message)
@@ -317,7 +313,7 @@ class TestBootloaderInterfaceCan(unittest.TestCase):
             "AcknowledgeFlag": AcknowledgeFlag.Received.value,
             "AcknowledgeMessage": AcknowledgeMessage.ReceivedCmdToResetBootProcess.value,
             "StatusCode": StatusCode.ReceivedAndInProcessing.value,
-            "YesNoAnswer": YesNoAnswer.No.value,
+            "Response": YesNoFlag.No.value,
         }
         self.send_test_ack_message(msg)
 
@@ -330,7 +326,7 @@ class TestBootloaderInterfaceCan(unittest.TestCase):
 
         # Send beforehand the current loop number
         msg = {"CurrentLoopNumber": 1000}
-        db_message = self.bl.can.db.get_message_by_name("f_DataTransferInfo")
+        db_message = self.bl.can.db.get_message_by_name("f_BootloaderDataTransferInfo")
         data = db_message.encode(msg)
         test_message = can.Message(arbitration_id=db_message.frame_id, data=data)
         self.can_bus.send(test_message)
@@ -344,7 +340,7 @@ class TestBootloaderInterfaceCan(unittest.TestCase):
             "AcknowledgeFlag": AcknowledgeFlag.Received.value,
             "AcknowledgeMessage": AcknowledgeMessage.ReceivedCmdToResetBootProcess.value,
             "StatusCode": StatusCode.ReceivedAndInProcessing.value,
-            "YesNoAnswer": YesNoAnswer.No.value,
+            "Response": YesNoFlag.No.value,
         }
         self.send_test_ack_message(msg)
 
@@ -357,7 +353,7 @@ class TestBootloaderInterfaceCan(unittest.TestCase):
 
         # Send beforehand the current loop number
         msg = {"CurrentLoopNumber": 0}
-        db_message = self.bl.can.db.get_message_by_name("f_DataTransferInfo")
+        db_message = self.bl.can.db.get_message_by_name("f_BootloaderDataTransferInfo")
         data = db_message.encode(msg)
         test_message = can.Message(arbitration_id=db_message.frame_id, data=data)
         self.can_bus.send(test_message)
@@ -371,7 +367,7 @@ class TestBootloaderInterfaceCan(unittest.TestCase):
             "AcknowledgeFlag": AcknowledgeFlag.Received.value,
             "AcknowledgeMessage": AcknowledgeMessage.ReceivedCmdToResetBootProcess.value,
             "StatusCode": StatusCode.ReceivedAndInProcessing.value,
-            "YesNoAnswer": YesNoAnswer.No.value,
+            "Response": YesNoFlag.No.value,
         }
         self.send_test_ack_message(msg)
 
@@ -399,7 +395,7 @@ class TestBootloaderInterfaceCan(unittest.TestCase):
             "AcknowledgeFlag": AcknowledgeFlag.Received.value,
             "AcknowledgeMessage": AcknowledgeMessage.ReceivedCmdToRunProgram.value,
             "StatusCode": StatusCode.ReceivedAndInProcessing.value,
-            "YesNoAnswer": YesNoAnswer.No.value,
+            "Response": YesNoFlag.No.value,
         }
         self.send_test_ack_message(msg)
         # Send beforehand an ACK message to show there is an valid program available on board
@@ -407,7 +403,7 @@ class TestBootloaderInterfaceCan(unittest.TestCase):
             "AcknowledgeFlag": AcknowledgeFlag.Received.value,
             "AcknowledgeMessage": AcknowledgeMessage.ReceivedCmdToRunProgram.value,
             "StatusCode": StatusCode.ReceivedAndProcessed.value,
-            "YesNoAnswer": YesNoAnswer.Yes.value,
+            "Response": YesNoFlag.Yes.value,
         }
         self.send_test_ack_message(msg)
         # Send beforehand an message that should send by foxBMS application
@@ -421,7 +417,7 @@ class TestBootloaderInterfaceCan(unittest.TestCase):
             "AcknowledgeFlag": AcknowledgeFlag.Received.value,
             "AcknowledgeMessage": AcknowledgeMessage.ReceivedCmdToRunProgram.value,
             "StatusCode": StatusCode.ReceivedAndInProcessing.value,
-            "YesNoAnswer": YesNoAnswer.No.value,
+            "Response": YesNoFlag.No.value,
         }
         self.send_test_ack_message(msg)
         # Send beforehand an ACK message to show there is an valid program available on board
@@ -429,7 +425,7 @@ class TestBootloaderInterfaceCan(unittest.TestCase):
             "AcknowledgeFlag": AcknowledgeFlag.Received.value,
             "AcknowledgeMessage": AcknowledgeMessage.ReceivedCmdToRunProgram.value,
             "StatusCode": StatusCode.ReceivedAndProcessed.value,
-            "YesNoAnswer": YesNoAnswer.No.value,
+            "Response": YesNoFlag.No.value,
         }
         self.send_test_ack_message(msg)
         # Send beforehand an message that should send by foxBMS application
@@ -443,7 +439,7 @@ class TestBootloaderInterfaceCan(unittest.TestCase):
             "AcknowledgeFlag": AcknowledgeFlag.Received.value,
             "AcknowledgeMessage": AcknowledgeMessage.ReceivedCmdToRunProgram.value,
             "StatusCode": StatusCode.ReceivedAndInProcessing.value,
-            "YesNoAnswer": YesNoAnswer.No.value,
+            "Response": YesNoFlag.No.value,
         }
         self.send_test_ack_message(msg)
         # Send beforehand an ACK message to show there is an valid program available on board
@@ -451,7 +447,7 @@ class TestBootloaderInterfaceCan(unittest.TestCase):
             "AcknowledgeFlag": AcknowledgeFlag.Received.value,
             "AcknowledgeMessage": AcknowledgeMessage.ReceivedCmdToRunProgram.value,
             "StatusCode": StatusCode.ReceivedAndProcessed.value,
-            "YesNoAnswer": YesNoAnswer.Yes.value,
+            "Response": YesNoFlag.Yes.value,
         }
         self.send_test_ack_message(msg)
         self.bl.can.wait_can_message = MagicMock()
@@ -474,7 +470,7 @@ class TestBootloaderInterfaceCan(unittest.TestCase):
             "AcknowledgeFlag": AcknowledgeFlag.Received.value,
             "AcknowledgeMessage": AcknowledgeMessage.ReceivedCmdToRunProgram.value,
             "StatusCode": StatusCode.ReceivedAndInProcessing.value,
-            "YesNoAnswer": YesNoAnswer.No.value,
+            "Response": YesNoFlag.No.value,
         }
         self.bl.can.wait_can_ack_msg.side_effect = [msg, None]
         self.assertFalse(self.bl.run_app_on_bootloader())
@@ -507,7 +503,7 @@ class TestBootloaderInterfaceCan(unittest.TestCase):
     def test_get_current_num_of_loops(self, *args):
         """Function to test the function get_current_num_of_loops()."""
         msg = {"CurrentLoopNumber": 1000}
-        db_message = self.bl.can.db.get_message_by_name("f_DataTransferInfo")
+        db_message = self.bl.can.db.get_message_by_name("f_BootloaderDataTransferInfo")
         data = db_message.encode(msg)
         test_message = can.Message(arbitration_id=db_message.frame_id, data=data)
         self.can_bus.send(test_message)
@@ -557,7 +553,9 @@ class TestBootloaderInterfaceCan(unittest.TestCase):
 
     def send_test_ack_message(self, msg, *args):
         """Function to send a debug ack message."""
-        db_message = self.bl.can.db.get_message_by_name("f_AcknowledgeMessage")
+        db_message = self.bl.can.db.get_message_by_name(
+            "f_BootloaderAcknowledgeMessage"
+        )
         data = db_message.encode(msg)
         test_message = can.Message(arbitration_id=db_message.frame_id, data=data)
         self.can_bus.send(test_message)

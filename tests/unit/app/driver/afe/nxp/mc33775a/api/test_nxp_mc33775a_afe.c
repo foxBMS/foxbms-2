@@ -43,12 +43,12 @@
  * @file    test_nxp_mc33775a_afe.c
  * @author  foxBMS Team
  * @date    2020-06-10 (date of creation)
- * @updated 2025-03-31 (date of last update)
- * @version v1.9.0
+ * @updated 2025-08-07 (date of last update)
+ * @version v1.10.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
- * @brief   Test of some module
+ * @brief   Test of nxp_mc33775a_afe.c
  * @details TODO
  *
  */
@@ -58,9 +58,11 @@
 #include "unity.h"
 #include "Mockafe_dma.h"
 #include "Mockdma.h"
-#include "Mocknxp_mc33775a.h"
+#include "Mocknxp_mc3377x.h"
 #include "Mockos.h"
 #include "Mockpex.h"
+
+#include "nxp_afe.h"
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -70,6 +72,8 @@ TEST_SOURCE_FILE("nxp_mc33775a_afe.c")
 
 TEST_INCLUDE_PATH("../../src/app/driver/afe/api")
 TEST_INCLUDE_PATH("../../src/app/driver/afe/nxp/api")
+TEST_INCLUDE_PATH("../../src/app/driver/afe/nxp/common/mc3377x")
+TEST_INCLUDE_PATH("../../src/app/driver/afe/nxp/common/mc3377x/vendor")
 TEST_INCLUDE_PATH("../../src/app/driver/afe/nxp/mc33775a")
 TEST_INCLUDE_PATH("../../src/app/driver/afe/nxp/mc33775a/config")
 TEST_INCLUDE_PATH("../../src/app/driver/afe/nxp/mc33775a/vendor")
@@ -80,19 +84,19 @@ TEST_INCLUDE_PATH("../../src/app/driver/spi")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 
-static DATA_BLOCK_CELL_VOLTAGE_s n775_cellVoltage           = {.header.uniqueId = DATA_BLOCK_ID_CELL_VOLTAGE_BASE};
-static DATA_BLOCK_CELL_TEMPERATURE_s n775_cellTemperature   = {.header.uniqueId = DATA_BLOCK_ID_CELL_TEMPERATURE_BASE};
-static DATA_BLOCK_MIN_MAX_s n775_minMax                     = {.header.uniqueId = DATA_BLOCK_ID_MIN_MAX};
-static DATA_BLOCK_BALANCING_CONTROL_s n775_balancingControl = {.header.uniqueId = DATA_BLOCK_ID_BALANCING_CONTROL};
-static DATA_BLOCK_ALL_GPIO_VOLTAGES_s n775_allGpioVoltage   = {.header.uniqueId = DATA_BLOCK_ID_ALL_GPIO_VOLTAGES_BASE};
-static DATA_BLOCK_BALANCING_FEEDBACK_s n775_balancingFeedback = {
+static DATA_BLOCK_CELL_VOLTAGE_s n77x_cellVoltage           = {.header.uniqueId = DATA_BLOCK_ID_CELL_VOLTAGE_BASE};
+static DATA_BLOCK_CELL_TEMPERATURE_s n77x_cellTemperature   = {.header.uniqueId = DATA_BLOCK_ID_CELL_TEMPERATURE_BASE};
+static DATA_BLOCK_MIN_MAX_s n77x_minMax                     = {.header.uniqueId = DATA_BLOCK_ID_MIN_MAX};
+static DATA_BLOCK_BALANCING_CONTROL_s n77x_balancingControl = {.header.uniqueId = DATA_BLOCK_ID_BALANCING_CONTROL};
+static DATA_BLOCK_ALL_GPIO_VOLTAGES_s n77x_allGpioVoltage   = {.header.uniqueId = DATA_BLOCK_ID_ALL_GPIO_VOLTAGES_BASE};
+static DATA_BLOCK_BALANCING_FEEDBACK_s n77x_balancingFeedback = {
     .header.uniqueId = DATA_BLOCK_ID_BALANCING_FEEDBACK_BASE};
-static DATA_BLOCK_SLAVE_CONTROL_s n775_slaveControl = {.header.uniqueId = DATA_BLOCK_ID_SLAVE_CONTROL};
-static DATA_BLOCK_OPEN_WIRE_s n775_openWire         = {.header.uniqueId = DATA_BLOCK_ID_OPEN_WIRE_BASE};
-static N775_SUPPLY_CURRENT_s n775_supplyCurrent     = {0};
-static N775_ERROR_TABLE_s n775_errorTable           = {0};
+static DATA_BLOCK_SLAVE_CONTROL_s n77x_slaveControl = {.header.uniqueId = DATA_BLOCK_ID_SLAVE_CONTROL};
+static DATA_BLOCK_OPEN_WIRE_s n77x_openWire         = {.header.uniqueId = DATA_BLOCK_ID_OPEN_WIRE_BASE};
+static N77X_SUPPLY_CURRENT_s n77x_supplyCurrent     = {0};
+static N77X_ERROR_TABLE_s n77x_errorTable           = {0};
 
-N775_STATE_s n775_stateBase = {
+N77X_STATE_s n77x_stateBase = {
     .firstMeasurementMade       = false,
     .currentString              = 0u,
     .pSpiTxSequenceStart        = NULL_PTR,
@@ -102,17 +106,19 @@ N775_STATE_s n775_stateBase = {
     .currentMux                 = {0u},
     .pMuxSequenceStart          = NULL_PTR,
     .pMuxSequence               = NULL_PTR,
-    .n775Data.cellVoltage       = &n775_cellVoltage,
-    .n775Data.cellTemperature   = &n775_cellTemperature,
-    .n775Data.allGpioVoltage    = &n775_allGpioVoltage,
-    .n775Data.minMax            = &n775_minMax,
-    .n775Data.balancingFeedback = &n775_balancingFeedback,
-    .n775Data.balancingControl  = &n775_balancingControl,
-    .n775Data.slaveControl      = &n775_slaveControl,
-    .n775Data.openWire          = &n775_openWire,
-    .n775Data.supplyCurrent     = &n775_supplyCurrent,
-    .n775Data.errorTable        = &n775_errorTable,
+    .n77xData.cellVoltage       = &n77x_cellVoltage,
+    .n77xData.cellTemperature   = &n77x_cellTemperature,
+    .n77xData.allGpioVoltage    = &n77x_allGpioVoltage,
+    .n77xData.minMax            = &n77x_minMax,
+    .n77xData.balancingFeedback = &n77x_balancingFeedback,
+    .n77xData.balancingControl  = &n77x_balancingControl,
+    .n77xData.slaveControl      = &n77x_slaveControl,
+    .n77xData.openWire          = &n77x_openWire,
+    .n77xData.supplyCurrent     = &n77x_supplyCurrent,
+    .n77xData.errorTable        = &n77x_errorTable,
 };
+
+uint8_t testString = 0;
 
 /*========== Setup and Teardown =============================================*/
 void setUp(void) {
@@ -122,3 +128,64 @@ void tearDown(void) {
 }
 
 /*========== Test Cases =====================================================*/
+void testNXP_Measure(void) {
+    /* ======= Routine tests =============================================== */
+    /* ======= RT1/1 ======= */
+    N77x_Measure_Expect(&n77x_stateBase);
+    TEST_ASSERT_EQUAL(STD_OK, NXP_Measure());
+}
+
+void testNXP_Initialize(void) {
+    /* ======= Routine tests =============================================== */
+    /* ======= RT1/1 ======= */
+    PEX_SetPinDirectionOutput_Expect(PEX_PORT_EXPANDER3, PEX_PORT_1_PIN_0);
+    PEX_SetPin_Expect(PEX_PORT_EXPANDER3, PEX_PORT_1_PIN_0);
+    uint32_t testTime = 5;
+    OS_GetTickCount_ExpectAndReturn(testTime);
+    OS_DelayTaskUntil_Expect(&testTime, 10u);
+
+    TEST_ASSERT_EQUAL(STD_OK, NXP_Initialize());
+}
+
+void testNXP_StartMeasurement(void) {
+    /* ======= Routine tests =============================================== */
+    /* ======= RT1/1 ======= */
+    TEST_ASSERT_EQUAL(STD_NOT_OK, NXP_StartMeasurement());
+}
+
+void testNXP_IsFirstMeasurementCycleFinished(void) {
+    /* ======= Routine tests =============================================== */
+    /* ======= RT1/1 ======= */
+    N77x_IsFirstMeasurementCycleFinished_ExpectAndReturn(&n77x_stateBase, false);
+    TEST_ASSERT_FALSE(NXP_IsFirstMeasurementCycleFinished());
+}
+
+void testNXP_RequestTemperatureRead(void) {
+    /* ======= Routine tests =============================================== */
+    /* ======= RT1/1 ======= */
+    TEST_ASSERT_EQUAL(STD_NOT_OK, NXP_RequestTemperatureRead(testString));
+}
+
+void testNXP_RequestBalancingFeedbackRead(void) {
+    /* ======= Routine tests =============================================== */
+    /* ======= RT1/1 ======= */
+    TEST_ASSERT_EQUAL(STD_NOT_OK, NXP_RequestBalancingFeedbackRead(testString));
+}
+
+void testNXP_RequestEepromRead(void) {
+    /* ======= Routine tests =============================================== */
+    /* ======= RT1/1 ======= */
+    TEST_ASSERT_EQUAL(STD_NOT_OK, NXP_RequestEepromRead(testString));
+}
+
+void testNXP_RequestEeprimWrite(void) {
+    /* ======= Routine tests =============================================== */
+    /* ======= RT1/1 ======= */
+    TEST_ASSERT_EQUAL(STD_NOT_OK, NXP_RequestEepromWrite(testString));
+}
+
+void testNXP_RequestOpenWireCheck(void) {
+    /* ======= Routine tests =============================================== */
+    /* ======= RT1/1 ======= */
+    TEST_ASSERT_EQUAL(STD_NOT_OK, NXP_RequestOpenWireCheck(testString));
+}

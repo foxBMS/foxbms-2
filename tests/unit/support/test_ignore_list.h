@@ -43,8 +43,8 @@
  * @file    test_ignore_list.h
  * @author  foxBMS Team
  * @date    2023-07-21 (date of creation)
- * @updated 2025-03-31 (date of last update)
- * @version v1.9.0
+ * @updated 2025-08-07 (date of last update)
+ * @version v1.10.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -77,4 +77,7 @@
 #pragma GCC diagnostic ignored "-Wswitch"
 /* TODO: fix once CMock creates correct '*ReturnThruPtr*' mocks */
 #pragma GCC diagnostic ignored "-Wpointer-arith"
+/* To solve the issue while running unittest test_boot.c */
+#pragma GCC diagnostic ignored "-Wint-to-pointer-cast"
+
 #endif /* FOXBMS__TEST_IGNORE_LIST_H_ */

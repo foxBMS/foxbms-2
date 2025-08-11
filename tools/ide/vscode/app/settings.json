@@ -2,6 +2,10 @@
   "C_Cpp.autoAddFileAssociations": true,
   "C_Cpp.clang_format_fallbackStyle": "none",
   "C_Cpp.clang_format_style": "file",
+  "[json]": {
+    "editor.insertSpaces": true,
+    "editor.tabSize": 2
+  },
   "[c]": {
     "editor.formatOnSave": true,
     "editor.rulers": [
@@ -42,6 +46,7 @@
     "**/.DS_Store": true,
     "**/.git": true,
     "**/.hg": true,
+    "**/.mypy_cache/**": true,
     "**/.svn": true,
     "**/.vscode/**": true,
     "**/CVS": true,
@@ -61,11 +66,15 @@
     "place-holder"
   ],
   "python.terminal.activateEnvironment": false,
+  "python.analysis.extraPaths": [
+    "place-holder"
+  ],
   "search.exclude": {
     "**/*.code-search": true,
     "**/bower_components": true,
     "**/node_modules": true
   },
   "task.autoDetect": "off",
-  "terminal.integrated.persistentSessionReviveProcess": "never"
+  "terminal.integrated.persistentSessionReviveProcess": "never",
+  "git.openRepositoryInParentFolders": "always"
 }

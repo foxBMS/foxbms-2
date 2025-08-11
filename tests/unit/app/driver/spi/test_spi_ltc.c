@@ -43,8 +43,8 @@
  * @file    test_spi_ltc.c
  * @author  foxBMS Team
  * @date    2020-10-20 (date of creation)
- * @updated 2025-03-31 (date of last update)
- * @version v1.9.0
+ * @updated 2025-08-07 (date of last update)
+ * @version v1.10.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -198,7 +198,7 @@ spiBASE_t spiMockHandle = {0};
 
 spi_config_reg_t spiMockConfigRegister = {0};
 
-uint8_t spiTestArrayResultsLtc[BS_NR_OF_STRINGS] = {SPI_HARDWARE_CHIP_SELECT_1_ACTIVE};
+uint8_t spiLtcTestArrayResults[BS_NR_OF_STRINGS] = {SPI_HARDWARE_CHIP_SELECT_1_ACTIVE};
 
 /*========== Setup and Teardown =============================================*/
 void setUp(void) {
@@ -258,6 +258,6 @@ void testSPI_InitializeChipSelectsAfeLtc(void) {
     }
     /* ======= RT1/1: test output verification */
     for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
-        TEST_ASSERT_EQUAL(spiTestArrayResultsLtc[s], spi_ltcInterface[s].pConfig->CSNR);
+        TEST_ASSERT_EQUAL(spiLtcTestArrayResults[s], spi_ltcInterface[s].pConfig->CSNR);
     }
 }

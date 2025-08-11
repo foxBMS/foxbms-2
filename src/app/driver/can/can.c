@@ -43,8 +43,8 @@
  * @file    can.c
  * @author  foxBMS Team
  * @date    2019-12-04 (date of creation)
- * @updated 2025-03-31 (date of last update)
- * @version v1.9.0
+ * @updated 2025-08-07 (date of last update)
+ * @version v1.10.0
  * @ingroup DRIVERS
  * @prefix  CAN
  *
@@ -58,7 +58,9 @@
 
 #include "can.h"
 
+#include "HL_can.h"
 #include "HL_het.h"
+#include "HL_reg_can.h"
 #include "HL_reg_system.h"
 
 #include "can_helper.h"
@@ -236,7 +238,7 @@ static void CAN_CheckCanTimingOfCurrentSensor(void);
  */
 static void CAN_ConfigureRxMailboxesForExtendedIdentifiers(void);
 
-/** initialize the SPI interface to the CAN transceiver */
+/** Initialize transceiver standby/enable pins */
 static void CAN_InitializeTransceiver(void);
 
 /**
@@ -962,6 +964,20 @@ extern STD_RETURN_TYPE_e CAN_DataSend(CAN_NODE_s *pNode, uint32_t id, CAN_IDENTI
     return result;
 }
 
+#if !defined(UNITY_UNIT_TEST) || defined(COMPILE_FOR_UNIT_TEST)
+/* in the unit test case we mock 'HL_can.h', so we have an implementation */
+extern void canMessageNotification(canBASE_t *node, uint32 messageBox) {
+    /* AXIVION Routine Generic-MissingParameterAssert: node: unchecked in interrupt */
+    /* AXIVION Routine Generic-MissingParameterAssert: messageBox: unchecked in interrupt */
+
+    if (messageBox <= CAN_NR_OF_TX_MESSAGE_BOX) {
+        CAN_TxInterrupt(node, messageBox);
+    } else {
+        CAN_RxInterrupt(node, messageBox);
+    }
+}
+#endif
+
 extern void CAN_SendMessagesFromQueue(void) {
     CAN_BUFFER_ELEMENT_s message = {NULL_PTR, 0u, CAN_INVALID_TYPE, {0u, 0u, 0u, 0u, 0u, 0u, 0u, 0u}};
 
@@ -1023,23 +1039,6 @@ extern bool CAN_IsCurrentSensorCcPresent(uint8_t stringNumber) {
 extern bool CAN_IsCurrentSensorEcPresent(uint8_t stringNumber) {
     FAS_ASSERT(stringNumber < BS_NR_OF_STRINGS);
     return can_state.currentSensorECPresent[stringNumber];
-}
-
-/** called in case of CAN interrupt, defined as weak in HAL */
-/* 'extern'  is omitted here (as opposed to how the foxBMS project declares
-   and defines functions) as the TI HAL convention does omit the keyword here
-   and we want to stay consistent with TI's declaration.) */
-/* AXIVION Next Codeline Style Linker-Multiple_Definition Linker-General_ODR_Violation: TI HAL only provides a weak
- * implementation */
-void UNIT_TEST_WEAK_IMPL canMessageNotification(canBASE_t *node, uint32 messageBox) {
-    /* AXIVION Routine Generic-MissingParameterAssert: node: unchecked in interrupt */
-    /* AXIVION Routine Generic-MissingParameterAssert: messageBox: unchecked in interrupt */
-
-    if (messageBox <= CAN_NR_OF_TX_MESSAGE_BOX) {
-        CAN_TxInterrupt(node, messageBox);
-    } else {
-        CAN_RxInterrupt(node, messageBox);
-    }
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/

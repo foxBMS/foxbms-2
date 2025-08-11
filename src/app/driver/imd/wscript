@@ -37,10 +37,10 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""Helper Build Script: ``./src/app/driver/imd/wscript``
-===================================================
+"""Build the 'IMD'-driver objects.
 
-Helper script to build the insulation measurement device"""
+The build processes of the specific 'IMD'-driver is propagated to lower level
+build scripts for the specific IMD device vendor."""
 
 import os
 

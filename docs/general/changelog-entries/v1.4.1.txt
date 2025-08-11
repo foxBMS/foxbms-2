@@ -14,7 +14,7 @@ Changed
 
 - Updated the hardware design files (e.g., schematics, layout, BOM and STEP
   file etc.) of the |bms-master|  to ``v1.1.5`` (see
-  :ref:`CHANGELOG_FOR_MASTER_TMS570_V1_1_5`).
+  :ref:`CHANGELOG_FOR_THE_TI_TMS570_BASED_BMS_MASTER_V1_1_5`).
 - Updated documentation of the interface using the |max-max17841b| transceiver
   chip.
 - The implementation of the CAN driver has been changed to simplify adding

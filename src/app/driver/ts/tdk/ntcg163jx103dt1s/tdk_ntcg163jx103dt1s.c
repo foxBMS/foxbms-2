@@ -43,8 +43,8 @@
  * @file    tdk_ntcg163jx103dt1s.c
  * @author  foxBMS Team
  * @date    2025-01-16 (date of creation)
- * @updated 2025-03-31 (date of last update)
- * @version v1.9.0
+ * @updated 2025-08-07 (date of last update)
+ * @version v1.10.0
  * @ingroup DRIVERS
  * @prefix  TS
  *

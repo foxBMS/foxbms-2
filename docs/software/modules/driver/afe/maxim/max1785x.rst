@@ -26,7 +26,7 @@ The driver is separated into three main modules with additional helper modules.
 The three main modules are:
 
 - MAX17841B bridge IC driver that interacts with the interface
-  from :ref:`INTERFACE_MAX17841B___V1_0_0__` in ``mxm_17841b.c``,
+  from :ref:`MAX_MAX17841B_BASED_BMS_INTERFACE_V1_0_0` in ``mxm_17841b.c``,
 - Battery Management UART protocol abstraction in
   ``max_battery_management.c`` and
 - MAX1785x device driver in ``mxm_1785x.c``.

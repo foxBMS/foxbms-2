@@ -40,9 +40,13 @@ The state machine consists of the following states:
 The transitions between the main states of the IMD state machine is depicted
 below.
 
-.. graphviz:: imd-state-diagram.dot
-    :caption: IMD state flow diagram
-    :name: imd-state-diagram
+.. drawio-figure:: imd-state-diagram.drawio
+   :format: svg
+   :alt: IMD state flow diagram
+   :name: imd-state-diagram
+   :width: 240px
+
+   IMD state flow diagram
 
 These transitions will either be performed automatically or on request. The
 following requests can be made to the state machine:

@@ -97,7 +97,14 @@ class Mapping:
             # will cause Tkinter exception, which can not be
             # catched easily.
             if self.date_format is not None:
-                datetime.now().strftime(self.date_format)
+                date_str = datetime.now().strftime(self.date_format)
+                # This if clause is needed on Linux, because strftime will
+                # silently accept wrong date format strings. If the date
+                # format string is wrong strftime returns the date format
+                # string with additional whitespace on Linux instead of
+                # the current datetime
+                if date_str.replace(" ", "") == self.date_format:
+                    raise ValueError
         except ValueError:
             recho("Error plot config file: Date format is invalid.")
             sys.exit(1)

@@ -37,12 +37,20 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""Script to check the section markers in C files"""
+"""Check for correct section markers in provided C source and header files.
+
+This script verifies that all required section markers are present, in the correct
+order, and formatted properly in C and header files. It also ensures each marker is
+preceded by a blank line and, for source/header files, checks for the presence of
+the '#ifdef UNITY_UNIT_TEST' directive after the unit test marker.
+It is intended for use with pre-commit.
+"""
 
 import argparse
 import sys
+from collections.abc import Sequence
 from pathlib import Path
-from typing import Literal, Sequence
+from typing import Literal
 
 FileTypes = Literal["src.c", "src.h", "test.c", "test.h"]
 TYPES = {
@@ -79,8 +87,21 @@ TYPES = {
 
 
 def run_check(filename: Path, file_type: FileTypes) -> int:
-    """Runs the check"""
-    txt = filename.read_text(encoding="ascii")
+    """Check a file for correct section marker usage and order.
+
+    Args:
+        filename: Path to the file to check.
+        file_type: Expected file type string for section markers.
+
+    Return:
+        Number of section marker or formatting issues found.
+
+    """
+    try:
+        txt = filename.read_text(encoding="ascii")
+    except UnicodeDecodeError:
+        print(f"{filename}: Could not ASCII-decode this file.", file=sys.stderr)
+        return 1
     txt_lines = txt.splitlines()
     markers = TYPES[file_type]
     err = 0
@@ -117,7 +138,7 @@ def run_check(filename: Path, file_type: FileTypes) -> int:
             idx.append(-1)
             return err
         try:
-            if not txt_lines[unit_test_define] == "#ifdef UNITY_UNIT_TEST":
+            if txt_lines[unit_test_define] != "#ifdef UNITY_UNIT_TEST":
                 err += 1
                 msg = (
                     f"{filename.as_posix()}: '#ifdef UNITY_UNIT_TEST' is "
@@ -135,7 +156,15 @@ def run_check(filename: Path, file_type: FileTypes) -> int:
 
 
 def check_src(files: Sequence[Path]) -> int:
-    """Check src files"""
+    """Check C source/header files for section marker correctness.
+
+    Args:
+        files: Iterable of file paths to check.
+
+    Return:
+        Total number of issues found across all files.
+
+    """
     err = 0
     for i in files:
         if i.suffix == ".c":
@@ -150,7 +179,15 @@ def check_src(files: Sequence[Path]) -> int:
 
 
 def check_test(files: Sequence[Path]) -> int:
-    """Check test files"""
+    """Check *test* C source/header files for section marker correctness.
+
+    Args:
+        files: Iterable of file paths to check.
+
+    Return:
+        Total number of issues found across all files.
+
+    """
     err = 0
     for i in files:
         if i.suffix == ".c":
@@ -165,7 +202,15 @@ def check_test(files: Sequence[Path]) -> int:
 
 
 def main(argv: Sequence[str] | None = None) -> int:
-    """Encoding header checker"""
+    """Command-line interface for section marker checking.
+
+    Args:
+        argv: Optional sequence of command-line arguments.
+
+    Return:
+        Exit code (0 if all files are correct, >0 otherwise).
+
+    """
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--file-type",
@@ -175,10 +220,8 @@ def main(argv: Sequence[str] | None = None) -> int:
     )
     parser.add_argument("files", nargs="*", help="Files to check")
     args = parser.parse_args(argv)
-    err = 0
     files = [Path(i) for i in args.files]
-    err = globals()[f"check_{args.file_type}"](files=files)
-    return err
+    return globals()[f"check_{args.file_type}"](files=files)
 
 
 if __name__ == "__main__":

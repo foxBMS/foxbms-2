@@ -37,10 +37,10 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""Implementation of the CSVHandler class to take given data and return it in a different format."""
+"""Implementation of the CSVHandler class which enables reading data from a
+.csv file"""
 
 import sys
-import tempfile
 from pathlib import Path
 
 import pandas
@@ -49,6 +49,8 @@ from pyarrow.lib import ArrowInvalid  # pylint: disable=no-name-in-module
 from yaml import safe_load
 
 from ...helpers.click_helpers import recho
+from ...helpers.file_tracker import FileTracker
+from ...helpers.tmp_handler import TmpHandler
 from .csv_handler_interface import CSVHandlerInterface
 
 
@@ -56,20 +58,21 @@ class CSVHandler(CSVHandlerInterface):  # pylint: disable=too-few-public-methods
     """Class that implements the interface CSVHandler"""
 
     def __init__(self, columns: dict[str, str], skip: int, precision: int) -> None:
+        """Creates the CSVHandler object"""
+        self.columns = columns
         self.skip = skip
         self.precision = precision
-        self.columns = columns
 
-    def get_data(self, file_path: Path) -> pandas.DataFrame:
+    def get_data(self, file_path: Path, no_tmp: bool = True) -> pandas.DataFrame:
         """Read the given file and returns the contained data."""
         try:
-            return self._get_data(file_path)
+            return self._get_data(file_path, no_tmp)
         except ArrowInvalid as e:
             recho(f"Parquet Error: {e}")
             sys.exit(1)
         except (ValueError, TypeError) as e:
             if "do not match columns" in str(e):
-                not_found_columns = str(e).split(":")[1]
+                not_found_columns = str(e).split(":")[1].strip()
                 recho(
                     "Error in data config file: Skip value removed header or "
                     f"desired columns {not_found_columns} not found in CSV file."
@@ -78,12 +81,15 @@ class CSVHandler(CSVHandlerInterface):  # pylint: disable=too-few-public-methods
                 recho(f"Error in data config file: {str(e)}")
             sys.exit(1)
 
-    def _get_data(self, file_path: Path) -> pandas.DataFrame:
+    def _get_data(self, file_path: Path, no_tmp: bool) -> pandas.DataFrame:
         """Private function to read the given file and return the
         contained data without logical error handling"""
+        tmp_handler = TmpHandler(file_path.parent)
+        file_tracker = FileTracker(tmp_handler.tmp_dir)
         # Check whether the data has already been saved as a parquet file
-        parquet_file_path = self._check_for_tmp_data(file_path)
-        if parquet_file_path:
+        parquet_file_path = tmp_handler.check_for_tmp_file(file_path, "parquet")
+        data_file_changed = file_tracker.check_file_changed(file_path)
+        if parquet_file_path is not None and not data_file_changed and not no_tmp:
             data = pandas.read_parquet(parquet_file_path, engine="pyarrow")
         else:
             # get specific column with datetime type and set values to string
@@ -91,7 +97,14 @@ class CSVHandler(CSVHandlerInterface):  # pylint: disable=too-few-public-methods
             datetime_columns = {
                 x: "string" for x in self.columns if self.columns[x] == "datetime"
             }
+            string_columns = {
+                x: "string" for x in self.columns if self.columns[x] == "string"
+            }
             self.columns = self.columns | datetime_columns
+            # Int64 data type supports NaN values in contrary to numpys int64
+            self.columns = {
+                k: (v if v != "int" else "Int64") for (k, v) in self.columns.items()
+            }
             data = pandas.read_csv(
                 file_path,
                 usecols=list(self.columns.keys()),
@@ -99,17 +112,17 @@ class CSVHandler(CSVHandlerInterface):  # pylint: disable=too-few-public-methods
                 skiprows=self.skip,
                 parse_dates=list(datetime_columns.keys()),
             )
+            # Emptfy field are read as NaN values, which cause problems with
+            # string columns during plotting
+            for string_column in string_columns:
+                data[string_column] = data[string_column].fillna("NULL")
             data = data.round(self.precision)
-            tmp_dir = CSVHandler._check_for_tmp_directory(file_path=file_path)
-            if tmp_dir is None:
-                tmp_dir = CSVHandler._create_tmp_directory(file_path)
-            data.to_parquet(
-                tmp_dir / Path(file_path.stem + ".parquet"), engine="pyarrow"
-            )
+            parquet_file_name = tmp_handler.get_hash_name(file_path, "parquet")
+            data.to_parquet((tmp_handler.tmp_dir / parquet_file_name), engine="pyarrow")
         return data
 
     @staticmethod
-    def validate_config(config: dict):
+    def validate_config(config: dict) -> None:
         """Validates the CSVHandler configuration"""
         schema_path = Path(__file__).parent / "schemas" / "csv_handler.json"
         with open(schema_path, encoding="utf-8") as f:
@@ -120,29 +133,3 @@ class CSVHandler(CSVHandlerInterface):  # pylint: disable=too-few-public-methods
             error_text = str(e).splitlines()[0]
             recho(f"CSV handler validation error: {error_text}")
             sys.exit(1)
-
-    @staticmethod
-    def _check_for_tmp_data(file_path: Path) -> Path | None:
-        """Check whether there the data is already saved in the temporary directory."""
-        tmp_dir = CSVHandler._check_for_tmp_directory(file_path=file_path)
-        if tmp_dir:
-            files = sorted(Path(tmp_dir).glob("*.parquet"))
-            for parquet in files:
-                if parquet.stem == file_path.stem:
-                    return parquet
-        return None
-
-    @staticmethod
-    def _check_for_tmp_directory(file_path: Path):
-        """Check whether there is a temporary directory to save the data in."""
-        dirs = [d for d in file_path.parent.iterdir() if d.is_dir()]
-        for d in dirs:
-            if "temp_data_foxplot_" in d.name:
-                return d
-        return None
-
-    @staticmethod
-    def _create_tmp_directory(file_path: Path):
-        """Create a temporary directory to save the data in."""
-        temp_dir = tempfile.mkdtemp(prefix="temp_data_foxplot_", dir=file_path.parent)
-        return temp_dir

@@ -42,26 +42,23 @@
 import sys
 from io import TextIOWrapper
 from pathlib import Path
-from typing import cast
 
-import click
 from cantools import database
 from cantools.database.can.database import Database
 
+from ....helpers.click_helpers import recho
 from ..etl.can_decode import CANDecode
-from . import read_config
 
 
-def can_decode_setup(config: Path) -> CANDecode:
+def can_decode_setup(config: dict) -> CANDecode:
     """Reads config file and creates the CANDecode object
 
     :param config: Path to the configuration file
     :return: CANDecode object
     """
-    config_dict = read_config(config)
-    validate_decode_config(config_dict)
-    config_dict["dbc"] = get_cantools_database(config_dict["dbc"])
-    return CANDecode(**config_dict)
+    validate_decode_config(config)
+    config["dbc"] = get_cantools_database(config["dbc"])
+    return CANDecode(**config)
 
 
 def get_cantools_database(dbc_path: Path) -> Database:
@@ -71,58 +68,39 @@ def get_cantools_database(dbc_path: Path) -> Database:
     :return: Cantools database
     """
     try:
-        return cast(
-            database.can.database.Database,
-            database.load_file(dbc_path, database_format="dbc", encoding="utf-8"),
-        )
+        db = database.load_file(dbc_path, database_format="dbc", encoding="utf-8")
+        if not isinstance(db, database.can.database.Database):
+            recho("Not a 'Database'.")
+            raise SystemExit(1)
+        return db
     except database.UnsupportedDatabaseFormatError:
-        click.secho("Invalid DBC file", fg="red", err=True)
+        recho("Invalid DBC file.")
         raise SystemExit(1) from None
     except FileNotFoundError:
-        click.secho("DBC file not found", fg="red", err=True)
+        recho("DBC file not found.")
         raise SystemExit(1) from None
 
 
-def validate_decode_config(config_dict: dict) -> None:
+def validate_decode_config(config: dict) -> None:
     """Validates the configuration file of the decode subcommand
 
-    :param config_dict: Dictionary with configurations
+    :param config: Dictionary with configurations
     """
-    if "dbc" not in config_dict:
-        click.secho(
-            "Configuration file is missing 'dbc' parameter.", fg="red", err=True
-        )
+    dbc = config["dbc"]
+    if dbc is None or not isinstance(dbc, Path):
+        recho("'dbc' configuration is not a Path.")
         sys.exit(1)
-    if not isinstance(config_dict["dbc"], str):
-        click.secho(
-            "'dbc' in the configuration file is not a string.", fg="red", err=True
-        )
+    timestamp_pos = config["timestamp_pos"]
+    if timestamp_pos is None or not isinstance(timestamp_pos, int):
+        recho("'timestamp_pos' is not an integer.")
         sys.exit(1)
-    if "timestamp_pos" not in config_dict:
-        click.secho(
-            "'Configuration file is missing 'timestamp_pos' parameter'.",
-            fg="red",
-            err=True,
-        )
+    id_pos = config["id_pos"]
+    if id_pos is None or not isinstance(id_pos, int):
+        recho("'id_pos' is not an integer.")
         sys.exit(1)
-    if not isinstance(config_dict["timestamp_pos"], int):
-        click.secho("'timestamp_pos' is not an integer.", fg="red", err=True)
-        sys.exit(1)
-    if "id_pos" not in config_dict:
-        click.secho(
-            "'Configuration file is missing 'id_pos' parameter'.", fg="red", err=True
-        )
-        sys.exit(1)
-    if not isinstance(config_dict["id_pos"], int):
-        click.secho("'id_pos' is not an integer.", fg="red", err=True)
-        sys.exit(1)
-    if "data_pos" not in config_dict:
-        click.secho(
-            "'Configuration file is missing 'data_pos' parameter'.", fg="red", err=True
-        )
-        sys.exit(1)
-    if not isinstance(config_dict["data_pos"], int):
-        click.secho("'data_pos' is not an integer.", fg="red", err=True)
+    data_pos = config["data_pos"]
+    if data_pos is None or not isinstance(data_pos, int):
+        recho("'data_pos' is not an integer.")
         sys.exit(1)
 
 
@@ -131,31 +109,48 @@ def run_decode2stdout(decode_obj: CANDecode) -> None:
 
     :param decode_obj: Object which handles the decoding
     """
-    for msg in sys.stdin:
-        msg_name, msg_decoded = decode_obj.decode_msg(msg)
-        if msg_name and msg_decoded:
-            sys.stdout.write(msg_decoded)
+    one_message_decoded = False
+    try:
+        for msg in sys.stdin:
+            msg_name, msg_decoded = decode_obj.decode_msg(msg)
+            if msg_name and msg_decoded:
+                one_message_decoded = True
+                sys.stdout.write(msg_decoded)
+    finally:
+        if not one_message_decoded:
+            recho("No CAN message was decoded. Check configuration file.")
 
 
-def run_decode2file(decode_obj: CANDecode, output_directory: Path) -> None:
+def run_decode2file(decode_obj: CANDecode) -> None:
     """Executes the can decode step
 
     :param decode_obj: Object which handles the decoding
     :param output_directory: Directory in which the decoded data should be
         saved
     """
+    # due to the generic setup 'output_directory' could also be None. This can
+    # not happen on this branch (but on the one that calls
+    # 'run_decode2stdout'), but let's check it nevertheless.
+    if not isinstance(decode_obj.output_directory, Path):
+        recho("Provided output directory is invalid.")
+        sys.exit(1)
+    decode_obj.output_directory.mkdir(parents=True, exist_ok=True)
     output_files: dict[str, TextIOWrapper] = {}
+    one_message_decoded = False
     try:
         for msg in sys.stdin:
             msg_name, msg_decoded = decode_obj.decode_msg(msg)
             if msg_name and msg_decoded:
+                one_message_decoded = True
                 if msg_name in output_files:
                     output_files[msg_name].write(msg_decoded)
                 else:
-                    file_name = output_directory / f"{msg_name}.json"
+                    file_name = decode_obj.output_directory / f"{msg_name}.json"
                     f = open(file_name, mode="w", encoding="utf-8")  # pylint: disable=consider-using-with
                     output_files[msg_name] = f
                     f.write(msg_decoded)
     finally:
+        if not one_message_decoded:
+            recho("No CAN message was decoded. Check configuration file.")
         for f in output_files.values():
             f.close()

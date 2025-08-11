@@ -43,8 +43,8 @@
  * @file    database_cfg.h
  * @author  foxBMS Team
  * @date    2015-08-18 (date of creation)
- * @updated 2025-03-31 (date of last update)
- * @version v1.9.0
+ * @updated 2025-08-07 (date of last update)
+ * @version v1.10.0
  * @ingroup ENGINE_CONFIGURATION
  * @prefix  DATA
  *
@@ -110,6 +110,7 @@ typedef enum {
     DATA_BLOCK_ID_SOH,
     DATA_BLOCK_ID_STATE_REQUEST,
     DATA_BLOCK_ID_SYSTEM_STATE,
+    DATA_BLOCK_ID_PHY,
     DATA_BLOCK_ID_MAX, /**< DO NOT CHANGE, MUST BE THE LAST ENTRY */
 } DATA_BLOCK_ID_e;
 
@@ -631,6 +632,16 @@ typedef struct {
     uint16_t particulateMatterConcentration; /*!< particulate matter concentration in microgram/m^3 */
     uint8_t crcCheckCode;                    /*!< */
 } DATA_BLOCK_AEROSOL_SENSOR_s;
+
+/** data block struct for the BAS6C-X00 aerosol sensor */
+typedef struct {
+    /* This struct needs to be at the beginning of every database entry. During
+     * the initialization of a database struct, uniqueId must be set to the
+     * respective database entry representation in enum DATA_BLOCK_ID_e. */
+    DATA_BLOCK_HEADER_s header; /*!< Data block header */
+    bool aliveStatus;           /*!< true when phy is reachable */
+    bool linkStatus;            /*!< true when phy is connected to network */
+} DATA_BLOCK_PHY_s;
 
 /** array for the database */
 extern DATA_BASE_s data_database[DATA_BLOCK_ID_MAX];

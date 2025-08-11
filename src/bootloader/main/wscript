@@ -49,24 +49,46 @@ def build(bld):
         "fstartup.c",
         "intvecs_init.asm",
         "intvecs.asm",
-        "operation_modes.asm",
     ]
     includes = [
         "include",
+        "../driver/can",
+        "../driver/config",
+        "../driver/rti",
+        "../engine/boot",
         "../../version",
     ]
     use = [
+        f"{bld.env.APPNAME.lower()}-bootloader-driver-can-objects",
+        f"{bld.env.APPNAME.lower()}-bootloader-driver-crc-objects",
+        f"{bld.env.APPNAME.lower()}-bootloader-driver-crc-vendor-objects",
+        f"{bld.env.APPNAME.lower()}-bootloader-driver-flash-objects",
+        f"{bld.env.APPNAME.lower()}-bootloader-driver-foxmath-objects",
+        f"{bld.env.APPNAME.lower()}-bootloader-driver-rti-objects",
+        f"{bld.env.APPNAME.lower()}-bootloader-driver-io-objects",
+        f"{bld.env.APPNAME.lower()}-bootloader-engine-boot-objects",
+        f"{bld.env.APPNAME.lower()}-bootloader-engine-can-objects",
+        f"{bld.env.APPNAME.lower()}-portable",
         f"{bld.env.APPNAME.lower()}-bootloader-hal",
     ]
 
     # setup specifically whether the bootloader or the target tests shall be built
     if bld.options.target_test:
-        source.append("main.c")
-        includes.extend([])
+        bld.recurse("../../../tests/unit-hw")
         target += "-target-tests"
+        use.append(f"{bld.env.APPNAME.lower()}-bootloader-target-test-objects")
     else:
         source.append("main.c")
-        includes.extend([])
+        includes.extend(
+            [
+                "../engine/can",
+                "../driver/crc",
+                "../driver/flash",
+                "../driver/foxmath",
+                "../driver/rti",
+            ]
+        )
+        use.append(f"{bld.env.APPNAME.lower()}-bootloader-driver-dma-objects")
 
     bld.tiprogram(
         source=source,

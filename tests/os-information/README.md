@@ -26,7 +26,7 @@ The following regular expression can be used to check for ``FreeRTOS`` specific
 - functions:
 
   ```text
-  (uxQueueMessagesWaiting|vTaskDelayUntil|xQueueReceive|xQueueSendToBack|xQueueSendToBackFromISR|xTaskGetTickCount)
+  (uxQueueMessagesWaiting|vTaskDelayUntil|xQueueReceive|xQueueSendToBack|xQueueSendToBackFromISR|xTaskGetTickCount|vTaskSuspend|vTaskResume)
   ```
 
 - types:
@@ -49,6 +49,8 @@ The corresponding OS agnostic macros, functions and types are listed below:
 | ``xTaskGetTickCount``         | ``OS_GetTickCount``               |
 | ``QueueHandle_t``             | ``OS_QUEUE``                      |
 | ``TaskHandle_t``              | ``OS_TASK_HANDLE``                |
+| ``vTaskSuspend``              | ``OS_SuspendTask``                |
+| ``vTaskResume``               | ``OS_ResumeTask``                 |
 
 ### Includes
 

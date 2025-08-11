@@ -1,18 +1,3 @@
-/** @file fstartup.c
- *   @brief Startup Source File
- *   @date 11-Dec-2018
- *   @version 04.07.01
- *
- *   This file contains:
- *   - Include Files
- *   - Type Definitions
- *   - External Functions
- *   - VIM RAM Setup
- *   - Startup Routine
- *   .
- *   which are relevant for the Startup.
- */
-
 /**
  * Copyright (C) 2009-2018 Texas Instruments Incorporated - www.ti.com
  *
@@ -47,28 +32,25 @@
  *
  */
 
-/* foxBMS adaptions:
- * - add 'section'-markers
- * - add a prefix
- * - add function 'STU_GetResetSourceWithoutFlagReset'
- * - add code justifications for SPA (Axivion)
- * - make code unit testable ('UNITY_UNIT_TEST')
- */
-
-/*
+/**
+ * @file    fstartup.c
+ * @date    11-Dec-2018
+ * @updated 2025-08-05 (date of last update)
+ * @version v1.10.0
+ * @ingroup MAIN
  * @prefix  STU
- */
-
-/* foxBMS adaptions:
- * - add 'section'-markers
- * - add a prefix
- * - add function 'STU_GetResetSourceWithoutFlagReset'
- * - add code justifications for SPA (Axivion)
- * - make code unit testable ('UNITY_UNIT_TEST')
- */
-
-/*
- * @prefix  STU
+ *
+ * @brief   Startup Source File
+ * @details This file is created by TI HALCoGen 04.07.01 and adapted to foxBMS
+ *          specific needs.
+ *          This file contains the VIM RAM setup and the startup routine.
+ *          Changes are:
+ *          - add 'section'-markers
+ *          - add a prefix
+ *          - add code justifications for SPA (Axivion)
+ *          - make code unit testable ('UNITY_UNIT_TEST')
+ *          - add function 'STU_GetResetSourceWithoutFlagReset'
+ *
  */
 
 /*========== Includes =======================================================*/

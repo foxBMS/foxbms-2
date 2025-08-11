@@ -71,8 +71,8 @@ One of those files is depicted below
 where the first key-value pair is the timestamp and the following
 pairs are the signals.
 For simplification all decoded CAN messages were shortened.
-The key of the signals is a compound of the CAN ID, ``CurrentSensor_SIG_Current``
-and the phyiscal unit (|mA|).
+The key of the signals is a compound of the CAN ID (hex),
+``CurrentSensor_SIG_Current`` and the phyiscal unit (|mA|).
 
 .. note::
 
@@ -183,23 +183,25 @@ subcommands.
 The filter and decode subcommand expect a data stream as input which could
 be provided by the command ``cat``.
 
+.. note::
+
+   Piping to standard input does only work when the required Python environment
+   is installed.
+
 .. tabs::
 
-   .. group-tab:: Windows
+   .. group-tab:: Win32/PowerShell
 
-      .. tabs::
+      .. code-block:: powershell
 
-         .. group-tab:: PowerShell
+         Get-Content -Raw CAN_LOG_FILE | .\fox.ps1 etl decode -c DECODE_CONFIG_FILE -o OUTPUT_DIRECTORY
 
-            As part of a command line pipeline, the etl subcommands do
-            currently not support PowerShell.
+   .. group-tab:: Win32/Git bash
 
-         .. group-tab:: Git bash
+      .. code-block:: shell
 
-            .. code-block:: shell
-
-               cat CAN_LOG_FILE | ./fox.sh etl decode -c DECODE_CONFIG_FILE \
-               -o OUTPUT_FOLDER
+         cat CAN_LOG_FILE | ./fox.sh etl decode -c DECODE_CONFIG_FILE \
+         -o OUTPUT_FOLDER
 
    .. group-tab:: Linux
 
@@ -213,28 +215,25 @@ therefore it can be used ahead of the decode subcommand.
 
 .. tabs::
 
-   .. group-tab:: Windows
+   .. group-tab:: Win32/PowerShell
 
-      .. tabs::
+      .. code-block:: powershell
 
-         .. group-tab:: PowerShell
+         Get-Content -Raw CAN_LOG_FILE | .\fox.ps1 etl filter -c FILTER_CONFIG_FILE | .\fox.ps1 etl decode -c DECODE_CONFIG_FILE -o OUTPUT_DIRECTORY
 
-            As part of a command line pipeline, the etl subcommands do
-            currently not support PowerShell.
+   .. group-tab:: Win32/Git bash
 
-         .. group-tab:: Git bash
+      .. code-block:: shell
 
-            .. code-block:: shell
-
-               cat CAN_LOG_FILE | ./fox.sh etl filter -c FILTER_CONFIG_FILE \
-               | .\fox.sh etl decode -c DECODE_CONFIG_FILE -o OUTPUT_FOLDER
+         cat CAN_LOG_FILE | ./fox.sh etl filter -c FILTER_CONFIG_FILE \
+         | ./fox.sh etl decode -c DECODE_CONFIG_FILE -o OUTPUT_DIRECTORY
 
    .. group-tab:: Linux
 
       .. code-block:: shell
 
-               cat CAN_LOG_FILE | ./fox.sh etl filter -c FILTER_CONFIG_FILE \
-               | .\fox.sh etl decode -c DECODE_CONFIG_FILE -o OUTPUT_FOLDER
+         cat CAN_LOG_FILE | ./fox.sh etl filter -c FILTER_CONFIG_FILE \
+         | ./fox.sh etl decode -c DECODE_CONFIG_FILE -o OUTPUT_DIRECTORY
 
 More complex data pipelines can be created with
 `Apache Airflows <https://airflow.apache.org/>`_ or
@@ -300,29 +299,90 @@ The subcommand is executed as described below.
 
 .. include:: ./../../../../build/docs/fox_etl_table_help.txt
 
+One to One:
+"""""""""""
+
 In case only one file of decoded CAN messages should be converted to a table,
-the configuration file could look like
+the configuration file for the table subcommand could look like
 
 .. literalinclude:: yml/table_one_one.yml
     :language: yaml
     :caption: Configuration for table subcommand - One to One
 
-with the subcommand output option containing a file path.
+with the output parameter as path to a file.
 ``start_date`` defines the date in UTC format at which the CAN logging has
 started.
 
+.. note::
+
+   If an output format is specified in the configuration file, the table
+   command converts each `json` file into a separate table as explained below
+   in the use-case many to many.
+
+.. tabs::
+
+   .. group-tab:: Win32/PowerShell
+
+      .. code-block:: powershell
+
+         .\fox.ps1 etl table -c table_one_one.yml -o OUTPUT_FILE.csv INPUT_FILE.csv
+
+   .. group-tab:: Win32/Git bash
+
+      .. code-block:: shell
+
+         ./fox.sh etl table -c table_one_one.yml -o OUTPUT_FILE.csv INPUT_FILE.csv
+
+   .. group-tab:: Linux
+
+      .. code-block:: shell
+
+         ./fox.sh etl table -c table_one_one.yml -o OUTPUT_FILE.csv INPUT_FILE.csv
+
+Many to One:
+""""""""""""
+
 If multiple files with decoded CAN messages should be converted and joined to
-one table, the configuration file could look like
+one table, the configuration file for the table subcommand could look like
 
 .. literalinclude:: yml/table_many_one.yml
     :language: yaml
     :caption: Configuration for table subcommand - Many to One
 
 with ``join_on`` defining the column of the left table in the join.
-The subcommand output option still contains a file path.
+The output parameter must be the path to a file.
+
+.. note::
+
+   If an output format is specified in the configuration file, the table
+   command converts each `json` file into a separate table as explained below
+   in the use-case many to many.
+
+.. tabs::
+
+   .. group-tab:: Win32/PowerShell
+
+      .. code-block:: powershell
+
+         .\fox.ps1 etl table -c table_many_one.yml -o OUTPUT_FILE.csv INPUT_FOLDER
+
+   .. group-tab:: Win32/Git bash
+
+      .. code-block:: shell
+
+         .\fox.sh etl table -c table_many_one.yml -o OUTPUT_FILE.csv INPUT_FOLDER
+
+   .. group-tab:: Linux
+
+      .. code-block:: shell
+
+         .\fox.sh etl table -c table_many_one.yml -o OUTPUT_FILE.csv INPUT_FOLDER
+
+Many to Many:
+"""""""""""""
 
 In case each file with decoded CAN message should be converted to a table,
-without any join, the configuration file could look like
+without any join, the configuration file for the table command could look like
 
 .. literalinclude:: yml/table_many_many.yml
     :language: yaml
@@ -330,7 +390,27 @@ without any join, the configuration file could look like
 
 with ``output_format`` as ``csv`` or ``parquet`` defining the file format
 at which all tables are saved.
-The subcommand output option contains a directory path.
+The output parameter must be the path to a folder.
+
+.. tabs::
+
+   .. group-tab:: Win32/PowerShell
+
+      .. code-block:: powershell
+
+         .\fox.ps1 etl table -c table_many_many.yml -o OUTPUT_FOLDER INPUT_FOLDER
+
+   .. group-tab:: Win32/Git bash
+
+      .. code-block:: shell
+
+         .\fox.sh etl table -c table_many_many.yml -o OUTPUT_FOLDER INPUT_FOLDER
+
+   .. group-tab:: Linux
+
+      .. code-block:: shell
+
+         .\fox.sh etl table -c table_many_many.yml -o OUTPUT_FOLDER INPUT_FOLDER
 
 .. note::
 
@@ -370,21 +450,17 @@ Afterwards the pip package can be build with
 
 .. tabs::
 
-   .. group-tab:: Windows
+   .. group-tab:: Win32/PowerShell
 
-      .. tabs::
+      .. code-block:: powershell
 
-         .. group-tab:: PowerShell
+         .\fox.ps1 run-program python -m build cli\cmd_etl\ -o .\dist
 
-            .. code-block:: powershell
+   .. group-tab:: Win32/Git bash
 
-               .\fox.ps1 run-program python -m build cli\cmd_etl\ -o .\dist
+      .. code-block:: shell
 
-         .. group-tab:: Git bash
-
-            .. code-block:: shell
-
-               ./fox.sh run-program python -m build cli/cmd_etl/ -o ./dist
+         ./fox.sh run-program python -m build cli/cmd_etl/ -o ./dist
 
    .. group-tab:: Linux
 
@@ -399,26 +475,22 @@ The pip package can be installed into the active environment with
 
 .. tabs::
 
-   .. group-tab:: Windows
+   .. group-tab:: Win32/PowerShell
 
-      .. tabs::
+      .. code-block:: powershell
 
-         .. group-tab:: PowerShell
+         python -m pip install .\dist\WHEEL_NAME
 
-            .. code-block:: powershell
+   .. group-tab:: Win32/Git bash
 
-               python -m pip install .\dist\WHEEL_NAME
+      .. code-block:: shell
 
-         .. group-tab:: Git bash
-
-            .. code-block:: shell
-
-               python -m pip install ./dist/WHEEL_NAME
+         python -m pip install ./dist/WHEEL_NAME
 
    .. group-tab:: Linux
 
       .. code-block:: shell
 
-        python -m pip install ./dist/WHEEL_NAME
+         python -m pip install ./dist/WHEEL_NAME
 
 Now all etl subcommands can be executed with ``foxetl SUBCOMMAND``.

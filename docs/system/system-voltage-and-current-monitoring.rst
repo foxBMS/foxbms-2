@@ -7,53 +7,32 @@
 System Voltage And Current Monitoring
 #####################################
 
-.. |contactor| image:: img/contactor.png
-.. |current-sensor| image:: img/current-sensor.png
-.. |fuse| image:: img/fuse.png
-.. |imd| image:: img/imd.png
-.. |inverter| image:: img/inverter.png
-.. |msd| image:: img/msd.png
-.. |resistor| image:: img/resistor.png
-
-.. |red| image:: img/red.png
-.. |dotted-red| image:: img/dotted-red.png
-.. |purple| image:: img/purple.png
-.. |dark-yellow| image:: img/dark-yellow.png
-.. |dark-blue| image:: img/dark-blue.png
-.. |blue| image:: img/blue.png
-
 Several different voltages inside a battery system need to be measured.
 The exact number of voltages is dependent on the system topology and the
 configuration of the battery system.
 
-:numref:`voltages-in-multi-string-system` shows the voltages that need to
+:numref:`measurements-in-multi-string-system` shows the voltages that need to
 measured in a multi-string system, here for example for a 3-string system.
-The symbols are explained in :numref:`symbols-in-system-block-diagram`.
-The colors are explained in :numref:`colors-in-system-block-diagram`.
 
 The left side of the image shows the *Battery Pack*.
 The *Battery Junction Box* is depicted in the center of the figure with an
 indicated connected application shown on the right side the of the picture.
 
-.. figure:: img/battery-system-setup.png
-    :alt: Voltages to be measured in a multi-string system
-    :name: voltages-in-multi-string-system
-    :align: center
-    :target: ../_images/battery-system-setup.png
+.. drawio-figure:: img/battery-system-setup.drawio
+   :format: svg
+   :page-name: multi-string
+   :alt: Voltages and currents to be measured in a multi-string system
+   :name: measurements-in-multi-string-system
+   :width: 800px
 
-    Voltages of interest in a multi-string system (click to enlarge)
-
-.. csv-table:: Symbol description
-    :name: symbols-in-system-block-diagram
-    :header-rows: 1
-    :delim: ;
-    :file: ./symbols-in-system-block-diagram.csv
+   Voltages and currents of interest in a multi-string system
+   (click to enlarge)
 
 .. csv-table:: Color description
-    :name: colors-in-system-block-diagram
-    :header-rows: 1
-    :delim: ;
-    :file: ./colors-in-system-block-diagram.csv
+   :name: colors-in-system-block-diagram
+   :header-rows: 1
+   :delim: ;
+   :file: ./colors-in-system-block-diagram.csv
 
 *******************
 Multi-String System
@@ -65,14 +44,15 @@ battery pack.
 Measurements Inside the Battery Pack
 ====================================
 
-.. figure:: img/battery-system-setup-pack.png
-    :alt: Voltages to be measured in a multi-string system in the pack
-    :name: voltages-in-multi-string-system-in-pack
-    :align: center
-    :target: ../_images/battery-system-setup-pack.png
+.. drawio-figure:: img/battery-system-setup.drawio
+   :format: svg
+   :page-name: pack-measurements
+   :alt: Voltages and currents to be measured in a multi-string system in the pack
+   :name: measurements-in-multi-string-system-in-pack
+   :width: 500px
 
-    Voltages to be measured in a multi-string system inside the battery pack
-    (click to enlarge)
+   Voltages and currents to be measured in a multi-string system inside the
+   battery pack (click to enlarge)
 
 The strings are depicted in ascending order from right to left starting with
 string 1 (``S1``) until left-most string m (``Sm``).
@@ -114,14 +94,15 @@ measurements.
 :numref:`measurements-in-single-string-system` shows the single-string
 topology.
 
-.. figure:: img/battery-system-setup-single-string.png
-    :alt: Voltages and current to be measured in a single-string system
-    :name: measurements-in-single-string-system
-    :align: center
-    :target: ../_images/battery-system-setup-single-string.png
+.. drawio-figure:: img/battery-system-setup.drawio
+   :format: svg
+   :page-name: single-string
+   :alt: Voltages and current to be measured in a single-string system
+   :name: measurements-in-single-string-system
+   :width: 800px
 
-    Voltages and current to be measured in a single-string system (click to
-    enlarge)
+   Voltages and current to be measured in a single-string system
+   (click to enlarge)
 
 The list of measurements is therefore reduced to
 :numref:`pack-measurements-single-string-system` and no further measurements
@@ -137,14 +118,15 @@ inside the string are required.
 Measurements Inside the Battery Junction Box
 ********************************************
 
-.. figure:: img/battery-system-setup-bjb.png
-    :alt: Voltages to be measured in a multi string system in the BJB
-    :name: voltages-in-multi-string-system-in-bjb
-    :align: center
-    :target: ../_images/battery-system-setup-bjb.png
+.. drawio-figure:: img/battery-system-setup.drawio
+   :format: svg
+   :page-name: bjb-measurements
+   :alt: Voltages to be measured in a multi string system in the BJB
+   :name: voltages-in-multi-string-system-in-bjb
+   :width: 500px
 
-    Voltages to be measured in a multi-string system in the BJB (click to
-    enlarge)
+   Voltages to be measured in a multi-string system in the BJB (click to
+   enlarge)
 
 - The pack voltage is measured before the main fuse.
 - The fused pack voltage is measured after the main fuse.

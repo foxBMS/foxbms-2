@@ -40,10 +40,12 @@
 """Implementation of a custom shell for the 'bms' command"""
 
 import cmd
-from multiprocessing import Event, Process, Queue, Value, sharedctypes
+from multiprocessing import Event, Manager, Process, Queue, managers
+from typing import cast
 
 from can import Message
-from click import secho
+from cantools import database
+from cantools.database.can.database import Database
 
 from cli.cmd_bms.bms_impl import (
     get_boot_timestamp,
@@ -61,9 +63,12 @@ from cli.cmd_bms.bms_impl import (
     set_rtc_time,
     shutdown,
 )
+from cli.helpers.misc import APP_DBC_FILE
 
-from ..helpers.click_helpers import recho
+from ..helpers.click_helpers import recho, secho
 from ..helpers.fcan import CanBusConfig
+
+APP_DBC: Database = cast(Database, database.load_file(APP_DBC_FILE))
 
 
 class BMSShell(cmd.Cmd):
@@ -79,11 +84,10 @@ class BMSShell(cmd.Cmd):
     p_recv: Process
     p_read: Process
     network_ok = Event()
+    msg_arr: managers.ListProxy
     send_q: "Queue[Message]" = Queue()
     rec_q: "Queue[Message]" = Queue()
     initialized: bool = False
-    msg_id: sharedctypes.Synchronized = Value("i", 0)
-    msg_num: sharedctypes.Synchronized = Value("i", 0)
 
     def do_init(self, _: str) -> bool:
         """Starts the receive and send process, the read process and initializes the CAN bus."""
@@ -91,12 +95,12 @@ class BMSShell(cmd.Cmd):
             secho("The CAN bus has already been initialized.")
             return False
         res = initialization(
+            self.prompt,
             self.rec_q,
             self.send_q,
             self.bus_cfg,
             self.network_ok,
-            self.msg_id,
-            self.msg_num,
+            self.msg_arr,
         )
         if isinstance(res, tuple):  # pragma: no cover
             self.p_recv, self.p_read = res
@@ -114,12 +118,7 @@ class BMSShell(cmd.Cmd):
     def do_rtc(self, _: str) -> None:
         """Sets the rtc time to the current time"""
         if self.initialized:
-            if self.msg_id.value != 0:
-                recho(
-                    f"Waiting for message with ID {self.msg_id.value} has been stopped."
-                )
-            self.msg_id.value = 769
-            self.msg_num.value = 1
+            add_msg("f_DebugResponse", self.msg_arr)
             set_rtc_time(self.send_q)
             secho("RTC time has been set:")
         else:
@@ -136,12 +135,7 @@ class BMSShell(cmd.Cmd):
     def do_boottimestamp(self, _: str) -> None:
         """Requests the Boot Timestamp"""
         if self.initialized:
-            if self.msg_id.value != 0:
-                recho(
-                    f"Waiting for message with ID {self.msg_id.value} has been stopped."
-                )
-            self.msg_id.value = 769
-            self.msg_num.value = 1
+            add_msg("f_DebugResponse", self.msg_arr)
             get_boot_timestamp(self.send_q)
             secho("Boot Timestamp has been requested.")
         else:
@@ -150,12 +144,7 @@ class BMSShell(cmd.Cmd):
     def do_getrtc(self, _: str) -> None:
         """Gets the rtc time"""
         if self.initialized:
-            if self.msg_id.value != 0:
-                recho(
-                    f"Waiting for message with ID {self.msg_id.value} has been stopped."
-                )
-            self.msg_id.value = 769
-            self.msg_num.value = 1
+            add_msg("f_DebugResponse", self.msg_arr)
             get_rtc_time(self.send_q)
             secho("RTC time has been requested.")
         else:
@@ -164,12 +153,7 @@ class BMSShell(cmd.Cmd):
     def do_uptime(self, _: str) -> None:
         """Get the Uptime information"""
         if self.initialized:
-            if self.msg_id.value != 0:
-                recho(
-                    f"Waiting for message with ID {self.msg_id.value} has been stopped."
-                )
-            self.msg_id.value = 769
-            self.msg_num.value = 1
+            add_msg("f_DebugResponse", self.msg_arr)
             get_uptime(self.send_q)
             secho("Uptime has been requested.")
         else:
@@ -178,12 +162,7 @@ class BMSShell(cmd.Cmd):
     def do_buildconfig(self, _: str) -> None:
         """Gets the Build Configuration"""
         if self.initialized:
-            if self.msg_id.value != 0:
-                recho(
-                    f"Waiting for message with ID {self.msg_id.value} has been stopped."
-                )
-            self.msg_id.value = 771
-            self.msg_num.value = 19
+            add_msg("f_DebugBuildConfiguration", self.msg_arr, 19)
             get_build_configuration(self.send_q)
             secho("Build Configuration has been requested.")
         else:
@@ -192,12 +171,7 @@ class BMSShell(cmd.Cmd):
     def do_commithash(self, _: str) -> None:
         """Gets the Commit Hash the software version was built with"""
         if self.initialized:
-            if self.msg_id.value != 0:
-                recho(
-                    f"Waiting for message with ID {self.msg_id.value} has been stopped."
-                )
-            self.msg_id.value = 769
-            self.msg_num.value = 2
+            add_msg("f_DebugResponse", self.msg_arr, 2)
             get_commit_hash(self.send_q)
             secho("Commit Hash has been requested.")
         else:
@@ -206,12 +180,7 @@ class BMSShell(cmd.Cmd):
     def do_mcuwaferinfo(self, _: str) -> None:
         """Gets the wafer information of the MCU"""
         if self.initialized:
-            if self.msg_id.value != 0:
-                recho(
-                    f"Waiting for message with ID {self.msg_id.value} has been stopped."
-                )
-            self.msg_id.value = 769
-            self.msg_num.value = 1
+            add_msg("f_DebugResponse", self.msg_arr)
             get_mcu_wafer_info(self.send_q)
             secho("MCU Wafer information has been requested.")
         else:
@@ -220,12 +189,7 @@ class BMSShell(cmd.Cmd):
     def do_mculotnumber(self, _: str) -> None:
         """Gets the lot number of the MCU"""
         if self.initialized:
-            if self.msg_id.value != 0:
-                recho(
-                    f"Waiting for message with ID {self.msg_id.value} has been stopped."
-                )
-            self.msg_id.value = 769
-            self.msg_num.value = 1
+            add_msg("f_DebugResponse", self.msg_arr)
             get_mcu_lot_number(self.send_q)
             secho("MCU lot number has been requested.")
         else:
@@ -234,12 +198,7 @@ class BMSShell(cmd.Cmd):
     def do_mcuid(self, _: str) -> None:
         """Gets the unique ID of the MCU"""
         if self.initialized:
-            if self.msg_id.value != 0:
-                recho(
-                    f"Waiting for message with ID {self.msg_id.value} has been stopped."
-                )
-            self.msg_id.value = 769
-            self.msg_num.value = 1
+            add_msg("f_DebugResponse", self.msg_arr)
             get_mcu_id(self.send_q)
             secho("MCU ID has been requested.")
         else:
@@ -248,61 +207,60 @@ class BMSShell(cmd.Cmd):
     def do_softwareversion(self, _: str) -> None:
         """Gets the software version of the BMS"""
         if self.initialized:
-            if self.msg_id.value != 0:
-                recho(
-                    f"Waiting for message with ID {self.msg_id.value} has been stopped."
-                )
-            self.msg_id.value = 769
-            self.msg_num.value = 1
+            add_msg("f_DebugResponse", self.msg_arr)
             get_software_version(self.send_q)
             secho("Software version has been requested.")
         else:
             recho("CAN bus has to be initialized: INIT")
 
     def do_log(self, arg: int | str) -> bool:
-        """Logs message with the given ID as often as specified: LOG [ID] [#, DEFAULT: 1]"""
+        """Logs message with the given ID as often as specified and to the
+        given output: LOG [ID] [#, DEFAULT: 1] [OUTPUT, FILE / stdout]"""
         if self.initialized:
             if arg == "stop":
                 secho(
-                    f"Waiting for message with ID {self.msg_id.value} has been stopped.",
-                    fg="green",
+                    "This doesn't work yet.",
                 )
-                self.msg_id.value = 0
-                self.msg_num.value = 0
                 return False
             try:
                 match arg:
                     case int():
-                        self.msg_id.value = int(arg)
-                        self.msg_num.value = 1
+                        add_msg(int(arg), self.msg_arr)
                     case str():
                         args = arg.split()
-                        if len(args) > 1:
-                            self.msg_num.value = int(args[1])
-                        else:
-                            self.msg_num.value = 1
+                        msg_id: int
+                        num = 1
+                        output = 1
                         if args[0][-1] == "h":
-                            self.msg_id.value = int(args[0][:-1], 16)
+                            msg_id = int(args[0][:-1], 16)
                         elif args[0][:2] == "0x":
-                            self.msg_id.value = int(args[0][2:], 16)
+                            msg_id = int(args[0][2:], 16)
                         else:
-                            self.msg_id.value = int(args[0])
+                            msg_id = int(args[0])
+                        if len(args) > 1:
+                            for i in range(1, len(args)):
+                                try:
+                                    num = int(args[i])
+                                except (TypeError, ValueError):
+                                    if "file" in args[i].lower():
+                                        output = 0
+                                    else:
+                                        recho(
+                                            "For logging to a file enter the argument 'FILE'."
+                                        )
+                        add_msg(msg_id, self.msg_arr, num, output)
                     case _:
                         raise TypeError
                 secho(
-                    f"Waiting for message with ID {self.msg_id.value}.",
+                    f"Waiting for message with ID {hex(self.msg_arr[0][-1])}.",
                     fg="green",
                 )
-                secho("To stop logging enter LOG STOP", fg="green")
             except (TypeError, ValueError):
-                self.msg_id.value = 0
-                self.msg_num.value = 0
                 recho(
                     "Message ID has to be given as an integer\n"
                     "or as a hexadecimal number in the format '300h' or '0x300'."
                 )
             except IndexError:
-                self.msg_num.value = 0
                 recho("ID of the message to be logged has to be specified.")
         else:
             recho("CAN bus has to be initialized: INIT")
@@ -324,6 +282,32 @@ class BMSShell(cmd.Cmd):
     def precmd(self, line: str) -> str:
         """Converts the input to lowercase."""
         return str(line.lower())
+
+    def preloop(self) -> None:
+        manager = Manager()
+        self.msg_arr = manager.list([[], [], []])
+
+
+def add_msg(
+    msg_id: str | int, msg_arr: managers.ListProxy, amount: int = 1, output: int = 1
+) -> None:
+    """Adds a new message to the array"""
+    array_0 = msg_arr[0]
+    array_1 = msg_arr[1]
+    array_2 = msg_arr[2]
+    match msg_id:
+        case str():
+            array_0.append(APP_DBC.get_message_by_name(msg_id).frame_id)
+        case int():
+            array_0.append(msg_id)
+        case _:
+            recho("Invalid message ID")
+            return
+    array_1.append(amount)
+    array_2.append(output)
+    msg_arr[0] = array_0
+    msg_arr[1] = array_1
+    msg_arr[2] = array_2
 
 
 def run_shell(bus_cfg: CanBusConfig) -> int:

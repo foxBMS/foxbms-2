@@ -39,21 +39,30 @@
 
 """Example for platform independent code"""
 
-# ruff: noqa: F841
-# pylint: disable=invalid-name,unused-argument,unused-variable
-
+# ruff: noqa: E402,F841
+# pylint: disable=invalid-name,unused-argument,unused-variable,wrong-import-position
 import os
+import sys
+
+WAF_DIR_BASE_NAME = "waf3-2.1.5-7e89fb078ab3c46cf09c8f74bbcfd16d"
+sys.path = [
+    os.path.abspath(f"./../../tools/{WAF_DIR_BASE_NAME}"),
+    os.path.abspath(f"./../../tools/.{WAF_DIR_BASE_NAME}"),
+] + sys.path
+
+# start-include-in-docs
+from waflib.Build import BuildContext
 
 
-def build(bld):
+def build(bld: BuildContext):
     """builds something..."""
     # fmt: off
     # pylint: disable=line-too-long
     includes = [
         # ...
-        os.path.join("..", "..", "os", "freertos"),
-        os.path.join("..", "..", "os", "freertos", "include"),
-        os.path.join("..", "..", "os", "freertos", "portable", "ccs", "arm_cortex-r5"),
+        "some/very/long/path/that/leads/to/very/long/code/lines",
+        "some/very/long/path/that/leads/to/very/long/code/lines/subpath0/subpath1",
+        "some/very/long/path/that/leads/to/very/long/code/lines/subpath0/subpath1/subpath2",
         # ...
     ]
     # pylint: enable=line-too-long

@@ -44,19 +44,21 @@ import os
 import shutil
 from copy import deepcopy
 
-from click import echo, secho
-
-from ..helpers.click_helpers import recho
+from ..helpers.click_helpers import echo, recho, secho
 from ..helpers.host_platform import get_platform
 from ..helpers.misc import PROJECT_ROOT
 
-INSTALL_MESSAGE = f"""See {PROJECT_ROOT / "INSTALL.md"} for the installation\
-instructions for the foxBMS toolchain."""
+INSTALL_MESSAGE = (
+    f"See {PROJECT_ROOT / 'INSTALL.md'} for the installation instructions for "
+    "the foxBMS toolchain."
+)
 
 REQUIRED_SOFTWARE = {
+    "ceedling": {"executable": "ceedling", "path": False},
     "doxygen": {"executable": "doxygen", "path": False},
     "drawio": {"executable": {"win32": "draw.io", "linux": "drawio"}, "path": False},
     "gcc": {"executable": "gcc", "path": False},
+    "git": {"executable": "git", "path": False},
     "graphviz": {"executable": "dot", "path": False},
     "python": {"executable": "python", "path": False},
     "ruby": {"executable": "ruby", "path": False},

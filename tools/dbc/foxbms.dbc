@@ -820,6 +820,9 @@ SG_ SensorFaults : 39|5@0+ (1,0) [0|31] "" Vector__XXX
 SG_ RollingCounter : 42|3@0+ (1,0) [0|7] "" Vector__XXX
 SG_ CrcCheckCode : 63|8@0+ (1,0) [0|255] "" Vector__XXX
 
+BO_ 546 f_BmsFatalError: 8 Vector__XXX
+SG_ FatalErrorCode : 7|8@0+ (1,0) [0|255] "" Vector__XXX
+
 BO_ 544 f_BmsState: 8 Vector__XXX
 SG_ BmsState : 3|4@0+ (1,0) [0|15] "" Vector__XXX
 SG_ NumberOfConnectedStrings : 7|4@0+ (1,0) [0|15] "" Vector__XXX
@@ -849,6 +852,9 @@ SG_ InsulationResistance : 63|8@0+ (200,0) [0|51000] "kOhm" Vector__XXX
 SG_ BmsSubstate : 37|6@0+ (1,0) [0|63] "" Vector__XXX
 SG_ Clamp30cError : 30|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ BalancingAlgorithmState : 31|1@1+ (1,0) [0|1] "" Vector__XXX
+SG_ PhyAlive : 39|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ PhyLinked : 38|1@1+ (1,0) [0|1] "" Vector__XXX
+SG_ BmsChargingFlag : 29|1@1+ (1,0) [0|1] "" Vector__XXX
 
 BO_ 545 f_BmsStateDetails: 8 Vector__XXX
 SG_ TimingViolationEngineTask : 0|1@0+ (1,0) [0|1] "" Vector__XXX
@@ -870,6 +876,19 @@ SG_ IndicatePrechargeType : 3|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ ResetPersistentFlags : 2|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ ChargerConnected : 4|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ DisableInsulationMonitoring : 5|1@0+ (1,0) [0|1] "" Vector__XXX
+
+BO_ 1040 f_BootloaderVersionInfo: 8 Vector__XXX
+SG_ f_BootloaderVersionInfo_Mux M : 7|8@0+ (1,0) [0|0] "" Vector__XXX
+SG_ DirtyFlag m0 : 33|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ MajorVersionNumber m0 : 15|8@0+ (1,0) [0|255] "" Vector__XXX
+SG_ MinorVersionNumber m0 : 23|8@0+ (1,0) [0|255] "" Vector__XXX
+SG_ PatchVersionNumber m0 : 31|8@0+ (1,0) [0|255] "" Vector__XXX
+SG_ ReleaseDistance m0 : 39|5@0+ (1,0) [0|31] "" Vector__XXX
+SG_ ReleaseDistanceOverflow m0 : 34|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ UnderVersionControl m0 : 32|1@0+ (1,0) [0|1] "" Vector__XXX
+SG_ MagicBootData m15 : 15|56@0+ (1,0) [0|1] "" Vector__XXX
+SG_ shortHash5 m5 : 15|56@0+ (1,0) [0|0] "" Vector__XXX
+SG_ shortHash6 m6 : 15|56@0+ (1,0) [0|0] "" Vector__XXX
 
 BO_ 608 f_CellTemperatures: 8 Vector__XXX
 SG_ f_CellTemperatures_Mux M : 7|8@0+ (1,0) [0|0] "" Vector__XXX
@@ -1772,9 +1791,9 @@ SG_ SOH_algorithm m16 : 19|4@0+ (1,0) [0|1] "" Vector__XXX
 SG_ Balancing_strategy m16 : 31|4@0+ (1,0) [0|1] "" Vector__XXX
 SG_ IMD m16 : 27|4@0+ (1,0) [0|1] "" Vector__XXX
 SG_ Rtos m16 : 39|4@0+ (1,0) [0|1] "" Vector__XXX
-SG_ AFE m0 : 8|8@1+ (1,0) [0|1] "" Vector__XXX
-SG_ TemperatureSensor m0 : 23|8@0+ (1,0) [0|1] "" Vector__XXX
-SG_ TemperatureSensorMethod m0 : 31|8@0+ (1,0) [0|1] "" Vector__XXX
+SG_ AFE m0 : 15|16@0+ (1,0) [0|65535] "" Vector__XXX
+SG_ TemperatureSensor m0 : 31|8@0+ (1,0) [0|255] "" Vector__XXX
+SG_ TemperatureSensorMethod m0 : 39|8@0+ (1,0) [0|255] "" Vector__XXX
 
 BO_ 769 f_DebugResponse: 8 Vector__XXX
 SG_ f_DebugResponse_Mux M : 7|8@0+ (1,0) [0|0] "" Vector__XXX
@@ -2115,9 +2134,6 @@ SG_ IVT_Result_U3_Channel_Error : 13|1@0+ (1,0) [0|1] "" Vector__XXX
 SG_ IVT_ID_Result_U3 : 7|8@0+ (1,0) [3|3] "" Vector__XXX
 SG_ IVT_Result_U3 : 23|32@0- (1,0) [-2147483648|2147483647] "mV" Vector__XXX
 SG_ IVT_MsgCount_Result_U3 : 11|4@0+ (1,0) [0|15] "" Vector__XXX
-
-BO_ 546 f_BmsFatalError: 2 Vector__XXX
-SG_ FatalErrorCode : 0|8@0+ (1,0) [0|255] "" Vector__XXX
 
 CM_ BO_ 640 "Cell temperature measurement data (in:can_cbs_rx_cell-temperatures.c:CANRX_CellTemperatures, fv:rx, type:Cell Information)";
 CM_ SG_ 640 CellTemperature_000 "Temperature of cell 0";
@@ -2518,6 +2534,7 @@ CM_ SG_ 624 CellVoltage_213 "Voltage of cell 213";
 CM_ SG_ 624 CellVoltage_214 "Voltage of cell 214";
 CM_ SG_ 624 CellVoltage_215 "Voltage of cell 215";
 CM_ BO_ 964 "(in:can_cbs_rx_aerosol-sensor.c:CANRX_AerosolSensor, fv:rx, type:Aerosol Sensor)";
+CM_ BO_ 546 "Message contains the fatal error code (in:can_cbs_tx_fatal-error.c:CANTX_SendFatalErrorId, fv:tx, type:BMS Status)";
 CM_ BO_ 544 "Message contains general BMS state information (in:can_cbs_tx_bms-state.c:CANTX_BmsState, fv:tx, type:BMS Status)";
 CM_ SG_ 544 BmsState "Shows the internal state of the BMS state machine";
 CM_ SG_ 544 NumberOfConnectedStrings "Shows the number of connected strings, i.e., the strings in which the contactors are closed";
@@ -2545,6 +2562,9 @@ CM_ SG_ 544 AlertFlag "Indicates whether any alter flag is set or not";
 CM_ SG_ 544 NvramCrcError "Indicates whether a CRC error has been detected in the NVRAM or not";
 CM_ SG_ 544 Clamp30cError "Indicates a possible error with Clamp 30C supply";
 CM_ SG_ 544 BalancingAlgorithmState "Indicates if the selected balancing algorithm allows balancing. This indicates not if a cell is actually balanced or not. This is indicated in IsBalancingActive flag in f_StringState message";
+CM_ SG_ 544 PhyAlive "Indicates that the phy hardware is reachable";
+CM_ SG_ 544 PhyLinked "Indicates that the phy has a network connection";
+CM_ SG_ 544 BmsChargingFlag "Indicates that the bms is charging";
 CM_ BO_ 545 "Details on flags transmitted by the 'BmsState' message (in:can_cbs_tx_bms-state-details.c:CANTX_BmsStateDetails, fv:tx, type:BMS Status)";
 CM_ SG_ 545 TimingViolationEngineTask "Indicates whether the timing of the engine task has been violated.";
 CM_ SG_ 545 TimingViolation1msTask "Indicates whether the timing of the 1ms task has been violated.";
@@ -2564,6 +2584,7 @@ CM_ SG_ 528 IndicatePrechargeType "Notifies the BMS whether the battery system i
 CM_ SG_ 528 ResetPersistentFlags "Instructs the BMS the to reset persistent flags";
 CM_ SG_ 528 ChargerConnected "Tells the BMS whether a charger is connected or not";
 CM_ SG_ 528 DisableInsulationMonitoring "Instructs the BMS to check/not check the battery system insulation";
+CM_ BO_ 1040 "src/bootloader/driver/can/can_bootloader-version-info.c";
 CM_ BO_ 608 "Cell temperature measurement data (in:can_cbs_tx_cell-temperatures.c:CANTX_CellTemperatures, fv:tx, type:Cell Information)";
 CM_ SG_ 608 CellTemperature_000 "Temperature of cell 0";
 CM_ SG_ 608 CellTemperature_001 "Temperature of cell 1";
@@ -3077,7 +3098,6 @@ CM_ BO_ 1317 "Current sensor string 0: temperature (in:can_cbs_rx_current-sensor
 CM_ BO_ 1314 "Current sensor string 0: voltage 1 (in:can_cbs_rx_current-sensor.c:CANRX_CurrentSensor, fv:rx, type:Current Sensor)";
 CM_ BO_ 1315 "Current sensor string 0: voltage 2 (in:can_cbs_rx_current-sensor.c:CANRX_CurrentSensor, fv:rx, type:Current Sensor)";
 CM_ BO_ 1316 "Current sensor string 0: voltage 3 (in:can_cbs_rx_current-sensor.c:CANRX_CurrentSensor, fv:rx, type:Current Sensor)";
-CM_ BO_ 546 "Message contains the fatal error code (in:can_cbs_tx_fatal-error.c:CANTX_SendFatalErrorId, fv:tx, type:BMS Status)";
 
 BA_DEF_  "BusType" STRING ;
 BA_DEF_ BO_  "GenMsgCycleTime" INT 0 65535;
@@ -3122,12 +3142,15 @@ BA_ "GenSigStartValue" SG_ 1314 IVT_ID_Result_U1 1;
 BA_ "GenSigStartValue" SG_ 1315 IVT_ID_Result_U2 2;
 BA_ "GenSigStartValue" SG_ 1316 IVT_ID_Result_U3 3;
 
+BA_ "SigType" SG_ 1040 shortHash5 3;
+BA_ "SigType" SG_ 1040 shortHash6 3;
 BA_ "SigType" SG_ 769 shortHashLow7 3;
 BA_ "SigType" SG_ 769 shortHashHigh7 3;
 
 VAL_ 640 AFE_CellTemperatures_Mux 0 "CellTemperatures_000_005" 1 "CellTemperatures_006_011" 2 "CellTemperatures_012_017" 3 "CellTemperatures_018_023" 4 "CellTemperatures_024_029" 5 "CellTemperatures_030_035" 6 "CellTemperatures_036_041" 7 "CellTemperatures_042_047" 8 "CellTemperatures_048_053" 9 "CellTemperatures_054_059" 10 "CellTemperatures_060_065" 11 "CellTemperatures_066_071" 12 "CellTemperatures_072_077" 13 "CellTemperatures_078_083" 14 "CellTemperatures_084_089" 15 "CellTemperatures_090_095" 16 "CellTemperatures_096_101" 17 "CellTemperatures_102_107" 18 "CellTemperatures_108_113" 19 "CellTemperatures_114_119" 20 "CellTemperatures_120_125" 21 "CellTemperatures_126_131" 22 "CellTemperatures_132_137" 23 "CellTemperatures_138_143" 24 "CellTemperatures_144_149" 25 "CellTemperatures_150_155" 26 "CellTemperatures_156_161" 27 "CellTemperatures_162_167" 28 "CellTemperatures_168_173" 29 "CellTemperatures_174_179";
 VAL_ 624 AFE_CellVoltages_Mux 0 "CellVoltages_000_003" 1 "CellVoltages_004_007" 2 "CellVoltages_008_011" 3 "CellVoltages_012_015" 4 "CellVoltages_016_019" 5 "CellVoltages_020_023" 6 "CellVoltages_024_027" 7 "CellVoltages_028_031" 8 "CellVoltages_032_035" 9 "CellVoltages_036_039" 10 "CellVoltages_040_043" 11 "CellVoltages_044_047" 12 "CellVoltages_048_051" 13 "CellVoltages_052_055" 14 "CellVoltages_056_059" 15 "CellVoltages_060_063" 16 "CellVoltages_064_067" 17 "CellVoltages_068_071" 18 "CellVoltages_072_075" 19 "CellVoltages_076_079" 20 "CellVoltages_080_083" 21 "CellVoltages_084_087" 22 "CellVoltages_088_091" 23 "CellVoltages_092_095" 24 "CellVoltages_096_099" 25 "CellVoltages_100_103" 26 "CellVoltages_104_107" 27 "CellVoltages_108_111" 28 "CellVoltages_112_115" 29 "CellVoltages_116_119" 30 "CellVoltages_120_123" 31 "CellVoltages_124_127" 32 "CellVoltages_128_131" 33 "CellVoltages_132_135" 34 "CellVoltages_136_139" 35 "CellVoltages_140_143" 36 "CellVoltages_144_147" 37 "CellVoltages_148_151" 38 "CellVoltages_152_155" 39 "CellVoltages_156_159"
 40 "CellVoltages_160_163" 41 "CellVoltages_164_167" 42 "CellVoltages_168_171" 43 "CellVoltages_172_175" 44 "CellVoltages_176_179" 45 "CellVoltages_180_183" 46 "CellVoltages_184_187" 47 "CellVoltages_188_191" 48 "CellVoltages_192_195" 49 "CellVoltages_196_199" 50 "CellVoltages_200_203" 51 "CellVoltages_204_207" 52 "CellVoltages_208_211" 53 "CellVoltages_212_215";
+VAL_ 1040 f_BootloaderVersionInfo_Mux 0 "BootloaderVersionInfo" 15 "BootInformation" 5 "CommitHashHigh" 6 "CommitHashLow";
 VAL_ 608 f_CellTemperatures_Mux 0 "CellTemperatures_000_005" 1 "CellTemperatures_006_011" 2 "CellTemperatures_012_017" 3 "CellTemperatures_018_023" 4 "CellTemperatures_024_029" 5 "CellTemperatures_030_035" 6 "CellTemperatures_036_041" 7 "CellTemperatures_042_047" 8 "CellTemperatures_048_053" 9 "CellTemperatures_054_059" 10 "CellTemperatures_060_065" 11 "CellTemperatures_066_071" 12 "CellTemperatures_072_077" 13 "CellTemperatures_078_083" 14 "CellTemperatures_084_089" 15 "CellTemperatures_090_095" 16 "CellTemperatures_096_101" 17 "CellTemperatures_102_107" 18 "CellTemperatures_108_113" 19 "CellTemperatures_114_119" 20 "CellTemperatures_120_125" 21 "CellTemperatures_126_131" 22 "CellTemperatures_132_137" 23 "CellTemperatures_138_143" 24 "CellTemperatures_144_149" 25 "CellTemperatures_150_155" 26 "CellTemperatures_156_161" 27 "CellTemperatures_162_167" 28 "CellTemperatures_168_173" 29 "CellTemperatures_174_179";
 VAL_ 592 f_CellVoltages_Mux 0 "CellVoltages_000_003" 1 "CellVoltages_004_007" 2 "CellVoltages_008_011" 3 "CellVoltages_012_015" 4 "CellVoltages_016_019" 5 "CellVoltages_020_023" 6 "CellVoltages_024_027" 7 "CellVoltages_028_031" 8 "CellVoltages_032_035" 9 "CellVoltages_036_039" 10 "CellVoltages_040_043" 11 "CellVoltages_044_047" 12 "CellVoltages_048_051" 13 "CellVoltages_052_055" 14 "CellVoltages_056_059" 15 "CellVoltages_060_063" 16 "CellVoltages_064_067" 17 "CellVoltages_068_071" 18 "CellVoltages_072_075" 19 "CellVoltages_076_079" 20 "CellVoltages_080_083" 21 "CellVoltages_084_087" 22 "CellVoltages_088_091" 23 "CellVoltages_092_095" 24 "CellVoltages_096_099" 25 "CellVoltages_100_103" 26 "CellVoltages_104_107" 27 "CellVoltages_108_111" 28 "CellVoltages_112_115" 29 "CellVoltages_116_119" 30 "CellVoltages_120_123" 31 "CellVoltages_124_127" 32 "CellVoltages_128_131" 33 "CellVoltages_132_135" 34 "CellVoltages_136_139" 35 "CellVoltages_140_143" 36 "CellVoltages_144_147" 37 "CellVoltages_148_151" 38 "CellVoltages_152_155" 39 "CellVoltages_156_159"
 40 "CellVoltages_160_163" 41 "CellVoltages_164_167" 42 "CellVoltages_168_171" 43 "CellVoltages_172_175" 44 "CellVoltages_176_179" 45 "CellVoltages_180_183" 46 "CellVoltages_184_187" 47 "CellVoltages_188_191" 48 "CellVoltages_192_195" 49 "CellVoltages_196_199" 50 "CellVoltages_200_203" 51 "CellVoltages_204_207" 52 "CellVoltages_208_211" 53 "CellVoltages_212_215";
@@ -3538,6 +3561,8 @@ VAL_ 624 CellVoltage_212_invalidFlag 0 "Invalid" 1 "Valid";
 VAL_ 624 CellVoltage_213_invalidFlag 0 "Invalid" 1 "Valid";
 VAL_ 624 CellVoltage_214_invalidFlag 0 "Invalid" 1 "Valid";
 VAL_ 624 CellVoltage_215_invalidFlag 0 "Invalid" 1 "Valid";
+VAL_ 546 FatalErrorCode 0 "DIAG_ID_FLASHCHECKSUM" 1 "DIAG_ID_SYSTEM_MONITORING" 2 "DIAG_ID_AFE_SPI" 3 "DIAG_ID_AFE_COMMUNICATION_INTEGRITY" 4 "DIAG_ID_AFE_MUX" 5 "DIAG_ID_AFE_CONFIG" 6 "DIAG_ID_CAN_TIMING" 9 "DIAG_ID_CURRENT_SENSOR_CC_RESPONDING" 10 "DIAG_ID_CURRENT_SENSOR_EC_RESPONDING" 11 "DIAG_ID_CURRENT_SENSOR_RESPONDING" 18 "DIAG_ID_CELL_VOLTAGE_OVERVOLTAGE_MSL" 19 "DIAG_ID_CELL_VOLTAGE_OVERVOLTAGE_RSL" 21 "DIAG_ID_CELL_VOLTAGE_UNDERVOLTAGE_MSL" 24 "DIAG_ID_TEMP_OVERTEMPERATURE_CHARGE_MSL" 27 "DIAG_ID_TEMP_OVERTEMPERATURE_DISCHARGE_MSL" 30 "DIAG_ID_TEMP_UNDERTEMPERATURE_CHARGE_MSL" 33 "DIAG_ID_TEMP_UNDERTEMPERATURE_DISCHARGE_MSL" 36 "DIAG_ID_OVERCURRENT_CHARGE_CELL_MSL" 39 "DIAG_ID_OVERCURRENT_DISCHARGE_CELL_MSL" 42 "DIAG_ID_STRING_OVERCURRENT_CHARGE_MSL" 45 "DIAG_ID_STRING_OVERCURRENT_DISCHARGE_MSL" 48 "DIAG_ID_PACK_OVERCURRENT_CHARGE_MSL" 50 "DIAG_ID_CURRENT_ON_OPEN_STRING" 51 "DIAG_ID_DEEP_DISCHARGE_DETECTED" 54 "DIAG_ID_INTERLOCK_FEEDBACK" 55 "DIAG_ID_STRING_MINUS_CONTACTOR_FEEDBACK" 56 "DIAG_ID_STRING_PLUS_CONTACTOR_FEEDBACK"
+57 "DIAG_ID_PRECHARGE_CONTACTOR_FEEDBACK" 59 "DIAG_ID_SBC_RSTB_ERROR" 66 "DIAG_ID_CURRENT_MEASUREMENT_TIMEOUT" 67 "DIAG_ID_CURRENT_MEASUREMENT_ERROR" 68 "DIAG_ID_CURRENT_SENSOR_V1_MEASUREMENT_TIMEOUT" 69 "DIAG_ID_CURRENT_SENSOR_V2_MEASUREMENT_TIMEOUT" 70 "DIAG_ID_CURRENT_SENSOR_V3_MEASUREMENT_TIMEOUT" 71 "DIAG_ID_CURRENT_SENSOR_POWER_MEASUREMENT_TIMEOUT" 72 "DIAG_ID_POWER_MEASUREMENT_ERROR" 82 "DIAG_ID_ALERT_MODE" 84 "DIAG_ID_SUPPLY_VOLTAGE_CLAMP_30C_LOST" 85 "NO_ERROR";
 VAL_ 544 BmsState 0 "UNINITIALIZED" 1 "INITIALIZATION" 2 "INITIALIZED" 3 "IDLE" 4 "OPEN_CONTACTORS" 5 "STANDBY" 6 "PRECHARGE" 7 "NORMAL" 8 "DISCHARGE" 9 "CHARGE" 10 "ERROR" 11 "UNDEFINED";
 VAL_ 544 GeneralError 0 "No Error" 1 "Error";
 VAL_ 544 GeneralWarning 0 "No Warning" 1 "Warning";
@@ -3564,6 +3589,7 @@ VAL_ 544 BmsSubstate 0 "ENTRY" 1 "CHECK_ERROR_FLAGS_INTERLOCK" 2 "INTERLOCK_CHEC
 32 "OPEN_STRINGS_EXIT";
 VAL_ 544 Clamp30cError 0 "No Error" 1 "Error";
 VAL_ 544 BalancingAlgorithmState 0 "BALANCING_NOT_ALLOWED" 1 "BALANCING_ALLOWED";
+VAL_ 544 BmsChargingFlag 0 "No" 1 "Yes";
 VAL_ 545 TimingViolationEngineTask 0 "No Error" 1 "Error";
 VAL_ 545 TimingViolation1msTask 0 "No Error" 1 "Error";
 VAL_ 545 TimingViolation10msTask 0 "No Error" 1 "Error";
@@ -3577,6 +3603,9 @@ VAL_ 545 TimingViolation1msTaskRecorded 0 "No Error" 1 "Error";
 VAL_ 528 RequestBmsMode 0 "Standby" 1 "Discharge" 2 "Charge";
 VAL_ 528 IndicatePrechargeType 0 "INTERNAL" 1 "EXTERNAL";
 VAL_ 528 ChargerConnected 0 "No" 1 "Yes";
+VAL_ 1040 DirtyFlag 0 "No" 1 "Yes";
+VAL_ 1040 ReleaseDistanceOverflow 0 "No" 1 "Yes";
+VAL_ 1040 UnderVersionControl 0 "No" 1 "Yes";
 VAL_ 608 CellTemperature_000_invalidFlag 0 "Invalid" 1 "Valid";
 VAL_ 608 CellTemperature_001_invalidFlag 0 "Invalid" 1 "Valid";
 VAL_ 608 CellTemperature_002_invalidFlag 0 "Invalid" 1 "Valid";
@@ -3985,7 +4014,7 @@ VAL_ 771 SOH_algorithm 0 "None" 1 "Debug";
 VAL_ 771 Balancing_strategy 0 "none" 1 "voltage" 2 "history";
 VAL_ 771 IMD 0 "none" 1 "Bender_iso165c" 2 "Bender_ir155";
 VAL_ 771 Rtos 0 "freertos" 1 "safertos";
-VAL_ 771 AFE 0 "LTC 6804-1" 1 "LTC 6806" 2 "LTC 6811-1" 3 "LTC 6812-1" 4 "LTC 6813-1" 5 "NXP MC33775A" 6 "MAXIM MAX17852" 7 "Debug default" 8 "ADI ADES1830" 9 "ADI ADBMS6832" 10 "TI BQ79718" 11 "TI Dummy";
+VAL_ 771 AFE 0 "Debug default" 256 "LTC 6804-1" 257 "LTC 6806" 258 "LTC 6811-1" 259 "LTC 6812-1" 260 "LTC 6813-1" 512 "NXP MC33775A" 768 "MAXIM MAX17852" 1024 "ADI ADES1830" 1281 "TI Dummy";
 VAL_ 771 TemperatureSensor 0 "Fak00" 1 "Epc00" 2 "Epc01" 3 "Mur00" 4 "Sem00" 5 "Vis00" 6 "Vis01" 7 "Vis02" 8 "Tdk00";
 VAL_ 771 TemperatureSensorMethod 0 "polynomial" 1 "lookup-table";
 VAL_ 769 DirtyFlag 0 "No" 1 "Yes";
@@ -4118,5 +4147,3 @@ VAL_ 1317 IVT_ID_Result_T 4 "Vt_Result_T";
 VAL_ 1314 IVT_ID_Result_U1 1 "Vt_Result_U1";
 VAL_ 1315 IVT_ID_Result_U2 2 "Vt_Result_U2";
 VAL_ 1316 IVT_ID_Result_U3 3 "Vt_Result_U3";
-VAL_ 546 FatalErrorCode 0 "DIAG_ID_FLASHCHECKSUM" 1 "DIAG_ID_SYSTEM_MONITORING" 2 "DIAG_ID_CONFIGASSERT" 3 "DIAG_ID_AFE_SPI" 4 "DIAG_ID_AFE_COMMUNICATION_INTEGRITY" 5 "DIAG_ID_AFE_MUX" 6 "DIAG_ID_AFE_CONFIG" 7 "DIAG_ID_CAN_TIMING" 10 "DIAG_ID_CAN_CC_RESPONDING" 11 "DIAG_ID_CAN_EC_RESPONDING" 12 "DIAG_ID_CURRENT_SENSOR_RESPONDING" 19 "DIAG_ID_CELL_VOLTAGE_OVERVOLTAGE_MSL" 22 "DIAG_ID_CELL_VOLTAGE_UNDERVOLTAGE_MSL" 25 "DIAG_ID_TEMP_OVERTEMPERATURE_CHARGE_MSL" 28 "DIAG_ID_TEMP_OVERTEMPERATURE_DISCHARGE_MSL" 31 "DIAG_ID_TEMP_UNDERTEMPERATURE_CHARGE_MSL" 34 "DIAG_ID_TEMP_UNDERTEMPERATURE_DISCHARGE_MSL" 37 "DIAG_ID_OVERCURRENT_CHARGE_CELL_MSL" 40 "DIAG_ID_OVERCURRENT_DISCHARGE_CELL_MSL" 43 "DIAG_ID_STRING_OVERCURRENT_CHARGE_MSL" 46 "DIAG_ID_STRING_OVERCURRENT_DISCHARGE_MSL" 49 "DIAG_ID_PACK_OVERCURRENT_CHARGE_MSL" 50 "DIAG_ID_PACK_OVERCURRENT_DISCHARGE_MSL" 51 "DIAG_ID_CURRENT_ON_OPEN_STRING" 52 "DIAG_ID_DEEP_DISCHARGE_DETECTED" 55 "DIAG_ID_INTERLOCK_FEEDBACK" 56 "DIAG_ID_STRING_MINUS_CONTACTOR_FEEDBACK" 57 "DIAG_ID_STRING_PLUS_CONTACTOR_FEEDBACK"
-58 "DIAG_ID_PRECHARGE_CONTACTOR_FEEDBACK" 60 "DIAG_ID_SBC_RSTB_STATE" 67 "DIAG_ID_CURRENT_MEASUREMENT_TIMEOUT" 68 "DIAG_ID_CURRENT_MEASUREMENT_ERROR" 69 "DIAG_ID_CURRENT_SENSOR_V1_MEASUREMENT_TIMEOUT" 70 "DIAG_ID_CURRENT_SENSOR_V2_MEASUREMENT_TIMEOUT" 71 "DIAG_ID_CURRENT_SENSOR_V3_MEASUREMENT_TIMEOUT" 72 "DIAG_ID_CURRENT_SENSOR_POWER_MEASUREMENT_TIMEOUT" 73 "DIAG_ID_POWER_MEASUREMENT_ERROR" 83 "DIAG_ID_ALERT_MODE" 85 "DIAG_ID_SUPPLY_VOLTAGE_CLAMP_30C_LOST" 86 "NO_ERROR";

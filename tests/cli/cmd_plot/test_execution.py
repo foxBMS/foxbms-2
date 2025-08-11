@@ -44,16 +44,14 @@ import sys
 import unittest
 from contextlib import redirect_stderr
 from pathlib import Path
-from unittest.mock import Mock, call, patch
+from unittest.mock import MagicMock, Mock, call, patch
 
 try:
     from cli.cmd_plot.data_handling.data_source_types import DataSourceTypes
-    from cli.cmd_plot.drawer.graph_types import GraphTypes
     from cli.cmd_plot.execution import Executor
 except ModuleNotFoundError:
     sys.path.insert(0, str(Path(__file__).parents[3]))
     from cli.cmd_plot.data_handling.data_source_types import DataSourceTypes
-    from cli.cmd_plot.drawer.graph_types import GraphTypes
     from cli.cmd_plot.execution import Executor
 PATH_DATA = Path(__file__).parent / "test_data"
 PATH_EXECUTION = Path(__file__).parent / "test_execution"
@@ -111,6 +109,18 @@ class TestInit(unittest.TestCase):
         exe = Executor(**self.config)
         self.assertEqual(exe.data_source_type, DataSourceTypes["CSV"])
 
+    def test_plot_config_not_a_list(self) -> None:
+        """Test the create_plots method with a plot configuration not containing a list"""
+        buf = io.StringIO()
+        with redirect_stderr(buf), self.assertRaises(SystemExit) as cm:
+            exe = Executor(**self.config)
+            exe.plot_config = 12
+            exe.create_plots()
+        self.assertEqual(cm.exception.code, 1)
+        self.assertIn(
+            "Plot configuration is not a list of dictionaries.", buf.getvalue()
+        )
+
 
 class TestCreatePlots(unittest.TestCase):
     """Class to test the create_plots method of the Executor class"""
@@ -142,9 +152,8 @@ class TestCreatePlots(unittest.TestCase):
         data_files = self.executor._get_data_files()  # pylint: disable=protected-access
         for file in data_files:
             plot_dir = Path(self.executor.output) / Path(file).stem
-            for key, value in self.executor.plot_config.items():
-                grap_type = Executor._get_graph_type(key)  # pylint: disable=protected-access
-                mock_drawer_get.assert_has_calls([call(grap_type, value)])
+            for graph_config in self.executor.plot_config:
+                mock_drawer_get.assert_has_calls([call(graph_config)])
                 mock_drawer_get().draw.assert_has_calls(
                     [call(data=mock_data_get().get_data())]
                 )
@@ -187,21 +196,49 @@ class TestGetDataFiles(unittest.TestCase):
         )
 
 
-class TestGetGraphType(unittest.TestCase):
-    """Class to test the get_graph_type method of the Executor class"""
+class TestHandlePyplotWarnings(unittest.TestCase):
+    """Class to test the handle_pyplot_warnings method of the Executor class"""
 
-    def test_valid_graph_type(self) -> None:
-        """Tests the get_graph_type method with a valid graph type"""
-        graph_type = Executor._get_graph_type("LINE_1")  # pylint: disable=protected-access
-        self.assertEqual(graph_type, GraphTypes["LINE"])
-
-    def test_invalid_graph_type(self) -> None:
-        """Tests the get_graph_type method with a invalid graph type"""
+    def test_empty_warning_handle(self) -> None:
+        """Tests the handle_pyplot_warnings method in case the warning_handle
+        parameter is empty"""
         buf = io.StringIO()
-        with redirect_stderr(buf), self.assertRaises(SystemExit) as cm:
-            Executor._get_graph_type("test")  # pylint: disable=protected-access
-        self.assertEqual(cm.exception.code, 1)
-        self.assertIn("is not valid", buf.getvalue())
+        graph_drawer = Mock()
+        with redirect_stderr(buf):
+            Executor._handle_pyplot_warnings([], graph_drawer)  # pylint: disable=protected-access
+        self.assertIn("", buf.getvalue())
+
+    def test_known_warning(self) -> None:
+        """Tests the handle_pyplot_warnings method with known warning"""
+        buf = io.StringIO()
+        warning_handle = MagicMock()
+        place_holder_mock = Mock()
+        place_holder_mock.message = "test"
+        warning_mock = Mock()
+        warning_mock.message = "Tight layout not applied"
+        warning_handle.__iter__.return_value = [
+            place_holder_mock,
+            warning_mock,
+            place_holder_mock,
+        ]
+        graph_drawer = Mock()
+        graph_drawer.name = "test name"
+        with redirect_stderr(buf):
+            Executor._handle_pyplot_warnings(warning_handle, graph_drawer)  # pylint: disable=protected-access
+        self.assertIn("Plot layout of test name seems too", buf.getvalue())
+
+    def test_unkown_warning(self) -> None:
+        """Tests the handle_pyplot_warnings method with unknown warning"""
+        buf = io.StringIO()
+        warning_handle = MagicMock()
+        place_holder_mock = Mock()
+        place_holder_mock.message = "test"
+        warning_handle.__iter__.return_value = [place_holder_mock, place_holder_mock]
+        graph_drawer = Mock()
+        graph_drawer.name = "test name"
+        with redirect_stderr(buf):
+            Executor._handle_pyplot_warnings(warning_handle, graph_drawer)  # pylint: disable=protected-access
+        self.assertIn("", buf.getvalue())
 
 
 if __name__ == "__main__":

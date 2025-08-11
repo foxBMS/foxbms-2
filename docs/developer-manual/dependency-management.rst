@@ -32,9 +32,9 @@ Dependencies that are installed locally on the developer's machine.
 
 - |doxygen|
 - |drawio-desktop|
-- |mingw-w64|
 - |git|
 - |graphviz|
+- |mingw-w64|
 - |pre-commit| hooks: defined through ``.pre-commit-config.yaml``.
 - |python|
 - |python| packages: defined through ``requirements.txt``.
@@ -101,7 +101,6 @@ Updating Internal Dependencies
 
 .. include:: ./update-processes/internal/update-freertos-plus-tcp.txt
 
-
 |waf|
 +++++
 
@@ -119,6 +118,16 @@ Updating External Dependencies
 ++++++++++++++++
 
 .. include:: ./update-processes/external/update-drawio-desktop.txt
+
+|git|
++++++
+
+.. include:: ./update-processes/external/update-git.txt
+
+|graphviz|
+++++++++++
+
+.. include:: ./update-processes/external/update-graphviz.txt
 
 |mingw-w64|
 +++++++++++

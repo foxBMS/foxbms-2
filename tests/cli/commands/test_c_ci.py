@@ -83,7 +83,7 @@ class TestFoxCliMainCommandCi(unittest.TestCase):
     def test_ci_path_shall_not_exist(self):
         """Test 'fox.py ci path-shall-not-exist' command."""
         # path exists
-        runner = CliRunner(mix_stderr=False)
+        runner = CliRunner()
         result = runner.invoke(main, ["ci", "path-shall-not-exist", __file__])
         self.assertEqual(1, result.exit_code)
         self.assertRegex(result.stderr, r"Path '.*test_c_ci.py' exists.")

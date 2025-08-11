@@ -37,15 +37,13 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""Build Script: ./src/app/driver/afe/debug/can
-
-builds the can-variant of the debug AFE"""
+"""Build the CAN-based 'AFE'-driver."""
 
 import os
 
 
 def build(bld):
-    """builds the AFE driver library for Maxim"""
+    """Build the CAN-based 'AFE'-driver."""
     source = [
         os.path.join("api", "debug_can_afe.c"),
         os.path.join("api", "debug_can_afe_dma.c"),

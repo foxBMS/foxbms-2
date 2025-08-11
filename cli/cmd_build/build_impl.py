@@ -44,12 +44,19 @@ from pathlib import Path
 from subprocess import PIPE
 from sys import executable
 
+from ..helpers.host_platform import get_platform
 from ..helpers.misc import PROJECT_ROOT
 from ..helpers.spr import SubprocessResult, run_process
 
 WAF_BIN = PROJECT_ROOT / "tools/waf"
 WAF_DEFAULT_CWD = PROJECT_ROOT
 WAF_BASE_CMD = [executable, str(WAF_BIN)]
+
+if get_platform() == "win32":
+    # on Windows, the GUI is launched through 'pythonw.exe' and we do not want
+    # to launch the build process trough 'pythonw.exe' as this creates poping
+    # up terminals.
+    WAF_BASE_CMD = [executable.replace("pythonw.exe", "python.exe"), str(WAF_BIN)]
 
 
 def run_waf(

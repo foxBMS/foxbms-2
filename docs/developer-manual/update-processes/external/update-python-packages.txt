@@ -8,7 +8,7 @@
          .. code-block:: powershell
 
             # Create the new environment
-            py -m venv C:\foxbms\envs\<name-of-the-new-env>
+            py -3.12 -m venv C:\foxbms\envs\<name-of-the-new-env>
             # Activate the new virtual environment by running
             C:\foxbms\envs\<name-of-the-new-env>\Scripts\activate.ps1
             # Determine outdated packages
@@ -20,7 +20,7 @@
 
 
             # Create the new environment
-            py -m venv /C/foxbms/envs/<name-of-the-new-env>
+            py -3.12 -m venv /C/foxbms/envs/<name-of-the-new-env>
             # Activate the new virtual environment by running
             source /C/foxbms/envs/<name-of-the-new-env>/Scripts/activate
             # Determine outdated packages
@@ -31,7 +31,7 @@
          .. code-block:: shell
 
             # Create the new environment
-            python3 -m venv /opt/foxbms/envs/<name-of-the-new-env>
+            python3.12 -m venv /opt/foxbms/envs/<name-of-the-new-env>
             # Activate the new virtual environment by running
             source /opt/foxbms/envs/<name-of-the-new-env>/bin/activate
             # Determine outdated packages
@@ -51,7 +51,7 @@
   `docs/software/build-environment/build-environment.rst`.
 - |snippet_update_license| in
   ``docs/general/license-tables/external/license-info_python-packages.csv``.
-- |snippet_changelog_entry|.
+- |snippet_changelog_entry|
   The changelog entry **SHALL** inform the user that environment update is
   mandatory.
 - |snippet_commit|

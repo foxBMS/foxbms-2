@@ -43,8 +43,8 @@
  * @file    adi_ades1830_balancing.c
  * @author  foxBMS Team
  * @date    2019-08-27 (date of creation)
- * @updated 2025-03-31 (date of last update)
- * @version v1.9.0
+ * @updated 2025-08-07 (date of last update)
+ * @version v1.10.0
  * @ingroup DRIVERS
  * @prefix  ADI
  *
@@ -97,7 +97,7 @@ extern void ADI_DeactivateBalancing(ADI_STATE_s *pAdiState) {
     }
     ADI_StoredConfigurationWriteToAfeGlobal(pAdiState);
     /* Send Unmute command */
-    ADI_CopyCommandBits(adi_cmdUnmute, adi_command);
+    ADI_CopyCommandBytes(adi_cmdUnmute, adi_command);
     ADI_TransmitCommand(adi_command, pAdiState);
 }
 

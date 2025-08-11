@@ -1,5 +1,5 @@
 /*
- * FreeRTOS+TCP V4.2.1
+ * FreeRTOS+TCP V4.3.2
  * Copyright (C) 2022 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * SPDX-License-Identifier: MIT
@@ -29,7 +29,7 @@
  * @file IPTraceMacroDefaults.h
  * @brief This file provides default (empty) implementations for any IP trace
  *        macros that are not defined by the user.  See
- *        http://www.FreeRTOS.org/FreeRTOS-Plus/FreeRTOS_Plus_TCP/TCP_IP_Trace.html
+ *        https://freertos.org/Documentation/03-Libraries/02-FreeRTOS-plus/02-FreeRTOS-plus-TCP/08-Trace-macros
  */
 
 #ifndef IP_TRACE_MACRO_DEFAULTS_H
@@ -129,7 +129,7 @@
  *                     [re]connecting.
  * eNetworkRxEvent - The network interface has queued a received Ethernet
  *                   frame.
- * eARPTimerEvent - The ARP timer expired.
+ * eARPTimerEvent - The Resolution timer expired.
  * eStackTxEvent - The software stack has queued a packet to transmit.
  * eDHCPEvent - Process the DHCP state machine.
  *
@@ -418,13 +418,13 @@
 /*---------------------------------------------------------------------------*/
 
 /*
- * traceARP_PACKET_RECEIVED
+ * iptraceARP_PACKET_RECEIVED
  *
  * Called when an ARP packet is received, even if the local network node is not
  * involved in the ARP transaction.
  */
-#ifndef traceARP_PACKET_RECEIVED
-    #define traceARP_PACKET_RECEIVED()
+#ifndef iptraceARP_PACKET_RECEIVED
+    #define iptraceARP_PACKET_RECEIVED()
 #endif
 
 /*---------------------------------------------------------------------------*/
@@ -587,6 +587,81 @@
 /*===========================================================================*/
 /*---------------------------------------------------------------------------*/
 /*===========================================================================*/
+/*                             ND TRACE MACROS                               */
+/*===========================================================================*/
+
+/*---------------------------------------------------------------------------*/
+
+/*
+ * iptraceND_TABLE_ENTRY_EXPIRED
+ */
+#ifndef iptraceND_TABLE_ENTRY_EXPIRED
+    #define iptraceND_TABLE_ENTRY_EXPIRED( pxIPAddress )
+#endif
+
+/*---------------------------------------------------------------------------*/
+
+/*
+ * iptraceND_TABLE_ENTRY_WILL_EXPIRE
+ */
+#ifndef iptraceND_TABLE_ENTRY_WILL_EXPIRE
+    #define iptraceND_TABLE_ENTRY_WILL_EXPIRE( pxIPAddress )
+#endif
+
+/*---------------------------------------------------------------------------*/
+
+/*
+ * iptraceDELAYED_ND_BUFFER_FULL
+ *
+ * A packet has come in from an unknown IPv6 address. An ND request has been
+ * sent, but the queue is still filled with a different packet.
+ */
+#ifndef iptraceDELAYED_ND_BUFFER_FULL
+    #define iptraceDELAYED_ND_BUFFER_FULL()
+#endif
+
+/*---------------------------------------------------------------------------*/
+
+/*
+ * iptrace_DELAYED_ND_REQUEST_REPLIED
+ */
+#ifndef iptrace_DELAYED_ND_REQUEST_REPLIED
+    #define iptrace_DELAYED_ND_REQUEST_REPLIED()
+#endif
+
+/*---------------------------------------------------------------------------*/
+
+/*
+ * iptraceDELAYED_ND_REQUEST_STARTED
+ *
+ * A packet came in from an unknown IPv6 address. An ND request has been sent
+ * and the network buffer is stored for processing later.
+ */
+#ifndef iptraceDELAYED_ND_REQUEST_STARTED
+    #define iptraceDELAYED_ND_REQUEST_STARTED()
+#endif
+
+/*---------------------------------------------------------------------------*/
+
+/*
+ * iptraceDELAYED_ND_TIMER_EXPIRED
+ *
+ * A packet was stored for delayed processing, but there is no ND reply. The
+ * network buffer will be released without being processed.
+ */
+#ifndef iptraceDELAYED_ND_TIMER_EXPIRED
+    #define iptraceDELAYED_ND_TIMER_EXPIRED()
+#endif
+
+/*---------------------------------------------------------------------------*/
+
+/*===========================================================================*/
+/*                              ND TRACE MACROS                              */
+/*===========================================================================*/
+/*---------------------------------------------------------------------------*/
+/*===========================================================================*/
+/*---------------------------------------------------------------------------*/
+/*===========================================================================*/
 /*                             DHCP TRACE MACROS                             */
 /*===========================================================================*/
 
@@ -710,36 +785,6 @@
 
 /*===========================================================================*/
 /*                             ICMP TRACE MACROS                             */
-/*===========================================================================*/
-/*---------------------------------------------------------------------------*/
-/*===========================================================================*/
-/*---------------------------------------------------------------------------*/
-/*===========================================================================*/
-/*                             NDP TRACE MACROS                              */
-/*===========================================================================*/
-
-/*---------------------------------------------------------------------------*/
-
-/*
- * iptraceND_TABLE_ENTRY_EXPIRED
- */
-#ifndef iptraceND_TABLE_ENTRY_EXPIRED
-    #define iptraceND_TABLE_ENTRY_EXPIRED( pxIPAddress )
-#endif
-
-/*---------------------------------------------------------------------------*/
-
-/*
- * iptraceND_TABLE_ENTRY_WILL_EXPIRE
- */
-#ifndef iptraceND_TABLE_ENTRY_WILL_EXPIRE
-    #define iptraceND_TABLE_ENTRY_WILL_EXPIRE( pxIPAddress )
-#endif
-
-/*---------------------------------------------------------------------------*/
-
-/*===========================================================================*/
-/*                             NDP TRACE MACROS                              */
 /*===========================================================================*/
 /*---------------------------------------------------------------------------*/
 /*===========================================================================*/

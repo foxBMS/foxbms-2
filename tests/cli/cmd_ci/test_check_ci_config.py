@@ -42,8 +42,9 @@
 import io
 import sys
 import unittest
-from contextlib import redirect_stderr
+from contextlib import redirect_stderr, redirect_stdout
 from pathlib import Path
+from unittest.mock import MagicMock, patch
 
 try:
     from cli.cmd_ci import check_ci_config
@@ -54,6 +55,7 @@ except ModuleNotFoundError:
     from cli.cmd_ci.check_ci_config import Stage
 
 
+# pylint: disable=too-many-public-methods
 class TestCheckCiConfig(unittest.TestCase):
     """Test of the function all_software_available"""
 
@@ -206,6 +208,54 @@ class TestCheckCiConfig(unittest.TestCase):
         with redirect_stderr(buf):
             result = check_ci_config.check_job_prefix(ci_config, stages)
         self.assertEqual(result, 0)
+
+    def test_check_stage_order_success(self):
+        """Test 'check_stage_order' returns success."""
+        stages = [
+            Stage(name="fox_install"),
+            Stage(name="configure"),
+            Stage(name="no_undesired_changes"),
+        ]
+        ci_config = {}
+        ci_config["include"] = [
+            {"local": "fox_install.yml"},
+            {"local": "no_undesired_changes.yml"},
+        ]
+
+        err = io.StringIO()
+        out = io.StringIO()
+        with redirect_stderr(err), redirect_stdout(out):
+            result = check_ci_config.check_stage_order(ci_config, stages)
+        self.assertEqual(result, 0)
+        self.assertEqual(err.getvalue(), "")
+        self.assertEqual(out.getvalue(), "")
+
+    def test_check_stage_order_failure(self):
+        """Test 'check_stage_order' returns failure"""
+        stages = [
+            Stage(name="fox_install"),
+            Stage(name="configure"),
+            Stage(name="no_undesired_changes"),
+        ]
+        ci_config = {}
+        ci_config["include"] = [
+            {"local": "no_undesired_changes.yml"},
+            {"local": "fox_install.yml"},
+        ]
+
+        err = io.StringIO()
+        out = io.StringIO()
+        with redirect_stderr(err), redirect_stdout(out):
+            result = check_ci_config.check_stage_order(ci_config, stages)
+        self.assertEqual(result, 2)
+        self.assertEqual(
+            err.getvalue(),
+            "1: 'stages' list and included documents are not in the  same order.\n"
+            " --> Stage 'fox_install' maps to 'no_undesired_changes'.\n"
+            "2: 'stages' list and included documents are not in the  same order.\n"
+            " --> Stage 'no_undesired_changes' maps to 'fox_install'.\n",
+        )
+        self.assertEqual(out.getvalue(), "")
 
     def test_check_emb_spa_build_alignment(self):
         """Test 'check_emb_spa_build_alignment' function"""
@@ -501,92 +551,358 @@ need to be equal\.""",
             buf.getvalue(),
         )
 
-    def test_analyze_config(self):
-        """Test 'analyze_config' function."""
-        # Test 1: Fail
-        ci_config = {
-            "stages": ["configure", "dummy"],
-        }
-        stage_files = []
-        buf = io.StringIO()
-        with redirect_stderr(buf):
-            result = check_ci_config.analyze_config(ci_config, stage_files)
+    @patch("cli.cmd_ci.check_ci_config.get_stages")
+    @patch("cli.cmd_ci.check_ci_config.match_stages_with_files")
+    @patch("cli.cmd_ci.check_ci_config.check_job_prefix")
+    @patch("cli.cmd_ci.check_ci_config.check_stage_order")
+    @patch("cli.cmd_ci.check_ci_config.check_emb_spa_build_alignment")
+    @patch("cli.cmd_ci.check_ci_config.validate_build_app_matrix")
+    @patch("cli.cmd_ci.check_ci_config.get_expected_artifacts")
+    @patch("cli.cmd_ci.check_ci_config.validate_spae_artifacts")
+    @patch("cli.cmd_ci.check_ci_config.validate_hil_test_config")
+    # pylint: disable=too-many-arguments,too-many-positional-arguments
+    def test_analyze_config_stages_and_files_do_not_match(
+        self,
+        m_validate_hil_test_config: MagicMock,
+        m_validate_spae_artifacts: MagicMock,
+        m_get_expected_artifacts: MagicMock,
+        m_validate_build_app_matrix: MagicMock,
+        m_check_emb_spa_build_alignment: MagicMock,
+        m_check_stage_order: MagicMock,
+        m_check_job_prefix: MagicMock,
+        m_match_stages_with_files: MagicMock,
+        m_get_stages: MagicMock,
+    ):
+        """stages and stage files do not match."""
+        m_get_stages.return_value = []
+        m_match_stages_with_files.return_value = 1
+        err = io.StringIO()
+        out = io.StringIO()
+        with redirect_stderr(err), redirect_stdout(out):
+            result = check_ci_config.analyze_config({}, [])
+
         self.assertEqual(result, 1)
-        self.assertRegex(
-            buf.getvalue(),
-            r"Number of stages \(1\) does not match the number stage files "
-            r"\(0\) found in '.*ci_pipeline'\.",
-        )
+        m_get_stages.assert_called_once()
+        m_match_stages_with_files.assert_called_once()
+        m_check_job_prefix.assert_not_called()
+        m_check_stage_order.assert_not_called()
+        m_check_emb_spa_build_alignment.assert_not_called()
+        m_validate_build_app_matrix.assert_not_called()
+        m_get_expected_artifacts.assert_not_called()
+        m_validate_spae_artifacts.assert_not_called()
+        m_validate_hil_test_config.assert_not_called()
 
-        # Test 2: Fail
-        ci_config["fa_job0"] = "bla"
-        ci_config["include"] = (
-            [
-                {"local": "tests/cli/cmd_ci/test_check_ci_config/valid.yml"},
-            ],
-        )
+    @patch("cli.cmd_ci.check_ci_config.get_stages")
+    @patch("cli.cmd_ci.check_ci_config.match_stages_with_files")
+    @patch("cli.cmd_ci.check_ci_config.check_job_prefix")
+    @patch("cli.cmd_ci.check_ci_config.check_stage_order")
+    @patch("cli.cmd_ci.check_ci_config.check_emb_spa_build_alignment")
+    @patch("cli.cmd_ci.check_ci_config.validate_build_app_matrix")
+    @patch("cli.cmd_ci.check_ci_config.get_expected_artifacts")
+    @patch("cli.cmd_ci.check_ci_config.validate_spae_artifacts")
+    @patch("cli.cmd_ci.check_ci_config.validate_hil_test_config")
+    # pylint: disable=too-many-arguments,too-many-positional-arguments
+    def test_analyze_config_job_prefix_do_not_match(
+        self,
+        m_validate_hil_test_config: MagicMock,
+        m_validate_spae_artifacts: MagicMock,
+        m_get_expected_artifacts: MagicMock,
+        m_validate_build_app_matrix: MagicMock,
+        m_check_emb_spa_build_alignment: MagicMock,
+        m_check_stage_order: MagicMock,
+        m_check_job_prefix: MagicMock,
+        m_match_stages_with_files: MagicMock,
+        m_get_stages: MagicMock,
+    ):
+        """job prefix do not match."""
+        m_get_stages.return_value = []
+        m_match_stages_with_files.return_value = 0
+        m_check_job_prefix.return_value = 1
+        err = io.StringIO()
+        out = io.StringIO()
+        with redirect_stderr(err), redirect_stdout(out):
+            result = check_ci_config.analyze_config({}, [])
 
-        stage_files = [Path("tests/cli/cmd_ci/test_check_ci_config/valid.yml")]
-        buf = io.StringIO()
-        with redirect_stderr(buf):
-            result = check_ci_config.analyze_config(ci_config, stage_files)
         self.assertEqual(result, 1)
-        self.assertEqual(buf.getvalue(), "Job 'fa_job0' uses the wrong prefix.\n")
+        m_get_stages.assert_called_once()
+        m_match_stages_with_files.assert_called_once()
+        m_check_job_prefix.assert_called_once()
+        m_check_stage_order.assert_not_called()
+        m_check_emb_spa_build_alignment.assert_not_called()
+        m_validate_build_app_matrix.assert_not_called()
+        m_get_expected_artifacts.assert_not_called()
+        m_validate_spae_artifacts.assert_not_called()
+        m_validate_hil_test_config.assert_not_called()
 
-        # Test 3: Fail
-        del ci_config["fa_job0"]
-        ci_config["d_job0"] = "bla"
+    @patch("cli.cmd_ci.check_ci_config.get_stages")
+    @patch("cli.cmd_ci.check_ci_config.match_stages_with_files")
+    @patch("cli.cmd_ci.check_ci_config.check_job_prefix")
+    @patch("cli.cmd_ci.check_ci_config.check_stage_order")
+    @patch("cli.cmd_ci.check_ci_config.check_emb_spa_build_alignment")
+    @patch("cli.cmd_ci.check_ci_config.validate_build_app_matrix")
+    @patch("cli.cmd_ci.check_ci_config.get_expected_artifacts")
+    @patch("cli.cmd_ci.check_ci_config.validate_spae_artifacts")
+    @patch("cli.cmd_ci.check_ci_config.validate_hil_test_config")
+    # pylint: disable=too-many-arguments,too-many-positional-arguments
+    def test_analyze_config_incorrect_job_order(
+        self,
+        m_validate_hil_test_config: MagicMock,
+        m_validate_spae_artifacts: MagicMock,
+        m_get_expected_artifacts: MagicMock,
+        m_validate_build_app_matrix: MagicMock,
+        m_check_emb_spa_build_alignment: MagicMock,
+        m_check_stage_order: MagicMock,
+        m_check_job_prefix: MagicMock,
+        m_match_stages_with_files: MagicMock,
+        m_get_stages: MagicMock,
+    ):
+        """Stage order is not correct."""
+        m_get_stages.return_value = []
+        m_match_stages_with_files.return_value = 0
+        m_check_job_prefix.return_value = 0
+        m_check_stage_order.return_value = 1
+        err = io.StringIO()
+        out = io.StringIO()
+        with redirect_stderr(err), redirect_stdout(out):
+            result = check_ci_config.analyze_config({}, [])
 
-        buf = io.StringIO()
-        with redirect_stderr(buf):
-            result = check_ci_config.analyze_config(ci_config, stage_files)
+        self.assertEqual(result, 1)
+        m_get_stages.assert_called_once()
+        m_match_stages_with_files.assert_called_once()
+        m_check_job_prefix.assert_called_once()
+        m_check_stage_order.assert_called_once()
+        m_check_emb_spa_build_alignment.assert_not_called()
+        m_validate_build_app_matrix.assert_not_called()
+        m_get_expected_artifacts.assert_not_called()
+        m_validate_spae_artifacts.assert_not_called()
+        m_validate_hil_test_config.assert_not_called()
+
+    @patch("cli.cmd_ci.check_ci_config.get_stages")
+    @patch("cli.cmd_ci.check_ci_config.match_stages_with_files")
+    @patch("cli.cmd_ci.check_ci_config.check_job_prefix")
+    @patch("cli.cmd_ci.check_ci_config.check_stage_order")
+    @patch("cli.cmd_ci.check_ci_config.check_emb_spa_build_alignment")
+    @patch("cli.cmd_ci.check_ci_config.validate_build_app_matrix")
+    @patch("cli.cmd_ci.check_ci_config.get_expected_artifacts")
+    @patch("cli.cmd_ci.check_ci_config.validate_spae_artifacts")
+    @patch("cli.cmd_ci.check_ci_config.validate_hil_test_config")
+    # pylint: disable=too-many-arguments,too-many-positional-arguments
+    def test_analyze_config_embedded_and_spa_build_not_aligned(
+        self,
+        m_validate_hil_test_config: MagicMock,
+        m_validate_spae_artifacts: MagicMock,
+        m_get_expected_artifacts: MagicMock,
+        m_validate_build_app_matrix: MagicMock,
+        m_check_emb_spa_build_alignment: MagicMock,
+        m_check_stage_order: MagicMock,
+        m_check_job_prefix: MagicMock,
+        m_match_stages_with_files: MagicMock,
+        m_get_stages: MagicMock,
+    ):
+        """The embedded and the SPA build are not aligned."""
+        m_get_stages.return_value = []
+        m_match_stages_with_files.return_value = 0
+        m_check_job_prefix.return_value = 0
+        m_check_stage_order.return_value = 0
+        m_check_emb_spa_build_alignment.return_value = 1
+        err = io.StringIO()
+        out = io.StringIO()
+        with redirect_stderr(err), redirect_stdout(out):
+            result = check_ci_config.analyze_config({}, [])
+
+        self.assertEqual(result, 1)
+        m_get_stages.assert_called_once()
+        m_match_stages_with_files.assert_called_once()
+        m_check_job_prefix.assert_called_once()
+        m_check_stage_order.assert_called_once()
+        m_check_emb_spa_build_alignment.assert_called_once()
+        m_validate_build_app_matrix.assert_not_called()
+        m_get_expected_artifacts.assert_not_called()
+        m_validate_spae_artifacts.assert_not_called()
+        m_validate_hil_test_config.assert_not_called()
+
+    @patch("cli.cmd_ci.check_ci_config.get_stages")
+    @patch("cli.cmd_ci.check_ci_config.match_stages_with_files")
+    @patch("cli.cmd_ci.check_ci_config.check_job_prefix")
+    @patch("cli.cmd_ci.check_ci_config.check_stage_order")
+    @patch("cli.cmd_ci.check_ci_config.check_emb_spa_build_alignment")
+    @patch("cli.cmd_ci.check_ci_config.validate_build_app_matrix")
+    @patch("cli.cmd_ci.check_ci_config.get_expected_artifacts")
+    @patch("cli.cmd_ci.check_ci_config.validate_spae_artifacts")
+    @patch("cli.cmd_ci.check_ci_config.validate_hil_test_config")
+    # pylint: disable=too-many-arguments,too-many-positional-arguments
+    def test_analyze_config_app_build_matrix_invalid(
+        self,
+        m_validate_hil_test_config: MagicMock,
+        m_validate_spae_artifacts: MagicMock,
+        m_get_expected_artifacts: MagicMock,
+        m_validate_build_app_matrix: MagicMock,
+        m_check_emb_spa_build_alignment: MagicMock,
+        m_check_stage_order: MagicMock,
+        m_check_job_prefix: MagicMock,
+        m_match_stages_with_files: MagicMock,
+        m_get_stages: MagicMock,
+    ):
+        """The embedded and the SPA build are not aligned."""
+        m_get_stages.return_value = []
+        m_match_stages_with_files.return_value = 0
+        m_check_job_prefix.return_value = 0
+        m_check_stage_order.return_value = 0
+        m_check_emb_spa_build_alignment.return_value = 0
+        m_validate_build_app_matrix.return_value = 1
+        err = io.StringIO()
+        out = io.StringIO()
+        with redirect_stderr(err), redirect_stdout(out):
+            result = check_ci_config.analyze_config({}, [])
+
+        self.assertEqual(result, 1)
+        m_get_stages.assert_called_once()
+        m_match_stages_with_files.assert_called_once()
+        m_check_job_prefix.assert_called_once()
+        m_check_stage_order.assert_called_once()
+        m_check_emb_spa_build_alignment.assert_called_once()
+        m_validate_build_app_matrix.assert_called_once()
+        m_get_expected_artifacts.assert_not_called()
+        m_validate_spae_artifacts.assert_not_called()
+        m_validate_hil_test_config.assert_not_called()
+
+    @patch("cli.cmd_ci.check_ci_config.get_stages")
+    @patch("cli.cmd_ci.check_ci_config.match_stages_with_files")
+    @patch("cli.cmd_ci.check_ci_config.check_job_prefix")
+    @patch("cli.cmd_ci.check_ci_config.check_stage_order")
+    @patch("cli.cmd_ci.check_ci_config.check_emb_spa_build_alignment")
+    @patch("cli.cmd_ci.check_ci_config.validate_build_app_matrix")
+    @patch("cli.cmd_ci.check_ci_config.get_expected_artifacts")
+    @patch("cli.cmd_ci.check_ci_config.validate_spae_artifacts")
+    @patch("cli.cmd_ci.check_ci_config.validate_hil_test_config")
+    # pylint: disable=too-many-arguments,too-many-positional-arguments
+    def test_analyze_config_expected_artifacts_not_found(
+        self,
+        m_validate_hil_test_config: MagicMock,
+        m_validate_spae_artifacts: MagicMock,
+        m_get_expected_artifacts: MagicMock,
+        m_validate_build_app_matrix: MagicMock,
+        m_check_emb_spa_build_alignment: MagicMock,
+        m_check_stage_order: MagicMock,
+        m_check_job_prefix: MagicMock,
+        m_match_stages_with_files: MagicMock,
+        m_get_stages: MagicMock,
+    ):
+        """The artifacts are not defined and used as expected."""
+        m_get_stages.return_value = []
+        m_match_stages_with_files.return_value = 0
+        m_check_job_prefix.return_value = 0
+        m_check_stage_order.return_value = 0
+        m_check_emb_spa_build_alignment.return_value = 0
+        m_validate_build_app_matrix.return_value = 0
+        m_get_expected_artifacts.return_value = []
+        m_validate_spae_artifacts.return_value = 1
+        err = io.StringIO()
+        out = io.StringIO()
+        with redirect_stderr(err), redirect_stdout(out):
+            result = check_ci_config.analyze_config({}, [])
+
+        self.assertEqual(result, 1)
+        m_get_stages.assert_called_once()
+        m_match_stages_with_files.assert_called_once()
+        m_check_job_prefix.assert_called_once()
+        m_check_stage_order.assert_called_once()
+        m_check_emb_spa_build_alignment.assert_called_once()
+        m_validate_build_app_matrix.assert_called_once()
+        m_get_expected_artifacts.assert_called_once()
+        m_validate_spae_artifacts.assert_called_once()
+        m_validate_hil_test_config.assert_not_called()
+
+    @patch("cli.cmd_ci.check_ci_config.get_stages")
+    @patch("cli.cmd_ci.check_ci_config.match_stages_with_files")
+    @patch("cli.cmd_ci.check_ci_config.check_job_prefix")
+    @patch("cli.cmd_ci.check_ci_config.check_stage_order")
+    @patch("cli.cmd_ci.check_ci_config.check_emb_spa_build_alignment")
+    @patch("cli.cmd_ci.check_ci_config.validate_build_app_matrix")
+    @patch("cli.cmd_ci.check_ci_config.get_expected_artifacts")
+    @patch("cli.cmd_ci.check_ci_config.validate_spae_artifacts")
+    @patch("cli.cmd_ci.check_ci_config.validate_hil_test_config")
+    # pylint: disable=too-many-arguments,too-many-positional-arguments
+    def test_analyze_config_details_are_invalid(
+        self,
+        m_validate_hil_test_config: MagicMock,
+        m_validate_spae_artifacts: MagicMock,
+        m_get_expected_artifacts: MagicMock,
+        m_validate_build_app_matrix: MagicMock,
+        m_check_emb_spa_build_alignment: MagicMock,
+        m_check_stage_order: MagicMock,
+        m_check_job_prefix: MagicMock,
+        m_match_stages_with_files: MagicMock,
+        m_get_stages: MagicMock,
+    ):
+        """The artifacts are not defined and used as expected."""
+        m_get_stages.return_value = []
+        m_match_stages_with_files.return_value = 0
+        m_check_job_prefix.return_value = 0
+        m_check_stage_order.return_value = 0
+        m_check_emb_spa_build_alignment.return_value = 0
+        m_validate_build_app_matrix.return_value = 0
+        m_get_expected_artifacts.return_value = []
+        m_validate_spae_artifacts.return_value = 0
+        m_validate_hil_test_config.return_value = 1
+        err = io.StringIO()
+        out = io.StringIO()
+        with redirect_stderr(err), redirect_stdout(out):
+            result = check_ci_config.analyze_config({}, [])
+
+        self.assertEqual(result, 1)
+        m_get_stages.assert_called_once()
+        m_match_stages_with_files.assert_called_once()
+        m_check_job_prefix.assert_called_once()
+        m_check_stage_order.assert_called_once()
+        m_check_emb_spa_build_alignment.assert_called_once()
+        m_validate_build_app_matrix.assert_called_once()
+        m_get_expected_artifacts.assert_called_once()
+        m_validate_spae_artifacts.assert_called_once()
+        m_validate_hil_test_config.assert_called_once()
+
+    def test_check_ci_config_invalid_bl(self):
+        """Test 'check_ci_config' function, when the bootloader test needs are invalid."""
+        check_ci_config.CI_MAIN_CONFIG = self.tests_dir / "invalid-bl.yml"
+        check_ci_config.CI_PIPELINE_DIR = self.tests_dir / "invalid-bl"
+
+        _err = io.StringIO()
+        _out = io.StringIO()
+        with redirect_stderr(_err), redirect_stdout(_out):
+            result = check_ci_config.check_ci_config()
+        err, out = _err.getvalue(), _out.getvalue()
+
         self.assertEqual(result, 1)
         self.assertEqual(
-            buf.getvalue(),
-            "key '.parallel-build_app_embedded-template' is not defined.\n",
+            err,
+            "th_test_bootloader:needs:' needs to list the following dependencies:\n"
+            "['th_ensure_power_supply_is_off', "
+            "'bae_all_config_variants: "
+            "[freertos, adi, ades1830, vbb, cc, cc, tr, none, none, no-imd, 1, 2, 16]', "
+            "'th_test_debug_simple_tests', "
+            "'th_flash_and_test_bootloader'].\n",
         )
+        self.assertEqual(out, "")
 
-        # Test 4: Fail
-        ci_config[".parallel-build_app_embedded-template"] = "foo"
-        ci_config[".parallel-build_app_spa-template"] = "foo"
+    def test_check_ci_config_invalid_tcp(self):
+        """Test 'check_ci_config' function, when the configuration is valid."""
+        check_ci_config.CI_MAIN_CONFIG = self.tests_dir / "invalid-tcp.yml"
+        check_ci_config.CI_PIPELINE_DIR = self.tests_dir / "invalid-tcp"
+        _err = io.StringIO()
+        _out = io.StringIO()
+        with redirect_stderr(_err), redirect_stdout(_out):
+            result = check_ci_config.check_ci_config()
+        err, out = _err.getvalue(), _out.getvalue()
 
-        buf = io.StringIO()
-        with redirect_stderr(buf):
-            result = check_ci_config.analyze_config(ci_config, stage_files)
         self.assertEqual(result, 1)
         self.assertEqual(
-            buf.getvalue(),
-            "Key '.parallel-build_app_embedded-template:↳parallel:↳matrix' "
-            "is missing or uses a wrong format.\n",
+            err,
+            "th_freertos_plus_tcp:needs:' needs to list the following dependencies:\n"
+            "['th_ensure_power_supply_is_off', "
+            "'bae_use_freertos_plus_tcp', "
+            "'th_flash_and_test_bootloader'].\n",
         )
-
-        # Test 5: Fail
-        ci_config[".parallel-build_app_embedded-template"] = {
-            "parallel": {
-                "matrix": [
-                    {"a": 1, "b": 2},
-                    {"a": 3, "b": 4},
-                    {"a": 5, "b": 6},
-                ],
-            }
-        }
-        ci_config[".parallel-build_app_spa-template"] = {
-            "parallel": {
-                "matrix": [
-                    {"a": 1, "b": 2},
-                    {"a": 3, "b": 4},
-                    {"a": 5, "b": 6},
-                ],
-            }
-        }
-        buf = io.StringIO()
-        with redirect_stderr(buf):
-            result = check_ci_config.analyze_config(ci_config, stage_files)
-        self.assertEqual(result, 1)
-        self.assertEqual(
-            buf.getvalue(),
-            "Key 'spae_gather_spa_artifacts:↳needs' is missing or uses a wrong format.\n",
-        )
+        self.assertEqual(out, "")
 
     def test_check_ci_config_good(self):
         """Test 'check_ci_config' function, when the configuration is valid."""

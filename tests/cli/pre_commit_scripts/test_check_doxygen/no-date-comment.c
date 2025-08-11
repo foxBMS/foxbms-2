@@ -43,8 +43,8 @@
  * @file    no-date-comment.c
  * @author  foxBMS Team
  * @date    wrong date
- * @updated 2025-03-31 (date of last update)
- * @version v1.9.0
+ * @updated 2025-08-07 (date of last update)
+ * @version v1.10.0
  * @ingroup SOME_GROUP
  * @prefix  DUMMY
  *

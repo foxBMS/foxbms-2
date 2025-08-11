@@ -6,6 +6,6 @@
   ``conf/env/paths_win32.txt``.
 - |snippet_update_license| in
   ``docs/general/license-tables/external/license-info_ti-halcogen.csv``.
-- |snippet_changelog_entry|.
+- |snippet_changelog_entry|
 - |snippet_commit|
   ``Dependency update: <XXXX>/Q<Y>: Texas Instruments HALCoGen <version number>``.

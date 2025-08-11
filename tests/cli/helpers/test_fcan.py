@@ -39,8 +39,10 @@
 
 """Testing file 'cli/helpers/fcan.py'."""
 
+import io
 import sys
 import unittest
+from contextlib import redirect_stderr
 from pathlib import Path
 
 try:
@@ -58,36 +60,47 @@ class TestFCan(unittest.TestCase):
         # PCAN checks
         CanBusConfig("pcan", "PCAN_USBBUS1")  # ok
 
-        with self.assertRaises(SystemExit) as cm:
+        _err = io.StringIO()
+        with self.assertRaises(SystemExit) as cm, redirect_stderr(_err):
             CanBusConfig("pcan", "foo")  # invalid channel
-        self.assertEqual(
-            cm.exception.code, "Invalid channel choice for interface 'pcan'."
-        )
+        err = _err.getvalue()
 
-        with self.assertRaises(SystemExit) as cm:
+        self.assertEqual(cm.exception.code, 1)
+        self.assertEqual(err, "Invalid channel choice for interface 'pcan'.\n")
+
+        _err = io.StringIO()
+        with self.assertRaises(SystemExit) as cm, redirect_stderr(_err):
             CanBusConfig("pcan", 1)  #  AttributeError
-        self.assertEqual(
-            cm.exception.code, "Invalid channel choice for interface 'pcan'."
-        )
+        err = _err.getvalue()
+
+        self.assertEqual(cm.exception.code, 1)
+        self.assertEqual(err, "Invalid channel choice for interface 'pcan'.\n")
+
         # Kvaser checks
 
         CanBusConfig("kvaser")  # ok
 
         CanBusConfig("kvaser", 1)  # ok
 
-        with self.assertRaises(SystemExit) as cm:
+        _err = io.StringIO()
+        with self.assertRaises(SystemExit) as cm, redirect_stderr(_err):
             CanBusConfig("kvaser", "foo")  # invalid channel
-        self.assertEqual(
-            cm.exception.code, "Invalid channel choice for interface 'kvaser'."
-        )
+        err = _err.getvalue()
+
+        self.assertEqual(cm.exception.code, 1)
+        self.assertEqual(err, "Invalid channel choice for interface 'kvaser'.\n")
 
         # Virtual
         CanBusConfig("virtual")  # ok
 
         # Unsupported interface
-        with self.assertRaises(SystemExit) as cm:
+        _err = io.StringIO()
+        with self.assertRaises(SystemExit) as cm, redirect_stderr(_err):
             CanBusConfig("foo")
-        self.assertEqual(cm.exception.code, "Unsupported interface 'foo'.")
+        err = _err.getvalue()
+
+        self.assertEqual(cm.exception.code, 2)
+        self.assertEqual(err, "Unsupported interface 'foo'.\n")
 
 
 if __name__ == "__main__":

@@ -1,13 +1,20 @@
 .. include:: ./../../../macros.txt
 .. include:: ./../../../units.txt
 
-.. _LTC6811_1_BASED_12_CELL_SLAVE___V2_1_6___AND_ABOVE:
+.. |local_slave_version_start| replace:: ``2.1.6``
+.. |local_bms_slave_version| replace:: ``above``
+.. |local_bms_slave_identifier_short| replace:: |ltc-ltc6811-1|\ -based 12-Cell |bms-slave|
+.. |local_bms_slave_identifier_full| replace:: |local_bms_slave_identifier_short| |local_slave_version_start| and |local_bms_slave_version|
 
-LTC6811-1-based 12-Cell Slave ``v2.1.6`` and above
-==================================================
+.. _LTC_LTC6811_1_BASED_12_CELL_BMS_SLAVE_V2_1_6_AND_ABOVE:
 
-.. |local_slave_version_start|  replace:: ``2.1.6``
-.. |local_slave_version|  replace:: ``above``
+|local_bms_slave_identifier_full|
+=================================
+
+.. note::
+
+   The changelog for this release is found at
+   :numref:`CHANGELOG_FOR_THE_LTC_LTC6811_1_BASED_12_CELL_BMS_SLAVE_V2_1_6`.
 
 --------
 Overview
@@ -15,14 +22,37 @@ Overview
 
 .. important::
 
-   The following description only applies for the |ltc-ltc6811-1|\ -based 12
-   cell |BMS-Slave| hardware versions |local_slave_version_start| to
-   |local_slave_version|.
+   The following description only applies for the
+   |local_bms_slave_identifier_short|
+   versions |local_slave_version_start| and |local_bms_slave_version|.
 
 .. hint::
 
    All connector pinouts described below follow the
    :ref:`CONVENTION_FOR_MOLEX_3_0_CONNECTOR_PIN_NUMBERING`.
+
+---------------
+Pinout Overview
+---------------
+
+The pinout of this |bms-slave| is shown in the
+:numref:`pinout-overview-for-12-ltc-ltc6811-1-v2.1.6_pinout-img` and
+:numref:`pinout-overview-for-12-ltc-ltc6811-1-v2.1.6_pinout-table`.
+
+.. drawio-figure:: 12-ltc-ltc6811-1-v2.1.6/12-ltc-ltc6811-1-v2.1.6_pinout.drawio
+   :format: svg
+   :alt: pinout-overview-for-12-ltc-ltc6811-1-v2.1.6_pinout-img
+   :name: pinout-overview-for-12-ltc-ltc6811-1-v2.1.6_pinout-img
+   :width: 800px
+
+   Connector placement of the |local_bms_slave_identifier_full|.
+
+.. csv-table:: |local_bms_slave_identifier_full| connectors description
+   :file: 12-ltc-ltc6811-1-v2.1.6/12-ltc-ltc6811-1-v2.1.6_pinout.csv
+   :name: pinout-overview-for-12-ltc-ltc6811-1-v2.1.6_pinout-table
+   :header-rows: 1
+   :delim: ;
+   :widths: 20 40 40
 
 --------------
 Specifications
@@ -60,14 +90,16 @@ Mechanical Dimensions
 Block Diagram
 ^^^^^^^^^^^^^
 
-The block diagram of the |BMS-Slave| is shown in
-:numref:`Fig. %s <block_diagram_6811-1_slave_12cell_v2.1.6>`.
+The block diagram of the |bms-slave| is shown in
+:numref:`block_diagram_6811-1_slave_12cell_v2.1.6`.
 
 .. _block_diagram_6811-1_slave_12cell_v2.1.6:
-.. figure:: ./12-ltc-ltc6811-1-v2.1.6/12-ltc-ltc6811-1-v2.1.6.png
+.. drawio-figure:: ./12-ltc-ltc6811-1-v2.1.6/12-ltc-ltc6811-1-v2.1.6.drawio
    :width: 100 %
+   :format: svg
+   :align: center
 
-   |BMS-Slave| 12-Cell Block Diagram
+   |bms-slave| 12-Cell Block Diagram
 
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 Schematic and Board Layout
@@ -81,7 +113,7 @@ Functions
 ---------
 
 The following general description applies to both, the primary and the
-secondary of the |BMS-Slave|.
+secondary of the |bms-slave|.
 If there are any differences in hardware between the primary and the secondary
 they will be marked as such.
 
@@ -107,18 +139,18 @@ Each of these lines is protected by a 250mA fast fuse surface mount device
 protected by a value of 500mA (F300 and F314).
 This is especially important for a test environment.
 The |VBAT+| and |VBAT-| connections are used for the internal power supply of
-the |BMS-Slave| board.
+the |bms-slave| board.
 If the battery module does not contain these separate wires to the positive and
 negative module terminals, the solder jumpers SJ401 and SJ402 have to be
 shorted.
-In this case the power required by the |BMS-Slave| will be supplied through the
+In this case the power required by the |bms-slave| will be supplied through the
 sense lines |CELL_0-| and |CELL_11+|.
-Running the |BMS-Slave| in this configuration could result in cell measurement
+Running the |bms-slave| in this configuration could result in cell measurement
 errors due to voltage drop over the sense wires.
 
 The cell input lines are filtered by a grounded or differential capacitor
 filter:
-both possibilities are provided on the PCB of the |BMS-Slave|.
+both possibilities are provided on the PCB of the |bms-slave|.
 More information on the corner frequency of this filtering can be found in the
 schematic.
 The grounded capacitor filter should be used in environments affected with a
@@ -148,7 +180,7 @@ Global Cell Balancing Feedback
 In order to check the proper function of the balancing process or to detect a
 malfunction in the balancing circuit, a global balancing feedback signal is
 connected to the |ltc-ltc6811-1|.
-This allows the |BMS-Master| to check whether any balancing action is currently
+This allows the |bms-master| to check whether any balancing action is currently
 taking place.
 The feedback signal is connected to the GPIO3 of the |ltc-ltc6811-1|.
 The signal remains in a logic zero state until any balancing action on at least
@@ -194,10 +226,10 @@ On-board EEPROM
 
 .. attention::
 
-   The |BMS-Slave| hardware versions ``2.1.0`` and above use a different
+   The |bms-slave| hardware versions ``2.1.0`` and above use a different
    EEPROM IC (ST M24M02) than all other previous hardware versions.
 
-The primary as well as the secondary unit of the |BMS-Slave| board is equipped
+The primary as well as the secondary unit of the |bms-slave| board is equipped
 with an EEPROM (IC800-1/2).
 The EEPROM for example can be used for storing data such as calibration values
 or minimum and maximum temperatures seen by the module during its lifetime.
@@ -215,7 +247,7 @@ This temperature sensor can be read by the |ltc-ltc6811-1| via the |I2C| bus
 It is possible to program an alert temperature level.
 Once the measured temperature reaches this alert temperature level, the alert
 pin of the IC is set to a logic low level.
-Currently, this signal is not used on the |BMS-Slave| board, but it is
+Currently, this signal is not used on the |bms-slave| board, but it is
 accessible on the connector X402.
 
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -223,7 +255,7 @@ Additional Inputs and Outputs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Several additional analog and digital inputs and outputs are provided on the
-|BMS-Slave| board via pin headers.
+|bms-slave| board via pin headers.
 Each 16 analog inputs are provided on connector X400 (primary) and X403
 (secondary).
 The pinout for the connectors for the primary and secondary unit is identical
@@ -306,7 +338,7 @@ Software Timer
 
 The internal software timer of the |ltc-ltc6811-1| can be enabled/disabled by a
 dedicated external pin (SWTEN, pin 36 of the |ltc-ltc6811-1|).
-In order to support all features, the |BMS-Slave| board offers a possibility to
+In order to support all features, the |bms-slave| board offers a possibility to
 switch the software timer.
 The software timer is enabled in the standard configuration, which means pin 36
 is pulled to VREG via a zero-ohm resistor (R221/R321).
@@ -369,10 +401,10 @@ External Isolated |DC-| Supply
 
 .. note::
 
-   The external isolated |DC-| supply is only available in the |BMS-Slave|
+   The external isolated |DC-| supply is only available in the |bms-slave|
    hardware versions ``2.1.0`` and above.
 
-It is possible to supply the |BMS-Slave| by an external DC power supply with a
+It is possible to supply the |bms-slave| by an external DC power supply with a
 voltage range of 8V to 24V.
 The DC input is protected against reverse voltage and over-current
 (with a 1.25A fuse).

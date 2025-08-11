@@ -43,8 +43,8 @@
  * @file    main.c
  * @author  foxBMS Team
  * @date    2019-08-27 (date of creation)
- * @updated 2025-03-31 (date of last update)
- * @version v1.9.0
+ * @updated 2025-08-07 (date of last update)
+ * @version v1.10.0
  * @ingroup MAIN
  * @prefix  TODO
  *
@@ -97,7 +97,6 @@ int unit_test_main(void)
 #endif
 {
     MINFO_SetResetSource(getResetSource()); /* Get reset source and clear respective flags */
-    _enable_IRQ_interrupt_();
     muxInit();
     gioInit();
     SPI_Initialize();
@@ -115,6 +114,12 @@ int unit_test_main(void)
     FAS_ASSERT(checkTimeHasPassedSelfTestReturnValue == STD_OK);
 
     OS_InitializeOperatingSystem();
+
+    /* Enable IRQ interrupt after creating the AFE task to prevent the DMA interrupt,
+    because the function called on DMA interrupts require an valid AFE task handle,
+    which is NULL before creating the AFE task. */
+    _enable_IRQ_interrupt_();
+
     if (OS_INIT_PRE_OS != os_boot) {
         /* Could not create Queues, Mutexes, Events and Tasks do not boot further from this point on */
         FAS_ASSERT(FAS_TRAP);

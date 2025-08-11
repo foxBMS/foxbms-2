@@ -37,15 +37,13 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""Helper Build Script: ``./src/app/driver/imd/none/wscript``
-=======================================================
-"""
+"""Build the dummy 'IMD'-driver"""
 
 import os
 
 
 def build(bld):
-    """Builds the dummy monitoring device"""
+    """Build the dummy 'IMD'-driver"""
     includes = [
         ".",
         "..",

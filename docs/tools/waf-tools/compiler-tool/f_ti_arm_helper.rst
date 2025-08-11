@@ -3,8 +3,8 @@
 
 .. _TI_ARM_CGT_HELPER_TOOLS:
 
-TI ARM CGT Helper Tools
-=======================
+|ti-arm-cgt| Helper Tools
+=========================
 
 The tool is located in ``tools/waf-tools``.
 

@@ -43,8 +43,8 @@
  * @file    adi_ades183x.c
  * @author  foxBMS Team
  * @date    2020-12-09 (date of creation)
- * @updated 2025-03-31 (date of last update)
- * @version v1.9.0
+ * @updated 2025-08-07 (date of last update)
+ * @version v1.10.0
  * @ingroup DRIVERS
  * @prefix  ADI
  *
@@ -206,7 +206,7 @@ static void ADI_BalanceControl(ADI_STATE_s *pAdiState) {
     FAS_ASSERT(pAdiState != NULL_PTR);
 
     /* Unmute balancing, cell voltage measurements must have been stopped before */
-    ADI_CopyCommandBits(adi_cmdUnmute, adi_command);
+    ADI_CopyCommandBytes(adi_cmdUnmute, adi_command);
     ADI_TransmitCommand(adi_command, pAdiState);
 
     /* Write the balancing registers of the ades183x */
@@ -217,7 +217,7 @@ static void ADI_BalanceControl(ADI_STATE_s *pAdiState) {
     ADI_Wait(ADI_BALANCING_TIME_ms);
 
     /* Mute balancing, so that cell voltage measurements can be restarted */
-    ADI_CopyCommandBits(adi_cmdMute, adi_command);
+    ADI_CopyCommandBytes(adi_cmdMute, adi_command);
     ADI_TransmitCommand(adi_command, pAdiState);
 }
 
@@ -257,14 +257,14 @@ static void ADI_RunCurrentStringMeasurement(ADI_STATE_s *pAdiState) {
     FAS_ASSERT(pAdiState != NULL_PTR);
 
     /* Start auxiliary voltage measurement, all channels */
-    ADI_CopyCommandBits(adi_cmdAdax, adi_command);
+    ADI_CopyCommandBytes(adi_cmdAdax, adi_command);
     ADI_WriteCommandConfigurationBits(adi_command, ADI_ADAX_OW_POS, ADI_ADAX_OW_LEN, 0u);
     ADI_WriteCommandConfigurationBits(adi_command, ADI_ADAX_PUP_POS, ADI_ADAX_PUP_LEN, 0u);
     ADI_WriteCommandConfigurationBits(adi_command, ADI_ADAX_CH4_POS, ADI_ADAX_CH4_LEN, 0u);
     ADI_WriteCommandConfigurationBits(adi_command, ADI_ADAX_CH03_POS, ADI_ADAX_CH03_LEN, 0u);
     ADI_TransmitCommand(adi_command, pAdiState);
     /* Start redundant auxiliary voltage measurement, one channel */
-    ADI_CopyCommandBits(adi_cmdAdax2, adi_command);
+    ADI_CopyCommandBytes(adi_cmdAdax2, adi_command);
     ADI_WriteCommandConfigurationBits(
         adi_command,
         ADI_ADAX2_CH03_POS,
@@ -275,13 +275,13 @@ static void ADI_RunCurrentStringMeasurement(ADI_STATE_s *pAdiState) {
     ADI_Wait(ADI_WAIT_TIME_1_FOR_ADAX_FULL_CYCLE);
 
     /* Snapshot to freeze cell voltage measurement result registers */
-    ADI_CopyCommandBits(adi_cmdSnap, adi_command);
+    ADI_CopyCommandBytes(adi_cmdSnap, adi_command);
     ADI_TransmitCommand(adi_command, pAdiState);
     /* Retrieve filtered cell voltages */
     ADI_GetVoltages(pAdiState, ADI_CELL_VOLTAGE_REGISTER, ADI_CELL_VOLTAGE);
     ADI_GetVoltages(pAdiState, ADI_FILTERED_CELL_VOLTAGE_REGISTER, ADI_FILTERED_CELL_VOLTAGE);
     /* Release snapshot to refresh cell voltage measurement result registers again */
-    ADI_CopyCommandBits(adi_cmdUnsnap, adi_command);
+    ADI_CopyCommandBytes(adi_cmdUnsnap, adi_command);
     ADI_TransmitCommand(adi_command, pAdiState);
 
     /* Wait until auxiliary measurement cycle is finished */
@@ -312,7 +312,7 @@ static void ADI_RunCurrentStringMeasurement(ADI_STATE_s *pAdiState) {
     ADI_Diagnostic(pAdiState);
 
     /* Cycle finished for string, clear values to check that they are not stuck during next reading */
-    ADI_CopyCommandBits(adi_cmdClrcell, adi_command);
+    ADI_CopyCommandBytes(adi_cmdClrcell, adi_command);
     ADI_TransmitCommand(adi_command, pAdiState);
 }
 

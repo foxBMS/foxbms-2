@@ -41,20 +41,21 @@
 
 from dataclasses import asdict
 from datetime import datetime
-from multiprocessing import Process, Queue, sharedctypes, synchronize
+from multiprocessing import Process, Queue, managers, synchronize
+from pathlib import Path
 from queue import Empty
 from signal import SIG_IGN, SIGINT, signal
 from time import sleep, time
 from typing import cast
 
 from can import Bus, CanInitializationError, CanOperationError, Message
+from can.io import SizedRotatingLogger
 from cantools import database
 from cantools.database.can.database import Database
-from click import secho
 
-from cli.helpers.misc import APP_DBC_FILE
+from cli.helpers.misc import APP_DBC_FILE, PROJECT_BUILD_ROOT
 
-from ..helpers.click_helpers import recho
+from ..helpers.click_helpers import recho, secho
 from ..helpers.fcan import CanBusConfig
 
 APP_DBC: Database = cast(Database, database.load_file(APP_DBC_FILE))
@@ -73,6 +74,57 @@ MUX_VALUES = {
 
 class StopShell(Exception):
     """Stop the shell"""
+
+
+def log_can_message(
+    msg: Message,
+    msg_arr: managers.ListProxy,
+    logger: SizedRotatingLogger,
+    prompt: str,
+) -> None:
+    """Prints the message if needed."""
+    if msg.arbitration_id not in msg_arr[0]:
+        return
+    idx = msg_arr[0].index(msg.arbitration_id)
+    array_0 = msg_arr[0]
+    array_1 = msg_arr[1]
+    array_2 = msg_arr[2]
+    if msg_arr[1][idx] > 0:
+        if not msg_arr[2][idx]:
+            logger(msg)
+        else:
+            raw_msg = APP_DBC.get_message_by_frame_id(msg_arr[0][idx])
+            decoded_msg = raw_msg.decode(msg.data)
+            if isinstance(decoded_msg, dict):
+                for key in decoded_msg.keys():
+                    if (
+                        ("shortHashHigh7" in key) or ("shortHashLow7" in key)
+                    ) and isinstance(decoded_msg[key], (int, str)):
+                        msg_string = str(hex(decoded_msg[key]))[2:]  # type: ignore[arg-type]
+                        decoded_msg[key] = "".join(
+                            [
+                                chr(int(msg_string[i : i + 2], 16))
+                                for i in range(0, len(msg_string), 2)
+                            ]
+                        )
+            secho(f"Message ID {hex(msg_arr[0][idx])}: {decoded_msg}")
+        array_1[idx] -= 1
+        if array_1[idx] == 0:
+            secho(
+                f"All messages with ID {hex(array_0[idx])} have been logged.",
+                fg="green",
+            )
+            secho(prompt, nl=False)
+            array_0.pop(idx)
+            array_1.pop(idx)
+            array_2.pop(idx)
+    else:
+        array_0.pop(idx)
+        array_1.pop(idx)
+        array_2.pop(idx)
+    msg_arr[0] = array_0
+    msg_arr[1] = array_1
+    msg_arr[2] = array_2
 
 
 def receive_send_can_message(
@@ -117,13 +169,18 @@ def receive_send_can_message(
 
 
 def read_can_message(
+    prompt: str,
     rec_q: "Queue[Message]",
     network_ok: synchronize.Event,
-    msg_id: sharedctypes.Synchronized,
-    msg_num: sharedctypes.Synchronized,
+    msg_arr: managers.ListProxy,
 ) -> None:
     """Reads the CAN message and prints it if needed."""
     signal(SIGINT, SIG_IGN)
+    try:
+        logger = initialize_logger()
+    except ValueError:
+        network_ok.clear()
+        return
     first_timestamp: float = 0
     try:
         while network_ok.is_set():
@@ -131,16 +188,7 @@ def read_can_message(
                 msg = rec_q.get(block=False)
                 first_timestamp = msg.timestamp
                 msg.timestamp = 0
-                if (msg_id.value == msg.arbitration_id) and (msg_num.value > 0):
-                    raw_msg = APP_DBC.get_message_by_frame_id(msg_id.value)
-                    secho(f"Message ID {msg_id.value}: {raw_msg.decode(msg.data)}")
-                    msg_num.value -= 1
-                    if msg_num.value == 0:
-                        secho(
-                            f"All messages with ID {msg_id.value} have been printed.",
-                            fg="green",
-                        )
-                        msg_id.value = 0
+                log_can_message(msg=msg, msg_arr=msg_arr, logger=logger, prompt=prompt)
                 break
             except Empty:
                 pass
@@ -148,16 +196,7 @@ def read_can_message(
             try:
                 msg = rec_q.get(block=False)
                 msg.timestamp = msg.timestamp - first_timestamp
-                if (msg_id.value == msg.arbitration_id) and (msg_num.value > 0):
-                    raw_msg = APP_DBC.get_message_by_frame_id(msg_id.value)
-                    secho(f"Message ID {msg_id.value}: {raw_msg.decode(msg.data)}")
-                    msg_num.value -= 1
-                    if msg_num.value == 0:
-                        secho(
-                            f"All messages with ID {msg_id.value} have been printed.",
-                            fg="green",
-                        )
-                        msg_id.value = 0
+                log_can_message(msg=msg, msg_arr=msg_arr, logger=logger, prompt=prompt)
             except Empty:
                 pass
     finally:
@@ -165,25 +204,30 @@ def read_can_message(
             while not rec_q.empty():
                 msg = rec_q.get(block=False)
                 msg.timestamp = msg.timestamp - first_timestamp
-                if (msg_id.value == msg.arbitration_id) and (msg_num.value > 0):
-                    raw_msg = APP_DBC.get_message_by_frame_id(msg_id.value)
-                    secho(f"Message ID {msg_id.value}: {raw_msg.decode(msg.data)}")
-                    msg_num.value -= 1
-                    if msg_num.value == 0:
-                        secho(
-                            f"All messages with ID {msg_id.value} have been printed.",
-                            fg="green",
-                        )
-                        msg_id.value = 0
+                log_can_message(msg=msg, msg_arr=msg_arr, logger=logger, prompt=prompt)
+        logger.stop()
+
+
+def initialize_logger() -> SizedRotatingLogger:
+    """Creates a SizedRotatingLogger object."""
+    output: Path = PROJECT_BUILD_ROOT / Path("logs")
+    output.mkdir(parents=True, exist_ok=True)
+    logger = SizedRotatingLogger(
+        base_filename=output / Path("foxBMS_CAN_bms_log.txt"),
+        max_bytes=200000,
+        encoding="utf-8",
+        rollover_count=0,
+    )
+    return logger
 
 
 def initialization(  # pylint: disable=too-many-arguments, too-many-positional-arguments
+    prompt: str,
     rec_q: "Queue[Message]",
     send_q: "Queue[Message]",
     bus_cfg: CanBusConfig,
     network_ok: synchronize.Event,
-    msg_id: sharedctypes.Synchronized,
-    msg_num: sharedctypes.Synchronized,
+    msg_arr: managers.ListProxy,
 ) -> bool | tuple[Process, Process]:
     """Initializes the process."""
     p_recv = Process(
@@ -198,7 +242,7 @@ def initialization(  # pylint: disable=too-many-arguments, too-many-positional-a
         recho("Could not start receive and send process.\nExiting...")
         p_recv.terminate()
         return False
-    if not network_ok.wait(3):
+    if not network_ok.wait(5):
         recho("Could not initialize CAN bus. Timeout\nShutdown...")
         return False
     secho(
@@ -207,10 +251,19 @@ def initialization(  # pylint: disable=too-many-arguments, too-many-positional-a
     )
     p_read = Process(
         target=read_can_message,
-        args=(rec_q, network_ok, msg_id, msg_num),
+        args=(prompt, rec_q, network_ok, msg_arr),
         name="p_read",
     )
-    p_read.start()
+    try:
+        p_read.start()
+    except (OSError, RuntimeError, ValueError):
+        recho("Could not start read process.")
+        shutdown(p_recv, p_read, network_ok)
+        return False
+    if not network_ok.wait(5):
+        recho("Could not create logger object.")
+        shutdown(p_recv, p_read, network_ok)
+        return False
     secho("Started the read process.", fg="green")
     return (p_recv, p_read)
 
@@ -229,11 +282,11 @@ def shutdown(p_recv: Process, p_read: Process, network_ok: synchronize.Event) ->
         recho("Could not cancel the read process gracefully.")
         recho("Terminating...")
         p_read.terminate()
-    secho("Shutdown...", fg="green")
+    secho("Shutdown...")
 
 
 def set_debug_message(msg_data: dict[str, int]) -> Message:
-    """Sets the FRAM initialization trigger message"""
+    """Sets the debug message"""
     data = MESSAGE.encode(msg_data, padding=True)
     return Message(arbitration_id=MESSAGE.frame_id, data=data, is_extended_id=False)
 

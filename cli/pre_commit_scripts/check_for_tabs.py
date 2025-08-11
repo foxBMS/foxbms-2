@@ -37,18 +37,33 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""Script to check whether a file contains tabs"""
+"""Check whether the provided files contain tab characters.
+
+This script scans each specified file for tab characters. If any are found,
+it reports the file and line number (when possible) for each occurrence.
+Intended for use in automated quality checks or pre-commit hooks to enforce
+whitespace standards.
+It is intended for use with pre-commit.
+"""
 
 import argparse
 import sys
+from collections.abc import Sequence
 from pathlib import Path
-from typing import Sequence
 
 SUPPORTED_ENCODINGS = ("ascii", "utf-8")
 
 
 def main(argv: Sequence[str] | None = None) -> int:
-    """Tabs are not allowed"""
+    """Check the specified files for tab characters.
+
+    Args:
+        argv: Optional sequence of command-line arguments.
+
+    Returns:
+        The number of tab characters found (max 255).
+
+    """
     parser = argparse.ArgumentParser()
     parser.add_argument("files", nargs="*", help="Files to check")
     args = parser.parse_args(argv)

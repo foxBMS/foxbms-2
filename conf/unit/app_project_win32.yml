@@ -116,6 +116,9 @@
     # see tests/unit/app/driver/afe/adi/common/ades183x/README.md why this
     # directory is excluded
     - -:./../../tests/unit/app/driver/afe/adi/common/ades183x/**
+    # see tests/unit/app/driver/afe/nxp/common/mc3377x/README.md why this
+    # directory is excluded
+    - -:./../../tests/unit/app/driver/afe/nxp/common/mc3377x/**
     # helper headers that shall not be included
     - -:./../../tests/unit/app/main/helper
     - -:./../../tests/unit/app/driver/afe/adi/ades1830/include
@@ -176,8 +179,11 @@
     :/test_mxm.*/:
       - FOXBMS_AFE_DRIVER_MAXIM=1u
       - TEST_BS_NR_OF_CELL_BLOCKS_PER_MODULE=14u
-    :/test_nxp_.*/:
+    :/test_nxp_afe.*/: # this test is independet of the used AFE
       - FOXBMS_AFE_DRIVER_NXP=1u
+    :/test_nxp_mc33775a.*/:
+      - FOXBMS_AFE_DRIVER_NXP=1u
+      - FOXBMS_AFE_DRIVER_NXP_MC33775A
       - TEST_BS_NR_OF_CELL_BLOCKS_PER_MODULE=14u
     :/test_st_.*/:
       - FOXBMS_AFE_DRIVER_ST=1u
@@ -199,12 +205,20 @@
       - FOXBMS_AFE_DRIVER_ST=1u
     :/test_spi_ti.c:
       - FOXBMS_AFE_DRIVER_TI=1u
+    :/test_can_can_message_notification.c:
+      - COMPILE_FOR_UNIT_TEST=1
+    :/test_spi_spi_notification.c:
+      - COMPILE_FOR_UNIT_TEST=1
     :/test_can_cbs_tx_string.*/:
       - TEST_BS_NR_OF_STRINGS=2u
     :/test_can_cbs_tx_pack-minimum-maximum-values.c:
       - TEST_BS_NR_OF_STRINGS=2u
     :/test_can_cbs_tx_pack-state-estimation.c:
       - TEST_BS_NR_OF_STRINGS=2u
+    :/test_os_freertos_cache_enabled.c:
+      - OS_ENABLE_CACHE=true
+    :/test_os_freertos_cache_disabled.c:
+      - OS_ENABLE_CACHE=false
     :/test_fstartup.c:
       # See file-level doxygen comment in
       # 'tests/unit/app/main/test_fstartup.c' for more details.
@@ -261,19 +275,24 @@
       :/os/*:
         # This is needed since FreeRTOS V11.1.0. We need the definition of
         # configNUMBER_OF_CORES in FreeRTOSConfig.h in os related modules.
-        # See tests/unit/app/task/os/freertos/freertos/test_os_freertos.c
+        # See tests/unit/app/task/os/freertos/test_os_freertos.c
         - -I
         - "../../src/os/freertos/freertos/include"
         - -include
         - FreeRTOSConfig.h
       :/test_dma.c:
-        # This is needed since FreeRTOS V11.1.0. We need the definition of
-        # configNUMBER_OF_CORES in FreeRTOSConfig.h in os related modules.
-        # See tests/unit/app/task/os/freertos/freertos/test_os_freertos.c
+        # We need the definition of vTaskSwitchContext
         - -I
         - "../../src/os/freertos/freertos/include"
         - -include
         - FreeRTOSConfig.h
+      :/test_dma_dma_group_a_notification.c:
+        # We need the definition of vTaskSwitchContext
+        - -I
+        - "../../src/os/freertos/freertos/include"
+        - -include
+        - FreeRTOSConfig.h
+
 # Configuration Options specific to CMock. See CMock docs for details
 :cmock:
   # Core conffiguration
@@ -411,7 +430,7 @@
     # - XmlSummary
   :gcovr:
     :report_root: "../../"
-    :report_exclude: ".*vendor.*|.*/build.*|.*test.*|.*tests.*|.*lib.*|.*Test.*|.*src.hal.*|.*src.os.*"
+    :report_exclude: ".*vendor.*|.*/build.*|.*test.*|.*tests.*|.*lib.*|.*Test.*|.*src.hal.*|.*src.os.*|.*src.bootloader.*"
     :exclude_directories: ".*tests.*|.*src.os.*|.*/build.*|.*src.app.driver.sbc.fs8x_driver."
     :sort_percentage: TRUE
     :sort_uncovered: FALSE

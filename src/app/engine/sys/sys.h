@@ -43,8 +43,8 @@
  * @file    sys.h
  * @author  foxBMS Team
  * @date    2020-02-24 (date of creation)
- * @updated 2025-03-31 (date of last update)
- * @version v1.9.0
+ * @updated 2025-08-07 (date of last update)
+ * @version v1.10.0
  * @ingroup ENGINE
  * @prefix  SYS
  *
@@ -64,86 +64,48 @@
 
 /*========== Macros and Definitions =========================================*/
 
-/** Symbolic names for busyness of the system */
+/*================== Constant and Variable Definitions ======================*/
 typedef enum {
-    SYS_CHECK_OK,     /*!< system ok      */
-    SYS_CHECK_BUSY,   /*!< system busy    */
-    SYS_CHECK_NOT_OK, /*!< system not ok  */
-} SYS_CHECK_e;
-
-/** States of the state machine */
-typedef enum {
-    SYS_FSM_STATE_DUMMY,          /*!< dummy state - always the first state */
-    SYS_FSM_STATE_HAS_NEVER_RUN,  /*!< never run state - always the second state */
-    SYS_FSM_STATE_UNINITIALIZED,  /*!< uninitialized state */
-    SYS_FSM_STATE_INITIALIZATION, /*!< initializing the state machine */
-    SYS_FSM_STATE_RUNNING,        /*!< operational mode of the state machine */
-    SYS_FSM_STATE_ERROR,          /*!< state for error processing  */
+    SYS_FSM_STATE_DUMMY,          /*!< dummy state - always the first state             */
+    SYS_FSM_STATE_HAS_NEVER_RUN,  /*!< never run state - always the second state        */
+    SYS_FSM_STATE_UNINITIALIZED,  /*!< uninitialized state                              */
+    SYS_FSM_STATE_INITIALIZATION, /*!< initializing the system state machine            */
+    SYS_FSM_STATE_PRE_RUNNING,    /*!< state to set everything needed for running state */
+    SYS_FSM_STATE_RUNNING,        /*!< operational mode of the state machine            */
+    SYS_FSM_STATE_ERROR,          /*!< error processing                                 */
 } SYS_FSM_STATES_e;
 
-/** Substates of the state machine */
 typedef enum {
-    SYS_FSM_SUBSTATE_DUMMY,                                  /*!< dummy state - always the first substate */
-    SYS_FSM_SUBSTATE_ENTRY,                                  /*!< entry state - always the second substate */
-    SYS_FSM_SUBSTATE_INITIALIZATION_SBC,                     /*!< TODO */
-    SYS_FSM_SUBSTATE_INITIALIZATION_BOOT_MESSAGE,            /*!< TODO */
-    SYS_FSM_SUBSTATE_INITIALIZATION_INTERLOCK,               /*!< TODO */
-    SYS_FSM_SUBSTATE_INITIALIZATION_CONTACTORS,              /*!< TODO */
-    SYS_FSM_SUBSTATE_INITIALIZATION_BALANCING,               /*!< TODO */
-    SYS_FSM_SUBSTATE_INITIALIZATION_INSULATION_GUARD,        /*!< TODO */
-    SYS_FSM_SUBSTATE_INITIALIZATION_FIRST_MEASUREMENT_CYCLE, /*!< TODO */
-    SYS_FSM_SUBSTATE_INITIALIZATION_CHECK_CURRENT_SENSOR,    /*!< TODO */
-    SYS_FSM_SUBSTATE_INITIALIZATION_MISC,                    /*!< TODO */
-    SYS_FSM_SUBSTATE_INITIALIZATION_BMS,                     /*!< TODO */
-    SYS_FSM_SUBSTATE_RUNNING,                                /*!< fist running substate */
+    SYS_FSM_SUBSTATE_DUMMY,                    /*!< dummy state - always the first substate */
+    SYS_FSM_SUBSTATE_ENTRY,                    /*!< entry state - always the second substate */
+    SYS_FSM_CHECK_DEEP_DISCHARGE,              /*!< Substate to read the FRAM */
+    SYS_FSM_SUBSTATE_START_INITIALIZATION_SBC, /*!< Substate to start the initialization of the sbc state machine */
+    SYS_FSM_SUBSTATE_INITIALIZE_INTERLOCK,     /*!< Substate to initialize the interlock*/
+    SYS_FSM_SUBSTATE_WAIT_INITIALIZATION_SBC,  /*!< Substate to wait for initialization of the sbc state machine */
+    SYS_FSM_SUBSTATE_INITIALIZATION_CAN,       /*!< Substate to initialize the can system */
+    SYS_FSM_SUBSTATE_INITIALIZATION_RTC,       /*!< wait for the RTC module to be initialized */
+    SYS_FSM_SUBSTATE_START_UP_BIST,            /*!< Substate to execute the start up built-in self-test */
+    SYS_FSM_SUBSTATE_SEND_BOOT_MESSAGE,        /*!< Substate to send the boot message and finish initialization */
+    SYS_FSM_SUBSTATE_START_INITIALIZATION_BAL, /*!< Substate to start the initialization of the balancing state machine */
+    SYS_FSM_SUBSTATE_WAIT_INITIALIZATION_BAL, /*!< Substate to wait for initialization of the balancing state machine */
+    SYS_FSM_SUBSTATE_WAIT_INITIALIZATION_BAL_GLOBAL_ENABLE, /*!< Substate to enable/disable balancing globally */
+    SYS_FSM_SUBSTATE_START_FIRST_MEASUREMENT_CYCLE,         /*!< Substate to start the first measurement cycle */
+    SYS_FSM_SUBSTATE_WAIT_FIRST_MEASUREMENT_CYCLE, /*!< Substate to wait for first measurement cycle to complete */
+    SYS_FSM_SUBSTATE_START_CURRENT_SENSOR_PRESENCE_CHECK, /*!< Substate to start the current sensor presence check */
+    SYS_FSM_SUBSTATE_WAIT_CURRENT_SENSOR_PRESENCE_CHECK, /*!< Substate to wait for the current sensor presence check to complete */
+    SYS_FSM_SUBSTATE_INITIALIZATION_MISC,                /*!< Substate to initialize our miscellaneous functions */
+    SYS_FSM_SUBSTATE_INITIALIZATION_IMD,                 /*!< Substate to initialize the imd state machine */
+    SYS_FSM_SUBSTATE_START_INITIALIZATION_BMS, /*!< Substate to start the initialization of the bms state machine */
+    SYS_FSM_SUBSTATE_WAIT_INITIALIZATION_BMS,  /*!< Substate to wait for initialization of the bms state machine */
+    /* Error states to transmit the error case to the error state */
+    SYS_FSM_SUBSTATE_SBC_INITIALIZATION_ERROR, /*!< Substate error of SBC initialization */
+    SYS_FSM_SUBSTATE_BAL_INITIALIZATION_ERROR, /*!< Substate error of balancing state machine initialization */
+    SYS_FSM_SUBSTATE_BAL_GLOBAL_INITIALIZATION_ERROR, /*!< Substate error of the global balancing state machine initialization */
+    SYS_FSM_SUBSTATE_FIRST_MEAS_INITIALIZATION_ERROR, /*!< Substate error if first measurement cycle does not complete */
+    SYS_FSM_SUBSTATE_CURRENT_SENSOR_PRESENCE_ERROR,   /*!< Substate error if current sensor can not be found */
+    SYS_FSM_SUBSTATE_IMD_INITIALIZATION_ERROR,        /*!< Substate error of bms state machine initialization */
+    SYS_FSM_SUBSTATE_BMS_INITIALIZATION_ERROR,        /*!< Substate error of bms state machine initialization */
 } SYS_FSM_SUBSTATES_e;
-
-/*================== Constant and Variable Definitions ======================*/
-
-/** States of the SYS state machine */
-typedef enum {
-    /* Init-Sequence */
-    SYS_STATEMACH_UNINITIALIZED,                 /*!<    */
-    SYS_STATEMACH_INITIALIZATION,                /*!<    */
-    SYS_STATEMACH_SYSTEM_BIST,                   /*!< run a built-in self-test */
-    SYS_STATEMACH_INITIALIZED,                   /*!<    */
-    SYS_STATEMACH_INITIALIZE_SBC,                /*!<    */
-    SYS_STATEMACH_INITIALIZE_CAN,                /*!< initialize CAN module */
-    SYS_STATEMACH_INITIALIZE_INTERLOCK,          /*!<    */
-    SYS_STATEMACH_INITIALIZE_CONTACTORS,         /*!<    */
-    SYS_STATEMACH_INITIALIZE_BALANCING,          /*!<    */
-    SYS_STATEMACH_INITIALIZE_BMS,                /*!<    */
-    SYS_STATEMACH_RUNNING,                       /*!<    */
-    SYS_STATEMACH_FIRST_MEASUREMENT_CYCLE,       /*!<    */
-    SYS_STATEMACH_INITIALIZE_MISC,               /*!<    */
-    SYS_STATEMACH_CHECK_CURRENT_SENSOR_PRESENCE, /*!<    */
-    SYS_STATEMACH_INITIALIZE_IMD,                /*!< initialize IMD module */
-    SYS_STATEMACH_ERROR,                         /*!< Error-State */
-} SYS_STATEMACH_e;
-
-/** Substates of the SYS state machine */
-typedef enum {
-    SYS_ENTRY,                         /*!< Substate entry state */
-    SYS_CHECK_ERROR_FLAGS,             /*!< Substate check if any error flag set */
-    SYS_CHECK_STATE_REQUESTS,          /*!< Substate check if there is a state request */
-    SYS_WAIT_INITIALIZATION_SBC,       /*!< Substate to wait for initialization of the sbc state machine */
-    SYS_WAIT_INITIALIZATION_INTERLOCK, /*!< Substate to wait for initialization of the interlock state machine */
-    SYS_WAIT_INITIALIZATION_CONT,      /*!< Substate to wait for initialization of the contactor state machine */
-    SYS_WAIT_INITIALIZATION_BAL,       /*!< Substate to wait for initialization of the balancing state machine */
-    SYS_WAIT_INITIALIZATION_BAL_GLOBAL_ENABLE, /*!< Substate to enable/disable balancing globally */
-    SYS_WAIT_INITIALIZATION_IMD,               /*!< Substate to wait for initialization of the imd state machine */
-    SYS_WAIT_INITIALIZATION_BMS,               /*!< Substate to wait for initialization of the bms state machine */
-    SYS_WAIT_FIRST_MEASUREMENT_CYCLE,          /*!< Substate to wait for first measurement cycle to complete */
-    SYS_WAIT_CURRENT_SENSOR_PRESENCE,          /*!< Substate to wait for first measurement cycle to complete */
-    SYS_SBC_INITIALIZATION_ERROR,              /*!< Substate error of SBC initialization */
-    SYS_CONT_INITIALIZATION_ERROR,             /*!< Substate error of contactor state machine initialization */
-    SYS_BAL_INITIALIZATION_ERROR,              /*!< Substate error of balancing state machine initialization */
-    SYS_ILCK_INITIALIZATION_ERROR,             /*!< Substate error of contactor state machine initialization */
-    SYS_IMD_INITIALIZATION_ERROR,              /*!< Substate error of bms state machine initialization */
-    SYS_BMS_INITIALIZATION_ERROR,              /*!< Substate error of bms state machine initialization */
-    SYS_MEAS_INITIALIZATION_ERROR,             /*!< Substate error if first measurement cycle does not complete */
-    SYS_CURRENT_SENSOR_PRESENCE_ERROR,         /*!< Substate error if first measurement cycle does not complete */
-} SYS_STATEMACH_SUB_e;
 
 /** State requests for the SYS state machine */
 typedef enum {
@@ -159,7 +121,6 @@ typedef enum {
     SYS_REQUEST_PENDING,     /*!< requested to be executed               */
     SYS_ILLEGAL_REQUEST,     /*!< Request can not be executed            */
     SYS_ALREADY_INITIALIZED, /*!< Initialization of LTC already finished */
-    SYS_ILLEGAL_TASK_TYPE,   /*!< Illegal                                */
 } SYS_RETURN_TYPE_e;
 
 /**
@@ -167,15 +128,17 @@ typedef enum {
  * The user can get the current state of the CONT state machine with this variable
  */
 typedef struct {
-    uint16_t timer; /*!< time in ms before the state machine processes the next state, e.g. in counts of 1ms    */
-    SYS_STATE_REQUEST_e stateRequest; /*!< current state request made to the state machine                      */
-    SYS_STATEMACH_e state;            /*!< state of driver state machine                                        */
-    SYS_STATEMACH_SUB_e substate;     /*!< current substate of the state machine                                */
-    SYS_STATEMACH_e lastState;        /*!< previous state of the state machine                                  */
-    SYS_STATEMACH_SUB_e lastSubstate; /*!< previous substate of the state machine                               */
-    uint32_t illegalRequestsCounter;  /*!< counts the number of illegal requests to the SYS state machine       */
-    uint16_t initializationTimeout;   /*!< Timeout to wait for initialization of state machine state machine    */
-    uint8_t triggerEntry;             /*!< counter for re-entrance protection (function running flag)           */
+    uint16_t timer; /*!< time in ms before the state machine processes the next state, e.g. in counts of 1ms       */
+    SYS_STATE_REQUEST_e stateRequest; /*!< current state request made to the state machine                         */
+    SYS_FSM_STATES_e nextState;       /*!< next state of driver state machine                                      */
+    SYS_FSM_SUBSTATES_e nextSubstate; /*!< next substate of the state machine                                      */
+    SYS_FSM_STATES_e currentState; /*!< current state of driver state machine                                       */
+    SYS_FSM_SUBSTATES_e currentSubstate;  /*!< current substate of the state machine                                */
+    SYS_FSM_STATES_e previousState;       /*!< previous state of the state machine                                  */
+    SYS_FSM_SUBSTATES_e previousSubstate; /*!< previous substate of the state machine                               */
+    uint32_t illegalRequestsCounter;      /*!< counts the number of illegal requests to the SYS state machine       */
+    uint16_t initializationTimeout;       /*!< Timeout to wait for initialization of state machine state machine    */
+    uint8_t triggerEntry;                 /*!< counter for re-entrance protection (function running flag)           */
 } SYS_STATE_s;
 
 /*========== Extern Constant and Variable Declarations ======================*/
@@ -205,13 +168,26 @@ extern SYS_RETURN_TYPE_e SYS_SetStateRequest(SYS_STATE_REQUEST_e stateRequest);
  */
 extern STD_RETURN_TYPE_e SYS_Trigger(SYS_STATE_s *pSystemState);
 
-/** built-in self-test for the macros in general.h */
-extern void SYS_GeneralMacroBist(void);
+/**
+ * @brief   getter function for the current system state
+ * @details This function returns the current system state of pSystemState.
+ *
+ * @param   pSystemState pointer to the system state
+ * @return  Returns the current system state
+ */
+extern SYS_FSM_STATES_e SYS_GetSystemState(SYS_STATE_s *pSystemState);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 #ifdef UNITY_UNIT_TEST
 STD_RETURN_TYPE_e TEST_SYS_RunStateMachine(SYS_STATE_s *pSystemState);
 STD_RETURN_TYPE_e TEST_SYS_CheckStateRequest(SYS_STATE_REQUEST_e stateRequest);
+void TEST_SYS_SetState(
+    SYS_STATE_s *pSysState,
+    SYS_FSM_STATES_e nextState,
+    SYS_FSM_SUBSTATES_e nextSubstate,
+    uint16_t idleTime);
+/** built-in self-test for the macros in general.h */
+void TEST_SYS_GeneralMacroBist(void);
 #endif
 
 #endif /* FOXBMS__SYS_H_ */

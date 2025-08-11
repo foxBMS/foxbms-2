@@ -1,5 +1,5 @@
 /*
- * FreeRTOS+TCP V4.2.1
+ * FreeRTOS+TCP V4.3.2
  * Copyright (C) 2022 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * SPDX-License-Identifier: MIT
@@ -318,12 +318,10 @@ enum eFrameProcessingResult prvAllowIPPacketIPv4( const struct xIP_PACKET * cons
             }
         }
         else if(
-            ( FreeRTOS_FindEndPointOnIP_IPv4( ulDestinationIPAddress, 4 ) == NULL ) &&
+            ( FreeRTOS_FindEndPointOnIP_IPv4( ulDestinationIPAddress ) == NULL ) &&
             /* Is it an IPv4 broadcast address x.x.x.255 ? */
             ( ( FreeRTOS_ntohl( ulDestinationIPAddress ) & 0xffU ) != 0xffU ) &&
-            ( xIsIPv4Multicast( ulDestinationIPAddress ) == pdFALSE ) &&
-            /* Or (during DHCP negotiation) we have no IP-address yet? */
-            ( FreeRTOS_IsNetworkUp() != pdFALSE ) )
+            ( xIsIPv4Multicast( ulDestinationIPAddress ) == pdFALSE ) )
         {
             /* Packet is not for this node, release it */
             eReturn = eReleaseBuffer;

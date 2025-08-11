@@ -37,9 +37,9 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""Build Script: ./src/app/driver/afe/ti"""
+"""Propagate build process to lower level build scripts."""
 
 
 def build(bld):
-    """selects the driver library to be build"""
+    """Propagate build process to lower level build scripts."""
     bld.recurse([bld.env.afe_ic, "api", "common"])

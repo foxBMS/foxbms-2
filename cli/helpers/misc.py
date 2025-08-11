@@ -37,8 +37,24 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
+"""Miscellaneous helper functions and path definitions for foxBMS utilities.
 
-"""Miscellaneous helper functions."""
+This module provides helper functions for environment setup, logging
+configuration, hashing, and path management, as well as constants for important
+foxBMS file locations.
+
+Attributes:
+    DISABLE_LOGGING_FOR_MODULES: Modules where logging should be disabled.
+    PROJECT_ROOT: Path to the root of the project repository.
+    PROJECT_BUILD_ROOT: Path to the project's build directory.
+    PATH_FILE: Path to the platform-specific paths file.
+    FOXBMS_ELF_FILE: Path to the foxBMS ELF file.
+    FOXBMS_BIN_FILE: Path to the foxBMS binary file.
+    FOXBMS_APP_CRC_FILE: Path to the foxBMS CRC CSV file.
+    FOXBMS_APP_INFO_FILE: Path to the foxBMS CRC info JSON file.
+    APP_DBC_FILE: Path to the application DBC file.
+    BOOTLOADER_DBC_FILE: Path to the bootloader DBC file.
+"""
 
 import hashlib
 import json
@@ -52,18 +68,17 @@ from git.exc import GitError
 
 from .host_platform import get_platform
 
-#: Modules where logging should be disabled
-DISABLE_LOGGING_FOR_MODULES = ["git"]
+DISABLE_LOGGING_FOR_MODULES = ["git", "can"]
 
 
 def get_project_root(path: str = ".") -> Path:
-    """helper function to find the repository root
+    """Find the repository root directory.
 
     Args:
-        path: path to retrieve the project root from
+        path (str): Path to retrieve the project root from.
 
-    Returns:
-        root path of the git repository
+    Return:
+        Path: Root path of the git repository.
     """
     root = Path(__file__).parent.parent.parent
     try:
@@ -75,40 +90,38 @@ def get_project_root(path: str = ".") -> Path:
 
 
 PROJECT_ROOT = get_project_root()
-
 PROJECT_BUILD_ROOT = PROJECT_ROOT / "build"
-
 PATH_FILE = PROJECT_ROOT / f"conf/env/paths_{get_platform()}.txt"
-
 FOXBMS_ELF_FILE = PROJECT_BUILD_ROOT / "app_embedded/src/app/main/foxbms.elf"
 FOXBMS_BIN_FILE = PROJECT_BUILD_ROOT / "app_embedded/src/app/main/foxbms.bin"
 FOXBMS_APP_CRC_FILE = PROJECT_BUILD_ROOT / "app_embedded/src/app/main/foxbms.crc64.csv"
 FOXBMS_APP_INFO_FILE = (
     PROJECT_BUILD_ROOT / "app_embedded/src/app/main/foxbms.crc64.json"
 )
-
 APP_DBC_FILE = PROJECT_ROOT / "tools/dbc/foxbms.dbc"
 BOOTLOADER_DBC_FILE = PROJECT_ROOT / "tools/dbc/foxbms-bootloader.dbc"
 
+EXCLUDE_FROM_FOXBMS_PATH = ["\\WindowsApps", "conda"]
+
 
 def initialize_path_variable_for_foxbms() -> None:
-    """Add paths that foxBMS expects to exist to the PATH environment variable.
+    """Add expected foxBMS paths to the PATH environment variable.
 
-    - If a path do not exist, it is not added to PATH
-    - If a path is already on PATH, it is not added to PATH again
+    Only existing directories are added, and duplicates are removed.
+    Paths potentially containing other undesired Python installations are
+    filtered out.
     """
-
     prepend_to_path = []
     for i in PATH_FILE.read_text(encoding="utf-8").splitlines():
         if Path(i).is_dir():
             prepend_to_path.append(i)
-    # crate the full path, that might have some duplicates
+    # Create the full path, that might have some duplicates
     full_path = prepend_to_path + os.environ.get("PATH", "").split(os.pathsep)
-    # remove duplicates, but keep list order
+    # Remove duplicates, but keep list order
     new_path_list = list(dict.fromkeys(full_path))
     new_path_list_clean: list[str] = []
     for i in new_path_list:
-        if "\\WindowsApps" in i:
+        if any(exclude in i for exclude in EXCLUDE_FROM_FOXBMS_PATH):
             continue
         new_path_list_clean.append(i)
 
@@ -116,7 +129,11 @@ def initialize_path_variable_for_foxbms() -> None:
 
 
 def set_other_environment_variables_for_foxbms() -> None:
-    """Sets environment variables accordingly to foxBMS specifications"""
+    """Set environment variables according to foxBMS specifications.
+
+    Loads variables from conf/env/env.json and applies platform-specific
+    overrides.
+    """
     tmp = (PROJECT_ROOT / "conf/env/env.json").read_text(encoding="utf-8")
     env_vars: dict = json.loads(tmp)
     for var, val in env_vars.items():
@@ -128,22 +145,24 @@ def set_other_environment_variables_for_foxbms() -> None:
 
 
 def ignore_third_party_logging() -> None:
-    """Disable logging for third party tool, except for errors"""
+    """Disable logging for specific third-party modules, except for errors."""
     for module in DISABLE_LOGGING_FOR_MODULES:
         logging.getLogger(module).setLevel(logging.CRITICAL)
 
 
 def set_logging_level(
     verbosity: int = 1,
-    _format: str = "%(asctime)s File:%(filename)-9s line:%(lineno)-4s %(levelname)-8s %(message)s",
+    _format: str = "%(asctime)s %(pathname)-9s:%(lineno)-4s %(levelname)-8s %(message)s",
     datefmt: str | None = None,
 ) -> None:
-    """sets the module logging level
+    """Configure the logging level and format for the module.
 
-    :param verbosity: verbosity level
-    :param _format: logging format style
-    :param datefmt: date format style"""
+    Args:
+        verbosity: Verbosity level (1: WARNING, 2: INFO, 3: DEBUG).
+        _format: Logging format style.
+        datefmt: Date format style.
 
+    """
     if verbosity < 1:
         verbosity = 1
     elif verbosity > 3:
@@ -164,16 +183,32 @@ def set_logging_level(
 
 
 def terminal_link_print(link: Path | str) -> str:
-    """Prints a clickable link to the terminal
+    """Create a clickable hyperlink string for terminal output.
+
     Args:
-        link: hyperlink that should be clickable"""
+        link: Hyperlink to be printed.
+
+    Return:
+        Clickable terminal hyperlink.
+
+    """
     return f"\033]8;;{link}\033\\{link}\033]8;;\033\\"
 
 
 def get_sha256_file_hash(
-    file_path: Path, buffer_size: int = 65536, file_hash=None
+    file_path: Path, buffer_size: int = 65536, file_hash: "hashlib._Hash | None" = None
 ) -> "hashlib._Hash":
-    """Calculate the SHA256 hash of a file"""
+    """Calculate the SHA256 hash of a file.
+
+    Args:
+        file_path: Path to the file to hash.
+        buffer_size: Buffer size for reading the file.
+        file_hash: Hash object to update (optional).
+
+    Return:
+        SHA256 hash object after processing the file.
+
+    """
     if not file_hash:
         file_hash = hashlib.sha256()
     with open(file_path, "rb") as f:
@@ -186,14 +221,32 @@ def get_sha256_file_hash(
 
 
 def get_sha256_file_hash_str(file_path: Path, buffer_size: int = 65536) -> str:
-    """Returns the string representation of a SHA256 hash of a file"""
+    """Return the hexadecimal SHA256 hash string of a file.
+
+    Args:
+        file_path: Path to the file to hash.
+        buffer_size: Buffer size for reading the file.
+
+    Return:
+        str: Hexadecimal SHA256 hash string.
+
+    """
     return get_sha256_file_hash(
         file_path=file_path, buffer_size=buffer_size
     ).hexdigest()
 
 
 def get_multiple_files_hash_str(files: list[Path], buffer_size: int = 65536) -> str:
-    """Returns the string representation of a SHA256 hash for multiple files"""
+    """Return the hexadecimal SHA256 hash string for multiple files.
+
+    Args:
+        files: List of file paths to hash.
+        buffer_size: Buffer size for reading the files.
+
+    Return:
+        Hexadecimal SHA256 hash string for all files.
+
+    """
     file_hash = hashlib.sha256()
     for i in files:
         file_hash = get_sha256_file_hash(
@@ -203,12 +256,20 @@ def get_multiple_files_hash_str(files: list[Path], buffer_size: int = 65536) -> 
 
 
 def file_name_from_current_time() -> Path:
-    """Current ISO timestamp in a file system friendly format."""
+    """Create a file-system-friendly ISO timestamp as a Path.
+
+    Return:
+        Current ISO timestamp with colons replaced by underscores.
+
+    """
     return Path(str(datetime.now().isoformat()).replace(":", "_"))
 
 
 def create_pre_commit_file() -> None:
-    """Adds a pre-commit file in the .git/hooks directory"""
+    """Add or update a pre-commit file in the .git/hooks directory.
+
+    If already present with correct content, does nothing.
+    """
     path_dir = PROJECT_ROOT / ".git/hooks"
     # check if we are in a git repo
     if not path_dir.is_dir():

@@ -66,11 +66,11 @@
 #define FLASH_BANK1_START_ADDRESS (0x00200000)
 #define FLASH_BANK1_END_ADDRESS   (0x003FFFFF)
 
-/* Data ECC area: 0xF0400000 to 0xF0480000 */
-#define ECC_DATA_START_ADDRESS (0xF0400000)
+/* Data ECC area: 0xF0403FFC to 0xF0480000 */
+#define ECC_DATA_START_ADDRESS (0xF0403FFC)
 
 /* start address of the vectors table in ARM (if not otherwise defined, i.e., during flashing) */
-#define VECTORS_TABLE_START_ADDRESS (0x00000000)
+#define VECTORS_TABLE_START_ADDRESS (0x0001FFE0)
 
 /* size of RAM in TMS570LC43xx */
 #define GLOBAL_RAM_SIZE (0x80000)
@@ -90,12 +90,11 @@
 /* size of KERNEL (accommodates the OS) */
 #define KERNEL_FUNCTIONS_SIZE (0x8000)
 
-/* remaining size of flash bank 0 as at the beginning of flash bank 0 the vector
- * table and version information struct are placed */
-#define REMAINING_FLASH_BANK0_SIZE (FLASH_BANK_SIZE - VECTORS_TABLE_SIZE - KERNEL_FUNCTIONS_SIZE - VERSION_INFORMATION_SIZE)
+/* size of the whole application (max. 0x3E0000 = 2 * FLASH_BANK_SIZE - VECTORS_TABLE_START_ADDRESS - VECTORS_TABLE_SIZE) */
+#define APP_SIZE (0x3E0000)
 
-/* program usable flash size is "remaining flash bank0 size + complete flash bank 1 size" */
-#define APP_FLASH_SIZE (REMAINING_FLASH_BANK0_SIZE + FLASH_BANK_SIZE)
+/* program usable flash size */
+#define APP_FLASH_SIZE  (APP_SIZE - KERNEL_FUNCTIONS_SIZE - VERSION_INFORMATION_SIZE)
 
 /*========== ECC Flash section configuration ================================*/
 /* sizes for ECC */
@@ -117,8 +116,8 @@
  */
 #define STACKS_SIZE (0x800)
 
-/* size of the FreeRTOS RAM; TODO does this have to fit to another value? */
-#define KERNEL_DATA_SIZE (0x800)
+/* size of the FreeRTOS RAM; Also mentioned in cc-options.yaml; TODO does this have to fit to another value? */
+#define KERNEL_DATA_SIZE (0x1000)
 
 /* size of shared-RAM section for DMA */
 #define SHARED_RAM_SIZE (0x2000)
@@ -130,15 +129,16 @@ MEMORY
     VECTORS_TABLE            (X) : origin = VECTORS_TABLE_START_ADDRESS
                                    length = VECTORS_TABLE_SIZE
                                    vfill  = VFILL_FLASH_PATTERN
-    KERNEL_FUNCTIONS        (RX) : origin = end(VECTORS_TABLE)
+    VER_VERSION_INFORMATION (RX) : origin = end(VECTORS_TABLE)
+                                   length = VERSION_INFORMATION_SIZE
+                                   vfill  = VFILL_FLASH_PATTERN
+    KERNEL_FUNCTIONS        (RX) : origin = end(VER_VERSION_INFORMATION)
                                    length = KERNEL_FUNCTIONS_SIZE
                                    vfill  = VFILL_FLASH_PATTERN
     APP_FLASH               (RX) : origin = end(KERNEL_FUNCTIONS)
                                    length = APP_FLASH_SIZE
                                    vfill  = VFILL_FLASH_PATTERN
-    VER_VERSION_INFORMATION (RX) : origin = end(APP_FLASH)
-                                   length = VERSION_INFORMATION_SIZE
-                                   vfill  = VFILL_FLASH_PATTERN
+
     /* RAM */
     STACKS                  (RW) : origin = GLOBAL_RAM_START_ADDRESS
                                    length = STACKS_SIZE
@@ -152,15 +152,16 @@ MEMORY
     ECC_VECTORS_TABLE        (R) : origin = ECC_DATA_START_ADDRESS
                                    length = ECC_VECTORS_TABLE_SIZE
                                    ECC    = { input_range = VECTORS_TABLE }
-    ECC_KERNEL_FUNCTIONS     (R) : origin = end(ECC_VECTORS_TABLE)
+    ECC_VERSION_INFORMATION  (R) : origin = end(ECC_VECTORS_TABLE)
+                                   length = ECC_VERSION_INFORMATION_SIZE
+                                   ECC    = { input_range = VER_VERSION_INFORMATION }
+    ECC_KERNEL_FUNCTIONS     (R) : origin = end(ECC_VERSION_INFORMATION)
                                    length = ECC_KERNEL_FUNCTIONS_SIZE
                                    ECC    = { input_range = KERNEL_FUNCTIONS }
     ECC_APP_FLASH            (R) : origin = end(ECC_KERNEL_FUNCTIONS)
                                    length = ECC_APP_FLASH_SIZE
                                    ECC    = { input_range = APP_FLASH }
-    ECC_VERSION_INFORMATION  (R) : origin = end(ECC_APP_FLASH)
-                                   length = ECC_VERSION_INFORMATION_SIZE
-                                   ECC    = { input_range = VER_VERSION_INFORMATION }
+
 }
 
 /*========== ECC Algorithm Configuration ====================================*/

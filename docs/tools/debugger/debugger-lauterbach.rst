@@ -16,6 +16,12 @@ following hardware is required:
 - Lauterbach LA-3253 Adapter for Cortex-A/R cores (successor of the LA-7843)
 - Lauterbach Mictor-38 adapter LA-3722
 
+When working with Lauterbach debugger and |foxbms| it is recommended to use
+the automatically created shortcut at |lauterbach-debugger-shortcut| to start
+TRACE32.
+The shortcut |lauterbach-debugger-shortcut| is automatically created at project
+configuration time if Lauterbach is available.
+
 Debugger Software
 ^^^^^^^^^^^^^^^^^
 

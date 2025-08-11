@@ -213,8 +213,25 @@ class TestTable(unittest.TestCase):
         ):
             table_obj.save_data(tables)
         self.assertTrue(
-            "Save more than one table in one file is not possible or "
-            "is the output format missing ?" in buf.getvalue()
+            "Save more than one table without an output format is not "
+            "possible or did you forget to specify a file name for the "
+            "output parameter." in buf.getvalue()
+        )
+        self.assertEqual(cm.exception.code, 1)
+        # Case 6: Permission exception
+        tables = {
+            Path("test1.csv"): "test_table",
+        }
+        table_obj = Table(start_date=convert_start_date("2024-01-01T00:00:00"))
+        write_csv_mock.side_effect = PermissionError
+        buf = io.StringIO()
+        with (
+            redirect_stderr(buf),
+            self.assertRaises(SystemExit) as cm,
+        ):
+            table_obj.save_data(tables)
+        self.assertIn(
+            "Could not write output file, because permission is denied.", buf.getvalue()
         )
         self.assertEqual(cm.exception.code, 1)
 

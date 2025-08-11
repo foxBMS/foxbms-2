@@ -43,10 +43,10 @@
  * @file    c-013.c
  * @author  foxBMS Team
  * @date    2021-06-04 (date of creation)
- * @updated 2025-03-31 (date of last update)
- * @version v1.9.0
+ * @updated 2025-08-07 (date of last update)
+ * @version v1.10.0
  * @ingroup GUIDELINES
- * @prefix  NONE
+ * @prefix  C013
  *
  * @brief   Example code to show the application of the C coding guidelines
  * @details This code implements an example for C:013
@@ -58,15 +58,15 @@
 /*========== Macros and Definitions =========================================*/
 
 /*========== Static Constant and Variable Definitions =======================*/
-static uint8_t x1 = 0;
-static uint8_t x2 = 0;
-static uint8_t x3 = 0;
-static uint8_t y1 = 0;
-static uint8_t y2 = 0;
-static uint8_t y3 = 0;
-static uint8_t z1 = 0;
-static uint8_t z2 = 0;
-static uint8_t z3 = 0;
+static uint8_t c013_x1 = 0;
+static uint8_t c013_x2 = 0;
+static uint8_t c013_x3 = 0;
+static uint8_t c013_y1 = 0;
+static uint8_t c013_y2 = 0;
+static uint8_t c013_y3 = 0;
+static uint8_t c013_z1 = 0;
+static uint8_t c013_z2 = 0;
+static uint8_t c013_z3 = 0;
 
 static uint8_t scores[5] = {0};
 static uint8_t bases[5]  = {0};
@@ -112,9 +112,9 @@ int16_t ABC_SomeFunction(uint8_t x, uint8_t y, uint8_t z) {
 
     /* Its a matrix, and therefore it makes sense to format the arguments as a matrix */
     /* clang-format off */
-    ABC_TransformMyWidget(x1, x2, x3,
-                          y1, y2, y3,
-                          z1, z2, z3);
+    ABC_TransformMyWidget(c013_x1, c013_x2, c013_x3,
+                          c013_y1, c013_y2, c013_y3,
+                          c013_z1, c013_z2, c013_z3);
     /* clang-format on */
     return result;
 }

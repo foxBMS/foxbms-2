@@ -52,6 +52,11 @@ def open_ide_generic() -> int:
     return open_ide(PROJECT_ROOT)
 
 
+def open_ide_cli() -> int:
+    """Open VS Code in the 'cli' directory."""
+    return open_ide(PROJECT_ROOT / "cli")
+
+
 def open_ide_app() -> int:
     """Open VS Code in the 'src/app' directory."""
     return open_ide(PROJECT_ROOT / "src/app")

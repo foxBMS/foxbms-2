@@ -45,15 +45,12 @@ import click
 
 from ..cmd_plot.execution import Executor
 from ..helpers.click_helpers import HELP_NAMES
+from ..helpers.file_tracker import FileTracker
 
 
 @click.command(context_settings=HELP_NAMES)
-@click.option(
-    "-t",
-    "--data-type",
-    default=None,
-    help="Type of the data-files to be used as input.",
-    type=str,
+@click.argument(
+    "input_data", nargs=-1, type=click.Path(exists=True, path_type=Path), required=True
 )
 @click.option(
     "-d",
@@ -72,20 +69,33 @@ from ..helpers.click_helpers import HELP_NAMES
 @click.option(
     "-o",
     "--output",
-    default=None,
     help="Path of the directory in which the plot-images will be saved.",
     type=click.Path(exists=True, path_type=Path),
 )
-@click.argument("input_data", nargs=-1, type=click.Path(exists=True, path_type=Path))
+@click.option(
+    "-t",
+    "--data-type",
+    type=click.Choice(["CSV"], case_sensitive=True),
+    help="Type of the data-files to be used as input.",
+)
 @click.pass_context
 def plot(  # pylint: disable=too-many-arguments,too-many-positional-arguments
     ctx: click.Context,
-    data_type: str,
+    input_data: list[Path],
     data_config: Path,
     plot_config: Path,
-    output: Path,
-    input_data: list[Path],
+    output: Path | None,
+    data_type: str | None,
 ) -> None:
     """Run the 'plot' tool with the given data as input."""
-    Executor(input_data, data_config, plot_config, data_type, output).create_plots()
+    tmp_handler = FileTracker(Path.cwd())
+    no_tmp = tmp_handler.check_file_changed(data_config)
+    Executor(
+        input_data,
+        data_config,
+        plot_config,
+        output,
+        data_source_type=data_type,
+        no_tmp=no_tmp,
+    ).create_plots()
     ctx.exit(0)

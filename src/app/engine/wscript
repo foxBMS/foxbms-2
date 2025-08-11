@@ -37,16 +37,13 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""Helper Build Script: ``./src/app/engine/wscript``
-=============================================
-
-Helper script to recursively build the embedded sources"""
+"""Build the 'Engine'-library."""
 
 import os
 
 
 def build(bld):
-    """builds the engine library"""
+    """Build the 'Engine'-library."""
     source = [
         os.path.join("config", "database_cfg.c"),
         os.path.join("config", "diag_cfg.c"),

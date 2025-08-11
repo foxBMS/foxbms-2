@@ -37,10 +37,11 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""Helper Build Script: ``./src/app/driver/wscript``
-=============================================
 
-Helper script to recursively build the embedded sources"""
+"""Build the 'driver' objects and library
+
+The build processes of the 'AFE' and 'IMD' are propagated to lower level
+build scripts."""
 
 import os
 
@@ -149,6 +150,7 @@ def build(bld):
         "meas",
         "mcu",
         "pex",
+        "phy",
         "pwm",
         "rtc",
         "sbc",
@@ -194,7 +196,11 @@ def build(bld):
     includes.extend(bld.env.INCLUDES_RTOS + bld.env.INCLUDES_AFE + bld.env.INCLUDES_IMD)
     cflags = bld.env.CFLAGS_FOXBMS
     target = f"{bld.env.APPNAME.lower()}-driver"
-    use = [f"{bld.env.APPNAME.lower()}-afe-driver", f"{bld.env.APPNAME.lower()}-imd"]
+    use = [
+        f"{bld.env.APPNAME.lower()}-afe-driver",
+        f"{bld.env.APPNAME.lower()}-imd",
+        f"{bld.env.APPNAME.lower()}-objects-phy",
+    ]
     bld.stlib(
         source=source,
         includes=includes,
@@ -205,3 +211,4 @@ def build(bld):
 
     bld.recurse("afe")
     bld.recurse("imd")
+    bld.recurse("phy")

@@ -26,6 +26,17 @@ This document describes how to setup the **host machine** for development of
    Some programs are installed into a specific |foxbms| prefix.
    This is mostly then done, when the installers do not support side-by-side or
    versioned installations by themself.
+   The installation prefixes are as follows
+
+   .. table::
+
+      +--------------------+-----------------------+
+      | Operating system   | Installation prefix   |
+      +--------------------+-----------------------+
+      | Linux              | ``/opt/foxbms``       |
+      +--------------------+-----------------------+
+      | Windows            | ``C:\foxbms``         |
+      +--------------------+-----------------------+
 
 .. warning::
 
@@ -209,7 +220,7 @@ Install |python|
 
             The required Python version is exactly 3.12.x.
 
-      #. Open a terminal and run ``py --version``, this should print
+      #. Open a terminal and run ``python3.12 --version``, this should print
          something like ``Python 3.12.8`` or similar:
 
          .. code-block:: shell
@@ -221,7 +232,7 @@ Install |python|
 Install |virtual-python-environment|
 ************************************
 
-#. Create a virtual environment **2025-03-pale-fox** by running:
+#. Create a virtual environment **2025-06-pale-fox** by running:
 
    .. tabs::
 
@@ -233,19 +244,19 @@ Install |virtual-python-environment|
 
                .. code-block:: powershell
 
-                  py -3.12 -m venv C:\foxbms\envs\2025-03-pale-fox
+                  py -3.12 -m venv C:\foxbms\envs\2025-06-pale-fox
 
             .. group-tab:: Git bash
 
                .. code-block:: shell
 
-                  py -3.12 -m venv /C/foxbms/envs/2025-03-pale-fox
+                  py -3.12 -m venv /C/foxbms/envs/2025-06-pale-fox
 
       .. group-tab:: Linux
 
          .. code-block:: shell
 
-            python3.12 -m venv /opt/foxbms/envs/2025-03-pale-fox
+            python3.12 -m venv /opt/foxbms/envs/2025-06-pale-fox
 
 #. Activate the virtual environment by running:
 
@@ -259,19 +270,19 @@ Install |virtual-python-environment|
 
                .. code-block:: powershell
 
-                  C:\foxbms\envs\2025-03-pale-fox\Scripts\activate.ps1
+                  C:\foxbms\envs\2025-06-pale-fox\Scripts\activate.ps1
 
             .. group-tab:: Git bash
 
                .. code-block:: shell
 
-                  source /C/foxbms/envs/2025-03-pale-fox/Scripts/activate
+                  source /C/foxbms/envs/2025-06-pale-fox/Scripts/activate
 
       .. group-tab:: Linux
 
          .. code-block:: shell
 
-            source /opt/foxbms/envs/2025-03-pale-fox/bin/activate
+            source /opt/foxbms/envs/2025-06-pale-fox/bin/activate
 
 #. Install the required packages by running:
 
@@ -282,6 +293,12 @@ Install |virtual-python-environment|
    .. code-block:: shell
 
       python -m pip install -r requirements.txt
+
+#. Deactivate the virtual environment by running:
+
+   .. code-block:: shell
+
+      deactivate
 
 The virtual environment includes the pre-commit framework (|url_pre-commit|).
 The pre-commit framework installs its dependencies defined in
@@ -306,6 +323,8 @@ Install |ruby|
       #. Download the zip-archive
          `Ruby 3.4.2-1 (x64)  <https://github.com/oneclick/rubyinstaller2/releases/download/RubyInstaller-3.4.2-1/rubyinstaller-3.4.2-1-x64.7z>`_.
       #. Extract the archive to ``C:\foxbms\Ruby\Ruby34-x64``.
+      #. Verify that ``ruby.exe`` is available at
+         ``C:\foxbms\Ruby\Ruby34-x64\bin\ruby.exe``.
 
    .. group-tab:: Linux
 
@@ -371,7 +390,7 @@ Install |mingw-w64|
 
    .. group-tab:: Linux
 
-      GCC is already available.
+      |gcc| is already available.
 
 *****************
 Install |doxygen|
@@ -381,15 +400,15 @@ Install |doxygen|
 
    .. group-tab:: Windows
 
-      #. Download |doxygen| version 1.13.2 from
-         `GitHub <https://github.com/doxygen/doxygen/releases/tag/Release_1_13_2>`_.
+      #. Download |doxygen| version 1.14.0 from
+         `GitHub <https://github.com/doxygen/doxygen/releases/tag/Release_1_14_0>`_.
          (use this
-         `zip-archive <https://github.com/doxygen/doxygen/releases/download/Release_1_13_2/doxygen-1.13.2.windows.x64.bin.zip>`__).
+         `zip-archive <https://github.com/doxygen/doxygen/releases/download/Release_1_14_0/doxygen-1.14.0.windows.x64.bin.zip>`__).
 
       #. Extract the archive.
-      #. Copy the extracted archive to ``C:\foxbms\Doxygen\1.13.2``.
+      #. Copy the extracted archive to ``C:\foxbms\Doxygen\1.14.0``.
       #. Verify that ``doxygen.exe`` is available at
-         ``C:\foxbms\Doxygen\1.13.2\doxygen.exe``.
+         ``C:\foxbms\Doxygen\1.14.0\doxygen.exe``.
 
    .. group-tab:: Linux
 
@@ -403,15 +422,15 @@ Install |graphviz|
 
    .. group-tab:: Windows
 
-      #. Download Graphviz version 12.2.1 from
+      #. Download Graphviz version 13.0.0 from
          `https://graphviz.org/download <https://graphviz.org/download>`_.
          (use this
-         `zip-archive <https://gitlab.com/api/v4/projects/4207231/packages/generic/graphviz-releases/12.2.1/windows_10_cmake_Release_Graphviz-12.2.1-win64.zip>`__).
+         `zip-archive <https://gitlab.com/api/v4/projects/4207231/packages/generic/graphviz-releases/13.0.0/windows_10_cmake_Release_Graphviz-13.0.0-win64.zip>`__).
 
       #. Extract the archive.
-      #. Copy the extracted archive to ``C:\foxbms\Graphviz\12.2.1``.
+      #. Copy the extracted archive to ``C:\foxbms\Graphviz\13.0.0``.
       #. Verify that ``dot.exe`` is available at
-         ``C:\foxbms\Graphviz\12.2.1\bin\dot.exe``.
+         ``C:\foxbms\Graphviz\13.0.0\bin\dot.exe``.
 
    .. group-tab:: Linux
 
@@ -425,14 +444,15 @@ Install |drawio-desktop|
 
    .. group-tab:: Windows
 
-      #. Download |drawio-desktop| version 26.0.9 from
+      #. Download |drawio-desktop| version 27.0.9 from
          `https://github.com/jgraph/drawio-desktop/releases <https://github.com/jgraph/drawio-desktop/releases>`_
          (use this
-         `installer <https://github.com/jgraph/drawio-desktop/releases/download/v26.0.9/draw.io-26.0.9-windows-installer.exe>`_).
+         `installer <https://github.com/jgraph/drawio-desktop/releases/download/v27.0.9/draw.io-27.0.9-windows.zip>`_).
 
-      #. Run the installer and use the default installation directory.
+      #. Extract the archive.
+      #. Copy the extracted archive to ``C:\foxbms\draw.io\27.0.9``.
       #. Verify that ``draw.io.exe`` is available at
-         ``C:\Program Files\draw.io\draw.io.exe``.
+         ``C:\foxbms\draw.io\27.0.9\draw.io.exe``.
 
    .. group-tab:: Linux
 
@@ -561,6 +581,12 @@ To update the build environment the following steps must be done:
    .. code-block:: shell
 
       python -m pip install -r requirements.txt
+
+#. Deactivate the virtual environment by running:
+
+   .. code-block:: shell
+
+      deactivate
 
 ************************
 Debugger toolchain setup

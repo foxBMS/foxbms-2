@@ -43,8 +43,8 @@
  * @file    test_nxp_mc33775a_balancing.c
  * @author  foxBMS Team
  * @date    2025-03-20 (date of creation)
- * @updated 2025-03-31 (date of last update)
- * @version v1.9.0
+ * @updated 2025-08-07 (date of last update)
+ * @version v1.10.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -55,27 +55,12 @@
 
 /*========== Includes =======================================================*/
 #include "unity.h"
-#include "MockHL_gio.h"
-#include "MockHL_system.h"
-#include "Mockafe_dma.h"
 #include "Mockdatabase.h"
-#include "Mockdiag.h"
-#include "Mockftask.h"
-#include "Mockio.h"
-#include "Mockmcu.h"
-#include "Mocknxp_mc33775a-ll.h"
-#include "Mocknxp_mc33775a_cfg.h"
-#include "Mockos.h"
-#include "Mockspi.h"
+#include "Mocknxp_mc3377x-ll.h"
 
-#include "MC33775A.h"
-#include "foxmath.h"
-#include "nxp_mc33775a.h"
-#include "nxp_mc33775a_database.h"
-#include "nxp_mc33775a_i2c.h"
-#include "nxp_mc33775a_mux.h"
+#include "nxp_mc3377x_balancing.h"
+#include "nxp_mc3377x_reg_def.h"
 #include "spi_cfg-helper.h"
-#include "uc_msg_t.h"
 
 /* clang-format off */
 #include "test_assert_helper.h"
@@ -87,103 +72,34 @@
 /*========== Unit Testing Framework Directives ==============================*/
 TEST_SOURCE_FILE("nxp_mc33775a_balancing.c")
 
-TEST_INCLUDE_PATH("../../src/app/driver/afe/api")
+TEST_INCLUDE_PATH("../../src/app/driver/afe/nxp/common/mc3377x")
+TEST_INCLUDE_PATH("../../src/app/driver/afe/nxp/common/mc3377x/vendor")
 TEST_INCLUDE_PATH("../../src/app/driver/afe/nxp/mc33775a")
 TEST_INCLUDE_PATH("../../src/app/driver/afe/nxp/mc33775a/config")
 TEST_INCLUDE_PATH("../../src/app/driver/afe/nxp/mc33775a/vendor")
 TEST_INCLUDE_PATH("../../src/app/driver/config")
-TEST_INCLUDE_PATH("../../src/app/driver/dma")
-TEST_INCLUDE_PATH("../../src/app/driver/foxmath")
-TEST_INCLUDE_PATH("../../src/app/driver/io")
-TEST_INCLUDE_PATH("../../src/app/driver/rtc")
 TEST_INCLUDE_PATH("../../src/app/driver/spi")
-TEST_INCLUDE_PATH("../../src/app/engine/diag")
-TEST_INCLUDE_PATH("../../src/app/task/config")
-TEST_INCLUDE_PATH("../../src/app/task/ftask")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 
-/** SPI data configuration struct for NXP MC33775A communication, Tx part */
-static spiDAT1_t spi_kNxp775DataConfigTx[BS_NR_OF_STRINGS] = {
+/** SPI data configuration struct for NXP MC3377X communication, Tx part */
+static spiDAT1_t spi_kNxp77xDataConfigTx[BS_NR_OF_STRINGS] = {
     {.CS_HOLD = TRUE,      /* If true, HW chip select kept active */
      .WDEL    = TRUE,      /* Activation of delay between words */
      .DFSEL   = SPI_FMT_0, /* Data word format selection */
      .CSNR    = SPI_HARDWARE_CHIP_SELECT_2_ACTIVE},
 };
 
-/** SPI data configuration struct for NXP MC33775A communication, Rx part */
-static spiDAT1_t spi_kNxp775DataConfigRx[BS_NR_OF_STRINGS] = {
-    {.CS_HOLD = TRUE,      /* If true, HW chip select kept active */
-     .WDEL    = TRUE,      /* Activation of delay between words */
-     .DFSEL   = SPI_FMT_0, /* Data word format selection */
-     .CSNR    = SPI_HARDWARE_CHIP_SELECT_0_ACTIVE},
-};
-
-/** SPI interface configuration for N775 communication Tx part */
-SPI_INTERFACE_CONFIG_s spi_nxp775InterfaceTx[BS_NR_OF_STRINGS] = {
+/** SPI interface configuration for N77X communication Tx part */
+SPI_INTERFACE_CONFIG_s spi_nxp77xInterfaceTx[BS_NR_OF_STRINGS] = {
     {
-        .pConfig  = &spi_kNxp775DataConfigTx[0u],
+        .pConfig  = &spi_kNxp77xDataConfigTx[0u],
         .pNode    = spiREG1,
         .pGioPort = &(spiREG1->PC3),
         .csPin    = 2u,
         .csType   = SPI_CHIP_SELECT_HARDWARE,
     },
 };
-
-/** SPI interface configuration for N775 communication, Rx part */
-SPI_INTERFACE_CONFIG_s spi_nxp775InterfaceRx[BS_NR_OF_STRINGS] = {
-    {
-        .pConfig  = &spi_kNxp775DataConfigRx[0u],
-        .pNode    = spiREG4,
-        .pGioPort = &(spiREG4->PC3),
-        .csPin    = 0u,
-        .csType   = SPI_CHIP_SELECT_HARDWARE,
-    },
-};
-
-/**
- * Default multiplexer measurement sequence
- * Must be adapted to the application
- */
-N775_MUX_CH_CFG_s n775_muxSequence[N775_MUX_SEQUENCE_LENGTH] = {
-    /*  multiplexer 0 measurement */
-    {
-        .muxId      = 0,
-        .muxChannel = 0,
-    },
-    {
-        .muxId      = 0,
-        .muxChannel = 1,
-    },
-    {
-        .muxId      = 0,
-        .muxChannel = 2,
-    },
-    {
-        .muxId      = 0,
-        .muxChannel = 3,
-    },
-    {
-        .muxId      = 0,
-        .muxChannel = 4,
-    },
-    {
-        .muxId      = 0,
-        .muxChannel = 5,
-    },
-    {
-        .muxId      = 0,
-        .muxChannel = 6,
-    },
-    {
-        .muxId      = 0,
-        .muxChannel = 7,
-    },
-};
-
-volatile bool ftsk_allQueuesCreated = false;
-OS_QUEUE ftsk_afeToI2cQueue;
-OS_QUEUE ftsk_afeFromI2cQueue;
 
 /*========== Setup and Teardown =============================================*/
 void setUp(void) {
@@ -193,52 +109,52 @@ void tearDown(void) {
 }
 
 /*========== Test Cases =====================================================*/
-void testN775_BalanceControl(void) {
+void testN77x_BalanceControl(void) {
     /* ======= Assertion tests ============================================= */
     /* ======= AT1/1 ======= */
-    TEST_ASSERT_FAIL_ASSERT(TEST_N775_BalanceControl(NULL_PTR));
+    TEST_ASSERT_FAIL_ASSERT(N77x_BalanceControl(NULL_PTR));
 
     /* ======= Routine tests =============================================== */
-    DATA_BLOCK_BALANCING_CONTROL_s n775_tableBalancingControl = {.header.uniqueId = DATA_BLOCK_ID_BALANCING_CONTROL};
+    DATA_BLOCK_BALANCING_CONTROL_s n77x_tableBalancingControl = {.header.uniqueId = DATA_BLOCK_ID_BALANCING_CONTROL};
 
-    N775_STATE_s n775_testState = {
+    N77X_STATE_s n77x_testState = {
         .currentString             = 0u,
-        .pSpiTxSequence            = spi_nxp775InterfaceTx,
-        .n775Data.balancingControl = &n775_tableBalancingControl,
+        .pSpiTxSequence            = spi_nxp77xInterfaceTx,
+        .n77xData.balancingControl = &n77x_tableBalancingControl,
     };
 
-    /* ======= RT1/1 ======= */
-    /* Only test function N775_BalanceControl */
-    N775_CommunicationWrite_Expect(
-        N775_BROADCAST_ADDRESS,
-        MC33775_BAL_GLOB_TO_TMR_OFFSET,
-        N775_GLOBAL_BALANCING_TIMER,
-        n775_testState.pSpiTxSequence);
+    /* ======= RT1/2 ======= */
+    /* Only test function N77x_BalanceControl */
+    N77x_CommunicationWrite_Expect(
+        N77X_BROADCAST_ADDRESS,
+        MC3377X_BAL_GLOB_TO_TMR_OFFSET,
+        N77X_GLOBAL_BALANCING_TIMER,
+        n77x_testState.pSpiTxSequence);
 
-    N775_CommunicationWrite_Expect(
-        N775_BROADCAST_ADDRESS, MC33775_BAL_PRE_TMR_OFFSET, N775_PRE_BALANCING_TIMER, n775_testState.pSpiTxSequence);
+    N77x_CommunicationWrite_Expect(
+        N77X_BROADCAST_ADDRESS, MC3377X_BAL_PRE_TMR_OFFSET, N77X_PRE_BALANCING_TIMER, n77x_testState.pSpiTxSequence);
 
-    N775_CommunicationWrite_Expect(
-        N775_BROADCAST_ADDRESS,
-        MC33775_BAL_TMR_CH_ALL_OFFSET,
-        (MC33775_BAL_TMR_CH_ALL_PWM_PWM100_ENUM_VAL << MC33775_BAL_TMR_CH_ALL_PWM_POS) |
-            (N775_ALL_CHANNEL_BALANCING_TIMER << MC33775_BAL_TMR_CH_ALL_BALTIME_POS),
-        n775_testState.pSpiTxSequence);
+    N77x_CommunicationWrite_Expect(
+        N77X_BROADCAST_ADDRESS,
+        MC3377X_BAL_TMR_CH_ALL_OFFSET,
+        (MC3377X_BAL_TMR_CH_ALL_PWM_PWM100_ENUM_VAL << MC3377X_BAL_TMR_CH_ALL_PWM_POS) |
+            (N77X_ALL_CHANNEL_BALANCING_TIMER << MC3377X_BAL_TMR_CH_ALL_BALTIME_POS),
+        n77x_testState.pSpiTxSequence);
 
-    N775_CommunicationWrite_Expect(
-        N775_BROADCAST_ADDRESS,
-        MC33775_BAL_GLOB_CFG_OFFSET,
-        (MC33775_BAL_GLOB_CFG_BALEN_ENABLED_ENUM_VAL << MC33775_BAL_GLOB_CFG_BALEN_POS) |
-            (MC33775_BAL_GLOB_CFG_TMRBALEN_STOP_ENUM_VAL << MC33775_BAL_GLOB_CFG_TMRBALEN_POS),
-        n775_testState.pSpiTxSequence);
+    N77x_CommunicationWrite_Expect(
+        N77X_BROADCAST_ADDRESS,
+        MC3377X_BAL_GLOB_CFG_OFFSET,
+        (MC3377X_BAL_GLOB_CFG_BALEN_ENABLED_ENUM_VAL << MC3377X_BAL_GLOB_CFG_BALEN_POS) |
+            (MC3377X_BAL_GLOB_CFG_TMRBALEN_STOP_ENUM_VAL << MC3377X_BAL_GLOB_CFG_TMRBALEN_POS),
+        n77x_testState.pSpiTxSequence);
 
-    DATA_Read1DataBlock_ExpectAndReturn(n775_testState.n775Data.balancingControl, STD_OK);
+    DATA_Read1DataBlock_ExpectAndReturn(n77x_testState.n77xData.balancingControl, STD_OK);
 
     /* Activate balancing for all cells */
     for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
         for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
             for (uint8_t cb = 0u; cb < BS_NR_OF_CELL_BLOCKS_PER_MODULE; cb++) {
-                n775_testState.n775Data.balancingControl->activateBalancing[s][m][cb] = true;
+                n77x_testState.n77xData.balancingControl->activateBalancing[s][m][cb] = true;
             }
         }
     }
@@ -247,19 +163,69 @@ void testN775_BalanceControl(void) {
         uint8_t deviceAddress   = m + 1u;
         uint16_t balancingState = 0u;
         for (uint16_t cb = 0u; cb < BS_NR_OF_CELL_BLOCKS_PER_MODULE; cb++) {
-            if (n775_testState.n775Data.balancingControl->activateBalancing[n775_testState.currentString][m][cb] ==
+            if (n77x_testState.n77xData.balancingControl->activateBalancing[n77x_testState.currentString][m][cb] ==
                 true) {
                 balancingState |= 1u << cb;
             }
         }
-        N775_CommunicationWrite_Expect(
-            deviceAddress, MC33775_BAL_CH_CFG_OFFSET, balancingState, n775_testState.pSpiTxSequence);
+        N77x_CommunicationWrite_Expect(
+            deviceAddress, MC3377X_BAL_CH_CFG_OFFSET, balancingState, n77x_testState.pSpiTxSequence);
     }
-    TEST_ASSERT_PASS_ASSERT(TEST_N775_BalanceControl(&n775_testState));
+    TEST_ASSERT_PASS_ASSERT(N77x_BalanceControl(&n77x_testState));
+
+    /* ======= RT2/2 ======= */
+    /* Inactive balancing */
+    N77x_CommunicationWrite_Expect(
+        N77X_BROADCAST_ADDRESS,
+        MC3377X_BAL_GLOB_TO_TMR_OFFSET,
+        N77X_GLOBAL_BALANCING_TIMER,
+        n77x_testState.pSpiTxSequence);
+
+    N77x_CommunicationWrite_Expect(
+        N77X_BROADCAST_ADDRESS, MC3377X_BAL_PRE_TMR_OFFSET, N77X_PRE_BALANCING_TIMER, n77x_testState.pSpiTxSequence);
+
+    N77x_CommunicationWrite_Expect(
+        N77X_BROADCAST_ADDRESS,
+        MC3377X_BAL_TMR_CH_ALL_OFFSET,
+        (MC3377X_BAL_TMR_CH_ALL_PWM_PWM100_ENUM_VAL << MC3377X_BAL_TMR_CH_ALL_PWM_POS) |
+            (N77X_ALL_CHANNEL_BALANCING_TIMER << MC3377X_BAL_TMR_CH_ALL_BALTIME_POS),
+        n77x_testState.pSpiTxSequence);
+
+    N77x_CommunicationWrite_Expect(
+        N77X_BROADCAST_ADDRESS,
+        MC3377X_BAL_GLOB_CFG_OFFSET,
+        (MC3377X_BAL_GLOB_CFG_BALEN_ENABLED_ENUM_VAL << MC3377X_BAL_GLOB_CFG_BALEN_POS) |
+            (MC3377X_BAL_GLOB_CFG_TMRBALEN_STOP_ENUM_VAL << MC3377X_BAL_GLOB_CFG_TMRBALEN_POS),
+        n77x_testState.pSpiTxSequence);
+
+    DATA_Read1DataBlock_ExpectAndReturn(n77x_testState.n77xData.balancingControl, STD_OK);
+
+    /* Deactivate balancing for all cells */
+    for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
+        for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
+            for (uint8_t cb = 0u; cb < BS_NR_OF_CELL_BLOCKS_PER_MODULE; cb++) {
+                n77x_testState.n77xData.balancingControl->activateBalancing[s][m][cb] = false;
+            }
+        }
+    }
+
+    for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
+        uint8_t deviceAddress   = m + 1u;
+        uint16_t balancingState = 0u;
+        for (uint16_t cb = 0u; cb < BS_NR_OF_CELL_BLOCKS_PER_MODULE; cb++) {
+            if (n77x_testState.n77xData.balancingControl->activateBalancing[n77x_testState.currentString][m][cb] ==
+                true) {
+                balancingState |= 1u << cb;
+            }
+        }
+        N77x_CommunicationWrite_Expect(
+            deviceAddress, MC3377X_BAL_CH_CFG_OFFSET, balancingState, n77x_testState.pSpiTxSequence);
+    }
+    TEST_ASSERT_PASS_ASSERT(N77x_BalanceControl(&n77x_testState));
 }
 
-void testN775_BalanceSetup(void) {
+void testN77x_BalanceSetup(void) {
     /* ======= Assertion tests ============================================= */
     /* ======= AT1/1 ======= */
-    TEST_ASSERT_FAIL_ASSERT(TEST_N775_BalanceSetup(NULL_PTR))
+    TEST_ASSERT_FAIL_ASSERT(N77x_BalanceSetup(NULL_PTR))
 }

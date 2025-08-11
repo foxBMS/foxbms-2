@@ -1,10 +1,15 @@
 .. include:: ./../../../../macros.txt
 .. include:: ./../../../../units.txt
 
-.. _MASTER_TMS570___V1_2_2___FUNCTIONAL_DESCRIPTION:
 
-Master TMS570 ``v1.2.2`` Functional description
-===============================================
+.. |local_bms_master_version| replace:: ``v1.2.2``
+.. |local_bms_master_identifier_short| replace:: |ti-tms570|\-based |bms-master|
+.. |local_bms_master_identifier_full| replace:: |local_bms_master_identifier_short| |local_bms_master_version|
+
+.. _TI_TMS570_BASED_BMS_MASTER_V1_2_2_FUNCTIONAL_DESCRIPTION:
+
+|local_bms_master_identifier_full| Functional Description
+=========================================================
 
 .. important::
 

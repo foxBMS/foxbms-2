@@ -65,13 +65,6 @@ class FlashSector:
 
 #: Memory map of the application on the TMS570-based foxBMS BMS-Master
 APP_MEMORY_MAP = [
-    FlashSector(0, 0x04000),
-    FlashSector(1, 0x04000),
-    FlashSector(2, 0x04000),
-    FlashSector(3, 0x04000),
-    FlashSector(4, 0x04000),
-    FlashSector(5, 0x04000),
-    FlashSector(6, 0x08000),
     FlashSector(7, 0x20000),
     FlashSector(8, 0x20000),
     FlashSector(9, 0x20000),

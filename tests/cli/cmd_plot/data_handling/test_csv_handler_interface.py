@@ -38,3 +38,17 @@
 # - "This product is derived from foxBMS®"
 
 """Testing file 'cli/cmd_plot/data_handling/csv_handler_interface.py'."""
+
+import unittest
+
+
+class TestCsvHandlerInterface(unittest.TestCase):
+    """Test of 'csv_handler_interface.py'"""
+
+    def test_dummy(self):
+        """dummy test"""
+        # this test is necessary because otherwise the exit code is non-zero
+
+
+if __name__ == "__main__":
+    unittest.main()

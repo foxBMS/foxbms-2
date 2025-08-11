@@ -43,87 +43,70 @@
  * @file    test_nxp_mc33775a.c
  * @author  foxBMS Team
  * @date    2021-10-20 (date of creation)
- * @updated 2025-03-31 (date of last update)
- * @version v1.9.0
+ * @updated 2025-08-07 (date of last update)
+ * @version v1.10.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
- * @brief   Test of some module
+ * @brief   Test of nxp_mc3377x.c
  * @details TODO
  *
  */
 
 /*========== Includes =======================================================*/
 #include "unity.h"
-#include "MockHL_gio.h"
-#include "MockHL_system.h"
-#include "Mockafe_dma.h"
-#include "Mockdatabase.h"
-#include "Mockdiag.h"
-#include "Mockftask.h"
-#include "Mockio.h"
-#include "Mockmcu.h"
-#include "Mocknxp_mc33775a-ll.h"
-#include "Mocknxp_mc33775a_cfg.h"
+#include "Mocknxp_mc3377x-ll.h"
+#include "Mocknxp_mc3377x_balancing.h"
+#include "Mocknxp_mc3377x_cfg.h"
+#include "Mocknxp_mc3377x_database.h"
+#include "Mocknxp_mc3377x_helpers.h"
+#include "Mocknxp_mc3377x_i2c.h"
+#include "Mocknxp_mc3377x_measurement.h"
+#include "Mocknxp_mc3377x_mux.h"
 #include "Mockos.h"
-#include "Mockspi.h"
 
-#include "MC33775A.h"
-#include "foxmath.h"
-#include "nxp_mc33775a.h"
-#include "nxp_mc33775a_balancing.h"
-#include "nxp_mc33775a_database.h"
-#include "nxp_mc33775a_i2c.h"
-#include "nxp_mc33775a_mux.h"
+#include "nxp_mc3377x.h"
+#include "nxp_mc3377x_reg_def.h"
 #include "spi_cfg-helper.h"
-#include "uc_msg_t.h"
 
 /* clang-format off */
 #include "test_assert_helper.h"
 /* clang-format on */
 
-#include <stdbool.h>
-#include <stdint.h>
-
 /*========== Unit Testing Framework Directives ==============================*/
-TEST_SOURCE_FILE("nxp_mc33775a.c")
+TEST_SOURCE_FILE("nxp_mc3377x.c")
 
 TEST_INCLUDE_PATH("../../src/app/driver/afe/api")
+TEST_INCLUDE_PATH("../../src/app/driver/afe/nxp/common/mc3377x")
+TEST_INCLUDE_PATH("../../src/app/driver/afe/nxp/common/mc3377x/vendor")
 TEST_INCLUDE_PATH("../../src/app/driver/afe/nxp/mc33775a")
 TEST_INCLUDE_PATH("../../src/app/driver/afe/nxp/mc33775a/config")
 TEST_INCLUDE_PATH("../../src/app/driver/afe/nxp/mc33775a/vendor")
 TEST_INCLUDE_PATH("../../src/app/driver/config")
-TEST_INCLUDE_PATH("../../src/app/driver/dma")
-TEST_INCLUDE_PATH("../../src/app/driver/foxmath")
-TEST_INCLUDE_PATH("../../src/app/driver/io")
-TEST_INCLUDE_PATH("../../src/app/driver/rtc")
 TEST_INCLUDE_PATH("../../src/app/driver/spi")
-TEST_INCLUDE_PATH("../../src/app/engine/diag")
-TEST_INCLUDE_PATH("../../src/app/task/config")
-TEST_INCLUDE_PATH("../../src/app/task/ftask")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 
-/** SPI data configuration struct for NXP MC33775A communication, Tx part */
-static spiDAT1_t spi_kNxp775DataConfigTx[BS_NR_OF_STRINGS] = {
+/** SPI data configuration struct for NXP MC3377X communication, Tx part */
+static spiDAT1_t spi_kNxp77xDataConfigTx[BS_NR_OF_STRINGS] = {
     {.CS_HOLD = TRUE,      /* If true, HW chip select kept active */
      .WDEL    = TRUE,      /* Activation of delay between words */
      .DFSEL   = SPI_FMT_0, /* Data word format selection */
      .CSNR    = SPI_HARDWARE_CHIP_SELECT_2_ACTIVE},
 };
 
-/** SPI data configuration struct for NXP MC33775A communication, Rx part */
-static spiDAT1_t spi_kNxp775DataConfigRx[BS_NR_OF_STRINGS] = {
+/** SPI data configuration struct for NXP MC3377X communication, Rx part */
+static spiDAT1_t spi_kNxp77xDataConfigRx[BS_NR_OF_STRINGS] = {
     {.CS_HOLD = TRUE,      /* If true, HW chip select kept active */
      .WDEL    = TRUE,      /* Activation of delay between words */
      .DFSEL   = SPI_FMT_0, /* Data word format selection */
      .CSNR    = SPI_HARDWARE_CHIP_SELECT_0_ACTIVE},
 };
 
-/** SPI interface configuration for N775 communication Tx part */
-SPI_INTERFACE_CONFIG_s spi_nxp775InterfaceTx[BS_NR_OF_STRINGS] = {
+/** SPI interface configuration for N77X communication Tx part */
+SPI_INTERFACE_CONFIG_s spi_nxp77xInterfaceTx[BS_NR_OF_STRINGS] = {
     {
-        .pConfig  = &spi_kNxp775DataConfigTx[0u],
+        .pConfig  = &spi_kNxp77xDataConfigTx[0u],
         .pNode    = spiREG1,
         .pGioPort = &(spiREG1->PC3),
         .csPin    = 2u,
@@ -131,10 +114,10 @@ SPI_INTERFACE_CONFIG_s spi_nxp775InterfaceTx[BS_NR_OF_STRINGS] = {
     },
 };
 
-/** SPI interface configuration for N775 communication, Rx part */
-SPI_INTERFACE_CONFIG_s spi_nxp775InterfaceRx[BS_NR_OF_STRINGS] = {
+/** SPI interface configuration for N775X communication, Rx part */
+SPI_INTERFACE_CONFIG_s spi_nxp77xInterfaceRx[BS_NR_OF_STRINGS] = {
     {
-        .pConfig  = &spi_kNxp775DataConfigRx[0u],
+        .pConfig  = &spi_kNxp77xDataConfigRx[0u],
         .pNode    = spiREG4,
         .pGioPort = &(spiREG4->PC3),
         .csPin    = 0u,
@@ -146,7 +129,7 @@ SPI_INTERFACE_CONFIG_s spi_nxp775InterfaceRx[BS_NR_OF_STRINGS] = {
  * Default multiplexer measurement sequence
  * Must be adapted to the application
  */
-N775_MUX_CH_CFG_s n775_muxSequence[N775_MUX_SEQUENCE_LENGTH] = {
+N77X_MUX_CH_CFG_s n77x_muxSequence[N77X_MUX_SEQUENCE_LENGTH] = {
     /*  multiplexer 0 measurement */
     {
         .muxId      = 0,
@@ -182,9 +165,36 @@ N775_MUX_CH_CFG_s n775_muxSequence[N775_MUX_SEQUENCE_LENGTH] = {
     },
 };
 
-volatile bool ftsk_allQueuesCreated = false;
-OS_QUEUE ftsk_afeToI2cQueue;
-OS_QUEUE ftsk_afeFromI2cQueue;
+void N77x_Initialize_Expects(N77X_STATE_s *n77xTestState, uint16_t *uid, uint16_t *readValue) {
+    N77x_ResetMuxIndex_Expect(n77xTestState);
+
+    /* From N77x_Enumerate */
+    for (uint8_t i = 1; i <= BS_NR_OF_MODULES_PER_STRING; i++) {
+        N77x_CommunicationWrite_Expect(
+            i,
+            MC3377X_SYS_MODE_OFFSET,
+            (MC3377X_SYS_MODE_TARGETMODE_DEEPSLEEP_ENUM_VAL << MC3377X_SYS_MODE_TARGETMODE_POS),
+            n77xTestState->pSpiTxSequence);
+
+        N77x_Wait_Expect(N77X_T_SW_ACT_DEEP_SLEEP_MS);
+
+        N77x_CommunicationRead_ExpectAndReturn(
+            i, MC3377X_SYS_COM_CFG_OFFSET, readValue, n77xTestState, N77X_COMMUNICATION_OK);
+        N77x_CommunicationWrite_Expect(
+            i,
+            MC3377X_SYS_COM_TO_CFG_OFFSET,
+            (N77X_TIMEOUT_SWITCH << MC3377X_SYS_COM_TO_CFG_COMTODISABLE_POS) |
+                (N77X_TIMEOUT_TO_SLEEP_10MS << MC3377X_SYS_COM_TO_CFG_COMTO_POS),
+            n77xTestState->pSpiTxSequence);
+
+        N77x_CommunicationReadMultiple_ExpectAndReturn(
+            i, 3u, 3u, MC3377X_SYS_UID_LOW_OFFSET, uid, n77xTestState, N77X_COMMUNICATION_OK);
+    }
+
+    N77x_StartMeasurement_Expect(n77xTestState);
+    N77x_InitializeI2c_Expect(n77xTestState);
+    N77x_BalanceSetup_Expect(n77xTestState);
+}
 
 /*========== Setup and Teardown =============================================*/
 void setUp(void) {
@@ -194,102 +204,185 @@ void tearDown(void) {
 }
 
 /*========== Test Cases =====================================================*/
-void testN775_CaptureMeasurement(void) {
+void testN77x_Enumerate(void) {
     /* ======= Assertion tests ============================================= */
     /* ======= AT1/1 ======= */
-    TEST_ASSERT_FAIL_ASSERT(TEST_N775_CaptureMeasurement(NULL_PTR));
-}
-void testN775_Enumerate(void) {
-    /* ======= Assertion tests ============================================= */
-    /* ======= AT1/1 ======= */
-    TEST_ASSERT_FAIL_ASSERT(TEST_N775_Enumerate(NULL_PTR));
-}
-void testN775_ErrorHandling(void) {
-    /* ======= Assertion tests ============================================= */
-    /* ======= AT1/1 ======= */
-    TEST_ASSERT_FAIL_ASSERT(TEST_N775_ErrorHandling(NULL_PTR, N775_COMMUNICATION_OK, 0u));
+    TEST_ASSERT_FAIL_ASSERT(TEST_N77x_Enumerate(NULL_PTR));
 
     /* ======= Routine tests =============================================== */
-    N775_ERROR_TABLE_s n775_errorTable = {0};
-
-    N775_STATE_s n775TestState = {
-        .currentString       = 0u,
-        .n775Data.errorTable = &n775_errorTable,
+    N77X_STATE_s n77xTestState = {
+        .firstMeasurementMade = true,
+        .pSpiTxSequence       = NULL_PTR,
     };
+    uint16_t uid[3u]   = {0};
+    uint16_t readValue = 0;
 
     /* ======= RT1/4: Test implementation */
-    uint8_t currentModule = 0u;
+    /* Everything ok */
+    for (uint8_t i = 1; i <= BS_NR_OF_MODULES_PER_STRING; i++) {
+        N77x_CommunicationWrite_Expect(
+            i,
+            MC3377X_SYS_MODE_OFFSET,
+            (MC3377X_SYS_MODE_TARGETMODE_DEEPSLEEP_ENUM_VAL << MC3377X_SYS_MODE_TARGETMODE_POS),
+            n77xTestState.pSpiTxSequence);
 
-    n775TestState.n775Data.errorTable->communicationOk[n775TestState.currentString][currentModule]        = false;
-    n775TestState.n775Data.errorTable->noCommunicationTimeout[n775TestState.currentString][currentModule] = false;
-    n775TestState.n775Data.errorTable->crcIsValid[n775TestState.currentString][currentModule]             = false;
+        N77x_Wait_Expect(N77X_T_SW_ACT_DEEP_SLEEP_MS);
+
+        N77x_CommunicationRead_ExpectAndReturn(
+            i, MC3377X_SYS_COM_CFG_OFFSET, &readValue, &n77xTestState, N77X_COMMUNICATION_OK);
+        N77x_CommunicationWrite_Expect(
+            i,
+            MC3377X_SYS_COM_TO_CFG_OFFSET,
+            (N77X_TIMEOUT_SWITCH << MC3377X_SYS_COM_TO_CFG_COMTODISABLE_POS) |
+                (N77X_TIMEOUT_TO_SLEEP_10MS << MC3377X_SYS_COM_TO_CFG_COMTO_POS),
+            n77xTestState.pSpiTxSequence);
+
+        N77x_CommunicationReadMultiple_ExpectAndReturn(
+            i, 3u, 3u, MC3377X_SYS_UID_LOW_OFFSET, uid, &n77xTestState, N77X_COMMUNICATION_OK);
+    }
+
     /* ======= RT1/4: call function under test */
-    TEST_N775_ErrorHandling(&n775TestState, N775_COMMUNICATION_OK, 0u);
-    /* ======= RT1/4: test output verification */
-    TEST_ASSERT_TRUE(n775TestState.n775Data.errorTable->communicationOk[n775TestState.currentString][currentModule]);
-    TEST_ASSERT_TRUE(
-        n775TestState.n775Data.errorTable->noCommunicationTimeout[n775TestState.currentString][currentModule]);
-    TEST_ASSERT_TRUE(n775TestState.n775Data.errorTable->crcIsValid[n775TestState.currentString][currentModule]);
+    TEST_ASSERT_EQUAL(STD_OK, TEST_N77x_Enumerate(&n77xTestState));
 
     /* ======= RT2/4: Test implementation */
-    n775TestState.n775Data.errorTable->communicationOk[n775TestState.currentString][currentModule]        = true;
-    n775TestState.n775Data.errorTable->noCommunicationTimeout[n775TestState.currentString][currentModule] = true;
-    n775TestState.n775Data.errorTable->crcIsValid[n775TestState.currentString][currentModule]             = true;
+    /* First communication read nok, second ok */
+    for (uint8_t i = 1; i <= BS_NR_OF_MODULES_PER_STRING; i++) {
+        N77x_CommunicationWrite_Expect(
+            i,
+            MC3377X_SYS_MODE_OFFSET,
+            (MC3377X_SYS_MODE_TARGETMODE_DEEPSLEEP_ENUM_VAL << MC3377X_SYS_MODE_TARGETMODE_POS),
+            n77xTestState.pSpiTxSequence);
+
+        N77x_Wait_Expect(N77X_T_SW_ACT_DEEP_SLEEP_MS);
+
+        uint16_t readValue = 0;
+        N77x_CommunicationRead_ExpectAndReturn(
+            i, MC3377X_SYS_COM_CFG_OFFSET, &readValue, &n77xTestState, N77X_COMMUNICATION_ERROR_TIMEOUT);
+        N77x_Wait_Expect(N77X_T_WAKE_COM_MS);
+        N77x_CommunicationRead_ExpectAndReturn(
+            i, MC3377X_SYS_COM_CFG_OFFSET, &readValue, &n77xTestState, N77X_COMMUNICATION_OK);
+        N77x_ResetMessageCounter_Expect((N77X_DEFAULT_CHAIN_ADDRESS << 6) + i, n77xTestState.currentString);
+        N77x_CommunicationRead_ExpectAndReturn(
+            i, MC3377X_SYS_VERSION_OFFSET, &readValue, &n77xTestState, N77X_COMMUNICATION_OK);
+
+        N77x_CommunicationWrite_Expect(
+            i,
+            MC3377X_SYS_COM_TO_CFG_OFFSET,
+            (N77X_TIMEOUT_SWITCH << MC3377X_SYS_COM_TO_CFG_COMTODISABLE_POS) |
+                (N77X_TIMEOUT_TO_SLEEP_10MS << MC3377X_SYS_COM_TO_CFG_COMTO_POS),
+            n77xTestState.pSpiTxSequence);
+
+        N77x_CommunicationReadMultiple_ExpectAndReturn(
+            i, 3u, 3u, MC3377X_SYS_UID_LOW_OFFSET, uid, &n77xTestState, N77X_COMMUNICATION_OK);
+    }
+
     /* ======= RT2/4: call function under test */
-    TEST_N775_ErrorHandling(&n775TestState, N775_COMMUNICATION_ERROR_SHORT_MESSAGE, 0u);
-    /* ======= RT2/4: test output verification */
-    TEST_ASSERT_FALSE(n775TestState.n775Data.errorTable->communicationOk[n775TestState.currentString][currentModule]);
-    TEST_ASSERT_TRUE(
-        n775TestState.n775Data.errorTable->noCommunicationTimeout[n775TestState.currentString][currentModule]);
-    TEST_ASSERT_TRUE(n775TestState.n775Data.errorTable->crcIsValid[n775TestState.currentString][currentModule]);
+    TEST_ASSERT_EQUAL(STD_OK, TEST_N77x_Enumerate(&n77xTestState));
 
     /* ======= RT3/4: Test implementation */
-    n775TestState.n775Data.errorTable->communicationOk[n775TestState.currentString][currentModule]        = true;
-    n775TestState.n775Data.errorTable->noCommunicationTimeout[n775TestState.currentString][currentModule] = true;
-    n775TestState.n775Data.errorTable->crcIsValid[n775TestState.currentString][currentModule]             = true;
+    /* First and second communication read nok */
+    for (uint8_t i = 1; i <= BS_NR_OF_MODULES_PER_STRING; i++) {
+        N77x_CommunicationWrite_Expect(
+            i,
+            MC3377X_SYS_MODE_OFFSET,
+            (MC3377X_SYS_MODE_TARGETMODE_DEEPSLEEP_ENUM_VAL << MC3377X_SYS_MODE_TARGETMODE_POS),
+            n77xTestState.pSpiTxSequence);
+
+        N77x_Wait_Expect(N77X_T_SW_ACT_DEEP_SLEEP_MS);
+
+        uint16_t readValue = 0;
+        N77x_CommunicationRead_ExpectAndReturn(
+            i, MC3377X_SYS_COM_CFG_OFFSET, &readValue, &n77xTestState, N77X_COMMUNICATION_ERROR_TIMEOUT);
+        N77x_Wait_Expect(N77X_T_WAKE_COM_MS);
+        N77x_CommunicationRead_ExpectAndReturn(
+            i, MC3377X_SYS_COM_CFG_OFFSET, &readValue, &n77xTestState, N77X_COMMUNICATION_ERROR_TIMEOUT);
+        N77x_CommunicationWrite_Expect(
+            (0u << 6u) + 0u,
+            MC3377X_SYS_COM_CFG_OFFSET,
+            i + (N77X_DEFAULT_CHAIN_ADDRESS << 6) +
+                (MC3377X_SYS_COM_CFG_BUSFW_ENABLED_ENUM_VAL << MC3377X_SYS_COM_CFG_BUSFW_POS),
+            n77xTestState.pSpiTxSequence);
+
+        N77x_ResetMessageCounter_Expect((N77X_DEFAULT_CHAIN_ADDRESS << 6) + i, n77xTestState.currentString);
+        N77x_CommunicationRead_ExpectAndReturn(
+            i, MC3377X_SYS_VERSION_OFFSET, &readValue, &n77xTestState, N77X_COMMUNICATION_OK);
+
+        N77x_CommunicationWrite_Expect(
+            i,
+            MC3377X_SYS_COM_TO_CFG_OFFSET,
+            (N77X_TIMEOUT_SWITCH << MC3377X_SYS_COM_TO_CFG_COMTODISABLE_POS) |
+                (N77X_TIMEOUT_TO_SLEEP_10MS << MC3377X_SYS_COM_TO_CFG_COMTO_POS),
+            n77xTestState.pSpiTxSequence);
+
+        N77x_CommunicationReadMultiple_ExpectAndReturn(
+            i, 3u, 3u, MC3377X_SYS_UID_LOW_OFFSET, uid, &n77xTestState, N77X_COMMUNICATION_OK);
+    }
+
     /* ======= RT3/4: call function under test */
-    TEST_N775_ErrorHandling(&n775TestState, N775_COMMUNICATION_ERROR_TIMEOUT, 0u);
-    /* ======= RT3/4: test output verification */
-    TEST_ASSERT_FALSE(n775TestState.n775Data.errorTable->communicationOk[n775TestState.currentString][currentModule]);
-    TEST_ASSERT_FALSE(
-        n775TestState.n775Data.errorTable->noCommunicationTimeout[n775TestState.currentString][currentModule]);
-    TEST_ASSERT_TRUE(n775TestState.n775Data.errorTable->crcIsValid[n775TestState.currentString][currentModule]);
+    TEST_ASSERT_EQUAL(STD_OK, TEST_N77x_Enumerate(&n77xTestState));
 
     /* ======= RT4/4: Test implementation */
-    n775TestState.n775Data.errorTable->communicationOk[n775TestState.currentString][currentModule]        = true;
-    n775TestState.n775Data.errorTable->noCommunicationTimeout[n775TestState.currentString][currentModule] = true;
-    n775TestState.n775Data.errorTable->crcIsValid[n775TestState.currentString][currentModule]             = true;
+    /* First, third and fourth communication read nok, second ok */
+    for (uint8_t i = 1; i <= BS_NR_OF_MODULES_PER_STRING; i++) {
+        N77x_CommunicationWrite_Expect(
+            i,
+            MC3377X_SYS_MODE_OFFSET,
+            (MC3377X_SYS_MODE_TARGETMODE_DEEPSLEEP_ENUM_VAL << MC3377X_SYS_MODE_TARGETMODE_POS),
+            n77xTestState.pSpiTxSequence);
+
+        N77x_Wait_Expect(N77X_T_SW_ACT_DEEP_SLEEP_MS);
+
+        uint16_t readValue = 0;
+        N77x_CommunicationRead_ExpectAndReturn(
+            i, MC3377X_SYS_COM_CFG_OFFSET, &readValue, &n77xTestState, N77X_COMMUNICATION_ERROR_TIMEOUT);
+        N77x_Wait_Expect(N77X_T_WAKE_COM_MS);
+        N77x_CommunicationRead_ExpectAndReturn(
+            i, MC3377X_SYS_COM_CFG_OFFSET, &readValue, &n77xTestState, N77X_COMMUNICATION_OK);
+        N77x_ResetMessageCounter_Expect((N77X_DEFAULT_CHAIN_ADDRESS << 6) + i, n77xTestState.currentString);
+        N77x_CommunicationRead_ExpectAndReturn(
+            i, MC3377X_SYS_VERSION_OFFSET, &readValue, &n77xTestState, N77X_COMMUNICATION_ERROR_TIMEOUT);
+
+        N77x_CommunicationWrite_Expect(
+            i,
+            MC3377X_SYS_COM_TO_CFG_OFFSET,
+            (N77X_TIMEOUT_SWITCH << MC3377X_SYS_COM_TO_CFG_COMTODISABLE_POS) |
+                (N77X_TIMEOUT_TO_SLEEP_10MS << MC3377X_SYS_COM_TO_CFG_COMTO_POS),
+            n77xTestState.pSpiTxSequence);
+
+        N77x_CommunicationReadMultiple_ExpectAndReturn(
+            i, 3u, 3u, MC3377X_SYS_UID_LOW_OFFSET, uid, &n77xTestState, N77X_COMMUNICATION_ERROR_TIMEOUT);
+    }
+
     /* ======= RT4/4: call function under test */
-    TEST_N775_ErrorHandling(&n775TestState, N775_COMMUNICATION_ERROR_WRONG_CRC, 0u);
-    /* ======= RT4/4: test output verification */
-    TEST_ASSERT_FALSE(n775TestState.n775Data.errorTable->communicationOk[n775TestState.currentString][currentModule]);
-    TEST_ASSERT_TRUE(
-        n775TestState.n775Data.errorTable->noCommunicationTimeout[n775TestState.currentString][currentModule]);
-    TEST_ASSERT_FALSE(n775TestState.n775Data.errorTable->crcIsValid[n775TestState.currentString][currentModule]);
+    TEST_ASSERT_EQUAL(STD_NOT_OK, TEST_N77x_Enumerate(&n77xTestState));
 }
 
-void testN775_IncrementStringSequence(void) {
+void testN77x_Initialize(void) {
     /* ======= Assertion tests ============================================= */
     /* ======= AT1/1 ======= */
-    TEST_ASSERT_FAIL_ASSERT(TEST_N775_IncrementStringSequence(NULL_PTR));
-}
-void testN775_Initialize(void) {
-    /* ======= Assertion tests ============================================= */
-    /* ======= AT1/1 ======= */
-    TEST_ASSERT_FAIL_ASSERT(TEST_N775_Initialize(NULL_PTR));
-}
-void testN775_ResetStringSequence(void) {
-    /* ======= Assertion tests ============================================= */
-    /* ======= AT1/1 ======= */
-    TEST_ASSERT_FAIL_ASSERT(TEST_N775_ResetStringSequence(NULL_PTR));
-}
-void testN775_SetFirstMeasurementCycleFinished(void) {
-    /* ======= Assertion tests ============================================= */
-    /* ======= AT1/1 ======= */
-    TEST_ASSERT_FAIL_ASSERT(TEST_N775_SetFirstMeasurementCycleFinished(NULL_PTR));
+    TEST_ASSERT_FAIL_ASSERT(TEST_N77x_Initialize(NULL_PTR));
 
     /* ======= Routine tests =============================================== */
-    N775_STATE_s n775TestState = {
+    N77X_STATE_s n77xTestState = {
+        .firstMeasurementMade = false,
+    };
+    uint16_t uid[3u]   = {0u, 0u, 0u};
+    uint16_t readValue = 0;
+
+    /* ======= RT1/1: Test implementation */
+    N77x_Initialize_Expects(&n77xTestState, uid, &readValue);
+
+    /* ======= RT1/1: call function under test */
+    TEST_N77x_Initialize(&n77xTestState);
+}
+
+void testN77x_SetFirstMeasurementCycleFinished(void) {
+    /* ======= Assertion tests ============================================= */
+    /* ======= AT1/1 ======= */
+    TEST_ASSERT_FAIL_ASSERT(TEST_N77x_SetFirstMeasurementCycleFinished(NULL_PTR));
+
+    /* ======= Routine tests =============================================== */
+    N77X_STATE_s n77xTestState = {
         .firstMeasurementMade = false,
     };
 
@@ -297,31 +390,97 @@ void testN775_SetFirstMeasurementCycleFinished(void) {
     OS_EnterTaskCritical_Expect();
     OS_ExitTaskCritical_Expect();
     /* ======= RT1/2: call function under test */
-    TEST_N775_SetFirstMeasurementCycleFinished(&n775TestState);
+    TEST_N77x_SetFirstMeasurementCycleFinished(&n77xTestState);
     /* ======= RT1/2: test output verification */
-    TEST_ASSERT_TRUE(n775TestState.firstMeasurementMade);
-}
-void testN775_StartMeasurement(void) {
-    /* ======= Assertion tests ============================================= */
-    /* ======= AT1/1 ======= */
-    TEST_ASSERT_FAIL_ASSERT(TEST_N775_StartMeasurement(NULL_PTR));
-}
-void testN775_Wait(void) {
-    const uint32_t waitTime = 1u;
-    uint32_t currentTime    = 2u;
-    OS_GetTickCount_ExpectAndReturn(currentTime);
-    OS_DelayTaskUntil_Expect(&currentTime, waitTime);
-    TEST_N775_Wait(waitTime);
+    TEST_ASSERT_TRUE(n77xTestState.firstMeasurementMade);
 }
 
-void testN775_IsFirstMeasurementCycleFinished(void) {
+void testN77x_IncrementStringSequence(void) {
     /* ======= Assertion tests ============================================= */
     /* ======= AT1/1 ======= */
-    TEST_ASSERT_FAIL_ASSERT(N775_IsFirstMeasurementCycleFinished(NULL_PTR));
+    TEST_ASSERT_FAIL_ASSERT(TEST_N77x_IncrementStringSequence(NULL_PTR));
+
+    /* ======= Routine tests =============================================== */
+    N77X_STATE_s n77xTestState = {
+        .currentString       = 1,
+        .pSpiTxSequence      = spi_nxp77xInterfaceTx,
+        .pSpiRxSequence      = spi_nxp77xInterfaceRx,
+        .pSpiTxSequenceStart = spi_nxp77xInterfaceTx,
+        .pSpiRxSequenceStart = spi_nxp77xInterfaceRx,
+    };
+
+    /* ======= RT1/1: call function under test */
+    TEST_N77x_IncrementStringSequence(&n77xTestState);
+    /* ======= RT1/1: test output verification */
+    TEST_ASSERT_EQUAL(2, n77xTestState.currentString);
+    TEST_ASSERT_EQUAL(n77xTestState.pSpiTxSequence, n77xTestState.pSpiTxSequenceStart + n77xTestState.currentString);
+    TEST_ASSERT_EQUAL(n77xTestState.pSpiRxSequence, n77xTestState.pSpiRxSequenceStart + n77xTestState.currentString);
 }
 
-void testN775_Measure(void) {
+void testN77x_ResetStringSequence(void) {
     /* ======= Assertion tests ============================================= */
     /* ======= AT1/1 ======= */
-    TEST_ASSERT_FAIL_ASSERT(N775_Measure(NULL_PTR));
+    TEST_ASSERT_FAIL_ASSERT(TEST_N77x_ResetStringSequence(NULL_PTR));
+
+    /* ======= Routine tests =============================================== */
+    /** SPI interface configuration for N77x communication Tx part */
+    SPI_INTERFACE_CONFIG_s spi_nxp77xInterfaceTx[BS_NR_OF_STRINGS] = {
+        {
+            .pConfig  = &spi_kNxp77xDataConfigTx[0u],
+            .pNode    = spiREG1,
+            .pGioPort = &(spiREG1->PC3),
+            .csPin    = SPI_NXP_TX_CHIP_SELECT_PIN,
+            .csType   = SPI_CHIP_SELECT_HARDWARE,
+        },
+    };
+
+    /** SPI interface configuration for N77x communication, Rx part */
+    SPI_INTERFACE_CONFIG_s spi_nxp77xInterfaceRx[BS_NR_OF_STRINGS] = {
+        {
+            .pConfig  = &spi_kNxp77xDataConfigRx[0u],
+            .pNode    = spiREG4,
+            .pGioPort = &(spiREG4->PC3),
+            .csPin    = SPI_NXP_RX_CHIP_SELECT_PIN,
+            .csType   = SPI_CHIP_SELECT_HARDWARE,
+        },
+    };
+    N77X_STATE_s n77xTestState = {
+        .currentString       = 1,
+        .pSpiTxSequence      = spi_nxp77xInterfaceTx,
+        .pSpiRxSequence      = spi_nxp77xInterfaceRx,
+        .pSpiTxSequenceStart = spi_nxp77xInterfaceTx,
+        .pSpiRxSequenceStart = spi_nxp77xInterfaceRx,
+    };
+
+    /* ======= RT1/1: call function under test */
+    TEST_N77x_ResetStringSequence(&n77xTestState);
+    /* ======= RT1/1: test output verification */
+    TEST_ASSERT_EQUAL(0, n77xTestState.currentString);
+    TEST_ASSERT_EQUAL(n77xTestState.pSpiTxSequence, n77xTestState.pSpiTxSequenceStart + n77xTestState.currentString);
+    TEST_ASSERT_EQUAL(n77xTestState.pSpiRxSequence, n77xTestState.pSpiRxSequenceStart + n77xTestState.currentString);
+}
+
+void testN77x_IsFirstMeasurementCycleFinished(void) {
+    /* ======= Assertion tests ============================================= */
+    /* ======= AT1/1 ======= */
+    TEST_ASSERT_FAIL_ASSERT(N77x_IsFirstMeasurementCycleFinished(NULL_PTR));
+
+    /* ======= Routine tests =============================================== */
+    N77X_STATE_s n77xTestState = {
+        .firstMeasurementMade = true,
+    };
+
+    /* ======= RT1/1: Test implementation */
+    OS_EnterTaskCritical_Expect();
+    OS_ExitTaskCritical_Expect();
+    /* ======= RT1/1: call function under test */
+    TEST_ASSERT_TRUE(N77x_IsFirstMeasurementCycleFinished(&n77xTestState));
+}
+
+void testN77x_Measure(void) {
+    /* ======= Assertion tests ============================================= */
+    /* ======= AT1/1 ======= */
+    TEST_ASSERT_FAIL_ASSERT(N77x_Measure(NULL_PTR));
+
+    /* No routine test since the measurement runs in a logic while(1) loop, only interrupted by the OS */
 }

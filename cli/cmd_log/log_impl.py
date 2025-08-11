@@ -48,9 +48,8 @@ from time import sleep, time
 
 from can import Bus, CanInitializationError, CanOperationError, Message
 from can.io import SizedRotatingLogger
-from click import secho
 
-from ..helpers.click_helpers import recho
+from ..helpers.click_helpers import recho, secho
 from ..helpers.fcan import CanBusConfig
 
 MAX_CAN_OPERATION_ERRORS_PER_HOUR = 10

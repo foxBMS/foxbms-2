@@ -1,5 +1,5 @@
 /*
- * FreeRTOS+TCP V4.2.1
+ * FreeRTOS+TCP V4.3.2
  * Copyright (C) 2022 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * SPDX-License-Identifier: MIT
@@ -59,9 +59,9 @@ void vSetMultiCastIPv4MacAddress( uint32_t ulIPAddress,
 {
     uint32_t ulIP = FreeRTOS_ntohl( ulIPAddress );
 
-    pxMACAddress->ucBytes[ 0 ] = ( uint8_t ) 0x01U;
-    pxMACAddress->ucBytes[ 1 ] = ( uint8_t ) 0x00U;
-    pxMACAddress->ucBytes[ 2 ] = ( uint8_t ) 0x5EU;
+    pxMACAddress->ucBytes[ 0 ] = ( uint8_t ) ipMULTICAST_MAC_ADDRESS_IPv4_0;
+    pxMACAddress->ucBytes[ 1 ] = ( uint8_t ) ipMULTICAST_MAC_ADDRESS_IPv4_1;
+    pxMACAddress->ucBytes[ 2 ] = ( uint8_t ) ipMULTICAST_MAC_ADDRESS_IPv4_2;
     pxMACAddress->ucBytes[ 3 ] = ( uint8_t ) ( ( ulIP >> 16 ) & 0x7fU ); /* Use 7 bits. */
     pxMACAddress->ucBytes[ 4 ] = ( uint8_t ) ( ( ulIP >> 8 ) & 0xffU );  /* Use 8 bits. */
     pxMACAddress->ucBytes[ 5 ] = ( uint8_t ) ( ( ulIP ) & 0xffU );       /* Use 8 bits. */

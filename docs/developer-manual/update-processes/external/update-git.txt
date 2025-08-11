@@ -4,6 +4,6 @@
 - |update-installation-instructions| for |git|.
 - |snippet_update_license| in
   ``docs/general/license-tables/external/license-info_git.csv``.
-- |snippet_changelog_entry|.
+- |snippet_changelog_entry|
 - |snippet_commit|
   ``Dependency update: <XXXX>/Q<Y>: git <version number>``.

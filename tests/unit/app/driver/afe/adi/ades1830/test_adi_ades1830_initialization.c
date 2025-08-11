@@ -43,8 +43,8 @@
  * @file    test_adi_ades1830_initialization.c
  * @author  foxBMS Team
  * @date    2022-12-07 (date of creation)
- * @updated 2025-03-31 (date of last update)
- * @version v1.9.0
+ * @updated 2025-08-07 (date of last update)
+ * @version v1.10.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -148,11 +148,11 @@ void ADI_ClearAllFlagsInStatusRegisterGroupC_Expects(void) {
 
 void ADI_StartContinuousCellVoltageMeasurements_Expects(void) {
     /* Mute balancing before starting cell voltage measurements */
-    ADI_CopyCommandBits_Expect(adi_cmdMute, adi_command);
+    ADI_CopyCommandBytes_Expect(adi_cmdMute, adi_command);
     ADI_TransmitCommand_Expect(adi_command, &adi_stateBase);
 
     /* SM_VCELL_RED */
-    ADI_CopyCommandBits_Expect(adi_cmdAdcv, adi_command);
+    ADI_CopyCommandBytes_Expect(adi_cmdAdcv, adi_command);
     ADI_WriteCommandConfigurationBits_Expect(adi_command, ADI_ADCV_RD_POS, ADI_ADCV_RD_LEN, 1u);
     ADI_WriteCommandConfigurationBits_Expect(adi_command, ADI_ADCV_CONT_POS, ADI_ADCV_CONT_LEN, 1u);
     ADI_WriteCommandConfigurationBits_Expect(adi_command, ADI_ADCV_DCP_POS, ADI_ADCV_DCP_LEN, 0u);
@@ -371,7 +371,7 @@ void testADI_GetSerialIdsOfAllIcsInString(void) {
             adi_dataReceive[3u + (m * ADI_MAX_REGISTER_SIZE_IN_BYTES)] = 0xDDu;
             adi_dataReceive[4u + (m * ADI_MAX_REGISTER_SIZE_IN_BYTES)] = 0xEEu;
             adi_dataReceive[5u + (m * ADI_MAX_REGISTER_SIZE_IN_BYTES)] = 0xFFu;
-            ADI_CopyCommandBits_Expect(adi_cmdRdsid, adi_command);
+            ADI_CopyCommandBytes_Expect(adi_cmdRdsid, adi_command);
             ADI_ReadRegister_Expect(adi_command, adi_dataReceive, &adi_stateBase);
             TEST_ADI_GetSerialIdsOfAllIcsInString(&adi_stateBase);
             /* Check that Serial ID was extracted correctly from raw data */
@@ -384,7 +384,7 @@ void testADI_GetRevisionOfAllIcsInString(void) {
     /* invalid pointer */
     TEST_ASSERT_FAIL_ASSERT(TEST_ADI_GetRevisionOfAllIcsInString(NULL_PTR));
 
-    ADI_CopyCommandBits_Expect(adi_cmdRdstate, adi_command);
+    ADI_CopyCommandBytes_Expect(adi_cmdRdstate, adi_command);
     ADI_ReadRegister_Expect(adi_command, adi_dataReceive, &adi_stateBase);
     for (uint16_t m = 0; m < ADI_N_ADI; m++) {
         ADI_ReadDataBits_Expect(
@@ -573,7 +573,7 @@ void testADI_InitializeMeasurement(void) {
             ADI_SpiTransmitReceiveData_Expect(&adi_stateBase, &txData, NULL_PTR, 0u);
             ADI_Wait_Expect(ADI_AFE_WAKEUP_TIME);
         }
-        ADI_CopyCommandBits_Expect(adi_cmdSrst, adi_command);
+        ADI_CopyCommandBytes_Expect(adi_cmdSrst, adi_command);
         ADI_TransmitCommand_Expect(adi_command, &adi_stateBase);
         ADI_Wait_Expect(ADI_TSOFTRESET_ms);
         for (uint8_t i = 0; i < 2u; i++) {
@@ -613,7 +613,7 @@ void testADI_InitializeMeasurement(void) {
 
         ADI_ClearAllFlagsInStatusRegisterGroupC_Expects();
 
-        ADI_CopyCommandBits_Expect(adi_cmdRdstatc, adi_command);
+        ADI_CopyCommandBytes_Expect(adi_cmdRdstatc, adi_command);
         ADI_ReadRegister_Expect(adi_command, adi_dataReceive, &adi_stateBase);
         for (uint16_t m = 0u; m < ADI_N_ADI; m++) {
             uint8_t statusData = adi_dataReceive[(m * ADI_RDSTATC_LEN) + ADI_REGISTER_OFFSET5];
@@ -628,10 +628,10 @@ void testADI_InitializeMeasurement(void) {
         /* Expects for Starting continuous cell voltage measurements */
         ADI_StartContinuousCellVoltageMeasurements_Expects();
         /* Read serial ID */
-        ADI_CopyCommandBits_Expect(adi_cmdRdsid, adi_command);
+        ADI_CopyCommandBytes_Expect(adi_cmdRdsid, adi_command);
         ADI_ReadRegister_Expect(adi_command, adi_dataReceive, &adi_stateBase);
         /* Read revision */
-        ADI_CopyCommandBits_Expect(adi_cmdRdstate, adi_command);
+        ADI_CopyCommandBytes_Expect(adi_cmdRdstate, adi_command);
         ADI_ReadRegister_Expect(adi_command, adi_dataReceive, &adi_stateBase);
         for (uint16_t m = 0; m < ADI_N_ADI; m++) {
             ADI_ReadDataBits_Expect(

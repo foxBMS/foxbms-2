@@ -1,19 +1,4 @@
-/** @file fstartup.c
- *   @brief Startup Source File
- *   @date 11-Dec-2018
- *   @version 04.07.01
- *
- *   This file contains:
- *   - Include Files
- *   - Type Definitions
- *   - External Functions
- *   - VIM RAM Setup
- *   - Startup Routine
- *   .
- *   which are relevant for the Startup.
- */
-
-/*
+/**
  * Copyright (C) 2009-2018 Texas Instruments Incorporated - www.ti.com
  *
  *
@@ -47,16 +32,25 @@
  *
  */
 
-/* foxBMS adaptions:
- * - add 'section'-markers
- * - add a prefix
- * - add function 'STU_GetResetSourceWithoutFlagReset'
- * - add code justifications for SPA (Axivion)
- * - make code unit testable ('UNITY_UNIT_TEST')
- */
-
-/*
+/**
+ * @file    fstartup.c
+ * @date    11-Dec-2018
+ * @updated 2025-08-05 (date of last update)
+ * @version v1.10.0
+ * @ingroup MAIN
  * @prefix  STU
+ *
+ * @brief   Startup Source File
+ * @details This file is created by TI HALCoGen 04.07.01 and adapted to foxBMS
+ *          specific needs.
+ *          This file contains the VIM RAM setup and the startup routine.
+ *          Changes are:
+ *          - add 'section'-markers
+ *          - add a prefix
+ *          - add code justifications for SPA (Axivion)
+ *          - make code unit testable ('UNITY_UNIT_TEST')
+ *          - add function 'STU_GetResetSourceWithoutFlagReset'
+ *
  */
 
 /*========== Includes =======================================================*/
@@ -98,13 +92,8 @@
 /*========== Extern Constant and Variable Definitions =======================*/
 
 /*========== Static Function Prototypes =====================================*/
-/**
- * @brief   Handler for a failed PLL lock
- * @details If the PLL can not be locked the, this function shall be called to
- *          ensure that the application no further starts.
- *          This function never returns */
-static void STU_HandlePllLockFail(void);
 
+#ifndef UNITY_UNIT_TEST
 /**
  * @brief   Get reset flag
  * @details Get reset source without reseting respective the flag in SYSESR
@@ -112,13 +101,13 @@ static void STU_HandlePllLockFail(void);
  * @return  returns reset reason
  */
 static resetSource_t STU_GetResetSourceWithoutFlagReset(void);
+#else
+extern resetSource_t STU_GetResetSourceWithoutFlagReset(void);
+#endif
 
 /*========== Static Function Implementations ================================*/
-
-void STU_HandlePllLockFail(void) {
-    FAS_ASSERT(FAS_TRAP);
-}
-resetSource_t STU_GetResetSourceWithoutFlagReset(void) {
+#ifndef UNITY_UNIT_TEST
+static resetSource_t STU_GetResetSourceWithoutFlagReset(void) {
     register resetSource_t rst_source;
 
     if ((SYS_EXCEPTION & (uint32)POWERON_RESET) != 0U) {
@@ -155,6 +144,7 @@ resetSource_t STU_GetResetSourceWithoutFlagReset(void) {
     }
     return rst_source;
 }
+#endif
 
 /*========== Extern Function Implementations ================================*/
 /** system entry point */
@@ -182,12 +172,7 @@ void _c_int00(void) {
         case POWERON_RESET:
             /* Initialize L2RAM to avoid ECC errors right after power on */
             _memInit_();
-
-            /* Add condition to check whether PLL can be started successfully */
-            if (_errata_SSWF021_45_both_plls(STU_PLL_RETRIES) != 0U) {
-                /* Put system in a safe state */
-                STU_HandlePllLockFail();
-            }
+            /*SAFETYMCUSW 62 S MR:15.2, 15.5 <APPROVED> "Need to continue to handle POWERON Reset" */
             /* FALLTHRU */
         case DEBUG_RESET:
         case EXT_RESET:

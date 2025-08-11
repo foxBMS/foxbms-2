@@ -123,14 +123,14 @@ def main():
 
     srcs = [
         ROOT / f"tests/ccs/{args.ccs_version}/{args.ccs_version}_cc-options.yaml",
-        ROOT / f"tests/ccs/{args.ccs_version}/{args.ccs_version}_linker_pulls.json",
         ROOT / f"tests/ccs/{args.ccs_version}/{args.ccs_version}_remarks.txt",
+        ROOT / f"tests/ccs/{args.ccs_version}/{args.ccs_version}_env.json",
         ROOT / f"tests/ccs/{args.ccs_version}/{args.ccs_version}_paths_{plat}.txt",
     ]
     dests = [
         ROOT / "conf/cc/cc-options.yaml",
-        ROOT / "conf/cc/linker_pulls.json",
         ROOT / "conf/cc/remarks.txt",
+        ROOT / "conf/env/env.json",
         ROOT / f"conf/env/paths_{plat}.txt",
     ]
     for src, dest in zip(srcs, dests):

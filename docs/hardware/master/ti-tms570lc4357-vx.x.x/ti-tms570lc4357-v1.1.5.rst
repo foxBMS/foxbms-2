@@ -1,15 +1,20 @@
 .. include:: ./../../../macros.txt
 .. include:: ./../../../units.txt
 
-.. _MASTER_TMS570___V1_1_5__:
 
-Master TMS570 ``v1.1.5``
-========================
+.. |local_bms_master_version| replace:: ``v1.1.5``
+.. |local_bms_master_identifier_short| replace:: |ti-tms570|\-based |bms-master|
+.. |local_bms_master_identifier_full| replace:: |local_bms_master_identifier_short| |local_bms_master_version|
+
+.. _TI_TMS570_BASED_BMS_MASTER_V1_1_5:
+
+|local_bms_master_identifier_full|
+==================================
 
 .. note::
 
    The changelog for this release is found at
-   :ref:`CHANGELOG_FOR_MASTER_TMS570_V1_1_5`.
+   :numref:`CHANGELOG_FOR_THE_TI_TMS570_BASED_BMS_MASTER_V1_1_5`.
 
 There are no changes that need a new documentation compared to v1.1.1,
-therefore see :ref:`MASTER_TMS570___V1_1_1__`.
+therefore see :ref:`TI_TMS570_BASED_BMS_MASTER_V1_1_1`.

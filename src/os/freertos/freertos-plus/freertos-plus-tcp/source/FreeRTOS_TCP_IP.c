@@ -1,5 +1,5 @@
 /*
- * FreeRTOS+TCP V4.2.1
+ * FreeRTOS+TCP V4.3.2
  * Copyright (C) 2022 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * SPDX-License-Identifier: MIT
@@ -54,7 +54,6 @@
 #include "FreeRTOS_DHCP.h"
 #include "NetworkInterface.h"
 #include "NetworkBufferManagement.h"
-#include "FreeRTOS_ARP.h"
 
 #include "FreeRTOS_TCP_Reception.h"
 #include "FreeRTOS_TCP_Transmission.h"
@@ -647,7 +646,7 @@
             }
             else
             {
-                /* Still in the ARP phase: check every half second. */
+                /* Still in the Resolution phase: check every half second. */
                 ulDelayMs = 500U;
             }
 

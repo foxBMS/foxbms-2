@@ -43,8 +43,8 @@
  * @file    struct_helper.h
  * @author  foxBMS Team
  * @date    2025-02-28 (date of creation)
- * @updated 2025-03-31 (date of last update)
- * @version v1.9.0
+ * @updated 2025-08-07 (date of last update)
+ * @version v1.10.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *

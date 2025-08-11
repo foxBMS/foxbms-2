@@ -39,6 +39,9 @@
 
 """Implements a waf tool to use MATLAB® code generators (https://www.mathworks.com/)"""
 
+import os
+from pathlib import Path
+
 from waflib.Configure import ConfigurationContext
 
 
@@ -59,3 +62,7 @@ def configure(ctx: ConfigurationContext):
         return
     ctx.end_msg(ctx.env.get_flat("MATLAB") or "not found")
     ctx.env.MATLAB_AVAILABLE = True
+
+    matlab_root = Path(ctx.env.get_flat("MATLAB")).parents[1]
+    matlab_includes = os.path.join(matlab_root, "extern", "include")
+    ctx.env.append_unique("INCLUDES", os.path.join(matlab_includes, "include"))

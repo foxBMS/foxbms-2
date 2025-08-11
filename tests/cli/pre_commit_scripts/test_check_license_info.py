@@ -54,7 +54,6 @@ except ModuleNotFoundError:
 TYPE_TO_EXT = {
     "asm": "asm",
     "c": "c",
-    "dot": "dot",
     "pwsh": "ps1",
     "py": "py",
     "shell": "sh",
@@ -72,7 +71,7 @@ class TestCheckLicenseInfo(unittest.TestCase):
 
     def test_valid_files(self):
         """Test with valid files"""
-        for i in ["asm", "c", "dot", "pwsh", "py", "shell", "toml", "yaml"]:
+        for i in ["asm", "c", "pwsh", "py", "shell", "toml", "yaml"]:
             argv = [
                 str(self.tests_dir / f"valid-license.{TYPE_TO_EXT[i]}"),
                 "--file-type",

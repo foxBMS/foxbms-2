@@ -131,6 +131,13 @@
   :test:
     # this file can only be tested on Windows due to HALCoGen availability
     - -:./../../tests/unit/bootloader/main/test_fstartup.c
+    # these files can only be tested on Windows due to Flash API availability
+    - -:./../../tests/unit/bootloader/driver/config/test_flash_cfg.c
+    - -:./../../tests/unit/bootloader/driver/flash/test_flash.c
+    - -:./../../tests/unit/bootloader/engine/boot/test_boot.c
+    - -:./../../tests/unit/bootloader/engine/boot/test_boot_helper.c
+    - -:./../../tests/unit/bootloader/engine/can/test_can_cbs.c
+    - -:./../../tests/unit/bootloader/main/test_main.c
   :source: []
 
 # Compilation symbols to be injected into builds
@@ -145,6 +152,8 @@
       - FAS_ASSERT_LEVEL=2
       - UNITY_INCLUDE_EXEC_TIME
       - _POSIX_C_SOURCE=200809L
+    :/test_can_can_message_notification.c:
+      - COMPILE_FOR_UNIT_TEST=1
   :preprocess:
     <<: *config-test-defines
     :*:
@@ -252,7 +261,7 @@
   :placement: :end
   :flag: "-l${1}"
   :path_flag: "-L ${1}"
-  :system: [] # for example, you might list 'm' to grab the math library
+  :system: [m] # for example, you might list 'm' to grab the math library
   :test: []
   :release: []
 
@@ -291,7 +300,7 @@
     # - XmlSummary
   :gcovr:
     :report_root: "../../"
-    :report_exclude: ".*vendor.*|.*/build.*|.*test.*|.*tests.*|.*lib.*|.*Test.*|.*src.hal.*"
+    :report_exclude: ".*vendor.*|.*/build.*|.*test.*|.*tests.*|.*lib.*|.*Test.*|.*src.hal.*|.*src.app.*"
     :exclude_directories: ".*tests.*|.*/build.*"
     :sort_percentage: TRUE
     :sort_uncovered: FALSE

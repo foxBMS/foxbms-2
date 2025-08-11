@@ -74,7 +74,7 @@ def run_uncrustify_process(
     return run_process(cmd, cwd=cwd, stderr=None, stdout=None)
 
 
-def lint_freertos(check=True) -> int:
+def lint_freertos(check: bool = True) -> int:
     """Run uncrustify on the foxBMS FreeRTOS source tree"""
 
     uncrustify_install_path = os.environ.get("PATH", "")

@@ -43,8 +43,8 @@
  * @file    os.h
  * @author  foxBMS Team
  * @date    2019-08-27 (date of creation)
- * @updated 2025-03-31 (date of last update)
- * @version v1.9.0
+ * @updated 2025-08-07 (date of last update)
+ * @version v1.10.0
  * @ingroup OS
  * @prefix  OS
  *
@@ -70,7 +70,23 @@
 #define OS_QUEUE                QueueHandle_t
 #define OS_IDLE_TASK_STACK_SIZE (configMINIMAL_STACK_SIZE) /**< stack size of the idle task */
 #define OS_TICK_RATE_MS         (portTICK_RATE_MS)         /**< FreeRTOS name of the tick rate */
-#define OS_ENABLE_CACHE         (false)                    /**< true: Enable cache, false: Disable cache */
+#ifndef OS_ENABLE_CACHE
+#define OS_ENABLE_CACHE (false) /**< true: Enable cache, false: Disable cache */
+#endif
+#endif
+
+/*
+* Unit test requires different names because of a conflicting definition in a mock.
+* These directives that are only applied to the test give a different name to the
+* user-defined functions so that the linker does no longer see two identical functions
+* inside the unit test.
+* So the code tested is the implementation in 'os_freertos' instead of the mock.
+*/
+#ifdef UNITY_UNIT_TEST
+#define vApplicationIdleHook TEST_vApplicationIdleHook
+#define vApplicationGetIdleTaskMemory(ppxIdleTaskTCBBuffer, ppxIdleTaskStackBuffer, pulIdleTaskStackSize) \
+    mock_vApplicationGetIdleTaskMemory(ppxIdleTaskTCBBuffer, ppxIdleTaskStackBuffer, pulIdleTaskStackSize)
+#define vApplicationStackOverflowHook(xTask, pcTaskName) mock_vApplicationStackOverflowHook(xTask, pcTaskName)
 #endif
 
 #include <stdint.h>
@@ -221,6 +237,14 @@ extern void OS_IncrementTimer(void);
  * @return  time stamp in milliseconds, based on the operating system time.
  */
 extern uint32_t OS_GetTickCount(void);
+
+/**
+ * @brief    Delay a task for specified time
+ * @details  TODO
+ *
+ * @param    milliseconds        time delay value in milliseconds
+ */
+extern void OS_DelayTask(uint32_t milliseconds);
 
 /**
  * @brief    Delay a task until a specified time
@@ -392,6 +416,25 @@ extern OS_STD_RETURN_e OS_SendToBackOfQueueFromIsr(
     long *const pxHigherPriorityTaskWoken);
 
 /**
+ * @brief   Suspends any task.
+ * @details When suspended a task will never get any microcontroller processing
+ *          time, no matter what its priority.
+ *
+ * @param   taskToSuspend Handle to the task being suspended.
+ *          Passing a NULL handle will cause the calling task to be suspended.
+ */
+extern void OS_SuspendTask(TaskHandle_t taskToSuspend);
+
+/**
+ * @brief   Resumes a suspended task.
+ * @details A task that has been suspended by one or more calls to #OS_SuspendTask()
+ *          will be made available for running again by a single call to #OS_ResumeTask().
+ *
+ * @param   taskToResume Handle to the task being readied.
+ */
+extern void OS_ResumeTask(TaskHandle_t taskToResume);
+
+/**
  * @brief   Check if messages are waiting for queue
  * @details This function needs to implement the wrapper to OS specific queue
  *          posting.
@@ -452,6 +495,19 @@ extern STD_RETURN_TYPE_e OS_CheckTimeHasPassedSelfTest(void);
  * @return  Current OS time
  */
 extern OS_TIMER_s OS_GetOsTimer(void);
+
+/**
+ * @brief Counting version of #OS_NotifyFromIsr
+ *
+ * @param xTaskToNotify The handle of the RTOS task being notified, and having its notification value incremented.
+ * @param *pxHigherPriorityTaskWoken must be initialised to 0.
+ *        vTaskNotifyGiveFromISR() will set *pxHigherPriorityTaskWoken to pdTRUE if sending the notification caused a
+ *        task to unblock, and the unblocked task has a priority higher than the currently running task.
+ *        If vTaskNotifyGiveFromISR() sets this value to pdTRUE then a context switch should be requested before the
+ *        interrupt is exited.
+ *        pxHigherPriorityTaskWoken is an optional parameter and can be set to NULL.
+ */
+extern void OS_TaskNotifyGiveFromISR(TaskHandle_t xTaskToNotify, BaseType_t *pxHigherPriorityTaskWoken);
 
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 #ifdef UNITY_UNIT_TEST

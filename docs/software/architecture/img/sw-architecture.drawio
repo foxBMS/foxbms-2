@@ -1,0 +1,34 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/25.0.2 Chrome/128.0.6613.186 Electron/32.2.5 Safari/537.36" version="25.0.2">
+  <diagram name="Page-1" id="iZwcSQueqLfcoZ8UA4_H">
+    <mxGraphModel dx="1098" dy="940" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="YoIkvc_ydDTDvGEBxKRE-1" value="Operating System" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;fillColor=#fafafa;" parent="1" vertex="1">
+          <mxGeometry width="420" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="YoIkvc_ydDTDvGEBxKRE-2" value="foxBMS Application Layer&lt;div&gt;(Application behavior, SOX, ...)&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fbe5d6;" parent="1" vertex="1">
+          <mxGeometry x="15" y="30" width="185" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="YoIkvc_ydDTDvGEBxKRE-4" value="foxBMS Engine Layer&lt;div&gt;(Database, Diagnosis, ...)&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fbe5d6;" parent="1" vertex="1">
+          <mxGeometry x="220" y="30" width="185" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="YoIkvc_ydDTDvGEBxKRE-5" value="foxBMS Driver Layer&lt;div&gt;(Analog Front End, Current Sensor, Isolation Monitoring, ...)&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f4b183;gradientColor=#fbe3d3;gradientDirection=north;" parent="1" vertex="1">
+          <mxGeometry x="15" y="98" width="390" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="YoIkvc_ydDTDvGEBxKRE-6" value="MCU Wrapper&lt;div&gt;(CAN, SPI, UART, ...)&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f4b183;gradientColor=#fbe3d3;gradientDirection=north;" parent="1" vertex="1">
+          <mxGeometry y="170" width="420" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="YoIkvc_ydDTDvGEBxKRE-7" value="&lt;div&gt;HAL Drivers for TMS570LC4357&lt;/div&gt;&lt;div&gt;(Vendor HAL Driver Library)&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f4b183;" parent="1" vertex="1">
+          <mxGeometry y="230" width="420" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="YoIkvc_ydDTDvGEBxKRE-8" value="&lt;div&gt;MCU Hardware&lt;/div&gt;&lt;div&gt;(ARM Cortex-R5F from TI)&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#c55a11;" parent="1" vertex="1">
+          <mxGeometry y="290" width="420" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="YoIkvc_ydDTDvGEBxKRE-9" value="&lt;div&gt;Hardware Interfaces to Customers/User Applications&lt;/div&gt;&lt;div&gt;(RAMs, PHYs, I/O, Interfaces, Connectors)&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fbe5d6;" parent="1" vertex="1">
+          <mxGeometry y="350" width="420" height="50" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

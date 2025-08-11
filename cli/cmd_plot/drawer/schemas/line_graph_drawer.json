@@ -5,6 +5,9 @@
     "name": {
       "type": "string"
     },
+    "type": {
+      "type": "string"
+    },
     "mapping": {
       "type": "object",
       "properties": {
@@ -109,8 +112,7 @@
         }
       },
       "required": [
-        "x",
-        "x_ticks_count"
+        "x"
       ],
       "additionalProperties": false
     },

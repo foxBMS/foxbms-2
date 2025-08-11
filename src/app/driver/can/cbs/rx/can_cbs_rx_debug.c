@@ -43,8 +43,8 @@
  * @file    can_cbs_rx_debug.c
  * @author  foxBMS Team
  * @date    2021-04-20 (date of creation)
- * @updated 2025-03-31 (date of last update)
- * @version v1.9.0
+ * @updated 2025-08-07 (date of last update)
+ * @version v1.10.0
  * @ingroup DRIVERS
  * @prefix  CANRX
  *
@@ -952,7 +952,7 @@ extern uint32_t CANRX_Debug(
 
     uint32_t retVal = 1u;
     /* Used to ensure that we can actually send our answer and not clog the TX message boxes. */
-    if (sys_state.state > SYS_STATEMACH_INITIALIZE_CAN) {
+    if (SYS_GetSystemState(&sys_state) >= SYS_FSM_STATE_PRE_RUNNING) {
         /* Get the message data and retrieve the multiplexer value from it */
         CAN_RxGetMessageDataFromCanData(&messageData, kpkCanData, message.endianness);
         CAN_RxGetSignalDataFromMessageData(

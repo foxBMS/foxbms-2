@@ -43,8 +43,8 @@
  * @file    test_can_cbs_tx_debug-response.c
  * @author  foxBMS Team
  * @date    2022-08-17 (date of creation)
- * @updated 2025-03-31 (date of last update)
- * @version v1.9.0
+ * @updated 2025-08-07 (date of last update)
+ * @version v1.10.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -352,7 +352,7 @@ void testCANTX_TransmitBootMagicEnd(void) {
 }
 
 /**
- * @brief   Testing CANTX_TransmitBootMagicTimeStamp
+ * @brief   Testing CANTX_TransmitBootTimeStamp
  * @details The following cases need to be tested:
  *          - Argument validation:
  *            - None
@@ -393,7 +393,7 @@ void testCANTX_DebugResponseBootTimestamp(void) {
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[8u], 43u, 7u, 0x26u, CANTX_DEBUG_RESPONSE_ENDIANNESS);
     CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[9u]);
     /* ======= RT1/1: Call function under test */
-    uint64_t testResult = TEST_CANTX_TransmitBootMagicTimeStamp();
+    uint64_t testResult = TEST_CANTX_TransmitBootTimeStamp();
     /* ======= RT1/1: Test output verification */
     TEST_ASSERT_EQUAL(testMessageData[9u], testResult);
 }

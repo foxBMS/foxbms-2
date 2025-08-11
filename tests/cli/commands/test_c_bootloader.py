@@ -89,7 +89,6 @@ class TestFoxCliMainCommandBootloader(unittest.TestCase):
         mock_bootloader_impl.check_bootloader.return_value = 0
         runner = CliRunner()
         result = runner.invoke(main, ["bootloader", "check"])
-        print(result.stdout)
         self.assertEqual(0, result.exit_code)
 
     @patch("cli.commands.c_bootloader.bootloader_impl")

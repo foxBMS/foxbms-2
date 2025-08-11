@@ -2,17 +2,18 @@ This version of |foxbms| bundles with new hardware releases, most importantly
 a new |foxbms| |bms-master|.
 
 The |bms-master| version is bumped to ``v1.2.2``.
-For details on the |bms-master| see :ref:`MASTER_TMS570___V1_2_2__`.
+For details on the |bms-master| see :ref:`TI_TMS570_BASED_BMS_MASTER_V1_2_2`.
 
 The |bms-master| now comes with a streamlined supply concept, which only
 requires a single SBC and thereby making the hard- and software simpler.
 Details on the SBC configuration, which must be flashed on the SBC prior to PCB
-assembly, are found at :ref:`MASTER_TMS570___V1_2_2___FUNCTIONAL_DESCRIPTION`.
+assembly, are found at
+:ref:`TI_TMS570_BASED_BMS_MASTER_V1_2_2_FUNCTIONAL_DESCRIPTION`.
 
 Now the CAN1 Enable and Standby signals have been wired directly to the MCU,
 instead of using I2C based port expander.
 To achieve software compatibility with older |bms-master| releases, see
-:ref:`MASTER_TMS570___V1_1_1__` for details.
+:ref:`TI_TMS570_BASED_BMS_MASTER_V1_1_1` for details.
 
 Further, new releases for all |bms-slaves| have been added.
 

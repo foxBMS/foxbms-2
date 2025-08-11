@@ -43,8 +43,8 @@
  * @file    sys_cfg.h
  * @author  foxBMS Team
  * @date    2020-02-24 (date of creation)
- * @updated 2025-03-31 (date of last update)
- * @version v1.9.0
+ * @updated 2025-08-07 (date of last update)
+ * @version v1.10.0
  * @ingroup ENGINE_CONFIGURATION
  * @prefix  SYS
  *
@@ -89,19 +89,19 @@
 #define SYS_FSM_LONG_TIME (10u)
 
 /** SYS state machine initialization request retry counter */
-#define SYS_STATEMACH_INITIALIZATION_REQUEST_RETRY_COUNTER (3u)
+#define SYS_STATE_MACHINE_INITIALIZATION_REQUEST_RETRY_COUNTER (3u)
 
 /** SYS state machine initialization timeout */
-#define SYS_STATEMACH_INITIALIZATION_TIMEOUT_MS (200u)
+#define SYS_STATE_MACHINE_INITIALIZATION_TIMEOUT_MS (200u)
 
 /** SYS state machine IMD initialization timeout */
-#define SYS_STATEMACH_IMD_INITIALIZATION_TIMEOUT_MS (500u)
+#define SYS_STATE_MACHINE_IMD_INITIALIZATION_TIMEOUT_MS (500u)
 
 /** SYS state machine BAL initialization timeout */
-#define SYS_STATEMACH_BAL_INITIALIZATION_TIMEOUT_MS (500u)
+#define SYS_STATE_MACHINE_BAL_INITIALIZATION_TIMEOUT_MS (500u)
 
 /** SYS state machine SBC initialization timeout */
-#define SYS_STATEMACHINE_SBC_INIT_TIMEOUT_MS (1000u)
+#define SYS_STATE_MACHINE_SBC_INIT_TIMEOUT_MS (1000u)
 
 /*========== Extern Constant and Variable Declarations ======================*/
 

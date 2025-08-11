@@ -42,7 +42,13 @@
 import click
 
 from ..cmd_cli_unittest import cli_unittest_impl
-from ..helpers.click_helpers import HELP_NAMES, IGNORE_UNKNOWN_OPTIONS, verbosity_option
+from ..helpers.click_helpers import (
+    HELP_NAMES,
+    IGNORE_UNKNOWN_OPTIONS,
+    echo,
+    recho,
+    verbosity_option,
+)
 
 CONTEXT_SETTINGS = HELP_NAMES | IGNORE_UNKNOWN_OPTIONS
 
@@ -74,7 +80,7 @@ def cli_unittest(
     """Run unit-tests on the CLI tool itself."""
     err = 0
     if coverage_report and not self_test:
-        click.echo("'--coverage-report' requires '--self-test'.", err=True)
+        recho("'--coverage-report' requires '--self-test'.")
         err = 1
     if err:
         pass
@@ -84,5 +90,5 @@ def cli_unittest(
         args = list(unittest_args)
         err = cli_unittest_impl.run_unittest_module(args).returncode
     else:  # no subcommand
-        click.echo(cli_unittest.get_help(ctx))
+        echo(cli_unittest.get_help(ctx))
     ctx.exit(err)

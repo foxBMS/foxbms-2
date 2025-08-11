@@ -89,7 +89,6 @@ LINKFLAGS:
   - --undef_sym=resetEntry
   - -o4
   - --unused_section_elimination
-  - --strict_compatibility=on
   - --zero_init=on
   - --scan_libraries
 

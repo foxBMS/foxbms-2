@@ -43,8 +43,8 @@
  * @file    adi_ades1830_gpio_voltages.c
  * @author  foxBMS Team
  * @date    2019-08-27 (date of creation)
- * @updated 2025-03-31 (date of last update)
- * @version v1.9.0
+ * @updated 2025-08-07 (date of last update)
+ * @version v1.10.0
  * @ingroup DRIVERS
  * @prefix  ADI
  *
@@ -224,36 +224,36 @@ extern void ADI_GetGpioVoltages(
 
     switch (registerType) {
         case ADI_AUXILIARY_REGISTER:
-            ADI_CopyCommandBits(adi_cmdRdauxa, registerA);
-            ADI_CopyCommandBits(adi_cmdRdauxb, registerB);
-            ADI_CopyCommandBits(adi_cmdRdauxc, registerC);
-            ADI_CopyCommandBits(adi_cmdRdauxd, registerD);
-            ADI_CopyCommandBits(adi_cmdRdauxe, registerE);
+            ADI_CopyCommandBytes(adi_cmdRdauxa, registerA);
+            ADI_CopyCommandBytes(adi_cmdRdauxb, registerB);
+            ADI_CopyCommandBytes(adi_cmdRdauxc, registerC);
+            ADI_CopyCommandBytes(adi_cmdRdauxd, registerD);
+            ADI_CopyCommandBytes(adi_cmdRdauxe, registerE);
             break;
         case ADI_REDUNDANT_AUXILIARY_REGISTER:
-            ADI_CopyCommandBits(adi_cmdRdraxa, registerA);
-            ADI_CopyCommandBits(adi_cmdRdraxb, registerB);
-            ADI_CopyCommandBits(adi_cmdRdraxc, registerC);
-            ADI_CopyCommandBits(adi_cmdRdraxd, registerD);
+            ADI_CopyCommandBytes(adi_cmdRdraxa, registerA);
+            ADI_CopyCommandBytes(adi_cmdRdraxb, registerB);
+            ADI_CopyCommandBytes(adi_cmdRdraxc, registerC);
+            ADI_CopyCommandBytes(adi_cmdRdraxd, registerD);
             break;
         default:                  /* LCOV_EXCL_LINE */
             FAS_ASSERT(FAS_TRAP); /* LCOV_EXCL_LINE */
             break;                /* LCOV_EXCL_LINE */
     }
 
-    ADI_CopyCommandBits(registerA, adi_command);
+    ADI_CopyCommandBytes(registerA, adi_command);
     ADI_ReadRegister(adi_command, adi_dataReceive, pAdiState);
     ADI_SaveRxToGpioVoltageBuffer(pAdiState, adi_dataReceive, ADI_AUXILIARY_RESULT_REGISTER_SET_A, storeLocation);
 
-    ADI_CopyCommandBits(registerB, adi_command);
+    ADI_CopyCommandBytes(registerB, adi_command);
     ADI_ReadRegister(adi_command, adi_dataReceive, pAdiState);
     ADI_SaveRxToGpioVoltageBuffer(pAdiState, adi_dataReceive, ADI_AUXILIARY_RESULT_REGISTER_SET_B, storeLocation);
 
-    ADI_CopyCommandBits(registerC, adi_command);
+    ADI_CopyCommandBytes(registerC, adi_command);
     ADI_ReadRegister(adi_command, adi_dataReceive, pAdiState);
     ADI_SaveRxToGpioVoltageBuffer(pAdiState, adi_dataReceive, ADI_AUXILIARY_RESULT_REGISTER_SET_C, storeLocation);
 
-    ADI_CopyCommandBits(registerD, adi_command);
+    ADI_CopyCommandBytes(registerD, adi_command);
     ADI_ReadRegister(adi_command, adi_dataReceive, pAdiState);
     ADI_SaveRxToGpioVoltageBuffer(pAdiState, adi_dataReceive, ADI_AUXILIARY_RESULT_REGISTER_SET_D, storeLocation);
 }

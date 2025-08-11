@@ -43,8 +43,8 @@
  * @file    adi_ades183x_helpers.h
  * @author  foxBMS Team
  * @date    2022-12-06 (date of creation)
- * @updated 2025-03-31 (date of last update)
- * @version v1.9.0
+ * @updated 2025-08-07 (date of last update)
+ * @version v1.10.0
  * @ingroup DRIVERS
  * @prefix  ADI
  *
@@ -78,7 +78,7 @@
 extern void ADI_TransmitCommand(uint16_t *command, ADI_STATE_s *adiState);
 
 /**
- * @brief   copy command bits in variables.
+ * @brief   copy command bytes in variables.
  * @details The commands are defined as const. As some of them have
  *          configuration bits, they are first copied in a non-const variable.
  *          They can then be configured with
@@ -86,7 +86,7 @@ extern void ADI_TransmitCommand(uint16_t *command, ADI_STATE_s *adiState);
  * @param   sourceCommand       command definition from command list
  * @param   destinationCommand  copied command bits from command definition
  */
-extern void ADI_CopyCommandBits(const uint16_t *sourceCommand, uint16_t *destinationCommand);
+extern void ADI_CopyCommandBytes(const uint16_t *sourceCommand, uint16_t *destinationCommand);
 
 /**
  * @brief   write configuration bits in commands (e.g., channel in ADAX command).

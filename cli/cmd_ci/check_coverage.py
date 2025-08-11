@@ -46,10 +46,8 @@ from pathlib import Path
 from typing import get_args
 from xml.etree import ElementTree
 
-from click import echo
-
 from ..cmd_embedded_ut.embedded_ut_constants import EmbeddedUnitTestVariants
-from ..helpers.click_helpers import recho
+from ..helpers.click_helpers import echo, recho
 from ..helpers.host_platform import get_platform
 
 CI_COMMIT_REF_NAME = os.getenv("CI_COMMIT_REF_NAME")

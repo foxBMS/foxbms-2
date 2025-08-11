@@ -1,5 +1,5 @@
 /*
- * FreeRTOS+TCP V4.2.1
+ * FreeRTOS+TCP V4.3.2
  * Copyright (C) 2022 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * SPDX-License-Identifier: MIT
@@ -99,11 +99,11 @@ const struct xIPv6_Address FreeRTOS_in6addr_loopback = { { 0U, 0U, 0U, 0U, 0U, 0
         size_t uxMinimumLength;
         size_t uxExtHeaderLength = 0;
         const IPExtHeader_IPv6_t * pxExtHeader = NULL;
-        const uint8_t * const pucEthernetBuffer = ( uint8_t * ) pvEthernetBuffer;
+        const uint8_t * const pucEthernetBuffer = ( const uint8_t *  ) pvEthernetBuffer;
 
         /* Map the buffer onto a IPv6-Packet struct to easily access the
          * fields of the IPv6 packet. */
-        const IPPacket_IPv6_t * const pxIPv6Packet = ( IPPacket_IPv6_t * ) pucEthernetBuffer;
+        const IPPacket_IPv6_t * const pxIPv6Packet = ( const IPPacket_IPv6_t *  ) pucEthernetBuffer;
 
         DEBUG_DECLARE_TRACE_VARIABLE( BaseType_t, xLocation, 0 );
 

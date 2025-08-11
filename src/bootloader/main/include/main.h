@@ -43,10 +43,10 @@
  * @file    main.h
  * @author  foxBMS Team
  * @date    2024-09-02 (date of creation)
- * @updated 2025-03-31 (date of last update)
- * @version v1.9.0
+ * @updated 2025-08-07 (date of last update)
+ * @version v1.10.0
  * @ingroup MAIN
- * @prefix  NONE
+ * @prefix  MAIN
  *
  * @brief   Main function header
  * @details Declares the main function
@@ -60,10 +60,48 @@
 #define FOXBMS__MAIN_H_
 
 /*========== Includes =======================================================*/
+#include <stdint.h>
 
 /*========== Macros and Definitions =========================================*/
+/** Maximum time in microsends that the bootloader waits for an update request before starting the application. */
+#define MAIN_TIME_OUT_us (500000u)
 
 /*========== Extern Constant and Variable Declarations ======================*/
+/* flash-module = implementation in flash.c */
+/** Address in the MCU's flash of the flash-module program.
+ *  The value is assigned through the linker command file.
+ */
+extern uint32_t main_textLoadStartFlashC;
+
+/** Size of the flash-module.
+ *  The value is assigned through the linker command file */
+extern uint32_t main_textSizeFlashC;
+
+/** Address in the MCU's RAM where the flash-module will be positioned.
+ *  The value is assigned through the linker command file.
+ */
+extern uint32_t main_textRunStartFlashC;
+
+/* flash-config-module = implementation in flash_cfg.c.
+ * All variables in the flash-config-module must be constants.
+ * see src/bootloader/driver/config/flash_cfg.c for details.
+ */
+/** Address in the MCU's flash of the flash-config-module (i.e., the
+ *  constants).
+ *  The value is assigned through the linker command file.
+ */
+extern uint32_t main_constLoadStartFlashCfgC;
+
+/** Size of the flash-config-module (i.e., its constants).
+ *  The value is assigned through the linker command file.
+ */
+extern uint32_t main_constSizeFlashCfgC;
+
+/** Address in the MCU's RAM where the flash-config-module constants will be
+ *  positioned.
+ *  The value is assigned through the linker command file.
+ */
+extern uint32_t main_constRunStartFlashCfgC;
 
 /*========== Extern Function Prototypes =====================================*/
 /**

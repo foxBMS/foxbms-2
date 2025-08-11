@@ -41,18 +41,20 @@
 
 # pylint: disable=invalid-name
 
-import os
-import platform
+import sys
+
+# always use pathlib.Path when working with paths
+from pathlib import Path
 
 
 def some_function():
     """Just a dummy function"""
-    if platform.uname().system.lower().startswith("win"):
-        print("Some Windows code")
+    if sys.platform.lower().startswith("win32"):
+        print("Some Windows code.")
     else:
-        print("Feature only support on windows")
+        print("Feature only support on Windows.")
 
     path = "some/path"  # bad - works on all platforms, but no good style
     path = "some\\path"  # bad - works only on Windows
-    path = os.path.join("some", "path")  # good - works on every platform
+    path = Path("some/path")  # good - works on every platform
     print(path)

@@ -62,7 +62,7 @@ dataEntry
         b   #0x1FFD8    ;indirect jump to 0x1FFF8
 
         ;Load the content of the IRQ/FIQ Interrupt Vector Registers from the VIM into the PC.
-        ldr pc,[pc,#-0x1b0]     ;Interrupt Request(IRQ) ;0x18 ;Register address 0xFFFFFE70 = (0x18 + 8) – 0x1B0
-        ldr pc,[pc,#-0x1b0]     ;Fast Interrupt Request (FIQ) ;0x1C; Register address 0xFFFFFE74 = (0x1C + 8) – 0x1B0
+        ldr pc,[pc,#-0x1b0]     ;Interrupt Request(IRQ) ;0x18 ;Register address 0xFFFFFE70 = (0x18 + 8) - 0x1B0
+        ldr pc,[pc,#-0x1b0]     ;Fast Interrupt Request (FIQ) ;0x1C; Register address 0xFFFFFE74 = (0x1C + 8) - 0x1B0
 
 ;-------------------------------------------------------------------------------

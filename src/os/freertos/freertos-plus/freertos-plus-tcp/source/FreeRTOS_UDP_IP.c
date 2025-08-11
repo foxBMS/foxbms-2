@@ -1,5 +1,5 @@
 /*
- * FreeRTOS+TCP V4.2.1
+ * FreeRTOS+TCP V4.3.2
  * Copyright (C) 2022 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * SPDX-License-Identifier: MIT
@@ -48,10 +48,8 @@
 #include "FreeRTOS_Sockets.h"
 #include "FreeRTOS_IP_Private.h"
 #include "FreeRTOS_UDP_IP.h"
-#include "FreeRTOS_ARP.h"
 #include "FreeRTOS_DNS.h"
 #include "FreeRTOS_DHCP.h"
-#include "FreeRTOS_ND.h"
 #include "FreeRTOS_IP_Utils.h"
 #include "NetworkInterface.h"
 #include "NetworkBufferManagement.h"
@@ -62,7 +60,7 @@
 
 /**
  * @brief Process the generated UDP packet and do other checks before sending the
- *        packet such as ARP cache check and address resolution.
+ *        packet such as cache check and address resolution.
  *
  * @param[in] pxNetworkBuffer The network buffer carrying the packet.
  */
@@ -104,14 +102,14 @@ void vProcessGeneratedUDPPacket( NetworkBufferDescriptor_t * const pxNetworkBuff
  *
  * @param[in] pxNetworkBuffer The network buffer carrying the UDP packet.
  * @param[in] usPort The port number on which this packet was received.
- * @param[out] pxIsWaitingForARPResolution If the packet is awaiting ARP resolution,
+ * @param[out] pxIsWaitingForResolution If the packet is awaiting resolution,
  *             this pointer will be set to pdTRUE. pdFALSE otherwise.
  *
  * @return pdPASS in case the UDP packet could be processed. Else pdFAIL is returned.
  */
 BaseType_t xProcessReceivedUDPPacket( NetworkBufferDescriptor_t * pxNetworkBuffer,
                                       uint16_t usPort,
-                                      BaseType_t * pxIsWaitingForARPResolution )
+                                      BaseType_t * pxIsWaitingForResolution )
 {
     /* Returning pdPASS means that the packet was consumed, released. */
     BaseType_t xReturn = pdFAIL;
@@ -132,13 +130,13 @@ BaseType_t xProcessReceivedUDPPacket( NetworkBufferDescriptor_t * pxNetworkBuffe
         #if ( ipconfigUSE_IPv4 != 0 )
             case ipIPv4_FRAME_TYPE:
                 xReturn = xProcessReceivedUDPPacket_IPv4( pxNetworkBuffer,
-                                                          usPort, pxIsWaitingForARPResolution );
+                                                          usPort, pxIsWaitingForResolution );
                 break;
         #endif
         #if ( ipconfigUSE_IPv6 != 0 )
             case ipIPv6_FRAME_TYPE:
                 xReturn = xProcessReceivedUDPPacket_IPv6( pxNetworkBuffer,
-                                                          usPort, pxIsWaitingForARPResolution );
+                                                          usPort, pxIsWaitingForResolution );
                 break;
         #endif
         default:

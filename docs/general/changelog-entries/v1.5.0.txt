@@ -84,8 +84,8 @@ Changed
   and moved the definition to the individual AFE implementations.
 - Use ``float_t`` instead of ``float``.
 - Aligned the hardware documentation for BMS-Master, BMS-Interface and
-  BMS-Slave (see :ref:`MASTER_OVERVIEW`, :ref:`INTERFACES_OVERVIEW`, and
-  :ref:`SLAVES_OVERVIEW`)
+  BMS-Slave (see :ref:`BMS_MASTERS_OVERVIEW`, :ref:`BMS_INTERFACES_OVERVIEW`,
+  and :ref:`BMS_SLAVES_OVERVIEW`)
 - Updated the documentation section about the |foxbms| platform
 - The functionality to switch to user mode is now implemented as an inline
   function instead of a macro.

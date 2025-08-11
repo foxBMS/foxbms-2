@@ -41,6 +41,7 @@
 
 # pylint: disable=invalid-name,unused-import
 
+import argparse
 import os
 
 from waflib import Build, Context, Utils
@@ -76,8 +77,8 @@ def options(opt):
 
     opt.load("f_ti_arm_cgt", tooldir=tooldir)
 
+    # remove unsupported options
     for k in (
-        "--targets",
         "--out",
         "--top",
         "--prefix",
@@ -94,6 +95,9 @@ def options(opt):
         option = opt.parser.get_option(k)
         if option:
             opt.parser.remove_option(k)
+
+    # just hiding the option because removing is not possible
+    opt.parser.get_option("--targets").help = argparse.SUPPRESS
 
     Context.classes.remove(Build.InstallContext)
     Context.classes.remove(Build.UninstallContext)

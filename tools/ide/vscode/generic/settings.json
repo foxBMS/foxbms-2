@@ -78,6 +78,7 @@
     "**/*.egg-info": true,
     "**/*.gcov": true,
     "**/*.log": true,
+    "**/.mypy_cache/**": true,
     "**/*.stats": true,
     "**/*.tar.gz": true,
     "**/*.zip": true,
@@ -98,7 +99,6 @@
     "**/tmp/**": true,
     ".github/**": true,
     ".ruff_cache": true,
-    ".mypy_cache": true,
     "build/app_spa/**": true,
     "build/c4che/**": true,
     "build/conf_check_*/**": true,
@@ -122,13 +122,13 @@
     "tests/axivion/qualification-kit/**": true
   },
   "pylint.args": [
-    "--rcfile=pyproject.toml"
+    "place-holder"
   ],
   "python.terminal.activateEnvironment": false,
   "search.exclude": {
     "**/*.code-search": true,
-    "**/node_modules": true,
     "**/bower_components": true,
+    "**/node_modules": true,
     "**/conf/hcg/include/**": true,
     "**build/**/*.obj": true,
     "**build/**/*.pp": true,

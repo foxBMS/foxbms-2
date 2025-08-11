@@ -19,7 +19,7 @@ again, it will make updates and adding new tools much simpler in the future.
 
 foxBMS 2 requires exactly Python3.12.x.
 If the development environment has been created with an early version of
-Python, the environment needs to be removed an recreated with Python3.12.
+Python, the environment needs to be removed and recreated with Python3.12.
 
 Building the documentation now requires drawio.desktop.
 See the installation instructions in :ref:`SOFTWARE_INSTALLATION`.

@@ -44,6 +44,7 @@ import sys
 import unittest
 from contextlib import redirect_stderr
 from pathlib import Path
+from unittest.mock import Mock, patch
 
 try:
     from cli.cmd_plot.drawer.settings_graph import LinesSettings, Mapping
@@ -75,6 +76,19 @@ class TestMappingPostInit(unittest.TestCase):
         buf = io.StringIO()
         with redirect_stderr(buf), self.assertRaises(SystemExit) as cm:
             Mapping(**config)
+        self.assertEqual(cm.exception.code, 1)
+        self.assertTrue("Date format is invalid" in buf.getvalue())
+
+    @patch("cli.cmd_plot.drawer.settings_graph.datetime")
+    def test_post_init_strftime_return_values(self, mock_datetime: Mock) -> None:
+        """Tests the post_init with invalid dateformat and problematic strftime
+        return value (Linux related unittest)"""
+        config = {"x": "test", "y2": {"input": "test"}, "date_format": "%23"}
+        mock_datetime.now().strftime.return_value = "%2 3"
+        buf = io.StringIO()
+        with redirect_stderr(buf), self.assertRaises(SystemExit) as cm:
+            Mapping(**config)
+        mock_datetime.now().strftime.assert_called_once_with("%23")
         self.assertEqual(cm.exception.code, 1)
         self.assertTrue("Date format is invalid" in buf.getvalue())
 

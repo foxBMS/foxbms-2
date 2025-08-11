@@ -43,8 +43,8 @@
  * @file    ltc_defs.h
  * @author  foxBMS Team
  * @date    2015-09-01 (date of creation)
- * @updated 2025-03-31 (date of last update)
- * @version v1.9.0
+ * @updated 2025-08-07 (date of last update)
+ * @version v1.10.0
  * @ingroup DRIVERS
  * @prefix  LTC
  *
@@ -508,16 +508,13 @@ typedef struct {
  * The user can get the current state of the LTC state machine with this variable
  */
 typedef struct {
-    uint16_t timer; /*!< time in ms before the state machine processes the next state, e.g. in counts of 1ms */
-    LTC_TASK_TYPE_e taskMode;     /*!< current task of the state machine */
-    LTC_REQUEST_s statereq;       /*!< current state request made to the state machine */
-    LTC_STATEMACH_e state;        /*!< state of Driver State Machine */
-    uint8_t substate;             /*!< current substate of the state machine */
+    uint16_t timer;         /*!< time in ms before the state machine processes the next state, e.g. in counts of 1ms */
+    LTC_REQUEST_s statereq; /*!< current state request made to the state machine */
+    LTC_STATEMACH_e state;  /*!< state of Driver State Machine */
+    uint8_t substate;       /*!< current substate of the state machine */
     LTC_STATEMACH_e lastState;    /*!< previous state of the state machine */
     uint8_t lastSubstate;         /*!< previous substate of the state machine */
     LTC_ADCMODE_e adcMode;        /*!< current LTC ADCMeasurement mode (fast, normal or filtered) */
-    LTC_ADCMODE_e voltMeasMode;   /*!< current LTC ADCMeasurement mode (fast, normal or filtered) */
-    LTC_ADCMODE_e gpioMeasMode;   /*!< current LTC ADCMeasurement mode (fast, normal or filtered) */
     LTC_ADCMODE_e adcModeRequest; /*!< requested LTC ADCMeasurement mode (fast, normal or filtered) */
     LTC_ADCMEAS_CHAN_e adcMeasCh; /*!< current number of channels measured for GPIOS (one at a time for multiplexers or
                                      all five GPIOs) */
@@ -525,22 +522,17 @@ typedef struct {
                                                  multiplexers or all five GPIOs) */
     uint8_t numberOfMeasuredMux; /*!< number of multiplexer channels measured by the LTC analog front-end before a
                                     voltage measurement is made */
-    uint32_t ErrPECCounter; /*!< counts the number of times there was A PEC (CRC) error during communication with LTC */
-    uint8_t ErrRetryCounter;    /*!< counts how many times the drivers retried to communicate with LTC in case of a
+    uint8_t ErrRetryCounter;     /*!< counts how many times the drivers retried to communicate with LTC in case of a
                                    communication error */
-    uint32_t ErrRequestCounter; /*!< counts the number of illegal requests to the LTC state machine */
-    uint8_t triggerentry;       /*!< counter for re-entrance protection (function running flag) */
+    uint32_t ErrRequestCounter;  /*!< counts the number of illegal requests to the LTC state machine */
+    uint8_t triggerentry;        /*!< counter for re-entrance protection (function running flag) */
     uint32_t commandDataTransferTime; /*!< time needed for sending an instruction to the LTC, followed by data transfer
                                          from the LTC */
     uint32_t commandTransferTime;     /*!< time needed for sending an instruction to the LTC */
     uint32_t
-        gpioClocksTransferTime;  /*!< time needed for sending 72 clock signal to the LTC, used for I2C communication */
-    uint32_t VoltageSampleTime;  /*!< time stamp at which the cell voltage were measured */
-    uint32_t muxSampleTime;      /*!< time stamp at which a multiplexer input was measured */
-    uint8_t instanceID;          /*!< number to distinguish between different ltc states, starting with 0,1,2,3....8 */
-    uint8_t nrBatCellsPerModule; /*!< number of cells per module */
-    uint8_t busSize;             /*!< number of connected LTCs to parallel bus network */
-    uint8_t *ltcIDs;             /*!< array with LTC IDs */
+        gpioClocksTransferTime; /*!< time needed for sending 72 clock signal to the LTC, used for I2C communication */
+    uint32_t VoltageSampleTime; /*!< time stamp at which the cell voltage were measured */
+    uint32_t muxSampleTime;     /*!< time stamp at which a multiplexer input was measured */
     LTC_REUSE_MODE_e
         reusageMeasurementMode;  /*!< flag that indicates if currently any state is reused i.e. cell voltage
                                                 measurement */
@@ -571,7 +563,7 @@ typedef struct {
                                                               ending point of sequence */
     uint8_t muxmeas_nr_end[BS_NR_OF_STRINGS]; /*!< number of multiplexer channels that have to be measured; end number
                                                  of sequence, where measurement is finished*/
-    uint8_t configuration[6];                 /*!< holds the configuration of the ltc (configuration register) */
+    uint64_t serialId[BS_NR_OF_STRINGS][BS_NR_OF_MODULES_PER_STRING]; /*!< serial ID of the IC */
 } LTC_STATE_s;
 
 /*========== Extern Function Prototypes =====================================*/

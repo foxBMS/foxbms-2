@@ -1,5 +1,5 @@
 /*
- * FreeRTOS+TCP V4.2.1
+ * FreeRTOS+TCP V4.3.2
  * Copyright (C) 2022 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * SPDX-License-Identifier: MIT
@@ -76,7 +76,7 @@ void vProcessGeneratedUDPPacket_IPv4( NetworkBufferDescriptor_t * const pxNetwor
 {
     UDPPacket_t * pxUDPPacket;
     IPHeader_t * pxIPHeader;
-    eARPLookupResult_t eReturned;
+    eResolutionLookupResult_t eReturned;
     uint32_t ulIPAddress = pxNetworkBuffer->xIPAddress.ulIP_IPv4;
     NetworkEndPoint_t * pxEndPoint = pxNetworkBuffer->pxEndPoint;
     size_t uxPayloadSize;
@@ -110,9 +110,9 @@ void vProcessGeneratedUDPPacket_IPv4( NetworkBufferDescriptor_t * const pxNetwor
         pxNetworkBuffer->pxEndPoint = pxEndPoint;
     }
 
-    if( eReturned != eCantSendPacket )
+    if( eReturned != eResolutionFailed )
     {
-        if( eReturned == eARPCacheHit )
+        if( eReturned == eResolutionCacheHit )
         {
             /* Part of the Ethernet and IP headers are always constant when sending an IPv4
              * UDP packet.  This array defines the constant parts, allowing this part of the
@@ -261,7 +261,7 @@ void vProcessGeneratedUDPPacket_IPv4( NetworkBufferDescriptor_t * const pxNetwor
             }
             #endif /* if ( ipconfigDRIVER_INCLUDED_TX_IP_CHECKSUM == 0 ) */
         }
-        else if( eReturned == eARPCacheMiss )
+        else if( eReturned == eResolutionCacheMiss )
         {
             /* Add an entry to the ARP table with a null hardware address.
              * This allows the ARP timer to know that an ARP reply is
@@ -274,11 +274,11 @@ void vProcessGeneratedUDPPacket_IPv4( NetworkBufferDescriptor_t * const pxNetwor
             /* 'ulIPAddress' might have become the address of the Gateway.
              * Find the route again. */
 
-            pxNetworkBuffer->pxEndPoint = FreeRTOS_FindEndPointOnNetMask( pxNetworkBuffer->xIPAddress.ulIP_IPv4, 11 );
+            pxNetworkBuffer->pxEndPoint = FreeRTOS_FindEndPointOnNetMask( pxNetworkBuffer->xIPAddress.ulIP_IPv4 );
 
             if( pxNetworkBuffer->pxEndPoint == NULL )
             {
-                eReturned = eCantSendPacket;
+                eReturned = eResolutionFailed;
             }
             else
             {
@@ -290,11 +290,11 @@ void vProcessGeneratedUDPPacket_IPv4( NetworkBufferDescriptor_t * const pxNetwor
         {
             /* The lookup indicated that an ARP request has already been
              * sent out for the queried IP address. */
-            eReturned = eCantSendPacket;
+            eReturned = eResolutionFailed;
         }
     }
 
-    if( eReturned != eCantSendPacket )
+    if( eReturned != eResolutionFailed )
     {
         /* The network driver is responsible for freeing the network buffer
          * after the packet has been sent. */

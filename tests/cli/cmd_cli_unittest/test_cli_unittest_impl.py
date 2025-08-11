@@ -147,7 +147,11 @@ class TestUnittestImpl(unittest.TestCase):
             any_order=False,
         )
         self.assertEqual(result.returncode, 0)
-        self.assertEqual(buf.getvalue(), "The cli unit tests were successful.\n")
+        self.assertRegex(
+            buf.getvalue(),
+            r"The cli unit tests were successful.\n"
+            r"Total testing time: .*s",
+        )
 
     @patch("cli.cmd_cli_unittest.cli_unittest_impl.run_process")
     def test_run_script_tests_with_coverage_several_errors(
@@ -156,10 +160,12 @@ class TestUnittestImpl(unittest.TestCase):
         """test commands with coverage"""
         mock_run_process.return_value = SubprocessResult(1)
         err = io.StringIO()
-        with redirect_stderr(err):
+        out = io.StringIO()
+        with redirect_stderr(err), redirect_stdout(out):
             result = run_script_tests(coverage_report=True)
         self.assertEqual(result.returncode, mock_run_process.call_count)
         self.assertEqual(err.getvalue(), "The cli unit tests were not successful.\n")
+        self.assertRegex(out.getvalue(), r"Total testing time: .*s\n")
 
     @patch("cli.cmd_cli_unittest.cli_unittest_impl.run_process")
     def test_run_script_tests_without_coverage(self, mock_run_process: MagicMock):
@@ -177,14 +183,19 @@ class TestUnittestImpl(unittest.TestCase):
             expected_cmd, cwd=PROJECT_ROOT, stdout=None, stderr=None
         )
         self.assertEqual(result, mock_run_process.return_value)
-        # self.assertEqual(buf.getvalue(), "The cli unit tests were successful.\n")
+        self.assertRegex(
+            buf.getvalue(),
+            r"The cli unit tests were successful.\n"
+            r"Total testing time: .*s",
+        )
 
     @patch("cli.cmd_cli_unittest.cli_unittest_impl.run_process")
     def test_run_script_tests_script_failure(self, mock_run_process: MagicMock):
         """test command without coverage"""
         mock_run_process.return_value = SubprocessResult(1)
-        buf = io.StringIO()
-        with redirect_stderr(buf):
+        err = io.StringIO()
+        out = io.StringIO()
+        with redirect_stderr(err), redirect_stdout(out):
             result = run_script_tests(coverage_report=False)
         expected_cmd = UNIT_TEST_MODULE_BASE_COMMAND + [
             "discover",
@@ -195,7 +206,8 @@ class TestUnittestImpl(unittest.TestCase):
             expected_cmd, cwd=PROJECT_ROOT, stdout=None, stderr=None
         )
         self.assertEqual(result, mock_run_process.return_value)
-        self.assertEqual(buf.getvalue(), "The cli unit tests were not successful.\n")
+        self.assertEqual(err.getvalue(), "The cli unit tests were not successful.\n")
+        self.assertRegex(out.getvalue(), r"Total testing time: .*s")
 
     @patch("cli.cmd_cli_unittest.cli_unittest_impl.Path.is_file", return_value=True)
     @patch("cli.cmd_cli_unittest.cli_unittest_impl.Path.unlink", return_value=None)
@@ -211,9 +223,11 @@ class TestUnittestImpl(unittest.TestCase):
         with redirect_stdout(out):
             result = run_script_tests(coverage_report=True)
         self.assertEqual(result.returncode, 0)
-        self.assertEqual(
+        self.assertRegex(
             out.getvalue(),
-            "The cli unit tests were successful.\n\ncoverage report: foo\n",
+            r"The cli unit tests were successful.\n\n"
+            r"coverage report: foo\n"
+            r"Total testing time: .*s",
         )
 
 

@@ -43,8 +43,8 @@
  * @file    rtc.c
  * @author  foxBMS Team
  * @date    2021-02-22 (date of creation)
- * @updated 2025-03-31 (date of last update)
- * @version v1.9.0
+ * @updated 2025-08-07 (date of last update)
+ * @version v1.10.0
  * @ingroup DRIVERS
  * @prefix  RTC
  *
@@ -63,17 +63,12 @@
 #include "ftask.h"
 #include "i2c.h"
 
+#include <stdbool.h>
 #include <stdint.h>
 /* AXIVION Disable Style MisraC2012-21.10: Time implementation is suitable for the application */
 #include <time.h>
 
 /*========== Macros and Definitions =========================================*/
-
-/** Time data of the RTC */
-typedef struct {
-    time_t secondsSinceEpoch;
-    uint16_t milliseconds;
-} RTC_SYSTEM_TIMER_EPOCH_s;
 
 /*========== Static Constant and Variable Definitions =======================*/
 
@@ -87,13 +82,17 @@ static uint8_t rtc_i2cReadBuffer[RTC_MAX_I2C_TRANSACTION_SIZE_IN_BYTES] = {0};
 /* AXIVION Enable Style MisraC2012-1.2: only i2c buffer needs to be in the shared RAM section */
 
 /** Variable containing the RTC system time */
-static RTC_SYSTEM_TIMER_EPOCH_s rtc_SystemTime = {0};
+static RTC_SYSTEM_TIMER_EPOCH_s rtc_systemTime = {0};
 
 /** Variable containing the RTC start up system time */
-static RTC_TIME_DATA_s rtc_initTime = {0};
+static RTC_TIME_DATA_s rtc_initializationTime = {0};
 
-/* Flag for invalid request made when setting the RTC time */
+/** Flag for invalid request made when setting the RTC time */
 static uint8_t rtc_requestFlag = 0u;
+
+/** Flag to indicate whether the RTC module is initialized; the information is
+ * available to other modules via #RTC_IsRtcModuleInitialized */
+static bool rtc_moduleIsInitialized = false;
 
 /*========== Extern Constant and Variable Definitions =======================*/
 
@@ -241,10 +240,10 @@ static void RTC_SetOverCanMessage(void) {
     RTC_TIME_DATA_s rtc_time = {0};
 
     if (OS_ReceiveFromQueue(ftsk_rtcSetTimeQueue, (void *)&rtc_time, 0u) == OS_SUCCESS) {
+        /* Set system timer */
+        RTC_SetSystemTimeRtcFormat(&rtc_time);
         /* Write time data to RTC */
         RTC_WriteTime(rtc_time);
-        /* Set system timer */
-        RTC_SetSystemTimeRtcFormat(rtc_time);
     }
 }
 
@@ -310,15 +309,15 @@ static void RTC_CheckBatteryLowVoltageAlert(void) {
 
 static void RTC_SetSystemTimeEpochFormat(time_t timeEpochFormat, uint16_t milliseconds) {
     OS_EnterTaskCritical();
-    rtc_SystemTime.secondsSinceEpoch = timeEpochFormat;
-    rtc_SystemTime.milliseconds      = milliseconds;
+    rtc_systemTime.secondsSinceEpoch = timeEpochFormat;
+    rtc_systemTime.milliseconds      = milliseconds;
     OS_ExitTaskCritical();
 }
 
 static RTC_SYSTEM_TIMER_EPOCH_s RTC_GetSystemTimeEpochFormat(void) {
     RTC_SYSTEM_TIMER_EPOCH_s systemTimerValueEpoch = {0};
     OS_EnterTaskCritical();
-    systemTimerValueEpoch = rtc_SystemTime;
+    systemTimerValueEpoch = rtc_systemTime;
     OS_ExitTaskCritical();
     return systemTimerValueEpoch;
 }
@@ -563,8 +562,9 @@ extern STD_RETURN_TYPE_e RTC_Initialize(void) {
             break;
 
         case RTC_INIT_SET_FINISHED:
-            /* Init finished */
-            returnValue = STD_OK;
+            /* RTC initialization finished */
+            rtc_moduleIsInitialized = true;
+            returnValue             = STD_OK;
             break;
         default:
             break;
@@ -581,30 +581,34 @@ extern STD_RETURN_TYPE_e RTC_Initialize(void) {
 
 extern void RTC_InitializeSystemTimeWithRtc(void) {
     /* Get time and date from RTC */
-    rtc_initTime = RTC_ReadTime();
+    rtc_initializationTime = RTC_ReadTime();
     /* Set system timer */
-    RTC_SetSystemTimeRtcFormat(rtc_initTime);
+    RTC_SetSystemTimeRtcFormat(&rtc_initializationTime);
 }
 
 extern void RTC_IncrementSystemTime(void) {
-    if (rtc_SystemTime.milliseconds < 999u) {
-        rtc_SystemTime.milliseconds++;
+    if (rtc_systemTime.milliseconds < 999u) {
+        rtc_systemTime.milliseconds++;
     } else {
-        rtc_SystemTime.milliseconds = 0u;
-        rtc_SystemTime.secondsSinceEpoch++;
+        rtc_systemTime.milliseconds = 0u;
+        rtc_systemTime.secondsSinceEpoch++;
     }
 }
 
-extern void RTC_SetSystemTimeRtcFormat(RTC_TIME_DATA_s timeRtcFormat) {
+extern void RTC_SetSystemTimeRtcFormat(RTC_TIME_DATA_s *timeRtcFormat) {
     time_t systemTimeEpochFormat = 0;
     struct tm systemTimeTmFormat = {0};
 
     /* Convert time and date from RTC to tm struct */
-    systemTimeTmFormat = RTC_rtcFormatToTmFormat(timeRtcFormat);
+    systemTimeTmFormat = RTC_rtcFormatToTmFormat(*timeRtcFormat);
     /* Convert tm struct to timer in seconds since epoch */
+    /* This also corrects the weekday in systemTimeTmFormat if it was wrong */
     systemTimeEpochFormat = mktime(&systemTimeTmFormat);
+    /* Update the weekday */
+    *timeRtcFormat = RTC_tmFormatToRtcFormat(systemTimeTmFormat);
+
     /* Set system timer */
-    RTC_SetSystemTimeEpochFormat(systemTimeEpochFormat, timeRtcFormat.hundredthOfSeconds * 10u);
+    RTC_SetSystemTimeEpochFormat(systemTimeEpochFormat, timeRtcFormat->hundredthOfSeconds * 10u);
 }
 
 extern void RTC_SetRtcRequestFlag(uint8_t rtcRequest) {
@@ -629,11 +633,25 @@ RTC_TIME_DATA_s RTC_GetSystemTimeRtcFormat(void) {
 }
 
 extern RTC_TIME_DATA_s RTC_GetSystemStartUpTime(void) {
-    return rtc_initTime;
+    return rtc_initializationTime;
+}
+
+extern bool RTC_IsRtcModuleInitialized(void) {
+    return rtc_moduleIsInitialized;
 }
 
 /* AXIVION Enable Style MisraC2012-21.10: Time library only used in this module */
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
 #ifdef UNITY_UNIT_TEST
+void TEST_RTC_SetRtcModuleInitializationStatus(bool status) {
+    rtc_moduleIsInitialized = status;
+}
+extern RTC_SYSTEM_TIMER_EPOCH_s TEST_RTC_GetRtcSystemTime(void) {
+    return rtc_systemTime;
+}
+extern RTC_SYSTEM_TIMER_EPOCH_s TEST_RTC_SetRtcSystemTime(RTC_SYSTEM_TIMER_EPOCH_s systemTime) {
+    rtc_systemTime = systemTime;
+    return rtc_systemTime;
+}
 #endif

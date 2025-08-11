@@ -1,0 +1,58 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/25.0.2 Chrome/128.0.6613.186 Electron/32.2.5 Safari/537.36" version="25.0.2">
+  <diagram name="Seite-1" id="RiGFpwidpl_YHtgPPjqx">
+    <mxGraphModel dx="2074" dy="1196" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="2SY0bsBGt2CsCeSrkFBY-2" value="Phy-Driver (DP83869)" style="swimlane;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="320" y="760" width="200" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="2SY0bsBGt2CsCeSrkFBY-8" value="Controlls the PHY specific settings&amp;nbsp;&lt;div&gt;and&amp;nbsp;&lt;span style=&quot;background-color: initial;&quot;&gt;configuration of the PHY.&lt;/span&gt;&lt;/div&gt;" style="text;html=1;align=left;verticalAlign=middle;resizable=1;points=[];autosize=1;strokeColor=none;fillColor=none;movable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" parent="2SY0bsBGt2CsCeSrkFBY-2" vertex="1">
+          <mxGeometry y="55" width="210" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="2SY0bsBGt2CsCeSrkFBY-7" value="EMAC-Driver" style="swimlane;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="320" y="520" width="200" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="2SY0bsBGt2CsCeSrkFBY-9" value="Controlls the ethernet media&amp;nbsp;&lt;span style=&quot;background-color: initial;&quot;&gt;access&lt;/span&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;controller to transmit and&amp;nbsp;&lt;/span&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;receive&amp;nbsp;&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;ethernet packages. The EMAC is&amp;nbsp;&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;connected by hardware to the PHY.&amp;nbsp;&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;Therefore it uses the PHY-driver to&amp;nbsp;&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;controll it.&lt;/span&gt;&lt;/div&gt;" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="2SY0bsBGt2CsCeSrkFBY-7" vertex="1">
+          <mxGeometry y="50" width="210" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="2SY0bsBGt2CsCeSrkFBY-10" value="Network Interface" style="swimlane;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="320" y="280" width="200" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="2SY0bsBGt2CsCeSrkFBY-13" value="&lt;div&gt;The network interface port layer sits&amp;nbsp;&lt;/div&gt;&lt;div&gt;between&amp;nbsp;&lt;span style=&quot;background-color: initial;&quot;&gt;the IP stack and the&amp;nbsp;&amp;nbsp;&lt;/span&gt;&lt;/div&gt;&lt;div&gt;embedded Ethernet hardware&amp;nbsp;&lt;/div&gt;&lt;div&gt;drivers.&lt;/div&gt;" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="2SY0bsBGt2CsCeSrkFBY-10" vertex="1">
+          <mxGeometry y="50" width="220" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="2SY0bsBGt2CsCeSrkFBY-14" value="&lt;b&gt;FreeRTOS+TCP source code&lt;/b&gt;" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="320" y="220" width="200" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="2SY0bsBGt2CsCeSrkFBY-15" value="&lt;b&gt;FoxBMS Application code&lt;/b&gt;" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="320" y="160" width="200" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="2SY0bsBGt2CsCeSrkFBY-16" value="" style="endArrow=classic;startArrow=classic;html=1;rounded=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" parent="1" source="2SY0bsBGt2CsCeSrkFBY-7" target="2SY0bsBGt2CsCeSrkFBY-10" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="390" y="530" as="sourcePoint" />
+            <mxPoint x="440" y="480" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="2SY0bsBGt2CsCeSrkFBY-18" value="" style="endArrow=classic;startArrow=classic;html=1;rounded=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" parent="1" source="2SY0bsBGt2CsCeSrkFBY-7" target="2SY0bsBGt2CsCeSrkFBY-2" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="390" y="530" as="sourcePoint" />
+            <mxPoint x="440" y="480" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="2SY0bsBGt2CsCeSrkFBY-19" value="" style="endArrow=classic;startArrow=classic;html=1;rounded=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="2SY0bsBGt2CsCeSrkFBY-14" target="2SY0bsBGt2CsCeSrkFBY-10" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="390" y="530" as="sourcePoint" />
+            <mxPoint x="440" y="480" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="2SY0bsBGt2CsCeSrkFBY-20" value="" style="endArrow=classic;startArrow=classic;html=1;rounded=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" parent="1" source="2SY0bsBGt2CsCeSrkFBY-14" target="2SY0bsBGt2CsCeSrkFBY-15" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="390" y="530" as="sourcePoint" />
+            <mxPoint x="440" y="480" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

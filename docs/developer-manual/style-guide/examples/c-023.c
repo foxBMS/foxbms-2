@@ -43,8 +43,8 @@
  * @file    c-023.c
  * @author  foxBMS Team
  * @date    2021-06-04 (date of creation)
- * @updated 2025-03-31 (date of last update)
- * @version v1.9.0
+ * @updated 2025-08-07 (date of last update)
+ * @version v1.10.0
  * @ingroup GUIDELINES
  * @prefix  ABC
  *
@@ -59,11 +59,11 @@
 /*========== Macros and Definitions =========================================*/
 /** Symbolic names for weekdays */
 typedef enum {
-    ABC_MONDAY,    /**< First day of the week */
-    ABC_TUESDAY,   /**< Second day of the week */
+    ABC_MONDAY,    /*!< First day of the week */
+    ABC_TUESDAY,   /*!< Second day of the week */
     /* ... */      /* more members */
-    ABC_SUNDAY,    /**< Last day of the week */
-    ABC_DAYS_E_MAX /**< Max marker */
+    ABC_SUNDAY,    /*!< Last day of the week */
+    ABC_DAYS_E_MAX /*!< Max marker */
 } ABC_DAYS_e;
 
 /*========== Static Constant and Variable Definitions =======================*/

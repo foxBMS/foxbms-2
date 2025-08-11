@@ -43,19 +43,17 @@
  * @file    nxp_mc33775a_cfg.c
  * @author  foxBMS Team
  * @date    2020-05-08 (date of creation)
- * @updated 2025-03-31 (date of last update)
- * @version v1.9.0
+ * @updated 2025-08-07 (date of last update)
+ * @version v1.10.0
  * @ingroup DRIVERS_CONFIGURATION
- * @prefix  N775
+ * @prefix  N77X
  *
  * @brief   Configuration for the MC33775A analog front-end
  * @details TODO
  */
 
 /*========== Includes =======================================================*/
-#include "nxp_mc33775a_cfg.h"
-
-#include "tsi.h"
+#include "nxp_mc3377x_cfg.h"
 
 #include <stdint.h>
 
@@ -69,7 +67,7 @@
  * Default multiplexer measurement sequence
  * Must be adapted to the application
  */
-N775_MUX_CH_CFG_s n775_muxSequence[N775_MUX_SEQUENCE_LENGTH] = {
+N77X_MUX_CH_CFG_s n77x_muxSequence[N77X_MUX_SEQUENCE_LENGTH] = {
     /*  multiplexer 0 measurement */
     {
         .muxId      = 0,
@@ -185,9 +183,6 @@ N775_MUX_CH_CFG_s n775_muxSequence[N775_MUX_SEQUENCE_LENGTH] = {
 /*========== Static Function Implementations ================================*/
 
 /*========== Extern Function Implementations ================================*/
-int16_t N775_ConvertVoltagesToTemperatures(uint16_t adcVoltage_mV) {
-    return TSI_GetTemperature(adcVoltage_mV); /* Convert degree Celsius to deci degree Celsius */
-}
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
 #ifdef UNITY_UNIT_TEST

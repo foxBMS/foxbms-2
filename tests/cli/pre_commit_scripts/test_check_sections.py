@@ -42,8 +42,9 @@
 import io
 import sys
 import unittest
-from contextlib import redirect_stderr
+from contextlib import redirect_stderr, redirect_stdout
 from pathlib import Path
+from unittest.mock import MagicMock, patch
 
 try:
     from cli.pre_commit_scripts import check_sections
@@ -60,6 +61,28 @@ class TestCheckSections(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.tests_dir = Path(__file__).parent / Path(__file__).stem
+
+    @patch("cli.pre_commit_scripts.check_sections.Path.read_text")
+    def test_invalid_encoding(self, read_text: MagicMock):
+        """Check for invalid encoding detection"""
+        read_text.side_effect = UnicodeDecodeError("ascii", b"", 0, 1, "reason")
+        argv = [
+            str(self.tests_dir / "valid-sections-src.h"),
+            "--file-type",
+            "src",
+        ]
+
+        _err = io.StringIO()
+        _out = io.StringIO()
+        with redirect_stderr(_err), redirect_stdout(_out):
+            result = check_sections.main(argv)
+        err, out = _err.getvalue(), _out.getvalue()
+
+        self.assertEqual(result, 1)
+        self.assertRegex(
+            err, r".*valid-sections-src\.h: Could not ASCII-decode this file"
+        )
+        self.assertEqual(out, "")
 
     def test_valid_file_src_c(self):
         """Test with a valid file"""

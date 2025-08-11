@@ -93,10 +93,10 @@ if __name__ == "__main__":
     pass
     # Some examples:
     # dbc_path = ? # Enter a path of dbc file
-    # YesNoAnswer = extract_enum_from_dbc_file('YesNoAnswer',dbc_path)
+    # YesNoFlag = extract_enum_from_dbc_file('YesNoFlag',dbc_path)
     # AcknowledgeFlag = extract_enum_from_dbc_file("AcknowledgeFlag",dbc_path)
     # AcknowledgeMessage = extract_enum_from_dbc_file("AcknowledgeMessage",dbc_path)
     # StatusCode = extract_enum_from_dbc_file("StatusCode",dbc_path)
-    # RequestCode8Bits = extract_enum_from_dbc_file("RequestCode8Bits",dbc_path)
+    # BootloaderAction = extract_enum_from_dbc_file("BootloaderAction",dbc_path)
     # CanFsmState = extract_enum_from_dbc_file("CanFsmState",dbc_path)
     # BootFsmState = extract_enum_from_dbc_file("BootFsmState",dbc_path)

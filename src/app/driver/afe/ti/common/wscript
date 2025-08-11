@@ -37,13 +37,13 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""Build Script: ./src/app/driver/afe/ti/common"""
+"""Build the common library for TI-based 'AFE'-drivers."""
 
 import os
 
 
 def build(bld):
-    """builds the common TI AFE driver objects"""
+    """Build the common library for TI-based 'AFE'-drivers."""
     source = [os.path.join("api", "ti_bq79xxx_afe_dma.c")]
     includes = [
         os.path.join("..", "..", "..", "..", "task", "config"),

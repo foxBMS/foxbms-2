@@ -43,8 +43,8 @@
  * @file    os_freertos.c
  * @author  foxBMS Team
  * @date    2021-11-18 (date of creation)
- * @updated 2025-03-31 (date of last update)
- * @version v1.9.0
+ * @updated 2025-08-07 (date of last update)
+ * @version v1.10.0
  * @ingroup OS
  * @prefix  OS
  *
@@ -77,6 +77,8 @@
 extern void OS_InitializeScheduler(void) {
     if (OS_ENABLE_CACHE == true) {
         _cacheEnable_();
+    } else {
+        _cacheDisable_();
     }
 }
 
@@ -86,8 +88,7 @@ void OS_StartScheduler(void) {
     FAS_ASSERT(FAS_TRAP);
 }
 
-/* TODO: Remove UNIT_TEST_WEAK_IMPL when fixing #1063*/
-void UNIT_TEST_WEAK_IMPL vApplicationGetIdleTaskMemory(
+void vApplicationGetIdleTaskMemory(
     StaticTask_t **ppxIdleTaskTCBBuffer,
     StackType_t **ppxIdleTaskStackBuffer,
     configSTACK_DEPTH_TYPE *pulIdleTaskStackSize) {
@@ -123,8 +124,7 @@ void vApplicationGetTimerTaskMemory(
 }
 #endif /* configUSE_TIMERS */
 
-/* TODO: Remove UNIT_TEST_WEAK_IMPL when fixing #1063*/
-void UNIT_TEST_WEAK_IMPL vApplicationIdleHook(void) {
+void vApplicationIdleHook(void) {
     FTSK_RunUserCodeIdle();
 }
 
@@ -141,8 +141,7 @@ void UNIT_TEST_WEAK_IMPL vApplicationIdleHook(void) {
 /* AXIVION Next Codeline Style Generic-MissingParameterAssert: As stated above,
    the parameters are not used, so there is no reason to assert their on their
    values.*/
-/* TODO: Remove UNIT_TEST_WEAK_IMPL when fixing #1063*/
-void UNIT_TEST_WEAK_IMPL vApplicationStackOverflowHook(TaskHandle_t xTask, char *pcTaskName) {
+void vApplicationStackOverflowHook(TaskHandle_t xTask, char *pcTaskName) {
     /* After the FreeRTOS stack overflow detection has been triggered, try to
        instantly send a CAN message, that tells the higher level control unit,
        that a stack overflow appeared in one of the FreeRTOS tasks. */
@@ -161,6 +160,13 @@ void OS_ExitTaskCritical(void) {
 
 uint32_t OS_GetTickCount(void) {
     return xTaskGetTickCount(); /*TMS570 does not support nested interrupts*/
+}
+
+void OS_DelayTask(uint32_t milliseconds) {
+    FAS_ASSERT(milliseconds > 0u);
+    uint32_t ticks = (milliseconds / OS_TICK_RATE_MS);
+
+    vTaskDelay((TickType_t)ticks);
 }
 
 void OS_DelayTaskUntil(uint32_t *pPreviousWakeTime, uint32_t milliseconds) {
@@ -306,9 +312,25 @@ extern OS_STD_RETURN_e OS_SendToBackOfQueueFromIsr(
     return queueSendSuccessfully;
 }
 
+extern void OS_SuspendTask(TaskHandle_t taskToSuspend) {
+    /* AXIVION Routine Generic-MissingParameterAssert: taskToSuspend: parameter accepts whole range */
+    vTaskSuspend(taskToSuspend);
+}
+
+extern void OS_ResumeTask(TaskHandle_t taskToResume) {
+    FAS_ASSERT(taskToResume != NULL_PTR);
+    vTaskResume(taskToResume);
+}
+
 extern uint32_t OS_GetNumberOfStoredMessagesInQueue(OS_QUEUE xQueue) {
     long numberOfMessages = uxQueueMessagesWaiting(xQueue);
     return (uint32_t)numberOfMessages;
+}
+
+extern void OS_TaskNotifyGiveFromISR(TaskHandle_t xTaskToNotify, BaseType_t *pxHigherPriorityTaskWoken) {
+    FAS_ASSERT(xTaskToNotify != NULL_PTR);
+    /* AXIVION Routine Generic-MissingParameterAssert: *pxHigherPriorityTaskWoken: parameter accepts whole range */
+    vTaskNotifyGiveFromISR(xTaskToNotify, pxHigherPriorityTaskWoken);
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/

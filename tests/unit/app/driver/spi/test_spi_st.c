@@ -43,8 +43,8 @@
  * @file    test_spi_st.c
  * @author  foxBMS Team
  * @date    2020-10-20 (date of creation)
- * @updated 2025-03-31 (date of last update)
- * @version v1.9.0
+ * @updated 2025-08-07 (date of last update)
+ * @version v1.10.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -101,6 +101,16 @@ DMA_CHANNEL_CONFIG_s dma_spiDmaChannels[DMA_NUMBER_SPI_INTERFACES] = {
     {DMA_CH8, DMA_CH9}, /*!< SPI5 */
 };
 
+/** SPI data configuration struct for ST communication */
+static spiDAT1_t spi_kStDataConfig[BS_NR_OF_STRINGS] = {
+    {                      /* struct is implemented in the TI HAL and uses uppercase true and false */
+     .CS_HOLD = TRUE,      /* If true, HW chip select kept active between words */
+     .WDEL    = FALSE,     /* Activation of delay between words */
+     .DFSEL   = SPI_FMT_0, /* Data word format selection */
+     /* Hardware chip select is configured automatically depending on configuration in #SPI_INTERFACE_CONFIG_s */
+     .CSNR = SPI_HARDWARE_CHIP_SELECT_DISABLE_ALL},
+};
+
 /** SPI data configuration struct for FRAM communication */
 static spiDAT1_t spi_kFramDataConfig = {
     /* struct is implemented in the TI HAL and uses uppercase true and false */
@@ -129,6 +139,20 @@ static spiDAT1_t spi_kSbcDataConfig = {
     .DFSEL   = SPI_FMT_0, /* Data word format selection */
     /* Hardware chip select is configured automatically depending on configuration in #SPI_INTERFACE_CONFIG_s */
     .CSNR = SPI_HARDWARE_CHIP_SELECT_DISABLE_ALL,
+};
+
+/**
+ * SPI interface configuration for ST communication
+ * This is a list of structs because of multi string
+ */
+SPI_INTERFACE_CONFIG_s spi_stInterface[BS_NR_OF_STRINGS] = {
+    {
+        .pConfig  = &spi_kStDataConfig[0u],
+        .pNode    = spiREG1,
+        .pGioPort = &(spiREG1->PC3),
+        .csPin    = 1u,
+        .csType   = SPI_CHIP_SELECT_HARDWARE,
+    },
 };
 
 /** SPI interface configuration for FRAM communication */
@@ -174,6 +198,8 @@ spiBASE_t spiMockHandle = {0};
 
 spi_config_reg_t spiMockConfigRegister = {0};
 
+uint8_t spiStTestArrayResults[BS_NR_OF_STRINGS] = {SPI_HARDWARE_CHIP_SELECT_1_ACTIVE};
+
 /*========== Setup and Teardown =============================================*/
 void setUp(void) {
     /* make sure PC0 of config register is clean */
@@ -199,11 +225,13 @@ void testSPI_InitializeChipSelects(void) {
 
     /* ======= Routine tests =============================================== */
     /* ======= RT1/1: Test implementation */
+    const uint8_t currentString = 0u;
 
     /* ======= RT1/1: call function under test */
     TEST_SPI_InitializeChipSelects();
 
     /* ======= RT1/1: test output verification */
+    TEST_ASSERT_EQUAL(SPI_HARDWARE_CHIP_SELECT_1_ACTIVE, spi_stInterface[currentString].pConfig->CSNR);
     TEST_ASSERT_EQUAL(1u, spi_framInterface.pConfig->CSNR);
     TEST_ASSERT_EQUAL(1u, spi_spsInterface.pConfig->CSNR);
     TEST_ASSERT_EQUAL(SPI_HARDWARE_CHIP_SELECT_0_ACTIVE, spi_sbcMcuInterface.pConfig->CSNR);
@@ -217,7 +245,7 @@ void testSPI_InitializeChipSelects(void) {
  *          - Routine validation:
  *            - RT1/1: configuration register is properly set
  */
-void testSPI_InitializeChipSelectsAfeTi(void) {
+void testSPI_InitializeChipSelectsAfeSt(void) {
     /* ======= Assertion tests ============================================= */
     /* ======= AT1/1 ======= */
     TEST_ASSERT_FAIL_ASSERT(TEST_SPI_InitializeChipSelectsAfe(BS_NR_OF_STRINGS));
@@ -229,5 +257,7 @@ void testSPI_InitializeChipSelectsAfeTi(void) {
         TEST_SPI_InitializeChipSelectsAfe(s);
     }
     /* ======= RT1/1: test output verification */
-    /* nothing to check */
+    for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
+        TEST_ASSERT_EQUAL(spiStTestArrayResults[s], spi_stInterface[s].pConfig->CSNR);
+    }
 }

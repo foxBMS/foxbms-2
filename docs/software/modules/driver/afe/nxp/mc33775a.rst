@@ -519,8 +519,10 @@ Balancing
 
 The following figure sums up the different switches for balancing.
 
-.. figure:: img/nxp-mc33775a_balancing.png
+.. drawio-figure:: img/nxp-mc33775a_balancing.drawio
    :alt: Balancing switches
+   :format: svg
+   :width: 80%
    :align: center
 
    Balancing switches

@@ -37,9 +37,10 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""TODO"""
+"""Propagates the build of the driver module to lower level build scripts"""
 
 
 def build(bld):
-    """Builds the driver library."""
-    bld  # pylint: disable=pointless-statement
+    """Propagates the build of the driver module to lower level build scripts"""
+
+    bld.recurse(["can", "crc", "flash", "foxmath", "rti", "io"])

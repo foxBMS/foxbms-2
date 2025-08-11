@@ -43,8 +43,8 @@
  * @file    state-machine.c
  * @author  foxBMS Team
  * @date    2020-10-29 (date of creation)
- * @updated 2025-03-31 (date of last update)
- * @version v1.9.0
+ * @updated 2025-08-07 (date of last update)
+ * @version v1.10.0
  * @ingroup STATE_MACHINE
  * @prefix  EG
  *
@@ -192,14 +192,14 @@ static bool EG_SomeRunningFunction2(void);
 /**
  * @brief   Processes the initialization state
  * @param   pEgState state of the example state machine
- * @return  Always #STD_OK
+ * @return  next state
  */
 static EG_FSM_STATES_e EG_ProcessInitializationState(EG_STATE_s *pEgState);
 
 /**
  * @brief   Processes the running state
  * @param   pEgState state of the example state machine
- * @return  Always #STD_OK
+ * @return  next state
  */
 static EG_FSM_STATES_e EG_ProcessRunningState(EG_STATE_s *pEgState);
 
@@ -237,7 +237,9 @@ static void EG_SetState(
     FAS_ASSERT(pEgState != NULL_PTR);
     bool earlyExit = false;
 
-    pEgState->timer = idleTime;
+    pEgState->timer            = idleTime;
+    pEgState->previousState    = pEgState->currentState;
+    pEgState->previousSubstate = pEgState->currentSubstate;
 
     if ((pEgState->currentState == nextState) && (pEgState->currentSubstate == nextSubstate)) {
         /* Next state and next substate equal to current state and substate: nothing to do */
@@ -248,13 +250,20 @@ static void EG_SetState(
 
     if (earlyExit == false) {
         if (pEgState->currentState != nextState) {
-            /* Next state is different: switch to it and set substate to entry value */
-            pEgState->previousState    = pEgState->currentState;
-            pEgState->currentState     = nextState;
-            pEgState->previousSubstate = pEgState->currentSubstate;
-            pEgState->currentSubstate  = EG_FSM_SUBSTATE_ENTRY; /* Use entry state after a top level state change */
-            pEgState->nextState        = EG_FSM_STATE_DUMMY;    /* no state transition required -> reset */
-            pEgState->nextSubstate     = EG_FSM_SUBSTATE_DUMMY; /* no substate transition required -> reset */
+            /* distinguish between just a state transfer to the error state and a normal state transfer */
+            if (nextState == EG_FSM_STATE_ERROR) {
+                /* Error state gets treated differently since we dont need to enter it through the entry substate */
+                pEgState->currentState    = nextState;
+                pEgState->currentSubstate = nextSubstate;
+            } else {
+                /* Next state is different than the current one: switch to it and set substate to entry value */
+                pEgState->previousState    = pEgState->currentState;
+                pEgState->currentState     = nextState;
+                pEgState->previousSubstate = pEgState->currentSubstate;
+                pEgState->currentSubstate  = EG_FSM_SUBSTATE_ENTRY; /* entry state after a top level state change */
+                pEgState->nextState        = EG_FSM_STATE_DUMMY;    /* no state transition required -> reset */
+                pEgState->nextSubstate     = EG_FSM_SUBSTATE_DUMMY; /* no substate transition required -> reset */
+            }
         } else if (pEgState->currentSubstate != nextSubstate) {
             /* Only the next substate is different, switch to it */
             EG_SetSubstate(pEgState, nextSubstate, idleTime);
@@ -388,18 +397,31 @@ static STD_RETURN_TYPE_e EG_RunStateMachine(EG_STATE_s *pEgState) {
     switch (pEgState->currentState) {
         /********************************************** STATE: HAS NEVER RUN */
         case EG_FSM_STATE_HAS_NEVER_RUN:
-            /* Nothing to do, just transfer */
+            /* Options:
+             * (1) Initial value, just transfer into the entry state
+             */
             EG_SetState(pEgState, EG_FSM_STATE_UNINITIALIZED, EG_FSM_SUBSTATE_ENTRY, EG_FSM_SHORT_TIME);
             break;
 
         /********************************************** STATE: UNINITIALIZED */
         case EG_FSM_STATE_UNINITIALIZED:
-            /* Nothing to do, just transfer */
+            /* Options:
+             * (1) Nothing to do in this uninitialized state,
+                   just transfer into the entry state
+             */
             EG_SetState(pEgState, EG_FSM_STATE_INITIALIZATION, EG_FSM_SUBSTATE_ENTRY, EG_FSM_SHORT_TIME);
             break;
 
         /********************************************* STATE: INITIALIZATION */
         case EG_FSM_STATE_INITIALIZATION:
+            /* Options:
+             * (1) stay in this main state,
+             * (2) transition to error state
+             * (3) transition to next allowed/defined state(s):
+             *     - EG_FSM_STATE_RUNNING
+             * (4) invalid main state requested to transition from this state
+             *     to --> assert
+             */
             nextState = EG_ProcessInitializationState(pEgState);
             if (nextState == EG_FSM_STATE_INITIALIZATION) {
                 /* staying in state, processed by state function */
@@ -408,19 +430,25 @@ static STD_RETURN_TYPE_e EG_RunStateMachine(EG_STATE_s *pEgState) {
             } else if (nextState == EG_FSM_STATE_RUNNING) {
                 EG_SetState(pEgState, EG_FSM_STATE_RUNNING, EG_FSM_SUBSTATE_ENTRY, EG_FSM_SHORT_TIME);
             } else {
-                FAS_ASSERT(FAS_TRAP); /* Something went wrong */
+                FAS_ASSERT(FAS_TRAP); /* invalid state transition requested */
             }
             break;
 
         /**************************************************** STATE: RUNNING */
         case EG_FSM_STATE_RUNNING:
+            /* Options:
+             * (1) stay in this main state,
+             * (2) transition to error state
+             * (3) invalid main state requested to transition from this state
+             *     to --> assert
+             */
             nextState = EG_ProcessRunningState(pEgState);
             if (nextState == EG_FSM_STATE_RUNNING) {
                 /* staying in state, processed by state function */
             } else if (nextState == EG_FSM_STATE_ERROR) {
                 EG_SetState(pEgState, EG_FSM_STATE_ERROR, EG_FSM_SUBSTATE_ENTRY, EG_FSM_SHORT_TIME);
             } else {
-                FAS_ASSERT(FAS_TRAP); /* Something went wrong */
+                FAS_ASSERT(FAS_TRAP); /* invalid state transition requested */
             }
             break;
 

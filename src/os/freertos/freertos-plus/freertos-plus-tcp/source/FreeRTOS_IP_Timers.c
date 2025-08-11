@@ -1,5 +1,5 @@
 /*
- * FreeRTOS+TCP V4.2.1
+ * FreeRTOS+TCP V4.3.2
  * Copyright (C) 2022 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * SPDX-License-Identifier: MIT
@@ -47,10 +47,10 @@
 #include "FreeRTOS_IP_Utils.h"
 #include "FreeRTOS_Sockets.h"
 #include "FreeRTOS_IP_Private.h"
-#include "FreeRTOS_ARP.h"
-#include "FreeRTOS_ND.h"
 #include "FreeRTOS_UDP_IP.h"
 #include "FreeRTOS_DHCP.h"
+#include "FreeRTOS_ARP.h"
+#include "FreeRTOS_ND.h"
 #include "NetworkInterface.h"
 #include "NetworkBufferManagement.h"
 #include "FreeRTOS_Routing.h"
@@ -94,13 +94,24 @@ static void prvIPTimerReload( IPTimer_t * pxTimer,
  * regular basis
  */
 
+#if ipconfigIS_ENABLED( ipconfigUSE_IPv4 )
+
 /** @brief Timer to limit the maximum time a packet should be stored while
  *         awaiting an ARP resolution. */
-static IPTimer_t xARPResolutionTimer;
+    static IPTimer_t xARPResolutionTimer;
 
 /** @brief ARP timer, to check its table entries. */
-static IPTimer_t xARPTimer;
+    static IPTimer_t xARPTimer;
+#endif
+#if ipconfigIS_ENABLED( ipconfigUSE_IPv6 )
 
+/** @brief Timer to limit the maximum time a packet should be stored while
+ *         awaiting an ND resolution. */
+    static IPTimer_t xNDResolutionTimer;
+
+/** @brief ND timer, to check its table entries. */
+    static IPTimer_t xNDTimer;
+#endif
 #if ( ipconfigUSE_TCP != 0 )
     /** @brief TCP timer, to check for timeouts, resends. */
     static IPTimer_t xTCPTimer;
@@ -137,13 +148,25 @@ TickType_t xCalculateSleepTime( void )
      * time in any other timers that are active. */
     uxMaximumSleepTime = ipconfigMAX_IP_TASK_SLEEP_TIME;
 
-    if( xARPTimer.bActive != pdFALSE_UNSIGNED )
-    {
-        if( xARPTimer.ulRemainingTime < uxMaximumSleepTime )
+    #if ipconfigIS_ENABLED( ipconfigUSE_IPv4 )
+        if( xARPTimer.bActive != pdFALSE_UNSIGNED )
         {
-            uxMaximumSleepTime = xARPTimer.ulRemainingTime;
+            if( xARPTimer.ulRemainingTime < uxMaximumSleepTime )
+            {
+                uxMaximumSleepTime = xARPTimer.ulRemainingTime;
+            }
         }
-    }
+    #endif
+
+    #if ipconfigIS_ENABLED( ipconfigUSE_IPv6 )
+        if( xNDTimer.bActive != pdFALSE_UNSIGNED )
+        {
+            if( xNDTimer.ulRemainingTime < uxMaximumSleepTime )
+            {
+                uxMaximumSleepTime = xNDTimer.ulRemainingTime;
+            }
+        }
+    #endif
 
     #if ( ipconfigUSE_DHCP == 1 ) || ( ipconfigUSE_RA == 1 )
     {
@@ -193,7 +216,7 @@ TickType_t xCalculateSleepTime( void )
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Check the network timers (ARP/DHCP/DNS/TCP) and if they are
+ * @brief Check the network timers (ARP/ND/DHCP/DNS/TCP) and if they are
  *        expired, send an event to the IP-Task.
  */
 /* MISRA Ref 8.9.1 [File scoped variables] */
@@ -204,30 +227,59 @@ void vCheckNetworkTimers( void )
 {
     NetworkInterface_t * pxInterface;
 
-    /* Is it time for ARP processing? */
-    if( prvIPTimerCheck( &xARPTimer ) != pdFALSE )
-    {
-        ( void ) xSendEventToIPTask( eARPTimerEvent );
-    }
-
-    /* Is the ARP resolution timer expired? */
-    if( prvIPTimerCheck( &xARPResolutionTimer ) != pdFALSE )
-    {
-        if( pxARPWaitingNetworkBuffer != NULL )
+    #if ipconfigIS_ENABLED( ipconfigUSE_IPv4 )
+        /* Is it time for ARP processing? */
+        if( prvIPTimerCheck( &xARPTimer ) != pdFALSE )
         {
-            /* Disable the ARP resolution timer. */
-            vIPSetARPResolutionTimerEnableState( pdFALSE );
-
-            /* We have waited long enough for the ARP response. Now, free the network
-             * buffer. */
-            vReleaseNetworkBufferAndDescriptor( pxARPWaitingNetworkBuffer );
-
-            /* Clear the pointer. */
-            pxARPWaitingNetworkBuffer = NULL;
-
-            iptraceDELAYED_ARP_TIMER_EXPIRED();
+            ( void ) xSendEventToIPTask( eARPTimerEvent );
         }
-    }
+
+        /* Is the ARP resolution timer expired? */
+        if( prvIPTimerCheck( &xARPResolutionTimer ) != pdFALSE )
+        {
+            if( pxARPWaitingNetworkBuffer != NULL )
+            {
+                /* Disable the ARP resolution timer. */
+                vIPSetARPResolutionTimerEnableState( pdFALSE );
+
+                /* We have waited long enough for the ARP response. Now, free the network
+                 * buffer. */
+                vReleaseNetworkBufferAndDescriptor( pxARPWaitingNetworkBuffer );
+
+                /* Clear the pointer. */
+                pxARPWaitingNetworkBuffer = NULL;
+
+                iptraceDELAYED_ARP_TIMER_EXPIRED();
+            }
+        }
+    #endif /* if ipconfigIS_ENABLED( ipconfigUSE_IPv4 ) */
+
+    #if ipconfigIS_ENABLED( ipconfigUSE_IPv6 )
+        /* Is it time for ND processing? */
+        if( prvIPTimerCheck( &xNDTimer ) != pdFALSE )
+        {
+            ( void ) xSendEventToIPTask( eNDTimerEvent );
+        }
+
+        /* Is the ND resolution timer expired? */
+        if( prvIPTimerCheck( &xNDResolutionTimer ) != pdFALSE )
+        {
+            if( pxNDWaitingNetworkBuffer != NULL )
+            {
+                /* Disable the ND resolution timer. */
+                vIPSetNDResolutionTimerEnableState( pdFALSE );
+
+                /* We have waited long enough for the ND response. Now, free the network
+                 * buffer. */
+                vReleaseNetworkBufferAndDescriptor( pxNDWaitingNetworkBuffer );
+
+                /* Clear the pointer. */
+                pxNDWaitingNetworkBuffer = NULL;
+
+                iptraceDELAYED_ND_TIMER_EXPIRED();
+            }
+        }
+    #endif /* if ipconfigIS_ENABLED( ipconfigUSE_IPv6 ) */
 
     #if ( ipconfigUSE_DHCP == 1 ) || ( ipconfigUSE_RA == 1 )
     {
@@ -360,15 +412,32 @@ static void prvIPTimerStart( IPTimer_t * pxTimer,
 }
 /*-----------------------------------------------------------*/
 
+#if ipconfigIS_ENABLED( ipconfigUSE_IPv4 )
+
 /**
  * @brief Start an ARP Resolution timer.
  *
  * @param[in] xTime Time to be loaded into the ARP Resolution timer.
  */
-void vIPTimerStartARPResolution( TickType_t xTime )
-{
-    prvIPTimerStart( &( xARPResolutionTimer ), xTime );
-}
+    void vIPTimerStartARPResolution( TickType_t xTime )
+    {
+        prvIPTimerStart( &( xARPResolutionTimer ), xTime );
+    }
+#endif
+/*-----------------------------------------------------------*/
+
+#if ipconfigIS_ENABLED( ipconfigUSE_IPv6 )
+
+/**
+ * @brief Start an ND Resolution timer.
+ *
+ * @param[in] xTime Time to be loaded into the ND Resolution timer.
+ */
+    void vIPTimerStartNDResolution( TickType_t xTime )
+    {
+        prvIPTimerStart( &( xNDResolutionTimer ), xTime );
+    }
+#endif
 /*-----------------------------------------------------------*/
 
 /**
@@ -399,16 +468,32 @@ static void prvIPTimerReload( IPTimer_t * pxTimer,
 #endif
 /*-----------------------------------------------------------*/
 
+#if ipconfigIS_ENABLED( ipconfigUSE_IPv4 )
+
 /**
  * @brief Sets the reload time of the ARP timer and restarts it.
  *
  * @param[in] xTime Time to be reloaded into the ARP timer.
  */
-void vARPTimerReload( TickType_t xTime )
-{
-    prvIPTimerReload( &xARPTimer, xTime );
-}
+    void vARPTimerReload( TickType_t xTime )
+    {
+        prvIPTimerReload( &xARPTimer, xTime );
+    }
+#endif
+/*-----------------------------------------------------------*/
 
+#if ipconfigIS_ENABLED( ipconfigUSE_IPv6 )
+
+/**
+ * @brief Sets the reload time of the ND timer and restarts it.
+ *
+ * @param[in] xTime Time to be reloaded into the ND timer.
+ */
+    void vNDTimerReload( TickType_t xTime )
+    {
+        prvIPTimerReload( &xNDTimer, xTime );
+    }
+#endif
 /*-----------------------------------------------------------*/
 
 #if ( ipconfigDNS_USE_CALLBACKS != 0 )
@@ -520,40 +605,82 @@ static BaseType_t prvIPTimerCheck( IPTimer_t * pxTimer )
 #endif /* if ( ipconfigUSE_TCP == 1 ) */
 /*-----------------------------------------------------------*/
 
+#if ipconfigIS_ENABLED( ipconfigUSE_IPv4 )
+
 /**
  * @brief Enable/disable the ARP timer.
  *
  * @param[in] xEnableState pdTRUE - enable timer; pdFALSE - disable timer.
  */
-void vIPSetARPTimerEnableState( BaseType_t xEnableState )
-{
-    if( xEnableState != pdFALSE )
+    void vIPSetARPTimerEnableState( BaseType_t xEnableState )
     {
-        xARPTimer.bActive = pdTRUE_UNSIGNED;
+        if( xEnableState != pdFALSE )
+        {
+            xARPTimer.bActive = pdTRUE_UNSIGNED;
+        }
+        else
+        {
+            xARPTimer.bActive = pdFALSE_UNSIGNED;
+        }
     }
-    else
-    {
-        xARPTimer.bActive = pdFALSE_UNSIGNED;
-    }
-}
-/*-----------------------------------------------------------*/
+    /*-----------------------------------------------------------*/
 
 /**
  * @brief Enable or disable the ARP resolution timer.
  *
  * @param[in] xEnableState pdTRUE if the timer must be enabled, pdFALSE otherwise.
  */
-void vIPSetARPResolutionTimerEnableState( BaseType_t xEnableState )
-{
-    if( xEnableState != pdFALSE )
+    void vIPSetARPResolutionTimerEnableState( BaseType_t xEnableState )
     {
-        xARPResolutionTimer.bActive = pdTRUE_UNSIGNED;
+        if( xEnableState != pdFALSE )
+        {
+            xARPResolutionTimer.bActive = pdTRUE_UNSIGNED;
+        }
+        else
+        {
+            xARPResolutionTimer.bActive = pdFALSE_UNSIGNED;
+        }
     }
-    else
+#endif /* if ipconfigIS_ENABLED( ipconfigUSE_IPv4 ) */
+/*-----------------------------------------------------------*/
+
+#if ipconfigIS_ENABLED( ipconfigUSE_IPv6 )
+
+/**
+ * @brief Enable/disable the ND timer.
+ *
+ * @param[in] xEnableState pdTRUE - enable timer; pdFALSE - disable timer.
+ */
+    void vIPSetNDTimerEnableState( BaseType_t xEnableState )
     {
-        xARPResolutionTimer.bActive = pdFALSE_UNSIGNED;
+        if( xEnableState != pdFALSE )
+        {
+            xNDTimer.bActive = pdTRUE_UNSIGNED;
+        }
+        else
+        {
+            xNDTimer.bActive = pdFALSE_UNSIGNED;
+        }
     }
-}
+    /*-----------------------------------------------------------*/
+
+/**
+ * @brief Enable or disable the ND resolution timer.
+ *
+ * @param[in] xEnableState pdTRUE if the timer must be enabled, pdFALSE otherwise.
+ */
+    void vIPSetNDResolutionTimerEnableState( BaseType_t xEnableState )
+    {
+        if( xEnableState != pdFALSE )
+        {
+            xNDResolutionTimer.bActive = pdTRUE_UNSIGNED;
+        }
+        else
+        {
+            xNDResolutionTimer.bActive = pdFALSE_UNSIGNED;
+        }
+    }
+#endif /* if ipconfigIS_ENABLED( ipconfigUSE_IPv6 ) */
 /*-----------------------------------------------------------*/
 
 #if ( ipconfigUSE_DHCP == 1 ) || ( ipconfigUSE_RA == 1 ) || ( ipconfigUSE_DHCPv6 == 1 )

@@ -46,8 +46,8 @@ import math
 import sys
 import time
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
 from enum import Enum
-from typing import Optional, Tuple, cast
 
 import click
 
@@ -65,6 +65,15 @@ from .bootloader_can_messages import (
     CanFsmState,
     StatusCode,
 )
+
+
+@dataclass()
+class BootloaderStatus:
+    """Container to store the status of the bootloader"""
+
+    can_fsm_state: str | None = None
+    boot_fsm_state: str | None = None
+    current_num_of_loops: int | None = None
 
 
 class BootloaderInterface(ABC):
@@ -94,7 +103,7 @@ class BootloaderInterface(ABC):
         """
 
     @abstractmethod
-    def get_bootloader_state(self) -> Tuple[Optional[str], Optional[str]]:
+    def get_bootloader_state(self) -> tuple[str | None, str | None]:
         """Get the bootloader's current state.
 
         Returns:
@@ -102,7 +111,7 @@ class BootloaderInterface(ABC):
         """
 
     @abstractmethod
-    def get_current_num_of_loops(self) -> Optional[int]:
+    def get_current_num_of_loops(self) -> int | None:
         """Get the bootloader's current transfer data loop number.
 
         Returns:
@@ -110,9 +119,7 @@ class BootloaderInterface(ABC):
         """
 
     @abstractmethod
-    def get_bootloader_version_num(
-        self,
-    ) -> Tuple[Optional[int], Optional[int], Optional[int]]:
+    def get_bootloader_version_num(self) -> tuple[int | None, int | None, int | None]:
         """Get the bootloader's version number.
 
         Returns:
@@ -155,7 +162,7 @@ class BootloaderInterface(ABC):
         """
 
     @abstractmethod
-    def send_data_to_bootloader(self, data_8_bytes: int):
+    def send_data_to_bootloader(self, data_8_bytes: int) -> None:
         """Send data in 8 bytes to bootloader.
 
         Args:
@@ -165,7 +172,7 @@ class BootloaderInterface(ABC):
     @abstractmethod
     def send_crc(
         self, crc_8_bytes: int, is_crc_of_vector_table: bool = False
-    ) -> Tuple[bool, bool]:
+    ) -> tuple[bool, bool]:
         """Send crc signature to bootloader and get the feedback from bootloader.
 
         Args:
@@ -174,7 +181,7 @@ class BootloaderInterface(ABC):
 
         Returns:
             True, if a ACK message has been received.
-            True, if the YesNoAnswer is "Yes".
+            True, if the YesNoFlag is "Yes".
         """
 
     @abstractmethod
@@ -184,7 +191,7 @@ class BootloaderInterface(ABC):
         timeout_total: float = 1.0,
         timeout_ack: float = 0.3,
         processed_level: Enum = StatusCode.ReceivedAndProcessed,
-    ) -> Optional[AcknowledgeMessageType]:
+    ) -> AcknowledgeMessageType | None:
         """Wait for a certain ACK message.
 
         Args:
@@ -199,7 +206,7 @@ class BootloaderInterface(ABC):
         """
 
     @abstractmethod
-    def get_foxbms_state(self) -> Optional[str]:
+    def get_foxbms_state(self) -> str | None:
         """Get the current state of foxBMS application if it is running.
 
         Returns:
@@ -213,8 +220,8 @@ class Bootloader:
     bootloader and the embedded bootloader.
     """
 
-    def __init__(self, interface: BootloaderInterface):
-        """Init function.
+    def __init__(self, interface: BootloaderInterface) -> None:
+        """Initialization function.
 
         Args:
             interface: the communication interface of the bootloader
@@ -229,11 +236,12 @@ class Bootloader:
             crc_table=FOXBMS_APP_CRC_FILE,
             program_info=FOXBMS_APP_INFO_FILE,
         )
-
         # Get the communication interface
         self.interface = interface
 
-    def check_target(self) -> int:
+    def check_target(
+        self,
+    ) -> tuple[int, BootloaderStatus]:
         """Check if the bootloader can be reached and print its current status.
 
         Returns:
@@ -242,10 +250,11 @@ class Bootloader:
             2 if the foxBMS application is running.
             3 if the foxBMS master board can not be reached at all.
         """
-
         # Get and check the bootloader state and the loop number, and version number
         can_fsm_state, boot_fsm_state = self.interface.get_bootloader_state()
         current_num_of_loops = self.interface.get_current_num_of_loops()
+
+        # Get and check the version info of bootloader
         major_version_number, minor_version_number, patch_version_number = (
             self.interface.get_bootloader_version_num()
         )
@@ -259,25 +268,26 @@ class Bootloader:
             bms_state = self.interface.get_foxbms_state()
             if bms_state:
                 logging.info(
-                    "FoxBMS application is running. FoxBMS status: %s ",
-                    bms_state,
+                    "foxBMS application is running. foxBMS status: %s ", bms_state
                 )
-                return 2
+                return 2, BootloaderStatus(
+                    can_fsm_state=can_fsm_state,
+                    boot_fsm_state=boot_fsm_state,
+                    current_num_of_loops=current_num_of_loops,
+                )
 
-            # Get and check the version info of bootloader
-            major_version_number, minor_version_number, patch_version_number = (
-                self.interface.get_bootloader_version_num()
-            )
+            # Check if any other information can be retrieved
             if (
                 (major_version_number is None)
                 and (minor_version_number is None)
                 and (patch_version_number is None)
             ):
-                logging.error(
-                    "Cannot get any status of bootloader successfully, check "
-                    "the CAN connection and the power status of the hardware."
+                logging.error("Cannot retrieve any bootloader information.")
+                return 3, BootloaderStatus(
+                    can_fsm_state=can_fsm_state,
+                    boot_fsm_state=boot_fsm_state,
+                    current_num_of_loops=current_num_of_loops,
                 )
-                return 3
 
         info_is_missing = (
             (can_fsm_state is None)
@@ -289,25 +299,42 @@ class Bootloader:
             or (minor_version_number is None)
             or (patch_version_number is None)
         )
-
         if info_is_missing or version_number_is_missing:
-            logging.error(
-                "Can not get all information from bootloader, something went wrong."
+            logging.error("Cannot retrieve all information from bootloader.")
+            logging.info(
+                "Retrieved information: (v%s.%s.%s): "
+                "can_fsm_state: '%s', boot_fsm_state: '%s', "
+                "current_num_of_loops: '%s'",
+                str(major_version_number),
+                str(minor_version_number),
+                str(patch_version_number),
+                can_fsm_state,
+                boot_fsm_state,
+                current_num_of_loops,
             )
-            return 1
+
+            return 1, BootloaderStatus(
+                can_fsm_state=can_fsm_state,
+                boot_fsm_state=boot_fsm_state,
+                current_num_of_loops=current_num_of_loops,
+            )
 
         logging.info(
-            "Successfully communicated with bootloader (v%d.%d.%d): "
+            "Successfully communicated with bootloader (v%s.%s.%s): "
             "can_fsm_state: '%s', boot_fsm_state: '%s', "
             "current_num_of_loops: '%s'",
-            major_version_number,
-            minor_version_number,
-            patch_version_number,
+            str(major_version_number),
+            str(minor_version_number),
+            str(patch_version_number),
             can_fsm_state,
             boot_fsm_state,
             current_num_of_loops,
         )
-        return 0
+        return 0, BootloaderStatus(
+            can_fsm_state=can_fsm_state,
+            boot_fsm_state=boot_fsm_state,
+            current_num_of_loops=current_num_of_loops,
+        )
 
     def send_and_validate_vector_table(self) -> bool:
         """Send vector table to the bootloader
@@ -319,7 +346,6 @@ class Bootloader:
         logging.info("Sending vector table...")
 
         # Send 4 * 8 bytes of vector table to bootloader
-        self.binary_file = cast(BootloaderBinaryFile, self.binary_file)
         for i_vector in range(4):
             self.interface.send_data_to_bootloader(
                 self.binary_file.data64_vector_table[i_vector]
@@ -335,7 +361,7 @@ class Bootloader:
             self.binary_file.crc64_vector_table, is_crc_of_vector_table=True
         )
         if not is_crc_received:
-            logging.error("Cannot send CRC of vector table.")
+            logging.error("Cannot send the CRC of the vector table.")
             return False
         if not is_crc_valid:
             logging.error("Vector table is not validated.")
@@ -360,7 +386,6 @@ class Bootloader:
         """
         i_loop = i_loop_start
         time_start = time.time()
-        self.binary_file = cast(BootloaderBinaryFile, self.binary_file)
         while i_loop <= i_loop_end:
             # Since the minimal i_loop is 1, the index will be i_loop - 1
             _, data_8_bytes = self.binary_file.get_crc_and_data_by_index(i_loop - 1)
@@ -391,7 +416,7 @@ class Bootloader:
         )
         return True
 
-    def _get_sub_sector_loops(self, idx: int, max_idx: int) -> Tuple[int, int]:
+    def _get_sub_sector_loops(self, idx: int, max_idx: int) -> tuple[int, int]:
         """Get the start and end loop number (i_loop) of one subsector.
 
         Args:
@@ -403,9 +428,7 @@ class Bootloader:
             the start i_loop and the end i_loop of the subsector
         """
         if idx < 1:
-            sys.exit(
-                f"The index of the loop number should start from 1, it is now {idx}."
-            )
+            raise SystemExit(f"The index of the loop number must be > 1, it is {idx}.")
         size_of_sub_sector_in_loops = 1024
         if max_idx < size_of_sub_sector_in_loops:
             sys.exit(
@@ -448,7 +471,6 @@ class Bootloader:
             True if this sector data has been successfully sent, False
             otherwise
         """
-        self.binary_file = cast(BootloaderBinaryFile, self.binary_file)
         size_of_sub_sector_in_loops = SIZE_OF_SUB_SECTOR_IN_LOOPS
         i_loop_start = i_loop
         if (i_loop + size_of_sector_in_loops) > total_num_of_loops:
@@ -515,7 +537,7 @@ class Bootloader:
         return True
 
     @staticmethod
-    def _get_sector_size_using_num_of_data_loops(i_loop: int):
+    def _get_sector_size_using_num_of_data_loops(i_loop: int) -> int | None:
         start_num_of_data_loops = 1
         for flash_sector in APP_MEMORY_MAP:
             size_of_sector_in_loops = int(
@@ -538,7 +560,6 @@ class Bootloader:
         """
         if i_loop < 1:
             sys.exit("The input loop number is smaller than the minimum (1).")
-        self.binary_file = cast(BootloaderBinaryFile, self.binary_file)
 
         # Start transferring data in loops
         start_time = time.time()
@@ -616,7 +637,6 @@ class Bootloader:
             return False
 
         # Send program relevant information
-        self.binary_file = cast(BootloaderBinaryFile, self.binary_file)
         logging.info(
             "Sending program info: len_of_program_in_bytes %s, "
             "num_of_transfer_loops %s...",
@@ -630,39 +650,6 @@ class Bootloader:
             logging.error("Cannot send pre-info to the bootloader.")
             return False
         logging.info("Successfully send pre-info to the bootloader.")
-        return True
-
-    @staticmethod
-    def _check_if_data_transfer_resumable(
-        can_fsm_state: str, boot_fsm_state: str, current_num_of_loops: int
-    ) -> bool:
-        """Check if the data transfer operation is in a resumable state.
-
-        Args:
-            can_fsm_state: can_fsm_state
-            boot_fsm_state: boot_fsm_state
-            current_num_of_loops: current_num_of_loops
-
-        Returns:
-            True if data transfer resumable, False otherwise.
-        """
-
-        # Check boot_fsm_state
-        if boot_fsm_state != BootFsmState.BootFsmStateLoad.name:
-            return False
-
-        # Check can_fsm_state
-        if can_fsm_state not in (
-            CanFsmState.CanFsmStateReceived8BytesData.name,
-            CanFsmState.CanFsmStateReceived8BytesCrc.name,
-            CanFsmState.CanFsmStateFinishedFinalValidation.name,
-        ):
-            return False
-
-        # Check the current number of loops
-        if current_num_of_loops < 2:
-            return False
-
         return True
 
     @staticmethod
@@ -694,55 +681,30 @@ class Bootloader:
 
         return True
 
-    @staticmethod
-    def _check_if_only_send_vector_table(
-        can_fsm_state: str, boot_fsm_state: str
+    def send_app_binary(
+        self,
+        bl_info: BootloaderStatus,
+        show_progressbar: bool = True,
+        times_of_repeat: int = 2,
     ) -> bool:
-        """Check if only the vector table needs to be transmitted.
-
-        Args:
-            can_fsm_state: can_fsm_state
-            boot_fsm_state: boot_fsm_state
-
-        Returns:
-            True if only the vector table needs to be transmitted, False
-            otherwise.
-        """
-        # Check boot_fsm_state
-        if boot_fsm_state != BootFsmState.BootFsmStateLoad.name:
-            return False
-
-        # Check can_fsm_state
-        if can_fsm_state != CanFsmState.CanFsmFinishedTransferVectorTable.name:
-            return False
-
-        return True
-
-    def send_app_binary(self, show_progressbar=True):
         """Transfer the app binary to the embedded bootloader
 
         Args:
+            bl_info: Instance of a database type BootloaderStatus, which attributes are
+                    can_fsm_state, boot_fsm_state and current_num_of_loops.
             show_progressbar: True, show the progress progressbar while uploading the binary.
-
+            times_of_repeat: Times to repeat sending the application binary if it fails. E.g.,
+                            if the value is 2, there will be 3 attempts in total to send the
+                            application.
         Returns:
             True if the app binary has been successfully sent.
         """
 
-        # The times to repeat sending app if it fails.
-        times_of_repeat = 2
+        # Extract the information from the bool
+        can_fsm_state = bl_info.can_fsm_state
+        boot_fsm_state = bl_info.boot_fsm_state
+        current_num_of_loops = bl_info.current_num_of_loops
 
-        # Check the state of bootloader (hardware side)
-        logging.info(
-            "Checking the state of the bootloader and the current loop number..."
-        )
-        can_fsm_state, boot_fsm_state = self.interface.get_bootloader_state()
-        current_num_of_loops = self.interface.get_current_num_of_loops()
-        logging.info(
-            "can_fsm_state: %s, boot_fsm_state: %s, current_num_of_loops: %s",
-            can_fsm_state,
-            boot_fsm_state,
-            current_num_of_loops,
-        )
         # Check there is a value for each input argument
         if (
             (not can_fsm_state)
@@ -756,7 +718,7 @@ class Bootloader:
             can_fsm_state, boot_fsm_state, current_num_of_loops
         )
 
-        # Send app binary based on if the data transfer is resumable
+        # Initialize two variables
         i_loop = 1
         only_send_vector_table = False
 
@@ -798,6 +760,8 @@ class Bootloader:
                         only_send_vector_table = True
                 if ret_val:
                     break
+
+            time.sleep(1)
 
         # Check if the app data and vector table has been successfully sent
         if not ret_val:

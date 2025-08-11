@@ -43,8 +43,8 @@
  * @file    interlock.c
  * @author  foxBMS Team
  * @date    2020-02-24 (date of creation)
- * @updated 2025-03-31 (date of last update)
- * @version v1.9.0
+ * @updated 2025-08-07 (date of last update)
+ * @version v1.10.0
  * @ingroup DRIVERS
  * @prefix  ILCK
  *
@@ -320,16 +320,12 @@ void ILCK_Trigger(void) {
     ilck_state.triggerentry--;
 }
 
-/*================== Setter for static Variables (Unit Test) ==============*/
-#ifdef UNITY_UNIT_TEST
-extern void TEST_ILCK_SetStateStruct(ILCK_STATE_s state) {
-    ilck_state = state;
-}
-#endif
-
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
 #ifdef UNITY_UNIT_TEST
 extern ILCK_ELECTRICAL_STATE_TYPE_e TEST_ILCK_GetInterlockFeedback(void) {
     return ILCK_GetInterlockFeedback();
+}
+extern void TEST_ILCK_SetStateStruct(ILCK_STATE_s state) {
+    ilck_state = state;
 }
 #endif

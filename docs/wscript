@@ -41,6 +41,7 @@
 
 import os
 
+from waflib import Utils
 from waflib.Build import POST_LAZY, BuildContext
 
 
@@ -58,6 +59,27 @@ def build(bld: BuildContext):
                 "software/modules/task/ftask",
             ],
         )
+
+        # Python example code
+        def run_py(task: BuildContext):
+            cmd = " ".join(
+                [Utils.subst_vars("${PYTHON}", task.env), task.inputs[0].abspath()]
+            )
+            return task.exec_command(cmd)
+
+        bld(
+            rule=run_py,
+            source="developer-manual/add-cli-cmds/test_foo.py",
+        )
+        bld(
+            rule=run_py,
+            source="developer-manual/style-guide/examples/python-006.py",
+        )
+        bld(
+            rule=run_py,
+            source="developer-manual/style-guide/examples/python-007.py",
+        )
+
         # build the sphinx documentation
         config = bld.path.find_node("conf.py")
         bld(

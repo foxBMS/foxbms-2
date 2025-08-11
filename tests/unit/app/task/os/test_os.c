@@ -43,8 +43,8 @@
  * @file    test_os.c
  * @author  foxBMS Team
  * @date    2020-03-13 (date of creation)
- * @updated 2025-03-31 (date of last update)
- * @version v1.9.0
+ * @updated 2025-08-07 (date of last update)
+ * @version v1.10.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  OS
  *
@@ -55,6 +55,7 @@
 
 /*========== Includes =======================================================*/
 #include "unity.h"
+#include "MockHL_sys_core.h"
 #include "Mockcan.h"
 #include "Mockcan_helper.h"
 #include "Mockftask.h"
@@ -100,6 +101,7 @@ void tearDown(void) {
 /*========== Test Cases =====================================================*/
 
 void testOSTaskInitCallsFTSKFunctions(void) {
+    _cacheDisable__Expect();
     FTSK_CreateQueues_Expect();
     FTSK_CreateTasks_Expect();
 

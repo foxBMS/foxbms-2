@@ -43,8 +43,8 @@
  * @file    adi_ades183x_voltages.c
  * @author  foxBMS Team
  * @date    2019-08-27 (date of creation)
- * @updated 2025-03-31 (date of last update)
- * @version v1.9.0
+ * @updated 2025-08-07 (date of last update)
+ * @version v1.10.0
  * @ingroup DRIVERS
  * @prefix  ADI
  *
@@ -141,45 +141,45 @@ static void ADI_SaveRxToCellVoltageBuffer(
 
 static void ADI_CopyCommandBytesCellVoltageRegister(ADI_COMMAND_READ_REGISTERS_s *commandBytesToReadVoltageRegisters) {
     FAS_ASSERT(commandBytesToReadVoltageRegisters != NULL_PTR);
-    ADI_CopyCommandBits(adi_cmdRdcva, commandBytesToReadVoltageRegisters->registerA);
-    ADI_CopyCommandBits(adi_cmdRdcvb, commandBytesToReadVoltageRegisters->registerB);
-    ADI_CopyCommandBits(adi_cmdRdcvc, commandBytesToReadVoltageRegisters->registerC);
-    ADI_CopyCommandBits(adi_cmdRdcvd, commandBytesToReadVoltageRegisters->registerD);
-    ADI_CopyCommandBits(adi_cmdRdcve, commandBytesToReadVoltageRegisters->registerE);
-    ADI_CopyCommandBits(adi_cmdRdcvf, commandBytesToReadVoltageRegisters->registerF);
+    ADI_CopyCommandBytes(adi_cmdRdcva, commandBytesToReadVoltageRegisters->registerA);
+    ADI_CopyCommandBytes(adi_cmdRdcvb, commandBytesToReadVoltageRegisters->registerB);
+    ADI_CopyCommandBytes(adi_cmdRdcvc, commandBytesToReadVoltageRegisters->registerC);
+    ADI_CopyCommandBytes(adi_cmdRdcvd, commandBytesToReadVoltageRegisters->registerD);
+    ADI_CopyCommandBytes(adi_cmdRdcve, commandBytesToReadVoltageRegisters->registerE);
+    ADI_CopyCommandBytes(adi_cmdRdcvf, commandBytesToReadVoltageRegisters->registerF);
 }
 
 static void ADI_CopyCommandBytesAverageCellVoltageRegisters(
     ADI_COMMAND_READ_REGISTERS_s *commandBytesToReadVoltageRegisters) {
     FAS_ASSERT(commandBytesToReadVoltageRegisters != NULL_PTR);
-    ADI_CopyCommandBits(adi_cmdRdaca, commandBytesToReadVoltageRegisters->registerA);
-    ADI_CopyCommandBits(adi_cmdRdacb, commandBytesToReadVoltageRegisters->registerB);
-    ADI_CopyCommandBits(adi_cmdRdacc, commandBytesToReadVoltageRegisters->registerC);
-    ADI_CopyCommandBits(adi_cmdRdacd, commandBytesToReadVoltageRegisters->registerD);
-    ADI_CopyCommandBits(adi_cmdRdace, commandBytesToReadVoltageRegisters->registerE);
-    ADI_CopyCommandBits(adi_cmdRdacf, commandBytesToReadVoltageRegisters->registerF);
+    ADI_CopyCommandBytes(adi_cmdRdaca, commandBytesToReadVoltageRegisters->registerA);
+    ADI_CopyCommandBytes(adi_cmdRdacb, commandBytesToReadVoltageRegisters->registerB);
+    ADI_CopyCommandBytes(adi_cmdRdacc, commandBytesToReadVoltageRegisters->registerC);
+    ADI_CopyCommandBytes(adi_cmdRdacd, commandBytesToReadVoltageRegisters->registerD);
+    ADI_CopyCommandBytes(adi_cmdRdace, commandBytesToReadVoltageRegisters->registerE);
+    ADI_CopyCommandBytes(adi_cmdRdacf, commandBytesToReadVoltageRegisters->registerF);
 }
 
 static void ADI_CopyCommandBytesFilteredCellVoltageRegisters(
     ADI_COMMAND_READ_REGISTERS_s *commandBytesToReadVoltageRegisters) {
     FAS_ASSERT(commandBytesToReadVoltageRegisters != NULL_PTR);
-    ADI_CopyCommandBits(adi_cmdRdfca, commandBytesToReadVoltageRegisters->registerA);
-    ADI_CopyCommandBits(adi_cmdRdfcb, commandBytesToReadVoltageRegisters->registerB);
-    ADI_CopyCommandBits(adi_cmdRdfcc, commandBytesToReadVoltageRegisters->registerC);
-    ADI_CopyCommandBits(adi_cmdRdfcd, commandBytesToReadVoltageRegisters->registerD);
-    ADI_CopyCommandBits(adi_cmdRdfce, commandBytesToReadVoltageRegisters->registerE);
-    ADI_CopyCommandBits(adi_cmdRdfcf, commandBytesToReadVoltageRegisters->registerF);
+    ADI_CopyCommandBytes(adi_cmdRdfca, commandBytesToReadVoltageRegisters->registerA);
+    ADI_CopyCommandBytes(adi_cmdRdfcb, commandBytesToReadVoltageRegisters->registerB);
+    ADI_CopyCommandBytes(adi_cmdRdfcc, commandBytesToReadVoltageRegisters->registerC);
+    ADI_CopyCommandBytes(adi_cmdRdfcd, commandBytesToReadVoltageRegisters->registerD);
+    ADI_CopyCommandBytes(adi_cmdRdfce, commandBytesToReadVoltageRegisters->registerE);
+    ADI_CopyCommandBytes(adi_cmdRdfcf, commandBytesToReadVoltageRegisters->registerF);
 }
 
 static void ADI_CopyCommandBytesRedundantCellVoltageRegisters(
     ADI_COMMAND_READ_REGISTERS_s *commandBytesToReadVoltageRegisters) {
     FAS_ASSERT(commandBytesToReadVoltageRegisters != NULL_PTR);
-    ADI_CopyCommandBits(adi_cmdRdsva, commandBytesToReadVoltageRegisters->registerA);
-    ADI_CopyCommandBits(adi_cmdRdsvb, commandBytesToReadVoltageRegisters->registerB);
-    ADI_CopyCommandBits(adi_cmdRdsvc, commandBytesToReadVoltageRegisters->registerC);
-    ADI_CopyCommandBits(adi_cmdRdsvd, commandBytesToReadVoltageRegisters->registerD);
-    ADI_CopyCommandBits(adi_cmdRdsve, commandBytesToReadVoltageRegisters->registerE);
-    ADI_CopyCommandBits(adi_cmdRdsvf, commandBytesToReadVoltageRegisters->registerF);
+    ADI_CopyCommandBytes(adi_cmdRdsva, commandBytesToReadVoltageRegisters->registerA);
+    ADI_CopyCommandBytes(adi_cmdRdsvb, commandBytesToReadVoltageRegisters->registerB);
+    ADI_CopyCommandBytes(adi_cmdRdsvc, commandBytesToReadVoltageRegisters->registerC);
+    ADI_CopyCommandBytes(adi_cmdRdsvd, commandBytesToReadVoltageRegisters->registerD);
+    ADI_CopyCommandBytes(adi_cmdRdsve, commandBytesToReadVoltageRegisters->registerE);
+    ADI_CopyCommandBytes(adi_cmdRdsvf, commandBytesToReadVoltageRegisters->registerF);
 }
 
 static void ADI_ReadAndStoreVoltages(
@@ -401,7 +401,7 @@ extern void ADI_GetStringAndModuleVoltage(ADI_STATE_s *adiState) {
     DATA_BLOCK_CELL_VOLTAGE_s *pVoltageTable                                          = adiState->data.cellVoltage;
 
     /* Start auxiliary voltage measurement of VPV */
-    ADI_CopyCommandBits(adi_cmdAdax, adi_command);
+    ADI_CopyCommandBytes(adi_cmdAdax, adi_command);
     ADI_WriteCommandConfigurationBits(adi_command, ADI_ADAX_OW_POS, ADI_ADAX_OW_LEN, 0u);
     ADI_WriteCommandConfigurationBits(adi_command, ADI_ADAX_PUP_POS, ADI_ADAX_PUP_LEN, 0u);
     ADI_WriteCommandConfigurationBits(adi_command, ADI_ADAX_CH4_POS, ADI_ADAX_CH4_LEN, 1u);
@@ -410,7 +410,7 @@ extern void ADI_GetStringAndModuleVoltage(ADI_STATE_s *adiState) {
 
     ADI_Wait(ADI_WAIT_TIME_1_FOR_ADAX_FULL_CYCLE);
 
-    ADI_CopyCommandBits(adi_cmdRdauxd, adi_command);
+    ADI_CopyCommandBytes(adi_cmdRdauxd, adi_command);
     ADI_ReadRegister(adi_command, dataReceive, adiState);
     for (uint16_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
         pVoltageTable->stringVoltage_mV[s]     = 0;
@@ -469,7 +469,7 @@ extern uint16_t ADI_GetStoredVoltageIndex(uint16_t registerVoltageIndex) {
 extern void ADI_RestartContinuousCellVoltageMeasurements(ADI_STATE_s *adiState) {
     FAS_ASSERT(adiState != NULL_PTR);
 
-    ADI_CopyCommandBits(adi_cmdAdcv, adi_command);
+    ADI_CopyCommandBytes(adi_cmdAdcv, adi_command);
     /**
      *  SM_VCELL_RED: Cell Voltage Measurement Redundancy
      *  Set RD bit to enable redundant cell voltage measurements
@@ -487,7 +487,7 @@ extern void ADI_RestartContinuousCellVoltageMeasurements(ADI_STATE_s *adiState) 
 extern void ADI_StopContinuousCellVoltageMeasurements(ADI_STATE_s *adiState) {
     FAS_ASSERT(adiState != NULL_PTR);
 
-    ADI_CopyCommandBits(adi_cmdAdcv, adi_command);
+    ADI_CopyCommandBytes(adi_cmdAdcv, adi_command);
     /* Start one single-shot measurement without redundancy, after the measurements are stopped */
     ADI_WriteCommandConfigurationBits(adi_command, ADI_ADCV_RD_POS, ADI_ADCV_RD_LEN, 0u);
     ADI_WriteCommandConfigurationBits(adi_command, ADI_ADCV_CONT_POS, ADI_ADCV_CONT_LEN, 0u);

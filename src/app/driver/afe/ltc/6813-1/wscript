@@ -37,13 +37,13 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""Builds the ltc-measurement library: ./src/app/driver/afe/ltc/wscript"""
+"""Build the LTC6813-1-based 'AFE'-driver."""
 
 import os
 
 
 def build(bld):
-    """builds the AFE driver library for LTC"""
+    """Build the LTC6813-1-based 'AFE'-driver."""
     source = [
         os.path.join("config", "ltc_6813-1_cfg.c"),
         os.path.join("ltc_6813-1.c"),

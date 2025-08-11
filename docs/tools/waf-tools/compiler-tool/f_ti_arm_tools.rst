@@ -1,10 +1,10 @@
 .. include:: ./../../../macros.txt
 .. include:: ./../../../units.txt
 
-.. _TI_CCS_ARM_CGT_ADDITIONAL_TOOLS:
+.. _TI_CCS_ADDITIONAL_TOOLS:
 
-TI CCS ARM CGT Additional Tools
-===============================
+|ti-ccs| Additional Tools
+=========================
 
 The tool is located in ``tools/waf-tools``.
 

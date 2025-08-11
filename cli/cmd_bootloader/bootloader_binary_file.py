@@ -78,7 +78,7 @@ class BootloaderBinaryFile:
         app: Path = FOXBMS_BIN_FILE,
         crc_table: Path = FOXBMS_APP_CRC_FILE,
         program_info: Path = FOXBMS_APP_INFO_FILE,
-    ):
+    ) -> None:
         # Get the app relevant information from json file, PS: the app_size
         # only refers to the size of the app data part which does not contain
         # the vector table

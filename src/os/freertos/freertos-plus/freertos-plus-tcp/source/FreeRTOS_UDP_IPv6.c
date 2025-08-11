@@ -1,5 +1,5 @@
 /*
- * FreeRTOS+TCP V4.2.1
+ * FreeRTOS+TCP V4.3.2
  * Copyright (C) 2022 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * SPDX-License-Identifier: MIT
@@ -48,7 +48,6 @@
 #include "FreeRTOS_Sockets.h"
 #include "FreeRTOS_IP_Private.h"
 #include "FreeRTOS_UDP_IP.h"
-#include "FreeRTOS_ARP.h"
 #include "FreeRTOS_DNS.h"
 #include "FreeRTOS_DHCP.h"
 #include "FreeRTOS_ND.h"
@@ -114,18 +113,18 @@ static NetworkEndPoint_t * pxGetEndpoint( BaseType_t xIPType,
 
 /**
  * @brief This function is called in case the IP-address was not found,
- *        i.e. in the cache 'eARPCacheMiss' was returned.
- *        Either an ARP request or a Neighbour solicitation will be emitted.
+ *        i.e. in the cache 'eResolutionCacheMiss' was returned.
+ *        A Neighbour solicitation will be emitted.
  *
  * @param[in] pxNetworkBuffer  The network buffer carrying the UDP or ICMP packet.
  *
  * @param[out] pxLostBuffer  The pointee will be set to true in case the network packet got released
  *                            ( the ownership was taken ).
  */
-static eARPLookupResult_t prvStartLookup( NetworkBufferDescriptor_t * const pxNetworkBuffer,
-                                          BaseType_t * pxLostBuffer )
+static eResolutionLookupResult_t prvStartLookup( NetworkBufferDescriptor_t * const pxNetworkBuffer,
+                                                 BaseType_t * pxLostBuffer )
 {
-    eARPLookupResult_t eReturned = eARPCacheMiss;
+    eResolutionLookupResult_t eReturned = eResolutionCacheMiss;
 
     FreeRTOS_printf( ( "Looking up %pip with%s end-point\n",
                        ( void * ) pxNetworkBuffer->xIPAddress.xIP_IPv6.ucBytes,
@@ -154,7 +153,7 @@ static eARPLookupResult_t prvStartLookup( NetworkBufferDescriptor_t * const pxNe
 
 /**
  * @brief Process the generated UDP packet and do other checks before sending the
- *        packet such as ARP cache check and address resolution.
+ *        packet such as ND cache check and address resolution.
  *
  * @param[in] pxNetworkBuffer The network buffer carrying the packet.
  */
@@ -162,7 +161,7 @@ void vProcessGeneratedUDPPacket_IPv6( NetworkBufferDescriptor_t * const pxNetwor
 {
     UDPPacket_IPv6_t * pxUDPPacket_IPv6;
     IPHeader_IPv6_t * pxIPHeader_IPv6;
-    eARPLookupResult_t eReturned;
+    eResolutionLookupResult_t eReturned;
     size_t uxPayloadSize;
     /* memcpy() helper variables for MISRA Rule 21.15 compliance*/
     NetworkInterface_t * pxInterface = NULL;
@@ -199,9 +198,9 @@ void vProcessGeneratedUDPPacket_IPv6( NetworkBufferDescriptor_t * const pxNetwor
     eReturned = eNDGetCacheEntry( &( pxNetworkBuffer->xIPAddress.xIP_IPv6 ), &( pxUDPPacket_IPv6->xEthernetHeader.xDestinationAddress ),
                                   &( pxEndPoint ) );
 
-    if( eReturned != eCantSendPacket )
+    if( eReturned != eResolutionFailed )
     {
-        if( eReturned == eARPCacheHit )
+        if( eReturned == eResolutionCacheHit )
         {
             #if ( ipconfigDRIVER_INCLUDED_TX_IP_CHECKSUM == 0 )
                 uint8_t ucSocketOptions;
@@ -298,7 +297,7 @@ void vProcessGeneratedUDPPacket_IPv6( NetworkBufferDescriptor_t * const pxNetwor
             }
             #endif /* if ( ipconfigDRIVER_INCLUDED_TX_IP_CHECKSUM == 0 ) */
         }
-        else if( eReturned == eARPCacheMiss )
+        else if( eReturned == eResolutionCacheMiss )
         {
             if( pxEndPoint != NULL )
             {
@@ -309,17 +308,17 @@ void vProcessGeneratedUDPPacket_IPv6( NetworkBufferDescriptor_t * const pxNetwor
         }
         else
         {
-            /* The lookup indicated that an ARP request has already been
+            /* The lookup indicated that an ND Solicitation has already been
              * sent out for the queried IP address. */
-            eReturned = eCantSendPacket;
+            eReturned = eResolutionFailed;
         }
     }
 
     if( xLostBuffer == pdTRUE )
     {
-        /* An ND solicitation or ARP request has been sent. */
+        /* An ND solicitation has been sent. */
     }
-    else if( eReturned != eCantSendPacket )
+    else if( eReturned != eResolutionFailed )
     {
         /* The network driver is responsible for freeing the network buffer
          * after the packet has been sent. */
@@ -373,14 +372,14 @@ void vProcessGeneratedUDPPacket_IPv6( NetworkBufferDescriptor_t * const pxNetwor
  *
  * @param[in] pxNetworkBuffer The network buffer carrying the UDP packet.
  * @param[in] usPort The port number on which this packet was received.
- * @param[out] pxIsWaitingForARPResolution If the packet is awaiting ARP resolution,
+ * @param[out] pxIsWaitingForNDResolution If the packet is awaiting ND resolution,
  *             this pointer will be set to pdTRUE. pdFALSE otherwise.
  *
  * @return pdPASS in case the UDP packet could be processed. Else pdFAIL is returned.
  */
 BaseType_t xProcessReceivedUDPPacket_IPv6( NetworkBufferDescriptor_t * pxNetworkBuffer,
                                            uint16_t usPort,
-                                           BaseType_t * pxIsWaitingForARPResolution )
+                                           BaseType_t * pxIsWaitingForNDResolution )
 {
     /* Returning pdPASS means that the packet was consumed, released. */
     BaseType_t xReturn = pdPASS;
@@ -390,7 +389,7 @@ BaseType_t xProcessReceivedUDPPacket_IPv6( NetworkBufferDescriptor_t * pxNetwork
     configASSERT( pxNetworkBuffer != NULL );
     configASSERT( pxNetworkBuffer->pucEthernetBuffer != NULL );
 
-    /* When refreshing the ARP/ND cache with received UDP packets we must be
+    /* When refreshing the ND cache with received UDP packets we must be
      * careful;  hundreds of broadcast messages may pass and if we're not
      * handling them, no use to fill the cache with those IP addresses. */
 
@@ -402,7 +401,7 @@ BaseType_t xProcessReceivedUDPPacket_IPv6( NetworkBufferDescriptor_t * pxNetwork
     /* Caller must check for minimum packet size. */
     pxSocket = pxUDPSocketLookup( usPort );
 
-    *pxIsWaitingForARPResolution = pdFALSE;
+    *pxIsWaitingForNDResolution = pdFALSE;
 
     do
     {
@@ -419,10 +418,10 @@ BaseType_t xProcessReceivedUDPPacket_IPv6( NetworkBufferDescriptor_t * pxNetwork
 
         if( pxSocket != NULL )
         {
-            if( xCheckRequiresARPResolution( pxNetworkBuffer ) == pdTRUE )
+            if( xCheckRequiresNDResolution( pxNetworkBuffer ) == pdTRUE )
             {
-                /* Mark this packet as waiting for ARP resolution. */
-                *pxIsWaitingForARPResolution = pdTRUE;
+                /* Mark this packet as waiting for ND resolution. */
+                *pxIsWaitingForNDResolution = pdTRUE;
 
                 /* Return a fail to show that the frame will not be processed right now. */
                 xReturn = pdFAIL;

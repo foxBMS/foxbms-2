@@ -53,6 +53,7 @@ __pycache__
 *log*.txt
 *log/*
 !docs/tools/fox/etl/txt/can_log.txt
+!docs/tools/fox/etl/txt/decoded_can_log.txt
 
 *.patch
 *.diff
@@ -94,6 +95,7 @@ spa-artifacts/
 
 # coverage files
 .coverage
+.coverage.*
 htmlcov/
 
 *.mk
@@ -105,3 +107,8 @@ codeInfo.*
 
 # drawio backup files
 *.drawio.bkp
+*.drawio.dtmp
+
+# fox CLI plot related files
+**/hash.json
+*.parquet

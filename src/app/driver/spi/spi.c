@@ -43,8 +43,8 @@
  * @file    spi.c
  * @author  foxBMS Team
  * @date    2019-12-12 (date of creation)
- * @updated 2025-03-31 (date of last update)
- * @version v1.9.0
+ * @updated 2025-08-07 (date of last update)
+ * @version v1.10.0
  * @ingroup DRIVERS
  * @prefix  SPI
  *
@@ -208,17 +208,18 @@ static void SPI_InitializeChipSelectsAfe(uint8_t string) {
 #if defined(FOXBMS_AFE_DRIVER_NXP) && (FOXBMS_AFE_DRIVER_NXP == 1)
 static void SPI_InitializeChipSelectsAfe(uint8_t string) {
     FAS_ASSERT(string < BS_NR_OF_STRINGS);
-    spi_nxp775InterfaceTx[string].pConfig->CSNR =
-        SPI_GetChipSelectPin(spi_nxp775InterfaceTx[string].csType, spi_nxp775InterfaceTx[string].csPin);
-    spi_nxp775InterfaceRx[string].pConfig->CSNR =
-        SPI_GetChipSelectPin(spi_nxp775InterfaceRx[string].csType, spi_nxp775InterfaceRx[string].csPin);
+    spi_nxp77xInterfaceTx[string].pConfig->CSNR =
+        SPI_GetChipSelectPin(spi_nxp77xInterfaceTx[string].csType, spi_nxp77xInterfaceTx[string].csPin);
+    spi_nxp77xInterfaceRx[string].pConfig->CSNR =
+        SPI_GetChipSelectPin(spi_nxp77xInterfaceRx[string].csType, spi_nxp77xInterfaceRx[string].csPin);
 }
 #endif
 
 #if defined(FOXBMS_AFE_DRIVER_ST) && (FOXBMS_AFE_DRIVER_ST == 1)
 static void SPI_InitializeChipSelectsAfe(uint8_t string) {
     FAS_ASSERT(string < BS_NR_OF_STRINGS);
-    (void)string;
+    spi_stInterface[string].pConfig->CSNR =
+        SPI_GetChipSelectPin(spi_stInterface[string].csType, spi_stInterface[string].csPin);
 }
 #endif
 
@@ -638,15 +639,12 @@ extern void SPI_DmaSendLastByte(uint8_t spiIndex) {
     dma_spiInterfaces[spiIndex]->DAT1 = spi_txLastWord[spiIndex];
 }
 
-/* AXIVION Next Codeline Style Linker-Multiple_Definition: TI HAL only provides a weak implementation */
-/* Doxygen comment needs to be here, as this is from a TI generated HAL header */
-/**
- * @brief   SPI Interrupt callback
- * @param[in]   spi     spi device
- * @param       flags   flags to be passed
- */
-void UNIT_TEST_WEAK_IMPL spiNotification(spiBASE_t *spi, uint32 flags) {
+#if !defined(UNITY_UNIT_TEST) || defined(COMPILE_FOR_UNIT_TEST)
+extern void spiNotification(spiBASE_t *spi, uint32 flags) {
+    (void)spi;
+    (void)flags;
 }
+#endif
 
 extern STD_RETURN_TYPE_e SPI_CheckInterfaceAvailable(spiBASE_t *pNode) {
     FAS_ASSERT(pNode != NULL_PTR);

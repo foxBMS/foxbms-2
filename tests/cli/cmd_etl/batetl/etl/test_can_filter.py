@@ -53,7 +53,7 @@ except ModuleNotFoundError:
 class TestCANFilter(unittest.TestCase):
     """The test case definition for the CANFilter class"""
 
-    def test_canfilter_init(self) -> None:
+    def test_can_filter_init(self) -> None:
         """Tests the creation of a CANFilter object"""
         # Case 1: Test that the CANFilter object is
         # created correctly with all parameters passed
@@ -65,13 +65,37 @@ class TestCANFilter(unittest.TestCase):
             "_id_pos": 4,
             "_sampling": {"23A": 5},
             "_occurrence": {"23A": 0},
+            "input": None,
+            "output": None,
         }
         self.assertDictEqual(test_obj_dict, expected_dict)
         # Check 2: Test that the CANFilter object is
         # created correctly with all mandatory parameters passed
         test_obj_dict = CANFilter(ids=["23A", "120"], id_pos=4).__dict__
-        expected_dict = {"_ids": ["23A", "120"], "_id_pos": 4, "_sampling": None}
+        expected_dict = {
+            "_ids": ["23A", "120"],
+            "_id_pos": 4,
+            "_sampling": None,
+            "input": None,
+            "output": None,
+        }
         self.assertDictEqual(test_obj_dict, expected_dict)
+
+    def test_can_filter_str(self) -> None:
+        """Test the string-representation of the CANFilter object."""
+        # Case 1: Test that the CANFilter object is
+        # created correctly with all parameters passed
+        dut = CANFilter(ids=["23A", "120"], id_pos=4, sampling={"23A": 5})
+        self.assertEqual(
+            str(dut),
+            "ID pos: 4, IDs: ['23A', '120'], sampling: {'23A': 5}, occurrence: {'23A': 0}",
+        )
+
+        dut = CANFilter(ids=["23A", "120"], id_pos=4)
+        self.assertEqual(
+            str(dut),
+            "ID pos: 4, IDs: ['23A', '120'], sampling: None",
+        )
 
     def test_filter_msg(self) -> None:
         """Tests the filter_msg method of the CANFilter class"""

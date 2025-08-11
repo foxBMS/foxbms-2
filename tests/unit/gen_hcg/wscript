@@ -84,6 +84,7 @@ def build(bld: BuildContext):
             f"{', '.join(BUILD_VARIANTS)}."
         )
     remove = [
+        "source/HL_notification.c",
         "source/HL_sys_main.c",
         "source/HL_sys_startup.c",
         "source/HL_sys_link.cmd",

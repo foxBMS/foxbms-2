@@ -40,13 +40,18 @@
 # Make all errors terminating errors
 $ErrorActionPreference = "STOP"
 
-# Unsupported operating systems
-if ($IsLinux) {
-    Write-Error "Use the 'fox.sh' instead."
+if ($PSVersionTable.PSVersion.Major -lt 7) {
+    Write-Host "This script requires PowerShell 7 or later." -ForegroundColor Red
     exit 1
 }
-elseif ($IsMacOS) {
-    Write-Error "MacOS is currently not supported."
+
+# Unsupported operating systems
+if ($IsMacOS) {
+    Write-Host "MacOS is currently not supported." -ForegroundColor Red
+    exit 1
+}
+elseif ($IsLinux) {
+    Write-Host "Use the 'fox.sh' script instead." -ForegroundColor Red
     exit 1
 }
 
@@ -58,11 +63,14 @@ function InstallHelper($env_dir) {
     }
     catch {
         # No python available at all
-        Write-Host "Could not find $PYTHON."  -ForegroundColor Red
-        Write-Host "Install Python from python.org and rerun the command." -ForegroundColor Red
+        Write-Host "Could not find '$PYTHON' executable."  -ForegroundColor Red
+        Write-Host "Install Python3 from python.org and rerun the command." -ForegroundColor Red
         Pop-Location
+        # exit as we miss the most basic dependency
         exit 1
     }
+
+    # we have at least some 'py' executable.
     $FALLBACK_SCRIPT = Join-Path "$PSScriptRoot" "cli" "fallback" "fallback.py"
     &$PYTHON "$FALLBACK_SCRIPT" "$env_dir"
     Pop-Location
@@ -72,13 +80,15 @@ function InstallHelper($env_dir) {
 # Push into the repository root
 Push-Location "$PSScriptRoot"
 
+# foxBMS-prefix for installed tools
 $env:PREFIX = "C:\foxbms"
 
 # Name of the Python environment
-$env:ENV_NAME = "2025-03-pale-fox"
+$env:ENV_NAME = "2025-06-pale-fox"
 
 $env:FOXBMS_PYTHON_ENV_DIRECTORY = Join-Path "$env:PREFIX" "envs" "$env:ENV_NAME"
 
+# Activation script path
 $env:FOXBMS_PYTHON_ACTIVATION_SCRIPT_REL_PATH = "Scripts\activate.ps1"
 
 $env:FOXBMS_PYTHON_ACTIVATION_SCRIPT = Join-Path "$env:FOXBMS_PYTHON_ENV_DIRECTORY" "$env:FOXBMS_PYTHON_ACTIVATION_SCRIPT_REL_PATH"
@@ -105,20 +115,48 @@ catch {
 # Environment is active and we have found a python executable,
 # therefore we can run fox.py
 
-# Special case if on Windows and the GUI shall open
+# Special case: if on Windows and the GUI shall open
 if ($args.Contains("gui")) {
-    pythonw "$PSScriptRoot\fox.py" "gui"
+    # by default use 'pythonw.exe' so that we can early exit after GUI start
+    # in case we need to debug the gui and provide the debug option,
+    # we need stdout and stderr, so we start the GUI 'blocking' using
+    # 'python.exe'
+    $USE_PYTHON = "pythonw"
+
+    # arguments that require 'python.exe' to be used
+    if ($args.Contains("-h") -or $args.Contains("--help") -or $args.Contains("--debug-gui")) {
+        $USE_PYTHON = "python"
+    }
+
+    # desired python executable is now defined
+    &$USE_PYTHON "$PSScriptRoot\fox.py" $args
+
     if ($LastExitCode -ne 0) {
         deactivate
         Pop-Location
         exit 1
     }
-    exit 0 # if GUI is requested, early exit
+
+    deactivate
+    Pop-Location
+    # if GUI is requested, early exit
+    exit 0
 }
 
 # Run fox.py, after running the command, deactivate the environment and exit
 # with the fox.py exit code
-python "$PSScriptRoot\fox.py" $args
+# Special case: the 'bms' commands need to read from stdin and if stdin is
+# empty (as it should be as the invocation is just 'fox.py bms' and some
+# arguments), we would pipe an empty to string to stdin and this is no valid
+# input in Python's cmd.Cmd implementation. Therefore we just do not pipe
+# $input to the script. Note: this is not required in fox.sh as bash handles
+# stdin piping different.
+if (!($args.Contains("bms"))) {
+    Write-Output "$input" | python "$PSScriptRoot\fox.py" $args
+} else {
+    python "$PSScriptRoot\fox.py" $args
+}
+
 if ($LastExitCode -ne 0) {
     deactivate
     Pop-Location

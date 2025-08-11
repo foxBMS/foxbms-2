@@ -49,11 +49,9 @@ from yaml import safe_load
 
 try:
     from cli.cmd_plot.drawer.graph_drawer_factory import GraphDrawerFactory
-    from cli.cmd_plot.drawer.graph_types import GraphTypes
 except ModuleNotFoundError:
     sys.path.insert(0, str(Path(__file__).parents[4]))
     from cli.cmd_plot.drawer.graph_drawer_factory import GraphDrawerFactory
-    from cli.cmd_plot.drawer.graph_types import GraphTypes
 
 PATH_EXECUTION = Path(__file__).parent.parent / "test_execution"
 
@@ -65,15 +63,14 @@ class TestGetObject(unittest.TestCase):
         """Tests the get_object function for graph type LINE"""
         with open(PATH_EXECUTION / "test_plot_config.yaml", encoding="utf-8") as f:
             test_config = safe_load(f)
-        graph_type = GraphTypes["LINE"]
-        for _, line_config in test_config.items():
-            GraphDrawerFactory().get_object(graph_type, line_config)
+        for line_config in test_config:
+            GraphDrawerFactory().get_object(line_config)
 
     def test_heatmap_get_object(self) -> None:
         """Tests the get_object function for graph type HEATMAP"""
         buf = io.StringIO()
         with redirect_stderr(buf), self.assertRaises(SystemExit) as cm:
-            GraphDrawerFactory().get_object(GraphTypes["HEATMAP"], {})
+            GraphDrawerFactory().get_object({"type": "HEATMAP"})
         self.assertEqual(cm.exception.code, 1)
         self.assertTrue(
             "The given graph type hasn't been implemented." in buf.getvalue()

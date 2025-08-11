@@ -59,9 +59,10 @@ class Stage:
 
     sort_index: str = field(init=False)
     name: str
-    prefix: str
+    prefix: str = ""
 
     def __post_init__(self) -> None:
+        self.prefix = "".join([j[0] for j in self.name.split("_")])
         self.sort_index = self.name
 
 
@@ -106,10 +107,7 @@ def read_config() -> dict:
 
 def get_stages(ci_config: dict) -> list[Stage]:
     """Returns a list of stage objects"""
-    stages = [
-        Stage(i, "".join([j[0] for j in i.split("_")]))
-        for i in ci_config.get("stages", [])
-    ]
+    stages = [Stage(i) for i in ci_config.get("stages", [])]
     if not stages:
         sys.exit("Could not determine stages.")
     return stages
@@ -158,6 +156,23 @@ def check_job_prefix(ci_config: dict, stages: list[Stage]) -> int:
             recho(f"Job '{k}' uses the wrong prefix.")
             return 1
     return 0
+
+
+def check_stage_order(ci_config: dict, stages: list[Stage]) -> int:
+    """Check that the CI file is ordered consistently."""
+    tmp = copy.deepcopy(stages)
+    tmp.remove(Stage("configure", "c"))
+    err = 0
+    for i, (stage, stage_file) in enumerate(zip(tmp, ci_config["include"])):
+        matched_stage_file = Path(stage_file["local"]).stem
+        if not stage.name == matched_stage_file:
+            err += 1
+            recho(
+                f"{i + 1}: 'stages' list and included documents are not in the"
+                "  same order.\n"
+                f" --> Stage '{stage.name}' maps to '{matched_stage_file}'."
+            )
+    return err
 
 
 def check_emb_spa_build_alignment(ci_config: dict) -> int:
@@ -245,6 +260,7 @@ def validate_spae_artifacts(ci_config: dict, expected) -> int:
     return 0
 
 
+# pylint: disable=too-many-branches
 def validate_hil_test_config(ci_config: dict, expected: list[str]) -> int:
     """Validate the configuration of the HIL setup."""
     error = 0
@@ -307,6 +323,34 @@ def validate_hil_test_config(ci_config: dict, expected: list[str]) -> int:
                 "'th_flash_and_test_bootloader'."
             )
             error += 1
+
+        #  check that all needed dependencies are there
+        if k == "th_test_bootloader":
+            expected_needs = [
+                "th_ensure_power_supply_is_off",
+                "bae_all_config_variants: "
+                "[freertos, adi, ades1830, vbb, cc, cc, tr, none, none, no-imd, 1, 2, 16]",
+                "th_test_debug_simple_tests",
+                "th_flash_and_test_bootloader",
+            ]
+            if needs != expected_needs:
+                recho(
+                    f"{k}:needs:' needs to list the following dependencies:\n{expected_needs}."
+                )
+                error += 1
+            continue
+        if k == "th_freertos_plus_tcp":
+            expected_needs = [
+                "th_ensure_power_supply_is_off",
+                "bae_use_freertos_plus_tcp",
+                "th_flash_and_test_bootloader",
+            ]
+            if needs != expected_needs:
+                recho(
+                    f"{k}:needs:' needs to list the following dependencies:\n{expected_needs}."
+                )
+                error += 1
+            continue
         if len(needs) > 3:
             recho(f"Too many artifacts specified in '{k}:needs:'.")
             error += 1
@@ -326,6 +370,7 @@ def validate_hil_test_config(ci_config: dict, expected: list[str]) -> int:
     return error
 
 
+# pylint: disable-next=too-many-return-statements
 def analyze_config(ci_config: dict, stage_files: list[Path]) -> int:
     """Analyze the loaded configuration."""
     stages = get_stages(ci_config)
@@ -339,6 +384,11 @@ def analyze_config(ci_config: dict, stage_files: list[Path]) -> int:
 
     # check that all job use the correct prefix
     if err := check_job_prefix(ci_config, stages):
+        return err
+
+    # order in the 'stages' list and the list of files to be included shall be
+    # in the same order
+    if err := check_stage_order(ci_config, stages):
         return err
 
     # check that target and SPA build are aligned

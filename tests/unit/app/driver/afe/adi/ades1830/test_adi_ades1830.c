@@ -43,8 +43,8 @@
  * @file    test_adi_ades1830.c
  * @author  foxBMS Team
  * @date    2020-08-10 (date of creation)
- * @updated 2025-03-31 (date of last update)
- * @version v1.9.0
+ * @updated 2025-08-07 (date of last update)
+ * @version v1.10.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -161,7 +161,7 @@ static void ADI_BalanceControl_Expects(void) {
         for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
             adi_stateBase.currentString = s;
             /* Mocks for unmute commands */
-            ADI_CopyCommandBits_Expect(adi_cmdUnmute, adi_command);
+            ADI_CopyCommandBytes_Expect(adi_cmdUnmute, adi_command);
             ADI_TransmitCommand_Expect(adi_command, &adi_stateBase);
 
             /* actual register configuration for the specific AFE */
@@ -301,14 +301,14 @@ void testADI_RunCurrentStringMeasurement(void) {
     TEST_ASSERT_FAIL_ASSERT(TEST_ADI_RunCurrentStringMeasurement(NULL_PTR));
 
     /* ======= RT1/2: Test implementation */
-    ADI_CopyCommandBits_Expect(adi_cmdAdax, adi_command);
+    ADI_CopyCommandBytes_Expect(adi_cmdAdax, adi_command);
     ADI_WriteCommandConfigurationBits_Expect(adi_command, ADI_ADAX_OW_POS, ADI_ADAX_OW_LEN, 0u);
     ADI_WriteCommandConfigurationBits_Expect(adi_command, ADI_ADAX_PUP_POS, ADI_ADAX_PUP_LEN, 0u);
     ADI_WriteCommandConfigurationBits_Expect(adi_command, ADI_ADAX_CH4_POS, ADI_ADAX_CH4_LEN, 0u);
     ADI_WriteCommandConfigurationBits_Expect(adi_command, ADI_ADAX_CH03_POS, ADI_ADAX_CH03_LEN, 0u);
     ADI_TransmitCommand_Expect(adi_command, &adi_stateBase);
 
-    ADI_CopyCommandBits_Expect(adi_cmdAdax2, adi_command);
+    ADI_CopyCommandBytes_Expect(adi_cmdAdax2, adi_command);
     ADI_WriteCommandConfigurationBits_Expect(
         adi_command,
         ADI_ADAX2_CH03_POS,
@@ -318,11 +318,11 @@ void testADI_RunCurrentStringMeasurement(void) {
 
     ADI_Wait_Expect(ADI_WAIT_TIME_1_FOR_ADAX_FULL_CYCLE);
 
-    ADI_CopyCommandBits_Expect(adi_cmdSnap, adi_command);
+    ADI_CopyCommandBytes_Expect(adi_cmdSnap, adi_command);
     ADI_TransmitCommand_Expect(adi_command, &adi_stateBase);
     ADI_GetVoltages_Expect(&adi_stateBase, ADI_CELL_VOLTAGE_REGISTER, ADI_CELL_VOLTAGE);
     ADI_GetVoltages_Expect(&adi_stateBase, ADI_FILTERED_CELL_VOLTAGE_REGISTER, ADI_FILTERED_CELL_VOLTAGE);
-    ADI_CopyCommandBits_Expect(adi_cmdUnsnap, adi_command);
+    ADI_CopyCommandBytes_Expect(adi_cmdUnsnap, adi_command);
     ADI_TransmitCommand_Expect(adi_command, &adi_stateBase);
 
     ADI_Wait_Expect(ADI_WAIT_TIME_2_FOR_ADAX_FULL_CYCLE);
@@ -343,7 +343,7 @@ void testADI_RunCurrentStringMeasurement(void) {
     }
 
     ADI_Diagnostic_Expect(&adi_stateBase);
-    ADI_CopyCommandBits_Expect(adi_cmdClrcell, adi_command);
+    ADI_CopyCommandBytes_Expect(adi_cmdClrcell, adi_command);
     ADI_TransmitCommand_Expect(adi_command, &adi_stateBase);
 
     TEST_ADI_RunCurrentStringMeasurement(&adi_stateBase);
@@ -373,7 +373,7 @@ void testADI_BalanceControl(void) {
         for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
             adi_stateBase.currentString = s;
             /* Mocks for unmute commands */
-            ADI_CopyCommandBits_Expect(adi_cmdUnmute, adi_command);
+            ADI_CopyCommandBytes_Expect(adi_cmdUnmute, adi_command);
             ADI_TransmitCommand_Expect(adi_command, &adi_stateBase);
 
             /* actual register configuration for the specific AFE */
@@ -382,7 +382,7 @@ void testADI_BalanceControl(void) {
             ADI_Wait_Expect(ADI_BALANCING_TIME_ms);
 
             /* Mocks for mute commands */
-            ADI_CopyCommandBits_Expect(adi_cmdMute, adi_command);
+            ADI_CopyCommandBytes_Expect(adi_cmdMute, adi_command);
             ADI_TransmitCommand_Expect(adi_command, &adi_stateBase);
             TEST_ADI_BalanceControl(&adi_stateBase);
         }

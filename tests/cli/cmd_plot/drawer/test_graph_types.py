@@ -38,3 +38,17 @@
 # - "This product is derived from foxBMS®"
 
 """Testing file 'cli/cmd_plot/drawer/graph_types.py'."""
+
+import unittest
+
+
+class TestGraphTypes(unittest.TestCase):
+    """Test of 'graph_types.py'"""
+
+    def test_dummy(self):
+        """dummy test"""
+        # this test is necessary because otherwise the exit code is non-zero
+
+
+if __name__ == "__main__":
+    unittest.main()

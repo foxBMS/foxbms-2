@@ -37,13 +37,13 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""Builds the AFE measurement library for the ADI ADES1830 device"""
+"""Build the ADES1830-based 'AFE'-driver."""
 
 import os
 
 
 def build(bld):
-    """builds the AFE driver library for ADI ADES1830"""
+    """Build the ADES1830-based 'AFE'-driver."""
     bld.recurse(os.path.join("..", "common", "ades183x"))
     source = [
         "adi_ades1830_balancing.c",

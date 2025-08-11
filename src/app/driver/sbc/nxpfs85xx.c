@@ -43,8 +43,8 @@
  * @file    nxpfs85xx.c
  * @author  foxBMS Team
  * @date    2020-03-18 (date of creation)
- * @updated 2025-03-31 (date of last update)
- * @version v1.9.0
+ * @updated 2025-08-07 (date of last update)
+ * @version v1.10.0
  * @ingroup DRIVERS
  * @prefix  FS85
  *
@@ -1044,10 +1044,9 @@ extern STD_RETURN_TYPE_e FS85_SafetyPathChecks(FS85_STATE_s *pInstance) {
     return retval;
 }
 
-/* AXIVION Next Codeline Style CodingStyle-Naming.Function: The name is pre-defined by the driver provided by NXP. */
-/* AXIVION Next Construct Style CodingStyle-Naming.Parameter: The name is pre-defined by the driver provided by NXP. */
+#if !defined(UNITY_UNIT_TEST) || defined(COMPILE_FOR_UNIT_TEST)
 /* AXIVION Next Construct Style MisraC2012-2.7: The API is pre-defined by the driver provided by NXP. */
-extern UNIT_TEST_WEAK_IMPL fs8x_status_t MCU_SPI_TransferData(
+extern fs8x_status_t MCU_SPI_TransferData(
     SPI_INTERFACE_CONFIG_s *pSpiInterface,
     uint8_t *txFrame,
     uint16_t frameLengthBytes,
@@ -1080,6 +1079,7 @@ extern UNIT_TEST_WEAK_IMPL fs8x_status_t MCU_SPI_TransferData(
 
     return spiCommunicationState;
 }
+#endif
 
 extern STD_RETURN_TYPE_e FS85_TriggerWatchdog(FS85_STATE_s *pInstance) {
     FAS_ASSERT(pInstance != NULL_PTR);

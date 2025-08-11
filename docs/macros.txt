@@ -39,10 +39,12 @@
 .. |url_git| replace:: https://git-scm.com/
 
 .. |ti-code-composer-studio| replace:: TI Code Composer Studio
+.. |ti-ccs| replace:: TI CCS
 .. |url_ti-code-composer-studio| replace:: https://www.ti.com/tool/CCSTUDIO
 .. |url_ti-code-composer-studio_releases| replace:: https://www.ti.com/tool/CCSTUDIO#downloads
-.. _Code Composer Studio: https://www.ti.com/tool/download/CCSTUDIO/12.8.1
 .. |version_ti-code-composer-studio| replace:: ``12.8.1``
+.. |ti-arm-cgt| replace:: TI ARM CGT
+.. _Code Composer Studio: https://www.ti.com/tool/download/CCSTUDIO/12.8.1
 
 .. |ti-halcogen| replace:: TI HALCoGen
 .. |url_ti-halcogen| replace:: https://www.ti.com/tool/HALCOGEN
@@ -75,6 +77,8 @@
 .. |url_ceedling_releases| replace:: https://github.com/ThrowTheSwitch/Ceedling/releases
 
 .. |mingw-w64| replace:: mingw-w64
+
+.. |gcc| replace:: GCC
 
 .. _GCOVR: https://gcovr.com/en/stable/index.html
 
@@ -111,7 +115,9 @@
 .. |adi-ades1830| replace:: ADI ADES1830
 
 .. |bms-master|     replace:: BMS-Master
+.. |bms-masters|     replace:: BMS-Masters
 .. |bms-interface|  replace:: BMS-Interface
+.. |bms-interfaces|  replace:: BMS-Interfaces
 .. |bms-slave|      replace:: BMS-Slave
 .. |bms-slaves|     replace:: BMS-Slaves
 .. |bms-extension|  replace:: BMS-Extension
@@ -184,3 +190,5 @@
 
 .. |tcp-ip-stack| replace:: TCP/IP stack
 .. |tcp-ip| replace:: TCP/IP
+
+.. |lauterbach-debugger-shortcut| replace:: ``build/run_t32marm.lnk``

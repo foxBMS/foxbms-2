@@ -43,8 +43,8 @@
  * @file    bal_strategy_voltage.c
  * @author  foxBMS Team
  * @date    2020-05-29 (date of creation)
- * @updated 2025-03-31 (date of last update)
- * @version v1.9.0
+ * @updated 2025-08-07 (date of last update)
+ * @version v1.10.0
  * @ingroup APPLICATION
  * @prefix  BAL
  *
@@ -344,20 +344,17 @@ extern void BAL_Trigger(void) {
     bal_state.triggerEntry--;
 }
 
-/*================== Getter for static Variables (Unit Test) ==============*/
+/*========== Externalized Static Function Implementations (Unit Test) =======*/
 #ifdef UNITY_UNIT_TEST
+extern BAL_STATEMACH_e BAL_GetState(void) {
+    return bal_state.state;
+}
+
 extern DATA_BLOCK_BALANCING_CONTROL_s *TEST_BAL_GetBalancingControl(void) {
     return &bal_balancing;
 }
 
 extern BAL_STATE_s *TEST_BAL_GetBalancingState(void) {
     return &bal_state;
-}
-#endif
-
-/*========== Externalized Static Function Implementations (Unit Test) =======*/
-#ifdef UNITY_UNIT_TEST
-extern BAL_STATEMACH_e BAL_GetState(void) {
-    return bal_state.state;
 }
 #endif

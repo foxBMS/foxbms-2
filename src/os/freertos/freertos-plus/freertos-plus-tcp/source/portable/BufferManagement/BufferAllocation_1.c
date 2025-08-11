@@ -1,5 +1,5 @@
 /*
- * FreeRTOS+TCP V4.2.1
+ * FreeRTOS+TCP V4.3.2
  * Copyright (C) 2022 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * SPDX-License-Identifier: MIT
@@ -29,7 +29,7 @@
 *
 * See the following web page for essential buffer allocation scheme usage and
 * configuration details:
-* http://www.FreeRTOS.org/FreeRTOS-Plus/FreeRTOS_Plus_TCP/Embedded_Ethernet_Buffer_Management.html
+* https://freertos.org/Documentation/03-Libraries/02-FreeRTOS-plus/02-FreeRTOS-plus-TCP/05-Buffer-management
 *
 ******************************************************************************/
 
@@ -237,11 +237,8 @@ NetworkBufferDescriptor_t * pxGetNetworkBufferWithDescriptor( size_t xRequestedS
     BaseType_t xInvalid = pdFALSE;
     UBaseType_t uxCount;
 
-    /* The current implementation only has a single size memory block, so
-     * the requested size parameter is not used (yet). */
-    ( void ) xRequestedSizeBytes;
-
-    if( xNetworkBufferSemaphore != NULL )
+    if( ( xNetworkBufferSemaphore != NULL ) &&
+        ( xRequestedSizeBytes <= ( ipconfigNETWORK_MTU + ipSIZE_OF_ETH_HEADER ) ) )
     {
         /* If there is a semaphore available, there is a network buffer
          * available. */
@@ -432,10 +429,18 @@ UBaseType_t uxGetNumberOfFreeNetworkBuffers( void )
 NetworkBufferDescriptor_t * pxResizeNetworkBufferWithDescriptor( NetworkBufferDescriptor_t * pxNetworkBuffer,
                                                                  size_t xNewSizeBytes )
 {
-    /* In BufferAllocation_1.c all network buffer are allocated with a
-     * maximum size of 'ipTOTAL_ETHERNET_FRAME_SIZE'.No need to resize the
-     * network buffer. */
-    pxNetworkBuffer->xDataLength = xNewSizeBytes;
+    if( xNewSizeBytes <= ( ipconfigNETWORK_MTU + ipSIZE_OF_ETH_HEADER ) )
+    {
+        /* In BufferAllocation_1.c all network buffer are allocated with a
+         * maximum size of 'ipTOTAL_ETHERNET_FRAME_SIZE'.No need to resize the
+         * network buffer. */
+        pxNetworkBuffer->xDataLength = xNewSizeBytes;
+    }
+    else
+    {
+        pxNetworkBuffer = NULL;
+    }
+
     return pxNetworkBuffer;
 }
 

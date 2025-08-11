@@ -43,8 +43,8 @@
  * @file    spi_cfg.h
  * @author  foxBMS Team
  * @date    2020-03-05 (date of creation)
- * @updated 2025-03-31 (date of last update)
- * @version v1.9.0
+ * @updated 2025-08-07 (date of last update)
+ * @version v1.10.0
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  SPI
  *
@@ -153,6 +153,11 @@ typedef struct {
 /**@}*/
 #endif
 
+#if defined(FOXBMS_AFE_DRIVER_ST) && (FOXBMS_AFE_DRIVER_ST == 1)
+/** ST chip select pin */
+#define SPI_ST_CHIP_SELECT_PIN (0u)
+#endif
+
 #if defined(FOXBMS_AFE_DRIVER_TI) && (FOXBMS_AFE_DRIVER_TI == 1)
 /* currently not supported */
 #endif
@@ -180,8 +185,11 @@ extern SPI_INTERFACE_CONFIG_s spi_ltcInterface[BS_NR_OF_STRINGS];
 extern SPI_INTERFACE_CONFIG_s spi_mxmInterface;
 #endif
 #if defined(FOXBMS_AFE_DRIVER_NXP) && (FOXBMS_AFE_DRIVER_NXP == 1)
-extern SPI_INTERFACE_CONFIG_s spi_nxp775InterfaceTx[BS_NR_OF_STRINGS];
-extern SPI_INTERFACE_CONFIG_s spi_nxp775InterfaceRx[BS_NR_OF_STRINGS];
+extern SPI_INTERFACE_CONFIG_s spi_nxp77xInterfaceTx[BS_NR_OF_STRINGS];
+extern SPI_INTERFACE_CONFIG_s spi_nxp77xInterfaceRx[BS_NR_OF_STRINGS];
+#endif
+#if defined(FOXBMS_AFE_DRIVER_ST) && (FOXBMS_AFE_DRIVER_ST == 1)
+extern SPI_INTERFACE_CONFIG_s spi_stInterface[BS_NR_OF_STRINGS];
 #endif
 #if defined(FOXBMS_AFE_DRIVER_TI) && (FOXBMS_AFE_DRIVER_TI == 1)
 /* currently not supported */

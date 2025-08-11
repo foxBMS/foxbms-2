@@ -38,3 +38,17 @@
 # - "This product is derived from foxBMS®"
 
 """Testing file 'cli/cmd_bootloader/app_constants.py'."""
+
+import unittest
+
+
+class TestAppConstants(unittest.TestCase):
+    """Test of 'app_constants.py'"""
+
+    def test_dummy(self):
+        """dummy test"""
+        # this test is necessary because otherwise the exit code is non-zero
+
+
+if __name__ == "__main__":
+    unittest.main()

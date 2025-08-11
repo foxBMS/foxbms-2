@@ -43,12 +43,35 @@ from dataclasses import dataclass
 
 import click
 
-DEFAULT_INTERFACE = "pcan"
+from .click_helpers import recho
+
+SUPPORTED_CHANNELS: dict[str, list[str | int]] = {
+    "pcan": [
+        "PCAN_USBBUS1",
+        "PCAN_USBBUS2",
+        "PCAN_USBBUS3",
+        "PCAN_USBBUS4",
+        "PCAN_USBBUS5",
+        "PCAN_USBBUS6",
+        "PCAN_USBBUS7",
+        "PCAN_USBBUS8",
+        "PCAN_USBBUS9",
+        "PCAN_USBBUS10",
+        "PCAN_USBBUS11",
+        "PCAN_USBBUS12",
+        "PCAN_USBBUS13",
+        "PCAN_USBBUS14",
+        "PCAN_USBBUS15",
+        "PCAN_USBBUS16",
+    ],
+    "kvaser": [0, 1, 2, 3, 4, 5, 6, 7],
+}
 
 DEFAULT_CHANNELS = {
-    "pcan": "PCAN_USBBUS1",
-    "kvaser": 0,
+    "pcan": SUPPORTED_CHANNELS["pcan"][0],
+    "kvaser": SUPPORTED_CHANNELS["kvaser"][0],
 }
+DEFAULT_INTERFACE = "pcan"
 SUPPORTED_INTERFACES = list(DEFAULT_CHANNELS.keys())
 
 VALID_BIT_RATES = ["500000"]
@@ -69,20 +92,24 @@ class CanBusConfig:
             if not self.channel:
                 self.channel = "PCAN_USBBUS1"
             if not isinstance(self.channel, str):
-                raise SystemExit(err_msg.format(interface="pcan"))
+                recho(err_msg.format(interface="pcan"))
+                raise SystemExit(1)
             if not self.channel.startswith("PCAN"):
-                raise SystemExit(err_msg.format(interface="pcan"))
+                recho(err_msg.format(interface="pcan"))
+                raise SystemExit(1)
         elif self.interface == "kvaser":
             if not self.channel:
                 self.channel = 0
             try:
                 self.channel = int(self.channel)
             except (ValueError, TypeError) as exc:
-                raise SystemExit(err_msg.format(interface="kvaser")) from exc
+                recho(err_msg.format(interface="kvaser"))
+                raise SystemExit(1) from exc
         elif self.interface == "virtual":
             pass
         else:
-            raise SystemExit(f"Unsupported interface '{self.interface}'.")
+            recho(f"Unsupported interface '{self.interface}'.")
+            raise SystemExit(2)
 
 
 def common_can_options(fun):
@@ -94,12 +121,15 @@ def common_can_options(fun):
         type=click.Choice(SUPPORTED_INTERFACES),
         help="CAN interface.",
     )(fun)
+    tmp = "Usable are:\n\n"
+    for k, v in SUPPORTED_CHANNELS.items():
+        tmp += f"  {k}: {', '.join(str(i) for i in v)}\n\n"
     fun = click.option(
         "-c",
         "--channel",
         default=None,
         help="CAN channel (must be appropiate for the selected interface; "
-        f"defaults are {DEFAULT_CHANNELS}).",
+        f"defaults are {DEFAULT_CHANNELS}).\n\n{tmp}",
     )(fun)
     fun = click.option(
         "-b",

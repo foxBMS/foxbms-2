@@ -55,6 +55,12 @@ exclude: |
       tools/waf
   )$
 repos:
+  # - repo: meta
+  #   hooks:
+  #     - id: check-useless-excludes
+  #       name: check for useless excludes
+  #     - id: check-hooks-apply
+  #       name: check hooks apply to the repository
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v5.0.0
     hooks:
@@ -144,14 +150,14 @@ repos:
       - id: trailing-whitespace
         exclude: (?x)^(
           .*\.(dil)|
+          .*\.(patch)|
           docs/software/architecture/img/axivion_architecture\.svg|
-          src/app/driver/afe/nxp/mc33775a/vendor/.*\.[c|h]
+          src/app/driver/afe/nxp/(common/)?mc3377.*/vendor/.*\.[c|h]
           )$
-
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.9.6
+    rev: v0.11.11
     hooks:
-      - id: ruff
+      - id: ruff-check
         args: [--fix]
         exclude: |
           (?x)^(
@@ -173,7 +179,7 @@ repos:
             .*(\.ipynb)
           )$
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.19.1
+    rev: v3.20.0
     hooks:
       - id: pyupgrade
         files: |
@@ -191,6 +197,7 @@ repos:
         exclude: |
           (?x)^(
             .*README(\.foxbms)?\.md|
+            \.github/ISSUE_TEMPLATE/general_issue\.md|
             \.github/PULL_REQUEST_TEMPLATE\.md|
             \.gitlab/CODEOWNERS|
             BSD-3-Clause\.txt|
@@ -199,7 +206,7 @@ repos:
             CITATION\.cff|
             INSTALL\.md|
             LICENSE\.md|
-            src/app/driver/afe/nxp/mc33775a/vendor/MC33775A\.h
+            src/app/driver/afe/nxp/mc3377.*/vendor/MC3377.*\.h
           )$
   - repo: local
     hooks:
@@ -219,12 +226,13 @@ repos:
       - id: mypy
         name: mypy
         entry: mypy
+        types: [python]
         language: system
         args:
           - .\cli\
         pass_filenames: false
   - repo: https://github.com/pre-commit/mirrors-clang-format
-    rev: "v19.1.7"
+    rev: "v20.1.5"
     hooks:
       - id: clang-format
         args: [--style=file]
@@ -260,6 +268,8 @@ repos:
             src/app/driver/afe/ltc.*wscript|
             src/app/driver/afe/maxim.*wscript|
             src/app/driver/afe/nxp.*wscript|
+            src/app/driver/afe/st/api/wscript|
+            src/app/driver/afe/st/wscript|
             src/app/driver/afe/ti/api/wscript|
             src/app/driver/afe/ti/common/wscript|
             src/app/driver/afe/ti/dummy/wscript|
@@ -325,12 +335,15 @@ repos:
             src/app/driver/afe/ltc.*wscript|
             src/app/driver/afe/maxim.*wscript|
             src/app/driver/afe/nxp.*wscript|
+            src/app/driver/afe/st/api/wscript|
+            src/app/driver/afe/st/wscript|
             src/app/driver/afe/ti/api/wscript|
             src/app/driver/afe/ti/common/wscript|
             src/app/driver/afe/ti/dummy/wscript|
             src/app/driver/afe/ti/wscript|
             src/app/driver/afe/wscript|
             src/app/driver/imd/.*wscript|
+            src/app/driver/phy/wscript|
             src/app/driver/wscript|
             src/app/engine/wscript|
             src/app/hal/wscript|
@@ -353,6 +366,7 @@ repos:
             tests/ccs/.*|
             tests/c-std/c-std-test\.py|
             tests/dbc/.*|
+            tests/fox-cmds/etl/test_fox_etl\.py|
             tests/unit/axivion/call_irlink\.py|
             tests/unit/gen_hcg/wscript|
             tests/unit/wscript|
@@ -401,8 +415,8 @@ repos:
             (tests/unit|src)/app/driver/afe/debug/.*|
             (tests/unit|src)/app/driver/afe/ltc/.*|
             (tests/unit|src)/app/driver/afe/maxim/.*|
-            (tests/unit|src)/app/driver/afe/nxp/api/.*|
-            (tests/unit|src)/app/driver/afe/nxp/mc33775a.*|
+            (tests/unit|src)/app/driver/afe/nxp/.*|
+            (tests/unit|src)/app/driver/afe/st/api/.*|
             (tests/unit|src)/app/driver/afe/ti/api/.*|
             (tests/unit|src)/app/driver/afe/ti/common/api/.*|
             (tests/unit|src)/app/driver/afe/ti/dummy/.*|
@@ -427,6 +441,7 @@ repos:
             (tests/unit|src)/app/driver/mcu/.*|
             (tests/unit|src)/app/driver/meas/.*|
             (tests/unit|src)/app/driver/pex/.*|
+            tests/unit/app/driver/phy/.*|
             (tests/unit|src)/app/driver/pwm/.*|
             (tests/unit|src)/app/driver/rtc/.*|
             (tests/unit|src)/app/driver/sbc/.*|
@@ -480,9 +495,10 @@ repos:
             tools/crc/crc-15_0xc599\.c|
           )$
         exclude: (?x)^(
-          src/app/driver/afe/nxp/mc33775a/nxp_mc33775a-ll\.[c|h]|
-          src/app/driver/afe/nxp/mc33775a/vendor/.*|
+          src/app/driver/afe/nxp/common/mc3377x/nxp_mc3377x-ll\.[c|h]|
+          src/app/driver/afe/nxp/(common/)?mc3377.*/vendor/.*\.[c|h]|
           src/app/driver/sbc/fs8x_driver/.*|
+          src/(app|bootloader)/hal/(app|bootloader)-hl_notification\.c|
           src/(app|bootloader)/main/fstartup\.c|
           src/bootloader/driver/crc/vendor/crc64_calc\.[c|h]
           )$
@@ -527,6 +543,8 @@ repos:
             (tests/unit|src)/app/driver/afe/maxim/.*|
             (tests/unit|src)/app/driver/afe/nxp/api/.*|
             (tests/unit|src)/app/driver/afe/nxp/mc33775a.*|
+            (tests/unit|src)/app/driver/afe/nxp/common/mc3377x/.*|
+            (tests/unit|src)/app/driver/afe/st/api/.*|
             (tests/unit|src)/app/driver/afe/ti/api/.*|
             (tests/unit|src)/app/driver/afe/ti/common/api/.*|
             (tests/unit|src)/app/driver/afe/ti/dummy/.*|
@@ -551,6 +569,7 @@ repos:
             (tests/unit|src)/app/driver/mcu/.*|
             (tests/unit|src)/app/driver/meas/.*|
             (tests/unit|src)/app/driver/pex/.*|
+            (tests/unit|src)/app/driver/phy/.*|
             (tests/unit|src)/app/driver/pwm/.*|
             (tests/unit|src)/app/driver/rtc/.*|
             (tests/unit|src)/app/driver/sbc/.*|
@@ -559,6 +578,7 @@ repos:
             (tests/unit|src)/app/driver/sps/.*|
             (tests/unit|src)/app/driver/ts/.*|
             (tests/unit|src)/app/engine/.*|
+            (tests/unit|src)/(app|bootloader)/hal/.*|
             (tests/unit|src)/app/main/.*|
             (tests/unit|src)/app/task/.*|
             (tests/unit|src)/bootloader/.*|
@@ -662,6 +682,11 @@ repos:
             docs/tools/fox/etl/yml/table_many_many\.yml|
             tests/ccs/expect-failure/expect-failure_cc-options\.yaml|
             tests/ccs/ccs.*/ccs.*_cc-options\.yaml|
+            tests/fox-cmds/etl/decode0\.yml|
+            tests/fox-cmds/etl/filter0\.yml|
+            tests/fox-cmds/etl/table0_one_one\.yml|
+            tests/fox-cmds/etl/table0_many_one\.yml|
+            tests/fox-cmds/etl/table0_many_many\.yml|
             tests/cli/cmd_plot/test_execution/test_data_source_config.yaml|
             tests/cli/cmd_plot/test_execution/test_plot_config.yaml|
             tests/cli/cmd_plot/test_execution/test_yaml_error.yaml|
@@ -697,19 +722,14 @@ repos:
         types: [shell]
         language: system
         entry: python cli/pre_commit_scripts/check_license_info.py --file-type=shell --license-type=BSD-3-Clause
-      - id: check-license-header
-        name: check license header [dot]
-        language: system
-        entry: python cli/pre_commit_scripts/check_license_info.py --file-type=dot --license-type=BSD-3-Clause
-        files: .*(\.dot)
       - id: check-file-encoding
-        name: check encoding [c]
+        name: check encoding [c, asm]
         language: system
         entry: python cli/pre_commit_scripts/check_encoding.py --encoding=ascii
-        types: [c]
+        types_or: [c, asm]
         exclude: |
           (?x)^(
-            src/app/driver/afe/nxp/mc33775a/vendor/.*|
+            src/app/driver/afe/nxp/(common/)?mc3377.*/vendor/.*\.[c|h]|
             tests/cli/pre_commit_scripts/test_check_doxygen/invalid-encoding_utf-16\.c
           )$
       - id: check-file-encoding
@@ -747,6 +767,7 @@ repos:
             .*misc\.py|
             .*README(\.foxbms)?\.md|
             .*wscript|
+            .*/vendor/hashes\.json|
             \.gitlab/ci_pipeline/build_app_embedded\.yml|
             \.gitlab/ci_pipeline/static_program_analysis_evaluation\.yml|
             \.gitlab/ci_pipeline/test_hil\.yml|
@@ -757,6 +778,8 @@ repos:
             src/(app|bootloader)/driver/can(/cbs)?/can_helper\.[c|h]|
             src/(app|bootloader)/driver/can/can\.[c|h]|
             src/(app|bootloader)/driver/crc/crc\.[c|h]|
+            src/(app|bootloader)/driver/foxmath/foxmath\.[c|h]|
+            src/(app|bootloader)/driver/foxmath/utils\.[c|h]|
             src/(app|bootloader)/driver/io/io\.[c|h]|
             src/(app|bootloader)/driver/mcu/mcu\.h|
             src/(app|bootloader)/main/fassert\.c|
@@ -770,6 +793,7 @@ repos:
             src/(app|bootloader)/main/include/main\.h|
             src/(app|bootloader)/main/main\.c|
             src/app/driver/afe/ltc/common/ltc_defs\.h|
+            src/app/driver/afe/nxp/common/mc3377x/vendor/uc_msg_t\.[c|h]|
             src/app/driver/config/can_cfg\.[c|h]|
             src/app/driver/interlock/interlock\.c|
             src/os/freertos/LICENSE\.md|
@@ -781,10 +805,15 @@ repos:
             tests/axivion/targets/.*/ci_config\.json|
             tests/axivion/targets/.*/errata_config\.json|
             tests/cli/cmd_ci/test_check_ci_config/good/.*\.yml|
+            tests/cli/cmd_ci/test_check_ci_config/invalid-bl/.*\.yml|
+            tests/cli/cmd_ci/test_check_ci_config/invalid-tcp/.*\.yml|
+            tests/unit/(app|bootloader)/driver/can/test_can_can_message_notification\.c|
             tests/unit/(app|bootloader)/driver/(can|config)/test_can_cfg\.c|
             tests/unit/(app|bootloader)/driver/can(/cbs)?/test_can_helper\.c|
             tests/unit/(app|bootloader)/driver/can/test_can\.c|
             tests/unit/(app|bootloader)/driver/crc/test_crc\.c|
+            tests/unit/(app|bootloader)/driver/foxmath/test_foxmath\.c|
+            tests/unit/(app|bootloader)/driver/foxmath/test_utils\.c|
             tests/unit/(app|bootloader)/driver/io/test_io\.c|
             tests/unit/(app|bootloader)/main/helper/mock_esm.h|
             tests/unit/(app|bootloader)/main/test_fassert\.c|
@@ -806,7 +835,7 @@ repos:
         types: [text]
         exclude: |
           (?x)^(
-            src/app/driver/afe/nxp/mc33775a/vendor/uc_msg_t\.[c|h]|
+            src/app/driver/afe/nxp/common/mc3377x/vendor/uc_msg_t\.[c|h]|
             tests/cli/pre_commit_scripts/test_check_for_tabs/tabs_0\.txt|
             tests/cli/pre_commit_scripts/test_check_for_tabs/tabs_1\.txt|
             tests/cli/pre_commit_scripts/test_check_for_tabs/tabs_2\.txt
@@ -816,10 +845,11 @@ repos:
         language: system
         entry: python cli/pre_commit_scripts/check_include_guard.py
         types: [c]
+        files: .*\.h
         exclude: |
           (?x)^(
-            src/app/driver/afe/nxp/mc33775a/vendor/.*|
-            src/app/driver/sbc/fs8x_driver/.*|
+            src/app/driver/afe/nxp/(common/)?mc3377.*/vendor/.*\.h|
+            src/app/driver/sbc/fs8x_driver/.*\.h|
             tests/axivion/config-test/coding-style-naming\.macro_1\.h|
             tests/cli/pre_commit_scripts/test_check_include_guard/test_file_empty\.h|
             tests/cli/pre_commit_scripts/test_check_include_guard/test_file_invalid_content\.h|
@@ -838,15 +868,15 @@ repos:
             conf/tpl/test_c\.h|
             docs/developer-manual/style-guide/examples/c-006-test\.[c|h]|
             docs/software/unit-tests/test_abc\.c|
-            src/app/driver/afe/nxp/mc33775a/vendor/.*|
+            src/app/driver/afe/nxp/(common/)?mc3377.*/vendor/.*|
             src/app/driver/sbc/fs8x_driver/.*|
             src/bootloader/driver/crc/vendor/.*\.[c|h]|
             tests/axivion/axivion_preinc\.h|
             tests/axivion/config-test/(test_)?coding-style-naming\..*\.[c|h]|
             tests/cli/pre_commit_scripts/test_check_license_info/invalid-license\.c|
             tests/cli/pre_commit_scripts/test_check_license_info/no-license\.c|
-            tests/cli/pre_commit_scripts/test_check_cpp_style_comment/no-cpp-style-comment\.c|
-            tests/cli/pre_commit_scripts/test_check_cpp_style_comment/cpp-style-comment_[0|1|2]\.c|
+            tests/cli/pre_commit_scripts/test_check_cpp_style_comment/cpp-style-comment_[0|1|2|3]\.c|
+            tests/cli/pre_commit_scripts/test_check_cpp_style_comment/no-cpp-style-comment(-link)?\.c|
             tests/cli/pre_commit_scripts/test_check_doxygen/.*|
             tests/cli/pre_commit_scripts/test_check_include_guard/test_file_empty\.h|
             tests/cli/pre_commit_scripts/test_check_include_guard/test_file_invalid_content\.h|
@@ -908,8 +938,8 @@ repos:
             tests/c-std/c-std-test\.c|
             tests/cli/pre_commit_scripts/test_check_license_info/invalid-license\.c|
             tests/cli/pre_commit_scripts/test_check_license_info/no-license\.c|
-            tests/cli/pre_commit_scripts/test_check_cpp_style_comment/cpp-style-comment_[0|1|2]\.c|
-            tests/cli/pre_commit_scripts/test_check_cpp_style_comment/no-cpp-style-comment\.c|
+            tests/cli/pre_commit_scripts/test_check_cpp_style_comment/cpp-style-comment_[0|1|2|3]\.c|
+            tests/cli/pre_commit_scripts/test_check_cpp_style_comment/no-cpp-style-comment(-link)?\.c|
             tests/cli/pre_commit_scripts/test_check_doxygen/.*|
             tests/cli/pre_commit_scripts/test_check_include_guard/test_file_empty\.h|
             tests/cli/pre_commit_scripts/test_check_include_guard/test_file_invalid_content\.h|
@@ -937,15 +967,13 @@ repos:
         types: [c]
         exclude: |
           (?x)^(
-            src/(app|bootloader)/main/fstartup\.c|
-            src/app/driver/afe/nxp/mc33775a/nxp_mc33775a-ll\.h|
-            src/app/driver/afe/nxp/mc33775a/vendor/.*|
+            src/app/driver/afe/nxp/(common/)?mc3377.*/vendor/.*|
             src/app/driver/sbc/fs8x_driver/.*|
             src/bootloader/driver/crc/vendor/crc64_calc\.[c|h]|
             tests/axivion/axivion_preinc\.h|
             tests/axivion/config-test/(test_)?coding-style-naming\..*\.[c|h]|
-            tests/cli/pre_commit_scripts/test_check_cpp_style_comment/cpp-style-comment_[0|1|2]\.c|
-            tests/cli/pre_commit_scripts/test_check_cpp_style_comment/no-cpp-style-comment\.c|
+            tests/cli/pre_commit_scripts/test_check_cpp_style_comment/cpp-style-comment_[0|1|2|3]\.c|
+            tests/cli/pre_commit_scripts/test_check_cpp_style_comment/no-cpp-style-comment(-link)?\.c|
             tests/cli/pre_commit_scripts/test_check_doxygen.*|
             tests/cli/pre_commit_scripts/test_check_include_guard/test_file_empty\.h|
             tests/cli/pre_commit_scripts/test_check_include_guard/test_file_invalid_content\.h|
@@ -963,7 +991,7 @@ repos:
 
             tests/axivion/axivion_preinc\.h^|
             tests/axivion/config-test/.*\.[c|h]|
-            tests/cli/pre_commit_scripts/test_check_cpp_style_comment/cpp-style-comment_[0|1|2]\.c|
+            tests/cli/pre_commit_scripts/test_check_cpp_style_comment/cpp-style-comment_[0|1|2|3]\.c|
             tests/cli/pre_commit_scripts/test_check_doxygen/invalid-encoding_utf-16\.c
           )$
   - repo: https://github.com/shellcheck-py/shellcheck-py

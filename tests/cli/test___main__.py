@@ -38,3 +38,17 @@
 # - "This product is derived from foxBMS®"
 
 """Testing file 'cli/__main__.py'."""
+
+import unittest
+
+
+class TestMain(unittest.TestCase):
+    """Test of '__main__.py'"""
+
+    def test_dummy(self):
+        """dummy test"""
+        # this test is necessary because otherwise the exit code is non-zero
+
+
+if __name__ == "__main__":
+    unittest.main()

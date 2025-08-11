@@ -37,4 +37,4 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""Various scripts that are run through the pre-commit framework"""
+"""Various scripts that are run through the pre-commit framework."""

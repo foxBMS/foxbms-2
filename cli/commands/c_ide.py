@@ -76,6 +76,12 @@ from ..helpers.click_helpers import HELP_NAMES
     is_flag=True,
     help="Open a VS Code workspace for embedded bootloader development.",
 )
+@click.option(
+    "--cli/--no-cli",
+    default=False,
+    is_flag=True,
+    help="Open a VS Code workspace for fox CLI development.",
+)
 @click.pass_context
 def ide(  # pylint:disable=too-many-arguments,too-many-positional-arguments
     ctx: click.Context,
@@ -84,6 +90,7 @@ def ide(  # pylint:disable=too-many-arguments,too-many-positional-arguments
     embedded_unit_test_bootloader: bool = False,
     app: bool = False,
     bootloader: bool = False,
+    cli: bool = False,
 ) -> None:
     """Open pre-configured VS Code workspaces."""
     if generic:
@@ -96,4 +103,6 @@ def ide(  # pylint:disable=too-many-arguments,too-many-positional-arguments
         ide_impl.open_ide_app()
     if bootloader:
         ide_impl.open_ide_bootloader()
+    if cli:
+        ide_impl.open_ide_cli()
     ctx.exit(0)

@@ -60,7 +60,7 @@ class TestFoxCliMainCommandIde(unittest.TestCase):
     def test_ide_0(self, mock_ide_impl: MagicMock):
         """Test 'fox.py ide' command."""
         mock_ide_impl.open_ide_generic.return_value = 0
-        runner = CliRunner(mix_stderr=False)
+        runner = CliRunner()
         result = runner.invoke(main, ["ide"])
         self.assertEqual(0, result.exit_code)
         mock_ide_impl.open_ide_generic.assert_called_once()
@@ -69,7 +69,7 @@ class TestFoxCliMainCommandIde(unittest.TestCase):
     def test_ide_1(self, mock_ide_impl: MagicMock):
         """Test 'fox.py ide --no-generic' command."""
         mock_ide_impl.mock_ide_impl.return_value = 0
-        runner = CliRunner(mix_stderr=False)
+        runner = CliRunner()
         result = runner.invoke(main, ["ide", "--no-generic"])
         self.assertEqual(0, result.exit_code)
 
@@ -77,16 +77,25 @@ class TestFoxCliMainCommandIde(unittest.TestCase):
     def test_ide_2(self, mock_ide_impl: MagicMock):
         """Test 'fox.py ide --app --no-generic' command."""
         mock_ide_impl.open_ide_app.return_value = 0
-        runner = CliRunner(mix_stderr=False)
+        runner = CliRunner()
         result = runner.invoke(main, ["ide", "--app", "--no-generic"])
         self.assertEqual(0, result.exit_code)
         mock_ide_impl.open_ide_app.assert_called_once()
 
     @patch("cli.commands.c_ide.ide_impl")
+    def test_ide_cli(self, mock_ide_impl: MagicMock):
+        """Test 'fox.py ide --cli --no-generic' command."""
+        mock_ide_impl.open_ide_cli.return_value = 0
+        runner = CliRunner()
+        result = runner.invoke(main, ["ide", "--cli", "--no-generic"])
+        self.assertEqual(0, result.exit_code)
+        mock_ide_impl.open_ide_cli.assert_called_once()
+
+    @patch("cli.commands.c_ide.ide_impl")
     def test_ide_3(self, mock_ide_impl: MagicMock):
         """Test 'fox.py ide --bootloader --no-generic' command."""
         mock_ide_impl.open_ide_bootloader.return_value = 0
-        runner = CliRunner(mix_stderr=False)
+        runner = CliRunner()
         result = runner.invoke(main, ["ide", "--bootloader", "--no-generic"])
         self.assertEqual(0, result.exit_code)
         mock_ide_impl.open_ide_bootloader.assert_called_once()
@@ -95,7 +104,7 @@ class TestFoxCliMainCommandIde(unittest.TestCase):
     def test_ide_4(self, mock_ide_impl: MagicMock):
         """Test 'fox.py ide --embedded-unit-test-app --no-generic' command."""
         mock_ide_impl.open_ide_embedded_unit_test_app.return_value = 0
-        runner = CliRunner(mix_stderr=False)
+        runner = CliRunner()
         result = runner.invoke(
             main, ["ide", "--embedded-unit-test-app", "--no-generic"]
         )
@@ -106,7 +115,7 @@ class TestFoxCliMainCommandIde(unittest.TestCase):
     def test_ide_5(self, mock_ide_impl: MagicMock):
         """Test 'fox.py ide --embedded-unit-test-bootloader --no-generic' command."""
         mock_ide_impl.open_ide_embedded_unit_test_bootloader.return_value = 0
-        runner = CliRunner(mix_stderr=False)
+        runner = CliRunner()
         result = runner.invoke(
             main, ["ide", "--embedded-unit-test-bootloader", "--no-generic"]
         )

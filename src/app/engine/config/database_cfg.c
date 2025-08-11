@@ -43,8 +43,8 @@
  * @file    database_cfg.c
  * @author  foxBMS Team
  * @date    2015-08-18 (date of creation)
- * @updated 2025-03-31 (date of last update)
- * @version v1.9.0
+ * @updated 2025-08-07 (date of last update)
+ * @version v1.10.0
  * @ingroup ENGINE_CONFIGURATION
  * @prefix  DATA
  *
@@ -175,6 +175,9 @@ static DATA_BLOCK_DUMMY_FOR_SELF_TEST_s data_blockDummyForSelfTest = {
 /** data block: aerosol sensor */
 static DATA_BLOCK_AEROSOL_SENSOR_s data_blockAerosolSensor = {.header.uniqueId = DATA_BLOCK_ID_AEROSOL_SENSOR};
 
+/** data block: aerosol sensor */
+static DATA_BLOCK_PHY_s data_blockPhy = {.header.uniqueId = DATA_BLOCK_ID_PHY};
+
 /**
  * @brief   channel configuration of database (data blocks)
  * @details all data block managed by database are listed here (address, size,
@@ -216,6 +219,7 @@ DATA_BASE_s data_database[] = {
     {(void *)(&data_blockHumidityTemperatureSensor), sizeof(DATA_BLOCK_HTSEN_s)},
     {(void *)(&data_blockDummyForSelfTest), sizeof(DATA_BLOCK_DUMMY_FOR_SELF_TEST_s)},
     {(void *)(&data_blockAerosolSensor), sizeof(DATA_BLOCK_AEROSOL_SENSOR_s)},
+    {(void *)(&data_blockPhy), sizeof(DATA_BLOCK_PHY_s)},
 };
 
 /*========== Static Function Prototypes =====================================*/

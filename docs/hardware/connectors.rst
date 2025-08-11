@@ -76,6 +76,7 @@ The benefit of this connector is that it enables both a JTAG connection (for
 debugging purposes) and a trace connection (for detailed trace analysis).
 An adapter is needed to interface this port to a debugger.
 Examples are
+
 - Converter IDC20A to Mictor-38 from Lauterbach (part number ``LA-3722``)
 - J-Link Mictor 38 Adapter from Segger (part number ``8.06.08``)
 - TI-CTI-20 Adapter from Segger (part number ``8.06.06``)

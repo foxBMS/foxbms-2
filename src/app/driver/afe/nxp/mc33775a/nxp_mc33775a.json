@@ -5,7 +5,7 @@
     "config",
     "vendor",
     "../api",
-    "../common",
+    "../common/mc3377x",
     "../../api"
   ]
 }

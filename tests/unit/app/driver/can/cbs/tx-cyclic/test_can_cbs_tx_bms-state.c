@@ -43,8 +43,8 @@
  * @file    test_can_cbs_tx_bms-state.c
  * @author  foxBMS Team
  * @date    2021-07-27 (date of creation)
- * @updated 2025-03-31 (date of last update)
- * @version v1.9.0
+ * @updated 2025-08-07 (date of last update)
+ * @version v1.10.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -88,7 +88,7 @@ TEST_INCLUDE_PATH("../../src/app/engine/sys_mon")
 TEST_INCLUDE_PATH("../../src/app/task/config")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
-uint64_t testMessageData[22u] = {0u};
+uint64_t testMessageData[24u] = {0u};
 
 float_t testInsulationResistance = 1250.0f;
 
@@ -120,6 +120,7 @@ static DATA_BLOCK_RSL_FLAG_s can_tableRslFlags                  = {.header.uniqu
 static DATA_BLOCK_MOL_FLAG_s can_tableMolFlags                  = {.header.uniqueId = DATA_BLOCK_ID_MOL_FLAG};
 static DATA_BLOCK_AEROSOL_SENSOR_s can_tableAerosolSensor       = {.header.uniqueId = DATA_BLOCK_ID_AEROSOL_SENSOR};
 static DATA_BLOCK_BALANCING_CONTROL_s can_tableBalancingControl = {.header.uniqueId = DATA_BLOCK_ID_BALANCING_CONTROL};
+static DATA_BLOCK_PHY_s can_tablePhy                            = {.header.uniqueId = DATA_BLOCK_ID_PHY};
 
 OS_QUEUE imd_canDataQueue = NULL_PTR;
 
@@ -142,6 +143,7 @@ const CAN_SHIM_s can_kShim = {
     .pTableMol              = &can_tableMolFlags,
     .pTableAerosolSensor    = &can_tableAerosolSensor,
     .pTableBalancingControl = &can_tableBalancingControl,
+    .pTablePhy              = &can_tablePhy,
 };
 
 /* bms state with standard config only relevant entries differ */
@@ -180,7 +182,7 @@ static BMS_STATE_s bms_state = {
 
 /*========== Setup and Teardown =============================================*/
 void setUp(void) {
-    for (uint8_t i = 0; i < 22; i++) {
+    for (uint8_t i = 0; i < 24; i++) {
         testMessageData[i] = i;
     }
 }
@@ -323,6 +325,8 @@ void testCANTX_BuildBmsStateMessage(void) {
     can_tableErrorState.framReadCrcError                     = true;
     can_tableInsulation.insulationResistance_kOhm            = 1250u;
     can_tableBalancingControl.enableBalancing                = true;
+    can_tablePhy.aliveStatus                                 = true;
+    can_tablePhy.linkStatus                                  = true;
 
     SYSM_TIMING_VIOLATION_RESPONSE_s testRecordedTimingViolationsZero = {0u};
     SYSM_TIMING_VIOLATION_RESPONSE_s testRecordedTimingViolations     = {
@@ -443,15 +447,25 @@ void testCANTX_BuildBmsStateMessage(void) {
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[19u], 30u, 1u, 1u, CANTX_BMS_STATE_ENDIANNESS);
     CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[20u]);
 
+    /* Phy alive status */
+    CAN_ConvertBooleanToInteger_ExpectAndReturn(true, 1u);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[20u], 39u, 1u, 1u, CANTX_BMS_STATE_ENDIANNESS);
+    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[21u]);
+
+    /* Phy link status */
+    CAN_ConvertBooleanToInteger_ExpectAndReturn(true, 1u);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[21u], 38u, 1u, 1u, CANTX_BMS_STATE_ENDIANNESS);
+    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[22u]);
+
     /* Balancing allowed flag */
     CAN_ConvertBooleanToInteger_ExpectAndReturn(true, 1u);
-    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[20u], 31u, 1u, 1u, CANTX_BMS_STATE_ENDIANNESS);
-    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[21u]);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[22u], 31u, 1u, 1u, CANTX_BMS_STATE_ENDIANNESS);
+    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[23u]);
 
     /* ======= RT1/2: Call function under test */
     TEST_CANTX_BuildBmsStateMessage(&testResult, &can_kShim);
     /* ======= RT1/2: Test output verification */
-    TEST_ASSERT_EQUAL(21u, testResult);
+    TEST_ASSERT_EQUAL(23u, testResult);
 
     /* Reset local variables */
     testResult = 0u;
@@ -566,15 +580,25 @@ void testCANTX_BuildBmsStateMessage(void) {
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[19u], 30u, 1u, 1u, CANTX_BMS_STATE_ENDIANNESS);
     CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[20u]);
 
+    /* Phy alive status */
+    CAN_ConvertBooleanToInteger_ExpectAndReturn(true, 1u);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[20u], 39u, 1u, 1u, CANTX_BMS_STATE_ENDIANNESS);
+    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[21u]);
+
+    /* Phy link status */
+    CAN_ConvertBooleanToInteger_ExpectAndReturn(true, 1u);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[21u], 38u, 1u, 1u, CANTX_BMS_STATE_ENDIANNESS);
+    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[22u]);
+
     /* Balancing allowed flag */
     CAN_ConvertBooleanToInteger_ExpectAndReturn(true, 1u);
-    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[20u], 31u, 1u, 1u, CANTX_BMS_STATE_ENDIANNESS);
-    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[21u]);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[22u], 31u, 1u, 1u, CANTX_BMS_STATE_ENDIANNESS);
+    CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[23u]);
 
     /* ======= RT1/2: Call function under test */
     TEST_CANTX_BuildBmsStateMessage(&testResult, &can_kShim);
     /* ======= RT2/2: Test output verification */
-    TEST_ASSERT_EQUAL(21u, testResult);
+    TEST_ASSERT_EQUAL(23u, testResult);
 }
 
 /**
@@ -639,6 +663,7 @@ void testCANTX_BmsState(void) {
     can_tableErrorState.alertFlagSetError                    = true;
     can_tableErrorState.framReadCrcError                     = true;
     can_tableInsulation.insulationResistance_kOhm            = 1250u;
+    can_tableErrorState.supplyVoltageClamp30cError           = true;
 
     SYSM_TIMING_VIOLATION_RESPONSE_s testRecordedTimingViolationsZero = {0u};
     SYSM_TIMING_VIOLATION_RESPONSE_s testRecordedTimingViolations     = {
@@ -656,6 +681,7 @@ void testCANTX_BmsState(void) {
         can_kShim.pTableMsl,
         can_kShim.pTableBalancingControl,
         STD_OK);
+    DATA_Read1DataBlock_ExpectAndReturn(can_kShim.pTablePhy, STD_OK);
     BMS_GetState_ExpectAndReturn(bms_state.state);
     CAN_TxSetMessageDataWithSignalData_Expect(
         &testMessageData[0u], 3u, 4u, bms_state.state, CANTX_BMS_STATE_ENDIANNESS);
@@ -697,6 +723,10 @@ void testCANTX_BmsState(void) {
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 28u, 1u, 1u, CANTX_BMS_STATE_ENDIANNESS);
     CAN_ConvertBooleanToInteger_ExpectAndReturn(true, 1u);
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 30u, 1u, 1u, CANTX_BMS_STATE_ENDIANNESS);
+    CAN_ConvertBooleanToInteger_ExpectAndReturn(true, 1u);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 39u, 1u, 1u, CANTX_BMS_STATE_ENDIANNESS);
+    CAN_ConvertBooleanToInteger_ExpectAndReturn(true, 1u);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 38u, 1u, 1u, CANTX_BMS_STATE_ENDIANNESS);
     CAN_ConvertBooleanToInteger_ExpectAndReturn(true, 1u);
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 31u, 1u, 1u, CANTX_BMS_STATE_ENDIANNESS);
     CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[1u]);
@@ -750,6 +780,7 @@ void testCANTX_TransmitBmsState(void) {
         can_kShim.pTableMsl,
         can_kShim.pTableBalancingControl,
         STD_OK);
+    DATA_Read1DataBlock_ExpectAndReturn(can_kShim.pTablePhy, STD_OK);
     BMS_GetState_ExpectAndReturn(bms_state.state);
     CAN_TxSetMessageDataWithSignalData_Expect(
         &testMessageData[0u], 3u, 4u, bms_state.state, CANTX_BMS_STATE_ENDIANNESS);
@@ -791,6 +822,10 @@ void testCANTX_TransmitBmsState(void) {
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 28u, 1u, 1u, CANTX_BMS_STATE_ENDIANNESS);
     CAN_ConvertBooleanToInteger_ExpectAndReturn(true, 1u);
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 30u, 1u, 1u, CANTX_BMS_STATE_ENDIANNESS);
+    CAN_ConvertBooleanToInteger_ExpectAndReturn(true, 1u);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 39u, 1u, 1u, CANTX_BMS_STATE_ENDIANNESS);
+    CAN_ConvertBooleanToInteger_ExpectAndReturn(true, 1u);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 38u, 1u, 1u, CANTX_BMS_STATE_ENDIANNESS);
     CAN_ConvertBooleanToInteger_ExpectAndReturn(true, 1u);
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 31u, 1u, 1u, CANTX_BMS_STATE_ENDIANNESS);
     CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[1u]);
@@ -808,6 +843,7 @@ void testCANTX_TransmitBmsState(void) {
         can_kShim.pTableMsl,
         can_kShim.pTableBalancingControl,
         STD_OK);
+    DATA_Read1DataBlock_ExpectAndReturn(can_kShim.pTablePhy, STD_OK);
     BMS_GetState_ExpectAndReturn(bms_state.state);
     CAN_TxSetMessageDataWithSignalData_Expect(
         &testMessageData[0u], 3u, 4u, bms_state.state, CANTX_BMS_STATE_ENDIANNESS);
@@ -849,6 +885,10 @@ void testCANTX_TransmitBmsState(void) {
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 28u, 1u, 1u, CANTX_BMS_STATE_ENDIANNESS);
     CAN_ConvertBooleanToInteger_ExpectAndReturn(true, 1u);
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 30u, 1u, 1u, CANTX_BMS_STATE_ENDIANNESS);
+    CAN_ConvertBooleanToInteger_ExpectAndReturn(true, 1u);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 39u, 1u, 1u, CANTX_BMS_STATE_ENDIANNESS);
+    CAN_ConvertBooleanToInteger_ExpectAndReturn(true, 1u);
+    CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 38u, 1u, 1u, CANTX_BMS_STATE_ENDIANNESS);
     CAN_ConvertBooleanToInteger_ExpectAndReturn(true, 1u);
     CAN_TxSetMessageDataWithSignalData_Expect(&testMessageData[0u], 31u, 1u, 1u, CANTX_BMS_STATE_ENDIANNESS);
     CAN_TxSetMessageDataWithSignalData_ReturnThruPtr_pMessage(&testMessageData[1u]);

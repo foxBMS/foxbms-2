@@ -43,8 +43,8 @@
  * @file    app_build_cfg.h
  * @author  foxBMS Team
  * @date    2024-10-02 (date of creation)
- * @updated 2025-03-31 (date of last update)
- * @version v1.9.0
+ * @updated 2025-08-07 (date of last update)
+ * @version v1.10.0
  * @ingroup MAIN
  * @prefix  VER
  *
@@ -66,21 +66,29 @@
 
 /** Enums for the build information */
 /** @{
- * AFEs enum
+ * AFE types enum
  */
 typedef enum {
-    LTC_LTC6804_1,
-    LTC_LTC6806,
-    LTC_LTC6811_1,
-    LTC_LTC6812_1,
-    LTC_LTC6813_1,
-    NXP_MC33775A,
-    MAXIM_MAX17852,
-    DEBUG_DEFAULT,
-    ADI_ADES1830,
-    ADI_ADBMS6832,
-    TI_BQ79718,
-    TI_DUMMY,
+    /* Higher two hexadecimal digits are the different manufacturers
+    * and the lower two digits are the specific AFE type */
+
+    /* DEBUG Default */
+    DEBUG_DEFAULT = 0x0000,
+    /* LTC: 0x0100 - 0x0199 */
+    LTC_LTC6804_1 = 0x0100,
+    LTC_LTC6806   = 0x0101,
+    LTC_LTC6811_1 = 0x0102,
+    LTC_LTC6812_1 = 0x0103,
+    LTC_LTC6813_1 = 0x0104,
+    /* NXP: 0x0200 - 0x0299 */
+    NXP_MC33775A = 0x0200,
+    /* MAXIM: 0x0300 - 0x0399 */
+    MAXIM_MAX17852 = 0x0300,
+    /* ADI: 0x0400 - 0x0499 */
+    ADI_ADES1830 = 0x0400,
+    /* TI: 0x0500 - 0x0599 */
+    TI_DUMMY = 0x0501,
+    /* Current Limit -> 0xFFFF (4 digits) */
 } VER_AFES_e;
 /** @} */
 

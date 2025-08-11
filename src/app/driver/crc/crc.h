@@ -43,8 +43,8 @@
  * @file    crc.h
  * @author  foxBMS Team
  * @date    2022-02-22 (date of creation)
- * @updated 2025-03-31 (date of last update)
- * @version v1.9.0
+ * @updated 2025-08-07 (date of last update)
+ * @version v1.10.0
  * @ingroup DRIVERS
  * @prefix  CRC
  *
@@ -101,6 +101,9 @@ crcBASE_t test_register;
 #endif
 
 /*========== Extern Constant and Variable Declarations ======================*/
+#ifdef UNITY_UNIT_TEST
+extern uint16_t crcCalls;
+#endif
 
 /*========== Extern Function Prototypes =====================================*/
 

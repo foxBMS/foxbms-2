@@ -45,9 +45,13 @@ request is sent to the state machine.
 A simplified flow chart of the BMS state machine and the possible transitions
 between the main states is depicted in the figure below.
 
- .. graphviz:: bms-state-diagram.dot
-    :caption: BMS state flow diagram
-    :name: bms-state-diagram
+.. drawio-figure:: bms-state-diagram.drawio
+   :format: svg
+   :alt: BMS state flow diagram
+   :name: bms-state-diagram
+   :width: 240px
+
+   BMS state flow diagram
 
 All diagnosis flags are transmitted via CAN, allowing the superior control
 system to react accordingly.

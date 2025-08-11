@@ -62,7 +62,7 @@ class TestFoxCliMainRunScript(unittest.TestCase):
     def test_run_script(self, mock_script_impl: MagicMock):
         """Test 'fox.py run-script dummy-argument' command."""
         mock_script_impl.run_python_script.return_value = SubprocessResult(0, "", "")
-        runner = CliRunner(mix_stderr=False)
+        runner = CliRunner()
         result = runner.invoke(main, ["run-script", "dummy-argument"])
         mock_script_impl.run_python_script.assert_called_once_with(
             ["dummy-argument"], cwd=None, stdout=None, stderr=None

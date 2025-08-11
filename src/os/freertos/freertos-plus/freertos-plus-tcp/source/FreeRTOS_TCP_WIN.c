@@ -1,5 +1,5 @@
 /*
- * FreeRTOS+TCP V4.2.1
+ * FreeRTOS+TCP V4.3.2
  * Copyright (C) 2022 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * SPDX-License-Identifier: MIT
@@ -1901,17 +1901,32 @@
                                                      const TCPSegment_t * pxSegment )
         {
             int32_t mS = ( int32_t ) ulTimerGetAge( &( pxSegment->xTransmitTimer ) );
+            int32_t lSum = 0;
+            int32_t lWeight = 0;
+            int32_t lDivisor = 0;
+
+            mS = ( mS < 0 ) ? ipINT32_MAX_VALUE : mS;
 
             if( pxWindow->lSRTT >= mS )
             {
                 /* RTT becomes smaller: adapt slowly. */
-                pxWindow->lSRTT = ( ( winSRTT_DECREMENT_NEW * mS ) + ( winSRTT_DECREMENT_CURRENT * pxWindow->lSRTT ) ) / ( winSRTT_DECREMENT_NEW + winSRTT_DECREMENT_CURRENT );
+                lWeight = winSRTT_DECREMENT_CURRENT;
+                lDivisor = winSRTT_DECREMENT_NEW + winSRTT_DECREMENT_CURRENT;
+                mS = FreeRTOS_multiply_int32( mS,
+                                              winSRTT_DECREMENT_NEW );
             }
             else
             {
                 /* RTT becomes larger: adapt quicker */
-                pxWindow->lSRTT = ( ( winSRTT_INCREMENT_NEW * mS ) + ( winSRTT_INCREMENT_CURRENT * pxWindow->lSRTT ) ) / ( winSRTT_INCREMENT_NEW + winSRTT_INCREMENT_CURRENT );
+                lWeight = winSRTT_INCREMENT_CURRENT;
+                lDivisor = winSRTT_INCREMENT_NEW + winSRTT_INCREMENT_CURRENT;
+                mS = FreeRTOS_multiply_int32( mS,
+                                              winSRTT_INCREMENT_NEW );
             }
+
+            lSum = FreeRTOS_multiply_int32( pxWindow->lSRTT, lWeight );
+            lSum = FreeRTOS_add_int32( lSum, mS );
+            pxWindow->lSRTT = lSum / lDivisor;
 
             /* Cap to the minimum of 50ms. */
             if( pxWindow->lSRTT < winSRTT_CAP_mS )
@@ -1946,7 +1961,7 @@
             const ListItem_t * pxIterator;
 
             /* MISRA Ref 11.3.1 [Misaligned access] */
-/* More details at: https://github.com/FreeRTOS/FreeRTOS-Plus-TCP/blob/main/MISRA.md#rule-113 */
+            /* More details at: https://github.com/FreeRTOS/FreeRTOS-Plus-TCP/blob/main/MISRA.md#rule-113 */
             /* coverity[misra_c_2012_rule_11_3_violation] */
             const ListItem_t * pxEnd = ( ( const ListItem_t * ) &( pxWindow->xTxSegments.xListEnd ) );
             BaseType_t xDoUnlink;

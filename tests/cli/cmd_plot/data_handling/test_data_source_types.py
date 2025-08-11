@@ -38,3 +38,17 @@
 # - "This product is derived from foxBMS®"
 
 """Testing file 'cli/cmd_plot/data_handling/data_source_types.py'."""
+
+import unittest
+
+
+class TestDataSourceTypes(unittest.TestCase):
+    """Test of 'data_source_types.py'"""
+
+    def test_dummy(self):
+        """dummy test"""
+        # this test is necessary because otherwise the exit code is non-zero
+
+
+if __name__ == "__main__":
+    unittest.main()

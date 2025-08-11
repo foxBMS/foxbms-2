@@ -59,14 +59,15 @@ except ModuleNotFoundError:
 class TestCANDecode(unittest.TestCase):
     """Test cases for the CANDecode class"""
 
-    def test_candecode_init(self) -> None:
+    def test_can_decode_init(self) -> None:
         """Tests the creation of a CANDecode object"""
         # Case 1: Create CANDecode object with valid config
-        test_obj = CANDecode(None, 0, 2, 6)
+        test_obj = CANDecode(None, 0, 2, 6, Path("."))
         self.assertEqual(test_obj._database, None)  # pylint: disable=W0212
         self.assertEqual(test_obj._timestamp_pos, 0)  # pylint: disable=W0212
         self.assertEqual(test_obj._id_pos, 2)  # pylint: disable=W0212
         self.assertEqual(test_obj._data_pos, 6)  # pylint: disable=W0212
+        self.assertEqual(test_obj.output_directory, Path("."))  # pylint: disable=W0212
 
     def test_decode_msg(self) -> None:
         """Tests the decode_msg method from the CANDecode class,
@@ -79,12 +80,16 @@ class TestCANDecode(unittest.TestCase):
                 "SG_ CurrentSensor_SIG_Current : 23|32@0- (1,0)"
                 ' [-2147483648|2147483647] "mA" Vector__XXX\n'
             )
-        dbc = get_cantools_database(temp_path)
-        test_obj = CANDecode(dbc=dbc, timestamp_pos=0, id_pos=2, data_pos=6)
+        dbc = get_cantools_database(Path(temp_path))
+        test_obj = CANDecode(
+            dbc=dbc, timestamp_pos=0, id_pos=2, data_pos=6, output=Path(".")
+        )
         test_obj._handle_decoding = Mock(return_value="test")  # pylint: disable=W0212
         self.assertEqual("test", test_obj.decode_msg("test"))
-        test_obj = CANDecode(dbc=dbc, timestamp_pos=0, id_pos=2, data_pos=6)
-        list_of_test_cases = [
+        test_obj = CANDecode(
+            dbc=dbc, timestamp_pos=0, id_pos=2, data_pos=6, output=Path(".")
+        )
+        test_cases = [
             {"msg": "test", "logging": "Index error at msg: test"},
             {
                 "msg": "0.1 2 test 2 3 5 6",
@@ -103,7 +108,7 @@ class TestCANDecode(unittest.TestCase):
                 "not be decoded",
             },
         ]
-        for i in list_of_test_cases:
+        for i in test_cases:
             with self.subTest(f"Case: {i['logging']}"):
                 with self.assertLogs(level=logging.INFO) as al:
                     msg_name, decoded_msg = test_obj.decode_msg(i["msg"])
@@ -115,7 +120,7 @@ class TestCANDecode(unittest.TestCase):
 
     def test_handle_decoding(self) -> None:
         """Tests the handle_decoding method of the CANDecode class"""
-        # Case 1: non-mulitplexed message
+        # Case 1: non-multiplexed message
         tf, temp_path = mkstemp()
         with open(tf, mode="w", encoding="utf-8") as f:
             f.write("BO_ 860 CurrentSensor_Current: 6 Vector__XXX\n")
@@ -123,17 +128,19 @@ class TestCANDecode(unittest.TestCase):
                 "SG_ CurrentSensor_SIG_Current : 23|32@0- (1,0)"
                 ' [-2147483648|2147483647] "mA" Vector__XXX\n'
             )
-        dbc = get_cantools_database(temp_path)
-        test_obj = CANDecode(dbc=dbc, timestamp_pos=0, id_pos=2, data_pos=6)
+        dbc = get_cantools_database(Path(temp_path))
+        test_obj = CANDecode(
+            dbc=dbc, timestamp_pos=0, id_pos=2, data_pos=6, output=Path(".")
+        )
         can_msg = "925.201998 8  35C        Rx D 6  00  04  FF  FF  F4  A4"
         msg_name, decoded_msg = test_obj._handle_decoding(can_msg)  # pylint: disable=protected-access
         self.assertEqual(msg_name, "CurrentSensor_Current")
         self.assertEqual(
             decoded_msg,
-            '{"Timestamp": 925.201998,"860_CurrentSensor_SIG_Current_mA":-2908}\n',
+            '{"Timestamp": 925.201998,"0x35C_CurrentSensor_SIG_Current_mA":-2908}\n',
         )
         os.remove(temp_path)
-        # Case 2: mulitplexed message
+        # Case 2: multiplexed message
         tf, temp_path = mkstemp()
         with open(tf, mode="w", encoding="utf-8") as f:
             f.write("BO_ 577 f_StringMinimumMaximumValues: 8 Vector__XXX\n")
@@ -157,16 +164,18 @@ class TestCANDecode(unittest.TestCase):
                 "SG_ MinimumCellTemperature m0 : 42|9@0- (0.5,0) "
                 '[-128|127.5] "degC" Vector__XXX\n'
             )
-        dbc = get_cantools_database(temp_path)
-        test_obj = CANDecode(dbc=dbc, timestamp_pos=0, id_pos=2, data_pos=6)
+        dbc = get_cantools_database(Path(temp_path))
+        test_obj = CANDecode(
+            dbc=dbc, timestamp_pos=0, id_pos=2, data_pos=6, output=Path(".")
+        )
         can_msg = "925.216222 8  241        Rx D 8  00  07  F2  3F  8D  FC  8F  E4"
         msg_name, decoded_msg = test_obj._handle_decoding(can_msg)  # pylint: disable=protected-access
         expected_decoded_msg = (
-            '{"Timestamp": 925.216222,"577_MaximumCellVoltage_mV":'
-            '508,"577_MinimumCellVoltage_mV":-7176,"577_MaximumCellTemperature_degC"'
-            ':-32.5,"577_MinimumCellTemperature_degC":-110.5}\n'
+            '{"Timestamp": 925.216222,"0x241_MaximumCellVoltage_mV":'
+            '508,"0x241_MinimumCellVoltage_mV":-7176,"0x241_MaximumCellTemperature_degC"'
+            ':-32.5,"0x241_MinimumCellTemperature_degC":-110.5}\n'
         )
-        self.assertEqual(msg_name, "f_StringMinimumMaximumValues")
+        self.assertEqual(msg_name, "f_StringMinimumMaximumValues_Mux_0")
         self.assertEqual(decoded_msg, expected_decoded_msg)
         os.remove(temp_path)
         # Case 3: two CAN message different CAN id
@@ -182,14 +191,16 @@ class TestCANDecode(unittest.TestCase):
                 "SG_ CurrentSensor_SIG_Current : 23|32@0- (1,0)"
                 ' [-2147483648|2147483647] "mA" Vector__XXX\n'
             )
-        dbc = get_cantools_database(temp_path)
-        test_obj = CANDecode(dbc=dbc, timestamp_pos=0, id_pos=2, data_pos=6)
+        dbc = get_cantools_database(Path(temp_path))
+        test_obj = CANDecode(
+            dbc=dbc, timestamp_pos=0, id_pos=2, data_pos=6, output=Path(".")
+        )
         can_msg = "925.201998 8  33E        Rx D 6  00  04  FF  FF  F4  A4"
         msg_name, decoded_msg = test_obj._handle_decoding(can_msg)  # pylint: disable=protected-access
         self.assertEqual(msg_name, "CurrentSensor_Current2")
         self.assertEqual(
             decoded_msg,
-            '{"Timestamp": 925.201998,"830_CurrentSensor_SIG_Current_mA":-2908}\n',
+            '{"Timestamp": 925.201998,"0x33E_CurrentSensor_SIG_Current_mA":-2908}\n',
         )
         os.remove(temp_path)
 
@@ -203,7 +214,7 @@ class TestCANDecode(unittest.TestCase):
         msg_id = "0"
         decoded_data = {"test": 20}
         data_format = CANDecode._data_format(msg_id, signals, decoded_data)  # pylint: disable=protected-access
-        expected_data_format = '"0_test_mA":20,"0_test_mA":20'
+        expected_data_format = '"0x0_test_mA":20,"0x0_test_mA":20'
         self.assertEqual(data_format, expected_data_format)
         # Case 2: Decoded data without unit
         signal_mock = Mock()
@@ -213,7 +224,7 @@ class TestCANDecode(unittest.TestCase):
         msg_id = "0"
         decoded_data = {"test": "20"}
         data_format = CANDecode._data_format(msg_id, signals, decoded_data)  # pylint: disable=protected-access
-        expected_data_format = '"0_test_None":"20","0_test_None":"20"'
+        expected_data_format = '"0x0_test_None":"20","0x0_test_None":"20"'
         self.assertEqual(data_format, expected_data_format)
 
 

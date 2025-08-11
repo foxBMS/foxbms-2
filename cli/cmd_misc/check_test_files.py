@@ -37,15 +37,13 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""Run uncrustify on the FreeRTOS sources in the foxBMS source tree"""
+"""Checks test files of all python files"""
 
 import ast
 import os
 from pathlib import Path
 
-from click import secho
-
-from ..helpers.click_helpers import recho
+from ..helpers.click_helpers import recho, secho
 from ..helpers.misc import PROJECT_ROOT
 from ..helpers.spr import SubprocessResult
 
@@ -61,8 +59,67 @@ def _get_test_files() -> list[Path]:
     ]
 
 
+def _check_main_unittest(file: Path, tree: ast.Module) -> SubprocessResult:
+    """Checks existence of 'main' definition and 'unittest.main()' call."""
+    has_main = False
+    calls_unittest_main = False
+    result = SubprocessResult(0)
+
+    for node in ast.walk(tree):
+        # Check for __main__ definition
+        if not (isinstance(node, ast.If) and isinstance(node.test, ast.Compare)):
+            continue
+
+        if not (
+            isinstance(node.test.left, ast.Name)
+            and node.test.left.id == "__name__"
+            and isinstance(node.test.comparators[0], ast.Constant)
+            and node.test.comparators[0].value == "__main__"
+        ):
+            continue
+
+        # we have at least '__main__' defined
+        has_main = True
+
+        # Check for unittest.main() call inside __main__
+        for inner_node in node.body:
+            if not (
+                isinstance(inner_node, ast.Expr)
+                and isinstance(inner_node.value, ast.Call)
+            ):
+                continue
+
+            if (
+                isinstance(inner_node.value.func, ast.Attribute)
+                and inner_node.value.func.attr == "main"
+                and isinstance(inner_node.value.func.value, ast.Name)
+                and inner_node.value.func.value.id == "unittest"
+            ):
+                calls_unittest_main = True
+
+    if not (has_main and calls_unittest_main):
+        result += SubprocessResult(1)
+        recho(f"{file} must define '__main__' and call unittest.main().")
+    return result
+
+
+def _check_docstring(file: Path, tree: ast.Module) -> SubprocessResult:
+    """Checks correctness of the docstring"""
+    result = SubprocessResult(0)
+    cli_file = Path(
+        str(file).replace("tests" + os.sep, "").replace(os.sep + "test_", os.sep)
+    ).as_posix()
+    if not str(ast.get_docstring(tree)).startswith(f"Testing file '{cli_file}'."):
+        result += SubprocessResult(1)
+        recho(
+            f"{file} is missing a docstring starting with "
+            f'"""Testing file \'{cli_file}\'."""'
+        )
+    return result
+
+
 def check_for_test_files(verbose: int = 0) -> SubprocessResult:
-    """Check whether all python files have a test file"""
+    """Check whether all python files have a correct test file"""
     result = SubprocessResult(0)
 
     # 1. check that all test files exist
@@ -88,14 +145,10 @@ def check_for_test_files(verbose: int = 0) -> SubprocessResult:
 
     # 2. check that all test have the correct style
     for i in test_files:
-        mod = ast.parse(i.read_text(encoding="utf-8"))
-        cli_file = Path(
-            str(i).replace("tests" + os.sep, "").replace(os.sep + "test_", os.sep)
-        ).as_posix()
-        if not str(ast.get_docstring(mod)).startswith(f"Testing file '{cli_file}'."):
-            result += SubprocessResult(1)
-            recho(
-                f"{i} is missing a docstring starting with "
-                f'"""Testing file \'{cli_file}\'."""'
-            )
+        if i.name in ("__init__.py"):
+            continue
+        tree = ast.parse(i.read_text(encoding="utf-8"))
+        result += _check_docstring(i, tree)
+        result += _check_main_unittest(i, tree)
+
     return result

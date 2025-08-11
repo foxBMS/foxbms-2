@@ -43,8 +43,8 @@
  * @file    can_cbs_tx_debug-response.h
  * @author  foxBMS Team
  * @date    2022-07-01 (date of creation)
- * @updated 2025-03-31 (date of last update)
- * @version v1.9.0
+ * @updated 2025-08-07 (date of last update)
+ * @version v1.10.0
  * @ingroup DRIVERS
  * @prefix  CANTX
  *
@@ -96,7 +96,7 @@ extern uint64_t TEST_CANTX_TransmitMcuWaferInformation(void);
 extern uint64_t TEST_CANTX_TransmitBootMagic(uint64_t messageData);
 extern uint64_t TEST_CANTX_TransmitBootMagicStart(void);
 extern uint64_t TEST_CANTX_TransmitBootMagicEnd(void);
-extern uint64_t TEST_CANTX_TransmitBootMagicTimeStamp(void);
+extern uint64_t TEST_CANTX_TransmitBootTimeStamp(void);
 extern uint64_t TEST_CANTX_TransmitRtcTime(void);
 extern uint64_t TEST_CANTX_TransmitUptime(void);
 extern STD_RETURN_TYPE_e TEST_CANTX_TransmitCommitHash(void);

@@ -43,7 +43,7 @@ import io
 import shutil
 import sys
 import unittest
-from contextlib import redirect_stderr
+from contextlib import redirect_stderr, redirect_stdout
 from datetime import datetime
 from pathlib import Path
 from unittest.mock import MagicMock, Mock, patch
@@ -254,6 +254,7 @@ class TestDraw(unittest.TestCase):
         )
 
 
+@patch("cli.cmd_plot.drawer.line_graph_drawer.Axes.plot")
 class TestDrawLine(unittest.TestCase):
     """Class to test the draw_line method of the LineGraphDrawer class"""
 
@@ -269,7 +270,25 @@ class TestDrawLine(unittest.TestCase):
         self.x_values = np.array([1, 2, 3])
         self.y_values = np.array([2, 4, 6])
 
-    @patch("cli.cmd_plot.drawer.line_graph_drawer.Axes.plot")
+    def test_handling_nan_values(self, mock_plot: Mock) -> None:
+        """Test the function draw_line with respect to nan handling"""
+        self.y_values = np.array([2.0, np.nan, 6.0])
+        line = LinesSettings(
+            input=["column 1", "column 2"],
+            labels=["test 1", "test 2"],
+        )
+        line_graph_drawer = LineGraphDrawer(
+            graph=GraphSettings(show=False, save=True),
+            descriptions=self.description,
+            mapping=Mapping(x="Time", x_ticks_count=2, y1=line, y2=None, y3=None),
+            axes=self.axis,
+            name="test_1",
+        )
+        line_graph_drawer._draw_line(self.axis, self.x_values, self.y_values, line)  # pylint: disable=protected-access
+        call_args, _ = mock_plot.call_args
+        self.assertEqual(list(call_args[0]), list(np.array([1, 3])))
+        self.assertEqual(list(call_args[1]), list(np.array([2.0, 6.0])))
+
     def test_with_min_max(self, mock_plot: Mock) -> None:
         """Tests the function draw_line with provided min max values"""
         line = LinesSettings(
@@ -295,8 +314,7 @@ class TestDrawLine(unittest.TestCase):
         self.assertEqual(self.axis.get_ylim(), (np.float64(2.0), np.float64(15.0)))
         # test for color is not possible because of the iterator
 
-    @patch("cli.cmd_plot.drawer.line_graph_drawer.Axes.plot")
-    def test_witout_min_max(self, mock_plot: Mock) -> None:
+    def test_without_min_max(self, mock_plot: Mock) -> None:
         """Tests the function draw_line without min max values"""
         line = LinesSettings(
             input=["column 1", "column 2"], labels=["test 1", "test 2"], factor=10
@@ -314,6 +332,54 @@ class TestDrawLine(unittest.TestCase):
         self.assertEqual(list(call_args[1]), list(self.y_values * 10))
         self.assertEqual(call_kwargs["label"], "test 1")
         self.assertEqual(call_kwargs["scaley"], True)
+
+    def test_with_min_max_and_string_values(self, _: Mock) -> None:
+        """Tests the function draw_line with column containing values with
+        dtype string"""
+        line = LinesSettings(
+            input=["column 1", "column 2"],
+            labels=["test 1", "test 2"],
+            factor=2,
+            min=2,
+            max=15,
+        )
+        line_graph_drawer = LineGraphDrawer(
+            graph=GraphSettings(show=False, save=True),
+            descriptions=self.description,
+            mapping=Mapping(x="Time", x_ticks_count=2, y1=line, y2=None, y3=None),
+            axes=self.axis,
+            name="test_1",
+        )
+        self.y_values = np.array(["txt1", "txt2", "txt3"])
+        buf = io.StringIO()
+        with redirect_stderr(buf), self.assertRaises(SystemExit) as cm:
+            # pylint: disable=W0212
+            line_graph_drawer._draw_line(self.axis, self.x_values, self.y_values, line)
+        self.assertEqual(cm.exception.code, 1)
+        self.assertIn(
+            "Min/Max axis limits for string y-values in plot 'Test Plot' are not allowed",
+            buf.getvalue(),
+        )
+
+    def test_without_min_max_with_string_values(self, mock_plot: Mock) -> None:
+        """Tests the function draw_line with column containing values with
+        dtype string"""
+        line = LinesSettings(
+            input=["column 1", "column 2"],
+            labels=["test 1", "test 2"],
+            factor=2,
+        )
+        line_graph_drawer = LineGraphDrawer(
+            graph=GraphSettings(show=False, save=True),
+            descriptions=self.description,
+            mapping=Mapping(x="Time", x_ticks_count=2, y1=line, y2=None, y3=None),
+            axes=self.axis,
+            name="test_1",
+        )
+        self.y_values = np.array(["txt1", "txt2", "txt3"])
+        # pylint: disable=W0212
+        line_graph_drawer._draw_line(self.axis, self.x_values, self.y_values, line)
+        mock_plot.assert_called_once()
 
 
 class TestShow(unittest.TestCase):
@@ -376,12 +442,18 @@ class TestSave(unittest.TestCase):
         """Clean up the test files"""
         remove_test_files(self.start_time)
 
-    @patch("matplotlib.pyplot.savefig")
+    @patch("matplotlib.pyplot.savefig")  ###
     def test_save_set_true(self, mock_savefig: Mock) -> None:
         """Tests the function save with parameter set true"""
-        self.line_graph_drawer.save(PATH_DATA)
+        out = io.StringIO()
+        with redirect_stdout(out):
+            self.line_graph_drawer.save(PATH_DATA)
         mock_savefig.assert_called_once_with(
             fname=Path(PATH_DATA) / Path("test_1.png"), dpi=100, format="png"
+        )
+        self.assertRegex(
+            out.getvalue(),
+            r"Save plot at .*tests[\\/]cli[\\/]cmd_plot[\\/]test_data[\\/]test_1.png",
         )
         plt.clf()
         plt.close("all")
@@ -440,15 +512,28 @@ def remove_test_files(start_time: datetime) -> None:
             (root / name).rmdir()
 
     if (PROJECT_BUILD_ROOT / "plots").is_dir():
-        if (
-            datetime.fromtimestamp((PROJECT_BUILD_ROOT / "plots").stat().st_birthtime)
-            > start_time
-        ):
+        try:
+            # st_birthtime is not always available see docs
+            # https://docs.python.org/3/library/os.html#os.stat_result.st_birthtime
+            birthtime = datetime.fromtimestamp(
+                (PROJECT_BUILD_ROOT / "plots").stat().st_birthtime
+            )
+        except AttributeError:
+            birthtime = datetime.fromtimestamp(
+                (PROJECT_BUILD_ROOT / "plots").stat().st_atime
+            )
+        if birthtime > start_time:
             shutil.rmtree(PROJECT_BUILD_ROOT / "plots")
         else:
             dirs = [d for d in (PROJECT_BUILD_ROOT / "plots").iterdir() if d.is_dir()]
+            # st_birthtime is not always available see docs
+            # https://docs.python.org/3/library/os.html#os.stat_result.st_birthtime
             for d in dirs:
-                if datetime.fromtimestamp(d.stat().st_birthtime) > start_time:
+                try:
+                    birthtime = datetime.fromtimestamp(d.stat().st_birthtime)
+                except AttributeError:
+                    birthtime = datetime.fromtimestamp(d.stat().st_atime)
+                if birthtime > start_time:
                     shutil.rmtree(d)
 
 

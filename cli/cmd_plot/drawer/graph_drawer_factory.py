@@ -62,32 +62,34 @@ from .settings_graph import (
 class GraphDrawerFactory(GraphDrawerFactoryInterface):  # pylint: disable=too-few-public-methods
     """Class that implements the interface GraphDrawerFactory"""
 
-    def get_object(self, graph_type: GraphTypes, config: dict) -> LineGraphDrawer:
+    def get_object(self, graph_config: dict) -> LineGraphDrawer:
         """Creates a LineGraphDrawer object from the given configuration."""
+        graph_type = GraphDrawerFactory._get_graph_type(graph_config)
         match graph_type:
             case GraphTypes.LINE:
                 # Create all relevant properties for GraphDrawer
-                LineGraphDrawer.validate_config(config)
-                mapping = Mapping(**config["mapping"])
-                graph_settings = GraphSettings(**config["graph"])
-                description = Description(**config["description"])
+                LineGraphDrawer.validate_config(graph_config)
+                mapping = Mapping(**graph_config["mapping"])
+                graph_settings = GraphSettings(**graph_config["graph"])
+                description = Description(**graph_config["description"])
                 plt.style.use(["science", "ieee", "no-latex"])
                 matplotlib.rc("font", size=16)
                 # avoid overlap of x and y-axis values
                 matplotlib.rcParams["xtick.major.pad"] = 12
-                _, axes = plt.subplots(
+                fig, axes = plt.subplots(
                     figsize=(
                         graph_settings.width_px / graph_settings.dpi,
                         graph_settings.height_px / graph_settings.dpi,
                     ),
                     dpi=graph_settings.dpi,
                 )
+                fig.set_layout_engine("tight")
                 line_graph_drawer = LineGraphDrawer(
                     graph=graph_settings,
                     descriptions=description,
                     mapping=mapping,
                     axes=axes,
-                    name=config["name"],
+                    name=graph_config["name"],
                 )
                 return line_graph_drawer
             case _:

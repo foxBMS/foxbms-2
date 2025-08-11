@@ -52,7 +52,7 @@ from matplotlib import dates, ticker
 from matplotlib.axes import Axes
 from yaml import safe_load
 
-from ...helpers.click_helpers import recho
+from ...helpers.click_helpers import echo, recho
 from .line_graph_drawer_interface import LineGraphDrawerInterface
 from .settings_graph import Description, GraphSettings, LinesSettings, Mapping
 
@@ -73,7 +73,7 @@ class LineGraphDrawer(LineGraphDrawerInterface):
         self._descriptions = descriptions
         self._mapping = mapping
         self._axes = axes
-        self._name = name
+        self.name = name
         self._cycler = plt.rcParams["axes.prop_cycle"]()
 
     def draw(self, data: pd.DataFrame) -> None:
@@ -107,8 +107,10 @@ class LineGraphDrawer(LineGraphDrawerInterface):
     def save(self, output_dir: Path) -> None:
         """Saves the plot if wanted"""
         if self._graph.save:
+            fname = Path(output_dir) / Path(self.name + "." + self._graph.format)
+            echo(f"Save plot at {fname}")
             plt.savefig(
-                fname=Path(output_dir) / Path(self._name + "." + self._graph.format),
+                fname=fname,
                 dpi=self._graph.dpi,
                 format=self._graph.format,
             )
@@ -164,11 +166,23 @@ class LineGraphDrawer(LineGraphDrawerInterface):
         settings: LinesSettings,
     ) -> list[matplotlib.lines.Line2D]:
         """Draws the specified line"""
-        scaled_y_values = y_values * settings.factor
+        if not (y_values.dtype.type is np.str_ or y_values.dtype.type is np.object_):
+            x_values = x_values[~np.isnan(y_values)]
+            y_values = y_values[~np.isnan(y_values)]
         scaley = True
         if (settings.min is not None) and (settings.max is not None):
+            if y_values.dtype.type is np.str_ or y_values.dtype.type is np.object_:
+                recho(
+                    "Min/Max axis limits for string y-values in plot "
+                    f"'{self._descriptions.title}' are not allowed"
+                )
+                sys.exit(1)
             axis.set_ylim(settings.min, settings.max)
             scaley = False
+        if y_values.dtype.type is np.str_ or y_values.dtype.type is np.object_:
+            scaled_y_values = y_values
+        else:
+            scaled_y_values = y_values * settings.factor
         label = next(settings.labels)  # type: ignore
         return axis.plot(
             x_values,
@@ -179,7 +193,7 @@ class LineGraphDrawer(LineGraphDrawerInterface):
         )
 
     @staticmethod
-    def validate_config(config: dict):
+    def validate_config(config: dict) -> None:
         """Validates the CSVHandler configuration"""
         schema_path = Path(__file__).parent / "schemas" / "line_graph_drawer.json"
         with open(schema_path, encoding="utf-8") as f:

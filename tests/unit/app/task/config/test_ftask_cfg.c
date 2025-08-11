@@ -43,8 +43,8 @@
  * @file    test_ftask_cfg.c
  * @author  foxBMS Team
  * @date    2020-04-02 (date of creation)
- * @updated 2025-03-31 (date of last update)
- * @version v1.9.0
+ * @updated 2025-08-07 (date of last update)
+ * @version v1.10.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -56,6 +56,7 @@
 /*========== Includes =======================================================*/
 #include "unity.h"
 #include "MockHL_gio.h"
+#include "MockHL_mdio.h"
 #include "Mockadc.h"
 #include "Mockafe.h"
 #include "Mockalgorithm.h"
@@ -66,6 +67,7 @@
 #include "Mockdatabase.h"
 #include "Mockdiag.h"
 #include "Mockdiag_cfg.h"
+#include "Mockdp83869.h"
 #include "Mockfram.h"
 #include "Mockhtsensor.h"
 #include "Mocki2c.h"
@@ -117,6 +119,7 @@ TEST_INCLUDE_PATH("../../src/app/driver/interlock")
 TEST_INCLUDE_PATH("../../src/app/driver/led")
 TEST_INCLUDE_PATH("../../src/app/driver/meas")
 TEST_INCLUDE_PATH("../../src/app/driver/pex")
+TEST_INCLUDE_PATH("../../src/app/driver/phy")
 TEST_INCLUDE_PATH("../../src/app/driver/rtc")
 TEST_INCLUDE_PATH("../../src/app/driver/sbc")
 TEST_INCLUDE_PATH("../../src/app/driver/sbc/fs8x_driver")
@@ -179,7 +182,18 @@ void testFTSK_RunUserCodeEngine(void) {
     FTSK_RunUserCodeEngine();
 }
 
+/**
+ * @brief   Testing extern function #FTSK_InitializeUserCodePreCyclicTasks
+ * @details The following cases need to be tested:
+ *          - Argument validation:
+ *            - none
+ *          - Routine validation:
+ *            - RT1/2: Fail assertion on initialize
+ *            - RT2/2: Pass assertion on initialize
+ */
 void testFTSK_InitializeUserCodePreCyclicTasks(void) {
+    /* ======= Routine tests =============================================== */
+    /* ======= RT1/2: Test implementation */
     SYS_SetStateRequest_ExpectAndReturn(SYS_STATE_INITIALIZATION_REQUEST, STD_NOT_OK);
     PEX_Initialize_Expect();
     PEX_SetPinDirectionOutput_Expect(PEX_PORT_EXPANDER3, PEX_PORT_0_PIN_0);
@@ -189,19 +203,25 @@ void testFTSK_InitializeUserCodePreCyclicTasks(void) {
     SPS_Initialize_Expect();
     MEAS_Initialize_ExpectAndReturn(STD_OK);
     MRC_Initialize_ExpectAndReturn(STD_OK);
+    MDIOInit_Expect(0xFCF78900u, 100.00f * 1000000.00f, 1000000u);
+    PHY_Initialize_ExpectAndReturn(0xFCF78900u, STD_OK);
+    /* ======= RT1/2: Call function under test */
     TEST_ASSERT_FAIL_ASSERT(FTSK_InitializeUserCodePreCyclicTasks());
 
-    /* pass assert */
+    /* ======= RT2/2: Test implementation */
     SYS_SetStateRequest_ExpectAndReturn(SYS_STATE_INITIALIZATION_REQUEST, STD_OK);
     PEX_Initialize_Expect();
     PEX_SetPinDirectionOutput_Expect(PEX_PORT_EXPANDER3, PEX_PORT_0_PIN_0);
     PEX_SetPin_Expect(PEX_PORT_EXPANDER3, PEX_PORT_0_PIN_0);
-
     CONT_Initialize_Expect();
     SPS_Initialize_Expect();
     MEAS_Initialize_ExpectAndReturn(STD_OK);
     MRC_Initialize_ExpectAndReturn(STD_OK);
+    MDIOInit_Expect(0xFCF78900u, 100.00f * 1000000.00f, 1000000u);
+    PHY_Initialize_ExpectAndReturn(0xFCF78900u, STD_OK);
+
     LED_SetToggleTime_Expect(LED_NORMAL_OPERATION_ON_OFF_TIME_ms);
+    /* ======= RT2/2: Call function under test */
     FTSK_InitializeUserCodePreCyclicTasks();
 }
 

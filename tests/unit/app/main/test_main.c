@@ -43,8 +43,8 @@
  * @file    test_main.c
  * @author  foxBMS Team
  * @date    2020-04-01 (date of creation)
- * @updated 2025-03-31 (date of last update)
- * @version v1.9.0
+ * @updated 2025-08-07 (date of last update)
+ * @version v1.10.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -146,7 +146,6 @@ void testMain(void) {
     getResetSource_ExpectAndReturn(POWERON_RESET);
     resetSource_t resetSource = POWERON_RESET;
     MINFO_SetResetSource_Expect(resetSource);
-    _enable_IRQ_interrupt__Expect();
     muxInit_Expect();
     gioInit_Expect();
     SPI_Initialize_Expect();
@@ -167,7 +166,6 @@ void testMain(void) {
     getResetSource_ExpectAndReturn(POWERON_RESET);
     resetSource = POWERON_RESET;
     MINFO_SetResetSource_Expect(resetSource);
-    _enable_IRQ_interrupt__Expect();
     muxInit_Expect();
     gioInit_Expect();
     SPI_Initialize_Expect();
@@ -183,6 +181,7 @@ void testMain(void) {
     MATH_StartupSelfTest_Expect();
     OS_CheckTimeHasPassedSelfTest_ExpectAndReturn(STD_OK);
     OS_InitializeOperatingSystem_Expect();
+    _enable_IRQ_interrupt__Expect();
     os_boot = OS_OFF; /* initialization of the OS failed */
     TEST_ASSERT_FAIL_ASSERT(unit_test_main());
 
@@ -190,7 +189,6 @@ void testMain(void) {
     getResetSource_ExpectAndReturn(POWERON_RESET);
     resetSource = POWERON_RESET;
     MINFO_SetResetSource_Expect(resetSource);
-    _enable_IRQ_interrupt__Expect();
     muxInit_Expect();
     gioInit_Expect();
     SPI_Initialize_Expect();
@@ -206,7 +204,8 @@ void testMain(void) {
     MATH_StartupSelfTest_Expect();
     OS_CheckTimeHasPassedSelfTest_ExpectAndReturn(STD_OK);
     OS_InitializeOperatingSystem_Expect();
-    os_boot = OS_INIT_PRE_OS;                         /* successful initialization of the OS */
+    os_boot = OS_INIT_PRE_OS; /* successful initialization of the OS */
+    _enable_IRQ_interrupt__Expect();
     CHK_ValidateChecksum_ExpectAndReturn(STD_NOT_OK); /* checksum failed */
     DIAG_Handler_ExpectAndReturn(
         DIAG_ID_FLASHCHECKSUM, DIAG_EVENT_NOT_OK, DIAG_SYSTEM, 0u, DIAG_HANDLER_RETURN_ERR_OCCURRED);
@@ -218,7 +217,6 @@ void testMain(void) {
     getResetSource_ExpectAndReturn(POWERON_RESET);
     resetSource = POWERON_RESET;
     MINFO_SetResetSource_Expect(resetSource);
-    _enable_IRQ_interrupt__Expect();
     muxInit_Expect();
     gioInit_Expect();
     SPI_Initialize_Expect();
@@ -234,7 +232,8 @@ void testMain(void) {
     MATH_StartupSelfTest_Expect();
     OS_CheckTimeHasPassedSelfTest_ExpectAndReturn(STD_OK);
     OS_InitializeOperatingSystem_Expect();
-    os_boot = OS_INIT_PRE_OS;                     /* successful initialization of the OS */
+    os_boot = OS_INIT_PRE_OS; /* successful initialization of the OS */
+    _enable_IRQ_interrupt__Expect();
     CHK_ValidateChecksum_ExpectAndReturn(STD_OK); /* checksum check successful */
     OS_GetTickCount_ExpectAndReturn(0u);
     OS_StartScheduler_Expect();

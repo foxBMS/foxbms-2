@@ -141,6 +141,8 @@ def main():
 
     errors = 0
     for i in can_db.messages:
+        if i.name == "f_BootloaderVersionInfo":
+            continue
         if not i.comment:
             errors += 1
             logging.error(

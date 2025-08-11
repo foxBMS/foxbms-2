@@ -43,8 +43,8 @@
  * @file    diag_cfg.c
  * @author  foxBMS Team
  * @date    2019-11-28 (date of creation)
- * @updated 2025-03-31 (date of last update)
- * @version v1.9.0
+ * @updated 2025-08-07 (date of last update)
+ * @version v1.10.0
  * @ingroup ENGINE_CONFIGURATION
  * @prefix  DIAG
  *
@@ -168,7 +168,7 @@ DIAG_ID_CFG_s diag_diagnosisIdConfiguration[] = {
     {DIAG_ID_CURRENT_SENSOR_CC_RESPONDING,                      DIAG_SEN_EVENT_100, DIAG_FATAL_ERROR,   DIAG_DELAY_2000ms,  DIAG_CAN_SENSOR_PRESENT,    DIAG_ErrorCurrentSensor},
     {DIAG_ID_CURRENT_SENSOR_EC_RESPONDING,                      DIAG_SEN_EVENT_100, DIAG_FATAL_ERROR,   DIAG_DELAY_2000ms,  DIAG_CAN_SENSOR_PRESENT,    DIAG_ErrorCurrentSensor},
     {DIAG_ID_CURRENT_SENSOR_RESPONDING,                         DIAG_SEN_EVENT_100, DIAG_FATAL_ERROR,   DIAG_DELAY_200ms,   DIAG_CAN_SENSOR_PRESENT,    DIAG_ErrorCurrentSensor},
-    {DIAG_ID_SBC_FIN_ERROR,                                     DIAG_SEN_EVENT_1,   DIAG_FATAL_ERROR,   DIAG_DELAY_100ms,   DIAG_EVALUATION_ENABLED,    DIAG_Sbc},
+    {DIAG_ID_SBC_FIN_ERROR,                                     DIAG_SEN_EVENT_1,   DIAG_WARNING,       DIAG_DELAY_100ms,   DIAG_EVALUATION_ENABLED,    DIAG_Sbc},
     {DIAG_ID_SBC_RSTB_ERROR,                                    DIAG_SEN_EVENT_1,   DIAG_FATAL_ERROR,   DIAG_DELAY_100ms,   DIAG_EVALUATION_ENABLED,    DIAG_Sbc},
     {DIAG_ID_PLAUSIBILITY_PACK_VOLTAGE,                         DIAG_SEN_EVENT_10,  DIAG_FATAL_ERROR,   DIAG_DELAY_100ms,   DIAG_EVALUATION_ENABLED,    DIAG_ErrorPlausibility},
     {DIAG_ID_STRING_MINUS_CONTACTOR_FEEDBACK,                   DIAG_SEN_EVENT_20,  DIAG_FATAL_ERROR,   DIAG_DELAY_100ms,   DIAG_EVALUATION_ENABLED,    DIAG_StringContactorFeedback},

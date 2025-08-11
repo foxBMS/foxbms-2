@@ -236,7 +236,6 @@ class TestLogImpl(unittest.TestCase):
         mock_instance_process.is_alive.return_value = 0
         mock_instance_event = mock_event.return_value
         mock_instance_event.wait.return_value = True
-        # mock_instance_slr = mock_srl.return_value
         mock_srl.side_effect = ValueError
         buf = io.StringIO()
         with redirect_stderr(buf):

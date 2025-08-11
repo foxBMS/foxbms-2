@@ -278,8 +278,9 @@ vPortInitialiseFPSCR:
 ;-------------------------------------------------------------------------------
 ; SWI Handler, interface to Protected Mode Functions
 
-; Every time the swi handler is called an exeption is generated. Then the CPSR is stored
-; in the SPSR and restored afterwards from there. That is why this register has to be manipulated.
+; Every time the swi handler is called an exception is generated.
+; Then the CPSR is stored in the SPSR and restored afterwards from there.
+; That is why this register has to be manipulated.
 ; See:  https://developer.arm.com/documentation/ddi0406/c/System-Level-Architecture/The-System-Level-Programmers--Model/ARM-processor-modes-and-ARM-core-registers/Program-Status-Registers--PSRs-?lang=en#CIHHHBDD
 ;       https://developer.arm.com/documentation/102412/0103/Exception-types
 ;       https://developer.arm.com/documentation/dui0801/f/A32-and-T32-Instructions/BLX--BLXNS

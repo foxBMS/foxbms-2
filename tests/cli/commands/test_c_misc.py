@@ -87,7 +87,7 @@ class TestFoxCliMainCommandMisc(unittest.TestCase):
         runner = CliRunner()
         result = runner.invoke(main, ["misc", "verify-checksum", "xyz"])
         self.assertEqual(1, result.exit_code)
-        self.assertIn("No files provided.", result.stdout)
+        self.assertIn("No files provided.", result.stderr)
 
     @patch("cli.commands.c_misc.verify")
     def test_misc_verify_checksum(self, mock_verify: MagicMock):

@@ -1,5 +1,5 @@
 /*
- * FreeRTOS+TCP V4.2.1
+ * FreeRTOS+TCP V4.3.2
  * Copyright (C) 2022 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * SPDX-License-Identifier: MIT
@@ -81,7 +81,7 @@
 /**
  * @brief The number of end-points that are making use of the UDP-socket.
  */
-    static BaseType_t xDHCPSocketUserCount = 0;
+    _static BaseType_t xDHCPSocketUserCount = 0;
 
 /*
  * Generate a DHCP discover message and send it on the DHCP socket.
@@ -813,7 +813,6 @@
                 /* DHCP failed, the default configured IP-address will be used. Now
                  * call vIPNetworkUpCalls() to send the network-up event and start the ARP
                  * timer. */
-
                 vIPNetworkUpCalls( pxEndPoint );
 
                 /* Close socket to ensure packets don't queue on it. */
@@ -881,7 +880,7 @@
             configASSERT( xSocketValid( xDHCPv4Socket ) == pdTRUE );
 
             /* MISRA Ref 11.4.1 [Socket error and integer to pointer conversion] */
-/* More details at: https://github.com/FreeRTOS/FreeRTOS-Plus-TCP/blob/main/MISRA.md#rule-114 */
+            /* More details at: https://github.com/FreeRTOS/FreeRTOS-Plus-TCP/blob/main/MISRA.md#rule-114 */
             /* coverity[misra_c_2012_rule_11_4_violation] */
             if( xSocketValid( xDHCPv4Socket ) == pdTRUE )
             {

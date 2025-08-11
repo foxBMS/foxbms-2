@@ -1,5 +1,5 @@
 /*
- * FreeRTOS+TCP V4.2.1
+ * FreeRTOS+TCP V4.3.2
  * Copyright (C) 2022 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * SPDX-License-Identifier: MIT
@@ -250,31 +250,6 @@
 
 #if ( ipconfigIS_DISABLED( ipconfigUSE_IPv4 ) && ipconfigIS_DISABLED( ipconfigUSE_IPv6 ) )
     #error Either ipconfigUSE_IPv4 or ipconfigUSE_IPv6 must be enabled
-#endif
-
-/*---------------------------------------------------------------------------*/
-
-/*
- * ipconfigND_CACHE_ENTRIES
- *
- * Type: size_t
- * Unit: length of NDCacheRow_t array
- * Minimum: 1
- *
- * Maximum number of entries in the Neighbour Discovery cache of IPv6 addresses
- * & MAC addresses
- */
-
-#ifndef ipconfigND_CACHE_ENTRIES
-    #define ipconfigND_CACHE_ENTRIES    ( 24 )
-#endif
-
-#if ( ipconfigND_CACHE_ENTRIES < 1 )
-    #error ipconfigND_CACHE_ENTRIES must be at least 1
-#endif
-
-#if ( ipconfigND_CACHE_ENTRIES > SIZE_MAX )
-    #error ipconfigND_CACHE_ENTRIES overflows a size_t
 #endif
 
 /*---------------------------------------------------------------------------*/
@@ -1160,10 +1135,6 @@ STATIC_ASSERT( pdMS_TO_TICKS( ipconfigPHY_LS_LOW_CHECK_TIME_MS ) <= portMAX_DELA
 
 #if ( ipconfigIP_TASK_PRIORITY < 0 )
     #error ipconfigIP_TASK_PRIORITY must be at least 0
-#endif
-
-#if ( ipconfigIP_TASK_PRIORITY > ( configMAX_PRIORITIES - 1 ) )
-    #error ipconfigIP_TASK_PRIORITY must be at most configMAX_PRIORITIES - 1
 #endif
 
 /*---------------------------------------------------------------------------*/
@@ -2946,6 +2917,74 @@ STATIC_ASSERT( ipconfigDNS_SEND_BLOCK_TIME_TICKS <= portMAX_DELAY );
 /*===========================================================================*/
 /*---------------------------------------------------------------------------*/
 /*===========================================================================*/
+/*                                ND CONFIG                                  */
+/*===========================================================================*/
+
+/*---------------------------------------------------------------------------*/
+
+/*
+ * ipconfigND_CACHE_ENTRIES
+ *
+ * Type: size_t
+ * Unit: length of NDCacheRow_t array
+ * Minimum: 1
+ *
+ * Maximum number of entries in the Neighbour Discovery cache of IPv6 addresses
+ * & MAC addresses
+ */
+
+#ifndef ipconfigND_CACHE_ENTRIES
+    #define ipconfigND_CACHE_ENTRIES    ( 24 )
+#endif
+
+#if ( ipconfigND_CACHE_ENTRIES < 1 )
+    #error ipconfigND_CACHE_ENTRIES must be at least 1
+#endif
+
+#if ( ipconfigND_CACHE_ENTRIES > SIZE_MAX )
+    #error ipconfigND_CACHE_ENTRIES overflows a size_t
+#endif
+
+/*---------------------------------------------------------------------------*/
+
+/*
+ * ipconfigMAX_ND_AGE
+ *
+ * Type: uint8_t
+ * Unit: decaseconds
+ * Minimum: 0
+ *
+ * Defines the maximum time between an entry in the ND table being created or
+ * refreshed and the entry being removed because it is stale. New ND requests
+ * are sent for ND cache entries that are nearing their maximum age.
+ * The maximum age of an entry in the ND cache table can be
+ * calculated as 'ipND_TIMER_PERIOD_MS' x 'ipconfigMAX_ND_AGE'.
+ *
+ * Units are derived from ipND_TIMER_PERIOD_MS, which is 10000 ms or 10 sec.
+ * So, a value of 150 is equal to 1500 seconds.
+ */
+
+#ifndef ipconfigMAX_ND_AGE
+    #define ipconfigMAX_ND_AGE    ( 150 )
+#endif
+
+#if ( ipconfigMAX_ND_AGE < 0 )
+    #error ipconfigMAX_ND_AGE must be at least 0
+#endif
+
+#if ( ipconfigMAX_ND_AGE > UINT8_MAX )
+    #error ipconfigMAX_ND_AGE overflows a uint8_t
+#endif
+
+/*---------------------------------------------------------------------------*/
+
+/*===========================================================================*/
+/*                                ND CONFIG                                  */
+/*===========================================================================*/
+/*---------------------------------------------------------------------------*/
+/*===========================================================================*/
+/*---------------------------------------------------------------------------*/
+/*===========================================================================*/
 /*                               ICMP CONFIG                                 */
 /*===========================================================================*/
 
@@ -3052,22 +3091,6 @@ STATIC_ASSERT( ipconfigDNS_SEND_BLOCK_TIME_TICKS <= portMAX_DELAY );
 
 #if ( ( ipconfigCOMPATIBLE_WITH_SINGLE != ipconfigDISABLE ) && ( ipconfigCOMPATIBLE_WITH_SINGLE != ipconfigENABLE ) )
     #error Invalid ipconfigCOMPATIBLE_WITH_SINGLE configuration
-#endif
-
-/*---------------------------------------------------------------------------*/
-
-/*
- * ipconfigHAS_ROUTING_STATISTICS
- *
- * Type: BaseType_t ( ipconfigENABLE | ipconfigDISABLE )
- */
-
-#ifndef ipconfigHAS_ROUTING_STATISTICS
-    #define ipconfigHAS_ROUTING_STATISTICS    ipconfigENABLE
-#endif
-
-#if ( ( ipconfigHAS_ROUTING_STATISTICS != ipconfigDISABLE ) && ( ipconfigHAS_ROUTING_STATISTICS != ipconfigENABLE ) )
-    #error Invalid ipconfigHAS_ROUTING_STATISTICS configuration
 #endif
 
 /*---------------------------------------------------------------------------*/

@@ -40,10 +40,12 @@
 
 """Miscellaneous helper functions."""
 
-from typing import Any, Literal
+from collections.abc import Callable
+from typing import Any, Literal, TypeVar
 
 import click
 
+from .io import get_stderr, get_stdout
 from .misc import set_logging_level
 
 HELP_NAMES = {"help_option_names": ["-h", "--help"]}
@@ -52,26 +54,42 @@ IGNORE_UNKNOWN_OPTIONS = {"ignore_unknown_options": True}
 
 
 def recho(msg: Any | None, fg: Literal["red", "yellow"] = "red") -> None:
-    """Print to stderr using click's 'secho'"""
-    click.secho(msg, fg=fg, err=True)
+    """Print to stderr using click's 'secho'."""
+    click.secho(msg, file=get_stderr(), fg=fg, err=True)  # noqa: TID251
+
+
+def echo(msg: Any | None = None, nl: bool = True) -> None:
+    """Print to stdout using click's 'echo'."""
+    click.echo(msg, file=get_stdout(), nl=nl)  # noqa: TID251
+
+
+def secho(msg: Any | None = None, nl: bool = True, **kwargs) -> None:
+    """Print to stdout using click's 'secho'."""
+    click.secho(msg, file=get_stdout(), nl=nl, **kwargs)  # noqa: TID251
 
 
 def set_logging_level_cb(
     ctx: click.Context, param: click.Parameter | None, value: int = 0
 ) -> int:
-    """sets the module logging level through a click option callback.
+    """Set the module logging level through a click option callback.
+
     Args:
         ctx: context the callback shall be applied too (unused)
         param: arguments of the callback (unused)
         value: arbitrary value passed to the callback (unused)
+
     """
     set_logging_level(verbosity=value)
     return value
 
 
-def verbosity_option(fun):
-    """Helper to add a verbosity option to click commands."""
-    fun = click.option(
+# pylint: disable-next=invalid-name
+VB_CALLBACK_TYPE = TypeVar("VB_CALLBACK_TYPE", bound=Callable[..., Any])
+
+
+def verbosity_option(fun: VB_CALLBACK_TYPE) -> VB_CALLBACK_TYPE:
+    """Add a verbosity option to click commands."""
+    return click.option(
         "-v",
         "--verbose",
         default=0,
@@ -79,5 +97,3 @@ def verbosity_option(fun):
         help="Verbose information.",
         callback=set_logging_level_cb,
     )(fun)
-
-    return fun

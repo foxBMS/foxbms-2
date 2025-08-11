@@ -43,8 +43,8 @@
  * @file    dma.c
  * @author  foxBMS Team
  * @date    2019-12-12 (date of creation)
- * @updated 2025-03-31 (date of last update)
- * @version v1.9.0
+ * @updated 2025-08-07 (date of last update)
+ * @version v1.10.0
  * @ingroup DRIVERS
  * @prefix  DMA
  *
@@ -250,12 +250,10 @@ void DMA_Initialize(void) {
     dmaSetChEnable((dmaChannel_t)DMA_CHANNEL_I2C2_RX, (dmaTriggerType_t)DMA_HW);
 }
 
-/** Function called on DMA complete interrupts (TX and RX). Defined as weak in HAL. */
-/* AXIVION Next Codeline Style Linker-Multiple_Definition: TI HAL only provides a weak implementation */
-void UNIT_TEST_WEAK_IMPL dmaGroupANotification(dmaInterrupt_t inttype, uint32 channel) {
+#if !defined(UNITY_UNIT_TEST) || defined(COMPILE_FOR_UNIT_TEST)
+void dmaGroupANotification(dmaInterrupt_t inttype, uint32 channel) {
     /* AXIVION Routine Generic-MissingParameterAssert: inttype: unchecked in interrupt */
     /* AXIVION Routine Generic-MissingParameterAssert: channel: unchecked in interrupt */
-
     if (inttype == (dmaInterrupt_t)BTC) {
         uint16_t timeoutIterations          = 0u;
         uint8_t spiIndex                    = 0u;
@@ -418,6 +416,7 @@ void UNIT_TEST_WEAK_IMPL dmaGroupANotification(dmaInterrupt_t inttype, uint32 ch
         }
     }
 }
+#endif
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/
 #ifdef UNITY_UNIT_TEST

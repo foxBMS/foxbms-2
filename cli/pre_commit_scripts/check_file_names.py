@@ -37,22 +37,38 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""Script to check the list of provided files for uniqueness"""
+"""Check a list of provided files for filename uniqueness within the git repository.
+
+This script compares the names of the specified files to all files tracked by git
+and reports if any filename occurs more than once in the repository. This helps
+ensure that each file has a unique name to avoid confusion or conflicts.
+It is intended for use with pre-commit.
+"""
 
 import argparse
 import sys
+from collections.abc import Sequence
 from pathlib import Path
+from shutil import which
 from subprocess import PIPE, Popen
-from typing import Sequence
 
 
 def main(argv: Sequence[str] | None = None) -> int:
-    """File name uniqueness checker"""
+    """Check the provided files for unique filenames within the git repository.
+
+    Args:
+        argv: Optional sequence of command-line arguments.
+
+    Return:
+        Number of files with duplicate names found (exit code).
+
+    """
     parser = argparse.ArgumentParser()
     parser.add_argument("files", nargs="*", help="Files to check")
     args = parser.parse_args(argv)
     err = 0
-    with Popen(["git", "ls-files"], stdout=PIPE) as p:
+    git = str(which("git"))
+    with Popen([git, "ls-files"], stdout=PIPE) as p:
         out = p.communicate()[0]
     tmp = out.decode("utf-8").splitlines()
     repo_files: list[Path] = []

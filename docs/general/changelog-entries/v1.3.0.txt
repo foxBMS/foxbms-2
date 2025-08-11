@@ -54,10 +54,10 @@ Changed
 - FreeRTOS configuration is now validated in
   ``os_freertos_config-validation.h``.
 - Updated the documentation of the of the LTC-based interface |ltc-ltc6820|
-  version 1.0.3 (see :ref:`INTERFACE_LTC_6820___V1_0_3__`).
+  version 1.0.3 (see :ref:`LTC_LTC6820_BASED_BMS_INTERFACE_V1_0_3`).
 - Updated LLVM to version 13.0.0.
 - Updated the pinout documentation for the |bms-master| version 1.1.1
-  (see :ref:`MASTER_TMS570___V1_1_1__`).
+  (see :ref:`TI_TMS570_BASED_BMS_MASTER_V1_1_1`).
 - Update the static code analysis to Axivion 7.4.0.
 - Increased the size of the variable that describes stack sizes for FreeRTOS,
   allowing for the fully supported stack size of the port.

@@ -43,8 +43,8 @@
  * @file    can_cbs_tx_bms-state.c
  * @author  foxBMS Team
  * @date    2021-07-21 (date of creation)
- * @updated 2025-03-31 (date of last update)
- * @version v1.9.0
+ * @updated 2025-08-07 (date of last update)
+ * @version v1.10.0
  * @ingroup DRIVERS
  * @prefix  CANTX
  *
@@ -127,6 +127,10 @@
 #define CANTX_SIGNAL_BMS_NUMBER_OF_DEACTIVATED_STRINGS_LENGTH            (4u)
 #define CANTX_SIGNAL_BMS_INSULATION_RESISTANCE_START_BIT                 (63u)
 #define CANTX_SIGNAL_BMS_INSULATION_RESISTANCE_LENGTH                    (8u)
+#define CANTX_SIGNAL_BMS_PHY_ALIVE_START_BIT                             (39u)
+#define CANTX_SIGNAL_BMS_PHY_ALIVE_LENGTH                                (CAN_BIT)
+#define CANTX_SIGNAL_BMS_PHY_LINKED_START_BIT                            (38u)
+#define CANTX_SIGNAL_BMS_PHY_LINKED_LENGTH                               (CAN_BIT)
 
 #define CANTX_FACTOR_INSULATION_RESISTANCE        (200.0f)
 #define CANTX_MINIMUM_VALUE_INSULATION_RESISTANCE (0.0f)
@@ -391,6 +395,24 @@ static void CANTX_BuildBmsStateMessage(uint64_t *pMessageData, const CAN_SHIM_s 
         data,
         CANTX_BMS_STATE_ENDIANNESS);
 
+    /* Phy alive status */
+    data = CAN_ConvertBooleanToInteger(kpkCanShim->pTablePhy->aliveStatus);
+    CAN_TxSetMessageDataWithSignalData(
+        pMessageData,
+        CANTX_SIGNAL_BMS_PHY_ALIVE_START_BIT,
+        CANTX_SIGNAL_BMS_PHY_ALIVE_LENGTH,
+        data,
+        CANTX_BMS_STATE_ENDIANNESS);
+
+    /* Phy link status */
+    data = CAN_ConvertBooleanToInteger(kpkCanShim->pTablePhy->linkStatus);
+    CAN_TxSetMessageDataWithSignalData(
+        pMessageData,
+        CANTX_SIGNAL_BMS_PHY_LINKED_START_BIT,
+        CANTX_SIGNAL_BMS_PHY_LINKED_LENGTH,
+        data,
+        CANTX_BMS_STATE_ENDIANNESS);
+
     /* Balancing Algorithm State */
     data = CAN_ConvertBooleanToInteger(kpkCanShim->pTableBalancingControl->enableBalancing);
     CAN_TxSetMessageDataWithSignalData(
@@ -421,6 +443,7 @@ extern uint32_t CANTX_BmsState(
         kpkCanShim->pTableInsulation,
         kpkCanShim->pTableMsl,
         kpkCanShim->pTableBalancingControl);
+    DATA_READ_DATA(kpkCanShim->pTablePhy);
 
     CANTX_BuildBmsStateMessage(&messageData, kpkCanShim);
 

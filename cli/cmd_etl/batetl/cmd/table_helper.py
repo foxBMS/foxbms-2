@@ -42,10 +42,10 @@
 import sys
 from pathlib import Path
 
-import click
-import pyarrow as pa
-import pyarrow.compute as pc
+import pyarrow as pa  # type: ignore
+import pyarrow.compute as pc  # type: ignore
 
+from ....helpers.click_helpers import recho
 from ..etl.table import OutputFormats, Table
 from . import read_config
 
@@ -86,9 +86,7 @@ def convert_start_date(start_date: str) -> pa.TimestampScalar:
     try:
         return pc.strptime(start_date, format="%Y-%m-%dT%H:%M:%S", unit="us")
     except ValueError:
-        click.secho(
-            "Passed start_date is not in the correct UTC format.", fg="red", err=True
-        )
+        recho("Passed start_date is not in the correct UTC format.")
         sys.exit(1)
 
 
@@ -101,7 +99,7 @@ def get_output_format_enum(output_format: str) -> OutputFormats:
     try:
         return OutputFormats[output_format.upper()]
     except KeyError:
-        click.secho("Output format %s is not valid", fg="red", err=True)
+        recho(f"Output format {output_format.upper()} is not valid")
         sys.exit(1)
 
 
@@ -111,48 +109,26 @@ def validate_table_config(config: dict) -> None:
     :param config_dict: Dictionary with configurations to validate
     """
     if "start_date" not in config:
-        click.secho(
-            "Configuration file is missing 'start_date' parameter.", fg="red", err=True
-        )
+        recho("Configuration file is missing 'start_date' parameter.")
         sys.exit(1)
     if not isinstance(config["start_date"], str):
-        click.secho(
-            "'start_date' in the configuration file is not a string.",
-            fg="red",
-            err=True,
-        )
+        recho("'start_date' in the configuration file is not a string.")
         sys.exit(1)
     if "output_format" in config:
         if not isinstance(config["output_format"], str):
-            click.secho(
-                "'output_format' in the configuration file is not a string.",
-                fg="red",
-                err=True,
-            )
+            recho("'output_format' in the configuration file is not a string.")
             sys.exit(1)
     if "join_on" in config:
         if not isinstance(config["join_on"], str):
-            click.secho(
-                "'join_on' in the configuration file is not a string.",
-                fg="red",
-                err=True,
-            )
+            recho("'join_on' in the configuration file is not a string.")
             sys.exit(1)
     if "tolerance" in config:
         if not isinstance(config["tolerance"], int):
-            click.secho(
-                "'tolerance' in the configuration file is not an integer.",
-                fg="red",
-                err=True,
-            )
+            recho("'tolerance' in the configuration file is not an integer.")
             sys.exit(1)
     if "timestamp_factor" in config:
         if not isinstance(config["timestamp_factor"], int):
-            click.secho(
-                "'timestamp_factor' in the configuration file is not an integer.",
-                fg="red",
-                err=True,
-            )
+            recho("'timestamp_factor' in the configuration file is not an integer.")
             sys.exit(1)
 
 
@@ -169,14 +145,12 @@ def run_table(table: Table, data: Path, output: Path) -> None:
             tb = table.can_to_table(data)
             table.save_data({output: tb})
         else:
-            click.secho(
+            recho(
                 "Output as folder and input data as a file is not a valid configuration.",
-                fg="red",
-                err=True,
             )
             sys.exit(1)
     else:
-        data_files = list(data.glob("**/*.*"))
+        data_files = list(data.glob("**/*.json"))
         tables = [table.can_to_table(data=data_file) for data_file in data_files]
         if output.suffix:
             # Combines multiple tables with respect to join_on date column

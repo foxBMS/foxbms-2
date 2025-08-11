@@ -1,5 +1,5 @@
 /*
- * FreeRTOS+TCP V4.2.1
+ * FreeRTOS+TCP V4.3.2
  * Copyright (C) 2022 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * SPDX-License-Identifier: MIT
@@ -448,9 +448,8 @@
         /* Add or update the item. */
         if( strlen( pcName ) < ( size_t ) ipconfigDNS_CACHE_NAME_LENGTH )
         {
-            ( void ) strncpy( xDNSCache[ uxFreeEntry ].pcName, pcName, ipconfigDNS_CACHE_NAME_LENGTH );
+            ( void ) strncpy( xDNSCache[ uxFreeEntry ].pcName, pcName, strlen( pcName ) );
             ( void ) memcpy( &( xDNSCache[ uxFreeEntry ].xAddresses[ 0 ] ), pxIP, sizeof( *pxIP ) );
-
 
             xDNSCache[ uxFreeEntry ].ulTTL = ulTTL;
             xDNSCache[ uxFreeEntry ].ulTimeWhenAddedInSeconds = ulCurrentTimeSeconds;

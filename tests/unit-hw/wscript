@@ -38,3 +38,32 @@
 # - "This product is derived from foxBMS®"
 
 """Build the target test objects for the bootloader."""
+
+
+def build(bld):
+    """Builds some bootloader objects."""
+    source = [
+        "test_tms570_boot.c",
+        "test_tms570_crc.c",
+        "test_tms570_flash.c",
+        "test_tms570_main.c",
+    ]
+    includes = [
+        ".",
+        "../../src/bootloader/driver/can",
+        "../../src/bootloader/driver/config",
+        "../../src/bootloader/driver/crc",
+        "../../src/bootloader/driver/flash",
+        "../../src/bootloader/driver/foxmath",
+        "../../src/bootloader/driver/rti",
+        "../../src/bootloader/engine/boot",
+        "../../src/bootloader/engine/can",
+        "../../src/bootloader/main/include",
+    ]
+    target = f"{bld.env.APPNAME.lower()}-bootloader-target-test-objects"
+
+    bld.objects(
+        source=source,
+        includes=includes,
+        target=target,
+    )

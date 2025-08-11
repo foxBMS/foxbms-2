@@ -43,8 +43,8 @@
  * @file    adi_ades183x_initialization.c
  * @author  foxBMS Team
  * @date    2019-08-27 (date of creation)
- * @updated 2025-03-31 (date of last update)
- * @version v1.9.0
+ * @updated 2025-08-07 (date of last update)
+ * @version v1.10.0
  * @ingroup DRIVERS
  * @prefix  ADI
  *
@@ -201,7 +201,7 @@ static void ADI_DisableBalancingOnStartup(ADI_STATE_s *adiState) {
 static void ADI_GetSerialIdsOfAllIcsInString(ADI_STATE_s *adiState) {
     FAS_ASSERT(adiState != NULL_PTR);
 
-    ADI_CopyCommandBits(adi_cmdRdsid, adi_command);
+    ADI_CopyCommandBytes(adi_cmdRdsid, adi_command);
     ADI_ReadRegister(adi_command, adi_dataReceive, adiState);
     for (uint16_t m = 0; m < ADI_N_ADI; m++) {
         adiState->serialId[adiState->currentString][m] = 0u;
@@ -215,7 +215,7 @@ static void ADI_GetSerialIdsOfAllIcsInString(ADI_STATE_s *adiState) {
 static void ADI_GetRevisionOfAllIcsInString(ADI_STATE_s *adiState) {
     FAS_ASSERT(adiState != NULL_PTR);
 
-    ADI_CopyCommandBits(adi_cmdRdstate, adi_command);
+    ADI_CopyCommandBytes(adi_cmdRdstate, adi_command);
     ADI_ReadRegister(adi_command, adi_dataReceive, adiState);
     for (uint16_t m = 0; m < ADI_N_ADI; m++) {
         ADI_ReadDataBits(
@@ -473,14 +473,14 @@ static void ADI_StartContinuousCellVoltageMeasurements(ADI_STATE_s *adiState) {
     FAS_ASSERT(adiState != NULL_PTR);
 
     /* Mute balancing before starting cell voltage measurements */
-    ADI_CopyCommandBits(adi_cmdMute, adi_command);
+    ADI_CopyCommandBytes(adi_cmdMute, adi_command);
     ADI_TransmitCommand(adi_command, adiState);
 
     /**
      *  SM_VCELL_RED: Cell Voltage Measurement Redundancy
      *  Set RD bit to enable redundant cell voltage measurements
      */
-    ADI_CopyCommandBits(adi_cmdAdcv, adi_command);
+    ADI_CopyCommandBytes(adi_cmdAdcv, adi_command);
     ADI_WriteCommandConfigurationBits(adi_command, ADI_ADCV_RD_POS, ADI_ADCV_RD_LEN, 1u);
     ADI_WriteCommandConfigurationBits(adi_command, ADI_ADCV_CONT_POS, ADI_ADCV_CONT_LEN, 1u);
     ADI_WriteCommandConfigurationBits(adi_command, ADI_ADCV_DCP_POS, ADI_ADCV_DCP_LEN, 0u);
@@ -523,7 +523,7 @@ extern void ADI_InitializeMeasurement(ADI_STATE_s *adiState) {
         /* Wake up daisy-chain */
         ADI_WakeUpDaisyChain(adiState);
         /* Issue soft reset to be sure that all AFEs are in the reset state */
-        ADI_CopyCommandBits(adi_cmdSrst, adi_command);
+        ADI_CopyCommandBytes(adi_cmdSrst, adi_command);
         ADI_TransmitCommand(adi_command, adiState);
         ADI_Wait(ADI_TSOFTRESET_ms);
         /* Wake up daisy-chain */
@@ -548,7 +548,7 @@ extern void ADI_InitializeMeasurement(ADI_STATE_s *adiState) {
         ADI_ClearAllFlagsInStatusRegisterGroupC(adiState);
 
         /* TODO: why and what happens here?! */
-        ADI_CopyCommandBits(adi_cmdRdstatc, adi_command);
+        ADI_CopyCommandBytes(adi_cmdRdstatc, adi_command);
         ADI_ReadRegister(adi_command, adi_dataReceive, adiState);
         for (uint16_t m = 0u; m < ADI_N_ADI; m++) {
             /* Get STR5 */

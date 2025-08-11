@@ -16,10 +16,11 @@ BMS implementations applying the design paradigms, that
 - **MCU and external hardware dependent drivers are abstracted by the provided
   wrappers/abstraction layers.**
 
-.. figure:: img/sw-architecture.png
+.. drawio-figure:: img/sw-architecture.drawio
+   :format: svg
    :alt: Software architecture
    :name: sw-architecture
-   :width: 60 %
+   :width: 800px
    :align: center
 
    |foxbms| - Software architecture
@@ -43,7 +44,7 @@ grouped into three different layers:
 - A dedicated **foxBMS Driver Layer** uses the MCU-Wrapper to provide different
   communication interfaces (e.g., CAN, UART, SPI) to acquire measurement data,
   monitor status of hardware components (e.g., supply voltages, transceivers,
-  real-time clock) as the well ass the communication with the |bms-slaves|.
+  real-time clock) as the well as the communication with the |bms-slaves|.
 - Diagnostic functions and error handling, system monitoring (for hard- and
   software) and interfaces to the data-exchange module are the most important
   tasks of the **foxBMS Engine Layer**.
@@ -70,10 +71,12 @@ In detail, this means that various tasks with different priorities are used to
 ensure the necessary real-time behavior of the BMS as shown in
 :numref:`sw-tasks-priorities`.
 
-.. figure:: img/sw-tasks-priorities.png
+.. drawio-figure:: img/sw-tasks-setup.drawio
+   :format: svg
+   :page-name: overview
    :alt: Tasks & Priorities
    :name: sw-tasks-priorities
-   :width: 80 %
+   :width: 800px
    :align: center
 
    |foxbms| Tasks & Priorities
@@ -88,10 +91,12 @@ Four scheduled tasks with a period of 1\ |ms|, 10\ |ms|, and 100\ |ms|, are
 configured to execute the various deterministic finite-state machines that
 describe the behavior of the BMS as shown in :numref:`sw-tasks-cyclic`.
 
-.. figure:: img/sw-tasks-cyclic.png
+.. drawio-figure:: img/sw-tasks-setup.drawio
+   :format: svg
+   :page-name: cyclic
    :alt: Task Model - Cyclic Tasks
    :name: sw-tasks-cyclic
-   :width: 90 %
+   :width: 800px
    :align: center
 
    |foxbms| Task Model - Cyclic Tasks
@@ -113,10 +118,12 @@ the actual timing behavior (e.g., running time, blocking duration).
 The continuous running tasks are shown in
 :numref:`sw-tasks-continuous-blocking`.
 
-.. figure:: img/sw-tasks-continuous-blocking.png
+.. drawio-figure:: img/sw-tasks-setup.drawio
+   :format: svg
+   :page-name: continuous
    :alt: Task Model - Continuous Running Tasks
    :name: sw-tasks-continuous-blocking
-   :width: 90 %
+   :width: 800px
    :align: center
 
    |foxbms| Task Model - Continuous Running Tasks

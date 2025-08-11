@@ -43,8 +43,8 @@
  * @file    test_main.c
  * @author  foxBMS Team
  * @date    2020-04-01 (date of creation)
- * @updated 2025-03-31 (date of last update)
- * @version v1.9.0
+ * @updated 2025-08-07 (date of last update)
+ * @version v1.10.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -56,18 +56,38 @@
 
 /*========== Includes =======================================================*/
 #include "unity.h"
+#include "MockHL_gio.h"
+#include "MockHL_pinmux.h"
+#include "MockHL_rti.h"
+#include "MockHL_sys_core.h"
+#include "Mockboot.h"
+#include "Mockcan.h"
 #include "Mockinfinite-loop-helper.h"
+#include "Mockrti.h"
+
+#include "boot_cfg.h"
 
 #include "fstd_types.h"
 #include "main.h"
-#include "test_assert_helper.h"
 
 /*========== Unit Testing Framework Directives ==============================*/
 TEST_SOURCE_FILE("main.c")
 
+TEST_INCLUDE_PATH("../../src/bootloader/driver/can")
+TEST_INCLUDE_PATH("../../src/bootloader/driver/config")
+TEST_INCLUDE_PATH("../../src/bootloader/driver/rti")
+TEST_INCLUDE_PATH("../../src/bootloader/engine/boot")
 TEST_INCLUDE_PATH("../../src/bootloader/main")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
+/* Define the following variables in the following context to prevent unittest
+error. */
+uint32_t main_textLoadStartFlashC     = 0u;
+uint32_t main_textSizeFlashC          = 0u;
+uint32_t main_textRunStartFlashC      = 0u;
+uint32_t main_constLoadStartFlashCfgC = 0u;
+uint32_t main_constSizeFlashCfgC      = 0u;
+uint32_t main_constRunStartFlashCfgC  = 0u;
 
 /*========== Setup and Teardown =============================================*/
 void setUp(void) {
@@ -80,14 +100,403 @@ void tearDown(void) {
 
 void testMain(void) {
     /* ======= Routine tests =============================================== */
+    /* ======= RT1/11: wait if no any can request comes */
+    boot_state = BOOT_FSM_STATE_WAIT;
 
-    /* ======= RT1/1: Test implementation */
-    for (uint8_t i_call = 0u; i_call < 1u; i_call++) {
+    _enable_interrupt__Expect();
+
+    muxInit_Expect();
+    gioInit_Expect();
+    CAN_Initialize_Expect();
+    rtiInit_Expect();
+    CAN_SendBootMessage_Expect();
+    RTI_ResetFreeRunningCount_ExpectAndReturn(1);
+    rtiStartCounter_Expect(rtiREG1, rtiCOUNTER_BLOCK0);
+    RTI_GetFreeRunningCount_ExpectAndReturn(0u);
+
+    for (uint8_t i_call = 0u; i_call < 10u; i_call++) {
         FOREVER_ExpectAndReturn(1);
+        _enable_IRQ_interrupt__Expect();
+        RTI_IsTimeElapsed_ExpectAndReturn(0u, MAIN_TIME_OUT_us, false);
+        BOOT_GetBootState_ExpectAndReturn(BOOT_FSM_STATE_WAIT);
     }
     FOREVER_ExpectAndReturn(0);
 
-    /* ======= RT1/1: call function under test */
     unit_test_main();
-    /* ======= RT1/1: test output verification */
+    TEST_ASSERT_EQUAL(BOOT_FSM_STATE_WAIT, boot_state);
+
+    /* ======= RT2/11: normal loading process, everything runs well */
+    resetTest();
+    boot_state = BOOT_FSM_STATE_WAIT;
+
+    _enable_interrupt__Expect();
+
+    muxInit_Expect();
+    gioInit_Expect();
+    CAN_Initialize_Expect();
+    rtiInit_Expect();
+
+    CAN_SendBootMessage_Expect();
+    RTI_ResetFreeRunningCount_ExpectAndReturn(1);
+    rtiStartCounter_Expect(rtiREG1, rtiCOUNTER_BLOCK0);
+    RTI_GetFreeRunningCount_ExpectAndReturn(0u);
+
+    FOREVER_ExpectAndReturn(1);
+    _enable_IRQ_interrupt__Expect();
+    RTI_IsTimeElapsed_ExpectAndReturn(0u, MAIN_TIME_OUT_us, false);
+    BOOT_GetBootState_ExpectAndReturn(BOOT_FSM_STATE_LOAD);
+    for (uint8_t i_call = 0u; i_call < 8u; i_call++) {
+        FOREVER_ExpectAndReturn(1);
+        _enable_IRQ_interrupt__Expect();
+        RTI_IsTimeElapsed_ExpectAndReturn(0u, MAIN_TIME_OUT_us, false);
+        BOOT_GetBootStateDuringLoad_ExpectAndReturn(BOOT_FSM_STATE_LOAD);
+    }
+    FOREVER_ExpectAndReturn(1);
+    _enable_IRQ_interrupt__Expect();
+    RTI_IsTimeElapsed_ExpectAndReturn(0u, MAIN_TIME_OUT_us, false);
+    BOOT_GetBootStateDuringLoad_ExpectAndReturn(BOOT_FSM_STATE_WAIT);
+    FOREVER_ExpectAndReturn(0);
+
+    unit_test_main();
+    TEST_ASSERT_EQUAL(BOOT_FSM_STATE_WAIT, boot_state);
+
+    /* ======= RT3/11: normal loading process, error appears during loading */
+    resetTest();
+    boot_state = BOOT_FSM_STATE_WAIT;
+
+    _enable_interrupt__Expect();
+
+    muxInit_Expect();
+    gioInit_Expect();
+    CAN_Initialize_Expect();
+    rtiInit_Expect();
+
+    CAN_SendBootMessage_Expect();
+    RTI_ResetFreeRunningCount_ExpectAndReturn(1);
+    rtiStartCounter_Expect(rtiREG1, rtiCOUNTER_BLOCK0);
+    RTI_GetFreeRunningCount_ExpectAndReturn(0u);
+
+    FOREVER_ExpectAndReturn(1);
+    _enable_IRQ_interrupt__Expect();
+    RTI_IsTimeElapsed_ExpectAndReturn(0u, MAIN_TIME_OUT_us, false);
+    BOOT_GetBootState_ExpectAndReturn(BOOT_FSM_STATE_LOAD);
+    FOREVER_ExpectAndReturn(1);
+    _enable_IRQ_interrupt__Expect();
+    RTI_IsTimeElapsed_ExpectAndReturn(0u, MAIN_TIME_OUT_us, false);
+    BOOT_GetBootStateDuringLoad_ExpectAndReturn(BOOT_FSM_STATE_ERROR);
+    for (uint8_t i_call = 0u; i_call < 8u; i_call++) {
+        FOREVER_ExpectAndReturn(1);
+        _enable_IRQ_interrupt__Expect();
+        RTI_IsTimeElapsed_ExpectAndReturn(0u, MAIN_TIME_OUT_us, false);
+        BOOT_GetBootStateDuringError_ExpectAndReturn(BOOT_FSM_STATE_ERROR);
+    }
+    FOREVER_ExpectAndReturn(0);
+
+    unit_test_main();
+    TEST_ASSERT_EQUAL(BOOT_FSM_STATE_ERROR, boot_state);
+
+    /* ======= RT4/11: normal loading process, error appears during loading,
+    incoming reset can request to correct the error, and the reset operation is
+    successful */
+    resetTest();
+    boot_state = BOOT_FSM_STATE_WAIT;
+
+    _enable_interrupt__Expect();
+
+    muxInit_Expect();
+    gioInit_Expect();
+    CAN_Initialize_Expect();
+    rtiInit_Expect();
+
+    CAN_SendBootMessage_Expect();
+    RTI_ResetFreeRunningCount_ExpectAndReturn(1);
+    rtiStartCounter_Expect(rtiREG1, rtiCOUNTER_BLOCK0);
+    RTI_GetFreeRunningCount_ExpectAndReturn(0u);
+
+    FOREVER_ExpectAndReturn(1);
+    _enable_IRQ_interrupt__Expect();
+    RTI_IsTimeElapsed_ExpectAndReturn(0u, MAIN_TIME_OUT_us, false);
+    BOOT_GetBootState_ExpectAndReturn(BOOT_FSM_STATE_LOAD);
+    FOREVER_ExpectAndReturn(1);
+    _enable_IRQ_interrupt__Expect();
+    RTI_IsTimeElapsed_ExpectAndReturn(0u, MAIN_TIME_OUT_us, false);
+    BOOT_GetBootStateDuringLoad_ExpectAndReturn(BOOT_FSM_STATE_ERROR);
+    FOREVER_ExpectAndReturn(1);
+    _enable_IRQ_interrupt__Expect();
+    RTI_IsTimeElapsed_ExpectAndReturn(0u, MAIN_TIME_OUT_us, false);
+    BOOT_GetBootStateDuringError_ExpectAndReturn(BOOT_FSM_STATE_RESET);
+    FOREVER_ExpectAndReturn(1);
+    _enable_IRQ_interrupt__Expect();
+    RTI_IsTimeElapsed_ExpectAndReturn(0u, MAIN_TIME_OUT_us, false);
+    BOOT_ResetBootloader_ExpectAndReturn(STD_OK);
+    for (uint8_t i_call = 0u; i_call < 6u; i_call++) {
+        FOREVER_ExpectAndReturn(1);
+        _enable_IRQ_interrupt__Expect();
+        RTI_IsTimeElapsed_ExpectAndReturn(0u, MAIN_TIME_OUT_us, false);
+        BOOT_GetBootState_ExpectAndReturn(BOOT_FSM_STATE_WAIT);
+    }
+    FOREVER_ExpectAndReturn(0);
+
+    unit_test_main();
+    TEST_ASSERT_EQUAL(BOOT_FSM_STATE_WAIT, boot_state);
+
+    /* ======= RT5/11: normal loading process, error appears during loading,
+    incoming reset request to correct the error, but the reset operation is
+    not successful */
+    resetTest();
+    boot_state = BOOT_FSM_STATE_WAIT;
+
+    _enable_interrupt__Expect();
+
+    muxInit_Expect();
+    gioInit_Expect();
+    CAN_Initialize_Expect();
+    rtiInit_Expect();
+
+    CAN_SendBootMessage_Expect();
+    RTI_ResetFreeRunningCount_ExpectAndReturn(1);
+    rtiStartCounter_Expect(rtiREG1, rtiCOUNTER_BLOCK0);
+    RTI_GetFreeRunningCount_ExpectAndReturn(0u);
+
+    FOREVER_ExpectAndReturn(1);
+    _enable_IRQ_interrupt__Expect();
+    RTI_IsTimeElapsed_ExpectAndReturn(0u, MAIN_TIME_OUT_us, false);
+    BOOT_GetBootState_ExpectAndReturn(BOOT_FSM_STATE_LOAD);
+    FOREVER_ExpectAndReturn(1);
+    _enable_IRQ_interrupt__Expect();
+    RTI_IsTimeElapsed_ExpectAndReturn(0u, MAIN_TIME_OUT_us, false);
+    BOOT_GetBootStateDuringLoad_ExpectAndReturn(BOOT_FSM_STATE_ERROR);
+    FOREVER_ExpectAndReturn(1);
+    _enable_IRQ_interrupt__Expect();
+    RTI_IsTimeElapsed_ExpectAndReturn(0u, MAIN_TIME_OUT_us, false);
+    BOOT_GetBootStateDuringError_ExpectAndReturn(BOOT_FSM_STATE_RESET);
+    FOREVER_ExpectAndReturn(1);
+    _enable_IRQ_interrupt__Expect();
+    RTI_IsTimeElapsed_ExpectAndReturn(0u, MAIN_TIME_OUT_us, false);
+    BOOT_ResetBootloader_ExpectAndReturn(STD_NOT_OK);
+    for (uint8_t i_call = 0u; i_call < 6u; i_call++) {
+        FOREVER_ExpectAndReturn(1);
+        _enable_IRQ_interrupt__Expect();
+        RTI_IsTimeElapsed_ExpectAndReturn(0u, MAIN_TIME_OUT_us, false);
+        BOOT_GetBootStateDuringError_ExpectAndReturn(BOOT_FSM_STATE_ERROR);
+    }
+    FOREVER_ExpectAndReturn(0);
+
+    unit_test_main();
+    TEST_ASSERT_EQUAL(BOOT_FSM_STATE_ERROR, boot_state);
+
+    /* ======= RT6/11: run application, there is an valid program available and
+    everything went well while jumping into the last flashed program */
+    resetTest();
+    boot_state = BOOT_FSM_STATE_WAIT;
+
+    _enable_interrupt__Expect();
+
+    muxInit_Expect();
+    gioInit_Expect();
+    CAN_Initialize_Expect();
+    rtiInit_Expect();
+
+    CAN_SendBootMessage_Expect();
+    RTI_ResetFreeRunningCount_ExpectAndReturn(1);
+    rtiStartCounter_Expect(rtiREG1, rtiCOUNTER_BLOCK0);
+    RTI_GetFreeRunningCount_ExpectAndReturn(0u);
+
+    FOREVER_ExpectAndReturn(1);
+    _enable_IRQ_interrupt__Expect();
+    RTI_IsTimeElapsed_ExpectAndReturn(0u, MAIN_TIME_OUT_us, false);
+    BOOT_GetBootState_ExpectAndReturn(BOOT_FSM_STATE_RUN);
+    FOREVER_ExpectAndReturn(1);
+    _enable_IRQ_interrupt__Expect();
+    RTI_IsTimeElapsed_ExpectAndReturn(0u, MAIN_TIME_OUT_us, false);
+    BOOT_IsProgramAvailableAndValidated_ExpectAndReturn(true);
+    BOOT_JumpInToLastFlashedProgram_ExpectAndReturn(STD_OK);
+    for (uint8_t i_call = 0u; i_call < 8u; i_call++) {
+        FOREVER_ExpectAndReturn(1);
+        _enable_IRQ_interrupt__Expect();
+        RTI_IsTimeElapsed_ExpectAndReturn(0u, MAIN_TIME_OUT_us, false);
+        BOOT_GetBootState_ExpectAndReturn(BOOT_FSM_STATE_WAIT);
+    }
+    FOREVER_ExpectAndReturn(0);
+
+    unit_test_main();
+    TEST_ASSERT_EQUAL(BOOT_FSM_STATE_WAIT, boot_state);
+
+    /* ======= RT7/11: run application, there is an valid program available but
+    it fails while jumping into the last flashed program */
+    resetTest();
+    boot_state = BOOT_FSM_STATE_WAIT;
+
+    _enable_interrupt__Expect();
+
+    muxInit_Expect();
+    gioInit_Expect();
+    CAN_Initialize_Expect();
+    rtiInit_Expect();
+
+    CAN_SendBootMessage_Expect();
+    RTI_ResetFreeRunningCount_ExpectAndReturn(1);
+    rtiStartCounter_Expect(rtiREG1, rtiCOUNTER_BLOCK0);
+    RTI_GetFreeRunningCount_ExpectAndReturn(0u);
+
+    FOREVER_ExpectAndReturn(1);
+    _enable_IRQ_interrupt__Expect();
+    RTI_IsTimeElapsed_ExpectAndReturn(0u, MAIN_TIME_OUT_us, false);
+    BOOT_GetBootState_ExpectAndReturn(BOOT_FSM_STATE_RUN);
+    FOREVER_ExpectAndReturn(1);
+    _enable_IRQ_interrupt__Expect();
+    RTI_IsTimeElapsed_ExpectAndReturn(0u, MAIN_TIME_OUT_us, false);
+    BOOT_IsProgramAvailableAndValidated_ExpectAndReturn(true);
+    BOOT_JumpInToLastFlashedProgram_ExpectAndReturn(STD_NOT_OK);
+    for (uint8_t i_call = 0u; i_call < 8u; i_call++) {
+        FOREVER_ExpectAndReturn(1);
+        _enable_IRQ_interrupt__Expect();
+        RTI_IsTimeElapsed_ExpectAndReturn(0u, MAIN_TIME_OUT_us, false);
+        BOOT_GetBootStateDuringError_ExpectAndReturn(BOOT_FSM_STATE_ERROR);
+    }
+    FOREVER_ExpectAndReturn(0);
+
+    unit_test_main();
+    TEST_ASSERT_EQUAL(BOOT_FSM_STATE_ERROR, boot_state);
+
+    /* ======= RT8/11: run application, there is no valid program available */
+    resetTest();
+    boot_state = BOOT_FSM_STATE_WAIT;
+
+    _enable_interrupt__Expect();
+
+    muxInit_Expect();
+    gioInit_Expect();
+    CAN_Initialize_Expect();
+    rtiInit_Expect();
+
+    CAN_SendBootMessage_Expect();
+    RTI_ResetFreeRunningCount_ExpectAndReturn(1);
+    rtiStartCounter_Expect(rtiREG1, rtiCOUNTER_BLOCK0);
+    RTI_GetFreeRunningCount_ExpectAndReturn(0u);
+
+    FOREVER_ExpectAndReturn(1);
+    _enable_IRQ_interrupt__Expect();
+    RTI_IsTimeElapsed_ExpectAndReturn(0u, MAIN_TIME_OUT_us, false);
+    BOOT_GetBootState_ExpectAndReturn(BOOT_FSM_STATE_RUN);
+    FOREVER_ExpectAndReturn(1);
+    _enable_IRQ_interrupt__Expect();
+    RTI_IsTimeElapsed_ExpectAndReturn(0u, MAIN_TIME_OUT_us, false);
+    BOOT_IsProgramAvailableAndValidated_ExpectAndReturn(false);
+    for (uint8_t i_call = 0u; i_call < 8u; i_call++) {
+        FOREVER_ExpectAndReturn(1);
+        _enable_IRQ_interrupt__Expect();
+        RTI_IsTimeElapsed_ExpectAndReturn(0u, MAIN_TIME_OUT_us, false);
+        BOOT_GetBootState_ExpectAndReturn(BOOT_FSM_STATE_WAIT);
+    }
+    FOREVER_ExpectAndReturn(0);
+
+    unit_test_main();
+    TEST_ASSERT_EQUAL(BOOT_FSM_STATE_WAIT, boot_state);
+
+    /* ======= RT9/11: unregistered state */
+    resetTest();
+    boot_state = 10u;
+
+    _enable_interrupt__Expect();
+
+    muxInit_Expect();
+    gioInit_Expect();
+    CAN_Initialize_Expect();
+    rtiInit_Expect();
+
+    CAN_SendBootMessage_Expect();
+    RTI_ResetFreeRunningCount_ExpectAndReturn(1);
+    rtiStartCounter_Expect(rtiREG1, rtiCOUNTER_BLOCK0);
+    RTI_GetFreeRunningCount_ExpectAndReturn(0u);
+
+    FOREVER_ExpectAndReturn(1);
+    _enable_IRQ_interrupt__Expect();
+    RTI_IsTimeElapsed_ExpectAndReturn(0u, MAIN_TIME_OUT_us, false);
+    FOREVER_ExpectAndReturn(0);
+
+    unit_test_main();
+    TEST_ASSERT_EQUAL(BOOT_FSM_STATE_ERROR, boot_state);
+
+    /* ======= RT9/11: timeout, boot_state is BOOT_FSM_STATE_WAIT */
+    resetTest();
+    boot_state = BOOT_FSM_STATE_WAIT;
+
+    _enable_interrupt__Expect();
+
+    muxInit_Expect();
+    gioInit_Expect();
+    CAN_Initialize_Expect();
+    rtiInit_Expect();
+
+    CAN_SendBootMessage_Expect();
+    RTI_ResetFreeRunningCount_ExpectAndReturn(1);
+    rtiStartCounter_Expect(rtiREG1, rtiCOUNTER_BLOCK0);
+    RTI_GetFreeRunningCount_ExpectAndReturn(0u);
+
+    FOREVER_ExpectAndReturn(1);
+    _enable_IRQ_interrupt__Expect();
+    RTI_IsTimeElapsed_ExpectAndReturn(0u, MAIN_TIME_OUT_us, true);
+    rtiStopCounter_Expect(rtiREG1, rtiCOUNTER_BLOCK0);
+    RTI_ResetFreeRunningCount_ExpectAndReturn(1);
+    BOOT_IsProgramAvailableAndValidated_ExpectAndReturn(false);
+    FOREVER_ExpectAndReturn(0);
+
+    unit_test_main();
+    TEST_ASSERT_EQUAL(BOOT_FSM_STATE_WAIT, boot_state);
+
+    /* ======= RT10/11: timeout, boot_state is BOOT_FSM_STATE_WAIT, try to run app,
+    but no validated app available */
+    resetTest();
+    boot_state = BOOT_FSM_STATE_WAIT;
+
+    _enable_interrupt__Expect();
+
+    muxInit_Expect();
+    gioInit_Expect();
+    CAN_Initialize_Expect();
+    rtiInit_Expect();
+
+    CAN_SendBootMessage_Expect();
+    RTI_ResetFreeRunningCount_ExpectAndReturn(1);
+    rtiStartCounter_Expect(rtiREG1, rtiCOUNTER_BLOCK0);
+    RTI_GetFreeRunningCount_ExpectAndReturn(0u);
+
+    FOREVER_ExpectAndReturn(1);
+    _enable_IRQ_interrupt__Expect();
+    RTI_IsTimeElapsed_ExpectAndReturn(0u, MAIN_TIME_OUT_us, true);
+    rtiStopCounter_Expect(rtiREG1, rtiCOUNTER_BLOCK0);
+    RTI_ResetFreeRunningCount_ExpectAndReturn(1);
+    BOOT_IsProgramAvailableAndValidated_ExpectAndReturn(false);
+    FOREVER_ExpectAndReturn(1);
+    _enable_IRQ_interrupt__Expect();
+    BOOT_GetBootState_ExpectAndReturn(BOOT_FSM_STATE_WAIT);
+    FOREVER_ExpectAndReturn(0);
+
+    unit_test_main();
+    TEST_ASSERT_EQUAL(BOOT_FSM_STATE_WAIT, boot_state);
+
+    /* ======= RT11/11: timeout, boot_state is not BOOT_FSM_STATE_WAIT */
+    resetTest();
+    boot_state = BOOT_FSM_STATE_ERROR;
+
+    _enable_interrupt__Expect();
+
+    muxInit_Expect();
+    gioInit_Expect();
+    CAN_Initialize_Expect();
+    rtiInit_Expect();
+
+    CAN_SendBootMessage_Expect();
+    RTI_ResetFreeRunningCount_ExpectAndReturn(1);
+    rtiStartCounter_Expect(rtiREG1, rtiCOUNTER_BLOCK0);
+    RTI_GetFreeRunningCount_ExpectAndReturn(0u);
+
+    FOREVER_ExpectAndReturn(1);
+    _enable_IRQ_interrupt__Expect();
+    RTI_IsTimeElapsed_ExpectAndReturn(0u, MAIN_TIME_OUT_us, true);
+    BOOT_GetBootStateDuringError_ExpectAndReturn(BOOT_FSM_STATE_ERROR);
+    FOREVER_ExpectAndReturn(0);
+    unit_test_main();
+    TEST_ASSERT_EQUAL(BOOT_FSM_STATE_ERROR, boot_state);
 }

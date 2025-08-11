@@ -44,7 +44,7 @@
  * @author  foxBMS Team
  * @date    2024-12-11 (date of creation)
  * @updated wrong date
- * @version v1.9.0
+ * @version v1.10.0
  * @ingroup SOME_GROUP
  * @prefix  DUMMY
  *

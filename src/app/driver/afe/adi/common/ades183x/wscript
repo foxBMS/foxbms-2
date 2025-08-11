@@ -37,7 +37,7 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""Builds the AFE measurement library for the ADI ADES183x device"""
+"""Build the common objects for ADES183x-based 'AFE'-drivers."""
 
 import os
 
@@ -45,7 +45,7 @@ from waflib.Build import BuildContext
 
 
 def build(bld: BuildContext):
-    """builds the AFE driver library for ADI ADES183x"""
+    """Build the common objects for ADES183x-based 'AFE'-drivers."""
     source = [
         "adi_ades183x.c",
         "adi_ades183x_buffers.c",

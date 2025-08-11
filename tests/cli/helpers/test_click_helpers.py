@@ -39,4 +39,16 @@
 
 """Testing file 'cli/helpers/click_helpers.py'."""
 
-# already test through the cli interface tests
+import unittest
+
+
+class TestClickHelpers(unittest.TestCase):
+    """Test of 'click_helpers.py'"""
+
+    def test_dummy(self):
+        """dummy test"""
+        # this test is necessary because otherwise the exit code is non-zero
+
+
+if __name__ == "__main__":
+    unittest.main()

@@ -37,16 +37,9 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""Build Script: ``./docs/software/modules/engine/database/wscript``
-====================================================================
+"""Builds the 'can' example
 
-Builds the database example
-
-This build script is not meant to be reused!
-
-"""
-
-import os
+This build script is not meant to be reused!"""
 
 
 def build(bld):
@@ -57,13 +50,11 @@ def build(bld):
         bld.path.find_or_declare(f"{i}.h").write(dummy_txt)
     includes = [
         ".",
-        os.path.join("..", "..", "..", "..", "..", "src", "app", "driver", "config"),
-        os.path.join("..", "..", "..", "..", "..", "src", "app", "main", "include"),
-        os.path.join("..", "..", "..", "..", "..", "src", "app", "engine", "database"),
-        os.path.join("..", "..", "..", "..", "..", "src", "app", "engine", "config"),
-        os.path.join(
-            "..", "..", "..", "..", "..", "src", "app", "application", "config"
-        ),
+        "../../../../../src/app/driver/config",
+        "../../../../../src/app/main/include",
+        "../../../../../src/app/engine/database",
+        "../../../../../src/app/engine/config",
+        "../../../../../src/app/application/config",
     ]
     cflags = bld.env.CFLAGS_FOXBMS
 
@@ -77,24 +68,15 @@ def build(bld):
             'canREG1="((uint32_t *)0xFFF7DC00U)"',
         ],
         includes=includes,
-        cflags=(cflags + ["--diag_suppress=179", "--diag_suppress=552"]),
+        cflags=(
+            cflags
+            + ["--diag_suppress=179", "--diag_suppress=552", "--diag_suppress=880"]
+        ),
         idx=1,
     )
 
     async_extra_includes = [
-        os.path.join(
-            "..",
-            "..",
-            "..",
-            "..",
-            "..",
-            "src",
-            "app",
-            "driver",
-            "can",
-            "cbs",
-            "tx-async",
-        )
+        "../../../../../src/app/driver/can/cbs/tx-async",
     ]
     bld(
         features="c",

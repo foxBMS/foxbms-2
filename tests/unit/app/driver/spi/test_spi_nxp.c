@@ -43,8 +43,8 @@
  * @file    test_spi_nxp.c
  * @author  foxBMS Team
  * @date    2020-10-20 (date of creation)
- * @updated 2025-03-31 (date of last update)
- * @version v1.9.0
+ * @updated 2025-08-07 (date of last update)
+ * @version v1.10.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -102,7 +102,7 @@ DMA_CHANNEL_CONFIG_s dma_spiDmaChannels[DMA_NUMBER_SPI_INTERFACES] = {
 };
 
 /** SPI data configuration struct for NXP MC33775A communication, Tx part */
-static spiDAT1_t spi_kNxp775DataConfigTx[BS_NR_OF_STRINGS] = {
+static spiDAT1_t spi_kNxp77xDataConfigTx[BS_NR_OF_STRINGS] = {
     {.CS_HOLD = TRUE,      /* If true, HW chip select kept active */
      .WDEL    = TRUE,      /* Activation of delay between words */
      .DFSEL   = SPI_FMT_2, /* Data word format selection */
@@ -111,7 +111,7 @@ static spiDAT1_t spi_kNxp775DataConfigTx[BS_NR_OF_STRINGS] = {
 };
 
 /** SPI data configuration struct for NXP MC33775A communication, Rx part */
-static spiDAT1_t spi_kNxp775DataConfigRx[BS_NR_OF_STRINGS] = {
+static spiDAT1_t spi_kNxp77xDataConfigRx[BS_NR_OF_STRINGS] = {
     {.CS_HOLD = TRUE,      /* If true, HW chip select kept active */
      .WDEL    = TRUE,      /* Activation of delay between words */
      .DFSEL   = SPI_FMT_2, /* Data word format selection */
@@ -149,10 +149,10 @@ static spiDAT1_t spi_kSbcDataConfig = {
     .CSNR = SPI_HARDWARE_CHIP_SELECT_DISABLE_ALL,
 };
 
-/** SPI interface configuration for N775 communication Tx part */
-SPI_INTERFACE_CONFIG_s spi_nxp775InterfaceTx[BS_NR_OF_STRINGS] = {
+/** SPI interface configuration for N77X communication Tx part */
+SPI_INTERFACE_CONFIG_s spi_nxp77xInterfaceTx[BS_NR_OF_STRINGS] = {
     {
-        .pConfig  = &spi_kNxp775DataConfigTx[0u],
+        .pConfig  = &spi_kNxp77xDataConfigTx[0u],
         .pNode    = spiREG1,
         .pGioPort = &(spiREG1->PC3),
         .csPin    = 1u,
@@ -160,10 +160,10 @@ SPI_INTERFACE_CONFIG_s spi_nxp775InterfaceTx[BS_NR_OF_STRINGS] = {
     },
 };
 
-/** SPI interface configuration for N775 communication, Rx part */
-SPI_INTERFACE_CONFIG_s spi_nxp775InterfaceRx[BS_NR_OF_STRINGS] = {
+/** SPI interface configuration for N77X communication, Rx part */
+SPI_INTERFACE_CONFIG_s spi_nxp77xInterfaceRx[BS_NR_OF_STRINGS] = {
     {
-        .pConfig  = &spi_kNxp775DataConfigRx[0u],
+        .pConfig  = &spi_kNxp77xDataConfigRx[0u],
         .pNode    = spiREG4,
         .pGioPort = &(spiREG4->PC3),
         .csPin    = 0u,
@@ -248,8 +248,8 @@ void testSPI_InitializeChipSelects(void) {
     TEST_SPI_InitializeChipSelects();
 
     /* ======= RT1/1: test output verification */
-    TEST_ASSERT_EQUAL(SPI_HARDWARE_CHIP_SELECT_1_ACTIVE, spi_nxp775InterfaceTx[currentString].pConfig->CSNR);
-    TEST_ASSERT_EQUAL(SPI_HARDWARE_CHIP_SELECT_0_ACTIVE, spi_nxp775InterfaceRx[currentString].pConfig->CSNR);
+    TEST_ASSERT_EQUAL(SPI_HARDWARE_CHIP_SELECT_1_ACTIVE, spi_nxp77xInterfaceTx[currentString].pConfig->CSNR);
+    TEST_ASSERT_EQUAL(SPI_HARDWARE_CHIP_SELECT_0_ACTIVE, spi_nxp77xInterfaceRx[currentString].pConfig->CSNR);
     TEST_ASSERT_EQUAL(1u, spi_framInterface.pConfig->CSNR);
     TEST_ASSERT_EQUAL(1u, spi_spsInterface.pConfig->CSNR);
     TEST_ASSERT_EQUAL(SPI_HARDWARE_CHIP_SELECT_0_ACTIVE, spi_sbcMcuInterface.pConfig->CSNR);
@@ -276,7 +276,7 @@ void testSPI_InitializeChipSelectsAfeNxp(void) {
     }
     /* ======= RT1/1: test output verification */
     for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
-        TEST_ASSERT_EQUAL(spiTestArrayResultsNxpTx[s], spi_nxp775InterfaceTx[s].pConfig->CSNR);
-        TEST_ASSERT_EQUAL(spiTestArrayResultsNxpRx[s], spi_nxp775InterfaceRx[s].pConfig->CSNR);
+        TEST_ASSERT_EQUAL(spiTestArrayResultsNxpTx[s], spi_nxp77xInterfaceTx[s].pConfig->CSNR);
+        TEST_ASSERT_EQUAL(spiTestArrayResultsNxpRx[s], spi_nxp77xInterfaceRx[s].pConfig->CSNR);
     }
 }

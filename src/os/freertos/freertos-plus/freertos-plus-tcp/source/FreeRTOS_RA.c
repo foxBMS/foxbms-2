@@ -1,5 +1,5 @@
 /*
- * FreeRTOS+TCP V4.2.1
+ * FreeRTOS+TCP V4.3.2
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -42,7 +42,6 @@
 #include "FreeRTOS_Sockets.h"
 #include "FreeRTOS_IP_Private.h"
 #include "FreeRTOS_IP_Timers.h"
-#include "FreeRTOS_ARP.h"
 #include "FreeRTOS_UDP_IP.h"
 #include "FreeRTOS_Routing.h"
 #include "FreeRTOS_ND.h"
@@ -328,16 +327,19 @@
                 case ndICMP_REDIRECTED_HEADER: /* 4 */
                     break;
 
+
                 case ndICMP_MTU_OPTION: /* 5 */
                    {
-                       uint32_t ulMTU = 0u;
-                       ( void ) ulMTU;
+                        #if ipconfigHAS_PRINTF == 1
+                        uint32_t ulMTU;
 
-                       /* ulChar2u32 returns host-endian numbers. */
-                       ulMTU = ulChar2u32( &( pucBytes[ uxIndex + 4U ] ) );
-                       FreeRTOS_printf( ( "RA: MTU = %u\n", ( unsigned int ) ulMTU ) );
-                   }
-                   break;
+                        /* ulChar2u32 returns host-endian numbers. */
+                        ulMTU = ulChar2u32( &( pucBytes[ uxIndex + 4U ] ) );
+                        FreeRTOS_printf( ( "RA: MTU = %u\n", ( unsigned int ) ulMTU ) );
+                        #endif /* ipconfigHAS_PRINTF == 1 */
+                    }
+                    break;
+
 
                 default:
                     FreeRTOS_printf( ( "RA: Type 0x%02x not implemented\n", ucType ) );
@@ -509,7 +511,7 @@
                 }
 
                 /* Now call vIPNetworkUpCalls() to send the network-up event and
-                 * start the ARP timer. */
+                 * start the Resolution timer. */
                 vIPNetworkUpCalls( pxEndPoint );
             }
         }

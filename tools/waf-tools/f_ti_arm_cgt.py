@@ -42,7 +42,6 @@
 # pylint: disable=too-many-statements,too-many-lines,too-many-locals
 
 import binascii
-import json
 import os
 import pathlib
 import re
@@ -556,103 +555,6 @@ class cprogram(link_task):  # pylint: disable=invalid-name,too-few-public-method
     # an installation task
     inst_to = True
 
-    def exec_command(self, cmd, **kw):  # pylint: disable=arguments-differ
-        kw["shell"] = isinstance(cmd, str)
-        kw["cwd"] = self.get_cwd()
-        kw["output"] = Context.BOTH
-        kw["quiet"] = Context.BOTH
-        try:
-            std = self.generator.bld.cmd_and_log(cmd, **kw)
-        except Errors.WafError as err:
-            Logs.error(err.msg)
-            if hasattr(err, "stdout"):
-                Logs.error(err.stdout)
-            if hasattr(err, "stderr"):
-                Logs.error(err.stderr)
-            ret = 1
-            if hasattr(err, "returncode"):
-                ret = err.returncode
-            return ret
-        if not hasattr(self.generator, "linker_pulls"):
-            Logs.warn("No pull file specified. Check linker output!")
-            return 0
-        hits, errors = cprogram.parse_output(
-            self.generator.linker_pulls.read(),
-            self.generator.bld.path.get_bld().abspath(),
-            std[0],
-        )
-        if Logs.verbose:
-            Logs.info("\n".join(hits))
-        if errors:
-            Logs.error(
-                "Removing binary as the following errors occurred after "
-                f"linkage:\n{'\n'.join(errors)}"
-            )
-            # remove output since the binary was not linked as desired
-            for i in self.outputs:
-                i.delete()
-        return len(errors)
-
-    @staticmethod
-    def parse_output(pull_config, obj_path, std):
-        """parses the output of the linker"""
-        if pull_config == "{}":
-            return [], []
-        if not std:
-            return [], []
-        if "#10252" not in std:
-            return [], []
-        # now we know that at least some warning has been printed to stdout that
-        # includes the linker remark #10252 and that a pull file has been
-        # specified.
-        linker_pulls = json.loads(pull_config)
-        correctly_found = {}
-        for fun, src in linker_pulls.items():
-            correctly_found[fun] = (os.path.normpath(src), False, False)
-
-        sym = r"Symbol \"(@FUN@)\""
-        link_regex = r"Symbol \"@FUN@\" \(pulled from \"@SRC@\"\)"
-        link_src_reg = r"\(pulled from \"(\S*)\"\)"
-        errors = []
-        hits = []
-        for line in std.splitlines():
-            if "#10252" in line:
-                for fun, (src, found_sym, found_src) in correctly_found.items():
-                    sym_reg = sym.replace("@FUN@", fun)
-                    src_txt = src.replace("\\", "\\\\").replace(".", r"\.")
-                    link_reg = link_regex.replace("@FUN@", fun).replace(
-                        "@SRC@", src_txt
-                    )
-                    # pylint: disable=unnecessary-dict-index-lookup
-                    if re.search(sym_reg, line) and not correctly_found[fun] == (
-                        src,
-                        True,
-                        True,
-                    ):
-                        if re.search(link_reg, line):
-                            correctly_found[fun] = (src, True, True)
-                            break
-                        wrong_src = re.search(link_src_reg, line).group(1)
-                        path_tuple = (src, wrong_src)
-                        correctly_found[fun] = (path_tuple, True, False)
-                        break
-        for fun, (src, found_sym, found_src) in correctly_found.items():
-            if not found_sym and not found_src:
-                full_src_path = os.path.join(obj_path, src)
-                errors.append(f"Did not find the symbol '{fun}'.")
-            elif not found_src and found_sym:
-                full_src_path = os.path.join(obj_path, src[0])
-                full_wrong_path = os.path.join(obj_path, src[1])
-                errors.append(
-                    f"Did not find '{fun}' where it was expected ('{full_src_path}')."
-                )
-                errors.append(f"Instead it was found in '{full_wrong_path}'.")
-            else:
-                full_src_path = os.path.join(obj_path, src)
-                hits.append(f"Found '{fun}' as expected in '{full_src_path}'.")
-
-        return hits, errors
-
     def keyword(self):
         """displayed keyword when linking the target"""
         return "Linking"
@@ -756,14 +658,6 @@ def tiprogram(bld: BuildContext, *k, **kw):
     kw["target"] = [tgt_elf, tgt_xml, tgt_map]
 
     bld.add_manual_dependency(tgt_elf, kw["linker_script"])
-
-    if "linker_pulls" in kw:
-        scan_opt = "--scan_libraries"
-        if scan_opt not in bld.env.LINKFLAGS and scan_opt not in kw["linkflags"]:
-            bld.fatal(
-                "'linker_pulls' was specified without linker flag '--scan_libraries'."
-            )
-        bld.add_manual_dependency(tgt_elf, kw["linker_pulls"])
 
     # if a hex file should be generated, we need to append the config
     if "linker_script_hex" in kw:

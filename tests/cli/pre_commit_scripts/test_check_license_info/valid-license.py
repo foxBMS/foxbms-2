@@ -39,4 +39,18 @@
 
 """Testing file 'cli/pre_commit_scripts/check_license_info/valid-license.py'."""
 
-# pylint: skip-file
+# pylint: disable=invalid-name
+
+import unittest
+
+
+class TestValidLicense(unittest.TestCase):
+    """Test of 'valid-license.py'"""
+
+    def test_dummy(self):
+        """dummy test"""
+        # this test is necessary because otherwise the exit code is non-zero
+
+
+if __name__ == "__main__":
+    unittest.main()

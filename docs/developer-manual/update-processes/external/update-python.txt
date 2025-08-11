@@ -5,6 +5,6 @@
 - Create a new Python environment based on this Python version.
 - |snippet_update_license| in
   ``docs/general/license-tables/license-info_python.csv``.
-- |snippet_changelog_entry|.
+- |snippet_changelog_entry|
 - |snippet_commit|
   ``Dependency update: <XXXX>/Q<Y>: Python <version number>``.

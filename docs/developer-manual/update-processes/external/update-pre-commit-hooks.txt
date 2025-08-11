@@ -23,6 +23,6 @@
             ./fox.sh run-program pre-commit autoupdate https://path-to-repo
 - |snippet_update_license| in
   ``docs/general/license-tables/external/license-info_pre-commit-hooks.csv``.
-- |snippet_changelog_entry|.
+- |snippet_changelog_entry|
 - |snippet_commit|
   ``Dependency update: <XXXX>/Q<Y>: pre-commit Hooks <newline><comma-separated-list-of-hook-names-including-version-number>``.

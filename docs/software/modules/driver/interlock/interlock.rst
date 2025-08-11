@@ -28,9 +28,13 @@ Unit Test
 Description
 -----------
 
-.. graphviz:: interlock-schematic.dot
-    :caption: Simplified schematic of the interlock circuit
-    :name: interlock-circuit-simplified
+.. drawio-figure:: interlock-schematic.drawio
+   :format: svg
+   :alt: Simplified schematic of the interlock circuit
+   :name: interlock-circuit-simplified
+   :width: 240px
+
+   Simplified schematic of the interlock circuit
 
 The purpose of the interlock circuit is that the embedded software can
 recognize that an external safety circuit has been opened.

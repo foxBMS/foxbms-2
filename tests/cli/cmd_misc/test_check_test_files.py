@@ -39,6 +39,7 @@
 
 """Testing file 'cli/cmd_misc/check_test_files.py'."""
 
+import ast
 import io
 import sys
 import unittest
@@ -48,13 +49,15 @@ from unittest.mock import MagicMock, patch
 
 try:
     from cli.cmd_misc import check_test_files
+    from cli.helpers.spr import SubprocessResult
 except ModuleNotFoundError:
     sys.path.insert(0, str(Path(__file__).parents[3]))
     from cli.cmd_misc import check_test_files
+    from cli.helpers.spr import SubprocessResult
 
 
 class TestCheckTestFilesPrivateGetCliFiles(unittest.TestCase):
-    """Test of '_get_cli_files.py' function."""
+    """Test of '_get_cli_files' function."""
 
     @patch("cli.cmd_misc.check_test_files.PROJECT_ROOT")
     def test__get_cli_files(self, m_project_root: MagicMock):
@@ -65,7 +68,7 @@ class TestCheckTestFilesPrivateGetCliFiles(unittest.TestCase):
 
 
 class TestCheckTestFilesPrivateGetTestFiles(unittest.TestCase):
-    """Test of '_get_test_files.py' function."""
+    """Test of '_get_test_files' function."""
 
     @patch("cli.cmd_misc.check_test_files.PROJECT_ROOT")
     def test__get_cli_files(self, m_project_root: MagicMock):
@@ -73,6 +76,185 @@ class TestCheckTestFilesPrivateGetTestFiles(unittest.TestCase):
         m_project_root.return_value = Path("foo")
         ret = check_test_files._get_test_files()  # pylint: disable=protected-access
         self.assertEqual(ret, [])
+
+
+class TestCheckTestFilesPrivateCheckMainUnittest(unittest.TestCase):
+    """Test of '_check_main_unittest' function."""
+
+    def test_no_main_defined(self):
+        """Test for no '__main__' defined"""
+        script = "print('Hello, World!')"
+        err = io.StringIO()
+        with redirect_stderr(err):  # pylint: disable-next=protected-access
+            ret = check_test_files._check_main_unittest("", ast.parse(script))
+        self.assertEqual(ret.returncode, 1)
+        self.assertEqual(ret.err, "")
+        self.assertEqual(ret.out, "")
+        self.assertEqual(
+            " must define '__main__' and call unittest.main().\n", err.getvalue()
+        )
+
+    def test_main_defined_no_unittest(self):
+        """Test for '__main__' defined with no unittest.main() call"""
+        script = """
+if __name__ == '__main__':
+    print('Hello, World!')
+"""
+        err = io.StringIO()
+        with redirect_stderr(err):  # pylint: disable-next=protected-access
+            ret = check_test_files._check_main_unittest("", ast.parse(script))
+        self.assertEqual(ret.returncode, 1)
+        self.assertEqual(ret.err, "")
+        self.assertEqual(ret.out, "")
+        self.assertEqual(
+            " must define '__main__' and call unittest.main().\n", err.getvalue()
+        )
+
+    def test_main_defined_with_unittest(self):
+        """Test for '__main__' defined and unittest.main() called"""
+        script = """
+import unittest
+
+if __name__ == '__main__':
+    unittest.main()
+"""
+        err = io.StringIO()
+        with redirect_stderr(err):  # pylint: disable-next=protected-access
+            ret = check_test_files._check_main_unittest("", ast.parse(script))
+        self.assertEqual(ret.returncode, 0)
+        self.assertEqual(ret.err, "")
+        self.assertEqual(ret.out, "")
+        self.assertEqual("", err.getvalue())
+
+    def test_main_not_correct(self):
+        """Test for '__main__' incorrect definition"""
+        script = """
+import unittest
+
+if name == '__main__':
+    unittest.main()
+"""
+        err = io.StringIO()
+        with redirect_stderr(err):  # pylint: disable-next=protected-access
+            ret = check_test_files._check_main_unittest("", ast.parse(script))
+        self.assertEqual(ret.returncode, 1)
+        self.assertEqual(ret.err, "")
+        self.assertEqual(ret.out, "")
+        self.assertEqual(
+            " must define '__main__' and call unittest.main().\n", err.getvalue()
+        )
+
+    def test_main_defined_with_other_call(self):
+        """Test for '__main__' defined with a different function called"""
+        script = """
+import unittest
+
+if __name__ == '__main__':
+    some_function()
+"""
+        err = io.StringIO()
+        with redirect_stderr(err):  # pylint: disable-next=protected-access
+            ret = check_test_files._check_main_unittest("", ast.parse(script))
+        self.assertEqual(ret.returncode, 1)
+        self.assertEqual(ret.err, "")
+        self.assertEqual(ret.out, "")
+        self.assertEqual(
+            " must define '__main__' and call unittest.main().\n", err.getvalue()
+        )
+
+    def test_nested_if_statement(self):
+        """Test for '__main__' defined and unittest.main() called nested in if statement"""
+        script = """
+import unittest
+
+if True:
+    if __name__ == '__main__':
+        unittest.main()
+"""
+        err = io.StringIO()
+        with redirect_stderr(err):  # pylint: disable-next=protected-access
+            ret = check_test_files._check_main_unittest("", ast.parse(script))
+        self.assertEqual(ret.returncode, 0)
+        self.assertEqual(ret.err, "")
+        self.assertEqual(ret.out, "")
+        self.assertEqual("", err.getvalue())
+
+    def test_main_defined_with_unittest_in_function(self):
+        """Test with '__main__' defined with unittest.main() called in different function"""
+        script = """
+import unittest
+
+def run_tests():
+    unittest.main()
+
+if __name__ == '__main__':
+    run_tests()
+"""
+
+        err = io.StringIO()
+        with redirect_stderr(err):  # pylint: disable-next=protected-access
+            ret = check_test_files._check_main_unittest("", ast.parse(script))
+        self.assertEqual(ret.returncode, 1)
+        self.assertEqual(ret.err, "")
+        self.assertEqual(ret.out, "")
+        self.assertEqual(
+            " must define '__main__' and call unittest.main().\n", err.getvalue()
+        )
+
+    def test_main_defined_no_call(self):
+        """Test with '__main__' defined without a call"""
+        script = """
+import unittest
+
+if __name__ == '__main__':
+    ret = True
+"""
+        err = io.StringIO()
+        with redirect_stderr(err):  # pylint: disable-next=protected-access
+            ret = check_test_files._check_main_unittest("", ast.parse(script))
+        self.assertEqual(ret.returncode, 1)
+        self.assertEqual(ret.err, "")
+        self.assertEqual(ret.out, "")
+        self.assertEqual(
+            " must define '__main__' and call unittest.main().\n", err.getvalue()
+        )
+
+
+class TestCheckTestFilesPrivateCheckDocstring(unittest.TestCase):
+    """Test of '_check_docstring' function."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.root = Path(__file__).parents[3]
+        return super().setUpClass()
+
+    def test_invalid_docstring(self):
+        """Test function with invalid docstring"""
+        test_file = Path("tests/cli/test_cli.py")
+        docstring = '"""Testing file \'cli/foo.py\'."""'
+        err = io.StringIO()
+        with redirect_stderr(err):  # pylint: disable-next=protected-access
+            ret = check_test_files._check_docstring(test_file, ast.parse(docstring))
+        self.assertEqual(ret.returncode, 1)
+        self.assertEqual(ret.err, "")
+        self.assertEqual(ret.out, "")
+        self.assertRegex(
+            err.getvalue(),
+            r"tests[\\\/]cli[\\\/]test_cli\.py is missing a docstring "
+            r'starting with """Testing file \'cli\/cli\.py\'\."""',
+        )
+
+    def test_valid_docstring(self):
+        """Test function with valid docstring"""
+        test_file = Path("tests/cli/test_cli.py")
+        docstring = '"""Testing file \'cli/cli.py\'."""'
+        err = io.StringIO()
+        with redirect_stderr(err):  # pylint: disable-next=protected-access
+            ret = check_test_files._check_docstring(test_file, ast.parse(docstring))
+        self.assertEqual(ret.returncode, 0)
+        self.assertEqual(ret.err, "")
+        self.assertEqual(ret.out, "")
+        self.assertEqual("", err.getvalue())
 
 
 class TestCheckTestFiles(unittest.TestCase):
@@ -85,14 +267,20 @@ class TestCheckTestFiles(unittest.TestCase):
 
     @patch("cli.cmd_misc.check_test_files._get_cli_files")
     @patch("cli.cmd_misc.check_test_files._get_test_files")
-    @patch("cli.cmd_misc.check_test_files.Path.read_text")
-    def test_check_for_test_files_test_ok(
-        self, mock_read_text: MagicMock, mock_gtf: MagicMock, mock_gcf: MagicMock
+    @patch("cli.cmd_misc.check_test_files._check_docstring")
+    @patch("cli.cmd_misc.check_test_files._check_main_unittest")
+    def test_check_for_test_files_test_ok_verbose(
+        self,
+        mock_main_unittest: MagicMock,
+        mock_check_docstring: MagicMock,
+        mock_gtf: MagicMock,
+        mock_gcf: MagicMock,
     ):
-        """TODO"""
+        """Test 'check_for_test_files' function being successful with verbose set"""
         mock_gcf.return_value = [self.root / "cli/cli.py"]
         mock_gtf.return_value = [Path("tests/cli/test_cli.py")]
-        mock_read_text.side_effect = ['"""Testing file \'cli/cli.py\'."""']
+        mock_check_docstring.return_value = SubprocessResult(0)
+        mock_main_unittest.return_value = SubprocessResult(0)
         out = io.StringIO()
         with redirect_stdout(out):
             ret = check_test_files.check_for_test_files(verbose=1)
@@ -100,37 +288,66 @@ class TestCheckTestFiles(unittest.TestCase):
         self.assertEqual(ret.out, "")
         self.assertEqual(ret.err, "")
         self.assertEqual(out.getvalue(), "Found all expected test files.\n")
-        mock_read_text.assert_called_once_with(encoding="utf-8")
         mock_gtf.assert_called_once()
         mock_gcf.assert_called_once()
+        mock_main_unittest.assert_called_once()
+        mock_check_docstring.assert_called_once()
 
     @patch("cli.cmd_misc.check_test_files._get_cli_files")
     @patch("cli.cmd_misc.check_test_files._get_test_files")
-    @patch("cli.cmd_misc.check_test_files.Path.read_text")
-    def test_check_for_test_files_test_invalid_docstring(
-        self, mock_read_text: MagicMock, mock_gtf: MagicMock, mock_gcf: MagicMock
+    @patch("cli.cmd_misc.check_test_files._check_docstring")
+    @patch("cli.cmd_misc.check_test_files._check_main_unittest")
+    def test_check_for_test_files_test_ok(
+        self,
+        mock_main_unittest: MagicMock,
+        mock_check_docstring: MagicMock,
+        mock_gtf: MagicMock,
+        mock_gcf: MagicMock,
     ):
-        """TODO"""
-        mock_gcf.return_value = [
-            self.root / "cli/cli.py",
-            self.root / "cli/__init__.py",  # ignored
-        ]
+        """Test 'check_for_test_files' function being successful"""
+        mock_gcf.return_value = [self.root / "cli/cli.py"]
         mock_gtf.return_value = [Path("tests/cli/test_cli.py")]
-        mock_read_text.side_effect = ['"""Testing file \'cli/foo.py\'."""']
-        err = io.StringIO()
-        with redirect_stderr(err):
+        mock_check_docstring.return_value = SubprocessResult(0)
+        mock_main_unittest.return_value = SubprocessResult(0)
+        out = io.StringIO()
+        with redirect_stdout(out):
             ret = check_test_files.check_for_test_files()
-        self.assertEqual(ret.returncode, 1)
-        self.assertEqual(ret.err, "")
+        self.assertEqual(ret.returncode, 0)
         self.assertEqual(ret.out, "")
-        self.assertRegex(
-            err.getvalue(),
-            r"tests[\\\/]cli[\\\/]test_cli\.py is missing a docstring "
-            r'starting with """Testing file \'cli\/cli\.py\'\."""',
-        )
-        mock_read_text.assert_called_once_with(encoding="utf-8")
+        self.assertEqual(ret.err, "")
+        self.assertEqual(out.getvalue(), "")
         mock_gtf.assert_called_once()
         mock_gcf.assert_called_once()
+        mock_main_unittest.assert_called_once()
+        mock_check_docstring.assert_called_once()
+
+    @patch("cli.cmd_misc.check_test_files._get_cli_files")
+    @patch("cli.cmd_misc.check_test_files._get_test_files")
+    @patch("cli.cmd_misc.check_test_files._check_docstring")
+    @patch("cli.cmd_misc.check_test_files._check_main_unittest")
+    def test_check_for_test_files_init(
+        self,
+        mock_main_unittest: MagicMock,
+        mock_check_docstring: MagicMock,
+        mock_gtf: MagicMock,
+        mock_gcf: MagicMock,
+    ):
+        """Test 'check_for_test_files' function with only '__init__.py' files"""
+        mock_gcf.return_value = [self.root / "__init__.py"]
+        mock_gtf.return_value = [Path("tests/__init__.py")]
+        mock_check_docstring.return_value = SubprocessResult(0)
+        mock_main_unittest.return_value = SubprocessResult(0)
+        out = io.StringIO()
+        with redirect_stdout(out):
+            ret = check_test_files.check_for_test_files()
+        self.assertEqual(ret.returncode, 0)
+        self.assertEqual(ret.out, "")
+        self.assertEqual(ret.err, "")
+        self.assertEqual(out.getvalue(), "")
+        mock_gtf.assert_called_once()
+        mock_gcf.assert_called_once()
+        mock_main_unittest.assert_not_called()
+        mock_check_docstring.assert_not_called()
 
     @patch("cli.cmd_misc.check_test_files._get_cli_files")
     @patch("cli.cmd_misc.check_test_files._get_test_files")
@@ -138,7 +355,7 @@ class TestCheckTestFiles(unittest.TestCase):
     def test_check_for_test_files_test_test_file_missing(
         self, mock_read_text: MagicMock, mock_gtf: MagicMock, mock_gcf: MagicMock
     ):
-        """TODO"""
+        """Test 'check_for_test_files' function being unsuccessful"""
         mock_gcf.return_value = [self.root / "cli/cli.py"]
         mock_gtf.return_value = []
         err = io.StringIO()

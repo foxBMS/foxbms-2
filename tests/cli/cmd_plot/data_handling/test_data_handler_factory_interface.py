@@ -38,3 +38,17 @@
 # - "This product is derived from foxBMS®"
 
 """Testing file 'cli/cmd_plot/data_handling/data_handler_factory_interface.py'."""
+
+import unittest
+
+
+class TestDataHandlerFactoryInterface(unittest.TestCase):
+    """Test of 'data_handler_factory_interface.py'"""
+
+    def test_dummy(self):
+        """dummy test"""
+        # this test is necessary because otherwise the exit code is non-zero
+
+
+if __name__ == "__main__":
+    unittest.main()

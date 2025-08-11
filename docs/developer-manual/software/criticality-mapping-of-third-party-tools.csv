@@ -1,0 +1,11 @@
+Tool                        ; Class                         ; Criticality ; Criticality comment
+|git|                       ; version control system        ; T3          ; used to version sources in a repository
+|ti-arm-cgt|                ; compiler                      ; T3          ; used to build code for the target
+|ti-arm-cgt|                ; linker                        ; T3          ; used to link code for the target
+|gcc|                       ; compiler                      ; T2          ; used to build and link code for unit tests
+|vs-code|                   ; text editor                   ; T1          ; \-
+|waf|                       ; build automation system       ; T3          ; controls build process; generates version dependent code
+Axivion Suite               ; static program analysis tools ; T2          ; creates a static program analysis of the source code of the application code
+sphinx                      ; documentation tools           ; T1          ; just a rendering tool for the documentation text files
+|ceedling|                  ; unit testing framework        ; T2          ; Orchestrating the unit test build including mocking
+*Custom HIL implementation* ; test runner                   ; T3          ; verifies the application behavior

@@ -43,8 +43,8 @@
  * @file    sps_cfg.h
  * @author  foxBMS Team
  * @date    2020-10-14 (date of creation)
- * @updated 2025-03-31 (date of last update)
- * @version v1.9.0
+ * @updated 2025-08-07 (date of last update)
+ * @version v1.10.0
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  SPS
  *
@@ -203,8 +203,6 @@ typedef struct {
     const uint8_t pexDevice;  /*!< port expander number */
     const uint8_t pexChannel; /*!< pin number on the addresses port expander */
 } SPS_CHANNEL_FEEDBACK_MAPPING_s;
-
-/*================== Main precharge configuration ====================*/
 
 /*========== Extern Constant and Variable Declarations ======================*/
 

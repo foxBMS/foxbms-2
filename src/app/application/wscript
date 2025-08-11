@@ -37,10 +37,9 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""Helper Build Script: ``./src/app/application/wscript``
-=============================================
+"""Build the 'application' objects and library
 
-Helper script to recursively build the embedded sources"""
+The build process of the algorithms is propagated to a lower level wscript."""
 
 import os
 
@@ -53,7 +52,9 @@ def build(bld):
         os.path.join("config", "bal_cfg.c"),
         os.path.join("config", "battery_cell_cfg.c"),
         os.path.join("config", "battery_system_cfg.c"),
+        os.path.join("config", "ethernet_cfg.c"),
         os.path.join("config", "soa_cfg.c"),
+        os.path.join("ethernet", "ethernet.c"),
         os.path.join("plausibility", "plausibility.c"),
         os.path.join("redundancy", "redundancy.c"),
         os.path.join("soa", "soa.c"),
@@ -84,6 +85,7 @@ def build(bld):
         os.path.join("..", "driver", "imd"),
         os.path.join("..", "driver", "led"),
         os.path.join("..", "driver", "meas"),
+        os.path.join("..", "driver", "phy"),
         os.path.join("..", "driver", "sbc"),
         os.path.join("..", "driver", "sbc", "fs8x_driver"),
         os.path.join("..", "driver", "spi"),

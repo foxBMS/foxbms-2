@@ -44,17 +44,36 @@ import time
 from dataclasses import asdict
 
 import can
-import click
-from can import CanError
+from can.typechecking import CanFilter
+from cantools import database
 
-from ..helpers.click_helpers import recho
+from ..helpers.click_helpers import echo, recho, secho
 from ..helpers.fcan import CanBusConfig
-from .bootloader import Bootloader
+from ..helpers.misc import APP_DBC_FILE, BOOTLOADER_DBC_FILE
+from .bootloader import Bootloader, BootloaderStatus
 from .bootloader_can import BootloaderInterfaceCan
 
+# Create the filter to prevent receiving the irrelevant can messages
+db_bootloader = database.load_file(BOOTLOADER_DBC_FILE)
+db_app = database.load_file(APP_DBC_FILE)
+can_filters = []
+if isinstance(db_bootloader, database.can.database.Database):  # pragma: no cover
+    can_filters.extend(
+        [
+            CanFilter(can_id=message.frame_id, can_mask=0x7FF)
+            for message in db_bootloader.messages
+        ]
+    )
+if isinstance(db_app, database.can.database.Database):  # pragma: no cover
+    can_filters.extend(
+        [
+            CanFilter(can_id=message.frame_id, can_mask=0x7FF)
+            for message in db_app.messages
+        ]
+    )
 
-# pylint: disable-next=too-few-public-methods
-class RootFilter(logging.Filter):
+
+class RootFilter(logging.Filter):  # pylint:disable=too-few-public-methods
     """Filter to prevent certain messages from being displayed."""
 
     def filter(self, record):  # pragma: no cover
@@ -70,8 +89,7 @@ class RootFilter(logging.Filter):
         )  # pragma: no cover
 
 
-# pylint: disable-next=too-few-public-methods
-class PcanFilter(logging.Filter):
+class PcanFilter(logging.Filter):  # pylint:disable=too-few-public-methods
     """Filter to prevent certain messages from being displayed."""
 
     def filter(self, record):  # pragma: no cover
@@ -83,244 +101,169 @@ class PcanFilter(logging.Filter):
         )  # pragma: no cover
 
 
-def check_bootloader(bus_cfg: CanBusConfig | Bootloader) -> int:
-    """Check the status of bootloader"""
+def _add_filters() -> None:
     # Get the logger
     root_logger = logging.getLogger()
     pcan_logger = logging.getLogger("can.pcan")
     # Add the custom filters to the loggers to disable specified messages
     root_logger.addFilter(RootFilter())
     pcan_logger.addFilter(PcanFilter())
-    if isinstance(bus_cfg, Bootloader):
-        click.echo("Checking if the bootloader is online...")
-        retval_check_target = bus_cfg.check_target()
-        if retval_check_target == 0:
-            click.echo("Bootloader is running.")
-        elif retval_check_target == 1:
-            recho("Bootloader is running, but something went wrong.")
-        elif retval_check_target == 2:
-            click.echo("foxBMS 2 application is running.")
-        elif retval_check_target == 3:
-            recho("Bootloader is not reachable.")
-        else:
-            recho("Unknown return value, something went wrong.")
-        return retval_check_target
 
-    if isinstance(bus_cfg, CanBusConfig):
+
+def _instantiate_bootloader(can_bus: can.BusABC) -> Bootloader:
+    can_bus.set_filters(can_filters)
+    interface = BootloaderInterfaceCan(can_bus=can_bus)
+    bl = Bootloader(interface=interface)
+    return bl
+
+
+def _check_bootloader(bl: Bootloader) -> int:
+    echo("Checking if the bootloader is online...")
+    retval_check_target, _ = bl.check_target()
+    if retval_check_target == 0:
+        echo("Bootloader is running.")
+    elif retval_check_target == 1:
+        recho("Bootloader is running, but some information is missing.")
+    elif retval_check_target == 2:
+        echo("foxBMS 2 application is running.")
+    elif retval_check_target == 3:
+        recho("Bootloader is not reachable.")
+    else:
+        recho("Unknown return value, something went wrong.")
+    return retval_check_target
+
+
+def _check_bootloader_status(
+    bl: Bootloader, timeout: float = 20.0
+) -> tuple[int, BootloaderStatus]:
+    # Wait and check if the bootloader is online
+    start_time = time.time()
+    first_check = True
+    bl_info: BootloaderStatus = BootloaderStatus(None, None, None)
+    while (time.time() - start_time) <= float(timeout):
+        retval_check_target, bl_info = bl.check_target()
+        if retval_check_target == 3:
+            if first_check:
+                echo("Waiting for the bootloader to be powered on...")
+                first_check = False
+        elif retval_check_target == 1:
+            # Can not retrieve all information from bootloader, try again.
+            pass
+        elif retval_check_target == 0:
+            echo("Bootloader is online.")
+            return 0, bl_info
+        elif retval_check_target == 2:
+            echo("The foxBMS 2 application is running, aborting.")
+            return 2, bl_info
+        else:
+            recho("Unknown check value, aborting.")
+            return 3, bl_info
+    recho("Timeout, abort.")
+    return 5, bl_info  # timeout
+
+
+def catch_bus_initialization_failures(fun):
+    """Guard functions that use can.Bus objects"""
+
+    def wrap(*args, **kwargs):
         try:
-            with can.Bus(**asdict(bus_cfg)) as can_bus:
-                interface = BootloaderInterfaceCan(can_bus=can_bus)
-                bd = Bootloader(interface=interface)
-                click.echo("Checking if the bootloader is online...")
-                retval_check_target = bd.check_target()
-                if retval_check_target == 0:
-                    click.echo("Bootloader is running.")
-                elif retval_check_target == 1:
-                    recho("Bootloader is running, but something went wrong.")
-                elif retval_check_target == 2:
-                    click.echo("foxBMS 2 application is running.")
-                elif retval_check_target == 3:
-                    recho("Bootloader is not reachable.")
-                else:
-                    recho("Unknown return value, something went wrong.")
-                return retval_check_target
-        # Any instantiation error of the bus shall be caught and we do not care
-        # what it specifically is
-        except FileNotFoundError:
+            return fun(*args, **kwargs)
+        except can.exceptions.CanInitializationError as e:
             recho(
-                "There is no binary file or CRC file available, please run "
-                "'waf build_app_embedded' command to build the project first, exit."
+                f"Could not initialize CAN bus "
+                f"'{kwargs['bus_cfg'].interface}:{kwargs['bus_cfg'].channel}':{e}"
             )
             return 5
-        except CanError:
+        except NameError as e:
             recho(
-                "CAN interface error, check if the CAN adapter"
-                " has been connected correctly, exit."
+                f"Could not initialize CAN bus "
+                f"'{kwargs['bus_cfg'].interface}:{kwargs['bus_cfg'].channel}':{e}\n"
+                "Is the Kvaser canlib is installed?"
             )
-            return 6
-        # pylint: disable-next=broad-exception-caught
-        except Exception:
-            recho("Can not successfully init the CAN bus, exit.")
-            return 7
-    else:
-        recho("Invalid bootloader configuration.")
-        return 99
+            return 5
+
+    return wrap
 
 
-def run_app(bus_cfg: CanBusConfig) -> int:
-    """Send command to bootloader to run the application."""
-    try:
-        with can.Bus(**asdict(bus_cfg)) as can_bus:
-            interface = BootloaderInterfaceCan(can_bus=can_bus)
-            bd = Bootloader(interface=interface)
-            if check_bootloader(bd):
-                return 1
-            click.echo("Starting the application...")
-            if not bd.run_app():
-                recho("Starting the application not successfully.")
-                return 2
-            click.echo("Application is running.")
-    # Any instantiation error of the bus shall be caught and we do not care
-    # what it specifically is
-    except FileNotFoundError:
-        click.echo(
-            "There is no binary file or CRC file available, please run "
-            "'waf build_app_embedded' command to build the project first, exit."
-        )
-        return 3
-    except CanError:
-        click.echo(
-            "CAN interface error, check if the CAN adapter"
-            " has been connected correctly, exit."
-        )
-        return 4
-    # pylint: disable-next=broad-exception-caught
-    except Exception:
-        click.echo("Can not successfully init the CAN bus, exit.")
-        return 5
+@catch_bus_initialization_failures
+def _check_bootloader_wrapper(*, bus_cfg: CanBusConfig) -> int:
+    with can.Bus(**asdict(bus_cfg)) as can_bus:
+        bl = _instantiate_bootloader(can_bus)
+        return _check_bootloader(bl)
+
+
+@catch_bus_initialization_failures
+def check_bootloader(cfg: CanBusConfig | Bootloader) -> int:
+    """Check the status of the bootloader"""
+    _add_filters()
+    if isinstance(cfg, Bootloader):
+        return _check_bootloader(cfg)
+
+    if isinstance(cfg, CanBusConfig):
+        return _check_bootloader_wrapper(bus_cfg=cfg)
+
+    recho("Invalid bootloader configuration.")
+    return 99
+
+
+@catch_bus_initialization_failures
+def run_app(*, bus_cfg: CanBusConfig) -> int:
+    """Send command to the bootloader to run the application."""
+    with can.Bus(**asdict(bus_cfg)) as can_bus:
+        bd = _instantiate_bootloader(can_bus)
+        if check_bootloader(bd):
+            return 1
+        secho("Starting the application...")
+        if not bd.run_app():
+            recho("Starting the application not successfully.")
+            return 2
+        secho("Application is running.")
     return 0
 
 
-# pylint: disable=too-many-return-statements
-def reset_bootloader(bus_cfg: CanBusConfig, timeout: int = 20) -> int:
-    """Send command to reset bootloader."""
-    try:
-        with can.Bus(**asdict(bus_cfg)) as can_bus:
-            interface = BootloaderInterfaceCan(can_bus=can_bus)
-            bd = Bootloader(interface=interface)
+@catch_bus_initialization_failures
+def reset_bootloader(*, bus_cfg: CanBusConfig, timeout: float = 20.0) -> int:
+    """Reset the bootloader."""
+    with can.Bus(**asdict(bus_cfg)) as can_bus:
+        bl = _instantiate_bootloader(can_bus)
+        _add_filters()
 
-            # Get the logger
-            root_logger = logging.getLogger()
-            pcan_logger = logging.getLogger("can.pcan")
+        bl_status, _ = _check_bootloader_status(bl, timeout)
+        if bl_status != 0:
+            return bl_status
 
-            # Add the custom filters to the loggers to disable specified messages
-            root_logger.addFilter(RootFilter())
-            pcan_logger.addFilter(PcanFilter())
+        echo("Resetting bootloader...")
+        if not bl.reset_bootloader():
+            recho("Resetting bootloader was not successful.")
+            return 4
 
-            # Wait and check if the bootloader is online
-            start_time = time.time()
-            first_check = True
-            start_reset = False
-            while (time.time() - start_time) <= float(timeout):
-                retval_check_target = bd.check_target()
-                if retval_check_target in (1, 3):
-                    if first_check:
-                        click.echo("Waiting bootloader to be powered on ...")
-                        first_check = False
-                elif retval_check_target == 0:
-                    click.echo("Bootloader is online, resetting bootloader.")
-                    start_reset = True
-                    break
-                elif retval_check_target == 2:
-                    click.echo("The foxBMS 2 application is running, abort.")
-                    return 2
-                else:
-                    recho("Unknown check value, abort.")
-                    return 3
-
-            if start_reset:
-                click.echo("Resetting bootloader ...")
-                if not bd.reset_bootloader():
-                    recho("Resetting bootloader not successfully.")
-                    return 4
-                click.echo("Successfully reset bootloader.")
-                return 0
-
-            recho("Timeout, abort.")
-            return 5
-    # Any instantiation error of the bus shall be caught and we do not care
-    # what it specifically is
-    except FileNotFoundError:
-        recho(
-            "There is no binary file or CRC file available, please run "
-            "'waf build_app_embedded' command to build the project first, exit."
-        )
-        return 6
-    except CanError:
-        recho(
-            "CAN interface error, check if the CAN adapter"
-            " has been connected correctly, exit."
-        )
-        return 7
-    # pylint: disable-next=broad-exception-caught
-    except Exception:
-        click.echo("Can not successfully init the CAN bus, exit.")
-        return 8
+        secho("Successfully resetted bootloader.", fg="green")
+        return 0
 
 
-# pylint: disable=too-many-return-statements
-def load_app(bus_cfg: CanBusConfig, timeout: int = 20) -> int:
+@catch_bus_initialization_failures
+def load_app(*, bus_cfg: CanBusConfig, timeout: float = 20.0) -> int:
     """Load a new binary on the target"""
-    try:
-        with can.Bus(**asdict(bus_cfg)) as can_bus:
-            interface = BootloaderInterfaceCan(can_bus=can_bus)
-            bd = Bootloader(interface=interface)
+    with can.Bus(**asdict(bus_cfg)) as can_bus:
+        bl = _instantiate_bootloader(can_bus)
+        _add_filters()
 
-            # Get the logger
-            root_logger = logging.getLogger()
-            pcan_logger = logging.getLogger("can.pcan")
+        bl_status, bl_info = _check_bootloader_status(bl, timeout)
+        if bl_status != 0:
+            return bl_status
 
-            # Add the custom filters to the loggers to disable specified messages
-            root_logger.addFilter(RootFilter())
-            pcan_logger.addFilter(PcanFilter())
-
-            # Wait and check if the bootloader is online
-            start_time = time.time()
-            first_check = True
-            start_transfer = False
-            while (time.time() - start_time) <= float(timeout):
-                retval_check_target = bd.check_target()
-                if retval_check_target in (1, 3):
-                    if first_check:
-                        click.echo("Waiting for the bootloader to be powered on ...")
-                        first_check = False
-                elif retval_check_target == 0:
-                    click.echo(
-                        "Bootloader is online. Uploading the application to target ..."
-                    )
-                    start_transfer = True
-                    break
-                elif retval_check_target == 2:
-                    recho("The foxBMS 2 application is running, abort.")
-                    return 2
-                else:
-                    recho("Unknown check value, abort.")
-                    return 3
-
-            # Start transferring the application
-            if start_transfer:
-                click.echo("Uploading application to target...")
-                logging_level = logging.getLogger().getEffectiveLevel()
-                show_progressbar = logging_level >= logging.WARNING
-                if not bd.send_app_binary(show_progressbar=show_progressbar):
-                    recho(
-                        "Sending the application binary to the bootloader was "
-                        "not successfully."
-                    )
-                    return 4
-                recho(
-                    "Successfully uploaded the application binary to the "
-                    "target, start the foxBMS application!"
-                )
-                return 0
-
-            recho("Timeout, abort.")
-            return 5
-    # Any instantiation error of the bus shall be caught and we do not care
-    # what it specifically is
-    except FileNotFoundError as e:
-        recho(
-            f"File {e.filename} not found, please run 'waf build_app_embedded'"
-            " command to build the project first/again, exit."
+        echo("Uploading application to target...")
+        logging_level = logging.getLogger().getEffectiveLevel()
+        show_progressbar = logging_level >= logging.WARNING
+        if not bl.send_app_binary(bl_info, show_progressbar=show_progressbar):
+            recho(
+                "Sending the application binary to the bootloader was not successful."
+            )
+            return 4
+        secho(
+            "Successfully uploaded the application binary to the "
+            "target, starting the foxBMS application!",
+            fg="green",
         )
-        return 6
-    except CanError:
-        recho(
-            "CAN interface error, check if the CAN adapter "
-            "has been connected correctly, exit."
-        )
-        return 7
-    # pylint: disable-next=broad-exception-caught
-    except Exception:
-        recho("Can not successfully init the CAN bus, exit.")
-        return 8
+
+    return 0

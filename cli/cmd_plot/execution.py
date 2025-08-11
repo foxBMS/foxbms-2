@@ -40,7 +40,9 @@
 """Implementation of the Executor class."""
 
 import sys
+import warnings
 from pathlib import Path
+from typing import TypedDict, Unpack
 
 from yaml import YAMLError, safe_load
 
@@ -49,7 +51,14 @@ from ..helpers.misc import PROJECT_BUILD_ROOT, file_name_from_current_time
 from .data_handling.data_handler_factory import DataHandlerFactory
 from .data_handling.data_source_types import DataSourceTypes
 from .drawer.graph_drawer_factory import GraphDrawerFactory
-from .drawer.graph_types import GraphTypes
+from .drawer.line_graph_drawer import LineGraphDrawer
+
+
+class KwargsTyping(TypedDict):
+    """Types of the Executor kwargs argument"""
+
+    data_source_type: str | None
+    no_tmp: bool
 
 
 class Executor:  # pylint: disable=too-few-public-methods
@@ -61,11 +70,12 @@ class Executor:  # pylint: disable=too-few-public-methods
         input_data: list[Path],
         data_config: Path,
         plot_config: Path,
-        data_source_type: str | None = None,
         output: Path | None = None,
+        **kwargs: Unpack[KwargsTyping],
     ) -> None:
-        """Initialise the Executor."""
+        """Initialise the Executor"""
         self.input_data = input_data
+        data_source_type = kwargs.get("data_source_type", None)
         self.data_source_type = Executor._get_data_source_type(
             data_source_type, input_data
         )
@@ -74,27 +84,36 @@ class Executor:  # pylint: disable=too-few-public-methods
         if (output is None) or (Path(output).is_file()):
             output = PROJECT_BUILD_ROOT / "plots" / file_name_from_current_time()
         self.output = output
+        self.no_tmp: bool = kwargs.get("no_tmp", False)
 
     def create_plots(self) -> None:
         """Create plots from the given data."""
-        handler = DataHandlerFactory().get_object(
-            self.data_source_type, self.data_config
-        )
-        data_files = self._get_data_files()
-        for file in data_files:
-            data = handler.get_data(Path(file))
-            # Create directory for the images of the plots
-            plot_dir = Path(self.output) / Path(file).stem
-            plot_dir.mkdir(parents=True, exist_ok=True)
-            # Create and show/save a plot for each graph in plot_config
-            for key in self.plot_config:
-                graph_type = Executor._get_graph_type(key)
-                graph_drawer = GraphDrawerFactory().get_object(
-                    graph_type, self.plot_config[key]
-                )
-                graph_drawer.draw(data=data)
-                graph_drawer.save(plot_dir)
-                graph_drawer.show()
+        try:
+            handler = DataHandlerFactory().get_object(
+                self.data_source_type, self.data_config
+            )
+            data_files = self._get_data_files()
+            for file in data_files:
+                data = handler.get_data(Path(file), self.no_tmp)
+                # Create directory for the images of the plots
+                plot_dir = Path(self.output) / Path(file).stem
+                plot_dir.mkdir(parents=True, exist_ok=True)
+                # Create and show/save a plot for each graph in plot_config
+                for graph_config in self.plot_config:
+                    # reinitialize the context manager to avoid checking old warnings
+                    with warnings.catch_warnings(record=True) as w:
+                        graph_drawer = GraphDrawerFactory().get_object(graph_config)
+                        graph_drawer.draw(data=data)
+                        graph_drawer.save(plot_dir)
+                        graph_drawer.show()
+                        Executor._handle_pyplot_warnings(w, graph_drawer)
+        except TypeError:
+            # Handles the case where self.plot_config is not a list
+            recho(
+                "Plot configuration is not a list of dictionaries. "
+                "Please check the plot configuration format."
+            )
+            sys.exit(1)
 
     def _get_data_files(self) -> list[Path]:
         """Get all files from input_data attribute"""
@@ -144,10 +163,17 @@ class Executor:  # pylint: disable=too-few-public-methods
             sys.exit(1)
 
     @staticmethod
-    def _get_graph_type(key: str) -> GraphTypes:
-        """Determines the graph type and returns it"""
-        try:
-            return GraphTypes[str(key).split("_", maxsplit=1)[0]]
-        except KeyError:
-            recho(f"Graph type {str(key).split('_', maxsplit=1)[0]} is not valid.")
-            sys.exit(1)
+    def _handle_pyplot_warnings(
+        warning_handle: list, graph_drawer: LineGraphDrawer
+    ) -> None:
+        """This method should handle all warning coming from pyplot"""
+        if warning_handle:
+            warning_texts = [str(x.message) for x in warning_handle]
+            if any("Tight layout not applied" in x for x in warning_texts):
+                recho(
+                    f"Plot layout of {graph_drawer.name} seems too "
+                    "small to generate the plot correctly. "
+                    "It is recommended to increase the pixel width "
+                    "and height.",
+                    "yellow",
+                )

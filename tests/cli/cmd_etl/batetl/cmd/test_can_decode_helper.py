@@ -43,7 +43,7 @@ import io
 import os
 import sys
 import unittest
-from contextlib import redirect_stderr
+from contextlib import redirect_stderr, redirect_stdout
 from io import StringIO
 from pathlib import Path
 from tempfile import mkdtemp, mkstemp
@@ -74,10 +74,8 @@ class TestCANDecodeHelper(unittest.TestCase):
     @patch("cli.cmd_etl.batetl.cmd.can_decode_helper.get_cantools_database")
     @patch("cli.cmd_etl.batetl.cmd.can_decode_helper.CANDecode")
     @patch("cli.cmd_etl.batetl.cmd.can_decode_helper.validate_decode_config")
-    @patch("cli.cmd_etl.batetl.cmd.can_decode_helper.read_config")
     def test_can_decode_setup(
         self,
-        read_config_mock: Mock,
         validate_mock: Mock,
         can_decode_mock: Mock,
         db_mock: Mock,
@@ -86,21 +84,25 @@ class TestCANDecodeHelper(unittest.TestCase):
         the can_decode_setup function to ensure the correctness
         of the setup procedure.
 
-        :param read_config_mock: Mock for the read_config function.
         :param validate_mock: Mock for validate_decode_config function.
         :param CANDecode_mock: Mock for the CANDecode class.
         """
         # Case 1: check whether all functions are called
         # once as intended
-        test_config = Path("test")
-        test_config_dict = {"test": True, "dbc": Path("test.txt")}
-        read_config_mock.return_value = test_config_dict
-        validate_mock.return_value = test_config_dict
-        db_mock.return_value = Path("test.txt")
+        test_config = {"dbc": Path("test.dbc")}
+        db_mock.return_value = Path("test.dbc")
         can_decode_setup(test_config)
-        read_config_mock.assert_called_once_with(test_config)
-        validate_mock.assert_called_once_with(test_config_dict)
-        can_decode_mock.assert_called_once_with(**test_config_dict)
+        validate_mock.assert_called_once_with(test_config)
+        can_decode_mock.assert_called_once_with(**test_config)
+
+    @patch("cantools.database.load_file", return_value=4)
+    def test_get_cantools_database_invalid_dbc(self, _: Mock) -> None:
+        """Test exit on invalid dbc file."""
+        buf = io.StringIO()
+        with redirect_stderr(buf), self.assertRaises(SystemExit) as cm:
+            get_cantools_database(Path("dummy.dbc"))
+        self.assertEqual("Not a 'Database'.\n", buf.getvalue())
+        self.assertEqual(cm.exception.code, 1)
 
     def test_get_cantools_database(self) -> None:
         """Tests the get_cantools_database, which a passed .dbc file and returns
@@ -113,12 +115,13 @@ class TestCANDecodeHelper(unittest.TestCase):
                 "SG_ CurrentSensor_SIG_Current : 23|32@0- (1,0)"
                 ' [-2147483648|2147483647] "mA" Vector__XXX\n'
             )
-        can_db = get_cantools_database(temp_path)
+        can_db = get_cantools_database(Path(temp_path))
         self.assertEqual(
             "CurrentSensor_SIG_Current", can_db.messages[0].signals[0].name
         )
         os.remove(temp_path)
-        # Case 2: Non-valid dbc file
+
+        # Case 2: invalid dbc file
         tf, temp_path = mkstemp()
         with open(tf, mode="w", encoding="utf-8") as f:
             f.write("Invalid DBC")
@@ -127,51 +130,45 @@ class TestCANDecodeHelper(unittest.TestCase):
             redirect_stderr(buf),
             self.assertRaises(SystemExit) as cm,
         ):
-            get_cantools_database(temp_path)
-        self.assertTrue("Invalid DBC file" in buf.getvalue())
+            get_cantools_database(Path(temp_path))
+        self.assertEqual(buf.getvalue(), "Invalid DBC file.\n")
         self.assertEqual(cm.exception.code, 1)
         os.remove(temp_path)
+
         # Case 3: dbc file not found
+        buf = io.StringIO()
         with (
             redirect_stderr(buf),
             self.assertRaises(SystemExit) as cm,
         ):
             get_cantools_database(Path("wrong_dbc_path"))
-        self.assertTrue("DBC file not found" in buf.getvalue())
+        self.assertEqual(buf.getvalue(), "DBC file not found.\n")
+        self.assertEqual(cm.exception.code, 1)
+
+    def test_validate_decode_config_invalid_dbc(self) -> None:
+        """Check that invalid 'dbc' configurations are catched."""
+        err = io.StringIO()
+        with redirect_stderr(err), self.assertRaises(SystemExit) as cm:
+            validate_decode_config({"dbc": None})
+        self.assertEqual(err.getvalue(), "'dbc' configuration is not a Path.\n")
         self.assertEqual(cm.exception.code, 1)
 
     def test_validate_decode_config(self) -> None:
         """test_validate_decode_config checks the validate_decode_config function"""
-        # Case 1: config_dict as it should be
-        test_config_dict = {
-            "dbc": "test.dbc",
+        # Case 1: config as it should be
+        test_config = {
+            "dbc": Path("test.dbc"),
             "timestamp_pos": 0,
             "id_pos": 3,
             "data_pos": 5,
         }
-        self.assertIsNone(validate_decode_config(test_config_dict))
+        self.assertIsNone(validate_decode_config(test_config))
+
         # Case 2: check all possible wrong configurations
-        list_of_test_cases = [
+        test_cases = [
             {
-                "config_dict": {"timestamp_pos": 0, "id_pos": 3, "data_pos": 5},
-                "echo": "Configuration file is missing 'dbc' parameter.",
-            },
-            {
-                "config_dict": {
-                    "dbc": 1,
-                    "timestamp_pos": 0,
-                    "id_pos": 3,
-                    "data_pos": 5,
-                },
-                "echo": "'dbc' in the configuration file is not a string.",
-            },
-            {
-                "config_dict": {"dbc": "test.dbc", "id_pos": 3, "data_pos": 5},
-                "echo": "'Configuration file is missing 'timestamp_pos' parameter'.",
-            },
-            {
-                "config_dict": {
-                    "dbc": "test.dbc",
+                "config": {
+                    "dbc": Path("test.dbc"),
                     "timestamp_pos": "test",
                     "id_pos": 3,
                     "data_pos": 5,
@@ -179,12 +176,8 @@ class TestCANDecodeHelper(unittest.TestCase):
                 "echo": "'timestamp_pos' is not an integer.",
             },
             {
-                "config_dict": {"dbc": "test.dbc", "timestamp_pos": 0, "data_pos": 5},
-                "echo": "'Configuration file is missing 'id_pos' parameter'.",
-            },
-            {
-                "config_dict": {
-                    "dbc": "test.dbc",
+                "config": {
+                    "dbc": Path("test.dbc"),
                     "timestamp_pos": 0,
                     "id_pos": "test",
                     "data_pos": 5,
@@ -192,12 +185,8 @@ class TestCANDecodeHelper(unittest.TestCase):
                 "echo": "'id_pos' is not an integer.",
             },
             {
-                "config_dict": {"dbc": "test.dbc", "timestamp_pos": 0, "id_pos": 3},
-                "echo": "'Configuration file is missing 'data_pos' parameter'.",
-            },
-            {
-                "config_dict": {
-                    "dbc": "test.dbc",
+                "config": {
+                    "dbc": Path("test.dbc"),
                     "timestamp_pos": 0,
                     "id_pos": 3,
                     "data_pos": "test",
@@ -205,14 +194,14 @@ class TestCANDecodeHelper(unittest.TestCase):
                 "echo": "'data_pos' is not an integer.",
             },
         ]
-        for i in list_of_test_cases:
+        for i in test_cases:
             with self.subTest(f"Case: {i['echo']}"):
                 buf = io.StringIO()
                 with (
                     redirect_stderr(buf),
                     self.assertRaises(SystemExit) as cm,
                 ):
-                    validate_decode_config(i["config_dict"])
+                    validate_decode_config(i["config"])
                 # check if key word id_pos is part of the error message
                 self.assertTrue(i["echo"] in buf.getvalue())
                 self.assertEqual(cm.exception.code, 1)
@@ -265,8 +254,21 @@ class TestCANDecodeHelper(unittest.TestCase):
         stdin.seek(0)
         decode_obj.decode_msg.return_value = None, "test"
         stdout.seek(0)
-        run_decode2stdout(decode_obj)
-        self.assertEqual("", stdout.read())
+        _err, _out = io.StringIO(), io.StringIO()
+        with redirect_stderr(_err), redirect_stdout(_out):
+            run_decode2stdout(decode_obj)
+        err, out = _err.getvalue(), _out.getvalue()
+        self.assertEqual(err, "No CAN message was decoded. Check configuration file.\n")
+        self.assertEqual(out, "")
+
+    def test_run_decode2file_invalid_output_directory(self):
+        """Check that not the provided object has required 'output_directory'
+        member."""
+        err = io.StringIO()
+        with redirect_stderr(err), self.assertRaises(SystemExit) as cm:
+            run_decode2file(Mock())
+        self.assertEqual(err.getvalue(), "Provided output directory is invalid.\n")
+        self.assertEqual(cm.exception.code, 1)
 
     @patch("builtins.open", new_callable=mock_open)
     @patch("sys.stdin", new_callable=StringIO)
@@ -284,7 +286,8 @@ class TestCANDecodeHelper(unittest.TestCase):
         stdin.seek(0)
         decode_obj = Mock()
         decode_obj.decode_msg.return_value = "test", "decoded test message"
-        run_decode2file(decode_obj, Path(temp_dir))
+        decode_obj.output_directory = Path(temp_dir)
+        run_decode2file(decode_obj)
         decode_obj.decode_msg.assert_called_with("test message")
         file_path = Path(temp_dir) / "test.json"
         file_open_mock.assert_called_once_with(file_path, mode="w", encoding="utf-8")
@@ -294,6 +297,7 @@ class TestCANDecodeHelper(unittest.TestCase):
         # Delete stream content
         stdin.truncate(0)
         stdin.seek(0)
+
         # Case 2: check multiple messages and the creation of multiple files
         stdin.write("test message\ntest message\ntest message\n")
         stdin.seek(0)
@@ -303,8 +307,9 @@ class TestCANDecodeHelper(unittest.TestCase):
             ("test2", "decoded test message2"),
             ("test3", "decoded test message3"),
         ]
+        decode_obj.output_directory = Path(temp_dir)
         file_open_mock.reset_mock()
-        run_decode2file(decode_obj, Path(temp_dir))
+        run_decode2file(decode_obj)
         self.assertEqual(
             decode_obj.decode_msg.call_args_list,
             [call("test message\n"), call("test message\n"), call("test message\n")],
@@ -319,6 +324,7 @@ class TestCANDecodeHelper(unittest.TestCase):
         # Delete stream content
         stdin.truncate(0)
         stdin.seek(0)
+
         # Case 3: Write output with same msg_name to same file
         stdin.write("test message\ntest message\n")
         stdin.seek(0)
@@ -327,7 +333,8 @@ class TestCANDecodeHelper(unittest.TestCase):
             ("test1", "decoded test message1"),
             ("test1", "decoded test message2"),
         ]
-        run_decode2file(decode_obj, Path(temp_dir))
+        decode_obj.output_directory = Path(temp_dir)
+        run_decode2file(decode_obj)
         file_path = Path(temp_dir) / "test1.json"
         self.assertEqual(
             call().write("decoded test message1"), file_open_mock.mock_calls[-3]
@@ -339,17 +346,24 @@ class TestCANDecodeHelper(unittest.TestCase):
         # Delete stream content
         stdin.truncate(0)
         stdin.seek(0)
+
         # Case 4: Invalid CAN message
         stdin.write("test message")
         stdin.seek(0)
         decode_obj = Mock()
         decode_obj.decode_msg.return_value = None, None
         file_open_mock.reset_mock()
-        run_decode2file(decode_obj, Path(temp_dir))
+        decode_obj.output_directory = Path(temp_dir)
+        _err, _out = io.StringIO(), io.StringIO()
+        with redirect_stderr(_err), redirect_stdout(_out):
+            run_decode2file(decode_obj)
+        err, out = _err.getvalue(), _out.getvalue()
         file_open_mock.assert_not_called()
         file_handle = file_open_mock()
         file_handle.write.assert_not_called()
         file_handle.close.assert_not_called()
+        self.assertEqual(err, "No CAN message was decoded. Check configuration file.\n")
+        self.assertEqual(out, "")
         os.rmdir(temp_dir)
 
 

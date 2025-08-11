@@ -89,11 +89,11 @@ LINKFLAGS:
   - --undef_sym=resetEntry
   - -o4
   - --unused_section_elimination
-  - --strict_compatibility=on
   - --zero_init=on
   - --scan_libraries
 
 HEXGENFLAGS:
+  - --emit_warnings_as_errors
   - --memwidth=32
   - --tektronix
   - -image

@@ -52,7 +52,7 @@ def build(bld: BuildContext):
     # 'F021.h' on devices with the L2FMC Flash controller.
     # doc:: F021 Flash API / Version 2.01.01 / Reference Guide
     #       Literature Number: SPNU501G
-    #       December 2012–Revised October 2014
+    #       December 2012-Revised October 2014
     bld.define("_L2FMC", 1)
 
     bld.recurse(["driver", "engine", "hal", "main"])

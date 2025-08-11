@@ -3,8 +3,8 @@
 
 .. _WAF_TOOL_TI_ARM_CGT:
 
-TI ARM CGT
-==========
+|ti-arm-cgt|
+============
 
 The tool is located in ``tools/waf-tools``.
 

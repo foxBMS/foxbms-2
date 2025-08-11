@@ -43,8 +43,8 @@
  * @file    fsystem.h
  * @author  foxBMS Team
  * @date    2020-07-21 (date of creation)
- * @updated 2025-03-31 (date of last update)
- * @version v1.9.0
+ * @updated 2025-08-07 (date of last update)
+ * @version v1.10.0
  * @ingroup MAIN
  * @prefix  FSYS
  *
@@ -116,6 +116,7 @@ static inline void FSYS_SwitchToUserMode(void) {
  */
 #pragma SWI_ALIAS(FSYS_RaisePrivilegeToSystemModeSWI, 1);
 extern void FSYS_RaisePrivilegeToSystemModeSWI(void);
+
 #pragma FUNC_ALWAYS_INLINE(FSYS_RaisePrivilegeToSystemMode)
 static inline STD_RETURN_TYPE_e FSYS_RaisePrivilegeToSystemMode(void) {
     STD_RETURN_TYPE_e retVal = STD_NOT_OK;

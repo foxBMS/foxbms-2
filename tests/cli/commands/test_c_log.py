@@ -63,7 +63,6 @@ class TestFoxCliMainCommandLog(unittest.TestCase):
         mock_log_impl.log.return_value = 0
         runner = CliRunner()
         result = runner.invoke(main, ["log"])
-        print(result.stdout)
         self.assertEqual(0, result.exit_code)
 
 

@@ -16,7 +16,7 @@
 "--"diag_error=2142
 
 /* shadowing variable */
-"--"diag_remark=2710
+"--"diag_error=2709
 
 /* enum comparison of different enum types */
 "--"diag_error=2912

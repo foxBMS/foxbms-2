@@ -14,12 +14,13 @@ IMD is used.
 To ensure the correct functionality testing the IMD on the actually implemented
 system is very important.
 
-.. figure:: img/imd-testing.png
-    :alt: simplified diagram of imd
-    :name: simplifies-diagram-of-imd
-    :align: center
+.. drawio-figure:: img/imd-testing.drawio
+   :format: svg
+   :alt: Simplified diagram of IMD
+   :name: simplified-diagram-of-imd
+   :width: 520px
 
-    Resistance measured by the IMD (in red)
+   Resistance measured by the IMD (in red)
 
 ****************
 Test preparation

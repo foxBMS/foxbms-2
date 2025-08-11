@@ -1,5 +1,5 @@
 /*
- * FreeRTOS+TCP V4.2.1
+ * FreeRTOS+TCP V4.3.2
  * Copyright (C) 2022 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * SPDX-License-Identifier: MIT
@@ -55,8 +55,8 @@
 void vSetMultiCastIPv6MacAddress( const IPv6_Address_t * pxAddress,
                                   MACAddress_t * pxMACAddress )
 {
-    pxMACAddress->ucBytes[ 0 ] = 0x33U;
-    pxMACAddress->ucBytes[ 1 ] = 0x33U;
+    pxMACAddress->ucBytes[ 0 ] = ipMULTICAST_MAC_ADDRESS_IPv6_0;
+    pxMACAddress->ucBytes[ 1 ] = ipMULTICAST_MAC_ADDRESS_IPv6_1;
     pxMACAddress->ucBytes[ 2 ] = pxAddress->ucBytes[ 12 ];
     pxMACAddress->ucBytes[ 3 ] = pxAddress->ucBytes[ 13 ];
     pxMACAddress->ucBytes[ 4 ] = pxAddress->ucBytes[ 14 ];

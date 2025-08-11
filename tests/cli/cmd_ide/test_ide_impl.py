@@ -160,6 +160,23 @@ class TestIdeImpl(unittest.TestCase):
         )
         self.assertEqual(result, mock_run_process.return_value.returncode)
 
+    @patch("cli.cmd_ide.ide_impl.shutil.which")
+    @patch("cli.cmd_ide.ide_impl.run_process")
+    def test_open_ide_cli(self, mock_run_process, mock_which):
+        """open bootloader unit tests"""
+        mock_which.return_value = "/path/to/code"
+        mock_run_process.return_value = SubprocessResult(0)
+        result = ide_impl.open_ide_cli()
+        mock_which.assert_called_once_with("code")
+        mock_run_process.assert_called_once_with(
+            cmd=[
+                "/path/to/code",
+                str(Path(__file__).parents[3] / "cli"),
+            ],
+            cwd=Path(__file__).parents[3] / "cli",
+        )
+        self.assertEqual(result, mock_run_process.return_value.returncode)
+
 
 if __name__ == "__main__":
     unittest.main()

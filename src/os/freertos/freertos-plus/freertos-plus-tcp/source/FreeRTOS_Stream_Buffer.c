@@ -1,5 +1,5 @@
 /*
- * FreeRTOS+TCP V4.2.1
+ * FreeRTOS+TCP V4.3.2
  * Copyright (C) 2022 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * SPDX-License-Identifier: MIT
@@ -307,7 +307,7 @@ size_t uxStreamBufferAdd( StreamBuffer_t * const pxBuffer,
 
         /* The below update to the stream buffer members must happen
          * atomically. */
-        vTaskSuspendAll();
+        taskENTER_CRITICAL();
         {
             if( uxOffset == 0U )
             {
@@ -328,7 +328,7 @@ size_t uxStreamBufferAdd( StreamBuffer_t * const pxBuffer,
                 pxBuffer->uxFront = uxNextHead;
             }
         }
-        ( void ) xTaskResumeAll();
+        taskEXIT_CRITICAL();
     }
 
     return uxCount;

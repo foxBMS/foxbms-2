@@ -54,9 +54,24 @@ th_some_test:
     - "bae_all_config_variants: [a0, b0, c0]"
     - "th_flash_and_test_bootloader"
 
+th_test_bootloader:
+  needs:
+    - "th_ensure_power_supply_is_off"
+    - "bae_all_config_variants: [freertos, adi, ades1830, vbb, cc, cc, tr, none, none, no-imd, 1, 2, 16]"
+    - "th_test_debug_simple_tests"
+    - "th_flash_and_test_bootloader"
+
+th_freertos_plus_tcp:
+  needs:
+    - "th_ensure_power_supply_is_off"
+    - "bae_use_freertos_plus_tcp"
+    - "th_flash_and_test_bootloader"
+
 th_switch_power_supply_off:
   needs:
-    - th_ensure_power_supply_is_off
-    - th_bootload_on_hardware_unit_tests
-    - th_flash_and_test_bootloader
-    - th_some_test
+    - "th_ensure_power_supply_is_off"
+    - "th_bootload_on_hardware_unit_tests"
+    - "th_flash_and_test_bootloader"
+    - "th_some_test"
+    - "th_test_bootloader"
+    - "th_freertos_plus_tcp"

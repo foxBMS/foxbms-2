@@ -1,5 +1,5 @@
 /*
- * FreeRTOS+TCP V4.2.1
+ * FreeRTOS+TCP V4.3.2
  * Copyright (C) 2022 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * SPDX-License-Identifier: MIT
@@ -57,6 +57,52 @@
 #include "FreeRTOS_DNS_Callback.h"
 
 
+/** @brief The MAC address used for LLMNR. */
+const MACAddress_t xLLMNR_MacAddress = { { 0x01, 0x00, 0x5e, 0x00, 0x00, 0xfc } };
+
+/** @brief The IPv6 link-scope multicast MAC address */
+const MACAddress_t xLLMNR_MacAddressIPv6 = { { 0x33, 0x33, 0x00, 0x01, 0x00, 0x03 } };
+
+#if ( ( ipconfigUSE_LLMNR != 0 ) && ( ipconfigUSE_IPv6 != 0 ) )
+/** @brief The IPv6 link-scope multicast address */
+    const IPv6_Address_t ipLLMNR_IP_ADDR_IPv6 =
+    {
+        { /* ff02::1:3 */
+            0xff, 0x02,
+            0x00, 0x00,
+            0x00, 0x00,
+            0x00, 0x00,
+            0x00, 0x00,
+            0x00, 0x00,
+            0x00, 0x01,
+            0x00, 0x03,
+        }
+    };
+#endif /* ( ( ipconfigUSE_LLMNR != 0 ) && ( ipconfigUSE_IPv6 != 0 ) ) */
+
+/** @brief The MAC address used for MDNS. */
+const MACAddress_t xMDNS_MacAddress = { { 0x01, 0x00, 0x5e, 0x00, 0x00, 0xfb } };
+
+/** @brief The IPv6 multicast DNS MAC address. */
+const MACAddress_t xMDNS_MacAddressIPv6 = { { 0x33, 0x33, 0x00, 0x00, 0x00, 0xFB } };
+
+#if ( ( ipconfigUSE_MDNS != 0 ) && ( ipconfigUSE_IPv6 != 0 ) )
+/** @brief multicast DNS IPv6 address */
+    const IPv6_Address_t ipMDNS_IP_ADDR_IPv6 =
+    {
+        { /* ff02::fb */
+            0xff, 0x02,
+            0x00, 0x00,
+            0x00, 0x00,
+            0x00, 0x00,
+            0x00, 0x00,
+            0x00, 0x00,
+            0x00, 0x00,
+            0x00, 0xfb,
+        }
+    };
+#endif /* ( ( ipconfigUSE_MDNS != 0 ) && ( ipconfigUSE_IPv6 != 0 ) ) */
+
 /* Exclude the entire file if DNS is not enabled. */
 #if ( ipconfigUSE_DNS != 0 )
 
@@ -95,69 +141,7 @@
                                       struct freertos_addrinfo ** ppxAddressInfo,
                                       BaseType_t xFamily );
 
-    #if ( ipconfigUSE_LLMNR == 1 )
-    /** @brief The MAC address used for LLMNR. */
-    const MACAddress_t xLLMNR_MacAddress = { { 0x01, 0x00, 0x5e, 0x00, 0x00, 0xfc } };
-    #endif /* ipconfigUSE_LLMNR == 1 */
-
 /*-----------------------------------------------------------*/
-    #if ( ipconfigUSE_LLMNR == 1 ) && ( ipconfigUSE_IPv6 != 0 )
-
-/**
- * @brief The IPv6 link-scope multicast address
- */
-        const IPv6_Address_t ipLLMNR_IP_ADDR_IPv6 =
-        {
-            { /* ff02::1:3 */
-                0xff, 0x02,
-                0x00, 0x00,
-                0x00, 0x00,
-                0x00, 0x00,
-                0x00, 0x00,
-                0x00, 0x00,
-                0x00, 0x01,
-                0x00, 0x03,
-            }
-        };
-
-/**
- * @brief The IPv6 link-scope multicast MAC address
- */
-        const MACAddress_t xLLMNR_MacAddressIPv6 = { { 0x33, 0x33, 0x00, 0x01, 0x00, 0x03 } };
-    #endif /* ipconfigUSE_LLMNR && ipconfigUSE_IPv6 */
-
-    #if ( ipconfigUSE_MDNS == 1 ) && ( ipconfigUSE_IPv6 != 0 )
-
-/**
- * @brief multicast DNS IPv6 address
- */
-        const IPv6_Address_t ipMDNS_IP_ADDR_IPv6 =
-        {
-            { /* ff02::fb */
-                0xff, 0x02,
-                0x00, 0x00,
-                0x00, 0x00,
-                0x00, 0x00,
-                0x00, 0x00,
-                0x00, 0x00,
-                0x00, 0x00,
-                0x00, 0xfb,
-            }
-        };
-
-/**
- * @brief The IPv6 multicast DNS MAC address.
- * The MAC-addresses are provided here in case a network
- * interface needs it.
- */
-        const MACAddress_t xMDNS_MACAddressIPv6 = { { 0x33, 0x33, 0x00, 0x00, 0x00, 0xFB } };
-    #endif /* ( ipconfigUSE_MDNS == 1 ) && ( ipconfigUSE_IPv6 != 0 ) */
-
-
-    #if ( ipconfigUSE_MDNS == 1 )
-    /** @brief The MAC address used for MDNS. */
-    const MACAddress_t xMDNS_MacAddress = { { 0x01, 0x00, 0x5e, 0x00, 0x00, 0xfb } };
-    #endif /* ipconfigUSE_MDNS == 1 */
 
 /** @brief This global variable is being used to indicate to the driver which IP type
  *         is preferred for name service lookup, either IPv6 or IPv4. */
@@ -273,6 +257,9 @@
 
         /* 'xFamily' might not be used when IPv6 is disabled. */
         ( void ) xFamily;
+        /* 'pcName' might not be used when DNS cache is disabled. */
+        ( void ) pcName;
+
         pvBuffer = pvPortMalloc( sizeof( *pxAddrInfo ) );
 
         if( pvBuffer != NULL )

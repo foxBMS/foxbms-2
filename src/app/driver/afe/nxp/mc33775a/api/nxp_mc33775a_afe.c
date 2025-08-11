@@ -42,14 +42,14 @@
 /**
  * @file    nxp_mc33775a_afe.c
  * @author  foxBMS Team
- * @date    2020-05-08 (date of creation)
- * @updated 2025-03-31 (date of last update)
- * @version v1.9.0
- * @ingroup DRIVERS_CONFIGURATION
+ * @date    2025-02-17 (date of creation)
+ * @updated 2025-08-07 (date of last update)
+ * @version v1.10.0
+ * @ingroup DRIVERS
  * @prefix  N775
  *
- * @brief   Configuration for the MC33775A analog front-end
- * @details TODO
+ * @brief   API for MC33775A Analog Frontend
+ * @details TODO:
  */
 
 /*========== Includes =======================================================*/
@@ -59,7 +59,7 @@
 /* clang-format on */
 #include "afe_dma.h"
 #include "dma.h"
-#include "nxp_mc33775a.h"
+#include "nxp_mc3377x.h"
 #include "pex.h"
 
 #include <stdint.h>
@@ -76,7 +76,7 @@
 
 /*========== Extern Function Implementations ================================*/
 extern STD_RETURN_TYPE_e NXP_Measure(void) {
-    N775_Measure(&n775_stateBase);
+    N77x_Measure(&n77x_stateBase);
     return STD_OK;
 }
 
@@ -95,7 +95,7 @@ extern STD_RETURN_TYPE_e NXP_StartMeasurement(void) {
 }
 
 extern bool NXP_IsFirstMeasurementCycleFinished(void) {
-    return N775_IsFirstMeasurementCycleFinished(&n775_stateBase);
+    return N77x_IsFirstMeasurementCycleFinished(&n77x_stateBase);
 }
 
 extern STD_RETURN_TYPE_e NXP_RequestTemperatureRead(uint8_t string) {

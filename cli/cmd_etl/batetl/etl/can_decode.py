@@ -40,6 +40,7 @@
 """Filters CAN messages"""
 
 import logging
+from pathlib import Path
 from typing import Any
 
 from cantools import database
@@ -54,15 +55,23 @@ class CANDecode:  # pylint: disable=too-few-public-methods
     :param timestamp_pos: Position of the timestamp in a CAN message
     :param id_pos: Position of the CAN id in a CAN message
     :param data_pos: Position of the data in a CAN message
+    :param output: Path to the output directory
     """
 
+    # pylint: disable-next=R0913:too-many-arguments,too-many-positional-arguments
     def __init__(
-        self, dbc: Database, timestamp_pos: int, id_pos: int, data_pos: int
+        self,
+        dbc: Database,
+        timestamp_pos: int,
+        id_pos: int,
+        data_pos: int,
+        output: Path,
     ) -> None:
         self._database = dbc
         self._timestamp_pos = timestamp_pos
         self._id_pos = id_pos
         self._data_pos = data_pos
+        self.output_directory = output
 
     def decode_msg(self, msg: str) -> tuple[str, str] | tuple[None, None]:
         """Method to the decoded passed CAN messages.
@@ -98,8 +107,9 @@ class CANDecode:  # pylint: disable=too-few-public-methods
         :return: A tuple with the message name and the decoded message
         """
         msg_parts = [x for x in msg.lstrip().split() if x]
+        msg_id_hex = msg_parts[self._id_pos]
         # convert id to hex value
-        msg_id = int(msg_parts[self._id_pos], 16)
+        msg_id = int(msg_id_hex, 16)
         can_message = self._database.get_message_by_frame_id(msg_id)
         data = bytes.fromhex(
             " ".join(msg_parts[self._data_pos : can_message.length + self._data_pos])
@@ -114,22 +124,27 @@ class CANDecode:  # pylint: disable=too-few-public-methods
                 for signal in can_message.signals
                 if signal.name in decoded_signals and not signal.is_multiplexer
             ]
-            data_format = CANDecode._data_format(msg_id, signal_list, decoded_data)
+            # Filter out the multiplexer message name
+            multiplexer_name = list(
+                set(decoded_signals) - {x.name for x in signal_list}
+            )[0]
+            multiplexer_value = decoded_data[multiplexer_name]
+            data_format = CANDecode._data_format(msg_id_hex, signal_list, decoded_data)
             # Double quotes of json objects have to be escaped with multiple {}
-            return can_message.name, "{{{},{}}}\n".format(  # pylint: disable=consider-using-f-string
+            return f"{can_message.name}_Mux_{multiplexer_value}", "{{{},{}}}\n".format(  # pylint: disable=consider-using-f-string
                 timestamp_format,
                 data_format,
             )
         # list of all non multiplexed signals
         signal_list = can_message.signals
         # pass a list with can signal objects
-        data_format = CANDecode._data_format(msg_id, signal_list, decoded_data)
+        data_format = CANDecode._data_format(msg_id_hex, signal_list, decoded_data)
         # Double quotes of json objects have to be escaped with multiple {}
         return can_message.name, "{{{},{}}}\n".format(timestamp_format, data_format)  # pylint: disable=consider-using-f-string
 
     @staticmethod
     def _data_format(
-        msg_id: int, signals: list[Signal], decoded_data: dict[str, float]
+        msg_id: str, signals: list[Signal], decoded_data: dict[str, float]
     ) -> str:
         """returns the decoded CAN data as comma separated string compatible
         to json object notation
@@ -141,9 +156,9 @@ class CANDecode:  # pylint: disable=too-few-public-methods
         """
         return "".join(
             [
-                f'"{msg_id}_{signal.name}_{signal.unit}":"{decoded_data[signal.name]}",'
-                if signal.unit is None
-                else f'"{msg_id}_{signal.name}_{signal.unit}":{decoded_data[signal.name]},'
+                f'"0x{msg_id}_{signal.name}_{signal.unit}":"{decoded_data[signal.name]}",'
+                if not signal.unit
+                else f'"0x{msg_id}_{signal.name}_{signal.unit}":{decoded_data[signal.name]},'
                 for signal in signals
             ]
-        )[:-1]  # trailing comma
+        ).rstrip(",")

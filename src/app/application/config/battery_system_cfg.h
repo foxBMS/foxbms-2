@@ -43,8 +43,8 @@
  * @file    battery_system_cfg.h
  * @author  foxBMS Team
  * @date    2019-12-10 (date of creation)
- * @updated 2025-03-31 (date of last update)
- * @version v1.9.0
+ * @updated 2025-08-07 (date of last update)
+ * @version v1.10.0
  * @ingroup BATTERY_SYSTEM_CONFIGURATION
  * @prefix  BS
  *
@@ -189,7 +189,7 @@ typedef enum {
  *          above this value. The fuse should trigger to interrupt current
  *          flows above this value.
  */
-#define BS_MAIN_CONTACTORS_MAXIMUM_BREAK_CURRENT_mA (500000)
+#define BS_MAIN_CONTACTORS_MAXIMUM_BREAK_CURRENT_mA (3500)
 
 /**
  * @brief   Maximum fuse trigger duration

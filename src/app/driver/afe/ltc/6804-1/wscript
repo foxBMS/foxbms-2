@@ -37,15 +37,14 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""Helper Build Script: ./src/app/driver/afe/ltc/6804-1/wscript
-
-Helper script to recursively build the embedded sources"""
+"""Propagate the build process of the LTC6804-1-based 'AFE'-drivers."""
 
 import os
 
 
 def build(bld):
-    """6804-1 is a build variant of 6811-1 (it mostly is an older version of
-    that IC)
-    """
+    """Propagate the build process of the LTC6804-1-based 'AFE'-drivers.
+
+    The LTC6804-1 is a build variant of 6811-1 (it mostly is an older version
+    of that IC)."""
     bld.recurse(os.path.join("..", "6813-1"))

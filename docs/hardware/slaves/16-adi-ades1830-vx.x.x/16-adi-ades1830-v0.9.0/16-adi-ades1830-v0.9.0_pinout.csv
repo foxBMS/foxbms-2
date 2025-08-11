@@ -1,0 +1,5 @@
+Connector ID    ; Functionality                         ; Pinout
+J400            ; Cell voltage measurement              ; :ref:`adi_ades1830_slave_16cell_v0.9.0_cell_sense_connector`
+J401            ; isoSPI Daisy Chain input              ; :ref:`adi_ades1830_slave_16cell_v0.9.0_daisy_input_connectors`
+J402            ; isoSPI Daisy Chain output             ; :ref:`adi_ades1830_slave_16cell_v0.9.0_daisy_output_connectors`
+J403            ; Temperature sensors                   ; :ref:`adi_ades1830_slave_16cell_v0.9.0_temp_sense_connector`

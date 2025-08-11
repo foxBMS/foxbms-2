@@ -37,24 +37,13 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""Helper Build Script: ``./portable/wscript``
-=============================================
-
-Helper script to recursively build the embedded sources"""
-
-import os
+"""Build the 'portable' library for the TMS570 MCU."""
 
 
 def build(bld):
-    """builds the portable library"""
-    # fmt: off
-    # pylint: disable=line-too-long
-    source = [
-            os.path.join("cortex-r5","processor_modes.asm"),
-        ]
+    """Build the 'portable' library for the TMS570 MCU."""
+    source = ["cortex-r5/processor_modes.asm"]
 
-    # pylint: enable=line-too-long
-    # fmt: on
     includes = ["cortex-r5"]
 
     cflags = bld.env.CFLAGS_FOXBMS

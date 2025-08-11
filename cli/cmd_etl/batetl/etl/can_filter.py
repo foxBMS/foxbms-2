@@ -39,6 +39,8 @@
 
 """Filters CAN messages"""
 
+from pathlib import Path
+
 
 class CANFilter:
     """Implements the CAN message filter functionalities
@@ -50,13 +52,20 @@ class CANFilter:
     """
 
     def __init__(
-        self, ids: list[str], id_pos: int, sampling: dict[str, int] | None = None
+        self,
+        ids: list[str],
+        id_pos: int,
+        sampling: dict[str, int] | None = None,
+        _input: Path | None = None,  # None respresents stdin
+        output: Path | None = None,  # None respresents stdout
     ) -> None:
         self._ids = self.extend_ids(ids)
         self._id_pos = id_pos
         self._sampling = sampling
         if sampling:
             self._occurrence = {x: 0 for x in sampling}
+        self.input = _input
+        self.output = output
 
     def filter_msg(self, msg: str) -> str | None:
         """Filters the incoming CAN message with
@@ -109,3 +118,9 @@ class CANFilter:
                     if new_id not in copy_ids:
                         copy_ids.append(new_id)
         return copy_ids
+
+    def __str__(self) -> str:
+        val = f"ID pos: {self._id_pos}, IDs: {self._ids}, sampling: {self._sampling}"
+        if self._sampling:
+            val += f", occurrence: {self._occurrence}"
+        return val

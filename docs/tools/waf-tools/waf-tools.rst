@@ -27,4 +27,3 @@ Waf Tools Implementation Documentation
     ./f_sphinx_build.rst
     ./f_unit_test.rst
     ./f_vscode.rst
-    ./f_node_helper.rst

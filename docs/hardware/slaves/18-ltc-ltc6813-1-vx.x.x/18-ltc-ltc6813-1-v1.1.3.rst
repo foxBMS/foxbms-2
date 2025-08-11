@@ -1,17 +1,20 @@
 .. include:: ./../../../macros.txt
 .. include:: ./../../../units.txt
 
-.. _LTC_LTC6813_1_BASED_18_CELL_SLAVE___V1_1_3__:
 
-LTC LTC6813-1-based 18-Cell Slave ``v1.1.3``
-============================================
+.. |local_bms_slave_version| replace:: ``1.1.3``
+.. |local_bms_slave_identifier_short| replace:: |ltc-ltc6813-1|\ -based 18-Cell |bms-slave|
+.. |local_bms_slave_identifier_full| replace:: |local_bms_slave_identifier_short| |local_bms_slave_version|
+
+.. _LTC_LTC6813_1_BASED_18_CELL_BMS_SLAVE_V1_1_3:
+
+|local_bms_slave_identifier_full|
+=================================
 
 .. note::
 
    The changelog for this release is found at
-   :ref:`CHANGELOG_FOR_SLAVE_LTC_LTC6813_1_V1_1_3`.
-
-.. |local_slave_version|  replace:: ``1.1.3``
+   :numref:`CHANGELOG_FOR_THE_LTC_LTC6813_1_BASED_18_CELL_BMS_SLAVE_V1_1_3`.
 
 --------
 Overview
@@ -19,13 +22,37 @@ Overview
 
 .. important::
 
-   The following description only applies for the |ltc-ltc6813-1|\ -based 18
-   cell |BMS-Slave| hardware version |local_slave_version|.
+   The following description only applies for the
+   |local_bms_slave_identifier_short|
+   version |local_bms_slave_version|.
 
 .. hint::
 
    All connector pinouts described below follow the
    :ref:`CONVENTION_FOR_MOLEX_3_0_CONNECTOR_PIN_NUMBERING`.
+
+---------------
+Pinout Overview
+---------------
+
+The pinout of this |bms-slave| is shown in the
+:ref:`pinout-overview-for-18-ltc-ltc6813-1-v1.1.3_pinout-img` and
+:ref:`pinout-overview-for-18-ltc-ltc6813-1-v1.1.3_pinout-table`.
+
+.. drawio-figure:: 18-ltc-ltc6813-1-v1.1.3/18-ltc-ltc6813-1-v1.1.3_pinout.drawio
+   :format: svg
+   :alt: pinout-overview-for-18-ltc-ltc6813-1-v1.1.3_pinout-img
+   :name: pinout-overview-for-18-ltc-ltc6813-1-v1.1.3_pinout-img
+   :width: 800px
+
+   Connector placement of the |local_bms_slave_identifier_full|.
+
+.. csv-table:: MC33775A-based 14-Cell BMS-Slave connectors description
+   :file: 18-ltc-ltc6813-1-v1.1.3/18-ltc-ltc6813-1-v1.1.3_pinout.csv
+   :name: pinout-overview-for-18-ltc-ltc6813-1-v1.1.3_pinout-table
+   :header-rows: 1
+   :delim: ;
+   :widths: 20 40 40
 
 --------------
 Specifications
@@ -63,14 +90,16 @@ Mechanical Dimensions
 Block Diagram
 ^^^^^^^^^^^^^
 
-The block diagram of the |BMS-Slave| is shown in
-:numref:`Fig. %s <block_diagram_6813-1_slave_18cell_v1.1.3>`.
+The block diagram of the |bms-slave| is shown in
+:numref:`block_diagram_6813-1_slave_18cell_v1.1.3`.
 
 .. _block_diagram_6813-1_slave_18cell_v1.1.3:
-.. figure:: ./18-ltc-ltc6813-1-v1.1.3/18-ltc-ltc6813-1-v1.1.3.png
+.. drawio-figure:: ./18-ltc-ltc6813-1-v1.1.3/18-ltc-ltc6813-1-v1.1.3.drawio
    :width: 100 %
+   :format: svg
+   :align: center
 
-   |BMS-Slave| 18-Cell Block Diagram
+   |bms-slave| 18-Cell Block Diagram
 
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 Schematic and Board Layout
@@ -84,7 +113,7 @@ Functions
 ---------
 
 The following general description applies to both, the primary and the
-secondary of the |BMS-Slave|.
+secondary of the |bms-slave|.
 If there are any differences in hardware between the primary and the secondary
 they will be marked as such.
 
@@ -121,7 +150,7 @@ due to voltage drop on the sense wires.
 
 The cell input lines are filtered by a grounded or differential capacitor
 filter:
-both possibilities are provided on the PCB of the |BMS-Slave|.
+both possibilities are provided on the PCB of the |bms-slave|.
 More information on the corner frequency of this filtering can be found in the
 schematic.
 The grounded capacitor filter should be used in environments affected with a
@@ -377,7 +406,7 @@ The pinout of the extension connector X405 is described in
 External Isolated |DC-| Supply
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-It is possible to supply the |BMS-Slave| by an external DC power supply with a
+It is possible to supply the |bms-slave| by an external DC power supply with a
 voltage range of 8 |_| V to 24 |_| V.
 The DC input is protected against reverse voltage and over-current
 (with a 1.25 |_| A fuse).

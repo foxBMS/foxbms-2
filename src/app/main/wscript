@@ -51,7 +51,6 @@ def build(bld):
     ]
     linker_script_elf = bld.path.find_node("app.cmd")
     linker_script_hex = bld.path.find_node("app_hex.cmd")
-    linker_pulls = bld.path.find_node("../../../conf/cc/linker_pulls.json")
     includes = [
         "include",
         "../application/config",
@@ -77,7 +76,9 @@ def build(bld):
         "../task/config",
         "../../version",
     ]
-    includes.extend(bld.env.INCLUDES_RTOS + bld.env.INCLUDES_AFE)
+    includes.extend(
+        bld.env.INCLUDES_RTOS + bld.env.INCLUDES_RTOS_ADDONS + bld.env.INCLUDES_AFE
+    )
     cflags = bld.env.CFLAGS_FOXBMS
     use = [
         f"{bld.env.APPNAME.lower()}-application",
@@ -92,7 +93,6 @@ def build(bld):
         source=source,
         linker_script=linker_script_elf,
         linker_script_hex=linker_script_hex,
-        linker_pulls=linker_pulls,
         includes=includes,
         cflags=cflags,
         use=use,

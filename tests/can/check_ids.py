@@ -326,7 +326,10 @@ def main():
         args.input_file = Path(args.input_file)
     input_file = args.input_file.absolute()
     can_db = cantools.database.load_file(input_file)
-    sorted_messages = sorted(can_db.messages, key=lambda x: x.frame_id)
+    sorted_messages = []
+    for i in sorted(can_db.messages, key=lambda x: x.frame_id):
+        if i.name != "f_BootloaderVersionInfo":
+            sorted_messages.append(i)
 
     errors = 0
     for i in sorted_messages:

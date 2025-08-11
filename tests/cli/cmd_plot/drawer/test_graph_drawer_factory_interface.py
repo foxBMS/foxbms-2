@@ -38,3 +38,56 @@
 # - "This product is derived from foxBMS®"
 
 """Testing file 'cli/cmd_plot/drawer/graph_drawer_factory_interface.py'."""
+
+import io
+import sys
+import unittest
+from contextlib import redirect_stderr
+from pathlib import Path
+
+try:
+    from cli.cmd_plot.drawer.graph_drawer_factory import GraphDrawerFactoryInterface
+    from cli.cmd_plot.drawer.graph_types import GraphTypes
+except ModuleNotFoundError:
+    sys.path.insert(0, str(Path(__file__).parents[4]))
+    from cli.cmd_plot.drawer.graph_drawer_factory import GraphDrawerFactoryInterface
+    from cli.cmd_plot.drawer.graph_types import GraphTypes
+
+
+class TestGetGraphType(unittest.TestCase):
+    """Class to test the get_graph_type method of the Executor class"""
+
+    def test_graph_config_not_dict(self) -> None:
+        """Tests the get_graph_type method with graph_config parameter not as dict"""
+        buf = io.StringIO()
+        with redirect_stderr(buf), self.assertRaises(SystemExit) as cm:
+            GraphDrawerFactoryInterface._get_graph_type("test")  # pylint: disable=protected-access
+        self.assertEqual(cm.exception.code, 1)
+        self.assertIn(
+            "Plot configuration is not a list of dictionaries.", buf.getvalue()
+        )
+
+    def test_valid_graph_type(self) -> None:
+        """Tests the get_graph_type method with a valid graph type"""
+        graph_type = GraphDrawerFactoryInterface._get_graph_type({"type": "LINE"})  # pylint: disable=protected-access
+        self.assertEqual(graph_type, GraphTypes["LINE"])
+
+    def test_invalid_graph_type(self) -> None:
+        """Tests the get_graph_type method with a invalid graph type"""
+        buf = io.StringIO()
+        with redirect_stderr(buf), self.assertRaises(SystemExit) as cm:
+            GraphDrawerFactoryInterface._get_graph_type({"type": "test"})  # pylint: disable=protected-access
+        self.assertEqual(cm.exception.code, 1)
+        self.assertIn("is not valid", buf.getvalue())
+
+    def test_missing_type(self) -> None:
+        """Tests the get_graph_type method with a invalid graph type"""
+        buf = io.StringIO()
+        with redirect_stderr(buf), self.assertRaises(SystemExit) as cm:
+            GraphDrawerFactoryInterface._get_graph_type({"test": "test"})  # pylint: disable=protected-access
+        self.assertEqual(cm.exception.code, 1)
+        self.assertIn("does not contain the manditory key 'type", buf.getvalue())
+
+
+if __name__ == "__main__":
+    unittest.main()

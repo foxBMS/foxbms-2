@@ -39,8 +39,10 @@
 
 """GraphDrawerFactory Interface"""
 
+import sys
 from abc import ABC, abstractmethod
 
+from ...helpers.click_helpers import recho
 from .graph_types import GraphTypes
 from .line_graph_drawer import LineGraphDrawer
 
@@ -49,5 +51,33 @@ class GraphDrawerFactoryInterface(ABC):  # pylint: disable=too-few-public-method
     """Interface class that creates a LineGraphDrawer object"""
 
     @abstractmethod
-    def get_object(self, graph_type: GraphTypes, config: dict) -> LineGraphDrawer:
+    def get_object(self, graph_config: dict) -> LineGraphDrawer:
         """Creates a LineGraphDrawer object from the given configuration."""
+
+    @staticmethod
+    def _get_graph_type(graph_config: dict) -> GraphTypes:
+        """Determines the graph type and returns it"""
+        try:
+            # The plot configuration is defined as a list of dictionaries and
+            # the method _get_graph_type gets one of these dictionaries passed
+            # as parameter graph_config.
+            if not isinstance(graph_config, dict):
+                recho(
+                    "Plot configuration is not a list of dictionaries. "
+                    "Please check the plot configuration format."
+                )
+                sys.exit(1)
+            graph_type = graph_config["type"]
+            return GraphTypes[str(graph_type).split("_", maxsplit=1)[0]]
+        except KeyError:
+            if "graph_type" in locals():
+                recho(
+                    f"Graph type {str(graph_type).split('_', maxsplit=1)[0]}"
+                    "is not valid."
+                )
+            else:
+                recho(
+                    "One of the graph configurations does not contain the "
+                    "manditory key 'type'."
+                )
+            sys.exit(1)

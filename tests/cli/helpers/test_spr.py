@@ -39,23 +39,30 @@
 
 """Testing file 'cli/helpers/spr.py'."""
 
+import importlib
 import io
+import subprocess
 import sys
 import unittest
 from contextlib import redirect_stderr
 from pathlib import Path
-from subprocess import PIPE
 from unittest.mock import MagicMock, patch
 
 try:
+    from cli.helpers import spr
     from cli.helpers.spr import SubprocessResult, prepare_subprocess_output, run_process
 except ModuleNotFoundError:
     sys.path.insert(0, str(Path(__file__).parents[3]))
+    from cli.helpers import spr
     from cli.helpers.spr import SubprocessResult, prepare_subprocess_output, run_process
 
 
 class TestSpR(unittest.TestCase):
     """Test of 'spr.py'."""
+
+    def setUp(self):
+        importlib.reload(spr)
+        return super().setUp()
 
     def test_prepare_subprocess_output(self):
         """basic prepare_subprocess_output test"""
@@ -104,8 +111,69 @@ class TestSpR(unittest.TestCase):
         dummy = SubprocessResult(1, "abc", "def")
         self.assertEqual("return code: 1\n\nout:abc\n\ndef\n", str(dummy))
 
+    @patch("sys.platform", new="linux")
     @patch("shutil.which")
-    @patch("cli.helpers.spr.Popen")
+    @patch("cli.helpers.spr.subprocess.Popen")
+    def test_run_process_linux(self, mock_popen: MagicMock, mock_which: MagicMock):
+        """Test the 'run_process' function for Linux."""
+        importlib.reload(spr)
+        mock_which.return_value = "some-program"
+        mock_process = MagicMock()
+        mock_process.communicate.return_value = (b"stdout", b"stderr")
+        mock_process.returncode = 0
+        mock_popen.return_value.__enter__.return_value = mock_process
+
+        result = run_process(["some-program", "some-arguments"])
+
+        mock_popen.assert_called_once_with(
+            ["some-program", "some-arguments"],
+            cwd=Path(__file__).parents[3],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            env=None,
+        )
+        self.assertEqual(
+            result.out, mock_process.communicate.return_value[0].decode("utf-8")
+        )
+        self.assertEqual(
+            result.err, mock_process.communicate.return_value[1].decode("utf-8")
+        )
+
+    @patch("builtins.hasattr")
+    @patch("shutil.which")
+    @patch("cli.helpers.spr.subprocess.Popen")
+    @unittest.skipIf(not sys.platform.startswith("win32"), "Windows specific test")
+    def test_run_process_no_isatty(
+        self, mock_popen: MagicMock, mock_which: MagicMock, mock_hasattr: MagicMock
+    ):
+        """Test the 'run_process' function without 'isatty' in 'sys.stdin'."""
+        mock_hasattr.return_value = False
+        mock_which.return_value = "some-program"
+        mock_process = MagicMock()
+        mock_process.communicate.return_value = (b"stdout", b"stderr")
+        mock_process.returncode = 0
+        mock_popen.return_value.__enter__.return_value = mock_process
+
+        result = run_process(["some-program", "some-arguments"])
+
+        self.assertEqual(
+            result.out, mock_process.communicate.return_value[0].decode("utf-8")
+        )
+        self.assertEqual(
+            result.err, mock_process.communicate.return_value[1].decode("utf-8")
+        )
+        mock_hasattr.assert_called_once()
+        mock_popen.assert_called_once_with(
+            ["some-program", "some-arguments"],
+            cwd=Path(__file__).parents[3],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            env=None,
+            creationflags=subprocess.CREATE_NO_WINDOW,
+        )
+
+    @patch("shutil.which")
+    @patch("cli.helpers.spr.subprocess.Popen")
     def test_run_process(self, mock_popen, mock_which):
         """Test the 'run_process' function."""
         mock_which.return_value = "some-program"
@@ -119,8 +187,8 @@ class TestSpR(unittest.TestCase):
         mock_popen.assert_called_once_with(
             ["some-program", "some-arguments"],
             cwd=Path(__file__).parents[3],
-            stdout=PIPE,
-            stderr=PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
             env=None,
         )
         self.assertEqual(

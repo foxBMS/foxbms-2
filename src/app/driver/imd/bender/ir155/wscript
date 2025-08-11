@@ -37,15 +37,13 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""Helper Build Script: ``./src/app/driver/imd/bender/ir155/wscript``
-=================================================================
-"""
+"""Build the 'ir155' objects for the 'IMD'-driver"""
 
 import os
 
 
 def build(bld):
-    """Builds the Bender IR155 monitoring device"""
+    """Build the 'ir155' objects for the 'IMD'-driver"""
     source = [
         os.path.join("bender_ir155.c"),
         os.path.join("bender_ir155_helper.c"),

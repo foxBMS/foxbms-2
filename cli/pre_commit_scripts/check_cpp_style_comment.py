@@ -37,20 +37,33 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""Script to check whether a file contains C++-style comments"""
+"""Check source files for the presence of C++-style comments (//).
+
+This script scans one or more files and reports any lines that contain
+C++-style comments, which are disallowed.
+It is intended for use with pre-commit.
+"""
 
 import argparse
 import sys
+from collections.abc import Sequence
 from pathlib import Path
-from typing import Sequence
 
 
 def check_file(files: list[Path]) -> int:
-    """Check file for C++-style comments"""
+    """Check a list of files for C++-style comments (//).
+
+    Args:
+        files: List of file paths to check.
+
+    Return:
+        The number of lines of all provided files containing C++-style comments.
+
+    """
     err = 0
     for i in files:
         for j, line in enumerate(i.read_text(encoding="utf-8").splitlines()):
-            if line.strip().startswith("//"):
+            if any(i.startswith("//") for i in line.strip().split()):
                 err += 1
                 msg = f"{i.as_posix()}:{j + 1}: C++-style comments are not allowed."
                 print(msg, file=sys.stderr)
@@ -58,7 +71,15 @@ def check_file(files: list[Path]) -> int:
 
 
 def main(argv: Sequence[str] | None = None) -> int:
-    """C++-style comment checker"""
+    """Command-line interface for checking files for C++-style comments.
+
+    Args:
+        argv: Optional sequence of command-line arguments.
+
+    Return:
+        Exit code. 0 if no issues, up to 255 if issues were found.
+
+    """
     parser = argparse.ArgumentParser()
     parser.add_argument("files", nargs="*", help="Files to check")
     args = parser.parse_args(argv)

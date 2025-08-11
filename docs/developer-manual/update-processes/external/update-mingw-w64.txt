@@ -7,6 +7,6 @@
   ``conf/env/paths_linux.txt``
 - |snippet_update_license| in
   ``docs/general/license-tables/external/license-info_mingw-w64.csv``.
-- |snippet_changelog_entry|.
+- |snippet_changelog_entry|
 - |snippet_commit|
   ``Dependency update: <XXXX>/Q<Y>: mingw-w64 <version number>``.

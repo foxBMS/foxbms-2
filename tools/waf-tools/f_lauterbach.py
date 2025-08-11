@@ -72,11 +72,22 @@ class AtTemplate(Template):
 
 def options(opt):
     """Lauterbach waf tool configuration options"""
-    homedrive = os.getenv("HOMEDRIVE", "C:")
-    lauterbach_installation_directory = [
-        os.path.join(homedrive, os.sep, "T32-tms"),
-        os.path.join(homedrive, os.sep, "T32"),
-    ]
+    if Utils.is_win32:
+        homedrive = os.getenv("HOMEDRIVE", "C:")
+        lauterbach_installation_directory = [
+            os.path.join(homedrive, os.sep, "T32-tms"),
+            os.path.join(homedrive, os.sep, "T32"),
+        ]
+        if homedrive != "C:":
+            lauterbach_installation_directory.extend(
+                [
+                    os.path.join("C:", os.sep, "T32"),
+                ]
+            )
+    else:
+        home = os.getenv("HOME", "~")
+        lauterbach_installation_directory = [os.path.join(home, "T32")]
+
     opt.add_option(
         "--lauterbach-installation-directory",
         action="append",
@@ -119,15 +130,23 @@ def configure(conf: ConfigurationContext):
         )
     conf.end_msg(conf.env.get_flat("T32MARM"))
 
-    if not conf.env.FILECVT or not conf.env.T32MARM:
+    if not conf.env.T32MARM:
         return
 
     tmp_dir = conf.path.get_bld().make_node("tmp")
     tmp_dir.mkdir()
 
-    t32_root = conf.root.find_node(conf.env.FILECVT[0]).parent.abspath()
-    if t32_root.endswith(os.sep):
-        t32_root = t32_root[:-1]
+    if conf.env.FILECVT:
+        t32_root = conf.root.find_node(conf.env.FILECVT[0]).parent.abspath()
+        if t32_root.endswith(os.sep):
+            t32_root = t32_root[:-1]
+    else:
+        # the executable is in '<root>/<platform>/bin/...'
+        t32_root = conf.root.find_node(
+            conf.env.T32MARM[0]
+        ).parent.parent.parent.abspath()
+        if t32_root.endswith(os.sep):
+            t32_root = t32_root[:-1]
 
     t32marm_root = conf.root.find_node(conf.env.T32MARM[0]).parent.abspath()
     if t32marm_root.endswith(os.sep):

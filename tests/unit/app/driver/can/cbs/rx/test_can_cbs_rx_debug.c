@@ -43,8 +43,8 @@
  * @file    test_can_cbs_rx_debug.c
  * @author  foxBMS Team
  * @date    2021-04-22 (date of creation)
- * @updated 2025-03-31 (date of last update)
- * @version v1.9.0
+ * @updated 2025-08-07 (date of last update)
+ * @version v1.10.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -191,7 +191,7 @@ static DATA_BLOCK_AEROSOL_SENSOR_s can_tableAerosolSensor = {.header.uniqueId = 
 OS_QUEUE imd_canDataQueue     = NULL_PTR;
 OS_QUEUE ftsk_rtcSetTimeQueue = NULL_PTR;
 
-static SYS_STATEMACH_e stored_sys_state;
+static SYS_FSM_STATES_e stored_sys_state;
 
 const CAN_SHIM_s can_kShim = {
     .pQueueImd             = &imd_canDataQueue,
@@ -215,12 +215,12 @@ const CAN_SHIM_s can_kShim = {
 
 /*========== Setup and Teardown =============================================*/
 void setUp(void) {
-    stored_sys_state = sys_state.state;
-    sys_state.state  = SYS_STATEMACH_INITIALIZE_CAN + 1;
+    stored_sys_state       = sys_state.currentState;
+    sys_state.currentState = SYS_FSM_SUBSTATE_INITIALIZATION_CAN + 1;
 }
 
 void tearDown(void) {
-    sys_state.state = stored_sys_state;
+    sys_state.currentState = stored_sys_state;
 }
 
 /*========== Test Cases =====================================================*/
@@ -268,8 +268,8 @@ void testCANRX_DebugAssertionsParamDatabaseShim(void) {
 /*********************************************************************************************************************/
 /* tests of the public interface of the module, i.e., 'CANRX_Debug' when valid input is provided but the sys state does not yet allow to send messages */
 void testCANRX_DebugWrongSysState(void) {
-    SYS_STATEMACH_e stored_state = sys_state.state;
-    sys_state.state              = SYS_STATEMACH_UNINITIALIZED;
+    SYS_FSM_STATES_e stored_state = sys_state.currentState;
+    sys_state.currentState        = SYS_FSM_STATE_UNINITIALIZED;
 
     uint8_t testCanData[CAN_MAX_DLC] = {0};
 
@@ -277,7 +277,7 @@ void testCANRX_DebugWrongSysState(void) {
     uint16_t ret   = CANRX_Debug(validRxDebugTestMessage, testCanData, &can_kShim);
     TEST_ASSERT_EQUAL(SYS_STATE_INVALID_CANRX_RETURN_VALUE, ret);
 
-    sys_state.state = stored_state;
+    sys_state.currentState = stored_state;
 }
 
 /*********************************************************************************************************************/
@@ -653,7 +653,7 @@ void testCANRX_ProcessRtcMux(void) {
     TEST_CANRX_ProcessRtcMux(testMessageDataZero, validEndianness);
 
     /* Test setting an invalid rtc time */
-    uint64_t testMessageData = UINT64_MAX;  // Initialize message data
+    uint64_t testMessageData = UINT64_MAX; /* Initialize message data */
     RTC_SetRtcRequestFlag_Expect(2u);
     CANTX_DebugResponse_ExpectAndReturn(CANTX_DEBUG_RESPONSE_TRANSMIT_RTC_TIME, STD_OK);
     TEST_CANRX_ProcessRtcMux(testMessageData, validEndianness);

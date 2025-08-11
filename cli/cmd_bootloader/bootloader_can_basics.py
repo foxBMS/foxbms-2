@@ -45,11 +45,9 @@ import sys
 import time
 from enum import Enum
 from pathlib import Path
-from typing import Optional, Union, cast
+from typing import cast
 
 import can
-from can.interfaces.pcan import PcanBus
-from can.interfaces.virtual import VirtualBus
 from cantools import database
 from cantools.typechecking import DecodeResultType, SignalDictType
 
@@ -71,10 +69,8 @@ class BootloaderCanBasics:
     """
 
     def __init__(
-        self,
-        can_bus: Union[VirtualBus, PcanBus, can.BusABC],
-        dbc_file: Path = BOOTLOADER_DBC_FILE,
-    ):
+        self, can_bus: can.BusABC, dbc_file: Path = BOOTLOADER_DBC_FILE
+    ) -> None:
         """Init function.
 
         Args:
@@ -82,8 +78,13 @@ class BootloaderCanBasics:
         """
         if not dbc_file.is_file():
             sys.exit(f"File '{dbc_file}' does not exist.")
-        db = database.load_file(dbc_file)
-        self.db = cast(database.can.database.Database, db)
+        tmp = database.load_file(dbc_file)
+        if not isinstance(tmp, database.can.database.Database):
+            sys.exit(
+                f"Expected '{dbc_file}' to contain a CAN database, but "
+                f"type is '{type(tmp)}'."
+            )
+        self.db = tmp
         self.can_bus = can_bus
         self.messages = Messages()
 
@@ -91,12 +92,12 @@ class BootloaderCanBasics:
     def wait_can_message(
         self,
         arbitration_id: int,
-        dbc_file: Optional[Path] = None,
-        mux_value: Optional[str] = None,
-        params: Optional[dict] = None,
+        dbc_file: Path | None = None,
+        mux_value: str | None = None,
+        params: dict | None = None,
         timeout_total: float = 1.0,
         timeout_bus_recv: float = 1.0,
-    ) -> Optional[DecodeResultType]:
+    ) -> DecodeResultType | None:
         """This function wait for a specified CAN message.
         Args:
             arbitration_id: id of the CAN message e.g., 0x480
@@ -118,16 +119,23 @@ class BootloaderCanBasics:
         else:
             if not dbc_file.is_file():
                 sys.exit(f"File '{dbc_file}' does not exist.")
-            else:
-                db = cast(database.can.database.Database, database.load_file(dbc_file))
-
+            tmp = database.load_file(dbc_file)
+            if not isinstance(tmp, database.can.database.Database):
+                sys.exit(
+                    f"Expected '{dbc_file}' to contain a CAN database, but "
+                    f"type is '{type(tmp)}'."
+                )
+            db = tmp
         if not params:
             params = {}
         goto_next_message = False
         start_time = time.time()
         while (not timeout_total) or (time.time() - start_time <= timeout_total):
-            message = self.can_bus.recv(timeout=timeout_bus_recv)
-            if (message is not None) and (message.arbitration_id == arbitration_id):
+            try:
+                message = self.can_bus.recv(timeout=timeout_bus_recv)
+            except can.CanOperationError as e:
+                sys.exit(f"'{e}': Could not read from CAN bus.")
+            if message and (message.arbitration_id == arbitration_id):
                 msg = db.decode_message(message.arbitration_id, message.data)
                 msg = cast(SignalDictType, msg)
                 if mux_value:
@@ -169,14 +177,14 @@ class BootloaderCanBasics:
             try:
                 self.can_bus.send(message_send)
                 logging.debug("Message sent on '%s'.", self.can_bus.channel_info)
-            except can.CanError as e:
-                logging.error("'%s', message not sent.", e)
+            except can.CanOperationError as e:
+                sys.exit(f"'{e}': Could not send message on CAN bus.")
 
     def send_request_to_bootloader(self, request_code: Enum) -> None:
         """The function is to send a request CAN message to bootloader.
 
         Args:
-            request_code: a member of the enum RequestCode8Bits.
+            request_code: a member of the enum BootloaderAction.
         """
         self.send_can_message_to_bootloader(
             self.messages.get_message_request_msg(request_code)
@@ -230,7 +238,7 @@ class BootloaderCanBasics:
             self.messages.get_message_loop_info(num_of_loop)
         )
 
-    def wait_bootloader_state_msg(self) -> Optional[BootloaderFsmStatesType]:
+    def wait_bootloader_state_msg(self) -> BootloaderFsmStatesType | None:
         """Waits for the CAN messages containing the state of bootloader.
 
         Returns:
@@ -243,20 +251,20 @@ class BootloaderCanBasics:
         msg_bootloader_fsm_states = cast(BootloaderFsmStatesType, msg)
         return msg_bootloader_fsm_states
 
-    def wait_data_transfer_info_msg(self) -> Optional[DataTransferInfoType]:
+    def wait_data_transfer_info_msg(self) -> DataTransferInfoType | None:
         """This function is to wait for the messages contain the information of the data transfer.
 
         Returns:
             CAN message containing data transfer info (the current loop number).
         """
         arbitration_id_data_transfer_info = self.db.get_message_by_name(
-            "f_DataTransferInfo"
+            "f_BootloaderDataTransferInfo"
         ).frame_id
         msg = self.wait_can_message(arbitration_id_data_transfer_info)
         msg_data_transfer_info = cast(DataTransferInfoType, msg)
         return msg_data_transfer_info
 
-    def wait_bootloader_version_info_msg(self) -> Optional[BootloaderVersionInfoType]:
+    def wait_bootloader_version_info_msg(self) -> BootloaderVersionInfoType | None:
         """This function is to wait for the messages contain the version information
         of the bootloader.
 
@@ -278,7 +286,7 @@ class BootloaderCanBasics:
         timeout_total: float = 1.0,
         timeout_ack: float = 0.3,
         processed_level: Enum = StatusCode.ReceivedAndProcessed,
-    ) -> Optional[AcknowledgeMessageType]:
+    ) -> AcknowledgeMessageType | None:
         """Wait for a certain CAN acknowledge message
 
         Args:
@@ -293,7 +301,10 @@ class BootloaderCanBasics:
         """
         start_time = time.time()
         while time.time() - start_time <= timeout_total:
-            message = self.can_bus.recv(timeout=timeout_ack)
+            try:
+                message = self.can_bus.recv(timeout=timeout_ack)
+            except can.CanOperationError as e:
+                sys.exit(f"'{e}': Could not read from CAN bus.")
             if message and (message.arbitration_id == 0x480):
                 msg = self.db.decode_message(message.arbitration_id, message.data)
                 msg_ack = cast(AcknowledgeMessageType, msg)

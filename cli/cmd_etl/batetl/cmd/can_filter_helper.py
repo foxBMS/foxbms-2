@@ -41,74 +41,79 @@
 
 import re
 import sys
-from pathlib import Path
 
-import click
-
+from ....helpers.click_helpers import recho
 from ..etl.can_filter import CANFilter
-from . import read_config
 
 
-def can_filter_setup(config: Path) -> CANFilter:
+def can_filter_setup(config: dict) -> CANFilter:
     """Reads config file and creates the CANFilter object
 
     :param config: Path to the configuration file
     :return: CANFilter object
     """
-    config_dict = read_config(config)
-    validate_filter_config(config_dict)
-    return CANFilter(**config_dict)
+    validate_filter_config(config)
+    return CANFilter(**config)
 
 
-def validate_filter_config(config_dict: dict) -> None:
+def validate_filter_config(config: dict) -> None:
     """Validates the configuration file of the filter subcommand
 
-    :param config_dict: Dictionary with configurations
+    :param config: Dictionary with configurations
     """
-    if "id_pos" not in config_dict:
-        click.secho(
-            "Configuration file is missing 'id_pos' parameter.", fg="red", err=True
-        )
+    if not isinstance(config["id_pos"], int):
+        recho("'id_pos' in the configuration file is not an integer.")
         sys.exit(1)
-    if not isinstance(config_dict["id_pos"], int):
-        click.secho(
-            "'id_pos' in the configuration file is not an integer.", fg="red", err=True
-        )
+
+    if not isinstance(config["ids"], list):
+        recho("'ids' is not a list.")
         sys.exit(1)
-    if "ids" not in config_dict:
-        click.secho(
-            "'Configuration file is missing 'ids' parameter'.", fg="red", err=True
-        )
+    if not all(isinstance(x, str) for x in config["ids"]):
+        recho("Not all ids are defined as string. Missing quotes ?")
         sys.exit(1)
-    if not isinstance(config_dict["ids"], list):
-        click.secho("'ids' is not a list.", fg="red", err=True)
-        sys.exit(1)
-    if not all(isinstance(x, str) for x in config_dict["ids"]):
-        click.secho(
-            "Not all ids are defined as string. Missing quotes ?", fg="red", err=True
-        )
-        sys.exit(1)
-    for i in config_dict["ids"]:
+    for i in config["ids"]:
         if not re.search("^[0-9A-F]+(-[0-9A-F]+){0,1}$", i):
-            click.secho(
-                "'ids' are not defined as hexadecimal values!", fg="red", err=True
-            )
+            recho("'ids' are not defined as hexadecimal values!")
             sys.exit(1)
-    if "sampling" in config_dict:
-        if not isinstance(config_dict["sampling"], dict):
-            click.secho("'sampling' is not a dictionary.", fg="red", err=True)
+
+    if "sampling" not in config:
+        return
+    if not isinstance(config["sampling"], dict):
+        recho("'sampling' is not a dictionary.")
+        sys.exit(1)
+    if not all(isinstance(x, str) for x in config["sampling"]):
+        recho("Not all ids in sampling are defined as string. Missing quotes?")
+        sys.exit(1)
+    if config["sampling"] and not set(config["sampling"]).issubset(set(config["ids"])):
+        recho("Defined sampling is not a subset of the ids.")
+        sys.exit(1)
+
+
+def _sanitize_args(filter_obj: CANFilter) -> None:
+    """Ensure that, if input and/or outout files are provided, these files are
+    readable/writeable."""
+    if filter_obj.output:
+        try:
+            filter_obj.output.parent.mkdir(exist_ok=True, parents=True)
+        except PermissionError:
+            recho(f"Directory '{filter_obj.output.parent.resolve()}' is not writeable.")
             sys.exit(1)
-        if not all(isinstance(x, str) for x in config_dict["sampling"]):
-            click.secho(
-                "Not all ids in sampling are defined as string. Missing quotes ?",
-                fg="red",
-                err=True,
-            )
+        # we have the directory, check if we can write the file
+        try:
+            filter_obj.output.touch()
+        except PermissionError:
+            recho(f"'{filter_obj.output.resolve()}' is not writeable.")
             sys.exit(1)
-        if not set(config_dict["sampling"]).issubset(set(config_dict["ids"])):
-            click.secho(
-                "Defined sampling is not a subset of the ids.", fg="red", err=True
-            )
+
+    if filter_obj.input:
+        if not filter_obj.input.is_file():
+            recho(f"'{filter_obj.input.resolve()}' does not exist.")
+            sys.exit(1)
+        try:
+            with open(filter_obj.input, encoding="utf-8"):
+                pass
+        except OSError:
+            recho(f"'{filter_obj.input.resolve()}' is not readable.")
             sys.exit(1)
 
 
@@ -117,13 +122,60 @@ def run_filter(filter_obj: CANFilter) -> None:
 
     :param filter_obj: Object which handles the filtering
     """
-    try:
-        for msg in sys.stdin:
-            filtered_msg = filter_obj.filter_msg(msg)
-            if filtered_msg:
-                sys.stdout.write(filtered_msg)
-    except OSError:
-        # If can_decoded receives an extra argument, can_filter is not
-        # able to write to the stdout
-        click.secho("Could not write to stdout.", fg="red", err=True)
-        sys.exit(1)
+    # All cases need to be handled separately:
+    # - 1/4: stdin/stdout
+    # - 2/4: stdin/file
+    # - 3/4: file/stdout
+    # - 4/4: file/file
+
+    _sanitize_args(filter_obj)
+
+    # input is valid
+    # 1/4
+    if filter_obj.input is None and filter_obj.output is None:
+        # use one global catch for OSError when trying to write to stdout
+        # as wrapping every call to sys.stdout.write into a try-expect
+        # block is a bit inefficient
+        try:
+            for msg in sys.stdin:
+                filtered_msg = filter_obj.filter_msg(msg)
+                if filtered_msg:
+                    sys.stdout.write(filtered_msg)
+        except (OSError, TypeError, ValueError, UnicodeEncodeError):
+            # If can_decoded receives an extra argument, can_filter is not
+            # able to write to the stdout
+            recho("Could not write to stdout.")
+            sys.exit(1)
+    # 2/4
+    elif filter_obj.input is None and filter_obj.output:
+        with open(filter_obj.output, mode="w+", encoding="utf-8") as f:
+            for msg in sys.stdin:
+                filtered_msg = filter_obj.filter_msg(msg)
+                if filtered_msg:
+                    f.write(filtered_msg)
+    # 3/4
+    elif filter_obj.input and filter_obj.output is None:
+        with open(filter_obj.input, encoding="utf-8") as f:
+            # use one global catch for OSError when trying to write to stdout
+            # as wrapping every call to sys.stdout.write into a try-expect
+            # block is a bit inefficient
+            try:
+                for msg in f:
+                    filtered_msg = filter_obj.filter_msg(msg)
+                    if filtered_msg:
+                        sys.stdout.write(filtered_msg)
+            except (OSError, TypeError, ValueError, UnicodeEncodeError):
+                # If can_decoded receives an extra argument, can_filter is not
+                # able to write to the stdout
+                recho("Could not write to stdout.")
+                sys.exit(1)
+    # 4/4
+    elif filter_obj.input and filter_obj.output:  # pragma: no cover
+        with (
+            open(filter_obj.input, encoding="utf-8") as f_in,
+            open(filter_obj.output, mode="w", encoding="utf-8") as f_out,
+        ):
+            for msg in f_in:
+                filtered_msg = filter_obj.filter_msg(msg)
+                if filtered_msg:
+                    f_out.write(filtered_msg)

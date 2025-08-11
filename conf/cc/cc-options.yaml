@@ -83,13 +83,12 @@ LINKFLAGS:
   - --emit_warnings_as_errors
   - --be32
   - --rom_model
-  - --heap_size=0x800
+  - --heap_size=0x1000
   - --stack_size=0x800
   - --undef_sym=__TI_static_base__
   - --undef_sym=resetEntry
   - -o4
   - --unused_section_elimination
-  - --strict_compatibility=on
   - --zero_init=on
   - --scan_libraries
 

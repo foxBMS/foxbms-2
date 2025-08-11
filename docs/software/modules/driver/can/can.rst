@@ -274,13 +274,18 @@ Callback definition
 ^^^^^^^^^^^^^^^^^^^
 
 If a new file is needed for a new callback, it must be added in the
-directory ``./src/app/driver/can/cbs``. The corresponding header is the file
-``can_cbs.h`` in the same directory. The new callback file must also be added
-to the ``wscript`` file in ``./src/app/driver``. For instance, if the file
-``can_my_callback.c`` is added, the line
+directory ``./src/app/driver/can/cbs``.
+The corresponding header is the file ``can_cbs.h`` in the same directory.
+The new callback file must also be added to the ``wscript`` file in
+``./src/app/driver``.
+For instance, if the file ``can_my_callback.c`` is added, the line
 
 .. code-block:: python
 
-    os.path.join("can", "cbs", "can_my_callback.c"),
+    source = [
+      # ...
+      "can/cbs/can_my_callback.c",
+      # ...
+    ]
 
 must be added.

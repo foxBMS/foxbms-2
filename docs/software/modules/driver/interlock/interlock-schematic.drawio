@@ -1,0 +1,112 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mxGraphModel grid="0">
+  <root>
+    <mxCell id="0" />
+    <mxCell id="1" parent="0" />
+    <mxCell id="clust1" value="&lt;font style='font-size: 14.0px;' face='Times,serif' color='#000000'&gt;main interlock circuit&lt;/font&gt;" style="verticalAlign=top;html=1;rounded=0;labelBackgroundColor=none;strokeColor=black;fillColor=none;strokeWidth=1;dashed=0;" parent="1" vertex="1">
+      <mxGeometry x="12.0" y="67.0" width="412.0" height="512.75" as="geometry" />
+    </mxCell>
+    <mxCell id="node1" value="&lt;font style='font-size: 14.0px;' face='Times,serif' color='#000000'&gt;static low-power supply&lt;/font&gt;" style="verticalAlign=middle;html=1;rounded=0;labelBackgroundColor=none;strokeColor=black;fillColor=none;strokeWidth=1;dashed=0;" parent="1" vertex="1">
+      <mxGeometry x="125.25" y="100.25" width="185.5" height="36.0" as="geometry" />
+    </mxCell>
+    <mxCell id="node2" value="&lt;font style='font-size: 14.0px;' face='Times,serif' color='#000000'&gt;interlock connector high&lt;/font&gt;" style="verticalAlign=middle;html=1;rounded=0;labelBackgroundColor=none;strokeColor=black;fillColor=none;strokeWidth=1;dashed=0;" parent="1" vertex="1">
+      <mxGeometry x="123.0" y="173.25" width="190.0" height="36.0" as="geometry" />
+    </mxCell>
+    <mxCell id="node3" value="&lt;font style='font-size: 14.0px;' face='Times,serif' color='#000000'&gt;interlock connector low&lt;/font&gt;" style="verticalAlign=middle;html=1;rounded=0;labelBackgroundColor=none;strokeColor=black;fillColor=none;strokeWidth=1;dashed=0;" parent="1" vertex="1">
+      <mxGeometry x="126.38" y="262.5" width="183.24" height="36.0" as="geometry" />
+    </mxCell>
+    <mxCell id="node8" value="&lt;font style='font-size: 14.0px;' face='Times,serif' color='#000000'&gt;high-side voltage sense (resistor divider 3k9/(5k6+3k9))&lt;/font&gt;" style="verticalAlign=middle;html=1;rounded=0;labelBackgroundColor=none;strokeColor=black;fillColor=none;strokeWidth=1;dashed=0;" parent="1" vertex="1">
+      <mxGeometry x="431.62" y="262.5" width="418.76" height="36.0" as="geometry" />
+    </mxCell>
+    <mxCell id="node4" value="&lt;font style='font-size: 14.0px;' face='Times,serif' color='#000000'&gt;low-side current sense (100mA = 4V)&lt;/font&gt;" style="verticalAlign=middle;html=1;rounded=0;labelBackgroundColor=none;strokeColor=none;fillColor=none;strokeWidth=1;dashed=0;" parent="1" vertex="1">
+      <mxGeometry as="geometry" relative="1">
+        <mxPoint x="218.0" y="344.18" as="offset" />
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="node9" value="&lt;font style='font-size: 14.0px;' face='Times,serif' color='#000000'&gt;low-side voltage sense (resistor divider 3k9/(5k6+3k9))&lt;/font&gt;" style="verticalAlign=middle;html=1;rounded=0;labelBackgroundColor=none;strokeColor=black;fillColor=none;strokeWidth=1;dashed=0;" parent="1" vertex="1">
+      <mxGeometry x="432.0" y="335.5" width="412.0" height="36.0" as="geometry" />
+    </mxCell>
+    <mxCell id="node5" value="&lt;font style='font-size: 14.0px;' face='Times,serif' color='#000000'&gt;low-side current regulation (to 50mA)&lt;/font&gt;" style="verticalAlign=middle;html=1;rounded=0;labelBackgroundColor=none;strokeColor=black;fillColor=none;strokeWidth=1;dashed=0;" parent="1" vertex="1">
+      <mxGeometry x="75.38" y="408.5" width="285.24" height="36.0" as="geometry" />
+    </mxCell>
+    <mxCell id="node6" value="&lt;font style='font-size: 14.0px;' face='Times,serif' color='#000000'&gt;low-side current threshold (low = current above 10mA)&lt;/font&gt;" style="verticalAlign=middle;html=1;rounded=0;labelBackgroundColor=none;strokeColor=none;fillColor=none;strokeWidth=1;dashed=0;" parent="1" vertex="1">
+      <mxGeometry as="geometry" relative="1">
+        <mxPoint x="218.0" y="480.8" as="offset" />
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="node7" value="&lt;font style='font-size: 14.0px;' face='Times,serif' color='#000000'&gt;system ground&lt;/font&gt;" style="verticalAlign=middle;html=1;rounded=0;labelBackgroundColor=none;strokeColor=black;fillColor=none;strokeWidth=1;dashed=0;" parent="1" vertex="1">
+      <mxGeometry x="156.75" y="535.75" width="122.5" height="36.0" as="geometry" />
+    </mxCell>
+    <mxCell id="node10" value="&lt;font style='font-size: 14.0px;' face='Times,serif' color='#000000'&gt;diagnostic high-power supply&lt;/font&gt;" style="verticalAlign=middle;html=1;rounded=0;labelBackgroundColor=none;strokeColor=black;fillColor=none;strokeWidth=1;dashed=0;" parent="1" vertex="1">
+      <mxGeometry x="459.0" y="4.0" width="226.0" height="36.0" as="geometry" />
+    </mxCell>
+    <mxCell id="node11" value="&lt;font style='font-size: 14.0px;' face='Times,serif' color='#000000'&gt;high-side current sense (133mA range)&lt;/font&gt;" style="verticalAlign=middle;html=1;rounded=0;labelBackgroundColor=none;strokeColor=none;fillColor=none;strokeWidth=1;dashed=0;" parent="1" vertex="1">
+      <mxGeometry as="geometry" relative="1">
+        <mxPoint x="572.0" y="108.93" as="offset" />
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="edge1" style="html=1;endArrow=none;dashed=0;endFill=0;startArrow=none;startFill=0;fillColor=blue;strokeColor=blue;strokeWidth=2;rounded=0;exitX=0.5000;exitY=1.0000;entryX=0.5000;entryY=0.0000;" parent="1" edge="1" source="node1" target="node2">
+      <mxGeometry as="geometry" relative="1">
+        <mxPoint x="218.0" y="136.44" as="sourcePoint" />
+        <mxPoint x="218.0" y="173.22000000000003" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="edge2" style="html=1;endArrow=none;dashed=1;endFill=0;startArrow=none;startFill=0;fillColor=blue;strokeColor=blue;strokeWidth=2;rounded=0;exitX=0.5000;exitY=1.0000;entryX=0.5000;entryY=0.0000;" parent="1" edge="1" source="node2" target="node3">
+      <mxGeometry as="geometry" relative="1">
+        <mxPoint x="218.0" y="209.49" as="sourcePoint" />
+        <mxPoint x="218.0" y="262.3" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="label_edge2" style="edgeLabel;html=1;align=center;verticalAlign=bottom;resizable=0;points=[];" parent="edge2" value="&lt;font style='font-size: 14.0px;' face='Times,serif' color='#000000'&gt;external connection&lt;/font&gt;" vertex="1" connectable="0">
+      <mxGeometry as="geometry" relative="1" />
+    </mxCell>
+    <mxCell id="edge7" style="html=1;endArrow=none;dashed=0;endFill=0;startArrow=none;startFill=0;fillColor=orange;strokeColor=orange;strokeWidth=1;rounded=0;exitX=0.9465;exitY=1.0000;entryX=0.2977;entryY=0.0000;" parent="1" edge="1" source="node2" target="node8">
+      <mxGeometry as="geometry" relative="1">
+        <mxPoint x="302.84" y="209.75" as="sourcePoint" />
+        <mxPoint x="556.3" y="262.03" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="edge3" style="html=1;endArrow=none;dashed=0;endFill=0;startArrow=none;startFill=0;fillColor=blue;strokeColor=blue;strokeWidth=2;rounded=0;exitX=0.5000;exitY=1.0000;" parent="1" edge="1" source="node3" target="node4">
+      <mxGeometry as="geometry" relative="1">
+        <mxPoint x="218.0" y="298.69" as="sourcePoint" />
+        <mxPoint x="218.0" y="344.99" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="edge8" style="html=1;endArrow=none;dashed=0;endFill=0;startArrow=none;startFill=0;fillColor=orange;strokeColor=orange;strokeWidth=1;rounded=0;exitX=1.0000;exitY=0.9594;entryX=0.2488;entryY=0.0000;" parent="1" edge="1" source="node3" target="node9">
+      <mxGeometry as="geometry" relative="1">
+        <mxPoint x="309.91" y="297.04" as="sourcePoint" />
+        <mxPoint x="534.49" y="335.0" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="edge5" style="html=1;endArrow=none;dashed=0;endFill=0;startArrow=none;startFill=0;fillColor=blue;strokeColor=blue;strokeWidth=2;rounded=0;entryX=0.5000;entryY=0.0000;" parent="1" edge="1" source="node4" target="node5">
+      <mxGeometry as="geometry" relative="1">
+        <mxPoint x="218.0" y="362.1" as="sourcePoint" />
+        <mxPoint x="218.0" y="408.28" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="edge4" style="html=1;endArrow=none;dashed=0;endFill=0;startArrow=none;startFill=0;fillColor=blue;strokeColor=blue;strokeWidth=2;rounded=0;exitX=0.5000;exitY=1.0000;" parent="1" edge="1" source="node5" target="node6">
+      <mxGeometry as="geometry" relative="1">
+        <mxPoint x="218.0" y="444.99" as="sourcePoint" />
+        <mxPoint x="218.0" y="481.63" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="edge6" style="html=1;endArrow=none;dashed=0;endFill=0;startArrow=none;startFill=0;fillColor=blue;strokeColor=blue;strokeWidth=2;rounded=0;entryX=0.5000;entryY=0.0000;" parent="1" edge="1" source="node6" target="node7">
+      <mxGeometry as="geometry" relative="1">
+        <mxPoint x="218.0" y="498.68" as="sourcePoint" />
+        <mxPoint x="218.0" y="535.31" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="edge9" style="html=1;endArrow=none;dashed=0;endFill=0;startArrow=none;startFill=0;fillColor=orange;strokeColor=orange;strokeWidth=1;rounded=0;exitX=0.5000;exitY=1.0000;" parent="1" edge="1" source="node10" target="node11">
+      <mxGeometry as="geometry" relative="1">
+        <mxPoint x="572.0" y="40.289999999999964" as="sourcePoint" />
+        <mxPoint x="572.0" y="109.98000000000002" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="edge10" style="html=1;endArrow=none;dashed=0;endFill=0;startArrow=none;startFill=0;fillColor=orange;strokeColor=orange;strokeWidth=1;rounded=0;entryX=0.9575;entryY=0.0000;" parent="1" edge="1" source="node11" target="node2">
+      <mxGeometry as="geometry" relative="1">
+        <mxPoint x="534.12" y="126.85000000000002" as="sourcePoint" />
+        <mxPoint x="304.92" y="172.82" as="targetPoint" />
+      </mxGeometry>
+    </mxCell>
+  </root>
+</mxGraphModel>

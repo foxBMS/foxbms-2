@@ -45,7 +45,7 @@ import unittest
 from contextlib import redirect_stderr, redirect_stdout
 from pathlib import Path
 from subprocess import PIPE
-from unittest.mock import MagicMock, patch
+from unittest.mock import ANY, MagicMock, patch
 
 sys.path.insert(0, str(Path(__file__).parents[3] / "cli/fallback"))
 import fallback  # pylint: disable=wrong-import-position
@@ -219,12 +219,15 @@ class TestFoxCliMain(unittest.TestCase):
             fallback.install_packages("foo")  # pylint: disable=c-extension-no-member
         self.assertRegex(
             out.getvalue(),
-            r"Running: foo\\Scripts\\python\.exe -m pip install -r .*requirements\.txt",
+            r"Running: foo(\\|\/)Scripts(\\|\/)python\.exe -m pip install -r .*requirements\.txt",
         )
-        py = "foo\\Scripts\\python.exe"
+        self.assertRegex(
+            mock_popen.call_args[0][0][0],
+            r"foo(\\|\/)Scripts(\\|\/)python.exe",
+        )
         mock_popen.assert_called_once_with(
-            [py]
-            + [
+            [
+                ANY,  # tested in previous assert
                 "-m",
                 "pip",
                 "install",

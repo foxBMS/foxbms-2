@@ -91,8 +91,8 @@ Enum=f_BalancingStrategy(0="none", 1="voltage", 2="history")
 Enum=f_Imd(0="none", 1="Bender_iso165c", 2="Bender_ir155")
 Enum=f_SoeAlgorithm(0="None", 1="Debug", 2="Counting")
 Enum=f_Rtos(0="freertos", 1="safertos")
-Enum=f_Afes(0="LTC 6804-1", 1="LTC 6806", 2="LTC 6811-1", 3="LTC 6812-1", 4="LTC 6813-1", 5="NXP MC33775A",
-  6="MAXIM MAX17852", 7="Debug default", 8="ADI ADES1830", 9="ADI ADBMS6832", 10="TI BQ79718", 11="TI Dummy")
+Enum=f_Afes(0="Debug default", 256="LTC 6804-1", 257="LTC 6806", 258="LTC 6811-1", 259="LTC 6812-1", 260="LTC 6813-1",
+  512="NXP MC33775A", 768="MAXIM MAX17852", 1024="ADI ADES1830", 1281="TI Dummy")
 Enum=f_TemperatureSensors(0="Fak00", 1="Epc00", 2="Epc01", 3="Mur00", 4="Sem00", 5="Vis00", 6="Vis01", 7="Vis02",
   8="Tdk00")
 Enum=f_TemperatureSensorMethod(0="polynomial", 1="lookup-table")
@@ -118,23 +118,23 @@ Enum=f_BmsSubstate(0="ENTRY", // Substate entry state
   27="CHECK_ALL_PRECHARGE_CONTACTORS_OPEN", 28="OPEN_STRINGS_ENTRY", 29="OPEN_FIRST_STRING_CONTACTOR",
   30="OPEN_SECOND_STRING_CONTACTOR", 31="CHECK_SECOND_STRING_CONTACTOR", 32="OPEN_STRINGS_EXIT")
 Enum=f_BalancingAlgorithmState(0="BALANCING_NOT_ALLOWED", 1="BALANCING_ALLOWED")
-Enum=f_FatalError(0="DIAG_ID_FLASHCHECKSUM", 1="DIAG_ID_SYSTEM_MONITORING", 2="DIAG_ID_CONFIGASSERT",
-  3="DIAG_ID_AFE_SPI", 4="DIAG_ID_AFE_COMMUNICATION_INTEGRITY", 5="DIAG_ID_AFE_MUX", 6="DIAG_ID_AFE_CONFIG",
-  7="DIAG_ID_CAN_TIMING", 10="DIAG_ID_CAN_CC_RESPONDING", 11="DIAG_ID_CAN_EC_RESPONDING",
-  12="DIAG_ID_CURRENT_SENSOR_RESPONDING", 19="DIAG_ID_CELL_VOLTAGE_OVERVOLTAGE_MSL",
-  22="DIAG_ID_CELL_VOLTAGE_UNDERVOLTAGE_MSL", 25="DIAG_ID_TEMP_OVERTEMPERATURE_CHARGE_MSL",
-  28="DIAG_ID_TEMP_OVERTEMPERATURE_DISCHARGE_MSL", 31="DIAG_ID_TEMP_UNDERTEMPERATURE_CHARGE_MSL",
-  34="DIAG_ID_TEMP_UNDERTEMPERATURE_DISCHARGE_MSL", 37="DIAG_ID_OVERCURRENT_CHARGE_CELL_MSL",
-  40="DIAG_ID_OVERCURRENT_DISCHARGE_CELL_MSL", 43="DIAG_ID_STRING_OVERCURRENT_CHARGE_MSL",
-  46="DIAG_ID_STRING_OVERCURRENT_DISCHARGE_MSL", 49="DIAG_ID_PACK_OVERCURRENT_CHARGE_MSL",
-  50="DIAG_ID_PACK_OVERCURRENT_DISCHARGE_MSL", 51="DIAG_ID_CURRENT_ON_OPEN_STRING",
-  52="DIAG_ID_DEEP_DISCHARGE_DETECTED", 55="DIAG_ID_INTERLOCK_FEEDBACK", 56="DIAG_ID_STRING_MINUS_CONTACTOR_FEEDBACK",
-  57="DIAG_ID_STRING_PLUS_CONTACTOR_FEEDBACK", 58="DIAG_ID_PRECHARGE_CONTACTOR_FEEDBACK", 60="DIAG_ID_SBC_RSTB_STATE",
-  67="DIAG_ID_CURRENT_MEASUREMENT_TIMEOUT", 68="DIAG_ID_CURRENT_MEASUREMENT_ERROR",
-  69="DIAG_ID_CURRENT_SENSOR_V1_MEASUREMENT_TIMEOUT", 70="DIAG_ID_CURRENT_SENSOR_V2_MEASUREMENT_TIMEOUT",
-  71="DIAG_ID_CURRENT_SENSOR_V3_MEASUREMENT_TIMEOUT", 72="DIAG_ID_CURRENT_SENSOR_POWER_MEASUREMENT_TIMEOUT",
-  73="DIAG_ID_POWER_MEASUREMENT_ERROR", 83="DIAG_ID_ALERT_MODE", 85="DIAG_ID_SUPPLY_VOLTAGE_CLAMP_30C_LOST",
-  86="NO_ERROR") // use maximum flag as no error sign
+Enum=f_FatalError(0="DIAG_ID_FLASHCHECKSUM", 1="DIAG_ID_SYSTEM_MONITORING", 2="DIAG_ID_AFE_SPI",
+  3="DIAG_ID_AFE_COMMUNICATION_INTEGRITY", 4="DIAG_ID_AFE_MUX", 5="DIAG_ID_AFE_CONFIG", 6="DIAG_ID_CAN_TIMING",
+  9="DIAG_ID_CURRENT_SENSOR_CC_RESPONDING", 10="DIAG_ID_CURRENT_SENSOR_EC_RESPONDING",
+  11="DIAG_ID_CURRENT_SENSOR_RESPONDING", 18="DIAG_ID_CELL_VOLTAGE_OVERVOLTAGE_MSL",
+  19="DIAG_ID_CELL_VOLTAGE_OVERVOLTAGE_RSL", 21="DIAG_ID_CELL_VOLTAGE_UNDERVOLTAGE_MSL",
+  24="DIAG_ID_TEMP_OVERTEMPERATURE_CHARGE_MSL", 27="DIAG_ID_TEMP_OVERTEMPERATURE_DISCHARGE_MSL",
+  30="DIAG_ID_TEMP_UNDERTEMPERATURE_CHARGE_MSL", 33="DIAG_ID_TEMP_UNDERTEMPERATURE_DISCHARGE_MSL",
+  36="DIAG_ID_OVERCURRENT_CHARGE_CELL_MSL", 39="DIAG_ID_OVERCURRENT_DISCHARGE_CELL_MSL",
+  42="DIAG_ID_STRING_OVERCURRENT_CHARGE_MSL", 45="DIAG_ID_STRING_OVERCURRENT_DISCHARGE_MSL",
+  48="DIAG_ID_PACK_OVERCURRENT_CHARGE_MSL", 50="DIAG_ID_CURRENT_ON_OPEN_STRING", 51="DIAG_ID_DEEP_DISCHARGE_DETECTED",
+  54="DIAG_ID_INTERLOCK_FEEDBACK", 55="DIAG_ID_STRING_MINUS_CONTACTOR_FEEDBACK",
+  56="DIAG_ID_STRING_PLUS_CONTACTOR_FEEDBACK", 57="DIAG_ID_PRECHARGE_CONTACTOR_FEEDBACK", 59="DIAG_ID_SBC_RSTB_ERROR",
+  66="DIAG_ID_CURRENT_MEASUREMENT_TIMEOUT", 67="DIAG_ID_CURRENT_MEASUREMENT_ERROR",
+  68="DIAG_ID_CURRENT_SENSOR_V1_MEASUREMENT_TIMEOUT", 69="DIAG_ID_CURRENT_SENSOR_V2_MEASUREMENT_TIMEOUT",
+  70="DIAG_ID_CURRENT_SENSOR_V3_MEASUREMENT_TIMEOUT", 71="DIAG_ID_CURRENT_SENSOR_POWER_MEASUREMENT_TIMEOUT",
+  72="DIAG_ID_POWER_MEASUREMENT_ERROR", 82="DIAG_ID_ALERT_MODE", 84="DIAG_ID_SUPPLY_VOLTAGE_CLAMP_30C_LOST",
+  85="NO_ERROR") // use maximum flag as no error sign
 Enum=f_RtcRequest(0="No Request", 1="Valid Request", 2="Invalid Request")
 
 {SENDRECEIVE}
@@ -1364,6 +1364,11 @@ Var=SensorFaults unsigned 32,5 -m
 Var=RollingCounter unsigned 45,3 -m
 Var=CrcCheckCode unsigned 56,8 -m
 
+[f_BmsFatalError]
+ID=222h // Message contains the fatal error code (in:can_cbs_tx_fatal-error.c:CANTX_SendFatalErrorId, fv:tx, type:BMS Status)
+Len=8
+Var=FatalErrorCode f_FatalError 0,8 -m /ln:"Fatal Error Code from BMS"
+
 [f_BmsState]
 ID=220h // Message contains general BMS state information (in:can_cbs_tx_bms-state.c:CANTX_BmsState, fv:tx, type:BMS Status)
 Len=8
@@ -1396,6 +1401,9 @@ Var=InsulationResistance unsigned 56,8 -m /u:kOhm /f:200
 Var=BmsSubstate unsigned 34,6 -m /e:f_BmsSubstate
 Var=Clamp30cError bit 25,1 -m /e:f_ErrorFlag // Indicates a possible error with Clamp 30C supply
 Var=BalancingAlgorithmState unsigned 31,1 /e:f_BalancingAlgorithmState // Indicates if the selected balancing algorithm allows balancing. This indicates not if a cell is actually balanced or not. This is indicated in IsBalancingActive flag in f_StringState message
+Var=PhyAlive unsigned 32,1 -m // Indicates that the phy hardware is reachable
+Var=PhyLinked unsigned 38,1 // Indicates that the phy has a network connection
+Var=BmsChargingFlag bit 29,1 /e:f_YesNoFlag /ln:"BmsChargingFlag" // Indicates that the bms is charging
 
 [f_BmsStateDetails]
 ID=221h // Details on flags transmitted by the 'BmsState' message (in:can_cbs_tx_bms-state-details.c:CANTX_BmsStateDetails, fv:tx, type:BMS Status)
@@ -1422,6 +1430,33 @@ Var=IndicatePrechargeType bit 4,1 -m /e:f_PrechargeType /ln:"IndicatePrechargeTy
 Var=ResetPersistentFlags bit 5,1 -m /ln:"ResetPersistentFlags" // Instructs the BMS the to reset persistent flags
 Var=ChargerConnected bit 3,1 -m /e:f_YesNoFlag /ln:"ChargerConnected" // Tells the BMS whether a charger is connected or not
 Var=DisableInsulationMonitoring bit 2,1 -m /ln:"DisableInsulationMonitoring" // Instructs the BMS to check/not check the battery system insulation
+
+[f_BootloaderVersionInfo]
+ID=410h // src/bootloader/driver/can/can_bootloader-version-info.c
+Len=8
+Mux=BootloaderVersionInfo 0,8 0 -m
+Var=DirtyFlag bit 38,1 -m /e:f_YesNoFlag
+Var=MajorVersionNumber unsigned 8,8 -m
+Var=MinorVersionNumber unsigned 16,8 -m
+Var=PatchVersionNumber unsigned 24,8 -m
+Var=ReleaseDistance unsigned 32,5 -m
+Var=ReleaseDistanceOverflow bit 37,1 -m /e:f_YesNoFlag
+Var=UnderVersionControl bit 39,1 -m /e:f_YesNoFlag
+
+[f_BootloaderVersionInfo]
+Len=8
+Mux=BootInformation 0,8 0Fh -m
+Var=MagicBootData unsigned 8,56 -m /max:1
+
+[f_BootloaderVersionInfo]
+Len=8
+Mux=CommitHashHigh 0,8 5 -m
+Var=shortHash string 8,56 -m
+
+[f_BootloaderVersionInfo]
+Len=8
+Mux=CommitHashLow 0,8 6 -m
+Var=shortHash string 8,56 -m
 
 [f_CellTemperatures]
 ID=260h // Cell temperature measurement data (in:can_cbs_tx_cell-temperatures.c:CANTX_CellTemperatures, fv:tx, type:Cell Information)
@@ -2838,9 +2873,9 @@ Var=Rtos unsigned 32,4 -m /max:1 /e:f_Rtos
 [f_DebugBuildConfiguration]
 Len=8
 Mux=Slave 0,8 0
-Var=AFE unsigned 8,8 /max:1 /e:f_Afes
-Var=TemperatureSensor unsigned 16,8 -m /max:1 /e:f_TemperatureSensors
-Var=TemperatureSensorMethod unsigned 24,8 -m /max:1 /e:f_TemperatureSensorMethod
+Var=AFE unsigned 8,16 -m /e:f_Afes
+Var=TemperatureSensor unsigned 24,8 -m /e:f_TemperatureSensors
+Var=TemperatureSensorMethod unsigned 32,8 -m /e:f_TemperatureSensorMethod
 
 [f_DebugResponse]
 ID=301h // Responses to the 'Debug' message (in:can_cbs_tx_debug-response.c:CANTX_DebugResponse, fv:tx, type:Debug)
@@ -3522,8 +3557,3 @@ Var=IVT_Result_U3_Channel_Error bit 10,1 -m
 Var=IVT_ID_Result_U3 unsigned 0,8 -m /min:3 /max:3 /e:VtSig_IVT_ID_Result_U3 /d:3
 Var=IVT_Result_U3 signed 16,32 -m /u:mV
 Var=IVT_MsgCount_Result_U3 unsigned 12,4 -m
-
-[f_BmsFatalError]
-ID=222h // Message contains the fatal error code (in:can_cbs_tx_fatal-error.c:CANTX_SendFatalErrorId, fv:tx, type:BMS Status)
-Len=2
-Var=FatalErrorCode f_FatalError 7,8 -m /ln:"Fatal Error Code from BMS"

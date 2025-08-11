@@ -6,7 +6,6 @@ plot
 ====
 
 Implements a cli tool to plot measured data.
-
 This tool extracts data from files and plots it as a line graph according to a
 given specification.
 
@@ -34,7 +33,6 @@ the given directories.
 If no output-directory is specified, a directory by the name
 ``<year-month-dayThour_minute_second.millisecond>``
 is created in ``foxbms-2/build/plots`` and set as the output-directory.
-
 For each input-file a directory by the same name will be created in the
 output-directory in which the plots will be saved.
 
@@ -50,18 +48,9 @@ Data Configuration File
 ^^^^^^^^^^^^^^^^^^^^^^^
 
 The data is extracted from the input-files according to the specifications in
-the Data Configuration File and then saved as a parquet file with the same name
-as the original input-file in a sub-directory.
-When re-plotting the already extracted data only the parquet file is accessed.
-
-.. note::
-    If the Data Configuration file or input-file have been changed after
-    plotting it at least once, the input-data will not be extracted again.
-    The parquet file has to be deleted before the data can be plotted with the
-    new configuration.
-
+the data configuration file.
 Currently only input-files in the csv-format can be read by the tool.
-For such files the Data Configuration File needs to have the following
+For such files the data configuration file needs to have the following
 structure:
 
 - ``general``:
@@ -87,23 +76,19 @@ Plot Configuration File
 ^^^^^^^^^^^^^^^^^^^^^^^
 
 The plot tool can currently only plot lines.
-
-Several plots can be created with a Plot Configuration File
-and a plot can contain up to three line-graphs.
+Several plots can be created with a plot configuration file
+and a plot can contain up to three axes.
 
 .. note::
     The plot configuration of the example plot displayed at the beginning is
     shown below as a reference,
     with only the Cell Voltage line given for simplicity.
 
-The Plot Configuration File has to contain one block for each plot.
-The key of a plot has to contain the plot-type.
-If the Configuration File contains more than one plot the keys have to be
-numbered with an underscore separating the type from the number.
-
-The block of a plot has four main components:
+The plot configuration file has to contain one block for each plot, where each
+block has five main components:
 
 - ``name``: The name with which the plot is saved in the end.
+- ``type``: The plot type which must be LINE at the moment.
 - ``mapping``: Block that contains the configuration of each graph.
 
     - ``x``: Specifies which column for the x-axis
@@ -142,43 +127,10 @@ The block of a plot has four main components:
     - ``format``: Specifies the format in which the plot will be saved.
       (Defaults to `png`.)
 
-.. code-block:: yaml
-    :linenos:
 
-    LINE_1:
-      name: "cell_voltage_current"
-      time:
-      mapping:
-        x: Test Time
-        x_ticks_count: 7
-        date_format: "%H:%M:%S"
-        y1:
-          input:
-            - Voltage(V)
-          factor: 1
-          min: 3.85
-          max: 4.3
-          labels:
-            - Cell Voltage
-        y2:
-          input:
-            - Current(A)
-          labels:
-            - Current
-      description:
-        title: Cell Voltage, Current
-        x_axis: Date
-        y_axes:
-          - Cell Voltage (V)
-          - Current (A)
-      graph:
-        height_px: 550
-        width_px: 800
-        dpi: 100
-        show: false
-        save: true
-        format: png
-
+.. literalinclude:: img/plot_config.yaml
+    :language: yaml
+    :caption: Configuration for the plots of the plot subcommand
 
 Example
 -------

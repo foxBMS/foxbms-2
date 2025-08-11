@@ -39,5 +39,20 @@ Controller (EMAC) to communicate with the ethernet Physical Layer Transceiver
 
    Block diagram of the ethernet communication
 
+To reference this, the |tcp-ip| communication is structured as shown in the figure below.
+
+.. drawio-figure:: tcp-structure.drawio
+   :format: svg
+   :alt: Software structure of the ethernet communication
+   :name: tcp-structure
+   :width: 130px
+
+   Software structure of the ethernet communication
+
+The related drivers are structured as in the physical structure.
+The phy specific settings and configuration is made in the phy driver ``dp83869.c``.
+Then in the next layer the EMAC driver controlls the EMAC to transmit and receive
+ethernet packages. The EMAC is connected by hardware to the PHY.
+
 The basic usage of the |tcp-ip-stack| with sending a ping signal is explained
 in  :ref:`HOW_TO_PING_FOXBMS`.

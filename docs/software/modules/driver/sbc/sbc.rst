@@ -60,9 +60,13 @@ power the MCU. The MCU will then initialize the SBC, which will return to
 normal operation in Running mode after the initialization is complete.
 This sequence is shown in :numref:`sbc_state_machine_wakeup`.
 
-.. graphviz:: sbc_state_machine_wakeup.dot
-    :caption: SBC wakeup state chart
-    :name: sbc_state_machine_wakeup
+.. drawio-figure:: sbc_state_machine_wakeup.drawio
+   :format: svg
+   :alt: SBC wakeup state chart
+   :name: sbc_state_machine_wakeup
+   :width: 480px
+
+   SBC wakeup state chart
 
 FAQs
 ----

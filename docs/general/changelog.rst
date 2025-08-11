@@ -22,6 +22,12 @@ Versioning follows then these rules:
 - increasing ``PATCH`` introduces minor changes, that only require minor and
   straight forward work to update a project to this version.
 
+*********************
+[1.10.0] - 2025-08-11
+*********************
+
+.. include:: ./changelog-entries/v1.10.0.txt
+
 ********************
 [1.9.0] - 2025-03-31
 ********************

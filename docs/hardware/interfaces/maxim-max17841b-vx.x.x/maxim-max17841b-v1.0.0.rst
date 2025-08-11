@@ -1,12 +1,20 @@
 .. include:: ./../../../macros.txt
 .. include:: ./../../../units.txt
 
-.. _INTERFACE_MAX17841B___V1_0_0__:
 
-Interface MAX17841B ``v1.0.0``
-==============================
+.. |local_bms_interface_version| replace:: ``v1.0.0``
+.. |local_bms_interface_identifier_short| replace:: |max-max17841b|\-based |bms-interface|
+.. |local_bms_interface_identifier_full| replace:: |local_bms_interface_identifier_short| |local_bms_interface_version|
 
-.. |local_interface_version|  replace:: ``1.0.0``
+.. _MAX_MAX17841B_BASED_BMS_INTERFACE_V1_0_0:
+
+|local_bms_interface_identifier_full|
+=====================================
+
+.. note::
+
+   The changelog for this release is found at
+   :numref:`CHANGELOG_FOR_THE_MAX_MAX17841B_BASED_BMS_INTERFACE_V1_0_0`.
 
 --------
 Overview
@@ -14,8 +22,9 @@ Overview
 
 .. important::
 
-   The following description only applies for the |max-max17841b|\ -based
-   |bms-interface| hardware version |local_interface_version|.
+   The following description only applies for the
+   |local_bms_interface_identifier_short|
+   version |local_bms_interface_version|.
 
 .. hint::
 
@@ -26,7 +35,7 @@ Overview
 The |bms-interface| is used to enable communication between the |bms-master|
 and the |bms-slaves|.
 A 3D rendering from the TOP side view of the |bms-interface| is shown in
-:numref:`Fig. %s <interface-max17841b_v1.0.0_rendering>`.
+:numref:`interface-max17841b_v1.0.0_rendering`.
 The |bms-interface| is intended to be used together with a |bms-master|.
 
 .. _interface-max17841b_v1.0.0_rendering:
@@ -43,8 +52,8 @@ Specifications
 Mechanical Dimensions
 ^^^^^^^^^^^^^^^^^^^^^
 
-The size of the PCB is 70 |_| |mm| |_| x |_| 120 |_| |mm|. A 3D-model and a
-drawing of the PCB can be found in :ref:`DESIGN_RESOURCES`
+The size of the PCB is 70 |_| |mm| |_| x |_| 120 |_| |mm|.
+A 3D-model and a drawing of the PCB can be found in :numref:`DESIGN_RESOURCES`.
 
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Battery Management UART Insulation
@@ -75,11 +84,13 @@ Block Diagram
 ^^^^^^^^^^^^^
 
 A block diagram of the |bms-interface| is shown in
-:numref:`Fig. %s <interface-max17841b_v1.0.0_block_diagram>`.
+:numref:`interface-max17841b_v1.0.0_block_diagram`.
 
 .. _interface-max17841b_v1.0.0_block_diagram:
-.. figure:: ./maxim-max17841b-v1.0.0/maxim-max17841b-v1.0.0_block_diagram.png
-   :width: 100 %
+.. drawio-figure:: ./maxim-max17841b-v1.0.0/maxim-max17841b-v1.0.0_block_diagram.drawio
+   :format: svg
+   :width: 80 %
+   :align: center
 
    Block diagram of the |bms-interface|
 

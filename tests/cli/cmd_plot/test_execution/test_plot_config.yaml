@@ -1,5 +1,5 @@
-LINE_1:
-  name: "test_1"
+- name: "test_1"
+  type: "LINE"
   mapping:
     x: Time
     x_ticks_count: 2
@@ -28,8 +28,8 @@ LINE_1:
     show: false
     save: false
     format: png
-LINE_2:
-  name: "test_2"
+- name: "test_2"
+  type: "LINE"
   mapping:
     x: Time
     x_ticks_count: 4
@@ -68,8 +68,8 @@ LINE_2:
     show: false
     save: true
     format: png
-LINE_3:
-  name: "test_3"
+- name: "test_3"
+  type: "LINE"
   mapping:
     x: Time
     x_ticks_count: 1

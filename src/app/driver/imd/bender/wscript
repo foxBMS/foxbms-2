@@ -37,12 +37,10 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""Helper Build Script: ``./src/app/driver/imd/bender/wscript``
-============================================================
-
-Helper script to build a bender insulation measurement device"""
+"""Propagate the 'IMD'-driver build process to the lower level build scripts
+for the specific IMD model."""
 
 
 def build(bld):
-    """selects the insulation monitoring device"""
+    """Propagate build process to a lower level build script"""
     bld.recurse(bld.env.imd_model)

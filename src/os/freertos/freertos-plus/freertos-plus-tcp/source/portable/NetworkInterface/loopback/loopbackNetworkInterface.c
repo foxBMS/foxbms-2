@@ -1,5 +1,5 @@
 /*
- * FreeRTOS+TCP V4.2.1
+ * FreeRTOS+TCP V4.3.2
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -134,23 +134,23 @@ static BaseType_t prvLoopback_Output( NetworkInterface_t * pxInterface,
     }
 
     {
-        MACAddress_t xMACAddress;
+        const MACAddress_t * pxMACAddress = &( pxDescriptor->pxEndPoint->xMACAddress );
 
         if( pxDescriptor->pxEndPoint->bits.bIPv6 != 0 )
         {
             #if ( ipconfigUSE_IPv6 != 0 )
-                if( xIsIPv6Loopback( &( pxDescriptor->xIPAddress ) ) != pdFALSE )
+                if( xIsIPv6Loopback( &( pxDescriptor->xIPAddress.xIP_IPv6 ) ) != pdFALSE )
                 {
-                    vNDRefreshCacheEntry( &xMACAddress, &( pxDescriptor->xIPAddress.xIP_IPv6 ), pxDescriptor->pxEndPoint );
+                    vNDRefreshCacheEntry( pxMACAddress, &( pxDescriptor->xIPAddress.xIP_IPv6 ), pxDescriptor->pxEndPoint );
                 }
             #endif
         }
         else
         {
             #if ( ipconfigUSE_IPv4 != 0 )
-                if( xIsIPv4Loopback( pxDescriptor->xIPAddress.ulIP_IPv4 ) )
+                if( xIsIPv4Loopback( pxDescriptor->xIPAddress.ulIP_IPv4 ) != pdFALSE )
                 {
-                    vARPRefreshCacheEntry( &xMACAddress, pxDescriptor->xIPAddress.ulIP_IPv4, pxDescriptor->pxEndPoint );
+                    vARPRefreshCacheEntry( pxMACAddress, pxDescriptor->xIPAddress.ulIP_IPv4, pxDescriptor->pxEndPoint );
                 }
             #endif
         }
@@ -170,11 +170,21 @@ static BaseType_t prvLoopback_Output( NetworkInterface_t * pxInterface,
         xRxEvent.eEventType = eNetworkRxEvent;
         xRxEvent.pvData = ( void * ) pxDescriptor;
 
-        if( xSendEventStructToIPTask( &xRxEvent, 0u ) != pdTRUE )
+        pxDescriptor->pxInterface = xLoopbackInterface;
+        pxDescriptor->pxEndPoint = FreeRTOS_MatchingEndpoint( xLoopbackInterface, pxDescriptor->pucEthernetBuffer );
+
+        if( pxDescriptor->pxEndPoint == NULL )
         {
             vReleaseNetworkBufferAndDescriptor( pxDescriptor );
             iptraceETHERNET_RX_EVENT_LOST();
-            FreeRTOS_printf( ( "prvEMACRxPoll: Can not queue return packet!\n" ) );
+            FreeRTOS_printf( ( "prvLoopback_Output: Can not find a proper endpoint\n" ) );
+        }
+        else if( xSendEventStructToIPTask( &xRxEvent, 0u ) != pdTRUE )
+        {
+            /* Sending failed, release the descriptor. */
+            vReleaseNetworkBufferAndDescriptor( pxDescriptor );
+            iptraceETHERNET_RX_EVENT_LOST();
+            FreeRTOS_printf( ( "prvLoopback_Output: Can not queue return packet!\n" ) );
         }
     }
 

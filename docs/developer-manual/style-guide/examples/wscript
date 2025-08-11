@@ -37,14 +37,8 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""Build Script: ``./docs/software/style-guide/examples/wscript``
-=================================================================
-
-Builds the guidelines examples in order to verify that the code is valid.
-
-This build script is not meant to be reused!
-
-"""
+"""Build the guidelines examples in order to verify that the code is valid.
+This build script is not meant to be reused!"""
 
 import collections
 

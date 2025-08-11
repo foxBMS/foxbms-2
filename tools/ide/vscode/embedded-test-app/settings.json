@@ -41,6 +41,7 @@
     "**/.DS_Store": true,
     "**/.git": true,
     "**/.hg": true,
+    "**/.mypy_cache/**": true,
     "**/.svn": true,
     "**/.vscode/**": true,
     "**/CVS": true,
@@ -66,5 +67,6 @@
     "**/node_modules": true
   },
   "task.autoDetect": "off",
-  "terminal.integrated.persistentSessionReviveProcess": "never"
+  "terminal.integrated.persistentSessionReviveProcess": "never",
+  "git.openRepositoryInParentFolders": "always"
 }

@@ -39,6 +39,7 @@
 
 """Testing file 'cli/cmd_build/build_impl.py'."""
 
+import importlib
 import sys
 import unittest
 from pathlib import Path
@@ -56,6 +57,10 @@ except ModuleNotFoundError:
 
 class TestRunWaf(unittest.TestCase):
     """Test the 'waf' wrapper."""
+
+    def setUp(self):
+        importlib.reload(build_impl)
+        return super().setUp()
 
     @patch("cli.cmd_build.build_impl.run_process")
     def test_run_waf(self, mock_run_process: MagicMock):
@@ -79,6 +84,24 @@ class TestRunWaf(unittest.TestCase):
         result = build_impl.run_top_level_waf(["--help"])
         expected_cmd = [
             sys.executable,
+            str(Path(__file__).parents[3] / "tools/waf"),
+            "--help",
+        ]
+        mock_run_process.assert_called_once_with(
+            expected_cmd, cwd=Path(__file__).parents[3], stdout=PIPE, stderr=PIPE
+        )
+        self.assertEqual(result.returncode, 0)
+
+    @patch("sys.platform", new="linux")
+    def test_run_waf_linux(self):
+        """Test the 'run_waf' function on Linux."""
+        importlib.reload(build_impl)
+        mock_run_process = MagicMock()
+        mock_run_process.return_value = SubprocessResult(0)
+        build_impl.run_process = mock_run_process
+        result = build_impl.run_waf(["--help"])
+        expected_cmd = [
+            sys.executable.replace("pythonw.exe", "python.exe"),
             str(Path(__file__).parents[3] / "tools/waf"),
             "--help",
         ]

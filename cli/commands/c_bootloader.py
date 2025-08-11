@@ -59,60 +59,56 @@ def cmd_run_app(
     ctx: click.Context, interface: str, channel: str, bitrate: int, verbose: int
 ) -> None:
     """Run the BMS application."""
-    bitrate_int = int(bitrate)  # this is guaranteed to work due to the choice list
-    bus_cfg = CanBusConfig(interface=interface, channel=channel, bitrate=bitrate_int)
-    ctx.exit(bootloader_impl.run_app(bus_cfg))
+    bus_cfg = CanBusConfig(interface=interface, channel=channel, bitrate=bitrate)
+    ctx.exit(bootloader_impl.run_app(bus_cfg=bus_cfg))
 
 
 @bootloader.command("load-app")
 @click.option(
     "-t",
     "--timeout",
-    default=20,
-    type=int,
+    default=20.0,
+    type=float,
     help="Timeout in seconds",
 )
 @common_can_options
 @verbosity_option
 @click.pass_context
-# pylint: disable-next=too-many-arguments,too-many-positional-arguments
 def cmd_load_app(
     ctx: click.Context,
-    timeout: int,
+    timeout: float,
     interface: str,
     channel: str,
     bitrate: int,
     verbose: int,
 ) -> None:
     """Load the application program on the BMS."""
-    bitrate_int = int(bitrate)  # this is guaranteed to work due to the choice list
-    bus_cfg = CanBusConfig(interface=interface, channel=channel, bitrate=bitrate_int)
-    ctx.exit(bootloader_impl.load_app(bus_cfg, timeout))
+    bus_cfg = CanBusConfig(interface=interface, channel=channel, bitrate=bitrate)
+    ctx.exit(bootloader_impl.load_app(bus_cfg=bus_cfg, timeout=timeout))
 
 
 @bootloader.command("reset")
 @click.option(
     "-t",
     "--timeout",
-    default=20,
-    type=int,
+    default=20.0,
+    type=float,
     help="Timeout in seconds",
 )
 @common_can_options
 @verbosity_option
 @click.pass_context
-def cmd_reset(  # pylint: disable=too-many-arguments,too-many-positional-arguments
+def cmd_reset(
     ctx: click.Context,
-    timeout: int,
+    timeout: float,
     interface: str,
     channel: str,
     bitrate: int,
     verbose: int,
 ) -> None:
     """Reset the bootloader."""
-    bitrate_int = int(bitrate)  # this is guaranteed to work due to the choice list
-    bus_cfg = CanBusConfig(interface=interface, channel=channel, bitrate=bitrate_int)
-    ctx.exit(bootloader_impl.reset_bootloader(bus_cfg, timeout))
+    bus_cfg = CanBusConfig(interface=interface, channel=channel, bitrate=bitrate)
+    ctx.exit(bootloader_impl.reset_bootloader(bus_cfg=bus_cfg, timeout=timeout))
 
 
 @bootloader.command("check")
@@ -124,6 +120,5 @@ def cmd_check(
 ) -> None:
     """Check the state of bootloader."""
 
-    bitrate_int = int(bitrate)  # this is guaranteed to work due to the choice list
-    bus_cfg = CanBusConfig(interface=interface, channel=channel, bitrate=bitrate_int)
+    bus_cfg = CanBusConfig(interface=interface, channel=channel, bitrate=bitrate)
     ctx.exit(bootloader_impl.check_bootloader(bus_cfg))

@@ -41,19 +41,17 @@
 can messages in dict. The members of the Enum classes that end with 'Str' have
 the string type of value."""
 
-import sys
 from enum import Enum
 from pathlib import Path
-from typing import TypedDict, cast
+from typing import TypedDict
 
-import cantools
-import cantools.database
+from cantools import database
 
 from ..helpers.misc import BOOTLOADER_DBC_FILE
 
 
-# pylint:disable=C0103
-class YesNoAnswer(Enum):
+# pylint:disable=invalid-name
+class YesNoFlag(Enum):
     """Enum from dbc file"""
 
     No = 0
@@ -91,7 +89,7 @@ class StatusCode(Enum):
     Error = 3
 
 
-class RequestCode8Bits(Enum):
+class BootloaderAction(Enum):
     """Enum from dbc file"""
 
     CmdToTransferProgram = 1
@@ -129,7 +127,7 @@ class BootFsmState(Enum):
     BootFsmStateError = 5
 
 
-# pylint:enable=C0103
+# pylint:enable=invalid-name
 
 
 class AcknowledgeMessageType(TypedDict):
@@ -138,7 +136,7 @@ class AcknowledgeMessageType(TypedDict):
     AcknowledgeFlag: str
     AcknowledgeMessage: str
     StatusCode: str
-    YesNoAnswer: str
+    Response: str
 
 
 class DataTransferInfoType(TypedDict):
@@ -169,17 +167,21 @@ class BootloaderFsmStatesType(TypedDict):
 class Messages:
     """This class provides the methods to get valid messages"""
 
-    def __init__(self, dbc_file: Path = BOOTLOADER_DBC_FILE):
+    def __init__(self, dbc_file: Path = BOOTLOADER_DBC_FILE) -> None:
         if not dbc_file.is_file():
-            sys.exit(f"The provided dbc file '{dbc_file}' does not exist.")
-
-        db = cantools.database.load_file(dbc_file)
-        self.db = cast(cantools.database.can.database.Database, db)
+            raise SystemExit(f"File '{dbc_file}' does not exist.")
+        db = database.load_file(dbc_file)
+        if not isinstance(db, database.can.database.Database):
+            raise SystemExit(
+                f"Expected '{dbc_file}' to contain a CAN database, but "
+                f"type is '{type(db)}'."
+            )
+        self.db = db
         self.message_names = [
             message.name for message in getattr(self.db, "messages", [])
         ]
         if not self.message_names:
-            sys.exit("There are no messages in the database file.")
+            raise SystemExit("There are no messages in the database file.")
 
     def _get_message(self, name: str, **kwargs):
         """Get valid CAN message.
@@ -193,7 +195,7 @@ class Messages:
         if name in self.message_names:
             can_message = self.db.get_message_by_name(name)
         else:
-            sys.exit(
+            raise SystemExit(
                 f"The name of message '{name}' cannot be found in the CAN database."
             )
         message = {}
@@ -203,20 +205,24 @@ class Messages:
             if key in signal_names:
                 signal = can_message.get_signal_by_name(key)
                 if not self._check_range(signal, value):
-                    sys.exit(f"The value of the signal '{key}' is out of range.")
+                    raise SystemExit(
+                        f"The value of the signal '{key}' is out of range."
+                    )
                 if not self._check_enum(signal, value):
-                    sys.exit(
+                    raise SystemExit(
                         f"The value of the signal '{key}' is not in the "
                         "corresponding enum."
                     )
                 message[key] = value
             else:
-                sys.exit(f"Cannot find the signal '{key}' in CAN message '{name}'.")
+                raise SystemExit(
+                    f"Cannot find the signal '{key}' in CAN message '{name}'."
+                )
         return message
 
     def _check_range(
-        self, signal: cantools.database.can.signal.Signal, signal_value: float
-    ):
+        self, signal: database.can.signal.Signal, signal_value: float
+    ) -> bool:
         """Check if the CAN signal value is in its range.
 
         Args:
@@ -226,15 +232,15 @@ class Messages:
         Returns:
             True if the CAN signal value is in range.
         """
-        if (signal_value > cast(float, signal.maximum)) or (
-            signal_value < cast(float, signal.minimum)
-        ):
+        if signal.maximum is not None and (signal_value > signal.maximum):
+            return False
+        if signal.minimum is not None and (signal_value < signal.minimum):
             return False
         return True
 
     def _check_enum(
-        self, signal: cantools.database.can.signal.Signal, signal_value: int
-    ):
+        self, signal: database.can.signal.Signal, signal_value: int
+    ) -> bool:
         """Check if the CAN signal value is one of its enum values,
         if this signal has enum.
 
@@ -259,7 +265,7 @@ class Messages:
             dict: message.
         """
         return self._get_message(
-            name="f_BootloaderActionRequest", RequestCode8Bits=request_code.value
+            name="f_BootloaderActionRequest", BootloaderAction=request_code.value
         )
 
     def get_message_transfer_program_info(
@@ -271,7 +277,7 @@ class Messages:
             dict: a CAN message.
         """
         return self._get_message(
-            name="f_TransferProcessInfo",
+            name="f_BootloaderTransferProcessInfo",
             ProgramLength=len_of_program_in_bytes,
             RequiredTransferLoops=num_of_transfer_loops,
         )
@@ -282,7 +288,7 @@ class Messages:
         Returns:
             dict: message.
         """
-        return self._get_message(name="f_Data8Bytes", Data=data_8_bytes)
+        return self._get_message(name="f_BootloaderData8Bytes", Data=data_8_bytes)
 
     def get_message_crc_8_bytes(self, crc_8_bytes: int) -> dict:
         """Get CRC 8 bytes CAN message for sending.
@@ -290,7 +296,7 @@ class Messages:
         Returns:
             dict: message.
         """
-        return self._get_message(name="f_Crc8Bytes", Crc=crc_8_bytes)
+        return self._get_message(name="f_BootloaderCrc8Bytes", Crc=crc_8_bytes)
 
     def get_message_loop_info(self, num_of_loop: int) -> dict:
         """Get loop info CAN message for sending.
@@ -298,4 +304,4 @@ class Messages:
         Returns:
             dict: message.
         """
-        return self._get_message(name="f_LoopInfo", LoopNumber=num_of_loop)
+        return self._get_message(name="f_BootloaderLoopInfo", LoopNumber=num_of_loop)

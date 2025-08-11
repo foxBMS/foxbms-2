@@ -43,28 +43,28 @@
  * @file    test_nxp_mc33775a_cfg.c
  * @author  foxBMS Team
  * @date    2020-06-10 (date of creation)
- * @updated 2025-03-31 (date of last update)
- * @version v1.9.0
+ * @updated 2025-08-07 (date of last update)
+ * @version v1.10.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
- * @brief   Test of some module
+ * @brief   Test of nxp_mc33775a_cfg.c
  * @details TODO
  *
  */
 
 /*========== Includes =======================================================*/
 #include "unity.h"
-#include "Mocktsi.h"
 
 /*========== Unit Testing Framework Directives ==============================*/
 TEST_SOURCE_FILE("nxp_mc33775a_cfg.c")
 
 TEST_INCLUDE_PATH("../../src/app/driver/afe/api")
+TEST_INCLUDE_PATH("../../src/app/driver/afe/nxp/common/mc3377x")
 TEST_INCLUDE_PATH("../../src/app/driver/afe/nxp/mc33775a")
+TEST_INCLUDE_PATH("../../src/app/driver/afe/nxp/mc33775a/config")
 TEST_INCLUDE_PATH("../../src/app/driver/config")
 TEST_INCLUDE_PATH("../../src/app/driver/spi")
-TEST_INCLUDE_PATH("../../src/app/driver/ts/api")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 

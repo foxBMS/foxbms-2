@@ -43,8 +43,8 @@
  * @file    can_cbs_tx_fatal-error.c
  * @author  foxBMS Team
  * @date    2024-10-17 (date of creation)
- * @updated 2025-03-31 (date of last update)
- * @version v1.9.0
+ * @updated 2025-08-07 (date of last update)
+ * @version v1.10.0
  * @ingroup DRIVERS
  * @prefix  CANTX
  *
@@ -60,7 +60,7 @@
 #include "can_helper.h"
 
 /*========== Macros and Definitions =========================================*/
-#define CANTX_FATAL_ERROR_START_BIT (0u)
+#define CANTX_FATAL_ERROR_START_BIT (7u)
 #define CANTX_FATAL_ERROR_LENGTH    (8u)
 
 /*========== Static Constant and Variable Definitions =======================*/

@@ -42,7 +42,7 @@
 import click
 
 from ..cmd_install import install_impl
-from ..helpers.click_helpers import HELP_NAMES, verbosity_option
+from ..helpers.click_helpers import HELP_NAMES, echo, verbosity_option
 
 
 @click.command(context_settings=HELP_NAMES)
@@ -60,5 +60,5 @@ def install(ctx: click.Context, check: bool, verbose: int = 0) -> None:
     if check:
         err += install_impl.all_software_available()
     else:
-        click.echo(install_impl.INSTALL_MESSAGE)
+        echo(install_impl.INSTALL_MESSAGE)
     ctx.exit(err)

@@ -39,12 +39,18 @@
 
 """Testing file 'cli/commands/c_bms.py'."""
 
+import sys
 import unittest
+from pathlib import Path
 from unittest.mock import patch
 
 from click.testing import CliRunner
 
-from cli.cli import main
+try:
+    from cli.cli import main
+except ModuleNotFoundError:
+    sys.path.insert(0, str(Path(__file__).parents[3]))
+    from cli.cli import main
 
 
 class TestFoxCliMainCommandBms(unittest.TestCase):
@@ -53,7 +59,7 @@ class TestFoxCliMainCommandBms(unittest.TestCase):
     @patch("cmd.Cmd.cmdloop")
     def test_bms(self, mock_cmdloop):
         """Test 'fox.py bms' command"""
-        runner = CliRunner(mix_stderr=False)
+        runner = CliRunner()
         result = runner.invoke(main, ["bms"])
         self.assertEqual(0, result.exit_code)
         self.assertEqual("", result.stderr)

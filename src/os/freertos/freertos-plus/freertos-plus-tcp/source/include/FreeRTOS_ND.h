@@ -1,5 +1,5 @@
 /*
- * FreeRTOS+TCP V2.3.1
+ * FreeRTOS+TCP V4.3.2
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -32,7 +32,7 @@
 #include "FreeRTOSIPConfig.h"
 #include "FreeRTOSIPConfigDefaults.h"
 
-#include "FreeRTOS_ARP.h"
+#include "FreeRTOS_Routing.h"
 
 /* *INDENT-OFF* */
 #ifdef __cplusplus
@@ -88,14 +88,14 @@
  *
  * @note Look for ulIPAddress in the ND cache.  If the IP address exists, copy the
  * associated MAC address into pxMACAddress, refresh the ND cache entry's
- * age, and return eARPCacheHit.  If the IP address does not exist in the ND
- * cache return eARPCacheMiss.  If the packet cannot be sent for any reason
+ * age, and return eResolutionCacheHit.  If the IP address does not exist in the ND
+ * cache return eResolutionCacheMiss.  If the packet cannot be sent for any reason
  * (maybe DHCP is still in process, or the addressing needs a gateway but there
- * isn't a gateway defined) then return eCantSendPacket.
+ * isn't a gateway defined) then return eResolutionFailed.
  */
-    eARPLookupResult_t eNDGetCacheEntry( IPv6_Address_t * pxIPAddress,
-                                         MACAddress_t * const pxMACAddress,
-                                         struct xNetworkEndPoint ** ppxEndPoint );
+    eResolutionLookupResult_t eNDGetCacheEntry( IPv6_Address_t * pxIPAddress,
+                                                MACAddress_t * const pxMACAddress,
+                                                struct xNetworkEndPoint ** ppxEndPoint );
 
 /**
  * @brief Reduce the age counter in each entry within the ND cache.  An entry is no
@@ -204,8 +204,16 @@
         void FreeRTOS_PrintNDCache( void );
     #endif
 
+    BaseType_t xCheckRequiresNDResolution( const NetworkBufferDescriptor_t * pxNetworkBuffer );
+
+/* Clear all entries in the ND cache. */
+    void FreeRTOS_ClearND( const struct xNetworkEndPoint * pxEndPoint );
+
+    void vNDSendUnsolicited( void );
+
     extern const uint8_t pcLOCAL_ALL_NODES_MULTICAST_IP[ ipSIZE_OF_IPv6_ADDRESS ];
     extern const uint8_t pcLOCAL_ALL_NODES_MULTICAST_MAC[ ipMAC_ADDRESS_LENGTH_BYTES ];
+
 #endif /* ipconfigUSE_IPv6 != 0 */
 
 

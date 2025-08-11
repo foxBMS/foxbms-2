@@ -1,17 +1,20 @@
 .. include:: ./../../../../macros.txt
 .. include:: ./../../../../units.txt
 
-.. _MASTER_TMS570___V1_2_2___PINOUT:
 
-Master TMS570 ``v1.2.2`` Pinout
-===============================
+.. |local_bms_master_version| replace:: ``v1.2.2``
+.. |local_bms_master_identifier_short| replace:: |ti-tms570|\-based |bms-master|
+.. |local_bms_master_identifier_full| replace:: |local_bms_master_identifier_short| |local_bms_master_version|
 
-.. |local_master_version|  replace:: ``v1.2.2``
+.. _TI_TMS570_BASED_BMS_MASTER_V1_2_2_PINOUT:
+
+|local_bms_master_identifier_full| Pinout
+=========================================
 
 .. important::
 
    The following description only applies for the |bms-master| hardware version
-   |local_master_version|.
+   |local_bms_master_version|.
 
 .. important::
 
@@ -27,7 +30,32 @@ Master TMS570 ``v1.2.2`` Pinout
    :ref:`CONVENTION_FOR_WUERTH_WR_MJ_CONNECTOR_PIN_NUMBERING`.
 
 This section describes the pinout of all connectors on the |bms-master|
-|local_master_version|.
+|local_bms_master_version|.
+
+
+Pinout Overview
+###############
+
+The pinout of this |bms-master| is shown in the
+:numref:`ti-tms570lc4357-v1.2.2_pinout-img` and
+:numref:`ti-tms570lc4357-v1.2.2_pinout-table`.
+
+.. drawio-figure:: ./pinout/ti-tms570lc4357-v1.2.2_pinout.drawio
+   :format: svg
+   :alt: ti-tms570lc4357-v1.2.2_pinout-img
+   :name: ti-tms570lc4357-v1.2.2_pinout-img
+   :width: 1040px
+
+   |bms-master| connectors
+
+.. csv-table:: |bms-master| connectors description
+   :file: ./pinout/ti-tms570lc4357-v1.2.2_pinout.csv
+   :name: ti-tms570lc4357-v1.2.2_pinout-table
+   :header-rows: 1
+   :delim: ;
+   :widths: 20 40 40
+
+.. _ti-tms570lc4357-v1.2.2_pinout_supply:
 
 Supply
 ######
@@ -42,6 +70,8 @@ Micro-Fit 3.0 connector (J2009) with the pinout depicted in table
    :delim: ,
    :file: ./pinout/ti-tms570lc4357-v1.2.2_supply_ext.csv
 
+.. _ti-tms570lc4357-v1.2.2_pinout_can1:
+
 CAN1
 ####
 
@@ -54,6 +84,8 @@ with the pinout depicted in table
    :header-rows: 1
    :delim: ,
    :file: ./pinout/ti-tms570lc4357-v1.2.2_can1.csv
+
+.. _ti-tms570lc4357-v1.2.2_pinout_can2:
 
 CAN2 (isolated)
 ###############
@@ -68,7 +100,9 @@ An isolated CAN interface is provided on a 4 pin Molex Micro-Fit 3.0 connector
    :delim: ,
    :file: ./pinout/ti-tms570lc4357-v1.2.2_can2.csv
 
-Insulation monitoring
+.. _ti-tms570lc4357-v1.2.2_pinout_insulation_monitoring:
+
+Insulation Monitoring
 #####################
 
 A Bender IR155-3204 insulation monitoring device can be connected to the
@@ -82,6 +116,8 @@ following pinout described in
    :delim: ,
    :file: ./pinout/ti-tms570lc4357-v1.2.2_isomon.csv
 
+.. _ti-tms570lc4357-v1.2.2_pinout_interlock:
+
 Interlock
 #########
 
@@ -94,6 +130,8 @@ The pinout is depicted in :numref:`Table %s <ti-tms570lc4357-v1.2.2_interlock>`.
    :header-rows: 1
    :delim: ,
    :file: ./pinout/ti-tms570lc4357-v1.2.2_interlock.csv
+
+.. _ti-tms570lc4357-v1.2.2_pinout_smart_power_switches:
 
 Smart Power Switches
 ####################
@@ -111,7 +149,9 @@ The pinout for each output smart power switch output ``X`` is depicted in
    :delim: ,
    :file: ./pinout/ti-tms570lc4357-v1.2.2_sps.csv
 
-Interface connector
+.. _ti-tms570lc4357-v1.2.2_pinout_interface_connector:
+
+Interface Connector
 ###################
 
 For the connection to the |bms-interface|, a 40-pole Samtec Edge Rate mezzanine
@@ -124,6 +164,8 @@ The pinout and pin usage is described in
    :header-rows: 1
    :delim: ,
    :file: ./pinout/ti-tms570lc4357-v1.2.2_interface.csv
+
+.. _ti-tms570lc4357-v1.2.2_pinout_extension_connector:
 
 Extension connector
 ###################
@@ -139,7 +181,9 @@ The pinout and pin usage is described in
    :delim: ,
    :file: ./pinout/ti-tms570lc4357-v1.2.2_extension.csv
 
-Debug connector
+.. _ti-tms570lc4357-v1.2.2_pinout_debug_connector:
+
+Debug Connector
 ###############
 
 For the connection of a debugger to the |bms-master|, a 38-pole Mictor
@@ -153,6 +197,8 @@ The pinout and pin usage is described in
    :delim: ,
    :file: ./pinout/ti-tms570lc4357-v1.2.2_debug.csv
 
+.. _ti-tms570lc4357-v1.2.2_pinout_rs485:
+
 RS485
 #####
 
@@ -165,6 +211,8 @@ The pinout is depicted in :numref:`Table %s <ti-tms570lc4357-v1.2.2_rs485>`.
    :header-rows: 1
    :delim: ,
    :file: ./pinout/ti-tms570lc4357-v1.2.2_rs485.csv
+
+.. _ti-tms570lc4357-v1.2.2_pinout_ethernet:
 
 Ethernet
 ########

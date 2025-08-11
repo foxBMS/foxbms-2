@@ -39,7 +39,6 @@
 
 """Build the FreeRTOS Plus TCP library"""
 
-
 def build(bld):
     """Build the FreeRTOS Plus TCP library"""
     source = [
@@ -85,8 +84,12 @@ def build(bld):
         "FreeRTOS_UDP_IP.c",
         "FreeRTOS_UDP_IPv4.c",
         "FreeRTOS_UDP_IPv6.c",
+        "portable/BufferManagement/BufferAllocation_1.c"
     ]
-    includes = ["include", "portable/Compiler/CCS"]
+    includes = [
+        "include",
+        "portable/Compiler/CCS",
+    ]
     includes.extend(bld.env.INCLUDES_RTOS)
 
     target = f"{bld.env.APPNAME.lower()}-tcp"

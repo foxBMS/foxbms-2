@@ -43,8 +43,8 @@
  * @file    test_os_freertos.c
  * @author  foxBMS Team
  * @date    2021-11-26 (date of creation)
- * @updated 2025-03-31 (date of last update)
- * @version v1.9.0
+ * @updated 2025-08-07 (date of last update)
+ * @version v1.10.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *
@@ -61,6 +61,7 @@
 
 /*========== Includes =======================================================*/
 #include "unity.h"
+#include "MockHL_sys_core.h"
 #include "Mockcan_cbs_tx_crash-dump.h"
 #include "Mockftask.h"
 #include "Mockftask_cfg.h"
@@ -84,6 +85,16 @@ TEST_INCLUDE_PATH("../../src/app/task/ftask")
 
 /*========== Definitions and Implementations for Unit Test ==================*/
 
+TaskHandle_t ftsk_testtaskHandle;
+OS_QUEUE ftsk_testQueue;
+
+/* Declaration for mocked test functions used */
+void mock_vApplicationGetIdleTaskMemory(
+    StaticTask_t **ppxIdleTaskTCBBuffer,
+    StackType_t **ppxIdleTaskStackBuffer,
+    configSTACK_DEPTH_TYPE *pulIdleTaskStackSize);
+void mock_vApplicationStackOverflowHook(TaskHandle_t xTask, char *pcTaskName);
+
 /*========== Setup and Teardown =============================================*/
 void setUp(void) {
 }
@@ -92,23 +103,193 @@ void tearDown(void) {
 }
 
 /*========== Test Cases =====================================================*/
+void testOS_InitializeScheduler(void) {
+    _cacheDisable__Expect();
+    OS_InitializeScheduler();
+}
+
 /** test that #OS_StartScheduler calls the relevant FreeRTOS function */
 void testOS_StartScheduler(void) {
     vTaskStartScheduler_Expect();
     TEST_ASSERT_FAIL_ASSERT(OS_StartScheduler());
 }
 
-void testvApplicationIdleHookCallsUserCodeIdle(void) {
-    /* TODO: Fix the multiple definition through mocking a user definied function in Issue #1063
-    * FreeRTOSConfig.h needs to bee included in os related unit tests. As the some functions are user
-    * implemented, FreeRTOS only supplies the declaration of them in task.h. In os_freertos.c this collides with the
-    * actual definition. When implementing vApplicationIdleHook as weak the unit test fails as then the mock is tested.
-    */
+#if (configUSE_TIMERS > 0) && (configSUPPORT_STATIC_ALLOCATION == 1)
+void testvApplicationGetTimerTaskMemory(void) {
+    StaticTask_t *ppxTimerTaskTCBBuffer  = NULL;
+    StackType_t *ppxTimerTaskStackBuffer = NULL;
+    configSTACK_DEPTH_TYPE pulTimerTaskStackSize;
+    vApplicationGetTimerTaskMemory(&ppxTimerTaskTCBBuffer, &ppxTimerTaskStackBuffer, &pulTimerTaskStackSize);
+}
+#endif /* configUSE_TIMERS */
 
-    /*
+void testvApplicationGetIdleTaskMemory(void) {
+    StaticTask_t *pxIdleTaskTCBBuffer  = NULL;
+    StackType_t *pxIdleTaskStackBuffer = NULL;
+    configSTACK_DEPTH_TYPE uxIdleTaskStackSize;
+    /* Assertion tests */
+    TEST_ASSERT_FAIL_ASSERT(vApplicationGetIdleTaskMemory(NULL_PTR, &pxIdleTaskStackBuffer, &uxIdleTaskStackSize));
+    TEST_ASSERT_FAIL_ASSERT(vApplicationGetIdleTaskMemory(&pxIdleTaskTCBBuffer, NULL_PTR, &uxIdleTaskStackSize));
+    TEST_ASSERT_FAIL_ASSERT(vApplicationGetIdleTaskMemory(&pxIdleTaskTCBBuffer, &pxIdleTaskStackBuffer, NULL_PTR));
+
+    /* Unit test */
+    vApplicationGetIdleTaskMemory(&pxIdleTaskTCBBuffer, &pxIdleTaskStackBuffer, &uxIdleTaskStackSize);
+}
+
+void testvApplicationIdleHookCallsUserCodeIdle(void) {
     FTSK_RunUserCodeIdle_Expect();
     vApplicationIdleHook();
-    */
+}
+
+#if (configCHECK_FOR_STACK_OVERFLOW > 0)
+void testvApplicationStackOverflowHook(void) {
+    TaskHandle_t *pxOverflowTask = NULL;
+    char *pcOverflowTaskName     = "test-overflow";
+    CANTX_CrashDump_Expect(CANTX_FATAL_ERRORS_ACTIONS_STACK_OVERFLOW);
+    vApplicationStackOverflowHook((TaskHandle_t)pxOverflowTask, pcOverflowTaskName);
+}
+#endif /* configCHECK_FOR_STACK_OVERFLOW */
+
+void testOS_EnterTaskCritical(void) {
+    vPortEnterCritical_Expect();
+    OS_EnterTaskCritical();
+}
+
+void testOS_ExitTaskCritical(void) {
+    vPortExitCritical_Expect();
+    OS_ExitTaskCritical();
+}
+
+void testOS_GetTickCount(void) {
+    xTaskGetTickCount_ExpectAndReturn(0u);
+    OS_GetTickCount();
+}
+
+void testOS_DelayTask(void) {
+    TEST_ASSERT_FAIL_ASSERT(OS_DelayTask(0u));
+    vTaskDelay_Expect((TickType_t)1u);
+
+    OS_DelayTask(1u);
+}
+
+void testOS_DelayTaskUntil(void) {
+    uint32_t pPreviousWakeTime = 0u;
+    uint32_t milliseconds      = 1u;
+    TEST_ASSERT_FAIL_ASSERT(OS_DelayTaskUntil(NULL_PTR, milliseconds));
+    TEST_ASSERT_FAIL_ASSERT(OS_DelayTaskUntil(&pPreviousWakeTime, 0u));
+
+    /* Test with valid delay */
+    uint32_t ticks = (milliseconds / OS_TICK_RATE_MS);
+    xTaskDelayUntil_ExpectAndReturn((TickType_t *)&pPreviousWakeTime, (TickType_t)ticks, 0u);
+    OS_DelayTaskUntil(&pPreviousWakeTime, milliseconds);
+
+    /* Testing if minimal delay is used */
+    milliseconds = 0u;
+    if ((uint32_t)ticks < 1u) {
+        ticks = 1u; /* Minimum delay is 1 tick */
+    }
+    xTaskDelayUntil_ExpectAndReturn((TickType_t *)&pPreviousWakeTime, (TickType_t)ticks, 0u);
+    OS_DelayTaskUntil(&pPreviousWakeTime, milliseconds);
+}
+
+void testOS_WaitForNotification(void) {
+    uint32_t pNotifiedValue = 0u;
+    uint32_t timeout        = 1u;
+    TEST_ASSERT_FAIL_ASSERT(OS_WaitForNotification(NULL_PTR, timeout));
+
+    /* Test function with Notification true */
+    xTaskGenericNotifyWait_ExpectAndReturn(
+        tskDEFAULT_INDEX_TO_NOTIFY, UINT32_MAX, UINT32_MAX, &pNotifiedValue, timeout, pdTRUE);
+    OS_WaitForNotification(&pNotifiedValue, timeout);
+
+    /* Test function with Notification false */
+    xTaskGenericNotifyWait_ExpectAndReturn(
+        tskDEFAULT_INDEX_TO_NOTIFY, UINT32_MAX, UINT32_MAX, &pNotifiedValue, timeout, pdFALSE);
+    OS_WaitForNotification(&pNotifiedValue, timeout);
+}
+
+void testOS_NotifyFromIsr(void) {
+    TaskHandle_t taskToNotify = ftsk_testtaskHandle;
+    uint32_t notifiedValue    = 0u;
+    TEST_ASSERT_FAIL_ASSERT(OS_NotifyFromIsr(NULL_PTR, notifiedValue));
+
+    /* Test function with Notification true */
+    BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+    xTaskGenericNotifyFromISR_ExpectAndReturn(
+        taskToNotify,
+        tskDEFAULT_INDEX_TO_NOTIFY,
+        notifiedValue,
+        eSetValueWithOverwrite,
+        NULL,
+        &xHigherPriorityTaskWoken,
+        pdTRUE);
+    OS_NotifyFromIsr(taskToNotify, notifiedValue);
+
+    /* Test function with Notification false */
+    xTaskGenericNotifyFromISR_ExpectAndReturn(
+        taskToNotify,
+        tskDEFAULT_INDEX_TO_NOTIFY,
+        notifiedValue,
+        eSetValueWithOverwrite,
+        NULL,
+        &xHigherPriorityTaskWoken,
+        pdFALSE);
+    OS_NotifyFromIsr(taskToNotify, notifiedValue);
+}
+
+void testOS_WaitForNotificationIndexed(void) {
+    uint32_t pNotifiedValue = 0u;
+    uint32_t timeout        = 1u;
+    TEST_ASSERT_FAIL_ASSERT(OS_WaitForNotificationIndexed(2u, NULL_PTR, timeout));
+
+    /* Test function with Notification true */
+    xTaskGenericNotifyWait_ExpectAndReturn(2u, UINT32_MAX, UINT32_MAX, &pNotifiedValue, timeout, pdTRUE);
+    OS_WaitForNotificationIndexed(2u, &pNotifiedValue, timeout);
+
+    /* Test function with Notification false */
+    xTaskGenericNotifyWait_ExpectAndReturn(2u, UINT32_MAX, UINT32_MAX, &pNotifiedValue, timeout, pdFALSE);
+    OS_WaitForNotificationIndexed(2u, &pNotifiedValue, timeout);
+}
+
+void testOS_NotifyIndexedFromIsr(void) {
+    TaskHandle_t taskToNotify = NULL;
+    uint32_t notifiedValue    = 0u;
+    TEST_ASSERT_FAIL_ASSERT(OS_NotifyIndexedFromIsr(NULL_PTR, 2u, notifiedValue));
+
+    /* Test function with Notification true */
+    BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+    xTaskGenericNotifyFromISR_ExpectAndReturn(
+        taskToNotify, 2u, notifiedValue, eSetValueWithOverwrite, NULL, &xHigherPriorityTaskWoken, pdTRUE);
+    OS_NotifyIndexedFromIsr(taskToNotify, 2u, notifiedValue);
+
+    /* Test function with Notification false */
+    xTaskGenericNotifyFromISR_ExpectAndReturn(
+        taskToNotify, 2u, notifiedValue, eSetValueWithOverwrite, NULL, &xHigherPriorityTaskWoken, pdFALSE);
+    OS_NotifyIndexedFromIsr(taskToNotify, 2u, notifiedValue);
+}
+
+void testOS_ClearNotificationIndexed(void) {
+    uint32_t indexToClear = 0u;
+    /* Test function with Notification true */
+    xTaskGenericNotifyStateClear_ExpectAndReturn(NULL, indexToClear, pdTRUE);
+    OS_ClearNotificationIndexed(indexToClear);
+
+    /* Test function with Notification false */
+    xTaskGenericNotifyStateClear_ExpectAndReturn(NULL, indexToClear, pdFALSE);
+    OS_ClearNotificationIndexed(indexToClear);
+}
+
+void testOS_ReceiveFromQueue(void) {
+    uint32_t ticksToWait = 0u;
+    TEST_ASSERT_FAIL_ASSERT(OS_ReceiveFromQueue(ftsk_testQueue, NULL_PTR, ticksToWait));
+
+    /* Test function with Notification true */
+    xQueueReceive_ExpectAndReturn(ftsk_testQueue, (void *)0u, (TickType_t)ticksToWait, pdTRUE);
+    OS_ReceiveFromQueue(ftsk_testQueue, (void *)0u, ticksToWait);
+
+    /* Test function with Notification false */
+    xQueueReceive_ExpectAndReturn(ftsk_testQueue, (void *)0u, (TickType_t)ticksToWait, pdFALSE);
+    OS_ReceiveFromQueue(ftsk_testQueue, (void *)0u, ticksToWait);
 }
 
 /** test that #OS_MarkTaskAsRequiringFpuContext calls the relevant FreeRTOS function */
@@ -124,23 +305,90 @@ void testOS_GetNumberOfStoredMessagesInQueue(void) {
     TEST_ASSERT_EQUAL(5u, numberOfMessages);
 }
 
+void testOS_SuspendTask(void) {
+    TaskHandle_t taskToSuspend = ftsk_testtaskHandle;
+    vTaskSuspend_Expect(taskToSuspend);
+
+    OS_SuspendTask(taskToSuspend);
+}
+
+void testOS_ResumeTask(void) {
+    TaskHandle_t taskToResume = ftsk_testtaskHandle;
+    TEST_ASSERT_FAIL_ASSERT(OS_ResumeTask(taskToResume););
+
+    vTaskResume_Expect(taskToResume);
+
+    OS_ResumeTask(taskToResume);
+}
+
 void testOS_SendToBackOfQueueFromIsr(void) {
+    /* ======= Assertion tests ============================================= */
+    OS_QUEUE testQueue0 = {0};
+    TEST_ASSERT_FAIL_ASSERT(OS_SendToBackOfQueueFromIsr(testQueue0, NULL_PTR, 0u));
+
+    /* ======= Routine tests =============================================== */
     OS_QUEUE testQueue = {0};
     uint8_t dummyVar   = 1u;
+
+    TEST_ASSERT_FAIL_ASSERT(OS_SendToBackOfQueueFromIsr(testQueue, NULL_PTR, NULL_PTR));
+
     xQueueGenericSendFromISR_ExpectAndReturn(testQueue, (void *)&dummyVar, NULL_PTR, queueSEND_TO_BACK, pdTRUE);
     TEST_ASSERT_EQUAL(OS_SUCCESS, OS_SendToBackOfQueueFromIsr(testQueue, (void *)&dummyVar, NULL_PTR));
 
+    /* ======= RT1/2: Test implementation */
+    xQueueGenericSendFromISR_ExpectAndReturn(testQueue, (void *)&dummyVar, NULL_PTR, queueSEND_TO_BACK, pdTRUE);
+    /* ======= RT1/2: call function under test */
+    OS_STD_RETURN_e success = OS_SendToBackOfQueueFromIsr(testQueue, (void *)&dummyVar, NULL_PTR);
+    /* ======= RT1/2: test output verification */
+    TEST_ASSERT_EQUAL(OS_SUCCESS, success);
+
+    /* ======= RT2/2: Test implementation */
     xQueueGenericSendFromISR_ExpectAndReturn(testQueue, (void *)&dummyVar, NULL_PTR, queueSEND_TO_BACK, pdFAIL);
-    TEST_ASSERT_EQUAL(OS_FAIL, OS_SendToBackOfQueueFromIsr(testQueue, (void *)&dummyVar, NULL_PTR));
+    /* ======= RT2/2: call function under test */
+    OS_STD_RETURN_e failure = OS_SendToBackOfQueueFromIsr(testQueue, (void *)&dummyVar, NULL_PTR);
+    /* ======= RT2/2: test output verification */
+    TEST_ASSERT_EQUAL(OS_FAIL, failure);
 }
 
 void testOS_SendToBackOfQueue(void) {
+    /* ======= Assertion tests ============================================= */
+    OS_QUEUE testQueue0 = {0};
+    TEST_ASSERT_FAIL_ASSERT(OS_SendToBackOfQueue(testQueue0, NULL_PTR, 0u));
+
+    /* ======= Routine tests =============================================== */
     OS_QUEUE testQueue   = {0};
-    uint8_t dummyVar     = 1u;
     uint32_t ticksToWait = 1u;
+
+    uint8_t dummyVar = 1u;
+    TEST_ASSERT_FAIL_ASSERT(OS_SendToBackOfQueue(testQueue, NULL_PTR, ticksToWait));
+
     xQueueGenericSend_ExpectAndReturn(testQueue, (void *)&dummyVar, ticksToWait, queueSEND_TO_BACK, pdTRUE);
     TEST_ASSERT_EQUAL(OS_SUCCESS, OS_SendToBackOfQueue(testQueue, (void *)&dummyVar, ticksToWait));
 
+    /* ======= RT1/2: Test implementation */
+    xQueueGenericSend_ExpectAndReturn(testQueue, (void *)&dummyVar, ticksToWait, queueSEND_TO_BACK, pdTRUE);
+
+    /* ======= RT1/2: call function under test */
+    OS_STD_RETURN_e success = OS_SendToBackOfQueue(testQueue, (void *)&dummyVar, ticksToWait);
+
+    /* ======= RT1/2: test output verification */
+    TEST_ASSERT_EQUAL(OS_SUCCESS, success);
+
+    /* ======= RT2/2: Test implementation */
     xQueueGenericSend_ExpectAndReturn(testQueue, (void *)&dummyVar, ticksToWait, queueSEND_TO_BACK, errQUEUE_FULL);
-    TEST_ASSERT_EQUAL(OS_FAIL, OS_SendToBackOfQueue(testQueue, (void *)&dummyVar, ticksToWait));
+
+    /* ======= RT2/2: call function under test */
+    OS_STD_RETURN_e failure = OS_SendToBackOfQueue(testQueue, (void *)&dummyVar, ticksToWait);
+
+    /* ======= RT2/2: test output verification */
+    TEST_ASSERT_EQUAL(OS_FAIL, failure);
+}
+
+void testOS_TaskNotifyGiveFromISR(void) {
+    TaskHandle_t taskToNotify           = ftsk_testtaskHandle;
+    BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+    vTaskGenericNotifyGiveFromISR_Expect(ftsk_testtaskHandle, 0u, &xHigherPriorityTaskWoken);
+    OS_TaskNotifyGiveFromISR(taskToNotify, &xHigherPriorityTaskWoken);
+
+    TEST_ASSERT_EQUAL(xHigherPriorityTaskWoken, pdFALSE);
 }

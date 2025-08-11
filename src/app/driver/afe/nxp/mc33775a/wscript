@@ -37,49 +37,42 @@
 # - "This product includes parts of foxBMS®"
 # - "This product is derived from foxBMS®"
 
-"""TODO"""
-
-import binascii
-import os
-
-from waflib.Utils import unversioned_sys_platform
+"""Build the MC33775A-1-based 'AFE'-driver."""
 
 
 def build(bld):
-    """builds the AFE driver library for NXP MC33775A"""
+    """Build the MC33775A-1-based 'AFE'-driver."""
+    bld.recurse("vendor")
+    bld.recurse("../common/mc3377x")
     source = [
-        os.path.join("..", "api", "nxp_afe.c"),
-        os.path.join("api", "nxp_mc33775a_afe.c"),
-        os.path.join("nxp_afe_dma.c"),
-        os.path.join("nxp_mc33775a.c"),
-        os.path.join("nxp_mc33775a_balancing.c"),
-        os.path.join("nxp_mc33775a_database.c"),
-        os.path.join("nxp_mc33775a_i2c.c"),
-        os.path.join("nxp_mc33775a_mux.c"),
-        os.path.join("nxp_mc33775a-ll.c"),
-        os.path.join("config", "nxp_mc33775a_cfg.c"),
-        os.path.join("vendor", "uc_msg_t.c"),
+        "../api/nxp_afe.c",
+        "api/nxp_mc33775a_afe.c",
+        "config/nxp_mc33775a_cfg.c",
+        "nxp_mc33775a_balancing.c",
+        "nxp_mc33775a_i2c.c",
+        "nxp_mc33775a_measurement.c",
     ]
     includes = [
-        os.path.join("..", "..", "..", "config"),
-        os.path.join("..", "..", "..", "dma"),
-        os.path.join("..", "..", "..", "foxmath"),
-        os.path.join("..", "..", "..", "io"),
-        os.path.join("..", "..", "..", "mcu"),
-        os.path.join("..", "..", "..", "pex"),
-        os.path.join("..", "..", "..", "rtc"),
-        os.path.join("..", "..", "..", "spi"),
-        os.path.join("..", "..", "..", "ts"),
-        os.path.join("..", "..", "..", "ts", "api"),
-        os.path.join("..", "..", "..", "..", "application", "config"),
-        os.path.join("..", "..", "..", "..", "engine", "config"),
-        os.path.join("..", "..", "..", "..", "engine", "database"),
-        os.path.join("..", "..", "..", "..", "engine", "diag"),
-        os.path.join("..", "..", "..", "..", "main", "include"),
-        os.path.join("..", "..", "..", "..", "task", "config"),
-        os.path.join("..", "..", "..", "..", "task", "config"),
-        os.path.join("..", "..", "..", "..", "task", "ftask"),
-        os.path.join("..", "..", "..", "..", "task", "os"),
+        "../common/mc3377x/vendor",
+        "../../../config",
+        "../../../dma",
+        "../../../foxmath",
+        "../../../io",
+        "../../../mcu",
+        "../../../pex",
+        "../../../rtc",
+        "../../../spi",
+        "../../../ts",
+        "../../../ts/api",
+        "../../../../application/config",
+        "../../../../engine/config",
+        "../../../../engine/database",
+        "../../../../engine/diag",
+        "../../../../main/include",
+        "../../../../task/config",
+        "../../../../task/config",
+        "../../../../task/ftask",
+        "../../../../task/os",
     ]
     includes.extend(bld.env.INCLUDES_AFE)
     includes.extend(bld.env.INCLUDES_RTOS)
@@ -88,18 +81,11 @@ def build(bld):
     bld.stlib(
         source=source,
         includes=includes,
-        use=f"{bld.env.APPNAME.lower()}-nxp-afe",
+        use=[
+            f"{bld.env.APPNAME.lower()}-nxp-afe",
+            f"{bld.env.APPNAME.lower()}-afe-driver-nxp-mc3377x-common",
+            f"{bld.env.APPNAME.lower()}-afe-driver-nxp-mc3377x-common-vendor",
+        ],
         cflags=cflags,
         target=target,
     )
-
-    hashes = bld.path.find_node("nxp_mc33775a-ll_vendor-hashes.json").read_json()
-    for i in hashes:
-        node = bld.path.find_node(i["path"])
-        node_hash = node.h_file()
-        if not node_hash == binascii.a2b_hex(i["hash"][unversioned_sys_platform()]):
-            bld.fatal(
-                "File hash of vendored file does not match "
-                f"('{node}' should return {i['hash'][unversioned_sys_platform()]} "
-                f"but returned {node_hash}."
-            )

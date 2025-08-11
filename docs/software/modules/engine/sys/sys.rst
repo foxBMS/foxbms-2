@@ -35,16 +35,12 @@ Detailed Description
 After all initialization steps are successfully run, the system driver is
 in initialization operation mode.
 
-The top level state diagram of the system state machine is shown in
-:numref:`sys-state-machine-diagram-top-view`.
+The state machine is shown in :numref:`state-machine-system-module`.
 
-The detailed state diagram of the system state machine is shown in
-:numref:`sys-state-machine-diagram-detailed`.
+.. drawio-figure:: sys_state-machine.drawio
+   :format: svg
+   :alt: State machine of the System Module
+   :name: state-machine-system-module
+   :width: 512px
 
-.. graphviz:: sys_state-machine-top-view.dot
-    :caption: Top level view of the system state machine
-    :name: sys-state-machine-diagram-top-view
-
-.. graphviz:: sys_state-machine-detailed.dot
-    :caption: Detailed view of the system state machine
-    :name: sys-state-machine-diagram-detailed
+   State machine of the System Module

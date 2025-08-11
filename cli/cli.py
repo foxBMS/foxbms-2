@@ -52,6 +52,7 @@ from .commands.c_ci import ci
 from .commands.c_cli_unittest import cli_unittest
 from .commands.c_embedded_ut import ceedling
 from .commands.c_etl import etl
+from .commands.c_gui import gui
 from .commands.c_ide import ide
 from .commands.c_install import install
 from .commands.c_log import log
@@ -62,7 +63,7 @@ from .commands.c_release import release
 from .commands.c_run_program import run_program
 from .commands.c_run_script import run_script
 from .foxbms_version import __version__
-from .helpers.click_helpers import HELP_NAMES
+from .helpers.click_helpers import HELP_NAMES, echo
 from .helpers.misc import (
     create_pre_commit_file,
     ignore_third_party_logging,
@@ -103,9 +104,9 @@ def main(ctx: click.Context, show_config: bool) -> None:
         config = get_program_config()
         padding = max(len(x) for x in config)
         for key, value in config.items():
-            click.echo(f"{key}:{' ' * (padding - len(key))} {value}")
+            echo(f"{key}:{' ' * (padding - len(key))} {value}")
     elif not ctx.invoked_subcommand:
-        click.echo(main.get_help(ctx))
+        echo(main.get_help(ctx))
 
 
 main.add_command(axivion)
@@ -115,6 +116,7 @@ main.add_command(ceedling)
 main.add_command(ci)
 main.add_command(cli_unittest)
 main.add_command(etl)
+main.add_command(gui)
 main.add_command(ide)
 main.add_command(install)
 main.add_command(log)

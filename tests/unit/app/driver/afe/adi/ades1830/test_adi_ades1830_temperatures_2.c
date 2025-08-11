@@ -43,8 +43,8 @@
  * @file    test_adi_ades1830_temperatures_2.c
  * @author  foxBMS Team
  * @date    2024-01-30 (date of creation)
- * @updated 2025-03-31 (date of last update)
- * @version v1.9.0
+ * @updated 2025-08-07 (date of last update)
+ * @version v1.10.0
  * @ingroup UNIT_TEST_IMPLEMENTATION
  * @prefix  TEST
  *

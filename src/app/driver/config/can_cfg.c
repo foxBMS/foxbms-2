@@ -43,8 +43,8 @@
  * @file    can_cfg.c
  * @author  foxBMS Team
  * @date    2019-12-04 (date of creation)
- * @updated 2025-03-31 (date of last update)
- * @version v1.9.0
+ * @updated 2025-08-07 (date of last update)
+ * @version v1.10.0
  * @ingroup DRIVERS_CONFIGURATION
  * @prefix  CAN
  *
@@ -95,6 +95,7 @@ static DATA_BLOCK_SOH_s can_tableSoh                            = {.header.uniqu
 static DATA_BLOCK_STATE_REQUEST_s can_tableStateRequest         = {.header.uniqueId = DATA_BLOCK_ID_STATE_REQUEST};
 static DATA_BLOCK_AEROSOL_SENSOR_s can_tableAerosolSensor       = {.header.uniqueId = DATA_BLOCK_ID_AEROSOL_SENSOR};
 static DATA_BLOCK_BALANCING_CONTROL_s can_tableBalancingControl = {.header.uniqueId = DATA_BLOCK_ID_BALANCING_CONTROL};
+static DATA_BLOCK_PHY_s can_tablePhy                            = {.header.uniqueId = DATA_BLOCK_ID_PHY};
 /**@}*/
 
 const CAN_SHIM_s can_kShim = {
@@ -117,6 +118,7 @@ const CAN_SHIM_s can_kShim = {
     .pTableStateRequest     = &can_tableStateRequest,
     .pTableAerosolSensor    = &can_tableAerosolSensor,
     .pTableBalancingControl = &can_tableBalancingControl,
+    .pTablePhy              = &can_tablePhy,
 };
 
 /*========== Static Function Prototypes =====================================*/
